@@ -34,8 +34,8 @@
 #include "qmime.h"
 
 #ifdef Q_WS_MAC
-QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent, const char* name);
-QColor macGetColor(const QColor& initial, QWidget *parent, const char *name);
+QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent);
+QColor macGetColor(const QColor& initial, QWidget *parent);
 #endif
 
 //////////// QWellArray BEGIN
@@ -1433,11 +1433,10 @@ void QColorDialogPrivate::addCustom()
     \sa getColor()
 */
 
-QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
+QColorDialog::QColorDialog(QWidget* parent, bool modal) :
     QDialog(parent, (Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_Title |
                      Qt::WStyle_DialogBorder | Qt::WStyle_SysMenu))
 {
-    setObjectName(name);
     setModal(modal);
     setSizeGripEnabled(false);
     d = new QColorDialogPrivate(this);
@@ -1467,14 +1466,13 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
     before this function returns.
 */
 
-QColor QColorDialog::getColor(const QColor& initial, QWidget *parent,
-                               const char *name)
+QColor QColorDialog::getColor(const QColor& initial, QWidget *parent)
 {
 #if defined(Q_WS_MAC)
-    return macGetColor(initial, parent, name);
+    return macGetColor(initial, parent);
 #endif
 
-    QColorDialog *dlg = new QColorDialog(parent, name, true);  //modal
+    QColorDialog *dlg = new QColorDialog(parent, true);  //modal
     dlg->setWindowTitle(QColorDialog::tr("Select color"));
     dlg->setColor(initial);
     dlg->selectColor(initial);
@@ -1499,14 +1497,13 @@ QColor QColorDialog::getColor(const QColor& initial, QWidget *parent,
     If the user clicks Cancel, the \a initial value is returned.
 */
 
-QRgb QColorDialog::getRgba(QRgb initial, bool *ok,
-                            QWidget *parent, const char* name)
+QRgb QColorDialog::getRgba(QRgb initial, bool *ok, QWidget *parent)
 {
 #if defined(Q_WS_MAC)
-    return macGetRgba(initial, ok, parent, name);
+    return macGetRgba(initial, ok, parent);
 #endif
 
-    QColorDialog *dlg = new QColorDialog(parent, name, true);  //modal
+    QColorDialog *dlg = new QColorDialog(parent, true);  //modal
 
     dlg->setWindowTitle(QColorDialog::tr("Select color"));
     dlg->setColor(initial);

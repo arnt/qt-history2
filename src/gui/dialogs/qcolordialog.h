@@ -25,18 +25,24 @@ class Q_GUI_EXPORT QColorDialog : public QDialog
     Q_OBJECT
 
 public:
-    static QColor getColor(const QColor& init = Qt::white, QWidget* parent=0, const char* name=0);
-    static QRgb getRgba(QRgb, bool* ok = 0,
-                         QWidget* parent=0, const char* name=0);
+    static QColor getColor(const QColor& init = Qt::white, QWidget* parent=0);
+    static QRgb getRgba(QRgb, bool* ok = 0, QWidget* parent=0);
 
     static int customCount();
     static QRgb customColor(int);
     static void setCustomColor(int, QRgb);
     static void setStandardColor(int, QRgb);
 
+#ifdef QT_COMPAT
+    static QColor getColor(const QColor& init, QWidget* parent, const char* name)
+        { Q_UNUSED(name); return getColor(init, parent); }
+    static QRgb getRgba(QRgb rgba, bool* ok, QWidget* parent, const char* name)
+        { Q_UNUSED(name); return getRgba(rgba, ok, parent); }
+#endif
+
 private:
     ~QColorDialog();
-    QColorDialog(QWidget* parent=0, const char* name=0, bool modal=false);
+    QColorDialog(QWidget* parent=0, bool modal=false);
 
     void setColor(const QColor&);
     QColor color() const;

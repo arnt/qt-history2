@@ -29,6 +29,8 @@ public:
                              QPrinter *printer, QWidget *parent = 0);
 
     virtual int exec() = 0;
+
+    QPrinter *printer();
 };
 
 #endif // QABSTRACTPAGESETUPDIALOG_H

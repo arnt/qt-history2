@@ -20,7 +20,7 @@
 
 extern void qt_mac_to_pascal_string(QString s, Str255 str, TextEncoding encoding=0, int len=-1);  //qglobal.cpp
 
-QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent, const char*)
+QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent)
 {
     Point p = { -1, -1 };
     Str255 title;
@@ -103,10 +103,10 @@ QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent, const char*)
     return initial;
 }
 
-QColor macGetColor(const QColor& initial, QWidget *parent, const char *name)
+QColor macGetColor(const QColor& initial, QWidget *parent)
 {
     bool ok;
-    QRgb rgb = macGetRgba(initial.rgb(), &ok, parent, name);
+    QRgb rgb = macGetRgba(initial.rgb(), &ok, parent);
 
     QColor ret;
     if(ok)

@@ -29,3 +29,8 @@ QAbstractPageSetupDialog::QAbstractPageSetupDialog(QAbstractPageSetupDialogPriva
 {
     d->printer = printer;
 }
+
+QPrinter *QAbstractPageSetupDialog::printer()
+{
+    return d->printer;
+}

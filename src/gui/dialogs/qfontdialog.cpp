@@ -199,11 +199,9 @@ public:
   \sa getFont()
 */
 
-QFontDialog::QFontDialog(QWidget *parent, const char *name,
-                          bool modal, Qt::WFlags f)
+QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     : QDialog(parent, f)
 {
-    setObjectName(name);
     setModal(modal);
     setSizeGripEnabled(true);
     d = new QFontDialogPrivate;
@@ -401,9 +399,9 @@ QFontDialog::~QFontDialog()
   used, and if they click Cancel the original font is used.
 */
 QFont QFontDialog::getFont(bool *ok, const QFont &initial,
-                            QWidget *parent, const char* name)
+                            QWidget *parent)
 {
-    return getFont(ok, &initial, parent, name);
+    return getFont(ok, &initial, parent);
 }
 
 /*!
@@ -434,19 +432,18 @@ QFont QFontDialog::getFont(bool *ok, const QFont &initial,
   \endcode
 
 */
-QFont QFontDialog::getFont(bool *ok, QWidget *parent,const char* name)
+QFont QFontDialog::getFont(bool *ok, QWidget *parent)
 {
-    return getFont(ok, 0, parent, name);
+    return getFont(ok, 0, parent);
 }
 
-QFont QFontDialog::getFont(bool *ok, const QFont *def,
-                            QWidget *parent, const char* name)
+QFont QFontDialog::getFont(bool *ok, const QFont *def, QWidget *parent)
 {
     QFont result;
     if (def)
         result = *def;
 
-    QFontDialog *dlg = new QFontDialog(parent, name, true);
+    QFontDialog *dlg = new QFontDialog(parent, true);
 
     dlg->setFont((def ? *def : QFont()));
 #ifndef QT_NO_WIDGET_TOPEXTRA

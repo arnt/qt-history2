@@ -18,16 +18,6 @@
 
 #ifndef QT_NO_FONTDIALOG
 
-//
-//  W A R N I N G
-//  -------------
-//
-//  This class is under development and has private constructors.
-//
-//  You may use the public static getFont() functions which are guaranteed
-//  to be available in the future.
-//
-
 #include "qdialog.h"
 #include "qfont.h"
 
@@ -38,16 +28,20 @@ class Q_GUI_EXPORT QFontDialog: public QDialog
     Q_OBJECT
 
 public:
-    static QFont getFont(bool *ok, const QFont &def,
-                          QWidget* parent=0, const char* name=0);
-    static QFont getFont(bool *ok, QWidget* parent=0, const char* name=0);
+    static QFont getFont(bool *ok, const QFont &def, QWidget* parent=0);
+    static QFont getFont(bool *ok, QWidget* parent=0);
+
+#ifdef QT_COMPAT
+    static QFont getFont(bool *ok, const QFont &def, QWidget* parent, const char* name)
+        { Q_UNUSED(name); return getFont(ok, def, parent); }
+    static QFont getFont(bool *ok, QWidget* parent, const char* name)
+        { Q_UNUSED(name); return getFont(ok, parent); }
+#endif
 
 private:
-    static QFont getFont(bool *ok, const QFont *def,
-                          QWidget* parent=0, const char* name=0);
+    static QFont getFont(bool *ok, const QFont *def, QWidget* parent=0);
 
-    QFontDialog(QWidget* parent=0, const char* name=0, bool modal=false,
-                 Qt::WFlags f=0);
+    QFontDialog(QWidget* parent=0, bool modal=false, Qt::WFlags f=0);
     ~QFontDialog();
 
     QFont font() const;

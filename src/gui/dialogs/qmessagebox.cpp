@@ -811,9 +811,9 @@ QPixmap QMessageBox::standardIcon(Icon icon)
     \sa icon
 */
 
-const QPixmap *QMessageBox::iconPixmap() const
+QPixmap QMessageBox::iconPixmap() const
 {
-    return mbd->iconLabel.pixmap();
+    return *mbd->iconLabel.pixmap();
 }
 
 

@@ -31,8 +31,13 @@ class Q_GUI_EXPORT QMessageBox : public QDialog
     Q_PROPERTY(Qt::TextFormat textFormat READ textFormat WRITE setTextFormat)
 
 public:
-    enum Icon { NoIcon = 0, Information = 1, Warning = 2, Critical = 3,
-                Question = 4 };
+    enum Icon {
+        NoIcon = 0,
+        Information = 1,
+        Warning = 2,
+        Critical = 3,
+        Question = 4
+    };
 
     QMessageBox(QWidget *parent = 0);
     QMessageBox(const QString &caption, const QString &text, Icon icon,
@@ -43,6 +48,18 @@ public:
     enum { NoButton = 0, Ok = 1, Cancel = 2, Yes = 3, No = 4, Abort = 5,
            Retry = 6, Ignore = 7, YesAll = 8, NoAll = 9, ButtonMask = 0xff,
            Default = 0x100, Escape = 0x200, FlagMask = 0x300 };
+
+    QString text() const;
+    void setText(const QString &);
+
+    Icon icon() const;
+    void setIcon(Icon);
+
+    QPixmap iconPixmap() const;
+    void setIconPixmap(const QPixmap &);
+
+    QString buttonText(int button) const;
+    void setButtonText(int button, const QString &);
 
     static int information(QWidget *parent, const QString &caption,
                             const QString& text,
@@ -94,19 +111,6 @@ public:
     static void aboutQt(QWidget *parent,
                          const QString& caption=QString());
 
-    QString        text() const;
-    void        setText(const QString &);
-
-    Icon        icon() const;
-
-    void        setIcon(Icon);
-
-    const QPixmap *iconPixmap() const;
-    void        setIconPixmap(const QPixmap &);
-
-    QString        buttonText(int button) const;
-    void        setButtonText(int button, const QString &);
-
     QSize sizeHint() const;
 
 #ifdef QT_COMPAT
@@ -115,21 +119,21 @@ public:
                                       QWidget *parent, const char *name, bool modal,
                                       Qt::WFlags f = Qt::WStyle_DialogBorder);
     QT_COMPAT_CONSTRUCTOR QMessageBox(QWidget *parent, const char *name);
-/* Obsolete Functions */
-    static QPixmap standardIcon(Icon icon, Qt::GUIStyle);
-    static int message(const QString &caption,
-                        const QString& text,
-                        const QString& buttonText=QString(),
-                        QWidget *parent=0, const char * =0) {
+
+    static QT_COMPAT QPixmap standardIcon(Icon icon, Qt::GUIStyle);
+    static QT_COMPAT int message(const QString &caption,
+                                 const QString& text,
+                                 const QString& buttonText=QString(),
+                                 QWidget *parent=0, const char * =0) {
         return QMessageBox::information(parent, caption, text,
-                                     buttonText.isEmpty()
+                                        buttonText.isEmpty()
                                      ? tr("OK") : buttonText) == 0;
     }
-    static bool query(const QString &caption,
-                       const QString& text,
-                       const QString& yesButtonText=QString(),
-                       const QString& noButtonText=QString(),
-                       QWidget *parent=0, const char * = 0) {
+    static QT_COMPAT bool query(const QString &caption,
+                                const QString& text,
+                                const QString& yesButtonText=QString(),
+                                const QString& noButtonText=QString(),
+                                QWidget *parent=0, const char * = 0) {
         return QMessageBox::information(parent, caption, text,
                                      yesButtonText.isEmpty()
                                      ? tr("OK") : yesButtonText,
@@ -140,7 +144,7 @@ public:
     static QPixmap standardIcon(Icon icon);
 
     Qt::TextFormat textFormat() const;
-    void         setTextFormat(Qt::TextFormat);
+    void setTextFormat(Qt::TextFormat);
 
 protected:
     void        resizeEvent(QResizeEvent *);
