@@ -123,6 +123,8 @@ public:
 
     bool isModified() const;
 
+    void print(QPrinter *printer) const;
+
 signals:
     void contentsChanged();
     void undoAvailable(bool);

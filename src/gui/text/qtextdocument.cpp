@@ -22,6 +22,8 @@
 #include <qvarlengtharray.h>
 #include <qtextcodec.h>
 #include "qtexthtmlparser_p.h"
+#include "qprinter.h"
+#include "qpaintdevicemetrics.h"
 
 #include "qtextdocument_p.h"
 
@@ -694,6 +696,53 @@ bool QTextDocument::isModified() const
 void QTextDocument::setModified(bool m)
 {
     docHandle()->setModified(m);
+}
+
+void QTextDocument::print(QPrinter *printer) const
+{
+    QPainter p(printer);
+
+    // Check that there is a valid device to print to.
+    if (!p.device()) return;
+
+    QPaintDeviceMetrics metrics(p.device());
+    const int dpiy = metrics.logicalDpiY();
+    const int margin = (int) ((2/2.54)*dpiy); // 2 cm margins
+    QRect body(margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin);
+
+    QTextDocument doc;
+    QTextCursor(&doc).insertFragment(QTextDocumentFragment(this));
+
+    QAbstractTextDocumentLayout *layout = doc.documentLayout();
+    QFont font(documentLayout()->defaultFont());
+    font.setPointSize(10); // we define 10pt to be a nice base size for printing
+    layout->setDefaultFont(font);
+    layout->setPageSize(QSize(body.width(), INT_MAX));
+
+    QRect view(0, 0, body.width(), body.height());
+    p.translate(body.left(), body.top());
+
+    int page = 1;
+    do {
+        QAbstractTextDocumentLayout::PaintContext ctx;
+// ######        ctx.palette = palette();
+        p.setClipRect(view);
+        layout->draw(&p, ctx);
+
+        p.setClipping(false);
+        p.setFont(font);
+        p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
+                view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page));
+
+        view.translate(0, body.height());
+        p.translate(0 , -body.height());
+
+        if (view.top() >= layout->sizeUsed().height())
+            break;
+
+        printer->newPage();
+        page++;
+    } while (true);
 }
 
 class QTextHtmlExporter

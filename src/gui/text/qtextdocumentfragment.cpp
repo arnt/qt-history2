@@ -242,13 +242,13 @@ QTextDocumentFragment::QTextDocumentFragment()
 /*!
     Converts the given \a document into a QTextDocumentFragment.
 */
-QTextDocumentFragment::QTextDocumentFragment(QTextDocument *document)
+QTextDocumentFragment::QTextDocumentFragment(const QTextDocument *document)
     : d(0)
 {
     if (!document)
         return;
 
-    QTextCursor cursor(document);
+    QTextCursor cursor(const_cast<QTextDocument *>(document));
     cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     d = new QTextDocumentFragmentPrivate(cursor);
 }
