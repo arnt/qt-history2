@@ -85,14 +85,14 @@ void GameBoard::fire()
 {
     if ( cannonField->gameOver() || cannonField->isShooting() )
 	return;
-    shotsLeft->display( shotsLeft->longValue() - 1 );
+    shotsLeft->display( shotsLeft->intValue() - 1 );
     cannonField->shoot();
 }
 
 void GameBoard::hit()
 {
-    hits->display( hits->longValue() + 1 );
-    if ( shotsLeft->longValue() == 0 )
+    hits->display( hits->intValue() + 1 );
+    if ( shotsLeft->intValue() == 0 )
 	cannonField->setGameOver();
     else
 	cannonField->newTarget();
@@ -100,7 +100,7 @@ void GameBoard::hit()
 
 void GameBoard::missed()
 {
-    if ( shotsLeft->longValue() == 0 )
+    if ( shotsLeft->intValue() == 0 )
 	cannonField->setGameOver();
 }
 
