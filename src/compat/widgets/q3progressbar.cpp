@@ -77,7 +77,6 @@ Q3ProgressBar::Q3ProgressBar(QWidget *parent, const char *name, Qt::WFlags f)
       progress_val(-1),
       percentage(-1),
       center_indicator(true),
-      auto_indicator(true),
       percentage_visible(true),
       d(0)
 {
@@ -108,7 +107,6 @@ Q3ProgressBar::Q3ProgressBar(int totalSteps, QWidget *parent, const char *name, 
       progress_val(-1),
       percentage(-1),
       center_indicator(true),
-      auto_indicator(true),
       percentage_visible(true),
       d(0)
 {
@@ -135,7 +133,6 @@ Q3ProgressBar::Q3ProgressBar(QWidget *parent, Qt::WFlags f)
       progress_val(-1),
       percentage(-1),
       center_indicator(true),
-      auto_indicator(true),
       percentage_visible(true),
       d(0)
 {
@@ -165,7 +162,6 @@ Q3ProgressBar::Q3ProgressBar(int totalSteps, QWidget *parent, Qt::WFlags f)
       progress_val(-1),
       percentage(-1),
       center_indicator(true),
-      auto_indicator(true),
       percentage_visible(true),
       d(0)
 {
@@ -307,27 +303,9 @@ QSize Q3ProgressBar::minimumSizeHint() const
 
 void Q3ProgressBar::setCenterIndicator(bool on)
 {
-    if (!auto_indicator && on == center_indicator)
+    if (on == center_indicator)
         return;
-    auto_indicator = false;
     center_indicator = on;
-    repaint();
-}
-
-/*!
-    \property Q3ProgressBar::indicatorFollowsStyle
-    \brief whether the display of the indicator string should follow the GUI style
-
-    The default is true.
-
-    \sa centerIndicator
-*/
-
-void Q3ProgressBar::setIndicatorFollowsStyle(bool on)
-{
-    if (on == auto_indicator)
-        return;
-    auto_indicator = on;
     repaint();
 }
 

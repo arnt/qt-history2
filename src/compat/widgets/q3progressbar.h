@@ -27,7 +27,6 @@ class Q_GUI_EXPORT Q3ProgressBar : public QFrame
     Q_PROPERTY(int progress READ progress WRITE setProgress)
     Q_PROPERTY(QString progressString READ progressString)
     Q_PROPERTY(bool centerIndicator READ centerIndicator WRITE setCenterIndicator)
-    Q_PROPERTY(bool indicatorFollowsStyle READ indicatorFollowsStyle WRITE setIndicatorFollowsStyle)
     Q_PROPERTY(bool percentageVisible READ percentageVisible WRITE setPercentageVisible)
 
 public:
@@ -48,9 +47,6 @@ public:
 
     void setCenterIndicator(bool on);
     bool centerIndicator() const;
-
-    void setIndicatorFollowsStyle(bool);
-    bool indicatorFollowsStyle() const;
 
     bool percentageVisible() const;
     void setPercentageVisible(bool);
@@ -76,7 +72,6 @@ private:
     int percentage;
     QString progress_str;
     bool center_indicator : 1;
-    bool auto_indicator : 1;
     bool percentage_visible : 1;
     Q3ProgressBarPrivate *d;
     void initFrame();
@@ -101,11 +96,6 @@ inline const QString &Q3ProgressBar::progressString() const
 inline bool Q3ProgressBar::centerIndicator() const
 {
     return center_indicator;
-}
-
-inline bool Q3ProgressBar::indicatorFollowsStyle() const
-{
-    return auto_indicator;
 }
 
 inline bool Q3ProgressBar::percentageVisible() const
