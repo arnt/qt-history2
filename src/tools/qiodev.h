@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.h#1 $
+** $Id: //depot/qt/main/src/tools/qiodev.h#2 $
 **
 ** Definition of QIODevice class
 **
 ** Author  : Haavard Nord
 ** Created : 940913
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -66,19 +66,20 @@ public:
     int		 mode()	  const { return ioMode & IO_ModeMask; }
     int		 state()  const { return ioMode & IO_StateMask; }
 
-    bool	 isDirectAccess()     const { return ioMode & IO_Direct; }
-    bool	 isSequentialAccess() const { return ioMode & IO_Sequential; }
-    bool	 isCombinedAccess()   const { return ioMode & IO_Combined; }
-    bool	 isBuffered()	      const { return !(ioMode & IO_Raw); }
-    bool	 isRaw()	      const { return ioMode & IO_Raw; }
-    bool	 isSynchronous()      const { return !(ioMode & IO_Async); }
-    bool	 isAsynchronous()     const { return ioMode & IO_Async; }
-    bool	 isTranslated()	      const { return ioMode & IO_Translate; }
-    bool	 isReadable()	      const { return ioMode & IO_ReadOnly; }
-    bool	 isWritable()	      const { return ioMode & IO_WriteOnly; }
-    bool	 isReadWrite()	      const { return (ioMode & IO_ReadWrite) ==
-					             IO_ReadWrite; }
-
+#undef  TB
+#define TB(x) ((ioMode & (x)) == x)
+    bool	 isDirectAccess()     const { return TB(IO_Direct); }
+    bool	 isSequentialAccess() const { return TB(IO_Sequential); }
+    bool	 isCombinedAccess()   const { return TB(IO_Combined); }
+    bool	 isBuffered()	      const { return !TB(IO_Raw); }
+    bool	 isRaw()	      const { return TB(IO_Raw); }
+    bool	 isSynchronous()      const { return !TB(IO_Async); }
+    bool	 isAsynchronous()     const { return TB(IO_Async); }
+    bool	 isTranslated()	      const { return TB(IO_Translate); }
+    bool	 isReadable()	      const { return TB(IO_ReadOnly); }
+    bool	 isWritable()	      const { return TB(IO_WriteOnly); }
+    bool	 isReadWrite()	      const { return TB(IO_ReadWrite); }
+#undef  TB
     bool	 isInactive()	      const { return state() == 0; }
     bool	 isOpen()	      const { return state() == IO_Open; }
 
