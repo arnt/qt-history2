@@ -50,7 +50,6 @@
 class QSessionManager;
 class QStyle;
 class QTranslator;
-class QSettings;
 #if defined(Q_WS_QWS)
 class QWSDecoration;
 #endif
@@ -199,8 +198,6 @@ public:
     static void      addLibraryPath(const QString &);
     static void      removeLibraryPath(const QString &);
 
-    static QSettings *settings();
-
     static void setStartDragTime( int ms );
     static int startDragTime();
     static void setStartDragDistance( int l );
@@ -338,8 +335,6 @@ private:
     static QSize     app_strut;
 
     static QStringList *app_libpaths;
-
-    static QSettings *app_settings;
 
     static QAsciiDict<QPalette> *app_palettes;
     static QAsciiDict<QFont>    *app_fonts;

@@ -49,7 +49,6 @@
 #include "qsessionmanager.h"
 #include "qcursor.h"
 #include "qstylefactory.h"
-#include "qsettings.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #include "qthread.h"
@@ -283,7 +282,6 @@ bool	  QApplication::animate_combo	= FALSE;
 bool	  QApplication::animate_tooltip	= FALSE;
 bool	  QApplication::fade_tooltip	= FALSE;
 QStringList *QApplication::app_libpaths = 0;
-QSettings *QApplication::app_settings = 0;
 
 
 void qt_setMaxWindowRect(const QRect& r)
@@ -1182,21 +1180,6 @@ void QApplication::removeLibraryPath(const QString &path)
     if (! app_libpaths->contains(path)) {
 	app_libpaths->remove(path);
     }
-}
-
-
-/*!
-  Returns a pointer to the application default settings.  The returned
-  pointer is guaranteed to be non-null.
-*/
-QSettings *QApplication::settings()
-{
-    if (! app_settings) {
-	app_settings = new QSettings;
-	Q_CHECK_PTR(app_settings);
-    }
-
-    return app_settings;
 }
 
 

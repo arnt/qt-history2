@@ -56,7 +56,6 @@
 #ifndef QT_NO_XFTFREETYPE
 #  include <qintdict.h>
 #  include <qpixmap.h>
-#  include <qapplication.h> // for settings
 #  include <qsettings.h>
 #  include <netinet/in.h>
 #endif // QT_NO_XFTFREETYPE
@@ -2458,8 +2457,9 @@ void QFont::initialize()
 #ifndef QT_NO_XFTFREETYPE
     qt_has_xft = FALSE;
 
+    QSettings settings;
     if (qt_use_xrender &&
-	qApp->settings()->readBoolEntry("/qt/useXft") &&
+	settings.readBoolEntry("/qt/useXft") &&
 	XftInit(0) && XftInitFtLibrary()) {
 	qt_has_xft = TRUE;
 	qt_xft_render_sources = new QPixmapDict();

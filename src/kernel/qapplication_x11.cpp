@@ -727,9 +727,10 @@ bool QApplication::x11_apply_settings()
 		XFree(data);
 	    }
 
+	    QSettings settings;
 	    QDataStream d(ts.buffer(), IO_ReadOnly);
 	    QDateTime timestamp, settingsstamp;
-	    settingsstamp = settings()->lastModficationTime("/qt/font");
+	    settingsstamp = settings.lastModficationTime("/qt/font");
 	    d >> timestamp;
 
 	    if (settingsstamp.isValid() &&
@@ -3176,10 +3177,6 @@ bool QApplication::processNextEvent( bool canWait )
 	for ( QVFuncList::Iterator it = qt_preselect_handler->begin(); it != end; ++it )
 	    (**it)();
     }
-
-    // Sync application settings if they have been modified
-    if (app_settings)
-	app_settings->sync();
 
 #if defined(Q_OS_WIN32)
 #define FDCAST (fd_set*)

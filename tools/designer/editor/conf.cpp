@@ -71,30 +71,31 @@ QMap<QString, ConfigStyle> Config::readStyles( const QString &path )
     };
 
     for ( int i = 0; elements[ i ] != QString::null; ++i ) {
+	QSettings settings;
 	bool ok = TRUE;
 	while ( 1 ) {
-	    family = QApplication::settings()->readEntry( path + elements[ i ] + "/family", QString::null, &ok );
+	    family = settings.readEntry( path + elements[ i ] + "/family", QString::null, &ok );
 	    if ( !ok )
 		break;
-	    size = QApplication::settings()->readNumEntry( path + elements[ i ] + "/size", 10, &ok );
-	    if ( !ok )
-		break;	
-	    bold = QApplication::settings()->readBoolEntry( path + elements[ i ] + "/bold", FALSE, &ok );
+	    size = settings.readNumEntry( path + elements[ i ] + "/size", 10, &ok );
 	    if ( !ok )
 		break;
-	    italic = QApplication::settings()->readBoolEntry( path + elements[ i ] + "/italic", FALSE, &ok );
+	    bold = settings.readBoolEntry( path + elements[ i ] + "/bold", FALSE, &ok );
 	    if ( !ok )
 		break;
-	    underline = QApplication::settings()->readBoolEntry( path + elements[ i ] + "/underline", FALSE, &ok );
+	    italic = settings.readBoolEntry( path + elements[ i ] + "/italic", FALSE, &ok );
 	    if ( !ok )
 		break;
-	    red = QApplication::settings()->readNumEntry( path + elements[ i ] + "/red", 0, &ok );
+	    underline = settings.readBoolEntry( path + elements[ i ] + "/underline", FALSE, &ok );
 	    if ( !ok )
 		break;
-	    green = QApplication::settings()->readNumEntry( path + elements[ i ] + "/green", 0, &ok );
+	    red = settings.readNumEntry( path + elements[ i ] + "/red", 0, &ok );
 	    if ( !ok )
 		break;
-	    blue = QApplication::settings()->readNumEntry( path + elements[ i ] + "/blue", 0, &ok );
+	    green = settings.readNumEntry( path + elements[ i ] + "/green", 0, &ok );
+	    if ( !ok )
+		break;
+	    blue = settings.readNumEntry( path + elements[ i ] + "/blue", 0, &ok );
 	    if ( !ok )
 		break;
 	    break;
@@ -130,47 +131,54 @@ void Config::saveStyles( const QMap<QString, ConfigStyle> &styles, const QString
 	QString::null
     };
 
+    QSettings settings;
     for ( int i = 0; elements[ i ] != QString::null; ++i ) {
-	QApplication::settings()->writeEntry( path + "/" + elements[ i ] + "/family", styles[ elements[ i ] ].font.family() );
-	QApplication::settings()->writeEntry( path + "/"  + elements[ i ] + "/size", styles[ elements[ i ] ].font.pointSize() );
-	QApplication::settings()->writeEntry( path + "/"  + elements[ i ] + "/bold", styles[ elements[ i ] ].font.bold() );
-	QApplication::settings()->writeEntry( path + "/"  + elements[ i ] + "/italic", styles[ elements[ i ] ].font.italic() );
-	QApplication::settings()->writeEntry( path + "/"  + elements[ i ] + "/underline", styles[ elements[ i ] ].font.underline() );
-	QApplication::settings()->writeEntry( path + "/"  + elements[ i ] + "/red", styles[ elements[ i ] ].color.red() );
-	QApplication::settings()->writeEntry( path + "/"  + elements[ i ] + "/green", styles[ elements[ i ] ].color.green() );
-	QApplication::settings()->writeEntry( path + "/"  + elements[ i ] + "/blue", styles[ elements[ i ] ].color.blue() );
+	settings.writeEntry( path + "/" + elements[ i ] + "/family", styles[ elements[ i ] ].font.family() );
+	settings.writeEntry( path + "/"  + elements[ i ] + "/size", styles[ elements[ i ] ].font.pointSize() );
+	settings.writeEntry( path + "/"  + elements[ i ] + "/bold", styles[ elements[ i ] ].font.bold() );
+	settings.writeEntry( path + "/"  + elements[ i ] + "/italic", styles[ elements[ i ] ].font.italic() );
+	settings.writeEntry( path + "/"  + elements[ i ] + "/underline", styles[ elements[ i ] ].font.underline() );
+	settings.writeEntry( path + "/"  + elements[ i ] + "/red", styles[ elements[ i ] ].color.red() );
+	settings.writeEntry( path + "/"  + elements[ i ] + "/green", styles[ elements[ i ] ].color.green() );
+	settings.writeEntry( path + "/"  + elements[ i ] + "/blue", styles[ elements[ i ] ].color.blue() );
     }
 }
 
 bool Config::completion( const QString &path )
 {
-    bool ret = QApplication::settings()->readBoolEntry( path + "/completion", TRUE );
+    QSettings settings;
+    bool ret = settings.readBoolEntry( path + "/completion", TRUE );
     return ret;
 }
 
 bool Config::wordWrap( const QString &path )
 {
-    bool ret = QApplication::settings()->readBoolEntry( path + "/wordWrap", TRUE );
+    QSettings settings;
+    bool ret = settings.readBoolEntry( path + "/wordWrap", TRUE );
     return ret;
 }
 
 bool Config::parenMatching( const QString &path )
 {
-    bool ret = QApplication::settings()->readBoolEntry( path + "/parenMatching", TRUE );
+    QSettings settings;
+    bool ret = settings.readBoolEntry( path + "/parenMatching", TRUE );
     return ret;
 }
 
 void Config::setCompletion( bool b, const QString &path )
 {
-    QApplication::settings()->writeEntry( path + "/completion", b );
+    QSettings settings;
+    settings.writeEntry( path + "/completion", b );
 }
 
 void Config::setWordWrap( bool b, const QString &path )
 {
-    QApplication::settings()->writeEntry( path + "/wordWrap", b );
+    QSettings settings;
+    settings.writeEntry( path + "/wordWrap", b );
 }
 
 void Config::setParenMatching( bool b,const QString &path )
 {
-    QApplication::settings()->writeEntry( path + "/parenMatching", b );
+    QSettings settings;
+    settings.writeEntry( path + "/parenMatching", b );
 }
