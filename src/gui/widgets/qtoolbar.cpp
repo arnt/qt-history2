@@ -252,7 +252,7 @@ void QToolBarPrivate::init()
     q->setFrameStyle(QFrame::ToolBarPanel | QFrame::Raised);
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
-    layout->setSpacing(2);
+    layout->setSpacing(q->style().pixelMetric(QStyle::PM_ToolBarItemSpacing, q));
     handle = new QToolBarHandle(q);
     extension = new QToolBarExtension(q);
     extension->hide();

@@ -2192,8 +2192,11 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
         break;
 
     case PM_MenuBarItemSpacing:
+        ret = 8;
+        break;
+
     case PM_ToolBarItemSpacing:
-        ret = 0;
+        ret = 4;
         break;
 
     case PM_TabBarTabOverlap:
