@@ -18,7 +18,7 @@ public:
     // try to position diacritics around it's base char in absence of any better way to determine
     // positioning (like open type tables)
     // needs a correct logClusters and glyphAttributes array.
-    static void heuristicPositionMarks( QScriptItem *item );
+    static void heuristicPosition( QScriptItem *item );
 
     // set the glyph attributes heuristically. Assumes a 1 to 1 relationship between chars ang glyphs
     // and no reordering (except for reversing if (bidiLevel % 2 ) )
@@ -28,7 +28,6 @@ public:
     // internal
     static void calculateAdvances( QScriptItem *item );
 
-    static void heuristicPosition( QScriptItem *item );
 };
 
 // arabic and related
