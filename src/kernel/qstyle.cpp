@@ -150,7 +150,7 @@ QStyle::~QStyle()
 
 
   Returns an indicator to the additional "feel" component of a
-  style. Current supported values are Windows and Motif.
+  style. Current supported values are Qt::WindowsStyle and Qt::MotifStyle.
 */
 
 
