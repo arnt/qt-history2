@@ -55,6 +55,9 @@ the minimized/maximized/fullscreen properties.
 Support for semi-transparent top-level widgets on Mac OS X and Windows
 2000/XP has also been added.
 
+A new example, qregexptester, has been added that makes it easy to
+test QRegExps on sample strings.
+
 Qt 3.3 includes in addition to this, numerous bug fixes and
 improvements. Special thanks goes to KDE for their reports and
 suggestions.
@@ -195,7 +198,6 @@ IRIX MIPSpro o32 mode.
 	Added a setDisabled() slot similar to QWidget::setDisabled.
 	Added an activate() slot which activates the action and
 	executes all connected slots.
-	Added showStatusMessage() and whatsThisClicked() signals.
 	QActions::menuText() escapes ampersand characters ('&') when
 	using the value of the text property.
 
@@ -274,6 +276,9 @@ IRIX MIPSpro o32 mode.
 	array of Unicode characters of type ushort (i.e. const
 	ushort*). Also added support for precision (e.g. "%.5s").
 	Changed arg() to support "%L1" for localized conversions.
+	Windows only: QString::local8Bit() now returns an empty
+	QCString when called on a null QString to unify behavior
+	with the other platforms.
 
 - QStyle
 	Add a new primitive element: PE_RubberBand.
