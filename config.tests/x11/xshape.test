@@ -2,7 +2,7 @@
 
 XSHAPE=yes
 XCONFIG=$1/qmake.conf
-VERBOSE=yes #$2
+VERBOSE=$2
 shift 2
 IN_LIBDIRS=
 IN_INCDIRS=
