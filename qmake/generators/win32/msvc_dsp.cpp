@@ -279,37 +279,54 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 //		endGroups(t);
 		t << "\n# End Group\n";
 	    } else if(variable == "MSVCDSP_MOCSOURCES" && project->isActiveConfig("moc")) {
-		if(project->variables()["SOURCES"].isEmpty())
-		    continue;
-
 		QString mocpath = var("QMAKE_MOC");
 		mocpath = mocpath.replace(QRegExp("\\..*$"), "") + " ";
+		QStringList list = project->variables()["SRCMOC"];
 
-		QStringList list = project->variables()["SOURCES"];
+		if(!list.isEmpty()) {
+		    if(!project->isActiveConfig("flat"))
+			list.sort();
+		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+			if ((*it).endsWith(Option::cpp_moc_ext))
+			    continue;
+
+			t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
+			t << "# End Source File" << endl;
+		    }
+		}
+
+		list = project->variables()["SOURCES"];
+		if(list.isEmpty())
+		    continue;
+
 		if(!project->isActiveConfig("flat"))
 		    list.sort();
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    if(!QMakeSourceFileInfo::mocable(*it))
 			continue;
-//		    beginGroupForFile((*it), t);
-		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-		    QString base = (*it);
-		    base.replace(QRegExp("\\..*$"), "").toUpper();
-		    base.replace(QRegExp("[^a-zA-Z]"), "_");
+		    QString mocSource = *it;
+		    QString mocTarget = QMakeSourceFileInfo::mocFile(*it);
 
-		    QString mocFile = QMakeSourceFileInfo::mocFile((*it));
-		    QString build = "\n\n# Begin Custom Build - Moc'ing " + mocFile +
-				    "...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
-				    " : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
-				    "\t" + mocpath + mocFile + " -o " +
-				    (*it) + "\n\n" "# End Custom Build\n\n";
+		    if (mocTarget.endsWith(Option::cpp_moc_ext)) {
+//			beginGroupForFile((*it), t);
+			t << "# Begin Source File\n\nSOURCE=" << mocTarget << endl;
+			QString base = mocSource;
+			base.replace(QRegExp("\\..*$"), "").toUpper();
+			base.replace(QRegExp("[^a-zA-Z]"), "_");
 
-		    t << "USERDEP_" << base << "=\".\\" << mocFile << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
-		    
-		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
-		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\""
-		      << build << "!ENDIF " << endl << endl;
-		    t << "# End Source File" << endl;
+			QString build = "\n\n# Begin Custom Build - Moc'ing " + mocSource +
+					"...\n" "InputPath=.\\" + mocSource + "\n\n" "\"" + mocTarget + "\""
+					" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
+					"\t" + mocpath + mocSource + " -o " +
+					mocTarget + "\n\n" "# End Custom Build\n\n";
+
+			t << "USERDEP_" << base << "=\".\\" << mocSource << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
+			
+			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
+			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\""
+			  << build << "!ENDIF " << endl << endl;
+			t << "# End Source File" << endl;
+		    }
 		}
 //		endGroups(t);
 	    } else if(variable == "MSVCDSP_PICTURES") {
