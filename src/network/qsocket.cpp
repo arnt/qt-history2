@@ -51,6 +51,9 @@
 #include <winsock.h>
 #endif
 
+#ifdef Q_OS_WIN32
+#include <winsock.h>
+#endif
 
 //#define QSOCKET_DEBUG
 
@@ -1089,7 +1092,7 @@ void QSocket::sn_read( bool force )
 	// This code is also useful when QSocket is used without an
 	// event loop.
 	nread = d->socket->readBlock( buf, sizeof(buf) );
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 	if ( nread < 0 ) {
 	    switch ( WSAGetLastError() ) {
 		case WSAECONNABORTED:		// connection lost for
