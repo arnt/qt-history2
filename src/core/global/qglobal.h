@@ -1342,8 +1342,9 @@ public:
     enum {
         isPointer = false,
         isComplex = true,
-        isStatic  = true,
-        isLarge   = (sizeof(T)>sizeof(void*))
+        isStatic = true,
+        isLarge = (sizeof(T)>sizeof(void*)),
+        isDummy = false
     };
 };
 
@@ -1360,8 +1361,9 @@ public:
     enum {
         isPointer = true,
         isComplex = false,
-        isStatic  = false,
-        isLarge   = false
+        isStatic = false,
+        isLarge = false,
+        isDummy = false
     };
 };
 
@@ -1387,8 +1389,9 @@ public:
     enum {
         isPointer = (1 == sizeof(QTypeInfoHelper((T(*)())0))),
         isComplex = !isPointer,
-        isStatic  = !isPointer,
-        isLarge   = (sizeof(T)>sizeof(void*))
+        isStatic = !isPointer,
+        isLarge = (sizeof(T)>sizeof(void*)),
+        isDummy = false
     };
 };
 
@@ -1404,10 +1407,11 @@ public:
   logically-OR'ed combination of the flags below.
 */
 enum { // TYPEINFO flags
-    Q_COMPLEX_TYPE   = 0,
-    Q_PRIMITIVE_TYPE = 1,
-    Q_STATIC_TYPE    = 0,
-    Q_MOVABLE_TYPE   = 2
+    Q_COMPLEX_TYPE = 0,
+    Q_PRIMITIVE_TYPE = 0x1,
+    Q_STATIC_TYPE = 0,
+    Q_MOVABLE_TYPE = 0x2,
+    Q_DUMMY_TYPE = 0x4
 };
 
 #define Q_DECLARE_TYPEINFO(TYPE, FLAGS) \
@@ -1417,9 +1421,10 @@ class QTypeInfo<TYPE> \
 public: \
     enum { \
         isComplex = ((FLAGS & Q_PRIMITIVE_TYPE) == 0), \
-        isStatic  = ((FLAGS & (Q_MOVABLE_TYPE|Q_PRIMITIVE_TYPE)) == 0), \
-        isLarge   = (sizeof(TYPE)>sizeof(void*)), \
-        isPointer = false \
+        isStatic = ((FLAGS & (Q_MOVABLE_TYPE | Q_PRIMITIVE_TYPE)) == 0), \
+        isLarge = (sizeof(TYPE)>sizeof(void*)), \
+        isPointer = false, \
+        isDummy = ((FLAGS & Q_DUMMY_TYPE) != 0) \
     }; \
     static inline const char *name() { return #TYPE; } \
 }
