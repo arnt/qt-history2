@@ -1530,7 +1530,7 @@ QString QTextStream::readLine()
     while(1) {
         QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(buf, buf_size, TS_MOD_CONSUME|TS_EOL, &l);
         if(l || end != QTextStreamPrivate::TS_END_OF_INPUT)
-            result.append(QString(buf, l));
+            result.append(QString(buf, l - ((end == QTextStreamPrivate::TS_END_FOUND)?1:0))); // strip newline
         if(end != QTextStreamPrivate::TS_END_OF_OUTPUT)
             break;
     }
@@ -2462,7 +2462,7 @@ bool QTextStream::atEnd() const
 {
     Q_D(const QTextStream);
     //just append directly onto the string (optimization)
-    if (d->sourceType == QTextStreamPrivate::String) 
+    if (d->sourceType == QTextStreamPrivate::String)
         return d->strOff == (d->str->length()*sizeof(QChar));
     //device
     return ((!d->dev || d->dev->atEnd()) && d->ungetcBuf.isEmpty());
