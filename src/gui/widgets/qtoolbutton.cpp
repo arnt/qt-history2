@@ -37,7 +37,7 @@ class QToolButtonPrivate : public QAbstractButtonPrivate
 {
     Q_DECLARE_PUBLIC(QToolButton)
 public:
-    void init(bool doMainWindowConnections);
+    void init();
     void popupPressed();
     void popupTimerDone();
     QStyleOptionToolButton getStyleOption() const;
@@ -128,7 +128,7 @@ public:
 QToolButton::QToolButton(QWidget * parent)
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
-    d->init(true);
+    d->init();
 }
 
 #ifdef QT_COMPAT
@@ -141,7 +141,7 @@ QToolButton::QToolButton(QWidget * parent, const char *name)
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
     setObjectName(name);
-    d->init(true);
+    d->init();
 }
 
 /*!
@@ -161,7 +161,7 @@ QToolButton::QToolButton(const QIconSet& iconSet, const QString &textLabel,
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
     setObjectName(name);
-    d->init(true);
+    d->init();
     d->autoRaise = true;
     setIcon(iconSet);
     setText(textLabel);
@@ -188,7 +188,7 @@ QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent, const char *name)
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
     setObjectName(name);
-    d->init(false);
+    d->init();
     setAutoRepeat(true);
     d->arrow = type;
     d->hasArrow = true;
@@ -208,7 +208,7 @@ QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent, const char *name)
 QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent)
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
-    d->init(false);
+    d->init();
     setAutoRepeat(true);
     d->arrow = type;
     d->hasArrow = true;
@@ -217,7 +217,7 @@ QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent)
 
 /*  Set-up code common to all the constructors */
 
-void QToolButtonPrivate::init(bool doMainWindowConnections)
+void QToolButtonPrivate::init()
 {
     textPos = QToolButton::Under;
     delay = 600;
@@ -235,26 +235,6 @@ void QToolButtonPrivate::init(bool doMainWindowConnections)
     q->setAttribute(Qt::WA_BackgroundInherited);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-    if (doMainWindowConnections) {
-        // ### do this for the new QToolBar and QMainWindow
-        if (q->parentWidget()->inherits("Q3ToolBar")) {
-            autoRaise = true;
-            QWidget *mw = 0, *w = q->parentWidget();
-            while (!mw && w) {
-                if (w->inherits("Q3MainWindow"))
-                    mw = w;
-                w = w->parentWidget();
-            }
-            if (mw) {
-                QObject::connect(mw, SIGNAL(pixmapSizeChanged(bool)),
-                                 q, SLOT(setUsesBigPixmap(bool)));
-                usesBigPixmap = mw->property("usesBigPixmaps").toBool();
-                QObject::connect(mw, SIGNAL(usesTextLabelChanged(bool)),
-                                 q, SLOT(setUsesTextLabel(bool)));
-                usesTextLabel = mw->property("usesTextLabel").toBool();
-            }
-        }
-    }
     QObject::connect(q, SIGNAL(pressed()), q, SLOT(popupPressed()));
 }
 
