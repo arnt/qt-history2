@@ -663,7 +663,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
             int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
             drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
-                     flags & Style_Enabled, checkbox->pixmap(), checkbox->text());
+                     flags & Style_Enabled, 0, checkbox->text()); // #### FIX!!!
 
             if (checkbox->hasFocus()) {
                 QRect fr = visualRect(subRect(SR_CheckBoxFocusRect, widget), widget);
@@ -688,7 +688,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
             int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
             drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
-                     flags & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
+                     flags & Style_Enabled, 0, radiobutton->text()); // #### FIX
 
             if (radiobutton->hasFocus()) {
                 QRect fr = visualRect(subRect(SR_RadioButtonFocusRect, widget), widget);

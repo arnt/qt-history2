@@ -686,7 +686,7 @@ void QCommonStyle::drawControl(ControlElement element,
                              br.bottom() - dbi);
             }
 
-            if (!button->isFlat() || button->isOn() || button->isDown())
+            if (!button->isFlat() || button->isChecked() || button->isDown())
                 drawPrimitive(PE_ButtonCommand, p, br, pal, flags);
 #endif
             break;
@@ -698,7 +698,7 @@ void QCommonStyle::drawControl(ControlElement element,
             const QPushButton *button = (const QPushButton *) widget;
             QRect ir = r;
 
-            if (button->isDown() || button->isOn()) {
+            if (button->isDown() || button->isChecked()) {
                 flags |= Style_Sunken;
                 ir.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
                           pixelMetric(PM_ButtonShiftVertical, widget));
@@ -706,7 +706,7 @@ void QCommonStyle::drawControl(ControlElement element,
             // ### Please add another rect for QPushButton/AbstractButton that
             // takes care of this.  This is not the correct way to draw this
             // arrow, talk to TWS if you don't agree/want help.
-            if (button->isMenuButton()) {
+            if (button->menu()) {
                 int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
                 QRect ar(ir.right() - mbi, ir.y() + 2, mbi - 4, ir.height() - 4);
                 drawPrimitive(PE_ArrowDown, p, ar, pal, flags, opt);
@@ -718,22 +718,22 @@ void QCommonStyle::drawControl(ControlElement element,
                 tf |= NoAccel;
 
 #ifndef QT_NO_ICONSET
-            if (button->iconSet() && ! button->iconSet()->isNull()) {
+            if (!button->icon().isNull()) {
                 QIconSet::Mode mode =
                     button->isEnabled() ? QIconSet::Normal : QIconSet::Disabled;
                 if (mode == QIconSet::Normal && button->hasFocus())
                     mode = QIconSet::Active;
 
                 QIconSet::State state = QIconSet::Off;
-                if (button->isToggleButton() && button->isOn())
+                if (button->isCheckable() && button->isChecked())
                     state = QIconSet::On;
 
-                QPixmap pixmap = button->iconSet()->pixmap(QIconSet::Small, mode, state);
+                QPixmap pixmap = button->icon().pixmap(QIconSet::Small, mode, state);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
 
                 //Center the icon if there is neither text nor pixmap
-                if (button->text().isEmpty() && !button->pixmap())
+                if (button->text().isEmpty())
                     p->drawPixmap(ir.x() + ir.width() / 2 - pixw / 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap);
                 else
                     p->drawPixmap(ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap);
@@ -743,13 +743,11 @@ void QCommonStyle::drawControl(ControlElement element,
                 // left-align text if there is
                 if (!button->text().isEmpty())
                     tf |= AlignLeft;
-                else if (button->pixmap())
-                    tf |= AlignHCenter;
             } else
 #endif //QT_NO_ICONSET
                 tf |= AlignHCenter;
             drawItem(p, ir, tf, pal,
-                     flags & Style_Enabled, button->pixmap(), button->text(), -1, &(pal.buttonText().color()));
+                     flags & Style_Enabled, 0, button->text(), -1, &(pal.buttonText().color()));
 
             if (flags & Style_HasFocus)
                 drawPrimitive(PE_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
@@ -771,7 +769,7 @@ void QCommonStyle::drawControl(ControlElement element,
             if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
                 alignment |= NoAccel;
             drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
-                     flags & Style_Enabled, checkbox->pixmap(), checkbox->text());
+                     flags & Style_Enabled, 0, checkbox->text()); // #### FIX!!!
 
             if (flags & Style_HasFocus) {
                 QRect fr = visualRect(subRect(SR_CheckBoxFocusRect, widget), widget);
@@ -794,7 +792,7 @@ void QCommonStyle::drawControl(ControlElement element,
             if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
                 alignment |= NoAccel;
             drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
-                     flags & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
+                     flags & Style_Enabled, 0, radiobutton->text());  // #### FIX
 
             if (flags & Style_HasFocus) {
                 QRect fr = visualRect(subRect(SR_RadioButtonFocusRect, widget), widget);
@@ -1068,7 +1066,7 @@ void QCommonStyle::drawControl(ControlElement element,
             } else {
                 QColor btext = toolbutton->palette().foreground();
 
-                if (toolbutton->iconSet().isNull() &&
+                if (toolbutton->icon().isNull() &&
                     ! toolbutton->text().isNull() &&
                     ! toolbutton->usesTextLabel()) {
                     int alignment = AlignCenter | ShowPrefix;
@@ -1082,7 +1080,7 @@ void QCommonStyle::drawControl(ControlElement element,
                     QIconSet::Size size =
                         toolbutton->usesBigPixmap() ? QIconSet::Large : QIconSet::Small;
                     QIconSet::State state =
-                        toolbutton->isOn() ? QIconSet::On : QIconSet::Off;
+                        toolbutton->isChecked() ? QIconSet::On : QIconSet::Off;
                     QIconSet::Mode mode;
                     if (! toolbutton->isEnabled())
                         mode = QIconSet::Disabled;
@@ -1091,7 +1089,7 @@ void QCommonStyle::drawControl(ControlElement element,
                         mode = QIconSet::Active;
                     else
                         mode = QIconSet::Normal;
-                    pm = toolbutton->iconSet().pixmap(size, mode, state);
+                    pm = toolbutton->icon().pixmap(size, mode, state);
 
                     if (toolbutton->usesTextLabel()) {
                         p->setFont(toolbutton->font());
@@ -1106,24 +1104,24 @@ void QCommonStyle::drawControl(ControlElement element,
                             tr.addCoords(0, pr.bottom(), 0, -3);
                             pr.moveBy(shiftX, shiftY);
                             drawItem(p, pr, AlignCenter, pal,
-                                      mode != QIconSet::Disabled || !toolbutton->iconSet().isGenerated(size, mode, state), pm);
+                                      mode != QIconSet::Disabled || !toolbutton->icon().isGenerated(size, mode, state), pm);
                             alignment |= AlignCenter;
                         } else {
                             pr.setWidth(pm.width() + 8);
                             tr.addCoords(pr.right(), 0, 0, 0);
                             pr.moveBy(shiftX, shiftY);
                             drawItem(p, pr, AlignCenter, pal,
-                                      mode != QIconSet::Disabled || !toolbutton->iconSet().isGenerated(size, mode, state), pm);
+                                      mode != QIconSet::Disabled || !toolbutton->icon().isGenerated(size, mode, state), pm);
                             alignment |= AlignLeft | AlignVCenter;
                         }
                         tr.moveBy(shiftX, shiftY);
                         drawItem(p, tr, alignment, pal,
-                                  flags & Style_Enabled, 0, toolbutton->textLabel(),
-                                  toolbutton->textLabel().length(), &btext);
+                                  flags & Style_Enabled, 0, toolbutton->text(),
+                                  toolbutton->text().length(), &btext);
                     } else {
                         rect.moveBy(shiftX, shiftY);
                         drawItem(p, rect, AlignCenter, pal,
-                                  mode != QIconSet::Disabled || !toolbutton->iconSet().isGenerated(size, mode, state), pm);
+                                  mode != QIconSet::Disabled || !toolbutton->icon().isGenerated(size, mode, state), pm);
                     }
                 }
             }
@@ -1340,15 +1338,16 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
         {
 #ifndef QT_NO_CHECKBOX
             const QCheckBox *checkbox = (const QCheckBox *) widget;
-            if (!checkbox->pixmap() && checkbox->text().isEmpty()) {
+            if (checkbox->text().isEmpty()) {
                 rect = subRect(SR_CheckBoxIndicator, widget);
                 rect.addCoords(1, 1, -1, -1);
                 break;
             }
             QRect cr = subRect(SR_CheckBoxContents, widget);
 
-            if(checkbox->pixmap()) {
-                rect = itemRect(cr, AlignLeft | AlignVCenter | ShowPrefix, *checkbox->pixmap());
+            if(!checkbox->icon().isNull()) {
+                rect = itemRect(cr, AlignLeft | AlignVCenter | ShowPrefix,
+                                checkbox->icon().pixmap(QIconSet::Small, QIconSet::Normal));
             } else {
                 QFontMetrics fm = widget->fontMetrics();
                 rect = itemRect(fm, cr, AlignLeft | AlignVCenter | ShowPrefix,
@@ -1382,15 +1381,16 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
         {
 #ifndef QT_NO_RADIOBUTTON
             const QRadioButton *radiobutton = (const QRadioButton *) widget;
-            if (!radiobutton->pixmap() && radiobutton->text().isEmpty()) {
+            if (!radiobutton->icon().isNull() && radiobutton->text().isEmpty()) {
                 rect = subRect(SR_RadioButtonIndicator, widget);
                 rect.addCoords(1, 1, -1, -1);
                 break;
             }
             QRect cr = subRect(SR_RadioButtonContents, widget);
 
-            if(radiobutton->pixmap()) {
-                rect = itemRect(cr, AlignLeft | AlignVCenter | ShowPrefix, *radiobutton->pixmap());
+            if(!radiobutton->icon().isNull()) {
+                rect = itemRect(cr, AlignLeft | AlignVCenter | ShowPrefix,
+                                radiobutton->icon().pixmap(QIconSet::Small, QIconSet::Normal));
             } else {
                 QFontMetrics fm = widget->fontMetrics();
                 rect = itemRect(fm, cr, AlignLeft | AlignVCenter | ShowPrefix,
@@ -2111,12 +2111,12 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl control,
             QRect rect = toolbutton->rect();
             switch (sc) {
             case SC_ToolButton:
-                if (toolbutton->popup() && ! toolbutton->popupDelay())
+                if (toolbutton->menu() && ! toolbutton->popupDelay())
                     rect.addCoords(0, 0, -mbi, 0);
                 return rect;
 
             case SC_ToolButtonMenu:
-                if (toolbutton->popup() && ! toolbutton->popupDelay())
+                if (toolbutton->menu() && ! toolbutton->popupDelay())
                     rect.addCoords(rect.width() - mbi, 0, 0, 0);
                 return rect;
 
@@ -2594,7 +2594,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
             const QCheckBox *checkbox = (const QCheckBox *) widget;
             QRect irect = subRect(SR_CheckBoxIndicator, widget);
             int h = pixelMetric(PM_IndicatorHeight, widget);
-            int margins = (!checkbox->pixmap() && checkbox->text().isEmpty()) ? 0 : 10;
+            int margins = (!checkbox->icon().isNull() && checkbox->text().isEmpty()) ? 0 : 10;
             sz += QSize(irect.right() + margins, 4);
             sz.setHeight(qMax(sz.height(), h));
 #endif
@@ -2607,7 +2607,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
             const QRadioButton *radiobutton = (const QRadioButton *) widget;
             QRect irect = subRect(SR_RadioButtonIndicator, widget);
             int h = pixelMetric(PM_ExclusiveIndicatorHeight, widget);
-            int margins = (!radiobutton->pixmap() && radiobutton->text().isEmpty()) ? 0 : 10;
+            int margins = (!radiobutton->icon().isNull() && radiobutton->text().isEmpty()) ? 0 : 10;
             sz += QSize(irect.right() + margins, 4);
             sz.setHeight(qMax(sz.height(), h));
 #endif

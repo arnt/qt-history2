@@ -351,7 +351,7 @@ QAbstractButton *QButtonGroup::selected() const
     QAbstractButton *candidate = 0;
     QMap<int, QAbstractButton*>::ConstIterator it = buttonIds.constBegin();
     while (it != buttonIds.constEnd()) {
-        if (it.value()->isToggleButton() && it.value()->isOn()) {
+        if (it.value()->isCheckable() && it.value()->isChecked()) {
             if (candidate)
                 return 0;
             candidate = it.value();

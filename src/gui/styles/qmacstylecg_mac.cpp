@@ -600,7 +600,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
 #ifndef QT_NO_PUSHBUTTON
         const QPushButton *button = static_cast<const QPushButton *>(widget);
         QRect ir = r;
-        if (button->isMenuButton()) {
+        if (button->menu()) {
             int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
             QRect ar(ir.right() - mbi, ir.height() - 13, mbi, ir.height() - 4);
             drawPrimitive(PE_ArrowDown, p, ar, pal, how, opt);
@@ -609,21 +609,21 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
         int tf = AlignVCenter | ShowPrefix | NoAccel;
 
 #ifndef QT_NO_ICONSET
-        if (button->iconSet() && ! button->iconSet()->isNull()) {
+        if (!button->icon().isNull()) {
             QIconSet::Mode mode = button->isEnabled() ? QIconSet::Normal : QIconSet::Disabled;
             if (mode == QIconSet::Normal && button->hasFocus())
                 mode = QIconSet::Active;
 
             QIconSet::State state = QIconSet::Off;
-            if (button->isToggleButton() && button->isOn())
+            if (button->isCheckable() && button->isChecked())
                 state = QIconSet::On;
 
-            QPixmap pixmap = button->iconSet()->pixmap(QIconSet::Small, mode, state);
+            QPixmap pixmap = button->icon().pixmap(QIconSet::Small, mode, state);
             int pixw = pixmap.width();
             int pixh = pixmap.height();
 
             //Center the icon if there is neither text nor pixmap
-            if (button->text().isEmpty() && !button->pixmap())
+            if (button->text().isEmpty())
                 p->drawPixmap(ir.x() + ir.width() / 2 - pixw / 2,
                               ir.y() + ir.height() / 2 - pixh / 2, pixmap);
             else
@@ -634,13 +634,11 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
             // left-align text if there is
             if (!button->text().isEmpty())
                 tf |= AlignLeft;
-            else if (button->pixmap())
-                tf |= AlignHCenter;
         } else
 #endif //QT_NO_ICONSET
             tf |= AlignHCenter;
         drawItem(p, ir, tf, pal,
-                 how & Style_Enabled, button->pixmap(), button->text(), -1,
+                 how & Style_Enabled, 0, button->text(), -1, // ### FIX
                  &(pal.buttonText().color()));
 #endif
         break; }

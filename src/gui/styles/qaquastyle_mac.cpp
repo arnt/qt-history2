@@ -599,12 +599,12 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         int width = 0, height = 0;
         if(szHint == QSize(-1, -1)) { //just 'guess'..
             const QToolButton *bt = static_cast<const QToolButton *>(widg);
-            if(!bt->iconSet().isNull()) {
+            if(!bt->icon().isNull()) {
                 QIconSet::Size sz = QIconSet::Small;
                 if(bt->usesBigPixmap())
                     sz = QIconSet::Large;
                 QSize iconSize = QIconSet::iconSize(sz);
-                QPixmap pm = bt->iconSet().pixmap(sz, QIconSet::Normal);
+                QPixmap pm = bt->icon().pixmap(sz, QIconSet::Normal);
                 width = qMax(width, qMax(iconSize.width(), pm.width()));
                 height = qMax(height, qMax(iconSize.height(), pm.height()));
             }

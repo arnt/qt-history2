@@ -1185,7 +1185,7 @@ void QMacStyleQD::drawControl(ControlElement element,
         QPixmap *buffer = NULL;
         bool darken = d->animatable(QAquaAnimate::AquaPushButton, (QWidget *)widget);
         int frame = d->buttonState.frame;
-        if(btn->isToggleButton() && btn->isOn()) {
+        if(btn->isCheckable() && btn->isChecked()) {
             darken = true;
             frame = 12;
             if((how & Style_Down))
@@ -1362,7 +1362,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
                 ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
                 if(flags & Style_HasFocus && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
                     info.adornment |= kThemeAdornmentFocus;
-                if(toolbutton->isOn() || toolbutton->isDown())
+                if(toolbutton->isChecked() || toolbutton->isDown())
                     info.value |= kThemeStatePressed;
 
                 QRect off_rct(0, 0, 0, 0);
@@ -1397,7 +1397,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
             ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
             if(flags & Style_HasFocus && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
                 info.adornment |= kThemeAdornmentFocus;
-            if(toolbutton->isOn() || toolbutton->isDown() || (subActive & SC_ToolButtonMenu))
+            if(toolbutton->isChecked() || toolbutton->isDown() || (subActive & SC_ToolButtonMenu))
                 info.value |= kThemeStatePressed;
             ((QMacStyleQDPainter *)p)->setport();
             DrawThemeButton(qt_glb_mac_rect(menuarea, p, false), bkind, &info, NULL, NULL, NULL, 0);

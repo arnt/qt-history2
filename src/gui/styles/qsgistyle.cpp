@@ -947,7 +947,7 @@ void QSGIStyle::drawControl(ControlElement element,
             }
 
             QBrush fill = pal.brush(QPalette::Button);
-            if (!btn->isFlat() || btn->isOn() || btn->isDown())
+            if (!btn->isFlat() || btn->isChecked() || btn->isDown())
                 drawPrimitive(PE_ButtonBevel, p, QRect(x1, y1, x2-x1+1, y2-y1+1), pal, flags, opt);
 
             if (p->brush().style() != Qt::NoBrush)

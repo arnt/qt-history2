@@ -242,7 +242,7 @@ QPushButton::QPushButton(const QIconSet& icon, const QString &text, QWidget *par
 {
     d->init();
     setText(text);
-    setIconSet(icon);
+    setIcon(icon);
 }
 
 
@@ -308,33 +308,25 @@ QSize QPushButton::sizeHint() const
 
     // calculate contents size...
 #ifndef QT_NO_ICONSET
-    if (iconSet() && !iconSet()->isNull()) {
-        int iw = iconSet()->pixmap(QIconSet::Small, QIconSet::Normal).width() + 4;
-        int ih = iconSet()->pixmap(QIconSet::Small, QIconSet::Normal).height();
+    if (!icon().isNull()) {
+        int iw = icon().pixmap(QIconSet::Small, QIconSet::Normal).width() + 4;
+        int ih = icon().pixmap(QIconSet::Small, QIconSet::Normal).height();
         w += iw;
         h = qMax(h, ih);
     }
 #endif
-    if (isMenuButton())
+    if (menu())
         w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
-
-    if (pixmap()) {
-        QPixmap *pm = (QPixmap *)pixmap();
-        w += pm->width();
-        h += pm->height();
-    } else {
-        QString s(text());
-        bool empty = s.isEmpty();
-        if (empty)
-            s = QString::fromLatin1("XXXX");
-        QFontMetrics fm = fontMetrics();
-        QSize sz = fm.size(ShowPrefix, s);
-        if(!empty || !w)
-            w += sz.width();
-        if(!empty || !h)
-            h = qMax(h, sz.height());
-    }
-
+    QString s(text());
+    bool empty = s.isEmpty();
+    if (empty)
+        s = QString::fromLatin1("XXXX");
+    QFontMetrics fm = fontMetrics();
+    QSize sz = fm.size(ShowPrefix, s);
+    if(!empty || !w)
+        w += sz.width();
+    if(!empty || !h)
+        h = qMax(h, sz.height());
     return (style().sizeFromContents(QStyle::CT_PushButton, this, QSize(w, h)).
             expandedTo(QApplication::globalStrut()));
 }
@@ -353,7 +345,7 @@ void QPushButton::drawBevel(QPainter *paint)
         flags |= QStyle::Style_HasFocus;
     if (isDown())
         flags |= QStyle::Style_Down;
-    if (isOn())
+    if (isCheckable())
         flags |= QStyle::Style_On;
     if (! isFlat() && ! isDown())
         flags |= QStyle::Style_Raised;
@@ -379,7 +371,7 @@ void QPushButton::drawLabel(QPainter *paint)
         flags |= QStyle::Style_HasFocus;
     if (isDown())
         flags |= QStyle::Style_Down;
-    if (isOn())
+    if (isChecked())
         flags |= QStyle::Style_On;
     if (! isFlat() && ! isDown())
         flags |= QStyle::Style_Raised;
@@ -600,7 +592,7 @@ QPushButton::QPushButton(const QIconSet& icon, const QString &text, QWidget *par
     setObjectName(name);
     d->init();
     setText(text);
-    setIconSet(icon);
+    setIcon(icon);
 }
 #endif
 
