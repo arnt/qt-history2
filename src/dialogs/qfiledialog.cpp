@@ -2990,6 +2990,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 	dlg->setCaption( QFileDialog::tr( "Save as" ) );
     QString result;
     dlg->setFilters( filters );
+    dlg->setMode( QFileDialog::AnyFile );
     if ( !initialSelection.isEmpty() )
 	dlg->setSelection( initialSelection );
     if ( dlg->exec() == QDialog::Accepted ) {
@@ -3850,20 +3851,18 @@ QFileDialog::Mode QFileDialog::mode() const
 
 void QFileDialog::done( int i )
 {
-#if 0 // ### fix this properly, make sure that getSaveFileName doesn't use ExistingFile, etc.
     if ( i == QDialog::Accepted && (d->mode == ExistingFile || d->mode == ExistingFiles) ) {
-	    QStringList files = selectedFiles();
-	    for ( uint f = 0; f < files.count(); f++ ) {
-		QString file = files[f];
-		if ( file.isNull() )
-		    continue;
-		if ( !QFile::exists( file ) ) {
-		    QMessageBox::information( this, tr("Error"), tr("%1\nFile not found.\nCheck path and filename.").arg( file ) );
-		    return;
-		}
+	QStringList files = selectedFiles();
+	for ( uint f = 0; f < files.count(); f++ ) {
+	    QString file = files[f];
+	    if ( file.isNull() )
+		continue;
+	    if ( !QFile::exists( file ) ) {
+		QMessageBox::information( this, tr("Error"), tr("%1\nFile not found.\nCheck path and filename.").arg( file ) );
+		return;
 	    }
+	}
     }
-#endif
     QDialog::done( i );
 }
 
@@ -4789,7 +4788,6 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 		d->goBack->setEnabled( TRUE );
 	}
     }
-
 }
 
 void QFileDialog::urlFinished( QNetworkOperation *op )
