@@ -53,10 +53,10 @@ Statistics::Statistics( QWidget * parent = 0, const char * name = 0 )
     QGridLayout * g = new QGridLayout( this );
     g->setSpacing( 5 );
     g->setMargin( 5 );
-    
+
     QWidget * baseWidget = new QWidget( this );
     QHBoxLayout * hbl = new QHBoxLayout( baseWidget );
-    
+
     QLabel * label = new QLabel( "Team name:", this );
     g->addWidget( label, 0, 0 );
     teamPicker = new TeamPicker( this );
@@ -74,7 +74,7 @@ Statistics::Statistics( QWidget * parent = 0, const char * name = 0 )
     g->addWidget( label, 2, 0 );
     matchesWon = new QLabel( "0", this );
     g->addWidget( matchesWon, 2, 1 );
-    
+
     label = new QLabel( "Winner percentage:", this );
     g->addWidget( label, 3, 0 );
     winPercentage = new QLabel( "0", this );
@@ -102,7 +102,7 @@ Statistics::Statistics( QWidget * parent = 0, const char * name = 0 )
     separator = new QFrame( this );
     separator->setFrameStyle( QFrame::HLine | QFrame::Raised );
     g->addMultiCellWidget( separator, 8, 8, 0, 1 );
-    
+
     label = new QLabel( "Total sets played:", this );
     g->addWidget( label, 9, 0 );
     totalSets = new QLabel( "0", this );
@@ -117,7 +117,7 @@ Statistics::Statistics( QWidget * parent = 0, const char * name = 0 )
     g->addWidget( label, 11, 0 );
     hate = new QLabel( "None", this );
     g->addWidget( hate, 11, 1 );
-    
+
     label = new QLabel( "Usually beats:", this );
     g->addWidget( label, 12, 0 );
     love = new QLabel( "None", this );
@@ -148,23 +148,21 @@ void Statistics::updateStats()
     int numSets = 0;
     int sets = 0;
     QString str;
-    
+
     // Sets won
-    QSqlQuery qsww( "select winnerwins from match where winnerid = " + 
+    QSqlQuery qsww( "select sum(winnerwins) from match where winnerid = " +
 		 QString::number( teamId ) + ";" );
-    while( qsww.next() ){
-	sets += qsww.value(0).toInt();
-    } 
-    QSqlQuery qslw( "select loserwins from match where loserid = " + 
+    if( qsww.next() )
+	sets = qsww.value(0).toInt();
+    QSqlQuery qslw( "select sum(loserwins) from match where loserid = " +
 		 QString::number( teamId ) + ";" );
-    while( qslw.next() ){
+    if( qslw.next() )
 	sets += qslw.value(0).toInt();
-    } 
     setsWon->setText( QString::number( sets ) );
     numSets = sets;
 
     // Matches won
-    QSqlQuery qw( "select count(*) from match where winnerid = " + 
+    QSqlQuery qw( "select count(*) from match where winnerid = " +
 		 QString::number( teamId ) + ";" );
     if( qw.next() ){
 	numWins = qw.value(0).toInt();
@@ -173,17 +171,15 @@ void Statistics::updateStats()
 	matchesWon->setText( "0" );
 
     // Sets lost
-    sets = 0;
-    QSqlQuery qsl( "select winnerwins from match where loserid = " + 
+    QSqlQuery qsl( "select sum(winnerwins) from match where loserid = " +
 		    QString::number( teamId ) + ";" );
-    while( qsl.next() ){
-	sets += qsl.value(0).toInt();
-    } 
+    if( qsl.next() )
+	sets = qsl.value(0).toInt();
     setsLost->setText( QString::number( sets ) );
     numSets += sets;
 
     // Matches lost
-    QSqlQuery ql( "select count(*) from match where loserid = " + 
+    QSqlQuery ql( "select count(*) from match where loserid = " +
 		 QString::number( teamId ) + ";" );
     if( ql.next() ){
 	numLosses = ql.value(0).toInt();
@@ -192,8 +188,8 @@ void Statistics::updateStats()
 	matchesLost->setText( "0" );
 
     // Percentage wins/losses
-    QSqlQuery qp( "select count(*) from match where winnerid = " + 
-		  QString::number( teamId ) + " or loserid = " + 
+    QSqlQuery qp( "select count(*) from match where winnerid = " +
+		  QString::number( teamId ) + " or loserid = " +
 		  QString::number( teamId ) + ";" );
     if( qp.next() )
 	numMatches = qp.value(0).toInt();
@@ -207,30 +203,13 @@ void Statistics::updateStats()
     }
 
     // Find out who the team has lost most matches to
-    QSqlQuery qwids( "select winnerid from match where loserid = " +
-		    QString::number( teamId ) + ";" );
-    int lostCount = 0;
-    int lostId = -1;
-    while( qwids.next() ){
-	QSqlQuery qtmp( "select count(*) from match where loserid = " +
-			QString::number( teamId ) + " and winnerid = " +
-			qwids.value(0).toString() + ";" );
-	if( qtmp.next() ){
-	    if( qtmp.value(0).toInt() >= lostCount ){
-		lostCount = qtmp.value(0).toInt();
-		lostId = qwids.value(0).toInt();
-	    }
-	}
-    }
-    str = "None";
-    if( lostId >= 0 ){
-	QSqlQuery qtmp( "select name from team where id = " +
-			QString::number( lostId ) + ";" );
-	if( qtmp.next() )
-	    str = qtmp.value(0).toString();
+   
 
-    }
-    hate->setText( str );
+    QSqlQuery qwids( "select name from team, match where loserid=" + QString::number( teamId ) + " and team.id=match.winnerid group by team.name order by count(winnerid);" );
+    if ( qwids.next() && qwids.value(0).toString().length() )
+	hate->setText( qwids.value(0).toString() );
+    else
+	hate->setText( "None" );
 
     // Find out who the team has beat most times
     QSqlQuery qlids( "select loserid from match where winnerid = " +
@@ -256,13 +235,14 @@ void Statistics::updateStats()
 	    str = qtmp.value(0).toString();
     }
     love->setText( str );
-    
+
     // Total sets
     totalSets->setText( QString::number( numSets ) );
 
     // Total matches
     totalMatches->setText( QString::number( numMatches ) );
-    
+
+    //select name, count(winnerid) from match, team where team.id=match.winnerid group by name order by count(winnerid) desc;
     // Find the team with most wins
     winCount = 0;
     winId = -1;
@@ -282,7 +262,7 @@ void Statistics::updateStats()
     if( winId >= 0 ){
 	QSqlQuery qtmp( "select name from team where id = " +
 			QString::number( winId ) + ";" );
-	if( qtmp.next() ) 
+	if( qtmp.next() )
 	    str = qtmp.value(0).toString();
     }
     topTeam->setText( str );
@@ -316,7 +296,7 @@ void PingPongApp::init()
 				  QString::null, 0, this, 0 );
     connect( insertResultAc, SIGNAL( activated() ), SLOT( insertMatch() ) );
     insertResultAc->addTo( toolbar );
-    updateResultAc = new QAction( "Update result", QPixmap( "edit.png" ), 
+    updateResultAc = new QAction( "Update result", QPixmap( "edit.png" ),
 				  QString::null, 0, this, 0 );
     connect( updateResultAc, SIGNAL( activated() ), SLOT( updateMatch() ) );
     updateResultAc->addTo( toolbar );
@@ -327,10 +307,10 @@ void PingPongApp::init()
 
     // Layout the central widget
 
-    tab = new QTabWidget( this );    
-    connect( tab, SIGNAL( currentChanged( QWidget * ) ), 
+    tab = new QTabWidget( this );
+    connect( tab, SIGNAL( currentChanged( QWidget * ) ),
 	     SLOT( updateIcons( QWidget * ) ) );
-    
+
     matchTable = new MatchTable( tab );
     teamEditor = new TeamEditorWidget( tab );
     statWidget = new Statistics( tab );
@@ -338,7 +318,7 @@ void PingPongApp::init()
     tab->addTab( matchTable, "Matches" );
     tab->addTab( statWidget, "Statistics" );
     tab->addTab( teamEditor, "Team editor" );
-    
+
     setCentralWidget( tab );
     resize( 700, 400 );
 
@@ -392,7 +372,7 @@ void PingPongApp::deleteMatch()
 
 void PingPongApp::updateIcons( QWidget * w )
 {
-    if( w == matchTable ){ 
+    if( w == matchTable ){
 	insertResultAc->setEnabled( TRUE );
 	updateResultAc->setEnabled( TRUE );
 	deleteResultAc->setEnabled( TRUE );
