@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#61 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#62 $
 **
 ** Global functions
 **
@@ -344,22 +344,21 @@ bool qt_check_pointer( bool c, const char *n, int l )
 
 static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
 {
-    static bool firstWarning = TRUE;
-    QDict<int> * obsoleteDict;
-    if ( firstWarning ) {
-	firstWarning = FALSE;
+    static QDict<int> *obsoleteDict = 0;
+    if ( !obsoleteDict ) {			// first time func is called
+	obsoleteDict = new QDict<int>;
+#if defined(DEBUG)
 	debug(
       "You are using obsolete functions in the Qt library. Call the function\n"
       "qSuppressObsoleteWarnings() to suppress obsolete warnings.\n"
 	     );
+#endif
     }
     QString s( obj );
     s += "::";
     s += oldfunc;
-    if ( !obsoleteDict )
-	obsoleteDict = new QDict<int>;
     if ( obsoleteDict->find(s) == 0 ) {
-	obsoleteDict->insert( s, (int*) 666 );	// anything different from 0.
+	obsoleteDict->insert( s, (int*)1 );	// anything different from 0
 	return TRUE;
     }
     return FALSE;
