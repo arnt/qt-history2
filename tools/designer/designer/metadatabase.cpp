@@ -82,15 +82,14 @@ MetaDataBase::MetaDataBase()
 {
 }
 
-void MetaDataBase::setupDataBase()
+inline void setupDataBase()
 {
-    if ( db && cWidgets )
-	return;
-
-    db = new QPtrDict<MetaDataBaseRecord>( 1481 );
-    db->setAutoDelete( TRUE );
-    cWidgets = new QList<MetaDataBase::CustomWidget>;
-    cWidgets->setAutoDelete( TRUE );
+    if ( !db || !cWidgets ) {
+	db = new QPtrDict<MetaDataBaseRecord>( 1481 );
+	db->setAutoDelete( TRUE );
+	cWidgets = new QList<MetaDataBase::CustomWidget>;
+	cWidgets->setAutoDelete( TRUE );
+    }
 }
 
 void MetaDataBase::clearDataBase()
