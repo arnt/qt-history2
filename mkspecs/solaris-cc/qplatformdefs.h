@@ -89,17 +89,14 @@ typedef unsigned int useconds_t;
 extern "C" int usleep(useconds_t);
 #endif
 
-// On Solaris 7 and better, even though XPG4v2 is specified, sockets use
-// socklen_t not size_t because size_t breaks 64-bit platforms and Solaris 7
-// is a 64-bit platform. In the end both socklen_t and size_t are correct
-// because socklen_t is typedef'ed to size_t for compatibility in 32-bit mode.
-// On Solaris 2.6, XPG4v2 is specified, sockets use size_t.
-// On Solaris 2.5.1, XPG4v2 is not specified, sockets use int.
-#if defined(_XOPEN_UNIX)
-// Solaris 2.6 and better!
+#if (_XOPEN_SOURCE-0 == 500)
+// on Solaris 7 and better with specific feature test macros
+#define QT_SOCKLEN_T socklen_t
+#elif (_XOPEN_SOURCE_EXTENDED-0 == 1)
+// on Solaris 2.6 and better with specific feature test macros
 #define QT_SOCKLEN_T size_t
 #else
-// Solaris 2.5.1.
+// always this case in practice
 #define QT_SOCKLEN_T int
 #endif
 
