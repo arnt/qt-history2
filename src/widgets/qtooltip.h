@@ -32,7 +32,7 @@
 
 class QTipManager;
 class QLabel;
-
+class QIconViewToolTip;
 
 class Q_EXPORT QToolTipGroup: public QObject
 {
@@ -99,6 +99,7 @@ public:
     QToolTipGroup *group()	  const { return g; }
 
 private:
+    void    tip( const QRect &, const QRect &, const QString &);
     QWidget	    *p;
     QToolTipGroup   *g;
     static QFont    *ttFont;
@@ -108,6 +109,7 @@ private:
     static void cleanup();
 
     friend class QTipManager;
+    friend class QIconViewToolTip;
 };
 
 

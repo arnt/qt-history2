@@ -43,6 +43,7 @@
 #include "qarray.h"
 #include "qlist.h"
 #include "qvbox.h"
+#include "qtooltip.h"
 
 #include <stdlib.h>
 #include <math.h>
@@ -108,6 +109,8 @@ static QPixmap *unknown_icon = 0;
  *
  *****************************************************************************/
 
+class QIconViewToolTip;
+
 class QIconViewPrivate
 {
 public:
@@ -149,7 +152,9 @@ public:
     int minLeftBearing, minRightBearing;
     bool containerUpdateLocked;
     bool firstSizeHint;
-
+    QIconViewToolTip *toolTip;
+    bool showTips;
+    
     struct ItemContainer {
 	ItemContainer( ItemContainer *pr, ItemContainer *nx, const QRect &r )
 	    : p( pr ), n( nx ), rect( r ) {
@@ -168,6 +173,45 @@ public:
 	QIconViewItem *item;
     };
 };
+
+/*****************************************************************************
+ *
+ * Class QIconViewToolTip
+ *
+ *****************************************************************************/
+
+class QIconViewToolTip : public QToolTip
+{
+public:
+    QIconViewToolTip( QWidget *parent, QIconView *iv );
+    
+    void maybeTip( const QPoint &pos );
+    
+private:
+    QIconView *view;
+    
+};
+
+QIconViewToolTip::QIconViewToolTip( QWidget *parent, QIconView *iv )
+    : QToolTip( parent ), view( iv )  
+{
+}
+
+void QIconViewToolTip::maybeTip( const QPoint &pos )
+{
+    if ( !parentWidget() || !view || view->wordWrapIconText() || !view->showToolTips() ) 
+	return;
+    
+    QIconViewItem *item = view->findItem( view->viewportToContents( pos ) );
+    if ( !item || item->tmpText == item->itemText )
+	return;
+    
+    QRect r( item->textRect( FALSE ) );
+    r = QRect( view->contentsToViewport( QPoint( r.x(), r.y() ) ), QSize( r.width(), r.height() ) );
+    QRect r2( item->pixmapRect( FALSE ) );
+    r2 = QRect( view->contentsToViewport( QPoint( r2.x(), r2.y() ) ), QSize( r2.width(), r2.height() ) );
+    tip( r, r2, item->itemText );
+}
 
 /*****************************************************************************
  *
@@ -1441,7 +1485,7 @@ void QIconViewItem::paintFocus( QPainter *p, const QColorGroup &cg )
 }
 
 /*!
-  \fn void QIconViewItem::dropped( QDropEvent *e, const QValueList<QIconDragItem> & )
+  \fn void QIconViewItem::dropped( QDropEvent *e, const QValueList<QIconDragItem> &lst )
 
   This method is called, when something was dropped on the item. \a e
   gives you all information about the drop. If the drag object of the drop was
@@ -1726,7 +1770,7 @@ void QIconViewItem::calcTmpText()
    </ul>
 */
 
-/*! \fn void  QIconView::dropped (QDropEvent * e)
+/*! \fn void  QIconView::dropped ( QDropEvent * e, const QValueList<QIconDragItem> &lst )
   This signal is emitted, when a drop event occured onto the viewport (not onto an icon),
   which the iconview itself can't handle.
 
@@ -1934,6 +1978,9 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     viewport()->setBackgroundMode( PaletteBase );
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( QWidget::WheelFocus );
+
+    d->toolTip = new QIconViewToolTip( viewport(), this );
+    d->showTips = TRUE;
 }
 
 /*!
@@ -3240,6 +3287,8 @@ bool QIconView::sortDirection() const
 
   NOTE: Both possibilities just change the way how the text is
   displayed, they do NOT modify the item text itslef.
+  
+  \sa setShowToolTips()
 */
 
 void QIconView::setWordWrapIconText( bool b )
@@ -3260,12 +3309,38 @@ void QIconView::setWordWrapIconText( bool b )
   space (to the width) is displayed word wrapped, or FALSE
   if it gets displayed truncated.
 
-  \sa QIconView::setWordWrapIconText()
+  \sa setWordWrapIconText(), setShowToolTips()
 */
 
 bool QIconView::wordWrapIconText() const
 {
     return d->wordWrapIconText;
+}
+
+/*!
+  If wordWrapIconText() is FALSE, it happens that an item text
+  is truncated because it's too large for one line. If you specify TRUE for
+  \a b here and the user moves the mouse onto the item a tooltip with
+  the whole item text is shown.
+  If you pass \a FALSE here this feature is switched off.
+  
+  \sa setWordWrapIconText()
+*/
+
+void QIconView::setShowToolTips( bool b )
+{
+    d->showTips = b;
+}
+
+/*!
+  Returns TRUE if a tooltip is shown for truncated item textes or not.
+  
+  \sa setShowToolTips(), setWordWrapIconText()
+*/
+
+bool QIconView::showToolTips() const
+{
+    return d->showTips;
 }
 
 /*!

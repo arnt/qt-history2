@@ -84,10 +84,13 @@ public:
 	QToolTipGroup  *group;
 	QToolTip       *tip;
 	bool	        autoDelete;
+	QRect 		geometry;
 	Tip	       *next;
     };
 
     bool    eventFilter( QObject * o, QEvent * e );
+    void    add( const QRect &gm, QWidget *, const QRect &, const QString& ,
+		 QToolTipGroup *, const QString& , QToolTip *, bool );
     void    add( QWidget *, const QRect &, const QString& ,
 		 QToolTipGroup *, const QString& , QToolTip *, bool );
     void    remove( QWidget *, const QRect & );
@@ -182,7 +185,7 @@ QTipManager::~QTipManager()
     delete label;
 }
 
-void QTipManager::add( QWidget *w, const QRect &r, const QString &s,
+void QTipManager::add( const QRect &gm, QWidget *w, const QRect &r, const QString &s,
 		       QToolTipGroup *g, const QString& gs,
 		       QToolTip *tt, bool a )
 {
@@ -195,7 +198,8 @@ void QTipManager::add( QWidget *w, const QRect &r, const QString &s,
     t->rect = r;
     t->groupText = gs;
     t->group = g;
-
+    t->geometry = gm;
+    
     if ( h )
 	tips->take( w );
     else
@@ -211,6 +215,14 @@ void QTipManager::add( QWidget *w, const QRect &r, const QString &s,
 	qApp->installEventFilter( tipManager );
 	qApp->setGlobalMouseTracking( TRUE );
     }
+}
+
+void QTipManager::add( QWidget *w, const QRect &r, const QString &s,
+		       QToolTipGroup *g, const QString& gs,
+		       QToolTip *tt, bool a )
+{
+    add( QRect( -1, -1, -1, -1 ),
+	 w, r, s, g, gs, tt, a );
 }
 
 
@@ -431,12 +443,24 @@ void QTipManager::showTip()
     if ( label ) {
 	label->setText( t->text );
 	label->adjustSize();
+	if ( t->geometry != QRect( -1, -1, -1, -1 ) )
+	    label->resize( t->geometry.size() );
     } else {
 	label = new QTipLabel(t->text);
+	if ( t->geometry != QRect( -1, -1, -1, -1 ) )
+	    label->resize( t->geometry.size() );
 	CHECK_PTR( label );
 	connect( label, SIGNAL(destroyed()), SLOT(labelDestroyed()) );
     }
-    QPoint p = widget->mapToGlobal( pos ) + QPoint( 2, 16 );
+    QPoint p;
+    if ( t->geometry == QRect( -1, -1, -1, -1 ) ) {
+	p = widget->mapToGlobal( pos ) + QPoint( 2, 16 );
+    } else {
+	p = widget->mapToGlobal( t->geometry.topLeft() );
+	label->setAlignment( WordBreak | AlignCenter );
+	int h = label->heightForWidth( t->geometry.width() );
+	label->resize( label->width(), h );
+    }
     if ( p.x() + label->width() > QApplication::desktop()->width() )
 	p.setX( QApplication::desktop()->width() - label->width() );
     if ( p.y() + label->height() > QApplication::desktop()->height() )
@@ -588,7 +612,7 @@ void QToolTip::initialize()
     QTipLabel t("");
     ttFont = new QFont(QApplication::font(&t));
     ttPalette = new QPalette(QApplication::palette(&t));
-
+    
     use_style_override = TRUE;
 }
 
@@ -654,7 +678,6 @@ void QToolTip::setPalette( const QPalette &palette )
     *ttPalette = palette;
     use_style_override = TRUE;
 }
-
 
 /*!
   Constructs a tool tip object.  This is necessary only if you need tool
@@ -826,6 +849,11 @@ void QToolTip::tip( const QRect & rect, const QString &text )
     tipManager->add( parentWidget(), rect, text, 0, QString::null, 0, TRUE );
 }
 
+void QToolTip::tip( const QRect &geometry, const QRect &rect, const QString &text )
+{
+    initTipManager();
+    tipManager->add( geometry, parentWidget(), rect, text, 0, QString::null, 0, TRUE );
+}
 
 /*!
   Pops up a tip saying \a text right now, and removes that tip once
