@@ -542,6 +542,12 @@ void QApplication::setMainWidget(QWidget *mainWidget)
 }
 
 
+/*!
+  Returns the version of the Macintosh operating system that is running.
+
+  Note: that this function is implemented for the Macintosh version
+  of Qt only.
+*/
 Qt::MacintoshVersion QApplication::macVersion()
 {
     return qt_macver;
