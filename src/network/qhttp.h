@@ -208,20 +208,18 @@ public:
 
     void setHost(const QString &hostname, Q_UINT16 port=80 );
 
-    bool request( const QHttpRequestHeader& header, const QByteArray& data );
-    bool request( const QHttpRequestHeader& header, QIODevice* device=0 );
+    bool request( const QHttpRequestHeader &header, QIODevice *device=0, QIODevice *to=0 );
+    bool request( const QHttpRequestHeader &header, const QByteArray &data, QIODevice *to=0 );
 
     void close();
 
     State state() const;
-    void setDevice( QIODevice* );
-    QIODevice* device() const;
 
 signals:
     void responseHeaderReceived( const QHttpResponseHeader& resp );
 
     void response( const QHttpResponseHeader& resp, const QByteArray& data );
-    void response( const QHttpResponseHeader& resp, const QIODevice* device );
+    void response( const QHttpResponseHeader& resp, const QIODevice* data );
     void responseChunk( const QHttpResponseHeader& resp, const QByteArray& data );
 
     void finishedError( const QString& detail, int error );

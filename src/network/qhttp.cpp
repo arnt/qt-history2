@@ -57,7 +57,7 @@ public:
 	hostname( QString::null ),
 	port( 0 ),
 	idleTimer( 0 ),
-	device( 0 ),
+	toDevice( 0 ),
 	postDevice( 0 )
     { }
 
@@ -74,7 +74,7 @@ public:
 
     int idleTimer;
 
-    QIODevice* device;
+    QIODevice* toDevice;
     QIODevice* postDevice;
 };
 
@@ -1023,7 +1023,7 @@ void QHttp::clientClosed()
   This signal is emitted if the HTTP header of the response is available. The
   header is passed in \a resp.
 
-  \sa setDevice() response() responseChunk()
+  \sa response() responseChunk()
 */
 /*!
   \fn void QHttp::finishedError( const QString& detail, int error )
@@ -1117,17 +1117,19 @@ void QHttp::setHost(const QString &hostname, Q_UINT16 port )
 
 /*!
     Sends a request to the server set by setHost() or as specified in the
-    constructor. Use the \a header as the HTTP request header. You are
-    responsible for setting up a \a header that is appropriate appropriate for
-    your request. \a data is used as the content data of the HTTP request.
+    constructor. Uses the \a header as the HTTP request header. You are
+    responsible for setting up a header that is appropriate for your request.
 
-    Call this function after the client was created or after the
-    finishedSuccess() signal is emitted. Returns TRUE if it is able to make
-    the request (i.e. no request is pending); otherwise returns FALSE.
+    The content data is read from the device \a data. If \a data is 0, no
+    content data is used.
+
+    If the IO device \a to is not 0, the content data of the response is
+    written to it. Otherwise the content data is reported by the
+    responseChunk() signal.
 
     \sa setHost()
 */
-bool QHttp::request( const QHttpRequestHeader& header, const QByteArray& data )
+bool QHttp::request( const QHttpRequestHeader &header, QIODevice *data, QIODevice *to )
 {
     if ( d->state != Unconnected && d->state != Connected ) {
 	qWarning("The client is currently busy with a pending request. You can not invoke a request now.");
@@ -1147,32 +1149,31 @@ bool QHttp::request( const QHttpRequestHeader& header, const QByteArray& data )
 	d->socket->connectToHost( d->hostname, d->port );
     }
 
-    d->postDevice = 0;
-    d->buffer = data;
     d->header = header;
+    d->buffer = QByteArray();
 
-    if ( d->buffer.size() > 0 )
-	d->header.setContentLength( d->buffer.size() );
+    if ( to && ( to->isOpen() || to->open(IO_WriteOnly) ) )
+	d->toDevice = to;
+    else
+	d->toDevice = 0;
+
+    if ( data && ( data->isOpen() || data->open(IO_ReadOnly) ) ) {
+	d->postDevice = data;
+	if ( d->postDevice->size() > 0 )
+	    d->header.setContentLength( d->postDevice->size() );
+    } else {
+	d->postDevice = 0;
+    }
 
     return TRUE;
 }
 
 /*!  \overload
-
-    Sends a request to the server set by setHost() or as specified in the
-    constructor. Use the \a header as the HTTP request header. You are
-    responsible for setting up a \a header that is appropriate appropriate for
-    your request. The content data is read from \a device.
-
-    If \a device is 0, no content data is used
-
-    Call this function after the client was created or after the
-    finishedSuccess() signal is emitted. Returns TRUE if it is able to make
-    the request (i.e. no request is pending); otherwise returns FALSE.
+    \a data is used as the content data of the HTTP request.
 
     \sa setHost()
 */
-bool QHttp::request( const QHttpRequestHeader& header, QIODevice* device )
+bool QHttp::request( const QHttpRequestHeader &header, const QByteArray &data, QIODevice *to  )
 {
     if ( d->state != Unconnected && d->state != Connected ) {
 	qWarning("The client is currently busy with a pending request. You can not invoke a request now.");
@@ -1192,18 +1193,17 @@ bool QHttp::request( const QHttpRequestHeader& header, QIODevice* device )
 	d->socket->connectToHost( d->hostname, d->port );
     }
 
-    d->postDevice = device;
-    d->buffer = QByteArray();
     d->header = header;
+    d->buffer = data;
+    d->postDevice = 0;
 
-    if ( d->postDevice ) {
-	if ( !d->postDevice || !d->postDevice->isOpen() || !d->postDevice->isReadable() ) {
-	    qWarning("The device passes to QHttp::request must be opened for reading");
-	    return FALSE;
-	}
-	if ( d->postDevice->size() > 0 )
-	    d->header.setContentLength( d->postDevice->size() );
-    }
+    if ( to && ( to->isOpen() || to->open(IO_WriteOnly) ) )
+	d->toDevice = to;
+    else
+	d->toDevice = 0;
+
+    if ( d->buffer.size() > 0 )
+	d->header.setContentLength( d->buffer.size() );
 
     return TRUE;
 }
@@ -1226,8 +1226,8 @@ void QHttp::slotClosed()
 	// If we got no Content-Length then we know
 	// now that the request has completed.
 	if ( d->response.value("connection")=="close" && !d->response.hasKey( "content-length" ) ) {
-	    if ( d->device )
-		emit response( d->response, d->device );
+	    if ( d->toDevice )
+		emit response( d->response, d->toDevice );
 	    else
 		emit response( d->response, d->buffer );
 
@@ -1354,9 +1354,9 @@ void QHttp::slotReadyRead()
 	    if ( d->response.hasContentLength() )
 		d->bytesRead = QMIN( d->response.contentLength(), d->bytesRead );
 
-	    if ( d->device ) {
+	    if ( d->toDevice ) {
 		// Write the data to file
-		d->device->writeBlock( d->buffer.data() + i + 4, d->bytesRead );
+		d->toDevice->writeBlock( d->buffer.data() + i + 4, d->bytesRead );
 
 		QByteArray tmp( d->bytesRead );
 		memcpy( tmp.data(), d->buffer.data() + i + 4, d->bytesRead );
@@ -1385,10 +1385,10 @@ void QHttp::slotReadyRead()
 	    if ( d->response.hasContentLength() )
 		n = QMIN( d->response.contentLength() - d->bytesRead, n );
 
-	    if ( d->device ) {
+	    if ( d->toDevice ) {
 		QByteArray arr( n );
 		n = d->socket->readBlock( arr.data(), n );
-		d->device->writeBlock( arr.data(), n );
+		d->toDevice->writeBlock( arr.data(), n );
 
 		arr.resize( n );
 		emit responseChunk( d->response, arr );
@@ -1407,8 +1407,8 @@ void QHttp::slotReadyRead()
 	// We can only know that if the content length was given in advance.
 	// Otherwise we emit the signal in closed().
 	if ( d->response.hasContentLength() && d->bytesRead == d->response.contentLength() ) {
-	    if ( d->device )
-		emit response( d->response, d->device );
+	    if ( d->toDevice )
+		emit response( d->response, d->toDevice );
 	    else
 		emit response( d->response, d->buffer );
 
@@ -1475,45 +1475,4 @@ void QHttp::killIdleTimer()
 {
     killTimer( d->idleTimer );
     d->idleTimer = 0;
-}
-
-/*!
-    Sets the device of the HTTP client to \a dev.
-
-    If a device is set, then all data read by the QHttp (but not
-    the HTTP headers) are written to this device.
-
-    The device must be opened for writing.
-
-    Setting the device to 0 means that subsequently read data will be
-    read into memory. By default QHttp reads into memory.
-
-    Setting a device makes sense when downloading very big chunks of
-    data.
-*/
-void QHttp::setDevice( QIODevice* dev )
-{
-    if ( dev == d->device )
-	return;
-
-    if ( !dev->isOpen() || !dev->isWritable() ) {
-	qWarning("The socket must be opened for writing");
-	return;
-    }
-
-    if ( d->device == 0 ) {
-	if ( d->state == Reading && !d->readHeader ) {
-	    dev->writeBlock( d->buffer.data(), d->bytesRead );
-	}
-    }
-
-    d->device = dev;
-}
-
-/*!
-    Returns the device of the HTTP client.
-*/
-QIODevice* QHttp::device() const
-{
-    return d->device;
 }
