@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #ifndef QT_NO_COMPONENT
-#include "qlibrary_p.h"
+#include "private/qlibrary_p.h"
 #include "qapplication.h"
 #ifndef QT_H
 #include "qwindowdefs.h"
