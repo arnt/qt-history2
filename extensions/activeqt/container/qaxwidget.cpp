@@ -305,9 +305,9 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 	    if ( ax && msg->hwnd != ax->winId() && ax->control() != "{0002E510-0000-0000-C000-000000000046}" ) {
 		if ( message >= WM_KEYFIRST && message <= WM_KEYLAST ) {
 		    QAxHostWidget *host = (QAxHostWidget*)ax->child( "QAxHostWidget", "QWidget" );
-		    if ( host ) {
+		    if ( host && msg->wParam == VK_TAB ) {
 			QAxHostWindow *site = host->clientSite();
-			// give the control a chance.
+			// give the control a chance to move the focus
 			// The control will call our TranslateAccelerator if it doesn't want the message
 			if ( site && site->inPlaceObject() )
 			    site->inPlaceObject()->TranslateAccelerator( msg );

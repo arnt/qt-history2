@@ -15,6 +15,7 @@
 
 #include <qsettings.h>
 #include <qapplication.h>
+#include <qt_windows.h>
 
 class ListBoxText : public QListBoxText
 {
@@ -37,17 +38,37 @@ void QActiveXSelect::init()
 {
     activex = 0;
     QApplication::setOverrideCursor( WaitCursor );
-    QSettings controls;
-    QStringList clsids = controls.subkeyList( "/Classes/CLSID" );
-    for ( QStringList::Iterator it = clsids.begin(); it != clsids.end(); ++it ) {
-	QString clsid = *it;
-	QStringList subkeys = controls.subkeyList( "/Classes/CLSID/" + clsid );
-	if ( subkeys.contains( "Control" ) /*|| subkeys.contains( "Insertable" )*/ ) {
-	    QString name = controls.readEntry( "/Classes/CLSID/" + clsid + "/Default" );
-	    if ( !name.isEmpty() )
-		(void)new ListBoxText( ActiveXList, name, clsid );
-	}
+    HKEY classes_key;
+    RegOpenKeyA( HKEY_CLASSES_ROOT, "CLSID", &classes_key );
+    if ( classes_key ) {
+	DWORD index = 0;
+	LONG result = 0;
+	char buffer[256];
+	DWORD szBuffer = 255;
+	FILETIME ft;
+	do {
+	    result = RegEnumKeyExA( classes_key, index, (char*)&buffer, &szBuffer, 0, 0, 0, &ft );
+	    szBuffer = 255;
+	    if ( result == ERROR_SUCCESS ) {
+		HKEY sub_key;
+		QString clsid = QString::fromLocal8Bit( buffer );
+		result = RegOpenKeyA( classes_key, QString(clsid + "\\Control").local8Bit(), &sub_key );
+		if ( result == ERROR_SUCCESS ) {
+		    RegCloseKey( sub_key );
+		    RegQueryValueA( classes_key, buffer, (char*)&buffer, (LONG*)&szBuffer );
+		    QString name = QString::fromLocal8Bit( buffer, szBuffer );
+		    if ( !name.isEmpty() )
+			(void)new ListBoxText( ActiveXList, name, clsid );
+
+		}
+		result = ERROR_SUCCESS;
+	    }
+	    szBuffer = 255;
+	    ++index;
+	} while ( result == ERROR_SUCCESS );
+	RegCloseKey( classes_key );
     }
+
     ActiveXList->sort();
     QApplication::restoreOverrideCursor();
 
