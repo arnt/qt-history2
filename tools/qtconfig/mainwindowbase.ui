@@ -619,25 +619,6 @@
                             </widget>
                         </vbox>
                     </widget>
-                    <widget class="QCheckBox">
-                        <property name="name">
-                            <cstring>xftcheckbox</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>true</bool>
-                        </property>
-                        <property name="text">
-                            <string>Enable Anti-Aliased Font Support (Xft)</string>
-                        </property>
-                    </widget>
-                    <widget class="QCheckBox">
-                        <property name="name">
-                            <cstring>aacheckbox</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Anti-Alias Fonts by Default</string>
-                        </property>
-                    </widget>
                 </vbox>
             </widget>
             <widget class="QWidget">

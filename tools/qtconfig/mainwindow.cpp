@@ -37,12 +37,8 @@
 #include <stdlib.h>
 
 
-// from qapplication.cpp and qapplication_x11.cpp - These are NOT for external use
-// ignore them
-
-#ifdef Q_WS_X11
-extern bool qt_has_xft;
-#endif
+// from qapplication.cpp and qapplication_x11.cpp - These are NOT for
+// external use ignore them
 extern bool Q_EXPORT qt_resolve_symlinks;
 
 
@@ -348,20 +344,6 @@ MainWindow::MainWindow()
     inputStyleLabel->hide();
 #endif
 
-#ifdef Q_WS_X11
-    xftcheckbox->setChecked( settings.readBoolEntry( "/qt/enableXft", TRUE ) );
-    if ( xftcheckbox->isChecked() ) {
-	aacheckbox->setEnabled( TRUE );
-	aacheckbox->setChecked( settings.readBoolEntry( "/qt/useXft", TRUE) );
-    } else {
-	aacheckbox->setEnabled( FALSE );
-	aacheckbox->setChecked( FALSE );
-    }
-#else
-    xftcheckbox->setEnabled( FALSE );
-    aacheckbox->setEnabled( FALSE );
-#endif
-
     fontembeddingcheckbox->setChecked( settings.readBoolEntry("/qt/embedFonts", TRUE) );
     fontpaths = settings.readListEntry("/qt/fontPath", ':');
     fontpathlistbox->insertStringList(fontpaths);
@@ -415,8 +397,6 @@ void MainWindow::fileSave()
 	settings.writeEntry("/qt/fontPath", fontpaths, ':');
 	settings.writeEntry("/qt/embedFonts", fontembeddingcheckbox->isChecked() );
 	settings.writeEntry("/qt/style", gstylecombo->currentText());
-	settings.writeEntry("/qt/enableXft", xftcheckbox->isChecked());
-	settings.writeEntry("/qt/useXft", aacheckbox->isChecked());
 	settings.writeEntry("/qt/doubleClickInterval",
 					     dcispin->value());
 	settings.writeEntry("/qt/cursorFlashTime", cfispin->value() == 9 ? 0 : cfispin->value() );

@@ -1224,8 +1224,8 @@ static void initializeDb()
 #ifndef QT_XFT2
     if (!X11->has_xft)
 #endif
-    // load everything at startup in debug mode.
-    loadXlfds( 0,  -1 );
+	// load everything at startup in debug mode.
+	loadXlfds( 0,  -1 );
 
     // print the database
     for ( int f = 0; f < db->count; f++ ) {
@@ -1288,64 +1288,62 @@ static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, 
 {
     int weight_value = XFT_WEIGHT_BLACK;
     if ( key.weight == 0 )
-	    weight_value = XFT_WEIGHT_MEDIUM;
+	weight_value = XFT_WEIGHT_MEDIUM;
     else if ( key.weight < (QFont::Light + QFont::Normal) / 2 )
-	    weight_value = XFT_WEIGHT_LIGHT;
+	weight_value = XFT_WEIGHT_LIGHT;
     else if ( key.weight < (QFont::Normal + QFont::DemiBold) / 2 )
-	    weight_value = XFT_WEIGHT_MEDIUM;
+	weight_value = XFT_WEIGHT_MEDIUM;
     else if ( key.weight < (QFont::DemiBold + QFont::Bold) / 2 )
-	    weight_value = XFT_WEIGHT_DEMIBOLD;
+	weight_value = XFT_WEIGHT_DEMIBOLD;
     else if ( key.weight < (QFont::Bold + QFont::Black) / 2 )
-	    weight_value = XFT_WEIGHT_BOLD;
-	XftPatternAddInteger( pattern, XFT_WEIGHT, weight_value );
+	weight_value = XFT_WEIGHT_BOLD;
+    XftPatternAddInteger( pattern, XFT_WEIGHT, weight_value );
 
-	int slant_value = XFT_SLANT_ROMAN;
+    int slant_value = XFT_SLANT_ROMAN;
     if ( key.italic )
-	    slant_value = XFT_SLANT_ITALIC;
+	slant_value = XFT_SLANT_ITALIC;
     else if ( key.oblique )
-	    slant_value = XFT_SLANT_OBLIQUE;
-	XftPatternAddInteger( pattern, XFT_SLANT, slant_value );
+	slant_value = XFT_SLANT_OBLIQUE;
+    XftPatternAddInteger( pattern, XFT_SLANT, slant_value );
 
-	/*
-	  Xft1 doesn't obey user settings for turning off anti-aliasing using
-	  the following:
+    /*
+      Xft1 doesn't obey user settings for turning off anti-aliasing using
+      the following:
 
-	  match any size > 6 size < 12 edit antialias = false;
+      match any size > 6 size < 12 edit antialias = false;
 
-	  ... if we request pixel sizes.  so, work around this limitiation and
-	  convert the pixel size to a point size and request that.
-	*/
-	double size_value = request.pixelSize;
-	double scale = 1.;
-	if ( size_value > MAXFONTSIZE_XFT ) {
-	    scale = (double)size_value/(double)MAXFONTSIZE_XFT;
-	    size_value = MAXFONTSIZE_XFT;
-	}
+      ... if we request pixel sizes.  so, work around this limitiation and
+      convert the pixel size to a point size and request that.
+    */
+    double size_value = request.pixelSize;
+    double scale = 1.;
+    if ( size_value > MAXFONTSIZE_XFT ) {
+	scale = (double)size_value/(double)MAXFONTSIZE_XFT;
+	size_value = MAXFONTSIZE_XFT;
+    }
 
-	size_value = size_value*72./QPaintDevice::x11AppDpiY(fp->screen);
-	XftPatternAddDouble( pattern, XFT_SIZE, size_value );
+    size_value = size_value*72./QPaintDevice::x11AppDpiY(fp->screen);
+    XftPatternAddDouble( pattern, XFT_SIZE, size_value );
 
 #  ifdef XFT_MATRIX
-	if ( ( request.stretch > 0 && request.stretch != 100 ) ||
+    if ( ( request.stretch > 0 && request.stretch != 100 ) ||
 	 ( key.oblique && fakeOblique ) ) {
-	    XftMatrix matrix;
-	    XftMatrixInit( &matrix );
+	XftMatrix matrix;
+	XftMatrixInit( &matrix );
 
-	    if ( request.stretch > 0 && request.stretch != 100 )
-		XftMatrixScale( &matrix, double( request.stretch ) / 100.0, 1.0 );
+	if ( request.stretch > 0 && request.stretch != 100 )
+	    XftMatrixScale( &matrix, double( request.stretch ) / 100.0, 1.0 );
 	if ( key.oblique && fakeOblique )
-		XftMatrixShear( &matrix, 0.20, 0.0 );
+	    XftMatrixShear( &matrix, 0.20, 0.0 );
 
-	    XftPatternAddMatrix( pattern, XFT_MATRIX, &matrix );
-	}
+	XftPatternAddMatrix( pattern, XFT_MATRIX, &matrix );
+    }
 #  endif // XFT_MATRIX
 
-	if ( !X11->use_antialiasing || request.styleStrategy & ( QFont::PreferAntialias |
-							       QFont::NoAntialias) ) {
-	    Bool requestAA = ( X11->use_antialiasing &&
-			       !( request.styleStrategy & QFont::NoAntialias ) );
-	    XftPatternAddBool( pattern, XFT_ANTIALIAS, requestAA );
-	}
+    if (request.styleStrategy & (QFont::PreferAntialias|QFont::NoAntialias)) {
+	XftPatternAddBool(pattern, XFT_ANTIALIAS,
+			  !(request.styleStrategy & QFont::NoAntialias));
+    }
 
     return scale;
 }

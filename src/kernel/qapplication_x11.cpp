@@ -917,24 +917,6 @@ bool QApplication::x11_apply_settings()
     qt_use_rtl_extensions =
     	settings.readBoolEntry("/qt/useRtlExtensions", FALSE);
 
-#ifndef QT_NO_XFTFREETYPE
-    // we can only do this once at application startup, otherwise we'd
-    // have Xft fonts trying to access non existing drawables.
-    if ( !X11->xftDone ) {
-	X11->xftDone = TRUE;
-	X11->has_xft = FALSE;
-	X11->use_antialiasing = FALSE;
-	if (
-#if !defined(QT_XFT2)
-	    X11->use_xrender &&
-#endif
-	    XftInit(0) && XftInitFtLibrary()) {
-	    X11->has_xft = settings.readBoolEntry( "/qt/enableXft", TRUE );
-	    X11->use_antialiasing = settings.readBoolEntry( "/qt/useXft", TRUE );
-	}
-    }
-#endif // QT_NO_XFTFREETYPE
-
 #ifndef QT_NO_XIM
     QString ximInputStyle = settings.readEntry("/qt/XIMInputStyle", "on the spot");
     if ( ximInputStyle == "on the spot" )
@@ -1405,7 +1387,6 @@ void qt_init( QApplicationPrivate *priv, int,
     X11->use_xrandr = FALSE;
     X11->use_xrender = FALSE;
     X11->has_xft = FALSE;
-    X11->use_antialiasing = FALSE;
     X11->xftDone = FALSE;
     X11->sip_serial = 0;
     X11->net_supported_list = 0;
@@ -1820,6 +1801,10 @@ void qt_init( QApplicationPrivate *priv, int,
 	unsigned int state = XkbPCF_GrabsUseXKBStateMask;
 	(void) XkbSetPerClientControls(X11->display, state, &state);
 #endif
+
+#if !defined(QT_NO_XFTFREETYPE)
+	X11->has_xft = XftInit(0) && XftInitFtLibrary();
+#endif // QT_NO_XFTFREETYPE
 
 	// look at the modifier mapping, and get the correct masks for alt/meta
 	// find the alt/meta masks

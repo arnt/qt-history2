@@ -259,7 +259,6 @@ struct QX11Data
     // TRUE if Qt is compiled w/ XRender support and XRender exists on the connected Display
     bool use_xrender;
     bool has_xft;
-    bool use_antialiasing;
     bool xftDone;
     QList<QWidget *> deferred_map;
     struct ScrollInProgress {
