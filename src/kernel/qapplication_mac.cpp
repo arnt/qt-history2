@@ -1308,7 +1308,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	    UInt32 count;
 	    GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL, 
-			  sizeof(count), NULL, &count);
+			      sizeof(count), NULL, &count);
 	    if(count == 2) 
 		etype = QEvent::MouseButtonDblClick;
 	    else
@@ -1457,30 +1457,46 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     }
     case kEventClassKeyboard:
     {
+	if ( app_do_modal && !qt_try_modal(widget, event) )
+	    return 1;
+
+	UInt32 modif;
+	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modif), NULL, &modif);
+	int modifiers = get_modifiers(modif);
+
+	char chr;
+	GetEventParameter(event, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(chr), NULL, &chr);
+	int mychar=get_key(chr);
+	QString mystr = QChar(mychar);
+
+	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
+
 	if( mac_keyboard_grabber )
 	    widget = mac_keyboard_grabber;
 	else if(focus_widget)
 	    widget = focus_widget;
 
 	if(widget) {
-	    if ( app_do_modal && !qt_try_modal(widget, event) )
-		return 1;
-
-	    UInt32 modif;
-	    GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, 
-			      sizeof(modif), NULL, &modif);
-
-	    char chr;
-	    GetEventParameter(event, kEventParamKeyMacCharCodes, typeChar, NULL, 
-			      sizeof(chr), NULL, &chr);
-	    int mychar=get_key(chr);
-
-	    QEvent::Type etype = (ekind == kEventRawKeyUp) ? 
-				 QEvent::KeyRelease : QEvent::KeyPress;
-	    QKeyEvent ke(etype,mychar, mychar, 
-			 get_modifiers(modif), QString(QChar(mychar)), ekind == kEventRawKeyRepeat);
-	    QApplication::sendEvent(widget,&ke);
-	}
+	    bool isAccel = FALSE;
+	    if(etype == QEvent::KeyPress && !mac_keyboard_grabber) {
+		QKeyEvent aa(QEvent::AccelOverride, mychar, mychar, modifiers, mystr, ekind == kEventRawKeyRepeat,
+			      mystr.length());
+		aa.ignore();
+		QApplication::sendEvent( widget, &aa );
+		if ( !aa.isAccepted() ) {
+		    QKeyEvent a(QEvent::Accel, mychar, mychar, modifiers, mystr, ekind == kEventRawKeyRepeat,
+				 mystr.length());
+		    a.ignore();
+		    QApplication::sendEvent( widget->topLevelWidget(), &a );
+		    if ( a.isAccepted() ) 
+			isAccel = TRUE;
+		}
+	    }
+	    if(!isAccel) {
+		QKeyEvent ke(etype,mychar, mychar, modifiers, mystr, ekind == kEventRawKeyRepeat, mystr.length());
+		QApplication::sendEvent(widget,&ke);
+	    }
+	} 
 	break;
     }
     case kEventClassWindow:
