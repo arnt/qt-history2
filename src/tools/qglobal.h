@@ -640,5 +640,3 @@ Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
 Q_EXPORT void qObsolete( const char *message );
 
 #endif // QGLOBAL_H
-
-
