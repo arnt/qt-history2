@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#12 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#12 $";
 #endif
 
 
@@ -37,7 +37,7 @@ static const ulong MSECS_PER_HOUR= 3600000L;
 static const uint  SECS_PER_MIN	 = 60;
 static const ulong MSECS_PER_MIN = 60000L;
 
-static ushort monthDays[] ={0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+static short monthDays[] ={0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 const char *QDate::monthNames[] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
