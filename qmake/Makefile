@@ -1,6 +1,6 @@
 #qmake code
 OBJS=project.obj main.obj makefile.obj unixmake.obj borland_bmake.obj msvc_nmake.obj msvc_dsp.obj option.obj \
-	winmakefile.obj
+	winmakefile.obj projectgenerator.obj
 
 #qt code
 QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
@@ -133,3 +133,5 @@ main.obj: main.cpp project.h
 option.obj: option.cpp option.h
 	$(CXX) /c /Fo$@ $(CFLAGS) option.cpp
 
+projectgenerator.obj: generators/projectgenerator.cpp
+	$(CXX) /c /Fo$@ $(CFLAGS) generators/projectgenerator.cpp
