@@ -1,5 +1,6 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>PreferencesBase</class>
+<include location="local" impldecl="in declaration">dlldefs.h</include>
 <widget class="QWidget">
     <property name="name">
         <cstring>PreferencesBase</cstring>
@@ -8,8 +9,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>412</width>
-            <height>336</height>
+            <width>408</width>
+            <height>334</height>
         </rect>
     </property>
     <property name="caption">
@@ -248,6 +249,7 @@
         <receiver>PreferencesBase</receiver>
         <slot>elementChanged(const QString&amp;)</slot>
     </connection>
+    <slot access="protected" language="C++">init()</slot>
     <slot access="protected" language="C++">boldChanged( bool )</slot>
     <slot access="protected" language="C++">elementChanged( const QString &amp; )</slot>
     <slot access="protected" language="C++">familyChanged( const QString &amp; )</slot>
@@ -255,6 +257,5 @@
     <slot access="protected" language="C++">colorClicked()</slot>
     <slot access="protected" language="C++">sizeChanged( int )</slot>
     <slot access="protected" language="C++">underlineChanged( bool )</slot>
-    <slot access="protected" language="C++">init()</slot>
 </connections>
 </UI>

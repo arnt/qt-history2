@@ -2,7 +2,7 @@
 #define PREFERENCES_H
 #include "preferences.h"
 
-class Preferences : public PreferencesBase
+class EDITOR_EXPORT Preferences : public PreferencesBase
 { 
     Q_OBJECT
 
