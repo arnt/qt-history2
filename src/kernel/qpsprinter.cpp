@@ -5011,24 +5011,20 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 		break;
 	    case NONE: 
 	    default:   
-    // ###
-// 	QFont::CharSet cs = f.charSet();
-// 	// ### the next four lines are a hack to not produce invalid postscript with unicode
-// 	// fonts. As we currently can't deal with Unicode fonts in Postscript, we convert
-// 	// to the most common text and assume the current locale. If that fails we use latin1.
-// 	if ( cs == QFont::Unicode )
-// 	    cs = QFont::charSetForLocale();
-// 	if ( cs == QFont::Unicode )
-// 	    cs = QFont::ISO_8859_1;
-// 	if ( cs == QFont::Set_Ja || cs == QFont::JIS_X_0208) {
-// 	    p = new QPSPrinterFontJapanese( f );
-// 	} else if ( cs == QFont::Set_Ko || cs == QFont::KSC_5601) {
-// 	    p = new QPSPrinterFontKorean( f );
-// 	} else if ( cs == QFont::Set_Big5 || cs == QFont::Big5) {
-// 	    p = new QPSPrinterFontTraditionalChinese( f );
-// 	} else 
-    //qDebug("didnt find font for %s", xfontname.latin1());
-		p=new QPSPrinterFontNotFound( f ); break;
+
+		if ( script == QFont::Hiragana || script == QFont::Katakana ) {
+		    p = new QPSPrinterFontJapanese( f );
+		} else if ( script == QFont::Hangul) {
+		    p = new QPSPrinterFontKorean( f );
+		} else if ( script == QFont::UnifiedHan ) {
+		    // #####
+//			    || cs == QFont::Big5 || cs == QFont::Set_Zh_TW) {
+		    p = new QPSPrinterFontTraditionalChinese( f );
+//		} else if ( cs == QFont::Set_GBK || cs == QFont::GB_2312 || cs == QFont::Set_Zh) {
+//		    p = new QPSPrinterFontSimplifiedChinese( f );
+		} else 
+		    //qDebug("didnt find font for %s", xfontname.latin1());
+		    p=new QPSPrinterFontNotFound( f ); break;
 	}
 	//qDebug("inserting %s int dict (%p)", xfontname.latin1(), p);
 	priv->fonts.insert( xfontname, p );
