@@ -405,30 +405,22 @@ void QApplicationPrivate::createEventDispatcher()
     application. The function's argument is the identifier name of
     the newly selected input method.
 */
-void QApplication::setInputContext(const QString &identifierName)
+void QApplication::setInputContext(QInputContext *inputContext)
 {
     if (d->inputContext)
         delete d->inputContext;
-    d->inputContext = QInputContextFactory::create(identifierName, this);
+    d->inputContext = inputContext;
 }
 
 QInputContext *QApplication::inputContext() const
 {
-    if (!d->inputContext)
-        const_cast<QApplication *>(this)->setInputContext(defaultInputMethod());
-    return d->inputContext;
-}
-
-/*!
-    This function returns the identifier name of the default input
-    method in this Application. The value is identical to the value of
-    QApplication::defaultIM.
-*/
-QString QApplication::defaultInputMethod()
-{
     if (!X11)
-        return QString();
-    return X11->default_im;
+        return 0;
+    if (!d->inputContext) {
+        QApplication *that = const_cast<QApplication *>(this);
+        that->d->inputContext = QInputContextFactory::create(X11->default_im, that);
+    }
+    return d->inputContext;
 }
 
 /*****************************************************************************
@@ -552,7 +544,7 @@ static void qt_x11_create_intern_atoms()
 /*! \internal
     apply the settings to the application
 */
-bool QApplication::x11_apply_settings()
+bool QApplicationPrivate::x11_apply_settings()
 {
     if (! qt_std_pal)
         qt_create_std_palette();
@@ -859,7 +851,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
     QApplication::setEffectEnabled(Qt::UI_FadeTooltip, false);
     QApplication::setEffectEnabled(Qt::UI_AnimateToolBox, false);
 
-    if (QApplication::desktopSettingsAware() && !QApplication::x11_apply_settings()) {
+    if (QApplication::desktopSettingsAware() && !QApplicationPrivate::x11_apply_settings()) {
         int format;
         ulong  nitems, after = 1;
         QString res;
@@ -2986,7 +2978,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 if (event->xproperty.atom == ATOM(RESOURCE_MANAGER))
                     qt_set_x11_resources();
                 else if (event->xproperty.atom == ATOM(_QT_SETTINGS_TIMESTAMP))
-                    QApplication::x11_apply_settings();
+                    QApplicationPrivate::x11_apply_settings();
             }
         }
         if (event->xproperty.window == QX11Info::appRootWindow()) {

@@ -2158,7 +2158,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 ir = visualRect(opt->direction, opt->rect,
                         subControlRect(CC_TitleBar, tb, SC_TitleBarSysMenu, widget));
                 if (!tb->icon.isNull()) {
-                    drawItemPixmap(p, ir, Qt::AlignCenter, tb->icon);
+                    tb->icon.paint(p, ir);
                 } else {
                     pm = standardPixmap(SP_TitleBarMenuButton, &tool, widget);
                     tool.rect = ir;

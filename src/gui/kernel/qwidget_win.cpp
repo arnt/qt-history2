@@ -631,8 +631,9 @@ HBITMAP qt_createIconMask(const QBitmap &bitmap)
 }
 
 
-void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
+void QWidgetPrivate::setWindowIcon_sys()
 {
+#if 0
     QTLWExtra* x = d->topData();
     delete x->icon;
     x->icon = 0;
@@ -668,7 +669,7 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
                   (long)x->winIcon);
     SendMessageA(q->winId(), WM_SETICON, 1, /* ICON_BIG */
                   (long)x->winIcon);
-
+#endif
 }
 
 

@@ -34,6 +34,7 @@ class QSessionManager;
 class QDesktopWidget;
 class QStyle;
 class QEventLoop;
+class QIcon;
 template <typename T> class QList;
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
 class QInputContext;
@@ -54,7 +55,7 @@ class Q_GUI_EXPORT QApplication : public QCoreApplication
     Q_PROPERTY(Qt::LayoutDirection layoutDirection READ layoutDirection WRITE setLayoutDirection)
     Q_PROPERTY(QPalette palette READ palette WRITE setPalette)
     Q_PROPERTY(QFont font READ font WRITE setFont)
-    Q_PROPERTY(QPixmap windowIcon READ windowIcon WRITE setWindowIcon)
+    Q_PROPERTY(QIcon windowIcon READ windowIcon WRITE setWindowIcon)
     Q_PROPERTY(int cursorFlashTime READ cursorFlashTime WRITE setCursorFlashTime)
     Q_PROPERTY(int doubleClickInterval  READ doubleClickInterval WRITE setDoubleClickInterval)
     Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
@@ -102,8 +103,8 @@ public:
     static void setFont(const QFont &, const char* className = 0);
     static QFontMetrics fontMetrics();
 
-    static void setWindowIcon(const QPixmap &);
-    static const QPixmap &windowIcon();
+    static void setWindowIcon(const QIcon &icon);
+    static QIcon windowIcon();
 
 
 #ifdef QT3_SUPPORT
@@ -203,13 +204,7 @@ public:
     virtual void commitData(QSessionManager& sm);
     virtual void saveState(QSessionManager& sm);
 #endif
-#if defined(Q_WS_X11)
-    void setInputContext(const QString &);
-    QInputContext *inputContext() const;
-    static QString defaultInputMethod();
-
-    static bool x11_apply_settings();
-#elif  defined(Q_WS_QWS)
+#if defined(Q_WS_X11) || defined (Q_WS_QWS)
     void setInputContext(QInputContext *);
     QInputContext *inputContext() const;
 #endif

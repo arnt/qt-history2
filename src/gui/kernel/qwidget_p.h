@@ -67,7 +67,8 @@ struct QTLWExtra {
     QString  caption;                                // widget caption
     QString  iconText;                                // widget icon text
     QString  role;                                // widget role
-    QPixmap *icon;                                // widget icon
+    QIcon *icon;                                // widget icon
+    QPixmap *iconPixmap;
 #endif
     short    incw, inch;                        // size increments
     // frame strut
@@ -192,7 +193,7 @@ public:
     bool close_helper(CloseMode mode);
 
     bool compositeEvent(QEvent *e);
-    void setWindowIcon_sys(const QPixmap &pixmap);
+    void setWindowIcon_sys();
 
 #if (defined(Q_WS_X11) || defined(Q_WS_QWS))
     void focusInputContext();

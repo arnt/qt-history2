@@ -1035,12 +1035,11 @@ void QWidget::setWindowTitle(const QString &caption)
     QApplication::sendEvent(this, &e);
 }
 
-void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
+void QWidgetPrivate::setWindowIcon_sys()
 {
-    if (d->extra && d->extra->topextra) {
-        delete d->extra->topextra->icon;
-        d->extra->topextra->icon = 0;
-    }
+    if (d->extra->topextra->iconPixmap)
+        // already been set
+        return;
 
     XWMHints *h = XGetWMHints(X11->display, q->winId());
     XWMHints wm_hints;
@@ -1049,13 +1048,15 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
         h->flags = 0;
     }
 
-    if (!pixmap.isNull()) {
-        QPixmap* pm = new QPixmap(pixmap);
-        if (!pm->mask())
-            pm->setMask(pm->createHeuristicMask()); // may do detach()
+    QIcon icon = q->windowIcon();
+    if (!icon.isNull()) {
+        QSize size = icon.actualSize(QSize(64, 64));
+        QPixmap* pm = new QPixmap(icon.pixmap(size));
 
-        d->createTLExtra();
-        d->extra->topextra->icon = pm;
+        if (!pm->mask())
+            pm->setMask(pm->createHeuristicMask());
+
+        d->extra->topextra->iconPixmap = pm;
 
         h->icon_pixmap = pm->handle();
         h->flags |= IconPixmapHint;

@@ -500,8 +500,9 @@ void QWidget::setWindowTitle(const QString &caption)
     QApplication::sendEvent(this, &e);
 }
 
-void QWidgetPrivate::setWindowIcon_sys(const QPixmap &unscaledPixmap)
+void QWidgetPrivate::setWindowIcon_sys()
 {
+#if 0
      QTLWExtra* x = d->topData();
      delete x->icon;
      x->icon = 0;
@@ -518,6 +519,7 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &unscaledPixmap)
         x->icon = new QPixmap(pixmap);
         mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
     }
+#endif
 }
 
 

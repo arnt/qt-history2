@@ -76,7 +76,10 @@ QStyleOptionTitleBar Q3TitleBarPrivate::getStyleOption() const
     QStyleOptionTitleBar opt;
     opt.init(q);
     opt.text = q->windowTitle();
-    opt.icon = q->windowIcon();
+    //################
+    QIcon icon = q->windowIcon();
+    QSize s = icon.actualSize(QSize(64, 64));
+    opt.icon = icon.pixmap(s);
     opt.subControls = QStyle::SC_All;
     opt.activeSubControls = QStyle::SC_None;
     opt.titleBarState = titleBarState();
@@ -544,26 +547,6 @@ bool Q3TitleBar::event(QEvent *e)
         setActive(false);
         d->act = wasActive;
     } else if (e->type() == QEvent::WindowIconChange) {
-#ifndef QT_NO_IMAGE_SMOOTHSCALE
-        QStyleOptionTitleBar opt = d->getStyleOption();
-        QRect menur = style()->subControlRect(QStyle::CC_TitleBar, &opt,
-                                              QStyle::SC_TitleBarSysMenu, this);
-        QPixmap icon = windowIcon();
-        if (icon.width() > menur.width()) {
-            // try to keep something close to the same aspect
-            int aspect = (icon.height() * 100) / icon.width();
-            int newh = (aspect * menur.width()) / 100;
-            icon.fromImage(icon.toImage().scale(menur.width(), newh));
-            setWindowIcon(icon);
-        } else if (icon.height() > menur.height()) {
-            // try to keep something close to the same aspect
-            int aspect = (icon.width() * 100) / icon.height();
-            int neww = (aspect * menur.height()) / 100;
-            icon.fromImage(icon.toImage().scale(neww, menur.height()));
-            setWindowIcon(icon);
-        }
-
-#endif
         update();
     } else if (e->type() == QEvent::WindowTitleChange) {
         cutText();

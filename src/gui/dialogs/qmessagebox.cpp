@@ -24,6 +24,7 @@
 #include "qimage.h"
 #include "qapplication.h"
 #include "qcursor.h"
+#include "qicon.h"
 #include "qstyle.h"
 #include "qtextdocument.h"
 #ifndef QT_NO_ACCESSIBILITY
@@ -1278,19 +1279,9 @@ void QMessageBox::about(QWidget *parent, const QString &caption,
 {
     QMessageBox mb(caption, text, Information, Ok + Default, 0, 0, parent);
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    QPixmap pm = parent ? parent->windowIcon() : QPixmap();
-    if (!pm.isNull())
-        mb.setIconPixmap(pm);
-    else {
-        pm = parent ? parent->window()->windowIcon() : QPixmap();
-        if (!pm.isNull())
-            mb.setIconPixmap(pm);
-        else {
-            pm = qApp && qApp->mainWidget() ? qApp->mainWidget()->windowIcon() : QPixmap();
-            if (!pm.isNull())
-                mb.setIconPixmap(pm);
-        }
-    }
+    QIcon icon = mb.windowIcon();
+    QSize size = icon.actualSize(QSize(64, 64));
+    mb.setIconPixmap(icon.pixmap(size));
 #endif
     mb.exec();
 }

@@ -1013,6 +1013,7 @@ void QWidgetPrivate::createTLExtra()
 #endif
 #ifndef QT_NO_WIDGET_TOPEXTRA
         x->icon = 0;
+        x->iconPixmap = 0;
 #endif
         x->fleft = x->fright = x->ftop = x->fbottom = 0;
         x->incw = x->inch = 0;
@@ -1074,6 +1075,7 @@ void QWidgetPrivate::deleteExtra()
             deleteTLSysExtra();
 #ifndef QT_NO_WIDGET_TOPEXTRA
             delete extra->topextra->icon;
+            delete extra->topextra->iconPixmap;
 #endif
 #if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
             delete extra->topextra->qwsManager;
@@ -3020,20 +3022,33 @@ QString QWidget::windowTitle() const
 
     \sa windowIconText, windowTitle \link appicon.html Setting the Application Icon\endlink
 */
-const QPixmap &QWidget::windowIcon() const
+QIcon QWidget::windowIcon() const
 {
-    Q_D(const QWidget);
-    if (d->extra && d->extra->topextra && d->extra->topextra->icon)
-        return *d->extra->topextra->icon;
+    const QWidget *w = this;
+    while (w) {
+        const QWidgetPrivate *d = w->d_func();
+        if (d->extra && d->extra->topextra && d->extra->topextra->icon)
+            return *d->extra->topextra->icon;
+        w = w->parentWidget();
+    }
     return qApp->windowIcon();
 }
 
-void QWidget::setWindowIcon(const QPixmap &pixmap)
+void QWidget::setWindowIcon(const QIcon &icon)
 {
     Q_D(QWidget);
-    bool isNull = pixmap.isNull();
-    setAttribute(Qt::WA_SetWindowIcon, isNull);
-    d->setWindowIcon_sys(isNull ? qApp->windowIcon() : pixmap);
+
+    setAttribute(Qt::WA_SetWindowIcon, !icon.isNull());
+    d->createTLExtra();
+
+    if (!d->extra->topextra->icon)
+        d->extra->topextra->icon = new QIcon();
+    *d->extra->topextra->icon = icon;
+
+    delete d->extra->topextra->iconPixmap;
+    d->extra->topextra->iconPixmap = 0;
+
+    d->setWindowIcon_sys();
     QEvent e(QEvent::WindowIconChange);
     QApplication::sendEvent(this, &e);
 }
@@ -3976,35 +3991,6 @@ void QWidgetPrivate::show_helper()
     QShowEvent showEvent;
     QApplication::sendEvent(q, &showEvent);
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    // make sure toplevels have an icon
-    //#### just use application icon instead
-    if (q->isWindow()){
-        QPixmap pm = q->windowIcon();
-        if (!pm.isNull()) {
-            QWidget *mw = (QWidget *)q->parent();
-            if (mw)
-                pm = mw->windowIcon();
-            if (!pm.isNull())
-                q->setWindowIcon(pm);
-            else {
-                mw = mw ? mw->window() : 0;
-                if (mw)
-                    pm = mw->windowIcon();
-                if (!pm.isNull())
-                    q->setWindowIcon(pm);
-                else {
-                    mw = qApp ? qApp->mainWidget() : 0;
-                    if (mw)
-                        pm = mw->windowIcon();
-                    if (!pm.isNull())
-                        q->setWindowIcon(pm);
-                }
-            }
-        }
-    }
-#endif
-
     if (q->testAttribute(Qt::WA_ShowModal))
         // qt_enter_modal *before* show, otherwise the initial
         // stacking might be wrong
@@ -4102,10 +4088,8 @@ void QWidget::setVisible(bool visible)
         Qt::WindowStates initialWindowState = windowState();
 
         Q_D(QWidget);
-        if (isWindow()
-            && !testAttribute(Qt::WA_SetWindowIcon)
-            && (!d->extra || !d->extra->topextra || !d->extra->topextra->icon))
-            d->setWindowIcon_sys(qApp->windowIcon());
+        if (isWindow() && !testAttribute(Qt::WA_SetWindowIcon))
+            d->setWindowIcon_sys();
 
         // polish if necessary
         ensurePolished();
@@ -4673,7 +4657,7 @@ bool QWidget::event(QEvent *e)
 
     case QEvent::ApplicationWindowIconChange:
         if (isWindow() && !testAttribute(Qt::WA_SetWindowIcon))
-            d->setWindowIcon_sys(qApp->windowIcon());
+            d->setWindowIcon_sys();
         break;
 
     case QEvent::FocusIn:
@@ -6146,6 +6130,11 @@ bool QWidget::close(bool alsoDelete)
     return accepted;
 }
 
+void QWidget::setIcon(const QPixmap &i)
+{
+    setWindowIcon(i);
+}
+
 /*!
     Return's the widget's icon.
 
@@ -6154,7 +6143,7 @@ bool QWidget::close(bool alsoDelete)
 const QPixmap *QWidget::icon() const
 {
     Q_D(const QWidget);
-    return (d->extra && d->extra->topextra) ? d->extra->topextra->icon : 0;
+    return (d->extra && d->extra->topextra) ? d->extra->topextra->iconPixmap : 0;
 }
 
 #endif // QT3_SUPPORT

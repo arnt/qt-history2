@@ -531,14 +531,14 @@ public:
     enum { Version = 1 };
 
     QString text;
-    QPixmap icon;
+    QIcon icon;
     int titleBarState;
     Qt::WFlags titleBarFlags;
 
     QStyleOptionTitleBar();
 
     QDOC_PROPERTY(QString text)
-    QDOC_PROPERTY(QPixmap icon)
+    QDOC_PROPERTY(QIcon icon)
     QDOC_PROPERTY(int titleBarState)
     QDOC_PROPERTY(Qt::WFlags titleBarFlags)
 

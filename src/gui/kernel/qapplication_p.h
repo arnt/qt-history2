@@ -111,6 +111,8 @@ public:
     QApplicationPrivate(int &argc, char **argv, QApplication::Type type);
     ~QApplicationPrivate() {}
 
+    static bool x11_apply_settings();
+
     static bool quitOnLastWindowClosed;
     static void emitLastWindowClosed();
 
@@ -163,7 +165,7 @@ public:
     static QWidget *main_widget;
     static QWidget *focus_widget;
     static QWidget *active_window;
-    static QPixmap *app_icon;
+    static QIcon *app_icon;
     static bool obey_desktop_settings;
     static int  cursor_flash_time;
     static int  mouse_double_click_time;

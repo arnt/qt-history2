@@ -1307,8 +1307,9 @@ void QWidget::setWindowTitle(const QString &cap)
     QApplication::sendEvent(this, &e);
 }
 
-void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
+void QWidgetPrivate::setWindowIcon_sys()
 {
+#if 0
     QTLWExtra* x = d->topData();
     delete x->icon;
     x->icon = 0;
@@ -1334,6 +1335,7 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
                 SetWindowProxyIcon(qt_mac_window_for(q), qt_mac_create_iconref(pixmap));
         }
     }
+#endif
 }
 
 void QWidget::setWindowIconText(const QString &iconText)

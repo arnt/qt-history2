@@ -342,7 +342,7 @@ QPalette *QApplicationPrivate::app_pal = 0;        // default application palett
 #endif
 QFont *QApplicationPrivate::app_font = 0;        // default application font
 bool qt_app_has_font = false;
-QPixmap *QApplicationPrivate::app_icon = 0;
+QIcon *QApplicationPrivate::app_icon = 0;
 QWidget *QApplicationPrivate::main_widget = 0;        // main application widget
 QWidget *QApplicationPrivate::focus_widget = 0;        // has keyboard input focus
 QWidget *QApplicationPrivate::active_window = 0;        // toplevel with keyboard focus
@@ -1569,28 +1569,26 @@ void QApplication::setFont(const QFont &font, const char* className)
 
   \sa setWindowIcon()
  */
-const QPixmap &QApplication::windowIcon()
+QIcon QApplication::windowIcon()
 {
-    if (!QApplicationPrivate::app_icon)
-        QApplicationPrivate::app_icon = new QPixmap();
-    return *QApplicationPrivate::app_icon;
+    return QApplicationPrivate::app_icon ? *QApplicationPrivate::app_icon : QIcon();
 }
 
 /*!
-  Sets the default window icon to \a pixmap.
+  Sets the default window icon to \a icon.
 
   \sa windowIcon()
  */
-void QApplication::setWindowIcon(const QPixmap &pixmap)
+void QApplication::setWindowIcon(const QIcon &icon)
 {
     if (!QApplicationPrivate::app_icon)
-        QApplicationPrivate::app_icon = new QPixmap(pixmap);
-    else
-        *QApplicationPrivate::app_icon = pixmap;
+        QApplicationPrivate::app_icon = new QIcon();
+    *QApplicationPrivate::app_icon = icon;
     if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
 #ifdef Q_WS_MAC
         void qt_mac_set_app_icon(const QPixmap &); //qapplication_mac.cpp
-        qt_mac_set_app_icon(pixmap);
+        QSize size = QApplicationPrivate::app_icon->actualSize(QSize(64, 64));
+        qt_mac_set_app_icon(QApplicationPrivate::app_icon->pixmap(size));
 #endif
         QEvent e(QEvent::ApplicationWindowIconChange);
         for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();

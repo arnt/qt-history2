@@ -56,6 +56,7 @@ class QDropEvent;
 class QShowEvent;
 class QHideEvent;
 class QInputContext;
+class QIcon;
 #if defined(Q_WS_X11)
 class QX11Info;
 #endif
@@ -142,7 +143,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(QSize minimumSizeHint READ minimumSizeHint)
     Q_PROPERTY(bool acceptDrops READ acceptDrops WRITE setAcceptDrops)
     Q_PROPERTY(QString windowTitle READ windowTitle WRITE setWindowTitle DESIGNABLE isWindow)
-    Q_PROPERTY(QPixmap windowIcon READ windowIcon WRITE setWindowIcon DESIGNABLE isWindow)
+    Q_PROPERTY(QIcon windowIcon READ windowIcon WRITE setWindowIcon DESIGNABLE isWindow)
     Q_PROPERTY(QString windowIconText READ windowIconText WRITE setWindowIconText DESIGNABLE isWindow)
     Q_PROPERTY(double windowOpacity READ windowOpacity WRITE setWindowOpacity DESIGNABLE false)
     Q_PROPERTY(bool windowModified READ isWindowModified WRITE setWindowModified DESIGNABLE isWindow)
@@ -274,8 +275,8 @@ public:
 
     void setWindowTitle(const QString &);
     QString windowTitle() const;
-    void setWindowIcon(const QPixmap &);
-    const QPixmap &windowIcon() const;
+    void setWindowIcon(const QIcon &icon);
+    QIcon windowIcon() const;
     void setWindowIconText(const QString &);
     QString windowIconText() const;
     void setWindowRole(const QString &);
@@ -677,7 +678,7 @@ public:
         return w ? w : ((includeThis && rect().contains(p))?const_cast<QWidget*>(this):0);
     }
     inline QT3_SUPPORT void setCaption(const QString &c)   { setWindowTitle(c); }
-    inline QT3_SUPPORT void setIcon(const QPixmap &i)      { setWindowIcon(i); }
+    QT3_SUPPORT void setIcon(const QPixmap &i);
     inline QT3_SUPPORT void setIconText(const QString &it) { setWindowIconText(it); }
     inline QT3_SUPPORT QString caption() const             { return windowTitle(); }
     QT3_SUPPORT const QPixmap *icon() const;

@@ -551,14 +551,10 @@ void Q3WorkspacePrivate::activateWindow(QWidget* w, bool change_focus)
         (d->active->windowWidget()->windowFlags() & Qt::WindowMaximizeButtonHint)) {
         d->active->showMaximized();
         if (d->maxtools) {
-            if (!!w->windowIcon()) {
-                QPixmap pm(w->windowIcon());
+            QIcon icon = w->windowIcon();
+            if (!icon.isNull()) {
                 int iconSize = d->maxtools->size().height();
-                if(pm.width() > iconSize || pm.height() > iconSize) {
-                    QImage im;
-                    im = pm.toImage();
-                    pm = im.scale(qMin(iconSize, pm.width()), qMin(iconSize, pm.height()));
-                }
+                QPixmap pm(icon.pixmap(QSize(iconSize, iconSize)));
                 d->maxtools->setPixmap(pm);
             } else
             {
@@ -1202,15 +1198,10 @@ void Q3WorkspacePrivate::showMaximizeControls()
             d->maxtools->setObjectName("qt_maxtools");
             d->maxtools->installEventFilter(q);
         }
-        if (d->active->windowWidget() && !!d->active->windowWidget()->windowIcon()) {
-            QPixmap pm(d->active->windowWidget()->windowIcon());
+        if (d->active->windowWidget() && !d->active->windowWidget()->windowIcon().isNull()) {
+            QIcon icon = d->active->windowWidget()->windowIcon();
             int iconSize = d->maxcontrols->size().height();
-            if(pm.width() > iconSize || pm.height() > iconSize) {
-                QImage im;
-                im = pm.toImage();
-                pm = im.scale(qMin(iconSize, pm.width()), qMin(iconSize, pm.height()));
-            }
-            d->maxtools->setPixmap(pm);
+            d->maxtools->setPixmap(icon.pixmap(QSize(iconSize, iconSize)));
         } else {
             QPixmap pm(14,14);
             pm.fill(Qt::color1);
@@ -1730,16 +1721,8 @@ Q3WorkspaceChild::Q3WorkspaceChild(QWidget* window, Q3Workspace *parent, Qt::WFl
 
     int th = titlebar ? titlebar->sizeHint().height() : 0;
     if (titlebar) {
-        int iconSize = th ;
-        if(!!childWidget->windowIcon()) {
-            QPixmap pm(childWidget->windowIcon());
-            if(pm.width() > iconSize || pm.height() > iconSize) {
-                QImage im;
-                im = pm.toImage();
-                pm = im.scale(qMin(iconSize, pm.width()), qMin(iconSize, pm.height()));
-            }
-            titlebar->setWindowIcon(pm);
-        }
+        if (!childWidget->windowIcon().isNull())
+            titlebar->setWindowIcon(childWidget->windowIcon());
         if (!style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
             th += frameWidth();
         else
@@ -1946,30 +1929,18 @@ bool Q3WorkspaceChild::eventFilter(QObject * o, QEvent * e)
             Q3Workspace* ws = (Q3Workspace*)parentWidget();
             if (!titlebar)
                 break;
-            QPixmap pm;
             int iconSize = titlebar->size().height();
-            if (!!childWidget->windowIcon()) {
-                pm = childWidget->windowIcon();
-                if(pm.width() > iconSize || pm.height() > iconSize) {
-                    QImage im;
-                    im = pm.toImage();
-                    pm = im.scale(qMin(iconSize, pm.width()), qMin(iconSize, pm.height()));
-                }
-            } else {
-                pm.resize(iconSize, iconSize);
-                pm.fill(Qt::color1);
-                pm.setMask(pm.createHeuristicMask());
-            }
+            QIcon icon = childWidget->windowIcon();
 
-            titlebar->setWindowIcon(pm);
+            titlebar->setWindowIcon(icon);
             if (iconw)
-                iconw->setWindowIcon(pm);
+                iconw->setWindowIcon(icon);
 
             if (ws->d->maxWindow != this)
                 break;
 
             if (ws->d->maxtools)
-                ws->d->maxtools->setPixmap(pm);
+                ws->d->maxtools->setPixmap(icon.pixmap(QSize(iconSize, iconSize)));
         }
         break;
     case QEvent::Resize:
@@ -2193,17 +2164,6 @@ QWidget* Q3WorkspaceChild::iconWidget() const
     }
     if (windowWidget()) {
         iconw->setWindowTitle(windowWidget()->windowTitle());
-        if (!!windowWidget()->windowIcon()) {
-            int iconSize = iconw->sizeHint().height();
-
-            QPixmap pm(childWidget->windowIcon());
-            if(pm.width() > iconSize || pm.height() > iconSize) {
-                QImage im;
-                im = pm.toImage();
-                pm = im.scale(qMin(iconSize, pm.width()), qMin(iconSize, pm.height()));
-            }
-            iconw->setWindowIcon(pm);
-        }
     }
     return iconw->parentWidget();
 }
