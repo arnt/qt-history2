@@ -54,6 +54,7 @@
 #include "qimage.h"
 #include "qdatetime.h"
 #include "qguardedptr.h"
+#include "qiconset.h"
 
 // REVISED: arnt
 
@@ -151,8 +152,8 @@ static const char * const maximize_xpm[]={
 ".#........#.",
 ".#........#.",
 ".#........#.",
+".#........#.",
 ".##########.",
-"............",
 "............"};
 
 
@@ -178,16 +179,16 @@ static const char * const normalize_xpm[] = {
 "# c #000000",
 ". c None",
 "...........",
-"...######..",
-"...######..",
-"...#....#..",
-".######.#..",
-".######.#..",
-".#....###..",
-".#....#....",
-".#....#....",
-".######....",
-"...........",
+"...#######.",
+"...#######.",
+"...#.....#.",
+".#######.#.",
+".#######.#.",
+".#.....#.#.",
+".#.....###.",
+".#.....#...",
+".#.....#...",
+".#######...",
 "..........."};
 
 static const char * const normalizeup_xpm[] = {
@@ -195,16 +196,16 @@ static const char * const normalizeup_xpm[] = {
 "# c #000000",
 ". c None",
 "...........",
-"...######..",
-"...######..",
-"...#....#..",
-".######.#..",
-".######.#..",
-".#....###..",
-".#....#....",
-".#....#....",
-".######....",
-"...........",
+"...#######.",
+"...#######.",
+"...#.....#.",
+".#######.#.",
+".#######.#.",
+".#.....#.#.",
+".#.....###.",
+".#.....#...",
+".#.....#...",
+".#######...",
 "..........."};
 
 
@@ -582,22 +583,25 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->controlId = -1;
     connect( d->popup, SIGNAL( aboutToShow() ), this, SLOT(operationMenuAboutToShow() ));
     connect( d->popup, SIGNAL( activated(int) ), this, SLOT( operationMenuActivated(int) ) );
-    d->popup->insertItem(tr("&Restore"), 1);
+    d->popup->insertItem(QIconSet((const char**)normalize_xpm), tr("&Restore"), 1);
     d->popup->insertItem(tr("&Move"), 2);
     d->popup->insertItem(tr("&Size"), 3);
-    d->popup->insertItem(tr("Mi&nimize"), 4);
-    d->popup->insertItem(tr("Ma&ximize"), 5);
+    d->popup->insertItem(QIconSet((const char**)minimize_xpm), tr("Mi&nimize"), 4);
+    d->popup->insertItem(QIconSet((const char**)maximize_xpm), tr("Ma&ximize"), 5);
     d->popup->insertSeparator();
-    d->popup->insertItem(tr("&Close")+"\t"+QAccel::keyToString( CTRL+Key_F4),
+    d->popup->insertItem(QIconSet((const char**)close_xpm), tr("&Close")+"\t"+QAccel::keyToString( CTRL+Key_F4),
 		  this, SLOT( closeActiveWindow() ) );
 
     connect( d->toolPopup, SIGNAL( aboutToShow() ), this, SLOT(toolMenuAboutToShow() ));
     connect( d->toolPopup, SIGNAL( activated(int) ), this, SLOT( operationMenuActivated(int) ) );
     d->toolPopup->insertItem(tr("&Move"), 2);
     d->toolPopup->insertItem(tr("&Size"), 3);
-    d->toolPopup->insertItem(tr("&Roll up"), 6);
+    d->toolPopup->insertItem(tr("Stay on &Top"), 7);
+    d->toolPopup->setItemChecked( 7, TRUE );
+    d->toolPopup->setCheckable( TRUE );
     d->toolPopup->insertSeparator();
-    d->toolPopup->insertItem(tr("&Close")+"\t"+QAccel::keyToString( CTRL+Key_F4),
+    d->toolPopup->insertItem(QIconSet((const char**)shade_xpm), tr("&Roll up"), 6);
+    d->toolPopup->insertItem(QIconSet((const char**)close_xpm), tr("&Close")+"\t"+QAccel::keyToString( CTRL+Key_F4),
 		  this, SLOT( closeActiveWindow() ) );
 
     QAccel* a = new QAccel( this );
@@ -1266,6 +1270,11 @@ void QWorkspace::operationMenuAboutToShow()
     if ( !d->active )
 	return;
 
+    if ( d->active->isHidden() )
+	d->popup->changeItem( 1, QIconSet((const char**)normalizeup_xpm), "&Restore" );
+    else
+	d->popup->changeItem( 1, QIconSet((const char**)normalize_xpm), "&Restore" );
+
     if ( d->active == d->maxWindow ) {
 	d->popup->setItemEnabled( 2, FALSE );
 	d->popup->setItemEnabled( 3, FALSE );
@@ -1291,9 +1300,9 @@ void QWorkspace::toolMenuAboutToShow()
 	return;
 
     if ( d->active->isShaded() )
-	d->toolPopup->changeItem( 6, "&Roll down" );
+	d->toolPopup->changeItem( 6, QIconSet(QPixmap((const char**)shade_xpm).xForm(QWMatrix().rotate( -180 ))), "&Roll down" );
     else
-	d->toolPopup->changeItem( 6, "&Roll up" );
+	d->toolPopup->changeItem( 6, QIconSet((const char**)shade_xpm), "&Roll up" );
 }
 
 void QWorkspace::operationMenuActivated( int a )
@@ -1318,6 +1327,21 @@ void QWorkspace::operationMenuActivated( int a )
 	break;
     case 6:
 	d->active->showShaded();
+    case 7: 
+	{
+	    QWorkspace* w = (QWorkspace*)d->active->windowWidget();
+	    if ( !w )
+		break;
+	    if ( w->testWFlags( WStyle_StaysOnTop ) ) {
+		d->toolPopup->setItemChecked( 7, FALSE );
+		w->clearWFlags( WStyle_StaysOnTop );
+	    } else {
+		d->toolPopup->setItemChecked( 7, TRUE );
+		w->setWFlags( WStyle_StaysOnTop );
+		w->parentWidget()->raise();
+	    }
+	}
+	break;
     default:
 	break;
     }
@@ -1673,11 +1697,9 @@ void QWorkspaceChildTitleBar::setText( const QString& title )
 
 void QWorkspaceChildTitleBar::setIcon( const QPixmap& icon )
 {
-    int w = iconL->contentsRect().width();
-    int h = iconL->contentsRect().height();
-    if ( icon.height() > h || icon.width() > w ) {
+    if ( icon.height() > titleHeight || icon.width() > titleHeight ) {
 	QPixmap p;
-	p.convertFromImage( icon.convertToImage().smoothScale( w, h ) );
+	p.convertFromImage( icon.convertToImage().smoothScale( titleHeight, titleHeight ) );
 	iconL->setPixmap( p );
     } else {
 	iconL->setPixmap( icon );
