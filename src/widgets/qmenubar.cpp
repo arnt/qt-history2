@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#173 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#174 $
 **
 ** Implementation of QMenuBar class
 **
@@ -186,7 +186,6 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	case MotifStyle:
 	    setFrameStyle( QFrame::Panel | QFrame::Raised );
 	    setLineWidth( motifBarFrame );
-	    setMouseTracking( FALSE );
 	    break;
 	default:
 	    break;
@@ -208,6 +207,7 @@ void QMenuBar::styleChange( QStyle& old )
 	case MotifStyle:
 	    setFrameStyle( QFrame::Panel | QFrame::Raised );
 	    setLineWidth( motifBarFrame );
+	    setMouseTracking( FALSE );
 	    break;
 	default:
 	    break;
