@@ -29,7 +29,7 @@ class QChildEvent;
 class MarkerWidget;
 class QVBoxLayout;
 class QDockArea;
-class QTextParag;
+class QTextParagraph;
 class QLabel;
 class QTimer;
 
@@ -57,8 +57,8 @@ public:
 
 signals:
     void markersChanged();
-    void expandFunction( QTextParag *p );
-    void collapseFunction( QTextParag *p );
+    void expandFunction( QTextParagraph *p );
+    void collapseFunction( QTextParagraph *p );
     void collapse( bool all /*else only functions*/ );
     void expand( bool all /*else only functions*/ );
     void editBreakPoints();
