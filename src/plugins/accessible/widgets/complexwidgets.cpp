@@ -55,9 +55,13 @@ QHeaderView *QAccessibleHeader::header() const
 /*! \reimp */
 QRect QAccessibleHeader::rect(int child) const
 {
-    QPoint zero = header()->mapToGlobal(QPoint(0, 0));
-    QRect sect = header()->itemViewportRect(header()->itemAt(child - 1, 0));
-    return QRect(sect.x() + zero.x(), sect.y() + zero.y(), sect.width(), sect.height());
+    QHeaderView *h = header();
+    QPoint zero = h->mapToGlobal(QPoint(0, 0));
+    int sectionSize = h->sectionSize(child - 1);
+    int sectionPos = h->sectionPosition(child - 1);
+    return h->orientation() == Qt::Horizontal
+        ? QRect(zero.x() + sectionPos, zero.y(), sectionSize, h->height())
+        : QRect(zero.x(), zero.y() + sectionPos, h->width(), sectionSize);
 }
 
 /*! \reimp */
@@ -74,7 +78,7 @@ QString QAccessibleHeader::text(Text t, int child) const
     if (child <= childCount()) {
         switch (t) {
         case Name:
-            str = header()->model()->data(header()->itemAt(child - 1, 0)).toString();
+            str = header()->model()->headerData(child - 1, header()->orientation()).toString();
             break;
         case Description: {
             QAccessibleEvent event(QAccessibleEvent::Description, child);
