@@ -127,6 +127,7 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$WIDGETS_H/qscrollview.h \
 		  $$WIDGETS_H/qslider.h \
 		  $$WIDGETS_H/qspinbox.h \
+		  $$WIDGETS_H/qsplitter.h \
 		  $$WIDGETS_H/qtabbar.h \
 		  $$WIDGETS_H/qtablevw.h \
 		  $$WIDGETS_H/qtooltip.h \
@@ -217,6 +218,7 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  widgets/qscrollview.cpp \
 		  widgets/qslider.cpp \
 		  widgets/qspinbox.cpp \
+		  widgets/qsplitter.cpp \
 		  widgets/qtabbar.cpp \
 		  widgets/qtablevw.cpp \
 		  widgets/qtooltip.cpp \
