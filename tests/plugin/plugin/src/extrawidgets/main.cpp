@@ -9,18 +9,11 @@
 #include <qiconview.h>
 #include <qtable.h>
 
-#ifdef _WS_WIN_
-#undef LIBEXPORT
-#define LIBEXPORT __declspec(dllexport)
-#else
-#define LIBEXPORT
-#endif
-
-class QWidgetsInterface : public WidgetInterface
+class ExtraWidgetsInterface : public WidgetInterface
 {
 public:
-    QWidgetsInterface();
-    ~QWidgetsInterface();
+    ExtraWidgetsInterface();
+    ~ExtraWidgetsInterface();
 
     bool connectNotify( QApplication* theApp );
     bool disconnectNotify( QApplication* theApp );
@@ -41,27 +34,27 @@ public:
     QGuardedCleanUpHandler<QObject> objects;
 };
 
-QWidgetsInterface::QWidgetsInterface()
+ExtraWidgetsInterface::ExtraWidgetsInterface()
 {
 }
 
-QWidgetsInterface::~QWidgetsInterface()
+ExtraWidgetsInterface::~ExtraWidgetsInterface()
 {
 }
 
-bool QWidgetsInterface::connectNotify( QApplication* theApp )
+bool ExtraWidgetsInterface::connectNotify( QApplication* theApp )
 {
     return TRUE;
 }
 
-bool QWidgetsInterface::disconnectNotify( QApplication* theApp )
+bool ExtraWidgetsInterface::disconnectNotify( QApplication* theApp )
 {
     if ( !objects.clean() )
 	return FALSE;
     return TRUE;
 }
 
-QStringList QWidgetsInterface::featureList()
+QStringList ExtraWidgetsInterface::featureList()
 {
     QStringList list;
 
@@ -74,7 +67,7 @@ QStringList QWidgetsInterface::featureList()
     return list;
 }
 
-QWidget* QWidgetsInterface::create( const QString &description, QWidget* parent, const char* name )
+QWidget* ExtraWidgetsInterface::create( const QString &description, QWidget* parent, const char* name )
 {
     QWidget* w = 0;
     if ( description == "QCanvasView" ) {
@@ -97,7 +90,7 @@ QWidget* QWidgetsInterface::create( const QString &description, QWidget* parent,
     return w;
 }
 
-QString QWidgetsInterface::group( const QString& description )
+QString ExtraWidgetsInterface::group( const QString& description )
 {
     if ( description == "QCanvasView" )
 	return "Views";
@@ -113,17 +106,17 @@ QString QWidgetsInterface::group( const QString& description )
     return QString::null;
 }
 
-QString QWidgetsInterface::iconSet( const QString& description )
+QString ExtraWidgetsInterface::iconSet( const QString& description )
 {
     return QString::null;
 }
 
-QString QWidgetsInterface::includeFile( const QString& description )
+QString ExtraWidgetsInterface::includeFile( const QString& description )
 {
     return QString::null;
 }
 
-QString QWidgetsInterface::toolTip( const QString& description )
+QString ExtraWidgetsInterface::toolTip( const QString& description )
 {
     if ( description == "QCanvasView" )
 	return "Canvas";
@@ -139,12 +132,12 @@ QString QWidgetsInterface::toolTip( const QString& description )
     return QString::null;
 }
 
-QString QWidgetsInterface::whatsThis( const QString& description )
+QString ExtraWidgetsInterface::whatsThis( const QString& description )
 {
     return QString::null;
 }
 
-bool QWidgetsInterface::isContainer( const QString& description )
+bool ExtraWidgetsInterface::isContainer( const QString& description )
 { 
     if ( description == "QWorkspace" )
 	return TRUE;
@@ -152,16 +145,5 @@ bool QWidgetsInterface::isContainer( const QString& description )
     return FALSE;
 }
 
-#if defined(__cplusplus )
-extern "C"
-{
-#endif
+QtExportInterface(WidgetInterface, ExtraWidgetsInterface)
 
-LIBEXPORT WidgetInterface* loadInterface()
-{
-    return new QWidgetsInterface();
-}
-
-#if defined(__cplusplus)
-}
-#endif // __cplusplus
