@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#501 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#502 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -381,9 +381,11 @@ static void qt_show_system_menu( QWidget* tlw)
 				tlw->winId(),
 				0);
     if (ret)
+#if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based )
 	    DefWindowProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
 	else
+#endif
 	    DefWindowProcA(tlw->winId(), WM_SYSCOMMAND, ret, 0);
 }
 
@@ -399,6 +401,7 @@ static void qt_set_windows_resources()
     QFont messageFont;
     QFont statusFont;
 
+#if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based ) {
 	// W or A version
 	NONCLIENTMETRICS ncm;
@@ -408,7 +411,9 @@ static void qt_set_windows_resources()
 	menuFont = qt_LOGFONTtoQFont(ncm.lfMenuFont,TRUE);
 	messageFont = qt_LOGFONTtoQFont(ncm.lfMessageFont,TRUE);
 	statusFont = qt_LOGFONTtoQFont(ncm.lfStatusFont,TRUE);
-    } else {
+    } else 
+#endif
+    {
 	// A version
 	NONCLIENTMETRICSA ncm;
 	ncm.cbSize = sizeof( ncm );
@@ -579,9 +584,11 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     // Get the application name/instance if qWinMain() was not invoked
     set_winapp_name();
     if ( appInst == 0 ) {
+#if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based )
 	    appInst = GetModuleHandle( 0 );
 	else
+#endif
 	    appInst = GetModuleHandleA( 0 );
     }
 
@@ -612,11 +619,14 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     {
 	HFONT hfont = (HFONT)GetStockObject( DEFAULT_GUI_FONT );
 	QFont f("MS Sans Serif",8);
+#if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based ) {
 	    LOGFONT lf;
 	    if ( GetObject( hfont, sizeof(lf), &lf ) )
 		f = qt_LOGFONTtoQFont((LOGFONT&)lf,TRUE);
-	} else {
+	} else 
+#endif
+	{
 	    LOGFONTA lf;
 	    if ( GetObjectA( hfont, sizeof(lf), &lf ) )
 		f = qt_LOGFONTtoQFont((LOGFONT&)lf,TRUE);
@@ -783,6 +793,7 @@ const QString qt_reg_winclass( int flags )	// register window class
     if ( winclassNames->find(cname.latin1()) )		// already registered
 	return cname;
 
+#if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based ) {
 	WNDCLASS wc;
 	wc.style	= style;
@@ -805,7 +816,9 @@ const QString qt_reg_winclass( int flags )	// register window class
 	wc.lpszMenuName	= 0;
 	wc.lpszClassName= (TCHAR*)qt_winTchar(cname,TRUE);
 	RegisterClass( &wc );
-    } else {
+    } else 
+#endif
+    {
 	WNDCLASSA wc;
 	wc.style	= style;
 	wc.lpfnWndProc	= (WNDPROC)QtWndProc;
@@ -838,10 +851,13 @@ static void unregWinClasses()
     QAsciiDictIterator<int> it(*winclassNames);
     const char *k;
     while ( (k = it.currentKey()) ) {
+#if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based ) {
 	    UnregisterClass( (TCHAR*)qt_winTchar(QString::fromLatin1(k),TRUE),
 			     (HINSTANCE)qWinAppInst() );
-	} else {
+	} else 
+#endif
+	{
 	    UnregisterClassA( k, (HINSTANCE)qWinAppInst() );
 	}
 	++it;
@@ -1280,26 +1296,32 @@ int QApplication::exec()
 static bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax, UINT wRemoveMsg )
 {
+#if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
 	return PeekMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
     else
+#endif
 	return PeekMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
 }
 
 static bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax )
 {
+#if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
 	return GetMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
     else
+#endif
 	return GetMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
 }
 
 static bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
+#if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
 	return PostMessage( hWnd, msg, wParam, lParam );
     else
+#endif
 	return PostMessageA( hWnd, msg, wParam, lParam );
 }
 
@@ -1376,9 +1398,11 @@ bool QApplication::processNextEvent( bool canWait )
 #if defined(QT_THREAD_SUPPORT)
     qApp->lock();
 #endif
+#if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
 	DispatchMessage( &msg );		// send to QtWndProc
     else
+#endif
 	DispatchMessageA( &msg );		// send to QtWndProc
     if ( configRequests )			// any pending configs?
 	qWinProcessConfigRequests();
@@ -1670,9 +1694,11 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		switch( wParam ) {
 		case SC_CONTEXTHELP:
 		    QWhatsThis::enterWhatsThisMode();
+#if defined(UNICODE)
 		    if ( qt_winver & Qt::WV_NT_based )
 			DefWindowProc( hwnd, WM_NCPAINT, 1, 0 );
 		    else
+#endif
 			DefWindowProcA( hwnd, WM_NCPAINT, 1, 0 );
 		    break;
 		case SC_MAXIMIZE:
@@ -1935,9 +1961,11 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	RETURN(FALSE);
 
 do_default:
+#if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
 	RETURN( DefWindowProc(hwnd,message,wParam,lParam) )
     else
+#endif
 	RETURN( DefWindowProcA(hwnd,message,wParam,lParam) )
 }
 
@@ -2792,11 +2820,13 @@ static
 QChar wmchar_to_unicode(DWORD c)
 {
     // qt_winMB2QString is the generalization of this function.
-
+#if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based ) {
 	ushort uc = (ushort)c;
 	return QChar(uc&0xff,(uc>>8)&0xff);
-    } else {
+    } else 
+#endif
+    {
 	char mb[2];
 	mb[0] = c&0xff;
 	mb[1] = 0;
@@ -2811,11 +2841,13 @@ static
 QChar imechar_to_unicode(DWORD c)
 {
     // qt_winMB2QString is the generalization of this function.
-
+#if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based ) {
 	ushort uc = (ushort)c;
 	return QChar(uc&0xff,(uc>>8)&0xff);
-    } else {
+    } else 
+#endif
+    {
 	char mb[3];
 	mb[0] = (c>>8)&0xff;
 	mb[1] = c&0xff;
@@ -2947,9 +2979,12 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		else {
 		    if (t != WM_SYSKEYDOWN) {
 			UINT map;
+#if defined(UNICODE)
 			if ( qt_winver & Qt::WV_NT_based ) {
 			    map = MapVirtualKey( msg.wParam, 2 );
-			} else {
+			} else 
+#endif
+			{
 			    map = MapVirtualKeyA( msg.wParam, 2 );
 			    // High-order bit is 0x8000 on '95
 			    if ( map & 0x8000 )
@@ -3184,9 +3219,11 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		txt = caption();
 
 	    if ( !!txt ) {
+#if defined(UNICODE)
 		if ( qt_winver & Qt::WV_NT_based )
 		    SetWindowText( winId(), (TCHAR*)qt_winTchar(txt,TRUE) );
 		else
+#endif
 		    SetWindowTextA( winId(), txt.local8Bit() );
 	    }
 	}
@@ -3271,9 +3308,11 @@ void QApplication::setWheelScrollLines( int n )
 #ifdef SPI_SETWHEELSCROLLLINES
     if ( n < 0 )
 	n = 0;
+#if defined(UNICODE)
     if ( qt_winver & WV_NT_based )
 	SystemParametersInfo( SPI_SETWHEELSCROLLLINES, (uint)n, 0, 0 );
     else
+#endif
 	SystemParametersInfoA( SPI_SETWHEELSCROLLLINES, (uint)n, 0, 0 );
 #else
     wheel_scroll_lines = n;
@@ -3284,9 +3323,11 @@ int QApplication::wheelScrollLines()
 {
 #ifdef SPI_GETWHEELSCROLLLINES
     uint i = 3;
+#if defined(UNICODE)
     if ( qt_winver & WV_NT_based )
 	SystemParametersInfo( SPI_GETWHEELSCROLLLINES, sizeof( uint ), &i, 0 );
     else
+#endif
 	SystemParametersInfoA( SPI_GETWHEELSCROLLLINES, sizeof( uint ), &i, 0 );
     if ( i > INT_MAX )
 	i = INT_MAX;
@@ -3347,9 +3388,11 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	break;
 	}
 	BOOL onoff = enable;
+#if defined(UNICODE)
 	if ( qt_winver & WV_NT_based )
 	    SystemParametersInfo( api, 0, &onoff, 0 );
 	else
+#endif
 	    SystemParametersInfoA( api, 0, &onoff, 0 );
     }
 }
@@ -3391,9 +3434,11 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETUIEFFECTS;
 	    break;
 	}
+#if defined(UNICODE)
 	if ( qt_winver & WV_NT_based )
 	    SystemParametersInfo( api, 0, &enabled, 0 );
 	else
+#endif
 	    SystemParametersInfoA( api, 0, &enabled, 0 );
 	return enabled;
     } else {

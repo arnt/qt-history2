@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#67 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -158,20 +158,23 @@ public:
     const char* format( int n ) const
     {
 	const char* mime = 0;
-	bool sawSBText( false );
+	bool sawSBText( FALSE );
 
 	if ( n >= 0 ) {
 	    if ( OpenClipboard( clipboardOwner()->winId() ) ) {
 		int cf = 0;
 		QPtrList<QWindowsMime> all = QWindowsMime::all();
 		while (cf = EnumClipboardFormats(cf)) {
-                    if ( qWinVersion() & Qt::WV_NT_based && cf == CF_TEXT )
-			sawSBText = true;
-		    else {
+#if defined(UNICODE)
+                    if ( qWinVersion() & Qt::WV_NT_based && cf == CF_TEXT ) {
+			sawSBText = TRUE;
+		    } else 
+#endif
+		    {
 			mime = QWindowsMime::cfToMime(cf);
 			if ( mime ) {
 			    if ( !n )
-				    break; // COME FROM HERE
+				break; // COME FROM HERE
 			    n--;
 			    mime = 0;
 			}
@@ -425,10 +428,12 @@ bool QClipboard::event( QEvent *e )
 	    break;
     }
     if ( propagate && nextClipboardViewer ) {
+#if defined(UNICODE)
 	if ( qWinVersion() & Qt::WV_NT_based )
 	    SendMessage( nextClipboardViewer, m->message,
 			 m->wParam, m->lParam );
 	else
+#endif
 	    SendMessageA( nextClipboardViewer, m->message,
 			 m->wParam, m->lParam );
     }

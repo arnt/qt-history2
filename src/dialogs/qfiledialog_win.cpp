@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#34 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#35 $
 **
 ** Implementation of QFileDialog Windows-specific functionality
 **
@@ -445,6 +445,7 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 	    dispName = 0;
 	}
     } else if (uMsg == BFFM_SELCHANGED) {
+#if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based ) {
 	    TCHAR path[MAX_PATH];
 	    SHGetPathFromIDList(LPITEMIDLIST(lParam), path);
@@ -454,7 +455,9 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 	    else
 		SendMessage(hwnd, BFFM_ENABLEOK, 0, 0);
 	    SendMessage(hwnd, BFFM_SETSTATUSTEXT, 1, long(path));
-	} else {
+	} else 
+#endif
+	{
 	    char path[MAX_PATH];
 	    SHGetPathFromIDListA(LPITEMIDLIST(lParam), path);
 	    QString tmpStr = QString::fromLocal8Bit(path);
@@ -482,6 +485,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
     QString title = caption;
     if ( title.isNull() )
 	title = tr("Select A Directory");
+#if defined(UNICODE)
     if ( qt_winver & WV_NT_based ) {
 	QString initDir = QDir::convertSeparators(initialDirectory);
 	TCHAR path[MAX_PATH];
@@ -512,7 +516,9 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	    result = QString::null;
 	delete tTitle;
 	tTitle = 0;
-    } else {
+    } else 
+#endif
+    {
 	QString initDir = QDir::convertSeparators(initialDirectory);
 	char path[MAX_PATH];
 	char initPath[MAX_PATH];

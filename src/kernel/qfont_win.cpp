@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#175 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#176 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -776,10 +776,13 @@ int QFontMetrics::leftBearing(QChar ch) const
 {
     if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
 	ABC abc;
+#if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based ) {
 	    uint ch16 = ch.unicode();
 	    GetCharABCWidths(hdc(),ch16,ch16,&abc);
-	} else {
+	} else 
+#endif
+	{
 	    uint ch8;
 	    if ( ch.row() || ch.cell() > 125 ) {
 		QCString w = qt_winQString2MB(QString(ch));
@@ -812,11 +815,14 @@ int QFontMetrics::rightBearing(QChar ch) const
 {
     if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
 	ABC abc;
+#if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based ) {
 	    uint ch16 = ch.unicode();
 	    GetCharABCWidths(hdc(),ch16,ch16,&abc);
 	    return abc.abcC;
-	} else {
+	} else 
+#endif
+	{
 	    uint ch8;
 	    if ( ch.row() || ch.cell() > 125 ) {
 		QCString w = qt_winQString2MB(QString(ch));
@@ -830,12 +836,15 @@ int QFontMetrics::rightBearing(QChar ch) const
 	}
 	return abc.abcC;
     } else {
+#if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based ) {
 	    uint ch16 = ch.unicode();
 	    ABCFLOAT abc;
 	    GetCharABCWidthsFloat(hdc(),ch16,ch16,&abc);
 	    return int(abc.abcfA);
-	} else {
+	} else 
+#endif
+	{
 	    return -TMX->tmOverhang;
 	}
     }
@@ -911,6 +920,7 @@ int QFontMetrics::minRightBearing() const
 	if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
 	    ABC *abc = 0;
 	    int n;
+#if defined(UNICODE)
 	    if ( qt_winver & Qt::WV_NT_based ) {
 		TEXTMETRIC *tm = TMW;
 		n = tm->tmLastChar - tm->tmFirstChar+1;
@@ -921,7 +931,9 @@ int QFontMetrics::minRightBearing() const
 		    ml = get_min_left_bearing( this );
 		    mr = get_min_right_bearing( this );
 		}
-	    } else {
+	    } else 
+#endif
+	    {
 		TEXTMETRICA *tm = TMA;
 		n = tm->tmLastChar - tm->tmFirstChar+1;
 		if ( n <= max_font_count ) {

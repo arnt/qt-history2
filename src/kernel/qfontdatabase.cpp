@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#86 $
 **
 ** Implementation of font database class.
 **
@@ -1127,6 +1127,7 @@ void populate_database(const QString& fam)
     QWidget dummy;
     QPainter p( &dummy );
 
+#if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based ) {
         LOGFONT lf;
         lf.lfCharSet = DEFAULT_CHARSET;
@@ -1145,8 +1146,9 @@ void populate_database(const QString& fam)
         EnumFontFamilies( dummy.handle(), (LPTSTR) 0,
             (FONTENUMPROC)storeFont, (LPARAM)db );
 #endif
-
-    } else {
+    } else 
+#endif
+    {
         LOGFONTA lf;
         lf.lfCharSet = DEFAULT_CHARSET;
         if ( fam.isNull() ) {

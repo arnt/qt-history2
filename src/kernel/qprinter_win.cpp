@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#112 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -119,6 +119,7 @@ QPrinter::QPrinter( PrinterMode m )
     hdevmode  = 0;
     hdevnames = 0;
 
+#if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) {
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
@@ -126,8 +127,9 @@ QPrinter::QPrinter( PrinterMode m )
         pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
         if ( PrintDlg( &pd ) != 0 )
             readPdlg( &pd );
-    }
-    else {
+    } else 
+#endif
+    {
         PRINTDLGA pd;
         memset( &pd, 0, sizeof(PRINTDLGA) );
         pd.lStructSize = sizeof(PRINTDLGA);
@@ -557,6 +559,7 @@ bool QPrinter::setup( QWidget *parent )
     bool result = FALSE;
 
     // Must handle the -A and -W versions separately; they're incompatible
+#if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) {
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
@@ -615,8 +618,9 @@ bool QPrinter::setup( QWidget *parent )
             if ( result )                               // get values from dlg
                 readPdlg( &pd );
         }
-    }
-    else {
+    } else 
+#endif
+    {
         // Win95/98 A version; identical to the above!
         PRINTDLGA pd;
         memset( &pd, 0, sizeof(PRINTDLGA) );
@@ -756,6 +760,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             if ( !hdc )
                 ok = FALSE;
         }
+#if defined(UNICODE)
         if ( qWinVersion() & Qt::WV_NT_based ) {
             DOCINFO di;
             memset( &di, 0, sizeof(DOCINFO) );
@@ -763,7 +768,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             di.lpszDocName = (TCHAR*)qt_winTchar(doc_name,TRUE);
             if ( ok && StartDoc(hdc, &di) == SP_ERROR )
                 ok = FALSE;
-        } else {
+        } else 
+#endif
+	{
             DOCINFOA di;
             memset( &di, 0, sizeof(DOCINFO) );
             di.cbSize = sizeof(DOCINFO);

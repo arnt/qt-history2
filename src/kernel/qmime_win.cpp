@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#46 $
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **
@@ -615,6 +615,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
     d->fNC = TRUE;
     char* files = ((char* )d) + d->pFiles;
 
+#if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) {
 	d->fWide = sizeof(TCHAR)>1;
 	TCHAR* f = (TCHAR*)files;
@@ -630,7 +631,9 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	    *f++ = 0;
 	}
 	*f = 0;
-    } else {
+    } else 
+#endif
+    {
 	d->fWide = FALSE;
 	char* f = files;
 

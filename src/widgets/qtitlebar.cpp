@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#46 $
 **
 ** Implementation of some Qt private functions.
 **
@@ -161,9 +161,11 @@ void QTitleBar::getColors()
 	    irightc = ileftc;
 
 	    BOOL gradient;
+#if defined(UNICODE)
 	    if ( qt_winver & Qt::WV_NT_based )
 		SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
 	    else
+#endif
 		SystemParametersInfoA( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
 
 	    if ( gradient ) {

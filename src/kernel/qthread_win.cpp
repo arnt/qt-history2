@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread_win.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qthread_win.cpp#56 $
 **
 ** QThread class for windows
 **
@@ -97,9 +97,11 @@ public:
 
 QMutexPrivate::QMutexPrivate()
 {
+#if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
 	handle = CreateMutex( NULL, FALSE, NULL );
     else
+#endif
 	handle = CreateMutexA( NULL, FALSE, NULL );
 #ifdef QT_CHECK_RANGE
     if ( !handle )
@@ -392,10 +394,13 @@ public:
 QWaitConditionPrivate::QWaitConditionPrivate()
 : waitersCount(0)
 {
+#if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) {
 	handle = CreateEvent( NULL, TRUE, FALSE, NULL );
 	single = CreateEvent( NULL, FALSE, FALSE, NULL );
-    } else {
+    } else 
+#endif
+    {
 	handle = CreateEventA( NULL, TRUE, FALSE, NULL );
 	single = CreateEventA( NULL, FALSE, FALSE, NULL );
     }
@@ -715,9 +720,12 @@ QSemaphore::QSemaphore( int maxcount )
 {
     d = new QSemaphorePrivate;
     d->maxCount = maxcount;
+#if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) {
 	d->handle = CreateSemaphore( NULL, maxcount, maxcount, NULL );
-    } else {
+    } else 
+#endif
+    {
 	d->handle = CreateSemaphoreA( NULL, maxcount, maxcount, NULL );
     }
 
