@@ -830,7 +830,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	    comp = "QMAKE_RUN_CC";
 	    cimp = "QMAKE_RUN_CC_IMP";
 	}
-	bool use_implicit_rule = !project->isEmpty(cimp);
+	bool use_implicit_rule = !project->isEmpty(cimp) && !project->isActiveConfig("compile_absolute_path");
 	if(use_implicit_rule) {
 	    if(!project->isEmpty("OBJECTS_DIR")) {
 		use_implicit_rule = FALSE;
@@ -840,9 +840,11 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 		    use_implicit_rule = FALSE;
 	    }
 	}
-	if(!use_implicit_rule && !project->isEmpty(comp)) {
-	    QString p = var(comp);
-	    p.replace(stringSrc, (*sit));
+	if (!use_implicit_rule && !project->isEmpty(comp)) {
+	    QString p = var(comp), srcf(*sit);
+	    if(project->isActiveConfig("compile_absolute_path") && QDir::isRelativePath(srcf))
+		srcf.prepend("$(PWD)" + Option::dir_sep);
+	    p.replace(stringSrc, srcf);
 	    p.replace(stringObj, (*oit));
 	    t << "\n\t" << p;
 	}
@@ -918,7 +920,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 	t << (*oit) << ": "
 	  << (*sit) << " " << findDependencies((*sit)).join(" \\\n\t\t") << " "
 	  << hdr << " " << findDependencies(hdr).join(" \\\n\t\t");
-	bool use_implicit_rule = !project->isEmpty("QMAKE_RUN_CXX_IMP");
+	bool use_implicit_rule = !project->isEmpty("QMAKE_RUN_CXX_IMP") && !project->isActiveConfig("compile_absolute_path");
 	if(use_implicit_rule) {
 	    if(!project->isEmpty("OBJECTS_DIR") || !project->isEmpty("MOC_DIR")) {
 		use_implicit_rule = FALSE;
@@ -928,9 +930,11 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 		    use_implicit_rule = FALSE;
 	    }
 	}
-	if(!use_implicit_rule && !project->isEmpty("QMAKE_RUN_CXX")) {
-	    QString p = var("QMAKE_RUN_CXX");
-	    p.replace(stringSrc, (*sit));
+	if (!use_implicit_rule && !project->isEmpty("QMAKE_RUN_CXX")) {
+	    QString p = var("QMAKE_RUN_CXX"), srcf(*sit);
+	    if(project->isActiveConfig("compile_absolute_path") && QDir::isRelativePath(srcf))
+		srcf.prepend("$(PWD)" + Option::dir_sep);
+	    p.replace(stringSrc, srcf);
 	    p.replace(stringObj, (*oit));
 	    t << "\n\t" << p;
 	}
@@ -1079,7 +1083,7 @@ MakefileGenerator::writeImageObj(QTextStream &t, const QString &obj)
     for(QStringList::Iterator oit = objl.begin(); oit != objl.end(); oit++) {
         QString src(project->first("QMAKE_IMAGE_COLLECTION"));
 	t << (*oit) << ": " << src;
-	bool use_implicit_rule = !project->isEmpty("QMAKE_RUN_CXX_IMP");
+	bool use_implicit_rule = !project->isEmpty("QMAKE_RUN_CXX_IMP") && !project->isActiveConfig("compile_absolute_path");
 	if(use_implicit_rule) {
 	    if(!project->isEmpty("OBJECTS_DIR") || !project->isEmpty("UI_DIR") || !project->isEmpty("UI_SOURCES_DIR")) {
 		use_implicit_rule = FALSE;
@@ -1090,8 +1094,10 @@ MakefileGenerator::writeImageObj(QTextStream &t, const QString &obj)
 	    }
 	}
 	if(!use_implicit_rule && !project->isEmpty("QMAKE_RUN_CXX")) {
-	    QString p = var("QMAKE_RUN_CXX");
-	    p.replace(stringSrc, src);
+	    QString p = var("QMAKE_RUN_CXX"), srcf(src);
+	    if(project->isActiveConfig("compile_absolute_path") && QDir::isRelativePath(srcf))
+		srcf.prepend("$(PWD)" + Option::dir_sep);
+	    p.replace(stringSrc, srcf);
 	    p.replace(stringObj, (*oit));
 	    t << "\n\t" << p;
 	}
