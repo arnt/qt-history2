@@ -113,19 +113,19 @@ option.o: option.cpp option.h
 	$(CXX) -c -O2 -o $@ $(CFLAGS) option.cpp
 
 makefile.o: generators/makefile.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CFLAGS) generators/makefile.cpp
 
 unixmake.o: generators/unix/unixmake.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CFLAGS) generators/unix/unixmake.cpp
 
 borland_bmake.o: generators/win32/borland_bmake.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CFLAGS) generators/win32/borland_bmake.cpp
 
 msvc_nmake.o: generators/win32/msvc_nmake.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CFLAGS) generators/win32/msvc_nmake.cpp
 
 msvc_dsp.o: generators/win32/msvc_dsp.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CFLAGS) generators/win32/msvc_dsp.cpp
 
 #default rules
 .c.o: 
