@@ -758,10 +758,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     //get new hd, now move
     create();
     no_move_blt = TRUE;
-    if ( p.isNull() )
-	resize( s );
-    else
-	setGeometry( p.x(), p.y(), s.width(), s.height() );
+    setGeometry( p.x(), p.y(), s.width(), s.height() );
     no_move_blt = FALSE;
 
     //reset flags and show (if neccesary)

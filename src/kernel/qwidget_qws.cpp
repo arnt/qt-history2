@@ -371,10 +371,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     else
 	XSetWindowBackground( dpy, winid, bgc.pixel() );
     */
-    if ( p.isNull() )
-	resize( s );
-    else
-	setGeometry( p.x(), p.y(), s.width(), s.height() );
+    setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
     setFocusPolicy( fp );
 #ifndef QT_NO_WIDGET_TOPEXTRA

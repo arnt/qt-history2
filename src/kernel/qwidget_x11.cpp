@@ -668,11 +668,8 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
 	XSetWindowBackgroundPixmap( dpy, winid, bgp->handle() );
     else
 	XSetWindowBackground( dpy, winid, bgc.pixel(x11Screen()) );
-    if ( p.isNull() )
-	resize( s );
-    else
-	setGeometry( p.x(), p.y(), s.width(), s.height() );
 
+    setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
     setFocusPolicy( fp );
     if ( !capt.isNull() ) {
