@@ -1433,8 +1433,8 @@ fi
 # auto-detect SQL-modules support
 if echo $MODULES | grep sql >/dev/null; then
     CFG_SQL_AVAILABLE=`find $relpath/plugins/src/sqldrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
-    ### is the following line really needed???
-#    CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`
+    # normalize whitespace
+    CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`
     MYSQL_REQ="-lmysqlclient mysql.h"
     OCI_REQ="-lclntsh -lwtc8 oci.h"
     PSQL_REQ="-lpq postgres.h libpq/libpq-fs.h catalog/pg_type.h libpq-fe.h"
