@@ -11,9 +11,14 @@
 **
 ****************************************************************************/
 
+#include <QtCore/qdebug.h>
+
 #include "buddyeditor.h"
 
 #include <abstractformwindow.h>
+#include <qextensionmanager.h>
+#include <propertysheet.h>
+#include <abstractformeditor.h>
 
 #include <qtundo.h>
 #include <qdesigner_command.h>
@@ -28,6 +33,8 @@ class BuddyConnection : public Connection
 public:
     BuddyConnection(BuddyEditor *edit, QWidget *source, QWidget *target)
         : Connection(edit, source, target) {}
+    BuddyConnection(BuddyEditor *edit)
+        : Connection(edit) {}
     virtual void inserted();
     virtual void removed();
 
@@ -73,6 +80,9 @@ QWidget *BuddyEditor::widgetAt(const QPoint &pos) const
 {
     QWidget *w = ConnectionEdit::widgetAt(pos);
 
+    if (w == m_formWindow->mainContainer())
+        return 0;
+
     if (state() == Editing) {
         QDesignerLabel *label = qobject_cast<QDesignerLabel*>(w);
         if (label == 0)
@@ -98,3 +108,36 @@ AbstractFormWindow *BuddyEditor::formWindow() const
 {
     return m_formWindow;
 }
+
+static QString buddy(QDesignerLabel *label, AbstractFormEditor *core)
+{
+    IPropertySheet *sheet = qt_extension<IPropertySheet*>(core->extensionManager(), label);
+    if (sheet == 0)
+        return QString();
+    int prop_idx = sheet->indexOf(QLatin1String("buddy"));
+    if (prop_idx == -1)
+        return QString();
+    return sheet->property(prop_idx).toString();
+}
+
+void BuddyEditor::setBackground(QWidget *background)
+{
+    ConnectionEdit::setBackground(background);
+    clear();
+
+    QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(background);
+    foreach (QDesignerLabel *label, label_list) {
+        QString buddy_name = buddy(label, m_formWindow->core());
+        if (buddy_name.isEmpty())
+            continue;
+        QWidget *target = qFindChild<QWidget*>(background, buddy_name);
+        if (target == 0)
+            continue;
+        
+        BuddyConnection *con = new BuddyConnection(this);
+        con->setEndPoint(EndPoint::Source, label, widgetRect(label).center());
+        con->setEndPoint(EndPoint::Target, target, widgetRect(target).center());
+        addConnection(con);
+    }
+}
+

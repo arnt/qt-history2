@@ -120,7 +120,7 @@ public:
     void clear();
 
 public slots:
-    void setBackground(QWidget *background);
+    virtual void setBackground(QWidget *background);
     void updateBackground();
     void widgetRemoved(QWidget *w);
     void updateLines();

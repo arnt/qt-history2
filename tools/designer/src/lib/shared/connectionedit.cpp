@@ -756,7 +756,7 @@ void ConnectionEdit::clear()
 {
     m_con_list.clear();
     m_sel_con_set.clear();
-    m_bg_widget = 0;
+//    m_bg_widget = 0;
     m_widget_under_mouse = 0;
     m_tmp_con = 0;
 }

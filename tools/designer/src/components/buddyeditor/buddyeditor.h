@@ -29,6 +29,7 @@ public:
     BuddyEditor(AbstractFormWindow *form, QWidget *parent);
 
     AbstractFormWindow *formWindow() const;
+    virtual void setBackground(QWidget *background);
 
 protected:
     virtual QWidget *widgetAt(const QPoint &pos) const;
