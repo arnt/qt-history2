@@ -1,7 +1,7 @@
 #include "qstylefactory.h"
 
-#include "qinterfacemanager.h"
 #include "qstyleinterface.h"
+#include "qinterfacemanager.h"
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
 #if defined(QT_STYLE_CDE)

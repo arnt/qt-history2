@@ -1108,7 +1108,7 @@ bool QActionGroup::removeFrom( QWidget* w )
 	    QComboBox *box = cb.current();
 	    ++cb;
 	    if ( box->parentWidget() == w )
-		delete cb;
+		delete box;
 	}
 	QListIterator<QToolButton> mb( d->menubuttons );
 	while( mb.current() ) {

@@ -42,7 +42,6 @@
 #include "qlibrary.h"
 #include "qdict.h"
 #include "qdir.h"
-#include "qmap.h"
 #include "qstringlist.h"
 #endif // QT_H
 
