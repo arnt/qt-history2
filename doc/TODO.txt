@@ -109,6 +109,11 @@ QCursor
 QListView
   Ctrl+NumPlus resizes all listview items to the optimum on windows (see more on info/arc-07/15307)
 
+QHostAddress (rms)
+  (or another network class): it would be nice to have a way to find
+  out the own IP address; perhaps static member of QHostAddress?
+  (see support/arc-08/16270)
+
 
 New functionality
 -----------------
