@@ -23,6 +23,7 @@ unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 
 HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$DIALOGS_H/qfiledialog.h \
+		  $$DIALOGS_H/qfontdialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
 		  $$DIALOGS_H/qprogressdialog.h \
 		  $$DIALOGS_H/qtabdialog.h \
@@ -156,6 +157,7 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 
 SOURCES		= dialogs/qbuilder.cpp \
 		  dialogs/qfiledialog.cpp \
+		  dialogs/qfontdialog.cpp \
 		  dialogs/qmessagebox.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
