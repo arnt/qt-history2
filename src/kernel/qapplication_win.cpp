@@ -2131,9 +2131,23 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_MOUSELEAVE:
 	    // We receive a mouse leave for curWin, meaning
 	    // the mouse was moved outside our widgets
-	    if ( widget->winId() == curWin && !widget->hasMouse() ) {
-		qt_dispatchEnterLeave( 0, QWidget::find( (WId)curWin ) );
-		curWin = 0;
+	    if ( widget->winId() == curWin ) {
+		bool dispatch = !widget->hasMouse();
+		// hasMouse is updated when dispatching enter/leave,
+		// so test if it is actually up-to-date
+		if ( !dispatch ) {
+		    QRect geom = widget->geometry();
+		    if ( widget->parentWidget() && !widget->isTopLevel() ) {
+			QPoint gp = widget->parentWidget()->mapToGlobal( widget->pos() );
+			geom.setX( gp.x() );
+			geom.setY( gp.y() );
+		    }
+		    dispatch = !geom.contains( QCursor::pos() );
+		}
+		if ( dispatch ) {
+		    qt_dispatchEnterLeave( 0, QWidget::find( (WId)curWin ) );
+		    curWin = 0;
+		}
 	    }
 	    break;
 
