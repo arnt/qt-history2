@@ -1098,33 +1098,41 @@ void QAquaStyle::drawControl( ControlElement element,
 		qAquaPixmap( "btn_def_right_" + hstr, right );
 	    }
 	    // Pause animation if button is down
-	    if( !btn->isDown() ) {
+	    if( how & Style_Down ) {
 		if( (dir == 1) && (alt == 9) ) dir = -1;
 		if( (dir == -1) && (alt == 0) ) dir = 1;
 		alt += dir;
 	    }
-	} else if ( btn->isDown() ) {
-	    qAquaPixmap( "btn_def_left_" + hstr, left );
-	    qAquaPixmap( "btn_def_mid_" + hstr, mid );
-	    qAquaPixmap( "btn_def_right_" + hstr, right );
-	} else if ( !btn->isEnabled() ) {
+	} else if ( how & Style_Down ) {
+	    if(btn->isFlat()) {
+		qAquaPixmap( "btn_def_mir_left_" + hstr, left );
+		qAquaPixmap( "btn_def_mir_mid_" + hstr, mid );
+		qAquaPixmap( "btn_def_mir_right_" + hstr, right );
+	    } else {
+		qAquaPixmap( "btn_def_left_" + hstr, left );
+		qAquaPixmap( "btn_def_mid_" + hstr, mid );
+		qAquaPixmap( "btn_def_right_" + hstr, right );
+	    }
+	} else if ( !(how & Style_Enabled) ) {
 	    qAquaPixmap( "btn_dis_left_" + hstr, left );
 	    qAquaPixmap( "btn_dis_mid_" + hstr, mid );
 	    qAquaPixmap( "btn_dis_right_" + hstr, right );
-	} else if ( btn->isOn() ) {
+	} else if ( how & Style_On ) {
 	    qAquaPixmap( "btn_def_mir_left_" + hstr, left );
 	    qAquaPixmap( "btn_def_mir_mid_" + hstr, mid );
 	    qAquaPixmap( "btn_def_mir_right_" + hstr, right );
-	} else {
+	} else if ( how & Style_Raised ) {
 	    qAquaPixmap( "btn_nrm_left_" + hstr, left );
 	    qAquaPixmap( "btn_nrm_mid_" + hstr, mid );
 	    qAquaPixmap( "btn_nrm_right_" + hstr, right );
 	}
 
-	QBrush mid_f( Qt::black, mid );
-	p->drawPixmap( x, y, left );
-	p->drawTiledPixmap( x+left.width(), y, w-x-left.width()*2, h-y, mid );
-	p->drawPixmap( w-right.width(), y, right );
+	if(!mid.isNull()) {
+	    QBrush mid_f( Qt::black, mid );
+	    p->drawPixmap( x, y, left );
+	    p->drawTiledPixmap( x+left.width(), y, w-x-left.width()*2, h-y, mid );
+	    p->drawPixmap( w-right.width(), y, right );
+	}
 #endif
 	break; }
 
