@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 2.3 1997/06/30 10:34:22 warwick Exp $
+** $Id: qarray.doc,v 2.4 1997/08/05 16:27:37 hanord Exp $
 **
 ** QArray class documentation
 **
@@ -297,18 +297,17 @@
 
   Example I (intended use):
   \code
-    static uchar bindata[] = { 231, 1, 44, ... };
+    static char bindata[] = { 231, 1, 44, ... };
     QByteArray	a;
     a.setRawData( bindata, sizeof(bindata) );	// a points to bindata
     QDataStream s( a, IO_ReadOnly );		// open on a's data
     s >> <something>;				// read raw bindata
-    s.close();
     a.resetRawData( bindata, sizeof(bindata) ); // finished
   \endcode
 
   Example II (you don't want to do this):
   \code
-    static uchar bindata[] = { 231, 1, 44, ... };
+    static char bindata[] = { 231, 1, 44, ... };
     QByteArray	a, b;
     a.setRawData( bindata, sizeof(bindata) );	// a points to bindata
     a.resize( 8 );				// will crash

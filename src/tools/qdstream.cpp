@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#31 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#32 $
 **
 ** Implementation of QDataStream class
 **
@@ -20,7 +20,7 @@
 #include <netinet/in.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#32 $");
 
 
 /*!
@@ -128,12 +128,11 @@ QDataStream::QDataStream( QIODevice *d )
 
   Example:
   \code
-    static uchar bindata[] = { 231, 1, 44, ... };
+    static char bindata[] = { 231, 1, 44, ... };
     QByteArray	a;
     a.setRawData( bindata, sizeof(bindata) );	// a points to bindata
     QDataStream s( a, IO_ReadOnly );		// open on a's data
     s >> <something>;				// read raw bindata
-    s.close();
     a.resetRawData( bindata, sizeof(bindata) ); // finished
   \endcode
 
