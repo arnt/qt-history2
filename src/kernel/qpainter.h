@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#39 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#40 $
 **
 ** Definition of QPainter class
 **
@@ -45,7 +45,7 @@ public:
     bool	end();				// end painting
     QPaintDevice *device() const { return pdev; }
 
-    static bool redirect( QPaintDevice *pdev, QPaintDevice *replacement );
+    static void	redirect( QPaintDevice *pdev, QPaintDevice *replacement );
 
     bool	isActive() const { return testf(IsActive); }
 
@@ -223,7 +223,6 @@ private:
     void	setf( ushort b, bool v );
     void	clearf( ushort b )	{ flags &= ~b; }
 
-    static QPaintDevice *pdev_ov;		// overriding paint device
     QPaintDevice *pdev;				// paint device
     QColor	bg_col;				// background color
     uchar	bg_mode;			// background mode
