@@ -166,7 +166,7 @@ struct DesignerFormWindow
     virtual void addAction( QAction * ) = 0;
     virtual void removeAction( QAction * ) = 0;
     virtual void preview() const = 0;
-    virtual void addSlot( const QCString &slot, const QString &access, const QString &language ) = 0;
+    virtual void addSlot( const QCString &slot, const QString &access, const QString &language, const QString &returnType ) = 0;
     virtual void addConnection( QObject *sender, const char *signal, QObject *receiver, const char *slot ) = 0;
     virtual void setProperty( QObject *o, const char *property, const QVariant &value ) = 0;
     virtual QVariant property( QObject *o, const char *property ) const = 0;

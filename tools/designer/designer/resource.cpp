@@ -1735,7 +1735,8 @@ void Resource::saveConnections( QTextStream &ts, int indent )
 	for ( ; it != slotList.end(); ++it ) {
 	    MetaDataBase::Slot slot = *it;
 	    ts << makeIndent( indent ) << "<slot access=\"" << slot.access
-	       << "\" language=\"" << slot.language << "\">" << entitize( slot.slot ) << "</slot>" << endl;
+	       << "\" language=\"" << slot.language << "\" returnType=\""
+	       << slot.returnType  << "\">" << entitize( slot.slot ) << "</slot>" << endl;
 	}
     }
 
@@ -1798,8 +1799,11 @@ void Resource::loadConnections( const QDomElement &e )
 	    MetaDataBase::Slot slot;
 	    slot.access = n.attribute( "access", "public" );
 	    slot.language = n.attribute( "language", "C++" );
+	    slot.returnType = n.attribute( "returnType", "void" );
+	    if ( slot.returnType.isEmpty() )
+		slot.returnType = "void";
 	    slot.slot = n.firstChild().toText().data();
-	    MetaDataBase::addSlot( formwindow ? formwindow : toplevel, slot.slot, slot.access, slot.language );
+	    MetaDataBase::addSlot( formwindow ? formwindow : toplevel, slot.slot, slot.access, slot.language, slot.returnType );
 	}
 	n = n.nextSibling().toElement();
     }
@@ -2288,7 +2292,7 @@ void Resource::saveFunctions( QTextStream &ts, int indent )
     for ( ; sit != slotList.end(); ++sit ) {
 	MetaDataBase::Slot slot = *sit;
 	QMap<QString, QString>::Iterator it = functionBodies.find( MetaDataBase::normalizeSlot( (*sit).slot ) );
-	ts << makeIndent( indent ) << "<function name=\"" << entitize( it.key() ) << "\" ";
+	ts << makeIndent( indent ) << "<function name=\"" << entitize( it.key().simplifyWhiteSpace() ) << "\" ";
 	ts << ">" << entitize( *it ) << "</function>" << endl;
     }
     --indent;
@@ -2307,5 +2311,5 @@ void Resource::loadFunctions( const QDomElement &e )
 	}
 	n = n.nextSibling().toElement();
     }
-    MetaDataBase::setFunctionBodies( formwindow, bodies, QString::null );
+    MetaDataBase::setFunctionBodies( formwindow, bodies, QString::null, QString::null );
 }

@@ -540,16 +540,20 @@ void Uic::createFormDecl( const QDomElement &e )
 
     // find additional slots
     QStringList publicSlots, protectedSlots;
+    QStringList publicSlotTypes, protectedSlotTypes;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
 	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 		if ( n2.tagName() == "slot" ) {
 		    QString access = n2.attribute( "access" );
 		    if ( n2.attribute( "language", "C++" ) == "C++" ) {
-			if ( access == "protected" )
+			if ( access == "protected" ) {
 			    protectedSlots += n2.firstChild().toText().data();
-			else
+			    protectedSlotTypes += n2.attribute( "returnType", "void" );
+			} else {
 			    publicSlots += n2.firstChild().toText().data();
+			    publicSlotTypes += n2.attribute( "returnType", "void" );
+			}
 		    }
 		}
 	    }
@@ -559,8 +563,13 @@ void Uic::createFormDecl( const QDomElement &e )
     // create public additional slots as pure-virtual functions
     if ( !publicSlots.isEmpty() || needPolish ) {
 	out << "public slots:" << endl;
-	for ( it = publicSlots.begin(); it != publicSlots.end(); ++it )
-	    out << indent << "virtual void " << (*it) << ";" << endl;
+	QStringList::Iterator it2;
+	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(); it != publicSlots.end(); ++it, ++it2 ) {
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    out << indent << "virtual " << type << " " << (*it) << ";" << endl;
+	}
 	if ( needPolish )
 	    out << indent << "void polish();" << endl;
 	out << endl;
@@ -569,8 +578,13 @@ void Uic::createFormDecl( const QDomElement &e )
     // create protected additional slots as pure-virtual functions
     if ( !protectedSlots.isEmpty() ) {
 	out << "protected slots:" << endl;
-	for ( it = protectedSlots.begin(); it != protectedSlots.end(); ++it )
-	    out << "    virtual void " << (*it) << ";" << endl;
+	QStringList::Iterator it2;
+	for ( it = protectedSlots.begin(), it2 = protectedSlotTypes.begin(); it != protectedSlots.end(); ++it, ++it2 ) {
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    out << "    virtual " << type << " " << (*it) << ";" << endl;
+	}
 	out << endl;
     }
 
@@ -642,16 +656,20 @@ void Uic::createFormImpl( const QDomElement &e )
     QMap<QString, QString> functionImpls;
     // find additional slots and functions
     QStringList publicSlots, protectedSlots;
+    QStringList publicSlotTypes, protectedSlotTypes;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
 	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 		if ( n2.tagName() == "slot" ) {
 		    if ( n2.attribute( "language", "C++" ) == "C++" ) {
 			QString access = n2.attribute( "access" );
-			if ( access == "protected" )
+			if ( access == "protected" ) {
 			    protectedSlots += n2.firstChild().toText().data();
-			else
+			    protectedSlotTypes += n2.attribute( "returnType", "void" );
+			} else {
 			    publicSlots += n2.firstChild().toText().data();
+			    publicSlotTypes += n2.attribute( "returnType", "void" );
+			}
 		    }
 		}
 	    }
@@ -1214,8 +1232,12 @@ void Uic::createFormImpl( const QDomElement &e )
 
     // create public additional slots as pure-virtual functions
     if ( !publicSlots.isEmpty() ) {
-	for ( it = publicSlots.begin(); it != publicSlots.end(); ++it ) {
-	    out << "void " << nameOfClass << "::" << (*it) << endl;
+	QStringList::Iterator it2;
+	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(); it != publicSlots.end(); ++it, ++it2 ) {
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    out << type << " " << nameOfClass << "::" << (*it) << endl;
 	    bool createWarning = TRUE;
 	    QString fname = Parser::cleanArgs( *it );
 	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
@@ -1237,8 +1259,12 @@ void Uic::createFormImpl( const QDomElement &e )
 
     // create protected additional slots as pure-virtual functions
     if ( !protectedSlots.isEmpty() ) {
-	for ( it = protectedSlots.begin(); it != protectedSlots.end(); ++it ) {
-	    out << "void " << nameOfClass << "::" << (*it) << endl;
+	QStringList::Iterator it2;
+	for ( it = protectedSlots.begin(), it2 = protectedSlotTypes.begin(); it != protectedSlots.end(); ++it, ++it2 ) {
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    out << type << " " << nameOfClass << "::" << (*it) << endl;
 	    bool createWarning = TRUE;
 	    QString fname = Parser::cleanArgs( *it );
 	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );

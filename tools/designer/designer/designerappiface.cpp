@@ -595,9 +595,9 @@ void DesignerFormWindowImpl::preview() const
 {
 }
 
-void DesignerFormWindowImpl::addSlot( const QCString &slot, const QString &access, const QString &language )
+void DesignerFormWindowImpl::addSlot( const QCString &slot, const QString &access, const QString &language, const QString &returnType )
 {
-    MetaDataBase::addSlot( formWindow, slot, access, language );
+    MetaDataBase::addSlot( formWindow, slot, access, language, returnType );
 }
 
 void DesignerFormWindowImpl::addConnection( QObject *sender, const char *signal, QObject *receiver, const char *slot )

@@ -64,7 +64,6 @@ public:
 
 void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function> *functionMap ) const
 {
-#if 0
     QValueList<CppFunction> l;
     extractCppFunctions( code, &l );
     for ( QValueList<CppFunction>::Iterator it = l.begin(); it != l.end(); ++it ) {
@@ -72,79 +71,14 @@ void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function>
 	func.name = (*it).prototype();
 	func.name.remove( 0, func.name.find( "::" ) + 2 );
 	func.body = (*it).body();
+	func.returnType = (*it).returnType();
 	functionMap->append( func );
     }
-
-#else
-
-    QString text( code );
-    QString func;
-    QString body;
-
-    int i = 0;
-    int j = 0;
-    int k = 0;
-    while ( i != -1 ) {
-	i = text.find( "::", i );
-	int colon = i;
-	if ( i == -1 )
-	    break;
-	int nl = -1;
-	if ( ( nl = text.findRev( "\n", i ) ) != -1 &&
-	     text[ nl + 1 ] == ' ' || text[ nl + 1 ] == '\t' ) {
-	    i += 2;
-	    continue;
-	}
-	for ( j = i + QString( "::").length(); j < (int)text.length(); ++j ) {
-	    if ( text[ j ] != ' ' && text[ j ] != '\t' )
-		break;
-	}
-	if ( j == (int)text.length() - 1 )
-	    break;
-	k = text.find( ")", j );
-	int l = text.find( "::", colon + QString( "::" ).length() + 1 );
-	if ( l < k && l > colon ) {
-	    i = l - 1;
-	    continue;
-	}
-	func = text.mid( j, k - j + 1 );
-	func = func.stripWhiteSpace();
-	func = func.simplifyWhiteSpace();
-	if ( func.isEmpty() )
-	    break;
-	func = NormalizeObject::normalizeSignalSlot( func.latin1() );
-	
-	i = k;
-	i = text.find( "{", i );
-	if ( i == -1 )
-	    break;
-	l = text.find( "::", k );
-	if ( l < i && l > colon ) {
-	    i = l - 1;
-	    continue;
-	}
-	int open = 0;
-	for ( j = i; j < (int)text.length(); ++j ) {
-	    if ( text[ j ] == '{' )
-		open++;
-	    else if ( text[ j ] == '}' )
-		open--;
-	    if ( !open )
-		break;
-	}
-	body = text.mid( i, j - i + 1 );
-
-	Function f;
-	f.name = func;
-	f.body = body;
-	functionMap->append( f );
-    }
-#endif
 }
 
-QString LanguageInterfaceImpl::createFunctionStart( const QString &className, const QString &func )
+QString LanguageInterfaceImpl::createFunctionStart( const QString &className, const QString &func, const QString &returnType )
 {
-    return "void " + className + "::" + func;
+    return returnType + " " + className + "::" + func;
 }
 
 QStringList LanguageInterfaceImpl::definitions() const

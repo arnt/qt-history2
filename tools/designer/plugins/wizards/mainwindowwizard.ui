@@ -21,8 +21,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>590</width>
-            <height>399</height>
+            <width>582</width>
+            <height>395</height>
         </rect>
     </property>
     <property name="caption">
@@ -1363,19 +1363,19 @@
         <receiver>MainWindowWizardBase</receiver>
         <slot>currentSettingChanged()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="protected" language="C++">currentSettingChanged()</slot>
-    <slot access="public" language="C++">setupToolbarPage()</slot>
-    <slot access="protected" language="C++">toolbarActionDown()</slot>
-    <slot access="protected" language="C++">toolbarActionUp()</slot>
-    <slot access="protected" language="C++">toolbarAddAction()</slot>
-    <slot access="protected" language="C++">toolbarRemoveAction()</slot>
-    <slot access="public" language="C++">accept()</slot>
-    <slot access="protected" language="C++">currentToolbarChanged( const QString &amp;s )</slot>
-    <slot access="public" language="C++">getPixmap( const QString &amp;n,QPixmap &amp;pix )</slot>
-    <slot access="protected" language="C++">pageSelected( const QString &amp; )</slot>
-    <slot access="public" language="C++">setAppInterface( QUnknownInterface *iface,DesignerFormWindow *fw,QWidget *w )</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" language="C++" returnType="void">currentSettingChanged()</slot>
+    <slot access="public" language="C++" returnType="void">setupToolbarPage()</slot>
+    <slot access="protected" language="C++" returnType="void">toolbarActionDown()</slot>
+    <slot access="protected" language="C++" returnType="void">toolbarActionUp()</slot>
+    <slot access="protected" language="C++" returnType="void">toolbarAddAction()</slot>
+    <slot access="protected" language="C++" returnType="void">toolbarRemoveAction()</slot>
+    <slot access="public" language="C++" returnType="void">accept()</slot>
+    <slot access="protected" language="C++" returnType="void">currentToolbarChanged( const QString &amp;s )</slot>
+    <slot access="public" language="C++" returnType="void">getPixmap( const QString &amp;n, QPixmap &amp;pix )</slot>
+    <slot access="protected" language="C++" returnType="void">pageSelected( const QString &amp; )</slot>
+    <slot access="public" language="C++" returnType="void">setAppInterface( QUnknownInterface *iface, DesignerFormWindow *fw, QWidget *w )</slot>
 </connections>
 <functions>
     <function name="init()" >{
@@ -1570,7 +1570,7 @@
 		QString slot = ac-&gt;name();
 		slot.remove( slot.length() - 6, 6 );
 		slot += "()";
-		dfw-&gt;addSlot( slot.latin1(), "public", dIface-&gt;currentProject()-&gt;language() );
+		dfw-&gt;addSlot( slot.latin1(), "public", dIface-&gt;currentProject()-&gt;language(), "void" );
 		dfw-&gt;addConnection( ac, "activated()", widget, slot );
 	}
     }

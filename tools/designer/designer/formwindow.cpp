@@ -115,9 +115,9 @@ FormWindow::FormWindow( MainWindow *mw, QWidget *parent, const char *name )
     init();
     MetaDataBase::addEntry( this );
     if ( !MetaDataBase::hasSlot( this, "init()" ) )
-	MetaDataBase::addSlot( this, "init()", "protected", mainWindow()->currProject()->language() );
+	MetaDataBase::addSlot( this, "init()", "protected", mainWindow()->currProject()->language(), "void" );
     if ( !MetaDataBase::hasSlot( this, "destroy()" ) )
-	MetaDataBase::addSlot( this, "destroy()", "protected", mainWindow()->currProject()->language() );
+	MetaDataBase::addSlot( this, "destroy()", "protected", mainWindow()->currProject()->language(), "void" );
 }
 
 FormWindow::FormWindow( QWidget *parent, const char *name )
@@ -178,9 +178,9 @@ void FormWindow::setMainWindow( MainWindow *w )
     mainwindow = w;
     MetaDataBase::addEntry( this );
     if ( !MetaDataBase::hasSlot( this, "init()" ) )
-	MetaDataBase::addSlot( this, "init()", "protected", mainWindow()->currProject()->language() );
+	MetaDataBase::addSlot( this, "init()", "protected", mainWindow()->currProject()->language(), "void" );
     if ( !MetaDataBase::hasSlot( this, "destroy()" ) )
-	MetaDataBase::addSlot( this, "destroy()", "protected", mainWindow()->currProject()->language() );
+	MetaDataBase::addSlot( this, "destroy()", "protected", mainWindow()->currProject()->language(), "void" );
 }
 
 

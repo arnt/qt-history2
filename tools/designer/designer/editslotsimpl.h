@@ -39,7 +39,7 @@ protected slots:
     void currentItemChanged( QListViewItem * );
     void currentTextChanged( const QString &txt );
     void currentAccessChanged( const QString &acc );
-    void currentLanguageChanged( const QString &lang );
+    void currentTypeChanged( const QString &type );
 
 private:
     FormWindow *formWindow;

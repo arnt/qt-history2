@@ -36,16 +36,22 @@ struct LanguageInterface : public QUnknownInterface
     {
 	QString name;
 	QString body;
+	QString returnType;
+    };
+
+    enum Support
+    {
+	ReturnType
     };
 
     virtual void functions( const QString &code, QValueList<Function> *funcs ) const = 0;
-    virtual QString createFunctionStart( const QString &className, const QString &func ) = 0;
+    virtual QString createFunctionStart( const QString &className, const QString &func, const QString &returnType ) = 0;
     virtual QString createArguments( const QStringList &args ) = 0;
     virtual QString createEmptyFunction() = 0;
     virtual QStringList definitions() const = 0;
     virtual QStringList definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const = 0;
     virtual void setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface ) = 0;
-
+    virtual bool supports( Support s ) const = 0;
 };
 
 #endif

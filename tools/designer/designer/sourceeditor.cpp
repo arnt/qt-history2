@@ -37,6 +37,7 @@ static QString make_func_pretty( const QString &s )
     res.replace( QRegExp( "&" ), " &" );
     res.replace( QRegExp( "[*]" ), " *" );
     res.replace( QRegExp( "," ), ", " );
+    res = res.simplifyWhiteSpace();
     return res;
 }
 
@@ -85,7 +86,7 @@ QString SourceEditor::sourceOfForm( FormWindow *fw, const QString &lang, EditorI
 	if ( (*it).language != lang )
 	    continue;
 	QString sl( (*it).slot );
-	txt += lIface->createFunctionStart( fw->name(), sl );
+	txt += lIface->createFunctionStart( fw->name(), sl, ( (*it).returnType.isEmpty() ? QString( "void" ) : (*it).returnType ) );
 	QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
 	if ( bit != bodies.end() )
 	    txt += "\n" + *bit + "\n\n";
@@ -97,7 +98,7 @@ QString SourceEditor::sourceOfForm( FormWindow *fw, const QString &lang, EditorI
 
 void SourceEditor::setFunction( const QString &func )
 {
-    iFace->scrollTo( lIface->createFunctionStart( formWindow->name(), func ) );
+    iFace->scrollTo( lIface->createFunctionStart( formWindow->name(), func, "" ) );
 }
 
 void SourceEditor::closeEvent( QCloseEvent *e )
@@ -125,6 +126,7 @@ void SourceEditor::save()
 		slot.slot = make_func_pretty( (*it).name );
 		slot.access = (*sit).access;
 		slot.language = (*sit).language;
+		slot.returnType = (*it).returnType;
 		newSlots << slot;
 		funcs.insert( (*it).name, (*it).body );
 		oldSlots.remove( sit );
@@ -136,13 +138,14 @@ void SourceEditor::save()
 	    slot.slot = make_func_pretty( (*it).name );
 	    slot.access = "public";
 	    slot.language = lang;
+	    slot.returnType = (*it).returnType;
 	    newSlots << slot;
 	    funcs.insert( (*it).name, (*it).body );
 	}
     }
 
     MetaDataBase::setSlotList( formWindow, newSlots );
-    MetaDataBase::setFunctionBodies( formWindow, funcs, lang );
+    MetaDataBase::setFunctionBodies( formWindow, funcs, lang, QString::null );
 }
 
 QString SourceEditor::language() const

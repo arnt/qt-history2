@@ -56,10 +56,12 @@ public:
 	QCString slot;
 	QString access;
 	QString language;
+	QString returnType;
 	bool operator==( const Slot &s ) const {
 	    return ( slot == s.slot &&
 		     access == s.access &&
-		     language == s.language );
+		     language == s.language &&
+		     returnType == s.returnType );
 	}
     };
 
@@ -154,8 +156,8 @@ public:
     static QValueList<Connection> connections( QObject *o, QObject *object );
     static void doConnections( QObject *o );
 
-    static void addSlot( QObject *o, const QCString &slot, const QString &access, const QString &language );
-    static void removeSlot( QObject *o, const QCString &slot, const QString &access, const QString &language );
+    static void addSlot( QObject *o, const QCString &slot, const QString &access, const QString &language, const QString &returnType );
+    static void removeSlot( QObject *o, const QCString &slot, const QString &access, const QString &language, const QString &returnType );
     static QValueList<Slot> slotList( QObject *o );
     static bool isSlotUsed( QObject *o, const QCString &slot );
     static bool hasSlot( QObject *o, const QCString &slot );
@@ -208,7 +210,7 @@ public:
 				   const QString &event, const QStringList &functions, bool = TRUE );
     static QStringList eventFunctions( QObject *o, const QString &event );
     static QMap<QString, QStringList> eventFunctions( QObject *o );
-    static void setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies, const QString &lang );
+    static void setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies, const QString &lang, const QString &returnType );
     static QMap<QString, QString> functionBodies( QObject *o );
 
     static void setupInterfaceManagers();

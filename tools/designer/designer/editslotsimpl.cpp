@@ -38,6 +38,10 @@
 EditSlots::EditSlots( QWidget *parent, FormWindow *fw )
     : EditSlotsBase( parent, 0, TRUE ), formWindow( fw )
 {
+    LanguageInterface *iface = MetaDataBase::languageInterface( fw->project()->language() );
+    if ( iface && !iface->supports( LanguageInterface::ReturnType ) )
+	slotListView->removeColumn( 3 );
+
     connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( fw );
     for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
@@ -48,17 +52,12 @@ EditSlots::EditSlots( QWidget *parent, FormWindow *fw )
 	    i->setText( 2, tr( "Yes" ) );
 	else
 	    i->setText( 2, tr( "No" ) );
-	i->setText( 3, (*it).language );
+	i->setText( 3, (*it).returnType );
     }
 
     slotName->setEnabled( FALSE );
     slotAccess->setEnabled( FALSE );
-    comboLanguage->setEnabled( FALSE );
-    comboLanguage->hide(); // ### language per project, not per slot
-    labelLanguage->hide();
     slotName->setValidator( new AsciiValidator( TRUE, slotName ) );
-
-    comboLanguage->insertStringList( MetaDataBase::languages() );
 
     if ( slotListView->firstChild() )
 	slotListView->setCurrentItem( slotListView->firstChild() );
@@ -74,7 +73,8 @@ void EditSlots::okClicked()
 	QList<Command> commands;
 	for ( sit = slotList.begin(); sit != slotList.end(); ++sit ) {
 	    commands.append( new RemoveSlotCommand( tr( "Remove slot" ),
-						    formWindow, (*sit).slot, (*sit).access, formWindow->project()->language() ) );
+						    formWindow, (*sit).slot, (*sit).access,
+						    formWindow->project()->language(), (*sit).returnType ) );
 	}
 	rmSlt = new MacroCommand( tr( "Remove slots" ), formWindow, commands );
     }
@@ -92,7 +92,10 @@ void EditSlots::okClicked()
 	    MetaDataBase::Slot slot;
 	    slot.slot = it.current()->text( 0 );
 	    slot.access = it.current()->text( 1 );
-	    slot.language = it.current()->text( 3 );
+	    slot.language = formWindow->project()->language();
+	    slot.returnType = it.current()->text( 3 );
+	    if ( slot.returnType.isEmpty() )
+		slot.returnType = "void";
 	    QString s = it.current()->text( 0 );
 	    s = s.simplifyWhiteSpace();
 	    bool startNum = s[ 0 ] >= '0' && s[ 0 ] <= '9';
@@ -104,7 +107,9 @@ void EditSlots::okClicked()
 		continue;
 	    }
 	    commands.append( new AddSlotCommand( tr( "Add slot" ),
-						 formWindow, slot.slot, slot.access, formWindow->project()->language() ) );
+						 formWindow, slot.slot, slot.access,
+						 formWindow->project()->language(),
+						 slot.returnType ) );
 	    lst.append( slot.slot );
 	}
 	
@@ -156,7 +161,7 @@ void EditSlots::slotAdd()
 	i->setText( 2, tr( "Yes" ) );
     else
 	i->setText( 2, tr( "No" ) );
-    i->setText( 3, formWindow->project()->language() );
+    i->setText( 3, "void" );
     slotListView->setCurrentItem( i );
     slotListView->setSelected( i, TRUE );
 }
@@ -184,25 +189,18 @@ void EditSlots::currentItemChanged( QListViewItem *i )
     if ( !i ) {
 	slotName->setEnabled( FALSE );
 	slotAccess->setEnabled( FALSE );
-	comboLanguage->setEnabled( FALSE );
 	return;
     }
 
     slotName->blockSignals( TRUE );
     slotName->setEnabled( TRUE );
     slotAccess->setEnabled( TRUE );
-    comboLanguage->setEnabled( TRUE );
     slotName->setText( i->text( 0 ) );
+    editType->setText( i->text( 3 ) );
     if ( i->text( 1 ) == "public" )
 	slotAccess->setCurrentItem( 0 );
     else
 	slotAccess->setCurrentItem( 1 );
-    for ( int j = 0; j < (int)comboLanguage->count(); ++j ) {
-	if ( i->text( 3 ) == comboLanguage->text( j ) ) {
-	    comboLanguage->setCurrentItem( j );
-	    break;
-	}
-    }
     slotName->blockSignals( FALSE );
 }
 
@@ -226,10 +224,10 @@ void EditSlots::currentAccessChanged( const QString &acc )
     slotListView->currentItem()->setText( 1, acc );
 }
 
-void EditSlots::currentLanguageChanged( const QString &lang )
+void EditSlots::currentTypeChanged( const QString &type )
 {
     if ( !slotListView->currentItem() )
 	return;
 
-    slotListView->currentItem()->setText( 3, lang );
+    slotListView->currentItem()->setText( 3, type );
 }

@@ -33,12 +33,13 @@ public:
     unsigned long release();
 
     void functions( const QString &code, QValueList<Function> *funcs ) const;
-    QString createFunctionStart( const QString &className, const QString &func );
+    QString createFunctionStart( const QString &className, const QString &func, const QString &returnType );
     QStringList definitions() const;
     QStringList definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const;
     void setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface );
     QString createArguments( const QStringList &args );
     QString createEmptyFunction();
+    bool supports( Support s ) const { if ( s == ReturnType ) return TRUE; return FALSE; }
 
 private:
     ulong ref;
