@@ -1,7 +1,6 @@
 #include "../tools/designer/plugins/designerinterface.h"
 
 #include <qaction.h>
-#include <qapplicationinterface.h>
 #include <qapplication.h>
 #include <qcleanuphandler.h>
 #include <qthread.h>
@@ -34,10 +33,6 @@ class TestInterface : public QObject, public ActionInterface
 public:
     TestInterface();
     ~TestInterface();
-
-    QString name() { return "Test Interface"; }
-    QString description() { return "Mostly harmless stuff"; }
-    QString author() { return "Trolltech"; }
 
     bool connectNotify( QApplicationInterface* );
     bool disconnectNotify();
@@ -74,7 +69,7 @@ TestInterface::~TestInterface()
 
 bool TestInterface::connectNotify( QApplicationInterface* appIface )
 {
-    if ( !( appInterface = appIface ) )
+    if ( !( appInterface = (QApplicationInterface*)appIface ) )
 	return FALSE;
 
     thread = new TestThread( this );
@@ -191,4 +186,31 @@ void TestThread::run()
 
 #include "main.moc"
 
-Q_EXPORT_INTERFACE(ActionInterface, TestInterface)
+class TestPlugIn : public QPlugInInterface
+{
+public:
+    QString name() const { return "Test plugin"; }
+    QString description() const { return "PlugIn to show what kind of stupid things you can do here"; }
+    QString author() const { return "Trolltech"; }
+
+    QUnknownInterface* queryInterface( const QString& );
+    QStringList interfaceList() const;
+};
+
+QStringList TestPlugIn::interfaceList() const
+{
+    QStringList list;
+
+    list << "TestInterface";
+
+    return list;
+}
+
+QUnknownInterface* TestPlugIn::queryInterface( const QString &request )
+{
+    if ( request == "TestInterface" )
+	return new TestInterface( this );
+    return 0;
+}
+
+Q_EXPORT_INTERFACE(TestPlugIn)
