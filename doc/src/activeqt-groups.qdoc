@@ -6,8 +6,8 @@
     controls using Qt.
 
     \list
-    \i \link qaxcontainer-examples.html QAxContainer Examples \endlink
-    \i \link qaxserver-examples.html QAxServer Examples \endlink
+    \i \l{The QAxContainer Examples}
+    \i \l{The QAxServer Examples}
     \endlist
 */
 

@@ -182,8 +182,8 @@
     objects in a .NET Framework project.
 
     Making a QObject class into a COM object is easily achieved with 
-    ActiveQt and demonstrated in the \link qaxserver-examples.html 
-    examples \endlink. The walkthrough will use the Qt classes implemented
+    ActiveQt and demonstrated in the \l{The QAxServer Examples}{examples}.
+    The walkthrough will use the Qt classes implemented
     in those examples, so the first thing to do is to make sure that those 
     examples have been built correctly, e.g. by opening the \link 
     qaxserver-demo-multiple.html demonstration pages \endlink in Internet
