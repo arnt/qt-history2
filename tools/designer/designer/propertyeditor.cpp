@@ -2429,6 +2429,44 @@ void PropertyList::setupProperties()
 	    if ( w->inherits( "QLayoutWidget" ) || w->inherits( "Spacer" ) ) {
 		if ( qstrcmp( p->name(), "sizePolicy" ) == 0 )
 		    continue;
+		if ( qstrcmp( p->name(), "minimumHeight" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "minimumWidth" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "maximumHeight" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "maximumWidth" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "geometry" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "minimumSize" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "maximumSize" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "enabled" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "paletteForegroundColor" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "paletteBackgroundColor" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "paletteBackgroundPixmap" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "palette" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "font" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "cursor" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "mouseTracking" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "focusPolicy" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "acceptDrops" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "autoMask" ) == 0 )
+		    continue;
+		if ( qstrcmp( p->name(), "backgroundOrigin" ) == 0 )
+		    continue;
 	    }
 	}
 	if ( w->inherits( "QActionGroup" ) ) {
