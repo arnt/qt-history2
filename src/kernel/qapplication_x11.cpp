@@ -3061,8 +3061,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
     if ( widget->x11Event(event) )		// send through widget filter
 	return 1;
 #if defined (QT_TABLET_SUPPORT)
-    // Right now I'm only caring about the valuator (MOTION) events, so I'll
-    // check them and let the rest go through as mouse events...
     if ( event->type == xinput_motion ||
 	 event->type == xinput_button_release ||
 	 event->type == xinput_button_press ) {
@@ -4011,33 +4009,31 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 	       yTilt = 0;
     int deviceType = QTabletEvent::NoDevice;
     QPair<int, int> tId;
+    XEvent xinputMotionEvent;
+    XEvent mouseMotionEvent;
     XDevice *dev;
-    XDeviceMotionEvent *motion = 0;
+    const XDeviceMotionEvent *motion = 0;
     XDeviceButtonEvent *button = 0;
     QEvent::Type t;
 
     if ( ev->type == xinput_motion ) {
-	motion = (XDeviceMotionEvent*)ev;
+	motion = (const XDeviceMotionEvent*)ev;
+	for (;;) {
+	    if (!XCheckTypedWindowEvent(x11Display(), winId(), MotionNotify, &mouseMotionEvent))
+		break;
+	    if (!XCheckTypedWindowEvent(x11Display(), winId(), xinput_motion, &xinputMotionEvent)) {
+		XPutBackEvent(x11Display(), &mouseMotionEvent);
+		break;
+	    }
+	    if (mouseMotionEvent.xmotion.time != motion->time) {
+		XPutBackEvent(x11Display(), &mouseMotionEvent);
+		XPutBackEvent(x11Display(), &xinputMotionEvent);
+		break;
+	    }
+	    motion = ((const XDeviceMotionEvent*)&xinputMotionEvent);
+	}
 	t = QEvent::TabletMove;
 	curr = QPoint( motion->x, motion->y );
-/*
-	qDebug( "\n\nXInput Crazy Motion Event" );
-	qDebug( "serial:\t%d", motion->serial );
-	qDebug( "send_event:\t%d", motion->send_event );
-	qDebug( "display:\t%p", motion->display );
-	qDebug( "window:\t%d", motion->window );
-	qDebug( "deviceID:\t%d", motion->deviceid );
-	qDebug( "root:\t%d", motion->root );
-	qDebug( "subwindot:\t%d", motion->subwindow );
-	qDebug( "x:\t%d", motion->x );
-	qDebug( "y:\t%d", motion->y );
-	qDebug( "x_root:\t%d", motion->x_root );
-	qDebug( "y_root:\t%d", motion->y_root );
-	qDebug( "state:\t%d", motion->state );
-	qDebug( "is_hint:\t%d", motion->is_hint );
-	qDebug( "same_screen:\t%d", motion->same_screen );
-	qDebug( "time:\t%d", motion->time );
-*/
     } else {
 	if ( ev->type == xinput_button_press ) {
 	    t = QEvent::TabletPress;
@@ -4063,8 +4059,6 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 	qDebug( "same_screen:\t%d", button->same_screen );
 	qDebug( "time:\t%d", button->time );
 */
-
-
 	curr = QPoint( button->x, button->y );
     }
 #if defined(Q_OS_IRIX)
