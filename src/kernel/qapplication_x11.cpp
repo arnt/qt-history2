@@ -3600,7 +3600,7 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 
     while ( w->focusProxy() )
 	w = w->focusProxy();
-    if ( w->focusPolicy() == QWidget::WheelFocus ) {
+    if ( w->focusPolicy() == QWidget::WheelFocus  || w->focusPolicy() == QWidget::WeakWheelFocus  ) {
 	QFocusEvent::setReason( QFocusEvent::Mouse);
 	w->setFocus();
 	QFocusEvent::resetReason();

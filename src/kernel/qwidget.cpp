@@ -2913,6 +2913,8 @@ void QWidget::setGeometry( int x, int y, int w, int h )
   and clicking.
   <li> \c QWidget::WheelFocus - like StrongFocus plus the widget accepts
   focus by using the mouse wheel.
+  <li> \c QWidget::WeakWheelFocus - like TabFocus plus the widget accepts
+  focus by using the mouse wheel.
   <li> \c QWidget::NoFocus - the widget does not accept focus.
   </ul>
 */
@@ -3051,7 +3053,7 @@ void QWidget::show()
 	return; // nothing we can do
 
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
-    
+
     if ( isTopLevel() && !testWState( WState_Resized ) )  {
 	// do this before sending the posted resize events. Otherwise
 	// the layout would catch the resize event and may expand the
@@ -3077,7 +3079,7 @@ void QWidget::show()
 	if ( !s.isEmpty() )
 	    resize( s );
     }
-    
+
     QApplication::sendPostedEvents( this, QEvent::Move );
     QApplication::sendPostedEvents( this, QEvent::Resize );
 

@@ -129,7 +129,7 @@ QDial::QDial( QWidget *parent, const char *name )
     d->color = colorGroup().foreground();
     d->eraseAreaValid = FALSE;
     d->showNotches = FALSE;
-    setFocusPolicy( QWidget::TabFocus );
+    setFocusPolicy( QWidget::WeakWheelFocus );
 }
 
 
@@ -155,7 +155,7 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
     d->color = colorGroup().foreground();
     d->eraseAreaValid = FALSE;
     d->showNotches = FALSE;
-    setFocusPolicy( QWidget::TabFocus );
+    setFocusPolicy( QWidget::WeakWheelFocus );
 }
 
 /*!

@@ -61,8 +61,9 @@ static int sliderStartVal = 0; //##### class member?
   of them you want, and setOrientation() to indicate whether the
   slider is to e horizontal or vertical.
 
-  A slider has a default focusPolicy() of \a TabFocus, and a suitable
-  keyboard interface.
+  A slider has a default focusPolicy() of \a WeakWheelFocus, i.e. it
+  accepts focus on Tab and by using the mouse wheel, and a
+  suitable keyboard interface.
 
   <img src=qslider-m.png> <img src=qslider-w.png>
 
@@ -153,7 +154,7 @@ void QSlider::init()
 	setBackgroundMode( PaletteMid );
     else
 	setBackgroundMode( PaletteBackground );
-    setFocusPolicy( TabFocus );
+    setFocusPolicy( WeakWheelFocus  );
     initTicks();
 }
 
