@@ -528,6 +528,10 @@ void QHeader::mousePressEvent( QMouseEvent *e )
 	    handleIdx = index-1;
 	else
 	    handleIdx = index;
+	if ( d->fullSize && handleIdx == count() - 1 ) {
+	    handleIdx = -1;
+	    return;
+	}
 	oldHIdxSize = d->sizes[ d->i2s[handleIdx] ];
 	state = d->resize[d->i2s[handleIdx]  ] ? Sliding : Blocked;
     } else if ( index >= 0 ) {
@@ -703,6 +707,8 @@ void QHeader::handleColumnResize( int index, int c, bool final )
 	emit sizeChange( section, oldSize, newSize );
     else if ( !tracking() && final && oldHIdxSize != newSize )
 	emit sizeChange( section, oldHIdxSize, newSize );
+    if ( d->fullSize )
+	resizeEvent( 0 );
 }
 
 /*!
@@ -1505,7 +1511,8 @@ bool QHeader::reverse () const {
 /*! \reimp */
 void QHeader::resizeEvent( QResizeEvent *e )
 {
-    QWidget::resizeEvent( e );
+    if ( e )
+	QWidget::resizeEvent( e );
 
     if( d->lastPos < width() ) {
 	    offs = 0;
