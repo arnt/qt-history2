@@ -856,7 +856,7 @@ bool QFont::overline() const
     return d->request.overline;
 }
 
-/*
+/*!
   If \a enable is TRUE, sets overline on; otherwise sets overline off.
 
   \sa overline(), QFontInfo
@@ -2028,7 +2028,7 @@ bool QFontMetrics::inFont(QChar ch) const
     return engine->canRender( &ch, 1 );
 }
 
-/*!
+/*! \fn int QFontMetrics::leftBearing( QChar ch ) const
     Returns the left bearing of character \a ch in the font.
 
     The left bearing is the right-ward distance of the left-most pixel
@@ -2062,7 +2062,7 @@ int QFontMetrics::leftBearing(QChar ch) const
 }
 #endif // !Q_WS_WIN
 
-/*!
+/*! \fn int QFontMetrics::rightBearing(QChar ch) const
     Returns the right bearing of character \a ch in the font.
 
     The right bearing is the left-ward distance of the right-most
