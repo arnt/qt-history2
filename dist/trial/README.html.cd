@@ -52,7 +52,7 @@
 				    AIX, Tru64, and most other Unix systems. 
 				    <li>Qt/Windows is supported on Microsoft Windows 95, 98,
 				    NT, 2000, and XP.
-				    <li>Qt/Mac is supported on Mac OS X 10.2. 
+				    <li>Qt/Mac is supported on Mac OS X 10.2 and 10.3. 
 				    <li>Qt/Embedded is supported on embedded Linux.
 			    </ul>
                         </p>
@@ -60,9 +60,11 @@
                             Installation instructions for each platform are given 
                             below. Please read the file LICENSE, found in the package 
                             for each platform, and agree to
-                            its contents before you start evaluating. For further 
-                            information and help, please refer to our web site 
+                            its contents before you start evaluating. 
+			    For further 
+		    information and help, please refer to our web site<br> 
                     <a href="http://www.trolltech.com">http://www.trolltech.com</a>.
+
                             If you need futher help during your evaluation period, 
                             please register at 
 			    <a href="http://www.trolltech.com/products/qt/evaluate.html">
@@ -147,8 +149,8 @@
                       will find two versions of the Qt/Windows evaluation package:
                   </p>
                   <p>
-		  qt-win-eval-msvc-3.2.0.exe<br>
-		  qt-win-eval-borland-3.2.0.exe
+		  qt-win-eval-msvc-3.2.3.exe<br>
+		  qt-win-eval-borland-3.2.3.exe
                   </p>
                   <p>
                     If you want to use Qt with Microsoft Visual C++, select the &quot;msvc&quot;<br>
@@ -179,12 +181,19 @@
                     <p>
                         <strong>Installation instructions for Qt/Mac</strong><a name="qtmac"></a>
                     </p>
-                    <p>You will find the Qt/Mac evaluation version in the MacOS directory
-                      on this CD.
+                    <p>
+		        You will find two Qt/Mac evaluation version in the MacOS 
+			directory on this CD:
+		    </p>
+		    <p>
+		    qt-mac-eval-3.2.2.sit contains Qt/Mac for Mac OS X 10.2 (Jaguar)<br>
+		    qt-mac-eval-3.2.3.sit contains Qt/Mac for Mac OS X 10.3 (Panther)
                     </p>
-		    <p>Start the installation by copying the qt-mac-eval-3.2.0.sit package
-                      to your hard disk and then double-clicking it to unstuff it. Once it is unstuffed,
-		      double-click the QtMac-Eval-3.2.0 application.
+		    <p>Start the installation by copying the qt-mac-eval-3.2.2.sit or
+		      qt-mac-eval-3.2.3.sit package
+                      to your hard disk and then double-clicking it to unstuff it. 
+		      Once it is unstuffed,
+		      double-click the QtMac-Eval-3.2.2 or QtMac-Eval-3.2.3 application.
                     </p>
                     <p>The installation wizard will ask you for the following information:<br>
                       Name: Qt Evaluator<br>
@@ -208,15 +217,15 @@
                     </p>
                     <p>In the Unix directory on this CD, you will find the Qt/X11 evaluation
                       package:</p>
-                    <p>qt-x11-eval-3.2.0.tar</p>
+                    <p>qt-x11-eval-3.2.3.tar</p>
                     <p>In a shell, cd to where you want to install the Qt/X11 evaluation,
                       for example your home directory. Then unpack the archive by giving the
                       command
                     </p>
-		    <p>tar xf /cdrom/Unix/qt-x11-eval-3.2.0.tar</p>
+		    <p>tar xf /cdrom/Unix/qt-x11-eval-3.2.3.tar</p>
                     <p>(replace &quot;/cdrom&quot; with the mount point of your CD-ROM drive).
-		    This will create a directory called qt-x11-eval-3.2.0. Further installation
-                      instructions are then available in the file qt-x11-eval-3.2.0/INSTALL.
+		    This will create a directory called qt-x11-eval-3.2.3. Further installation
+                      instructions are then available in the file qt-x11-eval-3.2.3/INSTALL.
                     </p>
                     </font>
                 </td>
@@ -230,17 +239,17 @@
                     <p>In the Embedded directory on this CD, you will find the Qt/Embedded
                       evaluation packages:</p>
                     <p>qt-embedded-2.3.2-eval.tar<br>
-		    qt-embedded-eval-3.2.0.tar</p>
+		    qt-embedded-eval-3.2.3.tar</p>
                     <p>In a shell, cd to where you want to install the Qt/X11 evaluation,
                       for example your home directory. Then unpack the archive by giving the
                       command</p>
                     <p>tar xf /cdrom/Unix/qt-embedded-eval-2.3.2.tar<br>
                       and/or:<br>
-                      tar xf /cdrom/Unix/qt-embedded-eval-3.2.0.tar</p>
+                      tar xf /cdrom/Unix/qt-embedded-eval-3.2.3.tar</p>
                     <p>(replace &quot;/cdrom&quot; with the mount point of your CD-ROM drive).
-                      This will create a directory called qt-embedded-eval-2.3.2 or qt-embedded-eval-3.2.0.
+                      This will create a directory called qt-embedded-eval-2.3.2 or qt-embedded-eval-3.2.3.
                       Further installation instructions are then available in the file
-                      qt-embedded-eval-2.3.2/INSTALL or qt-embedded-eval-3.2.0/INSTALL.
+                      qt-embedded-eval-2.3.2/INSTALL or qt-embedded-eval-3.2.3/INSTALL.
                     </p>
                     </font>
                  </td>
@@ -258,7 +267,7 @@
 		    which is available from the Qt submenu on the Start menu. You can also 
 		    read using any web browser. Start in the directory where you installed Qt, 
 		    and navigate to doc/html/index.html. In the Windows environment 
-		    the path to use would be file://localhost/c:/qt/3.2.0/doc/html/index.html
+		    the path to use would be file://localhost/c:/qt/3.2.3/doc/html/index.html
                     </p>
                     <p>If you are new to Qt programming, we recommend that you check out
                       the tutorial section (see: 

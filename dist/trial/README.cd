@@ -10,7 +10,7 @@ This CD contains evaluation versions of Qt/X11, Qt/Windows, Qt/Mac,
 and Qt/Embedded. Qt/X11 is supported on Linux, Solaris, HP-UX, Irix, AIX, 
 Tru64, and most other Unix systems. Qt/Windows is supported on 
 Microsoft Windows 95, 98, NT, 2000, and XP. Qt/Mac is supported on 
-Mac OS X 10.2. Qt/Embedded is supported on embedded Linux.
+Mac OS X 10.2 and 10.3. Qt/Embedded is supported on embedded Linux.
 
 Installation instructions for each platform are given below. Please read 
 the file LICENSE, found in the package for each platform, and agree to its 
@@ -39,8 +39,8 @@ To use the evaluation, you need to have Microsoft Visual C++ v.6, .NET or
 Borland C++ v. 5.5 installed. In the Windows directory on this CD, you
 will find two versions of the Qt/Windows evaluation package:
 
-qt-win-eval-msvc-3.2.0.exe
-qt-win-eval-borland-3.2.0.exe
+qt-win-eval-msvc-3.2.3.exe
+qt-win-eval-borland-3.2.3.exe
 
 If you want to use Qt with Microsoft Visual C++, select the "msvc"
 package. Otherwise, select the "borland" package to use Qt with
@@ -62,12 +62,16 @@ will be shown at the end of the installation process.
 
 Installation instructions for Qt/Mac
 ====================================
-You will find the Qt/Mac evaluation version in the MacOS directory on 
-this CD.
+You will find two Qt/Mac evaluation version in the MacOS directory on 
+this CD:
 
-Start the installation by copying the qt-mac-eval-3.2.0.sit package to your
-hard disk and then double-clicking it to unstuff it. Once it is unstuffed,
-double-click the QtMac-Eval-3.2.0 application.
+qt-mac-eval-3.2.2.sit contains Qt/Mac for Mac OS X 10.2 (Jaguar)
+qt-mac-eval-3.2.3.sit contains Qt/Mac for Mac OS X 10.3 (Panther)
+
+Start by copying the package to your hard disk and then 
+double-clicking it to unstuff it. Once it is unstuffed,
+double-click the QtMac-Eval-3.2.2 or QtMac-Eval-3.2.3 application
+to start the installation process.
 
 The installation wizard will ask you for the following information:
 Name:    Qt Evaluator
@@ -86,16 +90,16 @@ Installation instructions for Qt/X11
 In the Unix directory on this CD, you will find the Qt/X11 evaluation
 package:
 
-qt-x11-eval-3.2.0.tar
+qt-x11-eval-3.2.3.tar
 
 In a shell, cd to where you want to install the Qt/X11 evaluation, for
 example your home directory. Then unpack the archive by giving the command
 
-tar xf /cdrom/Unix/qt-x11-eval-3.2.0.tar
+tar xf /cdrom/Unix/qt-x11-eval-3.2.3.tar
 
 (replace "/cdrom" with the mount point of your CD-ROM drive). This will
-create a directory called qt-x11-eval-3.2.0. Further installation
-instructions are then available in the file qt-x11-eval-3.2.0/INSTALL.
+create a directory called qt-x11-eval-3.2.3. Further installation
+instructions are then available in the file qt-x11-eval-3.2.3/INSTALL.
 
 
 Installation instructions for Qt/Embedded
@@ -104,19 +108,19 @@ In the Embedded directory on this CD, you will find the Qt/Embedded
 evaluation packages:
 
 qt-embedded-2.3.2-eval.tar
-qt-embedded-eval-3.2.0.tar
+qt-embedded-eval-3.2.3.tar
 
 In a shell, cd to where you want to install the Qt/X11 evaluation, for
 example your home directory. Then unpack the archive by giving the command
 
 tar xf /cdrom/Unix/qt-embedded-eval-2.3.2.tar
 and/or:
-tar xf /cdrom/Unix/qt-embedded-eval-3.2.0.tar
+tar xf /cdrom/Unix/qt-embedded-eval-3.2.3.tar
 
 (replace "/cdrom" with the mount point of your CD-ROM drive). This will
-create a directory called qt-embedded-eval-2.3.2 or qt-embedded-eval-3.2.0.
+create a directory called qt-embedded-eval-2.3.2 or qt-embedded-eval-3.2.3.
 Further installation instructions are then available in the file 
-qt-embedded-eval-2.3.2/INSTALL or qt-embedded-eval-3.2.0/INSTALL.
+qt-embedded-eval-2.3.2/INSTALL or qt-embedded-eval-3.2.3/INSTALL.
 
 The Qt Reference Manual
 =======================
@@ -125,7 +129,7 @@ evaluation version. You can read it using the Qt Assistant tool, which is
 available from the Qt submenu on the Start menu. You can also read using 
 any web browser. Start in the directory where you installed Qt, and navigate 
 to doc/html/index.html. In the Windows environment the path to use would 
-be file://localhost/c:/qt/3.2.0/doc/html/index.html
+be file://localhost/c:/qt/3.2.3/doc/html/index.html
 
 If you are new to Qt programming, we recommend that you check out the
 tutorial section (see: http://doc.trolltech.com/3.2/how-to-learn-qt.html)
