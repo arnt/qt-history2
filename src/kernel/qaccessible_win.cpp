@@ -61,7 +61,7 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 	break;
 
     case Alert:
-#ifndef QT_NO_DIALOG
+#ifndef QT_NO_MESSAGEBOX
 	if ( o->inherits( "QMessageBox" ) ) {
 	    QMessageBox *mb = (QMessageBox*)o;
 	    switch ( mb->icon() ) {
@@ -78,7 +78,7 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 		break;
 	    }
 	} else 
-#endif // QT_NO_DIALOG
+#endif // QT_NO_MESSAGEBOX
 	{
 	    soundName = "SystemAsterisk";
 	}
