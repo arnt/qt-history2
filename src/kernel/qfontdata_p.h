@@ -68,6 +68,24 @@ struct QFontDef
     {
     }
 
+    QFontDef( const QFontDef &other )
+	: family( other.family ),
+	  family_hash( other.family_hash ),
+	  addStyle( other.addStyle ),
+	  pointSize( other.pointSize ),
+	  pixelSize( other.pixelSize ),
+	  styleHint( other.styleHint ),
+	  styleStrategy( other.styleStrategy ),
+	  weight( other.weight ),
+	  italic( other.italic ),
+	  underline( other.underline ),
+	  strikeOut( other.strikeOut ),
+	  fixedPitch( other.fixedPitch ),
+	  stretch( other.stretch ),
+	  mask( other.mask & RawMode )
+    {
+    }
+
     QString family;
     uint family_hash;
 
@@ -145,12 +163,12 @@ struct QFontDef
 		 );
     }
 
-    inline void merge( const QFontDef &other )
+    inline void resolve( const QFontDef &other )
     {
 	if ( ( mask & Complete ) == Complete )
 	    return;
 
-	// merge the unset-bits with the set-bits of the other font def
+	// assign the unset-bits with the set-bits of the other font def
 	if ( ! ( mask & Family ) && ( other.mask & Family ) )
 	    family = other.family;
 
@@ -182,9 +200,6 @@ struct QFontDef
 
 	if ( ! ( mask & Stretch ) && ( other.mask & Stretch ) )
 	    stretch = other.stretch;
-
-	// keep the mask updated
-	mask |= ( other.mask & Complete );
     }
 };
 
