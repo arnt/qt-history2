@@ -182,16 +182,6 @@ inline bool operator<=(const int &a, const QFixedPoint &b)
 inline bool operator>=(const int &a, const QFixedPoint &b)
 { return QFixedPoint(a).value() >= b.value(); }
 
-inline QFixedPoint qMax(QFixedPoint a, int b) { return (b < a) ? a : QFixedPoint(b); }
-inline QFixedPoint qMax(int a, QFixedPoint b) { return (b < a) ? QFixedPoint(a) : b; }
-inline QFixedPoint qMax(QFixedPoint a, double b) { QFixedPoint bb(b); return (bb < a) ? a : bb; }
-inline QFixedPoint qMax(double a, QFixedPoint b) { QFixedPoint aa(a); return (b < aa) ? aa : b; }
-
-inline QFixedPoint qMin(QFixedPoint a, int b) { return (b > a) ? a : QFixedPoint(b); }
-inline QFixedPoint qMin(int a, QFixedPoint b) { return (b > a) ? QFixedPoint(a) : b; }
-inline QFixedPoint qMin(QFixedPoint a, double b) { QFixedPoint bb(b); return (bb > a) ? a : bb; }
-inline QFixedPoint qMin(double a, QFixedPoint b) { QFixedPoint aa(a); return (b > aa) ? aa : b; }
-
 class Q_CORE_EXPORT QFixedPointLong {
 public:
     enum {
