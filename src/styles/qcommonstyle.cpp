@@ -752,6 +752,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    break;
 	}
 
+#ifndef QT_NO_TOOLBUTTON
     case CE_ToolButtonLabel:
 	{
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
@@ -823,6 +824,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
 	    break;
 	}
+#endif // QT_NO_TOOLBUTTON
 
     default:
 	break;

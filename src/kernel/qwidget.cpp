@@ -5169,10 +5169,12 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	own_font = TRUE;
 	unsetFont();
     }
+#ifndef QT_NO_PALETTE
     if ( !own_palette ) {
 	own_palette = TRUE;
 	unsetPalette();
     }
+#endif
 }
 
 /*!\overload

@@ -491,8 +491,10 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 /*! \reimp */
 void QDialog::closeEvent( QCloseEvent *e )
 {
+#ifndef QT_NO_WHATSTHIS
     if ( isModal() && QWhatsThis::inWhatsThisMode() )
 	QWhatsThis::leaveWhatsThisMode();
+#endif
     e->accept();
     reject();
 }
