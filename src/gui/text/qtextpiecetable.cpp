@@ -372,7 +372,7 @@ void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &
 
         if (mode == MergeFormat) {
             QTextFormat format = formats->format(fragment->format);
-            format += newFormat;
+            format.merge(newFormat);
             fragment->format = formats->indexForFormat(format);
         } else {
             fragment->format = newFormatIdx;
@@ -434,7 +434,7 @@ void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QText
         QTextBlockFormat format = formats->blockFormat(oldFormat);
         QTextFormatGroup *oldGroup = format.group();
         if (mode == MergeFormat) {
-            format += newFormat;
+            format.merge(newFormat);
             newFormatIdx = formats->indexForFormat(format);
             group = format.group();
         }

@@ -136,15 +136,16 @@ QTextFormat::~QTextFormat()
     }
 }
 
-QTextFormat &QTextFormat::operator+=(const QTextFormat &other)
+void QTextFormat::merge(const QTextFormat &other)
 {
+    if (d->type != other.d->type)
+        return;
+
     // don't use QMap's += operator, as it uses insertMulti!
     for (QTextFormatPrivate::PropertyMap::ConstIterator it = other.d->properties.begin();
          it != other.d->properties.end(); ++it) {
         d->properties.insert(it.key(), it.value());
     }
-
-    return *this;
 }
 
 int QTextFormat::type() const
