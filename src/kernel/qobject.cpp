@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#127 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#126 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#127 $");
 
 
 /*!
@@ -217,13 +217,28 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
 
 
 /*!
-  Finds a child of a QObject.
+  \relates QObject
 
-  Use the CHILD macro instead.
+  Returns a pointer to the child named \name of QObject \a parent
+  which inherits type \a type.
 
-  Example:
+  Returns 0 if there is no such child.
+
+  The CHILD macro (defined in qwindefs.h) does all this, and also
+  casts the returt type to \a type *.
+
+  Examples:
   \code
-    CHILD(myWidget,QListBox,"listboxname")->insertItem( "another string" );
+    QListBox * c = CHILD(myWidget,QListBox,"listboxname");
+    if ( c )
+        c->insertItem( "another string" );
+  \endcode
+
+  \code
+    QListBox * c = (QListBox *)::qt_find_obj_child(myWidget,QListBox,
+                                                   "listboxname");
+    if ( c )
+        c->insertItem( "another string" );
   \endcode
 */
 
@@ -234,20 +249,12 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 	QObjectListIt it( *list );
 	QObject *obj;
 	while ( (obj=it.current()) ) {
-	    if ( strcmp(name,obj->name()) == 0 ) {
-#if defined(CHECK_RANGE)
-		if ( !obj->inherits(type) )
-		    warning( "CHILD: Object %s does not inherit %s",
-			     name, type );
-#endif
-		return obj;
-	    }
 	    ++it;
+	    if ( strcmp(name,obj->name()) == 0 &&
+		obj->inherits(type) )
+		return obj;
 	}
     }
-#if defined(CHECK_NULL)
-    warning( "CHILD: No such child object %s", name );
-#endif
     return 0;
 }
 
@@ -775,10 +782,11 @@ static void objSearch( QObjectList *result,
     //
     QObjectList	 *list = myWidget->queryList( "QButton" );
     QObjectListIt it( *list );		// iterate over the buttons
-    QFont	  newFont( "Courier", 24 );
-    while ( it.current() ) {		// for each found object...
-	it.current()->setFont( newFont );
+    QFont newFont( "Courier", 24 );
+    QObject * obj;
+    while ( (obj=it.current()) != 0 ) {	// for each found object...
 	++it;
+	obj->setFont( newFont );
     }
     delete list;			// delete the list, not the objects
   \endcode
