@@ -22,6 +22,7 @@
 #include <ui4.h>
 
 #include <QMainWindow>
+#include <QMessageBox>
 #include <QLayout>
 #include <QTabWidget>
 #include <QToolBox>
@@ -60,6 +61,17 @@ QDesignerResource::~QDesignerResource()
 
 QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
 {
+    QString version = ui->attributeVersion();
+    if (version != "4.0") {
+        QMessageBox::warning(0, QObject::tr("Qt Designer"),
+               QObject::tr("This file was created using designer from Qt-%1 and "
+                           "could not be read. "
+                           "Please run it through <b>uic3 -convert</b> to convert "
+                           "it to Qt4's ui format.").arg(version),
+                               QMessageBox::Ok, 0);
+        return 0;
+    }
+
     m_isMainWidget = true;
     return Resource::create(ui, parentWidget);
 }
