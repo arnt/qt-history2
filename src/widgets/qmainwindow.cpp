@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#60 $
 **
 ** Implementation of QMainWindow class
 **
@@ -738,6 +738,29 @@ void QMainWindow::removeToolBar( QToolBar * toolBar )
 }
 
 
+
+class QToolBoxLayout : public QBoxLayout
+{
+public:
+    QToolBoxLayout( Direction d ) :QBoxLayout(d) {}
+    QSize minimumSize() const;
+};
+
+QSize QToolBoxLayout::minimumSize() const
+{
+    QSize s(0,0);
+    QLayoutIterator it = ((QToolBoxLayout*)this)->iterator();
+    QLayoutItem *o;
+    while ( (o = it.current()) ) {
+	++it;
+	s = s.expandedTo( o->minimumSize() );
+    }
+    s.setHeight(1);
+    return s;
+}    
+
+
+
 static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 				QBoxLayout * tl,
 				QBoxLayout::Direction direction,
@@ -775,7 +798,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	    if ( !toolBarRowLayout || nl ) {
 		if ( toolBarRowLayout && !justify )
 		    toolBarRowLayout->addStretch( 1 );
-		toolBarRowLayout = new QBoxLayout( direction );
+		toolBarRowLayout = new QToolBoxLayout( direction );
 		dockLayout->addLayout( toolBarRowLayout, 0 );
 	    }
 		toolBarRowLayout->addWidget( t->t, 0 );
