@@ -14,7 +14,7 @@ class QGenericItemModel;
 class Q_GUI_EXPORT QModelIndex
 {
 public:
-    enum Type { View, HorizontalHeader, VerticalHeader, ToolTip, WhatsThis };
+    enum Type { View, HorizontalHeader, VerticalHeader };
     inline QModelIndex(const QModelIndex &other)
 	: r(other.row()), c(other.column()), d(other.data()), t(other.t) {}
     inline QModelIndex(int row = -1, int column = -1, void *data = 0, Type type = View)
