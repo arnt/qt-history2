@@ -363,6 +363,7 @@ signals:
 
     void doubleClicked( QListViewItem * );
     void returnPressed( QListViewItem * );
+    void spacePressed( QListViewItem * );
     void rightButtonClicked( QListViewItem *, const QPoint&, int );
     void rightButtonPressed( QListViewItem *, const QPoint&, int );
     void mouseButtonPressed( int, QListViewItem *, const QPoint& , int );

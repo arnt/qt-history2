@@ -4290,6 +4290,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    return;
 	}
 	e->ignore();
+	if ( currentItem() && !currentItem()->isEnabled() )
+	    break;
 	emit returnPressed( currentItem() );
 	// do NOT accept.  QDialog.
 	return;
@@ -4402,6 +4404,9 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	activatedByClick = FALSE;
 	i->activate();
 	d->currentPrefix.truncate( 0 );
+	if ( currentItem() && !currentItem()->isEnabled() )
+	    break;
+	emit spacePressed( currentItem() );
 	break;
     case Key_Escape:
 	e->ignore(); // For QDialog
@@ -4864,6 +4869,12 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 
   This signal is emitted when Enter or Return is pressed.  The
   argument is the currentItem().
+*/
+
+/*! \fn void QListView::spacePressed( QListViewItem * )
+
+  This signal is emitted when Space is pressed. The argument
+  is currentItem().
 */
 
 
