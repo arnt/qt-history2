@@ -57,8 +57,9 @@ int main( int argc, char **argv )
 {
     QApplication::setColorSpec( QApplication::CustomColor );
     QApplication a( argc, argv );
-    QApplication::setStyle( new QWindowsStyle() );
-
+    //QApplication::setStyle( new QWindowsStyle() );
+    //a.setReverseLayout( true );
+    
     MyWidgetView* w = new MyWidgetView;
     a.setMainWidget( w );
 
