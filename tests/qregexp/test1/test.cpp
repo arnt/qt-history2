@@ -24,33 +24,43 @@ int main()
 {
     qInstallMsgHandler( myMessageOutput );
     char buf[200000];
+    int lineNo = 1;
+
     while ( fgets(buf, sizeof(buf), stdin) != 0 ) {
 	QStringList s = QStringList::split( QString(" # "), QString(buf),
 					    TRUE );
-	if ( s.count() != 3 )
+	if ( s.count() != 3 ) {
 	    fprintf( stderr, "Something is wrong with the test file\n" );
-	QRegExp rx( s[0].isNull() ? QString::fromLatin1("") : s[0] );
+	    return 1;
+	}
+	QRegExp rx( s[0] );
 	rx.setMinimal( FALSE );
-	if ( !rx.isValid() )
-	    qDebug( "Not valid" );
+	if ( !rx.isValid() ) {
+	    fprintf( stderr, "Regexp not valid" );
+	    return 1;
+	}
+
 	int pos;
 	QString ss = "";
 
 	do {
-	    ss += s[1].isNull() ? QString::fromLatin1("") : s[1];
+	    ss += s[1];
 	} while ( /* ss.length() > 0 && ss.length() < 100 */ FALSE );
-//	for ( int i = 0; i < 10; i++ )
-	    pos = rx.search( ss );
-	printf( "%d %d", pos, rx.matchedLength() );
+	pos = rx.search( ss );
+	printf( "%d: %s # %s # %d %d", lineNo, rx.pattern().latin1(),
+		ss.latin1(), pos, rx.matchedLength() );
 
 #ifndef QT_NO_REGEXP_CAPTURE
 	for ( uint i = 1; i < rx.capturedTexts().count(); i++ )
 	    printf( " '%s'", rx.capturedTexts()[i].latin1() );
 #endif
  	printf( "\n" );
-	fprintf( stderr, "%s", s[2].latin1() );
+	fprintf( stderr, "%d: %s\n", lineNo,
+		 QString(buf).stripWhiteSpace().latin1() );
+
 	printf( "\n" );
 	fprintf( stderr, "\n" );
+	lineNo++;
     }
     return 0;
 }
