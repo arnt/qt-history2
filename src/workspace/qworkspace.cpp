@@ -212,6 +212,8 @@ private:
 #endif
 };
 
+class QMainWindow;
+
 class QWorkspacePrivate {
 public:
     QWorkspaceChild* active;

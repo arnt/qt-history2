@@ -1,10 +1,11 @@
 #ifndef __QDIALOGBUTTONS_H__
 #define __QDIALOGBUTTONS_H__
 
+#ifndef QT_H
 #include <qwidget.h>
+#endif
 
-
-
+#ifndef QT_NO_DIALOGBUTTONS
 struct QDialogButtonsPrivate;
 
 class
@@ -73,5 +74,5 @@ private:
     QDialogButtonsPrivate *d;
     void init(Q_UINT32, Orientation);
 };
-
+#endif //QT_NO_DIALOGBUTTONS
 #endif /* __QDIALOGBUTTONS_H__ */

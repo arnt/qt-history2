@@ -371,9 +371,10 @@ static QMutex *postevent_mutex		= 0;
 
 QEventLoop *QApplication::eventloop = 0;	// application event loop
 
+#ifndef QT_NO_ACCEL
 extern bool qt_dispatchAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
 extern bool qt_tryComposeUnicode( QWidget*, QKeyEvent* ); // def in qaccel.cpp
-
+#endif
 
 #if defined(QT_TABLET_SUPPORT)
 bool chokeMouse = FALSE;
@@ -2302,10 +2303,10 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	{
 	    QWidget* w = (QWidget*)receiver;
 	    QKeyEvent* key = (QKeyEvent*) e;
-
+#ifndef QT_NO_ACCEL
 	    if ( qt_tryComposeUnicode( w, key ) )
 		break;
-
+#endif
 	    bool def = key->isAccepted();
 	    while ( w ) {
 		if ( def )

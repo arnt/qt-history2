@@ -524,13 +524,14 @@ static QFont qt_naturalWidgetFont( QWidget* w ) {
     return naturalfont;
 }
 
+#ifndef QT_NO_PALETTE
 static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     QPalette naturalpalette = QApplication::palette( w );
     if ( !w->isTopLevel() && naturalpalette.isCopyOf( QApplication::palette() ) )
 	naturalpalette = w->parentWidget()->palette();
     return naturalpalette;
 }
-
+#endif
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/

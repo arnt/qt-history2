@@ -207,6 +207,7 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 				 const QStyleOption& opt ) const
 {
     switch( pe ) {
+#ifndef QT_NO_LISTVIEW
     case PE_CheckListExclusiveIndicator: {
 	QCheckListItem *item = opt.checkListItem();
 	QListView *lv = item->listView();
@@ -241,6 +242,7 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	    p->setBrush( saveBrush );
 	}
 	break; }
+#endif
     case PE_ButtonCommand:
     case PE_ButtonBevel:
     case PE_ButtonTool:

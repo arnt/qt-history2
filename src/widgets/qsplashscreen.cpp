@@ -35,6 +35,8 @@
 
 #include "qsplashscreen.h"
 
+#ifndef QT_NO_SPLASHSCREEN
+
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qpixmap.h"
@@ -231,3 +233,5 @@ void QSplashScreen::drawContents( QPainter *painter )
     r.setRect( r.x() + 5, r.y() + 5, r.width() - 10, r.height() - 10 );
     painter->drawText( r, d->currAlign, d->currStatus );
 }
+
+#endif //QT_NO_SPLASHSCREEN

@@ -141,7 +141,9 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
     }
 #endif
 
+#ifndef QT_NO_TRANSFORMATIONS    
     if ( p->txop == QPainter::TxTranslate )
+#endif
 	p->map( x, y, &x, &y );
 
     if ( textFlags ) {

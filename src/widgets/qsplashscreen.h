@@ -41,6 +41,7 @@
 #include "qwidget.h"
 #endif // QT_H
 
+#ifndef QT_NO_SPLASHSCREEN
 class QSplashScreenPrivate;
 
 class Q_EXPORT QSplashScreen : public QWidget
@@ -66,5 +67,5 @@ private:
 
     QSplashScreenPrivate *d;
 };
-
+#endif //QT_NO_SPLASHSCREEN
 #endif

@@ -1,6 +1,6 @@
 Feature: WORKSPACE
 Section: Widgets
-Requires: SCROLLBAR VBOX TITLEBAR RESIZEHANDLER POPUPMENU LABEL TOOLBUTTON
+Requires: SCROLLBAR VBOX TITLEBAR RESIZEHANDLER POPUPMENU LABEL TOOLBUTTON MAINWINDOW
 Name: QWorkSpace
 SeeAlso: ???
 
@@ -28,6 +28,13 @@ Requires: SCROLLVIEW BEZIER
 Name: QCanvas
 SeeAlso: ???
 
+Feature: TOOLBOX
+Section: Widgets
+Requires: ICONSET TOOLBUTTON
+Name: Tool box
+SeeAlso: ???
+
+
 Feature: TABLE
 Section: Widgets
 Requires: COMBOBOX HEADER CHECKBOX
@@ -42,7 +49,7 @@ SeeAlso: ???
 
 Feature: SQL
 Section: Database
-Requires:
+Requires: STRINGLIST
 Name: SQL classes
 SeeAlso: ???
 
@@ -453,6 +460,12 @@ Feature: QWS_KEYBOARD
 Section: Qt/Embedded-specific
 Requires:
 Name: Console keyboard
+SeeAlso: ???
+
+Feature: QWS_KBD_SHARP
+Section: Qt/Embedded-specific
+Requires: QWS_KEYBOARD
+Name: Keyboard for SHARP Zaurus SL5xxx devices
 SeeAlso: ???
 
 Feature: QWS_CURSOR
@@ -995,6 +1008,19 @@ Requires: RICHTEXT SCROLLVIEW
 Name: Rich text edit
 SeeAlso: ???
 
+Feature SYNTAXHIGHLIGHTER
+Section: Widgets
+Requires: RICHTEXT
+Name: Rich text syntax highlighting
+SeeAlso: ???
+
+Feature: SPLASHSCREEN
+Section: Widgets
+Requires: IMAGEIO
+Name: Splash screen widget
+SeeAlso: ???
+
+
 Feature: TABLEVIEW
 Section: Widgets
 Requires: SCROLLBAR
@@ -1278,4 +1304,11 @@ Feature: DIRECTPAINTER
 Section: Painting
 Requires:
 Name: QDirectPainter
+SeeAlso: ???
+
+
+Feature: DIALOGBUTTONS
+Section: Widgets
+Requires: LAYOUT STYLE
+Name: Experimental internal class
 SeeAlso: ???

@@ -51,6 +51,7 @@ class QLineEdit;
 class QValidator;
 class QListBox;
 class QComboBoxData;
+class QWheelEvent;
 
 class Q_EXPORT QComboBox : public QWidget
 {
@@ -170,7 +171,9 @@ protected:
     void	keyPressEvent( QKeyEvent *e );
     void	focusInEvent( QFocusEvent *e );
     void	focusOutEvent( QFocusEvent *e );
+#ifndef QT_NO_WHEELEVENT
     void	wheelEvent( QWheelEvent *e );
+#endif
     void	styleChange( QStyle& );
 
     void	updateMask();

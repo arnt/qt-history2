@@ -763,7 +763,7 @@ uint qt_get_rgb_val( const char *name )
     qt_get_named_rgb(name,&r);
     return r;
 }
-
+#ifndef QT_NO_STRINGLIST
 QStringList QColor::colorNames()
 {
     int i = 0;
@@ -773,6 +773,7 @@ QStringList QColor::colorNames()
 
     return lst;
 }
+#endif
 #else
 
 bool qt_get_named_rgb( const char *, QRgb* )
@@ -784,9 +785,10 @@ uint qt_get_rgb_val( const char * )
 {
     return 0;
 }
-
+#ifndef QT_NO_STRINGLIST
 QStringList QColor::colorNames()
 {
     return QStringList();
 }
+#endif
 #endif // QT_NO_COLORNAMES

@@ -1,5 +1,6 @@
-
 #include "qdialogbuttons_p.h"
+#ifndef QT_NO_DIALOGBUTTONS
+
 #include <qapplication.h>
 #include <qpushbutton.h>
 #include <qguardedptr.h>
@@ -138,11 +139,15 @@ QDialogButtons::setDefaultButton(Button button)
 	return;
     }
     if(d->def != button) {
-	if(d->buttons.contains(d->def))
+#ifndef QT_NO_PROPERTIES
+o	if(d->buttons.contains(d->def))
 	    d->buttons[d->def]->setProperty("default", QVariant(FALSE,0));
+#endif
 	d->def = button;
+#ifndef QT_NO_PROPERTIES
 	if(d->buttons.contains(d->def))
 	    d->buttons[d->def]->setProperty("default", QVariant(FALSE,0));
+#endif
     }
 }
 
@@ -156,8 +161,10 @@ void
 QDialogButtons::setButtonText(Button button, const QString &str)
 {
     d->text[button] = str;
+#ifndef QT_NO_PROPERTIES
     if(d->buttons.contains(button))
 	d->buttons[button]->setProperty("text", QVariant(str));
+#endif
     layoutButtons();
 }
 
@@ -361,7 +368,9 @@ QDialogButtons::layoutButtons()
 		if(w) {
 		    if(b == d->def) {
 			w->setFocus();
+#ifndef QT_NO_PROPERTIES
 			w->setProperty("default", QVariant(TRUE,0));
+#endif
 		    }
 		    w->setEnabled(d->enabled & b);
 		}
@@ -406,3 +415,4 @@ QDialogButtons::minimumSizeHint() const
 {
     return sizeHint();
 }
+#endif

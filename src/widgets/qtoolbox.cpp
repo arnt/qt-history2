@@ -36,6 +36,9 @@
 **********************************************************************/
 
 #include "qtoolbox.h"
+
+#ifndef QT_NO_TOOLBOX
+
 #include <qtoolbutton.h>
 #include <qtoolbar.h>
 #include <qlayout.h>
@@ -798,3 +801,5 @@ void QToolBox::showEvent( QShowEvent *e )
 }
 
 #include "qtoolbox.moc"
+
+#endif //QT_NO_TOOLBOX

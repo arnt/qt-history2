@@ -38,8 +38,12 @@
 #ifndef QTOOLBOX_H
 #define QTOOLBOX_H
 
+#ifndef QT_H
 #include <qwidget.h>
 #include <qiconset.h>
+#endif // QT_H
+
+#ifndef QT_NO_TOOLBOX
 
 class QToolBoxPrivate;
 class QWidgetList;
@@ -115,5 +119,5 @@ inline void QToolBox::addPage( QWidget *page, const QIconSet &iconSet,
 inline void QToolBox::insertPage( QWidget *page, const QString &label, int index )
 { insertPage( page, QIconSet(), label, index ); }
 
-
+#endif // QT_NO_TOOLBOX
 #endif

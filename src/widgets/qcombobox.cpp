@@ -1446,7 +1446,7 @@ void QComboBox::focusOutEvent( QFocusEvent * e )
 
 /*!\reimp
 */
-
+#ifndef QT_NO_WHEELEVENT
 void QComboBox::wheelEvent( QWheelEvent *e )
 {
     if ( d->poppedUp ) {
@@ -1472,6 +1472,7 @@ void QComboBox::wheelEvent( QWheelEvent *e )
 	e->accept();
     }
 }
+#endif
 
 /*!
   \internal

@@ -2444,21 +2444,29 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 {
     if (!cols) {
 	useBrush();
+#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
 	if ( qt_screen->depth() == 16 && depth==32 ) {
 	    srcclut[0]=qt_conv16ToRgb(pixel);
 	    transclut[0]=qt_conv16ToRgb(pixel);
-	} else {
+	} else
+#else	    
+	    {
 	    srcclut[0]=pixel;
 	    transclut[0]=pixel;
 	}
+#endif
 	usePen();
+#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
 	if ( qt_screen->depth() == 16 && depth==32 ) {
 	    srcclut[1]=qt_conv16ToRgb(pixel);
 	    transclut[1]=qt_conv16ToRgb(pixel);
-	} else {
+	} else 
+#else
+	    {
 	    srcclut[1]=pixel;
 	    transclut[1]=pixel;
 	}
+#endif
 	return;
     }
 
