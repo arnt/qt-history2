@@ -79,12 +79,14 @@ class QTextEditPrivate
 {
 public:
     QTextEditPrivate()
-	:preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(FALSE),allowTabs(TRUE) {}
+	:preeditStart(-1),preeditLength(-1),
+	ensureCursorVisibleInShowEvent(FALSE),
+	allowTabs(FALSE) {}
     int id[ 7 ];
     int preeditStart;
     int preeditLength;
-    bool ensureCursorVisibleInShowEvent;
-    bool allowTabs;
+    uint ensureCursorVisibleInShowEvent : 1;
+    uint allowTabs : 1;
 };
 
 static bool block_set_alignment = FALSE;
