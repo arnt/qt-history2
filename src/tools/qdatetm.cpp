@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#22 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#22 $";
 #endif
 
 
@@ -584,7 +584,7 @@ bool QTime::isValid( int h, int m, int s, int ms ) // is valid time?
   printf( "%d\n", t.elapsed() );	\/ prints # msecs elapsed
   \endcode
 
-  \sa restart(), elapsed(). */
+  \sa restart(), elapsed() */
 
 void QTime::start()				// start clock
 {
@@ -592,9 +592,9 @@ void QTime::start()				// start clock
 }
 
 /*!
-Restarts for timing, and returns the number of microseconds that have elapsed
+Restarts for timing, and returns the number of milliseconds that have elapsed
 since start() or restart().
-\sa start(), elapsed().
+\sa start(), elapsed()
 */
 
 long QTime::restart()				// restart clock
@@ -606,7 +606,7 @@ long QTime::restart()				// restart clock
 }
 
 /*!
-Returns the number of microseconds that have elapsed since start() or
+Returns the number of milliseconds that have elapsed since start() or
 restart() were called.
 */
 
@@ -629,7 +629,7 @@ long QTime::elapsed()				// msecs since start/restart
 
   QDateTime provides high precision date and time functions since it
   can work with all dates since September 14. 1752, with the resolution up
-  to a microsecond. */
+  to a millisecond. */
 
 /*!
 \fn QDateTime::QDateTime()
