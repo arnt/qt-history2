@@ -29,49 +29,71 @@
 
 #if defined(QT_THREAD_SUPPORT)
 
+#include <qglobal.h>
 #include <arch/qatomic.h>
+
+#ifdef Q_OS_UNIX
+#  include <pthread.h>
+
+class QSpinLockPrivate
+{
+public:
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+
+    void initialize();
+    void cleanup();
+    void wait();
+    void wake();
+};
+
+#endif // Q_OS_UNIX
+
+#ifdef Q_OS_WIN
+
+class QSpinLockPrivate
+{
+public:
+    HANDLE event;
+
+    void initialize();
+    void cleanup();
+    void wait();
+    void wake();
+};
+
+#endif // Q_OS_WIN
 
 /*
   QSpinLock is similar to QMutex, except that it has *VERY* strict
-  rules that must be followed.  If you do not know these rults, do not
+  rules that must be followed.  If you do not know these rules, do not
   use QSpinLock.
 */
-struct QSpinLock
+class QSpinLock
 {
-    volatile int lock;
-
-    inline void initialize()
-    { lock = 0; }
-
-    inline void acquire()
-    { while (!q_atomic_test_and_set_int(&lock, 0, ~0)); }
-    inline void release()
-    { (void) q_atomic_test_and_set_int(&lock, ~0, 0); }
-};
-
-#define Q_SPINLOCK_INITIALIZER {0}
-
-/*
-  QSpinLockLocker is similar to QMutexLocker.
-*/
-class QSpinLockLocker
-{
-    QSpinLock *sx;
-
 public:
-    inline QSpinLockLocker(QSpinLock *s)
-	: sx(s)
-    { acquire(); }
-    inline ~QSpinLockLocker()
-    { release(); }
+    inline QSpinLock()
+    { lock = waiters = 0; d.initialize(); }
+    inline ~QSpinLock()
+    { d.cleanup(); }
 
-    inline void release()
-    { if (sx) sx->release(); }
     inline void acquire()
-    { if (sx) sx->acquire(); }
+    {
+	q_atomic_increment(&waiters);
+	while (!q_atomic_test_and_set_int(&lock, 0, ~0))
+	    d.wait();
+	q_atomic_decrement(&waiters);
+    }
+    inline void release()
+    {
+	(void) q_atomic_set_int(&lock, 0);
+	if (waiters != 0) d.wake();
+    }
 
-    inline QSpinLock *spinlock() const
-    { return sx; }
+private:
+    volatile int lock;
+    volatile int waiters;
+    QSpinLockPrivate d;
 };
 
 #endif // QT_THREAD_SUPPORT

@@ -78,9 +78,6 @@ public:
 #ifdef QT_COMPAT
 	hasPostedChildInsertedEvents = false;
 #endif
-#if defined(QT_THREAD_SUPPORT)
-	spinlock.initialize();
-#endif
     }
     virtual ~QObjectPrivate()
     {
@@ -93,11 +90,13 @@ public:
 #if defined(QT_THREAD_SUPPORT)
     // id of the thread that owns the object
     Qt::HANDLE thread;
-    QSpinLock spinlock;
 #endif
 
     // signal connections
     struct Connections {
+#if defined(QT_THREAD_SUPPORT)
+	QSpinLock lock;
+#endif
 	int count;
 	struct Connection {
 	    int signal;
@@ -119,6 +118,9 @@ public:
     // slot connections
     struct Senders
     {
+#if defined(QT_THREAD_SUPPORT)
+	QSpinLock lock;
+#endif
 	int ref;
 	QObject *current;
 	int count;
@@ -133,11 +135,10 @@ public:
     void refSender(QObject *sender);
     void derefSender(QObject *sender);
     void removeSender(QObject *sender);
-    void derefSenders();
 
-    static QObject *setCurrentSender(QObject *receiver, QObject *sender);
-    static void resetCurrentSender(QObject *receiver, QObject *sender);
-
+    static QObject *setCurrentSender(Senders *senders, QObject *sender);
+    static void resetCurrentSender(Senders *senders, QObject *sender);
+    static bool derefSenders(Senders *senders);
 
     QList<QPointer<QObject> > eventFilters;
 
