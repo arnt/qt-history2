@@ -56,7 +56,6 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qtoolbutton.h \
 	widgets/qvalidator.h \
 	widgets/qvbox.h \
-#	widgets/qdatetimeedit.h \
 	widgets/qwidgetinterface_p.h \
 	widgets/qwidgetplugin.h \
         widgets/qrubberband.h \
@@ -113,7 +112,6 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qtoolbutton.cpp \
 	widgets/qvalidator.cpp \
 	widgets/qvbox.cpp \
-#	widgets/qdatetimeedit.cpp \
 	widgets/qeffects.cpp \
 	widgets/qwidgetplugin.cpp \
         widgets/qrubberband.cpp \
