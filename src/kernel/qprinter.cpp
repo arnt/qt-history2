@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#40 $
 **
 ** Implementation of QPrinter class
 **
@@ -33,11 +33,6 @@
   All window systems that Qt supports, except X11, have built-in
   printer drivers.  For X11, Qt provides PostScript (tm)
   printing.
-
-  Clipping and even-odd filling are not supported.
-
-  Font support is limited to Times, Helvetica, Courier and Symbol, and
-  font metrics for these four fonts can be inaccurate.
 
   Drawing graphics on a printer is almost identical to drawing graphics
   in a widget or a pixmap.  The only difference is that the programmer
@@ -341,7 +336,7 @@ static QPrinter::PageSize makepagesize( QPrinter::PageSize ps,
   <li>\c QPrinter::Legal (8.5x14 inches, 216x356 mm)
   <li>\c QPrinter::Letter (8.5x11 inches, 216x279 mm)
   <li>\c QPrinter::Tabloid (279 x 432 mm)
-  
+
   </ul>
 
   \sa pageSize()
