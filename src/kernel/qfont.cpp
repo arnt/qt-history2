@@ -1219,7 +1219,9 @@ bool QFont::exactMatch() const
 {
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
     Q_ASSERT( engine != 0 );
-    return d->request == engine->fontDef;
+
+    return d->rawMode ? engine->type() != QFontEngine::Box
+			     : d->request == engine->fontDef;
 }
 
 /*!
@@ -2835,7 +2837,8 @@ bool QFontInfo::exactMatch() const
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     Q_ASSERT( engine != 0 );
 
-    return d->request == engine->fontDef;
+    return d->rawMode ? engine->type() != QFontEngine::Box
+			     : d->request == engine->fontDef;
 }
 
 
