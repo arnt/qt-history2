@@ -27,7 +27,7 @@
 
 #include "qwidget.h"
 #include "qpainter.h"
-#include "qfontdata.h"
+#include "qfontdata_p.h"
 #include "qfontdatabase.h"
 #include "qstrlist.h"
 #include "qcache.h"

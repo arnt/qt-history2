@@ -19,7 +19,7 @@
 *****************************************************************************/
 
 #include "qfont.h"
-#include "qfontdata.h"
+#include "qfontdata_p.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
 

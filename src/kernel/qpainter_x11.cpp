@@ -29,7 +29,7 @@
 #include "qpixmapcache.h"
 #include "qlist.h"
 #include "qintdict.h"
-#include "qfontdata.h"
+#include "qfontdata_p.h"
 #include "qtextcodec.h"
 #include <ctype.h>
 #include <stdlib.h>

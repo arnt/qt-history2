@@ -6,7 +6,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qbitmap.h"
 #include "qpaintdevice.h"
-#include "qfontdata.h"
+#include "qfontdata_p.h"
 #include "qtextcodec.h"
 #include <stdio.h>
 #include "qt_mac.h"

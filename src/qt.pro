@@ -90,7 +90,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qevent.h \
 		  $$KERNEL_H/qfocusdata.h \
 		  $$KERNEL_H/qfont.h \
-		  $$KERNEL_H/qfontdata.h \
+		  $$KERNEL_H/qfontdata_p.h \
 		  $$KERNEL_H/qfontinfo.h \
 		  $$KERNEL_H/qfontmetrics.h \
 		  $$KERNEL_H/qguardedptr.h \
