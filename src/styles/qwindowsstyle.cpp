@@ -61,6 +61,10 @@
 #include "qbitmap.h"
 #include "qcleanuphandler.h"
 
+#if defined(Q_WS_WIN)
+#include "qt_windows.h"
+#endif
+
 #include <limits.h>
 
 
@@ -870,6 +874,16 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_MenuBarFrameWidth:
 	ret = 0;
 	break;
+
+#if defined(Q_WS_WIN)
+    case PM_TitleBarHeight:
+	if ( widget && widget->testWFlags( WStyle_Tool ) ) {
+	    ret = GetSystemMetrics( SM_CYSMCAPTION );
+	} else {
+	    ret = GetSystemMetrics( SM_CYCAPTION ) - 1;
+	}
+	break;
+#endif
 
     case PM_SplitterWidth:
 	ret = QMAX( 6, QApplication::globalStrut().width() );
