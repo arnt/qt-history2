@@ -586,7 +586,6 @@ QStringList QPSQLDriver::tables( const QString& user ) const
 
 QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 {
-    qDebug( "QPSQLDriver::primaryIndex:" + tablename );
     QSqlIndex idx( tablename );
     if ( !isOpen() )
 	return idx;
