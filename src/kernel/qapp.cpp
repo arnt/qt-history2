@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#118 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#117 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#118 $");
 
 
 /*!
@@ -381,7 +381,8 @@ int QApplication::colorSpec()
 	    preallocated. The number of colors in the cube is as many
 	    as possible, but can be forced lower by the \e -ncols option.
 	    The user can force the application to use the true color visual by
-	    the \link QApplication::QApplication() \e -visual \endlink option.
+	    the \link QApplication::QApplication() <em>-visual</em> \endlink
+	    option.
       <li> For 256-color displays which have a true color visual with more
 	    than 256 colors, use that visual.  Silicon Graphics X servers
 	    have this feature. They provide an 8 bit visual as default but

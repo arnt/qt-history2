@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#10 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#11 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -34,6 +34,7 @@ public:
 
 class QImageFormatDecoder {
 public:
+    virtual ~QImageFormatDecoder();
     virtual int decode(QImage& img, QImageConsumer* consumer,
 	    const uchar* buffer, int length)=0;
 };

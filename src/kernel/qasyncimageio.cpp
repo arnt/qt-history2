@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#21 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -258,6 +258,16 @@ void QImageDecoder::unregisterDecoderFactory(QImageFormatDecoderFactory* f)
 
   \internal
 */
+
+/*!
+  Destructs the object.
+
+  \internal
+  More importantly, destructs derived classes.
+*/
+QImageFormatDecoder::~QImageFormatDecoder()
+{
+}
 
 /*!
   \fn int QImageFormatDecoder::decode(QImage& img, QImageConsumer* consumer,
