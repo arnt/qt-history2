@@ -156,11 +156,9 @@ void qt_mac_set_modal_state(bool b, QMenuBar *mb)
 
 static void qt_mac_clear_menubar()
 {
-#if 0
     ClearMenuBar();
     qt_mac_command_set_enabled(kHICommandPreferences, false);
     InvalMenuBar();
-#endif
 }
 
 #if !defined(QMAC_QMENUBAR_NO_EVENT)
