@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#189 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#190 $
 **
 ** Implementation of QFileDialog class
 **
@@ -900,14 +900,14 @@ void QFileDialog::init()
     connect( d->types, SIGNAL(activated(const QString&)),
              this, SLOT(setFilter(const QString&)) );
 
-    d->pathL = new QLabel( d->paths, tr("Look &in"), this );
-    d->fileL = new QLabel( nameEdit, tr("File &name"), this );
-    d->typeL = new QLabel( d->types, tr("File &type"), this );
+    d->pathL = new QLabel( d->paths, tr("Look &in:"), this );
+    d->fileL = new QLabel( nameEdit, tr("File &name:"), this );
+    d->typeL = new QLabel( d->types, tr("File &type:"), this );
 
     makeVariables();
 
     d->cdToParent = new QPushButton( this, "cd to parent" );
-    QToolTip::add( d->cdToParent, tr( "One Directory Up" ) );
+    QToolTip::add( d->cdToParent, tr( "One directory up" ) );
     d->cdToParent->setPixmap( *cdToParentIcon );
     connect( d->cdToParent, SIGNAL(clicked()),
              this, SLOT(cdUpClicked()) );
@@ -1225,8 +1225,8 @@ void QFileDialog::rereadDir()
                                    + QString::fromLatin1("\n\n")
                                    + tr("Please make sure that the directory\n"
                                         "is readable.\n"),
-                                   tr("Use Parent Directory"),
-                                   tr("Use Old Contents") ) ) {
+                                   tr("Use parent directory"),
+                                   tr("Use old contents") ) ) {
             return;
         }
         if ( !filist ) {
@@ -1453,7 +1453,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
 /*!
   \internal
-  Activated when the "Ok" button is clicked.
+  Activated when the "OK" button is clicked.
 */
 
 void QFileDialog::okClicked()
@@ -1928,7 +1928,7 @@ QtNewFolderDialog::QtNewFolderDialog(QWidget *parent, const char *name)
 
     QHBox *row1 = new QHBox( back );
     row1->setSpacing( 5 );
-    QLabel *label = new QLabel( tr("&Folder Name"), row1);
+    QLabel *label = new QLabel( tr("&Folder name:"), row1);
 	nameEdit = new QLineEdit( row1 );
     label->setBuddy( nameEdit );
     label->setAutoResize(TRUE);

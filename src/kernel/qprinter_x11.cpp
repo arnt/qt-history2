@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#65 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -156,7 +156,7 @@ bool QPrinter::aborted() const
 
   Now obsoleted by QPrintDialog::getPrinterSetup().
 
-  Returns TRUE if the user pressed "Ok" to print, or FALSE if the
+  Returns TRUE if the user pressed "OK" to print, or FALSE if the
   user cancelled the operation.
 */
 

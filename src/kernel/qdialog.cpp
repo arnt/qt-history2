@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#82 $
 **
 ** Implementation of QDialog class
 **
@@ -57,7 +57,7 @@
 	: QDialog( parent, name, TRUE )
     {
 	QPushButton *ok, *cancel;
-	ok = new QPushButton( "Ok", this );
+	ok = new QPushButton( "OK", this );
 	ok->setGeometry( 10,10, 100,30 );
 	connect( ok, SIGNAL(clicked()), SLOT(accept()) );
 	cancel = new QPushButton( "Cancel", this );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#66 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#67 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -586,7 +586,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
 	horiz->addStretch( 1 );
 
     QPushButton * ok = new QPushButton( this, "ok" );
-    ok->setText( tr("Ok") );
+    ok->setText( tr("OK") );
     ok->setAutoDefault( TRUE );
     ok->setDefault( TRUE );
     horiz->addWidget( ok );
@@ -642,7 +642,7 @@ QPrintDialog::~QPrintDialog()
 
 QGroupBox * QPrintDialog::setupDestination()
 {
-    QGroupBox * g = new QGroupBox( tr( "Print Destination"),
+    QGroupBox * g = new QGroupBox( tr( "Print destination"),
 				   this, "destination group box" );
 
     QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 12, 0 );
@@ -654,7 +654,7 @@ QGroupBox * QPrintDialog::setupDestination()
 	     this, SLOT(printerOrFileSelected(int)) );
 
     // printer radio button, list
-    QRadioButton * rb = new QRadioButton( tr( "Print to Printer:" ), g,
+    QRadioButton * rb = new QRadioButton( tr( "Print to printer:" ), g,
 					  "printer" );
     rb->setMinimumSize( rb->sizeHint() );
     tll->addWidget( rb );
@@ -764,7 +764,7 @@ QGroupBox * QPrintDialog::setupDestination()
     tll->addSpacing( 6 );
 
     // file radio button, edit/browse
-    rb = new QRadioButton( tr( "Print to File:" ), g, "file" );
+    rb = new QRadioButton( tr( "Print to file:" ), g, "file" );
     rb->setMinimumSize( rb->sizeHint() );
     tll->addWidget( rb );
     d->printerOrFile->insert( rb, 1 );
@@ -820,7 +820,7 @@ QGroupBox * QPrintDialog::setupOptions()
     d->printRange->insert( d->printAllButton, 0 );
     tll->addWidget( d->printAllButton );
 
-    d->printRangeButton = new QRadioButton( tr("Print Range:"),
+    d->printRangeButton = new QRadioButton( tr("Print range"),
 					    g, "print range" );
     d->printRangeButton->setMinimumSize( d->printRangeButton->sizeHint() );
     d->printRange->insert( d->printRangeButton, 1 );
@@ -829,7 +829,7 @@ QGroupBox * QPrintDialog::setupOptions()
     QBoxLayout * horiz = new QBoxLayout( QBoxLayout::LeftToRight );
     tll->addLayout( horiz );
 
-    d->firstPageLabel = new QLabel( tr("From page"), g, "first page" );
+    d->firstPageLabel = new QLabel( tr("From page:"), g, "first page" );
     horiz->addSpacing( 19 );
     horiz->addWidget( d->firstPageLabel );
 
@@ -843,7 +843,7 @@ QGroupBox * QPrintDialog::setupOptions()
     horiz = new QBoxLayout( QBoxLayout::LeftToRight );
     tll->addLayout( horiz );
 
-    d->lastPageLabel = new QLabel( tr("To page"), g, "last page" );
+    d->lastPageLabel = new QLabel( tr("To page:"), g, "last page" );
     horiz->addSpacing( 19 );
     horiz->addWidget( d->lastPageLabel );
 
@@ -902,7 +902,7 @@ QGroupBox * QPrintDialog::setupOptions()
     horiz = new QBoxLayout( QBoxLayout::LeftToRight );
     tll->addLayout( horiz );
 
-    QLabel * l = new QLabel( tr("Number of copies"), g, "Number of copies" );
+    QLabel * l = new QLabel( tr("Number of copies:"), g, "Number of copies" );
     horiz->addWidget( l );
 
     d->copies = new QSpinBox( 1, 99, 1, g, "copies" );
