@@ -229,25 +229,11 @@ void QTextFormat::merge(const QTextFormat &other)
 	return;
     }
 
-    QList<int> allProps = other.d->propertyMap().keys();
-
-    for (int i = 0; i < allProps.count(); ++i) {
-	int propId = allProps.at(i);
-
+    Q_FOREACH(int propId, other.d->propertyMap().keys()) {
 	const QTextFormatProperty prop = other.d->property(propId, QTextFormat::Undefined);
 	Q_ASSERT(prop.isValid());
 	d->setProperty(propId, prop);
     }
-}
-
-int QTextFormat::type() const
-{
-    return _type;
-}
-
-int QTextFormat::inheritedType() const
-{
-    return _inheritedType;
 }
 
 QTextBlockFormat QTextFormat::toBlockFormat() const
@@ -255,9 +241,7 @@ QTextBlockFormat QTextFormat::toBlockFormat() const
     QTextBlockFormat f;
     if (!isBlockFormat())
 	return f;
-    f.d = d;
-    f._type = _type;
-    f._inheritedType = _inheritedType;
+    f.QTextFormat::operator=(*this);
     return f;
 }
 
@@ -266,9 +250,7 @@ QTextCharFormat QTextFormat::toCharFormat() const
     QTextCharFormat f;
     if (!isCharFormat())
 	return f;
-    f.d = d;
-    f._type = _type;
-    f._inheritedType = _inheritedType;
+    f.QTextFormat::operator=(*this);
     return f;
 }
 
@@ -277,9 +259,7 @@ QTextListFormat QTextFormat::toListFormat() const
     QTextListFormat f;
     if (!isListFormat())
 	return f;
-    f.d = d;
-    f._type = _type;
-    f._inheritedType = _inheritedType;
+    f.QTextFormat::operator=(*this);
     return f;
 }
 
@@ -288,9 +268,7 @@ QTextTableFormat QTextFormat::toTableFormat() const
     QTextTableFormat f;
     if (!isTableFormat())
 	return f;
-    f.d = d;
-    f._type = _type;
-    f._inheritedType = _inheritedType;
+    f.QTextFormat::operator=(*this);
     return f;
 }
 
@@ -299,9 +277,7 @@ QTextImageFormat QTextFormat::toImageFormat() const
     QTextImageFormat f;
     if (!isImageFormat())
 	return f;
-    f.d = d;
-    f._type = _type;
-    f._inheritedType = _inheritedType;
+    f.QTextFormat::operator=(*this);
     return f;
 }
 

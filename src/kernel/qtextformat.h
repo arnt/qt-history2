@@ -109,8 +109,8 @@ public:
 
     bool isValid() const { return type() != -1; }
 
-    int type() const;
-    int inheritedType() const;
+    int type() const { return _type; }
+    int inheritedType() const { return _inheritedType; }
 
     bool inheritsFormatType(int otherType) const
     { return type() == otherType || inheritedType() == otherType; }
