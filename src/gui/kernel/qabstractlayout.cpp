@@ -982,7 +982,7 @@ void QLayout::childEvent(QChildEvent *e)
 
 /*!
   \internal
-  Also takes margin() and menu bar into account.
+  Also takes contentsMargins and menu bar into account.
 */
 int QLayout::totalHeightForWidth(int w) const
 {
@@ -1003,7 +1003,7 @@ int QLayout::totalHeightForWidth(int w) const
 
 /*!
   \internal
-  Also takes margin() and menu bar into account.
+  Also takes contentsMargins and menu bar into account.
 */
 QSize QLayout::totalMinimumSize() const
 {
@@ -1025,7 +1025,7 @@ QSize QLayout::totalMinimumSize() const
 
 /*!
   \internal
-  Also takes margin() and menu bar into account.
+  Also takes contentsMargins and menu bar into account.
 */
 QSize QLayout::totalSizeHint() const
 {
@@ -1049,7 +1049,7 @@ QSize QLayout::totalSizeHint() const
 
 /*!
   \internal
-  Also takes margin() and menu bar into account.
+  Also takes contentsMargins and menu bar into account.
 */
 QSize QLayout::totalMaximumSize() const
 {
@@ -1200,7 +1200,7 @@ QWidget *QLayout::menuBar() const
 /*!
     Returns the minimum size of this layout. This is the smallest size
     that the layout can have while still respecting the
-    specifications. Does not include what's needed by margin() or
+    specifications. Does not include what's needed by QWidget::setContentsMargins() or
     menuBar().
 
     The default implementation allows unlimited resizing.
@@ -1213,7 +1213,7 @@ QSize QLayout::minimumSize() const
 /*!
     Returns the maximum size of this layout. This is the largest size
     that the layout can have while still respecting the
-    specifications. Does not include what's needed by margin() or
+    specifications. Does not include what's needed by QWidget::setContentsMargins() or
     menuBar().
 
     The default implementation allows unlimited resizing.
