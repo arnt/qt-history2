@@ -46,6 +46,8 @@
 #include <private/qnumeric_p.h>
 #include <limits.h>
 
+#include "qdebug.h"
+
 #define d d_func()
 #define q q_func()
 
@@ -166,17 +168,6 @@ void qt_draw_transformed_rect(QPaintEngine *pe, int x, int y, int w,  int h, boo
     else
         XDrawLines(p->d->dpy, p->d->hd, p->d->gc, points, 5, CoordModeOrigin);
 }
-
-
-void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h)
-{
-    QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pe);
-    QColormap cmap = QColormap::instance(p->d->scrn);
-    XSetForeground(p->d->dpy, p->d->gc, cmap.pixel(p->d->bg_brush.color()));
-    qt_draw_transformed_rect(p, x, y, w, h, true);
-    XSetForeground(p->d->dpy, p->d->gc, cmap.pixel(p->d->cpen.color()));
-}
-
 
 
 
@@ -896,6 +887,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     XGCValues vals;
     vals.graphics_exposures = false;
     vals.foreground = cmap.pixel(d->cbrush.color());
+//    qDebug() << "updateBrush vals.foreground: " << hex << cmap.pixel(d->cbrush.color()) << d->cbrush.color();
     vals.background = cmap.pixel(d->bg_col);
     vals.cap_style = CapButt;
     vals.join_style = JoinMiter;
