@@ -266,6 +266,8 @@ public:
     QPoint draggedItemsDelta() const;
     QRect draggedItemsRect() const;
 
+    QModelIndex closestIndex(const QPoint &target, const QVector<QModelIndex> &candidates) const;
+
     bool wrap;
     int spacing;
     QSize gridSize;

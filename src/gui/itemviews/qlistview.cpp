@@ -905,123 +905,77 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction, 
     QModelIndex current = currentIndex();
     QRect rect = itemRect(current);
     QSize contents = d->contentsSize;
-    int spacing = d->spacing;
     QPoint pos = rect.topLeft();
     d->intersectVector.clear();
 
     switch (cursorAction) {
-    case MoveLeft:{
-        while (d->intersectVector.count() == 0) {
-            if (rect.left() > spacing)
-                rect.moveLeft(qMax(rect.left() - rect.width() - spacing, 0));
-            else // move down
-                rect.moveTopLeft(QPoint(contents.width() - 1, rect.top()/* - rect.height()*/));
-            //qDebug() << rect;
-            if (rect.top() > contents.height() || rect.bottom() < 0) {
-                //qDebug() << "breaking";
-                break;
-            }
+    case MoveLeft:
+        while (d->intersectVector.isEmpty()) {
+            rect.moveBy(-rect.width() - 1, 0);
+            if (rect.right() <= 0)
+                return current;
+            if (rect.left() < 0)
+                rect.setLeft(0); // FIXME changes the size of the rect
             if (d->movement == Static)
                 d->intersectingStaticSet(rect);
             else
                 d->intersectingDynamicSet(rect);
-            // FIXME: we should fix the intersection function
-            if (!d->intersectVector.isEmpty() && d->intersectVector.first() == current)
-                d->intersectVector.erase(d->intersectVector.begin());
         }
-        break;}
+        return d->closestIndex(pos, d->intersectVector);
     case MoveRight:
-        while (d->intersectVector.count() == 0) {
-            if (rect.right() < contents.width())
-                rect.moveLeft(rect.left() + rect.width() + spacing);
-            else // move up
-                rect.moveTopLeft(QPoint(0, rect.top() + rect.height() + spacing));
-            //qDebug() << rect;
-            if (rect.top() > contents.height() || rect.bottom() < spacing) {
-                //qDebug() << "breaking";
-                break;
-            }
+        while (d->intersectVector.isEmpty()) {
+            rect.moveBy(rect.width() + 1, 0);
+            if (rect.left() >= contents.width())
+                return current;
+            if (rect.right() > contents.width())
+                rect.setRight(contents.width()); // FIXME changes the size of the rect
             if (d->movement == Static)
                 d->intersectingStaticSet(rect);
             else
                 d->intersectingDynamicSet(rect);
-            // FIXME: we should fix the intersection function
-            if (!d->intersectVector.isEmpty() && d->intersectVector.first() == current)
-                d->intersectVector.erase(d->intersectVector.begin());
         }
-        break;
+        return d->closestIndex(pos, d->intersectVector);
     case MovePageUp:
         rect.moveTop(rect.top() - d->viewport->height());
-        if (rect.top() < spacing)
-            rect.moveTop(contents.height() - rect.height());
+        if (rect.top() < rect.height())
+            rect.moveTop(rect.height() - 1);
     case MoveUp:
-        if (d->movement == Static && cursorAction != MovePageUp && current.row() > 0) {
-            int row = current.row();
-            while (d->hiddenRows.contains(--row));
-            return model()->index(row, 0, root());
-        }
-        while (d->intersectVector.count() == 0) {
-            if (rect.top() > spacing)
-                rect.moveTop(rect.top() - rect.height() - spacing);
-            else // move right
-                rect.moveTopLeft(QPoint(rect.left() - rect.width(),
-                                        contents.height() - rect.height()));
-            if (rect.left() > contents.width() || rect.right() < 0)
-                break;
+        while (d->intersectVector.isEmpty()) {
+            rect.moveBy(0, -rect.height() - 1);
+            if (rect.bottom() <= 0)
+                return current;
+            if (rect.top() < 0)
+                rect.setTop(0); // FIXME changes the size of the rect
             if (d->movement == Static)
                 d->intersectingStaticSet(rect);
             else
                 d->intersectingDynamicSet(rect);
         }
-        break;
+        return d->closestIndex(pos, d->intersectVector);
     case MovePageDown:
         rect.moveTop(rect.top() + d->viewport->height());
-        if (rect.top() > contents.height())
-            rect.moveTop(0);
+        if (rect.bottom() > contents.height() - rect.height())
+            rect.moveBottom(contents.height() - rect.height() - 1);
     case MoveDown:
-        if (d->movement == Static && cursorAction != MovePageDown
-            && current.row() < model()->rowCount(root()) - 1) {
-            int row = current.row();
-            while (d->hiddenRows.contains(++row));
-            return model()->index(row, 0, root());
-        }
-        while (d->intersectVector.count() == 0) {
-            if (rect.bottom() < contents.height() - spacing)
-                rect.moveTop(rect.top() + rect.height() + spacing);
-            else // move right
-                rect.moveTopLeft(QPoint(rect.left() + rect.width(), 0));
-            if (rect.left() > contents.width() || rect.right() < 0)
-                break;
+        while (d->intersectVector.isEmpty()) {
+            rect.moveBy(0, rect.height() + 1);
+            if (rect.top() >= contents.height())
+                return current;
+            if (rect.bottom() > contents.height())
+                rect.setBottom(contents.height()); // FIXME changes the size of the rect
             if (d->movement == Static)
                 d->intersectingStaticSet(rect);
             else
                 d->intersectingDynamicSet(rect);
-            // FIXME: we should fix the intersection function
-            if (d->intersectVector.count() && d->intersectVector.first() == current)
-                d->intersectVector.clear();
         }
-        break;
+        return d->closestIndex(pos, d->intersectVector);
     case MoveHome:
         return model()->index(0, 0, root());
     case MoveEnd:
         return model()->index(d->layoutStart - 1, 0, root());
     }
 
-    int dist = 0;
-    int minDist = 0;
-    QModelIndex closest;
-    QVector<QModelIndex>::iterator it = d->intersectVector.begin();
-    for (; it != d->intersectVector.end(); ++it) {
-        if (!(*it).isValid())
-            continue;
-        dist = (d->indexToListViewItem(*it).rect().topLeft() - pos).manhattanLength();
-        if (dist < minDist || minDist == 0) {
-            minDist = dist;
-            closest = *it;
-        }
-    }
-
-    return closest;
+    return current;
 }
 
 /*!
@@ -1764,4 +1718,23 @@ QRect QListViewPrivate::draggedItemsRect() const
     QRect rect = itemsRect(draggedItems);
     rect.moveBy(draggedItemsDelta());
     return rect;
+}
+
+QModelIndex QListViewPrivate::closestIndex(const QPoint &target,
+                                           const QVector<QModelIndex> &candidates) const
+{
+    int distance = 0;
+    int shortest = 0;
+    QModelIndex closest;
+    QVector<QModelIndex>::const_iterator it = candidates.begin();
+    for (; it != candidates.end(); ++it) {
+        if (!(*it).isValid())
+            continue;
+        distance = (indexToListViewItem(*it).rect().topLeft() - target).manhattanLength();
+        if (distance < shortest || shortest == 0) {
+            shortest = distance;
+            closest = *it;
+        }
+    }
+    return closest;
 }
