@@ -17,11 +17,7 @@
 
 static QString* resource = 0;
 
-static void clean_me_up()
-{
-    delete resource;
-    resource = 0;
-}
+static QCleanUpHandler<QString> cleanUpHandler;
 
 class TestInterface : public QWidgetInterface
 {
@@ -29,7 +25,7 @@ public:
     TestInterface() 
     {
 	resource = new QString( "Ich bin der String!" );
-	cleanUpHandler.addCleanUpRoutine( clean_me_up );
+	cleanUpHandler.addCleanUp( resource );
     }
     QString queryInterface() { return "QWidgetInterface"; }
 
