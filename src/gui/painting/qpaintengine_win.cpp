@@ -540,7 +540,7 @@ void QWin32PaintEngine::drawRect(const QRect &r)
         d->fillGradient(r);
         outlineOnly = true;
     } else if (d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255) {
-        d->fillAlpha(r);
+        d->fillAlpha(r, d->brush.color());
         outlineOnly = true;
     }
 
@@ -999,7 +999,7 @@ void QWin32PaintEngine::drawPath(const QPainterPath &p)
         if (d->brushStyle == Qt::LinearGradientPattern)
             d->fillGradient(p.boundingRect());
         else
-            d->fillAlpha(p.boundingRect());
+            d->fillAlpha(p.boundingRect(), d->brush.color());
         brush = false;
         if (gotRegion == 0) { // No path originally
             SelectClipRgn(d->hdc, 0);
@@ -1071,6 +1071,15 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
 
     if (d->tryGdiplus()) {
         d->gdiplusEngine->drawPixmap(r, pixmap, sr, mode);
+        return;
+    }
+
+    if (d->pen.color().alpha() != 255 && pixmap.isQBitmap()) {
+        QRegion region(*static_cast<const QBitmap*>(&pixmap));
+        region.translate(r.x(), r.y());
+        updateClipRegion(region, true);
+        d->fillAlpha(r, d->pen.color());
+        setDirty(DirtyClip);
         return;
     }
 
@@ -1194,6 +1203,7 @@ void QWin32PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int t
 
 void QWin32PaintEngine::updatePen(const QPen &pen)
 {
+    d->pen = pen;
     d->penStyle = pen.style();
     d->penAlphaColor = d->penStyle != Qt::NoPen && pen.color().alpha() != 255;
     if (d->tryGdiplus()) {
@@ -1792,20 +1802,17 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
     }
 }
 
-void QWin32PaintEnginePrivate::fillAlpha(const QRect &r)
+void QWin32PaintEnginePrivate::fillAlpha(const QRect &r, const QColor &color)
 {
-    Q_ASSERT(brush.style() == Qt::SolidPattern);
-    Q_ASSERT(brush.color().alpha() != 255);
-
     HDC memdc = CreateCompatibleDC(hdc);
     HBITMAP bitmap = CreateCompatibleBitmap(hdc, r.width(), r.height());
     SelectObject(memdc, bitmap);
-    SelectObject(memdc, CreateSolidBrush(bColor));
+    SelectObject(memdc, CreateSolidBrush(RGB(color.red(), color.green(), color.blue())));
     SelectObject(memdc, stock_nullPen);
 
     Rectangle(memdc, 0, 0, r.width() + 1, r.height() + 1);
 
-    BLENDFUNCTION bf = { AC_SRC_OVER, 0, brush.color().alpha(), 0 };
+    BLENDFUNCTION bf = { AC_SRC_OVER, 0, color.alpha(), 0 };
     if (!AlphaBlend(hdc, r.x(), r.y(), r.width(), r.height(), memdc, 0, 0, r.width(), r.height(), bf))
         qSystemWarning("Alphablending failed...");
 

@@ -139,6 +139,7 @@ public:
     COLORREF pColor;
     COLORREF bColor;
     QBrush brush;
+    QPen pen;
     Qt::BGMode bgMode;
 
     QWMatrix matrix;
@@ -193,7 +194,7 @@ public:
     /*!
       Fill the rect current alpha brush
     */
-    void fillAlpha(const QRect &r);
+    void fillAlpha(const QRect &r, const QColor &c);
 
     /*!
       Composes the path on the current device context
