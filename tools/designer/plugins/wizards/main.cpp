@@ -15,7 +15,7 @@ public:
 
     QStringList featureList() const;
 
-    void setup( const QString &templ, QWidget *widget /*we need more information here*/ );
+    void setup( const QString &templ, QWidget *widget, const QValueList<DatabaseConnection> &dbConnections );
 
 private:
     unsigned long ref;
@@ -36,7 +36,7 @@ QStringList StandardTemplateWizardInterface::featureList() const
     return list;
 }
 
-void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widget )
+void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widget, const QValueList<DatabaseConnection> &dbConnections )
 {
     qDebug( "setup %p %s", widget, templ.latin1() );
 }

@@ -2370,8 +2370,19 @@ FormWindow* MainWindow::insertFormWindow( int type )
     }
 
     TemplateWizardInterface *iface = templateWizardPluginManager->queryInterface( fw->mainContainer()->className() );
-    if ( iface )
-	iface->setup( fw->mainContainer()->className(), fw->mainContainer() );
+    if ( iface ) {
+	QValueList<TemplateWizardInterface::DatabaseConnection> dbConnections;
+	if ( currentProject ) {
+	    QList<Project::DatabaseConnection> conns = currentProject->databaseConnections();
+	    for ( Project::DatabaseConnection *conn = conns.first(); conn; conn = conns.next() ) {
+		TemplateWizardInterface::DatabaseConnection c;
+		c.connection = conn->name;
+		c.tables = conn->tables;
+		c.fields = conn->fields;
+	    }
+	}
+	iface->setup( fw->mainContainer()->className(), fw->mainContainer(), dbConnections );
+    }
 
     fw->setCaption( n );
     fw->resize( 600, 480 );
