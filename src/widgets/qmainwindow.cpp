@@ -1463,28 +1463,21 @@ bool QMainWindow::event( QEvent * e )
 }
 
 
-/*!
-    Returns TRUE if big pixmaps is enabled, otherwise returns FALSE.
+/*! \property QMainWindow::usesBigPixmaps
+    \brief whether big pixmaps are enabled
 
-  \sa setUsesBigPixmaps();
+  If disabled, the tool buttons will use small
+  pixmaps. If enabled, big pixmaps will be used.
+
+  Tool buttons and other widgets that wish to respond to this setting
+  are responsible for reading the correct state on startup, and for
+  connecting to the main window's widget's pixmapSizeChanged() signal.
 */
 
 bool QMainWindow::usesBigPixmaps() const
 {
     return d->ubp;
 }
-
-
-/*!
-    If \a enable is FALSE, the tool buttons will use small
-    pixmaps. If \a enable is TRUE, big pixmaps will be used.
-
-  Tool buttons and other widgets that wish to respond to this setting
-  are responsible for reading the correct state on startup, and for
-  connecting to the main window's widget's pixmapSizeChanged() signal.
-
-  \sa QToolButton::setUsesBigPixmap()
-*/
 
 void QMainWindow::setUsesBigPixmaps( bool enable )
 {
@@ -1504,11 +1497,18 @@ void QMainWindow::setUsesBigPixmaps( bool enable )
     delete l;
 }
 
-/*!
-    Returns whether text labels for toolbar buttons are enabled. The
-    initial state is FALSE.
+/*! \property QMainWindow::usesTextLabel
+    \brief whether text labels for toolbar buttons are enabled
 
-  \sa setUsesTextLabel();
+  If disabled (the default), the tool buttons will not use
+  text labels. If enabled, text labels will be used.
+
+  Tool buttons and other widgets that wish to respond to this setting
+  are responsible for reading the correct state on startup, and for
+  connecting to the main window's widget's usesTextLabelChanged()
+  signal.
+  
+  \sa QToolButton::setUsesTextLabel()
 */
 
 bool QMainWindow::usesTextLabel() const
@@ -1516,18 +1516,6 @@ bool QMainWindow::usesTextLabel() const
     return d->utl;
 }
 
-
-/*!
-    If \a enable is FALSE, the tool buttons will not use
-    text labels. If \a enable is TRUE, text labels will be used.
-
-  Tool buttons and other widgets that wish to respond to this setting
-  are responsible for reading the correct state on startup, and for
-  connecting to the main window's widget's usesTextLabelChanged()
-  signal.
-
-  \sa QToolButton::setUsesTextLabel()
-*/
 
 void QMainWindow::setUsesTextLabel( bool enable )
 {
@@ -1575,16 +1563,6 @@ void QMainWindow::setUsesTextLabel( bool enable )
   \sa getLocation()
 */
 
-/*!  If \a enable is FALSE (the default), stretchable dock windows
-    are expanded, and non-stretchable dock windows are given the minimum
-    space they need. Since most dock windows are not stretchable, this
-    usually results in a unjustified right edge (or unjustified bottom edge for a
-    vertical dock area). If \a enable is TRUE, the main window will
-    right-justify its dock windows.
-
-  \sa rightJustification(), QDockWindow::setVerticalStretchable(), QDockWindow::setHorizontalStretchable()
-*/
-
 void QMainWindow::setRightJustification( bool enable )
 {
     if ( enable == d->justify )
@@ -1594,10 +1572,17 @@ void QMainWindow::setRightJustification( bool enable )
 }
 
 
-/*!  Returns TRUE if the main window right-justifies its dock
-  windows, otherwise returns FALSE.
+/*! \property QMainWindow::rightJustification
+    \brief whether the main window right-justifies its dock windows
 
-  \sa setRightJustification()
+  If disabled (the default), stretchable dock windows
+  are expanded, and non-stretchable dock windows are given the minimum
+  space they need. Since most dock windows are not stretchable, this
+  usually results in a unjustified right edge (or unjustified bottom edge for a
+  vertical dock area). If enabled, the main window will
+  right-justify its dock windows.
+
+  \sa QDockWindow::setVerticalStretchable(), QDockWindow::setHorizontalStretchable()
 */
 
 bool QMainWindow::rightJustification() const
@@ -1766,25 +1751,6 @@ QPtrList<QDockWindow> QMainWindow::dockWindows() const
     return d->dockWindows;
 }
 
-/*!
-    If \a enable is TRUE, the user will be able to move
-    dock windows. Movable dock windows can be moved from one QMainWindow
-    dock area to another, including the \c TearOff area (i.e. where the
-    dock window floats freely as a window in its own right), and the \c
-    Minimized area (where only the dock window's handle is shown below
-    the menu bar). Moveable dock windows can also be moved within
-    QMainWindow dock areas, i.e. to rearrange them within a dock area.
-
-    If \a enable is FALSE the user will not be able to move any dock
-    windows.
-
-  By default dock windows are moved transparently (i.e. only an outline
-  rectangle is shown during the drag), but this setting can be changed
-  with setOpaqueMoving().
-
-  \sa setDockEnabled(), dockWindowsMovable(), setOpaqueMoving()
-*/
-
 void QMainWindow::setDockWindowsMovable( bool enable )
 {
     d->movable = enable;
@@ -1796,27 +1762,31 @@ void QMainWindow::setDockWindowsMovable( bool enable )
     delete l;
 }
 
-/*!
-    Returns TRUE if the dock windows are movable, otherwise returns
-    FALSE.
+/*! \property QMainWindow::dockWindowsMovable
+    \brief whether the dock windows are movable
 
-  \sa setDockWindowsMovable()
+  If enabled, the user will be able to move Movable dock windows from 
+  one QMainWindow dock area to another, including the \c TearOff 
+  area (i.e. where the dock window floats freely as a window in its 
+  own right), and the \c Minimized area (where only the dock window's
+  handle is shown below the menu bar). Moveable dock windows can also
+  be moved within QMainWindow dock areas, i.e. to rearrange them within
+  a dock area.
+
+  If disabled the user will not be able to move any dock windows.
+
+  By default dock windows are moved transparently (i.e. only an outline
+  rectangle is shown during the drag), but this setting can be changed
+  with setOpaqueMoving().
+
+  \sa setDockEnabled(), setOpaqueMoving()
+
 */
 
 bool QMainWindow::dockWindowsMovable() const
 {
     return d->movable;
 }
-
-/*!
-    If \a b is TRUE then dock windows are moved opaquely (i.e. the window is
-    shown normally as it is moved). If \a b is FALSE when dock windows
-    are moved only an outline is shown.
-
-    Dock windows can only be moved if dockWindowsMovable() is TRUE.
-
-  \sa setDockWindowsMovable()
-*/
 
 void QMainWindow::setOpaqueMoving( bool b )
 {
@@ -1829,12 +1799,13 @@ void QMainWindow::setOpaqueMoving( bool b )
     delete l;
 }
 
-/*!  Returns TRUE if the dock windows of the main window are shown
+/*! \property QMainWindow::opaqueMoving
+    \brief whether dock windows are moved opaquely
+  
+  If enabled the dock windows of the main window are shown
   opaquely (i.e. it shows the toolbar as it looks when docked) when
-  moved. Returns FALSE if they are shown transparently,
+  moved. If disabled they are shown transparently,
   (i.e. as an outline rectangle).
-
-  \sa setOpaqueMoving()
 */
 
 bool QMainWindow::opaqueMoving() const

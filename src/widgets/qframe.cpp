@@ -181,25 +181,13 @@ static const int wpwidth = 2; // WinPanel lwidth
 /*! \property QFrame::frameShape
     \brief the frame shape value from the frame style
 
-  \sa setFrameShape(), frameStyle(), frameShadow()
-*/
-
-/*!
-  \fn void QFrame::setFrameShape(Shape)
-  Sets the frame shape value of the frame style.
-  \sa frameShape(), frameStyle(), setFrameShadow()
+  \sa frameStyle(), frameShadow()
 */
 
 /*! \property QFrame::frameShadow
     \brief the frame shadow value from the frame style
     
-  \sa setFrameShadow(), frameStyle(), frameShape()
-*/
-
-/*!
-  \fn void QFrame::setFrameShadow( Shadow )
-  Sets the frame shadow value of the frame style.
-  \sa frameShadow(), frameStyle(), setFrameShape()
+  \sa frameStyle(), frameShape()
 */
 
 /*!
@@ -282,13 +270,7 @@ void QFrame::setFrameStyle( int style )
 
   The default value is 1.
 
-  \sa setLineWidth(), midLineWidth(), frameWidth()
-*/
-
-
-/*!
-  Sets the line width to \e w.
-  \sa frameWidth(), lineWidth(), setMidLineWidth()
+  \sa midLineWidth(), frameWidth()
 */
 
 void QFrame::setLineWidth( int w )
@@ -302,12 +284,7 @@ void QFrame::setLineWidth( int w )
 
   The default value is 0.
 
-  \sa setMidLineWidth(), lineWidth(), frameWidth()
-*/
-
-/*!
-  Sets the width of the mid-line to \e w.
-  \sa midLineWidth(), setLineWidth()
+  \sa lineWidth(), frameWidth()
 */
 
 void QFrame::setMidLineWidth( int w )
@@ -329,11 +306,6 @@ void QFrame::setMidLineWidth( int w )
   The default value is 0.
 
   \sa setMargin(), lineWidth(), frameWidth()
-*/
-
-/*!
-  Sets the width of the margin to \e w.
-  \sa margin(), setLineWidth()
 */
 
 void QFrame::setMargin( int w )
@@ -435,14 +407,18 @@ void QFrame::updateFrameWidth()
   \sa lineWidth(), midLineWidth(), frameStyle(), margin()
 */
 
-
 /*! \property QFrame::frameRect
     \brief the frame rectangle
+  
+  The frame rectangle is the rectangle the frame is drawn in.  By
+  default, this is the entire widget.  Setting this property does \e
+  not cause a widget update.
 
-  The default frame rectangle is equivalent to the \link
-  QWidget::rect() widget rectangle\endlink.
+  If this property is set to a null rectangle (for example
+  <code>QRect(0,0,0,0)</code>), then the frame rectangle is equivalent
+  to the \link QWidget::rect() widget rectangle\endlink.
 
-  \sa setFrameRect()
+  \sa contentsRect()
 */
 
 QRect QFrame::frameRect() const
@@ -452,21 +428,6 @@ QRect QFrame::frameRect() const
     else
         return frect;
 }
-
-
-/*!
-  Sets the frame rectangle to \e r.
-
-  The frame rectangle is the rectangle the frame is drawn in.  By
-  default, this is the entire widget.  Calling setFrameRect() does \e
-  not cause a widget update.
-
-  If \e r is a null rectangle (for example
-  <code>QRect(0,0,0,0)</code>), then the frame rectangle is equivalent
-  to the \link QWidget::rect() widget rectangle\endlink.
-
-  \sa frameRect(), contentsRect()
-*/
 
 void QFrame::setFrameRect( const QRect &r )
 {

@@ -323,15 +323,6 @@ void QLineEdit::init()
 }
 
 
-/*!
-  Sets the line edit text to \e text, clears the selection and moves
-  the cursor to the end of the line.
-
-  If necessary, the text is truncated to maxLength().
-
-  \sa text()
-*/
-
 void QLineEdit::setText( const QString &text )
 {
     QString oldText = this->text();
@@ -390,9 +381,13 @@ void QLineEdit::deselect()
 }
 
 
-/*!
-  Returns the text in the line.
-  \sa setText()
+/*! \property QLineEdit::text
+    \brief the text in the line
+
+  Setting this property clears the selection and moves the cursor to the end 
+  of the line.
+
+  The text is truncated to maxLength() length.
 */
 
 QString QLineEdit::text() const
@@ -404,11 +399,13 @@ QString QLineEdit::text() const
 
 
 
-/*!  Returns the text that is displayed.  This is normally the same as
-text(), but can be a string like "*****" if EchoMode is Password or ""
-if it is NoEcho.
+/*! \property QLineEdit::displayText
+    \brief the text that is displayed
+    
+  This is normally the same as text(), but can be a string 
+  like "*****" if EchoMode is Password or "" if it is NoEcho.
 
-\sa setEchoMode() text() EchoMode
+  \sa setEchoMode() text() EchoMode
 */
 
 QString QLineEdit::displayText() const
@@ -418,9 +415,9 @@ QString QLineEdit::displayText() const
 
 
 
-/*!
-  Returns TRUE if part of the text has been marked by the user (e.g., by
-  clicking and dragging).
+/*! \property hasMarkedText
+    \brief whether part of the text has been marked by the user (e.g., 
+    by clicking and dragging)
 
   \sa markedText()
 */
@@ -434,10 +431,11 @@ bool QLineEdit::hasMarkedText() const
 	d->parag->selectionStart( QTextDocument::Standard ) != d->parag->selectionEnd( QTextDocument::Standard );
 }
 
-/*!
-  Returns the text marked by the user (e.g., by clicking and
-  dragging), or a \link QString::operator!() null string\endlink
-  if no text is marked.
+/*! \property QLineEdit::markedText
+    \brief the text marked by the user (e.g., by clicking and
+    dragging), or a \link QString::operator!() null string\endlink
+    if no text is marked
+
   \sa hasMarkedText()
 */
 
@@ -446,8 +444,9 @@ QString QLineEdit::markedText() const
     return d->parag->string()->toString().mid( d->parag->selectionStart( 0 ), d->parag->selectionEnd( 0 ) - d->parag->selectionStart( 0 ) );
 }
 
-/*!
-  Returns the maximum permitted length of the text in the editor.
+/*! \property QLineEdit::maxLength
+    \brief the maximum permitted length of the text in the editor
+
   \sa setMaxLength()
 */
 
@@ -1300,14 +1299,6 @@ void QLineEdit::cut()
 
 #endif
 
-/*!  Sets the alignment of the line edit to \a flag. Possible Values are
-  Qt::AlignAuto, Qt::AlignLeft, Qt::AlignRight and Qt::AlignHCenter - see
-  Qt::AlignmentFlags.
-
-  If \a flag is an illegal flag combination, this function does nothing.
-
-  \sa alignment()
-*/
 void QLineEdit::setAlignment( int flag )
 {
     if ( flag == AlignCenter )
@@ -1324,11 +1315,16 @@ void QLineEdit::setAlignment( int flag )
     update();
 }
 
-/*!
-  Returns the alignment of the line edit. Possible Values
-  are Qt::AlignAuto, Qt::AlignLeft, Qt::AlignRight and Qt::AlignHCenter.
+/*! \property QLineEdit::alignment
+    \brief the alignment of the line edit
+    
+  Possible Values are Qt::AlignAuto, Qt::AlignLeft, 
+  Qt::AlignRight and Qt::AlignHCenter.
 
-  \sa setAlignment(), Qt::AlignmentFlags
+  Attempting to set the alignment to an illegal flag combination does 
+  nothing.
+  
+  \sa Qt::AlignmentFlags
 */
 
 int QLineEdit::alignment() const
@@ -1352,29 +1348,18 @@ void QLineEdit::clipboardChanged()
 #endif
 }
 
-
-
-/*!  Sets the line edit to draw itself inside a two-pixel frame if \a
-  enable is TRUE and to draw itself without any frame if \a enable is
-  FALSE.
-
-  The default is TRUE.
-
-  \sa frame()
-*/
-
 void QLineEdit::setFrame( bool enable )
 {
     setFrameStyle( enable ? ( WinPanel | Sunken ) : NoFrame  );
 }
 
 
-/*!  Returns TRUE if the line edit draws itself inside a frame, FALSE
-  if it draws itself without any frame.
+/*! \property QLineEdit::frame
+    \brief whether the line edit draws itself with a frame
 
-  The default is to use a frame.
-
-  \sa setFrame()
+  If enabled (the default) the line edit draws itself inside a 
+  two-pixel frame, otherwise the line edit draws itself without 
+  any frame.
 */
 
 bool QLineEdit::frame() const
@@ -1383,14 +1368,7 @@ bool QLineEdit::frame() const
 }
 
 
-/*!  Sets the echo mode of the line edit widget.  The initial setting
-is Normal, but QLineEdit also support NoEcho and Password.
-
-  The widget's display and the ability to copy or drag the text is
-  affected by this setting.
-
-  \sa EchoMode echoMode() displayText()
-*/
+/*!  Sets the echo mode of the line edit widget.  */
 
 void QLineEdit::setEchoMode( EchoMode mode )
 {
@@ -1402,10 +1380,16 @@ void QLineEdit::setEchoMode( EchoMode mode )
 }
 
 
-/*!
-  Returns the echo mode of the line edit.
+/*! \property QLineEdit::echoMode
+    \brief the echo mode of the line edit
 
-  \sa setEchoMode() EchoMode
+  The initial setting is Normal, but QLineEdit also supports NoEcho 
+  and Password.
+
+  The widget's display and the ability to copy or drag the text is
+  affected by this setting.
+
+  \sa EchoMode displayText()
 */
 
 QLineEdit::EchoMode QLineEdit::echoMode() const
@@ -1735,9 +1719,6 @@ void QLineEdit::setSelection( int start, int length )
 }
 
 
-/*!  Sets the cursor position for this line edit to \a newPos and
-  repaints accordingly.  \sa cursorPosition() */
-
 void QLineEdit::setCursorPosition( int newPos )
 {
     d->cursor->setIndex( newPos );
@@ -1745,8 +1726,11 @@ void QLineEdit::setCursorPosition( int newPos )
 }
 
 
-/*!  Returns the current cursor position for this line edit.  \sa
-  setCursorPosition() */
+/*! \property QLineEdit::cursorPosition
+    \brief the current cursor position for this line edit
+    
+  Setting the cursor position causes a repaint when appropriate.
+*/
 
 int QLineEdit::cursorPosition() const
 {
@@ -1762,10 +1746,18 @@ void QLineEdit::setPalette( const QPalette & p )
     update();
 }
 
+void QLineEdit::setEdited( bool on )
+{
+    d->ed = on;
+}
 
-/*!  Sets the edited flag of this line edit to \a on.  The edited flag
-is never read by QLineEdit; it is changed to TRUE whenever the user
-changes its contents.
+
+/*! \property QLineEdit::edited
+    \brief the edited flag of the line edit
+
+The edited flag is never read by QLineEdit; it has a default value of
+FALSE and is changed to TRUE whenever the user changes the line edits
+contents.
 
 This is useful for things that need to provide a default value
 but cannot find the default at once.  Just open the line edit without
@@ -1773,22 +1765,7 @@ the best default; when the default is known, check the edited()
 return value and set the line edit's contents if the user has not
 started editing the line edit.
 
-\sa edited()
-*/
-
-void QLineEdit::setEdited( bool on )
-{
-    d->ed = on;
-}
-
-
-/*!  Returns the edited flag of the line edit.  If this returns FALSE, the
-line edit's contents have not been changed since the construction of the
-QLineEdit (or the last call to either setText() or setEdited(FALSE), if
-any).  If it returns true, the contents have been edited or setEdited(
-TRUE ) has been called.
-
-\sa setEdited()
+Calling setText() resets the edited flag to FALSE.
 */
 
 bool QLineEdit::edited() const
@@ -1967,19 +1944,14 @@ QPopupMenu *QLineEdit::createPopupMenu()
     return popup;
 }
 
-/* If \a b is TRUE, the lineedit starts a drag if the user presses and
-   moves the mouse on a selected text.
-*/
-
 void QLineEdit::setDragEnabled( bool b )
 {
     d->dragEnabled = b;
 }
 
-/* Returns whether the lineedit starts a drag if the user presses and
-   moves the mouse on a selected text.
-
-   \sa setDragEnabled()
+/* \property QLineEdit::dragEnabled
+   \brief whether the lineedit starts a drag if the user presses and
+   moves the mouse on a selected text
 */
 
 bool QLineEdit::dragEnabled() const
