@@ -62,7 +62,7 @@
 */
 
 
-QBrush::QBrushData *QBrush::shared_default = 0;
+QBrushData *QBrush::shared_default = 0;
 
 /*!
   \internal
@@ -71,11 +71,21 @@ QBrush::QBrushData *QBrush::shared_default = 0;
 
 void QBrush::init(const QColor &color, BrushStyle style)
 {
-    d = new QBrushData;
+    switch(style) {
+    case CustomPattern:
+	d = new QTexturedBrushData;
+	static_cast<QTexturedBrushData *>(d)->pixmap = 0;
+	break;
+    case LinearGradientPattern:
+	d = new QLinGradBrushData;
+	break;
+    default:
+	d = new QBrushData;
+	break;
+    }
     d->ref = 1;
     d->style = style;
     d->color = color;
-    d->pixmap = 0;
 }
 
 /*!
@@ -86,12 +96,11 @@ void QBrush::init(const QColor &color, BrushStyle style)
 QBrush::QBrush()
 {
     if ( !shared_default ) {
-	static QCleanupHandler<QBrush::QBrushData> shared_default_cleanup;
+	static QCleanupHandler<QBrushData> shared_default_cleanup;
 	shared_default = new QBrushData;
 	shared_default->ref = 1;
 	shared_default->style = (BrushStyle)0;
 	shared_default->color = black;
-	shared_default->pixmap = 0;
 	shared_default_cleanup.add(&shared_default);
     }
     d = shared_default;
@@ -188,6 +197,16 @@ QBrush::QBrush( const QBrush &b )
     ++d->ref;
 }
 
+QBrush::QBrush(const QPoint &p1, const QColor &col1, const QPoint &p2, const QColor &col2)
+{
+    init(col1, LinearGradientPattern);
+    QLinGradBrushData *lgd = static_cast<QLinGradBrushData*>(d);
+    lgd->color2 = col2;
+    lgd->p1 = p1;
+    lgd->p2 = p2;
+}
+
+
 /*!
     Destroys the brush.
 */
@@ -198,23 +217,41 @@ QBrush::~QBrush()
 	cleanUp(d);
 }
 
-void QBrush::cleanUp(QBrush::QBrushData *x)
+void QBrush::cleanUp(QBrushData *x)
 {
-    delete x->pixmap;
-    delete x;
+    switch (x->style) {
+    case CustomPattern:
+	delete static_cast<QTexturedBrushData*>(x)->pixmap;
+	delete x;
+	break;
+    case LinearGradientPattern:
+	delete static_cast<QLinGradBrushData*>(x);
+	break;
+    default:
+	delete x;
+    }
 }
 
 
-void QBrush::detach_helper()
+void QBrush::detach_helper(BrushStyle newStyle)
 {
-    QBrushData *x = new QBrushData;
+    QBrushData *x;
+    switch(newStyle) {
+    case CustomPattern:
+	x = new QTexturedBrushData;
+	static_cast<QTexturedBrushData*>(x)->pixmap =
+	    d->style == CustomPattern ? static_cast<QTexturedBrushData *>(d)->pixmap : 0;
+	break;
+    case LinearGradientPattern:
+	x = new QLinGradBrushData;
+	break;
+    default:
+	x = new QBrushData;
+	break;
+    }
     x->ref = 1;
-    x->style = d->style;
+    x->style = newStyle;
     x->color = d->color;
-    if (d->pixmap)
-	x->pixmap = new QPixmap(*d->pixmap);
-    else
-	x->pixmap = 0;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
 	cleanUp(x);
@@ -282,7 +319,7 @@ void QBrush::setStyle(BrushStyle s)
 	return;
     if (s == CustomPattern)
 	qWarning( "QBrush::setStyle: CustomPattern is for internal use" );
-    detach();
+    detach(s);
     d->style = s;
 }
 
@@ -303,7 +340,7 @@ void QBrush::setStyle(BrushStyle s)
 
 void QBrush::setColor(const QColor &c)
 {
-    detach();
+    detach(d->style);
     d->color = c;
 }
 
@@ -337,17 +374,14 @@ void QBrush::setColor(const QColor &c)
 
 void QBrush::setPixmap(const QPixmap &pixmap)
 {
-    detach();
-    if (d->pixmap)
-	delete d->pixmap;
-    if (pixmap.isNull()) {
-	d->style  = NoBrush;
-	d->pixmap = 0;
+    if (!pixmap.isNull()) {
+	detach(CustomPattern);
+	QPixmap *pm = new QPixmap(pixmap);
+	if (pm->optimization() == QPixmap::MemoryOptim)
+	    pm->setOptimization(QPixmap::NormalOptim);
+	static_cast<QTexturedBrushData *>(d)->pixmap = pm;
     } else {
-	d->style = CustomPattern;
-	d->pixmap = new QPixmap(pixmap);
-	if (d->pixmap->optimization() == QPixmap::MemoryOptim)
-	    d->pixmap->setOptimization(QPixmap::NormalOptim);
+	detach(NoBrush);
     }
 }
 
@@ -376,8 +410,23 @@ void QBrush::setPixmap(const QPixmap &pixmap)
 
 bool QBrush::operator==(const QBrush &b) const
 {
-    return (b.d == d)
-	   || (b.d->style == d->style && b.d->color == d->color && b.d->pixmap == d->pixmap);
+    if (b.d == d || (b.d->style == d->style && b.d->color == d->color )) {
+	switch (d->style) {
+	case CustomPattern:
+	    return static_cast<QTexturedBrushData*>(d)->pixmap
+		== static_cast<QTexturedBrushData*>(b.d)->pixmap;
+	case LinearGradientPattern:
+	    return static_cast<QLinGradBrushData*>(d)->color2
+		== static_cast<QLinGradBrushData*>(b.d)->color2
+		&& static_cast<QLinGradBrushData*>(d)->p1
+		== static_cast<QLinGradBrushData*>(b.d)->p1
+		&& static_cast<QLinGradBrushData*>(d)->p2
+		== static_cast<QLinGradBrushData*>(b.d)->p2;
+	default:
+	    return true;
+	}
+    }
+    return false;
 }
 
 /*!

@@ -706,6 +706,7 @@ public:
 	BDiagPattern,
 	FDiagPattern,
 	DiagCrossPattern,
+	LinearGradientPattern,
 	CustomPattern=24
     };
 
