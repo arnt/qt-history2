@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#13 $
 **
 ** Localization database support.
 **
@@ -162,7 +162,7 @@ static inline uint readhash( const char * c, int o, uint base ) {
   space but can be changed easily.  You should never need to cal these
   two functions; they are present in the API mostly because our
   regression testing needs them.
-  
+
   QMessageFile itself provides no way to list its contents, but the
   QMessageFileIterator does.
 
@@ -210,8 +210,6 @@ void QMessageFile::load( const QString & filename, const QString & directory )
 	}
     }
 
-    const char * t;
-    uint l;
 #if defined(UNIX)
     // unix (if mmap supported)
 
@@ -244,8 +242,8 @@ void QMessageFile::load( const QString & filename, const QString & directory )
 
     d->unmapPointer = tmp;
     d->unmapLength = st.st_size;
-    t = ((const char *) tmp)+16; // 16 being the length of the magic number
-    l = d->unmapLength - 16;
+    d->t = ((const char *) tmp)+16; // 16 being the length of the magic number
+    d->l = d->unmapLength - 16;
 #else
     // windows
     fatal("Not written yet -- contact agulbra@troll.no");
@@ -276,6 +274,7 @@ void QMessageFile::save( const QString & filename )
 	if ( f.writeBlock( (const char *)magic, 16 ) < 16 )
 	    return;
 
+#if 0
 	// header strings
 	s << d->headers.count();
 	QDictIterator<QString> it( d->headers );
@@ -286,6 +285,7 @@ void QMessageFile::save( const QString & filename )
 	    ++it;
 	    s << *k << *c;
 	}
+#endif
 
 	// the rest
 	squeeze();
@@ -632,7 +632,7 @@ void QMessageFile::remove( uint h )
   QMessageFile were cleared.
 
   For other information about iterators, see e.g. QDictIterator.
-  
+
   \sa QMessageFile
 */
 
