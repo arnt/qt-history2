@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#311 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#312 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1274,18 +1274,30 @@ QString QFileDialogPrivate::File::text( int column ) const
 	}
     case 3: {
 	QDateTime epoch;
-	epoch.setTime_t( 0 );
+ 	epoch.setTime_t( 0 );
 	char a[256];
-	time_t t1 = epoch.secsTo( info.lastModified() );
-	struct tm * t2 = ::localtime( &t1 );
-	if ( t2->tm_hour != info.lastModified().time().hour() )
-	    t2->tm_hour = info.lastModified().time().hour();
+	struct tm * t2 = new tm;
+	QDate d = info.lastModified().date();
+	QTime t = info.lastModified().time();
+	t2->tm_sec = t.second();
+	t2->tm_min = t.minute();
+	t2->tm_hour = t.hour();
+	t2->tm_mday = d.day();
+	t2->tm_mon = d.month() - 1;
+	t2->tm_year = d.year();
+	t2->tm_wday = d.dayOfWeek();
+	t2->tm_yday = d.dayOfYear();
+	t2->tm_isdst = -1;
 	// use a static const char here, so that egcs will not see
 	// the formatting string and give an incorrect warning.
+	QString res;
 	if ( strftime( a, 255, egcsWorkaround, t2 ) > 0 )
-	    return QString::fromLatin1(a);
+	    res = QString::fromLatin1(a);
 	else
-	    return QString::fromLatin1("????");                                   }
+	    QString::fromLatin1("????");
+	delete t2;
+	return res;
+    }
     case 4:
 	if ( info.isReadable() )
 	    return info.isWritable() ? d->rw : d->ro;
