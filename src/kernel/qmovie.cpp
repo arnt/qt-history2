@@ -275,8 +275,7 @@ void QMovieFilePrivate::updatePixmapFromImage()
 
     // Create temporary QImage to hold the part we want
     const QImage& gimg = decoder->image();
-    QImage img(changed_area.size(), 8, gimg.numColors());
-    img.setAlphaBuffer(gimg.hasAlphaBuffer());
+    QImage img = gimg.copy(changed_area);
 
 #ifdef QT_SAVE_MOVIE_HACK
     if ( save_image ) {
@@ -286,20 +285,6 @@ void QMovieFilePrivate::updatePixmapFromImage()
     }
 #endif
 
-    // Copy color map.
-    memcpy(img.colorTable(), gimg.colorTable(),
-	   sizeof(QRgb)*gimg.numColors());
-
-    // Copy pixels.
-    const int t = changed_area.top();
-    const int b = changed_area.bottom();
-    const int l = changed_area.left();
-    const int w = changed_area.width();
-    const int h = changed_area.height();
-    for (int y=t; y<=b; y++) {
-	memcpy(img.scanLine(y-t), gimg.scanLine(y)+l, w);
-    }
-
     // Resize to size of image
     if (mypixmap.width() != gimg.width() || mypixmap.height() != gimg.height())
 	mypixmap.resize(gimg.width(), gimg.height());
@@ -307,7 +292,7 @@ void QMovieFilePrivate::updatePixmapFromImage()
     if (bg.isValid()) {
 	QPainter p;
 	p.begin(&mypixmap);
-	p.fillRect(l, t, w, h, bg);
+	p.fillRect(changed_area, bg);
 	p.end();
     } else {
 	if (gimg.hasAlphaBuffer()) {
@@ -323,10 +308,14 @@ void QMovieFilePrivate::updatePixmapFromImage()
     // Convert to pixmap and paste that onto myself
     QPixmap lines;
     lines.convertFromImage(img);
-    bitBlt(&mypixmap, l, t, &lines, 0, 0, w, h, CopyROP, !bg.isValid());
+    bitBlt(&mypixmap, changed_area.left(), changed_area.top(),
+	&lines, 0, 0, changed_area.width(), changed_area.height(),
+	CopyROP, !bg.isValid());
 
     if (!bg.isValid() && gimg.hasAlphaBuffer()) {
-	bitBlt(&mymask, l, t, lines.mask(), 0, 0, w, h, CopyROP, TRUE);
+	bitBlt(&mymask, changed_area.left(), changed_area.top(),
+	    lines.mask(), 0, 0, changed_area.width(), changed_area.height(),
+	    CopyROP, TRUE);
 	mypixmap.setMask(mymask);
     }
 }
