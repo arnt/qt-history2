@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#43 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#44 $
 **
 ** Definition of QObject class
 **
@@ -25,6 +25,8 @@ public:
 
     virtual bool event( QEvent * );
     virtual bool eventFilter( QObject *, QEvent * );
+
+    const char * tr( const char * ) const;
 
     virtual QMetaObject *metaObject() const { return metaObj; }
     virtual const char	*className()  const;
@@ -94,7 +96,7 @@ protected:
     virtual bool checkConnectArgs( const char *signal, const QObject *receiver,
 				   const char *member );
 
-    static  void badSuperclassWarning( const char *className, 
+    static  void badSuperclassWarning( const char *className,
 				       const char *superclassName );
 
     uint	isSignal   : 1;

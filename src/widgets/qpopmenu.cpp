@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#135 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#136 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#135 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#136 $");
 
 // Motif style parameters
 
@@ -408,7 +408,7 @@ void QPopupMenu::updateItem( int id )		// update popup menu item
 
 /*!
   Enables or disables display of check marks by the menu items.
-  
+
   Notice that checking is always enabled when in windows-style.
 
   \sa isCheckable(), QMenuData::setItemChecked()
@@ -423,7 +423,7 @@ void QPopupMenu::setCheckable( bool enable )
 	if ( !newState ) {
 	    // turning off isCheckable; must look for pixmaps
 	    updateSize();
-	} 
+	}
     }
 }
 
@@ -475,7 +475,7 @@ void QPopupMenu::setTabMark( int t )
 int QPopupMenu::tabMark()
 {
     return tabCheck & 0x7FFFFFFF;
-}    
+}
 
 
 void QPopupMenu::menuContentsChanged()
@@ -1008,7 +1008,7 @@ int QPopupMenu::cellWidth( int col )
 	    return getWidthOfCheckCol(this,style());
 	else
 	    return width() - (2*frameWidth()+getWidthOfCheckCol(this,style()));
-    }	    
+    }	
     else
 	return width() - 2*frameWidth();	
 }
@@ -1048,14 +1048,14 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 		QBrush b( g.mid() );
 		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
 				 g, TRUE, 1, &b );
-	    } else if ( gs == WindowsStyle || 
+	    } else if ( gs == WindowsStyle ||
 			mi->pixmap() && mi->text() ) {
 		QBrush b( g.background() );
 		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
 				 g, TRUE, 1, &b );
 	    }
 	} else if ( !act ) {
-	    qDrawPlainRect( p, cm, cm, cellw-2*cm, cellh-2*cm, 
+	    qDrawPlainRect( p, cm, cm, cellw-2*cm, cellh-2*cm,
 			    g.background(), 1, 0 );
 	}		
 
@@ -1100,23 +1100,23 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 		p->drawPixmap( pmr.topLeft(), *pixmap );
 	    }
 	    if ( gs == WindowsStyle ) {
-		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, 
+		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh,
 			     act ? QApplication::winStyleHighlightColor()
 			     : g.background());
 	    }
 	    return;
 	}
-        
+
 	int pw = motifItemFrame;
 	if ( gs != MotifStyle )
 	    pw = 1;
 	if ( gs == WindowsStyle ) {
 	    if ( mi->isChecked() )
-		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, 
+		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh,
 			     act ? QApplication::winStyleHighlightColor()
 			     : g.background() );
 	    else
-		p->fillRect( 0, 0, rw, cellh, 
+		p->fillRect( 0, 0, rw, cellh,
 			     act ? QApplication::winStyleHighlightColor()
 			     : g.background() );
 	} else if ( gs == MotifStyle ) {
@@ -1179,7 +1179,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	p->drawPixmap( x, motifItemFrame, *pixmap );
 	if ( pixmap->depth() == 1 )
 	    p->setBackgroundMode( TransparentMode );
-    } 
+    }
     if ( mi->popup() ) {			// draw sub menu arrow
 	int dim = (cellh-2*motifItemFrame) / 2;
 	if ( gs == WindowsStyle && row == actItem ) {
@@ -1310,7 +1310,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 
 void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( parentMenu && parentMenu->isPopupMenu && 
+    if ( parentMenu && parentMenu->isPopupMenu &&
 	 (parentMenu->actItem != ((QPopupMenu *)parentMenu)->popupActive ) ) {
 	// hack: if there's a parent popup, and its active item is not
 	// the same as its popped-up child, make the popped-up child
@@ -1509,7 +1509,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    else if ( i < 0 )
 		i = c - 1;
 	    mi = mitems->at( i );
-	    if ( !mi->isSeparator() 
+	    if ( !mi->isSeparator()
 		 && ( style() != MotifStyle || mi->isEnabled() ) )
 		break;
 	}

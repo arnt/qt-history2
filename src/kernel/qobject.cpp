@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#145 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#146 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#145 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#146 $");
 
 
 /*!
@@ -1535,7 +1535,7 @@ void QObject::cleanupEventFilter()
 
 
 /*!
-  \internal 
+  \internal
   Returns the meta object for this object. If necessary, calls
   initMetaObject().
   \sa metaObject()
@@ -1750,3 +1750,13 @@ void QObject::dumpObjectInfo()
 #endif
 }
 
+
+
+/*!  Returns a translated version of \a text, or \a text if there is
+  no appropriate translated version.
+*/
+
+const char * QObject::tr( const char * text ) const
+{
+    return text;
+}
