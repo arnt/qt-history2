@@ -157,6 +157,10 @@ private:
     void macRemoveNativeMenubar();
     void macDirtyNativeMenubar();
 
+#if !defined(QMAC_QMENUBAR_NO_EVENT)
+    static void qt_mac_install_menubar_event(MenuRef);
+    static OSStatus qt_mac_menubar_event(EventHandlerCallRef, EventRef, void *);
+#endif
     bool syncPopups(MenuRef ret, QPopupMenu *d);
     MenuRef createMacPopup(QPopupMenu *d, bool, bool =FALSE);
     bool updateMenuBar();

@@ -613,10 +613,16 @@ extern bool qt_winunicode;
 #  ifndef QMAC_NO_QUARTZ
 #    define QMAC_NO_QUARTZ
 #  endif
+#  ifndef QMAC_QMENUBAR_NO_EVENT
+#    define QMAC_QMENUBAR_NO_EVENT
+#  endif
 #endif
 #ifdef Q_WS_MACX //for no nobody uses quartz, just putting in first level hooks
 #  ifndef QMAC_NO_QUARTZ
 #    define QMAC_NO_QUARTZ
+#  endif
+#  ifndef QMAC_QMENUBAR_NO_EVENT
+#    define QMAC_QMENUBAR_NO_EVENT
 #  endif
 #endif
 
