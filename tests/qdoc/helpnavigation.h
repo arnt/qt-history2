@@ -64,7 +64,7 @@ public:
     void removeBookmark();
     void saveBookmarks();
     void loadBookmarks();
-    
+
 signals:
     void showLink( const QString &s, const QString& t );
     void moveFocusToBrowser();
@@ -74,7 +74,7 @@ private slots:
     void showTopic( QListBoxItem * );
     void setIndexTopic( QListBoxItem * );
     void showContents( QListViewItem * );
-
+    
 private:
     QTabWidget *tabWidget;
     QLineEdit *indexEdit;

@@ -217,6 +217,10 @@ HelpMainWindow::HelpMainWindow()
 	     this, SLOT( newSource( const QString & ) ) );
     connect( navigation, SIGNAL( moveFocusToBrowser() ),
 	     this, SLOT( moveFocusToBrowser() ) );
+    connect( history, SIGNAL( aboutToShow() ),
+	     this, SLOT( setupHistoryMenu() ) );
+    connect( history, SIGNAL( activated( int ) ),
+	     this, SLOT( showFromHistory( int ) ) );
 }
 
 void HelpMainWindow::slotFilePrint()
@@ -398,6 +402,27 @@ void HelpMainWindow::removeBookmark()
 HelpMainWindow::~HelpMainWindow()
 {
     navigation->saveBookmarks();
+}
+
+void HelpMainWindow::setupHistoryMenu()
+{
+    history->clear();
+    QMap<QString, QString> hist = viewer->history();
+    QMap<QString, QString>::Iterator it = hist.begin();
+    for ( ; it != hist.end(); ++it ) {
+	history->insertItem( *it );
+    }
+}
+
+void HelpMainWindow::showFromHistory( int id )
+{
+    QMap<QString, QString> hist = viewer->history();
+    QMap<QString, QString>::Iterator it = hist.begin();
+    for ( ; it != hist.end(); ++it ) {
+	if ( *it == history->text( id ) ) {
+	    viewer->showLink( it.key(), *it );
+	}
+    }
 }
 
 #include "helpmainwindow.moc"

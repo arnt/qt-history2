@@ -37,4 +37,6 @@ void HelpView::setSource( const QString &name )
 
     emit newSource( name );
     QTextBrowser::setSource( name );
+    if ( !caption().isEmpty() && !hist.contains( u.fileName() ) )
+	hist[ u.fileName() ] = caption();
 }

@@ -15,11 +15,11 @@ class HelpMainWindow : public QMainWindow
 public:
     HelpMainWindow();
     ~HelpMainWindow();
-    
+
 public slots:
     void addBookmark();
     void removeBookmark();
-    
+
 protected:
     void showEvent( QShowEvent *e );
 
@@ -45,11 +45,13 @@ private slots:
     void newSource( const QString &name );
     void moveFocusToBrowser();
     void createDatabase();
-
+    void setupHistoryMenu();
+    void showFromHistory( int id );
+    
 private:
     QPopupMenu *history;
     QString docDir;
-    
+
 };
 
 #endif
