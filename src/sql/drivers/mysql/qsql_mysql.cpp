@@ -175,8 +175,16 @@ QVariant QMYSQLResult::data( int field )
     QString val( ( d->row[field] ) );
     QVariant::Type type = qDecodeMYSQLType( d->fieldTypes[ field ] );
     switch ( type ) {
-    case QVariant::Int:  // keep these as strings so that we don't loose precision
+    case QVariant::Int: 
+	if ( d->fieldTypes[ field ] == FIELD_TYPE_LONGLONG )
+	    // keep these as strings so that we don't loose precision
+	    return QVariant( val );
+	return QVariant( val.toInt() );
     case QVariant::Double:
+	if ( d->fieldTypes[ field ] == FIELD_TYPE_DECIMAL )
+	    // keep these as strings so that we don't loose precision
+	    return QVariant( val );
+	return QVariant( val.toDouble() );
 	return QVariant( val );
     case QVariant::Date:
 	if ( val.isEmpty() ) {
