@@ -40,6 +40,8 @@ private:
     QStringList qmakeVars;
     QStringList qmakeDefines;
     QStringList makeList;
+    QStringList qmakeIncludes;
+    QStringList qmakeLibs;
     QStringList::Iterator makeListIterator;
     
     QString qtDir;

@@ -91,6 +91,8 @@ void ConfigureApp::parseCmdLine()
     for( QStringList::Iterator args = configCmdLine.begin(); args != configCmdLine.end(); ++args ) {
 	if( (*args) == "-help" )
 	    dictionary[ "HELP" ] = "yes";
+	else if( (*args) == "-?" )
+	    dictionary[ "HELP" ] = "yes";
 	else if( (*args) == "-qconfig" ) {
 	    ++args;
 	    dictionary[ "QCONFIG" ] = (*args);
@@ -139,6 +141,14 @@ void ConfigureApp::parseCmdLine()
 	    ++args;
             qmakeDefines += (*args);
         }
+	else if( (*args) == "-I" ) {
+	    ++args;
+	    qmakeIncludes += (*args);
+	}
+	else if( (*args) == "-L" ) {
+	    ++args;
+	    qmakeLibs += (*args);
+	}
 	else if( (*args) == "-no-dsp" )
 	    dictionary[ "DSPFILES" ] = "no";
 	else if( (*args) == "-dsp" )
@@ -209,6 +219,8 @@ bool ConfigureApp::displayHelp()
 	cout << "-no-dsp             Disable the generation of VC++ .DSP-files." << endl;
 	cout << "-dsp                Enable the generation of VC++ .DSP-files." << endl;
 	cout << "-D <define>         Add <define> to the list of defines." << endl;
+	cout << "-I <includepath>    Add <includepath> to the include searchpath." << endl;
+	cout << "-L <libpath>        Add <libpath> to the library searchpath." << endl;
 	cout << "-enable-*           Enable the specified module." << endl;
 	cout << "-disable-*          Disable the specified module." << endl << endl;
 	cout << "-sql-*              Compile the specified SQL driver." << endl << endl;
@@ -287,6 +299,18 @@ void ConfigureApp::generateCachefile()
 	}
 	cacheStream << "CONFIG=" << qmakeConfig.join( " " ) << endl;
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
+	if( !qmakeIncludes.isEmpty() ) {
+	    cacheStream << "INCLUDEPATH=";
+	    for( QStringList::Iterator incs = qmakeIncludes.begin(); incs != qmakeIncludes.end(); ++incs )
+		cacheStream << (*incs);
+	    cacheStream << endl;
+	}
+	if( !qmakeLibs.isEmpty() ) {
+	    cacheStream << "LIBS=";
+	    for( QStringList::Iterator libs = qmakeLibs.begin(); libs != qmakeLibs.end(); ++libs )
+		cacheStream << (*libs);
+	    cacheStream << endl;
+	}
 	cacheFile.close();
     }
     // Generate shadow .qmake.cache file in src/
@@ -318,6 +342,24 @@ void ConfigureApp::displayConfig()
     cout << "GIF support................." << dictionary[ "GIF" ] << endl;
     cout << "MNG support................." << dictionary[ "MNG" ] << endl;
     cout << "JPEG support................" << dictionary[ "JPEG" ] << endl << endl;
+    if( !qmakeDefines.isEmpty() ) {
+	cout << "Defines.....................";
+	for( QStringList::Iterator defs = qmakeDefines.begin(); defs != qmakeDefines.end(); ++defs )
+	    cout << (*defs) << " ";
+	cout << endl;
+    }
+    if( !qmakeIncludes.isEmpty() ) {
+	cout << "Include paths...............";
+	for( QStringList::Iterator incs = qmakeIncludes.begin(); incs != qmakeIncludes.end(); ++incs )
+	    cout << (*incs) << " ";
+	cout << endl;
+    }
+    if( !qmakeLibs.isEmpty() ) {
+	cout << "Library paths...............";
+	for( QStringList::Iterator libs = qmakeLibs.begin(); libs != qmakeLibs.end(); ++libs )
+	    cout << (*libs) << " ";
+	cout << endl << endl;
+    }
 }
 
 void ConfigureApp::buildQmake()
