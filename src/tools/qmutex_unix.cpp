@@ -76,7 +76,7 @@ typedef pthread_mutexattr_t Q_MUTEXATTR_T;
 
 // mutex types
 #  if ((defined(PTHREAD_MUTEX_RECURSIVE) && defined(PTHREAD_MUTEX_DEFAULT)) || \
-        !defined(Q_OS_FREEBSD)) && !defined(Q_OS_UNIXWARE7)
+        defined(Q_OS_FREEBSD)) && !defined(Q_OS_UNIXWARE7)
     // POSIX 1003.1c-1995 - We love this OS
 #    define Q_MUTEX_SET_TYPE(a, b) pthread_mutexattr_settype((a), (b))
 #    if defined(QT_CHECK_RANGE)
