@@ -51,6 +51,10 @@
 # endif
 #endif
 
+#if defined(QT_DEBUG_COMPONENT)
+#include <qfile.h>
+#endif
+
 #if defined(Q_WS_WIN) && !defined(QT_MAKEDLL)
 #define QT_NO_LIBRARY_UNLOAD
 #endif
