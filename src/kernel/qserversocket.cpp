@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qserversocket.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qserversocket.cpp#2 $
 **
 ** Implementation of QServerSocket class
 **
@@ -48,6 +48,9 @@ public:
 
 /*!
   Creates a server socket object, but does not start any server yet.
+
+  The \a parent and \a name arguments are passed on as usual
+  to the QObject constructor.
 */
 
 QServerSocket::QServerSocket( QObject *parent, const char *name )
@@ -57,7 +60,15 @@ QServerSocket::QServerSocket( QObject *parent, const char *name )
 }
 
 
-QServerSocket::QServerSocket( int port, const QObject *parent,
+/*!
+  Creates a server socket object, ands starts a server on the
+  given \a port.
+
+  The \a parent and \a name arguments are passed on as usual
+  to the QObject constructor.
+*/
+
+QServerSocket::QServerSocket( int port, QObject *parent,
 			      const char *name )
     : QObject( parent, name )
 {

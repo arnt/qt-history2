@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qserversocket.h#3 $
+** $Id: //depot/qt/main/src/kernel/qserversocket.h#4 $
 **
 ** Definition of QServerSocket class
 **
@@ -36,8 +36,8 @@ class QServerSocket : public QObject
 {
     Q_OBJECT
 public:
-    QServerSocket( const QObject *parent=0, const char *name=0 );
-    QServerSocket( int port, const QObject *parent=0, const char *name=0 );
+    QServerSocket( QObject *parent=0, const char *name=0 );
+    QServerSocket( int port, QObject *parent=0, const char *name=0 );
 
     int		 port() const;
     void	 setPort( int port );
