@@ -7,6 +7,7 @@
 #include "qwidget.h"
 #include "qobjectlist.h"
 #include "qmessagebox.h" // ### dependency
+#include "qlibrary.h"
 
 #include <winable.h>
 #include <oleacc.h>
@@ -17,35 +18,6 @@
 void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 {
     Q_ASSERT(o);
-
-    // An event has to be associated with a window, 
-    // so find the first parent that is a widget.
-    QWidget *w = 0;
-    if ( o->isWidgetType() ) {
-	w = (QWidget*)o;
-    } else {
-	QObject *p = o;
-	while ( ( p = p->parent() ) != 0 ) {
-	    if ( p->isWidgetType() ) {
-		w = (QWidget*)p;
-		break;
-	    }
-	}
-    }
-
-    if ( !w ) {
-	if ( reason != QAccessible::ContextHelpStart && 
-	     reason != QAccessible::ContextHelpEnd )
-	    w = qApp->focusWidget();
-	if ( !w ) {
-	    w = qApp->activeWindow();
-	    if ( !w ) {
-		w = qApp->mainWidget();
-		if ( !w )
-		    return;
-	    }
-	}
-    }
 
     QString soundName;
     switch ( reason ) {
@@ -92,8 +64,49 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 	    PlaySoundA( soundName.local8Bit(), NULL, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT  );
     }
 
+    typedef void (WINAPI *PtrNotifyWinEvent)(DWORD, HWND, LONG, LONG );
+    
+    static PtrNotifyWinEvent ptrNotifyWinEvent = 0;
+    static bool resolvedNWE = FALSE;
+    if ( !resolvedNWE ) {
+	resolvedNWE = TRUE;
+	QLibrary lib( "user32", QLibrary::Manual );
+	ptrNotifyWinEvent = (PtrNotifyWinEvent)lib.resolve( "NotifyWinEvent" );
+    }
+    if ( !ptrNotifyWinEvent )
+	return;
+
+    // An event has to be associated with a window, 
+    // so find the first parent that is a widget.
+    QWidget *w = 0;
+    if ( o->isWidgetType() ) {
+	w = (QWidget*)o;
+    } else {
+	QObject *p = o;
+	while ( ( p = p->parent() ) != 0 ) {
+	    if ( p->isWidgetType() ) {
+		w = (QWidget*)p;
+		break;
+	    }
+	}
+    }
+
+    if ( !w ) {
+	if ( reason != QAccessible::ContextHelpStart && 
+	     reason != QAccessible::ContextHelpEnd )
+	    w = qApp->focusWidget();
+	if ( !w ) {
+	    w = qApp->activeWindow();
+	    if ( !w ) {
+		w = qApp->mainWidget();
+		if ( !w )
+		    return;
+	    }
+	}
+    }
+
     if ( reason != MenuCommand ) // MenuCommand is faked
-	NotifyWinEvent( reason, w->winId(), OBJID_CLIENT, who );
+	ptrNotifyWinEvent( reason, w->winId(), OBJID_CLIENT, who );
 }
 
 class QWindowsEnumerate : public IEnumVARIANT

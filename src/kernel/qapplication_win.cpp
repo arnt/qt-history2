@@ -46,6 +46,7 @@
 #include "qthread.h"
 #include "qwhatsthis.h" // ######## dependency
 #include "qthread.h"
+#include "qlibrary.h"
 #include "qt_windows.h"
 
 #include <windowsx.h>
@@ -2211,14 +2212,16 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			break;
 		    }
 
+		    typedef LRESULT (WINAPI *PtrLresultFromObject)(REFIID, WPARAM, LPUNKNOWN );
+		    static PtrLresultFromObject ptrLresultFromObject = 0;
 		    static bool oleaccChecked = FALSE;
-		    static bool oleaccPresent = FALSE;
+
 		    if ( !oleaccChecked ) {
 			oleaccChecked = TRUE;
-			DWORD res = SearchPathA( NULL, "oleacc.dll", NULL, 0, NULL, NULL ); // ANSI is enough
-			oleaccPresent = res != 0;
+			QLibrary library( "oleacc.dll", QLibrary::Manual );
+			ptrLresultFromObject = (PtrLresultFromObject)library.resolve( "LresultFromObject" );
 		    }
-		    if ( oleaccPresent ) {
+		    if ( ptrLresultFromObject ) {
 			QAccessibleInterface *acc = 0;
 			QAccessible::queryAccessibleInterface( widget, &acc );
 			if ( !acc ) {
@@ -2232,7 +2235,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			// and get an instance of the IAccessibile implementation
 			IAccessible *iface = qt_createWindowsAccessible( acc );
 			acc->release();
-			LRESULT res = LresultFromObject( IID_IAccessible, wParam, iface );  // ref == 2
+			LRESULT res = ptrLresultFromObject( IID_IAccessible, wParam, iface );  // ref == 2
 			iface->Release(); // the client will release the object again, and then it will destroy itself
 
 			if ( res > 0 )

@@ -403,16 +403,9 @@ DspMakefileGenerator::init()
     if ( !project->variables()["DEFINES"].contains("QT_NO_STL") )
 	project->variables()["MSVCDSP_STL"].append("/GX");
     
-    if ( project->isActiveConfig("accessibility" ) ) {
+    if ( project->isActiveConfig("accessibility" ) )
 	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
-	if ( !project->variables()["DEFINES"].contains("QT_DLL") ) {
-	    project->variables()["QMAKE_LIBS"] += "oleacc.lib delayimp.lib";
-	    project->variables()["QMAKE_LFLAGS"] += "/DELAYLOAD:oleacc.dll";
-	}
-	if ( project->variables()["DEFINES"].contains("QT_MAKEDLL") ) {
-	    project->variables()["MSVCDSP_DELAYLOAD"] += ("/DELAYLOAD:oleacc.dll");
-	}
-    }
+
     if ( project->isActiveConfig("dll") ) {
 	if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    QString ver_xyz(project->first("VERSION"));

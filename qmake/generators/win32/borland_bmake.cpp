@@ -239,12 +239,9 @@ BorlandMakefileGenerator::init()
     if ( project->isActiveConfig("thread") ) {
         project->variables()["DEFINES"].append("QT_THREAD_SUPPORT");
     }
-    if ( project->isActiveConfig("accessibility" ) ) {
-	project->variables()["QMAKE_LFLAGS"] = project->variables()["QMAKE_LFLAGS_ACCESSIBILITY"] + project->variables()["QMAKE_LFLAGS"];
+    if ( project->isActiveConfig("accessibility" ) )
 	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
-	if ( !project->variables()["DEFINES"].contains("QT_DLL") )
-	    project->variables()["QMAKE_LIBS"] += "oleacc.lib";
-    }
+
     if ( project->isActiveConfig("debug") ) {
         if ( project->isActiveConfig("thread") ) {
 	    if ( project->isActiveConfig("dll") ) {
