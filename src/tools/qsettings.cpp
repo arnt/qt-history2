@@ -329,7 +329,7 @@ static HANDLE openlock( const QString &name, int /*type*/ )
 	fd = CreateFileA( name.local8Bit(), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
     } );
 
-    if ( !LockFile( fd, 0, 0, -1, -1 ) ) {
+    if ( !LockFile( fd, 0, 0, (DWORD)-1, (DWORD)-1 ) ) { // ### (DWORD)-1 ???
 #ifdef QT_CHECK_STATE
 	qWarning( "QSettings: openlock failed!" );
 #endif
@@ -337,12 +337,13 @@ static HANDLE openlock( const QString &name, int /*type*/ )
     return fd;
 }
 
+// ### make this function static?
 void closelock( HANDLE fd )
 {
     if ( !fd )
 	return;
 
-    if ( !UnlockFile( fd, 0, 0, -1, -1 ) ) {
+    if ( !UnlockFile( fd, 0, 0, (DWORD)-1, (DWORD)-1 ) ) { // ### (DWORD)-1 ???
 #ifdef QT_CHECK_STATE
 	qWarning( "QSettings: closelock failed!");
 #endif
