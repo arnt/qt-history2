@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#1 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#2 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -77,7 +77,7 @@ class QGLContext
 {
 public:
     QGLContext( const QGLFormat &, QPaintDevice * );
-   ~QGLContext();
+    virtual ~QGLContext();
 
     bool	isValid() const;
 
