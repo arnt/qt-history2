@@ -368,6 +368,17 @@ public:
 	}
 	return QApplication::notify( obj, event );
     }
+
+    bool winEventFilter( MSG *msg )
+    {
+	if ( msg->message == WM_QUERYENDSESSION ) {
+	    QNPWidget *npw;
+	    for ( npw = npwidgets.first(); npw; npw = npwidgets.next() )
+		delete npw;
+	}
+
+	return QApplication::winEventFilter( msg );
+    }
 #endif
 
     void addQNPWidget(QNPWidget* w)
