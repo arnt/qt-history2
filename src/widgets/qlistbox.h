@@ -62,7 +62,7 @@ class Q_EXPORT QListBox : public QScrollView
     Q_ENUMS( SelectionMode LayoutMode )
     Q_PROPERTY( uint count READ count )
     Q_PROPERTY( int numItemsVisible READ numItemsVisible )
-    Q_PROPERTY( int currentItem READ currentItem WRITE setCurrentItem DESIGNABLE false )
+    Q_PROPERTY( int currentItem READ currentItem WRITE setCurrentItem )
     Q_PROPERTY( QString currentText READ currentText )
     Q_PROPERTY( int topItem READ topItem WRITE setTopItem DESIGNABLE false )
     Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
@@ -189,7 +189,7 @@ public:
     int cellHeight( int i ) const { return itemHeight(i); }
     int cellHeight() const { return itemHeight(); }
     int cellWidth() const { return maxItemWidth(); }
-    int cellWidth(int i) const { Q_ASSERT(i==0); return maxItemWidth(); }
+    int cellWidth(int i) const { Q_ASSERT(i==0); Q_UNUSED(i) return maxItemWidth(); }
     int	numCols() const { return numColumns(); }
 #endif
 
