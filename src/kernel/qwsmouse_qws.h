@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.h#10 $
+** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.h#11 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -36,6 +36,7 @@
 #ifndef QT_H
 #include <qobject.h>
 #include <qpointarray.h>
+#include "qsocketnotifier.h"
 #endif // QT_H
 
 class QWSPointerCalibrationData
@@ -105,7 +106,6 @@ enum MouseProtocol { Unknown = -1, Auto = 0,
 
 #ifndef QT_NO_QWS_MOUSE_AUTO
 class QAutoMouseSubHandler;
-class QSocketNotifier;
 class QAutoMouseHandlerPrivate : public QWSMouseHandler {
     Q_OBJECT
 public:
