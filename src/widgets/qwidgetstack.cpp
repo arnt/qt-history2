@@ -249,6 +249,27 @@ void QWidgetStack::raiseWidget( int id )
 	raiseWidget( w );
 }
 
+// returns whether child is contained in parent, and sets candidate to the first widget that has TabFocus.
+static bool checkFocusChild( QWidget *parent, QWidget *child, QWidget*& candidate )
+{
+    const QObjectList *list = parent->children();
+    if ( list ) {
+	QObjectListIt it(*list);
+	QObject *obj;
+	while ( (obj = it.current()) ) {
+	    ++it;
+	    if ( !obj->isWidgetType() || ((QWidget *)obj)->isTopLevel() )
+		continue;
+	    QWidget *widget = (QWidget *)obj;
+	    if ( !candidate
+		 && ( widget->focusPolicy() & QWidget::TabFocus ) == QWidget::TabFocus )
+		candidate = widget;
+	    if ( widget == child || checkFocusChild( widget, child, candidate ) )
+		return TRUE;
+	}
+    }
+    return FALSE;
+}
 
 /*!
     \overload
@@ -258,7 +279,7 @@ void QWidgetStack::raiseWidget( int id )
 
 void QWidgetStack::raiseWidget( QWidget * w )
 {
-    if ( !w || w == invisible || w->parent() != this )
+    if ( !w || w == invisible || w->parent() != this || w == topWidget)
 	return;
 
     topWidget = w;
@@ -282,57 +303,14 @@ void QWidgetStack::raiseWidget( QWidget * w )
 	    focusWidgets = new QPtrDict<QWidget>( 17 );
 	focusWidgets->replace( f, f->focusWidget() );
 	f->focusWidget()->clearFocus();
-	if ( w->focusPolicy() != QWidget::NoFocus ) {
-	    f = w;
-	} else {
-	    // look for the best focus widget we can find
-	    // best == what we had (which may be deleted)
-	    f = focusWidgets->find( w );
-	    if ( f )
-		focusWidgets->take( w );
-	    // second best == selected button from button group
-	    QWidget * fb = 0;
-	    // third best == whatever candidate we see first
-	    QWidget * fc = 0;
-	    bool done = FALSE;
-	    const QObjectList * c = w->children();
-	    if ( c ) {
-		QObjectListIt it( *c );
-		QObject * wc;
-		while( !done && (wc=it.current()) != 0 ) {
-		    ++it;
-		    if ( wc->isWidgetType() ) {
-			if ( f == wc ) {
-			    done = TRUE;
-			} else if ( (((QWidget *)wc)->focusPolicy()&QWidget::TabFocus)
-				    == QWidget::TabFocus ) {
-#ifndef QT_NO_BUTTONGROUP
-			    QButton * b = (QButton *)wc;
-			    if ( wc->inherits( "QButton" ) &&
-				 b->group() && b->isOn() &&
-				 b->group()->isExclusive() &&
-				 ( fc == 0 ||
-				   !fc->inherits( "QButton" ) ||
-				   ((QButton*)fc)->group() == b->group() ) )
-				fb = b;
-			    else
-#endif
-			    if ( !fc )
-				fc = (QWidget*)wc;
-			}
-		    }
-		}
-		// f exists iff done
-		if ( !done ) {
-		    if ( fb )
-			f = fb;
-		    else if ( fc )
-			f = fc;
-		    else
-			f = 0;
-		}
-	    }
-	}
+	// look for the best focus widget we can find
+	// best == what we had (which may be deleted)
+	f = focusWidgets->find( w );
+	if ( f )
+	    focusWidgets->take( w );
+	QWidget* candidate = 0;
+	if ( !checkFocusChild( w, f, candidate ) )
+	    f = candidate;
     }
 
     const QObjectList * c = children();
