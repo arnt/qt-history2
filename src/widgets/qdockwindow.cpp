@@ -864,12 +864,12 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
     the dock window is floating.
 */
 
+// DOC: Can't use \property 'cos it thinks the thing returns a bool.
 /*!
-    \property QDockWindow::place
-    \brief whether the dock window is in a dock area
+    \fn Place QDockWindow::place() const
 
-    The place() function returns the current place of the dock window.
-    This is either \c InDock or \c OutsideDock.
+    This function returns where the dock window is placed. This is
+    either \c InDock or \c OutsideDock.
 
     \sa QDockArea::moveDockWindow(), QDockArea::removeDockWindow(),
     QMainWindow::moveDockWindow(), QMainWindow::removeDockWindow()
