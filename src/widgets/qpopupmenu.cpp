@@ -1834,8 +1834,13 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	QChar c = e->text()[0].upper();
 
 	QMenuItemListIt it(*mitems);
+	QMenuItem* first = 0;
+	QMenuItem* currentSelected = 0;
+	QMenuItem* firstAfterCurrent = 0;
+
 	register QMenuItem *m;
 	int indx = 0;
+	int clashCount = 0;
 	while ( (m=it.current()) ) {
 	    ++it;
 	    QString s = m->text();
@@ -1843,15 +1848,22 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		int i = s.find( '&' );
 		if ( i >= 0 ) {
 		    if ( s[i+1].upper() == c ) {
-			mi = m;
 			ok_key = TRUE;
-			break;
+			clashCount++;
+			if ( !first )
+			    first = m;
+			if ( indx == actItem )
+			    currentSelected = m;
+			else if ( !firstAfterCurrent && currentSelected )
+			    firstAfterCurrent = m;
 		    }
 		}
 	    }
 	    indx++;
 	}
-	if ( mi ) {
+
+	if ( 1 == clashCount ) { // No clashes, continue with selection
+	    mi = first;
 	    popup = mi->popup();
 	    if ( popup ) {
 		setActiveItem( indx );
@@ -1874,6 +1886,13 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		    active_popup_menu = 0;
 		}
 	    }
+	} else if ( clashCount > 1 ) { // Clashes, highlight next...
+	    // If there's clashes and no one is selected, use first one
+	    // or if there is no clashes _after_ current, use first one
+	    if ( !currentSelected || (currentSelected && !firstAfterCurrent))
+		dy = indexOf( first->id() ) - actItem;
+	    else
+		dy = indexOf( firstAfterCurrent->id() ) - actItem;
 	}
     }
 #ifndef QT_NO_MENUBAR

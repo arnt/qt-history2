@@ -1239,8 +1239,13 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	QChar c = e->text()[0].upper();
 
 	QMenuItemListIt it(*mitems);
+	QMenuItem* first = 0;
+	QMenuItem* currentSelected = 0;
+	QMenuItem* firstAfterCurrent = 0;
+
 	register QMenuItem *m;
 	int indx = 0;
+	int clashCount = 0;
 	while ( (m=it.current()) ) {
 	    ++it;
 	    QString s = m->text();
@@ -1249,16 +1254,32 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 		if ( i >= 0 )
 		{
 		    if ( s[i+1].upper() == c ) {
-			mi = m;
-			break;
+			clashCount++;
+			if ( !first )
+			    first = m;
+			if ( indx == actItem )
+			    currentSelected = m;
+			else if ( !firstAfterCurrent && currentSelected )
+			    firstAfterCurrent = m;
 		    }
 		}
 	    }
 	    indx++;
 	}
-	if ( mi ) {
-	    setActiveItem( indx );
+	if ( 0 == clashCount ) {
+	    return;
+	} else if ( 1 == clashCount ) {
+ 	    indx = indexOf( first->id() );
+	} else {
+	    // If there's clashes and no one is selected, use first one
+	    // or if there is no clashes _after_ current, use first one
+	    if ( !currentSelected || (currentSelected && !firstAfterCurrent))
+		indx = indexOf( first->id() );
+	    else
+		indx = indexOf( firstAfterCurrent->id() );
 	}
+
+	setActiveItem( indx );
     }
 }
 
@@ -1396,6 +1417,8 @@ void QMenuBar::setupAccelerators()
 		    Q_CHECK_PTR( autoaccel );
 		    autoaccel->setIgnoreWhatsThis( TRUE );
 		    connect( autoaccel, SIGNAL(activated(int)),
+			     SLOT(accelActivated(int)) );
+		    connect( autoaccel, SIGNAL(activatedAmbiguously(int)),
 			     SLOT(accelActivated(int)) );
 		    connect( autoaccel, SIGNAL(destroyed()),
 			     SLOT(accelDestroyed()) );
