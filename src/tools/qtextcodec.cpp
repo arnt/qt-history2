@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#75 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#76 $
 **
 ** Implementation of QTextCodec class
 **
@@ -172,7 +172,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
   bytes.  For such an encoding, you will need to implement
   <dl>
    <dt> \c QTextDecoder* makeDecoder() const
-    <dd>Return a QTextDecoder that remembers incomplete multibyte 
+    <dd>Return a QTextDecoder that remembers incomplete multibyte
 	sequence prefixes or other required state.
   </dl>
   If the encoding does \e not require state, you should implement:
@@ -1008,7 +1008,7 @@ public:
 	if ( from_unicode_page_multibyte ) {
 	    for (int i=0; i<256; i++)
 		if (from_unicode_page_multibyte[i])
-		    for (int j=0; j<256; i++)
+		    for (int j=0; j<256; j++)
 			if (from_unicode_page_multibyte[i][j])
 			    delete [] from_unicode_page_multibyte[i][j];
 	}
