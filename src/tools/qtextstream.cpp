@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#90 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#91 $
 **
 ** Implementation of QTextStream class
 **
@@ -720,8 +720,8 @@ QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
 	}
 	dev->writeBlock( (char*)p, sizeof(QChar)*len );
     } else {
-    for (uint i=0; i<len; i++)
-	ts_putc( p[i] );
+	for (uint i=0; i<len; i++)
+	    ts_putc( p[i] );
     }
     return *this;
 }
@@ -1911,7 +1911,7 @@ void QTextStream::setEncoding( Encoding e )
 	    // Use optimized latin1 processing
 	    mapper = 0;
 	}
-	doUnicodeHeader = TRUE;
+	doUnicodeHeader = FALSE;
 	break;
     case Latin1:
 	mapper = 0;
