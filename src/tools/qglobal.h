@@ -414,12 +414,14 @@
 #elif defined(__SUNPRO_CC)
 #  define Q_CC_SUN
 #  if __SUNPRO_CC >= 0x500
-#    if defined(__SUNPRO_CC_COMPAT) && __SUNPRO_CC_COMPAT < 5
-       // 4.2 compatibility mode triggered by -compat=4
+     // 'bool' is enabled by default but it can still be disabled
+     // using -features=nobool in which case _BOOL is not defined
+     // which is the default in the 4.2 compatibility mode triggered
+     // by -compat=4
+#    if !defined(_BOOL)
 #      define Q_NO_BOOL_TYPE
-#    else
-#      define Q_C_CALLBACKS
 #    endif
+#    define Q_C_CALLBACKS
 #  else
      // 4.2 compiler or older
 #    define Q_NO_BOOL_TYPE
