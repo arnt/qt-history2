@@ -1158,6 +1158,13 @@ public:
         LargeIconSize
     };
 
+    enum ToolButtonStyle {
+        ToolButtonIconOnly,
+        ToolButtonTextOnly,
+        ToolButtonTextBesideIcon,
+        ToolbuttonTextUnderIcon
+    };
+
 #if defined(Q_WS_MAC)
     typedef void * HANDLE;
 #elif defined(Q_WS_WIN)
