@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#78 $
 **
 ** Implementation of QColor class
 **
@@ -86,25 +86,27 @@
 #define COLOR1_PIX 1
 #endif
 
-QT_MAYBE_CONST QColor & Qt::color0 = QColor( 0x00ffffff, COLOR0_PIX );
-QT_MAYBE_CONST QColor & Qt::color1 = QColor ( 0x00000000, COLOR1_PIX );
-QT_MAYBE_CONST QColor & Qt::black = QColor (   0,	 0,   0 );
-QT_MAYBE_CONST QColor & Qt::white	= QColor ( 255, 255, 255 );
-QT_MAYBE_CONST QColor & Qt::darkGray = QColor ( 128, 128, 128 );
-QT_MAYBE_CONST QColor & Qt::gray	 = QColor ( 160, 160, 164 );
-QT_MAYBE_CONST QColor & Qt::lightGray = QColor ( 192, 192, 192 );
-QT_MAYBE_CONST QColor & Qt::red	 = QColor ( 255,	 0,   0 );
-QT_MAYBE_CONST QColor & Qt::green	 = QColor (   0, 255,   0 );
-QT_MAYBE_CONST QColor & Qt::blue	 = QColor (   0,	 0, 255 );
-QT_MAYBE_CONST QColor & Qt::cyan	 = QColor (   0, 255, 255 );
-QT_MAYBE_CONST QColor & Qt::magenta = QColor ( 255,	 0, 255 );
-QT_MAYBE_CONST QColor & Qt::yellow = QColor ( 255, 255,   0 );
-QT_MAYBE_CONST QColor & Qt::darkRed = QColor ( 128,	 0,   0 );
-QT_MAYBE_CONST QColor & Qt::darkGreen = QColor (   0, 128,   0 );
-QT_MAYBE_CONST QColor & Qt::darkBlue = QColor (   0,	 0, 128 );
-QT_MAYBE_CONST QColor & Qt::darkCyan = QColor (   0, 128, 128 );
-QT_MAYBE_CONST QColor & Qt::darkMagenta = QColor ( 128,	 0, 128 );
-QT_MAYBE_CONST QColor & Qt::darkYellow = QColor ( 128, 128,   0 );
+static QColor stdcol[18];
+
+QT_MAYBE_CONST QColor & Qt::color0 = stdcol[0];
+QT_MAYBE_CONST QColor & Qt::color1  = stdcol[1];
+QT_MAYBE_CONST QColor & Qt::black  = stdcol[2];
+QT_MAYBE_CONST QColor & Qt::white = stdcol[3];
+QT_MAYBE_CONST QColor & Qt::darkGray = stdcol[4];
+QT_MAYBE_CONST QColor & Qt::gray = stdcol[5];
+QT_MAYBE_CONST QColor & Qt::lightGray = stdcol[6];
+QT_MAYBE_CONST QColor & Qt::red = stdcol[7];
+QT_MAYBE_CONST QColor & Qt::green = stdcol[8];
+QT_MAYBE_CONST QColor & Qt::blue = stdcol[9];
+QT_MAYBE_CONST QColor & Qt::cyan = stdcol[10];
+QT_MAYBE_CONST QColor & Qt::magenta = stdcol[11];
+QT_MAYBE_CONST QColor & Qt::yellow = stdcol[12];
+QT_MAYBE_CONST QColor & Qt::darkRed = stdcol[13];
+QT_MAYBE_CONST QColor & Qt::darkGreen = stdcol[14];
+QT_MAYBE_CONST QColor & Qt::darkBlue = stdcol[15];
+QT_MAYBE_CONST QColor & Qt::darkCyan = stdcol[16];
+QT_MAYBE_CONST QColor & Qt::darkMagenta = stdcol[17];
+QT_MAYBE_CONST QColor & Qt::darkYellow = stdcol[18];
 
 
 /*****************************************************************************
