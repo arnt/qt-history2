@@ -2174,6 +2174,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	    case WM_IME_STARTCOMPOSITION:
 		{
+#ifdef Q_IME_DEBUG
+		    qDebug("startComposition" );
+#endif
 		    QWidget *fw = qApp->focusWidget();
 		    if ( fw ) {
 			QIMEvent e( QEvent::IMStart, QString::null, -1 );
@@ -2184,6 +2187,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 	    case WM_IME_ENDCOMPOSITION:
 		{
+#ifdef Q_IME_DEBUG
+		    qDebug( "endComposition" );
+#endif
 		    QWidget *fw = qApp->focusWidget();
 		    if ( fw && imePosition != -1 ) {
 			QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
@@ -2195,6 +2201,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 	    case WM_IME_COMPOSITION:
 		{
+#ifdef Q_IME_DEBUG
+		    qDebug("composition, lParam=%x", lParam);
+#endif
 		    QWidget *fw = qApp->focusWidget();
 		    if ( fw && imePosition != -1 ) {
 			HIMC imc = ImmGetContext( fw->winId() ); // Should we store it?
@@ -2203,10 +2212,10 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			if ( lParam & GCS_CURSORPOS ) {
 			    imePosition = ImmGetCompositionString( imc, GCS_CURSORPOS, &buffer, 255 ) & 0xffff;
 			}
-			if ( lParam & GCS_COMPSTR ) {
-			    buflen = ImmGetCompositionString( imc, GCS_COMPSTR, &buffer, 255 );
-			} else if (lParam & GCS_RESULTSTR ) {
+			if (lParam & GCS_RESULTSTR ) {
 			    buflen = ImmGetCompositionString( imc, GCS_RESULTSTR, &buffer, 255 );
+			} else if ( lParam & GCS_COMPSTR ) {
+			    buflen = ImmGetCompositionString( imc, GCS_COMPSTR, &buffer, 255 );
 			}
 			if ( buflen != -1 ) {
 			    if ( !imeComposition )
