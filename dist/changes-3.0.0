@@ -721,6 +721,12 @@ QSessionManager
 Renamed the missnamed setProperty() overloads to setManagerProperty()
 to resolve the conflict with the now virtual QObject::setProperty().
 
+QString
+
+New functions:
+	bool endsWith( const QString & );
+
+### TODO
 
 QStyle
 
