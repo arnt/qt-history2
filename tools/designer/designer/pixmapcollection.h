@@ -49,7 +49,7 @@ public:
     QValueList<Pixmap> pixmaps() const;
     bool isEmpty() const;
 
-    void setActive( bool b);
+    void setActive( bool b );
 
     void load( const QString& filename );
 
