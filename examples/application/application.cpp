@@ -71,7 +71,7 @@ ApplicationWindow::ApplicationWindow()
     const char * fileOpenText = "<p><img source=\"fileopen\"> "
 	         "Click this button to open a <em>new file</em>.<br>"
                  "You can also select the <b>Open</b> command "
-                 "from the <b>File</b> menu. Or click this <a href=\"foobar\">link</a></p>";
+                 "from the <b>File</b> menu.";
 
     QWhatsThis::add( fileOpen, fileOpenText );
 
