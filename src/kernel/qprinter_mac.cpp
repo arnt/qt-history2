@@ -280,9 +280,9 @@ int QPrinter::metric( int m ) const
     }
     case QPaintDeviceMetrics::PdmDpiY:
     case QPaintDeviceMetrics::PdmDpiX:
-	// ### FIXME: logical resolution scales with res!
-	case QPaintDeviceMetrics::PdmPhysicalDpiX:
-	case QPaintDeviceMetrics::PdmPhysicalDpiX:
+    // ### FIXME: logical resolution scales with res!
+    case QPaintDeviceMetrics::PdmPhysicalDpiX:
+    case QPaintDeviceMetrics::PdmPhysicalDpiY:
 	val = 72;
 	break;
     case QPaintDeviceMetrics::PdmWidthMM:
