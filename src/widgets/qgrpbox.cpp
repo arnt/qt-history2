@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#13 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -14,27 +14,27 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#13 $";
 #endif
 
 
 /*!
-\class QGroupBox qgrpbox.h
-\brief The QGroupBox widget provides a group box frame with a title.
+  \class QGroupBox qgrpbox.h
+  \brief The QGroupBox widget provides a group box frame with a title.
 
-A group box is a widget with a frame and a title.  The intended use of a
-group box is to show that a number of widgets (i.e. child widgets) are
-logically related.
+  A group box is a widget with a frame and a title.  The intended use of a
+  group box is to show that a number of widgets (i.e. child widgets) are
+  logically related.
 
-The button group widget, QButtonGroup, is an "intelligent" group box that is
-very useful for organizing button widgets in a group.
+  The button group widget, QButtonGroup, is an "intelligent" group box that is
+  very useful for organizing button widgets in a group.
 */
 
 
 /*!
-Constructs a group box widget with no title.
+  Constructs a group box widget with no title.
 
-The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \e parent and \e name arguments are passed to the QWidget constructor.
 */
 
 QGroupBox::QGroupBox( QWidget *parent, const char *name )
@@ -44,9 +44,9 @@ QGroupBox::QGroupBox( QWidget *parent, const char *name )
 }
 
 /*!
-Constructs a group box with a title.
+  Constructs a group box with a title.
 
-The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \e parent and \e name arguments are passed to the QWidget constructor.
 */
 
 QGroupBox::QGroupBox( const char *title, QWidget *parent, const char *name )
@@ -63,6 +63,7 @@ void QGroupBox::init()
     switch ( style() ) {
 	case WindowsStyle:
 	case PMStyle:
+	case MotifStyle:
 	    align = AlignLeft;
 	    fs = QFrame::Box | QFrame::Sunken;
 	    break;
@@ -79,7 +80,7 @@ void QGroupBox::init()
 
 
 /*!
-Sets the group box title text to \e title.
+  Sets the group box title text to \e title.
 */
 
 void QGroupBox::setTitle( const char *title )
@@ -92,28 +93,28 @@ void QGroupBox::setTitle( const char *title )
 
 
 /*!
-\fn int QGroupBox::alignment() const
-Returns the alignment of the group box title.
+  \fn int QGroupBox::alignment() const
+  Returns the alignment of the group box title.
 
-The default alignment is \c AlignHCenter.
+  The default alignment is \c AlignHCenter.
 
-\sa setAlignment().
+  \sa setAlignment()
 */
 
 /*!
-Sets the alignment of the group box title.
+  Sets the alignment of the group box title.
 
-The title is always placed on the upper frame line, however,
-the horizontal alignment can be specified by the \e alignment parameter.
+  The title is always placed on the upper frame line, however,
+  the horizontal alignment can be specified by the \e alignment parameter.
 
-The \e alignment is the bitwise OR of the following flags:
-<ul>
-<li> \c AlignLeft aligns the title text to the left.
-<li> \c AlignRight aligns the title text to the right.
-<li> \c AlignHCenter aligns the title text centered.
-</ul>
+  The \e alignment is the bitwise OR of the following flags:
+  <ul>
+  <li> \c AlignLeft aligns the title text to the left.
+  <li> \c AlignRight aligns the title text to the right.
+  <li> \c AlignHCenter aligns the title text centered.
+  </ul>
 
-\sa alignment().
+  \sa alignment()
 */
 
 void QGroupBox::setAlignment( int alignment )
@@ -124,7 +125,7 @@ void QGroupBox::setAlignment( int alignment )
 
 
 /*!
-Internal; paints the group box.
+  Handles paint events for the group box.
 */
 
 void QGroupBox::paintEvent( QPaintEvent * )	// overrides QFrame::paintEvent
