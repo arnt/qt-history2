@@ -153,6 +153,7 @@ class CommandHistory : public QObject
 
 public:
     CommandHistory( int s );
+    ~CommandHistory() { while (!history.isEmpty()) delete history.takeFirst(); }
 
     void addCommand( Command *cmd, bool tryCompress = FALSE );
     void undo();

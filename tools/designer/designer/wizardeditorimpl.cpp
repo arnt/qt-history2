@@ -45,7 +45,8 @@ WizardEditor::WizardEditor( QWidget *parent, QWizard *w, FormWindow *fw )
 
 WizardEditor::~WizardEditor()
 {
-    commands.setAutoDelete( TRUE );
+    while (!commands.isEmpty())
+	delete commands.takeFirst();
 }
 
 void WizardEditor::okClicked()

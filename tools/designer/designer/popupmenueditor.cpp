@@ -291,7 +291,8 @@ PopupMenuEditor::PopupMenuEditor( FormWindow * fw, PopupMenuEditor * menu,
 
 PopupMenuEditor::~PopupMenuEditor()
 {
-    itemList.setAutoDelete( TRUE );
+    while (!itemList.isEmpty())
+	delete itemList.takeFirst();
 }
 
 void PopupMenuEditor::init()

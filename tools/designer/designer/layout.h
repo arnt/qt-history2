@@ -29,7 +29,7 @@ class Layout : public QObject
 
 public:
     Layout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup = TRUE, bool splitter = FALSE );
-    virtual ~Layout() {}
+    virtual ~Layout();
 
     virtual void doLayout() = 0;
     virtual void undoLayout();

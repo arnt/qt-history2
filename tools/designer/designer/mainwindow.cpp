@@ -1346,16 +1346,18 @@ bool MainWindow::unregisterClient( FormWindow *w )
 	lastActiveFormWindow = 0;
 
     QList<SourceEditor*> waitingForDelete;
-    waitingForDelete.setAutoDelete( TRUE );
     for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
 	if ( (*it)->object() == w )
-	    waitingForDelete.append( (*it) );
+	    waitingForDelete.append(*it);
     }
 
     if ( actionEditor->form() == w ) {
 	actionEditor->setFormWindow( 0 );
 	actionEditor->parentWidget()->hide();
     }
+
+    while (!waitingForDelete.isEmpty())
+	delete waitingForDelete.takeFirst();
 
     return TRUE;
 }

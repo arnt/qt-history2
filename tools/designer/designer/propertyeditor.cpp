@@ -322,9 +322,8 @@ void PropertyItem::setOpen( bool b )
     open = b;
 
     if ( !open ) {
-	children.setAutoDelete( TRUE );
-	children.clear();
-	children.setAutoDelete( FALSE );
+	while (!children.isEmpty())
+	    delete children.takeFirst();
 	qApp->processEvents();
 	listview->updateEditorSize();
 	return;
@@ -2570,17 +2569,18 @@ EnumPopup::EnumPopup( QWidget *parent, const char *name, WFlags f )
     setFrameStyle( Panel | Plain );
     setPaletteBackgroundColor( Qt::white );
     popLayout = new QVBoxLayout( this, 3 );
-    checkBoxList.setAutoDelete( TRUE );
 }
 
 EnumPopup::~EnumPopup()
 {
+    while (!checkBoxList.isEmpty())
+	delete checkBoxList.takeFirst();
 }
 
 void EnumPopup::insertEnums( QList<EnumItem> lst )
 {
-    while ( checkBoxList.count() )
-	checkBoxList.removeFirst();
+    while ( !checkBoxList.isEmpty() )
+	delete checkBoxList.takeFirst();
 
     itemList = lst;
     QCheckBox *cb;

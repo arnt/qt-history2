@@ -267,8 +267,6 @@ TrWindow::TrWindow()
     dirty = FALSE;
     updateCaption();
 
-    phraseBooks.setAutoDelete( TRUE );
-
     f = new FindDialog( FALSE, this, "find", FALSE );
     f->setCaption( tr("Qt Linguist") );
     h = new FindDialog( TRUE, this, "replace", FALSE );
@@ -323,6 +321,8 @@ TrWindow::~TrWindow()
 {
     writeConfig();
     delete stats;
+    while (!phraseBooks.isEmpty())
+	delete phraseBooks.takeFirst();
 }
 
 void TrWindow::openFile( const QString& name )
@@ -767,7 +767,7 @@ void TrWindow::openPhraseBook()
 void TrWindow::closePhraseBook( int id )
 {
     int index = closePhraseBookp->indexOf( id );
-    phraseBooks.remove( index );
+    delete phraseBooks.takeAt( index );
     phraseBookNames.remove( phraseBookNames.at(index) );
     updatePhraseDict();
 
@@ -1681,7 +1681,7 @@ bool TrWindow::openPhraseBook( const QString& name )
 	return FALSE;
     }
 
-    int index = (int) phraseBooks.count();
+    int index = phraseBooks.count();
     phraseBooks.append( pb );
     phraseBookNames.append( name );
     int id = closePhraseBookp->insertItem( friendlyPhraseBookName(index) );
@@ -1725,12 +1725,12 @@ void TrWindow::updateProgress()
 
 void TrWindow::updatePhraseDict()
 {
-    QPtrListIterator<PhraseBook> pb = phraseBooks;
     PhraseBook::Iterator p;
     PhraseBook *ent;
     phraseDict.clear();
-    while ( pb.current() != 0 ) {
-	for ( p = (*pb)->begin(); p != (*pb)->end(); ++p ) {
+    for (int i = 0; i < phraseBooks.count(); ++i) {
+	PhraseBook *pb = phraseBooks.at(i);
+	for ( p = pb->begin(); p != pb->end(); ++p ) {
 	    QString f = friendlyString( (*p).source() );
 	    if ( f.length() > 0 ) {
 		f = QStringList::split( QChar(' '), f ).first();
@@ -1742,7 +1742,6 @@ void TrWindow::updatePhraseDict()
 		ent->append( *p );
 	    }
 	}
-	++pb;
     }
     revalidate();
 }

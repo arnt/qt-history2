@@ -198,12 +198,14 @@ Project::Project( const QString &fn, const QString &pName,
     setFileName( fn );
     if ( !pName.isEmpty() )
 	proName = pName;
-    sourcefiles.setAutoDelete( TRUE );
     modified = FALSE;
 }
 
 Project::~Project()
 {
+    while (!sourcefiles.isEmpty())
+	delete sourcefiles.takeFirst();
+
     if ( singleProjectMode() )
 	removeTempProject();
     delete iface;
@@ -482,6 +484,7 @@ bool Project::removeSourceFile( SourceFile *sf )
     if ( !sf->close() )
 	return FALSE;
     sourcefiles.remove( sf );
+    delete sf;
     modified = TRUE;
     emit sourceFileRemoved( sf );
     return TRUE;

@@ -218,8 +218,8 @@ void HelpDialog::initialize()
     itemPopup->insertItem( tr( "Open Link in New Window" ), 1 );
     itemPopup->insertItem( tr( "Open Link in New Tab" ), 2 );
 
-    contentList.setAutoDelete( TRUE );
-    contentList.clear();
+    while (!contentList.isEmpty())
+	delete contentList.takeFirst();
 
     initDoneMsgShown = FALSE;
     fullTextIndex = 0;

@@ -209,6 +209,7 @@ void FormWindow::initSlots()
 
 FormWindow::~FormWindow()
 {
+    hideOrderIndicators();
     if ( MainWindow::self && MainWindow::self->objectHierarchy()->formWindow() == this )
 	MainWindow::self->objectHierarchy()->setFormWindow( 0, 0 );
 
@@ -1728,7 +1729,6 @@ void FormWindow::currentToolChanged()
 void FormWindow::showOrderIndicators()
 {
     hideOrderIndicators();
-    orderIndicators.setAutoDelete( TRUE );
     QObjectList l = mainContainer()->queryList( "QWidget" );
     stackedWidgets = MetaDataBase::tabOrder( this );
     int order = 1;
@@ -1748,7 +1748,8 @@ void FormWindow::showOrderIndicators()
 
 void FormWindow::hideOrderIndicators()
 {
-    orderIndicators.clear();
+    while (!orderIndicators.isEmpty())
+	delete orderIndicators.takeFirst();
 }
 
 void FormWindow::updateOrderIndicators()

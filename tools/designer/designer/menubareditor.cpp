@@ -159,7 +159,8 @@ MenuBarEditor::MenuBarEditor( FormWindow * fw, QWidget * parent, const char * na
 
 MenuBarEditor::~MenuBarEditor()
 {
-    itemList.setAutoDelete( TRUE );
+    while (!itemList.isEmpty())
+	delete itemList.takeFirst();
 }
 
 FormWindow * MenuBarEditor::formWindow()

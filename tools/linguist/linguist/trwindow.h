@@ -18,7 +18,7 @@
 #include <metatranslator.h>
 
 #include <qmainwindow.h>
-#include <qptrlist.h>
+#include <qlist.h>
 #include <qdict.h>
 #include <qprinter.h>
 #include <qstringlist.h>
@@ -107,7 +107,7 @@ private slots:
     void updateStatistics();
 
 private:
-    typedef QPtrList<PhraseBook> PBL;
+    typedef QList<PhraseBook *> PBL;
     typedef QDict<PhraseBook> PBD;
 
     static QString friendlyString( const QString& str );

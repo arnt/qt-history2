@@ -1154,10 +1154,11 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    QStringList l;
 	    l << lv->header()->label( i );
 	    QList<QPixmap *> pix;
-	    pix.setAutoDelete( TRUE );
+            QPixmap *deleteMe = 0;
 	    if ( lv->header()->iconSet( i ) )
-		pix.append( new QPixmap( lv->header()->iconSet( i )->pixmap() ) );
+		pix.append( (deleteMe = new QPixmap(lv->header()->iconSet( i )->pixmap())) );
 	    saveItem( l, pix, ts, indent );
+            delete deleteMe;
 	    ts << makeIndent( indent ) << "<property name=\"clickable\">" << endl;
 	    indent++;
 	    ts << makeIndent( indent ) << "<bool>" << mkBool( lv->header()->isClickEnabled( i ) )<< "</bool>" << endl;
@@ -1189,10 +1190,11 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 		QStringList l;
 		l << table->horizontalHeader()->label( i );
 		QList<QPixmap *> pix;
-		pix.setAutoDelete( TRUE );
+                QPixmap *deleteMe = 0;
 		if ( table->horizontalHeader()->iconSet( i ) )
-		    pix.append( new QPixmap( table->horizontalHeader()->iconSet( i )->pixmap() ) );
+		    pix.append((deleteMe = new QPixmap(table->horizontalHeader()->iconSet(i)->pixmap())));
 		saveItem( l, pix, ts, indent );
+                delete deleteMe;
 		if ( ::qt_cast<QDataTable*>(table) && !columnFields.isEmpty() ) {
 		    ts << makeIndent( indent ) << "<property name=\"field\">" << endl;
 		    indent++;
@@ -1213,10 +1215,11 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 		QStringList l;
 		l << table->verticalHeader()->label( i );
 		QList<QPixmap *> pix;
-		pix.setAutoDelete( TRUE );
+                QPixmap *deleteMe = 0;
 		if ( table->verticalHeader()->iconSet( i ) )
-		    pix.append( new QPixmap( table->verticalHeader()->iconSet( i )->pixmap() ) );
+		    pix.append((deleteMe = new QPixmap(table->verticalHeader()->iconSet(i)->pixmap())));
 		saveItem( l, pix, ts, indent );
+                delete deleteMe;
 		indent--;
 		ts << makeIndent( indent ) << "</row>" << endl;
 	    }

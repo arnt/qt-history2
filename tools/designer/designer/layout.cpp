@@ -50,10 +50,15 @@ bool operator<( const QGuardedPtr<QWidget> &p1, const QGuardedPtr<QWidget> &p2 )
 Layout::Layout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup, bool splitter )
     : widgets( wl ), parent( p ), formWindow( fw ), isBreak( !doSetup ), useSplitter( splitter )
 {
-    widgets.setAutoDelete( FALSE );
     layoutBase = lb;
     if ( !doSetup && layoutBase )
 	oldGeometry = layoutBase->geometry();
+}
+
+Layout::~Layout()
+{
+    while (!widgets.isEmpty())
+	delete widgets.takeFirst();
 }
 
 /*!  The widget list we got in the constructor might contain too much
@@ -90,7 +95,6 @@ void Layout::setup()
 	    }
 	    if ( !lastList ) {
 		QWidgetList l;
-		l.setAutoDelete( FALSE );
 		lists.append( l );
 		lastList = &lists.last();
 	    }

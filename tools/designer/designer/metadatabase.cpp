@@ -83,19 +83,25 @@ MetaDataBase::MetaDataBase()
 inline void setupDataBase()
 {
     if ( !db ) {
-	db = new QHash<QObject*, MetaDataBaseRecord*>();
+	db = new QHash<QObject*, MetaDataBaseRecord*>;
 	cWidgets = new QList<MetaDataBase::CustomWidget*>;
-	cWidgets->setAutoDelete( TRUE );
     }
 }
 
 void MetaDataBase::clearDataBase()
 {
     if ( db ) {
-        db->deleteAll();
+	QHash<QObject *, MetaDataBaseRecord *>::ConstIterator it = db->constBegin();
+        while (it != db->constEnd()) {
+	    delete it.value();
+	    ++it;
+	}
         delete db;
         db = 0;
-        delete cWidgets;
+
+	while (!cWidgets->isEmpty())
+	    delete cWidgets->takeFirst();
+	delete cWidgets;
         cWidgets = 0;
     }
 }
@@ -960,6 +966,7 @@ bool MetaDataBase::addCustomWidget( CustomWidget *wid )
 void MetaDataBase::removeCustomWidget( CustomWidget *w )
 {
     cWidgets->remove( w );
+    delete w;
 }
 
 QList<MetaDataBase::CustomWidget*> *MetaDataBase::customWidgets()

@@ -45,7 +45,6 @@
 CommandHistory::CommandHistory( int s )
     : current( -1 ), steps( s ), savedAt( -1 )
 {
-    history.setAutoDelete( TRUE );
     modified = FALSE;
     compressedCommand = 0;
 }
@@ -71,29 +70,25 @@ void CommandHistory::addCommand( Command *cmd, bool tryCompress )
 	checkCompressedCommand();
     }
 
-    if ( current < (int)history.count() - 1 ) {
+    if ( current < history.count() - 1 ) {
 	if ( current < savedAt )
 	    savedAt = -2;
 
 	QList<Command*> commands;
-	commands.setAutoDelete( FALSE );
+	for ( int i = 0; i <= current; ++i )
+	    commands.append(history.takeFirst());
 
-	for( int i = 0; i <= current; ++i ) {
-	    commands.insert( i, history.at( 0 ) );
-	    history.take( 0 );
-	}
-
-	commands.append( cmd );
-	history.clear();
+	commands.append(cmd);
+	while (!history.isEmpty())
+	    delete history.takeFirst();
 	history = commands;
-	history.setAutoDelete( TRUE );
     } else {
-	history.append( cmd );
+	history.append(cmd);
     }
 
-    if ( (int)history.count() > steps ) {
+    if ( history.count() > steps ) {
 	savedAt--;
-	history.removeFirst();
+	delete history.takeFirst();
     } else {
 	++current;
     }
@@ -121,7 +116,7 @@ void CommandHistory::redo()
     checkCompressedCommand();
     compressedCommand = 0;
     if ( current > -1 ) {
-	if ( current < (int)history.count() - 1 ) {
+	if ( current < history.count() - 1 ) {
 	    ++current;
 	    history.at( current )->execute();
 	}
@@ -141,9 +136,9 @@ void CommandHistory::emitUndoRedo()
     Command *undoCmd = 0;
     Command *redoCmd = 0;
 
-    if ( current >= 0 && current < (int)history.count() )
+    if ( current >= 0 && current < history.count() )
 	undoCmd = history.at( current );
-    if ( current + 1 >= 0 && current + 1 < (int)history.count() )
+    if ( current + 1 >= 0 && current + 1 < history.count() )
 	redoCmd = history.at( current + 1 );
 
     bool ua = (undoCmd != 0);
@@ -176,7 +171,7 @@ void CommandHistory::checkCompressedCommand()
 	Command *c = compressedCommand;
 	compressedCommand = 0;
 	if ( !( (SetPropertyCommand*)c )->checkProperty() ) {
-	    history.removeAt( current );
+	    delete history.takeAt( current );
 	    --current;
 	    emitUndoRedo();
 	}
@@ -283,7 +278,6 @@ MoveCommand::MoveCommand( const QString &n, FormWindow *fw,
     : Command( n, fw ), widgets( w ), oldPos( op ), newPos( np ),
       oldParent( opr ), newParent( npr )
 {
-    widgets.setAutoDelete( FALSE );
 }
 
 void MoveCommand::merge( Command *c )
@@ -349,8 +343,6 @@ DeleteCommand::DeleteCommand( const QString &n, FormWindow *fw,
 			      const QWidgetList &wl )
     : Command( n, fw ), widgets( wl )
 {
-    widgets.setAutoDelete( FALSE );
-
     // Include the children of the selected items when deleting
     for (int i = 0; i < widgets.size(); ++i) {
 	QWidget *w = widgets.at(i);
@@ -817,7 +809,6 @@ void MacroCommand::execute()
 
 void MacroCommand::unexecute()
 {
-#   warning there must be a way to iterate backwards with a QList::Iterator!!!!! ###sam
     for(int i = commands.count()-1; i >= 0; i--)
 	commands.at(i)->unexecute();
 }
