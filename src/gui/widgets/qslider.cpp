@@ -146,15 +146,6 @@ QSlider::QSlider(QWidget *parent)
     d->init();
 }
 
-#ifdef QT_COMPAT
-QSlider::QSlider(QWidget *parent, const char *name)
-    : QAbstractSlider(*new QSliderPrivate, parent)
-{
-    setObjectName(name);
-    d->orientation = Vertical;
-    d->init();
-}
-#endif
 
 /*!
     Constructs a slider.
@@ -173,6 +164,13 @@ QSlider::QSlider(Orientation orientation, QWidget *parent)
 }
 
 #ifdef QT_COMPAT
+QSlider::QSlider(QWidget *parent, const char *name)
+    : QAbstractSlider(*new QSliderPrivate, parent)
+{
+    setObjectName(name);
+    d->orientation = Vertical;
+    d->init();
+}
 QSlider::QSlider(Orientation orientation, QWidget *parent, const char *name)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
@@ -192,6 +190,11 @@ QSlider::QSlider(int minValue, int maxValue, int pageStep, int value, Orientatio
     d->value = value;
     d->orientation = orientation;
     d->init();
+}
+
+QRect QSlider::sliderRect() const
+{
+    return style().querySubControlMetrics(QStyle::CC_Slider, this, QStyle::SC_SliderHandle);
 }
 #endif
 
@@ -250,7 +253,7 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
     } else if (d->pressedControl == QStyle::SC_SliderHandle) {
         QRect sr = style().querySubControlMetrics(QStyle::CC_Slider, this, QStyle::SC_SliderHandle);
         d->clickOffset = d->pick(ev->pos() - sr.topLeft());
-      	d->snapBackPosition = d->position;
+	d->snapBackPosition = d->position;
         update(sr);
     }
 }
@@ -287,7 +290,7 @@ void QSlider::mouseReleaseEvent(QMouseEvent *ev)
     }
     ev->accept();
     d->pressedControl = QStyle::SC_None;
-    setRepeatAction(SliderNoAction);
+    triggerAction(SliderNoAction);
     update();  // ### Optimize this!
 }
 
@@ -414,11 +417,5 @@ int QSlider::tickInterval() const
     return d->tickInterval;
 }
 
-#ifdef QT_COMPAT
-QRect QSlider::sliderRect() const
-{ 
-    return style().querySubControlMetrics(QStyle::CC_Slider, this, QStyle::SC_SliderHandle);
-}
-#endif
 
 #endif
