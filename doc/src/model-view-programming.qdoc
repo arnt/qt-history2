@@ -1,5 +1,7 @@
 /*!
 \page model-view-programming.html
+\nextpage model-view-model.html Model Classes
+\startpage model-view-model.html Model Classes
 
 \title Model/View Programming
 
@@ -113,6 +115,9 @@ See also the \l{model-view.html}{list of model/view classes}.
 
 /*!
 \page model-view-model.html
+\contentspage model-view-programming.html Contents
+\previouspage model-view-programming.html Model/View Programming
+\nextpage model-view-subclassing-model.html Creating New Models
 
 \title Model Classes
 
@@ -378,13 +383,13 @@ by QAbstractItemModel. We will demonstrate this by
 \l{model-view-subclassing-model.html}{creating a new model}
 to provide a convenient ready-to-use model for holding strings.
 
-\l{model-view-programming.html}{[Up]}
-\l{model-view-subclassing-model.html}{[Creating New Models]}
-
 */
 
 /*!
 \page model-view-view.html
+\contentspage model-view-programming.html Contents
+\previouspage model-view-subclassing-model.html Creating New Models
+\nextpage model-view-selection.html Handling Selections
 
 \title View Classes
 
@@ -555,14 +560,13 @@ were used, the selected items may be represented very differently in
 each view; for example, a contiguous selection in a table view can be
 represented as a fragmented set of highlighted items in a tree view.
 
-\l{model-view-subclassing-model.html}{[Creating New Models]}
-\l{model-view-programming.html}{[Up]}
-\l{model-view-selection.html}{[Handling Selections]}
-
 */
 
 /*!
 \page model-view-delegate.html
+\contentspage model-view-programming.html Contents
+\previouspage model-view-selection.html Handling Selections
+\nextpage model-view-convenience.html Convenience Classes
 
 \title Delegate Classes
 
@@ -769,14 +773,13 @@ longer needed. A more sophisticated approach might be used to
 provide user-friendly editing features, such as a record of
 previously submitted values.
 
-\l{model-view-selection.html}{[Handling Selections]}
-\l{model-view-programming.html}{[Up]}
-\l{model-view-convenience.html}{[Convenience Classes]}
-
 */
 
 /*!
 \page model-view-selection.html
+\contentspage model-view-programming.html Contents
+\previouspage model-view-view.html View Classes
+\nextpage model-view-delegate.html Delegate Classes
 
 \title Handling Selections
 
@@ -1045,14 +1048,13 @@ For hierarchical models, the
 determine whether any given item is the parent of another level of
 items.
 
-\l{model-view-view.html}{[View Classes]}
-\l{model-view-programming.html}{[Up]}
-\l{model-view-delegate.html}{[Delegate Classes]}
-
 */
 
 /*!
     \page model-view-subclassing-model.html
+    \contentspage model-view-programming.html Contents
+    \previouspage model-view-model.html Model Classes
+    \nextpage model-view-view.html View Classes
 
     \title Creating New Models
 
@@ -1260,13 +1262,12 @@ items.
     available by the standard view classes in the
     \l{model-view-view.html}{introduction to the view classes}.
 
-    \l{model-view-model.html}{[Model Classes]}
-    \l{model-view-programming.html}{[Up]}
-    \l{model-view-view.html}{[View Classes]}
 */
 
 /*!
     \page model-view-convenience.html
+    \contentspage model-view-programming.html Contents
+    \previouspage model-view-delegate.html Delegate Classes
 
     \title Convenience Classes
 
@@ -1533,8 +1534,5 @@ items.
     The above code causes items in a tree widget to be selected if they
     contain the text given in the search string. This pattern can also be
     used in the list and table widgets.
-
-    \l{model-view-delegate.html}{[Delegate Classes]}
-    \l{model-view-programming.html}{[Up]}
 
 */
