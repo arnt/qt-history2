@@ -6818,7 +6818,7 @@ int QTableHeader::sectionSize( int section ) const
 {
     if ( count() <= 0 || section < 0 || section >= count() )
 	return -1;
-    if ( caching && section < sectionSizes.count() )
+    if ( caching && section < (int)sectionSizes.count() )
 	 return sectionSizes[ section ];
     return QHeader::sectionSize( section );
 }
@@ -6836,7 +6836,7 @@ int QTableHeader::sectionPos( int section ) const
 {
     if ( count() <= 0 || section < 0 || section >= count() )
 	return -1;
-    if ( caching && section < sectionPoses.count() )
+    if ( caching && section < (int)sectionPoses.count() )
 	return sectionPoses[ section ];
     return QHeader::sectionPos( section );
 }
