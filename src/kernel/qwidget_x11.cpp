@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#301 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#302 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -271,7 +271,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	
 	if (p) { // the real client leader (head of the group)
 	    wm_hints.window_group = p->winId();
-	    wm_hints.flags = wm_hints.flags | WindowGroupHint;
+	    wm_hints.flags |= WindowGroupHint;
 	}
 	
 	XClassHint class_hint;
