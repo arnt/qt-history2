@@ -14,7 +14,7 @@
 
 #include "quuid.h"
 
-#include <qdatastream.h>
+#include "qdatastream.h"
 
 /*!
     \class QUuid quuid.h
@@ -218,3 +218,166 @@ bool QUuid::isNull() const
 	   data4[4] == 0 && data4[5] == 0 && data4[6] == 0 && data4[7] == 0 &&
 	   data1 == 0 && data2 == 0 && data3 == 0;
 }
+
+/*!
+    \enum QUuid::UuidVariant
+
+    This enum defines the variant of the UUID.
+    \value UV_VarUnknown Variant unknown
+    \value UV_NCS Reserved for NCS (Network Computing System) backward compatibility
+    \value UV_Standard year-month-day (the default)
+    \value UV_Microsoft Reserved for Microsoft Corporation backward compatibility
+    \value UV_Reserved Reserved for future definition
+*/
+
+/*!
+    \enum QUuid::UuidVersion
+
+    This enum defines the version of the UUID.
+    \value UV_VerUnknown Version unknown
+    \value UV_Time Time-based, by using timestamp, clock sequence, and MAC network card address for the sections
+    \value UV_EmbeddedPOSIX Reserved for DCE Security version, with embedded POSIX UIDs
+    \value UV_Name Name-based, by using values from a name for all sections
+    \value UV_Random Random-based, by using random numbers for all sections
+*/
+
+/*!
+    \fn Qt::UuidVariant QUuid::variant() const
+    
+    Returns the variant of the Uuid.
+
+    \sa version()
+*/
+Qt::UuidVariant QUuid::variant() const
+{
+    if ( isNull() )
+	return Qt::UV_VarUnknown;
+    // Check the 3 MSB of data4[0]
+    if ( (data4[0] & 0x80) == 0x00 ) return Qt::UV_NCS;
+    else if ( (data4[0] & 0xC0) == 0x80 ) return Qt::UV_Standard;
+    else if ( (data4[0] & 0xE0) == 0xC0 ) return Qt::UV_Microsoft;
+    else if ( (data4[0] & 0xE0) == 0xE0 ) return Qt::UV_Reserved;
+    return Qt::UV_VarUnknown;
+}
+
+/*!
+    \fn Qt::UuidVersion QUuid::version() const
+    
+    Returns the version of the Uuid.
+
+    \sa variant()
+*/
+Qt::UuidVersion QUuid::version() const
+{
+    // Check the 4 MSB of data3
+    Qt::UuidVersion ver = (Qt::UuidVersion)(data3>>12);
+    if ( isNull() 
+	 || ver < Qt::UV_Time 
+	 || ver > Qt::UV_Random )
+	return Qt::UV_VerUnknown;
+    return ver;
+}
+
+/*!
+    \fn bool QUuid::operator<(const QUuid &other) const
+
+    Returns TRUE if this QUuid is of the same variant,
+    and lexicographically before the \a other QUuid;
+    otherwise returns FALSE.
+
+    \sa variant()
+*/
+#define ISLESS(f1, f2) if (f1!=f2) return (f1<f2);
+bool QUuid::operator<(const QUuid &other ) const
+{
+    if ( variant() != other.variant() )
+	return FALSE;
+
+    ISLESS( data1, other.data1 );
+    ISLESS( data2, other.data2 );
+    ISLESS( data3, other.data3 );
+    for ( int n = 0; n < 8; n++ ) {
+	ISLESS( data4[n], other.data4[n] );
+    }
+    return FALSE;
+}
+
+/*!
+    \fn bool QUuid::operator>(const QUuid &other) const
+
+    Returns TRUE if this QUuid is of the same variant,
+    and lexicographically after the \a other QUuid;
+    otherwise returns FALSE.
+
+    \sa variant()
+*/
+#define ISMORE(f1, f2) if (f1!=f2) return (f1>f2);
+bool QUuid::operator>(const QUuid &other ) const
+{
+    if ( variant() != other.variant() )
+	return FALSE;
+
+    ISMORE( data1, other.data1 );
+    ISMORE( data2, other.data2 );
+    ISMORE( data3, other.data3 );
+    for ( int n = 0; n < 8; n++ ) {
+	ISMORE( data4[n], other.data4[n] );
+    }
+    return FALSE;
+}
+
+/*!
+    \fn QUuid QUuid::createUuid()
+    
+    Returns a new Uuid of Standard variant, and Random type. The Uuid
+    generated are based on the platform specific pseudo-random generator,
+    which is usually not a crypto-quality random number generator. 
+    Therefore, a Uuid is not guaranteed to be unique cross application
+    instances.
+
+    On Windows, the new Uuid is to a very high degree of certainty
+    guaranteed to be unique on the same or any other system, networked
+    or not.
+    
+    /sa variant(), version()
+*/
+#if 0 //defined(Q_OS_WIN32)
+#include <objbase.h> // For CoCreateGuid
+QUuid QUuid::createUuid()
+{
+    GUID guid;
+    CoCreateGuid( &guid );
+    QUuid result = guid;
+    return result;
+}
+#else // !Q_OS_WIN32
+#include "qdatetime.h"
+#include "stdlib.h" // For srand/rand
+QUuid QUuid::createUuid()
+{
+    static const int intbits = sizeof(int)*8;
+    static int randbits = 0;
+    if ( !randbits ) {
+	int max = RAND_MAX;
+	do { ++randbits; } while ( (max=max>>1) );
+	srand( (uint)QDateTime::currentDateTime().toTime_t() );
+	rand(); // Skip first
+    }
+
+    QUuid result;
+    uint *data = &(result.data1);
+    int chunks = 16 / sizeof(uint);
+    while ( chunks-- ) {
+	uint randNumber = 0;
+	for ( int filled = 0; filled < intbits; filled += randbits )
+	    randNumber |= rand()<<filled;
+	 *(data+chunks) = randNumber;
+    }
+
+    result.data4[0] = (result.data4[0] & 0x3F) | 0x80;	// UV_Standard
+    result.data3 = (result.data3 & 0x0FFF) | 0x4000;	// UV_Random
+
+    return result;
+}
+#endif // !Q_OS_WIN32
+

@@ -16,6 +16,7 @@
 #define QUUID_H
 
 #ifndef QT_H
+#include "qnamespace.h"
 #include "qstring.h"
 #endif // QT_H
 
@@ -91,6 +92,9 @@ struct Q_CORE_EXPORT QUuid
 	return !( *this == orig );
     }
 
+    bool operator<(const QUuid &other ) const;
+    bool operator>(const QUuid &other ) const;
+
 #if defined(Q_OS_WIN32)
     // On Windows we have a type GUID that is used by the platform API, so we
     // provide convenience operators to cast from and to this type.
@@ -130,6 +134,9 @@ struct Q_CORE_EXPORT QUuid
 	return !( *this == guid );
     }
 #endif
+    static QUuid createUuid();
+    Qt::UuidVariant variant() const;
+    Qt::UuidVersion version() const;
 
     uint    data1;
     ushort  data2;

@@ -895,7 +895,7 @@ public:
 
     // Documented in quuid.cpp
     enum UuidVariant {
-	UV_Var_Unknown	=-1,
+	UV_VarUnknown	=-1,
 	UV_NCS		= 0, // 0 - -
 	UV_Standard	= 2, // 1 0 -
 	UV_Microsoft	= 6, // 1 1 0
@@ -904,7 +904,7 @@ public:
 
     // Documented in quuid.cpp
     enum UuidVersion {
-	UV_Ver_Unknown	=-1,
+	UV_VerUnknown	=-1,
 	UV_Time		= 1, // 0 0 0 1
 	UV_EmbeddedPOSIX= 2, // 0 0 1 0
 	UV_Name		= 3, // 0 0 1 1
