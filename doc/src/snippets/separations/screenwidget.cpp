@@ -21,7 +21,6 @@ label widget.
 
 #include <QApplication>
 #include <QColorDialog>
-#include <QDrag>
 #include <QGridLayout>
 #include <QImage>
 #include <QLabel>
@@ -127,7 +126,7 @@ void ScreenWidget::createImage()
         }
     }
 
-    imageLabel->setPixmap(QPixmap(newImage));
+    imageLabel->setPixmap(QPixmap::fromImage(newImage));
 }
 
 /*!

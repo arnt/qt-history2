@@ -74,7 +74,7 @@ void FinalWidget::mouseMoveEvent(QMouseEvent *event)
     mimeData->setData("image/png", output);
 
     drag->setMimeData(mimeData);
-    drag->setPixmap(imageLabel->pixmap()->scale(64, 64, Qt::KeepAspectRatio));
+    drag->setPixmap(imageLabel->pixmap()->scaled(64, 64, Qt::KeepAspectRatio));
     drag->setHotSpot(QPoint(drag->pixmap().width()/2,
                             drag->pixmap().height()));
 

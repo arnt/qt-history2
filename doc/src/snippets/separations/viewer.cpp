@@ -214,7 +214,7 @@ void Viewer::openImageFile(QString &imageFile)
         brightnessMenu->setEnabled(true);
 
         /* Note: the ScaleMin value may be different for Qt 4. */
-        scaledImage = originalImage.convertDepth(32).scale(256, 256,
+        scaledImage = originalImage.convertDepth(32).scaled(256, 256,
             Qt::KeepAspectRatio);
 
         cyanWidget->setImage(scaledImage);
@@ -277,7 +277,7 @@ void Viewer::createImage()
         }
     }
 
-    finalWidget->setPixmap(QPixmap(newImage));
+    finalWidget->setPixmap(QPixmap::fromImage(newImage));
 }
 
 /*

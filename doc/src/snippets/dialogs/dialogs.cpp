@@ -4,7 +4,7 @@ typedef QDialog WordCountDialog;
 typedef QDialog FindDialog;
 
 #define this 0
-#define setWordCount(x) isShown()
+#define setWordCount(x) isVisible()
 
 class EditorWindow : public QMainWindow
 {
