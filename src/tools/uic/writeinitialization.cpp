@@ -135,10 +135,9 @@ void WriteInitialization::accept(DomWidget *node)
         initializeListBox(node);
     } else if (className.mid(1) == QLatin1String("ListView")) {
         initializeListView(node);
-    } else if (className == QLatin1String("QDataTable")) {
+    } else if (className == QLatin1String("QDataTable")
+            || className == QLatin1String("QDataBrowser")) {
         initializeSqlDataTable(node);
-    } else if (className == QLatin1String("QDataBrowser")) {
-        initializeSqlDataBrowser(node);
     }
 
     writeProperties(varName, className, node->elementProperty());
@@ -915,11 +914,3 @@ void WriteInitialization::initializeSqlDataTable(DomWidget *w)
     output << option.indent << "}\n";
 }
 
-void WriteInitialization::initializeSqlDataBrowser(DomWidget *w)
-{
-    QHash<QString, DomProperty*> properties = propertyMap(w->elementProperty());
-
-    DomProperty *frameworkCode = properties.value("frameworkCode", 0);
-    if (frameworkCode && toBool(frameworkCode->elementBool()) == false)
-        return;
-}
