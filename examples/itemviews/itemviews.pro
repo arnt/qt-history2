@@ -1,3 +1,2 @@
 TEMPLATE      = subdirs
-SUBDIRS       = chart \
-                dirview
+SUBDIRS       = dirview
