@@ -427,7 +427,7 @@ public:
     QDomElement& operator= (const QDomElement&);
 
     // DOM functions
-    QString attribute(const QString& name, const QString& defValue = QString::null) const;
+    QString attribute(const QString& name, const QString& defValue = QString() ) const;
     void setAttribute(const QString& name, const QString& value);
     void setAttribute(const QString& name, qlonglong value);
     void setAttribute(const QString& name, qulonglong value);
@@ -443,7 +443,7 @@ public:
     QDomNodeList elementsByTagName(const QString& tagname) const;
     bool hasAttribute(const QString& name) const;
 
-    QString attributeNS(const QString nsURI, const QString& localName, const QString& defValue) const;
+    QString attributeNS(const QString nsURI, const QString& localName, const QString& defValue = QString()) const;
     void setAttributeNS(const QString nsURI, const QString& qName, const QString& value);
     inline void setAttributeNS(const QString nsURI, const QString& qName, int value)
         { setAttributeNS(nsURI, qName, qlonglong(value)); }
