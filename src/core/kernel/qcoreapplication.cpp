@@ -222,7 +222,6 @@ void QCoreApplication::init()
         d->createEventLoop();
     Q_ASSERT(d->eventLoop != 0);
     d->eventLoop->setParent(this);
-    qDebug("eventloop type %s", d->eventLoop->metaObject()->className());
 }
 
 /*!

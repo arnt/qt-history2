@@ -79,10 +79,7 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::T
 }
 
 void QApplicationPrivate::createEventLoop()
-{
-    qDebug("QApplicationPrivate: creating event loop! type %d %d", q->type(), QApplication::Tty);
-    eventLoop = q->type() != QApplication::Tty ? new QGuiEventLoop(q) : new QEventLoop(q);
-}
+{ eventLoop = q->type() != QApplication::Tty ? new QGuiEventLoop(q) : new QEventLoop(q); }
 
 
 
