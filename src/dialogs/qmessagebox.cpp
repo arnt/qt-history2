@@ -214,13 +214,13 @@ static const char * const qtlogo_xpm[] = {
     warning() can be used to tell the user about unusual errors, or
     errors which can't be easily fixed:
 
-    \code
-    switch( QMessageBox::warning( this, "Application name",
-	"Could not connect to the <mumble> server.\n"
-	"This program can't function correctly "
-	"without the server.\n\n",
-	"Retry",
-	"Quit", 0, 0, 1 ) )
+\code
+switch( QMessageBox::warning( this, "Application name",
+        "Could not connect to the <mumble> server.\n"
+        "This program can't function correctly "
+        "without the server.\n\n",
+        "Retry",
+        "Quit", 0, 0, 1 ) ) {
     case 0: // The user clicked the Retry again button or pressed Enter
 	// try again
 	break;
