@@ -717,12 +717,11 @@ bool QDateTimeEditor::setFocusSection( int sec )
     return d->setFocusSection( sec );
 }
 
-/*! \class QDateTimeEditBase qdatetimeedit.h
+/*! \class QDateTimeEditBase
     \brief The QDateTimeEditBase class provides an abstraction for date and edit editors.
-    \internal
 
     Small abstract class that provides some functions that are common
-    for both QDateEdit and QTimeEdit. Its used internally by
+    for both QDateEdit and QTimeEdit. It is used internally by
     QDateTimeEditor.
 */
 
