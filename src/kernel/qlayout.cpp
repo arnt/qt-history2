@@ -2126,14 +2126,14 @@ void QBoxLayout::setupGeom()
     bool horexp = FALSE;
     bool verexp = FALSE;
 
-    int space = 0;
     data->hasHfw = FALSE;
 
     delete data->geomArray;
     int n = data->list.count();
     data->geomArray = new QArray<QLayoutStruct>( n );
     QArray<QLayoutStruct> &a = *data->geomArray;
-
+    
+    bool first = TRUE; 
     for ( int i = 0; i < n; i++ ) {
 	QBoxLayoutItem *box = data->list.at(i);	
 	QSize max = box->item->maximumSize();
@@ -2141,14 +2141,14 @@ void QBoxLayout::setupGeom()
 	QSize hint = box->item->sizeHint();
 	QSizePolicy::ExpandData exp = box->item->expanding();
 	bool empty = box->item->isEmpty();
+	// space before non-empties, except the first:
+	int space = (empty||first) ? 0 : spacing();
 	if ( horz( dir ) ) {
 	    bool expand = exp & QSizePolicy::Horizontal || box->stretch > 0;
 	    horexp = horexp || expand;
-	    if ( !empty ) {
-		maxw += max.width() + space;
-		minw += min.width() + space;
-		hintw += hint.width() + space;
-	    }
+	    maxw += max.width() + space;
+	    minw += min.width() + space;
+	    hintw += hint.width() + space;
 	    maxExpCalc( maxh, verexp,
 			max.height(), exp & QSizePolicy::Vertical );
 	    minh = QMAX( minh, min.height() );
@@ -2161,11 +2161,9 @@ void QBoxLayout::setupGeom()
 	} else {
 	    bool expand = exp & QSizePolicy::Vertical || box->stretch > 0;
 	    verexp = verexp || expand;
-	    if ( !empty ) {
-		maxh += max.height() + space;
-		minh += min.height() + space;
-		hinth += hint.height() + space;
-	    }
+	    maxh += max.height() + space;
+	    minh += min.height() + space;
+	    hinth += hint.height() + space;
 	    maxExpCalc( maxw, horexp,
 			max.width(), exp & QSizePolicy::Horizontal );
 	    minw = QMAX( minw, min.width() );
@@ -2176,11 +2174,10 @@ void QBoxLayout::setupGeom()
 	    a[i].minimumSize = min.height();
 	    a[i].expansive = expand;
 	}
-	if ( !empty )
-	    space = spacing(); //space before non-empties, except the first
 	a[i].empty = empty;
 	a[i].stretch = box->stretch;
 	data->hasHfw = data->hasHfw || box->item->hasHeightForWidth();
+	first = first && empty;
     }
 
     data->expanding =  (QSizePolicy::ExpandData)
