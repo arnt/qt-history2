@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#127 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qimage.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#126 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#127 $");
 
 
 /*!
@@ -2132,6 +2132,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     QPixmap *pm;
 
     if ( (tf & GrayText) == GrayText ) {	// prepare to draw gray text
+	// #### NOTE: will not work with too-big-to-fit unclipped text.
 	mask = new QBitmap( w, fheight );
 	CHECK_PTR( mask );
 	pp = new QPainter( mask );
@@ -2147,13 +2148,8 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	pm = 0;
     }
 
-    // ### should we union with br?
-    if ( painter->backgroundMode() == OpaqueMode ) {
-	QPen oldpen = painter->pen();
-	painter->setPen(NoPen);
-	painter->drawRect(x,y,w,h);
-	painter->setPen(oldpen);
-    }
+    if ( oldmode == OpaqueMode )
+	painter->fillRect(QRect(x,y,w,h).unite(br),painter->backgroundColor());
 
     yp += fascent;
 
