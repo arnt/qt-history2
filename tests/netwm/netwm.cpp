@@ -1140,7 +1140,7 @@ void NETRootInfo::update(unsigned long dirty) {
 			       (p->number_of_desktops * 4), False, XA_CARDINAL,
 			       &type_ret, &format_ret, &nitems_ret, &unused,
 			       &data_ret)
-	    == Success) 
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == (p->number_of_desktops * 4)) {
@@ -1156,7 +1156,7 @@ void NETRootInfo::update(unsigned long dirty) {
 
 		XFree(data_ret);
 	    }
-    
+
 
     if (dirty & SupportingWMCheck)
 	if (XGetWindowProperty(p->display, p->root, net_supporting_wm_check,
@@ -1224,13 +1224,13 @@ NETWinInfo::NETWinInfo(Display *d, Window win, Window rwin,
     p->desktop = p->pid = p->handled_icons = 0;
     p->managed = False;
     p->strut.left = p->strut.right = p->strut.top = p->strut.bottom = 0;
-    
+
     // ##### TODO: Brad, that is slightly bad. It makes it impossible
     // (roundtrip!)  to have temporay NETWinInfo objects that were
     // only used to check event() for dirty stuff. Idea: mark wmstate
     // as dirty somewhere else if pr equals 0 and get it only when we
     // really need it (i.e. basically on setting something).
-    p->properties = pr | INTERNAL_XAWMState;
+    p->properties = pr | XAWMState;
     p->icon_count = 0;
 
     role = rl;
@@ -1522,7 +1522,7 @@ unsigned long NETWinInfo::event(XEvent *e) {
 	    else if (pe.xproperty.atom == net_wm_icon)
 		dirty |= WMIcon;
 	    else if (pe.xproperty.atom == xa_wm_state)
-		dirty |= INTERNAL_XAWMState;
+		dirty |= XAWMState;
 	    else if (pe.xproperty.atom == net_wm_state)
 		dirty |= WMState;
 	    else if (pe.xproperty.atom == net_wm_desktop)
@@ -1554,7 +1554,7 @@ void NETWinInfo::update(unsigned long dirty) {
 
     dirty &= p->properties;
 
-    if (dirty & INTERNAL_XAWMState)
+    if (dirty & XAWMState)
 	if (XGetWindowProperty(p->display, p->window, xa_wm_state, 0l, 1l,
 			       False, xa_wm_state, &type_ret, &format_ret,
 			       &nitems_ret, &unused, &data_ret)
@@ -1708,4 +1708,13 @@ void NETWinInfo::update(unsigned long dirty) {
 
 		XFree(data_ret);
 	    }
+}
+
+void NETWinInfo::setKDEFrameStrut( NETStrut )
+{
+}
+
+void NETWinInfo::kdeGeometry( NETRect& frame, NETRect& window)
+{
+    
 }
