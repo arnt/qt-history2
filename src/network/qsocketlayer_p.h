@@ -3,6 +3,16 @@
 #include "qsocketlayer.h"
 #include <qhostaddress.h>
 
+#ifdef Q_OS_WIN
+class QWindowsSockInit
+{
+public:
+    QWindowsSockInit();
+    ~QWindowsSockInit();
+    int version;
+};
+#endif
+
 class QSocketLayerPrivate
 {
 public:
@@ -23,11 +33,11 @@ public:
     QHostAddress localAddress;
     Q_UINT16 localPort;
 
+
 #ifdef Q_OS_WIN
-    void startup();
-    void cleanup();
-    int winSockVersion;
+    QWindowsSockInit winSock;
 #endif
+
 
     void setError(Qt::SocketError error, const QString &errorString) const;
 

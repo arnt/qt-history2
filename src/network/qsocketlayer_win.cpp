@@ -278,8 +278,8 @@ static inline Qt::SocketType qt_socket_getType(int socketDescriptor)
 }
 
 
-// ### need to set the class unuseable if this fails.
-void QSocketLayerPrivate::startup()
+QWindowsSockInit::QWindowsSockInit()
+:   version(0)
 {
     //### should we try for 2.2 on all platforms ??
     WSAData wsadata;
@@ -288,16 +288,14 @@ void QSocketLayerPrivate::startup()
     if (WSAStartup(MAKEWORD(2,0), &wsadata) != 0) {
 	qWarning("QTcpSocketAPI: WinSock v2.0 initialization failed.");
     } else {
-        winSockVersion = 0x20;
+        version = 0x20;
     }
 }
 
-
-void QSocketLayerPrivate::cleanup()
+QWindowsSockInit::~QWindowsSockInit()
 {
     WSACleanup();
 }
-
 
 bool QSocketLayerPrivate::createNewSocket(Qt::SocketType socketType, Qt::NetworkLayerProtocol socketProtocol)
 {

@@ -11,8 +11,10 @@
 **
 ****************************************************************************/
 
-#include "qdns_p.h"
 #include <winsock2.h>
+
+#include "qdns_p.h"
+#include "qsocketlayer_p.h"
 #include <ws2tcpip.h>
 #include <qlibrary.h>
 #include <qsignal.h>
@@ -43,6 +45,8 @@ struct qt_addrinfo
 */
 QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
 {
+    QWindowsSockInit winSock;
+
     QDnsHostInfo results;
     results.d->hostName = hostName;
 

@@ -129,11 +129,6 @@ QSocketLayerPrivate::QSocketLayerPrivate()
 
     peerPort = 0;
     localPort = 0;
-
-#ifdef Q_OS_WIN
-    winSockVersion = 0x00;
-    startup();
-#endif
 }
 
 /*! \internal
@@ -141,9 +136,6 @@ QSocketLayerPrivate::QSocketLayerPrivate()
 */
 QSocketLayerPrivate::~QSocketLayerPrivate()
 {
-#ifdef Q_OS_WIN
-    cleanup();
-#endif
 }
 
 /*! \internal
