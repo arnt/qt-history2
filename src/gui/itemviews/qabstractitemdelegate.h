@@ -35,7 +35,8 @@ public:
 
     enum EditorType {
         Events,
-        Widget
+        Widget,
+        PersistentWidget
     };
 
     enum BeginEditAction {

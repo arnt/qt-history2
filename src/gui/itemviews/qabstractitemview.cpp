@@ -1111,24 +1111,40 @@ void QAbstractItemView::endEdit(const QModelIndex &index,
     if (!persistent.isValid())
         return;
 
-    if (itemDelegate()->editorType(model(), persistent) == QAbstractItemDelegate::Events) {
+    QAbstractItemDelegate::EditorType type = itemDelegate()->editorType(model(), persistent);
+    if (type == QAbstractItemDelegate::Events) {
         d->state = NoState;
         return;
     }
 
     QWidget *editor = d->editors.value(persistent);
     if (editor) {
-        itemDelegate()->releaseEditor(action, editor, model(), index);
-        d->editors.remove(persistent);
+        if (type == QAbstractItemDelegate::Widget) {
+            itemDelegate()->releaseEditor(action, editor, model(), index);
+            d->editors.remove(persistent);
+        } else { // editor is persistent
+            itemDelegate()->setModelData(editor, model(), index);
+        }
         d->state = NoState;
         setFocus();
     }
 }
 
 /*!
+  \internal
+*/
+
+void QAbstractItemView::updateEditorData()
+{
+    QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = d->editors.begin();
+    for (; it != d->editors.end(); ++it)
+        itemDelegate()->setEditorData(it.value(), model(), it.key());
+}
+
+/*!
     \internal
 */
-void QAbstractItemView::updateEditors()
+void QAbstractItemView::updateEditorGeometries()
 {
     QStyleOptionViewItem option = viewOptions();
     QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = d->editors.begin();
@@ -1143,7 +1159,7 @@ void QAbstractItemView::updateEditors()
 */
 void QAbstractItemView::updateGeometries()
 {
-    updateEditors();
+    updateEditorGeometries();
 }
 
 /*!
@@ -1311,16 +1327,13 @@ int QAbstractItemView::columnSizeHint(int column) const
 }
 
 /*!
-    Sets \a editor as the persistent editor for the item at the given
-    \a index. If \a editor is 0 and no previous persistent editor has
-    been set for the \a index, the editor will be created by the
-    delegate.
+    Sets the editor created by the delegate as a persistent
+    editor for the item at the given \a index.
 */
-void QAbstractItemView::setPersistentEditor(const QModelIndex &index, QWidget *editor)
+void QAbstractItemView::setPersistentEditor(const QModelIndex &index, bool enable)
 {
     QPersistentModelIndex persistent(index, model());
-    if (d->editors.contains(persistent))
-        return;
+    QWidget *editor = d->editors.value(persistent);
     if (!editor) {
         QStyleOptionViewItem option = viewOptions();
         option.rect = itemViewportRect(index);
@@ -1329,8 +1342,9 @@ void QAbstractItemView::setPersistentEditor(const QModelIndex &index, QWidget *e
                                         d->viewport, option, model(), index);
         itemDelegate()->setModelData(editor, model(), index);
         itemDelegate()->updateEditorGeometry(editor, option, model(), index);
+        d->editors.insert(persistent, editor);
     }
-    d->editors.insert(persistent, editor);
+    // FIXME: save this as persistent
 }
 
 /*!
@@ -1359,24 +1373,21 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
     // Single item changed
     if (topLeft == bottomRight && topLeft.isValid()) {
         QPersistentModelIndex persistent(topLeft, model());
-        if (d->editors.contains(persistent)) {
+        if (d->editors.contains(persistent))
             itemDelegate()->setEditorData(d->editors.value(persistent), d->model, topLeft);
-        } else {
+        else
             d->viewport->update(itemViewportRect(topLeft));
-        }
         return;
     }
-    // single row changed
-    if (topLeft.row() == bottomRight.row() && topLeft.isValid()) {
-        QModelIndex current = currentItem();
-        QPersistentModelIndex persistent(topLeft, model());
-        if (d->editors.contains(persistent)) { // FIXME: update all persistent editors
-            itemDelegate()->setEditorData(d->editors.value(persistent), d->model, current);
-        } else {
-            QRect tl = itemViewportRect(topLeft);
-            QRect br = itemViewportRect(bottomRight);
-            d->viewport->update(tl.unite(br));
-        }
+    updateEditorData(); // we are counting on having relatively few editors
+    // single row or column changed
+    bool sameRow = topLeft.row() == bottomRight.row() && topLeft.isValid();
+    bool sameCol = topLeft.column() == bottomRight.column() && topLeft.isValid();
+    if (sameRow || sameCol) {
+        QRect tl = itemViewportRect(topLeft);
+        QRect br = itemViewportRect(bottomRight);
+        d->viewport->update(tl.unite(br));
+        return;
     }
     // more changed
     d->viewport->update();

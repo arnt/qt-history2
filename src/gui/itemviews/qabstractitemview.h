@@ -90,7 +90,7 @@ public:
     virtual int rowSizeHint(int row) const;
     virtual int columnSizeHint(int column) const;
 
-    void setPersistentEditor(const QModelIndex &index, QWidget *editor = 0);
+    void setPersistentEditor(const QModelIndex &index, bool enable = true);
 
 public slots:
     virtual void reset();
@@ -106,7 +106,8 @@ protected slots:
     virtual void rowsRemoved(const QModelIndex &parent, int start, int end);
     virtual void selectionChanged(const QItemSelection &deselected, const QItemSelection &selected);
     virtual void currentChanged(const QModelIndex &old, const QModelIndex &current);
-    virtual void updateEditors();
+    virtual void updateEditorData();
+    virtual void updateEditorGeometries();
     virtual void updateGeometries();
     virtual void verticalScrollbarAction(int action);
     virtual void horizontalScrollbarAction(int action);
