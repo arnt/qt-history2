@@ -89,11 +89,11 @@
 
 // #define QT_NO_XINERAMA
 #ifndef QT_NO_XINERAMA
-#  if defined(Q_OS_SOLARIS)
+#  if 0 // ### Xsun, but how to detect it?
 // Xinerama is only supported in Solaris 7 with patches 107648/108376 and
 // Solaris 8 or above which introduce the X11R6.4 Xserver.
 // To switch the Xinerama functionality on, you need to add the "+xinerama"
-// arguement to the Xsun start line.
+// argument to the Xsun start line.
 // At least Solaris 7 and 8 are missing Xinerama system headers and function
 // declarations (bug 4284701).
 // The Xinerama API is not documented. In theory it could change but it
@@ -124,7 +124,7 @@ extern "C" Status XPanoramiXGetScreenSize(
     int,
     XPanoramiXInfo*
 );
-#  else
+#  else // XFree86
 // XFree86 does not C++ify Xinerama (at least up to XFree86 4.0.3).
 extern "C" {
 #    include <X11/extensions/Xinerama.h>
