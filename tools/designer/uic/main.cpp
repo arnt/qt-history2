@@ -225,9 +225,11 @@ int main( int argc, char * argv[] )
 	out << doc.toString();
 	return 0;
     } else if ( binary ) {
+#if 0
 	out.unsetDevice();
 	QDataStream binaryOut( &fileOut );
 	convertUiToUib( doc, binaryOut );
+#endif
 	return 0;
     }
 
