@@ -739,6 +739,8 @@ for plat in mac win x11 embedded; do
 	    rm -f "$PLATDIR/GNUmakefile" $PLATDIR/qmake/GNUmakefile* "$PLATDIR/qmake/Makefile.unix"
 	    # delete the xt estension
 	    rm -rf "$PLATDIR/extensions/xt"
+	    # don't need config.tests
+	    rm -rf "$PLATDIR/config.tests"
 
 	    # move the files into include
 	    status "Moving header files.."
