@@ -124,10 +124,23 @@ static const char *ps_header[] = {
 "    } if",
 "} D",
 "",
+"/BDArr[",				// Brush dense patterns:
+"    0.06 0.12 0.37 0.50 0.63 0.88 0.94",
+"] d",
+"",
 "/BF {",				// brush fill
-"    BSt 9 ge BSt 14 le and",		// valid brush pattern?
-"    {",
-"     GS",
+"   GS",
+"   BSt 1 eq",				// solid brush?
+"   {",
+"     BCol SC"
+"     WFi { fill } { eofill } ifelse",
+"   } if",
+"   BSt 2 ge BSt 8 le and",		// dense pattern?
+"   {",
+"     BDArr BSt 2 sub get setgray fill"
+"   } if",
+"   BSt 9 ge BSt 14 le and",		// brush pattern?
+"   {",
 "     WFi { clip } { eoclip } ifelse",
 "     defM SM",
 "     pathbbox",			// left upper right lower
@@ -149,58 +162,36 @@ static const char *ps_header[] = {
 "     } if",
 "     BCol SC",
 "     0.3 SW",
+"     NP",
 "     BSt 9 eq BSt 11 eq or",		// horiz or cross pattern
-"     { 0 4 h",				// draw horiz lines !!! alignment
-"       { NP dup 0 exch MT w exch LT S } for",
+"     { 0 4 h",
+"       { dup 0 exch MT w exch LT } for",
 "     } if",
 "     BSt 10 eq BSt 11 eq or",		// vert or cross pattern
-"     { 0 4 w",				// draw vert lines !!! alignment
-"       { NP dup 0 MT h LT S } for",
+"     { 0 4 w",
+"       { dup 0 MT h LT } for",
 "     } if",
 "     BSt 12 eq BSt 14 eq or",		// F-diag or diag cross
 "     { w h gt",
 "       { 0 6 w h add",
-"	{ NP dup h MT h sub 0 LT S } for }",
-"       { 0 6 w h add",
-"	 { NP dup w exch MT w add 0 exch LT S } for } ifelse",
+"	  { dup 0 MT h sub h LT } for"
+"       } { 0 6 w h add",
+"         { dup 0 exch MT w sub w exch LT } for"
+"       } ifelse",
 "     } if",
 "     BSt 13 eq BSt 14 eq or",		// B-diag or diag cross
 "     { w h gt",
 "       { 0 6 w h add",
-"	 { NP dup 0 MT h sub h LT S } for }",
-"       { 0 6 w h add",
-"	 { NP dup 0 exch MT w add w exch LT S } for } ifelse",
+"	  { dup h MT h sub 0 LT } for",
+"       } { 0 6 w h add",
+"	  { dup w exch MT w sub 0 exch LT } for"
+"       } ifelse",
 "     } if",
-"     GR",
-"    } if",
+"     S",
+"   } if",
+"   GR",
 "} D",
 "",
-"",
-"/BDArr[",				// Brush dense patterns:
-"    0.94 0.88 0.63 0.50 0.37 0.12 0.6",
-"] d",
-"",
-"/QF {",				// fill command
-"    GS",
-"    BSt 2 ge BSt 8 le and",		// dense pattern?
-"    { BDArr BSt 2 sub get setgray fill } if",
-"    BSt 9 ge BSt 14 le and",		// fill pattern?
-"    { BF } if",
-"    BSt 1 eq",				// solid brush?
-"    { BCol SC WFi { fill } { eofill } ifelse } if",
-"    GR",
-"} D",
-"",
-"/PF {",				// polygon fill command
-"    GS",
-"    BSt 2 ge BSt 8 le and",		// dense pattern?
-"    { BDArr BSt 2 sub get setgray WFi { fill } { eofill } ifelse } if",
-"    BSt 9 ge BSt 14 le and",		// fill pattern?
-"    { BF } if",
-"    BSt 1 eq",				// solid brush?
-"    { BCol SC WFi { fill } { eofill } ifelse } if",
-"    GR",
-"} D",
 "",
 "", // for arc
 "/mat matrix d",
@@ -281,7 +272,7 @@ static const char *ps_header[] = {
 "    w 0 RL",
 "    0 h neg RL",
 "    CP",
-"    QF",
+"    BF",
 "    QS",
 "} D",
 "",
@@ -334,7 +325,7 @@ static const char *ps_header[] = {
 "	 x w add rx2 sub y		 rx2 ry2 90  -90",
 "	 ARC ARC ARC ARC",
 "	 CP",
-"	 QF",
+"	 BF",
 "	 QS",
 "	} ifelse",
 "    } ifelse",
@@ -349,7 +340,7 @@ static const char *ps_header[] = {
 "    NP",
 "    0 0 w 2 div 0 360 arc",
 "    mat SM",
-"    QF",
+"    BF",
 "    QS",
 "} D",
 "",
@@ -368,7 +359,7 @@ static const char *ps_header[] = {
 "    x w 2 div add y h 2 div add MT",
 "    x y w h ang1 16 div ang2 16 div ARC",
 "    CP",
-"    QF",
+"    BF",
 "    QS",
 "} D",
 "",
@@ -377,7 +368,7 @@ static const char *ps_header[] = {
 "    NP",
 "    ARC",
 "    CP",
-"    QF",
+"    BF",
 "    QS",
 "} D",
 "",
@@ -2387,7 +2378,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		stream << XCOORD(pt.x()) << ' '
 		       << YCOORD(pt.y()) << " LT\n";
 	    }
-	    stream << "CP PF QS\n";
+	    stream << "CP BF QS\n";
 	    if ( p[1].ival )
 		stream << "/WFi false d\n";
 	}
@@ -2787,7 +2778,7 @@ static QString stripHeader( const QString & header, const char * data,
 
 void QPSPrinter::emitHeader( bool finished )
 {
-    QString title   = printer->docName();
+    QString title = printer->docName();
     QString creator = printer->creator();
     if ( !creator )				// default creator
 	creator = QString::fromLatin1("Qt " QT_VERSION_STR);
@@ -2880,6 +2871,7 @@ void QPSPrinter::emitHeader( bool finished )
     delete d->fontBuffer;
     d->fontBuffer = 0;
 }
+
 
 void QPSPrinter::newPageSetup( QPainter *paint )
 {
