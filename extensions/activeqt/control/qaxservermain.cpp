@@ -160,8 +160,9 @@ LONG CExeModule::Unlock()
 {
     LONG l = CComModule::Unlock();
     if ( !l ) {
-        bActivity = true;
-        SetEvent(hEventShutdown); // tell monitor that we transitioned to zero
+        bActivity = TRUE;
+        if ( hEventShutdown )
+	    SetEvent(hEventShutdown); // tell monitor that we transitioned to zero
     }
     return l;
 }
@@ -173,7 +174,7 @@ void CExeModule::MonitorShutdown()
         WaitForSingleObject(hEventShutdown, INFINITE);
         DWORD dwWait=0;
         do {
-            bActivity = false;
+            bActivity = FALSE;
             dwWait = WaitForSingleObject(hEventShutdown, dwTimeOut);
         } while (dwWait == WAIT_OBJECT_0);
         // timed out
@@ -188,9 +189,9 @@ void CExeModule::MonitorShutdown()
 
 bool CExeModule::StartMonitor()
 {
-    hEventShutdown = CreateEvent(NULL, false, false, NULL);
-    if (hEventShutdown == NULL)
-        return false;
+    hEventShutdown = CreateEvent( 0, FALSE, FALSE, 0 );
+    if ( hEventShutdown == 0 )
+        return FALSE;
     DWORD dwThreadID;
     HANDLE h = CreateThread(NULL, 0, MonitorProc, this, 0, &dwThreadID);
     return (h != NULL);

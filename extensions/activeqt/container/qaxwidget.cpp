@@ -42,6 +42,7 @@ extern void moduleUnlock();
 #include <qstatusbar.h>
 #include <qlayout.h>
 #include <qmetaobject.h>
+#include <qpaintdevicemetrics.h>
 
 #include "../shared/types.h"
 
@@ -499,19 +500,34 @@ QSize QAxWidget::sizeHint() const
 	return QWidget::sizeHint();
 
     if ( !extent.isValid() ) {
-	QAxWidget *that = (QAxWidget*)this;
 	CComPtr<IOleObject> ole;
 	queryInterface( IID_IOleObject, (void**)&ole );
-	if ( ole ) {
-	    SIZE sz = { 5000, 5000 };
-	    ole->SetExtent( DVASPECT_CONTENT, &sz );
-	    HRESULT res = ole->GetExtent( DVASPECT_CONTENT, &sz );
-	    if ( SUCCEEDED(res) ) {
-		SIZE psz;
-		AtlHiMetricToPixel( &sz, &psz );
-		that->extent.setWidth( psz.cx );
-		that->extent.setHeight( psz.cy );
-	    }
+	if ( !ole )
+	    return QWidget::sizeHint();
+
+	QAxWidget *that = (QAxWidget*)this;
+	HRESULT res = E_FAIL;
+	SIZE sizeProposed = { 5000, 5000 };
+	SIZEL oleExtent;
+
+	CComPtr<IViewObjectEx> viewEx;
+	queryInterface( IID_IViewObjectEx, (void**)&viewEx );
+	if ( viewEx ) {
+	    DVEXTENTINFO extInfo;
+	    extInfo.cb = sizeof(DVEXTENTINFO);
+	    extInfo.dwExtentMode = DVEXTENT_CONTENT;
+	    extInfo.sizelProposed = sizeProposed;
+	    res = viewEx->GetNaturalExtent( DVASPECT_CONTENT, -1, 0, 0, &extInfo, &oleExtent );
+	}
+	if ( res != S_OK )
+	    res = ole->GetExtent( DVASPECT_CONTENT, &oleExtent );
+	if ( res == S_OK && oleExtent.cx && oleExtent.cy )
+	    sizeProposed = oleExtent;
+	res = ole->SetExtent( DVASPECT_CONTENT, &sizeProposed );
+	if ( res == S_OK ) {
+	    QPaintDeviceMetrics pmetric( this );
+	    that->extent.setWidth( (pmetric.logicalDpiX()*sizeProposed.cx + 1270) / 2540 );
+	    that->extent.setHeight( (pmetric.logicalDpiY()*sizeProposed.cy + 1270) / 2540 );
 	}
     }
 

@@ -394,6 +394,9 @@ class HackWidget : public QWidget
 */
 bool QAxServerBase::internalCreate()
 {
+    if ( activeqt )
+	return TRUE;
+
     const QMetaObject *mo = _Module.factory()->metaObject( class_name );
 
     activeqt = _Module.factory()->create( class_name );
@@ -414,14 +417,7 @@ bool QAxServerBase::internalCreate()
 	::SetWindowLong( activeqt->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
     }
 
-    QSize sizeHint = activeqt->sizeHint();
-    if ( sizeHint.isValid() ) {
-	QPaintDeviceMetrics pmetric( activeqt );
-
-	m_sizeExtent.cx = PIX_TO_LOGHIM( sizeHint.width(), pmetric.logicalDpiX() );
-	m_sizeExtent.cy = PIX_TO_LOGHIM( sizeHint.height(), pmetric.logicalDpiY() );
-	m_sizeNatural = m_sizeExtent;
-    }
+    updateGeometry();
 
     // connect the generic slot to all signals of activeqt
     for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal )
@@ -437,8 +433,7 @@ bool QAxServerBase::internalCreate()
 */
 LRESULT QAxServerBase::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    if ( !activeqt )
-	internalCreate();
+    internalCreate();
     return 0;
 }
 
@@ -591,6 +586,40 @@ void QAxServerBase::readMetaData()
 	}
     }
 }
+
+/*!
+    \internal
+    Updates the view, or asks the client site to do so.
+*/
+void QAxServerBase::update()
+{
+    if ( m_bInPlaceActive ) {
+	if ( m_hWndCD )
+	    ::InvalidateRect( m_hWndCD, 0, TRUE );
+	else if ( m_spInPlaceSite )
+	    m_spInPlaceSite->InvalidateRect( NULL, TRUE );
+    } else if (m_spAdviseSink) {
+	m_spAdviseSink->OnViewChange( DVASPECT_CONTENT, -1 );
+    }
+}
+
+/*!
+    \internal
+
+    Updates the internal size values.
+*/
+void QAxServerBase::updateGeometry()
+{
+    QSize sizeHint = activeqt->sizeHint();
+    if ( sizeHint.isValid() ) {
+	QPaintDeviceMetrics pmetric( activeqt );
+
+	m_sizeExtent.cx = PIX_TO_LOGHIM( sizeHint.width(), pmetric.logicalDpiX() );
+	m_sizeExtent.cy = PIX_TO_LOGHIM( sizeHint.height(), pmetric.logicalDpiY() );
+	m_sizeNatural = m_sizeExtent;
+    }
+}
+
 
 /*!
     Catches all signals emitted by the Qt widget and fires the respective COM event.
@@ -771,6 +800,8 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
     if ( !slotlist )
 	readMetaData();
 
+    QSize oldSizeHint = activeqt->sizeHint();
+
     switch ( wFlags ) {
     case DISPATCH_METHOD:
 	{
@@ -865,6 +896,19 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	break;
     default:
 	break;
+    }
+
+    QSize sizeHint = activeqt->sizeHint();
+    if ( oldSizeHint != sizeHint ) {
+	updateGeometry();
+	if ( m_spInPlaceSite ) {
+	    RECT rect;
+	    rect.left = m_rcPos.left;
+	    rect.right = m_rcPos.left + sizeHint.width();
+	    rect.top = m_rcPos.top;
+	    rect.bottom = m_rcPos.top + sizeHint.height();
+	    m_spInPlaceSite->OnPosRectChange( &rect );
+	}
     }
 
     if ( res == S_OK )
@@ -1114,6 +1158,7 @@ HRESULT QAxServerBase::GetAdvise( DWORD* /*aspects*/, DWORD* /*advf*/, IAdviseSi
 */
 HRESULT QAxServerBase::GetExtent( DWORD /*dwAspect*/, LONG /*lindex*/, DVTARGETDEVICE* /*ptd*/, LPSIZEL lpsizel )
 {
+    updateGeometry();
     *lpsizel = m_sizeExtent;
     return S_OK;
 }
@@ -1165,7 +1210,7 @@ HRESULT QAxServerBase::QueryHitRect( DWORD dwAspect, LPCRECT pRectBounds, LPCREC
 /*!
     Provides the "size hint".
 */
-HRESULT QAxServerBase::GetNaturalExtent( DWORD dwAspect, LONG lindex, DVTARGETDEVICE* /*ptd*/, HDC /*hicTargetDev*/, DVEXTENTINFO *pExtentInfo, LPSIZEL pSizel )
+HRESULT QAxServerBase::GetNaturalExtent( DWORD dwAspect, LONG /*lindex*/, DVTARGETDEVICE* /*ptd*/, HDC /*hicTargetDev*/, DVEXTENTINFO *pExtentInfo, LPSIZEL pSizel )
 {
     if ( pExtentInfo == 0 || pSizel == 0 )
 	return E_POINTER;
@@ -1601,9 +1646,6 @@ HRESULT QAxServerBase::internalActivate()
 	SetObjectRects(&rcPos, &rcClip);
     }
     
-    CComPtr<IOleInPlaceActiveObject> spActiveObject;
-    ControlQueryInterface(IID_IOleInPlaceActiveObject, (void**)&spActiveObject);
-    
     // Gone active by now, take care of UIACTIVATE
     if (!m_bUIActive) {
 	m_bUIActive = TRUE;
@@ -1611,13 +1653,12 @@ HRESULT QAxServerBase::internalActivate()
 	if (FAILED(hr))
 	    return hr;
 	
-	SetControlFocus(TRUE);
-	// set ourselves up in the host.
-	if (spActiveObject) {
-	    if (spInPlaceFrame)
-		spInPlaceFrame->SetActiveObject(spActiveObject, 0);
-	    if (spInPlaceUIWindow)
-		spInPlaceUIWindow->SetActiveObject(spActiveObject, 0);
+	if ( m_bInPlaceActive ) {
+	    HWND hwnd = m_hWndCD;
+	    if ( !m_bUIActive )
+		internalActivate();
+	    else if ( !::IsChild( hwnd, ::GetFocus() ) )
+		::SetFocus( hwnd );
 	}
 	
 	if (spInPlaceFrame)
@@ -1651,7 +1692,7 @@ HRESULT QAxServerBase::DoVerb( LONG iVerb, LPMSG /*lpmsg*/, IOleClientSite* /*pA
 	hr = internalActivate();
 	if (SUCCEEDED(hr)) {
 	    hr = S_OK;
-	    FireViewChange();
+	    update();
 	}
 	break;
 
@@ -1727,8 +1768,8 @@ HRESULT QAxServerBase::GetExtent( DWORD dwDrawAspect, SIZEL* psizel )
 	return E_FAIL;
     if ( !psizel )
 	return E_POINTER;
-    *psizel = m_sizeExtent;
-    return S_OK;
+
+    return GetExtent( 0, 0, 0, psizel );
 }
 
 /*!
@@ -1814,10 +1855,6 @@ HRESULT QAxServerBase::SetExtent( DWORD dwDrawAspect, SIZEL* psizel )
 	bResized = TRUE;
     }
 
-    if (m_bRecomposeOnResize && bResized) {
-	SendOnDataChange();
-	FireViewChange();
-    }
     return S_OK;
 }
 

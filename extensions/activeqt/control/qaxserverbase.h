@@ -325,13 +325,14 @@ END_MSG_MAP()
 
     bool eventFilter( QObject *o, QEvent *e );
 private:
+    void update();
+    void updateGeometry();    
     bool internalCreate();
     HRESULT internalActivate();
 
     LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
     LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
     LRESULT ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-    
 
     friend class QAxBindable;
     friend class QAxPropertyPage;
