@@ -465,13 +465,16 @@ QDockWindow::QDockWindow(QMainWindow *parent, Qt::WFlags flags)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
              flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
 {
+    Q_ASSERT_X(parent != 0, "QDockWindow", "parent cannot be zero");
     d->init();
+    setArea(d->area);
 }
 
 QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlags flags)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
              flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
 {
+    Q_ASSERT_X(parent != 0, "QDockWindow", "parent cannot be zero");
     d->init();
     setArea(area);
 }
@@ -479,11 +482,27 @@ QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlag
 QDockWindow::~QDockWindow()
 { }
 
+/*!
+    Sets the main window for this dock window to \a parent.
+
+    \sa mainWindow()
+ */
 void QDockWindow::setParent(QMainWindow *parent)
 { QFrame::setParent(parent); }
 
+/*!
+    Returns the main window for this dock window.
+
+    \sa setParent()
+ */
 QMainWindow *QDockWindow::mainWindow() const
 { return d->mainWindow; }
+
+/*! \property QDockWindow::closable
+    \brief whether the user can close the dock window.
+
+    This property is true by default.
+*/
 
 void QDockWindow::setClosable(bool closable)
 {
@@ -494,6 +513,16 @@ void QDockWindow::setClosable(bool closable)
 bool QDockWindow::isClosable() const
 { return d->closable; }
 
+/*! \property QDockWindow::movable
+    \brief whether the user can move the dock window within the dock
+    area, move the dock area to another dock area, or float the dock
+    window.
+
+    This property is true by default.
+
+    \sa QDockWindow::floatable, QDockWindow::allowedAreas
+*/
+
 void QDockWindow::setMovable(bool movable)
 {
     d->movable = movable;
@@ -503,6 +532,12 @@ void QDockWindow::setMovable(bool movable)
 bool QDockWindow::isMovable() const
 { return d->movable; }
 
+/*! \property QDockWindow::floatable
+    \brief whether the user can float the dock window.
+
+    This property is true by default.
+ */
+
 void QDockWindow::setFloatable(bool floatable)
 {
     d->floatable = floatable;
@@ -511,6 +546,12 @@ void QDockWindow::setFloatable(bool floatable)
 
 bool QDockWindow::isFloatable() const
 { return d->movable && d->floatable; }
+
+/*! \property QDockWindow::floated
+    \brief whether the dock window is floating.
+
+    This property is false by default.
+*/
 
 void QDockWindow::setFloated(bool floated, const QPoint &pos)
 {
@@ -532,18 +573,35 @@ void QDockWindow::setFloated(bool floated, const QPoint &pos)
 bool QDockWindow::isFloated() const
 { return isTopLevel(); }
 
+/*! \property QDockWindow::allowedAreas
+    \brief areas where the dock window may be placed.
+
+    The default is \c Qt::AllDockWindowAreas.
+
+    \sa QDockWindow::area
+*/
+
 void QDockWindow::setAllowedAreas(Qt::DockWindowAreaFlags areas)
 { d->allowedAreas = (areas & Qt::DockWindowAreaMask); }
 
 Qt::DockWindowAreaFlags QDockWindow::allowedAreas() const
 { return d->allowedAreas; }
 
+/*! \property QDockWindow::area
+    \brief area where the dock window is current placed.
+
+    The default is \c Qt::DockWindowAreaLeft.
+
+    \sa QDockWindow::allowedAreas
+ */
+
 Qt::DockWindowArea QDockWindow::area() const
 { return d->area; }
 
-// add a window to an area using a hueristic to determine direction
 void QDockWindow::setArea(Qt::DockWindowArea area)
 {
+    // add a window to an area using a hueristic to determine direction
+
     Q_ASSERT_X(((d->allowedAreas & area) == area),
                "QDockWindow::setArea", "specified 'area' is not an allowed area");
 
@@ -594,9 +652,9 @@ void QDockWindow::setArea(Qt::DockWindowArea area)
     }
 }
 
-// add a window to an area, placing done relative to the previous
 void QDockWindow::setArea(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
 {
+    // add a window to an area, placing done relative to the previous
     Q_ASSERT_X(((d->allowedAreas & area) == area),
                "QDockWindow::setArea", "specified 'area' is not an allowed area");
 
@@ -606,9 +664,9 @@ void QDockWindow::setArea(Qt::DockWindowArea area, Qt::Orientation direction, bo
         d->place(area, direction, extend);
 }
 
-// splits the specified dockwindow
 void QDockWindow::setArea(QDockWindow *after, Qt::Orientation direction)
 {
+    // splits the specified dockwindow
     Qt::DockWindowArea area = after->area();
     Q_ASSERT_X(((d->allowedAreas & area) == area),
                "QDockWindow::setArea", "specified 'area' is not an allowed area");
