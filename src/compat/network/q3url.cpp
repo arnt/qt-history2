@@ -1017,10 +1017,12 @@ QString Q3Url::path( bool correct ) const
 		if ( !fi.exists() )
 		    d->cleanPath = d->path;
 		else if ( fi.isDir() ) {
-		    QString dir =
-			QDir::cleanDirPath( (qt_resolve_symlinks ?
-					    QDir( d->path ).canonicalPath() :
-					    QDir( d->path ).absPath()) ) + "/";
+                    QString canPath = QDir( d->path ).canonicalPath();
+                    QString dir;
+                    if ( qt_resolve_symlinks && !canPath.isNull() )
+                       dir = QDir::cleanDirPath( canPath );
+                    else
+                       dir = QDir::cleanDirPath( QDir( d->path ).absPath() + "/" );
 		    if ( dir == "//" )
 			d->cleanPath = "/";
 		    else

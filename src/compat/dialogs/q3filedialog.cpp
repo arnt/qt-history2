@@ -441,6 +441,16 @@ static bool detailViewMode = false;
 static QCleanupHandler<QPixmap> qfd_cleanup_pixmap;
 static QCleanupHandler<QString> qfd_cleanup_string;
 
+static QString toRootIfNotExists( const QString &path )
+{
+    if ( !path.isEmpty() )
+        return path;
+
+    QFileInfoList drives = QDir::drives();
+    Q_ASSERT( !drives.isEmpty() );
+    return drives.first().filePath();
+}
+
 static bool isDirectoryMode(int m)
 {
     return m == Q3FileDialog::Directory || m == Q3FileDialog::DirectoryOnly;
@@ -521,7 +531,7 @@ private:
 
 static void makeVariables() {
     if (!openFolderIcon) {
-        workingDirectory = new QString(QDir::currentDirPath());
+        workingDirectory = new QString(::toRootIfNotExists( QDir::currentDirPath() ));
         qfd_cleanup_string.add(&workingDirectory);
 
         openFolderIcon = new QPixmap((const char **)open_xpm);
@@ -2370,7 +2380,7 @@ void Q3FileDialog::init()
     connect(d->mimeTypeTimer, SIGNAL(timeout()),
              this, SLOT(doMimeTypeLookup()));
 
-    d->url = Q3UrlOperator(QDir::currentDirPath());
+    d->url = Q3UrlOperator(::toRootIfNotExists( QDir::currentDirPath() ));
     d->oldUrl = d->url;
     d->currListChildren = 0;
 
@@ -3362,7 +3372,7 @@ QString Q3FileDialog::getOpenFileName(const QString & startWith,
     }
 
     if (workingDirectory->isNull())
-        *workingDirectory = QDir::currentDirPath();
+        *workingDirectory = ::toRootIfNotExists( QDir::currentDirPath() );
 
 #if defined(Q_WS_WIN)
     if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(qApp->style()))
@@ -3479,7 +3489,7 @@ QString Q3FileDialog::getSaveFileName(const QString & startWith,
     }
 
     if (workingDirectory->isNull())
-        *workingDirectory = QDir::currentDirPath();
+        *workingDirectory = ::toRootIfNotExists( QDir::currentDirPath() );
 
 #if defined(Q_WS_WIN)
     if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(qApp->style()))
@@ -4412,7 +4422,7 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
         } else {
             QString theDir = dir_;
             if (theDir.isEmpty()) {
-                theDir = QDir::currentDirPath();
+                theDir = ::toRootIfNotExists( QDir::currentDirPath() );
             } if (!theDir.isEmpty()) {
                 Q3Url tempUrl(theDir);
                 QFileInfo f(tempUrl.path());
@@ -5496,7 +5506,7 @@ QStringList Q3FileDialog::getOpenFileNames(const QString & filter,
     makeVariables();
 
     if (workingDirectory->isNull())
-        *workingDirectory = QDir::currentDirPath();
+        *workingDirectory = ::toRootIfNotExists( QDir::currentDirPath() );
 
     if (!dir.isEmpty()) {
         // #### works only correct for local files
