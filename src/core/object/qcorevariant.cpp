@@ -1044,6 +1044,7 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     \value StringList  a QStringList
     \value Time  a QTime
     \value UInt  an unsigned int
+    \value UserType (internal)
 
     Note that Qt's definition of bool depends on the compiler.
     \c qglobal.h has the system-dependent definition of bool.

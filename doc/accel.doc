@@ -21,8 +21,8 @@ perform the following steps:
 
 \list 1
 \i 
-Define an accelerated descendant of QLinuxFbScreen. 
-
+<b>Define an accelerated descendant of QLinuxFbScreen.</b>
+<br>
 This should implement \c QVoodooScreen::connect() to map its
 registers. Use \c qt_probe_bus to get a pointer to the PCI config
 space. This is where you should check that you're being pointed to the
@@ -37,12 +37,12 @@ good place to set registers to known states). \c connect() will be called
 by every connecting client.
 
 \i 
-Define an accelerated descendant of QGfxRaster. 
-
+<b>Define an accelerated descendant of QGfxRaster.</b>
+<br>
 This is where the actual drawing code goes. Anything not implemented
 in hardware can be passed back to \c QGfxRaster to do in software. Use
 the optype variable to make sure that accelerated and unaccelerated
-operations are synchronised (if you start drawing via software into an
+operations are synchronized (if you start drawing via software into an
 area where the hardware accelerator is still drawing then your drawing
 operations will appear to be in the wrong order). optype is stored in
 shared memory and is set to 0 by unaccelerated operations; accelerated
@@ -69,23 +69,30 @@ QPixmap::xForm() and \c drawPixmap() into a transformed \c QPainter,
 alpha channel acceleration is supported for 32-bit pixmaps.
 
 \i
-If you wish, define an accelerated descendant of \c QScreenCursor. \c
-restoreUnder(), \c saveUnder(), \c drawCursor() and \c draw() should
+<b>Optionally define an accelerated descendant of \c{QScreenCursor}.</b>
+<br>
+\c restoreUnder(), \c saveUnder(), \c drawCursor() and \c draw() should
 be defined as null operations. Implement \c set(), \c move(), \c
 show() and \c hide(). 4KB is left for your cursor at the end of the
 visible part of the framebuffer (i.e. at (width*height*depth)/8 )
 
 \i
+<b>Implement \c{QScreen} functions.</b>
+<br>
 Implement \c initCursor() and \c createGfx() in your \c QScreen
 descendant. Implement \c useOffscreen() and return \c TRUE if you can
 make use of offscreen graphics memory.
 
 \i
+<b>Implement \c{qt_get_screen_mychip()}.</b>
+<br>
 Implement a small function \c qt_get_screen_mychip(), which simply
 returns a new \c QMychipScreen
 
 \i
-Add your driver to the DriverTable table in \c qgfxraster_qws.cpp,
+<b>Add your to the DriverTable table</b>
+<br>
+The DriverTable table is in \c qgfxraster_qws.cpp,
 e.g.
 \code
 { "MyChip", qt_get_screen_mychip,1 },
@@ -95,6 +102,8 @@ The first parameter is the name used with QWS_DISPLAY to request your
 accelerated driver.
 
 \i
+<b>Use your new driver.</b>
+<br>
 To run with your new driver,
 \code
 export QWS_DISPLAY=MyChip 

@@ -711,6 +711,12 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
+    \fn QVariant::QVariant(const UserData &)
+
+    \internal
+*/
+
+/*!
   \fn QVariant::QVariant(const QFont &val)
 
     Constructs a new variant with a font value of \a val.

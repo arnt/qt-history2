@@ -172,8 +172,6 @@ QRubberBand::changeEvent(QEvent *ev)
 /*!
     \fn void QRubberBand::move(int x, int y);
 
-    \overload
-
     Moves the rubberband to point (\a x, \a y).
 */
 
@@ -187,8 +185,6 @@ QRubberBand::changeEvent(QEvent *ev)
 
 /*!
     \fn void QRubberBand::resize(int width, int height);
-
-    \overload
 
     Resizes the rubberband so that its width is \a width, and its
     height is \a height.
@@ -204,8 +200,6 @@ QRubberBand::changeEvent(QEvent *ev)
 */
 
 /*!
-    \overload
-
     Changes the rubberband's geometry to have a top-left corner of (\a
     x, \a y), a width of \a w, and a height of \a h.
 */

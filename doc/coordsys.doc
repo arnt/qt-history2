@@ -18,7 +18,7 @@
 \title The Coordinate System
 
 A \link QPaintDevice paint device\endlink in Qt is a drawable 2D
-surface. \l QWidget, \l QPixmap, \l QPicture and \l QPrinter are all
+surface. \l QWidget, \l QPixmap, \l QPicture, and \l QPrinter are all
 paint devices. A \l QPainter is an object which can draw on such
 devices.
 
@@ -78,7 +78,7 @@ system:
 	operations, e.g. \l QRegion::intersect(), and also a less
 	usual function to return a list of rectangles whose union is
 	equal to the region. QRegion is used e.g. by \l
-	QPainter::setClipRegion(), \l QWidget::repaint() and \l
+	QPainter::setClipRegion(), \l QWidget::repaint(), and \l
 	QPaintEvent::region().
 \row \i \l QPainter
      \i The class that paints. It can paint on any device with the
@@ -159,22 +159,22 @@ to use.
 
 \printline setWindow
 
-We set the model coordinate system we want a 1000*1000 window where
-0,0 is in the middle.
+We set the model coordinate system to give us a 1000 x 1000 window
+with point 0,0 in the middle.
 
 \printline viewport
 \printline qMin
 
-The device may not be square and we want the clock to be, so we find
-its current viewport and compute its shortest side.
+We want the clock to be square, even if the device isn't, so we find
+the device's current viewport and compute its shortest side.
 
 \printline setViewport
 \printline height
 
 Then we set a new square viewport, centered in the old one.
 
-We're now done with our view. From this point on, when we draw in a
-1000*1000 area around 0,0, what we draw will show up in the largest
+We're now done with our view. From now on, when we draw in a 1000 x
+1000 area around point 0,0, what we draw will show up in the largest
 possible square that'll fit in the output device.
 
 Time to start drawing.
