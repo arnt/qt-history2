@@ -75,7 +75,7 @@ public:
 static QTextCodec* codec(MYSQL* mysql)
 {
 #if MYSQL_VERSION_ID >= 40000
-    QTextCodec* heuristicCodec = QTextCodec::codecForName(mysql_character_set_name(mysql), 2);
+    QTextCodec* heuristicCodec = QTextCodec::codecForName(mysql_character_set_name(mysql));
     if (heuristicCodec)
         return heuristicCodec;
 #endif

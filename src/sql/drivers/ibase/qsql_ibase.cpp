@@ -167,7 +167,7 @@ static int qIBaseTypeLength(int iType, int scale)
     switch(iType & ~1) {
     case SQL_VARYING:
     case SQL_TEXT:
-        return QABS(scale);
+        return qAbs(scale);
     case SQL_LONG:
         return sizeof(long);
     case SQL_SHORT:
