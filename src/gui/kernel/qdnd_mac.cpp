@@ -42,10 +42,10 @@
   QDnD globals
  *****************************************************************************/
 bool qt_mac_in_drag = false;
-static QDrag::DragOperation current_drag_operation; //current active drag action
+static QDrag::DropAction current_drag_action; //current active drag action
 static QDragPrivate *global_src = 0;
 static DragReference current_dropobj = 0;
-static QDrag::DragOperations accept_operations; 
+static QDrag::DropAction accept_action; 
 
 /*****************************************************************************
   Externals
@@ -128,15 +128,15 @@ static const char* default_pm[] = {
 void updateDragMode(DragReference drag) {
     SInt16 mod;
     GetDragModifiers(drag, &mod, NULL, NULL);
-    QDrag::DragOperation op = QDrag::NoDrag;
+    QDrag::DropAction op = QDrag::NoAction;
     if((mod & (optionKey|cmdKey)) == (optionKey|cmdKey)) 
-        op = QDrag::LinkDrag;
+        op = QDrag::LinkAction;
     else if((mod & optionKey) || (mod & rightOptionKey))
-        op = QDrag::CopyDrag;
+        op = QDrag::CopyAction;
     else 
-        op = QDrag::MoveDrag;
-    if(accept_operations & op)
-        current_drag_operation = op;
+        op = QDrag::MoveAction;
+    if(accept_action & op)
+        current_drag_action = op;
 }
 
 /*****************************************************************************
@@ -296,11 +296,11 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
 
     //Dispatch events
     QDropEvent::Action event_action = QDropEvent::Copy;
-    if(current_drag_operation == QDrag::CopyDrag)
+    if(current_drag_action == QDrag::CopyAction)
         event_action = QDropEvent::Copy;
-    else if(current_drag_operation == QDrag::LinkDrag)
+    else if(current_drag_action == QDrag::LinkAction)
         event_action = QDropEvent::Link;
-    else if(current_drag_operation == QDrag::MoveDrag)
+    else if(current_drag_action == QDrag::MoveAction)
         event_action = QDropEvent::Move;
     bool ret = true;
     if(kind == kEventControlDragWithin) {
@@ -358,13 +358,13 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     bool found_cursor = false;
     if(kind == kEventControlDragWithin || kind == kEventControlDragEnter) {
         if(ret) {
-            if(current_drag_operation == QDrag::MoveDrag) {
+            if(current_drag_action == QDrag::MoveAction) {
                 found_cursor = true;
                 SetThemeCursor(kThemeArrowCursor);
-            } else if(current_drag_operation == QDrag::CopyDrag) {
+            } else if(current_drag_action == QDrag::CopyAction) {
                 found_cursor = true;
                 SetThemeCursor(kThemeCopyArrowCursor);
-            } else if(current_drag_operation == QDrag::LinkDrag) {
+            } else if(current_drag_action == QDrag::LinkAction) {
                 found_cursor = true;
                 SetThemeCursor(kThemeAliasArrowCursor);
             }
@@ -398,18 +398,18 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     return ret;
 }
 
-QDrag::DragOperation QDragManager::drag(QDragPrivate *o, QDrag::DragOperations mode)
+QDrag::DropAction QDragManager::drag(QDragPrivate *o, QDrag::DropAction mode)
 {
     if(qt_mac_in_drag) {     //just make sure..
         qWarning("Qt: internal: WH0A, unexpected condition reached.");
-        return QDrag::NoDrag;
+        return QDrag::NoAction;
     }
     if(object == o)
-        return QDrag::NoDrag;
+        return QDrag::NoAction;
     /* At the moment it seems clear that Mac OS X does not want to drag with a non-left button
        so we just bail early to prevent it */
     if(!(GetCurrentEventButtonState() & kEventMouseButtonPrimary))
-        return QDrag::NoDrag;
+        return QDrag::NoAction;
 
     if(object) {
         o->source->removeEventFilter(this);
@@ -428,7 +428,7 @@ QDrag::DragOperation QDragManager::drag(QDragPrivate *o, QDrag::DragOperations m
     OSErr result;
     DragRef theDrag;
     if((result = NewDrag(&theDrag))) 
-        return QDrag::NoDrag;
+        return QDrag::NoAction;
     SetDragSendProc(theDrag, make_sendUPP(), o); //fullfills the promise!
 
     //encode the data
@@ -511,7 +511,7 @@ QDrag::DragOperation QDragManager::drag(QDragPrivate *o, QDrag::DragOperations m
     }
 
     //initialize
-    accept_operations = mode;
+    accept_action = mode;
     { //do the drag
         qt_mac_in_drag = true;
         QMacBlockingFunction block;
@@ -520,7 +520,7 @@ QDrag::DragOperation QDragManager::drag(QDragPrivate *o, QDrag::DragOperations m
         qt_mac_in_drag = false;
     }
     DisposeDrag(theDrag); //cleanup
-    return current_drag_operation;
+    return current_drag_action;
 }
 
 void QDragManager::updatePixmap()
