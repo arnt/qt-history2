@@ -134,6 +134,8 @@ public:
 	// nothing
     }
 
+    ToolBar *findToolbar( QToolBar *t );
+    
     ~QMainWindowPrivate()
     {
 	if ( top ) {
@@ -684,6 +686,30 @@ static QMainWindowPrivate::ToolBar * takeToolBarFromDock( QToolBar * t,
     return 0;
 }
 
+QMainWindowPrivate::ToolBar * QMainWindowPrivate::findToolbar( QToolBar * t )
+{
+    QMainWindowPrivate::ToolBarDock* docks[] = {
+	left, right, top, bottom 
+    };
+    
+    
+    QMainWindowPrivate::ToolBarDock *l = 0;
+    
+    for ( unsigned int i = 0; i < 4; ++i ) { 
+	l = docks[ i ];
+	if ( !l )
+	    continue;
+	QMainWindowPrivate::ToolBar * ct = l->first();
+	do {
+	    if ( ct && ct->t == t ) {
+		return ct;
+	    }
+	} while( ( ct = l->next() ) != 0 );
+    }
+    
+    return 0;
+}
+
 
 /*!  Moves \a toolBar to this the end of \a edge.
 
@@ -1151,12 +1177,9 @@ void QMainWindow::triggerLayout()
 }
 
 
-QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &rect )
+QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &rect, QToolBar *tb )
 {
-    int x = pos.x();
-    int y = pos.y();
-
-    // calculate the docking areas
+    // calculate some values for docking areas
     int left, right, top, bottom;
     left = right = top = bottom = 30;
     int h1 = d->mb ? d->mb->height() : 0;
@@ -1171,27 +1194,73 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 	if ( d->mc->y() + d->mc->height() < height() - h2  )
 	    bottom = QMAX( bottom, height() - ( d->mc->y() + d->mc->height() ) - h2 );
     }
-    top += h1;
-    bottom += h2;
+
+    // calculate the docking areas
+    QRect leftArea( 0, h1, left, height() - h1 - h2 );
+    QRect topArea( 0, h1, width(), top );
+    QRect rightArea( width() - right, h1, right, height() - h1 - h2 );
+    QRect bottomArea( 0, height() - bottom - h2, width(), bottom );
+    QRect leftTop = leftArea.intersect( topArea );
+    QRect leftBottom = leftArea.intersect( bottomArea );
+    QRect rightTop = rightArea.intersect( topArea );
+    QRect rightBottom = rightArea.intersect( bottomArea );
 
     // find the docking area into which the toolbar should/could be moved
-    if ( x < left && y > top && y < height()- bottom ) {
-	rect = QRect( 0, top, left, height() - top - bottom );
-	return Left;
-    }
-    if ( x > 0 && y < top && x < width()- right ) {
-	rect = QRect( left, h1, width() - left - right, top - h1 );
+
+    // if the mouse is in a rect which belongs to two docking areas (intersection),
+    // find the one with higher priority (that's depending on the original position)
+    if ( leftTop.contains( pos ) ) {
+	if ( tb->orientation() == Vertical ) {
+	    rect = leftArea;
+	    return Left;
+	}
+	rect = topArea;
 	return Top;
     }
-    if ( x > width()- right && y > top && y < height()- bottom ) {
-	rect = QRect( width() - right, top, right, height() - top - bottom );
+    if ( leftBottom.contains( pos ) ) {
+	if ( tb->orientation() == Vertical ) {
+	    rect = leftArea;
+	    return Left;
+	}
+	rect = bottomArea;
+	return Bottom;
+    }
+    if ( rightTop.contains( pos ) ) {
+	if ( tb->orientation() == Vertical ) {
+	    rect = rightArea;
+	    return Right;
+	}
+	rect = topArea;
+	return Top;
+    }
+    if ( rightBottom.contains( pos ) ) {
+	if ( tb->orientation() == Vertical ) {
+	    rect = rightArea;
+	    return Right;
+	}
+	rect = bottomArea;
+	return Bottom;
+    }
+    
+    // if the mouse is not in an intersection, it's easy....
+    if ( leftArea.contains( pos ) ) {
+	rect = leftArea;
+	return Left;
+    }
+    if ( topArea.contains( pos ) ) {
+	rect = topArea;
+	return Top;
+    }
+    if ( rightArea.contains( pos ) ) {
+	rect = rightArea;
 	return Right;
     }
-    if ( x > left && y > height() - bottom && x < width()- right ) {
-	rect = QRect( left, height() - bottom, width() - left - right, bottom - h2 );
+    if ( bottomArea.contains( pos ) ) {
+	rect = bottomArea;
 	return Bottom;
     }
 
+    // mouse pos outside of any docking area
     return Unmanaged;
 }
 
@@ -1212,12 +1281,11 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->rectPainter = new QPainter;
 	d->rectPainter->begin( d->invisibleDrawArea );
 	d->rectPainter->setRasterOp( NotROP );
-	d->rectPainter->setPen( QPen( black, 1, DashLine ) );
 
 	QPoint pos = mapFromGlobal( QCursor::pos() );
 	QRect r;
-	(void)findDockArea( pos, r );
-	d->rectPainter->drawRect( r );
+	(void)findDockArea( pos, r, t );
+	d->rectPainter->drawWinFocusRect( r );
 	d->oldPosRect = r;
 	d->origPosRect = r;
 	d->oldPosRectValid = TRUE;
@@ -1225,14 +1293,15 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
 	QApplication::restoreOverrideCursor();
 	d->moving = 0;
-	d->rectPainter->end();
+	if ( d->rectPainter )	
+	    d->rectPainter->end();
 	delete d->invisibleDrawArea;
 	delete d->rectPainter;
 	d->invisibleDrawArea = 0;
 	d->rectPainter = 0;
 	QPoint pos = mapFromGlobal( QCursor::pos() );
 	QRect r;
-	ToolBarDock dock = findDockArea( pos, r );
+	ToolBarDock dock = findDockArea( pos, r, t );
 	if ( dock != Unmanaged )
 	    moveToolBar( t, dock );
 	return;
@@ -1240,24 +1309,26 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
     QPoint p( QCursor::pos() );
     if ( !d->moving &&
-	 QABS( p.x() - d->pos.x() ) < 3 &&
-	 QABS( p.y() - d->pos.y() ) < 3 )
+	 QABS( p.x() - d->pos.x() ) < 3 && QABS( p.y() - d->pos.y() ) < 3 )
 	return;
 
     QPoint pos = mapFromGlobal( p );
     QRect r;
-    ToolBarDock dock = findDockArea( pos, r );
+    ToolBarDock dock = findDockArea( pos, r, t );
 
     if ( dock == Unmanaged )
 	r = d->origPosRect;
-    
-    if ( d->oldPosRectValid && d->oldPosRect != r )
-	d->rectPainter->drawRect( d->oldPosRect );
-    if ( d->oldPosRect != r )
-	d->rectPainter->drawRect( r );
+
+
+    if ( d->rectPainter ) {
+	if ( d->oldPosRectValid && d->oldPosRect != r )
+	    d->rectPainter->drawWinFocusRect( d->oldPosRect );
+	if ( d->oldPosRect != r )
+	    d->rectPainter->drawWinFocusRect( r );
+    }
     d->oldPosRect = r;
     d->oldPosRectValid = TRUE;
-    
+
 #if 0
     if ( e->type() == QEvent::MouseButtonPress ) {
 	//debug( "saw press" );
