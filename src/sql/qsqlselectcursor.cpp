@@ -85,6 +85,8 @@ QSqlSelectCursor::QSqlSelectCursor( const QString& query, QSqlDatabase* db )
     d = new QSqlSelectCursorPrivate;
     d->query = query;
     setMode( ReadOnly );
+    if ( !query.isNull() )
+	exec( query );
 }
 
 /*! Constructs a copy of \a other */
