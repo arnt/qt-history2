@@ -97,10 +97,6 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
 
 static bool preventAnimation = FALSE;
 
-#ifndef QT_NO_WHATSTHIS
-extern void qWhatsThisBDH();
-static QMenuItem* whatsThisItem = 0;
-#endif
 
 /*!
     \class QPopupMenu qpopupmenu.h
@@ -569,14 +565,14 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	    if(off_top) {
 		move( x, y = sy );
 		d->scroll.scrollable = d->scroll.scrollable | QPopupMenuPrivate::Scroll::ScrollUp;
-	    } 
+	    }
 	    if( off_bottom )
 		d->scroll.scrollable = d->scroll.scrollable | QPopupMenuPrivate::Scroll::ScrollDown;
 	    if( off_top != off_bottom && indexAtPoint >= 0 ) {
 		ch -= (vextra * 2);
 		if(ch > sh) //no bigger than the screen!
 		    ch = sh;
-		if( ch > d->scroll.scrollableSize ) 
+		if( ch > d->scroll.scrollableSize )
 		    d->scroll.scrollableSize = ch;
 	    }
 
@@ -731,10 +727,8 @@ void QPopupMenu::actSig( int id, bool inwhatsthis )
 #ifndef QT_NO_WHATSTHIS
 	QRect r( itemGeometry( indexOf( id ) ) );
 	QPoint p( r.center().x(), r.bottom() );
-	QString whatsThis = findItem( id )->whatsThis();
-	if ( whatsThis.isNull() )
-	    whatsThis = QWhatsThis::textFor( this, p );
-	QWhatsThis::leaveWhatsThisMode( whatsThis, mapToGlobal( p ), this );
+	QHelpEvent e(QEvent::WhatsThis, p, mapToGlobal(p));
+	QApplication::sendEvent(this, &e);
 #endif
     }
 
@@ -788,13 +782,6 @@ void QPopupMenu::hideAllPopups()
 	    && ((QPopupMenu*)top->parentMenu)->isPopup() )
 	top = top->parentMenu;
     ((QPopupMenu*)top)->hide();			// cascade from top level
-
-#ifndef QT_NO_WHATSTHIS
-    if (whatsThisItem) {
-	qWhatsThisBDH();
-	whatsThisItem = 0;
-    }
-#endif
 
 }
 
@@ -1106,7 +1093,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 	    }
 	    height += itemHeight;
 	    if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this)) {
-		if(scrheight && height >= d->scroll.scrollableSize) 
+		if(scrheight && height >= d->scroll.scrollableSize)
 		    break;
 	    } else if( height + 2*frameWidth() >= dh ) {
 		ncols++;
@@ -1143,7 +1130,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 			      qMax( minimumHeight(), qMin( max_height + extra_height + 1, dh ) ) );
 	badSize = FALSE;
     }
-    
+
 if(do_resize) {
 	setMaximumSize( d->calcSize );
 	resize( d->calcSize );
@@ -1546,7 +1533,24 @@ void QPopupMenu::paintEvent( QPaintEvent *e )
 /*!
     \reimp
 */
+bool QPopupMenu::event(QEvent *e)
+{
+    if (e->type() == QEvent::WhatsThis) {
+	int item = itemAtPos(static_cast<QHelpEvent*>(e)->pos());
+	if (item != -1) {
+	    QMenuItem *mi = mitems->at(item);
+	    if (mi->whatsThis())
+		QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(),
+				     mi->whatsThis(), this);
+	    return true;
+	}
+    }
+    return QFrame::event(e);
+}
 
+/*!
+    \reimp
+*/
 void QPopupMenu::closeEvent( QCloseEvent * e) {
     e->accept();
     byeMenuBar();
@@ -1919,12 +1923,12 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     case Key_F1:
 	if ( actItem < 0 || e->state() != ShiftButton)
 	    break;
-	mi = mitems->at( actItem );
-	if ( !mi->whatsThis().isNull() ){
-	    if ( !QWhatsThis::inWhatsThisMode() )
-		QWhatsThis::enterWhatsThisMode();
+	{
+	    qDebug("send event");
 	    QRect r( itemGeometry( actItem) );
-	    QWhatsThis::leaveWhatsThisMode( mi->whatsThis(), mapToGlobal( r.bottomLeft()) );
+	    QPoint p( r.center().x(), r.bottom() );
+	    QHelpEvent e(QEvent::WhatsThis, p, mapToGlobal(p));
+	    QApplication::sendEvent(this, &e);
 	}
 	//fall-through!
 #endif
@@ -2469,12 +2473,6 @@ void QPopupMenu::setActiveItem( int i )
     }
     if ( mi->id() != -1 )
 	hilitSig( mi->id() );
-#ifndef QT_NO_WHATSTHIS
-    if (whatsThisItem && whatsThisItem != mi) {
-	qWhatsThisBDH();
-    }
-    whatsThisItem = mi;
-#endif
 }
 
 

@@ -41,6 +41,7 @@
 #endif
 #include "qpainter.h"
 #include "qtooltip.h"
+#include "qwhatsthis.h"
 #if defined(Q_WS_X11)
 #include "qx11info_x11.h"
 #endif
@@ -4346,7 +4347,7 @@ bool QWidget::event( QEvent *e )
 	break;
 
     case QEvent::Enter:
-	if (!!d->statusTip) {
+	if (d->statusTip) {
 	    QStatusTipEvent tip(d->statusTip);
 	    QApplication::sendEvent(this, &tip);
 	}
@@ -4354,7 +4355,7 @@ bool QWidget::event( QEvent *e )
 	break;
 
     case QEvent::Leave:
-	if (!!d->statusTip) {
+	if (d->statusTip) {
 	    QStatusTipEvent tip(QString::null);
 	    QApplication::sendEvent(this, &tip);
 	}
@@ -4551,11 +4552,20 @@ bool QWidget::event( QEvent *e )
 	break;
 
     case QEvent::ToolTip:
-	if (!!d->toolTip) {
+	if (d->toolTip) {
 	    Q4ToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->toolTip, this);
 	} else
 	    return false;
 	break;
+
+#ifndef QT_NO_WHATSTHIS
+    case QEvent::WhatsThis:
+	if (d->whatsThis) {
+	    QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->whatsThis, this);
+	} else
+	    return false;
+	break;
+#endif
 
     case QEvent::EmbeddingControl:
 	clearWFlags(WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);

@@ -105,9 +105,6 @@ signals:
     void activated();
     void toggled( bool );
 
-    void showStatusMessage(const QString &text);
-    void whatsThisClicked(const QString &href);
-
 private slots:
     void internalActivation();
     void toolButtonToggled( bool );

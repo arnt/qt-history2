@@ -14,6 +14,7 @@
 
 #include "qwhatsthis.h"
 #ifndef QT_NO_WHATSTHIS
+#include "qpointer.h"
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
@@ -39,6 +40,7 @@
 #endif
 #if defined(Q_WS_X11)
 #include "qx11info_x11.h"
+#include <qwidget.h>
 #endif
 
 /*!
@@ -63,11 +65,8 @@
     (Note that if there is an accelerator for Shift+F1, this mechanism
     will not work.)
 
-    To add "What's this?" text to a widget you simply call
-    QWhatsThis::add() for the widget. For example, to assign text to a
-    menu item, call QMenuData::setWhatsThis(); for a global
-    accelerator key, call QAccel::setWhatsThis() and If you're using
-    actions, use QAction::setWhatsThis().
+    To add "What's this?" text to a widget or an action, you simply
+    call setWhatsThis() on the widget or the action.
 
     The text can be either rich text or plain text. If you specify a
     rich text formatted string, it will be rendered using the default
@@ -91,48 +90,26 @@
     If you are using QMainWindow you can also use the
     QMainWindow::whatsThis() slot to invoke the mode from a menu item.
 
-    For more control you can create a dedicated QWhatsThis object for
-    a special widget. By subclassing and reimplementing
-    QWhatsThis::text() it is possible to have different help texts,
-    depending on the position of the mouse click. By reimplementing
-    QWhatsThis::clicked() it is possible to have hyperlinks inside the
-    help texts.
-
     If you wish to control the "What's this?" behavior of a widget
     manually see QWidget::WA_CustomWhatsThis.
 
-    The What's This object can be removed using QWhatsThis::remove(),
-    although this is rarely necessary because it is automatically
-    removed when the widget is destroyed.
+    ### todo explain QHelpEvent with type QEvent::WhatsThis and the
+    ### showText()/hideText()  functions.
 
     \sa QToolTip
 */
-
-// a special button
-class QWhatsThisButton: public QToolButton
-{
-    Q_OBJECT
-
-public:
-    QWhatsThisButton( QWidget * parent, const char * name );
-    ~QWhatsThisButton();
-
-public slots:
-    void mouseReleased();
-
-};
 
 
 class QWhatsThat : public QWidget
 {
     Q_OBJECT
 public:
-    QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const char* name );
+    QWhatsThat(const QString& txt, QWidget* parent);
     ~QWhatsThat() ;
 
-public slots:
-    void hide();
-    inline void widgetDestroyed() { widget = 0; }
+    static QWhatsThat *instance;
+signals:
+    void clicked(const QString &);
 
 protected:
     void mousePressEvent( QMouseEvent* );
@@ -142,95 +119,34 @@ protected:
     void paintEvent( QPaintEvent* );
 
 private:
+    bool pressed;
     QString text;
 #ifndef QT_NO_RICHTEXT
     QSimpleRichText* doc;
 #endif
     QString anchor;
-    bool pressed;
-    QWidget* widget;
 };
 
-
-class QWhatsThisPrivate: public QObject
-{
-    Q_OBJECT
-public:
-
-    // an item for storing texts
-    struct WhatsThisItem
-    {
-	inline WhatsThisItem() : whatsthis(0) {}
-	inline ~WhatsThisItem() { delete whatsthis; }
-	QString s;
-	QWhatsThis* whatsthis;
-    };
-
-    // the (these days pretty small) state machine
-    enum State { Inactive, Waiting };
-
-    QWhatsThisPrivate();
-    ~QWhatsThisPrivate();
-
-    bool eventFilter( QObject *, QEvent * );
-
-    WhatsThisItem* newItem( QWidget * widget );
-    void add( QWidget * widget, QWhatsThis* special );
-    void add( QWidget * widget, const QString& text );
-
-    void say(QWidget *, const QString &, const QPoint &);
-
-    // setup and teardown
-    static void setUpWhatsThis();
-
-    void enterWhatsThisMode();
-    void leaveWhatsThisMode();
-
-    // variables
-    QWhatsThat *whatsThat;
-    QHash<QWidget *, WhatsThisItem *> dict;
-    QHash<QWidget *, QWidget *> tlw;
-    QHash<QToolButton *, QWhatsThisButton *> buttons;
-    State state;
-
-private slots:
-    void cleanupWidget()
-    {
-	const QObject* o = sender();
-	if ( o->isWidgetType() ) // sanity
-	    QWhatsThis::remove((QWidget*)o);
-    }
-
-};
-
-// static, but static the less-typing way
-static QWhatsThisPrivate * wt = 0;
+QWhatsThat *QWhatsThat::instance = 0;
 
 // shadowWidth not const, for XP drop-shadow-fu turns it to 0
-int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
-const int vMargin = 8;
-const int hMargin = 12;
+static const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
+static const int vMargin = 8;
+static const int hMargin = 12;
 
-// Lets QPopupMenu destroy the QWhatsThat.
-void qWhatsThisBDH()
+QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent)
+    : QWidget( parent, WType_Popup | WDestructiveClose), pressed(false), text( txt )
 {
-    if ( wt && wt->whatsThat )
-	wt->whatsThat->hide();
-}
-
-
-QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const char* name )
-    : QWidget( parent, name, WType_Popup ), text( txt ), pressed( FALSE ), widget( w )
-{
+    delete instance;
+    instance = this;
+    setObjectNameConst("automatic what's this? widget");
     setAttribute(WA_NoSystemBackground, true);
     setPalette( QToolTip::palette() );
     setMouseTracking( TRUE );
+    setFocusPolicy(StrongFocus);
 #ifndef QT_NO_CURSOR
     setCursor( ArrowCursor );
 #endif
-
-    if ( widget )
-	connect( widget, SIGNAL( destroyed() ), this, SLOT( widgetDestroyed() ) );
 
 
     QRect r;
@@ -267,26 +183,16 @@ QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const c
 
 QWhatsThat::~QWhatsThat()
 {
-    if ( wt && wt->whatsThat == this )
-	wt->whatsThat = 0;
+    instance = 0;
 #ifndef QT_NO_RICHTEXT
     if ( doc )
 	delete doc;
 #endif
 }
 
-void QWhatsThat::hide()
-{
-    QWidget::hide();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpEnd );
-#endif
-    close(true);
-}
-
 void QWhatsThat::mousePressEvent( QMouseEvent* e )
 {
-    pressed = TRUE;
+    pressed = true;
     if ( e->button() == LeftButton && rect().contains( e->pos() ) ) {
 #ifndef QT_NO_RICHTEXT
 	if ( doc )
@@ -294,12 +200,12 @@ void QWhatsThat::mousePressEvent( QMouseEvent* e )
 #endif
 	return;
     }
-    hide();
+    close();
 }
 
 void QWhatsThat::mouseReleaseEvent( QMouseEvent* e )
 {
-    if ( !pressed )
+    if (!pressed)
 	return;
 #ifndef QT_NO_RICHTEXT
     if ( e->button() == LeftButton && doc && rect().contains( e->pos() ) ) {
@@ -308,14 +214,13 @@ void QWhatsThat::mouseReleaseEvent( QMouseEvent* e )
 	if ( anchor == a )
 	    href = a;
 	anchor = QString::null;
-	if ( widget && wt ) {
-	    QWhatsThisPrivate::WhatsThisItem * i = wt->dict.value(widget);
-	    if ( i  && i->whatsthis && !i->whatsthis->clicked( href ) )
-		return;
+	if (receivers(SIGNAL(clicked(QString)))) {
+	    emit clicked(href);
+	    return;
 	}
     }
 #endif
-    hide();
+    close();
 }
 
 void QWhatsThat::mouseMoveEvent( QMouseEvent* e)
@@ -336,7 +241,7 @@ void QWhatsThat::mouseMoveEvent( QMouseEvent* e)
 
 void QWhatsThat::keyPressEvent( QKeyEvent* )
 {
-    hide();
+    close();
 }
 
 
@@ -414,7 +319,97 @@ static const char * const button_image[] = {
 "     ooo        ",
 "     ooo        "};
 
-// the button class
+class QWhatsThisPrivate : public QObject
+{
+ public:
+    QWhatsThisPrivate();
+    ~QWhatsThisPrivate();
+    static QWhatsThisPrivate *instance;
+    bool eventFilter(QObject *, QEvent *);
+    QPointer<QToolButton> button;
+    static void say(QWidget *, const QString &, int x = 0, int y = 0);
+};
+
+QWhatsThisPrivate *QWhatsThisPrivate::instance = 0;
+
+QWhatsThisPrivate::QWhatsThisPrivate()
+{
+    instance = this;
+    qApp->installEventFilter(this);
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpStart );
+#endif
+}
+
+QWhatsThisPrivate::~QWhatsThisPrivate()
+{
+    if (button)
+	button->setOn(false);
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpEnd );
+#endif
+    instance = 0;
+}
+
+bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
+{
+    if (!o->isWidgetType())
+	return false;
+    QWidget * w = static_cast<QWidget *>(o);
+    bool customWhatsThis = w->testAttribute(QWidget::WA_CustomWhatsThis);
+    switch (e->type()) {
+    case QEvent::MouseButtonPress:
+    {
+	QMouseEvent *me = static_cast<QMouseEvent*>(e);
+	if (me->button() == RightButton || customWhatsThis)
+	    return false;
+	QHelpEvent e(QEvent::WhatsThis, me->pos(), me->globalPos());
+	if (!QApplication::sendEvent(w, &e))
+	    QWhatsThis::leaveWhatsThisMode();
+    } break;
+
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseMove:
+    case QEvent::MouseButtonDblClick:
+	if (static_cast<QMouseEvent*>(e)->button() == RightButton || customWhatsThis)
+	    return false; // ignore RMB release
+	break;
+    case QEvent::QEvent::KeyPress:
+    {
+	QKeyEvent* kev = (QKeyEvent*)e;
+
+	if ( kev->key() == Qt::Key_Escape ) {
+	    QWhatsThis::leaveWhatsThisMode();
+	    return TRUE;
+	} else if ( o->isWidgetType() && ((QWidget*)o)->testAttribute(QWidget::WA_CustomWhatsThis) ) {
+	    return FALSE;
+	} else if ( kev->key() == Key_Menu ||
+		    ( kev->key() == Key_F10 &&
+		      kev->state() == ShiftButton ) ) {
+	    // we don't react to these keys, they are used for context menus
+	    return FALSE;
+	} else if ( kev->state() == kev->stateAfter() &&
+		    kev->key() != Key_Meta ) {  // not a modifier key
+	    QWhatsThis::leaveWhatsThisMode();
+	}
+    } break;
+    default:
+	return false;
+    }
+    return true;
+}
+
+class QWhatsThisButton: public QToolButton
+{
+    Q_OBJECT
+
+public:
+    QWhatsThisButton( QWidget * parent, const char * name );
+
+public slots:
+    void buttonToggled(bool);
+};
+
 QWhatsThisButton::QWhatsThisButton( QWidget * parent, const char * name )
     : QToolButton( parent, name )
 {
@@ -424,197 +419,67 @@ QWhatsThisButton::QWhatsThisButton( QWidget * parent, const char * name )
     setAutoRaise( TRUE );
     setFocusPolicy( NoFocus );
     setTextLabel( tr( "What's this?" ) );
-    wt->buttons.insert(this, this);
-    connect( this, SIGNAL( released() ),
-	     this, SLOT( mouseReleased() ) );
+    connect( this, SIGNAL(toggled(bool) ), this, SLOT( buttonToggled(bool) ) );
 }
 
-
-QWhatsThisButton::~QWhatsThisButton()
+void QWhatsThisButton::buttonToggled(bool on)
 {
-    if (wt)
-	wt->buttons.remove(this);
-}
-
-
-void QWhatsThisButton::mouseReleased()
-{
-    if ( wt->state == QWhatsThisPrivate::Inactive && isOn() ) {
-	QWhatsThisPrivate::setUpWhatsThis();
-#ifndef QT_NO_CURSOR
-	QApplication::setOverrideCursor( whatsThisCursor, FALSE );
-#endif
-	wt->state = QWhatsThisPrivate::Waiting;
-	qApp->installEventFilter( wt );
+    if (on) {
+	QWhatsThis::enterWhatsThisMode();
+	QWhatsThisPrivate::instance->button = this;
     }
 }
 
-static void qWhatsThisPrivateCleanup()
+QWhatsThis::QWhatsThis()
+{}
+
+/*!\obsolete Use QWidget::setWhatsThis() instead.*/
+void QWhatsThis::add( QWidget *w, const QString &s)
 {
-    if( wt ) {
-	delete wt;
-	wt = 0;
-    }
+    w->setWhatsThis(s);
 }
 
-// the what's this manager class
-QWhatsThisPrivate::QWhatsThisPrivate()
-    : QObject( 0, "global what's this object" )
+/*!\obsolete Use QWidget::setWhatsThis() instead.*/
+void QWhatsThis::remove( QWidget *w)
 {
-    whatsThat = 0;
-    wt = this;
-    state = Inactive;
+    w->setWhatsThis(QString::null);
 }
 
-QWhatsThisPrivate::~QWhatsThisPrivate()
+QToolButton * QWhatsThis::whatsThisButton( QWidget * parent )
 {
-#ifndef QT_NO_CURSOR
-    if ( state == Waiting && qApp )
-	QApplication::restoreOverrideCursor();
-#endif
-    QHash<QWidget *, WhatsThisItem *>::ConstIterator it = dict.constBegin();
-    while (it != dict.constEnd()) {
-	delete it.value();
-	++it;
-    }
-    wt = 0;
+    return new QWhatsThisButton( parent, "automatic what's this? button" );
 }
 
-bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
+void QWhatsThis::enterWhatsThisMode()
 {
-    switch( state ) {
-    case Waiting:
-	if ( e->type() == QEvent::MouseButtonPress && o->isWidgetType() ) {
-	    QWidget * w = (QWidget *) o;
-	    if ( ( (QMouseEvent*)e)->button() == RightButton )
-		return FALSE; // ignore RMB
-	    if (w->testAttribute(QWidget::WA_CustomWhatsThis))
-		return FALSE;
-	    QWhatsThisPrivate::WhatsThisItem * i = 0;
-	    QMouseEvent* me = (QMouseEvent*) e;
-	    QPoint p = me->pos();
-	    while( w && !i ) {
-		i = dict.value(w);
-		if ( !i ) {
-		    p += w->pos();
-		    w = w->parentWidget( TRUE );
-		}
-	    }
-	    leaveWhatsThisMode();
-	    if (!i ) {
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-		QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpEnd );
-#endif
-		return TRUE;
-	    }
-	    if ( i->whatsthis )
-		say( w, i->whatsthis->text( p ), me->globalPos() );
-	    else
-		say( w, i->s, me->globalPos() );
-	    return TRUE;
-	} else if ( e->type() == QEvent::MouseButtonRelease ) {
-	    if ( ( (QMouseEvent*)e)->button() == RightButton )
-		return FALSE; // ignore RMB
-	    return !o->isWidgetType() || !((QWidget*)o)->testAttribute(QWidget::WA_CustomWhatsThis);
-	} else if ( e->type() == QEvent::MouseMove ) {
-	    return !o->isWidgetType() || !((QWidget*)o)->testAttribute(QWidget::WA_CustomWhatsThis);
-	} else if ( e->type() == QEvent::KeyPress ) {
-	    QKeyEvent* kev = (QKeyEvent*)e;
-
-	    if ( kev->key() == Qt::Key_Escape ) {
-		leaveWhatsThisMode();
-		return TRUE;
-	    } else if ( o->isWidgetType() && ((QWidget*)o)->testAttribute(QWidget::WA_CustomWhatsThis) ) {
-		return FALSE;
-	    } else if ( kev->key() == Key_Menu ||
-			( kev->key() == Key_F10 &&
-			  kev->state() == ShiftButton ) ) {
-		// we don't react to these keys, they are used for context menus
-		return FALSE;
-	    } else if ( kev->state() == kev->stateAfter() &&
-			kev->key() != Key_Meta ) {  // not a modifier key
-		leaveWhatsThisMode();
-	    }
-	} else if ( e->type() == QEvent::MouseButtonDblClick ) {
-	    return TRUE;
-	}
-	break;
-    case Inactive:
- 	if ( e->type() == QEvent::Accel &&
-	     ((QKeyEvent *)e)->key() == Key_F1 &&
- 	     o->isWidgetType() &&
-	     ((QKeyEvent *)e)->state() == ShiftButton ) {
- 	    QWidget * w = ((QWidget *)o)->focusWidget();
-	    if ( !w )
-		break;
-	    QString s = QWhatsThis::textFor( w, QPoint(0,0), TRUE );
- 	    if ( !s.isNull() ) {
-		say ( w, s, w->mapToGlobal( w->rect().center() ) );
-		((QKeyEvent *)e)->accept();
-		return TRUE;
- 	    }
- 	}
-	break;
-    }
-    return FALSE;
+    if (QWhatsThisPrivate::instance)
+	return;
+    (void) new QWhatsThisPrivate;
+}
+bool QWhatsThis::inWhatsThisMode()
+{
+    return (QWhatsThisPrivate::instance != 0);
+}
+void QWhatsThis::leaveWhatsThisMode()
+{
+    delete QWhatsThisPrivate::instance;
 }
 
-
-
-void QWhatsThisPrivate::setUpWhatsThis()
+void QWhatsThisPrivate::say( QWidget * widget, const QString &text, int x, int y)
 {
-    if ( !wt ) {
-	wt = new QWhatsThisPrivate();
-
-	// It is necessary to use a post routine, because
-	// the destructor deletes pixmaps and other stuff that
-	// needs a working X connection under X11.
-	qAddPostRoutine( qWhatsThisPrivateCleanup );
-    }
-}
-
-
-void QWhatsThisPrivate::enterWhatsThisMode()
-{
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpStart );
-#endif
-}
-
-
-void QWhatsThisPrivate::leaveWhatsThisMode()
-{
-    if ( state == Waiting ) {
-	QHash<QToolButton *, QWhatsThisButton *>::Iterator it = wt->buttons.begin();
-	while (it != wt->buttons.end()) {
-	    (*it)->setOn(FALSE);
-	    ++it;
-	}
-#ifndef QT_NO_CURSOR
-	QApplication::restoreOverrideCursor();
-#endif
-	state = Inactive;
-	qApp->removeEventFilter( this );
-    }
-}
-
-
-
-void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint& ppos)
-{
-    if ( text.isEmpty() )
+    if (!text)
 	return;
     // make a fresh widget, and set it up
-    whatsThat = new QWhatsThat(
-			       widget, text,
+    QWhatsThat *whatsThat = new QWhatsThat(
+	text,
 #if defined(Q_WS_X11)
-			       QApplication::desktop()->screen( widget ?
-								widget->x11Info()->screen() :
-								QCursor::x11Screen() ),
+	QApplication::desktop()->screen( widget ?
+					 widget->x11Info()->screen() :
+					 QCursor::x11Screen() )
 #else
-			       0,
+	0
 #endif
-			       "automatic what's this? widget" );
+	);
 
 
     // okay, now to find a suitable location
@@ -624,12 +489,11 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 #if defined(Q_WS_X11)
 		QCursor::x11Screen()
 #else
-		QApplication::desktop()->screenNumber( ppos )
+		QApplication::desktop()->screenNumber( QPoint(x,y) )
 #endif // Q_WS_X11
 		);
     QRect screen = QApplication::desktop()->screenGeometry( scr );
 
-    int x;
     int w = whatsThat->width();
     int h = whatsThat->height();
     int sx = screen.x();
@@ -644,7 +508,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     if ( widget && w > widget->width() + 16 )
 	x = pos.x() + widget->width()/2 - w/2;
     else
-	x = ppos.x() - w/2;
+	x = x - w/2;
 
 	// squeeze it in if that would result in part of what's this
 	// being only partially visible
@@ -657,14 +521,13 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     if ( x < sx )
 	x = sx;
 
-    int y;
     if ( widget && h > widget->height() + 16 ) {
 	y = pos.y() + widget->height() + 2; // below, two pixels spacing
 	// what's this is above or below, wherever there's most space
 	if ( y + h + 10 > sy+screen.height() )
 	    y = pos.y() + 2 - shadowWidth - h; // above, overlap
     }
-    y = ppos.y() + 2;
+    y = y + 2;
 
 	// squeeze it in if that would result in part of what's this
 	// being only partially visible
@@ -678,281 +541,21 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 
     whatsThat->move( x, y );
     whatsThat->show();
+    whatsThat->grabKeyboard();
 }
 
-QWhatsThisPrivate::WhatsThisItem* QWhatsThisPrivate::newItem( QWidget * widget )
+
+void QWhatsThis::showText(const QPoint &pos, const QString &text, QWidget *w)
 {
-    WhatsThisItem * i = dict.value(widget);
-    if ( i )
-	QWhatsThis::remove( widget );
-    i = new WhatsThisItem;
-    dict.insert(widget, i);
-    QWidget * t = widget->topLevelWidget();
-    if ( !tlw.value(t) ) {
-	tlw.insert(t, t);
-	t->installEventFilter( this );
-    }
-    connect( widget, SIGNAL(destroyed()), this, SLOT(cleanupWidget()) );
-    return i;
+    leaveWhatsThisMode();
+    QWhatsThisPrivate::say(w, text, pos.x(), pos.y());
 }
 
-void QWhatsThisPrivate::add( QWidget * widget, QWhatsThis* special )
+
+void QWhatsThis::hideText()
 {
-    newItem( widget )->whatsthis = special;
+    delete QWhatsThat::instance;
 }
-
-void QWhatsThisPrivate::add( QWidget * widget, const QString &text )
-{
-    newItem( widget )->s = text;
-}
-
-
-// and finally the What's This class itself
-
-/*!
-    Adds \a text as "What's this" help for \a widget. If the text is
-    rich text formatted (i.e. it contains markup) it will be rendered
-    with the default stylesheet QStyleSheet::defaultSheet().
-
-    The text is destroyed if the widget is later destroyed, so it need
-    not be explicitly removed.
-
-    \sa remove()
-*/
-void QWhatsThis::add( QWidget * widget, const QString &text )
-{
-    if ( text.isEmpty() )
-	return; // pointless
-    QWhatsThisPrivate::setUpWhatsThis();
-    wt->add(widget,text);
-}
-
-
-/*!
-    Removes the "What's this?" help associated with the \a widget.
-    This happens automatically if the widget is destroyed.
-
-    \sa add()
-*/
-void QWhatsThis::remove( QWidget * widget )
-{
-    QWhatsThisPrivate::setUpWhatsThis();
-    QHash<QWidget *, QWhatsThisPrivate::WhatsThisItem *>::Iterator it = wt->dict.find(widget);
-    if (it != wt->dict.end()) {
-	delete it.value();
-        wt->dict.erase(it);
-    }
-}
-
-
-/*!
-    Returns the what's this text for widget \a w or QString::null if
-    there is no "What's this?" help for the widget. \a pos contains
-    the mouse position; this is useful, for example, if you've
-    subclassed to make the text that is displayed position dependent.
-
-    If \a includeParents is TRUE, parent widgets are taken into
-    consideration as well when looking for what's this help text.
-
-    \sa add()
-*/
-QString QWhatsThis::textFor( QWidget * w, const QPoint& pos, bool includeParents )
-{
-    QWhatsThisPrivate::setUpWhatsThis();
-    QWhatsThisPrivate::WhatsThisItem * i = 0;
-    QPoint p = pos;
-    while( w && !i ) {
-	i = wt->dict.value(w);
-	if ( !includeParents )
-	    break;
-	if ( !i ) {
-	    p += w->pos();
-	    w = w->parentWidget( TRUE );
-	}
-    }
-    if (!i)
-	return QString::null;
-    if ( i->whatsthis )
-	return i->whatsthis->text( p );
-    return i->s;
-}
-
-
-/*!
-    Creates a QToolButton preconfigured to enter "What's this?" mode
-    when clicked. You will often use this with a tool bar as \a
-    parent:
-    \code
-	(void) QWhatsThis::whatsThisButton( my_help_tool_bar );
-    \endcode
-*/
-QToolButton * QWhatsThis::whatsThisButton( QWidget * parent )
-{
-    QWhatsThisPrivate::setUpWhatsThis();
-    return new QWhatsThisButton( parent,
-				 "automatic what's this? button" );
-}
-
-/*!
-    Constructs a dynamic "What's this?" object for \a widget. The
-    object is deleted when the \a widget is destroyed.
-
-    When the widget is queried by the user the text() function of this
-    QWhatsThis will be called to provide the appropriate text, rather
-    than using the text assigned by add().
-*/
-QWhatsThis::QWhatsThis( QWidget * widget)
-{
-    QWhatsThisPrivate::setUpWhatsThis();
-    wt->add(widget,this);
-}
-
-
-/*!
-    Destroys the object and frees any allocated resources.
-*/
-QWhatsThis::~QWhatsThis()
-{
-}
-
-
-/*!
-    This virtual function returns the text for position \e p in the
-    widget that this "What's this?" object documents. If there is no
-    "What's this?" text for the position, QString::null is returned.
-
-    The default implementation returns QString::null.
-*/
-QString QWhatsThis::text( const QPoint & )
-{
-    return QString::null;
-}
-
-/*!
-    \fn bool QWhatsThis::clicked( const QString& href )
-
-    This virtual function is called when the user clicks inside the
-    "What's this?" window. \a href is the link the user clicked on, or
-    QString::null if there was no link.
-
-    If the function returns TRUE (the default), the "What's this?"
-    window is closed, otherwise it remains visible.
-
-    The default implementation ignores \a href and returns TRUE.
-*/
-bool QWhatsThis::clicked( const QString& )
-{
-    return TRUE;
-}
-
-
-/*!
-    Enters "What's this?" mode and returns immediately.
-
-    Qt will install a special cursor and take over mouse input until
-    the user clicks somewhere. It then shows any help available and
-    ends "What's this?" mode. Finally, Qt removes the special cursor
-    and help window and then restores ordinary event processing, at
-    which point the left mouse button is no longer pressed.
-
-    The user can also use the Esc key to leave "What's this?" mode.
-
-    \sa inWhatsThisMode(), leaveWhatsThisMode()
-*/
-
-void QWhatsThis::enterWhatsThisMode()
-{
-    QWhatsThisPrivate::setUpWhatsThis();
-    if ( wt->state == QWhatsThisPrivate::Inactive ) {
-	wt->enterWhatsThisMode();
-#ifndef QT_NO_CURSOR
-	QApplication::setOverrideCursor( whatsThisCursor, FALSE );
-#endif
-	wt->state = QWhatsThisPrivate::Waiting;
-	qApp->installEventFilter( wt );
-    }
-}
-
-
-/*!
-    Returns TRUE if the application is in "What's this?" mode;
-    otherwise returns FALSE.
-
-    \sa enterWhatsThisMode(), leaveWhatsThisMode()
-*/
-bool QWhatsThis::inWhatsThisMode()
-{
-    if (!wt)
-	return FALSE;
-    return wt->state == QWhatsThisPrivate::Waiting;
-}
-
-
-/*!
-    Leaves "What's this?" question mode.
-
-    This function is used internally by widgets that support
-    QWidget::customWhatsThis(); applications do not usually call it.
-    An example of such a widget is QPopupMenu: menus still work
-    normally in "What's this?" mode but also provide help texts for
-    individual menu items.
-
-    If \a text is not QString::null, a "What's this?" help window is
-    displayed at the global screen position \a pos. If widget \a w is
-    not 0 and has its own dedicated QWhatsThis object, this object
-    will receive clicked() messages when the user clicks on hyperlinks
-    inside the help text.
-
-    \sa inWhatsThisMode(), enterWhatsThisMode(), QWhatsThis::clicked()
-*/
-void QWhatsThis::leaveWhatsThisMode( const QString& text, const QPoint& pos, QWidget* w )
-{
-    if ( !inWhatsThisMode() )
-	return;
-
-    wt->leaveWhatsThisMode();
-    if ( !text.isNull() )
-	wt->say( w, text, pos );
-}
-
-/*!
-    Display \a text in a help window at the global screen position \a
-    pos.
-
-    If widget \a w is not 0 and has its own dedicated QWhatsThis
-    object, this object will receive clicked() messages when the user
-    clicks on hyperlinks inside the help text.
-
-    \sa QWhatsThis::clicked()
-*/
-void QWhatsThis::display( const QString& text, const QPoint& pos, QWidget* w )
-{
-    if ( inWhatsThisMode() ) {
-	leaveWhatsThisMode( text, pos, w );
-	return;
-    }
-    QWhatsThisPrivate::setUpWhatsThis();
-    wt->say( w, text, pos );
-}
-
-/*!
-  Sets the font for all "What's this?" helps to \a font.
-*/
-void QWhatsThis::setFont( const QFont &font )
-{
-    QApplication::setFont( font, "QWhatsThat" );
-}
-
-/*!\obsolete
- */
-void Q4WhatsThis::add( QWidget *w, const QString &s)
-{
-    w->setWhatsThis(s);
-}
-
-// Dummy implementations to compile on windows..
-void Q4WhatsThis::showText(int, int, const QString &) { }
-void Q4WhatsThis::showText(int, int, const QString &, const QObject *, const char *) { }
 
 #include "qwhatsthis.moc"
 #endif

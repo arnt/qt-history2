@@ -75,6 +75,7 @@ protected:
 
     void 	drawContents( QPainter * );
 
+    bool event(QEvent *);
     void 	closeEvent( QCloseEvent *e );
     void	paintEvent( QPaintEvent * );
     void	mousePressEvent( QMouseEvent * );

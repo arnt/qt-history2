@@ -482,17 +482,16 @@ void QDialog::contextMenuEvent( QContextMenuEvent *e )
     QWidget* w = childAt( e->pos(), TRUE );
     if ( !w )
 	return;
-    QString s;
-    while ( s.isEmpty() && w ) {
-	s = QWhatsThis::textFor( w, e->pos(), FALSE );
-	if ( s.isEmpty() )
-	    w = w->isTopLevel() ? 0 : w->parentWidget();
-    }
-    if ( !s.isEmpty() ) {
+    while (w && !w->whatsThis() && !w->testAttribute(WA_CustomWhatsThis))
+	w = w->isTopLevel() ? 0 : w->parentWidget();
+    if (w) {
 	QPopupMenu p(0,"qt_whats_this_menu");
 	p.insertItem( tr("What's This?"), 42 );
-	if ( p.exec( e->globalPos() ) >= 42 )
-	    QWhatsThis::display( s, w->mapToGlobal( w->rect().center() ), w );
+	if ( p.exec( e->globalPos() ) >= 42 ) {
+	    QHelpEvent e(QEvent::WhatsThis, w->rect().center(),
+			 w->mapToGlobal(w->rect().center()) );
+	    QApplication::sendEvent(w, &e);
+	}
     }
 #endif
 }

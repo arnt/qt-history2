@@ -14,6 +14,7 @@ include(tools/tools.pri)
 include(sql/sql.pri)
 include(other/other.pri)
 include(containers/containers.pri)
+include(widgets/widgets.pri)
 
 mac:LIBS += -framework Carbon
 

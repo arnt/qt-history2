@@ -27,24 +27,6 @@
 #include "qwhatsthis.h"
 #include "qstatusbar.h"
 
-/*
-    A helper class to provide advanced QWhatsThis features
-    via QAction.
-*/
-class QActionWhatsThis : public QWhatsThis
-{
-public:
-    QActionWhatsThis(QWidget *w, const QRect &r, QActionPrivate *act, const QString &text);
-
-    QString text( const QPoint & );
-    bool clicked( const QString& href );
-
-private:
-    QString whatsThis;
-    QActionPrivate *d;
-    QRect rect;
-};
-
 /*!
     \class QAction qaction.h
     \brief The QAction class provides an abstract user interface
@@ -166,8 +148,6 @@ public:
     QString menuText() const;
     QString toolTip() const;
     QString statusTip() const;
-
-    void emitWhatsThisClicked(const QString &text);
 };
 
 QActionPrivate::QActionPrivate(QAction *act)
@@ -238,24 +218,6 @@ QActionPrivate::~QActionPrivate()
     delete iconset;
 }
 
-QActionWhatsThis::QActionWhatsThis(QWidget *w, const QRect &r, QActionPrivate *act, const QString &text)
-: QWhatsThis(w), whatsThis(text), d(act), rect(r)
-{
-}
-
-bool QActionWhatsThis::clicked(const QString &href)
-{
-    d->emitWhatsThisClicked(href);
-    return TRUE;
-}
-
-QString QActionWhatsThis::text(const QPoint &pnt)
-{
-    if (!rect.isValid() || rect.contains(pnt))
-	return whatsThis;
-    return QString::null;
-}
-
 class QActionGroupPrivate
 {
 public:
@@ -303,14 +265,8 @@ void QActionPrivate::update( uint upd )
 		mi->popup->changeItem( mi->id, QIconSet(), t );
 	if ( upd & EverythingElse ) {
 	    mi->popup->changeItem( mi->id, t );
-	    if ( !whatsthis.isEmpty() ) {
-		if (whatsthis.contains("<a href")) {
-		    QRect r = mi->popup->itemGeometry( mi->popup->indexOf(mi->id));
-		    (void)new QActionWhatsThis(mi->popup, r, this, whatsthis);
-		} else {
+	    if ( !whatsthis.isEmpty() )
 		    mi->popup->setWhatsThis( mi->id, whatsthis );
-		}
-	    }
 	    if ( toggleaction ) {
 		mi->popup->setCheckable( TRUE );
 		mi->popup->setItemChecked( mi->id, on );
@@ -342,12 +298,8 @@ void QActionPrivate::update( uint upd )
 #endif
 #ifndef QT_NO_WHATSTHIS
 	    QWhatsThis::remove( btn );
-	    if ( !whatsthis.isEmpty() ) {
-		if (whatsthis.contains("<a href"))
-		    (void)new QActionWhatsThis(btn, QRect(), this, whatsthis);
-		else
-		    QWhatsThis::add( btn, whatsthis );
-	    }
+	    if ( !whatsthis.isEmpty() )
+		QWhatsThis::add( btn, whatsthis );
 #endif
 	}
     }
@@ -397,11 +349,6 @@ QString QActionPrivate::statusTip() const
     if ( statustip.isNull() )
 	return toolTip();
     return statustip;
-}
-
-void QActionPrivate::emitWhatsThisClicked(const QString &text)
-{
-    emit action->whatsThisClicked(text);
 }
 
 /*
@@ -1117,8 +1064,6 @@ void QAction::addedTo( int index, QPopupMenu *menu )
 */
 void QAction::showStatusText( const QString& text )
 {
-    emit showStatusMessage(text);
-
 #ifndef QT_NO_STATUSBAR
     // find out whether we are clearing the status bar by the popup that actually set the text
     static QPopupMenu *lastmenu = 0;

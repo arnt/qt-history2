@@ -818,7 +818,7 @@ void QAccelPrivate::activate(QAccelItem* item)
 {
 #ifndef QT_NO_WHATSTHIS
     if (QWhatsThis::inWhatsThisMode() && !ignorewhatsthis) {
-	QWhatsThis::leaveWhatsThisMode(item->whatsthis);
+	QWhatsThis::showText(QCursor::pos(), item->whatsthis);
 	return;
     }
 #endif
