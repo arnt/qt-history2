@@ -678,6 +678,11 @@ typedef QPtrStack<QPState> QPStateStack;
 
 void QPainter::killPStack()
 {
+#if defined(QT_CHECK_STATE)
+    if ( ps_stack && !((QPStateStack *)ps_stack)->isEmpty() )
+	qWarning( "QPainter::killPStack: non-empty save/restore stack when "
+		  "end() was called" );
+#endif
     delete (QPStateStack *)ps_stack;
     ps_stack = 0;
 }
