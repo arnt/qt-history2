@@ -2503,14 +2503,12 @@ void QTable::paintCell( QPainter* p, int row, int col,
 {
     if ( cr.width() == 0 || cr.height() == 0 )
 	return;
-    QColorGroup cg;
 #if defined(Q_WS_WIN)
-    if ( !drawActiveSelection && style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) )
-	cg = palette().inactive();
-    else
+    const QColorGroup &cg = ( !drawActiveSelection && style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ? palette().inactive() : colorGroup() );
+#else
+    const QColorGroup &cg = colorGroup(); 
 #endif
-	cg = colorGroup();
-
+    
     paintCell( p, row, col, cr, selected, cg );
 }
 
@@ -5476,10 +5474,7 @@ void QTable::windowActivationChange( bool )
     if ( !isVisible() )
 	return;
 
-    const QColorGroup acg = palette().active();
-    const QColorGroup icg = palette().inactive();
-
-    if ( acg != icg )
+    if ( palette().active() != palette().inactive() )
 	viewport()->update();
 }
 

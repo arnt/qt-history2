@@ -764,7 +764,7 @@ void QColorLuminancePicker::paintEvent( QPaintEvent * )
     }
     QPainter p(this);
     p.drawPixmap( 1, coff, *pix );
-    QColorGroup g = colorGroup();
+    const QColorGroup &g = colorGroup();
     qDrawShadePanel( &p, r, g, TRUE );
     p.setPen( g.foreground() );
     p.setBrush( g.foreground() );

@@ -1464,8 +1464,8 @@ void QWidget::windowActivationChange( bool )
     if ( !isVisible() )
 	return;
 
-    const QColorGroup acg = palette().active();
-    const QColorGroup icg = palette().inactive();
+    const QColorGroup &acg = palette().active();
+    const QColorGroup &icg = palette().inactive();
 
     if ( acg != icg &&
        ( acg.background() != icg.background() ||

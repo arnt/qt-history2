@@ -3929,14 +3929,10 @@ void QListBox::adjustItems()
 
 void QListBox::paintCell( QPainter * p, int row, int col )
 {
-    QColorGroup g;
     bool drawActiveSelection = hasFocus() ||
 	!style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
 	( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
-    if ( !drawActiveSelection )
-	g = palette().inactive();
-    else
-	g = colorGroup();
+    const QColorGroup &g = ( drawActiveSelection ? colorGroup() : palette().inactive() );
 
     int cw = d->columnPos[col+1] - d->columnPos[col];
     int ch = d->rowPos[row+1] - d->rowPos[row];
@@ -4543,11 +4539,8 @@ void QListBox::windowActivationChange( bool )
 {
     if ( !isVisible() )
 	return;
-
-    const QColorGroup acg = palette().active();
-    const QColorGroup icg = palette().inactive();
-
-    if ( acg != icg )
+    
+    if ( palette().active() != palette().inactive() )
 	viewport()->update();
 }
 

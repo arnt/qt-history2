@@ -2634,15 +2634,11 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    c = fc;
 	    // draw to last interesting column
 
-	    QColorGroup cg;
 	    bool drawActiveSelection = hasFocus() ||
 			    !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
 			    ( qApp->focusWidget() && qApp->focusWidget()->isPopup() ) ||
 			    ( currentItem() && currentItem()->renameBox && currentItem()->renameBox->hasFocus() );
-	    if ( !drawActiveSelection )
-		cg = palette().inactive();
-	    else
-		cg = colorGroup();
+	    const QColorGroup &cg = ( drawActiveSelection ? colorGroup() : palette().inactive() );
 
 	    while ( c < lc && d->drawables ) {
 		int i = d->h->mapToLogical( c );
@@ -6721,10 +6717,7 @@ void QListView::windowActivationChange( bool )
     if ( !isVisible() )
 	return;
 
-    const QColorGroup acg = palette().active();
-    const QColorGroup icg = palette().inactive();
-
-    if ( acg != icg )
+    if ( palette().active() != palette().inactive() )
 	viewport()->update();
 }
 

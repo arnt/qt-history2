@@ -1257,12 +1257,7 @@ void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 			   bool act, int x, int y, int w, int h)
 {
     bool dis = !mi->isEnabled();
-    QColorGroup cg;
-
-    if (dis)
-	cg = palette().disabled();
-    else
-	cg = colorGroup();
+    const QColorGroup &cg = (dis ? palette().disabled() : colorGroup() );
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled() && mi->isEnabled())

@@ -5962,10 +5962,7 @@ void QIconView::windowActivationChange( bool )
     if ( !isVisible() )
 	return;
 
-    const QColorGroup acg = palette().active();
-    const QColorGroup icg = palette().inactive();
-
-    if ( acg != icg )
+    if ( palette().active() != palette().inactive() )
 	viewport()->update();
 }
 

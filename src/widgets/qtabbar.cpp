@@ -631,7 +631,7 @@ void QTabBar::paintEvent( QPaintEvent * e )
 
     buffer.painter()->setBrushOrigin( rect().bottomLeft() );
     buffer.painter()->fillRect( 0, 0, width(), height(),
-				QBrush( colorGroup().brush( QColorGroup::Background ) ));
+				colorGroup().brush( QColorGroup::Background ) );
     QTab * t;
     t = l->first();
     do {
@@ -646,11 +646,11 @@ void QTabBar::paintEvent( QPaintEvent * e )
 	int h = height();
 	if ( d->s == RoundedAbove ) {
 	    buffer.painter()->fillRect( 0, 3, 4, h-5,
-			QBrush( colorGroup().brush( QColorGroup::Background ) ));
+			colorGroup().brush( QColorGroup::Background ) );
 	    a.setPoints( 5,  0,2,  3,h/4, 0,h/2, 3,3*h/4, 0,h );
 	} else if ( d->s == RoundedBelow ) {
 	    buffer.painter()->fillRect( 0, 2, 4, h-5,
-			QBrush( colorGroup().brush( QColorGroup::Background ) ));
+			colorGroup().brush( QColorGroup::Background ) );
 	    a.setPoints( 5,  0,0,  3,h/4, 0,h/2, 3,3*h/4, 0,h-3 );
 	}
 

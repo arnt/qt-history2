@@ -899,7 +899,7 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
     QWMatrix wxm = p->worldMatrix();
 #endif
     QPen     pen( Qt::NoPen );
-    QBrush brush = g.brush( QColorGroup::Button );
+    const QBrush &brush = g.brush( QColorGroup::Button );
 
     p->setPen( pen );
     p->setBrush( brush );

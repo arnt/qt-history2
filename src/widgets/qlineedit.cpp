@@ -906,8 +906,8 @@ void QLineEdit::drawContents( QPainter *painter )
     QSharedDoubleBuffer buffer( !hasFocus(), FALSE, QLineEditPrivate::pm );
     buffer.begin( painter, rect() );
     buffer.painter()->setPen( colorGroup().text() );
-    QBrush bg = g.brush((isEnabled()) ? QColorGroup::Base :
-			QColorGroup::Background);
+    const QBrush &bg = g.brush((isEnabled()) ? QColorGroup::Base :
+			       QColorGroup::Background);
     buffer.painter()->fillRect( 0, 0, width(), height(), bg );
     QTextParag *parag;
     QTextCursor *cursor;
@@ -2219,10 +2219,7 @@ void QLineEdit::windowActivationChange( bool )
     if ( !isVisible() )
 	return;
 
-    const QColorGroup acg = palette().active();
-    const QColorGroup icg = palette().inactive();
-
-    if ( acg != icg )
+    if ( palette().active() != palette().inactive() )
 	update();
 }
 
