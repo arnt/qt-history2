@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#59 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#60 $
 #
 # this is a massive hack, written very quickly
 #
@@ -186,7 +186,10 @@ sub processdocs {
 	$doc =~ s/\s*$/\n/s;
 	$doc =~ s/^\s*//s;
 	$doc =~ s-\s*\\warning\s+-<p><strong>Warning: </strong>-gs;
-	$doc =~ s/\\internal\s.*//s if (!$internal);
+	if (!$internal) {
+	    $doc =~ s/^\s*\\internal\s/For internal use only.\\internal /s;
+	    $doc =~ s/\\internal\s.*//s;
+	}
 
 	# this code is _really_ hard to follow... sorry
 	$doc =~ s@\\sa\s+(.*)?\n@
@@ -1479,7 +1482,7 @@ $cfile = "VOLD";
 $outputdir = "/local/qt/doc/html";
 ($j, $min, $hour, $mday, $mon, $year) = localtime(time);
 $address = sprintf("<hr><address>\nGenerated at %02d:%02d, %4d/%02d/%02d by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>\n</address>\n</body></html>\n", $hour, $min, 1900+$year, 1+$mon, $mday );
-$doctype = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0 Level 2//EN\">\n";
+$doctype = "<!doctype HTML public \"-//IETF//DTD HTML 2.0 Level 2//EN\">\n";
 
 if ($#ARGV > -1) {
     $hdir = ".";
