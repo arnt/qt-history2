@@ -1,6 +1,9 @@
 TEMPLATE	= lib
 CONFIG		= qt warn_on release
 unix:CONFIG    += x11inc
+win32:CONFIG   += dll
+
+win32:DEFINES  += QT_DLL
 
 win32:INCLUDEPATH	= tmp
 win32:MOC_DIR		= tmp
