@@ -190,7 +190,7 @@ public:
   This table is copied from qvariant.cpp. If you change
   one, change both.
 */
-static const int ntypes = 24;
+static const int ntypes = 25;
 static const char* type_map[ntypes] =
 {
     0,
@@ -214,9 +214,10 @@ static const char* type_map[ntypes] =
     "bool",
     "double",
     "QCString",
-    "PointArray",
-    "Region",
-    "Bitmap"
+    "QPointArray",
+    "QRegion",
+    "QBitmap",
+    "QCursor"
 };
 
 int qvariant_nameToType( const char* name )

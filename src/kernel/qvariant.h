@@ -55,6 +55,7 @@ class QDataStream;
 class QPointArray;
 class QRegion;
 class QBitmap;
+class QCursor;
 // Relevant header files rejected after QVariant declaration
 // for GCC 2.7.* compatibility
 class QVariant;
@@ -99,6 +100,7 @@ public:
 	PointArray,
 	Region,
 	Bitmap,
+	Cursor,
 	Custom
     };
 
@@ -125,6 +127,7 @@ public:
     QVariant( const QPointArray& );
     QVariant( const QRegion& );
     QVariant( const QBitmap& );
+    QVariant( const QCursor& );
     QVariant( const QValueList<QVariant>& );
     QVariant( const QMap<QString,QVariant>& );
     QVariant( int );
@@ -154,6 +157,7 @@ public:
     QVariant& operator= ( const QPointArray& );
     QVariant& operator= ( const QRegion& );
     QVariant& operator= ( const QBitmap& );
+    QVariant& operator= ( const QCursor& );
     QVariant& operator= ( const QValueList<QVariant>& );
     QVariant& operator= ( const QMap<QString,QVariant>& );
     QVariant& operator= ( int );
@@ -179,6 +183,7 @@ public:
     void setValue( const QPointArray& );
     void setValue( const QRegion& );
     void setValue( const QBitmap& );
+    void setValue( const QCursor& );
     void setValue( const QValueList<QVariant>& );
     void setValue( const QMap<QString,QVariant>& );
     void setValue( int );
@@ -216,6 +221,7 @@ public:
     const QPointArray toPointArray() const;
     const QBitmap toBitmap() const;
     const QRegion toRegion() const;
+    const QCursor toCursor() const;
     int toInt() const;
     uint toUInt() const;
     bool toBool() const;
@@ -246,6 +252,7 @@ public:
     QPointArray asPointArray();
     QBitmap asBitmap();
     QRegion asRegion();
+    QCursor asCursor();
     int& asInt();
     uint& asUInt();
     bool& asBool();

@@ -40,6 +40,7 @@
 #include "qregion.h"
 #include "qpointarray.h"
 #include "qbitmap.h"
+#include "qcursor.h"
 
 // NOT REVISED
 /*!
@@ -305,7 +306,7 @@ QVariant::QVariant( const QColorGroup& val )
 }
 
 /*!
-  Constructs a new variant with an empty iconset.
+  Constructs a new variant with an iconset.
 */
 QVariant::QVariant( const QIconSet& val )
 {
@@ -314,7 +315,7 @@ QVariant::QVariant( const QIconSet& val )
 }
 
 /*!
-  Constructs a new variant with an empty region.
+  Constructs a new variant with a region.
 */
 QVariant::QVariant( const QRegion& val )
 {
@@ -323,7 +324,7 @@ QVariant::QVariant( const QRegion& val )
 }
 
 /*!
-  Constructs a new variant with an empty bitmap.
+  Constructs a new variant with a bitmap.
 */
 QVariant::QVariant( const QBitmap& val )
 {
@@ -332,7 +333,16 @@ QVariant::QVariant( const QBitmap& val )
 }
 
 /*!
-  Constructs a new variant with an empty array of points.
+  Constructs a new variant with a cursor..
+*/
+QVariant::QVariant( const QCursor& val )
+{
+    typ = Invalid;
+    setValue( val );
+}
+
+/*!
+  Constructs a new variant with an array of points.
 */
 QVariant::QVariant( const QPointArray& val )
 {
@@ -839,6 +849,16 @@ void QVariant::setValue( const QRegion& val )
 /*!
   Changes the value of this variant to \a val.
 */
+void QVariant::setValue( const QCursor& val )
+{
+    clear();
+    typ = Cursor;
+    value.ptr = new QCursor( val );
+}
+
+/*!
+  Changes the value of this variant to \a val.
+*/
 void QVariant::setValue( const QPointArray& val )
 {
     clear();
@@ -933,6 +953,9 @@ void QVariant::clear()
 	case Bitmap:
 	    delete (QBitmap*)value.ptr;
 	    break;
+	case Cursor:
+	    delete (QCursor*)value.ptr;
+	    break;
 	case Region:
 	    delete (QRegion*)value.ptr;
 	    break;
@@ -1005,7 +1028,7 @@ void QVariant::clear()
   For dependency reasons, this table is duplicated in moc.y. If you
   change one, change both.
 */
-static const int ntypes = 25;
+static const int ntypes = 26;
 static const char* type_map[ntypes] =
 {
     0,
@@ -1032,6 +1055,7 @@ static const char* type_map[ntypes] =
     "PointArray",
     "Region",
     "Bitmap",
+    "Cursor",
     "Custom"
 };
 
@@ -1095,6 +1119,9 @@ void QVariant::load( QDataStream& s )
 	    break;
 	case List:
 	    { QValueList<QVariant> x; s >> x; setValue( x ); }
+	    break;
+	case Cursor:
+	    { QCursor x; s >> x; setValue( x ); }
 	    break;
 	case Bitmap:
 	    { QBitmap x; s >> x; setValue( x ); }
@@ -1179,6 +1206,9 @@ void QVariant::save( QDataStream& s ) const
 	case Custom:
 	    s << custom_type->typeName();
 	    custom_type->save( value.ptr, s );
+	    break;
+	case Cursor:
+	    s << that->asCursor();
 	    break;
 	case Bitmap:
 	    s << that->asBitmap();
@@ -1566,6 +1596,16 @@ const QRegion QVariant::toRegion() const
     return *((QRegion*)value.ptr);
 }
 
+const QCursor QVariant::toCursor() const
+{
+    if ( typ != Cursor )
+	return QCursor();
+    if ( typ == Custom )
+	return custom_type->castTo( value.ptr, Cursor ).toCursor();
+
+    return *((QCursor*)value.ptr);
+}
+
 /*!
   Returns the variant as an int if the variant has type()
   Int, UInt, Double or Bool, or 0 otherwise.
@@ -1847,6 +1887,13 @@ QRegion QVariant::asRegion()
     if ( typ != Region )
 	setValue( toRegion() );
     return *((QRegion*)value.ptr);
+}
+
+QCursor QVariant::asCursor()
+{
+    if ( typ != Cursor )
+	setValue( toCursor() );
+    return *((QCursor*)value.ptr);
 }
 
 int& QVariant::asInt()

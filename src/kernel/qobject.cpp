@@ -38,6 +38,7 @@
 #include "qregion.h"
 #include "qbitmap.h"
 #include "qpointarray.h"
+#include "qcursor.h"
 
 // NOT REVISED
 /*! \class Qt qnamespace.h
@@ -971,7 +972,7 @@ static void objSearch( QObjectList *result,
 */
 
 
-/*!  
+/*!
   Returns a pointer to the list of all object trees (respectively
   their root objects), or 0 if there are no objects.
 
@@ -2133,9 +2134,9 @@ void QObject::dumpObjectInfo()
 
 /*!
   Sets the object's property \a name to \a value.
-  
+
   Returne TRUE is the operation was successful, FALSE otherwise.
-  
+
   \sa property()
 */
 bool QObject::setProperty( const char *name, const QVariant& value )
@@ -2197,12 +2198,15 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 
     typedef void (QObject::*ProtoPointArray)( QPointArray );
     typedef void (QObject::*RProtoPointArray)( const QPointArray& );
-    
+
     typedef void (QObject::*ProtoIconSet)( QIconSet );
     typedef void (QObject::*RProtoIconSet)( const QIconSet& );
 
     typedef void (QObject::*ProtoImage)( QImage );
     typedef void (QObject::*RProtoImage)( const QImage& );
+
+    typedef void (QObject::*ProtoCursor)( QCursor );
+    typedef void (QObject::*RProtoCursor)( const QCursor& );
 
     typedef void (QObject::*ProtoPoint)( QPoint );
     typedef void (QObject::*RProtoPoint)( const QPoint& );
@@ -2523,6 +2527,21 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    ASSERT( 0 );
 	return TRUE;
 
+    case QVariant::Cursor:
+	if ( p->sspec == QMetaProperty::Class ) {
+	    ProtoCursor m;
+	    m = *((ProtoCursor*)&p->set);
+	    (this->*m)( value.toCursor() );
+	}
+	else if ( p->sspec == QMetaProperty::Reference )  {
+	    RProtoCursor m;
+	    m = *((RProtoCursor*)&p->set);
+	    (this->*m)( value.toCursor() );
+	}
+	else
+	    ASSERT( 0 );
+	return TRUE;
+
     case QVariant::IconSet:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoIconSet m;
@@ -2634,9 +2653,9 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 
 /*!
   Returns the value of the object's \a name property.
-  
+
   If no such property exists, the returned variant is invalid.
-  
+
   \sa setProperty(), QVariant::isValid()
 */
 QVariant QObject::property( const char *name ) const
@@ -2714,7 +2733,7 @@ QVariant QObject::property( const char *name ) const
     typedef QBitmap (QObject::*ProtoBitmap)() const;
     typedef const QBitmap* (QObject::*PProtoBitmap)() const;
     typedef const QBitmap& (QObject::*RProtoBitmap)() const;
-    
+
     typedef QRegion (QObject::*ProtoRegion)() const;
     typedef const QRegion* (QObject::*PProtoRegion)() const;
     typedef const QRegion& (QObject::*RProtoRegion)() const;
@@ -2722,6 +2741,10 @@ QVariant QObject::property( const char *name ) const
     typedef QPointArray (QObject::*ProtoPointArray)() const;
     typedef const QPointArray* (QObject::*PProtoPointArray)() const;
     typedef const QPointArray& (QObject::*RProtoPointArray)() const;
+
+    typedef QCursor (QObject::*ProtoCursor)() const;
+    typedef const QCursor* (QObject::*PProtoCursor)() const;
+    typedef const QCursor& (QObject::*RProtoCursor)() const;
 
     typedef QImage (QObject::*ProtoImage)() const;
     typedef const QImage* (QObject::*PProtoImage)() const;
@@ -3230,6 +3253,30 @@ QVariant QObject::property( const char *name ) const
 		value.setValue( *p );
 	    else
 		value.setValue( QRegion() );
+	}
+	else
+	    ASSERT( 0 );
+	return value;
+
+    case QVariant::Cursor:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoCursor m;
+	    m = *((ProtoCursor*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoCursor m;
+	    m = *((RProtoCursor*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoCursor m;
+	    m = *((PProtoCursor*)&p->get);
+	    const QCursor* p = (this->*m)();
+	    if ( p )
+		value.setValue( *p );
+	    else
+		value.setValue( QCursor() );
 	}
 	else
 	    ASSERT( 0 );
