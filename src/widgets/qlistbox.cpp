@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#159 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#160 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1387,7 +1387,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     if ( currentItem() < 0 )
 	setCurrentItem( topItem() );
 
-    int oldcurrent;
+    int oldCurrent;
 
     switch ( e->key() ) {
     case Key_Up:
@@ -1408,56 +1408,63 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	break;
     case Key_Next:
 	e->accept();
-	if (lastRowVisible() == (int) count() - 1){
-	    ensureCurrentVisible(lastRowVisible());
-	    break;
-	}
 	if ( style() == MotifStyle) {
+	    if (lastRowVisible() == (int) count() - 1){
+		int o = yOffset();
+		setBottomItem( lastRowVisible() );
+		if ( currentItem() < lastRowVisible() && currentItem() == topItem() 
+		     && yOffset() != o)
+		    setCurrentItem(currentItem() + 1);
+		break;
+	    }
 	    if (currentItem() != topItem() ){
 		setTopItem( currentItem() );
 		break;
 	    }
 	}
 	else {
-	    if (currentItem() != lastRowVisible()) {
+	    if (currentItem() != lastRowVisible() || lastRowVisible() == (int) count() - 1) {
 		ensureCurrentVisible(lastRowVisible());
 		break;
 	    }
 	}
-	oldcurrent = currentItem();
+	oldCurrent = currentItem();
 	setYOffset(yOffset() + viewHeight() );
 	if ( style() == MotifStyle)
 	    ensureCurrentVisible( topItem() );
 	else
 	    ensureCurrentVisible(lastRowVisible());
-	if (oldcurrent == currentItem() && currentItem() + 1 <  (int) count() )
+	if (oldCurrent == currentItem() && currentItem() + 1 <  (int) count() )
 	    ensureCurrentVisible( currentItem() + 1 );
 	break;
     case Key_Prior:
 	e->accept();
-	if (topItem() == 0){
-	    ensureCurrentVisible ( topItem() );
-	    break;
-	}
 	if ( style() != MotifStyle) {
-	    if (currentItem() != topItem() ){
+	    if (currentItem() != topItem() || topItem() == 0){
 		ensureCurrentVisible(topItem());
 		break;
 	    }
 	}
 	else {
+	    if (topItem() == 0){
+		int o = yOffset();
+		setTopItem( topItem() );
+		if ( currentItem() > 0 && currentItem() == lastRowVisible() && yOffset() != o)
+		    setCurrentItem(currentItem()-1);
+		break;
+	    }
 	    if (currentItem() != lastRowVisible()) {
 		setBottomItem( currentItem() );
 		break;
 	    }
 	}
-	oldcurrent = currentItem();
+	oldCurrent = currentItem();
 	setYOffset(yOffset() - viewHeight() );
 	if ( style() == MotifStyle)
 	    ensureCurrentVisible( lastRowVisible() );
 	else
 	    ensureCurrentVisible( topItem() );
-	if (oldcurrent == currentItem() && currentItem() > 0)
+	if (oldCurrent == currentItem() && currentItem() > 0)
 	    ensureCurrentVisible( currentItem() -1);
 	break;
 
