@@ -333,7 +333,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     if(fnt.underline())
 	fstyle |= underline;
     Str255 name;
-    FMGetFontFamilyName((FMFontFamily)fnt.handle(), name);
+    FMGetFontFamilyName((FMFontFamily)((UInt32)fnt.handle()), name);
     short fnum;
     GetFNum(name, &fnum);
     aglUseFont((AGLContext) cx, (int)fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
