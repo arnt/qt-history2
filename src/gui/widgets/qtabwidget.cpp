@@ -876,6 +876,8 @@ void QTabWidget::paintEvent(QPaintEvent *)
     opt.state = QStyle::Style_None;
     if (isEnabled())
         opt.state |= QStyle::Style_Enabled;
+    if (isActiveWindow())
+        opt.state |= QStyle::Style_Active;
     if (tabPosition() == QTabWidget::Top)
         opt.state |= QStyle::Style_Top;
     else if (tabPosition() == QTabWidget::Bottom)

@@ -98,6 +98,8 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
         opt.state |= QStyle::Style_HasFocus;
     if (q->isEnabled() && ptab->enabled)
         opt.state |= QStyle::Style_Enabled;
+    if (q->isActiveWindow())
+        opt.state |= QStyle::Style_Active;
     if (opt.rect.contains(q->mapFromGlobal(QCursor::pos())))
         opt.state |= QStyle::Style_MouseOver;
     opt.shape = shape;

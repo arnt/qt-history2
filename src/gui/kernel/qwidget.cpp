@@ -2648,6 +2648,10 @@ const QPalette &QWidget::palette() const
         data->pal.setCurrentColorGroup(QPalette::Disabled);
     else if (!isVisible() || isActiveWindow())
         data->pal.setCurrentColorGroup(QPalette::Active);
+#ifdef Q_WS_MAC
+    else if(!testAttribute(Qt::WA_MacNoClickThrough))
+        data->pal.setCurrentColorGroup(QPalette::Active);
+#endif
     else
         data->pal.setCurrentColorGroup(QPalette::Inactive);
     return data->pal;
