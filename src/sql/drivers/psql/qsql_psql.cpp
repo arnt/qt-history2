@@ -27,19 +27,27 @@
 
 #include <libpq-fe.h>
 
-// PostgreSQL header <utils/elog.h> included by <postgres.h> redefines DEBUG.
-#if defined(DEBUG)
-# undef DEBUG
-#endif
-#include <postgres.h>
-#include <libpq/libpq-fs.h>
-// PostgreSQL header <catalog/pg_type.h> redefines errno erroneously.
-#if defined(errno)
-# undef errno
-#endif
-#define errno qt_psql_errno
-#include <catalog/pg_type.h>
-#undef errno
+// workaround for postgres defining their OIDs in a private header file
+#define QBOOLOID 16
+#define QINT8OID 20
+#define QINT2OID 21
+#define QINT4OID 23
+#define QNUMERICOID 1700
+#define QFLOAT4OID 700
+#define QFLOAT8OID 701
+#define QABSTIMEOID 702
+#define QRELTIMEOID 703
+#define QDATEOID 1082
+#define QTIMEOID 1083
+#define QTIMETZOID 1266
+#define QTIMESTAMPOID 1114
+#define QTIMESTAMPTZOID 1184
+#define QOIDOID 2278
+#define QBYTEAOID 17
+#define QREGPROCOID 24
+#define QXIDOID 28
+#define QCIDOID 29
+#define QUNKNOWNOID 705
 
 class QPSQLDriverPrivate
 {
@@ -122,72 +130,46 @@ static QCoreVariant::Type qDecodePSQLType(int t)
 {
     QCoreVariant::Type type = QCoreVariant::Invalid;
     switch (t) {
-    case BOOLOID        :
+    case QBOOLOID:
         type = QCoreVariant::Bool;
         break;
-    case INT8OID        :
+    case QINT8OID:
         type = QCoreVariant::LongLong;
         break;
-    case INT2OID        :
+    case QINT2OID:
         //    case INT2VECTOROID  : // 7.x
-    case INT4OID        :
+    case QINT4OID:
         type = QCoreVariant::Int;
         break;
-    case NUMERICOID     :
-    case FLOAT4OID      :
-    case FLOAT8OID      :
+    case QNUMERICOID:
+    case QFLOAT4OID:
+    case QFLOAT8OID:
         type = QCoreVariant::Double;
         break;
-    case ABSTIMEOID     :
-    case RELTIMEOID     :
-    case DATEOID        :
+    case QABSTIMEOID:
+    case QRELTIMEOID:
+    case QDATEOID:
         type = QCoreVariant::Date;
         break;
-    case TIMEOID        :
-#ifdef TIMETZOID // 7.x
-        case TIMETZOID  :
-#endif
+    case QTIMEOID:
+    case QTIMETZOID:
         type = QCoreVariant::Time;
         break;
-    case TIMESTAMPOID   :
-#ifdef DATETIMEOID
-    // Postgres 6.x datetime workaround.
-    // DATETIMEOID == TIMESTAMPOID (only the names have changed)
-    case DATETIMEOID    :
-#endif
-#ifdef TIMESTAMPTZOID
-    // Postgres 7.2 workaround
-    // TIMESTAMPTZOID == TIMESTAMPOID == DATETIMEOID
-    case TIMESTAMPTZOID :
-#endif
+    case QTIMESTAMPOID:
+    case QTIMESTAMPTZOID:
         type = QCoreVariant::DateTime;
         break;
-        //    case ZPBITOID        : // 7.x
-        //    case VARBITOID        : // 7.x
-    case OIDOID         :
-    case BYTEAOID       :
+    case QBYTEAOID:
         type = QCoreVariant::ByteArray;
         break;
-    case REGPROCOID     :
-    case XIDOID         :
-    case CIDOID         :
-        //    case OIDVECTOROID   : // 7.x
-    case UNKNOWNOID     :
-        //    case TINTERVALOID   : // 7.x
+    case QOIDOID:
+    case QREGPROCOID:
+    case QXIDOID:
+    case QCIDOID:
+    case QUNKNOWNOID:
         type = QCoreVariant::Invalid;
         break;
     default:
-    case TIDOID         :
-    case CHAROID        :
-    case BPCHAROID        :
-        //    case LZTEXTOID        : // 7.x
-    case VARCHAROID        :
-    case TEXTOID        :
-    case NAMEOID        :
-    case CASHOID        :
-    case INETOID        :
-    case CIDROID        :
-    case CIRCLEOID      :
         type = QCoreVariant::String;
         break;
     }
@@ -270,7 +252,7 @@ QCoreVariant QPSQLResult::data(int i)
     case QCoreVariant::Int:
         return atoi(val);
     case QCoreVariant::Double:
-        if (ptype == NUMERICOID)
+        if (ptype == QNUMERICOID)
             return QString::fromAscii(val);
         return strtod(val, 0);
     case QCoreVariant::Date:
@@ -304,70 +286,21 @@ QCoreVariant QPSQLResult::data(int i)
             return QCoreVariant(QDateTime::fromString(dtval, Qt::ISODate));
     }
     case QCoreVariant::ByteArray: {
-        if (ptype == BYTEAOID) {
-            int i = 0;
-            QByteArray ba(val);
-            while (i < ba.length()) {
-                if (ba.at(i) == '\\') {
-                    if (QChar::fromLatin1(ba.at(i + 1)).isDigit()) {
-                        char *v = ba.data() + i + 3;
-                        ba[i] = static_cast<char>(strtol(v - 2, &v, 8));
-                        ba.remove(i + 1, 3);
-                    } else {
-                        ba[i] = ba.at(i + 1);
-                        ba.remove(i + 1, 1);
-                    }
+        int i = 0;
+        QByteArray ba(val);
+        while (i < ba.length()) {
+            if (ba.at(i) == '\\') {
+                if (QChar::fromLatin1(ba.at(i + 1)).isDigit()) {
+                    char *v = ba.data() + i + 3;
+                    ba[i] = static_cast<char>(strtol(v - 2, &v, 8));
+                    ba.remove(i + 1, 3);
+                } else {
+                    ba[i] = ba.at(i + 1);
+                    ba.remove(i + 1, 1);
                 }
-                ++i;
             }
-            return QCoreVariant(ba);
+            ++i;
         }
-
-        QByteArray ba;
-        const_cast<QSqlDriver *>(driver())->beginTransaction();
-        Oid oid = atoi(val);
-        int fd = lo_open(d->driver->connection, oid, INV_READ);
-        if (fd < 0) {
-            qWarning("QPSQLResult::data: unable to open large object for read");
-            const_cast<QSqlDriver *>(driver())->commitTransaction();
-            return QCoreVariant(ba);
-        }
-        int size = 0;
-        int retval = lo_lseek(d->driver->connection, fd, 0L, SEEK_END);
-        if (retval >= 0) {
-            size = lo_tell(d->driver->connection, fd);
-            lo_lseek(d->driver->connection, fd, 0L, SEEK_SET);
-        }
-        if (size == 0) {
-            lo_close(d->driver->connection, fd);
-            const_cast<QSqlDriver *>(driver())->commitTransaction();
-            return QCoreVariant(ba);
-        }
-        char * buf = new char[size];
-
-#ifdef Q_OS_WIN32
-        // For some reason lo_read() fails if we try to read more than
-        // 32760 bytes
-        char * p = buf;
-        int nread = 0;
-
-        while(size < nread){
-                retval = lo_read(d->driver->connection, fd, p, 32760);
-                nread += retval;
-                p += retval;
-        }
-#else
-        retval = lo_read(d->driver->connection, fd, buf, size);
-#endif
-
-        if (retval < 0) {
-            qWarning("QPSQLResult::data: unable to read large object");
-        } else {
-            ba = QByteArray(buf, size);
-        }
-        delete [] buf;
-        lo_close(d->driver->connection, fd);
-        const_cast<QSqlDriver *>(driver())->commitTransaction();
         return QCoreVariant(ba);
     }
     default:
