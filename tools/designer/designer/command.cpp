@@ -2117,7 +2117,8 @@ QString RenameActionCommand::mangle( QString name )
 	s = ( i ? i->menuText().lower() : QString( "" ) );
     }
     return ( s.remove( "&" ).replace( ' ', '_' ) +
-	     name.remove( "&" ).replace( ' ', '_' ) + "Action" );
+	     name.remove( "." ).remove( "," ).remove( "&" ).replace( '-', '_' ).replace( ' ', '_' ) +
+	     "Action" );
 }
 
 void RenameActionCommand::execute()
