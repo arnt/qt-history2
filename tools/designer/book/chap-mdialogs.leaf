@@ -109,10 +109,8 @@ will automatically be added to the project when it is saved.
 
 \section3 C++ Main File
 
-The C++ Main File invokes the \l{Configure Main-File} dialog. To change
-the default file name, type it in the Filename line edit. Click the
-form to use as the application's main form from the list of forms,
-then click \OK and \QD will create a default 'main.cpp' file.
+Click C++ Main File to invoke the \Dialog {Configure Main-File
+Dialog}. 
 
 \img qd-fileopen.png
 \caption File Open Dialog
@@ -157,7 +155,7 @@ view the folders and file names along with their size, type, date, and
 attributes. Click the Size, Type, Date, or Attributes column headers
 to sort the folders or files.
 
-Click \ButtonSave to save the selected file. Click \CANCEL to leave the dialog
+Click \Button Save to save the selected file. Click \CANCEL to leave the dialog
 without saving the file. 
 
 \img qd-filecreatetemplate.png
@@ -173,7 +171,7 @@ The 'Template Name' line edit defaults to 'New Template'. To change the
 name to a different name, type it in the line edit. Click the 'Baseclass
 for Template' scroll bar to choose a base class for the template.
 
-Click \ButtonCreate to create the template. Click \CANCEL to leave
+Click \Button Create to create the template. Click \CANCEL to leave
 the dialog without creating a template.
 
 \section1 The Edit Dialogs
@@ -563,6 +561,19 @@ Dialog}. This dialog provides information about Qt.
 Click the 'x' located at the top right corner of the dialog to close
 the dialog.
 
+\img qd-configmainfile.png
+\caption Configure Main-File
+
+Click File|New|C++ Main-File to invoke the \l{Configure
+Main-File} dialog. Use this dialog to configure the main file and its
+forms.
+
+To change the default file name, type it in the 'Filename' line edit.
+Choose the form to use as the application's main form from the line edit by clicking it. 
+
+Click \OK to accept the configurations and \QD will create a default
+'main.cpp' file. Click \CANCEL to leave the dialog.
+
 \img qd-filesaveprojectsettingsdialog.png
 \caption Save Project Settings 
 
@@ -601,7 +612,7 @@ or exiting the form and without saving the form.
 \caption Save Form As Dialog
 
 \target dialog-save-form-as
-\section1 Save Form As
+\section1 Save Form As Dialog
 
 The \Dialog {Save Form As} dialog is invoked in three different ways.
 One way is to click File|Save for a form in a project that has never
