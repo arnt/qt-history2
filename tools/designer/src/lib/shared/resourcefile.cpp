@@ -30,11 +30,16 @@ static QString relativePath(const QString &dir, const QString &file)
 
 ResourceFile::ResourceFile(const QString &file_name)
 {
-    m_file_name = file_name;
+    setFileName(file_name);
 }
 
 bool ResourceFile::load()
 {
+    if (m_file_name.isEmpty()) {
+        qWarning("ResourceFile::load(): file name is empty");
+        return false;
+    }
+
     QFile file(m_file_name);
     if (!file.open(QIODevice::ReadOnly)) {
         qWarning("ResourceFile::ResourceFile(): failed to open qrc file \"%s\":\n%s",
@@ -68,7 +73,7 @@ bool ResourceFile::load()
         QStringList file_list;
         QDomElement felt = relt.firstChildElement(QLatin1String("file"));
         for (; !felt.isNull(); felt = felt.nextSiblingElement(QLatin1String("file")))
-            file_list.append(felt.text());
+            file_list.append(absolutePath(felt.text()));
         m_resource_map.insert(relt.attribute(QLatin1String("prefix")), file_list);
     }
 
@@ -77,6 +82,11 @@ bool ResourceFile::load()
 
 bool ResourceFile::save()
 {
+    if (m_file_name.isEmpty()) {
+        qWarning("ResourceFile::save(): file name is empty");
+        return false;
+    }
+    
     QFile file(m_file_name);
     if (!file.open(QIODevice::WriteOnly)) {
         qWarning("ResourceFile::ResourceFile(): failed to open qrc file \"%s\":\n%s",
@@ -98,7 +108,7 @@ bool ResourceFile::save()
         foreach (QString f, it.value()) {
             QDomElement felt = doc.createElement(QLatin1String("file"));
             relt.appendChild(felt);
-            QDomText text = doc.createTextNode(f);
+            QDomText text = doc.createTextNode(relativePath(f));
             felt.appendChild(text);
         }
     }
@@ -122,9 +132,9 @@ QString ResourceFile::resolvePath(const QString &_path) const
         if (!path.startsWith(it.key()))
             continue;
             
-        QString result = path.mid(it.key().size() + 1);
+        QString result = absolutePath(path.mid(it.key().size() + 1));
         if (it.value().contains(result))
-            return QDir::cleanPath(QFileInfo(m_file_name).path() + QDir::separator() + result);
+            return result;
         else
             return QString();
     }
@@ -139,7 +149,11 @@ QStringList ResourceFile::prefixList() const
 
 QStringList ResourceFile::fileList(const QString &prefix)
 {
-    return m_resource_map.value(fixPrefix(prefix));
+    QStringList abs_file_list = m_resource_map.value(fixPrefix(prefix));
+    QStringList result;
+    foreach (QString abs_file, abs_file_list)
+        result.append(relativePath(abs_file));
+    return result;
 }
 
 void ResourceFile::addPrefix(const QString &prefix)
@@ -150,9 +164,21 @@ void ResourceFile::addPrefix(const QString &prefix)
     m_resource_map.insert(fixed_prefix, QStringList());
 }
 
+int ResourceFile::indexOfPrefix(const QString &prefix)
+{
+    QString fixed_prefix = fixPrefix(prefix);
+    int i = 0;
+    ResourceMap::const_iterator it = m_resource_map.begin();
+    for (; it != m_resource_map.end(); ++it, ++i) {
+        if (it.key() == fixed_prefix)
+            return i;
+    }
+    return -1;
+}
+
 void ResourceFile::addFile(const QString &prefix, const QString &file)
 {
-    m_resource_map[fixPrefix(prefix)].append(relativePath(file));
+    m_resource_map[fixPrefix(prefix)].append(absolutePath(file));
 }
 
 void ResourceFile::removePrefix(const QString &prefix)
@@ -165,7 +191,7 @@ void ResourceFile::removeFile(const QString &prefix, const QString &file)
     QString fixed_prefix = fixPrefix(prefix);
     if (!m_resource_map.contains(fixed_prefix))
         return;
-    m_resource_map[fixed_prefix].removeAll(file);
+    m_resource_map[fixed_prefix].removeAll(absolutePath(file));
 }
 
 QString ResourceFile::relativePath(const QString &abs_path) const
@@ -193,7 +219,7 @@ bool ResourceFile::contains(const QString &prefix) const
 bool ResourceFile::contains(const QString &prefix, const QString &file) const
 {
     QStringList file_list = m_resource_map.value(fixPrefix(prefix));
-    return file_list.contains(relativePath(file));
+    return file_list.contains(absolutePath(file));
 }
 
 void ResourceFile::changePrefix(const QString &old_prefix, const QString &new_prefix)
@@ -225,3 +251,33 @@ QString ResourceFile::fixPrefix(const QString &prefix)
 
     return result;
 }
+
+int ResourceFile::prefixCount() const
+{
+    return m_resource_map.size();
+}
+
+QString ResourceFile::prefix(int idx) const
+{
+    int i = 0;
+    ResourceMap::const_iterator it = m_resource_map.begin();
+    for (; it != m_resource_map.end(); ++it, ++i) {
+        if (i == idx)
+            return it.key();
+    }
+    return QString();
+}
+
+int ResourceFile::fileCount(int prefix_idx) const
+{
+    return m_resource_map.value(prefix(prefix_idx)).size();
+}
+
+QString ResourceFile::file(int prefix_idx, int file_idx) const
+{
+    QStringList list = m_resource_map.value(prefix(prefix_idx));
+    if (file_idx >= list.size())
+        return QString();
+    return relativePath(list.at(file_idx));
+}
+

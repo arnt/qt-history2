@@ -1,54 +1,56 @@
 #ifndef RESOURCEEDITOR_H
 #define RESOURCEEDITOR_H
 
-#include <QtGui/QTreeWidget>
+#include <QtGui/QWidget>
 
 #include "resourceeditor_global.h"
 
 class AbstractFormEditor;
 class AbstractFormWindow;
+class QTabWidget;
+class ResourceModel;
+class FormTab;
 
-class QT_RESOURCEEDITOR_EXPORT ResourceEditor : public QTreeWidget
+class QT_RESOURCEEDITOR_EXPORT ResourceEditor : public QWidget
 {
     Q_OBJECT
     
 public:
     ResourceEditor(AbstractFormEditor *core, QWidget *parent = 0);
 
-    QAction *actionInsert() const { return m_insert_action; }
-    QAction *actionDelete() const { return m_delete_action; }
-    QAction *actionEdit() const { return m_edit_action; }
-    
-protected:
-    virtual void mousePressEvent(QMouseEvent *e);
-    virtual void showEvent(QShowEvent *e);
-    
-private slots:
-    void doInsert();
-    void doEdit();
-    void doDelete();
-    
-    void updateTree();
-    void updateActions();
-    
+    QAction *newQrcAction() const { return m_new_qrc_action; }
+    QAction *openQrcAction() const { return m_open_qrc_action; }
+    QAction *saveQrcAction() const { return m_save_qrc_action; }
+    QAction *removeQrcAction() const { return m_remove_qrc_action; }
+    QAction *reloadQrcAction() const { return m_reload_qrc_action; }
+
+public slots:
+    void addTab(AbstractFormWindow *form);
+    void removeTab(AbstractFormWindow *form);
+    void formNameChanged(const QString &name);
+
+    void newQrc();
+    void openQrc();
+    void saveQrc();
+    void removeQrc();
+    void reloadQrc();
+        
 private:
-    AbstractFormEditor *m_core;
-    QAction *m_insert_action;
-    QAction *m_delete_action;
-    QAction *m_edit_action;
-    AbstractFormWindow *m_current_form;
+    QAction *m_new_qrc_action;
+    QAction *m_open_qrc_action;
+    QAction *m_save_qrc_action;
+    QAction *m_remove_qrc_action;
+    QAction *m_reload_qrc_action;
+
+    QTabWidget *m_tabs;
+    QList<ResourceModel*> m_model_list;
     
-    enum ItemType { RootItem, ResourceItem, PrefixItem, FileItem };
-    ItemType classifyItem(QTreeWidgetItem *item) const;
-    QTreeWidgetItem *addToTree(const QString &path);
-    QMenu *createMenu(ItemType type);
-    void fixItem(QTreeWidgetItem *item);
-
-    void addResource();
-    void editPrefix();
-    void addPrefix();
-    void addFile();
-
+    int indexOfForm(AbstractFormWindow *form);
+    ResourceModel *model(const QString &file);
+    
+    FormTab *currentFormTab() const;
+    
+    friend class FormTab;
 };
 
 #endif // RESOURCEEDITOR_H
