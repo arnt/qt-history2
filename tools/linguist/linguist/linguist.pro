@@ -34,6 +34,7 @@ HEADERS        += finddialog.h \
 DEFINES        += QT_KEYWORDS
 QT += xml network
 include( ../../../src/qt_professional.pri )
+include( ../../../lib/qassistantclient.prl )
 
 DESTDIR                = ../../../bin
 TARGET                = linguist
