@@ -3168,7 +3168,7 @@ void QApplication::openPopup( QWidget *popup )
 	    }
 	}
     } else if ( popupGrabOk ) {
-	 XAllowEvents(  popup->x11Display(), SyncPointer, CurrentTime ); 
+	 XAllowEvents(  popup->x11Display(), SyncPointer, CurrentTime );
     }
 
     // popups are not focus-handled by the window system (the first
@@ -4507,6 +4507,9 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    newCPos.ry() = event->xconfigure.y + event->xconfigure.border_width;
 	}
 
+	if ( isVisible() )
+	    QApplication::syncX();
+	
 	XEvent otherEvent;
 	while ( XCheckTypedWindowEvent( x11Display(),winId(),ConfigureNotify,&otherEvent ) ) {
 	    if ( qt_x11EventFilter( &otherEvent ) )
