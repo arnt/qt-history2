@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#1 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#2 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -18,7 +18,7 @@
 **
 *****************************************************************************/
 
-#include "qtfb.h"
+#include "qws.h"
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qimage.h>
