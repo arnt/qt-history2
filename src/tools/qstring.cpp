@@ -466,7 +466,7 @@ void QString::realloc()
 void QString::expand(int i)
 {
     int sz = d->size;
-    resize(qMax(i+1, d->size));
+    resize(qMax(i + 1, sz));
     if (d->size - 1 > sz) {
 	ushort *n = d->data + d->size - 1;
 	ushort *e = d->data + sz;
@@ -557,15 +557,14 @@ QString &QString::operator=(const char *s)
 
 QString& QString::insert(int i, QChar c)
 {
-    d->cache = 0;
     if (i < 0)
 	i += d->size;
     if (i < 0)
 	return *this;
-   expand(qMax(i, d->size));
-   ::memmove(d->data + i + 1, d->data + i, (d->size - i)*sizeof(QChar));
-   d->data[i] = c.unicode();
-   return *this;
+    expand(qMax(i, d->size));
+    ::memmove(d->data + i + 1, d->data + i, (d->size - i) * sizeof(QChar));
+    d->data[i] = c.unicode();
+    return *this;
 }
 
 /*! \fn QString& QString::insert(int i, const QString& s)
@@ -593,23 +592,20 @@ QString& QString::insert(int i, const QChar *str, int len)
 	return *this;
     d->cache = 0;
 
-    if (i > d->size)
-	i = d->size;
-
     unsigned short *s = (unsigned short *)str;
-
-    if ( s >= d->data && (s - d->data) < d->alloc ) {
+    if ( s >= d->data && s < d->data + d->alloc ) {
 	// Part of me - take a copy.
-	unsigned short *tmp = (unsigned short *)malloc(len*sizeof(QChar));
-	memcpy(tmp, s, len*sizeof(QChar));
+	unsigned short *tmp = (unsigned short *)malloc(len * sizeof(QChar));
+	memcpy(tmp, s, len * sizeof(QChar));
 	insert(i, (const QChar *)tmp, len);
 	::free(tmp);
 	return *this;
     }
 
     expand(qMax(d->size, i) + len - 1);
-    ::memmove(d->data + i + len, d->data + i, (d->size - i - len)*sizeof(QChar));
-    memcpy(d->data + i, s, len*sizeof(QChar));
+
+    ::memmove(d->data + i + len, d->data + i, (d->size - i - len) * sizeof(QChar));
+    memcpy(d->data + i, s, len * sizeof(QChar));
     return *this;
 }
 
