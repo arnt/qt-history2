@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#115 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -492,6 +492,9 @@ void QFont::initFontInfo() const
 	    f->s.charSet = QFont::Latin8;
 	else if ( strcmp( tokens[CharsetEncoding], "9" ) == 0 )
 	    f->s.charSet = QFont::Latin9;
+    } else if( strcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
+	       strcmp( tokens[CharsetEncoding], "r" ) == 0) {
+	f->s.charSet = QFont::KOI8R;
     } else {
 	f->s.charSet = QFont::AnyCharSet;
     }
@@ -648,6 +651,12 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 Q1String &buffer,
 
     if ( charSet() == AnyCharSet ) {
 	score |= CharSetScore;
+     } else if ( charSet() == KOI8R ) {
+       if ( strcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
+            strcmp( tokens[CharsetEncoding], "r" ) == 0 )
+               score |= CharSetScore;
+       else
+               exactMatch = FALSE;
     } else if ( strcmp( tokens[CharsetRegistry], "iso8859" ) == 0 ) {
 	// need to mask away non-8859 charsets here
 	switch( charSet() ) {
