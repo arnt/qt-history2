@@ -164,7 +164,7 @@ class QHash
 
     union {
         QHashData *d;
-        Node *e;
+        QHashNode<Key, T> *e;
     };
 
     static inline Node *concrete(QHashData::Node *node) {
