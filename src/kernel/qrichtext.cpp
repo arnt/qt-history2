@@ -3445,7 +3445,7 @@ void QTextString::truncate( int index )
     if ( index < (int)data.size() ) {
 	for ( int i = index + 1; i < (int)data.size(); ++i ) {
 #ifndef QT_NO_TEXTCUSTOMITEM
-	    if ( data[ i ].type != QTextStringChar::Regular ) {
+	    if ( !(data[ i ].type == QTextStringChar::Regular) ) {
 		delete data[ i ].customItem();
 		if ( data[ i ].d.custom->format )
 		    data[ i ].d.custom->format->removeRef();
@@ -3466,7 +3466,7 @@ void QTextString::remove( int index, int len )
 {
     for ( int i = index; i < (int)data.size() && i - index < len; ++i ) {
 #ifndef QT_NO_TEXTCUSTOMITEM
-	if ( data[ i ].type != QTextStringChar::Regular ) {
+	if ( !(data[ i ].type == QTextStringChar::Regular) ) {
 	    delete data[ i ].customItem();
 	    if ( data[ i ].d.custom->format )
 		data[ i ].d.custom->format->removeRef();
@@ -3488,7 +3488,7 @@ void QTextString::clear()
 {
     for ( int i = 0; i < (int)data.count(); ++i ) {
 #ifndef QT_NO_TEXTCUSTOMITEM
-	if ( data[ i ].type != QTextStringChar::Regular ) {
+	if ( !(data[ i ].type == QTextStringChar::Regular) ) {
 	    delete data[ i ].customItem();
 	    if ( data[ i ].d.custom->format )
 		data[ i ].d.custom->format->removeRef();
