@@ -699,8 +699,10 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	it = subdirs.begin();
 	while (it != subdirs.end()) {
 	    tar = *it++;
+            tar.replace(QRegExp("/"), "-");
 	    if (it != subdirs.end()) {
 		dep = *it;
+                dep.replace(QRegExp("/"), "-");
 		t << "sub-" << dep << ": sub-" << tar << endl;
 	    }
 	}
