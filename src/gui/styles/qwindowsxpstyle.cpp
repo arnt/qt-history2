@@ -77,25 +77,6 @@
 #define q q_func()
 
 
-/*! \reimp */
-QRect QWindowsXPStyle::subRect(SubRect r, const QStyleOption *option, const QWidget *widget) const
-{
-    QRect rect(option->rect);
-    switch(r) {
-    default:
-        rect = QWindowsStyle::subRect(r, option, widget);
-    }
-    return rect;
-}
-
-/*! \reimp */
-QPixmap QWindowsXPStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option, const QWidget *widget) const
-{
-    return QWindowsStyle::standardPixmap(standardPixmap, option, widget);
-}
-
-
-
 /* XPM */
 static char * dockCloseXPM[] = {
 "8 8 2 1",
@@ -431,9 +412,16 @@ struct XPThemeData
                 p.end();
                 rec = oldrec;
 
-                QMatrix m;
-                m.scale(-1, 1);
-                pm = pm.transform(m);
+                //QMatrix m;
+                //m.scale(-1, 1);
+                //pm = pm.transform(m);
+                // ################ Make perfect 90 angle rotates, using QImage
+                if (hMirrored || vMirrored)
+                {
+                    QImage img = pm.toImage();
+                    img = img.mirror(hMirrored, vMirrored);
+                    pm = img;
+                }
 
                 painter->drawPixmap(rec.x(), rec.y(), pm);
             }
@@ -751,6 +739,24 @@ void QWindowsXPStyle::updateRegion(QWidget *widget)
     }
 }
 
+QRect QWindowsXPStyle::subRect(SubRect sr, const QStyleOption *option, const QWidget *widget) const
+{
+    QRect rect(option->rect);
+    switch(sr) {
+    case SR_TabWidgetTabContents:
+        if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(option))
+        {
+            rect = QWindowsStyle::subRect(sr, option, widget);
+            if (sr == SR_TabWidgetTabContents)
+                   rect.addCoords(0, 0, -2, -2);
+        }
+        break;
+    default:
+        rect = QWindowsStyle::subRect(sr, option, widget);
+    }
+    return rect;
+}
+
 /*!
     \reimp
 */
@@ -873,18 +879,34 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         break;
 
     case PE_FrameTabWidget:
-//        if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(option))
+        if (const QStyleOptionTabWidgetFrame *tab = qt_cast<const QStyleOptionTabWidgetFrame *>(option))
         {
             name = "TAB";
             partId = TABP_PANE;
 
-            //switch (tab->shape) {
-            //case QTabBar::RoundedSouth:
-            //    vMirrored = true;
-            //case QTabBar::RoundedNorth:
-            //default:
-            //    break;
-            //}
+            if (tab->shape == QTabBar::RoundedNorth)
+                break;
+
+            QStyleOptionTabWidgetFrame frameOpt = *tab;
+            frameOpt.rect = widget->rect();
+            QRect contentsRect = subRect(SR_TabWidgetTabContents, &frameOpt, widget);
+            QRegion reg = option->rect;
+            reg -= contentsRect;
+            p->setClipRegion(reg);
+            XPThemeData theme(0, p, name, partId, stateId, rect);
+            theme.setHMirrored(hMirrored);
+            theme.setVMirrored(vMirrored);
+            theme.drawBackground();
+
+            p->setClipRect(contentsRect);
+            partId = TABP_BODY;
+            switch (tab->shape) {
+            case QTabBar::RoundedSouth:
+                vMirrored = true;
+                break;
+            default:
+                break;
+            }
         }
         break;
 
@@ -972,34 +994,6 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
     //    mirror = qApp->reverseLayout();
     //    break;
 
-    //case PE_ScrollBarAddLine:
-    //    name = "SCROLLBAR";
-    //    break;
-
-    //case PE_ScrollBarSubLine:
-    //    name = "SCROLLBAR";
-    //    break;
-
-    //case PE_ScrollBarAddPage:
-    //    name = "SCROLLBAR";
-    //    break;
-
-    //case PE_ScrollBarSubPage:
-    //    name = "SCROLLBAR";
-    //    break;
-
-    //case PE_ScrollBarSlider:
-    //    name = "SCROLLBAR";
-    //    break;
-
-    //case PE_ScrollBarFirst:
-    //    name = "SCROLLBAR";
-    //    break;
-
-    //case PE_ScrollBarLast:
-    //    name = "SCROLLBAR";
-    //    break;
-
     case PE_IndicatorProgressChunk:
         name = "PROGRESS";
         partId = PP_CHUNK;
@@ -1048,6 +1042,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         }
 
     case PE_IndicatorBranch: {
+        return;
         static const int decoration_size = 9;
         int mid_h = option->rect.width() / 2;
         int mid_v = option->rect.height() / 2;
@@ -1152,11 +1147,11 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             bool lastTab = tab->position == QStyleOptionTab::End;
             bool firstTab = tab->position == QStyleOptionTab::Beginning;
             bool onlyOne = tab->position == QStyleOptionTab::OnlyOneTab;
-            bool previousSelected = (tab->selectedPosition == QStyleOptionTab::PreviousIsSelected);
-            bool nextSelected = (tab->selectedPosition == QStyleOptionTab::NextIsSelected);
+            //bool previousSelected = (tab->selectedPosition == QStyleOptionTab::PreviousIsSelected);
+            //bool nextSelected = (tab->selectedPosition == QStyleOptionTab::NextIsSelected);
             bool leftAligned = styleHint(SH_TabBar_Alignment, tab, widget) == Qt::AlignLeft;
             bool centerAligned = styleHint(SH_TabBar_Alignment, tab, widget) == Qt::AlignCenter;
-            bool rightAligned = styleHint(SH_TabBar_Alignment, tab, widget) == Qt::AlignRight;
+            //bool rightAligned = styleHint(SH_TabBar_Alignment, tab, widget) == Qt::AlignRight;
             int borderThickness = pixelMetric(PM_DefaultFrameWidth, option, widget);
             int tabOverlap = pixelMetric(PM_TabBarTabOverlap, option, widget);
 
@@ -1535,52 +1530,52 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         }
         break;
 
-    //case CC_ComboBox:
-    //    if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(option))
-    //    {
-    //        if (sub & SC_ComboBoxEditField) {
-    //            partId = EP_EDITTEXT;
-    //            if (!(flags & State_Enabled))
-    //                stateId = ETS_DISABLED;
-    //            else if (flags & State_HasFocus)
-    //                stateId = ETS_FOCUSED;
-    //            else
-    //                stateId = ETS_NORMAL;
-    //            XPThemeData theme(widget, p, "EDIT", partId, stateId, r);
+    case CC_ComboBox:
+        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(option))
+        {
+            if (sub & SC_ComboBoxEditField) {
+                partId = EP_EDITTEXT;
+                if (!(flags & State_Enabled))
+                    stateId = ETS_DISABLED;
+                else if (flags & State_HasFocus)
+                    stateId = ETS_FOCUSED;
+                else
+                    stateId = ETS_NORMAL;
+                XPThemeData theme(widget, p, "EDIT", partId, stateId, r);
 
-    //            theme.drawBackground();
-    //            if (!((QComboBox*)widget)->editable()) {
-    //                QRect re = visualRect(option->direction, option->rect, subControlRect(CC_ComboBox, option, SC_ComboBoxEditField, widget));
-    //                if (widget->hasFocus()) {
-    //                    p->fillRect(re, option->palette.highlight());
-    //                    p->setPen(option->palette.highlightedText());
-    //                    p->setBackground(option->palette.highlight());
-    //                } else {
-    //                    p->fillRect(re, option->palette.base());
-    //                    p->setPen(option->palette.text());
-    //                    p->setBackground(option->palette.base());
-    //                }
-    //            }
-    //        }
+                theme.drawBackground();
+                if (!cmb->editable) {
+                    QRect re = visualRect(option->direction, option->rect, subControlRect(CC_ComboBox, option, SC_ComboBoxEditField, widget));
+                    if (widget->hasFocus()) {
+                        p->fillRect(re, option->palette.highlight());
+                        p->setPen(option->palette.highlightedText().color());
+                        p->setBackground(option->palette.highlight());
+                    } else {
+                        p->fillRect(re, option->palette.base());
+                        p->setPen(option->palette.text().color());
+                        p->setBackground(option->palette.base());
+                    }
+                }
+            }
 
-    //        if (sub & SC_ComboBoxArrow) {
-    //            XPThemeData theme(widget, p, "COMBOBOX");
-    //            theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_ComboBox, option, SC_ComboBoxArrow, widget));
-    //            partId = CP_DROPDOWNBUTTON;
+            if (sub & SC_ComboBoxArrow) {
+                XPThemeData theme(widget, p, "COMBOBOX");
+                theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_ComboBox, option, SC_ComboBoxArrow, widget));
+                partId = CP_DROPDOWNBUTTON;
 
-    //            if (!(flags & State_Enabled))
-    //                stateId = CBXS_DISABLED;
-    //            else if (option->activeSubControls == SC_ComboBoxArrow)
-    //                stateId = CBXS_PRESSED;
-    //            else if (flags & State_MouseOver && theme.rec.contains(d->hotSpot))
-    //                stateId = CBXS_HOT;
-    //            else
-    //                stateId = CBXS_NORMAL;
+                if (!(flags & State_Enabled))
+                    stateId = CBXS_DISABLED;
+                else if (option->activeSubControls == SC_ComboBoxArrow)
+                    stateId = CBXS_PRESSED;
+                else if (flags & State_MouseOver && theme.rec.contains(d->hotSpot))
+                    stateId = CBXS_HOT;
+                else
+                    stateId = CBXS_NORMAL;
 
-    //            theme.drawBackground(partId, stateId);
-    //        }
-    //    }
-    //    break;
+                theme.drawBackground(partId, stateId);
+            }
+        }
+        break;
 
     case CC_ScrollBar:
         if (const QStyleOptionSlider *scrollbar = qt_cast<const QStyleOptionSlider *>(option))
