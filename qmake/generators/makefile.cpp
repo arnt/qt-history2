@@ -261,13 +261,13 @@ MakefileGenerator::generateMocList(QString fn_target)
 
     QString fn_local = Option::fixPathToLocalOS(fn_target);
     QFile file(fn_local);
-    QRegExp regexpObj("Q_OBJECT");
+    QString stringObj("Q_OBJECT");
     if ( file.open(IO_ReadOnly) ) {
 	QTextStream t( &file );
 	QString s;
 	while ( !t.eof() ) {
 	    s = t.readLine();
-	    if(s.find(regexpObj) != -1) {
+	    if(s.find(stringObj) != -1) {
 		QString mocFile;
 		QFileInfo fi(fn_local);
 
