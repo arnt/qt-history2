@@ -1,0 +1,562 @@
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<chapter>
+<title>Creating a Qt Application</title>
+
+<sect1 id="runningampexitingqtdesigner">
+<title>Starting &amp; Exiting Qt Designer </title>
+<para>
+\qd is started and controlled in the same way as any other modern
+desktop application.
+To start \qd under Windows you can either double click the Designer icon
+on the desktop or click the <guimenuitem>Start</guimenuitem> button and
+click <guimenuitem>Programs|Qt 3.0.0|Designer</guimenuitem>. If you're
+running a Unix or Linux operating system you can either click the \qd
+icon or enter <literal>designer &amp;</literal> in an xterm.
+</para>
+<para>
+\qd can be quit by clicking <guimenuitem>File|Exit</guimenuitem>; you
+will be prompted to save any unsaved changes. Help is available by
+pressing <keycap>F1</keycap> or from the <guimenuitem>Help</guimenuitem> menu.
+</para>
+<para>
+To get the most benefit from the tutorial chapters we recommend that you
+start \qd now and create the example applications as you read. Most of
+the work involves using \qd's menus, dialogs and editors, with only
+small amounts of code to type in. 
+</para>
+<para>
+When you start \qd you will see a menu bar and various toolbars at the
+top. On the left hand side are two windows, the
+first is the Files window and the one below is the Properties window.
+The Files window lists the files and images associated with the project;
+to open any form single click it in the Files list. The Properties
+window is used to view and change the properties of forms and widgets.
+We will cover the use of \qd's windows, dialogs, menu options and
+toolbar buttons as we create example applications.
+</para>
+<para>
+In this chapter and the next we will build an application called
+multiclip which allows you to store and retrieve multiple text clippings
+to and from the clipboard.
+<figure><title>The Multiclip Application</title>
+\img[multiclip]
+</figure>
+</para>
+</sect1>
+
+<sect1 id="creatinganewproject">
+<title>Creating a New Project </title>
+<para>
+Whenever you begin a new program we
+recommend that you create a project file and open the project rather
+than individual <filename>.ui</filename> files. Opening a project has
+the advantage that all the forms you create for the project are
+available via a single mouse click rather than having to be loaded
+individually through file open dialogs.
+</para>
+<para>
+Start \qd if you haven't already. Click <guimenuitem>File|New
+Project</guimenuitem> to invoke the Project Settings dialog. Enter
+'multiclip' as the project's name and 'multiclip.pro' as the project's
+filename, then click \ok.  The name of the current project is shown in
+the Files toolbar which is the top left toolbar by default. 
+Once we have a project we can add forms and begin to build our
+application. (See <xref
+linkend="customizingqtdesigner"> "Customizing Qt Designer" for
+information on changing Designer's toolbars and windows to suit your
+preferences.)
+</para>
+</sect1>
+
+<sect1 id="creatinganewform">
+<title>Creating a New Form </title>
+<para>
+Click <guimenuitem>File|New</guimenuitem> to invoke the New Form dialog.
+Several default forms are supplied but we will use the default Dialog
+form, so just click \ok. A new form called 'Form1' will appear. Note
+that the new form is listed in the Files list and the Properties window
+shows the form's default property settings.
+</para>
+<para>
+Click the Value beside the name property and change the form's name to
+'MulticlipForm'.  Change the form's caption to 'Multiclip'. The
+properties are ordered in accordance with the inheritance hierarchy, and
+caption is the tenth property from the top in the property editor. Save
+the form: click <guimenuitem>File|Save</guimenuitem>, enter the name
+'multiclip.ui', then click the <guibutton>Save</guibutton> button. 
+</para>
+</sect1>
+
+<sidebar id="usingthepropertyeditor">
+<title>Using the Property Editor </title>
+<para>
+The Property Editor comprises two columns, the Property column which
+lists property names and the Value column which lists the values. Some
+property names have a plus sign '+' in a square to their left; this
+signifies that the property name is the collective name for a set of
+related properties. Click the form to make the Propery Editor show the
+form's properties. Click the sizePolicy property's plus sign; you will
+see two properties appear indented below sizePolicy, hSizeType and
+vSizeType. These properties are changed in exactly the same way as any
+other properties.
+</para>
+<para>
+Some properties have simple values, for example the name property has a
+text value, the width property (within minimumSize for example) has a
+numeric value. To change a text value click the value and
+type in your new value. To change a numeric value click the value and
+either type in a new number or use the spin buttons to increase or
+decrease the existing number until it reaches the number you want. Some
+properties have a fixed list of values, for example the the
+mouseTracking property is boolean and can take the values True or False.
+The cursor property also has a fixed list of values. If you click the
+cursor property or the mouseTracking property the value will be shown in
+a drop down combobox; click the down arrow to see what values are
+available. Some properties have complex sets of values, for example the
+font property. If you click the font property an ellipsis button
+<guibutton>...</guibutton> will appear; click this button and a Select
+Font dialog will pop up which you can use to change any of the font
+settings. Other properties have ellipsis buttons which lead to
+different dialogs depending on what settings the property can
+have. For example, if you have a lot of text to enter you could click
+the ellipsis button to invoke the multi-line text editor dialog.
+</para>
+<para>
+The names of properties which have changed are shown in bold face. If
+you've changed a property but want to revert it to the default value
+click the property's value and then click the red 'X' button 
+to the right of the value. Some properties have an
+<emphasis>initial</emphasis> value, e.g. 'TextEdit1', but not a default
+value; if you revert a property that has an initial value but no default
+value (by clicking the red 'X') the value will become empty. Some
+properties, e.g. name, cannot be empty and cannot be deleted. 
+</para>
+<para>
+The property editor fully supports Undo and Redo
+(<keycap>Ctrl+Z</keycap> and <keycap>Ctrl+Y</keycap>, also available
+from the <guimenuitem>Edit</guimenuitem> menu). If you click a property
+and then click <keycap>F1</keycap> context sensitive help will appear to
+explain the property.
+</para>
+</sidebar>
+
+
+<sect1 id="addingwidgets">
+<title>Adding Widgets </title>
+<para>
+The multiclip application consists of a text box to display the current
+clipboard text (if any), a list box showing the previous clippings a
+length indicator, a checkbox, and buttons. If you run the application and
+resize it all the widgets will scale properly. There is also a splitter
+between the list box and the buttons so that the user can change the
+area occupied by the list box.
+</para>
+<para>
+The \qd approach to laying out a form is to place the required
+widgets on the form in the approximate positions that they should
+occupy and then use the layout tools to size and position them
+correctly. We'll now add the multiclip form's widgets.
+<orderedlist numeration="arabic">
+<listitem>
+<para>
+We'll start with the current clipping text box.
+Click the Text Label toolbar button and click towards the top left
+of the form. (If you hover the mouse over a toolbar button its name
+will appear in a tooltip.) We won't bother renaming the label since
+we'll never refer to it in code; but we need to change its text, so
+change its text property to 'Current Clipping'. (See the <xref
+linkend="usingthepropertyeditor"> "Using the Property Editor" sidebar
+for an explanation of the property editor.)
+</para>
+<para>
+Click the Line Edit toolbar button and click towards the top right of
+the form. Use the Property Editor to rename the widget
+'currentLineEdit'.
+</para>
+</listitem>
+<listitem>
+<para>
+Now we'll add the list box. Click the Text Label toolbar button and
+click below the first TextLabel on the form. Change the text property to
+'Previous Clippings'. Do not worry about positioning the widgets
+precisely, nor about the fact that they are the wrong size; the layout
+tools (covered in the next section) will sort all this out for us. 
+</para>
+<para>
+Click the List Box toolbar button and click the form below the 'Previous
+Clippings' label. Change the list box's name to 'clippingsListBox'. By
+default \qd creates list boxes with a single default value of 'New
+Item'. We don't want this value (we'll be populating our list box in
+code later), so we need to remove the value. Right click the list box
+then click the <guimenuitem>Edit</guimenuitem> menu item on the pop up
+menu to invoke the listbox's value editor dialog. Click
+<guibutton>Delete Item</guibutton> to delete the default item, then
+click \ok. (See the <xref linkend="valueeditors"> "Value Editors"
+sidebar.)
+</para>
+</listitem>
+<listitem>
+<para>
+We want to know the length of the current clipping so we'll add a label
+and an LCD Number widget. Click the Text Label toolbar button and click
+below the Line Edit. Change its text property's value to 'Length'. Click
+the LCD Number toolbar button and click below the length label. Change
+the LCD Number's name to 'lengthLCDNumber'.
+</para>
+</listitem>
+<listitem>
+<para>
+Multiclip can be made to detect clipboard changes and automatically add
+new clippings. We want the user to have control over whether this should
+happen or not so we will give them a check box to indicate their
+preference. Click the Check Box toolbar button and click below the LCD
+Number. Change the checkbox's text to 'A&amp;uto Add Clippings'. Note
+that the accel property automatically changes to <keycap>Alt+U</keycap>.
+</para>
+</listitem>
+<listitem>
+<para>
+The last widgets we require are the buttons. One way to add the same
+kind of widget multiple times is to add one and use Copy and Paste. We
+will use another approach: <emphasis>double</emphasis> click the Push
+Button toolbar button; now click below the checkbox to place a button.
+Click below the button we've just added to add a second button. Add a
+third and fourth button. Now click the Pointer toolbar button to switch
+off automatically adding the same widget. Change the first button's name
+to 'addPushButton' and its text to '&amp;Add Clipping'. Change
+the second button's name to 'copyPushButton' and its text to '&amp;Copy
+Previous'. Change the third button's name and text properties to
+'deletePushButton' and '&amp;Delete Clipping' respectively. Similarly
+change the fourth button's name and text to 'quitPushButton' and
+'&amp;Quit'.
+</para>
+</listitem>
+</itemizedlist>
+All our widgets have been placed on the form with their properties
+changed to suit our application's needs. In the next section we will use
+\qd's layout tools to size and position the widgets correctly and in
+such a way that when the user resizes the form the widgets will scale
+properly.
+</para>
+
+<sidebar id="valueeditors">
+<title>Value Editors</title>
+<para>
+Whilst the Property Editor is used to customize the generic properties
+of widgets, value editors are used to edit values held within instances
+of particular widgets. For example whilst a
+<classname>QLineEdit</classname> can only contain a single line of text,
+a <classname>QListBox</classname> can contain any number of items each
+of which may be a line of text, a pixmap, or both. If you right click a
+widget a pop up menu will appear; if the first menu item is 'Edit', you
+can click this to access the widget's value editor dialog. Different
+widgets have different value editors.
+</para>
+</sidebar>
+
+</sect1>
+
+<sect1 id="layingoutwidgetsandpreviewing">
+<title>Laying Out Widgets &amp; Previewing </title>
+
+    <sect2 id="introductiontolayouts">
+    <title>Introduction to Layouts </title>
+    <para> 
+    Layouts work by grouping together widgets and groups of widgets,
+    horizontally, vertically or in a grid. Widgets that are laid out
+    together horizontally or vertically can be grouped either with a
+    Layout or with a Splitter; the only difference is that a user can
+    manipulate a Splitter themselves.
+    </para>
+    <para>
+    If we want to lay out some widgets side by side we would select them
+    and then click the <guibutton>Lay Out Horizontally</guibutton>
+    toolbar button. If we our widgets to be lined up one above
+    the other we would use <guibutton>Lay Out Vertically</guibutton>.
+    Once we've grouped some widgets together we can then lay out the
+    groups in relation to each other, again using vertical, horizontal
+    or grid layouts. Once we have a collection of laid out groups we
+    then click on the form itself and lay out the groups within the form
+    using one of the layout buttons. 
+    </para>
+    <para>
+    Sometimes the layout stretches some widgets to fill the available
+    space in a way that doesn't look attractive. We can fill extra space
+    with <emphasis>Spacers</emphasis>. Spacers have no visual appearance
+    on the running form and are used purely to insert space between
+    widgets or groups of widgets. The best way to learn about layouts
+    and spacers is to try them out. Layouts are fully Undoable so you
+    can experiment freely.
+    </para>
+    </sect2>
+
+    <sect2 id="layingoutwidgets">
+    <title>Laying Out The Widgets </title>
+    <para>
+    The layout we want to achieve is to have the Current Clipping label
+    and currentLineEdit side by side at the top of the form. We want the
+    Previous Clippings label and the clippingsListBox to occupy the left
+    hand side of the form with the remaining widgets in a column on the
+    right. We want to divide left and right with a splitter and make the
+    left hand side larger by default. We'll leave the sizing of the
+    widgets to \qd. The layout controls are in the Layout toolbar. (By
+    default this is the fourth toolbar counting left to right.) We'll
+    now lay out the widgets we've placed on the form.
+    <orderedlist numeration="arabic">
+    <listitem>
+    <para>
+    Click the Current Clipping label and Shift+Click the currentLineEdit
+    Line Edit. (Shift+Click means hold down the shift key whilst
+    clicking; this will ensure that \qd performs multiple selections.)
+    Most of the layout toolbar buttons will now be available. Click the
+    <guibutton>Lay Out Horizontally</guibutton> toolbar button. The two
+    widgets will be moved together with a thin red line surrounding
+    them. It doesn't matter that the widgets aren't the right size or in
+    exactly the right place; as we progress with the layout \qd will
+    size and place them correctly.
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    Click the Previous Clippings label and Shift+Click the
+    clippingsListBox. Click the <guibutton>Lay Out
+    Vertically</guibutton> toolbar button.
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    We want the remaining widgets to be grouped together vertically. We
+    could Shift+Click each one but instead click the form above and to
+    the left of the Length label and drag until the Length label, the
+    LCD Number, the check box and all the buttons are in or touching the
+    black outline rectangle that appears when you drag; release the
+    mouse. All the remaining widgets should be selected. If you missed
+    any Shift+Click them. Now click the <guibutton>Lay Out
+    Vertically</guibutton> toolbar button.
+    </para>
+    </listitem>
+    </itemizedlist>
+    </para>
+    <para>
+    We now have three groups of widgets which must be laid out in
+    relation to each other and then laid out in relation to the form
+    itself.
+    <orderedlist numeration="arabic">
+    <listitem>
+    <para>
+    Shift+Clicking is used to select individual widgets. To select a
+    group we must click the form, drag so that the black outline
+    encloses or touches the groups we want to lay out and then release. 
+    Drag over the Previous Clippings label and list box group and the
+    buttons and other widgets group and release. Both groups should now
+    be selected. Click <guibutton>Lay Out Horizontally (in
+    Splitter)</guibutton>. We could have used the ordinary horizontal
+    layout but by using the splitter we are enabling the user to change
+    the layout themselves.
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    We now have two groups, the top one with the Current Clipping label
+    and the line edit and the group we've just created with the list box,
+    buttons and other widgets. We now want to lay these out in relation
+    to the form. Click the form and click <guibutton>Lay Out
+    Vertically</guibutton>. The widgets will be resized to fill the
+    entire form.     
+    </para>
+    </listitem>
+    </itemizedlist>
+    </para>
+
+    <para>
+    Unfortunately the Length label and the LCD Number take up far too
+    much space, so we will have to rework the layout. With experience
+    you will find that you do not need to rework layouts very often. We
+    will insert a spacer which will use the extra space.
+    <orderedlist numeration="arabic">
+    <listitem>
+    <para>
+    First we must make some room for the spacer.
+    Click the Length label to select it. Now click the
+    <guibutton>Break Layout</guibutton> toolbar button. Resize the
+    Length label to be a little shorter, there's no need to be exact we
+    just want to create some space below it. Drag the LCD Number up a
+    little bit so that there's some space between the LCD Number and the
+    check box; again don't worry about being precise. 
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    Now we'll add the spacer.
+    Click the
+    <guibutton>Spacer</guibutton> toolbar button, then click the form
+    in the space you've created between the LCD Number and the check
+    box. A pop up menu with two options, Horizontal and Vertical, will
+    appear; click Vertical. 
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    We need to regroup the buttons and other widgets in a vertical
+    group. Drag the mouse from near the bottom right of the form so that
+    the black outline rectangle includes or touches the buttons, the
+    check box, the spacer, the LCD Number and the Length label then
+    release. If you selected any other widgets by mistake, click the
+    form and try the drag again. Click the <guibutton>Lay Out
+    Vertically</guibutton> toolbar button.
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    We now have three groups as we had before, only this time with the
+    small addition of the spacer. Select the list box and the buttons by
+    clicking the form, dragging and releasing once the black outline
+    rectangle covers or touches both groups. Click
+    <guibutton>Lay Out Horizontally (in Splitter)</guibutton> to regroup
+    them with the splitter.
+    </para>
+    </listitem>
+    <listitem>
+    <para>
+    The last step is to lay out the form itself. Click the form and
+    click <guibutton>Lay Out Vertically</guibutton>. The form should now
+    be laid out correctly.	
+    </para>
+    </listitem>
+    </itemizedlist>
+    There are two small deficiencies in the layout that we have
+    achieved. Firstly the list box and buttons take up an equal width
+    whereas we'd rather have the list box take up about three quarters
+    of the width. Secondly the Length label, the check box and the
+    buttons extend right up to the splitter; they would be more
+    attractive if there was a little bit of space separating them from
+    the splitter.
+    </para>
+    <para> 
+    Expanding the list box half of the splitter will require us to add
+    one line of code to the form's <function>init()</function> function.
+    We will write this line in the next chapter when we implement the
+    application's functionality. We will create some space around the
+    splitter by changing the margins of the layout groups that it joins
+    together. To click a layout either click a tiny bit above the
+    layout's top red line or click the layout's name in the Object
+    Explorer. (See <xref linkend="theobjectexplorer"> "The Object
+    Explorer" sidebar for an explanation of the Object Explorer window.)
+    Click the layout that contains the list box, and change the
+    layoutMargin property to 5, then press <keycap>RETURN</keycap>. Click
+    the layout that contains the buttons and other widgets and change
+    its layoutMargin to the same value in the same way. 
+    </para>
+    </sect2>
+
+    <sidebar id="theobjectexplorer">
+    <title>The Object Explorer</title>
+    <para>
+    View the Object Explorer window by clicking
+    <guimenuitem>Window|Views|Object Explorer</guimenuitem>. The Object
+    Explorer has two tabs, the Widgets tab which shows the object
+    hierarchy, and the Source tab which shows the source code you have
+    added to the form. Clicking the name of a widget in the Widget tab
+    will select the widget and show its properties in the Property
+    Editor. It is easy to see and select widgets
+    in the Object Explorer which is especially useful for forms that
+    have many widgets or which use layouts. 
+    </para>
+    <para>
+    In the original version of \qd if you wanted to provide code for a
+    form you had to subclass the form and put your code in the subclass.
+    This version of Designer fully supports the subclassing approach,
+    but now provides an alternative: placing your code directly into
+    forms. Writing code in Designer is not quite the same as
+    subclassing, for example you cannot get direct access to the
+    form's constructor or destructor. Instead two 
+    functions <function>init()</function> (called after
+    contstruction) and <function>destroy()</function> (called before
+    destruction) are created by default. You can also add your own Class
+    variables which will be put in the generated contructor's code, and
+    you can add forward declarations and any includes you require.
+    To add a variable or declaration right click the appropriate item,
+    e.g. Class Variables, click New then enter your text, e.g.
+    <literal>QString fileName</literal>. If one or more items exist
+    right clicking will pop up a two item menu with New and Delete as
+    options. To edit code just click the name of a function. 
+    Code editing and creating slots are covered later.
+    </para>
+    <para>
+    If you subclass the form you create your own 
+    <function>.cpp</function> files which can contain your own
+    constructor, destructor, functions, slots, declarations and
+    variables as your requirements dictate. (See <xref
+    linkend="subclassing"> "Subclassing" for more information.)
+    </para>
+    </sidebar>
+
+    <sect2 id="previewing">
+    <title>Previewing </title>
+    <para>
+    Although \qd presents an accurate view of our forms we often want to
+    see what a form looks like when it is run. It is also useful to be
+    able to test out some aspects of the form, for example how the form
+    scales when resized or how the splitters work in practice. If we're
+    building cross-platform applications it is also useful to see how
+    the form will look on different platforms.
+    </para>
+    <para>
+    To see a preview either click <guimenuitem>Preview|Preview
+    Form</guimenuitem> or press <keycap>Ctrl+T</keycap>. Try this with
+    multiclip; when the preview appears try resizing the form and try
+    moving the splitter. To leave preview mode press
+    <keycap>Esc</keycap> or close the window in the standard way for
+    your platform. To view previews which show how the application will
+    look on other platforms click the <guimenuitem>Preview</guimenuitem>
+    menu and click one of the menu items that drop down.
+    </para>
+    </sect2>
+
+    <sect2 id="changingthetaborder">
+    <title>Changing the Tab Order </title>
+    <para>
+
+    </para>
+    </sect2>
+</sect1>
+
+<sect1 id="qtssignalsandslotsmechanism">
+<title>Qt's Signals and Slots Mechanism </title>
+<para>
+
+</para>
+</sect1>
+
+<sect1 id="connectingupanapplication">
+<title>Connecting up an Application </title>
+
+    <sect2 id="connectingpredefinedsignalsampslots">
+    <title>Connecting Predefined Signals &amp; Slots </title>
+    <para>
+
+    </para>
+    </sect2>
+
+    <sect2 id="creatingampconnectingcustomslots">
+    <title>Creating &amp; Connecting Custom Slots </title>
+    <para>
+
+    </para>
+    </sect2>
+
+    <sect2 id="codingcustomslots">
+    <title>Coding Custom Slots </title>
+    <para>
+
+    </para>
+    </sect2>
+</sect1>
+
+<sect1 id="gettinghelp">
+<title>Getting Help </title>
+<para>
+[[on-line help]
+</para>
+</sect1>
+</chapter>
