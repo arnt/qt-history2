@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#33 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#34 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -74,7 +74,7 @@ private:
     void calculateFrame();
     void insertWid( QWidget* _w );
     void setTextSpacer();
-    
+
     QString str;
     int align;
     int lenvisible;

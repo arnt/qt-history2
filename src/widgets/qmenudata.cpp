@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#96 $
 **
 ** Implementation of QMenuData class
 **
@@ -73,6 +73,7 @@ QMenuItem::QMenuItem()
     iconset_data	 = 0;
     pixmap_data	 = 0;
     popup_menu	 = 0;
+    widget_item	 = 0;
     accel_key	 = 0;
     signal_data	 = 0;
     d = 0; // FOR EXTENSION (eg. non-ascii accels)
@@ -197,7 +198,7 @@ uint QMenuData::count() const
 */
 
 int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
-			  QPopupMenu *popup, const QIconSet* iconset, int id, int index )
+			  QPopupMenu *popup, const QIconSet* iconset, int id, int index, QWidget* widget )
 {
     if ( index > (int)mitems->count() ) {
 #if defined(CHECK_RANGE)
@@ -213,7 +214,9 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
     register QMenuItem *mi = new QMenuItem;
     CHECK_PTR( mi );
     mi->ident = id;
-    if ( text == 0 && pixmap == 0 && popup == 0 ) {
+    if ( widget != 0 ) {
+	mi->widget_item = widget;
+    } else if ( text == 0 && pixmap == 0 && popup == 0 ) {
 	mi->is_separator = TRUE;		// separator
 	mi->ident	 = -1;
     } else {
@@ -685,6 +688,15 @@ int QMenuData::insertItem( const QIconSet& icon,
     return insertAny( 0, &pixmap, popup, &icon, id, index );
 }
 
+
+
+/*!
+  to be documented #####
+ */
+int QMenuData::insertItem( QWidget* widget, int id=-1, int index=-1 )
+{
+    return insertAny( 0, 0, 0, 0, id, index, widget );
+}
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#75 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#76 $
 **
 ** Definition of QMenuData class
 **
@@ -59,6 +59,7 @@ public:
     QString	whatsThis()	const	{ return whatsthis_data; }
     QPixmap    *pixmap()	const	{ return pixmap_data; }
     QPopupMenu *popup()		const	{ return popup_menu; }
+    QWidget *widget()		const	{ return widget_item; }
     int		key()		const	{ return accel_key; }
     QSignal    *signal()	const	{ return signal_data; }
     bool	isSeparator()	const	{ return is_separator; }
@@ -77,7 +78,7 @@ private:
     QString	whatsthis_data;			// item Whats This help text
     QPixmap    *pixmap_data;			// item pixmap
     QPopupMenu *popup_menu;			// item popup menu
-    QWidget    *widget;				// widget menu item
+    QWidget    *widget_item;				// widget menu item
     int		accel_key;			// accelerator key (state|ascii)
     QSignal    *signal_data;			// connection
     uint	is_separator : 1;		// separator flag
@@ -154,6 +155,8 @@ public:
     int		insertItem( const QIconSet& icon,
 			    const QPixmap &pixmap, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
+
+    int		insertItem( QWidget* widget, int id=-1, int index=-1 );
 
 
 #ifdef QT_BUILDER
@@ -232,7 +235,7 @@ protected:
 
 private:
     int		insertAny( const QString *, const QPixmap *, QPopupMenu *,
-			   const QIconSet*, int, int );
+			   const QIconSet*, int, int, QWidget* = 0);
     void	removePopup( QPopupMenu * );
     virtual void	setAllDirty( bool );
     void	changeItemIconSet( int id, const QIconSet &icon );

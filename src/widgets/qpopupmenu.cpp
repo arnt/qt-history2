@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#255 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#256 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -34,6 +34,7 @@
 #include "qpixmapcache.h"
 #include "qtimer.h"
 #include "qwhatsthis.h"
+#include "qobjectlist.h"
 #include <ctype.h>
 
 #ifdef QT_BUILDER
@@ -134,7 +135,7 @@ static void popupSubMenuLater( int msec, QObject * receiver ) {
 */
 
 QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
-    : QFrame( parent, name, WType_Popup )
+    : QFrame( parent, name, WType_Popup  | WRepaintNoErase )
 {
     isPopupMenu	  = TRUE;
     parentMenu	  = 0;
@@ -152,6 +153,8 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     style().polishPopupMenu( this );
     setBackgroundMode( PaletteButton );
     connectModalRecursionSafety = 0;
+    
+    setFocusPolicy( StrongFocus );
 }
 
 /*!
@@ -402,18 +405,14 @@ void QPopupMenu::setFirstItemActive()
 {
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
-    int lastActItem = actItem;
-    actItem = 0;
+    int ai = 0;
     while ( (mi=it.current()) ) {
 	++it;
 	if ( !mi->isSeparator() ) {
-	    if ( lastActItem != actItem )
-		updateRow( lastActItem );
-	    updateRow( actItem );
-	    hilitSig( mi->id() );
+	    setActiveItem( ai );
 	    return;
 	}
-	actItem++;
+	ai++;
     }
     actItem = -1;
 }
@@ -545,6 +544,12 @@ QRect QPopupMenu::itemGeometry( int index )
 }
 
 
+class QProtectedWidget : public QWidget
+{
+public:
+    WFlags getWFlags() const { return QWidget::getWFlags(); }
+};
+
 /*!
   \internal
   Calculates and sets the size of the popup menu, based on the size
@@ -559,11 +564,19 @@ void QPopupMenu::updateSize()
     QFontMetrics fm = fontMetrics();
     register QMenuItem *mi;
     maxPMWidth = 0;
+    int maxWidgetWidth = 0;
     tab = 0;
     int arrow_width = style().popupSubmenuIndicatorWidth( fm );
+    
+    bool hasWidgetItems = FALSE;
 
     for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {
 	mi = it.current();
+	if ( mi->widget() && mi->widget()->parentWidget() != this ) {
+	    WFlags flags = ((QProtectedWidget*)mi->widget() )->getWFlags();
+	    flags = flags & ~WType_Mask;
+	    mi->widget()->reparent( this, flags, QPoint(0,0), TRUE );
+	}
 	if ( mi->iconSet() != 0)
 	    maxPMWidth = QMAX( maxPMWidth,
 			       mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4 );
@@ -577,7 +590,14 @@ void QPopupMenu::updateSize()
 	int w = 0;
 	int itemHeight = style().popupMenuItemHeight( checkable, mi, fm );
 	
-	if ( !mi->text().isNull() && !mi->isSeparator() ) {
+	if ( mi->widget() ) {
+	    hasWidgetItems = TRUE;
+	    QSize s( mi->widget()->sizeHint() );
+	    mi->widget()->resize( s );
+	    if ( s.width()  > maxWidgetWidth )
+		maxWidgetWidth = s.width();
+	    itemHeight = s.height();
+	} else if ( !mi->text().isNull() && !mi->isSeparator() ) {
 	    QString s = mi->text();
 	    int t;
 	    if ( (t=s.find('\t')) >= 0 ) {	// string contains tab
@@ -617,12 +637,14 @@ void QPopupMenu::updateSize()
 	if ( w > max_width )
 	    max_width = w;
     }
-
+    
     if ( tab )
 	tab -= fontMetrics().minRightBearing();
     else
 	max_width -= fontMetrics().minRightBearing();
 
+    if ( max_width + tab < maxWidgetWidth )
+	max_width = maxWidgetWidth - tab;
 
     if ( ncols == 1 ) {
 	resize( max_width + tab + 2*frameWidth(), height + 2*frameWidth() );
@@ -632,6 +654,30 @@ void QPopupMenu::updateSize()
     }
 	
     badSize = FALSE;
+    
+    
+    if ( hasWidgetItems ) {
+	// Position the widget items. It could be done in drawContents
+	// but this way we get less flicker.
+	QMenuItemListIt it(*mitems);
+	QMenuItem *mi;
+	int row = 0;
+	int x = contentsRect().x();
+	int y = contentsRect().y();
+	int itemw = contentsRect().width() / ncols;
+	while ( (mi=it.current()) ) {
+	    ++it;
+	    int itemh = itemHeight( row );
+	    if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
+		y = contentsRect().y();
+		x +=itemw;
+	    }
+	    if ( mi->widget() )
+		mi->widget()->setGeometry( x, y, itemw, mi->widget()->height() );
+	    y += itemh;
+	    ++row;
+	}
+    }
 }
 
 
@@ -646,7 +692,7 @@ void QPopupMenu::updateAccel( QWidget *parent )
 {
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
-    
+
     if ( !parent ) {
 	// we have no parent. Rather than ignoring any accelerators we try to find this popup's main window
 	QWidget *w = (QWidget *)this;
@@ -656,15 +702,15 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	    parent = parent->parentWidget();
 	}
     }
-    
+
     if ( autoaccel && parent && autoaccel->parent() != parent ) {
 	delete autoaccel;
 	autoaccel = 0;
     }
-    
+
     if ( parent == 0 && autoaccel == 0 )
  	return;
-    
+
     if ( autoaccel )				// build it from scratch
 	autoaccel->clear();
     else {
@@ -805,6 +851,8 @@ int QPopupMenu::itemHeight( int row ) const
  */
 int QPopupMenu::itemHeight( QMenuItem *mi ) const
 {
+    if  ( mi->widget() )
+	return mi->widget()->height();
     return style().popupMenuItemHeight( checkable, mi, fontMetrics() );
 }
 
@@ -812,7 +860,8 @@ int QPopupMenu::itemHeight( QMenuItem *mi ) const
 void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 			   bool act, int x, int y, int w, int h)
 {
-
+    if ( mi->widget() )
+	return;
     bool dis = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
     style().drawPopupMenuItem(p, checkable, maxPMWidth, tab_, mi, palette(),
 			      act, !dis, x, y, w, h);
@@ -887,14 +936,9 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 	return;
     }
     register QMenuItem *mi = mitems->at(item);
-    if ( item != actItem ) {			// new item activated
-	int lastActItem = actItem;
-	actItem = item;
-	if ( actItem != lastActItem && lastActItem >= 0 )
-	    updateRow( lastActItem );
-	updateRow( actItem );
-	hilitSig( mi->id() );
-    }
+    if ( item != actItem )			// new item activated
+	setActiveItem( item );
+    
     QPopupMenu *popup = mi->popup();
     if ( popup ) {
 	if ( popup->isVisible() ) {		// sub menu already open
@@ -929,6 +973,14 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
     }
     if ( actItem >= 0 ) {			// selected menu item!
 	register QMenuItem *mi = mitems->at(actItem);
+	if ( mi ->widget() ) {
+	    QWidget* widgetAt = QApplication::widgetAt( e->globalPos(), TRUE );
+	    if ( widgetAt && widgetAt != this ) {
+		QMouseEvent me( e->type(), widgetAt->mapFromGlobal( e->globalPos() ),
+				e->globalPos(), e->button(), e->state() );
+		QApplication::sendEvent( widgetAt, &me );
+	    }
+	}
 	QPopupMenu *popup = mi->popup();
 	bool b = QWhatsThis::inWhatsThisMode();
 	if ( !mi->isEnabled() ) {
@@ -993,6 +1045,16 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    mouseBtDn = TRUE; // so mouseReleaseEvent will pop down
 
 	register QMenuItem *mi = mitems->at( item );
+	
+	if ( mi ->widget() ) {
+	    QWidget* widgetAt = QApplication::widgetAt( e->globalPos(), TRUE );
+	    if ( widgetAt && widgetAt != this ) {
+		QMouseEvent me( e->type(), widgetAt->mapFromGlobal( e->globalPos() ),
+				e->globalPos(), e->button(), e->state() );
+		QApplication::sendEvent( widgetAt, &me );
+	    }
+	}
+	
 	if ( actItem == item )
 	    return;
 
@@ -1001,12 +1063,8 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	else if ( singleSingleShot )
 	    singleSingleShot->stop();
 
-	int lastActItem = actItem;
-	actItem = item;
-	if ( lastActItem >= 0 )
-	    updateRow( lastActItem );
-	updateRow( actItem );
-	hilitSig( mi->id() );
+	if ( item != actItem )
+	    setActiveItem( item );
     }
 }
 
@@ -1191,14 +1249,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		 && ( style() != MotifStyle || mi->isEnabled() ) )
 		break;
 	}
-	if ( i != actItem ) {
-	    int lastActItem = actItem;
-	    actItem = i;
-	    if ( mi->id() != 0 )
-		hilitSig( mi->id() );
-	    updateRow( lastActItem );
-	    updateRow( actItem );
-	}
+	if ( i != actItem )
+	    setActiveItem( i );
     }
 }
 
@@ -1435,6 +1487,27 @@ void QPopupMenu::setActiveItem( int i )
 	updateRow( lastActItem );
     if ( i >= 0 && i != lastActItem )
 	updateRow( i );
+    QMenuItem *mi = mitems->at( actItem );
+    if ( !mi )
+	return;
+    if ( mi->widget() ) {
+	QWidget* w = mi->widget();
+	if ( !w->isFocusEnabled() ) {
+	    QObjectList *list = w->queryList( "QWidget" );
+	    QObjectListIt it( *list );
+	    while ( it.current() ) {
+		w = (QWidget*)it.current();
+		++it;
+		if ( w->isFocusEnabled() )
+		    break;
+	    }
+	    delete list;
+	}
+	w->setFocus();
+    }  else
+	setFocus();
+    if ( mi->id() != 0 )
+	hilitSig( mi->id() );
 }
 
 
@@ -1488,6 +1561,36 @@ int QPopupMenu::idAt( const QPoint& pos ) const
  */
 bool QPopupMenu::customWhatsThis() const
 {
+    return TRUE;
+}
+
+
+/*!\reimp
+ */
+bool QPopupMenu::focusNextPrevChild( bool next )
+{
+    register QMenuItem *mi;
+    int dy = next? 1 : -1;
+    if ( dy && actItem < 0 ) {
+	setFirstItemActive();
+    } else if ( dy ) {				// highlight next/prev
+	register int i = actItem;
+	int c = mitems->count();
+	int n = c;
+	while ( n-- ) {
+	    i = i + dy;
+	    if ( i == c )
+		i = 0;
+	    else if ( i < 0 )
+		i = c - 1;
+	    mi = mitems->at( i );
+	    if ( !mi->isSeparator()
+		 && ( style() != MotifStyle || mi->isEnabled() ) )
+		break;
+	}
+	if ( i != actItem )
+	    setActiveItem( i );
+    }
     return TRUE;
 }
 
