@@ -3,17 +3,18 @@ CONFIG += ordered
 
 # this order is important
 win32:SUBDIRS += winmain
-SUBDIRS += moc core gui sql 
+SUBDIRS += moc core gui sql
 contains(QT_CONFIG, opengl): SUBDIRS +=  opengl
 !contains(QT_PRODUCT, qt-professional):SUBDIRS += xml network canvas
 SUBDIRS += compat
 SUBDIRS += plugins
 
 embedded:SUBDIRS -= opengl
+SUBDIRS += tools
 
 # This gives us a top level debug/release
 unix {
-     EXTRA_DEBUG_TARGETS = 
+     EXTRA_DEBUG_TARGETS =
      EXTRA_RELEASE_TARGETS =
      for(sub, SUBDIRS) {
         !isEqual(sub, moc):!isEqual(sub, plugins) {
