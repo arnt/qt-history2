@@ -62,7 +62,10 @@ QWidget *SpinBoxDelegate::editor(QWidget *parent,
 
 void SpinBoxDelegate::releaseEditor(QWidget *editor)
 {
-    delete editor;
+    if (editor == spinBox) {
+        delete editor;
+        spinBox = 0;
+    }
 }
 
 /*!
@@ -109,18 +112,18 @@ void SpinBoxDelegate::updateEditorGeometry(QWidget *editor,
 void SpinBoxDelegate::acceptEditing(QWidget *editor)
 {
     emit commitData(editor);
-    emit doneEditing(editor);
+    emit closeEditor(editor);
 }
 
 void SpinBoxDelegate::cancelEditing(QWidget *editor)
 {
-    emit doneEditing(editor);
+    emit closeEditor(editor);
 }
 
 bool SpinBoxDelegate::eventFilter(QObject *object, QEvent *event)
 {
     if (object == spinBox) {
-    
+
         if (event->type() == QEvent::KeyPress) {
 
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
