@@ -194,7 +194,10 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
                   malloc(sizeof(unsigned short int)*screencols);
         startcmap->transp=(unsigned short int *)
                     malloc(sizeof(unsigned short int)*screencols);
-        ioctl(fd,FBIOGETCMAP,startcmap);
+        if (ioctl(fd,FBIOGETCMAP,startcmap)) {
+            perror("reading fb cmap");
+            qWarning("Error reading palette from framebuffer");
+        }
         for(loopc=0;loopc<screencols;loopc++) {
             screenclut[loopc]=qRgb(startcmap->red[loopc] >> 8,
                                    startcmap->green[loopc] >> 8,
@@ -396,7 +399,10 @@ bool QLinuxFbScreen::initDevice()
             }
         }
 
-        ioctl(fd,FBIOPUTCMAP,&cmap);
+        if (ioctl(fd,FBIOPUTCMAP,&cmap)) {
+            perror("writing fb cmap");
+            qWarning("Error writing palette to framebuffer");
+        }
         free(cmap.red);
         free(cmap.green);
         free(cmap.blue);
