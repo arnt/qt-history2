@@ -157,8 +157,8 @@ QTableWidgetItem *QTableModel::takeItem(int row, int column)
     if (itm) {
         itm->model = 0;
         table[i] = 0;
-        return itm;
     }
+    return itm;
 }
 
 QTableWidgetItem *QTableModel::item(int row, int column) const
