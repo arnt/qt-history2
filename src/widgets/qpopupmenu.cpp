@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#80 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -18,7 +18,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#80 $");
 
 
 // Motif style parameters
@@ -375,15 +375,15 @@ void QPopupMenu::updateSize()
 	} else if ( mi->text() ) {
 	    height += cellh;
 	    const char *s = mi->text();
-	    const char *t = strchr( s, '\t' );
-	    if ( t ) {				// string contains tab
+	    const char *t;
+	    if ( (t=strchr(s, '\t')) ) {	// string contains tab
 		w = fm.width( s, (int)((long)t-(long)s) );
 		int tw = fm.width( t+1 );
 		if ( tw > tab_width )
 		    tab_width = tw;
-	    }
-	    else
+	    } else {
 		w = fm.width( s );
+	    }
 	}
 #if defined(CHECK_NULL)
 	else
