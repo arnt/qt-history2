@@ -1337,15 +1337,9 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	    return;
 	fix_neg_rect( &x, &y, &w, &h );
     }
-
-    initPaintDevice();
-    if(d->paintreg.isEmpty())
-	return;
-
-    Rect bounds;
-    SetRect(&bounds,x+d->offx,y+d->offy,x+w+d->offx,y+h+d->offy);
-    updatePen();
-    FrameArc(&bounds,a/16,alen/16);
+    QPointArray pa;
+    pa.makeArc( x, y, w, h, a, alen, xmat ); // arc polyline
+    drawPolyInternal( pa, FALSE );
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
@@ -1392,45 +1386,54 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	fix_neg_rect( &x, &y, &w, &h );
     }
 
-    initPaintDevice();
-    if(d->paintreg.isEmpty())
-	return;
-
-    Rect bounds;
-    SetRect(&bounds,x+d->offx,y+d->offy,x+w+d->offx,y+h+d->offy);
-    //PaintArc(&bounds,a*16,alen*16);
-    int aa,bb;
-    if(!a) {
-	aa=0;
-    } else {
-	aa=a/16;
-    }
-    if(!alen) {
-	bb=0;
-    } else {
-	bb=alen/16;
-    }
-    if(aa<0)
-	aa=0;
-    if(bb<1)
-	bb=1;
-    if(this->brush().style()==SolidPattern) {
-	updateBrush();
-	PaintArc(&bounds,aa,bb);
-    }
-    if(cpen.style()!=NoPen) {
-	updatePen();
-	FrameArc(&bounds,aa,bb);
-    }
+    //There is probably a way to do this with FrameArc/PaintArc, but for now it is
+    //very different from Qt and not worth it FIXME
+    QPointArray pa;
+    pa.makeArc( x, y, w, h, a, alen, xmat ); // arc polyline
+    int n = pa.size();
+    int cx, cy;
+    xmat.map(x+w/2, y+h/2, &cx, &cy);
+    pa.resize( n+2 );
+    pa.setPoint( n, cx, cy );	// add legs
+    pa.setPoint( n+1, pa.at(0) );
+    drawPolyInternal( pa );
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
 #endif
 
 #ifdef QMAC_NO_QUARTZ
-// FIXME: Implement this
-void QPainter::drawChord( int, int, int, int, int, int )
+void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 {
+    if(!isActive()) 
+	return;
+    if ( testf(ExtDev|VxF|WxF) ) {
+        if ( testf(ExtDev) ) {
+            QPDevCmdParam param[3];
+            QRect r( x, y, w, h );
+            param[0].rect = &r;
+            param[1].ival = a;
+            param[2].ival = alen;
+            if ( !pdev->cmd(QPaintDevice::PdcDrawChord, this, param) )
+                return;
+        }
+        if ( txop == TxRotShear ) {             // rotate/shear
+            QPointArray pa;
+            pa.makeArc( x, y, w-1, h-1, a, alen, xmat ); // arc polygon
+            int n = pa.size();
+            pa.resize( n+1 );
+            pa.setPoint( n, pa.at(0) );         // connect endpoints
+            drawPolyInternal( pa );
+            return;
+        }
+        map( x, y, w, h, &x, &y, &w, &h );
+    }
+    QPointArray pa;
+    pa.makeArc(x, y, w-1, h-1, a, alen);
+    int n = pa.size();
+    pa.resize( n + 1 );
+    pa.setPoint( n, pa.at(0) );
+    drawPolyInternal( pa );
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
@@ -1598,9 +1601,34 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 #endif
 
 #ifdef QMAC_NO_QUARTZ
-// FIXME: Implement this
-void QPainter::drawCubicBezier( const QPointArray &, int )
+void QPainter::drawCubicBezier( const QPointArray &a, int index )
 {
+    if ( !isActive() )
+	return;
+    if ( a.size() - index < 4 ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QPainter::drawCubicBezier: Cubic Bezier needs 4 control "
+		 "points" );
+#endif
+	return;
+    }
+    QPointArray pa( a );
+    if ( index != 0 || a.size() > 4 ) {
+        pa = QPointArray( 4 );
+        for ( int i=0; i<4; i++ )
+            pa.setPoint( i, a.point(index+i) );
+    }
+    if ( testf(ExtDev|VxF|WxF) ) {
+        if ( testf(ExtDev) ) {
+            QPDevCmdParam param[1];
+            param[0].ptarr = (QPointArray*)&pa;
+            if ( !pdev->cmd(QPaintDevice::PdcDrawCubicBezier, this, param) )
+                return;
+        }
+        if ( txop != TxNone )
+            pa = xForm( pa );
+    }
+    //Finish doing this implementation!! //FIXME
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
