@@ -589,11 +589,9 @@ void QFont::setPixelSize( int pixelSize )
     if (d->request.pixelSize == pixelSize) return;
 
     detach();
-    d->request.pixelSize = (int) pixelSize;
+    d->request.pixelSize = pixelSize;
     d->request.pointSize = -1;
     d->request.dirty = TRUE;
-
-    setPixelSizeFloat(float(pixelSize));
 }
 
 /*!
@@ -2423,6 +2421,7 @@ QString QFontPrivate::key() const
     int len = (request.family.length() * 2) +
 	      (request.addStyle.length() * 2) +
 	      2 +  // point size
+	      2 +  // pixel size
 	      1 +  // font bits
 	      1 +  // weight
 	      1;   // hint
@@ -2441,6 +2440,7 @@ QString QFontPrivate::key() const
     }
 
     *((Q_UINT16 *) p) = request.pointSize; p += 2;
+    *((Q_UINT16 *) p) = request.pixelSize; p += 2;
     *p++ = get_font_bits( request );
     *p++ = request.weight;
     *p++ = (request.hintSetByUser ?
