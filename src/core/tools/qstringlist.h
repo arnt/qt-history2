@@ -57,7 +57,7 @@ public:
 
 #ifdef QT_COMPAT
     // necessary when QT_COMPAT is defined; otherwise the remove() overloads hide this one
-    inline void remove(int j) { return QList<QString>::remove(j); }
+    inline void remove(int j) { QList<QString>::remove(j); }
 #endif
  
 #ifdef QT_COMPAT
