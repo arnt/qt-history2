@@ -34,7 +34,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::newFile()
 {
+    const int OFFSET = 20;
     MainWindow *other = new MainWindow;
+    other->move(x() + OFFSET, y() + OFFSET);
     other->show();
 }
 
