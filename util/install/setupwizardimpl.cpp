@@ -600,268 +600,282 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
 
-	if ( !configList->childCount() ) {
-	    QSettings settings;
-	    configList->setSorting( -1 );
-	    advancedList->setSorting( -1 );
-	    QCheckListItem* item;
-	    QCheckListItem *folder;
-	    QStringList::Iterator it;
-	    connect( &configure, SIGNAL( processExited() ), this, SLOT( configDone() ) );
-	    connect( &configure, SIGNAL( readyReadStdout() ), this, SLOT( readConfigureOutput() ) );
-	    connect( &configure, SIGNAL( readyReadStderr() ), this, SLOT( readConfigureError() ) );
+	if( configList->childCount() ) {
+	    QListViewItem* current = configList->firstChild();
 
-	    // general
-	    folder = new QCheckListItem ( configList, "Modules" );
-	    folder->setOpen( true );
-
-	    bool settingsOK;
-	    QStringList entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',', &settingsOK );
-	    QStringList licensedModules = QStringList::split( " ", "network canvas table xml opengl sql" );
-	    for( it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
-		item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
-		bool on = entries.isEmpty() || entries.find( *it ) != entries.end();
-		item->setOn( enterprise && on );
-		item->setEnabled( enterprise );
-		if ( enterprise )
-		    allModules << *it;
+	    while( current ) {
+		QListViewItem* next = current->nextSibling();
+		delete current;
+		current = next;
 	    }
 
-	    licensedModules = QStringList::split( " ", "iconview workspace" );
-	    for( it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
-		item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
-		bool on = entries.isEmpty() || entries.find( *it ) != entries.end();
-		item->setOn( on );
-		allModules << *it;
+	    current = advancedList->firstChild();
+	    while( current ) {
+		QListViewItem* next = current->nextSibling();
+		delete current;
+		current = next;
 	    }
-
-	    QStringList requiredModules = QStringList::split( " ", "styles dialogs widgets tools kernel" );
-	    for( it = requiredModules.begin(); it != requiredModules.end(); ++it ) {
-		item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
-		bool on = entries.isEmpty() || entries.find( *it ) != entries.end();
-		item->setOn( on );
-		item->setEnabled( false );
-		allModules << *it;
-	    }
-
-	    
-	    folder = new QCheckListItem ( configList, "Threading" );
-	    folder->setOpen( true );
-	    QString entry = settings.readEntry( "/Trolltech/Qt/Threading", "Threaded", &settingsOK );
-	    item = new QCheckListItem( folder, "Threaded", QCheckListItem::RadioButton );
-	    item->setOn( entry == "Threaded" );
-	    item = new QCheckListItem( folder, "Non-threaded", QCheckListItem::RadioButton );
-	    item->setOn( entry == "Non-threaded" );
-
-	    folder = new QCheckListItem ( configList, "Library" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Library", "Shared", &settingsOK );
-	    item = new QCheckListItem( folder, "Static", QCheckListItem::RadioButton );
-	    item->setOn( entry == "Static" );
-	    item = new QCheckListItem( folder, "Shared", QCheckListItem::RadioButton );
-	    item->setOn( entry == "Shared" );
-
-	    folder = new QCheckListItem ( configList, "Build" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Build", "Release", &settingsOK );
-	    item = new QCheckListItem( folder, "Debug", QCheckListItem::RadioButton );
-	    item->setOn( entry == "Debug" );
-	    item = new QCheckListItem( folder, "Release", QCheckListItem::RadioButton );	
-	    item->setOn( entry == "Release" );
-
-	    // Advanced options
-	    QCheckListItem *imfolder = new QCheckListItem( advancedList, "Image Formats" );
-	    imfolder->setOpen( true );
-
-	    folder = new QCheckListItem( imfolder, "MNG" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/MNG", "Plugin", &settingsOK );
-	    mngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    mngPlugin->setOn( entry == "Plugin" );
-	    mngPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
-	    mngPresent->setOn( entry == "Present" );
-	    mngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-	    mngDirect->setOn( entry == "Direct" );
-
-	    folder = new QCheckListItem( imfolder, "JPEG" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/JPEG", "Plugin", &settingsOK );
-	    jpegPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    jpegPlugin->setOn( entry == "Plugin" );
-	    jpegPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
-	    jpegPresent->setOn( entry == "Present" );
-	    jpegDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
-	    jpegDirect->setOn( entry == "Direct" );
-
-	    folder = new QCheckListItem( imfolder, "PNG" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/PNG", "Plugin", &settingsOK );
-	    pngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    pngPlugin->setOn( entry == "Plugin" );
-	    pngPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
-	    pngPresent->setOn( entry == "Present" );
-	    pngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
-	    pngDirect->setOn( entry == "Direct" );
-
-	    QCheckListItem *sqlfolder = new QCheckListItem( advancedList, "Sql Drivers" );
-	    sqlfolder->setOpen( true );
-
-	    folder = new QCheckListItem( sqlfolder, "TDS" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/TDS", "Off", &settingsOK );
-	    tdsOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
-	    tdsOff->setOn( entry == "Off" );
-	    tdsOff->setEnabled( enterprise );
-	    tdsPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    tdsPlugin->setOn( entry == "Plugin" );
-	    tdsPlugin->setEnabled( enterprise );
-	    tdsDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-	    tdsDirect->setOn( entry == "Direct" );
-	    tdsDirect->setEnabled( enterprise );
-
-	    folder = new QCheckListItem( sqlfolder, "PostgreSQL" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/PostgreSQL", "Off", &settingsOK );
-	    psqlOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
-	    psqlOff->setOn( entry == "Off" );
-	    psqlOff->setEnabled( enterprise );
-	    psqlPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    psqlPlugin->setOn( entry == "Plugin" );
-	    psqlPlugin->setEnabled( enterprise );
-	    psqlDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-	    psqlDirect->setOn( entry == "Direct" );
-	    psqlDirect->setEnabled( enterprise );
-
-	    folder = new QCheckListItem( sqlfolder, "OCI" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/OCI", "Off", &settingsOK );
-	    ociOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
-	    ociOff->setOn( entry == "Off" );
-	    ociOff->setEnabled( enterprise );
-	    ociPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    ociPlugin->setOn( entry == "Plugin" );
-	    ociPlugin->setEnabled( enterprise );
-	    ociDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-	    ociDirect->setOn( entry == "Direct" );
-	    ociDirect->setEnabled( enterprise );
-
-	    folder = new QCheckListItem( sqlfolder, "MySQL" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/MySQL", "Off", &settingsOK );
-	    mysqlOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
-	    mysqlOff->setOn( entry == "Off" );
-	    mysqlOff->setEnabled( enterprise );
-	    mysqlPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    mysqlPlugin->setOn( entry == "Plugin" );
-	    mysqlPlugin->setEnabled( enterprise );
-	    mysqlDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-	    mysqlDirect->setOn( entry == "Direct" );
-	    mysqlDirect->setEnabled( enterprise );
-
-	    folder = new QCheckListItem( sqlfolder, "ODBC" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/ODBC", "Off", &settingsOK );
-	    odbcOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
-	    odbcOff->setOn( entry == "Off" );
-	    odbcOff->setEnabled( enterprise );
-	    odbcPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    odbcPlugin->setOn( entry == "Plugin" );
-	    odbcPlugin->setEnabled( enterprise );
-	    odbcDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-	    odbcDirect->setOn( entry == "Direct" );
-	    odbcDirect->setEnabled( enterprise );
-
-	    QCheckListItem *stfolder = new QCheckListItem( advancedList, "Styles" );
-	    stfolder->setOpen( true );
-
-	    folder = new QCheckListItem( stfolder, "SGI" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Styles/SGI", "Direct", &settingsOK );
-	    sgiOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-	    sgiOff->setOn( entry == "Off" );
-	    sgiPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );	    
-	    sgiPlugin->setOn( entry == "Plugin" );
-	    sgiDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-	    sgiDirect->setOn( entry == "Direct" );
-
-	    folder = new QCheckListItem( stfolder, "CDE" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Styles/CDE", "Direct", &settingsOK );
-	    cdeOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-	    cdeOff->setOn( entry == "Off" );
-	    cdePlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    cdePlugin->setOn( entry == "Plugin" );
-	    cdeDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-	    cdeDirect->setOn( entry == "Direct" );
-
-	    folder = new QCheckListItem( stfolder, "MotifPlus" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Styles/MotifPlus", "Direct", &settingsOK );
-	    motifplusOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-	    motifplusOff->setOn( entry == "Off" );
-	    motifplusPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );	    
-	    motifplusPlugin->setOn( entry == "Plugin" );
-	    motifplusDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-	    motifplusDirect->setOn( entry == "Direct" );
-
-	    folder = new QCheckListItem( stfolder, "Platinum" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Styles/Platinum", "Direct", &settingsOK );
-	    platinumOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-	    platinumOff->setOn( entry == "Off" );
-	    platinumPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    platinumPlugin->setOn( entry == "Plugin" );
-	    platinumDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
-	    platinumDirect->setOn( entry == "Direct" );
-
-	    folder = new QCheckListItem( stfolder, "Motif" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Styles/Motif", "Direct", &settingsOK );
-	    item = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-	    item->setEnabled( false );
-	    item->setOn( entry == "Off" );
-	    item = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    item->setEnabled( false );
-	    item->setOn( entry == "Plugin" );
-	    item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-	    item->setOn( entry == "Direct" );
-
-	    folder = new QCheckListItem( stfolder, "Windows" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows", "Direct", &settingsOK );
-	    item = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-	    item->setEnabled( false );
-	    item->setOn( entry == "Off" );
-	    item = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    item->setEnabled( false );
-	    item->setOn( entry == "Plugin" );
-	    item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-	    item->setOn( entry == "Direct" );
-
-	    folder = new QCheckListItem( advancedList, "Tablet Support" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Tablet Support", "Off", &settingsOK );
-	    tabletOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-	    tabletOff->setOn( entry == "Off" );
-	    tabletOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
-	    tabletOn->setOn( entry == "On" );
-
-	    folder = new QCheckListItem( advancedList, "Accessibility" );
-	    folder->setOpen( true );
-	    entry = settings.readEntry( "/Trolltech/Qt/Accessibility", "On", &settingsOK );
-	    accOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-	    accOff->setOn( entry == "Off" );
-	    accOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
-	    accOn->setOn( entry == "On" );
-
-	    entry = settings.readEntry( "/Trolltech/Qt/Big Textcodecs", "On", &settingsOK );
-	    folder = new QCheckListItem( advancedList, "Big Textcodecs" );
-	    folder->setOpen( true );
-	    bigCodecsOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-	    bigCodecsOff->setOn( entry == "Off" );
-	    bigCodecsOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );	
-	    bigCodecsOn->setOn( entry == "On" );
 	}
+	QSettings settings;
+	configList->setSorting( -1 );
+	advancedList->setSorting( -1 );
+	QCheckListItem* item;
+	QCheckListItem *folder;
+	QStringList::Iterator it;
+	connect( &configure, SIGNAL( processExited() ), this, SLOT( configDone() ) );
+	connect( &configure, SIGNAL( readyReadStdout() ), this, SLOT( readConfigureOutput() ) );
+	connect( &configure, SIGNAL( readyReadStderr() ), this, SLOT( readConfigureError() ) );
+
+	// general
+	folder = new QCheckListItem ( configList, "Modules" );
+	folder->setOpen( true );
+
+	bool settingsOK;
+	QStringList entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',', &settingsOK );
+	QStringList licensedModules = QStringList::split( " ", "network canvas table xml opengl sql" );
+	for( it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
+	    item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
+	    bool on = entries.isEmpty() || entries.find( *it ) != entries.end();
+	    item->setOn( enterprise && on );
+	    item->setEnabled( enterprise );
+	    if ( enterprise )
+		allModules << *it;
+	}
+
+	licensedModules = QStringList::split( " ", "iconview workspace" );
+	for( it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
+	    item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
+	    bool on = entries.isEmpty() || entries.find( *it ) != entries.end();
+	    item->setOn( on );
+	    allModules << *it;
+	}
+
+	QStringList requiredModules = QStringList::split( " ", "styles dialogs widgets tools kernel" );
+	for( it = requiredModules.begin(); it != requiredModules.end(); ++it ) {
+	    item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
+	    bool on = entries.isEmpty() || entries.find( *it ) != entries.end();
+	    item->setOn( on );
+	    item->setEnabled( false );
+	    allModules << *it;
+	}
+
+	
+	folder = new QCheckListItem ( configList, "Threading" );
+	folder->setOpen( true );
+	QString entry = settings.readEntry( "/Trolltech/Qt/Threading", "Threaded", &settingsOK );
+	item = new QCheckListItem( folder, "Threaded", QCheckListItem::RadioButton );
+	item->setOn( entry == "Threaded" );
+	item = new QCheckListItem( folder, "Non-threaded", QCheckListItem::RadioButton );
+	item->setOn( entry == "Non-threaded" );
+
+	folder = new QCheckListItem ( configList, "Library" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Library", "Shared", &settingsOK );
+	item = new QCheckListItem( folder, "Static", QCheckListItem::RadioButton );
+	item->setOn( entry == "Static" );
+	item = new QCheckListItem( folder, "Shared", QCheckListItem::RadioButton );
+	item->setOn( entry == "Shared" );
+
+	folder = new QCheckListItem ( configList, "Build" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Build", "Release", &settingsOK );
+	item = new QCheckListItem( folder, "Debug", QCheckListItem::RadioButton );
+	item->setOn( entry == "Debug" );
+	item = new QCheckListItem( folder, "Release", QCheckListItem::RadioButton );	
+	item->setOn( entry == "Release" );
+
+	// Advanced options
+	QCheckListItem *imfolder = new QCheckListItem( advancedList, "Image Formats" );
+	imfolder->setOpen( true );
+
+	folder = new QCheckListItem( imfolder, "MNG" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/MNG", "Plugin", &settingsOK );
+	mngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	mngPlugin->setOn( entry == "Plugin" );
+	mngPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
+	mngPresent->setOn( entry == "Present" );
+	mngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	mngDirect->setOn( entry == "Direct" );
+
+	folder = new QCheckListItem( imfolder, "JPEG" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/JPEG", "Plugin", &settingsOK );
+	jpegPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	jpegPlugin->setOn( entry == "Plugin" );
+	jpegPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
+	jpegPresent->setOn( entry == "Present" );
+	jpegDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
+	jpegDirect->setOn( entry == "Direct" );
+
+	folder = new QCheckListItem( imfolder, "PNG" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/PNG", "Plugin", &settingsOK );
+	pngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	pngPlugin->setOn( entry == "Plugin" );
+	pngPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
+	pngPresent->setOn( entry == "Present" );
+	pngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
+	pngDirect->setOn( entry == "Direct" );
+
+	QCheckListItem *sqlfolder = new QCheckListItem( advancedList, "Sql Drivers" );
+	sqlfolder->setOpen( true );
+
+	folder = new QCheckListItem( sqlfolder, "TDS" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/TDS", "Off", &settingsOK );
+	tdsOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+	tdsOff->setOn( entry == "Off" );
+	tdsOff->setEnabled( enterprise );
+	tdsPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	tdsPlugin->setOn( entry == "Plugin" );
+	tdsPlugin->setEnabled( enterprise );
+	tdsDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	tdsDirect->setOn( entry == "Direct" );
+	tdsDirect->setEnabled( enterprise );
+
+	folder = new QCheckListItem( sqlfolder, "PostgreSQL" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/PostgreSQL", "Off", &settingsOK );
+	psqlOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+	psqlOff->setOn( entry == "Off" );
+	psqlOff->setEnabled( enterprise );
+	psqlPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	psqlPlugin->setOn( entry == "Plugin" );
+	psqlPlugin->setEnabled( enterprise );
+	psqlDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	psqlDirect->setOn( entry == "Direct" );
+	psqlDirect->setEnabled( enterprise );
+
+	folder = new QCheckListItem( sqlfolder, "OCI" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/OCI", "Off", &settingsOK );
+	ociOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+	ociOff->setOn( entry == "Off" );
+	ociOff->setEnabled( enterprise );
+	ociPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	ociPlugin->setOn( entry == "Plugin" );
+	ociPlugin->setEnabled( enterprise );
+	ociDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	ociDirect->setOn( entry == "Direct" );
+	ociDirect->setEnabled( enterprise );
+
+	folder = new QCheckListItem( sqlfolder, "MySQL" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/MySQL", "Off", &settingsOK );
+	mysqlOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+	mysqlOff->setOn( entry == "Off" );
+	mysqlOff->setEnabled( enterprise );
+	mysqlPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	mysqlPlugin->setOn( entry == "Plugin" );
+	mysqlPlugin->setEnabled( enterprise );
+	mysqlDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	mysqlDirect->setOn( entry == "Direct" );
+	mysqlDirect->setEnabled( enterprise );
+
+	folder = new QCheckListItem( sqlfolder, "ODBC" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/ODBC", "Off", &settingsOK );
+	odbcOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+	odbcOff->setOn( entry == "Off" );
+	odbcOff->setEnabled( enterprise );
+	odbcPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	odbcPlugin->setOn( entry == "Plugin" );
+	odbcPlugin->setEnabled( enterprise );
+	odbcDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	odbcDirect->setOn( entry == "Direct" );
+	odbcDirect->setEnabled( enterprise );
+
+	QCheckListItem *stfolder = new QCheckListItem( advancedList, "Styles" );
+	stfolder->setOpen( true );
+
+	folder = new QCheckListItem( stfolder, "SGI" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/SGI", "Direct", &settingsOK );
+	sgiOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	sgiOff->setOn( entry == "Off" );
+	sgiPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );	    
+	sgiPlugin->setOn( entry == "Plugin" );
+	sgiDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	sgiDirect->setOn( entry == "Direct" );
+
+	folder = new QCheckListItem( stfolder, "CDE" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/CDE", "Direct", &settingsOK );
+	cdeOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	cdeOff->setOn( entry == "Off" );
+	cdePlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	cdePlugin->setOn( entry == "Plugin" );
+	cdeDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	cdeDirect->setOn( entry == "Direct" );
+
+	folder = new QCheckListItem( stfolder, "MotifPlus" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/MotifPlus", "Direct", &settingsOK );
+	motifplusOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	motifplusOff->setOn( entry == "Off" );
+	motifplusPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );	    
+	motifplusPlugin->setOn( entry == "Plugin" );
+	motifplusDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	motifplusDirect->setOn( entry == "Direct" );
+
+	folder = new QCheckListItem( stfolder, "Platinum" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/Platinum", "Direct", &settingsOK );
+	platinumOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	platinumOff->setOn( entry == "Off" );
+	platinumPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	platinumPlugin->setOn( entry == "Plugin" );
+	platinumDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
+	platinumDirect->setOn( entry == "Direct" );
+
+	folder = new QCheckListItem( stfolder, "Motif" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/Motif", "Direct", &settingsOK );
+	item = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	item->setEnabled( false );
+	item->setOn( entry == "Off" );
+	item = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	item->setEnabled( false );
+	item->setOn( entry == "Plugin" );
+	item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	item->setOn( entry == "Direct" );
+
+	folder = new QCheckListItem( stfolder, "Windows" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows", "Direct", &settingsOK );
+	item = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	item->setEnabled( false );
+	item->setOn( entry == "Off" );
+	item = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	item->setEnabled( false );
+	item->setOn( entry == "Plugin" );
+	item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	item->setOn( entry == "Direct" );
+
+	folder = new QCheckListItem( advancedList, "Tablet Support" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Tablet Support", "Off", &settingsOK );
+	tabletOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	tabletOff->setOn( entry == "Off" );
+	tabletOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
+	tabletOn->setOn( entry == "On" );
+
+	folder = new QCheckListItem( advancedList, "Accessibility" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Accessibility", "On", &settingsOK );
+	accOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	accOff->setOn( entry == "Off" );
+	accOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
+	accOn->setOn( entry == "On" );
+
+	entry = settings.readEntry( "/Trolltech/Qt/Big Textcodecs", "On", &settingsOK );
+	folder = new QCheckListItem( advancedList, "Big Textcodecs" );
+	folder->setOpen( true );
+	bigCodecsOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	bigCodecsOff->setOn( entry == "Off" );
+	bigCodecsOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );	
+	bigCodecsOn->setOn( entry == "On" );
 
 	optionSelected( 0 );
 	setInstallStep( 5 );
