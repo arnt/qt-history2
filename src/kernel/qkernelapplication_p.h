@@ -8,6 +8,8 @@
 
 Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QMetaTypeTemplate<int>;
 Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QMetaTypeTemplate<QString>;
+Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QMetaTypeTemplate<QByteArray>;
+Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QMetaTypeTemplate<void*>;
 
 class Q_KERNEL_EXPORT QTranslatorList : private QList<QTranslator*>
 {
