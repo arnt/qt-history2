@@ -520,6 +520,19 @@ QDir::absolutePath() const
     canonical path does not exist (normally due to dangling symbolic
     links) canonicalPath() returns an empty string.
 
+    Example:
+    \code
+    QString bin = "/local/bin";         // where /local/bin is a symlink to /usr/bin
+    QDir binDir(bin);
+    QString canonicalBin = binDir.canonicalPath();
+    // canonicalBin now equals "/usr/bin"
+
+    QString ls = "/local/bin/ls";       // where ls is the executable "ls"
+    QDir lsDir(ls);
+    QString canonicalLs = lsDir.canonicalPath();
+    // canonicalLS now equals "/usr/bin/ls".
+    \endcode
+
     \sa path(), absolutePath(), exists(), cleanPath(), dirName(),
         absoluteFilePath(), QString::isNull()
 */
@@ -529,7 +542,7 @@ QDir::canonicalPath() const
 {
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return cleanPath(d->data->fileEngine->fileName(QFileEngine::CanonicalPathName));
+    return cleanPath(d->data->fileEngine->fileName(QFileEngine::CanonicalName));
 }
 
 /*!
