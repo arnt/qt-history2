@@ -2461,7 +2461,7 @@ EOF
 if [ "$CFG_LARGEFILE" = "yes" ]; then
     echo "#define QT_LARGEFILE_SUPPORT 64" >>$outpath/include/qconfig.h.new
     if [ "$CFG_NEWABI" = "yes" ]; then
-	echo "#define QT_NEWABI 1" >>$outpath/include/qconfig.h.new
+	echo "#define QT_ABI_QT4 1" >>$outpath/include/qconfig.h.new
     fi
 fi
 
@@ -2596,7 +2596,7 @@ echo "STL support ......... $CFG_STL"
 echo "Thread support ...... $CFG_THREAD"
 echo "NIS support ......... $CFG_NIS"
 echo "CUPS support ........ $CFG_CUPS"
-if [ "$CFG_LARGEFILE" = "yes" ]  && [ "$CFG_NEWABI" = "no" ]; then
+if [ "$CFG_LARGEFILE" = "yes" ]; then
     echo "Large File support .. partial"
 else
     echo "Large File support .. $CFG_LARGEFILE"

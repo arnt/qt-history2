@@ -557,7 +557,7 @@ bool QIODevice::at( Offset pos )
 {
 #if defined(QT_CHECK_RANGE)
     if ( pos > size() ) {
-#if defined(QT_LARGEFILE_SUPPORT) && defined(QT_NEWABI)
+#if defined(QT_LARGEFILE_SUPPORT) && defined(QT_ABI_64BITOFFSET)
 	qWarning( "QIODevice::at: Index %llu out of range", pos );
 #else
 	qWarning( "QIODevice::at: Index %lu out of range", pos );

@@ -88,7 +88,7 @@
 class Q_EXPORT QIODevice
 {
 public:
-#if defined(QT_NEWABI)
+#if defined(QT_ABI_64BITOFFSET)
     typedef QtOffset Offset;
 #else
     typedef Q_ULONG Offset;

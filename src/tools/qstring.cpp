@@ -15880,11 +15880,11 @@ QString &QString::setNum( long n, int base )
     do {
 	*--p = "0123456789abcdefghijklmnopqrstuvwxyz"[((int)(n%base))];
 	n /= base;
-	len++;
+	++len;
     } while ( n );
     if ( neg ) {
 	*--p = '-';
-	len++;
+	++len;
     }
     return setUnicode( p, len );
 }

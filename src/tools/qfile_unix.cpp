@@ -423,7 +423,7 @@ QIODevice::Offset QFile::size() const
     } else {
 	::stat( QFile::encodeName(fn), &st );
     }
-#if defined(QT_LARGEFILE_SUPPORT) && !defined(QT_NEWABI)
+#if defined(QT_LARGEFILE_SUPPORT) && !defined(QT_ABI_64BITOFFSET)
     return st.st_size > UINT_MAX ? UINT_MAX : (QIODevice::Offset)st.st_size;
 #else
     return st.st_size;
@@ -479,7 +479,7 @@ bool QFile::at( Offset pos )
 	ioIndex = pos;
 #if defined(QT_CHECK_RANGE)
     else
-#if defined(QT_LARGEFILE_SUPPORT) && defined(QT_NEWABI)
+#if defined(QT_LARGEFILE_SUPPORT) && defined(QT_ABI_64BITOFFSET)
 	qWarning( "QFile::at: Cannot set file position %llu", pos );
 #else
 	qWarning( "QFile::at: Cannot set file position %lu", pos );

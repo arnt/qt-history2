@@ -310,7 +310,7 @@ bool QFile::at( Offset pos )
     else
 #if (QT_VERSION-0 >= 0x040000)
 #error "QIODevice::Offset should be printed using %llu instead of %lu"
-#elif defined(QT_LARGEFILE_SUPPORT) && defined(QT_NEWABI)
+#elif defined(QT_LARGEFILE_SUPPORT) && defined(QT_ABI_64BITOFFSET)
 	qWarning( "QFile::at: Cannot set file position %llu", pos );
 #else
 	qWarning( "QFile::at: Cannot set file position %lu", pos );

@@ -116,7 +116,7 @@ public:
 
 #if (QT_VERSION-0 >= 0x040000)
 #error "QFileInfo::size() should return QIODevice::Offset instead of uint"
-#elif defined(QT_NEWABI)
+#elif defined(QT_ABI_QT4)
     QIODevice::Offset size()	const;
 #else
     uint	size()		const;

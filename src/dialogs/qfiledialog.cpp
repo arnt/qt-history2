@@ -91,11 +91,14 @@
 #include "qcursor.h"
 #include "qlibrary.h"
 
-#ifndef Q_OS_TEMP
+#if !defined(Q_OS_TEMP)
 #include <time.h>
 #endif
 #include <ctype.h>
 #include <stdlib.h>
+#if defined(QT_LARGEFILE_SUPPORT)
+#include <limits.h>
+#endif
 
 #ifdef Q_WS_MAC
 #include "qt_mac.h"
@@ -1843,10 +1846,45 @@ QString QFileDialogPrivate::File::text( int column ) const
     case 0:
 	return info.name();
     case 1:
-	if ( info.isFile() )
-	    return QString::number(info.size());
-	else
+	if ( info.isFile() ) {
+#if (QT_VERSION-0 >= 0x040000)
+#error "clean up, especially in cases where QString::setNum() supports 64-bit"
+#elif defined(QT_ABI_QT4)
+	    QIODevice::Offset size = info.size();
+#else
+	    uint size = info.size();
+#endif
+#if defined(QT_LARGEFILE_SUPPORT)
+	    // ### strictly speaking, the following code should not
+	    // ### be needed if QT_ABI_QT4 is defined and in Qt 4, on
+	    // ### platforms where QUrlInfo::size() can return 64-bit
+	    if ( size > INT_MAX ) {
+#if defined(Q_OS_UNIX)
+		struct stat buffer;
+		if ( ::stat( QFile::encodeName(info.name()), &buffer ) == 0 ) {
+		    off_t n = buffer.st_size;
+		    // ### use QString::number() instead when it has support
+		    // ### for 64-bit integers (off_t) on all platforms
+		    if ( n > 0 ) {
+			char charbuf[21*sizeof(QChar)];
+			QChar *buf = (QChar*)charbuf;
+			QChar *p = &buf[20];
+			uint len = 0;
+			do {
+		            *--p = "0123456789"[(int)(n%10)];
+			    n /= 10;
+			    ++len;
+			} while ( n );
+			return QString( p, len );
+		    }
+		}
+#endif
+	    }
+#endif
+	    return QString::number(size);
+	} else {
 	    return QString::fromLatin1("");
+	}
     case 2:
 	if ( info.isFile() && info.isSymLink() ) {
 	    return d->symLinkToFile;
