@@ -123,6 +123,8 @@ public:
     HWND Create(HWND hWndParent, RECT& rcPos );
 
     static LRESULT CALLBACK StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    
+    int PreTranslateMessage( MSG *pMsg );
 
 // IUnknown
     unsigned long WINAPI AddRef()
@@ -787,8 +789,10 @@ QAxServerBase::QAxServerBase( const QString &classname )
 */
 QAxServerBase::~QAxServerBase()
 {
-    for ( QAxServerBase::ConnectionPointsIterator it = points.begin(); it != points.end(); ++it )
-	(*it)->Release();
+    for ( QAxServerBase::ConnectionPointsIterator it = points.begin(); it != points.end(); ++it ) {
+	if ( it.data() )
+	    (*it)->Release();
+    }
     delete aggregatedObject;
     aggregatedObject = 0;
     if ( activeqt ) {
@@ -1051,14 +1055,6 @@ LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wPa
 		    spSite->Release();
 		}
 	    }
-	}
-	if ( that->activeqt ) {
-#if defined(UNICODE)
-	    if ( qWinVersion() & Qt::WV_NT_based )
-		::SendMessage( that->activeqt->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
-	    else
-#endif
-		::SendMessageA( that->activeqt->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
 	}
 	break;
 
@@ -1687,6 +1683,9 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 
 	    emitPropertyChanged( dispidMember );
 	    res = S_OK;
+
+	    if ( m_spAdviseSink )
+		m_spAdviseSink->OnViewChange( DVASPECT_CONTENT, 0 );
 	}
 	break;
     case DISPATCH_PROPERTYGET:
@@ -2017,6 +2016,7 @@ HRESULT QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect, DVTARG
     lprcBounds = &rectBoundsDP;
     RECTL rc = *lprcBounds;
 
+    activeqt->resize( rc.right - rc.left, rc.bottom - rc.top );
     QPixmap pm = QPixmap::grabWidget( activeqt );
     BOOL res = ::BitBlt( hdcDraw, 0, 0, pm.width(), pm.height(), pm.handle(), 0, 0, SRCCOPY );
 
@@ -2417,9 +2417,69 @@ HRESULT QAxServerBase::ReactivateAndUndo()
 
 //**** IOleInPlaceActiveObject
 
+int QAxEventFilter( MSG *pMsg )
+{
+    int ret = 0;
+    if ( pMsg->message != WM_KEYDOWN || !ax_ServerMapper )
+	return ret;
+
+    QWidget *aqt = QWidget::find( pMsg->hwnd );
+    if ( !aqt )
+	return ret;
+
+    HWND baseHwnd = ::GetParent( aqt->winId() );
+    QAxServerBase *axbase = 0;
+    while ( !axbase && baseHwnd ) {
+	axbase = axServerMapper()->find( baseHwnd );
+	baseHwnd = ::GetParent( baseHwnd );
+    }
+    if ( !axbase )
+	return ret;
+
+    return axbase->PreTranslateMessage( pMsg );
+}
+
+int QAxServerBase::PreTranslateMessage( MSG *pMsg )
+{
+    if ( TranslateAccelerator( pMsg ) == S_OK )
+	return TRUE;
+
+    if ( !m_spClientSite )
+	return FALSE;
+
+    IOleControlSite *controlSite = 0;
+    m_spClientSite->QueryInterface( IID_IOleControlSite, (void**)&controlSite );
+    if ( !controlSite )
+	return FALSE;
+
+    DWORD dwKeyMod = 0;
+    if (::GetKeyState(VK_SHIFT) < 0)
+	dwKeyMod += 1;	// KEYMOD_SHIFT
+    if (::GetKeyState(VK_CONTROL) < 0)
+	dwKeyMod += 2;	// KEYMOD_CONTROL
+    if (::GetKeyState(VK_MENU) < 0)
+	dwKeyMod += 4;	// KEYMOD_ALT
+    HRESULT hRet = controlSite->TranslateAccelerator(pMsg, dwKeyMod);
+    controlSite->Release();
+
+    return hRet == S_OK;
+}
+
 HRESULT QAxServerBase::TranslateAccelerator( MSG *pMsg )
 {
-    return E_NOTIMPL;
+    if ( pMsg->message != WM_KEYDOWN )
+	return S_FALSE;
+
+    switch ( LOWORD( pMsg->wParam ) ) {
+    case VK_TAB:
+	{
+	    bool next = ((HackWidget*)activeqt)->focusNextPrevChild( TRUE );
+	    if ( next )
+		return S_OK;
+	}
+	return S_FALSE;
+    }
+    return S_FALSE;
 }
 
 HRESULT QAxServerBase::OnFrameWindowActivate( BOOL fActivate )
@@ -2606,9 +2666,7 @@ HRESULT QAxServerBase::internalActivate()
 
 	if ( isInPlaceActive ) {
 	    HWND hwnd = m_hWndCD;
-	    if ( !isUIActive )
-		internalActivate();
-	    else if ( !::IsChild( hwnd, ::GetFocus() ) )
+	    if ( !::IsChild( hwnd, ::GetFocus() ) )
 		::SetFocus( hwnd );
 	}
 

@@ -310,11 +310,13 @@ static const char* const type_map[][2] =
     { "QDateTime",	"DATE" },
     { "QFont",		"IFontDisp*" },
     { "QPixmap",	"IPictureDisp*" },
+    { "QVariant",	"VARIANT" },
     // And we support COM data types
     { "BOOL",		"BOOL" },
     { "BSTR",		"BSTR" },
     { "OLE_COLOR",	"OLE_COLOR" },
     { "DATE",		"DATE" },
+    { "VARIANT",	"VARIANT" },
     { 0,		0 }
 };
 
@@ -828,6 +830,10 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 
 /////////////////////////////////////////////////////////////////////////////
 //
+typedef int (*QWinEventFilter) (MSG*);
+extern int QAxEventFilter( MSG *pMsg );
+extern Q_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter);
+
 #if defined( Q_OS_TEMP )
 extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
 EXTERN_C int __cdecl main( int, char ** );
@@ -924,7 +930,12 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 	    }
 
 	    qAxIsServer = TRUE;
+
+	    QWinEventFilter old = qt_set_win_event_filter( QAxEventFilter );
+
 	    nRet = main( argc, argv.data() );
+
+	    qt_set_win_event_filter( old );
 
 	    object = 0;
 	    for ( key = keys.begin(); key != keys.end(); ++key, ++object ) {

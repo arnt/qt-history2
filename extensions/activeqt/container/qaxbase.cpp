@@ -1678,6 +1678,7 @@ QMetaObject *QAxBase::metaObject() const
 			    set = "Set";
 			} else {
 			    set = "set";
+			    variableName = firstletter.upper() + variableName.mid(1);
 			}
 
 			variableType = constRefify( variableType );
@@ -2442,8 +2443,9 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	if ( id >= 0 ) {
 	    const QMetaData *slot = metaObject()->slot( id, TRUE );
 	    function = slot->method->name;
+	    int retoff = ( slot->method->count && slot->method->parameters->inOut & QUParameter::Out ) ? 1 : 0;
 	    for ( int i = 0; i < varc; ++i )
-		arg[varc-i-1] = QVariantToVARIANT( vars[i], slot->method->parameters + i + 1 );
+		arg[varc-i-1] = QVariantToVARIANT( vars[i], slot->method->parameters + i + retoff );
 	    disptype = DISPATCH_METHOD;
 	} else {
 #ifdef QT_CHECK_STATE
@@ -2478,6 +2480,13 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
     DISPID dispid;
     OLECHAR *names = (TCHAR*)qt_winTchar(function, TRUE );
     disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
+    if ( dispid == DISPID_UNKNOWN && function.lower().left(3) == "set" ) {
+	function = function.mid( 3 );
+	OLECHAR *names = (TCHAR*)qt_winTchar(function, TRUE );
+	disptype = DISPATCH_PROPERTYPUT;
+	disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
+    }
+
     if ( dispid == DISPID_UNKNOWN ) {
 #ifdef QT_CHECK_STATE
 	const char *coclass = metaObject()->classInfo( "CoClass" );
@@ -2488,10 +2497,11 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
     }
 
     DISPPARAMS params;
+    DISPID dispidNamed = DISPID_PROPERTYPUT;
 
     params.cArgs = varc;
-    params.cNamedArgs = 0;
-    params.rgdispidNamedArgs = 0;
+    params.cNamedArgs = (disptype == DISPATCH_PROPERTYPUT) ? 1 : 0;
+    params.rgdispidNamedArgs = (disptype == DISPATCH_PROPERTYPUT) ? &dispidNamed : 0;
     params.rgvarg = arg;
     EXCEPINFO excepinfo;
 
