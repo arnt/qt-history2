@@ -627,7 +627,7 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
                 d->decoder = d->mapper->makeDecoder();
 
             QString s = d->decoder->toUnicode(buff, buff_len);
-            int used_len = s.length();
+            int used_len = qMin(len - rnum, s.length());
             if(end_flags) {
                 for(int i = 0; i < used_len; i++) {
                     if(int end = ts_end(s.unicode()+i, used_len - i, end_flags)) {
@@ -637,12 +637,8 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
                     }
                 }
             }
-            if(out) {
-                int remaining_space = len - rnum;
-                if (used_len > remaining_space)
-                    used_len = remaining_space;
+            if(out) 
                 memcpy(out + rnum, s.unicode(), used_len*sizeof(out[0]));
-            }
             rnum += used_len;
             if(used_len != s.length())
                 d->ungetcBuf += s.mid(used_len);
