@@ -347,12 +347,14 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	old_winid = 0;
     setWinId( 0 );
 
-    if ( parentObj ) {				// remove from parent
-	parentObj->removeChild( this );
-    }
-    if ( parent ) {				// insert into new parent
-	parentObj = parent;			// avoid insertChild warning
-	parent->insertChild( this );
+    if ( parent != parentObj ) {
+	if ( parentObj ) {			// remove from parent
+	    parentObj->removeChild( this );
+	}
+	if ( parent ) {				// insert into new parent
+	    parentObj = parent;			// avoid insertChild warning
+	    parent->insertChild( this );
+	}
     }
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();

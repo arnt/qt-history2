@@ -39,18 +39,8 @@
 
 HPALETTE QColor::hpal = 0;			// application global palette
 
-class QColorData {
-public:
-    QColorData()
-	: pix(0), ctx(-1) {};
-    QRgb pix;					// allocated pixel value
-    int ctx;					// allocation context
-};
-
-//typedef QIntDict<QColorData> QColorDict;
-
-static QColorData* palArray = 0;
-//static QColorDict* palDict = 0;
+static QRgb* colArray = 0;			// allocated pixel value
+static int* ctxArray = 0;			// allocation context
 static int numPalEntries = 0;
 
 static int current_alloc_context = 0;
@@ -97,66 +87,55 @@ void QColor::initialize()
 
     HDC dc = qt_display_dc();			// get global DC
 
+    if ( QApplication::colorSpec() == QApplication::ManyColor )
+	numPalEntries = 20 + 6*6*6;		// System + cube
+    else
+	numPalEntries = 20;			// Just system
+
+    LOGPALETTE* pal = (LOGPALETTE*)malloc( sizeof(LOGPALETTE)
+				     + numPalEntries * sizeof(PALETTEENTRY) );
+    pal->palVersion = 0x300;
+    pal->palNumEntries = numPalEntries;
+
+    // Fill with system colors
+    GetSystemPaletteEntries( dc, 0, 10, pal->palPalEntry );
+    GetSystemPaletteEntries( dc, 246, 10, pal->palPalEntry + 10 );
+
     if ( QApplication::colorSpec() == QApplication::ManyColor ) {
-	struct {
-	    WORD		palVersion;
-	    WORD		palNumEntries;
-	    PALETTEENTRY	entries[20+216];	// System + cube
-	} pal;
-	pal.palVersion = 0x300;
-	pal.palNumEntries = 20+216;
-
-	// Fill with system colors
-	GetSystemPaletteEntries( dc, 0, 10, pal.entries );
-	GetSystemPaletteEntries( dc, 246, 10, pal.entries+10 );
-	int idx = 20;
-
 	// Make 6x6x6 color cube
+	int idx = 20;
 	for( int ir = 0x0; ir <= 0xff; ir+=0x33 ) {
 	    for( int ig = 0x0; ig <= 0xff; ig+=0x33 ) {
 		for( int ib = 0x0; ib <= 0xff; ib+=0x33 ) {
-		    pal.entries[idx].peRed = ir;
-		    pal.entries[idx].peGreen = ig;
-		    pal.entries[idx].peBlue = ib;
-		    pal.entries[idx].peFlags = 0;
+		    pal->palPalEntry[idx].peRed = ir;
+		    pal->palPalEntry[idx].peGreen = ig;
+		    pal->palPalEntry[idx].peBlue = ib;
+		    pal->palPalEntry[idx].peFlags = 0;
 		    idx++;
 		}
 	    }
 	}
-	hpal = CreatePalette( (LOGPALETTE*)&pal );
     }
-    else {
-	// Colorspec is Custom color; will allocate on demand
-	struct {
-	    WORD		palVersion;
-	    WORD		palNumEntries;
-	    PALETTEENTRY	entries[2];		// only black & white
-	} pal;
-	pal.palVersion = 0x300;
-	pal.palNumEntries = 2;
-	
-	// Make only black & white
-	pal.entries[0].peRed = 0;
-	pal.entries[0].peGreen = 0;
-	pal.entries[0].peBlue = 0;
-	pal.entries[0].peFlags = 0;
-	pal.entries[1].peRed = 0xff;
-	pal.entries[1].peGreen = 0xff;
-	pal.entries[1].peBlue = 0xff;
-	pal.entries[1].peFlags = 0;
 
-	// Store palette in our own array
-	numPalEntries = pal.palNumEntries;
-	palArray = new QColorData[256];		// Maximum palette size
-	for( int i = 0; i < numPalEntries; i++ ) {
-	    palArray[i].pix = qRgb( pal.entries[i].peRed,
-				    pal.entries[i].peGreen,
-				    pal.entries[i].peBlue ) & RGB_MASK;
-	    palArray[i].ctx = 0;
+    // Store palette in our own array
+    colArray = new QRgb[256];		// Maximum palette size
+    ctxArray = new int[256];		// Maximum palette size
+
+    for( int i = 0; i < 256; i++ ) {
+	if ( i < numPalEntries ) {
+	    colArray[i] = qRgb( pal->palPalEntry[i].peRed,
+				pal->palPalEntry[i].peGreen,
+				pal->palPalEntry[i].peBlue ) & RGB_MASK;
+	    ctxArray[i] = 0;
 	}
-	hpal = CreatePalette( (LOGPALETTE*)&pal );
+	else {
+	    colArray[i] = 0;
+	    ctxArray[i] = -1;
+	}
     }
-    
+    hpal = CreatePalette( pal );
+    free ( pal );
+
     ((QColor*)(&Qt::black))->alloc();
     ((QColor*)(&Qt::white))->alloc();
 
@@ -164,6 +143,56 @@ void QColor::initialize()
     RealizePalette( dc );
 }
 
+const QRgb* QColor::palette( int* numEntries )
+{
+    if ( numEntries )
+	*numEntries = numPalEntries;
+    if ( !hpal )
+	return 0;
+    return colArray;
+}
+
+
+int QColor::setPaletteEntries( const QRgb* pal, int numEntries, int base )
+{
+    if ( !hpal || !pal || numEntries < 1 )
+	return -1;
+    if ( base < 0 )
+	base = 20;			// default: leave syscolors alone
+    int maxSize = maxColors();
+    if ( base >= maxSize )
+	return -1;
+    if ( base + numEntries > maxSize )
+	numEntries = maxSize - base;
+    int newSize = base + numEntries;
+    if ( newSize > numPalEntries )
+	ResizePalette( hpal, newSize );
+    PALETTEENTRY* newEntries = new PALETTEENTRY[numEntries];
+    for ( int i = 0; i < numEntries; i++ ) {
+	newEntries[i].peRed = qRed( pal[i] );
+	newEntries[i].peGreen = qGreen( pal[i] );
+	newEntries[i].peBlue = qBlue( pal[i] );
+	newEntries[i].peFlags = 0;
+    }
+    SetPaletteEntries( hpal, base, numEntries, newEntries );
+    delete[] newEntries;
+    newEntries = 0;
+
+    numPalEntries = newSize;
+    if ( QApplication::colorSpec() == QApplication::CustomColor ) {
+	for ( int j = base; j < base+numEntries; j++ ) {
+	    colArray[j] = pal[j-base];
+	    ctxArray[j] = current_alloc_context;
+	}
+    }
+
+    HDC dc = qt_display_dc();
+    UnrealizeObject( hpal );
+    SelectPalette( dc, hpal, FALSE );
+    RealizePalette( dc );
+
+    return base;
+}
 
 void QColor::cleanup()
 {
@@ -171,9 +200,13 @@ void QColor::cleanup()
 	DeleteObject( hpal );			// palette
 	hpal = 0;
     }
-    if ( palArray ) {
-	delete palArray;
-	palArray = 0;
+    if ( colArray ) {
+	delete colArray;
+	colArray = 0;
+    }
+    if ( ctxArray ) {
+	delete ctxArray;
+	ctxArray = 0;
     }
     color_init = FALSE;
 }
@@ -216,7 +249,7 @@ uint QColor::alloc()
 		    // Find a free palette entry
 		    bool found = FALSE;
 		    for ( int i = 0; i < numPalEntries; i++ ) {
-			if ( palArray[i].ctx < 0 ) {
+			if ( ctxArray[i] < 0 ) {
 			    found = TRUE;
 			    idx = i;
 			    break;
@@ -237,8 +270,8 @@ uint QColor::alloc()
 			ne.peFlags = 0;
 			SetPaletteEntries( hpal, idx, 1, &ne );
 			pix = PALETTEINDEX( idx );
-			palArray[idx].pix = rgbVal;
-			palArray[idx].ctx = current_alloc_context;
+			colArray[idx] = rgbVal;
+			ctxArray[idx] = current_alloc_context;
 			HDC dc = qt_display_dc();
 			UnrealizeObject( hpal );
 			SelectPalette( dc, hpal, FALSE );
@@ -246,10 +279,10 @@ uint QColor::alloc()
 		    }
 		}
 		if ( idx < numPalEntries ) { 	// Sanity check
-		    if ( palArray[idx].ctx < 0 )
-			palArray[idx].ctx = current_alloc_context; // mark it
-		    else if ( palArray[idx].ctx != current_alloc_context )
-			palArray[idx].ctx = 0;	// Set it to default ctx
+		    if ( ctxArray[idx] < 0 )
+			ctxArray[idx] = current_alloc_context; // mark it
+		    else if ( ctxArray[idx] != current_alloc_context )
+			ctxArray[idx] = 0;	// Set it to default ctx
 		}
 	    }
 	}
@@ -337,15 +370,15 @@ void QColor::destroyAllocContext( int context )
     for ( int i = 2; i < numPalEntries; i++ ) {	  // 2: keep black & white
 	switch ( context ) {
 	case -2:
-	    if ( palArray[i].ctx > 0 )
-		palArray[i].ctx = -1;
+	    if ( ctxArray[i] > 0 )
+		ctxArray[i] = -1;
 	    break;
 	case -1:
-	    palArray[i].ctx = -1;
+	    ctxArray[i] = -1;
 	    break;
 	default:
-	    if ( palArray[i].ctx == context )
-		palArray[i].ctx = -1;
+	    if ( ctxArray[i] == context )
+		ctxArray[i] = -1;
 	break;
 	}
     }

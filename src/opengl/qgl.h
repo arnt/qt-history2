@@ -165,6 +165,7 @@ public:
     virtual void	reset();
 
     QGLFormat		format() const;
+    QGLFormat		requestedFormat() const;
     virtual void	setFormat( const QGLFormat& format );
 
     virtual void	makeCurrent();
@@ -209,6 +210,7 @@ protected:
 #endif
 
     QGLFormat		glFormat;
+    QGLFormat		reqFormat;
 
 private:
     bool		valid;
@@ -264,14 +266,16 @@ public:
 
     virtual QPixmap	renderPixmap( int w = 0, int h = 0,
 				      bool useContext = FALSE );
+    virtual QImage	grabFrameBuffer( bool withAlpha = FALSE );
 
     virtual void	makeOverlayCurrent();
     const QGLContext*	overlayContext() const;
 
-    void		setMouseTracking( bool enable );
-
     static QImage	convertToGLFormat( const QImage& img );
 
+    void		setMouseTracking( bool enable );
+    virtual void 	reparent( QWidget* parent, WFlags f, const QPoint& p,
+				  bool showIt = FALSE );
 public slots:
     virtual void	updateGL();
     virtual void	updateOverlayGL();
@@ -373,13 +377,20 @@ inline bool QGLContext::isValid() const
 {
     return valid;
 }
+
 inline bool QGLContext::isSharing() const
 {
     return sharing;
 }
+
 inline QGLFormat QGLContext::format() const
 {
     return glFormat;
+}
+
+inline QGLFormat QGLContext::requestedFormat() const
+{
+    return reqFormat;
 }
 
 inline QPaintDevice* QGLContext::device() const

@@ -126,6 +126,9 @@ public:
     static void destroyAllocContext( int );
 
 #if defined(Q_WS_WIN)
+    static const QRgb* palette( int* numEntries = 0 );
+    static int setPaletteEntries( const QRgb* entries, int numEntries,
+				  int base = -1 );
     static HPALETTE hPal()  { return hpal; }
     static uint	realizePal( QWidget * );
 #endif

@@ -703,7 +703,7 @@ QGLContext* QGLContext::currentCtx = 0;
 */
 
 QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
-    : glFormat(format), paintDevice(device)
+    : glFormat(format), reqFormat(format), paintDevice(device)
 {
     valid = FALSE;
 #if defined(Q_GLX)
@@ -744,7 +744,18 @@ QGLContext::~QGLContext()
 
 /*!
   \fn QGLFormat QGLContext::format() const
-  Returns the format.
+  Returns the obtained frame buffer format.
+
+  \sa requestedFormat()
+*/
+
+/*!
+  \fn QGLFormat QGLContext::requestedFormat() const
+  
+  Returns the frame buffer format that was originally requested in the
+  constructor or setFormat().
+
+  \sa format() 
 */
 
 /*!
@@ -772,7 +783,7 @@ QGLContext::~QGLContext()
 void QGLContext::setFormat( const QGLFormat &format )
 {
     reset();
-    glFormat = format;
+    glFormat = reqFormat = format;
 }
 
 
@@ -1543,8 +1554,8 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
     if ( useContext && isValid() && renderCxPm( &pm ) )
 	return pm;
 
-    QGLFormat fmt = format();
-    fmt.setDirectRendering( FALSE );		// No direct rendering
+    QGLFormat fmt = glcx->requestedFormat();
+    fmt.setDirectRendering( FALSE );		// Direct is unlikely to work
     fmt.setDoubleBuffer( FALSE );		// We don't need dbl buf
     QGLContext* pcx = new QGLContext( fmt, &pm );
     QGLContext* ocx = (QGLContext*)context();
@@ -1561,6 +1572,59 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 	return nullPm;
 }
 
+
+
+QImage QGLWidget::grabFrameBuffer( bool withAlpha )
+{
+    makeCurrent();
+    QImage res;
+    int w = width();
+    int h = height();
+    if ( format().rgba() ) {
+	res = QImage( w, h, 32 ); 
+	glReadPixels( 0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, res.bits() );
+	if ( QImage::systemByteOrder() == QImage::BigEndian ) {
+	    // OpenGL gives RGBA; Qt wants ARGB
+	    uint *p = (uint*)res.bits();
+	    uint *end = p + w*h;
+	    if ( withAlpha && format().alpha() ) {
+		while ( p < end ) {
+		    uint a = *p << 24;
+		    *p = (*p >> 8) | a;
+		    p++;
+		}
+	    }
+	    else {
+		while ( p < end )
+		    *p++ >>= 8;
+	    }
+	}
+	else {
+	    // OpenGL gives ABGR (i.e. RGBA backwards); Qt wants ARGB
+	    res = res.swapRGB();
+	}
+	res.setAlphaBuffer( withAlpha && format().alpha() );
+    }
+    else {
+#if defined (Q_WS_WIN)
+	res = QImage( w, h, 8 );
+	glReadPixels( 0, 0, w, h, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, 
+		      res.bits() );
+	int palSize = 0;
+	const QRgb* pal = QColor::palette( &palSize );
+	if ( pal && palSize ) {
+	    res.setNumColors( palSize );
+	    for ( int i = 0; i < palSize; i++ )
+		res.setColor( i, pal[i] );
+	}
+#endif
+    }
+
+    return res.mirror();
+}
+
+
+
 /*!
   Initializes OpenGL for this widget's context. Calls the virtual
   function initializeGL().
@@ -1568,6 +1632,9 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 
 void QGLWidget::glInit()
 {
+    if ( !isValid() )
+	return;
+    makeCurrent();
     initializeGL();
     glcx->setInitialized( TRUE );
 }
@@ -1579,6 +1646,8 @@ void QGLWidget::glInit()
 
 void QGLWidget::glDraw()
 {
+    if ( !isValid() )
+	return;
     makeCurrent();
     if ( glcx->deviceIsPixmap() )
 	glDrawBuffer( GL_FRONT_LEFT );
