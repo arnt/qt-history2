@@ -16,10 +16,10 @@
     consistent and efficient framework for main window management.
 
     Tool bar and dock window functionality is provided by two independent
-    classes: QToolBar and QDockWindow. Tool bars and dock windows
+    classes: QToolBar and QDockWidget. Tool bars and dock windows
     reside in \e separate areas, with tool bars outside the dock window
     area. This behavior differs from the standard Qt 3 behavior, where
-    QToolBar inherited functionality from QDockWindow, and both types of
+    QToolBar inherited functionality from QDockWidget, and both types of
     component shared the same areas. The result is a more consistent
     and predictable experience for users. Tool bars and dock windows
     provide feedback while being dragged into their new positions.
@@ -47,9 +47,9 @@
     \o QMainWindow remains the central class around which applications
        can be built. The interface to this class has been simplified --
        much of the functionality previously included is now present in the
-       companion classes, QDockWindow and QToolBar.
+       companion classes, QDockWidget and QToolBar.
 
-    \o QDockWindow provides a widget that can be used to create
+    \o QDockWidget provides a widget that can be used to create
        detachable tool palettes or helper windows. Dock windows keep track
        of their own properties -- they can be moved, closed, and floated as
        external windows.
@@ -152,18 +152,18 @@
     \c saveAction will be displayed both on the tool bar and in the file
     menu.
 
-    QDockWindow is used in a similar way to QToolBar. We create a
+    QDockWidget is used in a similar way to QToolBar. We create a
     dock window as a child of the main window, and add widgets as children
     of the dock window:
 
     \code
-        QDockWindow *dockWindow = new QDockWindow(mainWindow);
-        dockwindow->setWindowTitle(tr("Tools"));
+        QDockWidget *dockWidget = new QDockWidget(mainWindow);
+        dockWidget->setWindowTitle(tr("Tools"));
 
-        QWidget *widget = new QWidget(dockwindow);
+        QWidget *widget = new QWidget(dockWidget);
         ...
-        dockwindow->setAllowedArea(Qt::LeftDockWindowArea | Qt::RightDockWindowArea);
-        mainWindow->addDockWindow(Qt::LeftDockWindowArea, dockWindow);
+        dockWidget->setAllowedArea(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        mainWindow->addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     \endcode
 
     In this example, the dock window can only be placed in the left and
@@ -175,10 +175,10 @@
     QMainWindow::setCorner() function:
 
     \code
-        setCorner(Qt::TopLeftCorner, Qt::LeftDockWindowArea);
-        setCorner(Qt::BottomLeftCorner, Qt::LeftDockWindowArea);
-        setCorner(Qt::TopRightCorner, Qt::RightDockWindowArea);
-        setCorner(Qt::BottomRightCorner, Qt::RightDockWindowArea);
+        setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+        setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+        setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+        setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
     \endcode
 
     The following diagram shows the configuration produced by the above code.
@@ -204,7 +204,7 @@
     bars, dock windows, and other standard user interface components, its
     design meant that these items were managed through a large number of
     QMainWindow member functions. In Qt 4, the QMainWindow class
-    delegates many of the management tasks to QDockWindow and
+    delegates many of the management tasks to QDockWidget and
     QToolBar. As a result, these classes are used in a slightly different
     way in Qt 4.
 
@@ -247,19 +247,19 @@
     \endcode
 
     The behavior of dock windows is now configured through the member
-    functions of QDockWindow. For example, compare the old and new ways
+    functions of QDockWidget. For example, compare the old and new ways
     of creating a dock window in the dock area on the left hand side of the
     main window.
 
     In Qt 3:
     \code
-        QDockWindow *dockWindow = new QDockWindow(this);
-        mainWin->moveDockWindow(dockWindow, Qt::DockLeft);
+        QDockWidget *dockWidget = new QDockWidget(this);
+        mainWin->moveDockWidget(dockWidget, Qt::DockLeft);
     \endcode
     In Qt 4:
     \code
-        QDockWindow *dockWindow = new QDockWindow(mainWindow);
-        mainWindow->addDockWindow(Qt::LeftDockWindowArea, dockWindow);
+        QDockWidget *dockWidget = new QDockWidget(mainWindow);
+        mainWindow->addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     \endcode
 
     These changes provide more than a cosmetic improvement to Qt's API.

@@ -1446,11 +1446,11 @@
 
     The old \c QDockWindow class has been renamed Q3DockWindow and
     moved to the \l{Qt 3 compatibility library}. In Qt 4, there is a
-    new QDockWindow class with a different API. See the class
+    new QDockWidget class with a different API. See the class
     documentation for details.
 
     See \l{#virtual.functions}{Virtual Functions} for a list of
-    QDockWindow virtual member functions in Qt 3 that are no longer
+    QDockWidget virtual member functions in Qt 3 that are no longer
     virtual in Qt 4.
 
     \section1 QDragObject

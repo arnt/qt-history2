@@ -99,20 +99,20 @@
 \row \o void QDns::setLabel(const QString &) \o Use Q3Dns instead.
 \row \o void QDns::setLabel(const QHostAddress &) \o Use Q3Dns instead.
 \row \o void QDns::setRecordType(RecordType) \o Use Q3Dns instead.
-\row \o void QDockWindow::dock() \o Use Q3DockWindow instead or port to the new QDockWindow API.
-\row \o void QDockWindow::setCloseMode(int) \o Use Q3DockWindow instead or port to the new QDockWindow API.
-\row \o void QDockWindow::setFixedExtentHeight(int) \o Use Q3DockWindow instead or port to the new QDockWindow API.
-\row \o void QDockWindow::setFixedExtentWidth(int) \o Use Q3DockWindow instead or port to the new QDockWindow API.
-\row \o void QDockWindow::setHorizontallyStretchable(bool) \o Use Q3DockWindow instead or port to the new QDockWindow API.
-\row \o void QDockWindow::setMovingEnabled(bool) \o Use Q3DockWindow instead or port to the new QDockWindow API.
-\row \o void QDockWindow::setNewLine(bool) \o Use Q3DockWindow instead or port to the new QDockWindow API.
-\row \o void QDockWindow::setOffset(int) \o Use Q3DockWindow instead or port to the new QDockWindow API.
-\row \o void QDockWindow::setOpaqueMoving(bool) \o Use Q3DockWindow instead or port to the new QDockWindow API.
-\row \o void QDockWindow::setOrientation(Orientation) \o Use Q3DockWindow instead or port to the new QDockWindow API.
-\row \o void QDockWindow::setResizeEnabled(bool) \o Use Q3DockWindow instead or port to the new QDockWindow API.
-\row \o void QDockWindow::setVerticallyStretchable(bool) \o Use Q3DockWindow instead or port to the new QDockWindow API.
-\row \o void QDockWindow::setWidget(QWidget *) \o Use Q3DockWindow instead or port to the new QDockWindow API.
-\row \o void QDockWindow::undock() \o Use Q3DockWindow instead or port to the new QDockWindow API.
+\row \o void QDockWindow::dock() \o Use Q3DockWindow instead or port to the new QDockWidget API.
+\row \o void QDockWindow::setCloseMode(int) \o Use Q3DockWindow instead or port to the new QDockWidget API.
+\row \o void QDockWindow::setFixedExtentHeight(int) \o Use Q3DockWindow instead or port to the new QDockWidget API.
+\row \o void QDockWindow::setFixedExtentWidth(int) \o Use Q3DockWindow instead or port to the new QDockWidget API.
+\row \o void QDockWindow::setHorizontallyStretchable(bool) \o Use Q3DockWindow instead or port to the new QDockWidget API.
+\row \o void QDockWindow::setMovingEnabled(bool) \o Use Q3DockWindow instead or port to the new QDockWidget API.
+\row \o void QDockWindow::setNewLine(bool) \o Use Q3DockWindow instead or port to the new QDockWidget API.
+\row \o void QDockWindow::setOffset(int) \o Use Q3DockWindow instead or port to the new QDockWidget API.
+\row \o void QDockWindow::setOpaqueMoving(bool) \o Use Q3DockWindow instead or port to the new QDockWidget API.
+\row \o void QDockWindow::setOrientation(Orientation) \o Use Q3DockWindow instead or port to the new QDockWidget API.
+\row \o void QDockWindow::setResizeEnabled(bool) \o Use Q3DockWindow instead or port to the new QDockWidget API.
+\row \o void QDockWindow::setVerticallyStretchable(bool) \o Use Q3DockWindow instead or port to the new QDockWidget API.
+\row \o void QDockWindow::setWidget(QWidget *) \o Use Q3DockWindow instead or port to the new QDockWidget API.
+\row \o void QDockWindow::undock() \o Use Q3DockWindow instead or port to the new QDockWidget API.
 \row \o QString QDomAttr::name() const \o Value type.
 \row \o QDomElement QDomAttr::ownerElement() const \o Value type.
 \row \o void QDomAttr::setValue(const QString &) \o Value type.
