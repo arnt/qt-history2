@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#30 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#31 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3500,7 +3500,7 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
 	i = new QFileDialogPrivate::File( d, &inf, files );
 	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
 
-	if ( inf.isDir() ) {
+	if ( d->mode == ExistingFiles && inf.isDir() ) {
 	    i->setSelectable( FALSE );
 	    i2->setSelectable( FALSE );
 	}
