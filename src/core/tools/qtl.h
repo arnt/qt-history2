@@ -285,19 +285,22 @@ RandomAccessIterator qUpperBound(RandomAccessIterator b, RandomAccessIterator e,
 template <class RandomAccessIterator, class T>
 RandomAccessIterator qBinaryFind(RandomAccessIterator b, RandomAccessIterator e, const T &value)
 {
-    int l = -1;
+    int l = 0;
     int r = e - b - 1;
-
-    while (r - l > 1) {
-	int i =  (r - l ) / 2;
+    if (r <= 0)
+	return e;
+    int i = (l + r + 1) / 2;
+    while (r != l) {
 	if (value < b[i])
 	    r = i - 1;
 	else
 	    l = i;
+	i = (l + r + 1) / 2;
     }
-    if (r < 0 || b[r] < value || value < b[r])
+    if (b[i] < value || value < b[i])
 	return e;
-    return b + r;
+    else
+	return b + i;
 }
 
 template <class ForwardIterator>
