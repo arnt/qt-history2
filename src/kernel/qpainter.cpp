@@ -2395,9 +2395,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	    } else if ( *p == ' ' ) {			// the space character
 		cc = ' ';
 		cw += spacewidth;
-	    } else if ( *p == '\n' ) {		// newline
+	    } else if ( *p == '\n' || *p == '\r' ) {	// newline and carriage return
 		if ( singleline ) {
-		    cc = ' ';			// convert newline to space
+		    cc = ' ';			// convert newline and carriage return to space
 		    cw += spacewidth;
 		} else {
 		    cc = BEGLINE;
