@@ -288,9 +288,7 @@ signals:
 public slots:
     void	     quit();
     void	     closeAllWindows();
-#ifndef QT_NO_MESSAGEBOX
     void	     aboutQt();
-#endif
 
 #if defined(Q_WS_QWS)
 protected:

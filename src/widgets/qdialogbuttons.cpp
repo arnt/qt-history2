@@ -5,7 +5,9 @@
 #include <qguardedptr.h>
 #include <qmap.h>
 #include <qvariant.h>
+#ifndef QT_NO_DIALOG
 #include <qdialog.h>
+#endif // QT_NO_DIALOG
 #include <qlayout.h>
 #include <qstyle.h>
 #include <qmap.h>
@@ -21,6 +23,7 @@ struct QDialogButtonsPrivate
     bool questionMode;
 };
 
+#ifndef QT_NO_DIALOG
 QDialogButtons::QDialogButtons(QDialog *parent, bool autoConnect, Q_UINT32 buttons,
 			       Orientation orient, const char *name ) : QWidget(parent, name)
 {
@@ -30,6 +33,7 @@ QDialogButtons::QDialogButtons(QDialog *parent, bool autoConnect, Q_UINT32 butto
 	QObject::connect(this, SIGNAL(rejectClicked()), parent, SLOT(reject()));
     }
 }
+#endif // QT_NO_DIALOG
 
 QDialogButtons::QDialogButtons(QWidget *parent, Q_UINT32 buttons, 
 			       Orientation orient, const char *name ) : QWidget(parent, name)

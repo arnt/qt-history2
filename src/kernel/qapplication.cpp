@@ -2114,7 +2114,6 @@ void QApplication::closeAllWindows()
     delete list;
 }
 
-#ifndef QT_NO_MESSAGEBOX
 /*!
     Displays a simple message box about Qt. The message includes the
     version number of Qt being used by the application.
@@ -2126,9 +2125,11 @@ void QApplication::closeAllWindows()
 */
 void QApplication::aboutQt()
 {
+#ifndef QT_NO_MESSAGEBOX
     QMessageBox::aboutQt( mainWidget() );
-}
 #endif // QT_NO_MESSAGEBOX
+}
+
 
 /*!
   \fn void QApplication::lastWindowClosed()

@@ -220,20 +220,20 @@ public:
     QMimeSourceFactory::defaultFactory()->setImage( "myimage", QImage(myimage_data) );
     \endcode
 
-  Now you can create a rich text QLabel with
+    Now you can create a rich text QLabel with
 
-\code
+    \code
     QLabel* label = new QLabel(
-        "Rich text with embedded image:<img source=\"myimage\">"
-        "Isn't that <em>cute</em>?" );
-\endcode
+	"Rich text with embedded image:<img source=\"myimage\">"
+	"Isn't that <em>cute</em>?" );
+    \endcode
 
-  When no longer needed, you can clear the data from the factory:
+    When no longer needed, you can clear the data from the factory:
 
-\code
+    \code
     delete label;
     QMimeSourceFactory::defaultFactory()->setData( "myimage", 0 );
-\endcode
+    \endcode
 */
 
 
@@ -421,7 +421,7 @@ void QMimeSourceFactory::setFilePath( const QStringList& path )
 */
 QStringList QMimeSourceFactory::filePath() const
 {
-  return d->path;
+    return d->path;
 }
 
 /*!
@@ -431,7 +431,7 @@ QStringList QMimeSourceFactory::filePath() const
 */
 void QMimeSourceFactory::addFilePath( const QString& p )
 {
-  d->path += p;
+    d->path += p;
 }
 
 /*!
