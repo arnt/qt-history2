@@ -59,9 +59,7 @@ the directories where you choose to install Qt.
 
 
 3.  Install your license file as $HOME/.qt-license.
-    For the free edition, you do not need a license file. For Professional
-    and Enterprise editions, install your license file as described in your
-    distribution.
+    For the free edition, you do not need a license file.
 
 
 4.  Building.
