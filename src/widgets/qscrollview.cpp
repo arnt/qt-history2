@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#42 $
 **
 ** Implementation of QScrollView class
 **
@@ -560,6 +560,12 @@ void QScrollView::removeChild(QWidget* child)
     ChildRec *r = d->rec(child);
     if ( r ) d->deleteChildRec( r );
 }
+
+/*!
+  \fn void QScrollView::addChild(QWidget* child)
+  Inserts \a child into the scrolled area.
+  It is equivalent to addChild(child,0,0).
+*/
 
 /*!
   Inserts \a child into the scrolled area positioned at (\a x, \a y).
