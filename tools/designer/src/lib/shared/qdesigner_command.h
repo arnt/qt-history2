@@ -205,6 +205,8 @@ private:
     int m_index;
     int m_row, m_col;
     int m_rowspan, m_colspan;
+    AbstractMetaDataBaseItem *m_formItem;
+    int m_tabOrderIndex;
 };
 
 class QT_SHARED_EXPORT ReparentWidgetCommand: public AbstractFormWindowCommand

@@ -370,6 +370,9 @@ void DeleteWidgetCommand::init(QWidget *widget)
         } // end switch
     }
 
+    m_formItem = formWindow()->core()->metaDataBase()->item(formWindow());
+    m_tabOrderIndex = m_formItem->tabOrder().indexOf(widget);
+    
     setDescription(tr("Delete '%1'").arg(widget->objectName()));
 }
 
@@ -387,6 +390,12 @@ void DeleteWidgetCommand::redo()
     m_widget->hide();
     m_widget->setParent(formWindow());
 
+    if (m_tabOrderIndex != -1) {
+        QList<QWidget*> tab_order = m_formItem->tabOrder();
+        tab_order.removeAt(m_tabOrderIndex);
+        m_formItem->setTabOrder(tab_order);
+    }
+    
     formWindow()->emitSelectionChanged();
 }
 
@@ -418,6 +427,13 @@ void DeleteWidgetCommand::undo()
     } // end switch
 
     m_widget->show();
+    
+    if (m_tabOrderIndex != -1) {
+        QList<QWidget*> tab_order = m_formItem->tabOrder();
+        tab_order.insert(m_tabOrderIndex, m_widget);
+        m_formItem->setTabOrder(tab_order);
+    }
+
     formWindow()->emitSelectionChanged();
 }
 
