@@ -79,6 +79,11 @@ int main(int argc, char **argv)
         if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
            Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
             QString fn = Option::fixPathToLocalOS((*pfile));
+            if(!QFile::exists(fn)) {
+                fprintf(stderr, "Cannot find file: %s.\n", fn.latin1());
+                exit_val = 2;
+                continue;
+            }
 
             //setup pwd properly
             debug_msg(1, "Resetting dir to: %s", oldpwd.latin1());
@@ -95,7 +100,7 @@ int main(int argc, char **argv)
             if(!proj.read(fn)) {
                 fprintf(stderr, "Error processing project file: %s\n",
                         fn == "-" ? "(stdin)" : (*pfile).latin1());
-                exit_val = 2;
+                exit_val = 3;
                 continue;
             }
             if(Option::mkfile::do_preprocess) //no need to create makefile
@@ -105,7 +110,7 @@ int main(int argc, char **argv)
             if(!Option::postProcessProject(&proj)) {
                 fprintf(stderr, "Error post-processing project file: %s",
                         fn == "-" ? "(stdin)" : (*pfile).latin1());
-                exit_val = 8;
+                exit_val = 4;
                 continue;
             }
         }
@@ -116,7 +121,7 @@ int main(int argc, char **argv)
                 fprintf(stderr, "Unable to generate project file.\n");
             else
                 fprintf(stderr, "Unable to generate makefile for: %s\n", (*pfile).latin1());
-            exit_val = 6;
+            exit_val = 5;
         }
         delete mkfile;
         mkfile = NULL;
