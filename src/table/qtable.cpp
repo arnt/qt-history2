@@ -41,6 +41,11 @@
 #include <limits.h>
 
 static bool qt_update_cell_widget = TRUE;
+static bool qt_table_clipper_enabled = TRUE;
+Q_EXPORT void qt_set_table_clipper_enabled( bool enabled )
+{
+    qt_table_clipper_enabled = enabled;
+}
 
 class QM_EXPORT_TABLE QTableHeader : public QHeader
 {
@@ -2036,6 +2041,9 @@ void QTable::init( int rows, int cols )
     mousePressed = FALSE;
 
     selMode = Multi;
+
+    // Enable clipper and set background mode
+    enableClipper( qt_table_clipper_enabled );
 
     setResizePolicy( Manual );
     selections.setAutoDelete( TRUE );
@@ -5941,10 +5949,10 @@ void QTable::insertRows( int row, int count )
     int oldLeftMargin = leftMargin();
 
     setNumRows( numRows() + count );
-    
+
     for ( int i = numRows() - count - 1; i > row; --i )
 	leftHeader->swapSections( i, i + count );
-    
+
     leftHeader->setUpdatesEnabled( leftHeaderUpdatesEnabled );
     setUpdatesEnabled( updatesEnabled );
 
@@ -5999,10 +6007,10 @@ void QTable::insertColumns( int col, int count )
     int oldTopMargin = topMargin();
 
     setNumCols( numCols() + count );
- 
+
     for ( int i = numCols() - count - 1; i > col; --i )
 	topHeader->swapSections( i, i + count );
-    
+
     topHeader->setUpdatesEnabled( topHeaderUpdatesEnabled );
     setUpdatesEnabled( updatesEnabled );
 
@@ -6641,7 +6649,7 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 		    table->selections.append( table->currentSel );
 		    table->currentSel->init( secAt, 0 );
 		    table->currentSel->expandTo( secAt, table->numCols() );
-		} else if ( table->currentSel ) {		    
+		} else if ( table->currentSel ) {
 		    table->currentSel->init( secAt, 0 );
 		}
 		table->setCurrentCell( secAt, 0 );
