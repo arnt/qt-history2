@@ -34,7 +34,7 @@ class  QM_EXPORT_NETWORK QSocketDevice: public QIODevice
 {
 public:
     enum Type { Stream, Datagram };
-    enum Protocol { Unknown, IPv4, IPv6 };
+    enum Protocol { IPv4, IPv6, Unknown };
 
     QSocketDevice( Type type = Stream );
     QSocketDevice( Type type, Protocol protocol, int dummy );
@@ -43,7 +43,7 @@ public:
 
     bool	 isValid() const;
     Type	 type() const;
-    Protocol       protocol() const;
+    Protocol	 protocol() const;
 
     int		 socket() const;
     virtual void setSocket( int socket, Type type );
@@ -108,7 +108,6 @@ public:
 
 protected:
     void setError( Error err );
-    void setProtocol( Protocol protocol );
 
 private:
     int fd;
@@ -132,7 +131,7 @@ private:
 
     static void  init();
     int		 createNewSocket();
-    Protocol	 getProtocol( int );
+    Protocol	 getProtocol( int ) const;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -24,15 +24,12 @@
 class QSocketDevicePrivate
 {
 public:
-    QSocketDevicePrivate();
+    QSocketDevicePrivate( QSocketDevice::Protocol p )
+	: protocol(p)
+    { }
 
     QSocketDevice::Protocol protocol;
 };
-
-QSocketDevicePrivate::QSocketDevicePrivate()
-    : protocol(QSocketDevice::Unknown)
-{
-}
 
 
 /*!
@@ -128,7 +125,7 @@ QSocketDevicePrivate::QSocketDevicePrivate()
 */
 QSocketDevice::QSocketDevice( int socket, Type type )
     : fd( socket ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
-      d(new QSocketDevicePrivate())
+      d(new QSocketDevicePrivate(Unknown))
 {
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice: Created QSocketDevice %p (socket %x, type %d)",
@@ -145,17 +142,20 @@ QSocketDevice::QSocketDevice( int socket, Type type )
     reliable, connection-oriented TCP socket, or \c
     QSocketDevice::Datagram for an unreliable UDP socket.
 
-    \sa blocking()
+    The socket is created as an IPv4 socket.
+
+    \sa blocking() protocol()
 */
 QSocketDevice::QSocketDevice( Type type )
     : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
-      d(new QSocketDevicePrivate())
+      d(new QSocketDevicePrivate(IPv4))
 {
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice: Created QSocketDevice object %p, type %d",
 	    this, type );
 #endif
     init();
+    setSocket( createNewSocket(), type );
 }
 
 /*!
@@ -166,20 +166,21 @@ QSocketDevice::QSocketDevice( Type type )
     QSocketDevice::Datagram for an unreliable UDP socket.
 
     The \a protocol indicates whether the socket should be of type IPv4
-    or IPv6. (The \a dummy integer is for internal use.)
+    or IPv6. (The argument \a dummy is necessary for compatibility with some
+    compilers.)
 
-    \sa blocking()
+    \sa blocking() protocol()
 */
 QSocketDevice::QSocketDevice( Type type, Protocol protocol, int )
     : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
-      d(new QSocketDevicePrivate())
+      d(new QSocketDevicePrivate(protocol))
 {
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice: Created QSocketDevice object %p, type %d",
 	    this, type );
 #endif
     init();
-    d->protocol = protocol;
+    setSocket( createNewSocket(), type );
 }
 
 /*!
@@ -228,16 +229,9 @@ QSocketDevice::Type QSocketDevice::type() const
 */
 QSocketDevice::Protocol QSocketDevice::protocol() const
 {
+    if ( d->protocol == Unknown )
+	d->protocol = getProtocol( fd );
     return d->protocol;
-}
-
-/*!
-    Sets the socket type. The \a protocol must be one of \c Unknown, \c
-    IPv4, or \c IPv6.
-*/
-void QSocketDevice::setProtocol( Protocol protocol )
-{
-    d->protocol = protocol;
 }
 
 /*!
@@ -247,11 +241,6 @@ void QSocketDevice::setProtocol( Protocol protocol )
 */
 int QSocketDevice::socket() const
 {
-    if (fd == -1) {
-	QSocketDevice *that = (QSocketDevice *)this;
-	that->setSocket(that->createNewSocket(), t);
-    }
-
     return fd;
 }
 
@@ -278,7 +267,6 @@ void QSocketDevice::setSocket( int socket, Type type )
 #endif
     t = type;
     fd = socket;
-    d->protocol = getProtocol( socket );
     e = NoError;
     setFlags( IO_Sequential );
     resetStatus();

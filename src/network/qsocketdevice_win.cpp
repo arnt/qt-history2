@@ -111,7 +111,7 @@ void QSocketDevice::init()
     }
 }
 
-QSocketDevice::Protocol QSocketDevice::getProtocol( int socket )
+QSocketDevice::Protocol QSocketDevice::getProtocol( int socket ) const
 {
 #if !defined (QT_NO_IPV6)
     if (socket != -1) {
@@ -125,8 +125,10 @@ QSocketDevice::Protocol QSocketDevice::getProtocol( int socket )
 		case AF_INET6:
 		    return IPv6;
 		default:
-		    break;
+		    return Unknown;
 	    }
+	} else {
+	    return Unknown;
 	}
     }
 #endif
@@ -139,9 +141,8 @@ int QSocketDevice::createNewSocket( )
 #if !defined(QT_NO_IPV6)
     int s;
     // Support IPv6 for Winsock v2.0++
-    if ( initialized >= 0x20 ) {
-	s = ::socket( protocol() == IPv6 ? AF_INET6 : AF_INET,
-		      t == Datagram ? SOCK_DGRAM : SOCK_STREAM, 0 );
+    if ( initialized >= 0x20 && protocol() == IPv6 ) {
+	s = ::socket( AF_INET6, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
     } else {
 	s = ::socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
     }
@@ -335,29 +336,24 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
         memset(&a6, 0, sizeof(a6));
 	a6.sin6_family = AF_INET6;
 	a6.sin6_port = htons( port );
-	Q_IPV6ADDR tmp = addr.toIPv6Address();
-	memcpy( &a6.sin6_addr.qt_s6_addr, &tmp, sizeof(tmp) );
+	Q_IPV6ADDR ip6 = addr.toIPv6Address();
+	memcpy( &a6.sin6_addr.qt_s6_addr, &ip6, sizeof(ip6) );
 
-	setProtocol( IPv6 );
 	aalen = sizeof( a6 );
 	aa = (struct sockaddr *)&a6;
     } else
 #endif
-    {
-	if ( !addr.isIPv4Address() ) {
-	    qWarning( "QSocketDevice: IPv6 is not supported by this version" );
-	    e = Impossible;
-	    return FALSE;
-	}
-
+    if ( addr.isIPv4Address() ) {
 	memset(&a4, 0, sizeof(a4));
 	a4.sin_family = AF_INET;
 	a4.sin_port = htons(port);
 	a4.sin_addr.s_addr = htonl(addr.toIPv4Address());
 
-	setProtocol(IPv4);
 	aalen = sizeof(a4);
 	aa = (struct sockaddr *)&a4;
+    } else {
+	e = Impossible;
+	return FALSE;
     }
 
     int r = ::connect( socket(), aa, aalen );
@@ -426,11 +422,6 @@ successful:
 
 bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 {
-    if ( address.isIPv6Address() )
-	setProtocol( IPv6 );
-    else if ( address.isIPv4Address() )
-	setProtocol( IPv4 );
-
     int r;
     struct sockaddr_in a4;
 #if !defined(QT_NO_IPV6)
@@ -440,28 +431,22 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	memset( &a6, 0, sizeof(a6) );
 	a6.sin6_family = AF_INET6;
 	a6.sin6_port = htons( port );
-
 	Q_IPV6ADDR tmp = address.toIPv6Address();
-
 	memcpy( &a6.sin6_addr.qt_s6_addr, &tmp, sizeof(tmp) );
-	setProtocol( IPv6 );
 
 	r = ::bind( socket(), (struct sockaddr *)&a6, sizeof(qt_sockaddr_storage) );
     } else
 #endif
-    {
-	if ( !address.isIPv4Address() ) {
-	    e = Impossible;
-	    return FALSE;
-	}
+    if ( address.isIPv4Address() ) {
 	memset( &a4, 0, sizeof(a4) );
 	a4.sin_family = AF_INET;
 	a4.sin_port = htons( port );
 	a4.sin_addr.s_addr = htonl( address.toIPv4Address() );
 
-	setProtocol( IPv4 );
-
 	r = ::bind( socket(), (struct sockaddr*)&a4, sizeof(struct sockaddr_in) );
+    } else {
+	e = Impossible;
+	return FALSE;
     }
 
     if ( r == SOCKET_ERROR ) {
@@ -813,8 +798,8 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 	return -1;
     }
 #if !defined(QT_NO_IPV6)
-    qt_sockaddr_in6 a6;
     struct sockaddr_in a4;
+    qt_sockaddr_in6 a6;
     struct sockaddr *aa;
     SOCKLEN_T slen;
 
@@ -822,32 +807,24 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 	memset( &a6, 0, sizeof(a6) );
 	a6.sin6_family = AF_INET6;
 	a6.sin6_port = htons( port );
-	Q_IPV6ADDR tmp = host.toIPv6Address();
-	for ( int i = 0; i < 16; ++i )
-	    a6.sin6_addr.qt_s6_addr[i] = tmp.c[i];
 
+	Q_IPV6ADDR tmp = host.toIPv6Address();
+	memcpy( &a6.sin6_addr.qt_s6_addr, &tmp, sizeof(tmp) );
 	slen = sizeof( a6 );
 	aa = (struct sockaddr *)&a6;
-
-	setProtocol( IPv6 );
     } else
 #endif
-    {
-	if ( !host.isIPv4Address() ) {
-	    qWarning( "QSocketDevice: IPv6 is not supported by this version" );
-	    e = Impossible;
-	    return -1;
-	}
+    if ( host.isIPv4Address() ) {
 
 	memset( &a4, 0, sizeof(a4) );
 	a4.sin_family = AF_INET;
 	a4.sin_port = htons( port );
 	a4.sin_addr.s_addr = htonl( host.toIPv4Address() );
-
 	slen = sizeof(a4);
 	aa = (struct sockaddr *)&a4;
-
-	setProtocol( IPv4 );
+    } else {
+	e = Impossible;
+	return -1;
     }
 
     // we'd use MSG_DONTWAIT + MSG_NOSIGNAL if Stevens were right.
