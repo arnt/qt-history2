@@ -1,10 +1,11 @@
 /****************************************************************************
+** $Id$
 **
 ** Implementation of QSql class
 **
 ** Created : 2000-11-03
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the sql module of the Qt GUI Toolkit.
 **
@@ -81,7 +82,7 @@
 */
 
 /*!
-    \enum ParameterType
+    \enum QSql::ParameterType
 
     This enum is used to set the type of a bind parameter
     
