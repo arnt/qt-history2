@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#23 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#23 $")
 
 
 bool QPixmap::optimAll = TRUE;
@@ -57,9 +57,25 @@ void QPixmap::init( int w, int h, int d )
     }
     data->w = w;
     data->h = h;
+    data->bits = 0;
+
     if ( data->d == dd ) {			// compatible bitmap
 	HANDLE hdc = GetDC( 0 );
-	data->hbm = CreateCompatibleBitmap( hdc, w, h );
+#if 1
+	data->hbm  = CreateCompatibleBitmap( hdc, w, h );
+	data->bits = 0;
+#else
+	BITMAPINFOHEADER b;
+	memset( &b, 0, sizeof(b) );
+	b.biSize = sizeof(BITMAPINFOHEADER);
+	b.biWidth = w;
+	b.biHeight = h;
+	b.biPlanes = 1;
+	b.biBitCount = data->d;
+	b.biCompression = BI_RGB;
+	data->hbm = CreateDIBSection( hdc, (BITMAPINFO*)&b, DIB_PAL_COLORS,
+				      &data->bits, 0, 0 );
+#endif
 	ReleaseDC( 0, hdc );
     }
     else					// monocrome bitmap
