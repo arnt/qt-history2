@@ -150,10 +150,13 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
   \sa QPainter::setWorldMatrix(), QPixmap::xForm()
 */
 
-bool qt_old_transformations = FALSE;
-Q_EXPORT void qt_set_old_transformations( bool b )
+bool qt_old_transformations = TRUE;
+void QWMatrix::setTransformationMode( QWMatrix::TransformationMode m )
 {
-    qt_old_transformations = b;
+    if ( m == QWMatrix::Points )
+	qt_old_transformations = TRUE;
+    else
+	qt_old_transformations = FALSE;
 }
 
 
@@ -336,6 +339,8 @@ QRect QWMatrix::mapRect( const QRect &rect ) const
 	    }
 	    result = QRect( x, y, w, h );
 	} else {
+	    
+	    // see mapToPolygon for explanations of the algorithm.
 	    double x0, y0;
 	    double x, y;
 	    map( rect.left(), rect.top(), &x0, &y0 );
@@ -360,11 +365,11 @@ QRect QWMatrix::mapRect( const QRect &rect ) const
 	    ymax = QMAX( ymax, y );
 	    double w = xmax - xmin;
 	    double h = ymax - ymin;
-	    if ( xmin < x0 )
-		xmin = xmin + ( x0 - xmin ) / w;
-	    if ( ymin < y0 )
-		ymin = ymin + ( y0 - ymin ) / h;
-	    result = QRect( qRound(xmin), qRound(ymin), qRound(w), qRound(h) );
+	    xmin -= ( xmin - x0 ) / w;
+	    ymin -= ( ymin - y0 ) / h;
+	    xmax -= ( xmax - x0 ) / w;
+	    ymax -= ( ymax - y0 ) / h;
+	    result = QRect( qRound(xmin), qRound(ymin), qRound(xmax)-qRound(xmin)+1, qRound(ymax)-qRound(ymin)+1 );
 	}
     }
     return result;
@@ -450,57 +455,107 @@ QRegion QWMatrix::operator * (const QRect &rect ) const
 	    a = map( a );
 	    result = QRegion( a );
 	} else {
-	    double x[4], y[4];
-	    map( rect.left(), rect.top(), &x[0], &y[0] );
-	    map( rect.left(), rect.bottom() + 1, &x[1], &y[1] );
-	    map( rect.right() + 1, rect.bottom() + 1, &x[2], &y[2] );
-	    map( rect.right() + 1, rect.top(), &x[3], &y[3] );
-	    
-	    // we now have the correct size of the transformed rectangle,
-	    // but we still need to do some magic to get the position correctly
-	    
-	    double xmin = x[0];
-	    double ymin = y[0];
-	    double xmax = x[0];
-	    double ymax = y[0];
-	    int i;
-	    for( i = 1; i< 4; i++ ) {
-		xmin = QMIN( xmin, x[i] );
-		ymin = QMIN( ymin, y[i] );
-		xmax = QMAX( xmax, x[i] );
-		ymax = QMAX( ymax, y[i] );
-	    }
-	    double w = xmax - xmin;
-	    double h = ymax - ymin;
-	    double xoff = 0;
-	    double yoff = 0;
-	    if ( xmin < x[0] )
-		xoff = ( x[0] - xmin ) / w;
-	    if ( ymin < y[0] )
-		yoff = ( y[0] - ymin ) / h;
-	    for( i = 0; i< 4; i++ ) {
-		x[i] += xoff;
-		y[i] += yoff;
-	    }
-#if 0	    
-	    qDebug("xoff=%f, yoff=%f", xoff, yoff );
-	    for( i = 0; i< 4; i++ )
-		qDebug("coords(%d) = (%f/%f) (%d/%d)", i, x[i], y[i], qRound(x[i]), qRound(y[i]) );
-#endif
-	    
-	    // all coordinates are correctly, tranform to a pointarray 
-	    // (rounding to the next integer)
-	    
-	    QPointArray a( 4 );
-	    a.setPoints( 4, qRound( x[0] ), qRound( y[0] ), 
-			 qRound( x[1] ), qRound( y[1] ), 
-			 qRound( x[2] ), qRound( y[2] ), 
-			 qRound( x[3] ), qRound( y[3] ) );
-	    result = QRegion( a );
+	    result = QRegion( mapToPolygon( rect ) );
 	}
     }
     return result;
 
+}
+
+/*!
+  Transforms the rectangle \a rect and returns the 
+  transformed rectangle as a polygon.
+
+  Please note that polygons and rectangles behave a bit different
+  under transformations (due to integer rounding), so matrix.map(
+  QPointArray( rect ) ) is not always the same as matrix.mapToPolygon(
+  rect ).
+*/
+QPointArray QWMatrix::mapToPolygon( const QRect &rect ) const
+{
+    QPointArray a( 4 );
+    if ( qt_old_transformations ) {
+	a = QPointArray( rect );
+	return operator *( a );
+    }
+    double x[4], y[4];
+    if ( _m12 == 0.0F && _m21 == 0.0F ) {
+	x[0] = qRound( _m11*rect.x() + _dx );
+        y[0] = qRound( _m22*rect.y() + _dy );
+	double w = qRound( _m11*rect.width() );
+	double h = qRound( _m22*rect.height() );
+	if ( w < 0 ) {
+	    w = -w;
+	    x[0] -= w - 1.;
+	}
+	if ( h < 0 ) {
+	    h = -h;
+	    y[0] -= h - 1.;
+	}
+	x[1] = x[0]+w-1;
+	x[2] = x[1];
+	x[3] = x[0];
+	y[1] = y[0];
+	y[2] = y[0]+h-1;
+	y[3] = y[2];
+    } else {
+	map( rect.left(), rect.top(), &x[0], &y[0] );
+	map( rect.right() + 1, rect.top(), &x[1], &y[1] );
+	map( rect.right() + 1, rect.bottom() + 1, &x[2], &y[2] );
+	map( rect.left(), rect.bottom() + 1, &x[3], &y[3] );
+
+	/*
+	Including rectangles as we have are evil.
+	
+        We now have a rectangle that is one pixel to wide and one to
+        high. the tranformed position of the top-left corner is
+        correct. All other points need some adjustments.
+	
+	Doing this mathematically exact would force us to calculate some square roots,
+	something we don't want for the sake of speed.
+       
+        Instead we use an approximation, that converts to the correct
+        answer when m12 -> 0 and m21 -> 0, and accept smaller
+        errors in the general transformation case.
+
+        The solution is to calculate the width and height of the
+        bounding rect, and scale the points 1/2/3 by (xp-x0)/xw pixel direction
+        to point 0.
+        */
+	    
+	double xmin = x[0];
+	double ymin = y[0];
+	double xmax = x[0];
+	double ymax = y[0];
+	int i;
+	for( i = 1; i< 4; i++ ) {
+	    xmin = QMIN( xmin, x[i] );
+	    ymin = QMIN( ymin, y[i] );
+	    xmax = QMAX( xmax, x[i] );
+	    ymax = QMAX( ymax, y[i] );
+	}
+	double w = xmax - xmin;
+	double h = ymax - ymin;
+
+	for( i = 1; i < 4; i++ ) {
+	    x[i] -= (x[i] - x[0])/w;
+	    y[i] -= (y[i] - y[0])/h;
+	}
+    }
+#if 0
+    int i;
+    for( i = 0; i< 4; i++ )
+	qDebug("coords(%d) = (%f/%f) (%d/%d)", i, x[i], y[i], qRound(x[i]), qRound(y[i]) );
+    qDebug( "width=%f, height=%f", sqrt( (x[1]-x[0])*(x[1]-x[0]) + (y[1]-y[0])*(y[1]-y[0]) ),
+	    sqrt( (x[0]-x[3])*(x[0]-x[3]) + (y[0]-y[3])*(y[0]-y[3]) ) );
+#endif
+    // all coordinates are correctly, tranform to a pointarray 
+    // (rounding to the next integer)
+    a.setPoints( 4, qRound( x[0] ), qRound( y[0] ), 
+		 qRound( x[1] ), qRound( y[1] ), 
+		 qRound( x[2] ), qRound( y[2] ), 
+		 qRound( x[3] ), qRound( y[3] ) );
+    return a;
 }
 
 /*!

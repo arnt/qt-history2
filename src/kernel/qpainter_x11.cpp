@@ -1779,8 +1779,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
                 return;
         }
         if ( txop == TxRotShear ) {             // rotate/shear polygon
-            QPointArray a( QRect(x, y, w, h), TRUE );
-            drawPolyInternal( xForm(a) );
+            drawPolyInternal( xmat.mapToPolygon( QRect(x, y, w, h) ) );
             return;
         }
         map( x, y, w, h, &x, &y, &w, &h );

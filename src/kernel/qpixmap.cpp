@@ -1303,8 +1303,8 @@ bool qt_xForm_helper( const QWMatrix &trueMat, int xoffset,
     int dx  = (int)(trueMat.dx() *65536.0);
     int dy  = (int)(trueMat.dy() *65536.0);
 
-    int m21ydx = dx + (xoffset<<16);
-    int m22ydy = dy;
+    int m21ydx = dx + (xoffset<<16) + QABS(m11)/2;
+    int m22ydy = dy + QABS(m22)/2;
     uint trigx;
     uint trigy;
     uint maxws = sWidth<<16;

@@ -1719,7 +1719,7 @@ void QPainter::map( int x, int y, int w, int h,
 		*rx = qRound( m11()*x + dx() );
 		*ry = qRound( m22()*y + dy() );
 		*rw = qRound( m11()*w );
-		*rh = qRound( m22()*y );
+		*rh = qRound( m22()*h );
 		break;
 	    default:
 #if defined(QT_CHECK_STATE)

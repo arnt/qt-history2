@@ -71,6 +71,7 @@ public:
     QPoint	map( const QPoint &p )	const { return operator *( p ); }
     QRect	map( const QRect &r )	const { return mapRect ( r ); }
     QPointArray map( const QPointArray &a ) const { return operator * ( a ); }
+    QPointArray	mapToPolygon( const QRect &r )	const;
 
     void	reset();
     bool	isIdentity() const;
@@ -92,7 +93,11 @@ public:
     QRegion operator * (const QRect & ) const;
     QRegion operator * (const QRegion & ) const;
     QPointArray operator *  ( const QPointArray &a ) const;
-    
+
+    enum TransformationMode {
+	Points, Areas 
+    };
+    static void setTransformationMode( QWMatrix::TransformationMode m );
 private:
     QWMatrix   &bmul( const QWMatrix & );
     double	_m11, _m12;
