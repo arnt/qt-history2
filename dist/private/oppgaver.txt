@@ -132,6 +132,8 @@ Ferdigstilling:
 
     Tabbing bug
 
+    Debug utskrifter fjernes (evt. warning)
+
 Eksempler:
 ----------
     sheet.h
