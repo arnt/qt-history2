@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/process/process.cpp#6 $
+** $Id: //depot/qt/main/examples/process/process.cpp#7 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -19,6 +19,7 @@
 #if defined(Q_OS_WIN32)
 #include <process.h>
 #endif
+#include <stdlib.h>
 
 class UicManager : public QVBox
 {
