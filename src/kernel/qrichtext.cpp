@@ -955,6 +955,8 @@ void QTextCursor::gotoHome()
 {
     if ( topParagraph()->document() )
 	gotoPosition( topParagraph()->document()->firstParagraph() );
+    else
+	gotoLineStart();
 }
 
 void QTextCursor::gotoEnd()
@@ -962,6 +964,8 @@ void QTextCursor::gotoEnd()
     if ( topParagraph()->document() && topParagraph()->document()->lastParagraph()->isValid() )
 	gotoPosition( topParagraph()->document()->lastParagraph(),
 		      topParagraph()->document()->lastParagraph()->length() - 1);
+    else
+	gotoLineEnd();
 }
 
 void QTextCursor::gotoPageUp( int visibleHeight )
