@@ -47,56 +47,69 @@ dialogs, find and replace dialogs, etc.
 
 \section3 Wizard Forms 
 
-Click Wizard to create a wizard form. Initially the wizard form
-consists of a single dialog page. Use the right click context menu to
-add additional pages and to change page titles.
+Click Wizard to create a wizard form. A wizard is a special type of
+input dialog that consists of a sequence of dialog pages. A wizard's
+purpose is to assist a user by automating a task by walking the user
+through the process step by step. Wizards are useful for complex or
+infrequently occurring tasks that people may find difficult to learn
+or do. Initially the wizard form consists of a single dialog page. Use
+the right click context menu to add additional pages and to change
+page titles. 
 
 \section3 Widget Forms 
 
-Click Widget to create a widget that you can use later as a
-component in a dialog. Any widget in Qt can become a form. 
+Click Widget to create a form whose superclass is QWidget rather than
+QDialog.
 
-\section3 Mainwindow Form
+\section3 Main Window Form
 
-Click MainWindow to invoke the \l{Mainwindow Wizard}. The wizard
-allows us to create actions, menu bars and a toolbar through which the
-user can invoke actions. The Mainwindow is a form that is used in
-conjunction with a single main widget.
+Click Main Window to invoke the \l{Main Window Wizard}. This wizard
+is used to create actions, menu options and toolbars through which the
+user can invoke actions. This form is used to create typical
+main-window style applications. 
 
 \section3 Configuration Dialog Form 
 
-The Configuration Dialog form is a template with default widgets.  
+This creates a form with a listbox on the left, and a tabwidget
+filling the body of the form, along with Help, OK and Cancel buttons.
 
-\section3 Dialog with Buttons(bottom) Form  
+\section3 Dialog with Buttons (Bottom) Form  
 
-The Dialog with Buttons (bottom) form is a template with default
-widgets at the bottom of the form.
+The Dialog with Buttons (Bottom) form is a template with default
+buttons at the bottom of the form.
 
-\section3 Dialog with Buttons Form(right)
+\section3 Dialog with Buttons Form (Right)
 
-The Dialog with Buttons (right) form is a template with default
-widgets at the right of the form.
+The Dialog with Buttons (Right) form is a template with default
+buttons at the right of the form.
 
+\omit
 \section3 New Template Form
 
 Click New Template to create a form for designing templates. 
+\endomit
 
 \section3 Tab Dialog Form
 
-The Tab Dialog form is a template with default widgets.
+The Tab Dialog form has a tab widget as its central widget, along with
+Help, OK and Cancel buttons along the bottom.
 
 \section3 C++ Source File 
 
-C++ Source File has the extension \File.cpp and ###
+Click C++ Source File to create a new empty C++ file. The file will
+automatically be added to the project when it is saved.
 
 \section3 C++ Header File
 
-The C++ Header File ### has the extension .h and 
+Click C++ Header File to create a new empty C++ header file. The file
+will automatically be added to the project when it is saved.
 
 \section3 C++ Main File
 
-The C++ Main File invokes ### the Configure Main File window. To change
-the default file name, type it next to 'Filename'. 
+The C++ Main File invokes the \l{Configure Main-File} dialog. To change
+the default file name, type it in the Filename line edit. Click the
+form to use as the application's main form from the list of forms,
+then click \OK and \QD will create a default 'main.cpp' file.
 
 \target dialog-file-open
 \section2 File Open Dialog
@@ -107,7 +120,7 @@ Click \Menu File|Open (or press\Key Ctrl+O) to invoke the
 The \Dialog Open dialog defaults the directory and file type. To
 choose a different directory, click the 'Look In' combobox. Choose a
 file and the name will appear in the 'File Name' combobox. To choose a
-different file type, click the 'File Type'combobox. Click the 'Create
+different file type, click the 'File Type' combobox. Click the 'Create
 New Folder' toolbar button to create a new directory. Click the 'List
 View' toolbar button to view folders and files in a list with only the
 names showing. Click the 'Details' toolbar button to view the folders
