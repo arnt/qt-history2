@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#294 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#295 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1958,7 +1958,7 @@ void QFileDialog::setUrl( const QUrl &url )
     QString nf = d->url.nameFilter();
     d->url = url;
     d->url.setNameFilter( nf );
-    
+
     if ( !d->url.isDir() ) {
 	QUrl u = d->url;
 	d->url.setPath( d->url.dirPath() );
@@ -2222,7 +2222,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
 void QFileDialog::okClicked()
 {
-    *workingDirectory = d->url;
+    *workingDirectory = d->url.dirPath();
     detailViewMode = files->isVisible();
 
     // if we're in multi-selection mode and something is selected,
@@ -2258,7 +2258,7 @@ void QFileDialog::okClicked()
 	else
 	    f = QUrlInfo( d->url, nameEdit->text() );
 	if ( f.isDir() ) {
-	    setDir( QUrl( d->url, nameEdit->text() ) );
+	    setUrl( QUrl( d->url, nameEdit->text() ) );
 	    trySetSelection( TRUE, d->url, TRUE );
 	}
     }
@@ -2554,10 +2554,10 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
     if ( i->info.isDir() ) {
 	setUrl( QUrl( d->url, i->info.name() + "/" ) );
 	if ( mode() == Directory ) {
-	    QUrlInfo f ( d->url, QString::fromLatin1(".") );
+	    QUrlInfo f ( d->url, QString::fromLatin1( "." ) );
 	    trySetSelection( f.isDir(), d->url, TRUE );
 	}
-    } else if ( newItem->isSelectable() && 
+    } else if ( newItem->isSelectable() &&
 		trySetSelection( i->info.isDir(), QUrl( d->url, i->info.name() ), TRUE ) ) {
 	if ( mode() != Directory ) {
 	    emit fileSelected( d->currentFileName );
@@ -2789,7 +2789,6 @@ void QFileDialog::error( int ecode, const QString &msg )
 
     if ( ecode == QUrl::ErrReadDir || ecode == QUrl::ErrParse ||
 	 ecode == QUrl::ErrUnknownProtocol || ecode == QUrl::ErrLoginIncorrect ) {
-	// #### todo
 	d->url = d->oldUrl;
 	rereadDir();
     }
@@ -2818,7 +2817,7 @@ void QFileDialog::pathSelected( int )
 
 void QFileDialog::cdUpClicked()
 {
-    setDir( QUrl( d->url, ".." ) );
+    setUrl( QUrl( d->url, ".." ) );
 }
 
 void QFileDialog::newFolderClicked()
@@ -2916,7 +2915,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 	    *workingDirectory = u.dirPath();
 	dialog->setDir( *workingDirectory );
     }
-    
+
     QString result;
 
     if ( dialog->exec() == QDialog::Accepted ) {
@@ -2924,10 +2923,10 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 	*workingDirectory = result;
     }
     delete dialog;
-    
+
     if ( !result.isEmpty() && result.right( 1 ) != "/" )
 	result += "/";
-    
+
     return result;
 }
 
