@@ -15,8 +15,6 @@ class TitlePage;
 
 class LicenseWizard : public Wizard
 {
-    Q_OBJECT
-
 public:
     LicenseWizard(QWidget *parent = 0);
 
