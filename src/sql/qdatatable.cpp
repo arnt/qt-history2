@@ -120,14 +120,16 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
 
 /*! \enum QDataTable::Refresh
 
-  This enum type describes edit confirmations.
+  This enum type describes refresh options.
 
   The currently defined values are:
 
+  ### Dave what does Column really mean?
+
   <ul>
-  <li> \c Data
-  <li> \c Column
-  <li> \c All
+  <li> \c Data -- refresh the data
+  <li> \c Column -- refresh the column headings
+  <li> \c All -- refresh both the data and the column headings
   </ul>
 */
 
