@@ -363,7 +363,7 @@ QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
 {
     ctrlDown = FALSE;
     timer = new QTimer( this );
-    connect( timer, SIGNAL( timeout() ), this, SLOT( minimize() ) );
+    connect( timer, SIGNAL(timeout()), this, SLOT(minimize()) );
 #ifdef Q_WS_WIN
     setCursor( SizeAllCursor );
 #endif
@@ -482,8 +482,8 @@ void QDockWindowHandle::updateGui()
 #endif
 	closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton ) );
 	closeButton->setFixedSize( 12, 12 );
-	connect( closeButton, SIGNAL( clicked() ),
-		 dockWindow, SLOT( hide() ) );
+	connect( closeButton, SIGNAL(clicked()),
+		 dockWindow, SLOT(hide()) );
     }
 
     if ( dockWindow->isCloseEnabled() && dockWindow->area() )
@@ -1033,11 +1033,11 @@ void QDockWindow::init()
     stretchable[ Horizontal ] = FALSE;
     stretchable[ Vertical ] = FALSE;
 
-    connect( titleBar, SIGNAL( doubleClicked() ), this, SLOT( dock() ) );
-    connect( verHandle, SIGNAL( doubleClicked() ), this, SLOT( undock() ) );
-    connect( horHandle, SIGNAL( doubleClicked() ), this, SLOT( undock() ) );
-    connect( this, SIGNAL( orientationChanged(Orientation) ),
-	     this, SLOT( setOrientation(Orientation) ) );
+    connect( titleBar, SIGNAL(doubleClicked()), this, SLOT(dock()) );
+    connect( verHandle, SIGNAL(doubleClicked()), this, SLOT(undock()) );
+    connect( horHandle, SIGNAL(doubleClicked()), this, SLOT(undock()) );
+    connect( this, SIGNAL(orientationChanged(Orientation)),
+	     this, SLOT(setOrientation(Orientation)) );
 }
 
 /*!

@@ -564,23 +564,23 @@ QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QStri
     if ( gProt && (gProt->supportedOperations()&QNetworkProtocol::OpGet) &&
 	 pProt && (pProt->supportedOperations()&QNetworkProtocol::OpPut) ) {
 
-	connect( gProt, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
-		 this, SLOT( copyGotData( const QByteArray &, QNetworkOperation * ) ) );
-	connect( gProt, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
-		 this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
-	connect( gProt, SIGNAL( finished( QNetworkOperation * ) ),
-		 this, SLOT( continueCopy( QNetworkOperation * ) ) );
-	connect( gProt, SIGNAL( finished( QNetworkOperation * ) ),
-		 this, SIGNAL( finished( QNetworkOperation * ) ) );
-	connect( gProt, SIGNAL( connectionStateChanged( int, const QString & ) ),
-		 this, SIGNAL( connectionStateChanged( int, const QString & ) ) );
+	connect( gProt, SIGNAL(data(QByteArray,QNetworkOperation*)),
+		 this, SLOT(copyGotData(QByteArray,QNetworkOperation*)) );
+	connect( gProt, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
+		 this, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)) );
+	connect( gProt, SIGNAL(finished(QNetworkOperation*)),
+		 this, SLOT(continueCopy(QNetworkOperation*)) );
+	connect( gProt, SIGNAL(finished(QNetworkOperation*)),
+		 this, SIGNAL(finished(QNetworkOperation*)) );
+	connect( gProt, SIGNAL(connectionStateChanged(int,QString)),
+		 this, SIGNAL(connectionStateChanged(int,QString)) );
 
-	connect( pProt, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
-		 this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
-	connect( pProt, SIGNAL( finished( QNetworkOperation * ) ),
-		 this, SIGNAL( finished( QNetworkOperation * ) ) );
-	connect( pProt, SIGNAL( finished( QNetworkOperation * ) ),
-		 this, SLOT( finishedCopy() ) );
+	connect( pProt, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
+		 this, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)) );
+	connect( pProt, SIGNAL(finished(QNetworkOperation*)),
+		 this, SIGNAL(finished(QNetworkOperation*)) );
+	connect( pProt, SIGNAL(finished(QNetworkOperation*)),
+		 this, SLOT(finishedCopy()) );
 
 	QNetworkOperation *opGet = new QNetworkOperation( QNetworkProtocol::OpGet, frm, QString::null, QString::null );
 	ops.append( opGet );
@@ -898,8 +898,8 @@ void QUrlOperator::getNetworkProtocol()
 
     d->networkProtocol = (QNetworkProtocol *)p;
     d->networkProtocol->setUrl( this );
-    connect( d->networkProtocol, SIGNAL( itemChanged( QNetworkOperation * ) ),
-	     this, SLOT( slotItemChanged( QNetworkOperation * ) ) );
+    connect( d->networkProtocol, SIGNAL(itemChanged(QNetworkOperation*)),
+	     this, SLOT(slotItemChanged(QNetworkOperation*)) );
 }
 
 /*!
@@ -1076,10 +1076,10 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
 	    deleteOperation( rm );
 	}
     }
-    disconnect( gProt, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
-		this, SLOT( copyGotData( const QByteArray &, QNetworkOperation * ) ) );
-    disconnect( gProt, SIGNAL( finished( QNetworkOperation * ) ),
-		this, SLOT( continueCopy( QNetworkOperation * ) ) );
+    disconnect( gProt, SIGNAL(data(QByteArray,QNetworkOperation*)),
+		this, SLOT(copyGotData(QByteArray,QNetworkOperation*)) );
+    disconnect( gProt, SIGNAL(finished(QNetworkOperation*)),
+		this, SLOT(continueCopy(QNetworkOperation*)) );
 }
 
 /*!

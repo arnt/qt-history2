@@ -516,8 +516,8 @@ void QButton::setAccel( const QKeySequence& key )
     ensureData();
     if ( !d->a ) {
 	d->a = new QAccel( this, "buttonAccel" );
-	connect( d->a, SIGNAL( activated(int) ), this, SLOT( animateClick() ) );
-	connect( d->a, SIGNAL( activatedAmbiguously(int) ), this, SLOT( setFocus() ) );
+	connect( d->a, SIGNAL(activated(int)), this, SLOT(animateClick()) );
+	connect( d->a, SIGNAL(activatedAmbiguously(int)), this, SLOT(setFocus()) );
     }
     d->a->insertItem( key, 0 );
 }

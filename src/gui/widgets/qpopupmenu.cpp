@@ -2619,7 +2619,7 @@ public:
 int QPopupMenu::insertTearOffHandle( int id, int index )
 {
     int myid = insertItem( new QTearOffMenuItem, id, index );
-    connectItem( myid, this, SLOT( toggleTearOff() ) );
+    connectItem( myid, this, SLOT(toggleTearOff()) );
     QMenuData::d->aInt = myid;
     return myid;
 }
@@ -2638,7 +2638,7 @@ void QPopupMenu::toggleTearOff()
     } else {
 	// create a tear off menu
 	QPopupMenu* p = new QPopupMenu( parentWidget(), "tear off menu" );
-	connect( p, SIGNAL( activated(int) ), this, SIGNAL( activated(int) ) );
+	connect( p, SIGNAL(activated(int)), this, SIGNAL(activated(int)) );
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	p->setWindowTitle( windowTitle() );
 #endif

@@ -135,13 +135,13 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent,
     hbox->addWidget( d->ok );
     hbox->addWidget( cancel );
 
-    connect( d->lineEdit, SIGNAL( returnPressed() ),
-	     this, SLOT( tryAccept() ) );
-    connect( d->lineEdit, SIGNAL( textChanged(const QString&) ),
-	     this, SLOT( textChanged(const QString&) ) );
+    connect( d->lineEdit, SIGNAL(returnPressed()),
+	     this, SLOT(tryAccept()) );
+    connect( d->lineEdit, SIGNAL(textChanged(QString)),
+	     this, SLOT(textChanged(QString)) );
 
-    connect( d->ok, SIGNAL( clicked() ), this, SLOT( accept() ) );
-    connect( cancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+    connect( d->ok, SIGNAL(clicked()), this, SLOT(accept()) );
+    connect( cancel, SIGNAL(clicked()), this, SLOT(reject()) );
 
     QSize sh = sizeHint().expandedTo( QSize(400, 10) );
     setType( type );

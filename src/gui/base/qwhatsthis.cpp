@@ -421,7 +421,7 @@ QWhatsThisButton::QWhatsThisButton( QWidget * parent, const char * name )
     setAutoRaise( TRUE );
     setFocusPolicy( NoFocus );
     setTextLabel( tr( "What's this?" ) );
-    connect( this, SIGNAL(toggled(bool) ), this, SLOT( buttonToggled(bool) ) );
+    connect( this, SIGNAL(toggled(bool)), this, SLOT(buttonToggled(bool)) );
 }
 
 void QWhatsThisButton::buttonToggled(bool on)

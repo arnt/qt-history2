@@ -757,7 +757,7 @@ void Q3Action::setAccel( const QKeySequence& key )
     if ( p ) {
 	d->accel = new QAccel( (QWidget*)p, this, "qt_action_accel" );
 	d->accelid = d->accel->insertItem( d->key );
-	d->accel->connectItem( d->accelid, this, SLOT( internalActivation() ) );
+	d->accel->connectItem( d->accelid, this, SLOT(internalActivation()) );
     } else
 	qWarning( "Q3Action::setAccel() (%s) requires widget in parent chain", objectName() );
     d->update();
@@ -982,11 +982,11 @@ bool Q3Action::addTo( QWidget* w )
 	    if ( d->iconset )
 		btn->setIconSet( *d->iconset );
 	    d->update( Q3ActionPrivate::State | Q3ActionPrivate::Visibility | Q3ActionPrivate::EverythingElse ) ;
-	    connect( btn, SIGNAL( clicked() ), this, SIGNAL( activated() ) );
-	    connect( btn, SIGNAL( toggled(bool) ), this, SLOT( toolButtonToggled(bool) ) );
-	    connect( btn, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
+	    connect( btn, SIGNAL(clicked()), this, SIGNAL(activated()) );
+	    connect( btn, SIGNAL(toggled(bool)), this, SLOT(toolButtonToggled(bool)) );
+	    connect( btn, SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
 #ifndef QT_NO_TOOLTIP
-	    connect( &(d->tipGroup), SIGNAL(showTip(const QString&)), this, SLOT(showStatusText(const QString&)) );
+	    connect( &(d->tipGroup), SIGNAL(showTip(QString)), this, SLOT(showStatusText(QString)) );
 	    connect( &(d->tipGroup), SIGNAL(removeTip()), this, SLOT(clearStatusText()) );
 #endif
 	}
@@ -1008,12 +1008,12 @@ bool Q3Action::addTo( QWidget* w )
 	d->update( Q3ActionPrivate::State | Q3ActionPrivate::Visibility | Q3ActionPrivate::EverythingElse );
 	connect( mi->popup, SIGNAL(highlighted(int)), this, SLOT(menuStatusText(int)) );
 	connect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
-	connect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
+	connect( mi->popup, SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
     // Makes only sense when called by Q3ActionGroup::addTo
     } else if ( qt_cast<QComboBox*>(w) ) {
 	Q3ActionPrivate::ComboItem *ci = new Q3ActionPrivate::ComboItem;
 	ci->combo = (QComboBox*)w;
-	connect( ci->combo, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
+	connect( ci->combo, SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
 	ci->id = ci->combo->count();
 	if ( qstrcmp( objectName(), "qt_separator_action" ) ) {
 	    if ( d->iconset )
@@ -1155,7 +1155,7 @@ bool Q3Action::removeFrom( QWidget* w )
 	    ++it;
 	    if ( btn->parentWidget() == w ) {
 		d->toolbuttons.remove(btn);
-		disconnect( btn, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
+		disconnect( btn, SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
 		delete btn;
 		// no need to disconnect from statusbar
 	    }
@@ -1573,10 +1573,10 @@ void Q3ActionGroup::add( Q3Action* action )
 	action->setToolTip( toolTip() );
     action->setEnabled( isEnabled() );
 
-    connect( action, SIGNAL( destroyed() ), this, SLOT( childDestroyed() ) );
-    connect( action, SIGNAL( activated() ), this, SIGNAL( activated() ) );
-    connect( action, SIGNAL( toggled(bool) ), this, SLOT( childToggled(bool) ) );
-    connect( action, SIGNAL( activated() ), this, SLOT( childActivated() ) );
+    connect( action, SIGNAL(destroyed()), this, SLOT(childDestroyed()) );
+    connect( action, SIGNAL(activated()), this, SIGNAL(activated()) );
+    connect( action, SIGNAL(toggled(bool)), this, SLOT(childToggled(bool)) );
+    connect( action, SIGNAL(activated()), this, SLOT(childActivated()) );
 
     for (QList<QComboBox*>::Iterator cb(d->comboboxes.begin()); cb != d->comboboxes.end(); ++cb)
 	action->addTo(*cb);
@@ -1663,9 +1663,9 @@ bool Q3ActionGroup::addTo( QWidget* w )
 		    QWhatsThis::add( btn, defAction->whatsThis() );
 #endif
 
-		connect( btn, SIGNAL( clicked() ), defAction, SIGNAL( activated() ) );
-		connect( btn, SIGNAL( toggled(bool) ), defAction, SLOT( toolButtonToggled(bool) ) );
-		connect( btn, SIGNAL( destroyed() ), defAction, SLOT( objectDestroyed() ) );
+		connect( btn, SIGNAL(clicked()), defAction, SIGNAL(activated()) );
+		connect( btn, SIGNAL(toggled(bool)), defAction, SLOT(toolButtonToggled(bool)) );
+		connect( btn, SIGNAL(destroyed()), defAction, SLOT(objectDestroyed()) );
 
 		QPopupMenu *menu = new QPopupMenu( btn, "qt_actiongroup_menu" );
 		btn->setPopupDelay( 0 );
@@ -1703,8 +1703,8 @@ bool Q3ActionGroup::addTo( QWidget* w )
 		}
 		if ( foundOn )
 		    box->setCurrentItem( onIndex );
-		connect( box, SIGNAL(activated(int)), this, SLOT( internalComboBoxActivated(int)) );
-		connect( box, SIGNAL(highlighted(int)), this, SLOT( internalComboBoxHighlighted(int)) );
+		connect( box, SIGNAL(activated(int)), this, SLOT(internalComboBoxActivated(int)) );
+		connect( box, SIGNAL(highlighted(int)), this, SLOT(internalComboBoxHighlighted(int)) );
 		d->update( this );
 		return TRUE;
 	    }

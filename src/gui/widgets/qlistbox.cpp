@@ -791,8 +791,8 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 	     this, SLOT(refreshSlot()) );
     connect( d->visibleTimer, SIGNAL(timeout()),
 	     this, SLOT(ensureCurrentVisible()) );
-    connect( d->resizeTimer, SIGNAL( timeout() ),
-	     this, SLOT( adjustItems() ) );
+    connect( d->resizeTimer, SIGNAL(timeout()),
+	     this, SLOT(adjustItems()) );
     viewport()->setBackgroundRole( QPalette::Base );
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
@@ -2173,7 +2173,7 @@ void QListBox::repaintSelection()
 
 void QListBox::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( !receivers( SIGNAL(contextMenuRequested(QListBoxItem*,const QPoint&)) ) ) {
+    if ( !receivers( SIGNAL(contextMenuRequested(QListBoxItem*,QPoint)) ) ) {
 	e->ignore();
 	return;
     }

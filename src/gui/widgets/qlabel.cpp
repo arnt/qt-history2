@@ -941,8 +941,8 @@ void QLabel::setMovie( const QMovie& movie )
     clearContents();
 
     lmovie = new QMovie( movie );
-	lmovie->connectResize(this, SLOT(movieResized(const QSize&)));
-	lmovie->connectUpdate(this, SLOT(movieUpdated(const QRect&)));
+	lmovie->connectResize(this, SLOT(movieResized(QSize)));
+	lmovie->connectUpdate(this, SLOT(movieUpdated(QRect)));
 
     if ( !lmovie->running() )	// Assume that if the movie is running,
 	updateLabel( osh );	// resize/update signals will come soon enough
@@ -981,8 +981,8 @@ void QLabel::clearContents()
 #endif
 #ifndef QT_NO_MOVIE
     if ( lmovie ) {
-	lmovie->disconnectResize(this, SLOT(movieResized(const QSize&)));
-	lmovie->disconnectUpdate(this, SLOT(movieUpdated(const QRect&)));
+	lmovie->disconnectResize(this, SLOT(movieResized(QSize)));
+	lmovie->disconnectUpdate(this, SLOT(movieUpdated(QRect)));
 	delete lmovie;
 	lmovie = 0;
     }

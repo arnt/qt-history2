@@ -2132,8 +2132,8 @@ void QComboBox::setLineEdit( QLineEdit *edit )
 	edit->move(QPoint(0,0));
     }
 
-    connect (edit, SIGNAL( textChanged(const QString&) ),
-	     this, SIGNAL( textChanged(const QString&) ) );
+    connect (edit, SIGNAL(textChanged(QString)),
+	     this, SIGNAL(textChanged(QString)) );
     connect( edit, SIGNAL(returnPressed()), SLOT(returnPressed()) );
 
     edit->setFrame( FALSE );

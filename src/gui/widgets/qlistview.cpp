@@ -4263,7 +4263,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 
 void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( !receivers( SIGNAL(contextMenuRequested(QListViewItem*,const QPoint&,int)) ) ) {
+    if ( !receivers( SIGNAL(contextMenuRequested(QListViewItem*,QPoint,int)) ) ) {
 	e->ignore();
 	return;
     }

@@ -1658,7 +1658,7 @@ QFontMetrics QApplication::fontMetrics()
     file->addAction( "&Quit", qApp, SLOT(closeAllWindows()), CTRL+Key_Q );
 
     // when the last window is closed, the application should quit
-    connect( qApp, SIGNAL( lastWindowClosed() ), qApp, SLOT( quit() ) );
+    connect( qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()) );
   \endcode
 
   The windows are closed in random order, until one window does not

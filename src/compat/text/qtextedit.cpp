@@ -925,8 +925,8 @@ void QTextEdit::init()
     readonly = TRUE;
     setReadOnly( FALSE );
     setFrameStyle( LineEditPanel | Sunken );
-    connect( doc, SIGNAL( minimumWidthChanged(int) ),
-	     this, SLOT( documentWidthChanged(int) ) );
+    connect( doc, SIGNAL(minimumWidthChanged(int)),
+	     this, SLOT(documentWidthChanged(int)) );
 
     mousePressed = FALSE;
     inDoubleClick = FALSE;
@@ -959,28 +959,28 @@ void QTextEdit::init()
     cursor = new Q3TextCursor( doc );
 
     formatTimer = new QTimer( this );
-    connect( formatTimer, SIGNAL( timeout() ),
-	     this, SLOT( formatMore() ) );
+    connect( formatTimer, SIGNAL(timeout()),
+	     this, SLOT(formatMore()) );
     lastFormatted = doc->firstParagraph();
 
     scrollTimer = new QTimer( this );
-    connect( scrollTimer, SIGNAL( timeout() ),
-	     this, SLOT( autoScrollTimerDone() ) );
+    connect( scrollTimer, SIGNAL(timeout()),
+	     this, SLOT(autoScrollTimerDone()) );
 
     interval = 0;
     changeIntervalTimer = new QTimer( this );
-    connect( changeIntervalTimer, SIGNAL( timeout() ),
-	     this, SLOT( doChangeInterval() ) );
+    connect( changeIntervalTimer, SIGNAL(timeout()),
+	     this, SLOT(doChangeInterval()) );
 
     cursorVisible = TRUE;
     blinkTimer = new QTimer( this );
-    connect( blinkTimer, SIGNAL( timeout() ),
-	     this, SLOT( blinkCursor() ) );
+    connect( blinkTimer, SIGNAL(timeout()),
+	     this, SLOT(blinkCursor()) );
 
 #ifndef QT_NO_DRAGANDDROP
     dragStartTimer = new QTimer( this );
-    connect( dragStartTimer, SIGNAL( timeout() ),
-	     this, SLOT( startDrag() ) );
+    connect( dragStartTimer, SIGNAL(timeout()),
+	     this, SLOT(startDrag()) );
 #endif
 
     d->trippleClickTimer = new QTimer( this );
@@ -5942,19 +5942,19 @@ bool QTextEdit::checkOptimMode()
     if ( oldMode != d->optimMode ) {
 	if ( d->optimMode ) {
 	    d->od = new QTextEditOptimPrivate;
-	    connect( scrollTimer, SIGNAL( timeout() ), this, SLOT( optimDoAutoScroll() ) );
-	    disconnect( doc, SIGNAL( minimumWidthChanged(int) ), this, SLOT( documentWidthChanged(int) ) );
-	    disconnect( scrollTimer, SIGNAL( timeout() ), this, SLOT( autoScrollTimerDone() ) );
-	    disconnect( formatTimer, SIGNAL( timeout() ), this, SLOT( formatMore() ) );
+	    connect( scrollTimer, SIGNAL(timeout()), this, SLOT(optimDoAutoScroll()) );
+	    disconnect( doc, SIGNAL(minimumWidthChanged(int)), this, SLOT(documentWidthChanged(int)) );
+	    disconnect( scrollTimer, SIGNAL(timeout()), this, SLOT(autoScrollTimerDone()) );
+	    disconnect( formatTimer, SIGNAL(timeout()), this, SLOT(formatMore()) );
  	    optimSetText( doc->originalText() );
     	    doc->clear(TRUE);
 	    delete cursor;
 	    cursor = new Q3TextCursor( doc );
 	} else {
- 	    disconnect( scrollTimer, SIGNAL( timeout() ), this, SLOT( optimDoAutoScroll() ) );
-	    connect( doc, SIGNAL( minimumWidthChanged(int) ), this, SLOT( documentWidthChanged(int) ) );
-	    connect( scrollTimer, SIGNAL( timeout() ), this, SLOT( autoScrollTimerDone() ) );
-	    connect( formatTimer, SIGNAL( timeout() ), this, SLOT( formatMore() ) );
+ 	    disconnect( scrollTimer, SIGNAL(timeout()), this, SLOT(optimDoAutoScroll()) );
+	    connect( doc, SIGNAL(minimumWidthChanged(int)), this, SLOT(documentWidthChanged(int)) );
+	    connect( scrollTimer, SIGNAL(timeout()), this, SLOT(autoScrollTimerDone()) );
+	    connect( formatTimer, SIGNAL(timeout()), this, SLOT(formatMore()) );
  	    setText( optimText() );
  	    delete d->od;
  	    d->od = 0;

@@ -289,7 +289,7 @@ void QCopChannel::registerChannel( const QString &ch, QWSClient *cl )
     // If this is the first client in the channel, announce the channel as being created.
     if (it.data().count() == 0) {
       QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
-      connect(qwsBridge, SIGNAL(newChannel(const QString&)), qwsServer, SIGNAL(newChannel(const QString&)));
+      connect(qwsBridge, SIGNAL(newChannel(QString)), qwsServer, SIGNAL(newChannel(QString)));
       qwsBridge->emitNewChannel(ch);
       delete qwsBridge;
     }
@@ -314,7 +314,7 @@ void QCopChannel::detach( QWSClient *cl )
 	// If this was the last client in the channel, announce the channel as dead.
 	if (it.data().count() == 0) {
 	  QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
-	  connect(qwsBridge, SIGNAL(removedChannel(const QString&)), qwsServer, SIGNAL(removedChannel(const QString&)));
+	  connect(qwsBridge, SIGNAL(removedChannel(QString)), qwsServer, SIGNAL(removedChannel(QString)));
 	  qwsBridge->emitRemovedChannel(it.key());
 	  delete qwsBridge;
 	}
@@ -354,7 +354,7 @@ void QCopChannel::answer( QWSClient *cl, const QCString &ch,
 		if ( it.data().isEmpty() ) {
 		  // If this was the last client in the channel, announce the channel as dead
 		  QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
-		  connect(qwsBridge, SIGNAL(removedChannel(const QString&)), qwsServer, SIGNAL(removedChannel(const QString&)));
+		  connect(qwsBridge, SIGNAL(removedChannel(QString)), qwsServer, SIGNAL(removedChannel(QString)));
 		  qwsBridge->emitRemovedChannel(it.key());
 		  delete qwsBridge;
 		  qcopServerMap->remove( it );

@@ -249,8 +249,8 @@ QWorkspace::init()
 
     d->menuId = -1;
     d->controlId = -1;
-    connect( d->popup, SIGNAL( aboutToShow() ), this, SLOT(operationMenuAboutToShow() ));
-    connect( d->popup, SIGNAL( activated(int) ), this, SLOT( operationMenuActivated(int) ) );
+    connect( d->popup, SIGNAL(aboutToShow()), this, SLOT(operationMenuAboutToShow()));
+    connect( d->popup, SIGNAL(activated(int)), this, SLOT(operationMenuActivated(int)) );
     d->popup->insertItem(QIconSet(style().stylePixmap(QStyle::SP_TitleBarNormalButton)), tr("&Restore"), 1);
     d->popup->insertItem(tr("&Move"), 2);
     d->popup->insertItem(tr("&Size"), 3);
@@ -262,10 +262,10 @@ QWorkspace::init()
 #ifndef QT_NO_ACCEL
 					+"\t"+(QString)QKeySequence(CTRL+Key_F4)
 #endif
-		    , this, SLOT( closeActiveWindow() ) );
+		    , this, SLOT(closeActiveWindow()) );
 
-    connect( d->toolPopup, SIGNAL( aboutToShow() ), this, SLOT(toolMenuAboutToShow() ));
-    connect( d->toolPopup, SIGNAL( activated(int) ), this, SLOT( operationMenuActivated(int) ) );
+    connect( d->toolPopup, SIGNAL(aboutToShow()), this, SLOT(toolMenuAboutToShow()));
+    connect( d->toolPopup, SIGNAL(activated(int)), this, SLOT(operationMenuActivated(int)) );
     d->toolPopup->insertItem(tr("&Move"), 2);
     d->toolPopup->insertItem(tr("&Size"), 3);
     d->toolPopup->insertItem(tr("Stay on &Top"), 7);
@@ -278,29 +278,29 @@ QWorkspace::init()
 #ifndef QT_NO_ACCEL
 					+"\t"+(QString)QKeySequence(CTRL+Key_F4)
 #endif
-		, this, SLOT( closeActiveWindow() ) );
+		, this, SLOT(closeActiveWindow()) );
 
 #ifndef QT_NO_ACCEL
     QAccel* a = new QAccel( this );
     a->connectItem( a->insertItem( ALT + Key_Minus),
-		    this, SLOT( showOperationMenu() ) );
+		    this, SLOT(showOperationMenu()) );
 
     a->connectItem( a->insertItem( CTRL + Key_F6),
-		    this, SLOT( activateNextWindow() ) );
+		    this, SLOT(activateNextWindow()) );
     a->connectItem( a->insertItem( CTRL + Key_Tab),
-		    this, SLOT( activateNextWindow() ) );
+		    this, SLOT(activateNextWindow()) );
     a->connectItem( a->insertItem( Key_Forward ),
-		    this, SLOT( activateNextWindow() ) );
+		    this, SLOT(activateNextWindow()) );
 
     a->connectItem( a->insertItem( CTRL + SHIFT + Key_F6),
-		    this, SLOT( activatePreviousWindow() ) );
+		    this, SLOT(activatePreviousWindow()) );
     a->connectItem( a->insertItem( CTRL + SHIFT + Key_Tab),
-		    this, SLOT( activatePreviousWindow() ) );
+		    this, SLOT(activatePreviousWindow()) );
     a->connectItem( a->insertItem( Key_Back ),
-		    this, SLOT( activatePreviousWindow() ) );
+		    this, SLOT(activatePreviousWindow()) );
 
     a->connectItem( a->insertItem( CTRL + Key_F4 ),
-		    this, SLOT( closeActiveWindow() ) );
+		    this, SLOT(closeActiveWindow()) );
 #endif
 
     setBackgroundRole( QPalette::Dark );
@@ -371,10 +371,10 @@ void QWorkspace::childEvent( QChildEvent * e)
 	QWorkspaceChild* child = new QWorkspaceChild( w, this, "qt_workspacechild" );
 	child->installEventFilter( this );
 
-	connect( child, SIGNAL( popupOperationMenu(const QPoint&) ),
-		 this, SLOT( popupOperationMenu(const QPoint&) ) );
-	connect( child, SIGNAL( showOperationMenu() ),
-		 this, SLOT( showOperationMenu() ) );
+	connect( child, SIGNAL(popupOperationMenu(QPoint)),
+		 this, SLOT(popupOperationMenu(QPoint)) );
+	connect( child, SIGNAL(showOperationMenu()),
+		 this, SLOT(showOperationMenu()) );
 	d->windows.append( child );
 	if ( child->isVisibleTo( this ) )
 	    d->focus.append( child );
@@ -1097,8 +1097,8 @@ void QWorkspace::showMaximizeControls()
 	    iconB->setFocusPolicy( NoFocus );
 	    iconB->setIconSet(style().stylePixmap(QStyle::SP_TitleBarMinButton));
 	    iconB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	    connect( iconB, SIGNAL( clicked() ),
-		     this, SLOT( minimizeActiveWindow() ) );
+	    connect( iconB, SIGNAL(clicked()),
+		     this, SLOT(minimizeActiveWindow()) );
 	}
 
 	QToolButton* restoreB = new QToolButton( d->maxcontrols, "restore" );
@@ -1109,8 +1109,8 @@ void QWorkspace::showMaximizeControls()
 	restoreB->setFocusPolicy( NoFocus );
 	restoreB->setIconSet( style().stylePixmap(QStyle::SP_TitleBarNormalButton));
 	restoreB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	connect( restoreB, SIGNAL( clicked() ),
-		 this, SLOT( normalizeActiveWindow() ) );
+	connect( restoreB, SIGNAL(clicked()),
+		 this, SLOT(normalizeActiveWindow()) );
 
 	l->addSpacing( 2 );
 	QToolButton* closeB = new QToolButton( d->maxcontrols, "close" );
@@ -1121,8 +1121,8 @@ void QWorkspace::showMaximizeControls()
 	closeB->setFocusPolicy( NoFocus );
 	closeB->setIconSet( style().stylePixmap(QStyle::SP_TitleBarCloseButton) );
 	closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	connect( closeB, SIGNAL( clicked() ),
-		 this, SLOT( closeActiveWindow() ) );
+	connect( closeB, SIGNAL(clicked()),
+		 this, SLOT(closeActiveWindow()) );
 
 	d->maxcontrols->setFixedSize( d->maxcontrols->minimumSizeHint() );
     }
@@ -1637,24 +1637,24 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 
     if ( window && window->testWFlags( WStyle_Title ) ) {
 	titlebar = new QTitleBar( window, this, "qt_ws_titlebar" );
-	connect( titlebar, SIGNAL( doActivate() ),
-		 this, SLOT( activate() ) );
-	connect( titlebar, SIGNAL( doClose() ),
-		 window, SLOT( close() ) );
-	connect( titlebar, SIGNAL( doMinimize() ),
-		 this, SLOT( showMinimized() ) );
-	connect( titlebar, SIGNAL( doNormal() ),
-		 this, SLOT( showNormal() ) );
-	connect( titlebar, SIGNAL( doMaximize() ),
-		 this, SLOT( showMaximized() ) );
-	connect( titlebar, SIGNAL( popupOperationMenu(const QPoint&) ),
-		 this, SIGNAL( popupOperationMenu(const QPoint&) ) );
-	connect( titlebar, SIGNAL( showOperationMenu() ),
-		 this, SIGNAL( showOperationMenu() ) );
-	connect( titlebar, SIGNAL( doShade() ),
-		 this, SLOT( showShaded() ) );
-	connect( titlebar, SIGNAL( doubleClicked() ),
-		 this, SLOT( titleBarDoubleClicked() ) );
+	connect( titlebar, SIGNAL(doActivate()),
+		 this, SLOT(activate()) );
+	connect( titlebar, SIGNAL(doClose()),
+		 window, SLOT(close()) );
+	connect( titlebar, SIGNAL(doMinimize()),
+		 this, SLOT(showMinimized()) );
+	connect( titlebar, SIGNAL(doNormal()),
+		 this, SLOT(showNormal()) );
+	connect( titlebar, SIGNAL(doMaximize()),
+		 this, SLOT(showMaximized()) );
+	connect( titlebar, SIGNAL(popupOperationMenu(QPoint)),
+		 this, SIGNAL(popupOperationMenu(QPoint)) );
+	connect( titlebar, SIGNAL(showOperationMenu()),
+		 this, SIGNAL(showOperationMenu()) );
+	connect( titlebar, SIGNAL(doShade()),
+		 this, SLOT(showShaded()) );
+	connect( titlebar, SIGNAL(doubleClicked()),
+		 this, SLOT(titleBarDoubleClicked()) );
     }
 
     setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
@@ -1713,8 +1713,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 
     widgetResizeHandler = new QWidgetResizeHandler( this, window );
     widgetResizeHandler->setSizeProtection( !parent->scrollBarsEnabled() );
-    connect( widgetResizeHandler, SIGNAL( activate() ),
-	     this, SLOT( activate() ) );
+    connect( widgetResizeHandler, SIGNAL(activate()),
+	     this, SLOT(activate()) );
     widgetResizeHandler->setExtraHeight( th + contentsRect().y() );
     if ( childWidget->minimumSize() == childWidget->maximumSize() )
 	widgetResizeHandler->setActive( QWidgetResizeHandler::Resize, FALSE );
@@ -2105,20 +2105,20 @@ QWidget* QWorkspaceChild::iconWidget() const
 	that->iconw = tb;
 	iconw->setActive( isActive() );
 
-	connect( iconw, SIGNAL( doActivate() ),
-		 this, SLOT( activate() ) );
-	connect( iconw, SIGNAL( doClose() ),
-		 windowWidget(), SLOT( close() ) );
-	connect( iconw, SIGNAL( doNormal() ),
-		 this, SLOT( showNormal() ) );
-	connect( iconw, SIGNAL( doMaximize() ),
-		 this, SLOT( showMaximized() ) );
-	connect( iconw, SIGNAL( popupOperationMenu(const QPoint&) ),
-		 this, SIGNAL( popupOperationMenu(const QPoint&) ) );
-	connect( iconw, SIGNAL( showOperationMenu() ),
-		 this, SIGNAL( showOperationMenu() ) );
-	connect( iconw, SIGNAL( doubleClicked() ),
-		 this, SLOT( titleBarDoubleClicked() ) );
+	connect( iconw, SIGNAL(doActivate()),
+		 this, SLOT(activate()) );
+	connect( iconw, SIGNAL(doClose()),
+		 windowWidget(), SLOT(close()) );
+	connect( iconw, SIGNAL(doNormal()),
+		 this, SLOT(showNormal()) );
+	connect( iconw, SIGNAL(doMaximize()),
+		 this, SLOT(showMaximized()) );
+	connect( iconw, SIGNAL(popupOperationMenu(QPoint)),
+		 this, SIGNAL(popupOperationMenu(QPoint)) );
+	connect( iconw, SIGNAL(showOperationMenu()),
+		 this, SIGNAL(showOperationMenu()) );
+	connect( iconw, SIGNAL(doubleClicked()),
+		 this, SLOT(titleBarDoubleClicked()) );
     }
     if ( windowWidget() ) {
 	iconw->setWindowTitle( windowWidget()->windowTitle() );
@@ -2303,9 +2303,9 @@ void QWorkspace::setScrollBarsEnabled( bool enable )
     d->xoffset = d->yoffset = 0;
     if ( enable ) {
 	d->vbar = new QScrollBar( Vertical, this, "vertical scrollbar" );
-	connect( d->vbar, SIGNAL( valueChanged(int) ), this, SLOT( scrollBarChanged() ) );
+	connect( d->vbar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarChanged()) );
 	d->hbar = new QScrollBar( Horizontal, this, "horizontal scrollbar" );
-	connect( d->hbar, SIGNAL( valueChanged(int) ), this, SLOT( scrollBarChanged() ) );
+	connect( d->hbar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarChanged()) );
 	d->corner = new QWidget( this, "qt_corner" );
 	updateWorkspace();
     } else {

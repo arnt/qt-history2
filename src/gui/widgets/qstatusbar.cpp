@@ -55,8 +55,8 @@
     one that has a time limit:
 
     \code
-	connect( loader, SIGNAL(progressMessage(const QString&)),
-		 statusBar(), SLOT(message(const QString&)) );
+	connect( loader, SIGNAL(progressMessage(QString)),
+		 statusBar(), SLOT(message(QString)) );
 
 	statusBar()->message("Loading...");  // Initial message
 	loader.loadStuff();                  // Emits progress messages

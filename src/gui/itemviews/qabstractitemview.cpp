@@ -77,12 +77,12 @@ void QAbstractItemViewPrivate::init()
 {
     q->setSelectionModel(new QItemSelectionModel(model));
 
-    QObject::connect(model, SIGNAL(contentsChanged(const QModelIndex &, const QModelIndex &)),
-                     q, SLOT(contentsChanged(const QModelIndex &, const QModelIndex &)));
-    QObject::connect(model, SIGNAL(contentsInserted(const QModelIndex &, const QModelIndex &)),
-                     q, SLOT(contentsInserted(const QModelIndex &, const QModelIndex &)));
-    QObject::connect(model, SIGNAL(contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)),
-                     q, SLOT(contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)));
+    QObject::connect(model, SIGNAL(contentsChanged(QModelIndex,QModelIndex)),
+                     q, SLOT(contentsChanged(QModelIndex,QModelIndex)));
+    QObject::connect(model, SIGNAL(contentsInserted(QModelIndex,QModelIndex)),
+                     q, SLOT(contentsInserted(QModelIndex,QModelIndex)));
+    QObject::connect(model, SIGNAL(contentsRemoved(QModelIndex,QModelIndex,QModelIndex)),
+                     q, SLOT(contentsRemoved(QModelIndex,QModelIndex,QModelIndex)));
 
     q->setHorizontalFactor(1024);
     q->setVerticalFactor(1024);
@@ -621,18 +621,18 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 
     if (!!d->selectionModel) {
 	disconnect(d->selectionModel,
-		   SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
-		   this, SLOT(selectionChanged(const QItemSelection&, const QItemSelection&)));
-	disconnect(d->selectionModel, SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-		   this, SLOT(currentChanged(const QModelIndex&, const QModelIndex&)));
+		   SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+		   this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
+	disconnect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+		   this, SLOT(currentChanged(QModelIndex,QModelIndex)));
     }
 
     d->selectionModel = selectionModel;
 
-    connect(d->selectionModel, SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
-	    this, SLOT(selectionChanged(const QItemSelection&, const QItemSelection&)));
-    connect(d->selectionModel, SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-	    this, SLOT(currentChanged(const QModelIndex&, const QModelIndex&)));
+    connect(d->selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+	    this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
+    connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+	    this, SLOT(currentChanged(QModelIndex,QModelIndex)));
 }
 
 QItemSelectionModel* QAbstractItemView::selectionModel() const

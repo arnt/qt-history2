@@ -192,10 +192,10 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 	     SLOT(familyHighlighted(int)) );
     connect( d->styleList, SIGNAL(highlighted(int)),
 	     SLOT(styleHighlighted(int)) );
-    connect( d->sizeList, SIGNAL(highlighted(const QString&)),
-	     SLOT(sizeHighlighted(const QString&)) );
-    connect( d->sizeEdit, SIGNAL(textChanged(const QString&)),
-	     SLOT(sizeChanged(const QString&)) );
+    connect( d->sizeList, SIGNAL(highlighted(QString)),
+	     SLOT(sizeHighlighted(QString)) );
+    connect( d->sizeEdit, SIGNAL(textChanged(QString)),
+	     SLOT(sizeChanged(QString)) );
 
     connect( d->strikeout, SIGNAL(clicked()),
 	     SLOT(updateSample()) );

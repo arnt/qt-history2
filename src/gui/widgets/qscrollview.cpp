@@ -138,14 +138,14 @@ void QScrollViewPrivate::init()
     vbarPressed = FALSE;
 
 #ifndef QT_NO_DRAGANDDROP
-    QObject::connect( &autoscroll_timer, SIGNAL( timeout() ),
-             q, SLOT( doDragAutoScroll() ) );
+    QObject::connect( &autoscroll_timer, SIGNAL(timeout()),
+             q, SLOT(doDragAutoScroll()) );
 #endif
 
-    QObject::connect( hbar, SIGNAL( valueChanged(int) ),
-        q, SLOT( hslide(int) ) );
-    QObject::connect( vbar, SIGNAL( valueChanged(int) ),
-        q, SLOT( vslide(int) ) );
+    QObject::connect( hbar, SIGNAL(valueChanged(int)),
+        q, SLOT(hslide(int)) );
+    QObject::connect( vbar, SIGNAL(valueChanged(int)),
+        q, SLOT(vslide(int)) );
 
     QObject::connect( hbar, SIGNAL(sliderPressed()), q, SLOT(hbarIsPressed()) );
     QObject::connect( hbar, SIGNAL(sliderReleased()), q, SLOT(hbarIsReleased()) );
@@ -155,8 +155,8 @@ void QScrollViewPrivate::init()
 
     viewport->installEventFilter( q );
 
-    QObject::connect( &scrollbar_timer, SIGNAL( timeout() ),
-             q, SLOT( updateScrollBars() ) );
+    QObject::connect( &scrollbar_timer, SIGNAL(timeout()),
+             q, SLOT(updateScrollBars()) );
 
     q->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     q->setLineWidth( q->style().pixelMetric(QStyle::PM_DefaultFrameWidth, q) );

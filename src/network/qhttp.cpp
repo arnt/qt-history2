@@ -1178,18 +1178,18 @@ void QHttp::init()
     d = new QHttpPrivate;
     d->errorString = tr( "Unknown error" );
 
-    connect( &d->socket, SIGNAL( connected() ),
-	    this, SLOT( slotConnected() ) );
-    connect( &d->socket, SIGNAL( connectionClosed() ),
-	    this, SLOT( slotClosed() ) );
-    connect( &d->socket, SIGNAL( delayedCloseFinished() ),
-	    this, SLOT( slotClosed() ) );
-    connect( &d->socket, SIGNAL( readyRead() ),
-	    this, SLOT( slotReadyRead() ) );
-    connect( &d->socket, SIGNAL( error(int) ),
-	    this, SLOT( slotError(int) ) );
-    connect( &d->socket, SIGNAL( bytesWritten(int) ),
-	    this, SLOT( slotBytesWritten(int) ) );
+    connect( &d->socket, SIGNAL(connected()),
+	    this, SLOT(slotConnected()) );
+    connect( &d->socket, SIGNAL(connectionClosed()),
+	    this, SLOT(slotClosed()) );
+    connect( &d->socket, SIGNAL(delayedCloseFinished()),
+	    this, SLOT(slotClosed()) );
+    connect( &d->socket, SIGNAL(readyRead()),
+	    this, SLOT(slotReadyRead()) );
+    connect( &d->socket, SIGNAL(error(int)),
+	    this, SLOT(slotError(int)) );
+    connect( &d->socket, SIGNAL(bytesWritten(int)),
+	    this, SLOT(slotBytesWritten(int)) );
 
     d->idleTimer = startTimer( 0 );
 }

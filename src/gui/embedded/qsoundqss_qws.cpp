@@ -231,8 +231,8 @@ QWSSoundServerSocket::QWSSoundServerSocket(QObject* parent, const char* name) :
 void QWSSoundServerSocket::newConnection(int s)
 {
     QWSSoundServerClient* client = new QWSSoundServerClient(s,this);
-    connect(client, SIGNAL(play(const QString&)),
-	this, SIGNAL(playFile(const QString&)));
+    connect(client, SIGNAL(play(QString)),
+	this, SIGNAL(playFile(QString)));
 }
 #endif
 
@@ -245,8 +245,8 @@ public:
     {
 #ifndef QT_NO_QWS_SOUNDSERVER
 	server = new QWSSoundServerSocket(this);
-	connect(server, SIGNAL(playFile(const QString&)),
-		this, SLOT(playFile(const QString&)));
+	connect(server, SIGNAL(playFile(QString)),
+		this, SLOT(playFile(QString)));
 #endif
 	timerId = 0;
 	fd = -1;

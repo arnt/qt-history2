@@ -37,7 +37,7 @@ void QAbstractTextDocumentLayout::registerHandler(int formatType, QObject *compo
     if (!iface)
 	return; // ### print error message on terminal?
 
-    connect(component, SIGNAL(destroyed(QObject *)), this, SLOT(handlerDestroyed(QObject *)));
+    connect(component, SIGNAL(destroyed(QObject*)), this, SLOT(handlerDestroyed(QObject*)));
 
     QTextObjectHandler h;
     h.iface = iface;

@@ -2752,14 +2752,14 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->drawActiveSelection = TRUE;
     d->drawDragShapes = FALSE;
 
-    connect( d->adjustTimer, SIGNAL( timeout() ),
-	     this, SLOT( adjustItems() ) );
-    connect( d->updateTimer, SIGNAL( timeout() ),
-	     this, SLOT( slotUpdate() ) );
-    connect( d->fullRedrawTimer, SIGNAL( timeout() ),
-	     this, SLOT( updateContents() ) );
-    connect( this, SIGNAL( contentsMoving(int,int) ),
-	     this, SLOT( movedContents(int,int) ) );
+    connect( d->adjustTimer, SIGNAL(timeout()),
+	     this, SLOT(adjustItems()) );
+    connect( d->updateTimer, SIGNAL(timeout()),
+	     this, SLOT(slotUpdate()) );
+    connect( d->fullRedrawTimer, SIGNAL(timeout()),
+	     this, SLOT(updateContents()) );
+    connect( this, SIGNAL(contentsMoving(int,int)),
+	     this, SLOT(movedContents(int,int)) );
 
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
@@ -3344,13 +3344,13 @@ void QIconView::doAutoScroll()
 	 !d->scrollTimer ) {
 	d->scrollTimer = new QTimer( this );
 
-	connect( d->scrollTimer, SIGNAL( timeout() ),
-		 this, SLOT( doAutoScroll() ) );
+	connect( d->scrollTimer, SIGNAL(timeout()),
+		 this, SLOT(doAutoScroll()) );
 	d->scrollTimer->start( 100, FALSE );
     } else if ( QRect( 50, 50, viewport()->width()-100, viewport()->height()-100 ).contains( vp ) &&
 		d->scrollTimer ) {
-	disconnect( d->scrollTimer, SIGNAL( timeout() ),
-		    this, SLOT( doAutoScroll() ) );
+	disconnect( d->scrollTimer, SIGNAL(timeout()),
+		    this, SLOT(doAutoScroll()) );
 	d->scrollTimer->stop();
 	delete d->scrollTimer;
 	d->scrollTimer = 0;
@@ -4348,7 +4348,7 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 	d->rubber = 0;
 
 	if ( d->scrollTimer ) {
-	    disconnect( d->scrollTimer, SIGNAL( timeout() ), this, SLOT( doAutoScroll() ) );
+	    disconnect( d->scrollTimer, SIGNAL(timeout()), this, SLOT(doAutoScroll()) );
 	    d->scrollTimer->stop();
 	    delete d->scrollTimer;
 	    d->scrollTimer = 0;
@@ -4501,7 +4501,7 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 
 void QIconView::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( !receivers( SIGNAL(contextMenuRequested(QIconViewItem*,const QPoint&)) ) ) {
+    if ( !receivers( SIGNAL(contextMenuRequested(QIconViewItem*,QPoint)) ) ) {
 	e->ignore();
 	return;
     }
@@ -4552,7 +4552,7 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
     }
 
     if ( d->scrollTimer ) {
-	disconnect( d->scrollTimer, SIGNAL( timeout() ), this, SLOT( doAutoScroll() ) );
+	disconnect( d->scrollTimer, SIGNAL(timeout()), this, SLOT(doAutoScroll()) );
 	d->scrollTimer->stop();
 	delete d->scrollTimer;
 	d->scrollTimer = 0;

@@ -1037,10 +1037,10 @@ QColorShower::QColorShower( QWidget *parent, const char *name )
     lab = new QColorShowLabel( this );
     lab->setMinimumWidth( 60 ); //###
     gl->addMultiCellWidget(lab, 0,-1,0,0);
-    connect( lab, SIGNAL( colorDropped(QRgb) ),
-	     this, SIGNAL( newCol(QRgb) ) );
-    connect( lab, SIGNAL( colorDropped(QRgb) ),
-	     this, SLOT( setRgb(QRgb) ) );
+    connect( lab, SIGNAL(colorDropped(QRgb)),
+	     this, SIGNAL(newCol(QRgb)) );
+    connect( lab, SIGNAL(colorDropped(QRgb)),
+	     this, SLOT(setRgb(QRgb)) );
 
     hEd = new QColNumLineEdit( this, "qt_hue_edit" );
     hEd->setValidator( val360 );
@@ -1093,14 +1093,14 @@ QColorShower::QColorShower( QWidget *parent, const char *name )
     alphaEd->hide();
     alphaLab->hide();
 
-    connect( hEd, SIGNAL(textChanged(const QString&)), this, SLOT(hsvEd()) );
-    connect( sEd, SIGNAL(textChanged(const QString&)), this, SLOT(hsvEd()) );
-    connect( vEd, SIGNAL(textChanged(const QString&)), this, SLOT(hsvEd()) );
+    connect( hEd, SIGNAL(textChanged(QString)), this, SLOT(hsvEd()) );
+    connect( sEd, SIGNAL(textChanged(QString)), this, SLOT(hsvEd()) );
+    connect( vEd, SIGNAL(textChanged(QString)), this, SLOT(hsvEd()) );
 
-    connect( rEd, SIGNAL(textChanged(const QString&)), this, SLOT(rgbEd()) );
-    connect( gEd, SIGNAL(textChanged(const QString&)), this, SLOT(rgbEd()) );
-    connect( bEd, SIGNAL(textChanged(const QString&)), this, SLOT(rgbEd()) );
-    connect( alphaEd, SIGNAL(textChanged(const QString&)), this, SLOT(rgbEd()) );
+    connect( rEd, SIGNAL(textChanged(QString)), this, SLOT(rgbEd()) );
+    connect( gEd, SIGNAL(textChanged(QString)), this, SLOT(rgbEd()) );
+    connect( bEd, SIGNAL(textChanged(QString)), this, SLOT(rgbEd()) );
+    connect( alphaEd, SIGNAL(textChanged(QString)), this, SLOT(rgbEd()) );
 }
 
 void QColorShower::showCurrentColor()

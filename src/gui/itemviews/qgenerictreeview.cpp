@@ -140,23 +140,23 @@ QGenericHeader *QGenericTreeView::header() const
 void QGenericTreeView::setHeader(QGenericHeader *header)
 {
     if (d->header) {
-	QObject::disconnect(d->header, SIGNAL(sectionSizeChanged(int, int, int)),
-			    this, SLOT(columnWidthChanged(int, int, int)));
-	QObject::disconnect(d->header, SIGNAL(sectionIndexChanged(int, int, int)),
+	QObject::disconnect(d->header, SIGNAL(sectionSizeChanged(int,int,int)),
+			    this, SLOT(columnWidthChanged(int,int,int)));
+	QObject::disconnect(d->header, SIGNAL(sectionIndexChanged(int,int,int)),
 			    this, SLOT(contentsChanged()));
-	QObject::disconnect(d->header, SIGNAL(sectionCountChanged(int, int)),
-			    this, SLOT(columnCountChanged(int, int)));
+	QObject::disconnect(d->header, SIGNAL(sectionCountChanged(int,int)),
+			    this, SLOT(columnCountChanged(int,int)));
 	delete d->header; // FIXME ???
     }
     // FIXME: reparent header ???
     d->header = header;
     setViewportMargins(0, d->header->sizeHint().height(), 0, 0);
-    QObject::connect(d->header, SIGNAL(sectionSizeChanged(int, int, int)),
-		     this, SLOT(columnWidthChanged(int, int, int)));
-    QObject::connect(d->header, SIGNAL(sectionIndexChanged(int, int, int)),
+    QObject::connect(d->header, SIGNAL(sectionSizeChanged(int,int,int)),
+		     this, SLOT(columnWidthChanged(int,int,int)));
+    QObject::connect(d->header, SIGNAL(sectionIndexChanged(int,int,int)),
 		     this, SLOT(contentsChanged()));
-    QObject::connect(d->header, SIGNAL(sectionCountChanged(int, int)),
-    		     this, SLOT(columnCountChanged(int, int)));
+    QObject::connect(d->header, SIGNAL(sectionCountChanged(int,int)),
+    		     this, SLOT(columnCountChanged(int,int)));
     d->header->setSelectionModel(selectionModel());
 
     updateGeometries();

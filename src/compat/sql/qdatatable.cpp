@@ -253,8 +253,8 @@ void QDataTable::init()
     d->falseTxt = tr( "False" );
     d->datefmt = Qt::LocalDate;
     reset();
-    connect( this, SIGNAL( selectionChanged() ),
-	     SLOT( updateCurrentSelection()));
+    connect( this, SIGNAL(selectionChanged()),
+	     SLOT(updateCurrentSelection()));
 }
 
 /*!
@@ -837,13 +837,13 @@ void QDataTable::endEdit( int row, int col, bool, bool )
 	    switch ( d->dat.mode() ) {
 	    case QSql::Insert:
 		if ( accept )
-		    QTimer::singleShot( 0, this, SLOT( doInsertCurrent() ) );
+		    QTimer::singleShot( 0, this, SLOT(doInsertCurrent()) );
 		else
 		    endInsert();
 		break;
 	    case QSql::Update:
 		if ( accept )
-		    QTimer::singleShot( 0, this, SLOT( doUpdateCurrent() ) );
+		    QTimer::singleShot( 0, this, SLOT(doUpdateCurrent()) );
 		else
 		    endUpdate();
 		break;
@@ -1615,16 +1615,16 @@ void QDataTable::loadNextPage()
 /*! \internal */
 void QDataTable::sliderPressed()
 {
-    disconnect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
-		this, SLOT( loadNextPage() ) );
+    disconnect( verticalScrollBar(), SIGNAL(valueChanged(int)),
+		this, SLOT(loadNextPage()) );
 }
 
 /*! \internal */
 void QDataTable::sliderReleased()
 {
     loadNextPage();
-    connect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
-	     this, SLOT( loadNextPage() ) );
+    connect( verticalScrollBar(), SIGNAL(valueChanged(int)),
+	     this, SLOT(loadNextPage()) );
 }
 
 /*!
@@ -1772,22 +1772,22 @@ void QDataTable::setSize( QSqlCursor* sql )
     // ### what are the connect/disconnect calls doing here!? move to refresh()
     if ( sql->driver() && sql->driver()->hasFeature( QSqlDriver::QuerySize ) ) {
 	setVScrollBarMode( Auto );
- 	disconnect( verticalScrollBar(), SIGNAL( sliderPressed() ),
-		    this, SLOT( sliderPressed() ) );
- 	disconnect( verticalScrollBar(), SIGNAL( sliderReleased() ),
-		    this, SLOT( sliderReleased() ) );
-	disconnect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
-		    this, SLOT( loadNextPage() ) );
+ 	disconnect( verticalScrollBar(), SIGNAL(sliderPressed()),
+		    this, SLOT(sliderPressed()) );
+ 	disconnect( verticalScrollBar(), SIGNAL(sliderReleased()),
+		    this, SLOT(sliderReleased()) );
+	disconnect( verticalScrollBar(), SIGNAL(valueChanged(int)),
+		    this, SLOT(loadNextPage()) );
 	if ( numRows() != sql->size() )
 	    setNumRows( sql->size() );
     } else {
 	setVScrollBarMode( AlwaysOn );
- 	connect( verticalScrollBar(), SIGNAL( sliderPressed() ),
- 		 this, SLOT( sliderPressed() ) );
- 	connect( verticalScrollBar(), SIGNAL( sliderReleased() ),
- 		 this, SLOT( sliderReleased() ) );
-	connect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
-		 this, SLOT( loadNextPage() ) );
+ 	connect( verticalScrollBar(), SIGNAL(sliderPressed()),
+ 		 this, SLOT(sliderPressed()) );
+ 	connect( verticalScrollBar(), SIGNAL(sliderReleased()),
+ 		 this, SLOT(sliderReleased()) );
+	connect( verticalScrollBar(), SIGNAL(valueChanged(int)),
+		 this, SLOT(loadNextPage()) );
 	setNumRows(0);
 	loadNextPage();
     }

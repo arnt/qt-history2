@@ -10,8 +10,8 @@
 QTextListManager::QTextListManager(QTextPieceTable *_table)
     : QObject(_table), table(_table)
 {
-    connect(table, SIGNAL(blockChanged(int, QText::ChangeOperation)), this, SLOT(blockChanged(int, QText::ChangeOperation)));
-    connect(table, SIGNAL(formatChanged(int, int)), this, SLOT(formatChanged(int, int)));
+    connect(table, SIGNAL(blockChanged(int,QText::ChangeOperation)), this, SLOT(blockChanged(int,QText::ChangeOperation)));
+    connect(table, SIGNAL(formatChanged(int,int)), this, SLOT(formatChanged(int,int)));
 }
 
 
@@ -134,7 +134,7 @@ void QTextListManager::addListEntry(int listIdx, const QTextPieceTable::BlockIte
     if (!list) {
 	list = new QTextList(table, this);
 	lists.insert(listIdx, list);
-	connect(list, SIGNAL(destroyed(QObject *)), this, SLOT(listDestroyed(QObject *)));
+	connect(list, SIGNAL(destroyed(QObject*)), this, SLOT(listDestroyed(QObject*)));
     }
 
     Q_ASSERT(!list->d_func()->blocks.contains(blockIt));

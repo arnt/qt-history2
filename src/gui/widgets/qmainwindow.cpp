@@ -953,8 +953,8 @@ void QMainWindow::setStatusBar( QStatusBar * newStatusBar )
     d->sb = newStatusBar;
 #ifndef QT_NO_TOOLTIP
     // ### this code can cause unnecessary creation of a tool tip group
-    connect( toolTipGroup(), SIGNAL(showTip(const QString&)),
-	     d->sb, SLOT(message(const QString&)) );
+    connect( toolTipGroup(), SIGNAL(showTip(QString)),
+	     d->sb, SLOT(message(QString)) );
     connect( toolTipGroup(), SIGNAL(removeTip()),
 	     d->sb, SLOT(clear()) );
 #endif
@@ -1010,8 +1010,8 @@ void QMainWindow::setToolTipGroup( QToolTipGroup * newToolTipGroup )
 	delete d->ttg;
     d->ttg = newToolTipGroup;
 
-    connect( toolTipGroup(), SIGNAL(showTip(const QString&)),
-	     statusBar(), SLOT(message(const QString&)) );
+    connect( toolTipGroup(), SIGNAL(showTip(QString)),
+	     statusBar(), SLOT(message(QString)) );
     connect( toolTipGroup(), SIGNAL(removeTip()),
 	     statusBar(), SLOT(clear()) );
 }
@@ -1104,8 +1104,8 @@ void QMainWindow::setDockEnabled( QDockWindow *dw, Dock dock, bool enable )
 {
     if (d->dockWindows.contains( dw )) {
 	d->dockWindows.append( dw );
-	connect( dw, SIGNAL( placeChanged(QDockWindow::Place) ),
-		 this, SLOT( slotPlaceChanged() ) );
+	connect( dw, SIGNAL(placeChanged(QDockWindow::Place)),
+		 this, SLOT(slotPlaceChanged()) );
     }
     QString s;
     s.sprintf( "%p_%d", (void*)dw, (int)dock );
@@ -1204,8 +1204,8 @@ void QMainWindow::addDockWindow( QDockWindow *dockWindow,
     dockWindow->setNewLine( newLine );
     if (!d->dockWindows.contains( dockWindow )) {
 	d->dockWindows.append( dockWindow );
-	connect( dockWindow, SIGNAL( placeChanged(QDockWindow::Place) ),
-		 this, SLOT( slotPlaceChanged() ) );
+	connect( dockWindow, SIGNAL(placeChanged(QDockWindow::Place)),
+		 this, SLOT(slotPlaceChanged()) );
 	dockWindow->installEventFilter( this );
     }
     dockWindow->setOpaqueMoving( d->opaque );
@@ -1372,8 +1372,8 @@ void QMainWindow::removeDockWindow( QDockWindow * dockWindow )
 
     dockWindow->hide();
     d->dockWindows.remove( dockWindow );
-    disconnect( dockWindow, SIGNAL( placeChanged(QDockWindow::Place) ),
-		this, SLOT( slotPlaceChanged() ) );
+    disconnect( dockWindow, SIGNAL(placeChanged(QDockWindow::Place)),
+		this, SLOT(slotPlaceChanged()) );
     dockWindow->removeEventFilter( this );
 }
 
@@ -2091,7 +2091,7 @@ QPopupMenu *QMainWindow::createDockWindowMenu( DockWindows dockWindows ) const
     QPopupMenu *menu = new QPopupMenu( (QMainWindow*)this, "qt_customize_menu" );
     menu->setCheckable( true );
     d->dockWindowModes.insert( menu, dockWindows );
-    connect( menu, SIGNAL( aboutToShow() ), this, SLOT( menuAboutToShow() ) );
+    connect( menu, SIGNAL(aboutToShow()), this, SLOT(menuAboutToShow()) );
     return menu;
 }
 
@@ -2128,7 +2128,7 @@ void QMainWindow::menuAboutToShow()
 		    continue;
 		QString label = dw->windowTitle();
 		if ( !label.isEmpty() ) {
-		    int id = menu->insertItem( label, dw, SLOT( toggleVisible() ) );
+		    int id = menu->insertItem( label, dw, SLOT(toggleVisible()) );
 		    menu->setItemChecked( id, dw->isVisible() );
 		    empty = false;
 		}
@@ -2147,7 +2147,7 @@ void QMainWindow::menuAboutToShow()
 		    continue;
 		QString label = tb->label();
 		if ( !label.isEmpty() ) {
-		    int id = menu->insertItem( label, tb, SLOT( toggleVisible() ) );
+		    int id = menu->insertItem( label, tb, SLOT(toggleVisible()) );
 		    menu->setItemChecked( id, tb->isVisible() );
 		    empty = false;
 		}
@@ -2161,9 +2161,9 @@ void QMainWindow::menuAboutToShow()
 	menu->insertSeparator();
 
     if ( dockWindowsMovable() )
-	menu->insertItem( tr( "Line up" ), this, SLOT( doLineUp() ) );
+	menu->insertItem( tr( "Line up" ), this, SLOT(doLineUp()) );
     if ( isCustomizable() )
-	menu->insertItem( tr( "Customize..." ), this, SLOT( customize() ) );
+	menu->insertItem( tr( "Customize..." ), this, SLOT(customize()) );
 }
 
 /*!

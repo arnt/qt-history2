@@ -65,10 +65,10 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
 			    this, SLOT(columnWidthChanged(int,int,int)));
 	QObject::disconnect(d->topHeader, SIGNAL(sectionIndexChanged(int,int,int)),
 			    this, SLOT(columnIndexChanged(int,int,int)));
-	QObject::disconnect(d->topHeader, SIGNAL(sectionClicked(int, ButtonState)),
-			    this, SLOT(selectColumn(int, ButtonState)));
-	QObject::disconnect(d->topHeader, SIGNAL(sectionCountChanged(int, int)),
-			    this, SLOT(columnCountChanged(int, int)));
+	QObject::disconnect(d->topHeader, SIGNAL(sectionClicked(int,ButtonState)),
+			    this, SLOT(selectColumn(int,ButtonState)));
+	QObject::disconnect(d->topHeader, SIGNAL(sectionCountChanged(int,int)),
+			    this, SLOT(columnCountChanged(int,int)));
     }
 
     d->topHeader = header;
@@ -77,10 +77,10 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
 		     this, SLOT(columnWidthChanged(int,int,int)));
     QObject::connect(d->topHeader, SIGNAL(sectionIndexChanged(int,int,int)),
 		     this, SLOT(columnIndexChanged(int,int,int)));
-    QObject::connect(d->topHeader, SIGNAL(sectionClicked(int, ButtonState)),
-		     this, SLOT(selectColumn(int, ButtonState)));
-    QObject::connect(d->topHeader, SIGNAL(sectionCountChanged(int, int)),
-		     this, SLOT(columnCountChanged(int, int)));
+    QObject::connect(d->topHeader, SIGNAL(sectionClicked(int,ButtonState)),
+		     this, SLOT(selectColumn(int,ButtonState)));
+    QObject::connect(d->topHeader, SIGNAL(sectionCountChanged(int,int)),
+		     this, SLOT(columnCountChanged(int,int)));
 
     // FIXME: this needs to be set in setSelectionModel too
     d->topHeader->setSelectionModel(selectionModel());
@@ -96,10 +96,10 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
 		   this, SLOT(rowHeightChanged(int,int,int)));
 	disconnect(d->leftHeader, SIGNAL(sectionIndexChanged(int,int,int)),
 		   this, SLOT(rowIndexChanged(int,int,int)));
-	disconnect(d->leftHeader, SIGNAL(sectionClicked(int, ButtonState)),
+	disconnect(d->leftHeader, SIGNAL(sectionClicked(int,ButtonState)),
 		   this, SLOT(selectRow(int,ButtonState)));
-	disconnect(d->leftHeader, SIGNAL(sectionCountChanged(int, int)),
-		   this, SLOT(rowCountChanged(int, int)));
+	disconnect(d->leftHeader, SIGNAL(sectionCountChanged(int,int)),
+		   this, SLOT(rowCountChanged(int,int)));
     }
 
     d->leftHeader = header;
@@ -110,10 +110,10 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
 	    this, SLOT(rowHeightChanged(int,int,int)));
     connect(d->leftHeader, SIGNAL(sectionIndexChanged(int,int,int)),
 	    this, SLOT(rowIndexChanged(int,int,int)));
-    connect(d->leftHeader, SIGNAL(sectionClicked(int, ButtonState)),
+    connect(d->leftHeader, SIGNAL(sectionClicked(int,ButtonState)),
 	    this, SLOT(selectRow(int,ButtonState)));
-    connect(d->leftHeader, SIGNAL(sectionCountChanged(int, int)),
-	    this, SLOT(rowCountChanged(int, int)));
+    connect(d->leftHeader, SIGNAL(sectionCountChanged(int,int)),
+	    this, SLOT(rowCountChanged(int,int)));
 
     // FIXME: this needs to be set in setSelectionModel too
     d->leftHeader->setSelectionModel(selectionModel());

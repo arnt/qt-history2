@@ -5449,7 +5449,7 @@ public:
     QSmSocketReceiver( int socket )
 	{
 	    QSocketNotifier* sn = new QSocketNotifier( socket, QSocketNotifier::Read, this );
-	    connect( sn, SIGNAL( activated(int) ), this, SLOT( socketActivated(int) ) );
+	    connect( sn, SIGNAL(activated(int)), this, SLOT(socketActivated(int)) );
 	}
 
 public slots:

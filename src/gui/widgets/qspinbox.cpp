@@ -231,8 +231,8 @@ void QSpinBox::initSpinBox()
     d = new QSpinBoxPrivate;
 
     d->controls = new QSpinWidget( this, "controls" );
-    connect( d->controls, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
-    connect( d->controls, SIGNAL( stepDownPressed() ), SLOT( stepDown() ) );
+    connect( d->controls, SIGNAL(stepUpPressed()), SLOT(stepUp()) );
+    connect( d->controls, SIGNAL(stepDownPressed()), SLOT(stepDown()) );
 
     wrap = FALSE;
     edited = FALSE;
@@ -252,7 +252,7 @@ void QSpinBox::initSpinBox()
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     updateDisplay();
 
-    connect( vi, SIGNAL(textChanged(const QString&)), SLOT(textChanged()) );
+    connect( vi, SIGNAL(textChanged(QString)), SLOT(textChanged()) );
 }
 
 /*!

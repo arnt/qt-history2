@@ -18,8 +18,8 @@ QTextTableManager::QTextTableManager(QTextPieceTable *table)
 {
     pt = table;
 
-    connect(table, SIGNAL(blockChanged(int, QText::ChangeOperation)), this, SLOT(blockChanged(int, QText::ChangeOperation)));
-    connect(table, SIGNAL(formatChanged(int, int)), this, SLOT(formatChanged(int, int)));
+    connect(table, SIGNAL(blockChanged(int,QText::ChangeOperation)), this, SLOT(blockChanged(int,QText::ChangeOperation)));
+    connect(table, SIGNAL(formatChanged(int,int)), this, SLOT(formatChanged(int,int)));
 }
 
 

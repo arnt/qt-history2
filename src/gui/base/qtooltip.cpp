@@ -208,10 +208,10 @@ void QTipManager::add( const QRect &gm, QWidget *w,
     }
 
     if ( t->group ) {
-	disconnect( removeTimer, SIGNAL( timeout() ),
-		 t->group, SIGNAL( removeTip() ) );
-	connect( removeTimer, SIGNAL( timeout() ),
-		 t->group, SIGNAL( removeTip() ) );
+	disconnect( removeTimer, SIGNAL(timeout()),
+		 t->group, SIGNAL(removeTip()) );
+	connect( removeTimer, SIGNAL(timeout()),
+		 t->group, SIGNAL(removeTip()) );
     }
 }
 
@@ -321,8 +321,8 @@ void QTipManager::removeFromGroup( QToolTipGroup *g )
 	while ( t ) {
 	    if ( t->group == g ) {
 		if ( t->group )
-		    disconnect( removeTimer, SIGNAL( timeout() ),
-				t->group, SIGNAL( removeTip() ) );
+		    disconnect( removeTimer, SIGNAL(timeout()),
+				t->group, SIGNAL(removeTip()) );
 		t->group = 0;
 	    }
 	    t = t->next;
@@ -1078,8 +1078,8 @@ void QToolTip::clear()
 
     \code
 	QToolTipGroup * grp = new QToolTipGroup( this, "tool tip relay" );
-	connect( grp, SIGNAL(showTip(const QString&)),
-		 myLabel, SLOT(setText(const QString&)) );
+	connect( grp, SIGNAL(showTip(QString)),
+		 myLabel, SLOT(setText(QString)) );
 	connect( grp, SIGNAL(removeTip()),
 		 myLabel, SLOT(clear()) );
 	QToolTip::add( giraffeButton, "feed giraffe",

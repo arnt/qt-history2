@@ -751,8 +751,8 @@ QFDProgressAnimation::QFDProgressAnimation( QWidget *parent )
     step = -1;
     next();
     timer = new QTimer( this );
-    connect( timer, SIGNAL( timeout() ),
-	     this, SLOT( next() ) );
+    connect( timer, SIGNAL(timeout()),
+	     this, SLOT(next()) );
 }
 
 void QFDProgressAnimation::start()
@@ -849,8 +849,8 @@ QFDProgressDialog::QFDProgressDialog( QWidget *parent, const QString &fn, int st
 				      "qt_cancel_btn" );
     b->setFixedSize( b->sizeHint() );
     layout->addWidget( b );
-    connect( b, SIGNAL( clicked() ),
-	     this, SIGNAL( cancelled() ) );
+    connect( b, SIGNAL(clicked()),
+	     this, SIGNAL(cancelled()) );
 
     animation->start();
 }
@@ -1132,16 +1132,16 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
     box->hide();
     box->setBackgroundRole( QPalette::Base );
     renameTimer = new QTimer( this );
-    connect( lined, SIGNAL( doRename() ),
-	     this, SLOT (rename() ) );
-    connect( lined, SIGNAL( cancelRename() ),
-	     this, SLOT( cancelRename() ) );
-    connect( renameTimer, SIGNAL( timeout() ),
-	     this, SLOT( doubleClickTimeout() ) );
-    connect( changeDirTimer, SIGNAL( timeout() ),
-	     this, SLOT( changeDirDuringDrag() ) );
-    connect( this, SIGNAL( contentsMoving(int,int) ),
-	     this, SLOT( contentsMoved(int,int) ) );
+    connect( lined, SIGNAL(doRename()),
+	     this, SLOT (rename()) );
+    connect( lined, SIGNAL(cancelRename()),
+	     this, SLOT(cancelRename()) );
+    connect( renameTimer, SIGNAL(timeout()),
+	     this, SLOT(doubleClickTimeout()) );
+    connect( changeDirTimer, SIGNAL(timeout()),
+	     this, SLOT(changeDirDuringDrag()) );
+    connect( this, SIGNAL(contentsMoving(int,int)),
+	     this, SLOT(contentsMoved(int,int)) );
     viewport()->setAcceptDrops( TRUE );
     dragItem = 0;
 }
@@ -1267,8 +1267,8 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	    if ( lined->parentWidget()->isVisible() )
 		cancelRename();
 
-	    connect( drag, SIGNAL( destroyed() ),
-		     this, SLOT( dragObjDestroyed() ) );
+	    connect( drag, SIGNAL(destroyed()),
+		     this, SLOT(dragObjDestroyed()) );
 	    drag->drag();
 
 	    mousePressed = FALSE;
@@ -1517,21 +1517,21 @@ QFileDialogQFileListView::QFileDialogQFileListView( QWidget *parent, QFileDialog
     box->hide();
     box->setBackgroundRole( QPalette::Base );
     renameTimer = new QTimer( this );
-    connect( lined, SIGNAL( doRename() ),
-	     this, SLOT (rename() ) );
-    connect( lined, SIGNAL( cancelRename() ),
-	     this, SLOT( cancelRename() ) );
+    connect( lined, SIGNAL(doRename()),
+	     this, SLOT (rename()) );
+    connect( lined, SIGNAL(cancelRename()),
+	     this, SLOT(cancelRename()) );
     header()->setMovingEnabled( FALSE );
-    connect( renameTimer, SIGNAL( timeout() ),
-	     this, SLOT( doubleClickTimeout() ) );
-    connect( changeDirTimer, SIGNAL( timeout() ),
-	     this, SLOT( changeDirDuringDrag() ) );
-    disconnect( header(), SIGNAL( sectionClicked(int) ),
-		this, SLOT( changeSortColumn(int) ) );
-    connect( header(), SIGNAL( sectionClicked(int) ),
-	     this, SLOT( changeSortColumn2(int) ) );
-    connect( this, SIGNAL( contentsMoving(int,int) ),
-	     this, SLOT( contentsMoved(int,int) ) );
+    connect( renameTimer, SIGNAL(timeout()),
+	     this, SLOT(doubleClickTimeout()) );
+    connect( changeDirTimer, SIGNAL(timeout()),
+	     this, SLOT(changeDirDuringDrag()) );
+    disconnect( header(), SIGNAL(sectionClicked(int)),
+		this, SLOT(changeSortColumn(int)) );
+    connect( header(), SIGNAL(sectionClicked(int)),
+	     this, SLOT(changeSortColumn2(int)) );
+    connect( this, SIGNAL(contentsMoving(int,int)),
+	     this, SLOT(contentsMoved(int,int)) );
 
     viewport()->setAcceptDrops( TRUE );
     sortcolumn = 0;
@@ -1684,8 +1684,8 @@ void QFileDialogQFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 	    if ( lined->isVisible() )
 		cancelRename();
 
-	    connect( drag, SIGNAL( destroyed() ),
-		     this, SLOT( dragObjDestroyed() ) );
+	    connect( drag, SIGNAL(destroyed()),
+		     this, SLOT(dragObjDestroyed()) );
 	    drag->drag();
 
 	    mousePressed = FALSE;
@@ -2379,31 +2379,31 @@ void QFileDialog::init()
     d->ignoreStop = FALSE;
     d->mimeTypeTimer = new QTimer( this );
     d->cursorOverride = FALSE;
-    connect( d->mimeTypeTimer, SIGNAL( timeout() ),
-	     this, SLOT( doMimeTypeLookup() ) );
+    connect( d->mimeTypeTimer, SIGNAL(timeout()),
+	     this, SLOT(doMimeTypeLookup()) );
 
     d->url = QUrlOperator( QDir::currentDirPath() );
     d->oldUrl = d->url;
     d->currListChildren = 0;
 
-    connect( &d->url, SIGNAL( start(QNetworkOperation*) ),
-	     this, SLOT( urlStart(QNetworkOperation*) ) );
-    connect( &d->url, SIGNAL( finished(QNetworkOperation*) ),
-	     this, SLOT( urlFinished(QNetworkOperation*) ) );
-    connect( &d->url, SIGNAL( newChildren(const QList<QUrlInfo>&,QNetworkOperation*) ),
-	     this, SLOT( insertEntry(const QList<QUrlInfo>&,QNetworkOperation*) ) );
-    connect( &d->url, SIGNAL( removed(QNetworkOperation*) ),
-	     this, SLOT( removeEntry(QNetworkOperation*) ) );
-    connect( &d->url, SIGNAL( createdDirectory(const QUrlInfo&,QNetworkOperation*) ),
-	     this, SLOT( createdDirectory(const QUrlInfo&,QNetworkOperation*) ) );
-    connect( &d->url, SIGNAL( itemChanged(QNetworkOperation*) ),
-	     this, SLOT( itemChanged(QNetworkOperation*) ) );
-    connect( &d->url, SIGNAL( dataTransferProgress(int,int,QNetworkOperation*) ),
-	     this, SLOT( dataTransferProgress(int,int,QNetworkOperation*) ) );
+    connect( &d->url, SIGNAL(start(QNetworkOperation*)),
+	     this, SLOT(urlStart(QNetworkOperation*)) );
+    connect( &d->url, SIGNAL(finished(QNetworkOperation*)),
+	     this, SLOT(urlFinished(QNetworkOperation*)) );
+    connect( &d->url, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
+	     this, SLOT(insertEntry(QList<QUrlInfo>,QNetworkOperation*)) );
+    connect( &d->url, SIGNAL(removed(QNetworkOperation*)),
+	     this, SLOT(removeEntry(QNetworkOperation*)) );
+    connect( &d->url, SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)),
+	     this, SLOT(createdDirectory(QUrlInfo,QNetworkOperation*)) );
+    connect( &d->url, SIGNAL(itemChanged(QNetworkOperation*)),
+	     this, SLOT(itemChanged(QNetworkOperation*)) );
+    connect( &d->url, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
+	     this, SLOT(dataTransferProgress(int,int,QNetworkOperation*)) );
 
     nameEdit = new QLineEdit( this, "name/filter editor" );
     nameEdit->setMaxLength( 255 ); //_POSIX_MAX_PATH
-    connect( nameEdit, SIGNAL(textChanged(const QString&)),
+    connect( nameEdit, SIGNAL(textChanged(QString)),
 	     this,  SLOT(fileNameEditDone()) );
     nameEdit->installEventFilter( this );
 
@@ -2433,8 +2433,8 @@ void QFileDialog::init()
 	    this, SLOT(selectDirectoryOrFile(QListViewItem*)));
     connect(files, SIGNAL(returnPressed(QListViewItem*)),
 	    this, SLOT(selectDirectoryOrFile(QListViewItem*)));
-    connect(files, SIGNAL(contextMenuRequested(QListViewItem*,const QPoint&,int)),
-	    this, SLOT(popupContextMenu(QListViewItem*,const QPoint&,int)));
+    connect(files, SIGNAL(contextMenuRequested(QListViewItem*,QPoint,int)),
+	    this, SLOT(popupContextMenu(QListViewItem*,QPoint,int)));
 
     files->installEventFilter( this );
     files->viewport()->installEventFilter( this );
@@ -2445,12 +2445,12 @@ void QFileDialog::init()
 
     connect( d->moreFiles, SIGNAL(selected(QListBoxItem*)),
 	     this, SLOT(selectDirectoryOrFile(QListBoxItem*)) );
-    connect( d->moreFiles, SIGNAL( selectionChanged() ),
-	     this, SLOT( listBoxSelectionChanged() ) );
+    connect( d->moreFiles, SIGNAL(selectionChanged()),
+	     this, SLOT(listBoxSelectionChanged()) );
     connect( d->moreFiles, SIGNAL(highlighted(QListBoxItem*)),
       this, SLOT(updateFileNameEdit(QListBoxItem*)) );
-    connect( d->moreFiles, SIGNAL(contextMenuRequested(QListBoxItem*,const QPoint&)),
-	     this, SLOT(popupContextMenu(QListBoxItem*,const QPoint&)));
+    connect( d->moreFiles, SIGNAL(contextMenuRequested(QListBoxItem*,QPoint)),
+	     this, SLOT(popupContextMenu(QListBoxItem*,QPoint)));
 
     d->moreFiles->installEventFilter( this );
     d->moreFiles->viewport()->installEventFilter( this );
@@ -2478,8 +2478,8 @@ void QFileDialog::init()
 	    d->paths->insertItem( *openFolderIcon, QDir::homeDirPath() );
     }
 
-    connect( d->paths, SIGNAL(activated(const QString&)),
-	     this, SLOT(setDir(const QString&)) );
+    connect( d->paths, SIGNAL(activated(QString)),
+	     this, SLOT(setDir(QString)) );
 
     d->paths->installEventFilter( this );
     QObjectList ol = d->paths->queryList( "QLineEdit" );
@@ -2490,10 +2490,10 @@ void QFileDialog::init()
     d->types = new QComboBox( TRUE, this, "file types" );
     d->types->setDuplicatesEnabled( FALSE );
     d->types->setEditable( FALSE );
-    connect( d->types, SIGNAL(activated(const QString&)),
-	     this, SLOT(setFilter(const QString&)) );
-    connect( d->types, SIGNAL(activated(const QString&)),
-	     this, SIGNAL(filterSelected(const QString&)) );
+    connect( d->types, SIGNAL(activated(QString)),
+	     this, SLOT(setFilter(QString)) );
+    connect( d->types, SIGNAL(activated(QString)),
+	     this, SIGNAL(filterSelected(QString)) );
 
     d->pathL = new QLabel( d->paths, tr("Look &in:"), this, "qt_looin_lbl" );
     d->fileL = new QLabel( nameEdit, tr("File &name:"), this, "qt_filename_lbl" );
@@ -2502,7 +2502,7 @@ void QFileDialog::init()
     d->goBack = new QToolButton( this, "go back" );
     d->goBack->setEnabled( FALSE );
     d->goBack->setFocusPolicy( TabFocus );
-    connect( d->goBack, SIGNAL( clicked() ), this, SLOT( goBack() ) );
+    connect( d->goBack, SIGNAL(clicked()), this, SLOT(goBack()) );
 #ifndef QT_NO_TOOLTIP
     QToolTip::add( d->goBack, tr( "Back" ) );
 #endif
@@ -2584,14 +2584,14 @@ void QFileDialog::init()
     d->previewContents->setToggleButton( TRUE );
     d->modeButtons->insert( d->previewContents );
 
-    connect( d->detailView, SIGNAL( clicked() ),
-	     d->moreFiles, SLOT( cancelRename() ) );
-    connect( d->detailView, SIGNAL( clicked() ),
-	     files, SLOT( cancelRename() ) );
-    connect( d->mcView, SIGNAL( clicked() ),
-	     d->moreFiles, SLOT( cancelRename() ) );
-    connect( d->mcView, SIGNAL( clicked() ),
-	     files, SLOT( cancelRename() ) );
+    connect( d->detailView, SIGNAL(clicked()),
+	     d->moreFiles, SLOT(cancelRename()) );
+    connect( d->detailView, SIGNAL(clicked()),
+	     files, SLOT(cancelRename()) );
+    connect( d->mcView, SIGNAL(clicked()),
+	     d->moreFiles, SLOT(cancelRename()) );
+    connect( d->mcView, SIGNAL(clicked()),
+	     files, SLOT(cancelRename()) );
 
     d->stack->raiseWidget( d->moreFiles );
     d->mcView->setOn( TRUE );
@@ -2710,8 +2710,8 @@ void QFileDialog::init()
     d->preview->hide();
     nameEdit->setFocus();
 
-    connect( nameEdit, SIGNAL( returnPressed() ),
-	     this, SLOT( fileNameEditReturnPressed() ) );
+    connect( nameEdit, SIGNAL(returnPressed()),
+	     this, SLOT(fileNameEditReturnPressed()) );
 }
 
 /*!
@@ -5753,8 +5753,8 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
 	if ( bytesDone < bytesTotal) {
 	    d->ignoreStop = FALSE;
 	    d->progressDia = new QFDProgressDialog( this, label, bytesTotal );
-	    connect( d->progressDia, SIGNAL( cancelled() ),
-		     this, SLOT( stopCopy() ) );
+	    connect( d->progressDia, SIGNAL(cancelled()),
+		     this, SLOT(stopCopy()) );
 	    d->progressDia->show();
 	} else
 	    return;
@@ -6137,7 +6137,7 @@ void QFileDialog::stopCopy()
     d->url.stop();
     if ( d->progressDia ) {
 	d->ignoreStop = TRUE;
-	QTimer::singleShot( 100, this, SLOT( removeProgressDia() ) );
+	QTimer::singleShot( 100, this, SLOT(removeProgressDia()) );
     }
     d->url.blockSignals( FALSE );
 }

@@ -933,7 +933,7 @@ void QMovie::setSpeed(int percent)
 */
 void QMovie::connectResize(QObject* receiver, const char *member)
 {
-    QObject::connect(d, SIGNAL(sizeChanged(const QSize&)), receiver, member);
+    QObject::connect(d, SIGNAL(sizeChanged(QSize)), receiver, member);
 }
 
 /*!
@@ -942,7 +942,7 @@ void QMovie::connectResize(QObject* receiver, const char *member)
 */
 void QMovie::disconnectResize(QObject* receiver, const char *member)
 {
-    QObject::disconnect(d, SIGNAL(sizeChanged(const QSize&)), receiver, member);
+    QObject::disconnect(d, SIGNAL(sizeChanged(QSize)), receiver, member);
 }
 
 /*!
@@ -957,7 +957,7 @@ void QMovie::disconnectResize(QObject* receiver, const char *member)
 */
 void QMovie::connectUpdate(QObject* receiver, const char *member)
 {
-    QObject::connect(d, SIGNAL(areaChanged(const QRect&)), receiver, member);
+    QObject::connect(d, SIGNAL(areaChanged(QRect)), receiver, member);
 }
 
 /*!
@@ -966,7 +966,7 @@ void QMovie::connectUpdate(QObject* receiver, const char *member)
 */
 void QMovie::disconnectUpdate(QObject* receiver, const char *member)
 {
-    QObject::disconnect(d, SIGNAL(areaChanged(const QRect&)), receiver, member);
+    QObject::disconnect(d, SIGNAL(areaChanged(QRect)), receiver, member);
 }
 
 /*!

@@ -831,9 +831,9 @@ QIconSet QToolButton::iconSet( bool /* on */ ) const
 void QToolButton::setPopup( QPopupMenu* popup )
 {
     if ( popup && !d->popupTimer ) {
-	connect( this, SIGNAL( pressed() ), this, SLOT( popupPressed() ) );
+	connect( this, SIGNAL(pressed()), this, SLOT(popupPressed()) );
 	d->popupTimer = new QTimer( this );
-	connect( d->popupTimer, SIGNAL( timeout() ), this, SLOT( popupTimerDone() ) );
+	connect( d->popupTimer, SIGNAL(timeout()), this, SLOT(popupTimerDone()) );
     }
     d->popup = popup;
 

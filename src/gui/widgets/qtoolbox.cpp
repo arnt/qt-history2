@@ -357,7 +357,7 @@ int QToolBox::insertItem( int index, QWidget *item, const QIconSet &iconSet,
     QToolBoxPrivate::Page c;
     c.widget = item;
     c.button = new QToolBoxButton( this, label.latin1() );
-    connect( c.button, SIGNAL( clicked() ), this, SLOT( buttonClicked() ) );
+    connect( c.button, SIGNAL(clicked()), this, SLOT(buttonClicked()) );
 
     c.sv = new QScrollView( this );
     c.sv->hide();

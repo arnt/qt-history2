@@ -564,7 +564,7 @@ void QToolBar::createPopup()
 {
     if (!d->extensionPopup) {
 	d->extensionPopup = new QPopupMenu( this, "qt_dockwidget_internal" );
-	connect( d->extensionPopup, SIGNAL( aboutToShow() ), this, SLOT( createPopup() ) );
+	connect( d->extensionPopup, SIGNAL(aboutToShow()), this, SLOT(createPopup()) );
     }
 
     if (!d->extension) {
@@ -614,7 +614,7 @@ void QToolBar::createPopup()
 	        if ( b->popup() && b->popupDelay() == 0 )
 		    id = d->extensionPopup->insertItem( b->iconSet(), s, b->popup() );
 		else
-		    id = d->extensionPopup->insertItem( b->iconSet(), s, b, SLOT( emulateClick() ) ) ;
+		    id = d->extensionPopup->insertItem( b->iconSet(), s, b, SLOT(emulateClick()) ) ;
 	        if ( b->isToggleButton() )
 		    d->extensionPopup->setItemChecked( id, b->isOn() );
 		if ( !b->isEnabled() )
@@ -625,9 +625,9 @@ void QToolBar::createPopup()
 		if ( s.isEmpty() )
 		    s = "";
 		if ( b->pixmap() )
-		    id = d->extensionPopup->insertItem( *b->pixmap(), s, b, SLOT( emulateClick() ) );
+		    id = d->extensionPopup->insertItem( *b->pixmap(), s, b, SLOT(emulateClick()) );
 		else
-		    id = d->extensionPopup->insertItem( s, b, SLOT( emulateClick() ) );
+		    id = d->extensionPopup->insertItem( s, b, SLOT(emulateClick()) );
 		if ( b->isToggleButton() )
 		    d->extensionPopup->setItemChecked( id, b->isOn() );
 		if ( !b->isEnabled() )
@@ -642,7 +642,7 @@ void QToolBar::createPopup()
 		    uint maxItems = 0;
 		    QPopupMenu *cp = new QPopupMenu(d->extensionPopup);
 		    d->extensionPopup->insertItem( s, cp );
-		    connect( cp, SIGNAL( activated(int) ), c, SLOT( internalActivate(int) ) );
+		    connect( cp, SIGNAL(activated(int)), c, SLOT(internalActivate(int)) );
 		    for ( int i = 0; i < c->count(); ++i ) {
 		        QString tmp = c->text( i );
 			cp->insertItem( tmp, i );
@@ -657,7 +657,7 @@ void QToolBar::createPopup()
 			    QPopupMenu* sp = new QPopupMenu(d->extensionPopup);
 			    cp->insertItem( tr( "More..." ), sp );
 			    cp = sp;
-			    connect( cp, SIGNAL( activated(int) ), c, SLOT( internalActivate(int) ) );
+			    connect( cp, SIGNAL(activated(int)), c, SLOT(internalActivate(int)) );
 			}
 		    }
 		}

@@ -257,16 +257,16 @@ QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent, const char *name ) :
 {
     clearData();
 
-    connect( &socket, SIGNAL( connected() ),
-	     SLOT( socketConnected() ) );
-    connect( &socket, SIGNAL( readyRead() ),
-	     SLOT( socketReadyRead() ) );
-    connect( &socket, SIGNAL( error(int) ),
-	     SLOT( socketError(int) ) );
-    connect( &socket, SIGNAL( connectionClosed() ),
-	     SLOT( socketConnectionClosed() ) );
-    connect( &socket, SIGNAL( bytesWritten(int) ),
-	     SLOT( socketBytesWritten(int) ) );
+    connect( &socket, SIGNAL(connected()),
+	     SLOT(socketConnected()) );
+    connect( &socket, SIGNAL(readyRead()),
+	     SLOT(socketReadyRead()) );
+    connect( &socket, SIGNAL(error(int)),
+	     SLOT(socketError(int)) );
+    connect( &socket, SIGNAL(connectionClosed()),
+	     SLOT(socketConnectionClosed()) );
+    connect( &socket, SIGNAL(bytesWritten(int)),
+	     SLOT(socketBytesWritten(int)) );
 }
 
 void QFtpDTP::setData( QByteArray *ba )
@@ -1164,19 +1164,19 @@ QFtp::QFtp( QObject *parent, const char *name )
 
     connect( &d->pi, SIGNAL(connectState(int)),
 	    SLOT(piConnectState(int)) );
-    connect( &d->pi, SIGNAL(finished(const QString&)),
-	    SLOT(piFinished(const QString&)) );
-    connect( &d->pi, SIGNAL(error(int,const QString&)),
-	    SLOT(piError(int,const QString&)) );
-    connect( &d->pi, SIGNAL(rawFtpReply(int,const QString&)),
-	    SLOT(piFtpReply(int,const QString&)) );
+    connect( &d->pi, SIGNAL(finished(QString)),
+	    SLOT(piFinished(QString)) );
+    connect( &d->pi, SIGNAL(error(int,QString)),
+	    SLOT(piError(int,QString)) );
+    connect( &d->pi, SIGNAL(rawFtpReply(int,QString)),
+	    SLOT(piFtpReply(int,QString)) );
 
     connect( &d->pi.dtp, SIGNAL(readyRead()),
 	    SIGNAL(readyRead()) );
     connect( &d->pi.dtp, SIGNAL(dataTransferProgress(int,int)),
 	    SIGNAL(dataTransferProgress(int,int)) );
-    connect( &d->pi.dtp, SIGNAL(listInfo(const QUrlInfo&)),
-	    SIGNAL(listInfo(const QUrlInfo&)) );
+    connect( &d->pi.dtp, SIGNAL(listInfo(QUrlInfo)),
+	    SIGNAL(listInfo(QUrlInfo)) );
 }
 
 /*!

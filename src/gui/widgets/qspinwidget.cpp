@@ -64,7 +64,7 @@ QSpinWidget::QSpinWidget( QWidget* parent, const char* name )
     : QWidget( parent, name )
 {
     d = new QSpinWidgetPrivate();
-    connect( &d->auRepTimer, SIGNAL( timeout() ), this, SLOT( timerDone() ) );
+    connect( &d->auRepTimer, SIGNAL(timeout()), this, SLOT(timerDone()) );
     setFocusPolicy( StrongFocus );
 
     arrange();
@@ -189,7 +189,7 @@ void QSpinWidget::timerDone()
 {
     // we use a double timer to make it possible for users to do
     // something with 0-timer on valueChanged.
-    QTimer::singleShot( 1, this, SLOT( timerDoneEx() ) );
+    QTimer::singleShot( 1, this, SLOT(timerDoneEx()) );
 }
 
 void QSpinWidget::timerDoneEx()

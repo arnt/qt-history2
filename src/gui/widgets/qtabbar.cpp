@@ -325,10 +325,10 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     d->s = RoundedAbove;
     d->scrolls = FALSE;
     d->leftB = new QToolButton( LeftArrow, this, "qt_left_btn" );
-    connect( d->leftB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
+    connect( d->leftB, SIGNAL(clicked()), this, SLOT(scrollTabs()) );
     d->leftB->hide();
     d->rightB = new QToolButton( RightArrow, this, "qt_right_btn" );
-    connect( d->rightB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
+    connect( d->rightB, SIGNAL(clicked()), this, SLOT(scrollTabs()) );
     d->rightB->hide();
     d->btnWidth = style().pixelMetric(QStyle::PM_TabBarScrollButtonWidth, this);
     setFocusPolicy( TabFocus );

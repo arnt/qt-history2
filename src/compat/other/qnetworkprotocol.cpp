@@ -370,38 +370,38 @@ QNetworkProtocol::QNetworkProtocol( QObject *parent, const char *name )
 {
     d = new QNetworkProtocolPrivate( this );
 
-    connect( d->opStartTimer, SIGNAL( timeout() ),
-	     this, SLOT( startOps() ) );
-    connect( d->removeTimer, SIGNAL( timeout() ),
-	     this, SLOT( removeMe() ) );
+    connect( d->opStartTimer, SIGNAL(timeout()),
+	     this, SLOT(startOps()) );
+    connect( d->removeTimer, SIGNAL(timeout()),
+	     this, SLOT(removeMe()) );
 
     if ( url() ) {
-	connect( this, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
-		 url(), SIGNAL( data( const QByteArray &, QNetworkOperation * ) ) );
-	connect( this, SIGNAL( finished( QNetworkOperation * ) ),
-		 url(), SIGNAL( finished( QNetworkOperation * ) ) );
-	connect( this, SIGNAL( start( QNetworkOperation * ) ),
-		 url(), SIGNAL( start( QNetworkOperation * ) ) );
-	connect( this, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
-		 url(), SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ) );
-	connect( this, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
-		 url(), SLOT( addEntry( const QList<QUrlInfo> & ) ) );
-	connect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
-		 url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
-	connect( this, SIGNAL( removed( QNetworkOperation * ) ),
-		 url(), SIGNAL( removed( QNetworkOperation * ) ) );
-	connect( this, SIGNAL( itemChanged( QNetworkOperation * ) ),
-		 url(), SIGNAL( itemChanged( QNetworkOperation * ) ) );
-	connect( this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
-		 url(), SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
-	connect( this, SIGNAL( connectionStateChanged( int, const QString & ) ),
-		 url(), SIGNAL( connectionStateChanged( int, const QString & ) ) );
+	connect( this, SIGNAL(data(QByteArray,QNetworkOperation*)),
+		 url(), SIGNAL(data(QByteArray,QNetworkOperation*)) );
+	connect( this, SIGNAL(finished(QNetworkOperation*)),
+		 url(), SIGNAL(finished(QNetworkOperation*)) );
+	connect( this, SIGNAL(start(QNetworkOperation*)),
+		 url(), SIGNAL(start(QNetworkOperation*)) );
+	connect( this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
+		 url(), SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)) );
+	connect( this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
+		 url(), SLOT(addEntry(QList<QUrlInfo>)) );
+	connect( this, SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)),
+		 url(), SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)) );
+	connect( this, SIGNAL(removed(QNetworkOperation*)),
+		 url(), SIGNAL(removed(QNetworkOperation*)) );
+	connect( this, SIGNAL(itemChanged(QNetworkOperation*)),
+		 url(), SIGNAL(itemChanged(QNetworkOperation*)) );
+	connect( this, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
+		 url(), SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)) );
+	connect( this, SIGNAL(connectionStateChanged(int,QString)),
+		 url(), SIGNAL(connectionStateChanged(int,QString)) );
     }
 
-    connect( this, SIGNAL( finished( QNetworkOperation * ) ),
-	     this, SLOT( processNextOperation( QNetworkOperation * ) ) );
-    connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
-	     this, SLOT( emitNewChildren( const QUrlInfo &, QNetworkOperation * ) ) );
+    connect( this, SIGNAL(finished(QNetworkOperation*)),
+	     this, SLOT(processNextOperation(QNetworkOperation*)) );
+    connect( this, SIGNAL(newChild(QUrlInfo,QNetworkOperation*)),
+	     this, SLOT(emitNewChildren(QUrlInfo,QNetworkOperation*)) );
 
 }
 
@@ -423,26 +423,26 @@ QNetworkProtocol::~QNetworkProtocol()
 void QNetworkProtocol::setUrl( QUrlOperator *u )
 {
     if ( url() ) {
-	disconnect( this, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
-		    url(), SIGNAL( data( const QByteArray &, QNetworkOperation * ) ) );
-	disconnect( this, SIGNAL( finished( QNetworkOperation * ) ),
-		    url(), SIGNAL( finished( QNetworkOperation * ) ) );
-	disconnect( this, SIGNAL( start( QNetworkOperation * ) ),
-		    url(), SIGNAL( start( QNetworkOperation * ) ) );
-	disconnect( this, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
-		    url(), SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ) );
-	disconnect( this, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
-		    url(), SLOT( addEntry( const QList<QUrlInfo> & ) ) );
-	disconnect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
-		    url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
-	disconnect( this, SIGNAL( removed( QNetworkOperation * ) ),
-		    url(), SIGNAL( removed( QNetworkOperation * ) ) );
-	disconnect( this, SIGNAL( itemChanged( QNetworkOperation * ) ),
-		    url(), SIGNAL( itemChanged( QNetworkOperation * ) ) );
-	disconnect( this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
-		    url(), SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
-	disconnect( this, SIGNAL( connectionStateChanged( int, const QString & ) ),
-		    url(), SIGNAL( connectionStateChanged( int, const QString & ) ) );
+	disconnect( this, SIGNAL(data(QByteArray,QNetworkOperation*)),
+		    url(), SIGNAL(data(QByteArray,QNetworkOperation*)) );
+	disconnect( this, SIGNAL(finished(QNetworkOperation*)),
+		    url(), SIGNAL(finished(QNetworkOperation*)) );
+	disconnect( this, SIGNAL(start(QNetworkOperation*)),
+		    url(), SIGNAL(start(QNetworkOperation*)) );
+	disconnect( this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
+		    url(), SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)) );
+	disconnect( this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
+		    url(), SLOT(addEntry(QList<QUrlInfo>)) );
+	disconnect( this, SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)),
+		    url(), SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)) );
+	disconnect( this, SIGNAL(removed(QNetworkOperation*)),
+		    url(), SIGNAL(removed(QNetworkOperation*)) );
+	disconnect( this, SIGNAL(itemChanged(QNetworkOperation*)),
+		    url(), SIGNAL(itemChanged(QNetworkOperation*)) );
+	disconnect( this, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
+		    url(), SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)) );
+	disconnect( this, SIGNAL(connectionStateChanged(int,QString)),
+		    url(), SIGNAL(connectionStateChanged(int,QString)) );
     }
 
 
@@ -454,26 +454,26 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
     d->url = u;
 
     if ( url() ) {
-	connect( this, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
-		 url(), SIGNAL( data( const QByteArray &, QNetworkOperation * ) ) );
-	connect( this, SIGNAL( finished( QNetworkOperation * ) ),
-		 url(), SIGNAL( finished( QNetworkOperation * ) ) );
-	connect( this, SIGNAL( start( QNetworkOperation * ) ),
-		 url(), SIGNAL( start( QNetworkOperation * ) ) );
-	connect( this, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
-		 url(), SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ) );
-	connect( this, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
-		 url(), SLOT( addEntry( const QList<QUrlInfo> & ) ) );
-	connect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
-		 url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
-	connect( this, SIGNAL( removed( QNetworkOperation * ) ),
-		 url(), SIGNAL( removed( QNetworkOperation * ) ) );
-	connect( this, SIGNAL( itemChanged( QNetworkOperation * ) ),
-		 url(), SIGNAL( itemChanged( QNetworkOperation * ) ) );
-	connect( this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
-		 url(), SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
-	connect( this, SIGNAL( connectionStateChanged( int, const QString & ) ),
-		 url(), SIGNAL( connectionStateChanged( int, const QString & ) ) );
+	connect( this, SIGNAL(data(QByteArray,QNetworkOperation*)),
+		 url(), SIGNAL(data(QByteArray,QNetworkOperation*)) );
+	connect( this, SIGNAL(finished(QNetworkOperation*)),
+		 url(), SIGNAL(finished(QNetworkOperation*)) );
+	connect( this, SIGNAL(start(QNetworkOperation*)),
+		 url(), SIGNAL(start(QNetworkOperation*)) );
+	connect( this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
+		 url(), SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)) );
+	connect( this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
+		 url(), SLOT(addEntry(QList<QUrlInfo>)) );
+	connect( this, SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)),
+		 url(), SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)) );
+	connect( this, SIGNAL(removed(QNetworkOperation*)),
+		 url(), SIGNAL(removed(QNetworkOperation*)) );
+	connect( this, SIGNAL(itemChanged(QNetworkOperation*)),
+		 url(), SIGNAL(itemChanged(QNetworkOperation*)) );
+	connect( this, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
+		 url(), SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)) );
+	connect( this, SIGNAL(connectionStateChanged(int,QString)),
+		 url(), SIGNAL(connectionStateChanged(int,QString)) );
     }
 
     if ( !d->opInProgress && !d->operationQueue.isEmpty() )
@@ -986,8 +986,8 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
 {
     d = new QNetworkOperationPrivate;
     d->deleteTimer = new QTimer( this );
-    connect( d->deleteTimer, SIGNAL( timeout() ),
-	     this, SLOT( deleteMe() ) );
+    connect( d->deleteTimer, SIGNAL(timeout()),
+	     this, SLOT(deleteMe()) );
     d->operation = operation;
     d->state = QNetworkProtocol::StWaiting;
     d->args[ 0 ] = arg0;
@@ -1015,8 +1015,8 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
 {
     d = new QNetworkOperationPrivate;
     d->deleteTimer = new QTimer( this );
-    connect( d->deleteTimer, SIGNAL( timeout() ),
-	     this, SLOT( deleteMe() ) );
+    connect( d->deleteTimer, SIGNAL(timeout()),
+	     this, SLOT(deleteMe()) );
     d->operation = operation;
     d->state = QNetworkProtocol::StWaiting;
     d->args[ 0 ] = QString::null;
@@ -1279,8 +1279,8 @@ int QHttpProtocol::supportedOperations() const
 */
 void QHttpProtocol::operationGet( QNetworkOperation *op )
 {
-    connect( &http, SIGNAL(readyRead(const QHttpResponseHeader&)),
-	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
+    connect( &http, SIGNAL(readyRead(QHttpResponseHeader)),
+	    this, SLOT(clientReply(QHttpResponseHeader)) );
     connect( &http, SIGNAL(done(bool)),
 	    this, SLOT(clientDone(bool)) );
     connect( &http, SIGNAL(stateChanged(int)),
@@ -1299,8 +1299,8 @@ void QHttpProtocol::operationGet( QNetworkOperation *op )
 */
 void QHttpProtocol::operationPut( QNetworkOperation *op )
 {
-    connect( &http, SIGNAL(readyRead(const QHttpResponseHeader&)),
-	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
+    connect( &http, SIGNAL(readyRead(QHttpResponseHeader)),
+	    this, SLOT(clientReply(QHttpResponseHeader)) );
     connect( &http, SIGNAL(done(bool)),
 	    this, SLOT(clientDone(bool)) );
     connect( &http, SIGNAL(stateChanged(int)),
@@ -1355,8 +1355,8 @@ void QHttpProtocol::clientReply( const QHttpResponseHeader &rep )
 
 void QHttpProtocol::clientDone( bool err )
 {
-    disconnect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
-	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
+    disconnect( this, SIGNAL(readyRead(QHttpResponseHeader)),
+	    this, SLOT(clientReply(QHttpResponseHeader)) );
     disconnect( this, SIGNAL(done(bool)),
 	    this, SLOT(clientDone(bool)) );
     disconnect( this, SIGNAL(stateChanged(int)),
@@ -1535,8 +1535,8 @@ void QFtpProtocol::operationPut( QNetworkOperation *op )
 bool QFtpProtocol::checkConnection( QNetworkOperation *op )
 {
     if ( ftp.state() == QFtp::Unconnected && !npWaitForLoginDone ) {
-	connect( &ftp, SIGNAL(listInfo(const QUrlInfo &)),
-		this, SLOT(npListInfo(const QUrlInfo &)) );
+	connect( &ftp, SIGNAL(listInfo(QUrlInfo)),
+		this, SLOT(npListInfo(QUrlInfo)) );
 	connect( &ftp, SIGNAL(done(bool)),
 		this, SLOT(npDone(bool)) );
 	connect( &ftp, SIGNAL(stateChanged(int)),
@@ -1647,8 +1647,8 @@ void QFtpProtocol::npDone( bool err )
     npWaitForLoginDone = FALSE;
 
     if ( ftp.state() == QFtp::Unconnected ) {
-	disconnect( &ftp, SIGNAL(listInfo(const QUrlInfo &)),
-		    this, SLOT(npListInfo(const QUrlInfo &)) );
+	disconnect( &ftp, SIGNAL(listInfo(QUrlInfo)),
+		    this, SLOT(npListInfo(QUrlInfo)) );
 	disconnect( &ftp, SIGNAL(done(bool)),
 		    this, SLOT(npDone(bool)) );
 	disconnect( &ftp, SIGNAL(stateChanged(int)),

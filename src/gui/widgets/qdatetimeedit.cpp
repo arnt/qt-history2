@@ -912,10 +912,10 @@ void QDateEdit::init()
     d->ed = new QDateTimeEditor( this, "date editor" );
     d->controls->setEditWidget( d->ed );
     setFocusProxy( d->ed );
-    connect( d->controls, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
-    connect( d->controls, SIGNAL( stepDownPressed() ), SLOT( stepDown() ) );
-    connect( this, SIGNAL( valueChanged(const QDate&) ),
-	     SLOT( updateButtons() ) );
+    connect( d->controls, SIGNAL(stepUpPressed()), SLOT(stepUp()) );
+    connect( d->controls, SIGNAL(stepDownPressed()), SLOT(stepDown()) );
+    connect( this, SIGNAL(valueChanged(QDate)),
+	     SLOT(updateButtons()) );
     d->ed->appendSection( QNumberSection( 0,4 ) );
     d->ed->appendSection( QNumberSection( 5,7 ) );
     d->ed->appendSection( QNumberSection( 8,10 ) );
@@ -1805,8 +1805,8 @@ void QTimeEdit::init()
     d->controls = new QDateTimeSpinWidget( this, qstrcmp( objectName(), "qt_datetime_timeedit" ) == 0 ? "qt_spin_widget" : "time edit controls" );
     d->controls->setEditWidget( d->ed );
     setFocusProxy( d->ed );
-    connect( d->controls, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
-    connect( d->controls, SIGNAL( stepDownPressed() ), SLOT( stepDown() ) );
+    connect( d->controls, SIGNAL(stepUpPressed()), SLOT(stepUp()) );
+    connect( d->controls, SIGNAL(stepDownPressed()), SLOT(stepDown()) );
 
     d->ed->appendSection( QNumberSection( 0,0, TRUE, 0 ) );
     d->ed->appendSection( QNumberSection( 0,0, TRUE, 1 ) );
@@ -2672,10 +2672,10 @@ void QDateTimeEdit::init()
     de = new QDateEdit( this, "qt_datetime_dateedit" );
     te = new QTimeEdit( this, "qt_datetime_timeedit" );
     d->adv = FALSE;
-    connect( de, SIGNAL( valueChanged(const QDate&) ),
-	     this, SLOT( newValue(const QDate&) ) );
-    connect( te, SIGNAL( valueChanged(const QTime&) ),
-	     this, SLOT( newValue(const QTime&) ) );
+    connect( de, SIGNAL(valueChanged(QDate)),
+	     this, SLOT(newValue(QDate)) );
+    connect( te, SIGNAL(valueChanged(QTime)),
+	     this, SLOT(newValue(QTime)) );
     setFocusProxy( de );
     setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 }

@@ -206,8 +206,8 @@ void QAuServerNAS::stop(QSound* s)
 
 void QAuServerNAS::init(QSound* s)
 {
-    connect(s, SIGNAL(destroyed(QObject *)),
-	    this, SLOT(soundDestroyed(QObject *)));
+    connect(s, SIGNAL(destroyed(QObject*)),
+	    this, SLOT(soundDestroyed(QObject*)));
 
     if ( nas ) {
         AuBucketID b_id =

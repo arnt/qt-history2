@@ -600,15 +600,15 @@ QtMultiLineEdit::QtMultiLineEdit( QWidget *parent , const char *name )
     markDragX      = 0;
     markDragY      = 0;
     d->blinkTimer = new QTimer( this );
-    connect( d->blinkTimer, SIGNAL( timeout() ),
-	     this, SLOT( blinkTimerTimeout() ) );
+    connect( d->blinkTimer, SIGNAL(timeout()),
+	     this, SLOT(blinkTimerTimeout()) );
     d->scrollTimer = new QTimer( this );
-    connect( d->scrollTimer, SIGNAL( timeout() ),
-	     this, SLOT( scrollTimerTimeout() ) );
+    connect( d->scrollTimer, SIGNAL(timeout()),
+	     this, SLOT(scrollTimerTimeout()) );
 #ifndef QT_NO_DRAGANDDROP
     d->dnd_timer = new QTimer( this );
-    connect( d->dnd_timer, SIGNAL( timeout() ),
-	     this, SLOT( dndTimeout() ) );
+    connect( d->dnd_timer, SIGNAL(timeout()),
+	     this, SLOT(dndTimeout()) );
 #endif
     d->scrollTime = 0;
 

@@ -93,7 +93,7 @@ QObject *QObjectCleanupHandler::add( QObject* object )
     if ( !object )
 	return 0;
 
-    connect(object, SIGNAL(destroyed(QObject *)), this, SLOT(objectDestroyed(QObject *)));
+    connect(object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
     cleanupObjects.insert( 0, object );
     return object;
 }
@@ -107,7 +107,7 @@ void QObjectCleanupHandler::remove( QObject *object )
     int index;
     if ((index = cleanupObjects.indexOf(object)) != -1) {
 	cleanupObjects.removeAt(index);
-	disconnect( object, SIGNAL(destroyed( QObject* )), this, SLOT(objectDestroyed( QObject* )) );
+	disconnect( object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)) );
     }
 }
 

@@ -1238,7 +1238,7 @@ QWidget *QComboTableItem::createEditor() const
     ( (QComboTableItem*)this )->cb = new QComboBox( edit, table()->viewport(), "qt_editor_cb" );
     cb->insertStringList( entries );
     cb->setCurrentItem( current );
-    QObject::connect( cb, SIGNAL( activated(int) ), table(), SLOT( doValueChanged() ) );
+    QObject::connect( cb, SIGNAL(activated(int)), table(), SLOT(doValueChanged()) );
     return cb;
 }
 
@@ -1502,7 +1502,7 @@ QWidget *QCheckTableItem::createEditor() const
     cb->setChecked( checked );
     cb->setText( text() );
     cb->setBackgroundColor( table()->viewport()->backgroundColor() );
-    QObject::connect( cb, SIGNAL( toggled(bool) ), table(), SLOT( doValueChanged() ) );
+    QObject::connect( cb, SIGNAL(toggled(bool)), table(), SLOT(doValueChanged()) );
     return cb;
 }
 
@@ -2039,7 +2039,7 @@ void QTable::init( int rows, int cols )
     d->geomTimer = new QTimer( this );
     d->lastVisCol = 0;
     d->lastVisRow = 0;
-    connect( d->geomTimer, SIGNAL( timeout() ), this, SLOT( updateGeometriesSlot() ) );
+    connect( d->geomTimer, SIGNAL(timeout()), this, SLOT(updateGeometriesSlot()) );
     shouldClearSelection = FALSE;
     dEnabled = FALSE;
     setSorting( FALSE );
@@ -2079,25 +2079,25 @@ void QTable::init( int rows, int cols )
     leftHeader->setUpdatesEnabled( TRUE );
 
     // Connect header, table and scrollbars
-    connect( horizontalScrollBar(), SIGNAL( valueChanged(int) ),
-	     topHeader, SLOT( setOffset(int) ) );
-    connect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
-	     leftHeader, SLOT( setOffset(int) ) );
-    connect( topHeader, SIGNAL( sectionSizeChanged(int) ),
-	     this, SLOT( columnWidthChanged(int) ) );
-    connect( topHeader, SIGNAL( indexChange(int,int,int) ),
-	     this, SLOT( columnIndexChanged(int,int,int) ) );
-    connect( topHeader, SIGNAL( sectionClicked(int) ),
-	     this, SLOT( columnClicked(int) ) );
-    connect( leftHeader, SIGNAL( sectionSizeChanged(int) ),
-	     this, SLOT( rowHeightChanged(int) ) );
-    connect( leftHeader, SIGNAL( indexChange(int,int,int) ),
-	     this, SLOT( rowIndexChanged(int,int,int) ) );
+    connect( horizontalScrollBar(), SIGNAL(valueChanged(int)),
+	     topHeader, SLOT(setOffset(int)) );
+    connect( verticalScrollBar(), SIGNAL(valueChanged(int)),
+	     leftHeader, SLOT(setOffset(int)) );
+    connect( topHeader, SIGNAL(sectionSizeChanged(int)),
+	     this, SLOT(columnWidthChanged(int)) );
+    connect( topHeader, SIGNAL(indexChange(int,int,int)),
+	     this, SLOT(columnIndexChanged(int,int,int)) );
+    connect( topHeader, SIGNAL(sectionClicked(int)),
+	     this, SLOT(columnClicked(int)) );
+    connect( leftHeader, SIGNAL(sectionSizeChanged(int)),
+	     this, SLOT(rowHeightChanged(int)) );
+    connect( leftHeader, SIGNAL(indexChange(int,int,int)),
+	     this, SLOT(rowIndexChanged(int,int,int)) );
 
     // Initialize variables
     autoScrollTimer = new QTimer( this );
-    connect( autoScrollTimer, SIGNAL( timeout() ),
-	     this, SLOT( doAutoScroll() ) );
+    connect( autoScrollTimer, SIGNAL(timeout()),
+	     this, SLOT(doAutoScroll()) );
     curRow = curCol = 0;
     topHeader->setSectionState( curCol, QTableHeader::Bold );
     leftHeader->setSectionState( curRow, QTableHeader::Bold );
@@ -3811,7 +3811,7 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
 
 void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( !receivers( SIGNAL(contextMenuRequested(int,int,const QPoint&)) ) ) {
+    if ( !receivers( SIGNAL(contextMenuRequested(int,int,QPoint)) ) ) {
 	e->ignore();
 	return;
     }
@@ -6323,8 +6323,8 @@ QTableHeader::QTableHeader( int i, QTable *t,
     states.fill( Normal, -1 );
     stretchable.fill( FALSE, -1 );
     autoScrollTimer = new QTimer( this );
-    connect( autoScrollTimer, SIGNAL( timeout() ),
-	     this, SLOT( doAutoScroll() ) );
+    connect( autoScrollTimer, SIGNAL(timeout()),
+	     this, SLOT(doAutoScroll()) );
 #ifndef NO_LINE_WIDGET
     line1 = new QWidget( table->viewport(), "qt_line1" );
     line1->hide();
@@ -6338,17 +6338,17 @@ QTableHeader::QTableHeader( int i, QTable *t,
     d = new QTableHeaderPrivate;
     d->oldLinePos = -1; //outside, in contents coords
 #endif
-    connect( this, SIGNAL( sizeChange(int,int,int) ),
-	     this, SLOT( sectionWidthChanged(int,int,int) ) );
-    connect( this, SIGNAL( indexChange(int,int,int) ),
-	     this, SLOT( indexChanged(int,int,int) ) );
+    connect( this, SIGNAL(sizeChange(int,int,int)),
+	     this, SLOT(sectionWidthChanged(int,int,int)) );
+    connect( this, SIGNAL(indexChange(int,int,int)),
+	     this, SLOT(indexChanged(int,int,int)) );
 
     stretchTimer = new QTimer( this );
     widgetStretchTimer = new QTimer( this );
-    connect( stretchTimer, SIGNAL( timeout() ),
-	     this, SLOT( updateStretches() ) );
-    connect( widgetStretchTimer, SIGNAL( timeout() ),
-	     this, SLOT( updateWidgetStretches() ) );
+    connect( stretchTimer, SIGNAL(timeout()),
+	     this, SLOT(updateStretches()) );
+    connect( widgetStretchTimer, SIGNAL(timeout()),
+	     this, SLOT(updateWidgetStretches()) );
     startPos = -1;
 }
 

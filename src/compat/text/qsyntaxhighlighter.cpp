@@ -55,7 +55,7 @@ QSyntaxHighlighter::QSyntaxHighlighter( QTextEdit *textEdit )
 {
     textEdit->document()->setPreProcessor( new QSyntaxHighlighterInternal( this ) );
     textEdit->document()->invalidate();
-    QTimer::singleShot( 0, textEdit->viewport(), SLOT( update() ) );
+    QTimer::singleShot( 0, textEdit->viewport(), SLOT(update()) );
 }
 
 /*!
