@@ -255,6 +255,7 @@ void QDataTable::init()
     d = new QDataTablePrivate();
     setAutoEdit( FALSE );
     setSelectionMode( SingleRow );
+    setFocusStyle( FollowStyle );
     d->trueTxt = tr( "True" );
     d->falseTxt = tr( "False" );
     reset();
@@ -1547,13 +1548,12 @@ void QDataTable::repaintCell( int row, int col )
 void QDataTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 			  bool selected )
 {
-    QTable::paintCell(p,row,col,cr, selected);  // empty cell
+    QTable::paintCell( p, row, col, cr, selected );  // empty cell
 
     if ( !sqlCursor() )
 	return;
 
-    p->setPen( selected && ( row != currentRow() || col != currentColumn() ) ?
-	       colorGroup().highlightedText() : colorGroup().text() );
+    p->setPen( selected ? colorGroup().highlightedText() : colorGroup().text() );
     if ( d->dat.mode() != QSql::None ) {
 	if ( row == d->editRow && d->editBuffer ) {
 	    paintField( p, d->editBuffer->field( indexOf( col ) ), cr,
