@@ -34,7 +34,7 @@ public:
         { return QApplication::reverseLayout() && orientation == Qt::Horizontal; }
 
     enum State { NoState, ResizeSection, MoveSection, SelectSection } state;
-    
+
     int offset;
     Qt::Orientation orientation;
     Qt::SortOrder sortIndicatorOrder;
@@ -213,7 +213,7 @@ void QGenericHeader::setModel(QAbstractItemModel *model)
         QObject::disconnect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
                             this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
         QObject::disconnect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
-                            this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));        
+                            this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
         initializeSections(0, model->columnCount(root()) - 1);
         QObject::connect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
                          this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
@@ -304,8 +304,8 @@ QSize QGenericHeader::sizeHint() const
         return QSize();
     QSize hint = itemDelegate()->sizeHint(fontMetrics(), option, model(), index);
     if (orientation() == Qt::Vertical)
-        return QSize(hint.width() + border, size());
-    return QSize(size(), hint.height() + border);
+        return QSize(hint.width() + border, 192);
+    return QSize(256, hint.height() + border);
 }
 
 /*!

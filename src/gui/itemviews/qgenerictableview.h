@@ -52,8 +52,6 @@ public:
     void ensureItemVisible(const QModelIndex &item);
     QModelIndex itemAt(int x, int y) const;
 
-    QSize sizeHint() const;
-    
 public slots:
     void setShowGrid(bool show);
     void setGridStyle(Qt::PenStyle style);

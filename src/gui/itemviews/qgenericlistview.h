@@ -32,7 +32,7 @@ class Q_GUI_EXPORT QGenericListView : public QAbstractItemView
     Q_PROPERTY(LayoutMode layoutMode READ layoutMode WRITE setLayoutMode)
     Q_PROPERTY(int spacing READ spacing WRITE setSpacing)
     Q_PROPERTY(QSize gridSize READ gridSize WRITE setGridSize)
-        
+
 public:
     enum Movement { Static, Free, Snap };
     enum Flow { LeftToRight, TopToBottom };
@@ -71,8 +71,6 @@ public:
     void ensureItemVisible(const QModelIndex &item);
     QModelIndex itemAt(int x, int y) const;
 
-    QSize sizeHint() const;
-
     void doItemsLayout();
 
 protected:
@@ -85,13 +83,13 @@ protected:
 
     bool doItemsLayout(int num);
     void doItemsLayout(const QRect &bounds, const QModelIndex &first, const QModelIndex &last);
-    
+
     void doStaticLayout(const QRect &bounds, int first, int last);
     void doDynamicLayout(const QRect &bounds, int first, int last);
 
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
-        
+
     void timerEvent(QTimerEvent *e);
     void resizeEvent(QResizeEvent *e);
     void dragMoveEvent(QDragMoveEvent *e);

@@ -1049,14 +1049,6 @@ QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) c
 }
 
 /*!
-    Returns the list view's size hint.
-*/
-QSize QGenericListView::sizeHint() const
-{
-    return d->contentsSize;
-}
-
-/*!
     \internal
 
     Layout the items according to the flow and wrapping properties.

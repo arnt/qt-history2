@@ -649,20 +649,6 @@ QModelIndex QGenericTreeView::itemBelow(const QModelIndex &index) const
 }
 
 /*!
-  \reimp
-*/
-
-QSize QGenericTreeView::sizeHint() const
-{
-    QStyleOptionViewItem option = q->viewOptions();
-    QFontMetrics fontMetrics(q->fontMetrics());
-    int s = d->items.isEmpty()
-            ? 0
-            : d->delegate->sizeHint(fontMetrics, option, d->model, d->items.at(0).index).height();
-    return QSize(d->header->size(), s * d->items.count());
-}
-
-/*!
   Lays out the items in the tree view.
 */
 

@@ -242,7 +242,7 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
         }
         horizontalScrollBar()->repaint();
     }
-    
+
     if (dy) { // vertical
         int value = verticalScrollBar()->value();
         int section = d->verticalHeader->section(value / verticalFactor());
@@ -252,7 +252,7 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
         d->verticalHeader->setOffset(offset);
         verticalScrollBar()->repaint();
     }
-    
+
     d->viewport->scroll(dx, dy);
 }
 
@@ -317,7 +317,7 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     QModelIndex current = currentItem();
     bool focus = hasFocus() && current.isValid();
     QStyle::SFlags state = option.state;
-    
+
     for (int r = rowfirst; r <= rowlast; ++r) {
         if (verticalHeader->isSectionHidden(r))
             continue;
@@ -379,14 +379,6 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
 QModelIndex QGenericTableView::itemAt(int x, int y) const
 {
     return model()->index(rowAt(y), columnAt(x), root());
-}
-
-/*!
-    Returns the table's size hint.
-*/
-QSize QGenericTableView::sizeHint() const
-{
-    return QSize(d->horizontalHeader->size(), d->verticalHeader->size());
 }
 
 /*!
@@ -570,7 +562,7 @@ void QGenericTableView::updateGeometries()
     if (!d->model)
         return;
 
-    // update sliders    
+    // update sliders
     QStyleOptionViewItem option = viewOptions();
 
     int h = d->viewport->height();
