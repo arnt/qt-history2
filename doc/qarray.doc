@@ -1,0 +1,144 @@
+/****************************************************************************
+** $Id: qarray.doc,v 1.1 1995/12/15 16:44:14 hanord Exp $
+**
+** QArray class documentation
+**
+** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+*****************************************************************************/
+
+
+/*****************************************************************************
+  QArray documentation
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  \class QArray qarray.h
+  \brief The QArray class is a template class that provides arrays of simple types.
+
+  \ingroup tools
+
+  QArray is implemented as both a template and a macro class. Define a
+  template instance QArray\<X\> to create an array that contains X items.
+
+  The QVector collection class is also a kind of array, but like all
+  \link collectionclasses.html collection classes\endlink, it has
+  pointers to the contained items.
+
+  QArray keeps the array elements directly in the array. It can only
+  store simple types, i.e. C++ types, structs and classes that have
+  no constructors, destructors or virtual functions.  QArray uses
+  bitwise operations to copy and compare array elements.
+
+  Example:
+  \code
+    #include <qarray.h>
+    #include <stdio.h>
+
+    QArray<int> fib( int num )			// returns fibonacci array
+    {
+	ASSERT( num > 2 );
+	QArray<int> f( num );			// array of ints
+
+        f[0] = f[1] = 1;			// initialize first two numbers
+	for ( int i=2; i<num; i++ )
+	    f[i] = f[i-1] + f[i-2];	
+
+	return f;
+    }
+
+    void main()
+    {
+	QArray<int> a = fib( 6 );		// get 6 first fibonaccis
+	int i;
+
+	for ( i=0; i<a.size(); i++ )		// print them
+	    prinf( "%d: %d\n", i, a[i] );
+
+	printf( "a contains %d 1s\n", a.contains(1) );
+	printf( "5 is found at index %d\n", a.find(5) );
+    }
+  \endcode
+
+  Program output:
+  \code
+	0: 1
+	1: 1
+	2: 2
+	3: 3
+	4: 5
+	5: 8
+	a contains 2 1s
+	5 is found at index 4
+  \endcode
+
+  An array can also be instantiated through a macro expansion, but this
+  is necessary only for compilers that do not support templates.
+  We recommend using templates if your compiler supports it.  Macros
+  are much harder to debug.
+
+  Macro expansion:
+  \code
+      ...
+    declare(QArrayM,X);			// declares the array
+
+    void main()
+    {
+	QArrayM(X) a;			// array of X elements
+      ...
+  \endcode
+
+  If you want to make your code work for compilers that do not have
+  template support, but use templates if they are available, you
+  can use \c typedef:
+
+  \code
+      ...
+    #if defined(USE_TEMPLATECLASS)
+    typedef QArrayT<X>	       XArray;
+    #else
+    typedef declare(QArrayM,X) XArray;
+    #endif
+
+    void main()
+    {
+	XArray a;			// array of X elements
+      ...
+  \endcode
+  
+  QArrayT refers to the QArray template and QArrayM refers to the QArray macro.
+  QArray defaults to QArrayT if templates are supported, QArrayM otherwise.
+
+  QArray is implemented as a hash array with a fixed number of entries.  
+  Each array entry points to a singly linked list of buckets, in which
+  the dictionary items are stored.
+
+  When an item is inserted with a key, the key is converted (hashed) to
+  an integer index into the hash array. The item is inserted before the
+  first bucket in the list of buckets.
+
+  \sa QArrayIterator, QIntDict,
+      \link sharedclasses.html shared classes\endlink
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
+  \fn QArray::QArray()
+  Constructs a \link isNull() null\endlink array.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QArray::QArray( int size )
+  Constructs an array with room for \e size elements.
+  Makes a \link isNull() null\endlink array if \e size == 0.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QArray::QArray( const QArray\<type\> &a )
+  Constructs an array that is a shallow copy of \e a.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QArray::~QArray()
+  Dereferences the array data and deletes it if this was the last
+  reference.
+ ----------------------------------------------------------------------------*/
