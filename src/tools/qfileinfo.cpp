@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#54 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#55 $
 **
 ** Implementation of QFileInfo class
 **
@@ -886,7 +886,6 @@ void QFileInfo::doStat() const
 	r = _tstat((const TCHAR*)qt_winTchar(fn2,TRUE), b);
     else
 	r = _stat(qt_win95Name(fn2), b);
-debug("%s statmask = %x",fn2.latin1(),b->st_mode&STAT_MASK);
 #endif
 
     if ( r != 0 ) {
