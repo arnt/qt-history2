@@ -1521,16 +1521,17 @@ bool QString::operator==(const QString &other) const
 */
 bool QString::operator==(const QLatin1String &other) const
 {
-    const ushort *uc = utf16();
+    const ushort *uc = d->data;
+    const ushort *e = uc + d->size;
     const uchar *c = (uchar *)other.latin1();
 
-    while (*uc == *c) {
-        if (!*uc)
-            return true;
+    while (*c) {
+        if (uc == e || *uc != *c)
+            return false;
         ++uc;
         ++c;
     }
-    return false;
+    return (uc == e);
 }
 
 /*! \fn bool QString::operator==(const QByteArray &other) const
@@ -1576,16 +1577,17 @@ bool QString::operator<(const QString &other) const
 */
 bool QString::operator<(const QLatin1String &other) const
 {
-    const ushort *uc = utf16();
+    const ushort *uc = d->data;
+    const ushort *e = uc + d->size;
     const uchar *c = (uchar *) other.latin1();
 
-    while (*uc == *c) {
-        if (!*uc)
-            return false;
+    while (*c) {
+        if (uc == e || *uc != *c)
+            break;
         ++uc;
         ++c;
     }
-    return *uc < *c;
+    return (uc == e || *uc < *c);
 }
 
 /*! \fn bool QString::operator<(const QByteArray &other) const
@@ -1668,16 +1670,17 @@ bool QString::operator<(const QLatin1String &other) const
 */
 bool QString::operator>(const QLatin1String &other) const
 {
-    const ushort *uc = utf16();
+    const ushort *uc = d->data;;
+    const ushort *e = uc + d->size;
     const uchar *c = (uchar *) other.latin1();
 
-    while (*uc == *c) {
-        if (!*uc)
-            return false;
+    while (*c) {
+        if (uc == e || *uc != *c)
+            break;
         ++uc;
         ++c;
     }
-    return *uc > *c;
+    return (uc != e && *uc > *c);
 }
 
 /*! \fn bool QString::operator>(const QByteArray &other) const
