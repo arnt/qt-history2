@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#85 $
 **
 ** Implementation of font database class.
 **
@@ -546,6 +546,7 @@ const QStringList &QtFontFoundry::families() const
 {
     if ( namesDirty ) {
         QtFontFoundry *that = (QtFontFoundry*) this;   // Mutable function
+        that->familyNames.clear();
         QDictIterator<QtFontFamily> iter( familyDict );
         QtFontFamily *tmp;
         for( ; (tmp = iter.current()) ; ++iter )
@@ -1402,8 +1403,8 @@ static QStringList emptyList;
     list of font families() and the pointSizes() and styles() that are
     available for each family. An alternative to pointSizes() is
     smoothSizes() which returns the sizes at which a given family and
-    style will look attractive. 
-    
+    style will look attractive.
+
     If the font family is available from two or more foundries the
     foundry name is included in the family name, e.g. "Helvetica
     [Adobe]" and "Helvetica [Cronyx]". When you specify a family you can
@@ -1414,13 +1415,13 @@ static QStringList emptyList;
 
     The font() function returns a QFont given a family, style and point
     size.
-    
+
     A family and style combination can be checked to see if it is
     italic() or bold(), and to retrieve its weight(). Similarly we can
     call isBitmapScalable(), isSmoothlyScalable(), isScalable() and
     isFixedPitch().
-    
-    A text version of a style is given by styleString(). 
+
+    A text version of a style is given by styleString().
 
     The QFontDatabase class also supports some static functions, for
     example, standardSizes(). You can retrieve the Unicode 3.0
@@ -1447,7 +1448,7 @@ int main( int argc, char **argv )
 	    QString dstyle = "\t" + style + " (";
 	    QValueList<int> smoothies = fdb.smoothSizes( family, style );
 	    for ( QValueList<int>::Iterator points = smoothies.begin(); points != smoothies.end(); ++points ) {
-		dstyle += QString::number( *points ) + " ";	
+		dstyle += QString::number( *points ) + " ";
 	    }
 	    dstyle = dstyle.left( dstyle.length() - 1 ) + ")";
 	    qDebug( dstyle );
@@ -1765,7 +1766,7 @@ bool QFontDatabase::italic( const QString &family,
 }
 
 
-/*!  
+/*!
   Returns TRUE if the font that has family \a family and style \a style
   is bold; otherwise returns FALSE.
 
