@@ -40,6 +40,11 @@ public:
 protected:
     virtual void processPrlVariable(const QString &, const QStringList &);
     virtual bool findLibraries();
+
+    QString precompH, 
+	    precompObjR, precompPchR,
+	    precompObjD, precompPchD;
+    bool usePCH;
 };
 
 inline DspMakefileGenerator::~DspMakefileGenerator()
