@@ -280,6 +280,9 @@ void FormWindow::drawSizePreview( const QPoint &pos, const QString& text )
 
 void FormWindow::insertWidget()
 {
+    if ( !insertParent )
+	return;
+
     if ( currTool == POINTER_TOOL )
 	return;
 
