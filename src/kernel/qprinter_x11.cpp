@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#4 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
@@ -13,31 +13,16 @@
 #include "qprinter.h"
 #include "qpaintdc.h"
 #include "qpsprn.h"
+#include "qprndlg.h"
 #include "qfile.h"
 #include "qapp.h"
 #include <stdlib.h>
 #include <unistd.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#4 $";
 #endif
 
-
-/*****************************************************************************
-  Internal QPrintDialog class
- *****************************************************************************/
-
-#include "qmsgbox.h"
-
-#if 0
-class QPrintDialog : public QDialog
-{
-//    Q_OBJECT
-public:
-    QPrintDialog( QWidget *parent=0, const char *name=0 );
-   ~QPrintDialog();
-};
-#endif
 
 /*****************************************************************************
   QPrinter member functions
@@ -60,12 +45,13 @@ QPrinter::QPrinter()
 {
     pdrv = new QPSPrinter( this );
     orient = Portrait;
+    page_size = A4;
     from_pg = to_pg  = ncopies = 1;
     min_pg  = max_pg = 0;
     state = PST_IDLE;
     printer_name = getenv( "PRINTER" );
     output_file = FALSE;
-    print_prog = "/usr/bin/lpr";
+    print_prog = "lpr";
 }
 
 /*----------------------------------------------------------------------------
@@ -129,8 +115,8 @@ bool QPrinter::aborted() const
 
 bool QPrinter::select( QWidget *parent )
 {
-    return QMessageBox::message("Print","\nAre you sure you want to print\n",
-				"Lets go",parent);
+    QPrintDialog prndlg( this, parent );
+    return prndlg.exec() == QDialog::Accepted;
 }
 
 
@@ -189,8 +175,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    else {
 			pr.insert( 0, "-P" );
 			if ( fork() == 0 ) {	// child process
-			    if ( execl(print_prog.data(), pr.data(),
-				       output->name(), 0) == -1 ) {
+			    if ( execlp(print_prog.data(), pr.data(),
+					output->name(), 0) == -1 ) {
 #if defined(DEBUG)
 				debug( "QPrinter: Exec error" );
 #endif
