@@ -2586,17 +2586,18 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
     int ws = width();
     int hs = height();
     int sbpl = bytesPerLine();
-    int bpp = depth();
     uchar *sptr = bits();
 
     // target image data
-    int wd, hd;
+    int wd;
+    int hd;
     int dbpl; // bytes per line in destination
     int dbytes; // bytes total in destination
 
-    int y;
+    int bpp = depth();
     bool depth1 = (bpp == 1);
     bool alpha = data->alpha;
+    int y;
 
     // compute size of target image
     QWMatrix mat = QPixmap::trueMatrix( matrix, ws, hs );
@@ -2656,7 +2657,16 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 	    break;
 	case 8:
 //qDebug( "bpp == 8" );
-	    memset( dImage.bits(), Qt::white.pixel(), dImage.numBytes() );
+	    if ( dImage.data->ncols < 256 ) {
+		// colors are left in the color table, so pick that one as transparent
+		dImage.data->ncols++;
+		dImage.setColor( dImage.data->ncols-1, 0x00 );
+		memset( dImage.bits(), dImage.data->ncols-1, dImage.numBytes() );
+	    } else {
+		// ### What is the right thing here?
+		dImage.setColor( 255, 0x00 );
+		memset( dImage.bits(), 255, dImage.numBytes() );
+	    }
 	    break;
 	case 16:
 //qDebug( "bpp == 16" );
