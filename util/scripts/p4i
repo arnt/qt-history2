@@ -383,7 +383,7 @@ sub printNeededRevisions {
 }
 
 sub findLastChange {
-   open( P4, "$P4 changes -m $maxChanges | grep $userName | cut -f 2 -d\" \" |" ) || die "$0: Couldn't exec $P4: $!\n";
+   open( P4, "$P4 changes -m $maxChanges -u $userName | cut -f 2 -d\" \" |" ) || die "$0: Couldn't exec $P4: $!\n";
    my @myChanges = <P4>;
    close( P4 );
    chomp @myChanges;
