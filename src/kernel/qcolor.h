@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#5 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#6 $
 **
 ** Definition of QColor class
 **
@@ -57,6 +57,9 @@ public:
 
     ulong  pixel()  const;			// get pixel value
 
+    bool   operator==( const QColor &c ) const;
+    bool   operator!=( const QColor &c ) const;
+
 #if defined(_WS_WIN_)
     static HANDLE hPal()  { return hpal; }
     static uint	  realizePal( QWidget * );
@@ -92,6 +95,17 @@ inline ulong QColor::pixel() const
     return pix;
 }
 #endif
+
+
+inline bool QColor::operator==( const QColor &c ) const
+{
+    return rgb == c.rgb;
+}
+
+inline bool QColor::operator!=( const QColor &c ) const
+{
+    return rgb != c.rgb;
+}
 
 
 // --------------------------------------------------------------------------
