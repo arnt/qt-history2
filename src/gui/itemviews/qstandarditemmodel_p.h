@@ -35,7 +35,7 @@ public:
             for (int i=0; i<roles.count(); ++i)
                 if (roles.at(i).first == role)
                     return roles.at(i).second;
-            return QVariant::Invalid;
+            return QVariant();
         }
     void setValue(int role, QVariant value)
         {

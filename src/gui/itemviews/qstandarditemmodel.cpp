@@ -165,7 +165,7 @@ QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
                 return item->value(role);
         }
     }
-    return QVariant::Invalid;
+    return QVariant();
 }
 
 /*!
