@@ -83,6 +83,9 @@ CGContextRef qt_macCreateCGHandle(const QPaintDevice *pdev)
     if(pdev->devType() == QInternal::Pixmap || pdev->devType() == QInternal::Widget) {
         CGContextRef ret = 0;
         GrafPtr port = qt_macQDHandle(pdev);
+        if(!port) 
+            return 0;
+
         if(OSStatus err = CreateCGContextForPort(port, &ret)) {
             qWarning("Unable to create CGContext for port %p [%ld]", port, err);
             return 0;
