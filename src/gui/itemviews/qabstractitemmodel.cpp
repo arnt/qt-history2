@@ -1318,6 +1318,8 @@ void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
     }
 }
 
+
+
 /*!
     \internal
 
@@ -1347,6 +1349,19 @@ QModelIndex QAbstractItemModel::persistentIndexAt(int position) const
 void QAbstractItemModel::setPersistentIndex(int position, const QModelIndex &index)
 {
     d->persistentIndexes[position]->index = index;
+}
+
+/*!
+  \internal
+
+  Returns the position of \a index in the list of persistent indexes.
+*/
+int QAbstractItemModel::persistentIndexPosition(const QModelIndex &index, int from) const
+{
+    for (int i = from; i < d->persistentIndexes.count(); ++i)
+        if (d->persistentIndexes.at(i)->index == index)
+            return i;
+    return -1;
 }
 
 /*!

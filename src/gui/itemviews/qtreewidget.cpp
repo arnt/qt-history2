@@ -73,6 +73,7 @@ protected:
     void emitRowsInserted(QTreeWidgetItem *item);
     void emitRowsAboutToBeRemoved(QTreeWidgetItem *item);
     void invalidatePersistentIndexRow(QTreeWidgetItem *item);
+    void updatePersistentIndexRowsBelow(const QModelIndex &parent, int row, int d = 1);
 
 private:
     QList<QTreeWidgetItem*> tree;
@@ -620,7 +621,7 @@ void QTreeModel::removeFromTopLevel(QTreeWidgetItem *item)
 QTreeWidgetItem *QTreeModel::takeFromTopLevel(int row)
 {
     Q_ASSERT(row != -1);
-    emit rowsAboutToBeRemoved(QModelIndex(), row, row);
+    notifyItemAboutToBeRemoved(tree.at(row));
     return tree.takeAt(row);
 }
 
@@ -629,9 +630,14 @@ QTreeWidgetItem *QTreeModel::takeFromTopLevel(int row)
 */
 void QTreeModel::notifyItemAboutToBeRemoved(QTreeWidgetItem *item)
 {
+    // let the rest of the world know
     emitRowsAboutToBeRemoved(item);
-    invalidatePersistentIndexRow(item); // remove the row, and its children
-    // FIXME: update persistent indexes below the item
+    invalidatePersistentIndexRow(item); // invalidate the row, and its children
+    // update the persistent index rows below the removed item
+    QModelIndex idx = index(item, 0);
+    QModelIndex par = parent(idx);
+    updatePersistentIndexRowsBelow(par, idx.row(), -1);
+    // caller will remove the item
 }
 
 /*!
@@ -639,8 +645,25 @@ void QTreeModel::notifyItemAboutToBeRemoved(QTreeWidgetItem *item)
 */
 void QTreeModel::notifyItemInserted(QTreeWidgetItem *item)
 {
-    // FIXME: update persistent indexes below the item
+    // caller has inserted the item
+    // update the persistent index rows below the inserted item
+    QModelIndex idx = index(item, 0);
+    QModelIndex par = parent(idx);
+    updatePersistentIndexRowsBelow(par, idx.row(), 1);
+    // let the rest of the world know
     emitRowsInserted(item);
+}
+
+/*!
+  \internal
+*/
+void QTreeModel::updatePersistentIndexRowsBelow(const QModelIndex &parent, int row, int d)
+{
+    for (int i = 0; i < persistentIndexesCount(); ++i) {
+        QModelIndex idx = persistentIndexAt(i);
+        if (idx.row() > row && idx.parent() == parent)
+            setPersistentIndex(i, index(idx.row() + d, idx.column(), parent));
+    }
 }
 
 /*!
@@ -994,7 +1017,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
         model = ::qt_cast<QTreeModel*>(view->model());
         if (model) {
             model->tree.append(this);
-            model->emitRowsInserted(this);
+            model->notifyItemInserted(this);
         }
     }
 }
@@ -1016,7 +1039,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
         if (model) {
             int i = model->tree.indexOf(after) + 1;
             model->tree.insert(i, this);
-            model->emitRowsInserted(this);
+            model->notifyItemInserted(this);
         }
     }
 }
