@@ -328,8 +328,11 @@ QString QSqlFieldList::toString( const QString& prefix ) const
 {
     QString pflist;
     QString pfix =  prefix.isNull() ? QString::null : prefix + ".";
-    for ( uint i = 0; i < count(); ++i )
-	pflist += pfix + field( i )->name() + ", ";
+    for ( uint i = 0; i < count(); ++i ){
+	pflist += pfix + field( i )->name();
+	if( i != (count() - 1) )
+	    pflist += ", ";
+    }
     return pflist;
 }
 

@@ -209,8 +209,11 @@ void QSqlForm::setView( QSqlView * view )
 */
 void QSqlForm::syncWidgets()
 {
-    map->syncWidgets();
-    emit recordChanged( v->at() );
+    if( v ){
+	map->syncWidgets();
+	emit recordChanged( v->at() );
+    } else
+	qWarning( "QSqlForm: No view associated with this form." );
 }
 
 /*!
@@ -219,7 +222,10 @@ void QSqlForm::syncWidgets()
 */
 void QSqlForm::syncFields()
 {
-    map->syncFields();
+    if( v )
+	map->syncFields();
+    else
+	qWarning( "QSqlForm: No view associated with this form." );
 }
 
 void QSqlForm::first()
