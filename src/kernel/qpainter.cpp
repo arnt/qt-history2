@@ -1459,10 +1459,10 @@ void QPainter::resetXForm()
     setWorldXForm( FALSE );
 }
 
-const int TxNone      = 0;			// transformation codes
-const int TxTranslate = 1;			// copy in qptr_xyz.cpp
-const int TxScale     = 2;
-const int TxRotShear  = 3;
+static const int TxNone      = 0;		// transformation codes
+static const int TxTranslate = 1;		// copy in qpainter_xyz.cpp
+static const int TxScale     = 2;
+static const int TxRotShear  = 3;
 
 /*!
   \internal

@@ -44,10 +44,10 @@
 #include <qtextcodec.h>
 #include <qprinter.h>
 
-const int TxNone=0;
-const int TxTranslate=1;
-const int TxScale=2;
-const int TxRotShear=3;
+static const int TxNone      = 0;		// transformation codes
+static const int TxTranslate = 1;		// also in qpainter.cpp
+static const int TxScale     = 2;
+static const int TxRotShear  = 3;
 
 class QPainterPrivate
 {

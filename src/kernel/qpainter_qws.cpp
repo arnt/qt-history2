@@ -167,10 +167,10 @@ inline double qcos( double a ) { return qsincos(a,TRUE); }
   QPainter member functions
  *****************************************************************************/
 
-const int TxNone      = 0;			// transformation codes
-const int TxTranslate = 1;			// also in qpainter.cpp
-const int TxScale     = 2;
-const int TxRotShear  = 3;
+static const int TxNone      = 0;		// transformation codes
+static const int TxTranslate = 1;		// also in qpainter.cpp
+static const int TxScale     = 2;
+static const int TxRotShear  = 3;
 
 
 void QPainter::initialize()
