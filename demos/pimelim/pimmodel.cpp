@@ -20,7 +20,7 @@ QVariant PimModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid()) {
         switch (role) {
-        case PhotoRole: return entries.at(index.row()).photo;
+        case PhotoRole: return qVariant(entries.at(index.row()).photo);
         case FirstNameRole: return entries.at(index.row()).firstName;
         case LastNameRole: return entries.at(index.row()).lastName;
         case MiddleNameRole: return entries.at(index.row()).middleName;
@@ -38,7 +38,7 @@ bool PimModel::setData(const QModelIndex &index, const QVariant &value, int role
     if (index.isValid()) {
         switch (role) {
         case PhotoRole:
-            entries[index.row()].photo = value.toPixmap();
+            entries[index.row()].photo = qVariant_to<QPixmap>(value);
             break;
         case FirstNameRole:
             entries[index.row()].firstName = value.toString();
