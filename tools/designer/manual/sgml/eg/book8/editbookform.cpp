@@ -13,8 +13,8 @@
 
 EditBookForm::EditBookForm( 
     const QString &bookID, int action,
-    QWidget *parent, const char *name, bool modal, WFlags f ) :
-    EditBookFormBase( parent, name, modal, f ) 
+    QWidget *parent ) :
+    EditBookFormBase( parent, "edit bookform", TRUE, WDestructiveClose ) 
 {
     setFilter( "id=" + bookID );
     
