@@ -29,35 +29,36 @@ SOURCES =  moc.cpp \
            scanner.cpp
 
 # Qt tools needed to link moc
-SOURCES	+= ../core/tools/qbytearray.cpp	\
-                  ../core/tools/qvsnprintf.cpp \
-		  ../core/tools/qbytearraymatcher.cpp \
-		  ../core/tools/qdatetime.cpp	\
-		  ../core/io/qfile.cpp		\
-		  ../core/io/qtemporaryfile.cpp \
-                  ../core/io/qfileengine.cpp  \
-                  ../core/io/qbufferedfsfileengine.cpp  \
-		  ../core/io/qdir.cpp		\
-		  ../core/io/qfileinfo.cpp	\
-		  ../core/global/qglobal.cpp		\
-		  ../core/io/qbuffer.cpp \
-		  ../core/io/qiodevice.cpp	\
-		  ../core/io/qtextstream.cpp \
-		  ../core/tools/qlist.cpp		\
-		  ../core/tools/qchar.cpp		\
-		  ../core/tools/qstring.cpp		\
-		  ../core/tools/qstringmatcher.cpp \
-                  ../core/tools/qunicodetables.cpp	\
-		  ../core/tools/qstringlist.cpp	\
-		  ../core/tools/qmap.cpp		\
-		  ../core/tools/qhash.cpp		\
-		  ../core/tools/qvector.cpp          \
-		  ../core/tools/qlocale.cpp \
-		  ../core/kernel/qinternal.cpp
+SOURCES	+= ../core/global/qglobal.cpp \
+	   ../core/io/qbuffer.cpp \
+	   ../core/io/qdir.cpp		\
+	   ../core/io/qfile.cpp		\
+	   ../core/io/qfileinfo.cpp	\
+	   ../core/io/qfsfileengine.cpp	\
+	   ../core/io/qiodevice.cpp	\
+	   ../core/io/qtemporaryfile.cpp \
+	   ../core/io/qtextstream.cpp \
+	   ../core/kernel/qinternal.cpp \
+	   ../core/tools/qbytearraymatcher.cpp \
+	   ../core/tools/qchar.cpp		\
+	   ../core/tools/qdatetime.cpp	\
+	   ../core/tools/qhash.cpp		\
+	   ../core/tools/qlist.cpp		\
+	   ../core/tools/qlocale.cpp \
+	   ../core/tools/qmap.cpp		\
+	   ../core/tools/qstring.cpp		\
+	   ../core/tools/qstringlist.cpp	\
+	   ../core/tools/qstringmatcher.cpp \
+	   ../core/tools/qvector.cpp          \
+           ../core/io/qbufferedfsfileengine.cpp  \
+           ../core/io/qfileengine.cpp  \
+           ../core/tools/qbytearray.cpp	\
+           ../core/tools/qunicodetables.cpp	\
+           ../core/tools/qvsnprintf.cpp 
 
-unix:SOURCES += ../core/io/qfileengine_unix.cpp
+unix:SOURCES += ../core/io/qfsfileengine_unix.cpp
 
-win32:SOURCES += ../core/io/qfileengine_win.cpp
+win32:SOURCES += ../core/io/qfsfileengine_win.cpp
 
 macx: {
    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)

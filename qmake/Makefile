@@ -74,7 +74,8 @@ QTOBJS= \
 	qfile.obj \
 	qtemporaryfile.obj \
 	qfileengine.obj \
-	qfileengine_win.obj \
+	qfsfileengine_win.obj \
+	qfsfileengine.obj \
 	qfileinfo.obj \
 	qglobal.obj \
 	qhash.obj \
@@ -121,7 +122,8 @@ clean::
 	-del qfile.obj
 	-del qtemporaryfile.obj
 	-del qfileengine.obj
-	-del qfileengine_win.obj
+	-del qfsfileengine_win.obj
+	-del qfsfileengine.obj
 	-del qfileinfo.obj
 	-del qglobal.obj
 	-del qhash.obj
@@ -271,8 +273,11 @@ qfile.obj: ..\src\core\io\qfile.cpp
 qtemporaryfile.obj: ..\src\core\io\qtemporaryfile.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qtemporaryfile.cpp
 
-qfileengine_win.obj: ..\src\core\io\qfileengine_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileengine_win.cpp
+qfsfileengine_win.obj: ..\src\core\io\qfsfileengine_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileengine_win.cpp
+
+qfsfileengine.obj: ..\src\core\io\qfsfileengine.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileengine.cpp
 
 qfileengine.obj: ..\src\core\io\qfileengine.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileengine.cpp
