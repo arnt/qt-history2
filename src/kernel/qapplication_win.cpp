@@ -3156,13 +3156,14 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		}
 	    }
 
+	    // map shift+tab to shift+backtab, QAccel knows about it
+	    // and will handle it
+	    if ( code == Key_Tab && ( state & ShiftButton ) == ShiftButton )
+		code = Key_BackTab;
+
 	    if ( rec ) {
 		// it is already down (so it is auto-repeating)
 		if ( code < Key_Shift || code > Key_ScrollLock ) {
-		    // map shift+tab to shift+backtab, QAccel knows about it
-		    // and will handle it
-		    if ( code == Key_Tab && ( state & ShiftButton ) == ShiftButton )
-			code = Key_BackTab;
 		    k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii,
 				       state, grab, rec->text, TRUE);
 		    k1 = sendKeyEvent( QEvent::KeyPress, code, rec->ascii,
@@ -3178,7 +3179,6 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 				   state, grab, text );
 	    }
 
-
 	} else {
 	    // Must be KEYUP
 	    KeyRec* rec = find_key_rec( msg.wParam, TRUE );
@@ -3188,6 +3188,11 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		if ( !code )
 		    code = asciiToKeycode(rec->ascii ? rec->ascii : msg.wParam,
 				state);
+
+		// see comment above
+		if ( code == Key_Tab && ( state & ShiftButton ) == ShiftButton )
+		    code = Key_BackTab;
+
 		k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii,
 				    state, grab, rec->text);
 		if ( code == Qt::Key_Alt )
