@@ -1791,7 +1791,7 @@ void QDataTable::refresh( bool refreshCursor, bool refreshColumns )
 
 void QDataTable::refresh()
 {
-    refresh( TRUE, FALSE );
+    refresh( TRUE, TRUE );
 }
 
 /*!  \reimp
