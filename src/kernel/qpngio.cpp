@@ -25,7 +25,7 @@
 
 #include "qfeatures.h"
 
-#if QT_FEATURE_IMAGIO_PNG
+#if QT_FEATURE_IMAGEIO_PNG
 
 #include <png.h>
 
@@ -1055,4 +1055,4 @@ void qInitPngIO()
     }
 }
 
-#endif // QT_FEATURE_IMAGIO_PNG
+#endif // QT_FEATURE_IMAGEIO_PNG
