@@ -2216,11 +2216,10 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 		if ( !checkHRESULT( hres ) )
 		    return FALSE;
 
-		if ( arg.vt == VT_UI4 && pname.endsWith( "Color" ) ) {
-		    arg.vt = VT_USERDEFINED;
-		}
-
 		// map result VARIANTARG to QVariant
+		if ( ( arg.vt == VT_UI4 || arg.vt == VT_I4 ) && pname.endsWith( "Color" ) )
+		    *_v = VARIANTToQVariant( arg, "QColor" );
+		
 		*_v = VARIANTToQVariant( arg );
 		return ( _v->isValid() );
 	    }

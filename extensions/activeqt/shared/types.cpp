@@ -146,7 +146,7 @@ VARIANT QVariantToVARIANT( const QVariant &var, const char *type )
 	arg.date = QDateTimeToDATE( var.toDateTime() );
 	break;
     case QVariant::Color:
-	arg.vt = VT_UI4;
+	arg.vt = VT_COLOR;
 	arg.ulVal = QColorToOLEColor( var.toColor() );
 	break;
     case QVariant::Font:
@@ -266,6 +266,10 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	break;
     case VT_ERROR:
     case VT_I4:
+	if ( !qstrcmp( hint, "QColor" ) ) {
+	    var = OLEColorToQColor( arg.ulVal );
+	    break;
+	}
 	var = (int)arg.lVal;
 	break;
     case VT_R4:
@@ -323,7 +327,6 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	//var = (int)arg.punkVal; ###
 	break;
     case VT_USERDEFINED:
-	var = OLEColorToQColor( arg.ulVal );
 	break;
     case VT_EMPTY:
 	// empty VARIANT type return
