@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#311 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#312 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -247,6 +247,7 @@ static void free_gc( Display *dpy, GC gc, bool privateGC = FALSE )
 		XSetClipMask( dpy, gc, None );	// make it reusable
 		XSetFunction( dpy, gc, GXcopy );
 		XSetFillStyle( dpy, gc, FillSolid );
+		XSetTSOrigin( dpy, gc, 0, 0 );
 		return;
 	    }
 	    p++;
