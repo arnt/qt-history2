@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#8 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Windows
 **
@@ -19,7 +19,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_win.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_win.cpp#8 $";
 #endif
 
 
@@ -32,23 +32,44 @@ QFont *QFont::defFont = 0;			// default font
 
 QFontData::QFontData()
 {
-    stockFont = FALSE;
+    stockFont = TRUE;
     hfont = hdc = 0;
     tm = 0;
 }
 
 QFontData::~QFontData()
 {
-    if ( !stockFont && hfont )
-	DeleteObject( hfont );
     if ( tm )
 	delete tm;
-    if ( hfont ) {
+    if ( hfont && !stockFont ) {
+#if defined(DEBUG)
 	ASSERT( hdc );
+#endif
 	DeleteObject( SelectObject(hdc,GetStockObject(SYSTEM_FONT)) );
     }
     if ( hdc )
 	DeleteDC( hdc );
+}
+
+QFontData &QFontData::operator=( const QFontData &d )
+{
+    req = d.req;
+    lineW = d.lineW;
+    req.dirty = TRUE;				// reload font later
+    if ( tm )
+	delete tm;
+    if ( hfont && !stockFont ) {
+#if defined(DEBUG)
+	ASSERT( hdc );
+#endif
+	DeleteObject( SelectObject(hdc,GetStockObject(SYSTEM_FONT)) );
+    }
+    if ( hdc )
+	DeleteDC( hdc );
+
+    stockFont = TRUE;
+    hdc = hfont = 0;
+    tm = 0;
 }
 
 
@@ -201,12 +222,17 @@ void QFont::loadFont() const
     }
 
     const char *familyName = QFont::substitute( d->req.family );
+    int weight;
+    if ( d->req.weight == 50 )
+	weight = FW_DONTCARE;
+    else
+	weight = (d->req.weight*900)/99;
     d->hfont = CreateFont(
 	d->req.pointSize/10,			// height
 	0,					// width
 	0,					// escapement
 	0,					// orientation
-	d->req.weight * 10,			// weight
+	weight,					// weight
 	d->req.italic,				// italic
 	d->req.underline,			// underline
 	d->req.strikeOut,			// strikeout
@@ -306,7 +332,7 @@ int QFontMetrics::width( const char *str, int len ) const
 	return 0;
     if ( len < 0 )
 	len = strlen( str );
-    HDC	 hdc;
+    HDC	hdc;
     if ( data.widget ) {
 	QFont f = data.w->font();
 	hdc = f.d->hdc;
@@ -324,11 +350,11 @@ int QFontMetrics::width( const char *str, int len ) const
 
 QRect QFontMetrics::boundingRect( const char *str, int len ) const
 {
-    if ( !data.w && !data.p )
+    if ( !data.w )
 	return QRect(0,0,0,0);
     if ( len < 0 )
 	len = strlen( str );
-    HDC	 hdc;
+    HDC hdc;
     TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( data.widget, data.w );
     if ( !tm )
 	return QRect( 0, 0, 0, 0 );
