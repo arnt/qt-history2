@@ -128,6 +128,7 @@ void P4FStat::processExited()
 		    p4i->controlled = TRUE;
 		    p4i->action = P4Info::None;
 		    p4i->depotFile = QStringList::split( ' ', dfEntry[0] )[2];
+		    p4i->depotFile = p4i->depotFile.stripWhiteSpace();
 		    QStringList actionEntry = entries.grep( "... action" );
 		    if ( actionEntry.count() ) {
 			QString act = QStringList::split( ' ', actionEntry[0] )[2];	    // Get current action
