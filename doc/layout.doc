@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: layout.doc,v 2.2 1999/04/23 11:48:50 paul Exp $
+** $Id: layout.doc,v 2.3 1999/04/26 20:45:16 paul Exp $
 **
 ** Explanation of the layout subsystem
 **
@@ -73,6 +73,17 @@ complex layouts, you can nest layout widgets inside each other.
 	<br><img src="qgrid.gif" alt="Two-column QGrid with five children.">
 </dl>
 
+The grid above can be produced by the following code:
+\code
+    QGrid *main = new QGrid( 2 ); // a 2 x n grid
+    new QLabel( "One", main );
+    new QLabel( "Two", main );
+    new QLabel( "Three", main );
+    new QLabel( "Four", main );
+    new QLabel( "Five", main );
+\endcode
+
+
 You can adjust the layout somewhat by calling \link
 QWidget::setMinimumSize() setMinimumSize()\endlink or 
 \link QWidget::setFixedSize() setFixedSize()\endlink on
@@ -81,23 +92,60 @@ the children.
 <h2>QLayout</h2>
 
 If you need more control over the layout, use a \link QLayout QLayout\endlink
- subclass. Currently Qt includes \link QGridLayout QGridLayout\endlink and 
-\link QBoxLayout QBoxLayout\endlink.
-<p>
+ subclass. The layout classes included in Qt 2.0 are \link QGridLayout
+ QGridLayout\endlink and \link QBoxLayout QBoxLayout\endlink.
+(\link QHBoxLayout  QHBoxLayout\endlink and 
+\link QVBoxLayout  QVBoxLayout\endlink are trivial subclasses of QBoxLayout,
+that are simpler to use and make the code easier to read.)
 
+<p>
 When you use a layout, you have to insert each child both into its
 parent widget (done in the constructor) and into its layout (typically
 done with a function called \c addWidget()). This way, you can give
 layout parameters for each widget, specifying properties like
 alignment, stretch, and placement.
+<p>
+The following code makes a grid like the one above:
+\code
+    QWidget *main = new QWidget;
+    //make a 1x1 grid, it will auto-expand:
+    QGridLayout *grid = new QGridLayout( main, 1, 1 ); 
+    grid->addWidget( new QLabel( "One", main ), 0, 0 );
+    grid->addWidget( new QLabel( "Two", main ), 0, 1 );
+    grid->addWidget( new QLabel( "Three", main ), 1, 0 );
+    grid->addWidget( new QLabel( "Four", main ), 1, 1 );
+    grid->addWidget( new QLabel( "Five", main ), 2, 0 );
+\endcode
+
+<p>
+
+You can insert layouts inside a layout by giving the parent layout as
+a parameter in the constructor. 
+\code
+    QWidget *main = new QWidget;
+
+    QVBoxLayout *vbox = new QVBoxLayout( main ); 
+    vbox->addWidget( new QLabel( "Where do you want to go?", main ) );
+    QLineEdit *lined = new QLineEdit( main );
+    vbox->addWidget( lined );
+
+    QHBoxLayout *buttons = new QHBoxLayout( vbox );
+    QPushButton *ok = new QPushButton( "OK", main );
+    buttons->addWidget( ok );
+    QPushButton *cancel = new QPushButton( "Cancel", main );
+    buttons->addWidget( cancel );
+\endcode
+If you are not satisfied with the
+default placement, you can create the layout without a parent and
+then insert it with \c addLayout().
 
 <h2>Custom Layouts</h2>
 
 If the built-in layout classes are not sufficient, you can define your
 own. You will have to make a subclass of \link QLayout QLayout\endlink
- that handles resizing
-and size calculations, and a subclass of \link QGLayoutIterator QGLayoutIterator\endlink to iterate
-over your layout class.
+that handles resizing and size calculations, as well as a subclass of
+\link QGLayoutIterator QGLayoutIterator\endlink to iterate over your
+layout class.
 
 <h2>Custom Widgets In Layouts</h2>
 
