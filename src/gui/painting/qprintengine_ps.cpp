@@ -3786,8 +3786,8 @@ void QPSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF
 {
     QImage img = pm.toImage();
     QImage mask;
-    if (mode == Qt::ComposePixmap && pm.mask())
-        mask = pm.mask()->toImage();
+    if (mode == Qt::ComposePixmap && pm.hasAlphaChannel())
+        mask = pm.mask().toImage();
     d->drawImage(r.x(), r.y(), r.width(), r.height(), img.copy(sr.toRect()), mask.copy(sr.toRect()));
 }
 

@@ -66,25 +66,17 @@ QBitmap::QBitmap()
 
 
 /*!
-    \fn QBitmap::QBitmap(int width, int height, bool clear, QPixmap::Optimization optimization)
+    \fn QBitmap::QBitmap(int width, int height, bool clear)
 
     Constructs a bitmap with the given \a width and \a height.
 
     The pixels in the bitmap are uninitialized if \a clear is false;
     otherwise it is filled with pixel value 0 (the QColor \c
     Qt::color0).
-
-    The optional \a optimization argument specifies the optimization
-    setting for the bitmap. The default optimization should be used in
-    most cases. Games and other pixmap-intensive applications may
-    benefit from setting this argument; see \l{QPixmap::Optimization}.
-
-    \sa QPixmap::setOptimization(), QPixmap::setDefaultOptimization()
 */
 
-QBitmap::QBitmap(int w, int h, bool clear,
-                  QPixmap::Optimization optimization)
-    : QPixmap(w, h, 1, optimization)
+QBitmap::QBitmap(int w, int h, bool clear)
+    : QPixmap(w, h, 1)
 {
     data->bitmap = true;
     if (clear)
@@ -100,16 +92,10 @@ QBitmap::QBitmap(int w, int h, bool clear,
     The pixels in the bitmap are uninitialized if \a clear is false;
     otherwise it is filled with pixel value 0 (the QColor \c
     Qt::color0).
-
-    The optional \a optimization argument specifies the optimization
-    setting for the bitmap. The default optimization should be used in
-    most cases. Games and other pixmap-intensive applications may
-    benefit from setting this argument; see \l{QPixmap::Optimization}.
 */
 
-QBitmap::QBitmap(const QSize &size, bool clear,
-                  QPixmap::Optimization optimization)
-    : QPixmap(size, 1, optimization)
+QBitmap::QBitmap(const QSize &size, bool clear)
+    : QPixmap(size, 1)
 {
     data->bitmap = true;
     if (clear)
@@ -244,13 +230,13 @@ QBitmap &QBitmap::operator=(const QBitmap &bitmap)
 QBitmap &QBitmap::operator=(const QPixmap &pixmap)
 {
     if (pixmap.isNull()) {                        // a null pixmap
-        QBitmap bm(0, 0, false, pixmap.optimization());
+        QBitmap bm(0, 0, false);
         QBitmap::operator=(bm);
     } else if (pixmap.depth() == 1) {                // 1-bit pixmap
         if (pixmap.isQBitmap()) {                // another QBitmap
             QPixmap::operator=(pixmap);                // shallow assignment
         } else {                                // not a QBitmap, but 1-bit
-            QBitmap bm(pixmap.size(), false, pixmap.optimization());
+            QBitmap bm(pixmap.size(), false);
             QPainter p(&bm);
             p.drawPixmap(0, 0, pixmap);
             p.end();

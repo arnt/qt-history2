@@ -87,7 +87,6 @@ QAlphaWidget::QAlphaWidget(QWidget* w, Qt::WFlags f)
     setEnabled(false);
 #endif
 
-    pm.setOptimization(QPixmap::BestOptim);
     setAttribute(Qt::WA_NoSystemBackground, true);
     widget = (QAccessWidget*)w;
     alpha = 0;
@@ -353,7 +352,6 @@ QRollEffect::QRollEffect(QWidget* w, Qt::WFlags f, DirFlags orient)
     if (orientation & (DownScroll|UpScroll))
         currentHeight = 0;
 
-    pm.setOptimization(QPixmap::BestOptim);
     pm = QPixmap::grabWidget(widget);
 }
 

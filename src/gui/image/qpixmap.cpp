@@ -86,21 +86,6 @@
     also loadFromData(). You can obtain a transformed version of the
     pixmap using transform().
 
-    \section1 Note Regarding Windows 95 and 98
-
-    The system may crash if you create more than about 1000 pixmaps,
-    independent of the size of the pixmaps or installed RAM. Windows
-    NT systems (including Windows 2000 and XP) do not have the same
-    limitation, but depending on the graphics equipment the system
-    will fail to allocate pixmap objects when it runs out of GDI
-    resources.
-
-    Qt tries to work around the resource limitation. If you set the
-    pixmap optimization to QPixmap::MemoryOptim and the width of
-    your pixmap is less than or equal to 128 pixels, Qt stores the
-    pixmap in a way that is very memory-efficient when there are many
-    pixmaps.
-
     \sa QBitmap, QImage, QImageReader, {shclass.html}{Shared Classes}
 */
 
@@ -118,55 +103,15 @@
 */
 
 /*!
-    \enum QPixmap::Optimization
-
-    QPixmap has the choice of optimizing for speed or memory in a few
-    places; the best choice varies from pixmap to pixmap but can
-    generally be derived heuristically. This enum type defines a
-    number of optimization modes that you can set for any pixmap to
-    tweak the speed/memory tradeoffs:
-
-    \value DefaultOptim  Whatever QPixmap::defaultOptimization()
-        returns. A pixmap with this optimization will have whatever
-        the current default optimization is. If the default
-        optimization is changed using setDefaultOptimization(), then
-        this will not effect any pixmaps that have already been
-        created.
-
-    \value NoOptim  No optimization (currently the same as \c
-        MemoryOptim).
-
-    \value MemoryOptim  Optimize for minimal memory use on Windows
-        9x and X11 systems.
-
-    \value NormalOptim  Optimize for typical usage. Often uses more
-        memory than \c MemoryOptim, and is often faster.
-
-    \value BestOptim  Optimize for pixmaps that are drawn very often
-        and where performance is critical. Generally uses more memory
-        than \c NormalOptim and may provide a little more speed.
-
-    \value LoadOptim  Optimize for pixmaps that are loaded from disk
-                      rather than stored in memory.
-
-    We recommend using \c DefaultOptim.
-
-*/
-
-QPixmap::Optimization QPixmap::defOptim = QPixmap::NormalOptim;
-
-
-/*!
     \internal
 
-    Private constructor that takes the bitmap flag, the optimization,
-    and a screen.
+    Private constructor that takes the bitmap flag and a screen.
 */
 
-QPixmap::QPixmap(int w, int h, int depth, bool bitmap, Optimization optimization)
+QPixmap::QPixmap(int w, int h, int depth, bool bitmap)
     : QPaintDevice(QInternal::Pixmap)
 {
-    init(w, h, depth, bitmap, optimization);
+    init(w, h, depth, bitmap);
 }
 
 
@@ -179,26 +124,12 @@ QPixmap::QPixmap(int w, int h, int depth, bool bitmap, Optimization optimization
 QPixmap::QPixmap()
     : QPaintDevice(QInternal::Pixmap)
 {
-    init(0, 0, 0, false, defOptim);
-}
-
-/*!
-    Constructs a pixmap from the QImage \a image.
-
-    \sa fromImage()
-*/
-
-QPixmap::QPixmap(const QImage& image)
-    : QPaintDevice(QInternal::Pixmap)
-{
-    init(0, 0, 0, false, defOptim);
-    fromImage(image);
+    init(0, 0, 0, false);
 }
 
 /*!
     Constructs a pixmap with \a w width, \a h height and \a depth bits
-    per pixel. The pixmap is optimized in accordance with the \a
-    optimization value.
+    per pixel.
 
     The contents of the pixmap is uninitialized.
 
@@ -208,26 +139,25 @@ QPixmap::QPixmap(const QImage& image)
 
     If either \a w or \a h is zero, a null pixmap is constructed.
 
-    \sa isNull() QPixmap::Optimization
+    \sa isNull()
 */
 
-QPixmap::QPixmap(int w, int h, int depth, Optimization optimization)
+QPixmap::QPixmap(int w, int h, int depth)
     : QPaintDevice(QInternal::Pixmap)
 {
-    init(w, h, depth, false, optimization);
+    init(w, h, depth, false);
 }
 
 /*!
     \overload
 
-    Constructs a pixmap of size \a size, \a depth bits per pixel,
-    optimized in accordance with the \a optimization value.
+    Constructs a pixmap of size \a size, \a depth bits per pixel.
 */
 
-QPixmap::QPixmap(const QSize &size, int depth, Optimization optimization)
+QPixmap::QPixmap(const QSize &size, int depth)
     : QPaintDevice(QInternal::Pixmap)
 {
-    init(size.width(), size.height(), depth, false, optimization);
+    init(size.width(), size.height(), depth, false);
 }
 
 #ifndef QT_NO_IMAGEIO
@@ -248,20 +178,17 @@ QPixmap::QPixmap(const QSize &size, int depth, Optimization optimization)
     to embed images and other resource files in the application's
     executable.
 
-    The way the pixmap is handled is specified by \a optimization.
-
     If the image needs to be modified to fit in a lower-resolution
     result (e.g. converting from 32-bit to 8-bit), use the \a
     flags to specify how you'd prefer this to happen.
 
-    \sa Qt::ImageConversionFlags isNull() load() loadFromData() save() imageFormat() Optimization
+    \sa Qt::ImageConversionFlags isNull() load() loadFromData() save() imageFormat()
 */
 
-QPixmap::QPixmap(const QString& fileName, const char *format,
-                 Qt::ImageConversionFlags flags, Optimization optimization)
+QPixmap::QPixmap(const QString& fileName, const char *format, Qt::ImageConversionFlags flags)
     : QPaintDevice(QInternal::Pixmap)
 {
-    init(0, 0, 0, false, optimization);
+    init(0, 0, 0, false);
     load(fileName, format, flags);
 }
 #endif //QT_NO_IMAGEIO
@@ -309,7 +236,7 @@ QPixmap::QPixmap(const QPixmap &pixmap)
 QPixmap::QPixmap(const char * const xpm[])
     : QPaintDevice(QInternal::Pixmap)
 {
-    init(0, 0, 0, false, defOptim);
+    init(0, 0, 0, false);
 
     QImage image(xpm);
     if (!image.isNull())
@@ -339,7 +266,7 @@ QPixmap QPixmap::copy(bool) const
     int old = x11SetDefaultScreen(data->xinfo.screen());
 #endif // Q_WS_X11
 
-    QPixmap pm(data->w, data->h, data->d, data->bitmap, data->optim);
+    QPixmap pm(data->w, data->h, data->d, data->bitmap);
 
     QPainter painter(&pm);
     painter.drawPixmap(QPoint(0, 0), *this, Qt::CopyPixmap);
@@ -369,8 +296,7 @@ QPixmap &QPixmap::operator=(const QPixmap &pixmap)
     pixmap.data->ref();                                // avoid 'x = x'
     deref();
     if (pixmap.paintingActive()) {                // make a deep copy
-        init(pixmap.width(), pixmap.height(), pixmap.depth(),
-              pixmap.data->bitmap, pixmap.data->optim);
+        init(pixmap.width(), pixmap.height(), pixmap.depth(), pixmap.data->bitmap);
         data->uninit = false;
         if (!isNull()) {
             QPainter p(this);
@@ -381,22 +307,6 @@ QPixmap &QPixmap::operator=(const QPixmap &pixmap)
         data = pixmap.data;
         devFlags = pixmap.devFlags;                // copy QPaintDevice flags
     }
-    return *this;
-}
-
-
-/*!
-    \overload
-
-    Converts the image \a image to a pixmap that is assigned to this
-    pixmap. Returns a reference to the pixmap.
-
-    \sa fromImage().
-*/
-
-QPixmap &QPixmap::operator=(const QImage &image)
-{
-    fromImage(image);
     return *this;
 }
 
@@ -563,7 +473,7 @@ void QPixmap::resize(const QSize &s)
 void QPixmap::resize(int w, int h)
 {
     if (w < 1 || h < 1) {                        // becomes null
-        QPixmap pm(0, 0, 0, data->bitmap, data->optim);
+        QPixmap pm(0, 0, 0, data->bitmap);
         *this = pm;
         return;
     }
@@ -573,7 +483,7 @@ void QPixmap::resize(int w, int h)
     else
         d = isQBitmap() ? 1 : -1;
     // Create new pixmap
-    QPixmap pm(w, h, d, data->bitmap, data->optim);
+    QPixmap pm(w, h, d, data->bitmap);
 #ifdef Q_WS_X11
     pm.x11SetScreen(data->xinfo.screen());
 #endif // Q_WS_X11
@@ -601,15 +511,15 @@ void QPixmap::resize(int w, int h)
 
 
 /*!
-    \fn const QBitmap *QPixmap::mask() const
+    \fn QBitmap QPixmap::mask() const
 
     Returns the mask bitmap, or 0 if no mask has been set.
 
     \sa setMask(), QBitmap, hasAlpha()
 */
-const QBitmap *QPixmap::mask() const
+QBitmap QPixmap::mask() const
 {
-    return data->mask;
+    return *data->mask;
 }
 
 
@@ -637,6 +547,8 @@ const QBitmap *QPixmap::mask() const
 
 void QPixmap::setMask(const QBitmap &newmask)
 {
+    // #####################
+#if 0
     const QPixmap *tmp = &newmask;                // dec cxx bug
     if (data == tmp->data) {
         QPixmap m = tmp->copy(true);
@@ -678,6 +590,7 @@ void QPixmap::setMask(const QBitmap &newmask)
     newmaskcopy->x11SetScreen(data->xinfo.screen());
 #endif
     data->mask = newmaskcopy;
+#endif
 }
 
 
@@ -783,7 +696,9 @@ bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConvers
     if (QPixmapCache::find(key, *this))
             return true;
     QImage image = QImageReader(fileName, format).read();
-    if (!image.isNull() && fromImage(image, flags)) {
+    QPixmap pm = fromImage(image, flags);
+    if (!pm.isNull()) {
+        *this = pm;
         QPixmapCache::insert(key, *this);
         return true;
     }
@@ -816,8 +731,11 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Qt::I
     b.open(QIODevice::ReadOnly);
 
     QImage image = QImageReader(&b, format).read();
-    if (!image.isNull())
-        return fromImage(image, flags);
+    QPixmap pm = fromImage(image, flags);
+    if (!pm.isNull()) {
+        *this = pm;
+        return true;
+    }
     return false;
 }
 
@@ -921,59 +839,6 @@ int QPixmap::serialNumber() const
         return 0;
     else
         return data->ser_no;
-}
-
-
-/*!
-    \fn QPixmap::Optimization QPixmap::optimization() const
-
-    Returns the optimization setting for this pixmap.
-
-    The default optimization setting is \c QPixmap::NormalOptim. You
-    can change this setting in two ways:
-    \list
-    \i Call setDefaultOptimization() to set the default optimization
-    for all new pixmaps.
-    \i Call setOptimization() to set the optimization for individual
-    pixmaps.
-    \endlist
-
-    \sa setOptimization(), setDefaultOptimization(), defaultOptimization()
-*/
-
-QPixmap::Optimization QPixmap::optimization() const
-{
-    return data->optim;
-}
-
-
-/*!
-    Returns the default pixmap optimization setting.
-
-    \sa setDefaultOptimization(), setOptimization(), optimization()
-*/
-
-QPixmap::Optimization QPixmap::defaultOptimization()
-{
-    return defOptim;
-}
-
-/*!
-    Sets the default pixmap optimization.
-
-    All \e new pixmaps that are created will use this default
-    optimization. You may also set optimization for individual pixmaps
-    using the setOptimization() function.
-
-    The initial default \a optimization setting is \c QPixmap::Normal.
-
-    \sa defaultOptimization(), setOptimization(), optimization()
-*/
-
-void QPixmap::setDefaultOptimization(Optimization optimization)
-{
-    if (optimization != DefaultOptim)
-        defOptim = optimization;
 }
 
 /*
@@ -1125,8 +990,36 @@ static Qt::ImageConversionFlags colorModeToFlags(QPixmap::ColorMode mode)
 QPixmap::QPixmap(const QString& fileName, const char *format, ColorMode mode)
     : QPaintDevice(QInternal::Pixmap)
 {
-    init(0, 0, 0, false, defOptim);
+    init(0, 0, 0, false);
     load(fileName, format, colorModeToFlags(mode));
+}
+
+/*!
+    Constructs a pixmap from the QImage \a image.
+
+    \sa fromImage()
+*/
+
+QPixmap::QPixmap(const QImage& image)
+    : QPaintDevice(QInternal::Pixmap)
+{
+    init(0, 0, 0, false);
+    fromImage(image);
+}
+
+/*!
+    \overload
+
+    Converts the image \a image to a pixmap that is assigned to this
+    pixmap. Returns a reference to the pixmap.
+
+    \sa fromImage().
+*/
+
+QPixmap &QPixmap::operator=(const QImage &image)
+{
+    fromImage(image);
+    return *this;
 }
 
 /*!
@@ -1157,7 +1050,8 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Color
 */
 bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
 {
-    return fromImage(image, colorModeToFlags(mode));
+    *this = fromImage(image, colorModeToFlags(mode));
+    return !isNull();
 }
 
 #endif

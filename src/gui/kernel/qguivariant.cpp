@@ -481,7 +481,7 @@ static bool convert(const QVariant::Private *d, QVariant::Type t,
     }
     case QVariant::Pixmap:
         if (d->type == QVariant::Image) {
-            *static_cast<QPixmap *>(result) = *v_cast<QImage>(d);
+            *static_cast<QPixmap *>(result) = QPixmap::fromImage(*v_cast<QImage>(d));
             return true;
         } else if (d->type == QVariant::Bitmap) {
             *static_cast<QPixmap *>(result) = *v_cast<QBitmap>(d);

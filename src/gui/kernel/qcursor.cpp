@@ -185,14 +185,14 @@ QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
     QImage img = pixmap.toImage().convertDepth(8, Qt::ThresholdDither|Qt::AvoidDither);
     QBitmap bm;
     bm.fromImage(img, Qt::ThresholdDither|Qt::AvoidDither);
-    QBitmap bmm;
-    if (bm.mask()) {
-        bmm = *bm.mask();
+    // #################### PIXMAP
+    QBitmap bmm = bm.mask();
+    if (!bmm.isNull()) {
         QBitmap nullBm;
         bm.setMask(nullBm);
     }
-    else if (pixmap.mask()) {
-        QImage mimg = pixmap.mask()->toImage().convertDepth(8, Qt::ThresholdDither|Qt::AvoidDither);
+    else if (!pixmap.mask().isNull()) {
+        QImage mimg = pixmap.mask().toImage().convertDepth(8, Qt::ThresholdDither|Qt::AvoidDither);
         bmm.fromImage(mimg, Qt::ThresholdDither|Qt::AvoidDither);
     }
     else {

@@ -440,8 +440,6 @@ void qt_draw_tile(QPaintEngine *gc, qreal x, qreal y, qreal w, qreal h,
 void QPaintEngine::drawTiledPixmap(const QRectF &rect, const QPixmap &pixmap, const QPointF &p,
                                    Qt::PixmapDrawingMode mode)
 {
-    QBitmap *mask = (QBitmap *)pixmap.mask();
-
     int sw = pixmap.width();
     int sh = pixmap.height();
 
@@ -453,19 +451,15 @@ void QPaintEngine::drawTiledPixmap(const QRectF &rect, const QPixmap &pixmap, co
             th *= 2;
         QPixmap tile;
         if (pixmap.hasAlphaChannel()) {
+            // ####################
             QImage image(tw, th, 32);
             image.fill(QColor(255, 0, 0, 127).rgb());
             image.setAlphaBuffer(true);
-            tile = image;
+            tile = QPixmap::fromImage(image);
         } else {
-            tile = QPixmap(tw, th, pixmap.depth(), QPixmap::BestOptim);
+            tile = QPixmap(tw, th, pixmap.depth());
         }
         qt_fill_tile(&tile, pixmap);
-        if (mask) {
-            QBitmap tilemask(tw, th, false, QPixmap::NormalOptim);
-            qt_fill_tile(&tilemask, *mask);
-            tile.setMask(tilemask);
-        }
         qt_draw_tile(this, rect.x(), rect.y(), rect.width(), rect.height(), tile, p.x(), p.y(), mode);
     } else {
         qt_draw_tile(this, rect.x(), rect.y(), rect.width(), rect.height(), pixmap, p.x(), p.y(), mode);
@@ -934,7 +928,7 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
                 ++i;
             }
 
-            pm = img;
+            pm = QPixmap::fromImage(img);
             state->painter->drawPixmap(qRound(p.x()), qRound(p.y() - ti.ascent), pm);
         }
     }

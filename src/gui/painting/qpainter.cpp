@@ -3037,21 +3037,24 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
     // If we have CopyPixmap we copy the mask (only the mask, not the
     // alpha channel, which is copied elsewhere) from the source to
     // the target device if it is a pixmap
-    if (d->device->devType() == QInternal::Pixmap && pm.mask() && !pm.hasAlphaChannel()) {
+    // ################ PIXMAP
+    if (d->device->devType() == QInternal::Pixmap && /* pm.mask() &&*/ !pm.hasAlphaChannel()) {
         if (mode == Qt::CopyPixmap) {
             QPixmap *p = static_cast<QPixmap *>(d->device);
             QBitmap bitmap(p->width(), p->height());
             bitmap.fill(Qt::color0);
             QPainter pt(&bitmap);
             pt.setPen(Qt::color1);
-            const QBitmap *mask = pm.mask();
+            QBitmap mask = pm.mask();
             //Q_ASSERT(!mask->mask());
-            pt.drawPixmap(r, *mask, sr);
+            pt.drawPixmap(r, mask, sr);
             pt.end();
             p->setMask(bitmap);
         } else if (mode == Qt::ComposePixmap) {
             QPixmap *p = static_cast<QPixmap *>(d->device);
             QBitmap bitmap;
+#if 0
+            // ################# PIXMAP
             if (p->mask()) {
                 bitmap = *p->mask();
                 QPainter pt(&bitmap);
@@ -3062,6 +3065,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                 pt.end();
                 p->setMask(bitmap);
             }
+#endif
         }
     }
 }
@@ -3509,7 +3513,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
             QImage img(qRound(r.width()), qRound(r.height()), 32);
             img.setPixel(0, 0, QColor(255, 0, 0, 127).rgba());
             img.setAlphaBuffer(true);
-            pm = img;
+            pm = QPixmap::fromImage(img);
         } else {
             pm = QPixmap(qRound(r.width()), qRound(r.height()));
         }

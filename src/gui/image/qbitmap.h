@@ -22,10 +22,8 @@ class Q_GUI_EXPORT QBitmap : public QPixmap
 {
 public:
     QBitmap();
-    QBitmap(int w, int h, bool clear = false,
-            QPixmap::Optimization = QPixmap::DefaultOptim);
-    explicit QBitmap(const QSize &, bool clear = false,
-                     QPixmap::Optimization = QPixmap::DefaultOptim);
+    QBitmap(int w, int h, bool clear = false);
+    explicit QBitmap(const QSize &, bool clear = false);
     QBitmap(int w, int h, const uchar *bits, bool isXbitmap=false);
     QBitmap(const QSize &, const uchar *bits, bool isXbitmap=false);
     QBitmap(const QBitmap &);

@@ -482,8 +482,6 @@ void QBrush::setTexture(const QPixmap &pixmap)
         detach(Qt::TexturePattern);
         QTexturedBrushData *data = static_cast<QTexturedBrushData *>(d);
         data->pixmap = pixmap;
-        if (data->pixmap.optimization() == QPixmap::MemoryOptim)
-            data->pixmap.setOptimization(QPixmap::NormalOptim);
     } else {
         detach(Qt::NoBrush);
     }

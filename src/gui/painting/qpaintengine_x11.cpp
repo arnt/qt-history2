@@ -1293,11 +1293,14 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
 		sw != pm->width() || sh != pm->height() || ignoreMask) {
                 QPixmap *tmp = new QPixmap(sw, sh, pm->depth());
                 qt_bit_blt(tmp, 0, 0, pm, sx, sy, sw, sh, true);
+#if 0
+                // ############## PIXMAP
                 if (pm->mask() && !ignoreMask) {
                     QBitmap mask(sw, sh);
                     qt_bit_blt(&mask, 0, 0, pm->mask(), sx, sy, sw, sh, true);
                     tmp->setMask(mask);
                 }
+#endif
                 pm = tmp;
             } else {
                 tmp_pm = false;
@@ -1422,24 +1425,13 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
         if (mask->data->maskgc) {
             gc = (GC)mask->data->maskgc;        // we have a premade mask GC
         } else {
-            if (false && src_pm->optimization() == QPixmap::NormalOptim) { // cache disabled
-                // Compete for the global cache
-                gc = cache_mask_gc(dpy, qt_x11Handle(dst),
-				   mask->data->ser_no,
-				   mask->handle());
-            } else {
-                // Create a new mask GC. If BestOptim, we store the mask GC
-                // with the mask (not at the pixmap). This way, many pixmaps
-                // which have a common mask will be optimized at no extra cost.
-                gc = XCreateGC(dpy, qt_x11Handle(dst), 0, 0);
-                XSetGraphicsExposures(dpy, gc, False);
-		XSetClipMask(dpy, gc, mask->handle());
-                if (src_pm->optimization() == QPixmap::BestOptim) {
-                    mask->data->maskgc = gc;
-                } else {
-                    temp_gc = true;
-                }
-            }
+            // Create a new mask GC. If BestOptim, we store the mask GC
+            // with the mask (not at the pixmap). This way, many pixmaps
+            // which have a common mask will be optimized at no extra cost.
+            gc = XCreateGC(dpy, qt_x11Handle(dst), 0, 0);
+            XSetGraphicsExposures(dpy, gc, False);
+            XSetClipMask(dpy, gc, mask->handle());
+            temp_gc = true;
         }
         XSetClipOrigin(dpy, gc, dx-sx, dy-sy);
         if (include_inferiors) {
@@ -1529,6 +1521,8 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
 
     QPixmap::x11SetDefaultScreen(pixmap.x11Info().screen());
 
+#if 0
+    // ############## PIXMAP
     QBitmap *mask = 0;
     if(mode != Qt::CopyPixmapNoMask && !pixmap.hasAlphaChannel())
         mask = const_cast<QBitmap *>(pixmap.mask());
@@ -1608,7 +1602,6 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         XSetClipMask(d->dpy, d->gc, mask->handle());
         XSetClipOrigin(d->dpy, d->gc, x, y);
     }
-
     /* if (mono_src && mono_dst) {
         XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
         } else*/
@@ -1662,6 +1655,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
             XSetClipRectangles(d->dpy, d->gc, 0, 0, rects, num, Unsorted);
         delete mask;                            // delete comb, created above
     }
+#endif
 }
 
 void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
@@ -1756,6 +1750,8 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     int sx = qRound(p.x());
     int sy = qRound(p.y());
 
+#if 0
+    // ################# PIXMAP
     if (pixmap.mask() == 0 && pixmap.depth() > 1 && d->txop <= QPainterPrivate::TxTranslate) {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         if (d->picture && pixmap.xftPictureHandle()) {
@@ -1796,6 +1792,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     } else {
 	qt_draw_tile(this, x, y, w, h, pixmap, sx, sy, mode);
     }
+#endif
 }
 
 static void drawLines(QPaintEngine *p, const QTextItemInt &ti, int baseline, int x1, int w)

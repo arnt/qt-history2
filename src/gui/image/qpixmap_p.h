@@ -101,7 +101,6 @@ struct QPixmapData { // internal pixmap data
     int rh;
     bool hasAlpha;
 #endif
-    QPixmap::Optimization optim;
     QPaintEngine *paintEngine;
 #if !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
     Qt::HANDLE hd;

@@ -251,7 +251,7 @@ static int qt_pixmap_serial = 0;
   \internal
   Initializes the pixmap data.
 */
-void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
+void QPixmap::init(int w, int h, int d, bool bitmap)
 {
     if (qApp->type() == QApplication::Tty) {
         qWarning("QPixmap: Cannot create a QPixmap when no GUI "
@@ -264,7 +264,6 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data->uninit = true;
     data->bitmap = bitmap;
     data->ser_no = ++qt_pixmap_serial;
-    data->optim = optim;
     data->xft_hd = 0;
 
     if (defaultScreen >= 0 && defaultScreen != data->xinfo.screen()) {
@@ -280,9 +279,6 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     }
 
     int dd = ((X11->has_xft && X11->use_xrender) ? 32 : data->xinfo.depth());
-
-    if (optim == DefaultOptim)                // use default optimization
-        optim = defOptim;
 
     bool make_null = w == 0 || h == 0;                // create null pixmap
     if (d == 1)                                // monocrome pixmap
@@ -354,7 +350,7 @@ QPixmapData::~QPixmapData()
 QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     : QPaintDevice(QInternal::Pixmap)
 {                                                // for bitmaps only
-    init(0, 0, 0, false, defOptim);
+    init(0, 0, 0, false);
     if (w <= 0 || h <= 0)                        // create null pixmap
         return;
 
@@ -437,38 +433,6 @@ int QPixmap::defaultDepth()
 {
     return QX11Info::appDepth();
 }
-
-
-/*!
-    Sets pixmap drawing optimization for this pixmap.
-
-    The \a optimization setting affects pixmap operations, in
-    particular drawing of transparent pixmaps (bitBlt() a pixmap with
-    a mask set) and pixmap transformations (the transform() function).
-
-    Pixmap optimization involves keeping intermediate results in a
-    cache buffer and using the cache to speed up
-    QPainter::drawPixmap() and transform().  The cost is more memory
-    consumption, up to twice as much as an unoptimized pixmap.
-
-    Use the setDefaultOptimization() to change the default
-    optimization for all new pixmaps.
-
-    \sa optimization(), setDefaultOptimization(), defaultOptimization()
-*/
-
-void QPixmap::setOptimization(Optimization optimization)
-{
-    if (optimization == data->optim)
-        return;
-    detach();
-    data->optim = optimization == DefaultOptim ? defOptim : optimization;
-    if (data->optim == MemoryOptim && data->ximage) {
-        qSafeXDestroyImage((XImage*)data->ximage);
-        data->ximage = 0;
-    }
-}
-
 
 /*!
     Fills the pixmap with the color \a fillColor.
@@ -597,14 +561,9 @@ QImage QPixmap::toImage() const
         image.setAlphaBuffer(data->alpha);
         memcpy(image.bits(), xi->data, xi->bytes_per_line * xi->height);
 
-        if (data->optim != BestOptim) {
-            // throw away image data
-            qSafeXDestroyImage(xi);
-            const_cast<QPixmap *>(this)->data->ximage = 0;
-        } else {
-            // keep ximage data
-            const_cast<QPixmap *>(this)->data->ximage = xi;
-        }
+        // throw away image data
+        qSafeXDestroyImage(xi);
+        const_cast<QPixmap *>(this)->data->ximage = 0;
 
         return image;
     }
@@ -617,6 +576,8 @@ QImage QPixmap::toImage() const
     if (image.isNull())                        // could not create image
         return image;
 
+#if 0
+    // ############### PIXMAP
     const QPixmap* msk = mask();
     QImage alpha;
     if (msk) {
@@ -842,11 +803,9 @@ QImage QPixmap::toImage() const
                 image.setColor(j++, (msk ? 0xff000000 : 0) | (colors.at(i).rgb() & 0x00ffffff));
         }
     }
-    if (data->optim != BestOptim) {                // throw away image data
-        qSafeXDestroyImage(xi);
-        ((QPixmap*)this)->data->ximage = 0;
-    } else                                        // keep ximage data
-        ((QPixmap*)this)->data->ximage = xi;
+#endif
+    qSafeXDestroyImage(xi);
+    ((QPixmap*)this)->data->ximage = 0;
 
     return image;
 }
@@ -872,13 +831,15 @@ QImage QPixmap::toImage() const
     defaultDepth(), QImage::hasAlphaBuffer()
 */
 
-bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
+QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
 {
+    QPixmap pixmap;
     if (img.isNull()) {
         qWarning("QPixmap::convertFromImage: Cannot convert a null image");
-        return false;
+        return pixmap;
     }
-    detach();                                        // detach other references
+#if 0
+    // ################ PIXMAP
     QImage  image = img;
     const int         w   = image.width();
     const int         h   = image.height();
@@ -886,10 +847,6 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     const int         dd  = ((X11->has_xft && X11->use_xrender) ? 32 : data->xinfo.depth());
     bool force_mono = (dd == 1 || isQBitmap() ||
                        (flags & Qt::ColorMode_Mask)==Qt::MonoOnly);
-
-    // get rid of the mask
-    delete data->mask;
-    data->mask = 0;
 
     // must be monochrome
     if (force_mono) {
@@ -1152,12 +1109,8 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         XPutImage(dpy, data->hd, gc, xi, 0, 0, 0, 0, w, h);
         XFreeGC(dpy, gc);
 
-        if (data->optim != BestOptim) {                // throw away image
-            qSafeXDestroyImage(xi);
-            data->ximage = 0;
-        } else {                                        // keep ximage that we created
-            data->ximage = xi;
-        }
+        qSafeXDestroyImage(xi);
+        data->ximage = 0;
 
         return true;
     }
@@ -1699,12 +1652,8 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     XPutImage(dpy, data->hd, gc, xi, 0, 0, 0, 0, w, h);
     XFreeGC(dpy, gc);
 
-    if (data->optim != BestOptim) {                // throw away image
-        qSafeXDestroyImage(xi);
-        data->ximage = 0;
-    } else {                                        // keep ximage that we created
-        data->ximage = xi;
-    }
+    qSafeXDestroyImage(xi);
+    data->ximage = 0;
     data->w = w;
     data->h = h;
     data->d = dd;
@@ -1715,8 +1664,8 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         setMask(m);
 
     }
-
-    return true;
+#endif
+    return pixmap;
 }
 
 
@@ -1983,12 +1932,8 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
         return pm;
     }
 
-    if (data->optim == NoOptim) {                // throw away ximage
-        qSafeXDestroyImage(xi);
-        data->ximage = 0;
-    } else {                                        // keep ximage that we fetched
-        data->ximage = xi;
-    }
+    qSafeXDestroyImage(xi);
+    data->ximage = 0;
 
     if (depth1) {                                // mono bitmap
         QPixmap pm(w, h, dptr, QImage::systemBitOrder() != QImage::BigEndian);

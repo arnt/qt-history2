@@ -550,11 +550,12 @@ QImage QPixmap::toImage() const
     return image;
 }
 
-bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
+QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
 {
+    QPixmap pixmap;
     if (img.isNull()) {
         qWarning("QPixmap::fromImage: Cannot convert a null image");
-        return false;
+        return pixmap;
     }
 
     QImage  image = img;

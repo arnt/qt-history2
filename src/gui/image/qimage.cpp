@@ -3533,7 +3533,7 @@ bool QImage::operator!=(const QImage & i) const
 */
 int QImage::dotsPerMeterX() const
 {
-    return d->dpmx;
+    return qRound(d->dpmx);
 }
 
 /*!
@@ -3545,7 +3545,7 @@ int QImage::dotsPerMeterX() const
 */
 int QImage::dotsPerMeterY() const
 {
-    return d->dpmy;
+    return qRound(d->dpmy);
 }
 
 /*!
@@ -3728,11 +3728,11 @@ int QImage::metric(PaintDeviceMetric metric) const
         break;
 
     case PdmWidthMM:
-        return d->w * 1000 / d->dpmx;
+        return qRound(d->w * 1000 / d->dpmx);
         break;
 
     case PdmHeightMM:
-        return d->h * 1000 / d->dpmy;
+        return qRound(d->h * 1000 / d->dpmy);
         break;
 
     case PdmNumColors:

@@ -91,11 +91,12 @@ static inline QRgb qt_conv16ToRgb(ushort c) {
     return qRgb(tr,tg,tb);
 }
 
-bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
+QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
 {
+    QPixmap pixmap;
     if(img.isNull()) {
         qWarning("QPixmap::convertFromImage: Cannot convert a null image");
-        return false;
+        return pixmap;
     }
 
     QImage image = img;

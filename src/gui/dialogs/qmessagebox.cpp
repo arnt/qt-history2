@@ -1539,7 +1539,6 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
 #endif
     mb.setText(*translatedTextAboutQt);
 #ifndef QT_NO_IMAGEIO
-    QPixmap pm;
     QImage logo(qtlogo_xpm);
 
     if (qGray(mb.palette().color(QPalette::Active, QPalette::Text).rgb()) >
@@ -1556,7 +1555,8 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
         logo.setColor(9, 0xffffff33);
         logo.setColor(11, 0xffcccc99);
     }
-    if (pm.fromImage(logo))
+    QPixmap pm = QPixmap::fromImage(logo);
+    if (pm.isNull())
         mb.setIconPixmap(pm);
 #endif
     mb.setButtonText(0, tr("OK"));

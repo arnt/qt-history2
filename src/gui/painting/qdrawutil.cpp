@@ -885,9 +885,10 @@ void qDrawItem(QPainter *p, Qt::GUIStyle gs,
             x += w - pm.width();
 
         if (!enabled) {
-            if (pm.mask()) {                        // pixmap with a mask
+            // ################## PIXMAP
+            if (pm.hasAlphaChannel()) {                        // pixmap with a mask
                 if (!pm.selfMask()) {                // mask is not pixmap itself
-                    QPixmap pmm(*pm.mask());
+                    QPixmap pmm(pm.mask());
                     pmm.setMask(*((QBitmap *)&pmm));
                     pm = pmm;
                 }
