@@ -37,7 +37,6 @@
 #include "qbitmap.h"
 #include "qcleanuphandler.h"
 #include "qdockwindow.h"
-#include "qobjectlist.h"
 #include "qmenubar.h"
 
 #if defined(Q_WS_WIN)
