@@ -365,13 +365,10 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         QObject::disconnect(d->model, SIGNAL(rowsInserted(const QModelIndex&,int,int)),
                             this, SLOT(rowsInserted(const QModelIndex&,int,int)));
         QObject::disconnect(d->model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
-                            this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
-
-//         if (static_cast<QObject*>(d->model)->parent() == this)
-//             delete d->model;
+                            this, SLOT(rowsRemoved(const QModelIndex&,int,int)));        
     }
 
-     d->model = model;
+    d->model = model;
 
     if (d->model) {
         QObject::connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
@@ -403,6 +400,8 @@ QAbstractItemModel *QAbstractItemView::model() const
 */
 void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
+    Q_ASSERT(selectionModel);
+
     if (selectionModel && selectionModel->model() != d->model) {
         qWarning("QAbstractItemView::setSelectionModel() failed: Trying to set a selection model,"
                   " which works on a different model than the view.");
@@ -416,9 +415,6 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
                    this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
         disconnect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                    this, SLOT(currentChanged(QModelIndex,QModelIndex)));
-
-        if (d->selectionModel->parent() == this)
-            delete d->selectionModel;
     }
 
     d->selectionModel = selectionModel;
@@ -463,8 +459,6 @@ QItemSelectionModel* QAbstractItemView::selectionModel() const
 void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     Q_ASSERT(delegate);
-    if (d->delegate && d->delegate->parent() == this)
-        delete d->delegate;
     d->delegate = delegate;
 }
 
