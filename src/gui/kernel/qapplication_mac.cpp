@@ -38,7 +38,7 @@
 #include "qvaluelist.h"
 #include "qvariant.h"
 #include "qwidget.h"
-#include "qmenu.h"
+#include "qmenubar.h"
 
 #include "private/qapplication_p.h"
 #include "private/qcolor_p.h"
@@ -393,7 +393,7 @@ void qt_mac_update_os_settings()
             { "QListView", kThemeViewsFont },
             { "QListBox", kThemeViewsFont },
             { "QTitleBar", kThemeWindowTitleFont },
-            { "Q4MenuBar", kThemeMenuTitleFont },
+            { "QMenuBar", kThemeMenuTitleFont },
             { "QMenu", kThemeMenuItemFont },
             { "Q3MenuBar", kThemeMenuTitleFont },
             { "Q3PopupMenu", kThemeMenuItemFont },
@@ -1566,7 +1566,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             request_wakeup_pending = 0;             //do nothing else, we just woke up!
         } else if(ekind == kEventQtRequestMenubarUpdate) {
             request_menubarupdate_pending = 0;
-            Q4MenuBar::macUpdateMenuBar();
+            QMenuBar::macUpdateMenuBar();
         } else if(ekind == kEventQtRequestSelect) {
             request_select_pending = 0;
             QGuiEventLoop *l = 0;
@@ -2327,7 +2327,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                     widget->focusWidget()->setFocus();
                 else
                     widget->setFocus();
-                Q4MenuBar::macUpdateMenuBar();
+                QMenuBar::macUpdateMenuBar();
             }
         } else if(ekind == kEventWindowDeactivated) {
             if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget))
@@ -2354,7 +2354,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                         app->setActiveWindow(tmp_w);
                 }
             }
-            Q4MenuBar::macUpdateMenuBar();
+            QMenuBar::macUpdateMenuBar();
         } else if(ekind == kEventAppDeactivated) {
             while(app->inPopupMode())
                 app->activePopupWidget()->close();
