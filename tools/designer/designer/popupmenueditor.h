@@ -152,6 +152,7 @@ protected:
     void dragMoveEvent( QDragMoveEvent * e );
     void dropEvent( QDropEvent * e );
     void keyPressEvent( QKeyEvent * e );
+    void focusInEvent( QFocusEvent * e );
     void focusOutEvent( QFocusEvent * e );
 
     void drawPopup( QPainter & p );

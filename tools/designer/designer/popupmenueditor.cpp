@@ -1097,14 +1097,19 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
     update();
 }
 
+void PopupMenuEditor::focusInEvent( QFocusEvent * )
+{
+    showCurrentItemMenu();
+    update();
+}
+
 void PopupMenuEditor::focusOutEvent( QFocusEvent * )
 {
-    QWidget * w = qApp->focusWidget();
-    if ( !w || ( !( w->inherits( "PopupMenuEditor" ) ||
-		    w->inherits( "MenuBarEditor" ) ) &&
-		 w != lineEdit ) ) {
+    QWidget * fw = qApp->focusWidget();
+    if ( !fw || ( !( fw->inherits( "PopupMenuEditor" ) ) && fw != lineEdit ) ) {
 	hideCurrentItemMenu();
-	hide();
+	if ( fw && !fw->inherits( "MenuBarEditor" ) )
+	    hide();
     }
 	
 }
@@ -1559,7 +1564,7 @@ void PopupMenuEditor::navigateUp( bool ctrl )
 	}
 	showCurrentItemMenu();
     } else if ( parentMenu ) {
-	parentMenu->update(); //FIXME
+	parentMenu->update(); // FIXME
 	parentMenu->setFocus();
     }
 }

@@ -508,7 +508,7 @@ void MenuBarEditor::showItem( int index )
 	m->move( pos.x(), pos.y() + itemHeight - 1 );
 	m->raise();
 	m->show();
-	m->showCurrentItemMenu();
+	//m->showCurrentItemMenu();
 	setFocus();
     }
 }
@@ -823,8 +823,9 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 void MenuBarEditor::focusOutEvent( QFocusEvent * e )
 {
     MenuBarEditorItem * i = item();
-    PopupMenuEditor * m = ( i ? i->menu() : 0 );
-    if ( e->lostFocus() && m && !m->hasFocus() )
+    QWidget * fw = qApp->focusWidget();
+    if ( e->lostFocus() &&
+	 ( !fw || !fw->inherits( "PopupMenuEditor" ) ) )
 	hideItem();
     update();
 }
