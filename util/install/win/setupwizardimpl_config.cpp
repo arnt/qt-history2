@@ -143,6 +143,14 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-sql-tds";
 
+    entry = settings.readEntry( "/Trolltech/Qt/SQL Drivers/DB2", "Off", &settingsOK );
+    if ( entry == "Direct" )
+	args += "-qt-sql-db2";
+    else if ( entry == "Plugin" )
+	args += "-plugin-sql-db2";
+    else if ( entry == "Off" )
+	args += "-no-sql-db2";
+
 #  if defined(Q_OS_WIN32)
 //TODO: Win only, remove these options from wizard on mac?
     entry = settings.readEntry( "/Trolltech/Qt/Accessibility", "On", &settingsOK );
@@ -563,6 +571,10 @@ void SetupWizardImpl::showPageConfig()
 	folder = new QCheckListItem ( configPage->installList, "Database drivers" );
 	folder->setOpen( true );
 
+	item = new QCheckListItem( folder, "DB2", QCheckListItem::CheckBox );
+	item->setOn( findFile( "db2cli.dll" ) );
+	db2PluginInstall = item;
+
 #if !defined(Q_OS_MACX)
 	item = new QCheckListItem( folder, "TDS", QCheckListItem::CheckBox );
 	item->setOn( findFile( "ntwdblib.dll" ) );
@@ -775,6 +787,21 @@ void SetupWizardImpl::showPageConfig()
 
     QCheckListItem *sqlfolder = new QCheckListItem( configPage->advancedList, "Sql Drivers" );
     sqlfolder->setOpen( true );
+
+    folder = new QCheckListItem( sqlfolder, "DB2" );
+    folder->setOpen( findFile( "db2cli.lib" ) && findFile( "sqlcli1.h" ) );
+    entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/DB2", "Off", &settingsOK );
+    db2Off = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    db2Off->setOn( entry == "Off" );
+    db2Off->setEnabled( enterprise );
+    db2Plugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    db2Plugin->setOn( entry == "Plugin" );
+    db2Plugin->setEnabled( enterprise );
+    db2Direct = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    db2Direct->setOn( entry == "Direct" );
+    db2Direct->setEnabled( enterprise );
+    if ( !enterprise )
+	db2Off->setOn( true );
 
     folder = new QCheckListItem( sqlfolder, "TDS" );
     folder->setOpen( findFile( "ntwdblib.lib" ) && findFile( "sqldb.h" ) );
@@ -1049,6 +1076,15 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 		    "that the ntwdblib.dll is available.</font></p>"
 		    ) );
     }
+    if ( i == db2PluginInstall ) {
+	configPage->explainOption->setText( tr(
+		    "Installs the DB2 driver. This driver can "
+		    "be used to access DB2 databases."
+		    "<p><font color=\"red\">Choosing this option requires "
+		    "that the DB2 Client is installed and set up. "
+		    "The driver depends on the db2cli.dll.</font></p>"
+		    ) );
+    }
     return; // ### at the moment, the other options are not available in the evaluation version
 #endif
     if( mysqlDirect && ( i == mysqlDirect->parent() || i == mysqlDirect || i == mysqlPlugin ) && 
@@ -1070,6 +1106,10 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     if ( tdsDirect && ( i == tdsDirect->parent() || i == tdsDirect || i == tdsPlugin ) &&
 	!(findFile( "ntwdblib.lib" ) && findFile( "sqldb.h" ) ) )
 	QMessageBox::warning( this, "Client libraries needed", "The TDS driver may not build and link properly because\n"
+				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
+    if ( db2Direct && ( i == db2Direct->parent() || i == db2Direct || i == db2Plugin ) &&
+	!(findFile( "db2cli.lib" ) && findFile( "sqlcli1.h" ) ) )
+	QMessageBox::warning( this, "Client libraries needed", "The DB2 driver may not build and link properly because\n"
 				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
     if ( ( i == xpPlugin || i == xpDirect || i == xpPlugin->parent() ) && !findXPSupport() ) {
 	QMessageBox::warning( this, "Platform SDK needed", "The Windows XP style requires a Platform SDK with support for\n"

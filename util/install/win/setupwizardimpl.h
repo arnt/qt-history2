@@ -151,6 +151,7 @@ private:
     QCheckListItem *odbcDirect, *odbcPlugin, *odbcOff;
     QCheckListItem *psqlDirect, *psqlPlugin, *psqlOff;
     QCheckListItem *tdsDirect, *tdsPlugin, *tdsOff;
+    QCheckListItem *db2Direct, *db2Plugin, *db2Off;
     
     QCheckListItem *zlibDirect, *zlibSystem, *zlibOff;
 
@@ -165,6 +166,7 @@ private:
     QCheckListItem *odbcPluginInstall;
     QCheckListItem *psqlPluginInstall;
     QCheckListItem *tdsPluginInstall;
+    QCheckListItem *db2PluginInstall;
 #endif
 
     // wizard pages
