@@ -1973,7 +1973,7 @@ QPointArray QPainter::xFormDev( const QPointArray &ad, int index,
     int x, y, i=index, j=0;
     while ( i<lastPoint ) {
 	ad.point( i++, &x, &y );
-	map( x, y, &x, &y );
+	mapInv( x, y, &x, &y );
 	a.setPoint( j++, x, y );
     }
     return a;
