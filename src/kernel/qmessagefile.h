@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.h#5 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.h#6 $
 **
 ** Definition of something or other
 **
@@ -37,7 +37,7 @@ public:
 
     void insert( uint, const QString & );
     void remove( uint );
-    bool contains( uint ) const;
+    bool contains( uint, const char *, const char * ) const;
 
     static uint hash( const char *, const char * );
 

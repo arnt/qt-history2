@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#9 $
 **
 ** Localization database support.
 **
@@ -544,9 +544,9 @@ void QMessageFile::unsqueeze()
   (This is is a one-liner than calls find().)
 */
 
-bool QMessageFile::contains( uint h ) const
+bool QMessageFile::contains( uint h, const char* scope, const char* key ) const
 {
-    return find( h ) != QString::null;
+    return find( h, scope, key ) != QString::null;
 	
 }
 
