@@ -675,7 +675,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, gly
 	}
 	if ( _scale != 1. ) {
 	    for ( int i = 0; i < len; i++ )
-		advances[i] = (int)(advance[i]*_scale);
+		advances[i] = (int)(advances[i]*_scale);
 	}
     }
 #else
