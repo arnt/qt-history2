@@ -468,7 +468,7 @@ QRegion QRegion::intersect( const QRegion &r ) const
 QRegion QRegion::subtract( const QRegion &r ) const
 {
     if(data->is_null || r.data->is_null )
-	return (!data->is_null ? this : &r)->copy();
+	return copy();
 
     if(data->is_rect)
 	((QRegion *)this)->rectifyRegion();
@@ -507,8 +507,9 @@ static OSStatus qt_mac_get_rgn_rect(UInt16 msg, RgnHandle, const Rect *rect, voi
 {
     if(msg == kQDRegionToRectsMsgParse) {
 	RectList *rl = (RectList *)myd;
-	rl->append(QRect(rect->left, rect->top, (rect->right - rect->left),
-			 (rect->bottom - rect->top)));
+	QRect rct(rect->left, rect->top, (rect->right - rect->left), (rect->bottom - rect->top));
+	if(!rct.isEmpty())
+	    rl->append(rct);
     }
     return noErr;
 }
@@ -516,6 +517,8 @@ static OSStatus qt_mac_get_rgn_rect(UInt16 msg, RgnHandle, const Rect *rect, voi
 QMemArray<QRect> QRegion::rects() const
 {
     if(data->is_rect) {
+	if(data->rect.isEmpty())
+	    return QMemArray<QRect>(0);
 	QMemArray<QRect> ret(1);
 	ret[0] = data->rect;
 	return ret;
