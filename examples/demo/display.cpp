@@ -159,16 +159,19 @@ DisplayWidget::DisplayWidget( QWidget *parent, const char *name )
     connect( spin, SIGNAL( valueChanged( int )), curve, SLOT( setFactor( int )));
     spin->setValue( 2 );
 
+
     lcd = new QLCDNumber( 2, this );
     lcd->setFixedSize( 100, 100 );
     lcdval = 0;
+    hbox = new QHBoxLayout( vbox );
+    QVBoxLayout *vb2 = new QVBoxLayout( hbox );
+    vb2->addWidget( curve );
+    vb2->addWidget( spin );
+    hbox->addWidget( lcd );
 
     bar = new QProgressBar( 10, this );
     tbar = 0;
 
-    vbox->addWidget( curve );
-    vbox->addWidget( spin );
-    vbox->addWidget( lcd );
     vbox->addWidget( bar );
 }
 

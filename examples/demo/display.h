@@ -54,7 +54,7 @@ private:
 class Screen : public QFrame {
     Q_OBJECT
 public:
-    enum { MaxSamples = 500, Range = 100, FrameWidth = 3 };
+    enum { MaxSamples = 400, Range = 100, FrameWidth = 3 };
     Screen( QWidget *parent=0, const char *name=0 );
 
     void animate();
