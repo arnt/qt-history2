@@ -14,7 +14,6 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
-#ifdef QMAC_NO_QUARTZ
 #ifndef QMAC_ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
@@ -40,9 +39,6 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     SwapMMUMode(&mode);
 #ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
-#endif
-#else //!QMAC_NO_QUARTZ
-    //FIXME
 #endif
 }
 
@@ -139,7 +135,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
-#ifdef QMAC_NO_QUARTZ
 #ifndef QMAC_ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
@@ -190,9 +185,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     SwapMMUMode(&mode);
 #ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
-#endif
-#else //!QMAC_NO_QUARTZ
-    //FIXME
 #endif
 
     data->uninit = FALSE;
@@ -264,7 +256,6 @@ QImage QPixmap::convertToImage() const
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
-#ifdef QMAC_NO_QUARTZ
 #ifndef QMAC_ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
@@ -294,10 +285,6 @@ QImage QPixmap::convertToImage() const
 
 #ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
-#endif
-
-#else //!QMAC_NO_QUARTZ
-    //FIXME
 #endif
 
     //how do I handle a mask?
@@ -370,7 +357,6 @@ void QPixmap::fill( const QColor &fillColor )
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
-#ifdef QMAC_NO_QUARTZ
     //at the end of this function this will go out of scope and the destructor will restore the state
     QMacSavedPortInfo saveportstate(this); 
 #ifndef QMAC_ONE_PIXEL_LOCK
@@ -401,9 +387,6 @@ void QPixmap::fill( const QColor &fillColor )
     }
 #ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
-#endif
-#else //!QMAC_NO_QUARTZ
-    //FIXME
 #endif
 }
 
@@ -458,15 +441,10 @@ void QPixmap::deref()
         }
 
         if ( hd && qApp ) {
-#ifdef QMAC_NO_QUARTZ
 #ifdef QMAC_ONE_PIXEL_LOCK
 	    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
 #endif
 	    DisposeGWorld((GWorldPtr)hd);    
-
-#else //!QMAC_NO_QUARTZ
-	    //FIXME
-#endif
         }
         delete data;
 	data = NULL;
@@ -625,7 +603,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->w=w;
     data->h=h;
 
-#ifdef QMAC_NO_QUARTZ
     Rect rect;
     SetRect(&rect,0,0,w,h);
     QDErr e = -1;
@@ -652,10 +629,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	data->w=w;
 	data->h=h;
     }
-
-#else //!QMAC_NO_QUARTZ
-    //FIXME
-#endif
 }
 
 int QPixmap::defaultDepth()

@@ -220,9 +220,7 @@ void QPainter::init()
     block_ext = FALSE;
 
     d = new QPainterPrivate;
-#ifdef QMAC_NO_QUARTZ
     d->saved = 0;
-#endif
     d->cache.paintevent = NULL;
     d->cache.clip_serial = 0;
     d->brush_style_pix = 0;
@@ -259,7 +257,6 @@ void QPainter::updateFont()
     cfont.macSetFont(pdev);
 }
 
-#ifdef QMAC_NO_QUARTZ
 static int ropCodes[] = {			// ROP translation table
     patCopy, patOr, patXor, patBic, notPatCopy,
     notPatOr, notPatXor, notPatBic,
@@ -313,11 +310,7 @@ void QPainter::updatePen()
 #endif
     PenMode(ropCodes[rop]);
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::updateBrush()
 {
     if ( testf( ExtDev ) ) {
@@ -409,9 +402,6 @@ void QPainter::updateBrush()
 #endif
     PenMode(ropCodes[rop]);
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
 
@@ -431,10 +421,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
 	return FALSE;
     }
 
-#ifdef QMAC_NO_QUARTZ
     //save the gworld now, we'll reset it in end()
     d->saved = new QMacSavedPortInfo;
-#endif
 
     QWidget *copyFrom = 0;
     if ( pdev_dict ) {                          // redirected paint device?
@@ -521,6 +509,11 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
 	wh = vh = w->height();
 	if(!d->unclipped)
 	    d->unclipped = (bool)w->testWFlags(WPaintUnclipped);
+	if(!d->locked) {
+	    LockPortBits(GetWindowPort((WindowPtr)w->handle()));
+	    d->locked = TRUE;
+	}
+
 #ifdef Q_WS_MACX
 	if(w->isDesktop()) {
 	    if(!d->unclipped)
@@ -589,22 +582,21 @@ bool QPainter::end()				// end painting
     if ( testf( FontInf ) )                       // remove references to this
 	QFontInfo::reset( this );
 
-#ifdef QMAC_NO_QUARTZ
-#ifndef QMAC_ONE_PIXEL_LOCK
     if ( d->locked ) {
-	UnlockPixels(GetGWorldPixMap((GWorldPtr)pdev->handle()));
+	if(pdev->devType() == QInternal::Widget)
+	    UnlockPortBits(GetWindowPort((WindowPtr)pdev->handle()));
+#ifndef QMAC_ONE_PIXEL_LOCK
+	else
+	    UnlockPixels(GetGWorldPixMap((GWorldPtr)pdev->handle()));
+#endif
 	d->locked = FALSE;
     }
-#endif
 
     //reset the value we got in begin()
     delete d->saved;
     d->saved = NULL;
     if(qt_mac_current_painter == this)
 	qt_mac_current_painter = NULL;
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
 #ifdef Q_WS_MACX
     if(pdev->painters == 1 &&
@@ -704,12 +696,10 @@ void QPainter::setRasterOp( RasterOp r )
 #endif
 	return;
     }
-#ifdef QMAC_NO_QUARTZ
     if(ropCodes[r] == 666) {
 	//qWarning("Woops, we don't have that rasterop, FIXME!!");
 	r = XorROP;
     }
-#endif
     rop = r;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -784,7 +774,6 @@ void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
     initPaintDevice(); //reset clip region
 }
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 {
     initPaintDevice();
@@ -860,11 +849,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
     }
     qt_mac_dispose_rgn( polyRegion );
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawPoint( int x, int y )
 {
     if ( !isActive() )
@@ -889,11 +874,7 @@ void QPainter::drawPoint( int x, int y )
 	Line(0,1);
     }
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 {
     if ( npoints < 0 )
@@ -933,11 +914,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 	}
     }
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::moveTo( int x, int y )
 {
   if ( !isActive() )
@@ -956,11 +933,7 @@ void QPainter::moveTo( int x, int y )
   initPaintDevice();
   MoveTo(x+d->offx, y+d->offy);
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::lineTo( int x, int y )
 {
   if ( !isActive() )
@@ -982,11 +955,7 @@ void QPainter::lineTo( int x, int y )
   updatePen();
   LineTo(x+d->offx,y+d->offy);
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 {
   if ( !isActive() )
@@ -1011,11 +980,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
   MoveTo(x1+d->offx,y1+d->offy);
   LineTo(x2+d->offx,y2+d->offy);
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawRect( int x, int y, int w, int h )
 {
     if ( !isActive() )
@@ -1110,9 +1075,6 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	FrameRect(&rect);
     }
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
 void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 {
@@ -1167,7 +1129,6 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
     setBrush( old_brush );
 }
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
 {
     if ( !isActive() )
@@ -1253,11 +1214,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
 	FrameRoundRect( &rect, w*xRnd/100, h*yRnd/100 );
     }
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawEllipse( int x, int y, int w, int h )
 {
     if ( !isActive() ) {
@@ -1353,11 +1310,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	FrameOval( &r );
     }
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 {
     if ( !isActive() )
@@ -1380,11 +1333,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
     pa.makeArc( x, y, w, h, a, alen ); // arc polyline
     drawPolyline( pa );
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 {
     if ( !isActive() )
@@ -1418,11 +1367,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
     pa.setPoint( n+1, pa.at(0) );
     drawPolyInternal( pa );
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 {
     if(!isActive())
@@ -1445,11 +1390,7 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
     pa.setPoint( n, pa.at(0) );
     drawPolyInternal( pa );
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 {
     if ( nlines < 0 )
@@ -1496,11 +1437,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	LineTo(x2 + d->offx, y2 + d->offy);
     }
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 {
     if ( npoints < 0 )
@@ -1563,9 +1500,6 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
     FramePoly(poly);
     KillPoly(poly);
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
 void QPainter::drawConvexPolygon( const QPointArray &pa,
 			     int index, int npoints )
@@ -1574,7 +1508,6 @@ void QPainter::drawConvexPolygon( const QPointArray &pa,
     drawPolygon(pa,FALSE,index,npoints);
 }
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawPolygon( const QPointArray &a, bool winding,
 			    int index, int npoints )
 {
@@ -1608,11 +1541,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
     }
     drawPolyInternal(pa,true);
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawCubicBezier( const QPointArray &a, int index )
 {
     if ( !isActive() )
@@ -1640,11 +1569,7 @@ void QPainter::drawCubicBezier( const QPointArray &a, int index )
     }
     drawPolyline(pa.cubicBezier());
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh )
 {
     if ( !isActive() || pixmap.isNull() ) {
@@ -1738,9 +1663,6 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 	return;
     unclippedBitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop, FALSE );
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
 static void drawTile( QPainter *p, int x, int y, int w, int h,
 		      const QPixmap &pixmap, int xOffset, int yOffset )
@@ -1791,7 +1713,6 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
     drawText(x, y, str.mid(from), len);
 }
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection)
 {
     if ( !isActive() )
@@ -1926,11 +1847,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
     updatePen();
     cfont.d->drawText(x, y, str, len);
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 QPoint QPainter::pos() const
 {
     ((QPainter *)this)->initPaintDevice();
@@ -1938,11 +1855,7 @@ QPoint QPainter::pos() const
     GetPen(&pt);
     return xFormDev(QPoint(pt.h - d->offx, pt.v - d->offy));
 }
-#else //!QMAC_NO_QUARTZ
-//FIXME
-#endif
 
-#ifdef QMAC_NO_QUARTZ
 void QPainter::initPaintDevice(bool force) {
     bool remade_clip = FALSE;
     if(pdev->devType() == QInternal::Printer) {
@@ -2020,6 +1933,3 @@ void QPainter::initPaintDevice(bool force) {
     }
 }
 
-#else //!QMAC_NO_QUARTZ
-
-#endif

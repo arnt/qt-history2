@@ -869,16 +869,12 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 	extra->bg_pix = 0;
     }
     if(isTopLevel()) {
-#ifdef QMAC_NO_QUARTZ
 	QMacSavedPortInfo savedInfo(this);
 	RGBColor f;
 	f.red = bg_col.red() * 256;
 	f.green = bg_col.green() * 256;;
 	f.blue = bg_col.blue() * 256;
 	RGBBackColor(&f);
-#else //!QMAC_NO_QUARTZ
-	//FIXME
-#endif
     }
     update();
 }
@@ -1416,7 +1412,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    QWidget *parent = parentWidget() ? parentWidget() : this;
 		    QPoint tp(posInWindow(parent));
 		    int px = tp.x(), py = tp.y();
-#ifdef QMAC_NO_QUARTZ
 		    //save the window state, and do the grunt work
 		    int ow = olds.width(), oh = olds.height();
 		    QMacSavedPortInfo saveportstate(this);
@@ -1439,9 +1434,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    BitMap *scrn = (BitMap *)*GetPortPixMap(wport);
 		    CopyBits(scrn, scrn, &oldr, &newr, srcCopy, NULL);
 		    UnlockPortBits(wport);
-#else //!QMAC_NO_QUARTZ
-		    //FIXME
-#endif
 		}
 	    }
 	    if(isResize || !isTopLevel() || !QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
@@ -1626,8 +1618,10 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     copied &= QRegion(sr);
     copied.translate(dx,dy);
     repaint( QRegion(sr) - copied, !testWFlags(WRepaintNoErase) );
+#if 0
     if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))
 	QMacSavedPortInfo::flush(this);
+#endif
 }
 
 void QWidget::drawText( int x, int y, const QString &str )
@@ -1800,9 +1794,7 @@ void QWidget::setName( const char *name )
 
 void QWidget::propagateUpdates()
 {
-#ifdef QMAC_NO_QUARTZ
     QMacSavedPortInfo savedInfo(this);
-#endif
     QRegion rgn;
     GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, rgn.handle(TRUE));
     if(!rgn.isEmpty()) {
