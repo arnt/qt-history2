@@ -100,7 +100,7 @@
 */
 
 
-const int INV_TIMER = -1;			// invalid timer id
+static const int INV_TIMER = -1;		// invalid timer id
 
 
 /*!
