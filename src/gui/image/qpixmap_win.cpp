@@ -311,10 +311,33 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
     return m;
 }
 
-QPixmap QPixmap::grabWindow(WId, int x, int y, int w, int h )
+QPixmap QPixmap::grabWindow(WId winId, int x, int y, int w, int h )
 {
-//###
-    return QPixmap();
+    RECT r;
+    GetClientRect(winId, &r);
+
+    if (w < 0) w = r.right - r.left;
+    if (h < 0) h = r.bottom - r.top;
+
+    // Create and setup bitmap
+    HDC bitmap_dc = CreateCompatibleDC(qt_win_display_dc());
+    HBITMAP bitmap = CreateCompatibleBitmap(qt_win_display_dc(), w, h);
+    HGDIOBJ null_bitmap = SelectObject(bitmap_dc, bitmap);
+
+    // copy data
+    HDC window_dc = GetDC(winId);
+    BitBlt(bitmap_dc, 0, 0, w, h, window_dc, x, y, SRCCOPY);
+
+    // clean up all but bitmap
+    ReleaseDC(winId, window_dc);
+    SelectObject(bitmap_dc, null_bitmap);
+    DeleteDC(bitmap_dc);
+
+    QPixmap pixmap = QPixmap::fromWinHBITMAP(bitmap);
+
+    DeleteObject(bitmap);
+
+    return pixmap;
 }
 
 
