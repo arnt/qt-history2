@@ -370,12 +370,11 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
 
 /*! \enum Qt::PenStyle
 
-  This enum type defines the pen styles supported by Qt, i.e. the
-  lines that can be drawn using QPainter. The current styles
-  are:
+  This enum type defines the pen styles that can be drawn using
+  QPainter. The styles are
 
   \value NoPen  no line at all.  For example, QPainter::drawRect()
-  fills but does not draw any explicit boundary line.
+  fills but does not draw any boundary line.
 
   \value SolidLine  a simple line.
 
@@ -385,7 +384,8 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
 
   \value DashDotLine  alternate dots and dashes.
 
-  \value DashDotDotLine  one dash, two dots, one dash, two dots...
+  \value DashDotDotLine  one dash, two dots, one dash, two dots.
+
   \value MPenStyle mask of the pen styles.
 */
 
@@ -2772,7 +2772,7 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
     painter.end();                      // painting done
   \endcode
 
-  See the setStyle() function for a complete list of pen styles.
+  See the \l Qt::PenStyle enum type for a complete list of pen styles.
 
   With reference to the end points of lines, for wide (non-0-width)
   pens it depends on the cap style whether the end point is drawn or
@@ -2930,6 +2930,8 @@ QPen QPen::copy() const
 
 /*!
   Sets the pen style to \a s.
+
+  See the \l Qt::PenStyle documentation for a list of all the styles.
 
   \warning On Windows 95/98, the style setting (other than NoPen and
   SolidLine) has no effect for lines with width greater than 1.
