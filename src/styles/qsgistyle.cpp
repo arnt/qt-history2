@@ -81,17 +81,17 @@ static SliderLastPosition sliderLastPosition;
 
 /*!
   \class QSGIStyle qsgistyle.h
-  \brief SGI Look and Feel
+  \brief The QSGIStyle class provides SGI/Irix look and feel.
   \ingroup appearance
 
-  This class implements the SGI look and feel. It tries to
-  resemble a SGI-like GUI style with the QStyle system.
+  This class implements the SGI look and feel. It resembles the
+  SGI/Irix Motif GUI style as closely as QStyle allows.
 */
 
 /*!
-  Constructs a QSGIStyle
+  Constructs a QSGIStyle.
 
-  If useHighlightCols is FALSE (default value), then the style will
+  If useHighlightCols is FALSE (default value), the style will
   polish the application's color palette to emulate the Motif way of
   highlighting, which is a simple inversion between the base and the
   text color.
@@ -103,7 +103,7 @@ QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols ),
 }
 
 /*!
-  Destructs the style
+  Destructs the style.
 */
 QSGIStyle::~QSGIStyle()
 {
@@ -132,8 +132,8 @@ int QSGIStyle::defaultFrameWidth() const
 
 /*!
     Changes some application-wide settings to be
-    SGI like, e.g. sets bold/italic font for
-    the menu-system.
+    SGI-like, e.g., sets bold/italic font for
+    the menu system.
 */
 void
 QSGIStyle::polish( QApplication* app)
@@ -197,7 +197,7 @@ QSGIStyle::unPolish( QApplication* /* app */ )
 }
 
 /*!
-    Installs eventfilters for several widgets to enable
+    Installs event filters for several widgets to enable
     the SGI-effect of glowing buttons.
 */
 void
@@ -289,7 +289,7 @@ QSGIStyle::drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
 }
 
 /*!
-    Draws a SGI-like panel with somewhat rounded edges.
+    Draws an SGI-like panel with somewhat rounded edges.
 */
 void
 QSGIStyle::drawPanel( QPainter*p, int x, int y, int w, int h, const QColorGroup &g,
@@ -348,7 +348,7 @@ QSGIStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 }
 
 /*!
-    Reimplemented ot be SGI-like.
+    Reimplemented to be SGI-like.
 */
 void
 QSGIStyle::drawPushButton( QPushButton* btn, QPainter* p)
@@ -442,8 +442,8 @@ QSGIStyle::indicatorSize() const
 }
 
 /*!
-    Draws a interface element showing the state of choice,
-    used by a checkbox.
+    Draws an interface element showing the state of choice
+    used by a check box.
 
   \sa drawCheckMark()
 */
@@ -465,8 +465,8 @@ QSGIStyle::drawIndicator( QPainter* p, int x, int y, int w, int h,
 }
 
 /*!
-    Draws a fancy red checkmark indicating the state of choice
-    in checkboxes or checkable menu items.
+    Draws a fancy red check mark indicating the state of choice
+    in check boxes or checkable menu items.
 */
 void
 QSGIStyle::drawCheckMark( QPainter* p, int x, int y, int /*w*/, int /*h*/,
@@ -750,7 +750,7 @@ static QRect scrollerStartOldPos(1, -1, 1, -1);
 static bool scrollerMoving = FALSE;
 
 /*!
-    Draws scrollbar controls in SGI-like style.
+    Draws scroll bar controls in SGI-like style.
 */
 void
 QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
@@ -987,7 +987,7 @@ QSGIStyle::drawSliderMask( QPainter* p, int x, int y, int w, int h,
 }
 
 /*!
-    Draws the groove of a slider widget.
+    Draws the groove of a slider-widget.
 */
 void
 QSGIStyle::drawSliderGroove( QPainter* p, int x, int y, int w, int h,
@@ -1297,8 +1297,7 @@ void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 /*!
     Reimplemented to enable the SGI-like effect of "glowing" widgets.
 */
-bool
-QSGIStyle::eventFilter( QObject* o, QEvent* e )
+bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 {
     switch ( e->type() ) {
     case QEvent::MouseButtonPress:

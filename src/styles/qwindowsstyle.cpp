@@ -60,7 +60,7 @@
 // NOT REVISED
 /*!
   \class QWindowsStyle qwindowsstyle.h
-  \brief Windows Look and Feel
+  \brief The QWindowsStyle class provides Microsoft Windows look and feel
   \ingroup appearance
 
   This class implements the look and feel known from the Windows
@@ -149,7 +149,7 @@ void QWindowsStyle::drawFocusRect( QPainter* p,
 
 
 /*!
-  This function draws a rectangle with two pixel line width.
+  This function draws a rectangle with two-pixel line width.
   It is called from qDrawWinButton() and qDrawWinPanel().
 
   c1..c4 and fill are used:

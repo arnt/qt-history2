@@ -51,7 +51,7 @@
 // NOT REVISED
 /*!
   \class QPlatinumStyle qplatinumstyle.h
-  \brief Platinum Look and Feel
+  \brief The QPlatinumStyle class provides Mac/Platinum look and feel
   \ingroup appearance
 
   This class implements the Platinum look and feel. It's an
@@ -255,7 +255,7 @@ QRect QPlatinumStyle::buttonRect( int x, int y, int w, int h) const
 }
 
 /*!
-  mixes two colors to a new colors
+  Mixes two colors to a new color.
   */
 QColor QPlatinumStyle::mixedColor(const QColor &c1, const QColor &c2)
 {
@@ -799,7 +799,7 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
 }
 
 /*!
-  draw the nifty Macintosh decoration used on  sliders
+  Draws the nifty Macintosh decoration used on sliders.
   */
 void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 		      const QColorGroup &g, bool horizontal )

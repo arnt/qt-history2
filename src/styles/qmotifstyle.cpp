@@ -53,10 +53,9 @@
 #include "qtabbar.h"
 #include <limits.h>
 
-// NOT REVISED
 /*!
   \class QMotifStyle qmotifstyle.h
-  \brief Motif Look and Feel
+  \brief The QMotifStyle class provides Motif look and feel.
   \ingroup appearance
 
   This class implements the Motif look and feel. It almost completely
@@ -105,7 +104,7 @@ int QMotifStyle::sliderThickness() const
 }
 
 /*!
-  If the argument is FALSE, then the style will polish the
+  If the argument is FALSE, the style will polish the
   application's color palette to emulate the
   Motif way of highlighting, which is a simple inversion between the
   base and the text color.
