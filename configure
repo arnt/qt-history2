@@ -3298,33 +3298,33 @@ fi
 done
 
 if [ "$PLATFORM_QWS" = "yes" ]; then
-## find excluded decorations and add this to $QCONFIG_FLAGS
+    # Add QWS to config flags
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QWS"
 
-VDECORATION=no
-VNO=no
-for QMVAR in $QMAKE_VARS; do
-
-STRIPPED=`echo $QMVAR | sed 's,^",,' | sed 's,"$,,'`
-
-if [ "$VDECORATION" = "yes" ]; then
-	if [ "$VNO" = "yes" ]; then
-		NODECORATION=`echo $STRIPPED | tr '[:lower:]' '[:upper:]'`
-		QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DECORATION_$NODECORATION"
-		VDECORATION=no
-		VNO=no
-    	else
-		if [ "$STRIPPED" = "-=" ]; then
-			VNO=yes
-		else
-			VDECORATION=no
-		fi
-	fi
-else
-	if [ "$STRIPPED" = "decorations" ]; then
-		VDECORATION=yes
-	fi
-fi
-done
+    # Add excluded decorations to $QCONFIG_FLAGS
+    VDECORATION=no
+    VNO=no
+    for QMVAR in $QMAKE_VARS; do
+        STRIPPED=`echo $QMVAR | sed 's,^",,' | sed 's,"$,,'`
+        if [ "$VDECORATION" = "yes" ]; then
+            if [ "$VNO" = "yes" ]; then
+                NODECORATION=`echo $STRIPPED | tr '[:lower:]' '[:upper:]'`
+                QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DECORATION_$NODECORATION"
+                VDECORATION=no
+                VNO=no
+            else
+                if [ "$STRIPPED" = "-=" ]; then
+                    VNO=yes
+                else
+                    VDECORATION=no
+                fi
+            fi
+        else
+            if [ "$STRIPPED" = "decorations" ]; then
+                VDECORATION=yes
+            fi
+        fi
+    done
 fi
 
 if [ -n "$QCONFIG_FLAGS" ]; then
