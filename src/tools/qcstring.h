@@ -204,6 +204,10 @@ public:
 #ifndef QT_NO_REGEXP
     QCString    &replace( const QRegExp &, const char * );
 #endif
+    QCString    &replace( char c, const char *after );
+    QCString    &replace( const char *, const char * );
+    QCString    &replace( char, char );
+    
     short	toShort( bool *ok=0 )	const;
     ushort	toUShort( bool *ok=0 )	const;
     int		toInt( bool *ok=0 )	const;

@@ -1610,6 +1610,154 @@ QCString &QCString::replace( uint index, uint len, const char *str )
     return *this;
 }
 
+
+/*! \overload
+
+    Replaces every occurrence of the character \a c in the string
+    with \a after. Returns a reference to the string.
+
+    Example:
+    \code
+    QCString s = "a,b,c";
+    s.replace( ',', " or " );
+    // s == "a or b or c"
+    \endcode
+*/
+QCString &QCString::replace( char c, const char *after )
+{
+    char str[2];
+    str[0] = c;
+    str[1] = '\0';
+    return replace( str, after );
+}
+
+/*! \overload
+
+    Replaces every occurrence of the string \a before in the string
+    with the string \a after. Returns a reference to the string.
+
+    Example:
+    \code
+    QCString s = "Greek is Greek";
+    s.replace( "Greek", "English" );
+    // s == "English is English"
+    \endcode
+*/
+QCString &QCString::replace( const char *before, const char *after )
+{
+    if ( before == after || isNull() )
+	return *this;
+
+    detach();
+
+    int index = 0;
+    const int bl = before ? strlen( before ) : 0;
+    const int al = after ? strlen( after ) : 0;
+    char *d = data();
+    uint len = length();
+    
+    if ( bl == al ) {
+	if ( bl ) {
+	    while( (index = find( before, index ) ) != -1 ) {
+		memcpy( d+index, after, al );
+		index += bl;
+	    }
+	}
+    } else if ( al < bl ) {
+	uint to = 0;
+	uint movestart = 0;
+	uint num = 0;
+	while( (index = find( before, index ) ) != -1 ) {
+	    if ( num ) {
+		int msize = index - movestart;
+		if ( msize > 0 ) {
+		    memmove( d + to, d + movestart, msize );
+		    to += msize;
+		}
+	    } else {
+		to = index;
+	    }
+	    if ( al ) {
+		memcpy( d + to, after, al );
+		to += al;
+	    }
+	    index += bl;
+	    movestart = index;
+	    num++;
+	}
+	if ( num ) {
+	    int msize = len - movestart;
+	    if ( msize > 0 )
+		memmove( d + to, d + movestart, msize );
+	    resize( len - num*(bl-al) + 1 );
+	}
+    } else {
+	// the most complex case. We don't want to loose performance by doing repeated
+	// copies and reallocs of the string.
+	while( index != -1 ) {
+	    uint indices[4096];
+	    uint pos = 0;
+	    while( pos < 4095 ) {
+		index = find(before, index);
+		if ( index == -1 )
+		    break;
+		indices[pos++] = index;
+		index += bl;
+		// avoid infinite loop
+		if ( !bl )
+		    index++;
+	    }
+	    if ( !pos )
+		break;
+
+	    // we have a table of replacement positions, use them for fast replacing
+	    int adjust = pos*(al-bl);
+	    // index has to be adjusted in case we get back into the loop above.
+	    if ( index != -1 )
+		index += adjust;
+	    uint newlen = len + adjust;
+	    int moveend = len;
+	    if ( newlen > len ) {
+		resize( newlen + 1 );
+		len = newlen;
+	    }
+	    d = data();
+
+	    while( pos ) {
+		pos--;
+		int movestart = indices[pos] + bl;
+		int insertstart = indices[pos] + pos*(al-bl);
+		int moveto = insertstart + al;
+		memmove( d + moveto, d + movestart, (moveend - movestart) );
+		if ( after ) 
+		    memcpy( d + insertstart, after, al );
+		moveend = movestart - bl;
+	    }
+	}
+    }
+    return *this;
+}
+
+/*! \overload
+
+  Replaces every occurrence of \a c1 with the char \a c2.
+  Returns a reference to the string.
+*/
+QCString &QCString::replace( char c1, char c2 )
+{
+    detach();
+    uint i = 0;
+    char *d = data();
+    uint len = length();
+    while ( i < len ) {
+	if ( d[i] == c1 )
+	    d[i] = c2;
+	i++;
+    }
+    return *this;
+}
+
+
 #ifndef QT_NO_REGEXP
 /*!
     \overload
