@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#7 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#8 $
 **
 ** Definition of QPaintDevice class
 **
@@ -73,7 +73,7 @@
 #define PDC_SETWXFORM		44		// i
 #define PDC_SETWXFMATRIX	45		// m,i
 #define PDC_SETCLIP		50		// i
-#define PDC_SETCLIPRGN		51		// NI
+#define PDC_SETCLIPRGN		51		// rgn
 
 union QPDevCmdParam {
     int		 i;
@@ -82,6 +82,7 @@ union QPDevCmdParam {
     QPoint	*p;
     QRect	*r;
     QPointArray *a;
+    QRegion	*rgn;
     QWXFMatrix  *m;
 };
 
