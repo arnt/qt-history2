@@ -1415,10 +1415,8 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 	newSort.append( *sqlCursor()->field( indexOf( col ) ) );
 	newSort.setDescending( 0, !ascending );
 	horizontalHeader()->setSortIndicator( col, ascending );
-	QApplication::setOverrideCursor( Qt::waitCursor );
-	sqlCursor()->select( sqlCursor()->filter(), newSort );
-	QApplication::restoreOverrideCursor();
-	viewport()->repaint( FALSE );
+	setSort( newSort );
+	refresh();
     }
 }
 
