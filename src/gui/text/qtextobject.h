@@ -86,10 +86,14 @@ public:
 
     class iterator {
         QTextFrame *f;
+        int b;
+        int e;
         QTextFrame *cf;
         int cb;
+
         friend class QTextFrame;
-        iterator(QTextFrame *frame, int b);
+        friend class QTextTableCell;
+        iterator(QTextFrame *frame, int block, int begin, int end);
     public:
         iterator();
         iterator(const iterator &o);

@@ -14,11 +14,11 @@ class QTextTablePrivate;
 class Q_GUI_EXPORT QTextTableCell
 {
 public:
-    QTextTableCell() : d(0) {}
+    QTextTableCell() : table(0) {}
     ~QTextTableCell() {}
-    QTextTableCell(const QTextTableCell &o) : d(o.d), fragment(o.fragment) {}
+    QTextTableCell(const QTextTableCell &o) : table(o.table), fragment(o.fragment) {}
     QTextTableCell &operator=(const QTextTableCell &o)
-    { d = o.d; fragment = o.fragment; return *this; }
+    { table = o.table; fragment = o.fragment; return *this; }
 
     QTextCharFormat format() const;
 
@@ -28,7 +28,7 @@ public:
     int rowSpan() const;
     int columnSpan() const;
 
-    inline bool isValid() const { return d != 0; }
+    inline bool isValid() const { return table != 0; }
 
     QTextCursor firstCursorPosition() const;
     QTextCursor lastCursorPosition() const;
@@ -36,16 +36,19 @@ public:
     int lastPosition() const;
 
     inline bool operator==(const QTextTableCell &other) const
-    { return d == other.d && fragment == other.fragment; }
+    { return table == other.table && fragment == other.fragment; }
     inline bool operator!=(const QTextTableCell &other) const
     { return !operator==(other); }
 
+    QTextFrame::iterator begin() const;
+    QTextFrame::iterator end() const;
+
 private:
     friend class QTextTable;
-    QTextTableCell(const QTextTablePrivate *p, int f)
-        : d(p), fragment(f) {}
+    QTextTableCell(const QTextTable *t, int f)
+        : table(t), fragment(f) {}
 
-    const QTextTablePrivate *d;
+    const QTextTable *table;
     int fragment;
 };
 
@@ -81,6 +84,7 @@ public:
     QTextTableFormat format() const { return QTextObject::format().toTableFormat(); }
 
 private:
+    friend class QTextTableCell;
 #if defined(Q_DISABLE_COPY)
     QTextTable(const QTextTable &o);
     QTextTable & operator =(const QTextTable &o);

@@ -5,6 +5,8 @@
 #include "qtexttable_p.h"
 
 #include <stdlib.h>
+#define d d_func()
+#define q q_func()
 
 /*!
     \class QTextTableCell qtexttable.h
@@ -51,7 +53,7 @@
 */
 QTextCharFormat QTextTableCell::format() const
 {
-    QTextDocumentPrivate *p = d->pieceTable;
+    QTextDocumentPrivate *p = table->docHandle();
     QTextFormatCollection *c = p->formatCollection();
     return c->charFormat(QTextDocumentPrivate::FragmentIterator(&p->fragmentMap(), fragment)->format);
 }
@@ -63,12 +65,13 @@ QTextCharFormat QTextTableCell::format() const
 */
 int QTextTableCell::row() const
 {
-    if (d->dirty)
-        d->update();
+    const QTextTablePrivate *tp = table->d;
+    if (tp->dirty)
+        tp->update();
 
-    for (int i = 0; i < d->nCols*d->nRows; ++i) {
-        if (d->grid[i] == fragment)
-            return i/d->nCols;
+    for (int i = 0; i < tp->nCols*tp->nRows; ++i) {
+        if (tp->grid[i] == fragment)
+            return i/tp->nCols;
     }
     return -1;
 }
@@ -80,12 +83,13 @@ int QTextTableCell::row() const
 */
 int QTextTableCell::column() const
 {
-    if (d->dirty)
-        d->update();
+    const QTextTablePrivate *tp = table->d;
+    if (tp->dirty)
+        tp->update();
 
-    for (int i = 0; i < d->nCols*d->nRows; ++i) {
-        if (d->grid[i] == fragment)
-            return i%d->nCols;
+    for (int i = 0; i < tp->nCols*tp->nRows; ++i) {
+        if (tp->grid[i] == fragment)
+            return i%tp->nCols;
     }
     return -1;
 }
@@ -125,7 +129,7 @@ int QTextTableCell::columnSpan() const
 */
 QTextCursor QTextTableCell::firstCursorPosition() const
 {
-    return QTextCursor(d->pieceTable, firstPosition());
+    return QTextCursor(table->d->pieceTable, firstPosition());
 }
 
 /*!
@@ -135,7 +139,7 @@ QTextCursor QTextTableCell::firstCursorPosition() const
 */
 QTextCursor QTextTableCell::lastCursorPosition() const
 {
-    return QTextCursor(d->pieceTable, lastPosition());
+    return QTextCursor(table->d->pieceTable, lastPosition());
 }
 
 
@@ -144,7 +148,7 @@ QTextCursor QTextTableCell::lastCursorPosition() const
 */
 int QTextTableCell::firstPosition() const
 {
-    QTextDocumentPrivate *p = d->pieceTable;
+    QTextDocumentPrivate *p = table->docHandle();
     return p->fragmentMap().position(fragment) + 1;
 }
 
@@ -153,11 +157,29 @@ int QTextTableCell::firstPosition() const
 */
 int QTextTableCell::lastPosition() const
 {
-    QTextDocumentPrivate *p = d->pieceTable;
-    int index = d->cells.indexOf(fragment) + 1;
-    int f = (index == d->cells.size() ? d->fragment_end : d->cells.at(index));
+    QTextDocumentPrivate *p = table->docHandle();
+    int index = table->d->cells.indexOf(fragment) + 1;
+    int f = (index == table->d->cells.size() ? table->d->fragment_end : table->d->cells.at(index));
     return p->fragmentMap().position(f);
 }
+
+
+QTextFrame::iterator QTextTableCell::begin() const
+{
+    QTextDocumentPrivate *p = table->docHandle();
+    int b = p->blockMap().findNode(firstPosition());
+    int e = p->blockMap().findNode(lastPosition()+1);
+    return QTextFrame::iterator(const_cast<QTextTable *>(table), b, b, e);
+}
+
+QTextFrame::iterator QTextTableCell::end() const
+{
+    QTextDocumentPrivate *p = table->docHandle();
+    int b = p->blockMap().findNode(firstPosition());
+    int e = p->blockMap().findNode(lastPosition()+1);
+    return QTextFrame::iterator(const_cast<QTextTable *>(table), b, b, e);
+}
+
 
 /*!
     \fn QTextCursor QTextTableCell::operator==(const QTextTableCell &other) const
@@ -179,10 +201,6 @@ int QTextTableCell::lastPosition() const
     Destroys the object.
 */
 
-
-#define d d_func()
-#define q q_func()
-
 QTextTablePrivate::~QTextTablePrivate()
 {
 }
@@ -200,7 +218,6 @@ QTextTable *QTextTablePrivate::createTable(QTextDocumentPrivate *pieceTable, int
 //     qDebug("---> createTable: rows=%d, cols=%d at %d", rows, cols, pos);
     // add block after table
     QTextCharFormat charFmt;
-    charFmt.setNonDeletable(true);
     charFmt.setObjectIndex(table->objectIndex());
     int charIdx = pieceTable->formatCollection()->indexForFormat(charFmt);
     int cellIdx = pieceTable->blockMap().find(pos)->format;
@@ -352,7 +369,7 @@ QTextTableCell QTextTable::cellAt(int row, int col) const
     if (row < 0 || row >= d->nRows || col < 0 || col >= d->nCols)
         return QTextTableCell();
 
-    return QTextTableCell(d, d->grid[row*d->nCols + col]);
+    return QTextTableCell(this, d->grid[row*d->nCols + col]);
 }
 
 /*!
@@ -377,7 +394,7 @@ QTextTableCell QTextTable::cellAt(int position) const
             break;
         fragment = f;
     }
-    return QTextTableCell(d, fragment);
+    return QTextTableCell(this, fragment);
 }
 
 /*!

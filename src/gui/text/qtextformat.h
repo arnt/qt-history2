@@ -76,8 +76,6 @@ public:
         AnchorHref = 0x2021,
         AnchorName = 0x2022,
 
-        NonDeletable = 0x2100,
-
         ObjectType = 0x2f00,
 
         // list properties
@@ -249,11 +247,6 @@ public:
     { setProperty(AnchorName, name); }
     inline QString anchorName() const
     { return stringProperty(AnchorName); }
-
-    inline void setNonDeletable(bool d)
-    { setProperty(NonDeletable, d); }
-    inline bool nonDeletable() const
-    { return boolProperty(NonDeletable); }
 
     inline void setTableCellRowSpan(int tableCellRowSpan)
     { setProperty(TableCellRowSpan, tableCellRowSpan); }

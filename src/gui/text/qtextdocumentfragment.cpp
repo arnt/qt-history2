@@ -364,8 +364,6 @@ void QTextHTMLImporter::import()
             Q_ASSERT(!tables.isEmpty());
 
             QTextCharFormat charFmt;
-            charFmt.setNonDeletable(true);
-
             charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
             tables[tables.size() -1].currentColumnCount++;
 
@@ -487,17 +485,15 @@ void QTextHTMLImporter::closeTag(int i)
 #if 0
             Q_ASSERT(!tableIndices.isEmpty());
             QTextCharFormat charFmt;
-            charFmt.setNonDeletable(true);
+            charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
             QTextBlockFormat fmt;
-            fmt.setObjectIndex(tableIndices[tableIndices.size() - 1]);
-//             fmt.setTableCellEndOfRow(true);
             appendBlock(fmt, charFmt);
 #endif
             ;
         } else if (closedNode->tag == QLatin1String("table")) {
             Q_ASSERT(!tables.isEmpty());
             QTextCharFormat charFmt;
-            charFmt.setNonDeletable(true);
+            charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
             QTextBlockFormat fmt;
             appendBlock(fmt, charFmt, QTextEndOfFrame);
             tables.resize(tables.size() - 1);

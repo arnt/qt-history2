@@ -101,7 +101,7 @@ bool QTextCursorPrivate::canDelete(int pos) const
 {
     QTextDocumentPrivate::FragmentIterator fit = pieceTable->find(pos);
     QTextCharFormat fmt = pieceTable->formatCollection()->charFormat((*fit)->format);
-    return !fmt.nonDeletable();
+    return (fmt.objectIndex() == -1);
 }
 
 void QTextCursorPrivate::insertBlock(const QTextBlockFormat &format, const QTextCharFormat &charFormat)
