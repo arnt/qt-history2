@@ -128,6 +128,11 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
             compilerName << compiler;
         QStringList compilerDepends = project->variables()[compiler + ".depends"];
         QStringList compilerConfig = project->variables()[compiler + ".CONFIG"];
+        
+        if (compilerConfig.contains("moc_verify"))
+            if (!verifyExtraCompiler(compiler, file))
+                continue;
+
         bool combineAll = compilerConfig.contains("combine");
         if (combineAll && inputList.first() != file)
             continue;
