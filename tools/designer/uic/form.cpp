@@ -1083,10 +1083,10 @@ void Uic::createFormImpl( const QDomElement &e )
 
     out << indent << "languageChange();" << endl;
 
-    // take sizeHint() into account, for height-for-width widgets
+    // take minimumSizeHint() into account, for height-for-width widgets
     if ( !geometry.isNull() )
 	out << indent << "resize( QSize(" << geometry.width() << ", "
-	    << geometry.height() << ").expandedTo(sizeHint()) );" << endl;
+	    << geometry.height() << ").expandedTo(minimumSizeHint()) );" << endl;
 
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
