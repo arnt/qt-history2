@@ -715,7 +715,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 	drawRecRect = newReceiver != connectReceiver;
 	currentConnectPos = mapFromGlobal( e->globalPos() );
 	if ( newReceiver &&
-	     ( isMainContainer( newReceiver ) || insertedWidgets.find( newReceiver ) ) )
+	     ( isMainContainer( newReceiver ) || insertedWidgets.find( newReceiver ) ) && !isCentralWidget( newReceiver ) )
 	    connectReceiver = newReceiver;
 	mainWindow()->statusBar()->message( tr( "Connect '%1' with '%2'" ).arg( connectSender->name() ).
 					    arg( connectReceiver->name() ) );
@@ -1394,7 +1394,7 @@ QWidget *FormWindow::designerWidget( QObject *o ) const
     if ( !o || !o->isWidgetType() )
 	return 0;
     QWidget *w = (QWidget*)o;
-    while ( w && !isMainContainer( w ) && !insertedWidgets[ (void*)w ] )
+    while ( w && !isMainContainer( w ) && !insertedWidgets[ (void*)w ] || isCentralWidget( w ) )
 	w = (QWidget*)w->parent();
     return w;
 }
@@ -2386,4 +2386,11 @@ DesignerFormWindow *FormWindow::iFace()
     if ( !iface )
 	iface = new DesignerFormWindowImpl( this );
     return iface;
+}
+
+bool FormWindow::isCentralWidget( QObject *w ) const
+{
+    if ( !mainContainer()->inherits( "QMainWindow" ) )
+	return FALSE;
+    return w == ( (QMainWindow*)mainContainer() )->centralWidget();
 }

@@ -156,6 +156,7 @@ public:
     virtual QPoint mapToForm( const QWidget* w, const QPoint&  ) const;
 
     bool isMainContainer( QObject *w ) const;
+    bool isCentralWidget( QObject *w ) const;
     QWidget *mainContainer() const { return mContainer; }
     void setMainContainer( QWidget *w );
 
