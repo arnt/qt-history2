@@ -10,7 +10,7 @@
 *****************************************************************************/
 
 
-#include "qtetrix.h"
+#include "qtetrax.h"
 #include <qapplication.h>
 #include <qlabel.h>
 #include <qdatetime.h>
@@ -81,7 +81,7 @@ void ShowNextPiece::drawNextSquare(int x, int y,QColor *color)
 }
 
 
-QTetrix::QTetrix( QWidget *parent, const char *name )
+QTetrax::QTetrax( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
     QTime t = QTime::currentTime();
@@ -174,7 +174,7 @@ QTetrix::QTetrix( QWidget *parent, const char *name )
     }
 }
 
-void QTetrix::quit()
+void QTetrax::quit()
 {
     qApp->quit();
 }

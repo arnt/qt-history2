@@ -13,14 +13,12 @@
 #ifndef QTETRIX_H
 #define QTETRIX_H
 
-#include "qtetrixb.h"
+#include "qtetraxb.h"
 #include <qframe.h>
 #include <qlcdnumber.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qpainter.h>
-
-#include <qaxfactory.h>
 
 class ShowNextPiece : public QFrame
 {
@@ -41,12 +39,12 @@ private:
 };
 
 
-class QTetrix : public QWidget
+class QTetrax : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( int score READ score WRITE setScore )
 public:
-    QTetrix( QWidget *parent=0, const char *name=0 );
+    QTetrax( QWidget *parent=0, const char *name=0 );
     
     int score() const { return showScore->intValue(); }
 

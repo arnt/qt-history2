@@ -10,13 +10,13 @@
 *****************************************************************************/
 
 
-#include "qtetrix.h"
+#include "qtetrax.h"
 #include "qdragapp.h"
 #include "qfont.h"
 
 #include <qaxfactory.h>
 
-QAXFACTORY_DEFAULT( QTetrix, 
+QAXFACTORY_DEFAULT( QTetrax, 
 	    "{852558AD-CBD6-4f07-844C-D1E8983CD6FC}", 
 	    "{2F5D0068-772C-4d1e-BCD2-D3F6BC7FD315}", 
 	    "{769F4820-9F28-490f-BA50-5545BD381DCB}",
@@ -27,14 +27,17 @@ int main( int argc, char **argv )
 {
     QApplication::setColorSpec( QApplication::CustomColor );
     QDragApplication a(argc,argv);
-    
+
+    QTetrax *tetrax = 0;
     if ( !QAxFactory::isServer() ) {
-	QTetrix *tetrix = new QTetrix;
-	tetrix->setCaption("Tetrix");
-	a.setMainWidget(tetrix);
-	tetrix->setCaption("Qt Example - Tetrix");
-	tetrix->show();
+	tetrax = new QTetrax;
+	tetrax->setCaption("Tetrax");
+	a.setMainWidget(tetrax);
+	tetrax->setCaption("Qt Example - Tetrax");
+	tetrax->show();
     }
 
-    return a.exec();
+    int res = a.exec();
+    delete tetrax;
+    return res;
 }

@@ -10,8 +10,8 @@
 *****************************************************************************/
 
 
-#include "qtetrixb.h"
-#include "qtetrix.h"
+#include "qtetraxb.h"
+#include "qtetrax.h"
 #include <qtimer.h>
 #include <qpainter.h>
 

@@ -13,7 +13,7 @@
 #ifndef QTETRIXB_H
 #define QTETRIXB_H
 
-#include "gtetrix.h"
+#include "gtetrax.h"
 #include <qframe.h>
 
 class QTimer;
