@@ -79,6 +79,12 @@ public:
     QLayoutItem *item() { return item_; }
     QLayoutItem *takeItem() { QLayoutItem *i = item_; item_ = 0; return i; }
 
+    int hStretch() { return (item_->widget()) ? 
+			 item_->widget()->sizePolicy().horStretch() : 0; }
+    int vStretch() { return (item_->widget()) ? 
+			 item_->widget()->sizePolicy().verStretch() : 0; }
+
+
 private:
     friend class QGridLayoutData;
     friend class QGridLayoutDataIterator;
@@ -125,11 +131,11 @@ public:
     void expand( int rows, int cols )
     { setSize( QMAX(rows, rr), QMAX(cols, cc) ); }
     void setRowStretch( int r, int s )
-    { expand( r + 1, 0 ); rowData[r].stretch = s; }
+    { expand( r + 1, 0 ); rStretch[r] = rowData[r].stretch = s; }
     void setColStretch( int c, int s )
-    { expand( 0, c+1 ); colData[c].stretch = s; }
-    int rowStretch( int r ) const { return rowData[r].stretch; }
-    int colStretch( int c ) const { return colData[c].stretch; }
+    { expand( 0, c+1 ); cStretch[c] = colData[c].stretch = s; }
+    int rowStretch( int r ) const { return rStretch[r]; }
+    int colStretch( int c ) const { return cStretch[c]; }
 
     void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
     bool horReversed() const { return hReversed; }
@@ -164,6 +170,8 @@ private:
     QMemArray<QLayoutStruct> rowData;
     QMemArray<QLayoutStruct> colData;
     QMemArray<QLayoutStruct> *hfwData;
+    QMemArray<int> rStretch;
+    QMemArray<int> cStretch;
     QPtrList<QGridBox> things;
     QPtrList<QGridMultiBox> *multi;
     bool needRecalc;
@@ -363,14 +371,20 @@ void QGridLayoutData::setSize( int r, int c )
     if ( (int)rowData.size() < r ) {
 	int newR = QMAX( r, rr * 2 );
 	rowData.resize( newR );
-	for ( int i = rr; i < newR; i++ )
+	rStretch.resize( newR );
+	for ( int i = rr; i < newR; i++ ) {
 	    rowData[i].init();
+	    rStretch[i] = 0;
+	}
     }
     if ( (int)colData.size() < c ) {
 	int newC = QMAX( c, cc * 2 );
 	colData.resize( newC );
-	for ( int i = cc; i < newC; i++ )
+	cStretch.resize( newC );
+	for ( int i = cc; i < newC; i++ ) {
 	    colData[i].init();
+	    cStretch[i] = 0;
+	}
     }
     rr = r;
     cc = c;
@@ -443,8 +457,13 @@ void QGridLayoutData::addData( QGridBox *box, bool r, bool c )
     QSize hint = box->sizeHint();
     QSize minS = box->minimumSize();
     QSize maxS = box->maximumSize();
+    
 
     if ( c ) {
+	//we always copy cStretch to colData
+	if ( !cStretch[box->col] )
+	    colData[box->col].stretch = QMAX(colData[box->col].stretch,
+					     box->hStretch() );
 	colData[box->col].sizeHint = QMAX( hint.width(),
 					   colData[box->col].sizeHint );
 	colData[box->col].minimumSize = QMAX( minS.width(),
@@ -455,6 +474,9 @@ void QGridLayoutData::addData( QGridBox *box, bool r, bool c )
 		     box->expanding() & QSizePolicy::Horizontally );
     }
     if ( r ) {
+	if ( !rStretch[box->row] )
+	    rowData[box->row].stretch = QMAX(rowData[box->row].stretch,
+	    box->vStretch() );
 	rowData[box->row].sizeHint = QMAX( hint.height(),
 					   rowData[box->row].sizeHint );
 	rowData[box->row].minimumSize = QMAX( minS.height(),
@@ -500,13 +522,11 @@ static void distributeMultiBox( QMemArray<QLayoutStruct> &chain, int spacing,
     int wh = 0;
     int max = 0;
     bool exp = FALSE;
-    bool stretch = FALSE;
     for ( i = start; i <= end; i++ ) {
 	w += chain[i].minimumSize;
 	wh += chain[i].sizeHint;
 	max += chain[i].maximumSize;
 	exp = exp || chain[i].expansive;
-	stretch = stretch || chain[i].stretch == 0;
 	chain[i].empty = FALSE;
     }
     w += spacing * ( end - start );
@@ -1412,6 +1432,10 @@ struct QBoxLayoutItem
 	    return item->sizeHint().height();
     }
     QLayoutItem *item;
+    int hStretch() { if (stretch == 0 && item->widget()) 
+	return item->widget()->sizePolicy().horStretch(); else return stretch;}
+    int vStretch() { if (stretch == 0 && item->widget()) 
+	return item->widget()->sizePolicy().verStretch(); else return stretch;}
     int stretch;
     bool magic;
 };
@@ -1706,7 +1730,6 @@ int QBoxLayout::heightForWidth( int w ) const
 void QBoxLayout::invalidate()
 {
     QLayout::invalidate();
-    QLayout::setGeometry( QRect() ); //###binary compatibility
     data->setDirty();
 }
 
@@ -2171,6 +2194,7 @@ void QBoxLayout::setupGeom()
 	    a[i].maximumSize = max.width();
 	    a[i].minimumSize = min.width();
 	    a[i].expansive = expand;
+	    a[i].stretch = box->stretch ? box->stretch : box->hStretch();
 	} else {
 	    bool expand = exp & QSizePolicy::Vertically || box->stretch > 0;
 	    verexp = verexp || expand;
@@ -2187,10 +2211,10 @@ void QBoxLayout::setupGeom()
 	    a[i].maximumSize = max.height();
 	    a[i].minimumSize = min.height();
 	    a[i].expansive = expand;
+	    a[i].stretch = box->stretch ? box->stretch : box->vStretch();
 	}
 
 	a[i].empty = empty;
-	a[i].stretch = box->stretch;
 	data->hasHfw = data->hasHfw || box->item->hasHeightForWidth();
 	first = first && empty;
     }

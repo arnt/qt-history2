@@ -53,7 +53,8 @@ public:
 		    Maximum = MayShrink,
 		    Preferred = MayGrow|MayShrink ,
 		    MinimumExpanding = MayShrink|ExpMask,
-		    Expanding = MayGrow|MayShrink|ExpMask };
+		    Expanding = MayGrow|MayShrink|ExpMask
+    };
 
     enum ExpandData { NoDirection = 0,
 		      Horizontally = 1,
@@ -95,10 +96,16 @@ public:
     bool operator==( const QSizePolicy& s ) const { return data == s.data; }
     bool operator!=( const QSizePolicy& s ) const { return data != s.data; }
 
-private:
-    QSizePolicy( int i ): data( (Q_UINT16)i ) {}
 
-    Q_UINT16 data;
+    uint horStretch() const { return data >> 24; }
+    uint verStretch() const { return (data >> 16) & 0xff; }
+    void setHorStretch( uchar sf ) { data = (data&0x00ffffff) | uint(sf)<<24; }
+    void setVerStretch( uchar sf ) { data = (data&0xff00ffff) | uint(sf)<<16; }
+
+private:
+    QSizePolicy( int i ): data( (Q_UINT32)i ) {}
+
+    Q_UINT32 data;
 };
 
 
