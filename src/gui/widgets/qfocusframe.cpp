@@ -150,6 +150,9 @@ QFocusFrame::eventFilter(QObject *o, QEvent *e)
         case QEvent::PaletteChange:
             setPalette(d->widget->palette());
             break;
+        case QEvent::ZOrderChange:
+            stackUnder(d->widget);
+            break;
         case QEvent::Destroy:
             setWidget(0);
             break;
