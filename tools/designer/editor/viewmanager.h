@@ -53,6 +53,7 @@ public:
     QValueList<int> breakPoints() const;
 
     void emitMarkersChanged();
+    MarkerWidget *marker_widget() const { return markerWidget; }
 
 signals:
     void markersChanged();
