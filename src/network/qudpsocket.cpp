@@ -124,12 +124,11 @@ public:
     QAbstractSocket's constructor.
 */
 QUdpSocket::QUdpSocket(QObject *parent)
-    : QAbstractSocket(*new QUdpSocketPrivate, parent)
+    : QAbstractSocket(Qt::UdpSocket, *new QUdpSocketPrivate, parent)
 {
     setFlags(Sequential | Async);
     setState(Qt::UnconnectedState);
     d->isBuffered = false;
-    setSocketType(Qt::UdpSocket);
 }
 
 /*!
@@ -175,6 +174,7 @@ bool QUdpSocket::bind(const QHostAddress &address, Q_UINT16 port)
     }
 
     d->state = Qt::BoundState;
+    d->readSocketNotifier->setEnabled(true);
     return true;
 }
 bool QUdpSocket::bind(Q_UINT16 port)
@@ -215,7 +215,10 @@ Q_LLONG QUdpSocket::sendDatagram(const char *data, Q_LLONG length,
            address.toString().latin1(), port);
 #endif
     QT_ENSURE_INITIALIZED(-1);
-    return d->socketLayer.sendDatagram(data, length, address, port);
+    Q_LLONG sent = d->socketLayer.sendDatagram(data, length, address, port);
+    if (sent > 0)
+        emit bytesWritten(sent);
+    return sent;
 }
 
 /*!
@@ -233,9 +236,10 @@ Q_LLONG QUdpSocket::receiveDatagram(char *data, Q_LLONG maxLength,
     qDebug("QUdpSocket::receiveMessage(%p, %llu, %p, %p"
            data, maxLength, addr, port);
 #endif
-    d->readSocketNotifier->setEnabled(true);
 // ###    QT_ENSURE_INITIALIZED(-1);
-    return d->socketLayer.receiveDatagram(data, maxLength, addr, port);
+    Q_LLONG readBytes = d->socketLayer.receiveDatagram(data, maxLength, addr, port);
+    d->readSocketNotifier->setEnabled(true);
+    return readBytes;
 }
 
 /*! \internal
