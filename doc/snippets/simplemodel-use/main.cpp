@@ -26,8 +26,6 @@
 #include <qvariant.h>
 #include <qwidget.h>
 
-#include <iostream>
-
 /*!
     Create a default directory model and, using the index-based interface to
     the model and some QLabel widgets, populate the window's layout with the
@@ -57,7 +55,7 @@ int main(int argc, char *argv[])
         QModelIndex index = model->index(row, 0, QModelIndex(), QModelIndex::View);
 
         QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
-        std::cout << text.ascii() << std::endl;
+        qDebug("%s", text.ascii());
 
         QLabel *label = new QLabel(text, window);
         layout->addWidget(label);
