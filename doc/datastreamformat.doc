@@ -167,7 +167,8 @@ and how they are represented.
 	\endlist
 \i QPicture
 	\list
-	\i ###
+	\i The size of the picture data (Q_UINT32)
+	\i The raw bytes of picture data (char)
 	\endlist
 \i QPixmap
 	\list
