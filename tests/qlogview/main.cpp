@@ -47,7 +47,7 @@ public slots:
     {
 	if ( !log3 ) {
 	    log3 = new QTextEdit( this );
-	    log3->setFont( QFont("courier", 15) );
+// 	    log3->setFont( QFont("courier", 15) );
 	    QPalette p = log3->palette();
 	    p.setColor( QColorGroup::Highlight, QColor("paleturquoise") );
 	    p.setColor( QColorGroup::HighlightedText, Qt::black );
@@ -61,12 +61,12 @@ public slots:
 	}
 	int num = 1000;
 	log3->clear();
-	log3->append("The following:");
+	log3->append("<underline><red>The following:</red></underline>");
 	log3->append("  This is some <<red>>red text<</red>>, while this is some <<green>>green\n  text<</green>>. <<blue>><<yellow>>This is yellow<</yellow>>, while this is blue.<</blue>>");
-	log3->append("is turned into this:");
-	log3->append("  This is some <red>red text</red>, while this is some <green>green\n  text</green>. <blue><yellow>This is yellow</yellow>, while this is blue.</blue>");
+	log3->append("<u><red>is turned into this:</red></u>");
+	log3->append("  This is some <italic><red>red text</red></italic>, while this is some <bold><green>green\n  text</green></bold>. <blue><yellow><underline>This is yellow</underline></yellow>, while this is blue.</blue>");
 
-	log3->append( "<<>><indianred>Per <red>K<green>å<yellow>r</yellow></green>e\nbott</red><blue>olfson</blue> jr<green>.</green>" );
+	log3->append( "<<>>Per <red>K<green>å<yellow>r</yellow></green>e\nbott</red><blue>olfson</blue> jr<green>.</green>" );
 	log3->append( "<pink>Pink, <red>Red, <palegreen>Palegreen, </palegreen></red></pink>"
 		      "<paleturquoise>Paleturquoise</paleturquoise>" );
 	log3->append( "Per <red><blue>o</blue>lfson jr.</red>" );
@@ -80,26 +80,26 @@ public slots:
 	fprintf( stderr,"\n");
 	int cn = 0;
 	for ( int i = 0; i < num; i++ ) {
-// 	str.sprintf("%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n"
-// 		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n"
-// 		    "%06d: 1234567890 1234567890 1234567890 1234567890\n"
-// 		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890\n"
-// 		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890\n"
-// 		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890\n"
-// 		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890\n"
-// 		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890\n"
-// 		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n"
-// 		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890", cn, cn + 1, cn + 2, cn +3, cn+4, cn+5,cn+6,cn+7,cn+8,cn+9);
-	    str.sprintf("%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n"
-			"%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n"
-			"<deepskyblue>%06d</deepskyblue>: 1234567890 1234567890 1234567890 1234567890\n"
-			"%06d: 1234567890 <red>1234567890</red> ygpqfh 1234567890 1234567890 1234567890\n"
-			"%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890\n"
-			"%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890\n"
-			"%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890\n"
-			"%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890\n"
-			"%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n"
-			"%06d: 1234567890 <slategray>1234567890</slategray> ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890", cn, cn + 1, cn + 2, cn +3, cn+4, cn+5,cn+6,cn+7,cn+8,cn+9);
+	str.sprintf("%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n"
+		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n"
+		    "%06d: 1234567890 1234567890 1234567890 1234567890\n"
+		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890\n"
+		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890\n"
+		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890\n"
+		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890\n"
+		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890\n"
+		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n"
+		    "%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890", cn, cn + 1, cn + 2, cn +3, cn+4, cn+5,cn+6,cn+7,cn+8,cn+9);
+// 	    str.sprintf("%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n"
+// 			"%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n"
+// 			"<deepskyblue>%06d</deepskyblue>: 1234567890 1234567890 1234567890 1234567890\n"
+// 			"%06d: 1234567890 <red>1234567890</red> ygpqfh 1234567890 1234567890 1234567890\n"
+// 			"%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890\n"
+// 			"%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890\n"
+// 			"%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890\n"
+// 			"%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890\n"
+// 			"%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n"
+// 			"%06d: 1234567890 <slategray>1234567890</slategray> ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890", cn, cn + 1, cn + 2, cn +3, cn+4, cn+5,cn+6,cn+7,cn+8,cn+9);
 	    cn +=10;
 	    log3->append( str );
 	    if ( (cn % 2000) == 0 ) {
