@@ -31,7 +31,6 @@
 #include "qdatetime.h"
 #endif // QT_H
 
-#include "qfiledefs.h"
 
 class QDir;
 struct QFileInfoCache;
@@ -112,11 +111,5 @@ inline bool QFileInfo::caching() const
     return cache;
 }
 
-
-struct QFileInfoCache
-{
-    STATBUF st;
-    bool isSymLink;
-};
 
 #endif // QFILEINFO_H

@@ -190,3 +190,10 @@
 # define W_OK	2
 # define R_OK	4
 #endif
+
+struct QFileInfoCache
+{
+    STATBUF st;
+    bool isSymLink;
+};
+
