@@ -729,9 +729,9 @@ void QWorkspace::showEvent( QShowEvent *e )
 			    list.append((QToolBar *)(*dock_it));
 			} else if ((*dock_it)->inherits("QDockWindow")) {
 			    QDockWindow *dw = (QDockWindow*)(*dock_it);
-			    QRect or(dw->mapTo(o, QPoint(0, 0)), dw->size());
+			    QRect oldr(dw->mapTo(o, QPoint(0, 0)), dw->size());
 			    dw->undock();
-			    dw->setGeometry(or);
+			    dw->setGeometry(oldr);
 			} else {
 			    qDebug("not sure what to do with %s %s", (*dock_it)->className(),
 				   (*dock_it)->name());
