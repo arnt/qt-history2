@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#45 $
 **
 ** Implementation of QPrinter class
 **
@@ -33,8 +33,7 @@
   \ingroup drawing
 
   All window systems that Qt supports, except X11, have built-in
-  printer drivers.  For X11, Qt provides PostScript (tm)
-  printing.
+  printer drivers.  For X11, Qt provides PostScript (tm) printing.
 
   Drawing graphics on a printer is almost identical to drawing graphics
   in a widget or a pixmap.  The only difference is that the programmer
@@ -88,8 +87,10 @@
 
 /*!
   \fn QString QPrinter::printerName() const
+
   Returns the printer name.  This value is initially set to the name of the
   default printer.
+
   \sa setPrinterName()
 */
 
@@ -186,19 +187,18 @@ void QPrinter::setOutputFileName( const QString &fileName )
 
 /*!
   \fn QString QPrinter::printProgram() const
+
   Returns the name of the program that sends the print output to the printer.
 
-  The default print program is "lpr" under X11.	 This function
-  returns 0 for all other window systems.
+  The default is to return a null string; meaning that QPrinter will
+  try to be smart in a system-dependent way.  On X11 only, you can set
+  it to something different to use a specific print program.
 
-  \sa setPrintProgram()
+  \sa setPrintProgram() setPrinterSelectionOption()
 */
 
 /*!
   Sets the name of the program that should do the print job.
-
-  If an output file has been defined, the printer driver will print to
-  the output file instead of directly to the printer.
 
   On X11, this function sets the program to call with the PostScript
   output.  On other platforms, it has no effect.
@@ -208,12 +208,6 @@ void QPrinter::setOutputFileName( const QString &fileName )
 
 void QPrinter::setPrintProgram( const QString &printProg )
 {
-    if ( state != 0 ) {
-#if defined(CHECK_STATE)
-	warning( "QPrinter::setPrintProgram: Cannot do this during printing" );
-#endif
-	return;
-    }
     print_prog = printProg;
 }
 
@@ -250,8 +244,9 @@ void QPrinter::setDocName( const QString &name )
   Sets the creator name.
 
   Calling this function only has effect for the X11 version of Qt.
-  The creator name is the name of the application that created the document.
-  If no creator name is specified, then the creator will be set to "Qt".
+  The creator name is the name of the application that created the
+  document.  If no creator name is specified, then the creator will be
+  set to "Qt" with some version number.
 
   \sa creator()
 */
@@ -264,7 +259,9 @@ void QPrinter::setCreator( const QString &creator )
 
 /*!
   \fn Orientation QPrinter::orientation() const
-  Returns the orientation setting. The default value is \c QPrinter::Portrait.
+
+  Returns the orientation setting. The default value is \c
+  QPrinter::Portrait.
   \sa setOrientation()
 */
 
@@ -499,11 +496,36 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 
 void QPrinter::setNumCopies( int numCopies )
 {
-    if ( state != 0 ) {
-#if defined(CHECK_STATE)
-	warning( "QPrinter::setNumCopies: Cannot do this during printing" );
-#endif
-	return;
-    }
     ncopies = numCopies;
+}
+
+
+/*!  Returns the printer options selection string.  This is only
+useful if the print command has been explicitly set.
+
+The default value (a null string) implies to select printer in a
+system-dependent manner.
+
+Any other value implies to use that value.
+
+\sa setPrinterSelectionOption()
+*/
+
+QString QPrinter::printerSelectionOption() const
+{
+    return option_string;
+}
+
+
+/*!  Sets the printer to use \a option to select printer.  \a option
+is null by default, meaning to be a little smart, but can be set to 
+other values to use a specific printer selection option.
+
+If the printer selection option is changed while the printer is
+active, the current print job may or may not be affected.
+*/
+
+void QPrinter::setPrinterSelectionOption( const QString & option )
+{
+    option_string = option;
 }

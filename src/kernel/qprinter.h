@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#33 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#34 $
 **
 ** Definition of QPrinter class
 **
@@ -49,14 +49,18 @@ public:
     enum PageOrder   { FirstPageFirst, LastPageFirst };
     enum ColorMode   { GrayScale, Color };
 
-    QString printerName()	const;
-    virtual void	setPrinterName( const QString &);
-    bool	outputToFile()	const;
-    virtual void	setOutputToFile( bool );
+    QString printerName() const;
+    virtual void setPrinterName( const QString &);
+    bool outputToFile()	const;
+    virtual void setOutputToFile( bool );
     QString outputFileName()const;
-    virtual void	setOutputFileName( const QString &);
-    QString printProgram()	const;
-    virtual void	setPrintProgram( const QString &);
+    virtual void setOutputFileName( const QString &);
+
+    QString printProgram() const;
+    virtual void setPrintProgram( const QString &);
+
+    QString printerSelectionOption() const;
+    virtual void setPrinterSelectionOption( const QString & );
 
     QString docName()	const;
     virtual void	setDocName( const QString &);
@@ -101,9 +105,11 @@ protected:
 private:
 #if defined(_WS_X11_)
     QPaintDevice *pdrv;
+    int		pid;
 #endif
     int		state;
     QString	printer_name;
+    QString	option_string;
     QString	output_filename;
     bool	output_file;
     QString	print_prog;

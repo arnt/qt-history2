@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#61 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -40,8 +40,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <signal.h>
 #endif
 
 #if defined(_WS_X11_)
@@ -79,14 +81,13 @@ QPrinter::QPrinter()
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
     pdrv = 0;
+    pid = 0;
     orient = Portrait;
     page_size = A4;
     ncopies = 1;
     from_pg = to_pg = min_pg = max_pg = 0;
     state = PST_IDLE;
-    printer_name = QString::fromLatin1(getenv( "PRINTER" ));
     output_file = FALSE;
-    print_prog = QString::fromLatin1("lpr");
 }
 
 /*!
@@ -96,6 +97,11 @@ QPrinter::QPrinter()
 QPrinter::~QPrinter()
 {
     delete pdrv;
+    if ( pid ) {
+	(void)::kill( pid, 6 );
+	(void)::wait( 0 );
+	pid = 0;
+    }
 }
 
 
@@ -123,6 +129,11 @@ bool QPrinter::abort()
     if ( state == PST_ACTIVE && pdrv ) {
 	((QPSPrinter*)pdrv)->cmd( PDC_PRT_ABORT, 0, 0 );
 	state = PST_ABORTED;
+    }
+    if ( pid ) {
+	(void)::kill( pid, 6 );
+	(void)::wait( 0 );
+	pid = 0;
     }
     return state == PST_ABORTED;
 }
@@ -183,12 +194,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    state = PST_ACTIVE;
 		}
 	    } else {
-		QString pr = printer_name;
-		if ( pr.isEmpty() )
-		    pr = QString::fromLatin1(getenv( "PRINTER" ));
-		if ( pr.isEmpty() )
-		    pr = QString::fromLatin1("lp");
-		pr.insert( 0, QString::fromLatin1("-P") );
+		QString pr;
+		if ( printer_name )
+		    pr = printer_name;
 #if defined(_OS_WIN32_)
 		// Not implemented
 		// lpr needs -Sserver argument
@@ -201,6 +209,12 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    return FALSE;
 		}
 #if 0 && defined(_OS_OS2EMX_)
+		// this code is still not used, and maybe it's not
+		// usable either, any more.  if you want to use it,
+		// you may need to fix it first.
+		
+		// old comment:
+		
 		// this code is usable but not in use.  spawn() is
 		// preferable to fork()/exec() for very large
 		// programs.  if fork()/exec() is a problem and you
@@ -211,6 +225,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		::close( fds[0] );
 		fcntl(tmp, F_SETFD, FD_CLOEXEC);
 		fcntl(fds[1], F_SETFD, FD_CLOEXEC);
+		pr.prepend( option_string ? option_string : "-P" ); // ###
 		if ( spawnlp(P_NOWAIT,print_prog.data(), print_prog.data(),
 			     pr.data(), output->name(), 0) == -1 ) {
 		    ;			// couldn't exec, ignored
@@ -220,7 +235,13 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		pdrv = new QPSPrinter( this, fds[1] );
 		state = PST_ACTIVE;
 #else
-		if ( fork() == 0 ) {	// child process
+		pid = fork();
+		if ( pid == 0 ) {	// child process
+		    // if possible, exit quickly, so the actual lp/lpr
+		    // becomes a child of init, and ::waitpid() is
+		    // guaranteed not to wait.
+		    if ( fork() > 0 )
+			exit( 0 );
 		    dup2( fds[0], 0 );
 #if defined(_WS_X11_)
 		    // hack time... getting the maximum number of open
@@ -245,23 +266,38 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    while( --i > 0 )
 			::close( i );
 #endif // _WS_X11_
-		    (void)execlp( print_prog.ascii(), print_prog.ascii(),
-				  pr.ascii(), 0 );
-		    // if execlp returns EACCES it couldn't find the
-		    // program.  if no special print program has been
-		    // set, let's try a little harder...
-		    if ( print_prog == QString::fromLatin1("lpr")
-			    && ( errno == EACCES ||
-						  errno == ENOENT ||
-						  errno == ENOEXEC ) ) {
-			(void)execl( "/bin/lpr", "lpr", pr.ascii(), 0 );
-			(void)execl( "/usr/bin/lpr", "lpr", pr.ascii(), 0 );
-			pr[1] = 'd';
-			(void)execlp( "lp", "lp", pr.ascii(), 0 );
-			(void)execl( "/bin/lp", "lp", pr.ascii(), 0 );
-			(void)execl( "/usr/bin/lp", "lp", pr.ascii(), 0 );
+		    if ( print_prog ) {
+			pr.prepend( option_string ? option_string :
+				    QString::fromLatin1( "-P" ) );
+			(void)execlp( print_prog.ascii(), print_prog.ascii(),
+				      pr.ascii(), 0 );
+		    } else {
+			// if no print program has been specified, be smart
+			// about the option string too.
+			const char * lprarg = 0;
+			QString lprhack;
+			const char * lparg = 0;
+			QString lphack;
+			if ( pr && option_string ) {
+			    lprhack = QString::fromLatin1( "-P" ) + pr;
+			    lprarg = lprhack.ascii();
+			    lphack = QString::fromLatin1( "-d" ) + pr;
+			    lparg = lphack.ascii();
+			}
+			(void)execlp( "lp", "lp", lparg, 0 );
+			(void)execlp( "lpr", "lpr", lprarg, 0 );
+			(void)execl( "/bin/lp", "lp", lparg, 0 );
+			(void)execl( "/bin/lpr", "lpr", lprarg, 0 );
+			(void)execl( "/usr/bin/lp", "lp", lparg, 0 );
+			(void)execl( "/usr/bin/lpr", "lpr", lprarg, 0 );
 		    }
-		    exit( 0 );
+		    // if we couldn't exec anything, close the fd,
+		    // wait for a second so the parent process (the
+		    // child of the GUI process) has exited.  then
+		    // exit.
+		    ::close( 0 );
+		    (void)::sleep( 1 );
+		    ::exit( 0 );
 		} else {		// parent process
 		    ::close( fds[0] );
 		    pdrv = new QPSPrinter( this, fds[1] );
@@ -283,6 +319,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		state = PST_IDLE;
 		delete pdrv;
 		pdrv = 0;
+		if ( pid ) {
+		    (void)::waitpid( pid, 0, 0 );
+		    pid = 0;
+		}
 	    }
 	}
 	return r;
