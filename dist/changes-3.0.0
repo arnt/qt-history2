@@ -864,6 +864,7 @@ Obsolete classes:
 	QSemiModal, use QDialog instead.
 	QMultiLineEdit, use QTextEdit instead.
 	QTableView, use QScrollView or QTable instead.
+	QAsyncIO, QDataSink, QDataSource, QDataPump and QIODeviceSource
 
 Obsolete functions:
 	QActionGroup::insert( QAction * ),  use QActionGroup::add( QAction* ) instead.

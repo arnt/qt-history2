@@ -55,6 +55,7 @@
 
 /*!
   \class QMultiLineEdit qmultilineedit.h
+  \obsolete
 
   \brief The QMultiLineEdit widget is a simple editor for inputting text.
 
