@@ -173,11 +173,6 @@ void CEItem::paint(QPainter *p)
     QFontMetrics fm = edit()->fontMetrics();
     QString text = "0x" + QString::number((uint)this, 16);
 
-    if (type() == CEItem::EndPointItem) {
-        CEEndPointItem *ep = qt_cast<CEEndPointItem*>(this);
-        text += " " + QString::number(ep->xRatio()) + " " + QString::number(ep->yRatio());
-    }
-
     p->setPen(Qt::black);
     p->setBrush(Qt::black);
     p->drawRect(QRect(pos, fm.size(Qt::TextSingleLine, text)));
@@ -306,6 +301,134 @@ void CELabelItem::paint(QPainter *p)
 ** CEEndPointItem
 */
 
+class EndPointLayout1D
+{
+public:
+    EndPointLayout1D();
+    void setPos(int a1, int a2, int b, int c1, int c2);
+    int getPos(int a1, int a2, int c1, int c2);
+    
+private:
+    enum Mode { OffsetFromMin, OffsetFromMax, Ratio };
+    Mode m_mode;
+    int m_offset;
+    double m_ratio;
+};
+
+class EndPointLayout
+{
+public:
+    EndPointLayout();
+    void setPos(const QRect &r1, const QPoint &p, const QRect &r2);
+    QPoint getPos(const QRect &r1, const QRect &r2);
+
+private:
+    enum Mode { InR1, InR2, Layout };
+    Mode m_mode;
+    QPoint m_offset;
+    EndPointLayout1D m_layout_hor, m_layout_ver;
+};
+
+EndPointLayout1D::EndPointLayout1D()
+{
+    m_mode = OffsetFromMin;
+    m_offset = 0;
+}
+
+void EndPointLayout1D::setPos(int a1, int a2, int b, int c1, int c2)
+{
+    int min = qMin(a1, c1);
+    int max = qMax(a2, c2);
+    
+    if (b <= min) {
+        m_mode = OffsetFromMin;
+        m_offset = b - min;
+    } else if (b >= max) {
+        m_mode = OffsetFromMax;
+        m_offset = b - max;
+    } else if (min == max) {
+        m_mode = Ratio;
+        m_ratio = 0.5;
+    } else {
+        m_mode = Ratio;
+        m_ratio = (b - min + 0.0)/(max - min);
+    }
+}
+
+int EndPointLayout1D::getPos(int a1, int a2, int c1, int c2)
+{
+    int min = qMin(a1, c1);
+    int max = qMax(a2, c2);
+    
+    int result;
+    
+    switch (m_mode) {
+        case OffsetFromMin:
+            result = min + m_offset;
+            break;
+        case OffsetFromMax:
+            result = max + m_offset;
+            break;
+        case Ratio:
+            result = min + (int)(m_ratio*(max - min));
+            break;
+    }
+    
+    return result;
+}
+
+EndPointLayout::EndPointLayout()
+{
+    m_mode = InR1;
+    m_offset = QPoint(0, 0);
+}
+
+void EndPointLayout::setPos(const QRect &r1, const QPoint &p, const QRect &r2)
+{
+    if (r1.contains(p)) {
+        m_mode = InR1;
+        m_offset = p - r1.topLeft();
+    } else if (r2.contains(p)) {
+        m_mode = InR2;
+        m_offset = p - r2.topLeft();
+    } else {
+        m_mode = Layout;
+        m_layout_hor.setPos(r1.left(), r1.right(), p.x(), r2.left(), r2.right());
+        m_layout_ver.setPos(r1.top(), r1.bottom(), p.y(), r2.top(), r2.bottom());
+    }
+}
+
+QPoint EndPointLayout::getPos(const QRect &r1, const QRect &r2)
+{
+    QPoint result;
+    
+    switch (m_mode) {
+        case InR1:
+            result = r1.topLeft() + m_offset;
+            break;
+        case InR2:
+            result = r2.topLeft() + m_offset;
+            break;
+        case Layout: {
+            int x = m_layout_hor.getPos(r1.left(), r1.right(), r2.left(), r2.right());
+            int y = m_layout_ver.getPos(r1.top(), r1.bottom(), r2.top(), r2.bottom());
+            result = QPoint(x, y);
+            break;
+        }
+    }
+
+    return result;
+}
+
+CEEndPointItem::CEEndPointItem(const QPoint &pos, ConnectionEdit *edit)
+    : CEItem(edit), m_pos(pos), m_layout(new EndPointLayout) 
+{}
+
+CEEndPointItem::~CEEndPointItem()
+{
+    delete m_layout;
+}
+
 void CEEndPointItem::paint(QPainter *p)
 {
     CEItem::paint(p);
@@ -322,67 +445,29 @@ void CEEndPointItem::move(const QPoint &delta)
     update();
 
     m_pos += delta;
-    adjustRatio();
+    adjustLayout();
     update();
     emit moved();
 }
 
-void CEEndPointItem::adjustRatio()
+void CEEndPointItem::adjustLayout()
 {
     CEEndPointItem *first = firstEndPoint(this);
     CEEndPointItem *last = lastEndPoint(this);
-    if (first != 0 && last != 0) {
-        if (first->pos().x() == last->pos().x()) {
-            QRect r = first->rect();
-            if (r.left() == r.right())
-                m_x_ratio = 0.0;
-            else
-                m_x_ratio = (m_pos.x() - r.left() + 0.0)/(r.right() - r.left());
-        } else {
-            m_x_ratio = (m_pos.x() - first->pos().x() + 0.0)/(last->pos().x() - first->pos().x());
-        }
-
-        if (first->pos().y() == last->pos().y()) {
-            QRect r = first->rect();
-            if (r.top() == r.bottom())
-                m_y_ratio = 0.0;
-            else
-                m_y_ratio = (m_pos.y() - r.top() + 0.0)/(r.bottom() - r.top());
-        } else {
-            m_y_ratio = (m_pos.y() - first->pos().y() + 0.0)/(last->pos().y() - first->pos().y());
-        }
-        m_have_ratio = true;
-    } else {
-        m_have_ratio = false;
-    }
+    if (first == 0 || last == 0)
+        return;
+    
+    m_layout->setPos(first->rect(), m_pos, last->rect());
 }
 
 void CEEndPointItem::adjustPos()
 {
-    if (!m_have_ratio)
-        return;
-
     CEEndPointItem *first = firstEndPoint(this);
     CEEndPointItem *last = lastEndPoint(this);
     if (first == 0 || last == 0)
         return;
 
-    int x, y;
-    if (first->pos().x() == last->pos().x()) {
-        QRect r = first->rect();
-        x = r.left() + (int)(m_x_ratio*(r.right() - r.left()));
-    } else {
-        x = first->pos().x() + (int)((last->pos().x() - first->pos().x())*m_x_ratio);
-    }
-
-    if (first->pos().y() == last->pos().y()) {
-        QRect r = first->rect();
-        y = r.top() + (int)(m_y_ratio*(r.bottom() - r.top()));
-    } else {
-        y = first->pos().y() + (int)((last->pos().y() - first->pos().y())*m_y_ratio);
-    }
-
-    QPoint pos(x, y);
+    QPoint pos = m_layout->getPos(first->rect(), last->rect());
     if (pos == m_pos)
         return;
 
@@ -1032,7 +1117,7 @@ void ConnectionEdit::insertEndPoint(const QPoint &pos)
 
     updateLine(new_edge1);
 //    update();
-    ep->adjustRatio();
+    ep->adjustLayout();
 }
 
 void ConnectionEdit::initConnection(Connection *con, const Connection::HintList &hint_list)
@@ -1125,7 +1210,7 @@ void ConnectionEdit::initConnection(Connection *con, const ItemList &item_list)
 
     foreach (CEItem *item, item_list) {
         if (item->type() == CEItem::EndPointItem)
-            qt_cast<CEEndPointItem*>(item)->adjustRatio();
+            qt_cast<CEEndPointItem*>(item)->adjustLayout();
         item->update();
     }
 
@@ -1683,6 +1768,10 @@ void ConnectionEdit::deleteWidgetItem(QWidget *w)
     CEWidgetItem *widget_item = widgetItem(w);
     if (widget_item != 0)
         deleteWidgetItem(widget_item);
+    
+    QList<QWidget*> child_list = qFindChildren<QWidget*>(w);
+    foreach (QWidget *child, child_list)
+        deleteWidgetItem(child);
 }
 
 void ConnectionEdit::updateAllItems()
@@ -1769,8 +1858,7 @@ void ConnectionEdit::dumpItems()
     qDebug() << "========== Items ============";
     foreach (CEItem *item, m_item_list) {
         if (CEEndPointItem *ep_item = qt_cast<CEEndPointItem*>(item))
-            qDebug() << ep_item << ep_item->edgeList() << ep_item->xRatio() << ep_item->yRatio()
-                        << ep_item->rect() << ep_item->visible();
+            qDebug() << ep_item << ep_item->edgeList() << ep_item->rect() << ep_item->visible();
         else if (CEEdgeItem *edge_item = qt_cast<CEEdgeItem*>(item))
             qDebug() << edge_item << edge_item->endPoint1() << edge_item->endPoint2() << edge_item->visible();
         else
@@ -1991,9 +2079,9 @@ void ConnectionEdit::updateLine(CEEdgeItem *e)
         some_ep = e->endPoint2();
     if (some_ep->type() == CEItem::EndPointItem) {
         for (CEEndPointItem *ep = some_ep; ep != 0 && ep->type() == CEItem::EndPointItem; ep = prevEndPoint(ep))
-            ep->adjustRatio();
+            ep->adjustLayout();
         for (CEEndPointItem *ep = nextEndPoint(ep); ep != 0 && ep->type() == CEItem::EndPointItem; ep = nextEndPoint(ep))
-            ep->adjustRatio();
+            ep->adjustLayout();
     }*/
 }
 

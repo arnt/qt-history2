@@ -99,11 +99,14 @@ private:
 
 class CEEdgeItem;
 
+class EndPointLayout;
+
 class CEEndPointItem : public CEItem
 {
     Q_OBJECT
 public:
     CEEndPointItem(const QPoint &pos, ConnectionEdit *edit);
+    ~CEEndPointItem();
     virtual QRect rect() const;
     virtual void paint(QPainter *p);
     virtual void move(const QPoint &delta);
@@ -118,14 +121,11 @@ public:
     CEEdgeItem *edge(int i) const;
     CEEdgeItem *edgeTo(CEEndPointItem *other) const;
     void adjustPos();
-    void adjustRatio();
+    void adjustLayout();
 
     QList<CEEdgeItem*> edgeList() const { return m_edge_list; } // ###
 
     virtual Type type() const;
-
-    double xRatio() const;
-    double yRatio() const;
 
 public slots:
     virtual void edgeDestroyed(QObject *o);
@@ -136,8 +136,7 @@ protected:
     typedef QList<CEEdgeItem*> EdgeList;
     EdgeList m_edge_list;
 
-    double m_x_ratio, m_y_ratio;
-    bool m_have_ratio;
+    EndPointLayout *m_layout;
 };
 
 class CEWidgetItem : public CEEndPointItem
@@ -431,9 +430,6 @@ inline CEItem::Type CELabelItem::type() const
 ** CEEndPointItem
 */
 
-inline CEEndPointItem::CEEndPointItem(const QPoint &pos, ConnectionEdit *edit)
-    : CEItem(edit), m_pos(pos), m_x_ratio(0.0), m_y_ratio(0.0), m_have_ratio(false) {}
-
 inline QPoint CEEndPointItem::pos() const
     { return m_pos; }
 
@@ -448,12 +444,6 @@ inline CEEdgeItem *CEEndPointItem::edge(int i) const
 
 inline CEItem::Type CEEndPointItem::type() const
     { return EndPointItem; }
-
-inline double CEEndPointItem::xRatio() const
-    { return m_x_ratio; }
-
-inline double CEEndPointItem::yRatio() const
-    { return m_y_ratio; }
 
 /*******************************************************************************
 ** CEWidgetItem
