@@ -249,9 +249,11 @@ void QSimpleRichText::setWidth( QPainter *p, int w )
 {
     if ( w == d->cachedWidth  && d->cachedWidthWithPainter )
 	return;
+    p->save();
     d->cachedWidth = w;
     d->cachedWidthWithPainter = TRUE;
     d->doc->doLayout( p, w );
+    p->restore();
 }
 
 /*!
@@ -325,6 +327,7 @@ void QSimpleRichText::adjustSize()
 void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRect& clipRect,
 			    const QColorGroup& cg, const QBrush* paper ) const
 {
+    p->save();
     if ( d->cachedWidth < 0 )
 	d->adjustSize();
     QRect r = clipRect;
@@ -337,7 +340,6 @@ void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRect& clipRect,
     if ( d->doc->paper() )
 	g.setBrush( QColorGroup::Base, *d->doc->paper() );
 
-    p->save();
     if ( !clipRect.isNull() )
 	p->setClipRect( clipRect, QPainter::CoordPainter );
     p->translate( x, y );
