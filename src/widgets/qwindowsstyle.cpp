@@ -368,7 +368,7 @@ void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 		       fill?fill: &g.brush( QColorGroup::Button ) );
     else
 	drawWinShades( p, x, y, w, h,
-		       g.light(), g.shadow(), g.midlight(), g.dark(),
+		       g.light(), g.shadow(), g.button(), g.dark(),
 		       fill?fill:&g.brush( QColorGroup::Button ) );
 
 }
@@ -677,15 +677,15 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 
     bool maxedOut = (sb->maxValue() == sb->minValue());
     if ( controls & AddLine ) {
-	drawBevelButton( p, addB.x(), addB.y(),
-			 addB.width(), addB.height(), g,
-			 ADD_LINE_ACTIVE, &g.brush( QColorGroup::Button ) );
+	qDrawWinPanel( p, addB.x(), addB.y(),
+		       addB.width(), addB.height(), g,
+		       ADD_LINE_ACTIVE, &g.brush( QColorGroup::Button ) );
 	drawArrow( p, VERTICAL ? DownArrow : RightArrow,
 		   ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
 		   addB.width()-4, addB.height()-4, g, !maxedOut );
     }
     if ( controls & SubLine ) {
-	drawBevelButton( p, subB.x(), subB.y(),
+	qDrawWinPanel( p, subB.x(), subB.y(),
 			 subB.width(), subB.height(), g,
 			 SUB_LINE_ACTIVE );
 	drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
@@ -721,7 +721,7 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 	    if ( !maxedOut ) {
 		QPoint bo = p->brushOrigin();
 		p->setBrushOrigin(sliderR.topLeft());
-		drawBevelButton( p, sliderR.x(), sliderR.y(),
+		qDrawWinPanel( p, sliderR.x(), sliderR.y(),
 				 sliderR.width(), sliderR.height(), g,
 				 FALSE, &g.brush( QColorGroup::Button ) );
 		p->setBrushOrigin(bo);

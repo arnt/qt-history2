@@ -495,7 +495,7 @@ void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
 		       g.dark(), g.light(), g.shadow(), g.midlight(), fill );
     else
 	qDrawWinShades( p, x, y, w, h,
-		       g.midlight(), g.shadow(), g.light(), g.dark(), fill );
+		       g.background(), g.shadow(), g.light(), g.dark(), fill );
 }
 
 
