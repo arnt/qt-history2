@@ -25,23 +25,23 @@ void QSqlQueryModelPrivate::prefetch(int limit)
     if (atEnd || limit <= bottom.row())
         return;
 
-    QModelIndex oldBottom = q_ptr->createIndex(bottom.row(), 0);
+    QModelIndex oldBottom = q->createIndex(bottom.row(), 0);
 
     // try to seek directly
     if (query.seek(limit)) {
-        bottom = q_ptr->createIndex(limit, bottom.column());
+        bottom = q->createIndex(limit, bottom.column());
     } else {
         // fetch as far as we can
         if (query.last()) {
-            bottom = q_ptr->createIndex(query.at(), bottom.column());
+            bottom = q->createIndex(query.at(), bottom.column());
         } else {
             error = query.lastError();
-            bottom = q_ptr->createIndex(-1, bottom.column());
+            bottom = q->createIndex(-1, bottom.column());
         }
         atEnd = true; // this is the end.
     }
     if (bottom.row() > oldBottom.row())
-        emit q_ptr->rowsInserted(QModelIndex(), oldBottom.row(), bottom.row());
+        emit q->rowsInserted(QModelIndex(), oldBottom.row(), bottom.row());
 }
 
 QSqlQueryModelPrivate::~QSqlQueryModelPrivate()
@@ -80,8 +80,7 @@ QSqlQueryModelPrivate::~QSqlQueryModelPrivate()
 QSqlQueryModel::QSqlQueryModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
-    d = new QSqlQueryModelPrivate();
-    d->q_ptr = this;
+    d = new QSqlQueryModelPrivate(this);
 }
 
 /*! \internal
@@ -90,7 +89,6 @@ QSqlQueryModel::QSqlQueryModel(QSqlQueryModelPrivate &dd, QObject *parent = 0)
     : QAbstractTableModel(parent)
 {
     d = &dd;
-    d->q_ptr = this;
 }
 
 /*!

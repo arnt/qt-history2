@@ -57,6 +57,8 @@ protected:
     void setLastError(const QSqlError &error);
     QSqlQueryModel(QSqlQueryModelPrivate &d, QObject *parent);
 
+    inline QSqlQueryModelPrivate *d_func() const { return d; }
+
 private:
     friend class QSqlQueryModelPrivate;
     QSqlQueryModelPrivate *d;

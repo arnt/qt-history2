@@ -25,7 +25,6 @@ class QSqlIndex;
 class Q_SQL_EXPORT QSqlTableModel: public QSqlQueryModel
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QSqlTableModel)
 
 public:
     enum EditStrategy {OnFieldChange, OnRowChange, OnManualSubmit};
@@ -98,6 +97,10 @@ protected:
     void setPrimaryKey(const QSqlIndex &key);
     void setQuery(const QSqlQuery &query);
     QModelIndex dataIndex(const QModelIndex &item) const;
+
+private:
+    friend class QSqlTableModelPrivate;
+    QSqlTableModelPrivate *d;
 };
 
 #endif

@@ -27,12 +27,14 @@
 
 class QSqlTableModelPrivate: public QSqlQueryModelPrivate
 {
-    Q_DECLARE_PUBLIC(QSqlTableModel);
 public:
-    QSqlTableModelPrivate()
-        : editIndex(-1), insertIndex(-1), sortColumn(-1),
+    QSqlTableModelPrivate(QSqlTableModel *qq)
+        : QSqlQueryModelPrivate(qq),
+          editIndex(-1), insertIndex(-1), sortColumn(-1),
           sortOrder(Qt::AscendingOrder),
-          strategy(QSqlTableModel::OnFieldChange) {}
+          strategy(QSqlTableModel::OnFieldChange),
+          q(qq)
+    {}
     void clear();
     QSqlRecord primaryValues(int index);
     void clearEditBuffer();
@@ -67,10 +69,9 @@ public:
 
     typedef QMap<int, ModifiedRow> CacheMap;
     CacheMap cache;
-};
 
-#define d d_func()
-#define q q_func()
+    QSqlTableModel *q;
+};
 
 /*! \internal
     Populates our record with values
@@ -99,7 +100,7 @@ void QSqlTableModelPrivate::clear()
 
 void QSqlTableModelPrivate::clearEditBuffer()
 {
-    editBuffer = d->rec;
+    editBuffer = rec;
 }
 
 void QSqlTableModelPrivate::revertCachedRow(int row)
@@ -116,14 +117,14 @@ void QSqlTableModelPrivate::revertCachedRow(int row)
                             q->createIndex(row, q->columnCount() - 1));
         break;
     case QSql::Insert: {
-            QMap<int, QSqlTableModelPrivate::ModifiedRow>::Iterator it = d->cache.find(row);
-            if (it == d->cache.end())
+            QMap<int, QSqlTableModelPrivate::ModifiedRow>::Iterator it = cache.find(row);
+            if (it == cache.end())
                 return;
-            while (++it != d->cache.end()) {
+            while (++it != cache.end()) {
                 int oldKey = it.key();
                 const QSqlTableModelPrivate::ModifiedRow oldValue = it.value();
-                d->cache.erase(it);
-                it = d->cache.insert(oldKey - 1, oldValue);
+                cache.erase(it);
+                it = cache.insert(oldKey - 1, oldValue);
             }
             emit q->rowsRemoved(QModelIndex::Null, row, row);
         break; }
@@ -137,8 +138,8 @@ bool QSqlTableModelPrivate::exec(const QString &stmt, bool prepStatement,
         return false;
 
     // lazy initialization of editQuery
-    if (editQuery.driver() != d->db.driver())
-        editQuery = QSqlQuery(d->db);
+    if (editQuery.driver() != db.driver())
+        editQuery = QSqlQuery(db);
 
     if (prepStatement) {
         if (editQuery.lastQuery() != stmt) {
@@ -256,8 +257,9 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
   default database connection will be used.
  */
 QSqlTableModel::QSqlTableModel(QObject *parent, QSqlDatabase db)
-    : QSqlQueryModel(*new QSqlTableModelPrivate, parent)
+    : QSqlQueryModel(*new QSqlTableModelPrivate(this), parent)
 {
+    d = static_cast<QSqlTableModelPrivate *>(d_func());
     d->db = db.isValid() ? db : QSqlDatabase::database();
 }
 
