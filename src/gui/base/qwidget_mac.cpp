@@ -259,6 +259,10 @@ static EventTypeSpec widget_events[] = {
     { kEventClassControl, kEventControlDraw },
     { kEventClassControl, kEventControlInitialize },
     { kEventClassControl, kEventControlGetPartRegion },
+    { kEventClassControl, kEventControlDragEnter },
+    { kEventClassControl, kEventControlDragWithin },
+    { kEventClassControl, kEventControlDragLeave },
+    { kEventClassControl, kEventControlDragReceive },
 };
 static EventHandlerUPP mac_widget_eventUPP = 0;
 static void cleanup_widget_eventUPP()
@@ -363,14 +367,12 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 		widget->d->clp = QRegion();
 		widget->cg_hd = 0;
 		widget->hd = 0;
+	    }
 	} else if(ekind == kEventControlInitialize) {
 #if QT_MACOSX_VERSION < 0x1030
 	    UInt32 features = kControlSupportsEmbedding;
 	    SetEventParameter(event, kEventControlInitialize, typeUInt32, sizeof(features), &features);
 #endif
-	    } else {
-		handled_event = false;
-	    }
 	} else if(ekind == kEventControlGetPartRegion) {
 	    handled_event = false;
 	    if(widget && !widget->isTopLevel()) {
@@ -383,6 +385,23 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 		    if(QWidgetPrivate::qt_widget_rgn(widget, kWindowStructureRgn, rgn, false))
 			handled_event = true;
 		}
+	    }
+	} else if(ekind == kEventControlDragEnter || ekind == kEventControlDragWithin ||
+		  ekind == kEventControlDragLeave || ekind == kEventControlDragReceive) {
+	    qDebug("some drag thingie..");
+	    handled_event = false;
+	    if(widget) {
+		//these are really handled in qdnd_mac.cpp just to modularize the code a little..
+		if(ekind == kEventControlDragEnter) {
+		    Boolean accept_drops = widget->acceptDrops() ? true : false;
+		    SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean, sizeof(accept_drops), &accept_drops);
+		    if(!accept_drops)
+			break;
+		}
+		DragRef drag;
+		GetEventParameter(event, kEventParamDragRef, typeDragRef, NULL, sizeof(drag), NULL, &drag);
+		if(widget->d->qt_mac_dnd_event(ekind, drag))
+		    handled_event = true;
 	    }
 	}
 	break; }
@@ -413,7 +432,7 @@ static HIViewRef qt_mac_create_widget(HIViewRef parent)
 
 bool qt_mac_is_macdrawer(QWidget *w)
 {
-#if 0
+#if 1
     if(w && w->isTopLevel() && w->parentWidget() && w->testWFlags(Qt::WMacDrawer))
 	return true;
 #else
@@ -736,7 +755,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		// and have an actual border we can put them on.
                 if(wclass != kModalWindowClass && wclass != kMovableModalWindowClass
                     && wclass != kSheetWindowClass && wclass != kPlainWindowClass
-                    && !testWFlags(WStyle_NoBorder)) {
+                    && !testWFlags(WStyle_NoBorder) && wclass != kDrawerWindowClass) {
 		    if(testWFlags(WStyle_Maximize))
 			wattr |= kWindowFullZoomAttribute;
 		    if(testWFlags(WStyle_Minimize))
@@ -1767,7 +1786,6 @@ int QWidget::metric(int m) const
 
 void QWidgetPrivate::createSysExtra()
 {
-    extra->macDndExtra = 0;
 }
 
 void QWidgetPrivate::deleteSysExtra()

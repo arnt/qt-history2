@@ -40,8 +40,6 @@ class QWSManager;
 class QOleDropTarget;
 #endif
 #if defined(Q_WS_MAC)
-class QMacDndExtra;
-class QMacCGExtra;
 class QCoreGraphicsPaintEnginePrivate;
 #endif
 #if defined(Q_WS_X11)
@@ -111,9 +109,6 @@ struct QWExtra {
 #if defined(Q_WS_X11)
     WId xDndProxy;				// XDND forwarding to embedded windows
 #endif
-#if defined(Q_WS_MAC)
-    QMacDndExtra *macDndExtra;
-#endif // Q_WS_MAC
 #if defined(Q_WS_X11)
     uint children_use_dnd : 1;
     uint compress_events : 1;
@@ -239,6 +234,7 @@ public:
     };
     uint    macDropEnabled : 1;
     EventHandlerRef window_event;
+    bool qt_mac_dnd_event(uint, DragRef);
     //mac event functions
     friend class QGuiEventLoop;
     static bool qt_create_root_win();

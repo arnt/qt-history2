@@ -69,9 +69,10 @@ typedef QList<QWidget *> QWidgetList;
 typedef struct OpaqueEventLoopTimerRef* EventLoopTimerRef;
 typedef struct OpaqueMenuHandle *MenuRef;
 #else
-typedef struct __EventLoopTimer*        EventLoopTimerRef;
-typedef struct OpaqueMenuRef*        MenuRef;
+typedef struct __EventLoopTimer *EventLoopTimerRef;
+typedef struct OpaqueMenuRef *MenuRef;
 #endif
+typedef struct OpaqueDragRef *DragRef;
 typedef struct OpaqueControlRef* ControlRef;
 typedef ControlRef HIViewRef;
 typedef struct CGContext *CGContextRef;
@@ -81,9 +82,9 @@ typedef struct OpaquePMPrintSession *PMPrintSession;
 typedef struct OpaquePMPrintSettings *PMPrintSettings;
 typedef struct OpaquePMPageFormat *PMPageFormat;
 typedef struct Point Point;
-typedef struct OpaqueEventHandlerRef*   EventHandlerRef;
-typedef struct OpaqueEventHandlerCallRef*  EventHandlerCallRef;
-typedef struct OpaqueEventRef*          EventRef;
+typedef struct OpaqueEventHandlerRef *EventHandlerRef;
+typedef struct OpaqueEventHandlerCallRef *EventHandlerCallRef;
+typedef struct OpaqueEventRef *EventRef;
 typedef long int OSStatus;
 typedef struct OpaqueScrapRef *ScrapRef;
 typedef struct OpaqueRgnHandle *RgnHandle;
