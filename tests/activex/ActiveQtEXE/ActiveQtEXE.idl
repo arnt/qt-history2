@@ -18,6 +18,7 @@ import "ocidl.idl";
 	]
 	interface IQActiveX : IDispatch
 	{
+		[id(1), helpstring("method invoke")] HRESULT doSomething();
 	};
 
 [
