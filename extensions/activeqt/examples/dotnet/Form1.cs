@@ -12,8 +12,8 @@ namespace csharp
 	/// </summary>
 	public class Form1 : System.Windows.Forms.Form
 	{
-		private AxmultipleaxLib.AxQAxWidget2 axQAxWidget21;
-		private AxwrapperaxLib.AxQPushButton axQPushButton1;
+		private AxwrapperaxLib.AxQPushButton resetButton;
+		private AxmultipleaxLib.AxQAxWidget2 circleWidget;
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
@@ -54,43 +54,47 @@ namespace csharp
 		private void InitializeComponent()
 		{
 			System.Resources.ResourceManager resources = new System.Resources.ResourceManager(typeof(Form1));
-			this.axQPushButton1 = new AxwrapperaxLib.AxQPushButton();
-			this.axQAxWidget21 = new AxmultipleaxLib.AxQAxWidget2();
-			((System.ComponentModel.ISupportInitialize)(this.axQPushButton1)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.axQAxWidget21)).BeginInit();
+			this.resetButton = new AxwrapperaxLib.AxQPushButton();
+			this.circleWidget = new AxmultipleaxLib.AxQAxWidget2();
+			((System.ComponentModel.ISupportInitialize)(this.resetButton)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.circleWidget)).BeginInit();
 			this.SuspendLayout();
 			// 
-			// axQPushButton1
+			// resetButton
 			// 
-			this.axQPushButton1.Enabled = true;
-			this.axQPushButton1.Location = new System.Drawing.Point(48, 232);
-			this.axQPushButton1.Name = "axQPushButton1";
-			this.axQPushButton1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axQPushButton1.OcxState")));
-			this.axQPushButton1.Size = new System.Drawing.Size(192, 32);
-			this.axQPushButton1.TabIndex = 1;
-			this.axQPushButton1.clicked += new System.EventHandler(this.axQPushButton1_clicked);
+			this.resetButton.Anchor = (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
+			this.resetButton.Enabled = true;
+			this.resetButton.Location = new System.Drawing.Point(160, 296);
+			this.resetButton.Name = "resetButton";
+			this.resetButton.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("resetButton.OcxState")));
+			this.resetButton.Size = new System.Drawing.Size(168, 32);
+			this.resetButton.TabIndex = 1;
+			this.resetButton.clicked += new System.EventHandler(this.resetLineWidth);
 			// 
-			// axQAxWidget21
+			// circleWidget
 			// 
-			this.axQAxWidget21.Enabled = true;
-			this.axQAxWidget21.Location = new System.Drawing.Point(8, 8);
-			this.axQAxWidget21.Name = "axQAxWidget21";
-			this.axQAxWidget21.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axQAxWidget21.OcxState")));
-			this.axQAxWidget21.Size = new System.Drawing.Size(280, 216);
-			this.axQAxWidget21.TabIndex = 2;
-			this.axQAxWidget21.ClickEvent += new System.EventHandler(this.axQAxWidget21_Click);
+			this.circleWidget.Anchor = (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+				| System.Windows.Forms.AnchorStyles.Left) 
+				| System.Windows.Forms.AnchorStyles.Right);
+			this.circleWidget.Enabled = true;
+			this.circleWidget.Location = new System.Drawing.Point(8, 8);
+			this.circleWidget.Name = "circleWidget";
+			this.circleWidget.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("circleWidget.OcxState")));
+			this.circleWidget.Size = new System.Drawing.Size(320, 264);
+			this.circleWidget.TabIndex = 2;
+			this.circleWidget.ClickEvent += new System.EventHandler(this.circleClicked);
 			// 
 			// Form1
 			// 
 			this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-			this.ClientSize = new System.Drawing.Size(292, 273);
+			this.ClientSize = new System.Drawing.Size(336, 333);
 			this.Controls.AddRange(new System.Windows.Forms.Control[] {
-																		  this.axQAxWidget21,
-																		  this.axQPushButton1});
+																		  this.circleWidget,
+																		  this.resetButton});
 			this.Name = "Form1";
 			this.Text = "Form1";
-			((System.ComponentModel.ISupportInitialize)(this.axQPushButton1)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.axQAxWidget21)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.resetButton)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.circleWidget)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -105,14 +109,14 @@ namespace csharp
 			Application.Run(new Form1());
 		}
 
-		private void axQAxWidget21_Click(object sender, System.EventArgs e)
+		private void resetLineWidth(object sender, System.EventArgs e)
 		{
-			this.axQAxWidget21.lineWidth++;
+			this.circleWidget.lineWidth = 1;
 		}
 
-		private void axQPushButton1_clicked(object sender, System.EventArgs e)
+		private void circleClicked(object sender, System.EventArgs e)
 		{
-			this.axQAxWidget21.lineWidth = 1;
+			this.circleWidget.lineWidth++;
 		}
 	}
 }
