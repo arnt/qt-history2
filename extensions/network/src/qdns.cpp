@@ -39,161 +39,164 @@ static QStrList * domains = 0;
 
 static void doResInit( void );
 
-//#define DEBUG_QDNS
+#define DEBUG_QDNS
+
+class QDnsQuery: public QTimer { // this inheritance is a very evil hack
+public:
+    QDnsQuery(): id( 0 ), t( QDns::None ), step(0), started(0) {}
+    Q_UINT16 id;
+    QDns::RecordType t;
+    QString l;
+
+    uint step;
+    Q_UINT32 started;
+};
+
+
+class QDnsDomain;
+class QDnsRR;
+
+
+class QDnsAnswer {
+public:
+    QDnsAnswer( const QByteArray &, QDnsQuery * );
+    ~QDnsAnswer();
+
+    void parse();
+    void notify();
+
+private:
+    QDnsQuery * q;
+
+    bool ok;
+
+    Q_UINT8 * answer;
+    int size;
+    int pp;
+
+    QList<QDnsRR> * rrs;
+
+    // convenience
+    int next;
+    int ttl;
+    QString label;
+    QDnsRR * rr;
+
+    QString readString();
+    void parseA();
+    void parseAaaa();
+    void parseMx();
+    void parseSrv();
+    void parseCname();
+    void parsePtr();
+    void parseTxt();
+};
+
+class QDnsManager: public QDnsSocket {
+private:
+public: // just to silence the moronic g++.
+    QDnsManager();
+    ~QDnsManager();
+public:
+    static QDnsManager * manager();
+
+    QDnsDomain * domain( const QString & );
+    QDnsQuery * query( const QString &, QDns::RecordType );
+
+    void transmitQuery( QDnsQuery * );
+    void transmitQuery( int );
+
+    // reimplementation of the slots
+    void cleanCache();
+    void retransmit();
+    void answer();
+
+public:
+    QVector<QDnsQuery> queries;
+    QDict<QDnsDomain> cache;
+    QSocketDevice * socket;
+};
+
+class QDnsDomain {
+public:
+    QDnsDomain( const QString & label );
+    ~QDnsDomain();
+
+    static void add( const QString & label, QDnsRR * );
+    static QList<QDnsRR> * cached( const QString &, QDns::RecordType );
+    static void add( const QDns * );
+    static void remove( const QDns * );
+
+    void take( QDnsRR * );
+
+    void sweep();
+
+    bool isEmpty() const { return rrs == 0 || rrs->isEmpty(); }
+
+    QString name() const { return l; }
+
+public:
+    QString l;
+    QList<QDnsRR> * rrs;
+    QPtrDict<void> * dns;
+};
+
+
+class QDnsRR {
+public:
+    QDnsRR( const QString & label );
+    ~QDnsRR();
+
+public:
+    QDnsDomain * domain;
+    QDns::RecordType t;
+    bool nxdomain;
+    bool current;
+    Q_UINT32 expireTime;
+    Q_UINT32 deleteTime;
+    // somewhat space-wasting per-type data
+    // a / aaaa
+    QHostAddress address;
+    // cname / mx / srv / ptr
+    QString target;
+    // mx / srv
+    Q_UINT32 priority;
+    // srv
+    Q_UINT32 weight;
+    // txt
+    QString text; // could be overloaded into target...
+private:
+
+};
+
+
+class QDnsUgleHack: public QDns {
+public:
+    void ugle() { emit statusChanged(); }
+};
+
 
 class QDnsPrivate {
-public:
-    class Domain;
-    class RR;
-
-    class Query: public QTimer { // this inheritance is a very evil hack
-    public:
-	Query(): id( 0 ), t( QDns::None ), step(0), started(0) {}
-	Q_UINT16 id;
-	QDns::RecordType t;
-	QString l;
-
-	uint step;
-	Q_UINT32 started;
-    };
-
-    class Answer {
-    public:
-	Answer( const QByteArray &, Query * );
-	~Answer();
-
-	void parse();
-	void notify();
-
-    private:
-	Query * q;
-
-	bool ok;
-
-	Q_UINT8 * answer;
-	int size;
-	int pp;
-
-	QList<RR> * rrs;
-
-	// convenience
-	int next;
-	int ttl;
-	QString label;
-	RR * rr;
-
-	QString readString();
-	void parseA();
-	void parseAaaa();
-	void parseMx();
-	void parseSrv();
-	void parseCname();
-	void parsePtr();
-	void parseTxt();
-    };
-
-    class Manager: public QDnsSocket {
-    private:
-    public: // just to silence the moronic g++.
-	Manager();
-	~Manager();
-    public:
-	static Manager * manager();
-
-	Domain * domain( const QString & );
-	Query * query( const QString &, QDns::RecordType );
-
-	void transmitQuery( QDnsPrivate::Query * );
-	void transmitQuery( int );
-
-	// reimplementation of the slots
-	void cleanCache();
-	void retransmit();
-	void answer();
-
-    public:
-	QVector<QDnsPrivate::Query> queries;
-	QDict<QDnsPrivate::Domain> cache;
-	QSocketDevice * socket;
-    };
-
-    class Domain {
-    public:
-	Domain( const QString & label );
-	~Domain();
-
-	static void add( const QString & label, RR * );
-	static QList<RR> * cached( const QString &, QDns::RecordType );
-	static void add( const QDns * );
-	static void remove( const QDns * );
-
-	void take( RR * );
-
-	void sweep();
-
-	bool isEmpty() const { return rrs == 0 || rrs->isEmpty(); }
-
-	QString name() const { return l; }
-
-    public:
-	QString l;
-	QList<RR> * rrs;
-	QPtrDict<void> * dns;
-    };
-
-
-    class RR {
-    public:
-	RR( const QString & label );
-	~RR();
-
-    public:
-	Domain * domain;
-	QDns::RecordType t;
-	bool nxdomain;
-	bool current;
-	Q_UINT32 expireTime;
-	Q_UINT32 deleteTime;
-	// somewhat space-wasting per-type data
-	// a / aaaa
-	QHostAddress address;
-	// cname / mx / srv / ptr
-	QString target;
-	// mx / srv
-	Q_UINT32 priority;
-	// srv
-	Q_UINT32 weight;
-	// txt
-	QString text; // could be overloaded into target...
-    private:
-
-    };
-
-    class UgleHack: public QDns {
-    public:
-	void ugle() { emit statusChanged(); }
-    };
-
 public:
     QDnsPrivate() {}
 };
 
 
-static QDnsPrivate::Manager * globalManager;
+static QDnsManager * globalManager;
 
 
-QDnsPrivate::Manager::Manager * QDnsPrivate::Manager::manager()
+QDnsManager * QDnsManager::manager()
 {
     if ( !globalManager )
-	new Manager();
+	new QDnsManager();
     return globalManager;
 }
 
 
-QDnsPrivate::Manager::Manager()
+QDnsManager::QDnsManager()
     : QDnsSocket( qApp, "Internal DNS manager" ),
-      queries( QVector<QDnsPrivate::Query>( 0 ) ),
-      cache( QDict<QDnsPrivate::Domain>( 83, FALSE ) ),
+      queries( QVector<QDnsQuery>( 0 ) ),
+      cache( QDict<QDnsDomain>( 83, FALSE ) ),
       socket( new QSocketDevice( QSocketDevice::Datagram ) )
 {
     cache.setAutoDelete( TRUE );
@@ -214,18 +217,18 @@ QDnsPrivate::Manager::Manager()
 }
 
 
-QDnsPrivate::Manager::~Manager()
+QDnsManager::~QDnsManager()
 {
     if ( globalManager )
 	globalManager = 0;
 }
 
 
-void QDnsPrivate::Manager::cleanCache()
+void QDnsManager::cleanCache()
 {
     bool again = FALSE;
-    QDictIterator<QDnsPrivate::Domain> it( cache );
-    QDnsPrivate::Domain * d;
+    QDictIterator<QDnsDomain> it( cache );
+    QDnsDomain * d;
     while( (d=it.current()) != 0 ) {
 	++it;
 	d->sweep(); // after this, d may be empty
@@ -237,7 +240,7 @@ void QDnsPrivate::Manager::cleanCache()
 }
 
 
-void QDnsPrivate::Manager::retransmit()
+void QDnsManager::retransmit()
 {
     const QObject * o = sender();
     if ( o == 0 || globalManager == 0 || this != globalManager )
@@ -250,7 +253,7 @@ void QDnsPrivate::Manager::retransmit()
 }
 
 
-QString QDnsPrivate::Answer::readString()
+QString QDnsAnswer::readString()
 {
     int p = pp;
     QString r = QString::null;
@@ -293,7 +296,7 @@ QString QDnsPrivate::Answer::readString()
 
 
 
-void QDnsPrivate::Answer::parseA()
+void QDnsAnswer::parseA()
 {
     if ( next != pp + 4 ) {
 #if defined(DEBUG_QDNS)
@@ -303,7 +306,7 @@ void QDnsPrivate::Answer::parseA()
 	return;
     }
 
-    rr = new QDnsPrivate::RR( label );
+    rr = new QDnsRR( label );
     rr->t = QDns::A;
     rr->address = QHostAddress( ( answer[pp+0] << 24 ) +
 				( answer[pp+1] << 16 ) +
@@ -317,41 +320,41 @@ void QDnsPrivate::Answer::parseA()
 }
 
 
-void QDnsPrivate::Answer::parseAaaa()
+void QDnsAnswer::parseAaaa()
 {
     // let's ignore it for now
 }
 
 
 
-void QDnsPrivate::Answer::parseMx()
+void QDnsAnswer::parseMx()
 {
 
 }
 
 
-void QDnsPrivate::Answer::parseSrv()
+void QDnsAnswer::parseSrv()
 {
 }
 
 
-void QDnsPrivate::Answer::parseCname()
+void QDnsAnswer::parseCname()
 {
 }
 
 
-void QDnsPrivate::Answer::parsePtr()
+void QDnsAnswer::parsePtr()
 {
 }
 
 
-void QDnsPrivate::Answer::parseTxt()
+void QDnsAnswer::parseTxt()
 {
 }
 
 
-QDnsPrivate::Answer::Answer( const QByteArray& answer_,
-			     QDnsPrivate::Query * query_ )
+QDnsAnswer::QDnsAnswer( const QByteArray& answer_,
+			QDnsQuery * query_ )
 {
     ok = TRUE;
 
@@ -359,7 +362,7 @@ QDnsPrivate::Answer::Answer( const QByteArray& answer_,
     size = answer_.size();
     q = query_;
     pp = 0;
-    rrs = new QList<QDnsPrivate::RR>;
+    rrs = new QList<QDnsRR>;
     rrs->setAutoDelete( FALSE );
     next = size;
     ttl = 0;
@@ -368,11 +371,11 @@ QDnsPrivate::Answer::Answer( const QByteArray& answer_,
 };
 
 
-QDnsPrivate::Answer::~Answer()
+QDnsAnswer::~QDnsAnswer()
 {
     if ( !ok && rrs ) {
-	QListIterator<RR> it( *rrs );
-	RR * rr;
+	QListIterator<QDnsRR> it( *rrs );
+	QDnsRR * rr;
 	while( (rr=it.current()) != 0 ) {
 	    ++it;
 	    rr->t = QDns::None; // will be deleted very quickly
@@ -381,7 +384,7 @@ QDnsPrivate::Answer::~Answer()
 }
 
 
-void QDnsPrivate::Answer::parse()
+void QDnsAnswer::parse()
 {
     // okay, do the work...
     if ( (answer[2] & 0x78) != 0 ) {
@@ -409,7 +412,7 @@ void QDnsPrivate::Answer::parse()
 	qDebug( "DNS Manager: saw NXDomain for %s", q->l.ascii() );
 #endif
 	// NXDomain.  cache that for... how long?
-	rr = new QDnsPrivate::RR( q->l );
+	rr = new QDnsRR( q->l );
 	rr->t = q->t;
 	rr->deleteTime = q->started + 300;
 	rr->expireTime = q->started + 300;
@@ -538,7 +541,7 @@ void QDnsPrivate::Answer::parse()
 }
 
 
-void QDnsPrivate::Answer::notify()
+void QDnsAnswer::notify()
 {
     if ( !rrs || !ok )
 	return;
@@ -546,8 +549,8 @@ void QDnsPrivate::Answer::notify()
     QPtrDict<void> notified;
     notified.setAutoDelete( FALSE );
 
-    QListIterator<QDnsPrivate::RR> it( *rrs );
-    QDnsPrivate::RR * rr;
+    QListIterator<QDnsRR> it( *rrs );
+    QDnsRR * rr;
     it.toFirst();
     while ( (rr=it.current()) != 0 ) {
 	++it;
@@ -568,7 +571,7 @@ void QDnsPrivate::Answer::notify()
 		    qDebug( "DNS Manager: status change for %s (type %d)",
 			    dns->label().ascii(), dns->recordType() );
 #endif
-		    ((QDnsPrivate::UgleHack*)dns)->ugle();
+		    ((QDnsUgleHack*)dns)->ugle();
 		}
 	    }
 	}
@@ -576,7 +579,7 @@ void QDnsPrivate::Answer::notify()
 }
 
 
-void QDnsPrivate::Manager::answer()
+void QDnsManager::answer()
 {
 #if defined(DEBUG_QDNS)
     qDebug( "DNS Manager: answer arrived" );
@@ -608,13 +611,13 @@ void QDnsPrivate::Manager::answer()
 	return;
     }
 
-    QDnsPrivate::Answer answer( a, queries[i] );
+    QDnsAnswer answer( a, queries[i] );
     answer.parse();
     answer.notify();
 };
 
 
-void QDnsPrivate::Manager::transmitQuery( QDnsPrivate::Query * query )
+void QDnsManager::transmitQuery( QDnsQuery * query )
 {
     int i = queries.size();
     queries.resize( i+1 );
@@ -623,11 +626,11 @@ void QDnsPrivate::Manager::transmitQuery( QDnsPrivate::Query * query )
 }
 
 
-void QDnsPrivate::Manager::transmitQuery( int i )
+void QDnsManager::transmitQuery( int i )
 {
     if ( i < 0 || i >= queries.size() )
 	return;
-    Query * q = queries[i];
+    QDnsQuery * q = queries[i];
 
     QByteArray p( 12 + q->l.length() + 2 + 4 );
     if ( p.size() > 500 )
@@ -717,11 +720,11 @@ void QDnsPrivate::Manager::transmitQuery( int i )
 }
 
 
-QDnsPrivate::Query * QDnsPrivate::Manager::query( const QString & label,
+QDnsQuery * QDnsManager::query( const QString & label,
 						  QDns::RecordType type )
 {
     int q = 0;
-    QDnsPrivate::Manager * m = manager();
+    QDnsManager * m = manager();
     while ( q < m->queries.size() && ( m->queries[q]->t != type ||
 				       m->queries[q]->l != label ) )
 	q++;
@@ -732,25 +735,25 @@ QDnsPrivate::Query * QDnsPrivate::Manager::query( const QString & label,
 }
 
 
-QDnsPrivate::Domain * QDnsPrivate::Manager::domain( const QString & label )
+QDnsDomain * QDnsManager::domain( const QString & label )
 {
-    Domain * d = cache.find( label );
+    QDnsDomain * d = cache.find( label );
     if ( !d ) {
-	d = new QDnsPrivate::Domain( label );
+	d = new QDnsDomain( label );
 	cache.insert( label, d );
     }
     return d;
 }
 
 
-// the Domain class looks after and coordinates queries for RRs for
-// each domain, and the cached RRs.  (A domain, in DNS terminology, is
+// the QDnsDomain class looks after and coordinates queries for QDnsRRs for
+// each domain, and the cached QDnsRRs.  (A domain, in DNS terminology, is
 // a node in the DNS.  "no", "troll.no" and "lupinella.troll.no" are
 // all domains.)
 
 
-// this is ONLY to be called by QDnsPrivate::Manager::domain().  noone else.
-QDnsPrivate::Domain::Domain( const QString & label )
+// this is ONLY to be called by QDnsManager::domain().  noone else.
+QDnsDomain::QDnsDomain( const QString & label )
 {
     l = label;
     rrs = 0;
@@ -758,7 +761,7 @@ QDnsPrivate::Domain::Domain( const QString & label )
 }
 
 
-QDnsPrivate::Domain::~Domain()
+QDnsDomain::~QDnsDomain()
 {
     delete rrs;
     rrs = 0;
@@ -767,11 +770,11 @@ QDnsPrivate::Domain::~Domain()
 }
 
 
-void QDnsPrivate::Domain::add( const QString & label, RR * rr )
+void QDnsDomain::add( const QString & label, QDnsRR * rr )
 {
-    Domain * d = QDnsPrivate::Manager::manager()->domain( label );
+    QDnsDomain * d = QDnsManager::manager()->domain( label );
     if ( !d->rrs ) {
-	d->rrs = new QList<RR>;
+	d->rrs = new QList<QDnsRR>;
 	d->rrs->setAutoDelete( TRUE );
     }
     d->rrs->append( rr );
@@ -779,18 +782,18 @@ void QDnsPrivate::Domain::add( const QString & label, RR * rr )
 }
 
 
-QList<QDnsPrivate::RR> * QDnsPrivate::Domain::cached( const QString & label,
-						      QDns::RecordType t )
+QList<QDnsRR> * QDnsDomain::cached( const QString & label,
+				    QDns::RecordType t )
 {
 #if defined(DEBUG_QDNS)
     qDebug( "looking at cache for %s (t %d)", label.ascii(), t );
 #endif
-    Domain * d = QDnsPrivate::Manager::manager()->domain( label );
-    QList<RR> * l = new QList<RR>;
+    QDnsDomain * d = QDnsManager::manager()->domain( label );
+    QList<QDnsRR> * l = new QList<QDnsRR>;
     l->setAutoDelete( FALSE );
     if ( d->rrs ) {
 	d->rrs->first();
-	RR * rr;
+	QDnsRR * rr;
 	while( (rr=d->rrs->current()) != 0 ) {
 	    if ( rr->t == t )
 		l->append( rr );
@@ -801,13 +804,13 @@ QList<QDnsPrivate::RR> * QDnsPrivate::Domain::cached( const QString & label,
 }
 
 
-void QDnsPrivate::Domain::add( const QDns * dns )
+void QDnsDomain::add( const QDns * dns )
 {
 #if defined(DEBUG_QDNS)
     qDebug( "adding domain %s (t %d)",
 	    dns->label().ascii(), dns->recordType() );
 #endif
-    Domain * d = QDnsPrivate::Manager::manager()->domain( dns->label() );
+    QDnsDomain * d = QDnsManager::manager()->domain( dns->label() );
     if ( !d->dns ) {
 	d->dns = new QPtrDict<void>( 17 );
 	d->dns->setAutoDelete( FALSE );
@@ -816,13 +819,13 @@ void QDnsPrivate::Domain::add( const QDns * dns )
 }
 
 
-void QDnsPrivate::Domain::remove( const QDns * dns )
+void QDnsDomain::remove( const QDns * dns )
 {
 #if defined(DEBUG_QDNS)
     qDebug( "removing domain %s (t %d)",
 	    dns->label().ascii(), dns->recordType() );
 #endif
-    Domain * d = QDnsPrivate::Manager::manager()->domain( dns->label() );
+    QDnsDomain * d = QDnsManager::manager()->domain( dns->label() );
     if ( d->dns )
 	d->dns->take( (void*)dns );
 }
@@ -830,12 +833,12 @@ void QDnsPrivate::Domain::remove( const QDns * dns )
 
 Q_UINT32 lastSweep;
 
-void QDnsPrivate::Domain::sweep()
+void QDnsDomain::sweep()
 {
     if ( !rrs )
 	return;
 
-    QDnsPrivate::RR * rr;
+    QDnsRR * rr;
     rrs->first();
     while( (rr=rrs->current()) != 0 ) {
 	if ( !rr->deleteTime )
@@ -856,24 +859,24 @@ void QDnsPrivate::Domain::sweep()
 }
 
 
-// RR is the class used to store a single RR.  RR can store all of the
-// supported RR types.  an RR is always cached.
+// QDnsRR is the class used to store a single RR.  QDnsRR can store
+// all of the supported RR types.  a QDnsRR is always cached.
 
-// RR is mostly constructed from the outside.  a but hacky, but
+// QDnsRR is mostly constructed from the outside.  a but hacky, but
 // permissible since the entire class is internal.
 
-QDnsPrivate::RR::RR( const QString & label )
+QDnsRR::QDnsRR( const QString & label )
     : domain( 0 ), t( QDns::None ),
       nxdomain( FALSE ), current( FALSE ),
       expireTime( 0 ), deleteTime( 0 ),
       priority( 0 ), weight( 0 )
 {
-    QDnsPrivate::Domain::add( label, this );
+    QDnsDomain::add( label, this );
 }
 
 
-// not supposed to be deleted except by QDnsPrivate::Domain
-QDnsPrivate::RR::~RR()
+// not supposed to be deleted except by QDnsDomain
+QDnsRR::~QDnsRR()
 {
     // nothing is necessary
 }
@@ -949,7 +952,7 @@ QDns::QDns( const QString & label, RecordType rr )
 
 QDns::~QDns()
 {
-    QDnsPrivate::Domain::remove( this );
+    QDnsDomain::remove( this );
     delete d;
     d = 0;
 }
@@ -1060,8 +1063,8 @@ void QDns::sendQuery() const
 #endif
     if ( t == None || l.isNull() )
 	return;
-    QDnsPrivate::Domain::add( this );
-    QDnsPrivate::Query * q = QDnsPrivate::Manager::manager()->query( l, t );
+    QDnsDomain::add( this );
+    QDnsQuery * q = QDnsManager::manager()->query( l, t );
     if ( q ) {
 	// if it exists, we restart the timer.  presumably the query
 	// is new again, for some reason.
@@ -1070,13 +1073,13 @@ void QDns::sendQuery() const
 	return;
     }
 
-    q = new QDnsPrivate::Query;
+    q = new QDnsQuery;
     q->id = ++::id;
     q->t = t;
     q->l = l;
     q->started = now();
 
-    QDnsPrivate::Manager::manager()->transmitQuery( q );
+    QDnsManager::manager()->transmitQuery( q );
 }
 
 
@@ -1093,8 +1096,8 @@ QDns::Status QDns::queryStatus() const
     if ( t == None )
 	return Passive;
 
-    QDnsPrivate::Manager * m = QDnsPrivate::Manager::manager();
-    QDnsPrivate::Domain * d = m->domain( l );
+    QDnsManager * m = QDnsManager::manager();
+    QDnsDomain * d = m->domain( l );
     if ( d->rrs && d->rrs->first() ) {
 	while( d->rrs->current() && d->rrs->current()->t != t )
 	    d->rrs->next();
@@ -1165,10 +1168,10 @@ QValueList<QHostAddress> QDns::addresses() const
 	}
     }
 
-    QList<QDnsPrivate::RR> * cached = QDnsPrivate::Domain::cached( l, t );
+    QList<QDnsRR> * cached = QDnsDomain::cached( l, t );
 
     (void)cached->first();
-    QDnsPrivate::RR * rr;
+    QDnsRR * rr;
     bool noQuery = FALSE;
     while( (rr=cached->current()) != 0 ) {
 	if ( rr->current && !rr->nxdomain )
