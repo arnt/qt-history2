@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#220 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#221 $
 **
 ** Implementation of QListView widget class
 **
@@ -169,6 +169,8 @@ struct QListViewPrivate
 
     // holds a list of iterators
     QList<QListViewItemIterator> *iterators;
+
+    QTimer *scrollTimer;
 };
 
 
@@ -1506,7 +1508,8 @@ QListView::QListView( QWidget * parent, const char *name )
     d->ignoreDoubleClick = FALSE;
     d->column.setAutoDelete( TRUE );
     d->iterators = 0;
-
+    d->scrollTimer = 0;
+    
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
     connect( d->dirtyItemTimer, SIGNAL(timeout()),
@@ -2551,6 +2554,14 @@ void QListView::mousePressEvent( QMouseEvent * e )
 
 void QListView::mouseReleaseEvent( QMouseEvent * e )
 {
+    if ( d->scrollTimer ) {
+	disconnect( d->scrollTimer, SIGNAL(timeout()),
+		    this, SLOT(doAutoScroll()) );
+        d->scrollTimer->stop();
+	delete d->scrollTimer;
+	d->scrollTimer = 0;
+    }
+
     if ( !e )
 	return;
 
@@ -2628,7 +2639,53 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
     if ( !e || !d->buttonDown )
 	return;
 
-    QListViewItem * i = itemAt( e->pos() );
+    // if we were autoscrolling remove the timer
+    if ( d->scrollTimer ) {
+	disconnect( d->scrollTimer, SIGNAL(timeout()),
+		    this, SLOT(doAutoScroll()) );
+        d->scrollTimer->stop();
+	delete d->scrollTimer;
+	d->scrollTimer = 0;
+    }
+    
+    bool needAutoScroll = FALSE;
+    
+    // check, if we need to scroll
+    if ( e->y() > viewport()->height() )
+	needAutoScroll = TRUE;
+	
+    if ( e->y() < 0 )
+	needAutoScroll = TRUE;
+	
+    // if we need to scroll, connect the timer
+    if ( needAutoScroll ) {
+        d->scrollTimer = new QTimer( this );
+	connect( d->scrollTimer, SIGNAL(timeout()),
+		 this, SLOT(doAutoScroll()) );
+	d->scrollTimer->start( 100, FALSE );
+    } 
+    
+    // call it once to select items and so on
+    doAutoScroll();
+}
+
+void QListView::doAutoScroll()
+{
+    QPoint pos = QCursor::pos();
+    pos = viewport()->mapFromGlobal( pos );
+    
+    // do the scrolling
+    if ( pos.y() > viewport()->height() ) { 
+    	scrollBy( 0, pos.y() - viewport()->height() );
+	pos.setY( viewport()->height() - 1 );
+    }
+	
+    if ( pos.y() < 0 ) {
+    	scrollBy( 0, pos.y() );
+	pos.setY( 1 );
+    }
+
+    QListViewItem * i = itemAt( pos );
     if ( !i )
 	return;
 
@@ -2647,8 +2704,8 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
 	setSelected( i, d->select );
 
     setCurrentItem( i );
+    ensureItemVisible( i );
 }
-
 
 /*!  Handles focus in events on behalf of viewport().  Since
   viewport() is this widget's focus proxy by default, you can think of
