@@ -207,7 +207,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     t << "####### Build rules" << endl << endl;
     t << "all: " << fileFixify(Option::output.name()) << " " << varGlue("ALL_DEPS"," "," "," ") << "$(TARGET)" << endl << endl;
-    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) " 
+    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) "
       << var("POST_TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  "
@@ -264,22 +264,22 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	QStringList &forms = project->variables()["FORMS"];
 	for(QStringList::Iterator formit = forms.begin(); formit != forms.end(); ++formit) {
 	    QString ui_h = fileFixify((*formit) + Option::h_ext.first());
-	    if(QFile::exists(ui_h) ) 
+	    if(QFile::exists(ui_h) )
 		dist_files << ui_h;
 	}
     }
     t << "dist:" << "\n\t"
-      << "$(ZIP) " << var("QMAKE_ORIG_TARGET") << ".zip " << "$(SOURCES) $(HEADERS) $(DIST) $(FORMS) " 
+      << "$(ZIP) " << var("QMAKE_ORIG_TARGET") << ".zip " << "$(SOURCES) $(HEADERS) $(DIST) $(FORMS) "
       << dist_files.join(" ") << " " << var("TRANSLATIONS") << " " << var("IMAGES") << endl << endl;
 
     t << "uiclean:"
       << varGlue("UICDECLS" ,"\n\t-del ","\n\t-del ","")
       << varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","") << endl;
-	
+
     t << "mocclean:"
       << varGlue("SRCMOC" ,"\n\t-del ","\n\t-del ","")
       << varGlue("OBJMOC" ,"\n\t-del ","\n\t-del ","") << endl;
-    
+
     t << "clean: uiclean mocclean"
       << varGlue("OBJECTS","\n\t-del ","\n\t-del ","")
       << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","\n")
@@ -538,6 +538,17 @@ NmakeMakefileGenerator::init()
     if ( project->isActiveConfig("moc") )
 	setMocAware(TRUE);
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
+
+    QStringList &libs = project->variables()["QMAKE_LIBS"];
+    for ( QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit ) {
+	if (  (*libit).startsWith( "-l" ) ) {
+	    (*libit) = (*libit).mid( 2 ) + ".lib";
+	} else if ( (*libit).startsWith( "-L" ) ) {
+	    project->variables()["QMAKE_LIBDIR"] += (*libit).mid(2);
+	    libit = libs.remove( libit );
+	}
+    }
+
     project->variables()["QMAKE_FILETAGS"] += QStringList::split(' ',
 	"HEADERS SOURCES DEF_FILE RC_FILE TARGET QMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
     QStringList &l = project->variables()["QMAKE_FILETAGS"];
