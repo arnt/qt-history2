@@ -207,8 +207,7 @@ class Q_GUI_EXPORT QPainter
     inline void eraseRect(int x, int y, int w, int h);
     void eraseRect(const QRect &);
 
-    void setRenderHints(RenderHints hints);
-    void clearRenderHints(RenderHints hints);
+    void setRenderHint(RenderHint hint, bool on = true);
     RenderHints supportedRenderHints() const;
     RenderHints renderHints() const;
 

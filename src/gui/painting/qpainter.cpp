@@ -841,8 +841,8 @@ bool QPainter::begin(QPaintDevice *pd)
         d->updateMatrix();
 
     Q_ASSERT(d->engine->isActive());
-    d->engine->clearRenderHints(QPainter::LineAntialiasing);
-    d->engine->setRenderHints(QPainter::TextAntialiasing);
+    d->engine->setRenderHint(QPainter::LineAntialiasing, false);
+    d->engine->setRenderHint(QPainter::TextAntialiasing, true);
     ++d->device->painters;
 
     return true;
@@ -2991,13 +2991,13 @@ void QPainter::fillRect(const QRect &r, const QBrush &brush)
 
 
 /*!
-    Sets the render hints supplied in \a hints. Several render hints
-    can be OR'ed together in \a hints.
+  Sets the render hint \a hint on this painter if \a on is true;
+  otherwise clears the render hint.
 */
-void QPainter::setRenderHints(RenderHints hints)
+void QPainter::setRenderHint(RenderHint hint, bool on)
 {
 #ifdef QT_DEBUG_DRAW
-    printf("QPainter::setRenderHints(), hint=%x\n", hints);
+    printf("QPainter::setRenderHint(), hint=%x, %s\n", hint, on ? "on" : "off");
 #endif
 
     if (!isActive()) {
@@ -3005,23 +3005,7 @@ void QPainter::setRenderHints(RenderHints hints)
         return;
     }
 
-    d->engine->setRenderHints(hints);
-}
-
-/*!
-    Clears the render hints supplied in \a hints. Several render hints
-    can be OR'ed together in \a hints.
-*/
-void QPainter::clearRenderHints(RenderHints hints)
-{
-#ifdef QT_DEBUG_DRAW
-    printf("QPainter::clearRenderHints(), hint=%x\n", hints);
-#endif
-    if (!isActive()) {
-        qWarning("Painter must be active to clear rendering hints");
-        return;
-    }
-    d->engine->clearRenderHints(hints);
+    d->engine->setRenderHint(hint, on);
 }
 
 /*!
@@ -3829,7 +3813,7 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
     int rw = rect.width();
     int rh = rect.height();
 
-    p->clearRenderHints(QPainter::LineAntialiasing);
+    p->setRenderHint(QPainter::LineAntialiasing, false);
 
     if (QABS(dx) > QABS(dy)) { // Fill horizontally
         // Make sure we fill left to right.

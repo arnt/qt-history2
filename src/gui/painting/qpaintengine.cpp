@@ -509,7 +509,8 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         if (hasFeature(ClipTransform)) {
             updateMatrix(s->clipMatrix);
             updateClipRegion(s->clipRegion, s->clipEnabled);
-            setDirty(DirtyTransform);
+            if (s->clipMatrix != s->matrix)
+                setDirty(DirtyTransform);
         } else {
             QRegion region = s->txop > QPainterPrivate::TxNone
                              ? (s->clipRegion * s->clipMatrix)
@@ -696,27 +697,21 @@ QPainter::RenderHints QPaintEngine::renderHints() const
 }
 
 /*!
-  Sets the the render hints specified by \a hints in addition to the
-  currently set render hints.
-
-  \sa clearRenderHints()
+  Sets the render hint \a hint on this engine if \a on is true;
+  otherwise clears the render hint.
 */
-void QPaintEngine::setRenderHints(QPainter::RenderHints hints)
+void QPaintEngine::setRenderHint(QPainter::RenderHint hint, bool on)
 {
-    if (QPainter::RenderHints(d->renderhints & hints) != hints) {
-        d->renderhints |= hints;
-        setDirty(DirtyHints);
-    }
-}
-
-/*!
-  Clears the render hints specified by \a hints.
-*/
-void QPaintEngine::clearRenderHints(QPainter::RenderHints hints)
-{
-    if (QPainter::RenderHints(d->renderhints & hints) != 0) {
-        d->renderhints &= ~hints;
-        setDirty(DirtyHints);
+    if (on) {
+        if (QPainter::RenderHints(d->renderhints & hint) != hint) {
+            d->renderhints |= hint;
+            setDirty(DirtyHints);
+        }
+    } else {
+        if (QPainter::RenderHints(d->renderhints & hint) != 0) {
+            d->renderhints &= ~hint;
+            setDirty(DirtyHints);
+        }
     }
 }
 
