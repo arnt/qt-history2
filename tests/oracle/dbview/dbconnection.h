@@ -8,6 +8,29 @@
 class QSqlDatabase;
 class QListViewItem;
 
+class ObjectInfo
+{
+public:
+    typedef enum {
+	OBJTYPE_UNKNOWN,
+	OBJTYPE_TABLE,
+	OBJTYPE_INDEX,
+	OBJTYPE_TABLESPACE,
+	OBJTYPE_VIEW,
+	OBJTYPE_USER
+    } ObjectType;
+
+    ObjectInfo( QString name = QString::null, ObjectType objectType = OBJTYPE_UNKNOWN, QString owner = QString::null )
+    {
+	this->name = name;
+	this->owner = owner;
+	this->objectType = objectType;
+    }
+    QString name;
+    QString owner;
+    ObjectType objectType;
+};
+
 class DBConnection
 {
 public:
@@ -30,29 +53,8 @@ public:
     QStringList& tables( QString userName );
     QStringList& views( QString userName );
     QStringList& indexes( QString userName );
-};
 
-class ObjectInfo
-{
-public:
-    typedef enum {
-	OBJTYPE_UNKNOWN,
-	OBJTYPE_TABLE,
-	OBJTYPE_INDEX,
-	OBJTYPE_TABLESPACE,
-	OBJTYPE_VIEW,
-	OBJTYPE_USER
-    } ObjectType;
-
-    ObjectInfo( QString name = QString::null, ObjectType objectType = OBJTYPE_UNKNOWN, QString owner = QString::null )
-    {
-	this->name = name;
-	this->owner = owner;
-	this->objectType = objectType;
-    }
-    QString name;
-    QString owner;
-    ObjectType objectType;
+    void moveTable( ObjectInfo info, QString tablespace );
 };
 
 #endif

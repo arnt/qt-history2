@@ -18,11 +18,10 @@ class QVBoxLayout;
 class QHBoxLayout; 
 class QGridLayout; 
 class QGroupBox;
-class QLabel;
 class QLineEdit;
 class QTabWidget;
-class QTable;
 class DistributionWidget;
+class QTable;
 
 class TableInfo : public QTabWidget
 { 

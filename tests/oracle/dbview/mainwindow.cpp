@@ -23,9 +23,16 @@
 #include <qsplitter.h>
 #include <qwidgetstack.h>
 #include <qiconview.h>
+#include <qpopupmenu.h>
+#include <qmessagebox.h>
+#include <qapplication.h>
+#include <qprogressdialog.h>
 
 #include "dbconnection.h"
 #include "tableinfo.h"
+#include "movetabledlg.h"
+
+extern Q_EXPORT QApplication* qApp;
 
 static QPixmap uic_load_pixmap_MainWindow( const QString &name )
 {
@@ -89,6 +96,7 @@ MainWindow::MainWindow( QWidget* parent,  const char* name, WFlags fl )
     populate();
 
     connect( DBView, SIGNAL( currentChanged( QListViewItem* ) ), this, SLOT( displayObject( QListViewItem* ) ) );
+    connect( DBView, SIGNAL( rightButtonClicked( QListViewItem*, const QPoint&, int ) ), this, SLOT( dbContext( QListViewItem*, const QPoint&, int) ) );
 }
 
 /*  
@@ -196,5 +204,58 @@ void MainWindow::displayObject( QListViewItem* item )
     default:
 	detailsStack->raiseWidget( iconView );
 	break;
+    }
+}
+
+void MainWindow::dbContext( QListViewItem* item, const QPoint& pt, int col )
+{
+
+    popupInfo = objectMap[ item ];
+    popupItem = item;
+
+    if( item ) {
+	QPopupMenu* popup = new QPopupMenu( this, "popup" );
+
+	if( popupInfo.owner ) {
+	    popup->insertItem( "Defragment database", this, SLOT( defragDatabase() ) );
+	    if( popupInfo.objectType == ObjectInfo::OBJTYPE_TABLE ) {
+		popup->insertItem( "Move table", this, SLOT( moveTable() ) );
+	    }
+	}
+
+	if( popup->count() )
+	    popup->popup( pt );
+    }
+}
+
+void MainWindow::moveTable()
+{
+    MoveTableDlg dlg;
+    
+    dlg.loadTablespaces( dbConnection->tableSpaces() );
+
+    if( dlg.exec() ) {
+	dbConnection->moveTable( popupInfo, dlg.tableSpaceName() );
+	displayObject( popupItem );
+    }
+}
+
+void MainWindow::defragDatabase()
+{
+    QProgressDialog* progressDlg = new QProgressDialog( this, "progressDlg" );
+
+    QSqlQuery q( QString( "SELECT COUNT(*) FROM ALL_TABLES WHERE OWNER = '%1'" ).arg( popupInfo.owner ) );
+
+    QSqlQuery qTables( QString( "SELECT TABLE_NAME, TABLESPACE_NAME FROM ALL_TABLES WHERE OWNER = '%1'" ).arg( popupInfo.owner ) );
+
+    q.next();
+    progressDlg->setTotalSteps( q.value( 0 ).toInt() );
+
+    int progress( 0 );
+    while( qTables.next() && !progressDlg->wasCancelled() ) {
+	progressDlg->setProgress( ++progress );
+	progressDlg->setLabelText( QString( "%1.%2" ).arg( popupInfo.owner ).arg( qTables.value( 0 ).toString() ) );
+	qApp->processEvents();
+	dbConnection->moveTable( ObjectInfo( qTables.value( 0 ).toString(), ObjectInfo::OBJTYPE_TABLE, popupInfo.owner ), qTables.value( 1 ).toString() );
     }
 }

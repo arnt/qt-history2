@@ -18,6 +18,7 @@
 #include <qwhatsthis.h>
 #include <qimage.h>
 #include <qpixmap.h>
+#include <qsqldatabase.h>
 #include <qsqlquery.h>
 #include <qlayout.h>
 #include <qdragobject.h>

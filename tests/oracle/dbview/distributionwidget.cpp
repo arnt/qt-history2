@@ -33,25 +33,35 @@ void DistributionWidget::paintEvent( QPaintEvent* pEv )
 {
     QPainter p( this );
     QRect rc( rect() );
-    double stepSize = totalBlocks / rc.width();
+    int elements = rc.width() * rc.height();
+    double stepSize = double( totalBlocks ) / double( elements );
+    int xp, yp;
 
     p.fillRect( rect(), QBrush( backColor ) );
 
     if( stepSize ) {
-	for( int x = rc.left(); x < rc.right(); x++ ) {
+	xp = rc.left();
+	yp = rc.top();
+	for( int e = 0; e < elements; e++ ) {
 	    int status = 0;
-	    for( int i = ( x * stepSize ); i < ( x + 1 ) * stepSize; i++ ) {
+	    for( int i = ( e * stepSize ); i < ( e + 1 ) * stepSize; i++ ) {
 		if( blockStatus[ i ] > status )
 		    status = blockStatus[ i ];
 	    }
+	    xp++;
+	    if( xp == rc.width() ) {
+		xp = rc.left();
+		yp++;
+	    }
+
 	    switch( status ) {
 	    case BlockStatus_Other:
 		p.setPen( otherColor );
-		p.drawLine( x, rc.top(), x, rc.bottom() );
+		p.drawPoint( xp, yp );
 		break;
 	    case BlockStatus_Used:
 		p.setPen( usedColor );
-		p.drawLine( x, rc.top(), x, rc.bottom() );
+		p.drawPoint( xp, yp );
 		break;
 	    }
 	}
@@ -60,5 +70,5 @@ void DistributionWidget::paintEvent( QPaintEvent* pEv )
 
 QSize DistributionWidget::sizeHint() const
 {
-    return QSize( 200, 32 );
+    return QSize( 200, 64 );
 }

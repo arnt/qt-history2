@@ -8,7 +8,6 @@
 #include <qlineedit.h>
 #include <qurl.h>
 #include <qlabel.h>
-#include <qpixmap.h>
 //#include "qnetwork.h"
 #include <qcheckbox.h>
 #include <qcombobox.h>
@@ -204,7 +203,7 @@ public:
 	    else
 		setPixmap( pix );
 	} else {
-	    setText( "I only shoud local files!" );
+	    setText( "I should only show local files!" );
 	}
     }
 

@@ -2,7 +2,7 @@
 
 
 /* File created by MIDL compiler version 5.01.0164 */
-/* at Fri Nov 23 18:56:09 2001
+/* at Tue May 07 16:59:10 2002
  */
 /* Compiler settings for C:\depot\qt\3.0\tests\distsystem\licproc_com\licproc_com.idl:
     Oicf (OptLev=i2), W1, Zp8, env=Win32, ms_ext, c_ext

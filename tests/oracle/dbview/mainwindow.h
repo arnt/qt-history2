@@ -41,8 +41,15 @@ private:
     void populate( void );
 
     QMap< QListViewItem*, ObjectInfo > objectMap;
+    ObjectInfo popupInfo;
+    QListViewItem* popupItem;
+
 protected slots:
     void displayObject( QListViewItem* );
+    void dbContext( QListViewItem*, const QPoint&, int );
+    // popup menu slots
+    void defragDatabase();
+    void moveTable();
 };
 
 #endif // MAINWINDOW_H
