@@ -1810,7 +1810,9 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
             break;
         HIThemeButtonDrawInfo bi;
         bi.version = qt_mac_hitheme_version;
-        bi.state = opt->state & QStyle::State_Enabled ?  kThemeStateActive : kThemeStateInactive;
+        bi.state = tds;
+        if (tds == kThemeStateInactive && opt->palette.currentColorGroup() == QPalette::Active)
+            bi.state = kThemeStateActive;
         if (opt->state & QStyle::State_Down)
             bi.state |= kThemeStatePressed;
         bi.kind = kThemeDisclosureButton;
@@ -3347,8 +3349,9 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         if (!(opt->state & QStyle::State_Children))
             break;
         ThemeButtonDrawInfo currentInfo;
-        currentInfo.state = opt->state & QStyle::State_Enabled ? kThemeStateActive
-                                                               : kThemeStateInactive;
+        currentInfo.state = tds;
+        if (tds == kThemeStateInactive && opt->palette.currentColorGroup() == QPalette::Active)
+            currentInfo.state = kThemeStateActive;
         if (opt->state & QStyle::State_Down)
             currentInfo.state |= kThemeStatePressed;
         currentInfo.value = opt->state & QStyle::State_Open ? kThemeDisclosureDown

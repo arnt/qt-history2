@@ -660,15 +660,21 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
 
     QStyleOption opt(0);
     opt.palette = palette();
+    QStyle::State extraFlags = QStyle::State_None;
+    if (isEnabled())
+        extraFlags |= QStyle::State_Enabled;
+    if (topLevelWidget()->isActiveWindow())
+        extraFlags |= QStyle::State_Active;
     if (level >= outer) {
         // start with the innermost branch
         primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
         opt.rect = primitive;
+
         const bool open = d->viewItems.at(item).open;
         const bool children = (open // already layed out
                                ? d->viewItems.at(item).total // this also covers the hidden items
                                : d->model->hasChildren(index)); // not layed out yet, so we don't know
-        opt.state = QStyle::State_Item
+        opt.state = QStyle::State_Item | extraFlags
                     | (d->model->rowCount(parent) - 1 > index.row()
                       ? QStyle::State_Sibling : QStyle::State_None)
                     | (children ? QStyle::State_Children : QStyle::State_None)
@@ -679,8 +685,9 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
     for (--level; level >= outer; --level) { // we have already drawn the innermost branch
         primitive.moveLeft(reverse ? primitive.left() + indent : primitive.left() - indent);
         opt.rect = primitive;
-        opt.state = (d->model->rowCount(ancestor) - 1 > current.row())
-                    ? QStyle::State_Sibling : QStyle::State_None;
+        opt.state = extraFlags;
+        if (d->model->rowCount(ancestor) - 1 > current.row())
+            opt.state |= QStyle::State_Sibling;
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
         current = ancestor;
         ancestor = current.parent();
