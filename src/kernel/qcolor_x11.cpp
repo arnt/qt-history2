@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#62 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#62 $");
 
 
 /*****************************************************************************
@@ -544,7 +544,7 @@ uint QColor::alloc()
 		    g_carr_fetch = TRUE;
 		}
 	    }
-	    ASSERT(i==g_carr[i].pixel);
+	    ASSERT(i==(int)g_carr[i].pixel);
 	    if ( !try_again ) {			// got it
 		pix = g_carr[i].pixel;		// allocated X11 color
 		rgbVal &= RGB_MASK;
