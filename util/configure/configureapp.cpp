@@ -935,6 +935,7 @@ void Configure::generateConfigfiles()
 
     if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
 	QTextStream outStream( &outFile );
+	outStream << "#include <qglobal.h>" << endl << endl;
 
 	outStream << "/* Install paths from configure */" << endl;
 
