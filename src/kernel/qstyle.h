@@ -54,7 +54,7 @@ class QToolButton;
 class QTabWidget;
 class QSpinBox;
 class QGroupBox;
-class QRangeControlWidget;
+class QSpinWidget;
 class QTitleBar;
 class QListViewItem;
 class QStylePrivate;
@@ -324,13 +324,13 @@ public:
     // spinbox
     virtual int spinBoxFrameWidth() const = 0;
 
-    // range control widget
-    virtual void drawRangeControlWidgetButton( QPainter *p, int x, int y, int w, int h,
-					       const QColorGroup &g, QRangeControlWidget* rc,
-					       bool downbtn, bool enabled, bool down ) = 0;
-    virtual void drawRangeControlWidgetSymbol( QPainter *p, int x, int y, int w, int h,
-					       const QColorGroup &g, QRangeControlWidget* rc,
-					       bool downbtn, bool enabled, bool down ) = 0;
+    // spin widget
+    virtual void drawSpinWidgetButton( QPainter *p, int x, int y, int w, int h,
+				       const QColorGroup &g, QSpinWidget* sw,
+				       bool downbtn, bool enabled, bool down ) = 0;
+    virtual void drawSpinWidgetSymbol( QPainter *p, int x, int y, int w, int h,
+				       const QColorGroup &g, QSpinWidget* sw,
+				       bool downbtn, bool enabled, bool down ) = 0;
 
     // groupbox
     virtual void drawGroupBoxTitle( QPainter *p,int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled ) = 0;

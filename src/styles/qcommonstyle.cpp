@@ -247,20 +247,23 @@ void QCommonStyle::drawHeaderSection( QPainter *p, int x, int y, int w, int h,
 }
 
 /*! \reimp */
-void QCommonStyle::drawRangeControlWidgetButton( QPainter *p, int x, int y, int w, int h,
-						 const QColorGroup &g, QRangeControlWidget*,
-						 bool /*downbtn*/, bool /*enabled*/, bool down )
+void QCommonStyle::drawSpinWidgetButton( QPainter *p, int x, int y, int w,
+					 int h, const QColorGroup &g,
+					 QSpinWidget * /* sw */,
+					 bool /* downbtn */, bool /* enabled */,
+					 bool down )
 {
     drawButton( p, x, y, w, h, g, down );
 }
 
 /*! \reimp */
-void QCommonStyle::drawRangeControlWidgetSymbol( QPainter *p, int x, int y, int w, int h,
-						 const QColorGroup &g, QRangeControlWidget* rc,
-						 bool downbtn, bool /*enabled*/, bool down )
+void QCommonStyle::drawSpinWidgetSymbol( QPainter *p, int x, int y, int w,
+					 int h, const QColorGroup &g,
+					 QSpinWidget *sw, bool downbtn,
+					 bool /* enabled */, bool down )
 {
     p->save();
-    if ( rc->buttonSymbols() == QRangeControlWidget::PlusMinus ) {
+    if ( sw->buttonSymbols() == QSpinWidget::PlusMinus ) {
 	p->setPen( g.buttonText() );
 	p->setBrush( g.buttonText() );
 

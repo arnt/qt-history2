@@ -178,7 +178,7 @@ public:
 
     QPixmap* pixmap() { return pm; }
 
-    QRangeControlWidget* buttons;
+    QSpinWidget* buttons;
 
 protected:
     void applyFocusSelection()
@@ -251,7 +251,7 @@ void QDateTimeEditBase::init()
 {
     setBackgroundMode( PaletteBase );
 
-    d->buttons = new QRangeControlWidget( this, "buttons" );
+    d->buttons = new QSpinWidget( this, "buttons" );
     connect( d->buttons, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
     connect( d->buttons, SIGNAL( stepDownPressed() ), SLOT( stepDown() ) );
 

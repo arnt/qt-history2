@@ -123,14 +123,14 @@ inline int QRangeControl::pageStep() const
 
 #ifndef QT_NO_RANGECONTROLWIDGET
 
-class QRangeControlWidgetPrivate;
+class QSpinWidgetPrivate;
 
-class Q_EXPORT QRangeControlWidget : public QFrame
+class Q_EXPORT QSpinWidget : public QFrame
 {
     Q_OBJECT
 public:
-    QRangeControlWidget( QWidget* parent = 0, const char* name = 0 );
-    ~QRangeControlWidget();
+    QSpinWidget( QWidget* parent = 0, const char* name = 0 );
+    ~QSpinWidget();
 
     QRect upRect() const;
     QRect downRect() const;
@@ -163,15 +163,15 @@ private slots:
     void stepDown();
 
 private:
-    QRangeControlWidgetPrivate * d;
+    QSpinWidgetPrivate * d;
 
     void arrange();
     void updateDisplay();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QRangeControlWidget( const QRangeControlWidget& );
-    QRangeControlWidget& operator=( const QRangeControlWidget& );
+    QSpinWidget( const QSpinWidget& );
+    QSpinWidget& operator=( const QSpinWidget& );
 #endif
 };
 

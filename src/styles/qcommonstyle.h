@@ -78,13 +78,13 @@ public:
     // header
     void drawHeaderSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down );
 
-    // range control widget
-    virtual void drawRangeControlWidgetButton( QPainter *p, int x, int y, int w, int h,
-					       const QColorGroup &g, QRangeControlWidget* rc,
-					       bool downbtn, bool enabled, bool down );
-    virtual void drawRangeControlWidgetSymbol( QPainter *p, int x, int y, int w, int h,
-					       const QColorGroup &g, QRangeControlWidget* rc,
-					       bool downbtn, bool enabled, bool down );
+    // spin widget
+    virtual void drawSpinWidgetButton( QPainter *p, int x, int y, int w, int h,
+				       const QColorGroup &g, QSpinWidget *sw,
+				       bool downbtn, bool enabled, bool down );
+    virtual void drawSpinWidgetSymbol( QPainter *p, int x, int y, int w, int h,
+				       const QColorGroup &g, QSpinWidget *sw,
+				       bool downbtn, bool enabled, bool down );
 
     // groupbox
     void drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled );

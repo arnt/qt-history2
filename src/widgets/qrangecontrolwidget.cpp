@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QRangeControlWidget class
+** Implementation of QSpinWidget class
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -42,10 +42,10 @@
 
 static uint theButton = 0;
 
-class QRangeControlWidgetPrivate
+class QSpinWidgetPrivate
 {
 public:
-    QRangeControlWidgetPrivate()
+    QSpinWidgetPrivate()
     {
 	upEnabled = TRUE;
 	downEnabled = TRUE;
@@ -53,7 +53,7 @@ public:
 	up = QRect();
 	down = QRect();
 	auRepTimer = 0;
-	bsyms = QRangeControlWidget::UpDownArrows;
+	bsyms = QSpinWidget::UpDownArrows;
     }
     bool upEnabled;
     bool downEnabled;
@@ -61,17 +61,17 @@ public:
     QRect up;
     QRect down;
     QTimer *auRepTimer;
-    QRangeControlWidget::ButtonSymbols bsyms;
+    QSpinWidget::ButtonSymbols bsyms;
 };
 
 /*!  Constructs an empty range control widget.
 
 */
 
-QRangeControlWidget::QRangeControlWidget( QWidget* parent, const char* name )
+QSpinWidget::QSpinWidget( QWidget* parent, const char* name )
     : QFrame( parent, name )
 {
-    d = new QRangeControlWidgetPrivate();
+    d = new QSpinWidgetPrivate();
     setFocusPolicy( QWidget::NoFocus );
     arrange();
     updateDisplay();
@@ -82,7 +82,7 @@ QRangeControlWidget::QRangeControlWidget( QWidget* parent, const char* name )
 
 */
 
-QRangeControlWidget::~QRangeControlWidget()
+QSpinWidget::~QSpinWidget()
 {
     delete d;
 }
@@ -91,7 +91,7 @@ QRangeControlWidget::~QRangeControlWidget()
 
 */
 
-void QRangeControlWidget::mousePressEvent( QMouseEvent *e )
+void QSpinWidget::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
 	return;
@@ -133,7 +133,7 @@ void QRangeControlWidget::mousePressEvent( QMouseEvent *e )
 
 */
 
-void QRangeControlWidget::arrange()
+void QSpinWidget::arrange()
 {
     QSize bs;
 
@@ -148,7 +148,7 @@ void QRangeControlWidget::arrange()
     d->down = QRect( 0, bs.height(), bs.width(), bs.height() );
 }
 
-void QRangeControlWidget::stepUp()
+void QSpinWidget::stepUp()
 {
     if ( d->auRepTimer && sender() == d->auRepTimer ) {
 	d->auRepTimer->stop();
@@ -157,7 +157,7 @@ void QRangeControlWidget::stepUp()
     emit stepUpPressed();
 }
 
-void QRangeControlWidget::resizeEvent( QResizeEvent* )
+void QSpinWidget::resizeEvent( QResizeEvent* )
 {
     arrange();
 }
@@ -166,7 +166,7 @@ void QRangeControlWidget::resizeEvent( QResizeEvent* )
 
 */
 
-void QRangeControlWidget::stepDown()
+void QSpinWidget::stepDown()
 {
     if ( d->auRepTimer && sender() == d->auRepTimer ) {
 	d->auRepTimer->stop();
@@ -180,7 +180,7 @@ void QRangeControlWidget::stepDown()
 
 */
 
-void QRangeControlWidget::mouseReleaseEvent( QMouseEvent *e )
+void QSpinWidget::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
 	return;
@@ -204,7 +204,7 @@ void QRangeControlWidget::mouseReleaseEvent( QMouseEvent *e )
 
 */
 
-void QRangeControlWidget::mouseMoveEvent( QMouseEvent *e )
+void QSpinWidget::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !(e->state() & LeftButton ) )
 	return;
@@ -238,11 +238,11 @@ void QRangeControlWidget::mouseMoveEvent( QMouseEvent *e )
 
 */
 
-void QRangeControlWidget::wheelEvent( QWheelEvent *e )
+void QSpinWidget::wheelEvent( QWheelEvent *e )
 {
     e->accept();
     static float offset = 0;
-    static QRangeControlWidget* offset_owner = 0;
+    static QSpinWidget* offset_owner = 0;
     if ( offset_owner != this ) {
 	offset_owner = this;
 	offset = 0;
@@ -262,21 +262,21 @@ void QRangeControlWidget::wheelEvent( QWheelEvent *e )
 
 */
 
-void QRangeControlWidget::drawContents( QPainter *p )
+void QSpinWidget::drawContents( QPainter *p )
 {
-    style().drawRangeControlWidgetButton( p, d->down.x(), d->down.y(), d->down.width(), d->down.height(),
-					  d->downEnabled ? colorGroup() : palette().disabled(),
-					  this, TRUE, d->downEnabled, theButton & 1 );
-    style().drawRangeControlWidgetSymbol( p, d->down.x(), d->down.y(), d->down.width(), d->down.height(),
-					  d->downEnabled ? colorGroup() : palette().disabled(),
-					  this, TRUE, d->downEnabled, theButton & 1 );
+    style().drawSpinWidgetButton( p, d->down.x(), d->down.y(), d->down.width(), d->down.height(),
+				  d->downEnabled ? colorGroup() : palette().disabled(),
+				  this, TRUE, d->downEnabled, theButton & 1 );
+    style().drawSpinWidgetSymbol( p, d->down.x(), d->down.y(), d->down.width(), d->down.height(),
+				  d->downEnabled ? colorGroup() : palette().disabled(),
+				  this, TRUE, d->downEnabled, theButton & 1 );
 
-    style().drawRangeControlWidgetButton( p, d->up.x(), d->up.y(), d->up.width(), d->up.height(),
-					  d->upEnabled ? colorGroup() : palette().disabled(),
-					  this, FALSE, d->upEnabled, theButton & 2 );
-    style().drawRangeControlWidgetSymbol( p, d->up.x(), d->up.y(), d->up.width(), d->up.height(),
-					  d->upEnabled ? colorGroup() : palette().disabled(),
-					  this, FALSE, d->upEnabled, theButton & 2 );
+    style().drawSpinWidgetButton( p, d->up.x(), d->up.y(), d->up.width(), d->up.height(),
+				  d->upEnabled ? colorGroup() : palette().disabled(),
+				  this, FALSE, d->upEnabled, theButton & 2 );
+    style().drawSpinWidgetSymbol( p, d->up.x(), d->up.y(), d->up.width(), d->up.height(),
+				  d->upEnabled ? colorGroup() : palette().disabled(),
+				  this, FALSE, d->upEnabled, theButton & 2 );
 }
 
 
@@ -284,7 +284,7 @@ void QRangeControlWidget::drawContents( QPainter *p )
 
 */
 
-void QRangeControlWidget::styleChange( QStyle& old )
+void QSpinWidget::styleChange( QStyle& old )
 {
     if ( style() == WindowsStyle )
 	setFrameStyle( WinPanel | Sunken );
@@ -300,7 +300,7 @@ void QRangeControlWidget::styleChange( QStyle& old )
 
 */
 
-QRect QRangeControlWidget::upRect() const
+QRect QSpinWidget::upRect() const
 {
     return d->up;
 }
@@ -310,7 +310,7 @@ QRect QRangeControlWidget::upRect() const
 
 */
 
-QRect QRangeControlWidget::downRect() const
+QRect QSpinWidget::downRect() const
 {
     return d->down;
 }
@@ -320,7 +320,7 @@ QRect QRangeControlWidget::downRect() const
 
 */
 
-void QRangeControlWidget::updateDisplay()
+void QSpinWidget::updateDisplay()
 {
     if ( !isEnabled() ) {
 	d->upEnabled = FALSE;
@@ -343,7 +343,7 @@ void QRangeControlWidget::updateDisplay()
 
 */
 
-void QRangeControlWidget::setEnabled( bool on )
+void QSpinWidget::setEnabled( bool on )
 {
     bool b = isEnabled();
     d->upEnabled = on;
@@ -358,7 +358,7 @@ void QRangeControlWidget::setEnabled( bool on )
 
 */
 
-void QRangeControlWidget::setUpEnabled( bool on )
+void QSpinWidget::setUpEnabled( bool on )
 {
     if ( d->upEnabled != on ) {
 	d->upEnabled = on;
@@ -371,7 +371,7 @@ void QRangeControlWidget::setUpEnabled( bool on )
 
 */
 
-void QRangeControlWidget::setDownEnabled( bool on )
+void QSpinWidget::setDownEnabled( bool on )
 {
     if ( d->downEnabled != on ) {
 	d->downEnabled = on;
@@ -384,7 +384,7 @@ void QRangeControlWidget::setDownEnabled( bool on )
 
 */
 
-void QRangeControlWidget::setButtonSymbols( ButtonSymbols bs )
+void QSpinWidget::setButtonSymbols( ButtonSymbols bs )
 {
     d->bsyms = bs;
 }
@@ -394,7 +394,7 @@ void QRangeControlWidget::setButtonSymbols( ButtonSymbols bs )
 
 */
 
-QRangeControlWidget::ButtonSymbols QRangeControlWidget::buttonSymbols() const
+QSpinWidget::ButtonSymbols QSpinWidget::buttonSymbols() const
 {
     return d->bsyms;
 }

@@ -54,15 +54,15 @@ class QSpinBoxPrivate
 {
 public:
     QSpinBoxPrivate() {}
-    QRangeControlWidget* buttons;
+    QSpinWidget* buttons;
 };
 
 
 /*!
   \class QSpinBox qspinbox.h
 
-  \brief The QSpinBox class provides a spin box widget - sometimes called
-	  an up-down widget, little arrows widget or spin button.
+  \brief The QSpinBox class provides a spin box widget (sometimes called
+	  an up-down widget, little arrows widget or spin button).
 
   \ingroup basic
 
@@ -176,7 +176,7 @@ void QSpinBox::initSpinBox()
 {
     d = new QSpinBoxPrivate;
 
-    d->buttons = new QRangeControlWidget( this, "buttons" );
+    d->buttons = new QSpinWidget( this, "buttons" );
     connect( d->buttons, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
     connect( d->buttons, SIGNAL( stepDownPressed() ), SLOT( stepDown() ) );
 
@@ -905,10 +905,10 @@ void QSpinBox::setButtonSymbols( ButtonSymbols newSymbols )
 
     switch ( newSymbols ) {
     case UpDownArrows:
-	d->buttons->setButtonSymbols( QRangeControlWidget::UpDownArrows );
+	d->buttons->setButtonSymbols( QSpinWidget::UpDownArrows );
 	break;
     case PlusMinus:
-	d->buttons->setButtonSymbols( QRangeControlWidget::PlusMinus );
+	d->buttons->setButtonSymbols( QSpinWidget::PlusMinus );
 	break;
     }
     //    repaint( FALSE );
@@ -917,9 +917,9 @@ void QSpinBox::setButtonSymbols( ButtonSymbols newSymbols )
 QSpinBox::ButtonSymbols QSpinBox::buttonSymbols() const
 {
     switch( d->buttons->buttonSymbols() ) {
-    case QRangeControlWidget::UpDownArrows:
+    case QSpinWidget::UpDownArrows:
 	return UpDownArrows;
-    case QRangeControlWidget::PlusMinus:
+    case QSpinWidget::PlusMinus:
 	return PlusMinus;
     }
     return UpDownArrows;
@@ -1017,7 +1017,8 @@ const QColor & QSpinBox::backgroundColor() const
 */
 void QSpinBox::setBackgroundColor( const QColor & color )
 {
-    if(!vi) return;
+    if ( !vi )
+	return;
     setBackgroundColorForMode(vi->backgroundMode(), color);
 }
 

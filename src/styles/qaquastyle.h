@@ -179,12 +179,12 @@ public:
     void drawProgressChunk( QPainter *p, int x, int y, int w, int h,
 			    const QColorGroup &g );
     int  spinboxFrameWidth() const;
-    void drawRangeControlWidgetButton ( QPainter * p, int x, int y,
-	        int w, int h, const QColorGroup & g, QRangeControlWidget * rc,
+    void drawSpinWidgetButton( QPainter * p, int x, int y,
+	        int w, int h, const QColorGroup & g, QSpinWidget * sw,
 		bool downbtn, bool enabled, bool down );
 
-    void drawRangeControlWidgetSymbol ( QPainter * p, int x, int y,
-	        int w, int h, const QColorGroup & g, QRangeControlWidget * rc,
+    void drawSpinWidgetSymbol( QPainter * p, int x, int y,
+	        int w, int h, const QColorGroup & g, QSpinWidget * sw,
 		bool downbtn, bool enabled, bool down );
 
     // title bar

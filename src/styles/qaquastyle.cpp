@@ -13416,8 +13416,8 @@ int QAquaStyle::spinboxFrameWidth() const
     return 1;
 }
 
-void QAquaStyle::drawRangeControlWidgetButton( QPainter * p, int x, int y,
-	  int w, int h, const QColorGroup &, QRangeControlWidget *,
+void QAquaStyle::drawSpinWidgetButton( QPainter * p, int x, int y,
+	  int w, int h, const QColorGroup &, QSpinWidget *,
 	  bool downbtn, bool, bool down )
 {
     QString wstr = QString::number( w );
@@ -13436,8 +13436,8 @@ void QAquaStyle::drawRangeControlWidgetButton( QPainter * p, int x, int y,
     p->drawPixmap( x, y, btn );
 }
 
-void QAquaStyle::drawRangeControlWidgetSymbol( QPainter *, int, int,
-	  int, int, const QColorGroup &, QRangeControlWidget *,
+void QAquaStyle::drawSpinWidgetSymbol( QPainter *, int, int,
+	  int, int, const QColorGroup &, QSpinWidgetWidget *,
 	  bool, bool, bool )
 {
 }
