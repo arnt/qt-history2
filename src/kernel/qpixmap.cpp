@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#33 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#33 $";
 #endif
 
 
@@ -262,7 +262,7 @@ bool QPixmap::load( const char *fileName, const char *format )
     can_turn_scanlines = TRUE;
 #endif
     bool result = io.read();
-    if ( io.read() ) {
+    if ( result ) {
 	detach();
 	result = convertFromImage( io.image() );
     }
