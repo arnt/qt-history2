@@ -67,5 +67,16 @@ sql {
 			LIBS += -lodbc
 		}
 	}
+
+	contains(sql-driver, oci) {
+		HEADERS += $$SQL_H/src/oci/qsql_oci.h
+		SOURCES += $$SQL_CPP/src/oci/qsql_oci.cpp
+		DEFINES += QT_SQL_OCI
+		unix {
+			INCLUDEPATH += /usr/local/include
+			LIBS += -lclntsh
+		}
+	}
+
 }
 !sql:DEFINES    += QT_NO_SQL

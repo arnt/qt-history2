@@ -86,7 +86,7 @@ QVariant::Type qDecodeOCIType( int ocitype )
     return type;
 }
 
-bool qIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
+bool qOraIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
 {
     QSql t = driver->createResult();
     QString stmt ("select count(1) "
@@ -140,7 +140,7 @@ int qFieldSize( const QOCIPrivate* p, ub4 i )
 // 	    colLength = 7;
 // 	if ( type == QVariant::Invalid )
 // 	    colLength = 0;
-	
+
     }
     qDebug("field length:" + QString::number(colLength));
     return colLength;
@@ -330,7 +330,7 @@ private:
     {
 	typ.insert( position, new QVariant::Type(type) );
     }
-    
+
     QVector<char> data;
     QVector<sb2> ind;
     QVector<QVariant::Type> typ;
@@ -479,7 +479,7 @@ bool QOCIResult::cacheNext()
 	}
     }
     if ( r == 0 ) {
-	for ( int i = 0; i < cols->size(); ++i ) 
+	for ( int i = 0; i < cols->size(); ++i )
 	    rowCache[currentRecord][i] = cols->value( i );
     } else {
 	cached = TRUE;
@@ -574,7 +574,7 @@ QSqlFieldList QOCIResult::fields()
 	QSqlField fi = qMakeField( d, i+1 );
 	if ( isActive() && isValid() )
 	    fi.setValue( data( i ) );
-	fil.append( fi );
+	fil.append( &fi );
     }
     return fil;
 }
@@ -616,7 +616,7 @@ void QOCIDriver::init()
 			    NULL,
 			    NULL,
 			    NULL,
-			    (void**)NULL);
+			    0);
 #ifdef CHECK_RANGE
     if ( r != 0 )
 	qWarning( "QOCIDriver: Unable to create environment: " + qOraWarn( d ) );
@@ -758,8 +758,8 @@ QSqlFieldList QOCIDriver::fields( const QString& tablename ) const
     QSqlFieldList fil;
     while ( t.next() ) {
 	QSqlField f( t.value(0).toString(), t.at(), qDecodeOCIType(t.value(1).toInt()) );
-	f.setPrimaryIndex( qIsPrimaryIndex( this, tablename, f.name() ));
-	fil.append( f );
+	f.setPrimaryIndex( qOraIsPrimaryIndex( this, tablename, f.name() ));
+	fil.append( &f );
     }
     return fil;
 }
@@ -777,7 +777,8 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     t.setQuery( stmt.arg( tablename.upper() ) );
     QSqlIndex idx( tablename );
     if ( t.next() ) {
-	idx.append( QSqlField( t.value(0).toString(), t.at(), qDecodeOCIType(t.value(1).toInt()) ));
+	QSqlField f(t.value(0).toString(), t.at(), qDecodeOCIType(t.value(1).toInt()) );
+	idx.append( &f );
     }
     return idx;
     return QSqlIndex();

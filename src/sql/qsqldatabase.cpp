@@ -10,6 +10,9 @@
 #ifdef QT_SQL_ODBC
 #include "src/odbc/qsql_odbc.h"
 #endif
+#ifdef QT_SQL_OCI
+#include "src/oci/qsql_oci.h"
+#endif
 
 #include "qsqlresult.h"
 #include "qsqldriver.h"
@@ -135,6 +138,10 @@ void QSqlDatabase::init( const QString& type )
 #ifdef QT_SQL_ODBC
 	if ( type == "QODBC" )
 	    d->driver = new QODBCDriver();
+#endif
+#ifdef QT_SQL_OCI
+	if ( type == "QOCI" )
+	    d->driver = new QOCIDriver();
 #endif
     }
     if ( !d->driver ) {
