@@ -1064,7 +1064,7 @@ void QPainter::restore()
         p->begin(0); // impossible - paint device cannot be 0
 
         QPixmap pm(0, 0);
-        p->begin(pm); // impossible - pm.isNull();
+        p->begin(&pm); // impossible - pm.isNull();
 
         p->begin(myWidget);
         p2->begin(myWidget); // impossible - only one painter at a time
@@ -5162,7 +5162,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 
 /*!
     \fn bool QPainter::begin(QPaintDevice *pdev, const QWidget *init)
-###
+    \compat
 */
 
 
