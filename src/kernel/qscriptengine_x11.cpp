@@ -2103,7 +2103,7 @@ static const unsigned char khmerForm[0x54] = {
     // #### the following two might not be independent vowels.
     Khmer_IndV, Khmer_IndV, Khmer_PstV, Khmer_AbvV,
     Khmer_AbvV, Khmer_AbvV, Khmer_AbvV, Khmer_BlwV,
-    Khmer_BlwV, Khmer_BlwV, Khmer_PreV, Khmer_PstV,
+    Khmer_BlwV, Khmer_BlwV, Khmer_AbvV, Khmer_PstV,
 
     Khmer_PstV, Khmer_PreV, Khmer_PreV, Khmer_PreV,
     Khmer_PstV, Khmer_PstV, Khmer_AbvS, Khmer_PstS,
@@ -2296,12 +2296,12 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 	memcpy( reordered, string.unicode() + from, len*sizeof(unsigned short) );
     }
 
-#ifdef KHMER_DEBUG
-    KHDEBUG("original:");
+//#ifdef KHMER_DEBUG
+    qDebug("original:");
     for (i = 0; i < len; i++) {
-	KHDEBUG("    %d: %4x", i, reordered[i]);
+	qDebug("    %d: %4x", i, reordered[i]);
     }
-#endif
+//#endif
 
     if (len > 1) {
 	// rule 2, move COENG+Ro to front
