@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#577 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#578 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -354,6 +354,7 @@ public:
     bool translateWheelEvent( int global_x, int global_y, int delta, int state );
     void embeddedWindowTabFocus( bool );
 };
+
 
 /*!
   \internal
@@ -762,9 +763,7 @@ static void xim_destroy_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*
 #endif
 
 
-    /*!
-  \internal
-*/
+/*! \internal */
 void QApplication::create_xim()
 {
 #if !defined(NO_XIM)
@@ -828,7 +827,7 @@ void QApplication::create_xim()
 		close_xim();
 	    } else {
 #ifdef USE_X11R6_XIM
-		XUnregisterIMInstantiateCallback(appDpy,0,0,0,(XIMProc )create_xim,0);		
+		XUnregisterIMInstantiateCallback(appDpy,0,0,0,(XIMProc )create_xim,0);
 #endif
 		QWidgetList *list= qApp->topLevelWidgets();
 		QWidgetListIt it(*list);
@@ -838,7 +837,7 @@ void QApplication::create_xim()
 		}
 		delete list;
 		}
-	}	
+	}
 #endif
 }
 
@@ -1111,7 +1110,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    qDebug("Qt: Cannot set locale modifiers");
 	else if ( !noxim )
 	    QApplication::create_xim();
-#endif	
+#endif
 #endif
 	// Always use the locale codec, since we have no examples of non-local
 	// XIMs, and since we cannot get a sensible answer about the encoding
@@ -1254,6 +1253,7 @@ bool qt_wstate_iconified( WId winid )
   \relates QApplication
   Adds a global routine that will be called from the QApplication destructor.
   This function is normally used to add cleanup routines.
+
 
   The function given by \a p should take no arguments and return
   nothing, like this:
@@ -2334,7 +2334,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     if ( !widget ) {				// don't know this window
 	QWidget* popup = QApplication::activePopupWidget();
 	if ( popup ) {
-	
+
 	    /*
 	      That is more than suboptimal. The real solution should
 	      do some keyevent and buttonevent translation, so that
@@ -2343,7 +2343,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	      possible with a known widget. I'll change that soon
 	      (Matthias).
 	     */
-	
+
 	    // Danger - make sure we don't lock the server
 	    switch ( event->type ) {
 	    case ButtonPress:
@@ -2998,11 +2998,23 @@ static void insertTimer( const TimerInfo *ti )	// insert timer info into list
 {
     TimerInfo *t = timerList->first();
     int index = 0;
+#if defined(DEBUG)
+    int dangerCount = 0;
+#endif
     while ( t && t->timeout < ti->timeout ) {	// list is sorted by timeout
+#if defined(DEBUG)
+	if ( t->obj == ti->obj )
+	    dangerCount++;
+#endif
 	t = timerList->next();
 	index++;
     }
     timerList->insert( index, ti );		// inserts sorted
+#if defined(DEBUG)
+    if ( dangerCount > 16 )
+	debug( "QObject: %d timers now exist for object %s::%s",
+	       dangerCount, ti->obj->className(), ti->obj->name() );
+#endif
 }
 
 static inline void getTime( timeval &t )	// get time of day
