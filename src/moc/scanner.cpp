@@ -46,7 +46,6 @@ Symbols Scanner::scan(const QByteArray &input)
         if (token > SPECIAL_TREATMENT_MARK) {
             switch (token) {
             case QUOTE:
-                ++data;
                 while (*data && (*data != '\"'
                                  || (*(data-1)=='\\'
                                      && *(data-2)!='\\')))
@@ -56,7 +55,6 @@ Symbols Scanner::scan(const QByteArray &input)
                 token = STRING_LITERAL;
                 break;
             case SINGLEQUOTE:
-                ++data;
                 while (*data && (*data != '\''
                                  || (*(data-1)=='\\'
                                      && *(data-2)!='\\')))
