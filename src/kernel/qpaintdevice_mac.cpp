@@ -297,6 +297,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
   
   int srcoffx = 0, srcoffy = 0;
   BitMap *srcbitmap=NULL;
+  const QBitmap *srcbitmask=NULL;
   if(src->devType() == QInternal::Widget) {
       QWidget *w = (QWidget *)src;
       srcbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
@@ -312,6 +313,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
   } else if(src->devType() == QInternal::Pixmap) {
       QPixmap *pm = (QPixmap *)src;
       srcbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
+      srcbitmask = pm->mask();
 
       if(sw < 0)
 	  sw = pm->width();
@@ -320,7 +322,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
   }
 
   int dstoffx=0, dstoffy=0;
-  BitMap *dstbitmap=NULL;
+  const BitMap *dstbitmap=NULL;
   if(dst->devType() == QInternal::Widget) {
       QWidget *w = (QWidget *)dst;
       dstbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
@@ -350,11 +352,42 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
       return;
   }
 
+  short copymode;
+  switch(rop) {
+  default:
+  case Qt::CopyROP:   copymode = srcCopy; break;
+  case Qt::OrROP:     copymode = srcOr; break;
+  case Qt::XorROP:    copymode = srcXor; break; 
+  case Qt::NotAndROP: copymode = srcBic; break;
+  case Qt::NotCopyROP:copymode = notSrcCopy; break;
+  case Qt::NotOrROP:  copymode = notSrcOr; break;
+  case Qt::NotXorROP: copymode = notSrcXor; break;
+  case Qt::AndROP:     copymode = notSrcBic; break;
+/*
+  case NotROP:      dst = NOT dst
+  case ClearROP:    dst = 0
+  case SetROP:      dst = 1
+  case NopROP:      dst = dst
+  case AndNotROP:   dst = src AND (NOT dst)
+  case OrNotROP:    dst = src OR (NOT dst)
+  case NandROP:     dst = NOT (src AND dst)
+  case NorROP:      dst = NOT (src OR dst)
+*/
+  }
+
   Rect r;
   SetRect(&r,sx+srcoffx,sy+srcoffy,sx+sw+srcoffx,sy+sh+srcoffy);
   Rect r2;
   SetRect(&r2,dx+dstoffx,dy+dstoffy,dx+sw+dstoffx,dy+sh+dstoffy);
-  CopyBits(srcbitmap, dstbitmap, &r,&r2,(short)srcCopy,0);
+  if(srcbitmask && !imask) {
+      BitMap *maskbits = (BitMap *)*GetGWorldPixMap((GWorldPtr)srcbitmask->handle());
+      Rect maskr;
+      SetRect(&maskr, 0, 0, srcbitmask->width(), srcbitmask->height());
+      CopyDeepMask(srcbitmap, maskbits, dstbitmap, &r, &maskr, &r2, copymode, 0);
+  }
+  else {
+      CopyBits(srcbitmap, dstbitmap, &r,&r2,copymode, 0);
+  }
 
   SetGWorld(savedworld,savedhandle);
 
