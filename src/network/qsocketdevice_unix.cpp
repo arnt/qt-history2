@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#10 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#11 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -58,7 +58,7 @@
 #include <netdb.h>
 #include <errno.h>
 
-#if defined(_OS_QNX_)
+#if defined(Q_OS_QNX)
 #include <unix.h>
 #endif
 

@@ -123,7 +123,7 @@ static int qt_thread_pipe[2];
 #include <bstring.h>
 #endif
 
-#if defined(_OS_AIX_) || defined(_OS_UNIXWARE7_)
+#if defined(Q_OS_AIX) || defined(Q_OS_UNIXWARE7)
 #include <strings.h>
 #endif
 
