@@ -5080,8 +5080,6 @@ void QListView::widthChanged( const QListViewItem* item, int c )
 
   Setting this to TRUE if it's not necessary can cause noticeable
   flicker.
-
-  \sa allColumnsShowFocus()
 */
 
 void QListView::setAllColumnsShowFocus( bool enable )
