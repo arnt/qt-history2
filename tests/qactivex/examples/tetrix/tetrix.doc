@@ -1,0 +1,65 @@
+/*! \page examples-tetrix.html
+
+  \title A Qt example as a scriptable ActiveX control
+
+
+  This example shows how to turn an existing Qt application
+  into an ActiveX control server. The ActiveX control is based
+  on the tetrix example.
+
+  It demonstrates the use of the default factory provied by the 
+  QT_ACTIVEX macro, and of QActiveQt::isServer().
+
+  To build the example you must first build the \link module-qaxserver.html
+  QAxServer \endlink library. Then run your make tool in 
+  \c examples/tetrix and register the resulting \c tetrixax.exe by
+  running \c tetrixax \c -regserver.
+
+  The \link demo-tetrix.html demonstration \endlink requires your
+  WebBrowser to support ActiveX controls, and scripting to be enabled.
+
+  <hr>
+
+  \code
+  <SCRIPT LANGUAGE=vbscript>
+  Sub QTetrix_gameOver()
+      MsgBox( "GameOver!" )
+  End Sub
+  </SCRIPT>
+
+  <object ID="QTetrix" width=550 height=370
+      CLASSID="CLSID:852558AD-CBD6-4f07-844C-D1E8983CD6FC">
+      <PARAM NAME="score" VALUE="0">
+  [Object not available! Did you forget to build and register the server?] 
+  </object>
+
+  <FORM>
+      <INPUT TYPE="button" VALUE="Start Game..."
+                   onClick="QTetrix.startGame()">
+  </FORM>  
+  \endcode
+*/
+
+/*! \page demo-tetrix.html
+
+  \title Play Tetrix!
+
+\raw html
+<SCRIPT LANGUAGE=vbscript>
+Sub QTetrix_gameOver()
+    MsgBox( "GameOver!" )
+End Sub
+</SCRIPT>
+
+<object ID="QTetrix" width=550 height=370
+    CLASSID="CLSID:852558AD-CBD6-4f07-844C-D1E8983CD6FC">
+    <PARAM NAME="score" VALUE="0">
+[Object not available! Did you forget to build and register the server?] 
+</object>
+
+<FORM>
+    <INPUT TYPE="button" VALUE="Start Game..."
+	onClick="QTetrix.startGame()">
+</FORM>
+\endraw
+*/

@@ -38,11 +38,13 @@ QPtrList<CComTypeInfoHolder> *QActiveQtBase::typeInfoHolderList = 0;
 /*!
     \class QActiveQtFactoryInterface qactiveqt.h
     \brief The QActiveQtFactoryInterface class is an interface for the creation of ActiveX components.
+    \internal
+    \module QAxServer
+    \extension ActiveQt
 
     Implement this interface once in your ActiveX server to provide information about the components
     this server can create. The interface inherits the QFeatureListInterface and works key-based. A
-    key in this interface is the class identifier of the ActiveX object in the textual format
-    {01234567-89AB-CDEF-0123-456789ABCDEF}.
+    key in this interface is the class name of the ActiveX object.
 
     To instantiate and export your implementation of the factory interface, use the Q_EXPORT_COMPONENT
     and Q_CREATE_INSTANCE macros:
@@ -63,14 +65,14 @@ QPtrList<CComTypeInfoHolder> *QActiveQtBase::typeInfoHolderList = 0;
 */
 
 /*!
-    \fn QWidget *QActiveQtFactoryInterface::create( const QString &key, QWidget *parent = 0, const char *name = 0 )
+    \fn QWidget *QActiveQtFactory::create( const QString &key, QWidget *parent = 0, const char *name = 0 )
 
     Reimplement this function to return a new widget for \a key. Propagate \a parent and \a name to the
     QWidget constructor. Return 0 if this factory doesn't support the value of \a key.
 */
 
 /*!
-    \fn QMetaObject *QActiveQtFactoryInterface::metaObject( const QString &key ) const
+    \fn QMetaObject *QActiveQtFactory::metaObject( const QString &key ) const
 
     Reimplement this function to return the QMetaObject for \a key. Use the QObject::staticMetaObject() for that.
     The class implementing the ActiveX control has to use the Q_OBJECT macro to generate meta object information.
@@ -78,27 +80,34 @@ QPtrList<CComTypeInfoHolder> *QActiveQtBase::typeInfoHolderList = 0;
 */
 
 /*!
-    \fn QUuid QActiveQtFactoryInterface::interfaceID( const QString &key ) const
+    \fn QUuid QActiveQtFactory::classID( const QString &key ) const
+
+    Reimplement this function to return the class identifier for \a key, or an empty QUuid if
+    this factory doesn't support the value of \a key.
+*/
+
+/*!
+    \fn QUuid QActiveQtFactory::interfaceID( const QString &key ) const
 
     Reimplement this function to return the interface identifier for \a key, or an empty QUuid if
     this factory doesn't support the value of \a key.
 */
 
 /*!
-    \fn QUuid QActiveQtFactoryInterface::eventsID( const QString &key ) const
+    \fn QUuid QActiveQtFactory::eventsID( const QString &key ) const
 
     Reimplement this function to return the identifier of the event interface for \a key, or an empty QUuid if
     this factory doesn't support the value of \a key.
 */
 
 /*!
-    \fn QUuid QActiveQtFactoryInterface::typeLibID() const
+    \fn QUuid QActiveQtFactory::typeLibID() const
 
     Reimplement this function to return the type library identifier for this ActiveX server.
 */
 
 /*!
-    \fn QUuid QActiveQtFactoryInterface::appID() const
+    \fn QUuid QActiveQtFactory::appID() const
 
     Reimplement this function to return the application identifier for this ActiveX server.
 */
@@ -106,10 +115,12 @@ QPtrList<CComTypeInfoHolder> *QActiveQtBase::typeInfoHolderList = 0;
 
 /*!
     \class QActiveQtFactory qactiveqt.h
-    \brief The QActiveQtFactory class provides a default implementation of the QActiveQtFactoryInterface.
+    \brief The QActiveQtFactory class is a factory for the creation of ActiveX components.
+    \module QAxServer
+    \extension ActiveQt
 
-    Derive your ActiveX factory from this class rather than QActiveQtFactoryInterface for convenience, and
-    use the Q_EXPORT_ACTIVEX macro to instantiate and export it:
+    Implement this factory once in your ActiveX server to provide information about the components
+    this server can create, and use the Q_EXPORT_ACTIVEX macro to instantiate and export it:
 
     \code
     class MyActiveQtFactory : public QActiveQtFactory
@@ -172,25 +183,41 @@ QPtrList<CComTypeInfoHolder> *QActiveQtBase::typeInfoHolderList = 0;
     QStringList ActiveQtFactory::featureList() const
     {
 	QStringList list;
-	list << QUuid( CLSID_ActiveX1 );
-	list << QUuid( CLSID_ActiveX2 );
+	list << "ActiveX1";
+	list << "ActiveX2";
 	...
 	return list;
     }
 
     QWidget *ActiveQtFactory::create( const QString &key, QWidget *parent, const char *name )
     {
-	if ( QUuid(key) == CLSID_ActiveX1 )
+	if ( key == "ActiveX1" )
 	    return new ActiveX1( parent, name );
+        if ( key == "ActiveX2" )
+	    return new ActiveX2( parent, name );
 	...
 	return 0;
     }
     
-    ...
+    QMetaObject *ActiveQtFactory::metaObject( const QString &key ) const
+    {
+        if ( key == "ActiveX1" )
+	    return ActiveX1::staticMetaObject();
+	...
+	return 0;
+    }
+
+    QUuid ActiveQtFactory::classID( const QString &key ) const
+    {
+        if ( key == "ActiveX1" )
+	    return CLSID_ActiveX1;
+	...
+	return QUuid();
+    }
 
     QUuid ActiveQtFactory::interfaceID( const QString &key ) const
     {
-	if ( QUuid(key) == CLSID_ActiveX1 )
+	if ( key == "ActiveX1" )
 	    return IID_IActiveX1;
 	...
 	return QUuid();
@@ -198,7 +225,7 @@ QPtrList<CComTypeInfoHolder> *QActiveQtBase::typeInfoHolderList = 0;
 
     QUuid ActiveQtFactory::eventsID( const QString &key ) const
     {
-	if ( QUuid(key) == CLSID_ActiveX1 )
+	if ( key == "ActiveX1" )
 	    return IID_IActiveX1Events;
 	...
 	return QUuid();
@@ -237,17 +264,11 @@ QRESULT QActiveQtFactory::queryInterface( const QUuid &iid, QUnknownInterface **
     return QS_OK;
 }
 
-/*!
-    \reimp
-*/
 QUuid QActiveQtFactory::typeLibID() const
 {
     return typelib;
 }
 
-/*!
-    \reimp
-*/
 QUuid QActiveQtFactory::appID() const
 {
     return app;
@@ -257,6 +278,8 @@ QUuid QActiveQtFactory::appID() const
 /*!
     \class QActiveQt qactiveqt.h
     \brief The QActiveQt class provides an interface between the Qt widget and the ActiveX control.
+    \module QAxServer
+    \extension ActiveQt
 
     When implementing ActiveX controls with Qt, inherit your control class from both QWidget (directly or
     indirectly) and this class. The meta object compiler requires you to inherit first from QWidget.
@@ -701,9 +724,9 @@ private:
 };
 
 
-QActiveQtBase::QActiveQtBase( IID QAxClass )
+QActiveQtBase::QActiveQtBase( const QString &classname )
 : initNewCalled(FALSE), dirtyflag( FALSE ), activeqt( 0 ), ref( 0 ),
-  IID_QAxClass( QAxClass ), slotlist(0), signallist(0),proplist(0), proplist2(0)
+  class_name( classname ), slotlist(0), signallist(0),proplist(0), proplist2(0)
 {
     _Module.Lock();
     if ( !typeInfoHolderList ) {
@@ -711,9 +734,8 @@ QActiveQtBase::QActiveQtBase( IID QAxClass )
 	typeInfoHolderList->setAutoDelete( TRUE );
     }
 
-    QString clsid = QUuid(QAxClass).toString();
     _tih = new CComTypeInfoHolder();
-    _tih->m_pguid = new GUID( _Module.factory()->interfaceID(clsid) );
+    _tih->m_pguid = new GUID( _Module.factory()->interfaceID( class_name ) );
     _tih->m_plibid = new GUID( _Module.factory()->typeLibID() );
     _tih->m_wMajor = 1;
     _tih->m_wMinor = 0;
@@ -724,7 +746,7 @@ QActiveQtBase::QActiveQtBase( IID QAxClass )
     typeInfoHolderList->append( _tih );
 
     _tih2 = new CComTypeInfoHolder();
-    _tih2->m_pguid = new GUID( QAxClass );
+    _tih2->m_pguid = new GUID( _Module.factory()->classID( class_name ) );
     _tih2->m_plibid = new GUID( _Module.factory()->typeLibID() );
     _tih2->m_wMajor = 1;
     _tih2->m_wMinor = 0;
@@ -735,7 +757,8 @@ QActiveQtBase::QActiveQtBase( IID QAxClass )
     typeInfoHolderList->append( _tih2 );
 
     points[IID_IPropertyNotifySink] = new QAxConnection( this, IID_IPropertyNotifySink );
-    points[_Module.factory()->eventsID(clsid)] = new QAxConnection( this, _Module.factory()->eventsID(clsid) );
+    points[_Module.factory()->eventsID(class_name)] = new QAxConnection( this, _Module.factory()->eventsID(class_name) );
+
     internalCreate();
 }
 
@@ -762,7 +785,9 @@ class HackWidget : public QWidget
 
 bool QActiveQtBase::internalCreate()
 {
-    activeqt = _Module.factory()->create( QUuid(IID_QAxClass) );
+    const QMetaObject *mo = _Module.factory()->metaObject( class_name );
+
+    activeqt = _Module.factory()->create( class_name );
     Q_ASSERT(activeqt);
     if ( !activeqt )
 	return FALSE;
@@ -777,7 +802,6 @@ bool QActiveQtBase::internalCreate()
     ::SetWindowLong( activeqt->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
 
     // connect the generic slot to all signals of activeqt
-    const QMetaObject *mo = activeqt->metaObject();
     for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal )
 	connectInternal( activeqt, isignal, this, 2, isignal );
     
@@ -871,7 +895,7 @@ void QActiveQtBase::readMetaData()
 				TYPEATTR *eventattr;
 				eventtype->GetTypeAttr( &eventattr );
 				// this is it
-				if ( eventattr && eventattr->guid == _Module.factory()->eventsID(QUuid(IID_QAxClass)) ) {
+				if ( eventattr && eventattr->guid == _Module.factory()->eventsID( class_name ) ) {
 				    eventinfo = eventtype;
 				    eventtype->ReleaseTypeAttr( eventattr );
 				    break;
@@ -939,7 +963,7 @@ bool QActiveQtBase::qt_emit( int isignal, QUObject* _o )
 	return FALSE;
 
     CComPtr<IConnectionPoint> cpoint;
-    FindConnectionPoint( _Module.factory()->eventsID(QUuid(IID_QAxClass)), &cpoint );
+    FindConnectionPoint( _Module.factory()->eventsID( class_name ), &cpoint );
     if ( cpoint ) {
 	CComPtr<IEnumConnections> clist;
 	cpoint->EnumConnections( &clist );
@@ -1010,7 +1034,7 @@ bool QActiveQtBase::qt_emit( int isignal, QUObject* _o )
 		    dispParams.rgvarg[ signalcount - p - 1 ] = arg;
 		}
 		// call listeners
-		GUID IID_QAxEvents = _Module.factory()->eventsID(QUuid(IID_QAxClass));
+		GUID IID_QAxEvents = _Module.factory()->eventsID( class_name );
 		while ( cc ) {
 		    if ( c->pUnk ) {
 			CComPtr<IDispatch> disp;
@@ -1254,8 +1278,9 @@ HRESULT QActiveQtBase::Load( IPropertyBag *bag, IErrorLog *log )
 	const char* property = mo->property( prop, TRUE )->name();
 	BSTR bstr = QStringToBSTR( property );
 	VARIANT var;
-	bag->Read( bstr, &var, 0 );
-	if ( !activeqt->setProperty( property, VARIANTToQVariant( var ) ) )
+	var.vt = VT_EMPTY;
+	HRESULT res = bag->Read( bstr, &var, 0 );
+	if ( res != S_OK || !activeqt->setProperty( property, VARIANTToQVariant( var ) ) )
 	    error = TRUE;
 	SysFreeString(bstr);
     }
@@ -1394,15 +1419,13 @@ HRESULT QActiveQtBase::GetUserType(DWORD dwFormOfType, LPOLESTR *pszUserType)
     if ( !pszUserType )
 	return E_POINTER;
 
-    const QMetaObject *mo = _Module.factory()->metaObject( QUuid(IID_QAxClass) );
-
     switch ( dwFormOfType ) {
     case USERCLASSTYPE_FULL:
-	*pszUserType = QStringToBSTR( mo->className() );
+	*pszUserType = QStringToBSTR( class_name );
 	break;
     case USERCLASSTYPE_SHORT:
 	if ( !activeqt || activeqt->caption().isEmpty() )
-	    *pszUserType = QStringToBSTR( mo->className() );
+	    *pszUserType = QStringToBSTR( class_name );
 	else
 	    *pszUserType = QStringToBSTR( activeqt->caption() );
 	break;
@@ -1417,7 +1440,7 @@ HRESULT QActiveQtBase::GetUserType(DWORD dwFormOfType, LPOLESTR *pszUserType)
 HRESULT QActiveQtBase::GetMiscStatus(DWORD dwAspect, DWORD *pdwStatus)
 {
     ATLTRACE2(atlTraceControls,2,_T("IOleObjectImpl::GetMiscStatus\n"));
-    return OleRegGetMiscStatus( IID_QAxClass, dwAspect, pdwStatus);
+    return OleRegGetMiscStatus( _Module.factory()->classID( class_name ), dwAspect, pdwStatus);
 }
 
 HRESULT QActiveQtBase::SetExtent( DWORD dwDrawAspect, SIZEL *psizel )

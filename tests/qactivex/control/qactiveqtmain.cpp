@@ -112,8 +112,15 @@ class QClassFactory : public IClassFactory
 {
 public:
     QClassFactory( CLSID clsid )
-	: classID( clsid ), ref( 0 )
+	: ref( 0 )
     {
+	QStringList keys = _Module.factory()->featureList();
+	for ( QStringList::Iterator  key = keys.begin(); key != keys.end(); ++key ) {
+	    if ( _Module.factory()->classID( *key ) == clsid ) {
+		className = *key;
+		break;
+	    }
+	}
     }
 
     unsigned long WINAPI AddRef()
@@ -144,8 +151,7 @@ public:
 
     HRESULT WINAPI CreateInstance( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
     {
-	const QString clsid = QUuid(classID).toString();
-	QActiveQtBase *activeqt = new QActiveQtBase( classID );
+	QActiveQtBase *activeqt = new QActiveQtBase( className );
 	return activeqt->QueryInterface( iid, ppObject );
     }
     HRESULT WINAPI LockServer( BOOL fLock )
@@ -159,8 +165,8 @@ public:
     }
 
 private:
-    CLSID classID;
     unsigned long ref;
+    QString className;
 };
 
 static HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
@@ -171,7 +177,6 @@ static HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
 	nRes = factory->QueryInterface( IID_IUnknown, ppUnk );
     return nRes;
 }
-
 
 static HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 {
@@ -208,14 +213,10 @@ static HRESULT WINAPI UpdateRegistry(BOOL bRegister)
     
     QStringList keys = _Module.factory()->featureList();
     for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
-	const QString classID = (*key).upper();
-	const QString eventID = _Module.factory()->eventsID(*key).toString().upper();
-	const QString ifaceID = _Module.factory()->interfaceID(*key).toString().upper();
-	QMetaObject *mo = _Module.factory()->metaObject( *key );
-
-	if ( !mo )
-	    continue;
-	const QString className = mo->className();
+	const QString className = *key;
+	const QString classID = _Module.factory()->classID(className).toString().upper();
+	const QString eventID = _Module.factory()->eventsID(className).toString().upper();
+	const QString ifaceID = _Module.factory()->interfaceID(className).toString().upper();
 
 	if ( bRegister ) {	    
 	    settings.writeEntry( "/" + module + "." + className + ".1/.", className + " Class" );
@@ -296,6 +297,19 @@ static HRESULT WINAPI UpdateRegistry(BOOL bRegister)
     return S_OK;
 }
 
+static int DumpIDL()
+{
+#if QT_VERSION < 310
+    return FALSE;
+#else
+    QStringList keys = _Module.factory()->featureList();
+    for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
+	QMetaObject *mo = QMetaObject::metaObject();
+    }
+    return TRUE;
+#endif
+}
+
 QInterfacePtr<QActiveQtFactoryInterface> CExeModule::_factory = 0;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -325,7 +339,9 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
     bool bRunMain = TRUE;
     for ( QStringList::Iterator it = cmds.begin(); it != cmds.end(); ++it ) {
 	QString cmd = (*it).lower();
-	if ( cmd == "-unregserver" || cmd == "/unregserver" ) {
+	if ( cmd == "-activex" || cmd == "/activex" ) {
+	    bRunMain = FALSE;
+	} else if ( cmd == "-unregserver" || cmd == "/unregserver" ) {
 	    qWarning( "Unregistering COM objects in %s", cmds[0].latin1() );
  	    nRet = UpdateRegistry(FALSE);
             bRun = FALSE;
@@ -335,8 +351,10 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
  	    nRet = UpdateRegistry(TRUE);
             bRun = FALSE;
             break;
-	} else if ( cmd == "-activex" || cmd == "/activex" ) {
-	    bRunMain = FALSE;
+	} else if ( cmd == "-dumpidl" || cmd == "/dumpidl" ) {
+	    nRet = DumpIDL();
+	    bRun = FALSE;
+	    break;
 	}
     }
 
@@ -362,7 +380,7 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 	    int object = 0;
 	    for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
 		GUID *clsid = new GUID;
-		*clsid = QUuid(*key);
+		*clsid = _Module.factory()->classID( *key );
 		ObjectMap[object].pclsid = clsid;
 		ObjectMap[object].pfnUpdateRegistry = UpdateRegistry;
 		ObjectMap[object].pfnGetClassObject = GetClassObject;

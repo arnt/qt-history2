@@ -124,7 +124,7 @@ QTetrix::QTetrix( QWidget *parent, const char *name )
     startButton->setFocusPolicy( QWidget::NoFocus );
     pauseButton->setFocusPolicy( QWidget::NoFocus );
 
-    connect( board, SIGNAL(gameOverSignal()), SLOT(gameOver()) );
+    connect( board, SIGNAL(gameOverSignal()), SIGNAL(gameOver()) );
     connect( board, SIGNAL(drawNextSquareSignal(int,int,QColor*)), showNext,
 	     SLOT(drawNextSquare(int,int,QColor*)) );
     connect( showNext, SIGNAL(update()), board, SLOT(updateNext()) );
@@ -168,14 +168,11 @@ QTetrix::QTetrix( QWidget *parent, const char *name )
 
     resize( 550, 370 );
 
-    if ( isServer() )
+    if ( isServer() ) {
 	quitButton->hide();
+	startButton->hide();
+    }
 }
-
-void QTetrix::gameOver()
-{
-}
-
 
 void QTetrix::quit()
 {

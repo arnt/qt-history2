@@ -1,5 +1,6 @@
-#include <qcheckbox.h>
+#include <qwidget.h>
 #include <qactiveqt.h>
+#include <qpainter.h>
 
 class QAxWidget1 : public QWidget, public QActiveQt
 {
@@ -8,6 +9,15 @@ public:
     QAxWidget1( QWidget *parent = 0, const char *name = 0, WFlags f = 0 )
 	: QWidget( parent, name, f )
     {
+    }
+
+protected:
+    void paintEvent( QPaintEvent *e )
+    {
+	QPainter paint( this );
+	QRect r = rect();
+	r.addCoords( 10, 10, -10, -10 );
+	paint.fillRect( r, red );
     }
 };
 

@@ -14,40 +14,53 @@ public:
     QStringList featureList() const
     {
 	QStringList list;
-	list << QUuid(CLSID_QAxWidget1);
-	list << QUuid(CLSID_QAxWidget2);
+	list << "QAxWidget1";
+	list << "QAxWidget2";
 	return list;
     }
     QWidget *create( const QString &key, QWidget *parent, const char *name )
     {
-	if ( QUuid(key) == CLSID_QAxWidget1 )
+	if ( key == "QAxWidget1" )
 	    return new QAxWidget1( parent, name );
-	if ( QUuid(key) == CLSID_QAxWidget2 )
+	if ( key == "QAxWidget2" )
 	    return new QAxWidget2( parent, name );
+
 	return 0;
     }
     QMetaObject *metaObject( const QString &key ) const
     {
-	if ( QUuid(key) == CLSID_QAxWidget1 )
+	if ( key == "QAxWidget1" )
 	    return QAxWidget1::staticMetaObject();
-	if ( QUuid(key) == CLSID_QAxWidget2 )
+	if ( key == "QAxWidget2" )
 	    return QAxWidget2::staticMetaObject();
+
 	return 0;
+    }
+    QUuid classID( const QString &key ) const
+    {
+	if ( key == "QAxWidget1" )
+	    return CLSID_QAxWidget1;
+	if ( key == "QAxWidget2" )
+	    return CLSID_QAxWidget2;
+
+	return QUuid();
     }
     QUuid interfaceID( const QString &key ) const
     {
-	if ( QUuid(key) == CLSID_QAxWidget1 )
+	if ( key == "QAxWidget1" )
 	    return IID_IQAxWidget1;
-	if ( QUuid(key) == CLSID_QAxWidget2 )
+	if ( key == "QAxWidget2" )
 	    return IID_IQAxWidget2;
+
 	return QUuid();
     }
     QUuid eventsID( const QString &key ) const
     {
-	if ( QUuid(key) == CLSID_QAxWidget1 )
+	if ( key == "QAxWidget1" )
 	    return IID_IQAxWidget1Events;
-	if ( QUuid(key) == CLSID_QAxWidget2 )
+	if ( key == "QAxWidget2" )
 	    return IID_IQAxWidget2Events;
+
 	return QUuid();
     }
 };

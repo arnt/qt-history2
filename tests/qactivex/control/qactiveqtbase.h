@@ -79,7 +79,7 @@ public:
     typedef QMap<QUuid,IConnectionPoint*> ConnectionPoints;
     typedef QMap<QUuid,IConnectionPoint*>::Iterator ConnectionPointsIterator;
 
-    QActiveQtBase( IID QAxClass );
+    QActiveQtBase( const QString &classname );
 
     ~QActiveQtBase();
 
@@ -225,7 +225,7 @@ END_MSG_MAP()
 	
 	if ( dwGuidKind == GUIDKIND_DEFAULT_SOURCE_DISP_IID )
 	{
-	    *pGUID = _Module.factory()->eventsID( QUuid( IID_QAxClass ) );
+	    *pGUID = _Module.factory()->eventsID( class_name );
 	    return S_OK;
 	}
 	*pGUID = GUID_NULL;
@@ -248,7 +248,7 @@ END_MSG_MAP()
 // IPersist
     STDMETHOD(GetClassID)(GUID*clsid) 
     {
-	*clsid = IID_QAxClass;
+	*clsid = _Module.factory()->classID( class_name );
 	return S_OK;
     }
 
@@ -280,7 +280,7 @@ private:
     bool dirtyflag;
     unsigned long ref;
 
-    const IID IID_QAxClass;
+    QString class_name;
 
     bool internalCreate();
 

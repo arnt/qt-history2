@@ -165,6 +165,9 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     \class QAxWidget qactivex.h
     \brief The QAxWidget class is a QWidget that wraps an ActiveX control.
 
+    \extension ActiveQt
+    \module QAxWidget
+
     A QAxWidget can be instantiated as an empty object or with the name of the ActiveX control
     it should wrap. The properties, methods and events of the ActiveX control become available as Qt properties, 
     slots and signals as long as only supported data types are used (see the \link QComBase QComBase class
@@ -175,6 +178,8 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     or act as an event filter. Standard widget properties, e.g. \link QWidget::enabled \endlink enabled are supported,
     but it depends on the ActiveX control to implement support for ambient properties like e.g. palette or font. 
     QAxWidget tries to provide the necessary hints.
+
+    \important dynamicCall()
 */
 
 /*!

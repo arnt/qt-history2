@@ -52,9 +52,11 @@ public:
 
 public slots:
     void startGame() { board->startGame(); }
-    void gameOver();
     void quit();
     void setScore( int score ) { showScore->display( score ); }
+
+signals:
+    void gameOver();
 
 private:
     void keyPressEvent( QKeyEvent *e ) { board->keyPressEvent(e); }

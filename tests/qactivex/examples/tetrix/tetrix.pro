@@ -1,5 +1,5 @@
 TEMPLATE    = app
-CONFIG	    += qt warn_on release activeqt
+CONFIG	    += qt warn_on activeqt
 HEADERS	    = gtetrix.h \
 	      qdragapp.h \
 	      qtetrix.h \

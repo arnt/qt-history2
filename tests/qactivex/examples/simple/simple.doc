@@ -1,0 +1,115 @@
+/*! \page examples-simple.html
+
+  \title A simple ActiveQt control
+
+
+  The ActiveX control in this example is a layouted QWidget
+  with a QSlider, a QLCDNumber and a QLineEdit.
+  It provides a signal/slot/property interface to change the
+  values of the slider and the line edit, and to get notified
+  of any property changes.
+
+  It demonstrates the use of QActiveQt::requestPropertyChange()
+  and QActiveQt::propertyChanged().
+
+  To build the example you must first build the \link module-qaxserver.html
+  QAxServer \endlink library. Then run your make tool in 
+  \c examples/simple and register the resulting \c simpleax.exe by
+  running \c simpleax \c -regserver.
+
+  The \link demo-simple.html demonstration \endlink requires your
+  WebBrowser to support ActiveX controls, and scripting to be enabled.
+
+  <hr>
+
+  \code
+  <SCRIPT LANGUAGE=VBScript>
+  Sub Calendar_Click()
+      MsgBox( "Clicked!" )
+  End Sub
+
+  Sub QSimpleAX_TextChanged( str )
+      MsgBox( str )
+  End Sub
+  
+  Sub QSimpleAX_ValueChanged( value )
+      Calendar.Day = value
+  End Sub
+  </SCRIPT>
+
+  <SCRIPT LANGUAGE=JavaScript>
+  function resetSimple()
+  {
+      QSimpleAX.value = 1;
+  }
+  </SCRIPT>
+
+  <object ID="Calendar" CLASSID="CLSID:8E27C92B-1264-101C-8A2F-040224009C02">
+  [Standard Calendar control not available!]
+      <PARAM NAME="day" VALUE="1">
+  </object>
+
+  <FORM>
+      <INPUT TYPE="BUTTON" VALUE="Today" onClick="Calendar.Today()">
+  </FORM>
+
+  <object ID="QSimpleAX" CLASSID="CLSID:DF16845C-92CD-4AAB-A982-EB9840E74669">
+      <PARAM NAME="text" VALUE="ActiveQt!">
+      <PARAM NAME="value" VALUE="1">
+      [Object not available! Did you forget to build and register the server?]
+  </object>
+
+  <FORM>
+      <INPUT TYPE="BUTTON" VALUE="Reset" onClick="resetSimple()">
+  </FORM>
+  \endcode  
+*/
+
+/*! \page demo-simple.html
+
+  \title A standard ActiveX and the "simple" ActiveQt widget.
+
+\raw html
+<SCRIPT LANGUAGE=VBScript>
+Sub Calendar_Click()
+    MsgBox( "Clicked!" )
+End Sub
+
+Sub QSimpleAX_TextChanged( str )
+    MsgBox( str )
+End Sub
+
+Sub QSimpleAX_ValueChanged( value )
+    Calendar.Day = value
+End Sub
+</SCRIPT>
+
+<SCRIPT LANGUAGE=JavaScript>
+function resetSimple()
+{
+    QSimpleAX.value = 1;
+}
+</SCRIPT>
+
+<object ID="Calendar" CLASSID="CLSID:8E27C92B-1264-101C-8A2F-040224009C02">
+[Standard Calendar control not available!]
+    <PARAM NAME="day" VALUE="1">
+</object>
+
+<FORM>
+    <INPUT TYPE="BUTTON" VALUE="Today" onClick="Calendar.Today()">
+</FORM>
+
+<object ID="QSimpleAX" CLASSID="CLSID:DF16845C-92CD-4AAB-A982-EB9840E74669">
+    <PARAM NAME="text" VALUE="ActiveQt!">
+    <PARAM NAME="value" VALUE="1">
+[Object not available! Did you forget to build and register the server?]
+</object>
+
+<FORM>
+    <INPUT TYPE="BUTTON" VALUE="Reset" onClick="resetSimple()">
+</FORM>
+
+And <a href="main.cpp">here</a> is ALL the code...
+\endraw
+*/

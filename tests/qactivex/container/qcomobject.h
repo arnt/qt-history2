@@ -39,10 +39,14 @@ struct IUnknown;
 class QAxEventSink;
 struct QUuid;
 
+#if defined(QT_DLL)
 #if defined(QT_PLUGIN)
 #define QCOM_EXPORT __declspec(dllexport)
 #else
 #define QCOM_EXPORT __declspec(dllimport)
+#endif
+#else
+#define QCOM_EXPORT
 #endif
 
 class QCOM_EXPORT QComBase

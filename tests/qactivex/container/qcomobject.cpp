@@ -377,8 +377,11 @@ private:
 
     \brief The QComBase class is an abstract class that provides an API to initalize and access a COM object.
 
+    \module QAxWidget
+    \extension ActiveQt
+
     QComBase is an abstract class that cannot be used directly, and is instantiated through the subclasses 
-    QComObject and QActiveX. This class however provides the API to access the COM object directly through 
+    QComObject and QAxWidget. This class however provides the API to access the COM object directly through 
     its IUnknown implementation. If the COM object implements the IDispatch interface, the properties and
     methods of that object become available as Qt properties and slots.
 
@@ -425,18 +428,20 @@ private:
     \i DATE
     \i SCODE and 
     \i VARIANT
+    \i OLE_COLOR
+    \i IFont*
     \endlist
 
     Unsupported OLE datatypes are
     \list
     \i IUnknown*
-    \i IDispatch*
-    \i IFont*
-    \i OLE_COLOR and 
+    \i IDispatch* and
     \i CY 
     \endlist 
-    as well as references (BYREF) in properties.
-    
+
+    Pointer types and references can additionally not be provided by the Qt property system, or 
+    passed as parameters to dynamicCall().
+   
     If you need to access properties or pass parameters of unsupported datatypes you have to access the COM 
     object directly through its IDispatch or other interfaces implemented. Those interface can be retrieved
     through queryInterface().
@@ -669,7 +674,7 @@ long QComBase::queryInterface( const QUuid &uuid, void **iface ) const
     return E_NOTIMPL;
 }
 
-#define UNSUPPORTED(x) x == "UNSUPPORTED" || x == "IDispatch*" || x == "IUnknown*";
+#define UNSUPPORTED(x) x == "UNSUPPORTED" || x == "IDispatch*" || x == "IUnknown*" || x == "USERDEFINED" || x == "USERDEFINED*";
 
 /*!
     \reimp
@@ -730,8 +735,8 @@ QMetaObject *QComBase::metaObject() const
     QSettings iidnames;
     iidnames.insertSearchPath( QSettings::Windows, "/Classes" );
 
-    QDict<QUMethod> slotlist; // QUMethods deleted in ~QActiveX
-    QDict<QUMethod> signallist; // QUMethods deleted in ~QActiveX
+    QDict<QUMethod> slotlist; // QUMethods deleted
+    QDict<QUMethod> signallist; // QUMethods deleted
     QDict<QMetaProperty> proplist;
     proplist.setAutoDelete( TRUE ); // deep copied when creating metaobject
     QDict<QString> infolist; 
@@ -827,10 +832,16 @@ QMetaObject *QComBase::metaObject() const
 			QString ptype;
 			TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
 			ptype = typedescToQString( tdesc );
-			if ( ptype == "USERDEFINED" && function.endsWith( "Color" ) ) {
-			    ptype = "QColor";
-			} else if ( ptype == "USERDEFINED*" && function.endsWith( "Font" ) ) {
-			    ptype = "QFont";
+			if ( ptype == "USERDEFINED" ) {
+			    if ( function.endsWith( "Color" ) )
+				ptype = "QColor";
+			    else
+				ptype = "int"; //###
+			} else if ( ptype == "USERDEFINED*" ) {
+			    if ( function.endsWith( "Font" ) )
+				ptype = "QFont";
+			    else
+				ptype = "IUnknown*"; //###
 			}
 			unsupported = unsupported || UNSUPPORTED(ptype)
 			if ( funcdesc->invkind == INVOKE_FUNC )
@@ -1059,7 +1070,7 @@ QMetaObject *QComBase::metaObject() const
 		    // get variable type
 		    TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
 		    QString variableType = typedescToQString( typedesc );
-		    bool unsupported = unsupported || UNSUPPORTED(variableType);
+		    bool unsupported = UNSUPPORTED(variableType);
 
 		    // get variable name
 		    QString variableName;
@@ -1314,6 +1325,17 @@ QMetaObject *QComBase::metaObject() const
 					
 					TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
 					QString ptype = typedescToQString( tdesc );
+					if ( ptype == "USERDEFINED" ) {
+					    if ( function.endsWith( "Color" ) )
+						ptype = "QColor";
+					    else
+						ptype = "int"; //###
+					} else if ( ptype == "USERDEFINED*" ) {
+					    if ( function.endsWith( "Font" ) )
+						ptype = "QFont";
+					    else
+						ptype = "IUnknown*"; //###
+					}
 					unsupported = unsupported || UNSUPPORTED(ptype);
 					if ( funcdesc->invkind == INVOKE_FUNC )
 					    ptype = constRefify( ptype );
@@ -1687,7 +1709,7 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
 		arg = QVariantToVARIANT( *_v, prop->type() );
 
 		if ( arg.vt == VT_EMPTY ) {
-		    qDebug( "QActiveX::setProperty(): Unhandled property type" );
+		    qDebug( "QComBase::setProperty(): Unhandled property type" );
 		    return FALSE;
 		}
 		DISPPARAMS params;
@@ -1834,7 +1856,7 @@ QVariant QComBase::dynamicCall( int id, const QVariant &var1,
 #if defined(QT_CHECK_RANGE)
     else {
 	const char *coclass = metaObject()->classInfo( "CoClass" );
-	qWarning( "QActiveX::dynamicCall: %d: No such method in %s [%s]", id, control().latin1(), 
+	qWarning( "QComBase::dynamicCall: %d: No such method in %s [%s]", id, control().latin1(), 
 	    coclass ? coclass: "unknown" );
     }
 #endif
@@ -1884,7 +1906,7 @@ QVariant QComBase::dynamicCall( const QCString &function, const QVariant &var1,
 #if defined(QT_CHECK_RANGE)
     else {
 	const char *coclass = metaObject()->classInfo( "CoClass" );
-	qWarning( "QActiveX::dynamicCall: %s: No such method in %s [%s]", (const char*)function, control().latin1(), 
+	qWarning( "QComBase::dynamicCall: %s: No such method in %s [%s]", (const char*)function, control().latin1(), 
 	    coclass ? coclass: "unknown" );
     }
 #endif
@@ -2100,14 +2122,19 @@ void QComBase::setPropertyWritable( const char *prop, bool ok )
     \class QComObject qcomobject.h
     \brief The QComObject class provides a QObject that wraps a COM object.
 
+    \module QAxWidget
+    \extension ActiveQt
+
     A QComObject can be instantiated as an empty object, with the name of the COM object
     it should wrap, or with a pointer to the IUnknown that represents an existing COM object.
     If the COM object implements the IDispatch interface, the properties, methods and events of
     that object become available as Qt properties, slots and signals. The baseclass QComBase provides 
     also an API to access the COM object directly through the IUnknown pointer.
 
-    QComObject is as well a QObject and can be used as such, e.g. it can be organized in an object
-    hierarchy and receive events.
+    QComObject is a QObject and can be used as such, e.g. it can be organized in an object hierarchy, 
+    receive events and connect to signals and slots.
+
+    \important dynamicCall()
 */
 
 /*!

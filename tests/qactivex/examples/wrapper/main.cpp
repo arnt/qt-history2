@@ -44,60 +44,73 @@ public:
     QStringList featureList() const
     {
 	QStringList list;
-	list << QUuid(CLSID_QButton);
-	list << QUuid(CLSID_QCheckBox);
-	list << QUuid(CLSID_QRadioButton);
-	list << QUuid(CLSID_QPushButton);
+	list << "QButton";
+	list << "QCheckBox";
+	list << "QRadioButton";
+	list << "QPushButton";
 	return list;
     }
     QWidget *create( const QString &key, QWidget *parent, const char *name )
     {
-	if ( QUuid(key) == CLSID_QButton)
+	if ( key == "QButton" )
 	    return new QButton( parent, name );
-	if ( QUuid(key) == CLSID_QCheckBox )
+	if ( key == "QCheckBox" )
 	    return new QCheckBox( parent, name );
-	if ( QUuid(key) == CLSID_QRadioButton )
+	if ( key == "QRadioButton" )
 	    return new QRadioButton( parent, name );
-	if ( QUuid(key) == CLSID_QPushButton )
+	if ( key == "QPushButton" )
 	    return new QPushButton( parent, name );
 
 	return 0;
     }
     QMetaObject *metaObject( const QString &key ) const
     {
-	if ( QUuid(key) == CLSID_QButton )
+	if ( key == "QButton" )
 	    return QButton::staticMetaObject();
-	if ( QUuid(key) == CLSID_QCheckBox )
+	if ( key == "QCheckBox" )
 	    return QCheckBox::staticMetaObject();
-	if ( QUuid(key) == CLSID_QRadioButton )
+	if ( key == "QRadioButton" )
 	    return QRadioButton::staticMetaObject();
-	if ( QUuid(key) == CLSID_QPushButton )
+	if ( key == "QPushButton" )
 	    return QPushButton::staticMetaObject();
 
 	return 0;
     }
+    QUuid classID( const QString &key ) const
+    {
+	if ( key == "QButton" )
+	    return CLSID_QButton;
+	if ( key == "QCheckBox" )
+	    return CLSID_QCheckBox;
+	if ( key == "QRadioButton" )
+	    return CLSID_QRadioButton;
+	if ( key == "QPushButton" )
+	    return CLSID_QPushButton;
+
+	return QUuid();
+    }
     QUuid interfaceID( const QString &key ) const
     {
-	if ( QUuid(key) == CLSID_QButton )
+	if ( key == "QButton" )
 	    return IID_IQButton;
-	if ( QUuid(key) == CLSID_QCheckBox )
+	if ( key == "QCheckBox" )
 	    return IID_IQCheckBox;
-	if ( QUuid(key) == CLSID_QRadioButton )
+	if ( key == "QRadioButton" )
 	    return IID_IQRadioButton;
-	if ( QUuid(key) == CLSID_QPushButton )
+	if ( key == "QPushButton" )
 	    return IID_IQPushButton;
 
 	return QUuid();
     }
     QUuid eventsID( const QString &key ) const
     {
-	if ( QUuid(key) == CLSID_QButton )
+	if ( key == "QButton" )
 	    return IID_IQButtonEvents;
-	if ( QUuid(key) == CLSID_QCheckBox )
+	if ( key == "QCheckBox" )
 	    return IID_IQCheckBoxEvents;
-	if ( QUuid(key) == CLSID_QRadioButton )
+	if ( key == "QRadioButton" )
 	    return IID_IQRadioButtonEvents;
-	if ( QUuid(key) == CLSID_QPushButton )
+	if ( key == "QPushButton" )
 	    return IID_IQPushButtonEvents;
 
 	return QUuid();

@@ -1,0 +1,58 @@
+/*! \page examples-multiple.html
+
+  \title Two simple Qt widgets
+
+
+  The ActiveX controls in this example are simple QWidget
+  subclasses reimplementing the paintEvent() method.
+
+  It demonstrates the use of QActiveQtFactory to provide multiple
+  ActiveX controls in a single executable ActiveX server.
+
+  To build the example you must first build the \link module-qaxserver.html
+  QAxServer \endlink module. Then run your make tool in 
+  \c examples/multiple and register the resulting \c multipleax.exe by
+  running \c multipleax \c -regserver.
+
+  The \link demo-multiple.html demonstration \endlink requires your
+  WebBrowser to support ActiveX controls, and scripting to be enabled.
+
+  <hr>
+
+  \code
+  <p>
+  This is one QWidget subclass:<br>
+  <object ID="Ax1" CLASSID="CLSID:1D9928BD-4453-4bdd-903D-E525ED17FDE5">
+      [Object not available! Did you forget to build and register the server?]
+  </object><br>
+  (<a href="multiple/ax1.h">here</a> is the code)
+
+  <p>
+  This is another QWidget subclass:<br>
+  <object ID="Ax2" CLASSID="CLSID:58139D56-6BE9-4b17-937D-1B1EDEDD5B71">
+      [Object not available! Did you forget to build and register the server?]
+  </object><br>
+  (<a href="multiple/ax2.h">here</a> is the code)
+  \endcode
+*/
+
+/*! \page demo-multiple.html
+
+  \title Two simple Qt widgets
+
+\raw html
+<p>
+This is one QWidget subclass:<br>
+<object ID="Ax1" CLASSID="CLSID:1D9928BD-4453-4bdd-903D-E525ED17FDE5">
+[Object not available! Did you forget to build and register the server?]
+</object><br>
+(<a href="multiple/ax1.h">here</a> is the code)
+
+<p>
+This is another QWidget subclass:<br>
+<object ID="Ax2" CLASSID="CLSID:58139D56-6BE9-4b17-937D-1B1EDEDD5B71">
+[Object not available! Did you forget to build and register the server?]
+</object><br>
+(<a href="multiple/ax2.h">here</a> is the code)
+\endraw
+*/

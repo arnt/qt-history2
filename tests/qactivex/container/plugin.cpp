@@ -25,6 +25,8 @@
 **
 **********************************************************************/
 
+#ifndef QT_PLUGIN 
+
 #include <qwidgetplugin.h>
 #include <qlistbox.h>
 #include <qapplication.h>
@@ -204,3 +206,5 @@ Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( QActiveXPlugin )
 }
+
+#endif // QT_PLUGIN

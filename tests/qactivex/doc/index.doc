@@ -1,0 +1,227 @@
+/*! \page index.html
+
+    \title The ActiveQt framework
+
+    Qt's ActiveX support allows Qt/Windows developers to access 
+    and use ActiveX controls provided by any ActiveX server in their
+    Qt application, and to turn their Qt applications into ActiveX 
+    servers providing any number of Qt widgets as ActiveX controls.
+
+    The framework consists of two modules. 
+
+    \section1 QAxServer
+
+    The \link module-qaxserver.html QAxServer module \endlink is a 
+    static library that implements ActiveX server functionality.
+
+    \section1 QAxWidget
+
+    The \link module-qaxwidget.html QAxWidget module  \endlink is a 
+    library that implements a QWidget subclass QAxWidget that acts 
+    as a container for ActiveX controls. If the library is built 
+    against a shared Qt library it integrates as a widget plugin into Qt 
+    Designer.
+*/
+
+/*! \page module-qaxserver.html
+
+    \title The QAxServer Module
+
+    The ActiveQt framework provides a static library implementing the
+    functions required to turn a standard Qt executable into an ActiveX
+    control server.
+
+    The module consists of two classes
+    \list
+    \i QActiveQt provides an interface between the Qt widget and the 
+       ActiveX control.
+    \i QActiveQtFactory provides is an interface for the creation of 
+       ActiveX components.
+    \endlist
+
+    and includes four \link examples.html example implementations \endlink 
+    of ActiveX controls.
+
+    \section1 Building the library
+
+    In the \c activeqt directory (usually \c QTDIR/extensions/activeqt)
+    enter the \c control subdirectory and run \c qmake to generate the
+    makefile, and the make tool (\c nmake for VC++, \c make for Borland)
+    to build the library. The library \c activeqt.lib will be linked into 
+    \c QTDIR/lib.
+    
+    \section1 Using the library
+
+    To make a standard Qt application an ActiveX server using the ActiveQt 
+    library you have to add \c activeqt as a CONFIG setting in your 
+    application .pro-file.
+
+    \code
+    TEMPLATE = app
+    CONFIG  += qt activeqt
+
+    SOURCES += ...
+    HEADERS += ...
+    \endcode
+
+    This modification will cause the \c qmake tool to add the required 
+    build steps to the build system.
+
+    \list
+    \i link the executable against activeqt.lib rather than qtmain.lib
+    \i search the sources for ActiveX controls and add an IDL generation
+       step for the relevant source files
+    \endlist
+
+    \section1 Implementing Controls
+
+    To implement an ActiveX control with Qt, create a subclass of QWidget
+    (or any existing QWidget subclass) and use multiple inheritance from 
+    the QActiveQt class:
+
+    \code
+    #include <qwidget.h>
+    #include <qactiveqt.h>
+
+    class MyActiveX : public QWidget, public QActiveQt
+    {
+        Q_OBJECT
+    \endcode
+
+    The \c Q_OBJECT macro is required to provide the meta object information
+    about the widget to the ActiveQt framework.
+    Use the \c Q_PROPERTY macro to declare properties for the ActiveX
+    control:
+
+    \code
+        Q_PROPERTY( int value READ value WRITE setValue )
+    \endcode
+
+    Declare a standard QWidget constructor, and functions, signals or
+    slots as for any QWidget.
+
+    \code
+    public:
+        MyActiveX( QWidget *parent = 0, const char *name = 0 )
+        ...
+        
+        int value() const;
+
+    public slots:
+        void setValue( int );
+        ...
+       
+    signals:
+        void valueChange( int );
+        ...
+
+    };
+    \endcode
+
+    The ActiveQt framework will expose all public slots as ActiveX
+    methods, and all signals as ActiveX events.
+
+    When implementing this class use the requestPropertyChange() and
+    propertyChanged() functions of QActiveQt class to allow ActiveX
+    clients to bind to the control properties. \footnote This is not
+    required, but gives the client more control over the ActiveX. 
+    \endfootnote
+
+    \section1 Serving the Controls
+
+    To make the ActiveX control available to the COM system it has to
+    be registered in the system registry using five unique identifiers 
+    as provided by tools like \c guidgen or \c uuidgen. The registration
+    information allows COM to localize the binary providing a requested
+    ActiveX control, marshall remote procedure calls to the control and
+    read type information about the methods and properties exposed by
+    the control.
+
+    Every QActiveQt subclass has to provide those identifiers using the
+    QT_ACTIVEX macro together with the C++ class declaration.
+
+    \code
+    QT_ACTIVEX( MyActiveX, 
+		"{ad90301a-849e-4e8b-9a91-0a6dc5f6461f}",
+		"{87a5b65e-7fa9-4dc6-a176-47295988dcbd}",
+		"{a6130ae9-8327-47ec-815b-d0b45a0d6e5e}",
+		"{26c4e136-4e23-4347-af37-faf933b027e9}",
+		"{a8f21901-7ff7-4f6a-b939-789620c03d83}" )
+    \endcode
+
+    To create the ActiveX control when the client asks for it the server
+    has to export an implementation of a QActiveQtFactory. Use either 
+    the default factory when the server provides only a single ActiveX 
+    control, or implement a subclass of the QActiveQtFactory class to 
+    provide multiple ActiveX controls. The \link QActiveQtFactory 
+    QActiveQtFactory class documentation \endlink explains how to do that.
+
+    To build the ActiveX server executable run qmake to generate the 
+    makefile and the maketool for your compiler as for any other Qt 
+    application. Calling the application with the \c -regserver command
+    line switch registers the controls provided in the system registry.
+
+    Other commandline switches are
+    \list
+    \i -unregserver Unregisters the server from the system registry
+    \i -activex Starts the application as an ActiveX server
+    \endlist
+
+    Starting the application without any of those commandlines starts
+    the application as a standard Qt application. 
+    Use QActiveQt::isServer() to adjust the application to a stand-alone
+    execution.
+
+    \section1 Using the Controls
+
+    To use the ActiveX controls, e.g. to embed them in a web page, use
+    the \c <object> HTML tag. If the web browser supports scripting use
+    JavaScript, VBScript and forms to script the control. The \link
+    examples.html examples \endlink include demonstration HTML pages for
+    the different example controls.
+*/
+
+/*! \page module-qaxwidget.html
+
+    \title The QAxWidget Module
+
+    The ActiveQt framework provides a library implementing a QWidget
+    subclass QAxWidget that acts as a container for ActiveX controls.
+
+    The module consists of three classes
+    \list
+    \i QComBase is an abstract class that provides an API to initalize 
+       and access a COM object.
+    \i QComObject provides a QObject that wraps a COM object.
+    \i QAxWidget is a QWidget that wraps an ActiveX control.
+    \endlist
+
+    and includes two \link examples.html example applications \endlink
+    that use standard ActiveX controls to provide high level user
+    interface functionality.
+
+    \section1 Building the library
+
+    In the \c activeqt directory (usually \c QTDIR/extensions/activeqt)
+    enter the \c container subdirectory and run \c qmake to generate the
+    makefile, and the make tool (\c nmake for VC++, \c make for Borland)
+    to build the library. The library \c qaxwidget.lib will be linked into 
+    \c QTDIR/lib. If you build a shared library (ie. when Qt is a shared
+    library) the \c qaxwidget.dll will be copied into \c QTDIR/bin and
+    the Qt Designer plugin directory.
+    
+    \section1 Using the library
+
+    To use the classes implemented the application has to link against
+    the \c qaxwidget.lib file. Add
+
+    \code
+    LIBS += $(QTDIR)/lib/qaxwidget.lib
+    \endcode
+
+    to your application .pro file.
+
+    
+    See the API reference of QAxWidget for documentation about how to 
+    use this class to embed ActiveX controls in Qt applications.
+*/

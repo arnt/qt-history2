@@ -1,0 +1,20 @@
+/*! \page examples.html
+
+  \title The ActiveQt examples
+
+  \section1 Qt applications using ActiveX controls:
+
+  \list
+  \i \link examples-webbrowser.html A Web Browser \endlink
+  \i \link examples-testcon.html An ActiveX Test Container \endlink
+  \endlist
+
+  \section1 ActiveX controls written with Qt:
+
+  \list
+  \i \link examples-simple.html A Simple widget \endlink
+  \i \link examples-tetrix.html A Qt example as an ActiveX server \endlink
+  \i \link examples-multiple.html Multiple QWidgets \endlink
+  \i \link examples-wrapper.html Standard Qt widgets \endlink
+  \endlist
+*/

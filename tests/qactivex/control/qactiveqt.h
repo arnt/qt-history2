@@ -40,13 +40,16 @@
 struct QActiveQtFactoryInterface : public QFeatureListInterface
 {
 public:
+#ifndef Q_QDOC
     virtual QWidget *create( const QString &key, QWidget *parent = 0, const char *name = 0 ) = 0;
     virtual QMetaObject *metaObject( const QString &key ) const = 0;
 
+    virtual QUuid classID( const QString &key ) const = 0;
     virtual QUuid interfaceID( const QString &key ) const = 0;
     virtual QUuid eventsID( const QString &key ) const = 0;    
     virtual QUuid typeLibID() const = 0;
     virtual QUuid appID() const = 0;
+#endif
 };
 
 class QActiveQtFactory : public QActiveQtFactoryInterface
@@ -56,6 +59,15 @@ public:
     Q_REFCOUNT
 
     QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
+
+#ifdef Q_QDOC
+    virtual QWidget *create( const QString &key, QWidget *parent = 0, const char *name = 0 ) = 0;
+    virtual QMetaObject *metaObject( const QString &key ) const = 0;
+
+    virtual QUuid classID( const QString &key ) const = 0;
+    virtual QUuid interfaceID( const QString &key ) const = 0;
+    virtual QUuid eventsID( const QString &key ) const = 0;
+#endif
 
     QUuid typeLibID() const;
     QUuid appID() const;
@@ -93,18 +105,18 @@ typedef GUID IID;
 	QStringList featureList() const \
 	{ \
 	    QStringList list; \
-	    list << IIDClass; \
+	    list << #Class; \
 	    return list; \
 	} \
 	QWidget *create( const QString &key, QWidget *parent, const char *name ) \
 	{ \
-	    if ( QUuid(key) == QUuid(IIDClass) ) \
+	    if ( key == #Class ) \
 		return new Class( parent, name ); \
 	    return 0; \
 	} \
 	QMetaObject *metaObject( const QString &key ) const \
 	{ \
-	    if ( QUuid(key) == QUuid(IIDClass) ) \
+	    if ( key == #Class ) \
 		return Class::staticMetaObject(); \
 	    return 0; \
 	} \
@@ -116,15 +128,21 @@ typedef GUID IID;
 	{ \
 	    return QUuid( IIDTypeLib ); \
 	} \
+	QUuid classID( const QString &key ) const \
+	{ \
+	    if ( key == #Class ) \
+		return QUuid( IIDClass ); \
+	    return QUuid(); \
+	} \
 	QUuid interfaceID( const QString &key ) const \
 	{ \
-	    if ( QUuid(key) == QUuid(IIDClass) ) \
+	    if ( key == #Class ) \
 		return QUuid( IIDInterface ); \
 	    return QUuid(); \
 	} \
 	QUuid eventsID( const QString &key ) const \
 	{ \
-	    if ( QUuid(key) == QUuid(IIDClass) ) \
+	    if ( key == #Class ) \
 		return QUuid( IIDEvents ); \
 	    return QUuid(); \
 	} \

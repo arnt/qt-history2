@@ -1,0 +1,14 @@
+/*! \page examples-webbrowser.html
+
+  \title A Web Browser
+
+
+  This example...
+
+  It demonstrates the use of...
+
+  To build the example you must first build the
+  \link module-qaxwidget.html QAxWidget \endlink library.
+  Then run your make tool in \c examples/webbrowser and
+  run the resulting \c webbrowser.exe.
+*/

@@ -421,12 +421,18 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj )
 	static_QUType_QString.set( &obj, var.toString() );
 	break;
     case QVariant::StringList:
+	break;
     case QVariant::Font:
+	static_QUType_ptr.set( &obj, QFontToIFont( var.toFont() ) );
+	break;
     case QVariant::Pixmap:
     case QVariant::Brush:
     case QVariant::Rect:
     case QVariant::Size:
+	break;
     case QVariant::Color:
+	static_QUType_int.set( &obj, QColorToOLEColor( var.toColor() ) );
+	break;
     case QVariant::Palette:
     case QVariant::ColorGroup:
     case QVariant::IconSet:
@@ -470,10 +476,13 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj )
 	return;
 	break;
     }
-    if ( preset != &static_QUType_Null && preset != obj.type ) {
+    if ( !QUType::isEqual(preset, &static_QUType_Null ) && !QUType::isEqual( preset, obj.type ) ) {
 #ifndef QT_NO_DEBUG
 	if ( !preset->canConvertFrom( &obj, obj.type ) ) {
-	    qWarning( "Can't coerce QVariant to requested type (%s to %s)", obj.type->desc(), preset->desc() );
+	    if ( QUType::isEqual( preset, &static_QUType_ptr ) )
+		qWarning( "QVariant does not support pointer types" );
+	    else
+		qWarning( "Can't coerce QVariant to requested type (%s to %s)", obj.type->desc(), preset->desc() );
 	} else 
 #endif
 	{

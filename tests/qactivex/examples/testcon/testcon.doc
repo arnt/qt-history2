@@ -1,0 +1,14 @@
+/*! \page examples-testcon.html
+
+  \title An ActiveX Test Container
+
+
+  This example...
+
+  It demonstrates the use of...
+
+  To build the example you must first build the
+  \link module-qaxwidget.html QAxWidget \endlink library.
+  Then run your make tool in \c examples/testcon and
+  run the resulting \c testcon.exe.
+*/
