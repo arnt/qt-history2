@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#72 $
 **
 ** Implementation of QPointArray class
 **
@@ -63,8 +63,6 @@ const double Q_PI   = 3.14159265358979323846;   // pi
   and works with shallow copies by default.
 */
 
-uint QPointArray::splen = 0;
-void* QPointArray::sp = 0;
 
 /*****************************************************************************
   QPointArray member functions
@@ -684,7 +682,8 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 
 
 // Work functions for QPointArray::quadBezier()
-static void split(const double *p, double *l, double *r)
+static
+void split(const double *p, double *l, double *r)
 {
     double tmpx;
     double tmpy;
@@ -711,16 +710,13 @@ static void split(const double *p, double *l, double *r)
     r[0] = l[6];
     r[1] = l[7];
 }
-
-
 // Based on:
 //
 //   A Fast 2D Point-On-Line Test
 //   by Alan Paeth
 //   from "Graphics Gems", Academic Press, 1990
-
-
-static int pnt_on_line( const double* p, const double* q, const double* t )
+static
+int pnt_on_line( const double* p, const double* q, const double* t )
 {
 /*
  * given a line through P:(px,py) Q:(qx,qy) and T:(tx,ty)
@@ -768,12 +764,12 @@ static int pnt_on_line( const double* p, const double* q, const double* t )
 
     return 2 ;
 }
-
-
-static void polygonizeQBezier( double* acc, int& accsize,
-			       const double ctrl[], int maxsize )
+static
+void polygonizeQBezier( double* acc, int& accsize, const double ctrl[],
+			int maxsize )
 {
-    if ( accsize > maxsize / 2 ) {
+    if ( accsize > maxsize / 2 )
+    {
 	// This never happens in practice.
 
 	if ( accsize >= maxsize-4 )
@@ -791,8 +787,9 @@ static void polygonizeQBezier( double* acc, int& accsize,
     double r[8];
     split( ctrl, l, r);
 
-    if ( pnt_on_line( &ctrl[0], &ctrl[6], &ctrl[2] ) == 2 &&
-	 pnt_on_line( &ctrl[0], &ctrl[6], &ctrl[4] ) == 2 ) {
+    if ( pnt_on_line( &ctrl[0], &ctrl[6], &ctrl[2] ) == 2
+      && pnt_on_line( &ctrl[0], &ctrl[6], &ctrl[4] ) == 2 )
+    {
 	// Approximate by 2 lines.
 	acc[accsize++] = l[0];
 	acc[accsize++] = l[1];
@@ -801,17 +798,12 @@ static void polygonizeQBezier( double* acc, int& accsize,
 	acc[accsize++] = r[6];
 	acc[accsize++] = r[7];
 	return;
-#if defined(_OS_LINUX_)
-#warning "boundary error!"
-#endif
-	//    } else if (  ) {
     }
 
     // Too big and too curved - recusively subdivide.
     polygonizeQBezier( acc, accsize, l, maxsize );
     polygonizeQBezier( acc, accsize, r, maxsize );
 }
-
 
 /*!
   Returns the Bezier points for the four control points in this array.
@@ -877,13 +869,13 @@ QPointArray QPointArray::quadBezier() const
 
     if ( size() != 4 ) {
 #if defined(CHECK_RANGE)
-	qWarning("QPointArray::bezier: The array must have 4 control points");
+	qWarning( "QPointArray::bezier: The array must have 4 control points" );
 #endif
 	QPointArray pa;
 	return pa;
     } else {
 	QRect r = boundingRect();
-	int m = 4 + 3 * QMAX(r.width(), r.height());
+	int m = 4+2*QMAX(r.width(),r.height());
 	double *p = new double[m];
 	double *ctrl = new double[8];
 	int i;
@@ -956,6 +948,16 @@ QDataStream &operator>>( QDataStream &s, QPointArray &a )
     return s;
 }
 
+
+
+
+struct QShortPoint {			// Binary compatible with XPoint
+    short x, y;
+};
+
+uint QPointArray::splen = 0;
+void* QPointArray::sp = 0;		// Really a QShortPoint*
+
 /*!
   \internal
 
@@ -967,9 +969,6 @@ QDataStream &operator>>( QDataStream &s, QPointArray &a )
 
 void* QPointArray::shortPoints( int index, int nPoints ) const
 {
-    typedef struct {
-	short x, y;
-    } x11Point;
 
     if ( isNull() || !nPoints )
 	return 0;
@@ -978,11 +977,11 @@ void* QPointArray::shortPoints( int index, int nPoints ) const
     uint i = nPoints < 0 ? size() : nPoints;
     if ( splen < i ) {
 	if ( sp )
-	    delete[] sp;
-	sp = new x11Point[i];
+	    delete[] ((QShortPoint*)sp);
+	sp = new QShortPoint[i];
 	splen = i;
     }
-    x11Point* ps = (x11Point*)sp;
+    QShortPoint* ps = (QShortPoint*)sp;
     while ( i-- ) {
 	ps->x = (short)p->x();
 	ps->y = (short)p->y();
@@ -1002,7 +1001,7 @@ void* QPointArray::shortPoints( int index, int nPoints ) const
 void QPointArray::cleanBuffers()
 {
     if ( sp )
-	delete[] sp;
+	delete[] ((QShortPoint*)sp);
     sp = 0;
     splen = 0;
 }
