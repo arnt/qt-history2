@@ -1103,29 +1103,34 @@ void VcprojGenerator::initResourceFiles()
 
     // Bad hack, please look away -------------------------------------
     QString rcc_dep_cmd = project->variables()["rcc.depend_command"].join(" ");
-    QStringList qrc_files = project->variables()["RESOURCES"];
-    QStringList deps;
-    if(!qrc_files.isEmpty()) {
-        for (int i = 0; i < qrc_files.count(); ++i) {
-	    char buff[256];
-            QString dep_cmd = replaceExtraCompilerVariables(rcc_dep_cmd, qrc_files.at(i), "");
-
-            dep_cmd = Option::fixPathToLocalOS(dep_cmd);
-            if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
-	        QString indeps;
-                while(!feof(proc)) {
-                    int read_in = fread(buff, 1, 255, proc);
-                    if(!read_in)
-                        break;
-                    indeps += QByteArray(buff, read_in);
+    if(!rcc_dep_cmd.isEmpty()) {
+        QString argv0 = Option::fixPathToLocalOS(rcc_dep_cmd.split(' ').first());
+        if(QFile::exists(argv0)) {
+            QStringList qrc_files = project->variables()["RESOURCES"];
+            QStringList deps;
+            if(!qrc_files.isEmpty()) {
+                for (int i = 0; i < qrc_files.count(); ++i) {
+        	    char buff[256];
+                    QString dep_cmd = replaceExtraCompilerVariables(rcc_dep_cmd, qrc_files.at(i),"");
+        
+                    dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+                    if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+        	        QString indeps;
+                        while(!feof(proc)) {
+                            int read_in = fread(buff, 1, 255, proc);
+                            if(!read_in)
+                                break;
+                            indeps += QByteArray(buff, read_in);
+                        }
+                        fclose(proc);
+                        if(!indeps.isEmpty())
+                            deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
+                    }
                 }
-                fclose(proc);
-                if(!indeps.isEmpty())
-                    deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
             }
+            vcProject.ResourceFiles.addFiles(deps);
         }
     }
-    vcProject.ResourceFiles.addFiles(deps);
     // You may look again --------------------------------------------
 
     vcProject.ResourceFiles.addFiles(project->variables()["IMAGES"]);
