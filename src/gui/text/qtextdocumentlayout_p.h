@@ -34,6 +34,10 @@ public:
 
     virtual void setPageSize(const QSize &size);
     virtual QSize pageSize() const;
+
+    // flags passed to QTextLayout objects of blocks
+    void setBlockTextFlags(int flags);
+    int blockTextFlags() const;
 };
 
 #endif // QTEXTLAYOUTER_H

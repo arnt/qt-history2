@@ -76,6 +76,8 @@ public:
     mutable QTextBlockIterator currentBlock;
     int currentYPos;
 
+    int blockTextFlags;
+
     void drawListItem(QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                              QTextBlockIterator bl, const QTextLayout::Selection &selection) const;
     void drawBlock(QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context, QTextBlockIterator bl) const;
@@ -284,7 +286,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl)
     QTextLayout *tl = bl.layout();
     currentBlock = bl;
 
-    tl->setTextFlags(blockFormat.alignment()|Qt::IncludeTrailingSpaces|Qt::WordBreak);
+    tl->setTextFlags(blockFormat.alignment()|d->blockTextFlags);
     tl->useDesignMetrics(true);
 //     tl.enableKerning(true);
     tl->clearLines();
@@ -395,6 +397,8 @@ void QTextDocumentLayoutPrivate::removeFloatsForBlock(const QTextBlockIterator &
 QTextDocumentLayout::QTextDocumentLayout()
     : QAbstractTextDocumentLayout(*new QTextDocumentLayoutPrivate)
 {
+    d->blockTextFlags = Qt::IncludeTrailingSpaces|Qt::WordBreak;
+
     registerHandler(QTextFormat::ImageObject, new QTextImageHandler(this));
 }
 
@@ -606,3 +610,14 @@ void QTextDocumentLayout::adjustSize()
         }
     }
 }
+
+void QTextDocumentLayout::setBlockTextFlags(int flags)
+{
+    d->blockTextFlags = flags;
+}
+
+int QTextDocumentLayout::blockTextFlags() const
+{
+    return d->blockTextFlags;
+}
+
