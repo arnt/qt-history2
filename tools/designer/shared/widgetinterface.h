@@ -9,7 +9,6 @@ class QWidget;
 class WidgetInterface : public QUnknownInterface
 {
 public:
-    WidgetInterface( QUnknownInterface *parent = 0 ) : QUnknownInterface( parent ) {}
     virtual QStringList featureList() const = 0;
 
     virtual QWidget* create( const QString&, QWidget* parent = 0, const char* name = 0 ) = 0;
