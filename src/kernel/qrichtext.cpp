@@ -1086,6 +1086,8 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
     QTextFormat *f = 0;
     if ( doc->useFormatCollection() ) {
 	f = string->at( idx )->format();
+	if ( idx == string->length() - 1 && idx > 0 )
+	    f = string->at( idx - 1 )->format();
 	if ( f->isMisspelled() ) {
 	    f->removeRef();
 	    f = doc->formatCollection()->format( f->font(), f->color() );
@@ -3122,24 +3124,22 @@ void QTextParag::join( QTextParag *s )
     else if ( doc )
 	doc->setLastParag( this );
 
-    if ( length() == 0 || s->length() > 1 ) {
-	int start = str->length();
-	if ( length() > 0 && at( length() - 1 )->c == ' ' ) {
-	    remove( length() - 1, 1 );
-	    --start;
-	}
-	append( s->str->toString(), TRUE );
+    int start = str->length();
+    if ( length() > 0 && at( length() - 1 )->c == ' ' ) {
+	remove( length() - 1, 1 );
+	--start;
+    }
+    append( s->str->toString(), TRUE );
 
-	for ( int i = 0; i < s->length(); ++i ) {
-	    if ( !doc || doc->useFormatCollection() ) {
-		s->str->at( i ).format()->addRef();
-		str->setFormat( i + start, s->str->at( i ).format(), TRUE );
-	    }
-	    if ( s->str->at( i ).isCustom() ) {
-		QTextCustomItem * item = s->str->at( i ).customItem();
-		str->at( i + start ).setCustomItem( item );
-		s->str->at( i ).loseCustomItem();
-	    }
+    for ( int i = 0; i < s->length(); ++i ) {
+	if ( !doc || doc->useFormatCollection() ) {
+	    s->str->at( i ).format()->addRef();
+	    str->setFormat( i + start, s->str->at( i ).format(), TRUE );
+	}
+	if ( s->str->at( i ).isCustom() ) {
+	    QTextCustomItem * item = s->str->at( i ).customItem();
+	    str->at( i + start ).setCustomItem( item );
+	    s->str->at( i ).loseCustomItem();
 	}
     }
 
@@ -3373,7 +3373,7 @@ void QTextParag::setFormat( int index, int len, QTextFormat *f, bool useCollecti
     if ( index > str->length() - 1 )
 	index = str->length() - 1;
     if ( index + len >= str->length() )
-	len = str->length() - index;
+	len = str->length() - index - 1;
 
     QTextFormatCollection *fc = 0;
     if ( useCollection )
