@@ -1354,6 +1354,7 @@ void QWidgetFactory::createItem( const QDomElement &e, QWidget *widget, QListVie
 	} else {
 	    new QListBoxText( lb, txt );
 	}
+#ifndef QT_NO_ICONVIEW
     } else if ( widget->inherits( "QIconView" ) ) {
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
@@ -1363,6 +1364,7 @@ void QWidgetFactory::createItem( const QDomElement &e, QWidget *widget, QListVie
 
 	QIconView *iv = (QIconView*)widget;
 	new QIconViewItem( iv, txt, pix );
+#endif
     } else if ( widget->inherits( "QListView" ) ) {
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;

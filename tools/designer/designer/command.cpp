@@ -1235,6 +1235,7 @@ PopulateIconViewCommand::PopulateIconViewCommand( const QString &n, FormWindow *
 						  QIconView *iv, const QValueList<Item> &items )
     : Command( n, fw ), newItems( items ), iconview( iv )
 {
+#ifndef QT_NO_ICONVIEW
     QIconViewItem *i = 0;
     for ( i = iconview->firstItem(); i; i = i->nextItem() ) {
 	Item item;
@@ -1243,24 +1244,29 @@ PopulateIconViewCommand::PopulateIconViewCommand( const QString &n, FormWindow *
 	item.text = i->text();
 	oldItems.append( item );
     }
+#endif
 }
 
 void PopulateIconViewCommand::execute()
 {
+#ifndef QT_NO_ICONVIEW
     iconview->clear();
     for ( QValueList<Item>::Iterator it = newItems.begin(); it != newItems.end(); ++it ) {
 	Item i = *it;
 	(void)new QIconViewItem( iconview, i.text, i.pix );
     }
+#endif
 }
 
 void PopulateIconViewCommand::unexecute()
 {
+#ifndef QT_NO_ICONVIEW
     iconview->clear();
     for ( QValueList<Item>::Iterator it = oldItems.begin(); it != oldItems.end(); ++it ) {
 	Item i = *it;
 	(void)new QIconViewItem( iconview, i.text, i.pix );
     }
+#endif
 }
 
 // ------------------------------------------------------------
