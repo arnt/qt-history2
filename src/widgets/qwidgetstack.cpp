@@ -404,8 +404,6 @@ void QWidgetStack::show()
     //  appropriately and to pick the first widget as topWidget if no
     //  topwidget was defined
     if ( !isVisible() && children() ) {
-	setChildGeometries();
-
 	const QObjectList * c = children();
 	QObjectListIt it( *c );
 	QObject * o;
@@ -421,6 +419,7 @@ void QWidgetStack::show()
 		    ((QWidget *)o)->hide();
 	    }
 	}
+	setChildGeometries();
     }
     QFrame::show();
 }
