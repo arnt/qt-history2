@@ -104,6 +104,8 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	setMovingEnabled( o == widget );
 	mouseMoveEvent( e );
 	setMovingEnabled( me );
+	if ( buttonDown && mode != Center )
+	    return TRUE;
     } break;
     case QEvent::KeyPress:
 	keyPressEvent( (QKeyEvent*)e );
