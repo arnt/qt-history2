@@ -222,7 +222,7 @@ To enable text capture, one just needs to call {\sf startAtom} before parsing an
   6            &  2             & -1 \cr
 }}$$  The column labeled ``Capture'' contains the number of the capture zone:  {\tt ((bc)d)} has number~$0$ and {\tt (bc)} has number~$1$.
 
-While matching, a ``leftmost-longest'' rule applies:  The first capture zone should be ``leftmost longest,'' and the second one within the limits imposed by the first match.  Thus both \rx{a*(a*)} and \rx{(a*)a*} capture {\tt aaa} on input {\tt aaa}.  This might be unfortunate, but there's no easy way to change that.
+While matching, a ``longest-leftmost'' rule applies:  The first capture zone should be ``longest leftmost,'' and the second one within the limits imposed by the first match.  Thus both \rx{a*(a*)} and \rx{(a*)a*} capture {\tt aaa} on input {\tt aaa}.  This might be unfortunate, but there's no easy way to change that.
 
 The rest of the algorithm is explained by comments in the source code (see the function {\sf testMatch}).
 
@@ -284,6 +284,6 @@ When a state is put to sleep, it is removed from the state stacks ({\sf mmCurSta
 
 In the example above, state~$4$ is added to {\sf mmSleeping} at turn~$3$.  Since it has to be woken up at the end of next turn, it is placed under key~$4$.  At the end of turn~$4$, all sleepers are woken up and are integrated into {\sf mmNextState}.
 
-Back-references are not supported in their whole theoretical complexity.  For example, \rx{a*(a*)b\\1b} matches {\tt aabb} in theory, but not in practice.  Why?  Because when {\tt aab} is matched, the automaton has already decided that {\tt \\1} means {\tt aa}, even though it could had been {\tt a}~or~$\epsilon$.  Parentheses are greedy and obey a ``leftmost-longest match'' rule (look for {\sf isBetterCapture} in the source code).
+Back-references are not supported in their whole theoretical complexity.  For example, \rx{a*(a*)b\\1b} matches {\tt aabb} in theory, but not in practice.  Why?  Because when {\tt aab} is matched, the automaton has already decided that {\tt \\1} means {\tt aa}, even though it could had been {\tt a}~or~$\epsilon$.  Parentheses are greedy and obey a ``longest-leftmost match'' rule (look for {\sf isBetterCapture} in the source code).
 
 \bye
