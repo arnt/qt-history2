@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#42 $
 **
 ** Implementation of QStyle class
 **
@@ -405,7 +405,7 @@ void QStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
 
 /*!
   \fn void QStyle::drawArrow( QPainter *p, Qt::ArrowType type, bool down, int x, int y, int w, int h, const QColorGroup &g, bool enabled, const QBrush *fill)
-  Draws a button indicating direction.
+  Draws an arrow to indicate direction. Used for example in scrollbars and spin-boxes.
 */
 
 /*!
