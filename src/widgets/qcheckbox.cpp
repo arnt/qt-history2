@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#20 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,11 +15,11 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#20 $";
 #endif
 
 
-static void getSizeOfBitMap( GUIStyle gs, int *w, int *h )
+static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
 {
     switch ( gs ) {				// calculate coords
 	case MacStyle:
@@ -66,7 +66,7 @@ void QCheckBox::resizeFitLabel()
     int w = fm.width( label() );
     int h = fm.height();
     int wbm, hbm;
-    getSizeOfBitMap( style(), &wbm, &hbm );
+    getSizeOfBitmap( style(), &wbm, &hbm );
     if ( h < hbm )
 	h = hbm;
     resize( w+wbm+6, h );
@@ -83,7 +83,7 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
     int		 x=0, y, w, h;
     int		 wmore = 0;
 
-    getSizeOfBitMap( gs, &w, &h );
+    getSizeOfBitmap( gs, &w, &h );
     y = sz.height()/2 - w/2;
 
     if ( gs == MacStyle || gs == WindowsStyle )

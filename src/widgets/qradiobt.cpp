@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#21 $
 **
 ** Implementation of QRadioButton class
 **
@@ -15,11 +15,11 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#21 $";
 #endif
 
 
-static void getSizeOfBitMap( GUIStyle gs, int *w, int *h )
+static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
 {
     switch ( gs ) {
 	case MacStyle:
@@ -70,7 +70,7 @@ void QRadioButton::resizeFitLabel()
     int w = fm.width( label() );
     int h = fm.height();
     int wbm, hbm;
-    getSizeOfBitMap( style(), &wbm, &hbm );
+    getSizeOfBitmap( style(), &wbm, &hbm );
     if ( h < hbm )
 	h = hbm;
     resize( w+wbm+6, h );
@@ -92,7 +92,7 @@ void QRadioButton::drawButton( QPainter *paint )
     int		 x  = 0, y, w, h;
     int		 wless = 0;
 
-    getSizeOfBitMap( gs, &w, &h );
+    getSizeOfBitmap( gs, &w, &h );
     y = sz.height()/2 - w/2;
 
     if ( gs == MacStyle || gs == WindowsStyle || gs == MotifStyle )
