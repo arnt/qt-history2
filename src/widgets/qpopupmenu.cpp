@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#235 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#236 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -38,14 +38,8 @@
 
 // Motif style parameters
 
-static const int motifItemFrame		= 2;	// menu item frame width
-static const int motifSepHeight		= 2;	// separator item height
-static const int motifItemHMargin	= 3;	// menu item hor text margin
-static const int motifItemVMargin	= 2;	// menu item ver text margin
 static const int motifArrowHMargin	= 6;	// arrow horizontal margin
 static const int motifArrowVMargin	= 2;	// arrow vertical margin
-static const int motifTabSpacing	= 12;	// space between text and tab
-static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
 
 
 /*
