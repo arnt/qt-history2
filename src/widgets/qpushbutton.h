@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#1 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#2 $
 **
 ** Definition of QPushButton class
 **
@@ -58,12 +58,12 @@ private:
 
 inline bool QPushButton::move( const QPoint &p )
 {
-    return move( p.getX(), p.getY() );
+    return move( p.x(), p.y() );
 }
 
 inline bool QPushButton::resize( const QSize &s )
 {
-    return resize( s.getWidth(), s.getHeight());
+    return resize( s.width(), s.height());
 }
 
 inline bool QPushButton::changeGeometry( const QRect &r )

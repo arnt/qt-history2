@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#3 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#3 $";
 #endif
 
 
@@ -455,7 +455,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, int segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
         case 1 :
-	    pt.y() = pt.y() + 1;
+	    pt.ry()++;
 	    p.moveTo(pt);
 	    LIGHT;
 	    LINETO(width,width);
@@ -466,8 +466,8 @@ void QLCDNumber::drawSegment( const QPoint &pos, int segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
         case 2 :
-	    pt.x() = pt.x() + xLen;
-	    pt.y() = pt.y() + 1;
+	    pt.rx() += xLen;
+	    pt.ry()++;
 	    p.moveTo(pt);
 	    DARK;
 	    LINETO(0,yLen);
@@ -477,7 +477,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, int segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
         case 3 :
-	    pt.y() = pt.y() + yLen + 2;
+	    pt.ry() += yLen + 2;
 	    p.moveTo(pt);
 	    LIGHT;
 	    LINETO(width,-width/2);
@@ -489,7 +489,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, int segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
         case 4 :
-	    pt.y() = pt.y() + yLen + 3;
+	    pt.ry() += yLen + 3;
 	    p.moveTo(pt);
 	    LIGHT;
 	    LINETO(width,width/2);
@@ -500,8 +500,8 @@ void QLCDNumber::drawSegment( const QPoint &pos, int segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
         case 5 :
-	    pt.x() = pt.x() + xLen;
-	    pt.y() = pt.y() + yLen + 3;
+	    pt.rx() += xLen;
+	    pt.ry() += yLen + 3;
 	    p.moveTo(pt);
 	    DARK;
 	    LINETO(0,yLen);
@@ -511,7 +511,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, int segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
         case 6 :
-	    pt.y() = pt.y() + 2*yLen + 4;
+	    pt.ry() += 2*yLen + 4;
 	    p.moveTo(pt);
 	    LIGHT;
 	    LINETO(width,-width);
@@ -522,10 +522,10 @@ void QLCDNumber::drawSegment( const QPoint &pos, int segmentNo, QPainter &p,
 	    break;
         case 7 :
 	    if ( smallPoint )
-		pt.x() = pt.x() + xLen + xSpace()/2 - width/2 + 1;
+		pt.rx() += xLen + xSpace()/2 - width/2 + 1;
 	    else
-		pt.x() = pt.x() + xLen/2 + 1;
-	    pt.y() = pt.y() + 2*yLen + 4;
+		pt.rx() += xLen/2 + 1;
+	    pt.ry() += 2*yLen + 4;
 	    p.moveTo(pt);
 	    DARK;
 	    LINETO(width,0);
@@ -535,8 +535,8 @@ void QLCDNumber::drawSegment( const QPoint &pos, int segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
         case 8 :
-	    pt.y() = pt.y() + yLen/2 + width;
-	    pt.x() = pt.x() + xLen/2 - width/2 + 1;
+	    pt.ry() += yLen/2 + width;
+	    pt.rx() += xLen/2 - width/2 + 1;
 	    p.moveTo(pt);
 	    DARK;
 	    LINETO(width,0);
@@ -546,8 +546,8 @@ void QLCDNumber::drawSegment( const QPoint &pos, int segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
         case 9 :
-	    pt.y() = pt.y() + 3*yLen/2 + width;
-	    pt.x() = pt.x() + xLen/2 - width/2 + 1;
+	    pt.ry() += 3*yLen/2 + width;
+	    pt.rx() += xLen/2 - width/2 + 1;
 	    p.moveTo(pt);
 	    DARK;
 	    LINETO(width,0);
