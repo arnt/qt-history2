@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#7 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#8 $
 **
 ** Definition of QWidget class
 **
@@ -53,6 +53,8 @@ public:
     QRect    geometry()		const	{ return ncrect; }
     QRect    clientGeometry()	const	{ return rect; }
     QSize    clientSize()	const	{ return rect.size(); }
+    int	     clientWidth()	const	{ return rect.width(); }
+    int	     clientHeight()	const	{ return rect.height(); }
     QRect    clientRect()	const	{ return QRect(0,0,rect.width(),
 						       rect.height()); }
 
