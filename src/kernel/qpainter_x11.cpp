@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#55 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#54 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#55 $";
 #endif
 
 
@@ -2008,8 +2008,8 @@ void QPainter::drawPixMap( int x, int y, const QPixMap &pixmap )
 
 
 //
-// Generate a key string for a transformed bitmap.  This string is used
-// as a key for searching the bitmap cache.
+// Generate a string that describes a transformed bitmap. This string is used
+// to insert and find bitmaps in the global pixmap cache.
 //
 static QString gen_xbm_key(  const QWorldMatrix &m, const QFont &f,
 			     const char *str, int len )
@@ -2027,41 +2027,26 @@ static QString gen_xbm_key(  const QWorldMatrix &m, const QFont &f,
 		    fi.underline(), fi.strikeOut(), fi.fixedPitch(),
 		    fi.charSet() );
     k.resize( len + 100 + fd.length() );
-    k.sprintf( "$%s,%g,%g,%g,%g,%g,%g,%s", (char *)s,
+    k.sprintf( "$qt$%s,%g,%g,%g,%g,%g,%g,%s", (char *)s,
 	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy(), (char *)fd );
     return k;
 }
 
-#include "qdict.h"
-declare(QDictM,QBitMap);
-static QDictM(QBitMap) *bmDict = 0;
-
-static long bmSize = 0;
 
 static QBitMap *get_text_bitmap( const QWorldMatrix &m, const QFont &f,
 				 const char *str, int len )
 {
     QString k = gen_xbm_key( m, f, str, len );
-    if ( !bmDict )
-	bmDict = new QDictM(QBitMap);
-    QBitMap *bm = bmDict->find( k );
-    return bm;
+    return (QBitMap*)QPixMap::find( k );
 }
 
-// NOTE.... Husk aa legge inn kall fra global destrukt|r!!!
+
 static void ins_text_bitmap( const QWorldMatrix &m, const QFont &f,
 			     const char *str, int len, QBitMap *bm )
 {
-    int sz = bm->size().width()*bm->size().height();
-    if ( bmSize + sz < 240000*8 ) {
-	bmSize += sz;
-	QString k = gen_xbm_key( m, f, str, len );
-	bmDict->insert(k,bm);
-    }
-    else {
+    QString k = gen_xbm_key( m, f, str, len );
+    if ( !QPixMap::insert(k,bm) )		// cannot insert pixmap
 	delete bm;
-//	debug( "bm refused, count = %d, size=%d", bmDict->count(),bmSize );
-    }
 }
 
 
