@@ -295,8 +295,8 @@ QUrlOperator::~QUrlOperator()
 	d->oldOps.first()->free();
 	d->oldOps.removeFirst();
     }
-    delete d;
     d->currPut = 0;
+    delete d;
     d = 0;
 }
 
