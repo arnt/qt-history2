@@ -647,6 +647,25 @@ void QCommonStyle::drawControl( ControlElement element,
 	}
 	break; }
 
+    case CE_TabBarLabel: {
+	QTabBar * tb = (QTabBar *) widget;
+	if ( !tb || !data )
+	    return;
+	QTab * t = (QTab *) data[0];
+	bool has_focus = *((bool *) data[1]);
+	
+	QRect tr = r;
+	if ( t->identifier() == tb->currentTab() )
+	    tr.setBottom( tr.bottom() -
+			  pixelMetric( QStyle::PM_DefaultFrameWidth, tb ) );
+	
+	drawItem( p, tr, AlignCenter | ShowPrefix, cg, tb->isEnabled() && 
+		  t->isEnabled(), 0, t->text() );
+	
+	if ( has_focus )
+	    drawPrimitive( PO_FocusRect, p, r, cg );
+	break; }
+    
     case CE_ProgressBar: {
 	QProgressBar *progressbar = (QProgressBar *) widget;
 

@@ -68,7 +68,7 @@ public:
     void setEnabled( bool enable ) { enabled = enable; }
     bool isEnabled() const { return enabled; }
     void setIdentifier( int i ) { id = i; }
-    int identitifer() const { return id; }
+    int identifier() const { return id; }
 #endif
 
 private:

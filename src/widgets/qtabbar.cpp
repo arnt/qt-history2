@@ -399,7 +399,6 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 void QTabBar::paintLabel( QPainter* p, const QRect& br,
 			  QTab* t, bool has_focus ) const
 {
-
     QRect r = br;
     if ( t->iconset) {
 	// the tab has an iconset, draw it in the right mode
@@ -414,16 +413,11 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	p->drawPixmap( br.left()+2, br.center().y()-pixh/2, pixmap );
     }
 
-    QRect tr = r;
-    if ( t->id == currentTab() )
-	tr.setBottom( tr.bottom() -
-		      style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) );
-
-    style().drawItem( p, tr, AlignCenter | ShowPrefix, colorGroup(),
-		      isEnabled() && t->enabled, 0, t->label );
-
-    if ( has_focus )
-	style().drawPrimitive( QStyle::PO_FocusRect, p, br, colorGroup() );
+    void * data[2];
+    data[0] = (void *) t;
+    data[1] = (void *) &has_focus;
+    style().drawControl( QStyle::CE_TabBarLabel, p, this, br, colorGroup(),
+			 QStyle::CStyle_Default, data );
 }
 
 

@@ -1417,7 +1417,8 @@ void QLineEdit::clipboardChanged()
 
 void QLineEdit::setFrame( bool enable )
 {
-    setFrameStyle( enable ? ( WinPanel | Sunken ) : NoFrame  );
+    setFrameStyle( enable ? ( StyledPanel | Sunken ) : NoFrame  );
+    setLineWidth( style().pixelMetric( QStyle::PM_DefaultFrameWidth, this ) );
 }
 
 

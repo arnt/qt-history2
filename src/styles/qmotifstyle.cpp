@@ -1651,7 +1651,6 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 	w += 2*motifItemHMargin + 2*motifItemFrame;
 	if ( checkable && maxpmw < motifCheckMarkSpace)
 	    maxpmw = motifCheckMarkSpace;
-	w += maxpmw;
 
 	// if we have a check-column ( iconsets or checkmarks), add space
 	// to separate the columns

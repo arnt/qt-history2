@@ -196,6 +196,7 @@ public:
 	CE_RadioButtonLabel,
 
 	CE_TabBarTab,
+	CE_TabBarLabel,
 
 	CE_ProgressBar,
 	CE_ProgressBarLabel,
