@@ -36,6 +36,14 @@
 **********************************************************************/
 
 #include "qplatformdefs.h"
+
+// POSIX Large File Support on broken compilers redefines open -> open64
+static inline int qt_open(const char *pathname, int flags, mode_t mode)
+{ return ::open(pathname, flags, mode); }
+#if defined(open)
+# undef open
+#endif
+
 #include "qfile.h"
 
 #include <errno.h>
@@ -190,7 +198,7 @@ bool QFile::open( int m )
 #if defined(QT_LARGE_FILE_SUPPORT)
 	fd = ::open64( QFile::encodeName(fn), oflags, 0666 );
 #else
-	fd = ::open( QFile::encodeName(fn), oflags, 0666 );
+	fd = qt_open( QFile::encodeName(fn), oflags, 0666 );
 #endif
 
 	if ( fd != -1 ) {			// open successful

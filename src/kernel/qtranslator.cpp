@@ -5,7 +5,7 @@
 **
 ** Created : 980906
 **
-** Copyright (C) 1998-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1998-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -35,43 +35,13 @@
 **
 **********************************************************************/
 
-// needed for bsearch (at least for Borland)
 #include "qplatformdefs.h"
-
 #include "qtranslator.h"
 
 #ifndef QT_NO_TRANSLATION
 
 #include "qfileinfo.h"
 #include "qwidgetlist.h"
-
-#if defined(Q_OS_UNIX)
-#define QT_USE_MMAP
-#endif
-
-#if defined(QT_USE_MMAP)
-
-// for mmap
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <errno.h>
-
-// for htonl
-#include <netinet/in.h>
-
-// for close
-#include <unistd.h>
-
-#else
-// appropriate stuff here
-#endif
-
-// for qsort
-#include <stdlib.h>
-
-// other qt stuff necessary for the implementation
 #include "qintdict.h"
 #include "qstring.h"
 #include "qapplication.h"
@@ -80,6 +50,28 @@
 #include "qdatastream.h"
 #include "qmap.h"
 #include "qtl.h"
+
+#if defined(Q_OS_UNIX)
+#define QT_USE_MMAP
+#endif
+
+// most of the headers below are already included in qplatformdefs.h...
+// also this lacks Large File support but that's probably irrelevant
+#if defined(QT_USE_MMAP)
+// for mmap
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <errno.h>
+// for htonl
+#include <netinet/in.h>
+#else
+// appropriate stuff here
+#endif
+
+// for qsort
+#include <stdlib.h>
 
 /*
 $ mcookie

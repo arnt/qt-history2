@@ -5,7 +5,7 @@
 **
 ** Created : 930812
 **
-** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -36,6 +36,11 @@
 **********************************************************************/
 
 #include "qplatformdefs.h"
+
+// POSIX Large File Support on broken compilers redefines open -> open64
+#if defined(open)
+# undef open
+#endif
 
 #include "qfile.h"
 
