@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#64 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#64 $");
 
 
 static const int fontFields = 14;
@@ -582,8 +582,12 @@ int QFont_Private::fontMatchScore( char	 *fontName, QString &buffer,
 	    pSize = (2*pSize*atoi(tokens[ResolutionY]) + 75) / (75*2);
 	}
     }
-
-    float diff = ((float)QABS(pSize - deciPointSize())/deciPointSize())*100.0F;
+    
+    float diff;
+    if ( deciPointSize() != 0 )
+	diff = ((float)QABS(pSize - deciPointSize())/deciPointSize())*100.0F;
+    else
+	diff = (float)pSize;
 
     if ( diff < 20 ) {
 	if ( pSize != deciPointSize() )

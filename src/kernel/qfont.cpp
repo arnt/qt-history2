@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#51 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#51 $");
 
 
 /*!
@@ -151,6 +151,7 @@ QFont::QFont()
 /*!
   Constructs a font object with the specified \e family, \e pointSize,
   \e weight and \e italic settings.
+  If \e pointSize is less than or equal to 0 it is set to 1.
   \sa setFamily(), setPointSize(), setWeight(), setItalic()
 */
 
@@ -158,6 +159,8 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
 {
     init();
     d->req.family    = family;
+    if ( pointSize <= 0 )
+	pointSize = 1;
     d->req.pointSize = pointSize * 10;
     d->req.weight    = weight;
     d->req.italic    = italic;
