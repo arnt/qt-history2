@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#13 $
 **
 ** Implementation of QDir class
 **
@@ -16,7 +16,7 @@
 #include "qregexp.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#13 $")
 
 
 #if !defined(PATH_MAX)
@@ -263,7 +263,7 @@ QString QDir::absPath() const
     if ( QDir::isRelativePath(dPath) ) {
 	QString tmp = currentDirPath();
 	if ( tmp.right(1) != "/" )
-	    tmp += separator();
+	    tmp += '/';
 	tmp += dPath;
 	return cleanDirPath( tmp.data() );
     } else {
@@ -308,7 +308,7 @@ QString QDir::canonicalPath() const
 
 QString QDir::dirName() const
 {
-    int pos = dPath.findRev( separator() );
+    int pos = dPath.findRev( '/' );
     if ( pos == -1  )
 	return dPath;
     return dPath.right( dPath.length() - pos - 1 );
@@ -338,7 +338,7 @@ QString QDir::filePath( const char *fileName,
     QString tmp = dPath.copy();
     if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && fileName &&
 			   fileName[0] != '/') )
-	tmp += separator();
+	tmp += '/';
     tmp += fileName;
     return tmp;
 }
@@ -366,7 +366,7 @@ QString QDir::absFilePath( const char *fileName,
     QString tmp = absPath();
     if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && fileName &&
 			   fileName[0] != '/') )
-	tmp += separator();
+	tmp += '/';
     tmp += fileName;
     return tmp;
 }
@@ -420,9 +420,9 @@ bool QDir::cd( const char *dirName, bool acceptAbsPath )
 	dPath = cleanDirPath( dirName );
     } else {
 	if ( !isRoot() )
-	    dPath += separator();
+	    dPath += '/';
 	dPath += dirName;
-	if ( strchr( dirName, separator() ) || old == "." ||
+	if ( strchr( dirName, '/' ) || old == "." ||
 	     strcmp( dirName, "..") == 0 )
 	    dPath = cleanDirPath( dPath.data() );
     }
@@ -1005,6 +1005,7 @@ QString QDir::currentDirPath()
 	    if ( GETCWD( currentName.data(), PATH_MAX ) != 0 ) {
 		cINode	 = st.st_ino;
 		cDevice	 = st.st_dev;
+		convertSeparators( currentName.data() );
 		// forcecwd = FALSE;   ###
 	    } else {
 		warning("QDir::currentDirPath: getcwd() failed!");
@@ -1027,12 +1028,11 @@ QString QDir::currentDirPath()
 
 QString QDir::homeDirPath()
 {
-    QString tmp( PATH_MAX );
-
-    tmp = getenv("HOME");
-    if ( tmp.isNull() )
-	tmp = rootDirPath();
-    return tmp;
+    QString d( PATH_MAX );
+    d = getenv("HOME");
+    if ( d.isNull() )
+	d = rootDirPath();
+    return d;
 }
 
 /*----------------------------------------------------------------------------
@@ -1042,8 +1042,14 @@ QString QDir::homeDirPath()
 
 QString QDir::rootDirPath()
 {
-    QString tmp = QDir::separator();
-    return tmp;
+#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
+    QString d( "c:/" );
+#elif defined(UNIX)
+    QString d( "/" );
+#else
+# error Not implemented
+#endif
+    return d;
 }
 
 /*----------------------------------------------------------------------------
@@ -1090,7 +1096,7 @@ QString QDir::cleanDirPath( const char *filePath )
     upLevel = 0;
     int len;
 
-    while( pos && (pos = name.findRev( separator(), --pos)) != -1 ) {
+    while( pos && (pos = name.findRev( '/', --pos)) != -1 ) {
 	len = ePos - pos - 1;
 	if ( len == 2 && name.at( pos + 1 ) == '.'
 		      && name.at( pos + 2 ) == '.' ) {
