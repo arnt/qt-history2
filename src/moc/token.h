@@ -53,7 +53,7 @@ enum PP_Token {
     PP_NEWLINE,
     PP_CPP_COMMENT,
     PP_C_COMMENT,
-    PP_INCOMPLETE,
+    PP_INCOMPLETE
 };
 
 enum Token {
