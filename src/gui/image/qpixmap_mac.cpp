@@ -31,8 +31,6 @@ extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 
-#define QMAC_PIXMAP_ALPHA
-
 /*****************************************************************************
   QPixmap member functions
  *****************************************************************************/
@@ -222,7 +220,6 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
             m = img.createAlphaMask(conversion_flags);
             setMask(m);
         }
-#ifdef QMAC_PIXMAP_ALPHA
         bool alphamap = img.depth() == 32;
         if (img.depth() == 8) {
             const QRgb * const rgb = img.colorTable();
@@ -263,7 +260,6 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
                 }
             }
         }
-#endif //!QMAC_PIXMAP_ALPHA
     }
     return true;
 }
