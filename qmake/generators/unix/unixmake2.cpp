@@ -866,7 +866,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	for( it.toFirst(); it.current(); ++it) {
 	    t << "\n\t ( ";
 	    if(!(*it)->directory.isEmpty())
-		t << "( [ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
+		t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
 	    t << "$(MAKE) -f " << (*it)->makefile << " $@; $(DEL_FILE) " << (*it)->makefile << "; ) || true";
 	}
 	t << endl << endl;
