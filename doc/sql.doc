@@ -67,7 +67,8 @@ also helper classes such as \l QSqlPropertyMap and \l QSqlEditorFactory
 which help 'glue' together the GUI to the SQL database in your
 applications.
 
-An example application walkthrough can be found <a href="sql-walkthrough.html">here</a>.
+An <a href="sql-walkthrough.html">example application walkthrough</a> is
+provided.
 
 <h2>Connecting to the database</h2>
 
@@ -78,13 +79,12 @@ QSqlDatabase static functions which manage connections to multiple SQL
 databases using application-specific names.
 
 To establish a single connection to a SQL database, use the
-QSqlDatabase::addDatabase() function.  If a database is added without
-a name, it becomes the application 'default' database connection.  The
-default connection is used by other Qt SQL classes in the event a
-database connection is not provided to them.  A database connection
-can be retrieved by passing the database name to
-QSqlDatabase::database().  If no name is given, the default connection
-is returned.  For example:
+QSqlDatabase::addDatabase() function.  If a database is added without a
+name, it becomes the application 'default' database connection.  The
+default connection is used by other Qt SQL classes if a database
+connection is not provided to them.  A database connection can be
+retrieved by passing the database name to QSqlDatabase::database().  If
+no name is given, the default connection is returned.  For example:
 
 \code
     // create an ODBC connection, which is the default database connection
@@ -238,7 +238,7 @@ the application default connection in this case).  For example:
     QSqlQuery employeeCount = db->exec( "select count(*) from Employee;" );
     ...
     QSqlQuery updEmployee; // automatically uses the default application connection
-    upd.exec( "update Employee set name='db' where id=1;" );
+    updEmployee.exec( "update Employee set name='Eirik' where id=1;" );
 \endcode
 
 QSqlQuery allows any SQL statement to be passed to the database,
@@ -262,11 +262,11 @@ the query to point to a different row.  The following methods navigate
 through the rows of an active query:
 
 <ul>
-<li> \c first() - Moves to the first row in the query
+<li> \c first() - Moves to the first row in the query; this is row 0
 <li> \c last() - Moves to the last row in the query
 <li> \c next() - Moves to the next row in the query
 <li> \c prev() - Moves to the previous row in the query
-<li> \c seek() - Moves to a random row in the query
+<li> \c seek(int) - Moves to the given row number in the query
 </ul>
 
 In addition, the following functions can be used to describe
@@ -275,7 +275,8 @@ properties of the query which are useful when navigating the rows:
 <ul>
 <li> \c isActive() - Returns TRUE if the last statement was successful
 <li> \c isValid() - Returns TRUE if the query is positioned on a valid record
-<li> \c at() - Returns the current row (can be used with seek())
+<li> \c at() - Returns the current row number (can be used with seek()); the
+first row is 0
 <li> \c isSelect() - Returns TRUE if the last statement was a \c SELECT statement
 </ul>
 
@@ -286,7 +287,7 @@ For example:
     QSqlQuery emp( "select name, deptno from Employee order by name;" );
 
     bool active = emp.isActive();// returns TRUE if query successful
-    vool valid = emp.isValid();  // returns FALSE since we have not yet positioned to a valid record
+    bool valid = emp.isValid();  // returns FALSE since we have not yet positioned to a valid record
     int at = emp.at();           // returns invalid location
 
     if ( active ) {    // if query successful...
@@ -304,7 +305,7 @@ For example:
         valid = emp.isValid();   // returns FALSE since the query is positioned after the last record
         at = emp.at();           // returns invalid location
 
-        // go to a random record
+        // go to row 10, the 11th record in the query
         emp.seek( 10 );
 	valid = emp.isValid();   // returns TRUE if we are positioned on a valid record
 
@@ -336,7 +337,7 @@ manipulation statement (\c INSERT, \c UPDATE and \c DELETE), just specify the
 statement to the object constructor or use the QSqlQuery::exec()
 method.  Data manipulation statements will execute on the database
 immediately (unless a transaction is started), and the query will be
-positioned to an invalid record.  Use QSqlQuery::isActive() to
+positioned on an invalid record.  Use QSqlQuery::isActive() to
 determine if the statement was successful.  Note that you cannot
 scroll through any records with these types of SQL statements, since
 data manipulation statements do not return any result records.  You
@@ -365,12 +366,12 @@ connection, pass a pointer to the desired QSqlDatabase. For example:
 
 You can perform operations on tables or views within the database
 using QSqlCursor.  A 'cursor' is a database record (see above) which
-corresponds to a table or view within the database.  To position to a
-valid record, cursors can be navigated in the same way as a QSqlQuery
-(see above).  Once positioned on a valid record, data can be retrieved
-from the record fields directly.  In addition, for cursors that
-correspond to tables or views that contain primary indexes, data can
-be edited directly using the edit functions of QSqlCursor.
+corresponds to a table or view within the database.  Cursors can be
+navigated in the same way as a QSqlQuery (see above) to position them at
+a valid record.  Once positioned on a valid record, data can be
+retrieved from the record's fields directly.  In addition, for cursors
+that correspond to tables or views that contain primary indexes, data
+can be edited directly using the edit functions of QSqlCursor.
 
 For example, to create a list of all employee names from department #10
 of the Employee table:
@@ -421,7 +422,7 @@ to, for example, auto-number any relevant fields, or supply fields
 with default values.  QSqlCursor::updateBuffer() will prepare the edit
 buffer for an update operation: the record buffer will be primed with
 the values of the current cursor record.  The edit buffer of a cursor
-is independant of the current cursor record buffer which contains the
+is independent of the current cursor record buffer which contains the
 values of the current fields from the database.  After getting a
 pointer to the internal edit buffer, values can be manipulated, and
 then saved to the database.  For example:
@@ -495,7 +496,7 @@ can be updated with the values of the associated fields:
 
 \code
     cursor.select();    // select all records
-    cursor.first();     // go to the first record
+    cursor.first();     // move to the first record
     form->readFields(); // the line edit now contains the value of the 'name'
                         // field from the database record
 \endcode
