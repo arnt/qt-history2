@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#223 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#224 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#223 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#224 $");
 
 
 /*****************************************************************************
@@ -2293,7 +2293,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 		return;
 	}
 	if ( txop != TxNone && cpen.style() != NoPen )
-	    pa = xForm( a );
+	    pa = xForm( a ); // ### bug if (index || index+nlines < a.count())
     }
     if ( cpen.style() != NoPen )
 	XDrawSegments( dpy, hd, gc, (XSegment*)(pa.data()+index), nlines );
