@@ -256,10 +256,6 @@ bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam * )
     } else {					// all other commands...
 	if( (state == PST_ACTIVE || state == PST_ERROR ) && PMSessionError(psession) != noErr) 
 	    return FALSE;
-
-	if ( c == PdcDrawPixmap || c == PdcDrawImage ) {
-	    return FALSE;			// don't bitblt
-	}
     }
     return TRUE;
 }

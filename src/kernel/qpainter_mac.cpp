@@ -659,8 +659,7 @@ void QPainter::setBrushOrigin( int x, int y )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].point = &bro;
-	if ( !pdev->cmd( QPaintDevice::PdcSetBrushOrigin, this, param ) ||
-	     !hd )
+	if ( !pdev->cmd( QPaintDevice::PdcSetBrushOrigin, this, param ) || !hd )
 	    return;
     }
     if ( brushRef )
@@ -798,7 +797,7 @@ void QPainter::drawPoint( int x, int y )
             QPDevCmdParam param[1];
             QPoint p( x, y );
             param[0].point = &p;
-            if ( !pdev->cmd( QPaintDevice::PdcDrawPoint, this, param ) )
+            if ( !pdev->cmd( QPaintDevice::PdcDrawPoint, this, param ) || !hd )
                 return;
         }
         map( x, y, &x, &y );
@@ -832,7 +831,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 	    for (int i=0; i<npoints; i++) {
 		QPoint p( pa[index+i].x(), pa[index+i].y() );
 		param[0].point = &p;
-		if ( !pdev->cmd(QPaintDevice::PdcDrawPoint,this,param))
+		if ( !pdev->cmd(QPaintDevice::PdcDrawPoint,this,param) || !hd)
 		    return;
 	    }
 	}
@@ -868,7 +867,7 @@ void QPainter::moveTo( int x, int y )
       QPDevCmdParam param[1];
       QPoint p( x, y );
       param[0].point = &p;
-      if ( !pdev->cmd(QPaintDevice::PdcMoveTo,this,param) /*|| !hdc*/ )
+      if ( !pdev->cmd(QPaintDevice::PdcMoveTo,this,param) || !hd )
 	return;
     }
     map( x, y, &x, &y );
@@ -887,7 +886,7 @@ void QPainter::lineTo( int x, int y )
       QPDevCmdParam param[1];
       QPoint p( x, y );
       param[0].point = &p;
-      if ( !pdev->cmd( QPaintDevice::PdcLineTo, this, param ) /*|| !hdc*/ )
+      if ( !pdev->cmd( QPaintDevice::PdcLineTo, this, param ) || !hd )
 	return;
     }
     map( x, y, &x, &y );
@@ -912,7 +911,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
       QPoint p1(x1, y1), p2(x2, y2);
       param[0].point = &p1;
       param[1].point = &p2;
-      if ( !pdev->cmd( QPaintDevice::PdcDrawLine, this, param ) /*|| !hdc*/ )
+      if ( !pdev->cmd( QPaintDevice::PdcDrawLine, this, param ) || !hd )
 	return;
     }
     map( x1, y1, &x1, &y1 );
@@ -934,7 +933,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
             QPDevCmdParam param[1];
             QRect r( x, y, w, h );
             param[0].rect = &r;
-            if ( !pdev->cmd( QPaintDevice::PdcDrawRect, this, param ) /*|| !hdc*/ )
+            if ( !pdev->cmd( QPaintDevice::PdcDrawRect, this, param ) || !hd )
                 return;
         }
         if ( txop == TxRotShear ) {             // rotate/shear polygon
@@ -1086,7 +1085,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
             param[0].rect = &r;
             param[1].ival = xRnd;
             param[2].ival = yRnd;
-            if ( !pdev->cmd( QPaintDevice::PdcDrawRoundRect, this, param) /*|| !hdc*/ )
+            if ( !pdev->cmd( QPaintDevice::PdcDrawRoundRect, this, param) || !hd )
                 return;
         }
         if ( txop == TxRotShear ) {             // rotate/shear polygon
@@ -1156,7 +1155,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
             QPDevCmdParam param[1];
             QRect r( x, y, w, h );
             param[0].rect = &r;
-            if ( !pdev->cmd( QPaintDevice::PdcDrawEllipse, this, param ) /*|| !hdc*/ )
+            if ( !pdev->cmd( QPaintDevice::PdcDrawEllipse, this, param ) || !hd )
                 return;
         }
         if ( txop == TxRotShear ) {             // rotate/shear polygon
@@ -1239,7 +1238,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
             param[0].rect = &r;
             param[1].ival = a;
             param[2].ival = alen;
-            if ( !pdev->cmd( QPaintDevice::PdcDrawArc, this, param ) /*|| !hdc*/ )
+            if ( !pdev->cmd( QPaintDevice::PdcDrawArc, this, param ) || !hd )
                 return;
         }
         if ( txop == TxRotShear ) {             // rotate/shear
@@ -1281,7 +1280,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
             param[0].rect = &r;
             param[1].ival = a;
             param[2].ival = alen;
-            if ( !pdev->cmd( QPaintDevice::PdcDrawPie, this, param) /*|| !hdc*/ )
+            if ( !pdev->cmd( QPaintDevice::PdcDrawPie, this, param) || !hd )
                 return;
         }
         if ( txop == TxRotShear ) {             // rotate/shear
@@ -1364,7 +1363,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
             }
             QPDevCmdParam param[1];
             param[0].ptarr = (QPointArray*)&pa;
-            if ( !pdev->cmd(QPaintDevice::PdcDrawLineSegments,this,param) /*|| !hdc*/)
+            if ( !pdev->cmd(QPaintDevice::PdcDrawLineSegments,this,param) || !hd)
                 return;
         }
         if ( txop != TxNone ) {
@@ -1409,7 +1408,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
             }
             QPDevCmdParam param[1];
             param[0].ptarr = (QPointArray*)&pa;
-            if ( !pdev->cmd(QPaintDevice::PdcDrawPolyline,this,param) /*|| !hdc*/ )
+            if ( !pdev->cmd(QPaintDevice::PdcDrawPolyline,this,param) || !hd )
                 return;
         }
         if ( txop != TxNone ) {
@@ -1476,7 +1475,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
             QPDevCmdParam param[2];
             param[0].ptarr = (QPointArray*)&pa;
             param[1].ival = winding;
-            if ( !pdev->cmd( QPaintDevice::PdcDrawPolygon, this, param ) /*|!hdc*/ )
+            if ( !pdev->cmd( QPaintDevice::PdcDrawPolygon, this, param ) |!hd )
                 return;
         }
         if ( txop != TxNone ) {
@@ -1560,7 +1559,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
                 QPoint p(x,y);
                 param[0].point  = &p;
                 param[1].pixmap = &pixmap;
-                if ( !pdev->cmd(QPaintDevice::PdcDrawPixmap,this,param) /* || !hdc */ ) {
+                if ( !pdev->cmd(QPaintDevice::PdcDrawPixmap,this,param) || !hd  ) {
                     return;
 		}
             }

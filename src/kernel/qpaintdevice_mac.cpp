@@ -100,15 +100,6 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	sh=src->metric(QPaintDeviceMetrics::PdmHeight)-sy;
     }
 
-#if 0
-    if(dx+dw>dst->metric(QPaintDeviceMetrics::PdmWidth)) {
-	dw=dst->metric(QPaintDeviceMetrics::PdmWidth)-dx;
-    }
-    if(dy+dh>dst->metric(QPaintDeviceMetrics::PdmHeight)) {
-	dh=dst->metric(QPaintDeviceMetrics::PdmHeight)-dy;
-    }
-#endif
-
     if(!sw || !sh)
 	return;
 
@@ -156,15 +147,15 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     }
 
     switch ( src->devType() ) {
-	case QInternal::Widget:
-	case QInternal::Pixmap:
-	case QInternal::System:			// OK, can blt from these
-	    break;
-	default:
+    case QInternal::Printer: // OK, can blt from these
+    case QInternal::Widget:
+    case QInternal::Pixmap:
+	break;
+    default:
 #if defined(QT_CHECK_RANGE)
-	    qWarning( "bitBlt: Cannot bitBlt from device type %x", src->devType() );
+	qWarning( "bitBlt: Cannot bitBlt from device type %x", src->devType() );
 #endif
-	    return;
+	return;
     }
     int srcoffx = 0, srcoffy = 0;
     BitMap *srcbitmap=NULL;
@@ -191,24 +182,30 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	    sw = pm->width();
 	if(sh < 0)
 	    sh = pm->height();
-    }
+    } else if(src->devType() == QInternal::Printer ) {
+	srcbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)src->handle());
 
+	if(sw < 0)
+	    sw = src->metric(QPaintDeviceMetrics::PdmWidth);
+	if(sh < 0)
+	    sh = src->metric(QPaintDeviceMetrics::PdmHeight);
+    }
+	
+    switch ( dst->devType() ) {
+    case QInternal::Printer: // OK, can blt to these
+    case QInternal::Widget:
+    case QInternal::Pixmap:
+	break;
+    default:
+#if defined(QT_CHECK_RANGE)
+	qWarning( "bitBlt: Cannot bitBlt to device type %x", dst->devType() );
+#endif
+	return;
+    }
     if(dw < 0)
 	dw = sw;
     if(dh < 0)
 	dh = sh;
-
-    switch ( dst->devType() ) {
-	case QInternal::Widget:
-	case QInternal::Pixmap:
-	case QInternal::System:			// OK, can blt to these
-	    break;
-	default:
-#if defined(QT_CHECK_RANGE)
-	    qWarning( "bitBlt: Cannot bitBlt to device type %x", dst->devType() );
-#endif
-	    return;
-    }
     int dstoffx=0, dstoffy=0;
     const BitMap *dstbitmap=NULL;
     if(dst->devType() == QInternal::Widget) {
@@ -232,10 +229,10 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	dstoffy = p.y();
 
     } else if(dst->devType() == QInternal::Pixmap) {
-
 	QPixmap *pm = (QPixmap *)dst;
 	dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
-
+    } else if(dst->devType() == QInternal::Printer ) {
+	dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)dst->handle());
     }
 
     if(!dstbitmap || !srcbitmap) 
