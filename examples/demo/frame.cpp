@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/frame.cpp#2 $
+** $Id: //depot/qt/main/examples/demo/frame.cpp#3 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -16,33 +16,63 @@
 #include <qaccel.h>
 #include <qsplitter.h>
 #include <qlistbox.h>
+#include <qpainter.h>
 #include <qwidgetstack.h>
 #include <qwindowsstyle.h>
 #include <qmotifstyle.h>
+#include <qmotifplusstyle.h>
+#include <qplatinumstyle.h>
+#include <qsgistyle.h>
 
-class CategoryItem : public QListBoxPixmap {
+class CategoryItem : public QListBoxItem {
 public:
     CategoryItem( QListBox *parent, QWidget *widget,
 		  const QPixmap &p, const QString &name, int id );
     virtual QString key( int, bool ) const;
+    virtual int height( const QListBox * ) const;
+    virtual int width( const QListBox * )  const;
+
     QWidget *widget() const { return _widget; }
+protected:
+    virtual void paint( QPainter * );
 private:
     int _id;
     QWidget *_widget;
+    QPixmap pm;
 };
 
 CategoryItem::CategoryItem( QListBox *parent, QWidget *widget,
 			    const QPixmap &p, const QString &name, int id )
-    : QListBoxPixmap( parent, p, name ),
+    : QListBoxItem( parent ),
       _id( id ),
-      _widget( widget )
+      _widget( widget ),
+      pm( p )
 {
+    setText( name );
 };
 
 QString CategoryItem::key( int, bool ) const
 {
     QString tmp;
     return tmp.sprintf( "%03d", _id );
+}
+
+int CategoryItem::height( const QListBox * ) const
+{
+    return 100;
+}
+
+int CategoryItem::width( const QListBox * )  const
+{
+    return 150;
+}
+
+void CategoryItem::paint( QPainter *p )
+{
+    int w = width( listBox() );
+    int tx = (w-p->fontMetrics().boundingRect(text()).width())/2;
+    p->drawText( tx, 80, text() );
+    p->drawPixmap( (w-pm.width())/2, 10, pm );
 }
 
 Frame::Frame( QWidget *parent, const char *name )
@@ -58,8 +88,14 @@ Frame::Frame( QWidget *parent, const char *name )
 
     QPopupMenu *styleMenu = new QPopupMenu( this, "style" );
     styleMenu->setCheckable( TRUE );
-    idWindows = styleMenu->insertItem( "Windows", this, SLOT( styleWindows() ) );
+    idWindows = styleMenu->insertItem( "Windows", this,
+				       SLOT( styleWindows() ) );
     idMotif = styleMenu->insertItem( "Motif", this, SLOT( styleMotif() ) );
+    idMotifPlus = styleMenu->insertItem( "Motif Plus", this,
+					 SLOT( styleMotifPlus() ) );
+    idPlatinum = styleMenu->insertItem( "Platinum", this,
+					SLOT( stylePlatinum() ) );
+    idSGI = styleMenu->insertItem( "SGI", this, SLOT( styleSGI() ) );
 
     QPopupMenu *langMenu = new QPopupMenu( this, "language" );
     styleMenu->setCheckable( TRUE );
@@ -106,11 +142,29 @@ void Frame::styleMotif()
     setStyle( idMotif, new QMotifStyle() );
 }
 
+void Frame::styleMotifPlus()
+{
+    setStyle( idMotifPlus, new QMotifPlusStyle() );
+}
+
+void Frame::stylePlatinum()
+{
+    setStyle( idPlatinum, new QPlatinumStyle() );
+}
+
+void Frame::styleSGI()
+{
+    setStyle( idSGI, new QSGIStyle() );
+}
+
 void Frame::setStyle( int i, QStyle *s )
 {
     QApplication::setStyle( s );
     menuBar()->setItemChecked( idWindows, FALSE );
     menuBar()->setItemChecked( idMotif, FALSE );
+    menuBar()->setItemChecked( idMotifPlus, FALSE );
+    menuBar()->setItemChecked( idPlatinum, FALSE );
+    menuBar()->setItemChecked( idSGI, FALSE );
     menuBar()->setItemChecked( i, TRUE );
 }
 

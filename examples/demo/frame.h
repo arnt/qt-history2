@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/frame.h#2 $
+** $Id: //depot/qt/main/examples/demo/frame.h#3 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -25,12 +25,15 @@ public:
 private slots:
     void styleWindows();
     void styleMotif();
+    void styleMotifPlus();
+    void stylePlatinum();
+    void styleSGI();
     void setStyle( int i, QStyle *s );
 
     void clickedCategory( QListBoxItem * );
 
 private:
-    int idWindows, idMotif;
+    int idWindows, idMotif, idMotifPlus, idPlatinum, idSGI;
     int idEnglish;
 
     QListBox *categories;
