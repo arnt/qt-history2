@@ -2,8 +2,8 @@ TEMPLATE	= app
 CONFIG		-= debug qt
 CONFIG		+= warn_on console release qtinc
 DEFINES		+= QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT QT_NODLL QT_CLEAN_NAMESPACE
-INCLUDEPATH	= ../../include ../../src/tools
-DEPENDPATH	= ../../include ../../src/tools
+INCLUDEPATH	= ../../src/tools
+DEPENDPATH	= ../../src/tools
 OBJECTS_DIR	= .
 HEADERS		= binarywriter.h \
 		  bookparser.h \

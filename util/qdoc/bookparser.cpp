@@ -81,6 +81,7 @@ protected:
 					   int /* topLevel */ ) { }
     virtual void processSectionEnd( int /* level */, int /* topLevel */ ) { }
     virtual void processSidebarBegin() { }
+    virtual void processSidebarHeadingEnd() { }
     virtual void processSidebarEnd() { }
     virtual void processString( const QString& str );
     virtual void processTableOfContents() { }
@@ -93,7 +94,11 @@ protected:
 
 private:
     enum State { Normal, InCaption, InPrint, InQuote, InSectionHeading,
-		 InFootnote };
+		 InSidebarHeading, InFootnote };
+
+    static bool isParagraphState( State s ) {
+	return s == Normal || s == InQuote;
+    }
 
     void input( const QString& filePath );
     QString getFilePath( const QStringList& dirList, const QString& command );
@@ -110,6 +115,7 @@ private:
     Location loc;
     int locPos;
     bool inParagraph;
+    bool inSidebar;
     State state;
     bool pendingSpace;
     QString pendingPrint;
@@ -120,8 +126,8 @@ private:
 };
 
 Processor::Processor( const QString& filePath, const Resolver *resolver )
-    : res( resolver ), locPos( 0 ), inParagraph( FALSE ), state( Normal ),
-      pendingSpace( FALSE ), yyPos( 0 ), yyLen( 0 )
+    : res( resolver ), locPos( 0 ), inParagraph( FALSE ), inSidebar( FALSE ),
+      state( Normal ), pendingSpace( FALSE ), yyPos( 0 ), yyLen( 0 )
 {
     input( filePath );
 }
@@ -253,7 +259,7 @@ void Processor::start( bool verbose )
 			state = Normal;
 			processQuoteEnd();
 		    } else {
-			warning( 2, location(), "Missing '\\quote'" );
+			warning( 2, location(), "Unexpected '\\endquote'" );
 		    }
 		} else {
 		    BCONSUME( "endtable", outlined );
@@ -261,8 +267,12 @@ void Processor::start( bool verbose )
 		break;
 	    case HASH( 'e', 10 ):
 		BCONSUME( "endsidebar", outlined );
-		processSidebarEnd();
-		state = Normal;
+		if ( inSidebar ) {
+		    inSidebar = FALSE;
+		    processSidebarEnd();
+		} else {
+		    warning( 2, location(), "Unexpected '\\endsidebar'" );
+		}
 		break;
 	    case HASH( 'e', 11 ):
 		BCONSUME( "endfootnote", outlined );
@@ -284,7 +294,7 @@ void Processor::start( bool verbose )
 		if ( x == QString("chapter") ) {
 		    processGranularity( 0 );
 		} else if ( sectionX.exactMatch(x) ) {
-		    processGranularity( sectionX.cap(1)[0].unicode() - '0' );
+		    processGranularity( sectionX.cap(1)[0].digitValue() );
 		} else {
 		    warning( 2, location(),
 			     "Expected 'chapter' or 'section1' or ... or"
@@ -306,7 +316,7 @@ void Processor::start( bool verbose )
 		break;
 	    case HASH( 'i', 5 ):
 		if ( command[2] == QChar('d') ) {
-		    BCONSUME( "index", inlined );
+		    CONSUME( "index" );
 		    processIndex( getRestOfLine(yyIn, yyPos) );
 		} else {
 		    BCONSUME( "input", outlined );
@@ -402,7 +412,7 @@ void Processor::start( bool verbose )
 			x = QChar( '1' );
 		    }
 
-		    sectionLevel = x[0].unicode() - '0';
+		    sectionLevel = x[0].digitValue();
 
 		    if ( sectionLevel - prevSectionLevel > 1 ) {
 			warning( 2, location(),
@@ -428,6 +438,7 @@ void Processor::start( bool verbose )
 		    }
 		} else {
 		    BCONSUME( "sidebar", outlined );
+		    enterState( InSidebarHeading, command );
 		    processSidebarBegin();
 		}
 		break;
@@ -469,7 +480,7 @@ void Processor::start( bool verbose )
 		    int n = ( command == command.upper() ) ? 0 : 1;
 		    if ( yyPos < yyLen &&
 			 isdigit((uchar) yyIn[yyPos].latin1()) ) {
-			n = ch.latin1() - '0';
+			n = ch.digitValue();
 			yyPos++;
 		    }
 
@@ -483,8 +494,7 @@ void Processor::start( bool verbose )
 	    if ( !consumed )
 		warning( 1, location(), "No such command '\\%s'",
 			 command.latin1() );
-	} else if ( !ch.isSpace() || inParagraph ||
-		    (state != Normal && state != InQuote) ) {
+	} else if ( !ch.isSpace() || inParagraph || !isParagraphState(state) ) {
 	    if ( !ch.isSpace() )
 		inlined();
 
@@ -536,6 +546,12 @@ void Processor::start( bool verbose )
 			prevSectionLevel = sectionLevel;
 			state = Normal;
 			pendingSpace = FALSE;
+			break;
+		    case InSidebarHeading:
+			processSidebarHeadingEnd();
+			inSidebar = TRUE;
+			state = Normal;
+			pendingSpace = FALSE;
 		    }
 
 		    outlined();
@@ -546,6 +562,8 @@ void Processor::start( bool verbose )
 
     if ( topSectionLevel != -1 )
 	endSections( prevSectionLevel, sectionLevel, topSectionLevel );
+    if ( inSidebar )
+	processSidebarEnd();
 }
 
 void Processor::processC( const QString& text )
@@ -646,10 +664,11 @@ void Processor::enterState( State newState, const QString& command )
 
 void Processor::maybeInlined()
 {
-    QRegExp captionOrBlankLine( QString(
-	"^[^\n]*\n(?:[ \t]*\\\\caption|[ \n\t]*\n)") );
+    QRegExp caption( QString("^[^\n]*\n[ \t]*\\\\caption") );
+    QRegExp blankLine( QString("^[^\n]*\n[ \t]*\n") );
 
-    if ( inParagraph || yyIn.mid(yyPos).find(captionOrBlankLine) == -1 ) {
+    if ( yyIn.mid(yyPos).find(caption) == -1 &&
+	 (inParagraph || yyIn.mid(yyPos).find(blankLine) == -1) ) {
 	inlined();
     } else {
 	outlined();
@@ -683,7 +702,7 @@ void Processor::inlined()
 	state = Normal;
     }
 
-    if ( !inParagraph && (state == Normal || state == InQuote) ) {
+    if ( !inParagraph && isParagraphState(state) ) {
 	processParagraphBegin();
 	inParagraph = TRUE;
     }
@@ -703,7 +722,7 @@ void Processor::outlined()
 	state = Normal;
     }
 
-    if ( state != Normal && state != InQuote )
+    if ( !isParagraphState(state) )
 	warning( 2, location(), "Missing '\\end...' or blank line" );
 }
 
@@ -715,7 +734,7 @@ public:
     const QValueList<Section>& tableOfContents() const { return toc; }
     const QString& title() const { return ttl; }
     int topSectionLevel() const { return topLev; }
-    int granularity() const { return granul; }
+    int granularity() const;
     Section *resolveSection( const QString& heading ) const;
     QString fileSuffixForTarget( const QString& target ) const;
 
@@ -743,6 +762,11 @@ Analyzer::Analyzer( const QString& filePath )
     : Processor( filePath ), inSectionHeading( FALSE ), topLev( -1 ),
       granul( -1 )
 {
+}
+
+int Analyzer::granularity() const
+{
+    return config->friendly() ? 0 : granul;
 }
 
 Section *Analyzer::resolveSection( const QString& heading ) const
@@ -776,8 +800,7 @@ void Analyzer::processGranularity( int level )
     if ( !toc.isEmpty() )
 	::warning( 2, location(),
 		   "Granularity must be specified at beginning of file" );
-    if ( !config->friendly() )
-	granul = level;
+    granul = level;
 }
 
 void Analyzer::processSectionBegin( int level, int topLevel )
@@ -910,6 +933,7 @@ protected:
     virtual void processSectionHeadingEnd( int level, int topLevel );
     virtual void processSectionEnd( int level, int topLevel );
     virtual void processSidebarBegin();
+    virtual void processSidebarHeadingEnd();
     virtual void processSidebarEnd();
     virtual void processString( const QString& str );
     virtual void processTarget( const QString& target );
@@ -927,6 +951,7 @@ private:
     QPtrStack<HtmlWriter> w;
     SectionNumber sectionCounter;
     QValueList<const Section *> htmlPageSequence;
+    int delta;
 };
 
 HtmlSynthetizer::HtmlSynthetizer( const QString& filePath,
@@ -938,8 +963,8 @@ HtmlSynthetizer::HtmlSynthetizer( const QString& filePath,
     w.push( new HtmlWriter(outFileBase() + QString(".html")) );
     w.top()->setTitle( analyzer->title() );
     w.top()->setHeading( analyzer->title() );
-    if ( analyzer->granularity() != -1 )
-	w.top()->putsMeta( "<!-- unfriendly -->\n" );
+    if ( config->friendly() )
+	w.top()->putsMeta( "<!-- friendly -->\n" );
 
     /*
       Construct a list of all HTML pages in sequence, with two
@@ -948,6 +973,15 @@ HtmlSynthetizer::HtmlSynthetizer( const QString& filePath,
     htmlPageSequence.append( (Section *) 0 );
     fillHtmlPageSequence( &analyzer->tableOfContents(), 0 );
     htmlPageSequence.append( (Section *) 0 );
+
+    delta = 2;
+    if ( config->friendly() ) {
+	/*
+	  Make chapters have '<h1>' rather than '<h2>' to help
+	  qdoc2latex.
+	*/
+	delta = 1;
+    }
 }
 
 void HtmlSynthetizer::processAlias( const QString& alias,
@@ -1117,7 +1151,7 @@ void HtmlSynthetizer::processQuoteEnd()
 
 void HtmlSynthetizer::processSectionBegin( int level, int topLevel )
 {
-    w.top()->printfMeta( "<h%d>", level - topLevel + 2 );
+    w.top()->printfMeta( "<h%d>", level - topLevel + delta );
     sectionCounter.advance( level - topLevel );
 
     if ( level <= analyzer()->granularity() ) {
@@ -1144,7 +1178,7 @@ void HtmlSynthetizer::processSectionHeadingEnd( int level, int topLevel )
 	w.top()->putsMeta( "</a>" );
     }
 
-    w.top()->printfMeta( "</h%d>\n", level - topLevel + 2 );
+    w.top()->printfMeta( "</h%d>\n", level - topLevel + delta );
 
     if ( level <= analyzer()->granularity() ) {
 	banners.push( makeBanner() );
@@ -1152,15 +1186,17 @@ void HtmlSynthetizer::processSectionHeadingEnd( int level, int topLevel )
 			       QString(".html")) );
 	w.top()->setTitle( heading.latin1() );
 	w.top()->putsMeta( banners.top().latin1() );
-	w.top()->printfMeta( "<h%d align=center>", level - topLevel + 2 );
+	w.top()->printfMeta( "<h%d align=\"center\">",
+			     level - topLevel + delta );
 	w.top()->putsMeta( heading.latin1() );
-	w.top()->printfMeta( "</h%d>\n", level - topLevel + 2 );
+	w.top()->printfMeta( "</h%d>\n", level - topLevel + delta );
     }
 }
 
 void HtmlSynthetizer::processSectionEnd( int level, int /* topLevel */ )
 {
     if ( level <= analyzer()->granularity() ) {
+	w.top()->enterFooter();
 	w.top()->putsMeta( banners.pop().latin1() );
 	delete w.pop();
     }
@@ -1168,10 +1204,17 @@ void HtmlSynthetizer::processSectionEnd( int level, int /* topLevel */ )
 
 void HtmlSynthetizer::processSidebarBegin()
 {
+    w.top()->putsMeta( "<blockquote>\n<p align=\"center\"><b>" );
+}
+
+void HtmlSynthetizer::processSidebarHeadingEnd()
+{
+    w.top()->putsMeta( "</b></p>\n" );
 }
 
 void HtmlSynthetizer::processSidebarEnd()
 {
+    w.top()->putsMeta( "</blockquote>\n" );
 }
 
 void HtmlSynthetizer::processString( const QString& str )
@@ -1299,8 +1342,10 @@ void parseBookFile( const QString& filePath, int fmt, const Resolver *resolver )
 		if ( (fmt & Html) != 0 )
 		    p = new HtmlSynthetizer( filePath, analyzer, resolver );
 	    } else {
+#if 0
 		if ( (fmt & Sgml) != 0 )
 		    p = new SgmlSynthetizer( filePath, analyzer );
+#endif
 	    }
 
 	    if ( p != 0 ) {

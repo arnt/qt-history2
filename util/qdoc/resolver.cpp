@@ -2,7 +2,6 @@
   resolver.cpp
 */
 
-#include "html.h"
 #include "resolver.h"
 
 QString Resolver::resolve( const QString& /* name */ ) const
@@ -49,9 +48,6 @@ QString Resolver::href( const QString& name, const QString& text ) const
     } else {
 	left = text;
     }
-
-    left = htmlProtect( left );
-    right = htmlProtect( right );
 
     link = resolve( name );
     if ( link.isEmpty() )
