@@ -59,7 +59,8 @@ public:
 	SolidAlphaFill          = 0x0080,               // Can fill with alpha.
         PainterPaths            = 0x0100,               // Can fill, outline and clip paths
         ClipTransform           = 0x0200,               // Can trasform clip regions.
-        UsesFontEngine          = 0x10000000            // Internal use, QWidget and QPixmap
+        UsesFontEngine          = 0x10000000,           // Internal use, QWidget and QPixmap
+        PaintOutsidePaintEvent  = 0x20000000            // Engine is capable of painting outside paint events
     };
     Q_DECLARE_FLAGS(PaintEngineFeatures, PaintEngineFeature);
 

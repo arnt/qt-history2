@@ -547,13 +547,23 @@ bool QPainter::begin(QPaintDevice *pd)
         pd = rpd;
     }
 
+    d->state->bgOrigin -= d->redirection_offset;
+    d->device = pd;
+    d->engine = pd->paintEngine();
+
+    if (!d->engine) {
+        qWarning("QPainter::begin(), paintdevice returned engine == 0, type: %d\n", pd->devType());
+        return true;
+    }
+
     switch (pd->devType()) {
         case QInternal::Widget:
         {
             const QWidget *widget = static_cast<const QWidget *>(pd);
             Q_ASSERT(widget);
 
-            if(!widget->testWState(Qt::WState_InPaintEvent)) {
+            if(!d->engine->hasFeature(QPaintEngine::PaintOutsidePaintEvent)
+	       && !widget->testWState(Qt::WState_InPaintEvent)) {
                 qWarning("QPainter::begin: Widget painting can only begin as a "
                          "result of a paintEvent");
                 return false;
@@ -586,15 +596,6 @@ bool QPainter::begin(QPaintDevice *pd)
 
     if (d->state->ww == 0) // For compat with 3.x painter defaults
         d->state->ww = d->state->wh = d->state->vw = d->state->vh = 1024;
-
-    d->state->bgOrigin -= d->redirection_offset;
-    d->device = pd;
-    d->engine = pd->paintEngine();
-
-    if (!d->engine) {
-        qWarning("QPainter::begin(), paintdevice returned engine == 0, type: %d\n", pd->devType());
-        return true;
-    }
 
     if (!d->engine->begin(pd)) {
         qWarning("QPainter::begin(), QPaintEngine::begin() returned false\n");
