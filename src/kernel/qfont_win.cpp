@@ -220,17 +220,25 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 	    mat->eM21.value = mat->eM12.value = 0;
 	    mat->eM21.fract = mat->eM12.fract = 0;
     }
+    uint chr = 0;
 #ifdef UNICODE
-    uint chr = ch.unicode();
+    if ( qt_winver & Qt::WV_NT_based ) {
+       chr = ch.unicode();
+    } else
 #else
-    uint chr = ch.latin1();
+    {
+	chr = ch.latin1();
+    }
 #endif
-    DWORD res = GetGlyphOutline( currHDC, chr, GGO_METRICS, &gm, 0, 0, mat );
+    if ( chr ) {
+	DWORD res = GetGlyphOutline( currHDC, chr, GGO_METRICS, &gm, 0, 0, mat );
 #ifndef Q_NO_DEBUG
-    if ( res == GDI_ERROR )
-	qSystemWarning( "QFontPrivate: GetGlyphOutline failed" );
+	if ( res == GDI_ERROR && qt_winver & Qt::WV_NT_based )
+	    qSystemWarning( "QFontPrivate: GetGlyphOutline failed error code=%d", GetLastError() );
 #endif
-    return QRect(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
+	return QRect(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
+    }
+    return QRect();
 }
 
 QString QFontPrivate::defaultFamily() const
@@ -267,11 +275,14 @@ void QFontPrivate::initFontInfo()
 	return;
     lineWidth = 1;
     fin->s = request;				// most settings are equal
+#ifdef UNICODE
     if ( qt_winver & Qt::WV_NT_based ) {
 	TCHAR n[64];
 	GetTextFace( fin->dc(), 64, n );
 	fin->s.family = qt_winQString(n);
-    } else {
+    } else 
+#endif
+    {
 	char an[64];
 	GetTextFaceA( fin->dc(), 64, an );
 	fin->s.family = QString::fromLocal8Bit(an);
@@ -484,11 +495,14 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
     lf.lfPitchAndFamily = DEFAULT_PITCH | hint;
     HFONT hfont;
 
+#ifdef UNICODE
     if ( qt_winver & Qt::WV_NT_based ) {
 	memcpy(lf.lfFaceName,qt_winTchar( fam, TRUE ),
 	    sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
 	hfont = CreateFontIndirect( &lf );
-    } else {
+    } else 
+#endif
+    {
 	// LOGFONTA and LOGFONTW are binary compatible
 	QCString lname = fam.local8Bit();
 	memcpy(lf.lfFaceName,lname.data(),
@@ -550,7 +564,6 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 // returned TCHAR when !(defined(UNICODE) && !defined(Q_OS_WIN32BYTESWAP_))
 static inline TCHAR* tchar(const QChar *uc, int len)
 {
-    Q_UNUSED(len)
 #ifdef UNICODE
 
 #if defined(Q_OS_WIN32BYTESWAP_)
@@ -561,6 +574,7 @@ static inline TCHAR* tchar(const QChar *uc, int len)
     }
     return buf;
 #else
+    Q_UNUSED(len)
     return (TCHAR *)uc;
 #endif
 
@@ -649,10 +663,12 @@ void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QF
 
 void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache )
 {
+    // the miscrosoft platform SDK says about TextOut:
+    // "Although not true in general, Windows 95/98 supports the Unicode version 
+    //  of this function as well as the ANSI version."
+    // we used the Unicode version in 2.x, so I assume it's no big problem
+
     while ( cache ) {
-//		qDebug( "drawing '%s' at (%d/%d)",
-//			QConstString( (QChar *)cache->string, cache->length).string().latin1(),
-//			x + cache->xoff, y + cache->yoff);
 	if ( cache->script != QFont::Hebrew )
 	    TextOut( hdc, x + cache->xoff, y + cache->yoff, cache->mapped, cache->length );
 	else 
