@@ -109,6 +109,9 @@ QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 QWidget        *qt_mouseover = 0;
 QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac file dialog)
 
+static EventHandlerRef app_proc_handler = NULL;
+static EventHandlerUPP app_proc_handlerUPP = NULL;
+
 //special case popup handlers - look where these are used, they are very hacky,
 //and very special case, if you plan on using these variables be VERY careful!!
 static bool qt_closed_popup = FALSE;
@@ -116,7 +119,8 @@ EventRef qt_replay_event = NULL;
 
 #define QMAC_CAN_WAIT_FOREVER // idle handling
 #ifdef QMAC_CAN_WAIT_FOREVER 
-static EventLoopTimerRef mac_idle_timer = NULL;
+static EventLoopTimerRef mac_select_timer = NULL;
+static EventLoopTimerUPP mac_select_timerUPP = NULL;
 #endif
 
 void qt_mac_destroy_widget(QWidget *w)
@@ -198,7 +202,7 @@ void requestUpdates()
 	return;
     request_pending = TRUE;
 
-    EventRef upd;
+    EventRef upd = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(), 
 		kEventAttributeUserEvent, &upd);
     const Boolean allwind = true;
@@ -261,14 +265,17 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	QWidget *tlw = new QWidget(NULL, "empty_widget", Qt::WDestructiveClose);
 	tlw->hide();
 
-	InstallEventHandler( GetApplicationEventTarget(),
-			     NewEventHandlerUPP(QApplication::globalEventProcessor),
-			     GetEventTypeCount(events), events,
-			     (void *)qApp, NULL);
+	if(!app_proc_handler) {
+	    app_proc_handlerUPP = NewEventHandlerUPP(QApplication::globalEventProcessor);
+	    InstallEventHandler( GetApplicationEventTarget(), app_proc_handlerUPP,
+				 GetEventTypeCount(events), events, (void *)qApp, &app_proc_handler);
+	}
 #ifdef QMAC_CAN_WAIT_FOREVER
-	InstallEventLoopTimer(GetMainEventLoop(), 0.005, 0.005, 
-			      NewEventLoopTimerUPP(QApplication::qt_idle_timer_callbk), 
-			      (void *)qApp, &mac_idle_timer);
+	if(!mac_select_timer) {
+	    mac_select_timerUPP = NewEventLoopTimerUPP(QApplication::qt_select_timer_callbk);
+	    InstallEventLoopTimer(GetMainEventLoop(), 0.005, 0.005, 
+				  mac_select_timerUPP, (void *)qApp, &mac_select_timer);
+	}
 #endif
     }
 }
@@ -279,6 +286,25 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 
 void qt_cleanup()
 {
+    if ( qt_is_gui_used ) {
+	if(app_proc_handler) {
+	    RemoveEventHandler(app_proc_handler);
+	    app_proc_handler = NULL;
+	}
+	if(app_proc_handlerUPP) {
+	    DisposeEventHandlerUPP(app_proc_handlerUPP);
+	    app_proc_handlerUPP = NULL;
+	}
+	if(mac_select_timer) {
+	    RemoveEventLoopTimer(mac_select_timer);
+	    mac_select_timer = NULL;
+	}
+	if(mac_select_timerUPP) {
+	    DisposeEventLoopTimerUPP(mac_select_timerUPP);
+	    mac_select_timerUPP = NULL;
+	}
+    }
+
     if ( postRList ) {
 	QVFuncList::Iterator it = postRList->begin();
 	while ( it != postRList->end() ) {	// call post routines
@@ -491,6 +517,7 @@ struct TimerInfo {
 static int zero_timer_count = 0;
 typedef QList<TimerInfo> TimerList;	// list of TimerInfo structs
 static TimerList *timerList	= 0;		// timer list
+static EventLoopTimerUPP timerUPP = NULL;       //UPP
 
 /* timer call back */
 QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
@@ -505,6 +532,8 @@ QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
 //
 static void initTimers()			// initialize timers
 {
+    timerUPP = NewEventLoopTimerUPP(qt_activate_timers);
+    Q_CHECK_PTR( timerUPP );
     timerList = new TimerList;
     Q_CHECK_PTR( timerList );
     timerList->setAutoDelete( TRUE );
@@ -515,9 +544,20 @@ static void cleanupTimers()			// cleanup timer data structure
 {
     zero_timer_count = 0;
     if ( timerList ) {
+	for( register TimerInfo *t = timerList->first(); t; t = timerList->next() ) {
+	    if(t->type == TimerInfo::TIMER_MAC)
+		RemoveEventLoopTimer(t->mac_timer);
+	    else
+		zero_timer_count--;
+	}
 	delete timerList;
 	timerList = 0;
     }
+    if(timerUPP) {
+	DisposeEventLoopTimerUPP(timerUPP);
+	timerUPP = NULL;
+    }
+
 }
 
 static int activateNullTimers()
@@ -557,8 +597,7 @@ int qStartTimer( int interval, QObject *obj )
 	zero_timer_count++;
     } else {
 	EventTimerInterval mint = (((EventTimerInterval)interval) / 1000);
-	if(InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
-				 NewEventLoopTimerUPP(qt_activate_timers), t, &t->mac_timer) ) {
+	if(InstallEventLoopTimer(GetMainEventLoop(), mint, mint, timerUPP, t, &t->mac_timer) ) {
 
 	    delete t;
 	    return 0;
@@ -797,7 +836,7 @@ bool qt_set_socket_handler( int, int, QObject *, bool )
 #endif
 
 QMAC_PASCAL void 
-QApplication::qt_idle_timer_callbk(EventLoopTimerRef, void *)
+QApplication::qt_select_timer_callbk(EventLoopTimerRef, void *)
 {
     if ( qt_preselect_handler ) {
 	QVFuncList::Iterator end = qt_preselect_handler->end();
@@ -925,7 +964,7 @@ bool QApplication::processNextEvent( bool canWait )
     }
 
 #ifndef QMAC_CAN_WAIT_FOREVER
-    qt_idle_timer_callbk(NULL, this);
+    qt_select_timer_callbk(NULL, this);
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
@@ -1739,13 +1778,7 @@ extern uint qGlobalPostedEventsCount();
 
 bool QApplication::hasPendingEvents()
 {
-    if(qGlobalPostedEventsCount())
-	return TRUE;
-    EventRef event;
-    OSStatus ret = ReceiveNextEvent( 0, 0, 0.01, FALSE, &event );
-    if(ret != eventLoopTimedOutErr && ret != eventLoopQuitErr)
-	return TRUE;
-    return FALSE;
+    return qGlobalPostedEventsCount() || GetNumEventsInQueue(GetCurrentEventQueue());
 }
 
 bool QApplication::macEventFilter( EventRef )

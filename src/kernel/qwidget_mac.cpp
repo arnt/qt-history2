@@ -89,8 +89,8 @@ QPoint posInWindow(QWidget *w)
     int x = 0, y = 0;
     if(w->parentWidget()) {
 	QPoint p = posInWindow(w->parentWidget());
-	x = p.x() + w->x();
-	y = p.y() + w->y();
+	x = p.x() + w->geometry().x();
+	y = p.y() + w->geometry().y();
     }
     return QPoint(x, y);
 }
@@ -170,7 +170,7 @@ static void paint_children(QWidget * p,QRegion r, uchar ops = PC_ForceErase)
 		    wr &= r;
 		    if ( !wr.isEmpty() ) {
 			r -= wr;
-			wr.translate( -w->x(), -w->y() );
+			wr.translate( -w->geometry().x(), -w->geometry().y() );
 			paint_children(w, wr, ops);
 			if((r_is_empty = r.isEmpty()))
 			    break;
@@ -504,28 +504,32 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	setCursor(oldcurs);
 
     //reparent children
-    QObjectList	*chldn = queryList();
-    QObjectListIt it( *chldn );
-    for ( QObject *obj; (obj=it.current()); ++it ) {
-	if(obj->inherits("QAccel"))
-	    ((QAccel*)obj)->repairEventFilter();
-	if(obj->isWidgetType()) {
-	    QWidget *w = (QWidget *)obj;
-	    if(((WindowPtr)w->hd) == old_hd)
-		w->hd = hd; //all my children hd's are now mine!
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)  //make sure menubars are fixed
-	    if(w->inherits("QMenuBar") ) {
-		QMenuBar *mb = (QMenuBar *)w;
-		int was_eaten = mb->mac_eaten_menubar;
-		mb->macRemoveNativeMenubar();
-		mb->macCreateNativeMenubar();
-		if(was_eaten)
-		    mb->menuContentsChanged();
+    if(QObjectList	*chldn = queryList()) {
+	QObjectListIt it( *chldn );
+	for ( QObject *obj; (obj=it.current()); ++it ) {
+	    if(obj->inherits("QAccel"))
+		((QAccel*)obj)->repairEventFilter();
+	    if(obj->isWidgetType()) {
+		QWidget *w = (QWidget *)obj;
+		if(((WindowPtr)w->hd) == old_hd)
+		    w->hd = hd; //all my children hd's are now mine!
 	    }
-#endif
 	}
+	delete chldn;
     }
-    delete chldn;
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)  //make sure menubars are fixed
+    if(QObjectList *menus = queryList("QMenuBar")) {
+	QObjectListIt menuit( *menus );
+	for ( QMenuBar *mb; (mb=(QMenuBar *)menuit.current()); ++menuit ) {
+	    int was_eaten = mb->mac_eaten_menubar;
+	    mb->macRemoveNativeMenubar();
+	    mb->macCreateNativeMenubar();
+	    if(was_eaten)
+		mb->menuContentsChanged();
+	}
+	delete menus;
+    }
+#endif
 
     if ( !parent ) {
 	QFocusData *fd = focusData( TRUE );
@@ -567,8 +571,8 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 	GlobalToLocal(&mac_p);
     }
     for(const QWidget *p = this; p && !p->isTopLevel(); p = p->parentWidget()) {
-	mac_p.h -= p->x();
-	mac_p.v -= p->y();
+	mac_p.h -= p->geometry().x();
+	mac_p.v -= p->geometry().y();
     }
     return QPoint(mac_p.h, mac_p.v);
 }
@@ -807,6 +811,7 @@ void QWidget::showWindow()
 {
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
+	QApplication::sendPostedEvents();
 #ifdef Q_WS_MACX
 	//handle transition
 	if(qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal)) 
@@ -881,7 +886,7 @@ void QWidget::showMaximized()
 	GetPortBounds( GetWindowPort( (WindowPtr)hd ), &bounds );
 	dirty_wndw_rgn("showMaxim",this, &bounds);
 
-	QRect orect(x(), y(), width(), height());
+	QRect orect(geometry().x(), geometry().y(), width(), height());
 	QMacSavedPortInfo savedInfo(this);
 	Point p = { 0, 0 };
 	LocalToGlobal(&p);
@@ -1063,10 +1068,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    SetRect(&r, x, y, x + w, y + h);
 	    SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
 	} else {
-	    if(isMove) 
-		MoveWindow((WindowPtr)hd, x, y, 1);
 	    if(isResize)
 		SizeWindow((WindowPtr)hd, w, h, 1);
+	    if(isMove) 
+		MoveWindow((WindowPtr)hd, x, y, 1);
 	}
     }
 
@@ -1089,7 +1094,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
 		    if(!EmptyRgn(r)) {
 			QRegion jamie(r); //the cleaned region
-			jamie.translate(-topLevelWidget()->x(), -topLevelWidget()->y());
+			jamie.translate(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
 			if(isMove && !isTopLevel()) //need to be in new coords
 			    jamie.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
 			bltregion -= jamie;
@@ -1293,9 +1298,8 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 
     if ( dx == 0 && dy == 0 )
 	return;
-    if ( w > 0 && h > 0 ) {
+    if ( w > 0 && h > 0 ) 
 	bitBlt(this,x2,y2,this,x1,y1,w,h);
-    }
 
     if ( !valid_rect && children() ) {	// scroll children
 	QPoint pd( dx, dy );
@@ -1402,28 +1406,24 @@ void QWidget::updateFrameStrut() const
     }
     that->fstrut_dirty = FALSE;
 
-#if 0
-    //update
+    that->fstrut_dirty = FALSE;
     QTLWExtra *top = that->topData();
     top->fleft = top->fright = top->ftop = top->fbottom = 0;
     if(isTopLevel()) {
-	Rect r; //get the bounding rect
+	Rect window_r, content_r;
+	//get bounding rects
 	RgnHandle rgn = NewRgn();
 	GetWindowRegion((WindowPtr)hd, kWindowStructureRgn, rgn);
-	OffsetRgn(rgn, x(), y());
-	GetRegionBounds(rgn, &r);
+	GetRegionBounds(rgn, &window_r);
+	GetWindowRegion((WindowPtr)hd, kWindowContentRgn, rgn);
+	GetRegionBounds(rgn, &content_r);
 	DisposeRgn(rgn); 
-
-
 	//put into qt structure
-	top->fleft = r.left;
-	top->ftop = r.top;
-	top->fright = (r.right - r.left) - crect.width() - top->fleft;
-	top->fbottom = (r.bottom - r.top) - crect.height() - top->ftop;
-	qDebug("fstrut - %d %d %d %d", r.left, r.top, r.right - r.left, r.bottom - r.top);
-
+	top->fleft = content_r.left - window_r.left;
+	top->ftop = content_r.top - window_r.top;
+	top->fright = window_r.right - content_r.right;
+	top->fbottom = window_r.bottom - window_r.bottom;
     }
-#endif
 }
 
 void qt_macdnd_unregister( QWidget *widget, QWExtra *extra ); //dnd_mac
@@ -1486,7 +1486,7 @@ void QWidget::propagateUpdates()
     GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
     if(!EmptyRgn(r)) {
 	QRegion rgn(r);
-	rgn.translate(-topLevelWidget()->x(), -topLevelWidget()->y());
+	rgn.translate(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
 	debug_wndw_rgn("*****propagatUpdates", topLevelWidget(), rgn);
 	BeginUpdate((WindowPtr)hd);
 	paint_children( this, rgn );
@@ -1635,8 +1635,20 @@ QRegion QWidget::clippedRegion(bool do_children)
 	    }
 	}
 
-	if(!isTopLevel() && parentWidget())
+	if(isTopLevel()) {
+	    QRegion contents;
+	    RgnHandle r = NewRgn();
+	    GetWindowRegion((WindowPtr)hd, kWindowContentRgn, r);
+	    if(!EmptyRgn(r)) {
+		contents = QRegion(r);
+		contents.translate(-geometry().x(), -geometry().y());
+	    }
+	    DisposeRgn(r);
+	    extra->clip_sibs &= contents;
+	}
+	else if(parentWidget()) {
 	    extra->clip_sibs &= parentWidget()->clippedRegion(FALSE);
+	} 
     }
 
     //translate my stuff and my children now
