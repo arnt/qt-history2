@@ -525,9 +525,8 @@ void Uic::createFormDecl( const QDomElement &e )
     dbConnections = unique( dbConnections );
     for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
 	if ( !(*it).isEmpty() ) {
-	    if ( (*it) == "(default)" )
-		out << indent << "QSqlDatabase* defaultConnection;" << endl;
-	    else if ( !(*it).isEmpty() )
+	    // only need pointers to non-default connections
+	    if ( (*it) != "(default)" && !(*it).isEmpty() )
 		out << indent << "QSqlDatabase* " << *it << "Connection;" << endl;
 	}
     }
@@ -971,11 +970,8 @@ void Uic::createFormImpl( const QDomElement &e )
     if ( dbConnections.count() )
 	out << endl << indent << "// database support" << endl;
     for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
-	if ( !(*it).isEmpty() ) {
-	    if ( (*it) == "(default)" ) {
-		out << indent << "defaultConnection = QSqlDatabase::database();" << endl;
-	    } else
-		out << indent << (*it) << "Connection = QSqlDatabase::database( \"" <<(*it) << "\" );" << endl;
+	if ( !(*it).isEmpty() && (*it) != "(default)") {
+	    out << indent << (*it) << "Connection = QSqlDatabase::database( \"" <<(*it) << "\" );" << endl;
 	}
     }
 
