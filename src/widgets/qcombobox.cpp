@@ -338,11 +338,12 @@ public:
 class QComboBoxPopupItem : public QCustomMenuItem
 {
     QListBoxItem *li;
+    QSize sc; // Size cache optimization
 public:
-    QComboBoxPopupItem(QListBoxItem *i) : QCustomMenuItem(), li(i) {  }
+    QComboBoxPopupItem(QListBoxItem *i) : QCustomMenuItem(), li(i), sc(0, 0) {  }
     virtual bool fullSpan() const { return TRUE; }
     virtual void paint( QPainter*, const QColorGroup&, bool, bool, int, int, int, int);
-    virtual QSize sizeHint() { return QSize(li->width(li->listBox()), QMAX(25, li->height(li->listBox()))); }
+    virtual QSize sizeHint() { if (sc.isNull()) sc = QSize(li->width(li->listBox()), QMAX(25, li->height(li->listBox()))); return sc; }
 };
 void QComboBoxPopupItem::paint( QPainter* p, const QColorGroup&, bool,
 				bool, int x, int y, int, int)
