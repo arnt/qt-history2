@@ -3500,7 +3500,7 @@ load these files?</source>
         <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">
-        <source>Insert into:</source>
+        <source>&amp;Insert into:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
