@@ -78,7 +78,7 @@ void ViewManager::setError( int line )
 	if ( !paragData )
 	    paragData = new ParagData;
 	paragData->marker = ParagData::Error;
-	p->setExtraData( (char*)paragData );
+	p->setExtraData( paragData );
 	markerWidget->doRepaint();
 	( (Editor*)curView )->setCursorPosition( line, 0 );
 	( (Editor*)curView )->viewport()->setFocus();

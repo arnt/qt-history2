@@ -22,12 +22,15 @@
 #define PARAGDATA_H
 
 #include "parenmatcher.h"
+#include <qrichtext_p.h>
 
-struct ParagData
+struct ParagData : public QTextParagData
 {
+public:
     enum MarkerType { NoMarker, Error, Brekapoint, Bookmark };
 
     ParagData() : lastLengthForCompletion( -1 ), marker( NoMarker ) {}
+    ~ParagData() {}
     ParenList parenList;
     int lastLengthForCompletion;
     MarkerType marker;

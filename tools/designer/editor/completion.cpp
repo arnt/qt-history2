@@ -85,7 +85,7 @@ void EditorCompletion::updateCompletionMap( QTextDocument *doc )
 {
     QTextParag *s = doc->firstParag();
     if ( !s->extraData() )
-	s->setExtraData( (void*)new ParagData );
+	s->setExtraData( new ParagData );
     while ( s ) {
 	if ( s->length() == ( (ParagData*)s->extraData() )->lastLengthForCompletion ) {
 	    s = s->next();

@@ -1033,6 +1033,13 @@ template class Q_EXPORT QMap<int, QTextParagLineStart*>;
 // MOC_SKIP_END
 #endif
 
+class Q_EXPORT QTextParagData
+{
+public:
+    QTextParagData() {}
+    virtual ~QTextParagData() {}
+};
+
 class Q_EXPORT QTextParag
 {
     friend class QTextDocument;
@@ -1107,8 +1114,8 @@ public:
 
     void indent( int *oldIndent = 0, int *newIndent = 0 );
 
-    void setExtraData( void *data );
-    void *extraData() const;
+    void setExtraData( QTextParagData *data );
+    QTextParagData *extraData() const;
 
     QMap<int, QTextParagLineStart*> &lineStartList();
 
@@ -1210,7 +1217,7 @@ private:
     QTextFormatter *pFormatter;
     int *tabArray;
     int tabStopWidth;
-    char *eData;
+    QTextParagData *eData;
     QPainter *pntr;
     QTextCommandHistory *commandHistory;
 
@@ -2539,14 +2546,14 @@ inline void QTextParag::setTabStops( int tw )
 	tabStopWidth = tw;
 }
 
-inline void QTextParag::setExtraData( void *data )
+inline void QTextParag::setExtraData( QTextParagData *data )
 {
-    eData = (char *)data;
+    eData = data;
 }
 
-inline void *QTextParag::extraData() const
+inline QTextParagData *QTextParag::extraData() const
 {
-    return (void *)eData;
+    return eData;
 }
 
 inline void QTextParag::setNewLinesAllowed( bool b )

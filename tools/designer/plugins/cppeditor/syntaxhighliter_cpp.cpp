@@ -462,7 +462,7 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParag *string, int
 	    break;
     }
 
-    string->setExtraData( (void*)paragData );
+    string->setExtraData( paragData );
 
     if ( state == StateCComment ||
 	 state == StateCCommentEnd1 ) {
