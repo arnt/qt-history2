@@ -87,7 +87,7 @@ signals:
     void beforeDelete(int row);
 
 protected:
-    QSqlTableModel(QSqlTableModelPrivate &dd, QObject *parent, QSqlDatabase db);
+    QSqlTableModel(QSqlTableModelPrivate &dd, QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
 
     virtual bool updateRowInTable(int row, const QSqlRecord &values);
     virtual bool insertRowIntoTable(const QSqlRecord &values);
@@ -100,4 +100,4 @@ protected:
     QModelIndex indexInQuery(const QModelIndex &item) const;
 };
 
-#endif
+#endif // QSQLTABLEMODEL_H
