@@ -510,7 +510,7 @@ void MetaDataBase::doConnections( QObject *o )
     }
 }
 
-void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString& specifier, 
+void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString& specifier,
 			    const QString &access, const QString &language, const QString &returnType )
 {
     setupDataBase();
@@ -545,7 +545,7 @@ void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString& spe
 								    returnType ) +
 			       "\n" + iface->createEmptyFunction();
 		r->code += body;
-		r->functionBodies.insert( normalizeSlot( slot ), body );
+		r->functionBodies.insert( normalizeSlot( slot ), iface->createEmptyFunction() );
 	    }
 	}
     }
@@ -578,7 +578,7 @@ void MetaDataBase::removeSlot( QObject *o, const QCString &slot, const QString& 
 	Slot s = *it;
 	if ( s.slot == slot &&
 	     s.specifier == specifier &&
-	     s.access == access && 
+	     s.access == access &&
 	     ( language.isEmpty() || s.language == language ) &&
 	       ( returnType.isEmpty() || s.returnType == returnType ) ) {
 	    r->slotList.remove( it );
