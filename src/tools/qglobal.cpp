@@ -905,6 +905,13 @@ void qWarning( const char *msg, ... )
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
 #endif
+#if defined(Q_OS_TEMP) && defined(_DEBUG)
+	QString fstr;
+	fstr.sprintf( "%s:%s %s %s", __FILE__, __LINE__, QT_VERSION_STR, buf );
+	OutputDebugString( fstr.ucs2() );
+#elif defined(Q_CC_MSVC) && defined(_DEBUG)
+	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
+#endif
     }
 
     static bool fatalWarnings = (getenv("QT_FATAL_WARNINGS") != 0);
@@ -913,12 +920,6 @@ void qWarning( const char *msg, ... )
 
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
     abort();				// trap; generates core dump
-#elif defined(Q_OS_TEMP) && defined(_DEBUG)
-    QString fstr;
-    fstr.sprintf( "%s:%s %s %s", __FILE__, __LINE__, QT_VERSION_STR, buf );
-    OutputDebugString( fstr.ucs2() );
-#elif defined(Q_CC_MSVC) && defined(_DEBUG)
-    _CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #else
     exit( 1 );				// goodbye cruel world
 #endif
