@@ -36,7 +36,7 @@
 
 
 /*****************************************************************************
-  QList documentation
+  QInterfaceManager documentation
  *****************************************************************************/
 
 /*!
@@ -47,10 +47,10 @@
 */
 
 /*!
-  \fn QInterfaceManager::QInterfaceManager( const QString& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QApplicationInterface* appIface = 0, QLibrary::Policy pol = QLibrary::Default )
+  \fn QInterfaceManager::QInterfaceManager( const QGuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QApplicationInterface* appIface = 0, QLibrary::Policy pol = QLibrary::Default )
 
   Creates an QInterfaceManager that will try to load all library files in \a path that match \a filter. If the library provides an
-  interface that matches \a id the functionality of that interface will be available using \code queryInterface( "feature" ) \endcode.
+  interface that matches \a, id the functionality of that interface will be available using \code queryInterface( "feature" ) \endcode.
 
   The \a appIface and \a pol parameters are propagated to the QLibrary object created for each library.
 */
