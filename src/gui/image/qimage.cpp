@@ -4283,12 +4283,17 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
     QImage object. This means that multiple QImage objects can have
     the same serial number as long as they refer to the same contents.
 
+    A null image always have a serial number of 0.
+
     An example of where this is useful is for caching QImages.
 */
 
 int QImage::serialNumber() const
 {
-    return data->ser_no;
+    if (isNull())
+        return 0;
+    else
+        return data->ser_no;
 }
 
 /*!

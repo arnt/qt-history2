@@ -940,13 +940,18 @@ bool QPixmap::doImageIO(QImageIO* io, int quality) const
     QPixmap object. This means that multiple QPixmap objects can have
     the same serial number as long as they refer to the same contents.
 
+    A null pixmap always have a serial number of 0.
+
     An example of where this is useful is for caching QPixmaps.
 
     \sa QPixmapCache
 */
 int QPixmap::serialNumber() const
 {
-    return data->ser_no;
+    if (isNull())
+        return 0;
+    else
+        return data->ser_no;
 }
 
 
