@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#33 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -560,10 +560,10 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 	    if (it->isSimpleNode) {
 		// Get rid of garbage at last of line (\n etc. at visible
 		// on Windows. ### Matthias: Fix in parser?
-		int len = s.length();
-		if ( len > 0 && s[len-1] < (char)32 ) {
-		   len--;
-		}
+ 		int len = s.length();
+ 		while ( len > 0 && s[len-1] < (char)32 ) {
+ 		   len--;
+ 		}
 		p->drawText(tx+obx-ox, y+oby-oy+base, s, len);
 	    }
 	    else {
