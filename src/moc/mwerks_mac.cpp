@@ -130,8 +130,6 @@ static CWResult	mocify(CWPluginContext context, const QCString &source)
 		CWReportMessage(context, NULL, msg, NULL, messagetypeWarning, 0);
 	} else if ( (mocd == moc_success || mocd == moc_not_time) && !dotmoc)
 	{
-	    CWFileSpec sp = destSpec;
-	    if( CWGetProjectFile( context, &destSpec ) != cwNoErr) {
 	       	long			whichFile;
 	        CWNewProjectEntryInfo ei;
 	        memset(&ei, '\0', sizeof(ei));
@@ -145,7 +143,6 @@ static CWResult	mocify(CWPluginContext context, const QCString &source)
 		    }
 		    if(mocd == moc_success)
 		        CWSetModDate(context, &destSpec, NULL, true);
-	    }
 	}
 	return (cwNoErr);
 }
