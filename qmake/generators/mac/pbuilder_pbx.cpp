@@ -131,7 +131,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	tmp = project->variables()[srcs[i]];
 	for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it) {
 	    QString file = fileFixify((*it));
-	    if(file.right(Option::moc_ext.length()) == Option::moc_ext) 
+	    if(file.endsWith(Option::moc_ext)) 
 		continue;
 	    bool in_root = TRUE;
 	    QString src_key = keyFor(file);
@@ -309,11 +309,11 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    for(QStringList::Iterator it = tmp.begin(); it != tmp.end();) {
 		bool remove = FALSE;
 		QString library, name, opt = (*it).stripWhiteSpace();
-		if(opt.left(2) == "-L") {
+		if(opt.startsWith("-L")) {
 		    QString r = opt.right(opt.length() - 2);
 		    fixEnvVariables(r);
 		    libdirs.append(r);
-		} else if(opt.left(2) == "-l") {
+		} else if(opt.startsWith("-l")) {
 		    name = opt.right(opt.length() - 2);
 		    QString lib("lib" + name);
 		    for(QStringList::Iterator lit = libdirs.begin(); lit != libdirs.end(); ++lit) {
@@ -380,7 +380,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		    }
 		    library = fileFixify(library);
 		    QString key = keyFor(library);
-		    bool is_frmwrk = (library.right(10) == ".framework");
+		    bool is_frmwrk = (library.endsWith(".framework"));
 		    t << "\t\t" << key << " = {" << "\n"
 		      << "\t\t\t" << "isa = " << (is_frmwrk ? "PBXFrameworkReference" : "PBXFileReference") << ";" << "\n"
 		      << "\t\t\t" << "name = \"" << name << "\";" << "\n"
@@ -929,7 +929,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
 	    }
 	    version_file.close();
 	} else debug_msg(1, "pbuilder: version.plist: Failure to open %s", version_plist.latin1());
-	if(version.left(3) == "2.0")
+	if(version.startsWith("2.0"))
 	    ret = "38";
 	else if(version == "1.1")
 	    ret = "34";

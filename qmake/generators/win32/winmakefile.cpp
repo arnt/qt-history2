@@ -183,12 +183,12 @@ Win32MakefileGenerator::findLibraries(const QString &where)
     for(QStringList::Iterator it = l.begin(); it != l.end(); ) {
         QString opt = (*it);
         bool remove = FALSE;
-        if(opt.left(2) == "-L" || opt.left(2) == "/L") {
+        if(opt.startsWith("-L") || opt.startsWith("/L")) {
             QString r = opt.right(opt.length() - 2), l = Option::fixPathToLocalOS(r);
             dirs.append(new MakefileDependDir(r.replace("\"",""), 
                                               l.replace("\"","")));
             remove = TRUE;
-        } else if(opt.left(2) == "-l" || opt.left(2) == "/l") {
+        } else if(opt.startsWith("-l") || opt.startsWith("/l")) {
             QString lib = opt.right(opt.length() - 2), out;
             if(!lib.isEmpty()) {
                 for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
@@ -215,7 +215,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
                 file = file.right(file.length() - slsh - 1);
             }
 	    if ( !(project->variables()["QMAKE_QT_DLL"].isEmpty() && (file == "qt.lib" || file == "qt-mt.lib")) ) {
-		if(file.right(4) == ".lib") {
+		if(file.endsWith(".lib")) {
 		    file = file.left(file.length() - 4);
 		    if(!file.at(file.length()-1).isNumber()) {
 			int ver = findHighestVersion(dir, file);

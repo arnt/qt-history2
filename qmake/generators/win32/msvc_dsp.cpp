@@ -111,8 +111,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		for( it = list.begin(); it != list.end(); ++it) {
 		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-		    if ( project->isActiveConfig("moc") &&
-			 (*it).right(qstrlen(Option::moc_ext)) == Option::moc_ext) {
+		    if ( project->isActiveConfig("moc") && (*it).endsWith(Option::moc_ext)) {
 			QString base = (*it);
 			base.replace(QRegExp("\\..*$"), "").upper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
@@ -253,8 +252,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 //		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-		    if ( project->isActiveConfig("moc") &&
-			 (*it).right(qstrlen(Option::moc_ext)) == Option::moc_ext) {
+		    if ( project->isActiveConfig("moc") && (*it).endsWith(Option::moc_ext)) {
 			QString base = (*it);
 			base.replace(QRegExp("\\..*$"), "").upper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
@@ -862,7 +860,7 @@ DspMakefileGenerator::beginGroupForFile(QString file, QTextStream &t,
 	endGroups(t);
 	return 0;
     }
-    if(file.left(currentGroup.length()) == currentGroup) 
+    if(file.startsWith(currentGroup)) 
 	file = file.mid(currentGroup.length());
     else
 	endGroups(t);

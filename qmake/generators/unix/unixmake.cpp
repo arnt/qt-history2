@@ -288,10 +288,10 @@ UnixMakefileGenerator::uniqueSetLFlags(const QStringList &list1, QStringList &li
     QStringList ret;
     for(QStringList::ConstIterator it = list1.begin(); it != list1.end(); ++it) {
 	bool unique = TRUE;
-	if((*it).left(1) == "-") {
-	    if((*it).left(2) == "-l" || (*it).left(2) == "-L") {
+	if((*it).startsWith("-")) {
+	    if((*it).startsWith("-l") || (*it).startsWith("-L")) {
 		unique = list2.findIndex((*it)) == -1;
-	    } else if(project->isActiveConfig("macx") && (*it).left(10) == "-framework") {
+	    } else if(project->isActiveConfig("macx") && (*it).startsWith("-framework")) {
 		int as_one = TRUE;
 		QString framework_in;
 		if((*it).length() > 11) {
@@ -305,7 +305,7 @@ UnixMakefileGenerator::uniqueSetLFlags(const QStringList &list1, QStringList &li
 		}
 		if(!framework_in.isEmpty()) {
 		    for(QStringList::ConstIterator outit = list2.begin(); outit != list2.end(); ++outit) {
-			if((*outit).left(10) == "-framework") {
+			if((*outit).startsWith("-framework")) {
 			    QString framework_out;
 			    if((*outit).length() > 11) {
 				framework_out = (*outit).mid(11);
@@ -367,18 +367,18 @@ UnixMakefileGenerator::processPrlFiles()
 	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 		project->variables()["QMAKE_CURRENT_PRL_LIBS"].clear();
 		QString opt = (*it).stripWhiteSpace();;
-		if(opt.left(1) == "-") {
-		    if(opt.left(2) == "-L") {
+		if(opt.startsWith("-")) {
+		    if(opt.startsWith("-L")) {
 			QString r = opt.right(opt.length() - 2), l = r;
 			fixEnvVariables(l);
+		    } else if(opt.startsWith("-l") && !processed[opt]) {
 			libdirs.append(new MakefileDependDir(r.replace("\"",""),
 							     l.replace("\"","")));
-		    } else if(opt.left(2) == "-l" && !processed[opt]) {
 			QString lib = opt.right(opt.length() - 2), prl;
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
 			    prl = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::prl_ext;
 			    if(processPrlFile(prl)) {
-				if(prl.left(mdd->local_dir.length()) == mdd->local_dir)
+				if(prl.startsWith(mdd->local_dir))
 				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
 				QRegExp reg("^.*lib(" + lib + "[^./=]*)\\..*$");
 				if(reg.exactMatch(prl))
@@ -389,7 +389,7 @@ UnixMakefileGenerator::processPrlFiles()
 				break;
 			    }
 			}
-		    } else if(project->isActiveConfig("macx") && opt.left(10) == "-framework") {
+		    } else if(project->isActiveConfig("macx") && opt.startsWith("-framework")) {
 			if(opt.length() > 11) {
 			    opt = opt.mid(11);
 			} else {

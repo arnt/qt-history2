@@ -258,15 +258,11 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	total_size_read += have_read);
     close(file);
 
-    enum { UI_FILE, C_FILE } ftype;
-    if(fn.right(Option::ui_ext.length()) == Option::ui_ext)
-	ftype = UI_FILE;
-    else
-	ftype = C_FILE;
+    bool ui_file = fn.endsWith(Option::ui_ext);
     for(int x = 0; x < total_size_read; x++) {
 	QStringList *outdeps=&fndeps;
 	QString inc;
-	if(ftype == C_FILE) {
+	if(!ui_file) {
 	    if(*(big_buffer + x) == '/') {
 		x++;
 		if(total_size_read >= x) {
@@ -328,7 +324,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 		    *(big_buffer + x + msg_len) = term; //put it back
 		}
 	    }
-	} else if(ftype == UI_FILE) {
+	} else if(ui_file) {
 	    // skip whitespaces
 	    while(x < total_size_read &&
 		  (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t'))
@@ -444,7 +440,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 		    }
 		    if(fqn.isEmpty()) { //is it from a .y?
 			QString rhs = Option::yacc_mod + Option::h_ext.first();
-			if(inc.right(rhs.length()) == rhs) {
+			if(inc.endsWith(rhs)) {
 			    QString lhs = inc.left(inc.length() - rhs.length()) + Option::yacc_ext;
 			    QStringList yl = project->variables()["YACCSOURCES"];
 			    for(QStringList::Iterator it = yl.begin(); it != yl.end(); ++it) {
@@ -502,13 +498,13 @@ MakefileGenerator::initOutPaths()
 	if(!v.contains("QMAKE_ABSOLUTE_SOURCE_PATH")) {
 	    if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty() &&
 	       v.contains("QMAKE_ABSOLUTE_SOURCE_ROOT")) {
-		QFileInfo fi(Option::mkfile::cachefile);
-		if(!fi.convertToAbs()) {
-		    QString cache_r = fi.dirPath(), pwd = Option::output_dir;
-		    if ( pwd.left(cache_r.length()) == cache_r ) {
-			QString root = v["QMAKE_ABSOLUTE_SOURCE_ROOT"].first();
-			root = Option::fixPathToTargetOS( root );
-			if(!root.isEmpty()) {
+		QString root = v["QMAKE_ABSOLUTE_SOURCE_ROOT"].first();
+		root = Option::fixPathToTargetOS( root );
+		if(!root.isEmpty()) {
+		    QFileInfo fi(Option::mkfile::cachefile);
+		    if(!fi.convertToAbs()) {
+			QString cache_r = fi.dirPath(), pwd = Option::output_dir;
+			if ( pwd.startsWith(cache_r) && !pwd.startsWith(root) ) {
 			    pwd = Option::fixPathToTargetOS(root + pwd.mid(cache_r.length()));
 			    if(QFile::exists(pwd))
 				v.insert("QMAKE_ABSOLUTE_SOURCE_PATH", pwd);
@@ -542,9 +538,9 @@ MakefileGenerator::initOutPaths()
 			  v[dirs[x]].join("::").latin1(), path.latin1());
 
 		QDir d;
-		if(path.left(1) == Option::dir_sep) {
+		if(path.startsWith(Option::dir_sep)) {
 		    d.cd(Option::dir_sep);
-		    path = path.right( path.length() - 1 );
+		    path = path.right(path.length() - 1);
 		}
 #ifdef Q_WS_WIN
 		bool driveExists = TRUE;
@@ -804,7 +800,7 @@ MakefileGenerator::init()
 			if(!moc.isEmpty()) {
 			    for(QStringList::Iterator cppit = Option::cpp_ext.begin();
 				cppit != Option::cpp_ext.end(); ++cppit) {
-				if(val_file.right((*cppit).length()) == (*cppit)) {
+				if(val_file.endsWith((*cppit))) {
 				    QStringList &deps = findDependencies(val_file);
 				    if(!deps.contains(moc))
 					deps.append(moc);
@@ -1036,7 +1032,7 @@ MakefileGenerator::processPrlFile(QString &file)
 {
     bool ret = FALSE, try_replace_file=FALSE;
     QString prl_file;
-    if(file.right(Option::prl_ext.length()) == Option::prl_ext) {
+    if(file.endsWith(Option::prl_ext)) {
 	try_replace_file = TRUE;
 	prl_file = file;
 	file = "";
@@ -1055,7 +1051,7 @@ MakefileGenerator::processPrlFile(QString &file)
 	    dir = stem.left(slsh + 1);
 	    stem = stem.right(stem.length() - slsh - 1);
 	}
-	if(stem.left(3) == "lib") {
+	if(stem.startsWith("lib")) {
 	    hadlib = 1;
 	    stem = stem.right(stem.length() - 3);
 	}
@@ -1065,7 +1061,7 @@ MakefileGenerator::processPrlFile(QString &file)
 	    stem = stem.left(dot);
 	}
 	if(stem == "qt" || stem == "qte" || stem == "qte-mt" || stem == "qt-mt") {
-	    if(stem.right(3) == "-mt")
+	    if(stem.endsWith("-mt"))
 		stem = stem.left(stem.length() - 3); //lose the -mt
 	    else
 		stem += "-mt"; //try the thread case
@@ -1246,7 +1242,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	    QString sdep, odep = (*sit) + " ";
 	    QStringList deps = findDependencies((*sit));
 	    for(QStringList::Iterator dit = deps.begin(); dit != deps.end(); dit++) {
-		if((*dit).right(Option::moc_ext.length()) == Option::moc_ext)
+		if((*dit).endsWith(Option::moc_ext))
 		    odep += (*dit) + " ";
 		else
 		    sdep += (*dit) + " ";
@@ -1259,7 +1255,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 
 	QString comp, cimp;
 	for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) {
-	    if((*sit).right((*cppit).length()) == (*cppit)) {
+	    if((*sit).endsWith((*cppit))) {
 		comp = "QMAKE_RUN_CXX";
 		cimp = "QMAKE_RUN_CXX_IMP";
 		break;
@@ -1795,7 +1791,7 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
     }
 
     QChar quote;
-    if((file.left(1) == "'" || file.left(1) == "\"") && file.right(1) == file.left(1)) {
+    if((file.startsWith("'") || file.startsWith("\"")) && file.startsWith(file.right(1))) {
 	quote = file.at(0);
 	file = file.mid(1, file.length() - 2);
     }
@@ -1838,7 +1834,7 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 	    QString match_dir = Option::fixPathToTargetOS(out_dir, FALSE);
 	    if(file == match_dir) {
 		file = "";
-	    } else if(file.left(match_dir.length()) == match_dir &&
+	    } else if(file.startsWith(match_dir) &&
 	       file.mid(match_dir.length(), Option::dir_sep.length()) == Option::dir_sep) {
 		file = file.right(file.length() - (match_dir.length() + 1));
 	    } else {
@@ -1849,7 +1845,7 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 		    match_dir = match_dir.left(sl);
 		    if(match_dir.isEmpty())
 			break;
-		    if(file.left(match_dir.length()) == match_dir &&
+		    if(file.startsWith(match_dir) &&
 		       file.mid(match_dir.length(), Option::dir_sep.length()) == Option::dir_sep) {
 			//concat
 			int remlen = file.length() - (match_dir.length() + 1);
@@ -1921,14 +1917,14 @@ MakefileGenerator::specdir()
     const char *d = getenv("QTDIR");
     if(d) {
 	QString qdir = Option::fixPathToTargetOS(QString(d));
-	if(qdir.right(1) == QString( QChar( QDir::separator() ) ))
+	if(qdir.endsWith(QString(QChar(QDir::separator()))))
 	    qdir.truncate(qdir.length()-1);
 	//fix path
 	QFileInfo fi(spec);
 	QString absSpec(fi.absFilePath());
 	absSpec = Option::fixPathToTargetOS(absSpec);
 	//replace what you can
-	if(absSpec.left(qdir.length()) == qdir) {
+	if(absSpec.startsWith(qdir)) {
 	    absSpec.replace(0, qdir.length(), "$(QTDIR)");
 	    spec = absSpec;
 	}

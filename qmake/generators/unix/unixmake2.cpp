@@ -277,12 +277,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 		if(!(*it).isEmpty()) {
 		    QString d_file;
-		    if((*it).right(2) == ".c") {
+		    if((*it).endsWith(".c")) {
 			d_file = (*it).left((*it).length() - 2);
 		    } else {
 			for(QStringList::Iterator cppit = Option::cpp_ext.begin();
 			    cppit != Option::cpp_ext.end(); ++cppit) {
-			    if((*it).right((*cppit).length()) == (*cppit)) {
+			    if((*it).endsWith((*cppit))) {
 				d_file = (*it).left((*it).length() - (*cppit).length());
 				break;
 			    }

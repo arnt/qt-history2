@@ -90,13 +90,13 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 	extra_objs += project->variables()["QMAKE_LIBS"];
     for(QStringList::Iterator val_it = extra_objs.begin(); 
 	val_it != extra_objs.end(); ++val_it) {
-	if((*val_it).left(2) == "-L") {
+	if((*val_it).startsWith("-L")) {
 	    QString dir((*val_it).right((*val_it).length() - 2));
 	    fixEnvVariables(dir);
 	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
 	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
 		project->variables()["INCLUDEPATH"].append(dir);
-	} else if((*val_it).left(2) == "-l") {
+	} else if((*val_it).startsWith("-l")) {
 	    QString lib("lib" + (*val_it).right((*val_it).length() - 2)  + "." + 
 			project->first("QMAKE_EXTENSION_SHLIB"));
 	    if(project->variables()["LIBRARIES"].findIndex(lib) == -1)
@@ -225,7 +225,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 				    debug = FALSE;
 				} else {
 				    for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit) {
-					if((*it).right((*hit).length()) == (*hit)) { 
+					if((*it).endsWith((*hit))) { 
 					    debug = FALSE;
 					    break;
 					}
@@ -355,7 +355,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		}
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    QString p = (*it), v, recursive = "false", framework = "false";
-		    if(p.left(11) == "recursive--") {
+		    if(p.startsWith("recursive--")) {
 			p = p.right(p.length() - 11);
 			recursive = "true";
 		    } 
@@ -379,7 +379,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 	    } else if(variable == "CODEWARRIOR_WARNING" || variable == "!CODEWARRIOR_WARNING") {
 		bool b = ((!project->isActiveConfig("warn_off")) && 
 			  project->isActiveConfig("warn_on"));
-		if(variable.left(1) == "!")
+		if(variable.startsWith("!"))
 		    b = !b;
 		t << (int)b;
 	    } else if(variable == "CODEWARRIOR_TEMPLATE") {
@@ -683,14 +683,14 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool )
     QString volume = st_volume;
 
     fixEnvVariables(p);
-    if(p.left(1) == "\"" && p.right(1) == "\"")
+    if(p.startsWith("\"") && p.endsWith("\""))
 	p = p.mid(1, p.length() - 2);
     if(p.isEmpty()) 
 	return FALSE;
-    if(p.right(1) != "/")
+    if(!p.endsWith("/"))
 	p += "/";
     if(QDir::isRelativePath(p)) {
-	if(p.left(1) == "{") {
+	if(p.startsWith("{")) {
 	    int eoc = p.find('}');
 	    if(eoc == -1)
 		return FALSE;
@@ -724,8 +724,8 @@ MetrowerksMakefileGenerator::processPrlFiles()
 	    QStringList &l = project->variables()[lflags[i]];
 	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 		QString opt = (*it);
-		if(opt.left(1) == "-") {
-		    if(opt.left(2) == "-L") {
+		if(opt.startsWith("-")) {
+		    if(opt.startsWith("-L")) {
 			QString r = opt.right(opt.length() - 2), l = r;
 			fixEnvVariables(l);
 			libdirs.append(new MakefileDependDir(r.replace( "\"", ""),
@@ -735,7 +735,7 @@ MetrowerksMakefileGenerator::processPrlFiles()
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
 			    prl = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::prl_ext;
 			    if(processPrlFile(prl)) {
-				if(prl.left(mdd->local_dir.length()) == mdd->local_dir)
+				if(prl.startsWith(mdd->local_dir))
 				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
 				QRegExp reg("^.*lib(" + lib + "[^.]*)\\." + 
 					    project->first("QMAKE_EXTENSION_SHLIB") + "$");
@@ -779,10 +779,10 @@ MetrowerksMakefileGenerator::processPrlVariable(const QString &var, const QStrin
 	QStringList &out = project->variables()["QMAKE_LIBS"];
 	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
 	    bool append = TRUE;
-	    if((*it).left(1) == "-") {
-		if((*it).left(2) == "-l" || (*it).left(2) == "-L") {
+	    if((*it).startsWith("-")) {
+		if((*it).startsWith("-l") || (*it).startsWith("-L")) {
 		    append = out.findIndex((*it)) == -1;
-		} else if((*it).left(2) == "-framework") {
+		} else if((*it).startsWith("-framework")) {
 		    ++it;
 		    for(QStringList::ConstIterator outit = out.begin(); 
 			outit != out.end(); ++it) {

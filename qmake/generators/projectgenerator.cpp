@@ -247,7 +247,7 @@ ProjectGenerator::init()
 			    no_qt_files = FALSE;
 			QString h_ext;
 			for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit) {
-			    if((*dep_it).right((*hit).length()) == (*hit)) {
+			    if((*dep_it).endsWith((*hit))) {
 				h_ext = (*hit);
 				break;
 			    }
@@ -274,8 +274,8 @@ ProjectGenerator::init()
 					srcl.append(src);
 				}
 			    }
-			} else if((*dep_it).right(2) == Option::lex_ext &&
-				  file_no_path.left(Option::lex_mod.length()) == Option::lex_mod) {
+			} else if((*dep_it).endsWith(Option::lex_ext) &&
+				  file_no_path.startsWith(Option::lex_mod)) {
 			    addConfig("lex_included");
 			}
 			if(!h.contains((*dep_it))) {
@@ -308,7 +308,7 @@ ProjectGenerator::init()
 			break;
 		    }
 		}
-		if(!found && (*val_it).right(Option::moc_ext.length()) == Option::moc_ext)
+		if(!found && (*val_it).endsWith(Option::moc_ext))
 		    found = TRUE;
 		if(found)
 		    val_it = l.remove(val_it);
@@ -378,7 +378,7 @@ ProjectGenerator::addFile(QString file)
 
     QString where;
     for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) {
-	if(file.right((*cppit).length()) == (*cppit)) {
+	if(file.endsWith((*cppit))) {
 	    if(QFile::exists(file.left(file.length() - (*cppit).length()) + Option::ui_ext))
 		return FALSE;
 	    else
@@ -388,22 +388,21 @@ ProjectGenerator::addFile(QString file)
     }
     if(where.isEmpty()) {
 	for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit) {
-	    if(file.right((*hit).length()) == (*hit)) {
+	    if(file.endsWith((*hit))) {
 		where = "HEADERS";
 		break;
 	    }
 	}
     }
     if(where.isEmpty()) {
-	if(file.right(Option::ui_ext.length()) == Option::ui_ext) {
+	if(file.endsWith(Option::ui_ext))
 	    where = "INTERFACES";
-	} else if(file.right(2) == ".c") {
+	else if(file.endsWith(".c"))
 	    where = "SOURCES";
-	} else if(file.right(Option::lex_ext.length()) == Option::lex_ext) {
+	else if(file.endsWith(Option::lex_ext))
 	    where = "LEXSOURCES";
-	} else if(file.right(Option::yacc_ext.length()) == Option::yacc_ext) {
+	else if(file.endsWith(Option::yacc_ext))
 	    where = "YACCSOURCES";
-	}
     }
 
     QString newfile = fileFixify(file);
@@ -423,9 +422,9 @@ ProjectGenerator::getWritableVar(const QString &v, bool /*fixPath*/)
 	return "";
 
     QString ret;
-    if(v.right(7) == "_REMOVE")
+    if(v.endsWith("_REMOVE"))
 	ret = v.left(v.length() - 7) + " -= ";
-    else if(v.right(7) == "_ASSIGN")
+    else if(v.endsWith("_ASSIGN"))
 	ret = v.left(v.length() - 7) + " = ";
     else
 	ret = v + " += ";
