@@ -300,7 +300,7 @@ cd ${DISTDIR}/qt/dist
 cp [A-Z]* .. 2> /dev/null || true
 if [ -z "$noch" ]
 then
-    cp -f changes-${VERSION_SHORT}[0-9]* ..
+    cp -f changes-${VERSION_SHORT}[.0-9]* ..
 fi
 cd ${DISTDIR}/qt/dist/${disttype}
 tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
