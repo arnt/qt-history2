@@ -3911,8 +3911,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		popup = this;
 	    else				// send to last popup
 		pos = popup->mapFromGlobal( globalPos );
-	} else if (!rect().contains(pos)) {
-	    pos = popup->mapFromGlobal(globalPos);
 	}
 	bool releaseAfter = FALSE;
 	QWidget *popupChild  = popup->childAt( pos );
