@@ -1,0 +1,7 @@
+include( compat.qdoc.inc )
+
+project		= QSA
+language	= Qt Script
+sourcedirs	= qsa
+outputdir	= doc/qsa
+formats		= HTML
