@@ -98,11 +98,11 @@ static const char * const move_xpm[] = {
 "11 20 3 1",
 ".	c None",
 #if defined(Q_WS_WIN)
-"	c #000000", // Windows cursor is traditionally white
-"X	c #FFFFFF",
+"	c #000000",
+"X	c #FFFFFF", // Windows cursor is traditionally white
 #else
-"	c #FFFFFF", // X11 cursor is traditionally black
-"X	c #000000",
+"	c #FFFFFF",
+"X	c #000000", // X11 cursor is traditionally black
 #endif
 "  .........",
 " X ........",
