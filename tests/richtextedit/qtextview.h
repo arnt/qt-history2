@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.h#5 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.h#6 $
 **
 ** Definition of the QtTextView class
 **
@@ -57,7 +57,8 @@ public:
 
     QStyleSheet* styleSheet() const;
     void setStyleSheet( QStyleSheet* styleSheet );
-    
+
+    // shareDocumentWith?
     void setView( QtTextView* other ); // ###cannot be virtual in 2.1!!!
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#8 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#9 $
 **
 ** Implementation of the QtTextView class
 **
@@ -518,27 +518,36 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     while ( b->child )
 	b = b->child;
 
-    while ( b && !b->dirty[d->viewId] && b->y[d->viewId] + b->height[d->viewId] < cy ) {
-	y = b->y[d->viewId] + b->height[d->viewId];
-	b = b->nextInDocument();
-    }
+    //###TODO make optimization work again
+//     while ( b && !b->dirty[d->viewId] && b->y[d->viewId] + b->height[d->viewId] < cy ) {
+// 	y = b->y[d->viewId] + b->height[d->viewId];
+// 	b = b->nextInDocument();
+//     }
 
+    
+    // TODO merge with update, this is only draw. Everything needs to be clean!
     QFontMetrics fm( p->fontMetrics() );
-    while ( b && y <= cy + ch ) {
-	b->x[d->viewId] =b->margin( QStyleSheetItem::MarginLeft );
-	b->y[d->viewId] = y;
-	b->width[d->viewId] = viewport()->width();
+    while ( b && (TRUE || y <= cy + ch )) {
 	d->fc->gotoParagraph( p, b );
 	do {
 	    d->fc->makeLineLayout( p, fm );
-	    if ( d->fc->y() + d->fc->height >= cy )
+	    QRect geom( d->fc->lineGeometry() );
+	    if ( FALSE || ( geom.bottom() > cy && geom.top() < cy+ch ))
 		d->fc->drawLine( p, ox, oy, r, paperColorGroup(), QtTextOptions(&paper() ) );
 	}
 	while ( d->fc->gotoNextLine( p, fm ) );
 	y = d->fc->y();
-	b->height[d->viewId] = y - b->y[d->viewId];
-	b->dirty[ d->viewId] = FALSE;
+// 	b->dirty[ d->viewId] = FALSE;
 	b = b->nextInDocument();
+	
+	// this doesn't belong here...
+	if ( b && b->dirty[ d->viewId ] ) {
+	    //qDebug("shall draw something that is dirty!" );
+	    d->fc->initParagraph( p, b );
+	    d->fc->doLayout( p, -1); // TODOmake optimization work again: viewport()->height() + contentsY() );
+	    resizeContents( viewport()->width(), d->fc->y() );
+	}
+	
     };
 
 
@@ -558,6 +567,17 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 	p->fillRect(0, 0, viewport()->width(), viewport()->height(), paper() );
 
     p->setClipping( FALSE );
+    
+    
+     int pagesize = 500;
+ 
+     for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
+	 
+	 p->setPen( DotLine );
+	 
+	 p->drawLine( cx-ox, page * pagesize - oy, cx-ox+cw, page*
+		      pagesize - oy );
+     }
 }
 
 /*!
@@ -576,7 +596,7 @@ void QtTextView::doResize()
 	
     {
 	QPainter p( viewport() );
-	if ( !d->fcresize->doLayout( &p, viewport()->width(), d->fcresize->y() + 1000 ) )
+	if ( !d->fcresize->doLayout( &p, d->fcresize->y() + 1000 ) )
 	    d->resizeTimer->start( 0, TRUE );
 	resizeContents( viewport()->width(), d->fcresize->y() );
     }
@@ -588,9 +608,7 @@ void QtTextView::doResize()
 void QtTextView::paragraphChanged( QtTextParagraph* b)
 {
     QPainter p( viewport() );
-    QFontMetrics fm( p.fontMetrics() );
     d->fc->gotoParagraph( &p, b );
-    d->fc->makeLineLayout( &p, fm );
     d->fc->updateParagraph( &p );
 }
 
@@ -608,13 +626,16 @@ void QtTextView::resizeEvent( QResizeEvent* e )
     QScrollView::resizeEvent( e );
    viewport()->setUpdatesEnabled( TRUE );
     richText().invalidateLayout( d->viewId );
+    richText().flow(d->viewId)->x = 20;
+    d->fc->initFlow( richText().flow(d->viewId), viewport()->width()-40 );
     {
 	QPainter p( viewport() );
-	d->fc->gotoParagraph( &p, &richText() );
-	d->fc->doLayout( &p, viewport()->width(), viewport()->height() + contentsY() );
+	d->fc->initParagraph( &p, &richText() );
+	d->fc->doLayout( &p, -1); // TODOmake optimization work again: viewport()->height() + contentsY() );
+	resizeContents( viewport()->width(), richText().flow( d->viewId)->height );
 	delete d->fcresize;
 	d->fcresize = new QtTextCursor( *d->fc );
-	d->resizeTimer->start( 0, TRUE );
+	//d->resizeTimer->start( 0, TRUE );
     }
     viewport()->repaint( FALSE );
 }
@@ -769,7 +790,7 @@ void QtTextEdit::keyPressEvent( QKeyEvent * e )
 
     if ( !d->cursor )
 	return;
-    bool select = e->state() & Qt::ShiftButton;
+    //    bool select = e->state() & Qt::ShiftButton;
     hideCursor();
     QPainter p( viewport() );
     switch (e->key()) {
@@ -789,10 +810,12 @@ void QtTextEdit::keyPressEvent( QKeyEvent * e )
 	if (!e->text().isEmpty() ) {
 	    d->cursor->insert( &p, e->text() ); // the painter will be closed
 	}
+
     };
     if ( p.isActive() )
 	p.end();
-    ensureVisible( d->cursor->x(), d->cursor->y() );
+    QRect geom ( d->cursor->caretGeometry() );
+    ensureVisible( geom.center().x(), geom.center().y(), geom.width()/2, geom.height()/2 );
     showCursor();
 
 //     if (e->key() == Key_Plus)
@@ -1008,6 +1031,7 @@ void QtTextEdit::drawContentsOffset(QPainter*p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
     QtTextView::drawContentsOffset(p, ox, oy, cx, cy, cw, ch);
+    d->cursor->update( p ); //##### it may be on a dirty paragraph
     return;
 //     if (!d->cursor_hidden)
 //  	cursor->draw(p, ox, oy, cx, cy, cw, ch);
@@ -1015,6 +1039,7 @@ void QtTextEdit::drawContentsOffset(QPainter*p, int ox, int oy,
 
 void QtTextEdit::cursorTimerDone()
 {
+    return;
     if ( !d->cursor )
 	return;
      if (d->cursor_hidden) {
@@ -1044,8 +1069,8 @@ void QtTextEdit::hideCursor()
  	return;
     d->cursor_hidden = TRUE;
 
-    QRect r( d->cursor->geometry() );
-    repaintContents(r.x(), r.y(), r.width(), r.height() );
+    QRect geom( d->cursor->caretGeometry() );
+    repaintContents(geom.x(), geom.y(), geom.width(), geom.height() );
 
     d->cursorTimer->start(300, TRUE);
 }

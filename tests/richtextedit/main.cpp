@@ -18,7 +18,7 @@ int main( int argc, char* argv[]  )
      paper.setPixmap( QPixmap( "marble.xpm" ) );
 //     v.setPaper( paper );
     a.setMainWidget( &v );
-    
+
 
     if ( argc > 1 ) {
 	QFile f( argv[1] );
@@ -35,9 +35,9 @@ int main( int argc, char* argv[]  )
 	qDebug("set text ");
 	v.setText("No filename specified");
     }
-    QtTextEdit second;
-    second.setView( &v );
+//     QtTextEdit second;
+//     second.setView( &v );
     v.show();
-    second.show();
+//     second.show();
     return a.exec();
 }

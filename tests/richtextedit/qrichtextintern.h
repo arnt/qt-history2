@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#10 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#11 $
 **
 ** Internal rich text classes
 **
@@ -34,6 +34,7 @@
 class QtRichText;
 class QtTextCustomItem;
 class QtTextView;
+class QtTextFlow;
 
 class QtStyleSheet : public QStyleSheet
 {
@@ -149,14 +150,14 @@ public:
 	return attributes_;
     }
 
-    
-    int x[MAXVIEWS];
     int y[MAXVIEWS];
-    int width[MAXVIEWS];
     int widthUsed[MAXVIEWS];
     int height[MAXVIEWS];
     bool dirty[MAXVIEWS];
+    QtTextFlow* flows[MAXVIEWS];
     
+    QtTextFlow* flow( int view );
+
     inline int margin(QStyleSheetItem::Margin m) const
     {
 	if (style->margin(m) != QStyleSheetItem::Undefined)
@@ -181,7 +182,10 @@ public:
     }
 
     void invalidateLayout( int view );
-
+    
+    
+private:
+    void init();
 };
 
 
@@ -265,9 +269,12 @@ class QtTextCursor {
  public:
     QtTextCursor(QtRichText& document, int view);
     ~QtTextCursor();
+    
+    
     int viewId;
 
     QtTextParagraph* paragraph;
+    QtTextFlow* flow;
     void update( QPainter* p );
     void updateParagraph( QPainter* );
     int first;
@@ -284,7 +291,9 @@ class QtTextCursor {
     bool pastEndOfLine() const;
     void gotoParagraph( QPainter* p, QtTextParagraph* b );
 
-    bool doLayout( QPainter* p, int w, int ymax );
+    void initFlow( QtTextFlow* frm, int w  );
+    void initParagraph( QPainter* p, QtTextParagraph* b );
+    bool doLayout( QPainter* p, int ymax, QtTextFlow* backFlow = 0 );
 
 
     void makeLineLayout( QPainter* p, const QFontMetrics& fm );
@@ -297,9 +306,7 @@ class QtTextCursor {
 
     void updateCharFormat( QPainter* p, const QFontMetrics& fm );
 
-    int x_;
     int y_;
-    int x() const { return x_; }
     int y() const { return y_; }
     int width;
     int widthUsed;
@@ -307,8 +314,12 @@ class QtTextCursor {
     int base;
     int fill;
 
+    
+    bool adjustFlowMode;
+    
     void draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int ch);
-    QRect geometry() const;
+    QRect caretGeometry() const;
+    QRect lineGeometry() const;
     void right( QPainter* p );
     void left( QPainter* p );
     void up( QPainter* p );
@@ -322,6 +333,31 @@ class QtTextCursor {
     int xline_current;
 };
 
+class QtTextFlow {
+public:
+    
+    QtTextFlow( QtTextFlow* parentFlow = 0, int ncolumns  = 1 );
+    ~QtTextFlow();
+
+    void initialize( int w );
+    
+    void mapToView( int yp, int& gx, int& gy );
+    int availableWidth( int yp );
+    
+    void countFlow( int yp, int h, bool pages = TRUE  );
+    void adjustFlow( int  &yp, int h, bool pages = TRUE );
+    
+    int x;
+    int y;
+    int width;
+    int height;
+    
+    int ncols;
+    int colheight;
+    int totalheight;
+
+    QtTextFlow* parent;
+};
 
 
 class QtRichText : public QtTextParagraph
@@ -340,7 +376,7 @@ public:
     int registerView( QtTextView* v );
     int viewId( QtTextView* v );
     QtTextView* view( int id );
-    
+
     void updateViews( QtTextParagraph* b, int excludeView );
 
 private:
