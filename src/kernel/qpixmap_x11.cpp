@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#136 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#137 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -980,6 +980,11 @@ QImage QPixmap::convertToImage() const
 
   Note that even though a QPixmap with depth 1 behaves much like a
   QBitmap, isQBitmap() returns FALSE.
+
+  If a pixmap with depth 1 is painted with color0 and color1 and
+  converted to an image, the pixels painted with color0 will produce
+  pixel index 0 in the image and those painted with color1 will produce
+  pixel index 1.
 
   \bug Does not support 2 or 4 bit display hardware.
 

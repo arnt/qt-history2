@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#72 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -452,6 +452,16 @@ QImage QPixmap::convertToImage() const
 	image.setColor( i, qRgb(r->rgbRed,
 				r->rgbGreen,
 				r->rgbBlue) );
+    }
+    if ( d == 1 ) {
+	// Make image bit 0 come from color0, image bit 1 come form color1
+	int n = image.bytesPerLine() * image.height();
+	uchar* b = image.bits();
+	while (n--)
+	    b[n] ^= 0xff;
+	QRgb c0 = image.color(0);
+	image.setColor(0,image.color(1));
+	image.setColor(1,c0);
     }
     delete [] bmi_data;
     return image;
