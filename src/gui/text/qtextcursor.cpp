@@ -1189,9 +1189,8 @@ QTextCharFormat QTextCursor::charFormat() const
     int idx = it.value()->format;
 
     QTextCharFormat cfmt = d->priv->formatCollection()->charFormat(idx);
-    // ##### we miss a clearProperty here
-    if (cfmt.objectIndex() != -1)
-        cfmt.setObjectIndex(-1);
+    cfmt.clearProperty(QTextFormat::ObjectIndex);
+
     Q_ASSERT(cfmt.isValid());
     return cfmt;
 }
