@@ -285,7 +285,6 @@ QColorGroup::ColorRole PaletteEditor::centralFromItem( int item )
 	case 8:
 	    return QColorGroup::HighlightedText;
 	default:
-	    debug("Can't map item to colorrole");
 	    return QColorGroup::NColorRoles;
 	}
 }
@@ -305,7 +304,6 @@ QColorGroup::ColorRole PaletteEditor::effectFromItem( int item )
 	case 4:
 	    return QColorGroup::Shadow;
 	default:
-	    debug("Can't map item to colorrole");
 	    return QColorGroup::NColorRoles;
 	}
 }
