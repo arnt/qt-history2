@@ -679,14 +679,14 @@ static inline QString groupKey( const QString &group, const QString &key )
   search path list will be used as the first subfolder of the "Software"
   folder in the registry.
 
-    When reading settings the folders are searched forwards from the first
-    folder (listed below) to the last, with later settings overriding
-    settings found earlier, and ignoring any folders for which the user
-    doesn't have read permission.
+  When reading settings the folders are searched forwards from the
+  first folder (listed below) to the last, returning the first
+  settings found, and ignoring any folders for which the user doesn't 
+  have read permission.
   \list 1
   \i HKEY_CURRENT_USER/Software/MyCompany/MyApplication
-  \i HKEY_CURRENT_USER/Software/MyApplication
   \i HKEY_LOCAL_MACHINE/Software/MyCompany/MyApplication
+  \i HKEY_CURRENT_USER/Software/MyApplication
   \i HKEY_LOCAL_MACHINE/Software/MyApplication
   \endlist
 
@@ -695,15 +695,18 @@ static inline QString groupKey( const QString &group, const QString &key )
   settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
   settings.writeEntry( "/MyApplication/Tip of the day", TRUE );
   \endcode
-    The code above will write the subkey "Tip of the day" into the \e first
-    of the registry folders listed below that is found and for which the
-    user has write permission.
+  The code above will write the subkey "Tip of the day" into the \e
+  first of the registry folders listed below that is found and for
+  which the user has write permission.
   \list 1
-  \i HKEY_LOCAL_MACHINE/Software/MyApplication
   \i HKEY_LOCAL_MACHINE/Software/MyCompany/MyApplication
-  \i HKEY_CURRENT_USER/Software/MyApplication
   \i HKEY_CURRENT_USER/Software/MyCompany/MyApplication
+  \i HKEY_LOCAL_MACHINE/Software/MyApplication
+  \i HKEY_CURRENT_USER/Software/MyApplication
   \endlist
+  If a setting is found in the HKEY_CURRENT_USER space, this setting
+  is overwritten independently of write permissions in the 
+  HKEY_LOCAL_MACHINE space.
 
   When \a s is \e Unix, and the execution environment is Unix, the
   search path list will be used when trying to determine a suitable
