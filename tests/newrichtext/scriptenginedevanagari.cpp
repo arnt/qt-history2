@@ -1,6 +1,7 @@
 #include "scriptenginedevanagari.h"
 #include "opentype.h"
 #include "qfont.h"
+#include "qtextdata.h"
 
 enum Features {
     NuktaFeature = 0x0001,
@@ -213,7 +214,8 @@ static int nextSyllableBoundary( const QString &s, int start, int end, bool *inv
     return pos+start;
 }
 
-static QString reorderSyllable( const QString &string, int start, int end, unsigned short *featuresToApply, bool invalid )
+static QString reorderSyllable( const QString &string, int start, int end, unsigned short *featuresToApply,
+				GlyphAttributes *attributes, bool invalid )
 {
     int len = end - start;
 
@@ -238,7 +240,7 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	return reordered;
 
     int base = 0;
-   if ( form( *uc ) == Consonant ) {
+    if ( form( *uc ) == Consonant ) {
 	bool reph = FALSE;
 	if ( len > 2 && isRa( uc[0] ) && form( uc[1] ) == Halant ) {
 	    reph = TRUE;
@@ -300,94 +302,94 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
     // in devanagari except for [Ra Halant]_Vattu, but these are already at the
     // right position
 
-   // all reordering happens now to the chars after (base+(reph halant)_vattu?)
-   // so we move base to there
-   int fixed = base;
-   if ( fixed < len - 2 && isRa( uc[fixed+1] ) && form( uc[fixed+2] == Halant ) )
-       fixed += 2;
+    // all reordering happens now to the chars after (base+(reph halant)_vattu?)
+    // so we move base to there
+    int fixed = base;
+    if ( fixed < len - 2 && isRa( uc[fixed+1] ) && form( uc[fixed+2] == Halant ) )
+	fixed += 2;
 
 
-   // we continuosly position the matras and vowel marks and increase the fixed
-   // until we reached the end.
-   static struct {
-       Form form;
-       Position position;
-   } finalOrder [] = {
-       { Matra, Pre },
-       { Matra, Below },
-       { VowelMark, Below },
-       { StressMark, Below },
-       { Matra, Above },
-       { Matra, Post },
-       { Consonant, None },
-       { Halant, None },
-       { VowelMark, Above },
-       { StressMark, Above },
-       { VowelMark, Post },
-       { (Form)0, None }
-   };
+    // we continuosly position the matras and vowel marks and increase the fixed
+    // until we reached the end.
+    static struct {
+	Form form;
+	Position position;
+    } finalOrder [] = {
+	{ Matra, Pre },
+	{ Matra, Below },
+	{ VowelMark, Below },
+	{ StressMark, Below },
+	{ Matra, Above },
+	{ Matra, Post },
+	{ Consonant, None },
+	{ Halant, None },
+	{ VowelMark, Above },
+	{ StressMark, Above },
+	{ VowelMark, Post },
+	{ (Form)0, None }
+    };
 
-   fixed++;
-   int toMove = 0;
-   while ( fixed < len ) {
-//        qDebug("fixed = %d", fixed );
-       for ( int i = fixed; i < len; i++ ) {
-	   if ( form( uc[i] ) == finalOrder[toMove].form &&
-		position( uc[i] ) == finalOrder[toMove].position ) {
-	       // need to move this glyph
-	       int to = fixed;
-	       if ( finalOrder[toMove].position == Pre )
-		   to = 0;
-	       qDebug("moving from %d to %d", i,  to );
-	       QChar ch = uc[i];
-	       unsigned short feature = featuresToApply[i];
-	       for ( int j = i; j > to; j-- ) {
-		   uc[j] = uc[j-1];
-		   featuresToApply[j] = featuresToApply[j-1];
-	       }
-	       uc[to] = ch;
-	       switch( finalOrder[toMove].position ) {
-	       case Pre:
-		   feature |= PreSubstFeature;
-		   break;
-	       case Above:
-		   feature |= AboveSubstFeature;
-		   break;
-	       case Below:
-		   feature |= BelowFormFeature|BelowSubstFeature;
-		   break;
-	       case Post:
-		   feature |= PostSubstFeature|PostBaseFormFeature;
-		   break;
-	       case None:
-		   break;
-	       }
-	       featuresToApply[to] = feature;
-	       fixed++;
-	   }
-       }
-       toMove++;
-       if ( finalOrder[toMove].form == 0 )
-	   break;
-   }
+    fixed++;
+    int toMove = 0;
+    while ( fixed < len ) {
+	//        qDebug("fixed = %d", fixed );
+	for ( int i = fixed; i < len; i++ ) {
+	    if ( form( uc[i] ) == finalOrder[toMove].form &&
+		 position( uc[i] ) == finalOrder[toMove].position ) {
+		// need to move this glyph
+		int to = fixed;
+		if ( finalOrder[toMove].position == Pre )
+		    to = 0;
+		qDebug("moving from %d to %d", i,  to );
+		QChar ch = uc[i];
+		unsigned short feature = featuresToApply[i];
+		for ( int j = i; j > to; j-- ) {
+		    uc[j] = uc[j-1];
+		    featuresToApply[j] = featuresToApply[j-1];
+		}
+		uc[to] = ch;
+		switch( finalOrder[toMove].position ) {
+		case Pre:
+		    feature |= PreSubstFeature;
+		    break;
+		case Above:
+		    feature |= AboveSubstFeature;
+		    break;
+		case Below:
+		    feature |= BelowFormFeature|BelowSubstFeature;
+		    break;
+		case Post:
+		    feature |= PostSubstFeature|PostBaseFormFeature;
+		    break;
+		case None:
+		    break;
+		}
+		featuresToApply[to] = feature;
+		fixed++;
+	    }
+	}
+	toMove++;
+	if ( finalOrder[toMove].form == 0 )
+	    break;
+    }
 
-   bool halantForm = base < len-1 && (form( uc[base+1] ) == Halant);
-   if ( halantForm ) {
-       featuresToApply[base] |= HalantFeature;
-       featuresToApply[base+1] |= HalantFeature;
-   }
+    bool halantForm = base < len-1 && (form( uc[base+1] ) == Halant);
+    if ( halantForm ) {
+	featuresToApply[base] |= HalantFeature;
+	featuresToApply[base+1] |= HalantFeature;
+    }
 
-   // set the features we need to apply in OT
-   int state = form( uc[0] );
-   bool lastWasBase = (base == 0);
-   if ( base != 0 )
-       featuresToApply[0] |= PreSubstFeature;
+    // set the features we need to apply in OT
+    int state = form( uc[0] );
+    bool lastWasBase = (base == 0);
+    if ( base != 0 )
+	featuresToApply[0] |= PreSubstFeature;
 
-   for ( int i = 1; i < len; i++ ) {
-       int newState = form( uc[i] );
-       if ( i < base )
-	   featuresToApply[i] |= PreSubstFeature;
-       switch( newState ) {
+    for ( int i = 1; i < len; i++ ) {
+	int newState = form( uc[i] );
+	if ( i < base )
+	    featuresToApply[i] |= PreSubstFeature;
+	switch( newState ) {
 	case Consonant:
 	    lastWasBase = (i == base);
 	    break;
@@ -421,28 +423,39 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	case Invalid:
 	case Other:
 	    break;
-       }
-       state = newState;
-   }
+	}
+	state = newState;
+    }
 
-   qDebug("reordered:");
-    for ( int i = 0; i < reordered.length(); i++ )
+    for ( int i = 0; i < (int)reordered.length(); i++ ) {
+	attributes[i].mark = isMark( reordered.unicode()[i] );
+	attributes[i].clusterStart = FALSE;
+    }
+    attributes[0].clusterStart = TRUE;
+
+    qDebug("reordered:");
+    for ( int i = 0; i < (int)reordered.length(); i++ )
 	qDebug("    %d: %4x apply=%4x", i, reordered[i].unicode(), featuresToApply[i] );
 
     return reordered;
 }
 
-static QString analyzeSyllables( const ShapedItem *shaped, unsigned short *featuresToApply ) {
+static QString analyzeSyllables( const ShapedItem *shaped, unsigned short *featuresToApply,
+				 GlyphAttributes *attributes ) {
     QString reordered;
     ShapedItemPrivate *d = shaped->d;
     int sstart = d->from;
     int end = sstart + d->length;
+    int fpos = 0;
     while ( sstart < end ) {
 	bool invalid;
 	int send = nextSyllableBoundary( d->string, sstart, end, &invalid );
 	qDebug("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
 	       invalid ? "true" : "false" );
-	reordered += reorderSyllable( d->string, sstart, send, featuresToApply+sstart, invalid );
+	QString str = reorderSyllable( d->string, sstart, send, featuresToApply+fpos, attributes+fpos, invalid );
+	reordered += str;
+	fpos += str.length();
+
 	sstart = send;
     }
     return reordered;
@@ -453,12 +466,26 @@ void ScriptEngineDevanagari::shape( ShapedItem *result )
 {
     qDebug("ScriptEngineDevanagari::shape()");
 
+    ShapedItemPrivate *d = result->d;
+
     unsigned short fa[256];
     unsigned short *featuresToApply = fa;
-    if ( result->d->length > 127 )
-	featuresToApply = new unsigned short[ 2*result->d->length ];
+    if ( d->length > 127 )
+	featuresToApply = new unsigned short[ 2*d->length ];
 
-    QString reordered = analyzeSyllables( result, featuresToApply );
+
+    d->glyphAttributes = (GlyphAttributes *)realloc( d->glyphAttributes, d->length * 2 * sizeof( GlyphAttributes ) );
+
+    QString reordered = analyzeSyllables( result, featuresToApply, d->glyphAttributes );
+    d->num_glyphs = reordered.length();
+
+    d->logClusters = (unsigned short *) realloc( d->logClusters, d->num_glyphs * sizeof( unsigned short ) );
+    int pos = 0;
+    for ( int i = 0; i < d->num_glyphs; i++ ) {
+	if ( d->glyphAttributes[i].clusterStart )
+	    pos = i;
+	d->logClusters[i] = pos;
+    }
 
     OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
 
@@ -489,18 +516,14 @@ void ScriptEngineDevanagari::openTypeShape( int script, const OpenTypeIface *ope
 {
     qDebug("ScriptEngineDevanagari::openTypeShape()");
     ShapedItemPrivate *d = result->d;
-    int len = reordered.length();
+    int len = d->num_glyphs;
 
-    d->num_glyphs = reordered.length();
     d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
     int error = d->fontEngine->stringToCMap( reordered.unicode(), len, d->glyphs, &d->num_glyphs );
     if ( error == FontEngineIface::OutOfMemory ) {
 	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
 	d->fontEngine->stringToCMap( reordered.unicode(), len, d->glyphs, &d->num_glyphs );
     }
-
-    // ###### FIXME
-    heuristicSetGlyphAttributes( result );
 
 #if 0
     qDebug("before shaping: glyph attributes:" );
