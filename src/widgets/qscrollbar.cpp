@@ -622,7 +622,7 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 			  e->button() == MidButton ) )
 	return;
 
-    if ( e->stateAfter() ) // some other button is still pressed
+    if ( e->stateAfter() & MouseButtonMask ) // some other button is still pressed
 	return;
 
     QStyle::SubControl tmp = (QStyle::SubControl) pressedControl;
