@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#27 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#27 $";
 #endif
 
 
@@ -654,6 +654,7 @@ void QListBox::insertItem( const QLBItem *lbi, int index )
 #endif
 	return;
     }
+    stringsOnly = FALSE;
     insertAny( 0, 0, lbi, index, TRUE );
     updateNumRows( FALSE );
     if ( autoUpdate() )
@@ -723,13 +724,6 @@ int QListBox::cellHeight( long index )
     } else {
 	return 0;
     }
-}
-
-/*! Returns the walue set by setCellWidth(). \sa cellHeight(). */
-
-int QListBox::cellWidth( long )
-{
-    return QTableWidget::cellWidth();  // cellWidth is always constant
 }
 
 /*! This virtual function returns 0 in QListBox and must
