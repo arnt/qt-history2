@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#135 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#136 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#135 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#136 $");
 
 
 /*!
@@ -3115,21 +3115,20 @@ static void write_pbm_image( QImageIO *iio )
 
     QImage image = iio->image();
 
-    if ( image.depth() == 1 ) {
-	if ( image.color(0) == QRgb(0,0,0)
-	  && image.color(1) == QRgb(255,255,255))
-	{
+    if ( image.depth() == 1 && image.numColors() == 2 ) {
+	if ( image.color(0) == qRgb(0,0,0) &&
+	     image.color(1) == qRgb(255,255,255) ) {
 	    // 0=Black, 1=White - invert
 	    image.detach();
 	    int w=(image.width()+7)/8;
 	    for (int y=0; y<image.height(); y++) {
+		uchar *p = image.scanLine(y);
 		for (int x=0; x<w; x++) {
-		    image.scanLine(y)[x] ^= 0xff;
+		    *p++ ^= 0xff;
 		}
 	    }
-	} else if ( image.color(1) == QRgb(0,0,0)
-	         && image.color(0) == QRgb(255,255,255))
-	{
+	} else if ( image.color(1) == qRgb(0,0,0) &&
+		    image.color(0) == qRgb(255,255,255) ) {
 	    // 1=Black, 0=White - normal PBM
 	} else {
 	    // Not monochrome - make it so.
