@@ -1070,15 +1070,51 @@ void QActionGroupPrivate::update( const QActionGroup* that )
   exclusive QActionGroup this property has no effect.
 
   By default member actions of a QActionGroup can't be visibly
-  distinguished from single actions in a menu or a tool bar. To place
+  distinguished from single actions in a menu or a tool bar: 
+
+  <IMG SRC="qactiongroup_menu.png" ALT="[ a default QActionGroup added to a popup menu ]"> 
+  <IMG SRC="qactiongroup_toolbar.png" ALT="[ a default QActionGroup added to a tool bar ]"> 
+
+  To place
   group members in a separate subwidget use setUsesDropDown().
   This is where iconSet(), text() and menuText() come handy to
   illustrate and describe the subwidget. For action groups with
   usesDropDown() being TRUE whatsThis() help and toolTip()s are
-  available where appropriate.
+  available where appropriate. The pictures below illustrate how the
+  subwidgets look like.
+
+  <TABLE BORDER=1 CELLSPACING=1 CELLPADDING=2 WIDTH=100%>
+  <TR>
+  <TH>&nbsp;</TH>
+  <TH COLSPAN=2>
+  QActionGroups with usesDropDown() TRUE added to a
+  </TH>
+  </TR>
+  <TR>
+  <TH>exclusive()</TH>
+  <TH>popup menu</TH>
+  <TH>tool bar</TH>
+  </TR>
+  <TR>
+  <TH>TRUE</TH>
+  <TD ROWSPAN=2>
+  <IMG SRC="qactiongroup_menu_subwidget.png" ALT="[ QActionGroup using subwidgets added to a popup menu ]"> 
+  </TD>
+  <TD>
+  <IMG SRC="qactiongroup_toolbar_exclusive_subwidget.png" ALT="[ exclusive QActionGroup using subwidgets added to a tool bar ]"> 
+  </TD>
+  </TR>
+  <TR>
+  <TH>FALSE</TH>
+  <TD>
+  <IMG SRC="qactiongroup_toolbar_nonexclusive_subwidget.png" ALT="[ non-exclusive QActionGroup using subwidgets added to a tool bar ]"> 
+  </TD>
+  </TR>
+  </TABLE>
 
   Other QAction properties like statusTip()
   and accel() have no effect with action groups.
+
 */
 
 /*! Constructs an action group with parent \a parent and name \a name.
