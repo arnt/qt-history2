@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#50 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#51 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2412,6 +2412,75 @@ bool QXmlSimpleReader::parseContinue( const QXmlInputSource& input )
 //
 
 /*
+  For the incremental parsing, it is very important that the parse...()
+  functions have a certain structure. Since it might be hard to understand how
+  they work, here is a description of the layout of these functions:
+
+    bool QXmlSimpleReader::parse...()
+    {
+(1)	const signed char Init             = 0;
+	...
+
+(2)	const signed char Inp...           = 0;
+	...
+
+(3)	static signed char table[3][2] = {
+	...
+	};
+	signed char state;
+	signed char input;
+
+(4)	if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+(4a)	...
+	} else {
+(4b)	...
+	}
+
+	while ( TRUE ) {
+(5)	    switch ( state ) {
+	    ...
+	    }
+
+(6)
+(6a)	    if ( atEnd() ) {
+		unexpectedEof( &QXmlSimpleReader::parseNmtoken, state );
+		return FALSE;
+	    }
+(6b)	    if ( is_NameChar(c) ) {
+	    ...
+	    }
+(7)	    state = table[state][input];
+
+(8)	    switch ( state ) {
+	    ...
+	    }
+	}
+    }
+
+  Explanation:
+  ad 1: constants for the states (used in the transition table)
+  ad 2: constants for the input (used in the transition table)
+  ad 3: the transition table for the state machine
+  ad 4: test if we are in a parseContinue() step
+        a) if no, do inititalizations
+	b) if yes, restore the state and call parse functions recursively
+  ad 5: Do some actions according to the state; from the logical execution
+        order, this code belongs after 8 (see there for an explanation)
+  ad 6: Check the character that is at the actual "cursor" position:
+	a) If we reached the EOF, report either error or push the state (in the
+	   case of incremental parsing).
+	b) Otherwise, set the input character constant for the transition
+	   table.
+  ad 7: Get the new state according to the input that was read.
+  ad 8: Do some actions according to the state. The last line in every case
+	statement reads new data (i.e. it move the cursor). This can also be
+	done by calling another parse...() funtion. If you need processing for
+	this state after that, you have to put it into the switch statement 5.
+	This ensures that you have a well defined re-entry point, when you ran
+	out of data.
+*/
+
+/*
   Parses the prolog [22].
 */
 bool QXmlSimpleReader::parseProlog()
@@ -2436,7 +2505,6 @@ bool QXmlSimpleReader::parseProlog()
     const signed char InpDash          = 5; // -
     const signed char InpUnknown       = 6;
 
-    // use some kind of state machine for parsing
     static signed char table[7][7] = {
      /*  InpWs   InpLt  InpQm  InpEm  InpD      InpDash  InpUnknown */
 	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }, // Init
@@ -2514,7 +2582,6 @@ bool QXmlSimpleReader::parseProlog()
 		return FALSE;
 	}
 
-	// read input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseProlog, state );
 	    return FALSE;
@@ -2534,25 +2601,20 @@ bool QXmlSimpleReader::parseProlog()
 	} else {
 	    input = InpUnknown;
 	}
-	// get new state
 	state = table[state][input];
 
-	// in some cases do special actions depending on state
 	switch ( state ) {
 	    case EatWS:
 		// XML declaration only on first position possible
 		xmldecl_possible = FALSE;
-		// eat white spaces
 		eat_ws();
 		break;
 	    case Lt:
-		// next character
 		next();
 		break;
 	    case Em:
 		// XML declaration only on first position possible
 		xmldecl_possible = FALSE;
-		// next character
 		next();
 		break;
 	    case DocType:
@@ -2604,7 +2666,6 @@ bool QXmlSimpleReader::parseElement()
     const signed char InpSlash         = 3; // /
     const signed char InpUnknown       = 4;
 
-    // use some kind of state machine for parsing
     static signed char table[11][5] = {
      /*  InpWs      InpNameBe    InpGt        InpSlash     InpUnknown */
 	{ -1,        ReadName,    -1,          -1,          -1        }, // Init
@@ -2657,7 +2718,6 @@ bool QXmlSimpleReader::parseElement()
 		return FALSE;
 	}
 
-	// read input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseElement, state );
 	    return FALSE;
@@ -2673,10 +2733,8 @@ bool QXmlSimpleReader::parseElement()
 	} else {
 	    input = InpUnknown;
 	}
-	// get new state
 	state = table[state][input];
 
-	// in some cases do special actions depending on state
 	switch ( state ) {
 	    case ReadName:
 		d->parseName_useRef = FALSE;
@@ -2733,7 +2791,6 @@ bool QXmlSimpleReader::parseElement()
 		}
 		if ( !processElementEmptyTag() )
 		    return FALSE;
-		// next character
 		next();
 		break;
 	    case Attribute:
@@ -2952,7 +3009,6 @@ bool QXmlSimpleReader::parseContent()
 	InpUnknown  // unknown
     };
 
-    // use some kind of state machine for parsing
     static signed char const table[14][10] = {
      /*  InpLt  InpGt  InpSlash  InpQMark  InpEMark  InpAmp  InpDash  InpOpenB  InpCloseB  InpUnknown */
 	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD1,      ChD  }, // Init
@@ -3069,11 +3125,8 @@ bool QXmlSimpleReader::parseContent()
 	} else {
 	    input = mapCLT2FSMChar[ charLookupTable[ c.cell() ] ];
 	}
-
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case ChD:
 		// on first call: clear string
@@ -3128,7 +3181,6 @@ bool QXmlSimpleReader::parseContent()
 		    }
 		}
 		charDataRead = FALSE;
-		// next character
 		next();
 		break;
 	    case PI:
@@ -3145,7 +3197,6 @@ bool QXmlSimpleReader::parseContent()
 		}
 		break;
 	    case Em:
-		// next character
 		next();
 		break;
 	    case Com:
@@ -3196,7 +3247,6 @@ bool QXmlSimpleReader::parseMisc()
     const signed char InpEm            = 3; // !
     const signed char InpUnknown       = 4;
 
-    // use some kind of state machine for parsing
     static signed char table[3][5] = {
      /*  InpWs   InpLt  InpQm  InpEm     InpUnknown */
 	{ eatWS,  Lt,    -1,    -1,       -1        }, // Init
@@ -3238,7 +3288,6 @@ bool QXmlSimpleReader::parseMisc()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseMisc, state );
 	    return FALSE;
@@ -3254,10 +3303,8 @@ bool QXmlSimpleReader::parseMisc()
 	} else {
 	    input = InpUnknown;
 	}
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case eatWS:
 		eat_ws();
@@ -3322,7 +3369,6 @@ bool QXmlSimpleReader::parsePI()
     const signed char InpQm            = 3; // ?
     const signed char InpUnknown       = 4;
 
-    // use some kind of state machine for parsing
     static signed char table[16][5] = {
      /*  InpWs,  InpNameBe  InpGt  InpQm   InpUnknown  */
 	{ -1,     -1,        -1,    QmI,    -1     }, // Init
@@ -3424,7 +3470,6 @@ bool QXmlSimpleReader::parsePI()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parsePI, state );
 	    return FALSE;
@@ -3440,10 +3485,8 @@ bool QXmlSimpleReader::parsePI()
 	} else {
 	    input = InpUnknown;
 	}
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case QmI:
 		next();
@@ -3540,7 +3583,6 @@ bool QXmlSimpleReader::parseDoctype()
     const signed char InpGt            = 6; // >
     const signed char InpUnknown       = 7;
 
-    // use some kind of state machine for parsing
     static signed char table[12][8] = {
      /*  InpWs,  InpD       InpS       InpOB  InpCB  InpPer InpGt  InpUnknown */
 	{ -1,     Doctype,   -1,        -1,    -1,    -1,    -1,    -1        }, // Init
@@ -3596,7 +3638,6 @@ bool QXmlSimpleReader::parseDoctype()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseDoctype, state );
 	    return FALSE;
@@ -3620,11 +3661,8 @@ bool QXmlSimpleReader::parseDoctype()
 	} else {
 	    input = InpUnknown;
 	}
-
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case Doctype:
 		d->parseString_s = "DOCTYPE";
@@ -3721,7 +3759,6 @@ bool QXmlSimpleReader::parseExternalID()
     const signed char InpWs            = 4; // white space
     const signed char InpUnknown       = 5;
 
-    // use some kind of state machine for parsing
     static signed char table[15][6] = {
      /*  InpSQ    InpDQ    InpS     InpP     InpWs     InpUnknown */
 	{ -1,      -1,      Sys,     Pub,     -1,       -1      }, // Init
@@ -3769,7 +3806,6 @@ bool QXmlSimpleReader::parseExternalID()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseExternalID, state );
 	    return FALSE;
@@ -3787,10 +3823,8 @@ bool QXmlSimpleReader::parseExternalID()
 	} else {
 	    input = InpUnknown;
 	}
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case Sys:
 		d->parseString_s = "SYSTEM";
@@ -3874,7 +3908,6 @@ bool QXmlSimpleReader::parseMarkupdecl()
     const signed char InpN             = 7; // N
     const signed char InpUnknown       = 8;
 
-    // use some kind of state machine for parsing
     static signed char table[4][9] = {
      /*  InpLt  InpQm  InpEm  InpDash  InpA   InpE   InpL   InpN   InpUnknown */
 	{ Lt,    -1,    -1,    -1,      -1,    -1,    -1,    -1,    -1     }, // Init
@@ -3925,7 +3958,6 @@ bool QXmlSimpleReader::parseMarkupdecl()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseMarkupdecl, state );
 	    return FALSE;
@@ -3949,11 +3981,8 @@ bool QXmlSimpleReader::parseMarkupdecl()
 	} else {
 	    input = InpUnknown;
 	}
-
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case Lt:
 		next();
@@ -4019,7 +4048,6 @@ bool QXmlSimpleReader::parsePEReference()
     const signed char InpPer           = 1; // %
     const signed char InpUnknown       = 2;
 
-    // use some kind of state machine for parsing
     static signed char table[3][3] = {
      /*  InpSemi  InpPer  InpUnknown */
 	{ -1,      Next,   -1    }, // Init
@@ -4068,7 +4096,6 @@ bool QXmlSimpleReader::parsePEReference()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parsePEReference, state );
 	    return FALSE;
@@ -4080,10 +4107,8 @@ bool QXmlSimpleReader::parsePEReference()
 	} else {
 	    input = InpUnknown;
 	}
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case Next:
 		next();
@@ -4136,7 +4161,6 @@ bool QXmlSimpleReader::parseAttlistDecl()
     const signed char InpR             = 6; // R
     const signed char InpUnknown       = 7;
 
-    // use some kind of state machine for parsing
     static signed char table[15][8] = {
      /*  InpWs    InpGt    InpHash  InpA      InpI     InpF     InpR     InpUnknown */
 	{ -1,      -1,      -1,      Attlist,  -1,      -1,      -1,      -1      }, // Init
@@ -4180,7 +4204,6 @@ bool QXmlSimpleReader::parseAttlistDecl()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseAttlistDecl, state );
 	    return FALSE;
@@ -4202,11 +4225,8 @@ bool QXmlSimpleReader::parseAttlistDecl()
 	} else {
 	    input = InpUnknown;
 	}
-
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case Attlist:
 		d->parseString_s = "ATTLIST";
@@ -4330,7 +4350,6 @@ bool QXmlSimpleReader::parseAttType()
     const signed char InpY             = 12; // Y
     const signed char InpUnknown       = 13;
 
-    // use some kind of state machine for parsing
     static signed char table[19][14] = {
      /*  InpWs    InpOp    InpCp    InpPipe  InpC     InpE     InpI     InpM     InpN     InpO     InpR     InpS     InpY     InpUnknown */
 	{ -1,      EN,      -1,      -1,      ST,      TTE,     TTI,     -1,      N,       -1,      -1,      -1,      -1,      -1     }, // Init
@@ -4374,7 +4393,6 @@ bool QXmlSimpleReader::parseAttType()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseAttType, state );
 	    return FALSE;
@@ -4408,11 +4426,8 @@ bool QXmlSimpleReader::parseAttType()
 	} else {
 	    input = InpUnknown;
 	}
-
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case ST:
 		d->parseString_s = "CDATA";
@@ -4536,7 +4551,6 @@ bool QXmlSimpleReader::parseAttValue()
     const signed char InpLt            = 3; // <
     const signed char InpUnknown       = 4;
 
-    // use some kind of state machine for parsing
     static signed char table[7][5] = {
      /*  InpDq  InpSq  InpAmp  InpLt InpUnknown */
 	{ Dq,    Sq,    -1,     -1,   -1    }, // Init
@@ -4566,7 +4580,6 @@ bool QXmlSimpleReader::parseAttValue()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseAttValue, state );
 	    return FALSE;
@@ -4582,10 +4595,8 @@ bool QXmlSimpleReader::parseAttValue()
 	} else {
 	    input = InpUnknown;
 	}
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case Dq:
 	    case Sq:
@@ -4654,7 +4665,6 @@ bool QXmlSimpleReader::parseElementDecl()
     const signed char InpL             = 11; // L
     const signed char InpUnknown       = 12;
 
-    // use some kind of state machine for parsing
     static signed char table[18][13] = {
      /*  InpWs   InpGt  InpPipe  InpOp  InpCp   InpHash  InpQm  InpAst  InpPlus  InpA    InpE    InpL    InpUnknown */
 	{ -1,     -1,    -1,      -1,    -1,     -1,      -1,    -1,     -1,      -1,     -1,     Elem,   -1     }, // Init
@@ -4694,7 +4704,6 @@ bool QXmlSimpleReader::parseElementDecl()
 		return FALSE;
 	}
 
-	// read input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseElementDecl, state );
 	    return FALSE;
@@ -4726,10 +4735,8 @@ bool QXmlSimpleReader::parseElementDecl()
 	} else {
 	    input = InpUnknown;
 	}
-	// get new state
 	state = table[state][input];
 
-	// in some cases do special actions depending on state
 	switch ( state ) {
 	    case Elem:
 		d->parseString_s = "LEMENT";
@@ -4838,7 +4845,6 @@ bool QXmlSimpleReader::parseNotationDecl()
     const signed char InpN             = 2; // N
     const signed char InpUnknown       = 3;
 
-    // use some kind of state machine for parsing
     static signed char table[7][4] = {
      /*  InpWs   InpGt  InpN    InpUnknown */
 	{ -1,     -1,    Not,    -1     }, // Init
@@ -4877,7 +4883,6 @@ bool QXmlSimpleReader::parseNotationDecl()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseNotationDecl, state );
 	    return FALSE;
@@ -4891,11 +4896,8 @@ bool QXmlSimpleReader::parseNotationDecl()
 	} else {
 	    input = InpUnknown;
 	}
-
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case Not:
 		d->parseString_s = "NOTATION";
@@ -4960,7 +4962,6 @@ bool QXmlSimpleReader::parseChoiceSeq()
     const signed char InpComm          = 7; // ,
     const signed char InpUnknown       = 8;
 
-    // use some kind of state machine for parsing
     static signed char table[6][9] = {
      /*  InpWs   InpOp  InpCp  InpQm  InpAst  InpPlus  InpPipe  InpComm  InpUnknown */
 	{ -1,     Ws1,   -1,    -1,    -1,     -1,      -1,      -1,      Name  }, // Init
@@ -4989,7 +4990,6 @@ bool QXmlSimpleReader::parseChoiceSeq()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseChoiceSeq, state );
 	    return FALSE;
@@ -5013,11 +5013,8 @@ bool QXmlSimpleReader::parseChoiceSeq()
 	} else {
 	    input = InpUnknown;
 	}
-
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case Ws1:
 		next_eat_ws();
@@ -5084,7 +5081,6 @@ bool QXmlSimpleReader::parseEntityDecl()
     const signed char InpN             = 4; // N
     const signed char InpUnknown       = 5;
 
-    // use some kind of state machine for parsing
     static signed char table[18][6] = {
      /*  InpWs  InpPer  InpQuot  InpGt  InpN    InpUnknown */
 	{ -1,    -1,     -1,      -1,    Ent,    -1      }, // Init
@@ -5180,7 +5176,6 @@ bool QXmlSimpleReader::parseEntityDecl()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseEntityDecl, state );
 	    return FALSE;
@@ -5198,10 +5193,8 @@ bool QXmlSimpleReader::parseEntityDecl()
 	} else {
 	    input = InpUnknown;
 	}
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case Ent:
 		d->parseString_s = "NTITY";
@@ -5320,7 +5313,6 @@ bool QXmlSimpleReader::parseEntityValue()
     const signed char InpPer           = 3; // %
     const signed char InpUnknown       = 4;
 
-    // use some kind of state machine for parsing
     static signed char table[9][5] = {
      /*  InpDq  InpSq  InpAmp  InpPer  InpUnknown */
 	{ Dq,    Sq,    -1,     -1,     -1    }, // Init
@@ -5352,7 +5344,6 @@ bool QXmlSimpleReader::parseEntityValue()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseEntityValue, state );
 	    return FALSE;
@@ -5368,11 +5359,8 @@ bool QXmlSimpleReader::parseEntityValue()
 	} else {
 	    input = InpUnknown;
 	}
-
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case Dq:
 	    case Sq:
@@ -5430,7 +5418,6 @@ bool QXmlSimpleReader::parseComment()
     const signed char InpGt            = 1; // >
     const signed char InpUnknown       = 2;
 
-    // use some kind of state machine for parsing
     static signed char table[6][3] = {
      /*  InpDash  InpGt  InpUnknown */
 	{ Dash1,   -1,    -1  }, // Init
@@ -5468,7 +5455,6 @@ bool QXmlSimpleReader::parseComment()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseComment, state );
 	    return FALSE;
@@ -5480,11 +5466,8 @@ bool QXmlSimpleReader::parseComment()
 	} else {
 	    input = InpUnknown;
 	}
-
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case Dash1:
 		next();
@@ -5533,7 +5516,6 @@ bool QXmlSimpleReader::parseAttribute()
     const signed char InpSq            = 3; // '
     const signed char InpUnknown       = 4;
 
-    // use some kind of state machine for parsing
     static signed char table[4][5] = {
      /*  InpNameBe  InpEq  InpDq    InpSq    InpUnknown */
 	{ PName,     -1,    -1,      -1,      -1    }, // Init
@@ -5561,7 +5543,6 @@ bool QXmlSimpleReader::parseAttribute()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseAttribute, state );
 	    return FALSE;
@@ -5577,11 +5558,8 @@ bool QXmlSimpleReader::parseAttribute()
 	} else {
 	    input = InpUnknown;
 	}
-
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case PName:
 		d->parseName_useRef = FALSE;
@@ -5620,7 +5598,6 @@ bool QXmlSimpleReader::parseName()
     const signed char InpNameCh        = 1; // NameChar without InpNameBe
     const signed char InpUnknown       = 2;
 
-    // use some kind of state machine for parsing
     static signed char table[3][3] = {
      /*  InpNameBe  InpNameCh  InpUnknown */
 	{ Name1,     -1,        -1    }, // Init
@@ -5646,7 +5623,6 @@ bool QXmlSimpleReader::parseName()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseName, state );
 	    return FALSE;
@@ -5658,11 +5634,8 @@ bool QXmlSimpleReader::parseName()
 	} else {
 	    input = InpUnknown;
 	}
-
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case Name1:
 		if ( d->parseName_useRef ) {
@@ -5699,7 +5672,6 @@ bool QXmlSimpleReader::parseNmtoken()
     const signed char InpNameCh        = 0; // NameChar without InpNameBe
     const signed char InpUnknown       = 1;
 
-    // use some kind of state machine for parsing
     static signed char table[3][2] = {
      /*  InpNameCh  InpUnknown */
 	{ NameF,     -1    }, // Init
@@ -5725,7 +5697,6 @@ bool QXmlSimpleReader::parseNmtoken()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseNmtoken, state );
 	    return FALSE;
@@ -5735,10 +5706,8 @@ bool QXmlSimpleReader::parseNmtoken()
 	} else {
 	    input = InpUnknown;
 	}
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case NameF:
 		nameClear();
@@ -5790,7 +5759,6 @@ bool QXmlSimpleReader::parseReference()
     const signed char InpHex           = 5; // a-f A-F
     const signed char InpUnknown       = 6;
 
-    // use some kind of state machine for parsing
     static signed char table[8][7] = {
      /*  InpAmp  InpSemi  InpHash  InpX     InpNum  InpHex  InpUnknown */
 	{ SRef,   -1,      -1,      -1,      -1,     -1,     -1    }, // Init
@@ -5824,7 +5792,6 @@ bool QXmlSimpleReader::parseReference()
 		return FALSE;
 	}
 
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseReference, state );
 	    return FALSE;
@@ -5848,11 +5815,8 @@ bool QXmlSimpleReader::parseReference()
 	} else {
 	    input = InpUnknown;
 	}
-
-	// set state according to input
 	state = table[state][input];
 
-	// do some actions according to state
 	switch ( state ) {
 	    case SRef:
 		refClear();
@@ -6092,8 +6056,6 @@ bool QXmlSimpleReader::parseString()
 	    return TRUE;
 	}
 
-
-	// get input
 	if ( atEnd() ) {
 	    unexpectedEof( &QXmlSimpleReader::parseString, state );
 	    return FALSE;
@@ -6103,7 +6065,6 @@ bool QXmlSimpleReader::parseString()
 	} else {
 	    input = InpUnknown;
 	}
-	// set state according to input
 	if ( input == InpCharExpected ) {
 	    state++;
 	} else {
@@ -6112,7 +6073,6 @@ bool QXmlSimpleReader::parseString()
 	    return FALSE;
 	}
 
-	// do some actions according to state
 	next();
     }
 }
