@@ -488,17 +488,36 @@ void CQtTestControlCtrl::Sub(long x, long y, long FAR* res)
 }
 
 #include <qapplication.h>
+#include <qlineedit.h>
 
 long CQtTestControlCtrl::OpenWidget() 
 {
-	if ( qApp ) {
-	    QWidget *widget = new QWidget( 0, 0, Qt::WStyle_Customize );
-	    ::SetParent( widget->winId(), m_hWnd );
-	    ::SetWindowLong( widget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
-	    widget->raise();
-	    widget->move( 0, 0 );
-	    widget->show();
+    QWidget *widget = 0;
+    if ( !qApp ) {
+	int argc;
+	new QApplication( argc, 0 );
+    }
+    if ( qApp ) {
+	widget = new QWidget( 0, 0, Qt::WStyle_Customize );
+	::SetParent( widget->winId(), m_hWnd );
+	::SetWindowLong( widget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+	HWND parent = ::GetParent( m_hWnd );
+	QWidget *parentWidget = 0;
+	while ( parent ) {
+	    if ( ( parentWidget = QWidget::find( parent ) ) )
+		break;
+	    parent = ::GetParent( parent );	    
 	}
+	if ( parentWidget )
+	    widget->reparent( parentWidget, Qt::WStyle_Customize, QPoint( 0,0 ), FALSE );
 
-	return 0;
+	QLineEdit *le = new QLineEdit( widget );
+	le->show();
+
+	widget->raise();
+	widget->move( 0, 0 );
+	widget->show();
+    }
+
+    return 0;
 }

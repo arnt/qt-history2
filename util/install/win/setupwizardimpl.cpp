@@ -588,6 +588,7 @@ void SetupWizardImpl::doFinalIntegration()
     shell.createShortcut( dirName, common, "Reconfigure Qt", qtDir + "\\bin\\install.exe", "Reconfigure the Qt library", "-reconfig", qtDir );
 #endif
     shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + qtDir + "\\LICENSE\"" );
+    shell.createShortcut( dirName, common, "Readme", "notepad.exe", "Important information", QString( "\"" ) + qtDir + "\\README\"" );
     shell.createShortcut( dirName, common, "On-line documentation", qtDir + "\\bin\\assistant.exe", "Browse the On-line documentation", "", qtDir );
     shell.createShortcut( dirName, common, "Linguist", qtDir + "\\bin\\linguist.exe", "Qt translation utility", "", qtDir );
     if( qWinVersion() & WV_DOS_based ) {
@@ -629,15 +630,15 @@ void SetupWizardImpl::doFinalIntegration()
     ** Then record the installation in the registry, and set up the uninstallation
     */
     QStringList uninstaller;
-    uninstaller << ( shell.windowsFolderName + "\\quninstall.exe" );
+    uninstaller << ( QString("\"") + shell.windowsFolderName + "\\quninstall.exe" + QString("\"") );
     uninstaller << installPath->text();
 
     if( common )
-	uninstaller << ( QString( "\"" ) + shell.commonProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
+	uninstaller << ( QString("\"") + shell.commonProgramsFolderName + QString("\\") + folderPath->text() + QString("\"") );
     else
-	uninstaller << ( QString( "\"" ) + shell.localProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
+	uninstaller << ( QString("\"") + shell.localProgramsFolderName + QString("\\") + folderPath->text() + QString("\"") );
 
-    uninstaller << qt_version_str;
+    uninstaller << ( QString("\"") + qt_version_str + QString("\"") );
 
     QEnvironment::recordUninstall( QString( "Qt " ) + qt_version_str, uninstaller.join( " " ) );
 #endif
@@ -978,28 +979,6 @@ void SetupWizardImpl::showPageProgress()
 		operationProgress->setTotalSteps( FILESTOCOPY );
 		copySuccessful = copyFiles( QDir::currentDirPath(), installPath->text(), true );
 
-#if 0
-		// ### what is the purpose of this? Can't we put it right in
-		// the package in first place?
-		{
-		    QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
-		    QFile outFile( shell.windowsFolderName + "\\quninstall.exe" );
-		    QFileInfo fi( inFile );
-		    QByteArray buffer( fi.size() );
-
-		    if( buffer.size() ) {
-			if( inFile.open( IO_ReadOnly ) ) {
-			    if( outFile.open( IO_WriteOnly ) ) {
-				inFile.readBlock( buffer.data(), buffer.size() );
-				outFile.writeBlock( buffer.data(), buffer.size() );
-				outFile.close();
-			    }
-			    inFile.close();
-			}
-		    }
-		}
-#endif
-
 		/*These lines are only to be used when changing the filecount estimate
 		  QString tmp( "%1" );
 		  tmp = tmp.arg( totalFiles );
@@ -1035,6 +1014,29 @@ void SetupWizardImpl::showPageProgress()
 
 	timeCounter = 30;
 	if( copySuccessful ) {
+#if defined(Q_OS_WIN32)
+	    {
+		// copy the uninstaller to the Windows directory -- this is
+		// necessary since the uninstaller deletes all files in the
+		// installation directory (and therefore can't delete
+		// itself)
+		QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
+		QFile outFile( shell.windowsFolderName + "\\quninstall.exe" );
+		QFileInfo fi( inFile );
+		QByteArray buffer( fi.size() );
+
+		if( buffer.size() ) {
+		    if( inFile.open( IO_ReadOnly ) ) {
+			if( outFile.open( IO_WriteOnly ) ) {
+			    inFile.readBlock( buffer.data(), buffer.size() );
+			    outFile.writeBlock( buffer.data(), buffer.size() );
+			    outFile.close();
+			}
+			inFile.close();
+		    }
+		}
+	    }
+#endif
 #if defined(EVAL)
 	    // patch qt-mt.lib (or qtmt.lib under Borland)
 	    QString qtLib;
