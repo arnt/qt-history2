@@ -135,6 +135,18 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
 
     // need to clear the state of the mainData, just in case a new QCoreApplication comes along.
     QMutexLocker locker(&data->postEventList.mutex);
+    for (int i = 0; i < data->postEventList.size(); ++i) {
+        const QPostEvent &pe = data->postEventList.at(i);
+        if (pe.event) {
+            --pe.receiver->d->postedEvents;
+#ifdef QT_COMPAT
+            if (pe.event->type() == QEvent::ChildInserted)
+                --pe.receiver->d->postedChildInsertedEvents;
+#endif
+            pe.event->posted = false;
+            delete pe.event;
+        }
+    }
     data->postEventList.clear();
     data->postEventList.offset = 0;
     data->id = -1;
@@ -658,10 +670,18 @@ bool QCoreApplication::compressEvent(QEvent *, QObject *, QPostEventList *)
 
 void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 {
-    QThread *thread = receiver ? receiver->thread() : 0;
-    QThreadData *data = thread ? QThreadData::get(thread) : QThreadData::current();
-    Q_ASSERT_X(data != 0, "QCoreApplication::sendPostedEvents",
-               "Cannot send posted events without an event loop");
+    QThreadData *data;
+    if (receiver) {
+        QThread *thread = receiver->thread();
+        data = thread ? QThreadData::get(thread) : mainData();
+        Q_ASSERT_X(data != 0, "QCoreApplication::sendPostedEvents", "internal error");
+        Q_ASSERT_X(data == QThreadData::current(), "QCoreApplication::sendPostedEvents",
+                   "Cannot send posted events for object created in another thread");
+    } else {
+        data = QThreadData::current();
+        Q_ASSERT_X(data != 0, "QCoreApplication::sendPostedEvents",
+                   "Posted events can only be send from threads started with QThread");
+    }
 
 #ifdef QT_COMPAT
     // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
@@ -767,7 +787,7 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
 {
     if (!receiver) return;
     QThread *thread = receiver->thread();
-    QThreadData *data = thread ? QThreadData::get(thread) : QThreadData::current();
+    QThreadData *data = thread ? QThreadData::get(thread) : mainData();
     if (!data) return;
 
     QMutexLocker locker(&data->postEventList.mutex);
@@ -856,6 +876,11 @@ void QCoreApplication::removePostedEvent(QEvent * event)
                      event->type(),
                      pe.receiver ? pe.receiver->metaObject()->className() : "null",
                      pe.receiver ? pe.receiver->objectName().toLocal8Bit().data() : "object");
+#endif
+            --pe.receiver->d->postedEvents;
+#ifdef QT_COMPAT
+            if (pe.event->type() == QEvent::ChildInserted)
+                --pe.receiver->d->postedChildInsertedEvents;
 #endif
             pe.event->posted = false;
             delete pe.event;
