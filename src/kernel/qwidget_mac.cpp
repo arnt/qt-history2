@@ -1397,7 +1397,7 @@ void QWidget::erase( int x, int y, int w, int h )
 
 void QWidget::erase( const QRegion& reg )
 {
-    if ( backgroundMode() == NoBackground )
+    if ( backgroundMode() == NoBackground || isDesktop() )
 	return;
     QRect rr(reg.boundingRect());
 
