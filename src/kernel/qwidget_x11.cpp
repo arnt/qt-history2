@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#397 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#398 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -599,7 +599,8 @@ static XFontSet fixed_fontset = 0; // leaked once
 static
 void cleanup_ffs()
 {
-    XFreeFontSet(QPaintDevice::x11AppDisplay(), fixed_fontset);
+    if ( fixed_fontset )
+        XFreeFontSet(QPaintDevice::x11AppDisplay(), fixed_fontset);
     fixed_fontset = 0;
 }
 
