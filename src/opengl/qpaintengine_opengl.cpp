@@ -412,9 +412,33 @@ void QOpenGLPaintEngine::updateXForm(const QMatrix &mtx)
     glLoadMatrixf(&mat[0][0]);
 }
 
-void QOpenGLPaintEngine::updateClipRegion(const QRegion &, bool )
+void QOpenGLPaintEngine::updateClipRegion(const QRegion &region, bool clip)
 {
+    QVector <QRect> rects(region.rects());
 
+    if  (clip) {
+        glClearStencil(0x00);
+        glClear(GL_STENCIL_BUFFER_BIT);
+
+        glStencilMask(0x01);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+	// using glScissor/glClear is faster than drawing the mask
+	// using GL primitives (thanks to Peter Nilsson for that idea)
+        glClearStencil(0x01);
+        glEnable(GL_SCISSOR_TEST);
+        for (int i = 0; i < rects.size(); i++) {
+            glScissor(rects.at(i).left(), dgl->height() - rects.at(i).bottom(),
+                      rects.at(i).width(), rects.at(i).height());
+            glClear(GL_STENCIL_BUFFER_BIT);
+        }
+
+        glDisable(GL_SCISSOR_TEST);
+        glStencilFunc(GL_EQUAL, 0x01, 0x01);
+        glEnable(GL_STENCIL_TEST);
+    } else {
+        glDisable(GL_STENCIL_TEST);
+    }
 }
 
 void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
