@@ -13,6 +13,7 @@
 class QWidget;
 class QLayout;
 class QDomElement;
+class QListViewItem;
 
 class QWidgetFactory
 {
@@ -38,6 +39,9 @@ private:
     QImage loadFromCollection( const QString &name );
     QPixmap loadPixmap( const QDomElement &e );
     QColorGroup loadColorGroup( const QDomElement &e );
+    void createColumn( const QDomElement &e, QWidget *widget );
+    void loadItem( const QDomElement &e, QPixmap &pix, QString &txt, bool &hasPixmap );
+    void createItem( const QDomElement &e, QWidget *widget, QListViewItem *i = 0 );
 
 private:
     struct Image {
@@ -51,7 +55,8 @@ private:
 
     QValueList<Image> images;
     QWidget *toplevel;
-    
+    QListViewItem *lastItem;
+
 };
 
 #endif

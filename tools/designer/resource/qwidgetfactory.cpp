@@ -261,6 +261,7 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 
 QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *parent, QLayout* layout )
 {
+    lastItem = 0;
     QDomElement n = e.firstChild().toElement();
     QWidget *w = 0; // the widget that got created
     QObject *obj = 0; // gets the properties
@@ -363,15 +364,9 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 		}
 	    }
 	} else if ( n.tagName() == "item" ) {
-	    qWarning( "items not supported yet" );
-#if 0
 	    createItem( n, w );
-#endif
 	} else if ( n.tagName() == "column" ) {
-	    qWarning( "items not supported yet" );
-#if 0
 	    createColumn( n, w );
-#endif
 	}
 	
 	n = n.nextSibling().toElement();
@@ -386,14 +381,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutType type )
 {
     int spacing = BOXLAYOUT_DEFAULT_SPACING;
-    int margin = 0;
-
-#if 0 // ####
-    if ( widget && !widget->inherits( "QLayoutWidget" ) &&
-	 ( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) ||
-	   widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) )
-#endif
-	margin = BOXLAYOUT_DEFAULT_MARGIN;
+    int margin = BOXLAYOUT_DEFAULT_MARGIN;
 	
     if ( !layout && widget && widget->inherits( "QTabWidget" ) )
 	widget = ((QTabWidget*)widget)->currentPage();
@@ -816,7 +804,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e )
 	
 	    QObject::connect( sender, s, receiver, s2 );
 	} else if ( n.tagName() == "slot" ) {
-	    qWarning( "custom slots are not supported by QWidgetFactory" );
+	    // #### what to do with custom slots????
 	}
 	n = n.nextSibling().toElement();
     }
@@ -841,5 +829,139 @@ void QWidgetFactory::loadTabOrder( const QDomElement &e )
 	    }
 	}
 	n = n.nextSibling().toElement();
+    }
+}
+
+void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
+{
+    if ( widget->inherits( "QListView" ) ) {
+	QListView *lv = (QListView*)widget;
+	QDomElement n = e.firstChild().toElement();
+	QPixmap pix;
+	bool hasPixmap = FALSE;
+	QString txt;
+	bool clickable = TRUE, resizeable = TRUE;
+	while ( !n.isNull() ) {
+	    if ( n.tagName() == "property" ) {
+		QDomElement n2 = n.firstChild().toElement();
+		if ( n2.tagName() == "name" ) {
+		    QString attrib = n2.firstChild().toText().data();
+		    QVariant v = DomTool::elementToVariant( n2.nextSibling().toElement(), QVariant() );
+		    if ( attrib == "text" )
+			txt = v.toString();
+		    else if ( attrib == "pixmap" ) {
+			pix = loadPixmap( n2.nextSibling().toElement() );
+			hasPixmap = TRUE;
+		    } else if ( attrib == "clickable" )
+			clickable = v.toBool();
+		    else if ( attrib == "resizeable" )
+			resizeable = v.toBool();
+		}
+	    }
+	    n = n.nextSibling().toElement();
+	}
+	lv->addColumn( txt );
+	int i = lv->header()->count() - 1;
+	if ( hasPixmap ) {
+	    lv->header()->setLabel( i, pix, txt );
+	}
+	if ( !clickable )
+	    lv->header()->setClickEnabled( clickable, i );
+	if ( !resizeable )
+	    lv->header()->setResizeEnabled( resizeable, i );
+    }
+}
+
+void QWidgetFactory::loadItem( const QDomElement &e, QPixmap &pix, QString &txt, bool &hasPixmap )
+{
+    QDomElement n = e;
+    hasPixmap = FALSE;
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "property" ) {
+	    QDomElement n2 = n.firstChild().toElement();
+	    if ( n2.tagName() == "name" ) {
+		QString attrib = n2.firstChild().toText().data();
+		QVariant v = DomTool::elementToVariant( n2.nextSibling().toElement(), QVariant() );
+		if ( attrib == "text" )
+		    txt = v.toString();
+		else if ( attrib == "pixmap" ) {
+		    pix = loadPixmap( n2.nextSibling().toElement() );
+		    hasPixmap = TRUE;
+		}
+	    }
+	}
+	n = n.nextSibling().toElement();
+    }
+}
+
+void QWidgetFactory::createItem( const QDomElement &e, QWidget *widget, QListViewItem *i )
+{
+    if ( widget->inherits( "QListBox" ) || widget->inherits( "QComboBox" ) ) {
+	QDomElement n = e.firstChild().toElement();
+	QPixmap pix;
+	bool hasPixmap = FALSE;
+	QString txt;
+	loadItem( n, pix, txt, hasPixmap );
+	QListBox *lb = 0;
+	if ( widget->inherits( "QListBox" ) )
+	    lb = (QListBox*)widget;
+	else
+	    lb = ( (QComboBox*)widget)->listBox();
+	if ( hasPixmap ) {
+	    new QListBoxPixmap( lb, pix, txt );
+	} else {
+	    new QListBoxText( lb, txt );
+	}
+    } else if ( widget->inherits( "QIconView" ) ) {
+	QDomElement n = e.firstChild().toElement();
+	QPixmap pix;
+	bool hasPixmap = FALSE;
+	QString txt;
+	loadItem( n, pix, txt, hasPixmap );
+
+	QIconView *iv = (QIconView*)widget;
+	new QIconViewItem( iv, txt, pix );
+    } else if ( widget->inherits( "QListView" ) ) {
+	QDomElement n = e.firstChild().toElement();
+	QPixmap pix;
+	QValueList<QPixmap> pixmaps;
+	QStringList textes;
+	QListViewItem *item = 0;
+	QListView *lv = (QListView*)widget;
+	if ( i )
+	    item = new QListViewItem( i, lastItem );
+	else
+	    item = new QListViewItem( lv, lastItem );
+	while ( !n.isNull() ) {
+	    if ( n.tagName() == "property" ) {
+		QDomElement n2 = n.firstChild().toElement();
+		if ( n2.tagName() == "name" ) {
+		    QString attrib = n2.firstChild().toText().data();
+		    QVariant v = DomTool::elementToVariant( n2.nextSibling().toElement(), QVariant() );
+		    if ( attrib == "text" )
+			textes << v.toString();
+		    else if ( attrib == "pixmap" ) {
+			QString s = v.toString();
+			if ( s.isEmpty() ) {
+			    pixmaps << QPixmap();
+			} else {
+			    pix = loadPixmap( n2.nextSibling().toElement() );
+			    pixmaps << pix;
+			}
+		    }
+		}
+	    } else if ( n.tagName() == "item" ) {
+		item->setOpen( TRUE );
+		createItem( n, widget, item );
+	    }
+		
+	    n = n.nextSibling().toElement();
+	}
+	
+	for ( int i = 0; i < lv->columns(); ++i ) {
+	    item->setText( i, textes[ i ] );
+	    item->setPixmap( i, pixmaps[ i ] );
+	}
+	lastItem = item;
     }
 }
