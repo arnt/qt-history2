@@ -75,7 +75,7 @@ public:
 	if ( n ) {
 	    // consume buffer
 	    memcpy(pBuf, buffer+ubuffer, n );
-	    pBuf += n;
+	    pBuf = (mng_ptr)((char*)pBuf + n);
 	    iBuflen -= n;
 	    ubuffer = nbuffer;
 	}
@@ -147,11 +147,11 @@ private:
     uint maxbuffer;
     uint nbuffer;
 
-    void enlargeBuffer(int n)
+    void enlargeBuffer(uint n)
     {
 	if ( n > maxbuffer ) {
 	    maxbuffer = n;
-	    buffer = realloc(buffer,n);
+	    buffer = (uchar*)realloc(buffer,n);
 	}
     }
 
@@ -218,13 +218,25 @@ TODO: decide on this point.  gIFg gives disposal types, so it can be done.
 QImageFormat* QMNGFormatType::decoderFor(
     const uchar* buffer, int length)
 {
-    if (length < 6) return 0;
-    if (buffer[0]==138
+    if (length < 8) return 0;
+
+    if (buffer[0]==138 // MNG signature
      && buffer[1]=='M'
      && buffer[2]=='N'
      && buffer[3]=='G'
      && buffer[4]==13
-     && buffer[5]==10)
+     && buffer[5]==10
+     && buffer[6]==26
+     && buffer[7]==10
+     || buffer[0]==137 // PNG signature
+     && buffer[1]=='P'
+     && buffer[2]=='N'
+     && buffer[3]=='G'
+     && buffer[4]==13
+     && buffer[5]==10
+     && buffer[6]==26
+     && buffer[7]==10
+    )
 	return new QMNGFormat;
     return 0;
 }
@@ -332,7 +344,7 @@ int QMNGFormat::decode(QImage& img, QImageConsumer* cons,
     ubuffer = 0;
 
     if ( state == MovieStart ) {
-        handle = mng_initialize( this, ::memalloc, ::memfree, 0 );
+        handle = mng_initialize( (mng_ptr)this, ::memalloc, ::memfree, 0 );
 	mng_setcb_openstream( handle, ::openstream );
 	mng_setcb_closestream( handle, ::closestream );
 	mng_setcb_readdata( handle, ::readdata );
@@ -343,7 +355,7 @@ int QMNGFormat::decode(QImage& img, QImageConsumer* cons,
 	mng_setcb_gettickcount( handle, ::gettickcount );
 	mng_setcb_settimer( handle, ::settimer );
 	state = Data;
-	int e = mng_readdisplay(handle);
+	mng_readdisplay(handle);
     }
 
     if ( state == Time ) {

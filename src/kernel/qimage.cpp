@@ -3113,7 +3113,7 @@ static void cleanup_image_handlers()		// cleanup image handler list
     imageHandlers = 0;
 }
 
-static void init_image_handlers()		// initialize image handlers
+void qt_init_image_handlers()		// initialize image handlers
 {
     if ( !imageHandlers ) {
 	imageHandlers = new QIHList;
@@ -3160,8 +3160,7 @@ static void init_image_handlers()		// initialize image handlers
 
 static QImageHandler *get_image_handler( const char *format )
 {						// get pointer to handler
-    if ( !imageHandlers )
-	init_image_handlers();
+    qt_init_image_handlers();
     register QImageHandler *p = imageHandlers->first();
     while ( p ) {				// traverse list
 	if ( p->format == format )
@@ -3228,8 +3227,7 @@ void QImageIO::defineIOHandler( const char *format,
 				image_io_handler read_image,
 				image_io_handler write_image )
 {
-    if ( !imageHandlers )
-	init_image_handlers();
+    qt_init_image_handlers();
     QImageHandler *p;
     p = new QImageHandler( format, header, flags,
 			   read_image, write_image );
@@ -3403,8 +3401,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
 {
     const int buflen = 14;
     char buf[buflen];
-    if ( imageHandlers == 0 )
-	init_image_handlers();
+    qt_init_image_handlers();
     int pos   = d->at();			// save position
     int rdlen = d->readBlock( buf, buflen );	// read a few bytes
 
@@ -3442,8 +3439,7 @@ QStrList QImageIO::inputFormats()
 {
     QStrList result;
 
-    if ( imageHandlers == 0 )
-	init_image_handlers();
+    qt_init_image_handlers();
 
 #ifndef QT_NO_ASYNC_IMAGE_IO
     // Include asynchronous loaders first.
@@ -3471,8 +3467,7 @@ QStrList QImageIO::outputFormats()
 {
     QStrList result;
 
-    if ( imageHandlers == 0 )
-	init_image_handlers();
+    qt_init_image_handlers();
 
     // Include asynchronous writers (!) first.
     // (None)

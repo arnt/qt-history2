@@ -32,6 +32,7 @@
 #include "qgif.h"
 #include <stdlib.h>
 
+extern void qt_init_image_handlers();
 
 
 // NOT REVISED
@@ -295,6 +296,7 @@ void QImageDecoderPrivate::cleanup()
 */
 QImageDecoder::QImageDecoder(QImageConsumer* c)
 {
+    qt_init_image_handlers();
     d = new QImageDecoderPrivate;
     CHECK_PTR(d);
     consumer = c;
