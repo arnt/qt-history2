@@ -32,6 +32,7 @@ signals:
 protected:
     void tabletEvent( QTabletEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
+    void paintEvent( QPaintEvent *e );
 };
 
 class TabletStats : public QWidget
@@ -51,7 +52,9 @@ protected:
     QLabel *lblXTilt,
 	   *lblYTilt,
 	   *lblPressure,
-	   *lblDev;
+	   *lblDev,
+	   *lblXPos,
+	   *lblYPos;
     StatsCanvas *statCan;
 };
 
