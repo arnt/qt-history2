@@ -395,6 +395,7 @@ void QLabel::setAlignment( int alignment )
     else
 #endif
 	align = alignment;
+
     updateLabel( osh );
 }
 
