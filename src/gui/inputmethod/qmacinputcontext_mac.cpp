@@ -27,6 +27,8 @@
 #include "qtextformat.h"
 #include <private/qapplication_p.h>
 
+extern bool qt_sendSpontaneousEvent(QObject*, QEvent*);
+
 static QTextFormat qt_mac_compose_format()
 {
     QTextCharFormat ret;

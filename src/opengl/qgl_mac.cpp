@@ -53,7 +53,7 @@ extern QPoint posInWindow(const QWidget *); //qwidget_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle); //qregion_mac.cpp
 extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
-
+extern void qt_mac_to_pascal_string(QString s, Str255 str, TextEncoding encoding=0, int len=-1);  //qglobal.cpp
 
 /*****************************************************************************
   QGLFormat UNIX/AGL-specific code
@@ -454,7 +454,9 @@ static CFBundleRef qt_getOpenGLBundle()
 	FSSpec spec;
 	FSRef ref;
 
-        err = FSMakeFSSpec(frameworksVRefNum, frameworksDirID, "\pOpenGL.framework", &spec);
+        Str255 framework_name;
+        qt_mac_to_pascal_string(QLatin1String("OpenGL.framework"), framework_name);
+        err = FSMakeFSSpec(frameworksVRefNum, frameworksDirID, framework_name, &spec);
 	if (err == noErr) {
 	    FSpMakeFSRef(&spec, &ref);
 	    QCFType<CFURLRef> url = CFURLCreateFromFSRef(kCFAllocatorDefault, &ref);
