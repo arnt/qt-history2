@@ -553,9 +553,6 @@ void Moc::parse()
                 case Q_INTERFACES_TOKEN:
                     parseInterfaces(&def);
                     break;
-                case Q_SLOT_TOKEN:
-                    parseSlot(&def, access);
-                    break;
                 case Q_PRIVATE_SLOT_TOKEN:
                     parseSlotInPrivate(&def, access);
                     break;
@@ -830,20 +827,6 @@ void Moc::parseInterfaces(ClassDef *def)
     }
     next(RPAREN);
 
-}
-
-void Moc::parseSlot(ClassDef *def, FunctionDef::Access access)
-{
-    next(LPAREN);
-    FunctionDef funcDef;
-    funcDef.access = access;
-    parseFunction(&funcDef, true);
-    def->slotList += funcDef;
-    while (funcDef.arguments.size() > 0 && funcDef.arguments.last().isDefault) {
-        funcDef.wasCloned = true;
-        funcDef.arguments.removeLast();
-        def->slotList += funcDef;
-    }
 }
 
 void Moc::parseSlotInPrivate(ClassDef *def, FunctionDef::Access access)

@@ -167,7 +167,6 @@ public:
     void parseEnumOrFlag(ClassDef *def, bool isFlag);
     void parseClassInfo(ClassDef *def);
     void parseInterfaces(ClassDef *def);
-    void parseSlot(ClassDef *def, FunctionDef::Access access);
     void parseSlotInPrivate(ClassDef *def, FunctionDef::Access access);
 
     void parseFunctionArguments(FunctionDef *def);
