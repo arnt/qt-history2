@@ -1182,10 +1182,27 @@ void qt_set_cursor( QWidget *w, const QCursor& /* c */)
 
 void QApplication::setGlobalMouseTracking( bool enable )
 {
+    bool tellAllWidgets;
     if ( enable ) {
-	++app_tracking;
+	tellAllWidgets = (++app_tracking == 1);
     } else {
-	--app_tracking;
+	tellAllWidgets = (--app_tracking == 0);
+    }
+    if ( tellAllWidgets ) {
+	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+	register QWidget *w;
+	while ( (w=it.current()) ) {
+	    if ( app_tracking > 0 ) {		// switch on
+		if ( !w->testWState(WState_MouseTracking) ) {
+		    w->setMouseTracking( TRUE );
+		}
+	    } else {				// switch off
+		if ( w->testWState(WState_MouseTracking) ) {
+		    w->setMouseTracking( FALSE );
+		}
+	    }
+	    ++it;
+	}
     }
 }
 
