@@ -1,3 +1,6 @@
+#define QT_NO_ACTION
+#define QT_NO_CODECS
+#define QT_NO_UNICODETABLES
 #define QT_NO_IMAGEIO_BMP
 #define QT_NO_IMAGEIO_PPM
 #define QT_NO_IMAGEIO_XBM
@@ -17,6 +20,7 @@
 #define QT_NO_QWS_VFB
 #define QT_NO_QWS_DEPTH_16
 #define QT_NO_QWS_DEPTH_32
+#define QT_NO_QWS_VGA_16
 #define QT_NO_DNS
 #define QT_NO_NETWORKPROTOCOL
 #define QT_NO_COLORNAMES
