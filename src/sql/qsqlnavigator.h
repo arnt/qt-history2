@@ -75,6 +75,12 @@ public:
     virtual void setBoundryChecking( bool active );
     bool boundryChecking() const;
 
+    void setSort( const QSqlIndex& sort );
+    void setSort( const QStringList& sort );
+    QStringList  sort() const;
+    void setFilter( const QString& filter );
+    QString filter() const;
+
     virtual QSqlCursor* defaultCursor();
     virtual QSqlForm* defaultForm();
 

@@ -406,6 +406,44 @@ void QSqlNavigator::updateBoundry()
     }
 }
 
+void QSqlNavigator::setSort( const QSqlIndex& sort )
+{
+    QSqlCursor* cursor = defaultCursor();
+    if ( cursor )
+	cursor->setSort( sort );
+}
+
+void QSqlNavigator::setSort( const QStringList& sort )
+{
+    QSqlCursor* cursor = defaultCursor();
+    if ( cursor )
+	cursor->setSort( QSqlIndex::fromStringList( sort, cursor ) );
+}
+
+QStringList  QSqlNavigator::sort() const
+{
+    const QSqlCursor* cursor = ((QSqlNavigator*)this)->defaultCursor();
+    if ( cursor )
+	return cursor->sort().toStringList();
+    return QStringList();
+}
+
+void QSqlNavigator::setFilter( const QString& filter )
+{
+    QSqlCursor* cursor = defaultCursor();
+    if ( cursor )
+	cursor->setFilter( filter );
+}
+
+QString QSqlNavigator::filter() const
+{
+    const QSqlCursor* cursor = ((QSqlNavigator*)this)->defaultCursor();
+    if ( cursor )
+	return cursor->filter();
+    return QString::null;
+}
+
+
 void QSqlNavigator::emitFirstRecordAvailable( bool )
 {
 }

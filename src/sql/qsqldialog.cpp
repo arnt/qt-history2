@@ -38,6 +38,8 @@
 
 #ifndef QT_NO_SQL
 
+/* ATTENTION: this file must remain in sync with qsqlwidget.cpp */
+
 QSqlDialog::QSqlDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     : QDialog( parent, name, modal, f )
 {
@@ -51,6 +53,31 @@ void QSqlDialog::setBoundryChecking( bool active )
 bool QSqlDialog::boundryChecking() const
 {
     return QSqlNavigator::boundryChecking();
+}
+
+void QSqlDialog::setSort( const QSqlIndex& sort )
+{
+    QSqlNavigator::setSort( sort );
+}
+
+void QSqlDialog::setSort( const QStringList& sort )
+{
+    QSqlNavigator::setSort( sort );
+}
+
+QStringList  QSqlDialog::sort() const
+{
+    return QSqlNavigator::sort();
+}
+
+void QSqlDialog::setFilter( const QString& filter )
+{
+    QSqlNavigator::setFilter( filter );
+}
+
+QString QSqlDialog::filter() const
+{
+    return QSqlNavigator::filter();
 }
 
 /*! \fn void firstRecordAvailable( bool available )
