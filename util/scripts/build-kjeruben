@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
-BUILDROOT=/home/mike/sandbox/build-kjeruben
-SOURCEQTDIR=/home/mike/sandbox/p4/qt/main
-P4CLIENT=mike-marijuana
+BUILDROOT=/space/mike/build
+SOURCEQTDIR=/space/mike/qt-source
+P4CLIENT=mike-moderne-build-kjeruben
 P4PORT=p4.troll.no:866
-P4=/home/mike/p4
+P4=/usr/bin/p4
 P4SYNC="yes"
 
 for arg in $*; do
@@ -57,7 +57,7 @@ for config in $configs; do
     fi
     mkdir $BUILDROOT/$config
     echo "Copying files from $SOURCEQTDIR to $BUILDROOT/$config"
-    tar -C $SOURCEQTDIR -cf - . | tar -C $BUILDROOT/$config -xf - 
+    ( cd $SOURCEQTDIR; tar -cf - .) | ( cd $BUILDROOT/$config ; tar -xf - )
     QTDIR=$BUILDROOT/$config 
     export QTDIR
     cd $QTDIR
