@@ -180,11 +180,11 @@ void QAbstractItemViewPrivate::init()
     \enum QAbstractItemView::State
 
     \value NoState
-    \value Dragging
-    \value Selecting
-    \value Editing
-    \value Opening
-    \value Closing
+    \value DraggingState
+    \value SelectingState
+    \value EditingState
+    \value OpeningState
+    \value ClosingState
 */
 
 /*!
@@ -601,12 +601,23 @@ void QAbstractItemView::setRoot(const QModelIndex &index)
 
 /*!
     Returns the model index of the model's root item.
-
     \sa setRoot()
 */
 QModelIndex QAbstractItemView::root() const
 {
     return QModelIndex(d->root);
+}
+
+/*!
+  Selects all non-hidden items.
+*/
+void QAbstractItemView::selectAll()
+{
+    QItemSelection selection;
+    selection.append(QItemSelectionRange(root(), 0, 0,
+                                         model()->rowCount(root()) - 1,
+                                         model()->columnCount(root()) - 1));
+    selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect);
 }
 
 /*!
@@ -618,18 +629,6 @@ void QAbstractItemView::edit(const QModelIndex &index)
         qWarning("edit: index was invalid");
     if (!edit(index, AlwaysEdit, 0))
         qWarning("edit: editing failed");
-}
-
-/*!
-  Selects all visible items.
-*/
-void QAbstractItemView::selectAll()
-{
-    QItemSelection selection;
-    selection.append(QItemSelectionRange(root(), 0, 0,
-                                         model()->rowCount(root()) - 1,
-                                         model()->columnCount(root()) - 1));
-    selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect);
 }
 
 /*!
@@ -821,7 +820,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QModelIndex index = itemAt(pos);
 
     QPersistentModelIndex persistent(index, model());
-    if (d->state == Editing && d->editors.contains(persistent))
+    if (d->state == EditingState && d->editors.contains(persistent))
         return;
 
     QPoint offset(horizontalOffset(), verticalOffset());
@@ -856,7 +855,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     else
         topLeft = bottomRight;
 
-    if (state() == Dragging) {
+    if (state() == DraggingState) {
         if ((topLeft - bottomRight).manhattanLength() > QApplication::startDragDistance()) {
             startDrag();
             setState(NoState); // the startDrag will return when the dnd operation is done
@@ -867,7 +866,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 
     QModelIndex index = itemAt(bottomRight);
     QPersistentModelIndex persistent(index, model());
-    if (state() == Editing && d->editors.contains(persistent))
+    if (state() == EditingState && d->editors.contains(persistent))
         return;
 
     if (d->enteredItem != index) {
@@ -876,7 +875,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         else
             emit viewportEntered(e->state());
         d->enteredItem = persistent;
-    } else if (state() == Selecting) {
+    } else if (state() == SelectingState) {
         return; // we haven't moved over another item yet
     }
 
@@ -884,18 +883,18 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         return;
 
     if (index.isValid()) {
-        if (state() != Selecting) {
+        if (state() != SelectingState) {
             bool dnd = (model()->flags(index) & QAbstractItemModel::ItemIsDragEnabled)
                        && isDragEnabled(index);
             bool selected = selectionModel()->isSelected(index);
             if (dnd && selected) {
-                setState(Dragging);
+                setState(DraggingState);
                 return;
             }
         }
         setCurrentIndex(index);
     }
-    setState(Selecting);
+    setState(SelectingState);
     setSelection(QRect(topLeft, bottomRight).normalize(),
                  selectionCommand(e->state(), index, e->type()));
 }
@@ -914,11 +913,11 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     QModelIndex index = itemAt(pos);
 
     QPersistentModelIndex persistent(index, model());
-    if (state() == Editing && d->editors.contains(persistent))
+    if (state() == EditingState && d->editors.contains(persistent))
         return;
 
     selectionModel()->select(index, selectionCommand(e->state(), index, e->type()));
-    if (state() == Selecting)
+    if (state() == SelectingState)
         setState(NoState);
 
     if (index == d->pressedItem)
@@ -1168,7 +1167,7 @@ void QAbstractItemView::timerEvent(QTimerEvent *e)
 /*!
     Starts editing the item at \a index, creating an editor if
     necessary, and returns true if the view's \l{State} is now \c
-    Editing; otherwise returns false. The action that initiated the
+    EditingState; otherwise returns false. The action that initiated the
     editing is specified by \a action, and the event that was behind this
     is specified by \a event.
 
@@ -1195,7 +1194,7 @@ bool QAbstractItemView::edit(const QModelIndex &index,
         && d->beginEditActions & AnyKeyPressed
         && action & AnyKeyPressed)
         QApplication::sendEvent(editor, event);
-    d->state = Editing;
+    d->state = EditingState;
     editor->show();
     editor->setFocus();
 
@@ -1329,7 +1328,7 @@ void QAbstractItemView::editorDestroyed(QObject *editor)
     QPersistentModelIndex key = d->editors.key(w);
     d->editors.remove(key);
     d->persistent.removeAll(w);
-    if (d->state == Editing)
+    if (d->state == EditingState)
         d->state = NoState;
 }
 
@@ -1649,7 +1648,7 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     option.palette = palette();
     option.font = font();
     option.state = (isEnabled() ? QStyle::Style_Enabled : QStyle::Style_None);
-    option.state |= (state() == Editing ? QStyle::Style_Editing : QStyle::Style_None);
+    option.state |= (state() == EditingState ? QStyle::Style_Editing : QStyle::Style_None);
     option.decorationSize = QStyleOptionViewItem::Small;
     option.decorationPosition = QStyleOptionViewItem::Left;
     option.decorationAlignment = Qt::AlignCenter;
@@ -1728,7 +1727,7 @@ void QAbstractItemView::doAutoScroll()
 
     if (verticalValue == verticalScrollBar()->value()
         && horizontalValue == horizontalScrollBar()->value()
-        || state() != Dragging)
+        || state() != DraggingState)
         stopAutoScroll();
 }
 
@@ -1859,7 +1858,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::Butt
         return QItemSelectionModel::SelectCurrent | behavior;
     if (state & Qt::ControlButton)
         return QItemSelectionModel::Toggle | behavior;
-    if (QAbstractItemView::state() == Selecting)
+    if (QAbstractItemView::state() == SelectingState)
         return QItemSelectionModel::SelectCurrent | behavior;
     return QItemSelectionModel::ClearAndSelect | behavior;
 }
@@ -1871,7 +1870,7 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::BeginEditAction act
         return false;
     if ((model->flags(index) & QAbstractItemModel::ItemIsEditable) == 0)
         return false;
-    if (state == QAbstractItemView::Editing)
+    if (state == QAbstractItemView::EditingState)
         return false;
     if (action == QAbstractItemView::AlwaysEdit)
         return true;

@@ -38,6 +38,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_PROPERTY(QColor evenRowColor READ evenRowColor WRITE setEvenRowColor)
     Q_ENUMS(SelectionMode SelectionBehaviour)
     Q_FLAGS(BeginEditActions)
+
 public:
     enum SelectionMode {
         NoSelection,
@@ -123,8 +124,8 @@ public slots:
     virtual void reset();
     virtual void setRoot(const QModelIndex &index);
     virtual void doItemsLayout();
-    void edit(const QModelIndex &index);
     virtual void selectAll();
+    void edit(const QModelIndex &index);
     void clearSelection();
     void setCurrentIndex(const QModelIndex &index);
 
@@ -190,7 +191,15 @@ protected:
 
     virtual QStyleOptionViewItem viewOptions() const;
 
-    enum State { NoState, Dragging, Selecting, Editing, Opening, Closing };
+    enum State {
+        NoState,
+        DraggingState,
+        SelectingState,
+        EditingState,
+        OpeningState,
+        ClosingState
+    };
+
     State state() const;
     void setState(State state);
 

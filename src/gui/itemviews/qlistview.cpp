@@ -632,7 +632,7 @@ void QListView::rowsRemoved(const QModelIndex &parent, int, int)
 void QListView::mouseMoveEvent(QMouseEvent *e)
 {
     QAbstractItemView::mouseMoveEvent(e);
-    if (state() == QAbstractItemView::Selecting && d->selectionMode != SingleSelection) {
+    if (state() == QAbstractItemView::SelectingState && d->selectionMode != SingleSelection) {
         QPoint topLeft(d->pressedPosition.x() - horizontalOffset(),
                        d->pressedPosition.y() - verticalOffset());
         QRect rect(mapToGlobal(topLeft), mapToGlobal(e->pos()));
@@ -929,7 +929,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction, 
         while (d->intersectVector.count() == 0) {
             if (rect.right() < contents.width())
                 rect.moveLeft(rect.left() + rect.width() + spacing);
-            else // move down
+            else // move up
                 rect.moveTopLeft(QPoint(0, rect.top() + rect.height() + spacing));
             //qDebug() << rect;
             if (rect.top() > contents.height() || rect.bottom() < spacing) {
