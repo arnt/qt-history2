@@ -55,6 +55,8 @@ public:
         textOrSourceChanged = true;
         forceLoadOnSourceChange = true;
     }
+
+    void activateAnchor(const QString &href);
 };
 
 static bool isAbsoluteFileName(const QString &name)
@@ -88,6 +90,21 @@ QString QTextBrowserPrivate::findFile(const QString &name) const
 
     QFileInfo path(QFileInfo(currentURL.toLocalFile()).absolutePath(), name);
     return path.absoluteFilePath();
+}
+
+void QTextBrowserPrivate::activateAnchor(const QString &href)
+{
+    if (href.isEmpty())
+        return;
+    Q_Q(QTextBrowser);
+
+    textOrSourceChanged = false;
+
+    const QUrl url = currentURL.resolved(href);
+    emit q->anchorClicked(url);
+
+    if (!textOrSourceChanged)
+        q->setSource(url);
 }
 
 /*!
@@ -421,6 +438,8 @@ void QTextBrowser::home()
 */
 void QTextBrowser::keyPressEvent(QKeyEvent *ev)
 {
+    Q_D(QTextBrowser);
+
     if (ev->modifiers() & Qt::AltModifier) {
         switch (ev->key()) {
         case Qt::Key_Right:
@@ -436,6 +455,22 @@ void QTextBrowser::keyPressEvent(QKeyEvent *ev)
             ev->accept();
             return;
         }
+    } else if ((ev->key() == Qt::Key_Return
+                || ev->key() == Qt::Key_Enter)
+               && d->focusIndicator.hasSelection()) {
+
+        QTextCursor cursor = d->focusIndicator;
+        if (cursor.selectionStart() != cursor.position())
+            cursor.setPosition(cursor.selectionStart());
+        cursor.movePosition(QTextCursor::NextCharacter);
+
+        const QTextCharFormat fmt = cursor.charFormat();
+        const QString href = fmt.anchorHref();
+
+        ev->accept();
+        d->activateAnchor(href);
+
+        return;
     }
     QTextEdit::keyPressEvent(ev);
 }
@@ -476,15 +511,7 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
         return;
 
     QString anchor = d->doc->documentLayout()->anchorAt(d->translateCoordinates(ev->pos()));
-    if (!anchor.isEmpty()) {
-        d->textOrSourceChanged = false;
-
-        const QUrl url = d->currentURL.resolved(anchor);
-        emit anchorClicked(url);
-
-        if (!d->textOrSourceChanged)
-            setSource(url);
-    }
+    d->activateAnchor(anchor);
 }
 
 /*!
