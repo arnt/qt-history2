@@ -8,7 +8,7 @@ CFLAGS	    =	/c /Fo$@ \
 		/I. /Igenerators /Igenerators\unix /Igenerators\win32 /Igenerators\mac /I..\src\core\arch\generic /I..\include /I..\src\tools \
 		/I..\mkspecs\win32-msvc \
 		/DQT_NO_TEXTCODEC /DQT_NO_UNICODETABLES /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL \
-		/DQT_NO_COMPRESS /DUNICODE /DHAVE_QCONFIG_CPP /DQT_BUILD_QMAKE /DQT_COMPAT
+		/DQT_NO_COMPRESS /DUNICODE /DHAVE_QCONFIG_CPP /DQT_BUILD_QMAKE
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =	
 LIBS	    =	ole32.lib advapi32.lib
@@ -38,7 +38,7 @@ ADDCLEAN    =	qmake.tds
 #qmake code
 OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.obj mingw_make.obj \
 	msvc_nmake.obj msvc_dsp.obj msvc_vcproj.obj option.obj winmakefile.obj projectgenerator.obj \
- 	metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj property.obj meta.obj qtmd5.obj makefiledeps.obj
+	metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj property.obj meta.obj qtmd5.obj makefiledeps.obj
 
 #qt code
 QTOBJS=qchar.obj qstring.obj quuid.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qbytearray.obj qcstring.obj qdatastream.obj \
@@ -84,17 +84,11 @@ qiodevice.obj: ..\src\core\io\qiodevice.cpp
 qglobal.obj: ..\src\core\base\qglobal.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\base\qglobal.cpp
 
-qgdict.obj: ..\src\compat\tools\qgdict.cpp
-	$(CXX) $(CXXFLAGS) ..\src\compat\tools\qgdict.cpp
-
 qhash.obj: ..\src\core\tools\qhash.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qhash.cpp
 
 qbytearray.obj: ..\src\core\tools\qbytearray.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qbytearray.cpp
-
-qcstring.obj: ..\src\compat\tools\qcstring.cpp
-	$(CXX) $(CXXFLAGS) ..\src\compat\tools\qcstring.cpp
 
 qchar.obj: ..\src\core\tools\qchar.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qchar.cpp
@@ -111,23 +105,14 @@ quuid.obj: ..\src\core\library\quuid.cpp
 qdatastream.obj: ..\src\core\io\qdatastream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qdatastream.cpp
 
-qgarray.obj: ..\src\compat\tools\qgarray.cpp
-	$(CXX) $(CXXFLAGS) ..\src\compat\tools\qgarray.cpp
-
 qbuffer.obj: ..\src\core\io\qbuffer.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qbuffer.cpp
-
-qglist.obj: ..\src\compat\tools\qglist.cpp
-	$(CXX) $(CXXFLAGS) ..\src\compat\tools\qglist.cpp
 
 qlist.obj: ..\src\core\tools\qlist.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qlist.cpp
 
 qlinkedlist.obj: ..\src\core\tools\qlinkedlist.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qlinkedlist.cpp
-
-qptrcollection.obj: ..\src\compat\tools\qptrcollection.cpp
-	$(CXX) $(CXXFLAGS) ..\src\compat\tools\qptrcollection.cpp
 
 qfile.obj: ..\src\core\io\qfile.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfile.cpp
@@ -140,9 +125,6 @@ qtextcodec.obj: ..\src\codecs\qtextcodec.cpp
 
 qregexp.obj: ..\src\core\tools\qregexp.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qregexp.cpp
-
-qgvector.obj: ..\src\compat\tools\qgvector.cpp
-	$(CXX) $(CXXFLAGS) ..\src\compat\tools\qgvector.cpp
 
 qvector.obj: ..\src\core\tools\qvector.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qvector.cpp

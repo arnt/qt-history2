@@ -1,5 +1,4 @@
 /* derived from the RSA Data Security, Inc. MD5 Message-Digest Algorithm */
-#include <qstring.h>
 #include "qtmd5.h"
 
 typedef unsigned char *POINTER;
@@ -298,7 +297,7 @@ QString qtMD5(const QByteArray &src)
     qtMD5(src, digest);
 
     QString output, tmp;
-    for (int i = 0; i < 16; ++i) 
+    for (int i = 0; i < 16; ++i)
 	output += tmp.sprintf("%02x", digest[i]);
     return output;
 }

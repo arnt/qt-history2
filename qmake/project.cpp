@@ -20,7 +20,6 @@
 #include <qregexp.h>
 #include <qtextstream.h>
 #include <qstack.h>
-#include <qcstring.h>
 #include <qhash.h>
 #ifdef Q_OS_UNIX
 # include <unistd.h>
@@ -418,9 +417,10 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 		    if(lparen != -1) { /* if there is an lparen in the scope, it IS a function */
 			int rparen = comp_scope.lastIndexOf(')');
 			if(rparen == -1) {
-			    QCString error;
-			    error.sprintf("Function missing right paren: %s ('%s')",
-					  comp_scope.latin1(), s.latin1());
+			    QByteArray error;
+			    error.reserve(256);
+			    sprintf(error.data(), "Function missing right paren: %s ('%s')",
+				    comp_scope.latin1(), s.latin1());
 			    qmake_error_msg(error);
 			    return false;
 			}
@@ -1398,8 +1398,10 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 	if(lparen != -1) { /* if there is an lparen in the chk, it IS a function */
 	    int rparen = chk.lastIndexOf(')');
 	    if(rparen == -1) {
-		QCString error;
-		error.sprintf("Function (in REQUIRES) missing right paren: %s", chk.latin1());
+		QByteArray error;
+		error.reserve(256);
+		sprintf(error.data(), "Function (in REQUIRES) missing right paren: %s",
+			chk.latin1());
 		qmake_error_msg(error);
 	    } else {
 		QString func = chk.left(lparen);

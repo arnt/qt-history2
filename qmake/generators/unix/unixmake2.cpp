@@ -16,7 +16,7 @@
 #include "option.h"
 #include "meta.h"
 #include <qregexp.h>
-#include <qcstring.h>
+#include <qbytearray.h>
 #include <qfile.h>
 #include <qdir.h>
 #include <time.h>
@@ -933,7 +933,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 			    int l = 0;
 			    for(int i = 0; i < read_in; i++) {
 				if(buff[i] == '\n' || buff[i] == ' ') {
-				    deps += " " + QCString(buff+l, (i - l) + 1);
+				    deps += " " + QByteArray(buff+l, (i - l) + 1);
 				    l = i;
 				}
 			    }

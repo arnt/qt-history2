@@ -5,9 +5,9 @@ OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o msvc_nmake.o 
      msvc_objectmodel.o meta.o qtmd5.o makefiledeps.o
 
 #qt code
-QOBJS=qchar.o qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qbytearray.o qcstring.o \
-      qdatastream.o qgarray.o qbuffer.o qglist.o qlist.o qptrcollection.o qfile.o \
-      qfile_unix.o qregexp.o qgvector.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
+QOBJS=qchar.o qstring.o qtextstream.o qiodevice.o qglobal.o qbytearray.o \
+      qdatastream.o qbuffer.o qlist.o qfile.o \
+      qfile_unix.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
       qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o \
       qconfig.o qunicodetables.o qsettings.o qlocale.o qlinkedlist.o @QMAKE_QTOBJS@
 
@@ -18,22 +18,19 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   generators/mac/pbuilder_pbx.cpp generators/win32/msvc_objectmodel.cpp \
 	   @SOURCE_PATH@/src/core/tools/qchar.cpp @SOURCE_PATH@/src/core/tools/qstring.cpp \
 	   @SOURCE_PATH@/src/core/io/qtextstream.cpp @SOURCE_PATH@/src/core/io/qiodevice.cpp \
-	   @SOURCE_PATH@/src/core/base/qglobal.cpp @SOURCE_PATH@/src/compat/tools/qgdict.cpp \
-	   @SOURCE_PATH@/src/core/tools/qbytearray.cpp @SOURCE_PATH@/src/compat/tools/qcstring.cpp \
-	   @SOURCE_PATH@/src/core/io/qdatastream.cpp @SOURCE_PATH@/src/compat/tools/qgarray.cpp \
-	   @SOURCE_PATH@/src/core/io/qbuffer.cpp @SOURCE_PATH@/src/compat/tools/qglist.cpp \
-	   @SOURCE_PATH@/src/tools/qlist.cpp \
-	   @SOURCE_PATH@/src/compat/tools/qptrcollection.cpp @SOURCE_PATH@/src/core/io/qfile.cpp \
+	   @SOURCE_PATH@/src/core/base/qglobal.cpp @SOURCE_PATH@/src/core/tools/qbytearray.cpp \
+	   @SOURCE_PATH@/src/core/io/qdatastream.cpp @SOURCE_PATH@/src/core/io/qbuffer.cpp \
+	   @SOURCE_PATH@/src/tools/qlist.cpp @SOURCE_PATH@/src/core/io/qfile.cpp \
 	   @SOURCE_PATH@/src/core/io/qfile_unix.cpp @SOURCE_PATH@/src/core/tools/qregexp.cpp \
-	   @SOURCE_PATH@/src/compat/tools/qgvector.cpp @SOURCE_PATH@/src/core/tools/qvector.cpp \
-	   @SOURCE_PATH@/src/core/tools/qbitarray.cpp @SOURCE_PATH@/src/core/io/qdir.cpp \
-	   @SOURCE_PATH@/src/core/library/quuid.cpp @SOURCE_PATH@/src/core/io/qfileinfo_unix.cpp \
-	   @SOURCE_PATH@/src/core/io/qdir_unix.cpp @SOURCE_PATH@/src/core/io/qfileinfo.cpp \
-	   @SOURCE_PATH@/src/core/tools/qdatetime.cpp @SOURCE_PATH@/src/core/tools/qstringlist.cpp \
-	   @SOURCE_PATH@/src/core/tools/qmap.cpp @SOURCE_PATH@/src/core/base/qconfig.cpp \
-	   @SOURCE_PATH@/src/core/other/qsettings.cpp @SOURCE_PATH@/src/core/object/qurl.cpp \
-	   @SOURCE_PATH@/src/core/tools/qsettings_mac.cpp @SOURCE_PATH@/src/core/tools/qlocale.cpp \
-	   @SOURCE_PATH@/src/core/tools/qlinkedlist.cpp @SOURCE_PATH@/src/core/tools/qhash.cpp
+	   @SOURCE_PATH@/src/core/tools/qvector.cpp @SOURCE_PATH@/src/core/tools/qbitarray.cpp \
+	   @SOURCE_PATH@/src/core/io/qdir.cpp @SOURCE_PATH@/src/core/library/quuid.cpp \
+	   @SOURCE_PATH@/src/core/io/qfileinfo_unix.cpp @SOURCE_PATH@/src/core/io/qdir_unix.cpp \
+	   @SOURCE_PATH@/src/core/io/qfileinfo.cpp @SOURCE_PATH@/src/core/tools/qdatetime.cpp \
+	   @SOURCE_PATH@/src/core/tools/qstringlist.cpp @SOURCE_PATH@/src/core/tools/qmap.cpp \
+	   @SOURCE_PATH@/src/core/base/qconfig.cpp @SOURCE_PATH@/src/core/other/qsettings.cpp \
+	   @SOURCE_PATH@/src/core/object/qurl.cpp @SOURCE_PATH@/src/core/tools/qsettings_mac.cpp \
+	   @SOURCE_PATH@/src/core/tools/qlocale.cpp @SOURCE_PATH@/src/core/tools/qlinkedlist.cpp \
+	   @SOURCE_PATH@/src/core/tools/qhash.cpp
 
 CXXFLAGS= @QMAKE_CFLAGS@ \
 	-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
@@ -72,14 +69,8 @@ qiodevice.o: @SOURCE_PATH@/src/core/io/qiodevice.cpp
 qglobal.o: @SOURCE_PATH@/src/core/base/qglobal.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/base/qglobal.cpp
 
-qgdict.o: @SOURCE_PATH@/src/compat/tools/qgdict.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/compat/tools/qgdict.cpp
-
 qbytearray.o: @SOURCE_PATH@/src/core/tools/qbytearray.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qbytearray.cpp
-
-qcstring.o: @SOURCE_PATH@/src/compat/tools/qcstring.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/compat/tools/qcstring.cpp
 
 qsettings.o: @SOURCE_PATH@/src/core/other/qsettings.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/other/qsettings.cpp
@@ -105,20 +96,11 @@ qdatastream.o: @SOURCE_PATH@/src/core/io/qdatastream.cpp
 qunicodetables.o: @SOURCE_PATH@/src/core/tools/qunicodetables.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qunicodetables.cpp
 
-qgarray.o: @SOURCE_PATH@/src/compat/tools/qgarray.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/compat/tools/qgarray.cpp
-
 qbuffer.o: @SOURCE_PATH@/src/core/io/qbuffer.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qbuffer.cpp
 
-qglist.o: @SOURCE_PATH@/src/compat/tools/qglist.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/compat/tools/qglist.cpp
-
 qlist.o: @SOURCE_PATH@/src/core/tools/qlist.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qlist.cpp
-
-qptrcollection.o: @SOURCE_PATH@/src/compat/tools/qptrcollection.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/compat/tools/qptrcollection.cpp
 
 qfile.o: @SOURCE_PATH@/src/core/io/qfile.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qfile.cpp
@@ -128,9 +110,6 @@ qfile_unix.o: @SOURCE_PATH@/src/core/io/qfile_unix.cpp
 
 qregexp.o: @SOURCE_PATH@/src/core/tools/qregexp.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qregexp.cpp
-
-qgvector.o: @SOURCE_PATH@/src/compat/tools/qgvector.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/compat/tools/qgvector.cpp
 
 qvector.o: @SOURCE_PATH@/src/core/tools/qvector.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qvector.cpp
