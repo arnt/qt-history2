@@ -6999,7 +6999,7 @@ void QTextEdit::setMaxLogLines( int limit )
     mode. By default the number of lines is not limited, i.e. it is
     set to -1.
  */
-int QTextEdit::maxLogLines()
+int QTextEdit::maxLogLines() const
 {
     return d->maxLogLines;
 }

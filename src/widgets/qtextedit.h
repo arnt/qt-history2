@@ -369,7 +369,7 @@ public slots:
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     void polishEvent(QEvent*);
     void setMaxLogLines( int numLines );
-    int maxLogLines();
+    int maxLogLines() const;
 #endif
 
 signals:
