@@ -711,6 +711,17 @@ QTextCodec* QTextCodec::codecForMib(int mib)
     return createForMib(mib);
 }
 
+QList<QByteArray> QTextCodec::availableCodecs()
+{
+    // ############
+    return QList<QByteArray>();
+}
+
+QList<int> QTextCodec::availableMibs()
+{
+    // #############
+    return QList<int>();
+}
 
 /*!
     Set the codec to \a c; this will be returned by codecForLocale().
