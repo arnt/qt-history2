@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#37 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#38 $
 **
 ** Definition of QWidget class
 **
@@ -183,10 +183,11 @@ protected:
     WFlags	getFlags() const	{ return flags; }
     void	setFlag( WFlags n )	{ flags |= n; }
     void	clearFlag( WFlags n )	{ flags &= ~n; }
-    void	setFRect( const QRect & );	// set frect, update crect
-    void	setCRect( const QRect & );	// set crect, update frect
+    void	setFRect( const QRect & );
+    void	setCRect( const QRect & );
+    bool	acceptFocus() const	{ return testFlag(WState_AcceptFocus);}
+    void	setAcceptFocus( bool );
     long	metric( int )	 const;		// get metric information
-    const QFont &fontRef()	 const	{ return fnt; }
 
     virtual bool focusNextChild();
     virtual bool focusPrevChild();
