@@ -299,12 +299,21 @@ MakefileGenerator::init()
         }
     }
 
-    //extra compilers (done here so it ends up in the variables pre fixed)
+    //extra compilers (done here so it ends up in the variables post-fixified)
     QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
     for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
         QString tmp_out = project->variables()[(*it) + ".output"].first();
         if(tmp_out.isEmpty())
             continue;
+        if(project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
+            if(tmp_out.indexOf("$") == -1) {
+                if(project->variables().contains((*it) + ".variable_out"))
+                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += tmp_out;
+                else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
+                    project->variables()["OBJECTS"] += tmp_out; //auto link it in
+            }
+            continue;
+        }
         QStringList &tmp = project->variables()[(*it) + ".input"];
         for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
             QStringList &inputs = project->variables()[(*it2)];
@@ -314,13 +323,12 @@ MakefileGenerator::init()
                 if(QFile::exists((*input)))
                     (*input) = fileFixify((*input));
                 QFileInfo fi(Option::fixPathToLocalOS((*input)));
-                QString in = fileFixify(Option::fixPathToTargetOS((*input), false)), out = tmp_out;
-                out = replaceExtraCompilerVariables(out, (*input), QString::null);
-                if(project->variables().contains((*it) + ".variable_out")) {
+                QString in = fileFixify(Option::fixPathToTargetOS((*input), false));
+                QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
+                if(project->variables().contains((*it) + ".variable_out"))
                     project->variables()[project->variables().value((*it) + ".variable_out").first()] += out;
-                } else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1) {
+                else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
                     project->variables()["OBJECTS"] += out; //auto link it in
-                }
             }
         }
     }
@@ -1456,6 +1464,46 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         QStringList &vars = project->variables()[(*it) + ".variables"];
         if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
             continue;
+        if(project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
+            if(tmp_out.indexOf("$") != -1) {
+                warn_msg(WarnLogic, "QMAKE_EXTRA_COMPILERS(%s) with combine has variable output.",
+                         (*it).latin1());
+                continue;
+            }
+            QString inputs;
+            const QStringList &tmp = project->variables()[(*it) + ".input"];
+            for(QStringList::ConstIterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+                const QStringList &tmp2 = project->variables()[(*it2)];
+                for(QStringList::ConstIterator input = tmp2.begin(); input != tmp2.end(); ++input) 
+                    inputs += " " + Option::fixPathToTargetOS((*input), false);
+            }
+            QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString::null, tmp_out), deps;
+            if(!tmp_dep.isEmpty())
+                deps = " " + tmp_dep;
+            if(!tmp_dep_cmd.isEmpty() && doDepends()) {
+                char buff[256];
+                QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, QString::null, tmp_out);
+                if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+                    while(!feof(proc)) {
+                        int read_in = fread(buff, 1, 255, proc);
+                        if(!read_in)
+                            break;
+                        int l = 0;
+                        for(int i = 0; i < read_in; i++) {
+                            if(buff[i] == '\n' || buff[i] == ' ') {
+                                deps += " " + QByteArray(buff+l, (i - l) + 1);
+                                l = i;
+                            }
+                        }
+                    }
+                    fclose(proc);
+                }
+            }
+            deps = replaceExtraCompilerVariables(deps, QString::null, tmp_out);
+            t << tmp_out << ": " << inputs << " " << deps << "\n\t"
+              << cmd << " " << inputs << endl << endl;
+            continue;
+        }
         QStringList &tmp = project->variables()[(*it) + ".input"];
         for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
             QStringList &inputs = project->variables()[(*it2)];

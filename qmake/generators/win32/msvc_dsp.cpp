@@ -416,17 +416,35 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		       project->variables()[(*it) + ".CONFIG"].indexOf("no_link") != -1)
 			continue;
 
-		    int output_count = 0;
 		    QString tmp_out = project->variables()[(*it) + ".output"].first();
+                    if(tmp_out.isEmpty())
+                        continue;
+
+                    if(project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
+                        QString deps;
+                        const QStringList &tmp = project->variables()[(*it) + ".input"];
+                        for(QStringList::ConstIterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+                            const QStringList &inputs = project->variables()[(*it2)];
+                            for(QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input) 
+                                deps += " " + Option::fixPathToTargetOS((*input), false);
+                        }
+                        t << "# Begin Group \"" << (*it) << "\"\n"
+                          <<  "# Begin Source File\n\nSOURCE=" << tmp_out << endl
+                          << "USERDEP_" << tmp_out.section('.', 0, 0) << "=\"" << deps << "\"" << endl
+                          << "# End Source File" << endl
+                          << "\n# End Group\n";
+                        continue;
+                    }
+
+		    int output_count = 0;
 		    QStringList &tmp = project->variables()[(*it) + ".input"];
 		    for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
 			QStringList &inputs = project->variables()[(*it2)];
 			for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); 
 			    ++input) {
 			    QString in = (*input);
-			    QString out = replaceExtraCompilerVariables(tmp_out, (*input), 
-									QString::null), deps = in;
-			    deps = replaceExtraCompilerVariables(deps, (*input), out);
+			    QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
+			    QString deps = replaceExtraCompilerVariables(in, (*input), out);
 			    if(!output_count) 
 				t << "# Begin Group \"" << (*it2) << "\"\n";
 			    t <<  "# Begin Source File\n\nSOURCE=" << out << endl
@@ -453,10 +471,49 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    QStringList &vars = project->variables()[(*it) + ".variables"];
 		    if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
 			continue;
-		    QStringList &tmp = project->variables()[(*it) + ".input"];
-		    for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-			QStringList &inputs = project->variables()[(*it2)];
-			for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); 
+                    if(project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
+                        if(tmp_out.indexOf("$") != -1) {
+                            warn_msg(WarnLogic, "QMAKE_EXTRA_COMPILERS(%s) with combine has variable output.",
+                                     (*it).latin1());
+                            continue;
+                        }
+                        QString inputs;
+                        const QStringList &tmp = project->variables()[(*it) + ".input"];
+                        for(QStringList::ConstIterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+                            const QStringList &tmp2 = project->variables()[(*it2)];
+                            for(QStringList::ConstIterator input = tmp2.begin(); input != tmp2.end(); ++input) 
+                                inputs += " " + Option::fixPathToTargetOS((*input), false);
+                        }
+                        QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString::null, tmp_out), deps;
+                        if(!tmp_dep.isEmpty())
+                            deps = " " + tmp_dep;
+                        if(!tmp_dep_cmd.isEmpty() && doDepends()) {
+                            char buff[256];
+                            QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, QString::null, tmp_out);
+                            if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+                                while(!feof(proc)) {
+                                    int read_in = fread(buff, 1, 255, proc);
+                                    if(!read_in)
+                                        break;
+                                    int l = 0;
+                                    for(int i = 0; i < read_in; i++) {
+                                        if(buff[i] == '\n' || buff[i] == ' ') {
+                                            deps += " " + QByteArray(buff+l, (i - l) + 1);
+                                            l = i;
+                                        }
+                                    }
+                                }
+                                fclose(proc);
+                            }
+                        }
+                        deps = replaceExtraCompilerVariables(deps, QString::null, tmp_out);
+                        //need to do this!!!
+                        continue;
+                    }
+		    const QStringList &tmp = project->variables()[(*it) + ".input"];
+		    for(QStringList::ConstIterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+			const QStringList &inputs = project->variables()[(*it2)];
+			for(QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); 
 			    ++input) {
 			    QString in = Option::fixPathToTargetOS((*input), false);
 			    QString out = replaceExtraCompilerVariables(tmp_out, (*input), 
