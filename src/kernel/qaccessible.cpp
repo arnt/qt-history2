@@ -49,22 +49,32 @@
   \brief The QAccessible class provides enums and static functions
   relating to accessibility.
 
-  Accessibility clients use implementations of the QAccessibleInterface to read information
-  an accessible object exposes, or to call methods to maniuplate the accessible object. Qt
-  provides implementations of the QAccessibleInterface for most widget classes in a plugin.
-  This plugin is located in the \e accessibility subdirectory of QTDIR/plugins. Calling
-  queryAccessibleInterface( QObject *object, QAccessibleInterface **iface ) will ask all
-  plugins located in this directory for an implementation that exposes the information for
-  objects of the class of \e object.
+  Accessibility clients use implementations of the
+  QAccessibleInterface to read information an accessible object
+  exposes, or to call methods to manipulate the accessible object.
 
-  To make a Qt application accessible you have to distribute the accessibility plugin provded 
-  with Qt together with your application. Simply add the plugins created in QTDIR/plugins/accessibility 
-  to your distribution process. Use \l QApplication::addLibraryPath() to specify a plugin directory for 
-  your application, and copy the files into an \e accessibility subdirectory of one of those plugin directories. 
-  Qt's accessibility framework will load the plugins upon request and use the implementations provided
-  to expose an object's accessibility information.
+\omit
+  Qt
+  provides implementations of the QAccessibleInterface for most widget
+  classes in a plugin. This plugin is located in the \e accessibility
+  subdirectory of QTDIR/plugins. Calling queryAccessibleInterface(
+  QObject *object, QAccessibleInterface **iface ) will ask all plugins
+  located in this directory for an implementation that exposes the
+  information for objects of the class of \e object.
 
-  See the \link plugins-howto.html plugin documentation \endlink for more details about how to redistribute Qt plugins.
+  To make a Qt application accessible you have to distribute the
+  accessibility plugin provded with Qt together with your application.
+  Simply add the plugins created in QTDIR/plugins/accessibility to
+  your distribution process. Use \l QApplication::addLibraryPath() to
+  specify a plugin directory for your application, and copy the files
+  into an \e accessibility subdirectory of one of those plugin
+  directories. Qt's accessibility framework will load the plugins upon
+  request and use the implementations provided to expose an object's
+  accessibility information.
+\endomit
+
+  See the \link plugins-howto.html plugin documentation \endlink for
+  more details about how to redistribute Qt plugins.
 */
 
 /*!
@@ -328,7 +338,7 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
 /*!
   \class QAccessibleInterface qaccessible.h
   \ingroup misc
-  \brief The QAccessibleInterface class defines an interface that exposes information about 
+  \brief The QAccessibleInterface class defines an interface that exposes information about
   accessible objects.
 
 */
