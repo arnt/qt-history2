@@ -697,7 +697,14 @@ int QSqlTableModel::rowCount(const QModelIndex &parent) const
     return rc;
 }
 
-/*! \reimp
+/*!
+  Returns the index of the value in the database result set for the
+  given \a item for situations where the row and column of an item
+  in the model does not map to the same row and column in the
+  database result set.
+
+  Returns an invalid model index if \a item is out of bounds or if
+  \a item does not point to a value in the result set.
  */
 QModelIndex QSqlTableModel::dataIndex(const QModelIndex &it) const
 {
