@@ -838,9 +838,6 @@ class QDataStream;
 
 // prune to local config
 #include "qmodules.h"
-#ifndef QT_MODULE_DIALOGS
-# define QT_NO_DIALOG
-#endif
 #ifndef QT_MODULE_ICONVIEW
 # define QT_NO_ICONVIEW
 #endif
