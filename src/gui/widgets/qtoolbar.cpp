@@ -748,7 +748,11 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             max_item_extent = qMax(max_item_extent, w->width());
 	--i;
     }
-    setMinimumSize(max_item_extent + margin*2, max_item_extent + margin*2);
+    if (orientation == Qt::Horizontal)
+        setMinimumHeight(max_item_extent + margin*2);
+    else
+        setMinimumWidth(max_item_extent + margin*2);
+
     if (hidden_count > 0) {
 	if (orientation == Qt::Horizontal) {
 	    d->extension->setGeometry(width() - d->extension->sizeHint().width() - margin,
