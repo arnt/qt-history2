@@ -104,7 +104,7 @@
                                 <cstring>installExamples</cstring>
                             </property>
                             <property name="text">
-                                <string>Install &amp;Examples</string>
+                                <string>Build &amp;Examples</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -115,7 +115,7 @@
                                 <cstring>installTutorials</cstring>
                             </property>
                             <property name="text">
-                                <string>Install T&amp;utorials</string>
+                                <string>Build T&amp;utorials</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -126,7 +126,7 @@
                                 <cstring>installTools</cstring>
                             </property>
                             <property name="text">
-                                <string>Install &amp;Tools</string>
+                                <string>Build &amp;Tools</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -137,7 +137,7 @@
                                 <cstring>installExtensions</cstring>
                             </property>
                             <property name="text">
-                                <string>Install E&amp;xtensions</string>
+                                <string>Build E&amp;xtensions</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -222,7 +222,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="379">789c5d8ecb0a02310c45f7fd8ad0ec069907f531207e82e252101769b5388b51d07121e2bf6b1f195b6f28cd3d24b7ad0ad86dd75054e23ed0d0193067ba41717cf4fd737f58bd846ce6d028984123274296606073bd9c5c8fdf1eeba92b678db36dddaa60c959abec2258cdd62a9fc3424477a50cfdc18cc5d9c0e20eaffbbf90260c2a390f35c54a1823fa9bc39fc63cc3429e4b51cccb5060398a6c5478f7bd141fb90a5251</data>
+        <data format="XPM.GZ" length="379">789c5d8ec10ac2300c86ef7d8ad0dc8a6cad4e3b101f41f1288887b43ae6610a3a0f22bebb766de6e65f4af27f247f9b2bd86dd7a072716fa93d7bf035dd401d1f4df3dc1f562f21cd02cc0ce660e444c80c3c6cae9753e8f1dba3d6bad03a581f6c5994d36829d8ca56365ac7b6b25d0e0b11431932ec2e8e589a8d2cedf07af71772845119e7a1a374068c11fdcde14f7d9e6721cf0d51ca1ba1c8c628b15ef1ddf7527c00b6995250</data>
     </image>
 </images>
 <layoutdefaults spacing="6" margin="11"/>
