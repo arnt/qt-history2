@@ -615,7 +615,7 @@ bool QWidgetItem::isEmpty() const
   \fn QLayoutIterator QLayout::iterator()
 
   Returns an iterator over the children of this layout.
-  
+
   This function must be implemented by subclasses.
 */
 
@@ -983,7 +983,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    if ( c->child()->isWidgetType() ) {
 		QWidget *w = (QWidget*)c->child();
 		if ( !w->isTopLevel() ) {
-		    if ( w->inherits( "QMenuBar" ) )
+		    if ( w->inherits( "QMenuBar" ) && ( !w->parent() || !w->parent()->inherits( "QToolBar" ) ) )
 			menubar = (QMenuBar*)w;
 		    else
 			addItem( new QWidgetItem( w ) );
