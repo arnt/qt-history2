@@ -58,9 +58,17 @@ public:
 
   This class provides a form which displays SQL field data from a
   record buffer.  Because QDataView does not support editing it uses
-  less resources than QDataBrowsers.  This class is well suited for
+  less resources than a QDataBrowser.  This class is well suited for
   displaying read-only data from a SQL database.
 
+    If you want a to present your data in an editable form use
+    QDataBrowser; if you want a table-based presentation of your data
+    use QDataTable.
+
+    The form is associated with the data view with setForm() and the
+    record is associated with setRecord(). You can also pass a
+    QSqlRecord to the refresh() function which will set the record to
+    the given record and read the record's fields into the form.
 */
 
 /*! Constructs a data view which is a child of \a parent, with the
@@ -123,7 +131,7 @@ QSqlForm* QDataView::form()
 
 /*! Sets the record used by the data view to \a record.  If a form has
   already been assigned to the data view, the form will display the
-  data from \a record.
+  data from \a record in that form.
 
   \sa record()
 
@@ -174,7 +182,7 @@ void QDataView::writeFields()
 /*! Causes the default form to display the contents of \a buf.  If
   there is no default form, nothing happens.The \a buf also becomes
   the default record for all subsequent calls to readFields() and
-  writefields().  This slot is equivelant to calling:
+  writefields().  This slot is equivalant to calling:
 
   \code
   myView.setRecord( record );

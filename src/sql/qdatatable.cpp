@@ -124,7 +124,10 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
   \brief The QDataTable class provides a flexible SQL table widget that supports browsing and editing.
 
   QDataTable supports various functions for presenting and editing SQL
-  data from a \l QSqlCursor.
+  data from a \l QSqlCursor in a table.
+
+    If you want a to present your data in a form use QDataBrowser, or
+    for read-only forms, QDataView.
 
   When displaying data, QDataTable only retrieves data for visible rows.
   If the driver supports the 'query size' property the QDataTable will

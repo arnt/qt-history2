@@ -46,7 +46,7 @@ Table::Table()
 
 void Table::initTable()
 {
-    // read all QTtsource and header files in one list
+    // read all the Qt source and header files into a list
     QStringList all;
     int i = 0;
     QString qtdir = getenv( "QTDIR" );
@@ -61,7 +61,7 @@ void Table::initTable()
 	++i;
     }
 
-    // set the number of needed rows of the table
+    // set the number of rows we'll need for the table
     setNumRows( all.count() + 1 );
     i = 0;
     int sum = 0;
@@ -120,7 +120,7 @@ void Table::sortColumn( int col, bool ascending, bool /*wholeRows*/ )
 void TableItem::paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected )
 {
     QColorGroup g( cg );
-    // last row is the sum row - we want to make it better visible by
+    // last row is the sum row - we want to make it more visible by
     // using a red background
     if ( row() == table()->numRows() - 1 )
 	g.setColor( QColorGroup::Base, red );
@@ -133,7 +133,7 @@ void TableItem::paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool
 ComboItem::ComboItem( QTable *t, EditType et )
     : QTableItem( t, et, "Yes" ), cb( 0 )
 {
-    // we do not want that this item can be replaced
+    // we do not want this item to be replaced
     setReplaceable( FALSE );
 }
 
@@ -150,8 +150,8 @@ QWidget *ComboItem::createEditor() const
 
 void ComboItem::setContentFromEditor( QWidget *w )
 {
-    // the user changed the value of the combobox, so syncronize the
-    // value of the item (text), with the value of the combobox
+    // the user changed the value of the combobox, so synchronize the
+    // value of the item (its text), with the value of the combobox
     if ( w->inherits( "QComboBox" ) )
 	setText( ( (QComboBox*)w )->currentText() );
     else

@@ -66,6 +66,9 @@ public:
     cursor, insert, update and delete records, and refresh data in the
     display.
 
+    If you want a read-only form to present database data use QDataView;
+    if you want a table-based presentation of your data use QDataTable.
+
     A QDataBrowser is used to associate a dataset with a form in much
     the same way as a QDataTable associates a dataset with a table. Once
     the data browser has been constructed it can be associated with a
