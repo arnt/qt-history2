@@ -58,7 +58,7 @@ public:
     void setInputChannel(ProcessChannel channel);
 
     QString workingDirectory() const;
-    void setWorkingDirectory(const QString &path);
+    void setWorkingDirectory(const QString &dir);
 
     void setEnvironment(const QStringList &environment);
     QStringList environment() const;
