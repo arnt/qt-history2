@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#86 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#87 $
 **
 ** Global type declarations and definitions
 **
@@ -290,7 +290,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #define CHECK_MATH				// check math functions
 #endif
 
-#if !defined(NO_DEBUG)
+#if !defined(NO_DEBUG) && !defined(DEBUG)
 #define DEBUG					// display debug messages
 #endif
 
