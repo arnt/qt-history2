@@ -16,7 +16,7 @@
 
 #include "qitemdelegate.h"
 
-class QSqlRelationalDelegate: public QItemDelegate
+class Q_SQL_EXPORT QSqlRelationalDelegate: public QItemDelegate
 {
 public:
     QSqlRelationalDelegate(QObject *parent = 0);
