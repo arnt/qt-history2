@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#31 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#31 $")
 
 /*!
   \class QComboBox qcombo.h
@@ -111,7 +111,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->autoresize = FALSE;
     connect( d->popup, SIGNAL(activated(int))  ,SLOT(internalActivate(int)) );
     connect( d->popup, SIGNAL(highlighted(int)),SLOT(internalHighlight(int)) );
-    setAcceptFocus( TRUE );
+    //setAcceptFocus( TRUE );
 }
 
 /*!
