@@ -3507,6 +3507,8 @@ bool QMultiLineEdit::isEndOfParagraph( int row ) const
 
 int QMultiLineEdit::positionToOffsetInternal( int row, int col ) const
 {
+    row = QMAX( QMIN( row, numLines() - 1), 0 ); // Sanity check
+    col = QMAX( QMIN( col,  lineLength( row )), 0 ); // Sanity check
     if ( row == 0 )
 	return QMIN( col, lineLength( 0 ));
     else {
