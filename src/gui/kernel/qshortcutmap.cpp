@@ -19,7 +19,7 @@
 #define d d_func()
 #define p p_func()
 
-/*  \internal
+/*! \internal
     Entry data for QShortcutMap
     Contains:
         Keysequence for entry
@@ -42,7 +42,7 @@ struct QShortcutEntry
     bool enabled : 1;
 };
 
-/*  \internal
+/*! \internal
     QDebug operator<< for easy debug output of the shortcut entries.
 */
 #ifndef QT_NO_DEBUG
@@ -56,7 +56,7 @@ QDebug &operator<<(QDebug &dbg, const QShortcutEntry *se) {
 }
 #endif // QT_NO_DEBUG
 
-/*  \internal
+/*! \internal
     Private data for QShortcutMap
 */
 class QShortcutMapPrivate
@@ -80,7 +80,8 @@ public:
 };
 
 
-/*  QShortcutMap constructor.
+/*! \internal
+    QShortcutMap constructor.
 */
 QShortcutMap::QShortcutMap()
 {
@@ -89,7 +90,8 @@ QShortcutMap::QShortcutMap()
     resetState();
 }
 
-/*  QShortcutMap destructor.
+/*! \internal
+    QShortcutMap destructor.
 */
 QShortcutMap::~QShortcutMap()
 {
@@ -97,7 +99,8 @@ QShortcutMap::~QShortcutMap()
     d_ptr = 0;
 }
 
-/*  Adds a shortcut to the global map.
+/*! \internal
+    Adds a shortcut to the global map.
     Returns the id of the newly added shortcut.
 */
  int QShortcutMap::addShortcut(const QWidget *owner, const QKeySequence &key)
@@ -116,7 +119,8 @@ QShortcutMap::~QShortcutMap()
     return d->currentId;
 }
 
-/*  Removes a shortcut from the global map.
+/*! \internal
+    Removes a shortcut from the global map.
     If \a owner is 0, all entries in the map with the keysequence specified
     is removed. If \a key is null, all sequences for \a owner is removed from
     the map. If \a id is 0, any identical \a key sequences owned by \a owner
@@ -157,7 +161,8 @@ int QShortcutMap::removeShortcut(const QWidget *owner, int id, const QKeySequenc
     return itemsRemoved;
 }
 
-/*  Changes the enable state of a shortcut to \a enable.
+/*! \internal
+    Changes the enable state of a shortcut to \a enable.
     If \a owner is 0, all entries in the map with the keysequence specified
     is removed. If \a key is null, all sequences for \a owner is removed from
     the map. If \a id is 0, any identical \a key sequences owned by \a owner
@@ -192,7 +197,8 @@ int QShortcutMap::setShortcutEnabled(const QWidget *owner, int id, bool enable,
     return itemsChanged;
 }
 
-/*  Resets the state of the statemachine to NoMatch
+/*! \internal
+    Resets the state of the statemachine to NoMatch
 */
 void QShortcutMap::resetState()
 {
@@ -201,12 +207,16 @@ void QShortcutMap::resetState()
     d->identicals.resize(0);
 }
 
+/*! \internal
+    Returns the current state of the statemachine
+*/
 Qt::SequenceMatch QShortcutMap::state()
 {
     return d->currentState;
 }
 
-/*  Uses the old AccelOverride event to see if any widgets want to override
+/*! \internal
+    Uses the old AccelOverride event to see if any widgets want to override
     the event. If not, uses nextState(QKeyEvent) to check for a grabbed
     Shortcut, and dispatchEvent() is found an identical.
     \sa nextState dispatchEvent
@@ -234,7 +244,8 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
     return true;
 }
 
-/*  Returns the next state of the statemachine
+/*! \internal
+    Returns the next state of the statemachine
     If return value is SequenceMatch::Identical, then a call to matches()
     will return a QObjects* list of all matching objects for the last matching
     sequence.
@@ -280,6 +291,13 @@ Qt::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
     return result;
 }
 
+/*! \internal
+    Returns the next state of the statemachine, based
+    on the new key event \a e.
+    Matches are appended to the vector of identicals,
+    which can be access through matches().
+    \sa matches
+*/
 Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
 {
     if (!d->sequences.count())
@@ -296,9 +314,9 @@ Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     }
 
     QList<QShortcutEntry>::ConstIterator it =
-        qLowerBound(d->sequences.begin(), d->sequences.end(), newEntry);
+        qLowerBound(d->sequences.constBegin(), d->sequences.constEnd(), newEntry);
 
-    QList<QShortcutEntry>::ConstIterator itEnd = d->sequences.end();
+    QList<QShortcutEntry>::ConstIterator itEnd = d->sequences.constEnd();
     bool partialFound = false;
     Qt::SequenceMatch result = Qt::NoMatch;
     do {
@@ -330,9 +348,12 @@ Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     return result;
 }
 
-/*  \internal
-    Returns a new QKeySequence from the current sequence state, and the
-    new key event.
+/*! \internal
+    Clears \a seq to an empty QKeySequence.
+    Same as doing
+    \code
+        key = QKeySequence();
+    \endcode
 */
 void QShortcutMap::clearSequence(QKeySequence &seq)
 {
@@ -342,9 +363,9 @@ void QShortcutMap::clearSequence(QKeySequence &seq)
     seq.setKey(0, 3);
 }
 
-/*  \internal
-    Alters \a seq Returns a new QKeySequence from the current sequence state, and the
-    new key event.
+/*! \internal
+    Alters \a seq to the new sequence state, based on the
+    current sequence state, and the new key event \a e.
 */
 void QShortcutMap::createNewSequence(QKeyEvent *e, QKeySequence &seq)
 {
@@ -363,7 +384,7 @@ void QShortcutMap::createNewSequence(QKeyEvent *e, QKeySequence &seq)
         seq.setKey((int)e->text().unicode()->toUpper().unicode() | modifier, index);
 }
 
-/*  \internal
+/*! \internal
     Returns true if the widget \a w is a logical sub window of the current
     top-level widget.
 */
@@ -404,7 +425,7 @@ bool QShortcutMap::correctSubWindow(const QWidget* w) {
     return true;
 }
 
-/*  \internal
+/*! \internal
     Converts keyboard button states into modifier states
 */
 int QShortcutMap::translateModifiers(Qt::ButtonState state)
@@ -421,14 +442,15 @@ int QShortcutMap::translateModifiers(Qt::ButtonState state)
     return result;
 }
 
-/*  Returns a list of QWidget* matching the last Identical state.
+/*! \internal
+    Returns the vector of QShortcutEntry's matching the last Identical state.
 */
 QVector<const QShortcutEntry*> QShortcutMap::matches() const
 {
     return d->identicals;
 }
 
-/*  \internal
+/*! \internal
     Dispatches QShortcutEvents to widgets who grabbed the matched key sequence.
 */
 void QShortcutMap::dispatchEvent()
@@ -468,9 +490,9 @@ void QShortcutMap::dispatchEvent()
     QApplication::sendEvent(const_cast<QWidget*>(next->owner), &se);
 }
 
-/* \internal
-   QShortcutMap dump function, only available when Debug_QShortcutMap is
-   defined.
+/*! \internal
+    QShortcutMap dump function, only available when Debug_QShortcutMap is
+    defined.
 */
 #if defined(Dump_QShortcutMap)
 void QShortcutMap::dumpMap() const
