@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#83 $
+** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#84 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -225,6 +225,7 @@ public:
     QString topCaption;
 
     QScrollBar *vbar, *hbar;
+    QWidget *corner;
     int yoffset, xoffset;
 };
 
@@ -299,6 +300,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->topCaption = topLevelWidget()->caption();
 
     d->hbar = d->vbar = 0;
+    d->corner = 0;
     d->xoffset = d->yoffset = 0;
 
     updateScrollbars();
@@ -330,7 +332,7 @@ void QWorkspace::childEvent( QChildEvent * e)
     if (e->inserted() && e->child()->isWidgetType()) {
 	QWidget* w = (QWidget*) e->child();
 	if ( !w || !w->testWFlags( WStyle_NormalBorder | WStyle_DialogBorder )
-	     || d->icons.contains( w ) || w == d->vbar || w == d->hbar )
+	     || d->icons.contains( w ) || w == d->vbar || w == d->hbar || w == d->corner )
 	    return;	    // nothing to do
 
 	bool hasBeenHidden = w->isHidden();
@@ -589,9 +591,9 @@ void QWorkspace::resizeEvent( QResizeEvent * )
     if ( scrollBarsEnabled() ) {
 	int hsbExt = d->hbar->sizeHint().height();
 	int vsbExt = d->vbar->sizeHint().width();
-
 	d->hbar->setGeometry( 0, height() - hsbExt, width() - vsbExt, hsbExt );
 	d->vbar->setGeometry( width() - vsbExt, 0, vsbExt, height() - hsbExt );
+	d->corner->setGeometry( width() - vsbExt, height() - hsbExt, vsbExt, hsbExt );
     }
 
 
@@ -1891,11 +1893,19 @@ void QWorkspace::setScrollBarsEnabled( bool enable )
 	connect( d->vbar, SIGNAL( valueChanged(int) ), this, SLOT( scrollBarChanged() ) );
 	d->hbar = new QScrollBar( Horizontal, this );
 	connect( d->hbar, SIGNAL( valueChanged(int) ), this, SLOT( scrollBarChanged() ) );
+	d->corner = new QWidget( this );
+	int hsbExt = d->hbar->sizeHint().height();
+	int vsbExt = d->vbar->sizeHint().width();
+	d->hbar->setGeometry( 0, height() - hsbExt, width() - vsbExt, hsbExt );
+	d->vbar->setGeometry( width() - vsbExt, 0, vsbExt, height() - hsbExt );
+	d->corner->setGeometry( width() - vsbExt, height() - hsbExt, vsbExt, hsbExt );
 	updateScrollbars();
     } else {
 	delete d->vbar;
 	delete d->hbar;
+	delete d->corner;
 	d->vbar = d->hbar = 0;
+	d->corner = 0;
     }
 
     QPtrListIterator<QWorkspaceChild> it( d->windows );
@@ -1911,6 +1921,7 @@ void QWorkspace::updateScrollbars()
     if ( !scrollBarsEnabled() )
 	return;
 
+    d->corner->raise();
     d->vbar->raise();
     d->hbar->raise();
 
@@ -1924,7 +1935,7 @@ void QWorkspace::updateScrollbars()
     }
     d->vbar->blockSignals( TRUE );
     d->hbar->blockSignals( TRUE );
-    d->vbar->setSteps( QMAX( height() / 12, 30 ), height()  - d->hbar->width() );
+    d->vbar->setSteps( QMAX( height() / 12, 30 ), height()  - d->hbar->height() );
     d->hbar->setSteps( QMAX( width() / 12, 30 ), width() - d->vbar->width()  );
 
     d->vbar->setRange( 0, QMAX( 0, d->yoffset + r.bottom() - height() + d->hbar->height() + 1) );
@@ -1937,9 +1948,11 @@ void QWorkspace::updateScrollbars()
 	 d->hbar->maxValue() == d->hbar->minValue() ) {
 	d->vbar->hide();
 	d->hbar->hide();
+	d->corner->hide();
     } else {
 	d->vbar->show();
 	d->hbar->show();
+	d->corner->show();
     }
     d->vbar->blockSignals( FALSE );
     d->hbar->blockSignals( FALSE );
