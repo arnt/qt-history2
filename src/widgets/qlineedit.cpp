@@ -1011,6 +1011,7 @@ void QLineEdit::setSelection( int start, int length )
     } else {
 	d->selstart = start;
 	d->selend = QMIN( start + length, (int)d->text.length() );
+	d->cursor = d->selend;
     }
     update();
 }
@@ -2430,8 +2431,9 @@ void QLineEditPrivate::insert( const QString& s )
 	cursor += ms.length();
 	cursor = nextMaskBlank( cursor );
     } else {
-	text.insert( cursor, s.left(maxLength - text.length()) );
-	for ( int i = 0; i < (int) s.left( maxLength - text.length() ).length(); ++i )
+	int remaining = maxLength - text.length();
+	text.insert( cursor, s.left(remaining) );
+	for ( int i = 0; i < (int) s.left(remaining).length(); ++i )
 	    addCommand( Command( Insert, cursor++, s.at(i) ) );
     }
     textDirty = TRUE;
