@@ -1860,7 +1860,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
 		}
                 cdout = "\n\t@cd " + out.join(Option::dir_sep);
             } else {
-                cdin = "\n\tcd " + subtarget->directory + " && ";
+                cdin = "\n\tcd " + subtarget->directory + "\n\t";
             }
         } else {
             cdin = "\n\t";
@@ -1907,7 +1907,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             t <<  " FORCE";
         t << "\n\t";
         if(have_dir)
-            t << "cd " << subtarget->directory << " && ";
+            t << "cd " << subtarget->directory << "\n\t";
         t << "$(MAKE)" << makefilein << endl;
         for(int suffix = 0; suffix < targetSuffixes.size(); ++suffix) {
             QString s = targetSuffixes.at(suffix);
@@ -1934,6 +1934,8 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
               << "$(MAKE)" << makefilein << " " << s
               << cdout << endl;
         }
+        if(have_dir)
+            t << cdout << endl;
     }
     t << endl;
 
@@ -2022,7 +2024,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                         }
                         cdout = "\n\t@cd " + out.join(Option::dir_sep);
                     } else {
-                        cdin = "\n\tcd " + subtarget->directory + " && ";
+                        cdin = "\n\tcd " + subtarget->directory + "\n\t";
                     }
                 } else {
                     cdin = "\n\t";
