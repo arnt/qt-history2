@@ -967,11 +967,9 @@ void Q3GroupBoxPrivate::updateCheckBoxGeometry()
 */
 
 /*!
-    \fn void Q3GroupBox::setMargin(int m)
+    \fn void Q3GroupBox::setMargin(int margin)
 
-    Use setInsideMargin() instead.
+    Use setInsideMargin(\a margin) instead.
 */
 
-
 #include "moc_q3groupbox.cpp"
-

@@ -893,17 +893,15 @@ void Q3DockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
     the dock window is floating.
 */
 
-// DOC: Can't use \property 'cos it thinks the thing returns a bool.
 /*!
-    \fn Place Q3DockWindow::place() const
+    \property Q3DockWindow::place
+    \brief the location where the dock window is placed
 
-    This function returns where the dock window is placed. This is
-    either \c InDock or \c OutsideDock.
+    This is either \c InDock or \c OutsideDock.
 
     \sa Q3DockArea::moveDockWindow(), Q3DockArea::removeDockWindow(),
-    Q3MainWindow::moveDockWindow(), Q3MainWindow::removeDockWindow()
+        Q3MainWindow::moveDockWindow(), Q3MainWindow::removeDockWindow()
 */
-
 
 /*!
     Constructs a Q3DockWindow with parent \a parent, called \a name and

@@ -1108,8 +1108,12 @@ void QGLContext::deleteTexture(GLuint id)
 }
 
 /*!
-    This function sets the limit for the texture cache. The limit is
-    in kilobytes. By default the cache limit is ~64 megabytes.
+    This function sets the limit for the texture cache to \a size,
+    expressed in kilobytes.
+
+    By default, the cache limit is approximately 64 MB.
+
+    \sa textureCacheLimit()
 */
 void QGLContext::setTextureCacheLimit(int size)
 {
@@ -1120,6 +1124,8 @@ void QGLContext::setTextureCacheLimit(int size)
 
 /*!
     Returns the current texture cache limit in kilobytes.
+
+    \sa setTextureCacheLimit()
 */
 int QGLContext::textureCacheLimit()
 {

@@ -30,7 +30,6 @@ public:
 
     static inline void enterWhatsThisMode();
     static inline bool inWhatsThisMode();
-    static inline void leaveWhatsThisMode();
 
     static inline void add(QWidget *w, const QString &s) { QWhatsThis::add(w, s); }
     static inline void remove(QWidget *w) { QWhatsThis::remove(w); }

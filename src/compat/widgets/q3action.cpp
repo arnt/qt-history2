@@ -2211,9 +2211,9 @@ void Q3ActionGroup::addedTo(int index, QPopupMenu *menu)
 }
 
 /*!
-    \fn void Q3ActionGroup::insert(Q3Action* a)
+    \fn void Q3ActionGroup::insert(Q3Action *action)
 
-    Use add() instead.
+    Use add(\a action) instead.
 */
 
 #endif

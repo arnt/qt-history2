@@ -21,23 +21,25 @@
 */
 
 /*!
-    Constructs a new What's This object for widget \a w.
+    Constructs a new What's This object for \a widget.
 */
-Q3WhatsThis::Q3WhatsThis(QWidget *w)
-    : QObject(w)
+Q3WhatsThis::Q3WhatsThis(QWidget *widget)
+    : QObject(widget)
 {
-    if (w)
-        w->installEventFilter(this);
+    if (widget)
+        widget->installEventFilter(this);
 }
 
 /*!
-    Destructs the What's This object.
+    Destroys the What's This object.
 */
 Q3WhatsThis::~Q3WhatsThis()
 {
 }
 
 /*!
+    \internal
+
     Handles What's This events.
 */
 bool Q3WhatsThis::eventFilter(QObject *o, QEvent *e)
@@ -78,39 +80,89 @@ bool Q3WhatsThis::clicked(const QString &)
 /*!
     \fn void Q3WhatsThis::enterWhatsThisMode()
 
+    Enters "What's This?" mode and returns immediately.
+
+    Qt will install a special cursor and take over mouse input until
+    the user clicks somewhere. It then shows any help available and
+    ends "What's This?" mode. Finally, Qt removes the special cursor
+    and help window and then restores ordinary event processing, at
+    which point the left mouse button is no longer pressed.
+
+    The user can also use the Esc key to leave "What's This?" mode.
+
+    \sa inWhatsThisMode(), leaveWhatsThisMode()
 */
 
 /*!
     \fn bool Q3WhatsThis::inWhatsThisMode()
 
+    Returns TRUE if the application is in "What's This?" mode;
+    otherwise returns FALSE.
+
+    \sa enterWhatsThisMode(), leaveWhatsThisMode()
 */
 
 /*!
-    \fn void Q3WhatsThis::leaveWhatsThisMode()
+    \fn void Q3WhatsThis::add(QWidget *widget, const QString &text)
 
+    Adds \a text as "What's This?" help for \a widget. If the text is
+    rich text formatted (i.e. it contains markup) it will be rendered
+    with the default stylesheet QStyleSheet::defaultSheet().
+
+    The text is destroyed if the widget is later destroyed, so it need
+    not be explicitly removed.
+
+    \sa remove()
 */
 
 /*!
-    \fn void Q3WhatsThis::add(QWidget *w, const QString &s)
+    \fn void Q3WhatsThis::remove(QWidget *widget)
 
+    Removes the "What's This?" help associated with the \a widget.
+    This happens automatically if the widget is destroyed.
+
+    \sa add()
 */
 
 /*!
-    \fn void Q3WhatsThis::remove(QWidget *w)
+    \fn void Q3WhatsThis::leaveWhatsThisMode(const QString& text = QString::null, const QPoint& pos = QCursor::pos(), QWidget* widget = 0)
 
+    This function is used internally by widgets that support
+    QWidget::customWhatsThis(); applications do not usually call it.
+    An example of such a widget is QPopupMenu: menus still work
+    normally in "What's This?" mode but also provide help texts for
+    individual menu items.
+
+    If \a text is not QString::null, a "What's This?" help window is
+    displayed at the global screen position \a pos. If widget \a widget is
+    not 0 and has its own dedicated QWhatsThis object, this object
+    will receive clicked() messages when the user clicks on hyperlinks
+    inside the help text.
+
+    \sa inWhatsThisMode(), enterWhatsThisMode(), QWhatsThis::clicked()
 */
 
 /*!
-    \fn void Q3WhatsThis::leaveWhatsThisMode(const QString& text = QString::null, const QPoint& pos = QCursor::pos(), QWidget* w = 0)
+    \fn void Q3WhatsThis::display(const QString &text, const QPoint &pos, QWidget *widget)
 
+    Display \a text in a help window at the global screen position \a
+    pos.
+
+    If widget \a widget is not 0 and has its own dedicated QWhatsThis
+    object, this object will receive clicked() messages when the user
+    clicks on hyperlinks inside the help text.
+
+    \sa QWhatsThis::clicked()
 */
 
 /*!
-    \fn void Q3WhatsThis::display(const QString& text, const QPoint& pos = QCursor::pos(), QWidget* w = 0)
+    \fn QToolButton *Q3WhatsThis::whatsThisButton(QWidget *parent)
 
-*/
+    Creates a QToolButton preconfigured to enter "What's This?" mode
+    when clicked. You will often use this with a tool bar as \a
+    parent:
 
-/*!
-    \fn QToolButton* Q3WhatsThis::whatsThisButton(QWidget * parent)
-
+    \code
+	(void)QWhatsThis::whatsThisButton( my_help_tool_bar );
+    \endcode
 */

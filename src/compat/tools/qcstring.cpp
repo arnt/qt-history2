@@ -105,23 +105,23 @@
     QCString, you will get better performance by converting the
     QCString to a QString yourself, and then searching in the QString.
 */
+
 /*!
     \fn QCString QCString::left(uint len)  const
 
-    Use QByteArray::left() instead.
-
+    \internal
 */
 
 /*!
     \fn QCString QCString::right(uint len) const
 
-    Use QByteArray::right() instead.
+    \internal
 */
 
 /*!
-    \fn QCString QCString::mid(uint index, uint len=0xffffffff) const
+    \fn QCString QCString::mid(uint index, uint len) const
 
-    Use QByteArray::mid() instead.
+    \internal
 */
 
 /*!
@@ -151,63 +151,62 @@
 /*!
     \fn QCString& QCString::insert(uint index, const char *c)
 
-    Use QByteArray::insert() instead.
+    \internal
 */
 
 /*!
     \fn QCString& QCString::insert(uint index, char c)
 
-    Use QByteArray::insert() instead.
+    \internal
 */
 
 /*!
     \fn QCString& QCString::prepend(const char *c)
 
-    Use QByteArray::prepend() instead.
+    \internal
 */
 
 /*!
     \fn QCString& QCString::remove(uint index, uint len)
 
-    Use QByteArray::remove() instead.
+    \internal
 */
 
 /*!
     \fn QCString& QCString::replace(uint index, uint len, const char *c)
 
-    Use QByteArray::replace() instead.
+    \internal
 */
 
 /*!
     \fn QCString& QCString::replace(char c, const QCString &after)
 
-    Use QByteArray::replace() instead.
+    \internal
 */
 
 /*!
     \fn QCString& QCString::replace(char c, const char *after)
 
-    Use QByteArray::replace() instead.
+    \internal
 */
 
 /*!
     \fn QCString& QCString::replace(const QCString &b, const QCString &a)
 
-    Use QByteArray::replace() instead.
+    \internal
 */
 
 /*!
     \fn QCString& QCString::replace(const char *b, const char *a)
 
-    Use QByteArray::replace() instead.
+    \internal
 */
 
 /*!
     \fn QCString& QCString::replace(char b, char a)
 
-    Use QByteArray::replace() instead.
+    \internal
 */
-
 
 /*!
     \fn QCString::QCString()
@@ -220,7 +219,7 @@
 /*!
     \fn QCString::QCString(const QByteArray &ba)
 
-    Use QByteArray::QByteArray() instead.
+    Constructs a copy of \a ba.
 */
 
 /*!

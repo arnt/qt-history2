@@ -172,7 +172,7 @@ void QBuffer::setData(const QByteArray &data)
 }
 
 /*!
-   ### must document
+   \reimp
 */
 bool QBuffer::open(int mode)
 {

@@ -46,7 +46,7 @@
 #define BUTTON_HEIGHT 14
 
 /*!
-    \class QWorkspace qworkspace.h
+    \class QWorkspace
     \brief The QWorkspace widget provides a workspace window that be
     used in an MDI application.
 
@@ -66,9 +66,14 @@
     Workspaces can be placed in any layout, but are typically given
     as the central widget in a QMainWindow:
 
-    \quotefile mdi/application.cpp
-    \skipto ws = new
-    \printuntil setCentralWidget( vb );
+    \code
+        MainWindow::MainWindow()
+        {
+            workspace = new QWorkspace(this);
+            setCentralWidget(workspace);
+            ...
+        }
+    \endcode
 
     Child windows (MDI windows) are standard Qt widgets that are
     inserted into the workspace with addWindow(). As with top-level

@@ -4527,7 +4527,7 @@ int QListBoxItem::rtti() const
 /*!
     \fn void QListBox::setFixedVisibleLines(int lines)
 
-    Use setRowMode() instead.
+    Use setRowMode(\a lines) instead.
 */
 
 /*!

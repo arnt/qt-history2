@@ -224,10 +224,10 @@ void QHostAddressPrivate::clear()
     \value LocalHostIPv6 The IPv6 localhost address. Equivalent to QHostAddress("::1").
     \value Broadcast The IPv4 broadcast address. Equivalent to QHostAddress("255.255.255.255").
     \value Any The IPv4 any-address. Equivalent to QHostAddress("0.0.0.0").
-    \value Any The IPv6 any-address. Equivalent to QHostAddress("::").
+    \value AnyIPv6 The IPv6 any-address. Equivalent to QHostAddress("::").
 */
 
-/*!  Creates a host address object with the IP address 0.0.0.0.
+/*!  Constructs a host address object with the IP address 0.0.0.0.
 
     \sa clear()
 */
@@ -236,18 +236,30 @@ QHostAddress::QHostAddress()
 {
 }
 
+/*!
+    Constructs a host address object with the IPv4 address \a ip4Addr.
+*/
 QHostAddress::QHostAddress(Q_UINT32 ip4Addr)
     : d(new QHostAddressPrivate)
 {
     setAddress(ip4Addr);
 }
 
+/*!
+    Constructs a host address object with the IPv6 address \a ip6Addr.
+
+    \a ip6Addr must be a 16-byte array in network byte order (big
+    endian).
+*/
 QHostAddress::QHostAddress(Q_UINT8 *ip6Addr)
     : d(new QHostAddressPrivate)
 {
     setAddress(ip6Addr);
 }
 
+/*!
+    ####
+*/
 QHostAddress::QHostAddress(const Q_IPV6ADDR &ip6Addr)
     : d(new QHostAddressPrivate)
 {
@@ -255,7 +267,7 @@ QHostAddress::QHostAddress(const Q_IPV6ADDR &ip6Addr)
 }
 
 /*!
-    Creates an IPv4 or IPv6 address based on the string \a address
+    Constructs an IPv4 or IPv6 address based on the string \a address
     (e.g., "127.0.0.1").
 
     \sa setAddress()
@@ -268,7 +280,7 @@ QHostAddress::QHostAddress(const QString &address)
 }
 
 /*!
-    Creates a copy of the given \a address.
+    Constructs a copy of the given \a address.
 */
 QHostAddress::QHostAddress(const QHostAddress &address)
     : d(new QHostAddressPrivate(*address.d))
@@ -517,13 +529,6 @@ bool QHostAddress::isNull() const
 
     Use protocol() instead.
 */
-
-/*!
-    \fn bool QHostAddress::isIp6Addr() const
-
-    Use protocol() instead.
-*/
-
 
 /*!
     \fn bool QHostAddress::isIPv4Address() const

@@ -2704,21 +2704,27 @@ QSize QScrollView::cachedSizeHint() const
 }
 
 /*!
-    \fn void QScrollView::repaintContents(int x, int y, int w, int h, bool b)
+    \fn void QScrollView::repaintContents(int x, int y, int w, int h, bool erase)
 
-    Use the four-argument overload instead.
+    Call repaintContents(\a x, \a y, \a w, \a h) instead.
+
+    The \a erase parameter is ignored; the area is always erased.
 */
 
 /*!
-    \fn void QScrollView::repaintContents(const QRect& r, bool b)
+    \fn void QScrollView::repaintContents(const QRect &rect, bool erase)
 
-    Use the single-argument overload instead.
+    Call repaintContents(\a rect) instead.
+
+    The \a erase parameter is ignored; the area is always erased.
 */
 
 /*!
-    \fn void QScrollView::repaintContents(bool b)
+    \fn void QScrollView::repaintContents(bool erase)
 
-    Use the no-arguments overload instead.
+    Call repaintContents() with no argument instead.
+
+    The \a erase parameter is ignored; the area is always erased.
 */
 
 

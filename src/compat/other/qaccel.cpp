@@ -918,112 +918,112 @@ bool QAccel::ignoreWhatsThis() const
 
 /*!
 
-\page accelerators.html
+    \page accelerators.html
 
-\title Standard Accelerator Keys
+    \title Standard Accelerator Keys
 
-Applications invariably need to define accelerator keys for actions.
-Qt fully supports accelerators, for example with \l QAccel::shortcutKey().
+    Applications invariably need to define accelerator keys for actions.
+    Qt fully supports accelerators, for example with QAccel::shortcutKey().
 
-Here are Microsoft's recommendations for accelerator keys, with
-comments about the Open Group's recommendations where they exist
-and differ. For most commands, the Open Group either has no advice or
-agrees with Microsoft.
+    Here are Microsoft's recommendations for accelerator keys, with
+    comments about the Open Group's recommendations where they exist
+    and differ. For most commands, the Open Group either has no advice or
+    agrees with Microsoft.
 
-The emboldened letter plus Alt is Microsoft's recommended choice, and
-we recommend supporting it. For an Apply button, for example, we
-recommend QButton::setText(\link QWidget::tr() tr \endlink("&amp;Apply"));
+    The emboldened letter plus Alt is Microsoft's recommended choice,
+    and we recommend supporting it. For an Apply button, for example,
+    we recommend QPushButton::setText(tr("&Apply")).
 
-If you have conflicting commands (e.g. About and Apply buttons in the
-same dialog), you must decide for yourself.
+    If you have conflicting commands (e.g. About and Apply buttons in the
+    same dialog), you must decide for yourself.
 
-\list
-\i <b><u>A</u></b>bout
-\i Always on <b><u>T</u></b>op
-\i <b><u>A</u></b>pply
-\i <b><u>B</u></b>ack
-\i <b><u>B</u></b>rowse
-\i <b><u>C</u></b>lose (CDE: Alt+F4; Alt+F4 is "close window" in Windows)
-\i <b><u>C</u></b>opy (CDE: Ctrl+C, Ctrl+Insert)
-\i <b><u>C</u></b>opy Here
-\i Create <b><u>S</u></b>hortcut
-\i Create <b><u>S</u></b>hortcut Here
-\i Cu<b><u>t</u></b>
-\i <b><u>D</u></b>elete
-\i <b><u>E</u></b>dit
-\i <b><u>E</u></b>xit (CDE: E<b><u>x</u></b>it)
-\i <b><u>E</u></b>xplore
-\i <b><u>F</u></b>ile
-\i <b><u>F</u></b>ind
-\i <b><u>H</u></b>elp
-\i Help <b><u>T</u></b>opics
-\i <b><u>H</u></b>ide
-\i <b><u>I</u></b>nsert
-\i Insert <b><u>O</u></b>bject
-\i <b><u>L</u></b>ink Here
-\i Ma<b><u>x</u></b>imize
-\i Mi<b><u>n</u></b>imize
-\i <b><u>M</u></b>ove
-\i <b><u>M</u></b>ove Here
-\i <b><u>N</u></b>ew
-\i <b><u>N</u></b>ext
-\i <b><u>N</u></b>o
-\i <b><u>O</u></b>pen
-\i Open <b><u>W</u></b>ith
-\i Page Set<b><u>u</u></b>p
-\i <b><u>P</u></b>aste
-\i Paste <b><u>L</u></b>ink
-\i Paste <b><u>S</u></b>hortcut
-\i Paste <b><u>S</u></b>pecial
-\i <b><u>P</u></b>ause
-\i <b><u>P</u></b>lay
-\i <b><u>P</u></b>rint
-\i <b><u>P</u></b>rint Here
-\i P<b><u>r</u></b>operties
-\i <b><u>Q</u></b>uick View
-\i <b><u>R</u></b>edo (CDE: Ctrl+Y, Shift+Alt+Backspace)
-\i <b><u>R</u></b>epeat
-\i <b><u>R</u></b>estore
-\i <b><u>R</u></b>esume
-\i <b><u>R</u></b>etry
-\i <b><u>R</u></b>un
-\i <b><u>S</u></b>ave
-\i Save <b><u>A</u></b>s
-\i Select <b><u>A</u></b>ll
-\i Se<b><u>n</u></b>d To
-\i <b><u>S</u></b>how
-\i <b><u>S</u></b>ize
-\i S<b><u>p</u></b>lit
-\i <b><u>S</u></b>top
-\i <b><u>U</u></b>ndo (CDE: Ctrl+Z or Alt+Backspace)
-\i <b><u>V</u></b>iew
-\i <b><u>W</u></b>hat's This?
-\i <b><u>W</u></b>indow
-\i <b><u>Y</u></b>es
-\endlist
+    \list
+    \i \bold{\underline{A}}bout
+    \i Always on \bold{\underline{T}}op
+    \i \bold{\underline{A}}pply
+    \i \bold{\underline{B}}ack
+    \i \bold{\underline{B}}rowse
+    \i \bold{\underline{C}}lose (CDE: Alt+F4; Alt+F4 is "close window" in Windows)
+    \i \bold{\underline{C}}opy (CDE: Ctrl+C, Ctrl+Insert)
+    \i \bold{\underline{C}}opy Here
+    \i Create \bold{\underline{S}}hortcut
+    \i Create \bold{\underline{S}}hortcut Here
+    \i Cu\bold{\underline{t}}
+    \i \bold{\underline{D}}elete
+    \i \bold{\underline{E}}dit
+    \i \bold{\underline{E}}xit (CDE: E\bold{\underline{x}}it)
+    \i \bold{\underline{E}}xplore
+    \i \bold{\underline{F}}ile
+    \i \bold{\underline{F}}ind
+    \i \bold{\underline{H}}elp
+    \i Help \bold{\underline{T}}opics
+    \i \bold{\underline{H}}ide
+    \i \bold{\underline{I}}nsert
+    \i Insert \bold{\underline{O}}bject
+    \i \bold{\underline{L}}ink Here
+    \i Ma\bold{\underline{x}}imize
+    \i Mi\bold{\underline{n}}imize
+    \i \bold{\underline{M}}ove
+    \i \bold{\underline{M}}ove Here
+    \i \bold{\underline{N}}ew
+    \i \bold{\underline{N}}ext
+    \i \bold{\underline{N}}o
+    \i \bold{\underline{O}}pen
+    \i Open \bold{\underline{W}}ith
+    \i Page Set\bold{\underline{u}}p
+    \i \bold{\underline{P}}aste
+    \i Paste \bold{\underline{L}}ink
+    \i Paste \bold{\underline{S}}hortcut
+    \i Paste \bold{\underline{S}}pecial
+    \i \bold{\underline{P}}ause
+    \i \bold{\underline{P}}lay
+    \i \bold{\underline{P}}rint
+    \i \bold{\underline{P}}rint Here
+    \i P\bold{\underline{r}}operties
+    \i \bold{\underline{Q}}uick View
+    \i \bold{\underline{R}}edo (CDE: Ctrl+Y, Shift+Alt+Backspace)
+    \i \bold{\underline{R}}epeat
+    \i \bold{\underline{R}}estore
+    \i \bold{\underline{R}}esume
+    \i \bold{\underline{R}}etry
+    \i \bold{\underline{R}}un
+    \i \bold{\underline{S}}ave
+    \i Save \bold{\underline{A}}s
+    \i Select \bold{\underline{A}}ll
+    \i Se\bold{\underline{n}}d To
+    \i \bold{\underline{S}}how
+    \i \bold{\underline{S}}ize
+    \i S\bold{\underline{p}}lit
+    \i \bold{\underline{S}}top
+    \i \bold{\underline{U}}ndo (CDE: Ctrl+Z or Alt+Backspace)
+    \i \bold{\underline{V}}iew
+    \i \bold{\underline{W}}hat's This?
+    \i \bold{\underline{W}}indow
+    \i \bold{\underline{Y}}es
+    \endlist
 
-There are also a lot of other keys and actions (that use other
-modifier keys than Alt). See the Microsoft and The Open Group
-documentation for details.
+    There are also a lot of other keys and actions (that use other
+    modifier keys than Alt). See the Microsoft and The Open Group
+    documentation for details.
 
-The \link http://www.amazon.com/exec/obidos/ASIN/0735605661/trolltech/t
-Microsoft book \endlink has ISBN 0735605661. The corresponding Open Group
-book is very hard to find, rather expensive and we cannot recommend
-it. However, if you really want it, OGPubs@opengroup.org might be able
-to help. Ask them for ISBN 1859121047.
-
+    The \link http://www.amazon.com/exec/obidos/ASIN/0735605661/trolltech/t
+    Microsoft book \endlink has ISBN 0735605661. The corresponding Open Group
+    book is very hard to find, rather expensive and we cannot recommend
+    it. However, if you really want it,
+    \l{mailto:ogpubs@opengroup.org}{ogpubs@opengroup.org} might be able
+    to help. Ask them for ISBN 1859121047.
 */
 
 /*!
-    \fn QString QAccel::keyToString(const QKeySequence &k)
+    \fn QString QAccel::keyToString(const QKeySequence &key)
 
-    Cast to a QString directly, e.g., QString(k), instead.
+    Cast to a QString directly, e.g., QString(\a key), instead.
 */
 
 /*!
-    \fn QKeySequence QAccel::stringToKey(const QString &s)
+    \fn QKeySequence QAccel::stringToKey(const QString &str)
 
-    Cast to a QKeySequence directly, e.g., QKeySequence(s), instead.
+    Cast to a QKeySequence directly, e.g., QKeySequence(\a str), instead.
 */
 
 

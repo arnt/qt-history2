@@ -210,7 +210,7 @@ int Q3Signal::parameter() const
 /*!
     \fn void Q3Signal::block(bool b)
 
-    Use QObject::blockSignals() instead.
+    Use QObject::blockSignals(\a b) instead.
 */
 
 

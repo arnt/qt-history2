@@ -469,3 +469,12 @@ void QSocketDevice::setError(Error err)
     d->e = err;
 }
 
+/*!
+    \fn bool QSocketDevice::isOpen() const
+    \internal
+*/
+
+/*!
+    \fn int QSocketDevice::ungetc(int ch)
+    \internal
+*/
