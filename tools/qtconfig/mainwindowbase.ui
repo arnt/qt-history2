@@ -15,6 +15,9 @@
     <property name="caption">
         <string>Qt Configuration</string>
     </property>
+    <property name="icon">
+        <pixmap>logo.png</pixmap>
+    </property>
     <hbox>
         <property name="name">
             <cstring>unnamed</cstring>
