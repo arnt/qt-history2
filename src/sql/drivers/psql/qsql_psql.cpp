@@ -515,7 +515,7 @@ static void setDatestyle( PGconn* connection )
 #ifdef QT_CHECK_RANGE
     int status =  PQresultStatus( result );
     if ( status != PGRES_COMMAND_OK )
-        qWarning( PQerrorMessage( connection ) );
+        qWarning( "%s", PQerrorMessage( connection ) );
 #endif
     PQclear( result );
 }

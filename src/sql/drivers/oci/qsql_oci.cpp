@@ -84,7 +84,7 @@ public:
 
 #ifdef QT_CHECK_RANGE
 	    if ( r != 0 )
-		qWarning( "QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_FORM: " + qOraWarn( this ) );
+		qOraWarning( "QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_FORM: ", this );
 #endif
 	}
 #endif //QOCI_USES_VERSION_9
@@ -97,7 +97,7 @@ public:
 			err );
 #ifdef QT_CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: " + qOraWarn( this ) );
+	    qOraWarning( "QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: ", this );
 #endif
     }
     
@@ -478,6 +478,20 @@ QString qOraWarn( const QOCIPrivate* d )
     return QString( (char*)errbuf );
 }
 
+void qOraWarning( const char* msg, const QOCIPrivate* d )
+{
+    unsigned char   errbuf[512];
+    sb4             errcode;
+    OCIErrorGet((dvoid *)d->err,
+                (ub4) 1,
+                (text *) NULL,
+                &errcode,
+                errbuf,
+                (ub4) sizeof(errbuf),
+                OCI_HTYPE_ERROR);
+    qWarning( "%s %s", msg, errbuf );
+}
+
 int qOraErrorNumber( const QOCIPrivate* d )
 {
     sb4 errcode;
@@ -521,7 +535,7 @@ QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, 
 	    type = QVariant::Double;
     }
     if ( type == QVariant::Invalid )
-	qWarning("qDecodeOCIType: unknown type: " + ocitype );
+	qWarning("qDecodeOCIType: unknown type: %d", ocitype );
     return type;
 }
 
@@ -581,7 +595,7 @@ QVariant::Type qDecodeOCIType( int ocitype )
     default:
 	type = QVariant::Invalid;
 #ifdef QT_CHECK_RANGE
-	qWarning( "qDecodeOCIType: unknown OCI datatype: " + QString::number( ocitype ) );
+	qWarning( "qDecodeOCIType: unknown OCI datatype: %d", ocitype );
 #endif
 	break;
     }
@@ -610,7 +624,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 		    p->err);
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "qMakeOraField: " + qOraWarn( p ) );
+	qOraWarning( "qMakeOraField:", p );
 #endif
 
     r = OCIAttrGet( (dvoid*) param,
@@ -621,7 +635,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 		    p->err );
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "qMakeOraField: " + qOraWarn( p ) );
+	qOraWarning( "qMakeOraField:", p );
 #endif
 
     r = OCIAttrGet( (dvoid*) param,
@@ -632,7 +646,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 		    p->err );
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "qMakeOraField: " + qOraWarn( p ) );
+	qOraWarning( "qMakeOraField:", p );
 #endif
 
 #ifdef OCI_ATTR_CHAR_SIZE
@@ -644,7 +658,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 		    p->err );
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "qMakeOraField: " + qOraWarn( p ) );
+	qOraWarning( "qMakeOraField:", p );
 #endif
 #else
     // for Oracle8.
@@ -659,7 +673,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 		    p->err );
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "qMakeOraField: " + qOraWarn( p ) );
+	qOraWarning( "qMakeOraField:", p );
 #endif
 
     r = OCIAttrGet( (dvoid*) param,
@@ -670,7 +684,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 		    p->err );
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "qMakeOraField: " + qOraWarn( p ) );
+	qOraWarning( "qMakeOraField:", p );
 #endif
     r = OCIAttrGet( (dvoid*)param,
 		    OCI_DTYPE_PARAM,
@@ -680,7 +694,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 		    p->err);
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "qMakeOraField: " + qOraWarn( p ) );
+	qOraWarning( "qMakeOraField:", p );
 #endif
     r = OCIAttrGet( (dvoid*)param,
 		    OCI_DTYPE_PARAM,
@@ -690,7 +704,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 		    p->err);
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "qMakeOraField: " + qOraWarn( p ) );
+	qOraWarning( "qMakeOraField:", p );
 #endif
 
     type = qDecodeOCIType( colType );
@@ -890,7 +904,7 @@ public:
 	    }
 #ifdef QT_CHECK_RANGE
 	    if ( r != 0 )
-		qWarning( "QOCIResultPrivate::bind field: " + QString::number(count-1) + " " + qOraWarn( d ) );
+		qOraWarning( "QOCIResultPrivate::bind:", d );
 #endif
 	    def[(int)(count-1)] = dfn;
 	    count++;
@@ -934,7 +948,7 @@ public:
 			    d->err );
 #ifdef QT_CHECK_RANGE
 	    if ( r != 0 )
-		qWarning( "QOCIResultPrivate::setCharset: cannot switch to NCHAR: " + qOraWarn( d ) );
+		qOraWarning( "QOCIResultPrivate::setCharset: cannot switch to NCHAR: ", d );
 #endif
 	}
 
@@ -946,7 +960,7 @@ public:
 			d->err );
 #ifdef QT_CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "QOCIResultPrivate::setCharset: cannot switch to UTF8: " + qOraWarn( d ) );
+	    qOraWarning( "QOCIResultPrivate::setCharset: cannot switch to UTF8: ", d );
 #endif
     }
     int readPiecewise( QSqlRecord& res )
@@ -967,7 +981,7 @@ public:
 				     &in_outp, &iterp, &idxp, &piecep );
 #ifdef QT_CHECK_RANGE
 	    if ( r != OCI_SUCCESS )
-		qWarning( "OCIResultPrivate::readPiecewise: unable to get piece info: " + qOraWarn(d) );
+		qOraWarning( "OCIResultPrivate::readPiecewise: unable to get piece info:", d );
 #endif
 	    fieldNum = fieldFromDefine( dfn );
 	    int chunkSize = QOCI_DYNAMIC_CHUNK_SIZE;
@@ -977,7 +991,7 @@ public:
 				      (ub4 *)&chunkSize, piecep, NULL, NULL);
 #ifdef QT_CHECK_RANGE
 	    if ( r != OCI_SUCCESS )
-		qWarning( "OCIResultPrivate::readPiecewise: unable to set piece info: " + qOraWarn(d) );
+		qOraWarning( "OCIResultPrivate::readPiecewise: unable to set piece info:", d );
 #endif
 	    status = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
 	    if ( status == -1 ) {
@@ -989,7 +1003,7 @@ public:
 		    break;
 		default:
 #ifdef QT_CHECK_RANGE
-		    qWarning( "OCIResultPrivate::readPiecewise: unable to fetch next: " + qOraWarn(d) );
+		    qOraWarning( "OCIResultPrivate::readPiecewise: unable to fetch next:", d );
 #endif
 		    break;
 		}
@@ -1044,7 +1058,7 @@ public:
 	    r = OCILobGetLength( d->svc, d->err, lob, &amount );
 	    if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-		qWarning( "OCIResultPrivate::readLOBs: Can't get size of LOB: " + qOraWarn(d) );
+		qOraWarning( "OCIResultPrivate::readLOBs: Can't get size of LOB:", d );
 #endif
 		amount = 0;
 	    }
@@ -1061,7 +1075,7 @@ public:
 		r = OCILobCharSetForm( d->env, d->err, lob, &csfrm );
 		if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-		    qWarning( "OCIResultPrivate::readLOBs: Can't get encoding of LOB: " + qOraWarn(d) );
+		    qOraWarning( "OCIResultPrivate::readLOBs: Can't get encoding of LOB: ", d );
 #endif
 		    csfrm = 0;
 		}
@@ -1077,7 +1091,7 @@ public:
 				0,
 				csfrm );
 		if ( r != 0 ) {
-		    qWarning( "OCIResultPrivate::readLOBs: Cannot read LOB: " + qOraWarn(d) );
+		    qOraWarning( "OCIResultPrivate::readLOBs: Cannot read LOB:", d );
 		} else {
 		    if ( res.value( i ).type() == QVariant::CString ) {
 			res.setValue( i, *((QCString *) buf) );
@@ -1249,7 +1263,7 @@ QOCIResult::~QOCIResult()
 	int r = OCIHandleFree( d->sql, OCI_HTYPE_STMT );
 #ifdef QT_CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "~QOCIResult: unable to free statement handle: " + qOraWarn( d ) );
+	    qOraWarning( "~QOCIResult: unable to free statement handle:", d );
 #endif
     }
     delete d;
@@ -1279,7 +1293,7 @@ bool QOCIResult::cacheNext()
 
     if ( r == OCI_SUCCESS_WITH_INFO ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QOCIResult::cacheNext: " + qOraWarn( d ) );
+	qOraWarning( "QOCIResult::cacheNext: ", d );
 #endif
 	r = 0; //ignore it
     } else if ( r == OCI_NEED_DATA ) { /* piecewise */
@@ -1288,11 +1302,11 @@ bool QOCIResult::cacheNext()
     if( r == OCI_ERROR ) {
 	switch ( qOraErrorNumber( d ) ) {
 	case 1406:
-	    qWarning( "QOCI Warning: data truncated for " + lastQuery() );
+	    qWarning( "QOCI Warning: data truncated for %s", lastQuery().local8Bit.data() );
 	    r = 0; /* ignore it */
 	    break;
 	default:
-	    qWarning( "QOCIResult::cacheNext: " + qOraWarn(d) );
+	    qOraWarning( "QOCIResult::cacheNext: ", d );
 	}
     }
     // fetch LOBs
@@ -1442,7 +1456,7 @@ bool QOCIResult::prepare( const QString& query )
 	r = OCIHandleFree( d->sql, OCI_HTYPE_STMT );
 #ifdef QT_CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "QOCIResult::prepare: unable to free statement handle: " + qOraWarn( d ) );
+	    qOraWarning( "QOCIResult::prepare: unable to free statement handle:", d );
 #endif
     }
     cached = FALSE;
@@ -1455,7 +1469,7 @@ bool QOCIResult::prepare( const QString& query )
 			0);
     if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QOCIResult::prepare: unable to alloc statement: " + qOraWarn( d ) );
+	qOraWarning( "QOCIResult::prepare: unable to alloc statement:", d );
 #endif
 	setLastError( qMakeError( "Unable to alloc statement", QSqlError::Statement, d ) );
 	return FALSE;
@@ -1471,7 +1485,7 @@ bool QOCIResult::prepare( const QString& query )
 			OCI_DEFAULT );
     if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QOCIResult::prepare: unable to prepare statement: " + qOraWarn( d ) );
+	qOraWarning( "QOCIResult::prepare: unable to prepare statement:", d );
 #endif
 	setLastError( qMakeError( "Unable to prepare statement", QSqlError::Statement, d ) );
 	return FALSE;
@@ -1491,7 +1505,7 @@ bool QOCIResult::exec()
     if ( extension()->values.count() > 0 && 
 	d->bindValues( extension(), tmpStorage ) != OCI_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QOCIResult::exec: unable to bind value: " + qOraWarn( d ) );
+	qOraWarning( "QOCIResult::exec: unable to bind value: ", d );
 #endif
 	setLastError( qMakeError( "Unable to bind value", QSqlError::Statement, d ) );
 	return FALSE;
@@ -1516,7 +1530,7 @@ bool QOCIResult::exec()
 			    OCI_DEFAULT );
 	if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	    qWarning( "QOCIResult::exec: unable to execute select statement: " + qOraWarn( d ) );
+	    qOraWarning( "QOCIResult::exec: unable to execute select statement:", d );
 #endif
 	    setLastError( qMakeError( "Unable to execute select statement", QSqlError::Statement, d ) );
 	    return FALSE;
@@ -1552,7 +1566,7 @@ bool QOCIResult::exec()
 				d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS  );
 	if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	    qWarning( "QOCIResult::exec: unable to execute statement: " + qOraWarn( d ) );
+	    qOraWarning( "QOCIResult::exec: unable to execute statement:", d );
 #endif
 	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	    return FALSE;
@@ -1585,7 +1599,7 @@ QOCI9Result::~QOCI9Result()
 	int r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
 #ifdef QT_CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "~QOCI9Result: unable to free statement handle: " + qOraWarn( d ) );
+	    qOraWarning( "~QOCI9Result: unable to free statement handle: ", d );
 #endif
     }
     delete d;
@@ -1609,7 +1623,7 @@ bool QOCI9Result::cacheNext( int r )
     fs.clearValues( TRUE );
     if ( r == OCI_SUCCESS_WITH_INFO ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QOCI9Result::cacheNext: " + qOraWarn( d ) );
+        qOraWarning( "QOCI9Result::cacheNext:", d );
 #endif
 	r = 0; //ignore it
     } else if ( r == OCI_NEED_DATA ) { /* piecewise */
@@ -1618,11 +1632,11 @@ bool QOCI9Result::cacheNext( int r )
     if( r == OCI_ERROR ) {
 	switch ( qOraErrorNumber( d ) ) {
 	case 1406:
-	    qWarning( "QOCI Warning: data truncated for " + lastQuery() );
+	    qWarning( "QOCI Warning: data truncated for %s", lastQuery().local8Bit().data() );
 	    r = 0; /* ignore it */
 	    break;
 	default:
-	    qWarning( "QOCI9Result::cacheNext: " + qOraWarn(d) );
+	    qOraWarning( "QOCI9Result::cacheNext: ", d );
 	}
     }
     // fetch LOBs
@@ -1784,7 +1798,7 @@ bool QOCI9Result::prepare( const QString& query )
 	r = OCIHandleFree( d->sql, OCI_HTYPE_STMT );
 #ifdef QT_CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "QOCI9Result::reset: unable to free statement handle: " + qOraWarn( d ) );
+	    qOraWarning( "QOCI9Result::reset: unable to free statement handle: ", d );
 #endif
     }
     if ( query.isNull() || query.length() == 0 )
@@ -1796,7 +1810,7 @@ bool QOCI9Result::prepare( const QString& query )
 			0);
     if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QOCI9Result::reset: unable to alloc statement: " + qOraWarn( d ) );
+	qOraWarning( "QOCI9Result::reset: unable to alloc statement: ", d );
 #endif
 	return FALSE;
     }
@@ -1811,7 +1825,7 @@ bool QOCI9Result::prepare( const QString& query )
 			OCI_DEFAULT );
     if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QOCI9Result::reset: unable to prepare statement: " + qOraWarn( d ) );
+	qOraWarning( "QOCI9Result::reset: unable to prepare statement: ", d );
 #endif
 	return FALSE;
     }
@@ -1829,7 +1843,7 @@ bool QOCI9Result::exec()
     if ( extension()->values.count() > 0 && 
 	 d->bindValues( extension(), tmpStorage ) != OCI_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QOCIResult::exec: unable to bind value: " + qOraWarn( d ) );
+	qOraWarning( "QOCIResult::exec: unable to bind value: ", d );
 #endif
 	setLastError( qMakeError( "Unable to bind value", QSqlError::Statement, d ) );
 	return FALSE;
@@ -1857,7 +1871,7 @@ bool QOCI9Result::exec()
 			    mode );
 	if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	    qWarning( "QOCI9Result::reset: unable to execute select statement: " + qOraWarn( d ) );
+	    qOraWarning( "QOCI9Result::reset: unable to execute select statement: ", d );
 #endif
 	    setLastError( qMakeError( "Unable to execute select statement", QSqlError::Statement, d ) );
 	    return FALSE;
@@ -1894,7 +1908,7 @@ bool QOCI9Result::exec()
 				d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS );
 	if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	    qWarning( "QOCI9Result::reset: unable to execute statement: " + qOraWarn( d ) );
+	    qOraWarning( "QOCI9Result::reset: unable to execute statement: ", d );
 #endif
 	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	    return FALSE;
@@ -1953,7 +1967,7 @@ void QOCIDriver::init()
 			    NULL );
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "QOCIDriver: unable to initialize environment: " + qOraWarn( d ) );
+	qOraWarning( "QOCIDriver: unable to initialize environment:", d );
 #endif
     r = OCIEnvInit( &d->env,
 		    OCI_DEFAULT,
@@ -1962,7 +1976,7 @@ void QOCIDriver::init()
 #endif
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "QOCIDriver: unable to create environment: " + qOraWarn( d ) );
+	qOraWarning( "QOCIDriver: unable to create environment:", d );
 #endif
     r = OCIHandleAlloc( (dvoid *) d->env,
 			(dvoid **) &d->err,
@@ -1971,7 +1985,7 @@ void QOCIDriver::init()
 			(dvoid **) 0);
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "QOCIDriver: unable to alloc error handle: " + qOraWarn( d ) );
+	qOraWarning( "QOCIDriver: unable to alloc error handle:", d );
 #endif
     r = OCIHandleAlloc( (dvoid *) d->env,
 			(dvoid **) &d->svc,
@@ -1980,7 +1994,7 @@ void QOCIDriver::init()
 			(dvoid **) 0);
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "QOCIDriver: unable to alloc service context: " + qOraWarn( d ) );
+	qOraWarning( "QOCIDriver: unable to alloc service context:", d );
 #endif
     if ( r != 0 )
 	setLastError( qMakeError( "Unable to initialize", QSqlError::Connection, d ) );
@@ -2119,7 +2133,7 @@ bool QOCIDriver::beginTransaction()
 			    OCI_TRANS_READWRITE );
     if ( r == OCI_ERROR ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QOCIDriver::beginTransaction: " + QString::number(r) + qOraWarn( d ) );
+	qOraWarning( "QOCIDriver::beginTransaction: ", d );
 #endif
 	return FALSE;
     }
@@ -2140,7 +2154,7 @@ bool QOCIDriver::commitTransaction()
 			     0 );
     if ( r == OCI_ERROR ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QOCIDriver::commitTransaction: " + qOraWarn( d ) );
+	qOraWarning( "QOCIDriver::commitTransaction:", d );
 #endif
 	return FALSE;
     }
@@ -2161,7 +2175,7 @@ bool QOCIDriver::rollbackTransaction()
 			       0 );
     if ( r == OCI_ERROR ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QOCIDriver::rollbackTransaction: " + qOraWarn( d ) );
+	qOraWarning( "QOCIDriver::rollbackTransaction:", d );
 #endif
 	return FALSE;
     }

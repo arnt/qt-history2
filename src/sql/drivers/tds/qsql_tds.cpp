@@ -181,7 +181,7 @@ static int CS_PUBLIC qTdsMsgHandler ( DBPROCESS* dbproc,
 
     if ( !p ) {
 #ifdef QT_RANGE_CHECK
-	qWarning( QString( "QTDSDriver warning (%1): [%2] from server [%3]" ).arg( msgstate ).arg( msgtext ).arg( srvname ) );
+	qWarning( "QTDSDriver warning (%d): [%s] from server [%s]", msgstate, msgtext, srvname );
 #endif
 	return INT_CANCEL;
     }
@@ -204,7 +204,7 @@ static int CS_PUBLIC qTdsErrHandler( DBPROCESS* dbproc,
     QTDSPrivate* p = errs.find( dbproc );
     if ( !p ) {
 #ifdef QT_RANGE_CHECK
-	qWarning( QString( "QTDSDriver error (%1): [%2] [%3]" ).arg( dberr ).arg( dberrstr ).arg( oserrstr ) );
+	qWarning( "QTDSDriver error (%d): [%s] [%s]", dberr, dberrstr, oserrstr );
 #endif
 	return INT_CANCEL;
     }
@@ -214,7 +214,7 @@ static int CS_PUBLIC qTdsErrHandler( DBPROCESS* dbproc,
      */
     if( (dbproc == NULL || DBDEAD( dbproc )) ) {
 #ifdef QT_RANGE_CHECK	
-	qWarning( QString( "QTDSDriver error (%1): [%2] [%3]" ).arg( dberr ).arg( dberrstr ).arg( oserrstr ) );
+	qWarning( "QTDSDriver error (%d): [%s] [%s]", dberr, dberrstr, oserrstr );
 #endif
 	return INT_CANCEL;
     }

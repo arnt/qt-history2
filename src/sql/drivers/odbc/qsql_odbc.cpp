@@ -160,7 +160,7 @@ static QString qODBCWarn( const QODBCPrivate* odbc)
 static void qSqlWarning( const QString& message, const QODBCPrivate* odbc )
 {
 #ifdef QT_CHECK_RANGE
-    qWarning( message + "\tError:" + qODBCWarn( odbc ) );
+    qWarning( "%s\tError: %s", message.local8Bit().data(), qODBCWarn( odbc ).local8Bit().data() );
 #endif
 }
 
@@ -309,7 +309,7 @@ static QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengt
 			&nullable );
 #ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
-	qWarning( QString("qGetBinaryData: Unable to describe column %1").arg(column) );
+	qWarning( "qGetBinaryData: Unable to describe column %d", column );
 #endif
     // SQLDescribeCol may return 0 if size cannot be determined
     if (!colSize) {
@@ -1091,7 +1091,7 @@ bool QODBCResult::exec()
 	    para++;
 	    if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-		qWarning( "QODBCResult::exec: unable to bind variable: " + qODBCWarn( d ) );
+		qWarning( "QODBCResult::exec: unable to bind variable: %s", qODBCWarn( d ).local8Bit().data() );
 #endif
 		setLastError( qMakeError( "Unable to bind variable", QSqlError::Statement, d ) );
 		return FALSE;
@@ -1101,7 +1101,7 @@ bool QODBCResult::exec()
     r = SQLExecute( d->hStmt );
     if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QODBCResult::exec: Unable to execute statement: " + qODBCWarn( d ) );
+	qWarning( "QODBCResult::exec: Unable to execute statement: %s", qODBCWarn( d ).local8Bit().data() );
 #endif
 	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	return FALSE;
