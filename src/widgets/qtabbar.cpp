@@ -415,7 +415,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	tr.setBottom( tr.bottom() - style().defaultFrameWidth() );
 
     style().drawItem( p, tr.x(), tr.y(), tr.width(), tr.height(), 
-		      AlignCenter | ShowPrefix, colorGroup(), isEnabled(),
+		      AlignCenter | ShowPrefix, colorGroup(), isEnabled() && t->enabled,
 		      0, t->label );
     
     if ( !has_focus )
