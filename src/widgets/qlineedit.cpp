@@ -732,6 +732,11 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		removeSelectedText();
 	    }
 	    break;
+#if defined(Q_WS_X11)
+        case Key_U:
+	    clear();
+	    break;
+#endif
 #ifndef QT_NO_CLIPBOARD
 	case Key_V:
 	    if ( !d->readonly )
