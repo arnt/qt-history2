@@ -93,7 +93,7 @@ reference manual for further information.
 Troubleshooting
 ---------------
 
-If Qt Assitant shows up blank, or compilation of a Qt program fails
+If Qt Assistant shows up blank, or compilation of a Qt program fails
 because e.g. the moc.exe or Qt header files cannot be found, check if the
 PATH contains the qt\bin directory and the environment variable QTDIR has
 been set. After installing Qt, you may need to reboot your computer to
