@@ -740,7 +740,7 @@ ProjectBuilderMakefileGenerator::keyFor(QString block)
 
     QString ret;
     if(!keys.contains(block)) {
-#if 1
+#if 0
 	static unsigned int r = 0;
 	ret.sprintf("%024x", ++r);
 #else //not really necesary, but makes it look more interesting..
