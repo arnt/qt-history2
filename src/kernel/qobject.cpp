@@ -159,28 +159,6 @@ class QObjectPrivate {
 
 static QObject * sigSender = 0;
 
-/* (no '!' on purpose since this is an internal class)
-  \class QSenderObject qobject.h
-  \brief Internal object used for sending signals.
-
-  \internal
-
-  It is generally a very bad idea to use this class directly in
-  application programs.
-
-  In particular, you cannot not use it to send signals from classes
-  that do not inherit QObject. If you wish to do that, make an
-  internal class that inherits QObject and has the necessary signals
-  and slots. Alternatively, you can use the QSignal class.
-*/
-
-/* \internal */
-
-void QSenderObject::setSender( QObject *s )
-{
-    sigSender=s;
-}
-
 
 //
 // Remove white space from SIGNAL and SLOT names.
@@ -236,8 +214,6 @@ static QCString qt_rmWS( const char *s )
 int   qStartTimer( int interval, QObject *obj );
 bool  qKillTimer( int id );
 bool  qKillTimer( QObject *obj );
-
-void  qRemovePostedEvents( QObject* );
 
 static void removeObjFromList( QObjectList *objList, const QObject *obj,
 			       bool single=FALSE )
@@ -364,9 +340,6 @@ QObject::QObject( QObject *parent, const char *name )
 	insert_tree( this );
 	isTree = TRUE;
     }
-
-    // null out sigSender... this may be wrong.
-    sigSender = 0;
 }
 
 

@@ -141,7 +141,7 @@ public:
     static uint registerUserData();
     void setUserData( uint id, QObjectUserData* data);
     QObjectUserData* userData( uint id ) const;
-#endif // QT_NO_USERDATA    
+#endif // QT_NO_USERDATA
 
 signals:
     void	 destroyed();
@@ -239,12 +239,6 @@ inline bool QObject::disconnect( const QObject *receiver, const char *member )
     return disconnect( this, 0, receiver, member );
 }
 
-
-class Q_EXPORT QSenderObject : public QObject		// object for sending signals
-{
-public:
-    void setSender( QObject *s );
-};
 
 #ifdef QT_NO_TRANSLATION
 inline QString QObject::tr( const char *sourceText, const char * ) {
