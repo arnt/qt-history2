@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#42 $
 **
 ** Implementation of QFileDialog class
 **
@@ -25,14 +25,6 @@
 
 #include "qurl.h"
 #include "qnetworkprotocol.h"
-
-#include <stdio.h>
-#include <assert.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdlib.h>
-
-#include <qapplication.h>
 
 struct QUrlPrivate
 {
@@ -712,7 +704,7 @@ QString QUrl::path( bool correct ) const
 {
     if ( !correct )
 	return d->path;
-    
+
     QString res;
     if ( isLocalFile() ) {
 	QFileInfo fi( d->path );

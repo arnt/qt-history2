@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#2 $
 **
 ** Implementation of QFileDialog class
 **
@@ -38,7 +38,7 @@ struct QUrlOperatorPrivate
 };
 
 /*!
-  \fn void QUrl::entry( const QUrlInfo &i )
+  \fn void QUrlOperator::entry( const QUrlInfo &i )
 
   This signal is emitted after listEntries() was called and
   a new entry (file) has been read from the list of files. \a i
@@ -46,7 +46,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::finished( int action )
+  \fn void QUrlOperator::finished( int action )
 
   This signal is emitted when a data transfer of some sort finished.
   \a action gives more information about it, this can be one of
@@ -57,7 +57,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::start( int action )
+  \fn void QUrlOperator::start( int action )
 
   This signal is emitted when a data transfer of some sort started.
   \a action gives more information about it, this can be one of
@@ -68,7 +68,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::createdDirectory( const QUrlInfo &i )
+  \fn void QUrlOperator::createdDirectory( const QUrlInfo &i )
 
   This signal is emitted when mkdir() has been succesful
   and the directory has been created. \a i holds the information
@@ -76,7 +76,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::removed( const QString &name )
+  \fn void QUrlOperator::removed( const QString &name )
 
   This signal is emitted when remove() has been succesful
   and the file has been removed. \a name is the filename
@@ -84,7 +84,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::itemChanged( const QString &oldname, const QString &newname )
+  \fn void QUrlOperator::itemChanged( const QString &oldname, const QString &newname )
 
   This signal is emitted whenever a file, which is a child of this URL,
   has been changed e.g. by successfully calling rename(). \a oldname is
@@ -93,7 +93,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::error( int ecode, const QString &msg )
+  \fn void QUrlOperator::error( int ecode, const QString &msg )
 
   This signal is emitted whenever an error occures. \a ecode
   is the error code, and \a msg an error message which can be
@@ -113,20 +113,20 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::data( const QCString &data )
+  \fn void QUrlOperator::data( const QCString &data )
 
   This signal is emitted when new \a data has been received.
 */
 
 /*!
-  \fn void QUrl::putSuccessful( const QCString &data )
+  \fn void QUrlOperator::putSuccessful( const QCString &data )
 
   This signal is emitted after successfully calling put(). \a data is the data
   which has been put.
 */
 
 /*!
-  \fn void QUrl::copyProgress( const QString &from, const QString &to, int step, int total )
+  \fn void QUrlOperator::copyProgress( const QString &from, const QString &to, int step, int total )
 
   When copying a file this signal is emitted. \a from is the file which
   is copied, \a to the destination. \a step is the progress
@@ -137,7 +137,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::emitEntry( const QUrlInfo & );
+  \fn void QUrlOperator::emitEntry( const QUrlInfo & );
 
   Emits the signal entry( const QUrlInfo & ). This method is mainly
   provided for implementations of network protocols which are
@@ -145,7 +145,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::emitFinished( int action )
+  \fn void QUrlOperator::emitFinished( int action )
 
   Emits the signal finished(). This method is mainly
   provided for implementations of network protocols which are
@@ -158,7 +158,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::emitStart( int action )
+  \fn void QUrlOperator::emitStart( int action )
 
   Emits the signal start(). This method is mainly
   provided for implementations of network protocols which are
@@ -171,7 +171,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::emitCreatedDirectory( const QUrlInfo & )
+  \fn void QUrlOperator::emitCreatedDirectory( const QUrlInfo & )
 
   Emits the signal createdDirectory( const QUrlInfo & ). This method is mainly
   provided for implementations of network protocols which are
@@ -179,7 +179,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::emitRemoved( const QString & )
+  \fn void QUrlOperator::emitRemoved( const QString & )
 
   Emits the signal removed( const QString & ). This method is mainly
   provided for implementations of network protocols which are
@@ -187,7 +187,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::emitItemChanged( const QString &oldname, const QString &newname )
+  \fn void QUrlOperator::emitItemChanged( const QString &oldname, const QString &newname )
 
   Emits the signal itemChanged( const QString &, const QString & ). This method is mainly
   provided for implementations of network protocols which are
@@ -195,7 +195,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::emitError( int ecode, const QString &msg )
+  \fn void QUrlOperator::emitError( int ecode, const QString &msg )
 
   Emits the signal error( int, const QString & ). This method is mainly
   provided for implementations of network protocols which are
@@ -203,7 +203,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::emitData( const QCString &d )
+  \fn void QUrlOperator::emitData( const QCString &d )
 
   Emits the signal data( const QString & ). This method is mainly
   provided for implementations of network protocols which are
@@ -211,7 +211,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrl::emitPutSuccessful( const QCString &d )
+  \fn void QUrlOperator::emitPutSuccessful( const QCString &d )
 
   Emits the signal putSuccessful( const QString & ). This method is mainly
   provided for implementations of network protocols which are
@@ -220,7 +220,7 @@ struct QUrlOperatorPrivate
 
 
 /*!
-  \fn void QUrl::emitCopyProgress( const QString &from, const QString &to, int step, int total )
+  \fn void QUrlOperator::emitCopyProgress( const QString &from, const QString &to, int step, int total )
 
   Emits the signal copyProgress(  const QString &, const QString &, int, int).
   This method is mainly provided for implementations of network protocols which are
@@ -229,9 +229,12 @@ struct QUrlOperatorPrivate
 
 /*!
   \class QUrlOperator qurloperator.h
-  
+
   Urloperator
 */
+
+/*!
+ */
 
 QUrlOperator::QUrlOperator()
     : QUrl()
@@ -240,6 +243,9 @@ QUrlOperator::QUrlOperator()
     d->networkProtocol = 0;
     d->nameFilter = "*";
 }
+
+/*!
+ */
 
 QUrlOperator::QUrlOperator( const QString &url )
     : QUrl( url )
@@ -250,6 +256,9 @@ QUrlOperator::QUrlOperator( const QString &url )
     d->nameFilter = "*";
 }
 
+/*!
+ */
+
 QUrlOperator::QUrlOperator( const QUrlOperator& url )
     : QObject(), QUrl( url )
 {
@@ -259,6 +268,9 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url )
     d->nameFilter = "*";
 }
 
+/*!
+ */
+
 QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl_ )
     : QUrl( url, relUrl_ )
 {
@@ -266,6 +278,9 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl_ )
     d->networkProtocol = 0;
     getNetworkProtocol();
 }
+
+/*!
+ */
 
 QUrlOperator::~QUrlOperator()
 {
@@ -625,12 +640,20 @@ void QUrlOperator::deleteNetworkProtocol()
     d->networkProtocol = 0;
 }
 
+/*!
+  \reimp
+*/
+
 void QUrlOperator::setPath( const QString& path )
 {
     QUrl::setPath( path );
     if ( d->networkProtocol )
 	d->networkProtocol->setUrl( this );
 }
+
+/*!
+  \reimp
+*/
 
 void QUrlOperator::reset()
 {
@@ -641,6 +664,10 @@ void QUrlOperator::reset()
     d->nameFilter = "*";
 }
 
+/*!
+  \reimp
+*/
+
 bool QUrlOperator::parse( const QString &url )
 {
     bool b = QUrl::parse( url );
@@ -648,13 +675,16 @@ bool QUrlOperator::parse( const QString &url )
 	emit error( ErrParse, tr( "Error in parsing `%1'" ).arg( url ) );
 	return b;
     }
-    
+
     if ( d->networkProtocol )
 	delete d->networkProtocol;
     getNetworkProtocol();
-    
+
     return b;
 }
+
+/*!
+ */
 
 QUrlOperator& QUrlOperator::operator=( const QUrlOperator &url )
 {
@@ -664,6 +694,9 @@ QUrlOperator& QUrlOperator::operator=( const QUrlOperator &url )
     return *this;
 }
 
+/*!
+ */
+
 bool QUrlOperator::cdUp()
 {
     bool b = QUrl::cdUp();
@@ -671,6 +704,9 @@ bool QUrlOperator::cdUp()
 	d->networkProtocol->setUrl( this );
     return b;
 }
+
+/*!
+ */
 
 bool QUrlOperator::checkValid()
 {
