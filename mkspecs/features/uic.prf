@@ -34,13 +34,12 @@ uic3 {
 
 ### add a moc step
     uic3_moc.commands = $$QMAKE_MOC $(DEFINES) $(INCPATH) ${QMAKE_FILE_BASE}.h -o ${QMAKE_FILE_OUT}
-    uic3_moc.output = moc_${QMAKE_FILE_BASE}.cpp
+    uic3_moc.output = ${QMAKE_MOC_DIR}moc_${QMAKE_FILE_BASE}.cpp
     uic3_moc.depends = ${QMAKE_FILE_BASE}.h
     uic3_moc.input = FORMS
-    uic3_moc.variable_out = SOURCES
+    uic3_moc.variable_out = _HDRMOC
     QMAKE_EXTRA_COMPILERS += uic3_moc
 }
-
 #### we don't have a replacement for `uic3 -embed' yet!
 
 uic3_emb.commands = $$QMAKE_UIC3 -embed $$TARGET ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}

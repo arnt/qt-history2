@@ -432,6 +432,14 @@ MakefileGenerator::init()
     if(mocAware()) {
         if(!project->isEmpty("MOC_DIR"))
             project->variables()["INCLUDEPATH"].append(project->first("MOC_DIR"));
+
+        // uniqueify the list :)
+        QMap<QString, bool> uniqList;
+        QStringList &tmp_list = project->variables()["_HDRMOC"];
+        for (int i = 0; i < tmp_list.size(); ++i)
+            uniqList.insert(tmp_list.at(i), true);
+        project->variables()["_HDRMOC"] = uniqList.keys();
+
         if(Option::h_moc_ext == Option::cpp_ext.first())
             v["OBJMOC"] = createObjectList("_HDRMOC");
 
@@ -1233,6 +1241,7 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
         ret.replace("${QMAKE_FILE_BASE}", fi.baseName());
         ret.replace("${QMAKE_FILE_NAME}", fi.fileName());
         ret.replace("${QMAKE_FILE_IN}", fi.filePath());
+        ret.replace("${QMAKE_MOC_DIR}", project->first("MOC_DIR"));
     }
     if(!out.isNull()) {
         ret.replace("${QMAKE_FILE_OUT}", out);
