@@ -3,10 +3,7 @@
 # scratch pad for internal development
 
 # hack these for your build
-hacks = oldrichtext
-# hacks += newrichtext
-hacks += oldx11font
-# hacks += newx11font
+# hacks += superfont
 
 # basic internal setup
 internal {
@@ -40,8 +37,9 @@ macx {
 
 #font fu
 unix:!macx:!embedded {
-	contains(hacks,oldx11font):SOURCES += kernel/qfont_x11.cpp
-	contains(hacks,newx11font):SOURCES += ../tests/newfont/qfont_newx11.cpp
+        contains(hacks,superfont):DEFINES+=Q_SUPERFONT \
+	                                   QT_NO_PRINTER \
+					   QT_NO_FONTDATABASE \
+					   QT_NO_PRINTERDIALOG
 }
-
 

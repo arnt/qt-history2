@@ -656,13 +656,15 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
 }
 
 #ifndef NO_XIM
+
+#ifndef Q_SUPERFONT
 static XFontSet fixed_fontset = 0; // leaked once
 
 static
 void cleanup_ffs()
 {
     if ( fixed_fontset )
-        XFreeFontSet(QPaintDevice::x11AppDisplay(), fixed_fontset);
+	XFreeFontSet(QPaintDevice::x11AppDisplay(), fixed_fontset);
     fixed_fontset = 0;
 }
 
@@ -691,16 +693,21 @@ XFontSet xic_fontset(void* qfs, int pt)
     }
     return fixed_fontset;
 }
-#endif
+
+#endif // Q_SUPERFONT
+
+#endif // NO_XIM
 
 
 void QWidget::setFontSys()
 {
 #ifndef NO_XIM
+
+#ifndef Q_SUPERFONT
+    
     QWidget* tlw = topLevelWidget();
     if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
 	XIC xic = (XIC)tlw->extra->topextra->xic;
-
 	XFontSet fontset = xic_fontset( fontMetrics().fontSet(),
 					font().pointSize());
 
@@ -716,8 +723,12 @@ void QWidget::setFontSys()
 
 	XFree(preedit_att);
 	XFree(status_att);
+
     }
-#endif
+    
+#endif // Q_SUPERFONT
+
+#endif // NO_XIM
 }
 
 
@@ -2092,27 +2103,46 @@ void QWidget::createTLSysExtra()
     if ( qt_xim ) {
 	XPoint spot; spot.x = 1; spot.y = 1; // dummmy
 
+#ifndef Q_SUPERFONT
 	XFontSet fontset = xic_fontset(fontMetrics().fontSet(), font().pointSize());
+#endif // Q_SUPERFONT
+	
+	XVaNestedList preedit_att =
+	    XVaCreateNestedList(0,
+				XNSpotLocation, &spot,
+				
+#ifndef Q_SUPERFONT
+				XNFontSet, fontset,
+#endif // Q_SUPERFONT
+				
+				NULL);
 
-	XVaNestedList preedit_att = XVaCreateNestedList(0,
-							XNSpotLocation, &spot,
-							XNFontSet, fontset,
-							NULL);
-	XVaNestedList status_att = XVaCreateNestedList(0,
-						       XNFontSet, fontset,
-						       NULL);
-
-	extra->topextra->xic = (void*)XCreateIC( qt_xim,
-						 XNInputStyle, qt_xim_style,
-						 XNClientWindow, winId(),
-						 XNFocusWindow, winId(),
-						 XNPreeditAttributes, preedit_att,
-						 XNStatusAttributes, status_att,
-						 0 );
+#ifndef Q_SUPERFONT
+	XVaNestedList status_att =
+	    XVaCreateNestedList(0,
+				XNFontSet, fontset,
+				NULL);
+#endif // Q_SUPERFONT
+	 
+	extra->topextra->xic =
+	    (void*)XCreateIC( qt_xim,
+			      XNInputStyle, qt_xim_style,
+			      XNClientWindow, winId(),
+			      XNFocusWindow, winId(),
+			      XNPreeditAttributes, preedit_att,
+			      
+#ifndef Q_SUPERFONT
+			      XNStatusAttributes, status_att,
+#endif // Q_SUPERFONT
+			      
+			      0 );
 
 	XFree(preedit_att);
+	
+#ifndef Q_SUPERFONT
 	XFree(status_att);
-
+#endif // Q_SUPERFONT
+	 
     } else {
 	extra->topextra->xic = 0;
     }
