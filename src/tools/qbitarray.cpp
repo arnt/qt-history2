@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#44 $
 **
 ** Implementation of QBitArray class
 **
@@ -137,15 +137,14 @@ QBitArray::QBitArray( uint size ) : QByteArray( 0, 0 )
 */
 
 
-void QBitArray::pad0()				// pad last byte with 0-bits
+/*!
+  Pad last byte with 0-bits.
+ */
+void QBitArray::pad0()
 {
     uint sz = size();
-    if ( !sz )
-	return;
-    uchar mask = 1 << (sz%8);
-    if ( mask )
-	mask--;
-    *(data()+sz/8) &= mask;
+    if ( sz && sz%8 )
+	*(data()+sz/8) &= (1 << (sz%8)) - 1;
 }
 
 
