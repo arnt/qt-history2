@@ -93,18 +93,18 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     d->glFormat.setDoubleBuffer(res);
     aglDescribePixelFormat(fmt, AGL_DEPTH_SIZE, &res);
     d->glFormat.setDepth(res);
-    d->glFormat.setDepthBufferSize(res);
+    d->glFOrmat.setDepthBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_RGBA, &res);
     d->glFormat.setRgba(res);
     aglDescribePixelFormat(fmt, AGL_ALPHA_SIZE, &res);
     d->glFormat.setAlpha(res);
-    d->glFormat.setAlphaBufferSize(res);
+    d->glFOrmat.setAlphaBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_ACCUM_RED_SIZE, &res);
     d->glFormat.setAccum(res);
-    d->glFormat.setAccumBufferSize(res);
+    d->glFOrmat.setAccumBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_STENCIL_SIZE, &res);
     d->glFormat.setStencil(res);
-    d->glFormat.setStencilBufferSize(res);
+    d->glFOrmat.setStencilBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_STEREO, &res);
     d->glFormat.setStereo(res);
 
@@ -510,25 +510,6 @@ OSStatus QMacGLWindowChangeEvent::globalEventProcessor(EventHandlerCallRef er, E
     return CallNextEventHandler(er, event);
 }
 
-void QGLWidget::init(QGLContext *context, const QGLWidget* shareWidget)
-{
-    d->watcher = new QMacGLWindowChangeEvent(this);
-    d->glcx = d->olcx = 0;
-    d->autoSwap = true;
-
-    setAttribute(Qt::WA_NoBackground);
-    setContext(context, shareWidget ? shareWidget->context() : 0);
-
-    if(isValid() && d->glcx->format().hasOverlay()) {
-        d->olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
-        if(!d->olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
-            delete d->olcx;
-            d->olcx = 0;
-            d->glcx->d->glFormat.setOverlay(false);
-        }
-    }
-}
-
 
 bool QGLWidget::event(QEvent *e)
 {
@@ -604,6 +585,25 @@ void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, 
         d->glcx->create(shareContext);
     if(deleteOldContext)
         delete oldcx;
+}
+
+void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
+{
+    watcher = new QMacGLWindowChangeEvent(this);
+    glcx = d->olcx = 0;
+    autoSwap = true;
+
+    q->setAttribute(Qt::WA_NoBackground);
+    q->setContext(context, shareWidget ? shareWidget->context() : 0);
+
+    if(q->isValid() && glcx->format().hasOverlay()) {
+        olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
+        if(!olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
+            delete olcx;
+            olcx = 0;
+            glcx->d->glFormat.setOverlay(false);
+        }
+    }
 }
 
 bool QGLWidgetPrivate::renderCxPm(QPixmap*)
