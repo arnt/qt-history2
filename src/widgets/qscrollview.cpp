@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#72 $
 **
 ** Implementation of QScrollView class
 **
@@ -1110,6 +1110,13 @@ void QScrollView::resizeContents( int w, int h )
     }
 }
 
+/*!
+  Calls update() on rectangle defined by \a x, \a y, \a w, \a h,
+  translated appropriately.  If the rectangle in not visible,
+  nothing is repainted.
+
+  \sa repaintContents()
+*/
 void QScrollView::updateContents( int x, int y, int w, int h )
 {
     QWidget* vp = viewport();
@@ -1137,6 +1144,13 @@ void QScrollView::updateContents( int x, int y, int w, int h )
     vp->update( x, y, w, h );
 }
 
+/*!
+  Calls repaint() on rectangle defined by \a x, \a y, \a w, \a h,
+  translated appropriately.  If the rectangle in not visible,
+  nothing is repainted.
+
+  \sa updateContents()
+*/
 void QScrollView::repaintContents( int x, int y, int w, int h, bool erase )
 {
     QWidget* vp = viewport();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#19 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#20 $
 **
 ** Implementation of QTextCodec class
 **
@@ -413,7 +413,7 @@ QCString QTextCodec::fromUnicode(const QString& uc, int& lenInOut) const
 }
 
 /*!
-  \overload char* QTextCodec::fromUnicode(const QString& uc) const
+  \overload QCString QTextCodec::fromUnicode(const QString& uc) const
 */
 QCString QTextCodec::fromUnicode(const QString& uc) const
 {
