@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#14 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#15 $
 **
 ** Implementation of QFileDialog class
 **
@@ -134,7 +134,7 @@ public:
 
     virtual QUrlInfo info( const QString &entry ) const;
     operator QString() const;
-    virtual QString toString( bool encodedPath = FALSE ) const;
+    virtual QString toString( bool encodedPath = FALSE, bool forcePrependProtocol = FALSE ) const;
 
     virtual bool cdUp();
 

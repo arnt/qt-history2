@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#35 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1564,15 +1564,15 @@ QString QUrl::nameFilter() const
   Composes a string of the URL and returns it.
 */
 
-QString QUrl::toString( bool encodedPath ) const
+QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
 {
     QString res, p = path();
     if ( encodedPath )
-	encode( p ); 
-    
+	encode( p );
+
     if ( isLocalFile() ) {
-	if ( !qNetworkProtocolRegister || ( qNetworkProtocolRegister &&
-					    qNetworkProtocolRegister->count() == 0 ) )
+	if ( !forcePrependProtocol && ( !qNetworkProtocolRegister || ( qNetworkProtocolRegister &&
+								       qNetworkProtocolRegister->count() == 0 ) ) )
 	    res = p;
 	else
 	    res = d->protocol + ":" + p;
@@ -1590,14 +1590,14 @@ QString QUrl::toString( bool encodedPath ) const
 	    res += ":" + QString( "%1" ).arg( d->port );
 	res += p;
     }
-    
+
     if ( qNetworkProtocolRegister && qNetworkProtocolRegister->count() > 0 ) {
 	if ( !d->refEncoded.isEmpty() )
 	    res += "#" + d->refEncoded;
 	if ( !d->queryEncoded.isEmpty() )
 	    res += "?" + d->queryEncoded;
     }
-    
+
     return res;
 }
 
