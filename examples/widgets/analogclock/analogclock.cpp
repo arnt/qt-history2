@@ -29,12 +29,12 @@ void AnalogClock::paintEvent(QPaintEvent *)
 
     painter.save();
     painter.rotate(30 * (time.hour() % 12) + time.minute() / 2);
-    painter.drawConvexPolygon(QPointArray(4, hourHand));
+    painter.drawConvexPolygon(QPolygon(4, hourHand));
     painter.restore();
 
     painter.save();
     painter.rotate(6 * time.minute());
-    painter.drawConvexPolygon(QPointArray(4, minuteHand));
+    painter.drawConvexPolygon(QPolygon(4, minuteHand));
     painter.restore();
 
     for (int i = 0; i < 12; ++i) {

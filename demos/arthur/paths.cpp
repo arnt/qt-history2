@@ -38,7 +38,7 @@ void Paths::paintEvent(QPaintEvent *)
 
     // Define some semi random points.
     int bezierCount = 2;
-    QPointArray a;
+    QPolygon a;
     for (int i=0; i<bezierCount*3+1; ++i) {
         a.append(QPoint(int(xfunc(animationStep + i*20) * w/2 + w/2),
                         int(yfunc(animationStep + i*20) * h/2 + h/2)));

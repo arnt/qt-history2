@@ -285,7 +285,7 @@
 
   Painter paths are a new feature in Qt 4.0, but it was to some degree
   possible to achieve the same results using QRegion operations (as we
-  did in the clipping example above), in combination with QPointArray
+  did in the clipping example above), in combination with QPolygon
   and clipped filling. QPainterPath has several advantages over that
   approach. One is that a QPainterPath is scalable, meaning that when
   you draw on a painter with a world matrix, you don't lose precision

@@ -57,13 +57,13 @@ bool genCPlusPlus( QString fileName, QFile &file )
     QBuffer iodevice( bytes );			// use buffer device
     QDataStream s;
     iodevice.open( IO_ReadOnly );
-    s.setDevice( &iodevice );    
+    s.setDevice( &iodevice );
     int pa_count = 0;
     int c, len, i1, i2;
     ulong ul;
     QPoint p, p2;
     QRect r;
-    QPointArray a;
+    QPolygon a;
     QColor color;
     char *str;
 
@@ -102,8 +102,8 @@ bool genCPlusPlus( QString fileName, QFile &file )
 		printf( " %d,%d", a.point(i).x(), a.point(i).y() );
 	    }
 	    printf( " };\n" );
-	    printf( "    QPointArray pa_%d( pa_data_%d, %d );\n",
-		    pa_count, pa_count, a.size() );	    
+	    printf( "    QPolygon pa_%d( pa_data_%d, %d );\n",
+		    pa_count, pa_count, a.size() );
 	}
 	if ( c != PdcEnd )
 	    printf( "    painter." );
@@ -172,7 +172,7 @@ bool genCPlusPlus( QString fileName, QFile &file )
 	    case PdcDrawText:
 	        s >> p >> str;
 	        printf( "drawText( %d,%d, \"%s\" );\n", p.x(), p.y(),
-		        str );		
+		        str );
 	        delete str;
 	        break;
 	    case PdcSetBkColor:

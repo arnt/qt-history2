@@ -547,7 +547,7 @@ void QWSServer::showCursor()
 
 /*
     //##### hardcoded region
-   QPointArray a;
+   QPolygon a;
    a.setPoints(  7,
 		 0,0,
 		 6,0,

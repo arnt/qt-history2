@@ -16,7 +16,7 @@
 #include <qpointarray.h>
 #include <qpainter.h>
 
-static QPointArray polygon;
+static QPolygon polygon;
 static uint *colorTable = 0;
 #define TABLESIZE 30
 
