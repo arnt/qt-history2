@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#131 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#132 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#131 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#132 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -917,17 +917,17 @@ void QWidget::lower()
 static void do_size_hints( Display *dpy, WId winid, QWExtra *x, XSizeHints *s )
 {
     if ( x ) {
-	if ( x->minw >= 0 && x->minh >= 0 ) {	// add minimum size hints
+	if ( x->minw > 0 || x->minh > 0 ) {	// add minimum size hints
 	    s->flags |= PMinSize;
-	    s->min_width = x->minw;
+	    s->min_width  = x->minw;
 	    s->min_height = x->minh;
 	}
-	if ( x->maxw >= 0 && x->maxw >= 0 ) {	// add maximum size hints
-	    s->flags |= PMaxSize;
-	    s->max_width = x->maxw;
+	if ( x->maxw < QCOORD_MAX || x->maxh < QCOORD_MAX ) {
+	    s->flags |= PMaxSize;		// add maximum size hints
+	    s->max_width  = x->maxw;
 	    s->max_height = x->maxh;
 	}
-	if ( x->incw >= 0 && x->inch >= 0 ) {	// add resize increment hints
+	if ( x->incw > 0 || x->inch > 0 ) {	// add resize increment hints
 	    s->flags |= PResizeInc | PBaseSize;
 	    s->width_inc = x->incw;
 	    s->height_inc = x->inch;
@@ -956,7 +956,7 @@ static void do_size_hints( Display *dpy, WId winid, QWExtra *x, XSizeHints *s )
   \warning If you call move() or setGeometry() from moveEvent(), you
   may see infinite recursion.
 
-  \sa resize(), setGeometry(), moveEvent()
+  \sa pos(), resize(), setGeometry(), moveEvent()
  ----------------------------------------------------------------------------*/
 
 void QWidget::move( int x, int y )
@@ -990,26 +990,36 @@ void QWidget::move( int x, int y )
 
   A \link resizeEvent() resize event\endlink is generated at once.
 
+  The size is adjusted if it is outside the \link setMinimumSize()
+  minimum\endlink or \link setMaximumSize() maximum\endlink widget size.
+
   This function is virtual, and all other overloaded resize()
   implementations call it.
 
   \warning If you call resize() or setGeometry() from resizeEvent(),
   you may see infinite recursion.
 
-  \sa move(), setGeometry(), resizeEvent()
+  \sa size(), move(), setGeometry(), resizeEvent(),
+  minimumSize(),  maximumSize()
  ----------------------------------------------------------------------------*/
 
 void QWidget::resize( int w, int h )
 {
+    if ( testWFlags(WType_Desktop) )
+	return;
     if ( w < 1 )				// invalid size
 	w = 1;
     if ( h < 1 )
 	h = 1;
+    if ( extra ) {				// any size restrictions?
+	w = QMIN(w,extra->maxw);
+	h = QMIN(h,extra->maxh);	
+	w = QMAX(w,extra->minw);
+	h = QMAX(h,extra->minh);
+    }
     QRect r = crect;
     QSize s(w,h);
     QSize olds = size();
-    if ( testWFlags(WType_Desktop) )
-	return;
     r.setSize( s );
     setCRect( r );
     if ( testWFlags(WType_TopLevel) ) {
@@ -1030,11 +1040,14 @@ void QWidget::resize( int w, int h )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Changes the widget geometry to \e w by \e h, positioned at
-  \e x,y in its parent widget.
+  Sets the widget geometry to \e w by \e h, positioned at \e x,y in its
+  parent widget.
 
   A \link resizeEvent() resize event\endlink and a
   \link moveEvent() move event\endlink is generated immediately.
+
+  The size is adjusted if it is outside the \link setMinimumSize()
+  minimum\endlink or \link setMaximumSize() maximum\endlink widget size.
 
   This function is virtual, and all other overloaded setGeometry()
   implementations call it.
@@ -1042,7 +1055,8 @@ void QWidget::resize( int w, int h )
   \warning If you call setGeometry() from resizeEvent() or moveEvent(),
   you may see infinite recursion.
 
-  \sa move(), resize(), moveEvent(), resizeEvent()
+  \sa geometry(), move(), resize(), moveEvent(), resizeEvent(),
+  minimumSize(),  maximumSize()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setGeometry( int x, int y, int w, int h )
@@ -1051,6 +1065,12 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	w = 1;
     if ( h < 1 )
 	h = 1;
+    if ( extra ) {				// any size restrictions?
+	w = QMIN(w,extra->maxw);
+	h = QMIN(h,extra->maxh);	
+	w = QMAX(w,extra->minw);
+	h = QMAX(h,extra->minh);
+    }
     QPoint oldp = frameGeometry().topLeft();
     QSize  olds = size();
     QRect  r( x, y, w, h );
@@ -1079,26 +1099,29 @@ void QWidget::setGeometry( int x, int y, int w, int h )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Sets the minimum size of the widget to \e w by \e h pixels.  The
-  user will not be able to resize the window to a smaller size.	 The
-  programmer may, however.
+  Sets the minimum size of the widget to \e w by \e h pixels.
 
-  Note that while you can set the minimum size for all widgets, it has
-  no effect except for top-level widgets.
+  The widget cannot be resized to a smaller size than the minimum widget
+  size. The widget's size is forced to the minimum size if the current
+  size is smaller.
 
-  \sa minimumSize(), setMaximumSize(), setSizeIncrement(), size()
+  \sa minimumSize(), setMaximumSize(), setSizeIncrement(), resize(), size()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setMinimumSize( int w, int h )
 {
 #if defined(CHECK_RANGE)
     if ( w < 0 || h < 0 )
-	warning( "QWidget::setMinimumSize: The smallest allowed size is (0,0)" );
+	warning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
     createExtra();
     extra->minw = w;
     extra->minh = h;
-    if ( testWFlags(WType_TopLevel) ) {
+    int minw = QMIN(w,crect.width());
+    int minh = QMIN(h,crect.height());
+    if ( minw < w || minh < h ) {
+	resize( minw, minh );
+    } else if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
 	do_size_hints( dpy, winid, extra, &size_hints );
@@ -1110,26 +1133,29 @@ void QWidget::setMinimumSize( int w, int h )
  ----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------
   Sets the maximum size of the widget to \e w by \e h pixels.
-  The user will not be able to resize the window to a larger size.  The
-  programmer may, however.
 
-  Note that while you can set the maximum size for all widgets, it has
-  no effect except for top-level widgets.
+  The widget cannot be resized to a larger size than the maximum widget
+  size. The widget's size is forced to the maximum size if the current
+  size is greater.
 
-  \sa maximumSize(), setMinimumSize(), setSizeIncrement(), size()
+  \sa maximumSize(), setMinimumSize(), setSizeIncrement(), resize(), size()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setMaximumSize( int w, int h )
 {
 #if defined(CHECK_RANGE)
     if ( w > QCOORD_MAX || h > QCOORD_MAX )
-	warning( "QWidget::setMaximumSize: The largest allowed size is (%d,%d)",
+	warning("QWidget::setMaximumSize: The largest allowed size is (%d,%d)",
 		 QCOORD_MAX, QCOORD_MAX );
 #endif
     createExtra();
     extra->maxw = w;
     extra->maxh = h;
-    if ( testWFlags(WType_TopLevel) ) {
+    int maxw = QMAX(w,crect.width());
+    int maxh = QMAX(h,crect.height());
+    if ( maxw > w || maxh > h ) {
+	resize( maxw, maxh );
+    } else if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
 	do_size_hints( dpy, winid, extra, &size_hints );
@@ -1146,7 +1172,7 @@ void QWidget::setMaximumSize( int w, int h )
 
   \warning The size increment has no effect under Windows.
 
-  \sa sizeIncrement(), setMinimumSize(), setMaximumSize(), size()
+  \sa sizeIncrement(), setMinimumSize(), setMaximumSize(), resize(), size()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setSizeIncrement( int w, int h )

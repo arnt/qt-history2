@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#34 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#34 $")
 
 
 /*****************************************************************************
@@ -111,6 +111,11 @@ void QCursor::initialize()
 {
     int shape = ArrowCursor;
     while ( cursorTable[shape] ) {
+	if ( !cursorTable[shape]->data ) {	// workaround for gcc-2.6.3 bug
+	    cursorTable[shape]->data = new QCursorData;
+	    CHECK_PTR( cursorTable[shape]->data );
+	    cursorTable[shape]->data->hcurs = 0;
+	}
 	cursorTable[shape]->data->cshape = shape;
 	shape++;
     }

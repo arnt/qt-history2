@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#39 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#39 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -563,9 +563,9 @@ void qWinRequestConfig( WId, int, int, int, int, int );
 
 void QWidget::move( int x, int y )
 {
-    if ( testWFlags(WConfigPending) )		// processing config event
+    if ( testWFlags(WConfigPending) ) {		// processing config event
 	qWinRequestConfig( winId(), 0, x, y, 0, 0 );
-    else {
+    } else {
 	setFRect( QRect(x,y,frect.width(),frect.height()) );
 	setWFlags( WConfigPending );
 	MoveWindow( winId(), x, y, frect.width(), frect.height(), TRUE );
@@ -575,9 +575,15 @@ void QWidget::move( int x, int y )
 
 void QWidget::resize( int w, int h )
 {
-    if ( testWFlags(WConfigPending) )		// processing config event
+    if ( extra ) {				// any size restrictions?
+	w = QMIN(w,extra->maxw);
+	h = QMIN(h,extra->maxh);	
+	w = QMAX(w,extra->minw);
+	h = QMAX(h,extra->minh);
+    }
+    if ( testWFlags(WConfigPending) ) {		// processing config event
 	qWinRequestConfig( winId(), 1, 0, 0, w, h );
-    else {
+    } else {
 	int x = frect.x();
 	int y = frect.y();
 	w += frect.width()  - crect.width();
@@ -591,9 +597,15 @@ void QWidget::resize( int w, int h )
 
 void QWidget::setGeometry( int x, int y, int w, int h )
 {
-    if ( testWFlags(WConfigPending) )		// processing config event
+    if ( extra ) {				// any size restrictions?
+	w = QMIN(w,extra->maxw);
+	h = QMIN(h,extra->maxh);	
+	w = QMAX(w,extra->minw);
+	h = QMAX(h,extra->minh);
+    }
+    if ( testWFlags(WConfigPending) ) {		// processing config event
 	qWinRequestConfig( winId(), 2, x, y, w, h );
-    else {
+    } else {
 	w += frect.width()  - crect.width();
 	h += frect.height() - crect.height();
 	setFRect( QRect(x,y,w,h) );
@@ -608,35 +620,31 @@ void QWidget::setMinimumSize( int w, int h )
 {
 #if defined(CHECK_RANGE)
     if ( w < 0 || h < 0 )
-	warning( "QWidget::setMinimumSize: The smallest allowed size is (0,0)" );
+	warning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
     createExtra();
-    extra->minw = w + frect.width()  - crect.width();
-    extra->minh = h + frect.height() - crect.height();
-#if 0
+    extra->minw = w;
+    extra->minh = h;
     int minw = QMIN(w,crect.width());
     int minh = QMIN(h,crect.height());
     if ( minw < w || minh < h )
 	resize( minw, minh );
-#endif
 }
 
 void QWidget::setMaximumSize( int w, int h )
 {
 #if defined(CHECK_RANGE)
     if ( w > QCOORD_MAX || h > QCOORD_MAX )
-	warning( "QWidget::setMaxSize: The largest allowed size is (%d,%d)",
+	warning("QWidget::setMaximumSize: The largest allowed size is (%d,%d)",
 		 QCOORD_MAX, QCOORD_MAX );
 #endif
     createExtra();
-    extra->maxw = w + frect.width()  - crect.width();
-    extra->maxh = h + frect.height() - crect.height();
-#if 0
+    extra->maxw = w;
+    extra->maxh = h;
     int maxw = QMAX(w,crect.width());
     int maxh = QMAX(h,crect.height());
     if ( maxw > w || maxh > h )
 	resize( maxw, maxh );
-#endif
 }
 
 void QWidget::setSizeIncrement( int w, int h )

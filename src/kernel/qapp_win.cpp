@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#45 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#44 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#45 $")
 
 
 /*****************************************************************************
@@ -875,14 +875,16 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    if ( widget->xtra() ) {
 		MINMAXINFO *mmi = (MINMAXINFO *)lParam;
 		QWExtra	   *x = widget->xtra();
-		if ( x->minw >= 0 )
-		    mmi->ptMinTrackSize.x = x->minw;
-		if ( x->minh >= 0 )
-		    mmi->ptMinTrackSize.y = x->minh;
-		if ( x->maxw >= 0 )
-		    mmi->ptMaxTrackSize.x = x->maxw;
-		if ( x->maxh >= 0 )
-		    mmi->ptMaxTrackSize.y = x->maxh;
+		QRect	   f  = widget->frameGeometry();
+		QSize	   s  = widget->size();
+		if ( x->minw > 0 )
+		    mmi->ptMinTrackSize.x = x->minw + f.width()  - s.width();
+		if ( x->minh > 0 )
+		    mmi->ptMinTrackSize.y = x->minh + f.height() - s.height();
+		if ( x->maxw < QCOORD_MAX )
+		    mmi->ptMaxTrackSize.x = x->maxw + f.width()  - s.width();
+		if ( x->maxh < QCOORD_MAX )
+		    mmi->ptMaxTrackSize.y = x->maxh + f.height() - s.height();
 		return 0;
 	    }
 	    break;
