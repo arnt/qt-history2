@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#169 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#170 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1182,8 +1182,10 @@ void QPainter::updateXForm()
     txinv = FALSE;				// no inverted matrix
     txop  = TxNone;
     const double eps = 0.0; // ##### can we get away with this?
-    #define FZ(x) ((x)<eps&&(x)>-eps)
-    #define FEQ(x,y) (((x)-(y))<eps&&((x)-(y))>-eps)
+    //#define FZ(x) ((x)<eps&&(x)>-eps) ###nonsense if eps==0.0!!!
+    #define FZ(x) ((x) == eps)
+    //#define FEQ(x,y) (((x)-(y))<eps&&((x)-(y))>-eps) ###nonsense if eps==0.0!
+    #define FEQ(x,y) ((x)==(y))
     if ( FZ(m12()) && FZ(m21()) && m11() >= -eps && m22() >= -eps ) {
 	if ( FEQ(m11(),1.0) && FEQ(m22(),1.0) ) {
 	    if ( !FZ(dx()) || !FZ(dy()) )
@@ -1886,7 +1888,7 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
   \a brect (if non-null) is set to the actual bounding rectangle of
   the output.  \a internal is, yes, internal.
 
-  These flags are defined in qwindowdefs.h.
+  These flags are defined in qnamespace.h.
 
   \sa boundingRect()
 */
