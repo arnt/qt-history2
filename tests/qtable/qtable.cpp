@@ -30,7 +30,6 @@
 #include <qtimer.h>
 #include <qobjectlist.h>
 #include <stdlib.h>
-#include <limits.h>
 
 /*!
   \class QTableItem qtable.h
@@ -805,7 +804,7 @@ void QTable::swapCells( int row1, int col1, int row2, int col2 )
 	widgets.remove( indexOf( row2, col2 ) );
 	widgets.insert( indexOf( row2, col2 ), tmp );
     }
-    
+
     contents.setAutoDelete( FALSE );
     widgets.setAutoDelete( TRUE );
 
@@ -2143,15 +2142,10 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
 			       newSelection->bottomRow,
 			       newSelection->rightCol,
 			       optimize2 );
+    old = QRect( contentsToViewport( old.topLeft() ), old.size()  );
+    cur = QRect( contentsToViewport( cur.topLeft() ), cur.size() );
 
     int i;
-
-    if ( old.x() >= SHRT_MAX || old.y() >= SHRT_MAX ||
-	 old.width() >= SHRT_MAX || old.height() >= SHRT_MAX )
-	optimize1 = FALSE;
-    if ( cur.x() >= SHRT_MAX || cur.y() >= SHRT_MAX ||
-	 cur.width() >= SHRT_MAX || cur.height() >= SHRT_MAX )
-	optimize2 = FALSE;
 
     if ( !optimize1 || !optimize2 ) {
 	QRect rr = cur.unite( old );
@@ -2162,10 +2156,16 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
 	QRegion r3 = r1.subtract( r2 );
 	QRegion r4 = r2.subtract( r1 );
 
-	for ( i = 0; i < (int)r3.rects().count(); ++i )
-	    repaintContents( r3.rects()[ i ], FALSE );
-	for ( i = 0; i < (int)r4.rects().count(); ++i )
-	    repaintContents( r4.rects()[ i ], FALSE );
+	for ( i = 0; i < (int)r3.rects().count(); ++i ) {
+	    QRect r( r3.rects()[ i ] );
+	    r = QRect( viewportToContents( r.topLeft() ), r.size() );
+	    repaintContents( r, FALSE );
+	}
+	for ( i = 0; i < (int)r4.rects().count(); ++i ) {
+	    QRect r( r4.rects()[ i ] );
+	    r = QRect( viewportToContents( r.topLeft() ), r.size() );
+	    repaintContents( r, FALSE );
+	}
     }
 
     if ( updateHorizontal ) {
