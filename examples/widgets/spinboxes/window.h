@@ -16,8 +16,8 @@ public:
     Window();
 
 public slots:
-    void setFormatString(const QString &formatString);
     void changePrecision(int precision);
+    void setFormatString(const QString &formatString);
 
 private:
     void createSpinBoxes();
