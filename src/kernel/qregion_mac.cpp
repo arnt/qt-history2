@@ -121,46 +121,50 @@ void QRegion::translate( int dx, int dy )
 QRegion QRegion::unite( const QRegion &r ) const
 {
   printf("QRegion::unite: %s %d\n",__FILE__,__LINE__);
-  RgnHandle ret=NewRgn();
+  QRegion qr(false);
+  RgnHandle ret=(RgnHandle)qr.data->rgn;
   if(data->rgn && r.data->rgn) {
     UnionRgn((RgnHandle)data->rgn,(RgnHandle)r.data->rgn,
              ret);
   }
-  return (void *)ret;
+  return qr;
 }
 
 QRegion QRegion::intersect( const QRegion &r ) const
 {
   printf("QRegion::intersect: %s %d\n",__FILE__,__LINE__);
-  RgnHandle ret=NewRgn();
+  QRegion qr(false);
+  RgnHandle ret=(RgnHandle)qr.data->rgn;
   if(data->rgn && r.data->rgn) {
     SectRgn((RgnHandle)data->rgn,(RgnHandle)r.data->rgn,
              ret);
   }
-  return (void *)ret;
+  return qr;
 }
 
 QRegion QRegion::subtract( const QRegion &r ) const
 {
   // Is this right? What's the difference of two regions?
   printf("QRegion::subtract: %s %d\n",__FILE__,__LINE__);
-  RgnHandle ret=NewRgn();
+  QRegion qr(false);
+  RgnHandle ret=(RgnHandle)qr.data->rgn;
   if(data->rgn && r.data->rgn) {
     DiffRgn((RgnHandle)data->rgn,(RgnHandle)r.data->rgn,
              ret);
   }
-  return (void *)ret;
+  return qr;
 }
 
 QRegion QRegion::eor( const QRegion &r ) const
 {
   printf("QRegion::eor: %s %d\n",__FILE__,__LINE__);
-  RgnHandle ret=NewRgn();
+  QRegion qr(false);
+  RgnHandle ret=(RgnHandle)qr.data->rgn;
   if(data->rgn && r.data->rgn) {
     XorRgn((RgnHandle)data->rgn,(RgnHandle)r.data->rgn,
              ret);
   }
-  return (void *)ret;
+  return qr;
 }
 
 QRect QRegion::boundingRect() const
