@@ -82,7 +82,7 @@ foreach $dir (keys %dirs) {
     }
 
     #calc files and "copy" them
-    my $master_header_out;
+    my $master_header_out = "";
     foreach (@subdirs) {
 	my $subdir = "$_";
 	my @headers = find_files("$subdir", "^[-a-z0-9_]*\\.h\$" , 0);
