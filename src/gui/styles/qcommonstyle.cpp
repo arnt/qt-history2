@@ -2843,7 +2843,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
     case PM_SmallIconSize:
-        ret = 22;
+        ret = 16;
         break;
     case PM_LargeIconSize:
         ret = 32;
