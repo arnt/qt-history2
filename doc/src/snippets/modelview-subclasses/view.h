@@ -55,7 +55,7 @@ protected:
     QSize sizeHint() const;
 
 private:
-    int rows(const QModelIndex &index = QModelIndex::Null) const;
+    int rows(const QModelIndex &index = QModelIndex()) const;
     void updateGeometries();
 };
 

@@ -23,7 +23,7 @@
     in the model.
 */
 
-int LinearModel::rowCount() const
+int LinearModel::rowCount(const QModelIndex &/*parent*/) const
 {
     return values.count();
 }
@@ -45,11 +45,11 @@ int LinearModel::rowCount() const
 
 QModelIndex LinearModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (parent == QModelIndex::Null && row >= 0 && row < rowCount()
+    if (parent == QModelIndex() && row >= 0 && row < rowCount()
         && column == 0)
         return createIndex(row, column, 0);
     else
-        return QModelIndex::Null;
+        return QModelIndex();
 }
 
 QVariant LinearModel::data(const QModelIndex &index, int /* role */) const
@@ -99,7 +99,7 @@ bool LinearModel::insertRows(int position, const QModelIndex &/*index*/,
 {
     values.insert(position, rows, 0);
 
-    emit rowsInserted(QModelIndex::Null, position, position+rows-1);
+    emit rowsInserted(QModelIndex(), position, position+rows-1);
     return true;
 }
 
@@ -110,7 +110,7 @@ bool LinearModel::insertRows(int position, const QModelIndex &/*index*/,
 bool LinearModel::removeRows(int position, const QModelIndex &/*index*/,
                              int rows)
 {
-    emit rowsAboutToBeRemoved(QModelIndex::Null, position, position+rows-1);
+    emit rowsAboutToBeRemoved(QModelIndex(), position, position+rows-1);
     values.remove(position, rows);
 
     return true;

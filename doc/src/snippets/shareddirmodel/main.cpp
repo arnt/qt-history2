@@ -33,8 +33,10 @@ int main(int argc, char *argv[])
 
     QTreeView *tree = new QTreeView(splitter);
     tree->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tree->setDraggableItems(false);
     QListView *list = new QListView(splitter);
     list->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    list->setDraggableItems(false);
 
     tree->setModel(model);
     list->setModel(model);

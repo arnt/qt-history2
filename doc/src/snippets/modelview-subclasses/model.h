@@ -24,15 +24,15 @@ public:
     LinearModel(QObject *parent = 0)
         : QAbstractListModel(parent) {}
 
-    int rowCount() const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
 
     bool isEditable(const QModelIndex &index) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
-    bool insertRows(int position, const QModelIndex &index, int rows);
-    bool removeRows(int position, const QModelIndex &index, int rows);
+    bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
+    bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
 
 private:
     QVector<int> values;

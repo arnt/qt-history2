@@ -24,8 +24,8 @@ class TableModel : public QAbstractTableModel
 public:
     TableModel(int rows = 1, int columns = 1, QObject *parent = 0);
 
-    int rowCount() const;
-    int columnCount() const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = DisplayRole) const;
@@ -33,10 +33,10 @@ public:
     ItemFlags flags(const QModelIndex &index) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
-    bool insertRows(int position, const QModelIndex &parent, int rows);
-    bool insertColumns(int position, const QModelIndex &parent, int columns);
-    bool removeRows(int position, const QModelIndex &parent, int rows);
-    bool removeColumns(int position, const QModelIndex &parent, int columns);
+    bool insertRows(int position, int rows, const QModelIndex &parent = QModelIndex());
+    bool insertColumns(int position, int columns, const QModelIndex &parent = QModelIndex());
+    bool removeRows(int position, int rows, const QModelIndex &parent = QModelIndex());
+    bool removeColumns(int position, int columns, const QModelIndex &parent = QModelIndex());
 
 private:
     QList<QStringList> rowList;

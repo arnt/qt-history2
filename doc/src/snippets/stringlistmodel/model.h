@@ -1,4 +1,3 @@
-//depot/qt/main/doc/src/snippets/stringlistmodel/model.h#3 - edit change 152565 (text)
 /****************************************************************************
 **
 ** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -25,7 +24,7 @@ public:
     StringListModel(const QStringList &strings, QObject *parent = 0)
         : QAbstractListModel(parent), stringList(strings) {}
 
-    int rowCount() const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = DisplayRole) const;
@@ -33,8 +32,8 @@ public:
     ItemFlags flags(const QModelIndex &index) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
-    bool insertRows(int position, const QModelIndex &index, int rows);
-    bool removeRows(int position, const QModelIndex &index, int rows);
+    bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
+    bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
 
 private:
     QStringList stringList;

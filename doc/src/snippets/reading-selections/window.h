@@ -13,14 +13,11 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-// #include <QItemSelection>
-// #include <QMainWindow>
-// #include <QAbstractItemModel>
-// #include <QWidget>
-// #include <QTableView>
-#include <qitemselection.h>
-#include <qmainwindow.h>
-#include <qtableview.h>
+#include <QItemSelection>
+#include <QMainWindow>
+#include <QAbstractItemModel>
+#include <QWidget>
+#include <QTableView>
 
 class MainWindow : public QMainWindow
 {

@@ -1,4 +1,3 @@
-//depot/qt/main/doc/src/snippets/spinbox-delegate/model.cpp#6 - edit change 157607 (text)
 /****************************************************************************
 **
 ** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -41,7 +40,7 @@ TableModel::TableModel(int rows, int columns, QObject *parent)
     in the model.
 */
 
-int TableModel::rowCount() const
+int TableModel::rowCount(const QModelIndex &/*parent*/) const
 {
     return rowList.size();
 }
@@ -51,7 +50,7 @@ int TableModel::rowCount() const
     columns in the model. All rows should have the same number of columns.
 */
 
-int TableModel::columnCount() const
+int TableModel::columnCount(const QModelIndex &/*parent*/) const
 {
     return rowList[0].size();
 }
@@ -131,7 +130,7 @@ bool TableModel::setData(const QModelIndex &index, int role,
     Inserts a number of rows into the model at the specified position.
 */
 
-bool TableModel::insertRows(int position, const QModelIndex &/*index*/, int rows)
+bool TableModel::insertRows(int position, int rows, const QModelIndex &/*parent*/)
 {
     int columns = columnCount();
 
@@ -140,7 +139,7 @@ bool TableModel::insertRows(int position, const QModelIndex &/*index*/, int rows
         rowList.insert(position, newRow);
     }
 
-    emit rowsInserted(QModelIndex::Null, position, position+rows-1);
+    emit rowsInserted(QModelIndex(), position, position+rows-1);
     return true;
 }
 
@@ -150,7 +149,7 @@ bool TableModel::insertRows(int position, const QModelIndex &/*index*/, int rows
     default valued integers.
 */
 
-bool TableModel::insertColumns(int position, const QModelIndex &/*index*/, int columns)
+bool TableModel::insertColumns(int position, int columns, const QModelIndex &/*parent*/)
 {
     int rows = rowCount();
 
@@ -158,7 +157,7 @@ bool TableModel::insertColumns(int position, const QModelIndex &/*index*/, int c
         rowList[row].insert(position, qMax(0, columns), 0);
     }
 
-    emit columnsInserted(QModelIndex::Null, position, position+columns-1);
+    emit columnsInserted(QModelIndex(), position, position+columns-1);
     return true;
 }
 
@@ -166,9 +165,9 @@ bool TableModel::insertColumns(int position, const QModelIndex &/*index*/, int c
     Removes a number of rows from the model at the specified position.
 */
 
-bool TableModel::removeRows(int position, const QModelIndex &/*index*/, int rows)
+bool TableModel::removeRows(int position, int rows, const QModelIndex &/*parent*/)
 {
-    emit rowsAboutToBeRemoved(QModelIndex::Null, position, position+rows-1);
+    emit rowsAboutToBeRemoved(QModelIndex(), position, position+rows-1);
 
     for (int row = 0; row < rows; ++row) {
         rowList.removeAt(position);
@@ -182,10 +181,10 @@ bool TableModel::removeRows(int position, const QModelIndex &/*index*/, int rows
     Each row is shortened by the number of columns specified.
 */
 
-bool TableModel::removeColumns(int position, const QModelIndex &/*index*/, int columns)
+bool TableModel::removeColumns(int position, int columns, const QModelIndex &/*parent*/)
 {
     int rows = rowCount();
-    emit columnsAboutToBeRemoved(QModelIndex::Null, position, position+columns-1);
+    emit columnsAboutToBeRemoved(QModelIndex(), position, position+columns-1);
 
     for (int row = 0; row < rows; ++row) {
         rowList[row].remove(position, qMax(0, columns));

@@ -34,10 +34,10 @@ int main(int argc, char *argv[])
     view->setWindowTitle("View onto a string list model");
     view->setModel(model);
 
-    model->insertRows(5, QModelIndex::Null, 7);
+    model->insertRows(5, 7, QModelIndex());
 
     for (int row = 5; row < 12; ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex::Null);
+        QModelIndex index = model->index(row, 0, QModelIndex());
         model->setData(index, QAbstractItemModel::EditRole,
             QString::number(row+1));
     }

@@ -1,4 +1,3 @@
-//depot/qt/main/doc/src/snippets/stringlistmodel/model.cpp#7 - edit change 157628 (text)
 /****************************************************************************
 **
 ** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -24,7 +23,7 @@
     in the model.
 */
 
-int StringListModel::rowCount() const
+int StringListModel::rowCount(const QModelIndex &/*parent*/) const
 {
     return stringList.count();
 }
@@ -107,14 +106,13 @@ bool StringListModel::setData(const QModelIndex &index, int role,
     Inserts a number of rows into the model at the specified position.
 */
 
-bool StringListModel::insertRows(int position, const QModelIndex &/*index*/,
-                                 int rows)
+bool StringListModel::insertRows(int position, int rows, const QModelIndex &/*parent*/)
 {
     for (int row = 0; row < rows; ++row) {
         stringList.insert(position, "");
     }
 
-    emit rowsInserted(QModelIndex::Null, position, position+rows-1);
+    emit rowsInserted(QModelIndex(), position, position+rows-1);
     return true;
 }
 
@@ -122,10 +120,9 @@ bool StringListModel::insertRows(int position, const QModelIndex &/*index*/,
     Removes a number of rows from the model at the specified position.
 */
 
-bool StringListModel::removeRows(int position, const QModelIndex &/*index*/,
-                                 int rows)
+bool StringListModel::removeRows(int position, int rows, const QModelIndex &/*parent*/)
 {
-    emit rowsAboutToBeRemoved(QModelIndex::Null, position, position+rows-1);
+    emit rowsAboutToBeRemoved(QModelIndex(), position, position+rows-1);
 
     for (int row = 0; row < rows; ++row) {
         stringList.removeAt(position);
