@@ -1,7 +1,6 @@
-SOURCES	+= main.cpp 
+SOURCES	+= main.cpp  receiver.cpp
 HEADERS	+= receiver.h 
 TARGET      = receiver
-SOURCES += receiver.cpp
 INTERFACES	= mainform.ui 
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
