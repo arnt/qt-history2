@@ -75,7 +75,7 @@
 */
 
 /*!
-    \fn int QItemSelectionRange::QItemSelectionRange::top() const
+    \fn int QItemSelectionRange::top() const
 
     Returns the row index corresponding to the uppermost selected row in the
     selection range.
@@ -83,7 +83,7 @@
 */
 
 /*!
-    \fn int QItemSelectionRange::QItemSelectionRange::left() const
+    \fn int QItemSelectionRange::left() const
 
     Returns the column index corresponding to the leftmost selected column in the
     selection range.
@@ -91,7 +91,7 @@
 */
 
 /*!
-    \fn int QItemSelectionRange::QItemSelectionRange::bottom() const
+    \fn int QItemSelectionRange::bottom() const
 
     Returns the row index corresponding to the lowermost selected row in the
     selection range.
@@ -99,7 +99,7 @@
 */
 
 /*!
-    \fn int QItemSelectionRange::QItemSelectionRange::right() const
+    \fn int QItemSelectionRange::right() const
 
     Returns the column index corresponding to the rightmost selected column in
     the selection range.
@@ -107,21 +107,21 @@
 */
 
 /*!
-    \fn int QItemSelectionRange::QItemSelectionRange::width() const
+    \fn int QItemSelectionRange::width() const
 
     Returns the number of selected columns in the selection range.
 
 */
 
 /*!
-    \fn int QItemSelectionRange::QItemSelectionRange::height() const
+    \fn int QItemSelectionRange::height() const
 
     Returns the number of selected rows in the selection range.
 
 */
 
 /*!
-    \fn QModelIndex QItemSelectionRange::QItemSelectionRange::parent() const
+    \fn QModelIndex QItemSelectionRange::parent() const
 
     Returns the parent model item index of the items in the selection range.
 
