@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#12 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -1162,7 +1162,7 @@ void QTextBox::update(QPainter* p, QTextRow* r)
 	    int min = 0;
 	    QTextIterator it( prev->first, prev->parent );
 	    QTextRow tr (p, fm, it, prev->width, min);
-	    fast_exit &= prev->last == tr.last;
+	    fast_exit = fast_exit && prev->last == tr.last;
 	}
 	if (fast_exit) {
 	    int min = 0;
@@ -1911,7 +1911,7 @@ bool QTextDocument::parse (QTextContainer* current, QTextNode* lastChild, const 
 		if (current == this && !attr.isEmpty() ) {
 		    setAttributes( attr );
 		}
-		valid &= ctag != 0;
+		valid = valid && ctag != 0;
 		if (valid) {
 		    QTextNode* l = lastChild;
 		    if (!l){
@@ -2109,7 +2109,7 @@ QString QTextDocument::parseWord(const QString& doc, int& pos, bool insideTag, b
 	if (lower)
 	    s = s.lower();
     }
-    valid &= pos <= int(doc.length());
+    valid = valid && pos <= int(doc.length());
 
     return s;
 }
@@ -2148,7 +2148,7 @@ QString QTextDocument::parsePlainText(const QString& doc, int& pos, bool pre, bo
 	    pos++;
 	}
     }
-    valid &= pos <= int(doc.length());
+    valid = valid && pos <= int(doc.length());
     return s;
 }
 
