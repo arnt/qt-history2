@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#208 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#209 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2169,8 +2169,15 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
     QPainter p( vp );
     QRegion r = e->region();
 
+/*
+    Arnt!  REMEMBER: On Window there is no event queue protecting you
+    from re-entrancy.  This causes resizes, causes layouts...
+    You've got enough experience to know that a "const" function with
+    "do" in its name (doLayout()) is just plain asking for trouble.
+
     if ( d->layoutDirty )
 	doLayout();
+*/
 
     int x = contentsX();
     int y = contentsY();
