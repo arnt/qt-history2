@@ -29,6 +29,7 @@
 #include "qurl.h"
 #include "qregexp.h"
 #include "qtextdocument.h"
+#include "qdir.h"
 
 #ifndef QT_NO_IMAGEIO_BMP
 extern bool qt_read_dib(QDataStream&, QImage&); // qimage.cpp
@@ -502,15 +503,17 @@ bool QWindowsMimeURI::convertFromMime(const FORMATETC &formatetc, const QMimeDat
     if (canConvertFromMime(formatetc, mimeData)) {
         if (getCf(formatetc) == CF_HDROP) {
             QList<QUrl> urls = mimeData->urls();
+            QStringList fileNames;
             int size = sizeof(DROPFILES)+2;
             for (int i=0; i<urls.size(); i++) {
-                QString fn = urls.at(i).toLocalFile();
+                QString fn = QDir::convertSeparators(urls.at(i).toLocalFile());
                 if (!fn.isEmpty()) {
                     QT_WA({
                         size += sizeof(TCHAR)*(fn.length()+1);
                     } , {
                         size += fn.toLocal8Bit().length()+1;
                     });
+                    fileNames.append(fn);
                 }
             }
 
@@ -524,21 +527,18 @@ bool QWindowsMimeURI::convertFromMime(const FORMATETC &formatetc, const QMimeDat
             QT_WA({
                 d->fWide = true;
                 TCHAR* f = (TCHAR*)files;
-                for (int i=0; i<urls.size(); i++) {
-                    QString fn = urls.at(i).toLocalFile();
-                    if (!fn.isEmpty()) {
-                        int l = fn.length();
-                        memcpy(f, fn.utf16(), l*sizeof(TCHAR));
-                        f += l;
-                        *f++ = 0;
-                    }
+                for (int i=0; i<fileNames.size(); i++) {
+                    int l = fileNames.at(i).length();
+                    memcpy(f, fileNames.at(i).utf16(), l*sizeof(TCHAR));
+                    f += l;
+                    *f++ = 0;
                 }
                 *f = 0;
             } , {
                 d->fWide = false;
                 char* f = files;
-                for (int i=0; i<urls.size(); i++) {
-                    QByteArray c = urls.at(i).toLocalFile().toLocal8Bit();
+                for (int i=0; i<fileNames.size(); i++) {
+                    QByteArray c = fileNames.at(i).toLocal8Bit();
                     if (!c.isEmpty()) {
                         int l = c.length();
                         memcpy(f, c.constData(), l);
