@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#12 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#13 $
 **
 ** Definition of QPopupMenu class
 **
@@ -26,7 +26,7 @@ public:
     QPopupMenu( QWidget *parent=0, const char *name=0 );
    ~QPopupMenu();
 
-    void	popup( const QPoint & pos );	// open popup
+    void	popup( const QPoint & pos, int indexAtPoint = 0 );// open popup
     void	updateItem( int id );
 
     void	setFont( const QFont & );	// reimplemented set font
@@ -72,6 +72,7 @@ private:
     void	byeMenuBar();
 
     int		itemAtPos( const QPoint & );
+    int		itemPos( int index );
     void	updateSize();
     void	updateAccel( QWidget * );
     void	enableAccel( bool );
