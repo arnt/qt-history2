@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#17 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#18 $
 **
 ** Definition of QListBox widget class
 **
@@ -16,12 +16,14 @@
 #include "qtablevw.h"
 
 
-#define LBI_String	1			// list box item types
+#define LBI_Undefined	0			// list box item types
+#define LBI_String	1
 #define LBI_Pixmap	2
 #define LBI_UserDefined 1000
 
-struct QLBItem {				// list box item
-    QLBItem()			{}
+struct QLBItem					// list box item
+{
+    QLBItem()			{ data=0;     type=0; }
     QLBItem( QPixmap	*pm )	{ pixmap=pm;  type=LBI_Pixmap; }
     QLBItem( const char *str  )	{ string=str; type=LBI_String; }
     int type;
