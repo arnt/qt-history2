@@ -27,6 +27,7 @@
 #include "mainwindow.h"
 #include "../interfaces/languageinterface.h"
 #include "resource.h"
+#include "workspace.h"
 #include <qmessagebox.h>
 #include <qfile.h>
 #include <qregexp.h>
@@ -236,13 +237,47 @@ bool FormFile::saveAs()
 
 bool FormFile::close()
 {
-    return FALSE;
+    if ( editor() ) {
+	editor()->save();
+	editor()->close();
+    }
+    if ( formWindow() )
+	return formWindow()->close();
+    return TRUE;
 }
 
 bool FormFile::closeEvent()
 {
+    if ( !isModified() && fileNameTemp ) {
+	pro->removeFormFile( this );
+	return TRUE;
+    }
+
+    if ( !isModified() )
+	return TRUE;
+
     if ( editor() )
 	editor()->save();
+
+    switch ( QMessageBox::warning( 0, tr( "Save Form" ),
+				   tr( "Save changes to the form '%1'?" ).arg( filename ),
+				   tr( "&Yes" ), tr( "&No" ), tr( "&Cancel" ), 0, 2 ) ) {
+    case 0: // save
+	if ( !save() )
+	    return FALSE;
+    case 1: // don't save
+	loadCode();
+	if ( ed )
+	    ed->editorInterface()->setText( cod );
+	MainWindow::self->workspace()->update();
+	break;
+    case 2: // cancel
+	return FALSE;
+    default:
+	break;
+    }
+
+    setModified( FALSE );
     MainWindow::self->updateFunctionList();
     setCodeEdited( FALSE );
     return TRUE;

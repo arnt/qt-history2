@@ -1122,15 +1122,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::Close:
-	if ( o->inherits( "FormWindow" ) ) {
-	    if ( !closeForm( (FormWindow*)o ) ) {
-		( (QCloseEvent*)e )->ignore();
-	    } else {
-		( (QCloseEvent*)e )->accept();
-		unregisterClient( (FormWindow*)o );
-	    }
-	    return TRUE;
-	} else if ( o->isWidgetType() && (QWidget*)o == (QWidget*)previewedForm ) {
+	if ( o->isWidgetType() && (QWidget*)o == (QWidget*)previewedForm ) {
 	    if ( lastActiveFormWindow && lastActiveFormWindow->project() ) {
 		QStringList lst =
 		    MetaDataBase::fakeProperty( lastActiveFormWindow, "database" ).toStringList();
@@ -2242,7 +2234,7 @@ void MainWindow::closeEvent( QCloseEvent *e )
     QWidgetList windows = qWorkspace()->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( w->inherits( "FormWindow" ) ) {
-	    if ( !closeForm( (FormWindow*)w ) ) {
+	    if ( !( (FormWindow*)w )->formFile()->close() ) {
 		e->ignore();
 		return;
 	    }
@@ -2284,35 +2276,6 @@ void MainWindow::closeEvent( QCloseEvent *e )
 	QDir home( QDir::homeDirPath() );
 	home.remove( ".designerpid" );
     }
-}
-
-bool MainWindow::closeForm( FormWindow *fw )
-{
-    bool modified = FALSE;
-    modified = fw->commandHistory()->isModified();
-    if ( modified ) {
-	switch ( QMessageBox::warning( this, tr( "Save Form" ),
-				       tr( "Save changes to the form '%1'?" ).arg( fw->name() ),
-				       tr( "&Yes" ), tr( "&No" ), tr( "&Cancel" ), 0, 2 ) ) {
-	case 0: // save
-	    fw->setFocus();
-	    qApp->processEvents();
-	    if ( !fileSaveForm() )
-		return FALSE;
-	    break;
-	case 1: // don't save
-	    break;
-	case 2: // cancel
-	    return FALSE;
-	default:
-	    break;
-	}
-    }
-
-    for ( QMap<QAction*, Project* >::Iterator it = projects.begin(); it != projects.end(); ++it )
-	(*it)->formClosed( fw );
-
-    return TRUE;
 }
 
 Workspace *MainWindow::workspace() const

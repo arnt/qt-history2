@@ -119,8 +119,7 @@ void SourceEditor::closeEvent( QCloseEvent *e )
     if ( !obj )
 	return;
     if ( formWindow() ) {
-	if ( !formWindow()->formFile()->closeEvent() )
-	    e->ignore();
+	save();
     } else {
 	if ( !sourceFile()->closeEvent() )
 	    e->ignore();

@@ -1015,9 +1015,8 @@ void MainWindow::fileCloseProject()
 	for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	    if ( w->inherits( "FormWindow" ) ) {
 		if ( ( (FormWindow*)w )->project() == pro ) {
-		    if ( !closeForm( (FormWindow*)w ) )
+		    if ( !( (FormWindow*)w )->formFile()->close() )
 			return;
-		    w->close();
 		}
 	    } else if ( w->inherits( "SourceEditor" ) ) {
 		if ( !( (SourceEditor*)w )->close() )
