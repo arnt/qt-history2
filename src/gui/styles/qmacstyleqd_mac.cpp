@@ -1026,9 +1026,8 @@ void QMacStyleQD::drawControl(ControlElement element,
     case CE_MenuBarItem: {
         if(!widget)
             break;
-        const QMenuBar *mbar = (const QMenuBar *)widget;
-        QRect ir(r.x(), 0, r.width(), mbar->height());
-        Rect mrect = *qt_glb_mac_rect(mbar->rect(), p),
+        QRect ir(r.x(), 0, r.width(), widget->height());
+        Rect mrect = *qt_glb_mac_rect(widget->rect(), p),
              irect = *qt_glb_mac_rect(ir, p, false);
         ThemeMenuState tms = kThemeMenuActive;
         if(!(how & Style_Active))
@@ -1043,9 +1042,8 @@ void QMacStyleQD::drawControl(ControlElement element,
     case CE_Q3MenuBarItem: {
         if(!widget)
             break;
-        const Q3MenuBar *mbar = (const Q3MenuBar *)widget;
-        QRect ir(r.x(), 0, r.width(), mbar->height());
-        Rect mrect = *qt_glb_mac_rect(mbar->rect(), p),
+        QRect ir(r.x(), 0, r.width(), widget->height());
+        Rect mrect = *qt_glb_mac_rect(widget->rect(), p),
              irect = *qt_glb_mac_rect(ir, p, false);
         ThemeMenuState tms = kThemeMenuActive;
         if(!(how & Style_Active))

@@ -127,17 +127,17 @@ public:
 #endif
 };
 
-class QMenuBarPrivate : public QWidgetPrivate
+class Q4MenuBarPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QMenuBar);
+    Q_DECLARE_PUBLIC(Q4MenuBar);
 public:
-    QMenuBarPrivate() : itemsDirty(0), itemsWidth(0), shortcuts(0), currentAction(0), mouseDown(0),
+    Q4MenuBarPrivate() : itemsDirty(0), itemsWidth(0), shortcuts(0), currentAction(0), mouseDown(0),
                          closePopupMode(0), popupState(0), keyboardState(0), altPressed(0)
 #ifdef Q_WS_MAC
                          , mac_menubar(0)
 #endif
     { }
-    ~QMenuBarPrivate()
+    ~Q4MenuBarPrivate()
     {
         for(QList<QMenuAction*>::Iterator it = actionItems.begin(); it != actionItems.end(); ++it)
             delete (*it);
@@ -179,8 +179,8 @@ public:
 #ifdef Q_WS_MAC
     //mac menubar binding
     struct QMacMenuBarPrivate {
-        static QPointer<QMenuBar> fallback;
-        static QHash<QWidget *, QMenuBar *> menubars;
+        static QPointer<Q4MenuBar> fallback;
+        static QHash<QWidget *, Q4MenuBar *> menubars;
         QList<QMacMenuAction*> actionItems;
         MenuRef menu, apple_menu;
         QMacMenuBarPrivate();

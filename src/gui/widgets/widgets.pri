@@ -29,6 +29,7 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/q3menubar.h \
 	widgets/q3menudata.h \
 	widgets/qpopupmenu.h \
+	widgets/qmenubar.h \
 	widgets/q3popupmenu.h \
 	widgets/qprogressbar.h \
 	widgets/qpushbutton.h \

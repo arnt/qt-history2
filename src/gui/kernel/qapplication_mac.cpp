@@ -1565,7 +1565,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             request_wakeup_pending = 0;             //do nothing else, we just woke up!
         } else if(ekind == kEventQtRequestMenubarUpdate) {
             request_menubarupdate_pending = 0;
-            QMenuBar::macUpdateMenuBar();
+            Q4MenuBar::macUpdateMenuBar();
         } else if(ekind == kEventQtRequestSelect) {
             request_select_pending = 0;
             QGuiEventLoop *l = 0;
@@ -2326,7 +2326,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                     widget->focusWidget()->setFocus();
                 else
                     widget->setFocus();
-                QMenuBar::macUpdateMenuBar();
+                Q4MenuBar::macUpdateMenuBar();
             }
         } else if(ekind == kEventWindowDeactivated) {
             if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget))
@@ -2353,7 +2353,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                         app->setActiveWindow(tmp_w);
                 }
             }
-            QMenuBar::macUpdateMenuBar();
+            Q4MenuBar::macUpdateMenuBar();
         } else if(ekind == kEventAppDeactivated) {
             while(app->inPopupMode())
                 app->activePopupWidget()->close();

@@ -17,4 +17,21 @@
 
 #include "qmenu.h"
 
+#ifdef QT_USE_NEW_MENU_SYSTEM
+class Q_GUI_EXPORT QMenuBar : public Q4MenuBar
+{
+    Q_OBJECT
+public:
+    QMenuBar(QWidget* parent=0, const char* =0) : Q4MenuBar(parent) { }
+};
+#else
+#include "q3menubar.h"
+class Q_GUI_EXPORT QMenuBar : public Q3MenuBar
+{
+    Q_OBJECT
+public:
+    QMenuBar(QWidget* parent=0, const char* name=0) : Q3MenuBar(parent, name) { }
+};
+#endif
+
 #endif // QMENUBAR_H

@@ -202,7 +202,7 @@ void QMenuPrivate::hideUpToMenuBar()
         QWidget *caused = causedPopup;
         q->hide(); //hide after getting causedPopup
         while(caused) {
-            if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
+            if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
                 mb->d->setCurrentAction(0);
                 caused = 0;
             } else if(QMenu *m = qt_cast<QMenu*>(caused)) {
@@ -368,7 +368,7 @@ void QMenuPrivate::scrollMenu(uint dir)
 }
 
 /* This is poor-mans eventfilters. This avoids the use of
-   eventFilter (which can be nasty for users of QMenuBar's). */
+   eventFilter (which can be nasty for users of Q4MenuBar's). */
 bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
 {
     QPoint pos = q->mapFromGlobal(e->globalPos());
@@ -429,7 +429,7 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
         bool passOnEvent = false;
         QWidget *next_widget = 0;
         QPoint cpos = caused->mapFromGlobal(e->globalPos());
-        if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
+        if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
             passOnEvent = mb->rect().contains(cpos);
         } else if(QMenu *m = qt_cast<QMenu*>(caused)) {
             passOnEvent = m->d->actionAt(cpos);
@@ -462,7 +462,7 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
 #endif
 
     for(QWidget *caused = q; caused;) {
-        if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
+        if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
             if(action_e == QAction::Trigger)
                 emit mb->activated(action);
             else if(action_e == QAction::Hover)
@@ -603,6 +603,15 @@ void QMenu::clear()
     qWarning("Must implement QMenu::clear()");
 }
 
+QRect QMenu::itemGeometry(QAction *act)
+{
+    for(QList<QMenuAction*>::Iterator it = d->actionItems.begin(); it != d->actionItems.end(); ++it) {
+        if((*it)->action == act)
+            return (*it)->rect;
+    }
+    return QRect();
+}
+
 QSize QMenu::sizeHint() const
 {
     ensurePolished();
@@ -701,7 +710,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 
 #ifndef QT_NO_MENUBAR
     if((snapToMouse && (pos.y() + size.height()/2 < mouse.y())) ||
-       (qt_cast<QMenuBar*>(d->causedPopup) && pos.y() + size.width()/2 < d->causedPopup->mapToGlobal(d->causedPopup->pos()).y()))
+       (qt_cast<Q4MenuBar*>(d->causedPopup) && pos.y() + size.width()/2 < d->causedPopup->mapToGlobal(d->causedPopup->pos()).y()))
        vGuess = QEffects::UpScroll;
 #endif
 
@@ -756,7 +765,7 @@ void QMenu::hideEvent(QHideEvent *)
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility(this, 0, QAccessible::PopupMenuEnd);
 #endif
-    if(QMenuBar *mb = qt_cast<QMenuBar*>(d->causedPopup))
+    if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(d->causedPopup))
         mb->d->setCurrentAction(0);
     d->mouseDown = false;
     d->causedPopup = 0;
@@ -1094,7 +1103,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         if(QWidget *caused = d->causedPopup) {
             while(QMenu *m = qt_cast<QMenu*>(caused))
                 caused = m->d->causedPopup;
-            if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
+            if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
                 QMenuAction *oldAct = mb->d->currentAction;
                 QApplication::sendEvent(mb, e);
                 if(mb->d->currentAction != oldAct)
@@ -1285,7 +1294,7 @@ void QMenu::internalDelayedPopup()
 }
 
 /* QMenubar code */
-QMenuAction *QMenuBarPrivate::actionAt(QPoint p)
+QMenuAction *Q4MenuBarPrivate::actionAt(QPoint p)
 {
     for(int i = 0; i < actionItems.count(); i++) {
         QMenuAction *act = actionItems[i];
@@ -1295,7 +1304,7 @@ QMenuAction *QMenuBarPrivate::actionAt(QPoint p)
     return 0;
 }
 
-void QMenuBarPrivate::updateActions()
+void Q4MenuBarPrivate::updateActions()
 {
     int q_width = q->width()-(q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2);
     if(!itemsDirty && itemsWidth == q_width)
@@ -1317,7 +1326,7 @@ void QMenuBarPrivate::updateActions()
     itemsDirty = 0;
 }
 
-QRect QMenuBarPrivate::actionRect(QMenuAction *act)
+QRect Q4MenuBarPrivate::actionRect(QMenuAction *act)
 {
     QRect ret = act->rect;
     const int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
@@ -1325,7 +1334,7 @@ QRect QMenuBarPrivate::actionRect(QMenuAction *act)
     return ret;
 }
 
-void QMenuBarPrivate::setKeyboardMode(bool b)
+void Q4MenuBarPrivate::setKeyboardMode(bool b)
 {
     d->altPressed = false;
     d->keyboardState = b;
@@ -1340,7 +1349,7 @@ void QMenuBarPrivate::setKeyboardMode(bool b)
     }
 }
 
-void QMenuBarPrivate::popupAction(QMenuAction *action, bool activateFirst)
+void Q4MenuBarPrivate::popupAction(QMenuAction *action, bool activateFirst)
 {
     popupState = true;
     if(action && action->action->menu()) {
@@ -1367,7 +1376,7 @@ void QMenuBarPrivate::popupAction(QMenuAction *action, bool activateFirst)
     }
 }
 
-void QMenuBarPrivate::setCurrentAction(QMenuAction *action, bool popup, bool activateFirst)
+void Q4MenuBarPrivate::setCurrentAction(QMenuAction *action, bool popup, bool activateFirst)
 {
     if(currentAction == action && popup == popupState)
         return;
@@ -1389,7 +1398,7 @@ void QMenuBarPrivate::setCurrentAction(QMenuAction *action, bool popup, bool act
     }
 }
 
-QList<QMenuAction*> QMenuBarPrivate::calcActionRects(int max_width) const
+QList<QMenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
 {
     if(!itemsDirty && itemsWidth == max_width)
         return actionItems;
@@ -1473,7 +1482,7 @@ QList<QMenuAction*> QMenuBarPrivate::calcActionRects(int max_width) const
     return ret;
 }
 
-void QMenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent action_e)
+void Q4MenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent action_e)
 {
     if(!action)
         return;
@@ -1484,7 +1493,7 @@ void QMenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent actio
         emit q->highlighted(action);
 }
 
-QMenuBar::QMenuBar(QWidget *parent) : QWidget(*new QMenuBarPrivate, parent, 0)
+Q4MenuBar::Q4MenuBar(QWidget *parent) : QWidget(*new Q4MenuBarPrivate, parent, 0)
 {
 #ifdef Q_WS_MAC
     d->macCreateMenuBar(parent);
@@ -1493,54 +1502,54 @@ QMenuBar::QMenuBar(QWidget *parent) : QWidget(*new QMenuBarPrivate, parent, 0)
     setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
 }
 
-QMenuBar::~QMenuBar()
+Q4MenuBar::~Q4MenuBar()
 {
 #ifdef Q_WS_MAC
     d->macDestroyMenuBar();
 #endif
 }
 
-QAction *QMenuBar::addMenu(const QString &text, QMenu *menu)
+QAction *Q4MenuBar::addMenu(const QString &text, QMenu *menu)
 {
     QAction *ret = new QAction(text, menu);
     addAction(ret);
     return ret;
 }
 
-QAction *QMenuBar::insertMenu(QAction *before, const QString &text, QMenu *menu)
+QAction *Q4MenuBar::insertMenu(QAction *before, const QString &text, QMenu *menu)
 {
     QAction *ret = new QAction(text, menu);
     insertAction(before, ret);
     return ret;
 }
 
-QAction *QMenuBar::activeAction() const
+QAction *Q4MenuBar::activeAction() const
 {
     return d->currentAction->action;
 }
 
-void QMenuBar::clear() 
+void Q4MenuBar::clear() 
 {
-    qWarning("Must implement QMenuBar::clear()");
+    qWarning("Must implement Q4MenuBar::clear()");
 }
 
-void QMenuBar::setDefaultUp(bool b)
+void Q4MenuBar::setDefaultUp(bool b)
 {
-    qWarning("Must implement QMenuBar::setDefaultUp(%d)", b);
+    qWarning("Must implement Q4MenuBar::setDefaultUp(%d)", b);
 }
  
-bool QMenuBar::isDefaultUp() const
+bool Q4MenuBar::isDefaultUp() const
 {
-    qWarning("Must implement QMenuBar::isDefaultUp()");
+    qWarning("Must implement Q4MenuBar::isDefaultUp()");
     return true;
 }
 
-void QMenuBar::resizeEvent(QResizeEvent *)
+void Q4MenuBar::resizeEvent(QResizeEvent *)
 {
     d->itemsDirty = 1;
 }
 
-void QMenuBar::paintEvent(QPaintEvent *e)
+void Q4MenuBar::paintEvent(QPaintEvent *e)
 {
     d->updateActions();
 
@@ -1587,7 +1596,7 @@ void QMenuBar::paintEvent(QPaintEvent *e)
     style().drawControl(QStyle::CE_MenuBarEmptyArea, &p, this, rect(), palette());
 }
 
-void QMenuBar::mousePressEvent(QMouseEvent *e)
+void Q4MenuBar::mousePressEvent(QMouseEvent *e)
 {
     if(e->button() != LeftButton)
         return;
@@ -1601,7 +1610,7 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
     }
 }
 
-void QMenuBar::mouseReleaseEvent(QMouseEvent *e)
+void Q4MenuBar::mouseReleaseEvent(QMouseEvent *e)
 {
     if(e->button() != LeftButton || !d->mouseDown)
         return;
@@ -1615,7 +1624,7 @@ void QMenuBar::mouseReleaseEvent(QMouseEvent *e)
     d->closePopupMode = 0;
 }
 
-void QMenuBar::keyPressEvent(QKeyEvent *e)
+void Q4MenuBar::keyPressEvent(QKeyEvent *e)
 {
     int key = e->key();
     if(QApplication::reverseLayout()) {  // in reverse mode open/close key for submenues are reversed
@@ -1721,7 +1730,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
     }
 }
 
-void QMenuBar::mouseMoveEvent(QMouseEvent *e)
+void Q4MenuBar::mouseMoveEvent(QMouseEvent *e)
 {
     d->mouseDown = e->state() & LeftButton;
     QMenuAction *action = d->actionAt(e->pos());
@@ -1730,13 +1739,13 @@ void QMenuBar::mouseMoveEvent(QMouseEvent *e)
         d->setCurrentAction(action, popupState);
 }
 
-void QMenuBar::leaveEvent(QEvent *)
+void Q4MenuBar::leaveEvent(QEvent *)
 {
     if(!hasFocus() && !d->popupState)
         d->setCurrentAction(0);
 }
 
-void QMenuBar::actionEvent(QActionEvent *e)
+void Q4MenuBar::actionEvent(QActionEvent *e)
 {
     d->itemsDirty = 1;
 #ifdef Q_WS_MAC
@@ -1754,14 +1763,14 @@ void QMenuBar::actionEvent(QActionEvent *e)
 }
 
 void
-QMenuBar::focusInEvent(QFocusEvent *)
+Q4MenuBar::focusInEvent(QFocusEvent *)
 {
     if(!d->currentAction && !d->actionItems.isEmpty())
         d->setCurrentAction(d->actionItems.first());
 }
 
 void
-QMenuBar::focusOutEvent(QFocusEvent *)
+Q4MenuBar::focusOutEvent(QFocusEvent *)
 {
     if(!d->popupState) {
         d->setCurrentAction(0);
@@ -1769,7 +1778,7 @@ QMenuBar::focusOutEvent(QFocusEvent *)
     }
 }
 
-void QMenuBar::changeEvent(QEvent *e)
+void Q4MenuBar::changeEvent(QEvent *e)
 {
     if(e->type() == QEvent::StyleChange) {
         setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
@@ -1777,13 +1786,13 @@ void QMenuBar::changeEvent(QEvent *e)
     }
 }
 
-void QMenuBar::contextMenuEvent(QContextMenuEvent *e)
+void Q4MenuBar::contextMenuEvent(QContextMenuEvent *e)
 {
     e->accept();
 }
 
 bool
-QMenuBar::event(QEvent *e)
+Q4MenuBar::event(QEvent *e)
 {
     if(e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = (QKeyEvent*)e;
@@ -1803,7 +1812,7 @@ QMenuBar::event(QEvent *e)
 }
 
 bool
-QMenuBar::eventFilter(QObject *object, QEvent *event)
+Q4MenuBar::eventFilter(QObject *object, QEvent *event)
 {
     if(!isVisible() || !object->isWidgetType())
         return false;
@@ -1874,11 +1883,11 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-QSize QMenuBar::sizeHint() const
+QSize Q4MenuBar::sizeHint() const
 {
     ensurePolished();
     QSize s(0, 0);
-    const_cast<QMenuBar*>(this)->d->updateActions();
+    const_cast<Q4MenuBar*>(this)->d->updateActions();
     for(int i = 0; i < d->actionItems.count(); ++i) {
         QRect actionRect(d->actionItems[i]->rect);
         if(actionRect.right() > s.width())
@@ -1894,10 +1903,10 @@ QSize QMenuBar::sizeHint() const
                                      s.expandedTo(QApplication::globalStrut())));
 }
 
-QSize QMenuBar::minimumSizeHint() const
+QSize Q4MenuBar::minimumSizeHint() const
 { return sizeHint(); }
 
-int QMenuBar::heightForWidth(int max_width) const
+int Q4MenuBar::heightForWidth(int max_width) const
 {
     QList<QMenuAction*> actions = d->calcActionRects(max_width);
     int height = 0;
@@ -1907,7 +1916,7 @@ int QMenuBar::heightForWidth(int max_width) const
     return height + (fw*2);
 }
 
-void QMenuBar::internalShortcutActivated(int id)
+void Q4MenuBar::internalShortcutActivated(int id)
 {
 #ifndef QT_NO_ACCEL
     QKeySequence key = d->shortcuts->key(id);

@@ -85,7 +85,7 @@ Themes::Themes( QWidget *parent, const char *name, WFlags f )
 	    styleAccel = "&"+styleAccel;
 	}
 	QAction *a = new QAction( styleStr, styleAccel, ag );
-	connect( a, SIGNAL( trigger() ), styleMapper, SLOT(map()) );
+	connect( a, SIGNAL( triggered() ), styleMapper, SLOT(map()) );
 	styleMapper->setMapping( a, a->text() );
     }
     ag->addTo(style);

@@ -190,7 +190,7 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
                 emit qmenu->activated(action->action);
             else if(action_e == QAction::Hover)
                 emit qmenu->highlighted(action->action);
-        } else if(QMenuBar *qmenubar = ::qt_cast<QMenuBar*>(widget)) {
+        } else if(Q4MenuBar *qmenubar = ::qt_cast<Q4MenuBar*>(widget)) {
             if(action_e == QAction::Trigger)
                 emit qmenubar->activated(action->action);
             else if(action_e == QAction::Hover)
@@ -204,7 +204,7 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
             break;
         if(QMenu *qmenu2 = ::qt_cast<QMenu*>(caused))
             menu = qmenu2->macMenu();
-        else if(QMenuBar *qmenubar2 = ::qt_cast<QMenuBar*>(caused))
+        else if(Q4MenuBar *qmenubar2 = ::qt_cast<Q4MenuBar*>(caused))
             menu = qmenubar2->macMenu();
         else
             menu = 0;
@@ -560,16 +560,16 @@ QMenuPrivate::macMenu(MenuRef merge)
 MenuRef QMenu::macMenu(MenuRef merge) { return d->macMenu(merge); }
 
 /*****************************************************************************
-  QMenuBar bindings
+  Q4MenuBar bindings
  *****************************************************************************/
-QHash<QWidget *, QMenuBar *> QMenuBarPrivate::QMacMenuBarPrivate::menubars;
-QPointer<QMenuBar> QMenuBarPrivate::QMacMenuBarPrivate::fallback;
+QHash<QWidget *, Q4MenuBar *> Q4MenuBarPrivate::QMacMenuBarPrivate::menubars;
+QPointer<Q4MenuBar> Q4MenuBarPrivate::QMacMenuBarPrivate::fallback;
 
-QMenuBarPrivate::QMacMenuBarPrivate::QMacMenuBarPrivate() : menu(0), apple_menu(0)
+Q4MenuBarPrivate::QMacMenuBarPrivate::QMacMenuBarPrivate() : menu(0), apple_menu(0)
 {
 }
 
-QMenuBarPrivate::QMacMenuBarPrivate::~QMacMenuBarPrivate()
+Q4MenuBarPrivate::QMacMenuBarPrivate::~QMacMenuBarPrivate()
 {
     for(QList<QMacMenuAction*>::Iterator it = actionItems.begin(); it != actionItems.end(); ++it)
         delete (*it);
@@ -580,7 +580,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::~QMacMenuBarPrivate()
 }
 
 void
-QMenuBarPrivate::QMacMenuBarPrivate::addAction(QAction *a, QMacMenuAction *before)
+Q4MenuBarPrivate::QMacMenuBarPrivate::addAction(QAction *a, QMacMenuAction *before)
 {
     if(a->isSeparator())
         return;
@@ -593,7 +593,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::addAction(QAction *a, QMacMenuAction *befor
 }
 
 void
-QMenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenuAction *before)
+Q4MenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenuAction *before)
 {
     if(!action || !menu)
         return;
@@ -628,7 +628,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenuA
 }
 
 void
-QMenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
+Q4MenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
 {
     if(!action || !menu)
         return;
@@ -666,7 +666,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
 }
 
 void
-QMenuBarPrivate::QMacMenuBarPrivate::removeAction(QMacMenuAction *action)
+Q4MenuBarPrivate::QMacMenuBarPrivate::removeAction(QMacMenuAction *action)
 {
     if(!action || !menu)
         return;
@@ -675,7 +675,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::removeAction(QMacMenuAction *action)
 }
 
 void
-QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
+Q4MenuBarPrivate::macCreateMenuBar(QWidget *parent)
 {
     if(!qt_mac_no_native_menubar) {
         if(!parent && !QMacMenuBarPrivate::fallback) {
@@ -694,13 +694,13 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
     }
 }
 
-void QMenuBarPrivate::macDestroyMenuBar()
+void Q4MenuBarPrivate::macDestroyMenuBar()
 {
     delete mac_menubar;
     mac_menubar = 0;
 }
 
-MenuRef QMenuBarPrivate::macMenu()
+MenuRef Q4MenuBarPrivate::macMenu()
 {
     if(!mac_menubar) {
         return 0;
@@ -713,15 +713,15 @@ MenuRef QMenuBarPrivate::macMenu()
     }
     return mac_menubar->menu;
 }
-MenuRef QMenuBar::macMenu() {  return d->macMenu(); }
+MenuRef Q4MenuBar::macMenu() {  return d->macMenu(); }
 
-bool QMenuBar::macUpdateMenuBar()
+bool Q4MenuBar::macUpdateMenuBar()
 {
     if(qt_mac_no_native_menubar) //nothing to be done..
         return true;
-    QMenuBarPrivate::QMacMenuBarPrivate::menubars.ensure_constructed();
+    Q4MenuBarPrivate::QMacMenuBarPrivate::menubars.ensure_constructed();
 
-    QMenuBar *mb = 0;
+    Q4MenuBar *mb = 0;
     bool fall_back_to_empty = false;
     //find a menubar
     QWidget *w = qApp->activeWindow();
@@ -739,22 +739,22 @@ bool QMenuBar::macUpdateMenuBar()
     if(!w) //last ditch effort
         w = qApp->mainWidget();
     if(w) {
-        mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(w);
+        mb = Q4MenuBarPrivate::QMacMenuBarPrivate::menubars.value(w);
         if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop()) &&
            ::qt_cast<QDockWindow *>(w)) {
             if(QWidget *area = ((QDockWindow*)w)->area()) {
                 QWidget *areaTL = area->topLevelWidget();
-                if((mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(areaTL)))
+                if((mb = Q4MenuBarPrivate::QMacMenuBarPrivate::menubars.value(areaTL)))
                     w = areaTL;
             }
         }
         while(w && !mb)
-            mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value((w = w->parentWidget()));
+            mb = Q4MenuBarPrivate::QMacMenuBarPrivate::menubars.value((w = w->parentWidget()));
     }
     if(!w || (!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup)))
         fall_back_to_empty = true;
     if(!mb)
-        mb = QMenuBarPrivate::QMacMenuBarPrivate::fallback;
+        mb = Q4MenuBarPrivate::QMacMenuBarPrivate::fallback;
     //now set it
     static bool first = true;
     if(mb) {

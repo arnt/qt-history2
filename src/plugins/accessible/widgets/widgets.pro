@@ -21,3 +21,5 @@ HEADERS  += qaccessiblewidgets.h \
 	    containers.h \
 	    complexwidgets.h \
 	    qaccessiblemenu.h
+
+DEFINES += QT_COMPAT_WARNINGS

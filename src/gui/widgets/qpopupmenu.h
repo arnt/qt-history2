@@ -17,12 +17,26 @@
 
 #include "qmenu.h"
 
-//just so I don't have to change every line of code for now..
-class QPopupMenu : public QMenu
+#ifdef QT_USE_NEW_MENU_SYSTEM
+class Q_GUI_EXPORT QPopupMenu : public QMenu
 {
     Q_OBJECT
 public:
     QPopupMenu(QWidget *parent = 0, const char * =0) : QMenu(parent)  { }
 };
+#else
+#include "q3popupmenu.h"
+class Q_GUI_EXPORT QPopupMenu : public Q3PopupMenu
+{
+    Q_OBJECT
+public:
+    QPopupMenu(QWidget *parent = 0, const char *name=0) : Q3PopupMenu(parent, name)  { }
+};
+class Q_GUI_EXPORT QCustomMenuItem : public Q3CustomMenuItem
+{
+public:
+    QCustomMenuItem() : Q3CustomMenuItem() { }
+};
+#endif
 
 #endif // QPOPUPMENU_H
