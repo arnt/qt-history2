@@ -70,6 +70,7 @@ Support for Multiple X11 displays.  Tricky.  Not very useful.
 Completely rework "modality".
     - Remove "parent widget is window to centre wrt if modal"
 	- add real "widget to centre wrt" functionality.
+Provide virtual functions for all new Event_* types.
 
 
 GERMAN THINGS:
