@@ -79,7 +79,6 @@
 
 //for qt_mac.h
 QPaintDevice *qt_mac_safe_pdev = 0;
-QStack<EventRef> QMacMouseEvent::events;
 
 /*****************************************************************************
   Internal variables and functions
@@ -1043,10 +1042,7 @@ QWidget *QApplication::widgetAt_sys(int x, int y)
     HIViewRef child;
     const QPoint qpt = widget->mapFromGlobal(QPoint(x, y));
     const HIPoint pt = CGPointMake(qpt.x(), qpt.y());
-    if(!QMacMouseEvent::events.isEmpty() && 
-       HIViewGetViewForMouseEvent((HIViewRef)widget->winId(), QMacMouseEvent::events.top(), &child) == noErr && child) 
-        widget = QWidget::find((WId)child);
-    else if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child) == noErr && child) 
+    if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child) == noErr && child) 
         widget = QWidget::find((WId)child);;
     return widget;
 }
@@ -1643,7 +1639,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
         break;
     case kEventClassMouse:
     {
-        QMacMouseEvent macmouse(event);
         Point where;
         GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, 0,
                           sizeof(where), 0, &where);

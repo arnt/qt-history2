@@ -276,7 +276,6 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         }
         break;
     case kEventClassMouse: {
-        QMacMouseEvent macmous(event);
         handled_event = (SendEventToApplication(event) == noErr);
         break; }
     default:

@@ -36,18 +36,6 @@ public:
     static bool blocking() { return block != 0; }
 };
 
-#include "qstack.h"
-class QMacMouseEvent
-{
-private:
-    friend class QApplication;
-    EventRef event;
-    static QStack<EventRef> events;
-public:
-    QMacMouseEvent(EventRef e) { RetainEvent(e); event = e; events.push(e); }
-    ~QMacMouseEvent() { Q_ASSERT(events.top() == event); events.pop(); ReleaseEvent(event); event = 0; }
-};
-
 class QMacCGContext
 {
     CGContextRef context;
