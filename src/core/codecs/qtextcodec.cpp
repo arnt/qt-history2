@@ -43,9 +43,7 @@
 #include "qstring.h"
 #include <private/qlocale_p.h>
 
-#ifdef QT_THREAD_SUPPORT
-#  include <private/qmutexpool_p.h>
-#endif // QT_THREAD_SUPPORT
+#include <private/qmutexpool_p.h>
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -83,12 +81,10 @@ void QTextCodec::deleteAllCodecs()
     if ( !all )
 	return;
 
-#ifdef QT_THREAD_SUPPORT
     QMutexLocker locker( qt_global_mutexpool ?
 			 qt_global_mutexpool->get( &all ) : 0 );
     if ( !all )
 	return;
-#endif // QT_THREAD_SUPPORT
 
     destroying_is_ok = true;
 
@@ -111,11 +107,9 @@ static inline void setup()
 {
     if ( all ) return;
 
-#ifdef QT_THREAD_SUPPORT
     QMutexLocker locker( qt_global_mutexpool ?
 			 qt_global_mutexpool->get( &all ) : 0 );
     if ( all ) return;
-#endif // QT_THREAD_SUPPORT
 
     realSetup();
 }

@@ -18,25 +18,19 @@
 
 #include <qdatetime.h>
 #include <qhash.h>
-#if defined(QT_THREAD_SUPPORT)
-#  include <qthread.h>
-#  include <qthreadstorage.h>
-#  include <private/qmutexpool_p.h>
-#  define M_LOCK(x) \
+#include <qthread.h>
+#include <qthreadstorage.h>
+#include <private/qmutexpool_p.h>
+#define M_LOCK(x) \
     QMutexLocker locker(qt_global_mutexpool \
 			? qt_global_mutexpool->get(x) \
 			: 0)
-#endif
 
 #define d d_func()
 #define q q_func()
 
 
-#if defined(QT_THREAD_SUPPORT)
 static QHash<Qt::HANDLE, QEventLoop *> eventloops;
-#else
-static QEventLoop *singleton = 0;
-#endif
 
 QEventLoopPrivate::QEventLoopPrivate()
     : QObjectPrivate()
@@ -111,18 +105,12 @@ extern void qt_setEventLoop(QObject *object, QEventLoop *p);
 QEventLoop::QEventLoop(QObject *parent)
     : QObject(*new QEventLoopPrivate(), parent)
 {
-#ifdef QT_THREAD_SUPPORT
     M_LOCK(&eventloops);
     eventloops.ensure_constructed();
     const Qt::HANDLE thr = thread();
     Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
 	       "Cannot have more than one event loop per thread.");
     eventloops.insert(thr, this);
-#else
-    Q_ASSERT_X(!singleton, "QEventLoop",
-	       "Cannot have more than one event loop per application.");
-    singleton = this;
-#endif
 
     init();
     qt_setEventLoop(this, this);
@@ -134,18 +122,12 @@ QEventLoop::QEventLoop(QObject *parent)
 QEventLoop::QEventLoop(QEventLoopPrivate &priv, QObject *parent)
     : QObject(priv, parent)
 {
-#ifdef QT_THREAD_SUPPORT
     M_LOCK(&eventloops);
     eventloops.ensure_constructed();
     const Qt::HANDLE thr = thread();
     Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
 	       "Cannot have more than one event loop per thread.");
     eventloops.insert(thr, this);
-#else
-    Q_ASSERT_X(!singleton, "QEventLoop",
-	       "Cannot have more than one event loop per application.");
-    singleton = this;
-#endif
 
     init();
     qt_setEventLoop(this, this);
@@ -160,12 +142,8 @@ QEventLoop::~QEventLoop()
     qt_setEventLoop(this, 0);
     cleanup();
 
-#if defined(QT_THREAD_SUPPORT)
     M_LOCK(&eventloops);
     eventloops.remove(thread());
-#else
-    singleton = 0;
-#endif
 }
 
 /*!
@@ -181,16 +159,11 @@ QEventLoop::~QEventLoop()
  */
 QEventLoop *QEventLoop::instance(Qt::HANDLE thread)
 {
-#ifdef QT_THREAD_SUPPORT
     if (thread == 0)
 	thread = QThread::currentThread();
     M_LOCK(&eventloops);
     eventloops.ensure_constructed();
     return eventloops.value(thread);
-#else
-    Q_UNUSED(thread);
-    return singleton;
-#endif
 }
 
 /*!

@@ -22,9 +22,7 @@
 #include <private/qpluginmanager_p.h>
 #include "qtextcodecinterface_p.h"
 
-#ifdef QT_THREAD_SUPPORT
-#  include <private/qmutexpool_p.h>
-#endif // QT_THREAD_SUPPORT
+#include <private/qmutexpool_p.h>
 
 #include <stdlib.h>
 
@@ -37,7 +35,6 @@ static void create_manager()
     if ( manager ) // already created
 	return;
 
-#ifdef QT_THREAD_SUPPORT
     // protect manager creation
     QMutexLocker locker( qt_global_mutexpool ?
 			 qt_global_mutexpool->get( &manager ) : 0);
@@ -47,7 +44,6 @@ static void create_manager()
 
     if ( manager ) // already created
 	return;
-#endif
 
     manager =
 	new QPluginManager<QTextCodecFactoryInterface>(IID_QTextCodecFactory,

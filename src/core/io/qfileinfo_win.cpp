@@ -20,9 +20,7 @@
 #include "qdatetime.h"
 #include "qdir.h"
 
-#ifdef QT_THREAD_SUPPORT
-#  include <private/qmutexpool_p.h>
-#endif // QT_THREAD_SUPPORT
+#include <private/qmutexpool_p.h>
 
 #include <windows.h>
 #include <direct.h>
@@ -64,7 +62,6 @@ static void resolveLibs()
     if ( !triedResolve ) {
 	// need to resolve the security info functions
 
-#ifdef QT_THREAD_SUPPORT
 	// protect initialization
 	QMutexLocker locker( qt_global_mutexpool ?
 	    qt_global_mutexpool->get( &triedResolve ) : 0 );
@@ -75,7 +72,6 @@ static void resolveLibs()
 	    // so we shouldn't do it again.
 	    return;
 	}
-#endif
 
 	triedResolve = TRUE;
 	if ( QSysInfo::WindowsVersion & QSysInfo::WV_NT_based ) {
@@ -232,7 +228,7 @@ QString QFileInfo::readLink() const
 
 	if (hres == CO_E_NOTINITIALIZED) { // COM was not initalized
 	    neededCoInit = true;
-	    CoInitialize(NULL); 
+	    CoInitialize(NULL);
 	    hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
 					IID_IShellLink, (LPVOID *)&psl);
 	}

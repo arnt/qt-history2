@@ -100,7 +100,7 @@ public:
 
     static void flush();
 
-#if defined(QT_THREAD_SUPPORT) && defined(QT_COMPAT)
+#if defined(QT_COMPAT)
     QT_COMPAT void	     lock();
     QT_COMPAT void	     unlock(bool wakeUpGui = TRUE);
     QT_COMPAT bool	     locked();

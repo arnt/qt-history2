@@ -7,9 +7,7 @@
 #include "qmetaobject.h"
 
 #include <qvector.h>
-#if defined(QT_THREAD_SUPPORT)
-#  include <qmutex.h>
-#endif
+#include <qmutex.h>
 
 struct QPostEvent
 {
@@ -29,9 +27,7 @@ public:
     QEventLoop *eventloop;
 
     int offset;
-#if defined(QT_THREAD_SUPPORT)
     QMutex mutex;
-#endif
 
     inline QPostEventList()
 	: QVector<QPostEvent>(), eventloop(0), offset(0)

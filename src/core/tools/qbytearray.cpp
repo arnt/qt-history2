@@ -21,10 +21,6 @@
 #include <qdatastream.h>
 #endif
 
-#ifdef QT_THREAD_SUPPORT
-#  include <private/qmutexpool_p.h>
-#endif // QT_THREAD_SUPPORT
-
 #ifndef QT_NO_COMPRESS
 #include "../3rdparty/zlib/zlib.h"
 #endif

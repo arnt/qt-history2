@@ -22,9 +22,7 @@
 #include "qregexp.h"
 #include "qstringlist.h"
 
-#ifdef QT_THREAD_SUPPORT
-#  include <private/qmutexpool_p.h>
-#endif // QT_THREAD_SUPPORT
+#include <private/qmutexpool_p.h>
 
 #include <stdlib.h>
 #include <limits.h>
@@ -175,7 +173,7 @@ void QDir::readDirEntries( const QString &nameFilter,
     if ( !dir )
 	return; // cannot read the directory
 
-#if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
+#if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
     union {
 	struct dirent mt_file;
 	char b[sizeof(struct dirent) + MAXNAMLEN + 1];
@@ -183,7 +181,7 @@ void QDir::readDirEntries( const QString &nameFilter,
     while ( readdir_r(dir, &u.mt_file, &file ) == 0 && file )
 #else
     while ( (file = readdir(dir)) )
-#endif // QT_THREAD_SUPPORT && _POSIX_THREAD_SAFE_FUNCTIONS
+#endif // _POSIX_THREAD_SAFE_FUNCTIONS
     {
 	QString fn = QFile::decodeName(QByteArray(file->d_name));
 	fi.setFile( *this, fn );
@@ -242,10 +240,8 @@ QFileInfoList QDir::drives()
 
     if ( !initialized ) {
 
-#ifdef QT_THREAD_SUPPORT
 	QMutexLocker locker( qt_global_mutexpool ?
 			     qt_global_mutexpool->get( &drives ) : 0 );
-#endif // QT_THREAD_SUPPORT
 
 	initialized = true;
 	drives.ensure_constructed();

@@ -15,9 +15,7 @@
 #include <qmap.h>
 #include <private/qlibrary_p.h>
 
-#ifdef QT_THREAD_SUPPORT
-#  include <private/qmutexpool_p.h>
-#endif // QT_THREAD_SUPPORT
+#include <private/qmutexpool_p.h>
 
 #ifndef QT_H
 #include "qfile.h"
@@ -48,11 +46,9 @@ bool QLibraryPrivate::loadLibrary()
     if ( pHnd )
 	return true;
 
-#ifdef QT_THREAD_SUPPORT
     // protect map creation/access
     QMutexLocker locker( qt_global_mutexpool ?
 			 qt_global_mutexpool->get( &map ) : 0 );
-#endif // QT_THREAD_SUPPORT
 
     if ( !map )
 	map = new QMap<QString, LibInstance*>;
@@ -88,11 +84,9 @@ bool QLibraryPrivate::freeLibrary()
     if ( !pHnd )
 	return true;
 
-#ifdef QT_THREAD_SUPPORT
     // protect map access
     QMutexLocker locker( qt_global_mutexpool ?
 			 qt_global_mutexpool->get( &map ) : 0 );
-#endif // QT_THREAD_SUPPORT
 
     bool ok = false;
     QMap<QString, LibInstance*>::iterator it;

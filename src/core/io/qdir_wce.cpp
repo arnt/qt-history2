@@ -23,9 +23,7 @@
 #include "qdeepcopy.h"
 #include "qlibrary.h"
 
-#ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>
-#endif // QT_THREAD_SUPPORT
 
 #include <windows.h>
 #include <shlobj.h>
@@ -158,10 +156,8 @@ bool QDir::rename( const QString &oldName, const QString &newName,
 
 bool QDir::setCurrent( const QString &path )
 {
-#ifdef QT_THREAD_SUPPORT
     QMutexLocker locker( qt_global_mutexpool ?
 			 qt_global_mutexpool->get( &theCWD ) : 0 );
-#endif // QT_THREAD_SUPPORT
 
     DWORD res = GetFileAttributes( (TCHAR*)path.ucs2() );
     if ( 0xFFFFFFFF == res )
@@ -179,10 +175,8 @@ bool QDir::setCurrent( const QString &path )
 
 QString QDir::currentDirPath()
 {
-#ifdef QT_THREAD_SUPPORT
     QMutexLocker locker( qt_global_mutexpool ?
 			 qt_global_mutexpool->get( &theCWD ) : 0 );
-#endif // QT_THREAD_SUPPORT
     if ( ! theCWD )
 	setCurrent( "/" );
     Q_ASSERT( theCWD != 0 );
@@ -379,10 +373,8 @@ const QFileInfoList * QDir::drives()
 
     if ( !knownMemoryLeak ) {
 
-#ifdef QT_THREAD_SUPPORT
 	QMutexLocker locker( qt_global_mutexpool ?
 			     qt_global_mutexpool->get( &knownMemoryLeak ) : 0 );
-#endif // QT_THREAD_SUPPORT
 
 	if ( !knownMemoryLeak ) {
 	    knownMemoryLeak = new QFileInfoList;

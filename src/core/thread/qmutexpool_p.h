@@ -28,7 +28,8 @@
 #ifndef QT_H
 #include "qmutex.h"
 #endif // QT_H
-#ifdef QT_THREAD_SUPPORT
+
+#ifndef QT_NO_THREAD
 
 class Q_CORE_EXPORT QMutexPool
 {
@@ -48,5 +49,20 @@ private:
 Q_CORE_EXPORT QMutexPool *qt_global_mutexpool_func();
 #define qt_global_mutexpool qt_global_mutexpool_func()
 
-#endif // QT_THREAD_SUPPORT
+#else // QT_NO_THREAD
+
+class QMutexPool
+{
+public:
+    inline QMutexPool(bool = false, int = 128) {}
+    ~QMutexPool() {}
+
+    static QMutex *get(const void *) { return 0; }
+};
+
+inline Q_CORE_EXPORT QMutexPool *qt_global_mutexpool_func() { return 0; }
+#define qt_global_mutexpool qt_global_mutexpool_func()
+
+#endif // QT_NO_THREAD
+
 #endif // QMUTEXPOOL_P_H

@@ -17,6 +17,8 @@
 #include <string.h>
 
 #include "qmutex.h"
+
+#ifndef QT_NO_THREAD
 #include "qmutex_p.h"
 
 
@@ -498,3 +500,5 @@ bool QMutex::isLocked()
 
     \sa unlock()
 */
+
+#endif // QT_NO_THREAD

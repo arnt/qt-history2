@@ -2,9 +2,9 @@
 
 OPENGL=yes
 XCONFIG=$1/qmake.conf
-THREAD=$2
-VERBOSE=$3
-shift 3
+THREAD=yes
+VERBOSE=$2
+shift 2
 IN_LIBDIRS=""
 IN_INCDIRS=""
 PARAMS=$@

@@ -24,9 +24,7 @@
 #include <errno.h>
 #endif // NO_ERROR_H
 
-#ifdef QT_THREAD_SUPPORT
-#  include <private/qmutexpool_p.h>
-#endif // QT_THREAD_SUPPORT
+#include <private/qmutexpool_p.h>
 
 #ifndef QT_DEBUG_COMPONENT
 # if defined(QT_DEBUG)
@@ -69,11 +67,6 @@ bool QComLibrary::unload()
 static bool qt_verify( const QString& library, uint version, uint flags,
 		    const QByteArray &key, bool warn )
 {
-    uint our_flags = 1;
-#if defined(QT_THREAD_SUPPORT)
-    our_flags |= 2;
-#endif
-
     if ( (flags & 1) == 0 ) {
 	if ( warn )
 	    qWarning( "Conflict in %s:\n"
@@ -86,12 +79,6 @@ static bool qt_verify( const QString& library, uint version, uint flags,
 		      "  Plugin uses incompatible Qt library (%d.%d.%d)!",
 		      (const char*) QFile::encodeName(library),
 		      (version&0xff0000) >> 16, (version&0xff00) >> 8, version&0xff );
-    } else if ( (flags & 2) != (our_flags & 2) ) {
-	if ( warn )
-	    qWarning( "Conflict in %s:\n"
-		      "  Plugin uses %s Qt library!",
-		      (const char*) QFile::encodeName(library),
-		      (flags & 2) ? "multi threaded" : "single threaded" );
     } else if ( key != QT_BUILD_KEY ) {
 	if ( warn )
 	    qWarning( "Conflict in %s:\n"
@@ -374,10 +361,8 @@ void QComLibrary::createInstanceInternal()
     bool query_done = FALSE;
     bool warn_mismatch = TRUE;
 
-#ifdef QT_THREAD_SUPPORT
     QMutexLocker locker( qt_global_mutexpool ?
 			 qt_global_mutexpool->get( &cache ) : 0 );
-#endif // QT_THREAD_SUPPORT
 
     if ( ! cache ) {
 	cache = new QSettings;

@@ -1004,7 +1004,7 @@ QDate QDate::currentDate( Qt::TimeSpec ts )
     time( &ltime );
     tm *t;
 
-#  if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+#  if defined(_POSIX_THREAD_SAFE_FUNCTIONS)
     // use the reentrant versions of localtime() and gmtime() where available
     tm res;
     if ( ts == Qt::LocalTime )
@@ -1016,7 +1016,7 @@ QDate QDate::currentDate( Qt::TimeSpec ts )
 	t = localtime( &ltime );
     else
 	t = gmtime( &ltime );
-#  endif // QT_THREAD_SUPPORT && _POSIX_THREAD_SAFE_FUNCTIONS
+#  endif // _POSIX_THREAD_SAFE_FUNCTIONS
 
     d.jd = gregorianToJulian( t->tm_year + 1900, t->tm_mon + 1, t->tm_mday );
 #endif
@@ -1684,7 +1684,7 @@ bool QTime::currentTime( QTime *ct, Qt::TimeSpec ts )
     time_t ltime = tv.tv_sec;
     tm *t;
 
-#  if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+#  if defined(_POSIX_THREAD_SAFE_FUNCTIONS)
     // use the reentrant versions of localtime() and gmtime() where available
     tm res;
     if ( ts == Qt::LocalTime )
@@ -1696,7 +1696,7 @@ bool QTime::currentTime( QTime *ct, Qt::TimeSpec ts )
 	t = localtime( &ltime );
     else
 	t = gmtime( &ltime );
-#  endif // QT_THREAD_SUPPORT && _POSIX_THREAD_SAFE_FUNCTIONS
+#  endif // _POSIX_THREAD_SAFE_FUNCTIONS
 
     ct->ds = (uint)( MSECS_PER_HOUR * t->tm_hour + MSECS_PER_MIN * t->tm_min +
 		     1000 * t->tm_sec + tv.tv_usec / 1000 );
@@ -1997,7 +1997,7 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC, Qt::TimeSpec ts )
     time_t tmp = (time_t) secsSince1Jan1970UTC;
     tm *brokenDown = 0;
 
-#if defined(Q_OS_UNIX) && defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+#if defined(Q_OS_UNIX) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
     // posix compliant system
     // use the reentrant versions of localtime() and gmtime() where available
     tm res;

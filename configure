@@ -244,7 +244,6 @@ CFG_EMBEDDED=no
 CFG_DEBUG=no
 CFG_SHARED=yes
 CFG_GIF=no
-CFG_THREAD=auto
 CFG_SM=auto
 CFG_XSHAPE=auto
 CFG_XINERAMA=auto
@@ -358,7 +357,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-xshape|-tablet|-stl|-ipv6|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-stl|-ipv6|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -693,13 +692,6 @@ while [ "$#" -gt 0 ]; do
 	    UNKNOWN_OPT=yes
         fi
 
-	;;
-    thread)
-	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-	    CFG_THREAD="$VAL"
-	else
-	    UNKNOWN_OPT=yes
-	fi
 	;;
     xinerama)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
@@ -1514,38 +1506,6 @@ fi
 [ '!' -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && PLATFORM_X11=yes
 ### echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && PLATFORM_QWS=yes
 
-# find default thread option for target
-if grep >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKESPEC/qmake.conf; then
-    AUTOTHREAD=yes
-else
-    AUTOTHREAD=never
-fi
-# common qmake.conf file but dependency on OS version
-if [ "$UNAME_SYSTEM" = "HP-UX" ]; then
-    if echo $UNAME_RELEASE | grep -E "^B\.(09|10)" >/dev/null 2>&1; then
-	AUTOTHREAD=never
-    fi
-fi
-if [ "$UNAME_SYSTEM" = "SunOS" ]; then
-    # Solaris 2.5 and 2.6 have libposix4, which was renamed to librt for Solaris >=7
-    if echo $UNAME_RELEASE | grep "^5\.[5|6]" >/dev/null 2>&1; then
-	sed -e "s,-lrt,-lposix4," $XQMAKESPEC/qmake.conf > $XQMAKESPEC/qmake.conf.new
-	mv $XQMAKESPEC/qmake.conf.new $XQMAKESPEC/qmake.conf
-    fi
-fi
-if [ $AUTOTHREAD = never ]; then
-    if [ "$CFG_THREAD" = "yes" ]; then
-	echo
-	echo "ERROR: Qt is not configured to support threading on this platform"
-	echo "       See the THREAD settings in $XQMAKESPEC/qmake.conf"
-	echo
-	exit 2
-    fi
-    AUTOTHREAD=no
-fi
-[ "$CFG_THREAD" = "auto" ] && CFG_THREAD=$AUTOTHREAD
-
-
 #-------------------------------------------------------------------------------
 # determine the system architecture
 #-------------------------------------------------------------------------------
@@ -1726,7 +1686,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect OpenGL support
     if echo $MODULES | grep opengl >/dev/null; then
-	if $x11tests/opengl.test $XQMAKESPEC $CFG_THREAD $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+	if $x11tests/opengl.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
 	    MODULES=`echo $MODULES | sed -e 's/opengl//'`
 	fi
     fi
@@ -1917,13 +1877,6 @@ fi
 # next, emit a usage message if something failed.
 if [ "$OPT_HELP" = "yes" ]; then
     [ "x$ERROR" = "xyes" ] && echo
-    if [ "$CFG_THREAD" = "yes" ]; then
-	THY="*"
-	THN=" "
-    else
-	THY=" "
-	THN="*"
-    fi
     if [ "$CFG_NIS" = "no" ]; then
 	NSY=" "
 	NSN="*"
@@ -1966,7 +1919,7 @@ Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
 	[-translationdir dir] [-sysconfdir dir] [-debug] [-release]
 	[-no-gif] [-qt-gif] [-no-sm] [-sm] [-qt-zlib] [-system-zlib]
 	[-qt-libjpeg] [-system-libjpeg] [-qt-libpng] [-system-libpng]
-	[-qt-libmng] [-system-libmng] [-no-thread] [-thread] [-no-nis] [-nis]
+	[-qt-libmng] [-system-libmng] [-no-nis] [-nis]
 	[-no-cups] [-cups] [-no-largefile] [-largefile] [-version-script]
 	[-no-stl] [-stl] [-no-ipv6 ] [-ipv6] [-Istring] [-lstring]
 	[-Lstring] [-Rstring] [-disable-<module>] [-with-<module setting>]
@@ -2091,9 +2044,6 @@ fi
 
                             Possible values for <style>:
                             [ $CFG_STYLE_AVAILABLE ]
-
- $THN  -no-thread ............ Do not compile threading support.
- $THY  -thread ............... Compile threading support.
 
  $NSN  -no-nis ............... Do not compile NIS support.
  $NSY  -nis .................. Compile NIS support.
@@ -2819,10 +2769,6 @@ elif [ "$CFG_SHARED" = "no" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-static"
     QMAKE_CONFIG="$QMAKE_CONFIG staticlib"
 fi
-if [ "$CFG_THREAD" = "yes" ]; then
-    QMAKE_OUTDIR="${QMAKE_OUTDIR}-mt"
-    QMAKE_CONFIG="$QMAKE_CONFIG thread"
-fi
 if [ "$PLATFORM_QWS" = "yes" -o "$PLATFORM_QNX" = "yes" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$CFG_EMBEDDED"
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
@@ -2853,7 +2799,6 @@ if [ "$CFG_LIBMNG" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-mng"
     if [ "$CFG_MNG" = "yes" ]; then
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lmng\""
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-lmng\""
     fi
 fi
 if [ "$CFG_MNG" = "no" ]; then
@@ -2865,7 +2810,6 @@ if [ "$CFG_LIBJPEG" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
     if [ "$CFG_JPEG" = "yes" ]; then
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-ljpeg\""
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-ljpeg\""
     fi
 fi
 if [ "$CFG_JPEG" = "no" ]; then
@@ -2880,7 +2824,6 @@ if [ "$CFG_LIBPNG" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-png"
     if [ "$CFG_PNG" = "yes" ]; then
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lpng\""
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-lpng\""
     fi
 fi
 if [ "$CFG_PNG" = "no" ]; then
@@ -2904,7 +2847,6 @@ elif [ "$CFG_ZLIB" = "yes" ]; then
 elif [ "$CFG_ZLIB" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-zlib"
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lz\""
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-lz\""
 fi
 [ "$CFG_NIS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nis"
 [ "$CFG_CUPS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG cups"
@@ -3091,7 +3033,6 @@ esac
 #     internal
 #     nocrosscompiler
 #     enterprise
-#     thread
 #     GNUmake
 #     largefile
 #     nis
@@ -3406,7 +3347,6 @@ echo "Configuration ....... $QMAKE_CONFIG"
 [ "$CFG_SINGLEQTLIB" = "yes" ] && echo "Single-Lib support... $CFG_SINGLEQTLIB"
 echo "STL support ......... $CFG_STL"
 echo "IPv6 support ........ $CFG_IPV6"
-echo "Thread support ...... $CFG_THREAD"
 echo "NIS support ......... $CFG_NIS"
 echo "CUPS support ........ $CFG_CUPS"
 echo "Large File support .. $CFG_LARGEFILE"

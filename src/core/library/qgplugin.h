@@ -40,13 +40,8 @@
 #endif
 
 #ifndef Q_EXPORT_PLUGIN
-#if defined(QT_THREAD_SUPPORT)
 #define QT_THREADED_BUILD 1
 #define Q_PLUGIN_FLAGS_STRING "11"
-#else
-#define QT_THREADED_BUILD 0
-#define Q_PLUGIN_FLAGS_STRING "01"
-#endif
 
 // this is duplicated at Q_UCM_VERIFICATION_DATA in qcom_p.h
 // NOTE: if you change pattern, you MUST change the pattern in

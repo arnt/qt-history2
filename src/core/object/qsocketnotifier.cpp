@@ -227,11 +227,7 @@ void QSocketNotifier::setEnabled( bool enable )
 	return;
     snenabled = enable;
 
-#if defined(QT_THREAD_SUPPORT)
     QEventLoop *eventloop = QEventLoop::instance(thread());
-#else
-    QEventLoop *eventloop = QEventLoop::instance();
-#endif
     if ( ! eventloop ) // perhaps application is shutting down
 	return;
 

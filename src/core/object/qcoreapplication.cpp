@@ -24,21 +24,15 @@
 #include <qhash.h>
 #include <qtextcodec.h>
 
-#if defined(QT_THREAD_SUPPORT)
-#  include <qthread.h>
-#  include <qthreadstorage.h>
-#  include <private/qmutexpool_p.h>
-#  define M_LOCK(x) \
+#include <qthread.h>
+#include <qthreadstorage.h>
+#include <private/qmutexpool_p.h>
+#define M_LOCK(x) \
     QMutexLocker mlocker(qt_global_mutexpool \
 			 ? qt_global_mutexpool->get(x) \
 			 : 0)
-#  define M_UNLOCK() mlocker.unlock()
-#  define M_RELOCK() mlocker.relock()
-#else
-#  define M_LOCK(x)
-#  define M_UNLOCK()
-#  define M_RELOCK()
-#endif
+#define M_UNLOCK() mlocker.unlock()
+#define M_RELOCK() mlocker.relock()
 
 #include <stdlib.h>
 
@@ -83,16 +77,11 @@ void qRemovePostRoutine(QtCleanUpFunction p)
 
 
 
-#if defined(QT_THREAD_SUPPORT)
 static QThreadStorage<QPostEventList*> postEventLists;
 static QHash<Qt::HANDLE, QPostEventList *> postEventListHash;
-#else
-static QPostEventList postEventList;
-#endif
 
 Q_CORE_EXPORT QPostEventList *qt_postEventList(QObject *object)
 {
-#if defined(QT_THREAD_SUPPORT)
     const Qt::HANDLE current = QThread::currentThread();
     Qt::HANDLE thread = object ? object->thread() : 0;
     if (thread == 0) thread = current;
@@ -119,11 +108,6 @@ Q_CORE_EXPORT QPostEventList *qt_postEventList(QObject *object)
     }
 
     return plist;
-#else
-    Q_UNUSED(object);
-    postEventList.ensure_constructed();
-    return &postEventList;
-#endif
 }
 
 void qt_setEventLoop(QObject *object, QEventLoop *p)
@@ -134,11 +118,9 @@ void qt_setEventLoop(QObject *object, QEventLoop *p)
 
 QPostEventList::~QPostEventList()
 {
-#if defined(QT_THREAD_SUPPORT)
     // post event list for current thread destroyed
     M_LOCK(&postEventListHash);
     postEventListHash.remove(QThread::currentThread());
-#endif
 
     for (int i = 0; i < size(); ++i) {
 	QPostEvent &pe = operator[](i);
@@ -259,9 +241,7 @@ void QCoreApplication::init()
     Q_ASSERT_X(!self, "QCoreApplication", "there should be only one application object.");
     self = this;
 
-#if defined(QT_THREAD_SUPPORT)
     QThread::initialize();
-#endif // QT_THREAD_SUPPORT
 
     QPostEventList *postedEvents = qt_postEventList(this);
     if (!postedEvents->eventloop)
@@ -292,9 +272,7 @@ QCoreApplication::~QCoreApplication()
     self = 0;
     is_app_running = FALSE;
 
-#ifdef QT_THREAD_SUPPORT
     QThread::cleanup();
-#endif
 }
 
 /*!
@@ -309,12 +287,8 @@ QCoreApplication::~QCoreApplication()
 QEventLoop *QCoreApplication::eventLoop()
 {
     if (!self) return 0;
-#if defined(QT_THREAD_SUPPORT)
     QPostEventList *postedEvents = qt_postEventList(self);
     return postedEvents->eventloop;
-#else
-    return QEventLoop::instance();
-#endif
 }
 
 /*!
@@ -365,7 +339,6 @@ bool QCoreApplication::notify( QObject *receiver, QEvent *e )
 	return TRUE;
     }
 
-#if defined(QT_THREAD_SUPPORT)
     Q_ASSERT_X(QThread::currentThread() == receiver->thread(),
 	       "QCoreApplication::sendEvent",
 	       QString("Cannot send events to objects owned by a different thread (%1).  "
@@ -375,7 +348,6 @@ bool QCoreApplication::notify( QObject *receiver, QEvent *e )
 	       .arg(receiver->className())
 	       .arg(QString::number((ulong) receiver->thread(), 16))
 	       .latin1());
-#endif
 
 #ifdef QT_COMPAT
     if (e->type() == QEvent::ChildRemoved && receiver->d->hasPostedChildInsertedEvents) {
@@ -950,8 +922,7 @@ void QCoreApplication::quit()
     exit( 0 );
 }
 
-
-#if defined(QT_THREAD_SUPPORT) && defined(QT_COMPAT)
+// ########### shouldn't these be inline?
 void QCoreApplication::lock()
 {
 }
@@ -969,7 +940,6 @@ bool QCoreApplication::tryLock()
 {
     return false;
 }
-#endif
 
 /*!
   \fn void QCoreApplication::aboutToQuit()

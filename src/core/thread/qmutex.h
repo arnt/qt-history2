@@ -15,11 +15,11 @@
 #ifndef QMUTEX_H
 #define QMUTEX_H
 
-#ifdef QT_THREAD_SUPPORT
-
 #ifndef QT_H
 #include "qglobal.h"
 #endif // QT_H
+
+#ifndef QT_NO_THREAD
 
 class QMutexPrivate;
 
@@ -75,6 +75,45 @@ private:
 #endif
 };
 
-#endif // QT_THREAD_SUPPORT
+#else // QT_NO_THREAD
+
+
+class QMutex
+{
+public:
+    inline QMutex(bool recursive) {}
+    inline ~QMutex() {}
+
+    static inline void lock() {}
+    static inline bool tryLock() { return true; }
+    static void unlock() {}
+
+    static bool isLocked() { return false; }
+
+private:
+#if defined(Q_DISABLE_COPY)
+    QMutex( const QMutex & );
+    QMutex &operator=( const QMutex & );
+#endif
+};
+
+class Q_CORE_EXPORT QMutexLocker
+{
+public:
+    inline QMutexLocker(QMutex *) {}
+    inline ~QMutexLocker() {}
+
+    static inline void unlock() {}
+    static void relock() {}
+    static inline QMutex *mutex() { return 0; }
+
+private:
+#if defined(Q_DISABLE_COPY)
+    QMutexLocker( const QMutexLocker & );
+    QMutexLocker &operator=( const QMutexLocker & );
+#endif
+};
+
+#endif // QT_NO_THREAD
 
 #endif // QMUTEX_H

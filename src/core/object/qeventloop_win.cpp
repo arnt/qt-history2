@@ -20,9 +20,7 @@
 #define d d_func()
 #define q q_func()
 
-#if defined(QT_THREAD_SUPPORT)
-#  include "qmutex.h"
-#endif // QT_THREAD_SUPPORT
+#include "qmutex.h"
 
 static LRESULT CALLBACK win_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 static HWND qt_create_sn_window();

@@ -214,7 +214,7 @@ ProjectGenerator::init()
     QList<QMakeLocalFileName> deplist;
     {
 	QStringList &d = v["DEPENDPATH"];
-	for(QStringList::Iterator it = d.begin(); it != d.end(); ++it) 
+	for(QStringList::Iterator it = d.begin(); it != d.end(); ++it)
 	    deplist.append(QMakeLocalFileName((*it)));
     }
     setDependencyPaths(deplist);
@@ -248,11 +248,6 @@ ProjectGenerator::init()
 			}
 		    }
 		    if(!h_ext.isEmpty()) {
-			if((*dep_it).startsWith("q")) {
-			    QString qhdr = (*dep_it).toLower();
-			    if(file_no_path == "qthread.h")
-				addConfig("thread");
-			}
 			for(QStringList::Iterator cppit = Option::cpp_ext.begin();
 			    cppit != Option::cpp_ext.end(); ++cppit) {
 			    QString src((*dep_it).left((*dep_it).length() - h_ext.length()) +

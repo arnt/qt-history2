@@ -69,17 +69,13 @@ Q_CORE_EXPORT const char *qAppName()			// get application name
 
 static void msgHandler( QtMsgType t, const char* str )
 {
-#if defined(QT_THREAD_SUPPORT)
     // OutputDebugString is not threadsafe.
     static QMutex staticMutex;
-#endif
 
     if ( !str )
 	str = "(null)";
 
-#if defined(QT_THREAD_SUPPORT)
     staticMutex.lock();
-#endif
     QT_WA( {
 	QString s(str);
 	s += "\n";
@@ -89,9 +85,7 @@ static void msgHandler( QtMsgType t, const char* str )
 	s += "\n";
 	OutputDebugStringA( s.data() );
     } )
-#if defined(QT_THREAD_SUPPORT)
     staticMutex.unlock();
-#endif
     if ( t == QtFatalMsg )
 #ifndef Q_OS_TEMP
 #if defined(Q_CC_MSVC) && defined(_DEBUG) && defined(_CRT_ERROR)
@@ -232,7 +226,7 @@ bool QCoreApplication::winEventFilter( MSG * /*msg*/ )	// Windows event filter
 #  endif
 #endif
 
-// The values below should never change. Note that none of the usual 
+// The values below should never change. Note that none of the usual
 // WM_...FIRST & WM_...LAST values are in the list, as they normally have other
 // WM_... representations
 struct {
@@ -622,7 +616,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
 #ifdef WM_ACTIVATE
 	case WM_ACTIVATE:
 	    {
-		QString activation = valueCheck(wParam, 
+		QString activation = valueCheck(wParam,
 					        FLAG_STRING(WA_ACTIVE,      "Activate"),
 					        FLAG_STRING(WA_INACTIVE,    "Deactivate"),
 					        FLAG_STRING(WA_CLICKACTIVE, "Activate by mouseclick"),
@@ -736,17 +730,17 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
 		    if (HIWORD(lpcs->lpszClass) == 0) // Atom
 			className = QString::number(LOWORD(lpcs->lpszClass), 16);
 		    else			      // String
-			className = QString((QChar*)lpcs->lpszClass, 
+			className = QString((QChar*)lpcs->lpszClass,
 					    wcslen((unsigned short*)lpcs->lpszClass));
 		}
 
 		QString windowName;
 		if (lpcs->lpszName != 0)
-		    windowName = QString((QChar*)lpcs->lpszName, 
+		    windowName = QString((QChar*)lpcs->lpszName,
 				         wcslen((unsigned short*)lpcs->lpszName));
 
 		parameters.sprintf("x,y(%4d,%4d) w,h(%4d,%4d) className(%s) windowName(%s) parent(0x%08x) style(%s) exStyle(%s)",
-				    lpcs->x, lpcs->y, lpcs->cx, lpcs->cy, className.latin1(), windowName.latin1(), 
+				    lpcs->x, lpcs->y, lpcs->cx, lpcs->cy, className.latin1(), windowName.latin1(),
 				    lpcs->hwndParent, styles.latin1(), exStyles.latin1());
 	    }
 	    break;
@@ -826,7 +820,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
 		bool contextCode = (lKeyData && 0x20000000);   // Bit 29
 		bool prevState   = (lKeyData && 0x40000000);   // Bit 30
 		bool transState  = (lKeyData && 0x80000000);   // Bit 31
-		parameters.sprintf("Virual-key(0x%x) Scancode(%d) Rep(%d) Contextcode(%d), Prev state(%d), Trans state(%d)", 
+		parameters.sprintf("Virual-key(0x%x) Scancode(%d) Rep(%d) Contextcode(%d), Prev state(%d), Trans state(%d)",
 				   nVirtKey, scanCode, repCount, contextCode, prevState, transState);
 	    }
 	    break;

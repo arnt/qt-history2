@@ -10,8 +10,6 @@
 **
 ****************************************************************************/
 
-#if defined(QT_THREAD_SUPPORT)
-
 #include "qwaitcondition.h"
 #include "qnamespace.h"
 #include "qmutex.h"
@@ -107,7 +105,7 @@ QWaitCondition::QWaitCondition()
 QWaitCondition::~QWaitCondition()
 {
     Q_ASSERT(d->queue.isEmpty());
-    
+
     for(EventQueue::Iterator it = d->freeQueue.begin(); it != d->freeQueue.end(); ++it)
 	delete (*it);
     delete d;
@@ -150,5 +148,3 @@ void QWaitCondition::wakeAll()
 	SetEvent(current->event);
     }
 }
-
-#endif // QT_THREAD_SUPPORT

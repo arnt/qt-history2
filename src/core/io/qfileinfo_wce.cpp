@@ -21,10 +21,6 @@
 #include "qdir.h"
 #include "qapplication.h"
 
-#ifdef QT_THREAD_SUPPORT
-#  include <private/qmutexpool_p.h>
-#endif // QT_THREAD_SUPPORT
-
 #include <windows.h>
 #ifndef Q_OS_TEMP
 #include <direct.h>

@@ -98,7 +98,7 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
     writeStandardParts(t);
     QString objectsLinkLine;
     if(project->variables()["OBJECTS"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
-	createLdObjectScriptFile(var("QMAKE_LINK_OBJECT_SCRIPT"), project->variables()["OBJECTS"]); 
+	createLdObjectScriptFile(var("QMAKE_LINK_OBJECT_SCRIPT"), project->variables()["OBJECTS"]);
 	objectsLinkLine = var("QMAKE_LINK_OBJECT_SCRIPT");
     } else {
 	objectsLinkLine = "$(OBJECTS)";
@@ -110,7 +110,7 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
     t << "SRCMOC	=	" << varList("SRCMOC") << endl;
     QString objmocLinkLine;
     if(project->variables()["OBJMOC"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
-	createLdObjectScriptFile(var("QMAKE_LINK_OBJMOC_SCRIPT"), project->variables()["OBJMOC"]); 
+	createLdObjectScriptFile(var("QMAKE_LINK_OBJMOC_SCRIPT"), project->variables()["OBJMOC"]);
 	objmocLinkLine = var("QMAKE_LINK_OBJMOC_SCRIPT");
     } else {
 	objmocLinkLine = "$(OBJMOC)";
@@ -254,15 +254,13 @@ MingwMakefileGenerator::init()
 		project->variables()["DEFINES"].append("QT_PLUGIN");
 	}
 	if((project->variables()["DEFINES"].indexOf("QT_NODLL") == -1) &&
-         ((project->variables()["DEFINES"].indexOf("QT_MAKEDLL") != -1 ||
-           project->variables()["DEFINES"].indexOf("QT_DLL") != -1) ||
-          (getenv("QT_DLL") && !getenv("QT_NODLL")))) {
+	   ((project->variables()["DEFINES"].indexOf("QT_MAKEDLL") != -1 ||
+	     project->variables()["DEFINES"].indexOf("QT_DLL") != -1) ||
+	    (getenv("QT_DLL") && !getenv("QT_NODLL")))) {
 	    project->variables()["QMAKE_QT_DLL"].append("1");
 	    if(project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty())
 		project->variables()["CONFIG"].append("dll");
 	}
-	if(project->isActiveConfig("thread"))
-	    project->variables()[project->isActiveConfig("target_qt") ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT");
 	if(project->isActiveConfig("accessibility"))
 	    project->variables()[project->isActiveConfig("target_qt") ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
 	if(project->isActiveConfig("tablet"))
@@ -278,28 +276,24 @@ MingwMakefileGenerator::init()
     }
 
     if(project->isActiveConfig("debug")) {
-        if(project->isActiveConfig("thread")) {
-	    // use the DLL RT even here
-	    if(project->variables()["DEFINES"].contains("QT_DLL")) {
-		project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DLLDBG"];
-		project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"];
-	    } else {
-		project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DBG"];
-		project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DBG"];
-	    }
+	// use the DLL RT even here
+	if(project->variables()["DEFINES"].contains("QT_DLL")) {
+	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DLLDBG"];
+	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"];
+	} else {
+	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DBG"];
+	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DBG"];
 	}
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_DEBUG"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_DEBUG"];
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_DEBUG"];
     } else {
-	if(project->isActiveConfig("thread")) {
-	    if(project->variables()["DEFINES"].contains("QT_DLL")) {
-		project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DLL"];
-		project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DLL"];
-	    } else {
-		project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT"];
-		project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT"];
-	    }
+	if(project->variables()["DEFINES"].contains("QT_DLL")) {
+	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DLL"];
+	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DLL"];
+	} else {
+	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT"];
+	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT"];
 	}
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RELEASE"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RELEASE"];
@@ -322,10 +316,7 @@ MingwMakefileGenerator::init()
 	    }
 	} else {
 
-	    if(project->isActiveConfig("thread"))
-		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
-	    else
-		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    if(!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
 		if(hver != -1) {
@@ -341,7 +332,7 @@ MingwMakefileGenerator::init()
 		project->variables().remove("QMAKE_LIBS_QT_ENTRY");
 		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "-lqaxserver";
 		if(project->isActiveConfig("dll")) {
-		   project->variables()["QMAKE_LIBS"]  += project->variables()["QMAKE_LIBS_QT_ENTRY"];
+		    project->variables()["QMAKE_LIBS"]  += project->variables()["QMAKE_LIBS_QT_ENTRY"];
 		}
 	    }
 	    if(!project->isActiveConfig("dll") && !project->isActiveConfig("plugin")) {
@@ -375,7 +366,7 @@ MingwMakefileGenerator::init()
 	project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_LFLAGS_CONSOLE"];
 	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS"];
     }
-    
+
     if(project->isActiveConfig("windows")) {
 	if(project->isActiveConfig("console")) {
 	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"];
@@ -392,7 +383,7 @@ MingwMakefileGenerator::init()
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"];
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_CONSOLE"];
     }
-    
+
     if(project->isActiveConfig("exceptions")) {
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_EXCEPTIONS_ON"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_EXCEPTIONS_ON"];
@@ -400,15 +391,15 @@ MingwMakefileGenerator::init()
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_EXCEPTIONS_OFF"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_EXCEPTIONS_OFF"];
     }
- 
+
     if(project->isActiveConfig("dll")) {
-		QString destDir = "";
-		if(!project->first("DESTDIR").isEmpty())
-			destDir = project->first("DESTDIR") + "\\";
-		project->variables()["QMAKE_LFLAGS"].append(QString("-Wl,--out-implib,") +
-					  destDir + "lib" + project->first("TARGET") + ".a");
+	QString destDir = "";
+	if(!project->first("DESTDIR").isEmpty())
+	    destDir = project->first("DESTDIR") + "\\";
+	project->variables()["QMAKE_LFLAGS"].append(QString("-Wl,--out-implib,") +
+						    destDir + "lib" + project->first("TARGET") + ".a");
     }
-    
+
     if(!project->variables()["DEF_FILE"].isEmpty())
 	project->variables()["QMAKE_LFLAGS"].append(QString("-Wl,") + project->first("DEF_FILE"));
 //    if(!project->isActiveConfig("incremental"))
@@ -424,7 +415,7 @@ MingwMakefileGenerator::init()
 	project->variables()["QMAKE_LFLAGS"].append("/VERSION:" + major + "." + minor);
     }
 #endif
-   
+
     MakefileGenerator::init();
     if(project->isActiveConfig("dll")) {
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") +"lib" + project->first("TARGET") + ".a");

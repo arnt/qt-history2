@@ -1525,8 +1525,7 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
 	libs = project->variables()["QMAKE_INTERNAL_PRL_LIBS"];
     else
 	libs << "QMAKE_LIBS"; //obvious one
-    if(project->isActiveConfig("thread"))
-	libs << "QMAKE_LFLAGS_THREAD"; //not sure about this one, but what about things like -pthread?
+    libs << "QMAKE_LFLAGS_THREAD"; //not sure about this one, but what about things like -pthread?
     t << "Libs: -L${libdir} -l" << lname.left(lname.length()-Option::libtool_ext.length()) << " ";
     for(QStringList::ConstIterator it = libs.begin(); it != libs.end(); ++it)
 	t << project->variables()[(*it)].join(" ") << " ";

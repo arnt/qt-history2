@@ -1,5 +1,6 @@
 #include "qspinlock_p.h"
 
+#ifndef QT_NO_THREAD
 void QSpinLockPrivate::initialize()
 {
     pthread_mutex_init(&mutex, 0);
@@ -25,3 +26,4 @@ void QSpinLockPrivate::wake()
     pthread_cond_signal(&cond);
     pthread_mutex_unlock(&mutex);
 }
+#endif // QT_NO_THREAD

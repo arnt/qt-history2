@@ -243,13 +243,8 @@ public:		   \
     ulong release() {if(!--qtrefcount){delete this;return 0;}return qtrefcount;}
 
 #ifndef Q_EXPORT_COMPONENT
-#if defined(QT_THREAD_SUPPORT)
 #define QT_THREADED_BUILD 1
 #define Q_UCM_FLAGS_STRING "11"
-#else
-#define QT_THREADED_BUILD 0
-#define Q_UCM_FLAGS_STRING "01"
-#endif
 
 #ifndef Q_EXTERN_C
 #ifdef __cplusplus

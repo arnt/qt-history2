@@ -35,9 +35,7 @@
 #include "qcoreevent.h"
 
 #include <qlist.h>
-#if defined(QT_THREAD_SUPPORT)
-#  include <private/qspinlock_p.h>
-#endif
+#include <private/qspinlock_p.h>
 
 #define Q_DECLARE_PUBLIC(Class) \
     inline Class##Private* d_func() { return this; } \
@@ -58,9 +56,7 @@ public:
 
     QObjectPrivate()
 	:
-#if defined(QT_THREAD_SUPPORT)
 	thread(0),
-#endif
 	connections(0),
 	senders(0),
 	polished(0),
@@ -87,16 +83,12 @@ public:
 #endif
     }
 
-#if defined(QT_THREAD_SUPPORT)
     // id of the thread that owns the object
     Qt::HANDLE thread;
-#endif
 
     // signal connections
     struct Connections {
-#if defined(QT_THREAD_SUPPORT)
 	QSpinLock lock;
-#endif
 	int count;
 	struct Connection {
 	    int signal;
@@ -118,9 +110,7 @@ public:
     // slot connections
     struct Senders
     {
-#if defined(QT_THREAD_SUPPORT)
 	QSpinLock lock;
-#endif
 	int ref;
 	QObject *current;
 	int count;

@@ -21,9 +21,7 @@
 #include "qregexp.h"
 #include "qstringlist.h"
 
-#ifdef QT_THREAD_SUPPORT
-#  include <private/qmutexpool_p.h>
-#endif // QT_THREAD_SUPPORT
+#include <private/qmutexpool_p.h>
 
 #include <windows.h>
 #include <limits.h>
@@ -509,10 +507,8 @@ QFileInfoList QDir::drives()
     bool initialized = false;
 
     if (!initialized) {
-#ifdef QT_THREAD_SUPPORT
 	QMutexLocker locker( qt_global_mutexpool ?
 			     qt_global_mutexpool->get( &drives ) : 0 );
-#endif // QT_THREAD_SUPPORT
 
 	if ( !initialized ) {
 	    drives.ensure_constructed();

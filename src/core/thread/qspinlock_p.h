@@ -27,7 +27,7 @@
 //
 //
 
-#if defined(QT_THREAD_SUPPORT)
+#ifndef QT_NO_THREAD
 
 #include <qglobal.h>
 #include <arch/qatomic.h>
@@ -96,6 +96,17 @@ private:
     QSpinLockPrivate d;
 };
 
-#endif // QT_THREAD_SUPPORT
+#else // QT_NO_THREAD
+
+class QSpinLock
+{
+public:
+    inline QSpinLock() {}
+    inline ~QSpinLock() {}
+    static inline void acquire() {}
+    static inline void release() {}
+};
+
+#endif //QT_NO_THREAD
 
 #endif // QSPINLOCK_P_H

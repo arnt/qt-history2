@@ -12,6 +12,8 @@
 
 #include "qmutexpool_p.h"
 
+#ifndef QT_NO_THREAD
+
 QMutexPool *static_qt_global_mutexpool = 0;
 
 Q_CORE_EXPORT QMutexPool *qt_global_mutexpool_func()
@@ -125,3 +127,5 @@ QMutex *QMutexPool::get(const void *address)
 
     return mutexes[index];
 }
+
+#endif QT_NO_THREAD

@@ -15,8 +15,6 @@
 #ifndef QTHREAD_H
 #define QTHREAD_H
 
-#ifdef QT_THREAD_SUPPORT
-
 #ifndef QT_H
 #include <qnamespace.h>
 #endif // QT_H
@@ -83,7 +81,5 @@ private:
     QThread &operator=( const QThread & );
 #endif // Q_DISABLE_COPY
 };
-
-#endif // QT_THREAD_SUPPORT
 
 #endif // QTHREAD_H
