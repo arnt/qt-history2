@@ -27,6 +27,8 @@
 #include <private/qtitlebar_p.h>
 
 QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
+extern Qt::HANDLE qt_mac_handle(const QPaintDevice *pd); // qpaintdevice_mac.pp
+extern Qt::HANDLE qt_mac_quartz_handle(const QPaintDevice *pd); // qpaintdevice_mac.pp
 
 const int qt_mac_hitheme_version = 0; //the HITheme version we speak
 const int macSpinBoxSep        = 5;    // distance between spinwidget and the lineedit
@@ -208,7 +210,7 @@ void QMacStyleCGFocusWidget::drawFocusRect(QPainter *p) const
     p->fillRect(0, 0, width(), height(), QColor(192, 191, 190));
 #else
     HIRect rect = CGRectMake(0, 0, width(), height());
-    HIThemeDrawFocusRect(&rect, true, static_cast<CGContextRef>(p->handle()),
+    HIThemeDrawFocusRect(&rect, true, cg,
                          kHIThemeOrientationNormal);
 #endif
 }
@@ -269,7 +271,7 @@ void QMacStyleCG::polish(QWidget *w)
         bginfo.state = kThemeStateActive;
         bginfo.kind = kThemeBackgroundMetal;
         HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-        HIThemeDrawBackground(&rect, &bginfo, static_cast<CGContextRef>(p.handle()),
+        HIThemeDrawBackground(&rect, &bginfo, static_cast<CGContextRef>(px.handle()),
                               kHIThemeOrientationNormal);
         p.end();
     }
@@ -281,7 +283,7 @@ void QMacStyleCG::polish(QWidget *w)
         mtinfo.version = qt_mac_hitheme_version;
         mtinfo.menuType = kThemeMenuTypePopUp;
         HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-        HIThemeDrawMenuBackground(&rect, &mtinfo, static_cast<CGContextRef>(p.handle()),
+        HIThemeDrawMenuBackground(&rect, &mtinfo, static_cast<CGContextRef>(px.handle()),
                                   kHIThemeOrientationNormal);
         p.end();
         w->setWindowOpacity(0.95);
@@ -330,7 +332,7 @@ void QMacStyleCG::polish(QApplication *app)
     mtinfo.version = qt_mac_hitheme_version;
     mtinfo.menuType = kThemeMenuTypeHierarchical;
     HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-    HIThemeDrawMenuBackground(&rect, &mtinfo, static_cast<CGContextRef>(p.handle()),
+    HIThemeDrawMenuBackground(&rect, &mtinfo, static_cast<CGContextRef>(px.handle()),
                               kHIThemeOrientationNormal);
 
     p.end();
@@ -353,7 +355,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         if (flags & Style_Bottom)
             tpdi.direction = kThemeTabSouth;
         tpdi.size = kHIThemeTabSizeNormal;
-        HIThemeDrawTabPane(qt_glb_mac_rect(r, p), &tpdi, static_cast<CGContextRef>(p->handle()),
+        HIThemeDrawTabPane(qt_glb_mac_rect(r, p), &tpdi, static_cast<CGContextRef>(qt_mac_quartz_handle(p->device())),
                            kHIThemeOrientationNormal);
         break; }
     default:
@@ -366,6 +368,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
                               const QRect &r, const QPalette &pal, SFlags how,
                               const QStyleOption &opt) const
 {
+    CGContextRef cg = static_cast<CGContextRef>(qt_mac_quartz_handle(p->device()));
     ThemeDrawState tds = d->getDrawState(how, pal);
     switch(element) {
     case CE_PushButton: {
@@ -392,8 +395,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
             info.animation.time.start = d->defaultButtonStart;
             info.animation.time.current = CFAbsoluteTimeGetCurrent();
         }
-        HIThemeDrawButton(qt_glb_mac_rect(r, p), &info, static_cast<CGContextRef>(p->handle()),
-                          kHIThemeOrientationNormal, 0);
+        HIThemeDrawButton(qt_glb_mac_rect(r, p), &info, cg, kHIThemeOrientationNormal, 0);
         break; }
     case CE_PushButtonLabel: {
         // ### This is wrong, we should probably have another couple of rects,
@@ -479,7 +481,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
             tdi.enableState = kThemeTrackDisabled;
         else
             tdi.enableState = kThemeTrackActive;
-        HIThemeDrawTrack(&tdi, 0, static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal);
+        HIThemeDrawTrack(&tdi, 0, cg, kHIThemeOrientationNormal);
         break; }
     case CE_ProgressBarLabel:
     case CE_ProgressBarGroove:
@@ -517,8 +519,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
         tabrect.setHeight(tabrect.height() + pixelMetric(PM_TabBarBaseOverlap, widget));
         QRegion oldRegion(p->clipRegion());
         p->setClipRect(tabrect);
-        HIThemeDrawTab(qt_glb_mac_rect(tabrect, p), &tdi, static_cast<CGContextRef>(p->handle()),
-                       kHIThemeOrientationNormal, 0);
+        HIThemeDrawTab(qt_glb_mac_rect(tabrect, p), &tdi, cg, kHIThemeOrientationNormal, 0);
         p->setClipRegion(oldRegion);
         // If the tab is not selected, we have to redraw a portion of the pane.
         if (!(how & Style_Selected)) {
@@ -536,8 +537,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
                 panerect.moveBy(0, (-r.height() + 2));
             oldRegion = p->clipRegion();
             p->setClipRect(r.x(), panerect.y(), r.width(), panerect.height());
-            HIThemeDrawTabPane(qt_glb_mac_rect(panerect, p), &tpdi,
-                               static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal);
+            HIThemeDrawTabPane(qt_glb_mac_rect(panerect, p), &tpdi, cg, kHIThemeOrientationNormal);
             p->setClipRegion(oldRegion);
         }
         break; }
@@ -550,6 +550,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                                      const QRect &r, const QPalette& pal, SFlags flags, SCFlags sub,
                                      SCFlags subActive, const QStyleOption &opt) const
 {
+    CGContextRef cg = static_cast<CGContextRef>(qt_mac_quartz_handle(p->device()));
     ThemeDrawState tds = d->getDrawState(flags, pal);
     switch (control) {
     case CC_ComboBox: {
@@ -585,7 +586,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
             bdi.kind = kThemePopupButton;
         }
         HIThemeDrawButton(qt_glb_mac_rect(comborect, p), &bdi,
-                          static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal, 0);
+                          cg, kHIThemeOrientationNormal, 0);
         break; }
     case CC_TitleBar: {
         const QTitleBar *titlebar = static_cast<const QTitleBar *>(w);
@@ -614,7 +615,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
         QRect newr = r;
         newr.moveBy(newr.x() - (int)titleRect.origin.x, newr.y() - (int)titleRect.origin.y);
         HIRect finalRect = *qt_glb_mac_rect(newr, p, false);
-        HIThemeDrawWindowFrame(&finalRect, &wdi, static_cast<CGContextRef>(p->handle()),
+        HIThemeDrawWindowFrame(&finalRect, &wdi, cg,
                                kHIThemeOrientationNormal, 0);
         if (sub & SC_TitleBarLabel) {
             int iw = 0;
@@ -673,7 +674,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                 if (titlebar->window() && titlebar->window()->isWindowModified()
                     && tbw == kThemeWidgetCloseBox)
                     wwdi.widgetType = kThemeWidgetDirtyCloseBox;
-                HIThemeDrawTitleBarWidget(&finalRect, &wwdi, static_cast<CGContextRef>(p->handle()),
+                HIThemeDrawTitleBarWidget(&finalRect, &wwdi, cg,
                                           kHIThemeOrientationNormal);
                 sc = sc << 1;
                 tbw = tbw >> 1;
@@ -1082,6 +1083,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
                                 const QWidget *w) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
+    CGContextRef cg = static_cast<CGContextRef>(qt_mac_quartz_handle(p->device()));
     switch (pe) {
     case PE_CheckListExclusiveIndicator:
     case PE_ExclusiveIndicatorMask:
@@ -1137,7 +1139,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
                 p->fillRect(btn->rect, Qt::color1);
                 p->setClipRegion(saveRegion);
             } else {
-                HIThemeDrawButton(&macRect, &bdi, static_cast<CGContextRef>(p->handle()),
+                HIThemeDrawButton(&macRect, &bdi, cg,
                                   kHIThemeOrientationNormal, 0);
             }
         }
@@ -1170,7 +1172,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         else
             pdi.size = kThemeArrow9pt;
         HIRect macRect = qt_hirectForQRect(opt->rect, p);
-        HIThemeDrawPopupArrow(&macRect, &pdi, static_cast<CGContextRef>(p->handle()),
+        HIThemeDrawPopupArrow(&macRect, &pdi, cg,
                               kHIThemeOrientationNormal);
         break; }
     case PE_FocusRect:
@@ -1183,7 +1185,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         sdi.adornment = qt_mac_is_metal(w) ? kHIThemeSplitterAdornmentMetal
                                            : kHIThemeSplitterAdornmentNone;
         HIRect hirect = qt_hirectForQRect(opt->rect, p);
-        HIThemeDrawPaneSplitter(&hirect, &sdi, static_cast<CGContextRef>(p->handle()),
+        HIThemeDrawPaneSplitter(&hirect, &sdi, cg,
                                 kHIThemeOrientationNormal);
         break; }
     case PE_TreeBranch: {
@@ -1198,7 +1200,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         bi.value = opt->state & Style_Open ? kThemeDisclosureDown : kThemeDisclosureRight;
         bi.adornment = kThemeAdornmentNone;
         HIRect hirect = qt_hirectForQRect(opt->rect, p);
-        HIThemeDrawButton(&hirect, &bi, static_cast<CGContextRef>(p->handle()),
+        HIThemeDrawButton(&hirect, &bi, cg,
                           kHIThemeOrientationNormal, 0);
         break; }
     case PE_RubberBandMask:
@@ -1224,7 +1226,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
                 break;
         }
         HIPoint pt = { opt->rect.x(), opt->rect.y() };
-        HIThemeDrawGrowBox(&pt, &gdi, static_cast<CGContextRef>(p->handle()),
+        HIThemeDrawGrowBox(&pt, &gdi, cg,
                            kHIThemeOrientationNormal);
         break; }
     case PE_HeaderArrow:
@@ -1265,7 +1267,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
             if (flags & Style_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
                 bdi.adornment = kThemeAdornmentFocus;
             HIRect hirect = qt_hirectForQRect(ir, p);
-            HIThemeDrawButton(&hirect, &bdi, static_cast<CGContextRef>(p->handle()),
+            HIThemeDrawButton(&hirect, &bdi, cg,
                               kHIThemeOrientationNormal, 0);
         }
         break;
@@ -1279,7 +1281,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
             else
                 gdi.kind = kHIThemeGroupBoxKindPrimary;
             HIRect hirect = qt_hirectForQRect(frame->rect, p);
-            HIThemeDrawGroupBox(&hirect, &gdi, static_cast<CGContextRef>(p->handle()),
+            HIThemeDrawGroupBox(&hirect, &gdi, cg,
                                 kHIThemeOrientationNormal);
         }
         break;
@@ -1313,7 +1315,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
                                                   QRect(frame_size, frame_size,
                                                         frame_size * 2, frame_size * 2));
 
-                HIThemeDrawFrame(&hirect, &fdi, static_cast<CGContextRef>(p->handle()),
+                HIThemeDrawFrame(&hirect, &fdi, cg,
                                  kHIThemeOrientationNormal);
                 break;
             }
@@ -1328,6 +1330,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                               const QWidget *w) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
+    CGContextRef cg = static_cast<CGContextRef>(qt_mac_quartz_handle(p->device()));
     switch (ce) {
     case CE_PushButton:
         if (const Q4StyleOptionButton *btn = ::qt_cast<const Q4StyleOptionButton *>(opt)) {
@@ -1354,7 +1357,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                 bdi.animation.time.start = d->defaultButtonStart;
                 bdi.animation.time.current = CFAbsoluteTimeGetCurrent();
             }
-            HIThemeDrawButton(&newRect, &bdi, static_cast<CGContextRef>(p->handle()),
+            HIThemeDrawButton(&newRect, &bdi, cg,
                               kHIThemeOrientationNormal, 0);
             if (btn->extras & Q4StyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(PM_MenuButtonIndicator, w);
@@ -1394,12 +1397,12 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             if (mi->menuItemType == Q4StyleOptionMenuItem::Separator) {
                 // First arg should be &menurect, but wacky stuff happens then.
                 HIThemeDrawMenuSeparator(&itemRect, &itemRect, &mdi,
-                                         static_cast<CGContextRef>(p->handle()),
+                                         cg,
                                          kHIThemeOrientationNormal);
                 break;
             } else {
                 HIThemeDrawMenuItem(&menuRect, &itemRect, &mdi,
-                                    static_cast<CGContextRef>(p->handle()),
+                                    cg,
                                     kHIThemeOrientationNormal, &contentRect);
             }
             int x, y, w, h;
@@ -1442,7 +1445,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                 r.moveBy(0, fm.ascent() - (int)outBaseline + 1);
                 HIRect bounds = qt_hirectForQRect(r);
                 HIThemeDrawTextBox(checkmark, &bounds, &tti,
-                                   static_cast<CGContextRef>(p->handle()),
+                                   cg,
                                    kHIThemeOrientationNormal);
                 xpos += r.width() - 6;
             }
@@ -1506,7 +1509,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                 mdi.itemType = kThemeMenuItemPlain;
             }
             HIThemeDrawMenuItem(&menuRect, &itemRect, &mdi,
-                                static_cast<CGContextRef>(p->handle()),
+                                cg,
                                 kHIThemeOrientationNormal, 0);
             if (ce == CE_MenuTearoff) {
                 p->setPen(QPen(mi->palette.dark(), 1, Qt::DashLine));
@@ -1533,7 +1536,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             tdi.condensedTitleExtra = 0.0;
             HIRect mbRect = qt_hirectForQRect(mi->menuRect);
             HIRect rect = qt_hirectForQRect(mi->rect);
-            HIThemeDrawMenuTitle(&mbRect, &rect, &tdi, static_cast<CGContextRef>(p->handle()),
+            HIThemeDrawMenuTitle(&mbRect, &rect, &tdi, cg,
                                  kHIThemeOrientationNormal, 0);
             QWindowsStyle::drawControl(ce, mi, p, w);
         }
@@ -1545,7 +1548,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             bdi.state = kThemeMenuBarNormal;
             bdi.attributes = kThemeMenuSquareMenuBar;
             HIRect hirect = qt_hirectForQRect(mi->rect);
-            HIThemeDrawMenuBarBackground(&hirect, &bdi, static_cast<CGContextRef>(p->handle()),
+            HIThemeDrawMenuBarBackground(&hirect, &bdi, cg,
                                          kHIThemeOrientationNormal);
             break;
         }
@@ -1585,7 +1588,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                 tdi.enableState = kThemeTrackDisabled;
             else
                 tdi.enableState = kThemeTrackActive;
-            HIThemeDrawTrack(&tdi, 0, static_cast<CGContextRef>(p->handle()),
+            HIThemeDrawTrack(&tdi, 0, cg,
                              kHIThemeOrientationNormal);
         }
         break;
@@ -1658,6 +1661,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                                      QPainter *p, const QWidget *widget) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
+    CGContextRef cg = static_cast<CGContextRef>(qt_mac_quartz_handle(p->device()));
     switch (cc) {
     case CC_Slider:
     case CC_ScrollBar:
@@ -1693,7 +1697,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                 HIShapeGetBounds(shape, &macRect);
                 tdi.value = slider->sliderValue;
             }
-            HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, static_cast<CGContextRef>(p->handle()),
+            HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, cg,
                              kHIThemeOrientationNormal);
             if (cc == CC_Slider && slider->parts & SC_SliderTickmarks) {
                 int numMarks;
@@ -1709,15 +1713,15 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                     // They asked for both, so we'll give it to them.
                     tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
                     HIThemeDrawTrackTickMarks(&tdi, numMarks,
-                                              static_cast<CGContextRef>(p->handle()),
+                                              cg,
                                               kHIThemeOrientationNormal);
                     tdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
                     HIThemeDrawTrackTickMarks(&tdi, numMarks,
-                                              static_cast<CGContextRef>(p->handle()),
+                                              cg,
                                                kHIThemeOrientationNormal);
                 } else {
                     HIThemeDrawTrackTickMarks(&tdi, numMarks,
-                                              static_cast<CGContextRef>(p->handle()),
+                                              cg,
                                               kHIThemeOrientationNormal);
 
                 }
@@ -1809,7 +1813,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                         p->fillRect(updown, sb->palette.color(bgRole));
                 }
                 HIRect hirect = qt_hirectForQRect(updown, p);
-                HIThemeDrawButton(&hirect, &bdi, static_cast<CGContextRef>(p->handle()),
+                HIThemeDrawButton(&hirect, &bdi, cg,
                                   kHIThemeOrientationNormal, 0);
             }
         }

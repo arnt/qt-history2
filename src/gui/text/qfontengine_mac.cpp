@@ -28,6 +28,8 @@
 //Externals
 void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1); //qglobal.cpp
 QByteArray pstring2qstring(const unsigned char *c); //qglobal.cpp
+extern Qt::HANDLE qt_mac_handle(const QPaintDevice *pd); // qpaintdevice_mac.pp
+extern Qt::HANDLE qt_mac_quartz_handle(const QPaintDevice *pd); // qpaintdevice_mac.pp
 unsigned char * p_str(const QString &); //qglobal.cpp
 
 //Generic engine
@@ -149,7 +151,7 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
     bool textAA = p->renderHints() & QPainter::TextAntialiasing;
     bool lineAA = p->renderHints() & QPainter::LineAntialiasing;
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
-        CGContextSetShouldAntialias(static_cast<CGContext*>(p->handle()), textAA);
+        CGContextSetShouldAntialias(static_cast<CGContext*>(qt_mac_handle(p->painter()->device())), textAA);
 
     int w = 0;
     uchar task = DRAW;
@@ -178,7 +180,8 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
             p->drawRect(QRect(x, y + (ascent().toInt() / 3), si.right_to_left ? -w : w, lw));
     }
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
-        CGContextSetShouldAntialias(static_cast<CGContext*>(p->handle()), !textAA);
+        CGContextSetShouldAntialias(static_cast<CGContext*>(qt_mac_quartz_handle(p->painter()->device())),
+                                    !textAA);
 }
 
 glyph_metrics_t
@@ -451,7 +454,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     CGrafPtr ctx_port = 0; //only set if the ctx is a ctx created from a port
     if(p && p->type() == QPaintEngine::CoreGraphics) {
         if(p && device) {
-            ctx = static_cast<CGContextRef>(p->handle());
+            ctx = static_cast<CGContextRef>(qt_mac_quartz_handle(p->painter()->device()));
         } else {
             static QPixmap *pixmap = NULL;
             if(!pixmap)

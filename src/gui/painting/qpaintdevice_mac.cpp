@@ -106,25 +106,23 @@ void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt)
     CGContextClip(hd);
 }
 
-/*!
-    Returns the window system handle of the paint device for
-    CoreGraphics support. Use of this function is not portable. This
-    function will return 0 if the handle could not be created.
-*/
-Qt::HANDLE QPaintDevice::macCGHandle() const
+Qt::HANDLE qt_mac_quartz_handle(const QPaintDevice *pd)
 {
-    if (devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(this)->macCGHandle();
-    else if (devType() == QInternal::Pixmap);
-        return static_cast<const QPixmap *>(this)->macCGHandle();
+    if (pd->devType() == QInternal::Widget)
+        return static_cast<const QWidget *>(pd)->macCGHandle();
+    else if (pd->devType() == QInternal::Pixmap);
+        return static_cast<const QPixmap *>(pd)->macCGHandle();
+    Q_ASSERT(false);
     return 0;
 }
 
-Qt::HANDLE QPaintDevice::handle() const
+Qt::HANDLE qt_mac_handle(const QPaintDevice *pd)
 {
-    if (devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(this)->handle();
-    else if (devType() == QInternal::Pixmap)
-        return static_cast<const QPixmap *>(this)->handle();
+    if (pd->devType() == QInternal::Widget)
+        return static_cast<const QWidget *>(pd)->handle();
+    else if (pd->devType() == QInternal::Pixmap)
+        return static_cast<const QPixmap *>(pd)->handle();
+    Q_ASSERT(false);
     return 0;
 }
+

@@ -61,8 +61,6 @@ public:
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
 
-    virtual Qt::HANDLE handle() const;
-
     inline Type type() const { return QPaintEngine::QuickDraw; }
     static void initialize();
     static void cleanup();
@@ -125,8 +123,6 @@ public:
 #endif
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
-
-    virtual Qt::HANDLE handle() const;
 
     inline Type type() const { return QPaintEngine::CoreGraphics; }
     static void initialize();

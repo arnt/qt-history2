@@ -47,6 +47,8 @@ extern QRegion make_region(RgnHandle handle);
 extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
 extern void qt_mac_clip_cg(CGContextRef, const QRegion &, const QPoint *); //qpaintdevice_mac.cpp
 extern void qt_mac_clip_cg_reset(CGContextRef); //qpaintdevice_mac.cpp
+extern Qt::HANDLE qt_mac_handle(const QPaintDevice *); //qpaintdevice_mac.cpp
+extern Qt::HANDLE qt_mac_quartz_handle(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 CGImageRef qt_mac_create_cgimage(const QPixmap &, bool); //qpixmap_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
@@ -675,7 +677,7 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
     RGBBackColor(&f);
 
     //get pixmap bits
-    const BitMap *srcbitmap = GetPortBitMapForCopyBits((GWorldPtr)pixmap.handle());
+    const BitMap *srcbitmap = GetPortBitMapForCopyBits(static_cast<GWorldPtr>(pixmap.handle()));
     const QPixmap *srcmask=NULL;
     if(pixmap.data->alphapm)
         srcmask = pixmap.data->alphapm;
@@ -691,7 +693,7 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
         break; }
     case QInternal::Printer:
     case QInternal::Pixmap: {
-        dstbitmap = GetPortBitMapForCopyBits((GWorldPtr)d->pdev->handle());
+        dstbitmap = GetPortBitMapForCopyBits((GWorldPtr)qt_mac_handle(d->pdev));
         break; }
     }
 
@@ -723,12 +725,6 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
     } else {
         CopyBits(srcbitmap, dstbitmap, &srcr, &dstr, copymode, 0);
     }
-}
-
-Qt::HANDLE
-QQuickDrawPaintEngine::handle() const
-{
-    return d->pdev->handle();
 }
 
 void
@@ -834,7 +830,7 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
 {
     bool remade_clip = false;
     if(d->pdev->devType() == QInternal::Printer) {
-        if(force && d->pdev->handle()) {
+        if(force && qt_mac_handle(d->pdev)) {
             remade_clip = true;
             d->clip.pdev = QRegion(0, 0, d->pdev->metric(QPaintDeviceMetrics::PdmWidth),
                                           d->pdev->metric(QPaintDeviceMetrics::PdmHeight));
@@ -890,7 +886,7 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
         if(d->pdev->devType() == QInternal::Widget)
             ptr = GetWindowPort(qt_mac_window_for((HIViewRef)static_cast<QWidget*>(d->pdev)->winId()));
         else
-            ptr = (GWorldPtr)d->pdev->handle();
+            ptr = (GWorldPtr)qt_mac_handle(d->pdev);
         if(RgnHandle rgn = d->clip.paintable.handle()) {
             QDAddRegionToDirtyRegion(ptr, rgn);
         } else {
@@ -1001,7 +997,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     }
 
     d->pdev = pdev;
-    d->hd = static_cast<CGContextRef>(d->pdev->macCGHandle());
+    d->hd = static_cast<CGContextRef>(qt_mac_quartz_handle(d->pdev));
     if(d->shading) {
         CGShadingRelease(d->shading);
         d->shading = 0;
@@ -1471,12 +1467,6 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     HIViewDrawCGImage(d->hd, &rect, image); //HIViews render the way we want anyway, so just use the convenience..
     CGContextRestoreGState(d->hd);
     CGImageRelease(image);
-}
-
-Qt::HANDLE
-QCoreGraphicsPaintEngine::handle() const
-{
-    return d->hd;
 }
 
 void
