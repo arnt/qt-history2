@@ -1702,13 +1702,12 @@ QSize QBoxLayout::maximumSize() const
 	QBoxLayout *that = (QBoxLayout*)this;
 	that->setupGeom();
     }
-    QSize s = (data->maxSize + QSize(2 * margin(), 2 * margin()))
+    QSize s = ( data->maxSize + QSize(2 * margin(), 2 * margin()) )
 	      .boundedTo(QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX));
     if ( alignment() & Qt::AlignHorizontal_Mask )
 	s.setWidth( QLAYOUTSIZE_MAX );
     if ( alignment() & Qt::AlignVertical_Mask )
 	s.setHeight( QLAYOUTSIZE_MAX );
-
     return s;
 }
 
