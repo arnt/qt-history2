@@ -42,7 +42,13 @@
 #include <qpointarray.h>
 #include <postgres.h>
 #include <libpq/libpq-fs.h>
+#if defined(Q_CC_MSVC)
+#pragma warning(disable: 4273) // '_errno' : inconsistent dll linkage.  dllexport assumed
+#endif
 #include <catalog/pg_type.h>
+#if defined(Q_CC_MSVC)
+#pragma warning(default: 4273)
+#endif
 #ifndef Q_WS_MAC
 #include <utils/geo_decls.h>
 #endif
