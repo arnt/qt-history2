@@ -18,8 +18,6 @@
 #include "qtexttable_p.h"
 
 #include <stdlib.h>
-#define d d_func()
-#define q q_func()
 
 /*!
     \class QTextTableCell qtexttable.h
@@ -85,7 +83,7 @@ QTextCharFormat QTextTableCell::format() const
 */
 int QTextTableCell::row() const
 {
-    const QTextTablePrivate *tp = table->d;
+    const QTextTablePrivate *tp = table->d_func();
     if (tp->dirty)
         tp->update();
 
@@ -103,7 +101,7 @@ int QTextTableCell::row() const
 */
 int QTextTableCell::column() const
 {
-    const QTextTablePrivate *tp = table->d;
+    const QTextTablePrivate *tp = table->d_func();
     if (tp->dirty)
         tp->update();
 
@@ -149,7 +147,7 @@ int QTextTableCell::columnSpan() const
 */
 QTextCursor QTextTableCell::firstCursorPosition() const
 {
-    return QTextCursor(table->d->pieceTable, firstPosition());
+    return QTextCursor(table->d_func()->pieceTable, firstPosition());
 }
 
 /*!
@@ -159,7 +157,7 @@ QTextCursor QTextTableCell::firstCursorPosition() const
 */
 QTextCursor QTextTableCell::lastCursorPosition() const
 {
-    return QTextCursor(table->d->pieceTable, lastPosition());
+    return QTextCursor(table->d_func()->pieceTable, lastPosition());
 }
 
 
@@ -182,8 +180,8 @@ int QTextTableCell::firstPosition() const
 int QTextTableCell::lastPosition() const
 {
     QTextDocumentPrivate *p = table->docHandle();
-    int index = table->d->cells.indexOf(fragment) + 1;
-    int f = (index == table->d->cells.size() ? table->d->fragment_end : table->d->cells.at(index));
+    int index = table->d_func()->cells.indexOf(fragment) + 1;
+    int f = (index == table->d_func()->cells.size() ? table->d_func()->fragment_end : table->d_func()->cells.at(index));
     return p->fragmentMap().position(f);
 }
 
@@ -284,8 +282,8 @@ void QTextTablePrivate::fragmentAdded(const QChar &type, uint fragment)
                 break;
         }
         cells.insert(i, fragment);
-        if (!d->fragment_start || pos < pieceTable->fragmentMap().position(d->fragment_start))
-            d->fragment_start = fragment;
+        if (!fragment_start || pos < pieceTable->fragmentMap().position(fragment_start))
+            fragment_start = fragment;
         return;
     }
     QTextFramePrivate::fragmentAdded(type, fragment);
@@ -297,10 +295,10 @@ void QTextTablePrivate::fragmentRemoved(const QChar &type, uint fragment)
     if (type == QTextBeginningOfFrame) {
         Q_ASSERT(cells.indexOf(fragment) != -1);
         cells.removeAll(fragment);
-        if (d->fragment_start == fragment && cells.size()) {
-            d->fragment_start = cells.at(0);
+        if (fragment_start == fragment && cells.size()) {
+            fragment_start = cells.at(0);
         }
-        if (d->fragment_start != fragment)
+        if (fragment_start != fragment)
             return;
     }
     QTextFramePrivate::fragmentRemoved(type, fragment);
@@ -308,6 +306,7 @@ void QTextTablePrivate::fragmentRemoved(const QChar &type, uint fragment)
 
 void QTextTablePrivate::update() const
 {
+    Q_Q(const QTextTable);
     nCols = q->format().columns();
     nRows = (cells.size() + nCols-1)/nCols;
 //     qDebug(">>>> QTextTablePrivate::update, nRows=%d, nCols=%d", nRows, nCols);
@@ -420,6 +419,7 @@ QTextTable::~QTextTable()
 */
 QTextTableCell QTextTable::cellAt(int row, int col) const
 {
+    Q_D(const QTextTable);
     if (d->dirty)
         d->update();
 
@@ -437,6 +437,7 @@ QTextTableCell QTextTable::cellAt(int row, int col) const
 */
 QTextTableCell QTextTable::cellAt(int position) const
 {
+    Q_D(const QTextTable);
     if (d->dirty)
         d->update();
 
@@ -476,6 +477,7 @@ QTextTableCell QTextTable::cellAt(const QTextCursor &c) const
 */
 void QTextTable::resize(int rows, int cols)
 {
+    Q_D(QTextTable);
     if (d->dirty)
         d->update();
 
@@ -509,6 +511,7 @@ void QTextTable::resize(int rows, int cols)
 */
 void QTextTable::insertRows(int pos, int num)
 {
+    Q_D(QTextTable);
     if (num <= 0)
 	return;
 
@@ -570,6 +573,7 @@ void QTextTable::insertRows(int pos, int num)
 */
 void QTextTable::insertColumns(int pos, int num)
 {
+    Q_D(QTextTable);
     if (num <= 0)
 	return;
 
@@ -625,6 +629,7 @@ void QTextTable::insertColumns(int pos, int num)
 */
 void QTextTable::removeRows(int pos, int num)
 {
+    Q_D(QTextTable);
 //     qDebug() << "-------- removeRows" << pos << num;
 
     if (num <= 0 || pos < 0)
@@ -672,6 +677,7 @@ void QTextTable::removeRows(int pos, int num)
 */
 void QTextTable::removeColumns(int pos, int num)
 {
+    Q_D(QTextTable);
 //     qDebug() << "-------- removeCols" << pos << num;
 
     if (num <= 0 || pos < 0)
@@ -720,6 +726,7 @@ void QTextTable::removeColumns(int pos, int num)
 */
 int QTextTable::rows() const
 {
+    Q_D(const QTextTable);
     if (d->dirty)
         d->update();
 
@@ -733,6 +740,7 @@ int QTextTable::rows() const
 */
 int QTextTable::columns() const
 {
+    Q_D(const QTextTable);
     if (d->dirty)
         d->update();
 
@@ -755,6 +763,7 @@ void QTextTable::mergeCells(const QTextCursor &selection)
 */
 QTextCursor QTextTable::rowStart(const QTextCursor &c) const
 {
+    Q_D(const QTextTable);
     QTextTableCell cell = cellAt(c);
     if (!cell.isValid())
         return QTextCursor();
@@ -775,6 +784,7 @@ QTextCursor QTextTable::rowStart(const QTextCursor &c) const
 */
 QTextCursor QTextTable::rowEnd(const QTextCursor &c) const
 {
+    Q_D(const QTextTable);
     QTextTableCell cell = cellAt(c);
     if (!cell.isValid())
         return QTextCursor();

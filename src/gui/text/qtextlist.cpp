@@ -23,8 +23,6 @@ class QTextListPrivate : public QTextBlockGroupPrivate
 {
 };
 
-#define d d_func()
-
 /*!
     \class QTextList qtextlist.h
     \brief The QTextList class provides a decorated list of items in a QTextDocument.
@@ -98,6 +96,7 @@ QTextList::~QTextList()
 */
 int QTextList::count() const
 {
+    Q_D(const QTextList);
     return d->blocks.count();
 }
 
@@ -108,6 +107,7 @@ int QTextList::count() const
 */
 QTextBlock QTextList::item(int i) const
 {
+    Q_D(const QTextList);
     if (i < 0 || i >= d->blocks.size())
         return QTextBlock();
     return d->blocks.at(i);
@@ -132,6 +132,7 @@ QTextBlock QTextList::item(int i) const
 */
 int QTextList::itemNumber(const QTextBlock &blockIt) const
 {
+    Q_D(const QTextList);
     return d->blocks.indexOf(blockIt);
 }
 
@@ -142,6 +143,7 @@ int QTextList::itemNumber(const QTextBlock &blockIt) const
 */
 QString QTextList::itemText(const QTextBlock &blockIt) const
 {
+    Q_D(const QTextList);
     int item = d->blocks.indexOf(blockIt) + 1;
     if (item <= 0)
         return QString();
@@ -184,6 +186,7 @@ QString QTextList::itemText(const QTextBlock &blockIt) const
 */
 void QTextList::removeItem(int i)
 {
+    Q_D(QTextList);
     if (i < 0 || i >= d->blocks.size())
         return;
 
