@@ -1552,6 +1552,12 @@ AIX:*:00????????00)
     fi
     ARCH=i386
     ;;
+*:*:ppc)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    32-bit PowerPC (powerpc)"
+    fi
+    ARCH=powerpc
+    ;;
 *:*:*)
     if [ "$OPT_VERBOSE" = "yes" ]; then
 	echo "    Trying '$UNAME_MACHINE'..."
