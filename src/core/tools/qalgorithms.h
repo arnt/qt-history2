@@ -104,7 +104,7 @@ void qBubbleSort(BiIterator begin, BiIterator end, LessThan lessThan)
         do {
             --x;
             --y;
-            if (lessThan(*x, *y)) {
+            if (qLess<BiIterator>(*x, *y)) {
                 swapped = true;
                 qSwap(*x, *y);
                 swapPos = y;
@@ -204,7 +204,9 @@ void qHeapSortHelper(BiIterator begin, BiIterator end, T, LessThan lessThan)
 template <typename BiIterator, typename T>
 void qHeapSortHelper(BiIterator begin, BiIterator end, T dummy)
 {
-    qHeapSortHelper(begin, end, dummy, qLess<T>);
+    // Don't pass qLess<T> directly (compile workaround for MSVC)
+    bool (*qLessFunction)(const T &a, const T &b) = qLess<T>;
+    qHeapSortHelper(begin, end, dummy, qLessFunction);
 }
 
 template <typename BiIterator, typename LessThan>

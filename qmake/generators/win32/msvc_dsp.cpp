@@ -18,13 +18,6 @@
 
 #include <stdlib.h>
 
-#ifdef Q_CC_MSVC
-bool qLess(const QString &a, const QString &b) 
-{
-  return a < b;
-}
-#endif
-
 DspMakefileGenerator::DspMakefileGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
 }
