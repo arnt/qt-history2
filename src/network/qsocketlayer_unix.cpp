@@ -134,6 +134,7 @@ bool QSocketLayerPrivate::createNewSocket(Qt::SocketType socketType,
 #ifndef QT_NO_IPV6
     int protocol = (socketProtocol == Qt::IPv6Protocol) ? AF_INET6 : AF_INET;
 #else
+    Q_UNUSED(socketProtocol);
     int protocol = AF_INET;
 #endif
     int type = (socketType == Qt::UdpSocket) ? SOCK_DGRAM : SOCK_STREAM;
