@@ -148,6 +148,8 @@ do this:
 	const char *pathPtr = CFStringGetCStringPtr(macPath, 
                                                CFStringGetSystemEncoding());
 	qDebug("Path = %s", pathPtr);
+        CFRelease(pluginRef);
+        CFRelease(macPath);
 \endcode
 
 Do not forget to enclosure this in an #if defined(Q_OS_MAC) macro statement.
