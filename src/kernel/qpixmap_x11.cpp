@@ -216,9 +216,7 @@ static void cleanup_scale_tables()
 static void build_scale_table( uint **table, uint nBits )
 {
     if ( nBits > 7 ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "build_scale_table: internal error, nBits = %i", nBits );
-#endif
 	return;
     }
     if (!*table) {
@@ -259,12 +257,10 @@ extern "C" XftDraw *XftDrawCreateAlpha( Display *, Qt::HANDLE, int );
 
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
-#if defined(QT_CHECK_STATE)
     if ( qApp->type() == QApplication::Tty ) {
 	qWarning( "QPixmap: Cannot create a QPixmap when no GUI "
 		  "is being used" );
     }
-#endif
 
     static int serial = 0;
 
@@ -286,7 +282,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	optim = defOptim;
 
     data = new QPixmapData;
-    Q_CHECK_PTR( data );
 
     memset( data, 0, sizeof(QPixmapData) );
     data->count  = 1;
@@ -303,10 +298,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
 	hd = 0;
 	rendhd = 0;
-#if defined(QT_CHECK_RANGE)
 	if ( !make_null )
 	    qWarning( "QPixmap: Invalid pixmap parameters" );
-#endif
 	return;
     }
     data->w = w;
@@ -554,9 +547,7 @@ int QPixmap::metric( int m ) const
 		break;
 	    default:
 		val = 0;
-#if defined(QT_CHECK_RANGE)
 		qWarning( "QPixmap::metric: Invalid metric command" );
-#endif
 	}
     }
     return val;
@@ -719,10 +710,8 @@ QImage QPixmap::convertToImage() const
 		    x = w;			// leave loop
 		    y = h;
 		    pixel = 0;		// eliminate compiler warning
-#if defined(QT_CHECK_RANGE)
 		    qWarning( "QPixmap::convertToImage: Invalid depth %d",
 			      bppc );
-#endif
 		}
 		if ( red_shift > 0 )
 		    r = (pixel & red_mask) >> red_shift;
@@ -768,10 +757,8 @@ QImage QPixmap::convertToImage() const
 	}
     } else {
 	/* Typically 2 or 4 bits display depth */
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::convertToImage: Display not supported (bpp=%d)",
 		  xi->bits_per_pixel );
-#endif
 	image.reset();
 	return image;
     }
@@ -910,9 +897,7 @@ QImage QPixmap::convertToImage() const
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
     if ( img.isNull() ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QPixmap::convertFromImage: Cannot convert a null image" );
-#endif
 	return FALSE;
     }
     detach();					// detach other references
@@ -983,7 +968,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	int    ibpl = image.bytesPerLine();
 	if ( image.bitOrder() == QImage::BigEndian || bpl != ibpl ) {
 	    tmp_bits = new uchar[bpl*h];
-	    Q_CHECK_PTR( tmp_bits );
 	    bits = (char *)tmp_bits;
 	    uchar *p, *b, *end;
 	    int y, count;
@@ -1318,7 +1302,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	PIX *px		   = &pixarr[0];
 	int  maxpop = 0;
 	int  maxpix = 0;
-	Q_CHECK_PTR( pixarr );
 	j = 0;
 	QRgb* ctable = image.colorTable();
 	for ( i=0; i<256; i++ ) {		// init pixel array
@@ -1416,10 +1399,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    free( newbits );
 	    newbits = (uchar *)newerbits;
 	} else if ( xi->bits_per_pixel != 8 ) {
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "QPixmap::convertFromImage: Display not supported "
 		      "(bpp=%d)", xi->bits_per_pixel );
-#endif
 	}
 	xi->data = (char *)newbits;
     }
@@ -1756,9 +1737,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     }
 
     if ( !qt_xForm_helper( mat, xi->xoffset, type, bpp, dptr, xbpl, p_inc, h, sptr, sbpl, ws, hs ) ){
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::xForm: display not supported (bpp=%d)",bpp);
-#endif
 	QPixmap pm;
 	return pm;
     }
@@ -1959,10 +1938,8 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 		       const QPixmap *src, int sx, int sy, int sw, int sh )
 {
     if ( ! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth() ) {
-#ifdef QT_CHECK_NULL
 	Q_ASSERT( dst != 0 );
 	Q_ASSERT( src != 0 );
-#endif
 	return;
     }
 

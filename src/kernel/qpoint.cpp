@@ -346,15 +346,6 @@
     integers.
 */
 
-
-void QPoint::warningDivByZero()
-{
-#if defined(QT_CHECK_MATH)
-    qWarning( "QPoint: Division by zero error" );
-#endif
-}
-
-
 /*****************************************************************************
   QPoint stream functions
  *****************************************************************************/

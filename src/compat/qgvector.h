@@ -62,10 +62,7 @@ protected:
 
     Item	  at( uint index ) const		// return indexed item
     {
-#if defined(QT_CHECK_RANGE)
-	if ( index >= len )
-	    warningIndexRange( index );
-#endif
+	Q_ASSERT(index < size());
 	return vec[index];
     }
 
@@ -82,7 +79,6 @@ private:
     uint  len;
     uint  numItems;
 
-    static void warningIndexRange( uint );
 };
 
 

@@ -110,10 +110,8 @@ QPicture::QPicture( int formatVersion )
 {
     d = new QPicturePrivate;
 
-#if defined(QT_CHECK_RANGE)
     if ( formatVersion == 0 )
 	qWarning( "QPicture: invalid format version 0" );
-#endif
 
     // still accept the 0 default from before Qt 3.0.
     if ( formatVersion > 0 && formatVersion != (int)mfhdr_maj ) {
@@ -263,10 +261,8 @@ bool QPicture::load( QIODevice *dev, const char *format )
 bool QPicture::save( const QString &fileName, const char *format )
 {
     if ( paintingActive() ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QPicture::save: still being painted on. "
 		  "Call QPainter::end() first" );
-#endif
 	return FALSE;
     }
 
@@ -298,10 +294,8 @@ bool QPicture::save( const QString &fileName, const char *format )
 bool QPicture::save( QIODevice *dev, const char *format )
 {
     if ( paintingActive() ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QPicture::save: still being painted on. "
 		  "Call QPainter::end() first" );
-#endif
 	return FALSE;
     }
 
@@ -381,9 +375,7 @@ bool QPicture::play( QPainter *painter )
     }
     s >> nrecords;
     if ( !exec( painter, s, nrecords ) ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPicture::play: Format error" );
-#endif
 	d->pictb.close();
 	return FALSE;
     }
@@ -585,7 +577,6 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		    painter->setTabArray( 0 );
 		} else {
 		    int *ta = new int[i_16];
-		    Q_CHECK_PTR( ta );
 		    for ( int i=0; i<i_16; i++ ) {
 			s >> i1_16;
 			ta[i] = i1_16;
@@ -641,9 +632,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		painter->setClipRegion( rgn, (QPainter::CoordinateMode)i_8 );
 		break;
 	    default:
-#if defined(QT_CHECK_RANGE)
 		qWarning( "QPicture::play: Invalid command %d", c );
-#endif
 		if ( len )			// skip unknown command
 		    s.device()->at( s.device()->at()+len );
 	}
@@ -862,10 +851,8 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	    s << *p[0].rgn;
 	    s << (Q_INT8)p[1].ival;
 	    break;
-#if defined(QT_CHECK_RANGE)
 	default:
 	    qWarning( "QPicture::cmd: Command %d not recognized", c );
-#endif
     }
     int newpos = (int)pictb.at();		// new position
     int length = newpos - pos;
@@ -949,9 +936,7 @@ int QPicture::metric( int m ) const
 	    break;
 	default:
 	    val = 0;
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "QPicture::metric: Invalid metric command" );
-#endif
     }
     return val;
 }
@@ -1084,9 +1069,7 @@ bool QPicture::QPicturePrivate::checkFormat()
     char mf_id[4];				// picture header tag
     s.readRawBytes( mf_id, 4 );			// read actual tag
     if ( memcmp(mf_id, mfhdr_tag, 4) != 0 ) { 	// wrong header id
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPicture::checkFormat: Incorrect header" );
-#endif
 	pictb.close();
 	return FALSE;
     }
@@ -1098,10 +1081,8 @@ bool QPicture::QPicturePrivate::checkFormat()
     s >> cs;				// read checksum
     ccs = qChecksum( buf.constData() + data_start, buf.size() - data_start );
     if ( ccs != cs ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QPicture::checkFormat: Invalid checksum %x, %x expected",
 		  ccs, cs );
-#endif
 	pictb.close();
 	return FALSE;
     }
@@ -1109,10 +1090,8 @@ bool QPicture::QPicturePrivate::checkFormat()
     Q_UINT16 major, minor;
     s >> major >> minor;			// read version number
     if ( major > mfhdr_maj ) {		// new, incompatible version
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPicture::checkFormat: Incompatible version %d.%d",
 		  major, minor);
-#endif
 	pictb.close();
 	return FALSE;
     }
@@ -1127,9 +1106,7 @@ bool QPicture::QPicturePrivate::checkFormat()
 	    brect = QRect( l, t, w, h );
 	}
     } else {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPicture::checkFormat: Format error" );
-#endif
 	pictb.close();
 	return FALSE;
     }

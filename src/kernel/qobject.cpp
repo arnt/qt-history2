@@ -583,11 +583,6 @@ QObject* QObject::child( const char *objName, const char *inheritsClass,
 
 bool QObject::event( QEvent *e )
 {
-#if defined(QT_CHECK_NULL)
-    if ( e == 0 )
-	qWarning( "QObject::event: Null events are not permitted" );
-#endif
-
     switch ( e->type() ) {
     case QEvent::Timer:
 	timerEvent( (QTimerEvent*)e );
@@ -1061,12 +1056,10 @@ void QObject::reparent(QObject *parent)
 {
     if (parent == parentObj)
 	return;
-#if defined(QT_CHECK_STATE)
     if ( isWidget && parent && !parent->isWidget) {
 	qWarning("QObject::reparent: Cannot reparent a widget into an object.");
 	return;
     }
-#endif
     if (parentObj && parentObj->d->children.remove(this)) {
 	QChildEvent e(QEvent::ChildRemoved, this);
 	QApplication::sendEvent( parentObj, &e);
@@ -1389,7 +1382,7 @@ void QObjectPrivate::resetCurrentSender(Senders *senders, QObject *sender)
 }
 
 
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
 
 static bool check_signal_macro(const QObject *sender, const char *signal,
 				const char *func, const char *op)
@@ -1446,7 +1439,7 @@ static void err_info_about_objects(const char * func,
 	qWarning("Object::%s:  (receiver name: '%s')", func, b);
 }
 
-#endif // QT_CHECK_RANGE
+#endif // !QT_NO_DEBUG
 
 
 void QObjectPrivate::addConnection(int signal, QObject *receiver, int member)
@@ -1532,7 +1525,7 @@ int QObject::receivers(const char *signal) const
     if ( d->connections && signal ) {
 	QByteArray signal_name = QMetaObject::normalizedSignature(signal);
 	signal = signal_name;
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
 	if (!check_signal_macro(this, signal, "receivers", "bind"))
 	    return 0;
 #endif
@@ -1540,7 +1533,7 @@ int QObject::receivers(const char *signal) const
 	const QMetaObject *smeta = this->metaObject();
 	int signal_index = smeta->findSignal(signal);
 	if (signal_index < 0) {
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
 	    err_member_notfound(QSIGNAL_CODE, this, signal, "receivers");
 #endif
 	    return false;
@@ -1624,7 +1617,7 @@ int QObject::receivers(const char *signal) const
 bool QObject::connect(const QObject *sender, const char *signal,
 		     const QObject *receiver, const char *member)
 {
-#if defined(QT_CHECK_NULL)
+#ifndef QT_NO_DEBUG
     if (sender == 0 || receiver == 0 || signal == 0 || member == 0) {
 	qWarning("Object::connect: Cannot connect %s::%s to %s::%s",
 		 sender ? sender->className() : "(null)",
@@ -1637,7 +1630,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
     QByteArray signal_name = QMetaObject::normalizedSignature(signal);
     signal = signal_name;
 
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
     if (!check_signal_macro(sender, signal, "connect", "bind"))
 	return false;
 #endif
@@ -1646,7 +1639,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
     const QMetaObject *smeta = sender->metaObject();
     int signal_index = smeta->findSignal(signal);
     if (signal_index < 0) {
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
 	err_member_notfound(QSIGNAL_CODE, sender, signal, "connect");
 	err_info_about_objects("connect", sender, receiver);
 #endif
@@ -1657,7 +1650,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
     member = member_name;
     int membcode = member[0] - '0';
 
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
     if (!check_member_code(membcode, receiver, member, "connect"))
 	return false;
 #endif
@@ -1674,13 +1667,13 @@ bool QObject::connect(const QObject *sender, const char *signal,
 	    break;
     }
     if (member_index < 0) {
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
 	err_member_notfound(membcode, receiver, member, "connect");
 	err_info_about_objects("connect", sender, receiver);
 #endif
 	return false;
     }
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
     if (!QMetaObject::checkConnectArgs(signal, member)) {
 	qWarning("Object::connect: Incompatible sender/receiver arguments"
 		 "\n\t%s::%s --> %s::%s",
@@ -1766,12 +1759,10 @@ bool QObject::connect(const QObject *sender, const char *signal,
 bool QObject::disconnect(const QObject *sender, const char *signal,
 			 const QObject *receiver, const char *member)
 {
-#if defined(QT_CHECK_NULL)
     if (sender == 0 || (receiver == 0 && member != 0)) {
 	qWarning("Object::disconnect: Unexpected null parameter");
 	return false;
     }
-#endif
     if (!sender->d->connections)
 	return false;
 
@@ -1780,7 +1771,7 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     if (signal) {
 	signal_name = QMetaObject::normalizedSignature(signal);
 	signal = signal_name;
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
 	if (!check_signal_macro(sender, signal, "disconnect", "unbind"))
 	    return false;
 #endif
@@ -1794,7 +1785,7 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
 	member_name = QMetaObject::normalizedSignature(member);
 	member = member_name;
 	membcode = member[0] - '0';
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
 	if (!check_member_code(membcode, receiver, member, "disconnect"))
 	    return false;
 #endif
@@ -1850,7 +1841,7 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
 	}
     } while (signal && (smeta = smeta->superClass()));
 
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
     if (signal && !signal_found ) {
 	err_member_notfound(QSIGNAL_CODE, sender, signal, "disconnect");
 	err_info_about_objects("disconnect", sender, receiver);
@@ -2022,7 +2013,7 @@ bool QObject::setProperty(const char *name, const QVariant &value)
 
     int id = meta->findProperty(name);
     QMetaProperty p = meta->property(id);
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
     if (!p.isWritable())
 	qWarning( "%s::setProperty( \"%s\", value ) failed: property invalid,"
 		  " read-only or does not exist", className(), name );
@@ -2048,7 +2039,7 @@ QVariant QObject::property(const char *name) const
 
     int id = meta->findProperty(name);
     QMetaProperty p = meta->property(id);
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
     if (!p.isReadable())
 	qWarning( "%s::property( \"%s\" ) failed:"
 		  " property invalid or does not exist",

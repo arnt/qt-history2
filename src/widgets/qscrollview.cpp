@@ -1351,9 +1351,7 @@ void QScrollView::removeChild(QWidget* child)
 void QScrollView::addChild(QWidget* child, int x, int y)
 {
     if ( !child ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QScrollView::addChild(): Cannot add null child" );
-#endif
 	return;
     }
 

@@ -85,9 +85,7 @@ static inline QRgb qt_conv16ToRgb(ushort c) {
 bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 {
     if(img.isNull()) {
-#if defined(QT_CHECK_NULL)
 	qWarning("QPixmap::convertFromImage: Cannot convert a null image");
-#endif
 	return FALSE;
     }
 
@@ -490,9 +488,7 @@ int QPixmap::metric(int m) const
 	    break;
 	default:
 	    val = 0;
-#if defined(QT_CHECK_RANGE)
 	    qWarning("QPixmap::metric: Invalid metric command");
-#endif
     }
     return val;
 }
@@ -626,9 +622,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     int	xbpl = bpp == 1 ? ((w+7)/8) : ((w*bpp)/8);
     if(!qt_xForm_helper(mat, 0, QT_XFORM_TYPE_MSBFIRST, bpp,
 			dptr, xbpl, dbpl - xbpl, h, sptr, sbpl, ws, hs)){
-#if defined(QT_CHECK_RANGE)
 	qWarning("Qt: QPixmap::xForm: display not supported (bpp=%d)",bpp);
-#endif
 	QPixmap pm;
 	return pm;
     }
@@ -655,12 +649,9 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
 
 void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 {
-#if defined(QT_CHECK_STATE)
-    if ( qApp->type() == QApplication::Tty ) {
+    if ( qApp->type() == QApplication::Tty )
 	qWarning( "QPixmap: Cannot create a QPixmap when no GUI "
 		  "is being used" );
-    }
-#endif
 
     if(d != 32 && d != 1)
 	d = 32; //magic number.. we always use a 32 bit depth for non-bitmaps
@@ -669,7 +660,6 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 
     hd = 0;
     data = new QPixmapData;
-    Q_CHECK_PTR(data);
     memset(data, 0, sizeof(QPixmapData));
     data->count=1;
     data->uninit=TRUE;
@@ -686,10 +676,8 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 	data->d = dd;
     if(make_null || w < 0 || h < 0 || data->d == 0) {
 	hd = 0;
-#if defined(QT_CHECK_RANGE)
 	if(!make_null)
 	    qWarning("Qt: QPixmap: Invalid pixmap parameters");
-#endif
 	return;
     }
 
@@ -772,10 +760,8 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 		       const QPixmap *src, int sx, int sy, int sw, int sh )
 {
     if ( ! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth() ) {
-#ifdef QT_CHECK_NULL
 	Q_ASSERT( dst != 0 );
 	Q_ASSERT( src != 0 );
-#endif
 	return;
     }
 

@@ -146,9 +146,7 @@ bool QSvgDevice::load( QIODevice *dev )
 bool QSvgDevice::play( QPainter *painter )
 {
     if ( !painter ) {
-#if defined(QT_CHECK_RANGE)
 	Q_ASSERT( painter );
-#endif
 	return FALSE;
     }
     pt = painter;
@@ -386,9 +384,7 @@ int QSvgDevice::metric( int m ) const
 	break;
     default:
 	val = 0;
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QSvgDevice::metric: Invalid metric command" );
-#endif
     }
     return val;
 }
@@ -648,7 +644,7 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
     case PdcRestoreWMatrix:
 	dirtyTransform = TRUE;
 	break;
-    case PdcSetClip: 
+    case PdcSetClip:
 	// ###
 	break;
     case PdcSetClipRegion:
@@ -666,7 +662,7 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 		ce.setAttribute( "width", br.width() );
 		ce.setAttribute( "height", br.height() );
 	    } else {
-		// It's an ellipse, calculate the ellipse 
+		// It's an ellipse, calculate the ellipse
 		// from the boundingRect()
 		ce = doc.createElement( "ellipse" );
 		double cx = br.x() + (br.width() / 2.0);

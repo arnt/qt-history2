@@ -427,12 +427,11 @@ void QProgressDialog::setCancelButtonText( const QString &cancelButtonText )
 
 void QProgressDialog::setBar( QProgressBar *bar )
 {
-    if ( progress() > 0 ) {
-#if defined(QT_CHECK_STATE)
+#ifndef QT_NO_DEBUG
+    if (progress() > 0)
 	qWarning( "QProgrssDialog::setBar: Cannot set a new progress bar "
-		 "while the old one is active" );
+		  "while the old one is active" );
 #endif
-    }
     delete d->bar;
     d->bar = bar;
     int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );

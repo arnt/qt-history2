@@ -213,12 +213,10 @@ void QColor::initialize()
 	    // we allocated.
 	    screendata[scr]->g_cells = QMIN(ncols,256);
 	    screendata[scr]->g_carr  = new XColor[screendata[scr]->g_cells];
-	    Q_CHECK_PTR( screendata[scr]->g_carr );
 	    memset( screendata[scr]->g_carr, 0,
 		    screendata[scr]->g_cells*sizeof(XColor) );
 	    screendata[scr]->g_carr_fetch = TRUE;	// run XQueryColors on demand
 	    screendata[scr]->g_our_alloc = new bool[screendata[scr]->g_cells];
-	    Q_CHECK_PTR( screendata[scr]->g_our_alloc );
 	    memset( screendata[scr]->g_our_alloc, FALSE,
 		    screendata[scr]->g_cells*sizeof(bool) );
 	    XColor *xc = &screendata[scr]->g_carr[0];
@@ -244,8 +242,6 @@ void QColor::initialize()
 	    dictsize = col_std_dict;
 	}
 	screendata[scr]->colorDict = new QColorDict(dictsize);	// create dictionary
-	Q_CHECK_PTR( screendata[scr]->colorDict );
-
 	if ( spec == (int)QApplication::ManyColor ) {
 	    screendata[scr]->color_reduce = TRUE;
 
@@ -542,7 +538,6 @@ uint QColor::alloc( int screen )
     }
     if ( !many || current_alloc_context != 0 ) {
 	c = new QColorData;			// insert into color dict
-	Q_CHECK_PTR( c );
 	c->pix	   = pix;
 	c->context = current_alloc_context;
 	sd->colorDict->insert( (long)d.argb, c );	// store color in dict
@@ -609,10 +604,8 @@ void QColor::setSystemNamedColor( const QString& name )
 	    alloc();
 	}
     } else if ( !color_init ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QColor::setSystemNamedColor: Cannot perform this operation "
 		  "because QApplication does not exist" );
-#endif
 	// set color to invalid
 	*this = QColor();
     } else {
@@ -706,9 +699,7 @@ int QColor::enterAllocContext()
     static int context_seq_no = 0;
     init_context_stack();
     if ( context_ptr+1 == MAX_CONTEXTS ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QColor::enterAllocContext: Context stack overflow" );
-#endif
 	return 0;
     }
     current_alloc_context = context_stack[++context_ptr] = ++context_seq_no;
@@ -728,9 +719,7 @@ void QColor::leaveAllocContext()
 {
     init_context_stack();
     if ( context_ptr == 0 ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QColor::leaveAllocContext: Context stack underflow" );
-#endif
 	return;
     }
     current_alloc_context = context_stack[--context_ptr];

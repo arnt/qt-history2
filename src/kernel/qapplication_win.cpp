@@ -419,9 +419,7 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     static bool already_called = FALSE;
 
     if ( already_called ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "Qt internal error: qWinMain should be called only once" );
-#endif
 	return;
     }
     already_called = TRUE;
@@ -769,9 +767,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     HRESULT r;
     r = OleInitialize(0);
     if ( r != S_OK && r != S_FALSE ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "Qt: Could not initialize OLE (error %x)", r );
-#endif
     }
 #endif
 
@@ -947,7 +943,6 @@ const QString qt_reg_winclass( int flags )	// register window class
 {
     if ( !winclassNames ) {
 	winclassNames = new QAsciiDict<int>;
-	Q_CHECK_PTR( winclassNames );
     }
     uint style;
     bool icon;
@@ -1105,11 +1100,9 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
     if ( !cursorStack ) {
 	cursorStack = new QCursorList;
-	Q_CHECK_PTR( cursorStack );
 	cursorStack->setAutoDelete( TRUE );
     }
     app_cursor = new QCursor( cursor );
-    Q_CHECK_PTR( app_cursor );
     if ( replace )
 	cursorStack->removeLast();
     cursorStack->append( app_cursor );
@@ -2198,7 +2191,6 @@ Q_EXPORT void qt_enter_modal( QWidget *widget )
 {
     if ( !qt_modal_stack ) {			// create modal stack
 	qt_modal_stack = new QWidgetList;
-	Q_CHECK_PTR( qt_modal_stack );
     }
     releaseAutoCapture();
     qt_dispatchEnterLeave( 0, QWidget::find((WId)curWin));
@@ -2326,7 +2318,6 @@ void QApplication::openPopup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
-	Q_CHECK_PTR( popupWidgets );
     }
     popupWidgets->append( popup );		// add to end of list
     if ( !popup->isEnabled() )
@@ -2841,9 +2832,7 @@ static KeyRec* find_key_rec( int code, bool remove )
 static void store_key_rec( int code, int ascii, const QString& text )
 {
     if ( nrecs == maxrecs ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "Qt: Internal keyboard buffer overflow" );
-#endif
 	return;
     }
 

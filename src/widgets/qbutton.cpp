@@ -60,7 +60,6 @@ void QButton::ensureData()
 {
     if ( !d ) {
 	d = new QButtonData;
-	Q_CHECK_PTR( d );
 	connect(&d->timer, SIGNAL(timeout()), this, SLOT(autoRepeatTimeout()));
     }
 }
@@ -479,7 +478,6 @@ void QButton::setPixmap( const QPixmap &pixmap )
     } else {
 	newSize = TRUE;
 	bpixmap = new QPixmap( pixmap );
-	Q_CHECK_PTR( bpixmap );
     }
     if ( bpixmap->depth() == 1 && !bpixmap->mask() )
 	bpixmap->setMask( *((QBitmap *)bpixmap) );
@@ -599,10 +597,8 @@ void QButton::setDown( bool enable )
 void QButton::setState( ToggleState s )
 {
     if ( !toggleTyp ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QButton::setState() / setOn: (%s) Only toggle buttons "
 		 "may be switched", name( "unnamed" ) );
-#endif
 	return;
     }
 

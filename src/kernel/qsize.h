@@ -71,8 +71,6 @@ public:
     friend inline const QSize operator/( const QSize &, double );
 
 private:
-    static void warningDivByZero();
-
     QCOORD wd;
     QCOORD ht;
 };
@@ -161,39 +159,27 @@ inline const QSize operator*( double c, const QSize &s )
 
 inline QSize &QSize::operator/=( int c )
 {
-#if defined(QT_CHECK_MATH)
-    if ( c == 0 )
-	warningDivByZero();
-#endif
+    Q_ASSERT(c != 0);
     wd/=(QCOORD)c; ht/=(QCOORD)c;
     return *this;
 }
 
 inline QSize &QSize::operator/=( double c )
 {
-#if defined(QT_CHECK_MATH)
-    if ( c == 0.0 )
-	warningDivByZero();
-#endif
+    Q_ASSERT(c != 0.0);
     wd=(QCOORD)(wd/c); ht=(QCOORD)(ht/c);
     return *this;
 }
 
 inline const QSize operator/( const QSize &s, int c )
 {
-#if defined(QT_CHECK_MATH)
-    if ( c == 0 )
-	QSize::warningDivByZero();
-#endif
+    Q_ASSERT(c != 0);
     return QSize(s.wd/c, s.ht/c);
 }
 
 inline const QSize operator/( const QSize &s, double c )
 {
-#if defined(QT_CHECK_MATH)
-    if ( c == 0.0 )
-	QSize::warningDivByZero();
-#endif
+    Q_ASSERT(c != 0.0);
     return QSize((QCOORD)(s.wd/c), (QCOORD)(s.ht/c));
 }
 

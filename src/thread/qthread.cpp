@@ -123,10 +123,7 @@ QThread::~QThread()
 {
     QMutexLocker locker(d->mutex());
     if (d->running && !d->finished) {
-#ifdef QT_CHECK_STATE
 	qWarning("QThread object destroyed while thread is still running.");
-#endif
-
 	d->orphan = true;
 	return;
     }

@@ -107,9 +107,7 @@ void QThreadInstance::finish(void *)
     QThreadInstance *d = current();
 
     if (! d) {
-#ifdef QT_CHECK_STATE
 	qWarning("QThread: internal error: zero data for running thread.");
-#endif // QT_CHECK_STATE
 	return;
     }
 
@@ -348,9 +346,7 @@ void QThread::start(Priority priority)
 #endif // _POSIX_THREAD_ATTR_STACKSIZE
 
 	if (ret) {
-#ifdef QT_CHECK_STATE
 	    qWarning("QThread::start: thread stack size error: %s", strerror(ret)) ;
-#endif // QT_CHECK_STATE
 
 	    // we failed to set the stacksize, and as the documentation states,
 	    // the thread will fail to run...
@@ -366,9 +362,7 @@ void QThread::start(Priority priority)
     pthread_attr_destroy(&attr);
 
     if (ret) {
-#ifdef QT_CHECK_STATE
 	qWarning("QThread::start: thread creation error: %s", strerror(ret));
-#endif // QT_CHECK_STATE
 
 	d->running = false;
 	d->finished = false;
@@ -398,10 +392,7 @@ bool QThread::wait(unsigned long time)
     QMutexLocker locker(d->mutex());
 
     if (d->thread_id == pthread_self()) {
-#ifdef QT_CHECK_STATE
 	qWarning("QThread::wait: thread tried to wait on itself");
-#endif // QT_CHECK_STATE
-
 	return false;
     }
 

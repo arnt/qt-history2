@@ -579,16 +579,12 @@ void QMessageBox::init( int button0, int button1, int button2 )
 
     }
     label = new QMessageBoxLabel( this );
-    Q_CHECK_PTR( label );
 
     if ( (button2 && !button1) || (button1 && !button0) ) {
-#if defined(QT_CHECK_RANGE)
         qWarning( "QMessageBox: Inconsistent button parameters" );
-#endif
         button0 = button1 = button2 = 0;
     }
     mbd = new QMessageBoxData(this);
-    Q_CHECK_PTR( mbd );
     mbd->icon = NoIcon;
     mbd->iconLabel.setPixmap( QPixmap() );
     mbd->numButtons = 0;
@@ -602,20 +598,14 @@ void QMessageBox::init( int button0, int button1, int button2 )
         int b = mbd->button[i];
         if ( (b & Default) ) {
             if ( mbd->defButton >= 0 ) {
-#if defined(QT_CHECK_RANGE)
-                qWarning( "QMessageBox: There can be at most one "
-                           "default button" );
-#endif
+                qWarning( "QMessageBox: There can be at most one default button" );
             } else {
                 mbd->defButton = i;
             }
         }
         if ( (b & Escape) ) {
             if ( mbd->escButton >= 0 ) {
-#if defined(QT_CHECK_RANGE)
-                qWarning( "QMessageBox: There can be at most one "
-                           "escape button" );
-#endif
+                qWarning( "QMessageBox: There can be at most one escape button" );
             } else {
                 mbd->escButton = i;
             }
@@ -625,17 +615,13 @@ void QMessageBox::init( int button0, int button1, int button2 )
             if ( i == 0 )                       // no buttons, add an Ok button
                 b = Ok;
         } else if ( b < 0 || b > LastButton ) {
-#if defined(QT_CHECK_RANGE)
             qWarning( "QMessageBox: Invalid button specifier" );
-#endif
             b = Ok;
         } else {
             if ( i > 0 && mbd->button[i-1] == 0 ) {
-#if defined(QT_CHECK_RANGE)
                 qWarning( "QMessageBox: Inconsistent button parameters; "
                            "button %d defined but not button %d",
                            i+1, i );
-#endif
                 b = 0;
             }
         }
@@ -1083,7 +1069,6 @@ int QMessageBox::information( QWidget *parent,
                                        button0, button1, button2,
                                        parent, "qt_msgbox_information", TRUE,
 				       WDestructiveClose);
-    Q_CHECK_PTR( mb );
     return mb->exec();
 }
 
@@ -1130,7 +1115,6 @@ int QMessageBox::question( QWidget *parent,
                                        button0, button1, button2,
                                        parent, "qt_msgbox_information", TRUE,
 				       WDestructiveClose);
-    Q_CHECK_PTR( mb );
     return mb->exec();
 }
 
@@ -1178,7 +1162,6 @@ int QMessageBox::warning( QWidget *parent,
                                        button0, button1, button2,
                                        parent, "qt_msgbox_warning", TRUE,
 				       WDestructiveClose);
-    Q_CHECK_PTR( mb );
     return mb->exec();
 }
 
@@ -1226,7 +1209,6 @@ int QMessageBox::critical( QWidget *parent,
                                        button0, button1, button2,
                                        parent, "qt_msgbox_critical", TRUE,
 				       WDestructiveClose);
-    Q_CHECK_PTR( mb );
     return mb->exec();
 }
 
@@ -1257,7 +1239,6 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
                                        Ok + Default, 0, 0,
                                        parent, "qt_msgbox_simple_about_box", TRUE,
 				       WDestructiveClose);
-    Q_CHECK_PTR( mb );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     const QPixmap *pm = parent ? parent->icon() : 0;
     if ( pm && !pm->isNull() )
@@ -1314,7 +1295,6 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
                                        b[0], b[1], b[2],
                                        parent, "qt_msgbox_information", TRUE,
 				       Qt::WDestructiveClose);
-    Q_CHECK_PTR( mb );
     if ( button0Text.isEmpty() )
         mb->setButtonText( 1, QMessageBox::tr(mb_texts[QMessageBox::Ok]) );
     else
@@ -1505,7 +1485,6 @@ int QMessageBox::critical( QWidget *parent, const QString &caption,
 void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
 {
     QMessageBox *mb = new QMessageBox( parent, "qt_msgbox_about_qt" );
-    Q_CHECK_PTR( mb );
     mb->setWFlags( WDestructiveClose );
 
 #ifndef QT_NO_WIDGET_TOPEXTRA

@@ -59,9 +59,7 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 		     int lineWidth, int midLineWidth )
 {
     if (!( p && lineWidth >= 0 && midLineWidth >= 0 ) )	{
-#if defined(QT_CHECK_RANGE)
 	qWarning( "qDrawShadeLine invalid parameters." );
-#endif
 	return;
     }
     int tlw = lineWidth*2 + midLineWidth;	// total line width
@@ -182,9 +180,7 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
     if ( w == 0 || h == 0 )
 	return;
     if ( ! ( w > 0 && h > 0 && lineWidth >= 0 && midLineWidth >= 0 ) ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "qDrawShadeRect(): Invalid parameters" );
-#endif
 	return;
     }
     QPen oldPen = p->pen();
@@ -282,9 +278,7 @@ void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
     if ( w == 0 || h == 0 )
 	return;
     if ( !( w > 0 && h > 0 && lineWidth >= 0 ) ) {
-#if defined(QT_CHECK_RANGE)
     	qWarning( "qDrawShadePanel() Invalid parameters." );
-#endif
     }
     QColor shade = g.dark();
     QColor light = g.light();
@@ -511,9 +505,7 @@ void qDrawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,
     if ( w == 0 || h == 0 )
 	return;
     if ( !( w > 0 && h > 0 && lineWidth >= 0 ) ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "qDrawPlainRect() Invalid parameters." );
-#endif
     }
     QPen   oldPen   = p->pen();
     QBrush oldBrush = p->brush();
@@ -917,11 +909,7 @@ void qDrawArrow( QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
 	    break;
 #endif
 	default:
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "qDrawArrow: Requested GUI style not supported" );
-#else
-	    ;
-#endif
     }
 }
 #endif //QT_NO_DRAWUTIL

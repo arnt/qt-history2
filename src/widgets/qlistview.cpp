@@ -7662,7 +7662,6 @@ void QListViewItemIterator::addToListView()
     if ( listView ) {
 	if ( !listView->d->iterators ) {
 	    listView->d->iterators = new QPtrList<QListViewItemIterator>;
-	    Q_CHECK_PTR( listView->d->iterators );
 	}
 	listView->d->iterators->append( this );
     }

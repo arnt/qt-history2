@@ -42,19 +42,15 @@ QSemaphore::QSemaphore( int maxcount )
 	d->handle = CreateSemaphoreA( NULL, maxcount, maxcount, NULL );
     } );
 
-#ifdef QT_CHECK_RANGE
     if ( !d->handle )
 	qSystemWarning( "Semaphore init failure" );
-#endif
     d->count = maxcount;
 }
 
 QSemaphore::~QSemaphore()
 {
     if ( !CloseHandle( d->handle ) ) {
-#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Semaphore close failure" );
-#endif
     }
     delete d;
 }
@@ -79,9 +75,7 @@ int QSemaphore::operator--(int)
 
     int c = d->count;
     if ( !ReleaseSemaphore( d->handle, 1, NULL ) ) {
-#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Semaphore release failure" );
-#endif
     } else {
 	c = ++d->count;
 	d->dontBlock.wakeAll();
@@ -94,11 +88,9 @@ int QSemaphore::operator--(int)
 int QSemaphore::operator -=(int s)
 {
     if ( !ReleaseSemaphore( d->handle, s, NULL ) ) {
-#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Semaphore release failure" );
-#endif
 	d->protect.lock();
-	int c = d->count; 
+	int c = d->count;
 	d->protect.unlock();
 	return c;
     }
@@ -110,7 +102,7 @@ int QSemaphore::operator -=(int s)
 	d->count = d->maxCount;
     c = d->count;
     d->dontBlock.wakeAll();
-    d->protect.unlock();	
+    d->protect.unlock();
     return c;
 }
 
@@ -119,9 +111,7 @@ int QSemaphore::operator++(int)
     switch ( WaitForSingleObject( d->handle, INFINITE ) ) {
     case WAIT_TIMEOUT:
     case WAIT_FAILED:
-#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Semaphore wait failure" );
-#endif
 	return d->count;
     default:
 	break;
@@ -143,9 +133,7 @@ int QSemaphore::operator +=(int s)
 	switch ( WaitForSingleObject( d->handle, INFINITE ) ) {
 	case WAIT_TIMEOUT:
 	case WAIT_FAILED:
-#ifdef QT_CHECK_RANGE
 	    qSystemWarning( "Semaphore wait failure" );
-#endif
 	    return d->count;
 	default:
 	    break;

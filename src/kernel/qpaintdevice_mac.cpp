@@ -25,10 +25,8 @@ QPaintDevice *g_cur_paintdev = 0;
 QPaintDevice::QPaintDevice(uint devflags)
 {
     if(!qApp) {				// global constructor
-#if defined(QT_CHECK_STATE)
 	qFatal("QPaintDevice: Must construct a QApplication before a "
 		"QPaintDevice");
-#endif
 	return;
     }
     devFlags = devflags;
@@ -41,11 +39,9 @@ QPaintDevice::QPaintDevice(uint devflags)
 
 QPaintDevice::~QPaintDevice()
 {
-#if defined(QT_CHECK_STATE)
     if(paintingActive())
 	qWarning("Qt: QPaintDevice: Cannot destroy paint device that is being "
 		 "painted.  Be sure to QPainter::end() painters!");
-#endif
 }
 
 bool QPaintDevice::cmd(int, QPainter *, QPDevCmdParam *)
@@ -91,9 +87,9 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 
     QMacSavedPortInfo savedInfo;
     const bool scalew = (dw != sw), scaleh = (dh != sh);
-    if(sx+sw>src->metric(QPaintDeviceMetrics::PdmWidth)) 
+    if(sx+sw>src->metric(QPaintDeviceMetrics::PdmWidth))
 	sw=src->metric(QPaintDeviceMetrics::PdmWidth)-sx;
-    if(sy+sh>src->metric(QPaintDeviceMetrics::PdmHeight)) 
+    if(sy+sh>src->metric(QPaintDeviceMetrics::PdmHeight))
 	sh=src->metric(QPaintDeviceMetrics::PdmHeight)-sy;
     if(!sw || !sh)
 	return;
@@ -103,9 +99,7 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
     case QInternal::Pixmap:
 	break;
     default:
-#if defined(QT_CHECK_RANGE)
 	qWarning("Qt: bitBlt: Cannot bitBlt from device type %x", src->devType());
-#endif
 	return;
     }
     int srcoffx = 0, srcoffy = 0, srcdepth = 0;
@@ -165,9 +159,7 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
     case QInternal::Pixmap:
 	break;
     default:
-#if defined(QT_CHECK_RANGE)
 	qWarning("Qt: bitBlt: Cannot bitBlt to device type %x", dst->devType());
-#endif
 	return;
     }
     //if we are not scaling and we've fixed number we should fix the destination
@@ -235,12 +227,9 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	} else if(src->devType() == QInternal::Widget) {// bitBlt to temp pixmap
 	    tmp_pm = TRUE;
 	    pm = new QPixmap(sw, sh);
-	    Q_CHECK_PTR(pm);
 	    bitBlt(pm, 0, 0, src, sx, sy, sw, sh);
 	} else {
-#if defined(QT_CHECK_RANGE)
 	    qWarning("Qt: bitBlt: Cannot bitBlt from device");
-#endif
 	    return;
 	}
 	QPDevCmdParam param[3];
@@ -301,7 +290,7 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
     SetRect(&dstr,dx+dstoffx,dy+dstoffy,dx+dw+dstoffx,dy+dh+dstoffy);
     if(srcmask && !imask) {
 	const BitMap *maskbits = GetPortBitMapForCopyBits((GWorldPtr)srcmask->handle());
-	if(copymode == srcCopy && srcmask->depth() > 1) 
+	if(copymode == srcCopy && srcmask->depth() > 1)
 	    copymode = ditherCopy;
 	if(dst->devType() == QInternal::Printer) { //can't use CopyDeepMask on a printer
 	    QPixmap tmppix(dw, dh, srcdepth);

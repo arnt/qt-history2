@@ -195,9 +195,7 @@ QBitmap::QBitmap( const QString& fileName, const char *format )
 QBitmap &QBitmap::operator=( const QBitmap &bitmap )
 {
     QPixmap::operator=(bitmap);
-#if defined(QT_CHECK_STATE)
     Q_ASSERT( data->bitmap );
-#endif
     return *this;
 }
 

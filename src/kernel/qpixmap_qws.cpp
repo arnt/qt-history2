@@ -104,9 +104,7 @@ static void cleanup_scale_tables()
 static void build_scale_table( uint **table, uint nBits )
 {
     if ( nBits > 7 ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "build_scale_table: internal error, nBits = %i", nBits );
-#endif
 	return;
     }
     if (!*table) {
@@ -204,7 +202,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	optim = defOptim;
 
     data = new QPixmapData;
-    Q_CHECK_PTR( data );
 
     if ( qws_trackPixmapData )
 	qws_pixmapData->append( data );
@@ -234,12 +231,10 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	data->id = 0;
 	data->w = 0;
 	data->h = 0;
-#if defined(QT_CHECK_RANGE)
 	if ( !make_null ) {
 	    qWarning( "QPixmap: Invalid pixmap parameters, %d %d %d",w,h,data->d);
 	    abort();
 	}
-#endif
 	return;
     }
     data->w = w;
@@ -398,11 +393,9 @@ QImage QPixmap::convertToImage() const
 {
     QImage image;
     if ( isNull() ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
 #if defined(NASTY)
 	abort();
-#endif
 #endif
 	return image;
     }
@@ -553,11 +546,9 @@ QImage QPixmap::convertToImage() const
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
     if ( img.isNull() ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QPixmap::convertFromImage: Cannot convert a null image" );
 #if defined(NASTY)
 	abort();
-#endif
 #endif
 	return FALSE;
     }
@@ -822,9 +813,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     }
 
     if ( !qt_xForm_helper( mat, 0, QT_XFORM_TYPE_LSBFIRST, bpp, dptr, xbpl, p_inc, h, sptr, sbpl, ws, hs ) ){
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::xForm: display not supported (bpp=%d)",bpp);
-#endif
 	QPixmap pm;
 	return pm;
     }
@@ -925,10 +914,8 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 		       const QPixmap *src, int sx, int sy, int sw, int sh )
 {
     if ( ! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth() ) {
-#ifdef QT_CHECK_NULL
 	Q_ASSERT( dst != 0 );
 	Q_ASSERT( src != 0 );
-#endif
 	return;
     }
 

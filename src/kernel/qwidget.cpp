@@ -718,12 +718,8 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     : QObject( new QWidgetPrivate, parent, name ), QPaintDevice( QInternal::Widget )
 {
-#if defined(QT_CHECK_STATE) && !defined(Q_WS_WIN)
-    if ( qApp->type() == QApplication::Tty ) {
-	qWarning( "QWidget: Cannot create a QWidget when no GUI "
-		  "is being used" );
-    }
-#endif
+    if ( qApp->type() == QApplication::Tty )
+	qWarning( "QWidget: Cannot create a QWidget when no GUI is being used" );
 
     fstrut_dirty = 1;
 
@@ -795,12 +791,8 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags f)
     : QObject( dd, parent, name ), QPaintDevice( QInternal::Widget )
 {
-#if defined(QT_CHECK_STATE) && !defined(Q_WS_WIN)
-    if ( qApp->type() == QApplication::Tty ) {
-	qWarning( "QWidget: Cannot create a QWidget when no GUI "
-		  "is being used" );
-    }
-#endif
+    if ( qApp->type() == QApplication::Tty )
+	qWarning( "QWidget: Cannot create a QWidget when no GUI is being used" );
 
     fstrut_dirty = 1;
 
@@ -976,7 +968,6 @@ void QWidgetPrivate::createExtra()
 {
     if ( !extra ) {				// if not exists
 	extra = new QWExtra;
-	Q_CHECK_PTR( extra );
 	extra->minw = extra->minh = 0;
 	extra->maxw = extra->maxh = QWIDGETSIZE_MAX;
 	extra->bg_pix = 0;
@@ -2808,9 +2799,7 @@ void QWidget::setFocusProxy( QWidget * w )
 
     for ( QWidget* fp  = w; fp; fp = fp->focusProxy() ) {
 	if ( fp == this ) {
-#if defined (QT_CHECK_STATE)
 	    qWarning( "%s (%s): already in focus proxy chain", className(), name() );
-#endif
 	    return;
 	}
     }

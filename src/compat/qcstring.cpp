@@ -631,7 +631,7 @@ QCString &QCString::setNum( ulong n )
 
 QCString &QCString::setNum( double n, char f, int prec )
 {
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
     if ( !(f=='f' || f=='F' || f=='e' || f=='E' || f=='g' || f=='G') )
 	qWarning( "QCString::setNum: Invalid format char '%c'", f );
 #endif

@@ -156,7 +156,7 @@
   QTextStream member functions
  *****************************************************************************/
 
-#if defined(QT_CHECK_STATE)
+#ifndef QT_NO_DEBUG
 #undef  CHECK_STREAM_PRECOND
 #define CHECK_STREAM_PRECOND  if ( !dev ) {				\
 				qWarning( "QTextStream: No device" );	\
@@ -375,15 +375,11 @@ QStringBuffer::~QStringBuffer()
 bool QStringBuffer::open( int m )
 {
     if ( !s ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QStringBuffer::open: No string" );
-#endif
 	return FALSE;
     }
     if ( isOpen() ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QStringBuffer::open: Buffer already open" );
-#endif
 	return FALSE;
     }
     setMode( m );
@@ -424,16 +420,12 @@ QIODevice::Offset  QStringBuffer::at()   const
 
 bool QStringBuffer::at( Offset pos )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
 	qWarning( "QStringBuffer::at: Buffer is not open" );
 	return FALSE;
     }
-#endif
     if ( pos >= s->length()*2 ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QStringBuffer::at: Index %lld out of range", pos );
-#endif
 	return FALSE;
     }
     ioIndex = pos;
@@ -443,7 +435,6 @@ bool QStringBuffer::at( Offset pos )
 
 Q_LONG QStringBuffer::readBlock( char *p, Q_ULONG len )
 {
-#if defined(QT_CHECK_STATE)
     Q_CHECK_PTR( p );
     if ( !isOpen() ) {
 	qWarning( "QStringBuffer::readBlock: Buffer not open" );
@@ -453,7 +444,6 @@ Q_LONG QStringBuffer::readBlock( char *p, Q_ULONG len )
 	qWarning( "QStringBuffer::readBlock: Read operation not permitted" );
 	return -1;
     }
-#endif
     if ( ioIndex + len > s->length()*sizeof(QChar) ) {
 	// overflow
 	if ( ioIndex >= s->length()*sizeof(QChar) ) {
@@ -470,11 +460,8 @@ Q_LONG QStringBuffer::readBlock( char *p, Q_ULONG len )
 
 Q_LONG QStringBuffer::writeBlock( const char *p, Q_ULONG len )
 {
-#if defined(QT_CHECK_NULL)
     if ( p == 0 && len != 0 )
 	qWarning( "QStringBuffer::writeBlock: Null pointer error" );
-#endif
-#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
 	qWarning( "QStringBuffer::writeBlock: Buffer not open" );
 	return -1;
@@ -491,7 +478,6 @@ Q_LONG QStringBuffer::writeBlock( const char *p, Q_ULONG len )
 	qWarning( "QStringBuffer::writeBlock: non-even length - non Unicode" );
 	return -1;
     }
-#endif
     s->replace(ioIndex/2, len/2, (QChar*)p, len/2);
     ioIndex += len;
     return len;
@@ -499,7 +485,6 @@ Q_LONG QStringBuffer::writeBlock( const char *p, Q_ULONG len )
 
 int QStringBuffer::getch()
 {
-#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
 	qWarning( "QStringBuffer::getch: Buffer not open" );
 	return -1;
@@ -508,7 +493,6 @@ int QStringBuffer::getch()
 	qWarning( "QStringBuffer::getch: Read operation not permitted" );
 	return -1;
     }
-#endif
     if ( ioIndex >= s->length()*2 ) {           // overflow
 	setStatus( IO_ReadError );
 	return -1;
@@ -527,7 +511,6 @@ int QStringBuffer::putch( int ch )
 
 int QStringBuffer::ungetch( int ch )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
 	qWarning( "QStringBuffer::ungetch: Buffer not open" );
 	return -1;
@@ -536,7 +519,6 @@ int QStringBuffer::ungetch( int ch )
 	qWarning( "QStringBuffer::ungetch: Read operation not permitted" );
 	return -1;
     }
-#endif
     if ( ch != -1 ) { // something to do with eof
 	if ( ioIndex )
 	    ioIndex--;
@@ -1659,12 +1641,10 @@ QTextStream &QTextStream::operator>>( QByteArray &str )
 
 QString QTextStream::readLine()
 {
-#if defined(QT_CHECK_STATE)
     if ( !dev ) {
 	qWarning( "QTextStream::readLine: No device" );
 	return QString::null;
     }
-#endif
 
     QString result;
     const int buf_size = getstr_tmp_size;
@@ -1690,12 +1670,10 @@ QString QTextStream::readLine()
 
 QString QTextStream::read()
 {
-#if defined(QT_CHECK_STATE)
     if ( !dev ) {
 	qWarning( "QTextStream::read: No device" );
 	return QString::null;
     }
-#endif
     QString    result;
     const uint bufsize = 512;
     QChar      buf[bufsize];
@@ -2027,7 +2005,6 @@ QTextStream &QTextStream::operator<<( const char* s )
 	    char *ppad;
 	    if ( padlen > 46 ) {		// create extra big fill buffer
 		ppad = new char[padlen];
-		Q_CHECK_PTR( ppad );
 	    } else {
 		ppad = padbuf;
 	    }

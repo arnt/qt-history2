@@ -115,10 +115,8 @@ void QThreadStorageData::finish( void **thread_storage )
     for ( int i = 0; i < MAX_THREAD_STORAGE; ++i ) {
 	if ( ! thread_storage[i] ) continue;
 	if ( ! thread_storage_usage[i].used ) {
-#ifdef QT_CHECK_STATE
 	    qWarning( "QThreadStorage: thread %lx exited after QThreadStorage destroyed",
 		      (unsigned long) pthread_self() );
-#endif // QT_CHECK_STATE
 	    continue;
 	}
 

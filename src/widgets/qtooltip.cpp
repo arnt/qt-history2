@@ -125,7 +125,6 @@ static void initTipManager()
 {
     if ( !tipManager ) {
 	tipManager = new QTipManager;
-	Q_CHECK_PTR( tipManager );
     }
 }
 
@@ -497,7 +496,6 @@ void QTipManager::showTip()
 	label = new QTipLabel( QApplication::desktop()->screen( scr ), t->text);
 	if ( t->geometry != QRect( -1, -1, -1, -1 ) )
 	    label->resize( t->geometry.size() );
-	Q_CHECK_PTR( label );
 	connect( label, SIGNAL(destroyed()), SLOT(labelDestroyed()) );
     }
 #ifdef Q_WS_MAC

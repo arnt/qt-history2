@@ -199,9 +199,7 @@ bool QPrinter::aborted() const
 void QPrinter::setPrinterName( const QString &name )
 {
     if ( state != 0 ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QPrinter::setPrinterName: Cannot do this during printing" );
-#endif
 	return;
     }
     printer_name = name;
@@ -480,9 +478,7 @@ int QPrinter::metric( int m ) const
 {
     int val;
     PageSize s = pageSize();
-#if defined(QT_CHECK_RANGE)
     Q_ASSERT( (uint)s < (uint)NPageSize );
-#endif
     switch ( m ) {
     case QPaintDeviceMetrics::PdmWidth:
 	val = orient == Portrait ? paperSizes[s].width : paperSizes[s].height;
@@ -533,9 +529,7 @@ int QPrinter::metric( int m ) const
 	break;
     default:
 	val = 0;
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::metric: Invalid metric command" );
-#endif
     }
     return val;
 }

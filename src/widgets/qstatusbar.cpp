@@ -168,9 +168,7 @@ QStatusBar::~QStatusBar()
 void QStatusBar::addWidget( QWidget * widget, int stretch, bool permanent )
 {
     if ( !widget ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QStatusBar::addWidget(): Cannot add null widget" );
-#endif
 	return;
     }
 

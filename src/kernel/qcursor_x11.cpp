@@ -189,16 +189,13 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 	initialize();
     if ( bitmap.depth() != 1 || mask.depth() != 1 ||
 	 bitmap.size() != mask.size() ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QCursor: Cannot create bitmap cursor; invalid bitmap(s)" );
-#endif
 	QCursor *c = &cursorTable[arrowCursorIdx];
 	c->data->ref();
 	data = c->data;
 	return;
     }
     data = new QCursorData;
-    Q_CHECK_PTR( data );
     data->bm  = new QBitmap( bitmap );
     data->bmm = new QBitmap( mask );
     data->hcurs = 0;
@@ -749,9 +746,7 @@ void QCursor::update() const
 	break;
 #endif /* QT_USE_APPROXIMATE_CURSORS */
     default:
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QCursor::update: Invalid cursor shape %d", d->cshape );
-#endif
 	return;
     }
     d->hcurs = XCreateFontCursor( dpy, sh );

@@ -341,9 +341,7 @@
 void QPrinter::setOutputToFile( bool enable )
 {
     if ( state != 0 ) {
-#if defined(QT_CHECK_STATE)
         qWarning( "QPrinter::setOutputToFile: Cannot do this during printing" );
-#endif
         return;
     }
     output_file = enable;
@@ -374,9 +372,7 @@ void QPrinter::setOutputToFile( bool enable )
 void QPrinter::setOutputFileName( const QString &fileName )
 {
     if ( state != 0 ) {
-#if defined(QT_CHECK_STATE)
         qWarning("QPrinter::setOutputFileName: Cannot do this during printing");
-#endif
         return;
     }
     output_filename = fileName;
@@ -430,9 +426,7 @@ void QPrinter::setPrintProgram( const QString &printProg )
 void QPrinter::setDocName( const QString &name )
 {
     if ( state != 0 ) {
-#if defined(QT_CHECK_STATE)
         qWarning( "QPrinter::setDocName: Cannot do this during printing" );
-#endif
         return;
     }
     doc_name = name;
@@ -523,9 +517,7 @@ void QPrinter::setOrientation( Orientation orientation )
 void QPrinter::setPageSize( PageSize newPageSize )
 {
     if ( newPageSize > NPageSize ) {
-#if defined(QT_CHECK_STATE)
         qWarning("QPrinter::SetPageSize: illegal page size %d", newPageSize );
-#endif
         return;
     }
     page_size = newPageSize;
@@ -641,9 +633,7 @@ QPrinter::ColorMode QPrinter::colorMode() const
 void QPrinter::setFromTo( int fromPage, int toPage )
 {
     if ( state != 0 ) {
-#if defined(QT_CHECK_STATE)
         qWarning( "QPrinter::setFromTo: Cannot do this during printing" );
-#endif
         return;
     }
     from_pg = fromPage;

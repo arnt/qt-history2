@@ -1017,10 +1017,8 @@ bool QDataTable::insertCurrent()
     if ( d->dat.mode() != QSql::Insert || ! numCols() )
 	return FALSE;
     if ( !sqlCursor()->canInsert() ) {
-#ifdef QT_CHECK_RANGE
 	qWarning("QDataTable::insertCurrent: insert not allowed for " +
 		 sqlCursor()->name() );
-#endif
 	endInsert();
 	return FALSE;
     }
@@ -1091,18 +1089,14 @@ bool QDataTable::updateCurrent()
     if ( d->dat.mode() != QSql::Update )
 	return FALSE;
     if ( sqlCursor()->primaryIndex().count() == 0 ) {
-#ifdef QT_CHECK_RANGE
 	qWarning("QDataTable::updateCurrent: no primary index for " +
 		 sqlCursor()->name() );
-#endif
 	endUpdate();
 	return FALSE;
     }
     if ( !sqlCursor()->canUpdate() ) {
-#ifdef QT_CHECK_RANGE
 	qWarning("QDataTable::updateCurrent: updates not allowed for " +
 		 sqlCursor()->name() );
-#endif
 	endUpdate();
 	return FALSE;
     }
@@ -1166,10 +1160,8 @@ bool QDataTable::deleteCurrent()
     if ( !sqlCursor() || isReadOnly() )
 	return FALSE;
     if ( sqlCursor()->primaryIndex().count() == 0 ) {
-#ifdef QT_CHECK_RANGE
 	qWarning("QDataTable::deleteCurrent: no primary index " +
 		 sqlCursor()->name() );
-#endif
 	return FALSE;
     }
     if ( !sqlCursor()->canDelete() )

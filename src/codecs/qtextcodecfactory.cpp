@@ -53,7 +53,6 @@ static void create_manager()
 	new QPluginManager<QTextCodecFactoryInterface>(IID_QTextCodecFactory,
 						       QApplication::libraryPaths(), "/codecs",
 						       FALSE);
-    Q_CHECK_PTR( manager );
     cleanup_manager.set( &manager );
 }
 

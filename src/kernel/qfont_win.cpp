@@ -101,10 +101,8 @@ void QFont::initialize()
     if ( QFontCache::instance )
 	return;
     shared_dc = CreateCompatibleDC( qt_display_dc() );
-#if defined(QT_CHECK_RANGE)
     if ( !shared_dc )
 	qSystemWarning( "QFont::initialize() (qfont_win.cpp, 163): couldn't create device context" );
-#endif
     new QFontCache();
 
     // #########
@@ -123,11 +121,9 @@ void QFontPrivate::load( QFont::Script script )
     // NOTE: the X11 and Windows implementations of this function are
     // identical... if you change one, change both.
 
-#ifdef QT_CHECK_STATE
     // sanity checks
     Q_ASSERT( QFontCache::instance != 0);
     Q_ASSERT( script >= 0 && script < QFont::LastPrivateScript );
-#endif // QT_CHECK_STATE
 
     QFontDef req = request;
     int px = int( pixelSize( req, paintdevice, screen ) + .5 );
@@ -268,9 +264,7 @@ int QFontMetrics::leftBearing(QChar ch) const
     return 0;
 #else
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     if ( IS_TRUETYPE ) {
 	ABC abc;
@@ -311,9 +305,7 @@ int QFontMetrics::rightBearing(QChar ch) const
 	return 0;
 #else
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     if ( IS_TRUETYPE ) {
 	ABC abc;
@@ -359,9 +351,7 @@ int QFontMetrics::width( QChar ch ) const
     SCRIPT_FOR_CHAR( script, ch );
 
     QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     if ( qt_winver & Qt::WV_NT_based && painter )
 	painter->nativeXForm( TRUE );
@@ -396,9 +386,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 
     if ( (qt_winver & Qt::WV_NT_based) == 0 ) {
 	QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
 	Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 	w -= TMX.tmOverhang;
     }
     return w;

@@ -117,9 +117,7 @@ QFontPrivate::~QFontPrivate()
 
 void QFontPrivate::resolve( const QFontPrivate *other )
 {
-#ifdef QT_CHECK_STATE
     Q_ASSERT( other != 0 );
-#endif
 
     if ( ( mask & Complete ) == Complete ) return;
 
@@ -490,7 +488,6 @@ QFontEngineData::~QFontEngineData()
 QFont::QFont( QFontPrivate *data, QPaintDevice *pd )
 {
     d = new QFontPrivate( *data );
-    Q_CHECK_PTR( d );
     d->paintdevice = pd;
 
     // now a single reference
@@ -559,7 +556,6 @@ QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
 {
 
     d = new QFontPrivate;
-    Q_CHECK_PTR( d );
 
     d->mask = QFontPrivate::Family;
 
@@ -690,11 +686,7 @@ int QFont::pointSize() const
 void QFont::setPointSize( int pointSize )
 {
     if ( pointSize <= 0 ) {
-
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QFont::setPointSize: Point size <= 0 (%d)", pointSize );
-#endif
-
 	return;
     }
 
@@ -721,9 +713,7 @@ void QFont::setPointSize( int pointSize )
 void QFont::setPointSizeFloat( float pointSize )
 {
     if ( pointSize <= 0.0 ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QFont::setPointSize: Point size <= 0 (%f)", pointSize );
-#endif
 	return;
     }
 
@@ -763,9 +753,7 @@ float QFont::pointSizeFloat() const
 void QFont::setPixelSize( int pixelSize )
 {
     if ( pixelSize <= 0 ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QFont::setPixelSize: Pixel size <= 0 (%d)", pixelSize );
-#endif
 	return;
     }
 
@@ -867,11 +855,7 @@ int QFont::weight() const
 void QFont::setWeight( int weight )
 {
     if ( weight < 0 || weight > 99 ) {
-
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QFont::setWeight: Value out of range (%d)", weight );
-#endif
-
 	return;
     }
 
@@ -1200,10 +1184,7 @@ int QFont::stretch() const
 void QFont::setStretch( int factor )
 {
     if ( factor < 1 || factor > 4000 ) {
-#ifdef QT_CHECK_RANGE
 	qWarning( "QFont::setStretch(): parameter '%d' out of range", factor );
-#endif // QT_CHECK_RANGE
-
 	return;
     }
 
@@ -1252,10 +1233,7 @@ void QFont::setRawMode( bool enable )
 bool QFont::exactMatch() const
 {
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
     return d->request == engine->fontDef;
 }
 
@@ -1400,7 +1378,6 @@ static void initFontSubst()
 	return;
 
     fontSubst = new QFontSubst(17, FALSE);
-    Q_CHECK_PTR( fontSubst );
     fontSubst->setAutoDelete( TRUE );
     qfont_cleanup_fontsubst.set(&fontSubst);
 
@@ -1546,10 +1523,7 @@ QStringList QFont::substitutions()
 */
 static Q_UINT8 get_font_bits( const QFontPrivate *f )
 {
-#ifdef QT_CHECK_STATE
     Q_ASSERT( f != 0 );
-#endif
-
     Q_UINT8 bits = 0;
     if ( f->request.italic )
 	bits |= 0x01;
@@ -1577,10 +1551,7 @@ static Q_UINT8 get_font_bits( const QFontPrivate *f )
 */
 static void set_font_bits( Q_UINT8 bits, QFontPrivate *f )
 {
-#ifdef QT_CHECK_STATE
     Q_ASSERT( f != 0 );
-#endif
-
     f->request.italic        = (bits & 0x01) != 0;
     f->underline             = (bits & 0x02) != 0;
     f->overline              = (bits & 0x40) != 0;
@@ -1653,11 +1624,7 @@ bool QFont::fromString(const QString &descrip)
     }
 #endif // QT_NO_STRINGLIST
     if ( !count || ( count > 2 && count < 9 ) || count > 11 ) {
-
-#ifdef QT_CHECK_STATE
 	qWarning("QFont::fromString: invalid description '%s'", descrip.latin1());
-#endif
-
 	return FALSE;
     }
 
@@ -1925,7 +1892,6 @@ QFontMetrics::QFontMetrics( const QPainter *p )
 #if defined(Q_WS_X11)
     if ( d->screen != p->scrn ) {
 	QFontPrivate *new_d = new QFontPrivate( *d );
-	Q_CHECK_PTR( new_d );
 	d = new_d;
 	d->screen = p->scrn;
 	d->count = 1;
@@ -1984,11 +1950,8 @@ int QFontMetrics::ascent() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
-#endif // QT_CHECK_STATE
-
     return QMAX(engine->ascent(), latin_engine->ascent());
 }
 
@@ -2008,10 +1971,8 @@ int QFontMetrics::descent() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
-#endif // QT_CHECK_STATE
 
     return QMAX(engine->descent(), latin_engine->descent());
 }
@@ -2028,10 +1989,8 @@ int QFontMetrics::height() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
-#endif // QT_CHECK_STATE
 
     return QMAX(engine->ascent() + engine->descent(),
 		latin_engine->ascent() + latin_engine->descent());
@@ -2048,10 +2007,8 @@ int QFontMetrics::leading() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
-#endif // QT_CHECK_STATE
 
     return QMAX(engine->leading(), latin_engine->leading());
 }
@@ -2067,10 +2024,8 @@ int QFontMetrics::lineSpacing() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
-#endif // QT_CHECK_STATE
 
     return QMAX(engine->leading() + engine->ascent() + engine->descent(),
 		latin_engine->leading() + latin_engine->ascent() + latin_engine->descent());
@@ -2090,10 +2045,8 @@ int QFontMetrics::minLeftBearing() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
-#endif // QT_CHECK_STATE
 
     return QMIN(engine->minLeftBearing(), latin_engine->minLeftBearing());
 }
@@ -2112,10 +2065,8 @@ int QFontMetrics::minRightBearing() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
-#endif // QT_CHECK_STATE
 
     return QMIN(engine->minRightBearing(), latin_engine->minRightBearing());
 }
@@ -2127,10 +2078,8 @@ int QFontMetrics::maxWidth() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     QFontEngine *lengine = d->engineForScript( QFont::Latin );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
     Q_ASSERT( lengine != 0 );
-#endif // QT_CHECK_STATE
 
     return QMAX(engine->maxCharWidth(), lengine->maxCharWidth());
 }
@@ -2145,9 +2094,7 @@ bool QFontMetrics::inFont(QChar ch) const
     SCRIPT_FOR_CHAR( script, ch );
 
     QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     if ( engine->type() == QFontEngine::Box ) return FALSE;
     return engine->canRender( &ch, 1 );
@@ -2172,9 +2119,7 @@ int QFontMetrics::leftBearing(QChar ch) const
     SCRIPT_FOR_CHAR( script, ch );
 
     QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     if ( engine->type() == QFontEngine::Box ) return 0;
 
@@ -2206,9 +2151,7 @@ int QFontMetrics::rightBearing(QChar ch) const
     SCRIPT_FOR_CHAR( script, ch );
 
     QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     if ( engine->type() == QFontEngine::Box ) return 0;
 
@@ -2259,9 +2202,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 		break;
 
 	    QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
 	    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
 	    glyph_t glyphs[8];
 	    advance_t advances[8];
@@ -2386,9 +2327,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
     SCRIPT_FOR_CHAR( script, ch );
 
     QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     glyph_t glyphs[10];
     int nglyphs = 9;
@@ -2525,9 +2464,7 @@ QSize QFontMetrics::size( int flgs, const QString &str, int len, int tabstops,
 int QFontMetrics::underlinePos() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     return engine->underlinePosition();
 }
@@ -2565,9 +2502,7 @@ int QFontMetrics::strikeOutPos() const
 int QFontMetrics::lineWidth() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     return engine->lineThickness();
 }
@@ -2721,9 +2656,7 @@ QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
 QString QFontInfo::family() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
     return engine->fontDef.family;
 }
 
@@ -2735,9 +2668,7 @@ QString QFontInfo::family() const
 int QFontInfo::pointSize() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
     return ( engine->fontDef.pointSize + 5 ) / 10;
 }
 
@@ -2749,9 +2680,7 @@ int QFontInfo::pointSize() const
 int QFontInfo::pixelSize() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
     return engine->fontDef.pixelSize;
 }
 
@@ -2763,9 +2692,7 @@ int QFontInfo::pixelSize() const
 bool QFontInfo::italic() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
     return engine->fontDef.italic;
 }
 
@@ -2777,9 +2704,7 @@ bool QFontInfo::italic() const
 int QFontInfo::weight() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
     return engine->fontDef.weight;
 
 }
@@ -2844,9 +2769,7 @@ bool QFontInfo::strikeOut() const
 bool QFontInfo::fixedPitch() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
     return (QFont::StyleHint) engine->fontDef.fixedPitch;
 }
 
@@ -2860,9 +2783,7 @@ bool QFontInfo::fixedPitch() const
 QFont::StyleHint QFontInfo::styleHint() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
     return (QFont::StyleHint) engine->fontDef.styleHint;
 }
 
@@ -2890,9 +2811,7 @@ bool QFontInfo::rawMode() const
 bool QFontInfo::exactMatch() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     return d->request == engine->fontDef;
 }

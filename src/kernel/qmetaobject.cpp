@@ -373,7 +373,7 @@ int QMetaObject::findSignal(const char *signal) const
 	    }
 	m = m->d.superdata;
     }
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
     if (i >= 0 && m->d.superdata ) {
 	int conflict = m->d.superdata->findSignal(signal);
 	if ( conflict >= 0 )

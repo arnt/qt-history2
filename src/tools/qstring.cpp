@@ -3793,12 +3793,10 @@ float QString::toFloat(bool *ok) const
 
 QString &QString::setNum(Q_LLONG n, int base)
 {
-#if defined(QT_CHECK_RANGE)
     if (base < 2 || base > 36) {
 	qWarning("QString::setNum: Invalid base %d", base);
 	base = 10;
     }
-#endif
     char   charbuf[65*sizeof(QChar)];
     QChar *buf = (QChar*)charbuf;
     QChar *p = &buf[64];
@@ -3841,12 +3839,10 @@ QString &QString::setNum(Q_LLONG n, int base)
 
 QString &QString::setNum(Q_ULLONG n, int base)
 {
-#if defined(QT_CHECK_RANGE)
     if (base < 2 || base > 36) {
 	qWarning("QString::setNum: Invalid base %d", base);
 	base = 10;
     }
-#endif
     char   charbuf[65*sizeof(QChar)];
     QChar *buf = (QChar*)charbuf;
     QChar *p = &buf[64];
@@ -3938,12 +3934,10 @@ QString &QString::setNum(Q_ULLONG n, int base)
 
 QString &QString::setNum(double n, char f, int prec)
 {
-#if defined(QT_CHECK_RANGE)
     if (!(f=='f' || f=='F' || f=='e' || f=='E' || f=='g' || f=='G')) {
 	qWarning("QString::setNum: Invalid format char '%c'", f);
 	f = 'f';
     }
-#endif
     char format[20];
     char *fs = format; // generate format string: %.<prec>l<f>
    * fs++ = '%';

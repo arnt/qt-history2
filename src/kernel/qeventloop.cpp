@@ -38,7 +38,7 @@
     includes a reimplementation of QEventLoop for merging Qt and Motif
     events together.
 
-    To use your own instance of QEventLoop or QEventLoop subclass create 
+    To use your own instance of QEventLoop or QEventLoop subclass create
     it before you create the QApplication object.
 */
 
@@ -66,20 +66,18 @@
 
 /*!
     Creates a QEventLoop object, this object becomes the global event loop object.
-    There can only be one event loop object. The QEventLoop is usually constructed 
-    by calling QApplication::eventLoop(). To create your own event loop object create 
+    There can only be one event loop object. The QEventLoop is usually constructed
+    by calling QApplication::eventLoop(). To create your own event loop object create
     it before you instantiate the QApplication object.
-    
+
     The \a parent and \a name arguments are passed on to the QObject constructor.
 */
 QEventLoop::QEventLoop( QObject *parent, const char *name )
     : QObject( parent, name )
 {
-#if defined(QT_CHECK_STATE)
     if ( QApplication::eventloop )
 	qFatal( "QEventLoop: there must be only one event loop object. \nConstruct it before QApplication." );
     // for now ;)
-#endif // QT_CHECK_STATE
 
     d = new QEventLoopPrivate;
 

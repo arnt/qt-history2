@@ -440,7 +440,6 @@ Q_EXPORT void qAddPostRoutine( QtCleanUpFunction p)
 {
     if ( !postRList ) {
 	postRList = new QVFuncList;
-	Q_CHECK_PTR( postRList );
     }
     postRList->prepend( p );
 }
@@ -793,10 +792,7 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
     // ... no command line.
 
     if ( ! dpy ) {
-#ifdef QT_CHECK_STATE
 	qWarning( "QApplication: invalid Display* argument." );
-#endif // QT_CHECK_STATE
-
 	qt_init( &aargc, aargv, GuiClient );
     } else {
 	qt_init( dpy, visual, colormap );
@@ -831,10 +827,7 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
     init_precmdline();
 
     if ( ! dpy ) {
-#ifdef QT_CHECK_STATE
 	qWarning( "QApplication: invalid Display* argument." );
-#endif // QT_CHECK_STATE
-
 	qt_init( &argc, argv, GuiClient );
     } else {
 	qt_init(dpy, visual, colormap);
@@ -860,10 +853,8 @@ void QApplication::init_precmdline()
 #ifndef QT_NO_SESSIONMANAGER
     is_session_restored = FALSE;
 #endif
-#if defined(QT_CHECK_STATE)
     if ( qApp )
 	qWarning( "QApplication: There should be max one application object" );
-#endif
     qApp = (QApplication*)this;
 }
 
@@ -1154,8 +1145,9 @@ QStyle& QApplication::style()
 #ifndef QT_NO_STYLE
     if ( app_style )
 	return *app_style;
-    if ( !qt_is_gui_used )
+    if ( !qt_is_gui_used ) {
 	qFatal( "No style available in non-gui applications!" );
+    }
 
 #if defined(Q_WS_X11)
     if(!qt_style_override)
@@ -1433,12 +1425,9 @@ int QApplication::colorSpec()
 
 void QApplication::setColorSpec( int spec )
 {
-#if defined(QT_CHECK_STATE)
-    if ( qApp ) {
+    if ( qApp )
 	qWarning( "QApplication::setColorSpec: This function must be "
 		 "called before the QApplication object is created" );
-    }
-#endif
     app_cspec = spec;
 }
 
@@ -1726,11 +1715,9 @@ void QApplication::removeLibraryPath( const QString &path )
 #ifndef QT_NO_PALETTE
 QPalette QApplication::palette(const QWidget* w)
 {
-#if defined(QT_CHECK_STATE)
     if ( !qApp )
 	qWarning( "QApplication::palette: This function can only be "
 		  "called after the QApplication object has been created" );
-#endif
     if ( !app_pal ) {
 	if ( !qt_std_pal )
 	    qt_create_std_palette();
@@ -1784,7 +1771,6 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
     if ( !className ) {
 	if ( !app_pal ) {
 	    app_pal = new QPalette( pal );
-	    Q_CHECK_PTR( app_pal );
 	} else {
 	    *app_pal = pal;
 	}
@@ -1795,7 +1781,6 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
     } else {
 	if ( !app_palettes ) {
 	    app_palettes = new QAsciiDict<QPalette>;
-	    Q_CHECK_PTR( app_palettes );
 	    app_palettes->setAutoDelete( TRUE );
 	}
 	oldpal = app_palettes->find( className );
@@ -1838,7 +1823,6 @@ QFont QApplication::font( const QWidget *w )
     }
     if ( !app_font ) {
 	app_font = new QFont( "Helvetica" );
-	Q_CHECK_PTR( app_font );
     }
     return *app_font;
 }
@@ -1868,7 +1852,6 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 	qt_app_has_font = TRUE;
 	if ( !app_font ) {
 	    app_font = new QFont( font );
-	    Q_CHECK_PTR( app_font );
 	} else {
 	    *app_font = font;
 	}
@@ -1883,11 +1866,9 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
     } else {
 	if (!app_fonts){
 	    app_fonts = new QAsciiDict<QFont>;
-	    Q_CHECK_PTR( app_fonts );
 	    app_fonts->setAutoDelete( TRUE );
 	}
 	QFont* fnt = new QFont(font);
-	Q_CHECK_PTR( fnt );
 	app_fonts->insert(className, fnt);
     }
     if ( informWidgets && is_app_running && !is_app_closing ) {
@@ -2232,9 +2213,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	return FALSE;
 
     if ( receiver == 0 ) {			// serious error
-#if defined(QT_CHECK_NULL)
 	qWarning( "QApplication::notify: Unexpected null receiver" );
-#endif
 	return FALSE;
     }
 
@@ -3000,9 +2979,7 @@ QString QApplication::translate( const char * context, const char * sourceText,
 void QApplication::postEvent( QObject *receiver, QEvent *event )
 {
     if ( receiver == 0 ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QApplication::postEvent: Unexpected null receiver" );
-#endif
 	delete event;
 	return;
     }
@@ -3606,7 +3583,6 @@ QDesktopWidget *QApplication::desktop()
     if ( !qt_desktopWidget || // not created yet
 	 !qt_desktopWidget->isDesktop() ) { // reparented away
 	qt_desktopWidget = new QDesktopWidget();
-	Q_CHECK_PTR( qt_desktopWidget );
     }
     return qt_desktopWidget;
 }
@@ -3619,7 +3595,6 @@ QClipboard *QApplication::clipboard()
 {
     if ( qt_clipboard == 0 ) {
 	qt_clipboard = new QClipboard;
-	Q_CHECK_PTR( qt_clipboard );
     }
     return qt_clipboard;
 }

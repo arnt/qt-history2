@@ -319,7 +319,6 @@ QImageDecoder::QImageDecoder(QImageConsumer* c)
 {
     qt_init_image_handlers();
     d = new QImageDecoderPrivate;
-    Q_CHECK_PTR(d);
     consumer = c;
     actual_decoder = 0;
 }

@@ -2062,9 +2062,7 @@ void QTimeEdit::stepUp()
 	break;
     default:
 	accepted = FALSE;
-#ifdef QT_CHECK_RANGE
 	qWarning( "QTimeEdit::stepUp: Focus section out of range!" );
-#endif
 	break;
     }
     if ( accepted ) {
@@ -2111,9 +2109,7 @@ void QTimeEdit::stepDown()
 	break;
     default:
 	accepted = FALSE;
-#ifdef QT_CHECK_RANGE
 	qWarning( "QTimeEdit::stepDown: Focus section out of range!" );
-#endif
 	break;
     }
     if ( accepted ) {

@@ -71,7 +71,7 @@ bool QLibraryPrivate::loadLibrary()
 	} );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
 	if ( !pHnd )
-	    qSystemWarning( QString("Failed to load library %1!").arg( filename ) );
+	    qSystemWarning("Failed to load library %s", QFile::encodeName(filename).data());
 #endif
 	if ( pHnd ) {
 	    LibInstance *lib = new LibInstance;
@@ -119,7 +119,7 @@ bool QLibraryPrivate::freeLibrary()
 	pHnd = 0;
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     else
-	qSystemWarning( "Failed to unload library!" );
+	qSystemWarning( "Failed to unload library" );
 #endif
     return ok;
 }
@@ -136,7 +136,7 @@ void* QLibraryPrivate::resolveSymbol( const char* f )
 #endif
 #if defined(QT_DEBUG_COMPONENT)
     if ( !address )
-	qSystemWarning( QString("Couldn't resolve symbol \"%1\"").arg( f ) );
+	qSystemWarning("Couldn't resolve symbol \"%s\"", f);
 #endif
 
     return address;

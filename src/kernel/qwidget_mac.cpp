@@ -1808,10 +1808,8 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 
 void QWidget::setMinimumSize(int minw, int minh)
 {
-#if defined(QT_CHECK_RANGE)
     if(minw < 0 || minh < 0)
 	qWarning("Qt: QWidget::setMinimumSize: The smallest allowed size is (0,0)");
-#endif
     d->createExtra();
     if(d->extraData()->minw == minw && d->extraData()->minh == minh)
 	return;
@@ -1828,7 +1826,6 @@ void QWidget::setMinimumSize(int minw, int minh)
 
 void QWidget::setMaximumSize(int maxw, int maxh)
 {
-#if defined(QT_CHECK_RANGE)
     if(maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
 	qWarning("Qt: QWidget::setMaximumSize: (%s/%s) "
 		"The largest allowed size is (%d,%d)",
@@ -1844,7 +1841,6 @@ void QWidget::setMaximumSize(int maxw, int maxh)
 	maxw = QMAX(maxw, 0);
 	maxh = QMAX(maxh, 0);
     }
-#endif
     d->createExtra();
     if(d->extraData()->maxw == maxw && d->extraData()->maxh == maxh)
 	return;

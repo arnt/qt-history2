@@ -403,10 +403,8 @@ QIODevice::~QIODevice()
 
 void QIODevice::setType( int t )
 {
-#if defined(QT_CHECK_RANGE)
     if ( (t & IO_TypeMask) != t )
 	qWarning( "QIODevice::setType: Specified type out of range" );
-#endif
     ioMode &= ~IO_TypeMask;			// reset type bits
     ioMode |= t;
 }
@@ -418,10 +416,8 @@ void QIODevice::setType( int t )
 
 void QIODevice::setMode( int m )
 {
-#if defined(QT_CHECK_RANGE)
     if ( (m & IO_ModeMask) != m )
 	qWarning( "QIODevice::setMode: Specified mode out of range" );
-#endif
     ioMode &= ~IO_ModeMask;			// reset mode bits
     ioMode |= m;
 }
@@ -433,10 +429,8 @@ void QIODevice::setMode( int m )
 
 void QIODevice::setState( int s )
 {
-#if defined(QT_CHECK_RANGE)
     if ( ((uint)s & IO_StateMask) != (uint)s )
 	qWarning( "QIODevice::setState: Specified state out of range" );
-#endif
     ioMode &= ~IO_StateMask;			// reset state bits
     ioMode |= (uint)s;
 }
@@ -539,12 +533,10 @@ QIODevice::Offset QIODevice::at() const
 
 bool QIODevice::at( Offset pos )
 {
-#if defined(QT_CHECK_RANGE)
     if ( pos > size() ) {
 	qWarning( "QIODevice::at: Index %lld out of range", pos );
 	return FALSE;
     }
-#endif
     ioIndex = pos;
     return TRUE;
 }

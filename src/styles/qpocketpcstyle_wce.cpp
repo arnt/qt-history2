@@ -193,7 +193,7 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
     case PE_PanelLineEdit:
     case PE_PanelTabWidget:
     case PE_WindowFrame:
-	qDrawShadePanel(p, r, cg, (flags & Style_Sunken), 
+	qDrawShadePanel(p, r, cg, (flags & Style_Sunken),
 	    opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth) : opt.lineWidth());
 	break;
      case PE_HeaderSection:
@@ -545,12 +545,10 @@ void QPocketPCStyle::drawControl( ControlElement element,
 				 SFlags how,
 				 const QStyleOption& opt ) const
 {
-#if defined(QT_CHECK_STATE)
     if (! widget) {
 	qWarning("QPocketPCStyle::drawControl: widget parameter cannot be zero!");
 	return;
     }
-#endif
 
     SFlags flags = Style_Default;
     if (widget->isEnabled())
@@ -1253,12 +1251,10 @@ QRect QPocketPCStyle::querySubControlMetrics( ComplexControl control,
 					    SubControl sc,
 					    const QStyleOption& opt ) const
 {
-#if defined(QT_CHECK_STATE)
     if (! widget) {
 	qWarning("QCommonStyle::querySubControlMetrics: widget parameter cannot be zero!");
 	return QRect();
     }
-#endif
     switch ( control ) {
 #ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar: {
@@ -1510,12 +1506,10 @@ QSize QPocketPCStyle::sizeFromContents( ContentsType contents,
 {
     QSize sz(contentsSize);
 
-#if defined(QT_CHECK_STATE)
     if (! widget) {
 	qWarning("QCommonStyle::sizeFromContents: widget parameter cannot be zero!");
 	return sz;
     }
-#endif
 
     switch (contents) {
 

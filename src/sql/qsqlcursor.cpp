@@ -340,10 +340,8 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
 	    d->editBuffer = *this;
 	    d->priIndx = driver()->primaryIndex( name );
 	}
-#ifdef QT_CHECK_RANGE
 	if ( isEmpty() )
 	    qWarning("QSqlCursor::setName: unable to build record, does '%s' exist?", name.latin1() );
-#endif
     }
 }
 
@@ -1154,7 +1152,7 @@ int QSqlCursor::update( bool invalidate )
 */
 
 int QSqlCursor::update( const QString & filter, bool invalidate )
-{    
+{
     if ( ( d->md & Update ) != Update ) {
 	return FALSE;
     }
@@ -1162,7 +1160,7 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     if ( k == 0 ) {
 	return 0;
     }
-    
+
     // use a prepared query if the driver supports it
     if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
 	QString fList;

@@ -129,10 +129,8 @@ void QColor::initialize()
     pal->palNumEntries = numPalEntries;
 
     hpal = CreatePalette( pal );
-#if defined(QT_CHECK_STATE)
     if ( !hpal )
-	qSystemWarning( "QColor: Failed to create logical palette!" );
-#endif
+	qSystemWarning( "QColor: Failed to create logical palette" );
     free ( pal );
 
     // make sure "black" and "white" are initialized
@@ -352,9 +350,7 @@ int QColor::enterAllocContext()
     static int context_seq_no = 0;
     init_context_stack();
     if ( context_ptr+1 == MAX_CONTEXTS ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QColor::enterAllocContext: Context stack overflow" );
-#endif
 	return 0;
     }
     current_alloc_context = context_stack[++context_ptr] = ++context_seq_no;
@@ -366,9 +362,7 @@ void QColor::leaveAllocContext()
 {
     init_context_stack();
     if ( context_ptr == 0 ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QColor::leaveAllocContext: Context stack underflow" );
-#endif
 	return;
     }
 

@@ -309,10 +309,8 @@ static HANDLE openlock( const QString &name, int type )
 	fd = CreateFileA( name.local8Bit(), GENERIC_READ, shareFlag, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
     } );
 
-#ifdef QT_CHECK_STATE
     if ( !fd )
 	qWarning( "QSettings: openlock failed!" );
-#endif
     return fd;
 }
 
@@ -343,9 +341,7 @@ void QSettingsHeading::read(const QString &filename)
 
     QFile file(filename);
     if (! file.open(IO_ReadOnly)) {
-#if defined(QT_CHECK_STATE)
 	qWarning("QSettings: failed to open file '%s'", filename.latin1());
-#endif
 	return;
     }
 
@@ -387,18 +383,14 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 	    git = replace(gname, QSettingsGroup());
     } else {
 	if (git == end()) {
-#if defined(QT_CHECK_STATE)
 	    qWarning("QSettings: line '%s' out of group", line.latin1());
-#endif
 	    return;
 	}
 
 	int i = line.find('=');
        	if (i == -1) {
-#if defined(QT_CHECK_STATE)
 	    qWarning("QSettings: malformed line '%s' in group '%s'",
 		     line.latin1(), git.key().latin1());
-#endif
 	    return;
 	} else {
 	    QString key, value;
@@ -426,9 +418,7 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 		    // Backwards-compatiblity...
 		    // still escaped at EOL - manually escaped "newline"
 		    if (stream.atEnd()) {
-#if defined(QT_CHECK_STATE)
 			qWarning("QSettings: reached end of file, expected continued line");
-#endif
 			break;
 		    }
 		    value.append('\n');
@@ -505,11 +495,7 @@ QSettingsPrivate::QSettingsPrivate( QSettings::Format format )
     QDir dir(appSettings);
     if (! dir.exists()) {
 	if (! dir.mkdir(dir.path()))
-#if defined(QT_CHECK_STATE)
 	    qWarning("QSettings: error creating %s", dir.path().latin1());
-#else
-	    ;
-#endif
     }
 
     if ( !!defPath )
@@ -796,9 +782,7 @@ void QSettings::insertSearchPath( System s, const QString &path)
 #endif
 
     if ( !qt_verify_key( path ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1() );
-#endif
 	return;
     }
 
@@ -836,9 +820,7 @@ void QSettings::insertSearchPath( System s, const QString &path)
 void QSettings::removeSearchPath( System s, const QString &path)
 {
     if ( !qt_verify_key( path ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1() );
-#endif
 	return;
     }
 
@@ -872,7 +854,6 @@ void QSettings::removeSearchPath( System s, const QString &path)
 QSettings::QSettings()
 {
     d = new QSettingsPrivate( Native );
-    Q_CHECK_PTR(d);
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     d->sysd = 0;
@@ -889,7 +870,6 @@ QSettings::QSettings()
 QSettings::QSettings( Format format )
 {
     d = new QSettingsPrivate( format );
-    Q_CHECK_PTR(d);
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     d->sysd = 0;
@@ -955,7 +935,7 @@ bool QSettings::sync()
 	    QFileInfo fi((*pit++) + "/" + filebase + "rc");
 
 	    if ((fi.exists() && fi.isFile() && fi.isWritable()) ||
-		(! fi.exists() && di.isDir() 
+		(! fi.exists() && di.isDir()
 #ifndef Q_WS_WIN
 		&& di.isWritable()
 #else
@@ -970,11 +950,7 @@ bool QSettings::sync()
 	++it;
 
 	if ( filename.isEmpty() ) {
-
-#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::sync: filename is null/empty");
-#endif // QT_CHECK_STATE
-
 	    success = FALSE;
 	    continue;
 	}
@@ -983,12 +959,8 @@ bool QSettings::sync()
 
 	QFile file( filename + ".tmp" );
 	if (! file.open(IO_WriteOnly)) {
-
-#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::sync: failed to open '%s' for writing",
 		     file.name().latin1());
-#endif // QT_CHECK_STATE
-
 	    success = FALSE;
 	    continue;
 	}
@@ -1024,11 +996,7 @@ bool QSettings::sync()
 	}
 
 	if (file.status() != IO_Ok) {
-
-#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::sync: error at end of write");
-#endif // QT_CHECK_STATE
-
 	    success = FALSE;
 	}
 
@@ -1038,12 +1006,8 @@ bool QSettings::sync()
 	    QDir dir( QFileInfo( file ).dir( TRUE ) );
 	    if ( dir.exists( filename ) && !dir.remove( filename ) ||
 		 !dir.rename( file.name(), filename, TRUE ) ) {
-
-#ifdef QT_CHECK_STATE
 		qWarning( "QSettings::sync: error writing file '%s'",
 			  QFile::encodeName( filename ).constData() );
-#endif // QT_CHECK_STATE
-
 		success = FALSE;
 	    }
 	}
@@ -1078,9 +1042,7 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 {
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::readBoolEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-#endif
     	if ( ok )
 	    *ok = FALSE;
 
@@ -1130,9 +1092,7 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 {
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::readDoubleEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-#endif
     	if ( ok )
 	    *ok = FALSE;
 
@@ -1176,9 +1136,7 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 {
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::readNumEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-#endif
 	if ( ok )
 	    *ok = FALSE;
 	return def;
@@ -1221,9 +1179,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 {
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::readEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-#endif
 	if ( ok )
 	    *ok = FALSE;
 
@@ -1245,9 +1201,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 	QStringList list(QStringList::split('/', grp_key));
 
 	if (list.count() < 2) {
-#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::readEntry: invalid key '%s'", grp_key.latin1());
-#endif // QT_CHECK_STATE
 	    if ( ok )
 		*ok = FALSE;
 	    return def;
@@ -1299,9 +1253,7 @@ bool QSettings::writeEntry(const QString &key, bool value)
 {
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-#endif
 	return FALSE;
     }
 
@@ -1330,9 +1282,7 @@ bool QSettings::writeEntry(const QString &key, double value)
 {
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-#endif
 	return FALSE;
     }
 
@@ -1360,9 +1310,7 @@ bool QSettings::writeEntry(const QString &key, int value)
 {
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-#endif
 	return FALSE;
     }
 
@@ -1413,9 +1361,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 {
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-#endif
 	return FALSE;
     }
 
@@ -1432,9 +1378,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 	QStringList list(QStringList::split('/', grp_key));
 
 	if (list.count() < 2) {
-#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::writeEntry: invalid key '%s'", grp_key.latin1());
-#endif // QT_CHECK_STATE
 
 	    return FALSE;
 	}
@@ -1474,9 +1418,7 @@ bool QSettings::removeEntry(const QString &key)
 {
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::removeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-#endif
 	return FALSE;
     }
 
@@ -1491,9 +1433,7 @@ bool QSettings::removeEntry(const QString &key)
 	QStringList list(QStringList::split('/', grp_key));
 
 	if (list.count() < 2) {
-#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::removeEntry: invalid key '%s'", grp_key.latin1());
-#endif // QT_CHECK_STATE
 
 	    return FALSE;
 	}
@@ -1552,9 +1492,7 @@ QStringList QSettings::entryList(const QString &key) const
 {
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::entryList: Invalid key: %s", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-#endif
 	return QStringList();
     }
 
@@ -1569,9 +1507,7 @@ QStringList QSettings::entryList(const QString &key) const
 	QStringList list(QStringList::split('/', grp_key));
 
 	if (list.count() < 1) {
-#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::listEntries: invalid key '%s'", grp_key.latin1());
-#endif // QT_CHECK_STATE
 
 	    return QStringList();
 	}
@@ -1648,9 +1584,7 @@ QStringList QSettings::subkeyList(const QString &key) const
 {
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::subkeyList: Invalid key: %s", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-#endif
 	return QStringList();
     }
 
@@ -1666,10 +1600,7 @@ QStringList QSettings::subkeyList(const QString &key) const
 	QStringList list(QStringList::split('/', grp_key));
 
 	if (list.count() < 1) {
-#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::subkeyList: invalid key '%s'", grp_key.latin1());
-#endif // QT_CHECK_STATE
-
 	    return QStringList();
 	}
 
@@ -1741,9 +1672,7 @@ QDateTime QSettings::lastModificationTime( const QString &key )
 {
     QString grp_key( groupKey( group(), key ) );
     if ( !qt_verify_key( grp_key ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::lastModificationTime: Invalid key '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-#endif
 	return QDateTime();
     }
 
@@ -1757,9 +1686,7 @@ QDateTime QSettings::lastModificationTime( const QString &key )
 	QStringList list(QStringList::split('/', grp_key));
 
 	if (list.count() < 2) {
-#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::lastModificationTime: Invalid key '%s'", grp_key.latin1());
-#endif // QT_CHECK_STATE
 
 	    return QDateTime();
 	}

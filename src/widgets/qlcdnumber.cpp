@@ -348,10 +348,8 @@ QLCDNumber::~QLCDNumber()
 void QLCDNumber::setNumDigits( int numDigits )
 {
     if ( numDigits > 99 ) {
-#if defined(QT_CHECK_RANGE)
         qWarning( "QLCDNumber::setNumDigits: (%s) Max 99 digits allowed",
                  name( "unnamed" ) );
-#endif
         numDigits = 99;
     }
     if ( digitStr.isNull() ) {                  // from constructor
@@ -942,12 +940,10 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             LINETO(0,-width);
             LINETO(0,0);
             break;
-#if defined(QT_CHECK_RANGE)
         default :
             qWarning( "QLCDNumber::drawSegment: (%s) Internal error."
                      "  Illegal segment id: %d\n",
                      name( "unnamed" ), segmentNo );
-#endif
         }
         // End exact copy
         p.setPen( fgColor );
@@ -1077,12 +1073,10 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             LINETO(0,-width);
             LINETO(0,0);
             break;
-#if defined(QT_CHECK_RANGE)
         default :
             qWarning( "QLCDNumber::drawSegment: (%s) Internal error."
                      "  Illegal segment id: %d\n",
                      name( "unnamed" ), segmentNo );
-#endif
         }
 
 #undef LINETO

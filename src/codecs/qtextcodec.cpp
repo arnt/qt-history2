@@ -1526,7 +1526,7 @@ QTextCodec* QTextCodec::loadCharmapFile(QString filename)
 #endif //QT_NO_CODECS
 
 /*!
-    Returns a string representing the current language and 
+    Returns a string representing the current language and
     sublanguage, e.g. "pt" for Portuguese, or "pt_br" for Portuguese/Brazil.
 */
 
@@ -2820,10 +2820,8 @@ static void setupLocaleMapper()
 
 static void realSetup()
 {
-#if defined(QT_CHECK_STATE)
     if ( destroying_is_ok )
 	qWarning( "QTextCodec: creating new codec during codec cleanup!" );
-#endif
     all = new QList<QTextCodec*>;
 
     (void)new QLatin1Codec;

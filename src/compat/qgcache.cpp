@@ -231,11 +231,9 @@ QGCache::QGCache( int maxCost, uint size, KeyType kt, bool caseSensitive,
 {
     keytype = kt;
     lruList = new QCList;
-    Q_CHECK_PTR( lruList );
     lruList->setAutoDelete( TRUE );
     copyk   = ((keytype == AsciiKey) && copyKeys);
     dict    = new QCDict( size, kt, caseSensitive, FALSE );
-    Q_CHECK_PTR( dict );
     mCost   = maxCost;
     tCost   = 0;
 #if defined(QT_DEBUG)
@@ -257,9 +255,7 @@ QGCache::QGCache( int maxCost, uint size, KeyType kt, bool caseSensitive,
 QGCache::QGCache( const QGCache & )
     : QPtrCollection()
 {
-#if defined(QT_CHECK_NULL)
     qFatal( "QGCache::QGCache(QGCache &): Cannot copy a cache" );
-#endif
 }
 
 /*!
@@ -279,9 +275,7 @@ QGCache::~QGCache()
 
 QGCache &QGCache::operator=( const QGCache & )
 {
-#if defined(QT_CHECK_NULL)
     qFatal( "QGCache::operator=: Cannot copy a cache" );
-#endif
     return *this;
 }
 
@@ -364,7 +358,6 @@ bool QGCache::insert_string( const QString &key, QPtrCollection::Item data,
 	priority = 32677;
     QCacheItem *ci = new QCacheItem( new QString(key), newItem(data),
 				     cost, (short)priority );
-    Q_CHECK_PTR( ci );
     lruList->insert( 0, ci );
     dict->insert_string( key, ci );
     tCost += cost;
@@ -395,7 +388,6 @@ bool QGCache::insert_other( const char *key, QPtrCollection::Item data,
 	priority = 32677;
     QCacheItem *ci = new QCacheItem( (void*)key, newItem(data), cost,
 				     (short)priority );
-    Q_CHECK_PTR( ci );
     lruList->insert( 0, ci );
     if ( keytype == AsciiKey )
 	dict->insert_ascii( key, ci );

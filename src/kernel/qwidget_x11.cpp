@@ -888,7 +888,6 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 	else
 	    d->createExtra();
 	d->extra->bg_pix = new QPixmap( pm );
-	Q_CHECK_PTR( d->extra->bg_pix );
 	d->extra->bg_pix->x11SetScreen( x11Screen() );
 	XSetWindowBackgroundPixmap( x11Display(), winId(), d->extra->bg_pix->handle() );
 	if ( testWFlags(WType_Desktop) )	// save rootinfo later
@@ -1117,7 +1116,7 @@ void QWidget::grabMouse()
     if ( isVisible() && !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
-#if defined(QT_CHECK_STATE)
+#ifndef QT_NO_DEBUG
 	int status =
 #endif
 	    XGrabPointer( x11Display(), winId(), False,
@@ -1126,7 +1125,7 @@ void QWidget::grabMouse()
 				  LeaveWindowMask ),
 			  GrabModeAsync, GrabModeAsync,
 			  None, None, qt_x_time );
-#if defined(QT_CHECK_STATE)
+#ifndef QT_NO_DEBUG
 	if ( status ) {
 	    const char *s =
 		status == GrabNotViewable ? "\"GrabNotViewable\"" :
@@ -1160,7 +1159,7 @@ void QWidget::grabMouse( const QCursor &cursor )
     if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
-#if defined(QT_CHECK_STATE)
+#ifndef QT_NO_DEBUG
 	int status =
 #endif
 	XGrabPointer( x11Display(), winId(), False,
@@ -1168,7 +1167,7 @@ void QWidget::grabMouse( const QCursor &cursor )
 			     PointerMotionMask | EnterWindowMask | LeaveWindowMask),
 		      GrabModeAsync, GrabModeAsync,
 		      None, cursor.handle(), qt_x_time );
-#if defined(QT_CHECK_STATE)
+#ifndef QT_NO_DEBUG
 	if ( status ) {
 	    const char *s =
 		status == GrabNotViewable ? "\"GrabNotViewable\"" :
@@ -1920,10 +1919,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
 void QWidget::setMinimumSize( int minw, int minh )
 {
-#if defined(QT_CHECK_RANGE)
     if ( minw < 0 || minh < 0 )
 	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
-#endif
     d->createExtra();
     if ( d->extra->minw == minw && d->extra->minh == minh )
 	return;
@@ -1949,7 +1946,6 @@ void QWidget::setMinimumSize( int minw, int minh )
 */
 void QWidget::setMaximumSize( int maxw, int maxh )
 {
-#if defined(QT_CHECK_RANGE)
     if ( maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX ) {
 	qWarning("QWidget::setMaximumSize: (%s/%s) "
 		"The largest allowed size is (%d,%d)",
@@ -1965,7 +1961,6 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 	maxw = QMAX( maxw, 0 );
 	maxh = QMAX( maxh, 0 );
     }
-#endif
     d->createExtra();
     if ( d->extra->maxw == maxw && d->extra->maxh == maxh )
 	return;
@@ -2216,9 +2211,7 @@ int QWidget::metric( int m ) const
 		break;
 	    default:
 		val = 0;
-#if defined(QT_CHECK_RANGE)
 		qWarning( "QWidget::metric: Invalid metric command" );
-#endif
 	}
     }
     return val;

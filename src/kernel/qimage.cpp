@@ -548,9 +548,7 @@ QImage QImage::fromMimeSource( const QString &abs_name )
 {
     const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( abs_name );
     if ( !m ) {
-#if defined(QT_CHECK_STATE)
 	qWarning("QImage::fromMimeSource: Cannot find image \"%s\" in the mime source factory", abs_name.latin1() );
-#endif
 	return QImage();
     }
     QImage img;
@@ -885,17 +883,6 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
 
 
-void QImage::warningIndexRange( const char *func, int i )
-{
-#if defined(QT_CHECK_RANGE)
-    qWarning( "QImage::%s: Index %d out of range", func, i );
-#else
-    Q_UNUSED( func )
-    Q_UNUSED( i )
-#endif
-}
-
-
 /*!
     Resets all image parameters and deallocates the image data.
 */
@@ -1184,19 +1171,15 @@ bool QImage::create( int width, int height, int depth, int numColors,
     if ( width <= 0 || height <= 0 || depth <= 0 || numColors < 0 )
 	return FALSE;				// invalid parameter(s)
     if ( depth == 1 && bitOrder == IgnoreEndian ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QImage::create: Bit order is required for 1 bpp images" );
-#endif
 	return FALSE;
     }
     if ( depth != 1 )
 	bitOrder = IgnoreEndian;
 
-#if defined(QT_CHECK_RANGE)
     if ( depth == 24 )
 	qWarning( "QImage::create: 24-bpp images no longer supported, "
 		  "use 32-bpp instead" );
-#endif
     switch ( depth ) {
     case 1:
     case 8:
@@ -1268,7 +1251,6 @@ bool QImage::create( const QSize& size, int depth, int numColors,
 void QImage::init()
 {
     data = new QImageData;
-    Q_CHECK_PTR( data );
     reinit();
 }
 
@@ -2092,12 +2074,10 @@ QImage QImage::convertDepth( int depth, int conversion_flags ) const
     }
 #endif
     else {
-#if defined(QT_CHECK_RANGE)
 	if ( isNull() )
 	    qWarning( "QImage::convertDepth: Image is a null image" );
 	else
 	    qWarning( "QImage::convertDepth: Depth %d not supported", depth );
-#endif
     }
     return image;
 }
@@ -2136,12 +2116,10 @@ bool QImage::valid( int x, int y ) const
 
 int QImage::pixelIndex( int x, int y ) const
 {
-#if defined(QT_CHECK_RANGE)
     if ( x < 0 || x >= width() ) {
 	qWarning( "QImage::pixel: x=%d out of range", x );
 	return -12345;
     }
-#endif
     uchar * s = scanLine( y );
     switch( depth() ) {
     case 1:
@@ -2156,10 +2134,8 @@ int QImage::pixelIndex( int x, int y ) const
     case 16:
 #endif
     case 32:
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QImage::pixelIndex: Not applicable for %d-bpp images "
 		 "(no palette)", depth() );
-#endif
 	return 0;
 #endif //QT_NO_IMAGE_TRUECOLOR
     }
@@ -2178,12 +2154,10 @@ int QImage::pixelIndex( int x, int y ) const
 
 QRgb QImage::pixel( int x, int y ) const
 {
-#if defined(QT_CHECK_RANGE)
     if ( x < 0 || x >= width() ) {
 	qWarning( "QImage::pixel: x=%d out of range", x );
 	return 12345;
     }
-#endif
     uchar * s = scanLine( y );
     switch( depth() ) {
     case 1:
@@ -2223,18 +2197,14 @@ QRgb QImage::pixel( int x, int y ) const
 void QImage::setPixel( int x, int y, uint index_or_rgb )
 {
     if ( x < 0 || x >= width() ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QImage::setPixel: x=%d out of range", x );
-#endif
 	return;
     }
     if ( depth() == 1 ) {
 	uchar * s = scanLine( y );
 	if ( index_or_rgb > 1) {
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "QImage::setPixel: index=%d out of range",
 		     index_or_rgb );
-#endif
 	} else if ( bitOrder() == QImage::LittleEndian ) {
 	    if (index_or_rgb==0)
 		*(s + (x >> 3)) &= ~(1 << (x & 7));
@@ -2248,10 +2218,8 @@ void QImage::setPixel( int x, int y, uint index_or_rgb )
 	}
     } else if ( depth() == 8 ) {
 	if (index_or_rgb > (uint)numColors()) {
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "QImage::setPixel: index=%d out of range",
 		     index_or_rgb );
-#endif
 	    return;
 	}
 	uchar * s = scanLine( y );
@@ -2720,9 +2688,7 @@ QImage QImage::smoothScale( int w, int h, ScaleMode mode ) const
 QImage QImage::smoothScale( const QSize& s, ScaleMode mode ) const
 {
     if ( isNull() ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QImage::smoothScale: Image is a null image" );
-#endif
 	return copy();
     }
 
@@ -2785,9 +2751,7 @@ QImage QImage::scale( int w, int h, ScaleMode mode ) const
 QImage QImage::scale( const QSize& s, ScaleMode mode ) const
 {
     if ( isNull() ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QImage::scale: Image is a null image" );
-#endif
 	return copy();
     }
     if ( s.isEmpty() )
@@ -2823,9 +2787,7 @@ QImage QImage::scale( const QSize& s, ScaleMode mode ) const
 QImage QImage::scaleWidth( int w ) const
 {
     if ( isNull() ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QImage::scaleWidth: Image is a null image" );
-#endif
 	return copy();
     }
     if ( w <= 0 )
@@ -2852,9 +2814,7 @@ QImage QImage::scaleWidth( int w ) const
 QImage QImage::scaleHeight( int h ) const
 {
     if ( isNull() ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QImage::scaleHeight: Image is a null image" );
-#endif
 	return copy();
     }
     if ( h <= 0 )
@@ -3487,10 +3447,8 @@ bool QImage::doImageIO( QImageIO* io, int quality ) const
     if ( !io )
 	return FALSE;
     io->setImage( *this );
-#if defined(QT_CHECK_RANGE)
     if ( quality > 100  || quality < -1 )
 	qWarning( "QPixmap::save: quality out of range [-1,100]" );
-#endif
     if ( quality >= 0 )
 	io->setQuality( QMIN(quality,100) );
     return io->write();
@@ -3824,7 +3782,6 @@ void qt_init_image_handlers()		// initialize image handlers
 {
     if ( !imageHandlers ) {
 	imageHandlers = new QIHList;
-	Q_CHECK_PTR( imageHandlers );
 	imageHandlers->setAutoDelete( TRUE );
 	qAddPostRoutine( cleanup );
 #ifndef QT_NO_IMAGEIO_BMP
@@ -3942,7 +3899,6 @@ void QImageIO::defineIOHandler( const char *format,
     QImageHandler *p;
     p = new QImageHandler( format, header, QByteArray(flags),
 			   readImage, writeImage );
-    Q_CHECK_PTR( p );
     imageHandlers->insert( 0, p );
 }
 
@@ -4424,10 +4380,8 @@ bool QImageIO::write()
 	h = get_image_handler( frmt );
     }
     if ( !h || !h->write_image ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QImageIO::write: No such image format handler: %s",
 		 format() );
-#endif
 	return FALSE;
     }
     QFile file;
@@ -4674,7 +4628,6 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
     else if ( nbits == 4 ) {			// 4 bit BMP image
 	int    buflen = ((w+7)/8)*4;
 	uchar *buf    = new uchar[buflen];
-	Q_CHECK_PTR( buf );
 	if ( comp == BMP_RLE4 ) {		// run length compression
 	    int x=0, y=0, b, c, i;
 	    register uchar *p = line[h-1];
@@ -5607,9 +5560,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
 
     for( currentColor=0; currentColor < ncols; ++currentColor ) {
 	if ( !read_xpm_string( buf, d, source, index ) ) {
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "QImage: XPM color specification missing");
-#endif
 	    return;
 	}
 	QString index;
@@ -5624,9 +5575,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
 	if ( i < 0 )
 	    i = sbuf.find( " m " );
 	if ( i < 0 ) {
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "QImage: XPM color specification is missing: %s", buf.constData());
-#endif
 	    return;	// no c/g/g4/m specification at all
 	}
 	sbuf = sbuf.mid( i+3 );
@@ -5664,9 +5613,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
     // Read pixels
     for( int y=0; y<h; y++ ) {
 	if ( !read_xpm_string( buf, d, source, index ) ) {
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "QImage: XPM pixels missing on image line %d", y);
-#endif
 	    return;
 	}
 	if ( image.depth() == 8 ) {

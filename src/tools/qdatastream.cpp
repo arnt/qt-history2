@@ -180,7 +180,7 @@
   QDataStream member functions
  *****************************************************************************/
 
-#if defined(QT_CHECK_STATE)
+#ifndef QT_NO_DEBUG
 #undef  CHECK_STREAM_PRECOND
 #define CHECK_STREAM_PRECOND  if ( !dev ) {				\
 				qWarning( "QDataStream: No device" );	\
@@ -780,7 +780,6 @@ QDataStream &QDataStream::readBytes( char *&s, uint &l )
 	return *this;
     } else {
 	s = new char[len];			// create char array
-	Q_CHECK_PTR( s );
 	if ( !s )				// no memory
 	    return *this;
 	return readRawBytes( s, (uint)len );

@@ -226,10 +226,8 @@ static inline void qstring_to_pstring(QString s, int len, Str255 str, TextEncodi
 int QFontMetrics::width(QChar c) const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
     Q_ASSERT( engine->type() == QFontEngine::Mac );
-#endif // QT_CHECK_STATE
 
     return ((QFontEngineMac*) engine)->doTextTask(&c, 0, 1, 1,
 						  QFontEngineMac::WIDTH);
@@ -273,11 +271,9 @@ void QFont::macSetFont(QPaintDevice *v)
 
 void QFontPrivate::load(QFont::Script script)
 {
-#if defined(QT_CHECK_STATE)
     // sanity checks
     Q_ASSERT(QFontCache::instance != 0);
     Q_ASSERT(script >= 0 && script < QFont::LastPrivateScript);
-#endif // QT_CHECK_STATE
 
     QFontEngineMac *engine = NULL;
 
@@ -376,7 +372,6 @@ void QFont::initialize()
 {
     if(!QFontCache::instance)
         new QFontCache();
-    Q_CHECK_PTR(QFontCache::instance);
 }
 
 bool QFont::dirty() const

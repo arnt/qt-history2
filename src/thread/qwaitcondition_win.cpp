@@ -49,18 +49,14 @@ QWaitConditionPrivate::QWaitConditionPrivate()
 	autoreset = CreateEventA( NULL, FALSE, FALSE, NULL );
     } );
 
-#ifdef QT_CHECK_RANGE
     if ( !manual || !autoreset )
-    qSystemWarning( "Condition init failure" );
-#endif
+	qSystemWarning( "Condition init failure" );
 }
 
 QWaitConditionPrivate::~QWaitConditionPrivate()
 {
     if ( !CloseHandle( manual ) || !CloseHandle( autoreset ) ) {
-#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Condition destroy failure" );
-#endif
     }
 }
 
@@ -100,17 +96,13 @@ bool QWaitCondition::wait( unsigned long time )
     case WAIT_ABANDONED:
     case WAIT_ABANDONED+1:
     case WAIT_FAILED:
-#ifdef QT_CHECK_RANGE
     qSystemWarning( "Condition wait failure" );
-#endif
 	break;
     case WAIT_OBJECT_0:
 	d->mutex.lock();
 	if ( !d->waitersCount ) {
 	    if ( !ResetEvent ( d->manual ) ) {
-#ifdef QT_CHECK_RANGE
 		qSystemWarning( "Condition could not be reset" );
-#endif
 	    }
 	}
 	d->mutex.unlock();
@@ -126,9 +118,7 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
        return FALSE;
 
     if ( mutex->d->recursive ) {
-#ifdef QT_CHECK_RANGE
 	qWarning("QWaitCondition::wait: Cannot wait on recursive mutexes.");
-#endif
 	return FALSE;
     }
 
@@ -136,16 +126,14 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
     d->waitersCount++;
     d->mutex.unlock();
     mutex->unlock();
-    int result = d->wait(time, FALSE);    
+    int result = d->wait(time, FALSE);
     mutex->lock();
     d->mutex.lock();
     bool lastWaiter = ( (result == WAIT_OBJECT_0 )  && d->waitersCount == 0 ); // last waiter on waitAll?
     d->mutex.unlock();
     if ( lastWaiter ) {
 	if ( !ResetEvent ( d->manual ) ) {
-#ifdef QT_CHECK_RANGE
-	qSystemWarning( "Condition could not be reset" );
-#endif
+	    qSystemWarning( "Condition could not be reset" );
 	}
     }
     switch ( result ) {
@@ -154,9 +142,7 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
     case WAIT_ABANDONED:
     case WAIT_ABANDONED+1:
     case WAIT_FAILED:
-#ifdef QT_CHECK_RANGE
-    qSystemWarning( "Condition wait failure" );
-#endif
+	qSystemWarning( "Condition wait failure" );
 	break;
     default:
 	break;
@@ -170,9 +156,7 @@ void QWaitCondition::wakeOne()
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
 	if ( !SetEvent( d->autoreset ) ) {
-#ifdef QT_CHECK_RANGE
 	    qSystemWarning( "Condition could not be set" );
-#endif
 	}
     }
     d->mutex.unlock();
@@ -184,9 +168,7 @@ void QWaitCondition::wakeAll()
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
 	if ( !SetEvent( d->manual ) ) {
-#ifdef QT_CHECK_RANGE
 	    qSystemWarning( "Condition could not be set" );
-#endif
 	}
     }
     d->mutex.unlock();

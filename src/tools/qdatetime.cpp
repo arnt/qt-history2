@@ -473,12 +473,10 @@ int QDate::weekNumber( int *yearNumber ) const
 
 QString QDate::shortMonthName( int month )
 {
-#if defined(QT_CHECK_RANGE)
     if ( month < 1 || month > 12 ) {
 	qWarning( "QDate::shortMonthName: Parameter out ouf range" );
 	month = 1;
     }
-#endif
 #ifndef Q_WS_WIN
     char buffer[255];
     tm tt;
@@ -519,12 +517,10 @@ QString QDate::shortMonthName( int month )
 
 QString QDate::longMonthName( int month )
 {
-#if defined(QT_CHECK_RANGE)
     if ( month < 1 || month > 12 ) {
 	qWarning( "QDate::longMonthName: Parameter out ouf range" );
 	month = 1;
     }
-#endif
 #ifndef Q_WS_WIN
     char buffer[255];
     tm tt;
@@ -573,12 +569,10 @@ QString QDate::longMonthName( int month )
 
 QString QDate::shortDayName( int weekday )
 {
-#if defined(QT_CHECK_RANGE)
     if ( weekday < 1 || weekday > 7 ) {
 	qWarning( "QDate::shortDayName: Parameter out of range" );
 	weekday = 1;
     }
-#endif
 #ifndef Q_WS_WIN
     char buffer[255];
     tm tt;
@@ -621,12 +615,10 @@ QString QDate::shortDayName( int weekday )
 
 QString QDate::longDayName( int weekday )
 {
-#if defined(QT_CHECK_RANGE)
     if ( weekday < 1 || weekday > 7 ) {
 	qWarning( "QDate::longDayName: Parameter out of range" );
 	weekday = 1;
     }
-#endif
 #ifndef Q_WS_WIN
     char buffer[255];
     tm tt;
@@ -811,9 +803,7 @@ bool QDate::setYMD( int y, int m, int d )
     if ( year() == y && month() == m && day() == d )
 	return isValid();
     if ( !isValid(y,m,d) ) {
-#if defined(QT_CHECK_RANGE)
 	 qWarning( "QDate::setYMD: Invalid date %04d-%02d-%02d", y, m, d );
-#endif
 	 return FALSE;
     }
     jd = gregorianToJulian( y, m, d );
@@ -1034,9 +1024,7 @@ QDate QDate::currentDate( Qt::TimeSpec ts )
 QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 {
     if ( ( s.isEmpty() ) || ( f == Qt::LocalDate ) ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QDate::fromString: Parameter out of range" );
-#endif
 	QDate d;
 	d.jd = 0;
 	return d;
@@ -1082,14 +1070,12 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 		    }
 		}
 	    }
-#if defined(QT_CHECK_RANGE)
 	    if ( month < 1 || month > 12 ) {
 		qWarning( "QDate::fromString: Parameter out of range" );
 		QDate d;
 		d.jd = 0;
 		return d;
 	    }
-#endif
 	    int day = s.mid( dayPos, 2 ).stripWhiteSpace().toInt();
 	    int year = s.right( 4 ).toInt();
 	    return QDate( year, month, day );
@@ -1454,10 +1440,8 @@ QString QTime::toString( const QString& format ) const
 bool QTime::setHMS( int h, int m, int s, int ms )
 {
     if ( !isValid(h,m,s,ms) ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QTime::setHMS Invalid time %02d:%02d:%02d.%03d", h, m, s,
 		 ms );
-#endif
 	ds = MSECS_PER_DAY;		// make this invalid
 	return FALSE;
     }
@@ -1624,9 +1608,7 @@ QTime QTime::currentTime( Qt::TimeSpec ts )
 QTime QTime::fromString( const QString& s, Qt::DateFormat f )
 {
     if ( ( s.isEmpty() ) || ( f == Qt::LocalDate ) ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QTime::fromString: Parameter out of range" );
-#endif
 	QTime t;
 	t.ds = MSECS_PER_DAY;
 	return t;
@@ -1668,9 +1650,7 @@ bool QTime::currentTime( QTime *ct )
 bool QTime::currentTime( QTime *ct, Qt::TimeSpec ts )
 {
     if ( !ct ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QTime::currentTime(QTime *): Null pointer not allowed" );
-#endif
 	return FALSE;
     }
 
@@ -2409,9 +2389,7 @@ QDateTime QDateTime::currentDateTime( Qt::TimeSpec ts )
 QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 {
     if ( ( s.isEmpty() ) || ( f == Qt::LocalDate ) ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QDateTime::fromString: Parameter out of range" );
-#endif
 	QDateTime dt;
 	dt.d.jd = 0;
 	return dt;
@@ -2440,14 +2418,12 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 		}
 	    }
 	}
-#if defined(QT_CHECK_RANGE)
 	if ( month < 1 || month > 12 ) {
 	    qWarning( "QDateTime::fromString: Parameter out of range" );
 	    QDateTime dt;
 	    dt.d.jd = 0;
 	    return dt;
 	}
-#endif
 	int day = s.mid( 8, 2 ).simplifyWhiteSpace().toInt();
 	int year = s.right( 4 ).toInt();
 	QDate date( year, month, day );

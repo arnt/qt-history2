@@ -518,9 +518,7 @@ void QSocket::tryConnecting()
 bool QSocket::open( int m )
 {
     if ( isOpen() ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSocket::open: Already open" );
-#endif
 	return FALSE;
     }
     QIODevice::setMode( m & IO_ReadWrite );
@@ -833,15 +831,11 @@ void QSocket::clearPendingData()
 Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
 {
     if ( data == 0 && maxlen != 0 ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QSocket::readBlock: Null pointer error" );
-#endif
 	return -1;
     }
     if ( !isOpen() ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSocket::readBlock: Socket is not open" );
-#endif
 	return -1;
     }
     if ( maxlen >= d->rba.size() )
@@ -863,22 +857,16 @@ Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
 
 Q_LONG QSocket::writeBlock( const char *data, Q_ULONG len )
 {
-#if defined(QT_CHECK_NULL)
     if ( data == 0 && len != 0 ) {
 	qWarning( "QSocket::writeBlock: Null pointer error" );
     }
-#endif
-#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
 	qWarning( "QSocket::writeBlock: Socket is not open" );
 	return -1;
     }
-#endif
-#if defined(QT_CHECK_STATE)
     if ( d->state == Closing ) {
 	qWarning( "QSocket::writeBlock: Cannot write, socket is closing" );
     }
-#endif
     if ( len == 0 || d->state == Closing || d->state == Idle )
 	return 0;
     QByteArray *a = d->wba.last();
@@ -958,12 +946,10 @@ int QSocket::putch( int ch )
 
 int QSocket::ungetch( int ch )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
 	qWarning( "QSocket::ungetch: Socket not open" );
 	return -1;
     }
-#endif
     return d->rba.ungetch( ch );
 }
 
@@ -1143,9 +1129,7 @@ void QSocket::sn_read( bool force )
 		QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 		return;
 	    }
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "QSocket::sn_read: Read error" );
-#endif
 	    delete a;
 	    if ( d->rsn )
 		d->rsn->setEnabled( FALSE );

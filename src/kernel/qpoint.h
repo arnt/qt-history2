@@ -58,7 +58,6 @@ public:
     friend inline const QPoint operator/( const QPoint &, double );
 
 private:
-    static void warningDivByZero();
 
 #if defined(Q_OS_MAC)
     QCOORD yp;
@@ -150,10 +149,7 @@ inline const QPoint operator-( const QPoint &p )
 
 inline QPoint &QPoint::operator/=( int c )
 {
-#if defined(QT_CHECK_MATH)
-    if ( c == 0 )
-	warningDivByZero();
-#endif
+    Q_ASSERT(c != 0);
     xp/=(QCOORD)c;
     yp/=(QCOORD)c;
     return *this;
@@ -161,10 +157,7 @@ inline QPoint &QPoint::operator/=( int c )
 
 inline QPoint &QPoint::operator/=( double c )
 {
-#if defined(QT_CHECK_MATH)
-    if ( c == 0.0 )
-	warningDivByZero();
-#endif
+    Q_ASSERT(c != 0.0);
     xp=(QCOORD)(xp/c);
     yp=(QCOORD)(yp/c);
     return *this;
@@ -172,19 +165,13 @@ inline QPoint &QPoint::operator/=( double c )
 
 inline const QPoint operator/( const QPoint &p, int c )
 {
-#if defined(QT_CHECK_MATH)
-    if ( c == 0 )
-	QPoint::warningDivByZero();
-#endif
+    Q_ASSERT(c != 0);
     return QPoint(p.xp/c, p.yp/c);
 }
 
 inline const QPoint operator/( const QPoint &p, double c )
 {
-#if defined(QT_CHECK_MATH)
-    if ( c == 0.0 )
-	QPoint::warningDivByZero();
-#endif
+    Q_ASSERT(c != 0.0);
     return QPoint((QCOORD)(p.xp/c), (QCOORD)(p.yp/c));
 }
 

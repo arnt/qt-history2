@@ -197,7 +197,6 @@ private:
     void	init();
     void	reinit();
     void	freeBits();
-    static void	warningIndexRange( const char *, int );
 
     struct QImageData : public QShared {	// internal image data
 	int	w;				// image width
@@ -354,29 +353,20 @@ inline QImage QImage::copy(const QRect& r) const
 
 inline QRgb QImage::color( int i ) const
 {
-#if defined(QT_CHECK_RANGE)
-    if ( i >= data->ncols )
-	warningIndexRange( "color", i );
-#endif
+    Q_ASSERT(i < numColors());
     return data->ctbl ? data->ctbl[i] : (QRgb)-1;
 }
 
 inline void QImage::setColor( int i, QRgb c )
 {
-#if defined(QT_CHECK_RANGE)
-    if ( i >= data->ncols )
-	warningIndexRange( "setColor", i );
-#endif
+    Q_ASSERT(i < numColors());
     if ( data->ctbl )
 	data->ctbl[i] = c;
 }
 
 inline uchar *QImage::scanLine( int i ) const
 {
-#if defined(QT_CHECK_RANGE)
-    if ( i >= data->h )
-	warningIndexRange( "scanLine", i );
-#endif
+    Q_ASSERT(i < height());
     return data->bits ? data->bits[i] : 0;
 }
 

@@ -1014,9 +1014,7 @@ void QLayout::deleteAllItems()
 void QLayout::addChildLayout( QLayout *l )
 {
     if ( l->parent() ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QLayout::addChildLayout: layout already has a parent" );
-#endif
 	return;
     }
     l->reparent(this);
@@ -1167,10 +1165,8 @@ bool QLayout::activate()
 	return false;
     QWidget *mw = static_cast<QWidget*>(parent());
     if ( mw == 0 ) {
-#if defined( QT_CHECK_NULL )
 	qWarning( "QLayout::activate: %s \"%s\" does not have a main widget",
 		  QObject::className(), QObject::name() );
-#endif
 	return FALSE;
     }
     activateRecursiveHelper(this);

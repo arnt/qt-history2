@@ -1267,9 +1267,7 @@ uint QListBox::count() const
 void QListBox::insertStrList( const QStrList *list, int index )
 {
     if ( !list ) {
-#if defined(QT_CHECK_NULL)
 	Q_ASSERT( list != 0 );
-#endif
 	return;
     }
     insertStrList( *list, index );
@@ -1362,9 +1360,7 @@ void QListBox::insertStrList( const QStrList & list, int index )
 void QListBox::insertStrList( const char **strings, int numStrings, int index )
 {
     if ( !strings ) {
-#if defined(QT_CHECK_NULL)
 	Q_ASSERT( strings != 0 );
-#endif
 	return;
     }
     if ( index < 0 )
@@ -1390,12 +1386,8 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
 
 void QListBox::insertItem( const QListBoxItem *lbi, int index )
 {
-#if defined ( QT_CHECK_NULL )
-    Q_ASSERT( lbi != 0 );
-#else
     if ( !lbi )
 	return;
-#endif
 
     if ( index < 0 )
 	index = d->count;
@@ -1457,12 +1449,8 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 
 void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 {
-#if defined ( QT_CHECK_NULL )
-    Q_ASSERT( lbi != 0 );
-#else
     if ( !lbi )
 	return;
-#endif
 
     QListBoxItem * item = (QListBoxItem*)lbi;
     d->count++;
@@ -2685,10 +2673,10 @@ void QListBox::focusInEvent( QFocusEvent* )
 void QListBox::focusOutEvent( QFocusEvent* )
 {
     if (style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this )) {
-	d->inMenuMode = 
-	    QFocusEvent::reason() == QFocusEvent::Popup || 
+	d->inMenuMode =
+	    QFocusEvent::reason() == QFocusEvent::Popup ||
  	    (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
- 	if ( !d->inMenuMode ) 
+ 	if ( !d->inMenuMode )
 	    repaintSelection();
     }
 

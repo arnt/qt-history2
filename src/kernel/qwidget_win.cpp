@@ -1149,10 +1149,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
 void QWidget::setMinimumSize( int minw, int minh )
 {
-#if defined(QT_CHECK_RANGE)
     if ( minw < 0 || minh < 0 )
 	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
-#endif
     d->createExtra();
     if ( d->extra->minw == minw && d->extra->minh == minh )
 	return;
@@ -1169,7 +1167,6 @@ void QWidget::setMinimumSize( int minw, int minh )
 
 void QWidget::setMaximumSize( int maxw, int maxh )
 {
-#if defined(QT_CHECK_RANGE)
     if ( maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX ) {
 	qWarning("QWidget::setMaximumSize: The largest allowed size is (%d,%d)",
 		 QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
@@ -1183,7 +1180,6 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 	maxw = QMAX( maxw, 0 );
 	maxh = QMAX( maxh, 0 );
     }
-#endif
     d->createExtra();
     if ( d->extra->maxw == maxw && d->extra->maxh == maxh )
 	return;
@@ -1380,9 +1376,7 @@ int QWidget::metric( int m ) const
 	    break;
 	default:
 	    val = 0;
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "QWidget::metric: Invalid metric command" );
-#endif
 	}
 	ReleaseDC( 0, gdc );
     }
@@ -1549,9 +1543,7 @@ static void qt_tablet_init()
     if ( ptrWTInfo && ptrWTOpen && ptrWTQueueSizeGet && ptrWTQueueSizeSet ) {
         // make sure we have WinTab
         if ( !ptrWTInfo( 0, 0, NULL ) ) {
-#if defined(QT_CHECK_STATE) // ### Remove this warning in 4.0
             qWarning( "Wintab services not available" );
-#endif
             return;
         }
 
@@ -1574,9 +1566,7 @@ static void qt_tablet_init()
         qt_tablet_widget = new QWidget( 0, "Qt internal tablet widget" );
         qt_tablet_context = ptrWTOpen( qt_tablet_widget->winId(), &lcMine, TRUE);
 	if ( qt_tablet_context == NULL ) {
-#if defined (QT_CHECK_STATE)
 	    qWarning( "Failed to open the tablet" );
-#endif
 	    return;
 	}
 	// Set the size of the Packet Queue to the correct size...

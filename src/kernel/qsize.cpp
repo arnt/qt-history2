@@ -352,13 +352,6 @@ void QSize::scale( const QSize &s, ScaleMode mode )
 */
 
 
-void QSize::warningDivByZero()
-{
-#if defined(QT_CHECK_MATH)
-    qWarning( "QSize: Division by zero error" );
-#endif
-}
-
 
 /*****************************************************************************
   QSize stream functions

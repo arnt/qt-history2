@@ -94,9 +94,7 @@ unsigned int __stdcall QThreadInstance::start( void *_arg )
 void QThreadInstance::finish( QThreadInstance *d )
 {
     if ( ! d ) {
-#ifdef QT_CHECK_STATE
 	qWarning( "QThread: internal error: zero data for running thread." );
-#endif // QT_CHECK_STATE
 	return;
     }
 
@@ -201,9 +199,7 @@ void QThread::start(Priority priority)
     QMutexLocker locker( d->mutex() );
 
     if ( d->running && !d->finished ) {
-#ifdef QT_CHECK_RANGE
 	qWarning( "Thread is already running" );
-#endif
 	wait();
     }
 
@@ -226,9 +222,7 @@ void QThread::start(Priority priority)
 					    d->args, CREATE_SUSPENDED, &(d->id));
 
     if ( !d->handle ) {
-#ifdef QT_CHECK_STATE
 	qSystemWarning("Failed to create thread");
-#endif
 
 	d->running = FALSE;
 	d->finished = TRUE;
@@ -273,15 +267,11 @@ void QThread::start(Priority priority)
     }
 
     if (! SetThreadPriority(d->handle, prio)) {
-#ifdef QT_CHECK_STATE
 	qSystemWarning( "Failed to set thread priority" );
-#endif
     }
 
     if (ResumeThread(d->handle) == 0xffffffff) {
-#ifdef QT_CHECK_STATE
 	qSystemWarning( "Failed to resume newly created thread" );
-#endif
     }
 }
 
@@ -291,9 +281,7 @@ bool QThread::wait( unsigned long time )
     QMutexLocker locker( d->mutex() );
 
     if ( d->id == GetCurrentThreadId() ) {
-#ifdef QT_CHECK_RANGE
 	qWarning( "Thread tried to wait on itself" );
-#endif
 	return FALSE;
     }
     if ( d->finished || !d->running )
@@ -304,9 +292,7 @@ bool QThread::wait( unsigned long time )
 	return FALSE;
     case WAIT_ABANDONED_0:
     case WAIT_FAILED:
-#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Thread wait failure" );
-#endif
 	return FALSE;
     default:
 	break;
@@ -320,10 +306,7 @@ void QThread::exit()
     QThreadInstance *d = QThreadInstance::current();
 
     if ( ! d ) {
-#ifdef QT_CHECK_STATE
 	qWarning( "QThread::exit() called without a QThread instance." );
-#endif // QT_CHECK_STATE
-
 	_endthreadex(0);
 	return;
     }

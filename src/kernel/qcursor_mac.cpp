@@ -85,7 +85,7 @@ public:
 	    bi = bitmap;
 	    mi = *m;
 	    for(int y = 0; y < bi.height(); y++) {
-		for(int x = 0; x < bi.width(); x++) 
+		for(int x = 0; x < bi.width(); x++)
 		    mi.setPixel(x, y, !(bi.pixel(x, y) && mi.pixel(x, y)));
 	    }
 	    QBitmap mask;
@@ -150,9 +150,9 @@ void qt_mac_set_cursor(const QCursor *c, const Point *p)
 	c->data->curs.fc.widget->move(p->h - c->data->curs.fc.empty_curs->hotSpot.h,
 				      p->v - c->data->curs.fc.empty_curs->hotSpot.v);
 	SetCursor(c->data->curs.fc.empty_curs);
- 	if(currentCursor && currentCursor != c->data && currentCursor->type == QCursorData::TYPE_FakeCursor) 
+ 	if(currentCursor && currentCursor != c->data && currentCursor->type == QCursorData::TYPE_FakeCursor)
 	    currentCursor->curs.fc.widget->hide();
-	if(!c->data->curs.fc.widget->isVisible()) 
+	if(!c->data->curs.fc.widget->isVisible())
 	    c->data->curs.fc.widget->show();
     } else
 #else
@@ -160,7 +160,7 @@ void qt_mac_set_cursor(const QCursor *c, const Point *p)
 #endif
     if(currentCursor != c->data) {
 #ifndef QMAC_NO_FAKECURSOR
-	if(currentCursor && currentCursor->type == QCursorData::TYPE_FakeCursor) 
+	if(currentCursor && currentCursor->type == QCursorData::TYPE_FakeCursor)
 	    currentCursor->curs.fc.widget->hide();
 #endif
 	if(c->data->type == QCursorData::TYPE_CursPtr) {
@@ -215,7 +215,7 @@ QCursorData::~QCursorData()
 	free(curs.fc.empty_curs);
 	delete curs.fc.widget;
 #endif
-    } 
+    }
     type = TYPE_None;
 
     if(bm)
@@ -287,16 +287,13 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask,
     if(!initialized)
 	initialize();
     if(bitmap.depth() != 1 || mask.depth() != 1 || bitmap.size() != mask.size()) {
-#if defined(QT_CHECK_NULL)
 	qWarning("Qt: QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
-#endif
 	QCursor *c = &cursorTable[arrowCursorIdx];
 	c->data->ref();
 	data = c->data;
 	return;
     }
     data = new QCursorData;
-    Q_CHECK_PTR(data);
     data->bm  = new QBitmap(bitmap);
     data->bmm = new QBitmap(mask);
     data->cshape = BitmapCursor;
@@ -450,9 +447,9 @@ void QCursor::update() const
 		for(int x = 0; x < 16; x++) {
 		    int bmi_val = 0, bmmi_val = 0;
 		    if(!bmmi.pixel(x, y)) {
-			if(bmi.pixel(x, y)) 
+			if(bmi.pixel(x, y))
 			    bmmi_val = 1;
-			else 
+			else
 			    bmi_val = bmmi_val = 1;
 		    }
 		    if(bmmi_val)
@@ -472,11 +469,11 @@ void QCursor::update() const
 	    if((hotspot.h = data->hy) < 0)
 		hotspot.h = 0;
 	    OSStatus ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap((GWorldPtr)data->bm->handle()),
-						       GetGWorldPixMap((GWorldPtr)data->bmm->handle()), hotspot, 
+						       GetGWorldPixMap((GWorldPtr)data->bmm->handle()), hotspot,
 						       d->curs.big_cursor_name);
-	    if(ret == noErr) 
-		d->type = QCursorData::TYPE_BigCursor;		
-	    else 
+	    if(ret == noErr)
+		d->type = QCursorData::TYPE_BigCursor;
+	    else
 		free(d->curs.big_cursor_name);
 #endif
 	}
@@ -754,9 +751,7 @@ void QCursor::update() const
     }
 #endif
     default:
-#if defined(QT_CHECK_RANGE)
 	qWarning("Qt: QCursor::update: Invalid cursor shape %d", d->cshape);
-#endif
 	return;
     }
 

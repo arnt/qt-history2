@@ -25,10 +25,8 @@
 QPaintDevice::QPaintDevice( uint devflags )
 {
     if ( !qApp ) {				// global constructor
-#if defined(QT_CHECK_STATE)
 	qFatal( "QPaintDevice: Must construct a QApplication before a "
 		"QPaintDevice" );
-#endif
 	return;
     }
     devFlags = devflags;
@@ -38,11 +36,9 @@ QPaintDevice::QPaintDevice( uint devflags )
 
 QPaintDevice::~QPaintDevice()
 {
-#if defined(QT_CHECK_STATE)
     if ( paintingActive() )
 	qWarning( "QPaintDevice: Cannot destroy paint device that is being "
 		  "painted.  Be sure to QPainter::end() painters!" );
-#endif
 }
 
 HDC QPaintDevice::handle() const
@@ -52,17 +48,13 @@ HDC QPaintDevice::handle() const
 
 bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
 {
-#if defined(QT_CHECK_STATE)
     qWarning( "QPaintDevice::cmd: Device has no command interface" );
-#endif
     return FALSE;
 }
 
 int QPaintDevice::metric( int ) const
 {
-#if defined(QT_CHECK_STATE)
     qWarning( "QPaintDevice::metrics: Device has no metric information" );
-#endif
     return 0;
 }
 
@@ -127,7 +119,6 @@ static void qDrawTransparentPixmap( HDC hdc_dest, bool destIsPixmap,
     if ( newPixmap ) {
 	bs = new QPixmap( src_width, src_height, src_depth,
 			  QPixmap::NormalOptim );
-	Q_CHECK_PTR( bs );
 	BitBlt( bs->handle(), 0, 0, src_width, src_height,
 		hdc_src, 0, src_offset, SRCCOPY );
 	QBitmap masknot( src_width, src_height, FALSE, QPixmap::NormalOptim );
@@ -210,10 +201,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     Qt::RasterOp rop, bool ignoreMask  )
 {
     if ( !src || !dst ) {
-#if defined(QT_CHECK_NULL)
 	Q_ASSERT( src != 0 );
 	Q_ASSERT( dst != 0 );
-#endif
 	return;
     }
     if ( src->isExtDev() )
@@ -254,12 +243,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    }
 	} else if ( ts == QInternal::Widget ) {	// bitBlt to temp pixmap
 	    pm = new QPixmap( sw, sh );
-	    Q_CHECK_PTR( pm );
 	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh );
 	} else {
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "bitBlt: Cannot bitBlt from device" );
-#endif
 	    return;
 	}
 	QPDevCmdParam param[3];
@@ -278,9 +264,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	case QInternal::System:			// OK, can blt from these
 	    break;
 	default:
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "bitBlt: Cannot bitBlt from device type %x", ts );
-#endif
 	    return;
     }
     switch ( td ) {
@@ -289,9 +273,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	case QInternal::System:			// OK, can blt to these
 	    break;
 	default:
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "bitBlt: Cannot bitBlt to device type %x", td );
-#endif
 	    return;
     }
 
@@ -314,16 +296,12 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	NOTSRCERASE		// NorROP
     };
     if ( rop > Qt::LastROP ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "bitBlt: Invalid ROP code" );
-#endif
 	return;
     }
 
     if ( dst->isExtDev() ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "bitBlt: Cannot bitBlt to device" );
-#endif
 	return;
     }
 
@@ -367,9 +345,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    dst_tmp = TRUE;
 	}
     }
-#if defined(QT_CHECK_NULL)
     Q_ASSERT( src_dc && dst_dc );
-#endif
 
     if ( src_pm && src_pm->data->realAlphaBits ) {
 	qt_AlphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
@@ -436,7 +412,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
 			sx, sy, MAKEROP4(0x00aa0000,ropCodes[ qt_map_rop_for_bitmaps(rop) ]) );
 #ifdef Q_OS_TEMP
-	    } else if ( (GetTextColor( dst_dc ) & 0xffffff) != 0 && 
+	    } else if ( (GetTextColor( dst_dc ) & 0xffffff) != 0 &&
 			ts==QInternal::Pixmap && ((QPixmap *)src)->isQBitmap() ) {
 		HDC bsrc_dc = CreateCompatibleDC( src_dc );
 		HBITMAP bsrc = CreateBitmap( sw, sh, 1, 1, NULL );
@@ -467,7 +443,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		BitBlt( dst_dc, dx, dy, sw, sh, src_pm->hdc, sx, sy, ropCodes[rop] );
 	    }
 #ifdef Q_OS_TEMP
-	} else if ( (GetTextColor( dst_dc ) & 0xffffff) != 0 && 
+	} else if ( (GetTextColor( dst_dc ) & 0xffffff) != 0 &&
 		    ts==QInternal::Pixmap && ((QPixmap *)src)->isQBitmap() ) {
 	    HDC bsrc_dc = CreateCompatibleDC( src_dc );
 	    HBITMAP bsrc = CreateBitmap( sw, sh, 1, 1, NULL );

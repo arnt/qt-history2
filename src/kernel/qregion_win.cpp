@@ -54,7 +54,6 @@ QRegion::QRegion(const QPointArray &a, bool winding)
     } else {
 	d = new QRegionData;
 	d->ref = 1;
-	Q_CHECK_PTR(d);
 	d->rgn = CreatePolygonRgn(reinterpret_cast<const POINT*>(a.data()), a.size(), winding ? WINDING : ALTERNATE);
     }
 }
@@ -276,11 +275,7 @@ QRegion QRegion::winCombine(const QRegion &r, int op) const
 	    left = right = RGN_COPY;
 	    break;
 	default:
-#if defined(QT_CHECK_RANGE)
 	    qWarning("QRegion: Internal error in winCombine");
-#else
-	    ;
-#endif
     }
 
     int allCombineRgnResults = NULLREGION;
@@ -293,7 +288,7 @@ QRegion QRegion::winCombine(const QRegion &r, int op) const
 	allCombineRgnResults = CombineRgn(result.d->rgn, d->rgn, d->rgn, left);
     else if (r.d->rgn && right != RGN_NOP)
 	allCombineRgnResults = CombineRgn(result.d->rgn, r.d->rgn, r.d->rgn, right);
-    
+
     if (allCombineRgnResults == NULLREGION || allCombineRgnResults == ERROR)
 	result = QRegion();
 

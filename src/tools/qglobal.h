@@ -870,57 +870,85 @@ Q_EXPORT int qWinVersion();
 // Debugging and error handling
 //
 
-#if !defined(QT_NO_CHECK)
-#  define QT_CHECK_STATE			// check state of objects etc.
-#  define QT_CHECK_RANGE			// check range of indexes etc.
-#  define QT_CHECK_NULL				// check null pointers
-#  define QT_CHECK_MATH				// check math functions
-#endif
-
 #if !defined(QT_NO_DEBUG) && !defined(QT_DEBUG)
-#  define QT_DEBUG				// display debug messages
+#  define QT_DEBUG
 #endif
 
+#ifndef QT_NO_DEBUG
+#  define qDebug qt_debug
+#  ifndef QT_NO_FATAL_WARNINGS
+#    define qWarning qt_warning
+#  else
+#    define qWarning qt_fatal
+#  endif
+#else
+#  define qDebug if (false) qt_debug
+#  define qInformation if (false) qt_debug
+#  define qWarning if (false) qt_warning
+#endif
 
-Q_EXPORT void qDebug( const char *, ... )	// print debug message
+#define qSystemWarning qt_systemWarning
+#define qFatal qt_fatal
+
+Q_EXPORT void qt_debug( const char *, ... )	// print debug message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void qWarning( const char *, ... )	// print warning message
+Q_EXPORT void qt_message( const char *, ... )	// print user message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
+Q_EXPORT void qt_warning( const char *, ... )	// print warning message
+#if defined(Q_CC_GNU) && !defined(__INSURE__)
+    __attribute__ ((format (printf, 1, 2)))
+#endif
+;
+
+Q_EXPORT void qt_systemWarning( const char *, ... )	// print system message
+#if defined(Q_CC_GNU) && !defined(__INSURE__)
+    __attribute__ ((format (printf, 1, 2)))
+#endif
+;
+
+Q_EXPORT void qt_fatal( const char *, ... )	// print fatal message and exit
 #if defined(Q_CC_GNU)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void qSystemWarning( const char *, int code = -1 );
-
 Q_EXPORT void qt_assert(const char *assertion, const char *file, int line);
 
 #if !defined(Q_ASSERT)
-#  if defined(QT_CHECK_STATE) && !defined(NDEBUG)
+#  ifndef QT_NO_DEBUG
 #    define Q_ASSERT(x)  {if(!(x))qt_assert(#x,__FILE__,__LINE__);}
 #  else
 #    define Q_ASSERT(x)
 #  endif
 #endif
 
+Q_EXPORT void qt_msg_assert(const char *message, const char *file, int line);
+
+#if !defined(Q_MSG_ASSERT)
+#  ifndef QT_NO_DEBUG
+#    define Q_MSG_ASSERT(x, msg)  {if(!(x))qt_msg_assert(msg,__FILE__,__LINE__);}
+#  else
+#    define Q_MSG_ASSERT(x)
+#  endif
+#endif
+
 Q_EXPORT void qt_check_pointer(const char *, int);
 
-#if defined(QT_CHECK_NULL)
+#ifndef QT_NO_DEBUG
 #  define Q_CHECK_PTR(p) {if(!(p))qt_check_pointer(__FILE__,__LINE__);}
 #else
 #  define Q_CHECK_PTR(p)
 #endif
 
-enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
+enum QtMsgType { QtDebugMsg, QtSystemMsg, QtWarningMsg, QtFatalMsg };
 
 typedef void (*QtMsgHandler)(QtMsgType, const char *);
 Q_EXPORT QtMsgHandler qInstallMsgHandler( QtMsgHandler );

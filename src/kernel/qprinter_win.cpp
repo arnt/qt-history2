@@ -180,9 +180,7 @@ static void setPrinterMapping( HDC hdc, int res )
     if ( GetDeviceCaps( hdc, LOGPIXELSX ) == GetDeviceCaps( hdc, LOGPIXELSY ) )
 	mapMode = MM_ISOTROPIC;
     if ( !SetMapMode(hdc, mapMode ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QPrinter: setting mapping mode failed, mapMode=%x rastercaps=%x", mapMode, GetDeviceCaps(hdc,RASTERCAPS) );
-#endif
 	;
     }
     // The following two lines are the cause of problems on Windows 9x,
@@ -191,15 +189,11 @@ static void setPrinterMapping( HDC hdc, int res )
     // and as of yet I can't find a workaround.
 
     if ( !SetWindowExtEx(hdc, res, res, NULL) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QPrinter:: setting window failed rastercaps=%x", GetDeviceCaps(hdc,RASTERCAPS) );
-#endif
 	;
     }
     if ( !SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QPrinter:: setting viewport failed rastercaps=%x", GetDeviceCaps(hdc,RASTERCAPS) );
-#endif
 	;
     }
 }
@@ -497,7 +491,7 @@ void QPrinter::readPdlg( void* pdv )
         }
 #ifndef QT_NO_DEBUG
 	else
-	    qSystemWarning( "QPrinter::readPdlg: GlobalLock returns zero." );
+	    qSystemWarning( "QPrinter::readPdlg: GlobalLock returns zero" );
 #endif
     }
 
@@ -515,7 +509,7 @@ void QPrinter::readPdlg( void* pdv )
         }
 #ifndef QT_NO_DEBUG
 	else
-	    qSystemWarning( "QPrinter::readPdlg: GlobalLock returns zero." );
+	    qSystemWarning( "QPrinter::readPdlg: GlobalLock returns zero" );
 #endif
     }
 
@@ -599,7 +593,7 @@ void QPrinter::readPdlgA( void* pdv )
         }
 #ifndef QT_NO_DEBUG
 	else
-	    qSystemWarning( "QPrinter::readPdlgA: GlobalLock returns zero." );
+	    qSystemWarning( "QPrinter::readPdlgA: GlobalLock returns zero" );
 #endif
     }
 
@@ -618,7 +612,7 @@ void QPrinter::readPdlgA( void* pdv )
         }
 #ifndef QT_NO_DEBUG
 	else
-	    qSystemWarning( "QPrinter::readPdlgA: GlobalLock returns zero." );
+	    qSystemWarning( "QPrinter::readPdlgA: GlobalLock returns zero" );
 #endif
     }
 
@@ -691,7 +685,7 @@ static void setDefaultPrinterW(const QString &printerName, HANDLE *hmode, HANDLE
 	Q_ASSERT(pDevMode != 0);
 #ifndef QT_NO_DEBUG
 	if ( !pDevMode )
-	    qSystemWarning( "QPrinter::setDefaultPrinterW: GlobalLock returns zero." );
+	    qSystemWarning( "QPrinter::setDefaultPrinterW: GlobalLock returns zero" );
 #endif
 
 	// Copy DEVMODE from PRINTER_INFO_2 Structure
@@ -714,7 +708,7 @@ static void setDefaultPrinterW(const QString &printerName, HANDLE *hmode, HANDLE
     Q_ASSERT(pDevNames != 0);
 #ifndef QT_NO_DEBUG
     if ( !pDevNames )
-	qSystemWarning( "QPrinter::setDefaultPrinterW: GlobalLock returns zero." );
+	qSystemWarning( "QPrinter::setDefaultPrinterW: GlobalLock returns zero" );
 #endif
 
     // Create DEVNAMES Information from PRINTER_INFO_2 Structure
@@ -797,7 +791,7 @@ static void setDefaultPrinterA(const QString &printerName, HANDLE *hmode, HANDLE
 	Q_ASSERT(pDevMode != 0);
 #ifndef QT_NO_DEBUG
 	if ( !pDevMode )
-	    qSystemWarning( "QPrinter::setDefaultPrinterA: GlobalLock returns zero." );
+	    qSystemWarning( "QPrinter::setDefaultPrinterA: GlobalLock returns zero" );
 #endif
 
 	// Copy DEVMODE from PRINTER_INFO_2 Structure
@@ -820,7 +814,7 @@ static void setDefaultPrinterA(const QString &printerName, HANDLE *hmode, HANDLE
     Q_ASSERT(pDevNames != 0);
 #ifndef QT_NO_DEBUG
     if ( !pDevNames )
-	qSystemWarning( "QPrinter::setDefaultPrinterA: GlobalLock returns zero." );
+	qSystemWarning( "QPrinter::setDefaultPrinterA: GlobalLock returns zero" );
 #endif
 
     // Create DEVNAMES Information from PRINTER_INFO_2 Structure
@@ -862,9 +856,7 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
 void QPrinter::setPrinterName( const QString &name )
 {
     if ( state != 0 ) {
-#if defined(QT_CHECK_STATE)
         qWarning( "QPrinter::setPrinterName: Cannot do this during printing" );
-#endif
         return;
     }
     printer_name = name;
@@ -1090,7 +1082,7 @@ bool QPrinter::setup( QWidget *parent )
 		if ( dm )
 		    writeDevmode( dm );
 		else
-		    qSystemWarning( "QPrinter::setup: GlobalLock returns zero." );
+		    qSystemWarning( "QPrinter::setup: GlobalLock returns zero" );
 		GlobalUnlock( pd.hDevMode );
 	    }
             // } writePdlg
@@ -1159,7 +1151,7 @@ bool QPrinter::setup( QWidget *parent )
 		if ( dm )
 		    writeDevmodeA( dm );
 		else
-		    qSystemWarning( "QPrinter::setup: GlobalLock returns zero." );
+		    qSystemWarning( "QPrinter::setup: GlobalLock returns zero" );
 		GlobalUnlock( pd.hDevMode );
 	    }
 	    result = PrintDlgA( &pd );
@@ -1541,9 +1533,7 @@ int QPrinter::metric( int m ) const
         val = GetDeviceCaps( hdc, PLANES );
         break;
     default:
-#if defined(QT_CHECK_RANGE)
         qWarning( "QPrinter::metric: Invalid metric command" );
-#endif
         return 0;
     }
     return val;
@@ -1609,7 +1599,7 @@ void QPrinter::reinit()
 		}
 		GlobalUnlock( hdevmode );
 	    } else
-		qSystemWarning( "QPrinter::reinit: GlobalLock returns zero." );
+		qSystemWarning( "QPrinter::reinit: GlobalLock returns zero" );
 	} , {
 	    DEVMODEA* dm = (DEVMODEA*)GlobalLock( hdevmode );
 	    if ( dm ) {
@@ -1627,7 +1617,7 @@ void QPrinter::reinit()
 		}
 		GlobalUnlock( hdevmode );
 	    } else
-		qSystemWarning( "QPrinter::reinit: GlobalLock returns zero." );
+		qSystemWarning( "QPrinter::reinit: GlobalLock returns zero" );
 	} );
 	if ( hdcTmp ) {
 	    DeleteDC( hdc );

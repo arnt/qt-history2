@@ -40,7 +40,7 @@ FSSpec *QDir::make_spec(const QString &f)
     free(p);
     return &ret;
 }
-	
+
 void QDir::slashify( QString& n )
 {
     if( n.isNull() )
@@ -69,7 +69,7 @@ QString QDir::canonicalPath() const
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
     FSSpec *spec = make_spec(filePath(dirName, acceptAbsPath));
-    if(!spec) 
+    if(!spec)
 	return FALSE;
     long int d;
     if(DirCreate(spec->vRefNum, spec->parID, spec->name, &d) != noErr)
@@ -80,7 +80,7 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
     FSSpec *spec = make_spec(filePath(dirName, acceptAbsPath));
-    if(!spec) 
+    if(!spec)
 	return FALSE;
     if(HDelete(spec->vRefNum, spec->parID, spec->name) != noErr)
 	return FALSE;
@@ -107,9 +107,7 @@ bool QDir::rename( const QString &name, const QString &newName,
 		   bool acceptAbsPaths	)
 {
     if ( name.isEmpty() || newName.isEmpty() ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QDir::rename: Empty or null file name(s)" );
-#endif
 	return FALSE;
     }
     QString fn1 = filePath( name, acceptAbsPaths );
@@ -156,9 +154,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     int i;
     if ( !fList ) {
 	fList  = new QStringList;
-	Q_CHECK_PTR( fList );
 	fiList = new QFileInfoList;
-	Q_CHECK_PTR( fiList );
 	fiList->setAutoDelete( TRUE );
     } else {
 	fList->clear();
@@ -183,7 +179,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     if ( !spec )
 	return FALSE;
     if ( FSpMakeFSRef(spec, &ref) != noErr )
-	return FALSE;	
+	return FALSE;
     if ( FSOpenIterator( &ref, kFSIterateFlat, &dir ) != noErr )
 	return FALSE;
 
@@ -218,7 +214,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     }
     FSCloseIterator( dir );
     free( specs );
-    
+
     // Sort...
     if (fiList->count() ) {
 	QDirSortItem* si = new QDirSortItem[fiList->count()];

@@ -64,10 +64,8 @@ public:
 
 int QGDict::hashKeyString( const QString &key )
 {
-#if defined(QT_CHECK_NULL)
     if ( key.isNull() )
 	qWarning( "QGDict::hashKeyString: Invalid null key" );
-#endif
     int i;
     register uint h=0;
     uint g;
@@ -99,10 +97,8 @@ int QGDict::hashKeyString( const QString &key )
 
 int QGDict::hashKeyAscii( const char *key )
 {
-#if defined(QT_CHECK_NULL)
     if ( key == 0 )
 	qWarning( "QGDict::hashAsciiKey: Invalid null key" );
-#endif
     register const char *k = key;
     register uint h=0;
     uint g;
@@ -184,7 +180,6 @@ void QGDict::init( uint len, KeyType kt, bool caseSensitive, bool copyKeys )
     vlen = len ? len : 17;
     vec = new QBaseBucket *[ vlen ];
 
-    Q_CHECK_PTR( vec );
     memset( (char*)vec, 0, vlen*sizeof(QBaseBucket*) );
     numItems  = 0;
     iterators = 0;
@@ -332,11 +327,8 @@ QPtrCollection::Item QGDict::look_string( const QString &key, QPtrCollection::It
     }
     // op_insert or op_replace
     n = new QStringBucket(key,newItem(d),vec[index]);
-    Q_CHECK_PTR( n );
-#if defined(QT_CHECK_NULL)
     if ( n->getData() == 0 )
 	qWarning( "QDict: Cannot insert null item" );
-#endif
     vec[index] = n;
     numItems++;
     return n->getData();
@@ -368,11 +360,8 @@ QPtrCollection::Item QGDict::look_ascii( const char *key, QPtrCollection::Item d
     }
     // op_insert or op_replace
     n = new QAsciiBucket(copyk ? qstrdup(key) : key,newItem(d),vec[index]);
-    Q_CHECK_PTR( n );
-#if defined(QT_CHECK_NULL)
     if ( n->getData() == 0 )
 	qWarning( "QAsciiDict: Cannot insert null item" );
-#endif
     vec[index] = n;
     numItems++;
     return n->getData();
@@ -396,11 +385,8 @@ QPtrCollection::Item QGDict::look_int( long key, QPtrCollection::Item d, int op 
     }
     // op_insert or op_replace
     n = new QIntBucket(key,newItem(d),vec[index]);
-    Q_CHECK_PTR( n );
-#if defined(QT_CHECK_NULL)
     if ( n->getData() == 0 )
 	qWarning( "QIntDict: Cannot insert null item" );
-#endif
     vec[index] = n;
     numItems++;
     return n->getData();
@@ -424,11 +410,8 @@ QPtrCollection::Item QGDict::look_ptr( void *key, QPtrCollection::Item d, int op
     }
     // op_insert or op_replace
     n = new QPtrBucket(key,newItem(d),vec[index]);
-    Q_CHECK_PTR( n );
-#if defined(QT_CHECK_NULL)
     if ( n->getData() == 0 )
 	qWarning( "QPtrDict: Cannot insert null item" );
-#endif
     vec[index] = n;
     numItems++;
     return n->getData();
@@ -448,7 +431,6 @@ void QGDict::resize( uint newsize )
     bool old_copyk = copyk;
 
     vec = new QBaseBucket *[vlen = newsize];
-    Q_CHECK_PTR( vec );
     memset( (char*)vec, 0, vlen*sizeof(QBaseBucket*) );
     numItems = 0;
     copyk = FALSE;
@@ -992,7 +974,6 @@ QGDictIterator::QGDictIterator( const QGDict &d )
     toFirst();					// set to first noe
     if ( !dict->iterators ) {
 	dict->iterators = new QGDItList;	// create iterator list
-	Q_CHECK_PTR( dict->iterators );
     }
     dict->iterators->append( this );		// attach iterator to dict
 }
@@ -1045,9 +1026,7 @@ QGDictIterator::~QGDictIterator()
 QPtrCollection::Item QGDictIterator::toFirst()
 {
     if ( !dict ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QGDictIterator::toFirst: Dictionary has been deleted" );
-#endif
 	return 0;
     }
     if ( dict->count() == 0 ) {			// empty dictionary
@@ -1071,9 +1050,7 @@ QPtrCollection::Item QGDictIterator::toFirst()
 QPtrCollection::Item QGDictIterator::operator()()
 {
     if ( !dict ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QGDictIterator::operator(): Dictionary has been deleted" );
-#endif
 	return 0;
     }
     if ( !curNode )
@@ -1090,9 +1067,7 @@ QPtrCollection::Item QGDictIterator::operator()()
 QPtrCollection::Item QGDictIterator::operator++()
 {
     if ( !dict ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QGDictIterator::operator++: Dictionary has been deleted" );
-#endif
 	return 0;
     }
     if ( !curNode )

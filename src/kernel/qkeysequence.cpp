@@ -177,7 +177,6 @@ public:
 QKeySequence::QKeySequence()
 {
     d = new QKeySequencePrivate();
-    Q_CHECK_PTR(d);
 }
 
 /*!
@@ -206,7 +205,6 @@ QKeySequence::QKeySequence()
 QKeySequence::QKeySequence(const QString& key)
 {
     d = new QKeySequencePrivate();
-    Q_CHECK_PTR(d);
     assign(key);
 }
 
@@ -220,7 +218,6 @@ QKeySequence::QKeySequence(const QString& key)
 QKeySequence::QKeySequence(int key)
 {
     d = new QKeySequencePrivate();
-    Q_CHECK_PTR(d);
     d->key[0] = key;
 }
 
@@ -235,7 +232,6 @@ QKeySequence::QKeySequence(int key)
 QKeySequence::QKeySequence(int k1, int k2, int k3, int k4)
 {
     d = new QKeySequencePrivate();
-    Q_CHECK_PTR(d);
     d->key[0] = k1;
     d->key[1] = k2;
     d->key[2] = k3;
@@ -270,12 +266,10 @@ QKeySequence::~QKeySequence()
 
 void QKeySequence::setKey(int key, int index)
 {
-#ifdef QT_CHECK_STATE
     if (0 > index && 4 < index) {
 	qWarning("QKeySequence::setKey: index %u out of range", index);
 	return;
     }
-#endif // QT_CHECK_STATE
 
     if (1 < d->count) {
 	QKeySequencePrivate *newd = new QKeySequencePrivate(d);
@@ -601,12 +595,10 @@ QKeySequence::operator int () const
  */
 int QKeySequence::operator[](uint index) const
 {
-#ifdef QT_CHECK_STATE
     if (index > 4) {
 	qWarning("QKeySequence::operator[]: index %u out of range", index);
 	return 0;
     }
-#endif // QT_CHECK_STATE
     return d->key[index];
 }
 
@@ -688,12 +680,10 @@ QDataStream &operator>>(QDataStream &s, QKeySequence &keysequence)
     QValueList<int> list;
     s >> list;
 
-#ifdef QT_CHECK_STATE
     if (1 != list.count() && 4 != list.count()) {
 	qWarning("Invalid QKeySequence data in the datastream.");
 	return s;
     }
-#endif
 
     if (1 == list.count()) {
 	keysequence.d->key[0] = *list.at(0);

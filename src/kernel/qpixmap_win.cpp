@@ -76,9 +76,7 @@ static inline HDC alloc_mem_dc( HBITMAP hbm, HBITMAP *old_hbm )
 {
     HDC hdc = CreateCompatibleDC( qt_display_dc() );
     if ( !hdc ) {
-#if defined(QT_CHECK_NULL)
-	qSystemWarning( "alloc_mem_dc: CreateCompatibleDC failed!" );
-#endif
+	qSystemWarning( "alloc_mem_dc: CreateCompatibleDC failed" );
 	return hdc;
     }
     if ( QColor::hPal() ) {
@@ -106,12 +104,10 @@ void QPixmap::initAlphaPixmap( uchar *bytes, int length, BITMAPINFO *bmi )
 
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
-#if defined(QT_CHECK_STATE)
     if ( qApp->type() == QApplication::Tty ) {
 	qWarning( "QPixmap: Cannot create a QPixmap when no GUI "
 		  "is being used" );
     }
-#endif
 
     static int serial = 0;
     int dd = defaultDepth();
@@ -120,7 +116,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	optim = defOptim;
 
     data = new QPixmapData;
-    Q_CHECK_PTR( data );
 
     memset( data, 0, sizeof(QPixmapData) );
     data->count  = 1;
@@ -138,10 +133,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	hdc = 0;
 	DATA_HBM = 0;
 	data->old_hbm = 0;
-#if defined(QT_CHECK_RANGE)
 	if ( !make_null )			// invalid parameters
 	    qWarning( "QPixmap: Invalid pixmap parameters" );
-#endif
 	return;
     }
     data->w = w;
@@ -205,11 +198,11 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 		break;
 	    }
 	}
-	DATA_HBM = CreateDIBSection( qt_display_dc(), 
+	DATA_HBM = CreateDIBSection( qt_display_dc(),
 				     bmi,
 				     DIB_RGB_COLORS,
 				     (void**)&(data->ppvBits),
-				     NULL, 
+				     NULL,
 				     0 );
 #endif
 
@@ -217,9 +210,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	data->w = 0;
 	data->h = 0;
 	hdc = 0;
-#if defined(QT_CHECK_NULL)
 	qSystemWarning( "QPixmap: Pixmap allocation failed" );
-#endif
 	return;
     }
     hdc = alloc_mem_dc( DATA_HBM, &data->old_hbm );
@@ -271,7 +262,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 
     int bitsbpl = (w+7)/8;			// original # bytes per line
 
-    // CreateBitmap data is word aligned, while 
+    // CreateBitmap data is word aligned, while
     // CreateDIBSection is doubleword aligned
 #ifndef Q_OS_TEMP
     int bpl	= ((w+15)/16)*2;		// bytes per scanline
@@ -466,9 +457,7 @@ int QPixmap::metric( int m ) const
 		break;
 	    default:
 		val = 0;
-#if defined(QT_CHECK_RANGE)
 		qWarning( "QPixmap::metric: Invalid metric command" );
-#endif
 	}
 	return val;
     }
@@ -650,9 +639,7 @@ QImage QPixmap::convertToImage() const
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
     if ( img.isNull() ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QPixmap::convertFromImage: Cannot convert a null image" );
-#endif
 	return FALSE;
     }
     QImage image = img;
@@ -763,10 +750,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	coltbl[0] = 0xff0000; // R
 	coltbl[1] = 0x00ff00; // G
 	coltbl[2] = 0x0000ff; // B
-#ifdef QT_CHECK_RANGE
 	if ( d != 32 )
 	    qWarning( "QPixmap::convertFromImage(): Unsupported bitmap depth (%d)", d );
-#endif
     }
 #endif
     for ( int i=0; i<ncols; i++ ) {		// copy color table
@@ -1056,7 +1041,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     dbytes = dbpl*h;
 
     dptr = new uchar[ dbytes ];			// create buffer for bits
-    Q_CHECK_PTR( dptr );
     if ( depth1 )
 	memset( dptr, 0xff, dbytes );
     else if ( bpp == 8 )
@@ -1076,9 +1060,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     }
 
     if ( !qt_xForm_helper( mat, 0, QT_XFORM_TYPE_WINDOWSPIXMAP, bpp, dptr, xbpl, p_inc, h, sptr, sbpl, ws, hs ) ){
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::xForm: display not supported (bpp=%d)",bpp);
-#endif
 	QPixmap pm;
 	delete [] sptr;
 	delete [] bmi_data;
@@ -1333,7 +1315,6 @@ int QPixmap::allocCell()
     }
     if ( offset < 0 ) {				// could not alloc
 	mcp = new QMultiCellPixmap( s, depth(), 2048 );
-	Q_CHECK_PTR( mcp );
 	offset = mcp->allocCell( height() );
 	if ( offset < 0 ) {			// height() > total height
 	    delete mcp;
@@ -1351,7 +1332,6 @@ int QPixmap::allocCell()
     }
     data->mcp = TRUE;
     DATA_MCPI = new QMCPI;
-    Q_CHECK_PTR( DATA_MCPI );
     DATA_MCPI_MCP = mcp;
     DATA_MCPI_OFFSET = offset;
     return offset;
@@ -1490,10 +1470,8 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 		       const QPixmap *src, int sx, int sy, int sw, int sh )
 {
     if ( ! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth() ) {
-#ifdef QT_CHECK_NULL
 	Q_ASSERT( dst != 0 );
 	Q_ASSERT( src != 0 );
-#endif
 	return;
     }
 

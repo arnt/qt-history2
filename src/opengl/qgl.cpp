@@ -832,9 +832,7 @@ void QGLContext::setDevice( QPaintDevice *pDev )
     d->paintDevice = pDev;
     if ( d->paintDevice && (d->paintDevice->devType() != QInternal::Widget
 			&& d->paintDevice->devType() != QInternal::Pixmap) ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QGLContext: Unsupported paint device type" );
-#endif
     }
 }
 
@@ -2012,7 +2010,7 @@ void QGLWidget::qglClearColor( const QColor& c ) const
     the glTexImage2D() documentation. The width must be 2^m + 2*border
     and the height 2^n + 2*border where m and n are integers and
     border is either 0 or 1.
-    
+
     Another function in the same example uses \e tex1 with OpenGL.
 */
 

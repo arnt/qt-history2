@@ -82,9 +82,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     glFormat.setStereo(res);
 
     if(shareContext && (!shareContext->isValid() || !shareContext->cx)) {
-#if defined(QT_CHECK_NULL)
 	    qWarning("QGLContext::chooseContext(): Cannot share with invalid context");
-#endif
 	    shareContext = 0;
     }
 
@@ -146,7 +144,7 @@ void *QGLContext::chooseMacVisual(GDHandle device)
     if(deviceIsPixmap()) {
 	attribs[cnt++] = AGL_PIXEL_SIZE;
 	attribs[cnt++] = ((QPixmap*)d->paintDevice)->depth();
-    } 
+    }
     if(glFormat.stereo())
 	attribs[cnt++] = AGL_STEREO;
     if(glFormat.rgba()) {
@@ -168,7 +166,7 @@ void *QGLContext::chooseMacVisual(GDHandle device)
     if(deviceIsPixmap()) {
 	attribs[cnt++] = AGL_OFFSCREEN;
     } else {
-	if( glFormat.doubleBuffer()) 
+	if( glFormat.doubleBuffer())
 	    attribs[cnt++] = AGL_DOUBLEBUFFER;
 //	attribs[cnt++] = AGL_ACCELERATED;
     }
@@ -177,12 +175,12 @@ void *QGLContext::chooseMacVisual(GDHandle device)
     AGLPixelFormat fmt;
     if(deviceIsPixmap() || !device)
 	fmt = aglChoosePixelFormat(NULL, 0, attribs);
-    else 
+    else
 	fmt = aglChoosePixelFormat( NULL, 0, attribs);
     if(!fmt) {
 	GLenum err = aglGetError();
 	qDebug("got an error tex: %d", (int)err);
-    } 
+    }
 #if 0
     else {
 	GLint res;
@@ -219,9 +217,7 @@ void QGLContext::reset()
 void QGLContext::makeCurrent()
 {
     if( !d->valid) {
-#if defined(QT_CHECK_STATE)
 	qWarning("QGLContext::makeCurrent(): Cannot make invalid context current.");
-#endif
 	return;
     }
 
@@ -231,9 +227,9 @@ void QGLContext::makeCurrent()
     currentCtx = this;
 }
 
-void QGLContext::fixBufferRect() 
+void QGLContext::fixBufferRect()
 {
-    if(d->paintDevice->devType() == QInternal::Widget && 
+    if(d->paintDevice->devType() == QInternal::Widget &&
        !((QWidget*)d->paintDevice)->isTopLevel()) {
 	if(!aglIsEnabled((AGLContext)cx, AGL_BUFFER_RECT))
 	   aglEnable((AGLContext)cx, AGL_BUFFER_RECT);
@@ -254,8 +250,8 @@ void QGLContext::fixBufferRect()
 	    }
 	} else {
 	    QPoint mp(posInWindow(w));
-	    GLint offs[4] = { 
-		mp.x(), w->topLevelWidget()->height() - (mp.y() + w->height()), 
+	    GLint offs[4] = {
+		mp.x(), w->topLevelWidget()->height() - (mp.y() + w->height()),
 		w->width(), w->height() };
 	    if(d->oldR != QRect(offs[0], offs[1], offs[2], offs[3])) {
 		update = TRUE;
@@ -272,7 +268,7 @@ void QGLContext::fixBufferRect()
 	    aglUpdateContext((AGLContext)cx);
 	    QMacSavedPortInfo::flush(w);
 	}
-    } 
+    }
 }
 
 void QGLContext::doneCurrent()
@@ -314,7 +310,7 @@ uint QGLContext::colorIndex( const QColor&c) const
 	}
     }
     if(ret == -1) {
-	for(ret = 0; ret < 256; ret++) 
+	for(ret = 0; ret < 256; ret++)
 	    if(!cmap[ret].isValid())
 		break;
 	if(ret == 256) {
@@ -471,9 +467,7 @@ void QGLWidget::setContext(QGLContext *context,
 			    bool deleteOldContext)
 {
     if(context == 0) {
-#if defined(QT_CHECK_NULL)
 	qWarning("QGLWidget::setContext: Cannot set null context");
-#endif
 	return;
     }
 
@@ -481,9 +475,7 @@ void QGLWidget::setContext(QGLContext *context,
     if(macInternalDoubleBuffer()) {
 	me = gl_pix;
     } else if(!context->deviceIsPixmap() && context->device() != me) {
-#if defined(QT_CHECK_STATE)
 	qWarning("QGLWidget::setContext: Context must refer to this widget");
-#endif
 	return;
     }
 

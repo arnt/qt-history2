@@ -579,12 +579,10 @@ void QCommonStyle::drawControl( ControlElement element,
 				SFlags flags,
 				const QStyleOption& opt ) const
 {
-#if defined(QT_CHECK_STATE)
     if (! widget) {
 	qWarning("QCommonStyle::drawControl: widget parameter cannot be zero!");
 	return;
     }
-#endif
 
     activePainter = p;
 
@@ -1066,12 +1064,10 @@ void QCommonStyle::drawControlMask( ControlElement control,
 /*! \reimp */
 QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 {
-#if defined(QT_CHECK_STATE)
     if (! widget) {
 	qWarning("QCommonStyle::subRect: widget parameter cannot be zero!");
 	return QRect();
     }
-#endif
 
     QRect rect, wrect(widget->rect());
 
@@ -1418,12 +1414,10 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				       SCFlags active,
 				       const QStyleOption& opt ) const
 {
-#if defined(QT_CHECK_STATE)
     if (! widget) {
 	qWarning("QCommonStyle::drawComplexControl: widget parameter cannot be zero!");
 	return;
     }
-#endif
 
     activePainter = p;
 
@@ -1856,12 +1850,10 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 					    SubControl sc,
 					    const QStyleOption &opt ) const
 {
-#if defined(QT_CHECK_STATE)
     if (! widget) {
 	qWarning("QCommonStyle::querySubControlMetrics: widget parameter cannot be zero!");
 	return QRect();
     }
-#endif
 
     switch ( control ) {
     case CC_SpinWidget: {
@@ -2396,12 +2388,10 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 {
     QSize sz(contentsSize);
 
-#if defined(QT_CHECK_STATE)
     if (! widget) {
 	qWarning("QCommonStyle::sizeFromContents: widget parameter cannot be zero!");
 	return sz;
     }
-#endif
 
     switch (contents) {
 #ifndef QT_NO_DIALOGBUTTONS

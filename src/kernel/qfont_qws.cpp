@@ -55,9 +55,7 @@ void QFont::cleanup()
 Qt::HANDLE QFont::handle() const
 {
     QFontEngine *engine = d->engineForScript( QFontPrivate::defaultScript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     return engine->handle();
 }
@@ -185,9 +183,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	width = layout.width( pos-from, 1 );
     } else {
 	QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
 	Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
 	glyph_t glyphs[8];
 	advance_t advances[8];

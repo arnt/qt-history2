@@ -187,9 +187,7 @@ QPrinter::prepare(PMPageFormat *f)
 void QPrinter::setPrinterName(const QString &name)
 {
     if (state != 0) {
-#if defined(QT_CHECK_STATE)
         qWarning("Qt: QPrinter::setPrinterName: Cannot do this during printing");
-#endif
         return;
     }
     printer_name = name;
@@ -237,7 +235,7 @@ void QPrinter::interpret(PMPageFormat *f)
 	setOrientation(o == kPMPortrait ? Portrait : Landscape);
 
     //Finally we update the scale so the resolution is effected by it
-    PMSessionValidatePageFormat(psession, *f, kPMDontWantBoolean);    
+    PMSessionValidatePageFormat(psession, *f, kPMDontWantBoolean);
 }
 
 // shows the native mac print setup dialog
@@ -252,7 +250,7 @@ bool QPrinter::printSetup()
         if(!prepare(&psettings))
             return FALSE;
         if(PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret )
-            return FALSE;	
+            return FALSE;
 	interpret(&psettings);
 	return TRUE;
     }
@@ -393,9 +391,7 @@ int QPrinter::metric(int m) const
         break;
     default:
         val = 0;
-#if defined(QT_CHECK_RANGE)
         qWarning("Qt: QPixmap::metric: Invalid metric command");
-#endif
     }
     return val;
 }

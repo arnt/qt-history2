@@ -170,7 +170,6 @@ QButtonGroup::QButtonGroup( int strips, Orientation orientation,
 void QButtonGroup::init()
 {
     buttons = new QButtonList;
-    Q_CHECK_PTR( buttons );
     buttons->setAutoDelete( TRUE );
     excl_grp = FALSE;
     radio_excl = TRUE;
@@ -229,7 +228,6 @@ int QButtonGroup::insert( QButton *button, int id )
 
     static int seq_no = -2;
     QButtonItem *bi = new QButtonItem;
-    Q_CHECK_PTR( bi );
 
     if ( id < -1 )
 	bi->id = seq_no--;
@@ -385,9 +383,7 @@ void QButtonGroup::buttonClicked()
     // introduce a QButtonListIt if calling anything
     int id = -1;
     QButton *bt = qt_cast<QButton*>(sender());		// object that sent the signal
-#if defined(QT_CHECK_NULL)
     Q_ASSERT( bt );
-#endif
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
 	if ( bt == i->button ) {			// button was clicked
 	    id = i->id;
@@ -411,10 +407,8 @@ void QButtonGroup::buttonToggled( bool on )
     if ( !on || !excl_grp && !radio_excl )
 	return;
     QButton *bt = qt_cast<QButton*>(sender());		// object that sent the signal
-#if defined(QT_CHECK_NULL)
     Q_ASSERT( bt );
     Q_ASSERT( bt->isToggleButton() );
-#endif
 
     if ( !excl_grp && !qt_cast<QRadioButton*>(bt) )
 	return;

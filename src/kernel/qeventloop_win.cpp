@@ -242,10 +242,8 @@ static void activateZeroTimers()		// activate full-speed timers
 static void initTimers()			// initialize timers
 {
     timerVec = new TimerVec( 128 );
-    Q_CHECK_PTR( timerVec );
     timerVec->setAutoDelete( TRUE );
     timerDict = new TimerDict( 29 );
-    Q_CHECK_PTR( timerDict );
 }
 
 static void cleanupTimers()			// remove pending timers
@@ -289,7 +287,6 @@ int qStartTimer( int interval, QObject *obj )
 	timerVec->resize( ind * 4 );
     }
     t = new TimerInfo;				// create timer entry
-    Q_CHECK_PTR( t );
     t->ind  = ind;
     t->obj  = obj;
 
@@ -307,9 +304,7 @@ int qStartTimer( int interval, QObject *obj )
 	}
     }
     if ( t->id == 0 ) {
-#if defined(QT_CHECK_STATE)
-	qSystemWarning( "qStartTimer: Failed to create a timer." );
-#endif
+	qSystemWarning( "qStartTimer: Failed to create a timer" );
 	delete t;				// could not set timer
 	return 0;
     }
@@ -393,10 +388,8 @@ static void sn_init()
     qt_sn_msg = RegisterWindowMessageA( "QtSNEvent" );
 #endif
     sn_win = new QWidget(0,"QtSocketNotifier_Internal_Widget");
-    Q_CHECK_PTR( sn_win );
     for ( int i=0; i<3; i++ ) {
 	*sn_vec[i] = new QSNDict;
-	Q_CHECK_PTR( *sn_vec[i] );
 	(*sn_vec[i])->setAutoDelete( TRUE );
     }
 }
@@ -431,9 +424,7 @@ void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
     int sockfd = notifier->socket();
     int type = notifier->type();
     if ( sockfd < 0 || type < 0 || type > 2 || notifier == 0 ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QSocketNotifier: Internal error" );
-#endif
 	return;
     }
 
@@ -448,16 +439,13 @@ void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 	dict = *sn_vec[type];
     }
     sn = new QSockNot;
-    Q_CHECK_PTR( sn );
     sn->obj = notifier;
     sn->fd  = sockfd;
-#if defined(QT_CHECK_STATE)
     if ( dict->find(sockfd) ) {
 	static const char *t[] = { "read", "write", "exception" };
 	qWarning( "QSocketNotifier: Multiple socket notifiers for "
 		    "same socket %d and type %s", sockfd, t[type] );
     }
-#endif
     dict->insert( sockfd, sn );
 
 #ifndef Q_OS_TEMP
@@ -494,9 +482,7 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
     int sockfd = notifier->socket();
     int type = notifier->type();
     if ( sockfd < 0 || type < 0 || type > 2 || notifier == 0 ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QSocketNotifier: Internal error" );
-#endif
 	return;
     }
 
@@ -551,9 +537,7 @@ void QEventLoop::setSocketNotifierPending( QSocketNotifier *notifier )
     int sockfd = notifier->socket();
     int type = notifier->type();
     if ( sockfd < 0 || type < 0 || type > 2 || notifier == 0 ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QSocketNotifier: Internal error" );
-#endif
 	return;
     }
 

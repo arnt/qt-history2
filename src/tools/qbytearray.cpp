@@ -64,7 +64,6 @@ char *qstrdup( const char *src )
     if ( !src )
 	return 0;
     char *dst = new char[strlen(src)+1];
-    Q_CHECK_PTR( dst );
     return strcpy( dst, src );
 }
 
@@ -322,9 +321,7 @@ QByteArray qCompress( const uchar* data, int nbytes )
 	return tmp;
     }
     if ( !data ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "qCompress: data is NULL." );
-#endif
 	return QByteArray();
     }
 
@@ -344,9 +341,7 @@ QByteArray qCompress( const uchar* data, int nbytes )
 	    bazip[3] = ( nbytes & 0x000000ff );
 	    break;
 	case Z_MEM_ERROR:
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "qCompress: Z_MEM_ERROR: Not enough memory." );
-#endif
 	    bazip.resize( 0 );
 	    break;
 	case Z_BUF_ERROR:
@@ -391,16 +386,12 @@ QByteArray qCompress( const uchar* data, int nbytes )
 QByteArray qUncompress( const uchar* data, int nbytes )
 {
     if ( !data ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "qUncompress: data is NULL." );
-#endif
 	return QByteArray();
     }
     if ( nbytes <= 4 ) {
-#if defined(QT_CHECK_RANGE)
 	if ( nbytes < 4 || ( data[0]!=0 || data[1]!=0 || data[2]!=0 || data[3]!=0 ) )
 	    qWarning( "qUncompress: Input data is corrupted." );
-#endif
 	return QByteArray();
     }
     ulong expectedSize = ( data[0] << 24 ) | ( data[1] << 16 ) |
@@ -419,17 +410,13 @@ QByteArray qUncompress( const uchar* data, int nbytes )
 		baunzip.resize( len );
 	    break;
 	case Z_MEM_ERROR:
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "qUncompress: Z_MEM_ERROR: Not enough memory." );
-#endif
 	    break;
 	case Z_BUF_ERROR:
 	    len *= 2;
 	    break;
 	case Z_DATA_ERROR:
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "qUncompress: Z_DATA_ERROR: Input data is corrupted." );
-#endif
 	    break;
 	}
     } while ( res == Z_BUF_ERROR );
@@ -1113,9 +1100,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
     }
     a.resize( len );
     if (a.size() != len) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QDataStream: Not enough memory to read QByteArray" );
-#endif
 	len = 0;
     }
     if ( len > 0 )				// not null array

@@ -175,10 +175,8 @@ QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
     QSqlDatabase* db = sqlConnection->dbDict.find( name );
     if ( db && !db->isOpen() && open ) {
 	db->open();
-#ifdef QT_CHECK_RANGE
 	if ( !db->isOpen() )
 	    qWarning("Warning: QSqlDatabaseManager unable to open database: " + db->lastError().databaseText() + ": " + db->lastError().driverText() );
-#endif
     }
     return db;
 }
@@ -592,10 +590,8 @@ void QSqlDatabase::init( const QString& type, const QString& )
 #endif
 
     if ( !d->driver ) {
-#ifdef QT_CHECK_RANGE
 	qWarning( "QSqlDatabase warning: %s driver not loaded", type.latin1() );
 	qWarning( "QSqlDatabase: available drivers: " + drivers().join(" ") );
-#endif
 	d->driver = new QNullDriver();
 	d->driver->setLastError( QSqlError( "Driver not loaded", "Driver not loaded" ) );
     }

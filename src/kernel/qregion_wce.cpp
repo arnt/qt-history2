@@ -63,7 +63,6 @@ QRegion::QRegion()
     if ( !empty_region ) {			// avoid too many allocs
 	qAddPostRoutine( cleanup_empty_region );
 	empty_region = new QRegion( TRUE );
-	Q_CHECK_PTR( empty_region );
     }
     data = empty_region->data;
     data->ref();
@@ -72,7 +71,6 @@ QRegion::QRegion()
 QRegion::QRegion( bool is_null )
 {
     data = new QRegionData;
-    Q_CHECK_PTR( data );
     data->rgn = 0;
     data->is_null = is_null;
 }
@@ -83,13 +81,11 @@ QRegion::QRegion( const QRect &r, RegionType t )
 	if ( !empty_region ) {			// avoid too many allocs
 	    qAddPostRoutine( cleanup_empty_region );
 	    empty_region = new QRegion( TRUE );
-	    Q_CHECK_PTR( empty_region );
 	}
 	data = empty_region->data;
 	data->ref();
     } else {
 	data = new QRegionData;
-	Q_CHECK_PTR( data );
 	data->is_null = FALSE;
 	if ( t == Rectangle ) {			// rectangular region
 	    data->rgn = CreateRectRgn( r.left(),	 r.top(),
@@ -109,7 +105,6 @@ QRegion::QRegion( const QPointArray &a, bool winding )
 {
     if (a.size() > 0) {
 	data = new QRegionData;
-	Q_CHECK_PTR( data );
 	data->is_null = FALSE;
 	QRegionPrivate *rp = PolygonRegion( (QPoint*)a.data(), a.size(),
 					    winding ? WindingRule : EvenOddRule );
@@ -119,7 +114,6 @@ QRegion::QRegion( const QPointArray &a, bool winding )
 	if ( !empty_region ) {			// avoid too many allocs
 	    qAddPostRoutine( cleanup_empty_region );
 	    empty_region = new QRegion( TRUE );
-	    Q_CHECK_PTR( empty_region );
 	}
 	data = empty_region->data;
 	data->ref();
@@ -216,13 +210,11 @@ QRegion::QRegion( const QBitmap & bm )
 	if ( !empty_region ) {			// avoid too many allocs
 	    qAddPostRoutine( cleanup_empty_region );
 	    empty_region = new QRegion( TRUE );
-	    Q_CHECK_PTR( empty_region );
 	}
 	data = empty_region->data;
 	data->ref();
     } else {
 	data = new QRegionData;
-	Q_CHECK_PTR( data );
 	data->is_null = FALSE;
 	data->rgn = qt_win_bitmapToRegion(bm);
     }
@@ -324,11 +316,7 @@ QRegion QRegion::winCombine( const QRegion &r, int op ) const
 	    left = right = RGN_COPY;
 	    break;
 	default:
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "QRegion: Internal error in winCombine" );
-#else
-	    ;
-#endif
     }
 
     QRegion result( FALSE );

@@ -1397,9 +1397,7 @@ Q_ULONG QHttp::bytesAvailable() const
 Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
 {
     if ( data == 0 && maxlen != 0 ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QHttp::readBlock: Null pointer error" );
-#endif
 	return -1;
     }
     if ( maxlen >= d->rba.size() )

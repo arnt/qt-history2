@@ -144,13 +144,10 @@ bool QSharedDoubleBufferCleaner::event( QEvent *e )
     if ( event->timerId() == timer_id ) {
 	doCleanup();
 	stop();
-    }
-#ifdef QT_CHECK_STATE
-    else {
+    }else {
 	qWarning( "QSharedDoubleBufferCleaner::event: invalid timer event received." );
 	return FALSE;
     }
-#endif // QT_CHECK_STATE
 
     return TRUE;
 }
@@ -298,10 +295,8 @@ QSharedDoubleBuffer::~QSharedDoubleBuffer()
 bool QSharedDoubleBuffer::begin( QPainter* painter, int x, int y, int w, int h )
 {
     if ( isActive() ) {
-#if defined(QT_CHECK_STATE)
         qWarning( "QSharedDoubleBuffer::begin: Buffer is already active."
                   "\n\tYou must end() the buffer before a second begin()" );
-#endif // QT_CHECK_STATE
         return FALSE;
     }
 
@@ -353,10 +348,8 @@ bool QSharedDoubleBuffer::begin( QPainter* painter, int x, int y, int w, int h )
 bool QSharedDoubleBuffer::begin( QWidget* widget, int x, int y, int w, int h )
 {
     if ( isActive() ) {
-#if defined(QT_CHECK_STATE)
         qWarning( "QSharedDoubleBuffer::begin: Buffer is already active."
                   "\n\tYou must end() the buffer before a second begin()" );
-#endif // QT_CHECK_STATE
         return FALSE;
     }
 
@@ -410,10 +403,8 @@ bool QSharedDoubleBuffer::begin( QWidget* widget, int x, int y, int w, int h )
 bool QSharedDoubleBuffer::end()
 {
     if ( ! isActive() ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QSharedDoubleBuffer::end: Buffer is not active."
 		  "\n\tYou must call begin() before calling end()." );
-#endif // QT_CHECK_STATE
 	return FALSE;
     }
 
@@ -541,13 +532,9 @@ void QSharedDoubleBuffer::releasePixmap()
 {
     if ( qdb_owner != this ) {
 	// sanity check
-
-#ifdef QT_CHECK_STATE
 	qWarning( "QSharedDoubleBuffer::releasePixmap: internal error."
 		  "\n\t%p does not own shared pixmap, %p does.",
 		  (void*)this, (void*)qdb_owner );
-#endif // QT_CHECK_STATE
-
 	return;
     }
 

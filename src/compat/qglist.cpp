@@ -365,7 +365,6 @@ void QGList::inSort( QPtrCollection::Item d )
 void QGList::prepend( QPtrCollection::Item d )
 {
     register QLNode *n = new QLNode( newItem(d) );
-    Q_CHECK_PTR( n );
     n->prev = 0;
     if ( (n->next = firstNode) )		// list is not empty
 	firstNode->prev = n;
@@ -384,7 +383,6 @@ void QGList::prepend( QPtrCollection::Item d )
 void QGList::append( QPtrCollection::Item d )
 {
     register QLNode *n = new QLNode( newItem(d) );
-    Q_CHECK_PTR( n );
     n->next = 0;
     if ( (n->prev = lastNode) )			// list is not empty
 	lastNode->next = n;
@@ -414,7 +412,6 @@ bool QGList::insertAt( uint index, QPtrCollection::Item d )
 	return FALSE;
     QLNode *prevNode = nextNode->prev;
     register QLNode *n = new QLNode( newItem(d) );
-    Q_CHECK_PTR( n );
     nextNode->prev = n;
     prevNode->next = n;
     n->prev = prevNode;				// link new node into list
@@ -492,13 +489,11 @@ QLNode *QGList::unlink()
 
 bool QGList::removeNode( QLNode *n )
 {
-#if defined(QT_CHECK_NULL)
     if ( n == 0 || (n->prev && n->prev->next != n) ||
 	 (n->next && n->next->prev != n) ) {
 	qWarning( "QGList::removeNode: Corrupted node" );
 	return FALSE;
     }
-#endif
     curNode = n;
     unlink();					// unlink node
     deleteItem( n->data );			// deallocate this node
@@ -594,13 +589,11 @@ bool QGList::replaceAt( uint index, QPtrCollection::Item d )
 
 QPtrCollection::Item QGList::takeNode( QLNode *n )
 {
-#if defined(QT_CHECK_NULL)
     if ( n == 0 || (n->prev && n->prev->next != n) ||
 	 (n->next && n->next->prev != n) ) {
 	qWarning( "QGList::takeNode: Corrupted node" );
 	return 0;
     }
-#endif
     curNode = n;
     unlink();					// unlink node
     Item d = n->data;
@@ -1004,11 +997,9 @@ QDataStream &QGList::read( QDataStream &s )
     while ( num-- ) {				// read all items
 	Item d;
 	read( s, d );
-	Q_CHECK_PTR( d );
 	if ( !d )				// no memory
 	    break;
 	QLNode *n = new QLNode( d );
-	Q_CHECK_PTR( n );
 	if ( !n )				// no memory
 	    break;
 	n->next = 0;
@@ -1081,7 +1072,6 @@ QGListIterator::QGListIterator( const QGList &l )
     curNode = list->firstNode;			// set to first node
     if ( !list->iterators ) {
 	list->iterators = new QGListIteratorList;		// create iterator list
-	Q_CHECK_PTR( list->iterators );
     }
     list->iterators->add( this );		// attach iterator to list
 }
@@ -1149,9 +1139,7 @@ QGListIterator::~QGListIterator()
 QPtrCollection::Item QGListIterator::toFirst()
 {
     if ( !list ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QGListIterator::toFirst: List has been deleted" );
-#endif
 	return 0;
     }
     return list->firstNode ? (curNode = list->firstNode)->getData() : 0;
@@ -1165,9 +1153,7 @@ QPtrCollection::Item QGListIterator::toFirst()
 QPtrCollection::Item QGListIterator::toLast()
 {
     if ( !list ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QGListIterator::toLast: List has been deleted" );
-#endif
 	return 0;
     }
     return list->lastNode ? (curNode = list->lastNode)->getData() : 0;

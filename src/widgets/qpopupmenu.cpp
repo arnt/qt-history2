@@ -1081,12 +1081,10 @@ void QPopupMenu::updateSize()
 	    w = sz.width();
 	    itemHeight = sz.height();
 
-#if defined(QT_CHECK_NULL)
 	    if ( mi->text().isNull() && !mi->pixmap() && !mi->iconSet() &&
 		 !mi->isSeparator() && !mi->widget() && !mi->custom() )
 		qWarning( "QPopupMenu: (%s) Popup has invalid menu item",
 			  name( "unnamed" ) );
-#endif
 	}
 	height += itemHeight;
 	if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this)) {

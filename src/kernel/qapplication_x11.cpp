@@ -1655,13 +1655,6 @@ void qt_init_internal( int *argcptr, char **argv,
 	QPaintDevice::x_appdefcolormap_arr = new bool[ appScreenCount ];
 	QPaintDevice::x_appvisual_arr = new void*[ appScreenCount ];
 	QPaintDevice::x_appdefvisual_arr = new bool[ appScreenCount ];
-	Q_CHECK_PTR( QPaintDevice::x_appdepth_arr );
-	Q_CHECK_PTR( QPaintDevice::x_appcells_arr );
-	Q_CHECK_PTR( QPaintDevice::x_approotwindow_arr );
-	Q_CHECK_PTR( QPaintDevice::x_appcolormap_arr );
-	Q_CHECK_PTR( QPaintDevice::x_appdefcolormap_arr );
-	Q_CHECK_PTR( QPaintDevice::x_appvisual_arr );
-	Q_CHECK_PTR( QPaintDevice::x_appdefvisual_arr );
 
 	int screen;
 	QString serverVendor( ServerVendor( appDpy) );
@@ -2588,7 +2581,7 @@ GC qt_xget_temp_gc( int scrn, bool monochrome )		// get temporary GC
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
-#if defined(QT_CHECK_STATE)
+#ifndef QT_NO_DEBUG
     if ( mainWidget && mainWidget->parentWidget() &&
 	 ! mainWidget->parentWidget()->isDesktop() )
 	qWarning( "QApplication::setMainWidget(): New main widget (%s/%s) "
@@ -2691,11 +2684,9 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
     if ( !cursorStack ) {
 	cursorStack = new QCursorList;
-	Q_CHECK_PTR( cursorStack );
 	cursorStack->setAutoDelete( TRUE );
     }
     app_cursor = new QCursor( cursor );
-    Q_CHECK_PTR( app_cursor );
     if ( replace )
 	cursorStack->removeLast();
     cursorStack->append( app_cursor );
@@ -3804,7 +3795,6 @@ void qt_enter_modal( QWidget *widget )
 {
     if ( !qt_modal_stack ) {			// create modal stack
 	qt_modal_stack = new QWidgetList;
-	Q_CHECK_PTR( qt_modal_stack );
     }
     qt_dispatchEnterLeave( 0, QWidget::find((WId)curWin) );
     qt_modal_stack->insert( 0, widget );
@@ -3877,7 +3867,6 @@ void QApplication::openPopup( QWidget *popup )
     openPopupCount++;
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
-	Q_CHECK_PTR( popupWidgets );
     }
     popupWidgets->append( popup );		// add to end of list
 

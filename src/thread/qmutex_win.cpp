@@ -44,12 +44,9 @@ void QMutex::lock()
     while (! qAtomicCompareAndSetPtr(&d->owner, none, self)) {
 	if (d->recursive && d->owner == self) {
 	    break;
-	}
-#ifdef QT_CHECK_STATE
-	else if (d->owner == self) {
+	} else if (d->owner == self) {
 	    qWarning("QMutex::lock(): Deadlock detected in Thread %d", d->owner);
 	}
-#endif
 
 	WaitForSingleObject(d->event, INFINITE);
     }

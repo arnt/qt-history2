@@ -238,11 +238,9 @@ void QWizard::addPage( QWidget * page, const QString & title )
     if ( !page )
 	return;
     if ( d->page( page ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QWizard::addPage(): already added %s/%s to %s/%s",
 		  page->className(), page->name(),
 		  className(), name() );
-#endif
 	return;
     }
     int i = d->pages.count();
@@ -267,11 +265,9 @@ void QWizard::insertPage( QWidget * page, const QString & title, int index )
     if ( !page )
 	return;
     if ( d->page( page ) ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QWizard::insertPage(): already added %s/%s to %s/%s",
 		  page->className(), page->name(),
 		  className(), name() );
-#endif
 	return;
     }
 

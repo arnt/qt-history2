@@ -583,10 +583,8 @@ QPainter::~QPainter()
 bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes, bool unclipped )
 {
     if ( copyAttributes == 0 ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QPainter::begin: The widget to copy attributes from cannot "
 		 "be null" );
-#endif
 	return FALSE;
     }
     if ( begin( pd, unclipped ) ) {
@@ -665,11 +663,9 @@ typedef QPtrStack<QPState> QPStateStack;
 
 void QPainter::killPStack()
 {
-#if defined(QT_CHECK_STATE)
     if ( ps_stack && !((QPStateStack *)ps_stack)->isEmpty() )
 	qWarning( "QPainter::killPStack: non-empty save/restore stack when "
 		  "end() was called" );
-#endif
     delete (QPStateStack *)ps_stack;
     ps_stack = 0;
 }
@@ -696,12 +692,10 @@ void QPainter::save()
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 ) {
 	pss = new QPtrStack<QPState>;
-	Q_CHECK_PTR( pss );
 	pss->setAutoDelete( TRUE );
 	ps_stack = pss;
     }
     QPState *ps = new QPState;
-    Q_CHECK_PTR( ps );
     ps->font  = cfont;
     ps->pen   = cpen;
     ps->curPt = pos();
@@ -745,9 +739,7 @@ void QPainter::restore()
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 || pss->isEmpty() ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QPainter::restore: Empty stack error" );
-#endif
 	return;
     }
     QPState *ps = pss->pop();
@@ -821,12 +813,9 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
         if ( replacement == 0 )
             return;
         pdev_dict = new QPaintDeviceDict;
-        Q_CHECK_PTR( pdev_dict );
     }
-#if defined(QT_CHECK_NULL)
     if ( pdev == 0 )
         qWarning( "QPainter::redirect: The pdev argument cannot be 0" );
-#endif
     if ( replacement ) {
         pdev_dict->insert( pdev, replacement );
     } else {
@@ -901,10 +890,8 @@ QFontInfo QPainter::fontInfo() const
 
 void QPainter::setPen( const QPen &pen )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setPen: Will be reset by begin()" );
-#endif
     if ( cpen == pen )
 	return;
     cpen = pen;
@@ -922,10 +909,8 @@ void QPainter::setPen( const QPen &pen )
 
 void QPainter::setPen( PenStyle style )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setPen: Will be reset by begin()" );
-#endif
     QPen::QPenData *d = cpen.data;	// low level access
     if ( d->style == style && d->linest == style && !d->width && d->color == Qt::black )
 	return;
@@ -951,10 +936,8 @@ void QPainter::setPen( PenStyle style )
 
 void QPainter::setPen( const QColor &color )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setPen: Will be reset by begin()" );
-#endif
     QPen::QPenData *d = cpen.data;	// low level access
     if ( d->color == color && !d->width && d->style == SolidLine && d->linest == SolidLine )
 	return;
@@ -989,10 +972,8 @@ void QPainter::setPen( const QColor &color )
 
 void QPainter::setBrush( const QBrush &brush )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setBrush: Will be reset by begin()" );
-#endif
     if ( cbrush == brush )
 	return;
     cbrush = brush;
@@ -1008,10 +989,8 @@ void QPainter::setBrush( const QBrush &brush )
 
 void QPainter::setBrush( BrushStyle style )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setBrush: Will be reset by begin()" );
-#endif
     QBrush::QBrushData *d = cbrush.data; // low level access
     if ( d->style == style && d->color == Qt::black && !d->pixmap )
 	return;
@@ -1039,10 +1018,8 @@ void QPainter::setBrush( BrushStyle style )
 
 void QPainter::setBrush( const QColor &color )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setBrush: Will be reset by begin()" );
-#endif
     QBrush::QBrushData *d = cbrush.data; // low level access
     if ( d->color == color && d->style == SolidPattern && !d->pixmap )
 	return;
@@ -1114,10 +1091,8 @@ void QPainter::setBrush( const QColor &color )
 
 void QPainter::setTabStops( int ts )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setTabStops: Will be reset by begin()" );
-#endif
     tabstops = ts;
     if ( isActive() && testf(ExtDev) ) {	// tell extended device
 	QPDevCmdParam param[1];
@@ -1145,10 +1120,8 @@ void QPainter::setTabStops( int ts )
 
 void QPainter::setTabArray( int *ta )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setTabArray: Will be reset by begin()" );
-#endif
     if ( ta != tabarray ) {
 	tabarraylen = 0;
 	if ( tabarray )				// Avoid purify complaint
@@ -1196,10 +1169,8 @@ void QPainter::setTabArray( int *ta )
 
 void QPainter::setViewXForm( bool enable )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setViewXForm: Will be reset by begin()" );
-#endif
     if ( !isActive() || enable == testf(VxF) )
 	return;
     setf( VxF, enable );
@@ -1250,10 +1221,8 @@ QRect QPainter::window() const
 
 void QPainter::setWindow( int x, int y, int w, int h )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setWindow: Will be reset by begin()" );
-#endif
     wx = x;
     wy = y;
     ww = w;
@@ -1300,10 +1269,8 @@ QRect QPainter::viewport() const		// get viewport
 
 void QPainter::setViewport( int x, int y, int w, int h )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setViewport: Will be reset by begin()" );
-#endif
     vx = x;
     vy = y;
     vw = w;
@@ -1332,10 +1299,8 @@ void QPainter::setViewport( int x, int y, int w, int h )
 
 void QPainter::setWorldXForm( bool enable )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setWorldXForm: Will be reset by begin()" );
-#endif
     if ( !isActive() || enable == testf(WxF) )
 	return;
     setf( WxF, enable );
@@ -1418,10 +1383,8 @@ const QWMatrix &QPainter::worldMatrix() const
 
 void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setWorldMatrix: Will be reset by begin()" );
-#endif
     if ( combine )
 	wxmat = m * wxmat;			// combines
     else
@@ -1453,7 +1416,6 @@ void QPainter::saveWorldMatrix()
     QWMatrixStack *stack = (QWMatrixStack *)wm_stack;
     if ( stack == 0 ) {
 	stack  = new QPtrStack<QWMatrix>;
-	Q_CHECK_PTR( stack );
 	stack->setAutoDelete( TRUE );
 	wm_stack = stack;
     }
@@ -1470,9 +1432,7 @@ void QPainter::restoreWorldMatrix()
 {
     QWMatrixStack *stack = (QWMatrixStack *)wm_stack;
     if ( stack == 0 || stack->isEmpty() ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QPainter::restoreWorldMatrix: Empty stack error" );
-#endif
 	return;
     }
     QWMatrix* m = stack->pop();
@@ -1630,9 +1590,7 @@ void QPainter::updateXForm()
 
 void QPainter::updateInvXForm()
 {
-#if defined(QT_CHECK_STATE)
     Q_ASSERT( txinv == FALSE );
-#endif
     txinv = TRUE;				// creating inverted matrix
     bool invertible;
     QWMatrix m;
@@ -1752,9 +1710,7 @@ void QPainter::map( int x, int y, int w, int h,
 		*rh = qRound( ty2 ) - *ry + 1;
 	    } break;
 	    default:
-#if defined(QT_CHECK_STATE)
 		qWarning( "QPainter::map: Internal error" );
-#endif
 		break;
 	}
     } else {
@@ -1775,9 +1731,7 @@ void QPainter::map( int x, int y, int w, int h,
 		*rh = qRound( m22()*h );
 		break;
 	    default:
-#if defined(QT_CHECK_STATE)
 		qWarning( "QPainter::map: Internal error" );
-#endif
 		break;
 	}
     }
@@ -1796,10 +1750,8 @@ void QPainter::map( int x, int y, int w, int h,
 void QPainter::mapInv( int x, int y, int *rx, int *ry ) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
-#if defined(QT_CHECK_STATE)
     if ( !txinv )
 	qWarning( "QPainter::mapInv: Internal error" );
-#endif
     if ( qt_old_transformations ) {
 	double tx = im11()*x + im21()*y+idx();
 	double ty = im12()*x + im22()*y+idy();
@@ -1825,10 +1777,8 @@ void QPainter::mapInv( int x, int y, int w, int h,
 		       int *rx, int *ry, int *rw, int *rh ) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
-#if defined(QT_CHECK_STATE)
     if ( !txinv || txop == TxRotShear )
 	qWarning( "QPainter::mapInv: Internal error" );
-#endif
     if ( qt_old_transformations ) {
 	double tx = im11()*x + idx();
 	double ty = im22()*y + idy();
@@ -3184,7 +3134,6 @@ QRect QPainter::boundingRect( const QRect &r, int flags,
 void QPen::init( const QColor &color, uint width, uint linestyle )
 {
     data = new QPenData;
-    Q_CHECK_PTR( data );
     data->style = (PenStyle)(linestyle & MPenStyle);
     data->width = width;
     data->color = color;
@@ -3591,7 +3540,6 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
 void QBrush::init( const QColor &color, BrushStyle style )
 {
     data = new QBrushData;
-    Q_CHECK_PTR( data );
     data->style	 = style;
     data->color	 = color;
     data->pixmap = 0;
@@ -3773,10 +3721,8 @@ void QBrush::setStyle( BrushStyle s )		// set brush style
 {
     if ( data->style == s )
 	return;
-#if defined(QT_CHECK_RANGE)
     if ( s == CustomPattern )
 	qWarning( "QBrush::setStyle: CustomPattern is for internal use" );
-#endif
     detach();
     data->style = s;
 }

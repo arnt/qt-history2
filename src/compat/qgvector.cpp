@@ -208,12 +208,10 @@ QGVector& QGVector::operator=( const QGVector &v )
 
 bool QGVector::insert( uint index, Item d )	// insert item at index
 {
-#if defined(QT_CHECK_RANGE)
     if ( index >= len ) {			// range error
 	qWarning( "QGVector::insert: Index %d out of range", index );
 	return FALSE;
     }
-#endif
     if ( vec[index] ) {				// remove old item
 	deleteItem( vec[index] );
 	numItems--;
@@ -231,12 +229,10 @@ bool QGVector::insert( uint index, Item d )	// insert item at index
 
 bool QGVector::remove( uint index )		// remove item at index
 {
-#if defined(QT_CHECK_RANGE)
     if ( index >= len ) {			// range error
 	qWarning( "QGVector::remove: Index %d out of range", index );
 	return FALSE;
     }
-#endif
     if ( vec[index] ) {				// valid item
 	deleteItem( vec[index] );		// delete it
 	vec[index] = 0;				// reset pointer
@@ -247,12 +243,10 @@ bool QGVector::remove( uint index )		// remove item at index
 
 QPtrCollection::Item QGVector::take( uint index )		// take out item
 {
-#if defined(QT_CHECK_RANGE)
     if ( index >= len ) {			// range error
 	qWarning( "QGVector::take: Index %d out of range", index );
 	return 0;
     }
-#endif
     Item d = vec[index];				// don't delete item
     if ( d )
 	numItems--;
@@ -390,9 +384,7 @@ int QGVector::bsearch( Item d ) const		// binary search; when sorted
     if ( !len )
 	return -1;
     if ( !d ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QGVector::bsearch: Cannot search for null object" );
-#endif
 	return -1;
     }
     int n1 = 0;
@@ -425,12 +417,10 @@ int QGVector::bsearch( Item d ) const		// binary search; when sorted
 
 int QGVector::findRef( Item d, uint index) const // find exact item in vector
 {
-#if defined(QT_CHECK_RANGE)
     if ( index > len ) {			// range error
 	qWarning( "QGVector::findRef: Index %d out of range", index );
 	return -1;
     }
-#endif
     for ( uint i=index; i<len; i++ ) {
 	if ( vec[i] == d )
 	    return i;
@@ -440,12 +430,10 @@ int QGVector::findRef( Item d, uint index) const // find exact item in vector
 
 int QGVector::find( Item d, uint index ) const	// find equal item in vector
 {
-#if defined(QT_CHECK_RANGE)
     if ( index >= len ) {			// range error
 	qWarning( "QGVector::find: Index %d out of range", index );
 	return -1;
     }
-#endif
     for ( uint i=index; i<len; i++ ) {
 	if ( vec[i] == 0 && d == 0 )		// found null item
 	    return i;
@@ -494,16 +482,6 @@ void QGVector::toList( QGList *list ) const	// store items in list
 	if ( vec[i] )
 	    list->append( vec[i] );
     }
-}
-
-
-void QGVector::warningIndexRange( uint i )
-{
-#if defined(QT_CHECK_RANGE)
-    qWarning( "QGVector::operator[]: Index %d out of range", i );
-#else
-    Q_UNUSED( i )
-#endif
 }
 
 

@@ -336,10 +336,6 @@ void QWellArray::setCellBrush( int row, int col, const QBrush &b )
     }
     if ( row >= 0 && row < numRows() && col >= 0 && col < numCols() )
 	d->brush[row*numCols()+col] = b;
-#ifdef QT_CHECK_RANGE
-    else
-	qWarning( "QWellArray::setCellBrush( %d, %d ) out of range", row, col );
-#endif
 }
 
 
@@ -441,12 +437,7 @@ int QColorDialog::customCount()
 QRgb QColorDialog::customColor( int i )
 {
     initRGB();
-    if ( i < 0 || i >= customCount() ) {
-#ifdef QT_CHECK_RANGE
-	qWarning( "QColorDialog::customColor() index %d out of range", i );
-#endif
-	i = 0;
-    }
+    Q_ASSERT(i >= 0 && i < customCount());
     return cusrgb[i];
 }
 
@@ -456,12 +447,7 @@ QRgb QColorDialog::customColor( int i )
 void QColorDialog::setCustomColor( int i, QRgb c )
 {
     initRGB();
-    if ( i < 0 || i >= customCount() ) {
-#ifdef QT_CHECK_RANGE
-	qWarning( "QColorDialog::setCustomColor() index %d out of range", i );
-#endif
-	return;
-    }
+    Q_ASSERT(i >= 0 && i < customCount());
     customSet = TRUE;
     cusrgb[i] = c;
 }
@@ -473,12 +459,7 @@ void QColorDialog::setCustomColor( int i, QRgb c )
 void QColorDialog::setStandardColor( int i, QRgb c )
 {
     initRGB();
-    if ( i < 0 || i >= 6*8 ) {
-#ifdef QT_CHECK_RANGE
-	qWarning( "QColorDialog::setStandardColor() index %d out of range", i );
-#endif
-	return;
-    }
+    Q_ASSERT(i >= 0 && i < 6*8);
     stdrgb[i] = c;
 }
 
@@ -1495,7 +1476,6 @@ QRgb QColorDialog::getRgba( QRgb initial, bool *ok,
     int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
 
-    Q_CHECK_PTR( dlg );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setCaption( QColorDialog::tr( "Select color" ) );
 #endif

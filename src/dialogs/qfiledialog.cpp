@@ -3404,7 +3404,6 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofn", TRUE );
 
-    Q_CHECK_PTR( dlg );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
@@ -3523,7 +3522,6 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gsfn", TRUE );
 
-    Q_CHECK_PTR( dlg );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
@@ -4411,7 +4409,6 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 
     QFileDialog *dlg = new QFileDialog( parent, name ? name : "qt_filedlg_ged", TRUE );
 
-    Q_CHECK_PTR( dlg );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
@@ -5550,7 +5547,6 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofns", TRUE );
 
-    Q_CHECK_PTR( dlg );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
 	dlg->setCaption( caption );

@@ -595,12 +595,10 @@ void QColor::hsv( int *h, int *s, int *v ) const
 
 void QColor::setHsv( int h, int s, int v )
 {
-#if defined(QT_CHECK_RANGE)
     if ( h < -1 || (uint)s > 255 || (uint)v > 255 ) {
 	qWarning( "QColor::setHsv: HSV parameters out of range" );
 	return;
     }
-#endif
     int r=v, g=v, b=v;
     if ( s == 0 || h == -1 ) {			// achromatic case
 	// Ignore
@@ -672,10 +670,8 @@ void QColor::rgb( int *r, int *g, int *b ) const
 
 void QColor::setRgb( int r, int g, int b )
 {
-#if defined(QT_CHECK_RANGE)
     if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
 	qWarning( "QColor::setRgb: RGB parameter(s) out of range" );
-#endif
     d.argb = qRgb( r, g, b );
     if ( colormodel == d8 ) {
 	d.d8.invalid = FALSE;

@@ -113,7 +113,6 @@ static QClipboardData *clipboardData()
 {
     if(internalCbData == 0) {
 	internalCbData = new QClipboardData;
-	Q_CHECK_PTR(internalCbData);
 	qAddPostRoutine(cleanupClipboardData);
     }
     return internalCbData;
@@ -131,7 +130,7 @@ const char* QClipboardWatcher::format(int n) const
 	UInt32 cnt = 0;
 	if(GetScrapFlavorCount(scrap, &cnt) || !cnt)
 	    return NULL;
-	
+
 	ScrapFlavorInfo *infos = (ScrapFlavorInfo *)calloc(cnt, sizeof(ScrapFlavorInfo));
 	if(!infos || GetScrapFlavorInfoList(scrap, &cnt, infos) != noErr) {
 	    qDebug("Qt: internal: Failure to collect ScrapFlavorInfoList..");
@@ -155,7 +154,7 @@ const char* QClipboardWatcher::format(int n) const
 		    n--;
 		}
 	    }
-	    if(!mime && sawSBText && !n) 
+	    if(!mime && sawSBText && !n)
 		mime = QMacMime::flavorToMime(qmt, kScrapFlavorTypeText);
 	    free(infos);
 	}
@@ -249,7 +248,7 @@ bool QClipboard::event(QEvent *e)
 
 QMimeSource* QClipboard::data(Mode mode) const
 {
-    if(mode != Clipboard) 
+    if(mode != Clipboard)
 	return 0;
 
     QClipboardData *d = clipboardData();
@@ -260,7 +259,7 @@ QMimeSource* QClipboard::data(Mode mode) const
 
 void QClipboard::setData(QMimeSource *src, Mode mode)
 {
-    if(mode != Clipboard) 
+    if(mode != Clipboard)
 	return;
 
     QClipboardData *d = clipboardData();

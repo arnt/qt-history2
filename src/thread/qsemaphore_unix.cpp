@@ -160,9 +160,7 @@ int QSemaphore::operator+=(int n)
     d->mutex.lock();
 
     if ( n < 0 || n > d->max ) {
-#ifdef QT_CHECK_RANGE
 	qWarning( "QSemaphore::operator+=: paramter %d out of range", n );
-#endif // QT_CHECK_RANGE
 	n = n < 0 ? 0 : d->max;
     }
 
@@ -188,9 +186,7 @@ int QSemaphore::operator-=(int n)
     d->mutex.lock();
 
     if ( n < 0 || n > d->value ) {
-#ifdef QT_CHECK_RANGE
 	qWarning( "QSemaphore::operator-=: paramter %d out of range", n );
-#endif // QT_CHECK_RANGE
 	n = n < 0 ? 0 : d->value;
     }
 
@@ -251,12 +247,10 @@ bool QSemaphore::tryAccess(int n)
 
     d->value += n;
 
-#ifdef QT_CHECK_RANGE
     if (d->value > d->max) {
 	qWarning("QSemaphore::operator+=: attempt to allocate more resources than available");
 	d->value = d->max;
     }
-#endif
 
     d->mutex.unlock();
 

@@ -88,19 +88,13 @@ protected:
     virtual void deleteData( array_data *p );
 
 private:
-    static void msg_index( uint );
     array_data *shd;
 };
 
 
 inline char *QGArray::at( uint index ) const
 {
-#if defined(QT_CHECK_RANGE)
-    if ( index >= size() ) {
-	msg_index( index );
-	index = 0;
-    }
-#endif
+    Q_ASSERT(index < size());
     return &shd->data[index];
 }
 

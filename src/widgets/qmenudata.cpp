@@ -132,7 +132,6 @@ QMenuData::QMenuData()
 {
     actItem = -1;				// no active menu item
     mitems = new QMenuItemList;			// create list of menu items
-    Q_CHECK_PTR( mitems );
     mitems->setAutoDelete( TRUE );
     parentMenu = 0;				// assume top level
     isPopupMenu = FALSE;
@@ -235,7 +234,6 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 	id = get_seq_id();
 
     register QMenuItem *mi = new QMenuItem;
-    Q_CHECK_PTR( mi );
     mi->ident = id;
     if ( widget != 0 ) {
 	mi->widget_item = widget;
@@ -765,9 +763,7 @@ void QMenuData::removeItem( int id )
 void QMenuData::removeItemAt( int index )
 {
     if ( index < 0 || index >= (int)mitems->count() ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QMenuData::removeItem: Index %d out of range", index );
-#endif
 	return;
     }
     QMenuItem *mi = mitems->at( index );
@@ -1302,7 +1298,6 @@ bool QMenuData::setItemParameter( int id, int param ) {
 	return FALSE;
     if ( !mi->signal_data ) {			// create new signal
 	mi->signal_data = new QSignal;
-	Q_CHECK_PTR( mi->signal_data );
     }
     mi->signal_data->setValue( param );
     return TRUE;
@@ -1344,7 +1339,6 @@ bool QMenuData::connectItem( int id, const QObject *receiver,
 	return FALSE;
     if ( !mi->signal_data ) {			// create new signal
 	mi->signal_data = new QSignal;
-	Q_CHECK_PTR( mi->signal_data );
 	mi->signal_data->setValue( id );
     }
     return mi->signal_data->connect( receiver, member );

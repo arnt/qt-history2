@@ -347,8 +347,8 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
 
 /*!
     Returns TRUE if an accessibility implementation has been requested,
-    during the runtime of the application, otherwise returns FALSE. 
-    
+    during the runtime of the application, otherwise returns FALSE.
+
     Use this function to prevent potentially expensive notifications via
     updateAccessibility().
 
@@ -642,7 +642,7 @@ QRESULT QAccessibleObject::queryInterface( const QUuid &uuid, QUnknownInterface 
 */
 QObject *QAccessibleObject::object() const
 {
-#if defined(QT_CHECK_RANGE)
+#ifndef QT_NO_DEBUG
     if ( !isValid() )
 	qWarning( "QAccessibleInterface is invalid. Crash pending..." );
 #endif

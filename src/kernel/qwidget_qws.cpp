@@ -1098,10 +1098,8 @@ void QWidget::setMinimumSize( int minw, int minh )
 	    minh = qt_maxWindowRect.height();
     }
 
-#if defined(QT_CHECK_RANGE)
     if ( minw < 0 || minh < 0 )
 	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
-#endif
     d->createExtra();
     if ( d->extra->minw == minw && d->extra->minh == minh )
 	return;
@@ -1117,7 +1115,6 @@ void QWidget::setMinimumSize( int minw, int minh )
 
 void QWidget::setMaximumSize( int maxw, int maxh )
 {
-#if defined(QT_CHECK_RANGE)
     if ( maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX ) {
 	qWarning("QWidget::setMaximumSize: (%s/%s) "
 		"The largest allowed size is (%d,%d)",
@@ -1133,7 +1130,6 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 	maxw = QMAX( maxw, 0 );
 	maxh = QMAX( maxh, 0 );
     }
-#endif
     d->createExtra();
     if ( d->extra->maxw == maxw && d->extra->maxh == maxh )
 	return;

@@ -141,12 +141,10 @@ void QGLColormap::setEntry( int idx, QRgb color )
     if ( !d )
 	d = new Private();
 
-#if defined(QT_CHECK_RANGE)
     if ( idx < 0 || idx > (int) d->cells.size() ) {
 	qWarning( "QGLColormap::setRgb: Index out of range." );
 	return;
     }
-#endif
     d->cells[ idx ] = color;
 }
 

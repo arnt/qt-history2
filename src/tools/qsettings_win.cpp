@@ -122,10 +122,8 @@ QSettingsSysPrivate::QSettingsSysPrivate( QSettingsPrivate *priv )
 	}
     }
 
-#if defined(QT_CHECK_STATE)
     if ( !local && !user )
-	qSystemWarning( "Error opening registry!", res );
-#endif
+	qSystemWarning( "Error opening registry!" );
 }
 
 QSettingsSysPrivate::~QSettingsSysPrivate()
@@ -133,17 +131,13 @@ QSettingsSysPrivate::~QSettingsSysPrivate()
     LONG res;
     if ( local ) {
 	res = RegCloseKey( local );
-#if defined(QT_CHECK_STATE)
 	if ( res != ERROR_SUCCESS )
-	    qSystemWarning( "Error closing local machine!", res );
-#endif
+	    qSystemWarning( "Error closing local machine!" );
     }
     if ( user ) {
 	res = RegCloseKey( user );
-#if defined(QT_CHECK_STATE)
 	if ( res != ERROR_SUCCESS )
-	    qSystemWarning( "Error closing current user!", res );
-#endif
+	    qSystemWarning( "Error closing current user!" );
     }
 
     // Make sure that we only delete the base path if no one else is using it anymore
@@ -261,7 +255,7 @@ bool QSettingsSysPrivate::writeKey( const QString &key, const QByteArray &value,
     }
     if ( !handle )
 	return FALSE;
-    
+
     if (e == "Default" || e == "." )
 	e = "";
 
@@ -271,15 +265,13 @@ bool QSettingsSysPrivate::writeKey( const QString &key, const QByteArray &value,
 	} , {
 	    res = RegSetValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), 0, type, (const uchar*)value.data(), value.size() );
 	} );
-	
+
 	if ( res != ERROR_SUCCESS ) {
-#if defined(QT_CHECK_STATE)
-	    qSystemWarning( "Couldn't write value " + key, res );
-#endif
+	    qSystemWarning( "Couldn't write value " + key );
 	    return FALSE;
 	}
     }
-    
+
     RegCloseKey( handle );
     return TRUE;
 }
@@ -293,7 +285,7 @@ HKEY QSettingsSysPrivate::readKeyHelper( HKEY root, const QString &folder, const
     } , {
 	res = RegOpenKeyExA( root, folder.local8Bit(), 0, KEY_READ, &handle );
     } );
-    
+
     if ( res == ERROR_SUCCESS ) {
 	QT_WA( {
 	    res = RegQueryValueExW( handle, entry.isEmpty() ? 0 : (TCHAR*)entry.ucs2(), NULL, NULL, NULL, &size );
@@ -360,7 +352,7 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, ulong &type )
 	}
     }
 
-    if ( !size ) {	
+    if ( !size ) {
 	if ( handle )
 	    RegCloseKey( handle );
 	return QByteArray();
@@ -477,7 +469,7 @@ QString QSettingsPrivate::sysReadEntry(const QString &key, const QString &def, b
     } , {
 	result = QString::fromLocal8Bit( array );
     } );
-    
+
     if ( array.size() == 2 && result.isNull() )
 	result = "";
 
@@ -564,9 +556,7 @@ bool QSettingsPrivate::sysRemoveEntry( const QString &key )
     } );
 
     if ( res != ERROR_SUCCESS && res != ERROR_FILE_NOT_FOUND ) {
-#if defined(QT_CHECK_STATE)
-	qSystemWarning( "Error deleting value " + key, res );
-#endif
+	qSystemWarning( "Error deleting value " + key );
 	return FALSE;
     }
     char vname[2];
@@ -608,7 +598,7 @@ QStringList QSettingsPrivate::sysEntryList( const QString &key ) const
 
     DWORD count;
     DWORD maxlen;
-    
+
     QT_WA( {
 	RegQueryInfoKeyW( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
     } , {

@@ -859,7 +859,6 @@ int QMenuBar::calculateRects( int max_width )
 	    irects = 0;
 	} else {
 	    irects = new QRect[ i ];
-	    Q_CHECK_PTR( irects );
 	}
 	max_width = width();
     }
@@ -1468,7 +1467,6 @@ void QMenuBar::setupAccelerators()
 	    if ( i ) {
 		if ( !autoaccel ) {
 		    autoaccel = new QAccel( this );
-		    Q_CHECK_PTR( autoaccel );
 		    autoaccel->setIgnoreWhatsThis( TRUE );
 		    connect( autoaccel, SIGNAL(activated(int)),
 			     SLOT(accelActivated(int)) );

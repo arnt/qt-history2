@@ -714,11 +714,8 @@ void QAction::setAccel( const QKeySequence& key )
 	d->accel = new QAccel( (QWidget*)p, this, "qt_action_accel" );
 	d->accelid = d->accel->insertItem( d->key );
 	d->accel->connectItem( d->accelid, this, SLOT( internalActivation() ) );
-    }
-#if defined(QT_CHECK_STATE)
-    else
+    } else
 	qWarning( "QAction::setAccel() (%s) requires widget in parent chain", name() );
-#endif
     d->update();
 }
 
@@ -771,10 +768,8 @@ bool QAction::isToggleAction() const
 void QAction::toggle()
 {
     if ( !isToggleAction() ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QAction::%s() (%s) Only toggle actions "
 		  "can be switched", "toggle", name() );
-#endif
 	return;
     }
     setOn( !isOn() );
@@ -794,11 +789,9 @@ void QAction::toggle()
 void QAction::setOn( bool enable )
 {
     if ( !isToggleAction() ) {
-#if defined(QT_CHECK_STATE)
 	if ( enable )
 	    qWarning( "QAction::%s() (%s) Only toggle actions "
 		      "can be switched", "setOn", name() );
-#endif
 	return;
     }
     if ( enable == (bool)d->on )

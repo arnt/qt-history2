@@ -356,11 +356,9 @@ QPixmap QPixmap::fromMimeSource( const QString &abs_name )
     if ( !m ) {
 	if ( QFile::exists( abs_name ) )
 	    return QPixmap( abs_name );
-#if defined(QT_CHECK_STATE)
 	if ( !abs_name.isEmpty() )
 	    qWarning( "QPixmap::fromMimeSource: Cannot find pixmap \"%s\" in the mime source factory",
 		      abs_name.latin1() );
-#endif
 	return QPixmap();
     }
     QPixmap pix;
@@ -411,9 +409,7 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
 QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 {
     if ( paintingActive() ) {
-#if defined(QT_CHECK_STATE)
 	qWarning("QPixmap::operator=: Cannot assign to pixmap during painting");
-#endif
 	return *this;
     }
     pixmap.data->ref();				// avoid 'x = x'
@@ -690,10 +686,8 @@ void QPixmap::setMask( const QBitmap &newmask )
 	return;
     }
     if ( newmask.width() != width() || newmask.height() != height() ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::setMask: The pixmap and the mask must have "
 		  "the same size" );
-#endif
 	return;
     }
 #if defined(Q_WS_MAC) || (defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE))
@@ -996,10 +990,8 @@ bool QPixmap::doImageIO( QImageIO* io, int quality ) const
     if ( !io )
 	return FALSE;
     io->setImage( convertToImage() );
-#if defined(QT_CHECK_RANGE)
     if ( quality > 100  || quality < -1 )
 	qWarning( "QPixmap::save: quality out of range [-1,100]" );
-#endif
     if ( quality >= 0 )
 	io->setQuality( QMIN(quality,100) );
     return io->write();

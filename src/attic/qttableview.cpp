@@ -271,10 +271,8 @@ void QtTableView::repaint( int x, int y, int w, int h, bool erase )
 void QtTableView::setNumRows( int rows )
 {
     if ( rows < 0 ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QtTableView::setNumRows: (%s) Negative argument %d.",
 		 name( "unnamed" ), rows );
-#endif
 	return;
     }
     if ( nRows == rows )
@@ -313,10 +311,8 @@ void QtTableView::setNumRows( int rows )
 void QtTableView::setNumCols( int cols )
 {
     if ( cols < 0 ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QtTableView::setNumCols: (%s) Negative argument %d.",
 		 name( "unnamed" ), cols );
-#endif
 	return;
     }
     if ( nCols == cols )
@@ -578,13 +574,11 @@ void QtTableView::setCellWidth( int cellWidth )
 {
     if ( cellW == cellWidth )
 	return;
-#if defined(QT_CHECK_RANGE)
     if ( cellWidth < 0 || cellWidth > SHRT_MAX ) {
 	qWarning( "QtTableView::setCellWidth: (%s) Argument out of range (%d)",
 		 name( "unnamed" ), cellWidth );
 	return;
     }
-#endif
     cellW = (short)cellWidth;
 
     updateScrollBars( horSteps | horRange );
@@ -632,13 +626,11 @@ void QtTableView::setCellHeight( int cellHeight )
 {
     if ( cellH == cellHeight )
 	return;
-#if defined(QT_CHECK_RANGE)
     if ( cellHeight < 0 || cellHeight > SHRT_MAX ) {
 	qWarning( "QtTableView::setCellHeight: (%s) Argument out of range (%d)",
 		 name( "unnamed" ), cellHeight );
 	return;
     }
-#endif
     cellH = (short)cellHeight;
     if ( autoUpdate() && isVisible() )
 	repaint();
@@ -1072,7 +1064,6 @@ void QtTableView::coverCornerSquare( bool enable )
     coveringCornerSquare = enable;
     if ( !cornerSquare && enable ) {
 	cornerSquare = new QCornerSquare( this );
-	Q_CHECK_PTR( cornerSquare );
 	cornerSquare->setGeometry( maxViewX() + frameWidth() + 1,
 				   maxViewY() + frameWidth() + 1,
                                    VSBEXT,
@@ -1442,7 +1433,6 @@ QScrollBar *QtTableView::verticalScrollBar() const
 	sb->setCursor( arrowCursor );
 #endif
         sb->resize( sb->sizeHint() ); // height is irrelevant
-	Q_CHECK_PTR(sb);
 	sb->setTracking( FALSE );
 	sb->setFocusPolicy( NoFocus );
 	connect( sb, SIGNAL(valueChanged(int)),
@@ -1474,7 +1464,6 @@ QScrollBar *QtTableView::horizontalScrollBar() const
 #endif
 	sb->resize( sb->sizeHint() ); // width is irrelevant
 	sb->setFocusPolicy( NoFocus );
-	Q_CHECK_PTR(sb);
 	sb->setTracking( FALSE );
 	connect( sb, SIGNAL(valueChanged(int)),
 		 SLOT(horSbValue(int)));
@@ -1577,12 +1566,10 @@ int QtTableView::findRawRow( int yPos, int *cellMaxY, int *cellMinY,
 	return r;
     if ( goOutsideView || yPos >= minViewY() && yPos <= maxViewY() ) {
 	if ( yPos < minViewY() ) {
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "QtTableView::findRawRow: (%s) internal error: "
 		     "yPos < minViewY() && goOutsideView "
 		     "not supported. (%d,%d)",
 		     name( "unnamed" ), yPos, yOffs );
-#endif
 	    return -1;
 	}
 	if ( cellH ) {				     // uniform cell height
@@ -1624,12 +1611,10 @@ int QtTableView::findRawCol( int xPos, int *cellMaxX, int *cellMinX ,
 	return c;
     if ( goOutsideView || xPos >= minViewX() && xPos <= maxViewX() ) {
 	if ( xPos < minViewX() ) {
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "QtTableView::findRawCol: (%s) internal error: "
 		     "xPos < minViewX() && goOutsideView "
 		     "not supported. (%d,%d)",
 		     name( "unnamed" ), xPos, xOffs );
-#endif
 	    return -1;
 	}
 	if ( cellW ) {				// uniform cell width

@@ -436,9 +436,7 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality_in, int off_x_
     int quality = quality_in;
     if (quality >= 0) {
 	if (quality > 9) {
-#if defined(QT_CHECK_RANGE)
 	    qWarning( "PNG: Quality %d out of range", quality );
-#endif
 	    quality = 9;
 	}
 	png_set_compression_level(png_ptr, quality);

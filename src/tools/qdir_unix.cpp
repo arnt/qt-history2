@@ -97,9 +97,7 @@ bool QDir::rename( const QString &name, const QString &newName,
 		   bool acceptAbsPaths	)
 {
     if ( name.isEmpty() || newName.isEmpty() ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QDir::rename: Empty or null file name(s)" );
-#endif
 	return FALSE;
     }
     QString fn1 = filePath( name, acceptAbsPaths );
@@ -157,9 +155,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     int i;
     if ( !fList ) {
 	fList  = new QStringList;
-	Q_CHECK_PTR( fList );
 	fiList = new QFileInfoList;
-	Q_CHECK_PTR( fiList );
 	fiList->setAutoDelete( TRUE );
     } else {
 	fList->clear();
@@ -216,10 +212,8 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	}
     }
     if ( closedir(dir) != 0 ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QDir::readDirEntries: Cannot close the directory: %s",
 		  dPath.local8Bit() );
-#endif
     }
 
     // Sort...

@@ -275,9 +275,7 @@ int QSqlRecord::position( const QString& name ) const
 	if ( fieldName(i).upper() == name.upper() )
 	    return i;
     }
-#ifdef QT_CHECK_RANGE
     qWarning( "QSqlRecord::position: unable to find field " + name );
-#endif
     return -1;
 }
 
@@ -290,9 +288,7 @@ QSqlField* QSqlRecord::field( int i )
 {
     checkDetach();
     if ( !sh->d->contains( i ) ) {
-#ifdef QT_CHECK_RANGE
 	qWarning( "QSqlRecord::field: index out of range: " + QString::number( i ) );
-#endif
 	return 0;
     }
     return &sh->d->fieldInfo( i )->field;
@@ -321,9 +317,7 @@ QSqlField* QSqlRecord::field( const QString& name )
 const QSqlField* QSqlRecord::field( int i ) const
 {
     if ( !sh->d->contains( i ) ) {
-#ifdef QT_CHECK_RANGE
 	qWarning( "QSqlRecord::field: index out of range: " + QString::number( i ) );
-#endif // QT_CHECK_RANGE
 	return 0;
     }
     return &sh->d->fieldInfo( i )->field;

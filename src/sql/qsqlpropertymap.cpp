@@ -194,9 +194,7 @@ QVariant QSqlPropertyMap::property( QWidget * widget )
 	mo = mo->superClass();
 
     if ( !mo ) {
-#ifdef QT_CHECK_RANGE
 	qWarning("QSqlPropertyMap::property: %s does not exist", widget->metaObject()->className() );
-#endif
 	return QVariant();
     }
     return widget->property( d->propertyMap[ mo->className() ] );
@@ -213,9 +211,7 @@ void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
     while ( mo && !d->propertyMap.contains( QString( mo->className() ) ) )
 	mo = mo->superClass();
     if ( !mo ) {
-#ifdef QT_CHECK_RANGE
 	qWarning("QSqlPropertyMap::setProperty: %s not handled by QSqlPropertyMap", widget->metaObject()->className() );
-#endif
 	return;
     }
 

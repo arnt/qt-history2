@@ -157,10 +157,8 @@ void QPainter::init()
 
 void QPainter::setFont(const QFont &font)
 {
-#if defined(QT_CHECK_STATE)
     if(!isActive())
 	qWarning("QPainter::setFont: Will be reset by begin()");
-#endif
     if(cfont.d != font.d) {
 	cfont = font;
 	setf(DirtyFont);
@@ -313,7 +311,6 @@ void QPainter::updateBrush()
 	    else if(bs<=CrossPattern)
 		size=24;
 	    d->brush_style_pix = new QPixmap(size, size);
-	    Q_CHECK_PTR(d->brush_style_pix);
 	    d->brush_style_pix->setMask(QBitmap(size, size, pat, FALSE));
 	    QPixmapCache::insert(key, d->brush_style_pix);
 	}
@@ -333,16 +330,12 @@ void QPainter::updateBrush()
 bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
 {
     if(isActive()) {                         // already active painting
-#if defined(QT_CHECK_STATE)
 	qWarning("QPainter::begin: Painter is already active."
 		 "\n\tYou must end() the painter before a second begin()");
-#endif
 	return FALSE;
     }
     if(!pd) {
-#if defined(QT_CHECK_NULL)
 	qWarning("QPainter::begin: Paint device cannot be null");
-#endif
 	return FALSE;
     }
 
@@ -360,11 +353,9 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
 
     if(pdev->isExtDev() && pdev->paintingActive()) {
 	// somebody else is already painting
-#if defined(QT_CHECK_STATE)
 	qWarning("QPainter::begin: Another QPainter is already painting "
 		 "this device;\n\tAn extended paint device can only be painted "
 		 "by one QPainter at a time.");
-#endif
 	return FALSE;
     }
 
@@ -448,9 +439,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
     } else if(pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if(pm->isNull()) {
-#if defined(QT_CHECK_NULL)
 	    qWarning("QPainter::begin: Cannot paint null pixmap");
-#endif
 	    end();
 	    return FALSE;
 	}
@@ -494,9 +483,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
 bool QPainter::end()				// end painting
 {
     if(!isActive()) {
-#if defined(QT_CHECK_STATE)
 	qWarning("QPainter::end: Missing begin() or begin() failed");
-#endif
 	return FALSE;
     }
     killPStack();
@@ -566,9 +553,7 @@ void QPainter::flush()
 void QPainter::setBackgroundColor(const QColor &c)
 {
     if(!isActive()) {
-#if defined(QT_CHECK_STATE)
 	qWarning("Qt: QPainter::setBackgroundColor: Call begin() first");
-#endif
 	return;
     }
     bg_col = c;
@@ -1489,10 +1474,8 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
     if(!isActive())
 	return;
     if(a.size() - index < 4) {
-#if defined(QT_CHECK_RANGE)
 	qWarning("Qt: QPainter::drawCubicBezier: Cubic Bezier "
 		 "needs 4 control points");
-#endif
 	return;
     }
     QPointArray pa(a);

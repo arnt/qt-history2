@@ -124,9 +124,7 @@ void QTextCursor::gotoPosition( QTextParagraph* p, int index )
     }
     para = p;
     if ( index < 0 || index >= para->length() ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QTextCursor::gotoParagraph Index: %d out of range", index );
-#endif
 	if ( index < 0 || para->length() == 0 )
 	    index = 0;
 	else

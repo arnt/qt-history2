@@ -219,7 +219,6 @@ static void sst_init()
 {
     if ( !sst_list ) {
 	sst_list = new QObjectList;
-	Q_CHECK_PTR( sst_list );
 	qAddPostRoutine( sst_cleanup );
     }
 }

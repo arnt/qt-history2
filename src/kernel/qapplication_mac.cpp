@@ -756,7 +756,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 		     "In order to dispatch events correctly Mac OS X may "
 		     "require applications to be run with the *full* path to the "
 		     "executable.", argv[0]);
-		  
+
 	//special hack to change working directory to a resource fork when running from finder
 	if(p && !QDir::isRelativePath(p) && QDir::currentDirPath() == "/") {
 	    QString path = argv[0];
@@ -892,7 +892,6 @@ void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
 {
     if(!cursorStack) {
 	cursorStack = new QCursorList;
-	Q_CHECK_PTR(cursorStack);
 	cursorStack->setAutoDelete(TRUE);
     }
     app_cursor = new QCursor(cursor);
@@ -1343,7 +1342,6 @@ void qt_enter_modal(QWidget *widget)
 #endif
     if(!qt_modal_stack) {			// create modal stack
 	qt_modal_stack = new QWidgetList;
-	Q_CHECK_PTR(qt_modal_stack);
     }
     qt_modal_stack->insert(0, widget);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
@@ -2530,7 +2528,6 @@ void QApplication::openPopup(QWidget *popup)
 {
     if(!popupWidgets) {			// create list
 	popupWidgets = new QWidgetList;
-	Q_CHECK_PTR(popupWidgets);
     }
     popupWidgets->append(popup);		// add to end of list
 

@@ -1845,11 +1845,9 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     if ( !cursorStack ) {
 	qws_overrideCursor = TRUE;
 	cursorStack = new QCursorList;
-	Q_CHECK_PTR( cursorStack );
 	cursorStack->setAutoDelete( TRUE );
     }
     app_cursor = new QCursor( cursor );
-    Q_CHECK_PTR( app_cursor );
     if ( replace )
 	cursorStack->removeLast();
     cursorStack->append( app_cursor );
@@ -1960,7 +1958,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	    QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
 	    return c ? c  : w;
 	}
-	
+
     }
     return 0;
 }
@@ -2110,7 +2108,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
     if ( !widget ) {				// don't know this window
 	if ( !QWidget::mouseGrabber()
 #ifndef QT_NO_QWS_MANAGER
-	    && !QWSManager::grabbedMouse() 
+	    && !QWSManager::grabbedMouse()
 #endif
 	    ) {
 	    qt_last_cursor = 0xffffffff; // cursor can be changed by another application
@@ -2349,7 +2347,6 @@ void qt_enter_modal( QWidget *widget )
 {
     if ( !qt_modal_stack ) {			// create modal stack
 	qt_modal_stack = new QWidgetList;
-	Q_CHECK_PTR( qt_modal_stack );
     }
     qt_modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
@@ -2403,7 +2400,6 @@ void QApplication::openPopup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
-	Q_CHECK_PTR( popupWidgets );
        if ( !activeBeforePopup )
            activeBeforePopup = new QGuardedPtr<QWidget>;
        (*activeBeforePopup) = active_window;

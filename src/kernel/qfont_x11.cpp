@@ -313,11 +313,9 @@ void QFontPrivate::load( QFont::Script script )
     // NOTE: the X11 and Windows implementations of this function are
     // identical... if you change one, change both.
 
-#ifdef QT_CHECK_STATE
     // sanity checks
     Q_ASSERT( QFontCache::instance != 0);
     Q_ASSERT( script >= 0 && script < QFont::LastPrivateScript );
-#endif // QT_CHECK_STATE
 
     QFontDef req = request;
     req.pixelSize = qRound(pixelSize(req, paintdevice, screen));
@@ -411,9 +409,7 @@ bool QFont::dirty() const
 Qt::HANDLE QFont::handle() const
 {
     QFontEngine *engine = d->engineForScript( QFontPrivate::defaultScript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     switch ( engine->type() ) {
     case QFontEngine::XLFD:
@@ -444,9 +440,7 @@ Qt::HANDLE QFont::handle() const
 QString QFont::rawName() const
 {
     QFontEngine *engine = d->engineForScript( QFontPrivate::defaultScript );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     return QString::fromLatin1( engine->name() );
 }
@@ -479,9 +473,7 @@ void QFont::setRawName( const QString &name )
     extern bool qt_fillFontDef( const QByteArray &xlfd, QFontDef *fd, int screen );
 
     if ( ! qt_fillFontDef( qt_fixXLFD( name.toLatin1() ), &d->request, d->screen ) ) {
-#ifdef QT_CHECK_STATE
 	qWarning("QFont::setRawMode(): Invalid XLFD: \"%s\"", name.latin1());
-#endif // QT_CHECK_STATE
 
 	setFamily( name );
 	setRawMode( TRUE );
@@ -634,9 +626,7 @@ int QFontMetrics::width( QChar ch ) const
     SCRIPT_FOR_CHAR( script, ch );
 
     QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
     glyph_t glyphs[8];
     advance_t advances[8];
@@ -679,9 +669,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	width = layout.width( pos-from, 1 );
     } else {
 	QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
 	Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
 
 	glyph_t glyphs[8];
 	advance_t advances[8];

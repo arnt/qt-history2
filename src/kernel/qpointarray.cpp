@@ -835,9 +835,7 @@ QPointArray QPointArray::cubicBezier() const
 {
 #ifdef USE_SIMPLE_QBEZIER_CODE
     if (size() != 4) {
-#if defined(QT_CHECK_RANGE)
 	qWarning("QPointArray::bezier: The array must have 4 control points");
-#endif
 	QPointArray p;
 	return p;
     }
@@ -890,9 +888,7 @@ QPointArray QPointArray::cubicBezier() const
 #else
 
     if (size() != 4) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPointArray::bezier: The array must have 4 control points" );
-#endif
 	QPointArray pa;
 	return pa;
     } else {

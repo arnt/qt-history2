@@ -30,8 +30,6 @@
 
 #include <qiterator.h>
 
-//#define QT_CHECK_MAP_RANGE
-
 struct Q_EXPORT QMapData
 {
     enum Color { Red, Black };

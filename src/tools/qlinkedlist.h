@@ -157,7 +157,6 @@ public:
     { if (!d) { d = &QLinkedListData::shared_null; ++d->ref; return false; } return true; }
 
 private:
-    inline bool canAutoDelete() const { return QTypeInfo<T>::isPointer; }
     void detach_helper();
     void free(QLinkedListData*);
 };
@@ -229,11 +228,10 @@ inline bool QLinkedList<T>::autoDelete() const
 template <typename T>
 inline void QLinkedList<T>::setAutoDelete(bool enable)
 {
-    Q_ASSERT(canAutoDelete());
-    if (QTypeInfo<T>::isPointer) {
-	detach();
-	d->autoDelete = enable ? this : 0;
-    }
+    Q_MSG_ASSERT(QTypeInfo<T>::isPointer,
+		 "QLinkedList<T>::setAutoDelete: Cannot delete non pointer types.");
+    detach();
+    d->autoDelete = enable ? this : 0;
 }
 
 template <typename T>

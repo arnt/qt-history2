@@ -222,9 +222,7 @@ void QFile::init()
 void QFile::setName( const QString &name )
 {
     if ( isOpen() ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QFile::setName: File is open" );
-#endif
 	close();
     }
     fn = name;
@@ -304,9 +302,7 @@ void QFile::flush()
 bool QFile::atEnd() const
 {
     if ( !isOpen() ) {
-#if defined(QT_CHECK_STATE)
 	qWarning( "QFile::atEnd: File is not open" );
-#endif
 	return FALSE;
     }
     if ( isDirectAccess() && !isTranslated() ) {
@@ -335,7 +331,6 @@ Q_LONG QFile::readLine( char *p, Q_ULONG maxlen )
 {
     if ( maxlen == 0 )				// application bug?
 	return 0;
-#if defined(QT_CHECK_STATE)
     Q_CHECK_PTR( p );
     if ( !isOpen() ) {				// file not open
 	qWarning( "QFile::readLine: File not open" );
@@ -345,7 +340,6 @@ Q_LONG QFile::readLine( char *p, Q_ULONG maxlen )
 	qWarning( "QFile::readLine: Read operation not permitted" );
 	return -1;
     }
-#endif
     Q_LONG nread;				// number of bytes read
     if ( isRaw() ) {				// raw file
 	nread = QIODevice::readLine( p, maxlen );
@@ -405,7 +399,6 @@ Q_LONG QFile::readLine( QString& s, Q_ULONG maxlen )
 
 int QFile::getch()
 {
-#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {				// file not open
 	qWarning( "QFile::getch: File not open" );
 	return EOF;
@@ -414,7 +407,6 @@ int QFile::getch()
 	qWarning( "QFile::getch: Read operation not permitted" );
 	return EOF;
     }
-#endif
 
     int ch;
 
@@ -450,7 +442,6 @@ int QFile::getch()
 
 int QFile::putch( int ch )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {				// file not open
 	qWarning( "QFile::putch: File not open" );
 	return EOF;
@@ -459,7 +450,6 @@ int QFile::putch( int ch )
 	qWarning( "QFile::putch: Write operation not permitted" );
 	return EOF;
     }
-#endif
     if ( isRaw() ) {				// raw file (inefficient)
 	char buf[1];
 	buf[0] = ch;
@@ -491,7 +481,6 @@ int QFile::putch( int ch )
 
 int QFile::ungetch( int ch )
 {
-#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {				// file not open
 	qWarning( "QFile::ungetch: File not open" );
 	return EOF;
@@ -500,7 +489,6 @@ int QFile::ungetch( int ch )
 	qWarning( "QFile::ungetch: Read operation not permitted" );
 	return EOF;
     }
-#endif
     if ( ch == EOF )				// cannot unget EOF
 	return ch;
 

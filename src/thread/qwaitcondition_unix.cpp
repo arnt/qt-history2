@@ -203,10 +203,8 @@ bool QWaitCondition::wait(unsigned long time)
     } else
 	ret = pthread_cond_wait(&d->cond, &mutex);
 
-#ifdef QT_CHECK_RANGE
     if (ret && ret != ETIMEDOUT)
 	qWarning("QWaitCondition::wait() failure: %s",strerror(ret));
-#endif
 
     pthread_mutex_unlock( &mutex );
     pthread_mutex_destroy( &mutex );
@@ -244,9 +242,7 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 	return false;
 
     if (mutex->d->recursive) {
-#ifdef QT_CHECK_RANGE
 	qWarning("QWaitCondition: cannot wait on recursive mutexes");
-#endif
 	return false;
     }
 
@@ -265,10 +261,8 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 	ret = pthread_cond_wait(&d->cond, &mutex->d->mutex);
     }
 
-#ifdef QT_CHECK_RANGE
     if (ret && ret != ETIMEDOUT)
 	qWarning("QWaitCondition::wait() failure: %s",strerror(ret));
-#endif
 
     return (ret == 0);
 }

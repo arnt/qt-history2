@@ -211,7 +211,6 @@ static QClipboardData *clipboardData()
 {
     if ( internalCbData == 0 ) {
 	internalCbData = new QClipboardData;
-	Q_CHECK_PTR( internalCbData );
 	qAddPostRoutine( cleanupClipboardData );
     }
     return internalCbData;
@@ -227,7 +226,6 @@ static QClipboardData *selectionData()
 {
     if (internalSelData == 0) {
 	internalSelData = new QClipboardData;
-	Q_CHECK_PTR(internalSelData);
 	qAddPostRoutine(cleanupSelectionData);
     }
     return internalSelData;
@@ -952,9 +950,7 @@ bool QClipboard::event( QEvent *e )
 		    pending_timer_id = QApplication::clipboard()->startTimer( 0 );
 	    }
 	} else {
-#ifdef QT_CHECK_STATE
 	    qWarning("QClipboard: Unknown SelectionClear event received.");
-#endif
 	    return FALSE;
 	}
 	break;
@@ -1003,19 +999,14 @@ bool QClipboard::event( QEvent *e )
 		m = Clipboard;
 		d = clipboardData();
 	    } else {
-#ifdef QT_CHECK_RANGE
 		qWarning("QClipboard: unknown selection '%lx'", req->selection);
-#endif // QT_CHECK_RANGE
 
 		XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
 		break;
 	    }
 
 	    if (! d->source()) {
-#ifdef QT_CHECK_STATE
 		qWarning("QClipboard: cannot transfer data, no data available");
-#endif // QT_CHECK_STATE
-
 		XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
 		break;
 	    }
@@ -1082,10 +1073,7 @@ bool QClipboard::event( QEvent *e )
 					PropModeReplace, (uchar *) &d->timestamp, 1);
 			ret = property;
 		    } else {
-
-#ifdef QT_CHECK_STATE
 			qWarning("QClipboard: invalid data timestamp");
-#endif // QT_CHECK_STATE
 		    }
 		} else if (target == xa_targets) {
 		    ret = send_targets_selection(d, req->requestor, property);
@@ -1154,11 +1142,9 @@ QClipboardWatcher::QClipboardWatcher( QClipboard::Mode mode )
 	atom = qt_xa_clipboard;
 	break;
 
-#ifdef QT_CHECK_RANGE
     default:
 	qWarning( "QClipboardWatcher: internal error, unknown clipboard mode" );
 	break;
-#endif // QT_CHECK_RANGE
     }
 
     setupOwner();
@@ -1177,12 +1163,10 @@ bool QClipboardWatcher::empty() const
     Display *dpy = QPaintDevice::x11AppDisplay();
     Window win = XGetSelectionOwner( dpy, atom );
 
-#ifdef QT_CHECK_STATE
     if( win == requestor->winId()) {
         qWarning( "QClipboardWatcher::empty: internal error, app owns the selection" );
         return TRUE;
     }
-#endif // QT_CHECK_STATE
 
     return win == None;
 }
@@ -1368,9 +1352,7 @@ QMimeSource* QClipboard::data( Mode mode ) const
     case Clipboard: d = clipboardData(); break;
 
     default:
-#ifdef QT_CHECK_RANGE
 	qWarning( "QClipboard::data: invalid mode '%d'", mode );
-#endif // QT_CHECK_RANGE
 	return 0;
     }
 
@@ -1418,9 +1400,7 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
 	break;
 
     default:
-#ifdef QT_CHECK_RANGE
 	qWarning( "QClipboard::data: invalid mode '%d'", mode );
-#endif // QT_CHECK_RANGE
 	return;
     }
 
@@ -1448,11 +1428,8 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
 	emit dataChanged();
 
     if (XGetSelectionOwner(dpy, atom) != newOwner) {
-#ifdef QT_CHECK_STATE
 	qWarning("QClipboard::setData: Cannot set X11 selection owner for %s",
 		 qt_xdnd_atom_to_str(atom));
-#endif // QT_CHECK_STATE
-
 	d->clear();
 	return;
     }

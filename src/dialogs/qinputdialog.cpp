@@ -204,11 +204,6 @@ void QInputDialog::setType( Type t )
     case EditableComboBox:
 	input = d->editComboBox;
 	break;
-    default:
-#if defined(QT_CHECK_STATE)
-	qWarning( "QInputDialog::setType: Invalid type" );
-#endif
-	break;
     }
     if ( input ) {
 	d->stack->raiseWidget( input );

@@ -151,9 +151,7 @@ bool QFileInfo::permission( int permissionSpec ) const
 	if ( mask ) {
 	   return (fic->st.st_mode & mask) == mask;
 	} else {
-#if defined(QT_CHECK_NULL)
 	   qWarning( "QFileInfo::permission: permissionSpec is 0" );
-#endif
 	   return TRUE;
 	}
     } else {

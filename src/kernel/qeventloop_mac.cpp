@@ -288,7 +288,6 @@ static void initTimers()			// initialize timers
     timerUPP = NewEventLoopTimerUPP(qt_activate_mac_timer);
     Q_CHECK_PTR(timerUPP);
     timerList = new TimerList;
-    Q_CHECK_PTR(timerList);
     timerList->setAutoDelete(TRUE);
     zero_timer_count = 0;
 }
@@ -383,7 +382,6 @@ int qStartTimer(int interval, QObject *obj)
     TimerInfo *t = new TimerInfo;		// create timer
     t->obj = obj;
     t->pending = TRUE;
-    Q_CHECK_PTR(t);
 #ifdef Q_OS_MACX
     if(!qt_is_gui_used) {
 	t->type = TimerInfo::TIMER_QT;
@@ -586,9 +584,7 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
     int sockfd = notifier->socket();
     int type = notifier->type();
     if(sockfd < 0 || type < 0 || type > 2 || notifier == 0) {
-#if defined(QT_CHECK_RANGE)
 	qWarning("Qt: QSocketNotifier: Internal error");
-#endif
 	return;
     }
 
@@ -599,13 +595,11 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
     if(!list) {
 	// create new list, the QSockNotType destructor will delete it for us
 	list = new QPtrList<QSockNot>;
-	Q_CHECK_PTR(list);
 	list->setAutoDelete(TRUE);
 	d->sn_vec[type].list = list;
     }
 
     sn = new QSockNot;
-    Q_CHECK_PTR(sn);
     sn->obj = notifier;
     sn->fd = sockfd;
     sn->queue = &d->sn_vec[type].pending_fds;
@@ -616,13 +610,11 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 	QSockNot *p = list->first();
 	while(p && p->fd > sockfd)
 	    p = list->next();
-#if defined(QT_CHECK_STATE)
 	if(p && p->fd == sockfd) {
 	    static const char *t[] = { "read", "write", "exception" };
 	    qWarning("Qt: QSocketNotifier: Multiple socket notifiers for "
 		      "same socket %d and type %s", sockfd, t[type]);
 	}
-#endif
 	if(p)
 	    list->insert(list->at(), sn);
 	else
@@ -648,9 +640,7 @@ void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
     int sockfd = notifier->socket();
     int type = notifier->type();
     if(sockfd < 0 || type < 0 || type > 2 || notifier == 0) {
-#if defined(QT_CHECK_RANGE)
 	qWarning("Qt: QSocketNotifier: Internal error");
-#endif
 	return;
     }
 
@@ -711,9 +701,7 @@ void QEventLoop::setSocketNotifierPending(QSocketNotifier *notifier)
     int sockfd = notifier->socket();
     int type = notifier->type();
     if(sockfd < 0 || type < 0 || type > 2 || notifier == 0) {
-#if defined(QT_CHECK_RANGE)
 	qWarning("Qt: QSocketNotifier: Internal error");
-#endif
 	return;
     }
 

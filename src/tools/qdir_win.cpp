@@ -225,9 +225,7 @@ bool QDir::rename( const QString &oldName, const QString &newName,
 		   bool acceptAbsPaths	)
 {
     if ( oldName.isEmpty() || newName.isEmpty() ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QDir::rename: Empty or null file name" );
-#endif
 	return FALSE;
     }
     QString fn1 = filePath( oldName, acceptAbsPaths );
@@ -376,9 +374,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #define FF_ERROR    INVALID_HANDLE_VALUE
 
     if ( plen == 0 ) {
-#if defined(QT_CHECK_NULL)
 	qWarning( "QDir::readDirEntries: No directory name specified" );
-#endif
 	return FALSE;
     }
     if ( p.at(plen-1) != '/' && p.at(plen-1) != '\\' )
@@ -394,7 +390,6 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
     if ( !fList ) {
 	fList  = new QStringList;
-	Q_CHECK_PTR( fList );
     } else {
 	fList->clear();
     }
@@ -405,23 +400,19 @@ bool QDir::readDirEntries( const QString &nameFilter,
 		( p[0]=='A' || p[0]=='a' || p[0]=='B' || p[0]=='b' ) ) {
 	    if ( !fiList ) {
 		fiList = new QFileInfoList;
-		Q_CHECK_PTR( fiList );
 		fiList->setAutoDelete( TRUE );
 	    } else {
 		fiList->clear();
 	    }
 	    return TRUE;
 	}
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF8)",
 		  dPath.utf8() );
-#endif
 	return FALSE;
     }
 
     if ( !fiList ) {
 	fiList = new QFileInfoList;
-	Q_CHECK_PTR( fiList );
 	fiList->setAutoDelete( TRUE );
     } else {
 	fiList->clear();

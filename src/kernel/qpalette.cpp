@@ -595,7 +595,6 @@ QPalette::QPalette()
 QPalette::QPalette( const QColor &button )
 {
     data = new QPalData;
-    Q_CHECK_PTR( data );
     data->ser_no = palette_count++;
     QColor bg = button, btn = button, fg, base, disfg;
     int h, s, v;
@@ -625,7 +624,6 @@ QPalette::QPalette( const QColor &button )
 QPalette::QPalette( const QColor &button, const QColor &background )
 {
     data = new QPalData;
-    Q_CHECK_PTR( data );
     data->ser_no = palette_count++;
     QColor bg = background, btn = button, fg, base, disfg;
     int h, s, v;
@@ -660,7 +658,6 @@ QPalette::QPalette( const QColorGroup &active, const QColorGroup &disabled,
 		    const QColorGroup &inactive )
 {
     data = new QPalData;
-    Q_CHECK_PTR( data );
     data->ser_no = palette_count++;
     data->active = active;
     data->disabled = disabled;
@@ -1073,15 +1070,11 @@ bool QPalette::isCopyOf( const QPalette & p )
 const QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
 {
     if ( (uint)gr > (uint)QPalette::NColorGroups ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPalette::directBrush: colorGroup(%i) out of range", gr );
-#endif
 	return data->active.br[QColorGroup::Foreground];
     }
     if ( (uint)r >= (uint)QColorGroup::NColorRoles ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPalette::directBrush: colorRole(%i) out of range", r );
-#endif
 	return data->active.br[QColorGroup::Foreground];
     }
     switch( gr ) {
@@ -1097,24 +1090,18 @@ const QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) c
     default:
 	break;
     }
-#if defined(QT_CHECK_RANGE)
     qWarning( "QPalette::directBrush: colorGroup(%i) internal error", gr );
-#endif
     return data->active.br[QColorGroup::Foreground]; // Satisfy compiler
 }
 
 void QPalette::directSetBrush( ColorGroup gr, QColorGroup::ColorRole r, const QBrush& b)
 {
     if ( (uint)gr > (uint)QPalette::NColorGroups ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPalette::directBrush: colorGroup(%i) out of range", gr );
-#endif
 	return;
     }
     if ( (uint)r >= (uint)QColorGroup::NColorRoles ) {
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPalette::directBrush: colorRole(%i) out of range", r );
-#endif
 	return;
     }
     switch( gr ) {
@@ -1128,9 +1115,7 @@ void QPalette::directSetBrush( ColorGroup gr, QColorGroup::ColorRole r, const QB
 	data->inactive.setBrush(r,b);
 	break;
     default:
-#if defined(QT_CHECK_RANGE)
 	qWarning( "QPalette::directBrush: colorGroup(%i) internal error", gr );
-#endif
 	break;
     }
 }

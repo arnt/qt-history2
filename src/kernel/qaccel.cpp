@@ -545,10 +545,8 @@ QAccel::QAccel(QWidget *parent, const char *name)
     d = new QAccelPrivate(this);
     d->enabled = true;
     d->watch = parent;
-#if defined(QT_CHECK_NULL)
     if (!d->watch)
 	qWarning("QAccel: An accelerator must have a parent or a watch widget");
-#endif
 }
 
 /*!
@@ -563,10 +561,8 @@ QAccel::QAccel(QWidget* watch, QObject *parent, const char *name)
     d = new QAccelPrivate(this);
     d->enabled = true;
     d->watch = watch;
-#if defined(QT_CHECK_NULL)
     if (!d->watch)
 	qWarning("QAccel: An accelerator must have a parent or a watch widget");
-#endif
 }
 
 /*!
@@ -779,7 +775,6 @@ bool QAccel::connectItem(int id, const QObject *receiver, const char *member)
     if (item) {
 	if (!item->signal) {
 	    item->signal = new QSignal;
-	    Q_CHECK_PTR(item->signal);
 	}
 	return item->signal->connect(receiver, member);
     }
