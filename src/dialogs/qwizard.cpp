@@ -340,12 +340,23 @@ int QWizard::indexOf( QWidget* page ) const
 
 /*!
   Called when the user clicks the Back button; this function shows
-  the page preceding the currently visible page in the page sequence.
+  the preceding relevant page in the sequence.
 */
 void QWizard::back()
 {
-    if ( d->current && d->current->back )
-	showPage( d->current->back );
+    int i = 0;
+    
+    while( i < (int)d->pages.count() && d->pages.at( i ) &&
+	   d->current && d->pages.at( i )->w != d->current->w )
+	i++;
+    
+    i--;
+    while( i >= 0 && ( !d->pages.at( i ) || !appropriate( d->pages.at( i )->w ) ) )
+	i--;
+
+    if( i >= 0 )
+	if( d->pages.at( i ) )
+	    showPage( d->pages.at( i )->w );
 }
 
 
@@ -790,7 +801,8 @@ bool QWizard::eventFilter( QObject * o, QEvent * e )
 
 
 /*!  Removes \a page from the page sequence but does not delete the page.
-  If \a page is currently being displayed, QWizard will display another page.
+  If \a page is currently being displayed, QWizard will display the page before
+  it in the wizard, or the first page if this was the first page.
 */
 
 void QWizard::removePage( QWidget * page )
@@ -799,6 +811,7 @@ void QWizard::removePage( QWidget * page )
 	return;
 
     int i = d->pages.count();
+    QWidget* cp = currentPage();
     while( --i >= 0 && d->pages.at( i ) && d->pages.at( i )->w != page ) { }
     if ( i < 0 )
 	return;
@@ -806,8 +819,14 @@ void QWizard::removePage( QWidget * page )
     d->pages.removeRef( p );
     delete p;
     d->ws->removeWidget( page );
-    if ( pageCount() > 0 )
-	showPage( QWizard::page( 0 ) );
+
+    if( cp == page ) {
+	i--;
+	if( i < 0 )
+	    i = 0;
+	if ( pageCount() > 0 )
+	    showPage( QWizard::page( i ) );
+    }
 }
 
 
