@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#59 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -170,12 +170,11 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     scrollTimer    = 0;
 }
 
-/*! \fn int QMultiLineEdit::numLines()
+/*! \fn int QMultiLineEdit::numLines() const
 
   Returns the number of lines in the editor. The count includes any
   empty lines at top and bottom, so for an empty editor this method
   will return 1.
-
 */
 
 /*! \fn bool QMultiLineEdit::atEnd() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#35 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#35 $");
 
 
 static const int motifBorder = 2;
@@ -979,6 +979,15 @@ void QSlider::setTickmarks( TickSetting s )
     initTicks();
     update();
 }
+
+
+/*!
+  \fn QSlider::TickSetting QSlider::tickmarks() const
+
+  Returns the tickmark settings for this slider.
+
+  \sa setTickmarks()
+  */
 
 /*!
   \fn QSlider::TickSetting tickmarks() const
