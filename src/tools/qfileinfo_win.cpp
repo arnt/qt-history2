@@ -449,7 +449,7 @@ void QFileInfo::doStat() const
     if ( fn.isEmpty() )
 	return;
 
-    UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS);
+    UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
     QFileInfo *that = ((QFileInfo*)this);	// mutable function
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
