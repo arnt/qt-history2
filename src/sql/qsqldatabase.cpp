@@ -1138,10 +1138,69 @@ bool QSqlDatabase::isDriverAvailable( const QString& name )
 
 /*! \overload
   
-    This is useful if you want to instantiate the driver yourself.
+    This function is useful if you need to set up the database
+    connection and instantiate the driver yourself. If you do this, it
+    is recommended that you include the driver code in your own
+    application. For example, setting up a custom PostgreSQL
+    connection and instantiating the QPSQL7 driver can be done the
+    following way:
+    
+    \code
+    #include "<your Qt dir>/src/sql/drivers/psql/qsql_psql.cpp"
+    \endcode
+    This will pull in the code that is needed to use the PostgreSQL
+    client library and to instantiate a QPSQLDriver object, assuming
+    you have the PostgreSQL headers somewhere in your include search
+    path.
+    
+    \code
+    PGconn* con = PQconnectdb( "host=server user=bart password=simpson dbname=springfield" );
+    QPSQLDriver* drv =  new QPSQLDriver( con );
+    QSqlDatabase* db = QSqlDatabase::addDatabase( drv ); // becomes the new default connection
+    QSqlQuery q;
+    q.exec( "SELECT * FROM persons" );
+    ...
+    \endcode
+    
+    The code above sets up a PostgreSQL connection and instantiates a
+    QPSQLDriver object. Next, addDatabase() is called to add the
+    connection to the known connections so that it can be used by the
+    Qt SQL classes. When a driver is instantiated with a connection
+    handle (or set of handles), it is assumed that this database
+    connection is already opened by the user. Remember that you have
+    to link your application against the database client library as
+    well. The simplest way to do that is to add something like the
+    lines below to your .pro file:
+    
+    \code
+    unix:LIBS += -lpq
+    win32:LIBS += libpqdll.lib
+    \endcode
+    
+    You will need to have the client library in your linker search path.
+    
+    The method described above will work for all the drivers, the only
+    difference is the arguments the driver constructors take. Below is
+    an overview of the drivers and their constructor arguments.
+    
+    \table
+    \header \i Driver \i Class name \i Constructor arguments \i File to include
+    \row
+    \i QPSQL7 \i QPSQLDriver \i PGconn* connection \i qsql_psql.cpp
+    \row
+    \i QMYSQL3 \i QMYSQLDriver \i MYSQL* connection \i qsql_mysql.cpp
+    \row
+    \i QOCI8 \i QOCIDriver \i OCIEnv* environment, OCIError* error, OCISvcCtx* serviceContext \i qsql_oci.cpp
+    \row
+    \i QODBC3 \i QODBCDriver \i SQLHANDLE environment, SQLHANDLE connection \i qsql_odbc.cpp
+    \row
+    \i QDB2 \i QDB2 \i SQLHANDLE environment, SQLHANDLE connection \i qsql_db2.cpp
+    \row
+    \i QTDS7 \i QTDSDriver \i LOGINREC* loginRecord, DBPROCESS* dbProcess \i qsql_tds.cpp
+    \endtable
     
     \warning The framework takes ownership of the \a driver pointer,
-    so it should not be deleted. The returned QSqlDatabase object is
+    and it should not be deleted. The returned QSqlDatabase object is
     owned by the framework and must not be deleted. If you want to
     explicitely remove the connection, use removeDatabase()
     
