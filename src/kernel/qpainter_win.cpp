@@ -2174,8 +2174,8 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 		    // Adjust for the difference in lpi of pixmap vs. printer
 		    int dw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
 		    int dh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
-		    bool vxfScale = testf(VxF) && ( dw != ww || dw != vw
-						    || dh != wh || dh != vh );
+		    bool vxfScale = testf(Qt2Compat) && testf(VxF)
+			 && ( dw != ww || dw != vw || dh != wh || dh != vh );
 		    float fs = dfont.pointSizeFloat();
 		    int prlpy = GetDeviceCaps(hdc,LOGPIXELSY);
 		    int pmlpy = GetDeviceCaps(paint.hdc, LOGPIXELSY);
