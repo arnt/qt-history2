@@ -116,7 +116,7 @@
     The compatibility functions are not documented here; instead,
     they are documented for each class.
 
-    If you have the line \c{Qt += qt3support} in you \c .pro file, \c
+    If you have the line \c{QT += qt3support} in your \c .pro file, \c
     qmake will automatically define the \c QT3_SUPPORT symbol, turning
     on compatibility function support. You can also define the symbol
     manually (e.g., if you don't want to link against the \c
