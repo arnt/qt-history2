@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#62 $
 **
 ** Implementation of QScrollView class
 **
@@ -398,6 +398,7 @@ void QScrollView::resize( int w, int h )
 {
     // Need both this and resize event, due to deferred resize event.
     QWidget::resize( w, h );
+    d->hideOrShowAll(this);
     updateScrollBars();
 }
 
@@ -415,6 +416,7 @@ An override - ensures scrollbars are correct size upon resize.
 void QScrollView::resizeEvent( QResizeEvent* event )
 {
     QWidget::resizeEvent( event );
+    d->hideOrShowAll(this);
     updateScrollBars();
 }
 
