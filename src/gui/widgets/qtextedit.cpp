@@ -473,7 +473,7 @@ void QTextEditPrivate::paste(const QMimeSource *source)
 
 void QTextEditPrivate::setCursorPosition(const QPoint &pos)
 {
-    const int cursorPos = doc->documentLayout()->hitTest(pos, QText::FuzzyHit);
+    const int cursorPos = doc->documentLayout()->hitTest(translateCoordinates(pos), QText::FuzzyHit);
     if (cursorPos == -1)
         return;
     cursor.setPosition(cursorPos);
@@ -1600,7 +1600,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
 {
     if (d->mightStartDrag) {
         d->mousePressed = false;
-        d->setCursorPosition(d->translateCoordinates(ev->pos()));
+        d->setCursorPosition(ev->pos());
         d->cursor.clearSelection();
         d->selectionChanged();
     }
@@ -1611,7 +1611,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
     } else if (ev->button() == Qt::MidButton
                && !d->readOnly
                && QApplication::clipboard()->supportsSelection()) {
-        d->setCursorPosition(d->translateCoordinates(ev->pos()));
+        d->setCursorPosition(ev->pos());
         d->paste(QApplication::clipboard()->data(QClipboard::Selection));
     }
 
@@ -1631,7 +1631,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
     }
 
     d->mightStartDrag = false;
-    d->setCursorPosition(d->translateCoordinates(ev->pos()));
+    d->setCursorPosition(ev->pos());
     QTextLine line = currentTextLine(d->cursor);
     if (line.isValid() && line.length()) {
         d->cursor.movePosition(QTextCursor::StartOfWord);
@@ -1711,7 +1711,7 @@ void QTextEdit::dropEvent(QDropEvent *ev)
         && (ev->source() == this || ev->source() == d->viewport))
         d->cursor.removeSelectedText();
 
-    d->setCursorPosition(d->translateCoordinates(ev->pos()));
+    d->setCursorPosition(ev->pos());
     d->paste(ev);
 }
 
