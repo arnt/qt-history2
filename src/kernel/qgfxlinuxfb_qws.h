@@ -43,13 +43,14 @@ public:
     volatile int optype;
     volatile int fifocount;   // Accel drivers only
     volatile int fifomax;
-    unsigned int forecol;     // Foreground colour cacheing
-    unsigned int buffer_offset;   // Destination
-    unsigned int linestep;
-    unsigned int cliptop;    // Clip rectangle
-    unsigned int clipleft;
-    unsigned int clipright;
-    unsigned int clipbottom;
+    volatile unsigned int forecol;     // Foreground colour cacheing
+    volatile unsigned int buffer_offset;   // Destination
+    volatile unsigned int linestep;
+    volatile unsigned int cliptop;    // Clip rectangle
+    volatile unsigned int clipleft;
+    volatile unsigned int clipright;
+    volatile unsigned int clipbottom;
+    volatile unsigned int rop;
 
 };
 

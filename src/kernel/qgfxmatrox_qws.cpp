@@ -100,6 +100,8 @@ public:
 
 private:
 
+    unsigned int getRop(RasterOp);
+
     // Convert colour into what the hardware needs
     unsigned int get_color(unsigned int);
 
@@ -110,6 +112,46 @@ private:
     unsigned int src_pixel_offset;
 
 };
+
+template<const int depth,const int type>
+inline unsigned int QGfxMatrox<depth,type>::getRop(RasterOp r)
+{
+  if(r==CopyROP) {
+    return 0xc;
+  } else if(r==OrROP) {
+    return 0xe;
+  } else if(r==XorROP) {
+    return 0x6;
+  } else if(r==NotAndROP) {
+    return 0x4;
+  } else if(r==NotCopyROP) {
+    return 0x3;
+  } else if(r==NotOrROP) {
+    return 0xd;
+  } else if(r==NotXorROP) {
+    return 0x9;
+  } else if(r==AndROP) {
+    return 0x8;
+  } else if(r==NotROP) {
+    return 0x5;
+  } else if(r==ClearROP) {
+    return 0x0;
+  } else if(r==SetROP) {
+    return 0xf;
+  } else if(r==NopROP) {
+    return 0xa;
+  } else if(r==AndNotROP) {
+    return 0x2;
+  } else if(r==OrNotROP) {
+    return 0xb;
+  } else if(r==NandROP) {
+    return 0x7;
+  } else if(r==NorROP) {
+    return 0x1;
+  } else {
+
+  }
+}
 
 template<const int depth,const int type>
 inline void QGfxMatrox<depth,type>::do_scissors(QRect & r)
@@ -336,10 +378,12 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 template<const int depth,const int type>
 void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 {
-  if(ncliprect<1 || myrop!=CopyROP || cpen.style()!=SolidLine) {
+  if(ncliprect<1 || cpen.style()!=SolidLine) {
     QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
     return;
   }
+
+  unsigned int tmprop=getRop(myrop) << 16; 
 
 #if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
   QWSDisplay::grab( TRUE );
@@ -390,8 +434,8 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
       ((QLinuxFb_Shared *)shared_data)->forecol=tmp2;
     }
 
-    matrox_regw(DWGCTL,DWG_LINE_CLOSE | DWG_REPLACE |
-		DWG_SOLID | DWG_SHIFTZERO | DWG_BFCOL);
+    matrox_regw(DWGCTL,DWG_LINE_CLOSE | tmprop | DWG_SHIFTZERO | 
+		DWG_SOLID | DWG_BFCOL);
     matrox_regw(AR0,b*2);
     matrox_regw(AR1,(b*2)-a-(y2-y1));
     matrox_regw(AR2,(b*2)-(a*2));
