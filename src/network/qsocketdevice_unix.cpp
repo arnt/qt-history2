@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#46 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#47 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -161,7 +161,7 @@ void QSocketDevice::setBlocking( bool enable )
 	return;
     int tmp = ::fcntl(fd, F_GETFL, 0);
     if ( tmp >= 0 )
-	tmp = ::fcntl( fd, F_SETFL, enable ? (tmp&!O_NDELAY) : (tmp|O_NDELAY) );
+	tmp = ::fcntl( fd, F_SETFL, enable ? (tmp&~O_NDELAY) : (tmp|O_NDELAY) );
     if ( tmp >= 0 )
 	return;
     if ( e )
