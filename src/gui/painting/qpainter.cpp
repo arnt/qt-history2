@@ -3299,7 +3299,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
         leftFill << QPoint(0, 0)
                  << QPoint(xtop1-rx+1, 0)
                  << QPoint(xbot1-rx+1, rh);
-        if (xbot1 > 0)
+        if (xbot1 - rx > 0)
             leftFill << QPoint(0, rh);
         p.setBrush(gcol1);
         p.drawPolygon(leftFill);
@@ -3309,7 +3309,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
         rightFill << QPoint(rw, rh)
                   << QPoint(xbot2-rx-1, rh)
                   << QPoint(xtop2-rx-1, 0);
-        if (xtop2 < rw)
+        if (xtop2 - rx < rw)
             rightFill << QPoint(rw, 0);
         p.setBrush(gcol2);
         p.drawPolygon(rightFill);
@@ -3329,7 +3329,6 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
             g += ginc;
             b += binc;
         }
-
     } else {
         // Fill Verticallty
         // Code below is a conceptually equal to the one above except that all
@@ -3355,9 +3354,9 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
         p.setPen(Qt::NoPen);
         QPointArray topFill;
         topFill << QPoint(0, 0)
-                << QPoint(0, yleft1-rx+1)
-                << QPoint(rw, yright1-rx+1);
-        if (yright1 > 0)
+                << QPoint(0, yleft1-ry+1)
+                << QPoint(rw, yright1-ry+1);
+        if (yright1 - ry > 0)
             topFill << QPoint(rw, 0);
         p.setBrush(gcol1);
         p.drawPolygon(topFill);
@@ -3366,7 +3365,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
         bottomFill << QPoint(rw, rh)
                    << QPoint(rw, yright2-ry-1)
                    << QPoint(0, yleft2-ry-1);
-        if (yleft2 < rh)
+        if (yleft2 - ry < rh)
             bottomFill << QPoint(0, rh);
         p.setBrush(gcol2);
         p.drawPolygon(bottomFill);
