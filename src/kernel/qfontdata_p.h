@@ -414,7 +414,7 @@ public:
     ~QFontPrivate() { if( fin ) fin->deref(); }
     void load();
     void initFontInfo();
-    HFONT create( bool *stockFont, HDC hdc = 0, bool VxF = FALSE );
+    HFONT create( bool *stockFont, HDC hdc = 0, bool compatMode = FALSE );
     QFontStruct *fin;
     HDC currHDC;
 
