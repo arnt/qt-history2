@@ -32,4 +32,6 @@ orl.h
 oro.h
 ort.h
 
+See the Qt SQL documentation for more information on compiling Qt SQL
+driver plugins.
 
