@@ -394,7 +394,6 @@ QDate QDate::addDays( int ndays ) const
 QDate QDate::addMonths( int nmonths ) const
 {
     int y, m, d;
-    int a = 0;
     jul2greg( jd, y, m, d );
     
     while ( nmonths != 0 ) {

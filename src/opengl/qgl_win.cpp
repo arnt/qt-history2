@@ -419,11 +419,11 @@ static QRgb* qgl_create_rgb_palette( const PIXELFORMATDESCRIPTOR* pfd )
 	int b = qgl_rgb_palette_comp( i, pfd->cBlueBits, pfd->cBlueShift );
 	pal[i] = qRgb( r, g, b );
     }
-
+/*  // Not used?
     const int syscol_indices[13] = {
 	0, 3, 24, 27, 64, 67, 88, 173, 181, 236, 247, 164, 91
     };
-
+*/
     const uint syscols[20] = {
 	0x000000, 0x800000, 0x008000, 0x808000, 0x000080, 0x800080,
 	0x008080, 0xc0c0c0, 0xc0dcc0, 0xa6caf0, 0xfffbf0, 0xa0a0a4,
