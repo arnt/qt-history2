@@ -1,9 +1,23 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.21 1999/01/28 05:52:24 ettrich Exp $
+** $Id: porting.doc,v 1.22 1999/01/28 15:40:33 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
-** Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees with valid Qt Professional Edition licenses may distribute and
+** use this file in accordance with the Qt Professional Edition License
+** provided at sale or upon request.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -374,6 +388,10 @@ QPixmap::convertToImage() with bitmaps now guarantees that color0 pixels
 become color(0) in the resulting QImage.  If you worked around the lack of
 this, you many need to simplify your code.  The symptom will be inverted
 bitmaps (eg. inside-out masks).
+<p>
+QPixmap::optimize(TRUE) is replaced by
+QPixmap::setOptimization(QPixmap::NormalOptim)
+and QPixmap::setOptimization(QPixmap::BestOptim).
 
 
 <h3>QMenuData / QPopupMenu</h3>
