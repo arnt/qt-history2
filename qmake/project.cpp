@@ -416,12 +416,28 @@ QMakeProject::read(QString project, QString)
 	base_vars["QMAKE_EXT_H"] = Option::h_ext;
 
 	/* parse the cache */
-	if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty()) {
-	    read(Option::mkfile::cachefile, cache);
-	    if(Option::mkfile::qmakespec.isEmpty() && !cache["QMAKESPEC"].isEmpty())
-		Option::mkfile::qmakespec = cache["QMAKESPEC"].first();
+	if(Option::mkfile::do_cache) {
+	    if(Option::mkfile::cachefile.isEmpty())  { //find it as it has not been specified
+		QString dir = QDir::convertSeparators(QDir::currentDirPath());
+		while(!QFile::exists((Option::mkfile::cachefile = dir +
+				      QDir::separator() + ".qmake.cache"))) {
+		    dir = dir.left(dir.findRev(QDir::separator()));
+		    if(dir.isEmpty() || dir.find(QDir::separator()) == -1) {
+			Option::mkfile::cachefile = "";
+			break;
+		    }
+		    if(Option::mkfile::cachefile_depth == -1)
+			Option::mkfile::cachefile_depth = 1;
+		    else
+			Option::mkfile::cachefile_depth++;
+		}
+	    }
+	    if(!Option::mkfile::cachefile.isEmpty()) {
+		read(Option::mkfile::cachefile, cache);
+		if(Option::mkfile::qmakespec.isEmpty() && !cache["QMAKESPEC"].isEmpty())
+		    Option::mkfile::qmakespec = cache["QMAKESPEC"].first();
+	    }
 	}
-
 	/* parse mkspec */
 	QStringList mkspec_roots;
 	/* prefer $QTDIR if it is set */

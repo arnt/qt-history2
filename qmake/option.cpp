@@ -274,23 +274,6 @@ Option::parseCommandLine(int argc, char **argv)
     //last chance for defaults
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
 	Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
-	if(Option::mkfile::cachefile.isNull() || Option::mkfile::cachefile.isEmpty()) {
-	    if(Option::mkfile::do_cache) {
-		QString dir = QDir::convertSeparators(QDir::currentDirPath());
-		while(!QFile::exists((Option::mkfile::cachefile = dir +
-				      QDir::separator() + ".qmake.cache"))) {
-		    dir = dir.left(dir.findRev(QDir::separator()));
-		    if(dir.isEmpty() || dir.find(QDir::separator()) == -1) {
-			Option::mkfile::cachefile = "";
-			break;
-		    }
-		    if(Option::mkfile::cachefile_depth == -1)
-			Option::mkfile::cachefile_depth = 1;
-		    else
-			Option::mkfile::cachefile_depth++;
-		}
-	    }
-	}
 	if(Option::mkfile::qmakespec.isNull() || Option::mkfile::qmakespec.isEmpty())
 	    Option::mkfile::qmakespec = getenv("QMAKESPEC");
 
