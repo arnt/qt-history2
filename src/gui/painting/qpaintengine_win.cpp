@@ -1828,10 +1828,11 @@ void QWin32PaintEnginePrivate::beginGdiplus()
     ModifyWorldTransform(hdc, 0, MWT_IDENTITY);
     SetGraphicsMode(hdc, GM_COMPATIBLE);
 
-    if (!d->gdiplusEngine)
-        d->gdiplusEngine = new QGdiplusPaintEngine();
-    d->gdiplusEngine->begin(pdev);
-    d->gdiplusInUse = true;
+    if (!gdiplusEngine)
+        gdiplusEngine = new QGdiplusPaintEngine();
+    gdiplusEngine->begin(pdev);
+    gdiplusEngine->state = q->state;
+    gdiplusInUse = true;
     q->setDirty(QPaintEngine::DirtyFlags(QPaintEngine::AllDirty&~QPaintEngine::DirtyClip));
     q->updateState(q->state);
 }
@@ -2540,6 +2541,18 @@ void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
                                      Qt::PixmapDrawingMode mode)
 {
     Q_UNUSED(mode);
+    if (pm.isQBitmap()) {
+        const QBitmap *bitmap = static_cast<const QBitmap *>(&pm);
+        QRegion rgn(*bitmap);
+        QPainter *p = painter();
+        p->save();
+        p->translate(r.topLeft());
+        p->setClipRegion(QRegion(*bitmap));
+        p->fillRect(0, 0, r.width(), r.height(), p->pen().color());
+        p->restore();
+        return;
+    }
+
     QImage backupPixels;
     QtGpBitmap *bitmap = qt_convert_to_gdipbitmap(&pm, &backupPixels);
     GdipDrawImageRectRectI(d->graphics, bitmap,
