@@ -6541,58 +6541,60 @@ QListViewItem *QListView::findItem( const QString& text, int column, ComparisonF
                 itmtxt = item->text( column ).lower();
 	    else
 		itmtxt = item->text( column );
-	
+	    
             if ( compare & ExactMatch ) {
                 if ( itmtxt == comtxt )
                     return item;
             }
-
+	    
             if ( compare & BeginsWith ) {
                 if ( itmtxt.startsWith( comtxt ) )
                     return item;
             }
-
+	    
             if ( compare & EndsWith ) {
                 if ( itmtxt.right( comtxt.length() ) == comtxt )
                     return item;
             }
-
+	    
             if ( compare & Contains ) {
                 if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
                     return item;
             }
         }
 	
-	item = firstChild();
-	QListViewItemIterator it( item );
-
-        for ( ; it.current() && d->focusItem; ++it ) {
-            item = it.current();
-	    if ( ! (compare & CaseSensitive) )
-                itmtxt = item->text( column ).lower();
-	    else
-		itmtxt = item->text( column );
-	
-            if ( compare & ExactMatch ) {
-                if ( itmtxt == comtxt )
-                    return item;
-            }
-
-            if ( compare & BeginsWith ) {
-                if ( itmtxt.startsWith( comtxt ) )
-                    return item;
-            }
-
-            if ( compare & EndsWith ) {
-                if ( itmtxt.right( comtxt.length() ) == comtxt )
-                    return item;
-            }
-
-            if ( compare & Contains ) {
-                if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
-                    return item;
-            }
-        }
+	if ( d->focusItem && firstChild() ) {
+	    item = firstChild();
+	    QListViewItemIterator it( item );
+	    
+	    for ( ; it.current() != d->focusItem; ++it ) {
+		item = it.current();
+		if ( ! (compare & CaseSensitive) )
+		    itmtxt = item->text( column ).lower();
+		else
+		    itmtxt = item->text( column );
+		
+		if ( compare & ExactMatch ) {
+		    if ( itmtxt == comtxt )
+			return item;
+		}
+		
+		if ( compare & BeginsWith ) {
+		    if ( itmtxt.startsWith( comtxt ) )
+			return item;
+		}
+		
+		if ( compare & EndsWith ) {
+		    if ( itmtxt.right( comtxt.length() ) == comtxt )
+			return item;
+		}
+		
+		if ( compare & Contains ) {
+		    if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
+			return item;
+		}
+	    }
+	}
     }
     return 0;
 }
