@@ -44,6 +44,8 @@ public:
     void enableUndoRedo(bool enable);
     bool isUndoRedoEnabled() const;
 
+    bool isUndoRedoAvailable() const;
+
     // ###
     inline QTextPieceTablePointer &table() { return pieceTable; }
 

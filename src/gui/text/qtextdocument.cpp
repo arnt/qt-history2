@@ -59,6 +59,11 @@ bool QTextDocument::isUndoRedoEnabled() const
     return pieceTable->isUndoRedoEnabled();
 }
 
+bool QTextDocument::isUndoRedoAvailable() const
+{
+    return pieceTable->isUndoRedoAvailable();
+}
+
 QString QTextDocument::documentTitle() const
 {
     return pieceTable->config()->title;

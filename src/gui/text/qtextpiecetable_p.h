@@ -140,6 +140,8 @@ public:
     void enableUndoRedo(bool enable);
     inline bool isUndoRedoEnabled() const { return undoEnabled; }
 
+    inline bool isUndoRedoAvailable() const { return undoEnabled && !undoStack.isEmpty(); }
+
     inline QString buffer() const { return text; }
     QString plainText() const;
     inline int length() const { return fragments.length(); }
