@@ -2103,11 +2103,11 @@ void QGdiplusPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
         d->temporaryBrush = false;
 //         delete d->brush;
         GdipDeleteBrush(d->brush);
+        d->brush = 0;
     }
 
     switch (brush.style()) {
     case Qt::NoBrush:
-        d->brush = 0;
         break;
     case Qt::SolidPattern:
         if (!d->cachedSolidBrush) {
