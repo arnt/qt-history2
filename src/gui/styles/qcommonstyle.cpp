@@ -1038,10 +1038,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 // "pixh - 1" because of tricky integer division
-
-                QRect pixRect = rect;
-                pixRect.setY(rect.center().y() - (pixh - 1) / 2);
-                drawItem(p, pixRect, header->iconAlignment, header->palette,
+                drawItem(p, rect, header->iconAlignment, header->palette,
                          (header->state & Style_Enabled)
                          || !header->icon.isGenerated(Qt::SmallIconSize, QIcon::Disabled), pixmap);
                 rect.setLeft(rect.left() + pixw + 2);
