@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#31 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#31 $";
 #endif
 
 // #define DEBUG_FONT
@@ -931,7 +931,7 @@ int QFontMetrics::descent() const
 {
     if ( DIRTY_METRICS )
 	f.loadFont();
-    return f.d->xfd->f->max_bounds.descent;
+    return f.d->xfd->f->max_bounds.descent - 1;
 }
 
 int QFontMetrics::height() const
@@ -991,7 +991,7 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 	   width =  overall.width - startX;
 	else
 	   width =  overall.rbearing - startX;
-	if ( f.d->act.underline ) {
+	if ( f.d->act.underline && len != 0 ) {
 	    int ulTop = underlinePos();
 	    int ulBot = ulTop + lineWidth(); // X descent is 1 
 	    if ( descent < ulBot ) // more than logical descent, so don't
@@ -999,7 +999,7 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 	    if ( ascent < -ulTop )
 		ascent = -ulTop;
 	}
-	if ( f.d->act.strikeOut ) {
+	if ( f.d->act.strikeOut && len != 0 ) {
 	    int soTop = strikeOutPos();
 	    int soBot = soTop - lineWidth(); // --- "" ---
 	    if ( descent < -soBot )
