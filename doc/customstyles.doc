@@ -36,44 +36,46 @@
 
 \title Style overview
 
-A style in Qt implements the look and feel found in GUIs on different
-platforms. For instance the Windows style used in Windows and the
-Motif style that are common on many Unix platforms.
+A style in Qt implements the look and feel found in a GUI for a
+particular platform. For example, Windows platforms may use the
+Windows or Windows-XP style, Unix platforms may use the Motif style,
+and so on.
 
 This is a short guide that describes the steps that are necessary to
-get started creating and using custom styles with the style API in Qt
-3.x.  First, we go through the steps necessary to create a style: 1)
-picking a base style to inherit from and 2) re-implementing the
-necessary functions in the derived class. Then we show how to use the
-new style from within your own applications, or as a plugin together
-with existing Qt applications.
+get started creating and using custom styles with the Qt 3.x style
+API. First, we go through the steps necessary to create a style:
+\list 1
+\i Pick a base style to inherit from.
+\i Re-implement the necessary functions in the derived class.
+\endlist
+Then we explain how to use the new style from within your own
+applications, or as a plugin that can be used by existing Qt
+applications.
 
 \section1 Creating a custom style
 
-1. Pick a base style to inherit from.
+\section2 1. Pick a base style to inherit from.
 
 The first step is to pick one of the base styles provided with Qt to
-build your custom style on. Which of the available styles to start
-from does of course depend on what look & feel you want. Basically you
-should choose from the QWindowsStyle derived classes or the
-QMotifStyle derived classes. These are the two base look & feel
-classes in the Qt style engine.
+build your custom style from. The choice will depend on what look and
+feel you are trying to achieve. We recommend that you choose from the
+QWindowsStyle derived classes or the QMotifStyle derived classes.
+These are the two base look and feel classes in the Qt style engine.
 Inheriting directly from QCommonStyle is also an option if you want to
 start almost from scratch when implementing your style. In this simple
 example we will inherit from QWindowsStyle.
 
-2. Re-implement the necessary functions in your derived class.
+\section2 2. Re-implement the necessary functions in your derived class.
 
 Depending on which parts of the base style you want to change, you
-have to re-implement the functions that are used to draw those parts
+must re-implement the functions that are used to draw those parts
 of the interface. If you take a look at the \l{QStyle} documentation,
 you will find a list of the different primitives, controls and complex
-controls. You will also find an illustration that shows where the
-different primitives, controls and complex controls are used. In this
-example we will first change the look of the standard arrows that are
-used in the QWindowsStyle. The arrows are PrimitiveElements that are
-drawn in the drawPrimitive() function, therefore we need to
-re-implement that function. We get the following class declaration:
+controls. In this example we will first change the look of the
+standard arrows that are used in the QWindowsStyle. The arrows are
+PrimitiveElements that are drawn by the drawPrimitive() function,
+so we need to re-implement that function. We need the following class
+declaration:
 
 \code
 #include <qwindowsstyle.h>
@@ -100,11 +102,11 @@ private:
 
 Note that we disable the copy constructor and the '=' operator for our
 style. QObject is the base class for all style classes in Qt, and a
-QObject inherently cannot be copied; there are some aspects of it that
-are not copyable.
+QObject inherently cannot be copied since there are some aspects of it
+that are not copyable.
 
-From the QStyle docs we see that PE_ArrowUp, PE_ArrowDown,
-PE_ArrowLeft and PE_ArrowRight are the primitives we need to do
+From the QStyle docs we see that \c PE_ArrowUp, \c PE_ArrowDown, \c
+PE_ArrowLeft and \c PE_ArrowRight are the primitives we need to do
 something with. We get the following in our drawPrimitive() function:
 
 \code
@@ -179,9 +181,9 @@ void CustomStyle::drawPrimitive( PrimitiveElement pe,
 
 \section2 Using a custom style
 
-There are several ways of using a custom style in a Qt
-application. The easiest and most simple way is to include the following
-lines of code in the application's main() function:
+There are several ways of using a custom style in a Qt application.
+The simplest way is to include the following lines of code in the
+application's main() function:
 
 \code
 #include "customstyle.h"
@@ -193,17 +195,18 @@ int main( int argc, char ** argv )
 }
 \endcode
 
-Note that you also have to include the \c customstyle.h and
-\c customstyle.cpp files in your project.
+Note that you must also include the \c customstyle.h and \c
+customstyle.cpp files in your project.
 
 2. Creating and using a pluggable style
 
-You may want to use your custom style in a Qt application that you
-don't want to, or have the opportunity to recompile. The Qt Plugin
-system makes it possible to create styles as plugins. Styles created
-as plugins are loaded as shared objects at runtime by Qt itself.
-Please refer to the \link plugins-howto.html Qt Plugin\endlink documentation
-for more information on how to go about creating a style plugin.
+You may want to make your style available for use in other
+applications, some of which may not be yours and are not available for
+you to recompile. The Qt Plugin system makes it possible to create
+styles as plugins. Styles created as plugins are loaded as shared
+objects at runtime by Qt itself. Please refer to the \link
+plugins-howto.html Qt Plugin\endlink documentation for more
+information on how to go about creating a style plugin.
 
 Compile your plugin and put it into $QTDIR/plugins/styles. We now have
 a pluggable style that Qt can load automatically. To use your new
@@ -214,7 +217,7 @@ the following argument:
 ./application -style custom
 \endcode
 
-The application should appear with the look & feel from the custom
-style you implemented. 
+The application will use the look and feel from the custom style you
+implemented. 
 
 */

@@ -38,11 +38,12 @@
 
 \title The Qt/Embedded-specific classes
 
-Qt/Embedded classes fall into two classes - the majority are used by
-every Qt/Embedded program, some are used only by the Qt/Embedded server. 
-The Qt/Embedded server program can be a client as well, as in the case of a
+Qt/Embedded classes fall into two groups: the majority are used by
+every Qt/Embedded program, and some are used only by the Qt/Embedded server. 
+The Qt/Embedded server program can also be a client, as in the case of a
 single-process installation. All Qt/Embedded specific source files live
-in \c src/kernel and are suffixed \c _qws. --\> indicates inheritance.
+in \c src/kernel and are suffixed \c{_qws}. The &raquo; symbol
+indicates inheritance.
 
 \tableofcontents
 
@@ -52,25 +53,25 @@ There is one of these per application. At application startup time it
 reads the font definition file from \c $QTDIR/etc/fonts/fontdir (or \c
 /usr/local/etc/qt-embedded/fonts/fontdir if QTDIR is undefined). It
 keeps track of all font information and maintains a cache of rendered
-fonts. It also creates the font factories - QFontManager::QFontManager
+fonts. It also creates the font factories: QFontManager::QFontManager
 is the place to add constructors for new factories. It provides a
 high-level interface for requesting a particular font and calls
 QFontFactories to load fonts from disk on demand. Note that this only
-applies to BDF and TrueType fonts; Qt/Embedded's optimised .qpf font
-file format bypasses the QFontManager mechanism altogether. 
+applies to BDF and TrueType fonts; Qt/Embedded's optimised \c .qpf
+font file format bypasses the QFontManager mechanism altogether. 
 
 There should be no need to modify this class unless you wish to change
-font matching or cacheing behaviour.
+font matching or caching behaviour.
 
 \section1 QDiskFont
 
 This contains information about a single on-disk font file (e.g.
-/usr/local/etc/qt-embedded/times.ttf). It holds the file path,
+\c{/usr/local/etc/qt-embedded/times.ttf}). It holds the file path,
 information about whether the font is scalable, its weight, size,
 Qt/Embedded name, etc. This information is used so that QFontManager
 can find the closest matching disk font (it uses a scoring mechanism
 weighted towards matching names, then whether the font's italic, then
-weight). 
+its weight). 
 
 There should be no reason to modify this class.
 
@@ -105,10 +106,10 @@ for a custom vector font format).
 
 \section1 QGlyph
 
-This describes a particular image of a character from a QRenderedFont -
+This describes a particular image of a character from a QRenderedFont:
 for example, the letter 'A' at 10 points in Times New Roman, bold italic,
 anti-aliased. It contains pointers to a QGlyphMetrics structure with
-information about the character and to the raw data for the glyph -
+information about the character and to the raw data for the glyph:
 this is either a 1-bit mask or an 8-bit alpha channel. Each QRenderedFont
 creates these on demand and caches them once created (note that this is
 not currently implemented for TrueType fonts). 
@@ -121,32 +122,32 @@ would also need to modify QGfxRaster.
 
 This handles requests for space for pixmaps and also keeps track of
 QPF format fonts (these are small 'state dumps' of QRenderedFonts,
-typically 2-20K in size; they can be mmap'd direct from disk in order
+typically 2-20KB in size; they can be mmap'd direct from disk in order
 to save memory). If a QPF font is found which matches a font request
 no new QRenderedFont need be created for it. It's possible to strip out
 all QFontFactory support and simply use QPFs if your font needs are modest
 (for instance, if you only require a few fixed point sizes). Note that
 no best-match loading is performed with QPFs, as opposed to those
 loaded via QFontManager, so if you don't have the correct QPF for a point
-size text in that size will simply not be displayed. 
+size, text in that size will simply not be displayed. 
 
 There should be no need to modify this class.
 
-\section1 QScreen--\>QLinuxFbScreen--\>accelerated screens, QTransformedScreen--\>QVfbScreen
+\section1 QScreen &raquo; QLinuxFbScreen &raquo; accelerated screens, QTransformedScreen &raquo; QVfbScreen
 
 These encapsulate the framebuffer Qt/Embedded is drawing to, provide
 support for mapping of coordinates for rotating framebuffers, allow
 manipulation of the colour palette and provide access to offscreen
 graphics memory for devices with separate framebuffer memories.
 
-This is used for cacheing pixmaps and allowing accelerated pixmap-\>screen
+This is used for caching pixmaps and allowing accelerated pixmap=\>screen
 blt's. QLinuxFbScreen and the accelerated screens use the Linux \c /dev/fb
 interface to get access to graphics memory and information about the
 characteristics of the device. The framebuffer device to open is specified
 by QWS_DISPLAY. Only QTransformedScreen implements the support for rotated
 framebuffers. QVfbScreen provides an X window containing an emulated
 framebuffer (a chunk of shared memory is set aside as the 'framebuffer'
-and blt'd into the X window) - this is intended as a debugging device
+and blt'd into the X window): this is intended as a debugging device
 allowing users to debug their applications under Qt/Embedded without leaving 
 X. The accelerated screen drivers check to see if they can drive the
 device specified by QWS_CARD_SLOT (which defaults to the usual position
@@ -159,7 +160,7 @@ If you wish to modify the way pixmaps are allocated in memory,
 subclass or modify QLinuxFbScreen. If you're writing an accelerated
 driver you will need to subclass QScreen or QLinuxFbScreen.
 
-\section1 QScreenCursor--\>accelerated cursor--\>QVfbCursor
+\section1 QScreenCursor &raquo; accelerated cursor &raquo; QVfbCursor
 
 This handles drawing the on-screen mouse cursor, and saving and
 restoring the screen under it for the non-accelerated cursor types.
@@ -167,7 +168,7 @@ restoring the screen under it for the non-accelerated cursor types.
 Subclassing QScreenCursor is optional in an accelerated driver (you
 would only want to do so if the hardware supports a hardware cursor).
 
-\section1 QGfx--\>RasterBase--\>Raster--\>accelerated driver--\> QGfxVfb--\>QGfxTransformedRaster
+\section1 QGfx &raquo; RasterBase &raquo; Raster &raquo; accelerated driver &raquo; QGfxVfb &raquo; QGfxTransformedRaster
 
 This class encapsulates drawing operations, a little like a low-level
 QPainter. QGfxRaster and its descendants are specifically intended
@@ -207,13 +208,13 @@ Qt/Embedded to an operating system without a Linux-style \c /dev/dsp.
 
 \section1 QWSWindow
 
-This contains the server's notion of an individual top level window -
+This contains the server's notion of an individual top level window:
 the region of the framebuffer it's allocated, the client that created it
 and so forth. 
 
 There should be no reason to modify this class.
 
-\section1 QWSKeyboardHandler--\>subtypes
+\section1 QWSKeyboardHandler &raquo; subtypes
 
 This handles keyboard/button input. QWSKeyboardHandler is subclassed
 to provide for reading \c /dev/tty, an arbitrary low-level USB event device
@@ -224,14 +225,14 @@ types of keyboard (currently only a fairly standard US PC style
 keyboard is supported); subclassing it is the preferred way to handle
 non-pointer input devices.
 
-\section1 QWSMouseHandler--\>QCalibratedMouseHandler--\>mouse types
+\section1 QWSMouseHandler &raquo; QCalibratedMouseHandler &raquo; mouse types
 
-This handles mouse/touchpanel input. Descendants of QCalibratedMouseHandler
+This handles mouse/touch-panel input. Descendants of QCalibratedMouseHandler
 make use of filtering code which prevents 'jittering' of the pointer on
 touchscreens; some embedded devices do this filtering in the kernel in
 which case the driver doesn't need to inherit from QCalibratedMouseHandler.
 
-Subclassing QCalibratedMouseHandler is preferred for touchpanels without
+Subclassing QCalibratedMouseHandler is preferred for touch-panels without
 kernel filtering; inheriting QWSMouseHandler is the way to add any other
 type of pointing device (pen tablets, touchscreens, mice, trackballs
 and so forth).

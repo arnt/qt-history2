@@ -40,7 +40,7 @@
 
 A \link QPaintDevice paint device\endlink in Qt is a drawable 2D
 surface. \l QWidget, \l QPixmap, \l QPicture and \l QPrinter are all
-paint devices.  A \l QPainter is an object which can draw on such
+paint devices. A \l QPainter is an object which can draw on such
 devices.
 
 The default coordinate system of a paint device has its origin at the
@@ -70,8 +70,8 @@ added and colors touched up in the illustration):
 \endcode
 
 Note that all of the pixels drawn by drawRect() are inside the size
-specified (5*4 pixels).  This is different from some toolkits; in Qt
-the size you specify exactly encompasses the pixels drawn.  This
+specified (5*4 pixels). This is different from some toolkits; in Qt
+the size you specify exactly encompasses the pixels drawn. This
 applies to all the relevant functions in QPainter.
 
 Similarly, the drawLine() call draws both endpoints of the line, not
@@ -80,38 +80,39 @@ just one.
 Here are the classes that relate most closely to the coordinate
 system:
 
-\list
+\table
 
-\i \l QPoint is a single 2D point in the coordinate system.  Most
-functions in Qt that deal with points can accept either a QPoint
-argument or two ints, for example \l QPainter::drawPoint().
-
-\i \l QSize is a single 2D vector.  Internally, QPoint and QSize are
-the same, but a point is not the same as a size, so both classes
-exist.  Again, most functions accept either a QSize or two ints, for
-example \l QWidget::resize().
-
-\i \l QRect is a 2D rectangle.  Most functions accept either a QRect
-or four ints, for example \l QWidget::setGeometry().
-
-\i \l QRegion is an arbitrary set of points, including all the
-normal set operations, e.g. \l QRegion::intersect(), and also a less
-usual function to return a list of rectangles whose union is equal to
-the region.  QRegion is used e.g. by \l QPainter::setClipRegion(), \l
-QWidget::repaint() and \l QPaintEvent::region().
-
-\i \l QPainter is the class that paints.  It can paint on any device
-with the same code.  There are differences between devices, \l
-QPrinter::newPage() is a good example, but QPainter works the same way
-on all devices.
-
-\i \l QPaintDevice is a device on which QPainter can paint.  There
-are two internal devices, both pixel-based, and two external devices,
-\l QPrinter and \l QPicture (which records QPainter commands to a file
-or other \l QIODevice, and plays them back).  Other devices can be
-defined.
-
-\endlist
+\row \i \l QPoint
+     \i A single 2D point in the coordinate system. Most functions in
+	Qt that deal with points can accept either a QPoint argument
+	or two ints, for example \l QPainter::drawPoint().
+\row \i \l QSize
+     \i A single 2D vector. Internally, QPoint and QSize are the same,
+	but a point is not the same as a size, so both classes exist.
+	Again, most functions accept either a QSize or two ints, for
+	example \l QWidget::resize().
+\row \i \l QRect
+     \i A 2D rectangle. Most functions accept either a QRect or four
+	ints, for example \l QWidget::setGeometry().
+\row \i \l QRegion
+     \i An arbitrary set of points, including all the normal set
+	operations, e.g. \l QRegion::intersect(), and also a less
+	usual function to return a list of rectangles whose union is
+	equal to the region. QRegion is used e.g. by \l
+	QPainter::setClipRegion(), \l QWidget::repaint() and \l
+	QPaintEvent::region().
+\row \i \l QPainter
+     \i The class that paints. It can paint on any device with the
+	same code. There are differences between devices, \l
+	QPrinter::newPage() is a good example, but QPainter works the
+	same way on all devices.
+\row \i \l QPaintDevice
+     \i A device on which QPainter can paint. There are two internal
+	devices, both pixel-based, and two external devices, \l
+	QPrinter and \l QPicture (which records QPainter commands to a
+	file or other \l QIODevice, and plays them back). Other
+	devices can be defined.
+\endtable
 
 \section1 Transformations
 
@@ -126,8 +127,8 @@ Foley \& Van Dam \endlink and the
 OpenGL Programming Guide.\endlink Refer to those for in-depth
 coverage; here we give just a brief overview and an example.
 
-The first step uses the world transformation matrix.  Use this matrix
-to orient and position your objects in your model.  Qt provides
+The first step uses the world transformation matrix. Use this matrix
+to orient and position your objects in your model. Qt provides
 methods such as \l QPainter::rotate(), \l QPainter::scale(), \l
 QPainter::translate() and so on to operate on this matrix.
 
@@ -136,18 +137,18 @@ matrix. You can also use \l QWMatrix objects, \l
 QPainter::worldMatrix() and \l QPainter::setWorldMatrix() to store and
 use named matrices.
 
-The second step uses the window.  The window describes the view
-boundaries in model coordinates.  The matrix positions the \e objects
+The second step uses the window. The window describes the view
+boundaries in model coordinates. The matrix positions the \e objects
 and \l QPainter::setWindow() positions the \e window, deciding what
-coordinates will be visible.  (If you have 3D experience, the window
+coordinates will be visible. (If you have 3D experience, the window
 is what's usually called projection in 3D.)
 
-The third step uses the viewport.  The viewport too, describes the view
-boundaries, but in device coordinates.  The viewport and the windows
+The third step uses the viewport. The viewport too, describes the view
+boundaries, but in device coordinates. The viewport and the windows
 describe the same rectangle, but in different coordinate systems.
 
 On-screen, the default is the entire \l QWidget or \l QPixmap where
-you are drawing, which is usually appropriate.  For printing this
+you are drawing, which is usually appropriate. For printing this
 function is vital, since very few printers can print over the entire
 physical page.
 
@@ -157,15 +158,15 @@ QPainter::window(), and finally positioned on the drawing device using
 \l QPainter::viewport().
 
 It is perfectly possible to do without one or two of the stages. If,
-for example, your goal is to draw something scaled, then using just \l
+for example, your goal is to draw something scaled, then just using \l
 QPainter::scale() makes perfect sense. If your goal is to use a
 fixed-size coordinate system, \l QPainter::setWindow() is
-perfect. And so on.
+ideal. And so on.
 
 Here is a short example that uses all three mechanisms: the function
-that draws the clock face in the \l aclock/aclock.cpp example.  We
+that draws the clock face in the \l aclock/aclock.cpp example. We
 recommend compiling and running the example before you read any
-further.  In particular, try resizing the window to different shapes.
+further. In particular, try resizing the window to different sizes.
 
 \quotefile aclock/aclock.cpp
 \skipto ::drawClock
@@ -193,7 +194,7 @@ its current viewport and compute its shortest side.
 
 Then we set a new square viewport, centered in the old one.
 
-We're now done with our view.  From this point on, when we draw in a
+We're now done with our view. From this point on, when we draw in a
 1000*1000 area around 0,0, what we draw will show up in the largest
 possible square that'll fit in the output device.
 
@@ -202,11 +203,11 @@ Time to start drawing.
 \printline currentTime
 \printline pts
 
-Since we'll draw a clock, we'll need to know the time.  \e pts is just
+Since we'll draw a clock, we'll need to know the time. \e pts is just
 a utility variable to hold some points.
 
 Next come three drawing blocks, one for the hour hand, one for the
-minute hand and finally one for the clock face itself.  First we draw
+minute hand and finally one for the clock face itself. First we draw
 the hour hand:
 
 \printline save
@@ -219,14 +220,14 @@ the hour hand.
 \printline drawConvexPolygon
 
 We set \e pts to a four-point polygon that looks like the hour hand at
-three o'clock, and draw it.  Because of the rotation, it's drawn
+three o'clock, and draw it. Because of the rotation, it's drawn
 pointed in the right direction.
 
 \printline restore
 
-We restore the saved painter, undoing the rotation.  We could also
+We restore the saved painter, undoing the rotation. We could also
 call rotate( -30 ) but that might introduce rounding errors, so it's
-better to use save() and restore().  Next, the minute hand, drawn
+better to use save() and restore(). Next, the minute hand, drawn
 almost the same way:
 
 \printline save
@@ -245,7 +246,7 @@ The last part to be drawn is the clock face itself.
 \printline rotate
 \printline }
 
-Twelve short hour lines at thirty-degree intervals.  At the end of
+Twelve short hour lines at thirty-degree intervals. At the end of
 that, the painter is rotated in a way which isn't very useful, but
 we're done with painting so that doesn't matter.
 

@@ -37,10 +37,11 @@
 
 \title Issues to be aware of when porting Qt/Embedded
 
-Qt/Embedded is designed to be reasonably platform-independent. However,
-there is currently only a Linux implementation. The following dependencies
-will need to be addressed if you intend to port to another operating system
-(files that you need to modify are listed at the end of each section):
+Qt/Embedded is designed to be reasonably platform-independent. The
+only publically available version is a Linux implementation. The
+following dependencies will need to be addressed if you intend to port
+to another operating system (files that you need to modify are listed
+at the end of each section):
 
 
 \list 
@@ -76,10 +77,10 @@ modify QGfxRaster as well.
 Modify \c qgfxlinuxfb_qws.cpp.
 
 \i <b>The accelerated drivers</b> currently use the Linux QScreen and use
-/proc/bus/pci to map in PCI config space. However, these are only
-example drivers; the chances are that you will need to write your own
-driver in any case, and you will need to provide your own way to map
-in control registers. 
+\c /proc/bus/pci to map in PCI config space. However, these are only
+example drivers; you will probably need to write your own driver in
+any case, and you will need to provide your own way to map in control
+registers. 
 
 Modify \c qgfxmach64_qws.cpp, \c qgfxvoodoo_qws.cpp and \c
 qgfxmatrox_qws.cpp.

@@ -898,7 +898,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     the appropriate \a widget and \a opt usage:
 
     \table
-    \header \i ControlElement \& Widget Cast
+    \header \i ControlElement<br>\& Widget Cast
 	    \i Style Flags
 	    \i Notes
 	    \i Options
@@ -1244,7 +1244,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     the appropriate \a widget and \a opt usage:
 
     \table
-    \header \i ComplexControl \& Widget Cast
+    \header \i ComplexControl<br>\& Widget Cast
 	    \i Style Flags
 	    \i Notes
 	    \i Options

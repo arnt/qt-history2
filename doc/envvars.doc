@@ -47,23 +47,23 @@ accelerated driver that supports a hardware cursor
 
 \row
 \i QWS_DISPLAY
-\i Defines display type and framebuffer, e.g.
+\i Defines the display type and framebuffer, e.g.
 \c{Voodoo3 Mach64:/dev/fb1}
-Defaults to unaccelerated Linux framebuffer driver on \c /dev/fb0.
+Defaults to an unaccelerated Linux framebuffer driver on \c /dev/fb0.
 Valid drivers are QVfb, VGA16, LinuxFb (unaccelerated Linux framebuffer),
 Mach64 (accelerated for ATI Mach64 cards such as the Rage Pro),
 Voodoo3 (accelerated for the 3dfx Voodoo 3, should also work on Voodoo
 Banshee), Matrox (should work on all Matrox graphics cards since the
-Matrox Millennium), Transformed(for rotated displays), SVGALIB and
-VNC. Transformed displays have a special format - within the specification
-should be a multiple of 90 degrees rotation specified as Rot\<x\>,
-for instance Transformed:Rot90.
+Matrox Millennium), Transformed (for rotated displays), SVGALIB and
+VNC. Transformed displays have a special format: within the
+specification should be a multiple of 90 degrees rotation specified as
+Rot\<x\>, for instance Transformed:Rot90.
 
 \row
 \i QTDIR
-\i If defined tells Qt/Embedded to where to find its fonts - fontdir
-should be in \c $QTDIR/etc/fonts/. If undefined it's assumed to be
-\c /usr/local/qt-embedded
+\i If defined this tells Qt/Embedded to where to find its fonts:
+fontdir should be in \c $QTDIR/etc/fonts/. If undefined it's assumed
+to be \c /usr/local/qt-embedded
 
 \row
 \i QWS_SIZE
@@ -85,7 +85,7 @@ system, which is normally the AGP card.
 \row
 \i QWS_USB_KEYBOARD
 \i If defined, instead of opening \c /dev/tty open the USB low-level
-event device defined in QWS_USB_KEYBOARD (e.g. \c /dev/input/event0) -
+event device defined in QWS_USB_KEYBOARD (e.g. \c /dev/input/event0):
 this is useful if you wish to run X and Qt/Embedded side by side on
 different framebuffers.
 

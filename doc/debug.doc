@@ -45,19 +45,23 @@ Here we present some useful hints to debugging your Qt-based software.
 When you run a Qt program you can specify several command line options
 that can help with debugging.
 
-\list
-\i -nograb The application should never grab \link QWidget::grabMouse() the
-mouse\endlink or \link QWidget::grabKeyboard() the keyboard \endlink.
-This option is set by default when the program is running in the \c
-gdb debugger under Linux.
-\i -dograb Ignore any implicit or explicit -nograb.  -dograb wins
-over -nograb even when -nograb is last on the command line.
-\i -sync Runs the application in X synchronous mode.  Synchronous
-mode forces the X server to perform each X client request immediately and
-not use buffer optimization. It makes the program easier to debug and
-often much slower.  The -sync option is only valid for the X11
-version of Qt.
-\endlist
+\table
+\header \i Option \i Result
+\row \i -nograb
+     \i The application should never grab \link QWidget::grabMouse()
+	the mouse\endlink or \link QWidget::grabKeyboard() the
+	keyboard \endlink. This option is set by default when the
+	program is running in the \c gdb debugger under Linux.
+\row \i -dograb
+     \i Ignore any implicit or explicit -nograb. -dograb wins over
+	-nograb even when -nograb is last on the command line.
+\row \i -sync
+     \i Runs the application in X synchronous mode. Synchronous mode
+	forces the X server to perform each X client request
+	immediately and not use buffer optimization. It makes the
+	program easier to debug and often much slower. The -sync
+	option is only valid for the X11 version of Qt.
+\endtable
 
 
 \section1 Warning and Debugging Messages
@@ -68,22 +72,24 @@ text.
 \i \link ::qDebug() qDebug()\endlink for writing debug output for testing etc.
 \i \link ::qWarning() qWarning()\endlink for writing warning output when program
 errors occur.
-\i \link ::qFatal() qFatal()\endlink for writing fatal error messages and exit.
+\i \link ::qFatal() qFatal()\endlink for writing fatal error messages
+and exiting.
 \endlist
 
 The Qt implementation of these functions prints the text to the \c stderr
-output under Unix/X11 and to the debugger under Windows.  You can
+output under Unix/X11 and to the debugger under Windows. You can
 take over these functions by installing a message handler;
 \link ::qInstallMsgHandler() qInstallMsgHandler()\endlink.
 
 The debugging functions \l QObject::dumpObjectTree() and \l
 QObject::dumpObjectInfo() are often useful when an application looks
-or acts strangely.  More useful if you use object names than not, but
+or acts strangely. More useful if you use object names than not, but
 often useful even without names.
 
 \section1 Debugging Macros
 
-The header file \c qglobal.h contains many debugging macros and #defines.
+The header file \c qglobal.h contains many debugging macros and
+\c{#define}s.
 
 Two important macros are:
 \list
@@ -91,7 +97,8 @@ Two important macros are:
 expression, writes the warning: "ASSERT: 'b' in file file.cpp (234)"
 if b is FALSE.
 \i \link ::Q_CHECK_PTR() Q_CHECK_PTR(p)\endlink where p is a pointer.
-Writes the warning "In file file.cpp, line 234: Out of memory" if p is null.
+Writes the warning "In file file.cpp, line 234: Out of memory" if p is
+0.
 \endlist
 
 These macros are useful for detecting program errors, e.g. like this:
@@ -119,7 +126,7 @@ Q_CHECK_PTR:
   char *alloc( int size )
   {
       char *p;
-      Q_CHECK_PTR( p = new char[size] ); // WRONG
+      Q_CHECK_PTR( p = new char[size] ); // WRONG!
       return p;
   }
 \endcode
@@ -135,15 +142,16 @@ warning messages when some error is detected.
 
 The tests for sanity and the resulting warning messages inside Qt are
 conditional, based on the state of various debugging flags:
-\list
-\i QT_CHECK_STATE: Check for consistent/expected object state
-\i QT_CHECK_RANGE: Check for variable range errors
-\i QT_CHECK_NULL: Check for dangerous null pointers
-\i QT_CHECK_MATH: Check for dangerous math, e.g. division by 0
-\i QT_NO_CHECK: Turn off all QT_CHECK_... flags
-\i QT_DEBUG: Enable debugging code
-\i QT_NO_DEBUG: Turn off QT_DEBUG flag
-\endlist
+\table
+\header \i Flag		\i Meaning
+\row \i QT_CHECK_STATE	\i Check for consistent/expected object state
+\row \i QT_CHECK_RANGE	\i Check for variable range errors
+\row \i QT_CHECK_NULL	\i Check for dangerous null pointers
+\row \i QT_CHECK_MATH	\i Check for dangerous math, e.g. division by 0
+\row \i QT_NO_CHECK	\i Turn off all QT_CHECK_... flags
+\row \i QT_DEBUG	\i Enable debugging code
+\row \i QT_NO_DEBUG	\i Turn off QT_DEBUG flag
+\endtable
 
 By default, both QT_DEBUG and all the QT_CHECK flags are on. To turn
 off QT_DEBUG, define QT_NO_DEBUG. To turn off the QT_CHECK flags,
@@ -168,11 +176,11 @@ Example:
 \section1 Common bugs
 
 There is one bug that is so common that it deserves mention here: If
-you include the Q_OBJECT macro in a class declaration and run the \e moc,
-but forget to link the moc-generated object code into your executable,
-you will get very confusing error message.
-
-Any link error complaining about a lack of \c{vtbl}, \c{_vtbl},
-\c{__vtbl} or similar is likely to be this problem.
+you include the Q_OBJECT macro in a class declaration and run the
+\link moc.html moc\endlink, but forget to link the moc-generated
+object code into your executable, you will get very confusing error
+messages. Any link error complaining about a lack of \c{vtbl},
+\c{_vtbl}, \c{__vtbl} or similar is likely to be a result of this
+problem.
 
 */

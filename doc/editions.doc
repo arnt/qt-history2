@@ -37,7 +37,7 @@
 \title Qt Editions
 
 The Qt Professional and Enterprise Editions are the commercial
-versions of <a href="aboutqt.html">Qt</a>.
+versions of \link aboutqt.html Qt\endlink.
 
 Qt Free Edition is the non-commercial version of Qt. It is freely
 available for download.

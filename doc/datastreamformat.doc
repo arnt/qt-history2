@@ -42,71 +42,71 @@ The \l QDataStream allows you to serialize some of the Qt data types.
 The table below lists the data types that QDataStream can serialize
 and how they are represented.
 
-\list
-\i Q_INT8
-	\list
+\table
+\row \i Q_INT8
+     \i \list
 	\i signed byte
 	\endlist
-\i Q_INT16
-	\list
+\row \i Q_INT16
+     \i \list
 	\i signed 16 bit integer
 	\endlist
-\i Q_INT32
-	\list
+\row \i Q_INT32
+     \i \list
 	\i signed 32 bit integer
 	\endlist
-\i Q_UINT8
-	\list
+\row \i Q_UINT8
+     \i \list
 	\i unsigned byte
 	\endlist
-\i Q_UINT16
-	\list
+\row \i Q_UINT16
+     \i \list
 	\i unsigned 16 bit integer
 	\endlist
-\i Q_UINT32
-	\list
+\row \i Q_UINT32
+     \i \list
 	\i unsigned 32 bit integer
 	\endlist
-\i float
-	\list
+\row \i float
+     \i \list
 	\i 32-bit floating point number using the standard IEEE-754 format
 	\endlist
-\i double
-	\list
+\row \i double
+     \i \list
 	\i 64-bit floating point number using the standard IEEE-754 format
 	\endlist
-\i char *
-	\list
+\row \i char *
+     \i \list
 	\i The size of the string including the terminating 0 (Q_UINT32)
 	\i The string bytes including the terminating 0
 	\endlist
 	The null string is represented as \c {(Q_UINT32) 0}.
-\i QBitArray
-	\list
+\row \i QBitArray
+     \i \list
 	\i The array size (Q_UINT32)
 	\i The array bits, i.e. (size + 7)/8 bytes
 	\endlist
-\i QBrush
-	\list
+\row \i QBrush
+     \i \list
 	\i The brush style (Q_UINT8)
 	\i The brush color (QColor)
 	\i If style is CustomPattern, the brush pixmap (QPixmap)
 	\endlist
-\i QByteArray
-	\list
+\row \i QByteArray
+     \i \list
 	\i The array size (Q_UINT32)
 	\i The array bytes, i.e. size bytes
 	\endlist
-\i QCString
-	\list
+\row \i QCString
+     \i \list
 	\i The size of the string including the terminating 0 (Q_UINT32)
 	\i The string bytes including the terminating 0
 	\endlist
 	The null string is represented as \c {(Q_UINT32) 0}.
-\i \l QColor
-	\list \i RGB value serialized as a Q_UINT32 \endlist
-\i QColorGroup
-	\list
+\row \i \l QColor
+     \i \list \i RGB value serialized as a Q_UINT32 \endlist
+\row \i QColorGroup
+     \i \list
 	\i foreground (QBrush)
 	\i button (QBrush)
 	\i light (QBrush)
@@ -122,22 +122,22 @@ and how they are represented.
 	\i highlight (QBrush)
 	\i highlightedText (QBrush)
 	\endlist
-\i QCursor
-	\list
+\row \i QCursor
+     \i \list
 	\i Shape id (Q_INT16)
 	\i If shape is BitmapCursor: The bitmap (QPixmap), mask (QPixmap) and hot spot (QPoint)
 	\endlist
-\i QDate
-	\list
+\row \i QDate
+     \i \list
 	\i Julian day (Q_UINT32)
 	\endlist
-\i QDateTime
-	\list
+\row \i QDateTime
+     \i \list
 	\i Date (QDate)
 	\i Time (QTime)
 	\endlist
-\i QFont
-	\list
+\row \i QFont
+     \i \list
 	\i The family (QCString)
 	\i The point size (Q_INT16)
 	\i The style hint (Q_UINT8)
@@ -145,87 +145,87 @@ and how they are represented.
 	\i The weight (Q_UINT8)
 	\i The font bits (Q_UINT8)
 	\endlist
-\i QImage
-	\list
+\row \i QImage
+     \i \list
 	\i Save it as a PNG image.
 	\endlist
-\i QMap
-	\list
+\row \i QMap
+     \i \list
 	\i The number of items (Q_UINT32)
 	\i For all items, the key and value
 	\endlist
-\i QPalette
-	\list
+\row \i QPalette
+     \i \list
 	\i active (QColorGroup)
 	\i disabled (QColorGroup)
 	\i inactive (QColorGroup)
 	\endlist
-\i QPen
-	\list
+\row \i QPen
+     \i \list
 	\i The pen styles (Q_UINT8)
 	\i The pen width (Q_UINT8)
 	\i The pen color (QColor)
 	\endlist
-\i QPicture
-	\list
+\row \i QPicture
+     \i \list
 	\i The size of the picture data (Q_UINT32)
 	\i The raw bytes of picture data (char)
 	\endlist
-\i QPixmap
-	\list
+\row \i QPixmap
+     \i \list
 	\i Save it as a PNG image.
 	\endlist
-\i QPoint
-	\list
+\row \i QPoint
+     \i \list
 	\i The x coordinate (Q_INT32)
 	\i The y coordinate (Q_INT32)
 	\endlist
-\i QPointArray
-	\list
+\row \i QPointArray
+     \i \list
 	\i The array size (Q_UINT32)
 	\i The array points (QPoint)
 	\endlist
-\i QRect
-	\list
+\row \i QRect
+     \i \list
 	\i left (Q_INT32)
 	\i top (Q_INT32)
 	\i right (Q_INT32)
 	\i bottom (Q_INT32)
 	\endlist
-\i QRegion
-	\list
+\row \i QRegion
+     \i \list
 	\i The size of the data, i.e. 8 + 16 * (number of rectangles) (Q_UINT32)
 	\i QRGN_RECTS (Q_INT32)
 	\i The number of rectangles (Q_UINT32)
 	\i The rectangles in sequential order (QRect)
 	\endlist
-\i QSize
-	\list
+\row \i QSize
+     \i \list
 	\i width (Q_INT32)
 	\i height (Q_INT32)
 	\endlist
-\i QString
-	\list
-	\i If the string is null: 0xffffffff (Q_UINT32)
-	\i Otherwise: The string length (Q_UINT32) followed by the
+\row \i QString
+     \i \list
+	\i If the string is null: 0xffffffff (Q_UINT32)<br>
+	   otherwise: The string length (Q_UINT32) followed by the
 	   data in UTF-16
 	\endlist
-\i QTime
-	\list
+\row \i QTime
+     \i \list
 	\i Milliseconds since midnight (Q_UINT32)
 	\endlist
-\i QValueList
-  	\list
+\row \i QValueList
+     \i \list
 	\i The number of list elements (Q_UINT32)
 	\i All the elements in sequential order
 	\endlist
-\i QVariant
-	\list
+\row \i QVariant
+     \i \list
 	\i The type of the data (Q_UINT32)
 	\i The data of the specified type
 	\endlist
-\i QWMatrix
-	\list
+\row \i QWMatrix
+     \i \list
 	\i m11 (double)
 	\i m12 (double)
 	\i m21 (double)
@@ -233,6 +233,6 @@ and how they are represented.
 	\i dx (double)
 	\i dy (double)
 	\endlist
-\endlist
+\endtable
 
 */

@@ -38,35 +38,37 @@
 \title Collection Classes
 
 \keyword collection classes
+\keyword persistent data
 
 A collection class is a container which holds a number of items in a
-certain data structure and performs operations on the contained items;
-insert, remove, find etc.
+data structure and provides various operations to manipulate the
+contents of the collection, such as insert item, remove item, find
+item, etc.
 
 Qt has several value-based and several pointer-based collection
-classes.  The pointer-based collection classes work with pointers to
+classes. The pointer-based collection classes work with pointers to
 items, while the value-based classes store copies of their items. The
 value-based collections are very similar to STL container classes, and
-can be used with STL algorithms and containers.  See the \link
-qtl.html Qt Template Library\endlink documentation for details.
+can be used with STL algorithms and containers. See the \link
+qt-template-lib.html Qt Template Library\endlink documentation for
+details.
 
 The value-based collections are:
 \list
-\i \l QValueList, a value-based list
-\i \l QValueVector, a value-based vector structure
-\i \l QValueStack, a value-based stack structure
-\i \l QMap, a value-based dictionary structure
+\i \l QValueList, a value-based list.
+\i \l QValueVector, a value-based vector.
+\i \l QValueStack, a value-based stack.
+\i \l QMap, a value-based dictionary (associative array).
 \endlist
 
 The pointer-based collections are:
 \list
-\i \l QCache and \l QIntCache,
-	LRU (least recently used) cache structures.
-\i \l QDict, \l QIntDict and \l QPtrDict dictionary structures.
-\i \l QPtrList, a double linked list structure.
-\i \l QPtrQueue, a FIFO (first in, first out) queue structure.
-\i \l QPtrStack, a LIFO (last in, first out) stack structure.
-\i \l QPtrVector, a vector structure.
+\i \l QCache and \l QIntCache, LRU (least recently used) caches.
+\i \l QDict, \l QIntDict and \l QPtrDict dictionaries.
+\i \l QPtrList, a doubly linked list.
+\i \l QPtrQueue, a FIFO (first in, first out) queue.
+\i \l QPtrStack, a LIFO (last in, first out) stack.
+\i \l QPtrVector, a vector.
 \endlist
 
 \l QMemArray is exceptional; it is neither pointer nor value based,
@@ -74,7 +76,7 @@ but memory based. For maximum efficiency with the simple data types
 usually used in arrays, it uses bitwise operations to copy and compare
 array elements.
 
-Some of these classes have corresponding iterators.  An iterator
+Some of these classes have corresponding iterators. An iterator
 is a class for traversing the items in a collection:
 \list
 \i \link QCacheIterator QCacheIterator\endlink and
@@ -90,8 +92,9 @@ is a class for traversing the items in a collection:
 \endlist
 
 The value-based collections plus algorithms operating on them are
-grouped together in the \link qtl.html Qt Template
-Library\endlink. See the respective documentation for details. 
+grouped together in the \link qt-template-lib.html Qt Template
+Library\endlink; see also the \link qtl.html Qt Template
+Library Classes\endlink.
 
 The rest of this page dicusses the pointer-based containers.
 
@@ -99,17 +102,17 @@ The rest of this page dicusses the pointer-based containers.
 
 There are four internal base classes for the pointer-based
 containers (QGCache, QGDict, QGList and QGVector) that operate on
-void pointers.  A thin template layer implements the actual
+void pointers. A thin template layer implements the actual
 collections by casting item pointers to and from void pointers.
 
 This strategy allows Qt's templates to be very economical on space
 (instantiating one of these templates adds only inlinable calls to
-the base classes), while it does not hurt performance.
+the base classes), without hurting performance.
 
 \section1 A QPtrList Example
 
 This example shows how to store Employee items in a list and prints
-them out in the reverse order:
+them out in reverse order:
 
 \code
     #include <qptrlist.h>
@@ -129,7 +132,7 @@ them out in the reverse order:
 
     int main()
     {
-	QPtrList<Employee> list;		// list of pointers to Employee
+	QPtrList<Employee> list;	// list of pointers to Employee
 	list.setAutoDelete( TRUE );	// delete items when they are removed
 
 	list.append( new Employee("Bill", 50000) );
@@ -156,35 +159,35 @@ Program output:
 \section1 Managing Collection Items
 
 All pointer-based collections inherit the \l QPtrCollection base class.
-This class knows only the number of items in the collection and the
-delete strategy.
+This class only knows about the number of items in the collection and
+the deletion strategy.
 
-Items in a collection are by default not deleted when they are removed
-from the collection. The \l QPtrCollection::setAutoDelete() function
-specifies the delete strategy. In the list example, we enable
-auto-deletion to make the list delete the items when they are removed
-from the list.
+By default, items in a collection are not deleted when they are
+removed from the collection. The \l QPtrCollection::setAutoDelete()
+function specifies the deletion strategy. In the list example, we
+enable auto-deletion to make the list delete the items when they are
+removed from the list.
 
 When inserting an item into a collection, only the pointer is copied,
 not the item itself. This is called a shallow copy. It is possible to
 make the collection copy all of the item's data (known as a deep copy)
-when an item is inserted.  All collection functions that insert an
+when an item is inserted. All collection functions that insert an
 item call the virtual function \l QPtrCollection::newItem() for the item
-to be inserted.  Inherit a collection and reimplement it if you want
+to be inserted. Inherit a collection and reimplement it if you want
 to have deep copies in your collection.
 
-When removing an item from a list, the virtual function \link
-QPtrCollection::deleteItem() QPtrCollection::deleteItem()\endlink is called.
-The default implementation in all collection classes deletes the item
-if auto-deletion is enabled.
+When removing an item from a list, the virtual function
+\l{QPtrCollection::deleteItem()} is called. The default implementation
+in all collection classes deletes the item if auto-deletion is
+enabled.
 
 \section1 Usage
 
 A pointer-based collection class, such as QPtrList\<type\>, defines a
-collection of \e pointers to \e type objects.  The pointer (*) is
+collection of \e pointers to \e type objects. The pointer (*) is
 implicit.
 
-We discuss \l QPtrList here, but the same techniques apply for all
+We discuss \l QPtrList here, but the same techniques apply to all
 pointer-based collection classes and all collection class iterators.
 
 Template instantiation:
@@ -214,9 +217,9 @@ often be better to make use of an iterator. \l QPtrListIterator is very
 safe and can traverse lists that are being modified at the same time.
 Multiple iterators can work independently on the same collection.
 
-A QPtrList has an internal list of all iterators that are currently operating
-on the list.  When a list entry is removed, the list updates all iterators
-to point to this entry.
+A QPtrList has an internal list of all the iterators that are
+currently operating on it. When a list entry is removed, the list
+updates all iterators accordingly.
 
 The \l QDict and \l QCache collections have no traversal functions. To
 traverse these collections, you must use \l QDictIterator or \l
@@ -232,7 +235,7 @@ Qt has the following predefined collection classes:
 \endlist
 
 In almost all cases you would choose \l QStringList, a value
-list of implicitly shared QString unicode strings. QPtrStrList and
+list of implicitly shared QString Unicode strings. QPtrStrList and
 QPtrStrIList store only char pointers, not the strings themselves.
 
 \section1 List of Pointer-based Collection Classes and Related
