@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#5 $
+** $Id: //depot/qt/main/src/moc/moc.y#6 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -89,6 +89,7 @@ extern int yydebug;
 int	 lexdebug;
 int	 lineNo;				// current line number
 bool	 errorControl;				// controlled errors
+bool	 dontGenerate;				// don't generate for class
 
 ArgList	 *tmpArgList;				// current argument list
 Function *tmpFunc;				// current member function
@@ -373,6 +374,8 @@ class_specifier:	  class_head
 			  '{'			{ BEGIN INSIDE; level = 1; }
 			  opt_obj_member_list
 			  '}'			{ BEGIN CLASS_DEF; }
+			| class_head		{ BEGIN CLASS_DEF;
+						  dontGenerate = TRUE; }
 			;
 
 class_head:		  class_key
@@ -515,6 +518,7 @@ void init()					// initialize
     lexdebug = 0;
     yydebug = 0;
     errorControl = FALSE;
+    dontGenerate = FALSE;
     methods.autoDelete( TRUE );
     signals.autoDelete( TRUE );
     slots.autoDelete( TRUE );
@@ -549,6 +553,10 @@ void generate()					// generate C++ source code
     char *hdr3 = "Warning: All changes will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     static int gen_count = 0;
+    if ( dontGenerate ) {			// don't generate for class
+	dontGenerate = FALSE;
+	return;
+    }
     if ( gen_count++ == 0 ) {			// first class to be generated
 	fprintf( out, hdr1, (char*)fileName );
 	fprintf( out, hdr2 );
@@ -558,7 +566,7 @@ void generate()					// generate C++ source code
 	fprintf( out, "#include \"%s\"\n\n\n", (char*)fileName );
     }
     else
-        fprintf( out, "\n" );
+        fprintf( out, "\n\n" );
 
     fprintf( out, "class QObject__%s : public QObject \n{\npublic:",
 	     (char*)className );
@@ -682,7 +690,7 @@ void generate()					// generate C++ source code
 	fprintf( out, "\tsignal_tbl, %d );\n", signals.count());
     else
         fprintf( out, "\t0, 0 );\n\n" );
-    fprintf( out, "}\n\n" );
+    fprintf( out, "}\n" );
 
 //
 // End of function initMetaObject()
@@ -699,7 +707,7 @@ void generate()					// generate C++ source code
 	int  count = 0;
 	char buf[12];
 						// method header
-	fprintf( out, "// SIGNAL %s\n", (char*)f->name );
+	fprintf( out, "\n// SIGNAL %s\n", (char*)f->name );
 	fprintf( out, "void %s::%s( ", (char*)className, (char*)f->name );
 	Argument *a = f->args->first();
 	while ( a ) {				// argument list
@@ -728,7 +736,7 @@ void generate()					// generate C++ source code
 	fprintf( out, "    QObject__%s *object = (QObject__%s*)c->object();\n",
 		 (char*)className, (char*)className );
 	fprintf( out, "    object->setSender( this );\n" );
-	fprintf( out, "    (object->*r)(%s);\n}\n\n", (char*)valstr );
+	fprintf( out, "    (object->*r)(%s);\n}\n", (char*)valstr );
 /*
 	fprintf( out, "	   Part_%s *owner = (Part_%s*)getOwner();\n",
 		 (char*)className, (char*)className );
