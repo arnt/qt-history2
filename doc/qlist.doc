@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 1.10 1995/12/17 13:58:11 hanord Exp $
+** $Id: qlist.doc,v 1.11 1995/12/17 14:48:05 hanord Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -955,7 +955,7 @@ case-insensitive compare.
  *****************************************************************************/
 
 /*----------------------------------------------------------------------------
-  \class QStrListIterator qstrlist.h
+  \class QStrListIterator qstrlist.doc
   \brief The QStrListIterator class is an iterator for the QStrList and QStrIList classes.
 
   \ingroup predefiterators
