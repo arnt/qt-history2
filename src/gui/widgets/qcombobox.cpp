@@ -588,7 +588,7 @@ void QComboBox::insertStringList(const QStringList &list, int index)
         if (d->usingListBox())
             d->listBox()->insertItem(*it, index);
         else
-            d->popup()->insertAny(0, &(*it), 0, 0, 0, 0, index, index);
+            d->popup()->insertItem((*it), index, index);
         if (index++ == d->current && d->current < count()) {
             if (d->ed) {
                 d->ed->setText(text(d->current));
@@ -617,7 +617,7 @@ void QComboBox::insertItem(const QString &t, int index)
     if (d->usingListBox())
         d->listBox()->insertItem(t, index);
     else
-        d->popup()->insertAny(0, &t, 0, 0, 0, 0, index, index);
+        d->popup()->insertItem(t, index, index);
     if (index != cnt)
         d->reIndex();
     if (index == d->current && d->current < count() ) {
@@ -646,7 +646,7 @@ void QComboBox::insertItem(const QPixmap &pixmap, int index)
     if (d->usingListBox())
         d->listBox()->insertItem(pixmap, index);
     else
-        d->popup()->insertAny(&QIconSet(pixmap), 0, 0, 0, 0, 0, index, index);
+        d->popup()->insertItem(QIconSet(pixmap), index, index);
     if (index != cnt)
         d->reIndex();
     if (index == d->current && d->current < count() ) {
@@ -675,7 +675,7 @@ void QComboBox::insertItem(const QPixmap &pixmap, const QString& text, int index
     if (d->usingListBox())
         d->listBox()->insertItem(pixmap, text, index);
     else
-        d->popup()->insertAny(&QIconSet(pixmap), &text, 0, 0, 0, 0, index, index);
+        d->popup()->insertItem(QIconSet(pixmap), text, index, index);
     if (index != cnt)
         d->reIndex();
     if (index == d->current && d->current < count() ) {
@@ -1426,12 +1426,12 @@ void QComboBox::popup()
             for(unsigned int i = 0; i < d->listBox()->count(); i++) {
                 QListBoxItem *item = d->listBox()->item(i);
                 if(item->rtti() == QListBoxText::RTTI) {
-                    d->popup()->insertAny(0, &item->text(), 0, 0, 0, 0, i, i);
+                    d->popup()->insertItem(item->text(), i, i);
                 } else if(item->rtti() == QListBoxPixmap::RTTI) {
                     if(item->pixmap())
-                        d->popup()->insertAny(&QIconSet(*item->pixmap()), &item->text(), 0, 0, 0, 0, i, i);
+                        d->popup()->insertItem(QIconSet(*item->pixmap()), item->text(), i, i);
                     else
-                        d->popup()->insertAny(0, &item->text(), 0, 0, 0, 0, i, i);
+                        d->popup()->insertItem(item->text(), i, i);
                 } else {
 #if 0 // For now..
                     d->popup()->insertItem(new QComboBoxPopupItem(item), i, i);
