@@ -79,7 +79,8 @@ struct LanguageInterface : public QUnknownInterface
 	ReturnType,
 	ConnectionsToCustomSlots,
 	AdditionalFiles,
-	StoreFormCodeSeperate
+	StoreFormCodeSeperate,
+	CompressProject
     };
 
     virtual void functions( const QString &code, QValueList<Function> *funcs ) const = 0;
@@ -114,6 +115,9 @@ struct LanguageInterface : public QUnknownInterface
     virtual QString formCodeExtension() const = 0;
 
     virtual bool canConnect( const QString &signal, const QString &slot ) = 0;
+
+    virtual 	void compressProject( const QString &projectFile, const QString &compressedFile ) = 0;
+    virtual QString uncompressProject( const QString &projectFile, const QString &destDir ) = 0;
 
 };
 

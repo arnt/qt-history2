@@ -47,6 +47,8 @@
 #include <qdatatable.h>
 #endif
 
+#include <stdlib.h>
+
 
 #ifndef QT_NO_SQL
 DatabaseConnection::~DatabaseConnection()
@@ -188,13 +190,15 @@ bool Project::isDummy() const
     return isDummyProject;
 }
 
-Project::Project( const QString &fn, const QString &pName, QPluginManager<ProjectSettingsInterface> *pm, bool isDummy  )
+Project::Project( const QString &fn, const QString &pName,
+		  QPluginManager<ProjectSettingsInterface> *pm, bool isDummy,
+		  const QString &l )
     : proName( pName ), projectSettingsPluginManager( pm ), isDummyProject( isDummy )
 {
     modified = TRUE;
     pixCollection = new PixmapCollection( this );
     iface = 0;
-    lang = "C++";
+    lang = l;
     cfg.insert( "(all)", "qt warn_on release" );
     templ = "app";
     setFileName( fn );
@@ -208,6 +212,8 @@ Project::Project( const QString &fn, const QString &pName, QPluginManager<Projec
 
 Project::~Project()
 {
+    if ( MainWindow::self->singleProjectMode() )
+	removeTempProject();
     delete iface;
     delete pixCollection;
 }
@@ -237,16 +243,24 @@ void Project::setFileName( const QString &fn, bool doClear )
 	return;
 
     if ( MainWindow::self->singleProjectMode() ) {
-	// ####
+	if ( fn == singleProFileName )
+	    return;
 	singleProFileName = fn;
-	//filename = "/some/tmp";
+	LanguageInterface *iface = MetaDataBase::languageInterface( language() );
+	if ( iface && iface->supports( LanguageInterface::CompressProject ) ) {
+	    filename = iface->uncompressProject( makeAbsolute( singleProFileName ),
+						 QString( getenv( "HOME" ) +
+							  QString( "/tmp_" ) +
+							  QFileInfo( fn ).baseName() ) );
+	    proName = makeAbsolute( singleProFileName );
+	}
+    } else {
+	filename = fn;
+	if ( !filename.endsWith( ".pro" ) )
+	    filename += ".pro";
+	proName = filename;
     }
 
-    filename = fn;
-
-    if ( !filename.endsWith( ".pro" ) )
-	filename += ".pro";
-    proName = filename;
 
     if ( proName.contains( '.' ) )
 	proName = proName.left( proName.find( '.' ) );
@@ -254,7 +268,7 @@ void Project::setFileName( const QString &fn, bool doClear )
     if ( !doClear )
 	return;
     clear();
-    if ( QFile::exists( fn ) )
+    if ( QFile::exists( filename ) )
 	parse();
 }
 
@@ -661,7 +675,9 @@ void Project::save( bool onlyProjectFile )
     setModified( FALSE );
 
     if ( MainWindow::self->singleProjectMode() ) {
-	// ############
+	LanguageInterface *iface = MetaDataBase::languageInterface( language() );
+	if ( iface && iface->supports( LanguageInterface::CompressProject ) )
+	    iface->compressProject( makeAbsolute( filename ), singleProFileName );
     }
 }
 
@@ -1174,6 +1190,7 @@ bool Project::removeFormFile( FormFile *ff )
 
 void Project::addObject( QObject *o )
 {
+    bool wasModified = modified;
     objs.append( o );
     MetaDataBase::addEntry( o );
     FormFile *ff = new FormFile( "", FALSE, this, "qt_fakewindow" );
@@ -1191,6 +1208,7 @@ void Project::addObject( QObject *o )
     connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
 	     MainWindow::self, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
     emit objectAdded( o );
+    modified = wasModified;
 }
 
 void Project::setObjects( const QObjectList &ol )
@@ -1201,10 +1219,12 @@ void Project::setObjects( const QObjectList &ol )
 
 void Project::removeObject( QObject *o )
 {
+    bool wasModified = modified;
     objs.removeRef( o );
     MetaDataBase::removeEntry( o );
     fakeForms.remove( (void*)o );
     emit objectRemoved( o );
+    modified = wasModified;
 }
 
 QObjectList Project::objects() const
@@ -1224,4 +1244,21 @@ QObject *Project::objectForFakeForm( FormWindow *fw ) const
 	    return (QObject*)it.currentKey();
     }
     return 0;
+}
+
+void Project::removeTempProject()
+{
+    if ( !MainWindow::self->singleProjectMode() )
+	return;
+    QDir d( QFileInfo( filename ).dirPath() );
+    QStringList files = d.entryList( QDir::Files );
+    QStringList::Iterator it;
+    for ( it = files.begin(); it != files.end(); ++it ) {
+	d.remove( *it );
+    }
+    d = QDir( QFileInfo( filename ).dirPath() + "/images" );
+    files = d.entryList( QDir::Files );
+    for ( it = files.begin(); it != files.end(); ++it ) {
+	d.remove( *it );
+    }
 }

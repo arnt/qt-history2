@@ -3354,15 +3354,16 @@ Project *MainWindow::setSingleProject( const QString &lang, const QString &proje
     singleProject = TRUE;
     projects.clear();
     QAction *a = new QAction( tr( projectName ), tr( projectName ), 0, actionGroupProjects, 0, TRUE );
-    eProject = new Project( projectName, projectName, projectSettingsPluginManager, FALSE );
-    eProject->setLanguage( lang );
+    eProject = new Project( QFileInfo( projectName ).absFilePath(), "",
+			    projectSettingsPluginManager, FALSE, lang );
+    eProject->setModified( FALSE );
     projects.insert( a, eProject );
     a->setOn( TRUE );
     actionGroupProjects->removeFrom( projectMenu );
     actionGroupProjects->removeFrom( projectToolBar );
     currentProject = eProject;
 
-    if ( !QFile::exists( projectName ) ) {
+    if ( !QFile::exists( eProject->makeAbsolute( eProject->fileName() ) ) ) {
 	SourceFile *f = new SourceFile( "main.qs", FALSE, currentProject );
 	f->setText( "// This function is called first, when the script is executed.\n"
 		    "// Put the startup code for your script into this functions\n\n"

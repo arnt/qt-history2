@@ -107,7 +107,8 @@ class Project : public QObject
     Q_OBJECT
 public:
     Project( const QString &fn, const QString &pName = QString::null,
-	     QPluginManager<ProjectSettingsInterface> *pm = 0, bool isDummy = FALSE );
+	     QPluginManager<ProjectSettingsInterface> *pm = 0, bool isDummy = FALSE,
+	     const QString &l = "C++" );
     ~Project();
 
     void setFileName( const QString &fn, bool doClear = TRUE );
@@ -212,6 +213,7 @@ private:
     void removePlatformSettings( QString &contents, const QString &setting );
     void writePlatformSettings( QString &contents, const QString &setting,
 				const QMap<QString, QString> &input );
+    void removeTempProject();
 
 private:
     QString filename;
