@@ -2502,6 +2502,7 @@ void QIconViewItem::checkRect()
 
   \a pos is the position of the mouse cursor in the global coordinate
   system (QMouseEvent::globalPos()).
+*/
 
 /*!
   Constructs an empty icon view with the parent \a parent and the name \a name, 

@@ -530,7 +530,7 @@ void QTextParag::lineInfo( int l, int &y, int &h, int &bl ) const
 {
     if ( l > (int)lineStarts.count() - 1 ) {
 	qWarning( "QTextParag::lineInfo: line %d out of range!", l );
-	qDebug( "%d %d", lineStarts.count() - 1, l );
+	qDebug( "%d %d", (int)lineStarts.count() - 1, l );
 	y = 0;
 	h = 15;
 	bl = 10;
