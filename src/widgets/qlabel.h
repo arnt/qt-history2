@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#55 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#56 $
 **
 ** Definition of QLabel widget class
 **
@@ -79,6 +79,7 @@ public slots:
 protected:
     void	drawContents( QPainter * );
     void	drawContentsMask( QPainter * );
+    void	fontChange( const QFont & );
 
 private slots:
     void	acceleratorSlot();

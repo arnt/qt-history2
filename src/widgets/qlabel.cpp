@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#133 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#134 $
 **
 ** Implementation of QLabel widget class
 **
@@ -942,6 +942,15 @@ Qt::TextFormat QLabel::textFormat() const
 void QLabel::setTextFormat( Qt::TextFormat format )
 {
     textformat = format;
+    QString tmp = ltext;
+    ltext = QString::null;
+    setText( tmp ); // trigger update
+}
+
+/*!\reimp
+ */
+void QLabel::fontChange( const QFont & )
+{
     QString tmp = ltext;
     ltext = QString::null;
     setText( tmp ); // trigger update
