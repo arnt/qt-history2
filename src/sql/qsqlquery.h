@@ -65,6 +65,8 @@ public:
     virtual bool first();
     virtual bool last();
 
+    virtual void clear();
+
     // prepared query support
     bool exec();
     bool prepare(const QString& query);

@@ -826,9 +826,13 @@ void QSqlQuery::afterSeek()
 
 }
 
-// XXX: Hack to keep BCI - remove in 4.0. QSqlExtension should be
-// removed, and the prepare(), exec() etc. fu's should be
-// made virtual members of QSqlQuery/QSqlResult
+
+/*! ### TODO - document me (clears the result set, releases all resources, usually not
+neccessary to call) */
+void QSqlQuery::clear()
+{
+    *this = driver()->createQuery();
+}
 
 /*!
     Prepares the SQL query \a query for execution. The query may
