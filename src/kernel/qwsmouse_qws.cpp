@@ -243,7 +243,7 @@ protected:
     void setflags(int f)
     {
 	termios tty;
-	tcgetattr(f, &tty);
+	tcgetattr(fd, &tty);
 	tty.c_iflag     = IGNBRK | IGNPAR;
 	tty.c_oflag     = 0;
 	tty.c_lflag     = 0;
@@ -251,7 +251,7 @@ protected:
 	tty.c_line      = 0;
 	tty.c_cc[VTIME] = 0;
 	tty.c_cc[VMIN]  = 1;
-	tcsetattr(f, TCSAFLUSH, &tty);
+	tcsetattr(fd, TCSANOW, &tty);
     }
 
 private:
