@@ -352,20 +352,6 @@ QSize QPushButton::sizeHint() const
     int w = 0, h = 0;
 
     // calculate contents size...
-    if ( pixmap() ) {
-	QPixmap *pm = (QPixmap *)pixmap();
-	w += pm->width();
-	h += pm->height();
-    } else {
-	QString s( text() );
-	if ( s.isEmpty() )
-	    s = QString::fromLatin1("XXXX");
-	QFontMetrics fm = fontMetrics();
-	QSize sz = fm.size( ShowPrefix, s );
-	w += sz.width();
-	h += sz.height();
-    }
-
     if ( iconSet() && !iconSet()->isNull() ) {
 	int iw = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
 	int ih = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height();
@@ -375,6 +361,23 @@ QSize QPushButton::sizeHint() const
 
     if ( isMenuButton() )
 	w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
+
+    if ( pixmap() ) {
+	QPixmap *pm = (QPixmap *)pixmap();
+	w += pm->width();
+	h += pm->height();
+    } else {
+	QString s( text() );
+	bool empty = s.isEmpty();
+	if ( empty )
+	    s = QString::fromLatin1("XXXX");
+	QFontMetrics fm = fontMetrics();
+	QSize sz = fm.size( ShowPrefix, s );
+	if(!empty || !w)
+	    w += sz.width();
+	if(!empty || !h)
+	    h += sz.height();
+    }
 
     return (style().sizeFromContents(QStyle::CT_PushButton, this, QSize(w, h)).
 	    expandedTo(QApplication::globalStrut()));
