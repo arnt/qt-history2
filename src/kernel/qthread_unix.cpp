@@ -83,6 +83,8 @@ inline QThreadPrivate::QThreadPrivate( size_t ss )
     : thread_id( 0 ), stacksize( ss ),
       finished( FALSE ), running( FALSE ), orphan( FALSE )
 {
+    // threads have not been initialized yet, do it now
+    if ( ! qt_thread_mutexpool ) QThread::initialize();
 }
 
 extern "C" {
@@ -297,9 +299,6 @@ void QThread::usleep( unsigned long usecs )
 */
 QThread::QThread()
 {
-    if ( ! qt_thread_mutexpool )
-	QThread::initialize();
-
     d = new QThreadPrivate;
     Q_CHECK_PTR( d );
 }

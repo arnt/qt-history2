@@ -85,6 +85,9 @@ static unsigned int __stdcall start_thread(void* that )
 
 QThreadPrivate::QThreadPrivate( unsigned int ss )
 {
+    // threads have not been initialized yet, do it now
+    if ( ! qt_global_mutexpool ) QThread::initialize();
+
     handle = 0;
     id = 0;
     stacksize = ss;
@@ -145,11 +148,8 @@ Qt::HANDLE QThread::currentThread()
 
 void QThread::initialize()
 {
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( qt_global_mutexpool == 0 );
-#endif // QT_CHECK_STATE
-
-    qt_global_mutexpool = new QMutexPool( TRUE );
+    if ( ! qt_global_mutexpool )
+	qt_global_mutexpool = new QMutexPool( TRUE );
 }
 
 void QThread::cleanup()
