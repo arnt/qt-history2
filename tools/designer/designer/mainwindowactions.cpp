@@ -985,7 +985,8 @@ void MainWindow::setupHelpActions()
     actionHelpAboutQt->setWhatsThis( whatsThisFrom( "Help|About Qt" ) );
     connect( actionHelpAboutQt, SIGNAL( activated() ), this, SLOT( helpAboutQt() ) );
 
-#if defined(QT_NON_COMMERCIAL)
+#if 0 //defined(QT_NON_COMMERCIAL)
+    // ### not used anymore -- should be deleted?
     actionHelpRegister = new QAction( tr("Register Qt"), QPixmap(), tr("&Register Qt..."), 0, this, 0 );
     actionHelpRegister->setStatusTip( tr("Opens a web browser at the evaluation form on www.trolltech.com") );
     actionHelpRegister->setWhatsThis( tr("Register with Trolltech") );
@@ -1013,7 +1014,8 @@ void MainWindow::setupHelpActions()
     menu->insertSeparator();
     actionHelpAbout->addTo( menu );
     actionHelpAboutQt->addTo( menu );
-#if defined(QT_NON_COMMERCIAL)
+#if 0 //defined(QT_NON_COMMERCIAL)
+    // ### not used anymore -- should be deleted?
     actionHelpRegister->addTo( menu );
 #endif
 
