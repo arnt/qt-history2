@@ -569,11 +569,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 meta_files += " ";
             meta_files += pkgConfigFileName();
         }
-        if(!meta_files.isEmpty()) {
-            QStringList files = fileFixify(Option::mkfile::project_files);
+        if(!meta_files.isEmpty())
             t << meta_files << ": " << "\n\t"
-              << "@$(QMAKE) -prl " << buildArgs() << " " << files.join(" ") << endl;
-        }
+              << "@$(QMAKE) -prl " << buildArgs() << " " << project->projectFile() << endl;
     }
 
     if(!project->first("QMAKE_PKGINFO").isEmpty()) {
