@@ -861,7 +861,7 @@ spam. If your mail server is listed, you will regrettably not be able to
 send us mail. The \link http://www.mail-abuse.org/tsi/ MAPS TSI\endlink
 pages provide information about how to secure your server.
 </td><td ><br></td></tr>
-<tr bgcolor="#ffffff"><td bgcolor="#ffffff" cellspan="6"> <br> </td></tr>
+<tr bgcolor="#ffffff"><td bgcolor="#ffffff" colspan="6"> <br> </td></tr>
 <tr><th colspan=6 valign=top bgcolor=#A2C511>Norway Office</th></tr>
 </tr>
 <tr>
@@ -879,7 +879,7 @@ pages provide information about how to secure your server.
 <tr>
 <td ><br></td>
 <td valign="top"> All inquiries: +47 21 60 48 01</td>
-<tr bgcolor="#ffffff"><td bgcolor="#ffffff" cellspan="6"> <br> </td></tr>
+<tr bgcolor="#ffffff"><td bgcolor="#ffffff" colspan="6"> <br> </td></tr>
 <tr><th colspan=6 valign=top bgcolor=#A2C511>USA Office</th></tr>
 </tr>
 <tr>
