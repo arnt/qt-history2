@@ -1604,6 +1604,8 @@ void QHeader::paintEvent( QPaintEvent *e )
 void QHeader::setSortIndicator( int section, bool increasing )
 {
     d->sortColumn = section;
+    if(section != -1)
+	oldHandleIdx = section;
     d->sortDirection = increasing;
     update();
     updateGeometry();
