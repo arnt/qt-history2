@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#3 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -570,7 +570,7 @@ public:
 		png_uint_32 row_num, int pass);
     void end(png_structp png_ptr, png_infop info);
 #ifdef PNG_USER_CHUNK_SUPPORTED
-    void user_chunk(png_structp png_ptr, png_infop info,
+    int user_chunk(png_structp png_ptr, png_infop info,
 	    png_bytep data, png_uint_32 length);
 #endif
 
