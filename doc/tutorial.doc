@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.17 1998/10/31 04:04:28 agulbra Exp $
+** $Id: tutorial.doc,v 2.18 1998/12/04 05:43:50 agulbra Exp $
 **
 ** Tutorial
 **
@@ -288,6 +288,11 @@ and a lone child.
 
 <h2>Line by Line Walk-Through</h2>
 
+\skipline qlayout
+
+We add an include of qlayout.h, the header file that provides
+automatic widget layout.
+
 \skipline QWidget
 
 Here we simply create a widget.  Note that we did not have to
@@ -311,11 +316,21 @@ This QPushButton is created with both a text, "Quit", and a mother, w.
 A child widget is always on top of its mother.  When displayed, it is
 clipped by its mother's bounds.
 
-\line move
+\skipline QHBoxLayout
 
-The child is moved to a position of 62,40, relative to its mother's top
-left corner (excluding the window frame).  The coordinate is as usual for
-a visual display, x increases to the right and y increases downwards.
+A \link QHBoxLayout object is created to manage the children of the
+widget.  The layout classes let you specify the child widgets'
+positions logically instead of by counting widgets.  That way, the
+widgets behave better when they're used with strange fonts, and when
+they are resized.
+
+QHBoxLayout lays out the child widgets in a horizontal row (a
+horizontal series of rectangular boxes).
+
+\line addWidget
+
+The quit button is added to the layout manager, centered in its box.
+Since nothing else is added, the button gets all the space it wants.
 
 \skipline show
 
@@ -325,23 +340,16 @@ on).
 
 <h2>Behavior</h2>
 
-Note that if you resize the widget, the button is not resized, unlike
-the programs in the first two chapters.  That's because the top level
-widget is a QWidget, which does not react to resizing.
-
-If you're using X11, you will see the same effect if you invoke
-the program with -geometry.
+The button no longer fills the entire widget.  Instead, it gets a
+"natural" size.  This is because there is now a new top-level widget,
+which uses layout management to set a good size and position for the
+widget.
 
 <h2>Excercises</h2>
 
-Try changing the arguments to quit.move() and/or quit.resize().  What
-happens if quit is partly "outside" w?
-
-For X11 users:
-
-Also try moving the w.resize() to after the quit.move/resize, and to
-after \link QApplication::setMainWidget() a.setMainWidget()\endlink.
-Does -geometry still work?
+Try changing the alignment to addWidget().  Try resizing the window to
+nonsensical sizes.  What happens if you make the window smaller than
+the button?
 
 You may now go on to \link t4.html chapter four. \endlink
 
@@ -393,8 +401,9 @@ defaults to be a top level window.
 The second argument is the widget's name. This is \e not the text that
 appears in the \link QWidget::setCaption() title bar\endlink or in the
 button. It is a name associated with a widget to make it possible to
-\link QObject::queryList() lookup\endlink this widget later. Widget
-names will become really useful when Qt's GUI designer is finished.
+\link QObject::queryList() lookup\endlink this widget later, and there
+is also a \link QObject::dumpObjectTree() handy debugging function
+\endlink that will list a complete widget hierarchy.
 
 \line MyWidget
 \line QWidget
@@ -491,54 +500,25 @@ using signals and slots, and how to handle resize events.
 <h2>Line by Line Walk-Through</h2>
 
 \skip qapp
-\until qfont
+\until qlayout
 
-Two new include files here, qscrollbar.h and qlcdnumber.h, because we use two
-new classes; QScrollBar and QLCDNumber.
+Three new include files here. qscrollbar.h and qlcdnumber.h are there
+because we use two new widgets; QScrollBar and QLCDNumber.  qlayout.h
+is there because we use Qt's automatic layout support.
 
 \skip MyWidget
-\until parent=0
+\until }
+
+<a name=constructor></a>
+\until {
 
 Nothing new compared to the previous chapter.
 
-\until resize
-
-MyWidget now gains the ability to handle resize event.
-
-resizeEvent() is one of many virtual functions in QWidget which are used
-to pass events of various kinds to widgets.  These event functions are one
-of the the central control flow mechanisms in Qt, the other is the \link
-metaobjects.html signal/slot mechanism\endlink.
-
-This one is called, unsurprisingly, whenever the user or a part of the
-program resizes the widget.
-
-\until }
-
-In chapter three, MyWidget didn't remember its child widgets.  Now it
-does (so it can resize them).
-
-\until setMinimumSize
-
-Since we want MyWidget to handle all sizes greater than 200 by 200
-pixels, we only set a minimum size.
-
-<a name=constructor></a>
 \skip lcd
-\until move
 
 \c lcd is a QLCDNumber, a widget which displays numbers in an LCD-like
 fashion.  This instance is set up to display two digits, be a child of
 \e this and is named "lcd".
-
-It is located at x position 10 and a y position giving 10 pixels between the
-quit button and the LCD number.  It is a good idea to take a look at
-\link coordsys.html The Coordinate System\endlink.
-Note that its size is not set here, resizeEvent() will do that when
-MyWidget's own size is set.
-
-Hardcoding positions like this is tedious when you have many widgets,
-but Qt does not include a nice designer yet.  Stay tuned.
 
 \line QScrollBar
 \until scrollbar
@@ -547,9 +527,6 @@ QScrollBar is a classical window system scroll bar.  This is one of
 several possible constructors, there are other constructors that take
 fewer arguments but then we'd have to set up the same state using
 several function calls.
-
-We don't set up the scroll bar's geometry, the resize event will handle
-it.
 
 \line connect
 
@@ -566,52 +543,43 @@ essential in component programming.
 Slots are otherwise normal C++ member functions and follow the normal
 C++ access rules.
 
-<a name=resize></a>
-\skip resizeEvent
-\until }
+\line QVBoxLayout
 
-Here we want to fit the child widgets nicely inside our widget when it is
-resized.  We want the LCD number to be above the scroll bar.  First we
-position the scroll bar at the bottom of MyWidget.
+You remember \link QHBoxLayout from chapter three.  Well, the layout
+manager \link QVBoxLayout is a vertical row of boxes, very much like
+the horizontal one used in chapter three.  We ask it to add 5 pixels
+of spacing between each box.
 
-The scroll bar's geometry is set so there is a 10-pixel border to the
-left, right and below it, and its height is fixed at 16 pixels, which
-is recommended by most style guides.
+\line addWidget
 
-Remember that the order of arguments to setGeometry() is left, top,
-width, height.
+The button is put in the first (top) box, left-aligned.
 
-The x position is easy; 10 pixels from the left edge. The y position is
-calculated from the total height of the widget. We subtract 10 pixels
-for the border and 16 pixels for the scroll bar's height.
-The width of the scroll bar should be the entire width of MyWidget
-less a 10 pixel borders on each side. As mentioned above, we give the
-scroll bar a height of 16 pixels.
+\line lcd
 
-Finally, the LCD number is resized. The width is easy. We give the same
-width as the scroll bar. The height is the distance from the top of the
-scroll bar to the top of the LCD number less a 5 pixel border.
-Remember from the constructor that we have positioned the LCD number
-below the quit button.
+The LCD number is put in the next box.
 
-Auto-placement of widgets like we do here is tedious. Qt includes
-geometry management classes that make this job easier.  The classes are
-QBoxLayout and QGridLayout. Later versions of this tutorial will include
-chapters on geometry management. Stay tuned!
+\line sBar
 
+The scrollbar is put in the third box.
 
 <h2>Behavior</h2>
 
 The LCD number reflects everything you do to the scroll bar, and the
-widget handles resizing well.
+widget handles resizing well.  Notice how the LCD number widget
+changes in size when the window is resized (because it can), but the
+others stay about the same (because they would look stupid).
 
 <h2>Excercises</h2>
 
 Try changing the LCD number to add more digits or \link
 QLCDNumber::setMode() change mode. \endlink You can even add four push
-buttons to set mode.
+buttons to set the numer base.
 
 You can also change the scroll bar's range.
+
+Perhaps it would have been better to use a \link QSlider slider
+\endlink or \a QSpinbox spin box \endlink than a scroll bar?  Try them
+both!
 
 Try to make the application quit when the LCD number overflows.
 
@@ -652,66 +620,76 @@ widget as a child widget.
 \until };
 
 The LCDRange widget is an encapsulation of a QScrollBar and a
-QLCDNumber, connected together.
+QLCDNumber, connected together, but with no extra API of its own.
 
 \until }
 
-This is essentially lifted straight from the <a
+This is lifted straight from the <a
 href="t5.html#constructor">MyWidget constructor</a> in chapter five.  The
-only difference is that \c lcd is now placed at coordinate 0,0 (the top
-left corner of the LCDRange widget) since we're making a new widget and
-don't want a border.  If the widget's user wants a border, he/she can make
-a border around the LCDRange.
-
-\until }
-
-Since LCDRange doesn't have either a border or quit button, the resize
-event is simpler than <a href="t5.html#resize">the one in MyWidget.</a>
+only difference is that the button is left out.
 
 \skip private
 \until }
 
-MyWidget now contains the familiar quit button and an array of 16
-LCDRange pointers.
+MyWidget, too, contains no API except a constructor.
 
-\skip for
-\line 16
-\line value
+\skip QVBoxLayout
 
-In MyWidget's constructor, we create 16 LCDRanges, all with \c this as
-parent.  Remember that these will be deleted by Qt when MyWidget is
-destroyed.
+In this widget, we want two things above each other, one button and
+one array of LCDRanges, so we use a vertical box layout.
 
-\skip resizeEvent
-\until }
+\line quit
+\until connect
 
-In the resize event, we calculate and set the geometry of all 16
-LCDRanges in a simple for loop.
+One of the things we want is a button with a nice big font, connected
+to QApplication::quit() as before.
 
-First we calculate the top left position of the top left LCDRange.
-We give it a 10 pixel border to the left and a 10 pixel border up
-to the quit button (see \link coordsys.html The Coordinate System
-\endlink)
+\line addWidget
 
-We then calculate the size of each LCDRange. We want a grid of 4x4
-widgets with a 10 pixel border to the right and 5 pixels between 
-each one (i.e. 3 borders of 5 pixels in each direction).
-Note that since we divide by the integer 4, we will get small roundoff
-errors.
+We add the button at the top, right-aligned in its box.
 
-Next, we set each individual geometry in a simple loop. We calculate
-the position using integer modulo and divide and remember to add 5
-for the border between each one. 
+\line QGridLayout
+\line addLayout
+
+The magic of hierarchy.
+
+Here we create a grid layout manager and add it to the box layout we
+created earlier.  The grid will now occupy the bottom box of the box
+layout, just like a widget could have done if we were to use
+addWidget().
+
+This sort of layouts-within-layouts allows flexible and neat-looking
+dialogs to be written.
+
+In this case, we specify that the size of the grid layout is 4 by 4.
+That's not actually necessary; QGridLayout will find out how big it is
+if you don't specify the size.  But I like to do it.
+
+\line for
+\line for
+
+Four columns, four rows.
+
+\line LCDRange
+\line addWidget
+
+We create another LCDRange object, and add it to one of the cells in
+the grid layout, and forget about it.  The layout class will take care
+of its size.
+
+\line }
+\line }
+\line }
+
+That's all.
 
 <h2>Behavior</h2>
 
 This program shows how easy it is to use many widgets at a time.
-Each single one behaves like the scroll bar and LCD number in the 
+Each single one behaves like the scroll bar and LCD number in the
 previous chapter.  Again, the difference lies in the implementation.
 
 <h2>Excercises</h2>
-
-Change MyWidget so each LCDRange is guaranteed to be square.
 
 Initialize each scroll bar with a different/random value on startup.
 
@@ -817,25 +795,25 @@ header file.
 
 \line include
 \line QScrollBar
-\line QLCDNumber
 
 \c qwidget.h is included.  LCDRange inherits QWidget, and the header
 file of a parent class must always be included.  Until now, \c
 qwidget.h has been included indirectly via other header files like \c
 qpushbutton.h.
 
-Since the class declaration only uses pointers to QScrollBar and
-QLCDNumber it does not need their definitions, so we merely declare
-their names in the header files.  This makes the job a little easier
-for the compiler.
+Since the class declaration only uses a pointers to QScrollBar it does
+not need its definition, so we merely declare QScrollBar in the header
+file instead of including qscrollbar.h.  This trick makes the job a
+little easier for the compiler, particularly when the program gets
+big.
 
 \skip LCDRange
 \until parent=0
 
 Note the Q_OBJECT.  This macro must be included in \e all classes that
-contain signals and/or slots.  For the curious, it defines the
-functions that are implemented in the <a
-href="metaobjects.html">meta object file</a>.
+contain signals and/or slots.  If you are curious, it defines the
+functions that are implemented in the
+<a href="metaobjects.html">meta object file.</a>
 
 \line value
 \until valueChanged
@@ -867,10 +845,10 @@ only the changes are noted here.
 
 This code is from the LCDRange constructor.
 
-The first connect is the same you've seen in the previous
-chapter.  The second is new: It connects sBar's valueChanged() signal
-to this object's valueChanged \e signal. connect() with 3 arguments
-always connect to signals or slots in \c this object.
+The first connect is the same you've seen in the previous chapter.
+The second is new: It connects sBar's valueChanged() signal to this
+object's valueChanged \e signal. connect() with 3 arguments always
+connect to signals or slots in \c this object.
 
 Yes, that's right.  Signals can be connected to other signals.  When
 the first is emitted, the second signal is also emitted.
@@ -904,19 +882,19 @@ outside the scroll bar's legal range.
 <h3>\link t7-main-cpp.html main.cpp\endlink</h3>
 \dontinclude t7/main.cpp
 
-\skip setMinimumSize
-\skip for(
-\line 16
-\until }
+\skip previous
+\line previous
+\until previous
+\line }
+\line }
 
-Apart from moving LCDRange into two separate files, these lines are the
-only changes to the main.cpp file. As in the previous chapter, we create
-16 LCDRange objects. In addition, we now connect them together using
-the \link metaobjects.html signal/slot\endlink mechanism.
-Each one has its valueChanged() signal connected to the setValue()
-slot in the previous one.  Since LCDRange emits the signal valueChanged()
-when its value changes (surprise!), we are here creating a "chain" of
-signals and slots.
+All of main.cpp is copied from the previous chapter, except that in
+the constructor for MyWidget, when we create the 16 LCDRange object we
+now connect them together using the \link metaobjects.html
+signal/slot\endlink mechanism.  Each one has its valueChanged() signal
+connected to the setValue() slot in the previous one.  Since LCDRange
+emits the signal valueChanged() when its value changes (surprise!), we
+are here creating a "chain" of signals and slots.
 
 <h2>Behavior</h2>
 
@@ -3119,7 +3097,7 @@ the CannonField.
 
 <h2>Excercises</h2>
 
-Write a space invaders game and give it to the 
+Write a space invaders game and give it to the
 <a href="http://www.kde.org/">KDE project.</a>
 
 You may now go on to write your own Qt applications.
