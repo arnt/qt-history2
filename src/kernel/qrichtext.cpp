@@ -2401,8 +2401,11 @@ void QTextParag::move( int dy )
 	const int oy = r.y();
 	int y = oy;
 	doc->flow()->adjustFlow( y, r.width(), r.height(), TRUE );
-	if ( oy != y )
+	if ( oy != y ) {
+	    int oh = r.height();
 	    r.setY( y );
+	    r.setHeight( oh );
+	}
     }
 }
 
@@ -2452,8 +2455,11 @@ void QTextParag::format( int start, bool doMove )
 	int y = oy;
 	doc->flow()->adjustFlow( y, r.width(), r.height(), TRUE );
 	if ( oy != y ) {
+	    int oh = r.height();
 	    r.setY( y );
+	    r.setHeight( oh );
 	}
+
     }
 
     if ( n && doMove && n->invalid == -1 && r.y() + r.height() != n->r.y() ) {

@@ -281,6 +281,13 @@ void QSimpleRichText::adjustSize()
 void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRegion& clipRegion,
 			    const QColorGroup& cg, const QBrush* paper ) const
 {
+    d->doc->formatCollection()->setPainter( p );
+    QRegion reg = clipRegion;
+    if ( reg.rects().count() == 1 ) {
+	QRect r = reg.boundingRect();
+	r.moveBy( 0, -y );
+	reg = r;
+    }
     if ( paper )
 	d->doc->setPaper( paper );
     QColorGroup g = cg;
@@ -288,8 +295,9 @@ void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRegion& clipRegio
 	g.setBrush( QColorGroup::Base, *d->doc->paper() );
 
     p->translate( x, y );
-    d->doc->draw( p, clipRegion, g, paper );
+    d->doc->draw( p, reg, g, paper );
     p->translate( -x, -y );
+    d->doc->formatCollection()->setPainter( 0 );
 }
 
 /*!
