@@ -42,10 +42,12 @@ ConfigureQtDialogImpl::ConfigureQtDialogImpl( QWidget* parent, const char* name,
 	QFileInfoListIterator srcDirIterator( *srcdirs );
 	srcDirIterator.toLast();
 	while ( ( fi = srcDirIterator.current() ) ) {
-	    if ( fi->fileName() != "." && fi->fileName() != ".." &&
+	    if ( fi->fileName()[0] != '.' && // fi->fileName() != ".." &&
 		 fi->fileName() != "tmp" &&
 		 fi->fileName() != "compat" &&
 		 fi->fileName() != "3rdparty" &&
+		 fi->fileName() != "Debug" && // MSVC directory
+		 fi->fileName() != "Release" && // MSVC directory
 		 fi->fileName() != "moc" ) {
 		item = new QCheckListItem( modules, fi->fileName(), QCheckListItem::CheckBox );
 		item->setOn( TRUE );
@@ -189,23 +191,29 @@ void ConfigureQtDialogImpl::execute()
     QString qmakeConfig;
     QString qmakeVars;
     QString qmakeOutDir;
+	QString qmakeDefines;
 
     args += QString( getenv( "QTDIR" ) ) + "/bin/qmake";
 
     entry = settings.readEntry( "/.configure_qt_build/Mode" );
     if ( entry == "Debug" ) {
-	qmakeConfig += " debug";
+	qmakeConfig += "debug";
 	qmakeOutDir += "debug";
     } else {
-	qmakeConfig += " release";
+	qmakeConfig += "release";
 	qmakeOutDir += "release";
     }
 
     entry = settings.readEntry( "/.configure_qt_build/Build" );
     if ( entry == "Static" )
-	qmakeConfig += " staticlib";
+	{
+		qmakeConfig += " staticlib";
+	}
     else
-	qmakeConfig += " dll";
+	{
+		qmakeConfig += " dll";
+		qmakeDefines += "QT_MAKEDLL";	// Needed for shared library building on Windows
+	}
 
     entry = settings.readEntry( "/.configure_qt_build/Threading" );
     if ( entry == "Threaded" ) {
@@ -223,7 +231,8 @@ void ConfigureQtDialogImpl::execute()
 //     args += "-platform " + entry;
 
 
-    args += "CONFIG += " + qmakeConfig;
+    args += "\"CONFIG += " + qmakeConfig + "\"";
+	args += "\"DEFINES += " + qmakeDefines + "\"";
     args += "OBJECTS_DIR=.obj/" + qmakeOutDir;
     args += "MOC_DIR=.moc/" + qmakeOutDir;
     args += qmakeVars;
