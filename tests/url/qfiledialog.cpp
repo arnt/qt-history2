@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#23 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#24 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1811,7 +1811,7 @@ void QFileDialog::init()
 	resize( 420, 236 );
     } else {
 	QSize s( files->sizeHint() );
-	s = QSize( s.width() + 250, s.height() + 82 );
+	s = QSize( s.width() + 400, s.height() + 82 );
 
 	if ( s.width() * 3 > QApplication::desktop()->width() * 2 )
 	    s.setWidth( QApplication::desktop()->width() * 2 / 3 );
@@ -3591,7 +3591,7 @@ void QFileDialog::itemChanged( const QString &oldname, const QString &newname )
     }
 }
 
-void QFileDialog::setPreviewMode( bool info, bool contents )
+void QFileDialog::setPreviewMode( bool, bool )
 {
 }
 
