@@ -2101,8 +2101,13 @@ void MainWindow::readConfig()
     if ( !restoreConfig )
 	return;
 
+#ifndef Q_WS_MAC
+    /* I'm sorry to make this not happen on the Mac, but it seems to hang somewhere deep
+       in QLayout, it gets into a very large loop - and seems it has to do with clever
+       things the designer does ###Sam */
     QApplication::sendPostedEvents();
-    QString fn = QDir::homeDirPath() + "/.designerrc" + "tb2";
+#endif
+    QString fn = QDir: :homeDirPath() + "/.designerrc" + "tb2";
     QFile f( fn );
     if ( f.open( IO_ReadOnly ) ) {
 /*###	tbSettingsRead = TRUE;*/
