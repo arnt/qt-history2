@@ -208,10 +208,24 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accLocation( long *pxLeft, long *p
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate( long navDir, VARIANT varStart, VARIANT *pvarEnd )
 {
     if ( varStart.lVal == CHILDID_SELF ) {
-	// ask parent widget for next child in focus chain
-	// look up accessibility object in QPtrDict (?)
-	(*pvarEnd).vt = VT_EMPTY;
+	int target;
+	QAccessibleInterface *acc = accessible->navigate( navDir, &target );
+	if ( target == -1 && !acc ) {
+	    (*pvarEnd).vt = VT_EMPTY;
+	    return S_FALSE;
+	} else if ( !acc ) {
+	    (*pvarEnd).vt = VT_I4;
+	    (*pvarEnd).lVal = target;
+	    return S_OK;
+	}
+	IDispatch *disp = 0;
+	QWindowsAccessible* wacc = new QWindowsAccessible( acc );
+	wacc->QueryInterface( IID_IDispatch, (void**)&disp );
+	(*pvarEnd).vt = VT_DISPATCH;
+	(*pvarEnd).pdispVal = disp;
+	return S_OK;
     } else {
+	qDebug( "Start != Me" );
     }
 
     return S_FALSE;
@@ -219,49 +233,23 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate( long navDir, VARIANT 
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChild( VARIANT varChildID, IDispatch** ppdispChild )
 { 
-/*
-    *ppdispChild = NULL;
     if ( varChildID.vt == VT_EMPTY )
 	return E_INVALIDARG;
 
-    long id = varChildID.lVal;
-    QObjectList *ol = widget->queryList( "QWidget", 0, FALSE, FALSE );
-    if ( !ol || !ol->count() ) {
-	delete ol;
-	return S_FALSE;
+    QAccessibleInterface *acc = accessible->child( varChildID.lVal );
+    if ( acc ) {
+	QWindowsAccessible* wacc = new QWindowsAccessible( acc );
+	wacc->QueryInterface( IID_IDispatch, (void**)ppdispChild );
+	return S_OK;
     }
 
-    QObject *o = ol->at( id-1 );
-    delete ol;
-    if ( !o )
-	return S_FALSE;
-
-    Q_ASSERT( o->isWidgetType() );
-    QWidget *w = (QWidget*)o;
-
-    QWindowsAccessible* acc = new QWindowsAccessible( w );
-    acc->QueryInterface( IID_IDispatch, (void**)ppdispChild );
-
-    if ( *ppdispChild )
-	return S_OK;
-
-    delete acc;
-*/
+    *ppdispChild = NULL;
     return S_FALSE;
 }
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChildCount( long* pcountChildren )
 { 
-#if 0
-    QObjectList *ol = widget->queryList( "QObject", 0, FALSE, FALSE );
-
-    if ( ol )
-	*pcountChildren = ol->count();
-    else
-	*pcountChildren = 0;
-
-    delete ol;
-#endif
+    *pcountChildren = accessible->childCount();
     return S_OK;
 }
 
