@@ -212,6 +212,13 @@ Config::Config( int argc, char **argv )
     yyPos = 0;
 
     while ( yyPos < (int) yyIn.length() ) {
+	if ( yyIn[yyPos] == '#' ) {
+	    while ( yyIn[yyPos] != '\n' )
+		yyPos++;
+	    yyPos++;
+	    continue;
+	}
+
 	QString key;
 	QStringList val;
 	if ( !matchLine(&key, &val) )
