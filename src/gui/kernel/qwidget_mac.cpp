@@ -1987,17 +1987,21 @@ int QWidget::metric(int m) const
         if(m == QPaintDeviceMetrics::PdmWidth)
             return (int)rect.size.width;
         return (int)rect.size.height; }
-    case QPaintDeviceMetrics::PdmDepth:// FIXME : this is a lie in most cases
-        return 16;
-    case QPaintDeviceMetrics::PdmDpiX: // FIXME : this is a lie in most cases
-    case QPaintDeviceMetrics::PdmPhysicalDpiX:
-        return 80;
-    case QPaintDeviceMetrics::PdmDpiY: // FIXME : this is a lie in most cases
-    case QPaintDeviceMetrics::PdmPhysicalDpiY:
-        return 80;
+    case QPaintDeviceMetrics::PdmDepth:
+        return 32;
+    case QPaintDeviceMetrics::PdmDpiX: 
+    case QPaintDeviceMetrics::PdmPhysicalDpiX: {
+        short dpix, dpiy;
+        ScreenRes(&dpix, &dpiy);
+        return dpix; }
+    case QPaintDeviceMetrics::PdmDpiY: 
+    case QPaintDeviceMetrics::PdmPhysicalDpiY: {
+        short dpix, dpiy;
+        ScreenRes(&dpix, &dpiy);
+        return dpiy; }
     default: //leave this so the compiler complains when new ones are added
-        qWarning("Qt: QWidget::metric unhandled parameter %d",m);
-        return QPaintDevice::metric(m);// XXX
+        qWarning("Qt: QWidget::metric unhandled parameter %d", m);
+        return QPaintDevice::metric(m);
     }
     return 0;
 }
