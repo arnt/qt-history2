@@ -1725,7 +1725,6 @@ void QWidget::setWindowState(uint newstate)
     if (newstate & WindowActive)
 	setActiveWindow();
 
-    qDebug("%s/%s: sending WindowStateChange", name(), className());
     QEvent e(QEvent::WindowStateChange);
     QApplication::sendEvent(this, &e);
 }
