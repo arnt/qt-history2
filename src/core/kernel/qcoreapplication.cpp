@@ -521,8 +521,10 @@ int QCoreApplication::exec()
     }
     QEventLoop eventLoop;
     int returnCode = eventLoop.exec();
-    if (self)
+    if (self) {
         emit self->aboutToQuit();
+        sendPostedEvents(0, QEvent::DeferredDelete);
+    }
     return returnCode;
 }
 
