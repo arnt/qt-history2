@@ -1319,7 +1319,7 @@ void QPainter::lineTo( int x, int y )
     Polyline( hdc, linePts, 2 );
     internalCurrentPos = QPoint( x, y );
 #endif
-    if ( cpen.style() != NoPen )
+    if ( (cpen.width() == 0) && (cpen.style() == SolidLine) )
 #ifndef Q_OS_TEMP
 	SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
 #else
