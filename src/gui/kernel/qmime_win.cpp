@@ -123,37 +123,35 @@ Q_GLOBAL_STATIC(QWindowsMimeList, mimeList);
   formats, others use arbitrary non-standardized naming conventions,
   or unnamed built-in formats of Windows.
   
-    By instantiating subclasses of QWindowsMime that provide conversions
-    between Windows Clipboard and MIME formats, you can convert
-    proprietary clipboard formats to MIME formats.
+  By instantiating subclasses of QWindowsMime that provide conversions
+  between Windows Clipboard and MIME formats, you can convert
+  proprietary clipboard formats to MIME formats.
     
-      Qt has predefined support for the following Windows Clipboard formats:
-      \list
-      \i CF_UNICODETEXT - converted to "text/plain;charset=ISO-10646-UCS-2"
-      and supported by QTextDrag.
-      \i CF_TEXT - converted to "text/plain;charset=system" or "text/plain"
-      and supported by QTextDrag.
-      \i CF_DIB - converted to "image/...", where ... is
-      a \link QImage::outputFormats() Qt image format\endlink,
-      and supported by QImageDrag.
-      \i CF_HDROP - converted to "text/uri-list",
-      and supported by QUriDrag.
-      \endlist
+  Qt has predefined support for the following Windows Clipboard formats:
+  \list
+  \i CF_UNICODETEXT - converted to "text/plain"
+  \i CF_TEXT - converted to "text/plain"
+  \i CF_DIB - converted to "image/...", where ... is
+     a \link QImage::outputFormats() Qt image format\endlink
+  \i CF_HDROP - converted to "text/uri-list"
+  \i CF_INETURL - converted to "text/uri-list"
+  \i CF_HTML - converted to "text/html"
+  \endlist
       
-        An example use of this class would be to map the Windows Metafile
-        clipboard format (CF_METAFILEPICT) to and from the MIME type "image/x-wmf".
-        This conversion might simply be adding or removing a header, or even
-        just passing on the data.  See the
-        \link dnd.html Drag-and-Drop documentation\endlink for more information
-        on choosing and definition MIME types.
+  An example use of this class would be to map the Windows Metafile
+  clipboard format (CF_METAFILEPICT) to and from the MIME type "image/x-wmf".
+  This conversion might simply be adding or removing a header, or even
+  just passing on the data.  See the
+  \link dnd.html Drag-and-Drop documentation\endlink for more information
+  on choosing and definition MIME types.
         
-          You can check if a MIME type is convertible using canConvert() and
-          can perform conversions with convertToMime() and convertFromMime().
+  You can check if a MIME type is convertible using canConvertFromMime() and
+  can perform conversions with convertToMime() and convertFromMime().
 */
 
 /*!
 Constructs a new conversion object, adding it to the globally accessed
-list of available convertTors.
+list of available converters.
 */
 QWindowsMime::QWindowsMime()
 {
@@ -162,7 +160,7 @@ QWindowsMime::QWindowsMime()
 
 /*!
 Destroys a conversion object, removing it from the global
-list of available convertTors.
+list of available converters.
 */
 QWindowsMime::~QWindowsMime()
 {
@@ -187,21 +185,9 @@ int QWindowsMime::registerMimeType(const QString &mime)
 
 
 /*!
-\fn int QWindowsMime::cf(int index)
-
-  Returns the Windows Clipboard format supported by this convertTor
-  that is ordinarily at position \a index. This means that cf(0)
-  returns the first Windows Clipboard format supported, and
-  cf(countCf()-1) returns the last. If \a index is out of range the
-  return value is undefined.
-  
-  All subclasses must reimplement this pure virtual function.
-*/
-
-/*!
 \fn bool QWindowsMime::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
     
-  Returns true if the convertTor can convert from the \a mimeData to
+  Returns true if the converter can convert from the \a mimeData to
   the format specified in \a formatetc.
   
   All subclasses must reimplement this pure virtual function.
@@ -210,7 +196,7 @@ int QWindowsMime::registerMimeType(const QString &mime)
 /*!
 \fn bool QWindowsMime::canConvertToMime(const QString &mimeType, struct IDataObject *pDataObj) const
 
-  Returns true if the convertTor can convert to the \a mimeType from
+  Returns true if the converter can convert to the \a mimeType from
   the available formats in \a pDataObject.
   
   All subclasses must reimplement this pure virtual function.
@@ -219,8 +205,9 @@ int QWindowsMime::registerMimeType(const QString &mime)
 /*!
 \fn QString QWindowsMime::mimeForFormat(const FORMATETC &formatetc) const
 
-  Returns the mime type that can be used for format specified in \a formatetc, or
-  an empty string if this convertTor does not support \a formatetc.
+  Returns the mime type that will be created form the format specified 
+  in \a formatetc, or an empty string if this converter does not support
+  \a formatetc.
   
   All subclasses must reimplement this pure virtual function.
 */
@@ -228,7 +215,7 @@ int QWindowsMime::registerMimeType(const QString &mime)
 /*!
 \fn QVector<FORMATETC> QWindowsMime::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 
-  Returns a QVector of FORMATETC structures reprasenting the diffent windows clipbaord
+  Returns a QVector of FORMATETC structures representing the different windows clipboard
   formats that can be provided for the \a mimeType from the \a mimeData.
   
   All subclasses must reimplement this pure virtual function.
@@ -237,8 +224,8 @@ int QWindowsMime::registerMimeType(const QString &mime)
 /*!
 \fn QVariant QWindowsMime::convertToMime(const QString &mime, QVariant::Type preferredType, struct IDataObject *pDataObj) const
 
-  Returns a Qvariant containing the converted data for \a mime from \a pDataObject.
-  If possible the Qvarient should be of the \a prefferedType to avoid needless conversions.
+  Returns a QVariant containing the converted data for \a mime from \a pDataObject.
+  If possible the QVariant should be of the \a prefferedType to avoid needless conversions.
   
   All subclasses must reimplement this pure virtual function.
 */
@@ -247,9 +234,9 @@ int QWindowsMime::registerMimeType(const QString &mime)
 \fn bool QWindowsMime::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const
 
   Convert the \a mimeData to the format specified in \a formatetc. 
-  The converted data shold then be placed in STGMEDIUM sturcture \a pmedium.  
+  The converted data should then be placed in \a pmedium structure.  
   
-  Retrun true if the conversion was successful.
+  Return true if the conversion was successful.
     
   All subclasses must reimplement this pure virtual function.
 */
@@ -319,29 +306,6 @@ QStringList QWindowsMime::allMimesForFormats(struct IDataObject *pDataObj)
     
     return formats;
 }
-
-
-/*
-int QWindowsMimeText::cfFor(const QString &mime)
-{
-if (mime == QLatin1String("text/plain"))
-return CF_TEXT;
-QString m(mime);
-int i = m.indexOf("charset=");
-if (i >= 0) {
-QString cs = m.mid(i+8);
-i = cs.indexOf(";");
-if (i>=0)
-cs = cs.left(i);
-if (cs == "system")
-return CF_TEXT;
-if (cs == "ISO-10646-UCS-2" || cs == "utf16")
-return CF_UNICODETEXT;
-}
-return 0;
-}
-*/
-
 
 
 class QWindowsMimeText : public QWindowsMime
@@ -964,9 +928,9 @@ bool QBuiltInMimes::convertFromMime(const FORMATETC &formatetc, const QMimeData 
     if (canConvertFromMime(formatetc, mimeData)) {
         QByteArray data;
         if (outFormats.value(getCf(formatetc)) == "text/html") {
-            // text/html is in wide chars on windows (compatable with mozillia)
+            // text/html is in wide chars on windows (compatible with mozillia)
             QString html = mimeData->html();
-            // smake code as in the text converter up above
+            // same code as in the text converter up above
             const QChar *u = html.unicode();
             QString res;
             const int s = html.length();
@@ -1028,7 +992,7 @@ QVariant QBuiltInMimes::convertToMime(const QString &mimeType, struct IDataObjec
             qDebug("QBuiltInMimes::convertToMime()");
 #endif
             if (mimeType == "text/html" && preferredType == QVariant::String) {
-                // text/html is in wide chars on windows (compatable with mozillia)
+                // text/html is in wide chars on windows (compatible with mozillia)
                 val = QString::fromUtf16((const unsigned short *)data.data());   
             } else {
                 val = data; // it should be enough to return the data and let QMimeData do the rest.
