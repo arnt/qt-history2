@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#59 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -55,6 +55,7 @@
 #endif
 // On Tru64 the correct type for sigaction.sa_handler is used when XPG4v2
 // is specified.
+#undef _XOPEN_SOURCE_EXTENDED // get rid of warnings
 #define _XOPEN_SOURCE_EXTENDED
 
 #include <stdio.h>
@@ -727,7 +728,7 @@ bool QProcess::isRunning() const
     if ( ::waitpid( d->proc->pid, &status, WNOHANG ) == d->proc->pid )
     {
 	// compute the exit values
-	QProcess *that = (QProcess*)this; // mutable 
+	QProcess *that = (QProcess*)this; // mutable
 	that->exitNormal = WIFEXITED( status ) != 0;
 	if ( exitNormal ) {
 	    that->exitStat = WEXITSTATUS( status );

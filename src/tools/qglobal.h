@@ -156,6 +156,7 @@
 // 1) Ask for most recent X/Open specification available.
                                    // ask for upcoming XPG6?
 #  define _XOPEN_SOURCE 500        // fall back on XPG5 / SUSv2 / UNIX 98
+#undef _XOPEN_SOURCE_EXTENDED // get rid of warnings
 #  define _XOPEN_SOURCE_EXTENDED 1 // fall back on XPG4-UNIX / SUS / UNIX 95
                                    // fall back on ol' XPG4 or XPG3
 // 2) POSIX standards more recent than the current X/Open specification are
