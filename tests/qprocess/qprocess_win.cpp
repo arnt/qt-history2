@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "qapplication.h"
+#include <qtimer.h>
+#include <qapplication.h>
+
 #include "qprocess.h"
 
 
@@ -9,6 +11,7 @@ void QProcess::init()
 {
     stdinBufRead = 0;
 
+#if defined ( RMS_USE_SOCKETS )
     if ( QApplication::winVersion() & Qt::WV_NT_based ) {
 	notifierStdin = 0;
 	notifierStdout = 0;
@@ -23,17 +26,24 @@ void QProcess::init()
 
 	WSADATA wsaData;
 	WSAStartup( MAKEWORD( 2, 2 ), &wsaData );
-    } else {
+    } else
+#endif
+    {
 	pipeStdin[0] = 0;
 	pipeStdin[1] = 0;
 	pipeStdout[0] = 0;
 	pipeStdout[1] = 0;
 	pipeStderr[0] = 0;
 	pipeStderr[1] = 0;
+
+	lookup = new QTimer( this );
+	connect( lookup, SIGNAL(timeout()),
+		this, SLOT(timeout()) );
     }
 }
 
 
+#if defined ( RMS_USE_SOCKETS )
 static bool socketpair( int type, int s[2] )
 {
     // make non-overlapped sockets
@@ -91,10 +101,12 @@ static bool socketpair( int type, int s[2] )
 
     return TRUE;
 }
+#endif
 
 
 bool QProcess::start()
 {
+#if defined ( RMS_USE_SOCKETS )
     if ( QApplication::winVersion() & Qt::WV_NT_based )
     {
 	// cleanup the notifiers
@@ -191,7 +203,9 @@ bool QProcess::start()
 
 	// cleanup and return
 	return TRUE;
-    } else {
+    } else
+#endif
+    {
 	// open the pipes
 	// make non-inheritable copies of input write and output read handles
 	// to avoid non-closable handles
@@ -257,6 +271,9 @@ bool QProcess::start()
 	CloseHandle( pipeStdout[1] );
 	CloseHandle( pipeStderr[1] );
 
+	// start the timer
+	lookup->start( 100 );
+
 	// cleanup and return
 	return TRUE;
     }
@@ -272,11 +289,15 @@ bool QProcess::isRunning()
 void QProcess::dataStdin( const QByteArray& buf )
 {
     stdinBuf.enqueue( new QByteArray(buf) );
-    if ( notifierStdin != 0 )
-        notifierStdin->setEnabled( TRUE );
+#if defined ( RMS_USE_SOCKETS )
     if ( QApplication::winVersion() & Qt::WV_NT_based ) {
+	if ( notifierStdin != 0 ) {
+	    notifierStdin->setEnabled( TRUE );
+	}
 	socketWrite( socketStdin[1] );
-    } else {
+    } else
+#endif
+    {
 	socketWrite( 0 );
     }
 }
@@ -284,12 +305,15 @@ void QProcess::dataStdin( const QByteArray& buf )
 
 void QProcess::closeStdin( )
 {
+#if defined ( RMS_USE_SOCKETS )
     if ( QApplication::winVersion() & Qt::WV_NT_based ) {
 	if ( socketStdin[1] != 0 ) {
 	    closesocket( socketStdin[1] );
 	    socketStdin[1] = 0;
 	}
-    } else {
+    } else
+#endif
+    {
 	if ( pipeStdin[1] != 0 ) {
             CloseHandle( pipeStdin[1] );
 	    pipeStdin[1] = 0;
@@ -300,9 +324,27 @@ void QProcess::closeStdin( )
 
 void QProcess::socketRead( int fd )
 {
+#if defined ( RMS_USE_SOCKETS )
     if ( QApplication::winVersion() & Qt::WV_NT_based ) {
 	qDebug( "Hot Wild Sex!" );
-    } else {
+    } else
+#endif
+    {
+	// get the number of bytes that are waiting to be read
+	unsigned long i, r;
+	char dummy;
+	PeekNamedPipe( pipeStdout[0], &dummy, 1, &r, &i, 0 );
+	if ( i > 0 ) {
+	    QByteArray buffer=readStdout();
+	    int sz = buffer.size();
+	    if ( sz == 0 )
+		return;
+	    emit dataStdout( buffer );
+	    buffer.resize( sz+1 );
+	    buffer[ sz ] = 0;
+	    QString str( buffer );
+	    emit dataStdout( str );
+	}
     }
 }
 
@@ -310,6 +352,7 @@ void QProcess::socketRead( int fd )
 void QProcess::socketWrite( int fd )
 {
     DWORD written;
+#if defined ( RMS_USE_SOCKETS )
     if ( QApplication::winVersion() & Qt::WV_NT_based ) {
 	if ( fd != socketStdin[1] || socketStdin[1] == 0 )
 	    return;
@@ -323,7 +366,12 @@ void QProcess::socketWrite( int fd )
 	    &written, 0 ) ) {//&overlapStdin ) ) {
 	    return;
 	}
-    } else {
+    } else
+#endif
+    {
+	if ( stdinBuf.isEmpty() ) {
+	    return;
+	}
 	if ( !WriteFile( pipeStdin[1],
 	    stdinBuf.head()->data() + stdinBufRead,
 	    stdinBuf.head()->size() - stdinBufRead,
@@ -338,13 +386,16 @@ void QProcess::socketWrite( int fd )
 	socketWrite( fd );
     }
 
-#if 1
+#if 0
     // ### try to read (just for test purposes)
+#if defined ( RMS_USE_SOCKETS )
     if ( QApplication::winVersion() & Qt::WV_NT_based ) {
 	char hmpfl[10];
 	DWORD read;
 	ReadFile( (HANDLE)(socketStdout[0]), hmpfl, 10, &read, 0 );//&overlapStdout );
-    } else {
+    } else
+#endif
+    {
 	QByteArray buffer=readStdout();
 	int sz = buffer.size();
 	if ( sz == 0 )
@@ -359,22 +410,16 @@ void QProcess::socketWrite( int fd )
 }
 
 
-// testing if non blocking pipes are working
-QByteArray QProcess::readStdout()
+void QProcess::timeout()
 {
-#if 0
-    const int defsize = 1024;
-    unsigned long r, i = 0;
-    QByteArray readBuffer;
-    do {
-	readBuffer.resize( (i+1) * defsize );
-	ReadFile( pipeStdout[0], readBuffer.data() + (i*defsize), defsize, &r, &overlapped );
-//	PeekNamedPipe( pipeStdout[0], readBuffer.data() + (i*defsize), defsize, &r, 0, 0 );
-	i++;
-    } while ( r == defsize );
-    readBuffer.resize( (i-1) * defsize + r );
-    return readBuffer;
-#else
+//    socketWrite( 0 );
+    socketRead( 0 );
+}
+
+// testing if non blocking pipes are working
+QByteArray QProcess::readStdout( ulong bytes )
+{
+#if defined ( RMS_USE_SOCKETS )
     if ( QApplication::winVersion() & Qt::WV_NT_based ) {
 	unsigned long r, i = 2;
 	QByteArray readBuffer( i );
@@ -382,17 +427,25 @@ QByteArray QProcess::readStdout()
 	    ReadFile( pipeStdout[0], readBuffer.data(), i, &r, 0 );
 	}
         return readBuffer;
-    } else {
-	// get the number of bytes that are waiting to be read
-	char dummy;
-	unsigned long r, i;
-	PeekNamedPipe( pipeStdout[0], &dummy, 1, &r, &i, 0 );
+    } else
+#endif
+    {
+	unsigned long i, r;
+	if ( bytes == 0 ) {
+	    // get the number of bytes that are waiting to be read
+	    char dummy;
+	    PeekNamedPipe( pipeStdout[0], &dummy, 1, &r, &i, 0 );
+	} else {
+	    i = bytes;
+	}
 	// and read it!
 	QByteArray readBuffer( i );
 	if ( i > 0 ) {
 	    ReadFile( pipeStdout[0], readBuffer.data(), i, &r, 0 );
+	    if ( r != i ) {
+		readBuffer.resize( r );
+	    }
 	}
 	return readBuffer;
     }
-#endif
 }

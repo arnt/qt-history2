@@ -18,6 +18,9 @@
 #include <Windows.h>
 #endif
 
+// this class is under development; so don't look at all the
+// ugly defines (RMS_*); just for testing...
+
 //class Q_EXPORT QProcess : public QObject
 class QProcess : public QObject
 {
@@ -44,10 +47,6 @@ public:
     bool normalExit();
     int exitStatus();
 
-#if defined( _WS_WIN_ )
-    QByteArray readStdout();
-#endif
-
 signals:
     // output
     void dataStdout( const QString& buf );
@@ -69,18 +68,28 @@ private:
     QString     command;
     QDir        workingDir;
     QStringList arguments;
-
-    QSocketNotifier *notifierStdin;
-    QSocketNotifier *notifierStdout;
-    QSocketNotifier *notifierStderr;
     QQueue<QByteArray> stdinBuf;
-    int socketStdin[2];
-    int socketStdout[2];
-    int socketStderr[2];
-#if defined( _WS_WIN_ )
+
+#if defined ( _WS_WIN_ )
     HANDLE pipeStdin[2];
     HANDLE pipeStdout[2];
     HANDLE pipeStderr[2];
+    QTimer *lookup;
+#if defined ( RMS_USE_SOCKETS )
+    QSocketNotifier *notifierStdin;
+    QSocketNotifier *notifierStdout;
+    QSocketNotifier *notifierStderr;
+    int socketStdin[2];
+    int socketStdout[2];
+    int socketStderr[2];
+#endif
+#else
+    QSocketNotifier *notifierStdin;
+    QSocketNotifier *notifierStdout;
+    QSocketNotifier *notifierStderr;
+    int socketStdin[2];
+    int socketStdout[2];
+    int socketStderr[2];
 #endif
 
 #if defined( _WS_WIN_ )
@@ -91,11 +100,18 @@ private:
     ssize_t stdinBufRead;
 #endif
 
+private:
     void init();
+#if defined( _WS_WIN_ )
+    QByteArray readStdout( ulong bytes = 0 );
+#endif
 
 private slots:
     void socketRead( int fd );
     void socketWrite( int fd );
+#if defined( _WS_WIN_ )
+    void timeout();
+#endif
 };
 
 
