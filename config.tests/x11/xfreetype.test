@@ -83,7 +83,7 @@ if [ "$XFREETYPE" = "yes" ]; then
     done
 fi
 
-if [ "$XFREETYPE" = "yes" ]; then
+if [ "$XFREETYPE" = "yes" ] && [ -z "$XFTCOMPAT_H" ]; then
     INC="X11/Xft/XftFreetype.h"
     XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
     INCDIRS="$IN_INCDIRS $XDIRS /usr/include /include"
@@ -97,7 +97,7 @@ if [ "$XFREETYPE" = "yes" ]; then
     done
     if [ -z "$F" ]; then
 	XFREETYPE=no
-	[ "$VERBOSE" = "yes" ] && echo "  Could not find $INC anywhere in $INCDIRS"
+	[ "$VERBOSE" = "yes" ] && echo "  Could not find either X11/Xft/XftCompat.h or $INC anywhere in $INCDIRS"
     fi
 fi
 
