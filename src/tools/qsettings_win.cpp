@@ -246,7 +246,7 @@ HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	    if ( write && !remove )
-		res = RegCreateKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+		res = RegCreateKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, L"", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
 #ifndef Q_OS_TEMP
@@ -268,7 +268,7 @@ HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	    if ( write && !remove )
-		res = RegCreateKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+		res = RegCreateKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, L"", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
 #ifndef Q_OS_TEMP
