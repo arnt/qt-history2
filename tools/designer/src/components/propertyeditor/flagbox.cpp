@@ -12,7 +12,8 @@
 ****************************************************************************/
 
 #include "flagbox_p.h"
-#include <QAbstractItemView>
+#include <QtGui/QAbstractItemView>
+#include <QtCore/qdebug.h>
 
 FlagBox::FlagBox(QWidget *parent)
     : QComboBox(parent)
@@ -20,8 +21,7 @@ FlagBox::FlagBox(QWidget *parent)
     m_model = new FlagBoxModel(this);
     setModel(m_model);
 
-    connect(this, SIGNAL(activated(int)),
-        this, SLOT(slotActivated(int)));
+    connect(this, SIGNAL(activated(int)), this, SLOT(slotActivated(int)));
 }
 
 FlagBox::~FlagBox()
@@ -31,5 +31,6 @@ FlagBox::~FlagBox()
 void FlagBox::slotActivated(int index)
 {
     bool checked = itemData(index, FlagBoxModel::DecorationRole).toBool();
+
     setItemData(index, !checked, FlagBoxModel::DecorationRole);
 }

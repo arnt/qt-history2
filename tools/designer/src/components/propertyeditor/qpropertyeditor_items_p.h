@@ -16,13 +16,13 @@
 
 #include "propertyeditor_global.h"
 
-#include <QStringList>
-#include <QVariant>
-#include <QMap>
-#include <QDateTime>
-#include <QCursor>
-#include <QPalette>
-#include <QKeySequence>
+#include <QtCore/QStringList>
+#include <QtCore/QVariant>
+#include <QtCore/QMap>
+#include <QtCore/QDateTime>
+#include <QtGui/QCursor>
+#include <QtGui/QPalette>
+#include <QtGui/QKeySequence>
 
 class QWidget;
 class QComboBox;
@@ -323,7 +323,7 @@ private:
 class QT_PROPERTYEDITOR_EXPORT FlagsProperty: public MapProperty
 {
 public:
-    FlagsProperty(const QMap<QString, QVariant> &items, int m_value,
+    FlagsProperty(const QMap<QString, QVariant> &items, unsigned int m_value,
                   const QString &name);
 
     QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;

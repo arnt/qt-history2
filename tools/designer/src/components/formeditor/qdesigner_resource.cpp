@@ -486,19 +486,8 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
 
         DomSpacer *spacer = new DomSpacer();
         QList<DomProperty*> properties = computeProperties(item->widget());
-
-        // fix the enum properties.
-        QString wrongPrefix = QLatin1String("Spacer::");
-
-        foreach (DomProperty *p, properties) {
-            if (p->kind() == DomProperty::Enum) {
-                QString e = p->elementEnum();
-                if (e.startsWith(wrongPrefix))
-                    p->setElementEnum(e.mid(wrongPrefix.length()));
-            }
-        }
-
-        spacer->setElementProperty(properties); // ### filter the properties
+        // ### filter the properties
+        spacer->setElementProperty(properties);
 
         ui_item = new DomLayoutItem();
         ui_item->setElementSpacer(spacer);
@@ -932,28 +921,6 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
     return customWidgets;
 }
 
-/*
-QList<DomProperty*> QDesignerResource::computeProperties(QObject *obj)
-{
-    QList<DomProperty*> properties = Resource::computeProperties(obj);
-
-    if (qobject_cast<Spacer*>(obj)) {
-        QListIterator<DomProperty*> it(properties);
-        while (it.hasNext()) {
-            DomProperty *p = it.next();
-
-            if (p->kind() != DomProperty::Enum || p->attributeName() != QLatin1String("sizeType"))
-                continue;
-
-            QString e = p->elementEnum();
-            p->setElementEnum(e.replace("Spacer::", ""));
-        }
-    }
-
-    return properties;
-}
-*/
-
 QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
 {
     QList<DomProperty*> properties;
@@ -991,22 +958,30 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
 
         return 0;
     } else if (qVariantCanConvert<FlagType>(value)) {
-#if 0 // ### implement me
-        int v = qvariant_cast<FlagType>(value).value.toInt();
+        FlagType f = qvariant_cast<FlagType>(value);
+        int v = f.value.toInt();
+        QMapIterator<QString, QVariant> it(f.items);
+        QStringList keys;
 
-        QMapIterator<QString, QVariant> it(e.items);
         while (it.hasNext()) {
-            if (it.next().value().toInt() != v)
-                continue;
+            int x = it.next().value().toInt();
+            if (v == x) {
+                DomProperty *p = new DomProperty;
+                p->setAttributeName(propertyName);
+                p->setElementSet(it.key());
+                return p;
+            }
 
-            DomProperty *p = new DomProperty;
-            p->setAttributeName(propertyName);
-            p->setElementEnum(it.key());
-            return p;
+            keys.push_back(it.key());
         }
-#endif
-        qWarning("createProperty for flags not implemented yet!");
-        return 0;
+
+        if (keys.isEmpty())
+            return 0;
+
+        DomProperty *p = new DomProperty;
+        p->setAttributeName(propertyName);
+        p->setElementSet(keys.join(QLatin1String("|")));
+        return p;
     } else if (value.type() == QVariant::Pixmap || value.type() == QVariant::Icon) {
         DomResourcePixmap *r = new DomResourcePixmap;
         QString icon_file_path = m_core->iconCache()->iconToFilePath(qvariant_cast<QIcon>(value));

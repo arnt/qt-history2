@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "flagbox_model_p.h"
+#include <QtCore/qdebug.h>
 
 FlagBoxModel::FlagBoxModel(QObject *parent)
     : QAbstractItemModel(parent)
@@ -53,6 +54,8 @@ QModelIndex FlagBoxModel::index(int row, int column, const QModelIndex &parent) 
 
 QVariant FlagBoxModel::data(const QModelIndex &index, int role) const
 {
+    Q_ASSERT(index.row() != -1);
+
     const FlagBoxModelItem &item = m_items.at(index.row());
 
     switch (role) {
@@ -70,20 +73,23 @@ QVariant FlagBoxModel::data(const QModelIndex &index, int role) const
 
 bool FlagBoxModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    Q_ASSERT(index.row() != -1);
+
     FlagBoxModelItem &item = m_items[index.row()];
 
     switch (role) {
     case EditRole:
-    case DisplayRole:
+    case DisplayRole: {
         item.setName(value.toString());
-        return true;
+    } return true;
 
-    case DecorationRole:
+    case DecorationRole: {
         item.setChecked(value.toBool());
         emit dataChanged(index, index);
-        return true;
+    } return true;
 
-    default:
-        return false;
+    default: break;
     } // end switch
+
+    return false;
 }

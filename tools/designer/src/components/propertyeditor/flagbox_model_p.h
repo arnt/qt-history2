@@ -15,16 +15,16 @@
 #define FLAGBOX_MODEL_P_H
 
 #include "propertyeditor_global.h"
-#include <QAbstractItemModel>
-#include <QList>
+#include <QtCore/QAbstractItemModel>
+#include <QtCore/QList>
 
 class QT_PROPERTYEDITOR_EXPORT FlagBoxModelItem
 {
 public:
-    FlagBoxModelItem(const QString &name, int value, bool checked = false)
+    FlagBoxModelItem(const QString &name, unsigned int value, bool checked = false)
         : m_name(name), m_value(value), m_checked(checked) {}
 
-    inline int value() const { return m_value; }
+    inline unsigned int value() const { return m_value; }
 
     inline QString name() const { return m_name; }
     inline void setName(const QString &name) { m_name = name; }
@@ -34,8 +34,8 @@ public:
 
 private:
     QString m_name;
-    int m_value;
-    uint m_checked: 1;
+    unsigned int m_value;
+    bool m_checked;
 };
 
 class QT_PROPERTYEDITOR_EXPORT FlagBoxModel: public QAbstractItemModel
@@ -58,7 +58,7 @@ public:
     virtual int columnCount(const QModelIndex &parent) const;
     virtual bool hasChildren(const QModelIndex &parent) const
     { return rowCount(parent) > 0; }
-    
+
     virtual QModelIndex parent(const QModelIndex &index) const;
     virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
     virtual QVariant data(const QModelIndex &index, int role) const;

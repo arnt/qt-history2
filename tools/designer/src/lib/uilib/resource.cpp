@@ -337,6 +337,16 @@ bool Resource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layou
     return true;
 }
 
+class FakeSpacer: public QWidget
+{
+    Q_OBJECT
+    Q_PROPERTY(Qt::Orientation orientation READ fakeOrientation)
+public:
+    FakeSpacer() { Q_ASSERT(0); }
+
+    Qt::Orientation fakeOrientation() const { Q_ASSERT(0); return Qt::Horizontal; }
+};
+
 QLayoutItem *Resource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
 {
     switch (ui_layoutItem->kind()) {
@@ -351,7 +361,7 @@ QLayoutItem *Resource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWi
         DomSpacer *ui_spacer = ui_layoutItem->elementSpacer();
 
         foreach (DomProperty *p, ui_spacer->elementProperty()) {
-            QVariant v = toVariant(&QObject::staticMetaObject, p); // ###  remove me
+            QVariant v = toVariant(&FakeSpacer::staticMetaObject, p); // ### remove me
             if (v.isNull())
                 continue;
 
@@ -359,8 +369,9 @@ QLayoutItem *Resource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWi
                 size = v.toSize();  // ###  remove me
             } else if (p->attributeName() == QLatin1String("sizeType") && p->kind() == DomProperty::Enum) {
                 sizeType = m_idToSizeType.value(p->elementEnum(), QSizePolicy::Expanding);
-            } else if (p->attributeName() == QLatin1String("orientation") && p->kind() == DomProperty::Enum)
+            } else if (p->attributeName() == QLatin1String("orientation") && p->kind() == DomProperty::Enum) {
                 isVspacer = isVertical(p->elementEnum());
+            }
         }
 
         QSpacerItem *spacer = 0;
@@ -380,7 +391,7 @@ QLayoutItem *Resource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWi
     return 0;
 }
 
-bool Resource::isVertical(const QString &str)
+bool Resource::isVertical(const QString &str) // ### remove me
 {
     return str == QLatin1String("Qt::Vertical")
         || str == QLatin1String("Vertical"); // ### compat
@@ -511,20 +522,23 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
     } break;
 
     case DomProperty::Set: {
-        qDebug() << "set not implemented yet!"; // ### implement me
+        QByteArray pname = p->attributeName().toLatin1();
+        int index = meta->indexOfProperty(pname);
+        Q_ASSERT(index != -1);
+
+        QMetaEnum e = meta->property(index).enumerator();
+        Q_ASSERT(e.isFlag() == true);
+
+        v = e.keysToValue(p->elementEnum().toLatin1());
     } break;
 
     case DomProperty::Enum: {
         QByteArray pname = p->attributeName().toLatin1();
         int index = meta->indexOfProperty(pname);
+        Q_ASSERT(index != -1);
+
         QMetaEnum e = meta->property(index).enumerator();
-
-        QByteArray key = p->elementEnum().toLatin1();
-        int idx = key.lastIndexOf("::");
-        if (idx != -1)
-            key = key.mid(idx + 2);
-
-        v = e.keyToValue(key);
+        v = e.keyToValue(p->elementEnum().toLatin1());
     } break;
 
     case DomProperty::SizePolicy: {
@@ -754,22 +768,10 @@ DomSpacer *Resource::createDom(QSpacerItem *spacer, DomLayout *ui_layout, DomWid
     properties.append(prop);
 
     // orientation property
-    prop = new DomProperty();
+    prop = new DomProperty(); // ### we don't implemented the case where expandingDirections() is both Vertical and Horizontal
     prop->setAttributeName("orientation");
     prop->setElementEnum((spacer->expandingDirections() & Qt::Horizontal) ? QLatin1String("Qt::Horizontal") : QLatin1String("Qt::Vertical"));
     properties.append(prop);
-
-#if 0 /// ### implement me
-    // sizeType property
-    QSizePolicy::Policy sizeType = QSizePolicy::Expanding;
-    prop = new DomProperty();
-    prop->setAttributeName("sizeType");
-    if (isVspacer)
-        prop->setElementEnum(m_idToSizeType.find(spacer->expanding().verData()).key());
-    else
-        prop->setElementEnum(m_idToSizeType.find(spacer->expanding().horData()).key());
-    properties.append(prop);
-#endif
 
     ui_spacer->setElementProperty(properties);
     return ui_spacer;
@@ -1045,3 +1047,5 @@ DomResources *Resource::saveResources()
 {
     return 0;
 }
+
+#include "resource.moc"

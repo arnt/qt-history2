@@ -16,15 +16,15 @@
 #include "keysequenceeditor.h"
 #include "defs.h"
 
-#include <QLineEdit>
-#include <QListView>
-#include <QComboBox>
-#include <QSpinBox>
-#include <QValidator>
-#include <QFontDatabase>
-#include <QPainter>
-#include <QDateTimeEdit>
-#include <QBitmap>
+#include <QtGui/QLineEdit>
+#include <QtGui/QListView>
+#include <QtGui/QComboBox>
+#include <QtGui/QSpinBox>
+#include <QtGui/QValidator>
+#include <QtGui/QFontDatabase>
+#include <QtGui/QPainter>
+#include <QtGui/QDateTimeEdit>
+#include <QtGui/QBitmap>
 
 #include <QtCore/qdebug.h>
 #include <limits.h>
@@ -648,7 +648,7 @@ void MapProperty::updateValue(QWidget *editor)
 }
 
 // -------------------------------------------------------------------------
-FlagsProperty::FlagsProperty(const QMap<QString, QVariant> &items, int value,
+FlagsProperty::FlagsProperty(const QMap<QString, QVariant> &items, unsigned int value,
                              const QString &name)
     : MapProperty(items, QVariant(value), name)
 {
@@ -660,7 +660,7 @@ QWidget *FlagsProperty::createEditor(QWidget *parent, const QObject *target, con
     QMapIterator<QString, QVariant> it(items());
     while (it.hasNext()) {
         it.next();
-        l.append(FlagBoxModelItem(it.key(), it.value().toInt(), /*checked=*/false));
+        l.append(FlagBoxModelItem(it.key(), it.value().toUInt(), /*checked=*/false));
     }
 
     FlagBox *editor = new FlagBox(parent);
@@ -671,28 +671,51 @@ QWidget *FlagsProperty::createEditor(QWidget *parent, const QObject *target, con
 
 void FlagsProperty::updateEditorContents(QWidget *editor)
 {
-    int v = m_value.toInt();
+    FlagBox *box = qobject_cast<FlagBox*>(editor);
+    if (box == 0)
+        return;
 
-    if (FlagBox *box = qobject_cast<FlagBox*>(editor)) {
-        for (int i=0; i<box->count(); ++i) {
-            FlagBoxModelItem &item = box->item(i);
-            item.setChecked((v & item.value()) != 0);
-        }
+    unsigned int v = m_value.toUInt();
+
+    // step 1) perfect match
+    bool foundPerfectMatch = false;
+    for (int i=0; i<box->count(); ++i) {
+        FlagBoxModelItem &item = box->item(i);
+        foundPerfectMatch = item.value() == v;
+        item.setChecked(foundPerfectMatch);
+    }
+
+    if (foundPerfectMatch == true) {
+        // nothing to do
+        return;
+    }
+
+    // step 2)
+    for (int i=0; i<box->count(); ++i) {
+        FlagBoxModelItem &item = box->item(i);
+        item.setChecked((item.value() & v) == item.value());
     }
 }
 
 void FlagsProperty::updateValue(QWidget *editor)
 {
-    int v = 0;
+    unsigned int newValue = 0;
 
     if (FlagBox *box = qobject_cast<FlagBox*>(editor)) {
         for (int i=0; i<box->count(); ++i) {
             FlagBoxModelItem &item = box->item(i);
             if (item.isChecked())
-                v |= item.value();
+                newValue |= item.value();
         }
     }
-    m_value = v;
+
+    if (newValue != m_value) {
+        m_value = newValue;
+        setChanged(true);
+
+        if (IProperty *p = parent())
+            p->setChanged(true);
+    }
 }
 
 // -------------------------------------------------------------------------

@@ -113,7 +113,7 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
         image.scale(128, 128, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         pix = image;
 
-        delete fake;
+        fake->deleteLater();
 
         return pix;
     }
