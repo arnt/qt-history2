@@ -629,11 +629,12 @@ void QSpinBox::mousePressEvent( QMouseEvent *e )
     else
 	buttonDown = 0;
 
+    theButton = buttonDown;
     if ( oldButtonDown != buttonDown ) {
 	if ( !buttonDown ) {
-	    update( down.unite( up ) );
+	    repaint( down.unite( up ), FALSE );
 	} else if ( buttonDown & 1 ) {
-	    update( down );
+	    repaint( down, FALSE );
 	    if ( !d->auRepTimer ) {
 		d->auRepTimer = new QTimer( this );
 		connect( d->auRepTimer, SIGNAL( timeout() ), this, SLOT( stepDown() ) );
@@ -641,7 +642,7 @@ void QSpinBox::mousePressEvent( QMouseEvent *e )
 	    }
 	    stepDown();
 	} else if ( buttonDown & 2 ) {
-	    update( up );
+	    repaint( up, FALSE );
 	    if ( !d->auRepTimer ) {
 		d->auRepTimer = new QTimer( this );
 		connect( d->auRepTimer, SIGNAL( timeout() ), this, SLOT( stepUp() ) );
@@ -650,7 +651,6 @@ void QSpinBox::mousePressEvent( QMouseEvent *e )
 	    stepUp();
 	}
     }
-    theButton = buttonDown;
 }
 
 /*!\reimp
@@ -664,9 +664,9 @@ void QSpinBox::mouseReleaseEvent( QMouseEvent *e )
     theButton = 0;
     if ( oldButtonDown != theButton ) {
 	if ( oldButtonDown & 1 )
-	    update( down );
+	    repaint( down, FALSE );
 	else if ( oldButtonDown & 2 )
-	    update( up );
+	    repaint( up, FALSE );
     }
     delete d->auRepTimer;
     d->auRepTimer = 0;
@@ -686,22 +686,22 @@ void QSpinBox::mouseMoveEvent( QMouseEvent *e )
 	if ( d->auRepTimer )
 	    d->auRepTimer->stop();
 	theButton = 0;
-	update( down );
+	repaint( down, FALSE );
     } else if ( oldButtonDown & 2 && !up.contains( e->pos() ) ) {
 	if ( d->auRepTimer )
 	    d->auRepTimer->stop();
 	theButton = 0;
-	update( up );
+	repaint( up, FALSE );
     } else if ( !oldButtonDown && up.contains( e->pos() ) && buttonDown & 2 ) {
 	if ( d->auRepTimer )
 	    d->auRepTimer->start( 500 );
 	theButton = 2;
-	update( up );
+	repaint( up, FALSE );
     } else if ( !oldButtonDown && down.contains( e->pos() ) && buttonDown & 1 ) {
 	if ( d->auRepTimer )
 	    d->auRepTimer->start( 500 );
 	theButton = 1;
-	update( down );
+	repaint( down, FALSE );
     }
 }
 
@@ -731,14 +731,14 @@ void QSpinBox::wheelEvent( QWheelEvent * e )
 void QSpinBox::drawContents( QPainter *p )
 {
     style().drawSpinBoxButton( p, down, enabled & 1 ? colorGroup() : palette().disabled(),
-	this, TRUE, enabled & 1, theButton & 1 );
+			       this, TRUE, enabled & 1, theButton & 1 );
     style().drawSpinBoxSymbol( p, down, enabled & 1 ? colorGroup() : palette().disabled(),
-	this, TRUE, enabled & 1, theButton & 1 );
+			       this, TRUE, enabled & 1, theButton & 1 );
 
     style().drawSpinBoxButton( p, up, enabled & 2 ? colorGroup() : palette().disabled(),
-	this, FALSE, enabled & 2, theButton & 2 );
+			       this, FALSE, enabled & 2, theButton & 2 );
     style().drawSpinBoxSymbol( p, up, enabled & 2 ? colorGroup() : palette().disabled(),
-	this, FALSE, enabled & 2, theButton & 2 );
+			       this, FALSE, enabled & 2, theButton & 2 );
 }
 
 /*!  This virtual function is called by QRangeControl whenever the
@@ -809,13 +809,24 @@ const QValidator * QSpinBox::validator() const
 void QSpinBox::updateDisplay()
 {
     vi->setText( currentValueText() );
+    vi->repaint( FALSE ); // we want an immediate repaint, might be that a widget connected to the value changed does some longer stuff which would result in a bad feedback of the spinbox
     edited = FALSE;
     enabled = 0;
 
     enabled |= isEnabled() && (wrapping() || value() > minValue());
     enabled |= ( isEnabled() && (wrapping() || value() < maxValue()) ) * 2;
 
-    update();
+    if ( theButton & 1 && ( enabled & 1 ) == 0 ) {
+	theButton &= ~1;
+	buttonDown &= ~1;
+    }
+
+    if ( theButton & 2 && ( enabled & 2 ) == 0 ) {
+	theButton &= ~2;
+	buttonDown &= ~2;
+    }
+
+    repaint( FALSE );
 }
 
 
@@ -1016,7 +1027,7 @@ void QSpinBox::setButtonSymbols( ButtonSymbols newSymbols )
 	return;
 
     d->buttonSymbols = newSymbols;
-    update();
+    repaint( FALSE );
 }
 
 /*!  Returns the current button symbol mode.  The default is \c
