@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#253 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#254 $
 **
 ** Implementation of QWidget class
 **
@@ -686,9 +686,9 @@ QWidget::~QWidget()
     if ( qApp->focus_widget == this )
 	qApp->focus_widget = 0;
 
-    destroy();					// platform-dependent cleanup
     if ( extra )
 	deleteExtra();
+    destroy();					// platform-dependent cleanup
 }
 
 
