@@ -22,7 +22,7 @@ public:
     MyTable( int r, int c ) : QTable( r, c ) {
 	items.setAutoDelete( TRUE );
 	widgets.setAutoDelete( TRUE );
-	setCaption( tr( "A 1,000,000x1,000,000 Cell Table" ) );
+	setCaption( tr( "A 1 Million x 1 Million Cell Table" ) );
 	setLeftMargin( fontMetrics().width( "W999999W" ) );
     }
 
