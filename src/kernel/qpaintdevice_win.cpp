@@ -163,6 +163,18 @@ Q_UNUSED( destIsPixmap )
     }
 }
 
+// For alpha blending, we must load the AlphaBlend() function at run time.
+typedef BOOL (WINAPI *ALPHABLEND)( HDC, int, int, int, int, HDC, int, int, int, int, BLENDFUNCTION );
+static HINSTANCE msimg32Lib = 0;
+static ALPHABLEND alphaBlend = 0;
+static bool loadAlphaBlendFailed = FALSE;
+static void cleanup_msimg32Lib()
+{
+    if ( msimg32Lib != 0 ) {
+	FreeLibrary( msimg32Lib );
+	msimg32Lib = 0;
+    }
+}
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
@@ -356,22 +368,35 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	}
     } else {
 	if ( src_pm && src_pm->data->hasAlpha &&
-		( QApplication::winVersion() == Qt::WV_98 ||
-		  QApplication::winVersion() == Qt::WV_2000 ) ) {
-	    HINSTANCE hinstLib = LoadLibraryA( "msimg32" );
-	    if ( hinstLib != 0 ) {
-		typedef BOOL (WINAPI *ALPHABLEND)( HDC, int, int, int, int, HDC, int, int, int, int, BLENDFUNCTION );
-		ALPHABLEND alphaBlend = (ALPHABLEND) GetProcAddress( hinstLib, "AlphaBlend" );
-		if ( alphaBlend != 0 ) {
-		    BLENDFUNCTION blend = {
-			AC_SRC_OVER,
-			0,
-			255,
-			AC_SRC_ALPHA
-		    };
-		    alphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend );
+		( QApplication::winVersion()==Qt::WV_98 ||
+		  QApplication::winVersion()==Qt::WV_2000 ) ) {
+	    // try alpha blending
+	    BLENDFUNCTION blend = {
+		AC_SRC_OVER,
+		0,
+		255,
+		AC_SRC_ALPHA
+	    };
+	    if ( alphaBlend != 0 ) {
+		alphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend );
+	    } else {
+		if ( !loadAlphaBlendFailed ) {
+		    // try to load msimg32.dll and get the function
+		    // AlphaBlend()
+		    loadAlphaBlendFailed = TRUE;
+		    msimg32Lib = LoadLibraryA( "msimg32" );
+		    if ( msimg32Lib != 0 ) {
+			qAddPostRoutine( cleanup_msimg32Lib );
+			alphaBlend = (ALPHABLEND) GetProcAddress( msimg32Lib, "AlphaBlend" );
+			if ( alphaBlend != 0 ) {
+			    loadAlphaBlendFailed = FALSE;
+			}
+		    }
 		}
-		FreeLibrary( hinstLib );
+		if ( loadAlphaBlendFailed )
+		    alphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend );
+		else
+		    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
 	    }
 	} else {
 	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
