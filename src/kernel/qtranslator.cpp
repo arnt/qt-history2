@@ -761,7 +761,7 @@ void QTranslator::unsqueeze()
 
 
 /*!  Returns TRUE if this message file contains a message with the key
-  ( \a context, \a sourceText, \a comment ) and FALSE if it does not.
+  (\a context, \a sourceText, \a comment) and FALSE if it does not.
 
   This function works with stripped translator files.
 
@@ -816,8 +816,8 @@ void QTranslator::remove( const QTranslatorMessage& message )
   \overload
   \obsolete
 
-  Removes the translation associated to the key ( \a context, \a sourceText,
-  "" ) from this translator.
+  Removes the translation associated to the key (\a context, \a sourceText,
+  "") from this translator.
 */
 
 /*! 
@@ -826,12 +826,12 @@ void QTranslator::remove( const QTranslatorMessage& message )
 
   Please use findMessage() instead.
 
-  Returns the translation for the key ( \a context, \a sourceText,
-  \a comment ) or QString::null if there is none in this translator.
+  Returns the translation for the key (\a context, \a sourceText,
+  \a comment) or QString::null if there is none in this translator.
 */
 
 /*!  Returns the QTranslatorMessage for the key
-  ( \a context, \a sourceText, \a comment ).
+  (\a context, \a sourceText, \a comment).
 */
 
 QTranslatorMessage QTranslator::findMessage( const char* context,
@@ -961,10 +961,10 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
   <a href="http://www.trolltech.com/linguist/">Qt Linguist.</a> It is
   provided simply to make the API complete and regular.
 
-  For a QTranslator object, a lookup key is a triple ( \e context, \e
-  source \e text, \e comment ) that uniquely identifies a message.  An
-  extended key is a quadruple ( \e hash, \e context, \e source \e
-  text, \e comment ), where \a hash is computed from the source text
+  For a QTranslator object, a lookup key is a triple (\e context, \e
+  source \e text, \e comment) that uniquely identifies a message.  An
+  extended key is a quadruple (\e hash, \e context, \e source \e
+  text, \e comment), where \a hash is computed from the source text
   and the comment.  Unless you plan to read and write messages
   yourself, you need not worry about the hash value.
   
@@ -985,7 +985,7 @@ QTranslatorMessage::QTranslatorMessage()
 
 
 /*!  Constructs an translator message with extended key
-  ( \e h, \a context, \a sourceText, \a comment ), where \e h is computed from
+  (\e h, \a context, \a sourceText, \a comment), where \e h is computed from
   \a sourceText and \a comment, and possibly with a \a translation.
 */
 
@@ -1021,14 +1021,14 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
 	    if ( h == 0 )
 		h = elfHash( st + cm );
 	    return;
-	case Tag_SourceText16:
+	case Tag_SourceText16: // obsolete
 	    stream >> str16;
 	    st = str16.latin1();
 	    break;
 	case Tag_Translation:
 	    stream >> tn;
 	    break;
-	case Tag_Context16:
+	case Tag_Context16: // obsolete
 	    stream >> str16;
 	    cx = str16.latin1();
 	    break;
@@ -1044,7 +1044,7 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
 	case Tag_Comment:
 	    stream >> cm;
 	    break;
-	case Tag_Obsolete1:
+	case Tag_Obsolete1: // obsolete
 	    stream >> obs1;
 	    break;
 	default:
@@ -1124,15 +1124,15 @@ QTranslatorMessage & QTranslatorMessage::operator=(
 
 /*! \enum QTranslatorMessage::Prefix
 
-  Let ( \e h, \e c, \e s, \e m ) be the extended key.  The possible prefixes are
+  Let (\e h, \e c, \e s, \e m) be the extended key.  The possible prefixes are
 
   <ul>
   <li> \c NoPrefix - no prefix
-  <li> \c Hash - only ( \e h )
-  <li> \c HashContext - only ( \e h, \e c )
-  <li> \c HashContextSourceText - only ( \e h, \e c, \e s )
-  <li> \c HashContextSourceTextComment - the whole extended key, ( \e h, \e c,
-       \e s, \e m )
+  <li> \c Hash - only (\e h)
+  <li> \c HashContext - only (\e h, \e c)
+  <li> \c HashContextSourceText - only (\e h, \e c, \e s)
+  <li> \c HashContextSourceTextComment - the whole extended key, (\e h, \e c,
+       \e s, \e m)
   </ul>
 
   \sa write() commonPrefix()
@@ -1191,9 +1191,9 @@ void QTranslatorMessage::write( QDataStream & stream, bool strip,
 /*!  Returns the widest lookup prefix that is common to this translator message
   and message \a m.
 
-  For example, if the extended key is for this message is ( 42, "FunnyDialog",
-  "Yes", "Funny?" ) and that for \a m is ( 42, "FunnyDialog", "No", "Funny?" ),
-  returns \c HashContext.
+  For example, if the extended key is for this message is (42, "FunnyDialog",
+  "Yes", "Funny?") and that for \a m is (42, "FunnyDialog", "No", "Funny?"),
+  this function returns \c HashContext.
 
   \sa write()
 */
