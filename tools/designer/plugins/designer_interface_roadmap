@@ -97,7 +97,9 @@ DesignerApplicationInterface
     |	    |
     |	    |-- DesignerFormWindowInterface
     |		    |
-    |		    |-- DesignerWidgetInterface
+    |		    |-- DesignerSelectionInterface
+    |			    |
+    |			    |-- DesignerWidgetInterface
     |
     |
     |-- DesignerHierarchyViewInterface
@@ -124,12 +126,18 @@ Comments
   Is created by the DesignerApplication object and acquired using the 
   requestApplicationInterface method. This interface provides the 
   QComponentInterfaces to the the plugin (see graph).
-  There is no functionality beyond this.
+  There is no functionality beyond this right now.
+  ## property ideas from MSDN, IApplication members ##
+  ## - title
+  ## - name
+  ## - path
+  ## - current directory
+  ## - version
 
 - DesignerFormWindowInterface
 
   Represents the currently active form window, and can provide
-  a DesignerWidgetInterface.
+  a DesignerSelectionInterface.
   Properties (*=faked):
     - caption (*)
     - modified (*)
@@ -139,29 +147,53 @@ Comments
     - close
     - undo
     - redo
+    - insertWidget
+
+- DesignerSelectionInterface
+
+  Represents the currently selected widgets and can provide
+  a DesignerWidgetInterface
+  Properties
+    - count
+
+  Functions:
+    - delete
 
 - DesignerWidgetInterface
 
-  Represents the currently selected widget.
+  Represents the currently active widget.
+  Properties
+    - as defined by the widget
+
   Functions:
-    - 
+    - delete
+    - selectNext
+    - selectPrevious
+    - selectParent
 
 - DesignerPropertyEditorInterface
 
   Represents the Property Editor in the Qt Designer and can provide a
   DesignerWidgetInterface.
+  Properties
+    -
+
   Functions:
-    - 
+    -
 
 - DesignerFormListInterface
 
   Provides access to the list of forms opened in the Qt Designer, and 
   can provide a DesignerFormWindowInterface.
+  Properties
+    - count (read only)
+
   Functions:
     - newForm
     - loadForm
     - saveActiveForm
     - saveAllForms
+    - closeAll
 
 - DesignerHierarchyViewInterface
 
@@ -172,8 +204,11 @@ Comments
 
 - DesignerMainWindowInterface
 
-  Represents the Main Window of the Designer, and can provide a
-  DesignerMenuBar- and a DesignerStatusBarInterface.
+  Represents the Main Window of the Designer { and can provide a
+  DesignerStatusBarInterface }
+  Properties:
+    - statusText
+
   Functions:
     - 
 
