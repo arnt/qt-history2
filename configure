@@ -1962,7 +1962,7 @@ fi
 
 # symlink includes
 if [ -x "$relpath/bin/syncqt" ]; then
-    QTDIR=$relpath $relpath/bin/syncqt -inc $relpath/include
+    QTDIR=$relpath perl $relpath/bin/syncqt -inc $relpath/include
 fi
 
 if [ "$OPT_SHADOW" = "yes" ]; then
