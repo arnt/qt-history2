@@ -2383,6 +2383,9 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	    // while the application is running
 	    qfs->deref();
 	}
+
+	// make sure to recalculate fontinfo
+	actual.dirty = TRUE;
     }
 
     QChar sample = sampleCharacter(script);
