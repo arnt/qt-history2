@@ -88,6 +88,7 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
+#include <qwidgetstack.h>
 
 #include <stdlib.h>
 
@@ -508,6 +509,8 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	return new QScrollBar( parent, name );
     } else if ( className == "QPopupMenu" ) {
 	return new QPopupMenu( parent, name );
+    } else if ( className == "QWidgetStack" ) {
+	return new QWidgetStack( parent, name );
     } else if ( className == "QMainWindow" ) {
 	QMainWindow *mw = 0;
 	if ( !qwf_stays_on_top )
