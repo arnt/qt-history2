@@ -129,7 +129,6 @@ private:
     friend class QApplication;
     friend class Q4MenuBar; //compat
     friend OSStatus qt_mac_menu_event(EventHandlerCallRef, EventRef event, void *); //compat
-    friend void qt_mac_set_modal_state(bool, QMenuBar *);
 
     void macCreateNativeMenubar();
     void macRemoveNativeMenubar();

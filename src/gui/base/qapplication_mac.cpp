@@ -154,7 +154,7 @@ extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(QWidget *, bool =false); //qwidget_mac.cpp
 extern QString qt_mac_get_global_setting(QString key, QString val, QString file=QString::null); //qsettings_mac.cpp
 extern QString pstring2qstring(const unsigned char *); //qglobal.cpp
-extern void qt_mac_command_set_enabled(UInt32, bool); //qmenubar_mac.cpp
+extern void qt_mac_command_set_enabled(MenuRef, UInt32, bool); //qmenu_mac.cpp
 
 /* Unicode input entry magic */
 class QTSMDocumentWrapper
@@ -904,7 +904,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
     if(appName)
 	qApp->setObjectName(appName);
     if(qt_is_gui_used) {
-	qt_mac_command_set_enabled(kHICommandQuit, false);
+	qt_mac_command_set_enabled(0, kHICommandQuit, false);
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();

@@ -67,16 +67,50 @@ inline static QString qt_mac_no_ampersands(QString str, CFStringRef *cf=NULL) {
     return str;
 }
 
-inline static void qt_mac_clear_menubar()
+void qt_mac_command_set_enabled(MenuRef menu, UInt32 cmd, bool b)
+{
+#if 0
+    qDebug("setting %c%c%c%c to %s", (char)(cmd >> 24) & 0xFF, (char)(cmd >> 16) & 0xFF,
+	   (char)(cmd >> 8) & 0xFF, (char)cmd & 0xFF,  b ? "on" : "off");
+#endif
+    if(b) {
+	EnableMenuCommand(menu, cmd);
+	if(MenuRef dock_menu = GetApplicationDockTileMenu())
+	    EnableMenuCommand(dock_menu, cmd);
+    } else {
+	DisableMenuCommand(menu, cmd);
+	if(MenuRef dock_menu = GetApplicationDockTileMenu())
+	    DisableMenuCommand(dock_menu, cmd);
+    }
+}
+
+void qt_mac_set_modal_state(MenuRef menu, bool b)
+{
+    for(int i = 1; i < CountMenuItems(menu); i++) {
+	MenuRef submenu;
+	GetMenuItemHierarchicalMenu(menu, i+1, &submenu);
+	if(b)
+	    DisableMenuItem(submenu, 0);
+	else
+	    EnableMenuItem(submenu, 0);
+    }
+
+    UInt32 commands[] = { kHICommandQuit, kHICommandPreferences, kHICommandAbout, 'CUTE', 0 };
+    for(int c = 0; commands[c]; c++) 
+	qt_mac_command_set_enabled(menu, commands[c], b);
+}
+
+void qt_mac_clear_menubar()
 {
     ClearMenuBar();
-    //qt_mac_command_set_enabled(kHICommandPreferences, false);
+    qt_mac_command_set_enabled(0, kHICommandPreferences, false);
     InvalMenuBar();
 }
 
-void qt_mac_set_no_menubar_icons(bool b) { qt_mac_no_menubar_icons = b; } //backdoor to disable menubar icons
-void qt_mac_set_no_native_menubar(bool b) { qt_mac_no_native_menubar = b; } //backdoor to disable menubars
-void qt_mac_set_no_menubar_merge(bool b) { qt_mac_no_menubar_merge = b; } //backdoor to disable merging
+//backdoors to disable/enable certain features of the menubar bindings
+void qt_mac_set_no_menubar_icons(bool b) { qt_mac_no_menubar_icons = b; } //disable menubar icons
+void qt_mac_set_no_native_menubar(bool b) { qt_mac_no_native_menubar = b; } //disable menubars entirely
+void qt_mac_set_no_menubar_merge(bool b) { qt_mac_no_menubar_merge = b; } //disable command merging
 
 bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent action_e, bool by_accel)
 {

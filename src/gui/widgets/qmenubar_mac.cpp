@@ -42,6 +42,7 @@ extern CFStringRef qstring2cfstring(const QString &); //qglobal.cpp
 QByteArray p2qstring(const unsigned char *); //qglobal.cpp
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
 bool qt_modal_state(); //qapplication_mac.cpp
+void qt_mac_clear_menubar(); //qmenu_mac.cpp
 
 extern bool qt_mac_no_menubar_icons; //qmenu_mac.cpp
 extern bool qt_mac_no_native_menubar; //qmenu_mac.cpp
@@ -49,23 +50,8 @@ extern bool qt_mac_no_menubar_merge; //qmenu_mac.cpp
 
 #endif
 
-void qt_mac_command_set_enabled(UInt32 cmd, bool b)
-{
-#if 0
-    qDebug("setting %c%c%c%c to %s", (char)(cmd >> 24) & 0xFF, (char)(cmd >> 16) & 0xFF,
-	   (char)(cmd >> 8) & 0xFF, (char)cmd & 0xFF,  b ? "on" : "off");
-#endif
-
-    if(b) {
-	EnableMenuCommand(0, cmd);
-	if(MenuRef mr = GetApplicationDockTileMenu())
-	    EnableMenuCommand(mr, cmd);
-    } else {
-	DisableMenuCommand(0, cmd);
-	if(MenuRef mr = GetApplicationDockTileMenu())
-	    DisableMenuCommand(mr, cmd);
-    }
-}
+void qt_mac_command_set_enabled(MenuRef menu, UInt32 cmd, bool b); //qmenu_mac.cpp
+static inline void qt_mac_command_set_enabled(UInt32 cmd, bool b) { qt_mac_command_set_enabled(0, cmd, b); }
 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 
@@ -121,146 +107,17 @@ public:
 static QGuardedPtr<QMenuBar> fallbackMenuBar; //The current global menubar
 static QGuardedPtr<QMenuBar> activeMenuBar; //The current global menubar
 
-void qt_mac_set_modal_state(bool b, QMenuBar *mb)
+extern void qt_mac_set_modal_state(MenuRef, bool); //qmenu_mac.cpp
+static void qt_mac_set_modal_state(bool b, QMenuBar *mb)
 {
     if(mb && mb != activeMenuBar) { //shouldn't be possible, but just in case
 	qWarning("%s:%d: This cannot happen!", __FILE__, __LINE__);
 	mb = 0;
     }
-
     MenuRef mr = AcquireRootMenu();
-    for(int i = 1; i < CountMenuItems(mr); i++) {
-	MenuRef mr2;
-	GetMenuItemHierarchicalMenu(mr, i+1, &mr2);
-	bool enabled = true;
-	if(!b && mb) {
-	    QMenuBar::MacPrivate::PopupBinding *pb = mb->mac_d->popups.value(GetMenuID(mr2));
-	    if(pb && !pb->tl)
-		qWarning("%s:%d That cannot happen either!", __FILE__, __LINE__);
-	    enabled = (!pb || (pb->qpopup && pb->qpopup->isEnabled()));
-	} else if(b) {
-	    enabled = false;
-	}
-	if(enabled)
-	    EnableMenuItem(mr2, 0);
-	else
-	    DisableMenuItem(mr2, 0);
-    }
+    qt_mac_set_modal_state(mr, b);
     ReleaseMenu(mr);
-
-    UInt32 commands[] = { kHICommandQuit, kHICommandPreferences, kHICommandAbout, 'CUTE', 0 };
-    for(int c = 0; commands[c]; c++) {
-	bool enabled = true;
-	if(!b && mb) {
-	    QMenuBar::MacPrivate::CommandBinding cb = mb->mac_d->commands.value(commands[c]);
-	    if(cb.qpopup)
-		enabled = cb.qpopup->isItemEnabled(cb.qpopup->idAt(cb.index));
-	} else if(b) {
-	    enabled = false;
-	}
-	qt_mac_command_set_enabled(commands[c], enabled);
-    }
 }
-
-static void qt_mac_clear_menubar()
-{
-    ClearMenuBar();
-    qt_mac_command_set_enabled(kHICommandPreferences, false);
-    InvalMenuBar();
-}
-
-#if !defined(QMAC_QMENUBAR_NO_EVENT)
-//event callbacks
-QMAC_PASCAL OSStatus
-QMenuBar::qt_mac_menubar_event(EventHandlerCallRef er, EventRef event, void *)
-{
-    UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
-    bool handled_event = true;
-    switch(eclass) {
-    case kEventClassMenu: {
-	qDebug("happened %d", ekind);
-	MenuRef menu;
-	GetEventParameter(event, kEventParamDirectObject, typeMenuRef, 0,
-			  sizeof(menu), 0, &menu);
-	int mid = GetMenuID(menu);
-	if (MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups.value(mid)) {
-	    short idx;
-	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex, 0,
-			      sizeof(idx), 0, &idx);
-	    MenuCommand cmd;
-	    GetMenuItemCommandID(mpb->macpopup, idx, &cmd);
-	    QMenuItem *it = mpb->qpopup->findItem(cmd);
-	    if(!it->custom()) {
-		handled_event = false;
-		break;
-	    }
-	    qDebug("made it here..");
-
-	    if(ekind == kEventMenuMeasureItemHeight) {
-		short h = it->custom()->sizeHint().height();
-		SetEventParameter(event, kEventParamMenuItemHeight, typeShortInteger,
-				  sizeof(h), &h);
-	    } else if(ekind == kEventMenuMeasureItemWidth) {
-		short w = it->custom()->sizeHint().width();
-		SetEventParameter(event, kEventParamMenuItemWidth, typeShortInteger,
-				  sizeof(w), &w);
-	    } else if(ekind == kEventMenuDrawItemContent) {
-		handled_event = false;
-	    } else {
-		CallNextEventHandler(er, event);
-		Rect r;
-		GetEventParameter(event, kEventParamMenuTextBounds, typeQDRectangle, 0,
-				  sizeof(r), 0, &r);
-		QMacSavedPortInfo fi;
-		::RGBColor f;
-		f.red = 256*256;
-		f.blue = f.green = 0;
-		RGBForeColor(&f);
-		PaintRect(&r);
-		handled_event = false;
-	    }
-	} else {
-	    handled_event = false;
-	}
-	break; }
-    default:
-	handled_event = false;
-	break;
-    }
-    if(!handled_event) //let the event go through
-	return CallNextEventHandler(er, event);
-    return noErr; //we eat the event
-}
-static EventHandlerRef mac_menubarEventHandler = 0;
-static EventHandlerUPP mac_menubarEventUPP = 0;
-static void qt_mac_clean_menubar_event()
-{
-    if(mac_menubarEventHandler) {
-	RemoveEventHandler(mac_menubarEventHandler);
-	mac_menubarEventHandler = 0;
-    }
-    if(mac_menubarEventUPP) {
-	DisposeEventHandlerUPP(mac_menubarEventUPP);
-	mac_menubarEventUPP = 0;
-    }
-}
-void QMenuBar::qt_mac_install_menubar_event(MenuRef ref)
-{
-    if(mac_menubarEventHandler)
-	return;
-    static EventTypeSpec menu_events[] = {
-	{ kEventClassMenu, kEventMenuMeasureItemWidth },
-	{ kEventClassMenu, kEventMenuMeasureItemHeight },
-	{ kEventClassMenu, kEventMenuDrawItemContent }
-    };
-    if(!mac_menubarEventUPP)
-	mac_menubarEventUPP = NewEventHandlerUPP(qt_mac_menubar_event);
-    InstallMenuEventHandler(ref, mac_menubarEventUPP,
-			    GetEventTypeCount(menu_events), menu_events, 0,
-			    &mac_menubarEventHandler);
-    qAddPostRoutine(qt_mac_clean_menubar_event);
-}
-#endif
 
 /* utility functions */
 static QString qt_mac_no_ampersands(QString str, CFStringRef *cf=NULL) {
@@ -387,10 +244,8 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 #endif
 
 	    QMenuItem *item = d->mitems->at(index);
-#if defined(QMAC_QMENUBAR_NO_EVENT)
 	    if (item->custom())
 		continue;
-#endif
 	    if (item->widget())
 		continue;
 	    if (!item->isVisible())
@@ -425,10 +280,6 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 #endif
 
 	    MenuItemAttributes attr = kMenuItemAttrAutoRepeat;
-#if !defined(QMAC_QMENUBAR_NO_EVENT)
-	    if(item->custom())
-		attr |= kMenuItemAttrCustomDraw;
-#endif
 
 	    //figure out an accelerator
 	    int accel_key = Qt::Key_unknown;
@@ -539,9 +390,6 @@ MenuRef QMenuBar::createMacPopup(QPopupMenu *d, int id, bool top_level)
 #if 0
     attr |= kMenuAttrAutoDisable;
 #endif
-#if !defined(QMAC_QMENUBAR_NO_EVENT)
-    attr |= kMenuItemAttrCustomDraw;
-#endif
     MenuRef ret;
     if(CreateNewMenu(0, attr, &ret) != noErr)
 	return 0;
@@ -550,9 +398,6 @@ MenuRef QMenuBar::createMacPopup(QPopupMenu *d, int id, bool top_level)
 	ret = 0;
     } else {
 	SetMenuID(ret, ++mid);
-#if !defined(QMAC_QMENUBAR_NO_EVENT)
-	qt_mac_install_menubar_event(ret);
-#endif
 	activeMenuBar->mac_d->popups.insert(mid,
 					    new QMenuBar::MacPrivate::PopupBinding(d, ret, id,
 										   top_level));
