@@ -730,9 +730,9 @@ void QWorkspace::showMaximizeControls()
  	closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( closeB, SIGNAL( clicked() ), this, SLOT( closeActiveClient() ) );
 
-	if ( win32 ) {
-	    restoreB->setAutoRaise( FALSE );
-	    closeB->setAutoRaise( FALSE );
+	if ( !win32 ) {
+	    restoreB->setAutoRaise( TRUE );
+	    closeB->setAutoRaise( TRUE );
 	}
 	//d->maxcontrols->adjustSize();
 
@@ -840,10 +840,10 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
     iconB->setFocusPolicy( NoFocus );
     iconB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-    if ( win32 ) {
-	closeB->setAutoRaise( FALSE );
-	maxB->setAutoRaise( FALSE );
-	iconB->setAutoRaise( FALSE );
+    if ( !win32 ) {
+	closeB->setAutoRaise( TRUE );
+	maxB->setAutoRaise( TRUE );
+	iconB->setAutoRaise( TRUE );
     }
     if ( imode ) {
 	iconB->setIconSet( QPixmap( normalize_xpm ) );
