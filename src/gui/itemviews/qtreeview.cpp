@@ -21,7 +21,7 @@
 #include <qstyleoption.h>
 #include <qevent.h>
 #include <qpen.h>
-#include <qdebug.h>
+#include <qsignal.h>
 
 #include <private/qtreeview_p.h>
 #define d d_func()
@@ -1008,13 +1008,20 @@ void QTreeView::columnWidthChanged(int column, int, int)
 
 void QTreeView::updateGeometries()
 {
-    QSize hint = d->header->isVisible() ? d->header->sizeHint() : QSize(0, 0);
+    QSize hint = d->header->isHidden() ? QSize(0, 0) : d->header->sizeHint();
     setViewportMargins(0, hint.height(), 0, 0);
 
     QRect vg = d->viewport->geometry();
     if (QApplication::reverseLayout())
         d->header->setOffset(vg.width() - hint.width());
-    d->header->setGeometry(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
+    QRect geometryRect(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
+    d->header->setGeometry(geometryRect);
+
+    // make sure that the header sections are resized, even if the header is hidden
+    if (d->header->isHidden() && d->header->stretchSectionCount()) {
+        d->header->viewport()->setGeometry(geometryRect);
+        qInvokeMetaMember(d->header, "resizeSections");
+    }
 
     // update scrollbars
     if (model() && model()->rowCount(root()) > 0 && model()->columnCount(root()) > 0) {
