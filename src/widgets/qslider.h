@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#9 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#10 $
 **
 ** Definition of QSlider class
 **
@@ -65,7 +65,7 @@ protected:
     void	drawWinGroove( QPainter *, QCOORD );
 
 private slots:
-    void	autoRepeat();
+    void	repeatTimeout();
 private:
     enum State { None, Dragging, TimingUp, TimingDown };
 
@@ -75,7 +75,7 @@ private:
     void	moveSlider( int );
     void	reallyMoveSlider( int );
     void	resetState();
-    int		slideWidth() const;
+    int		slideLength() const;
     int		available() const;
     int		goodPart( const QPoint& );
 

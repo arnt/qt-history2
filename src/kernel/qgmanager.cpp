@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#9 $
 **
 ** Implementation of QGGeometry class
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#9 $");
 
 
 
@@ -82,7 +82,8 @@ static void setWinfo( QWidget * w, wDict &dict, QGManager::Direction d, int p, i
     }
 }
 
-/*! \class QChain qgmanagr.cpp
+/*
+  \class QChain qgmanagr.cpp
 
   \brief internal class for the QGManager.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#15 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#15 $");
 
 static const int motifBorder = 2;
 static const int motifLength = 30;
@@ -422,7 +422,7 @@ void QSlider::paintEvent( QPaintEvent * )
 		r.setRect( 0, tickOffset, width(), winThickness );
 	    else
 		r.setRect( tickOffset, 0, winThickness, height() );
-
+	    r = r.intersect( rect() );
 	    qDrawPlainRect( &p, r, g.background() );
 	    p.drawWinFocusRect( r );
 	}
@@ -467,7 +467,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
     sliderStartVal = sliderVal;
     if ( e->button() == MidButton ) {
 	int pos = goodPart( e->pos() );
-	moveSlider( pos - slideWidth() / 2 );
+	moveSlider( pos - slideLength() / 2 );
 	return;
     }
     if ( e->button() != LeftButton )
@@ -480,16 +480,16 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 	emit sliderPressed();
     } else if ( style()   == WindowsStyle) {
 	int pos = goodPart( e->pos() );
-	moveSlider( pos - slideWidth() / 2 );
+	moveSlider( pos - slideLength() / 2 );
 	state = Dragging;
-	clickOffset = slideWidth() / 2;     
+	clickOffset = slideLength() / 2;     
     } else if ( orient == Horizontal && e->pos().x() < r.left() //### goodPart
 		|| orient == Vertical && e->pos().y() < r.top() ) {
 	state = TimingDown;
         subtractPage();
 	if ( !timer )
 	    timer = new QTimer( this );
-	connect( timer, SIGNAL(timeout()), SLOT(autoRepeat()) );
+	connect( timer, SIGNAL(timeout()), SLOT(repeatTimeout()) );
 	timer->start( thresholdTime, TRUE ); 
     } else if ( orient == Horizontal && e->pos().x() > r.right() //### goodPart
 		|| orient == Vertical && e->pos().y() > r.bottom() ) {
@@ -497,7 +497,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 	addPage();
 	if ( !timer )
 	    timer = new QTimer( this );
-	connect( timer, SIGNAL(timeout()), SLOT(autoRepeat()) );
+	connect( timer, SIGNAL(timeout()), SLOT(repeatTimeout()) );
 	timer->start( thresholdTime, TRUE ); 
     }
 }
@@ -523,7 +523,7 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 
     if ( (e->state() & MidButton) ) { 		// middle button wins
 	int pos = goodPart( e->pos() );
-	moveSlider( pos - slideWidth() / 2 );
+	moveSlider( pos - slideLength() / 2 );
 	return;	
     }
     if ( !(e->state() & LeftButton) )
@@ -656,7 +656,7 @@ void QSlider::keyPressEvent( QKeyEvent *e )
   Returns the length of the slider.
 */
 
-int QSlider::slideWidth() const 
+int QSlider::slideLength() const 
 {
     switch ( style() ) {
     case WindowsStyle:
@@ -703,7 +703,7 @@ void QSlider::pageDown()
   Waits for autorepeat.
 */
 
-void QSlider::autoRepeat()
+void QSlider::repeatTimeout()
 {
     ASSERT( timer );
     timer->disconnect();
