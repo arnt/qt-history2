@@ -411,7 +411,7 @@ void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow
     default:
         break;
     }
-    extendDockWindowArea(area, dockwindow, orientation);
+    addDockWindow(area, dockwindow, orientation);
 
 #ifdef Q_WS_MAC     //drawer support
     extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
@@ -427,16 +427,16 @@ void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow
 }
 
 /*!
-    Extend \a dockwindow into the given \a area in the direction specified
-    by the \a orientation.
+    Adds \a dockwindow into the given \a area in the direction
+    specified by the \a orientation.
 */
-void QMainWindow::extendDockWindowArea(Qt::DockWindowArea area, QDockWindow *dockwindow,
-                                       Qt::Orientation orientation)
+void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow,
+                                Qt::Orientation orientation)
 {
     // add a window to an area, placing done relative to the previous
     Q_ASSERT_X(dockwindow->isAreaAllowed(area),
-               "QMainWindow::extendDockWindowArea", "specified 'area' is not an allowed area");
-    d->layout->extendDockWindowArea(area, dockwindow, orientation);
+               "QMainWindow::addDockWindow", "specified 'area' is not an allowed area");
+    d->layout->addDockWindow(area, dockwindow, orientation);
     if (isVisible())
         d->layout->relayout();
 }
@@ -477,7 +477,7 @@ void QMainWindow::removeDockWindow(QDockWindow *dockwindow)
 /*!
     Returns the \c Qt::DockWindowArea for \a dockwindow.
 
-    \sa addDockWindow() extendDockWindowArea() splitDockWindow() Qt::DockWindowArea
+    \sa addDockWindow() splitDockWindow() Qt::DockWindowArea
 */
 Qt::DockWindowArea QMainWindow::dockWindowArea(QDockWindow *dockwindow) const
 { return d->layout->dockWindowArea(dockwindow); }

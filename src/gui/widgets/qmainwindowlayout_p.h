@@ -55,8 +55,8 @@ public:
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
 
     QDockWindowLayout *layoutForArea(Qt::DockWindowArea area);
-    void extendDockWindowArea(Qt::DockWindowArea area, QDockWindow *dockwindow,
-                              Qt::Orientation orientation);
+    void addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow,
+                       Qt::Orientation orientation);
     void splitDockWindow(QDockWindow *after, QDockWindow *dockwindow,
                          Qt::Orientation orientation);
     Qt::DockWindowArea dockWindowArea(QDockWindow *dockwindow) const;

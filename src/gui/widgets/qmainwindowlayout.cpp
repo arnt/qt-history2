@@ -350,8 +350,8 @@ QDockWindowLayout *QMainWindowLayout::layoutForArea(Qt::DockWindowArea area)
     return l;
 }
 
-void QMainWindowLayout::extendDockWindowArea(Qt::DockWindowArea area, QDockWindow *dockwindow,
-                                             Qt::Orientation orientation)
+void QMainWindowLayout::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow,
+                                      Qt::Orientation orientation)
 {
     removeRecursive(dockwindow);
 
