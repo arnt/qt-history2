@@ -27,7 +27,7 @@ class MDIWindow: public QMainWindow
 {
     Q_OBJECT
 public:
-    MDIWindow( QWidget* parent, const char* name, int wflags );
+    MDIWindow( QWidget* parent, const char* name, Qt::WFlags wflags );
     ~MDIWindow();
 
     void load( const QString& fn );

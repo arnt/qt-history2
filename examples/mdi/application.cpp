@@ -53,14 +53,13 @@ const char * filePrintText = "Click this button to print the file you "
 "You can also select the Print command from the File menu.";
 
 ApplicationWindow::ApplicationWindow()
-    : QMainWindow( 0, "example application main window", WDestructiveClose )
+    : QMainWindow( 0, "example application main window", Qt::WDestructiveClose )
 {
     int id;
 
     QPixmap openIcon, saveIcon;
 
     fileTools = new QToolBar( this, "file operations" );
-    addToolBar( fileTools, tr( "File Operations" ), DockTop, TRUE );
 
     openIcon = QPixmap( fileopen );
     QToolButton * fileOpen
@@ -91,26 +90,26 @@ ApplicationWindow::ApplicationWindow()
     QPopupMenu * file = new QPopupMenu( this );
     menuBar()->insertItem( "&File", file );
 
-    file->insertItem( "&New", this, SLOT(newDoc()), CTRL+Key_N );
+    file->insertItem( "&New", this, SLOT(newDoc()), tr("Ctrl+N") );
 
     id = file->insertItem( openIcon, "&Open...",
-			   this, SLOT(load()), CTRL+Key_O );
+			   this, SLOT(load()), tr("Ctrl+O") );
     file->setWhatsThis( id, fileOpenText );
 
     id = file->insertItem( saveIcon, "&Save",
-			   this, SLOT(save()), CTRL+Key_S );
+			   this, SLOT(save()), tr("Ctrl+S") );
     file->setWhatsThis( id, fileSaveText );
     id = file->insertItem( "Save &As...", this, SLOT(saveAs()) );
     file->setWhatsThis( id, fileSaveText );
 #ifndef QT_NO_PRINTER
     file->insertSeparator();
     id = file->insertItem( printIcon, "&Print...",
-			   this, SLOT(print()), CTRL+Key_P );
+			   this, SLOT(print()), tr("Ctrl+P") );
     file->setWhatsThis( id, filePrintText );
 #endif
     file->insertSeparator();
-    file->insertItem( "&Close", this, SLOT(closeWindow()), CTRL+Key_W );
-    file->insertItem( "&Quit", qApp, SLOT( closeAllWindows() ), CTRL+Key_Q );
+    file->insertItem( "&Close", this, SLOT(closeWindow()), tr("Ctrl+W") );
+    file->insertItem( "&Quit", qApp, SLOT( closeAllWindows() ), tr("Ctrl+Q") );
 
     windowsMenu = new QPopupMenu( this );
     windowsMenu->setCheckable( TRUE );
@@ -122,10 +121,10 @@ ApplicationWindow::ApplicationWindow()
     QPopupMenu * help = new QPopupMenu( this );
     menuBar()->insertItem( "&Help", help );
 
-    help->insertItem( "&About", this, SLOT(about()), Key_F1);
+    help->insertItem( "&About", this, SLOT(about()), tr("F1"));
     help->insertItem( "About &Qt", this, SLOT(aboutQt()));
     help->insertSeparator();
-    help->insertItem( "What's &This", this, SLOT(whatsThis()), SHIFT+Key_F1);
+    help->insertItem( "What's &This", this, SLOT(whatsThis()), tr("Shift+F1"));
 
     QVBox* vb = new QVBox( this );
     vb->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
@@ -148,7 +147,7 @@ ApplicationWindow::~ApplicationWindow()
 
 MDIWindow* ApplicationWindow::newDoc()
 {
-    MDIWindow* w = new MDIWindow( ws, 0, WDestructiveClose );
+    MDIWindow* w = new MDIWindow( ws, 0, Qt::WDestructiveClose );
     connect( w, SIGNAL( message(const QString&, int) ), statusBar(), SLOT( message(const QString&, int )) );
     w->setWindowTitle("unnamed document");
     w->setWindowIcon( QPixmap("document.xpm") );
@@ -258,7 +257,7 @@ void ApplicationWindow::tileHorizontal()
     int y = 0;
     for ( int i = 0; i < int(windows.count()); ++i ) {
 	QWidget *window = windows.at(i);
-	if ( window->testWState( WState_Maximized ) ) {
+        if ( window->isMaximized() ) {
 	    // prevent flicker
 	    window->hide();
 	    window->showNormal();
@@ -287,8 +286,8 @@ void ApplicationWindow::closeEvent( QCloseEvent *e )
     QMainWindow::closeEvent( e );
 }
 
-MDIWindow::MDIWindow( QWidget* parent, const char* name, int wflags )
-    : QMainWindow( parent, name, (WFlags)wflags )
+MDIWindow::MDIWindow( QWidget* parent, const char* name, Qt::WFlags wflags )
+    : QMainWindow( parent, name, wflags )
 {
     mmovie = 0;
     medit = new QTextEdit( this );
@@ -345,7 +344,7 @@ void MDIWindow::load( const QString& fn )
 #ifdef Q_WS_QWS // temporary speed-test hack
 	qm->setDisplayWidget(tmp);
 #endif
-	tmp->setAttribute(WA_NoSystemBackground, true);
+        tmp->setAttribute(Qt::WA_NoSystemBackground, true);
 	tmp->show();
 	mmovie=qm;
     } else {
@@ -399,7 +398,7 @@ void MDIWindow::saveAs()
 
 void MDIWindow::print( QPrinter* printer)
 {
-#ifndef QT_NO_PRINTER
+#if 0
     int pageNo = 1;
 
     if ( printer->setup(this) ) {		// printer dialog
