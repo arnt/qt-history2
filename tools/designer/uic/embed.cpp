@@ -129,7 +129,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
     out << "#include <qdragobject.h>\n";
     out << "\n";
 
-    QPtrList<EmbedImage> list_image;
+    QList<EmbedImage*> list_image;
     list_image.setAutoDelete( TRUE );
     int image_count = 0;
     for ( it = images.begin(); it != images.end(); ++it ) {
@@ -181,8 +181,10 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    "    bool alpha;\n"
 	    "    const char *name;\n"
 	    "} embed_image_vec[] = {\n";
-	EmbedImage *e = list_image.first();
-	while ( e ) {
+	EmbedImage *e = 0;
+	int i;
+	for (i = 0; i < list_image.count(); ++i) {
+	    e = list_image.at(i);
 	    out << "    { "
 		<< e->width << ", "
 		<< e->height << ", "
@@ -201,7 +203,6 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    else
 		out << "FALSE, ";
 	    out << "\"" << e->name << "\" },\n";
-	    e = list_image.next();
 	}
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
 	out << "    { 0, 0, 0, 0, 0, 0, 0, 0, 0 }\n};\n";

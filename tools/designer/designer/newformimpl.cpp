@@ -378,9 +378,9 @@ void NewForm::projectChanged( const QString &project )
     Project *pro = MainWindow::self->findProject( project );
     if ( !pro )
 	return;
-    QIconViewItem *i;
-    for ( i = allItems.first(); i; i = allItems.next() )
-	( (NewItem*)i )->setProject( pro );
+    int i;
+    for (i = 0; i < allItems.count(); ++i)
+	( (NewItem*)allItems.at(i) )->setProject( pro );
     templateView->setCurrentItem( templateView->firstItem() );
     templateView->arrangeItemsInGrid( TRUE );
 }
@@ -391,7 +391,7 @@ void NewForm::itemChanged( QIconViewItem *item )
     projectCombo->setEnabled( item->rtti() != NewItem::ProjectType );
 }
 
-QPtrList<QIconViewItem> NewForm::allViewItems()
+QList<QIconViewItem*> NewForm::allViewItems()
 {
     return allItems;
 }

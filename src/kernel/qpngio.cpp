@@ -818,7 +818,7 @@ private:
 class QPNGFormatType : public QImageFormatType
 {
     QImageFormat* decoderFor(const uchar* buffer, int length);
-    const char* formatName() const;
+    QByteArray formatName() const;
 };
 
 
@@ -886,9 +886,10 @@ QImageFormat* QPNGFormatType::decoderFor(
     return 0;
 }
 
-const char* QPNGFormatType::formatName() const
+QByteArray QPNGFormatType::formatName() const
 {
-    return "PNG";
+    static const QByteArray nm("PNG");
+    return nm;
 }
 
 #if defined(Q_C_CALLBACKS)

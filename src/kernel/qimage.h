@@ -17,7 +17,7 @@
 
 #ifndef QT_H
 #include "qpixmap.h"
-#include "qstrlist.h"
+#include "qlist.h"
 #include "qstringlist.h"
 #endif // QT_H
 
@@ -157,8 +157,8 @@ public:
 
 #ifndef QT_NO_IMAGEIO
     static const char* imageFormat( const QString &fileName );
-    static QStrList inputFormats();
-    static QStrList outputFormats();
+    static QList<QByteArray> inputFormats();
+    static QList<QByteArray> outputFormats();
 #ifndef QT_NO_STRINGLIST
     static QStringList inputFormatList();
     static QStringList outputFormatList();
@@ -275,10 +275,10 @@ public:
     bool	read();
     bool	write();
 
-    static const char* imageFormat( const QString &fileName );
-    static const char *imageFormat( QIODevice * );
-    static QStrList inputFormats();
-    static QStrList outputFormats();
+    static QByteArray imageFormat( const QString &fileName );
+    static QByteArray imageFormat( QIODevice * );
+    static QList<QByteArray> inputFormats();
+    static QList<QByteArray> outputFormats();
 
     static void defineIOHandler( const char *format,
 				 const char *header,

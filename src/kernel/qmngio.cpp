@@ -172,7 +172,7 @@ private:
 class QMNGFormatType : public QImageFormatType
 {
     QImageFormat* decoderFor(const uchar* buffer, int length);
-    const char* formatName() const;
+    QByteArray formatName() const;
 };
 
 
@@ -249,9 +249,10 @@ QImageFormat* QMNGFormatType::decoderFor( const uchar* buffer, int length )
     return 0;
 }
 
-const char* QMNGFormatType::formatName() const
+QByteArray QMNGFormatType::formatName() const
 {
-    return "MNG";
+    static const QByteArray nm("MNG");
+    return nm;
 }
 
 

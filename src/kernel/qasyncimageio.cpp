@@ -16,7 +16,8 @@
 
 #ifndef QT_NO_ASYNC_IMAGE_IO
 
-#include "qptrlist.h"
+#include "qlist.h"
+#include "qtl.h"
 #include "qgif.h"
 #include <stdlib.h>
 
@@ -252,7 +253,7 @@ private:
 class QGIFFormatType : public QImageFormatType
 {
     QImageFormat* decoderFor(const uchar* buffer, int length);
-    const char* formatName() const;
+    QByteArray formatName() const;
 };
 
 #endif
@@ -271,7 +272,7 @@ public:
     static void ensureFactories()
     {
 	if ( !factories ) {
-	    factories = new QPtrList<QImageFormatType>;
+	    factories = new QList<QImageFormatType*>;
 // See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
 	    gif_decoder_factory = new QGIFFormatType;
@@ -281,7 +282,7 @@ public:
 	}
     }
 
-    static QPtrList<QImageFormatType> * factories;
+    static QList<QImageFormatType*> * factories;
 
 // See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
@@ -292,7 +293,7 @@ public:
     int count;
 };
 
-QPtrList<QImageFormatType> * QImageDecoderPrivate::factories = 0;
+QList<QImageFormatType*> * QImageDecoderPrivate::factories = 0;
 // See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
 QGIFFormatType * QImageDecoderPrivate::gif_decoder_factory = 0;
@@ -362,32 +363,24 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 
 	QImageDecoderPrivate::ensureFactories();
 
-	for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
-	    f && !actual_decoder;
-	    f = QImageDecoderPrivate::factories->next())
-	{
-	    actual_decoder = f->decoderFor(d->header, d->count);
-	}
+	int count = QImageDecoderPrivate::factories->count();
+	for (i = 0; !actual_decoder && i < count; ++i)
+	    actual_decoder = QImageDecoderPrivate::factories->at(i)->decoderFor(d->header, d->count);
 	if ( !actual_decoder && !plugins_loaded) {
 	    qt_init_image_plugins();
 	    plugins_loaded = TRUE;
 
-	    for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
-		f && !actual_decoder;
-		f = QImageDecoderPrivate::factories->next())
-	    {
-		actual_decoder = f->decoderFor(d->header, d->count);
-	    }
+	    for (i = 0; !actual_decoder && i < count; ++i)
+		actual_decoder = QImageDecoderPrivate::factories->at(i)->decoderFor(d->header, d->count);
 	}
 
 	if (!actual_decoder) {
-	    if ( d->count < max_header ) {
+	    if ( d->count < max_header )
 		// not enough info yet
 		return i;
-	    } else {
+	    else
 		// failure - nothing matches max_header bytes
 		return -1;
-	    }
 	}
     }
     return actual_decoder->decode(img, consumer, buffer, length);
@@ -401,53 +394,46 @@ int QImageDecoder::decode(const uchar* buffer, int length)
     supply decodable data to result->decoderFor() before you can begin
     decoding the data.
 */
-QImageFormatType* QImageDecoder::format( const char* name )
+QImageFormatType* QImageDecoder::format( QByteArray name )
 {
     QImageDecoderPrivate::ensureFactories();
     qt_init_image_plugins();
 
-    for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
-	f;
-	f = QImageDecoderPrivate::factories->next())
+    int count = QImageDecoderPrivate::factories->count();
+    for (int i = 0; i < count; ++i)	
     {
-	if ( qstricmp(name,f->formatName())==0 )
-	    return f;
+	if ( qstricmp(name,QImageDecoderPrivate::factories->at(i)->formatName())==0 )
+	    return QImageDecoderPrivate::factories->at(i);
     }
     return 0;
 }
 
 /*!
     Call this function to find the name of the format of the given
-    header. The returned string is statically allocated. The function
-    will look at the first \a length characters in the \a buffer.
+    header. The function will look at the first \a length characters 
+    in the \a buffer.
 
     Returns 0 if the format is not recognized.
 */
-const char* QImageDecoder::formatName(const uchar* buffer, int length)
+QByteArray QImageDecoder::formatName(const uchar* buffer, int length)
 {
     QImageDecoderPrivate::ensureFactories();
 
-    const char* name = 0;
-    for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
-	f && !name;
-	f = QImageDecoderPrivate::factories->next())
-    {
-	QImageFormat *decoder = f->decoderFor(buffer, length);
+    QByteArray name;    
+    for (int i = 0; name.isEmpty() && i < QImageDecoderPrivate::factories->count(); ++i) {
+	QImageFormat *decoder = QImageDecoderPrivate::factories->at(i)->decoderFor(buffer, length);
 	if (decoder) {
-	    name = f->formatName();
+	    name = QImageDecoderPrivate::factories->at(i)->formatName();
 	    delete decoder;
 	}
     }
-    if ( !name && !plugins_loaded) {
+    if ( name.isEmpty() && !plugins_loaded) {
 	qt_init_image_plugins();
 	plugins_loaded = TRUE;
-	for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
-	    f && !name;
-	    f = QImageDecoderPrivate::factories->next())
-	{
-	    QImageFormat *decoder = f->decoderFor(buffer, length);
+	for (int i = 0; name.isEmpty() && i < QImageDecoderPrivate::factories->count(); ++i) {
+	    QImageFormat *decoder = QImageDecoderPrivate::factories->at(i)->decoderFor(buffer, length);
 	    if (decoder) {
-		name = f->formatName();
+		name = QImageDecoderPrivate::factories->at(i)->formatName();
 		delete decoder;
 	    }
 	}
@@ -460,20 +446,18 @@ const char* QImageDecoder::formatName(const uchar* buffer, int length)
     Returns a sorted list of formats for which asynchronous loading is
     supported.
 */
-QStrList QImageDecoder::inputFormats()
+QList<QByteArray> QImageDecoder::inputFormats()
 {
     QImageDecoderPrivate::ensureFactories();
     qt_init_image_plugins();
 
-    QStrList result;
+    QList<QByteArray> result;
 
-    for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
-	 f;
-	 f = QImageDecoderPrivate::factories->next())
-    {
-	if ( !result.contains(  f->formatName() ) ) {
-	    result.inSort(  f->formatName() );
-	}
+    for (int i = 0; i < QImageDecoderPrivate::factories->count(); ++i) {
+	QByteArray ba = QImageDecoderPrivate::factories->at(i)->formatName();
+	if (!result.contains(ba))
+	    result.append(ba);
+	qHeapSort(result);
     }
 
     return result;
@@ -593,10 +577,10 @@ QImageFormat::~QImageFormat()
 */
 
 /*!
-    \fn virtual const char* QImageFormatType::formatName() const
+    \fn virtual QByteArray QImageFormatType::formatName() const
 
     Returns the name of the format supported by decoders from this
-    factory. The string is statically allocated.
+    factory.
 */
 
 /*!
@@ -700,9 +684,10 @@ QImageFormat* QGIFFormatType::decoderFor(
     return 0;
 }
 
-const char* QGIFFormatType::formatName() const
+QByteArray QGIFFormatType::formatName() const
 {
-    return "GIF";
+    static const QByteArray nm("GIF");
+    return nm;
 }
 
 

@@ -136,14 +136,14 @@ public:
 	     const QString& currentProject, const QString &templatePath );
     void insertTemplates( QIconView*, const QString& );
     void accept();
-    QPtrList<QIconViewItem> allViewItems();
+    QList<QIconViewItem*> allViewItems();
 
 protected slots:
     void projectChanged( const QString &project );
     void itemChanged( QIconViewItem *item );
 
 private:
-    QPtrList<QIconViewItem> allItems;
+    QList<QIconViewItem*> allItems;
 
 };
 

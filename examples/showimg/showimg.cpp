@@ -44,12 +44,12 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
     menubar = new QMenuBar(this);
     menubar->setSeparator( QMenuBar::InWindowsStyle );
 
-    QStrList fmt = QImage::outputFormats();
+    QList<QByteArray> fmt = QImage::outputFormats();
     saveimage = new QPopupMenu( menubar );
     savepixmap = new QPopupMenu( menubar );
-    for (const char* f = fmt.first(); f; f = fmt.next()) {
-	saveimage->insertItem( f );
-	savepixmap->insertItem( f );
+    for (int i = 0; i < fmt.count(); ++i) {
+	saveimage->insertItem( fmt.at(i) );
+	savepixmap->insertItem( fmt.at(i) );
     }
     connect( saveimage, SIGNAL(activated(int)), this, SLOT(saveImage(int)) );
     connect( savepixmap, SIGNAL(activated(int)), this, SLOT(savePixmap(int)) );

@@ -1023,16 +1023,14 @@ QByteArray QImageDrag::encodedData(const char* fmt) const
 
     \sa decode()
 */
-bool QImageDrag::canDecode( const QMimeSource* e ) {
-    QStrList fileFormats = QImageIO::inputFormats();
+bool QImageDrag::canDecode( const QMimeSource* e )
+{
+    const QList<QByteArray> fileFormats = QImageIO::inputFormats();
 
-    fileFormats.first();
-    while ( fileFormats.current()) {
-	QByteArray format(fileFormats.current());
-	QByteArray type = "image/" + format.lower();
-	if ( e->provides(type))
+    static const QByteArray img("image/");
+    for (int i = 0; i < fileFormats.count(); ++i) {
+	if ( e->provides(img + fileFormats.at(i).lower()))
 	    return TRUE;
-	fileFormats.next();
     }
 
     return FALSE;
@@ -1054,17 +1052,14 @@ bool QImageDrag::decode( const QMimeSource* e, QImage& img )
     }
 
     QByteArray payload;
-    QStrList fileFormats = QImageIO::inputFormats();
+    QList<QByteArray> fileFormats = QImageIO::inputFormats();
     // PNG is best of all
     if ( fileFormats.remove("PNG") ) // move to front
-	fileFormats.insert(0,"PNG");
-    fileFormats.first();
-    while ( fileFormats.current() ) {
-	QByteArray format(fileFormats.current());
-	fileFormats.next();
-
-       	QByteArray type = "image/" + format.lower();
-	if ( ! e->provides( type ) ) continue;
+	fileFormats.prepend("PNG");
+    for (int i = 0; i < fileFormats.count(); ++i) {
+       	QByteArray type = "image/" + fileFormats.at(i).lower();
+	if ( ! e->provides( type ) ) 
+	    continue;
 	payload = e->encodedData( type );
 	if ( !payload.isEmpty() )
 	    break;
@@ -1231,7 +1226,7 @@ QByteArray QStoredDrag::encodedData(const char* m) const
     Note that URIs are always in escaped UTF8 encoding, as defined by
     the W3C.
 */
-QUriDrag::QUriDrag( QStrList uris,
+QUriDrag::QUriDrag( QList<QByteArray> uris,
 	    QWidget * dragSource, const char * name ) :
     QStoredDrag( "text/uri-list", dragSource, name )
 {
@@ -1258,18 +1253,19 @@ QUriDrag::~QUriDrag()
 /*!
     Changes the list of \a uris to be dragged.
 */
-void QUriDrag::setUris( QStrList uris )
+void QUriDrag::setUris( const QList<QByteArray> &uris )
 {
     QByteArray a;
-    int c=0;
-    for ( const char* s = uris.first(); s; s = uris.next() ) {
-	int l = qstrlen(s);
-	a.resize(c+l+2);
-	memcpy(a.data()+c,s,l);
-	memcpy(a.data()+c+l,"\r\n",2);
-	c+=l+2;
-    }
-    a.resize(c+1);
+    int c = 0;
+    int i;
+    int count = uris.count();
+    for (i = 0; i < count; ++i)
+	c += uris.at(i).size() + 2; //length + \r\n
+    a.reserve(c+1);
+    for (i = 0; i < count; ++i) {
+	a.append(uris.at(i));
+	a.append("\r\n");
+    }    
     a[c] = 0;
     setEncodedData(a);
 }
@@ -1291,12 +1287,11 @@ bool QUriDrag::canDecode( const QMimeSource* e )
     Returns TRUE if \a e contained a valid list of URIs; otherwise
     returns FALSE.
 */
-bool QUriDrag::decode( const QMimeSource* e, QStrList& l )
+bool QUriDrag::decode( const QMimeSource* e, QList<QByteArray>& l )
 {
     QByteArray payload = e->encodedData( "text/uri-list" );
     if ( payload.size() ) {
 	l.clear();
-	l.setAutoDelete(TRUE);
 	int c=0;
 	const char* d = payload;
 	while (c < payload.size() && d[c]) {
@@ -1339,10 +1334,9 @@ static uint htod( int h )
 */
 void QUriDrag::setFileNames( const QStringList & fnames )
 {
-    QStrList uris;
-    for ( QStringList::ConstIterator i = fnames.begin();
-	    i != fnames.end(); ++i )
-	uris.append( localFileToUri(*i) );
+    QList<QByteArray> uris;
+    for ( int i = 0; i < fnames.count(); ++i)
+	uris.append( localFileToUri(fnames.at(i)) );
     setUris( uris );
 }
 
@@ -1354,11 +1348,10 @@ void QUriDrag::setFileNames( const QStringList & fnames )
 */
 void QUriDrag::setUnicodeUris( const QStringList & uuris )
 {
-    QStrList uris;
-    for ( QStringList::ConstIterator i = uuris.begin();
-	    i != uuris.end(); ++i )
-	uris.append( unicodeUriToUri(*i) );
-    setUris( uris );
+    QList<QByteArray> uris;
+    for ( int i = 0; i < uuris.count(); ++i)
+	uris.append( unicodeUriToUri(uuris.at(i)) );
+    setUris( uris );    
 }
 
 /*!
@@ -1537,14 +1530,14 @@ QString QUriDrag::uriToLocalFile(const char* uri)
 */
 bool QUriDrag::decodeLocalFiles( const QMimeSource* e, QStringList& l )
 {
-    QStrList u;
+    QList<QByteArray> u;
     if ( !decode( e, u ) )
 	return FALSE;
 
     l.clear();
-    for (const char* s=u.first(); s; s=u.next()) {
-	QString lf = uriToLocalFile(s);
-	if ( !lf.isNull() )
+    for (int i = 0; i < u.count(); ++i) {
+	QString lf = uriToLocalFile(u.at(i));
+	if ( !lf.isEmpty() )
 	    l.append( lf );
     }
     return TRUE;
@@ -1560,13 +1553,13 @@ bool QUriDrag::decodeLocalFiles( const QMimeSource* e, QStringList& l )
 */
 bool QUriDrag::decodeToUnicodeUris( const QMimeSource* e, QStringList& l )
 {
-    QStrList u;
+    QList<QByteArray> u;
     if ( !decode( e, u ) )
 	return FALSE;
 
     l.clear();
-    for (const char* s=u.first(); s; s=u.next())
-	l.append( uriToUnicodeUri(s) );
+    for (int i = 0; i < u.count(); ++i)
+	l.append( uriToUnicodeUri(u.at(i)) );
 
     return TRUE;
 }

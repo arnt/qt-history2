@@ -15,7 +15,6 @@
 #include <qstringlist.h>
 #include <qpixmap.h>
 #include <qmime.h>
-#include <qstrlist.h>
 #include <qdragobject.h>
 #include <qmessagebox.h>
 #include <qevent.h>
@@ -419,7 +418,7 @@ void QtFileIconViewItem::dropped( QDropEvent *e, const QValueList<QIconDragItem>
 	return;
     }
 
-    QStrList lst;
+    QList<QByteArray> lst;
     QUriDrag::decode( e, lst );
 
     QString str;
@@ -427,7 +426,7 @@ void QtFileIconViewItem::dropped( QDropEvent *e, const QValueList<QIconDragItem>
 	str = "Copy\n\n";
     else
 	str = "Move\n\n";
-    for ( uint i = 0; i < lst.count(); ++i )
+    for ( int i = 0; i < lst.count(); ++i )
 	str += QString( "   %1\n" ).arg( lst.at( i ) );
     str += QString( "\n"
 		    "To\n\n"
@@ -697,7 +696,7 @@ void QtFileIconView::slotDropped( QDropEvent *e, const QValueList<QIconDragItem>
 	return;
     }
 
-    QStrList lst;
+    QList<QByteArray> lst;
     QUriDrag::decode( e, lst );
 
     QString str;
@@ -705,7 +704,7 @@ void QtFileIconView::slotDropped( QDropEvent *e, const QValueList<QIconDragItem>
 	str = "Copy\n\n";
     else
 	str = "Move\n\n";
-    for ( uint i = 0; i < lst.count(); ++i )
+    for ( int i = 0; i < lst.count(); ++i )
 	str += QString( "   %1\n" ).arg( lst.at( i ) );
     str += QString( "\n"
 		    "To\n\n"

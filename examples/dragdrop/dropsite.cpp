@@ -78,11 +78,11 @@ void DropSite::dropEvent( QDropEvent * e )
     setBackgroundColor(lightGray);
 
     // Try to decode to the data you understand...
-    QStrList strings;
+    QList<QByteArray> strings;
     if ( QUriDrag::decode( e, strings ) ) {
 	QString m("Full URLs:\n");
-	for (const char* u=strings.first(); u; u=strings.next())
-	    m = m + "   " + u + '\n';
+	for (int i = 0; i < strings.count(); ++i)
+	    m += "   " + strings.at(i) + "\n";
 	QStringList files;
 	if ( QUriDrag::decodeLocalFiles( e, files ) ) {
 	    m += "Files:\n";

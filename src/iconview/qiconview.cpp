@@ -5560,7 +5560,7 @@ void QIconView::initDragEnter( QDropEvent *e )
 	QIconDragPrivate::decode( e, d->iconDragData );
 	d->isIconDrag = TRUE;
     } else if ( QUriDrag::canDecode( e ) ) {
-	QStrList lst;
+	QList<QByteArray> lst;
 	QUriDrag::decode( e, lst );
 	d->numDragItems = lst.count();
     } else {

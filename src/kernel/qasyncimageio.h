@@ -49,7 +49,7 @@ class Q_EXPORT QImageFormatType {
 public:
     virtual ~QImageFormatType();
     virtual QImageFormat* decoderFor( const uchar* buffer, int length ) = 0;
-    virtual const char* formatName() const = 0;
+    virtual QByteArray formatName() const = 0;
 protected:
     QImageFormatType();
 };
@@ -63,10 +63,10 @@ public:
     const QImage& image() { return img; }
     int decode( const uchar* buffer, int length );
 
-    static const char* formatName( const uchar* buffer, int length );
-    static QImageFormatType* format( const char* name ); // direct use - no decode()
+    static QByteArray formatName( const uchar* buffer, int length );
+    static QImageFormatType* format( QByteArray name ); // direct use - no decode()
 
-    static QStrList inputFormats();
+    static QList<QByteArray> inputFormats();
     static void registerDecoderFactory( QImageFormatType* );
     static void unregisterDecoderFactory( QImageFormatType* );
 

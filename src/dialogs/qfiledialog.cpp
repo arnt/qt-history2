@@ -1364,7 +1364,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 	return;
     }
 
-    QStrList l;
+    QList<QByteArray> l;
     QUriDrag::decode( e, l );
 
     bool move = e->action() == QDropEvent::Move;

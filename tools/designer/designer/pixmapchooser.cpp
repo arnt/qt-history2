@@ -177,7 +177,7 @@ ImageIconProvider::~ImageIconProvider()
 const QPixmap * ImageIconProvider::pixmap( const QFileInfo &fi )
 {
     QString ext = fi.extension().upper();
-    if ( fmts.contains( ext ) ) {
+    if ( fmts.contains( ext.toLocal8Bit() ) ) {
 	return &imagepm;
     } else {
 	return QFileIconProvider::pixmap( fi );

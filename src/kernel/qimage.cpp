@@ -3275,10 +3275,19 @@ const char* QImage::imageFormat( const QString &fileName )
 
     \sa outputFormats() inputFormatList() QImageIO
 */
-QStrList QImage::inputFormats()
+QList<QByteArray> QImage::inputFormats()
 {
     return QImageIO::inputFormats();
 }
+
+static QStringList qToStringList(const QList<QByteArray> arr) 
+{
+    QStringList list;
+    for (int i = 0; i < arr.count(); ++i)
+	list.append(QString(arr.at(i)));
+    return list;
+}
+
 #ifndef QT_NO_STRINGLIST
 /*!
     Returns a list of image formats that are supported for image
@@ -3299,7 +3308,7 @@ QStrList QImage::inputFormats()
 */
 QStringList QImage::inputFormatList()
 {
-    return QImageIO::inputFormats().toStringList();
+    return qToStringList(QImageIO::inputFormats());
 }
 
 
@@ -3322,7 +3331,7 @@ QStringList QImage::inputFormatList()
 */
 QStringList QImage::outputFormatList()
 {
-    return QImageIO::outputFormats().toStringList();
+    return qToStringList(QImageIO::outputFormats());
 }
 #endif //QT_NO_STRINGLIST
 
@@ -3332,7 +3341,7 @@ QStringList QImage::outputFormatList()
 
     \sa inputFormats() outputFormatList() QImageIO
 */
-QStrList QImage::outputFormats()
+QList<QByteArray> QImage::outputFormats()
 {
     return QImageIO::outputFormats();
 }
@@ -4136,12 +4145,13 @@ void QImageIO::setDescription( const QString &description )
     not recognized.
 */
 
-const char* QImageIO::imageFormat( const QString &fileName )
+QByteArray QImageIO::imageFormat( const QString &fileName )
 {
     QFile file( fileName );
+    QByteArray format;
     if ( !file.open(IO_ReadOnly) )
-	return 0;
-    const char* format = imageFormat( &file );
+	return format;
+    format = imageFormat( &file );
     file.close();
     return format;
 }
@@ -4159,7 +4169,7 @@ const char* QImageIO::imageFormat( const QString &fileName )
     \sa QIODevice::at()
 */
 
-const char *QImageIO::imageFormat( QIODevice *d )
+QByteArray QImageIO::imageFormat( QIODevice *d )
 {
     // if you change this change the documentation for defineIOHandler()
     const int buflen = 14;
@@ -4171,12 +4181,12 @@ const char *QImageIO::imageFormat( QIODevice *d )
     int pos = d->at();			// save position
     int rdlen = d->readBlock( buf, buflen );	// read a few bytes
 
+    QByteArray format;
     if ( rdlen != buflen )
-	return 0;
+	return format;
 
     strncpy( buf2, buf, buflen );
 
-    const char* format = 0;
     for ( int n = 0; n < rdlen; n++ )
 	if ( buf[n] == '\0' )
 	    buf[n] = '\001';
@@ -4196,7 +4206,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
     }
     d->at( pos );				// restore position
 #ifndef QT_NO_ASYNC_IMAGE_IO
-    if ( !format )
+    if ( format.isEmpty() )
 	format = QImageDecoder::formatName( (uchar*)buf2, rdlen );
 #endif
 
@@ -4207,9 +4217,9 @@ const char *QImageIO::imageFormat( QIODevice *d )
     Returns a sorted list of image formats that are supported for
     image input.
 */
-QStrList QImageIO::inputFormats()
+QList<QByteArray> QImageIO::inputFormats()
 {
-    QStrList result;
+    QList<QByteArray> result;
 
     qt_init_image_handlers();
     qt_init_image_plugins();
@@ -4225,11 +4235,12 @@ QStrList QImageIO::inputFormats()
 	    && !p->obsolete
 	    && !result.contains(p->format) )
 	{
-	    result.inSort(p->format);
+	    result.append(p->format);
 	}
 	p = imageHandlers->next();
     }
-
+    qHeapSort(result);
+    
     return result;
 }
 
@@ -4237,9 +4248,9 @@ QStrList QImageIO::inputFormats()
     Returns a sorted list of image formats that are supported for
     image output.
 */
-QStrList QImageIO::outputFormats()
+QList<QByteArray> QImageIO::outputFormats()
 {
-    QStrList result;
+    QList<QByteArray> result;
 
     qt_init_image_handlers();
     qt_init_image_plugins();
@@ -4253,7 +4264,7 @@ QStrList QImageIO::outputFormats()
 	    && !p->obsolete
 	    && !result.contains(p->format) )
 	{
-	    result.inSort(p->format);
+	    result.append(p->format);
 	}
 	p = imageHandlers->next();
     }

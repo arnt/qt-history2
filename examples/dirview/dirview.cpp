@@ -394,7 +394,7 @@ void DirectoryView::contentsDropEvent( QDropEvent *e )
     QListViewItem *item = itemAt( contentsToViewport(e->pos()) );
     if ( item ) {
 
-	QStrList lst;
+	QList<QByteArray> lst;
 
 	QUriDrag::decode( e, lst );
 
@@ -420,7 +420,7 @@ void DirectoryView::contentsDropEvent( QDropEvent *e )
 
 	e->accept();
 
-	for ( uint i = 0; i < lst.count(); ++i ) {
+	for ( int i = 0; i < lst.count(); ++i ) {
 	    QString filename = lst.at( i );
 	    str += filename + "\n";
 	}
