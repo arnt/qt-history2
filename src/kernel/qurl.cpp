@@ -1003,7 +1003,8 @@ QString QUrl::dirPath() const
 	return QString::null;
     
     QString s = path();
-    s += "/";
+    // ### Why add a slash to the path before calling dirPath()??!
+    // s += "/";
     s = QFileInfo( s ).dirPath();
     if ( s[ (int)s.length() - 1 ] != '/' )
 	s += "/";
