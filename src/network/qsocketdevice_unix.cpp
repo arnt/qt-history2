@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#34 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#35 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -215,7 +215,7 @@
 // 	Which feature-test macros trigger the infamous size_t?
 // 	Is the last sentence true of Solaris only or are there
 // 	many vendors shipping implementations with default size_t?
-// 	QNX And UnixWare 7 use size_t by default for example.
+// 	At least QNX and UnixWare 7 use size_t by default.
 // NOTE2:
 // 	Could it be that some platforms have POSIX.1g Draft 6.6 (March 1997)
 // 	overload XPG4v2 thus requesting socklen_t?
@@ -235,7 +235,7 @@
 #    define QT_SOCKARG_INT
 #  endif
 #elif defined(Q_OS_UNIXWARE7)
-// UnixWare 7 supports infamous XPG4v2 sockets.
+// AIX 4.2 is XPG4v2 compliant and supports infamous XPG4v2 sockets.
 #  define SOCKLEN_T size_t
 #  define QT_SOCKARG_SIZE_T
 #elif defined(Q_OS_QNX)
