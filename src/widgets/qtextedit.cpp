@@ -2172,6 +2172,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	doc->setSelectionEnd( QTextDocument::Standard, c2 );
 	*cursor = c2;
 	repaintChanged();
+	mousePressed = TRUE;
 	return;
     }
 
