@@ -96,6 +96,7 @@ static bool createDir(QString path)
 // buffered streaming
 class QMakeBufferedDevice : public QBuffer
 {
+    bool opened;
     int used, maximum;
     QIODevice *outDevice;
 public:
@@ -106,16 +107,20 @@ public:
         used = 0;
         outDevice = device;
         open(QIODevice::WriteOnly);
+        opened = outDevice->isOpen();
     }
     ~QMakeBufferedDevice()
     {
-        if(!outDevice->isOpen())
+        if(opened && !outDevice->isOpen())
             qDebug("Potential problem! Must use QMakeOutTextStream to close your device!");
         if(used)
             outDevice->write(buffer().constData(), used);
     }
     qint64 writeData(const char *data, qint64 len)
     {
+        if (!opened)
+            return 0;
+
         qint64 ret = 0;
         if(len > maximum) {
             outDevice->write(buffer().constData(), used);
