@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/bin/syncqt#9 $
+# $Id: //depot/qt/main/bin/syncqt#10 $
 #
 # Synchronizes Qt header files - internal Troll Tech tool.
 #   - Creates symlinks on Unix.
@@ -56,7 +56,7 @@ if ( check_unix() ) {
 	$h =~ s-.*/--g;
 	if ( ! -l $h ) {
 	    symlink("../" . $f, $h);
-	    print "symlink created for src/$f\n";
+	    print "symlink created for $f\n";
 	}
     }
 } else {
