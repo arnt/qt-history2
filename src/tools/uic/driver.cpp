@@ -152,6 +152,16 @@ QString Driver::headerFileName(const QString &fileName)
     return info.baseName().toUpper() + QLatin1String("_H");
 }
 
+bool Driver::printDependencies(const QString &fileName)
+{
+    Q_ASSERT(m_option.dependencies == true);
+
+    m_option.inputFile = fileName;
+
+    Uic tool(this);
+    return tool.printDependencies();
+}
+
 bool Driver::uic(const QString &fileName, DomUI *ui, QTextStream *out)
 {
     m_option.inputFile = fileName;

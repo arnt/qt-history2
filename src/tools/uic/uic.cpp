@@ -50,6 +50,54 @@ Uic::~Uic()
 {
 }
 
+bool Uic::printDependencies()
+{
+    QString fileName = opt.inputFile;
+
+    QFile f;
+    if (fileName.isEmpty())
+        f.open(QIODevice::ReadOnly, stdin);
+    else {
+        f.setFileName(fileName);
+        if (!f.open(QIODevice::ReadOnly))
+            return false;
+    }
+
+    QDomDocument doc;                        // ### generalize. share more code with the other tools!
+    if (!doc.setContent(&f))
+        return false;
+
+    QDomElement root = doc.firstChild().toElement();
+    DomUI *ui = new DomUI();
+    ui->read(root);
+
+    if (DomIncludes *includes = ui->elementIncludes()) {
+        foreach (DomInclude *incl, includes->elementInclude()) {
+            QString file = incl->text();
+            if (file.isEmpty())
+                continue;
+
+            fprintf(stdout, "%s\n", file.toLocal8Bit().constData());
+        }
+    }
+
+    if (DomCustomWidgets *customWidgets = ui->elementCustomWidgets()) {
+        foreach (DomCustomWidget *customWidget, customWidgets->elementCustomWidget()) {
+            if (DomHeader *header = customWidget->elementHeader()) {
+                QString file = header->text();
+                if (file.isEmpty())
+                    continue;
+
+                fprintf(stdout, "%s\n", file.toLocal8Bit().constData());
+            }
+        }
+    }
+
+    delete ui;
+
+    return true;
+}
+
 void Uic::writeCopyrightHeader(DomUI *ui)
 {
     QString comment = ui->elementComment();

@@ -41,6 +41,8 @@ public:
     Uic(Driver *driver);
     ~Uic();
 
+    bool printDependencies();
+
     inline Driver *driver() const
     { return drv; }
 
@@ -70,7 +72,7 @@ public:
 
     bool write(QIODevice *in);
     bool write(DomUI *ui);
-    
+
     bool isMainWindow(const QString &className) const;
     bool isToolBar(const QString &className) const;
     bool isStatusBar(const QString &className) const;

@@ -23,6 +23,7 @@ struct Option
     unsigned int generateImplemetation : 1;
     unsigned int generateNamespace : 1;
     unsigned int autoConnection : 1;
+    unsigned int dependencies : 1;
 
     QString inputFile;
     QString outputFile;
@@ -36,7 +37,8 @@ struct Option
           copyrightHeader(1),
           generateImplemetation(0),
           generateNamespace(1),
-          autoConnection(1)
+          autoConnection(1),
+          dependencies(0)
     { indent.fill(QLatin1Char(' '), 4); }
 };
 

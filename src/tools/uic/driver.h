@@ -35,6 +35,7 @@ public:
     virtual ~Driver();
 
     // tools
+    bool printDependencies(const QString &fileName);
     bool uic(const QString &fileName, QTextStream *output = 0);
     bool uic(const QString &fileName, DomUI *ui, QTextStream *output = 0);
 

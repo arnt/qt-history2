@@ -31,6 +31,7 @@ void showHelp(const char *appName)
     fprintf(stderr, "Usage: %s [OPTION]... <UIFILE>\n\n"
             "  -h, -help                 display this help and exit\n"
             "  -v, -version              display version\n"
+            "  -d, -dependencies         display the dependencies\n"
             "  -o <file>                 place the output into <file>\n"
             "  -tr <func>                use func() for i18n\n"
             "  -3 /path/to/uic3          change the path of uic3 [%s/uic3]\n"
@@ -55,6 +56,9 @@ int main(int argc, char *argv[])
         if (opt == QLatin1String("-h") || opt == QLatin1String("-help")) {
             showHelp(argv[0]);
             return 0;
+        } else if (opt == QLatin1String("-d") || opt == QLatin1String("-dependencies")) {
+            driver.option().dependencies = true;
+            break;
         } else if (opt == QLatin1String("-v") || opt == QLatin1String("-version")) {
             fprintf(stderr, "Qt user interface compiler %s.\n", QT_VERSION_STR);
             return 0;
@@ -91,6 +95,16 @@ int main(int argc, char *argv[])
         ++arg;
     }
 
+    QString inputFile;
+    if (fileName)
+        inputFile = QString::fromUtf8(fileName);
+    else
+        driver.option().headerProtection = false;
+
+    if (driver.option().dependencies) {
+        return !driver.printDependencies(inputFile);
+    }
+
     QTextStream *out = 0;
     QFile f;
     if (driver.option().outputFile.size()) {
@@ -101,12 +115,6 @@ int main(int argc, char *argv[])
         }
         out = new QTextStream(&f);
     }
-
-    QString inputFile;
-    if (fileName)
-        inputFile = QString::fromUtf8(fileName);
-    else
-        driver.option().headerProtection = false;
 
     bool rtn = driver.uic(inputFile, out);
     if (!rtn)
