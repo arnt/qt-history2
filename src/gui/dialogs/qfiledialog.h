@@ -158,34 +158,33 @@ protected:
     void done(int result);
     void accept();
 
-protected slots:
-    void back();
-    void up();
-    void mkdir();
-    void showList();
-    void showDetail();
-    void enterSubdir(const QModelIndex &index);
-    void keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
-    void deletePressed(const QModelIndex &index);
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
-    void fileNameChanged(const QString &text);
-    void lookInChanged(const QString &text);
-    void useFilter(const QString &filter);
-    void setCurrentDir(const QString &path);
-    void populateContextMenu(QMenu *menu, const QModelIndex &index) const;
-    void headerPressed(int section);
-    void renameCurrent();
-    void deleteCurrent();
-    void reload();
-    void lookIn();
-    void sortByName();
-    void sortBySize();
-    void sortByDate();
-    void setUnsorted();
-    void showHidden();
-
 private:
     Q_DECLARE_PRIVATE(QFileDialog)
+    Q_DISABLE_COPY(QFileDialog)
+    Q_PRIVATE_SLOT(d, void backClicked())
+    Q_PRIVATE_SLOT(d, void upClicked())
+    Q_PRIVATE_SLOT(d, void mkdirClicked())
+    Q_PRIVATE_SLOT(d, void showListClicked())
+    Q_PRIVATE_SLOT(d, void showDetailClicked())
+    Q_PRIVATE_SLOT(d, void enterSubdir(const QModelIndex &index))
+    Q_PRIVATE_SLOT(d, void keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers))
+    Q_PRIVATE_SLOT(d, void deletePressed(const QModelIndex &index))
+    Q_PRIVATE_SLOT(d, void currentChanged(const QModelIndex &current, const QModelIndex &previous))
+    Q_PRIVATE_SLOT(d, void fileNameChanged(const QString &text))
+    Q_PRIVATE_SLOT(d, void lookInChanged(const QString &text))
+    Q_PRIVATE_SLOT(d, void useFilter(const QString &filter))
+    Q_PRIVATE_SLOT(d, void setCurrentDir(const QString &path))
+    Q_PRIVATE_SLOT(d, void populateContextMenu(QMenu *menu, const QModelIndex &index))
+    Q_PRIVATE_SLOT(d, void headerPressed(int section))
+    Q_PRIVATE_SLOT(d, void renameCurrent())
+    Q_PRIVATE_SLOT(d, void deleteCurrent())
+    Q_PRIVATE_SLOT(d, void reload())
+    Q_PRIVATE_SLOT(d, void lookInReturnPressed())
+    Q_PRIVATE_SLOT(d, void sortByName())
+    Q_PRIVATE_SLOT(d, void sortBySize())
+    Q_PRIVATE_SLOT(d, void sortByDate())
+    Q_PRIVATE_SLOT(d, void setUnsorted())
+    Q_PRIVATE_SLOT(d, void showHidden())
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QFileDialog::Options);
