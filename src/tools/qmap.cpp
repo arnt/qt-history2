@@ -37,13 +37,9 @@
 
 #include "qmap.h"
 
-typedef QMapNodeBase* NodePtr;
-typedef QMapNodeBase Node;
-
-
-void QMapPrivateBase::rotateLeft( NodePtr x, NodePtr& root)
+static void rotateLeft( QMapData::Node * x, QMapData::Node *& root)
 {
-    NodePtr y = x->right;
+    register QMapData::Node * y = x->right;
     x->right = y->left;
     if (y->left !=0)
 	y->left->parent = x;
@@ -59,9 +55,9 @@ void QMapPrivateBase::rotateLeft( NodePtr x, NodePtr& root)
 }
 
 
-void QMapPrivateBase::rotateRight( NodePtr x, NodePtr& root )
+static void rotateRight( QMapData::Node * x, QMapData::Node *& root )
 {
-    NodePtr y = x->left;
+    register QMapData::Node * y = x->left;
     x->left = y->right;
     if (y->right != 0)
 	y->right->parent = x;
@@ -77,55 +73,58 @@ void QMapPrivateBase::rotateRight( NodePtr x, NodePtr& root )
 }
 
 
-void QMapPrivateBase::rebalance( NodePtr x, NodePtr& root)
+void QMapData::rebalance(Node * x)
 {
-    x->color = Node::Red;
-    while ( x != root && x->parent->color == Node::Red ) {
+    Node *&root = header.parent;
+    x->color = Red;
+    while ( x != root && x->parent->color == Red ) {
 	if ( x->parent == x->parent->parent->left ) {
-	    NodePtr y = x->parent->parent->right;
-	    if (y && y->color == Node::Red) {
-		x->parent->color = Node::Black;
-		y->color = Node::Black;
-		x->parent->parent->color = Node::Red;
+	    Node * y = x->parent->parent->right;
+	    if (y && y->color == Red) {
+		x->parent->color = Black;
+		y->color = Black;
+		x->parent->parent->color = Red;
 		x = x->parent->parent;
 	    } else {
 		if (x == x->parent->right) {
 		    x = x->parent;
 		    rotateLeft( x, root );
 		}
-		x->parent->color = Node::Black;
-		x->parent->parent->color = Node::Red;
+		x->parent->color = Black;
+		x->parent->parent->color = Red;
 		rotateRight (x->parent->parent, root );
 	    }
 	} else {
-	    NodePtr y = x->parent->parent->left;
-	    if ( y && y->color == Node::Red ) {
-		x->parent->color = Node::Black;
-		y->color = Node::Black;
-		x->parent->parent->color = Node::Red;
+	    Node * y = x->parent->parent->left;
+	    if ( y && y->color == Red ) {
+		x->parent->color = Black;
+		y->color = Black;
+		x->parent->parent->color = Red;
 		x = x->parent->parent;
 	    } else {
-		if (x == x->parent->left) { 
+		if (x == x->parent->left) {
 		    x = x->parent;
 		    rotateRight( x, root );
 		}
-		x->parent->color = Node::Black;
-		x->parent->parent->color = Node::Red;
+		x->parent->color = Black;
+		x->parent->parent->color = Red;
 		rotateLeft( x->parent->parent, root );
 	    }
 	}
     }
-    root->color = Node::Black;
+    root->color = Black;
 }
 
 
-NodePtr QMapPrivateBase::removeAndRebalance( NodePtr z, NodePtr& root,
-					     NodePtr& leftmost,
-					     NodePtr& rightmost )
+QMapData::Node * QMapData::removeAndRebalance(Node * z)
 {
-    NodePtr y = z;
-    NodePtr x;
-    NodePtr x_parent;
+    Node *& root = header.parent;
+    Node *& leftmost = header.left;
+    Node *& rightmost = header.right;
+
+    Node * y = z;
+    Node * x;
+    Node * x_parent;
     if (y->left == 0) {
 	x = y->right;
     } else {
@@ -140,7 +139,7 @@ NodePtr QMapPrivateBase::removeAndRebalance( NodePtr z, NodePtr& root,
 	    }
     }
     if (y != z) {
-	z->left->parent = y; 
+	z->left->parent = y;
 	y->left = z->left;
 	if (y != z->right) {
 	    x_parent = y->parent;
@@ -150,24 +149,24 @@ NodePtr QMapPrivateBase::removeAndRebalance( NodePtr z, NodePtr& root,
 	    y->right = z->right;
 	    z->right->parent = y;
 	} else {
-	    x_parent = y;  
+	    x_parent = y;
 	}
 	if (root == z)
 	    root = y;
 	else if (z->parent->left == z)
 	    z->parent->left = y;
-	else 
+	else
 	    z->parent->right = y;
 	y->parent = z->parent;
 	// Swap the colors
-	Node::Color c = y->color;
+	Color c = y->color;
 	y->color = z->color;
 	z->color = c;
 	y = z;
-    } else {       
+    } else {
 	x_parent = y->parent;
 	if (x)
-	    x->parent = y->parent;   
+	    x->parent = y->parent;
 	if (root == z)
 	    root = x;
 	else if (z->parent->left == z)
@@ -178,77 +177,77 @@ NodePtr QMapPrivateBase::removeAndRebalance( NodePtr z, NodePtr& root,
 	    if (z->right == 0)
 		leftmost = z->parent;
 	    else
-		leftmost = x->minimum();
+		leftmost = minimum(x);
 	}
 	if (rightmost == z) {
 	    if (z->left == 0)
-		rightmost = z->parent;  
+		rightmost = z->parent;
 	    else
-		rightmost = x->maximum();
+		rightmost = maximum(x);
 	}
     }
-    if (y->color != Node::Red) { 
-	while (x != root && (x == 0 || x->color == Node::Black)) {
+    if (y->color != Red) {
+	while (x != root && (x == 0 || x->color == Black)) {
 	    if (x == x_parent->left) {
-		NodePtr w = x_parent->right;
-		if (w->color == Node::Red) {
-		    w->color = Node::Black;
-		    x_parent->color = Node::Red;
+		Node * w = x_parent->right;
+		if (w->color == Red) {
+		    w->color = Black;
+		    x_parent->color = Red;
 		    rotateLeft(x_parent, root);
 		    w = x_parent->right;
 		}
-		if ((w->left == 0 || w->left->color == Node::Black) &&
-		    (w->right == 0 || w->right->color == Node::Black)) {
-		    w->color = Node::Red;
+		if ((w->left == 0 || w->left->color == Black) &&
+		    (w->right == 0 || w->right->color == Black)) {
+		    w->color = Red;
 		    x = x_parent;
 		    x_parent = x_parent->parent;
 		} else {
-		    if (w->right == 0 || w->right->color == Node::Black) {
+		    if (w->right == 0 || w->right->color == Black) {
 			if (w->left)
-			    w->left->color = Node::Black;
-			w->color = Node::Red;
+			    w->left->color = Black;
+			w->color = Red;
 			rotateRight(w, root);
 			w = x_parent->right;
 		    }
 		    w->color = x_parent->color;
-		    x_parent->color = Node::Black;
+		    x_parent->color = Black;
 		    if (w->right)
-			w->right->color = Node::Black;
+			w->right->color = Black;
 		    rotateLeft(x_parent, root);
 		    break;
 		}
 	    } else {
-		NodePtr w = x_parent->left;
-		if (w->color == Node::Red) {
-		    w->color = Node::Black;
-		    x_parent->color = Node::Red;
+		Node * w = x_parent->left;
+		if (w->color == Red) {
+		    w->color = Black;
+		    x_parent->color = Red;
 		    rotateRight(x_parent, root);
 		    w = x_parent->left;
 		}
-		if ((w->right == 0 || w->right->color == Node::Black) &&
-		    (w->left == 0 || w->left->color == Node::Black)) {
-		    w->color = Node::Red;
+		if ((w->right == 0 || w->right->color == Black) &&
+		    (w->left == 0 || w->left->color == Black)) {
+		    w->color = Red;
 		    x = x_parent;
 		    x_parent = x_parent->parent;
 		} else {
-		    if (w->left == 0 || w->left->color == Node::Black) {
-			if (w->right) 
-			    w->right->color = Node::Black;
-			w->color = Node::Red;
+		    if (w->left == 0 || w->left->color == Black) {
+			if (w->right)
+			    w->right->color = Black;
+			w->color = Red;
 			rotateLeft(w, root);
 			w = x_parent->left;
 		    }
 		    w->color = x_parent->color;
-		    x_parent->color = Node::Black;
+		    x_parent->color = Black;
 		    if (w->left)
-			w->left->color = Node::Black;
+			w->left->color = Black;
 		    rotateRight(x_parent, root);
 		    break;
 		}
 	    }
 	}
 	if (x)
-	    x->color = Node::Black;
+	    x->color = Black;
     }
     return y;
 }

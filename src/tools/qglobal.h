@@ -1062,13 +1062,6 @@ typedef bool QBool;
 #endif // QT_NO_QBOOL
 
 
-void *qMalloc(size_t size);
-void qFree(void *ptr);
-void *qRealloc(void *ptr, size_t size);
-int qRand(void);
-void *qMemCopy(void *dest, const void *src, size_t n);
-
-
 // compilers which follow outdated template instantiation rules
 // require a class to have a comparison operator to exist when
 // a QValueList of this type is instantiated. It's not actually
@@ -1085,7 +1078,80 @@ void *qMemCopy(void *dest, const void *src, size_t n);
 #  define Q_DUMMY_COMPARISON_OPERATOR(C)
 #endif
 
-#endif // QGLOBAL_H
+
+
+/*
+  Q_TYPEINFO bitflags:
+   0: COMPLEX/PRIMITIVE
+   1: STATIC/MOVABLE
+   2: LARGE/SMALL
+   3: POINTER
+*/
+#define Q_TYPEINFO_DECLARE(T,v) \
+ inline char qTypeInfo(T &) { return v; }
+
+template <class T> Q_TYPEINFO_DECLARE(T, 1|2|4)
+
+#define Q_TYPEINFO_DECLARE_PRIMITIVE(T) \
+ Q_TYPEINFO_DECLARE(T,(sizeof(T)<=sizeof(void*)?0:4))
+#define Q_TYPEINFO_DECLARE_MOVABLE(T) \
+ Q_TYPEINFO_DECLARE(T,1|(sizeof(T)<=sizeof(void*)?0:4))
+Q_TYPEINFO_DECLARE_PRIMITIVE(int)
+Q_TYPEINFO_DECLARE_PRIMITIVE(short)
+Q_TYPEINFO_DECLARE_PRIMITIVE(char)
+Q_TYPEINFO_DECLARE_PRIMITIVE(bool)
+Q_TYPEINFO_DECLARE_PRIMITIVE(float)
+Q_TYPEINFO_DECLARE_PRIMITIVE(double)
+
+#ifdef QT_NO_GENERIC_POINTER_TEMPLATES
+
+template <class T> inline bool qIsPointer(T &) { return false; }
+#define Q_TYPEINFO_DECLARE_POINTER(T) \
+ inline void qDelete(T &t) { delete t; } \
+ inline bool qIsPointer(T &) { return true; }
+
+#define Q_TYPEINFO_COMPLEX(T) ((qTypeInfo(*(T*)0)&3)!=0 && !qIsPointer(*(T*)0))
+#define Q_TYPEINFO_STATIC(T) ((qTypeInfo(*(T*)0)&2)!=0 && !qIsPointer(*(T*)0))
+#define Q_TYPEINFO_LARGE(T) ((qTypeInfo(*(T*)0)&4)!=0 && !qIsPointer(*(T*)0))
+#define Q_TYPEINFO_LARGE_OR_STATIC(T) ((qTypeInfo(*(T*)0)&6)!=0 && !qIsPointer(*(T*)0))
+#define Q_TYPEINFO_POINTER(T) qIsPointer(*(T*)0)
+
+template <class T> inline void qInit(T &t)
+{ if (sizeof(T) == sizeof(void*)) { void* v = 0; t = * new (&v) T; } }
+template <class T> inline void qDelete(T &) {}
+
+#else // GENERIC_POINTER_TEMPLATES
+
+template <class T> Q_TYPEINFO_DECLARE(T*, 8)
+#define Q_TYPEINFO_COMPLEX(T) ((qTypeInfo(*(T*)0)&3)!=0)
+#define Q_TYPEINFO_STATIC(T) ((qTypeInfo(*(T*)0)&2)!=0)
+#define Q_TYPEINFO_LARGE(T) ((qTypeInfo(*(T*)0)&4)!=0)
+#define Q_TYPEINFO_LARGE_OR_STATIC(T) ((qTypeInfo(*(T*)0)&6)!=0)
+#define Q_TYPEINFO_POINTER(T) ((qTypeInfo(*(T*)0)&8)!=0)
+#define Q_TYPEINFO_DECLARE_POINTER(T)
+
+template <class T> inline void qInit(T &) {}
+template <class T> inline void qInit(T* &t) { t = 0; }
+template <class T> inline void qDelete(T &) {}
+template <class T> inline void qDelete(T* &t){ delete t; }
+
+#endif // QT_NO_GENERIC_POINTER_TEMPLATES
+
+template <class T> inline bool qIsDetached(T &) { return true; }
+#define Q_TYPEINFO_DECLARE_SHARED(T) \
+ inline bool qIsDetached(T &t) {  return t.isDetached(); }
+
+#define Q_DECLARE_SHARED_MOVABLE(T) \
+ Q_TYPEINFO_DECLARE_MOVABLE(T) \
+ Q_TYPEINFO_DECLARE_SHARED(T)
+
+
+void *qMalloc(size_t size);
+void qFree(void *ptr);
+void *qRealloc(void *ptr, size_t size);
+int qRand(void);
+void *qMemCopy(void *dest, const void *src, size_t n);
+
 
 //
 // Avoid some particularly useless warnings from some stupid compilers.
@@ -1119,3 +1185,7 @@ void *qMemCopy(void *dest, const void *src, size_t n);
 #    pragma warn -sig
 #  endif
 #endif
+
+
+#endif // QGLOBAL_H
+
