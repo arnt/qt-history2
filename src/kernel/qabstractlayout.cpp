@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#24 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -917,8 +917,7 @@ void QLayout::invalidate()
   describing the horizontal and vertical resizing policy best used when
   laying out the widget.
 
-  Only \link QSizePolicy::QSizePolicy(SizeType,SizeType) the constructor
-  \endlink is of interest in most applications.
+  Only the constructor is of interest in most applications.
 */
 
 /*!
