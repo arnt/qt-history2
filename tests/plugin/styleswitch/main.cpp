@@ -12,7 +12,7 @@ class TestComponent : public QObject,
 		      public ActionInterface, 
 		      public QLibraryInterface, 
 		      public QComponentServerInterface,
-		      public QComponentInterface,
+		      public QComponentInformationInterface,
 		      public QComponentFactoryInterface
 {
     Q_OBJECT
