@@ -1133,8 +1133,8 @@ void QWidget::setAcceptDrops( bool on )
 void QWidget::setMask( const QRegion &region )
 {
     dirtyClippedRegion(TRUE);
-    if ( isVisible() && !isTopLevel() )
-	update();
+    if ( isVisible() && parentWidget() && !isTopLevel() )
+	paint_children( parentWidget(),geometry() );
 
     createExtra();
     if ( region.isNull() && extra->mask.isNull() )
