@@ -7,7 +7,7 @@
 #############################################################
 ######################## Qt/Embedded ########################
 #############################################################
-@CD @Heading { How to Install Qt"/"Embedded }
+@CD @Heading { How to Install Qt{@Sup @Register} on Embedded Linux }
 You may need to be root, depending on the permissions of the directories where
 you choose to install Qt.  
 @NumberedList gap { 0.9v }
@@ -58,12 +58,12 @@ If you wish to customize how you install Qt"/"Embedded or if you encounter
 problems with installing Qt"/"Embedded then refer to the @F INSTALL file in
 @F{$QTDIR} for more information.
 @CD { That's all!  Qt"/"Embedded and Qt"/"Embedded's tools are now installed. }
-@NP
+
 #############################################################
 ######################## Qt/Mac OS X ########################
 #############################################################
-@CD @Heading { How to Install Qt for Mac OS X }
-@NumberedList gap { 0.75v }
+@CD @Heading { How to Install Qt{@Sup @Register} for Mac OS{@Sup @Register} X }
+@NumberedList gap { 0.6v }
 @LI { Run the @F{qt-mac-commercial-3.3.2} program. }
 @LI { Choose the folder where you wish to install Qt and enter your
 license key as it appears on the CD cover. }
@@ -110,15 +110,19 @@ symbolic links:
 ln -s $QTDIR/lib/libqt.dylib.3.3.2 /usr/lib
 ln -s $QTDIR/lib/libqui.dylib.1.0.0 /usr/lib}
 }
-@EndList
+@RawEndList
+//0c
 If you wish to customize how you install Qt or if you encounter
 problems with installing Qt then refer to the @F INSTALL file in
 @F{$QTDIR} for more information.
-@CD { That's all!  Qt and Qt's tools are now installed. }
+//1v
+@Centre { That's all!  Qt and Qt's tools are now installed. }
+//1v
+@Centre -1p @Font {Mac OS is a registered trademark of Apple Computer, Inc.}
 #############################################################
 ######################## Qt/Windows #########################
 #############################################################
-@CD @Heading { How to Install Qt for Windows }
+@CD @Heading { How to Install Qt{@Sup @Register} for Windows{@Sup @Register} }
 @I { If you intend building the SQL drivers, please update the
 environment variable @F{%LIB%} to include the path to your SQL libraries
 @Underline before starting the installation. }
@@ -143,9 +147,9 @@ environment variable @F QTDIR should be set or modified.  If checked,
 If @F QTDIR is already set, (if Qt is already installed, which may be
 another version) this checkbox will be cleared by default, to avoid
 accidental modifications to your setup.  If you have chosen to use
-Microsoft Visual Studio then you must also specify the path to the
-installation of Microsoft Visual Studio. This allows Qt to integrate
-itself into the development environment. }
+Microsoft Visual Studio{@Sup @Register} then you must also specify the
+path to the installation of Microsoft Visual Studio. This allows Qt to
+integrate itself into the development environment. }
 @LI { Configure the library. 
 @PP
 You can choose several options and configurations for building the Qt
@@ -171,11 +175,15 @@ If you wish to customize how you install Qt or if you encounter
 problems with installing Qt then refer to the @F INSTALL file in
 @F{%QTDIR%} for more information.
 @CD { That's all! Qt and Qt's tools are now installed. }
-@NP
+//1v
+@Centre -1p @Font clines @Break{
+Qt is a registered trademark of Trolltech AS. 
+Windows and Visual Studio are registered trademarks of Microsoft Corporation.
+}
 #############################################################
 ######################## Qt/X11 #############################
 #############################################################
-@CD @Heading { How to Install Qt for X11 }
+@CD @Heading { How to Install Qt{@Sup @Register} for X11 }
 You may need to be root, depending on the permissions of the
 directories where you choose to install Qt.  
 @NumberedList

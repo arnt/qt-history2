@@ -1,10 +1,12 @@
 @Include { welcome-flyer.lout }
 @Doc @Text @Begin
 @Place 
-    x { right - 4.0c }
+    x { right - 5.6c }
     y { foot + 1c }
-{ darkgrey @Colour 9p @Font WEL300505NO-03"/"03 }
-@CD @Heading { Welcome to Qt! }
+{ darkgrey @Colour 9p @Font 1f @High WEL300505NO-03"/"03 }
+@Place x{left + 2.5c} y{foot + 1c}
+{-1.5p @Font{Trolltech, Qt and the Qt logo are registered trademarks of Trolltech AS.}}
+@CD @Heading { Welcome to Qt{@Sup @Register}! }
 Congratulations! If you're new to Qt then you are going to be amazed by how
 much easy-to-use power it gives you. And if you're an experienced Qt user,
 this version of Qt gives you what you'd expect: more ease-of-use, more power,
