@@ -460,16 +460,16 @@ public:
 	SectionIncludeTrailingSeps = 0x04,
 	SectionCaseInsensitiveSeps = 0x08
     };
-    QString     section( QChar sep, int start, int count = 1, int flags = SectionSkipEmpty ) const;
-    QString     section( char sep, int start, int count = 1, int flags = SectionSkipEmpty ) const
+    QString     section( QChar sep, int start, int count = 1, int flags = SectionDefault ) const;
+    QString     section( char sep, int start, int count = 1, int flags = SectionDefault ) const
 	          { return section(QChar(sep), start, count, flags); }
 #ifndef QT_NO_CAST_ASCII
-    QString      section( const char *substr, int start, int count = 1, int flags = SectionSkipEmpty ) const
+    QString      section( const char *substr, int start, int count = 1, int flags = SectionDefault ) const
 	          { return section(QString(substr), start, count, flags); }
 #endif
-    QString     section( QString substr, int start, int count = 1, int flags = SectionSkipEmpty ) const;
+    QString     section( QString substr, int start, int count = 1, int flags = SectionDefault ) const;
 #ifndef QT_NO_REGEXP
-    QString     section( const QRegExp &regxp, int start, int count = 1, int flags = SectionSkipEmpty ) const;
+    QString     section( const QRegExp &regxp, int start, int count = 1, int flags = SectionDefault ) const;
 #endif
 
     QString     left( uint len )  const;
