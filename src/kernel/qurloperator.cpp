@@ -1143,7 +1143,7 @@ void QUrlOperator::stop()
     d->getOpGetProtMap.clear();
     if ( d->currPut ) {
 	d->currPut->stop();
-	delete d->currPut;
+	delete (QNetworkProtocol *) d->currPut;
 	d->currPut = 0;
     }
     d->waitingCopies.clear();
