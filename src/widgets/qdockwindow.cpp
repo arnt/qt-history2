@@ -884,7 +884,7 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
     if ( drawRect ) {
 	QRect dr(currRect);
 #ifdef MAC_DRAG_HACK
-	dr.moveBy(-topLevelWidget()->x(), -topLevelWidget()->y());
+	dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
 #endif
 	unclippedPainter->drawRect( dr );
     }
@@ -899,7 +899,7 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
 	    unclippedPainter->setPen( QPen( gray, 3 ) );
 	    QRect dr(currRect);
 #ifdef MAC_DRAG_HACK
-	    dr.moveBy(-topLevelWidget()->x(), -topLevelWidget()->y());
+	    dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
 #endif
 	unclippedPainter->drawRect( dr );
 	}
@@ -915,7 +915,7 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
 	unclippedPainter->setPen( QPen( gray, 1 ) );
 	QRect dr(currRect);
 #ifdef MAC_DRAG_HACK
-	dr.moveBy(-topLevelWidget()->x(), -topLevelWidget()->y());
+	dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
 #endif
 	unclippedPainter->drawRect( dr );
     }
@@ -1111,7 +1111,7 @@ void QDockWindow::startRectDraw( const QPoint &so, bool drawRect )
     if ( drawRect ) {
 	QRect dr(currRect);
 #ifdef MAC_DRAG_HACK
-	dr.moveBy(-topLevelWidget()->x(), -topLevelWidget()->y());
+	dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
 #endif
 	unclippedPainter->drawRect( dr );
     }
@@ -1127,7 +1127,7 @@ void QDockWindow::endRectDraw( bool drawRect )
     if ( drawRect ) {
 	QRect dr(currRect);
 #ifdef MAC_DRAG_HACK
-	dr.moveBy(-topLevelWidget()->x(), -topLevelWidget()->y());
+	dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
 #endif
 	unclippedPainter->drawRect( dr );
     }
