@@ -22,3 +22,4 @@ DESTDIR		= ../../../lib
 VERSION		= 0.8
 
 unix:SOURCES   += qsocketdevice_unix.cpp
+win32:SOURCES   += qsocketdevice_win.cpp
