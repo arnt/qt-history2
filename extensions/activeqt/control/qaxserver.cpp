@@ -736,7 +736,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     out << "\tmethods:" << endl;
     int numDefArgs = 0;
     QString outBuffer;
-    for (i = 0; i < mo->slotCount(); ++i) {
+    for (i = slotoff; i < mo->slotCount(); ++i) {
         const QMetaMember slot = mo->slot(i);
         if (slot.access() != QMetaMember::Public)
             continue;
