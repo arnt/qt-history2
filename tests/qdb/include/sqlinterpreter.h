@@ -75,6 +75,8 @@ public:
     QValueList<QVariant::Type> columnTypes() const;
     QStringList indexNames();
     QStringList primaryIndex();
+    bool star( QVariant& v );
+    bool starDescription( QVariant& v );
 
 protected:
     virtual void setName( const QString& name ) { nm = name; }

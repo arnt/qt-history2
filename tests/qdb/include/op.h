@@ -993,4 +993,48 @@ public:
     }
 };
 
+/* Push the values of all fields from the file identified by 'id'
+ on to the top of the stack.  The file must be open (see Open) and positioned on
+ a valid record.
+*/
+
+class PushStarValue : public Op
+{
+public:
+    PushStarValue( int id )
+	: Op( id ) {}
+    QString name() const { return "pushstarvalue"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	LocalSQLFileDriver* drv = env->fileDriver( p1.toInt() );
+	QVariant v;
+	if ( !drv->star( v ) )
+	    return FALSE;
+	env->stack()->push( v );
+	return TRUE;
+    }
+};
+
+/* Push the description of all fields from the file identified by 'id'
+ on to the top of the stack.  See also 'PushFieldDesc'.
+*/
+
+class PushStarDesc : public Op
+{
+public:
+    PushStarDesc( int id )
+	: Op( id ) {}
+    QString name() const { return "pushstardesc"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	LocalSQLFileDriver* drv = env->fileDriver( p1.toInt() );
+	QVariant v;
+	if ( !drv->starDescription( v ) )
+	    return FALSE;
+	env->stack()->push( v );
+	return TRUE;
+    }
+};
+
+
 #endif

@@ -38,7 +38,7 @@
 #include <qfileinfo.h>
 #include <qstringlist.h>
 
-// #define DEBUG_XBASE
+//#define DEBUG_XBASE
 // #define VERBOSE_DEBUG_XBASE
 
 static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
@@ -1141,5 +1141,49 @@ bool FileDriver::drop()
 bool FileDriver::clearMarked()
 {
     d->marked.clear();
+    return TRUE;
+}
+
+bool FileDriver::star( QVariant& v )
+{
+#ifdef DEBUG_XBASE
+    env->output() << "FileDriver::star..." << flush;
+#endif
+    if ( !isOpen() ) {
+	ERROR_RETURN( "Internal error: File not open" );
+    }
+    List list;
+    for ( uint i = 0; i < count(); ++i ) {
+	QVariant val;
+	if ( !field( i, val ) )
+	    return FALSE;
+	list.append( val );
+    }
+    v = list;
+#ifdef DEBUG_XBASE
+     env->output() << "success" << endl;
+#endif
+    return TRUE;
+}
+
+bool FileDriver::starDescription( QVariant& v )
+{
+#ifdef DEBUG_XBASE
+    env->output() << "FileDriver::starDescription..." << flush;
+#endif
+    if ( !isOpen() ) {
+	ERROR_RETURN( "Internal error: File not open" );
+    }
+    List list;
+    for ( uint i = 0; i < count(); ++i ) {
+	QVariant val;
+	if ( !fieldDescription( i, val ) )
+	    return FALSE;
+	list.append( val );
+    }
+    v = list;
+#ifdef DEBUG_XBASE
+     env->output() << "success" << endl;
+#endif
     return TRUE;
 }

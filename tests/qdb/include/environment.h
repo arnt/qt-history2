@@ -148,6 +148,8 @@ struct LocalSQLFileDriver : public LocalSQLDataSet
     virtual bool clearMarked() = 0;
     virtual QStringList indexNames() = 0;
     virtual QStringList primaryIndex() = 0;
+    virtual bool star( QVariant& v ) = 0;
+    virtual bool starDescription( QVariant& v ) = 0;
 };
 
 
