@@ -1,12 +1,15 @@
 #include <qlistview.h>
 #include <qlabel.h>
 #include <qxml.h>
+#include <qdir.h>
 
 class XMLParser : public QXmlDefaultHandler
 {
 public:
-    XMLParser( QListView*, QLabel*, QListView*, QTextStream* );
+    XMLParser( QListView*, QLabel*, QListView*, QTextStream*, QDir );
     virtual ~XMLParser();
+
+    virtual QString errorString();
 
     virtual void setDocumentLocator( QXmlLocator* locator );
     virtual bool startDocument();
@@ -27,7 +30,7 @@ public:
     virtual bool notationDecl( const QString& name, const QString& publicId, const QString& systemId );
     virtual bool unparsedEntityDecl( const QString& name, const QString& publicId, const QString& systemId, const QString& notationName );
 
-    virtual bool resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource* ret );
+    virtual bool resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource*& ret );
 
     virtual bool startDTD( const QString& name, const QString& publicId, const QString& systemId );
     virtual bool endDTD();
@@ -52,4 +55,9 @@ private:
     QListView *tree;
     QListViewItem *treeItem;
     QListViewItem *treeItemAfter;
+
+    QString errorStr;
+    QDir baseDir;
+    QFile *resEntFile;
+    QXmlInputSource *resEntInput;
 };

@@ -1,6 +1,6 @@
 #include "xmlparser.h"
 
-XMLParser::XMLParser( QListView *protocol, QLabel *err, QListView *t, QTextStream *ts )
+XMLParser::XMLParser( QListView *protocol, QLabel *err, QListView *t, QTextStream *ts, QDir bDir )
 {
     loc = 0;
 
@@ -13,13 +13,23 @@ XMLParser::XMLParser( QListView *protocol, QLabel *err, QListView *t, QTextStrea
     tree = t;
     treeItem = 0;
     treeItemAfter = 0;
+
+    baseDir = bDir;
+    resEntFile = 0;
+    resEntInput = 0;
 }
 
 
 XMLParser::~XMLParser()
 {
+    delete resEntFile;
+    delete resEntInput;
 }
 
+QString XMLParser::errorString()
+{
+    return errorStr;
+}
 
 void XMLParser::setDocumentLocator( QXmlLocator* locator )
 {
@@ -177,10 +187,19 @@ bool XMLParser::unparsedEntityDecl( const QString& name, const QString& publicId
 }
 
 
-bool XMLParser::resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource* ret )
+bool XMLParser::resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource*& ret )
 {
     addToProtocol( "resolveEntity", publicId + " " + systemId );
-    ret = 0;
+
+    delete resEntFile;
+    resEntFile = new QFile( baseDir.absFilePath(systemId) );
+    if ( !resEntFile->open(IO_ReadOnly) ) {
+	errorStr = QString( "could not open file %1" ).arg( systemId );
+	return FALSE;
+    }
+    delete resEntInput;
+    resEntInput = new QXmlInputSource( resEntFile );
+    ret = resEntInput;
     return TRUE;
 }
 

@@ -130,7 +130,8 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
     connect( listTree, SIGNAL(selectionChanged(QListViewItem*)),
 	    contentTree, SLOT(change(QListViewItem*)) );
 
-    XMLParser hnd( protocol, err, listTree, parseProtocolTS );
+    QFileInfo finfo( filename );
+    XMLParser hnd( protocol, err, listTree, parseProtocolTS, finfo.dir(TRUE) );
     parser.setEntityResolver( &hnd );
     parser.setDTDHandler( &hnd );
     parser.setContentHandler( &hnd );
@@ -172,7 +173,7 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 	    if ( first ) {
 qDebug( "*** parse" );
 		first = FALSE;
-		if ( parser.parse( source, TRUE ) ) {
+		if ( parser.parse( &source, TRUE ) ) {
 		    errorStatus = "Ok";
 		} else {
 		    errorStatus = "Error";
