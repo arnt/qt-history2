@@ -18,5 +18,6 @@
   \i \link qaxserver-example-wrapper.html Standard Qt widgets (in-process) \endlink
   \i \link qaxserver-example-tetrax.html A Qt example as an ActiveX server (executable) \endlink
   \i \link qaxserver-example-opengl.html Qt's OpenGL widget as an ActiveX (executable) \endlink
+  \i \link qaxserver-example-menus.html An application with a menubar (executable) \endlink
   \endlist
 */

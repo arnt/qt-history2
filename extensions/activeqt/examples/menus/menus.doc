@@ -1,0 +1,27 @@
+/*! \page qaxserver-demo-menus.html
+
+  \title Menubar merging
+
+  Nothing to see yet, sorry.
+
+\raw html
+\endraw
+*/
+
+/*! \page qaxserver-example-menus.html
+
+  \title Menubar merging
+
+  To build the example you must first build the \link qaxserver.html
+  QAxServer \endlink library. Then run qmake and your make tool in 
+  \c examples/menus.
+
+  <hr>
+
+  The \link qaxserver-demo-menus.html demonstration \endlink requires your
+  WebBrowser to support ActiveX controls, and scripting to be enabled.
+
+  \quotefile menus/menus.doc
+  \skipuntil raw html
+  \printto endraw
+*/

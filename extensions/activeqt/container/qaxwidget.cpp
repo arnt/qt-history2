@@ -824,12 +824,6 @@ static int menuItemEntry( HMENU menu, int index, MENUITEMINFOA item, QString &te
 
 QPopupMenu *QAxHostWindow::generatePopup( HMENU subMenu, QWidget *parent )
 {
-    MENUINFO mInfo;
-    mInfo.cbSize = sizeof(MENUINFO);
-    mInfo.fMask = MIM_STYLE;
-    GetMenuInfo( subMenu, &mInfo );
-    bool byPos = mInfo.dwStyle & MNS_NOTIFYBYPOS;
-
     QPopupMenu *popup = 0;
     int count = GetMenuItemCount( subMenu );
     if ( count )
@@ -879,7 +873,7 @@ QPopupMenu *QAxHostWindow::generatePopup( HMENU subMenu, QWidget *parent )
 	}
 
 	if ( qtid != 0 ) {
-	    OleMenuItem oleItem( subMenu, byPos ? i : item.wID, popupMenu );
+	    OleMenuItem oleItem( subMenu, item.wID, popupMenu );
 	    menuItemMap.insert( qtid, oleItem );
 	}
     }
@@ -890,12 +884,6 @@ QPopupMenu *QAxHostWindow::generatePopup( HMENU subMenu, QWidget *parent )
 HRESULT QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU holemenu, HWND hwndActiveObject )
 {
     if ( hmenuShared ) {
-	MENUINFO mInfo;
-	mInfo.cbSize = sizeof(MENUINFO);
-	mInfo.fMask = MIM_STYLE;
-	GetMenuInfo( hmenuShared, &mInfo );
-	bool byPos = mInfo.dwStyle & MNS_NOTIFYBYPOS;
-
 	m_menuOwner = hwndActiveObject;
 	QMenuBar *mb = menuBar;
 	QWidget *p = widget;
@@ -943,7 +931,7 @@ HRESULT QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU holemenu, HWND hwndA
 	    }
 
 	    if ( qtid != 0 ) {
-		OleMenuItem oleItem( hmenuShared, byPos ? i : item.wID, popupMenu );
+		OleMenuItem oleItem( hmenuShared, item.wID, popupMenu );
 		menuItemMap.insert( qtid, oleItem );
 	    }
 	}
@@ -989,17 +977,8 @@ bool QAxHostWindow::qt_emit( int isignal, QUObject *obj )
 	{
 	    int qtid = static_QUType_int.get( obj+1 );
 	    OleMenuItem oleItem = menuItemMap[qtid];
-	    if ( oleItem.hMenu ) {
-		MENUINFO mInfo;
-		mInfo.cbSize = sizeof(MENUINFO);
-		mInfo.fMask = MIM_STYLE;
-		GetMenuInfo(  oleItem.hMenu, &mInfo );
-
-		if ( mInfo.dwStyle & MNS_NOTIFYBYPOS )
-		    ::PostMessageA( m_menuOwner, WM_MENUCOMMAND, oleItem.id, LPARAM(oleItem.hMenu) );
-		else
-		    ::PostMessageA( m_menuOwner, WM_COMMAND, oleItem.id, 0 );
-	    }
+	    if ( oleItem.hMenu )
+		::PostMessageA( m_menuOwner, WM_COMMAND, oleItem.id, 0 );
 	}
 	break;
 
