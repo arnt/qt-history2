@@ -1967,10 +1967,16 @@ QRegion QPainter::clipRegion( CoordinateMode m ) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
     QRegion r;
-    if ( m == CoordDevice )
+    if ( m == CoordDevice ) {
 	r = crgn;
-    else
+    } else {
+	if ( !txinv ) {
+	    QPainter *that = (QPainter*)this;	// mutable
+	    that->updateInvXForm();
+	}
+
 	r = ixmat * crgn;
+    }
     return r;
 #else
     return crgn;
