@@ -746,7 +746,11 @@ bool QProcess::start( QStringList *env )
 	    ::fcntl( fd[1], F_SETFD, FD_CLOEXEC ); // close on exec shows sucess
 
 	if ( env == 0 ) { // inherit environment and start process
+#ifndef Q_OS_QNX4
 	    ::execvp( arglist[0], (char*const*)arglist ); // ### cast not nice
+#else
+	    ::execvp( arglist[0], (char const*const*)arglist ); // ### cast not nice
+#endif
 	} else { // start process with environment settins as specified in env
 	    // construct the environment for exec
 	    int numEntries = env->count();
@@ -794,7 +798,11 @@ bool QProcess::start( QStringList *env )
 		    }
 		}
 	    }
+#ifndef Q_OS_QNX4
 	    ::execve( arglist[0], (char*const*)arglist, (char*const*)envlist ); // ### casts not nice
+#else
+	    ::execve( arglist[0], (char const*const*)arglist, (char const*const*)envlist ); // ### casts not nice
+#endif
 	}
 	if ( fd[1] ) {
 	    char buf = 0;
