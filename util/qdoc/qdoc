@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#217 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#218 $
 #
 # this is a massive hack, written very quickly
 #
@@ -870,6 +870,8 @@ sub storeclass {
     }
     $properties{$url} = $p;
     $def =~ s/Q_PROPERTY\s*\([^)]*\)//g;
+    $def =~ s/Q_OVERRIDE\s*\([^)]*\)//g;
+    $def =~ s/Q_ENUMS\s*\([^)]*\)//g;
 
     $def =~ s/\)\s*\{.*?\}\s*/\);\n/gs;
     $members{$url} = $def;
