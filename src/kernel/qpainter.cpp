@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#82 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -20,7 +20,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#82 $");
 
 
 /*----------------------------------------------------------------------------
@@ -52,7 +52,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#81 $");
     void MyWidget::paintEvent()
     {
 	QPainter paint;
-	paint.begin( &this );			// start painting widget
+	paint.begin( this );			// start painting widget
 	paint.setPen( blue );			// set blue pen
 	paint.drawText( rect(),			// draw a text, centered
 			AlignCenter,		//   in the widget
