@@ -1786,7 +1786,7 @@ void QDataTable::refresh( bool refreshCursor, bool refreshColumns )
 
   Refreshes the table.  The cursor is refreshed using the current
   filter, the current sort, and the currently defined columns.
-  Equivalent to calling refresh( TRUE, FALSE ).
+  Equivalent to calling refresh( TRUE, TRUE ).
 */
 
 void QDataTable::refresh()
