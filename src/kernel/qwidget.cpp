@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#402 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#403 $
 **
 ** Implementation of QWidget class
 **
@@ -2795,7 +2795,8 @@ void QWidget::show()
     }
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     if ( parentWidget() )
-      QApplication::sendPostedEvents( parentWidget(), QEvent::ChildInserted );
+	QApplication::sendPostedEvents( parentWidget(),
+					QEvent::ChildInserted );
     QApplication::sendPostedEvents( this, QEvent::Move );
     QApplication::sendPostedEvents( this, QEvent::Resize );
     if ( children() ) {
@@ -2824,7 +2825,6 @@ void QWidget::show()
 	setWState(WState_Polished);
 	setBackgroundFromMode();
     }
-
 
     bool sendLayoutHint = testWState( WState_ForceHide ) && !isTopLevel();
 

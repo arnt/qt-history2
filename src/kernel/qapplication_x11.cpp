@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#468 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#469 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2133,6 +2133,23 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 	
     case MapNotify:				// window shown
+	if ( widget->extra &&
+	     (QWidget::BackgroundMode)widget->extra->bg_mode
+	     == QWidget::NoBackground){
+	    // nothing - the widget is already in the right state
+	} else if ( widget->extra && widget->extra->bg_pix ) {
+	    // map back to colour and clear to background colour JUST
+	    // before the paint event, minimizing flicker
+	    XSetWindowBackgroundPixmap( widget->x11Display(),
+					widget->winId(),
+					widget->extra->bg_pix->handle() );
+	    XClearWindow( widget->x11Display(), widget->winId() );
+	} else {
+	    // ditto but pixmap
+	    XSetWindowBackground( widget->x11Display(), widget->winId(),
+				  widget->bg_col.pixel() );
+	    XClearWindow( widget->x11Display(), widget->winId() );
+	}
 	if ( !widget->testWState(WState_Visible) ) {
 	    widget->setWState( WState_Visible );
 	    QShowEvent e(TRUE);
@@ -2182,7 +2199,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		bool grab = g != 0;
 		
 		QEvent::Type type = event->xclient.message_type == qt_unicode_key_press?
-			       QEvent::KeyPress : QEvent::KeyRelease;
+				    QEvent::KeyPress : QEvent::KeyRelease;
 		
 		short *s = event->xclient.data.s;
 		QChar c(s[6],s[5]);
@@ -2215,6 +2232,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 						event ) )
 		    ;				// skip old reparent events
 		Window parent = event->xreparent.parent;
+		// ### this causes two round trips for every top-level
+		// ### window being shown.  to be avoided if possible.
 		XGetWindowAttributes( widget->x11Display(),
 				      widget->winId(), &a1 );
 		qt_ignore_badwindow();
@@ -2252,9 +2271,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    int format;
 		    unsigned long length, after;
 		    unsigned char *data;
+		    // ### another round trip, very selcom necessary
 		    if ( XGetWindowProperty( appDpy, widget->winId(), qt_embedded_window, 0, 1,
-						 TRUE, qt_embedded_window, &type, &format,
-						 &length, &after, &data ) == Success ) {
+					     TRUE, qt_embedded_window, &type, &format,
+					     &length, &after, &data ) == Success ) {
 			if (data && data[0] ) {
 			    // extra/topextra was created above
 			    widget->extra->topextra->embedded = 1;
@@ -3774,6 +3794,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     Display *dpy = x11Display();
     Window child;
     int	   x, y;
+    // ### this slows down display of all top-level widgets, and most
+    // ### don't care about the result.  can it be avoided?
     XTranslateCoordinates( dpy, winId(), DefaultRootWindow(dpy),
 			   0, 0, &x, &y, &child );
     QPoint newPos( x, y );
