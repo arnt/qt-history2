@@ -1677,8 +1677,7 @@ void QAbstractItemView::selectionChanged(const QItemSelection &selected,
 void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     if (previous.isValid()) {
-        QModelIndex buddy = model()->buddy(previous);
-        endEdit(buddy.isValid() ? buddy : previous, true); // always submit data
+        endEdit(model()->buddy(previous), true); // always submit data
         int behavior = selectionBehavior();
         QRect rect = itemViewportRect(previous);
         if (behavior & SelectRows) {
