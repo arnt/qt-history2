@@ -59,8 +59,11 @@ Smtp::~Smtp()
 void Smtp::dnsLookupHelper()
 {
     QValueList<QDns::MailServer> s = mxLookup->mailServers();
-    if ( s.isEmpty() && mxLookup->isWorking() )
+    if ( s.isEmpty() ) {
+	if ( !mxLookup->isWorking() )
+	    emit status( tr( "Error in MX record lookup" ) );
 	return;
+    }
 
     emit status( tr( "Connecting to %1" ).arg( s.first().name ) );
 
@@ -73,7 +76,6 @@ void Smtp::connected()
 {
     emit status( tr( "Connected to %1" ).arg( socket->peerName() ) );
 }
-
 
 void Smtp::readyRead()
 {
@@ -111,7 +113,7 @@ void Smtp::readyRead()
 	state = Close;
 	emit status( tr( "Message sent" ) );
     } else if ( state == Close ) {
-	delete this;
+	deleteLater();
 	return;
     } else {
 	// something broke.
