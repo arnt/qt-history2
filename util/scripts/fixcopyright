@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-die unless ( $#ARGV > 0 );
+die unless ( $#ARGV >= 0 );
 
 undef $/;
 
@@ -16,8 +16,6 @@ $copyright = "
 ** Qt only by this comment.)
 **
 *****************************************************************************/";
-
-shift @ARGV;
 
 foreach $f ( @ARGV ) {
     if ( open( F, "< $f" ) ) {
