@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 2.5 1997/08/06 15:03:12 hanord Exp $
+** $Id: qarray.doc,v 2.6 1998/09/27 19:33:54 agulbra Exp $
 **
 ** QArray class documentation
 **
@@ -78,43 +78,6 @@
 	1 is found 2 times
 	5 is found at index 4
   \endcode
-
-  An array can also be instantiated through a macro expansion, but this
-  is necessary only for compilers that do not support templates.
-  We recommend using templates if your compiler supports it.  Macros
-  are much harder to debug.
-
-  Macro expansion:
-  \code
-      ...
-    Q_DECLARE(QArrayM,X);			// declares the array
-
-    void main()
-    {
-	QArrayM(X) a;			// array of X elements
-      ...
-  \endcode
-
-  If you want to make your code work for compilers that do not have
-  template support, but use templates if they are available, you
-  can use \c typedef:
-
-  \code
-      ...
-    #if defined(USE_TEMPLATECLASS)	// defined in qglobal.h
-    typedef QArrayT<X>	       XArray;
-    #else
-    typedef Q_DECLARE(QArrayM,X) XArray;
-    #endif
-
-    void main()
-    {
-	XArray a;			// array of X elements
-      ...
-  \endcode
-  
-  QArrayT refers to the QArray template and QArrayM refers to the QArray macro.
-  QArray defaults to QArrayT if templates are supported, QArrayM otherwise.
 
   \sa \link shclass.html Shared Classes\endlink
 */
