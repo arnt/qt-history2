@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#92 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -591,9 +591,9 @@ void QHeader::handleColumnResize( int index, int s, bool final )
 		 height(), FALSE );
 
 	if ( mapFromGlobal( QCursor::pos() ).x() < width() ) {
-	    
+	
 	    scroll( newSize - oldSize, 0, QRect( left + cellSize( mapToActual( lIdx ) ) + 1, 0,
-						 width(),// - ( ( left + cellSize( mapToActual( lIdx ) ) + 1 ) ),
+						 width() - left + cellSize( mapToActual( lIdx ) ),
 						 height() ) );
 	}
     } else
