@@ -4,7 +4,7 @@
 #include "qsqldatabase.h"
 #include "qapplication.h"
 
-char * const QSqlConnection::defaultDatabase = "qt_sql_default_database";
+const char * const QSqlConnection::defaultDatabase = "qt_sql_default_database";
 
 /*!  Constructs a SQL connection manager.
 
@@ -91,7 +91,7 @@ QSqlDatabase* QSqlConnection::addDatabase( const QString& type,
 						  const QString & host,
 						  const QString & name )
 {
-    QSqlConnection* sqlConnection = instance();    
+    QSqlConnection* sqlConnection = instance();
     QSqlDatabase* database = new QSqlDatabase( type, db, user, password, host, sqlConnection, name.local8Bit().data() );
     sqlConnection->dbDict.insert( name, database );
     return database;
@@ -108,9 +108,9 @@ QSqlDatabase* QSqlConnection::addDatabase( const QString& type,
 void QSqlConnection::removeDatabase( const QString& name )
 {
     QSqlConnection* sqlConnection = instance();
-    sqlConnection->dbDict.setAutoDelete( TRUE );    
+    sqlConnection->dbDict.setAutoDelete( TRUE );
     sqlConnection->dbDict.remove( name );
-    sqlConnection->dbDict.setAutoDelete( FALSE );    
+    sqlConnection->dbDict.setAutoDelete( FALSE );
 }
 
 /*!
