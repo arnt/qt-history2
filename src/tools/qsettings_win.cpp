@@ -39,7 +39,12 @@ public:
     HKEY openKey( const QString &key, bool create );
 
     QStringList paths;
+
+private:
+	static uint refCount;
 };
+
+uint QSettingsPrivate::refCount = 0;
 
 QSettingsPrivate::QSettingsPrivate()
 {
@@ -47,6 +52,7 @@ QSettingsPrivate::QSettingsPrivate()
     if ( !settingsBasePath ) {
 	settingsBasePath = new QString("Software");
     }
+	refCount++;
     local = 0;
     user  = 0 ;
 
@@ -131,8 +137,16 @@ QSettingsPrivate::~QSettingsPrivate()
 	    qSystemWarning( "Error closing current user!", res );
 #endif
     }
-    delete settingsBasePath;
-    settingsBasePath = 0;
+
+	// Make sure that we only delete the base path if no one else is using it anymore
+	if (refCount > 0) {
+		refCount--;
+
+		if (refCount == 0) {
+			delete settingsBasePath;
+			settingsBasePath = 0;
+		}
+	}
 }
 
 inline QString QSettingsPrivate::validateKey( const QString &key )
