@@ -632,12 +632,17 @@ QDebug operator<<(QDebug dbg, const QBrush &b)
 QDataStream &operator<<(QDataStream &s, const QBrush &b)
 {
     s << (Q_UINT8)b.style() << b.color();
-    if (b.style() == Qt::CustomPattern)
+    if (b.style() == Qt::CustomPattern) {
 #ifndef QT_NO_IMAGEIO
         s << b.texture();
 #else
         qWarning("No Image Brush I/O");
 #endif
+    } else if (b.style() == Qt::LinearGradientPattern) {
+        s << b.gradientColor();
+        s << b.gradientStart();
+        s << b.gradientStop();
+    }
     return s;
 }
 
@@ -664,8 +669,16 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
 #else
         qWarning("No Image Brush I/O");
 #endif
-    } else
+    } else if (style == Qt::LinearGradientPattern) {
+        QColor gradientColor;
+        QPointF gradientStart, gradientStop;
+        s >> gradientColor;
+        s >> gradientStart;
+        s >> gradientStop;
+        b = QBrush(gradientStart, color, gradientStop, gradientColor);
+    } else {
         b = QBrush(color, (Qt::BrushStyle)style);
+    }
     return s;
 }
 #endif // QT_NO_DATASTREAM
