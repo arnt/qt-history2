@@ -1,0 +1,35 @@
+@Chapter
+    @PartNumber { Part I }
+    @PartTitle { Qt Assistant }
+    @Title { Introduction }
+    @Tag { introduction }
+@Begin
+@LP
+This document introduces @I{Qt Assistant}, a tool for presenting
+on-line documentation. It also introduces the Qt Reference Documentation
+which is accessible using @I{Qt Assistant}, or with a web browser.
+The document is divided into the following sections:
+
+@NumberedList
+@LI{
+Introduction to the Qt Reference Documentation
+}
+@LI{
+The 1 Minute Guide to using Qt Assistant
+}
+@LI{
+Qt Assistant in More Detail
+}
+@LI{
+Full Text Searching
+}
+@LI{
+Adding Documentation to Qt Assistant
+}
+@EndList
+@Figure
+    @Caption { 
+@I{Qt Assistant} }
+ 0.5 @Scale @IncludeGraphic { "images/assistant-wp.eps.gz" }
+
+@End @Chapter

@@ -1,0 +1,129 @@
+@Chapter
+    @Title { Reference: Key Bindings }
+    @Tag { reference.key.bindings }
+@Begin
+
+keypresses.qt.designer @Index{ Keypresses (Qt Designer) }@NumberedList
+@LI{
+Ctrl+A -- Selects all GUI elements in the active form.
+}
+@LI{
+Ctrl+B -- Breaks the selected layout so that you can add or delete
+GUI elements.
+}
+@LI{
+Ctrl+C -- Copies the selected GUI elements from the active form
+into the clipboard.
+}
+@LI{
+Alt+E -- Pulls down the @B{Edit} menu.
+}
+@LI{
+Alt+F -- Pulls down the @B{File} menu.
+}
+@LI{
+Ctrl+G -- Applies a grid layout to the selected container, or
+creates a new container containing the selected GUI elements
+and applies a grid layout to this container.
+}
+@LI{
+Ctrl+H -- Applies a horizontal box layout to the selected container,
+or creates a new container containing the selected GUI elements
+and applies a horizontal box layout to this container.
+}
+@LI{
+Alt+H -- Pulls down the @B{Help} menu.
+}
+@LI{
+Ctrl+J Adjusts the size of the selected GUI element (or elements)
+so that it has the minimal size needed for displaying itself
+properly.
+}
+@LI{
+Ctrl+L -- Applies a vertical box layout to the selected container,
+or creates a new container containing the selected GUI elements
+and applies a vertical box layout to this container.
+}
+@LI{
+Alt+L -- Pulls down the @B{Layout} menu.
+}
+@LI{
+Ctrl+M -- Opens an online version of this manual in Qt Assistant.
+}
+@LI{
+Ctrl+N -- Invokes the @I{New File} dialog.
+}
+@LI{
+Ctrl+O -- Invokes the @I{Open File} dialog.
+}
+@LI{
+Alt+P -- Pulls down the @B{Preview} menu.
+}
+@LI{
+Ctrl+R -- Checks the accelerators in the active form for duplicates.
+}
+@LI{
+Ctrl+S -- Saves the active form.
+}
+@LI{
+Ctrl+T -- Previews the active form in the default GUI style of
+the platform.
+}
+@LI{
+Alt+T -- Pulls down the @B{Tools} menu.
+}
+@LI{
+Ctrl+V -- Pastes the GUI element (or elements) in the clipboard
+into the active form at the position it had in its original form
+plus a little offset. Does nothing if the clipboard does not
+contain a GUI element.
+}
+@LI{
+Alt+W -- Pulls down the @B{Window} menu.
+}
+@LI{
+Ctrl+X -- Cuts the selected GUI element (or elements) from the
+active form and puts it into the clipboard.
+}
+@LI{
+Ctrl+Y -- Redoes the last undo action.
+}
+@LI{
+Ctrl+Z -- Undoes the last action.
+}
+@LI{
+Del -- Deletes the selected GUI elements from the active form.
+}
+@LI{
+F1 -- Opens the introductory page of the Qt Designer manual in
+Qt Assistant.
+}
+@LI{
+Shift-F1 -- Turns on What's This mode, which lets you click on
+a GUI element in Qt Designer to get a small description window
+for this element.
+}
+@LI{
+F2 -- Activates the pointer tool that lets you select GUI elements.
+}
+@LI{
+F3 -- Activates the connection tool that lets you edit the connections
+between signals and slots in a form.
+}
+@LI{
+F4 -- Activates the tab order tool that lets you change the tab
+order of the GUI elements on the active form.
+}
+@LI{
+Ctrl+F4 -- Closes the active window.
+}
+@LI{
+Ctrl+F6 -- Activates the next window in the order of window creation.
+}
+@LI{
+Ctrl+Shift-F6 -- Activates the previous window in the order of
+window creation.
+}
+@EndList
+
+@End @Chapter

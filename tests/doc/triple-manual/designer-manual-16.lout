@@ -1,0 +1,955 @@
+@Chapter
+    @Title { Reference: The .ui File Format }
+    @Tag { reference.the.ui.file.format }
+@Begin
+@PP
+@I{Qt Designer} stores forms in @F @Verbatim{.ui} files. These
+files use an XML format to represent form elements and their
+characteristics. This document provides an overview of the XML
+format used, and should provide enough information for developers
+to write their own @F @Verbatim{.ui} parsers so that they can
+read and modify @F @Verbatim{.ui} files programatically.
+
+@PP
+One way to parse a @F @Verbatim{.ui} file is to use Qt and the
+@B{QDomDocument}qdomdocument @Index{ QDomDocument } class; this is how @I{Qt Designer} does it:
+see the @F @Verbatim{uilib/qwidgetfactory.h} and @F @Verbatim{uilib/qwidgetfactory.cpp}
+source files. For information on dynamically loading and running
+@F @Verbatim{.ui} files see Loading and Executing a Dynamic Dialog.
+
+@PP
+The doctype of a @F @Verbatim{.ui} file is simply "\""UI"\"", so the
+doctype tag is:
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<!DOCTYPE UI>
+@End @RawVerbatim
+@PP
+The root element is a "\""UI"\"", which encloses the entire contents:
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<UI version="3.1" stdsetdef="1">
+...
+</UI>
+@End @RawVerbatim
+@PP
+Within the UI entity, there may one or zero of the following
+element types:
+
+@NumberedList
+@LI{
+actions - actions, for @B{QMainWindow}qmainwindow @Index{ QMainWindow } forms
+}
+@LI{
+author - the form's author
+}
+@LI{
+class - the form's class name
+}
+@LI{
+comment - comments, e.g. copyright notices
+}
+@LI{
+connections - signal"/"slot connections
+}
+@LI{
+customwidgets - custom widgets (old-style)
+}
+@LI{
+exportmacro - Windows-specific
+}
+@LI{
+forwards - forward declarations
+}
+@LI{
+functions - function declarations
+}
+@LI{
+images - embedded images: only for @F @Verbatim{.ui} files than
+include embedded images; images are normally stored in a separate
+@F @Verbatim{images} directory
+}
+@LI{
+includes - include files
+}
+@LI{
+layoutdefaults - default values for layout attributes
+}
+@LI{
+layoutfunctions - dynamic default values for layout attributes
+}
+@LI{
+menubar - menu bar, for @B{QMainWindow}qmainwindow @Index{ QMainWindow } forms
+}
+@LI{
+pixmapfunction - the name of the function to use for retrieving
+pixmaps if neither embedded nor external pixmaps are being used
+}
+@LI{
+pixmapinproject - an element whose presence ndicates that the
+pixmaps are handled by the @F @Verbatim{.pro} file
+}
+@LI{
+signals - signal declarations
+}
+@LI{
+slots - slot declarations
+}
+@LI{
+tabstops - the form's tab order
+}
+@LI{
+toolbars - toolbars, for @B{QMainWindow}qmainwindow @Index{ QMainWindow } forms
+}
+@LI{
+variables - class variables
+}
+@LI{
+widget - the form itself; this element may contain other elements,
+including other @F @Verbatim{widget} elements
+}
+@LI{
+forward - Qt 3.x beta backwards compatibility
+}
+@LI{
+include - Qt 2.x backwards compatibility
+}
+@LI{
+variable - Qt 3.x beta backwards compatibility
+}
+@EndList
+@PP
+The ordering of elements is arbitrary, although it is common
+for the class element to be first.
+
+@BeginSections
+@Section
+    @Title { UI Elements }
+    @Tag { ui.elements }
+@Begin
+@LD @Heading { actions{@PageMark{actions}} }
+@PP
+This element is used to store the form's actions. It only occurs
+in @B{QMainWindow}qmainwindow @Index{ QMainWindow } forms.
+
+@PP
+The @F @Verbatim{actions} element contains one or more @F @Verbatim{action}
+elements. Each @F @Verbatim{action} element contains one or more
+properties. Each property has a @F @Verbatim{name} attribute,
+and a single value which is contained within a datatype element.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<actions>
+    <action>
+        @PP
+
+
+            <cstring>fileNewAction</cstring>
+        </property>
+        @PP
+
+
+            <iconset>filenew</iconset>
+        </property>
+        @PP
+
+
+            <string>New</string>
+        </property>
+        @PP
+
+
+            <string>&amp;New</string>
+        </property>
+        @PP
+
+
+            <number>4194382</number>
+        </property>
+    </action>
+    ...
+</actions>
+@End @RawVerbatim
+@LD @Heading { author{@PageMark{author}} }
+@PP
+This element is used to store the author's name as a simple string.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<author>Barney Rubble</author>
+@End @RawVerbatim
+@LD @Heading { class{@PageMark{class}} }
+@PP
+This element is used to store the form's class name as a simple
+string.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<class>InsuranceForm</class>
+@End @RawVerbatim
+@LD @Heading { comment{@PageMark{comment}} }
+@PP
+This element is used to store comments, for example, copyright
+notices, as a simple string.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<comment>*********************************************************************
+** Copyright (C) 2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of Qt Designer.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+*********************************************************************</comment>
+@End @RawVerbatim
+@LD @Heading { connections{@PageMark{connections}} }
+@PP
+This element is used to record the signals and slots connections
+in the form.
+
+@PP
+The @F @Verbatim{connections} element contains one or more @F
+@Verbatim{connection} elements and one or more @F @Verbatim{slot}
+elements. Each @F @Verbatim{connection} element identifies the
+signaling object and its signal, and the receiving object and
+its slot.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<connections>
+    ...
+    <connection language="C++">
+        <sender>alignActionGroup</sender>
+        <signal>selected(QAction*)</signal>
+        <receiver>EditorForm</receiver>
+        <slot>changeAlignment(QAction*)</slot>
+    </connection>
+    ...
+</connections>
+@End @RawVerbatim
+qaction @Index{ QAction }
+@LD @Heading { customwidgets{@PageMark{customwidgets}} }
+@PP
+@I{Qt Designer} can operate with custom widgets. A custom widget
+is represented in a @F @Verbatim{.ui} file using the @F @Verbatim{<customwidget>}
+element.
+
+@PP
+Note that these are the 'old-style' custom widgets that show
+up on the form as grey rectangles. Use plugins to seamlessly
+integrate your custom widgets into @I{Qt Designer} -- see Creating
+Custom Widgets with Plugins.
+
+@PP
+Each custom widget has a class name and a header file. They also
+have a size hint and size policy. A pixmap can be specified;
+this is displayed on a @I{Qt Designer} toolbar button which the
+user can use to create an instance of the custom widget. Custom
+widgets usually emit signals, and these are listed. The name
+and type of any properties that the widget has are also included.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<customwidgets>
+    <customwidget>
+        <class>StyledButton</class>
+        <header location="local">styledbutton.h</header>
+        <sizehint>
+            <width>40</width>
+            <height>25</height>
+        </sizehint>
+        <container>0</container>
+        <sizepolicy>
+            <hordata>5</hordata>
+            <verdata>5</verdata>
+        </sizepolicy>
+        @PP
+image0</pixmap>
+
+        <signal>clicked()</signal>
+        <signal>changed()</signal>
+        @PP
+color</property>
+
+        @PP
+pixmap</property>
+
+        @PP
+scale</property>
+
+    </customwidget>
+</customwidgets>
+@End @RawVerbatim
+@LD @Heading { exportmacro{@PageMark{exportmacro}} }
+@PP
+This tag is only relevant to Windows users.
+
+@PP
+If you have a class that requires some Windows-specific export
+macro, e.g. for classes in a DLL that need to be declared like
+this: @F @Verbatim{class win_specific_declaration_goes_here Class},
+you can use the @F @Verbatim{<exportmacro>} tag. (In standard
+Qt we use the @F @Verbatim{Q_EXPORT} macro, e.g. @F @Verbatim{class Q_EXPORT QWidget}.) If you use this tag you must also:
+
+@BulletList
+@LI{
+include the file which contains the macro definition;
+}
+@LI{
+add the export macro to the form -- this is achieved by entering
+the macro's name in the 'export macro' sub-property of the form's
+name property.
+}
+@EndList
+@PP
+Following these steps will ensure that uic will create the correct
+@F @Verbatim{class YOUR_MACRO Form} declarations.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<exportmacro>EDITOR_EXPORT</exportmacro>
+@End @RawVerbatim
+@LD @Heading { forwards{@PageMark{forwards}} }
+@PP
+It is sometimes necessary to forward declare classes, particularly
+if code is being written in @F @Verbatim{.ui.h} files within
+@I{Qt Designer}. Each forward declaration is listed as it should
+appear in the generated C++ code.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<forwards>
+    <forward>class QStringList;</forward>
+</forwards>
+@End @RawVerbatim
+qstringlist @Index{ QStringList }
+@LD @Heading { functions{@PageMark{functions}} }
+@PP
+The @F @Verbatim{functions} element contains a list of functions.
+Functions are standard C++ functions. It is possible to specify
+various attributes to create a function's signature, for example:
+
+@NumberedList
+@LI{
+access: @F @Verbatim{private}, @F @Verbatim{protected} or @F
+@Verbatim{public}. Default: @F @Verbatim{public}
+}
+@LI{
+returnType: the return datatype of the function. Default: @F
+@Verbatim{void}
+}
+@LI{
+specifier: @F @Verbatim{non virtual}, @F @Verbatim{virtual} or
+@F @Verbatim{pure virtual}. Default: @F @Verbatim{virtual}
+}
+@LI{
+language: specifies the programming language. Default: @F @Verbatim{C++}
+}
+@EndList
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<functions>
+    <function access="private" specifier="non virtual">isValid()</function>
+    <function access="public" returnType="QString">getMessage()</function>
+</functions>
+@End @RawVerbatim
+qstring @Index{ QString }
+@LD @Heading { images{@PageMark{images}} }
+@PP
+Images are normally stored in their own files and associated
+with forms using project files. This has the advantage that images
+can be shared across any number of forms in a project, and between
+projects.
+
+@PP
+In some cases it may be desireable to store image data directly
+in a form, and the @F @Verbatim{<image>} tag allows for this.
+
+@PP
+It is possible to store images in both PNG and XPM formats, although
+in practice only XPM is recommended because of bugs in some PNG
+libraries. See the @F @Verbatim{saveImageData} function in @F
+@Verbatim{resource.cpp} to see how the image data is encoded.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="409">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523234530022630543251d2e253d856405bffcbc54105b19c856360003103711c6b53006ab440370316528264b4c198450c5808a94d1ed00aac214832b43124b544ec414d34b4c4c441103f11341120831309758313d0cf3b0840b7258d55a73010092c14eca</data>
+    </image>
+</images>
+@End @RawVerbatim
+@LD @Heading { includes{@PageMark{includes}} }
+@PP
+It is sometimes necessary to @F @Verbatim{#include} header
+files in a @F @Verbatim{.ui} file. Header files may be 'local',
+i.e. relative to the project's directory, or 'global', i.e. part
+of Qt or the compilers standard libraries. Header files are declared
+in the implementation wherever possible, although sometimes it
+is necessary to declare them in the declaration (header) file.
+
+@PP
+@I{Qt Designer} automatically adds @F @Verbatim{<include>} tags
+for a @F @Verbatim{.ui}'s @F @Verbatim{.ui.h} file.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<includes>
+    <include location="local" impldecl="in implementation">pixmapcollection.h</include>
+    <include location="local" impldecl="in implementation">pixmapchooser.h</include>
+    <include location="local" impldecl="in implementation">project.h</include>
+    <include location="global" impldecl="in implementation">qfileinfo.h</include>
+    <include location="global" impldecl="in implementation">qimage.h</include>
+    <include location="global" impldecl="in declaration">qpixmap.h</include>
+    <include location="local" impldecl="in implementation">pixmapcollectioneditor.ui.h</include>
+</includes>
+@End @RawVerbatim
+@LD @Heading { layoutdefaults{@PageMark{layoutdefaults}} }
+@PP
+Every form has a default spacing and margin size. These can be
+overridden on a case-by-case basis.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<layoutdefaults spacing="6" margin="11"/>
+@End @RawVerbatim
+@PP
+See also layoutfunctions.
+
+@LD @Heading { layoutfunctions{@PageMark{layoutfunctions}} }
+@PP
+Sometimes the spacing and margin values should be determined
+dynamically, e.g. to provide a common look in a windowmanager.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<layoutfunctions spacing="LayoutClass::spacing" margin="LayoutClass::margin"/>
+@End @RawVerbatim
+@PP
+The rules for determining @F @Verbatim{margin} and @F @Verbatim{spacing}
+values are these:
+
+@BulletList
+@LI{
+If an integer value is specified for @F @Verbatim{margin} or
+@F @Verbatim{spacing} then the value is used.
+}
+@LI{
+If no integer value is specified and a layout function is specified
+then the function is used.
+}
+@LI{
+If no integer value or function is specified then the default
+value from @F @Verbatim{layoutdefaults} is used.
+}
+@EndList
+@LD @Heading { menubar{@PageMark{menubar}} }
+@PP
+Applications that use @B{QMainWindow}qmainwindow @Index{ QMainWindow } often have a menubar. The
+menubar has a name property and one or more popup menu items.
+Each menu item has one or more actions and optionally separators.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<menubar>
+    @PP
+
+
+        <cstring>menubar</cstring>
+    </property>
+    <item text="&amp;File" name="PopupMenu">
+        <action name="fileSaveAction"/>
+        <separator/>
+        <action name="fileExitAction"/>
+    </item>
+    <item text="&amp;Help" name="PopupMenu_2">
+        <action name="helpAboutAction"/>
+        <action name="helpAboutQtAction"/>
+    </item>
+</menubar>
+@End @RawVerbatim
+@LD @Heading { pixmapfunction{@PageMark{pixmapfunction}} }
+@PP
+Images are normally included by listing their filenames in project
+files. Images can also be included inline using the images tag.
+Another way of dealing with images is to specify a function name.
+This function will be called, with the name (or 'key') of the
+relevant image, and is responsible for loading the appropriate
+image. To specify such a function the @F @Verbatim{@PP
+
+} tag is used.
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+@PP
+splashScreen</pixmapfunction>
+
+@End @RawVerbatim
+@LD @Heading { pixmapinproject{@PageMark{pixmapinproject}} }
+@PP
+Most applications store their images as separate files listed
+in the application's project file. This can be signified by including
+the @F @Verbatim{@PP
+
+} tag.
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+@PP
+
+
+@End @RawVerbatim
+@LD @Heading { signals{@PageMark{signals}} }
+@PP
+All the signals are listed Within a @F @Verbatim{<signals>} tag.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<signals>
+    <signal>somethingChanged()</signal>
+</signals>
+@End @RawVerbatim
+@LD @Heading { slots{@PageMark{slots}} }
+@PP
+The @F @Verbatim{slots} element contains a list of slots. Each
+@F @Verbatim{slot} element provides a slot's prototype.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<slots>
+    <slot access="public" specifier="virtual" language="C++" 
+        returnType="void">changeAlignment(QAction* align)</slot>
+</slots>
+@End @RawVerbatim
+qaction @Index{ QAction }
+@PP
+For available attributes see functions.
+
+@LD @Heading { tabstops{@PageMark{tabstops}} }
+@PP
+Tabstops indicate the widgets that get the focus as the user
+tabs through the form. The @F @Verbatim{<tabstops>} tag contains
+a list of tabstops, in order, each of which holds the name of
+a widget.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<tabstops>
+    <tabstop>templateView</tabstop>
+    <tabstop>helpButton</tabstop>
+    <tabstop>buttonOk</tabstop>
+    <tabstop>buttonCancel</tabstop>
+</tabstops>
+@End @RawVerbatim
+@LD @Heading { toolbars{@PageMark{toolbars}} }
+@PP
+Forms that have toolbars (dock windows) use the @F @Verbatim{<toolbars>}
+tag to hold the details. These forms are normally @B{QMainWindow}qmainwindow @Index{ QMainWindow }s
+(or subclasses). Each toolbar has a dock attribute which identifies
+which dock window the toolbar initially belongs to. They also
+have both name and label properties. Each toolbar button is represented
+by an action. Toolbars can also hold other widgets, in which
+case the @F @Verbatim{<toolbar>} tag includes appropriate @F
+@Verbatim{<widget>} tags which give the class, name and any non-default
+property values for the relevant widget.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<toolbars>
+    <toolbar dock="2">
+        @PP
+
+
+            <cstring>toolBar</cstring>
+        </property>
+        @PP
+
+
+            <string>Tools</string>
+        </property>
+        <action name="fileNewAction"/>
+        <action name="fileOpenAction"/>
+        <action name="fileSaveAction"/>
+        <separator/>
+        <action name="editUndoAction"/>
+        <action name="editRedoAction"/>
+        <action name="editCutAction"/>
+        <action name="editCopyAction"/>
+        <action name="editPasteAction"/>
+    </toolbar>
+    <toolbar dock="2">
+        @PP
+
+
+            <cstring>Toolbar</cstring>
+        </property>
+        @PP
+
+
+            <string>Toolbar</string>
+        </property>
+        <action name="leftAlignAction"/>
+        <action name="centerAlignAction"/>
+        <action name="rightAlignAction"/>
+        <separator/>
+        <action name="boldAction"/>
+        <action name="italicAction"/>
+        <action name="underlineAction"/>
+        <separator/>
+        <widget class="QComboBox">
+            @PP
+
+
+                <cstring>fontComboBox</cstring>
+            </property>
+        </widget>
+        <widget class="QSpinBox">
+            @PP
+
+
+                <cstring>SpinBox2</cstring>
+            </property>
+            @PP
+
+
+                <number>6</number>
+            </property>
+            @PP
+
+
+                <number>10</number>
+            </property>
+        </widget>
+    </toolbar>
+</toolbars>
+@End @RawVerbatim
+qcombobox @Index{ QComboBox }
+qspinbox @Index{ QSpinBox }
+@LD @Heading { variables{@PageMark{variables}} }
+@PP
+Module variables are held in the @F @Verbatim{<variables>} tag.
+Variable type names often include < and >, which must be stored
+as entities. It is also possible to specify the access type -
+either @F @Verbatim{public}, @F @Verbatim{protected} or @F @Verbatim{private}.
+Default is @F @Verbatim{protected}.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<variables>
+    <variable access="private">SettingsDialog * settings;</variable>
+    <variable>QMap&lt;int, QString&gt; bookmarks;</variable>
+    <variable>HelpWindow *browser;</variable>
+    <variable>HelpDialog *helpDock;</variable>
+    <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
+    <variable>static QPtrList&lt;MainWindow&gt; *windows;</variable>
+</variables>
+@End @RawVerbatim
+qmap @Index{ QMap }
+qstring @Index{ QString }
+qguardedptr @Index{ QGuardedPtr }
+qptrlist @Index{ QPtrList }
+@LD @Heading { widget{@PageMark{widget}} }
+@PP
+Widgets are used at multiple levels within a @F @Verbatim{.ui}
+file. The whole form itself is a widget, and it contains other
+widgets, usually within the context of layouts such as hboxes,
+vboxes and grids.
+
+@PP
+Below is an example of a complete @F @Verbatim{.ui} file. The
+form itself is a @B{QWidget}qwidget @Index{ QWidget } with various non-default properties
+set. This widget contains a single hbox, which also has some
+non-default properties, and which contains a single @B{QTextBrowser}qtextbrowser @Index{ QTextBrowser }
+widget.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<class>WinIntroPage</class>
+<widget class="QWidget">
+    @PP
+
+
+        <cstring>WinIntroPage</cstring>
+    </property>
+    @PP
+
+
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>387</width>
+            <height>228</height>
+        </rect>
+    </property>
+    @PP
+
+
+        <string>Form1</string>
+    </property>
+    <hbox>
+        @PP
+
+
+            <cstring>unnamed</cstring>
+        </property>
+        @PP
+
+
+            <number>11</number>
+        </property>
+        @PP
+
+
+            <number>6</number>
+        </property>
+        <widget class="QTextBrowser">
+            @PP
+
+
+                <cstring>TextBrowser1</cstring>
+            </property>
+            @PP
+
+
+                <string>This program installs Qt.</string>
+            </property>
+        </widget>
+    </hbox>
+</widget>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
+@End @RawVerbatim
+qwidget @Index{ QWidget }
+qtextbrowser @Index{ QTextBrowser }
+@LD @Heading { forward{@PageMark{forward}} }
+@PP
+@I{ This tag is included for Qt 3.x beta backwards compatibility,
+and should not be used. Use forwards instead. }
+
+@LD @Heading { include{@PageMark{include}} }
+@PP
+@I{ This tag is included for Qt 2.x beta backwards compatibility,
+and should not be used. Use includes instead. }
+
+@LD @Heading { variable{@PageMark{variable}} }
+@PP
+@I{ This tag is included for Qt 3.x beta backwards compatibility,
+and should not be used. Use variables instead. }
+
+@End @Section
+@Section
+    @Title { Datatype Elements }
+    @Tag { datatype.elements }
+@Begin
+@NumberedList
+@LI{
+@F @Verbatim{bool} - a boolean value (0 or 1), e.g. @F @Verbatim{<bool>1</bool>}
+}
+@LI{
+@F @Verbatim{color} - a color, e.g. @F @Verbatim{<color><red>192</red><green>0</green><blue>255</blue></color>}
+}
+@LI{
+@F @Verbatim{cstring} - a C string value (8-bit), e.g. @F @Verbatim{<cstring>Some text</cstring>}
+}
+@LI{
+@F @Verbatim{cursor} - an integer which indicates the cursor
+type, e.g. @F @Verbatim{<cursor>4</cursor>}. The valid integers
+for the cursor type are:
+
+@NumberedList
+@LI{
+0 - ArrowCursor
+}
+@LI{
+1 - UpArrowCursor
+}
+@LI{
+2 - CrossCursor
+}
+@LI{
+3 - WaitCursor
+}
+@LI{
+4 - IbeamCursor
+}
+@LI{
+5 - SizeVerCursor
+}
+@LI{
+6 - SizeHorCursor
+}
+@LI{
+7 - SizeBDiagCursor
+}
+@LI{
+8 - SizeFDiagCursor
+}
+@LI{
+9 - SizeAllCursor
+}
+@LI{
+10 - BlankCursor
+}
+@LI{
+11 - SplitVCursor
+}
+@LI{
+12 - SplitHCursor
+}
+@LI{
+13 - PointingHandCursor
+}
+@LI{
+14 - ForbiddenCursor
+}
+@EndList}
+@LI{
+@F @Verbatim{enum} - an enum name, e.g. @F @Verbatim{<enum>StrongFocus</enum>}
+}
+@LI{
+@F @Verbatim{font} - a font description, e.g.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<font>
+    <family>Helvetica</family>
+    @PP
+16</pointsize>
+
+    <weight>50</weight>
+    <italic>1</italic>
+    <underline>0</underline>
+    <strikeout>0</strikeout>
+</font>
+@End @RawVerbatim}
+@LI{
+@F @Verbatim{iconset} - an iconset (see @F @Verbatim{pixmap}),
+e.g. @F @Verbatim{<iconset>filenew</iconset>}
+}
+@LI{
+@F @Verbatim{number} - an integer with an optional sign, e.g.
+@F @Verbatim{<number>947</number>}
+}
+@LI{
+@F @Verbatim{palette} - a palette
+}
+@LI{
+@F @Verbatim{pixmap} - a pixmap, normally the name or "\""key"\"" of
+the pixmap; the name is used if pixmaps are stored in the project,
+the key is used if a user defined function is used to access
+the pixmap. It is also possible for pixmaps to be included inline.
+Example: @F @Verbatim{@PP
+
+chair</pixmap>}}
+@LI{
+@F @Verbatim{point} - a point, e.g. @F @Verbatim{@PP
+
+<x>15</x><y>95</y></point>}}
+@LI{
+@F @Verbatim{rect} - a rectangle, e.g.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+<rect>
+    <x>20</x>
+    <y>35</y>
+    <width>225</width>
+    <height>45</height>
+</rect>
+@End @RawVerbatim}
+@LI{
+@F @Verbatim{set} - a list of names separated by "|"'s, e.g.
+@F @Verbatim{<set>AlignLeft|AlignTop</set>}
+}
+@LI{
+@F @Verbatim{size} - a size, e.g. @F @Verbatim{<size><width>150</width><height>105</height></size>}
+}
+@LI{
+@F @Verbatim{sizepolicy} - an integer which indicates the size
+type, e.g. @F @Verbatim{<hsizetype>5</hsizetype><vsizetype>4</vsizetype>}.
+The valid integers for the size type are:
+
+@NumberedList
+@LI{
+0 - Fixed
+}
+@LI{
+1 - Minimum
+}
+@LI{
+3 - MinimumExpanding
+}
+@LI{
+4 - Maximum
+}
+@LI{
+5 - Preferred
+}
+@LI{
+7 - Expanding
+}
+@EndList}
+@LI{
+@F @Verbatim{string} - a Unicode string value (in UTF8), e.g.
+@F @Verbatim{<string>Some text</string>}
+}
+@EndList
+@LD @Heading { Complex Datatype Elements{@PageMark{complex.datatype.elements}} }
+@LD @I { palette{@PageMark{palette}} }
+@PP
+This element holds colors for user interface elements for each
+color group. For example:
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+@PP
+
+
+  <active>
+    <color> ... Foreground    ... </color>
+    <color> ... Button        ... </color>
+    <color> ... Light         ... </color>
+    <color> ... Midlight      ... </color>
+    <color> ... Dark          ... </color>
+    <color> ... Mid           ... </color>
+    <color> ... Text          ... </color>
+    <color> ... BrightText    ... </color>
+    <color> ... ButtonText    ... </color>
+    <color> ... Base          ... </color>
+    <color> ... Background    ... </color>
+    <color> ... Shadow        ... </color>
+    <color> ... Highlight     ... </color>
+    <color> ... HighlightText ... </color>
+  </active>
+  <disabled>
+    <color><red>128</red><green>128</green><blue>128</blue></color>
+    ...
+    <color><red>255</red><green>255</green><blue>255</blue></color>
+  </disabled>
+  <inactive>
+    <color><red>0</red><green>0</green><blue>0</blue></color>
+    ...
+    <color><red>255</red><green>255</green><blue>255</blue></color>
+  </inactive>
+</palette>
+@End @RawVerbatim
+@PP
+See color for the format of the @F @Verbatim{<color>} element.
+
+@End @Section
+@EndSections
+@End @Chapter

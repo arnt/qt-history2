@@ -1,0 +1,43 @@
+@Chapter
+    @Title { Full Text Searching }
+    @Tag { full.text.searching }
+@Begin
+@LP
+From Qt 3.1, @I{Qt Assistant} offers a powerfull full text search
+engine. In order to search for certain words or text, go to the
+'Search' tab in the sidebar. Then enter the text you are looking
+for and press @B{Enter} or click @B{Search}. The search is always
+case insensitive, so Deep, dEEp and DEEP are all treated as the
+same. The following search patterns can be used:
+
+@VeryWideTaggedList
+@TagItem{ @F @Verbatim{deep} } { lists all the documents that contain the
+word 'deep'
+}
+@TagItem{ @F @Verbatim{deep*} } { lists all the documents that contain a
+word beginning with 'deep'
+}
+@TagItem{ @F @Verbatim{deep copy} } { lists all documents that contain both
+'deep' @I{and} 'copy'
+}
+@TagItem{ @F @Verbatim{"deep copy"} } { list all documents that contain
+the phrase 'deep copy'
+}
+@EndList
+
+The wildcard (*) character cannot be used within quotes.
+
+@PP
+The list of documents is ordered according to the number of occurrences
+of the search text they contain, with those with the highest
+number of occurrences appearing first. Simply click any document
+in the list to have it display in the document pane.
+
+@PP
+If the documentation is changed, e.g. if new documents are added
+or old ones removed, @I{Qt Assistant} will reindex. At present
+this only works for latin1 encoded documents, i.e. Unicode is
+not yet supported.
+
+
+@End @Chapter

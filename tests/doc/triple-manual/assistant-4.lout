@@ -1,0 +1,243 @@
+@Chapter
+    @Title { Qt Assistant in More Detail }
+    @Tag { qt.assistant.in.more.detail }
+@Begin
+@BeginSections
+@Section
+    @Title { The Sidebar }
+    @Tag { the.sidebar }
+@Begin
+@LP
+The sidebar provides three ways of navigating documentation:
+
+@BulletList
+@LI{
+The @B{Contents} tab presents a tree view of the documentation
+sets that are available. If you click an item, its documentation
+will appear in the documentation window. If you double click
+an item or click a '+' sign to the left of an item, the item's
+sub-items will appear. Click a sub-item to make its page appear
+in the documentation window. Click a '-' sign to the left of
+an item to hide its sub-items.
+}
+@LI{
+The @B{Index} tab is used to look up key words or phrases. See
+The 1 Minute Guide to using Qt Assistant [p.~@PageOf{the.minute.guide.to.using.qt.assistant}] for how to use this
+tab.
+}
+@LI{
+The @B{Bookmarks} tab lists any bookmarks you've made. Double
+click a bookmark to make its page appear in the documentation
+window. The @B{Bookmarks} tab has a @B{New Bookmark} button and
+a @B{Delete Bookmark} button at the bottom. Click @B{New Bookmark}
+to bookmark the page that is showing in the documentation window.
+Click a bookmark in the list, then click @B{Delete Bookmark}
+to delete the highlighted bookmark.
+}
+@LI{
+The @B{Search} tab provides full text search of @I{all} the documents.
+For further information see Full Text Searching [p.~@PageOf{full.text.searching}].
+}
+@EndList
+
+If you want the documentation window to use as much space as
+possible, you can easily hide or show the Sidebar. If the Sidebar
+is showing, press @B{Ctrl+T}, @B{Ctrl+I}, @B{Ctrl+B} or @B{Ctrl+S}
+to hide it. If the Sidebar is hidden, press @B{Ctrl+T} to show
+it on the Contents tab, or press @B{Ctrl+I} to show it on the
+Index tab (with the focus in the 'Look For' line edit box), or
+press @B{Ctrl+B} to show it on the Bookmarks tab, or press @B{Ctrl+S}
+to show it on the (full text) Search tab.
+
+@PP
+The Sidebar is a dock window, so you can drag it to the top,
+left, right or bottom of @I{Qt Assistant}'s window, or you can
+drag it outside @I{Qt Assistant} to float it.
+
+@End @Section
+@Section
+    @Title { The Toolbar }
+    @Tag { the.toolbar }
+@Begin
+@LP
+The toolbar provides fast access to the most common actions.
+
+@BulletList
+@LI{
+@B{Previous} takes you to the previous page. The menu option
+is @B{Go"|"Previous} and the keyboard shortcut is @B{Alt+Left
+Arrow}.
+}
+@LI{
+@B{Next} takes you to the next page. The menu option is @B{Go"|"Next}
+and the keyboard shortcut is @B{Alt+Right Arrow}.
+}
+@LI{
+@B{Home} takes you to the home page (normally the home page of
+the Qt Reference Documentation). The menu option is @B{Go"|"Home}
+and the keyboard shortcut is @B{Ctrl+Home}.
+}
+@LI{
+@B{Copy} copies any selected text to the clipboard. The menu
+option is @B{Edit"|"Copy} and the keyboard shortcut is @B{Ctrl+C}.
+}
+@LI{
+@B{Find in Text} invokes the @I{Find Text} dialog. The menu option
+is @B{Edit"|"Find in Text} and the keyboard shortcut is @B{Ctrl+F}.
+}
+@LI{
+@B{Print} invokes the @I{Print} dialog. The menu option is @B{File"|"Print}
+and the keyboard shortcut is @B{Ctrl+P}.
+}
+@LI{
+@B{Zoom in} increases the font size. The menu option is @B{View"|"Zoom
+in} and the keyboard shortcut is @B{Ctrl++}.
+}
+@LI{
+@B{Zoom out} decreases the font size. The menu option is @B{View"|"Zoom
+out} and the keyboard shortcut is @B{Ctrl+-}.
+}
+@EndList
+
+The remaining toolbar buttons are bookmarks and will vary depending
+on your configuration.
+
+@End @Section
+@Section
+    @Title { The Menus }
+    @Tag { the.menus }
+@Begin
+@LD @Heading { The File Menu{@PageMark{the.file.menu}} }
+@BulletList
+@LI{
+@B{File"|"Print} invokes the @I{Print} dialog.
+}
+@LI{
+@B{File"|"Exit} terminates @I{Qt Assistant}.
+}
+@EndList
+@LD @Heading { The Edit Menu{@PageMark{the.edit.menu}} }
+@BulletList
+@LI{
+@B{Edit"|"Copy} copies any selected text to the clipboard.
+}
+@LI{
+@B{Edit"|"Find in Text} invokes the @I{Find Text} dialog.
+}
+@LI{
+@B{Edit"|"Settings} invokes the @I{Settings} dialog.
+}
+@EndList
+@LD @Heading { The View Menu{@PageMark{the.view.menu}} }
+@BulletList
+@LI{
+@B{View"|"Zoom in} increases the font size.
+}
+@LI{
+@B{View"|"Zoom out} decreases the font size.
+}
+@LI{
+@B{View"|"Views"|"Sidebar} toggles the display of the Sidebar.
+}
+@LI{
+@B{View"|"Views"|"Toolbar} toggles the display of the Toolbar.
+}
+@LI{
+@B{View"|"Views"|"Line up} lines up the toolbar buttons in the
+Toolbar.
+}
+@EndList
+@LD @Heading { The Go Menu{@PageMark{the.go.menu}} }
+@BulletList
+@LI{
+@B{Go"|"Previous} display the previous page.
+}
+@LI{
+@B{Go"|"Next} display the next page.
+}
+@LI{
+@B{Go"|"home} go to the home page.
+}
+@EndList
+
+This menu also has additional items; these are pre-defined bookmarks
+that vary depending on your configuration.
+
+@LD @Heading { The Bookmarks Menu{@PageMark{the.bookmarks.menu}} }
+@BulletList
+@LI{
+@B{Bookmarks"|"Add} add the current page to the list of bookmarks.
+}
+@EndList
+
+This menu may have additional items, i.e. any bookmarks that
+you have already made. If you want to delete a bookmark go to
+the Bookmarks tab on the Sidebar.
+
+@End @Section
+@Section
+    @Title { The Dialogs }
+    @Tag { the.dialogs }
+@Begin
+@LD @Heading { The Print Dialog{@PageMark{the.print.dialog}} }
+This dialog is platform-specific. It gives access to various
+printer options and can be used to print the current page.
+
+@LD @Heading { The Find Text Dialog{@PageMark{the.find.text.dialog}} }
+This dialog is used to find text in the current page. Enter the
+text you want to find in the Find line edit. If you check the
+'Whole words only' checkbox, the search will only consider whole
+words, i.e. if you search for 'spin' with this checkbox checked
+it will not match 'spinbox', but will match 'spin'. If you check
+the 'Case sensitive' check box then, for example, 'spin' will
+match 'spin' but not 'Spin'. You can search Forward or Backward
+from your current position in the page by clicking one of the
+Direction radio buttons. Click the @B{Find} button to search
+(or search again), and click the @B{Close} button to finish.
+
+@LD @Heading { The Settings Dialog{@PageMark{the.settings.dialog}} }
+This dialog is used to set your preferences for @I{Qt Assistant}.
+In order to confirm your changes click @B{OK}; or click @B{Cancel}
+to keep the previous settings. @I{Qt Assistant} will remember
+your settings between sessions, including window sizes and positions,
+and which pages you have open. The Settings dialog contains the
+following tabs:
+
+@VeryWideTaggedList
+@TagItem{ General Settings }{
+To change the base font used throughout @I{Qt Assistant}, select
+a font type from the Font combobox. To choose a new fixed-width
+font, to show code snippets for example, choose a font type from
+the 'Fixed font' combobox. To change the color of hypertext links,
+click the 'Link color' color button. Uncheck the 'Underline links'
+checkbox if you don't want underlined links.
+}
+@TagItem{ Web Settings }{
+Some pages contain links to external web pages. In order to display
+these links, you must specify a web browser. Click @B{Browse}
+to invoke the @I{Assistant} dialog and navigate until you find
+the web browser you wish to use. Click @B{OK} to accept the selection.
+Alternatively, type in the name of your browser's executable
+in the line edit.
+}
+@TagItem{ Documentation }{
+To add your own documentation to @I{Qt Assistant}, click @B{Add}
+to invoke the @I{Assistant} dialog. Navigate through the files
+until you find the documentation you want to add and then click
+@B{OK}. Click @B{Delete} to remove obsolete documentation from
+the Documentation list box. Read more about adding your own
+documentation in @TitlePageRef{adding.documentation.to.qt.assistant}.
+}
+@TagItem{ Categories }{
+All documentation is categorized, for example, development, office,
+multimedia, etc. To create a new category, type its name in the
+Category Name line edit and click @B{Add}. The new category appears
+in the Categories list box with a checkbox to its left. Leave
+the box checked to display all of the category's available documentation.
+To remove a category, select it from the list box and click @B{Delete}.
+For further information about categories read 
+@TitlePageRef{adding.documentation.to.qt.assistant}.}
+@EndList
+@End @Section
+@EndSections
+@End @Chapter

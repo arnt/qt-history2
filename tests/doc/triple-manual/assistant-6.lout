@@ -1,0 +1,94 @@
+@Chapter
+    @Title { Adding Documentation to Qt Assistant }
+    @Tag { adding.documentation.to.qt.assistant }
+@Begin
+@LP
+Adding new documentation to @I{Qt Assistant} is straight-forward.
+You simply specify a new documentation content file for @I{Qt
+Assistant} to use.
+
+@PP
+Click @B{Edit"|"Settings} to invoke the @I{Settings} dialog.
+Click the @B{Documentations} tab. Now click @B{Add} to invoke
+a file open dialog. Select the new documentation's content file.
+(This file must be an XML file in @I{Qt Assistant}'s documentation
+content file format.)
+
+@PP
+Another way to add your own documentation is, to start @I{Qt
+Assistant} with the commandline option '-addContentFile' followed
+by the documentation content file. For example:
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+assistant -addContentFile /mycompany/myapp/help.xml
+@End @RawVerbatim
+@I{Qt Assistant} will parse this file, add it and quit, i.e.
+no mainwindow will be shown. This way can be used when adding
+documentation during an installation process.
+
+@PP
+If the new documentation belongs to a category which does not
+currently appear in the Categories list box, you can add the
+category using the @I{Settings} dialog. It is not normally necessary
+to do this manually since @I{Qt Assistant} detects new categories
+and adds them automatically.
+
+@PP
+The format of the documentation content file is described in
+the following section.
+
+@BeginSections
+@Section
+    @Title { Documentation Content File format }
+    @Tag { documentation.content.file.format }
+@Begin
+@LP
+The file must contain the documentation's table of contents and
+all important keywords for the index. Furthermore, it should
+inherit a category specification.
+
+@PP
+An example of a content file with all available tags is shown
+below:
+
+@PP
+@F @Verbatim{demodoc.xml}
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+<!DOCTYPE DCF>
+<DCF ref="demo.html" category="qt/development" title="Development Demo Handbook">
+<section ref="./chap1/chap1.html" title="Chapter1">
+    <section ref="./chap1/section1.html" title="Section1">
+        <keyword ref="./chap1/section1.html#foo">foo</keyword>
+        <keyword ref="./chap1/section1.html#bla">bla</keyword>
+        <section ref="./chap1/section1.html#subsection1" title="Subsection 1"/>
+        <section ref="./chap1/section1.html#subsection2" title="Subsection 2"/>
+        <section ref="./chap1/section1.html#subsection3" title="Subsection 3"/>
+    </section>
+    <section ref="./chap1/section2" title="Section2">
+        <section ref="./chap1/section2.html#subsection1" title="Subsection 1"/>
+        <section ref="./chap1/section2.html#subsection2" title="Subsection 2"/>
+        <section ref="./chap1/section2.html#subsection3" title="Subsection 3"/>
+    </section>
+</section>
+<section ref="./chap2/chap2.html" title="Chapter2">
+    <keyword ref="./chap2/chap2.html#foo">foo</keyword>
+    <section ref="./chap2/section1.html" title="Section1"/>
+</section>
+</DCF>
+@End @RawVerbatim
+
+Sections may be nested as deeply as necessary. All references
+should be related.
+
+@PP
+Note that any @F @Verbatim{keyword} tags for a given section
+must appear @I{before} any sections nested within the given section.
+
+@PP
+The paths in the @F @Verbatim{refs} attribute are always written
+Unix-style (forward slashes) and are relative to the location
+of the documentation content file itself.
+
+@End @Section
+@EndSections
+@End @Chapter

@@ -1,0 +1,701 @@
+@Chapter
+    @Title { Customizing and Integrating Qt Designer }
+    @Tag { customizing.and.integrating.qt.designer }
+@Begin
+@BeginSections
+@Section
+    @Title { Customizing Qt Designer }
+    @Tag { customizing.qt.designer }
+@Begin
+@PP
+@I{Qt Designer} can be customized in two ways: you can add custom
+widgets, and you can change aspects of how @I{Qt Designer} works.
+Custom widgets are covered in Creating Custom Widgets [p.~@PageOf{creating.custom.widgets}]. This section
+will focus on customizing @I{Qt Designer} itself.
+
+@PP
+@I{Qt Designer}'s toolbars are all dockable so they can be dragged
+by their toolbar handles and arranged how you like. The Files,
+Object Hierarchy, Property Editor and Output Windows are also
+dockable so you can also drag them to the positions that you
+prefer. You can also make them into floating windows by dragging
+them outside @I{Qt Designer}'s dock areas.
+
+@PP
+General preferences can be set by clicking @B{Edit"|"Preferences}
+to invoke the @I{Preferences} dialog. If you check the 'Restore
+Last Workspace on Startup' checkbox then @I{Qt Designer} will
+remember the sizes and positions of the toolbars and the dockable
+windows. You can change @I{Qt Designer}'s main window background
+either by selecting a color or a pixmap. You can also switch
+off the grid (uncheck Show Grid) since using layouts makes the
+grid redundant.
+
+
+plugins @Index{ Plugins }
+code.editing @RawIndex{ Code Editing }
+code.editing.preferences @SubIndex{ Preferences }
+preferences @RawIndex{ Preferences }
+preferences.code.editing @SubIndex{ Code Editing }@PP
+The @I{Preferences} dialog may have additional tabs, depending
+on what plugins you have installed. We'll describe the C++ Editor
+tab since this is installed by default.
+
+@PP
+The C++ Editor tab is used to set your preferred fonts for syntax
+highlighting in @I{Qt Designer}'s code editor. The base font
+for all elements is set in the 'Standard' element which is the
+last item in the list. If you want one font to be used throughout
+then set the 'Standard' font and all the other elements will
+inherit its setting.
+
+@LD @Heading { Qt Designer's Code Editor{@PageMark{qt.designer.s.code.editor}} }
+@PP
+The code editor is available if an Editor plugin is installed.
+The C++ Editor plugin is installed by default.
+
+
+keypresses.qt.designer.s.code.editor @Index{ Keypresses (Qt Designer's code editor) }@PP
+The code editor provides the following keystrokes:
+
+@NumberedList
+@LI{
+Left Arrow -- Moves the cursor one character left
+}
+@LI{
+Right Arrow -- Moves the cursor one character right
+}
+@LI{
+Up Arrow -- Moves the cursor one line up
+}
+@LI{
+Down Arrow -- Moves the cursor one line down
+}
+@LI{
+Page Up -- Moves the cursor one page up
+}
+@LI{
+Page Down -- Moves the cursor one page down
+}
+@LI{
+Backspace -- Deletes the character to the left of the cursor
+}
+@LI{
+Home -- Moves the cursor to the beginning of the line
+}
+@LI{
+End -- Moves the cursor to the end of the line
+}
+@LI{
+Delete -- Deletes the character to the right of the cursor
+}
+@LI{
+Ctrl+A -- Moves the cursor to the beginning of the line
+}
+@LI{
+Ctrl+B -- Moves the cursor one character left
+}
+@LI{
+Ctrl+C -- Copies the selected text to the clipboard (also Ctrl+Insert
+under Windows)
+}
+@LI{
+Ctrl+D -- Deletes the character to the right of the cursor
+}
+@LI{
+Ctrl+E -- Moves the cursor to the end of the line
+}
+@LI{
+Ctrl+F -- Invokes the @I{Find Text} dialog
+}
+@LI{
+Ctrl+G -- Invokes the @I{Goto Line} dialog
+}
+@LI{
+Ctrl+H -- Deletes the character to the left of the cursor
+}
+@LI{
+Ctrl+I -- Indent the line or selected text that contains the
+cursor
+}
+@LI{
+Alt+I -- Starts incremental search (see below)
+}
+@LI{
+Ctrl+K -- Deletes from the cursor position to the end of the
+line
+}
+@LI{
+Ctrl+N -- Moves the cursor one line down
+}
+@LI{
+Ctrl+P -- Moves the cursor one line up
+}
+@LI{
+Ctrl+R -- Invokes the @I{Replace Text} dialog
+}
+@LI{
+Ctrl+V -- Pastes the clipboard text into line edit (also Shift+Insert
+under Windows)
+}
+@LI{
+Ctrl+X -- Cuts the marked text, copy to clipboard (also Shift+Delete
+under Windows)
+}
+@LI{
+Ctrl+Y -- Redoes the last operation
+}
+@LI{
+Ctrl+Z -- Undoes the last operation
+}
+@LI{
+Ctrl+Left Arrow -- Moves the cursor one word left
+}
+@LI{
+Ctrl+Right Arrow -- Moves the cursor one word right
+}
+@LI{
+Ctrl+Up Arrow -- Moves the cursor one word up
+}
+@LI{
+Ctrl+Down Arrow -- Moves the cursor one word down
+}
+@LI{
+Ctrl+Home Arrow -- Moves the cursor to the beginning of the text
+}
+@LI{
+Ctrl+End Arrow -- Moves the cursor to the end of the text
+}
+@LI{
+Tab -- Completion (see below)
+}
+@EndList
+@PP
+To select (mark) text hold down the Shift key whilst pressing
+one of the movement keystrokes, for example, @B{Shift+Right Arrow}
+will select the character to the right, and @B{Shift+Ctrl+Right
+Arrow} will select the word to the right, etc.
+
+@PP
+Pressing @B{Alt+I} starts incremental search. The characters
+you type will appear in the Incremental Search line edit in the
+Search toolbar and the cursor will be moved to the first matching
+text in the editor. As you type the search will continue. Press
+@B{Return} to move to the next match and press @B{Esc} to cancel
+the search at the position you've reached.
+
+@PP
+Pressing @B{Tab} after you've typed one or more characters invokes
+completion. Completion works like this: start typing some text
+then press @B{Tab}. If the editor can find another item of text
+that begins with the same characters it will complete your text
+for you; if it finds more than one possibility it will pop up
+a list of choices. You can use the arrow keys to choose a piece
+of text then press @B{Return}, or press @B{Esc} to continue typing.
+You can switch off completion in the @I{Preferences} dialog.
+
+@PP
+When you enter @F @Verbatim{->} or @F @Verbatim{.} the editor
+will pop up a command completion list; use the arrow keys to
+move to the item you want and press @B{Return}, or press @B{Esc}
+to ignore the list.
+
+@End @Section
+@Section
+    @Title { Creating and Using Templates }
+    @Tag { creating.and.using.templates }
+@Begin
+
+creating.templates @Index{ Creating Templates }
+templates @RawIndex{ Templates }
+templates.creating.and.using @SubIndex{ Creating and Using }@PP
+@I{Qt Designer} supports two approaches to creating template
+forms. The simplest approach involves little more than saving
+a
+
+ui @Index{ .ui } @F @Verbatim{.ui} file into the templates directory. The second approach involves creating a container widget class to be used as a base class for forms that use the template. We will explain both techniques.
+@LD @Heading { Simple Templates{@PageMark{simple.templates}} }
+@PP
+These templates are most useful when you want to create a whole
+set of forms which all have some common widgets. For example,
+you might have a project that will require many forms, all of
+which need to be branded with a company name and logo.
+
+@PP
+First we'll create the simple template.
+
+@BulletList
+@LI{
+Click @B{File"|"New} to invoke the @I{New File} dialog. Click
+the Dialog template then click @B{OK}.
+}
+@LI{
+Click the @B{Text Label} toolbar button, then click near the
+top left of the form. Change the font Point Size property to
+16 and change the @I{text} property to your or your company's
+name. Click the @B{Line} toolbar button, then click the form
+below the label; click Horizontal on the pop-up menu.
+}
+@LI{
+Select the label and the line. (@B{Ctrl+Click} the form, then
+drag the rubber band so that it touches or includes the line
+and the label.) Press @B{Ctrl+L} to lay them out vertically.
+}
+@LI{
+Click the @B{Save} toolbar button. In the @I{Save As} dialog,
+navigate to @I{Qt Designer}'s templates directory, e.g. (@F @Verbatim{qt/tools/designer/templates}.
+Type in the name 'Simple_Dialog.ui' and click @B{Save}.
+}
+@LI{
+Right click the form in the Forms list, then click Remove form
+from project.
+}
+@EndList
+@PP
+Now that we have the simple template we are ready to use it.
+Click @B{File"|"New} to invoke the @I{New File} dialog. One of
+the templates that will appear is 'Simple Dialog'. Click the
+simple dialog, then click @B{OK}. A new form will appear with
+the same widgets and layout as the template. Add any other widgets
+and functionality. When you attempt to save the form you will
+be prompted for a new form name.
+
+@LD @Heading { Base-class Templates{@PageMark{base.class.templates}} }
+
+templates @RawIndex{ Templates }
+templates.base.class.templates @SubIndex{ Base Class Templates }@PP
+These templates are useful when you want to provide some default
+functionality that all the forms based on the base class can
+inherit. In our example we'll use a class called @B{SizeAware}
+that remembers and restores its size as the basis of a template.
+We won't describe the class itself, but will focus instead on
+making use of it as a @I{Qt Designer} template. The source for
+the class is in @F @Verbatim{qt/tools/designer/examples/sizeaware}.
+
+@PP
+The template can either be based on a custom widget or on any
+existing container widget.
+
+@PP
+If you want to base the template on a custom widget you must
+first add it to @I{Qt Designer}'s custom widgets. Click @B{Tools"|"Custom"|"Edit
+Custom Widgets} to invoke the @I{Edit Custom Widgets} dialog.
+(This dialog is explained in more detail in Simple Custom Widgets [p.~@PageOf{simple.custom.widgets}].)
+Click @B{New Widget}. Change the Class from 'MyCustomWidget'
+to 'SizeAware'. Click the Headerfile ellipsis button and select
+the file @F @Verbatim{qt/tools/designer/examples/sizeaware/sizeaware.h}.
+Check the Container Widget checkbox. This class provides two
+properties. Click the Properties tab. Click @B{New Property}
+and change the property name to 'company'. Click the @B{New Property}
+again and change the property name to 'settingsFile'. Click @B{Close}.
+
+@PP
+To create a template, based on an existing widget or on your
+own custom widget, click @B{File"|"Create Template} to invoke
+the @I{Create Template} dialog. Change the Template Name to 'SizeAware'
+and click the SizeAware base class, then click @B{Create}. The
+dialog will create the template and close itself immediately.
+Close @I{Qt Designer} and restart it.
+
+@PP
+A new template, 'SizeAware' is now available from the list of
+templates. Click @B{File"|"New}, click SizeAware and click @B{OK}.
+Note that the two properties, company and settingsFile, are available
+in the Properties window. Any forms based on this template will
+remember their size and resize when reloaded. (In practical applications
+having one settingsFile per form is not recommended, so this
+template would only really be useful for applications that have
+a single main window.)
+
+@End @Section
+@Section
+    @Title { Integrating Qt Designer with Visual Studio }
+    @Tag { integrating.qt.designer.with.visual.studio }
+@Begin
+@PP
+@I{Qt Designer} can be integrated into Visual Studio 6.0 using
+the
+
+qmsdev.dsp @Index{ qmsdev.dsp } @F @Verbatim{qmsdev.dsp} file that is supplied with Qt. Visual Studio.Net does not support this integration.
+
+visual.studio @Index{ Visual Studio }@PP
+Start up Visual Studio and click @B{File"|"Open Workspace}. Open
+@F @Verbatim{%QTDIR%\tools\designer\integration\qmsdev\qmsdev.dsp}.
+Click @B{Build"|"Set Active Configuration} and in the list click
+'QMsDev - Win32 Release', then click @B{OK}. Now click @B{Build"|"Build
+qmsdev.dll}. You should now make sure Visual Studio is closed
+and copy the file @F
+@Verbatim{%QTDIR%\tools\designer\integration\qmsdev\Release\qmsdev.dll}
+into @F @Verbatim{Microsoft Visual Studio\Common\MSDev98\AddIns}.
+Now click @B{Tools"|"Customize}. Click the Add-in Macro Files
+tab, then click the @B{Browse} button. Change the file type to
+'Add-ins (.dll)' and navigate to @F @Verbatim{Microsoft Visual Studio\Common\MSDev98\AddIns}. Click the
+
+qmsdev.dll @Index{ qmsdev.dll } @F @Verbatim{qmsdev.dll} file, click @B{Open}, then click @B{Close}.
+@PP
+A new toolbar will appear in Visual Studio with the following
+toolbar buttons:
+
+@NumberedList
+@LI{
+New Qt Project -- A small application wizard
+}
+@LI{
+New Qt Dialog -- Add an empty Qt Dialog to the active project,
+or add an existing dialog
+}
+@LI{
+Qt GUI Designer -- Run @I{Qt Designer}
+}
+@LI{
+Open Qt Project -- Runs @F @Verbatim{qmake} with a
+
+pro @Index{ .pro } @F @Verbatim{.pro} file}
+@LI{
+Write Qt Project -- Saves the current VS project as a
+
+pro @Index{ .pro } @F @Verbatim{.pro} file}
+@LI{
+Use Qt -- Add the Qt libraries to the active project
+}
+@LI{
+Add MOC -- Add the @F @Verbatim{moc} precompiler to the active
+file
+}
+@EndList
+@PP
+Double clicking a
+
+ui @Index{ .ui } @F @Verbatim{.ui} file in the workspace overview will now launch @I{Qt Designer}.
+
+macros @RawIndex{ Macros }
+macros.q.object @SubIndex{ Q_OBJECT }
+q.object @Index{ Q_OBJECT }@PP
+If you create a
+
+cpp @Index{ .cpp } @F @Verbatim{.cpp} file which contains the @F @Verbatim{Q_OBJECT} macro you will need an additional file which is generated by the @F @Verbatim{moc} to be included in your project. For example, if you have 'file.cpp', then the last line would be @F @Verbatim{#include "file.moc"} and the additional file would be called 'file.moc'. To ensure that Visual Studio executes the @F @Verbatim{moc} and generates this file you must create a custom dependency. Double click the
+cpp @Index{ .cpp } @F @Verbatim{.cpp} file (in your project workspace) that contains the @F @Verbatim{Q_OBJECT} macro. Click the @B{Add MOC} toolbar button; this will create an empty
+moc @Index{ .moc } @F @Verbatim{.moc} file in your project workspace. Right click the newly created
+moc @Index{ .moc } @F @Verbatim{.moc} file, then click @B{Settings} from the pop-up menu to invoke the Project Settings dialog. Click the Custom Build tab. Click the @B{Dependencies} button to pop up the User Defined Dependencies dialog. Type in @F @Verbatim{$(InputDir)\$(InputPath)}, then press @B{Return}. Click @B{OK} to leave the Dependencies dialog, then click @B{OK} to leave the Project Settings dialog.
+@PP
+If you wish to delete the add-in remove it from the toolbar then
+delete the
+
+qmsdev.dll @Index{ qmsdev.dll } @F @Verbatim{qmsdev.dll} file from the add-ins directory.
+@LD @Heading { Creating Makefiles without qmake{@PageMark{creating.makefiles.without.qmake}} }
+
+makefiles @Index{ Makefiles }@PP
+The @F @Verbatim{qmake} tool provided with Qt can create Makefiles
+appropriate to your platform based on
+
+pro @Index{ .pro } @F @Verbatim{.pro} project files. This section describes the dependencies involved in building a Qt application and gives a couple of simple example Makefiles. This section assumes that you have a good understanding of Makefiles.
+
+macros @RawIndex{ Macros }
+macros.q.object @SubIndex{ Q_OBJECT }
+q.object @Index{ Q_OBJECT }@PP
+@I{Qt Designer} produces
+
+ui @Index{ .ui } @F @Verbatim{.ui} files which are used to generate
+h @Index{ .h } @F @Verbatim{.h} and
+cpp @Index{ .cpp } @F @Verbatim{.cpp} files for the compiler to compile. The
+ui @Index{ .ui } @F @Verbatim{.ui} files are processed by @F @Verbatim{uic}. Classes which inherit from @B{QObject}, e.g. those which use slots and signals, require an additional
+cpp @Index{ .cpp } @F @Verbatim{.cpp} file to be generated. These files are generated by the @F @Verbatim{moc} and are named '@I{moc_}file.cpp' where the original
+cpp @Index{ .cpp } @F @Verbatim{.cpp} file is called 'file.cpp'. If your
+cpp @Index{ .cpp } @F @Verbatim{.cpp} file contains the @F @Verbatim{Q_OBJECT} macro an additional file 'file.moc' should be generated which must be @F @Verbatim{#include}d in the
+cpp @Index{ .cpp } @F @Verbatim{.cpp}, normally at the end. This requires an extra dependency being created.
+@PP
+Processing
+
+ui @Index{ .ui } @F @Verbatim{.ui} files with @F @Verbatim{uic} is done @I{twice}:
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+uic myform.ui -o myform.h
+uic myform.ui -i myform.h -o myform.cpp
+@End @RawVerbatim
+@PP
+The first execution creates the header file, the second creates
+the
+
+cpp @Index{ .cpp } @F @Verbatim{.cpp} file. If you wish to subclass a form you can use @F @Verbatim{uic} to generate subclass skeletons:
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+uic formbase.ui -o formbase.h
+uic formbase.ui -i formbase.h -o formbase.cpp
+uic -subdecl Form formbase.h formbase.ui -o form.h
+uic -subimpl Form form.h formbase.ui -o form.cpp
+@End @RawVerbatim
+@PP
+First we generate the header and implementation file for our
+base class. Then we generate the header and implementation skeletons
+for our subclass. Note that the use of @F @Verbatim{uic} to generate
+skeletons is not something that would be done in a Makefile,
+we mention it here because it can be useful for command line
+users. Note also that the command line for @F @Verbatim{-subdecl}
+and for @F @Verbatim{-subimpl} are subtly different.
+
+@PP
+For implementation files that contain classes which inherit from
+@B{QObject}qobject @Index{ QObject } we must create moc files:
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+moc myform.h -o moc_myform.cpp
+@End @RawVerbatim
+@PP
+We'll look at a simple Makefile to see the dependencies in practice.
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+myapp: moc_myform.o myform.o main.o
+        g++ -lqt -o myapp moc_myform.o myform.o main.o
+
+main.o: main.cpp
+        g++ -o main.o main.cpp
+
+moc_myform.o: moc_myform.cpp
+        g++ -o moc_myform.o moc_myform.cpp
+
+moc_myform.cpp: myform.h
+        moc myform.h -o moc_myform.cpp
+
+myform.o: myform.cpp
+        g++ -o myform.o myform.cpp
+
+myform.cpp: myform.h myform.ui
+        uic myform.ui -i myform.h -o myform.cpp
+
+myform.h: myform.ui
+        uic myform.ui -o myform.h
+@End @RawVerbatim
+@PP
+Note that you may need to include the full path to the commands
+in your Makefile, and under Windows the filenames are
+
+moc.exe @Index{ moc.exe } @F @Verbatim{moc.exe} and
+uic.exe @Index{ uic.exe } @F @Verbatim{uic.exe}.
+@PP
+In Unix"/"Linux environments the @F @Verbatim{make} command may
+be able to do more for us, so we should be able to use a simpler
+Makefile like this:
+
+@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+
+myapp: moc_myform.o myform.o main.o
+        g++ -lq -o $@ $^
+
+%.o: %.cpp
+        g++ -o $^ $@
+
+moc_%.cpp: %.h
+        moc $^ -o $@
+
+myform.cpp: myform.h myform.ui
+        uic myform.ui -i myform.h -o myform.cpp
+
+myform.h: myform.ui
+        uic myform.ui -o myform.h
+@End @RawVerbatim
+@PP
+To see more sophisticated Makefiles simply generate them using
+@F @Verbatim{qmake} on any of your Qt projects or any of the
+examples supplied with Qt.
+
+@End @Section
+@Section
+    @Title { Importing Foreign File Formats }
+    @Tag { importing.foreign.file.formats }
+@Begin
+
+foreign.file.formats @Index{ Foreign File Formats }@PP
+To import a file in a supported foreign file format click @B{File"|"Open},
+then click the File Type combobox to choose the file type you
+wish to load. Click the required file and @I{Qt Designer} will
+convert and load the file.
+
+@PP
+The filters that @I{Qt Designer} uses to read foreign file formats
+are 'works in progress'. You may have different filters available
+in your version of @I{Qt Designer} than those described here.
+The easiest way to see which filters are available is to invoke
+the file open dialog; all your filters are listed in the File
+Type combobox.
+
+@LD @Heading { Importing Qt Architect Files{@PageMark{importing.qt.architect.files}} }
+
+foreign.file.formats @RawIndex{ Foreign File Formats }
+foreign.file.formats.qt.architect @SubIndex{ Qt Architect }
+qt.architect @Index{ Qt Architect }@PP
+Qt Architect is a free GUI builder for Qt written by Jeff Harris
+and Klaus Ebner. The
+
+dlg @Index{ .dlg } @F @Verbatim{.dlg} extension is associated with Qt Architect dialog files.
+@PP
+@I{Qt Designer} can read files generated by Qt Architect version
+2.1 and above. When given a
+
+dlg @Index{ .dlg } @F @Verbatim{.dlg} file from a previous version of Qt Architect, @I{Qt Designer} tells you how to convert it to the file format of version 2.1. (The conversion procedure varies depending on the version of the
+dlg @Index{ .dlg } @F @Verbatim{.dlg} file.)
+@PP
+The import filter does a good job of importing
+
+dlg @Index{ .dlg } @F @Verbatim{.dlg} files; the result is almost identical to what you get in Qt Architect. However, the C++ code that uses the dialogs will probably need some adaptation.
+@PP
+There are a few drawbacks to converting Qt Architect files to
+@I{Qt Designer}'s format due to differences between the two tools;
+these are listed below:
+
+@NumberedList
+@LI{
+Layout spacing and margins
+
+@PP
+If the
+
+dlg @Index{ .dlg } @F @Verbatim{.dlg} file layouts use the Qt Architect defaults for layout spacing and margins, @I{Qt Designer} will override these with its standard defaults. You can change the "\""layoutSpacing"\"" and "\""layoutMargin"\"" properties manually afterwards if necessary.}
+@LI{
+Layout stretches and spacings
+
+@PP
+Qt Architect gives access to more features of Qt's layout system
+than @I{Qt Designer}, namely stretches and spacings. Qt Designer
+will attempt to cope with
+
+dlg @Index{ .dlg } @F @Verbatim{.dlg} files that use these features, but sometimes the resizing will not be what you want. The solution typically involves setting the "\""sizePolicy"\"" properties of some widgets and inserting or deleting spacers.}
+@LI{
+Mixing managed and unmanaged widgets
+
+@PP
+Qt Architect allows a widget to have some child widgets managed
+by a layout and other child widgets with fixed positions. When
+presented with a
+
+dlg @Index{ .dlg } @F @Verbatim{.dlg} file that uses this facility, @I{Qt Designer} will silently put the fixed position widgets into the layout.}
+@LI{
+Pixmaps
+
+@PP
+@I{Qt Designer} ignores pixmaps specified in
+
+dlg @Index{ .dlg } @F @Verbatim{.dlg} files. These have to be restored manually in @I{Qt Designer}.}
+@EndList
+@LD @Heading { Importing Glade Files{@PageMark{importing.glade.files}} }
+
+foreign.file.formats @RawIndex{ Foreign File Formats }
+foreign.file.formats.glade @SubIndex{ Glade }
+glade @Index{ Glade }@PP
+Glade is a free GUI builder for GTK+ and GNOME written by Damon
+Chaplin. The
+
+glade @Index{ .glade } @F @Verbatim{.glade} extension is associated with Glade files.
+@PP
+@I{Qt Designer} has been tested with Glade files up to version
+0.6.0 and might work with later versions as well.
+
+@PP
+Although Glade does not target Qt, the layout system and the
+widget set of GTK+ are similar to those of Qt, so the filter
+will retain most of the information in the
+
+glade @Index{ .glade } @F @Verbatim{.glade} file.
+@PP
+There are some considerations regarding the conversion of Glade
+files, as listed below:
+
+@NumberedList
+@LI{
+Ampersands ("&") in labels
+
+@PP
+Qt displays an ampersand when a @B{QLabel}qlabel @Index{ QLabel } has no buddy. (A buddy
+is a widget that accepts focus on behalf of a @B{QLabel}qlabel @Index{ QLabel }.) Glade
+allows GtkLabel widgets with an (underlined) accelerator key
+but with no buddy. This is an error since users expect underlined
+characters to be accelerators. In this situation, Qt displays
+the ampersand itself instead of underlining the accelerator key.
+You should go over these @B{QLabel}qlabel @Index{ QLabel } widgets and set their "\""@I{buddy}"\""
+property.
+}
+@LI{
+Layout placeholders
+
+@PP
+GTK allows a layout position to be occupied by a placeholder.
+@I{Qt Designer} converts those placeholders into @B{QLabel}qlabel @Index{ QLabel }s
+whose text is "\""?"\"" in red, so that you can find them and fix them
+manually.
+}
+@LI{
+GTK+ or GNOME widget with no Qt equivalent
+
+@PP
+Qt has equivalents for most GTK+ widgets, but Glade also supports
+GNOME, whose goal is to provide a complete desktop environment.
+Because Qt's scope is narrower, when @I{Qt Designer} encounters
+a widget it cannot convert, it replaces it with a label that
+indicates the problem. For example, a GnomePaperSelector will
+be replaced by a @B{QLabel}qlabel @Index{ QLabel } whose text is "\""GnomePaperSelector?"\""
+in red. If you are porting to KDE, you might want to use the
+corresponding KDE widget.
+
+@PP
+Other GTK+"/"GNOME widgets are only supported in certain contexts.
+For example, the GnomeDruid can be embedded in another widget,
+whereas the corresponding @B{QWizard}qwizard @Index{ QWizard } class cannot.
+}
+@LI{
+Message boxes and other high-level dialogs
+
+@PP
+Glade supports editing of GnomeMessageBox, GtkFileSelection,
+GtkFontSelectionDialog and others. This is trivially achieved
+in Qt by means of a @B{QMessageBox}qmessagebox @Index{ QMessageBox } dialog, a @B{QFileDialog}qfiledialog @Index{ QFileDialog },
+a @B{QFontDialog}qfontdialog @Index{ QFontDialog }, etc., in C++ code.
+}
+@LI{
+Stand-alone popup menus
+
+@PP
+@I{Qt Designer} only supports popup menus inside a @B{QMainWindow}qmainwindow @Index{ QMainWindow }.
+If you need a stand-alone popup menu (presumably a context menu),
+you can easily write code that does this using @B{QPopupMenu}qpopupmenu @Index{ QPopupMenu }.
+}
+@LI{
+Size policy parameters
+
+@PP
+Glade provides size policies in the "\""Place"\"" tab of the property
+editor. @I{Qt Designer} does not attempt to make use of the padding,
+expand, shrink and fill information, as the Qt defaults are usually
+good enough. In a few cases, you might have to set the "\""@I{sizePolicy}"\""
+property manually to obtain the effect you want.
+}
+@LI{
+GNOME standard icons
+
+@PP
+GNOME provides a large set of standard icons. @I{Qt Designer}
+will ignore references to these. If you are porting to KDE, you
+might want to manually set the standard KDE icons.
+}
+@LI{
+Packer layout
+
+@PP
+GTK+ provides a class called GtkPacker that provides for exotic
+layouts; Qt provides no @B{QPackerLayout}qpackerlayout @Index{ QPackerLayout } and never will. @I{Qt
+Designer} will treat packer layouts as if they were vertical
+layouts and you will probably have to change them to whatever
+combination of layouts that produces the right effect.
+}
+@LI{
+Incorrectly-justified text after conversion
+
+@PP
+The "\""@I{hAlign}"\"" property is sometimes set wrongly, in which
+case you have to change it manually. It is caused by a quirk
+in Glade.
+}
+@EndList
+@End @Section
+@EndSections
+@End @Chapter
