@@ -155,7 +155,7 @@ extern void qt_mac_command_set_enabled(MenuRef, UInt32, bool); //qmenu_mac.cpp
 /* Resolution change magic */
 static void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
 {
-    if(msg == kDMNotifyEvent) {
+    if(msg == kDMNotifyEvent && qApp) {
         if(QDesktopWidget *dw = qApp->desktop()) {
             QResizeEvent *re = new QResizeEvent(dw->size(), dw->size());
             QApplication::postEvent(dw, re);
