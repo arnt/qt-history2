@@ -66,7 +66,7 @@ public:
     QTextLayout();
     QTextLayout( const QString& string, QPainter * = 0 );
     QTextLayout( const QString& string, const QFont& fnt );
-    virtual ~QTextLayout();
+    ~QTextLayout();
 
     void setText( const QString& string, const QFont& fnt );
 

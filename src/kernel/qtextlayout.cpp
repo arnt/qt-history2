@@ -259,18 +259,25 @@ void QTextLayout::beginLine( int width )
 
 bool QTextLayout::atEnd() const
 {
-    return d->currentItem == d->items.size();
+    return d->currentItem >= d->items.size();
 }
 
 QTextItem QTextLayout::nextItem()
 {
     d->currentItem++;
+
+    if ( d->currentItem >= d->items.size() )
+	return QTextItem();
+
     d->shape( d->currentItem );
     return QTextItem( d->currentItem, d );
 }
 
 QTextItem QTextLayout::currentItem()
 {
+    if ( d->currentItem >= d->items.size() )
+	return QTextItem();
+
     d->shape( d->currentItem );
     return QTextItem( d->currentItem, d );
 }

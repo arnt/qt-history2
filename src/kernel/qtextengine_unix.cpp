@@ -89,6 +89,7 @@ void QTextEngine::itemize( int mode )
 
 void QTextEngine::shape( int item ) const
 {
+    assert( item < items.size() );
     QScriptItem &si = items[item];
 
     if ( si.num_glyphs )
