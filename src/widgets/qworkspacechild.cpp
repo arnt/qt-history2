@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#24 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -287,7 +287,7 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
 				    rect().bottomRight() ) );
     else
 	titleL->setGeometry( QRect( QPoint( BUTTON_SIZE + bo, to ),
-				    QPoint( iconB->geometry().left() - bo, to + TITLE_HEIGHT ) ) );
+				    QPoint( iconB->geometry().left() - bo - 1, to + TITLE_HEIGHT ) ) );
 
 }
 
