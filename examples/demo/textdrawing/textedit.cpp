@@ -13,7 +13,7 @@
 #include "textedit.h"
 
 #include <qtextedit.h>
-#include <qaction.h>
+#include <q3action.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include <qtoolbar.h>
@@ -51,29 +51,29 @@ void TextEdit::setupFileActions()
     QPopupMenu *menu = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&File" ), menu );
 
-    QAction *a;
-    a = new QAction( tr( "New" ), QPixmap( "textdrawing/filenew.png" ), tr( "&New..." ), CTRL + Key_N, this, "fileNew" );
+    Q3Action *a;
+    a = new Q3Action( tr( "New" ), QPixmap( "textdrawing/filenew.png" ), tr( "&New..." ), CTRL + Key_N, this, "fileNew" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileNew() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Open" ), QPixmap( "textdrawing/fileopen.png" ), tr( "&Open..." ), CTRL + Key_O, this, "fileOpen" );
+    a = new Q3Action( tr( "Open" ), QPixmap( "textdrawing/fileopen.png" ), tr( "&Open..." ), CTRL + Key_O, this, "fileOpen" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
     a->addTo( tb );
     a->addTo( menu );
     menu->insertSeparator();
-    a = new QAction( tr( "Save" ), QPixmap( "textdrawing/filesave.png" ), tr( "&Save..." ), CTRL + Key_S, this, "fileSave" );
+    a = new Q3Action( tr( "Save" ), QPixmap( "textdrawing/filesave.png" ), tr( "&Save..." ), CTRL + Key_S, this, "fileSave" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSave() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Save As" ), QPixmap(), tr( "Save &As..." ), 0, this, "fileSaveAs" );
+    a = new Q3Action( tr( "Save As" ), QPixmap(), tr( "Save &As..." ), 0, this, "fileSaveAs" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSaveAs() ) );
     a->addTo( menu );
     menu->insertSeparator();
-    a = new QAction( tr( "Print" ), QPixmap( "textdrawing/print.png" ), tr( "&Print..." ), CTRL + Key_P, this, "filePrint" );
+    a = new Q3Action( tr( "Print" ), QPixmap( "textdrawing/print.png" ), tr( "&Print..." ), CTRL + Key_P, this, "filePrint" );
     connect( a, SIGNAL( activated() ), this, SLOT( filePrint() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Close" ), QPixmap(), tr( "&Close" ), 0, this, "fileClose" );
+    a = new Q3Action( tr( "Close" ), QPixmap(), tr( "&Close" ), 0, this, "fileClose" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileClose() ) );
     a->addTo( menu );
 }
@@ -84,25 +84,25 @@ void TextEdit::setupEditActions()
     QPopupMenu *menu = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&Edit" ), menu );
 
-    QAction *a;
-    a = new QAction( tr( "Undo" ), QPixmap( "textdrawing/undo.png" ), tr( "&Undo" ), CTRL + Key_Z, this, "editUndo" );
+    Q3Action *a;
+    a = new Q3Action( tr( "Undo" ), QPixmap( "textdrawing/undo.png" ), tr( "&Undo" ), CTRL + Key_Z, this, "editUndo" );
     connect( a, SIGNAL( activated() ), this, SLOT( editUndo() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Redo" ), QPixmap( "textdrawing/redo.png" ), tr( "&Redo" ), CTRL + Key_Y, this, "editRedo" );
+    a = new Q3Action( tr( "Redo" ), QPixmap( "textdrawing/redo.png" ), tr( "&Redo" ), CTRL + Key_Y, this, "editRedo" );
     connect( a, SIGNAL( activated() ), this, SLOT( editRedo() ) );
     a->addTo( tb );
     a->addTo( menu );
     menu->insertSeparator();
-    a = new QAction( tr( "Cut" ), QPixmap( "textdrawing/editcut.png" ), tr( "&Cut" ), CTRL + Key_X, this, "editCut" );
+    a = new Q3Action( tr( "Cut" ), QPixmap( "textdrawing/editcut.png" ), tr( "&Cut" ), CTRL + Key_X, this, "editCut" );
     connect( a, SIGNAL( activated() ), this, SLOT( editCut() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Copy" ), QPixmap( "textdrawing/editcopy.png" ), tr( "C&opy" ), CTRL + Key_C, this, "editCopy" );
+    a = new Q3Action( tr( "Copy" ), QPixmap( "textdrawing/editcopy.png" ), tr( "C&opy" ), CTRL + Key_C, this, "editCopy" );
     connect( a, SIGNAL( activated() ), this, SLOT( editCopy() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Paste" ), QPixmap( "textdrawing/editpaste.png" ), tr( "&Paste" ), CTRL + Key_V, this, "editPaste" );
+    a = new Q3Action( tr( "Paste" ), QPixmap( "textdrawing/editpaste.png" ), tr( "&Paste" ), CTRL + Key_V, this, "editPaste" );
     connect( a, SIGNAL( activated() ), this, SLOT( editPaste() ) );
     a->addTo( tb );
     a->addTo( menu );
@@ -141,40 +141,40 @@ void TextEdit::setupTextActions()
 	     this, SLOT( textSize( const QString & ) ) );
     comboSize->lineEdit()->setText( QString::number( QApplication::font().pointSize() ) );
 
-    actionTextBold = new QAction( tr( "Bold" ), QPixmap( "textdrawing/textbold.png" ), tr( "&Bold" ), CTRL + Key_B, this, "textBold" );
+    actionTextBold = new Q3Action( tr( "Bold" ), QPixmap( "textdrawing/textbold.png" ), tr( "&Bold" ), CTRL + Key_B, this, "textBold" );
     connect( actionTextBold, SIGNAL( activated() ), this, SLOT( textBold() ) );
     actionTextBold->addTo( tb );
     actionTextBold->addTo( menu );
     actionTextBold->setToggleAction( TRUE );
-    actionTextItalic = new QAction( tr( "Italic" ), QPixmap( "textdrawing/textitalic.png" ), tr( "&Italic" ), CTRL + Key_I, this, "textItalic" );
+    actionTextItalic = new Q3Action( tr( "Italic" ), QPixmap( "textdrawing/textitalic.png" ), tr( "&Italic" ), CTRL + Key_I, this, "textItalic" );
     connect( actionTextItalic, SIGNAL( activated() ), this, SLOT( textItalic() ) );
     actionTextItalic->addTo( tb );
     actionTextItalic->addTo( menu );
     actionTextItalic->setToggleAction( TRUE );
-    actionTextUnderline = new QAction( tr( "Underline" ), QPixmap( "textdrawing/textunderline.png" ), tr( "&Underline" ), CTRL + Key_U, this, "textUnderline" );
+    actionTextUnderline = new Q3Action( tr( "Underline" ), QPixmap( "textdrawing/textunderline.png" ), tr( "&Underline" ), CTRL + Key_U, this, "textUnderline" );
     connect( actionTextUnderline, SIGNAL( activated() ), this, SLOT( textUnderline() ) );
     actionTextUnderline->addTo( tb );
     actionTextUnderline->addTo( menu );
     actionTextUnderline->setToggleAction( TRUE );
     menu->insertSeparator();
 
-    QActionGroup *grp = new QActionGroup( this );
+    Q3ActionGroup *grp = new Q3ActionGroup( this );
     grp->setExclusive( TRUE );
-    connect( grp, SIGNAL( selected( QAction* ) ), this, SLOT( textAlign( QAction* ) ) );
+    connect( grp, SIGNAL( selected( Q3Action* ) ), this, SLOT( textAlign( Q3Action* ) ) );
 
-    actionAlignLeft = new QAction( tr( "Left" ), QPixmap( "textdrawing/textleft.png" ), tr( "&Left" ), CTRL + Key_L, grp, "textLeft" );
+    actionAlignLeft = new Q3Action( tr( "Left" ), QPixmap( "textdrawing/textleft.png" ), tr( "&Left" ), CTRL + Key_L, grp, "textLeft" );
     actionAlignLeft->addTo( tb );
     actionAlignLeft->addTo( menu );
     actionAlignLeft->setToggleAction( TRUE );
-    actionAlignCenter = new QAction( tr( "Center" ), QPixmap( "textdrawing/textcenter.png" ), tr( "C&enter" ), CTRL + Key_M, grp, "textCenter" );
+    actionAlignCenter = new Q3Action( tr( "Center" ), QPixmap( "textdrawing/textcenter.png" ), tr( "C&enter" ), CTRL + Key_M, grp, "textCenter" );
     actionAlignCenter->addTo( tb );
     actionAlignCenter->addTo( menu );
     actionAlignCenter->setToggleAction( TRUE );
-    actionAlignRight = new QAction( tr( "Right" ), QPixmap( "textdrawing/textright.png" ), tr( "&Right" ), CTRL + Key_R, grp, "textRight" );
+    actionAlignRight = new Q3Action( tr( "Right" ), QPixmap( "textdrawing/textright.png" ), tr( "&Right" ), CTRL + Key_R, grp, "textRight" );
     actionAlignRight->addTo( tb );
     actionAlignRight->addTo( menu );
     actionAlignRight->setToggleAction( TRUE );
-    actionAlignJustify = new QAction( tr( "Justify" ), QPixmap( "textdrawing/textjustify.png" ), tr( "&Justify" ), CTRL + Key_J, grp, "textjustify" );
+    actionAlignJustify = new Q3Action( tr( "Justify" ), QPixmap( "textdrawing/textjustify.png" ), tr( "&Justify" ), CTRL + Key_J, grp, "textjustify" );
     actionAlignJustify->addTo( tb );
     actionAlignJustify->addTo( menu );
     actionAlignJustify->setToggleAction( TRUE );
@@ -183,7 +183,7 @@ void TextEdit::setupTextActions()
 
     QPixmap pix( 16, 16 );
     pix.fill( black );
-    actionTextColor = new QAction( tr( "Color" ), pix, tr( "&Color..." ), 0, this, "textColor" );
+    actionTextColor = new Q3Action( tr( "Color" ), pix, tr( "&Color..." ), 0, this, "textColor" );
     connect( actionTextColor, SIGNAL( activated() ), this, SLOT( textColor() ) );
     actionTextColor->addTo( tb );
     actionTextColor->addTo( menu );
@@ -429,7 +429,7 @@ void TextEdit::textColor()
     actionTextColor->setIconSet( pix );
 }
 
-void TextEdit::textAlign( QAction *a )
+void TextEdit::textAlign( Q3Action *a )
 {
     if ( !currentEditor() )
 	return;

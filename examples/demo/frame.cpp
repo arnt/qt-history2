@@ -20,7 +20,7 @@
 #include <qpainter.h>
 #include <qwidgetstack.h>
 #include <qstylefactory.h>
-#include <qaction.h>
+#include <q3action.h>
 #include <qsignalmapper.h>
 #include <qdict.h>
 #include <qdir.h>
@@ -43,7 +43,7 @@ Frame::Frame( QWidget *parent, const char *name )
 
     QPopupMenu *styleMenu = new QPopupMenu( this, "style" );
     styleMenu->setCheckable( TRUE );
-    QActionGroup *ag = new QActionGroup( this, 0 );
+    Q3ActionGroup *ag = new Q3ActionGroup( this, 0 );
     ag->setExclusive( TRUE );
     QSignalMapper *styleMapper = new QSignalMapper( this );
     connect( styleMapper, SIGNAL( mapped( const QString& ) ),
@@ -67,7 +67,7 @@ Frame::Frame( QWidget *parent, const char *name )
 	    stylesDict.insert(styleAccel.left(1), 1);
 	    styleAccel = "&"+styleAccel;
 	}
-	QAction *a = new QAction( style, QIconSet(),
+	Q3Action *a = new Q3Action( style, QIconSet(),
 				  styleAccel, 0, ag, 0, ag->isExclusive() );
 	connect( a, SIGNAL( activated() ), styleMapper, SLOT(map()) );
 	styleMapper->setMapping( a, a->text() );
@@ -109,7 +109,7 @@ void Frame::setCategories( const QList<CategoryInterface *> &l )
 QWidget *Frame::createCategoryPage( CategoryInterface *c )
 {
     QButtonGroup *g = new QButtonGroup( 1, Horizontal, toolBox );
-    g->setFrameStyle( QFrame::NoFrame );
+//    g->setFrameStyle( QFrame::NoFrame );
     g->setEraseColor(green);
     g->setBackgroundMode(PaletteBase);
     for ( int i = 0; i < c->numCategories(); ++i ) {

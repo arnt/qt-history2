@@ -4,7 +4,7 @@
 #include <qmainwindow.h>
 
 class QWorkspace;
-class QAction;
+class Q3Action;
 class QPopupMenu;
 class Wrapper;
 
@@ -24,7 +24,7 @@ public:
     void hideEvent(QHideEvent *);
 
     QWorkspace *workspace;
-    QAction *actionClose, *actionCloseAll, *actionTile, *actionCascade;
+    Q3Action *actionClose, *actionCloseAll, *actionTile, *actionCascade;
     QPopupMenu *windowMenu, *newMenu;
     Wrapper *lastwrapper;
 

@@ -8,7 +8,7 @@
 #include <qtoolbar.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
-#include <qaction.h>
+#include <q3action.h>
 #include <qprinter.h>
 #include <qpainter.h>
 #include <qcheckbox.h>
@@ -42,46 +42,46 @@ void GLWorkspace::setupSceneActions()
     QPopupMenu *menu = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&Scene" ), menu );
 
-    QAction *a;
-    QActionGroup *newGroup = new QActionGroup( this );
+    Q3Action *a;
+    Q3ActionGroup *newGroup = new Q3ActionGroup( this );
     newGroup->setMenuText( tr( "&New" ) );
     newGroup->setText( tr( "New" ) );
     newGroup->setUsesDropDown( TRUE );
     newGroup->setExclusive( FALSE );
     newGroup->setIconSet( QPixmap( "textdrawing/filenew.png" ) );
-    a = new QAction( tr( "Wirebox" ), QPixmap( "opengl/wirebox.xpm" ), tr( "&Wirebox" ), 0, newGroup );
+    a = new Q3Action( tr( "Wirebox" ), QPixmap( "opengl/wirebox.xpm" ), tr( "&Wirebox" ), 0, newGroup );
     connect( a, SIGNAL( activated() ), this, SLOT( newWirebox() ) );
-    a = new QAction( tr( "Gear" ), QPixmap( "opengl/gear.xpm" ), tr( "&Gears" ), 0, newGroup );
+    a = new Q3Action( tr( "Gear" ), QPixmap( "opengl/gear.xpm" ), tr( "&Gears" ), 0, newGroup );
     connect( a, SIGNAL( activated() ), this, SLOT( newGear() ) );
-    a = new QAction( tr( "Texture" ), QPixmap( "opengl/texture.xpm" ), tr( "&Texture" ), 0, newGroup );
+    a = new Q3Action( tr( "Texture" ), QPixmap( "opengl/texture.xpm" ), tr( "&Texture" ), 0, newGroup );
     connect( a, SIGNAL( activated() ), this, SLOT( newTexture() ) );
-/*    a = new QAction( tr( "Nurbs" ), QPixmap( "opengl/nurbs.xpm" ), tr( "&Nurbs" ), 0, newGroup );
+/*    a = new Q3Action( tr( "Nurbs" ), QPixmap( "opengl/nurbs.xpm" ), tr( "&Nurbs" ), 0, newGroup );
     connect( a, SIGNAL( activated() ), this, SLOT( newNurbs() ) );*/
     newGroup->addTo( tb );
     newGroup->addTo( menu );
 
     menu->insertSeparator();
-    QActionGroup *printGroup = new QActionGroup( this );
+    Q3ActionGroup *printGroup = new Q3ActionGroup( this );
     printGroup->setMenuText( tr( "&Print" ) );
     printGroup->setText( tr( "Print" ) );
     printGroup->setUsesDropDown( TRUE );
     printGroup->setExclusive( FALSE );
     printGroup->setIconSet( QPixmap( "textdrawing/print.png" ) );
-    QAction *da = new QAction( tr( "Window Size" ), QPixmap( "textdrawing/print.png" ), tr( "&Window Size" ), CTRL + Key_P, printGroup );
+    Q3Action *da = new Q3Action( tr( "Window Size" ), QPixmap( "textdrawing/print.png" ), tr( "&Window Size" ), CTRL + Key_P, printGroup );
     connect( da, SIGNAL( activated() ), this, SLOT( filePrintWindowRes() ) );
-    a = new QAction( tr( "Low Resolution" ), tr( "&Low Resolution" ), 0, printGroup );
+    a = new Q3Action( tr( "Low Resolution" ), tr( "&Low Resolution" ), 0, printGroup );
     connect( a, SIGNAL( activated() ), this, SLOT( filePrintLowRes() ) );
-    a = new QAction( tr( "Medium Resolution" ), tr( "&Medium Resolution" ), 0, printGroup );
+    a = new Q3Action( tr( "Medium Resolution" ), tr( "&Medium Resolution" ), 0, printGroup );
     connect( a, SIGNAL( activated() ), this, SLOT( filePrintMedRes() ) );
-    a = new QAction( tr( "High Resolution" ), tr( "&High Resolution" ), 0, printGroup );
+    a = new Q3Action( tr( "High Resolution" ), tr( "&High Resolution" ), 0, printGroup );
     connect( a, SIGNAL( activated() ), this, SLOT( filePrintHighRes() ) );
     printGroup->addSeparator();
-    a = new QAction( tr( "Setup" ), tr( "&Setup..." ), 0, printGroup );
+    a = new Q3Action( tr( "Setup" ), tr( "&Setup..." ), 0, printGroup );
     connect( a, SIGNAL( activated() ), this, SLOT( filePrintSetup() ) );
     da->addTo( tb );
     printGroup->addTo( menu );
 
-    a = new QAction( tr( "Close" ), QPixmap(), tr( "&Close" ), 0, this );
+    a = new Q3Action( tr( "Close" ), QPixmap(), tr( "&Close" ), 0, this );
     connect( a, SIGNAL( activated() ), this, SLOT( fileClose() ) );
     a->addTo( menu );
 }

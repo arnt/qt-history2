@@ -2,7 +2,7 @@
 #include "wrapper.h"
 #include "../textdrawing/textedit.h"
 
-#include <qaction.h>
+#include <q3action.h>
 #include <qlayout.h>
 #include <qvbox.h>
 #include <qworkspace.h>
@@ -48,25 +48,25 @@ I18nDemo::~I18nDemo()
 
 void I18nDemo::initActions()
 {
-    actionClose = new QAction(tr("Close the current window."),
+    actionClose = new Q3Action(tr("Close the current window."),
 			      tr("Close"),
 			      CTRL + Key_F4,
 			      this);
     connect(actionClose, SIGNAL(activated()), SLOT(closeSlot()));
 
-    actionCloseAll = new QAction(tr("Close all opened windows."),
+    actionCloseAll = new Q3Action(tr("Close all opened windows."),
 				 tr("Close All"),
 				 0,
 				 this);
     connect(actionCloseAll, SIGNAL(activated()), SLOT(closeAllSlot()));
 
-    actionTile = new QAction(tr("Tile opened windows."),
+    actionTile = new Q3Action(tr("Tile opened windows."),
 			     tr("Tile"),
 			     0,
 			     this);
     connect(actionTile, SIGNAL(activated()), SLOT(tileSlot()));
 
-    actionCascade = new QAction(tr("Cascade opened windows."),
+    actionCascade = new Q3Action(tr("Cascade opened windows."),
 				tr("Cascade"),
 				0,
 				this);

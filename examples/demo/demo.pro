@@ -9,6 +9,9 @@ unix:LIBS	+= -lm
 INCLUDEPATH	+= .
 DEPENDPATH	= ../../include
 
+QCONFIG += compat
+DEFINES += QT_COMPAT_WARNINGS
+
 QTDIR_build:REQUIRES	= full-config nocrosscompiler
 
 HEADERS		= frame.h \
@@ -50,6 +53,8 @@ canvas {
 		  qasteroids/toplevel.cpp \
 		  qasteroids/view.cpp \
 		  qasteroids/ledmeter.cpp
+
+    QCONFIG     += canvas
 }
 
 opengl {
@@ -80,6 +85,8 @@ opengl {
 
     FORMS 	+=opengl/printpreview.ui \
 		  opengl/gllandscapeviewer.ui
+
+    QCONFIG     += opengl
 }
 
 sql {
