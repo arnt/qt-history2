@@ -1902,7 +1902,7 @@ void QPainter::drawText(int x, int y, const QString &str, int len, QPainter::Tex
     QFont *f = pfont;
     if(!f)
 	f = &cfont;
-    f->d->drawText(x, y, str, len, pdev, &d->cache.paintreg);
+    f->d->drawText(x, y, str, len, pdev, &d->cache.paintreg, dir);
 }
 
 QPoint QPainter::pos() const
