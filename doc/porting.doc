@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.65 1999/08/06 17:36:06 aavit Exp $
+** $Id: porting.doc,v 1.66 1999/09/03 04:34:59 aavit Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -653,10 +653,10 @@ movie was set, you might have trouble.  This is unlikely.
 <p> The semantics of the parent pointer changed for non-modal dialogs:
 In Qt-2.x, dialogs are always toplevel windows. The parent, however,
 takes the ownership of the dialog, i.e. it will delete the dialog at
-destruction. Furthermore, the window system will be able to tell
-that both the dialog and the parent belong together. Some X11 window
-managers will for instance provide a common taskbar entry in that
-case.
+destruction if it has not been explicitly deleted
+already. Furthermore, the window system will be able to tell that both
+the dialog and the parent belong together. Some X11 window managers
+will for instance provide a common taskbar entry in that case.
 
 <p>
 If the dialog belongs to a toplevel main window
