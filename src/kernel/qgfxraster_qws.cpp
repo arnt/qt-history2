@@ -3204,8 +3204,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 						    bool reverse)
  \a l points to the start of the destination line's data.
  \a x1 and \a x2 are the start and end pixels.
- \a srcdata points to the source's left pixel start byte if \a reverse is 
- false. srcdata points to the source's right pixels's start byte if reverse 
+ \a srcdata points to the source's left pixel start byte if \a reverse is
+ false. srcdata points to the source's right pixels's start byte if reverse
  is true. reverse will only be true if the source and destination are the same
  buffer and a mask is set.
  Image data comes from of the setSource calls (in which case the
@@ -4986,6 +4986,125 @@ void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
   There can only be one screen in a Qt/Embedded application.
 */
 
+/*!
+\fn QScreen::initDevice()
+This function is called by the Qt/Embedded server when initialising
+the framebuffer. Accelerated drivers use it to set up the graphics card.
+*/
+
+/*!
+\fn QScreen::connect( const QString &displaySpec )
+This function is called by every Qt/Embedded application on startup.
+It maps in the framebuffer and in the accelerated drivers the graphics
+card control registers.
+*/
+
+/*!
+\fn QScreen::disconnect()
+This function is called by every Qt/Embedded application just
+before exitting; it's normally used to unmap the framebuffer.
+*/
+
+/*!
+\fn QScreen::setMode(int, int, int)
+This function can be used to set the framebuffer width, height and
+depth. It's currently unused.
+*/
+
+/*!
+\fn QScreen::blank(bool on)
+If \a on is true, blank the screen. Otherwise unblank it.
+*/
+
+/*!
+\fn QScreen::pixmapOffsetAlignment()
+Returns the value in bytes to which the start address of pixmaps held in 
+graphics card memory should be aligned. This is only useful for accelerated
+drivers. By default the value returned is 64 but it can be overridden
+by individual accelerated drivers.
+*/
+
+/*!
+\fn QScreen::pixmapLinestepAlignment()
+Returns the value in bytes to which individual scanlines of pixmaps held in 
+graphics card memory should be aligned. This is only useful for accelerated
+drivers. By default the value returned is 64 but it can be overridden
+by individual accelerated drivers.
+*/
+
+/*!
+\fn QScreen::width() const
+Gives the width in pixels of the framebuffer.
+*/
+
+/*!
+\fn QScreen::height() const
+Gives the height in pixels of the framebuffer.
+*/
+
+/*!
+\fn QScreen::depth() const
+Gives the depth in bits per pixel of the framebuffer. This is the number
+of bits each pixel takes up rather than the number of significant bits,
+so 24bpp and 32bpp express the same range of colours (8 bits of
+red, green and blue)
+*/
+
+/*!
+\fn QScreen::pixmapDepth() const
+Gives the preferred depth for pixmaps. By default this is the same
+as the screen depth, but for the VGA16 driver it's 8bpp.
+*/
+
+/*!
+\fn QScreen::linestep() const
+Returns the length in bytes of each scanline of the framebuffer.
+*/
+
+/*!
+  \fn QScreen::deviceWidth() const
+Gives the full width of the framebuffer device, as opposed to the
+width which Qt/Embedded will actually use. These can differ if the
+display is centered within the framebuffer.
+*/
+
+/*!
+  \fn QScreen::deviceHeight() const
+Gives the full height of the framebuffer device, as opposed to the
+height which Qt/Embedded will actually use. These can differ if the
+display is centered within the framebuffer.
+*/
+
+/*!
+  \fn QScreen::base() const
+Returns a pointer to the start of the framebuffer.
+*/
+
+/*!
+  \fn QScreen::cache(int,int)
+This function is used to store pixmaps in graphics memory for the
+use of the accelerated drivers. See QLinuxFbScreen (where the cacheing
+is implemented) for more information.
+*/
+
+/*!
+  \fn QScreen::uncache(uchar *)
+This function is called on pixmap destruction to remove them from
+graphics card memory.
+*/
+
+/*!
+  \fn QScreen::screenSize() const
+Returns the size in bytes of the screen. This is always located at
+the beginning of framebuffer memory (i.e. at base()).
+*/
+
+/*!
+  \fn QScreen::totalSize() const
+Returns the size in bytes of available graphics card memory, including the 
+screen. Offscreen memory is only used by the accelerated drivers.
+*/
+
 // Unaccelerated screen/driver setup. Can be overridden by accelerated
 // drivers
 
@@ -4993,6 +5112,17 @@ void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
   \fn QScreen::QScreen( int display_id )
   Create a screen; the \a display_id is the number of the Qt/Embedded server
   to connect to.
+*/
+
+/*!
+  \fn QScreen::clut()
+  Returns the screen's colour lookup table (colour palette). This is only
+  valid in paletted modes (8bpp and lower).
+*/
+
+/*!
+  \fn QScreen::numCols()
+  Returns the number of entries in the colour table returned by clut().
 */
 
 QScreen::QScreen( int display_id )
