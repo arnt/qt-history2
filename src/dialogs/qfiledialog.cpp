@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#265 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#266 $
 **
 ** Implementation of QFileDialog class
 **
@@ -618,8 +618,12 @@ void QFileListBox::viewportMouseReleaseEvent( QMouseEvent *e )
 {
     QListBox::viewportMouseReleaseEvent( e );
     mousePressed = FALSE;
-    if ( e->button() == RightButton && currentItem() != -1 )
-	filedialog->popupContextMenu( item( currentItem() ), mapToGlobal( e->pos() ) );
+    if ( e->button() == RightButton && currentItem() != -1 ) {
+	QListBoxItem *i = item( currentItem() );
+	if ( !itemRect( i ).contains( e->pos() ) )
+	    setSelected( i, FALSE );
+	filedialog->popupContextMenu( i, mapToGlobal( e->pos() ) );
+    }
 }
 
 void QFileListBox::viewportMouseDoubleClickEvent( QMouseEvent *e )
@@ -2793,13 +2797,13 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
     action = PA_Cancel;
 
     bool glob = TRUE;
-    
+
     if ( d->moreFiles->isVisible() ) {
 	QListBoxItem *i = d->moreFiles->item( d->moreFiles->currentItem() );
 	glob = !i || !i->selected();
     } else
 	glob = filename.isEmpty();
-    
+
     QPopupMenu m( 0, "file dialog context menu" );
     m.setCheckable( TRUE );
 
