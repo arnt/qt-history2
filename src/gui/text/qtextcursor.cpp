@@ -612,8 +612,6 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
     Q_ASSERT(formats->format(formatIdx).isCharFormat());
 
     QTextBlockFormat blockFmt = blockFormat();
-    if (format.isBlockFormat())
-        blockFmt = format.toBlockFormat();
 
     QStringList blocks = text.split(QChar::ParagraphSeparator);
     for (int i = 0; i < blocks.size(); ++i) {
