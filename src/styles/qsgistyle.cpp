@@ -161,9 +161,11 @@ void
 QSGIStyle::unPolish( QApplication* /* app */ )
 {
     QFont f = QApplication::font();
-    QApplication::setFont( f, TRUE, "QPopupMenu" );
-    QApplication::setFont( f, TRUE, "QMenuBar" );
-    QApplication::setFont( f, TRUE, "QComboBox" );
+    QApplication::setFont( f, TRUE ); // get rid of the special fonts for special widget classes
+    
+//     QApplication::setFont( f, TRUE, "QPopupMenu" );
+//     QApplication::setFont( f, TRUE, "QMenuBar" );
+//     QApplication::setFont( f, TRUE, "QComboBox" );
 }
 
 /*! \reimp

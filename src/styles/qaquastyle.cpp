@@ -149,20 +149,14 @@ QAquaStyle::~QAquaStyle()
 }
 
 /*! \reimp */
-void QAquaStyle::polish( QPalette & pal )
+void QAquaStyle::polish( QApplication* app )
 {
-    oldPalette = pal;
-
     QPixmap px;
     qAquaPixmap( "gen_back", px );
     QBrush background( Qt::black, px );
-    pal.setBrush( QPalette::Active, QColorGroup::Background, background );
-    pal.setBrush( QPalette::Inactive, QColorGroup::Background, background );
-    pal.setBrush( QPalette::Disabled, QColorGroup::Background, background );
-
-    pal.setBrush( QPalette::Active, QColorGroup::Button, background );
-    pal.setBrush( QPalette::Inactive, QColorGroup::Button, background );
-    pal.setBrush( QPalette::Disabled, QColorGroup::Button, background );
+    QPalette pal = app->palette();
+    pal.setBrush( QColorGroup::Background, background );
+    pal.setBrush( QColorGroup::Button, background );
 
     pal.setColor( QPalette::Inactive, QColorGroup::ButtonText,
                   QColor( 148,148,148 ));
@@ -173,16 +167,9 @@ void QAquaStyle::polish( QPalette & pal )
     pal.setColor( QPalette::Inactive, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
     pal.setColor( QPalette::Disabled, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
 
-    pal.setColor( QPalette::Active, QColorGroup::HighlightedText, Qt::black);
-    pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, Qt::black);
-    pal.setColor( QPalette::Disabled, QColorGroup::HighlightedText, Qt::black);
-}
-
-/*! \reimp */
-void QAquaStyle::unPolish( QPalette & pal )
-{
-    pal = oldPalette;
-    qApp->setPalette( pal, TRUE );
+    pal.setColor( QColorGroup::HighlightedText, Qt::black);
+    
+    app->setPalette( pal, TRUE );
 }
 
 /*! \reimp */
@@ -1355,8 +1342,8 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    else
 		qAquaPixmap( "spinbtn_down_off_" + wstr + "_" + hstr, btn );
 	    p->drawPixmap( sr.x(), sr.y(), btn );
-	} 
-	if(sub & SC_SpinWidgetFrame) 
+	}
+	if(sub & SC_SpinWidgetFrame)
 	    QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, SC_SpinWidgetFrame, subActive, data);
 	break; }
 

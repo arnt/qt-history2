@@ -60,8 +60,7 @@ public:
 
     void polish( QWidget * w );
     void unPolish( QWidget * w );
-    void polish( QPalette & pal );
-    void unPolish( QPalette & pal );
+    void polish( QApplication* );
 
     // new stuff
     void drawPrimitive( PrimitiveElement pe,
@@ -124,8 +123,6 @@ private:        // Disabled copy constructor and operator=
     QAquaStyle( const QAquaStyle & );
     QAquaStyle& operator=( const QAquaStyle & );
 #endif
-    QPalette oldPalette;
-
     QAquaStylePrivate *d;
 };
 

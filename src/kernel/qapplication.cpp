@@ -1125,8 +1125,7 @@ void QApplication::setStyle( QStyle *style )
     if ( !qt_std_pal )
 	qt_create_std_palette();
     QPalette tmpPal = *qt_std_pal;
-    app_style->polish( tmpPal );
-	setPalette( tmpPal, TRUE );
+    setPalette( tmpPal, TRUE );
 
     // initialize the application with the new style
     app_style->polish( qApp );
@@ -1450,7 +1449,7 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 {
     QPalette pal = palette;
 #ifndef QT_NO_STYLE
-    if ( !startingUp() )
+    if ( !startingUp() ) // on startup this has been done already
 	qApp->style().polish( pal );	// NB: non-const reference
 #endif
     bool all = FALSE;
