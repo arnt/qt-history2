@@ -29,31 +29,31 @@ class Q_CORE_EXPORT QDebug
         QString buffer;
         int ref;
         bool space;
-    } *d;
+    } *stream;
 public:
-    inline QDebug():d(new Stream){}
-    inline QDebug(const QDebug &o):d(o.d){++d->ref;}
-    inline ~QDebug() {if (!--d->ref) { qDebug(d->buffer.latin1()); delete d; } }
-    inline QDebug &space() { d->space = true; d->ts << ' '; return *this; }
-    inline QDebug &nospace() { d->space = false; return *this; }
-    inline QDebug &maybeSpace() { if (d->space) d->ts << ' '; return *this; }
+    inline QDebug():stream(new Stream){}
+    inline QDebug(const QDebug &o):stream(o.stream){++stream->ref;}
+    inline ~QDebug() {if (!--stream->ref) { qDebug(stream->buffer.latin1()); delete stream; } }
+    inline QDebug &space() { stream->space = true; stream->ts << ' '; return *this; }
+    inline QDebug &nospace() { stream->space = false; return *this; }
+    inline QDebug &maybeSpace() { if (stream->space) stream->ts << ' '; return *this; }
 
-    inline QDebug &operator<<(QChar t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(char t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(signed short t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(unsigned short t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(signed int t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(unsigned int t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(signed long t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(unsigned long t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(Q_LLONG t) { d->ts << QString::number(t); return maybeSpace(); }
-    inline QDebug &operator<<(Q_ULLONG t) { d->ts << QString::number(t); return maybeSpace(); }
-    inline QDebug &operator<<(float t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(double t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(const char* t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(const QString & t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(const QByteArray & t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(const void * t) { d->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(QChar t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(char t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(signed short t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(unsigned short t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(signed int t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(unsigned int t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(signed long t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(unsigned long t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(Q_LLONG t) { stream->ts << QString::number(t); return maybeSpace(); }
+    inline QDebug &operator<<(Q_ULLONG t) { stream->ts << QString::number(t); return maybeSpace(); }
+    inline QDebug &operator<<(float t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(double t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(const char* t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(const QString & t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(const QByteArray & t) { stream->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(const void * t) { stream->ts << t; return maybeSpace(); }
     template <class T>
     inline QDebug &operator<<(const QList<T> &list)
     {
@@ -68,12 +68,12 @@ public:
     }
 
     inline QDebug &operator<<(QTSFUNC f) {
-        d->ts << f;
+        stream->ts << f;
         return *this;
     }
 
     inline QDebug &operator<<(QTSManip m)
-        { d->ts << m; return *this; }
+        { stream->ts << m; return *this; }
 };
 inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(); }
 
