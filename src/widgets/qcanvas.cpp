@@ -309,13 +309,13 @@ private:
 
 
 /*!
-\class QCanvas QCanvas.h
+\class QCanvas qcanvas.h
 \brief A QCanvas is a 2D graphic area upon which QCanvasItem objects are drawn.
 
 The QCanvas and related classes (primarily QCanvasView and
 QCanvasSprite, but also the other sprite abstractions)
 provide for multiple concurrent views of a 2D area
-containing moving graphical objects.  
+containing moving graphical objects.
 
 The QCanvas is also an indexing mechanism to the sprites it contains,
 providing 2D-area-based iteration and pixelwise collision detection.
@@ -327,19 +327,19 @@ interest to the typical user are, in approximate
 order of decreasing usefulness:
 
 <ul>
-      <li> \link QCanvas QCanvas \endlink (int w, int h, int chunksize, int maxclusters) 
-      <li> void \link update update \endlink () 
-      <li> int \link width width \endlink () const 
-      <li> int \link height height \endlink () const 
-      <li> QCanvasIteratorPrivate* \link topAt topAt \endlink (int x, int y) 
-      <li> QCanvasIteratorPrivate* \link lookIn lookIn \endlink (int x, int y, int w, int h) 
-      <li> QCanvasItem* \link at at \endlink (QCanvasIteratorPrivate*) const 
-      <li> bool \link exact exact \endlink (QCanvasIteratorPrivate*) const 
-      <li> void \link next next \endlink (QCanvasIteratorPrivate*&) 
-      <li> void \link end end \endlink (QCanvasIteratorPrivate*&) 
-      <li> void \link protectFromChange protectFromChange \endlink (QCanvasIteratorPrivate*) 
-      <li> virtual void \link drawBackground drawBackground \endlink (QPainter&, const QRect& area) 
-      <li> virtual void \link drawForeground drawForeground \endlink (QPainter&, const QRect& area) 
+      <li> \link QCanvas QCanvas \endlink (int w, int h, int chunksize, int maxclusters)
+      <li> void \link update update \endlink ()
+      <li> int \link width width \endlink () const
+      <li> int \link height height \endlink () const
+      <li> QCanvasIteratorPrivate* \link topAt topAt \endlink (int x, int y)
+      <li> QCanvasIteratorPrivate* \link lookIn lookIn \endlink (int x, int y, int w, int h)
+      <li> QCanvasItem* \link at at \endlink (QCanvasIteratorPrivate*) const
+      <li> bool \link exact exact \endlink (QCanvasIteratorPrivate*) const
+      <li> void \link next next \endlink (QCanvasIteratorPrivate*&)
+      <li> void \link end end \endlink (QCanvasIteratorPrivate*&)
+      <li> void \link protectFromChange protectFromChange \endlink (QCanvasIteratorPrivate*)
+      <li> virtual void \link drawBackground drawBackground \endlink (QPainter&, const QRect& area)
+      <li> virtual void \link drawForeground drawForeground \endlink (QPainter&, const QRect& area)
 </ul>
 
 This class provides for very high redraw efficiency.  The properties
@@ -1201,7 +1201,7 @@ void QCanvas::protectFromChange(QCanvasIteratorPrivate* p)
 unsigned int QCanvas::posprec=0;
 
 /*!
-\class QCanvas QCanvas.h
+\class QCanvas qcanvas.h
 \brief A QCanvas with a background image.
 
 Although it is not very useful to provide a complex background drawing
@@ -1291,7 +1291,7 @@ void QCanvas::drawBackground(QPainter& painter, const QRect& area)
 }
 
 /*!
-  \class QCanvas QCanvas.h
+  \class QCanvas qcanvas.h
   \brief A canvas with a background composed of rectangular tiles.
 
   The background drawn by QCanvas is a matrix of
@@ -1331,12 +1331,12 @@ static int scm(int a, int b)
   The chunksize is the
   smallest common multiple of \a tilewidth and \a tileheight (for
   example SCM(16,32)==2).
-*/ 
-QCanvas::QCanvas( QPixmap p, 
+*/
+QCanvas::QCanvas( QPixmap p,
         int h, int v, int tilewidth, int tileheight,
         int chunksize, int maxclusters )
 {
-    init(h*tilewidth, v*tileheight, 
+    init(h*tilewidth, v*tileheight,
         chunksize < 0 ? scm(tilewidth,tileheight) : chunksize,
 	maxclusters );
     initTiles( p, h, v, tilewidth, tileheight );
@@ -1350,11 +1350,11 @@ void QCanvas::initTiles(QPixmap p,
     if ( h && v ) {
 	grid = new ushort[h*v];
 	memset( grid, 0, h*v*sizeof(ushort) );
-	setTiles( p, tilewidth, tileheight ); 
+	setTiles( p, tilewidth, tileheight );
     } else {
 	grid = 0;
     }
-} 
+}
 
 /*!
   \fn int tile( int x, int y ) const
@@ -1421,7 +1421,7 @@ class QCanvasItemExtra {
 
 
 /*!
-\class QCanvasItem QCanvas.h
+\class QCanvasItem qcanvas.h
 \brief An abstract graphic object on a QCanvas.
 
 This class will primarily be of interest to those wanting to
@@ -1453,7 +1453,7 @@ coordinates place it far off the edge of the area of the QCanvas.
 
 Derived classes should call addToChunks()
 in their constructor once x(), y(), and image() are valid.
-*/ 
+*/
 
 /*!
 Construct a QCanvasItem on the current canvas.
@@ -1696,7 +1696,7 @@ Same as QCanvas::x_to_world(int i)
 */
 
 /*!
-\class QCanvasPixmap QCanvas.h
+\class QCanvasPixmap qcanvas.h
 \brief A QCanvasPixmap is a sprite frame image
 
 Note that QCanvasPixmap should be considered an internal class at
@@ -1836,7 +1836,7 @@ QCanvasPixmap::~QCanvasPixmap()
 */
 
 /*!
-\class QCanvasPixmapSequence QCanvas.h
+\class QCanvasPixmapSequence qcanvas.h
 \brief A sequence of QCanvasPixmap
 to have multiple frames for animation.
 
@@ -1938,7 +1938,7 @@ Returns the length of the sequence.
 */
 
 /*!
-When testing sprite collision detection with QCanvas::exact(QCanvasIteratorPrivate*), 
+When testing sprite collision detection with QCanvas::exact(QCanvasIteratorPrivate*),
 the default is to use the image mask of the sprite.  By using
 readCollisionMasks(const char*), an alternate mask can be used.
 Also, by using QCanvasItem::setPixelCollisionPrecision(int),
@@ -1988,7 +1988,7 @@ bool QCanvasPixmapSequence::readCollisionMasks(const char* fname)
 }
 
 /*!
-\class QCanvasItem QCanvas.h
+\class QCanvasItem qcanvas.h
 \brief A QCanvasItem which renders as a masked image.
 
 \sa QCanvasSprite
@@ -2238,7 +2238,7 @@ bool QCanvasSprite::at(const QImage* yourimage, const QRect& yourarea) const
 
     // yourimage != 0
 
-    // XXX 
+    // XXX
     // XXX A non-linear search would typically be more
     // XXX efficient.  Optimal would be spiralling out
     // XXX from the center, but a simple vertical expansion
@@ -2246,7 +2246,7 @@ bool QCanvasSprite::at(const QImage* yourimage, const QRect& yourarea) const
     // XXX
     // XXX My sister just had a baby 40 minutes ago, so
     // XXX I'm too brain-spun to implement it correctly!
-    // XXX 
+    // XXX
     //
 
     // Let's make an assumption.  That sprite masks don't have
@@ -2433,7 +2433,7 @@ void QCanvasSprite::draw(QPainter& painter)
 }
 
 /*!
-\class QCanvasView QCanvas.h
+\class QCanvasView qcanvas.h
 \brief An abstraction which views a QCanvas
 
 Use one of the derived classes.
@@ -2491,7 +2491,7 @@ be double buffered for all views.
 */
 
 /*!
-\class QCanvasView QCanvas.h
+\class QCanvasView qcanvas.h
 \brief A QWidget which views a QCanvas
 
 This is where QCanvas meets a QWidget - this class displays
@@ -2526,7 +2526,7 @@ qDebug(repaint_from_moving?"Moving":"Updating");
 }
 
 /*!
-\class QCanvasView QCanvas.h
+\class QCanvasView qcanvas.h
 \brief A QWidget which views a QCanvas, and has scrollbars.
 */
 
@@ -2553,7 +2553,7 @@ QRect QCanvasView::viewArea() const
 }
 
 /*!
-\class QCanvasPolygonalItem QCanvas.h
+\class QCanvasPolygonalItem qcanvas.h
 \brief A QCanvasItem which renders itself in a polygonal area.
 
 QCanvasPolygonalItem is an abstract class that is useful for all items
@@ -2695,7 +2695,7 @@ bool QCanvasPolygonalItem::scan(const QRect& win) const
 	for (; k<n && g_pt[ind[k]].y()<=y; k++) {
 	    /* to simplify, if pt.y=y+.5, pretend it's above */
 	    /* invariant: y-.5 < g_pt[i].y <= y+.5 */
-	    i = ind[k];	
+	    i = ind[k];
 	    /*
 	     * insert or delete edges before and after vertex i (i-1 to i,
 	     * and i to i+1) from active list if they cross scanline y
@@ -3012,11 +3012,11 @@ void QCanvasEllipse::drawShape(class QPainter & p)
 
 
 /*!
-\class QCanvasText QCanvas.h
+\class QCanvasText qcanvas.h
 \brief A text object on a QCanvas.
 
   A QCanvasText has text, a font, color, and position.
-*/ 
+*/
 
 /*!
   Construct a QCanvasText with the text "<text>".
@@ -3078,17 +3078,17 @@ void QCanvasText::setRect()
   flags available to QPainter::drawText().
 
   <ul>
-       <li> AlignLeft aligns to the left border. 
-       <li> AlignRight aligns to the right border. 
-       <li> AlignHCenter aligns horizontally centered. 
-       <li> AlignTop aligns to the top border. 
-       <li> AlignBottom aligns to the bottom border. 
-       <li> AlignVCenter aligns vertically centered 
-       <li> AlignCenter (= AlignHCenter | AlignVCenter) 
-       <li> SingleLine ignores newline characters in the text. 
-       <li> ExpandTabs expands tabulators. 
-       <li> ShowPrefix displays "&x" as "x" underlined. 
-       <li> GrayText grays out the text. 
+       <li> AlignLeft aligns to the left border.
+       <li> AlignRight aligns to the right border.
+       <li> AlignHCenter aligns horizontally centered.
+       <li> AlignTop aligns to the top border.
+       <li> AlignBottom aligns to the bottom border.
+       <li> AlignVCenter aligns vertically centered
+       <li> AlignCenter (= AlignHCenter | AlignVCenter)
+       <li> SingleLine ignores newline characters in the text.
+       <li> ExpandTabs expands tabulators.
+       <li> ShowPrefix displays "&x" as "x" underlined.
+       <li> GrayText grays out the text.
   </ul>
 
   The DontClip and WordBreak flags are not supported.
