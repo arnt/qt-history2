@@ -330,8 +330,11 @@ void ProdCons::stop()
 	cons->wait();
     }
 
-    startbutton->setEnabled(TRUE);
-    stopbutton->setEnabled(FALSE);
+    if ( ! loopcheckbox->isChecked() ) {
+	// no point in repainting these buttons so many times is we are looping...
+	startbutton->setEnabled(TRUE);
+	stopbutton->setEnabled(FALSE);
+    }
 
     stopped = TRUE;
 }
