@@ -136,8 +136,6 @@ public:
     virtual QVariant property( const char *name ) const;
 #endif // QT_NO_PROPERTIES
 
-    virtual QAccessibleInterface *accessibleInterface();
-
 signals:
     void	 destroyed();
     void	 accessibilityChanged( int reason );
@@ -174,6 +172,8 @@ protected:
 				   const char *member );
     static QCString normalizeSignalSlot( const char *signalSlot );
 
+    virtual QAccessibleInterface *accessibleInterface();
+
 private:
     uint	isSignal   : 1;
     uint	isWidget   : 1;
@@ -197,6 +197,9 @@ private:
     friend class QWidget;
     friend class QSignal;
     friend class QSenderObject;
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    friend class QAccessible;
+#endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

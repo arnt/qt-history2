@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#491 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#492 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -52,6 +52,7 @@
 #endif
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
+#include <qaccessible.h>
 #include <winable.h>
 #include <oleacc.h>
 #ifndef WM_GETOBJECT
@@ -159,7 +160,6 @@ QWidget	       *qt_button_down = 0;		// widget got last button-down
 static HWND	autoCaptureWnd = 0;
 static void	setAutoCapture( HWND );		// automatic capture
 static void	releaseAutoCapture();
-
 typedef void (*VFPTR)();
 typedef QValueList<VFPTR> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
@@ -1875,7 +1875,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			break;
 		    }
 
-		    QAccessibleInterface *acc = widget->accessibleInterface();
+		    QAccessibleInterface *acc = QAccessible::accessibleInterface( widget );
 		    if ( !acc ) {
 			result = FALSE;
 			break;
@@ -1885,7 +1885,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    QApplication::sendEvent( widget, &e );
 
 		    // and get an instance of the IAccessibile implementation
-		    IAccessible *iface = qt_createWindowsAccessible( widget->accessibleInterface() );
+		    IAccessible *iface = qt_createWindowsAccessible( acc );
 		    LRESULT res = LresultFromObject( IID_IAccessible, wParam, iface );  // ref == 2
 		    iface->Release(); // the client will release the object again, and then it will destroy itself
 

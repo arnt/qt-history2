@@ -2,6 +2,9 @@
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 
+#include "qptrdict.h"
+#include "qobject.h"
+
 /*!
   \class QAccessibleInterface qaccessible.h
   \brief The QAccessibleInterface class is an interface that exposes information about accessible objects.
@@ -215,6 +218,20 @@
   \fn QAccessibleInterface *QAccessibleInterface::hasFocus( int *who ) const
 */
 
+static QPtrDict<QAccessibleInterface> *qAccessibleInterface = 0;
+
+QAccessibleInterface *QAccessible::accessibleInterface( QObject *object )
+{
+    if ( !object )
+	return 0;
+
+    QAccessibleInterface *iface = 0;
+    if ( qAccessibleInterface )
+	iface = qAccessibleInterface->find( object );
+    if ( !iface )
+	iface = object->accessibleInterface();
+    return iface;
+}
 
 /*!
   \class QAccessibleObject qaccessible.h
@@ -227,9 +244,12 @@
 /*!
   Creates a QAccessibleObject.
 */
-QAccessibleObject::QAccessibleObject()
-: ref( 0 )
+QAccessibleObject::QAccessibleObject( QObject *object )
+: ref( 0 ), object_(object)
 {
+    if ( !qAccessibleInterface )
+	qAccessibleInterface = new QPtrDict<QAccessibleInterface>( 73 );
+    qAccessibleInterface->insert( object, this );
 }
 
 /*!
@@ -240,6 +260,13 @@ QAccessibleObject::QAccessibleObject()
 */
 QAccessibleObject::~QAccessibleObject()
 {
+    if ( qAccessibleInterface ) {
+	qAccessibleInterface->remove( object_ );
+	if ( !qAccessibleInterface->count() ) {
+	    delete qAccessibleInterface;
+	    qAccessibleInterface = 0;
+	}
+    }
 }
 
 /*!
@@ -277,6 +304,14 @@ ulong QAccessibleObject::release()
 	return 0;
     }
     return ref;
+}
+
+/*!
+  Returns the QObject for which this QAccessibleInterface implementation provides information.
+*/
+QObject *QAccessibleObject::object() const
+{
+    return object_;
 }
 
 #endif

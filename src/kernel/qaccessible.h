@@ -10,6 +10,7 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 
 class QObject;
+struct QAccessibleInterface;
 
 class Q_EXPORT QAccessible
 {
@@ -161,6 +162,8 @@ public:
 	NavLastChild	= 0x00000008,
 	NavDirectionMax	= 0x00000009
     };
+
+    static QAccessibleInterface *accessibleInterface( QObject * );
 };
 
 // {EC86CB9C-5DA0-4c43-A739-13EBDF1C6B14}
@@ -198,15 +201,18 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
 class Q_EXPORT QAccessibleObject : public QAccessibleInterface
 {
 public:
-    QAccessibleObject();
+    QAccessibleObject( QObject *object );
     virtual ~QAccessibleObject();
 
     void queryInterface( const QUuid &, QUnknownInterface** );
     ulong addRef();
     ulong release();
 
+    QObject *object() const;
+
 private:
     ulong ref;
+    QObject *object_;
 };
 
 #endif //QT_ACCESSIBILITY_SUPPORT

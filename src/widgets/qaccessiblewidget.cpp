@@ -27,18 +27,10 @@
 */
 QAccessibleWidget::QAccessibleWidget( QWidget *w, Role role, QString name, 
     QString description, QString value, QString help, QString defAction, QString accelerator )
-    : QAccessibleObject(), widget_( w ), role_(role), name_(name), 
+    : QAccessibleObject( w ), role_(role), name_(name), 
       description_(description),value_(value),help_(help), 
       defAction_(defAction), accelerator_(accelerator)
 {
-}
-
-/*!
-  Returns the widget for which this QAccessibleInterface implementation provides information.
-*/
-QWidget *QAccessibleWidget::widget() const
-{
-    return widget_;
 }
 
 /*! 
@@ -49,17 +41,18 @@ QWidget *QAccessibleWidget::widget() const
 QAccessibleInterface* QAccessibleWidget::hitTest( int x, int y, int *who ) const
 {
     *who = 0;
-    QPoint gp = widget_->mapToGlobal( QPoint( 0, 0 ) );
-    if ( !QRect( gp.x(), gp.y(), widget_->width(), widget_->height() ).contains( x, y ) )
+    QWidget *widget = (QWidget*)object();
+    QPoint gp = widget->mapToGlobal( QPoint( 0, 0 ) );
+    if ( !QRect( gp.x(), gp.y(), widget->width(), widget->height() ).contains( x, y ) )
 	return 0;
 
-    QPoint rp = widget_->mapFromGlobal( QPoint( x, y ) );
-    QWidget *w = widget_->childAt( rp, TRUE );
+    QPoint rp = widget->mapFromGlobal( QPoint( x, y ) );
+    QWidget *w = widget->childAt( rp, TRUE );
 
-    QAccessibleInterface *cacc = w->accessibleInterface();
+    QAccessibleInterface *cacc = QAccessible::accessibleInterface( w );
     if ( cacc )
 	return cacc;
-    return widget_->accessibleInterface();
+    return QAccessible::accessibleInterface( widget );
 }
 
 /*!
@@ -74,9 +67,10 @@ QRect	QAccessibleWidget::location( int who ) const
     if ( who )
 	qWarning( "QAccessibleWidget::location: This implementation does not support subelements!" );
 #endif
-    QPoint wpos = widget_->mapToGlobal( QPoint( 0, 0 ) );
+    QWidget *widget = (QWidget*)object();
+    QPoint wpos = widget->mapToGlobal( QPoint( 0, 0 ) );
 
-    return QRect( wpos.x(), wpos.y(), widget_->width(), widget_->height() );
+    return QRect( wpos.x(), wpos.y(), widget->width(), widget->height() );
 }
 
 /*!
@@ -86,12 +80,13 @@ QRect	QAccessibleWidget::location( int who ) const
 */
 QAccessibleInterface *QAccessibleWidget::navigate( NavDirection dir, int *target ) const
 {
+    QWidget *widget = (QWidget*)object();
     QObject *o = 0;
     switch ( dir ) {
     case NavFirstChild:
     case NavLastChild:
 	{
-	    QObjectList *cl = widget_->queryList( "QWidget", 0, FALSE, FALSE );
+	    QObjectList *cl = widget->queryList( "QWidget", 0, FALSE, FALSE );
 	    if ( !cl )
 		return 0;
 	    if ( dir == NavFirstChild )
@@ -99,13 +94,13 @@ QAccessibleInterface *QAccessibleWidget::navigate( NavDirection dir, int *target
 	    else
 		o = cl->last();
 	    delete cl;
-	    return o ? o->accessibleInterface() : 0;
+	    return QAccessible::accessibleInterface( o );
 	}
 	break;
     case NavNext:
     case NavPrevious:
 	{
-	    QWidget *parent = widget_->parentWidget();
+	    QWidget *parent = widget->parentWidget();
 	    QObjectList *sl = parent ? parent->queryList( "QWidget", 0, FALSE, FALSE ) : 0;
 	    if ( !sl )
 		return 0;
@@ -114,20 +109,20 @@ QAccessibleInterface *QAccessibleWidget::navigate( NavDirection dir, int *target
 	    if ( dir == NavNext ) {
 		while ( ( sib = it.current() ) ) {
 		    ++it;
-		    if ( sib == widget_ )
+		    if ( sib == widget )
 			break;
 		}
 	    } else {
 		it.toLast();
 		while ( ( sib = it.current() ) ) {
 		    --it;
-		    if ( sib == widget_ )
+		    if ( sib == widget )
 			break;
 		}
 	    }
 	    sib = it.current();
 	    if ( sib )
-		return sib->accessibleInterface();
+		return QAccessible::accessibleInterface( sib );
 	    return 0;
 	}
 	break;
@@ -144,7 +139,7 @@ QAccessibleInterface *QAccessibleWidget::navigate( NavDirection dir, int *target
 */
 int QAccessibleWidget::childCount() const
 {
-    QObjectList *cl = widget_->queryList( "QWidget", 0, FALSE, FALSE );
+    QObjectList *cl = object()->queryList( "QWidget", 0, FALSE, FALSE );
     if ( !cl )
 	return 0;
 
@@ -161,9 +156,9 @@ int QAccessibleWidget::childCount() const
 QAccessibleInterface *QAccessibleWidget::child( int who ) const
 {
     if ( !who )
-	return widget_->accessibleInterface();
+	return QAccessible::accessibleInterface( object() );
 
-    QObjectList *cl = widget_->queryList( "QWidget", 0, FALSE, FALSE );
+    QObjectList *cl = object()->queryList( "QWidget", 0, FALSE, FALSE );
     if ( !cl )
 	return 0;
 
@@ -173,7 +168,7 @@ QAccessibleInterface *QAccessibleWidget::child( int who ) const
     if ( !o )
 	return 0;
 
-    return o->accessibleInterface();    
+    return QAccessible::accessibleInterface( o );    
 }
 
 /*!
@@ -183,11 +178,11 @@ QAccessibleInterface *QAccessibleWidget::child( int who ) const
 */
 QAccessibleInterface *QAccessibleWidget::parent() const
 {
-    QWidget *p = widget_->parentWidget();
+    QObject *o = object()->parent();
 
-    if ( !p )
-	p = QApplication::desktop();
-    return p->accessibleInterface();
+    if ( !o )
+	o = QApplication::desktop();
+    return QAccessible::accessibleInterface( o );
 }
 
 /*!
@@ -272,8 +267,9 @@ QString	QAccessibleWidget::name( int who ) const
     if ( who )
 	qWarning( "QAccessibleWidget::name: This implementation does not support subelements!" );
 #endif
-    if ( name_.isNull() && widget_->isTopLevel() )
-	return widget_->caption();
+    QWidget *widget = (QWidget*)object();
+    if ( name_.isNull() && widget->isTopLevel() )
+	return widget->caption();
     return name_;
 }
 
@@ -320,13 +316,14 @@ QAccessible::State	QAccessibleWidget::state( int who ) const
 
     int state = QAccessible::Normal;
 
-    if ( widget_->isHidden() )
+    QWidget *widget = (QWidget*)object();
+    if ( widget->isHidden() )
 	state |= Invisible;
-    if ( widget_->focusPolicy() != QWidget::NoFocus )
+    if ( widget->focusPolicy() != QWidget::NoFocus )
 	state |= Focusable;
-    if ( widget_->hasFocus() )
+    if ( widget->hasFocus() )
 	state |= Focused;
-    if ( !widget_->isEnabled() )
+    if ( !widget->isEnabled() )
 	state |= Unavailable;
 
     return (State)state;
@@ -337,13 +334,13 @@ QAccessible::State	QAccessibleWidget::state( int who ) const
 */
 QAccessibleInterface *QAccessibleWidget::hasFocus( int *who ) const
 {
-    widget_->setActiveWindow();
-    if ( !widget_->isActiveWindow() )
+    QWidget* widget = (QWidget*)object();
+    if ( !widget->isActiveWindow() )
 	return 0;
 
-    if ( widget_->hasFocus() ) {
+    if ( widget->hasFocus() ) {
 	*who = 0;
-	return widget_->accessibleInterface();
+	return QAccessible::accessibleInterface( widget );
     }
 
     QWidget *w = qApp->focusWidget();
@@ -353,11 +350,11 @@ QAccessibleInterface *QAccessibleWidget::hasFocus( int *who ) const
     // find out if we are the parent of the focusWidget
     QWidget *p = w;
     while ( p = p->parentWidget() ) {
-	if ( p == widget_ )
+	if ( p == widget )
 	    break;
     }
     if ( p )
-	return w->accessibleInterface();
+	return QAccessible::accessibleInterface( w );
 
     // we don't know the focusWidget
     return 0;
@@ -389,7 +386,7 @@ QAccessibleButton::QAccessibleButton( QButton *b, Role role, QString description
 */
 bool	QAccessibleButton::doDefaultAction( int /*who*/ )
 {
-    ((QButton*)widget())->animateClick();
+    ((QButton*)object())->animateClick();
     
     return TRUE;
 }
@@ -417,7 +414,7 @@ QString	QAccessibleButton::accelerator( int who ) const
 {
     QString acc = QAccessibleWidget::accelerator( who );
     if ( acc.isNull() ) {
-	QString text = ((QButton*)widget())->text();
+	QString text = ((QButton*)object())->text();
 
 	int fa = 0;
 	bool ac = FALSE;
@@ -444,7 +441,7 @@ QString	QAccessibleButton::name( int who ) const
 {
     QString n = QAccessibleWidget::name( who );
     if ( n.isNull() ) {
-	QString text = ((QButton*)widget())->text();
+	QString text = ((QButton*)object())->text();
     
 	for ( uint i = 0; i < text.length(); i++ ) {
 	    if ( text[(int)i] == '&' )
@@ -467,7 +464,7 @@ QAccessible::State QAccessibleButton::state( int who ) const
 {
     int state = QAccessibleWidget::state( who );
 
-    QButton *b = (QButton*)widget();
+    QButton *b = (QButton*)object();
     if ( b->inherits( "QCheckBox" ) ) {
 	if ( b->isOn() )
 	    state |= Checked;
@@ -499,20 +496,20 @@ QString QAccessibleRangeControl::value( int who ) const
 {
     QString v = QAccessibleWidget::value( who );
     if ( v.isNull() ) {
-	if ( widget()->inherits( "QSlider" ) ) {
-	    QSlider *s = (QSlider*)widget();
+	if ( object()->inherits( "QSlider" ) ) {
+	    QSlider *s = (QSlider*)object();
 	    return QString::number( s->value() );
-	} else if ( widget()->inherits( "QDial" ) ) {
-	    QDial *d = (QDial*)widget();
+	} else if ( object()->inherits( "QDial" ) ) {
+	    QDial *d = (QDial*)object();
 	    return QString::number( d->value() );
-	} else if ( widget()->inherits( "QSpinBox" ) ) {
-	    QSpinBox *s = (QSpinBox*)widget();
+	} else if ( object()->inherits( "QSpinBox" ) ) {
+	    QSpinBox *s = (QSpinBox*)object();
 	    return s->text();
-	} else if ( widget()->inherits( "QScrollBar" ) ) {
-	    QScrollBar *s = (QScrollBar*)widget();
+	} else if ( object()->inherits( "QScrollBar" ) ) {
+	    QScrollBar *s = (QScrollBar*)object();
 	    return QString::number( s->value() );
-	} else if ( widget()->inherits( "QProgressBar" ) ) {
-	    QProgressBar *p = (QProgressBar*)widget();
+	} else if ( object()->inherits( "QProgressBar" ) ) {
+	    QProgressBar *p = (QProgressBar*)object();
 	    return QString::number( p->progress() );
 	}
     }
@@ -534,8 +531,8 @@ QString QAccessibleText::value( int who ) const
 {
     QString v = QAccessibleWidget::value( who );
     if ( v.isNull() ) {
-	if ( widget()->inherits( "QLineEdit" ) ) {
-	    QLineEdit *l = (QLineEdit*)widget();
+	if ( object()->inherits( "QLineEdit" ) ) {
+	    QLineEdit *l = (QLineEdit*)object();
 	    return l->text();
 	}
     }
@@ -555,8 +552,8 @@ QAccessibleDisplay::QAccessibleDisplay( QWidget *w, Role role, QString descripti
 
 QAccessible::Role QAccessibleDisplay::role( int who ) const
 {
-    if ( widget()->inherits( "QLabel" ) ) {
-	QLabel *l = (QLabel*)widget();
+    if ( object()->inherits( "QLabel" ) ) {
+	QLabel *l = (QLabel*)object();
 	if ( l->pixmap() || l->picture() )
 	    return Graphic;
 #ifndef QT_NO_PICTURE
@@ -575,16 +572,16 @@ QString QAccessibleDisplay::name( int who ) const
 {
     QString n = QAccessibleWidget::name( who );
     if ( n.isNull() ) {
-	if ( widget()->inherits( "QLabel" ) ) {
-	    QLabel *l = (QLabel*)widget();
+	if ( object()->inherits( "QLabel" ) ) {
+	    QLabel *l = (QLabel*)object();
 	    return l->text();
-	} else if ( widget()->inherits( "QLCDNumber" ) ) {
-	    QLCDNumber *l = (QLCDNumber*)widget();
+	} else if ( object()->inherits( "QLCDNumber" ) ) {
+	    QLCDNumber *l = (QLCDNumber*)object();
 	    if ( l->numDigits() )
 		return QString::number( l->value() );
 	    return QString::number( l->intValue() );
-	} else if ( widget()->inherits( "QGroupBox" ) ) {
-	    QGroupBox *g = (QGroupBox*)widget();
+	} else if ( object()->inherits( "QGroupBox" ) ) {
+	    QGroupBox *g = (QGroupBox*)object();
 	    return g->title();
 	}
     }

@@ -36,12 +36,7 @@ public:
 
     QAccessibleInterface *hasFocus( int *who ) const;
 
-protected:
-    QWidget *widget() const;
-
 private:
-    QWidget *widget_;
-
     Role role_;
     QString name_;
     QString description_;
