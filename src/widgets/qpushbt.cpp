@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#106 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#107 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#106 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#107 $");
 
 
 /*!
@@ -31,7 +31,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#106 $");
   A default push button in a dialog emits the clicked signal if the user
   presses the Enter key.
 
-  A push button has \c TabFocus as a default focusPolicy(), i.e. it can 
+  A push button has \c TabFocus as a default focusPolicy(), i.e. it can
   get keyboard focus by tabbing but not by clicking.
 
   <img src=qpushbt-m.gif> <img src=qpushbt-w.gif>
@@ -192,6 +192,17 @@ QSize QPushButton::sizeHint() const
 	h = sz.height() + sz.height()/8 + 10;
 	w += h;
     }
+    if ( style() == WindowsStyle ) {
+	// in windows style, try a little harder to conform to
+	// microsoft's size specifications
+	if ( h <= 25 )
+	    h = 22;
+	if ( w < 85 &&
+	     topLevelWidget() &&
+	     topLevelWidget()->inherits( "QDialog" ) )
+	    w = 80;
+    }
+
     return QSize( w, h );
 }
 
@@ -343,7 +354,7 @@ void QPushButton::drawButton( QPainter *paint )
 	    p->drawPolyline( a );
 
 	    p->setPen( g.light() );
-	    a.setPoints( 4, 
+	    a.setPoints( 4,
 			 bx2, by6,
 			 bx2, by5,
 			 bx4, by5,
@@ -365,7 +376,7 @@ void QPushButton::drawButton( QPainter *paint )
 
     if ( hasFocus() ) {
 	if ( style() == WindowsStyle ) {
-	    p->drawWinFocusRect( x1+3, y1+3, x2-x1-5, y2-y1-5, 
+	    p->drawWinFocusRect( x1+3, y1+3, x2-x1-5, y2-y1-5,
 				 g.background() );
 	} else {
 	    p->setPen( black );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#69 $
 **
 ** Implementation of QLabel widget class
 **
@@ -18,7 +18,7 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#69 $");
 
 
 #if QT_VERSION == 200
@@ -460,8 +460,7 @@ void QLabel::setAutoResize( bool enable )
 
 QSize QLabel::sizeHint() const
 {
-    QPainter p;
-    p.begin( this );
+    QPainter p( this );
     QRect br;
     QPixmap *pix = pixmap();
     QMovie *mov = movie();
@@ -486,7 +485,6 @@ QSize QLabel::sizeHint() const
     }
     int w = br.width()	+ m + 2*fw;
     int h = br.height() + m + 2*fw;
-    p.end();
 
     return QSize( w, h );
 }
@@ -541,11 +539,9 @@ void QLabel::drawContents( QPainter *p )
 
 void QLabel::updateLabel()
 {
-    QPainter paint;
-    paint.begin( this );
+    QPainter paint( this );
     paint.eraseRect( contentsRect() );
     drawContents( &paint );
-    paint.end();
 }
 
 

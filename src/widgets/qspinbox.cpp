@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#26 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -20,7 +20,7 @@
 #include <qvalidator.h>
 
 
-/*! 
+/*!
   \class QSpinBox qspinbox.h
 
   \brief The QSpinBox class provides a spin box widget, sometimes called
@@ -29,7 +29,7 @@
   QSpinBox allows the user to choose a numeric value, either by
   clicking the up/down buttons to increase/decrease the value
   currently displayed, or by typing the value directly into the spin
-  box. 
+  box.
 
   Every time the value changes, QSpinBox emits the valueChanged()
   signal. The current value can be fetched with value() and set with
@@ -99,7 +99,7 @@ QSpinBox::QSpinBox( int minValue, int maxValue, int step, QWidget* parent,
     initSpinBox();
 }
 
-/*!  
+/*!
   \internal Initialization.
 */
 
@@ -123,7 +123,7 @@ void QSpinBox::initSpinBox()
     setFocusPolicy( StrongFocus );
     vi->setValidator( validator );
     vi->installEventFilter( this );
-    
+
     if ( style() == WindowsStyle )
 	setFrameStyle( WinPanel | Sunken );
     else
@@ -137,7 +137,7 @@ void QSpinBox::initSpinBox()
     connect( vi, SIGNAL(textChanged(const char *)), SLOT(textChanged()) );
 }
 
-/*!  
+/*!
   Deletes the spin box, freeing all memory and other resoures.
 */
 
@@ -146,7 +146,7 @@ QSpinBox::~QSpinBox()
 }
 
 
-/*!  
+/*!
   Returns the current text of the spin box.
 
   \sa value()
@@ -190,7 +190,7 @@ QString QSpinBox::cleanText() const
   display this text in stead of a numeric value whenever the current
   value is equal to minVal(). Typically used for indicating that this
   choice has a special (default) meaning.
-  
+
   For example, if you use a spin box for letting the user choose
   margin width in a print dialog, and your application is able to
   automatically choose a good margin width, you can set up the spin
@@ -199,7 +199,7 @@ QString QSpinBox::cleanText() const
     QSpinBox marginBox( -1, 20, 1, parent, "marginBox" );
     marginBox->setSuffix( " mm" );
     marginBox->setSpecialValueText( "Auto" );
-  \endcode 
+  \endcode
   The user will then be able to choose a margin width from 0-20
   millimeters, or select "Auto" to leave it to the application to
   choose. Your code must then interpret the spin box value of -1 as
@@ -212,7 +212,7 @@ QString QSpinBox::cleanText() const
   To turn off the special-value text display, call this function with
   0 or an empty string as parameter. The default is no special-value
   text, i.e. the numeric value is shown as usual.
-  
+
   \sa specialValueText()
 */
 
@@ -260,7 +260,7 @@ void QSpinBox::setPrefix( const char* text )
 /*!
   Sets the suffix to \a text. The suffix is appended to the end of the
   displayed value. Typical use is to indicate the unit of measurement
-  to the user. 
+  to the user.
 
   To turn off the suffix display, call this function with 0 or an
   empty string as parameter. The default is no suffix.
@@ -333,7 +333,7 @@ bool QSpinBox::wrapping() const
 
 
 
-/*!  
+/*!
   Returns a good-looking size for the spin box.
 */
 
@@ -356,14 +356,18 @@ QSize QSpinBox::sizeHint() const
     w = QMAX( w, fm.width( s ) + wx );
     s = specialValueText();
     w = QMAX( w, fm.width( s ) + wx );
-    
-    return QSize( h // buttons AND frame both sides - see resizeevent()
-		  + 6 // right/left margins
-		  + w, // widest value
-		  frameWidth() * 2 // top/bottom frame
-		  + 4 // top/bottom margins
-		  + h // font height
-		  );
+
+    QSize r( h // buttons AND frame both sides - see resizeevent()
+	     + 6 // right/left margins
+	     + w, // widest value
+	     frameWidth() * 2 // top/bottom frame
+	     + 4 // top/bottom margins
+	     + h // font height
+	     );
+    if ( style() == WindowsStyle && r.height() < 26 )
+	r.setHeight( 22 );
+    //    debug( "spsh: %d, %d", r.width(), r.height() );
+    return r;
 }
 
 
@@ -416,7 +420,7 @@ void QSpinBox::stepDown()
 }
 
 
-/*! 
+/*!
   \fn void QSpinBox::valueChanged( int value )
 
   This signal is emitted every time the value of the spin box changes
@@ -432,7 +436,7 @@ void QSpinBox::stepDown()
 
 
 
-/*!  
+/*!
   Intercepts and handles those events coming to the embedded QLineEdit
   which have special meaning for the QSpinBox.
 */
@@ -451,7 +455,7 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 	    stepUp();
 	    k->accept();
 	    return TRUE;
-	} 
+	}
 	else if ( k->key() == Key_Down ) {
 	    stepDown();
 	    k->accept();
@@ -467,8 +471,8 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 }
 
 
-/*!  
-  Handles resize events for the spin box.  
+/*!
+  Handles resize events for the spin box.
 */
 
 void QSpinBox::resizeEvent( QResizeEvent* ev )
@@ -482,7 +486,7 @@ void QSpinBox::resizeEvent( QResizeEvent* ev )
 	bs.setHeight( 8 );
     bs.setWidth( bs.height() * 2 );
     QSize bms( (bs.height()-5)*2-1, bs.height()-4 );
-    
+
     if ( up->size() != bs ) {
 	up->resize( bs );
 	QBitmap bm( bms );
@@ -491,8 +495,7 @@ void QSpinBox::resizeEvent( QResizeEvent* ev )
 		     bms.height()-2, 0,
 		     0, bms.height()-2,
 		     bms.width()-1, bms.height()-2 );
-	QPainter p;
-	p.begin( &bm );
+	QPainter p( &bm );
 	p.eraseRect( 0, 0, bm.width(), bm.height() );
 	p.setBrush( color1 );
 	p.drawPolygon( a );
@@ -508,8 +511,7 @@ void QSpinBox::resizeEvent( QResizeEvent* ev )
 		     bms.height()-2, bms.height()-1,
 		     0, 1,
 		     bms.width()-1, 1 );
-	QPainter p;
-	p.begin( &bm );
+	QPainter p( &bm );
 	p.eraseRect( 0, 0, bm.width(), bm.height() );
 	p.setBrush( color1 );
 	p.drawPolygon( a );
@@ -527,7 +529,7 @@ void QSpinBox::resizeEvent( QResizeEvent* ev )
 }
 
 
-/*!  
+/*!
   This method gets called by QRangeControl whenever the value has changed.
   Updates the display and emits the valueChanged() signal.
 */
@@ -552,7 +554,7 @@ void QSpinBox::rangeChange()
 }
 
 
-/*!  
+/*!
   Sets the validator of the embedded QLineEdit to \a v. The default is to use
   a suitable QIntValidator.
 */
@@ -573,11 +575,11 @@ void QSpinBox::setValidator( QValidator* v )
 */
 
 void QSpinBox::updateDisplay()
-{    
+{
     if ( (value() == minValue()) && specialValueText() ) {
 	vi->setText( specialValueText() );
     }
-    else { 
+    else {
 	QString s = prefix();
 	s.append( mapValueToText( value() ) );
 	s.append( suffix() );
@@ -616,7 +618,7 @@ void QSpinBox::interpretText()
 }
 
 
-/*!  
+/*!
   Returns a pointer to the embedded 'up' button.
 */
 
@@ -626,7 +628,7 @@ QPushButton* QSpinBox::upButton() const
 }
 
 
-/*!  
+/*!
   Returns a pointer to the embedded 'down' button.
 */
 
@@ -636,7 +638,7 @@ QPushButton* QSpinBox::downButton() const
 }
 
 
-/*!  
+/*!
   Returns a pointer to the embedded QLineEdit.
 */
 
@@ -646,7 +648,7 @@ QLineEdit* QSpinBox::editor() const
 }
 
 
-/*!  
+/*!
   This slot gets called whenever the user edits the text of the spin box.
 */
 
@@ -696,7 +698,7 @@ QString QSpinBox::mapValueToText( int v )
   This function need not be concerned with \link setSpecialValueText()
   special-value text, \endlink the QSpinBox handles that
   automatically.
-  
+
   \sa interpretText(), mapValueToText()
 */
 

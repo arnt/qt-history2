@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#122 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#123 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#122 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#123 $");
 
 
 /*!
@@ -762,7 +762,8 @@ QSize QComboBox::sizeHint() const
 	    maxH = h;
     }
     if ( maxH <= 16 && parentWidget() &&
-	 parentWidget()->inherits( "QToolBar" ) )
+	 (parentWidget()->inherits( "QToolBar" ) ||
+	  parentWidget()->inherits( "QDialog" ) && style() == WindowsStyle) )
 	maxH = 12;
     return QSize( 4 + 4 + maxW + extraW, maxH + 5 + 5 );
 }
@@ -1036,7 +1037,6 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	}
 	p.setClipping( FALSE );
     }
-    p.end();
 }
 
 
