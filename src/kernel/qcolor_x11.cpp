@@ -17,7 +17,7 @@
 #include "string.h"
 #include "qpaintdevice.h"
 #include "qapplication.h"
-#include "qintdict.h"
+#include "qhash.h"
 #define QT_NO_DEFINE_DQ
 #include "qapplication_p.h"
 
@@ -45,17 +45,13 @@ struct QColorData {
     int	 context;				// allocation context
 };
 
-typedef QIntDict<QColorData> QColorDict;
-typedef QIntDictIterator<QColorData> QColorDictIt;
+typedef QHash<QRgb, QColorData> QColorDict;
 static int	current_alloc_context = 0;	// current color alloc context
-static const uint col_std_dict = 419;
-static const uint col_large_dict = 18397;
 
 class QColorScreenData {
 public:
     QColorScreenData()
     {
-	colorDict = 0;
 	colors_avail = TRUE;
 	g_vis = 0;
 	g_carr = 0;
@@ -65,7 +61,7 @@ public:
 	color_reduce = FALSE;
     }
 
-    QColorDict *colorDict;		// dict of allocated colors
+    QColorDict colorDict;		// dict of allocated colors
     bool colors_avail;			// X colors available
     bool g_truecolor;			// truecolor visual
     Visual *g_vis;			// visual
@@ -229,9 +225,7 @@ void QColor::initialize()
 	    }
 	}
 
-	int dictsize;
 	if ( screendata[scr]->g_truecolor ) {			// truecolor
-	    dictsize    = 1;			// will not need color dict
 	    screendata[scr]->red_mask    = (uint)screendata[scr]->g_vis->red_mask;
 	    screendata[scr]->green_mask  = (uint)screendata[scr]->g_vis->green_mask;
 	    screendata[scr]->blue_mask   = (uint)screendata[scr]->g_vis->blue_mask;
@@ -241,10 +235,8 @@ void QColor::initialize()
 		highest_bit( screendata[scr]->green_mask ) - 7;
 	    screendata[scr]->blue_shift =
 		highest_bit( screendata[scr]->blue_mask ) - 7;
-	} else {
-	    dictsize = col_std_dict;
 	}
-	screendata[scr]->colorDict = new QColorDict(dictsize);	// create dictionary
+
 	if ( spec == (int)QApplication::ManyColor ) {
 	    screendata[scr]->color_reduce = TRUE;
 
@@ -304,12 +296,6 @@ void QColor::cleanup()
 	    delete [] screendata[scr]->g_our_alloc;
 	    screendata[scr]->g_our_alloc = 0;
 	}
-	if ( screendata[scr]->colorDict ) {
-	    screendata[scr]->colorDict->setAutoDelete( TRUE );
-	    screendata[scr]->colorDict->clear();
-	    delete screendata[scr]->colorDict;
-	    screendata[scr]->colorDict = 0;
-	}
 	delete screendata[scr];
 	screendata[scr] = 0;
     }
@@ -350,15 +336,17 @@ uint QColor::alloc( int screen )
 	    d.d32.pix = pix;
 	return pix;
     }
-    QColorData *c = sd->colorDict->find( (long)(d.argb) );
-    if ( c ) {					// found color in dictionary
-	pix = c->pix;
+    QColorDict::Iterator it = sd->colorDict.find(d.argb);
+    if (it != sd->colorDict.end()) {
+	// found color in dictionary
+	QColorData &c = *it;
+	pix = c.pix;
 	if ( screen == QPaintDevice::x11AppScreen() ) {
 	    d.d8.invalid = FALSE;		// color ok
 	    d.d8.dirty = FALSE;
 	    d.d8.pix = pix;			// use same pixel value
-	    if ( c->context != current_alloc_context ) {
-		c->context = 0;			// convert to default context
+	    if ( c.context != current_alloc_context ) {
+		c.context = 0;			// convert to default context
 		sd->g_our_alloc[pix] = TRUE;	// reuse without XAllocColor
 	    }
 	}
@@ -504,17 +492,10 @@ uint QColor::alloc( int screen )
        	}
 	return pix;
     }
-    // All colors outside context 0 must go into the dictionary
-    bool many = sd->colorDict->count() >= sd->colorDict->size() * 8;
-    if ( many && sd->colorDict->size() == col_std_dict ) {
-	sd->colorDict->resize( col_large_dict );
-    }
-    if ( !many || current_alloc_context != 0 ) {
-	c = new QColorData;			// insert into color dict
-	c->pix	   = pix;
-	c->context = current_alloc_context;
-	sd->colorDict->insert( (long)d.argb, c );	// store color in dict
-    }
+    QColorData c;			// insert into color dict
+    c.pix	   = pix;
+    c.context = current_alloc_context;
+    sd->colorDict.insert(d.argb, c);	// store color in dict
     return pix;
 }
 
@@ -744,23 +725,22 @@ void QColor::destroyAllocContext( int context )
 	ulong pixels[256];
 	bool freeing[256];
 	memset( freeing, FALSE, screendata[screen]->g_cells*sizeof(bool) );
-	QColorData   *d;
-	QColorDictIt it( *screendata[screen]->colorDict );
 	int i = 0;
 	uint rgbv;
-	while ( (d=it.current()) ) {
-	    rgbv = (uint)it.currentKey();
-	    if ( (d->context || context==-1) &&
-		 (d->context == context || context < 0) ) {
-		if ( !screendata[screen]->g_our_alloc[d->pix] && !freeing[d->pix] ) {
+	QColorDict::Iterator it = screendata[screen]->colorDict.begin();
+	for (; it != screendata[screen]->colorDict.end(); ++it) {
+	    QColorData d = *it;
+	    rgbv = (uint)it.key();
+	    if ( (d.context || context == -1) &&
+		 (d.context == context || context < 0) ) {
+		if ( !screendata[screen]->g_our_alloc[d.pix] && !freeing[d.pix] ) {
 		    // will free this color
-		    pixels[i++] = d->pix;
-		    freeing[d->pix] = TRUE;
+		    pixels[i++] = d.pix;
+		    freeing[d.pix] = TRUE;
 		}
 		// remove from dict
-		screendata[screen]->colorDict->remove( (long)rgbv );
+		screendata[screen]->colorDict.remove(rgbv);
 	    }
-	    ++it;
 	}
 	if ( i )
 	    XFreeColors( QPaintDevice::x11AppDisplay(),

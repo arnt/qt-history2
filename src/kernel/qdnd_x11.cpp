@@ -20,10 +20,8 @@
 #include "qpixmap.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
-#include "qintdict.h"
 #include "qdatetime.h"
-#include "qdict.h"
-#include "qguardedptr.h"
+#include "qpointer.h"
 #include "qdragobject.h"
 #include "qcursor.h"
 
@@ -145,7 +143,7 @@ static Window qt_xdnd_current_target;
 // window to send events to (always valid if qt_xdnd_current_target)
 static Window qt_xdnd_current_proxy_target;
 // widget we forwarded position to last, and local position
-static QGuardedPtr<QWidget> qt_xdnd_current_widget;
+static QPointer<QWidget> qt_xdnd_current_widget;
 static QPoint qt_xdnd_current_position;
 // time of this drop, as type Atom to save on casts
 static Atom qt_xdnd_source_current_time;
@@ -154,9 +152,6 @@ static Atom qt_xdnd_source_current_time;
 static int qt_xdnd_current_screen = -1;
 // state of dragging... true if dragging, false if not
 bool qt_xdnd_dragging = FALSE;
-
-// dict of payload data, sorted by type atom
-static QIntDict<QByteArray> * qt_xdnd_target_data = 0;
 
 // first drag object, or 0
 static QDragObject * qt_xdnd_source_object = 0;
@@ -336,8 +331,6 @@ void qt_xdnd_setup() {
 
 void qt_xdnd_cleanup()
 {
-    delete qt_xdnd_target_data;
-    qt_xdnd_target_data = 0;
     delete noDropCursor;
     noDropCursor = 0;
     delete copyCursor;
@@ -1305,7 +1298,7 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
     QWidget* w;
     if ( qt_xdnd_dragsource_xid && qt_xdnd_source_object &&
 	 (w=QWidget::find( qt_xdnd_dragsource_xid ))
-	   && (!w->isDesktop() || w->acceptDrops()) )
+	 && (!w->isDesktop() || w->acceptDrops()) )
     {
 	QDragObject * o = qt_xdnd_source_object;
 	if ( o->provides( format ) )
@@ -1317,60 +1310,46 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
     if (!a)
 	return result;
 
-    if ( !qt_xdnd_target_data )
-	qt_xdnd_target_data = new QIntDict<QByteArray>( 17 );
+    if ( XGetSelectionOwner( QPaintDevice::x11AppDisplay(),
+			     ATOM(XdndSelection) ) == None )
+	return result; // should never happen?
 
-    if ( qt_xdnd_target_data->find(a) ) {
-	result = *(qt_xdnd_target_data->find(a));
-    } else {
-	if ( XGetSelectionOwner( QPaintDevice::x11AppDisplay(),
-				 ATOM(XdndSelection) ) == None )
-	    return result; // should never happen?
+    QWidget* tw = qt_xdnd_current_widget;
+    if ( !qt_xdnd_current_widget ||
+	 qt_xdnd_current_widget->isDesktop() ) {
+	tw = new QWidget;
+    }
+    XConvertSelection( QPaintDevice::x11AppDisplay(),
+		       ATOM(XdndSelection), a,
+		       ATOM(XdndSelection),
+		       tw->winId(), CurrentTime );
+    XFlush( QPaintDevice::x11AppDisplay() );
 
-	QWidget* tw = qt_xdnd_current_widget;
-	if ( !qt_xdnd_current_widget ||
-	     qt_xdnd_current_widget->isDesktop() ) {
-	    tw = new QWidget;
-	}
-	XConvertSelection( QPaintDevice::x11AppDisplay(),
-			   ATOM(XdndSelection), a,
-			   ATOM(XdndSelection),
-			   tw->winId(), CurrentTime );
-	XFlush( QPaintDevice::x11AppDisplay() );
+    XEvent xevent;
+    bool got=qt_xclb_wait_for_event( QPaintDevice::x11AppDisplay(),
+				     tw->winId(),
+				     SelectionNotify, &xevent, 5000);
+    if ( got ) {
+	Atom type;
 
-	XEvent xevent;
-	bool got=qt_xclb_wait_for_event( QPaintDevice::x11AppDisplay(),
-				      tw->winId(),
-				      SelectionNotify, &xevent, 5000);
-	if ( got ) {
-	    Atom type;
-
-	    if ( qt_xclb_read_property( QPaintDevice::x11AppDisplay(),
-					tw->winId(),
-					ATOM(XdndSelection), TRUE,
-					&result, 0, &type, 0, FALSE ) ) {
-		if ( type == ATOM(INCR) ) {
-		    int nbytes = result.size() >= 4 ? *((int*)result.data()) : 0;
-		    result = qt_xclb_read_incremental_property( QPaintDevice::x11AppDisplay(),
-								tw->winId(),
-								ATOM(XdndSelection),
-								nbytes, FALSE );
-		} else if ( type != a ) {
-		    // (includes None) qDebug( "Qt clipboard: unknown atom %ld", type);
-		}
-#if 0
-		// this needs to be matched by a qt_xdnd_target_data->clear()
-		// when each drag is finished. for 2.0, we do the safe thing
-		// and disable the entire caching.
-		if ( type != None )
-		    qt_xdnd_target_data->insert( (int)((long)a), new QByteArray(result) );
-#endif
+	if ( qt_xclb_read_property( QPaintDevice::x11AppDisplay(),
+				    tw->winId(),
+				    ATOM(XdndSelection), TRUE,
+				    &result, 0, &type, 0, FALSE ) ) {
+	    if ( type == ATOM(INCR) ) {
+		int nbytes = result.size() >= 4 ? *((int*)result.data()) : 0;
+		result = qt_xclb_read_incremental_property( QPaintDevice::x11AppDisplay(),
+							    tw->winId(),
+							    ATOM(XdndSelection),
+							    nbytes, FALSE );
+	    } else if ( type != a ) {
+		// (includes None) qDebug( "Qt clipboard: unknown atom %ld", type);
 	    }
 	}
-	if ( !qt_xdnd_current_widget ||
-	     qt_xdnd_current_widget->isDesktop() ) {
-	    delete tw;
-	}
+    }
+    if ( !qt_xdnd_current_widget ||
+	 qt_xdnd_current_widget->isDesktop() ) {
+	delete tw;
     }
 
     return result;
