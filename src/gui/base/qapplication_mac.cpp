@@ -282,6 +282,18 @@ static short qt_mac_window_at(int x, int y, QWidget **w=0)
 
 void qt_mac_set_press_and_hold_context(bool b) { qt_mac_press_and_hold_context = b; } //backdoor to enable press and hold
 
+void qt_mac_secure_keyboard(bool b)
+{
+#if QT_MACOSX_VERSION >= 0x1030
+    if(b)
+	EnableSecureEventInput();
+    else
+	DisableSecureEventInput();
+#else
+    Q_UNUSED(b);
+#endif
+}
+
 bool qt_nograb()				// application no-grab option
 {
 #if defined(QT_DEBUG)

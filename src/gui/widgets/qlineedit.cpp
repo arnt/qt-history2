@@ -44,6 +44,10 @@
 #define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
 #endif
 
+#ifdef Q_WS_MAC
+extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
+#endif
+
 #include <limits.h>
 
 #define innerMargin 1
@@ -383,9 +387,15 @@ QLineEdit::EchoMode QLineEdit::echoMode() const
 
 void QLineEdit::setEchoMode( EchoMode mode )
 {
+    if(mode == (EchoMode)d->echoMode)
+	return;
     d->echoMode = mode;
     d->updateTextLayout();
     update();
+#ifdef Q_WS_MAC
+    if(hasFocus()) 
+	qt_mac_secure_keyboard(d->echoMode == Password || d->echoMode == NoEcho);
+#endif
 }
 
 
@@ -1587,6 +1597,10 @@ void QLineEdit::focusInEvent( QFocusEvent* )
     if( !hasSelectedText() || style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) )
 	d->setCursorVisible( TRUE );
     d->updateMicroFocusHint();
+#ifdef Q_WS_MAC
+    if(d->echoMode == Password || d->echoMode == NoEcho)
+	qt_mac_secure_keyboard(true);
+#endif
 }
 
 /*!\reimp
@@ -1602,6 +1616,10 @@ void QLineEdit::focusOutEvent( QFocusEvent* )
 	killTimer( d->cursorTimer );
     d->cursorTimer = 0;
     emit lostFocus();
+#ifdef Q_WS_MAC
+    if(d->echoMode == Password || d->echoMode == NoEcho)
+	qt_mac_secure_keyboard(false);
+#endif
 }
 
 /*!\reimp
