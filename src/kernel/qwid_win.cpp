@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#70 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#70 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -557,7 +557,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 }
 
 
-/*!
+/*
   \internal
   Platform-specific part of QWidget::show().
 */
@@ -576,7 +576,7 @@ void QWidget::showWindow()
 }
 
 
-/*!
+/*
   \internal
   Platform-specific part of QWidget::hide().
 */
