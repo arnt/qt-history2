@@ -2074,13 +2074,10 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
 	return 0;
     }
 
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC) // always regenerate disp. lists for pixmaps under Windows/Mac
+    // always regenerate font disp. lists for pixmaps - hw accelerated
+    // contexts can't handle this otherwise
     bool regenerate = glcx->deviceIsPixmap();
     QString key = fnt.key() + QString::number( (int)regenerate );
-#else
-    bool regenerate = FALSE;
-    QString key = fnt.key();
-#endif
     if ( !regenerate && (d->displayListCache.find( key ) != d->displayListCache.end()) ) {
 	base = d->displayListCache[ key ];
     } else {
