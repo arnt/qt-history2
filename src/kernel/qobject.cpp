@@ -1957,7 +1957,12 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 /*!
     \fn QObject::destroyed()
 
-    This signal is emitted immediately before the object is destroyed.
+    This signal is emitted when the object is being destroyed.
+
+    Note that the signal is emitted by the QObject destructor, so
+    the object's virtual table is already degenerated at this point,
+    and it is not safe to call any functions on the object emitting
+    the signal.
 
     All the objects's children are destroyed immediately after this
     signal is emitted.
