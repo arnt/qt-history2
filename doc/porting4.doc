@@ -19,7 +19,7 @@ This document describes porting applications from Qt 3.x to Qt 4.x.
 
 If you haven't yet made the decision about porting, or are unsure
 about whether it is worth it, take a look at the \link
-keyfeatures40.html key features\endlink offered by Qt 4.x.
+tech-preview.html key features\endlink offered by Qt 4.x.
 
 The Qt 4.x series is not binary compatible with the 3.x series. This
 means programs compiled for Qt 3.x must be recompiled to work with Qt

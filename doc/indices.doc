@@ -109,7 +109,7 @@ Overviews
 <li><a href="hierarchy.html">Inheritance Hierarchy</a>
 <li><a href="classchart.html">Class Chart (clickable image)</a>
 <li><a href="functions.html">All Functions (long)</a>
-<li><a href="headers.html">Header File Index</a>
+<!-- <li><a href="headers.html">Header File Index</a> -->
 <li><a href="faq.html">FAQs</a>
 </ul>
 </td>
@@ -159,10 +159,10 @@ Licenses &amp; Credits
 <td valign="top">
 <ul>
 <li><a href="tools-list.html">All Tools</a>
-<li><a href="designer-manual.book">Qt Designer</a>
-<li><a href="linguist-manual.book">Qt Linguist</a>
-<li><a href="assistant.book">Qt Assistant</a>
-<li><a href="qmake-manual.book">qmake</a>
+<li><!--a href="designer-manual.book"-->Qt Designer<!--/a-->
+<li><!--a href="linguist-manual.book"-->Qt Linguist<!--/a-->
+<li><!--a href="assistant.book"-->Qt Assistant<!--/a-->
+<li><!--a href="qmake-manual.book"-->qmake<!--/a-->
 </ul>
 </td>
 <td valign="top">
