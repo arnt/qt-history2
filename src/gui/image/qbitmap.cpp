@@ -14,7 +14,7 @@
 
 #include "qbitmap.h"
 #include "qimage.h"
-
+#include <qpainter.h>
 
 /*!
     \class QBitmap qbitmap.h
