@@ -98,8 +98,12 @@ int QGenericHeader::offset() const
 
 void QGenericHeader::setOffset(int o)
 {
-    d->offset = o; // this is the scrollvalue
-    d->viewport->update();
+    int ndelta = d->offset - o;
+    d->offset = o;
+    if (d->orientation == Horizontal)
+        d->viewport->scroll(ndelta, 0);
+    else
+        d->viewport->scroll(0, ndelta);
 }
 
 int QGenericHeader::size() const
@@ -160,9 +164,10 @@ int QGenericHeader::sectionSizeHint(int section, bool all) const
     return hint + border;
 }
 
-void QGenericHeader::paintEvent(QPaintEvent *)
+void QGenericHeader::paintEvent(QPaintEvent *e)
 {
     QPainter painter(d->viewport);
+    QRect area = e->rect();
 
     int offset = d->offset;
 
@@ -171,11 +176,11 @@ void QGenericHeader::paintEvent(QPaintEvent *)
 
     int start, end;
     if (orientation() == Horizontal) {
-        start = indexAt(offset);
-        end = indexAt(offset + d->viewport->width());
+        start = indexAt(offset + area.left());
+        end = indexAt(offset + area.right());
     } else {
-        start = indexAt(offset);
-        end = indexAt(offset +  + d->viewport->height());
+        start = indexAt(offset + area.top());
+        end = indexAt(offset + area.bottom());
     }
 
     int tmp = start;
