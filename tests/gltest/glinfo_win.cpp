@@ -149,6 +149,7 @@ void GLInfo::VisualInfo( HDC hDC )
     maxpf = DescribePixelFormat(hDC, 0, 0, NULL);
 	
     /* loop through all the pixel formats */
+    viewlist->clear();
     for(i = 1; i <= maxpf; i++) { 
         str = "";
 	DescribePixelFormat(hDC, i, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
@@ -175,7 +176,25 @@ void GLInfo::VisualInfo( HDC hDC )
 		
 	/* bReserved field indicates number of over/underlays */
 	str.sprintf("%s%d ", (const char*)str, pfd.bReserved);
-	str.sprintf("%srgba ", (const char*)str);
+	if ( pfd.bReserved ) {
+	    LAYERPLANEDESCRIPTOR lpfd;
+	    wglDescribeLayerPlane( hDC, i, pfd.bReserved,
+				   sizeof( LAYERPLANEDESCRIPTOR ), &lpfd );
+	    bool mpTypeRgba = pfd.iPixelType == PFD_TYPE_RGBA;
+	    bool lpTypeRgba = lpfd.iPixelType == PFD_TYPE_RGBA;
+	    QString type;
+	    if ( mpTypeRgba && lpTypeRgba )
+		type = "rgba/rgba";
+	    else if ( mpTypeRgba && !lpTypeRgba )
+		type = "rgba/ci";
+	    else if ( !mpTypeRgba && lpTypeRgba )
+		type = "ci/rgba";
+	    else
+		type = "ci/ci";
+	    str.sprintf("%s%s ", (const char*)str, type.ascii() );	    
+	} else {
+	    str.sprintf("%s%s", (const char*)str, pfd.iPixelType == PFD_TYPE_RGBA ? "rgba    " : "ci      " );
+	}
 	str.sprintf("%s%c %c ", (const char*)str, 
 		    pfd.dwFlags & PFD_DOUBLEBUFFER ? 'y' : 'n',
 		    pfd.dwFlags & PFD_STEREO ? 'y' : 'n');

@@ -25,9 +25,9 @@ int main( int argc, char ** argv ) {
 	QString s = info.getText();
 	QStringList l = info.getViewList();
 	qWarning( s );
-	//         .... .. ....... . .. . .... . . . . . . . .. .. .. .. .. .. . .
-	qWarning( " Id  CB Draw to T Bz L Type D S R G B A X Dp St Ra Ga Ba Aa N B\n"
-		  "---------------------------------------------------------------" );
+	//         .... .. ....... . .. . ....    . . . . . . . .. .. .. .. .. .. . .
+	qWarning( " Id  CB Draw to T Bz L Type    D S R G B A X Dp St Ra Ga Ba Aa N B\n"
+		  "------------------------------------------------------------------" );
 	QStringList::ConstIterator it;
 	for ( it = l.begin(); it != l.end(); ++it )
 	    qWarning( *it );
