@@ -16,6 +16,8 @@ struct UType_Null : public UType
     const UUid *uuid() const { return &TID_UType_Null; }
     const char *desc() const { return "null"; }
 
+    bool canConvertFrom( UObject *, UType * ) { return false; }
+    bool canConvertTo( UObject *, UType * ) { return false; }
     bool convertFrom( UObject *, UType * ) { return false; }
     bool convertTo( UObject *, UType * ) { return false; }
 };
@@ -34,6 +36,19 @@ void UType_enum::set( UObject *o, int v )
 {
     o->payload.i = v;
     o->type = this;
+}
+
+bool UType_enum::canConvertFrom( UObject *o, UType *t )
+{
+    if ( isEqual( t, pUType_int ) ) // ## todo unsigned int?
+	return true;
+
+    return t->canConvertTo( o, this );
+}
+
+bool UType_enum::canConvertTo( UObject *o, UType *t )
+{
+    return isEqual( t, pUType_int );
 }
 
 bool UType_enum::convertFrom( UObject *o, UType *t )
@@ -71,6 +86,16 @@ void UType_ptr::set( UObject *o, const void* v )
     o->type = this;
 }
 
+bool UType_ptr::canConvertFrom( UObject *o, UType *t )
+{
+    return t->canConvertTo( o, this );
+}
+
+bool UType_ptr::canConvertTo( UObject *, UType * )
+{
+    return false;
+}
+
 bool UType_ptr::convertFrom( UObject *o, UType *t )
 {
     return t->convertTo( o, this );
@@ -93,6 +118,16 @@ void UType_iface::set( UObject *o, UUnknownInterface* iface )
 {
     o->payload.iface = iface;
     o->type = this;
+}
+
+bool UType_iface::canConvertFrom( UObject *o, UType *t )
+{
+    return t->canConvertTo( o, this );
+}
+
+bool UType_iface::canConvertTo( UObject *, UType * )
+{
+    return false;
 }
 
 bool UType_iface::convertFrom( UObject *o, UType *t )
@@ -119,6 +154,16 @@ void UType_idisp::set( UObject *o, UDispatchInterface* idisp )
     o->type = this;
 }
 
+bool UType_idisp::canConvertFrom( UObject *o, UType *t )
+{
+    return t->canConvertTo( o, this );
+}
+
+bool UType_idisp::canConvertTo( UObject *o, UType *t )
+{
+    return isEqual( t, pUType_iface );
+}
+
 bool UType_idisp::convertFrom( UObject *o, UType *t )
 {
     return t->convertTo( o, this );
@@ -126,7 +171,7 @@ bool UType_idisp::convertFrom( UObject *o, UType *t )
 
 bool UType_idisp::convertTo( UObject *o, UType *t )
 {
-    if ( isEqual( t,  pUType_iface ) ) {
+    if ( isEqual( t, pUType_iface ) ) {
 	o->payload.iface = o->payload.idisp;
 	o->type = pUType_iface;
 	return true;
@@ -146,6 +191,16 @@ void UType_bool::set( UObject *o, bool v )
 {
     o->payload.b = v;
     o->type = this;
+}
+
+bool UType_bool::canConvertFrom( UObject *o, UType *t )
+{
+    return t->canConvertTo( o, this );
+}
+
+bool UType_bool::canConvertTo( UObject *, UType * )
+{
+    return false;
 }
 
 bool UType_bool::convertFrom( UObject *o, UType *t )
@@ -171,6 +226,19 @@ void UType_int::set( UObject *o, int v )
 {
     o->payload.i = v;
     o->type = this;
+}
+
+bool UType_int::canConvertFrom( UObject *o, UType *t )
+{
+    if ( isEqual( t, pUType_double ) )
+	return true;
+
+    return t->canConvertTo( o, this );
+}
+
+bool UType_int::canConvertTo( UObject *o, UType *t )
+{
+    return isEqual( t,  pUType_double );
 }
 
 bool UType_int::convertFrom( UObject *o, UType *t )
@@ -206,6 +274,19 @@ void UType_double::set( UObject *o, double v )
 {
     o->payload.d = v;
     o->type = this;
+}
+
+bool UType_double::canConvertFrom( UObject *o, UType *t )
+{
+    if ( isEqual( t, pUType_int ) )
+	return true;
+
+    return t->canConvertTo( o, this );
+}
+
+bool UType_double::canConvertTo( UObject *o, UType *t )
+{
+    return isEqual( t,  pUType_int );
 }
 
 bool UType_double::convertFrom( UObject *o, UType *t )
@@ -252,6 +333,16 @@ void UType_charstar::set( UObject *o, const char* v, bool take )
 	o->payload.charstar.owner = false;
     }
     o->type = this;
+}
+
+bool UType_charstar::canConvertFrom( UObject *o, UType *t )
+{
+    return t->canConvertTo( o, this );
+}
+
+bool UType_charstar::canConvertTo( UObject *, UType * )
+{
+    return false;
 }
 
 bool UType_charstar::convertFrom( UObject *o, UType *t )

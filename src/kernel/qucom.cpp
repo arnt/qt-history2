@@ -1,7 +1,7 @@
 #include "qucom.h"
 
 // {44C2A547-01E7-4e56-8559-35AF9D2F42B7}
-const UUid TID_UType_QString = 
+const UUid TID_UType_QString =
 { 0x44c2a547, 0x1e7, 0x4e56, { 0x85, 0x59, 0x35, 0xaf, 0x9d, 0x2f, 0x42, 0xb7 } };
 static UType_QString static_UType_QString;
 UType_QString *pUType_QString = &static_UType_QString;
@@ -12,6 +12,23 @@ void UType_QString::set( UObject *o, const QString& v )
 {
     o->payload.ptr = new QString( v );
     o->type = this;
+}
+
+bool UType_QString::canConvertFrom( UObject *o, UType *t )
+{
+    if ( isEqual( t, pUType_charstar ) ||
+	 isEqual( t, pUType_double ) || 
+	 isEqual( t, pUType_int ) )
+	return true;
+    
+    return t->canConvertTo( o, this );
+}
+
+bool UType_QString::canConvertTo( UObject *o, UType *t )
+{
+    return isEqual( t, pUType_charstar ) ||
+	isEqual( t,  pUType_int ) ||
+	isEqual( t,  pUType_double );
 }
 
 bool UType_QString::convertFrom( UObject *o, UType *t )

@@ -71,6 +71,12 @@ struct UCOM_EXPORT UType
     virtual const UUid *uuid() const = 0;
     virtual const char *desc() const = 0;
 
+    
+    virtual bool canConvertFrom( UObject *, UType * ) = 0;
+    // virtual private, only called by canConvertFrom
+    virtual bool canConvertTo( UObject *, UType * ) = 0;
+    
+    
     virtual bool convertFrom( UObject *, UType * ) = 0;
     // virtual private, only called by convertFrom
     virtual bool convertTo( UObject *, UType * ) = 0;
@@ -238,6 +244,8 @@ struct UCOM_EXPORT UType_enum : public UType
 
     void set( UObject *, int );
     int &get( UObject * o ) { return o->payload.i; }
+    bool canConvertFrom( UObject *, UType * );
+    bool canConvertTo( UObject *, UType * );
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
@@ -253,6 +261,8 @@ struct UCOM_EXPORT UType_ptr : public UType
 
     void set( UObject *, const void* );
     void* &get( UObject * o ) { return o->payload.ptr; }
+    bool canConvertFrom( UObject *, UType * );
+    bool canConvertTo( UObject *, UType * );
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
@@ -267,6 +277,8 @@ struct UCOM_EXPORT UType_iface : public UType
 
     void set( UObject *, UUnknownInterface* );
     UUnknownInterface* &get( UObject *o ){ return o->payload.iface; }
+    bool canConvertFrom( UObject *, UType * );
+    bool canConvertTo( UObject *, UType * );
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
@@ -281,6 +293,8 @@ struct UCOM_EXPORT UType_idisp : public UType
 
     void set( UObject *, UDispatchInterface* );
     UDispatchInterface* &get( UObject *o ){ return o->payload.idisp; }
+    bool canConvertFrom( UObject *, UType * );
+    bool canConvertTo( UObject *, UType * );
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
@@ -295,6 +309,8 @@ struct UCOM_EXPORT UType_bool : public UType
 
     void set( UObject *, bool );
     bool &get( UObject *o ) { return o->payload.b; }
+    bool canConvertFrom( UObject *, UType * );
+    bool canConvertTo( UObject *, UType * );
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
@@ -310,6 +326,8 @@ struct UCOM_EXPORT UType_int : public UType
 
     void set( UObject *, int );
     int &get( UObject *o ) { return o->payload.i; }
+    bool canConvertFrom( UObject *, UType * );
+    bool canConvertTo( UObject *, UType * );
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
@@ -325,6 +343,8 @@ struct UCOM_EXPORT UType_double : public UType
 
     void set( UObject *, double );
     double &get( UObject *o ) { return o->payload.d; }
+    bool canConvertFrom( UObject *, UType * );
+    bool canConvertTo( UObject *, UType * );
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
@@ -340,6 +360,8 @@ struct UCOM_EXPORT UType_charstar : public UType
 
     void set( UObject *, const char*, bool take = false );
     char* get( UObject *o ){ return o->payload.charstar.ptr; }
+    bool canConvertFrom( UObject *, UType * );
+    bool canConvertTo( UObject *, UType * );
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 

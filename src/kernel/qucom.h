@@ -20,6 +20,8 @@ struct Q_EXPORT UType_QString : public UType
     void set( UObject *, const QString & );
     QString &get( UObject * o ) { return *(QString*)o->payload.ptr; }
 
+    bool canConvertFrom( UObject *, UType * );
+    bool canConvertTo( UObject *, UType * );
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 
