@@ -277,7 +277,7 @@ void QProcess::clearArguments()
     the list are the arguments to the command. Any previous arguments
     are deleted.
 
-    QProcess does perform argument substitutions; for example, if you
+    QProcess does not perform argument substitutions; for example, if you
     specify "*" or "$DISPLAY", these values are passed to the process
     literally. If you want to have the same behavior as the shell
     provides, you must do the substitutions yourself; i.e. instead of
