@@ -394,7 +394,7 @@ public:
     virtual void	setAutoMask(bool);
     bool		autoMask() const;
 
-    enum BackgroundOrigin { WidgetOrigin, ParentOrigin };
+    enum BackgroundOrigin { WidgetOrigin, ParentOrigin, WindowOrigin };
 
     void setBackgroundOrigin( BackgroundOrigin );
     BackgroundOrigin backgroundOrigin() const;
@@ -462,7 +462,7 @@ protected:
 
     //just store this value rather than calculating since mac needs it a lot
     bool posInTLChanged;
-    QPoint posInTL; 
+    QPoint posInTL;
     friend QPoint posInWindow(QWidget *w);
 
 #elif defined(Q_WS_WIN)
@@ -906,6 +906,7 @@ struct QWExtra {
 #endif
     QRect micro_focus_hint;                     // micro focus hint
     QSizePolicy size_policy;
+    uint bg_origin : 2;
 };
 
 

@@ -147,23 +147,9 @@ void MetalStyle::polish( QWidget* w)
 	return;
     }
 
-    if (w->inherits("QTipLabel") || w->inherits("QLCDNumber") ){
-	return;
-    }
-
     if ( !w->isTopLevel() ) {
-	if ( w->inherits("QGroupBox")
-	     || w->inherits("QTabWidget") ) {
-	    w->setAutoMask( TRUE );
-	    return;
-	}
- 	if (w->inherits("QLabel")
- 	    || w->inherits("QSlider")
- 	    || w->inherits("QButton")
-	    || w->inherits("QProgressBar")
-	    ){
-	    w->setBackgroundOrigin( QWidget::ParentOrigin );
- 	}
+	if ( w->backgroundPixmap() )
+	    w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
 }
 
@@ -178,24 +164,9 @@ void MetalStyle::unPolish( QWidget* w)
 	w->setBackgroundMode( QWidget::PaletteButton );
 	return;
     }
-
-    if (w->inherits("QTipLabel") || w->inherits("QLCDNumber") ){
-	return;
-    }
-
     if ( !w->isTopLevel() ) {
-	if ( w->inherits("QGroupBox")
-	     || w->inherits("QTabWidget") ) {
-	    w->setAutoMask( FALSE );
-	    return;
-	}
- 	if (w->inherits("QLabel")
- 	    || w->inherits("QSlider")
- 	    || w->inherits("QButton")
-	    || w->inherits("QProgressBar")
-	    ){
+	if ( w->backgroundPixmap() )
 	    w->setBackgroundOrigin( QWidget::WidgetOrigin );
- 	}
     }
 
 }

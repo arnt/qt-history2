@@ -536,6 +536,21 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
     const QPixmap* bgpm = widget->backgroundPixmap();
     if ( bgpm ) {
 	if ( !bgpm->isNull() ) {
+	    if ( !widget->isTopLevel() ) {
+		switch ( widget->backgroundOrigin() ) {
+		case QWidget::ParentOrigin:
+		    xofs += widget->x();
+		    yofs += widget->y();
+		    break;
+		case QWidget::WindowOrigin: {
+		    QPoint p = widget->mapTo( widget->topLevelWidget(), QPoint(0,0) );
+		    xofs += p.x();
+		    yofs += p.y();
+		    } break;
+		default:
+		    break;
+		}
+	    }
 	    QPainter p;
 	    p.begin( this );
 	    p.setPen( NoPen );

@@ -183,7 +183,6 @@
 	setBackgroundMode(),
 	backgroundPixmap(),
 	setBackgroundPixmap(),
-	setTranslateBackground(),
 	backgroundColor(),
 	colorGroup(),
 	fontMetrics(),
@@ -521,8 +520,6 @@ inline bool QWidgetMapper::remove( WId id )
         this flag.
   <dt> WState_Exposed<dd> the widget was finally exposed (x11 only,
         helps avoiding paint event doubling).
-  <dt>WState_TranslateBackground<dd> The widget tanslates its pixmap
-        background to the parent's coordinate system, see setTranslateBackground().
   </dl>
 */
 
@@ -957,6 +954,7 @@ void QWidget::createExtra()
 #endif
 	extra->topextra = 0;
 	extra->bg_mode = PaletteBackground;
+	extra->bg_origin = WidgetOrigin;
 #ifndef QT_NO_STYLE
 	extra->style = 0;
 #endif
@@ -1054,7 +1052,7 @@ QWidget *QWidget::find( WId id )
 
 /*!
   \fn void QWidget::setWFlags( WFlags f )
-  
+
   Sets the widget flags \a f.
 
   Widget flags are a combination of Qt::WidgetFlags.
@@ -1064,7 +1062,7 @@ QWidget *QWidget::find( WId id )
 
 /*!
   \fn void QWidget::clearWFlags( WFlags f )
-  
+
   Clears the widget flags \a f.
 
   Widget flags are a combination of Qt::WidgetFlags.
@@ -3076,6 +3074,21 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 {
     internalSetGeometry( x, y, w, h, TRUE );
     setWState( WState_Resized );
+    if ( isVisible() && backgroundOrigin() == WindowOrigin && children() ) {
+	QObjectListIt it(*children());
+	register QObject *object;
+	QWidget *widget;
+	while ( it ) {
+	    object = it.current();
+	    ++it;
+	    if ( object->isWidgetType() ) {
+		widget = (QWidget*)object;
+		if ( !widget->isHidden() && !widget->isTopLevel() &&
+		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() )
+		    widget->update();
+	    }
+	}
+    }
 }
 
 
@@ -4647,13 +4660,15 @@ bool QWidget::autoMask() const
   <ul>
   <li> \c WidgetOrigin - the pixmap is drawn in the widget's coordinate system.
   <li>\c ParentOrigin - the pixmap is drawn in the parent's coordinate system.
+  <li>\c WindowOrigin - the pixmap is drawn in the toplevel window's coordinate system.
   </ul>
 
  */
 
 /*!
   Sets the widget's background to be drawn relative to \a origin,
-  which is either of \c WidgetOrigin (the default) or \c ParentOrigin.
+  which is either of \c WidgetOrigin (the default), \c ParentOrigin or
+  \c WindowOrigin.
 
   This makes a difference only if the widget has a background pixmap
   where the positioning matters. In such case, using \c ParentOrigin
@@ -4668,11 +4683,8 @@ void QWidget::setBackgroundOrigin( BackgroundOrigin origin )
 {
     if ( origin == backgroundOrigin() )
 	return;
-
-    if ( origin == ParentOrigin )
-	setWState( WState_TranslateBackground );
-    else
-	clearWState( WState_TranslateBackground );
+    createExtra();
+    extra->bg_origin = origin;
     update();
 }
 
@@ -4683,10 +4695,7 @@ void QWidget::setBackgroundOrigin( BackgroundOrigin origin )
 */
 QWidget::BackgroundOrigin QWidget::backgroundOrigin() const
 {
-    if ( testWState( WState_TranslateBackground ) )
-	return ParentOrigin;
-    else
-	return WidgetOrigin;
+    return extra ? (BackgroundOrigin)extra->bg_origin : WidgetOrigin;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#430 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#431 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1625,9 +1625,15 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    int ox = 0;
 		    int oy = 0;
 		    RECT r;
-		    if ( widget->backgroundOrigin() == QWidget::ParentOrigin && !widget->isTopLevel() ) {
-			ox = widget->x();
-			oy = widget->y();
+		    if ( !window->isTopLevel() ) {
+			if ( widget->backgroundOrigin() == QWidget::ParentOrigin ) {
+			    ox = widget->x();
+			    oy = widget->y();
+			} else if ( widget->backgroundOrigin() == QWidget::WindowOrigin ) {
+			    QPoint p = widget->mapTo( widget->topLevelWidget(), QPoint(0,0) );
+			    ox = p.x();
+			    oy = p.y();
+			}
 		    }
 		    GetClientRect( hwnd, &r );
 		    qt_erase_background
@@ -2315,7 +2321,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	DWORD ol_pos = GetMessagePos();
 	curPos.x = GET_X_LPARAM(ol_pos);
 	curPos.y = GET_Y_LPARAM(ol_pos);
- 
+
 	if ( curPos.x == gpos.x && curPos.y == gpos.y )
 	    return TRUE;			// same global position
 	gpos = curPos;

@@ -4526,7 +4526,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 
     QPaintEvent e( paintRegion );
     setWState( WState_InPaintEvent );
-    if ( !isTopLevel() && backgroundOrigin() == ParentOrigin )
+    if ( !isTopLevel() && backgroundOrigin() != WidgetOrigin )
 	erase( paintRegion );
     qt_set_paintevent_clipping( this, paintRegion );
     QApplication::sendEvent( this, &e );
@@ -4633,7 +4633,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    ;
     }
 
-    bool transbg = backgroundOrigin() == ParentOrigin;
+    bool transbg = backgroundOrigin() != WidgetOrigin;
     // we ignore NorthWestGravity at the moment for reversed layout
     if ( transbg || (!testWFlags( WNorthWestGravity ) && testWState( WState_Exposed ) && was_resize ) || QApplication::reverseLayout() ) {
 	// remove unnecessary paint events from the queue

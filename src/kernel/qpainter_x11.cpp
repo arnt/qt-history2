@@ -77,12 +77,19 @@ void qt_erase_region( QWidget* w, const QRegion& region)
     QRegion reg = region;
 
     if ( !w->paintingActive() && !w->isTopLevel() && w->backgroundPixmap()
-	 && w->backgroundOrigin() == QWidget::ParentOrigin ) {
+	 && w->backgroundOrigin() != QWidget::WidgetOrigin ) {
+	int ox = w->x();
+	int oy = w->y();
+	if ( w->backgroundOrigin() == QWidget::WindowOrigin ) {
+	    QPoint p = w->mapTo( w->topLevelWidget(), QPoint(0,0) );
+	    ox = p.x();
+	    oy = p.y();
+	}
 	QPainter p( w );
 	p.setClipRegion( region ); // automatically includes paintEventDevice if required
 	p.drawTiledPixmap( 0, 0, w->width(), w->height(),
 			   *w->backgroundPixmap(),
-			   w->x(), w->y() );
+			   ox, oy );
 	return;
     }
 
@@ -99,7 +106,7 @@ void qt_erase_region( QWidget* w, const QRegion& region)
 
 void qt_erase_rect( QWidget* w, const QRect& r)
 {
-    if ( w == paintEventDevice || w->backgroundOrigin() == QWidget::ParentOrigin )
+    if ( w == paintEventDevice || w->backgroundOrigin() != QWidget::WidgetOrigin )
 	qt_erase_region( w, r );
     else
 	XClearArea( w->x11Display(), w->winId(), r.x(), r.y(), r.width(), r.height(), FALSE );
@@ -942,7 +949,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
 
     QPixmap::x11SetDefaultScreen( pd->x11Screen() );
-    
+
     QWidget *copyFrom = 0;
     if ( pdev_dict ) {				// redirected paint device?
 	pdev = pdev_dict->find( (long)pd );
@@ -2386,14 +2393,14 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
     if ( sw <= 0 || sh <= 0 )
 	return;
-    
+
      if ( pdev->x11Screen() != pixmap.x11Screen() ) {
 	 QPixmap* p = (QPixmap*) &pixmap;
  	p->x11SetScreen( pdev->x11Screen() );
      }
 
      QPixmap::x11SetDefaultScreen( pixmap.x11Screen() );
-     
+
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) || txop == TxScale || txop == TxRotShear ) {
 	    if ( sx != 0 || sy != 0 ||
