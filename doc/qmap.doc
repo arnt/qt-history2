@@ -462,7 +462,7 @@ TJ001: Jones, Tom earns 60000
   \sa clear()
 */
 
-/*! \fn size_type QMap::count( const key_type& k )
+/*! \fn size_type QMap::count( const key_type& k ) const
   Returns the number of elements whose key is \a k.  The return value
   is either 0 or 1.
 */
