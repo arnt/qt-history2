@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#248 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#249 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -351,9 +351,9 @@ void QPopupMenu::accelActivated( int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi && mi->isEnabled() ) {
-	if ( mi->signal() ) // activate signal
-	    mi->signal()->activate();
 	actSig( mi->id() );
+	if ( mi->signal() )
+	    mi->signal()->activate();
     }
 }
 
@@ -883,9 +883,9 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	} else {				// normal menu item
 	    byeMenuBar();			// deactivate menu bar
 	    if ( mi->isEnabled() ) {
-		if ( mi->signal() && !b ) // activate signal
-		    mi->signal()->activate();
 		actSig( mi->id(), b );
+		if ( mi->signal() && !b )
+		    mi->signal()->activate();
 	    }
 	}
     } else {
@@ -1031,9 +1031,9 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    byeMenuBar();
 	    bool b = QWhatsThis::inWhatsThisMode();
 	    if ( mi->isEnabled() || b ) {
-		if ( mi->signal() && !b ) // activate signal
-		    mi->signal()->activate();
 		actSig( mi->id(), b );
+		if ( mi->signal() && !b )
+		    mi->signal()->activate();
 	    }
 	}
 	break;
@@ -1084,9 +1084,9 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		byeMenuBar();
 		bool b = QWhatsThis::inWhatsThisMode();
 		if ( mi->isEnabled() || b ) {
-		    if ( mi->signal() && !b  ) // activate signal
-			mi->signal()->activate();
 		    actSig( mi->id(), b );
+		    if ( mi->signal() && !b  )
+			mi->signal()->activate();
 		}
 	    }
 	}
@@ -1415,7 +1415,7 @@ bool QPopupMenu::setConfiguration( const QDomElement& element )
   // or direct child widget except for bars and the central widget
   if ( !QMenuData::setConfiguration( this, element ) )
     return FALSE;
-  
+
   return QObject::setConfiguration( element );
 }
 #endif
