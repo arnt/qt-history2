@@ -710,8 +710,8 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
     XGlyphInfo *xgi = 0;
     if ((xgi = getGlyphInfo(qfs, ch)) != (XGlyphInfo *) -2) {
 	if ( xgi == (XGlyphInfo *) -1)
-	    r.setRect( 0, request.pixelSize * -3 / 4,
-		       request.pixelSize * 3 / 4, request.pixelSize * 3 / 4);
+	    r.setRect( 0, actual.pixelSize * -3 / 4,
+		       actual.pixelSize * 3 / 4, actual.pixelSize * 3 / 4);
 	else if ( xgi )
 	    r.setRect( -xgi->x, -xgi->y, xgi->width, xgi->height);
     } else
@@ -720,8 +720,8 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 	{
 	    xcs = getCharStruct(qfs, QString(ch), 0);
 	    if ( xcs == (XCharStruct *) -1)
-		r.setRect( 0, request.pixelSize * -3 / 4,
-			   request.pixelSize * 3 / 4, request.pixelSize * 3 / 4);
+		r.setRect( 0, actual.pixelSize * -3 / 4,
+			   actual.pixelSize * 3 / 4, actual.pixelSize * 3 / 4);
 	    else if ( xcs )
 		r.setRect( xcs->lbearing, -xcs->ascent,
 			   xcs->rbearing - xcs->lbearing, xcs->descent + xcs->ascent );
@@ -765,7 +765,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 		if (xgi == (XGlyphInfo *) -1) {
 		    // character isn't in the font, set the script to UnknownScript
 		    tmp = current = QFont::UnknownScript;
-		    w += request.pixelSize * 3 / 4;
+		    w += actual.pixelSize * 3 / 4;
 		} else if (xgi)
 		    w += xgi->xOff;
 	    } else
@@ -775,7 +775,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 		    if (xcs == (XCharStruct *) -1) {
 			// character isn't in the font, set the script to UnknownScript
 			tmp = current = QFont::UnknownScript;
-			w += request.pixelSize * 3 / 4;
+			w += actual.pixelSize * 3 / 4;
 		    } else if (xcs)
 			w += xcs->width;
 		}
@@ -863,7 +863,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 			tmp = current = QFont::UnknownScript;
 		    }
 
-		    w += request.pixelSize * 3 / 4;
+		    w += actual.pixelSize * 3 / 4;
 		} else if (xgi)
 		    w += xgi->xOff;
 	    } else
@@ -893,7 +893,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 			    tmp = current = QFont::UnknownScript;
 			}
 
-			w += request.pixelSize * 3 / 4;
+			w += actual.pixelSize * 3 / 4;
 		    } else if (xcs)
 			w += xcs->width;
 		}
@@ -1013,7 +1013,7 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 		    // character isn't in the font, set the script to UnknownScript
 		    tmp = current = QFont::UnknownScript;
 
-		    int size = (request.pixelSize * 3 / 4);
+		    int size = (actual.pixelSize * 3 / 4);
 		    overall->ascent = QMAX(overall->ascent, size);
 		    overall->descent = QMAX(overall->descent, 0);
 		    overall->lbearing = QMIN(overall->lbearing, 0);
@@ -1035,7 +1035,7 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 			// character isn't in the font, set the script to UnknownScript
 			tmp = current = QFont::UnknownScript;
 
-			int size = (request.pixelSize * 3 / 4);
+			int size = (actual.pixelSize * 3 / 4);
 			overall->ascent = QMAX(overall->ascent, size);
 			overall->descent = QMAX(overall->descent, 0);
 			overall->lbearing = QMIN(overall->lbearing, 0);
@@ -1203,7 +1203,7 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 	    } else {
 		int l = cache->length;
 		XRectangle *rects = new XRectangle[l];
-		int inc = request.pixelSize * 3 / 4;
+		int inc = actual.pixelSize * 3 / 4;
 
 		for (int k = 0; k < l; k++) {
 		    rects[k].x = x + cache->xoff + (k * inc);
@@ -1958,8 +1958,8 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 void QFontPrivate::computeLineWidth()
 {
     int nlw;
-    int weight = request.weight;
-    int pSize  = request.pixelSize;
+    int weight = actual.weight;
+    int pSize  = actual.pixelSize;
 
     // ad hoc algorithm
     int score = pSize * weight;
@@ -1984,6 +1984,10 @@ void QFontPrivate::initFontInfo(QFont::Script script)
     if (exactMatch) {
 	actual = request;
 	actual.dirty = FALSE;
+	if ( actual.pointSize == -1 )
+	    actual.pointSize = int( (actual.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
+	else
+	    actual.pixelSize = actual.pointSize * 72 / (10 * QPaintDevice::x11AppDpiY() );
 
 	return;
     }
@@ -2776,7 +2780,7 @@ int QFontMetrics::ascent() const
 
     QFontStruct *qfs = D->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs || qfs == (QFontStruct *) -1)
-	return D->request.pixelSize * 3 / 4;
+	return D->actual.pixelSize * 3 / 4;
 
 #ifndef QT_NO_XFTFREETYPE
     XftFontStruct *xftfs = (XftFontStruct *) qfs->xfthandle;
@@ -3012,7 +3016,7 @@ int QFontMetrics::height() const
 
     QFontStruct *qfs =  D->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs || qfs == (QFontStruct *) -1)
-	return (D->request.pixelSize * 3 / 4) + 1;
+	return (D->actual.pixelSize * 3 / 4) + 1;
 
 #ifndef QT_NO_XFTFREETYPE
     XftFontStruct *xftfs = (XftFontStruct *) qfs->xfthandle;
@@ -3115,7 +3119,7 @@ int QFontMetrics::width(QChar ch) const
     QFont::Script script = D->scriptForChar(ch);
 
     if (script == QFont::UnknownScript)
-	return D->request.pixelSize * 3 / 4;
+	return D->actual.pixelSize * 3 / 4;
 
     D->load(script);
 
@@ -3126,7 +3130,7 @@ int QFontMetrics::width(QChar ch) const
     XGlyphInfo *xgi = getGlyphInfo(qfs, ch);
     if (xgi != (XGlyphInfo *) -2) {
 	if (xgi == (XGlyphInfo *) -1)
-	    w = D->request.pixelSize * 3 / 4;
+	    w = D->actual.pixelSize * 3 / 4;
 	else if (! xgi)
 	    w = 0;
 	else
@@ -3136,7 +3140,7 @@ int QFontMetrics::width(QChar ch) const
 	{
 	    XCharStruct *xcs = getCharStruct(qfs, QString(ch), 0);
 	    if (xcs == (XCharStruct *) -1)
-		w = D->request.pixelSize * 3 / 4;
+		w = D->actual.pixelSize * 3 / 4;
 	    else if (! xcs)
 		w = 0;
 	    else
@@ -3168,7 +3172,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     QFont::Script script = D->scriptForChar(ch);
 
     if (script == QFont::UnknownScript)
-	return D->request.pixelSize * 3 / 4;
+	return D->actual.pixelSize * 3 / 4;
 
     D->load(script);
 
@@ -3179,7 +3183,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     XGlyphInfo *xgi = getGlyphInfo(qfs, str, pos);
     if (xgi != (XGlyphInfo *) -2) {
 	if (xgi == (XGlyphInfo *) -1)
-	    w = D->request.pixelSize * 3 / 4;
+	    w = D->actual.pixelSize * 3 / 4;
 	else if (! xgi)
 	    w = 0;
 	else
@@ -3189,7 +3193,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	{
 	    XCharStruct *xcs = getCharStruct(qfs, str, pos);
 	    if (xcs == (XCharStruct *) -1)
-		w = D->request.pixelSize * 3 / 4;
+		w = D->actual.pixelSize * 3 / 4;
 	    else if (! xcs)
 		w = 0;
 	    else
