@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#242 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#243 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -826,7 +826,10 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
     }
     register QMenuItem *mi = mitems->at(item);
     if ( item != actItem ) {			// new item activated
-	actItem = item;
+	int lastActItem = actItem;
+        actItem = item;
+        if ( actItem != lastActItem && lastActItem >= 0 )
+            updateRow( lastActItem );
 	updateRow( actItem );
 	hilitSig( mi->id() );
     }
@@ -936,9 +939,9 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	else if ( singleSingleShot )
 	    singleSingleShot->stop();
 
-	int lastActItem = actItem;
+        int lastActItem = actItem;
 	actItem = item;
-	if ( lastActItem >= 0 )
+        if ( lastActItem >= 0 )
 	    updateRow( lastActItem );
 	updateRow( actItem );
 	hilitSig( mi->id() );
