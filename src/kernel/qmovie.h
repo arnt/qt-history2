@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#18 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#19 $
 **
 ** Definition of movie classes
 **
@@ -29,10 +29,37 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qpixmap.h"
+#include "qlist.h"
 #endif // QT_H
 
 class QDataSource;
-class QMoviePrivate;
+class QMovieFilePrivate;
+class QMovieFramePrivate;
+
+class Q_EXPORT QMovieFrame {
+public:
+    QMovieFrame( QPixmap& pix, int dx, int dy, int dtime );
+
+    QPixmap& pixmap() const;
+    int xOffset() const;
+    int yOffset() const;
+    int timeOffset() const;
+
+    void set( QPixmap& pix, int dx, int dy, int dtime );
+
+private:
+    int x_offset;
+    int y_offset;
+    int time_offset;
+    QPixmap mypixmap;
+};
+
+typedef QList<QMovieFrame> QMovieFrames;
+
+QDataStream& operator>>(QDataStream&, QMovieFrame&);
+QDataStream& operator<<(QDataStream&, QMovieFrame&);
+QDataStream& operator>>(QDataStream&, QMovieFrames&);
+QDataStream& operator<<(QDataStream&, QMovieFrames&);
 
 class Q_EXPORT QMovie {
 public:
@@ -40,6 +67,7 @@ public:
     QMovie(QDataSource*, int bufsize=1024);
     QMovie(const QString &fileName, int bufsize=1024);
     QMovie(QByteArray data, int bufsize=1024);
+    QMovie(QList<QMovieFrame> &frames);
     QMovie(const QMovie&);
     ~QMovie();
 
@@ -86,7 +114,8 @@ public:
 
 private:
     friend class QMoviePrivate;
-    QMoviePrivate *d;
+    QMovieFilePrivate *d;
+    QMovieFramePrivate* f;
 };
 
 #endif
