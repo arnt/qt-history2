@@ -960,24 +960,21 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &pixmap, cons
     pm->releaseDC(pm_dc);
 }
 
-void QWin32PaintEngine::drawTextItem(const QPointF &pt, const QTextItem &ti)
+void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
-    if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawTextItem(pt, ti);
-        return;
-    }
-
-    QPointF p = pt;
-    if (d->txop > QPainterPrivate::TxNone) {
-        d->setNativeMatrix(d->matrix);
-        // Since we enable native xform, we need to move the coords back to logical
-        p = p * d->invMatrix;
-    }
-
 #ifdef QT_DEBUG_DRAW
         printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
                p.x(), p.y(), QString::fromRawData(ti.chars, ti.num_chars).latin1());
 #endif
+
+    if (d->tryGdiplus()) {
+        d->gdiplusEngine->drawTextItem(p, ti);
+        return;
+    }
+
+    if (d->txop >= QPainterPrivate::TxTranslate) {
+        d->setNativeMatrix(d->matrix);
+    }
 
     QFontEngine *fe = ti.fontEngine;
     QPainterState *state = painterState();
@@ -1003,8 +1000,6 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pt, const QTextItem &ti)
             angle = 3600 - angle;
 
         transform = true;
-    } else if (!hasFeature(QPaintEngine::CoordTransform) && state->txop == QPainterPrivate::TxTranslate) {
-        state->painter->matrix().map(x, y, &x, &y);
     }
 
     if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut) || scale != 1. || angle) {
@@ -1124,7 +1119,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pt, const QTextItem &ti)
 
     }
 
-    if (d->txop > QPainterPrivate::TxNone)
+    if (d->txop >= QPainterPrivate::TxTranslate)
         d->setNativeMatrix(QMatrix());
 }
 
@@ -1499,26 +1494,8 @@ void QWin32PaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperatio
         return;
     }
 
-#ifndef QT_NO_NATIVE_XFORM
-    if (d->txop >= QPainterPrivate::TxScale) {
-        BeginPath(d->hdc);
-        QVector<QRect> rects = region.rects();
-        for (int i=0; i<rects.size(); ++i) {
-            const QRect &r = rects.at(i);
-            MoveToEx(d->hdc, r.left(), r.top(), 0);
-            LineTo(d->hdc, r.right() + 1, r.top());
-            LineTo(d->hdc, r.right() + 1, r.bottom() + 1);
-            LineTo(d->hdc, r.left(), r.bottom() + 1);
-            LineTo(d->hdc, r.left(), r.top());
-            CloseFigure(d->hdc);
-        }
-        EndPath(d->hdc);
-        SelectClipPath(d->hdc, qt_clip_operations[op]);
-        return;
-    }
-#endif
+    QRegion rgn = region;
 
-    QRegion rgn = region * d->matrix;
     // Setting an empty clip region on windows disables clipping, so we do the
     // nice hack of just setting a 1 pixel clip region far away to avoid anything
     // from being drawn.
