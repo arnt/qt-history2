@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#63 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#63 $");
 
 
 /*****************************************************************************
@@ -1071,8 +1071,8 @@ struct TimerInfo {				// internal timer info
     bool     zero;				// - zero timing
     QObject *obj;				// - object to receive events
 };
-typedef Q_DECLARE(QVectorM,TimerInfo)  TimerVec;	// vector of TimerInfo structs
-typedef Q_DECLARE(QIntDictM,TimerInfo) TimerDict; // fast dict of timers
+typedef Q_DECLARE(QVectorM,TimerInfo)  TimerVec; // vector of TimerInfo structs
+typedef Q_DECLARE(QIntDictM,TimerInfo) TimerDict;// fast dict of timers
 
 static const int MaxTimers  = 256;		// max number of timers
 static TimerVec *timerVec   = 0;		// timer vector

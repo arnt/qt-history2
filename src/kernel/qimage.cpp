@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#73 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#73 $");
 
 
 /*!
@@ -1083,7 +1083,7 @@ QImageHandler::QImageHandler( const char *f, const char *h, bool t,
     write_image = w;
 }
 
-typedef Q_DECLARE(QListM,QImageHandler) QIHList;	// list of image handlers
+typedef Q_DECLARE(QListM,QImageHandler) QIHList;// list of image handlers
 static QIHList *imageHandlers = 0;
 
 static void cleanup_image_handlers()		// cleanup image handler list

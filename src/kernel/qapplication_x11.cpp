@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#177 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#178 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -43,7 +43,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#177 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#178 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -955,7 +955,7 @@ struct QSockNot {
     int	     fd;
 };
 
-typedef Q_DECLARE(QListM,QSockNot)	 QSNList;
+typedef Q_DECLARE(QListM,QSockNot)	   QSNList;
 typedef Q_DECLARE(QListIteratorM,QSockNot) QSNListIt;
 
 static int	sn_highest = -1;
@@ -1047,7 +1047,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 }
 
 
-typedef Q_DECLARE(QIntDictM,QObject)	   QObjRndDict;
+typedef Q_DECLARE(QIntDictM,QObject)	     QObjRndDict;
 typedef Q_DECLARE(QIntDictIteratorM,QObject) QObjRndDictIt;
 
 static QObjRndDict *sn_rnd_dict = 0;
