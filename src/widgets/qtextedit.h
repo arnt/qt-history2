@@ -47,7 +47,7 @@
 
 #ifndef QT_NO_TEXTEDIT
 
-class QTextEdit : public QTextView
+class Q_EXPORT QTextEdit : public QTextView
 {
     Q_OBJECT
 
