@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#12 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#13 $
 
 $base = "/tmp/striptree-$$";
 #$quiet=1;
@@ -99,7 +99,7 @@ print SH "cd $base/cvs/qt
 # Move-around CVS files to be like regular release
 mv dist/free/LICENSE,v .
 
-# WWA: Eh?
+# WWA: LICENSE ME!!!
 #co -u LICENSE
 #rm -f LICENSE,v
 
