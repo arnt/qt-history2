@@ -45,28 +45,7 @@ class BreakLayoutCommand;
 class FormWindowManager;
 class OrderIndicator;
 class FormEditor;
-class SignalSlotEditor;
-class BuddyEditor;
-class View3D;
-
-class FormWindowDnDItem : public AbstractDnDItem
-{
-    Q_OBJECT
-public:
-    FormWindowDnDItem(QWidget *widget, const QPoint &pos);
-    FormWindowDnDItem(DomUI *dom_ui, QWidget *widget, const QPoint &pos);
-
-    virtual ~FormWindowDnDItem();
-
-    virtual DomUI *domUi() const;
-    virtual QWidget *decoration() const;
-    virtual QWidget *widget() const;
-    virtual QPoint hotSpot() const;
-private:
-    QWidget *m_decoration, *m_widget;
-    DomUI *m_dom_ui;
-    QPoint m_hot_spot;
-};
+class FormWindowDnDItem;
 
 // ### fake - remove when actions are implemented
 class QT_FORMEDITOR_EXPORT WidgetToActionMap
@@ -107,6 +86,7 @@ public:
 
     virtual int toolCount() const;
     virtual int currentTool() const;
+    virtual void setCurrentTool(int index);
     virtual AbstractFormWindowTool *tool(int index) const;
     virtual void registerTool(AbstractFormWindowTool *tool);
 
@@ -165,8 +145,6 @@ public:
 
     QList<QWidget *> widgets(QWidget *widget) const;
 
-    inline BuddyEditor *buddyEditor() const { return m_buddyEditor; }
-
     QWidget *createWidget(DomUI *ui, const QRect &rect, QWidget *target);
     void insertWidget(QWidget *w, const QRect &rect, QWidget *target);
     void resizeWidget(QWidget *widget, const QRect &geometry);
@@ -184,7 +162,6 @@ public:
     void endCommand();
 
     void emitSelectionChanged();
-    void emitWidgetsChanged();
 
     bool unify(QObject *w, QString &s, bool changeIt);
 
@@ -206,8 +183,6 @@ public:
 
     WidgetToActionMap &widgetToActionMap() { return m_widget_to_action_map; }
     ActionList &actionList() { return m_action_list; }
-
-    SignalSlotEditor *signalSlotEditor() const { return m_signalSlotEditor; }
 
     bool handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event);
 
@@ -317,7 +292,6 @@ private:
     QList<WidgetSelection *> selections;
     QHash<QWidget *, WidgetSelection *> usedSelections;
 
-    bool validForBuddy;
     QPoint startPos;
     QPoint currentPos;
 
@@ -349,8 +323,6 @@ private:
     int m_dirty;
     int m_lastIndex;
 
-    SignalSlotEditor *m_signalSlotEditor;
-    BuddyEditor *m_buddyEditor;
     EditMode m_editMode;
 
     WidgetToActionMap m_widget_to_action_map;
@@ -364,16 +336,12 @@ private:
 
     QStackedWidget *m_widgetStack;
 
-#ifdef DESIGNER_VIEW3D
-    View3D *m_view_3d;
-#endif
-
 private:
 //    friend class FormWindowManager;
     friend class WidgetHandle;
     friend class WidgetSelection;
     friend class QDesignerWidget;
-    friend class ToolWidgetEditor;
+    friend class WidgetEditorTool;
 };
 
 #endif // FORMWINDOW_H

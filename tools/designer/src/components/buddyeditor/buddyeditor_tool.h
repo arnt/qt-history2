@@ -16,10 +16,13 @@
 
 #include "buddyeditor_global.h"
 
+#include <QtCore/QPointer>
+
 #include <abstractformwindowtool.h>
 
 class AbstractFormEditor;
 class AbstractFormWindow;
+class BuddyEditor;
 
 class QT_BUDDYEDITOR_EXPORT BuddyEditorTool: public AbstractFormWindowTool
 {
@@ -30,12 +33,17 @@ public:
 
     virtual AbstractFormEditor *core() const;
     virtual AbstractFormWindow *formWindow() const;
-    virtual QWidget *createEditor() const;
+
+    virtual QWidget *editor() const;
+
+    virtual void activated();
+    virtual void deactivated();
 
     virtual bool handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event);
 
 private:
     AbstractFormWindow *m_formWindow;
+    mutable QPointer<BuddyEditor> m_editor;
 };
 
 #endif // BUDDYEDITOR_TOOL_H

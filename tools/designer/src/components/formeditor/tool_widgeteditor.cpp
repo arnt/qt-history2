@@ -20,27 +20,27 @@
 
 #include <QtGui/qevent.h>
 
-ToolWidgetEditor::ToolWidgetEditor(FormWindow *formWindow)
+WidgetEditorTool::WidgetEditorTool(FormWindow *formWindow)
     : AbstractFormWindowTool(formWindow),
       m_formWindow(formWindow)
 {
 }
 
-ToolWidgetEditor::~ToolWidgetEditor()
+WidgetEditorTool::~WidgetEditorTool()
 {
 }
 
-AbstractFormEditor *ToolWidgetEditor::core() const
+AbstractFormEditor *WidgetEditorTool::core() const
 {
     return m_formWindow->core();
 }
 
-AbstractFormWindow *ToolWidgetEditor::formWindow() const
+AbstractFormWindow *WidgetEditorTool::formWindow() const
 {
     return m_formWindow;
 }
 
-bool ToolWidgetEditor::handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event)
+bool WidgetEditorTool::handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event)
 {
     switch (event->type()) {
     case QEvent::Resize:
@@ -93,7 +93,7 @@ bool ToolWidgetEditor::handleEvent(QWidget *widget, QWidget *managedWidget, QEve
        || m_formWindow->editMode() == FormWindow::BuddyEditMode) \
     return false;
 
-bool ToolWidgetEditor::handleContextMenu(QWidget *widget, QWidget *managedWidget, QContextMenuEvent *e)
+bool WidgetEditorTool::handleContextMenu(QWidget *widget, QWidget *managedWidget, QContextMenuEvent *e)
 {
     Q_UNUSED(widget);
 
@@ -103,7 +103,7 @@ bool ToolWidgetEditor::handleContextMenu(QWidget *widget, QWidget *managedWidget
     return true;
 }
 
-bool ToolWidgetEditor::handleMouseButtonDblClickEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
+bool WidgetEditorTool::handleMouseButtonDblClickEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
 {
     Q_UNUSED(widget);
 
@@ -113,7 +113,7 @@ bool ToolWidgetEditor::handleMouseButtonDblClickEvent(QWidget *widget, QWidget *
     return true;
 }
 
-bool ToolWidgetEditor::handleMousePressEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
+bool WidgetEditorTool::handleMousePressEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
 {
     Q_UNUSED(widget);
 
@@ -123,7 +123,7 @@ bool ToolWidgetEditor::handleMousePressEvent(QWidget *widget, QWidget *managedWi
     return true;
 }
 
-bool ToolWidgetEditor::handleMouseMoveEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
+bool WidgetEditorTool::handleMouseMoveEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
 {
     Q_UNUSED(widget);
 
@@ -133,7 +133,7 @@ bool ToolWidgetEditor::handleMouseMoveEvent(QWidget *widget, QWidget *managedWid
     return true;
 }
 
-bool ToolWidgetEditor::handleMouseReleaseEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
+bool WidgetEditorTool::handleMouseReleaseEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
 {
     Q_UNUSED(widget);
 
@@ -143,7 +143,7 @@ bool ToolWidgetEditor::handleMouseReleaseEvent(QWidget *widget, QWidget *managed
     return true;
 }
 
-bool ToolWidgetEditor::handleKeyPressEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e)
+bool WidgetEditorTool::handleKeyPressEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e)
 {
     Q_UNUSED(widget);
 
@@ -153,7 +153,7 @@ bool ToolWidgetEditor::handleKeyPressEvent(QWidget *widget, QWidget *managedWidg
     return true;
 }
 
-bool ToolWidgetEditor::handleKeyReleaseEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e)
+bool WidgetEditorTool::handleKeyReleaseEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e)
 {
     Q_UNUSED(widget);
 
@@ -163,7 +163,7 @@ bool ToolWidgetEditor::handleKeyReleaseEvent(QWidget *widget, QWidget *managedWi
     return true;
 }
 
-bool ToolWidgetEditor::handlePaintEvent(QWidget *widget, QWidget *managedWidget, QPaintEvent *e)
+bool WidgetEditorTool::handlePaintEvent(QWidget *widget, QWidget *managedWidget, QPaintEvent *e)
 {
     Q_UNUSED(widget);
     Q_UNUSED(managedWidget);
@@ -174,8 +174,17 @@ bool ToolWidgetEditor::handlePaintEvent(QWidget *widget, QWidget *managedWidget,
     return false;
 }
 
-QWidget *ToolWidgetEditor::createEditor() const
+QWidget *WidgetEditorTool::editor() const
 {
-    return 0;
+    Q_ASSERT(formWindow() != 0);
+    return formWindow()->mainContainer();
+}
+
+void WidgetEditorTool::activated()
+{
+}
+
+void WidgetEditorTool::deactivated()
+{
 }
 

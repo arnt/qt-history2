@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "formwindowmanager.h"
+#include "formwindow_dnditem.h"
 #include "widgetdatabase.h"
 #include "iconloader.h"
 #include "widgetselection.h"
@@ -27,21 +28,21 @@
 #include <layoutinfo.h>
 #include <qtundo.h>
 
-#include <QAction>
-#include <QLayout>
-#include <QMouseEvent>
-#include <QApplication>
-#include <QIcon>
-#include <QBitmap>
-#include <QPainter>
-#include <QSizeGrip>
-#include <QAbstractButton>
-#include <QToolBox>
-#include <QMainWindow>
-#include <QMenuBar>
-#include <QClipboard>
+#include <QtGui/QAction>
+#include <QtGui/QLayout>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QApplication>
+#include <QtGui/QIcon>
+#include <QtGui/QBitmap>
+#include <QtGui/QPainter>
+#include <QtGui/QSizeGrip>
+#include <QtGui/QAbstractButton>
+#include <QtGui/QToolBox>
+#include <QtGui/QMainWindow>
+#include <QtGui/QMenuBar>
+#include <QtGui/QClipboard>
 
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 static QString whatsThisFrom(const QString &str)
 {

@@ -11,14 +11,17 @@
 **
 ****************************************************************************/
 
-#include <QPainter>
-#include <QPaintEvent>
-#include <QFontMetrics>
-#include <QPixmap>
-#include <QMatrix>
-#include <qdebug.h>
+#include <QtGui/QPainter>
+#include <QtGui/QPaintEvent>
+#include <QtGui/QFontMetrics>
+#include <QtGui/QPixmap>
+#include <QtGui/QMatrix>
+
+#include <QtCore/QTimer>
+#include <QtCore/qdebug.h>
 
 #include <abstractformwindow.h>
+
 #include "connectionedit.h"
 #include "qtundo.h"
 
@@ -707,7 +710,10 @@ ConnectionEdit::ConnectionEdit(QWidget *parent, AbstractFormWindow *form)
     setAttribute(Qt::WA_MouseTracking, true);
     setFocusPolicy(Qt::ClickFocus);
 
-    connect(form, SIGNAL(widgetsChanged()), this, SLOT(updateBackground()));
+    m_updateBackgroundTimer = new QTimer(this);
+    m_updateBackgroundTimer->setSingleShot(true);
+    connect(m_updateBackgroundTimer, SIGNAL(timeout()), this, SLOT(updateBackgroundNow()));
+
     connect(form, SIGNAL(widgetRemoved(QWidget*)), this, SLOT(widgetRemoved(QWidget*)));
 }
 
@@ -727,13 +733,24 @@ void ConnectionEdit::setBackground(QWidget *background)
     updateBackground();
 }
 
+
 void ConnectionEdit::updateBackground()
 {
-    if (m_bg_widget != 0) {
-        m_bg_pixmap = QPixmap::grabWidget(m_bg_widget);
-        updateLines();
-        update();
+    m_updateBackgroundTimer->start(10);
+}
+
+void ConnectionEdit::updateBackgroundNow()
+{
+    m_updateBackgroundTimer->stop();
+
+    if (m_bg_widget == 0) {
+        // nothing to do
+        return;
     }
+
+    m_bg_pixmap = QPixmap::grabWidget(m_bg_widget);
+    updateLines();
+    update();
 }
 
 QWidget *ConnectionEdit::widgetAt(const QPoint &pos) const
@@ -803,7 +820,7 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
     p.setClipRegion(e->region());
 
     if (m_bg_pixmap.isNull())
-        updateBackground();
+        updateBackgroundNow();
     p.drawPixmap(m_bg_pixmap.rect(), m_bg_pixmap);
 
     WidgetSet heavy_highlight_set, light_highlight_set;
@@ -1158,7 +1175,11 @@ void ConnectionEdit::updateLines()
 
 void ConnectionEdit::resizeEvent(QResizeEvent *e)
 {
-    updateBackground();
+    if (m_bg_widget) {
+        m_bg_widget->resize(e->size());
+        updateBackground();
+    }
+
     QWidget::resizeEvent(e);
 }
 

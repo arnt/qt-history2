@@ -20,16 +20,19 @@
 
 class FormWindow;
 
-class ToolWidgetEditor: public AbstractFormWindowTool
+class WidgetEditorTool: public AbstractFormWindowTool
 {
     Q_OBJECT
 public:
-    ToolWidgetEditor(FormWindow *formWindow);
-    virtual ~ToolWidgetEditor();
+    WidgetEditorTool(FormWindow *formWindow);
+    virtual ~WidgetEditorTool();
 
     virtual AbstractFormEditor *core() const;
     virtual AbstractFormWindow *formWindow() const;
-    virtual QWidget *createEditor() const;
+    virtual QWidget *editor() const;
+
+    virtual void activated();
+    virtual void deactivated();
 
     virtual bool handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event);
 

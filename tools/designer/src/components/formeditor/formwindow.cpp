@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "formwindow.h"
+#include "formwindow_dnditem.h"
 #include "formwindowcursor.h"
 #include "formwindowmanager.h"
 #include "tool_widgeteditor.h"
@@ -22,21 +23,16 @@
 #include "qdesigner_toolbox.h"
 #include "qdesigner_stackedbox.h"
 #include "qdesigner_resource.h"
-#include "qdesigner_promotedwidget.h"
-#include "signalsloteditor.h"
-#include "buddyeditor.h"
-
-#ifdef DESIGNER_VIEW3D
-#    include "view3d.h"
-#endif
 
 // shared
+#include <qdesigner_promotedwidget.h>
 #include <qdesigner_command.h>
 #include <spacer_widget.h>
 #include <layoutinfo.h>
 #include <layoutdecoration.h>
 #include <qdesigner_widget.h>
 #include <invisible_widget.h>
+#include <connectionedit.h>
 
 // sdk
 #include <abstractformeditor.h>
@@ -50,67 +46,6 @@
 #include <qextensionmanager.h>
 
 #include <QtGui/QtGui>
-
-FormWindowDnDItem::FormWindowDnDItem(QWidget *widget, const QPoint &pos)
-{
-    m_dom_ui = 0;
-    m_widget = widget;
-    QLabel *label = new QLabel(0, Qt::WStyle_ToolTip);
-    label->setPixmap(QPixmap::grabWidget(m_widget));
-    label->setWindowOpacity(0.8);
-
-    QRect geometry = widget->geometry();
-    geometry.moveTopLeft(widget->mapToGlobal(QPoint(0, 0)));
-    label->setGeometry(geometry);
-
-    m_decoration = label;
-
-    m_hot_spot = pos - m_decoration->geometry().topLeft();
-}
-
-FormWindowDnDItem::FormWindowDnDItem(DomUI *dom_ui, QWidget *widget, const QPoint &pos)
-{
-    m_dom_ui = dom_ui;
-    m_widget = 0;
-
-    QLabel *label = new QLabel(0, Qt::WStyle_ToolTip);
-    label->setPixmap(QPixmap::grabWidget(widget));
-    label->setWindowOpacity(0.8);
-    QRect geometry = widget->geometry();
-    geometry.moveTopLeft(widget->mapToGlobal(QPoint(0, 0)));
-    label->setGeometry(geometry);
-
-    m_decoration = label;
-
-    m_hot_spot = pos - m_decoration->geometry().topLeft();
-}
-
-DomUI *FormWindowDnDItem::domUi() const
-{
-    return m_dom_ui;
-}
-
-QWidget *FormWindowDnDItem::decoration() const
-{
-    return m_decoration;
-}
-
-QWidget *FormWindowDnDItem::widget() const
-{
-    return m_widget;
-}
-
-FormWindowDnDItem::~FormWindowDnDItem()
-{
-    m_decoration->deleteLater();
-    delete m_dom_ui;
-    m_dom_ui = 0;
-}
-
-QPoint FormWindowDnDItem::hotSpot() const
-{
-    return m_hot_spot;
-}
 
 class FriendlyWidget: public QWidget
 {
@@ -134,6 +69,7 @@ DropLine::DropLine(QWidget *parent)
     p.setColor(QPalette::Background, Qt::red);
     setPalette(p);
 }
+
 
 FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WFlags flags)
     : AbstractFormWindow(parent, flags),
@@ -260,6 +196,8 @@ void FormWindow::restoreCursors(QWidget *start, FormWindow *fw)
 void FormWindow::init()
 {
     QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setMargin(0);
+
     m_widgetStack = new QStackedWidget(this);
     layout->addWidget(m_widgetStack);
 
@@ -280,15 +218,12 @@ void FormWindow::init()
 
     setFocusPolicy(Qt::StrongFocus);
 
-    m_signalSlotEditor = 0;
-    m_buddyEditor = 0;
     m_mainContainer = 0;
     m_currentWidget = 0;
     sizePreviewLabel = 0;
     oldRectValid = false;
     drawRubber = false;
     checkedSelectionsForMove = false;
-    validForBuddy = false;
 
     targetContainer = 0;
     hadOwnPalette = false;
@@ -304,29 +239,8 @@ void FormWindow::init()
     core()->metaDataBase()->add(this);
 
     initializeCoreTools();
-
-    m_signalSlotEditor = new SignalSlotEditor(this, this);
-    m_signalSlotEditor->setGeometry(rect());
-    m_signalSlotEditor->show();
-
-    m_buddyEditor = new BuddyEditor(this, this);
-    m_buddyEditor->setGeometry(rect());
-    m_buddyEditor->show();
-
-#ifdef DESIGNER_VIEW3D
-    m_view_3d = new View3D(this, this);
-    m_view_3d->setGeometry(rect());
-    m_view_3d->show();
-#endif
 }
-/*
-void FormWindow::removeWidget(QWidget *w)
-{
-    core()->metaDataBase()->remove(w);
-    unmanageWidget(w);
-    delete w;
-}
-*/
+
 QWidget *FormWindow::mainContainer() const
 {
     return m_mainContainer;
@@ -334,39 +248,45 @@ QWidget *FormWindow::mainContainer() const
 
 void FormWindow::setMainContainer(QWidget *w)
 {
-    w->setParent(this, 0);
-    bool resetCurrentWidget = isMainContainer(m_currentWidget);
+    if (w == m_mainContainer) {
+        // nothing to do
+        return;
+    }
 
-    if (m_mainContainer)
+    int indexOfMainContainer = -1;
+
+    if (m_mainContainer) {
+        indexOfMainContainer = m_widgetStack->indexOf(m_mainContainer);
+        Q_ASSERT(indexOfMainContainer == 0);
+
         unmanageWidget(m_mainContainer);
-    if (m_currentWidget == m_mainContainer)
         setCurrentWidget(0);
-    delete m_mainContainer;
+        delete m_mainContainer;
+        m_mainContainer = 0;
+    }
 
     m_mainContainer = w;
-    core()->metaDataBase()->add(m_mainContainer);
-    manageWidget(m_mainContainer);
 
-    m_mainContainer->setGeometry(rect());
+    m_mainContainer->setParent(0, 0);
+    m_widgetStack->insertWidget(0, m_mainContainer);
+    m_mainContainer->raise();
     m_mainContainer->show();
 
+    m_widgetStack->setCurrentIndex(0);
+    m_currentTool = 0;
+
+    setCurrentWidget(m_mainContainer);
+
+    manageWidget(m_mainContainer);
+
     m_editMode = WidgetEditMode;
-    m_mainContainer->raise();
 
     if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(core()->extensionManager(), m_mainContainer)) {
         sheet->setVisible(sheet->indexOf("windowTitle"), true);
-        // ### more
+        // ### generalize
     }
 
-    if (resetCurrentWidget) {
-        QWidget *opw = m_currentWidget;
-        setCurrentWidget(m_mainContainer);
-        if (opw)
-            repaintSelection(opw);
-    }
-
-    m_signalSlotEditor->setBackground(w);
-    m_buddyEditor->setBackground(w);
+    emit mainContainerChanged(m_mainContainer);
 }
 
 void FormWindow::handlePaintEvent(QWidget *w, QPaintEvent *e)
@@ -728,11 +648,6 @@ void FormWindow::emitSelectionChanged()
 {
     m_selectionChangedTimer->setSingleShot(true);
     m_selectionChangedTimer->start(0);
-}
-
-void FormWindow::emitWidgetsChanged()
-{
-    emit widgetsChanged();
 }
 
 void FormWindow::selectionChangedTimerDone()
@@ -1266,7 +1181,7 @@ void FormWindow::manageWidget(QWidget *w)
 
     if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(w))
         manageWidget(promoted->child());
-    
+
     emit changed();
     emit widgetManaged(w);
 }
@@ -1517,8 +1432,6 @@ void FormWindow::setContents(QIODevice *dev)
 
     m_insertedWidgets.clear();
     m_widgets.clear();
-    m_signalSlotEditor->clear();
-    m_buddyEditor->clear();
     emit changed();
 
     QDesignerResource r(this);
@@ -1776,21 +1689,10 @@ void FormWindow::repositionOrderIndicators()
 
 void FormWindow::resizeEvent(QResizeEvent *e)
 {
-    QWidget::resizeEvent(e);
-
     if (editMode() == TabOrderEditMode)
         repositionOrderIndicators();
 
-    if (m_mainContainer != 0)
-        m_mainContainer->setGeometry(rect());
-    if (m_signalSlotEditor != 0)
-        m_signalSlotEditor->setGeometry(rect());
-    if (m_buddyEditor != 0)
-        m_buddyEditor->setGeometry(rect());
-#ifdef DESIGNER_VIEW3D
-    if (m_view_3d != 0)
-        m_view_3d->setGeometry(rect());
-#endif
+    QWidget::resizeEvent(e);
 }
 
 /*!
@@ -1811,7 +1713,7 @@ QPoint FormWindow::mapToForm(const QWidget *w, const QPoint &pos) const
     return mapFromGlobal(w->mapToGlobal(pos));
 }
 
-bool FormWindow::canBeBuddy(QWidget *w) const
+bool FormWindow::canBeBuddy(QWidget *w) const // ### rename me.
 {
     if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(core()->extensionManager(), w)) {
         int index = sheet->indexOf("focusPolicy");
@@ -2010,7 +1912,7 @@ void FormWindow::setEditMode(EditMode mode)
 
     switch (m_editMode) {
         case WidgetEditMode: {
-            m_mainContainer->raise();
+            setCurrentTool(0);
 
             QList<QWidget*> sel = selectedWidgets();
             foreach (QWidget *w, sel)
@@ -2019,25 +1921,13 @@ void FormWindow::setEditMode(EditMode mode)
             break;
         }
 
-        case ConnectionEditMode:
-            m_signalSlotEditor->updateBackground();
-            m_signalSlotEditor->raise();
-            break;
+        case BuddyEditMode: {
+            setCurrentTool(1);
+        } break;
 
         case TabOrderEditMode:
             showOrderIndicators();
             break;
-
-        case BuddyEditMode:
-            m_buddyEditor->updateBackground();
-            m_buddyEditor->raise();
-            break;
-
-#ifdef DESIGNER_VIEW3D
-        case View3DEditMode:
-            m_view_3d->updateForm();
-            m_view_3d->raise();
-#endif
     }
 
     emit editModeChanged(mode);
@@ -2045,8 +1935,10 @@ void FormWindow::setEditMode(EditMode mode)
 
 DomConnections *FormWindow::saveConnections()
 {
+#if 0 // ### port me
     if (m_signalSlotEditor)
         return m_signalSlotEditor->toUi();
+#endif
 
     return 0;
 }
@@ -2067,7 +1959,9 @@ QList<QWidget *> FormWindow::widgets(QWidget *widget) const
 
 void FormWindow::createConnections(DomConnections *connections, QWidget *parent)
 {
+#if 0 // ### port me
     m_signalSlotEditor->fromUi(connections, parent);
+#endif
 }
 
 int FormWindow::toolCount() const
@@ -2086,9 +1980,41 @@ void FormWindow::registerTool(AbstractFormWindowTool *tool)
 
     m_tools.append(tool);
 
-    if (QWidget *editor = tool->createEditor()) {
-        m_widgetStack->addWidget(editor);
+    if (QWidget *editor = tool->editor()) {
+        editor->setParent(m_widgetStack, 0);
+        m_widgetStack->insertWidget(-1, editor);
+        editor->show();
     }
+
+   m_widgetStack->setCurrentIndex(0);
+
+   if (m_mainContainer)
+       m_mainContainer->update();
+}
+
+void FormWindow::setCurrentTool(int index)
+{
+    if (m_currentTool == index) {
+        // nothing to do.
+        return;
+    }
+
+    if (m_currentTool != -1)
+        m_tools.at(m_currentTool)->deactivated();
+
+    m_currentTool = index;
+
+    AbstractFormWindowTool *tool = m_tools.at(m_currentTool);
+    Q_ASSERT(tool != 0);
+
+    m_widgetStack->setCurrentIndex(m_currentTool);
+
+    QWidget *editor = tool->editor();
+    editor->raise(); // ### remove me
+
+    tool->activated();
+
+    emit toolChanged(m_currentTool);
 }
 
 int FormWindow::currentTool() const
@@ -2109,8 +2035,7 @@ bool FormWindow::handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *ev
 
 void FormWindow::initializeCoreTools()
 {
-    qDebug() << "FormWindow::initializeCoreTools()";
-    ToolWidgetEditor *widgetEditor = new ToolWidgetEditor(this);
+    WidgetEditorTool *widgetEditor = new WidgetEditorTool(this);
     registerTool(widgetEditor);
 
     m_currentTool = m_tools.indexOf(widgetEditor); // ### generalize
@@ -2152,6 +2077,5 @@ void FormWindow::setComment(const QString &comment)
 {
     m_comment = comment;
 }
-
 
 #include "formwindow.moc"

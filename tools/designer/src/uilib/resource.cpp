@@ -74,8 +74,12 @@ QWidget *Resource::load(QIODevice *dev, QWidget *parentWidget)
     ui.read(root); /// ### check the result
 
     createCustomWidgets(ui.elementCustomWidgets());
+
     QWidget *w = create(&ui, parentWidget);
-    createConnections(ui.elementConnections(), w);
+
+    if (ui.elementConnections())
+        createConnections(ui.elementConnections(), w);
+
     createAuthor(ui.elementAuthor());
     createComment(ui.elementComment());
 

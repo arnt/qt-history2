@@ -19,6 +19,7 @@ INCLUDEPATH += ../../lib/sdk \
 HEADERS += \
            qdesigner_resource.h \
            formwindow.h \
+           formwindow_dnditem.h \
            formwindowcursor.h \
            widgetselection.h \
            formwindowmanager.h \
@@ -36,6 +37,7 @@ HEADERS += \
 SOURCES += \
            qdesigner_resource.cpp \
            formwindow.cpp \
+           formwindow_dnditem.cpp \
            formwindowcursor.cpp \
            widgetselection.cpp \
            formwindowmanager.cpp \

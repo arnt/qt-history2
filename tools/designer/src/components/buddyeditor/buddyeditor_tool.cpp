@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "buddyeditor_tool.h"
+#include "buddyeditor.h"
 
 #include <abstractformwindow.h>
 #include <abstractformeditor.h>
@@ -45,7 +46,24 @@ bool BuddyEditorTool::handleEvent(QWidget *widget, QWidget *managedWidget, QEven
     return false;
 }
 
-QWidget *BuddyEditorTool::createEditor() const
+QWidget *BuddyEditorTool::editor() const
 {
-    return 0;
+    if (!m_editor) {
+        Q_ASSERT(formWindow() != 0);
+        m_editor = new BuddyEditor(formWindow(), 0);
+        connect(formWindow(), SIGNAL(mainContainerChanged(QWidget*)), m_editor, SLOT(setBackground(QWidget*)));
+    }
+
+    return m_editor;
 }
+
+void BuddyEditorTool::activated()
+{
+    m_editor->updateBackground();
+}
+
+void BuddyEditorTool::deactivated()
+{
+}
+
+

@@ -566,6 +566,7 @@ void QDesignerActions::previewForm()
     if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow()) {
         QDialog *fakeTopLevel = new QDialog(fw);
         QHBoxLayout *layout = new QHBoxLayout(fakeTopLevel);
+        layout->setMargin(0);
         fakeTopLevel->hide();
 
         QDesignerFormBuilder builder(core());

@@ -61,6 +61,7 @@ public:
 
     virtual int toolCount() const = 0;
     virtual int currentTool() const = 0;
+    virtual void setCurrentTool(int index) = 0;
     virtual AbstractFormWindowTool *tool(int index) const = 0;
     virtual void registerTool(AbstractFormWindowTool *tool) = 0;
 
@@ -108,17 +109,22 @@ public slots:
     virtual void setContents(const QString &contents) = 0;
 
 signals:
+    void mainContainerChanged(QWidget *mainContainer);
+    void toolChanged(int toolIndex);
     void fileNameChanged(const QString &fileName);
-    void editModeChanged(EditMode editMode);
+    void featureChanged(Feature f); // ### rename me
     void selectionChanged();
-    void changed();
+
+    void editModeChanged(EditMode editMode); // ### remove me
+
+
     void widgetManaged(QWidget *widget);
     void widgetUnmanaged(QWidget *widget);
     void aboutToUnmanageWidget(QWidget *widget);
     void activated(QWidget *widget);
-    void featureChanged(Feature f);
-    void widgetRemoved(QWidget *w);
-    void widgetsChanged();
+
+    void changed(); // ### remove me
+    void widgetRemoved(QWidget *w); // ### remove me
 };
 
 #endif // ABSTRACTFORMWINDOW_H
