@@ -44,6 +44,9 @@
 
 #define FILESTOCOPY 4582
 
+#define MSVCNET_BUTTON 0
+#define MSVC_BUTTON    2
+#define BORLAND_BUTTON 3
 
 static const char* const logo_data[] = {
 "32 32 238 2",
@@ -396,22 +399,22 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	}
     }
 #if defined(EVAL) || defined(EDU)
-    int sysGroupButton = 2;
+    int sysGroupButton = MSVC_BUTTON;
 #else
-    int sysGroupButton = 3;
+    int sysGroupButton = BORLAND_BUTTON;
 #endif
 
 #if defined(Q_OS_WIN32)
     // First check for MSVC 6.0
     QString regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine );
     if ( regValue.length() )
-	sysGroupButton = 2;
+	sysGroupButton = MSVC_BUTTON;
 
     // MSVC.NET 7.0 & 7.1 takes presedence over 6.0
     regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0", "InstallDir", QEnvironment::LocalMachine );
     QString regValue2 = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.1", "InstallDir", QEnvironment::LocalMachine );
     if ( QMAX( regValue.length(), regValue2.length() ) )
-	sysGroupButton = 0;
+	sysGroupButton = MSVCNET_BUTTON;
 #endif
 
     if ( archiveHeader ) {
@@ -421,7 +424,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 
 #if defined(EVAL) || defined(EDU)
 	if ( archiveHeader->findExtraData( "compiler" ) == "borland" ) {
-	    sysGroupButton = 3;
+	    sysGroupButton = BORLAND_BUTTON;
 	}
 #endif
 	delete archiveHeader;
@@ -648,13 +651,13 @@ void SetupWizardImpl::clickedSystem( int sys )
 {
 #ifndef Q_OS_MACX
     switch ( sys ) {
-	case 0:
+	case MSVCNET_BUTTON:
 	    globalInformation.setSysId( GlobalInformation::MSVCNET );
 	    break;
-	case 1:
+	case MSVC_BUTTON:
 	    globalInformation.setSysId( GlobalInformation::MSVC );
 	    break;
-	case 2:
+	case BORLAND_BUTTON:
 	    globalInformation.setSysId( GlobalInformation::Borland );
 	    break;
 	default:
