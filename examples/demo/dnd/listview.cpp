@@ -56,6 +56,7 @@ void ListView::mouseMoveEvent( QMouseEvent *e )
     if ( ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
         QTextDrag *drg = new QTextDrag( ((ListViewItem*)currentItem())->tag(), this );
         drg->setSubtype( "dragdemotag" );
+        drg->dragCopy();
         dragging = FALSE;
     }
 }
