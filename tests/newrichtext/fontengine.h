@@ -15,9 +15,9 @@ class Offset;
 // * negative yoff means the following stuff is drawn higher up.
 // the characters bounding rect is given by QRect( x,y,width,height), it's advance by
 // xoo and yoff
-struct QCharInfo
+struct QGlyphInfo
 {
-    QCharInfo() {
+    QGlyphInfo() {
 	x = 100000;
 	y = -100000;
 	width = 0;
@@ -25,7 +25,7 @@ struct QCharInfo
 	xoff = 0;
 	yoff = 0;
     }
-    QCharInfo( int _x, int _y, int _width, int _height, int _xoff, int _yoff ) {
+    QGlyphInfo( int _x, int _y, int _width, int _height, int _xoff, int _yoff ) {
 	x = _x;
 	y = _y;
 	width = _width;
@@ -59,9 +59,9 @@ public:
     // #### pass in offsets array
     virtual void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
 
-    virtual int width( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
-    virtual QCharInfo boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
-    virtual QCharInfo boundingBox( GlyphIndex glyph ) = 0;
+    virtual Offset advance( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
+    virtual QGlyphInfo boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
+    virtual QGlyphInfo boundingBox( GlyphIndex glyph ) = 0;
 
     virtual int ascent() const = 0;
     virtual int descent() const = 0;

@@ -13,7 +13,7 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
     }
 
     FontEngineIface *f = shaped->d->fontEngine;
-    QCharInfo base = f->boundingBox( shaped->d->glyphs[gfrom] );
+    QGlyphInfo base = f->boundingBox( shaped->d->glyphs[gfrom] );
     QRect baseRect( base.x, base.y, base.width, base.height );
 
     qDebug( "base char: bounding rect at %d/%d (%d/%d)", baseRect.x(), baseRect.y(), baseRect.width(), baseRect.height() );
@@ -62,7 +62,7 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 	}
 
 	QPoint p;
-	QCharInfo markInfo = f->boundingBox( mark );
+	QGlyphInfo markInfo = f->boundingBox( mark );
 	QRect markRect( markInfo.x, markInfo.y, markInfo.width, markInfo.height );
 	switch( cmb ) {
 	case QChar::Combining_DoubleBelow:

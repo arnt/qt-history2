@@ -176,29 +176,32 @@ void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, 
     }
 }
 
-int FontEngineXLFD::width( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
+Offset FontEngineXLFD::advance( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
 {
     int width = 0;
 
+    Offset advance = { 0,  0 };
     for (int i = 0; i < numGlyphs; i++) {
 	XCharStruct *xcs = charStruct( _fs, glyphs[i] );
 // 	qDebug("xcs = %p glyph=%d", xcs, glyphs[i] );
 	if (xcs) {
-	    width += xcs->width;
+	    advance.x += xcs->width;
 	} else {
 	    // ### might need something better
-	    width += ascent();
+	    advance.x += ascent();
 	}
-	width += offsets[i].x;
+	advance.x += offsets[i].x;
+	advance.y += offsets[i].y;
     }
-    return (int)(width*_scale);
+    advance.x = (int)(advance.x*_scale);
+    return advance;
 }
 
-QCharInfo FontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
+QGlyphInfo FontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
 {
     int i;
 
-    QCharInfo overall;
+    QGlyphInfo overall;
     int ymax = 0;
     int xmax = 0;
     for (i = 0; i < numGlyphs; i++) {
@@ -232,14 +235,14 @@ QCharInfo FontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offset *o
     return overall;
 }
 
-QCharInfo FontEngineXLFD::boundingBox( GlyphIndex glyph )
+QGlyphInfo FontEngineXLFD::boundingBox( GlyphIndex glyph )
 {
     XCharStruct *xcs = charStruct( _fs, glyph );
     if (xcs) {
-	return QCharInfo( xcs->lbearing, xcs->ascent, xcs->rbearing, xcs->ascent + xcs->descent, xcs->width, 0 );
+	return QGlyphInfo( xcs->lbearing, xcs->ascent, xcs->rbearing, xcs->ascent + xcs->descent, xcs->width, 0 );
     }
     int size = ascent();
-    return QCharInfo( 0, size, size, size, size, 0 );
+    return QGlyphInfo( 0, size, size, size, size, 0 );
 }
 
 

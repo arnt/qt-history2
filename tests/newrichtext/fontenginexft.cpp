@@ -82,8 +82,9 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, c
 	col.color.blue = bgcolor.blue()   | bgcolor.blue() << 8;
 	col.color.alpha = 0xffff;
 	col.pixel = bgcolor.pixel();
+	// ### not quite correct, should rather use the bounding box here.
 	XftDrawRect(draw, &col, x,  y - _font->ascent,
-		    width( glyphs, offsets, numGlyphs ),
+		    advance( glyphs, offsets, numGlyphs ).x,
 		    _font->ascent + _font->descent);
     }
 
@@ -96,29 +97,32 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, c
     XftDrawString16 (draw, &col, _font, x, y, (XftChar16 *) glyphs, numGlyphs);
 }
 
-int FontEngineXft::width( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
+Offset FontEngineXft::advance( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
 {
-    int width = 0;
+    Offset advance = { 0,  0 };
 
     XGlyphInfo xgi;
 
     for (int i = 0; i < numGlyphs; i++) {
-	if ( getGlyphInfo( &xgi, _font, glyphs[i] ) )
-	    width += xgi.xOff;
-	else
-	    width += ascent();
-	width += offsets[i].x;
+	if ( getGlyphInfo( &xgi, _font, glyphs[i] ) ) {
+	    advance.x += xgi.xOff;
+	    advance.y += xgi.yOff;
+	} else {
+	    advance.x += ascent();
+	}
+	advance.x += offsets[i].x;
+	advance.y += offsets[i].y;
     }
 
-    return width;
+    return advance;
 
 }
 
-QCharInfo FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
+QGlyphInfo FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
 {
     XGlyphInfo xgi;
 
-    QCharInfo overall;
+    QGlyphInfo overall;
     int ymax = 0;
     int xmax = 0;
     for (int i = 0; i < numGlyphs; i++) {
@@ -146,14 +150,14 @@ QCharInfo FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *of
     return overall;
 }
 
-QCharInfo FontEngineXft::boundingBox( GlyphIndex glyph )
+QGlyphInfo FontEngineXft::boundingBox( GlyphIndex glyph )
 {
     XGlyphInfo xgi;
     if ( getGlyphInfo( &xgi, _font, glyph ) ) {
-	return QCharInfo( xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff );
+	return QGlyphInfo( xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff );
     }
     int size = ascent();
-    return QCharInfo( 0, size, size, size, size, 0 );
+    return QGlyphInfo( 0, size, size, size, size, 0 );
 }
 
 
