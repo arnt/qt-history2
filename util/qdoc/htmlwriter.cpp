@@ -17,7 +17,7 @@ QString HtmlWriter::posth;
 QString HtmlWriter::addr;
 
 inline void HtmlWriter::doputchar( int ch )
-{ 
+{
     switch ( ch ) {
     case '&':
 	fputs( "&amp;", out );
@@ -122,6 +122,7 @@ QString HtmlWriter::endRecording()
 
     fseek( out, (long) recordStart, SEEK_SET );
     fread( (void *) buf, 1, n, out );
+    fseek( out, 0, SEEK_CUR ); // ANSI C requires this; found in Windows
     buf[n] = '\0';
     r = QString::fromLatin1( buf );
     delete[] buf;
