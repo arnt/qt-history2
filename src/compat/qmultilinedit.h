@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/compat/qmlined.h#4 $
+** $Id: //depot/qt/main/src/compat/qmultilinedit.h#1 $
 **
 ** Compatibility file - should only be included by legacy code.
 ** It #includes the file which obsoletes this one.
@@ -20,7 +20,7 @@
 ** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
-#ifndef QMLINED_H
-#define QMLINED_H
+#ifndef QMULTILINEDIT_H
+#define QMULTILINEDIT_H
 #include "qmultilineedit.h"
 #endif

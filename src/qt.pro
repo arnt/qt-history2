@@ -153,7 +153,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$WIDGETS_H/qmainwindow.h \
 		  $$WIDGETS_H/qmenubar.h \
 		  $$WIDGETS_H/qmenudata.h \
-		  $$WIDGETS_H/qmultilinedit.h \
+		  $$WIDGETS_H/qmultilineedit.h \
 		  $$WIDGETS_H/qpopupmenu.h \
 		  $$WIDGETS_H/qprogressbar.h \
 		  $$WIDGETS_H/qpushbutton.h \
@@ -305,7 +305,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qmainwindow.cpp \
 		  widgets/qmenubar.cpp \
 		  widgets/qmenudata.cpp \
-		  widgets/qmultilinedit.cpp \
+		  widgets/qmultilineedit.cpp \
 		  widgets/qpopupmenu.cpp \
 		  widgets/qprogressbar.cpp \
 		  widgets/qpushbutton.cpp \
