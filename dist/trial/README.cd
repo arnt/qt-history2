@@ -7,16 +7,15 @@ Evaluation CD
 
 Thank you for choosing to evaluate Qt!
 
-This CD contains evaluation versions of Qt/X11, Qt/Windows, and Qt/Mac
+This CD contains evaluation versions of Qt/X11, Qt/Windows, and Qt/Mac.
 Qt/X11 is supported on Linux, Solaris, HP-UX, Irix, AIX, Tru64, and 
 most other Unix systems. Qt/Windows is supported on Microsoft Windows 95,
-98, NT, and 2000. Qt/Mac is supported on Mac OS X.
+98, NT, 2000, and XP. Qt/Mac is supported on Mac OS X.
 
-Please read the file LICENSE and agree to its contents before 
-you start evaluating.
-
-Installation instructions for each platform are given below. For further 
-information and help, please refer to our web site http://www.trolltech.com.
+Installation instructions for each platform are given below. Please read 
+the file LICENSE, found in the package for each platform, and agree to its 
+contents before you start evaluating. For further information and help, 
+please refer to our web site http://www.trolltech.com.
 
 If you need futher help during your evaluation period, please register at
 http://www.trolltech.com/products/qt/evaluate.html.
@@ -68,16 +67,16 @@ Installation instructions for Qt/X11
 In the Unix directory on this CD, you will find the Qt/X11 evaluation
 package:
 
-qt-x11-free-3.0.2.tar
+qt-x11-eval-3.0.2.tar
 
 In a shell, cd to where you want to install the Qt/X11 evaluation, for
 example your home directory. Then unpack the archive by giving the command
 
-tar xf /cdrom/Unix/qt-x11-free-3.0.2.tar
+tar xf /cdrom/Unix/qt-x11-eval-3.0.2.tar
 
 (replace "/cdrom" with the mount point of your CD-ROM drive). This will
-create a directory called qt-x11-free-3.0.2. Further installation
-instructions are then available in the file qt-x11-free-3.0.2/INSTALL.
+create a directory called qt-x11-eval-3.0.2. Further installation
+instructions are then available in the file qt-x11-eval-3.0.2/INSTALL.
 
 
 The Qt Reference Manual
