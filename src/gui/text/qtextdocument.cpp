@@ -299,6 +299,17 @@ void QTextDocument::setHtml(const QString &html)
 }
 
 /*!
+    \enum QTextDocument::FindFlags
+
+    This enum describes the options available to QTextDocument's find function. The options
+    can be OR-red together from the following list:
+
+    \value FindCaseSensitively By default find works case insensitive. Specifying this option
+    changes the behaviour to a case sensitive find operation.
+    \value FindWholeWords Makes find match only complete words.
+*/
+
+/*!
     \fn QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options) const
 
     \overload
@@ -464,8 +475,21 @@ QTextBlock QTextDocument::end() const
 }
 
 /*!
+    \fn QTextDocument::modificationChanged(bool m)
+
+    This signal is emitted whenever the content of the document changes in a way that
+    affects the modification state.
+
+    For example calling setModified(false) on a document and then inserting text causes 
+    the signal to get emitted. If you undo that operation, causing the document
+    to return to its original unmodified state, the signal will get emitted as well.
+*/
+
+/*!
     \property QTextDocument::modified
     \brief whether the document has been modified by the user
+
+    \sa modificationChanged()
 */
 
 bool QTextDocument::isModified() const

@@ -65,22 +65,25 @@
     cursor position was found.)
 */
 
-// ### DOC: No idea what this does
-// it's a notification about changes inside the document. The layout
-// has to know when the document changes so it can react, and relayout
-// whatever is needed. This method gets called whenever something has
-// changed. From the the position in the document where the change
-// started, oldlength the length of the changed area before the
-// change, length the length of the changed area after the change.
-//
-// Assume that you have a cursor on a document at position 5. Then
-// cursor.insert("foo") would result in documentChange(5, 0, 3)
-// cursor.remove(3) would result in documentChange(5, 3, 0)
-// and if the cursor has a selection of length 5, cursor.insert("foo") would
-// result in documentChange(5, 5, 3).
 /*!
     \fn void QAbstractTextDocumentLayout::documentChange(int from, int oldLength, int length)
 
+    This function is called whenever the content of the document changes. A change is
+    an insertion of text, removal or the combination of both. The \a from argument defines the
+    beginning where in the document the change happened. The \a oldLength argument
+    specifies the length of the area that was modified \bold{before} the actual change,
+    while \a length is the length \bold{afterwards} .
+
+    For example when simply inserting the text "Hello", \a oldLength would be 0
+    and \a length would equal 5, the length of the string.
+
+    If for example 3 characters get removed, then \a oldLength would equal to 3 while
+    \a length would be 0, as before the change there were 3 characters and afterwards
+    none.
+
+    Replacing text is the combination of removal and insertion. So if for example
+    the text "Hello" gets replaced by "Hi" , \a oldLength would be 5 and \a length
+    would be 2.
 */
 
 /*!

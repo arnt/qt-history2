@@ -483,6 +483,8 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
     \value Start Move to the start of the document
     \value StartOfLine Move to the start of the current line
+    \value StartOfBlock Move to the start of the current block
+    \value StartOfWord Move to the start of the current word
     \value PreviousBlock move to the start of the previous block
     \value PreviousCharacter move to the previous character
     \value PreviousWord move to the beginning of the previous word
