@@ -287,7 +287,11 @@ cp $DISTDIR/qt/tools/designer/manual/figures/*.png $DISTDIR/qt/doc/html/designer
 cp $DISTDIR/qt/tools/designer/manual/arrows/*.png $DISTDIR/qt/doc/html/designer/arrows
 rm -rf $DISTDIR/qt/tools/designer/manual
 rm -rf $DISTDIR/qt/tools/designer/doc
-
+# clean designer
+rm -rf $DISTDIR/qt/tools/designer/plugins/designer_interface_roadmap
+rm -rf $DISTDIR/qt/tools/designer/plugins/extrawidgets
+rm -rf $DISTDIR/qt/tools/designer/plugins/p4
+rm -rf $DISTDIR/qt/tools/designer/plugins/qvim
 
 # Replace Netscape-owned code with dummies (direct user to PluginSDK)
 for a in `find $DISTDIR/qt/extensions/nsplugin/src -name 'np*' -o -name 'jri*'`; do
@@ -362,7 +366,7 @@ public_file () {
 	 # internal docs
 	 [ "$file_BASE" = "TODO.txt" ] ||
 	 [ "$file_BASE" = "BUGS.txt" ] ||
-	 
+	
 	 # no make.help
 	 [ "$file_BASE" = "make.help" ] ||
 
