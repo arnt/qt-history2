@@ -32,7 +32,7 @@ sam_version_map:dll:linux-g++:!isEmpty(QPRO_PWD) {
            QMAKE_LFLAGS += -Wl,--version-script=$${TARGET_MAP}
            TARGETDEPS += $$TARGET_MAP
            contains(QT_PRODUCT, qt-internal) {
-               VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -o $$TARGET_MAP $$QPRO_PWD $$QPRO_SYMBOLS #-name Qt$$VERSION
+               VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -name lib$${TARGET} -o $$TARGET_MAP $$QPRO_PWD $$QPRO_SYMBOLS
                VERSION_MAP.target = $$TARGET_MAP
                QMAKE_EXTRA_TARGETS += VERSION_MAP
                exports.commands = [ -w "$$TARGET_MAP" ] || p4 edit "$$TARGET_MAP"; $$VERSION_MAP.commands
