@@ -268,6 +268,7 @@ QPrinter\QPainter??
 
 QToolButton
   Option to have associated popup menu pop up instead of down.
+  get/set methods for arrowType.
 
 Services/Daemons (vohi, rms)
   Platform independent API to install deamons on Unix and Services on NT. (support/arc-12/24505)
@@ -321,6 +322,7 @@ QLayout
 
 QMessageBox
   Use 'Y' and 'N' etc as well as ALT+Key_Y for the shortcuts
+  Add YesAll and NoAll to button-types.
 
 QPopupMenu
   Be able to specify a maximum height for popup menus so that they don't use the whole 
