@@ -14,17 +14,17 @@
     associated with an integer key:
 
     \code
-	QCache<int, Employee> cache;
+        QCache<int, Employee> cache;
     \endcode
 
     Here's how to insert an object in the cache:
 
     \code
-	Employee *employee = new Employee;
+        Employee *employee = new Employee;
         employee->setId(37);
         employee->setName("Richard Schmit");
         ...
-	cache.insert(employee->id(), employee);
+        cache.insert(employee->id(), employee);
     \endcode
 
     The advantage of using QCache over some other key-based data
@@ -42,7 +42,7 @@
     different value in the QCache constructor:
 
     \code
-	QCache<int, MyDataStructure> cache(5000);
+        QCache<int, MyDataStructure> cache(5000);
     \endcode
 
     Each time you call insert(), you can specify a cost as third
