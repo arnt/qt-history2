@@ -2183,7 +2183,7 @@ void QDomNode::save( QTextStream& str, int indent ) const
 	IMPL->save( str, indent );
 }
 
-/*!
+/*! \relates QDomNode
   Writes the XML representation of the node \a node and all its children to the
   stream \a str.
 */
