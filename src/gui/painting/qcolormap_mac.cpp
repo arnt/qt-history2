@@ -54,26 +54,23 @@ QColormap::~QColormap()
 }
 
 QColormap::Mode QColormap::mode() const
-{ 
-    return QColormap::Direct; 
-}
+{ return QColormap::Direct; }
 
 int QColormap::depth() const
-{ 
-    return 32; 
+{
+    return 32;
 }
 
 int QColormap::size() const
 {
-    return 0;
+    return -1;
 }
 
 uint QColormap::pixel(const QColor &color) const
-{
-    return 0;
-}
+{ return color.rgb(); }
 
 const QColor QColormap::colorAt(uint pixel) const
-{
-    return QColor();
-}
+{ return QColor(pixel); }
+
+const QVector<QColor> QColormap::colormap() const
+{ return QVector<QColor>(); }
