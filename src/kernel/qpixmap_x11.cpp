@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#28 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#28 $";
 #endif
 
 
@@ -251,7 +251,6 @@ QPixmap::~QPixmap()
 
 QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 {
-    bool bitmap = isQBitmap();
     pixmap.data->ref();				// avoid 'x = x'    
     if ( data->deref() ) {			// last reference lost
 	if ( data->ximage )
@@ -261,7 +260,6 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	delete data;
     }    
     data = pixmap.data;
-    data->bitmap = bitmap;			// keep isA flag
     devFlags = pixmap.devFlags;			// copy QPaintDevice flags
     dpy = pixmap.dpy;				// copy QPaintDevice display
     hd	= pixmap.hd;				// copy QPaintDevice drawable
