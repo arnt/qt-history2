@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#118 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#119 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#118 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#119 $");
 
 
 /*!
@@ -180,7 +180,7 @@ bool QComboBox::getMetrics( int *dist, int *buttonW, int *buttonH ) const
 }
 
 
-static inline bool checkInsertIndex( const char *method, const char * name, 
+static inline bool checkInsertIndex( const char *method, const char * name,
 				     int count, int *index)
 {
     bool range_err = (*index > count);
@@ -382,6 +382,10 @@ void QComboBox::setStyle( GUIStyle s )
     }
     if ( d->listBox )
 	d->listBox->setStyle( s );
+    if ( autoMinimumSize() ) {
+	QSize s( sizeHint() );
+	setMinimumSize( QMAX(minimumSize().width(), s.width()), s.height() );
+    }
 }
 
 
@@ -732,7 +736,7 @@ QSize QComboBox::sizeHint() const
     QFontMetrics fm = fontMetrics();
 
     int extraW = 20;
-    int maxW = 0;
+    int maxW = 5 * fm.height() + 18;;
     int maxH = QMAX( fm.height(), style()==WindowsStyle ? 16 : 18 );
 
     for( i = 0; i < count(); i++ ) {
@@ -857,6 +861,10 @@ void QComboBox::setFont( const QFont &font )
 	d->ed->setFont( font );
     if ( d->autoresize )
 	adjustSize();
+    if ( autoMinimumSize() ) {
+	QSize s( sizeHint() );
+	setMinimumSize( QMAX(minimumSize().width(), s.width()), s.height() );
+    }
 }
 
 
@@ -892,9 +900,6 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	return;
     }
 
-    bool has_focus = hasFocus()
-	|| (d && d->usingListBox && d->ed && d->ed->hasFocus());
-
     if ( !d->usingListBox ) {			// motif 1.x style
 	int dist, buttonH, buttonW;
 	QBrush fill( g.background() );
@@ -917,7 +922,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	    }
 	}
 
-	if ( has_focus )
+	if ( hasFocus() )
 	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
 
     } else if ( style() == MotifStyle ) {	// motif 2.0 style
@@ -981,7 +986,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	    }
 	}
 
-	if ( has_focus )
+	if ( hasFocus() )
 	    p.drawRect( ax - 2, ay - 2, awh+4, sy+sh+4-ay );
 
     } else {					// windows 95 style
@@ -1000,7 +1005,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	QRect textR( 5, 4, width()  - 5 - 4 - arrowR.width(),
 		     height() - 4 - 4 );
 
-	if ( has_focus ) {
+	if ( hasFocus() ) {
 	    QBrush fill( QApplication::winStyleHighlightColor() );
 	    p.fillRect( textR.x()-1, textR.y(),
 		textR.width(), textR.height(), fill );
@@ -1011,11 +1016,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	p.setClipRect( textR );
 
 	if ( str ) {
-	    p.setPen(
-		has_focus
-		? white
-		: g.text()
-	    );
+	    p.setPen( hasFocus() ? white : g.text() );
 	    p.drawText( textR, AlignLeft | AlignVCenter | SingleLine, str);
 	} else {
 	    const QPixmap *pix = d->listBox->pixmap( d->current );
