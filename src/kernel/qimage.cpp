@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#164 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#165 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -202,6 +202,19 @@ QImage::QImage( const char *xpm[] )
     init();
     read_xpm_image_or_array( 0, xpm, *this );
 }
+
+/*
+  Constructs an image from \a data, which must be in a supported
+  image format image.
+
+  \sa loadFromData()
+*/
+/* Not until Qt 2.0 - adding conversions break source code
+QImage::QImage( const QByteArray & data )
+{
+    loadFromData(data);
+}
+*/
 
 /*!
   Constructs a
@@ -2200,6 +2213,14 @@ bool QImage::loadFromData( const uchar *buf, uint len, const char *format )
     if ( result )
 	operator=( io.image() );
     return result;
+}
+
+/*!
+  \overload
+*/
+bool QImage::loadFromData( QByteArray data, const char *format )
+{
+    loadFromData( (const uchar *)(data.data()), data.size(), format );
 }
 
 /*!

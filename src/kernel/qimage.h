@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#58 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#59 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -102,6 +102,7 @@ public:
     bool	load( const char *fileName, const char *format=0 );
     bool	loadFromData( const uchar *buf, uint len,
 			      const char *format=0 );
+    bool	loadFromData( QByteArray data, const char *format=0 );
     bool	save( const char *fileName, const char *format ) const;
 
     bool	valid( int x, int y ) const;

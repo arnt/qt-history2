@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#83 $
 **
 ** Implementation of QPixmap class
 **
@@ -158,6 +158,18 @@ QPixmap::QPixmap( const char *xpm[] )
     if ( !image.isNull() )
 	convertFromImage( image );
 }
+
+/*
+  Constructs a pixmaps by loading from \a data.
+
+  \sa loadFromData()
+*/
+/* Not until Qt 2.0 - adding conversions break sourcecode.
+QPixmap::QPixmap( const QByteArray & data )
+{
+    loadFromData(data);
+}
+*/
 
 
 /*!
@@ -598,6 +610,17 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 	;// Nothing.
     }
     return loadFromData( buf, len, format, conversion_flags );
+}
+
+/*!
+  \overload
+*/
+bool QPixmap::loadFromData( QByteArray data,
+			      const char *format,
+			      int conversion_flags )
+{
+    loadFromData( (const uchar *)(data.data()), data.size(),
+	format, conversion_flags );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#82 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#83 $
 **
 ** Definition of QPixmap class
 **
@@ -15,7 +15,7 @@
 #ifndef QT_H
 #include "qpaintdevice.h"
 #include "qcolor.h"
-#include "qshared.h"
+#include "qstring.h"
 #endif // QT_H
 
 
@@ -78,6 +78,9 @@ public:
     bool	loadFromData( const uchar *buf, uint len,
 			      const char *format,
 			      int conversion_flags );
+    bool	loadFromData( QByteArray data,
+			      const char *format=0,
+			      int conversion_flags=0 );
     bool	save( const char *fileName, const char *format ) const;
 
 #if defined(_WS_WIN_) || defined(_WS_PM_)
