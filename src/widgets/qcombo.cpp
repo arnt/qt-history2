@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#126 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#127 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#126 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#127 $");
 
 
 /*!
@@ -171,7 +171,7 @@ struct QComboData
 	}
 	bool validateAndSet( const char * newText, int newPos,
 				int newMarkAnchor, int newMarkDrag )
-	{ 
+	{
 	    return QLineEdit::validateAndSet( newText, newPos,
 					      newMarkAnchor, newMarkDrag );
 	}
@@ -1284,7 +1284,7 @@ void QComboBox::currentChanged()
 }
 
 
-    
+
 /*!
   This event filter is used to manipulate the line editor in magic
   ways.  In Qt 2.0 it will all change, until then binary compatibility
@@ -1307,7 +1307,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    if ( ((QKeyEvent *)event)->isAccepted() ) {
 		d->completeNow = FALSE;
 		return TRUE;
-	    } else {
+	    } else if ( ((QKeyEvent *)event)->key() != Key_End ) {
 		d->completeNow = TRUE;
 		d->completeAt = d->ed->cursorPosition();
 	    }
@@ -1327,15 +1327,22 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		QString ct( d->ed->text() );
 		QString it;
 		int i =0;
+		int foundAt = -1;
+		int foundLength = 100000; // lots
 		while( i<count() ) {
 		    it = text( i );
-		    it.truncate( ct.length() );
-		    if ( it == ct )
-			break;
+		    if ( it.length() >= ct.length() ) {
+			it.truncate( ct.length() );
+			int itlen = qstrlen( text( i ) );
+			if ( it == ct && itlen < foundLength ) {
+			    foundAt = i;
+			    foundLength = qstrlen( text( i ) );
+			}
+		    }
 		    i++;
 		}
-		if ( i < count() ) {
-		    it = text( i );
+		if ( foundAt > -1 ) {
+		    it = text( foundAt );
 		    d->ed->validateAndSet( it, ct.length(),
 					   ct.length(), it.length() );
 		}
@@ -1715,9 +1722,9 @@ void QComboBox::setEditText( const char * newText )
 /*!  Sets this combo box to offer auto-completion while the user is
   editing if \a enable is TRUE, or not to offer auto-completion of \a
   enable is FALSE.
-  
+
   The combo box uses the list of items as candidates for completion.
-  
+
   \sa autoCompletion() setEditText()
 */
 
@@ -1729,7 +1736,7 @@ void QComboBox::setAutoCompletion( bool enable )
 
 
 /*!  Returns TRUE if this combo box is in auto-completion mode.
-  
+
   \sa setAutoCompletion()
 */
 
