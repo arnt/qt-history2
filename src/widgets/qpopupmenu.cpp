@@ -1142,11 +1142,15 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	autoaccel = 0;
     } else if ( !autoaccel ) {
 	// we have no parent. Rather than ignoring any accelerators we try to find this popup's main window
-	QWidget *w = (QWidget *) this;
-	parent = w->parentWidget();
-	while ( (!w->testWFlags(WType_TopLevel) || !w->testWFlags(WType_Popup)) && parent ) {
-	    w = parent;
-	    parent = parent->parentWidget();
+	if ( tornOff ) {
+	    parent = this;
+	} else {
+	    QWidget *w = (QWidget *) this;
+	    parent = w->parentWidget();
+	    while ( (!w->testWFlags(WType_TopLevel) || !w->testWFlags(WType_Popup)) && parent ) {
+		w = parent;
+		parent = parent->parentWidget();
+	    }
 	}
     }
 
@@ -1998,6 +2002,15 @@ void QPopupMenu::styleChange( QStyle& old )
     style().polishPopupMenu( this );
     updateSize();
 }
+
+/*!\reimp
+ */
+void QPopupMenu::enabledChange( bool )
+{
+    if ( QMenuData::d->aWidget ) // torn-off menu
+	QMenuData::d->aWidget->setEnabled( isEnabled() );
+}
+
 
 /*!
   If a popup menu does not fit on the screen it lays itself out so that it
