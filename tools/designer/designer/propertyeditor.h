@@ -224,6 +224,7 @@ public:
     void setCurrentItem( int i );
     int currentIntItemFromObject() const;
     QString currentItemFromObject() const;
+    void addItem( const QString &s );
 
 private slots:
     void setValue();

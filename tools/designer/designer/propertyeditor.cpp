@@ -1189,6 +1189,11 @@ void PropertyListItem::setCurrentItem( const QString &s )
     oldString = currentItem();
 }
 
+void PropertyListItem::addItem( const QString &s )
+{
+    combo()->insertItem( s );
+}
+
 void PropertyListItem::setCurrentItem( int i )
 {
     if ( comb && i == combo()->currentItem() )
@@ -2813,9 +2818,16 @@ void EventTable::setCurrentItem( QListViewItem *i )
 
 void EventTable::valueChanged( PropertyItem *i )
 {
+    if ( ( (PropertyListItem*)i )->currentItem().isEmpty() ) {
+	QString s = QString( editor->widget()->name() ) + "_" + i->text( 0 );
+	( (PropertyListItem*)i )->addItem( s );
+	( (PropertyListItem*)i )->setCurrentItem( s );
+    }
     if ( MetaDataBase::setEventFunction( editor->widget(), editor->formWindow(),
 					 i->text( 0 ), ( (PropertyListItem*)i )->currentItem() ) ) {
 	editor->formWindow()->mainWindow()->objectHierarchy()->updateFunctionList();
+	editor->formWindow()->mainWindow()->editFunction( MetaDataBase::eventFunction( editor->widget(), i->text( 0 ) ),
+							  editor->formWindow()->project()->language() );
     }
 }
 

@@ -4296,12 +4296,14 @@ void MainWindow::setupActionManager()
     }
 }
 
-void MainWindow::editFunction( const QString &func )
+void MainWindow::editFunction( const QString &func, const QString &l )
 {
-    if ( !lastActiveFormWindow )
+    if ( !formWindow() )
 	return;
     SourceEditor *editor = 0;
-    QString lang = MetaDataBase::languageOfSlot( formWindow(), func.latin1() );
+    QString lang = l;
+    if ( lang.isEmpty() )
+	lang = MetaDataBase::languageOfSlot( formWindow(), func.latin1() );
     if ( !MetaDataBase::hasEditor( lang ) )
 	return;
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
