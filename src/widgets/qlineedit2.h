@@ -138,6 +138,8 @@ public:
     bool dragEnabled() const;
     int characterAt( int xpos, QChar *chr ) const;
 
+    bool isValidInput();
+
 public slots:
     virtual void setText( const QString &);
     virtual void selectAll();
@@ -168,6 +170,7 @@ signals:
     void textChanged( const QString &);
     void returnPressed();
     void selectionChanged();
+    void invalidInput();
 
 protected:
     bool event( QEvent * );
