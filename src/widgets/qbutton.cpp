@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#62 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#62 $");
 
 static const int autoRepeatPeriod = 200;
 
@@ -233,6 +233,17 @@ void QButton::setAutoResize( bool enable )
 	    adjustSize();			// calls resize which repaints
     }
 }
+
+
+/*! \fn bool autoRepeat() const
+
+  Returns TRUE if the button is auto-repeating, else FALSE.
+
+  The default is FALSE.
+
+  \sa setAutoRepeat()
+
+*/
 
 
 /*!
@@ -546,3 +557,5 @@ void QButton::autoRepeatSlot()
     QTimer::singleShot( autoRepeatPeriod, this, SLOT(autoRepeatSlot()) );
     emit clicked();
 }
+
+
