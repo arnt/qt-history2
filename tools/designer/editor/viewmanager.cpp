@@ -97,7 +97,8 @@ void ViewManager::setStep( int line )
 	ParagData *paragData = (ParagData*)p->extraData();
 	if ( !paragData )
 	    paragData = new ParagData;
-	paragData->marker = ParagData::Step;
+	// #### we should set an arrow as Setp here, but have a stack of markers, so that breakpoints do not get lost
+	// 	paragData->marker = ParagData::Step;
 	p->setExtraData( paragData );
 	markerWidget->doRepaint();
 	( (Editor*)curView )->setStepSelection( line );
