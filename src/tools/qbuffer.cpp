@@ -258,7 +258,7 @@ bool QBuffer::at( Offset pos )
 #endif
     if ( pos > a_len ) {
 #if defined(QT_CHECK_RANGE)
-#if defined(QT_LARGE_FILE_SUPPORT)
+#if defined(QT_LARGEFILE_SUPPORT)
         qWarning( "QBuffer::at: Index %llu out of range", pos );
 #else
         qWarning( "QBuffer::at: Index %lu out of range", pos );

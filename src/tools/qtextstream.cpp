@@ -375,7 +375,7 @@ bool QStringBuffer::at( Offset pos )
 #endif
     if ( pos >= s->length()*2 ) {
 #if defined(QT_CHECK_RANGE)
-#if defined(QT_LARGE_FILE_SUPPORT)
+#if defined(QT_LARGEFILE_SUPPORT)
 	qWarning( "QStringBuffer::at: Index %llu out of range", pos );
 #else
 	qWarning( "QStringBuffer::at: Index %lu out of range", pos );

@@ -533,24 +533,23 @@ bool QFileInfo::convertToAbs()
   Returns the file size in bytes, or 0 if the file does not exist or if
   the size is 0 or if the size cannot be fetched.
 */
-#ifdef QT_LARGE_FILE_SUPPORT
+#if defined(QT_LARGEFILE_SUPPORT)
 QIODevice::Offset QFileInfo::size() const
-{
-#error "large file support not yet implemented!"
-}
-#elif (QT_VERSION-0 >= 400)
-#error "QFileInfo::size() should return QIODevice::Offset instead of uint"
 #else
 uint QFileInfo::size() const
+#endif
 {
     if ( !fic || !cache )
 	doStat();
     if ( fic )
+#if defined(QT_LARGEFILE_SUPPORT)
 	return (uint)fic->st.st_size;
+#else
+	return (QIODevice::Offset)fic->st.st_size;
+#endif
     else
 	return 0;
 }
-#endif
 
 /*!
   Returns the date and time when the file was created.

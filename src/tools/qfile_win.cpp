@@ -285,9 +285,9 @@ bool QFile::open( int m, int f )
 
 QIODevice::Offset QFile::size() const
 {
-#if defined(QT_LARGE_FILE_SUPPORT)
+#if defined(QT_LARGEFILE_SUPPORT)
 #error "large file support not yet implemented!"
-#else
+#endif
     QT_STATBUF st;
     if ( isOpen() ) {
 	QT_FSTAT( fh ? QT_FILENO(fh) : fd, &st );
@@ -299,12 +299,11 @@ QIODevice::Offset QFile::size() const
 	}
     }
     return st.st_size;
-#endif
 }
 
 bool QFile::at( Offset pos )
 {
-#if defined(QT_LARGE_FILE_SUPPORT)
+#if defined(QT_LARGEFILE_SUPPORT)
 #error "large file support not yet implemented!"
 #else
     if ( !isOpen() ) {
@@ -327,7 +326,6 @@ bool QFile::at( Offset pos )
 	qWarning( "QFile::at: Cannot set file position %d", pos );
 #endif
     return okay;
-#endif
 }
 
 Q_LONG QFile::readBlock( char *p, Q_ULONG len )

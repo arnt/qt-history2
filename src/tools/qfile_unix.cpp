@@ -167,11 +167,7 @@ bool QFile::open( int m )
 	return FALSE;
     }
     bool ok = TRUE;
-#if defined(QT_LARGE_FILE_SUPPORT)
-    struct stat64 st;
-#else
     struct stat st;
-#endif
     if ( isRaw() ) {
 	int oflags = O_RDONLY;
 	if ( isReadable() && isWritable() )
@@ -200,18 +196,10 @@ bool QFile::open( int m )
 	if ( isAsynchronous() )
 	    oflags |= OPEN_ASYNC;
 #endif
-#if defined(QT_LARGE_FILE_SUPPORT)
-	fd = ::open64( QFile::encodeName(fn), oflags, 0666 );
-#else
 	fd = qt_open( QFile::encodeName(fn), oflags, 0666 );
-#endif
 
 	if ( fd != -1 ) {			// open successful
-#if defined(QT_LARGE_FILE_SUPPORT)
-	    ::fstat64( fd, &st ); // get the stat for later usage
-#else
-	    ::fstat( fd, &st ); // get the stat for later usage
-#endif
+	    ::fstat( fd, &st );			// get the stat for later usage
 	} else {
 	    ok = FALSE;
 	}
@@ -245,11 +233,7 @@ bool QFile::open( int m )
 #endif
 	for (;;) { // At most twice
 
-#if defined(QT_LARGE_FILE_SUPPORT)
-	    fh = fopen64( QFile::encodeName(fn), perm2 );
-#else
 	    fh = fopen( QFile::encodeName(fn), perm2 );
-#endif
 
 	    if ( !fh && try_create ) {
 		perm2[0] = 'w';			// try "w+" instead of "r+"
@@ -259,11 +243,7 @@ bool QFile::open( int m )
 	    }
 	}
 	if ( fh ) {
-#if defined(QT_LARGE_FILE_SUPPORT)
-	    ::fstat64( fileno(fh), &st ); // get the stat for later usage
-#else
-	    ::fstat( fileno(fh), &st ); // get the stat for later usage
-#endif
+	    ::fstat( fileno(fh), &st ); 	// get the stat for later usage
 	} else {
 	    ok = FALSE;
 	}
@@ -343,13 +323,11 @@ bool QFile::open( int m, FILE *f )
     setState( IO_Open );
     fh = f;
     ext_f = TRUE;
-#if defined(QT_LARGE_FILE_SUPPORT)
-    struct stat64 st;
-    ::fstat64( fileno(fh), &st );
-    ioIndex = (Offset)ftello64( fh );
-#else
     struct stat st;
     ::fstat( fileno(fh), &st );
+#if defined(QT_LARGEFILE_SUPPORT)
+    ioIndex = (Offset)ftello( fh );
+#else
     ioIndex = (Offset)ftell( fh );
 #endif
     if ( (st.st_mode & S_IFMT) != S_IFREG || f == stdin ) { //stdin is non seekable
@@ -407,15 +385,9 @@ bool QFile::open( int m, int f )
     setState( IO_Open );
     fd = f;
     ext_f = TRUE;
-#if defined(QT_LARGE_FILE_SUPPORT)
-    struct stat64 st;
-    ::fstat64( fd, &st );
-    ioIndex = (Offset)::lseek64(fd, 0, SEEK_CUR);
-#else
     struct stat st;
     ::fstat( fd, &st );
     ioIndex = (Offset)::lseek(fd, 0, SEEK_CUR);
-#endif
     if ( (st.st_mode & S_IFMT) != S_IFREG || f == 0 ) { // stdin is not seekable...
 	// non-seekable
 	setType( IO_Sequential );
@@ -446,23 +418,11 @@ bool QFile::open( int m, int f )
 
 QIODevice::Offset QFile::size() const
 {
-#if defined(QT_LARGE_FILE_SUPPORT)
-    struct stat64 st;
-#else
     struct stat st;
-#endif
     if ( isOpen() ) {
-#if defined(QT_LARGE_FILE_SUPPORT)
-	::fstat64( fh ? fileno(fh) : fd, &st );
-#else
 	::fstat( fh ? fileno(fh) : fd, &st );
-#endif
     } else {
-#if defined(QT_LARGE_FILE_SUPPORT)
-	::stat64( QFile::encodeName(fn), &st );
-#else
 	::stat( QFile::encodeName(fn), &st );
-#endif
     }
     return st.st_size;
 }
@@ -502,15 +462,11 @@ bool QFile::at( Offset pos )
 	return FALSE;
     bool ok;
     if ( isRaw() ) {
-#if defined(QT_LARGE_FILE_SUPPORT)
-	pos = (Offset)::lseek64( fd, pos, SEEK_SET );
-#else
 	pos = (Offset)::lseek( fd, pos, SEEK_SET );
-#endif
 	ok = ( (long int) pos != -1 );		// ### fix this bad hack!
     } else {					// buffered file
-#if defined(QT_LARGE_FILE_SUPPORT)
-	ok = ( ::fseeko64(fh, pos, SEEK_SET) == 0 );
+#if defined(QT_LARGEFILE_SUPPORT)
+	ok = ( ::fseeko(fh, pos, SEEK_SET) == 0 );
 #else
 	ok = ( ::fseek(fh, pos, SEEK_SET) == 0 );
 #endif
@@ -519,7 +475,7 @@ bool QFile::at( Offset pos )
 	ioIndex = pos;
 #if defined(QT_CHECK_RANGE)
     else
-#if defined(QT_LARGE_FILE_SUPPORT)
+#if defined(QT_LARGEFILE_SUPPORT)
 	qWarning( "QFile::at: Cannot set file position %llu", pos );
 #else
 	qWarning( "QFile::at: Cannot set file position %lu", pos );
@@ -636,16 +592,12 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 	    setStatus( IO_WriteError );
 	if ( !isSequentialAccess() ) {
 	    if ( isRaw() )				// recalc file position
-#if defined(QT_LARGE_FILE_SUPPORT)
-		ioIndex = (Offset)::lseek64( fd, 0, SEEK_CUR );
-#else
 		ioIndex = (Offset)::lseek( fd, 0, SEEK_CUR );
-#endif
 	    else
-#if defined(QT_LARGE_FILE_SUPPORT)
-		ioIndex = ::fseeko64( fh, 0, SEEK_CUR );
+#if defined(QT_LARGEFILE_SUPPORT)
+		ioIndex = (Offset)::fseeko( fh, 0, SEEK_CUR );
 #else
-		ioIndex = ::fseek( fh, 0, SEEK_CUR );
+		ioIndex = (Offset)::fseek( fh, 0, SEEK_CUR );
 #endif
 	}
     } else {

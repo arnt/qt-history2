@@ -135,13 +135,8 @@ QString QDir::currentDirPath()
 {
     QString result;
 
-#if defined(QT_LARGE_FILE_SUPPORT)
-    struct stat64 st;
-    if ( ::stat64( ".", &st ) == 0 ) {
-#else
     struct stat st;
     if ( ::stat( ".", &st ) == 0 ) {
-#endif
 	char currentName[PATH_MAX+1];
 	if ( ::getcwd( currentName, PATH_MAX ) )
 	    result = QFile::decodeName(currentName);
@@ -205,11 +200,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #endif
     QFileInfo fi;
     DIR	     *dir;
-#if defined(QT_LARGE_FILE_SUPPORT)
-    dirent64 *file;
-#else
-    dirent   *file;
-#endif
+    struct dirent   *file;
 
     dir = opendir( QFile::encodeName(dPath) );
     if ( !dir ) {
@@ -220,11 +211,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	return FALSE;
     }
 
-#if defined(QT_LARGE_FILE_SUPPORT)
-    while ( (file = readdir64(dir)) ) {
-#else
     while ( (file = readdir(dir)) ) {
-#endif
 	QString fn = QFile::decodeName(file->d_name);
 	fi.setFile( *this, fn );
 	if ( !match( filters, fn ) && !(allDirs && fi.isDir()) )

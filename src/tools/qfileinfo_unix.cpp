@@ -264,17 +264,9 @@ void QFileInfo::doStat() const
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
     that->symLink = FALSE;
-#if defined(QT_LARGE_FILE_SUPPORT)
-    struct stat64 *b = &that->fic->st;
-#else
     struct stat *b = &that->fic->st;
-#endif
 #if defined(Q_OS_UNIX) && defined(S_IFLNK)
-#if defined(QT_LARGE_FILE_SUPPORT)
-    if ( ::lstat64( QFile::encodeName(fn), b ) == 0 ) {
-#else
     if ( ::lstat( QFile::encodeName(fn), b ) == 0 ) {
-#endif
 	if ( S_ISLNK( b->st_mode ) )
 	    that->symLink = TRUE;
 	else
@@ -282,11 +274,7 @@ void QFileInfo::doStat() const
     }
 #endif
 
-#if defined(QT_LARGE_FILE_SUPPORT)
-    int r = ::stat64( QFile::encodeName(fn), b );
-#else
     int r = ::stat( QFile::encodeName(fn), b );
-#endif
     if ( r != 0 && !that->symLink ) {
 	delete that->fic;
 	that->fic = 0;
