@@ -2050,7 +2050,7 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bo
         return;
 
     if (((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) ||
-        ((r.width() != sr.width() || r.height() != sr.height()) && !d->engine->hasFeature(QPaintEngine::PixmapScale))) {
+        ((w != sw || h != sh) && !d->engine->hasFeature(QPaintEngine::PixmapScale))) {
         QPixmap source(sw, sh);
         {
             QPainter p(&source);
