@@ -1083,7 +1083,6 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
     QStringList additionalSources;
 
     {
-	QString filename;
 	QStringList filterlist;
 	if ( filter.isEmpty() ) {
 	    if ( !inProject )
@@ -1106,60 +1105,75 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 
 	QString filters = filterlist.join( ";;" );
 
-	if ( fn.isEmpty() )
-	    filename = QFileDialog::getOpenFileName( QString::null, filters, this, 0, (inProject ? tr("Insert") : tr("Open" )), &lastOpenFilter );
-	else
-	    filename = fn;
-	if ( !filename.isEmpty() ) {
-	    QFileInfo fi( filename );
+	QStringList filenames;
+	if ( fn.isEmpty() ) {
+	    if ( !inProject ) {
+		QString f = QFileDialog::getOpenFileName( QString::null, filters, this, 0,
+							  (inProject ? tr("Insert") : tr("Open" )),
+							  &lastOpenFilter );
+		filenames << f;
+	    } else {
+		filenames = QFileDialog::getOpenFileNames( filters, QString::null, this, 0,
+							  (inProject ? tr("Insert") : tr("Open" )),
+							  &lastOpenFilter );
+	    }
+	} else {
+	    filenames << fn;
+	}
+	for ( QStringList::Iterator fit = filenames.begin(); fit != filenames.end(); ++fit ) {
+	    QString filename = *fit;
+	    if ( !filename.isEmpty() ) {
+		QFileInfo fi( filename );
 
-	    if ( fi.extension() == "pro" && ( extension.isEmpty() || extension.find( ";pro" ) != -1 ) ) {
-		addRecentlyOpened( filename, recentlyProjects );
-		openProject( filename );
-	    } else if ( fi.extension() == "ui" && ( extension.isEmpty() || extension.find( ";ui" ) != -1 ) ) {
-		if ( !inProject )
-		    setCurrentProject( eProject );
-		openFormWindow( filename );
-		addRecentlyOpened( filename, recentlyFiles );
-	    } else if ( !extension.isEmpty() && extension.find( ";" + fi.extension() ) != -1 ||
-			additionalSources.find( fi.extension() ) != additionalSources.end() ) {
-		LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
-		if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
-		    SourceFile *sf = project->findSourceFile( project->makeRelative( filename ) );
-		    if ( !sf )
-			sf = new SourceFile( project->makeRelative( filename ), FALSE, project );
-		    editSource( sf );
-		}
-	    } else if ( extension.isEmpty() ) {
-		QString filter;
-		for ( QStringList::Iterator it2 = filterlist.begin(); it2 != filterlist.end(); ++it2 ) {
-		    if ( (*it2).contains( fi.extension(), FALSE ) ) {
-			filter = *it2;
-			break;
+		if ( fi.extension() == "pro" && ( extension.isEmpty() || extension.find( ";pro" ) != -1 ) ) {
+		    addRecentlyOpened( filename, recentlyProjects );
+		    openProject( filename );
+		} else if ( fi.extension() == "ui" && ( extension.isEmpty() || extension.find( ";ui" ) != -1 ) ) {
+		    if ( !inProject )
+			setCurrentProject( eProject );
+		    openFormWindow( filename );
+		    addRecentlyOpened( filename, recentlyFiles );
+		} else if ( !extension.isEmpty() && extension.find( ";" + fi.extension() ) != -1 ||
+			    additionalSources.find( fi.extension() ) != additionalSources.end() ) {
+		    LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
+		    if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
+			SourceFile *sf = project->findSourceFile( project->makeRelative( filename ) );
+			if ( !sf )
+			    sf = new SourceFile( project->makeRelative( filename ), FALSE, project );
+			editSource( sf );
 		    }
-		}
+		} else if ( extension.isEmpty() ) {
+		    QString filter;
+		    for ( QStringList::Iterator it2 = filterlist.begin(); it2 != filterlist.end(); ++it2 ) {
+			if ( (*it2).contains( fi.extension(), FALSE ) ) {
+			    filter = *it2;
+			    break;
+			}
+		    }
 
-		ImportFilterInterface* iface = 0;
-		manager.queryInterface( filter, &iface );
-		if ( !iface ) {
-		    statusBar()->message( tr( "No import filter available for %1").arg( filename ), 3000 );
-		    return;
+		    ImportFilterInterface* iface = 0;
+		    manager.queryInterface( filter, &iface );
+		    if ( !iface ) {
+			statusBar()->message( tr( "No import filter available for %1").
+					      arg( filename ), 3000 );
+			return;
+		    }
+		    statusBar()->message( tr( "Importing %1 using import filter ...").arg( filename ) );
+		    QStringList list = iface->import( filter, filename );
+		    iface->release();
+		    if ( list.isEmpty() ) {
+			statusBar()->message( tr( "Nothing to load in %1").arg( filename ), 3000 );
+			return;
+		    }
+		    if ( !inProject )
+			setCurrentProject( eProject );
+		    addRecentlyOpened( filename, recentlyFiles );
+		    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
+			openFormWindow( *it, FALSE );
+			QFile::remove( *it );
+		    }
+		    statusBar()->clear();
 		}
-		statusBar()->message( tr( "Importing %1 using import filter ...").arg( filename ) );
-		QStringList list = iface->import( filter, filename );
-		iface->release();
-		if ( list.isEmpty() ) {
-		    statusBar()->message( tr( "Nothing to load in %1").arg( filename ), 3000 );
-		    return;
-		}
-		if ( !inProject )
-		    setCurrentProject( eProject );
-		addRecentlyOpened( filename, recentlyFiles );
-		for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
-		    openFormWindow( *it, FALSE );
-		    QFile::remove( *it );
-		}
-		statusBar()->clear();
 	    }
 	}
     }
@@ -1188,6 +1202,8 @@ FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileN
 		ff2->formWindow()->setFocus();
 		return ff2->formWindow();
 	    }
+	    if ( ff2 )
+		ff = ff2;
 	    QApplication::setOverrideCursor( WaitCursor );
 	    Resource resource( this );
 	    if ( !ff )
