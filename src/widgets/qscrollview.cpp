@@ -762,43 +762,52 @@ void QScrollView::updateScrollBars()
 
     // Position the scrollbars, viewport, and corner widget.
     int bottom;
+    bool reverse = QApplication::reverseLayout();
+    int xoffset = ( reverse && (showv || cornerWidget() )) ? vsbExt : 0; 
+    int xpos = reverse ? 0 : w - vsbExt;
+    if( style() == WindowsStyle ) {
+	if ( reverse )
+	    xpos += fw;
+	else
+	    xpos -= fw;
+    }
     if ( showh ) {
 	int right = ( showv || cornerWidget() ) ? w-vsbExt : w;
 	if ( style() == WindowsStyle )
-            setHBarGeometry(d->hbar, fw, h-hsbExt-fw,
+            setHBarGeometry(d->hbar, fw + xoffset, h-hsbExt-fw,
                             right-fw-fw, hsbExt );
 	else
-            setHBarGeometry(d->hbar, 0, h-hsbExt, right,
+            setHBarGeometry(d->hbar, 0 + xoffset, h-hsbExt, right,
                             hsbExt );
 	bottom=h-hsbExt;
     } else {
         bottom=h;
     }
     if ( showv ) {
-	clipper()->setGeometry( lmarg, tmarg,
+	clipper()->setGeometry( lmarg + xoffset, tmarg,
                                 w-vsbExt-lmarg-rmarg,
                                 bottom-tmarg-bmarg );
 	if ( style() == WindowsStyle )
 	    changeFrameRect(QRect(0, 0, w, h) );
 	else
-	    changeFrameRect(QRect(0, 0, w-vsbExt, bottom));
+	    changeFrameRect(QRect(xoffset, 0, w-vsbExt, bottom));
 	if (cornerWidget()) {
 	    if ( style() == WindowsStyle )
-                setVBarGeometry( d->vbar, w-vsbExt-fw,
+                setVBarGeometry( d->vbar, xpos,
                                  fw, vsbExt,
                                  h-hsbExt-fw-fw );
 	    else
-                setVBarGeometry( d->vbar, w-vsbExt, 0,
+                setVBarGeometry( d->vbar, xpos, 0,
                                  vsbExt,
                                  h-hsbExt );
 	}
 	else {
 	    if ( style() == WindowsStyle )
-                setVBarGeometry( d->vbar, w-vsbExt-fw,
+                setVBarGeometry( d->vbar, xpos,
                                  fw, vsbExt,
                                  bottom-fw-fw );
 	    else
-                setVBarGeometry( d->vbar, w-vsbExt, 0,
+                setVBarGeometry( d->vbar, xpos, 0,
                                  vsbExt, bottom );
 	}
     } else {
@@ -811,12 +820,12 @@ void QScrollView::updateScrollBars()
     }
     if ( d->corner ) {
 	if ( style() == WindowsStyle )
-            d->corner->setGeometry( w-vsbExt-fw,
+            d->corner->setGeometry( xpos,
                                     h-hsbExt-fw,
                                     vsbExt,
                                     hsbExt );
 	else
-            d->corner->setGeometry( w-vsbExt,
+            d->corner->setGeometry( xpos,
                                     h-hsbExt,
                                     vsbExt,
                                     hsbExt );
