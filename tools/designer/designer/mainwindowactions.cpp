@@ -1708,12 +1708,14 @@ SourceEditor *MainWindow::editSource( bool /*resetSame*/ )
 	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
 	if ( !lIface )
 	    return 0;
+	QApplication::setOverrideCursor( WaitCursor );
 	editor = new SourceEditor( workSpace(), eIface, lIface );
 	eIface->release();
 	lIface->release();
 
 	editor->setLanguage( lang );
 	sourceEditors.append( editor );
+	QApplication::setOverrideCursor( ArrowCursor );
     }
     if ( editor->object() != formWindow() )
 	editor->setObject( formWindow(), formWindow()->project() );
@@ -1746,12 +1748,14 @@ SourceEditor *MainWindow::editSource( SourceFile *f )
 	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
 	if ( !lIface )
 	    return 0;
+	QApplication::setOverrideCursor( WaitCursor );
 	editor = new SourceEditor( workSpace(), eIface, lIface );
 	eIface->release();
 	lIface->release();
 
 	editor->setLanguage( lang );
 	sourceEditors.append( editor );
+	QApplication::setOverrideCursor( ArrowCursor );
     }
     editor->show();
     editor->setFocus();
