@@ -76,7 +76,7 @@ public:
     bool 	customWhatsThis() const;
 
     int	insertTearOffHandle( int id=-1, int index=-1 );
-    
+
     void activateItemAt( int index );
 
 
@@ -111,6 +111,7 @@ protected:
     bool	focusNextPrevChild( bool next );
 
     QRect	itemGeometry( int index );
+    int		itemAtPos( const QPoint & ) const;
 
 private slots:
     void	subActivated( int itemId );
@@ -138,7 +139,6 @@ private:
     bool	tryMenuBar( QMouseEvent * );
     void	byeMenuBar();
 
-    int		itemAtPos( const QPoint & ) const;
     void	updateSize();
     void	updateRow( int row );
     void	updateAccel( QWidget * );
