@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#80 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -189,10 +189,6 @@ const char* qt_xdnd_atom_to_str( Atom a )
     if ( !qt_xdnd_drag_types ) {
 	qt_xdnd_drag_types = new QIntDict<QCString>( 17 );
 	qt_xdnd_drag_types->setAutoDelete( TRUE );
-	// ### unfinished!  treat XA_STRING as text/plain.  remove ASAP
-	//QCString * s;
-	//s = new QCString( "text/plain" );
-	//qt_xdnd_drag_types->insert( (long)XA_STRING, s );
     }
     QCString* result;
     if ( !(result=qt_xdnd_drag_types->find( a )) ) {
