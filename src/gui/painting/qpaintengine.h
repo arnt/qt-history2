@@ -217,11 +217,6 @@ protected:
     inline void updateState(QPainterState *state, bool updateGC = true);
 
 private:
-    enum EmulationSpecifier { GradientEmulation         = 0x0001,
-                              AlphaEmulation            = 0x0002,
-                              AntialiasingEmluation     = 0x0004,
-                              TransformEmulation        = 0x0008
-    };
     uint emulationSpecifier;
 
     inline QPainterState *painterState() const { return state; }
