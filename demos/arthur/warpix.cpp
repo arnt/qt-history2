@@ -20,7 +20,7 @@
 Warpix::Warpix(QWidget *parent)
     : DemoWidget(parent)
 {
-    setPixmap(QPixmap(":/res/chux"));
+    setPixmap(QPixmap(":/res/chux.png"));
 
 #ifdef BEAT_IS_RESOURCE
     beat = new QSound(":/res/beat.wav");
