@@ -100,7 +100,7 @@ by Gamma, Helm, Johnson, and Vlissides, ISBN 0-201-63361-2, provides
 more information on the MVC paradigm, explaining MVC and its
 sub-patterns in detail.
 
-See also \link model-view.html the model/view classes\endlink
+See also the \l{model-view.htm}{list of model/view classes}.
 
 */
 
@@ -915,6 +915,7 @@ following code, we apply a second selection of items to the table
 model shown above, using the \c Toggle command to invert the
 selection state of the items given.
 
+\quotefile itemselection/main.cpp
 \skipto QItemSelection toggle
 \printuntil selectionModel->select
 
