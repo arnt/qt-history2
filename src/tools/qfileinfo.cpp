@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#56 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#57 $
 **
 ** Implementation of QFileInfo class
 **
@@ -867,27 +867,45 @@ void QFileInfo::doStat() const
 #if defined (UNIX)
     r = STAT( QFile::encodeName(fn), b );
 #else
-    QString fn2(fn);
-    if ( fn2[0] == '/' && fn2[1] == '/'
-      || fn2[0] == '\\' && fn2[1] == '\\' )
-    {
-	// Bug in samba?
-	//      \\NTBOXEN\C is a directory
-	//      \\UNIXBOXEN\place is a NOT directory
-	//      \\UNIXBOXEN\place\ is a directory
-	int s = fn2.find(fn[0],2);
-	if ( s >= 0 ) {
-	    s = fn2.find(fn[0],s+1);
-	    if ( s < 0 )
-		fn2 += '\\';
-	    else if ( fn[s] == '/' )
-		fn[s] = '\\';
+    if ( qt_winunicode )
+	r = _tstat((const TCHAR*)qt_winTchar(fn,TRUE), b);
+    else
+	r = _stat(qt_win95Name(fn), b);
+    if ( r!=0 ) {
+	bool is_dir=FALSE;
+	if ( fn[0] == '/' && fn[1] == '/'
+	  || fn[0] == '\\' && fn[1] == '\\' )
+	{
+	    // UNC - stat doesn't work for all cases (Windows bug)
+	    int s = fn.find(fn[0],2);
+	    if ( s > 0 ) {
+		// "\\server\..."
+		s = fn.find(fn[0],s+1);
+		if ( s > 0 ) {
+		    // "\\server\share\..."
+		    if ( fn[s+1] ) {
+			// "\\server\share\notfound"
+		    } else {
+			// "\\server\share\"
+			is_dir=TRUE;
+		    }
+		} else {
+		    // "\\server\share"
+		    is_dir=TRUE;
+		}
+	    } else {
+		// "\\server"
+		is_dir=TRUE;
+	    }
+	}
+	if ( is_dir ) {
+	    // looks like a UNC dir, is a dir.
+	    memset(b,0,sizeof(*b));
+	    b->st_mode = STAT_DIR;
+	    b->st_nlink = 1;
+	    r = 0;
 	}
     }
-    if ( qt_winunicode )
-	r = _tstat((const TCHAR*)qt_winTchar(fn2,TRUE), b);
-    else
-	r = _stat(qt_win95Name(fn2), b);
 #endif
 
     if ( r != 0 ) {

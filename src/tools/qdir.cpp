@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#87 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#88 $
 **
 ** Implementation of QDir class
 **
@@ -1227,42 +1227,41 @@ QString QDir::currentDirPath()
 
     STATBUF st;
 
+#ifdef _WS_WIN_
+    if ( qt_winunicode ) {
+	TCHAR currentName[PATH_MAX];
+	if ( _tgetcwd(currentName,PATH_MAX) >= 0 ) {
+	    result = qt_winQString(currentName);
+	}
+    } else {
+	char currentName[PATH_MAX];
+	if ( GETCWD(currentName,PATH_MAX) >= 0 ) {
+	    result = QString::fromLatin1(currentName);
+	}
+    }
+#else
     if ( STAT( ".", &st ) == 0 ) {
 	if ( forcecwd || cINode != st.st_ino || cDevice != st.st_dev ) {
-#ifdef _WS_WIN_
-	    if ( qt_winunicode ) {
-		TCHAR currentName[PATH_MAX];
-		if ( _tgetcwd(currentName,PATH_MAX) >= 0 ) {
-		    result = qt_winQString(currentName);
-		}
-	    } else {
-		char currentName[PATH_MAX];
-		if ( GETCWD(currentName,PATH_MAX) >= 0 ) {
-		    result = QString::fromLatin1(currentName);
-		}
-	    }
-#else
 	    {
 		char currentName[PATH_MAX];
 		if ( GETCWD( currentName, PATH_MAX ) != 0 ) {
 		    result = QFile::decodeName(currentName);
 		}
 	    }
-#endif
-	    if ( !result.isNull() ) {
-		cINode	 = st.st_ino;
-		cDevice	 = st.st_dev;
-		slashify( result );
-		// forcecwd = FALSE;   ### caching removed, not safe
-	    } else {
-		qWarning( "QDir::currentDirPath: getcwd() failed" );
-		forcecwd    = TRUE;
-	    }
 	}
     } else {
 #if defined(DEBUG)
 	qWarning( "QDir::currentDirPath: stat(\".\") failed" );
 #endif
+    }
+#endif
+    if ( !result.isNull() ) {
+	cINode	 = st.st_ino;
+	cDevice	 = st.st_dev;
+	slashify( result );
+	// forcecwd = FALSE;   ### caching removed, not safe
+    } else {
+	qWarning( "QDir::currentDirPath: getcwd() failed" );
 	forcecwd    = TRUE;
     }
     return result;
