@@ -21,14 +21,14 @@ then
     ABSPATH="QMAKE_ABSOLUTE_SOURCE_PATH=$SRCDIR/config.tests/unix"
 fi
 
-test -d $OUTDIR/config.tests/unix || mkdir -p $OUTDIR/config.tests/unix
-$OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "$ABSPATH" $SRCDIR/config.tests/unix/stltest.pro -o $OUTDIR/config.tests/unix/Makefile >/dev/null 2>&1
-cd $OUTDIR/config.tests/unix
+test -d $OUTDIR/config.tests/unix/stltest || mkdir -p $OUTDIR/config.tests/unix/stltest
+$OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "$ABSPATH" $SRCDIR/config.tests/unix/stltest/stltest.pro -o $OUTDIR/config.tests/unix/stltest/Makefile >/dev/null 2>&1
+cd $OUTDIR/config.tests/unix/stltest
 
 if [ "$VERBOSE" = "yes" ]; then
   make || exit 0
   ./stltest
 else
   make >/dev/null 2>&1 || exit 0
-  ./stltest >/dev/null 2>/dev/null
+  ./stltest >/dev/null 2>&1
 fi

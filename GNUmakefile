@@ -84,7 +84,7 @@ distclean clean uiclean mocclean:
 	cd plugins/src && $(MAKE) $@
 	cd examples && $(MAKE) $@
 	cd qmake && $(MAKE) $@
-	cd config.tests/unix && $(MAKE) $@
+	cd config.tests/unix/stltest && $(MAKE) $@
 	cd config.tests/x11 && $(MAKE) $@
 
 #confclean is actually the same as distclean, except qmake is not cleaned..
@@ -95,7 +95,7 @@ confclean:
 	cd tutorial && $(MAKE) distclean
 	cd plugins/src && $(MAKE) distclean
 	cd examples && $(MAKE) distclean
-	cd config.tests/unix && $(MAKE) distclean
+	cd config.tests/unix/stltest && $(MAKE) distclean
 	cd config.tests/x11 && $(MAKE) distclean
 
 .qmake.cache:
