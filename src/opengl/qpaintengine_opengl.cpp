@@ -64,6 +64,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     setActive(true);
 
     dgl->makeCurrent();
+    dgl->qglClearColor(dgl->palette().brush(QPalette::Background));
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glShadeModel(GL_FLAT);
     glViewport(0, 0, dgl->width(), dgl->height());
