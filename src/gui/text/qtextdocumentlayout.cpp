@@ -1408,7 +1408,7 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 //     qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
 
     // mark all frames between f_start and f_end as dirty
-    markFrames(document()->rootFrame(), from, from + length);
+    markFrames(document()->rootFrame(), from, from + qMax(length, oldLength));
 
     d->layoutFrame(document()->rootFrame(), from, from + length);
 
