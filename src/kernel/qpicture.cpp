@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#58 $
 **
 ** Implementation of QPicture class
 **
@@ -387,7 +387,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PDC_SETROP:
 		s >> i_8;
-		painter->setRasterOp( (RasterOp)i_8 );
+		painter->setRasterOp( (Qt::RasterOp)i_8 );
 		break;
 	    case PDC_SETBRUSHORIGIN:
 		s >> p;
