@@ -255,6 +255,9 @@ void **QListData::erase(void **xi)
     Two lists are considered equal if they contain the same values in
     the same order.
 
+    This function requires the value type to implement \c
+    operator==().
+
     \sa operator!=()
 */
 
@@ -262,6 +265,12 @@ void **QListData::erase(void **xi)
 
     Returns true if \a other is not equal to this list; otherwise
     returns false.
+
+    Two lists are considered equal if they contain the same values in
+    the same order.
+
+    This function requires the value type to implement \c
+    operator==().
 
     \sa operator==()
 */
@@ -298,7 +307,7 @@ void **QListData::erase(void **xi)
 
 /*! \fn QList::operator QSafeBool() const
 
-    Returns true if the map contains at least one items; otherwise
+    Returns true if the list contains at least one items; otherwise
     returns false.
 
     Example:
@@ -432,6 +441,9 @@ void **QListData::erase(void **xi)
         // list: [ "cloud", "rain" ]
     \endcode
 
+    This function requires the value type to implement \c
+    operator==().
+
     \sa removeAt(), takeAt(), replace()
 */
 
@@ -521,7 +533,8 @@ void **QListData::erase(void **xi)
         list.indexOf("B", 2);       // returns 3
     \endcode
 
-    This function requires the value type to implement operator==().
+    This function requires the value type to implement \c
+    operator==().
 
     \sa lastIndexOf(), contains()
 */
@@ -541,7 +554,8 @@ void **QListData::erase(void **xi)
         list.lastIndexOf("B", 2);   // returns 1
     \endcode
 
-    This function requires the value type to implement operator==().
+    This function requires the value type to implement \c
+    operator==().
 
     \sa indexOf()
 */
@@ -551,7 +565,8 @@ void **QListData::erase(void **xi)
     Returns true if the list contains an occurrence of the value \a
     t; otherwise returns false.
 
-    This function requires the value type to implement operator==().
+    This function requires the value type to implement \c
+    operator==().
 
     \sa indexOf(), count()
 */
@@ -559,6 +574,9 @@ void **QListData::erase(void **xi)
 /*! \fn int QList::count(const T &t) const
 
     Returns the number of occurrences of the value \a t in the list.
+
+    This function requires the value type to implement \c
+    operator==().
 
     \sa contains(), indexOf()
 */
@@ -600,7 +618,7 @@ void **QListData::erase(void **xi)
 /*! \fn QList::const_iterator QList::constEnd() const
 
     Returns a const \l{STL-style iterator} pointing to the imaginary
-    item after the last item in the map.
+    item after the last item in the list.
 
     \sa constBegin(), end()
 */
@@ -784,7 +802,7 @@ void **QListData::erase(void **xi)
     \sa append(), operator+=()
 */
 
-/*! \fn bool QList::ensure_constructed()
+/*!  bool QList::ensure_constructed()
 
     \internal
 */
