@@ -2172,8 +2172,8 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
         break;
     case CC_TitleBar:
         if (const QStyleOptionTitleBar *tb = qt_cast<const QStyleOptionTitleBar *>(opt)) {
-            const int controlTop = 2;
-            const int controlHeight = tb->rect.height() - controlTop *2;
+            const int controlMargin = 2;
+            const int controlHeight = tb->rect.height() - controlMargin *2;
 
             switch (sc) {
             case SC_TitleBarLabel:
@@ -2193,36 +2193,36 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
                 }
                 break;
             case SC_TitleBarCloseButton:
-                ret.setRect(tb->rect.width() - (controlHeight + controlTop),
-                            tb->rect.top() + controlTop, controlHeight, controlHeight);
+                ret.setRect(tb->rect.right() - (controlHeight + controlMargin),
+                            tb->rect.top() + controlMargin, controlHeight, controlHeight);
                 break;
             case SC_TitleBarMaxButton:
             case SC_TitleBarShadeButton:
             case SC_TitleBarUnshadeButton:
-                ret.setRect(tb->rect.width() - ((controlHeight + controlTop) * 2),
-                            tb->rect.top() + controlTop, controlHeight, controlHeight);
+                ret.setRect(tb->rect.right() - ((controlHeight + controlMargin) * 2),
+                            tb->rect.top() + controlMargin, controlHeight, controlHeight);
                 break;
             case SC_TitleBarMinButton:
             case SC_TitleBarNormalButton: {
-                int offset = controlHeight + controlTop;
+                int offset = controlHeight + controlMargin;
                 if (!(tb->titleBarFlags & Qt::WStyle_Maximize))
                     offset *= 2;
                 else
                     offset *= 3;
-                ret.setRect(tb->rect.width() - offset, tb->rect.top() + controlTop, controlHeight, controlHeight);
+                ret.setRect(tb->rect.right() - offset, tb->rect.top() + controlMargin, controlHeight, controlHeight);
                 break;
             }
             case SC_TitleBarContextHelpButton: {
-                int offset = controlHeight + controlTop;
+                int offset = controlHeight + controlMargin;
                 if (!(tb->titleBarFlags & Qt::WStyle_Maximize))
                     offset *= 3;
                 else
                     offset *= 4;
-                ret.setRect(tb->rect.width() - offset, tb->rect.top() + controlTop, controlHeight, controlHeight);
+                ret.setRect(tb->rect.right() - offset, tb->rect.top() + controlMargin, controlHeight, controlHeight);
                 break;
             }
             case SC_TitleBarSysMenu:
-                ret.setRect(tb->rect.left() + 3, tb->rect.top() + controlTop, controlHeight, controlHeight);
+                ret.setRect(tb->rect.left() + 3, tb->rect.top() + controlMargin, controlHeight, controlHeight);
                 break;
             default:
                 break;
