@@ -62,6 +62,10 @@ my @qscripts = (
 	"Tagbanwa",
 	"KatakanaHalfWidth",
 	"UnknownScript",
+        "NoScript",
+        "Han_Japanese",
+        "Han_SimplifiedChinese",
+        "Han_TraditionalChinese"
 );
 
 my $num_scripts = @qscripts;
