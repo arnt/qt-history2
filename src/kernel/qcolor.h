@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#7 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#8 $
 **
 ** Definition of QColor class
 **
@@ -52,8 +52,8 @@ public:
     bool   isValid()const { return (rgb & RGB_INVALID) == 0; }
     bool   isDirty()const { return (rgb & RGB_DIRTY) == RGB_DIRTY; }
 
-    QColor light( double f = 1.12) const;	// get lighter color
-    QColor dark( double f = 2.0 )  const;	// get darker color
+    QColor light( int f = 112 ) const;		// get lighter color
+    QColor dark( int f = 200 )  const;		// get darker color
 
     ulong  pixel()  const;			// get pixel value
 
