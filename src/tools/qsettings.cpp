@@ -155,7 +155,7 @@
     When reading settings the files are searched in the order shown
     above, with later settings overriding earlier settings. Files for
     which the user doesn't have read permission are ignored. When saving
-    settings QSettings works forwards in the order shown above writing
+    settings QSettings works in the order shown above, writing
     to the first settings file for which the user has write permission.
     (\c INSTALL is the directory where Qt was installed.  This can be
     modified by using the configure script's -prefix argument )
@@ -187,8 +187,9 @@
     \value Windows Windows execution environments
 */
 
-
 #if defined(Q_OS_UNIX)
+#define Q_LOCKREAD F_RDLCK
+#define Q_LOCKWRITE F_WRLCK
 /*
   Locks the file specified by name.  The lockfile is created as a
   hidden file in the same directory as the target file, with .lock
@@ -200,7 +201,7 @@
   A file descriptor for the lock file is returned, and should be
   closed with closelock() when the lock is no longer needed.
  */
-static int openlock( const QString &name, int type )
+static HANDLE openlock( const QString &name, int type )
 {
     QFileInfo info( name );
     // lockfile should be hidden, and never removed
@@ -226,7 +227,7 @@ static int openlock( const QString &name, int type )
   Closes the lock file specified by fd.  fd is the file descriptor
   returned by the openlock() function.
 */
-static void closelock( int fd )
+static void closelock( HANDLE fd )
 {
     struct flock fl;
     fl.l_type = F_UNLCK;
@@ -239,16 +240,36 @@ static void closelock( int fd )
 
     close( fd );
 }
-#else
-static int openlock( const QString &name, int type )
+#elif defined(Q_WS_WIN)
+#define Q_LOCKREAD 1
+#define Q_LOCKWRITE 2
+
+static HANDLE openlock( const QString &name, int /*type*/ )
 {
-    qWarning( "QSettings: openlock unimplemented");
-    return -1;
+    HANDLE fd = 0;
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based )
+	fd = CreateFileW( (TCHAR*)qt_winTchar(name, TRUE), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+    else
+#endif
+	fd = CreateFileA( name.local8Bit(), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+
+    if ( !LockFile( fd, 0, 0, -1, -1 ) ) {
+#ifdef QT_CHECK_STATE
+	qWarning( "QSettings: openlock failed!" );
+#endif
+    }
+    return fd;
 }
 
-void closelock( int fd )
+void closelock( HANDLE fd )
 {
-    qWarning( "QSettings: closelock unimplemented");
+    if ( !UnlockFile( fd, 0, 0, -1, -1 ) ) {
+#ifdef QT_CHECK_STATE
+	qWarning( "QSettings: closelock failed!");
+#endif
+    }
+    CloseHandle( fd );
 }
 #endif
 
@@ -266,7 +287,7 @@ void QSettingsHeading::read(const QString &filename)
     if (! QFileInfo(filename).exists())
 	return;
 
-    int lockfd = openlock( filename, F_RDLCK );
+    HANDLE lockfd = openlock( filename, Q_LOCKREAD );
 
     QFile file(filename);
     if (! file.open(IO_ReadOnly)) {
@@ -636,7 +657,7 @@ QDateTime QSettingsPrivate::modificationTime()
     When reading settings the files are searched in the order shown
     above, with later settings overriding earlier settings. Files for
     which the user doesn't have read permission are ignored. When saving
-    settings QSettings works forwards in the order shown above writing
+    settings QSettings works in the order shown above, writing
     to the first settings file for which the user has write permission.
 
   Settings under Unix are stored in files whose names are based on the
@@ -809,7 +830,7 @@ bool QSettings::sync()
 	    continue;
 	}
 
-	int lockfd = openlock( file.name(), F_WRLCK );
+	HANDLE lockfd = openlock( file.name(), Q_LOCKWRITE );
 
 	if (! file.open(IO_WriteOnly)) {
 
