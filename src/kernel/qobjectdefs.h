@@ -97,15 +97,9 @@ private:
 #undef SIGNAL
 #endif
 
-#if defined(_OLD_CPP_)
-#define METHOD(a)	"0""a"
-#define SLOT(a)		"1""a"
-#define SIGNAL(a)	"2""a"
-#else
 #define METHOD(a)	"0"#a
 #define SLOT(a)		"1"#a
 #define SIGNAL(a)	"2"#a
-#endif
 
 #ifdef QT_COMPAT
 #define METHOD_CODE	0			// member type codes
