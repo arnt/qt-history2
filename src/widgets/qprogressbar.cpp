@@ -394,7 +394,12 @@ void QProgressBar::drawContents( QPainter *p )
 	    AlignRight | AlignVCenter, progress_str );
     } else {
 	if (total_steps) { // Sanity check
-	    int pw = bar.width() * progress_val / total_steps;
+	    int u = bar.width();
+	    int pw;
+	    if ( u > 0 && progress_val >= INT_MAX / u && total_steps >= u )
+		pw = (u * (progress_val / u)) / (total_steps / u);
+	    else
+		pw = bar.width() * progress_val / total_steps;
 
 	    p->setPen( colorGroup().highlightedText() );
 	    p->setClipRect( bar.x(), bar.y(), pw, bar.height() );
