@@ -245,15 +245,9 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
         h = ms.height();
 
     if (isRightToLeft()) {
-        if (d->tlw->isWindow()) {
-            int x = d->tlw->geometry().x() + (np.x() - d->p.x());
-            int y = d->tlw->geometry().y();
-            d->tlw->setGeometry(x, y, w, h);
-        } else {
-            d->tlw->resize(w, h);
-            if (d->tlw->size() == QSize(w, h))
-                d->tlw->move(tlw->x() + (np.x() - d->p.x()), tlw->y());
-        }
+        d->tlw->resize(w, h);
+        if (d->tlw->size() == QSize(w, h))
+            d->tlw->move(tlw->x() + (np.x() - d->p.x()), tlw->y());
     } else {
         d->tlw->resize(w, h);
     }
