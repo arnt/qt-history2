@@ -81,9 +81,9 @@
     QAbstractSlider provides a virtual sliderChange() function that is
     well suited for updating the on-screen representation of
     sliders. By calling triggerAction(), subclasses trigger slider
-    actions. The two helper functions positionFromValue() and
-    valueFromPosition() help subclasses and styles to map screen
-    coordinates to logical range values.
+    actions. Two helper functions QStyle::positionFromValue() and
+    QStyle::valueFromPosition() help subclasses and styles to map
+    screen coordinates to logical range values.
 
 */
 
@@ -507,75 +507,3 @@ void QAbstractSlider::wheelEvent( QWheelEvent * e )
     offset -= int(offset);
     e->accept();
 }
-
-/*!
-    Converts \a logical_val to a pixel position. minValue() maps to 0,
-    maxValue() maps to \a span and other values are distributed evenly
-    in-between.
-
-    This function can handle the entire integer range without
-    overflow, providing \a span is \<= 4096.
-
-    \sa valueFromPosition()
-*/
-
-int QAbstractSlider::positionFromValue( int logical_val, int span ) const
-{
-    if ( span <= 0 || logical_val < d->minimum || d->maximum <= d->minimum )
-	return 0;
-    if ( logical_val > d->maximum )
-	return span;
-
-    uint range = d->maximum - d->minimum;
-    uint p = logical_val - d->minimum;
-
-    if ( range > (uint)INT_MAX/4096 ) {
-	const int scale = 4096*2;
-	return ( (p/scale) * span ) / (range/scale);
-	// ### the above line is probably not 100% correct
-	// ### but fixing it isn't worth the extreme pain...
-    } else if ( range > (uint)span ) {
-	return (2*p*span + range) / (2*range);
-    } else {
-	uint div = span / range;
-	uint mod = span % range;
-	return p*div + (2*p*mod + range) / (2*range);
-    }
-    //equiv. to (p*span)/range + 0.5
-    // no overflow because of this implicit assumption:
-    // span <= 4096
-}
-
-
-/*!
-    Converts the pixel position \a pos to a value. 0 maps to
-    minimum(), \a span maps to maximum() and other values are
-    distributed evenly in-between.
-
-    This function can handle the entire integer range without
-    overflow.
-
-    \sa positionFromValue()
-*/
-
-int QAbstractSlider::valueFromPosition( int pos, int span ) const
-{
-    if ( span <= 0 || pos <= 0 )
-	return d->minimum;
-    if ( pos >= span )
-	return d->maximum;
-
-    uint range = d->maximum - d->minimum;
-
-    if ( (uint)span > range )
-	return  d->minimum + (2*pos*range + span) / (2*span);
-    else {
-	uint div = range / span;
-	uint mod = range % span;
-	return  d->minimum + pos*div + (2*pos*mod + span) / (2*span);
-    }
-    // equiv. to minimum() + (pos*range)/span + 0.5
-    // no overflow because of this implicit assumption:
-    // pos <= span < sqrt(INT_MAX+0.0625)+0.25 ~ sqrt(INT_MAX)
-}
-

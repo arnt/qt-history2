@@ -607,7 +607,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     else if ( ((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout() ) // AlignAuto && rightToLeft
 	x += w - pm.width();
 
-    if ( !enabled ) 
+    if ( !enabled )
 	pm = stylePixmap( PT_Disabled, pm, pal );
     p->drawPixmap( x, y, pm );
     if ( clip )
@@ -1884,6 +1884,79 @@ QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
 	r.moveBy( 2*(boundingRect.right() - logical.right()) +
 		  logical.width() - boundingRect.width(), 0 );
     return r;
+}
+
+
+
+/*!
+    Converts \a logical_val to a pixel position. min maps to 0, max
+    maps to \a span and other values are distributed evenly
+    in-between.
+
+    This function can handle the entire integer range without
+    overflow, providing \a span is \<= 4096.
+
+    \sa valueFromPosition()
+*/
+
+int QStyle::positionFromValue( int min, int max, int logical_val, int span )
+{
+    if ( span <= 0 || logical_val < min || max <= min )
+	return 0;
+    if ( logical_val > max )
+	return span;
+
+    uint range = max - min;
+    uint p = logical_val - min;
+
+    if ( range > (uint)INT_MAX/4096 ) {
+	const int scale = 4096*2;
+	return ( (p/scale) * span ) / (range/scale);
+	// ### the above line is probably not 100% correct
+	// ### but fixing it isn't worth the extreme pain...
+    } else if ( range > (uint)span ) {
+	return (2*p*span + range) / (2*range);
+    } else {
+	uint div = span / range;
+	uint mod = span % range;
+	return p*div + (2*p*mod + range) / (2*range);
+    }
+    //equiv. to (p*span)/range + 0.5
+    // no overflow because of this implicit assumption:
+    // span <= 4096
+}
+
+
+/*!
+    Converts the pixel position \a pos to a value. 0 maps to min, \a
+    span maps to max and other values are distributed evenly
+    in-between.
+
+    This function can handle the entire integer range without
+    overflow.
+
+    \sa positionFromValue()
+*/
+
+int QStyle::valueFromPosition( int min, int max, int pos, int span )
+{
+    if ( span <= 0 || pos <= 0 )
+	return min;
+    if ( pos >= span )
+	return max;
+
+    uint range = max - min;
+
+    if ( (uint)span > range )
+	return  min + (2*pos*range + span) / (2*span);
+    else {
+	uint div = range / span;
+	uint mod = range % span;
+	return  min + pos*div + (2*pos*mod + span) / (2*span);
+    }
+    // equiv. to min + (pos*range)/span + 0.5
+    // no overflow because of this implicit assumption:
+    // pos <= span < sqrt(INT_MAX+0.0625)+0.25 ~ sqrt(INT_MAX)
 }
 
 #endif // QT_NO_STYLE

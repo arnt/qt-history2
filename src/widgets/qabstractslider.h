@@ -76,8 +76,6 @@ public:
     int value() const;
 
     void triggerAction(SliderAction action);
-    int positionFromValue( int val, int space ) const;
-    int valueFromPosition( int pos, int space ) const;
 
 public slots:
     void setValue(int);

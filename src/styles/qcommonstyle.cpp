@@ -1953,7 +1953,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	} else
 	    sliderlen = maxlen;
 
-	int sliderstart = sbextent + scrollbar->positionFromValue(scrollbar->sliderPosition(), maxlen - sliderlen);
+	int sliderstart = sbextent + positionFromValue(scrollbar->minimum(), scrollbar->maximum(), scrollbar->sliderPosition(), maxlen - sliderlen);
 	switch (sc) {
 	case SC_ScrollBarSubLine:	    // top/left button
 	    if (scrollbar->orientation() == Qt::Horizontal) {

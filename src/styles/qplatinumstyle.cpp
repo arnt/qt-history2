@@ -1338,7 +1338,8 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	} else {
 	    sliderlen = maxlen;
 	}
-	int sliderstart = sb->positionFromValue(sb->sliderPosition(), maxlen - sliderlen);
+	int sliderstart = positionFromValue(sb->minimum(), sb->maximum(),
+					    sb->sliderPosition(), maxlen - sliderlen);
 
 	switch ( sc ) {
 	case SC_ScrollBarSubLine:

@@ -455,7 +455,7 @@ int QScrollBarPrivate::pixelPosToRangeValue(int pos) const
 	sliderMax = gr.bottom() - sliderLength + 1;
     }
 
-    return  q->valueFromPosition(pos - sliderMin, sliderMax - sliderMin);
+    return  QStyle::valueFromPosition(d->minimum, d->maximum, pos - sliderMin, sliderMax - sliderMin);
 }
 
 
