@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#62 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#61 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#62 $";
 #endif
 
 
@@ -52,6 +52,12 @@ const ulong stdWidgetEventMask =		// X event mask
 	ExposureMask |
 	StructureNotifyMask | SubstructureRedirectMask;
 
+
+/*!
+\internal
+Creates the widget window.
+Usually called from the QWidget constructor.
+*/
 
 bool QWidget::create()				// create widget
 {
@@ -174,6 +180,12 @@ bool QWidget::create()				// create widget
 }
 
 
+/*!
+\internal
+Destroys the widget window and frees up window system resources.
+Usually called from the QWidget destructor.
+*/
+
 bool QWidget::destroy()				// destroy widget
 {
     if ( qApp->focus_widget == this )
@@ -206,14 +218,16 @@ bool QWidget::destroy()				// destroy widget
 }
 
 
-/*! This function is provided in case a widget should feel \e really
-  bad, regret that it was even born.
+/*!
+This function is provided in case a widget should feel \e really
+bad, regret that it was even born.
 
-  It gives the widget a fresh start, new \e parent, new widget flags
-  (\e f but as usual, use 0) at a new position in its new parent (\e p).
+It gives the widget a fresh start, new \e parent, new widget flags
+(\e f but as usual, use 0) at a new position in its new parent (\e p).
 
-  If \e showIt is TRUE, show() is called once the widget has been
-  recreated. */
+If \e showIt is TRUE, show() is called once the widget has been
+recreated.
+*/
 
 void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
@@ -281,32 +295,51 @@ bool QWidget::setMouseTracking( bool enable )
     return v;
 }
 
-/*! Returns the backround color of this widget.  The background color
-  is independent of the color group.  \sa colorGroup(), QColor,
-  setBackgroundColor() and foregroundColor(). */
+/*!
+Returns the background color of this widget.
+
+The background color is independent of the color group.
+The background color will be overwritten when setting a new palette.
+\sa setBackgroundColor(). */
 
 QColor QWidget::backgroundColor() const		// get background color
 {
     return bg_col;
 }
 
-/*! Returns the foreground color of this widget.  The foreground color
-  depends on the color group of the widget.  \sa colorGroup(), QColor
-  and backgroundColor(). */
+/*!
+Returns the foreground color of this widget.
+
+The foreground color equals <code>colorGroup().foreground()</code>.
+
+\sa backgroundColor() and colorGroup().
+*/
+
 QColor QWidget::foregroundColor() const		// get foreground color
 {
     return colorGroup().foreground();
 }
 
-/*! Sets the background color of this widget.  The background color is
-  independent of the widget's color group.  \sa QColor and
-  backgroundColor(). */
+/*!
+Sets the background color of this widget.
+
+The background color is independent of the widget color group.<br>
+Notice that the background color will be overwritten when setting
+a new palette.
+\sa backgroundColor() and setPalette(). */
+
 void QWidget::setBackgroundColor( const QColor &c )
 {						// set background color
     bg_col = c;
     XSetWindowBackground( dpy, ident, bg_col.pixel() );
     update();
 }
+
+/*!
+Sets the background pixmap of the widget to \e pm.
+
+The background pixmap is tiled.
+*/
 
 void QWidget::setBackgroundPixmap( const QPixmap &pm )
 {
@@ -318,35 +351,34 @@ void QWidget::setBackgroundPixmap( const QPixmap &pm )
 }
 
 
-/*! Returns the font the widget is currently using (wanting to use,
-  rather, QFontInfo will tell you what's actually on the screen).
+/*!
+Returns the font currently set for the widget.
 
-  \sa QFont, setFont(), fontMetrics() and fontInfo(). */
+QFontInfo will tell you what font is actually being used.
+
+\sa setFont(), fontMetrics() and fontInfo().
+*/
 
 QFont &QWidget::font()
 {
     return fnt;
 }
 
-/*! Sets the font of the widget.  You may not get the exact font you
-  specify; use fontInfo() to see what you got, if you can do anything
-  about it.  This code fragment switches to a bold version of whatever
-  font is being used:
+/*!
+Sets the font of the widget.
 
-  \code
+The fontInfo() function reports the actual font that is being used by the
+widget.
+
+This code fragment switches to a bold version of whatever font is being used:
+\code
   QFont f = font();
   f.setWeight( QFont::Bold );
-  setFont(f);
-  \endcode
+  setFont( f );
+\endcode
 
-  Here's how to copy the font from the parent widget:
-
-  \code
-  if (parentWidget)
-      setFont( parentWidget->font() );
-  \endcode
-
-  \sa font() and fontInfo(). */
+\sa font() and fontInfo().
+*/
 
 void QWidget::setFont( const QFont &font )	// set font
 {
@@ -355,23 +387,31 @@ void QWidget::setFont( const QFont &font )	// set font
 }
 
 
-/*! Returns the cursor in use; the QCursor class lists the
-  cursors. \sa QCursor and setCursor().*/
-QCursor QWidget::cursor() const			// get cursor
+/*!
+Returns the widget cursor shape.
+\sa setCursor().
+*/
+
+QCursor QWidget::cursor() const
 {
     return curs;
 }
 
-/*! Sets the cursor shape.  The mouse cursor will assume this shape
-  when it's over this widget.  The available shapes are listed in the
-  QCursor documentation.
+/*!
+Sets the widget cursor shape.
 
-  \code
-  setCursor( QCursor::hourGlassCursor );
-  \endcode
+The mouse cursor will assume this shape when it's over this widget.
+The available shapes are listed in the QCursor documentation.
 
-  \sa QCursor, cursor().  */
-void QWidget::setCursor( const QCursor &cursor )// set cursor
+An editor widget would for example use an I-beam cursor:
+\code
+  setCursor( ibeamCursor );
+\endcode
+
+\sa cursor().
+*/
+
+void QWidget::setCursor( const QCursor &cursor )
 {
     curs = cursor;
     QCursor *appc = QApplication::cursor();
@@ -381,9 +421,12 @@ void QWidget::setCursor( const QCursor &cursor )// set cursor
 }
 
 
-/*! Grabs the mouse.  The focus will remain in the widget, even if the
-  mouse is moved outside the widget's limits. \sa releaseMouse(),
-  grabKeyboard(), releaseKeyboard(). */
+/*!
+Grabs the mouse input.
+
+The widget will continue to get mouse events until releaseMouse() is called.
+\sa releaseMouse().
+*/
 
 void QWidget::grabMouse()
 {
@@ -397,11 +440,14 @@ void QWidget::grabMouse()
     }
 }
 
-/*! Grabs the mouse and change the cursor appearance.  The cursor will
-  assume shape \e cursor (for as long as the mouse focus is grabbed)
-  and the focus will remain in the widget, even if the mouse is moved
-  outside the widget's limits. \sa releaseMouse(), grabKeyboard(),
-  releaseKeyboard(), setCursor(), QCursor. */
+/*!
+Grabs the mouse intput and change the cursor shape.
+
+The cursor will assume shape \e cursor (for as long as the mouse focus is
+grabbed) and the widget will continue getting mouse events until
+releaseMouse() is called().
+
+\sa releaseMouse(), setCursor(). */
 
 void QWidget::grabMouse( const QCursor &cursor )
 {
@@ -415,9 +461,11 @@ void QWidget::grabMouse( const QCursor &cursor )
     }
 }
 
-/*! Releases the mouse.  The focus will leave the widget when the mouse
-  moves beyond the widget's limits.  \sa grabMouse(), grabKeyboard(),
-  releaseMouse(). */
+/*!
+Releases the mouse from a grab.
+
+\sa grabMouse().
+*/
 
 void QWidget::releaseMouse()
 {
@@ -427,9 +475,13 @@ void QWidget::releaseMouse()
     }
 }
 
-/*! Grabs the keyboard focus.  This widget will receive all keyboard
-  events, no matter where the mouse cursor is.  \sa releaseKeyboard(),
-  grabMouse(), releaseMouse(). */
+/*!
+Grabs the keyboard input focus.
+
+This widget will receive all keyboard
+events, no matter where the mouse cursor is.  \sa releaseKeyboard(),
+grabMouse(), releaseMouse().
+*/
 
 void QWidget::grabKeyboard()
 {
@@ -440,9 +492,10 @@ void QWidget::grabKeyboard()
     }
 }
 
-/*! Releases the keyboard focus.  The keyboard events will follow their
-  natural inclination (generally towards the widget the mouse is
-  pointing at). \sa grabKeyboard(), grabMouse(), releaseMouse(). */
+/*!
+Releases the keyboard focus.  The keyboard events will follow their
+natural inclination (generally towards the widget the mouse is
+pointing at). \sa grabKeyboard(), grabMouse(), releaseMouse(). */
 
 void QWidget::releaseKeyboard()
 {
@@ -453,12 +506,15 @@ void QWidget::releaseKeyboard()
 }
 
 
-/*! Does nothing at all, right now. \sa getFocus(), grabKeyboard(),
-  releaseKeyboard(). */
+/*!
+Gives this widget the keyboard input focus.
+*/
 
 void QWidget::setFocus()			// set keyboard input focus
 {
     if ( this == qApp->focus_widget )		// has already focus
+	return;
+    if ( !acceptFocus() )			// cannot take focus
 	return;
     QWidget *oldFocus = qApp->focus_widget;
     if ( oldFocus ) {				// goodbye to old focus widget
@@ -488,26 +544,39 @@ void QWidget::setFocus()			// set keyboard input focus
     QApplication::sendEvent( this, &in );
 }
 
+/*!
+\internal Handles TAB.
+*/
+
 bool QWidget::focusNextChild()
 {
-    debug( "focusNextChild" );
     QWidget *p = parentWidget();
-    if ( p ) {
-	QObjectList *c = (QObjectList *)p->children();
-	if ( c->findRef(this) >= 0 ) {
-	    c->next();
-	    if ( c->current()->isWidgetType() ) {
-		QWidget *w = (QWidget*)c->current();
+    if ( !p )
+	return FALSE;
+    QObjectList *c = (QObjectList *)p->children();
+    if ( c->findRef(this) < 0 )			// why, not found?
+	return FALSE;
+    while ( TRUE ) {
+	c->next();
+	if ( !c->current() )
+	    c->first();
+	if ( c->current()->isWidgetType() ) {
+	    QWidget *w = (QWidget*)c->current();
+	    if ( w->acceptFocus() ) {
 		w->setFocus();
+		return TRUE;
 	    }
 	}
     }
     return TRUE;
 }
 
+/*!
+\internal Handles Shift+TAB.
+*/
+
 bool QWidget::focusPrevChild()
 {
-    debug( "focusPrevChild" );
     return TRUE;
 }
 
@@ -537,7 +606,11 @@ void QWidget::update()				// update widget
 	XClearArea( dpy, ident, 0, 0, 0, 0, TRUE );
 }
 
-/*! Updates part of the widget.  */
+/*!
+Updates a rectangle (\e x, \e y, \e w, \e h) inside the widget.
+
+Calling update() will generate a paint event from the X server.
+*/
 
 void QWidget::update( int x, int y, int w, int h )
 {						// update part of widget
@@ -545,7 +618,12 @@ void QWidget::update( int x, int y, int w, int h )
 	XClearArea( dpy, ident, x, y, w, h, TRUE );
 }
 
-/*! Not documented yet */
+/*!
+Repaints the widget directly.
+
+Doing a repaint() is faster than doing an update(), but since repaint()
+does not make a server trip, some update 
+*/
 
 void QWidget::repaint( const QRect &r, bool eraseArea )
 {
