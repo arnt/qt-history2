@@ -5,6 +5,7 @@
 #include <qdatetime.h>
 #include <qfontmetrics.h>
 #include <qpixmap.h>
+#include <qfontdatabase.h>
 
 QString str1 = "&String &with &underline";
 QString str2 = "a\tb\tc\td\te";
@@ -178,119 +179,129 @@ public:
 };
 
 
-QString latinString =
-"KDE is a powerful Open Source graphical desktop environment for Unix workstations. It combines ease of use, contemporary functionality, and out";
-;
+static const int nSamples = 4;
 
-QString i18nString = QString::fromUtf8(
-"ทำไมเขาถึงไม่พูด "
-"ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ "
-"أوروبا, برمجيات الحاسوب "
-"תוכנה והאינטרנט "
-"रूस के राष्ट्रपति "
-"অাবার অাসিব ফিরে "
-"रूस के राष्ट्रपति "
-"לְמָה לָא יאםרוּן" );
+struct {
+    QString lang;
+    QString text;
+} samples[nSamples] = {
+    { "Latin",
+      QString::fromUtf8(
+	  "KDE is a powerful Open Source graphical desktop environment for Unix workstations. It combines ease of use, contemporary functionality, and out")
+    },
+    { "Hebrew",
+      QString::fromUtf8(
+	  "אירופה, תוכנה והאינטרנט: יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־.")
+    },
+    { "Arabic",
+      QString::fromUtf8(
+	  "أوروبا, برمجيات الحاسوب + انترنيت : تصبح عالميا مع يونيكود تسجّل الآن لحضور المؤتمر الدولي العاشر ليونيكود, الذي سيعقد في 10-12 آذار 1997 بمدينة ماينتس, ألمانيا. وسيجمع المؤتمر بين خبراء من ")
+    },
+    { "Devanagari",
+      QString::fromUtf8(
+	  "            यूनिकोड प्रत्येक अक्षर के लिए एक विशेष नम्बर             प्रदान करता है,             चाहे कोई भी प्लैटफॉर्म हो.")
+    }
+};
 
-const int loops = 2000;
+
+const int loops = 1000;
+
+#define TEST( desc, loops, testfunc ) { \
+    QString res = "    "; res += desc; \
+    for ( int test = 0; test < nSamples; test++ ) { \
+	QString str = samples[test].text; \
+	QString subres; \
+	fm.width( str ); \
+	t.start(); \
+        for( int i = loops; i > 0; --i ) \
+            testfunc \
+        subres.sprintf("\t%02.2f", ((float)t.elapsed())/loops/str.length()*1000 ); \
+        res += subres; \
+    } \
+    qDebug("%s", res.latin1() ); \
+}
 
 static void timeSpeed()
 {
-    QFont fnt;
+#if QT_VERSION < 0x030200
+    QFont fnt("Tahoma");
+#else
+    QFont fnt("Tahoma,Mangal");
+#endif
     QFontMetrics fm( fnt );
 
     QPixmap pm( 500,  500 );
     QPainter p( &pm );
+    p.setFont( fnt );
 
     QTime t;
 
-    qDebug("\n\ntesting speed of drawing for %s", QT_VERSION_STR );
+    qDebug("text drawing speed for %s", QT_VERSION_STR );
 
-    qDebug("------------------------------------------------------------------\n" );
+    qDebug("----------------------------------------------------------------------\n" );
 
 //     qDebug("string lengths are: latin=%d i18n=%d", latinString.length(), i18nString.length() );
 
-    for ( int test = 0; test < 2; test++ ) {
-	QString str;
-	if ( test == 0 ) {
-	    qDebug("\nTesting for Latin text:\n");
-	    str = latinString;
-	} else {
-	    qDebug("\nTesting for i18n text:\n");
-	    str = i18nString;
-	}
-// 	qDebug("string = '%s'",  str.utf8().data() );
-	fm.width( str );
-
-#if 1
-	qDebug("    Font Metrics:");
-	t.start();
-	int w = 0;
-	const QChar *qch = str.unicode();
-	for ( int i = 0; i < loops; i++ ) {
-	    const QChar *ch = qch + str.length();
-	    while ( ch-- > qch )
-		fm.width( *qch );
-	}
-	qDebug("        width, QChar\t\t\t%02.2f us/char",
-	       ((float)t.elapsed())/loops/str.length()*1000 );
-
-#if QT_VERSION >= 300
-	t.start();
-	for ( int i = 0; i < loops; i++ ) {
-	    const QChar *ch = qch + str.length();
-	    while ( ch-- > qch )
-		w += fm.charWidth( str, ch-qch );
-	}
-	qDebug("        charWidth\t\t\t%02.2f us/char",
-	       ((float)t.elapsed())/loops/str.length()*1000 );
-// 	qDebug("w = %d", w );
-#endif
-
-	t.start();
-	int w2 = 0;
-	for ( int i = 0; i < loops; i++ )
-	    w2 += fm.width( str );
-	qDebug("        width, QString\t\t\t%02.2f us/char",
-	       ((float)t.elapsed())/loops/str.length()*1000 );
-// 	qDebug("w2 = %d", w2 );
-#if QT_VERSION >= 300
-	Q_ASSERT( w2 == w );
-#endif
-
-	t.start();
-	for ( int i = 0; i < loops; i++ )
-	    fm.boundingRect( 0, 0, 500, 500, Qt::SingleLine, str );
-	qDebug("        boundingRect, Qt::SingleLine\t%02.2f us/char",
-	       ((float)t.elapsed())/loops/str.length()*1000 );
-
-	t.start();
-	for ( int i = 0; i < loops; i++ )
-	    fm.boundingRect( 0, 0, 500, 500, Qt::WordBreak, str );
-	qDebug("        boundingRect, Qt::WordBreak\t%02.2f us/char",
-	       ((float)t.elapsed())/loops/str.length()*1000 );
-#endif
-
-	qDebug("    QPainter drawText:");
-	t.start();
-	for ( int i = 0; i < loops; i++ )
-	    p.drawText( 0, 100, str );
-	qDebug("        simple\t\t\t\t%02.2f us/char",
-	       ((float)t.elapsed())/loops/str.length()*1000 );
-
-#if 1
-	t.start();
-	for ( int i = 0; i < loops; i++ )
-	    p.drawText( 0, 0, 500, 500, Qt::SingleLine, str );
-	qDebug("        Qt::SingleLine\t\t\t%02.2f us/char",
-	       ((float)t.elapsed())/loops/str.length()*1000 );
-	t.start();
-	for ( int i = 0; i < loops; i++ )
-	    p.drawText( 0, 0, 500, 500, Qt::WordBreak, str );
-	qDebug("        Qt::WordBreak\t\t\t%02.2f us/char",
-	       ((float)t.elapsed())/loops/str.length()*1000 );
-#endif
+    QString langs = "\t\t\t\t\t";
+    for ( int i = 0; i < nSamples; ++i ) {
+	langs += samples[i].lang;
+	langs += "\t";
     }
+    qDebug("%s", langs.latin1() );
+
+    qDebug("Font Metrics:");
+    TEST( "width, QChar\t\t", loops, {
+	const QChar *qch = str.unicode();
+	const QChar *ch = qch + str.length();
+	while ( ch-- > qch )
+	    fm.width( *qch );
+    } );
+
+#if QT_VERSION >= 300
+    TEST( "charWidth\t\t\t", loops, {
+	const QChar *qch = str.unicode();
+	const QChar *ch = qch + str.length();
+	while ( ch-- > qch )
+	    fm.charWidth( str, ch-qch );
+    } );
+#endif
+
+
+    TEST( "width, QString\t\t", loops, {
+	fm.width( str );
+    } );
+
+    TEST( "width, QString (one char)\t", loops, {
+	QString tmp;
+	tmp.setLength( 1 );
+	for ( int i = 0; i < str.length(); ++i ) {
+	    *((QChar *)(tmp.unicode())) = str.unicode()[i];
+	    fm.width( tmp, 1 );
+	}
+    } );
+
+    TEST( "boundingRect, Qt::SingleLine", loops, {
+	fm.boundingRect( 0, 0, 500, 500, Qt::SingleLine, str );
+    } );
+
+    TEST( "boundingRect, Qt::WordBreak\t", loops, {
+	fm.boundingRect( 0, 0, 500, 500, Qt::WordBreak, str );
+    } );
+
+    qDebug("QPainter drawText:");
+
+    TEST( "simple\t\t\t", loops, {
+	p.drawText( 0, 100, str );
+    } );
+
+
+    TEST( "Qt::SingleLine\t\t", loops, {
+	    p.drawText( 0, 0, 500, 500, Qt::SingleLine, str );
+    } );
+
+    TEST( "Qt::WordBreak\t\t", loops, {
+	p.drawText( 0, 0, 500, 500, Qt::WordBreak, str );
+    } );
 }
 
 
@@ -300,6 +311,9 @@ int main( int argc, char** argv )
     QApplication app( argc, argv );
     app.connect( &app, SIGNAL(lastWindowClosed()), SLOT(quit()) );
 
+    // trigger full db load
+    QFontDatabase fdb;
+    fdb.families();
 
     int mode = 0;
     if ( argc == 2 ) {
