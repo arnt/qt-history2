@@ -34,7 +34,7 @@ void HelpView::setSource( const QString &name )
 							"%1" ).arg( name ) );
 	return;
     }
-
+    
     emit newSource( name );
     QTextBrowser::setSource( name );
     if ( !caption().isEmpty() && !hist.contains( u.fileName() ) )

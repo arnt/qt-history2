@@ -178,11 +178,11 @@ HelpMainWindow::HelpMainWindow()
     view->insertItem( tr( "&Search" ), this, SLOT( slotViewSearch() ), ALT + Key_S );
     view->insertItem( tr( "&Bookmarks" ), this, SLOT( slotViewBookmarks() ), ALT + Key_B );
 
-    QPopupMenu *go = new QPopupMenu( this );
+    go = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&Go" ), go );
 
-    go->insertItem( tr( "&Back" ), this, SLOT( slotGoBack() ), CTRL + Key_Left );
-    go->insertItem( tr( "&Forward" ), this, SLOT( slotGoForward() ), CTRL + Key_Right );
+    backward_id = go->insertItem( tr( "&Back" ), this, SLOT( slotGoBack() ), CTRL + Key_Left );
+    forward_id = go->insertItem( tr( "&Forward" ), this, SLOT( slotGoForward() ), CTRL + Key_Right );
     go->insertItem( tr( "&Home" ), this, SLOT( slotGoHome() ), CTRL + Key_Home );
     go->insertSeparator();
     history = new QPopupMenu( this );
@@ -197,12 +197,12 @@ HelpMainWindow::HelpMainWindow()
 
     QToolBar *tb = new QToolBar( this );
 
-    QToolButton *b = new QToolButton( QPixmap( pix_back ), tr( "Back" ), "", this,
-				      SLOT( slotGoBack() ), tb );
-    b = new QToolButton( QPixmap( pix_forward ), tr( "Forward" ), "", this,
-			 SLOT( slotGoForward() ), tb );
-    b = new QToolButton( QPixmap( pix_home ), tr( "Home" ), "", this,
-			 SLOT( slotGoHome() ), tb );
+    backward = new QToolButton( QPixmap( pix_back ), tr( "Back" ), "", this,
+				SLOT( slotGoBack() ), tb );
+    forward = new QToolButton( QPixmap( pix_forward ), tr( "Forward" ), "", this,
+			       SLOT( slotGoForward() ), tb );
+    QToolButton *b = new QToolButton( QPixmap( pix_home ), tr( "Home" ), "", this,
+				      SLOT( slotGoHome() ), tb );
     tb->addSeparator();
     b = new QToolButton( QPixmap( pix_print ), tr( "Print" ), "", this,
 			 SLOT( slotFilePrint() ), tb );
@@ -237,6 +237,10 @@ HelpMainWindow::HelpMainWindow()
 	     this, SLOT( incProcess() ) );
     connect( navigation, SIGNAL( finishProgress() ),
 	     this, SLOT( finishProgress() ) );
+    connect( viewer, SIGNAL( forwardAvailable( bool ) ),
+	     this, SLOT( forwardAvailable( bool ) ) );
+    connect( viewer, SIGNAL( backwardAvailable( bool ) ),
+	     this, SLOT( backwardAvailable( bool ) ) );
 }
 
 void HelpMainWindow::slotFilePrint()
@@ -443,3 +447,14 @@ void HelpMainWindow::finishProgress()
     label->hide();
 }
 
+void HelpMainWindow::forwardAvailable( bool b )
+{
+    forward->setEnabled( b );
+    go->setItemEnabled( forward_id, b );
+}
+
+void HelpMainWindow::backwardAvailable( bool b )
+{
+    backward->setEnabled( b );
+    go->setItemEnabled( backward_id, b );
+}

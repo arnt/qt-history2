@@ -191,9 +191,17 @@ void QTextBrowser::setSource(const QString& name)
 	d->home = url;
 
     if ( d->stack.isEmpty() || d->stack.top() != url) {
-	emit backwardAvailable( !d->stack.isEmpty() );
 	d->stack.push( url );
     }
+
+    int stackCount = d->stack.count();
+    if ( d->stack.top() == url )
+	stackCount--;
+    emit backwardAvailable( stackCount > 0 );
+    stackCount = d->forwardStack.count();
+    if ( d->forwardStack.top() == url )
+	stackCount--;
+    emit forwardAvailable( stackCount > 0 );
 
     if ( !mark.isEmpty() )
 	scrollToAnchor( mark );

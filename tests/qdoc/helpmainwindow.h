@@ -9,6 +9,7 @@ class QPopupMenu;
 class QShowEvent;
 class QProgressBar;
 class QLabel;
+class QToolButton;
 
 class HelpMainWindow : public QMainWindow
 {
@@ -53,6 +54,9 @@ private slots:
     void preparePorgress( int );
     void incProcess();
     void finishProgress();
+
+    void forwardAvailable( bool );
+    void backwardAvailable( bool );
     
 private:
     QPopupMenu *history;
@@ -60,7 +64,10 @@ private:
     bool indexCreated;
     QProgressBar *bar;
     QLabel *label;
-
+    QToolButton *forward, *backward;
+    int forward_id, backward_id;
+    QPopupMenu *go;
+    
 };
 
 #endif
