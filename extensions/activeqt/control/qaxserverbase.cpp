@@ -3702,7 +3702,13 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::Show:
+	if (m_hWnd && o == qt.widget)
+	    ShowWindow(m_hWnd, SW_SHOW);
 	updateMask();
+	break;
+    case QEvent::Hide:
+	if (m_hWnd && o == qt.widget)
+	    ShowWindow(m_hWnd, SW_HIDE);
 	break;
     case QEvent::Resize:
 	updateMask();
