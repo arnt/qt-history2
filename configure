@@ -775,8 +775,12 @@ then
 fi
 
 # Auto-detect opengl support
-if echo $MODULES | grep opengl >/dev/null && ! basename $XQMAKEPATH | grep '^mac' >/dev/null
+if echo $MODULES | grep opengl >/dev/null
 then
+if basename $XQMAKEPATH | grep '^mac' >/dev/null
+then
+	echo "foo" > /dev/null
+else
     LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XQMAKEPATH/qmake.conf`
     for L in $LIBS
     do
@@ -796,6 +800,7 @@ then
 	    break
 	fi
     done
+fi
 fi
 
 # Auto-detect XRender support
@@ -1485,7 +1490,7 @@ done
 INCREMENTAL=""
 [ "$DO_INCREMENT" = "auto" ] && which p4 >/dev/null 2>&1 && [ "$Edition" = "troll" ] && DO_INCREMENT="yes"
 if [ "$DO_INCREMENT" = "yes" ]; then
-    openfiles=`find $relpath -perm +200 -mtime -3 | grep 'cpp$'`
+    openfiles=`find $relpath -perm u+w -mtime -3 | grep 'cpp$'`
     for f in $openfiles; do
 	#don't need to worry about generated files
 	[ -e `echo $f | sed "s,cpp$,ui,"` ] && continue
@@ -1493,8 +1498,8 @@ if [ "$DO_INCREMENT" = "yes" ]; then
 	#done
 	INCREMENTAL="$INCREMENTAL `basename $f | sed 's,.cpp,.o,'`"
     done
-    [ ! -z "$INCREMENTAL" ] && echo "QMAKE_INCREMENTAL += $INCREMENTAL" >>$CACHEFILE
-    [ -e "$outpath/.qmake.incremental" ] && echo "include($outpath/.qmake.incremental)" >> $CACHEFILE
+    [ '!' -z "$INCREMENTAL" ] && echo "QMAKE_INCREMENTAL += $INCREMENTAL" >>$CACHEFILE
+    [ -r "$outpath/.qmake.incremental" ] && echo "include($outpath/.qmake.incremental)" >> $CACHEFILE
 fi
 
 ##
