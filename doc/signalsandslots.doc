@@ -47,7 +47,7 @@ an event driven program to another has broader uses. For example if we
 were parsing an XML file we might want to notify a list view that we're
 using to represent the XML file's structure whenever we encounter a new
 tag. In traditional programming this kind of notification has been
-achieve by using callbacks. A callback is a pointer to a function, so
+achieved by using callbacks. A callback is a pointer to a function, so
 if you want a processing function to notify you about some event you
 pass a pointer to another function (the callback) to the processing
 function. The processing function then calls the callback when
