@@ -951,7 +951,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     }
 
     switch (e->key()) {
-        // keys to ignore
+    // keys to ignore
     case Qt::Key_Down:
     case Qt::Key_Up:
     case Qt::Key_Left:
@@ -994,6 +994,8 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         }
         break;
     }
+
+    e->ignore();
 }
 
 /*!
