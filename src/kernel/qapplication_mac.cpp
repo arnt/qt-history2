@@ -77,7 +77,7 @@
 /*****************************************************************************
   QApplication debug facilities
  *****************************************************************************/
-//#define DEBUG_KEY_MAPS
+#define DEBUG_KEY_MAPS
 //#define DEBUG_MOUSE_MAPS
 
 #define QMAC_SPEAK_TO_ME
@@ -1372,6 +1372,7 @@ static key_sym modifier_syms[] = {
 { cmdKey, MAP_KEY(Qt::ControlButton) },
 { optionKey, MAP_KEY(Qt::AltButton) },
 { rightOptionKey, MAP_KEY(Qt::AltButton) },
+{ kEventKeyModifierNumLockMask, MAP_KEY(Qt::Keypad) },
 {   0, MAP_KEY(0) } };
 static int get_modifiers(int key)
 {
@@ -2248,6 +2249,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		{ optionKeyBit, MAP_KEY(Qt::Key_Super_L) },
 		{ rightOptionKeyBit, MAP_KEY(Qt::Key_Super_R) },
 		{ alphaLockBit, MAP_KEY(Qt::Key_CapsLock) },
+		{ kEventKeyModifierNumLockMask, MAP_KEY(Qt::Key_NumLock) },
 		{   0, MAP_KEY(0) } };
 	    for(int i = cmdKeyBit; i <= rightControlKeyBit; i++) {
 		if(!(changed_modifiers & (1 << i)))
