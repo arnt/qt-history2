@@ -574,9 +574,10 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
 
 /*! \enum Qt::Modifier
 
-  This enum type lists all the keys known by Qt.
-  The currently defined values are:<ul>
-
+  This enum type lists all the keys known by Qt.  The currently
+  defined values are listed in qnamespace.h; they are not individually
+  defined and documented at present.
+*/
 
 
 /*!
