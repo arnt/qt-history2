@@ -18,6 +18,7 @@ $includedir = $basedir . "/include";
 $privatedir = $basedir . "/include/private";
 
 $showonly = undef;
+$showonlypriv = undef;
 
 while ( $#ARGV >= 0 ) {
     if ( $ARGV[0] eq "-fast" ) {
@@ -32,6 +33,8 @@ while ( $#ARGV >= 0 ) {
 	}
     } elsif ( $ARGV[0] eq "-show" ) {
 	$showonly++;
+    } elsif ( $ARGV[0] eq "-showpriv" ) {
+	$showonlypriv++;
     }
     shift;
 }
@@ -62,11 +65,12 @@ foreach $p ( @dirs ) {
 }
 
 if ( $showonly ) {
-    print "\nPublic...\n";
     foreach ( @files ) {
 	print "$_\n";
     }
-    print "\nPrivate...\n";
+    exit( 0 );
+}
+if ( $showonlypriv ) {
     foreach ( @pfiles ) {
 	print "$_\n";
     }
