@@ -3960,25 +3960,31 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
     right = QMAX( oldSelection ? oldSelection->rightCol() : newSelection->rightCol(), newSelection->rightCol() );
 
     if ( updateHorizontal ) {
+	register int *s = &topHeader->states.data()[left];
 	for ( i = left; i <= right; ++i ) {
 	    if ( !isColumnSelected( i ) )
-		topHeader->setSectionState( i, QTableHeader::Normal );
+		*s = QTableHeader::Normal;
 	    else if ( isColumnSelected( i, TRUE ) )
-		topHeader->setSectionState( i, QTableHeader::Selected );
+		*s = QTableHeader::Selected;
 	    else
-		topHeader->setSectionState( i, QTableHeader::Bold );
+		*s = QTableHeader::Bold;
+	    ++s;
 	}
+	topHeader->repaint( FALSE );
     }
 
     if ( updateVertical ) {
+	register int *s = &leftHeader->states.data()[top];
 	for ( i = top; i <= bottom; ++i ) {
 	    if ( !isRowSelected( i ) )
-		leftHeader->setSectionState( i, QTableHeader::Normal );
+		*s = QTableHeader::Normal;
 	    else if ( isRowSelected( i, TRUE ) )
-		leftHeader->setSectionState( i, QTableHeader::Selected );
+		*s = QTableHeader::Selected;
 	    else
-		leftHeader->setSectionState( i, QTableHeader::Bold );
+		*s = QTableHeader::Bold;
+	    ++s;
 	}
+	leftHeader->repaint( FALSE );
     }
 }
 
@@ -5181,12 +5187,15 @@ void QTableHeader::updateSelections()
     int b = sectionAt( endPos );
     int start = QMIN( a, b );
     int end = QMAX( a, b );
+    register int *s = states.data();
     for ( int i = 0; i < count(); ++i ) {
 	if ( i < start || i > end )
-	    setSectionState( i, (QTableHeader::SectionState)oldStates[ i ] );
+	    *s = oldStates.data()[ i ];
 	else
-	    setSectionState( i, Selected );
+	    *s = Selected;
+	++s;
     }
+    repaint( FALSE );
 
     QTableSelection oldSelection = *table->currentSel;
     if ( orientation() == Vertical )
@@ -5201,8 +5210,13 @@ void QTableHeader::updateSelections()
 void QTableHeader::saveStates()
 {
     oldStates.resize( count() );
-    for ( int i = 0; i < count(); ++i )
-	oldStates[ i ] = sectionState( i );
+    register int *s = states.data();
+    register int *s2 = oldStates.data();
+    for ( int i = 0; i < count(); ++i ) {
+	*s2 = *s;
+	++s2;
+	++s;
+    }
 }
 
 void QTableHeader::doAutoScroll()
