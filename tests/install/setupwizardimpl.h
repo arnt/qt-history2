@@ -83,6 +83,7 @@ private:
     void logFiles( const QString& entry, bool close = false );
     void logOutput( const QString& entry, bool close = false );
 
+    void setInstallStep( int step );
     QFile fileLog;
     QFile outputLog;
 public:

@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>457</width>
-            <height>327</height>
+            <width>536</width>
+            <height>324</height>
         </rect>
     </property>
     <property name="caption">
@@ -19,7 +19,7 @@
         <pixmap>image0</pixmap>
     </property>
     <property name="iconText">
-        <string>Setup</string>
+        <string>Qt Installation Wizard</string>
     </property>
     <property name="titleFont">
         <font>
@@ -86,6 +86,9 @@
                     <string></string>
                 </property>
                 <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
                     <property name="margin">
                         <number>0</number>
                     </property>
@@ -118,7 +121,7 @@
                         </property>
                     </widget>
                     <spacer row="0" column="0" rowspan="2" colspan="1">
-                        <property name="name" stdset="0">
+                        <property name="name">
                             <cstring>Spacer1_3</cstring>
                         </property>
                         <property name="orientation">
@@ -135,7 +138,7 @@
                         </property>
                     </spacer>
                     <spacer row="0" column="2" rowspan="2" colspan="1">
-                        <property name="name" stdset="0">
+                        <property name="name">
                             <cstring>Spacer3</cstring>
                         </property>
                         <property name="orientation">
@@ -199,6 +202,9 @@
                     <string>Installation options</string>
                 </property>
                 <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
                     <property name="margin">
                         <number>11</number>
                     </property>
@@ -288,6 +294,9 @@
                     <string>Integration options</string>
                 </property>
                 <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
                     <property name="margin">
                         <number>11</number>
                     </property>
@@ -313,7 +322,7 @@
                 </vbox>
             </widget>
             <spacer row="2" column="1">
-                <property name="name" stdset="0">
+                <property name="name">
                     <cstring>Spacer1</cstring>
                 </property>
                 <property name="orientation">
@@ -371,7 +380,7 @@
                 </property>
             </widget>
             <spacer row="1" column="1">
-                <property name="name" stdset="0">
+                <property name="name">
                     <cstring>Spacer2</cstring>
                 </property>
                 <property name="orientation">
@@ -558,16 +567,6 @@
                     </property>
                 </widget>
                 <widget class="QComboBox">
-                    <item>
-                        <property name="text">
-                            <string>Anyone who uses this computer (all users)</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property name="text">
-                            <string>Only for me</string>
-                        </property>
-                    </item>
                     <property name="name">
                         <cstring>folderGroups</cstring>
                     </property>
@@ -752,6 +751,9 @@
                     <string>Copying files</string>
                 </property>
                 <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
                     <property name="margin">
                         <number>11</number>
                     </property>
@@ -769,9 +771,12 @@
                             <bool>false</bool>
                         </property>
                     </widget>
-                    <widget class="QTextView">
+                    <widget class="QMultiLineEdit">
                         <property name="name">
                             <cstring>filesDisplay</cstring>
+                        </property>
+                        <property name="readOnly">
+                            <bool>true</bool>
                         </property>
                     </widget>
                 </vbox>
@@ -825,6 +830,9 @@
                     <string>Build output</string>
                 </property>
                 <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
                     <property name="margin">
                         <number>11</number>
                     </property>

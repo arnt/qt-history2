@@ -23,7 +23,7 @@
 //#define USE_ARCHIVES 1
 
 SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags f ) :
-    SetupWizard( pParent, pName, modal, f ),
+    SetupWizard( pParent, pName, modal, f | Qt::WStyle_Minimize ),
     filesCopied( false ),
     filesToCompile( 0 ),
     filesCompiled( 0 ),
@@ -137,7 +137,7 @@ void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
 
     outbuffer = QString( proc->readStdout() );
     
-    for( int i = 0; i < outbuffer.length(); i++ ) {
+    for( int i = 0; i < (int)outbuffer.length(); i++ ) {
 	QChar c = outbuffer[ i ];
 	switch( char( c ) ) {
 	case '\r':
@@ -169,7 +169,7 @@ void SetupWizardImpl::updateErrorDisplay( QProcess* proc )
 
     outbuffer = QString( proc->readStderr() );
     
-    for( int i = 0; i < outbuffer.length(); i++ ) {
+    for( int i = 0; i < (int)outbuffer.length(); i++ ) {
 	QChar c = outbuffer[ i ];
 	switch( char( c ) ) {
 	case '\r':
@@ -409,13 +409,21 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    licenseFile.readBlock( fileData.data(), fileData.size() );
 	    introText->setText( QString( fileData.data() ) );
 	}
+	setInstallStep( 1 );
     }
     else if( newPage == optionsPage ) {
 	if( !installPath->text().length() )
 	    installPath->setText( QString( "C:\\Qt\\" ) + DISTVER );
 	sysGroup->setButton( 0 );
+	setInstallStep( 2 );
     }
     else if( newPage == foldersPage ) {
+	QByteArray buffer( 256 );
+	unsigned long buffSize( buffer.size() );
+	GetUserNameA( buffer.data(), &buffSize );
+	folderGroups->insertItem( "Anyone who uses this computer (all users)" );
+        folderGroups->insertItem( QString( "Only for me (" ) + QString( buffer.data() ) + ")" );
+
 	ULARGE_INTEGER freeSpace = WinShell::dirFreeSpace( installPath->text() );
 	if( ( freeSpace.HighPart == 0 ) && ( freeSpace.LowPart < 250 * 1024 * 1024 ) ) {
 	    QMessageBox::warning( this, "Disk space", "There is not enough disk space available\non this drive." );
@@ -475,6 +483,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    folderGroups->setEnabled( true );
 	else
 	    folderGroups->setDisabled( true );
+	setInstallStep( 3 );
     }
     else if( newPage == configPage ) {
 	QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
@@ -576,6 +585,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    }
 	    --sqlsrcDirIterator;
 	}
+	setInstallStep( 4 );
     }
     else if( newPage == progressPage ) {
 	int totalSize( 0 );
@@ -583,6 +593,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	totalRead = 0;
 	bool copySuccessful( true );
 
+	setInstallStep( 5 );
 	if( !filesCopied ) {
 #if defined (USE_ARCHIVES)
 	    fi.setFile( "qt.arq" );
@@ -647,7 +658,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		    inFile.close();
 		}
 	    }
-	
 #endif
 	    createDir( installPath->text() + "\\plugins\\designer" );
 	    filesCopied = copySuccessful;
@@ -755,6 +765,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    doFinalIntegration();
 	    showPage( finishPage );
 	}
+	setInstallStep( 6 );
     }
     else if( newPage == finishPage ) {
 	QString finishMsg;
@@ -770,6 +781,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    finishMsg += QString( "To build Qt, please double-click to \"Build Qt " ) + QString( DISTVER ) + "\" icon which has been installed into your Start-Menu.";
 	}
 	finishText->setText( finishMsg );
+	setInstallStep( 7 );
     }
 }
 
@@ -1004,3 +1016,8 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
     return true;
 }
 #endif
+
+void SetupWizardImpl::setInstallStep( int step )
+{
+    setCaption( QString( "Qt Installation Wizard - Step %1 of 7" ).arg( step ) );
+}
