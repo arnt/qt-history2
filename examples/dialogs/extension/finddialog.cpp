@@ -47,7 +47,6 @@ FindDialog::FindDialog(QWidget *parent)
     leftLayout->addWidget(caseCheckBox);
     leftLayout->addWidget(fromStartCheckBox);
     leftLayout->addStretch(1);
-    leftLayout->addWidget(extension);
 
     QVBoxLayout *rightLayout = new QVBoxLayout;
     rightLayout->addWidget(findButton);
