@@ -59,59 +59,62 @@
 #include <stdlib.h>
 
 /*!
-  \class QMovie qmovie.h
-  \brief The QMovie class provides incremental loading of animations or images, signalling as it progresses.
+    \class QMovie qmovie.h
+    \brief The QMovie class provides incremental loading of animations or images, signalling as it progresses.
 
-  \ingroup images
-  \ingroup graphics
-  \ingroup multimedia
-  \mainclass
+    \ingroup images
+    \ingroup graphics
+    \ingroup multimedia
+    \mainclass
 
-  A QMovie provides a QPixmap as the framePixmap(); connections can
-  be made via connectResize() and connectUpdate() to receive notification
-  of size and pixmap changes.  All decoding is driven by
-  the normal event-processing mechanisms.  The simplest way to display
-  a QMovie is to use a QLabel and QLabel::setMovie().
+    The simplest way to display a QMovie is to use a QLabel and
+    QLabel::setMovie().
 
-  The movie begins playing as soon as the QMovie is created (actually,
-  once control returns to the event loop).  When the last frame in the
-  movie has been played, it may loop back to the start if such looping
-  is defined in the input source.
+    A QMovie provides a QPixmap as the framePixmap(); connections can
+    be made via connectResize() and connectUpdate() to receive
+    notification of size and pixmap changes. All decoding is driven
+    by the normal event-processing mechanisms.
 
-  QMovie objects are explicitly shared.  This means that a QMovie copied
-  from another QMovie will be displaying the same frame at all times.
-  If one shared movie pauses, all pause.  To make \e independent movies,
-  they must be constructed separately.
+    The movie begins playing as soon as the QMovie is created
+    (actually, once control returns to the event loop). When the last
+    frame in the movie has been played, it may loop back to the start
+    if such looping is defined in the input source.
 
-  The set of data formats supported by QMovie is determined by the decoder
-  factories that have been installed; the format of the input is
-  determined as the input is decoded.
+    QMovie objects are explicitly shared. This means that a QMovie
+    copied from another QMovie will be displaying the same frame at
+    all times. If one shared movie pauses, all pause. To make \e
+    independent movies, they must be constructed separately.
 
-  The supported formats are MNG (if Qt is built with MNG support enabled)
-  and GIF (if Qt is built with GIF support enabled).  For MNG support, you
-  need to have installed libmng from
-  \link http://www.libmng.com/ http://www.libmng.com\endlink.
+    The set of data formats supported by QMovie is determined by the
+    decoder factories that have been installed; the format of the
+    input is determined as the input is decoded.
 
-  Archives of animated GIFs and tools for building them can be found,
-  for example, at \link
-  http://dir.yahoo.com/Arts/Visual_Arts/Animation/Computer_Animation/Animated_GIFs/ Yahoo\endlink.
+    The supported formats are MNG (if Qt is built with MNG support
+    enabled) and GIF (if Qt is built with GIF support enabled). For
+    MNG support, you need to have installed libmng from \link
+    http://www.libmng.com/ http://www.libmng.com\endlink.
 
-  We are required to state the following: The Graphics Interchange
-  Format(c) is the Copyright property of CompuServe Incorporated.
-  GIF(sm) is a Service Mark property of CompuServe Incorporated.
+    Archives of animated GIFs and tools for building them can be
+    found, for example, at \link
+    http://dir.yahoo.com/Arts/Visual_Arts/Animation/Computer_Animation/Animated_GIFs/
+    Yahoo\endlink.
 
-  \warning If you are in a country that recognizes software patents
-  and in which Unisys holds a patent on LZW compression and/or
-  decompression and you want to use GIF, Unisys may require you to
-  license that technology.  Such countries include Canada, Japan, the
-  USA, France, Germany, Italy and the UK.
+    We are required to state the following: The Graphics Interchange
+    Format(c) is the Copyright property of CompuServe Incorporated.
+    GIF(sm) is a Service Mark property of CompuServe Incorporated.
 
-  GIF support may be removed completely in a future version of Qt.  We
-  recommend using the MNG or PNG format.
+    \warning If you are in a country that recognizes software patents
+    and in which Unisys holds a patent on LZW compression and/or
+    decompression and you want to use GIF, Unisys may require you to
+    license that technology. Such countries include Canada, Japan,
+    the USA, France, Germany, Italy and the UK.
 
-  <img src="qmovie.png">
+    GIF support may be removed completely in a future version of Qt.
+    We recommend using the MNG or PNG format.
 
-  \sa QLabel::setMovie()
+    \img qmovie.png QMovie
+
+    \sa QLabel::setMovie()
 */
 
 /*!
@@ -261,7 +264,7 @@ bool QMoviePrivate::isNull() const
     return !buf_size;
 }
 
-// Initialize.  Only actually allocate any space if \a fully is TRUE,
+// Initialize. Only actually allocate any space if \a fully is TRUE,
 // otherwise, just enough to be a valid null Private.
 void QMoviePrivate::init(bool fully)
 {
@@ -644,10 +647,10 @@ void QMoviePrivate::refresh()
 
 
 /*!
-  Constructs a null QMovie.  The only interesting thing to do to such
-  a movie is to assign another movie to it.
+    Constructs a null QMovie. The only interesting thing to do with
+    such a movie is to assign another movie to it.
 
-  \sa isNull()
+    \sa isNull()
 */
 QMovie::QMovie()
 {
@@ -655,16 +658,16 @@ QMovie::QMovie()
 }
 
 /*!
-  Constructs a QMovie with an external data source.
-  You should later call pushData() to send incoming animation data to
-  the movie.
+    Constructs a QMovie with an external data source. You should later
+    call pushData() to send incoming animation data to the movie.
 
-  The \a bufsize argument sets the maximum amount of data the movie
-  will transfer from the data source per event loop.  The lower this
-  value, the better interleaved the movie playback will be with other
-  event processing, but the slower the overall processing will be.
+    The \a bufsize argument sets the maximum amount of data the movie
+    will transfer from the data source per event loop. The lower this
+    value, the better interleaved the movie playback will be with
+    other event processing, but the slower the overall processing will
+    be.
 
-  \sa pushData()
+    \sa pushData()
 */
 QMovie::QMovie(int bufsize)
 {
@@ -672,9 +675,10 @@ QMovie::QMovie(int bufsize)
 }
 
 /*!
-  Returns the maximum amount of data that can currently be pushed
-  into the movie by a call to pushData().  This is affected by the
-  initial buffer size, but varies as the movie plays and data is consumed.
+    Returns the maximum amount of data that can currently be pushed
+    into the movie by a call to pushData(). This is affected by the
+    initial buffer size, but varies as the movie plays and data is
+    consumed.
 */
 int QMovie::pushSpace() const
 {
@@ -682,9 +686,9 @@ int QMovie::pushSpace() const
 }
 
 /*!
-  Pushes \a length bytes from \a data into the movie.  \a length must
-  be no more than the amount returned by pushSpace() since the previous
-  call to pushData().
+    Pushes \a length bytes from \a data into the movie. \a length must
+    be no more than the amount returned by pushSpace() since the
+    previous call to pushData().
 */
 void QMovie::pushData(const uchar* data, int length)
 {
@@ -702,16 +706,17 @@ void QMovie::setDisplayWidget(QWidget * w)
 #endif
 
 /*!
-  Constructs a QMovie that reads an image sequence from the given
-  data source, \a src.  The source must be allocated dynamically,
-  because QMovie will take ownership of it and will destroy
-  it when the movie is destroyed. The movie starts playing as soon as
-  event processing continues.
+    Constructs a QMovie that reads an image sequence from the given
+    data source, \a src. The source must be allocated dynamically,
+    because QMovie will take ownership of it and will destroy it when
+    the movie is destroyed. The movie starts playing as soon as event
+    processing continues.
 
-  The \a bufsize argument sets the maximum amount of data the movie
-  will transfer from the data source per event loop.  The lower this
-  value, the better interleaved the movie playback will be with other
-  event processing, but the slower the overall processing will be.
+    The \a bufsize argument sets the maximum amount of data the movie
+    will transfer from the data source per event loop. The lower this
+    value, the better interleaved the movie playback will be with
+    other event processing, but the slower the overall processing will
+    be.
 */
 QMovie::QMovie(QDataSource* src, int bufsize)
 {
@@ -719,13 +724,14 @@ QMovie::QMovie(QDataSource* src, int bufsize)
 }
 
 /*!
-  Constructs a QMovie that reads an image sequence from the file, \a
-  fileName.
+    Constructs a QMovie that reads an image sequence from the file, \a
+    fileName.
 
-  The \a bufsize argument sets the maximum amount of data the movie
-  will transfer from the data source per event loop.  The lower this
-  value, the better interleaved the movie playback will be with other
-  event processing, but the slower the overall processing will be.
+    The \a bufsize argument sets the maximum amount of data the movie
+    will transfer from the data source per event loop. The lower this
+    value, the better interleaved the movie playback will be with
+    other event processing, but the slower the overall processing will
+    be.
 */
 QMovie::QMovie(const QString &fileName, int bufsize)
 {
@@ -735,13 +741,14 @@ QMovie::QMovie(const QString &fileName, int bufsize)
 }
 
 /*!
-  Constructs a QMovie that reads an image sequence from the byte
-  array, \a data.
+    Constructs a QMovie that reads an image sequence from the byte
+    array, \a data.
 
-  The \a bufsize argument sets the maximum amount of data the movie
-  will transfer from the data source per event loop.  The lower this
-  value, the better interleaved the movie playback will be with other
-  event processing, but the slower the overall processing will be.
+    The \a bufsize argument sets the maximum amount of data the movie
+    will transfer from the data source per event loop. The lower this
+    value, the better interleaved the movie playback will be with
+    other event processing, but the slower the overall processing will
+    be.
 */
 QMovie::QMovie(QByteArray data, int bufsize)
 {
@@ -751,9 +758,9 @@ QMovie::QMovie(QByteArray data, int bufsize)
 }
 
 /*!
-  Constructs a movie that uses the same data as movie \a movie.
-  QMovies use explicit sharing, so operations on the copy will
-  affect both.
+    Constructs a movie that uses the same data as movie \a movie.
+    QMovies use explicit sharing, so operations on the copy will
+    affect both.
 */
 QMovie::QMovie(const QMovie& movie)
 {
@@ -762,8 +769,8 @@ QMovie::QMovie(const QMovie& movie)
 }
 
 /*!
-  Destroys the QMovie.  If this is the last reference to the data of the
-  movie, the data are deallocated.
+    Destroys the QMovie. If this is the last reference to the data of
+    the movie, the data is deallocated.
 */
 QMovie::~QMovie()
 {
@@ -771,7 +778,7 @@ QMovie::~QMovie()
 }
 
 /*!
-  Returns TRUE if the movie is null; otherwise returns FALSE.
+    Returns TRUE if the movie is null; otherwise returns FALSE.
 */
 bool QMovie::isNull() const
 {
@@ -779,8 +786,8 @@ bool QMovie::isNull() const
 }
 
 /*!
-  Makes this movie use the same data as movie \a movie.
-  QMovies use explicit sharing.
+    Makes this movie use the same data as movie \a movie. QMovies use
+    explicit sharing.
 */
 QMovie& QMovie::operator=(const QMovie& movie)
 {
@@ -792,11 +799,11 @@ QMovie& QMovie::operator=(const QMovie& movie)
 
 
 /*!
-  Sets the background color of the pixmap to \a c.  If the background
-  color isValid(), the pixmap will never have a mask because the
-  background color will be used in transparent regions of the image.
+    Sets the background color of the pixmap to \a c. If the background
+    color isValid(), the pixmap will never have a mask because the
+    background color will be used in transparent regions of the image.
 
-  \sa backgroundColor()
+    \sa backgroundColor()
 */
 void QMovie::setBackgroundColor(const QColor& c)
 {
@@ -804,7 +811,8 @@ void QMovie::setBackgroundColor(const QColor& c)
 }
 
 /*!
-  Returns the background color of the movie set by setBackgroundColor().
+    Returns the background color of the movie set by
+    setBackgroundColor().
 */
 const QColor& QMovie::backgroundColor() const
 {
@@ -812,7 +820,8 @@ const QColor& QMovie::backgroundColor() const
 }
 
 /*!
-  Returns the area of the pixmap for which pixels have been generated.
+    Returns the area of the pixmap for which pixels have been
+    generated.
 */
 const QRect& QMovie::getValidRect() const
 {
@@ -820,12 +829,12 @@ const QRect& QMovie::getValidRect() const
 }
 
 /*!
-  Returns the current frame of the movie, as a QPixmap. It is not
-  generally useful to keep a copy of this pixmap.  It is better to
-  keep a copy of the QMovie and get the framePixmap() only when needed
-  for drawing.
+    Returns the current frame of the movie, as a QPixmap. It is not
+    generally useful to keep a copy of this pixmap. It is better to
+    keep a copy of the QMovie and get the framePixmap() only when
+    needed for drawing.
 
-  \sa frameImage()
+    \sa frameImage()
 */
 const QPixmap& QMovie::framePixmap() const
 {
@@ -833,21 +842,22 @@ const QPixmap& QMovie::framePixmap() const
 }
 
 /*!
-  Returns the current frame of the movie, as a QImage.
-  It is not generally useful to keep a copy of this image.
-  Also note that you must not call this function if the
-  movie is finished(), as the image is not them available.
+    Returns the current frame of the movie, as a QImage. It is not
+    generally useful to keep a copy of this image. Also note that you
+    must not call this function if the movie is finished(), since by
+    then the image will not be available.
 
-  \sa framePixmap()
+    \sa framePixmap()
 */
 const QImage& QMovie::frameImage() const
 {
     return d->decoder->image();
 }
 
-/*!  Returns the number of steps remaining after a call to step(). If
-  the movie is paised, steps() returns 0. If it's running normally or
-  is finished, steps() returns a negative number.
+/*!
+    Returns the number of steps remaining after a call to step(). If
+    the movie is paused, steps() returns 0. If it's running normally
+    or is finished, steps() returns a negative number.
 */
 int QMovie::steps() const
 {
@@ -855,15 +865,15 @@ int QMovie::steps() const
 }
 
 /*!
-  Returns the number of times EndOfFrame has been emitted since the
-  start of the current loop of the movie.  Thus, before any EndOfFrame
-  has been emitted the value will be 0; within slots processing the
-  first signal, frameNumber() will be 1, and so on.
+    Returns the number of times EndOfFrame has been emitted since the
+    start of the current loop of the movie. Thus, before any
+    EndOfFrame has been emitted the value will be 0; within slots
+    processing the first signal, frameNumber() will be 1, and so on.
 */
 int QMovie::frameNumber() const { return d->framenumber; }
 
 /*!
-  Returns TRUE if the image is paused; otherwise returns FALSE.
+    Returns TRUE if the image is paused; otherwise returns FALSE.
 */
 bool QMovie::paused() const
 {
@@ -871,8 +881,8 @@ bool QMovie::paused() const
 }
 
 /*!
-  Returns TRUE if the image is no longer playing - this happens when all
-  loops of all frames are complete; otherwise returns FALSE.
+    Returns TRUE if the image is no longer playing: this happens when
+    all loops of all frames are complete; otherwise returns FALSE.
 */
 bool QMovie::finished() const
 {
@@ -880,8 +890,8 @@ bool QMovie::finished() const
 }
 
 /*!
-  Returns TRUE if the image is not single-stepping, not paused,
-  and not finished; otherwise returns FALSE.
+    Returns TRUE if the image is not single-stepping, not paused, and
+    not finished; otherwise returns FALSE.
 */
 bool QMovie::running() const
 {
@@ -889,9 +899,9 @@ bool QMovie::running() const
 }
 
 /*!
-  Pauses the progress of the animation.
+    Pauses the progress of the animation.
 
-  \sa unpause()
+    \sa unpause()
 */
 void QMovie::pause()
 {
@@ -899,9 +909,9 @@ void QMovie::pause()
 }
 
 /*!
-  Unpauses the progress of the animation.
+    Unpauses the progress of the animation.
 
-  \sa pause()
+    \sa pause()
 */
 void QMovie::unpause()
 {
@@ -914,9 +924,9 @@ void QMovie::unpause()
 }
 
 /*!
-  \overload
+    \overload
 
-  Steps forward, showing \a steps frames, and then pauses.
+    Steps forward, showing \a steps frames, and then pauses.
 */
 void QMovie::step(int steps)
 {
@@ -928,7 +938,7 @@ void QMovie::step(int steps)
 }
 
 /*!
-  Steps forward 1 frame and then pauses.
+    Steps forward 1 frame and then pauses.
 */
 void QMovie::step()
 {
@@ -936,7 +946,8 @@ void QMovie::step()
 }
 
 /*!
-  Rewinds the movie to the beginning even if the movie has been paused.
+    Rewinds the movie to the beginning. If the movie has not been
+    paused, it begins playing again.
 */
 void QMovie::restart()
 {
@@ -955,8 +966,10 @@ void QMovie::restart()
 }
 
 /*!
-  Returns the speed-up factor of the movie.  The default is 100 percent.
-  \sa setSpeed()
+    Returns the movie's play speed as a percentage. The default is 100
+    percent.
+
+    \sa setSpeed()
 */
 int QMovie::speed() const
 {
@@ -964,9 +977,9 @@ int QMovie::speed() const
 }
 
 /*!
-  Sets the speed-up factor of the movie to \a percent.  This is a
-  percentage of the speed dictated by the input data format.  The
-  default is 100 percent.
+    Sets the movie's play speed as a percentage, to \a percent. This
+    is a percentage of the speed dictated by the input data format.
+    The default is 100 percent.
 */
 void QMovie::setSpeed(int percent)
 {
@@ -985,12 +998,13 @@ void QMovie::setSpeed(int percent)
 }
 
 /*!
-  Connects the \a{receiver}'s \a member of type \c{void member(const QSize&)}
-  so that it is signalled when the movie changes size.
+    Connects the \a{receiver}'s \a member of type \c{void member(const
+    QSize&)} so that it is signalled when the movie changes size.
 
-  Note that due to the explicit sharing of QMovie objects, these connections
-  persist until they are explicitly disconnected with disconnectResize() or
-  until \e every shared copy of the movie is deleted.
+    Note that due to the explicit sharing of QMovie objects, these
+    connections persist until they are explicitly disconnected with
+    disconnectResize() or until \e every shared copy of the movie is
+    deleted.
 */
 void QMovie::connectResize(QObject* receiver, const char *member)
 {
@@ -998,8 +1012,8 @@ void QMovie::connectResize(QObject* receiver, const char *member)
 }
 
 /*!
-  Disconnects the \a{receiver}'s \a member (or all members if \a member
-  is zero) that were previously connected by connectResize().
+    Disconnects the \a{receiver}'s \a member (or all members if \a
+    member is zero) that were previously connected by connectResize().
 */
 void QMovie::disconnectResize(QObject* receiver, const char *member)
 {
@@ -1007,13 +1021,14 @@ void QMovie::disconnectResize(QObject* receiver, const char *member)
 }
 
 /*!
-  Connects the \a{receiver}'s \a member of type \c{void member(const QRect&)}
-  so that it is signalled when an area of the framePixmap() has
-  changed since the previous frame.
+    Connects the \a{receiver}'s \a member of type \c{void member(const
+    QRect&)} so that it is signalled when an area of the framePixmap()
+    has changed since the previous frame.
 
-  Note that due to the explicit sharing of QMovie objects, these connections
-  persist until they are explicitly disconnected with disconnectUpdate() or
-  until \e every shared copy of the movie is deleted.
+    Note that due to the explicit sharing of QMovie objects, these
+    connections persist until they are explicitly disconnected with
+    disconnectUpdate() or until \e every shared copy of the movie is
+    deleted.
 */
 void QMovie::connectUpdate(QObject* receiver, const char *member)
 {
@@ -1021,8 +1036,8 @@ void QMovie::connectUpdate(QObject* receiver, const char *member)
 }
 
 /*!
-  Disconnects the \a{receiver}'s \a member (or all members if \q
-  member is zero) that were previously connected by connectUpdate().
+    Disconnects the \a{receiver}'s \a member (or all members if \q
+    member is zero) that were previously connected by connectUpdate().
 */
 void QMovie::disconnectUpdate(QObject* receiver, const char *member)
 {
@@ -1030,29 +1045,36 @@ void QMovie::disconnectUpdate(QObject* receiver, const char *member)
 }
 
 /*!
-  Connects the \a{receiver}'s \a member, of type \c{void member(int)}
-  so that it is signalled when the movie changes status.  The
-  status codes are negative for errors and positive for information,
-  and they are currently:
+    Connects the \a{receiver}'s \a member, of type \c{void
+    member(int)} so that it is signalled when the movie changes
+    status. The status codes are negative for errors and positive for
+    information.
 
-  \list
-   \i QMovie::SourceEmpty signalled if the input cannot be read.
-   \i QMovie::UnrecognizedFormat signalled if the input data is unrecognized.
-   \i QMovie::Paused signalled when the movie is paused by a call to paused()
-			or by after \link step() stepping \endlink pauses.
-   \i QMovie::EndOfFrame signalled at end-of-frame after any update and Paused signals.
-   \i QMovie::EndOfLoop signalled at end-of-loop, after any update signals,
-				EndOfFrame - but before EndOfMovie.
-   \i QMovie::EndOfMovie signalled when the movie completes and is not about
-				 to loop.
-  \endlist
+    \table
+    \header \i Status Code \i Meaning
+    \row \i QMovie::SourceEmpty
+	 \i signalled if the input cannot be read.
+    \row \i QMovie::UnrecognizedFormat
+	 \i signalled if the input data is unrecognized.
+    \row \i QMovie::Paused
+	  \i signalled when the movie is paused by a call to paused()
+	  or by after \link step() stepping \endlink pauses.
+    \row \i QMovie::EndOfFrame
+	 \i signalled at end-of-frame after any update and Paused signals.
+    \row \i QMovie::EndOfLoop
+	 \i signalled at end-of-loop, after any update signals,
+	 EndOfFrame - but before EndOfMovie.
+    \row \i QMovie::EndOfMovie
+	 \i signalled when the movie completes and is not about to loop.
+    \endtable
 
-  More status messages may be added in the future, so a general test for
-  errors would test for negative.
+    More status messages may be added in the future, so a general test
+    for errors would test for negative.
 
-  Note that due to the explicit sharing of QMovie objects, these connections
-  persist until they are explicitly disconnected with disconnectStatus() or
-  until \e every shared copy of the movie is deleted.
+    Note that due to the explicit sharing of QMovie objects, these
+    connections persist until they are explicitly disconnected with
+    disconnectStatus() or until \e every shared copy of the movie is
+    deleted.
 */
 void QMovie::connectStatus(QObject* receiver, const char *member)
 {
@@ -1060,8 +1082,8 @@ void QMovie::connectStatus(QObject* receiver, const char *member)
 }
 
 /*!
-  Disconnects the \a{receiver}'s \a member (or all members if \a
-  member is zero) that were previously connected by connectStatus().
+    Disconnects the \a{receiver}'s \a member (or all members if \a
+    member is zero) that were previously connected by connectStatus().
 */
 void QMovie::disconnectStatus(QObject* receiver, const char *member)
 {
