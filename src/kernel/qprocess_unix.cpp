@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#44 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -242,7 +242,6 @@ QProcessManager::QProcessManager()
 
 QProcessManager::~QProcessManager()
 {
-    // ### delete the elements
     delete procList;
 
     if ( sigchldFd[0] != 0 )
@@ -374,15 +373,6 @@ QProcessPrivate::~QProcessPrivate()
 
     if ( proc != 0 )
 	proc->process = 0;
-#if 0
-    // ### where should I destroy the procManager?
-    if ( procManager != 0 ) {
-	if ( procManager->remove( d ) ) {
-	    delete procManager;
-	    procManager = 0;
-	}
-    }
-#endif
 
     while ( !stdinBuf.isEmpty() ) {
 	delete stdinBuf.dequeue();
