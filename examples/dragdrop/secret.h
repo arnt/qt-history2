@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dragdrop/secret.h#1 $
+** $Id: //depot/qt/main/examples/dragdrop/secret.h#2 $
 **
 ** Custom MIME type implementation example
 **

@@ -3,7 +3,7 @@ static const char *fileopen[] = {
 "    16    13        5            1",
 ". c #040404",
 "# c #808304",
-"a c #bfc2bf",
+"a c None",
 "b c #f3f704",
 "c c #f3f7f3",
 "aaaaaaaaa...aaaa",

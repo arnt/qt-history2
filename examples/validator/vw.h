@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/validator/vw.h#1 $
+** $Id: //depot/qt/main/examples/validator/vw.h#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -22,12 +22,12 @@ public:
     ~VW();
 
 private slots:
-    void modelSelected( const char * );
+    void modelSelected( const QString& );
     void motorSelected( int );
     void yearSelected( int );
 
 signals:
-    void validSelectionMade( const char * );
+    void validSelectionMade( const QString& );
 
 private:
     void computeSelection();

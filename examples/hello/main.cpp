@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/hello/main.cpp#1 $
+** $Id: //depot/qt/main/examples/hello/main.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -32,7 +32,7 @@ int main( int argc, char **argv )
     h.setCaption( "Qt says hello" );
     QObject::connect( &h, SIGNAL(clicked()), &a, SLOT(quit()) );
     h.setFont( QFont("times",32,QFont::Bold) );		// default font
-    h.setBackgroundColor( white );			// default bg color
+    h.setBackgroundColor( Qt::white );			// default bg color
     a.setMainWidget( &h );
     h.show();
     return a.exec();

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/biff/biff.cpp#1 $
+** $Id: //depot/qt/main/examples/biff/biff.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -22,7 +22,7 @@
 Biff::Biff( QWidget *parent, const char *name )
     : QWidget( parent, name, WType_Modal )
 {
-    QFileInfo fi( getenv( "MAIL" ) );
+    QFileInfo fi = QString(getenv( "MAIL" ));
     if ( !fi.exists() ) {
 	QString s( "/var/spool/mail/" );
 	s += getlogin();

@@ -3,3 +3,4 @@ operations which may take a long time to complete.
 
 The progress dialog only appears if the estimated completion time
 is 3-4 seconds.
+

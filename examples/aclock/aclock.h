@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/aclock/aclock.h#1 $
+** $Id: //depot/qt/main/examples/aclock/aclock.h#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -20,11 +20,14 @@ class AnalogClock : public QWidget		// analog clock widget
     Q_OBJECT
 public:
     AnalogClock( QWidget *parent=0, const char *name=0 );
+    void setAutoMask(bool b);
 
 protected:
-    void	paintEvent( QPaintEvent * );
-
+    void updateMask();
+    void paintEvent( QPaintEvent *);
+    
 private slots:
+    void drawClock( QPainter* );
     void	timeout();
 
 private:

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/scrollview/scrollview.cpp#1 $
+** $Id: //depot/qt/main/examples/scrollview/scrollview.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -18,7 +18,8 @@
 #include <qmessagebox.h>
 #include <qlayout.h>
 #include <qlabel.h>
-#include <qmultilinedit.h>
+#include <qmultilineedit.h>
+#include <qsizegrip.h>
 #include <stdlib.h>
 
 
@@ -34,7 +35,8 @@ static const int max_mw		= 10;
 class BigShrinker : public QFrame {
     Q_OBJECT
 public:
-    BigShrinker()
+    BigShrinker(QWidget* parent) :
+	QFrame(parent)
     {
 	setFrameStyle(QFrame::Box|QFrame::Sunken);
 	int h=35;
@@ -85,21 +87,15 @@ public:
 	bg("bg.ppm")
     {
 	bg.load("bg.ppm");
-	viewport()->setBackgroundMode(NoBackground);
 	resizeContents(400000,300000);
-
-	QMultiLineEdit *l = new QMultiLineEdit(viewport(),"First");
-	l->setText("Drag out more of me!");
-	l->resize(100,100);
-	addChild(l, 100,100);
 
 	dragging = 0;
     }
 
     void viewportMousePressEvent(QMouseEvent* e)
     {
-	int x = e->x() + contentsX();
-	int y = e->y() + contentsY();
+	int x, y;
+	viewportToContents( e->x(),  e->y(), x, y );
 	dragging = new QMultiLineEdit(viewport(),"Another");
 	dragging->setText("Thanks!");
 	dragging->resize(100,100);
@@ -115,8 +111,8 @@ public:
     void viewportMouseMoveEvent(QMouseEvent* e)
     {
 	if ( dragging ) {
-	    int mx = e->x() + contentsX();
-	    int my = e->y() + contentsY();
+	    int mx, my;
+	    viewportToContents( e->x(),  e->y(), mx, my );
 	    int cx = childX(dragging);
 	    int cy = childY(dragging);
 	    int w = mx - cx + 1;
@@ -128,23 +124,11 @@ public:
 	}
     }
 
-//#define DBLBUFF
 protected:
-    void drawContentsOffset(QPainter* paint, int ox, int oy, int cx, int cy, int cw, int ch)
+    void drawContents(QPainter* p, int cx, int cy, int cw, int ch)
     {
-// Define DBLBUFF for even smooth repaints.
-#ifdef DBLBUFF
-	dblbuff.resize(viewport()->width(), viewport()->height());
-	QPainter p2;
-	QPainter* p = &p2;
-	p->begin(&dblbuff);
-#else
-	QPainter* p = paint;
-#endif
-	p->setClipRect(cx-ox, cy-oy, cw, ch);
-
 	// The Background
-	{
+	if ( !bg.isNull() ) {
 	    int rowheight=bg.height();
 	    int toprow=cy/rowheight;
 	    int bottomrow=(cy+ch+rowheight-1)/rowheight;
@@ -155,9 +139,11 @@ protected:
 		int py=r*rowheight;
 		for (int c=leftcol; c<=rightcol; c++) {
 		    int px=c*colwidth;
-		    p->drawPixmap(px-ox, py-oy, bg);
+		    p->drawPixmap(px, py, bg);
 		}
 	    }
+	} else {
+	    p->fillRect(cx, cy, cw, ch, QColor(240,222,208));
 	}
 
 	// The Numbers
@@ -175,7 +161,7 @@ protected:
 		for (int c=leftcol; c<=rightcol; c++) {
 		    int px=c*colwidth;
 		    str.sprintf("%d,%d",c,r);
-		    p->drawText(px-ox+3, py-oy+fm.ascent(), str);
+		    p->drawText(px+3, py+fm.ascent(), str);
 		}
 	    }
 
@@ -184,77 +170,37 @@ protected:
 		p->setFont(QFont("Charter",30));
 		p->setPen(red);
 		QString text;
-		text.sprintf("HINT:  Look at %d,%d",415000/colwidth,115000/rowheight);
-		p->drawText(100-ox,50-oy,text);
+		text.sprintf("HINT:  Look at %d,%d",215000/colwidth,115000/rowheight);
+		p->drawText(100,50,text);
 	    }
 	}
 
 	// The Big X
 	{
-	    if (cx+cw>400000 && cy+ch>100000 && cx<430000 && cy<130000) {
-		p->drawLine(400000-ox,100000-oy,429999-ox,129999-oy);
-		p->drawLine(429999-ox,100000-oy,400000-ox,129999-oy);
+	    if (cx+cw>200000 && cy+ch>100000 && cx<230000 && cy<130000) {
+		// Note that some X server cannot even handle co-ordinates
+		// beyond about 4000, so you might not see this.
+		p->drawLine(200000,100000,229999,129999);
+		p->drawLine(229999,100000,200000,129999);
 
 		// X marks the spot!
 		p->setFont(QFont("Charter",100));
 		p->setPen(blue);
-		p->drawText(415000-ox-500,115000-oy-100,1000,200,AlignCenter,"YOU WIN!!!!!");
+		p->drawText(215000-500,115000-100,1000,200,AlignCenter,"YOU WIN!!!!!");
 	    }
 	}
-
-#ifdef DBLBUFF
-	p->end();
-	paint->drawPixmap(0,0,dblbuff);
-#endif
     }
 
 private:
     QPixmap bg;
-#ifdef DBLBUFF
-    QPixmap dblbuff;
-#endif
-};
-
-// Windows corner thingy.  Of course, it doesn't *function*.
-//
-class WinCorner : public QWidget {
-public:
-    WinCorner(QWidget* parent=0, const char* name=0, WFlags f=0) :
-	QWidget(parent, name, f)
-    {
-    }
-
-protected:
-    void paintEvent(QPaintEvent*)
-    {
-	QPainter p(this);
-
-	int ox = width()-12;
-	int oy = height()-12;
-
-	QColorGroup g = colorGroup();
-	for ( int i=0; i<11; i++ ) {
-	    int n = i & 3;
-	    if ( n == 0 )
-		p.setPen( g.light() );
-	    else if ( n < 3 )
-		p.setPen( QColor(90,90,90) );
-	    if ( n != 3 )
-		p.drawLine( ox+11, oy+i, ox+i, oy+11 );
-	}
-    }
-
-    void mouseReleaseEvent(QMouseEvent*)
-    {
-	QMessageBox::message("Notice", "The corner widget\ndoes not work yet.");
-    }
 };
 
 class ScrollViewExample : public QWidget {
     Q_OBJECT
 
 public:
-    ScrollViewExample(int technique)
+    ScrollViewExample(int technique, QWidget* parent=0, const char* name=0) :
+	QWidget(parent,name)
     {
 	QMenuBar* menubar = new QMenuBar(this);
 	CHECK_PTR( menubar );
@@ -283,12 +229,23 @@ public:
 
 	if (technique == 1) {
 	    vp = new QScrollView(this);
-	    BigShrinker *bs = new BigShrinker;
+	    BigShrinker *bs = new BigShrinker(0);//(vp->viewport());
 	    vp->addChild(bs);
+	    bs->setAcceptDrops(TRUE);
 	    QObject::connect(bs, SIGNAL(clicked(int,int)),
 			    vp, SLOT(center(int,int)));
 	} else {
 	    vp = new BigMatrix(this);
+	    if ( technique == 3 )
+		vp->enableClipper(TRUE);
+	    srand(1);
+	    for (int i=0; i<30; i++) {
+		QMultiLineEdit *l = new QMultiLineEdit(vp->viewport(),"First");
+		l->setText("Drag out more of these.");
+		l->resize(100,100);
+		vp->addChild(l, rand()%800, rand()%10000);
+	    }
+	    vp->viewport()->setBackgroundMode(NoBackground);
 	}
 
 	f_options = new QPopupMenu();
@@ -342,6 +299,7 @@ public:
 	connect( mw_options, SIGNAL(activated(int)),
 	    this, SLOT(doFMenuItem(int)) );
 
+	setVPMenuItems();
 	setFMenuItems();
 
 	QVBoxLayout* vbox = new QVBoxLayout(this);
@@ -350,7 +308,7 @@ public:
 	vbox->addWidget(vp);
 	vbox->activate();
 
-	corner = new WinCorner(this);
+	corner = new QSizeGrip(this);
 	corner->hide();
     }
 
@@ -453,7 +411,7 @@ private:
     QPopupMenu* lw_options;
     QPopupMenu* mlw_options;
     QPopupMenu* mw_options;
-    WinCorner* corner;
+    QSizeGrip* corner;
 
     int vauto_id, vaoff_id, vaon_id,
 	hauto_id, haoff_id, haon_id,
@@ -466,12 +424,13 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
-    ScrollViewExample ve1(1);
-    ScrollViewExample ve2(2);
+    ScrollViewExample ve1(1,0,"ve1");
+    ScrollViewExample ve2(2,0,"ve2");
+    ScrollViewExample ve3(3,0,"ve3");
 
     ve1.show();
     ve2.show();
-    ve2.resize(400,300+(new QMenuBar())->height());
+    ve3.show();
 
     QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
 

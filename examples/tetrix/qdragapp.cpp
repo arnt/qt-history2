@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/tetrix/qdragapp.cpp#1 $
+** $Id: //depot/qt/main/examples/tetrix/qdragapp.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -13,7 +13,7 @@
 #include "qintdict.h"
 #include "qpopupmenu.h"
 #include "qcolor.h"
-#include "qwindow.h"
+#include "qwidget.h"
 #include "qfontmetrics.h"
 #include "qcursor.h"
 #include "qobjectlist.h"
@@ -24,7 +24,7 @@ QWidget *cursorWidget( QPoint * = 0 );
 class QDragger;
 
 
-class DropWindow : public QWindow
+class DropWindow : public QWidget
 {
     Q_OBJECT
 public:
@@ -42,17 +42,11 @@ struct DropInfo {
     bool userOpened;
 };
 
-declare (QIntDictM, DropInfo);
-declare (QIntDictIteratorM, DropInfo);
-
 struct DraggedInfo {
     QWidget *w;
     QWidget *mother;
     QPoint   pos;
 };
-
-declare (QIntDictM,DraggedInfo);
-declare (QIntDictIteratorM,DraggedInfo);
 
 
 class QDragger : public QObject
@@ -94,8 +88,8 @@ private:
     QColor		   dragBackground;
     QColor		   dragForeground;
     DraggedInfo		   dragInfo;
-    QIntDictM(DraggedInfo) draggedDict;
-    QIntDictM(DropInfo)	      dropDict;
+    QIntDict<DraggedInfo>  draggedDict;
+    QIntDict<DropInfo>	   dropDict;
 };
 
 
@@ -161,39 +155,39 @@ bool QDragger::notify( QObject *o, QEvent *e )
     if ( !o->isWidgetType() || o == &menu )
 	return FALSE;
     switch( e->type() ) {
-	case Event_MouseMove:
+	case QEvent::MouseMove:
 	     {
 		 QMouseEvent *tmp = (QMouseEvent*) e;
 		 if ( killingDrop )
 		     return killDropEvent( tmp );
 		 if ( sendingChild )
 		     return sendChildEvent( tmp );
-		 if ( tmp->state() & RightButton )
+		 if ( tmp->state() & QMouseEvent::RightButton )
 		     return dragEvent( (QWidget*) o, tmp );
 		 break;
 	     }
-	case Event_MouseButtonPress:
-	case Event_MouseButtonRelease:
-	case Event_MouseButtonDblClick:
+	case QEvent::MouseButtonPress:
+	case QEvent::MouseButtonRelease:
+	case QEvent::MouseButtonDblClick:
 	     {
 		 QMouseEvent *tmp = (QMouseEvent*) e;
 		 if ( killingDrop )
 		     return killDropEvent( tmp );
 		 if ( sendingChild )
 		     return sendChildEvent( tmp );
-		 if ( tmp->button() == RightButton )
+		 if ( tmp->button() == QMouseEvent::RightButton )
 		     return dragEvent( (QWidget*) o, tmp );
-		 break;
 	     }
+	     break;
 	default:
-		 break;
+	     break;
     }
     return FALSE;
 }
 
 bool QDragger::isParentToDragged( QWidget *w )
 {
-    QIntDictIteratorM(DraggedInfo) iter( draggedDict );
+    QIntDictIterator<DraggedInfo> iter( draggedDict );
 
     DraggedInfo *tmp;
     while( (tmp = iter.current()) ) {
@@ -217,7 +211,7 @@ bool QDragger::noWidgets( QWidget *w )
 	    return FALSE;
     }
     return TRUE;
-} 
+}
 
 void QDragger::sendAllChildrenHome( QWidget *w )
 {
@@ -235,13 +229,13 @@ void QDragger::sendAllChildrenHome( QWidget *w )
 		sendChildHome( di );
 	}
     }
-} 
+}
 
 bool QDragger::dragEvent( QWidget *w, QMouseEvent *e )
 {
     switch( e->type() ) {
-	case Event_MouseButtonDblClick:
-	case Event_MouseButtonPress: {
+	case QEvent::MouseButtonDblClick:
+	case QEvent::MouseButtonPress: {
 	    if ( !noWidgets( w ) || // has widget children
 		 isParentToDragged( w )	|| // has had widget children
 		 w->parentWidget() == 0 ) {       // is top level window
@@ -264,16 +258,16 @@ bool QDragger::dragEvent( QWidget *w, QMouseEvent *e )
 	    clickOffset = e->pos();
 	    dragInfo.w  = w;
 	    QPoint p    = w->mapToGlobal(QPoint(0,0));
-	    w->recreate( 0, WType_Popup, p, TRUE );
-		 
+	    w->reparent( 0, WType_Popup, p, TRUE );
+		
 	    return TRUE;
 	}
-	case Event_MouseButtonRelease:
-	case Event_MouseMove: {
+	case QEvent::MouseButtonRelease:
+	case QEvent::MouseMove: {
 	    if ( dragInfo.w != 0 ) {
 		QPoint p = QCursor::pos() - clickOffset;
 		dragInfo.w->move( p );
-		if ( e->type() == Event_MouseMove )
+		if ( e->type() == QEvent::MouseMove )
 		    return TRUE;
 	    } else {
 		return FALSE;
@@ -289,13 +283,13 @@ bool QDragger::dragEvent( QWidget *w, QMouseEvent *e )
 	    pos = pos - clickOffset;
 	    QPoint p;
 	    if ( !target ) {
-		target = openDropWindow( QRect( pos, w->size() ), 
+		target = openDropWindow( QRect( pos, w->size() ),
 					 FALSE);
 		p = QPoint( 0, 0 );
 	    }
 	    else
 		p = target->mapFromGlobal( pos );
-	    w->recreate( target, 0, p, TRUE );
+	    w->reparent( target, 0, p, TRUE );
 	    DropInfo *tmp = dropDict.find( (long) dragInfo.mother );
 	    if ( tmp ) {
 		if ( !tmp->userOpened && noWidgets( tmp->w ) )
@@ -303,20 +297,21 @@ bool QDragger::dragEvent( QWidget *w, QMouseEvent *e )
 	    }
 	    if ( !target->isVisible() )
 		target->show();
-	    return TRUE;
-	}
-	default: return FALSE;
+	  }
+	  return TRUE;
+	default:
+	  return FALSE;
     }
 }
 
 bool QDragger::killDropEvent( QMouseEvent *e )
 {
     switch( e->type() ) {
-	case Event_MouseButtonDblClick:
-	case Event_MouseButtonPress:
+	case QEvent::MouseButtonDblClick:
+	case QEvent::MouseButtonPress:
 	    clickedWidget = cursorWidget();
 	    return TRUE;
-	case Event_MouseButtonRelease:
+	case QEvent::MouseButtonRelease:
 	    hostWidget->releaseMouse();
 	    if ( clickedWidget ) {
 		DropInfo *tmp = dropDict.find( (long) clickedWidget );
@@ -327,7 +322,7 @@ bool QDragger::killDropEvent( QMouseEvent *e )
 	    }
 	    grabFinished();
 	    return TRUE;
-	case Event_MouseMove:
+	case QEvent::MouseMove:
 	    return TRUE;
 	default:
 	    break;
@@ -338,11 +333,11 @@ bool QDragger::killDropEvent( QMouseEvent *e )
 bool QDragger::sendChildEvent( QMouseEvent *e )
 {
     switch( e->type() ) {
-	case Event_MouseButtonDblClick:
-	case Event_MouseButtonPress:
+	case QEvent::MouseButtonDblClick:
+	case QEvent::MouseButtonPress:
 	    clickedWidget = cursorWidget();
 	    return TRUE;
-	case Event_MouseButtonRelease:
+	case QEvent::MouseButtonRelease:
 	    hostWidget->releaseMouse();
 	    if ( clickedWidget ) {
 		DraggedInfo *tmp = draggedDict.find((long) clickedWidget);
@@ -358,7 +353,7 @@ bool QDragger::sendChildEvent( QMouseEvent *e )
 		grabFinished();
 	    }
 	    return TRUE;
-	case Event_MouseMove:
+	case QEvent::MouseMove:
 	    return TRUE;
 	default:
 	    break;
@@ -449,7 +444,7 @@ void QDragger::killAllDropWindows()
 
 void QDragger::killAllDropWindows( bool autoOnly )
 {
-    QIntDictIteratorM(DropInfo) iter( dropDict );
+    QIntDictIterator<DropInfo> iter( dropDict );
 
     DropInfo *tmp;
     while( (tmp = iter.current()) ) {
@@ -463,7 +458,7 @@ void QDragger::killAllDropWindows( bool autoOnly )
 
 void QDragger::sendChildHome( DraggedInfo *i )
 {
-    i->w->recreate( i->mother, 0, i->pos, TRUE );
+    i->w->reparent( i->mother, 0, i->pos, TRUE );
 }
 
 void QDragger::sendChildHome()
@@ -474,7 +469,7 @@ void QDragger::sendChildHome()
 
 void QDragger::sendAllChildrenHome()
 {
-    QIntDictIteratorM(DraggedInfo) iter( draggedDict );
+    QIntDictIterator<DraggedInfo> iter( draggedDict );
 
     DraggedInfo *tmp;
     while( (tmp = iter.current()) ) {

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qdir/qdir.cpp#1 $
+** $Id: //depot/qt/main/examples/qdir/qdir.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -29,7 +29,7 @@ int main( int argc, char ** argv )
 	else if ( arg == "-filter" )
 	    filter = argv[++i];
 	else if ( arg[0] == '-' ) {
-	    debug("Usage: qdir [-any | -dir] [-default f] {-filter f} [caption ...]\n"
+	    qDebug("Usage: qdir [-any | -dir] [-default f] {-filter f} [caption ...]\n"
 		  "      -any         Get any filename, need not exist.\n"
 		  "      -dir         Return a directory rather than a file.\n"
 		  "      -default f   Start from directory/file f.\n"
@@ -44,14 +44,14 @@ int main( int argc, char ** argv )
 	}
     }
 
-    if ( start.isEmpty() )
+    if ( !start )
 	start = QDir::currentDirPath();
 
-    if ( caption.isEmpty() )
+    if ( !caption )
 	caption = mode == QFileDialog::Directory
 		    ? "Choose directory..." : "Choose file...";
 
-    QFileDialog fd( 0, filter, 0, 0, TRUE );
+    QFileDialog fd( QString::null, filter, 0, 0, TRUE );
     fd.setMode( mode );
     fd.setCaption( caption );
     fd.setSelection( start );

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/layout/layout.cpp#1 $
+** $Id: //depot/qt/main/examples/layout/layout.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -14,7 +14,7 @@
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qlineedit.h>
-#include <qmultilinedit.h>
+#include <qmultilineedit.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 
@@ -31,7 +31,7 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
 {
     // Make the top-level layout; a vertical box to contain all widgets
     // and sub-layouts.
-    QBoxLayout *topLayout = new QVBoxLayout( this, 5 ); 
+    QBoxLayout *topLayout = new QVBoxLayout( this, 5 );
 
     // Create a menubar...
     QMenuBar *menubar = new QMenuBar( this );
@@ -45,15 +45,13 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
     topLayout->setMenuBar( menubar );
 
     // Make an hbox that will hold a row of buttons.
-    QBoxLayout *buttons = new QHBoxLayout();
-    topLayout->addLayout( buttons );
+    QBoxLayout *buttons = new QHBoxLayout( topLayout);
     int i;
     for ( i = 1; i <= 4; i++ ) {
 	QPushButton* but = new QPushButton( this );
 	QString s;
 	s.sprintf( "Button %d", i );
 	but->setText( s );
-	but->setMinimumSize( but->sizeHint() );
 
 	// Set horizontal stretch factor to 10 to let the buttons
 	// stretch horizontally. The buttons will not stretch
@@ -66,15 +64,12 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
     }
 
     // Make another hbox that will hold a left-justified row of buttons.
-    QBoxLayout *buttons2 = new QHBoxLayout();
-    topLayout->addLayout( buttons2 );
+    QBoxLayout *buttons2 = new QHBoxLayout( topLayout );
 
     QPushButton* but = new QPushButton( "Button five", this );
-    but->setMinimumSize( but->sizeHint() );
     buttons2->addWidget( but );
 
     but = new QPushButton( "Button 6", this );
-    but->setMinimumSize( but->sizeHint() );
     buttons2->addWidget( but );
 
     // Fill up the rest of the hbox with stretchable space, so that
@@ -82,15 +77,15 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
     buttons2->addStretch( 10 );
 
     // Make  a big widget that will grab all space in the middle.
-    QLabel *bigWidget = new QLabel( "This widget will get all the "
-				    "remaining space", this );
-    bigWidget->setBackgroundColor( white );
+    QMultiLineEdit *bigWidget = new QMultiLineEdit( this );
+    bigWidget->setText( "This widget will get all the remaining space" );
     bigWidget->setFrameStyle( QFrame::Panel | QFrame::Plain );
 
     // Set vertical stretch factor to 10 to let the bigWidget stretch
     // vertically. It will stretch horizontally because there are no
     // widgets beside it to take up horizontal stretch.
-    topLayout->addWidget( bigWidget, 10 );
+    //    topLayout->addWidget( bigWidget, 10 );
+    topLayout->addWidget( bigWidget); //###
 
     // Make a grid that will hold a vertical table of QLabel/QLineEdit
     // pairs next to a large QMultiLineEdit.
@@ -104,45 +99,51 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
 
     // Let the grid-layout have a spacing of 10 pixels between
     // widgets, overriding the default from topLayout.
-    QGridLayout *grid = new QGridLayout( numRows, 3, 10 );
-    topLayout->addLayout( grid );
+    QGridLayout *grid = new QGridLayout( topLayout, 0, 0, 10 );
     int row;
 
     for ( row = 0; row < numRows; row++ ) {
+	QLineEdit *ed = new QLineEdit( this );
+	// The line edit goes in the second column
+	grid->addWidget( ed, row, linedCol );	
+	// show off the nice new keyboard interface in Qt 1.3
 	QLabel *label = new QLabel( this );
 	QString s;
 	s.sprintf( "Line &%d", row+1 );
 	label->setText( s );
-	label->setMinimumSize( label->sizeHint() );
 	// The label goes in the first column.
 	grid->addWidget( label, row, labelCol );
-	QLineEdit *ed = new QLineEdit( this );
+
+	ed = new QLineEdit( this );
 	// no minimum width for the line edit
-	ed->setMinimumHeight( ed->sizeHint().height() );
+	//ed->setMinimumHeight( ed->sizeHint().height() );
 	// The line edit goes in the second column
 	grid->addWidget( ed, row, linedCol );	
 	// show off the nice new keyboard interface in Qt 1.3
 	label->setBuddy( ed );
-    } 
+    }
 
     // The multiline edit will cover the entire vertical range of the
     // grid (rows 0 to numRows) and stay in column 2.
 
     QMultiLineEdit *med = new QMultiLineEdit( this );
-    grid->addMultiCellWidget( med, 0, numRows - 1, multiCol, multiCol );
+    grid->addMultiCellWidget( med, 0, -1, multiCol, multiCol );
 
     // The labels will take the space they need. Let the remaining
     // horizontal space be shared so that the multiline edit gets
     // twice as much as the line edit.
-    grid->setColStretch( linedCol, 10 );
-    grid->setColStretch( multiCol, 20 );
+        grid->setColStretch( linedCol, 10 );
+        grid->setColStretch( multiCol, 20 );
 
     // Add a widget at the bottom.
     QLabel* sb = new QLabel( this );
     sb->setText("Let's pretend this is a status bar");
     sb->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     // This widget will use all horizontal space, and have a fixed height.
+
+    // we should have made a subclass and implemented sizePolicy there...
     sb->setFixedHeight( sb->sizeHint().height() );
+
     sb->setAlignment( AlignVCenter | AlignLeft );
     topLayout->addWidget( sb );
 
@@ -160,9 +161,8 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     QWidget *f = new ExampleWidget;
-    f->resize( 400, 300 ); 
+    a.setMainWidget(f);
     f->show();
 
-    a.setMainWidget(f);
     return a.exec();
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/showimg/main.cpp#1 $
+** $Id: //depot/qt/main/examples/showimg/main.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -35,13 +35,13 @@ int main( int argc, char **argv )
     if ( argc <= 1 ) {
 	// Create a window which looks after its own existence.
 	ImageViewer *w =
-	    new ImageViewer(0, "new window", WDestructiveClose);
+	    new ImageViewer(0, "new window", Qt::WDestructiveClose);
 	w->show();
     } else {
 	for ( int i=1; i<argc; i++ ) {
 	    // Create a window which looks after its own existence.
 	    ImageViewer *w =
-		new ImageViewer(0, argv[i], WDestructiveClose);
+		new ImageViewer(0, argv[i], Qt::WDestructiveClose);
 	    w->loadImage( argv[i] );
 	    w->show();
 	}

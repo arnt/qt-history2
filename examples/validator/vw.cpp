@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/validator/vw.cpp#1 $
+** $Id: //depot/qt/main/examples/validator/vw.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -75,7 +75,7 @@ VW::VW( QWidget * parent, const char * name )
     l->setMinimumSize( l->sizeHint() );
     grid->addWidget( l, 0, 0 );
 
-    QSpinBox * motor = new QSpinBox( 1000, 1600, 100, 
+    QSpinBox * motor = new QSpinBox( 1000, 1600, 100,
 				     box, "motor size selection" );
     motor->setValue( 1000 );
     currentMotorSize = 1000;
@@ -130,15 +130,15 @@ VW::VW( QWidget * parent, const char * name )
     hb->activate();
 
     // set up connections
-    connect( model, SIGNAL(activated(const char *)),
-	     this, SLOT(modelSelected(const char *)) );
+    connect( model, SIGNAL(activated(const QString&)),
+	     this, SLOT(modelSelected(const QString&)) );
     connect( motor, SIGNAL(valueChanged(int)),
 	     this, SLOT(motorSelected(int)) );
     connect( year, SIGNAL(valueChanged(int)),
 	     this, SLOT(yearSelected(int)) );
 
-    connect( this, SIGNAL(validSelectionMade(const char *)),
-	     l, SLOT(setText(const char *)) );
+    connect( this, SIGNAL(validSelectionMade(const QString&)),
+	     l, SLOT(setText(const QString&)) );
 }
 
 
@@ -148,7 +148,7 @@ VW::~VW()
 }
 
 
-void VW::modelSelected( const char * m )
+void VW::modelSelected( const QString& m )
 {
     currentModel = m;
     computeSelection();
@@ -175,7 +175,6 @@ void VW::computeSelection()
 	return; // no model selected yet
 
     QString s;
-    s.resize( 500 );
     s.sprintf( "You have selected a Wolkswagen %s model %d with a "
 	       "%d cm³ motor.\n\nGood choice!",
 	       (const char *)currentModel,

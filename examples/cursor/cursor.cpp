@@ -1,14 +1,13 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/cursor/cursor.cpp#1 $
+** $Id: //depot/qt/main/examples/cursor/cursor.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
 **
 *****************************************************************************/
 
-#include <qwindow.h>
 #include <qlabel.h>
 #include <qbitmap.h>
 #include <qapplication.h>
@@ -53,7 +52,7 @@ static unsigned char cm_bits[] = {		// cursor bitmap mask
 // The CursorView contains many labels with different cursors.
 //
 
-class CursorView : public QWindow		// cursor view
+class CursorView : public QWidget		// cursor view
 {
 public:
     CursorView();
@@ -79,21 +78,26 @@ CursorView::CursorView()			// construct view
 	{ (QCursor *)&sizeBDiagCursor,	"sizeBDiagCursor" },
 	{ (QCursor *)&sizeFDiagCursor,	"sizeFDiagCursor" },
 	{ (QCursor *)&sizeAllCursor,	"sizeAllCursor" },
+	{ (QCursor *)&blankCursor,	"blankCursor" },
+	{ (QCursor *)&splitVCursor,	"splitVCursor" },
+	{ (QCursor *)&splitHCursor,	"splitHCursor" },
 	{ 0,				0 } };
 
     setCaption( "CursorView" );			// set window caption
 
     QLabel *label;
     int i=0;
-    for ( int y=0; y<2; y++ ) {			// create 10 small labels
+    for ( int y=0; y<3; y++ ) {			// create 15 small labels
 	for ( int x=0; x<5; x++ ) {
-	    label = new QLabel( this );
-	    label->setCursor( *list[i].cursor );
-	    label->setText( list[i].name );
-	    label->setAlignment( AlignCenter );
-	    label->setFrameStyle( QFrame::Box | QFrame::Raised );
-	    label->setGeometry( 10+x*110, 10+y*50, 100, 40 );
-	    i++;
+	    if ( list[i].name ) {
+		label = new QLabel( this );
+		label->setCursor( *list[i].cursor );
+		label->setText( list[i].name );
+		label->setAlignment( AlignCenter );
+		label->setFrameStyle( QFrame::Box | QFrame::Raised );
+		label->setGeometry( 10+x*110, 10+y*50, 100, 40 );
+		i++;
+	    }
 	}
     }
 
@@ -106,9 +110,9 @@ CursorView::CursorView()			// construct view
     label->setText( "Custom bitmap cursor" );
     label->setAlignment( AlignCenter );
     label->setFrameStyle( QFrame::Box | QFrame::Sunken );
-    label->setGeometry( 10, 110, 540, 40 );
+    label->setGeometry( 10, 50*3+10, 540, 40 );
 
-    resize( 20+5*110, 20+3*50 );
+    resize( 20+5*110, 20+4*50 );
 }
 
 

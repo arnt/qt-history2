@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/aclock/aclock.cpp#1 $
+** $Id: //depot/qt/main/examples/aclock/aclock.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -11,7 +11,7 @@
 #include "aclock.h"
 #include <qtimer.h>
 #include <qpainter.h>
-
+#include <qbitmap.h>
 
 //
 // Constructs an analog clock widget that uses an internal QTimer.
@@ -35,24 +35,47 @@ void AnalogClock::timeout()
 {
     QTime new_time = QTime::currentTime();	// get the current time
     if ( new_time.minute() != time.minute() )	// minute has changed
-	update();
+	updateMask();
 }
 
 
+void AnalogClock::paintEvent( QPaintEvent * )
+{
+    if ( autoMask() )
+	return;
+    QPainter paint( this );
+    paint.setBrush( colorGroup().foreground() );
+    drawClock( &paint );
+}
+
+// If the clock is transparent, we use updateMask()
+// instead of paintEvent()
+
+void AnalogClock::updateMask()	// paint clock mask
+{
+    QBitmap bm( size() );
+    bm.fill( color0 );			//transparent
+
+    QPainter paint;
+    paint.begin( &bm, this );
+    paint.setBrush( color1 );		// use non-transparent color
+    paint.setPen( color1 );
+    
+    drawClock( &paint );
+
+    paint.end();
+    setMask( bm );
+}
+
 //
 // The clock is painted using a 1000x1000 square coordinate system.
+// The painter's pen and brush colors are used.
 //
-
-void AnalogClock::paintEvent( QPaintEvent * )	// paint clock
+void AnalogClock::drawClock( QPainter *paint )
 {
-    if ( !isVisible() )				// is is invisible
-	return;
     time = QTime::currentTime();		// save current time
 
     QPointArray pts;
-    QPainter paint( this );
-    paint.setBrush( foregroundColor() );	// fill with foreground color
-
     QPoint cp = rect().center();		// widget center point
     int d = QMIN(width(),height());		// we want a circular clock
 
@@ -62,21 +85,32 @@ void AnalogClock::paintEvent( QPaintEvent * )	// paint clock
 
     float h_angle = 30*(time.hour()%12-3) + time.minute()/2;
     matrix.rotate( h_angle );			// rotate to draw hour hand
-    paint.setWorldMatrix( matrix );
+    paint->setWorldMatrix( matrix );
     pts.setPoints( 4, -20,0,  0,-20, 300,0, 0,20 );
-    paint.drawPolygon( pts );			// draw hour hand
+    paint->drawPolygon( pts );			// draw hour hand
     matrix.rotate( -h_angle );			// rotate back to zero
 
     float m_angle = (time.minute()-15)*6;
     matrix.rotate( m_angle );			// rotate to draw minute hand
-    paint.setWorldMatrix( matrix );
+    paint->setWorldMatrix( matrix );
     pts.setPoints( 4, -10,0, 0,-10, 400,0, 0,10 );
-    paint.drawPolygon( pts );			// draw minute hand
+    paint->drawPolygon( pts );			// draw minute hand
     matrix.rotate( -m_angle );			// rotate back to zero
 
     for ( int i=0; i<12; i++ ) {		// draw hour lines
-	paint.setWorldMatrix( matrix );
-	paint.drawLine( 450,0, 500,0 );
+	paint->setWorldMatrix( matrix );
+	paint->drawLine( 440,0, 460,0 );
 	matrix.rotate( 30 );
     }
+
+}
+
+
+void AnalogClock::setAutoMask(bool b)
+{
+    if (b)
+	setBackgroundMode( PaletteText );
+    else
+	setBackgroundMode( PaletteBackground );
+    QWidget::setAutoMask(b);
 }

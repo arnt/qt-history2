@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/menu/menu.h#1 $
+** $Id: //depot/qt/main/examples/menu/menu.h#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -43,7 +43,7 @@ protected:
     void    resizeEvent( QResizeEvent * );
 
 signals:
-    void    explain( const char * );
+    void    explain( const QString& );
 
 private:
     QMenuBar *menu;
@@ -51,7 +51,6 @@ private:
     bool isBold;
     bool isUnderline;
     int boldID, underlineID;
-    QPopupMenu *options;
 };
 
 

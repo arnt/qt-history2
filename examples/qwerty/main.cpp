@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qwerty/main.cpp#1 $
+** $Id: //depot/qt/main/examples/qwerty/main.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -14,9 +14,12 @@
 
 int main( int argc, char **argv )
 {
+    //QApplication::setDesktopSettingsAware( FALSE );
+    //QApplication::setFont(QFont("Helvetica",12));
     QApplication a( argc, argv );
+
     int i;
-    for ( i=0; i<argc; i++ ) {
+    for ( i= argc <= 1 ? 0 : 1; i<argc; i++ ) {
 	Editor *e = new Editor;
 	e->resize( 400, 400 );
 	if ( i > 0 )

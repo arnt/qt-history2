@@ -1,4 +1,5 @@
-The two programs makepic and showpic demonstrates how to record, save,
-load and replay a picture.
+This program demonstrates how to record, save, load and replay a
+picture.  
 
-Run makepic to record car.pic, then run showpic to replay it.
+Run picture to record car.pic, then run it again to replay it.
+

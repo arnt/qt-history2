@@ -1,7 +1,17 @@
+/****************************************************************************
+** $Id: //depot/qt/main/examples/splitter/splitter.cpp#2 $
+**
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
+
 #include <qapplication.h>
 #include <qlabel.h>
 #include <qsplitter.h>
-#include <qmultilinedit.h>
+#include <qmultilineedit.h>
 
 #include <qpainter.h>
 
@@ -53,35 +63,30 @@ int main( int argc, char ** argv )
     QSplitter *s2 = new QSplitter( QSplitter::Horizontal, s1, "top" );
 
     Test *t1 = new Test( s2 );
-    t1->setBackgroundColor( blue.light( 180 ) );
+    t1->setBackgroundColor( Qt::blue.light( 180 ) );
     t1->setMinimumSize( 50, 0 );
 
     Test *t2 = new Test( s2 );
-    t2->setBackgroundColor( green.light( 180 ) );
+    t2->setBackgroundColor( Qt::green.light( 180 ) );
     s2->setResizeMode( t2, QSplitter::KeepSize );
     s2->moveToFirst( t2 );
 
     QSplitter *s3 = new QSplitter( QSplitter::Horizontal,  s1, "bottom" );
 
-    // s4 is nested inside s3 - allowing 3 widgets to be split
-    QSplitter *s4 = new QSplitter( QSplitter::Horizontal,  s3, "bottom" );
-
-    Test *t3 = new Test( s4 );
-    t3->setBackgroundColor( red );
-
-    Test *t4 = new Test( s4 );
-    t4->setBackgroundColor( white );
+    Test *t3 = new Test( s3 );
+    t3->setBackgroundColor( Qt::red );
+    Test *t4 = new Test( s3 );
+    t4->setBackgroundColor( Qt::white );
 
     Test *t5 = new Test( s3 );
     t5->setMaximumHeight( 250 );
     t5->setMinimumSize( 80, 50 );
-    t5->setBackgroundColor( yellow );
+    t5->setBackgroundColor( Qt::yellow );
 
     // Test widgets draw fast...
     //s1->setOpaqueResize( TRUE );
     s2->setOpaqueResize( TRUE );
     s3->setOpaqueResize( TRUE );
-    s4->setOpaqueResize( TRUE );
 
     a.setMainWidget( s1 );
     s1->show();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dragdrop/main.cpp#1 $
+** $Id: //depot/qt/main/examples/dragdrop/main.cpp#2 $
 **
 ** Ritual main() for Qt applications
 **
@@ -23,7 +23,10 @@ static void addStuff( QWidget * parent, bool image, bool secret = FALSE )
     tll->addWidget( d );
     if ( image ) {
 	QPixmap stuff;
-	stuff.load( "../widgets/trolltech.bmp" );
+	if ( !stuff.load( "trolltech.bmp" ) ) {
+	    stuff = QPixmap(20,20);
+	    stuff.fill(Qt::green);
+	}
 	d->setPixmap( stuff );
     } else {
 	d->setText("Drag and Drop");
@@ -34,19 +37,20 @@ static void addStuff( QWidget * parent, bool image, bool secret = FALSE )
 	SecretSource *s = new SecretSource( 42, parent );
 	tll->addWidget( s );
     }
-    
+
     QLabel * format = new QLabel( "\nNone\n", parent );
     format->setMinimumSize( format->sizeHint() );
     tll->addWidget( format );
     tll->activate();
-    parent->resize( 1, 1 );
+    parent->resize( parent->sizeHint() );
 
-    QObject::connect( d, SIGNAL(message(const char *)),
-		      format, SLOT(setText(const char *)) );
+    QObject::connect( d, SIGNAL(message(const QString&)),
+		      format, SLOT(setText(const QString&)) );
 }
 
 
-int main( int argc, char ** argv ) {
+int main( int argc, char ** argv ) 
+{
     QApplication a( argc, argv );
 
     QWidget mw;

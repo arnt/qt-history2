@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/showimg/showimg.h#1 $
+** $Id: //depot/qt/main/examples/showimg/showimg.h#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -44,16 +44,19 @@ private:
     QImage	image;			// the loaded image
     QPixmap	pm;			// the converted pixmap
     QPixmap	pmScaled;		// the scaled pixmap
+
     QMenuBar   *menubar;
-    QPopupMenu *file;
-    QPopupMenu *options;
-    QPopupMenu *saveimage;
-    QPopupMenu *savepixmap;
+    QPopupMenu  *file;
+    QPopupMenu   *saveimage;
+    QPopupMenu   *savepixmap;
+    QPopupMenu  *edit;
+    QPopupMenu  *options;
+
     QWidget    *helpmsg;
     QLabel     *status;
     int         si, sp, ac, co, mo, fd, bd, // Menu item ids
 		td, ta, ba, fa, au, ad, dd,
-		ss, cc;
+		ss, cc, t1, t8, t32;
     void	updateStatus();
     void	setMenuItemFlags();
     bool 	reconvertImage();
@@ -63,6 +66,14 @@ private:
     static ImageViewer* other;
 
 private slots:
+    void	to1Bit();
+    void	to8Bit();
+    void	to32Bit();
+    void	toBitDepth(int);
+
+    void	copy();
+    void	paste();
+
     void	newWindow();
     void	openFile();
     void	saveImage(int);

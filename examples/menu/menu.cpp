@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/menu/menu.cpp#1 $
+** $Id: //depot/qt/main/examples/menu/menu.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -93,7 +93,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     QPixmap p2( p2_xpm );
     QPixmap p3( p3_xpm );
 
-    QPopupMenu *print = new QPopupMenu;
+    QPopupMenu *print = new QPopupMenu( this );
     CHECK_PTR( print );
     print->insertItem( "&Print to printer", this, SLOT(printer()) );
     print->insertItem( "Print to &file", this, SLOT(file()) );
@@ -101,7 +101,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     print->insertSeparator();
     print->insertItem( "Printer &Setup", this, SLOT(printerSetup()) );
 
-    QPopupMenu *file = new QPopupMenu();
+    QPopupMenu *file = new QPopupMenu( this );
     CHECK_PTR( file );
     file->insertItem( p1, "&Open",  this, SLOT(open()), CTRL+Key_O );
     file->insertItem( p2, "&New", this, SLOT(news()), CTRL+Key_N );
@@ -112,14 +112,14 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     file->insertSeparator();
     file->insertItem( "E&xit",  qApp, SLOT(quit()), CTRL+Key_Q );
 
-    QPopupMenu *edit = new QPopupMenu();
+    QPopupMenu *edit = new QPopupMenu( this );
     CHECK_PTR( edit );
     int undoID = edit->insertItem( "&Undo", this, SLOT(undo()) );
     int redoID = edit->insertItem( "&Redo", this, SLOT(redo()) );
     edit->setItemEnabled( undoID, FALSE );
     edit->setItemEnabled( redoID, FALSE );
 
-    options = new QPopupMenu();
+    QPopupMenu* options = new QPopupMenu( this );
     CHECK_PTR( options );
     options->insertItem( "&Normal Font", this, SLOT(normal()) );
     options->insertSeparator();
@@ -128,9 +128,9 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     isBold = FALSE;
     isUnderline = FALSE;
     options->setCheckable( TRUE );
-    
 
-    QPopupMenu *help = new QPopupMenu;
+
+    QPopupMenu *help = new QPopupMenu( this );
     CHECK_PTR( help );
     help->insertItem( "&About", this, SLOT(about()), CTRL+Key_H );
     help->insertItem( "About &Qt", this, SLOT(aboutQt()) );
@@ -151,8 +151,8 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     label->setLineWidth( 1 );
     label->setAlignment( AlignCenter );
 
-    connect( this,  SIGNAL(explain(const char *)),
-	     label, SLOT(setText(const char *)) );
+    connect( this,  SIGNAL(explain(const QString&)),
+	     label, SLOT(setText(const QString&)) );
 
     setMinimumSize( 100, 80 );
 }
@@ -197,8 +197,8 @@ void MenuExample::normal()
 {
     isBold = FALSE;
     isUnderline = FALSE;
-    options->setItemChecked( boldID, isBold );
-    options->setItemChecked( underlineID, isUnderline );
+    menu->setItemChecked( boldID, isBold );
+    menu->setItemChecked( underlineID, isUnderline );
     emit explain( "Options/Normal selected" );
 }
 
@@ -206,7 +206,7 @@ void MenuExample::normal()
 void MenuExample::bold()
 {
     isBold = !isBold;
-    options->setItemChecked( boldID, isBold );
+    menu->setItemChecked( boldID, isBold );
     emit explain( "Options/Bold selected" );
 }
 
@@ -214,7 +214,7 @@ void MenuExample::bold()
 void MenuExample::underline()
 {
     isUnderline = !isUnderline;
-    options->setItemChecked( underlineID, isUnderline );
+    menu->setItemChecked( underlineID, isUnderline );
     emit explain( "Options/Underline selected" );
 }
 

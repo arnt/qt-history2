@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qmag/qmag.cpp#1 $
+** $Id: //depot/qt/main/examples/qmag/qmag.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -57,7 +57,7 @@ private:
     int		yoffset;	// pixels in addition to the actual picture
     int		z;		// magnification factor
     int		r;		// autorefresh rate (index into refreshrates)
-    bool	grabbing;	// true if qmag is currently grabbing
+    bool	grabbing;	// TRUE if qmag is currently grabbing
     int		grabx, graby;
     QString	multifn;	// filename for multisave
 };

@@ -3,3 +3,4 @@ how to inherit the QTableView widget for presentations of 2D data arrays.
 
 Left-click the mouse to set a current cell. Press the arrow buttons to
 move the current mark around.
+

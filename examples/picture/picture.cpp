@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/picture/picture.cpp#1 $
+** $Id: //depot/qt/main/examples/picture/picture.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -21,7 +21,7 @@
 void paintCar( QPainter *p )			// paint a car
 {
     QPointArray a;
-    QBrush brush( yellow, SolidPattern );
+    QBrush brush( Qt::yellow, Qt::SolidPattern );
     p->setBrush( brush );			// use solid, yellow brush
 
     a.setPoints( 5, 50,50, 350,50, 450,120, 450,250, 50,250 );
@@ -34,16 +34,16 @@ void paintCar( QPainter *p )			// paint a car
     brush.setColor( windowColor );		// set this brush color
     p->setBrush( brush );			// set brush
     p->drawRect( 80, 80, 250, 70 );		// car window
-    p->drawText( 180, 80, 150, 70, AlignCenter, "--  Qt  --\nTroll Tech AS" );
+    p->drawText( 180, 80, 150, 70, Qt::AlignCenter, "--  Qt  --\nTroll Tech AS" );
 
     QPixmap pixmap;
     if ( pixmap.load("flag.bmp") )		// load and draw image
 	p->drawPixmap( 100, 90, pixmap );
 
-    p->setBackgroundMode( OpaqueMode );		// set opaque mode
-    p->setBrush( DiagCrossPattern );		// black diagonal cross pattern
+    p->setBackgroundMode( Qt::OpaqueMode );		// set opaque mode
+    p->setBrush( Qt::DiagCrossPattern );		// black diagonal cross pattern
     p->drawEllipse( 90, 210, 80, 80 );		// back wheel
-    p->setBrush( CrossPattern );		// black cross fill pattern
+    p->setBrush( Qt::CrossPattern );		// black cross fill pattern
     p->drawEllipse( 310, 210, 80, 80 );		// front wheel
 }
 

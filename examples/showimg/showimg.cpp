@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/showimg/showimg.cpp#1 $
+** $Id: //depot/qt/main/examples/showimg/showimg.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -17,6 +17,7 @@
 #include <qpainter.h>
 #include <qkeycode.h>
 #include <qapplication.h>
+#include <qclipboard.h>
 
 
 /*
@@ -59,6 +60,15 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
     sp = file->insertItem( "Save pixmap", savepixmap );
     file->insertSeparator();
     file->insertItem( "Quit", qApp,  SLOT(quit()), CTRL+Key_Q );
+
+    edit =  new QPopupMenu();
+    menubar->insertItem( "&Edit", edit );
+    edit->insertItem("&Copy", this, SLOT(copy()), ALT+Key_C);
+    edit->insertItem("&Paste", this, SLOT(paste()), ALT+Key_V);
+    edit->insertSeparator();
+    t1 = edit->insertItem( "Convert to &1 bit", this, SLOT(to1Bit()) );
+    t8 = edit->insertItem( "Convert to &8 bit", this, SLOT(to8Bit()) );
+    t32 = edit->insertItem( "Convert to &32 bit", this, SLOT(to32Bit()) );
 
     options =  new QPopupMenu();
     menubar->insertItem( "&Options", options );
@@ -170,9 +180,15 @@ void ImageViewer::setMenuItemFlags()
     file->setItemEnabled( si, valid_image );
     file->setItemEnabled( sp, valid_image );
 
+    // Edit
+    edit->setItemEnabled( t1, image.depth() != 1 );
+    edit->setItemEnabled( t8, image.depth() != 8 );
+    edit->setItemEnabled( t32, image.depth() != 32 );
+
     // Options
     bool may_need_color_dithering =
-	    !valid_image || image.depth() == 32 && QPixmap::defaultDepth() <= 8;
+	    !valid_image
+	|| image.depth() == 32 && QPixmap::defaultDepth() < 24;
     bool may_need_dithering = may_need_color_dithering
 	 || image.depth() > 1 && options->isItemChecked(mo)
 	 || image.depth() > 1 && QPixmap::defaultDepth() == 1;
@@ -268,7 +284,8 @@ void ImageViewer::updateStatus()
 void ImageViewer::saveImage( int item )
 {
     const char* fmt = saveimage->text(item);
-    QString savefilename = QFileDialog::getSaveFileName(0, 0, 0, filename);
+    QString savefilename = QFileDialog::getSaveFileName(QString::null, QString::null,
+					this, filename);
     if ( !savefilename.isEmpty() )
 	if ( !image.save( savefilename, fmt ) )
 	    QMessageBox::warning( this, "Save failed", "Error saving file" );
@@ -280,7 +297,8 @@ void ImageViewer::saveImage( int item )
 void ImageViewer::savePixmap( int item )
 {
     const char* fmt = savepixmap->text(item);
-    QString savefilename = QFileDialog::getSaveFileName(0, 0, 0, filename);
+    QString savefilename = QFileDialog::getSaveFileName(QString::null,
+					QString::null, this, filename);
     if ( !savefilename.isEmpty() )
 	if ( !pmScaled.save( savefilename, fmt ) )
 	    QMessageBox::warning( this, "Save failed", "Error saving file" );
@@ -559,5 +577,65 @@ void ImageViewer::copyFrom(ImageViewer* s)
 	repaint( image.hasAlphaBuffer() );
     }
 }
-
 ImageViewer* ImageViewer::other = 0;
+
+void ImageViewer::copy()
+{
+    //QApplication::clipboard()->setPixmap(pm);
+    QApplication::clipboard()->setImage(image); // Less information loss
+}
+
+void ImageViewer::paste()
+{
+    image = QApplication::clipboard()->image();
+
+    if ( !image.isNull() ) {
+	filename = "pasted";
+
+	// From loadImage - could be factored out
+
+	pickx = -1;
+	clickx = -1;
+	setCaption( filename );			// set window caption
+	int w = image.width();
+	int h = image.height();
+
+	const int reasonable_width = 128;
+	if ( w < reasonable_width ) {
+	    // Integer scale up to something reasonable
+	    int multiply = ( reasonable_width + w - 1 ) / w;
+	    w *= multiply;
+	    h *= multiply;
+	}
+
+	h += menubar->heightForWidth(w) + status->height();
+	resize( w, h );				// we resize to fit image
+
+	reconvertImage();
+
+	updateStatus();
+	setMenuItemFlags();
+    }
+}
+
+void ImageViewer::to1Bit()
+{
+    toBitDepth(1);
+}
+
+void ImageViewer::to8Bit()
+{
+    toBitDepth(8);
+}
+
+void ImageViewer::to32Bit()
+{
+    toBitDepth(32);
+}
+
+void ImageViewer::toBitDepth(int d)
+{
+    image = image.convertDepth(d);
+    reconvertImage();
+    repaint( image.hasAlphaBuffer() );
+}

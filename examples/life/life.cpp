@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/life/life.cpp#1 $
+** $Id: //depot/qt/main/examples/life/life.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -47,7 +47,7 @@ void LifeWidget::clear()
 
 
 // We assume that the size will never be beyond the maximum size set
-// this is not in general true, but in practice it's good enough for
+// this is not in general TRUE, but in practice it's good enough for
 // this program
 
 void LifeWidget::resizeEvent( QResizeEvent * e )
@@ -82,7 +82,7 @@ void LifeWidget::mouseMoveEvent( QMouseEvent *e )
 
 void LifeWidget::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() == LeftButton )
+    if ( e->button() == QMouseEvent::LeftButton )
 	mouseHandle( e->pos() );
 }
 

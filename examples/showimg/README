@@ -7,13 +7,8 @@ of QPainter to display the pixmap, the bitBlt function can also be used to
 display pixmaps.
 
 If you have installed the Qt imageio extension (see extensions/imageio
-in your Qt directory), you can build using that extension with:
-
-   make withimgio
-
-Otherwise, just
-
-   make
+in your Qt directory), you can build using that extension.
 
 Some of the conversion options will have no effect, depending on the
 display hardware used.  Generally, these are disabled.
+

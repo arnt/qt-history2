@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qwerty/qwerty.cpp#1 $
+** $Id: //depot/qt/main/examples/qwerty/qwerty.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -20,10 +20,17 @@
 #include <qpaintdevicemetrics.h>
 #include <qlist.h>
 
+#include <qtextcodec.h>
+
 typedef QList<Editor> EditorList;
 
 static EditorList *spawnedEditors = 0;		// list of  editors spawned by
 						// Editor::newDoc()
+
+static QList<QTextCodec> *codecList = 0;
+
+enum { Uni = 0, MBug = 1, Lat1 = 2, Codec = 5 };
+
 
 Editor::Editor( QWidget * parent , const char * name )
     : QWidget( parent, name )
@@ -33,16 +40,25 @@ Editor::Editor( QWidget * parent , const char * name )
     CHECK_PTR( file );
     m->insertItem( "&File", file );
 
-    file->insertItem( "New",   this, SLOT(newDoc()),   ALT+Key_N );
-    file->insertItem( "Open",  this, SLOT(load()),     ALT+Key_O );
-    file->insertItem( "Save",  this, SLOT(save()),     ALT+Key_S );
-    file->insertSeparator();
-    file->insertItem( "Print", this, SLOT(print()),    ALT+Key_P );
-    file->insertSeparator();
-    file->insertItem( "Close", this, SLOT(closeDoc()),ALT+Key_W );
-    file->insertItem( "Quit",  qApp, SLOT(quit()),     ALT+Key_Q );
+    file->insertItem( "&New",   this, SLOT(newDoc()),   ALT+Key_N );
+    file->insertItem( "&Open",  this, SLOT(load()),     ALT+Key_O );
+    file->insertItem( "&Save",  this, SLOT(save()),     ALT+Key_S );
 
+    save_as = new QPopupMenu();
+    file->insertItem( "Save &as",  save_as );
+    file->insertItem( "Add &encoding", this, SLOT(addEncoding()) );
+    file->insertSeparator();
+    file->insertItem( "&Print", this, SLOT(print()),    ALT+Key_P );
+    file->insertSeparator();
+    file->insertItem( "&Close", this, SLOT(closeDoc()),ALT+Key_W );
+    file->insertItem( "&Quit",  qApp, SLOT(quit()),     ALT+Key_Q );
+
+    connect( save_as, SIGNAL(activated(int)), this, SLOT(saveAsEncoding(int)) );
+    rebuildCodecList();
+    
     e = new QMultiLineEdit( this, "editor" );
+    e->setFont( QFont("Helvetica", 24) );
+
     e->setFocus();
 }
 
@@ -57,6 +73,23 @@ Editor::~Editor()
     }
 }
 
+void Editor::rebuildCodecList()
+{
+    delete codecList;
+    codecList = new QList<QTextCodec>;
+    QTextCodec *codec;
+    int i;
+    for (i = 0; (codec = QTextCodec::codecForIndex(i)); i++)
+	codecList->append( codec );
+    int n = codecList->count();
+    save_as->clear();
+    save_as->insertItem("Unicode", Uni );
+    save_as->insertItem("Latin1", Lat1 );
+    save_as->insertItem("Microsoft Unicode", MBug );
+    for ( i = 0; i < n; i++ )
+	save_as->insertItem( codecList->at(i)->name(), Codec + i );
+}
+
 void Editor::newDoc()
 {
     if ( !spawnedEditors )
@@ -67,39 +100,100 @@ void Editor::newDoc()
     ed->show();
 }
 
+
 void Editor::load()
 {
-    QString fn = QFileDialog::getOpenFileName( 0, 0, this );
-    if ( !fn.isEmpty() ) 
+    QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
+    if ( !fn.isEmpty() )
 	load( fn );
 }
 
-
-void Editor::load( const char *fileName )
+void Editor::load( const QString& fileName )
 {
     QFile f( fileName );
     if ( !f.open( IO_ReadOnly ) )
 	return;
 
     e->setAutoUpdate( FALSE );
-    e->clear();
 
     QTextStream t(&f);
-    while ( !t.eof() ) {
-	QString s = t.readLine();
-	e->append( s );
-    }
+    e->setText( t.read() );
     f.close();
 
     e->setAutoUpdate( TRUE );
     e->repaint();
     setCaption( fileName );
+
+    //extern void qt_qstring_stats();
+    //qt_qstring_stats();
 }
 
 void Editor::save()
 {
-    QMessageBox::message( "Note", "Left as an exercise for the user." );
+    //storing filename (proper save) is left as an exercise...
+    QString fn = QFileDialog::getSaveFileName( QString::null, QString::null, this );
+    if ( !fn.isEmpty() )
+	saveAs( fn );
 }
+
+void Editor::saveAsEncoding( int code )
+{
+    //storing filename (proper save) is left as an exercise...
+    QString fn = QFileDialog::getSaveFileName( QString::null, QString::null, this );
+    if ( !fn.isEmpty() )
+	saveAs( fn, code );
+}
+
+void Editor::addEncoding()
+{
+    QString fn = QFileDialog::getOpenFileName( QString::null, "*.map", this );
+    if ( !fn.isEmpty() ) {
+	QFile f(fn);
+	if (f.open(IO_ReadOnly)) {
+	    if (QTextCodec::loadCharmap(&f)) {
+		rebuildCodecList();
+	    } else {
+		QMessageBox::warning(0,"Charmap error",
+		    "The file did not contain a valid charmap.\n\n"
+		    "A charmap file should look like this:\n"
+		       "  <code_set_name> thename\n"
+		       "  <escape_char> /\n"
+		       "  % alias thealias\n"
+		       "  CHARMAP\n"
+		       "  <tokenname> /x12 <U3456>\n"
+		       "  <tokenname> /xAB/x12 <U0023>\n"
+		       "  ...\n"
+		       "  END CHARMAP\n"
+		);
+	    }
+	}
+    }
+}
+
+
+void Editor::saveAs( const QString& fileName, int code )
+{
+    QFile f( fileName );
+    if ( !f.open( IO_WriteOnly ) ) {
+	QMessageBox::warning(this,"I/O Error",
+		    QString("The file could not be opened.\n\n")
+			+fileName);
+	return;
+    }
+    QTextStream t(&f);
+    if ( code >= Codec )
+	t.setCodec( codecList->at(code-Codec) );
+    else if ( code == Uni )
+	t.setEncoding( QTextStream::Unicode );
+    else if ( code == MBug )
+	t.setEncoding( QTextStream::UnicodeReverse );
+    else if ( code == Lat1 )
+	t.setEncoding( QTextStream::Latin1 );
+    t << e->text();
+    f.close();
+    setCaption( fileName );
+}
+
 
 void Editor::print()
 {
@@ -118,7 +212,7 @@ void Editor::print()
 		printer.newPage();		// no more room on this page
 		yPos = 0;			// back to top of page
 	    }
-	    p.drawText( MARGIN, MARGIN + yPos, 
+	    p.drawText( MARGIN, MARGIN + yPos,
 			metrics.width(), fm.lineSpacing(),
 			ExpandTabs | DontClip,
 			e->textLine( i ) );
@@ -141,7 +235,7 @@ void Editor::resizeEvent( QResizeEvent * )
 
 void Editor::closeEvent( QCloseEvent * )
 {
-    if ( spawnedEditors && 
+    if ( spawnedEditors &&
 	 spawnedEditors->findRef(this) != -1 ){	// Was it created by newDoc()?
 	delete this;				// Goodbye cruel world!
     } else {

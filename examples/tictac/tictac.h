@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/tictac/tictac.h#1 $
+** $Id: //depot/qt/main/examples/tictac/tictac.h#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -30,7 +30,7 @@ public:
     TicTacButton( QWidget *parent=0 );
     enum Type { Blank, Circle, Cross };
     Type	type() const		{ return t; }
-    void	setType( Type type )	{ t = type; paintEvent(0); }
+    void	setType( Type type )	{ t = type; repaint(); }
 protected:
     void	drawButton( QPainter * );
 private:

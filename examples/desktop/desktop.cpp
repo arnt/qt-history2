@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/desktop/desktop.cpp#1 $
+** $Id: //depot/qt/main/examples/desktop/desktop.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -12,6 +12,8 @@
 #include <qbitmap.h>
 #include <qpainter.h>
 #include <qapplication.h>
+#include <qdropsite.h>
+#include <qdragobject.h>
 #include <stdio.h>
 
 
@@ -43,7 +45,7 @@ static int velocity( int i )			// change velocity
 void poly()
 {
     QWidget *d = QApplication::desktop();
-    d->setBackgroundColor( white );		// white desktop
+    d->setBackgroundColor( Qt::white );		// white desktop
 
     const int maxpoints = 5;
     const int maxcurves = 8;
@@ -129,7 +131,7 @@ void rotate()
 
     QPixmap pm;
     pm = image;					// convert image to pixmap
-    pm.optimize( TRUE );		// rotation will be faster
+    pm.setOptimization( QPixmap::BestOptim );	// rotation will be faster
 
     QWidget *d = QApplication::desktop();	// w = desktop widget
 
@@ -182,19 +184,47 @@ void drawShadeText( QPainter *p, int x, int y, const char *text,
     p->drawText( x, y, text );
 }
 
-class DesktopWidget : public QWidget
+// NOTE: desktop drag/drop is experimental
+
+class DesktopWidget : public QWidget, QDropSite
 {
 public:
     DesktopWidget( const char *s, QWidget *parent=0, const char *name=0 );
    ~DesktopWidget();
     void paintEvent( QPaintEvent * );
+
+    void dragEnterEvent( QDragEnterEvent *e )
+    {
+	if ( QImageDrag::canDecode(e) )
+	    e->accept();
+    }
+
+    void dragLeaveEvent( QDragLeaveEvent * )
+    {
+    }
+
+    void dragMoveEvent( QDragMoveEvent *e )
+    {
+	e->accept();
+    }
+
+    void dropEvent( QDropEvent * e )
+    {
+	QPixmap pm;
+	if ( QImageDrag::decode( e, pm ) ) {
+	    setBackgroundPixmap( pm );
+	    update();
+	}
+    }
+
 private:
     QPixmap *pm;
     QString text;
 };
 
 DesktopWidget::DesktopWidget( const char *s, QWidget *parent, const char *name )
-    : QWidget( parent, name, WType_Desktop | WPaintDesktop)
+    : QWidget( parent, name, WType_Desktop | WPaintDesktop),
+	QDropSite(this)
 {
     text = s;
     pm	 = 0;
@@ -240,7 +270,7 @@ void desktopText( const char *s = "Troll Tech" )
 {
     const int border = 20;
 
-    QColor c1 =	 qApp->palette()->normal().background();
+    QColor c1 =	 qApp->palette().normal().background();
     QColor c2 = c1.light(104);
     QColor c3 = c1.dark(106);
 

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.h#1 $
+** $Id: //depot/qt/main/examples/application/application.h#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -12,6 +12,7 @@
 #define APPLICATION_H
 
 #include <qmainwindow.h>
+#include <qstring.h>
 
 class QMultiLineEdit;
 class QToolBar;
@@ -23,14 +24,21 @@ class ApplicationWindow: public QMainWindow
 public:
     ApplicationWindow();
     ~ApplicationWindow();
-    
+
+protected:
+    bool eventFilter( QObject *, QEvent * );
+
 private slots:
     void newDoc();
     void load();
-    void load( const char *fileName );
+    void load( const QString &fileName );
     void save();
+    void saveAs();
     void print();
     void closeDoc();
+
+    void about();
+    void aboutQt();
 
     void toggleMenuBar();
     void toggleStatusBar();
@@ -42,6 +50,7 @@ private:
     QToolBar *fileTools;
     QPopupMenu *controls;
     int mb, tb, sb;
+    QString filename;
 };
 
 

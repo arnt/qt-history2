@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dragdrop/secret.cpp#1 $
+** $Id: //depot/qt/main/examples/dragdrop/secret.cpp#2 $
 **
 ** Custom MIME type implementation example
 **
@@ -11,8 +11,6 @@
 
 #include "secret.h"
 #include <qevent.h>
-
-RCSTAG("$Id: //depot/qt/main/examples/dragdrop/secret.cpp#1 $");
 
 
 //create the object withe the secret byte

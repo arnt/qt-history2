@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dragdrop/dropsite.h#1 $
+** $Id: //depot/qt/main/examples/dragdrop/dropsite.h#2 $
 **
 ** Drop site example implementation
 **
@@ -13,9 +13,12 @@
 #define DROPSITE_H
 
 #include <qlabel.h>
+#include <qmovie.h>
 #include "qdropsite.h"
 
-class DropSite: public QLabel, QDropSite
+class QDragObject;
+
+class DropSite: public QLabel
 {
     Q_OBJECT
 public:
@@ -23,16 +26,27 @@ public:
     ~DropSite();
 
 signals:
-    void message( const char * );
+    void message( const QString& );
 
 protected:
     void dragEnterEvent( QDragEnterEvent * );
     void dragMoveEvent( QDragMoveEvent * );
     void dragLeaveEvent( QDragLeaveEvent * );
     void dropEvent( QDropEvent * );
+    void backgroundColorChange( const QColor& );
 
     // this is a normal even
     void mousePressEvent( QMouseEvent * );
+};
+
+class DragMoviePlayer : public QObject {
+    Q_OBJECT
+    QDragObject* dobj;
+    QMovie movie;
+public:
+    DragMoviePlayer(QDragObject*);
+private slots:
+    void updatePixmap( const QRect& );
 };
 
 

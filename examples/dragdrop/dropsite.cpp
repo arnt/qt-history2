@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dragdrop/dropsite.cpp#1 $
+** $Id: //depot/qt/main/examples/dragdrop/dropsite.cpp#2 $
 **
 ** Drop site example implementation
 **
@@ -16,13 +16,11 @@
 #include <qdragobject.h>
 #include <qimage.h>
 
-RCSTAG("$Id: //depot/qt/main/examples/dragdrop/dropsite.cpp#1 $");
-
 
 DropSite::DropSite( QWidget * parent, const char * name )
-    : QLabel( parent, name ),
-      QDropSite( this )
+    : QLabel( parent, name )
 {
+    setAcceptDrops(TRUE);
 }
 
 
@@ -44,7 +42,8 @@ void DropSite::dragEnterEvent( QDragEnterEvent *e )
     // Check if you want the drag...
     if ( SecretDrag::canDecode( e )
       || QTextDrag::canDecode( e )
-      || QImageDrag::canDecode( e ) )
+      || QImageDrag::canDecode( e )
+      || QUrlDrag::canDecode( e ) )
     {
 	e->accept();
     }
@@ -89,6 +88,22 @@ void DropSite::dropEvent( QDropEvent * e )
 	return;
     }
 
+    QStrList strings;
+    if ( QUrlDrag::decode( e, strings ) ) {
+	QString m("Full URLs:\n");
+	for (const char* u=strings.first(); u; u=strings.next())
+	    m = m + "   " + u + '\n';
+	QStringList files;
+	if ( QUrlDrag::decodeLocalFiles( e, files ) ) {
+	    m += "Files:\n";
+	    for (QStringList::Iterator i=files.begin(); i!=files.end(); ++i)
+		m = m + "   " + *i + '\n';
+	}
+	setText( m );
+	setMinimumSize( minimumSize().expandedTo( sizeHint() ) );
+	return;
+    }
+
     if ( SecretDrag::decode( e, str ) ) {
         setText( str );
 	setMinimumSize( minimumSize().expandedTo( sizeHint() ) );
@@ -96,16 +111,33 @@ void DropSite::dropEvent( QDropEvent * e )
     }
 }
 
+DragMoviePlayer::DragMoviePlayer( QDragObject* p ) :
+    QObject(p),
+    dobj(p),
+    movie("trolltech.gif" )
+{
+    movie.connectUpdate(this,SLOT(updatePixmap(const QRect&)));
+}
+
+void DragMoviePlayer::updatePixmap( const QRect& )
+{
+    dobj->setPixmap(movie.framePixmap());
+}
 
 void DropSite::mousePressEvent( QMouseEvent * /*e*/ )
 {
     QDragObject *d;
     if ( pixmap() ) {
 	d = new QImageDrag( pixmap()->convertToImage(), this );
+#if 1
 	QPixmap pm;
 	pm.convertFromImage(pixmap()->convertToImage().smoothScale(
-	   pixmap()->width()/3,pixmap()->height()/3));
+	    pixmap()->width()/3,pixmap()->height()/3));
 	d->setPixmap(pm,QPoint(-5,-7));
+#else
+	// Try it.
+	(void)new DragMoviePlayer(d);
+#endif
     } else {
 	d = new QTextDrag( text(), this );
     }
@@ -113,3 +145,7 @@ void DropSite::mousePressEvent( QMouseEvent * /*e*/ )
 }
 
 
+void DropSite::backgroundColorChange( const QColor &c )
+{
+    repaint();
+}

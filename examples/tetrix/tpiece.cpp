@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/tetrix/tpiece.cpp#1 $
+** $Id: //depot/qt/main/examples/tetrix/tpiece.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -161,7 +161,7 @@ double TetrixPiece::randomSeed = 0.33333;
 
 void TetrixPiece::setRandomSeed(double seed)
 {
-    QString buffer;
+    QCString buffer;
     if (seed < 0)
         seed = - seed;
     if (seed >= 1)

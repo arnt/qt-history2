@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/progress/progress.cpp#1 $
+** $Id: //depot/qt/main/examples/progress/progress.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -161,6 +161,8 @@ public:
 	options->insertSeparator();
 	dl_id = options->insertItem( "Default label", this, SLOT(defaultLabel()) );
 	cl_id = options->insertItem( "Custom label", this, SLOT(customLabel()) );
+	options->insertSeparator();
+	md_id = options->insertItem( "No minimum duration", this, SLOT(toggleMinimumDuration()) );
 	options->setCheckable( TRUE );
 	loopDriven();
 	defaultLabel();
@@ -207,6 +209,12 @@ public slots:
 	options->setItemChecked( cl_id, TRUE );
     }
 
+    void toggleMinimumDuration()
+    {
+	options->setItemChecked( md_id, 
+	   !options->isItemChecked( md_id ) );
+    }
+
 private:
     void timerEvent( QTimerEvent* )
     {
@@ -244,6 +252,8 @@ private:
     {
 	QProgressDialog *d = new QProgressDialog(label, "Cancel", steps, this,
 						 "progress", modal);
+        if ( options->isItemChecked( md_id ) )
+	    d->setMinimumDuration(0);
 	if ( !default_label )
 	    d->setLabel( new AnimatedThingy(d,label) );
 	return d;
@@ -260,7 +270,7 @@ private:
     {
 	if ( timer_driven ) {
 	    if ( pb ) {
-		warning("This cannot happen!");
+		qWarning("This cannot happen!");
 		return;
 	    }
 	    rects = n;
@@ -301,6 +311,7 @@ private:
     QPopupMenu* options;
     int td_id, ld_id;
     int dl_id, cl_id;
+    int md_id;
     int rects;
     bool timer_driven;
     bool default_label;

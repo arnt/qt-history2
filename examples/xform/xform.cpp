@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/xform/xform.cpp#1 $
+** $Id: //depot/qt/main/examples/xform/xform.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -20,46 +20,53 @@
 #include <qlcdnumber.h>
 #include <qslider.h>
 #include <qmenubar.h>
+#include <qfontdialog.h>
 
 #include <qpainter.h>
 #include <qpixmap.h>
+#include <qpicture.h>
 
 #include <stdlib.h>
 
 
-class FontSelect;
+class ModeNames {
+public:
+    enum Mode { Text, Image, Picture };
+};
 
 
-class XFormControl : public QFrame
+class XFormControl : public QFrame, public ModeNames
 {
     Q_OBJECT
 public:
     XFormControl( QWidget *parent=0, const char *name=0 );
    ~XFormControl() {}
+
 signals:
     void newMatrix( QWMatrix );
-    void newText( const char * );
+    void newText( const QString& );
     void newFont( const QFont & );
-    void newMode( bool image );
+    void newMode( int );
 private slots:
     void newMtx();
     void selectFont();
-    void selectFontDestroyed();
     void fontSelected( const QFont & );
-    void toggleMode();
+    void changeMode(int);
 private:
-    QSlider	*rotS;		       // Rotation angle scroll bar
-    QSlider	*shearS;	       // Shear value scroll bar
-    QSlider	*magS;		       // Magnification value scroll bar
-    QLCDNumber	*rotLCD;	       // Rotation angle LCD display
-    QLCDNumber	*shearLCD;	       // Shear value LCD display
-    QLCDNumber	*magLCD;	       // Magnification value LCD display
-    QCheckBox	*mirror;	       // Checkbox for mirror image on/of
-    QLineEdit	*textEd;	       // Inp[ut field for xForm text
-    QPushButton *f;		       // Select font push button
-    QCheckBox	*imgCheckBox;	       // Check box for image on/off
-    FontSelect	*fs;		       // font select dialog box
-    bool	 fsUp;		       // TRUE if font select is visible
+    Mode mode;
+    QSlider	 *rotS;		       // Rotation angle scroll bar
+    QSlider	 *shearS;	       // Shear value scroll bar
+    QSlider	 *magS;		       // Magnification value scroll bar
+    QLCDNumber	 *rotLCD;	       // Rotation angle LCD display
+    QLCDNumber	 *shearLCD;	       // Shear value LCD display
+    QLCDNumber	 *magLCD;	       // Magnification value LCD display
+    QCheckBox	 *mirror;	       // Checkbox for mirror image on/of
+    QLineEdit	 *textEd;	       // Inp[ut field for xForm text
+    QPushButton  *f;		       // Select font push button
+    QRadioButton *rb_txt;	       // Radio button for text
+    QRadioButton *rb_img;	       // Radio button for image
+    QRadioButton *rb_pic;	       // Radio button for picture
+    QFontDialog  *fd;		       // Standard font dialog
 };
 
 
@@ -68,75 +75,38 @@ private:
   transformation matrix (QWMatrix)
 */
 
-class ShowXForm : public QWidget
+class ShowXForm : public QWidget, public ModeNames
 {
     Q_OBJECT
 public:
     ShowXForm( QWidget *parent=0, const char *name=0 );
    ~ShowXForm() {}
     void showIt();			// (Re)displays text or pixmap
-    bool pixmapMode() const { return usingPixmap; }
+
+    Mode mode() const { return m; }
 public slots:
-    void setText( const char* );
+    void setText( const QString& );
     void setMatrix( QWMatrix );
     void setFont( const QFont &f );
     void setPixmap( QPixmap );
-    void setPixmapMode( bool b );
+    void setPicture( const QPicture& );
+    void setMode( int );
 private:
     void paintEvent( QPaintEvent * );
     void resizeEvent( QResizeEvent * );
-    QString   text;			// text to be displayed
     QWMatrix  mtx;			// coordinate transform matrix
+    QString   text;			// text to be displayed
     QPixmap   pix;			// pixmap to be displayed
-    bool      usingPixmap;		// TRUE if pix is being displayed
+    QPicture  picture;			// text to be displayed
     QRect     eraseRect;		// covers last displayed text/pixmap
+    Mode      m;
 };
-
-class FontSelect : public QDialog
-{
-    Q_OBJECT
-public:
-    FontSelect( QWidget *parent=0, const char *name=0 );
-private slots:
-    void	 newStrikeOut();
-    void	 doFont();
-    void	 newUnderline();
-    void	 newItalic();
-    void	 newWeight( int id );
-    void	 newFamily();
-    void	 newSize( int );
-    void	 slidingSize( int );
-    void	 doApply();
-    void	 familyActivated( int );
-    void	 pSizeActivated( int );
-signals:
-    void	 newFont( const QFont & );
-protected:
-    void	 updateMetrics();
-private:
-    QLabel	 *familyL;
-    QLabel	 *sizeL;
-    QLineEdit	 *family;
-    QLineEdit	 *sizeE;
-    QCheckBox	 *italic;
-    QCheckBox	 *underline;
-    QCheckBox	 *strikeOut;
-    QPushButton	 *apply;
-    QPushButton	 *stat;
-    QSlider	 *sizeS;
-    QRadioButton *rb[5];
-    QButtonGroup *weight;
-    QGroupBox	 *mGroup;
-    QFont	  f;
-    QMenuBar	 *menu;
-    QLabel	 *metrics[4][2];
-    QWidget	 *fontInternal;
-};
-
 
 XFormControl::XFormControl( QWidget *parent, const char *name )
 	: QFrame( parent, name )
 {
+    mode = Text;
+
     rotLCD	= new QLCDNumber( 4, this, "rotateLCD" );
     rotS	= new QSlider( QSlider::Horizontal, this,
 				  "rotateSlider" );
@@ -146,7 +116,9 @@ XFormControl::XFormControl( QWidget *parent, const char *name )
     mirror	= new QCheckBox( this, "mirrorCheckBox" );
     textEd	= new QLineEdit( this, "text" );
     f		= new QPushButton( this, "text" );
-    imgCheckBox = new QCheckBox( this, "fontOrImage" );
+    rb_txt = new QRadioButton( this, "text" );
+    rb_img = new QRadioButton( this, "image" );
+    rb_pic = new QRadioButton( this, "picture" );
 
     rotLCD->setGeometry( 10, 10, 100, 60 );
     rotLCD->display( "  0'" );
@@ -165,24 +137,34 @@ XFormControl::XFormControl( QWidget *parent, const char *name )
     connect( shearS, SIGNAL(valueChanged(int)), SLOT(newMtx()) );
 
     mirror->setGeometry( 10, 200, 100, 15 );
-    mirror->setText( "Mirror" );
+    mirror->setText( tr("Mirror") );
     connect( mirror, SIGNAL(clicked()), SLOT(newMtx()) );
 
-    imgCheckBox->setGeometry( 10, 220, 100, 15 );
-    imgCheckBox->setText( "Image" );
-    connect( imgCheckBox, SIGNAL(clicked()), SLOT(toggleMode()) );
+    QButtonGroup *bg = new QButtonGroup(this);
+    bg->hide();
+    bg->insert(rb_txt,0);
+    bg->insert(rb_img,1);
+    bg->insert(rb_pic,2);
+    rb_txt->setGeometry( 10, 220, 100, 15 );
+    rb_txt->setText( tr("Text") );
+    rb_txt->setChecked(TRUE);
+    rb_img->setGeometry( 10, 235, 100, 15 );
+    rb_img->setText( tr("Image") );
+    rb_pic->setGeometry( 10, 250, 100, 15 );
+    rb_pic->setText( tr("Picture") );
+    connect( bg, SIGNAL(clicked(int)), SLOT(changeMode(int)) );
 
-    textEd->setGeometry( 10, 245, 100, 20 );
+    textEd->setGeometry( 10, 275, 100, 20 );
     textEd->setText( "Troll" );
-    connect( textEd, SIGNAL(textChanged(const char*)),
-		     SIGNAL(newText(const char*)) );
+    connect( textEd, SIGNAL(textChanged(const QString&)),
+		     SIGNAL(newText(const QString&)) );
 
-    f->setGeometry( 10, 275, 100, 20 );
-    f->setText( "Select font..." );
+    f->setGeometry( 10, 305, 100, 20 );
+    f->setText( tr("Select font...") );
     connect( f, SIGNAL(clicked()), SLOT(selectFont()) );
 
     magS    = 0;
-    fs	    = 0;
+    fd	    = 0;
 }
 
 /*
@@ -192,7 +174,7 @@ XFormControl::XFormControl( QWidget *parent, const char *name )
 void XFormControl::newMtx()
 {
     QWMatrix m;
-    if ( imgCheckBox->isChecked() ) {
+    if (mode != Text) {
 	double magVal = 1.0*magS->value()/100;
 	m.scale( magVal, magVal );
     }
@@ -221,48 +203,36 @@ void XFormControl::newMtx()
 
 void XFormControl::selectFont()
 {
-    if (!fs) {
-	fs   = new FontSelect;
-	connect( fs, SIGNAL(destroyed()),    SLOT(selectFontDestroyed()) );
-	connect( fs, SIGNAL(newFont(const QFont&)),
+    if (!fd) {
+	fd   = new QFontDialog(this);
+	connect( fd, SIGNAL(fontSelected(const QFont&)),
 		     SLOT(fontSelected(const QFont&)) );
-	fs->setGeometry( QRect( 100, 200, 380, 260 ) );
-	fsUp = FALSE;
     }
-    fsUp = !fsUp;
-    if ( fsUp )
-	fs->show();
+    if ( !fd->isVisible() )
+	fd->show();
     else
-	fs->hide();
-}
-
-/*
-    Called when the user has closed the SelectFont dialog via the
-    window manager.
-*/
-void XFormControl::selectFontDestroyed()
-{
-    fs = 0;
+	fd->hide();
 }
 
 void XFormControl::fontSelected( const QFont &font )
 {
-    imgCheckBox->setChecked( FALSE );
     emit newFont( font );
-    toggleMode();
+    changeMode(Text);
 }
 
 /*
-    Toggles between image and text mode.
+    Sets the mode - Text, Image, or Picture.
 */
 
-void XFormControl::toggleMode()
+void XFormControl::changeMode(int m)
 {
+    mode = (Mode)m;
+
     if ( magS == 0 ) {
 	magS = new QSlider( QSlider::Horizontal, this,
 			       "magnifySlider" );
 	magS->setGeometry( 10, 375, 100, 15 );
-	magS->setRange( 0, 400 );
+	magS->setRange( 0, 800 );
 	magS->setValue( 100 );
 	connect( magS, SIGNAL(valueChanged(int)), SLOT(newMtx()) );
 	magLCD = new QLCDNumber( 4,this, "shearLCD" );
@@ -270,14 +240,14 @@ void XFormControl::toggleMode()
 	magLCD->display( "100" );
 	connect( magS, SIGNAL(valueChanged(int)), magLCD, SLOT(display(int)));
     }
-    emit newMode( imgCheckBox->isChecked() );
+    emit newMode( m );
     newMtx();
-    if ( imgCheckBox->isChecked() ) {
-	magS->show();
-	magLCD->show();
-    } else {
+    if ( mode == Text ) {
 	magS->hide();
 	magLCD->hide();
+    } else {
+	magS->show();
+	magLCD->show();
     }
     qApp->flushX();
 }
@@ -285,11 +255,11 @@ void XFormControl::toggleMode()
 const int yOff = 35;
 
 ShowXForm::ShowXForm( QWidget *parent, const char *name )
-	: QWidget( parent, name )
+	: QWidget( parent, name, WResizeNoErase )
 {
     setFont( QFont( "Charter", 48, QFont::Bold ) );
     setBackgroundColor( white );
-    usingPixmap = FALSE;
+    m = Text;
     eraseRect = QRect( 0, 0, 0, 0 );
 }
 
@@ -301,9 +271,10 @@ void ShowXForm::paintEvent( QPaintEvent * )
 void ShowXForm::resizeEvent( QResizeEvent * )
 {
     eraseRect = QRect( width()/2, height()/2, 0, 0 );
+    repaint(rect());
 }
 
-void ShowXForm::setText( const char *s )
+void ShowXForm::setText( const QString& s )
 {
     text = s;
     showIt();
@@ -317,20 +288,27 @@ void ShowXForm::setMatrix( QWMatrix w )
 
 void ShowXForm::setFont( const QFont &f )
 {
-    usingPixmap = FALSE;
+    m = Text;
     QWidget::setFont( f );
 }
 
 void ShowXForm::setPixmap( QPixmap pm )
 {
-    pix		= pm;
-    usingPixmap = TRUE;
+    pix	 = pm;
+    m    = Image;
     showIt();
 }
 
-void ShowXForm::setPixmapMode( bool enable )
+void ShowXForm::setPicture( const QPicture& p )
 {
-    usingPixmap = enable;
+    picture = p;
+    m = Picture;
+    showIt();
+}
+
+void ShowXForm::setMode( int mode )
+{
+    m = (Mode)mode;
 }
 
 void ShowXForm::showIt()
@@ -342,14 +320,21 @@ void ShowXForm::showIt()
     int textXPos = 0; // distance from boundingRect x pos to text start
     QRect br;
     QFontMetrics fm( fontMetrics() );	// get widget font metrics
-    if ( pixmapMode() ) {
-	r = pix.rect();
-    } else {
+    switch ( mode() ) {
+      case Text:
 	br = fm.boundingRect( text );	// rectangle covering text
 	r  = br;
 	textYPos = -r.y();
 	textXPos = -r.x();
 	br.moveTopLeft( QPoint( -br.width()/2, -br.height()/2 ) );
+        break;
+      case Image:
+	r = pix.rect();
+        break;
+      case Picture:
+	// ### need QPicture::boundingRect()
+	r = QRect(0,0,1000,1000);
+        break;
     }
     r.moveTopLeft( QPoint(-r.width()/2, -r.height()/2) );
 	  // compute union of new and old rect
@@ -367,16 +352,27 @@ void ShowXForm::showIt()
     m.translate( pw/2, ph/2 );	// 0,0 is center
     m = mtx * m;
     p.setWorldMatrix( m );
-    if ( pixmapMode() ) {
-	p.drawPixmap( -pix.width()/2, -pix.height()/2, pix );
-    } else {
+    switch ( mode() ) {
+      case Text:
 	p.setFont( font() );		// use widget font
 	p.drawText( r.left() + textXPos, r.top() + textYPos, text );
-    }
 #if 0
-    p.setPen( red );
-    p.drawRect( br );
+	p.setPen( red );
+	p.drawRect( br );
 #endif
+	break;
+      case Image:
+	p.drawPixmap( -pix.width()/2, -pix.height()/2, pix );
+	//QPixmap rotated = pix.xForm(mtx);
+	//bitBlt( &pm, pm.width()/2 - rotated.width()/2,
+		//pm.height()/2 - rotated.height()/2, &rotated );
+	break;
+      case Picture:
+	// ### need QPicture::boundingRect()
+	p.scale(0.25,0.25);
+	p.translate(-230,-180);
+	p.drawPicture( picture );
+    }
     p.end();
 
     int xpos = width()/2  - pw/2;
@@ -387,266 +383,19 @@ void ShowXForm::showIt()
 }
 
 
-FontSelect::FontSelect( QWidget *parent, const char *name)
-    : QDialog( parent, name, 0 ), f( "Charter", 48, QFont::Bold )
-{
-    static const char *radios[] = {
-	"Light (25)", "Normal (50)", "DemiBold (63)",
-	"Bold (75)", "Black (87)"
-    };
-    int i;
-
-    fontInternal = new QWidget( this );
-    fontInternal->setFont( f );
-    fontInternal->hide();
-
-    familyL    = new QLabel(	 this, "familyLabel" );
-    sizeL      = new QLabel(	 this, "sizeLabel" );
-    family     = new QLineEdit(	 this, "family" );
-    sizeE      = new QLineEdit(	 this, "pointSize" );
-    italic     = new QCheckBox(	 this, "italic" );
-    underline  = new QCheckBox(	 this, "underline" );
-    strikeOut  = new QCheckBox(	 this, "strikeOut" );
-    apply      = new QPushButton( this, "apply" );
-    sizeS      = new QSlider( QSlider::Horizontal, this,
-			      "pointSizeSlider" );
-
-    familyL->setGeometry( 10, yOff + 10, 100,20 );
-    familyL->setText( "Family :" );
-
-    sizeL->setGeometry( 10, yOff + 40, 100, 20 );
-    sizeL->setText( "Point size :" );
-
-    family->setGeometry( 110, yOff + 10, 100, 20 );
-    family->setText( "Charter" );
-
-    sizeE->setGeometry( 110, yOff + 40, 100, 20 );
-    sizeE->setText( "48" );
-
-    sizeS->setGeometry( 220, yOff + 40, 100, 20 );
-    sizeS->setRange( 1, 100 );
-    sizeS->setValue( 48 );
-    sizeS->setTracking( FALSE );
-    connect( sizeS, SIGNAL(valueChanged(int)), SLOT(newSize(int)) );
-    connect( sizeS, SIGNAL(sliderMoved(int)),  SLOT(slidingSize(int)) );
-
-    italic->setGeometry( 10, yOff + 70, 80, 20 );
-    italic->setText( "Italic" );
-    connect( italic, SIGNAL(clicked()), SLOT(newItalic()) );
-
-    underline->setGeometry( 110, yOff + 70, 80, 20 );
-    underline->setText( "Underline" );
-    connect( underline, SIGNAL(clicked()), SLOT(newUnderline()) );
-
-    strikeOut->setGeometry( 210, yOff + 70, 80, 20 );
-    strikeOut->setText( "StrikeOut" );
-    connect( strikeOut, SIGNAL(clicked()), SLOT(newStrikeOut()) );
-
-    apply->setGeometry( 235, yOff + 10, 70, 20);
-    apply->setText( "APPLY" );
-    apply->setDefault( TRUE );
-    connect( apply, SIGNAL(clicked()), SLOT(doApply()) );
-
-    weight = new QButtonGroup( "Weight", this, "weightGroupBox" );
-    weight->setGeometry( 10, yOff + 100, 120, 120 );
-    connect( weight, SIGNAL(clicked(int)), SLOT(newWeight(int)) );
-    QString wname;
-    for( i = 0 ; i < 5 ; i++ ) {
-	wname.sprintf("radioButton %i",i);
-	rb[i] = new QRadioButton( weight, wname );
-	rb[i]->setGeometry( 10, 15+i*20 , 95, 20 );
-	rb[i]->setText( radios[i] );
-    }
-    rb[3]->setChecked( TRUE );
-
-#ifdef _OS_WIN32_
-    static const char *families[] = {
-	"Arial", "Book Antiqua", "Bookman", "Century Schoolbook",
-	"Comic Sans MS", "Courier New", "Garamond",
-	"Haettenschweiler", "Impact", "Symbol", "Times New Roman",
-	"Verdana", "WingDings", 0
-    };
-#else
-    static const char *families[] = {
-	"Charter", "Clean", "Courier", "Fixed", "Gothic", "Helvetica",
-	"Lucida", "Lucidabright", "Lucidatypewriter", "Mincho", 
-	"New century schoolbook", "Symbol", "Terminal", "Times", "Utopia",
-	0
-    };
-#endif // _OS_WIN32_
-
-    static const char *pSizes[]	 = {
-	"8", "10", "12", "14", "18", "24", "36", "48", "72", "96", 0
-    };
-
-    QPopupMenu *familyPopup = new QPopupMenu;
-    const char **tmp;
-    tmp = families;
-    while( *tmp )
-	familyPopup->insertItem( *tmp++ );
-
-    QPopupMenu *pSize = new QPopupMenu;
-    tmp = pSizes;
-    while( *tmp )
-	pSize->insertItem( *tmp++ );
-
-    menu = new QMenuBar( this );
-    menu->move( 0, 0 );
-    menu->resize( 350, 30 );
-    menu->insertItem( "Family", familyPopup );
-    menu->insertItem( "Point size", pSize );
-
-    connect( familyPopup, SIGNAL(activated(int)), SLOT(familyActivated(int)) );
-    connect( pSize, SIGNAL(activated(int)), SLOT(pSizeActivated(int)) );
-
-    static const char *mLabelStr[] = {
-	"Family:", "Point size:", "Weight:", "Italic:"
-    };
-
-    mGroup = new QButtonGroup( this, "metricsGroupBox" );
-    mGroup->setTitle( "Actual font" );
-    mGroup->setGeometry(140, yOff + 100, 230, 100);
-    for( i = 0 ; i < 4 ; i++ ) {
-	wname.sprintf("MetricsLabel[%i][%i]",i,0);
-	metrics[i][0] = new QLabel( mGroup, wname);
-	metrics[i][0]->setGeometry(10, 15 + 20*i, 70, 20);
-	metrics[i][0]->setText( mLabelStr[i] );
-
-	wname.sprintf("MetricsLabel[%i][%i]",i,1);
-	metrics[i][1] = new QLabel( mGroup, wname);
-	metrics[i][1]->setGeometry(90, 15 + 20*i, 135, 20);
-    }
-    updateMetrics();
-}
-
-void FontSelect::newStrikeOut()
-{
-    f.setStrikeOut( strikeOut->isChecked() );
-    doFont();
-}
-
-void FontSelect::doFont()
-{
-    QFont xyz = f;
-    xyz.setPointSize( f.pointSize()+1 );
-    xyz.setPointSize( f.pointSize() );
-    fontInternal->setFont( xyz );
-    updateMetrics();
-}
-
-void FontSelect::newUnderline()
-{
-    f.setUnderline( underline->isChecked() );
-    doFont();
-}
-
-void FontSelect::newItalic()
-{
-    f.setItalic( italic->isChecked() );
-    doFont();
-}
-
-void FontSelect::newFamily()
-{
-    f.setFamily( family->text() );
-    doFont();
-}
-
-void FontSelect::newWeight( int id )
-{
-    switch( id ) {
-	case 0 :
-	    f.setWeight( QFont::Light );
-	    break;
-	case 1 :
-	    f.setWeight( QFont::Normal );
-	    break;
-	case 2 :
-	    f.setWeight( QFont::DemiBold );
-	    break;
-	case 3 :
-	    f.setWeight( QFont::Bold );
-	    break;
-	case 4 :
-	    f.setWeight( QFont::Black );
-	    break;
-	default:
-	    return;
-    }
-    doFont();
-}
-
-void FontSelect::newSize( int value )
-{
-    QString tmp;
-    tmp.sprintf("%i", value);
-    sizeE->setText( tmp );
-    f.setPointSize( value );
-    doFont();
-}
-
-void FontSelect::slidingSize( int value )
-{
-    QString tmp;
-
-    tmp.sprintf("%i", value);
-    sizeE->setText( tmp );
-}
-
-void FontSelect::doApply()
-{
-    int sz = atoi( sizeE->text() );
-    if ( sz > 100) {
-	sizeS->blockSignals( TRUE );
-	sizeS->setValue( 100 );
-	sizeS->blockSignals( FALSE );
-	f.setPointSize( sz );
-    } else {
-	sizeS->setValue( atoi( sizeE->text() ) );
-    }
-    f.setFamily( family->text() );
-    doFont();
-
-    emit newFont( fontInternal->font() );
-}
-
-void FontSelect::familyActivated( int id )
-{
-    family->setText( ((QPopupMenu*)sender())->text(id) );
-    newFamily();
-}
-
-void FontSelect::pSizeActivated( int id )
-{
-    int value = atoi( ( (QPopupMenu*)sender())->text( id ) );
-    sizeS->blockSignals( TRUE );
-    sizeS->setValue( value );
-    sizeS->blockSignals( FALSE );
-    newSize( value );
-}
-
-void FontSelect::updateMetrics()
-{
-    QFontInfo fi = fontInternal->fontInfo();
-    metrics[0][1]->setText( fi.family() );
-    metrics[1][1]->setNum( fi.pointSize() );
-    metrics[2][1]->setNum( fi.weight() );
-    metrics[3][1]->setNum( (int)fi.italic() );
-}
-
 /*
     Grand unifying widget, putting ShowXForm and XFormControl
     together.
 */
 
-class XFormCenter : public QWidget
+class XFormCenter : public QWidget, public ModeNames
 {
     Q_OBJECT
 public:
     XFormCenter( QWidget *parent=0, const char *name=0 );
 public slots:
     void setFont( const QFont &f ) { sx->setFont( f ); }
-    void newMode( bool );
+    void newMode( int );
 private:
     void resizeEvent( QResizeEvent* );
     ShowXForm	*sx;
@@ -659,20 +408,28 @@ void XFormCenter::resizeEvent( QResizeEvent* )
     xc->resize( 120, height() );
 }
 
-void XFormCenter::newMode( bool showPix )
+void XFormCenter::newMode( int m )
 {
-    static bool first = TRUE;
+    static bool first_i = TRUE;
+    static bool first_p = TRUE;
 
-    if ( sx->pixmapMode() == showPix )
+    if ( sx->mode() == m )
 	return;
-    if ( showPix && first ) {
-	first = FALSE;
+    if ( m == Image && first_i ) {
+	first_i = FALSE;
 	QPixmap pm;
-	pm.load( "image.any" );
-	sx->setPixmap( pm );
+	if ( pm.load( "image.any" ) )
+	    sx->setPixmap( pm );
 	return;
     }
-    sx->setPixmapMode( showPix );
+    if ( m == Picture && first_p ) {
+	first_p = FALSE;
+	QPicture p;
+	if (p.load( "picture.any" ))
+	    sx->setPicture( p );
+	return;
+    }
+    sx->setMode(m);
 }
 
 XFormCenter::XFormCenter( QWidget *parent, const char *name )
@@ -684,13 +441,13 @@ XFormCenter::XFormCenter( QWidget *parent, const char *name )
     xc->move( 0, 0 );		    // the size is set by resizeEvent
     xc->setFrameStyle( QFrame::Box | QFrame::Sunken );
     xc->setLineWidth( 2 );
-    connect( xc, SIGNAL(newText(const char*)), sx,
-		 SLOT(setText(const char*)) );
+    connect( xc, SIGNAL(newText(const QString&)), sx,
+		 SLOT(setText(const QString&)) );
     connect( xc, SIGNAL(newMatrix(QWMatrix)),
 	     sx, SLOT(setMatrix(QWMatrix)) );
     connect( xc, SIGNAL(newFont(const QFont&)), sx,
 		 SLOT(setFont(const QFont&)) );
-    connect( xc, SIGNAL(newMode(bool)), SLOT(newMode(bool)) );
+    connect( xc, SIGNAL(newMode(int)), SLOT(newMode(int)) );
     sx->setText( "Troll" );
 }
 
@@ -698,7 +455,13 @@ XFormCenter::XFormCenter( QWidget *parent, const char *name )
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
-
+#ifdef _WS_WIN_
+    qWarning( "QTranslator not yet implemented for Windows" );
+#else    
+    QTranslator mf(0);
+    mf.load("xform.tr",".");
+    a.installTranslator(&mf);
+#endif
 #if 0
     QColor x( 0xaa, 0xbe, 0xff );	// kind of blue
     QColorGroup g( black, x, x.light(), x.dark(), x.dark(120),	black, white );

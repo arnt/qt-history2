@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dirview/main.cpp#1 $
+** $Id: //depot/qt/main/examples/dirview/main.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -9,19 +9,34 @@
 *****************************************************************************/
 
 #include <qapplication.h>
+#include <qfileinfo.h>
+#include <qdir.h>
 #include "dirview.h"
 
-int main( int argc, char ** argv ) {
+int main( int argc, char ** argv ) 
+{
     QApplication a( argc, argv );
-    QListView mw;
-    a.setMainWidget( &mw );
-    mw.setCaption( "Directory Browser" );
+
+    DirectoryView mw;
+
     mw.addColumn( "Name" );
     mw.addColumn( "Type" );
-    mw.resize( 400, 400 );
     mw.setTreeStepSize( 20 );
-    Directory * root = new Directory( &mw );
-    root->setOpen( TRUE );
+    
+    const QFileInfoList* roots = QDir::drives();
+    QListIterator<QFileInfo> i(*roots);
+    QFileInfo* fi;
+    while ( (fi = *i) ) {
+	++i;
+	Directory * root = new Directory( &mw, fi->filePath() );
+	if ( roots->count() <= 1 )
+	    root->setOpen( TRUE ); // be interesting
+    }
+
+    mw.resize( 400, 400 );
+    mw.setCaption( "Directory Browser" );
+    a.setMainWidget( &mw );
     mw.show();
+    
     return a.exec();
 }

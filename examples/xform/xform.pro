@@ -1,7 +1,6 @@
 TEMPLATE	= app
 CONFIG		= qt warn_on release
 HEADERS		= 
-SOURCES		= aticatac.cpp \
-		  xform.cpp
+SOURCES		= xform.cpp
 TARGET		= xform
 DEPENDPATH=$(QTDIR)/include

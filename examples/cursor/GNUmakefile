@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/cursor/GNUmakefile#1 $
+# $Id: //depot/qt/main/examples/cursor/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

@@ -1,4 +1,4 @@
-The desktop demo contains three routines, both of which draw simple
+The desktop demo contains three routines, each of which draws simple
 shapes on the desktop.
 
 "desktop -rotate" rotates a shaded square.  Some nice color work.

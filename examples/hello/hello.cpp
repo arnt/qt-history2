@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/hello/hello.cpp#1 $
+** $Id: //depot/qt/main/examples/hello/hello.cpp#2 $
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -51,7 +51,7 @@ void Hello::animate()
 void Hello::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( rect().contains( e->pos() ) )
-	emit clicked();
+        emit clicked();
 }
 
 
@@ -65,10 +65,10 @@ void Hello::mouseReleaseEvent( QMouseEvent *e )
 void Hello::paintEvent( QPaintEvent * )
 {
     static int sin_tbl[16] = {
-	0, 38, 71, 92, 100, 92, 71, 38,	0, -38, -71, -92, -100, -92, -71, -38};
+        0, 38, 71, 92, 100, 92, 71, 38,	0, -38, -71, -92, -100, -92, -71, -38};
 
     if ( t.isEmpty() )
-	return;
+        return;
 
     // 1: Compute some sizes, positions etc.
     QFontMetrics fm = fontMetrics();
@@ -88,12 +88,12 @@ void Hello::paintEvent( QPaintEvent * )
     int i = 0;
     p.begin( &pm );
     p.setFont( font() );
-    while ( t[i] ) {
-	int i16 = (b+i) & 15;
+    while ( !t[i].isNull() ) {
+        int i16 = (b+i) & 15;
         p.setPen( QColor((15-i16)*16,255,255,QColor::Hsv) );
-	p.drawText( x, y-sin_tbl[i16]*h/800, &t[i], 1 );
-	x += fm.width( t[i] );
-	i++;
+        p.drawText( x, y-sin_tbl[i16]*h/800, t.mid(i,1), 1 );
+        x += fm.width( t[i] );
+        i++;
     }
     p.end();
 
