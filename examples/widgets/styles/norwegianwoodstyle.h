@@ -14,6 +14,8 @@ public:
     NorwegianWoodStyle() {}
 
     void polish(QPalette &palette);
+    void polish(QWidget *widget);
+    void unpolish(QWidget *widget);
     int pixelMetric(PixelMetric metric, const QStyleOption *option,
                     const QWidget *widget) const;
     int styleHint(StyleHint hint, const QStyleOption *option,
