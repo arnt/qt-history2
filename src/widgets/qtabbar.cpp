@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#32 $
 **
 ** Implementation of QTabBar class
 **
@@ -13,7 +13,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#32 $");
 
 
 QTab::~QTab()
@@ -151,9 +151,6 @@ int QTabBar::addTab( QTab * newTab )
 	p = strchr( p+2, '&' );
     if ( p && *p && isalpha(p[1]) )
 	d->a->insertItem( ALT + toupper(p[1]), newTab->id );
-
-    if ( autoMinimumSize() )
-	setMinimumSize( sizeHint() );
 
     return newTab->id;
 }
