@@ -749,7 +749,8 @@ QAbstractItemModel::~QAbstractItemModel()
                                the default delegate.
     \value TextColorRole       The text color used for items rendered with
                                the default delegate.
-    \value CheckStateRole      Whether the item can be checked.
+    \value CheckStateRole      This role is used to obtain the checked state of
+                               an item (see \l Qt::CheckedState).
 
     Accessibility roles:
 
@@ -759,7 +760,7 @@ QAbstractItemModel::~QAbstractItemModel()
     \value AccessibleDescriptionRole A description of the item for accessibility
                                      purposes.
 
-   User roles:
+    User roles:
 
     \value UserRole       The first role that can be used for
                                      application-specific purposes.
@@ -993,6 +994,7 @@ void QAbstractItemModel::fetchMore(const QModelIndex &)
     \value ItemIsDropEnabled It can be used as a drop target.
     \value ItemIsCheckable It can be checked.
     \value ItemIsEnabled The user can interact with the item.
+    \value ItemIsTristate The item is checkable with three separate states.
 */
 
 /*!
