@@ -1229,7 +1229,7 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     int z = v.toInt();              // z = 123
     qDebug("Type is %s",            // prints "Type is int"
             v.typeName());
-    v.asInt() += 100;               // The variant now hold the value 223.
+    v = v.toInt() + 100;            // The variant now hold the value 223.
     v = QCoreVariant(QStringList());
     \endcode
 
@@ -1243,7 +1243,7 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     defined type with no value set.
     \code
     QCoreVariant x, y(QString()), z(QString(""));
-    x.asInt();
+    x.cast(QCoreVariant::Int)cast(QCoreVariant::Int);
     // x.isNull() == true,
     // y.isNull() == true, z.isNull() == false
     // y.isEmpty() == true, z.Empty() == true
@@ -2215,7 +2215,7 @@ QCoreVariantList QCoreVariant::toList() const
 /*!
     Returns true if the variant's type can be cast to the requested
     type, \a t. Such casting is done automatically when calling the
-    toInt(), toBool(), ... or asInt(), asBool(), ... methods.
+    toInt(), toBool(), ... methods.
 
     The following casts are done automatically:
     \table
