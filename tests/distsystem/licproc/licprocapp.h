@@ -1,5 +1,6 @@
 #include <qapplication.h>
 #include <qtimer.h>
+#include <qdns.h>
 
 class QSqlDatabase;
 
@@ -15,7 +16,13 @@ private:
     void ProcessFile( QString fileName );
     QString CreatePassword();
     QSqlDatabase* distDB;
-
+    
+    QString company;
+    int interval;
+    int port;
+    QDns dns;
+    QStringList licenseList;
 public slots:
     virtual void syncLicenses();
+    virtual void dnsReady();
 };

@@ -4,14 +4,18 @@
 #include <qsqldatabase.h>
 #include <qsqlcursor.h>
 #include <qregexp.h>
+#include <qsocketdevice.h>
 
 #include <time.h>
 #include <stdlib.h>
 
 LicProcApp::LicProcApp( int argc, char** argv ) : QApplication( argc, argv )
 {
-    syncTimer.start( 30000, false );
-//    syncTimer.start( 1000, true );
+    company = "ts3";
+    interval = 120;
+    port = 801;
+
+    syncTimer.start( interval * 1000, false );
     connect( &syncTimer, SIGNAL( timeout() ), this, SLOT( syncLicenses() ) );
 
     distDB = QSqlDatabase::addDatabase( "QMYSQL3" );
@@ -20,12 +24,39 @@ LicProcApp::LicProcApp( int argc, char** argv ) : QApplication( argc, argv )
     distDB->setPassword( "sendit" );
     distDB->setHostName( "marijuana.troll.no" );
 
+    connect( &dns, SIGNAL( resultsReady() ), this, SLOT( dnsReady() ) );
 
+    syncLicenses();
 }
 
 void LicProcApp::syncLicenses()
 {
-    ProcessFile( "license_TST.txt" );
+    QDir dir( "\\\\soma\\licensefiles" );
+    const QFileInfoList* list = dir.entryInfoList( company + "_*.txt", QDir::Files, QDir::Name );
+    QFileInfoListIterator it( *list );
+    QFileInfo* fi;
+
+    licenseList.clear();
+    while( ( fi = it.current() ) ) {
+	ProcessFile( fi->fileName() );
+	licenseList += fi->fileName().mid( 4, 7 );
+	++it;
+    }
+    if( !licenseList.isEmpty() )
+	dnsReady();
+}
+
+void LicProcApp::dnsReady()
+{
+    QSocketDevice sock;
+    QHostAddress addr;
+
+    bool b = addr.setAddress( "213.203.59.121" );
+
+    if( sock.connect( addr, port ) ) {
+	QTextStream sockStream( &sock );
+	sockStream << licenseList.join( "," ) << endl;
+    }
 }
 
 void LicProcApp::ProcessFile( QString fileName )
@@ -48,10 +79,11 @@ void LicProcApp::ProcessFile( QString fileName )
 			QString custID = (*it++);
 			QString salesID = (*it++);
 			QString itemID = (*it++);
-			QString itemTxt = (*it++);
 			QString licenseID = (*it++);
 			QString licensee = (*it++);
 			QString licenseEmail = (*it++);
+			QString login = (*it++);
+			QString password = (*it++);
 			QDate expiryDate = QDate::fromString( *it++, Qt::ISODate );
 
 			/*
@@ -71,8 +103,6 @@ void LicProcApp::ProcessFile( QString fileName )
 			    if( fileName.mid( 8, 3 ) == "USA" )
 				itemID += "-us";
 
-			    QString password = CreatePassword();
-
 			    QSqlCursor licenseCursor( "licenses" );
 			    licenseCursor.select( "ID = " + licenseID );
 			    bool licenseExists( false );
@@ -81,20 +111,11 @@ void LicProcApp::ProcessFile( QString fileName )
 				licenseExists = true;
 			    }
 			    if( !licenseExists ) {
-				QString loginName = licenseEmail;
-				loginName = loginName.replace( QRegExp( "[.@_]" ), QString::null ).left( 8 );
-				int uniqueCounter( 1 );
-				bool isAvailable( false );
-				while( !isAvailable ) {
-				    licenseCursor.select( QString( "Login = '" + loginName + "%1'" ).arg( uniqueCounter++ ) );
-				    isAvailable = !licenseCursor.next();
-				}
-				loginName = QString( loginName + "%1" ).arg( uniqueCounter - 1 );
 				// If no license exists, create one
 				QSqlRecord* buffer = licenseCursor.primeInsert();
 				buffer->setValue( "ID", licenseID );
 				buffer->setValue( "CustomerID", custID );
-				buffer->setValue( "Login", loginName );
+				buffer->setValue( "Login", login );
 				buffer->setValue( "Password", password );
 				buffer->setValue( "Licensee", licensee );
 				buffer->setValue( "Email", licenseEmail );
@@ -119,7 +140,6 @@ void LicProcApp::ProcessFile( QString fileName )
 				itemString.replace( QRegExp( "\\d" ), QString::null );
 				buffer->setValue( "LicenseID", licenseID );
 				buffer->setValue( "ItemID", itemString );
-				buffer->setValue( "Text", itemTxt );
 				itemsCursor.insert();
 			    }
 			}
@@ -168,7 +188,6 @@ void LicProcApp::ProcessFile( QString fileName )
 				itemString = itemString.replace( QRegExp( "\\d" ), QString::null ).left( 5 ) + "m";
 				buffer->setValue( "LicenseID", licenseID );
 				buffer->setValue( "ItemID", itemString );
-				buffer->setValue( "Text", itemTxt );
 				itemsCursor.insert();
 			    }
 			}
