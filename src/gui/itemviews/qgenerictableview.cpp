@@ -26,14 +26,22 @@
 /*!
   \class QGenericTableView qgenerictableview.h
 
-  \brief Table view implementation
+  \brief The QGenericTableView class provides a default model/view implementation of a table view.
 
   \ingroup model-view
 
   This class implements a table representation of a QGenericItemView working
   on a QAbstractItemModel.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+  \sa \link model-view-programming.html Model/View Programming\endlink.
+
+*/
+
+/*!
+  Constructs a table view with a \a parent to represent the data in
+  the given \a model.
+
+  \sa QAbstractItemModel
 */
 
 QGenericTableView::QGenericTableView(QAbstractItemModel *model, QWidget *parent)
@@ -46,6 +54,10 @@ QGenericTableView::QGenericTableView(QAbstractItemModel *model, QWidget *parent)
     d->topHeader->setClickable(true);
 }
 
+/*!
+  \internal
+*/
+
 QGenericTableView::QGenericTableView(QGenericTableViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(dd, model, parent)
 {
@@ -56,19 +68,34 @@ QGenericTableView::QGenericTableView(QGenericTableViewPrivate &dd, QAbstractItem
     d->topHeader->setClickable(true);
 }
 
+/*!
+  Destroys the table view.
+*/
+
 QGenericTableView::~QGenericTableView()
 {
 }
+
+/*!
+  Returns the header to the top of the table view.
+*/
 
 QGenericHeader *QGenericTableView::topHeader() const
 {
     return d->topHeader;
 }
 
+/*!
+  Returns the header to the left of the table view.
+*/
+
 QGenericHeader *QGenericTableView::leftHeader() const
 {
     return d->leftHeader;
 }
+
+/*!
+*/
 
 void QGenericTableView::setTopHeader(QGenericHeader *header)
 {
@@ -103,6 +130,9 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
     //columnCountChanged(0, d->topHeader->count()); // FIXME
 }
 
+/*!
+*/
+
 void QGenericTableView::setLeftHeader(QGenericHeader *header)
 {
     if (d->leftHeader) {
@@ -136,6 +166,10 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
     //rowCountChanged(0, d->leftHeader->count());
 }
 
+/*!
+  Scroll the contents of the table view by \a(dx, dy).
+*/
+
 void QGenericTableView::scrollContentsBy(int dx, int dy)
 {
     if (dx) { // horizontal
@@ -165,6 +199,9 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
     }
     d->viewport->scroll(dx, dy);
 }
+
+/*!
+*/
 
 void QGenericTableView::paintEvent(QPaintEvent *e)
 {
@@ -268,20 +305,40 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     painter.drawPixmap(area.topLeft(), d->backBuffer, area);
 }
 
+/*!
+  Returns the model item index corresponding to the item at \a(x, y).
+*/
+
 QModelIndex QGenericTableView::itemAt(int x, int y) const
 {
     return model()->index(rowAt(y), columnAt(x), root());
 }
+
+/*!
+  Returns the horizontal offset of the items in the table view. */
 
 int QGenericTableView::horizontalOffset() const
 {
     return d->topHeader->offset();
 }
 
+/*!
+  Returns the vertical offset of the items in the table view.
+*/
+
 int QGenericTableView::verticalOffset() const
 {
     return d->leftHeader->offset();
 }
+
+/*!
+\fn QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state)
+
+Move the cursor in the way described by \a cursorAction, using the
+information provided by the button \a state.
+
+\sa QAbstractItemView::CursorAction
+*/
 
 QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                           Qt::ButtonState)
@@ -320,6 +377,9 @@ QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursor
     return QModelIndex();
 }
 
+/*!
+*/
+
 void QGenericTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     QModelIndex tl = itemAt(rect.left(), rect.top());
@@ -335,6 +395,11 @@ void QGenericTableView::setSelection(const QRect &rect, QItemSelectionModel::Sel
 
     selectionModel()->select(QItemSelection(tl, br, model()), command);
 }
+
+/*!
+  Returns the rectangle from the viewport of the items in the given
+  \a selection.
+*/
 
 QRect QGenericTableView::selectionViewportRect(const QItemSelection &selection) const
 {
@@ -376,17 +441,30 @@ QRect QGenericTableView::selectionViewportRect(const QItemSelection &selection) 
     return QRect(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
 }
 
+/*!
+*/
+
 void QGenericTableView::rowCountChanged(int, int)
 {
     updateGeometries();
     d->viewport->update();
 }
 
+/*!
+  \fn void QGenericTableView::columnCountChanged(int start, int end)
+
+  Informs the table view that the columns from \a start to \a end
+  inclusive have been changed.
+*/
+
 void QGenericTableView::columnCountChanged(int, int)
 {
     updateGeometries();
     d->viewport->update();
 }
+
+/*!
+*/
 
 void QGenericTableView::updateGeometries()
 {
@@ -433,6 +511,11 @@ void QGenericTableView::updateGeometries()
     horizontalScrollBar()->setRange(0, max);
 }
 
+/*!
+  Returns the size hint for the \a row's height.
+
+  \sa QWidget::sizeHint*/
+
 int QGenericTableView::rowSizeHint(int row) const
 {
     int columnfirst = columnAt(0);
@@ -450,6 +533,12 @@ int QGenericTableView::rowSizeHint(int row) const
     }
     return hint + 1; // add space for the grid
 }
+
+/*!
+  Returns the size hint for the \a column's width.
+
+  \sa QWidget::sizeHint
+*/
 
 int QGenericTableView::columnSizeHint(int column) const
 {
@@ -469,20 +558,35 @@ int QGenericTableView::columnSizeHint(int column) const
     return hint + 1; // add space for the grid
 }
 
+/*!
+*/
+
 int QGenericTableView::rowViewportPosition(int row) const
 {
     return d->leftHeader->sectionPosition(row) - d->leftHeader->offset();
 }
+
+/*!
+  Returns the height of the \a row.
+*/
 
 int QGenericTableView::rowHeight(int row) const
 {
     return d->leftHeader->sectionSize(row);
 }
 
+/*!
+  Returns the row in the tree view whose header covers the \a y
+  coordinate given.
+*/
+
 int QGenericTableView::rowAt(int y) const
 {
     return d->leftHeader->sectionAt(y + d->leftHeader->offset());
 }
+
+/*!
+  Returns the horizontal position of the \a column in the viewport.*/
 
 int QGenericTableView::columnViewportPosition(int column) const
 {
@@ -492,10 +596,19 @@ int QGenericTableView::columnViewportPosition(int column) const
     return colp + (d->topHeader->x() - d->viewport->x());
 }
 
+/*!
+  Returns the widget of the \a column.
+*/
+
 int QGenericTableView::columnWidth(int column) const
 {
     return d->topHeader->sectionSize(column);
 }
+
+/*!
+  Returns the column in the tree view whose header covers the \a x
+  coordinate given.
+*/
 
 int QGenericTableView::columnAt(int x) const
 {
@@ -505,30 +618,56 @@ int QGenericTableView::columnAt(int x) const
     return d->topHeader->sectionAt(p - (d->topHeader->x() - d->viewport->x()));
 }
 
+/*!
+  Returns true if the \a row is hidden; otherwise returns false.
+*/
+
 bool QGenericTableView::isRowHidden(int row) const
 {
     return d->leftHeader->isSectionHidden(row);
 }
+
+/*!
+  Returns true if the \a column is hidden; otherwise returns false.
+*/
 
 bool QGenericTableView::isColumnHidden(int column) const
 {
     return d->topHeader->isSectionHidden(column);
 }
 
+/*!
+*/
+
 void QGenericTableView::setShowGrid(bool show)
 {
     d->showGrid = show;
 }
+
+/*!
+  Returns true if the table's grid is being displayed; otherwise
+  returns false.
+*/
 
 bool QGenericTableView::showGrid() const
 {
     return d->showGrid;
 }
 
+/*!
+*/
+
 void QGenericTableView::setGridStyle(Qt::PenStyle style)
 {
     d->gridStyle = style;
 }
+
+/*!
+  \fn QRect QGenericTableView::itemViewportRect(const QModelIndex &index) const
+
+  Returns the rectangle on the viewport occupied by the item at
+  \a index.
+*/
 
 QRect QGenericTableView::itemViewportRect(const QModelIndex &item) const
 {
@@ -537,6 +676,9 @@ QRect QGenericTableView::itemViewportRect(const QModelIndex &item) const
     return QRect(columnViewportPosition(item.column()), rowViewportPosition(item.row()),
                  columnWidth(item.column()), rowHeight(item.row()));
 }
+
+/*!
+*/
 
 void QGenericTableView::ensureItemVisible(const QModelIndex &item)
 {
@@ -576,6 +718,9 @@ void QGenericTableView::ensureItemVisible(const QModelIndex &item)
     }
 }
 
+/*!
+*/
+
 void QGenericTableView::rowHeightChanged(int row, int, int)
 {
     int y = rowViewportPosition(row);
@@ -583,6 +728,9 @@ void QGenericTableView::rowHeightChanged(int row, int, int)
     updateGeometries();
     updateEditors();
 }
+
+/*!
+*/
 
 void QGenericTableView::columnWidthChanged(int column, int, int)
 {
@@ -594,6 +742,9 @@ void QGenericTableView::columnWidthChanged(int column, int, int)
     updateEditors();
 }
 
+/*!
+*/
+
 void QGenericTableView::rowIndexChanged(int, int oldIndex, int newIndex)
 {
     int o = rowViewportPosition(d->leftHeader->section(oldIndex));
@@ -604,6 +755,9 @@ void QGenericTableView::rowIndexChanged(int, int oldIndex, int newIndex)
     d->viewport->update(0, top, d->viewport->width(), height);
 }
 
+/*!
+*/
+
 void QGenericTableView::columnIndexChanged(int, int oldIndex, int newIndex)
 {
     int o = columnViewportPosition(d->topHeader->section(oldIndex));
@@ -613,6 +767,9 @@ void QGenericTableView::columnIndexChanged(int, int oldIndex, int newIndex)
     updateGeometries();
     d->viewport->update(left, 0, width, d->viewport->height());
 }
+
+/*!
+*/
 
 void QGenericTableView::selectRow(int row, Qt::ButtonState state)
 {
@@ -627,6 +784,9 @@ void QGenericTableView::selectRow(int row, Qt::ButtonState state)
     }
 }
 
+/*!
+*/
+
 void QGenericTableView::selectColumn(int column, Qt::ButtonState state)
 {
     if (column >= 0 && column < model()->columnCount()) {
@@ -640,25 +800,40 @@ void QGenericTableView::selectColumn(int column, Qt::ButtonState state)
     }
 }
 
+/*!
+*/
+
 void QGenericTableView::hideRow(int row)
 {
     d->leftHeader->hideSection(row);
 }
+
+/*!
+*/
 
 void QGenericTableView::hideColumn(int column)
 {
     d->topHeader->hideSection(column);
 }
 
+/*!
+*/
+
 void QGenericTableView::showRow(int row)
 {
     d->leftHeader->showSection(row);
 }
 
+/*!
+*/
+
 void QGenericTableView::showColumn(int column)
 {
     d->topHeader->showSection(column);
 }
+
+/*!
+*/
 
 void QGenericTableView::resizeRowToContents(int row, bool checkHeader)
 {
@@ -667,12 +842,18 @@ void QGenericTableView::resizeRowToContents(int row, bool checkHeader)
     d->leftHeader->resizeSection(row, qMax(content, header));
 }
 
+/*!
+*/
+
 void QGenericTableView::resizeColumnToContents(int column, bool checkHeader)
 {
     int content = columnSizeHint(column);
     int header = checkHeader ? d->topHeader->sectionSizeHint(column) : 0;
     d->topHeader->resizeSection(column, qMax(content, header));
 }
+
+/*!
+*/
 
 void QGenericTableView::verticalScrollbarAction(int action)
 {
@@ -702,6 +883,9 @@ void QGenericTableView::verticalScrollbarAction(int action)
         verticalScrollBar()->setSliderPosition(value);
     }
 }
+
+/*!
+*/
 
 void QGenericTableView::horizontalScrollbarAction(int action)
 {
