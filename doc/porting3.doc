@@ -89,6 +89,7 @@ that is the Qt Developer Community!
  <li><b><a href="#Removed">Removed functions</a></b>
  <li><b><a href="#QRegExp">QRegExp</a></b>
  <li><b><a href="#QTranslator">QTranslator</a></b>
+ <li><b><a href="#Bezier">Bezier Curves</a></b>
 </ul>
 
 <hr>
@@ -324,6 +325,19 @@ conversion, you will also gain support for translator comments and for any
 future extension.
 </dd>
 </dl>
+
+<h3><a name="Bezier">Bezier Curves</a></h3>
+The function names for Bezier curves in <code>QPainter</code> and
+<code>QPointArray</code> have been corrected. They now properly reflect their
+cubic form instead of a quadratic one. If you have been using either
+<code>QPainter::drawQuadBezier()</code> or
+<code>QPointArray::quadBezier()</code> you will have to replace these calls
+with
+<ul>
+ <li>void QPainter::drawCubicBezier( const QPointArray &, int index=0 ) and
+ <li>QPointArray QPointArray::cubicBezier() const
+</ul>
+respectively. Neither the arguments nor the resulting curve have changed.
 */
 
 // I split this to work around limitations in perl's regexp parser. --Arnt
