@@ -1857,8 +1857,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
     if ( app_do_modal )	{			// modal event handling
 	int ret = 0;
-	if ( !qt_try_modal(widget, &msg, ret ) )
-	    RETURN(ret);
+	if ( !qt_try_modal(widget, &msg, ret ) ) {
+	    if ( message == WM_MOUSEMOVE && widget->winId() != curWin ) {
+		qt_dispatchEnterLeave( widget, QWidget::find( curWin ) );
+		curWin = widget->winId();
+	    }
+	    return ret;
+	}
     }
 
     if ( widget->winEvent(&msg) )		// send through widget filter
