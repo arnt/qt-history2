@@ -72,7 +72,7 @@ public:
 };
 
 /*!
-    \class QSound qsound.h
+    \class QSound
     \brief The QSound class provides access to the platform audio facilities.
 
     \ingroup multimedia
@@ -112,6 +112,9 @@ public:
 
     The availability of sound can be tested with
     QSound::isAvailable().
+
+    Note that QSound does not support \l{resources.html}{resources}.
+    This might be fixed in a future Qt version.
 */
 
 /*!
@@ -213,15 +216,15 @@ int QSound::loopsRemaining() const
 }
 
 /*!
-    Sets the sound to repeat \a l times when it is played. Passing the
+    Sets the sound to repeat \a n times when it is played. Passing the
     value -1 will cause the sound to loop indefinitely.
 
     \sa loops()
 */
-void QSound::setLoops(int l)
+void QSound::setLoops(int n)
 {
     Q_D(QSound);
-    d->looptotal = l;
+    d->looptotal = n;
 }
 
 /*!

@@ -274,7 +274,7 @@ QSqlTableModel::~QSqlTableModel()
 
     To populate the model with the table's data, call select().
 
-    \sa select(), setFilter(), sort()
+    \sa select(), setFilter()
 */
 void QSqlTableModel::setTable(const QString &tableName)
 {
@@ -296,7 +296,7 @@ QString QSqlTableModel::tableName() const
     Populates the model with data from the table that was set via setTable(), using the
     specified filter and sort condition.
 
-    \sa setTable(), setFilter(), sort(), selectStatement()
+    \sa setTable(), setFilter(), selectStatement()
 */
 bool QSqlTableModel::select()
 {
@@ -806,7 +806,7 @@ void QSqlTableModel::sort(int column, Qt::SortOrder order)
     affect the current data, to refresh the data using the new
     sort order, call select().
 
-    \sa select(), sort(), isSortable(), orderByClause()
+    \sa select(), isSortable(), orderByClause()
 */
 void QSqlTableModel::setSort(int column, Qt::SortOrder order)
 {
@@ -818,7 +818,7 @@ void QSqlTableModel::setSort(int column, Qt::SortOrder order)
     Returns an SQL \c{ORDER BY} clause based on the currently set
     sort order.
 
-    \sa sort(), setSort(), selectStatement()
+    \sa setSort(), selectStatement()
 */
 QString QSqlTableModel::orderByClause() const
 {

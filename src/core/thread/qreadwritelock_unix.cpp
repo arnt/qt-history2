@@ -32,6 +32,8 @@ static void report_error(int code, const char *where, const char *what)
 
     \brief The QReadWriteLock class provides read-write locking.
 
+    \preliminary
+
     It is useful for synchronizing multithreaded access to resources
     that support multiple readers, but only one writer.
 
@@ -214,4 +216,3 @@ void QReadWriteLock::unlock()
         report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::unlock()", "mutex unlock");
     }
 }
-

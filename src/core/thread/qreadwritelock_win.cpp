@@ -118,5 +118,3 @@ void QReadWriteLock::unlock()
     else
         SetEvent(d->readerWait);
 }
-
-

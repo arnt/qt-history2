@@ -1323,8 +1323,11 @@ QDir &QDir::operator=(const QDir &dir)
 
 /*!
     \overload
+    \obsolete
 
     Sets the directory path to the given \a path.
+
+    Use setPath() instead.
 */
 
 QDir &QDir::operator=(const QString &path)
