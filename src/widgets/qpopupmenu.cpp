@@ -510,7 +510,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     if ( indexAtPoint >= 0 ) {			// don't subtract when < 0
 	QRect r = itemGeometry( indexAtPoint );		// (would subtract 2 pixels!)
 	if(d->scroll.scrollable && (r.isNull() || r.height() < itemHeight(indexAtPoint) )) { //scroll to it!
-	    register QMenuItem *mi;
+	    register QMenuItem *mi = NULL;
 	    QMenuItemListIt it(*mitems);
 	    int half = 0;
 	    for(int y = 0; y >= contentsRect().height() && (mi=it.current()); half++) {
@@ -923,9 +923,9 @@ QRect QPopupMenu::itemGeometry( int index )
 	sz = sz.expandedTo(QSize(itemw, sz.height()));
 	itemw = sz.width();
 	itemh = sz.height();
-	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
-	   (y + itemh > contentsRect().height() - scrollh))
-	    itemh = (y + itemh) - (contentsRect().height() - scrollh);
+	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown && 
+	   (y + itemh > contentsRect().height() - scrollh)) 
+	    itemh -= (y + itemh) - (contentsRect().height() - scrollh);
 	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
 	    y = contentsRect().y();
 	    x +=itemw;

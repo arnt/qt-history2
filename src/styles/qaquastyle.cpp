@@ -1353,11 +1353,13 @@ void QAquaStyle::drawControl( ControlElement element,
 	QPixmap selectedBackground;
 	qAquaPixmap( "sel_back", selectedBackground );
 
-	if ( mi && mi->isSeparator() ) // Aqua separators are just empty menuitems
+	if ( mi && mi->isSeparator() ) { // Aqua separators are just empty menuitems
+	    p->fillRect( r, g.brush( QColorGroup::Button ) );
 	    return;
+	}
 
-	QBrush fill = act? QBrush( Qt::black, selectedBackground ) :
-				g.brush( QColorGroup::Button );
+	QBrush fill = act && !dis ? QBrush( Qt::black, selectedBackground ) :
+	    g.brush( QColorGroup::Button );
 	p->fillRect( x, y, w, h, fill);
 	bool reverse = QApplication::reverseLayout();
 
