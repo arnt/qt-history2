@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#158 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#159 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#158 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#159 $");
 
 
 /*!
@@ -299,11 +299,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#158 $");
   <li> moveEvent() - called when the widget has been moved relative to its
   parent.
 
-  <li> closeEvent() - called when the widget is about to be closed
-  (using hide(), or because the parent widget is about to be closed.)
-  You can't do anything to stop it, but you can close down
-  gracefully.
-  </ul>
+  <li> closeEvent() - called when the user closes the widget (or when
+  close() is called).
+ </ul>
 
   There are also some \e really obscure events.  They are listed in
   qevent.h and you need to reimplement event() to handle them.  The
