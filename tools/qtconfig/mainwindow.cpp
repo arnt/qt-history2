@@ -22,7 +22,10 @@
 
 // from qapplication.cpp and qapplication_x11.cpp - These are NOT for external use
 // ignore them
+
+#ifdef Q_WS_X11
 extern bool qt_has_xft;
+#endif
 extern bool qt_resolve_symlinks;
 
 
@@ -277,7 +280,11 @@ MainWindow::MainWindow()
     sublistbox->clear();
     sublistbox->insertStringList(subs);
 
+#ifdef Q_WS_X11
     xftcheckbox->setChecked(qt_has_xft);
+#elseif
+    xftcheckbox->setEnabled(false);
+#endif
 
     QSettings settings;
     fontpaths = settings.readListEntry("/qt/fontPath");
