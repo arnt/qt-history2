@@ -880,13 +880,13 @@ inline QWidget *QWidget::parentWidget( bool sameWindow ) const
 inline void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode)
 { setBackgroundMode(m); }
 inline void QWidget::setPaletteForegroundColor(const QColor &c)
-{ QPalette pal = palette(); pal.setColor(foregroundRole(), c); setPalette(pal); }
+{ QPalette p = palette(); p.setColor(foregroundRole(), c); setPalette(p); }
 inline const QBrush& QWidget::backgroundBrush() const { return palette().brush(backgroundRole()); }
-inline void QWidget::setBackgroundPixmap(const QPixmap &p)
-{ QPalette pal = palette(); pal.setBrush(backgroundRole(), QBrush(p)); setPalette(pal); }
+inline void QWidget::setBackgroundPixmap(const QPixmap &pm)
+{ QPalette p = palette(); p.setBrush(backgroundRole(), QBrush(pm)); setPalette(p); }
 inline const QPixmap *QWidget::backgroundPixmap() const { return backgroundBrush().pixmap(); }
 inline void QWidget::setBackgroundColor(const QColor &c)
-{ QPalette pal = palette(); pal.setColor(backgroundRole(), c); setPalette(pal); }
+{ QPalette p = palette(); p.setColor(backgroundRole(), c); setPalette(p); }
 inline const QColor & QWidget::backgroundColor() const { return palette().color(backgroundRole()); }
 inline const QColor &QWidget::foregroundColor() const { return palette().color(foregroundRole());}
 inline const QColor &QWidget::eraseColor() const { return backgroundColor(); }
