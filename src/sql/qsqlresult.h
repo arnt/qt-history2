@@ -71,14 +71,15 @@ protected:
     void addBindValue( const QVariant& val, QSql::ParameterType type );
     QVariant boundValue( const QString& placeholder ) const;
     QVariant boundValue( int pos ) const;
-    QSql::ParameterType boundValueType( const QString& placeholder ) const;
-    QSql::ParameterType boundValueType( int pos ) const;
+    QSql::ParameterType bindValueType( const QString& placeholder ) const;
+    QSql::ParameterType bindValueType( int pos ) const;
     int boundValueCount() const;
-    QMap<QString, QVariant> boundValues() const;
+    QMap<QString, QVariant>& boundValues() const;
     QString executedQuery() const;
     bool savePrepare( const QString& sqlquery ); // ### TODO - find a much better name
-    QVariant parameterValue( const QString& holder ) const;
+    QVariant parameterValue( const QString& holder ) const; /// ### obsolete??
     QVariant parameterValue( int pos ) const;
+    void clear();
     
     BindMethod bindMethod() const;
 
@@ -95,7 +96,8 @@ protected:
     
 private:
     QSqlResultPrivate* d;
-
+    void resetBindCount(); //HACK
+    
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QSqlResult( const QSqlResult & );

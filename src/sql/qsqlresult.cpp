@@ -20,13 +20,6 @@
 
 #ifndef QT_NO_SQL
 
-struct Param {
-    Param( const QVariant& v = QVariant(), QSql::ParameterType t = QSql::In ): value( v ), typ( t ) {}
-    QVariant value;
-    QSql::ParameterType typ;
-    Q_DUMMY_COMPARISON_OPERATOR(Param)
-};
-
 struct Holder {
     Holder( const QString& hldr = QString::null, int pos = -1 ): holderName( hldr ), holderPos( pos ) {}
     bool operator==( const Holder& h ) const { return h.holderPos == holderPos && h.holderName == holderName; }
@@ -58,6 +51,7 @@ public:
     {
 	index.clear();
 	holders.clear();
+	types.clear();
     }
 
     void clear()
@@ -82,7 +76,9 @@ public:
     int bindCount;
     QSqlResult::BindMethod bindm;
     QMap<int, QString> index;
-    typedef QMap<QString, Param> ValueMap;
+    typedef QMap<QString, QSql::ParameterType> TypeMap;
+    TypeMap types;
+    typedef QMap<QString, QVariant> ValueMap;
     ValueMap values;
     QString executedQuery;
 
@@ -94,7 +90,7 @@ void QSqlResultPrivate::positionalToNamedBinding()
 {
     QRegExp rx("'[^']*'|\\?");
     QString q = sql;
-    int i = 0, cnt = 0;
+    int i = 0, cnt = -1;
     while ( (i = rx.search( q, i )) != -1 ) {
 	if ( rx.cap(0) == "?" ) {
 	    q = q.replace( i, 1, ":f" + QString::number(++cnt) );
@@ -453,7 +449,7 @@ bool QSqlResult::exec()
 	QString holder;
 	for ( i = (int)d->holders.count() - 1; i >= 0; --i ) {
 	    holder = d->holders[ i ].holderName;
-	    val = d->values[ holder ].value;
+	    val = d->values[ holder ];
 	    QSqlField f( "", val.type() );
 	    f.setValue( val );
 	    query = query.replace( d->holders[ i ].holderPos,
@@ -467,11 +463,11 @@ bool QSqlResult::exec()
 	it != d->index.end(); ++it ) {
 	    i = query.find( '?', i );
 	    if ( i > -1 ) {
-		QSqlField f( "", d->values[ it.data() ].value.type() );
-		if ( d->values[ it.data() ].value.isNull() )
+		QSqlField f( "", d->values[ it.data() ].type() );
+		if ( d->values[ it.data() ].isNull() )
 		    f.setNull();
 		else
-		    f.setValue( d->values[ it.data() ].value );
+		    f.setValue( d->values[ it.data() ] );
 		val = driver()->formatValue( &f );
 		query = query.replace( i, 1, driver()->formatValue( &f ) );
 		i += val.length();
@@ -495,15 +491,19 @@ void QSqlResult::bindValue( const QString& placeholder, const QVariant& val, QSq
     if ( d->index[ d->values.count() ].isEmpty() ) {
 	d->index[ d->values.count() ] = placeholder;
     }
-    d->values[ placeholder ] = Param( val, tp );
+    d->values[ placeholder ] = val;
+    if ( d->types.count() || tp != QSql::In )
+	d->types[ placeholder ] = tp;
 }
 
 void QSqlResult::bindValue( int pos, const QVariant& val, QSql::ParameterType tp )
 {
     d->bindm = BindByPosition;
-    QString nm = QString::number( pos );
+    QString nm( ":f" + QString::number( pos ) );
     d->index[ pos ] = nm;
-    d->values[ nm ] = Param( val, tp );
+    d->values[ nm ] = val;
+    if ( d->types.count() || tp != QSql::In )
+	d->types[ nm ] = tp;
 }
 
 void QSqlResult::addBindValue( const QVariant& val, QSql::ParameterType tp )
@@ -515,32 +515,32 @@ void QSqlResult::addBindValue( const QVariant& val, QSql::ParameterType tp )
 
 QVariant QSqlResult::parameterValue( const QString& holder ) const
 {
-    return d->values[ holder ].value;
+    return d->values[ holder ];
 }
 
 QVariant QSqlResult::parameterValue( int pos ) const
 {
-    return d->values[ d->index[ pos ] ].value;
+    return d->values[ d->index[ pos ] ];
 }
 
 QVariant QSqlResult::boundValue( const QString& placeholder ) const
 {
-    return d->values[ placeholder ].value;
+    return d->values[ placeholder ];
 }
 
 QVariant QSqlResult::boundValue( int pos ) const
 {
-    return d->values[ d->index[ pos ] ].value;
+    return d->values[ d->index[ pos ] ];
 }
 
-QSql::ParameterType QSqlResult::boundValueType( const QString& placeholder ) const
+QSql::ParameterType QSqlResult::bindValueType( const QString& placeholder ) const
 {
-    return d->values[ placeholder ].typ;
+    return d->types.value( placeholder, QSql::In );
 }
 
-QSql::ParameterType QSqlResult::boundValueType( int pos ) const
+QSql::ParameterType QSqlResult::bindValueType( int pos ) const
 {
-    return d->values[ d->index[ pos ] ].typ;
+    return d->types.value( d->index[ pos ], QSql::In );
 }
 
 int QSqlResult::boundValueCount() const
@@ -548,27 +548,30 @@ int QSqlResult::boundValueCount() const
     return d->values.count();
 }
 
-QMap<QString, QVariant> QSqlResult::boundValues() const
+QMap<QString, QVariant>& QSqlResult::boundValues() const
 {
-    QMap<QString, Param>::ConstIterator it;
-    QMap<QString, QVariant> m;
-    if ( d->bindm == BindByName ) {
-	for ( it = d->values.begin(); it != d->values.end(); ++it )
-	    m.insert( it.key(), it.data().value );
-    } else {
-	QString key, tmp, fmt;
-	fmt.sprintf( "%%0%dd", QString::number( d->values.count()-1 ).length() );
-	for ( it = d->values.begin(); it != d->values.end(); ++it ) {
-	    tmp.sprintf( fmt.ascii(), it.key().toInt() );
-	    m.insert( tmp, it.data().value );
-	}
-    }
-    return m;
+    return d->values;
 }
 
 QSqlResult::BindMethod QSqlResult::bindMethod() const
 {
     return d->bindm;
 }
+
+void QSqlResult::clear()
+{
+    d->clear();
+}
+
+QString QSqlResult::executedQuery() const
+{
+    return d->executedQuery;
+}
+
+void QSqlResult::resetBindCount()
+{
+    d->resetBindCount();
+}
+
 
 #endif // QT_NO_SQL

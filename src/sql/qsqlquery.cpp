@@ -302,7 +302,7 @@ bool QSqlQuery::exec ( const QString& query )
 {
     if ( !d->sqlResult )
 	return FALSE;
-//    d->sqlResult->clear();
+    d->sqlResult->clear();
     d->sqlResult->setActive( FALSE );
     d->sqlResult->setLastError( QSqlError() );
     d->sqlResult->setAt( QSql::BeforeFirst );
@@ -908,6 +908,7 @@ bool QSqlQuery::exec()
     if ( !d->sqlResult )
 	return FALSE;
 
+    d->sqlResult->resetBindCount();
     return d->sqlResult->exec();
 }
 
