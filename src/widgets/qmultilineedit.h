@@ -177,6 +177,7 @@ signals:
     void	returnPressed();
     void	undoAvailable( bool );
     void	redoAvailable( bool );
+    void	copyAvailable( bool );
 
 protected:
     void	paintCell( QPainter *, int row, int col );
@@ -287,7 +288,7 @@ private:
     void 	markWord( int posx, int posy );
     void	extendSelectionWord( int &newX, int&newY);
     int 	charClass( QChar );
-    void	turnMarkOff();
+    void	turnMark( bool on );
     bool	inMark( int posx, int posy ) const;
     bool	beforeMark( int posx, int posy ) const;
     bool	afterMark( int posx, int posy ) const;

@@ -85,20 +85,20 @@ static int cmp_uint32_little( const void* target, const void* candidate )
 {
     const uchar* t = (const uchar*) target;
     const uchar* c = (const uchar*) candidate;
-    return t[3] != c[0] ? (int) t[3] - c[0]
-	   : t[2] != c[1] ? (int) t[2] - c[1]
-	   : t[1] != c[2] ? (int) t[1] - c[2]
-	   : (int) t[0] - c[3];
+    return t[3] != c[0] ? (int) t[3] - (int) c[0]
+	   : t[2] != c[1] ? (int) t[2] - (int) c[1]
+	   : t[1] != c[2] ? (int) t[1] - (int) c[2]
+	   : (int) t[0] - (int) c[3];
 }
 
 static int cmp_uint32_big( const void* target, const void* candidate )
 {
     const uchar* t = (const uchar*) target;
     const uchar* c = (const uchar*) candidate;
-    return t[0] != c[0] ? (int) t[0] - c[0]
-	   : t[1] != c[1] ? (int) t[1] - c[1]
-	   : t[2] != c[2] ? (int) t[2] - c[2]
-	   : (int) t[3] - c[3];
+    return t[0] != c[0] ? (int) t[0] - (int) c[0]
+	   : t[1] != c[1] ? (int) t[1] - (int) c[1]
+	   : t[2] != c[2] ? (int) t[2] - (int) c[2]
+	   : (int) t[3] - (int) c[3];
 }
 
 static int systemWordSize = 0;
@@ -142,11 +142,12 @@ public:
 	uint o;
     };
 
-    enum { Codec = 0x1d, Hashes = 0x42, Messages = 0x69 } Tag;
+    enum { Codec = 0x1d, Contexts = 0x2f, Hashes = 0x42, Messages = 0x69 } Tag;
 
     QTranslatorPrivate() :
 	unmapPointer( 0 ), unmapLength( 0 ),
-	messageArray( 0 ), offsetArray( 0 ), mib( (Q_UINT32) 0 ),
+	messageArray( 0 ), offsetArray( 0 ), contextArray( 0 ),
+	mib( (Q_UINT32) 0 ),
 	messages( 0 ) {}
     // note: QTranslator must finalize this before deallocating it.
 
@@ -158,6 +159,7 @@ public:
     // for squeezed but non-file data, this is what needs to be deleted
     QByteArray * messageArray;
     QByteArray * offsetArray;
+    QByteArray * contextArray;
     Q_UINT32 mib;
 
     QMap<QTranslatorMessage, void *> * messages;
@@ -249,13 +251,14 @@ public:
   items would have disambiguating comments such as "two-sided
   printing" for one and "binding" for the other.  The comment enables
   the translator to choose the appropriate gender for the Spanish
-  version, and Qt to pick distinguish between translations.
+  version, and Qt to distinguish between translations.
 
   Note that when QTranslator loads a stripped file, most functions do
   not work.  The functions that do work with stripped files are
   explicitly documented as such.
 
-  \sa QTranslatorMessage QApplication::installTranslator(), QApplication::removeTranslator() QObject::tr() QApplication::translate()
+  \sa QTranslatorMessage QApplication::installTranslator()
+  QApplication::removeTranslator() QObject::tr() QApplication::translate()
 */
 
 /*! \enum QTranslator::SaveMode
@@ -460,7 +463,13 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     Q_UINT32 length = 0;
     s >> tag >> length;
     while( tag && length ) {
-	if ( tag == QTranslatorPrivate::Hashes && !d->offsetArray ) {
+	if ( tag == QTranslatorPrivate::Codec ) {
+	    s >> d->mib;
+	} else if ( tag == QTranslatorPrivate::Contexts && !d->contextArray ) {
+	    d->contextArray = new QByteArray;
+	    d->contextArray->setRawData( tmpArray.data()+s.device()->at(),
+					 length );
+	} else if ( tag == QTranslatorPrivate::Hashes && !d->offsetArray ) {
 	    d->offsetArray = new QByteArray;
 	    d->offsetArray->setRawData( tmpArray.data()+s.device()->at(),
 					length );
@@ -468,8 +477,6 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 	    d->messageArray = new QByteArray;
 	    d->messageArray->setRawData( tmpArray.data()+s.device()->at(),
 					 length );
-	} else if ( tag == QTranslatorPrivate::Codec ) {
-	    s >> d->mib;
 	}
 	s.device()->at( s.device()->at() + length );
 	tag = 0;
@@ -501,20 +508,28 @@ bool QTranslator::save( const QString & filename, SaveMode mode )
 	s.writeRawBytes( (const char *)magic, magic_length );
 	Q_UINT8 tag;
 
-	tag = (Q_UINT8) QTranslatorPrivate::Codec;
-	if ( d->mib )
+	if ( d->mib != 0 ) {
+	    tag = (Q_UINT8) QTranslatorPrivate::Codec;
 	    s << tag << (Q_UINT32) 4 << d->mib;
-
-	tag = (Q_UINT8) QTranslatorPrivate::Hashes;
-	Q_UINT32 oas = d->offsetArray ? (Q_UINT32) d->offsetArray->size() : 0;
-	s << tag << oas;
-	s.writeRawBytes( oas ? d->offsetArray->data() : 0, oas );
-
-	tag = (Q_UINT8) QTranslatorPrivate::Messages;
-	Q_UINT32 mas = d->messageArray ? (Q_UINT32) d->messageArray->size() : 0;
-	s << tag << mas;
-	s.writeRawBytes( mas ? d->messageArray->data() : 0, mas );
-
+	}
+	if ( d->offsetArray != 0 ) {
+	    tag = (Q_UINT8) QTranslatorPrivate::Hashes;
+	    Q_UINT32 oas = (Q_UINT32) d->offsetArray->size();
+	    s << tag << oas;
+	    s.writeRawBytes( d->offsetArray->data(), oas );
+	}
+	if ( d->messageArray != 0 ) {
+	    tag = (Q_UINT8) QTranslatorPrivate::Messages;
+	    Q_UINT32 mas = (Q_UINT32) d->messageArray->size();
+	    s << tag << mas;
+	    s.writeRawBytes( d->messageArray->data(), mas );
+	}
+	if ( d->contextArray != 0 ) {
+	    tag = (Q_UINT8) QTranslatorPrivate::Contexts;
+	    Q_UINT32 cas = (Q_UINT32) d->contextArray->size();
+	    s << tag << cas;
+	    s.writeRawBytes( d->contextArray->data(), cas );
+	}
 	return TRUE;
     }
     return FALSE;
@@ -542,11 +557,16 @@ void QTranslator::clear()
 	if ( d->offsetArray )
 	    d->offsetArray->resetRawData( d->offsetArray->data(),
 					  d->offsetArray->size() );
+	if ( d->contextArray )
+	    d->contextArray->resetRawData( d->contextArray->data(),
+					   d->contextArray->size() );
     }
     delete d->messageArray;
     d->messageArray = 0;
     delete d->offsetArray;
     d->offsetArray = 0;
+    delete d->contextArray;
+    d->contextArray = 0;
     d->mib = (Q_UINT32) 0;
     delete d->messages;
     d->messages = 0;
@@ -564,8 +584,12 @@ void QTranslator::clear()
 
 void QTranslator::squeeze( SaveMode mode )
 {
-    if ( !d->messages )
-	return;
+    if ( !d->messages ) {
+	if ( mode == Stripped )
+	    unsqueeze();
+	else
+	    return;
+    }
 
     QMap<QTranslatorMessage, void *> * messages = d->messages;
 
@@ -582,8 +606,8 @@ void QTranslator::squeeze( SaveMode mode )
     int cpPrev = 0, cpNext = 0;
     for ( it = messages->begin(); it != messages->end(); ++it ) {
 	/*
-	  These should really be stripped in a first pass.  By doing it here,
-	  the result is correct but suboptimal.
+	  These really should be stripped in a first pass.  By doing it here,
+	  the result is correct but sub-optimal.
 	 */
 	if ( mode == Stripped &&
 	     it.key().type() != QTranslatorMessage::Finished )
@@ -599,7 +623,7 @@ void QTranslator::squeeze( SaveMode mode )
 	offsets.replace( QTranslatorPrivate::Offset(it.key(),
 			 ms.device()->at()), (void*)0 );
 	it.key().write( ms, mode,
-		       (QTranslatorMessage::Prefix) QMAX(cpPrev, cpNext + 1) );
+			(QTranslatorMessage::Prefix) QMAX(cpPrev, cpNext + 1) );
     }
 
     d->offsetArray->resize( 0 );
@@ -611,6 +635,93 @@ void QTranslator::squeeze( SaveMode mode )
 	++offset;
 	ds << (Q_UINT32)k.h << (Q_UINT32)k.o;
     }
+
+    if ( mode == Stripped ) {
+	QAsciiDict<int> contextSet( 1511 );
+	int strindberg;
+
+	for ( it = messages->begin(); it != messages->end(); ++it )
+	    contextSet.replace( it.key().context(), &strindberg );
+
+	Q_UINT16 hTableSize;
+	if ( contextSet.count() < 200 )
+	    hTableSize = ( contextSet.count() < 60 ) ? 151 : 503;
+	else if ( contextSet.count() < 2500 )
+	    hTableSize = ( contextSet.count() < 750 ) ? 1511 : 5003;
+	else
+	    hTableSize = 15013;
+
+	QIntDict<char> hDict( hTableSize );
+	QAsciiDictIterator<int> c = contextSet;
+	while ( c.current() != 0 ) {
+	    hDict.insert( (long) (::hash(c.currentKey()) % hTableSize),
+			  c.currentKey() );
+	    ++c;
+	}
+
+	/*
+	  The contexts found in this translator are stored in a hash table to
+	  provide fast look-up.  The context array has the following format:
+
+	      Q_UINT16 hTableSize;
+	      Q_UINT16 hTable[hTableSize];
+	      Q_UINT8  contextPool[...];
+
+	  The context pool stores the contexts as Pascal strings (au da!):
+
+	      Q_UINT8  len;
+	      Q_UINT8  data[len];
+
+	  Let's consider the look-up of context "FunnyDialog".  A hash value
+	  between 0 and hTableSize - 1 is computed, say h.  If hTable[h] is 0,
+	  "FunnyDialog" is not covered by this translator.  Else, we check in
+	  the contextPool at offset 2 * hTable[h] to see if "FunnyDialog" is one
+	  of the contexts stored there, until we find it or we meet the empty
+	  string.
+	*/
+	d->contextArray = new QByteArray;
+	d->contextArray->resize( 2 + (hTableSize << 1) );
+	QDataStream t( *d->contextArray, IO_WriteOnly );
+	Q_UINT16 *hTable = new Q_UINT16[hTableSize];
+	memset( hTable, 0, hTableSize * sizeof(Q_UINT16) );
+
+	t << hTableSize;
+	t.device()->at( 2 + (hTableSize << 1) );
+	t << (Q_UINT16) 0; // the entry at offset 0 cannot be used (c.f. Pascal)
+	uint upto = 2;
+
+	for ( int i = 0; i < hTableSize; i++ ) {
+	    const char *con = hDict.find( i );
+	    if ( con == 0 ) {
+		hTable[i] = 0;
+	    } else {
+		hTable[i] = (Q_UINT16) ( upto >> 1 );
+		do {
+		    uint len = (uint) strlen( con );
+		    len = QMIN( len, 255 );
+		    t << (Q_UINT8) len;
+		    t.writeRawBytes( con, len );
+		    upto += 1 + len;
+		    hDict.remove( i );
+		} while ( (con = hDict.find(i)) != 0 );
+		do {
+		    t << (Q_UINT8) 0; // empty string (at least one)
+		    upto++;
+		} while ( (upto & 0x1) != 0 ); // offsets have to be even
+	    }
+	}
+	t.device()->at( 2 );
+	for ( int j = 0; j < hTableSize; j++ )
+	    t << hTable[j];
+	delete hTable;
+
+	if ( upto > 131072 ) {
+	    qWarning( "QTranslator::squeeze: Too many contexts" );
+	    delete d->contextArray;
+	    d->contextArray = 0;
+	}
+    }
+    delete messages;
 }
 
 
@@ -702,7 +813,8 @@ void QTranslator::insert( const QTranslatorMessage& message )
 void QTranslator::insert( const char * context, const char * sourceText,
 			  const QString & translation )
 {
-    insert( QTranslatorMessage(context, sourceText, "", translation) );
+    insert( QTranslatorMessage(context, sourceText, "", translation,
+			       QTranslatorMessage::Finished) );
 }
 
 
@@ -784,6 +896,31 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
     if ( !d->offsetArray )
 	return QTranslatorMessage();
 
+    if ( d->contextArray ) {
+	Q_UINT16 hTableSize;
+	QDataStream t( *d->contextArray, IO_ReadOnly );
+	t >> hTableSize;
+	uint g = ::hash( context ) % hTableSize;
+	t.device()->at( 2 + (g << 1) );
+	Q_UINT16 off;
+	t >> off;
+	if ( off == 0 )
+	    return QTranslatorMessage();
+	t.device()->at( 2 + (hTableSize << 1) + (off << 1) );
+
+	Q_UINT8 len;
+	char con[256];
+	while(TRUE) {
+	    t >> len;
+	    if ( len == 0 )
+		return QTranslatorMessage();
+	    t.readRawBytes( con, len );
+	    con[len] = '\0';
+	    if ( strcmp(con, context) == 0 )
+		break;
+	}
+    }
+
     uint h = ::hash( QCString(sourceText) + comment );
 
     Q_UINT32 rh;
@@ -796,12 +933,13 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
     if ( systemWordSize == 0 )
 	qSysInfo( &systemWordSize, &systemBigEndian );
     char *r = (char *) bsearch( &h, d->offsetArray->data(), numItems,
-	    2 * sizeof(Q_UINT32),
-	    systemBigEndian ? cmp_uint32_big : cmp_uint32_little );
+				2 * sizeof(Q_UINT32),
+				systemBigEndian ? cmp_uint32_big
+				: cmp_uint32_little );
     if ( r == 0 )
 	return QTranslatorMessage();
 
-    while ( r != d->offsetArray->data() && cmp_uint32_big( r - 8, r ) == 0 )
+    while( r != d->offsetArray->data() && cmp_uint32_big( r - 8, r ) == 0 )
 	r -= 8;
 
     QDataStream s( *d->offsetArray, IO_ReadOnly );
@@ -1024,7 +1162,7 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
 
 /*! \fn QString QTranslatorMessage::translation() const
 
-  Returns the translation of the source text (e.g., "&Sauvegarder...").
+  Returns the translation of the source text (e.g., "&Sauvegarder").
 
   \sa setTranslation()
 */

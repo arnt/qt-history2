@@ -949,7 +949,7 @@ void QMultiLineEdit::selectAll()
     markAnchorY    = 0;
     markDragY = numLines() - 1;
     markDragX = lineLength( markDragY );
-    markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
+    turnMark( markDragX != markAnchorX || markDragY != markAnchorY );
     if ( autoUpdate() )
 	update();
 }
@@ -963,7 +963,7 @@ void QMultiLineEdit::selectAll()
 
 void QMultiLineEdit::deselect()
 {
-    turnMarkOff();
+    turnMark( FALSE );
 }
 
 
@@ -977,7 +977,10 @@ void QMultiLineEdit::setText( const QString &s )
     setUndoEnabled( FALSE );
     bool oldAuto = autoUpdate();
     setAutoUpdate( FALSE );
+    bool b = signalsBlocked();
+    blockSignals( TRUE );
     clear();
+    blockSignals( b );
     insertLine( s, -1 );
     emit textChanged();
     setAutoUpdate(oldAuto);
@@ -1317,7 +1320,7 @@ void QMultiLineEdit::pageDown( bool mark )
 	    updateCell( oldY, 0, FALSE );
 	}
     if ( !mark )
-	turnMarkOff();
+	turnMark( FALSE );
 }
 
 
@@ -1370,7 +1373,7 @@ void QMultiLineEdit::pageUp( bool mark )
 	    updateCell( oldY, 0, FALSE );
 	}
     if ( !mark )
-	turnMarkOff();
+	turnMark( FALSE );
 }
 
 
@@ -1577,7 +1580,7 @@ void QMultiLineEdit::killLineAux()
     }
     curXPos  = 0;
     makeVisible();
-    turnMarkOff();
+    turnMark( FALSE );
 }
 
 
@@ -1627,7 +1630,7 @@ void QMultiLineEdit::cursorLeft( bool mark, bool clear_mark, bool wrap )
     curXPos  = 0;
     makeVisible();
     if ( clear_mark )
-	turnMarkOff();
+	turnMark( FALSE );
 }
 
 /*!
@@ -1672,7 +1675,7 @@ void QMultiLineEdit::cursorRight( bool mark, bool clear_mark, bool wrap )
     curXPos  = 0;
     makeVisible();
     if ( clear_mark )
-	turnMarkOff();
+	turnMark( FALSE );
 }
 
 /*!
@@ -1710,7 +1713,7 @@ void QMultiLineEdit::cursorUp( bool mark, bool clear_mark )
     }
     makeVisible();
     if ( clear_mark )
-	turnMarkOff();
+	turnMark( FALSE );
 }
 
 /*!
@@ -1749,16 +1752,18 @@ void QMultiLineEdit::cursorDown( bool mark, bool clear_mark )
     }
     makeVisible();
     if ( clear_mark )
-	turnMarkOff();
+	turnMark( FALSE );
 }
 
 /*!
   Turns off marked text
 */
-void QMultiLineEdit::turnMarkOff()
+void QMultiLineEdit::turnMark( bool on )
 {
-    if ( markIsOn ) {
-	markIsOn = FALSE;
+    if ( on != markIsOn ) {
+	markIsOn = on;
+	if ( echoMode() == Normal )
+	    emit copyAvailable( on );
 	update();
     }
 }
@@ -1793,7 +1798,7 @@ void QMultiLineEdit::delAux()
     int markEndX, markEndY;
     QRect oldContents = contentsRect();
     if ( getMarkedRegion( &markBeginY, &markBeginX, &markEndY, &markEndX ) ) {
-	markIsOn    = FALSE;
+	turnMark( FALSE );
 	textDirty = TRUE;
 	d->edited = TRUE;
 	if ( markBeginY == markEndY ) { //just one line
@@ -1909,7 +1914,7 @@ void QMultiLineEdit::home( bool mark )
     }
     curXPos  = 0;
     if ( !mark )
-	turnMarkOff();
+	turnMark( FALSE );
     makeVisible();
 }
 
@@ -1940,7 +1945,7 @@ void QMultiLineEdit::end( bool mark )
     curXPos  = 0;
     makeVisible();
     if ( !mark )
-	turnMarkOff();
+	turnMark( FALSE );
 }
 
 /*!\reimp
@@ -2064,7 +2069,7 @@ void QMultiLineEdit::setCursorPixelPosition(QPoint p, bool clear_mark)
 	markAnchorX    = cursorX;
 	markAnchorY    = newY;
 	bool markWasOn = markIsOn;
-	markIsOn       = FALSE;
+	turnMark( FALSE );
 	if ( markWasOn ) {
 	    cursorY = newY;
 	    update();
@@ -2175,7 +2180,7 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
     textDirty = FALSE;
     d->isHandlingEvent = TRUE;
     if ( markAnchorY == markDragY && markAnchorX == markDragX )
-	markIsOn = FALSE;
+	turnMark( FALSE );
 
 #if QT_FEATURE_CLIPBOARD
 #if defined(_WS_X11_)
@@ -2457,7 +2462,7 @@ void QMultiLineEdit::paste()
     QString t = QApplication::clipboard()->text();
     if ( !t.isEmpty() ) {
 	if ( hasMarkedText() )
-	    turnMarkOff();
+	    turnMark( FALSE );
 
 #if defined(_OS_WIN32_)
 	// Need to convert CRLF to NL
@@ -2470,7 +2475,7 @@ void QMultiLineEdit::paste()
 		t[i] = ' ';
 	}
 	insertAt( t, cursorY, cursorX );
-	markIsOn = FALSE;
+	turnMark( FALSE );
 	curXPos  = 0;
 	makeVisible();
     }
@@ -2497,7 +2502,7 @@ void QMultiLineEdit::clear()
     setNumRows( 1 );
     setWidth( w );
     dummy = TRUE;
-    markIsOn = FALSE;
+    turnMark( FALSE );
     if ( autoUpdate() )
 	update();
     if ( !d->isHandlingEvent ) //# && not already empty
@@ -2534,7 +2539,7 @@ void QMultiLineEdit::newMark( int posx, int posy, bool /*copy*/ )
     markDragY  = posy;
     cursorX    = posx;
     cursorY    = posy;
-    markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
+    turnMark( markDragX != markAnchorX || markDragY != markAnchorY );
 }
 
 bool QMultiLineEdit::beforeMark( int posx, int posy ) const
@@ -2585,7 +2590,7 @@ void QMultiLineEdit::markWord( int posx, int posy )
 	i++;
     markDragX = i;
     markDragY = posy;
-    markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
+    turnMark( markDragX != markAnchorX || markDragY != markAnchorY );
 
 #if QT_FEATURE_CLIPBOARD
 #if defined(_WS_X11_)
@@ -2614,7 +2619,7 @@ int QMultiLineEdit::charClass( QChar ch )
 
 #if QT_FEATURE_CLIPBOARD
 /*!
-  Copies the marked text to the clipboard.  Will only copy
+  Copies the marked text to the clipboard.  Will copy only
   if echoMode() is Normal.
 */
 
@@ -2674,7 +2679,7 @@ void QMultiLineEdit::clipboardChanged()
 #if defined(_WS_X11_)
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
 		this, SLOT(clipboardChanged()) );
-    markIsOn = FALSE;
+    turnMark( FALSE );
     update();
 #endif
 }
@@ -2727,7 +2732,7 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 	    updateCell( i, 0, FALSE );
     } else {
 	updateCell( oldY, 0, FALSE );
-	turnMarkOff();
+	turnMark( FALSE );
     }
 }
 
@@ -3217,7 +3222,7 @@ void QMultiLineEdit::setSelection( int /*row_from*/, int /*col_from*/,
     markDragY = row_to;
     markDragX = col_to;
 
-    markIsOn = TRUE;
+    turnMark( TRUE );
     */
     qFatal("Not implemented: setSelection");
 }
@@ -3674,7 +3679,7 @@ void QMultiLineEdit::offsetToPositionInternal( int position,
 
 
 /*!
-  Processes an undo/redo command \a cmd, depending on \a undo
+  Processes an undo/redo command \a cmd, depending on \a undo.
  */
 void QMultiLineEdit::processCmd( QMultiLineEditCommand* cmd, bool undo)
 {
@@ -3703,13 +3708,13 @@ void QMultiLineEdit::processCmd( QMultiLineEditCommand* cmd, bool undo)
 	setCursorPosition( rowEnd, colEnd, FALSE );
 	markDragY    = rowEnd;
 	markDragX    = colEnd;
-	markIsOn = TRUE;
+	turnMark( TRUE );
 	del();
     }
 }
 
 /*!
-  Undos the last text operation
+  Undoes the last text operation.
  */
 void QMultiLineEdit::undo()
 {
@@ -3736,7 +3741,7 @@ void QMultiLineEdit::undo()
 }
 
 /*!
-  Redos the last text operation
+  Redoes the last text operation.
  */
 void QMultiLineEdit::redo()
 {
@@ -3881,7 +3886,10 @@ void QMultiLineEdit::del()
 }
 
 /*!
-  Sets undo enabled to \a enable
+  Sets undo enabled to \a enable.
+
+  Disabling and re-enabling undo's has the effect of clearing the undo and redo
+  stacks.
 
   \sa isUndoEnabled()
 */
@@ -3919,7 +3927,7 @@ void QMultiLineEdit::setUndoDepth( int depth)
 
 
 /*!
-  Returns  the maximum number of operations that can be stored on the undo stack.
+  Returns the maximum number of operations that can be stored on the undo stack.
 
   \sa setUndoDepth()
  */
