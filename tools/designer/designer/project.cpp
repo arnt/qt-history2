@@ -620,7 +620,8 @@ void Project::save( bool onlyProjectFile )
 	    if ( fit.current()->isPackage() )
 		continue;
 #endif
-	    contents += fit.current()->fileName() + " ";
+	    contents += fit.current()->fileName() +
+		 (fit != formfiles.last() ? " \\\n\t" : "");
 	}
 	contents += "\n";
     }
@@ -629,8 +630,13 @@ void Project::save( bool onlyProjectFile )
     if ( !pixCollection->isEmpty() ) {
 	contents += "IMAGES\t= ";
 	QValueList<PixmapCollection::Pixmap> pixmaps = pixCollection->pixmaps();
-	for ( QValueList<PixmapCollection::Pixmap>::Iterator it = pixmaps.begin(); it != pixmaps.end(); ++it )
-	    contents += makeRelative( (*it).absname ) + " ";
+	for ( QValueList<PixmapCollection::Pixmap>::Iterator it = pixmaps.begin();
+	      it != pixmaps.end(); ++it ) {
+	    contents += makeRelative( (*it).absname ) +
+	       (++it != pixmaps.end() ? " \\\n\t" : "");
+	    --it;
+	}
+	
 	contents += "\n";
     }
 
@@ -682,7 +688,8 @@ void Project::save( bool onlyProjectFile )
 	    QStringList lst = *skit;
 	    for ( QStringList::Iterator sit = lst.begin(); sit != lst.end(); ++sit ) {
 		part += *sit;
-		part += " ";
+		part += ++sit != lst.end() ? " \\\n\t" : "";
+		--sit;
 	    }
 	    contents.insert( 0, part + "\n" );
 	}
