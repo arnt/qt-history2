@@ -674,7 +674,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
         
         out << "\tenum " << enumerator.name() << " {" << endl;
         
-        for (int j = 0; j < enumerator.numKeys(); ++j) {
+        for (int j = 0; j < enumerator.keyCount(); ++j) {
             QString key(enumerator.key(j));
             uint value = (uint)enumerator.value(j);
             key = key.leftJustified(20);
@@ -683,7 +683,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
                 out << "0x" << QString::number(value, 16).rightJustified(8, '0');
             else
                 out << value;
-            if (j < enumerator.numKeys()-1)
+            if (j < enumerator.keyCount()-1)
                 out << ", ";
             out << endl;
         }
@@ -709,7 +709,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
             continue;
         
         bool ok = true;
-        QString type(convertTypes(property.type(), &ok));
+        QString type(convertTypes(property.typeName(), &ok));
         QString name(replaceKeyword(property.name()));
         
         if (!ok)
@@ -771,7 +771,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
             continue;
         
         bool ok = true;
-        QString type = slot.type();
+        QString type = slot.typeName();
         if (type.isEmpty())
             type = "void";
         else
@@ -840,7 +840,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
             name = renameOverloads(replaceKeyword(name));
             bool ok = true;
             
-            QString type = signal.type();
+            QString type = signal.typeName();
             if (!type.isEmpty()) // signals with return value not supported
                 continue;
             

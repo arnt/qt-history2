@@ -1933,7 +1933,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
     default:
 	{
 	    signal = mo->signal(index);
-	    type = signal.type();
+	    type = signal.typeName();
 	    QByteArray signature(signal.signature());
 	    QByteArray name(signature);
 	    name.truncate(name.indexOf('('));
@@ -2317,7 +2317,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 
 	    // get slot info
 	    QMetaMember slot = mo->slot(index);
-	    QByteArray type = slot.type();
+	    QByteArray type = slot.typeName();
 	    name = slot.signature();
             nameLength = name.indexOf('(');
 	    QByteArray prototype = name.mid(nameLength + 1);
@@ -2406,7 +2406,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
             // return value
 	    if (!type.isEmpty()) {
                 varp[0] = QVariant(QVariant::nameToType(type));
-                if (varp[0].type() == QVariant::Invalid && mo->indexOfEnumerator(slot.type()) != -1)
+                if (varp[0].type() == QVariant::Invalid && mo->indexOfEnumerator(slot.typeName()) != -1)
                     varp[0] = QVariant(QVariant::Int);
 
                 if (varp[0].type() == QVariant::Invalid) {
@@ -2473,7 +2473,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT)
 		return DISP_E_BADPARAMCOUNT;
 
-	    QVariant var = VARIANTToQVariant(*pDispParams->rgvarg, property.type());
+	    QVariant var = VARIANTToQVariant(*pDispParams->rgvarg, property.typeName());
 	    if (!var.isValid()) {
 		if (puArgErr)
 		    *puArgErr = 0;
@@ -2622,7 +2622,7 @@ HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
 
 	int idx = mo->indexOfProperty(propname.latin1());
 	QMetaProperty property = mo->property(idx);
-	if (property && property.isWritable())
+	if (property.isWritable())
 	    qt.object->setProperty(propname.latin1(), value);
     }
     return S_OK;
@@ -2641,7 +2641,7 @@ HRESULT WINAPI QAxServerBase::Save(IStream *pStm, BOOL clearDirty)
 	if (!isPropertyExposed(prop))
 	    continue;
 	QMetaProperty metaprop = mo->property(prop);
-        if (QByteArray(metaprop.type()).endsWith('*'))
+        if (QByteArray(metaprop.typeName()).endsWith('*'))
             continue;
 	QString property = QLatin1String(metaprop.name());
 	QVariant qvar = qt.object->property(metaprop.name());
@@ -2783,7 +2783,7 @@ HRESULT WINAPI QAxServerBase::Load(IPropertyBag *bag, IErrorLog * /*log*/)
 	var.vt = VT_EMPTY;
 	HRESULT res = bag->Read(bstr, &var, 0);
 	if (property.isWritable() && var.vt != VT_EMPTY) {
-	    if (res != S_OK || !qt.object->setProperty(pname, VARIANTToQVariant(var, property.type())))
+	    if (res != S_OK || !qt.object->setProperty(pname, VARIANTToQVariant(var, property.typeName())))
 		error = true;
 	}
 	SysFreeString(bstr);
@@ -2810,7 +2810,7 @@ HRESULT WINAPI QAxServerBase::Save(IPropertyBag *bag, BOOL clearDirty, BOOL /*sa
 	if (!isPropertyExposed(prop))
 	    continue;
 	QMetaProperty property = mo->property(prop);
-        if (QByteArray(property.type()).endsWith('*'))
+        if (QByteArray(property.typeName()).endsWith('*'))
             continue;
 
 	BSTR bstr = QStringToBSTR(property.name());
@@ -2818,7 +2818,7 @@ HRESULT WINAPI QAxServerBase::Save(IPropertyBag *bag, BOOL clearDirty, BOOL /*sa
 	if (!qvar.isValid())
 	    error = true;
 	VARIANT var;
-	QVariantToVARIANT(qvar, var, property.type());
+	QVariantToVARIANT(qvar, var, property.typeName());
 	bag->Write(bstr, &var);
 	SysFreeString(bstr);
     }
