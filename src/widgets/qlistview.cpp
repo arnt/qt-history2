@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#68 $
 **
 ** Implementation of QListView widget class
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#68 $");
 
 
 const int Unsorted = 32767;
@@ -710,9 +710,14 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
 	if ( isSelected() &&
 	     (column==0 || listView()->allColumnsShowFocus()) ) {
-	    p->fillRect( r-2, 0, width - r + 2, height(),
-			 QApplication::winStyleHighlightColor() );
-	    p->setPen( white ); // ###
+	    if ( listView()->style() == WindowsStyle ) {
+		p->fillRect( r-2, 0, width - r + 2, height(),
+			     QApplication::winStyleHighlightColor() );
+		p->setPen( white ); // ###
+	    } else {
+		p->fillRect( r-2, 0, width - r + 2, height(), cg.text() );
+		p->setPen( cg.base() );
+	    }
 	} else {
 	    p->setPen( cg.text() );
 	}
@@ -727,13 +732,13 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
   Paints a focus indication on the rectangle \a r using painter \a p
   and colors \a cg.
-  
+
   \a p is already clipped.
-  
+
   \sa paintCell() paintBranches() QListView::setAllColumnsShowFocus()
 */
 
-void QListViewItem::paintFocus( QPainter *p, const QColorGroup &, 
+void QListViewItem::paintFocus( QPainter *p, const QColorGroup &,
 				const QRect & r ) const
 {
     if ( listView()->style() == WindowsStyle ) {
@@ -1928,7 +1933,6 @@ void QListView::keyPressEvent( QKeyEvent * e )
     if ( !e )
 	return; // subclass bug
 
-    e->accept();
     if ( !currentItem() )
 	return;
 
@@ -1947,14 +1951,17 @@ void QListView::keyPressEvent( QKeyEvent * e )
     case Key_Return:
 	emit returnPressed( currentItem() );
 	d->currentPrefix.truncate( 0 );
+	// do NOT accept.  QDialog.
 	return;
     case Key_Down:
 	i = i->itemBelow();
 	d->currentPrefix.truncate( 0 );
+	e->accept();
 	break;
     case Key_Up:
 	i = i->itemAbove();
 	d->currentPrefix.truncate( 0 );
+	e->accept();
 	break;
     case Key_Next:
 	i2 = itemAt( QPoint( 0, viewport()->height()-1 ) );
@@ -1971,6 +1978,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    i = i2;
 	}
 	d->currentPrefix.truncate( 0 );
+	e->accept();
 	break;
     case Key_Prior:
 	i2 = itemAt( QPoint( 0, 0 ) );
@@ -1986,6 +1994,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    i = i2;
 	}
 	d->currentPrefix.truncate( 0 );
+	e->accept();
 	break;
     case Key_Right:
 	if ( i->isOpen() && i->childItem )
@@ -1993,6 +2002,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	else if (  !i->isOpen() && (i->isExpandable() || i->children()) )
 	    setOpen( i, TRUE );
 	d->currentPrefix.truncate( 0 );
+	e->accept();
 	break;
     case Key_Left:
 	if ( i->isOpen() && i->childItem )
@@ -2000,10 +2010,12 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	else if ( i->parentItem && i->parentItem != d->r )
 	    i = i->parentItem;
 	d->currentPrefix.truncate( 0 );
+	e->accept();
 	break;
     case Key_Space:
 	i->activate();
 	d->currentPrefix.truncate( 0 );
+	e->accept();
 	break;
     default:
 	if ( e->ascii() ) {
@@ -2044,8 +2056,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		    keyItem = d->r;
 		}
 	    }
+	    e->accept();
 	} else {
-	    e->ignore();
 	    return;
 	}
     }

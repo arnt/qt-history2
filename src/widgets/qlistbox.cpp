@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#135 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#136 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#135 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#136 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1393,6 +1393,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    if ( e->state() & ShiftButton )
 		toggleCurrentItem();
 	}
+	e->accept();
 	break;
     case Key_Down:
 	if ( currentItem() < (int)count() - 1 ) {
@@ -1400,6 +1401,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    if ( e->state() & ShiftButton )
 		toggleCurrentItem();
 	}
+	e->accept();
 	break;
     case Key_Next:
 	if ( style() == MotifStyle ) {
@@ -1412,6 +1414,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    setTopItem( QMIN(currentItem(),(int)count()-pageSize+1) );
 	    setCurrentItem( QMIN(lastRowVisible(), (int)count()-1) );
 	}
+	e->accept();
 	break;
     case Key_Prior:
 	if ( style() == MotifStyle ) {
@@ -1424,10 +1427,12 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    setTopItem( QMAX(0,currentItem()-pageSize+1) );
 	    setCurrentItem( topItem() );
 	}
+	e->accept();
 	break;
 
     case Key_Space:
 	toggleCurrentItem();
+	e->accept();
 	break;
 
     case Key_Return:
@@ -1438,6 +1443,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    if ( !tmp.isEmpty() )
 		emit selected( tmp );
 	}
+	// do NOT accept here.  qdialog.
 	break;
     default:
 	break;
