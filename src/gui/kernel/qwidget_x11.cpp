@@ -777,8 +777,13 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     XUnmapWindow(X11->display, old_winid);
     XReparentWindow(X11->display, old_winid, RootWindow(X11->display, xinfo.screen()), 0, 0);
 
-    if (q->isWindow() || !parent) // we are toplevel, or reparenting to toplevel
-        topData()->parentWinId = 0;
+    if (q->isWindow() || !parent) { // we are toplevel, or reparenting to toplevel
+        QTLWExtra *top = topData();
+        top->parentWinId = 0;
+        // zero the frame strut and mark it dirty
+        top->fleft = top->fright = top->ftop = top->fbottom = 0;
+        data.fstrut_dirty = true;
+    }
 
     QObjectPrivate::setParent_helper(parent);
     bool     enable = q->isEnabled();                // remember status
