@@ -135,7 +135,7 @@ void updateDragMode(DragReference drag) {
         op = QDrag::CopyDrag;
     else 
         op = QDrag::MoveDrag;
-    if(!(accept_operations & op))
+    if(accept_operations & op)
         current_drag_operation = op;
 }
 
