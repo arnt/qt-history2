@@ -381,7 +381,7 @@ QCoreVariant QIBaseResultPrivate::fetchBlob(ISC_QUAD *bId)
 }
 
 template<typename T>
-static QList<QCoreVariant> toList(char** buf, int count)
+static QList<QCoreVariant> toList(char** buf, int count, T* = 0)
 {
     QList<QCoreVariant> res;
     for (int i = 0; i < count; ++i) {
@@ -392,7 +392,7 @@ static QList<QCoreVariant> toList(char** buf, int count)
 }
 /* char** ? seems like bad influence from oracle ... */
 template<>
-static QList<QCoreVariant> toList<long>(char** buf, int count)
+static QList<QCoreVariant> toList<long>(char** buf, int count, long*)
 {
     QList<QCoreVariant> res;
     for (int i = 0; i < count; ++i) {
@@ -528,11 +528,11 @@ QCoreVariant QIBaseResultPrivate::fetchArray(int pos, ISC_QUAD *arr)
 }
 
 template<typename T>
-static char* fillList(char *buffer, const QList<QCoreVariant> &list)
+static char* fillList(char *buffer, const QList<QCoreVariant> &list, T* = 0)
 {
     for (int i = 0; i < list.size(); ++i) {
         T val;
-        qVariantGet<T>(list.at(i), val, list.at(i).typeName());
+        val = QVariant_to<T>(list.at(i));
         memcpy(buffer, &val, sizeof(T));
         buffer += sizeof(T);
     }
@@ -540,12 +540,12 @@ static char* fillList(char *buffer, const QList<QCoreVariant> &list)
 }
 
 template<>
-static char* fillList<float>(char *buffer, const QList<QCoreVariant> &list)
+static char* fillList<float>(char *buffer, const QList<QCoreVariant> &list, float*)
 {
     for (int i = 0; i < list.size(); ++i) {
         double val;
         float val2 = 0;
-        qVariantGet<double>(list.at(i), val, list.at(i).typeName());
+        val = QVariant_to<double>(list.at(i));
         val2 = (float)val;
         memcpy(buffer, &val2, sizeof(float));
         buffer += sizeof(float);
