@@ -1,3 +1,4 @@
+class QSpinBoxValidator;
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -76,6 +77,7 @@ class QAbstractSpinBoxPrivate : public QWidgetPrivate
     Q_DECLARE_PUBLIC(QAbstractSpinBox)
 public:
     QAbstractSpinBoxPrivate();
+    ~QAbstractSpinBoxPrivate();
 
     void init();
     void resetState();
@@ -95,7 +97,7 @@ public:
     virtual QStyleOptionSpinBox getStyleOption() const;
 
     virtual void emitSignals(EmitPolicy ep, const QVariant &old);
-    virtual void refresh(EmitPolicy ep);
+    virtual void interpret(EmitPolicy ep);
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
     virtual QString textFromValue(const QVariant &n) const;
@@ -130,6 +132,7 @@ public:
     QStyle::SubControl hoverControl;
     QRect hoverRect;
     QAbstractSpinBox::ButtonSymbols buttonsymbols;
+    QSpinBoxValidator *validator;
 };
 
 class QSpinBoxValidator : public QValidator
