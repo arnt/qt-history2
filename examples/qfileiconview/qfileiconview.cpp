@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#17 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#18 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -20,6 +20,8 @@
 #include <qpopupmenu.h>
 #include <qcursor.h>
 #include <qapplication.h>
+
+#include <stdlib.h>
 
 static const char * file_icon[]={
     "32 32 17 1",
@@ -219,6 +221,198 @@ static const char * folder_locked_icon[]={
     "....................##d#b###....",
     "......................####......"};
 
+
+/*****************************************************************************
+ *
+ * Class QtFileIconDragItem
+ *
+ *****************************************************************************/
+
+QtFileIconDragItem::QtFileIconDragItem()
+    : QIconDragItem()
+{
+    makeKey();
+}
+
+QtFileIconDragItem::QtFileIconDragItem( const QRect &r, const QString &u )
+    : QIconDragItem( r ), url_( u )
+{
+    makeKey();
+}
+
+QtFileIconDragItem::~QtFileIconDragItem()
+{
+}
+    
+QString QtFileIconDragItem::url() const
+{
+    return url_;
+}
+
+void QtFileIconDragItem::setURL( const QString &u )
+{
+    url_ = u;
+}
+    
+void QtFileIconDragItem::makeKey()
+{	
+    QString k( "%1%2%3%4%5%6%7%8%9" );
+    k = k.arg( rect_.x() ).arg( " " ).arg( rect_.y() ).arg( " " ).
+	arg( rect_.width() ).arg( " " ).arg( rect_.height() ).
+	arg( " " ).arg( url_ );
+    key_ = k;
+}
+    
+/*****************************************************************************
+ *
+ * Class QtFileIconDrag
+ *
+ *****************************************************************************/
+
+QtFileIconDrag::QtFileIconDrag( QWidget * dragSource, const char* name = 0 )
+    : QIconDrag( dragSource, name )
+{
+}
+
+QtFileIconDrag::~QtFileIconDrag()
+{
+}
+
+const char* QtFileIconDrag::format( int i ) const
+{
+    if ( i == 0 )
+	return "application/x-qiconlist";
+    else if ( i == 1 )
+	return "text/uri-iconlist";
+    else if ( i == 2 )
+	return "text/uri-list";
+    else return 0;
+}
+
+void QtFileIconDrag::append( const QtFileIconDragItem &icon_ )
+{
+    icons.append( icon_ );
+    QIconDrag::icons.append( icon_ );
+}
+
+QByteArray QtFileIconDrag::encodedData( const char* mime ) const
+{
+    QByteArray a;
+    if ( QString( mime ) == "application/x-qiconlist" )
+	a = QIconDrag::encodedData( mime );
+    else if ( QString( mime ) == "text/uri-iconlist" ) {
+	int c = 0;
+	QtFileIconList::ConstIterator it = icons.begin();
+	for ( ; it != icons.end(); ++it ) {
+	    QString k( "%1%2%3%4%5%6%7%8%9" );
+	    k = k.arg( (*it).rect().x() ).arg( " " ).arg( (*it).rect().y() ).arg( " " ).
+		arg( (*it).rect().width() ).arg( " " ).arg( (*it).rect().height() ).
+		arg( " " ).arg( (*it).url() );
+	    int l = k.length();
+	    a.resize(c + l + 1 );
+	    memcpy( a.data() + c , k.latin1(), l );
+	    a[ c + l ] = 0;
+	    c += l + 1;
+	}
+	a.resize( c - 1 );
+    } else if ( QString( mime ) == "text/uri-list" ) {
+	int c = 0;
+	QtFileIconList::ConstIterator it = icons.begin();
+	for ( ; it != icons.end(); ++it ) {
+	    QString k( "%1" );
+	    k = k.arg( (*it).url() );
+	    int l = k.length();
+	    a.resize(c + l + 2 );
+	    memcpy( a.data() + c , k.latin1(), l );
+	    memcpy(a.data() + c + l, "\r\n" ,2);
+	    c += l + 2;
+	}
+	a.resize( c - 1 );
+    }
+    
+    return a;
+}
+  
+bool QtFileIconDrag::canDecode( QMimeSource* e )
+{
+    return e->provides( "text/uri-iconlist" ) ||
+	e->provides( "text/uri-list" );
+}
+  
+bool QtFileIconDrag::decode( QMimeSource* e, QValueList<QtFileIconDragItem> &list_ )
+{
+    QByteArray ba = e->encodedData( "text/uri-iconlist" );
+    if ( ba.size() ) {
+	list_.clear();
+	uint c = 0;
+	
+	char* d = ba.data();
+	
+	while ( c < ba.size() ) {
+	    uint f = c;
+	    while ( c < ba.size() && d[ c ] )
+		c++;
+	    QString s;
+	    if ( c < ba.size() ) {
+		s = d + f ;
+		c++;
+	    } else  {
+		QString tmp( QString(d + f).left( c - f + 1 ) );
+		s = tmp;
+	    }
+
+	    QtFileIconDragItem icon;
+	    QRect r;
+	    
+	    r.setX( atoi( s.latin1() ) );
+	    int pos = s.find( ' ' );
+	    if ( pos == -1 )
+		return FALSE;
+	    r.setY( atoi( s.latin1() + pos + 1 ) );
+	    pos = s.find( ' ', pos + 1 );
+	    if ( pos == -1 )
+		return FALSE;
+	    r.setWidth( atoi( s.latin1() + pos + 1 ) );
+	    pos = s.find( ' ', pos + 1 );
+	    if ( pos == -1 )
+		return FALSE;
+	    r.setHeight( atoi( s.latin1() + pos + 1 ) );
+	    icon.setRect( r );
+	    pos = s.find( ' ', pos + 1 );
+	    if ( pos == -1 )
+		return FALSE;
+	    icon.setURL( s.latin1() + pos + 1 );
+	    list_.append( icon );
+	}
+	return TRUE;
+    }
+
+    return FALSE;
+}
+
+bool QtFileIconDrag::decode( QMimeSource *e, QStringList &uris )
+{
+    QByteArray ba = e->encodedData( "text/uri-list" );
+    if ( ba.size() ) {
+	uris.clear();
+	uint c = 0;
+	char* d = ba.data();
+	while ( c < ba.size() ) {
+	    uint f = c;
+	    while ( c < ba.size() && d[ c ] )
+		c++;
+	    if ( c < ba.size() ) {
+		uris.append( d + f );
+		c++;
+	    } else {
+		QString s( QString(d + f).left(c - f + 1) );
+		uris.append( s );
+	    }
+	}
+	return TRUE;
+    }
+    return FALSE;
+}
 
 /*****************************************************************************
  *
@@ -479,19 +673,16 @@ QDragObject *QtFileIconView::dragObject()
 {
     if ( !currentItem() )
 	return 0;
-
-    QStrList lst;
-    lst.setAutoDelete( FALSE );
-
-    QtFileIconViewItem *item = ( QtFileIconViewItem* )firstItem();
-    for ( ; item; item = ( QtFileIconViewItem* )item->nextItem() )
-	if ( item->isSelected() )
-	    lst.append( QString( "file://" + item->filename() ).latin1() );
-
-    QUrlDrag *drag = new QUrlDrag( lst, viewport() );
+    
+    QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
+    QtFileIconDrag *drag = new QtFileIconDrag( viewport() );
     drag->setPixmap( QPixmap( currentItem()->icon().pixmap( viewMode(), QIconSet::Normal ) ),
-		     QPoint( currentItem()->iconRect().width() / 2, currentItem()->iconRect().height() / 2 ) );
-
+ 		     QPoint( currentItem()->iconRect().width() / 2, currentItem()->iconRect().height() / 2 ) );
+    for ( QtFileIconViewItem *item = (QtFileIconViewItem*)firstItem(); item; item = (QtFileIconViewItem*)item->nextItem() )
+	if ( item->isSelected() )
+	    drag->append( QtFileIconDragItem( QRect( item->pos() - orig, QSize( item->width(), item->height() ) ),
+					      QString( "file://" + item->filename() ).latin1() ) ); 
+    
     return drag;
 }
 
@@ -595,17 +786,34 @@ void QtFileIconView::slotViewportRightClicked()
     menu->exec( QCursor::pos() );
 }
 
-int QtFileIconView::dragItems( QDropEvent *e )
+void QtFileIconView::initDrag( QDropEvent *e )
 {
-    if ( QUriDrag::canDecode( e ) ) {
+    if ( QtFileIconDrag::canDecode( e ) ) {	
+	QValueList<QtFileIconDragItem> lst;
+	QtFileIconDrag::decode( e, lst );
+	if ( lst.count() != 0 ) {
+	    setDragObjectIsKnown( TRUE );
+	    QValueList<QIconDragItem> lst2;
+	    for ( QValueList<QtFileIconDragItem>::Iterator it = lst.begin();
+		  it != lst.end(); ++it ) 
+		lst2.append( *it );
+	    setIconDragData( lst2 );
+	} else {
+	    QStringList l;
+	    QtFileIconDrag::decode( e, l );
+	    setNumDragItems( l.count() );
+	    setDragObjectIsKnown( FALSE );
+	}
+    } else if ( QUriDrag::canDecode( e ) ) {
 	QStringList l;
 	QUriDrag::decodeLocalFiles( e, l );
-	return l.count();
+	setNumDragItems( l.count() );
+	setDragObjectIsKnown( FALSE );
+    } else {
+	QIconView::initDrag( e );
     }
-    else
-	return QIconView::dragItems( e );
 }
-
+    
 void QtFileIconView::drawBackground( QPainter *p, const QRect &r )
 {
     if ( !isDesktop ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#9 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#10 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -22,6 +22,60 @@
 class QtFileIconView;
 class QDragObject;
 class QResizeEvent;
+
+/*****************************************************************************
+ *
+ * Class QtFileIconDragItem
+ *
+ *****************************************************************************/
+
+class QtFileIconDragItem : public QIconDragItem
+{
+public:
+    QtFileIconDragItem();
+    QtFileIconDragItem( const QRect &r, const QString &u );
+    ~QtFileIconDragItem();
+	
+    QString url() const;
+    void setURL( const QString &u );
+    
+protected:
+    void makeKey();
+
+    QString url_;
+    
+};    
+    
+/*****************************************************************************
+ *
+ * Class QtFileIconDrag
+ *
+ *****************************************************************************/
+
+class QtFileIconDrag : public QIconDrag
+{
+    Q_OBJECT
+
+public:
+    typedef QValueList<QtFileIconDragItem> QtFileIconList;
+
+    QtFileIconDrag( QWidget * dragSource, const char* name = 0 );
+    ~QtFileIconDrag();
+
+    const char* format( int i ) const;
+    QByteArray encodedData( const char* mime ) const;
+  
+    void append( const QtFileIconDragItem &icon_ );
+
+    static bool canDecode( QMimeSource* e );
+  
+    static bool decode( QMimeSource *e, QValueList<QtFileIconDragItem> &list_ );
+    static bool decode( QMimeSource *e, QStringList &uris );
+    
+protected:
+    QtFileIconList icons;
+
+};
 
 /*****************************************************************************
  *
@@ -111,7 +165,7 @@ protected slots:
 protected:
     void readDir( const QDir &dir );
     virtual QDragObject *dragObject();
-    virtual int dragItems( QDropEvent *e );
+    void initDrag( QDropEvent *e );
 
     virtual void keyPressEvent( QKeyEvent *e );
     virtual void drawBackground( QPainter *p, const QRect &r );
@@ -119,7 +173,7 @@ protected:
                               const QColor &_color2, int _xSize, int _ySize );
 
     void resizeContents( int, int );
-    
+
     QDir viewDir;
     int newFolderNum;
     bool isDesktop;
