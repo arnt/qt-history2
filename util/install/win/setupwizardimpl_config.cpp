@@ -849,7 +849,9 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     if ( i == xpDirect )
 	QMessageBox::warning( this, "Unsupported configuration", "The Windows XP style requires XP components and\n"
 								 "can only be used as a plugin with a shared Qt DLL." );
-    if ( i == xpPlugin && !i->isEnabled() )
+    if ( i == xpPlugin && !(findFileInPaths( "uxtheme.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) &&
+			    findFileInPaths( "uxtheme.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) &&
+			    findFileInPaths( "tmschema.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
 	QMessageBox::warning( this, "Platform SDK needed", "The Windows XP style requires a Platform SDK with support for\n"
 							   "Windows XP to be installed properly. The required libraries and\n"
 							   "headers were not found in the LIB and INCLUDE environment variable paths." );

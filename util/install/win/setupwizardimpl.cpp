@@ -1417,7 +1417,9 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	motifplusPlugin->setEnabled( true );
 	motifPlugin->setEnabled( true );
 	platinumPlugin->setEnabled( true );
-	xpPlugin->setEnabled( true );
+	xpPlugin->setEnabled( findFileInPaths( "uxtheme.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) &&
+			      findFileInPaths( "uxtheme.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) &&
+			      findFileInPaths( "tmschema.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) );
 	if ( enterprise ) {
 	    mysqlPlugin->setEnabled( true );
 	    ociPlugin->setEnabled( true );
