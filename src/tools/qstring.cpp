@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#157 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#158 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -388,22 +388,7 @@ QString::~QString()
 
 void QString::real_detach()
 {
-    if ( d->count != 1 ) {
-	Q2HELPER(stat_copy_on_write++);
-	Q2HELPER(stat_copy_on_write_size+=d->len);
-	int newlen = d->len;
-	QChar * nd;
-	if ( newlen ) {
-	    nd = new QChar[newlen];
-	    memcpy( nd, d->unicode, sizeof(QChar)*newlen );
-	} else {
-	    nd = 0;
-	}
-	deref();
-	d = new Data(nd,newlen,newlen);
-    } else {
-	d->dirtyascii = 1;
-    }
+    setLength( length() );
 }
 
 void QString::deref()
@@ -497,9 +482,10 @@ QString &QString::operator=( const char *str )
   \sa size(), isNull(), isEmpty()
 */
 
-/*!
-  Truncates the string at position \a newlen. The string becomes an
-  empty string if \a newlen is 0.
+/*!  
+  Truncates the string at position \a newLen. If newLen is less than the
+  current length, this is equivalent to setLength( newLen ). Otherwise,
+  nothing happens. 
 
   Example:
   \code
@@ -507,27 +493,16 @@ QString &QString::operator=( const char *str )
     s.truncate( 5 );				// s == "trunc"
   \endcode
 
-  \sa resize()
+  \sa setLength() 
 */
-void QString::truncate( uint newlen )
+//### different behaviour than 1.x - but insignificant?
+void QString::truncate( uint newLen )
 {
-    /*    
-    if ( newlen == 0 ) {
-	*this = "";				// Empty, not null, as in 1.x
-    }
-    else 
-    */
-    if ( newlen != d->len || d->maxl != newlen ) {
-	QChar * nd;
-	if ( newlen ) {
-	    nd = new QChar[newlen];
-	    memcpy( nd, d->unicode, sizeof(QChar)*QMIN(newlen,d->len) );
-	} else {
-	    nd = 0;
-	}
-	deref();
-	d = new Data(nd,newlen,newlen);
-    }
+    if ( newLen < d->len )
+	setLength( newLen );
+	    
+    //### Is there any point in extending the array if newlen > d->len ?
+    // (Qt 1.x did, but there, one could access the data directly...)
 }
 
 /*!
@@ -541,25 +516,34 @@ void QString::resize( uint newlenp1 )
     truncate(newlenp1 ? newlenp1-1 : 0);
 }
 
-/*!
-  \obsolete ? no, it's new - but check
+/*!  
+  Ensures that at least \a len characters are allocated, and sets the
+  length to \a len. Will detach. New space is \e not defined.
 
-  Ensures that at least \a len characters are allocated, and
-  sets the length to \a len.  New space is \e not defined and
-  it only detach if necessary.
+  If \a len is 0, this string becomes empty, unless this string is null,
+  in which case it remains null.
+
+  \sa truncate(), isNull(), isEmpty() 
 */
-//### obsolete ? no, it's new - but check it (and its use) - here be bugs!
-void QString::setLength( uint len )
+
+void QString::setLength( uint newLen )
 {
-    if ( d->len != len ) {
-	real_detach();
-	if ( len > d->maxl ) {
-	    uint newmax = QMAX(d->maxl,4);
-	    while ( newmax < len )
-		newmax *= 2;
-	    truncate( newmax );
-	}
-	d->len = len;
+    if ( d->count != 1 || newLen > d->maxl || 		// detach, grow, or
+	 ( newLen*4 < d->maxl && d->maxl > 4 ) ) {	// shrink
+	Q2HELPER(stat_copy_on_write++);
+	Q2HELPER(stat_copy_on_write_size+=d->len);
+	uint newMax = 4;
+	while ( newMax < newLen )
+	    newMax *= 2;
+	QChar* nd = new QChar[newMax];
+	uint len = QMIN( d->len, newLen );
+	if ( d->unicode )
+	    memcpy( nd, d->unicode, sizeof(QChar)*len );
+	deref();
+	d = new Data( nd, newLen, newMax );
+    } else {
+	d->len = newLen;
+	d->dirtyascii = 1;
     }
 }
 
@@ -1143,7 +1127,7 @@ QString QString::left( uint len ) const
     if ( isEmpty() ) {
 	return QString();
     } else if ( len == 0 ) {			// ## just for 1.x compat:
-	QString empty = "";			// not null, but empty
+	QString empty = "";			// not null, but empty###
 	return empty;
     } else if ( len > length() ) {
 	return *this;
@@ -1455,13 +1439,12 @@ QString QString::simplifyWhiteSpace() const
 
 QString &QString::insert( uint index, const QString &s )
 {
-    //### here be bug! (see string test program)
     int len = s.length();
     if ( len == 0 )
 	return *this;
     uint olen = length();
     int nlen = olen + len;
-    real_detach();
+    
     if ( index >= olen ) {			// insert after end of string
 	setLength( nlen+index-olen );
 	int n = index-olen;
@@ -1471,7 +1454,8 @@ QString &QString::insert( uint index, const QString &s )
 	memcpy( d->unicode+index, s.unicode(), sizeof(QChar)*len );
     } else {					// normal insert
 	setLength( nlen );
-	memmove( d->unicode+index+len, unicode()+index, sizeof(QChar)*(olen-index+1) );
+	memmove( d->unicode+index+len, unicode()+index,
+		 sizeof(QChar)*(olen-index) );
 	memcpy( d->unicode+index, s.unicode(), sizeof(QChar)*len );
     }
     return *this;
@@ -1496,13 +1480,8 @@ QString &QString::insert( uint index, const QString &s )
 
 QString &QString::insert( uint index, QChar c )	// insert char
 {
-    /*
-    QString buf;
-    buf.setLength(1); //########???
-    buf[0] = c;
-    */
-    QString buf( c );
-    return insert( index, buf );
+    QString s( c );
+    return insert( index, s );
 }
 
 /*!
@@ -1539,13 +1518,12 @@ QString &QString::remove( uint index, uint len )
     uint olen = length();
     if ( index + len >= olen ) {		// range problems
 	if ( index < olen ) {			// index ok
-	    real_detach();
-	    setLength(index);
+	    setLength( index );
 	}
     } else if ( len != 0 ) {
 	real_detach();
-	memmove( d->unicode+index, unicode()+index+len,
-	    sizeof(QChar)*(olen-index-len+1) );
+	memmove( d->unicode+index, d->unicode+index+len,
+		 sizeof(QChar)*(olen-index-len) );
 	setLength( olen-len );
     }
     return *this;
@@ -2058,7 +2036,6 @@ QString& QString::operator+=( const QString &str )
     uint len1 = length();
     uint len2 = str.length();
     if ( len2 ) {
-	real_detach();
 	setLength(len1+len2);
 	memcpy( d->unicode+len1, str.unicode(), sizeof(QChar)*len2 );
     }
@@ -2071,7 +2048,6 @@ QString& QString::operator+=( const QString &str )
 
 QString &QString::operator+=( QChar c )
 {
-    real_detach();
     setLength(length()+1);
     d->unicode[length()-1] = c;
     return *this;
@@ -2083,7 +2059,6 @@ QString &QString::operator+=( QChar c )
 
 QString &QString::operator+=( char c )
 {
-    real_detach();
     setLength(length()+1);
     d->unicode[length()-1] = c;
     return *this;
@@ -2158,20 +2133,10 @@ const char* QString::ascii() const
 */
 void QString::subat( uint i )
 {
-    real_detach();
-
-    if ( d->len <= i ) {
-	int ol = d->len;
-	if ( i >= d->maxl ) {
-	    uint newmax = QMAX(d->maxl,4);
-	    while ( newmax <= i )
-		newmax *= 2;
-	    truncate( newmax );
-	}
-	for ( uint j=ol; j<=i; j++ )
-	    d->unicode[j]='\0';
-	d->len = i+1;
-    }
+    uint olen = d->len;
+    setLength( i+1 );
+    for ( uint j=olen; j<=i; j++ )
+	d->unicode[j]='\0';
 }
 
 
@@ -2199,7 +2164,6 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 
 QDataStream &operator>>( QDataStream &s, QString &str )
 {
-    str.real_detach();
     Q_UINT32 bytes;
     s >> bytes;					// read size of string
     str.setLength( bytes/2 );
