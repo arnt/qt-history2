@@ -42,16 +42,17 @@ private:
 
     struct Node
     {
-	Node(Node *parent = 0) : parent(parent), children(0) {}
+	Node(Node *parent = 0) : parent(parent), children(0),
+                                 depth(parent ? parent->depth + 1 : 0) {}
 	~Node() { delete children; }
 	Node *parent;
 	QVector<Node> *children;
+        int depth;
     };
 
     Node *node(int row, Node *parent) const;
     Node *parent(Node *child) const;
     int row(Node *node) const;
-    int depth(Node *node) const;
 
     int rc, cc, d;
     QVector<Node> *tree;

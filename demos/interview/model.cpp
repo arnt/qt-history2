@@ -32,8 +32,10 @@ Model::~Model()
 QModelIndex Model::index(int row, int column, const QModelIndex &parent) const
 {
     if (row < rc && row >= 0 && column < cc && column >= 0) {
-        Node *pn = static_cast<Node*>(parent.data());
-        Node *n = (depth(pn) >= d) ? 0 : node(row, pn);
+        Node *p = static_cast<Node*>(parent.data());
+        if (p && p->depth >= d)
+            return QModelIndex::Null;
+        Node *n = node(row, p);
 	if (n)
 	    return createIndex(row, column, n);
     }
@@ -53,16 +55,16 @@ QModelIndex Model::parent(const QModelIndex &child) const
 
 int Model::rowCount(const QModelIndex &parent) const
 {
-    Node *n = static_cast<Node*>(parent.data());
-    if (n && depth(n) >= d)
+    Node *p = static_cast<Node*>(parent.data());
+    if (p && p->depth >= d)
         return 0;
     return rc;
 }
 
 int Model::columnCount(const QModelIndex &parent) const
 {
-    Node *n = static_cast<Node*>(parent.data());
-    if (n && depth(n) >= d)
+    Node *p = static_cast<Node*>(parent.data());
+    if (p && p->depth >= d)
         return 0;
     return cc;
 }
@@ -102,8 +104,8 @@ QVariant Model::headerData(int section, Qt::Orientation orientation, int role) c
 
 bool Model::hasChildren(const QModelIndex &parent) const
 {
-    Node *n = static_cast<Node*>(parent.data());
-    if (n && (depth(n) >= d || parent.column() > 0))
+    Node *p = static_cast<Node*>(parent.data());
+    if (p && p->depth >= d && parent.column() == 0)
         return false;
     return rc > 0 && cc > 0;
 }
@@ -132,14 +134,4 @@ int Model::row(Node *node) const
 {
      const Node *first = node->parent ? &(node->parent->children->at(0)) : &(tree->at(0));
      return (node - first);
-}
-
-int Model::depth(Node *node) const
-{
-    if (!node)
-        return -1;
-    int result = 0;
-    while (node->parent && ++result)
-        node = node->parent;
-    return result;
 }
