@@ -627,7 +627,7 @@ void QTextEditPrivate::extendWordwiseSelection(int suggestedNewPosition, qreal m
         setCursorPosition(wordEndPos, QTextCursor::KeepAnchor);
 }
 
-void QTextEditPrivate::doWindowsShiftClickSelection(int suggestedNewPosition, qreal mouseXPosition)
+void QTextEditPrivate::doWindowsShiftClickSelection(int suggestedNewPosition)
 {
     Q_Q(QTextEdit);
 
@@ -1722,7 +1722,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
                 if (d->selectedWordOnDoubleClick.hasSelection())
                     d->extendWordwiseSelection(cursorPos, pos.x());
                 else
-                    d->doWindowsShiftClickSelection(cursorPos, pos.x());
+                    d->doWindowsShiftClickSelection(cursorPos);
             } else {
 
                 if (d->cursor.hasSelection()

@@ -100,7 +100,7 @@ public:
     void setBlinkingCursorEnabled(bool enable);
 
     void extendWordwiseSelection(int suggestedNewPosition, qreal mouseXPosition);
-    void doWindowsShiftClickSelection(int suggestedNewPosition, qreal mouseXPosition);
+    void doWindowsShiftClickSelection(int suggestedNewPosition);
 
     QTextDocument *doc;
     bool cursorOn;
