@@ -5599,7 +5599,7 @@ static void ignoreSigPipe(bool b)
     }
 }
 
-bool QPSPrinter::begin(QPaintDevice *pdev, QPainterState *state, bool unclipped)
+bool QPSPrinter::begin(QPaintDevice *pdev, bool unclipped)
 {
     d->pagesInBuffer = 0;
     d->buffer = new QBuffer();
@@ -5703,13 +5703,13 @@ bool QPSPrinter::updateState()
     return true;
 }
 
-void QPSPrinter::updatePen(QPainterState *ps)
+void QPSPrinter::updatePen(const QPen &pen)
 {
     d->dirtypen = true;
-    d->cpen = ps->pen;
+    d->cpen = pen;
 }
 
-void QPSPrinter::updateBrush(QPainterState *ps)
+void QPSPrinter::updateBrush(const QBrush &brush, const QPoint &origin)
 {
     if (ps->brush.style() == Qt::CustomPattern) {
 #if defined(CHECK_RANGE)
@@ -5718,38 +5718,39 @@ void QPSPrinter::updateBrush(QPainterState *ps)
         return;
     }
     d->dirtybrush = true;
-    d->cbrush = ps->brush;
+    d->cbrush = brush;
 }
 
-void QPSPrinter::updateFont(QPainterState *ps)
+void QPSPrinter::updateFont(const QFont &font)
 {
-    d->currentSet = ps->font;
+    d->currentSet = font;
     // ### This is wrong if the screen res is different from printer res-
-    d->fm = QFontMetrics(ps->pfont ? *ps->pfont : ps->font);
+    // ### fixme
+//     d->fm = QFontMetrics(ps->pfont ? *ps->pfont : ps->font);
     // turn these off - they confuse the 'avoid font change' logic
     d->currentSet.setUnderline(false);
     d->currentSet.setStrikeOut(false);
 }
 
-void QPSPrinter::updateRasterOp(QPainterState *)
+void QPSPrinter::updateRasterOp(Qt::RasterOp rop)
 {
     qWarning("raster ops not supported on Postscript driver");
 }
 
-void QPSPrinter::updateBackground(QPainterState *ps)
+void QPSPrinter::updateBackground(Qt::BMMode bgMode, const QBrush &bgBrush)
 {
-    d->bkColor = ps->bgBrush;
+    d->bkColor = bgBrush;
     d->dirtyBkColor = true;
-    d->bkMode = ps->bgMode;
+    d->bkMode = bgMode;
     d->dirtyBkMode = true;
 }
 
-void QPSPrinter::updateXForm(QPainterState *)
+void QPSPrinter::updateXForm(const QWMatrix &matrix)
 {
     d->dirtyMatrix = true;
 }
 
-void QPSPrinter::updateClipRegion(QPainterState *)
+void QPSPrinter::updateClipRegion(const QRegion &region, bool clipEnabled)
 {
     d->dirtyClipping = true;
 }

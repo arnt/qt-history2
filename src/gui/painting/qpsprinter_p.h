@@ -46,16 +46,16 @@ private:
     QPSPrinter(QPrinter *, int);
    ~QPSPrinter();
 
-    virtual bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = false);
+    virtual bool begin(QPaintDevice *pdev, bool unclipped = false);
     virtual bool end();
 
-    virtual void updatePen(QPainterState *ps);
-    virtual void updateBrush(QPainterState *ps);
-    virtual void updateFont(QPainterState *ps);
-    virtual void updateRasterOp(QPainterState *ps);
-    virtual void updateBackground(QPainterState *ps);
-    virtual void updateXForm(QPainterState *ps);
-    virtual void updateClipRegion(QPainterState *ps);
+    void updatePen(const QPen &pen);
+    void updateBrush(const QBrush &brush, const QPoint &pt);
+    void updateFont(const QFont &font);
+    void updateRasterOp(Qt::RasterOp rop);
+    void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
+    void updateXForm(const QWMatrix &matrix);
+    void updateClipRegion(const QRegion &region, bool clipEnabled);
 
     virtual void drawLine(const QPoint &p1, const QPoint &ps);
     virtual void drawRect(const QRect &r);

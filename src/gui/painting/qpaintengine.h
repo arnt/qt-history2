@@ -202,6 +202,7 @@ private:
     friend class QFontEngineWin;
     friend class QWin32PaintEngine;
     friend class QWin32PaintEnginePrivate;
+    friend class QPSPrinter;
 };
 
 class QWrapperPaintEngine : public QPaintEngine
