@@ -69,7 +69,10 @@ Editor::Editor( QWidget * parent , const char * name )
     changed = FALSE;
     e = new QMultiLineEdit( this, "editor" );
     connect( e, SIGNAL( textChanged() ), this, SLOT( textChanged() ) );
-    e->setFont( QFont("unifont", 16, 50) );
+
+    // Unifont only comes in one pixel size
+    QFont unifont("unifont",16,50); unifont.setPixelSize(16);
+    e->setFont( unifont );
 
     e->setFocus();
 }
