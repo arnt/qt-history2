@@ -3570,10 +3570,10 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
             index += 2;
             break; }
 
-        case QDateTimeParser::Day3: nameFunction = &QDate::shortDayName; nameArray = qt_shortDayNames; max = 7; break;
-        case QDateTimeParser::Day4: nameFunction = &QDate::longDayName; nameArray = qt_longDayNames; max = 7; break;
-        case QDateTimeParser::Month3: nameFunction = &QDate::shortMonthName; nameArray = qt_shortMonthNames; max = 12; break;
-        case QDateTimeParser::Month4: nameFunction = &QDate::longMonthName; nameArray = qt_longMonthNames; max = 12; break;
+        case QDateTimeParser::Day3: num = &day; nameFunction = &QDate::shortDayName; nameArray = qt_shortDayNames; max = 7; break;
+        case QDateTimeParser::Day4: num = &day; nameFunction = &QDate::longDayName; nameArray = qt_longDayNames; max = 7; break;
+        case QDateTimeParser::Month3: num = &month; nameFunction = &QDate::shortMonthName; nameArray = qt_shortMonthNames; max = 12; break;
+        case QDateTimeParser::Month4: num = &month; nameFunction = &QDate::longMonthName; nameArray = qt_longMonthNames; max = 12; break;
 
         case QDateTimeParser::Day1: num = &day; max = 2; break;
         case QDateTimeParser::Month1: num = &month; max = 2; break;
@@ -3630,7 +3630,7 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
         ++i;
     }
     if (index < string.size()) {
-	return false;
+        return false;
     }
 
     if (month == -1)
