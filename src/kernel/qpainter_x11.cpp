@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#264 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#265 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2550,7 +2550,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 //debug("Drawing text with mapper %s",mapper->name());
 	x2b = (XChar2b*)mapper->fromUnicode(str,len);
     } else {
-debug("No mapper");
+//debug("No mapper");
 	x2b = (XChar2b*)str.unicode();
     }
 
