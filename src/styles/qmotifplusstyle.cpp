@@ -1701,12 +1701,4 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 }
 
 
-// /*!
-//   \reimp
-// */
-// void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
-//                               bool selected)
-// {
-// }
-
 #endif // QT_NO_STYLE_MOTIFPLUS
