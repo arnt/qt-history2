@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#6 $
+** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#7 $
 **
 ** Implementation of JPEG QImage IOHandler
 **
@@ -27,6 +27,9 @@
 extern "C" {
 #define XMD_H // Shut JPEGlib up.
 #include <jpeglib.h>
+#ifdef const
+#undef const // Remove crazy C hackery in jconfig.h
+#endif
 }
 #include <qimage.h>
 #include <qiodevice.h>
