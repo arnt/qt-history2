@@ -294,6 +294,11 @@ QActionGroup::QActionGroup(QObject* parent) : QObject(*new QActionGroupPrivate, 
 {
 }
 
+QActionGroup::QActionGroup(QObject* parent, bool e) : QObject(*new QActionGroupPrivate, parent)
+{
+    d->exclusive = e;
+}
+
 QActionGroup::~QActionGroup()
 {
 }
@@ -305,7 +310,8 @@ QAction *QActionGroup::addAction(QAction* a)
 	QObject::connect(a, SIGNAL(triggered()), this, SLOT(internalTriggered()));
 	QObject::connect(a, SIGNAL(hovered()), this, SLOT(internalHovered()));
     }
-    a->setCheckable(d->exclusive);
+    if(d->exclusive)
+	a->setCheckable(true);
     a->setEnabled(d->enabled);
     a->setVisible(d->visible);
     return a;
