@@ -51,6 +51,7 @@ public:
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = 0,
                               QModelIndex::Type type = QModelIndex::View) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
+    
     inline QModelIndex topLeft(const QModelIndex &parent = 0) const
 	{ return index(0, 0, parent); }
     inline QModelIndex bottomRight(const QModelIndex &parent = 0) const
@@ -89,7 +90,7 @@ public:
     virtual bool equal(const QModelIndex &left, const QModelIndex &right) const;
     virtual bool greater(const QModelIndex &left, const QModelIndex &right) const;
     inline bool less(const QModelIndex &left, const QModelIndex &right) const
-	{ return !greater(left, right); }
+	{ return !greater(left, right) && !equal(left, right); }
 
 public slots:
     virtual void fetchMore();
