@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.cpp#13 $
+** $Id: //depot/qt/main/examples/application/application.cpp#14 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -109,7 +109,6 @@ ApplicationWindow::ApplicationWindow()
     help->insertItem( "What's &This", this, SLOT(whatsThis()), SHIFT+Key_F1);
 
     e = new QMultiLineEdit( this, "editor" );
-    e->setWordWrap( QMultiLineEdit::DynamicWrap );
     e->setFocus();
     setCentralWidget( e );
     statusBar()->message( "Ready", 2000 );
