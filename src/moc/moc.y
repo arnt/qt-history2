@@ -2308,20 +2308,23 @@ char *straddSpc( const char *s1, const char *s2,
   work around a bug in MSVC 6. The bug occurs if the
   super-class is in a namespace and the sub-class isn't.
 
-  Exception: if B == classname
+  Exception: If the superclass has the same name as the subclass, we
+  want non-MSVC users to have a working generated files.
 */
 QCString purestSuperClassName()
 {
-    QCString result;
-    int pos = g->superClassName.findRev( "::" );
+    QCString sc = g->superClassName;
+    QCString c = g->className;
+    int pos = sc.findRev( "::" );
     if ( pos != -1 ) {
-	result = g->superClassName.right( g->superClassName.length() - pos - 2 );
-	if ( result == g->className )
-	    result = g->superClassName;
-    } else {
-	result = g->superClassName;
+	sc = sc.right( sc.length() - pos - 2 );
+	pos = c.findRev( "::" );
+	if ( pos != -1 )
+	    c = c.right( c.length() - pos - 2 );
+	if ( sc == c )
+	    sc = g->superClassName;
     }
-    return result;
+    return sc;
 }
 
 QCString qualifiedClassName()

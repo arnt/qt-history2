@@ -12371,7 +12371,8 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
     char *a = new char[l+1];
     char *result = a;
     while (l--) {
-	*a++ = *uc > 0xff ? '?' : (char)uc->unicode();
+	const char c = uc->latin1();
+	*a++ = (uc->unicode()>0xff) ? '?' : (char)uc->unicode();
 	uc++;
     }
     *a = '\0';
@@ -15041,8 +15042,7 @@ QString &QString::setNum( double n, char f, int prec )
   \overload
 
   Sets the string to the printed value of \a n, formatted in format \a f
-  with precision \a prec, and returns a reference to the
-  string.
+  with precision \a prec, and returns a reference to the string.
 
   The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'. See
   \link #arg-formats arg \endlink() for an explanation of the formats.
@@ -15050,9 +15050,8 @@ QString &QString::setNum( double n, char f, int prec )
 
 
 /*!
-  A convenience function that returns a string equivilant of the number
-  \a n to base \a base, which is 10 by default and must
-  be between 2 and 36.
+  A convenience function that returns a string equivalent of the number
+  \a n to base \a base, which is 10 by default and must be between 2 and 36.
 
   \code
     long a = 63;
