@@ -20,6 +20,7 @@ class QFileDialog;
 class QAction;
 class Config;
 class QWidgetView;
+class Skin;
 
 class QVFb: public QMainWindow
 {
@@ -59,6 +60,7 @@ private:
 
     QVFbView *view;
     QWidgetView *scroller;
+    Skin *skin;
     QVFbRateDialog *rateDlg;
     QFileDialog* imagesave;
     Config* config;

@@ -36,7 +36,7 @@
 #include <qwidgetview.h>
 //#include <yet.h>
 
-QVFb::QVFb( int display_id, int w, int h, int d, const QString &skin, QWidget *parent,
+QVFb::QVFb( int display_id, int w, int h, int d, const QString &skinName, QWidget *parent,
 	    const char *name, Qt::WFlags flags )
     : QMainWindow( parent, flags )
 {
@@ -51,7 +51,8 @@ QVFb::QVFb( int display_id, int w, int h, int d, const QString &skin, QWidget *p
     rateDlg = 0;
     view = 0;
     scroller = 0;
-    init( display_id, w, h, d, skin );
+    skin = 0;
+    init( display_id, w, h, d, skinName );
     createActions();
     createMenuBar();
     adjustSize();
@@ -67,17 +68,18 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
                     .arg(w).arg(h).arg(d).arg(display_id) );
     delete view;
     delete scroller;
+    delete skin;
 
     if ( !skin_name.isEmpty() && QFile::exists(skin_name) ) {
         bool vis = isVisible();
         if ( vis ) hide();
         menuBar()->hide();
-        Skin *skin = new Skin( this, skin_name, w, h );
+        scroller = 0;
+        skin = new Skin( this, skin_name, w, h );
         view = new QVFbView( display_id, w, h, d, skin );
         skin->setView( view );
         view->setFixedSize( w, h );
         setCenterWidget( skin );
-        scroller = 0;
         adjustSize();
         view->show();
         if ( vis ) show();
@@ -88,6 +90,7 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
             show();
         }
         menuBar()->show();
+        skin = 0;
         scroller = new QWidgetView(this);
         view = new QVFbView( display_id, w, h, d, scroller );
         scroller->setWidget(view);
