@@ -95,23 +95,23 @@ ChartForm::ChartForm( const QString& filename )
 
 
     QActionGroup *chartGroup = new QActionGroup( this ); // Connected later
-    chartGroup->setExclusive( true );
+    chartGroup->setExclusive( TRUE );
 
     optionsPieChartAction = new QAction(
 	    "Pie Chart", QPixmap( options_piechart ),
 	    "&Pie Chart", CTRL+Key_I, chartGroup, "pie chart" );
-    optionsPieChartAction->setToggleAction( true );
+    optionsPieChartAction->setToggleAction( TRUE );
 
     optionsHorizontalBarChartAction = new QAction(
 	    "Horizontal Bar Chart", QPixmap( options_horizontalbarchart ),
 	    "&Horizontal Bar Chart", CTRL+Key_H, chartGroup,
 	    "horizontal bar chart" );
-    optionsHorizontalBarChartAction->setToggleAction( true );
+    optionsHorizontalBarChartAction->setToggleAction( TRUE );
 
     optionsVerticalBarChartAction = new QAction(
 	    "Vertical Bar Chart", QPixmap( options_verticalbarchart ),
 	    "&Vertical Bar Chart", CTRL+Key_V, chartGroup, "Vertical bar chart" );
-    optionsVerticalBarChartAction->setToggleAction( true );
+    optionsVerticalBarChartAction->setToggleAction( TRUE );
 
 
     optionsSetFontAction = new QAction(
@@ -252,7 +252,7 @@ void ChartForm::init()
 {
     setCaption( "Chart" );
     m_filename = QString::null;
-    m_changed = false;
+    m_changed = FALSE;
 
     m_elements[0]  = Element( Element::INVALID, red );
     m_elements[1]  = Element( Element::INVALID, cyan );
@@ -385,14 +385,14 @@ bool ChartForm::okToClear()
 		break;
 	    case 1:
 	    default:
-		return false;
+		return FALSE;
 		break;
 	    case 2:
 		break;
 	}
     }
 
-    return true;
+    return TRUE;
 }
 
 
@@ -418,7 +418,7 @@ void ChartForm::optionsSetData()
 {
     SetDataForm *setDataForm = new SetDataForm( &m_elements, m_decimalPlaces, this );
     if ( setDataForm->exec() ) {
-	m_changed = true;
+	m_changed = TRUE;
 	drawElements();
     }
     delete setDataForm;
@@ -430,13 +430,13 @@ void ChartForm::setChartType( ChartType chartType )
     m_chartType = chartType;
     switch ( m_chartType ) {
 	case PIE:
-	    optionsPieChartAction->setOn( true );
+	    optionsPieChartAction->setOn( TRUE );
 	    break;
 	case VERTICAL_BAR:
-	    optionsVerticalBarChartAction->setOn( true );
+	    optionsVerticalBarChartAction->setOn( TRUE );
 	    break;
 	case HORIZONTAL_BAR:
-	    optionsHorizontalBarChartAction->setOn( true );
+	    optionsHorizontalBarChartAction->setOn( TRUE );
 	    break;
     }
 }
@@ -476,13 +476,13 @@ void ChartForm::optionsSetOptions()
     optionsForm->setFont( m_font );
     switch ( m_addValues ) {
 	case NO:
-	    optionsForm->noRadioButton->setChecked( true );
+	    optionsForm->noRadioButton->setChecked( TRUE );
 	    break;
 	case YES:
-	    optionsForm->yesRadioButton->setChecked( true );
+	    optionsForm->yesRadioButton->setChecked( TRUE );
 	    break;
 	case AS_PERCENTAGE:
-	    optionsForm->asPercentageRadioButton->setChecked( true );
+	    optionsForm->asPercentageRadioButton->setChecked( TRUE );
 	    break;
     }
     optionsForm->decimalPlacesSpinBox->setValue( m_decimalPlaces );

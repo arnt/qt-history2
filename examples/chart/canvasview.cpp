@@ -40,7 +40,7 @@ void CanvasView::contentsMouseMoveEvent( QMouseEvent *e )
 	m_movingItem->moveBy( offset.x(), offset.y() );
 	m_pos = e->pos();
 	ChartForm *form = (ChartForm*)parent();
-	form->setChanged( true );
+	form->setChanged( TRUE );
 	int chartType = form->chartType();
 	CanvasText *item = (CanvasText*)m_movingItem;
 	int i = item->index();

@@ -52,7 +52,7 @@ void ChartForm::load( const QString& filename )
     updateRecentFiles( filename );
 
     drawElements();
-    m_changed = false;
+    m_changed = FALSE;
 }
 
 
@@ -78,7 +78,7 @@ void ChartForm::fileSave()
 
     setCaption( QString( "Chart -- %1" ).arg( m_filename ) );
     statusBar()->message( QString( "Saved \'%1\'" ).arg( m_filename ), 2000 );
-    m_changed = false;
+    m_changed = FALSE;
 }
 
 

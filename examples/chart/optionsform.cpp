@@ -30,7 +30,7 @@ OptionsForm::OptionsForm( QWidget* parent, const char* name,
     chartTypeTextLabel = new QLabel( "&Chart Type", this );
     chartTypeLayout->addWidget( chartTypeTextLabel );
 
-    chartTypeComboBox = new QComboBox( false, this );
+    chartTypeComboBox = new QComboBox( FALSE, this );
     chartTypeComboBox->insertItem( QPixmap( options_piechart ), "Pie Chart" );
     chartTypeComboBox->insertItem( QPixmap( options_verticalbarchart ),
 				   "Vertical Bar Chart" );
@@ -66,7 +66,7 @@ OptionsForm::OptionsForm( QWidget* parent, const char* name,
     addValuesButtonGroupLayout->setAlignment( Qt::AlignTop );
 
     noRadioButton = new QRadioButton( "&No", addValuesButtonGroup );
-    noRadioButton->setChecked( true );
+    noRadioButton->setChecked( TRUE );
     addValuesButtonGroupLayout->addWidget( noRadioButton );
 
     yesRadioButton = new QRadioButton( "&Yes", addValuesButtonGroup );
@@ -97,7 +97,7 @@ OptionsForm::OptionsForm( QWidget* parent, const char* name,
     buttonsLayout->addItem( spacer );
 
     okPushButton = new QPushButton( "OK", this );
-    okPushButton->setDefault( true );
+    okPushButton->setDefault( TRUE );
     buttonsLayout->addWidget( okPushButton );
 
     cancelPushButton = new QPushButton( "Cancel", this );

@@ -29,7 +29,7 @@ public:
     ~ChartForm();
 
     int chartType() { return m_chartType; }
-    void setChanged( bool changed = true ) { m_changed = changed; }
+    void setChanged( bool changed = TRUE ) { m_changed = changed; }
     void drawElements();
 
     QPopupMenu *optionsMenu; // Why public? See canvasview.cpp

@@ -43,9 +43,9 @@ SetDataForm::SetDataForm( ElementVector *elements, int decimalPlaces,
     table = new QTable( this, "data table" );
     table->setNumCols( 5 );
     table->setNumRows( ChartForm::MAX_ELEMENTS );
-    table->setColumnReadOnly( 1, true );
-    table->setColumnReadOnly( 2, true );
-    table->setColumnReadOnly( 4, true );
+    table->setColumnReadOnly( 1, TRUE );
+    table->setColumnReadOnly( 2, TRUE );
+    table->setColumnReadOnly( 4, TRUE );
     table->setColumnWidth( 0, 80 );
     table->setColumnWidth( 1, 60 ); // Columns 1 and 4 must be equal
     table->setColumnWidth( 2, 60 );
@@ -63,7 +63,7 @@ SetDataForm::SetDataForm( ElementVector *elements, int decimalPlaces,
 
     colorPushButton = new QPushButton( this, "color button" );
     colorPushButton->setText( "&Color..." );
-    colorPushButton->setEnabled( false );
+    colorPushButton->setEnabled( FALSE );
     buttonBox->addWidget( colorPushButton );
 
     QSpacerItem *spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding,
