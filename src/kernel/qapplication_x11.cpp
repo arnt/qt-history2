@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#365 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#366 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -820,10 +820,10 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    if (styles->supported_styles[i] == xim_preferred_style) {
 	        xim_style = xim_preferred_style;
 		break;
-	    } else if (styles->supported_styles[i] == 
+	    } else if (styles->supported_styles[i] ==
 			XIMPreeditNothing | XIMStatusNothing ) {
 	        if ( !xim_style )
-		    xim_style = 
+		    xim_style =
 			XIMPreeditNothing | XIMStatusNothing;
 	    }
 	}
@@ -3213,7 +3213,9 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
     XK_BackSpace,	Qt::Key_Backspace,
     XK_Return,		Qt::Key_Return,
     XK_Insert,		Qt::Key_Insert,
+    XK_KP_Insert,		Qt::Key_Insert,
     XK_Delete,		Qt::Key_Delete,
+    XK_KP_Delete,		Qt::Key_Delete,
     XK_Clear,		Qt::Key_Delete,
     XK_Pause,		Qt::Key_Pause,
     XK_Print,		Qt::Key_Print,
@@ -3227,6 +3229,14 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
     XK_Down,		Qt::Key_Down,
     XK_Prior,		Qt::Key_Prior,
     XK_Next,		Qt::Key_Next,
+    XK_KP_Home,		Qt::Key_Home,
+    XK_KP_End,		Qt::Key_End,
+    XK_KP_Left,		Qt::Key_Left,
+    XK_KP_Up,		Qt::Key_Up,
+    XK_KP_Right,		Qt::Key_Right,
+    XK_KP_Down,		Qt::Key_Down,
+    XK_KP_Prior,		Qt::Key_Prior,
+    XK_KP_Next,		Qt::Key_Next,
     XK_Shift_L,		Qt::Key_Shift,		// modifiers
     XK_Shift_R,		Qt::Key_Shift,
     XK_Shift_Lock,	Qt::Key_Shift,
