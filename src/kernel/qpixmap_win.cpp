@@ -701,9 +701,9 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 	RECT r;
 	GetWindowRect( window, &r );
 	if ( w < 0 )
-	    w = (r.right - r.left) + 1;
+	    w = (r.right - r.left);
 	if ( h < 0 )
-	    h = (r.bottom - r.top) + 1;
+	    h = (r.bottom - r.top);
     }
     QPixmap pm( w, h );
     HDC dc;
