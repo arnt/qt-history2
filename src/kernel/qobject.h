@@ -219,8 +219,12 @@ public:
 };
 
 #ifdef QT_NO_TRANSLATION
-inline QString QObject::tr(const char* s) { return QString(s); }
-inline QString QObject::tr(const char* s, const char *) { return QString(s); }
+inline QString QObject::tr( const char *s ) {
+    return QString::fromLatin1( s );
+}
+inline QString QObject::tr( const char *s, const char * ) {
+    return QString::fromLatin1( s );
+}
 #endif
 
 
