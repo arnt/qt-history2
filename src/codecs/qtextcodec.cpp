@@ -2347,10 +2347,11 @@ QString QSimpleTextCodec::toUnicode(const char* chars, int len) const
     const unsigned char * c = (const unsigned char *)chars;
     int i;
 
-    for ( i = 0; i < len; i++ ) {
-	if ( c[i] == '\0' )
+    for ( i = 0; i < len; i++ )
+	if ( c[i] == '\0' ) {
 	    len = i;
-    }
+	    break;
+	}
 
     QString r;
     r.setUnicode(0, len);
