@@ -266,6 +266,7 @@ extern "C" {
             qDebug( "sending IMStart to %p", qic->focusWidget );
 #endif // QT_XIM_DEBUG
 
+	    qt_compose_emptied = FALSE;
 	    QIMEvent startevent(QEvent::IMStart, QString::null, -1);
 	    QApplication::sendEvent(qic->focusWidget, &startevent);
 	}
