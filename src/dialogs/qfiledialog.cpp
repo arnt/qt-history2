@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#209 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#210 $
 **
 ** Implementation of QFileDialog class
 **
@@ -304,6 +304,29 @@ struct QFileDialogPrivate {
     QString symLinkToSpecial;
     QString special;
 };
+
+
+QFileDialogPrivate::~QFileDialogPrivate()
+{
+    delete paths;
+    delete types;
+    delete pathL;
+    delete fileL;
+    delete typeL;
+    delete topLevelLayout;
+    delete extraWidgetsLayout;
+    delete extraLabel;
+    delete extraWidget;
+    delete extraButton;
+    delete cdToParent;
+    delete newFolder;
+    delete detailView;
+    delete mcView;
+    delete modeButtons;
+    delete moreFiles;
+    delete stack;
+}
+
 
 void QRenameEdit::keyPressEvent( QKeyEvent *e )
 {
@@ -1282,7 +1305,8 @@ void QFileDialog::rereadDir()
     const QFileInfoList *filist = 0;
 
     while ( !filist ) {
-        filist = cwd.entryInfoList( QDir::DefaultFilter, QDir::DirsFirst | QDir::Name );
+        filist = cwd.entryInfoList( QDir::DefaultFilter,
+				    QDir::DirsFirst | QDir::Name );
         if ( !filist &&
              QMessageBox::warning( this, tr("Open File"),
                                    QString( tr("Unable to read directory\n") )
@@ -1295,12 +1319,12 @@ void QFileDialog::rereadDir()
             return;
         }
         if ( !filist ) {
-            QString tmp( cwd.absPath() );
-	
             // change to parent, reread
             // ...
 
             // but for now
+	    // QString tmp( cwd.absPath() );
+
             return;
         }
     }
@@ -1315,10 +1339,12 @@ void QFileDialog::rereadDir()
         if ( fi->fileName() != QString::fromLatin1(".") &&
              ( !cwd.isRoot() ||
                fi->fileName() != QString::fromLatin1("..") ) ) {
-            QFileDialogPrivate::File * i = new QFileDialogPrivate::File( d, fi, files );
+            QFileDialogPrivate::File * i 
+		= new QFileDialogPrivate::File( d, fi, files );
             if ( mode() == ExistingFiles && fi->isDir() )
                 i->setSelectable( FALSE );
-            QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
+            QFileDialogPrivate::MCItem *i2 
+		= new QFileDialogPrivate::MCItem( d->moreFiles, i );
             if ( mode() == ExistingFiles && fi->isDir() )
                 i2->setSelectable( FALSE );
             i->i = i2;
@@ -1327,7 +1353,6 @@ void QFileDialog::rereadDir()
     }
     d->moreFiles->setCurrentItem( 0 );
     files->setCurrentItem( files->firstChild() );
-    //delete filist;
 }
 
 
@@ -2365,7 +2390,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
         }
     } else if ( o == nameEdit && e->type() == QEvent::FocusIn ) {
         fileNameEditDone();
-    } else if ( ( o == d->moreFiles || o == d->moreFiles->viewport() ) && 
+    } else if ( ( o == d->moreFiles || o == d->moreFiles->viewport() ) &&
                 e->type() == QEvent::FocusIn ) {
         if ( o == d->moreFiles->viewport() && !d->moreFiles->viewport()->hasFocus() ||
              o == d->moreFiles && !d->moreFiles->hasFocus() )
