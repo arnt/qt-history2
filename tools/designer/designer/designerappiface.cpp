@@ -19,7 +19,7 @@ QComponentInterface * DesignerApplicationInterface::queryInterface( const QStrin
     if ( request == "DesignerMainWindowInterface" && mw )
 	return mwIface ? mwIface : ( mwIface = new DesignerMainWindowInterface( mw ) );
     else if ( request == "DesignerFormListInterface" && fl )
-	return flIface ? flIface : ( flIface = new QComponentInterface( fl ) );
+	return flIface ? flIface : ( flIface = new DesignerFormListInterface( fl ) );
     return 0;
 }
 
@@ -109,6 +109,40 @@ void DesignerFormWindowInterface::reconnect()
 }
 
 DesignerStatusBarInterface::DesignerStatusBarInterface( QStatusBar *sb )
-    : QComponentInterface( sb ), statusBar( sb )
+    : QComponentInterface( sb )
 {
+}
+
+bool DesignerStatusBarInterface::requestSetProperty( const QCString &p, const QVariant &v )
+{
+    if ( p == "message" ) {
+	QStatusBar* sb = (QStatusBar*)object();
+	if ( sb ) {
+	    sb->message( v.toString(), 3000 );
+	    return TRUE;
+	} else {
+	    return FALSE;
+	}
+    }
+    return QComponentInterface::requestSetProperty( p, v );
+}
+
+DesignerFormListInterface::DesignerFormListInterface( FormList *fl )
+    : QComponentInterface( fl )
+{
+}
+
+QVariant DesignerFormListInterface::requestProperty( const QCString& p )
+{
+    if ( p == "fileList" ) {
+	QStringList list;
+	QListViewItemIterator it( (FormList*)object() );
+	while ( it.current() ) {
+	    QListViewItem* item = it.current();
+	    ++it;
+	    list << item->text( 2);
+	}
+	return QVariant( list );
+    }
+    return QComponentInterface::requestProperty( p );
 }

@@ -5,6 +5,7 @@
 #include <qguardedptr.h>
 
 class MainWindow;
+class FormList;
 class QStatusBar;
 class DesignerMainWindowInterface;
 class DesignerFormWindowInterface;
@@ -81,9 +82,15 @@ class DesignerStatusBarInterface : public QComponentInterface
 public:
     DesignerStatusBarInterface( QStatusBar *sb );
 
-private:
-    QStatusBar *statusBar;
+    bool requestSetProperty( const QCString &p, const QVariant &v );
+};
 
+class DesignerFormListInterface : public QComponentInterface
+{
+public:
+    DesignerFormListInterface( FormList *fl );
+
+    QVariant requestProperty( const QCString &p );
 };
 
 #endif
