@@ -23,7 +23,7 @@ class QWidget;
 class QItemEditorCreatorBase
 {
 public:
-    virtual QWidget *createWidget(const QWidget *parent = 0) const = 0;
+    virtual QWidget *createWidget(QWidget *parent) const = 0;
     virtual QByteArray valuePropertyName() const = 0;
 };
 
@@ -39,6 +39,8 @@ public:
 private:
     QByteArray propertyName;
 };
+
+class QItemEditorCreatorBase;
 
 class QItemEditorFactory
 {
