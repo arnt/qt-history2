@@ -1052,7 +1052,7 @@ void QWidget::repaint(const QRegion& rgn)
 
         d->hd = old_dc;
 
-        qt_discard_double_buffer(&qDoubleBuffer);
+        qt_win_release_double_buffer(&qDoubleBuffer);
 
         // Start timer to kill global double buffer.
         if (!qApp->active_window) {
