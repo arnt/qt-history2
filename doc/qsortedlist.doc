@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qsortedlist.doc,v 1.1 1999/02/19 13:22:45 weis Exp $
+** $Id: qsortedlist.doc,v 1.2 1999/03/18 05:25:01 warwick Exp $
 **
 ** QSortedList documentation
 **
@@ -51,8 +51,7 @@
   \fn QSortedList::QSortedList( const QSortedList<type> &list )
   Constructs a copy of \e list.
 
-  Each item in \e list is \link append() appended\endlink to this list.
-  Only the pointers are copied (shallow copy).
+  Each item in \e list is copied to this new list.
 */
 
 /*!
