@@ -156,8 +156,8 @@ static void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
 {
     if(msg == kDMNotifyEvent) {
         if(QDesktopWidget *dw = qApp->desktop()) {
-            QResizeEvent re(dw->size(), dw->size());
-            QApplication::sendEvent(dw, &re);
+            QResizeEvent *re = new QResizeEvent(dw->size(), dw->size());
+            QApplication::postEvent(dw, re);
         }
     }
 }
