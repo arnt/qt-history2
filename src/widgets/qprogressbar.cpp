@@ -408,7 +408,8 @@ void QProgressBar::drawContents( QPainter *p )
 	    p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
 	}
 	if ( progress_val != total_steps )
-	    p->fillRect( bar, colorGroup().brush( QColorGroup::Base ) );
+	    p->fillRect( bar, colorGroup().brush( style()==MotifStyle ?
+		QColorGroup::Background : QColorGroup::Base ) );
 	p->setPen( colorGroup().text() );
 	p->drawText( bar, AlignCenter, progress_str );
     }
