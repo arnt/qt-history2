@@ -1072,7 +1072,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                   (project->isEmpty("ICON") ? QString("") : project->first("ICON").section(Option::dir_sep, -1)));
                 plist_in_text = plist_in_text.replace("@EXECUTABLE@", project->first("QMAKE_ORIG_TARGET"));
                 plist_in_text = plist_in_text.replace("@TYPEINFO@",
-                  (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? "????" : project->first("QMAKE_PKGINFO_TYPEINFO").left(4)));
+                  (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? QString::fromLatin1("????") : project->first("QMAKE_PKGINFO_TYPEINFO").left(4)));
                 QFile plist_out_file("Info.plist");
                 if(plist_out_file.open(QIODevice::WriteOnly | QIODevice::Translate)) {
                     QTextStream plist_out(&plist_out_file);
@@ -1192,8 +1192,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "\t\t\t\t\t" << "<key>CFBundlePackageType</key>" << "\n"
                   << "\t\t\t\t\t" << "<string>APPL</string>" << "\n"
                   << "\t\t\t\t\t" << "<key>CFBundleSignature</key>" << "\n"
-                  << "\t\t\t\t\t" << "<string>" 
-                  << (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? "????" : 
+                  << "\t\t\t\t\t" << "<string>"
+                  << (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? QString::fromLatin1("????") :
                       project->first("QMAKE_PKGINFO_TYPEINFO").left(4)) << "</string>" << "\n"
                   << "\t\t\t\t\t" << "<key>CFBundleVersion</key>" << "\n"
                   << "\t\t\t\t\t" << "<string>0.1</string>" << "\n"

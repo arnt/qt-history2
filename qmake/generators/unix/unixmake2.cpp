@@ -639,8 +639,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         if(!destdir.isEmpty())
             t << "@test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
         t << "@$(DEL_FILE) " << pkginfo << "\n\t"
-          << "@echo \"APPL" 
-          << (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? "????" : project->first("QMAKE_PKGINFO_TYPEINFO").left(4)) 
+          << "@echo \"APPL"
+          << (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? QString::fromLatin1("????") : project->first("QMAKE_PKGINFO_TYPEINFO").left(4))
           << "\" >" << pkginfo << endl;
     }
     if(project->isActiveConfig("resource_fork") && !project->isEmpty("QMAKE_INFO_PLIST")) {
@@ -656,7 +656,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
           << "@sed -e \"s,@ICON@," << icon.section(Option::dir_sep, -1) 
           << ",g\" -e \"s,@EXECUTABLE@," << var("QMAKE_ORIG_TARGET") << ",g\" "
           << "-e \"s,@TYPEINFO@," 
-          << (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? "????" : project->first("QMAKE_PKGINFO_TYPEINFO").left(4))
+          << (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? QString::fromLatin1("????") : project->first("QMAKE_PKGINFO_TYPEINFO").left(4))
           << ",g\" \"" << info_plist << "\" >\"" << info_plist_out << "\"" << endl;
         //copy the icon
         if(!project->isEmpty("ICON")) {
