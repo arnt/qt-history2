@@ -65,9 +65,9 @@ static void printHtmlShortMembers( HtmlWriter& out,
 	out.putsMeta( "<li><div class=fn>" );
 	(*m)->printHtmlShort( out );
 	if ( (*m)->internal() && (*m)->access() != Decl::Private )
-	    out.putsMeta( "&nbsp; <em>(internal)</em>" );
+	    out.putsMeta( " &nbsp;<em>(internal)</em>" );
 	else if ( (*m)->obsolete() )
-	    out.putsMeta( "&nbsp; <em>(obsolete)</em>" );
+	    out.putsMeta( " &nbsp;<em>(obsolete)</em>" );
 	out.putsMeta( "</div></li>\n" );
 	++m;
     }
@@ -1292,7 +1292,7 @@ void Parameter::printHtmlShort( HtmlWriter& out ) const
 {
     dataType().printHtml( out, QString::null, name() );
     if ( !defaultValue().isEmpty() ) {
-	out.printfMeta( "&nbsp;=&nbsp;" );
+	out.printfMeta( " = " );
 	defaultValue().printHtml( out );
     }
 }
@@ -1405,20 +1405,20 @@ void FunctionDecl::printHtmlShort( HtmlWriter& out ) const
 	out.putsMeta( "virtual " );
     if ( !returnType().isEmpty() ) {
 	returnType().printHtml( out );
-	out.putsMeta( "&nbsp;" );
+	out.putsMeta( " " );
     }
     printHtmlShortName( out, this );
-    out.putsMeta( "&nbsp;(" );
+    out.putsMeta( " (" );
 
     ParameterList::ConstIterator param = parameters().begin();
     if ( param != parameters().end() ) {
-	out.putsMeta( "&nbsp;" );
+	out.putsMeta( " " );
 	(*param).printHtmlShort( out );
 	while ( ++param != parameters().end() ) {
 	    out.putsMeta( ", " );
 	    (*param).printHtmlShort( out );
 	}
-	out.putsMeta( "&nbsp;" );
+	out.putsMeta( " " );
     }
     out.putsMeta( ")" );
 
@@ -1430,20 +1430,20 @@ void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
 {
     if ( !returnType().isEmpty() ) {
 	printHtmlDataType( out, returnType(), context() );
-	out.putsMeta( "&nbsp;" );
+	out.putsMeta( " " );
     }
-    out.printfMeta( "<a name=\"%s\"></a>%s&nbsp;(", ref().latin1(),
+    out.printfMeta( "<a name=\"%s\"></a>%s (", ref().latin1(),
 		    htmlProtect(fullName()).latin1() );
 
     ParameterList::ConstIterator param = parameters().begin();
     if ( param != parameters().end() ) {
-	out.putsMeta( "&nbsp;" );
+	out.putsMeta( " " );
 	(*param).printHtmlLong( out, context() );
 	while ( ++param != parameters().end() ) {
 	    out.putsMeta( ", " );
 	    (*param).printHtmlLong( out, context() );
 	}
-	out.putsMeta( "&nbsp;" );
+	out.putsMeta( " " );
     }
     out.putsMeta( ")" );
 
@@ -1492,7 +1492,7 @@ void EnumItemDecl::printHtmlShort( HtmlWriter& out ) const
 {
     out.putsMeta( name().latin1() );
     if ( !value().isEmpty() ) {
-	out.putsMeta( "&nbsp;=&nbsp;" );
+	out.putsMeta( " = " );
 	value().printHtml( out );
     }
 }
@@ -1575,6 +1575,8 @@ void PropertyDecl::printHtmlShort( HtmlWriter& out ) const
 	out.putsMeta( "&nbsp;- " );
 	out.putsMeta( propertyDoc()->brief() );
     }
+    if ( writeFunction().isEmpty() )
+	out.putsMeta( " &nbsp;<em>(read only)</em>" );
 }
 
 void PropertyDecl::printHtmlLong( HtmlWriter& out ) const
