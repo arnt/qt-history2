@@ -2697,6 +2697,9 @@ void qt_format_text( const QFont& font, const QRect &r,
 #endif
 
     if ( simple ) {
+#ifdef QT_FORMAT_TEXT_DEBUG	
+	qDebug("using simple format for string %s", str.utf8().data() );
+#endif
 	// we can use a simple drawText instead of the QTextParag.
 	QFontMetrics fm = painter ? painter->fontMetrics() : QFontMetrics( font );
 	QString parStr = str;
@@ -2818,6 +2821,7 @@ void qt_format_text( const QFont& font, const QRect &r,
     else {
 
 #if defined(QT_FORMAT_TEXT_DEBUG)
+	qDebug("using richtext format for string %s", str.utf8().data() );
 	qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
 #endif
 	QTextParag *parag;
@@ -2925,7 +2929,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	if ( brect ) {
 	    *brect = paragRect;
 	    brect->setWidth( QMAX( brect->width(), parag->pseudoDocument()->wused ) );
-	    if ( QApplication::horizontalAlignment( tf ) != Qt::AlignLeft )
+	    if ( QApplication::horizontalAlignment( tf ) != Qt::AlignLeft || str.isRightToLeft() )
 		brect->setLeft( brect->left() + parag->leftGap());
 	    brect->moveBy( xoff, yoff );
 #if defined(QT_FORMAT_TEXT_DEBUG)
