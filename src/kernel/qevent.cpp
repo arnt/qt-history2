@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#22 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#22 $";
 #endif
 
 
@@ -115,9 +115,10 @@ void QEvent::peErrMsg()				// posted event error message
   QWidget::keyPressEvent() and QWidget::mouseMoveEvent() are examples of
   widget event handlers.
 
-  The basic QEvent contains only an event type parameter.  Subclasses of
-  QEvent contain additional parameters that descripe the particular event.
- ----------------------------------------------------------------------------*/
+  The basic QEvent only contains an event type parameter.  Subclasses
+  of QEvent contain additional parameters that descripe the particular
+  event.
+  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QEvent::QEvent( int type )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#16 $
 **
 ** Implementation of QDialog class
 **
@@ -17,7 +17,7 @@
 #include "qobjcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#16 $";
 #endif
 
 
@@ -25,13 +25,12 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#15 $";
   \class QDialog qdialog.h
   \brief The QDialog class is the base class of dialog windows.
 
-  A dialog window is a window for getting some input from the
-  user.	 It offers mechanisms such as default buttons.
+  A dialog window is a window used to communicate with the user.  It
+  offers mechanisms such as default buttons.
 
   The dialog window can either be modeless or modal.  A modeless
   dialog is a normal window, while a modal window must be finished
-  before the user can continue with other parts of the program.
-*/
+  before the user can continue with other parts of the program. */
 
 
 /*!
@@ -178,8 +177,12 @@ void QDialog::closeEvent( QCloseEvent *e )
 // Geometry management.
 //
 
-/*!
-  Does auto-resize and auto-positioning.
+/*!  Shows the dialog box on the screen, as QWidget::show().  This
+  implementation also does auto-resize and auto-positioning, to find a
+  size that fits the contents and position near the middle of the
+  screen.
+
+  \sa exec()
 */
 
 void QDialog::show()
