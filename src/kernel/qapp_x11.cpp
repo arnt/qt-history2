@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#34 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -27,7 +27,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#34 $";
 #endif
 
 
@@ -109,14 +109,23 @@ int main( int argc, char **argv )
 {
     int i;
 #if defined(DEBUG)
+    int mcBufSize   = 100000;			// default memchk settings
+    char *mcLogFile = "MEMCHK.LOG";
     for ( i=1; i<argc; i++ ) {			// look for -memchk argument
 	if ( *argv[i] != '-' )
 	    break;
 	if ( strcmp(argv[i],"-memchk") == 0 )
 	    appMemChk = !appMemChk;
+	else if ( strcmp(argv[i],"-membuf") == 0 ) {
+	    if ( ++i < argc ) mcBufSize = atoi(argv[i]);
+	}
+	else if ( strcmp(argv[i],"-memlog") == 0 ) {
+	    if ( ++i < argc ) mcLogFile = argv[i];
+	}
     }
     if ( appMemChk ) {				// start memory checking
-	memchkSetBufSize( 100000 );		// 400k buffer
+	memchkSetBufSize( mcBufSize );
+	memchkSetLogFile( mcLogFile );
 	memchkStart();
     }
 #endif
