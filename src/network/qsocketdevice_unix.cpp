@@ -739,6 +739,7 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
     }
     bool done = FALSE;
     int r = 0;
+    bool timeout;
     while ( !done ) {
 	r = ::write( fd, data, len );
 	done = TRUE;
@@ -775,6 +776,11 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 	    default:
 		e = UnknownError;
 		break;
+	    }
+	} else if ( waitForMore( 0, &timeout ) == 0 ) {
+	    if ( !timeout ) {
+		// connection closed
+		close();
 	    }
 	}
     }
