@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#29 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#30 $
 **
 ** Definition of QPicture class
 **
@@ -35,7 +35,7 @@
 class Q_EXPORT QPicture : public QPaintDevice		// picture class
 {
 public:
-    QPicture();
+    QPicture( int formatVersion = 0 );
    ~QPicture();
 
     bool	isNull() const;
@@ -57,9 +57,13 @@ protected:
 
 private:
     bool	exec( QPainter *, QDataStream &, int );
+    void	resetFormat();
     QBuffer	pictb;
     int		trecs;
     bool	formatOk;
+    int		formatMajor;
+    int		formatMinor;
+
 private:       // Disabled copy constructor
 #if defined(Q_DISABLE_COPY)
     QPicture( const QPicture & );

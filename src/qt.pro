@@ -228,7 +228,6 @@ win32:SOURCES	= kernel/qapplication_win.cpp \
 		  kernel/qdnd_win.cpp \
 		  kernel/qfont_win.cpp \
 		  kernel/qmime_win.cpp \
-		  kernel/qpicture_win.cpp \
 		  kernel/qpixmap_win.cpp \
 		  kernel/qprinter_win.cpp \
 		  kernel/qpaintdevice_win.cpp \
@@ -244,7 +243,6 @@ unix:SOURCES    = kernel/qapplication_x11.cpp \
 		  kernel/qcursor_x11.cpp \
 		  kernel/qdnd_x11.cpp \
 		  kernel/qfont_x11.cpp \
-		  kernel/qpicture_x11.cpp \
 		  kernel/qpixmap_x11.cpp \
 		  kernel/qprinter_x11.cpp \
 		  kernel/qpaintdevice_x11.cpp \

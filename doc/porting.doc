@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.56 1999/05/22 18:57:08 ettrich Exp $
+** $Id: porting.doc,v 1.57 1999/05/26 12:24:27 aavit Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -112,6 +112,7 @@ in the collective conscious that is the Qt Developer Community!
  <li><b><a href=#QMenuData>QPopupMenu</a></b>
  <li><b><a href=#QMultiLineEdit>QMultiLineEdit</a></b>
  <li><b><a href=#QPainter>QPainter</a></b>
+ <li><b><a href=#QPicture>QPicture</a></b>
  <li><b><a href=#QPoint>QPoint, QPointArray, QSize and QRect</a></b>
  <li><b><a href=#QPixmap>QPixmap</a></b>
  <li><b><a href=#QRgb>QRgb</a></b>
@@ -543,9 +544,19 @@ strange color results - use QColor::rgb() if you want a QRgb.
 
 <h3><a name=QDataStream>QDataStream</a></h3>
 
-The QDatastream serialization format of most Qt classes is changed in
-Qt 2.0. Use \code QDataStream::setVersion( 1 )\endcode to get a
+<p>The QDatastream serialization format of most Qt classes is changed
+in Qt 2.0. Use \code QDataStream::setVersion( 1 )\endcode to get a
 datastream object that can read and write Qt 1.x format data streams.
+
+<p>If you want to write Qt 1.x format datastreams, note the following
+compatibility issues:
+	<ul> 
+	<li>QString: Qt 1.x has no Unicode support, so strings will be
+	serialized by writing the classic C string returned by \code
+	QString::latin1().\endcode
+	<li><a href=#QPoint>QPoint & al.</a>: Coordinates will be
+	truncated to the Qt 1.x 16 bit format.
+	</ul>
 
 
 <h3><a name=QWidget>QWidget</a></h3>
@@ -790,6 +801,25 @@ instead.
         NorROP, LastROP)
 is now part of the Qt namespace class, so if you
 use it outside a member function, you'll need to prefix with Qt::.
+
+
+<h3><a name=QPicture>QPicture</a></h3>
+
+<p>The binary storage format of QPicture is changed, but the Qt 2.0
+QPicture class can both read and write Qt 1.x format QPictures. No
+special handling is required for reading; QPicture will automatically
+detect the version number. In order to write a Qt 1.x format QPicture,
+set the formatVersion parameter to 1 in the QPicture constructor.
+
+<p>For writing Qt 1.x format QPictures, the compatibility issues of <a
+href=#QDataStream>QDataStream</a> applies.
+
+<p>It is safe to try to read a QPicture file generated with Qt 2.0
+(without formatVersion set to 1) with a program compiled with Qt
+1.x. The program will not crash, it will just issue the warning
+"QPicture::play: Incompatible version 2.0" and refuse to load the
+picture.
+
 
 
 <h3><a name=QPoint>QPoint, QPointArray, QSize and QRect</a></h3>

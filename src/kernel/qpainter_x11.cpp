@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#298 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#299 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -1562,8 +1562,11 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 	    QPDevCmdParam param[1];
 	    QRect r( x, y, w, h );
 	    param[0].rect = &r;
-	    if ( !pdev->cmd( QPaintDevice::PdcDrawRect, this, param ) || !hd )
+	    if ( !pdev->cmd( QPaintDevice::PdcDrawRect, this, param ) || !hd) {
+		setRasterOp( old_rop );
+		setPen( old_pen );
 		return;
+	    }
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
     }

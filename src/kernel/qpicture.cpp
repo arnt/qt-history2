@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#63 $
 **
 ** Implementation of QPicture class
 **
@@ -70,23 +70,48 @@
     p.drawPicture( pic );			// draw the picture
     p.end();					// painting done
   \endcode
+
 */
 
 
 static const char  *mfhdr_tag = "QPIC";		// header tag
-static const UINT16 mfhdr_maj = 1;		// major version #
+static const UINT16 mfhdr_maj = 2;		// major version #
 static const UINT16 mfhdr_min = 0;		// minor version #
 
 
 /*!
-  \fn QPicture::QPicture()
   Constructs an empty picture.
+
+  The \a formatVersion parameter may be used to create a QPicture that
+  can be read by programs compiled with earlier versions of
+  Qt. Currently supported is \a formatVersion == 1, which will make a
+  QPicture which is stored in a format that is binary compatible with
+  Qt 1.x programs.
+
+  Reading of Qt 1.x format pictures is supported and needs no special
+  coding; the format is automatically detected.
 */
 
+QPicture::QPicture( int formatVer )
+    : QPaintDevice( QInternal::Picture | QInternal::ExternalDevice )	
+    // set device type
+{
+    if ( formatVer == 1 ) {
+	formatMajor = formatVer;
+	formatMinor = 0;
+	formatOk = FALSE;
+    }
+    else {
+	resetFormat();
+    }
+}
+
 /*!
-  \fn QPicture::~QPicture()
   Destroys the picture.
 */
+QPicture::~QPicture()
+{
+}
 
 
 /*!
@@ -118,7 +143,7 @@ void QPicture::setData( const char* data, uint size )
     QByteArray a( size );
     memcpy( a.data(), data, size );
     pictb.setBuffer( a );			// set byte array in buffer
-    formatOk = FALSE;				// we'll have to check
+    resetFormat();				// we'll have to check
 }
 
 
@@ -139,7 +164,7 @@ bool QPicture::load( const QString &fileName )
     f.readBlock( a.data(), (uint)f.size() );	// read file into byte array
     f.close();
     pictb.setBuffer( a );			// set byte array in buffer
-    formatOk = FALSE;				// we'll have to check
+    resetFormat();				// we'll have to check
     return TRUE;
 }
 
@@ -214,8 +239,14 @@ bool QPicture::play( QPainter *painter )
 	    return FALSE;
 	}
 	formatOk = TRUE;			// picture seems to be ok
+	formatMajor = major;
+	formatMinor = minor;
     } else {
 	s.device()->at( 10 );			// go directly to the data
+    }
+
+    if ( formatMajor == 1 ) {
+	s.setVersion( 1 );			// Qt 1.x compatibility
     }
 
     UINT8  c, clen;
@@ -484,12 +515,14 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 {
     QDataStream s;
     s.setDevice( &pictb );
+    if ( formatMajor == 1 )
+	s.setVersion( 1 );
     if ( c ==  PdcBegin ) {			// begin; write header
 	QByteArray empty( 0 );
 	pictb.setBuffer( empty );		// reset byte array in buffer
 	pictb.open( IO_WriteOnly );
 	s.writeRawBytes( mfhdr_tag, 4 );
-	s << (UINT16)0 << mfhdr_maj << mfhdr_min;
+	s << (UINT16)0 << (Q_UINT16)formatMajor << (Q_UINT16)formatMinor;
 	s << (UINT8)c << (UINT8)sizeof(INT32);
 	trecs = 0;
 	s << (UINT32)trecs;			// total number of records
@@ -544,10 +577,26 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	    s << *p[0].ptarr << (INT8)p[1].ival;
 	    break;
 	case PdcDrawText2:
-	    s << *p[0].point << *p[1].str;
+	    if ( formatMajor == 1 ) {
+		pictb.at( pos - 2 );
+		s << (Q_UINT8)PdcDrawText << (Q_UINT8)0;
+		QCString str1( (*p[1].str).latin1() );
+		s << *p[0].point << str1;
+	    }
+	    else {
+		s << *p[0].point << *p[1].str;
+	    }
 	    break;
 	case PdcDrawText2Formatted:
-	    s << *p[0].rect << (INT16)p[1].ival << *p[2].str;
+	    if ( formatMajor == 1 ) {
+		pictb.at( pos - 2 );
+		s << (Q_UINT8)PdcDrawTextFormatted << (Q_UINT8)0;
+		QCString str1( (*p[2].str).latin1() );
+		s << *p[0].rect << (INT16)p[1].ival << str1;
+	    }
+	    else {
+		s << *p[0].rect << (INT16)p[1].ival << *p[2].str;
+	    }
 	    break;
 	case PdcDrawPixmap:
 	    s << *p[0].point;
@@ -692,4 +741,18 @@ QPicture& QPicture::operator= (const QPicture& p)
 {
     setData(p.data(),p.size());
     return *this;
+}
+
+
+/*!
+  \internal
+
+  Sets formatOk to FALSE and resets the format version numbers to default
+*/
+
+void QPicture::resetFormat()
+{
+    formatOk = FALSE;
+    formatMajor = mfhdr_maj;
+    formatMinor = mfhdr_min;
 }
