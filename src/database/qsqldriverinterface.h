@@ -13,4 +13,4 @@ public:
     virtual QSqlDriver* create( const QString& name ) = 0;
 };
 
-#endif
+#endif // QSQLDRIVERINTERFACE_H
