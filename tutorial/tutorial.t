@@ -67,4 +67,4 @@ clean:
     }
 #$}
 
-FORCE:
+#$ $text = "FORCE:" if $is_unix;
