@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#5 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#6 $
 **
 ** Definition of QBitMap class
 **
@@ -19,8 +19,9 @@
 class QBitMap : public QPixMap			// bitmap class
 {
 public:
-    QBitMap( int w, int h ) : QPixMap(w,h,1) {}
-    QBitMap( int w, int h, const char *data ) : QPixMap(w,h,data) {}
+    QBitMap( int w, int h ) : QPixMap( w, h, 1 ) {}
+    QBitMap( int w, int h, const char *data, bool isXbitmap=FALSE )
+	: QPixMap( w, h, data, isXbitmap ) {}
    ~QBitMap() {}
 
     bool   testBit( int x, int y ) const;	// test if bit set
