@@ -156,6 +156,8 @@ protected:
     void hideEvent( QHideEvent *e );
     void contextMenuEvent( QContextMenuEvent *e );
 
+    bool event( QEvent *e );
+
 private slots:
     void toggleVisible() { if ( !isVisible() ) show(); else hide(); }
 

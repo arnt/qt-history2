@@ -1696,6 +1696,17 @@ bool QDockWindow::eventFilter( QObject *o, QEvent *e )
     return QFrame::eventFilter( o, e );
 }
 
+/*! \reimp */
+bool QDockWindow::event( QEvent *e )
+{
+    if ( e->type() == QEvent::WindowDeactivate ) {
+	titleBar->setActive( FALSE );
+    } else if ( e->type() == QEvent::WindowActivate ) {
+	titleBar->setActive( TRUE );
+    }
+    return QFrame::event( e );
+}
+
 #ifdef QT_NO_WIDGET_TOPEXTRA
 QString QDockWindow::caption() const
 {
