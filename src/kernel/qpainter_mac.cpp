@@ -108,6 +108,7 @@ void QPainter::cleanup()
 }
 
 
+QPoint posInWindow(QWidget *w);
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
 static QPaintDeviceDict *pdev_dict = 0;
 
@@ -193,9 +194,6 @@ void QPainter::updatePen()
 {
     if ( !pdev || !pdev->handle() )
 	return;
-    WindowPtr p = (WindowPtr)pdev->handle();
-    SetPortWindowPort( p );
-
     ::RGBColor f;
     f.red = cpen.color().red()*256;
     f.green = cpen.color().green()*256;
@@ -285,6 +283,9 @@ bool QPainter::begin( const QPaintDevice *pd )
         return FALSE;
     }
 
+    //save the gworld now, we'll reset it in end()
+    GetGWorld(&savedworld, &savedhandle);
+
     QWidget *copyFrom = 0;
     if ( pdev_dict ) {                          // redirected paint device?
         pdev = pdev_dict->find( (long)pd );
@@ -348,10 +349,20 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    // was white
         }
     }
-    wx = wy = vx = vy = 0;                      // default view origins
+    offx = offy = wx = wy = vx = vy = 0;                      // default view origins
 
+    bool clip_set = FALSE;
     if ( dt == QInternal::Widget ) {                    // device is a widget
         QWidget *w = (QWidget*)pdev;
+
+	//set the correct window prot
+	SetPortWindowPort((WindowPtr)w->handle());
+
+	//offset painting in widget relative the tld
+	QPoint wp(posInWindow(w));
+	offx = wp.x();
+	offy = wp.y();
+
         cfont = w->font();                      // use widget font
         cpen = QPen( w->foregroundColor() );    // use widget fg color
         if ( reinit ) {
@@ -365,7 +376,10 @@ bool QPainter::begin( const QPaintDevice *pd )
             setf( NoCache );
             updatePen();
             updateBrush();
-        }
+        }  else {
+	    savedclip = w->clippedRegion();
+	    clip_set = TRUE;
+	}
     } else if ( dt == QInternal::Pixmap ) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)pdev;
         if ( pm->isNull() ) {
@@ -377,11 +391,29 @@ bool QPainter::begin( const QPaintDevice *pd )
         }
         ww = vw = pm->width();                  // default view size
         wh = vh = pm->height();
-    } else if ( testf(ExtDev) ) {               // external device
+
+	//setup the gworld
+	SetGWorld((GWorldPtr)pm->handle(),0);
+	LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));
+    } 
+
+    if ( testf(ExtDev) ) {               // external device
         // FIXME: Untested modification
         ww = vw = pdev->metric( QPaintDeviceMetrics::PdmWidth ); // sanders
         wh = vh = pdev->metric( QPaintDeviceMetrics::PdmHeight ); // sanders
+    } else {
+	if(!clip_set) { //clip to the whole region
+	    Rect rect;
+	    SetRect(&rect,0,0,ww,wh);
+
+	    savedclip = NewRgn();
+	    OpenRgn();
+	    FrameRect(&rect);
+	    CloseRgn(savedclip);
+	}
+	SetClip(savedclip);
     }
+
     if ( ww == 0 )
         ww = wh = vw = vh = 1024;
     if ( copyFrom ) {                           // copy redirected widget
@@ -433,6 +465,13 @@ bool QPainter::end()				// end painting
     if ( testf( FontInf ) )                       // remove references to this
         QFontInfo::reset( this );
 
+    
+    if ( pdev->devType() == QInternal::Pixmap )
+	UnlockPixels(GetGWorldPixMap((GWorldPtr)pdev->handle()));
+
+    //reset the value we got in begin()
+    SetGWorld(savedworld,savedhandle);
+    DisposeRgn(savedclip);
 
     if ( testf(ExtDev) )
 	pdev->cmd( QPaintDevice::PdcEnd, this, 0 );
@@ -549,16 +588,15 @@ void QPainter::setClipRegion( const QRegion & )
 
 void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 {
-    pdev->lockPort();
     RgnHandle polyRegion = NewRgn();
     OpenRgn();
     uint loopc;
-    MoveTo( a[0].x(), a[0].y() );
+    MoveTo( a[0].x()+offx, a[0].y()+offy );
     for ( loopc = 1; loopc < a.size(); loopc++ ) {
-	LineTo( a[loopc].x(), a[loopc].y() );
-	MoveTo( a[loopc].x(), a[loopc].y() );
+	LineTo( a[loopc].x()+offx, a[loopc].y()+offy );
+	MoveTo( a[loopc].x()+offx, a[loopc].y()+offy );
     }
-    LineTo( a[0].x(), a[0].y() );
+    LineTo( a[0].x()+offx, a[0].y()+offy );
     CloseRgn( polyRegion );
     if ( close ) {
 	updateBrush();
@@ -569,7 +607,6 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 	FrameRgn( polyRegion );
     }
     DisposeRgn( polyRegion );
-    pdev->unlockPort();
 }
 
 
@@ -593,12 +630,11 @@ void QPainter::drawPoint( int x, int y )
         }
         map( x, y, &x, &y );
     }
-    pdev->lockPort();
+
     // FIXME: This is a bit silly
     updatePen();
-    MoveTo(x,y);
-    LineTo(x,y);
-    pdev->unlockPort();
+    MoveTo(x+offx,y+offy);
+    LineTo(x+offx,y+offy);
 }
 
 
@@ -662,14 +698,12 @@ void QPainter::lineTo( int x, int y )
     map( x, y, &x, &y );
   }
 
-  pdev->lockPort();
   updateBrush();
   updatePen();
-  MoveTo(penx,peny);
-  LineTo(x,y);
+  MoveTo(penx+offx,peny+offy);
+  LineTo(x+offx,y+offy);
   penx = x;
   peny = y;
-  pdev->unlockPort();
 }
 
 /*!
@@ -695,11 +729,11 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
     map( x1, y1, &x1, &y1 );
     map( x2, y2, &x2, &y2 );
   }
-  pdev->lockPort();
+
   updatePen();
-  MoveTo(x1,y1);
-  LineTo(x2,y2);
-  pdev->unlockPort();
+  MoveTo(x1+offx,y1+offy);
+  LineTo(x2+offx,y2+offy);
+
 }
 
 
@@ -740,10 +774,8 @@ void QPainter::drawRect( int x, int y, int w, int h )
         h++;
     }
 
-    pdev->lockPort();
-
     Rect rect;
-    SetRect( &rect, x, y, x + w, y + h );
+    SetRect( &rect, x+offx, y+offy, x + w+offx, y + h+offy );
     if( this->brush().style() == SolidPattern ) {
 	updateBrush();
 	PaintRect( &rect );
@@ -752,8 +784,6 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	updatePen();
 	FrameRect(&rect);
     }
-
-    pdev->unlockPort();
 }
 
 /*!
@@ -907,9 +937,8 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
         h++;
     }
 
-    pdev->lockPort();
     Rect rect;
-    SetRect( &rect, x, y, x + w, y + h );
+    SetRect( &rect, x+offx, y+offy, x + w+offx, y + h+offy );
     if( this->brush().style() == SolidPattern ) {
 	updateBrush();
 	PaintRoundRect( &rect, w*xRnd/100, h*yRnd/100 );
@@ -918,8 +947,6 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
 	updatePen();
 	FrameRoundRect( &rect, w*xRnd/100, h*yRnd/100 );
     }
-
-    pdev->unlockPort();
 }
 
 /*!
@@ -956,16 +983,15 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
         w++;
         h++;
     }
-    pdev->lockPort();
+
     Rect r;
-    SetRect( &r, x, y, x + w, y + h );
+    SetRect( &r, x+offx, y+offy, x + w+offx, y + h+offy );
     if( this->brush().style() == SolidPattern ) {
 	updateBrush();
 	PaintOval( &r );
     }
     updatePen();
     FrameOval( &r );
-    pdev->unlockPort();
 }
 
 
@@ -1015,12 +1041,11 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
             return;
         fix_neg_rect( &x, &y, &w, &h );
     }
-    pdev->lockPort();
+
     Rect bounds;
-    SetRect(&bounds,x,y,x+w,y+h);
+    SetRect(&bounds,x+offx,y+offy,x+w+offx,y+h+offy);
     updatePen();
     FrameArc(&bounds,a/16,alen/16);
-    pdev->unlockPort();
 }
 
 
@@ -1081,9 +1106,9 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
         w++;
         h++;
     }
-    pdev->lockPort();
+
     Rect bounds;
-    SetRect(&bounds,x,y,x+w,y+h);
+    SetRect(&bounds,x+offx,y+offy,x+w+offx,y+h+offy);
     //PaintArc(&bounds,a*16,alen*16);
     int aa,bb;
     if(!a) {
@@ -1108,7 +1133,6 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	updatePen();
 	FrameArc(&bounds,aa,bb);
     }
-    pdev->unlockPort();
 }
 
 
@@ -1406,7 +1430,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
   if ( len == 0 )                             // empty string
     return;
 
-  pdev->lockPort();
   updateBrush();
   updatePen();
 
@@ -1420,10 +1443,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
       QString newstr = str.left(len);
       param[0].point = &p;
       param[1].str = &newstr;
-      if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hd ) {
-	pdev->unlockPort();
+      if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hd )
 	return;
-      }
     }
 
     if ( txop >= TxScale ) {
@@ -1470,7 +1491,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
 	paint.end();
 	wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
 	if ( wx_bm->isNull() ) {
-	  pdev->unlockPort();
 	  delete wx_bm;               // nothing to draw
 	  return;
 	}
@@ -1490,23 +1510,17 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
 	QBrush oldBrush = cbrush;
 	setBrush( backgroundColor() );
 	updateBrush();
-	//XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.data(), 4,
-	//              Nonconvex, CoordModeOrigin );
-	//XDrawLines( dpy, hd, gc_brush, (XPoint*)a.data(), 5,
-	//            CoordModeOrigin );
 	setBrush( oldBrush );
       }
-      if ( empty ) {
-	pdev->unlockPort();
+      if ( empty ) 
 	return;
-      }
+
       double fx=x, fy=y, nfx, nfy;
       mat1.map( fx,fy, &nfx,&nfy );
       double tfx=tx, tfy=ty, dx, dy;
       mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
       x = qRound(nfx-dx);
       y = qRound(nfy-dy);
-      pdev->unlockPort();
       return;
     }
     if ( txop == TxTranslate )
@@ -1532,12 +1546,12 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
     if ( mapped.isNull() )
       warning("Fontsets only apply to mapped encodings");
     else {
-      MoveTo(x,y);
+      MoveTo(x+offx,y+offy);
       DrawString(p_str(mapped));
     }
   } else {
     if ( !mapped.isNull() ) {
-      MoveTo(x,y);
+      MoveTo(x+offx,y+offy);
       DrawString(p_str(mapped));
     } else {
       // Unicode font
@@ -1549,7 +1563,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
       len = v.length();
 #endif
 
-      MoveTo(x,y);
+      MoveTo(x+offx,y+offy);
       DrawString(p_str((char *)v.unicode()));
     }
   }
@@ -1561,7 +1575,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
     int tw = fm.width( str, len );
   }
 #endif
-  pdev->unlockPort();
 }
 
 /*!
@@ -1571,6 +1584,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
  */
 QPoint QPainter::pos() const
 {
-    return QPoint();
+    return QPoint(penx, peny);
 }
 

@@ -353,8 +353,12 @@ protected:
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
 #elif defined(_WS_MAC_)
-    int penx;
-    int peny;
+    RgnHandle savedclip;
+    GWorldPtr savedworld;
+    GDHandle savedhandle;
+
+    int offx, offy;
+    int penx, peny;
     void * hd;
 #elif defined(_WS_QWS_)
     QGfx * gfx;

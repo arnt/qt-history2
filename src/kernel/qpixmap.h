@@ -105,12 +105,6 @@ public:
     static QWMatrix trueMatrix( const QWMatrix &, int w, int h );
 #endif
 
-#if defined( _WS_MAC_ )
-  virtual void lockPort();
-  virtual void unlockPort();
-  BitMap *portBitMap() const;
-#endif
-
     QImage	convertToImage() const;
     bool	convertFromImage( const QImage &, ColorMode mode=Auto );
     bool	convertFromImage( const QImage &, int conversion_flags );

@@ -146,14 +146,18 @@ Qt::HANDLE QFont::handle() const
 
 void QFont::macSetFont(QPaintDevice *v)
 {
-  if(v) {
-    v->lockPort();
-    TextSize(pointSize());
-    short fnum;
-    GetFNum(p_str(family().ascii()),&fnum);
-    TextFont(fnum);
-    v->unlockPort();
-  }
+    if(v) {
+	if(!v->paintingActive()) {
+	    qDebug("I was really hoping it would never come to this...");
+	    ASSERT(0); //we need to figure out if this can really happen
+	}
+	//v->lockPort();
+	TextSize(pointSize());
+	short fnum;
+	GetFNum(p_str(family().ascii()),&fnum);
+	TextFont(fnum);
+	//v->unlockPort();
+    }
 }
 
 void QFont::load() const

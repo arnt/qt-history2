@@ -413,6 +413,8 @@ public:
 
 #if defined(_WS_QWS_)
     virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
+#else
+    RgnHandle clippedRegion();
 #endif
 
 protected:
@@ -451,10 +453,6 @@ protected:
     int back_type;                              // Type of background
     QPixmap * bg_pix;
     virtual void propagateUpdates(int x,int y,int x2,int y2);
-
-  virtual void lockPort();
-  virtual void unlockPort();
-  BitMap *portBitMap() const;
 #elif defined(_WS_WIN_)
     virtual bool winEvent( MSG * );		// Windows event
 #elif defined(_WS_X11_)
@@ -868,12 +866,6 @@ struct QWExtra {
     QRegion mask;				// widget mask
 #endif
     char     bg_mode;				// background mode
-#if defined(_WS_MAC_)
-  static QPoint currentOrigin;
-  bool is_locked;
-  QPoint savedOrigin;
-  RgnHandle savedClip;
-#endif
 #ifndef QT_NO_STYLE
     QStyle* style;
 #endif

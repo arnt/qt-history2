@@ -1257,32 +1257,27 @@ bool ignorecliprgn=true;
 
 int QApplication::macProcessEvent(MSG * m)
 {
-
+    QWidget *widget;
     WindowPtr wp;
     EventRecord *er = (EventRecord *)m;
     if(!er->what)
 	return 0;
 
-    Point p2 = er->where;
-    QWidget * widget = QApplication::widgetAt(p2.h,p2.v,true);
-
     if ( er->what == updateEvt ) {
-	QWidget *twidget = QWidget::find( (WId)er->message );
-	wp = (WindowPtr)er->message;
-	SetPortWindowPort(wp);
+	widget = QWidget::find( (WId)er->message );
 
-	if(!twidget) {
+	if(!widget) {
 	    qWarning("Couldn't find paint widget for %d!",(int)wp);
 	} else {
-	    int metricWidth = twidget->metric (QPaintDeviceMetrics::PdmWidth );
-	    int metricHeight = twidget->metric( QPaintDeviceMetrics::PdmHeight );
-	    twidget->crect.setWidth( metricWidth - 1 );
-	    twidget->crect.setHeight( metricHeight - 1 );
+	    int metricWidth = widget->metric (QPaintDeviceMetrics::PdmWidth );
+	    int metricHeight = widget->metric( QPaintDeviceMetrics::PdmHeight );
+	    widget->crect.setWidth( metricWidth - 1 );
+	    widget->crect.setHeight( metricHeight - 1 );
 	    ignorecliprgn = false;
 
-	    BeginUpdate((WindowPtr)twidget->handle());
-	    twidget->propagateUpdates( 0, 0, twidget->width(), twidget->height() );
-	    EndUpdate((WindowPtr)twidget->handle());
+	    BeginUpdate((WindowPtr)widget->handle());
+	    widget->propagateUpdates( 0, 0, widget->width(), widget->height() );
+	    EndUpdate((WindowPtr)widget->handle());
 
 	    ignorecliprgn = true;
 	}
@@ -1296,8 +1291,6 @@ int QApplication::macProcessEvent(MSG * m)
 		widget = QApplication::widgetAt( pp2.h, pp2.v, true );
 	    }
 	    if ( widget ) {
-		SetPortWindowPort( wp );
-
 		QPoint p( er->where.h, er->where.v );
 		QPoint plocal(widget->mapFromGlobal( p ));
 		mouse_button_state = QMouseEvent::LeftButton; //FIXME
@@ -1316,8 +1309,6 @@ int QApplication::macProcessEvent(MSG * m)
 		widget = QApplication::widgetAt( pp2.h, pp2.v, true );
 	    }
 	    if ( widget ) {
-		SetPortWindowPort( wp );
-
 		QPoint p( er->where.h, er->where.v );
 		QPoint plocal(widget->mapFromGlobal( p ));
 		QMouseEvent qme( QEvent::MouseButtonRelease, plocal, p, QMouseEvent::LeftButton, 0);
@@ -1369,8 +1360,6 @@ int QApplication::macProcessEvent(MSG * m)
 		}
 		if ( widget && (mouse_button_state != Qt::NoButton
 				|| widget->hasMouseTracking() || hasGlobalMouseTracking())) {
-		    SetPortWindowPort( wp );
-
 		    QPoint p( er->where.h, er->where.v );
 		    QPoint plocal(widget->mapFromGlobal( p ));
 		    QMouseEvent qme( QEvent::MouseMove, plocal, p, QMouseEvent::NoButton, 

@@ -126,10 +126,6 @@ public:
     virtual unsigned char * scanLine(int) const;
     virtual int bytesPerLine() const;
     virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
-#elif defined(_WS_MAC_)
-  virtual void lockPort();
-  virtual void unlockPort();
-  virtual BitMap *portBitMap() const;
 #endif
 
     enum PDevCmd {

@@ -19,7 +19,12 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
   data->d = 1;
   init(w, h, 1, TRUE, DefaultOptim);
 
-  lockPort();
+  GWorldPtr savedworld;
+  GDHandle savedhandle;
+  GetGWorld(&savedworld, &savedhandle);
+  SetGWorld((GWorldPtr)hd,0);
+  LockPixels(GetGWorldPixMap((GWorldPtr)hd));
+
   // Slow and icky
   RGBColor r;
   for(int y=0;y<h;y++) {
@@ -34,7 +39,8 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
       SetCPixel(x,y,&r);
     }
   }
-  unlockPort();
+  UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+  SetGWorld(savedworld,savedhandle);
 }
 
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
@@ -113,7 +119,12 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     *this = pm;
   }
 
-  lockPort();
+
+  GWorldPtr savedworld;
+  GDHandle savedhandle;
+  GetGWorld(&savedworld, &savedhandle);
+  SetGWorld((GWorldPtr)hd,0);
+  LockPixels(GetGWorldPixMap((GWorldPtr)hd));
   
   // Slow and icky, but the proper way crashed
   RGBColor r;
@@ -136,7 +147,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     setMask( m );
   }
 
-  unlockPort();
+  UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+  SetGWorld(savedworld,savedhandle);
+
   return TRUE;
 }
 
@@ -181,7 +194,11 @@ QImage QPixmap::convertToImage() const
 
     QImage * image=new QImage( w, h, d, ncols, QImage::BigEndian );
 
-    ((QPixmap *)this)->lockPort();
+    GWorldPtr savedworld;
+    GDHandle savedhandle;
+    GetGWorld(&savedworld, &savedhandle);
+    SetGWorld((GWorldPtr)hd,0);
+    LockPixels(GetGWorldPixMap((GWorldPtr)hd));
 
     // Slow and icky, but the proper way crashed
     RGBColor r;
@@ -209,7 +226,10 @@ QImage QPixmap::convertToImage() const
     for ( int i=0; i<ncols; i++ ) // copy color table
 	image->setColor( i, qRgb(0, 0, 0));
 
-    ((QPixmap *)this)->unlockPort();
+
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+    SetGWorld(savedworld,savedhandle);
+
     return *image;
 }
 
@@ -218,14 +238,22 @@ void QPixmap::fill( const QColor &fillColor )
     if(hd) {
 	Rect r;
 	RGBColor rc;
-	lockPort();
+
+	GWorldPtr savedworld;
+	GDHandle savedhandle;
+	GetGWorld(&savedworld, &savedhandle);
+	SetGWorld((GWorldPtr)hd,0);
+	LockPixels(GetGWorldPixMap((GWorldPtr)hd));
+
 	rc.red=fillColor.red()*256;
 	rc.green=fillColor.green()*256;
 	rc.blue=fillColor.blue()*256;
 	RGBForeColor(&rc);
 	SetRect(&r,0,0,width(),height());
 	PaintRect(&r);
-	unlockPort();
+
+	UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+	SetGWorld(savedworld,savedhandle);
     }
 }
 
@@ -392,34 +420,6 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 }
 
 
-void 
-QPixmap::lockPort()
-{
-  if(data->is_locked)
-    return;
-  
-  data->is_locked = TRUE;
-  GetGWorld(&data->savedworld, &data->savedhandle);
-  SetGWorld((GWorldPtr)hd,0);
-  LockPixels(GetGWorldPixMap((GWorldPtr)hd));
-}
-
-void 
-QPixmap::unlockPort()
-{
-  if(!data->is_locked)
-    return;
-  
-  data->is_locked = FALSE;
-  UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
-  SetGWorld(data->savedworld,data->savedhandle);
-}
-
-BitMap
-*QPixmap::portBitMap() const
-{
-  return (BitMap *)*GetGWorldPixMap((GWorldPtr)hd);
-}
 
 
   

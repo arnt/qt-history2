@@ -274,6 +274,8 @@ int QPaintDevice::fontInf( QFont *, int ) const
   </ol>
 */
 
+QPoint posInWindow(QWidget *w);
+
 void bitBlt( QPaintDevice *dst, int dx, int dy, 
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 	     Qt::RasterOp rop, bool imask)
@@ -285,16 +287,58 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     sh=dst->metric(QPaintDeviceMetrics::PdmHeight)-dy;
   }
 
-  dst->lockPort();
+  GWorldPtr savedworld;
+  GDHandle savedhandle;
+  GetGWorld(&savedworld, &savedhandle);
+  
+  int dstoffx=0, dstoffy=0;
+  BitMap *dstbitmap=NULL;
+  if(dst->devType() == QInternal::Widget) {
+      QWidget *w = (QWidget *)dst;
+      dstbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
+      SetPortWindowPort((WindowPtr)w->handle()); //wtf?
+      
+      QPoint p(posInWindow(w));
+      dstoffx = p.x();
+      dstoffy = p.y();
+  } else if(dst->devType() == QInternal::Pixmap) {
+      QPixmap *pm = (QPixmap *)dst;
+      SetGWorld((GWorldPtr)pm->handle(),0);
+      LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));
+      dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
+  }
 
-  //FIXME, need to handle ExtDevice!!!!!!
+  int srcoffx = 0, srcoffy = 0;
+  BitMap *srcbitmap=NULL;
+  if(src->devType() == QInternal::Widget) {
+      QWidget *w = (QWidget *)src;
+      srcbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
+
+      QPoint p(posInWindow(w));
+      srcoffx = p.x();
+      srcoffy = p.y();
+  } else if(src->devType() == QInternal::Pixmap) {
+      QPixmap *pm = (QPixmap *)src;
+      srcbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
+  }
+
+  if(!dstbitmap || !srcbitmap) {  //FIXME, need to handle ExtDevice!!!!!!
+      qWarning("This shouldn't have happened yet, but fix me! %s:%d", __FILE__, __LINE__);
+      return;
+  }
 
   Rect r;
-  SetRect(&r,sx,sy,sx+sw,sy+sh);
+  SetRect(&r,sx+srcoffx,sy+srcoffy,sx+sw+srcoffx,sy+sh+srcoffy);
   Rect r2;
-  SetRect(&r2,dx,dy,dx+sw,dy+sh);
-  CopyBits(src->portBitMap(), dst->portBitMap(), &r,&r2,(short)srcCopy,0);
-  dst->unlockPort();
+  SetRect(&r2,dx+dstoffx,dy+dstoffy,dx+sw+dstoffx,dy+sh+dstoffy);
+  CopyBits(srcbitmap, dstbitmap, &r,&r2,(short)srcCopy,0);
+
+  SetGWorld(savedworld,savedhandle);
+
+  if(dst->devType() == QInternal::Pixmap) {
+      QPixmap *pm = (QPixmap *)dst;
+      UnlockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));    
+  }
 }
 
 
@@ -313,20 +357,3 @@ Qt::HANDLE QPaintDevice::handle() const
     return hd;
 }
 
-void 
-QPaintDevice::lockPort()
-{
-
-}
-
-void 
-QPaintDevice::unlockPort()
-{
-
-}
-
-BitMap 
-*QPaintDevice::portBitMap() const
-{
-  return NULL;
-}

@@ -1021,15 +1021,6 @@ void QWidget::setBaseSize( int, int )
 
 void QWidget::erase( int x, int y, int w, int h )
 {
-  if ( back_type == 1 ) {
-    // solid background
-    Rect r;
-    RGBColor rc;
-    rc.red = bg_col.red()*256;
-    rc.green = bg_col.green()*256;
-    rc.blue = bg_col.blue()*256;
-    this->lockPort();
-    RGBForeColor( &rc );
     x--;
     y--;
     w += 2;
@@ -1042,20 +1033,14 @@ void QWidget::erase( int x, int y, int w, int h )
       w = width();
     if ( h > height() )
       h = height();
-    SetRect( &r, x, y, x + w, y + h );
-    PaintRect( &r );
-    this->unlockPort();
-  } else if ( back_type == 2 ) {
-    // pixmap
-    if ( bg_pix ) {
-      QPainter p;
-      p.begin( this );
+
+    QPainter p;
+    p.begin(this);
+    if( back_type == 1) 
+	p.fillRect(x, y, w, h,bg_col);
+    else if ( back_type == 2 )
       p.drawTiledPixmap( x, y, w, h, *bg_pix, 0, 0 );
-      p.end();
-    }
-  } else {
-    // nothing
-  }
+    p.end();
 }
 
 /*!
@@ -1067,6 +1052,7 @@ void QWidget::erase( int x, int y, int w, int h )
 
 void QWidget::erase( const QRegion& reg )
 {
+#if 0
     RGBColor rc;
     this->lockPort();
     rc.red = bg_col.red()*256;
@@ -1075,6 +1061,10 @@ void QWidget::erase( const QRegion& reg )
     RGBForeColor( &rc );
     PaintRgn( (RgnHandle)reg.handle() );
     this->unlockPort();
+#else
+    qWarning("Damn, this does happen, regardless we need to figure out"
+	     "a good way to work this function out without doing our own gworld fu");
+#endif
 }
 
 
@@ -1172,19 +1162,12 @@ int QWidget::metric( int m ) const
     return 0;
 }
 
-QPoint QWExtra::currentOrigin(0, 0);
-
 void QWidget::createSysExtra()
 {
-  extra->savedClip = NewRgn();
-  extra->is_locked = FALSE;
 }
 
 void QWidget::deleteSysExtra()
 {
-  if(extra->is_locked)
-    unlockPort();
-  DisposeRgn(extra->savedClip);
 }
 
 void QWidget::createTLSysExtra()
@@ -1272,10 +1255,10 @@ void QWidget::setName( const char * )
 }
 
 
-//FIXME: untested
-void QWidget::propagateUpdates(int x, int y, int w, int h)
+//FIXME: this function still accepts an x and y, so we can do dirty children later.
+void QWidget::propagateUpdates(int , int , int w, int h)
 {
-  lockPort();
+  SetPortWindowPort((WindowPtr)handle());
   QRect paintRect( 0, 0, w, h );
 
   if(!testWFlags(WRepaintNoErase))
@@ -1286,8 +1269,6 @@ void QWidget::propagateUpdates(int x, int y, int w, int h)
   QApplication::sendEvent( this, &e );
   clearWState( WState_InPaintEvent );
     
-  unlockPort();
-
   QWidget *childWidget;
   const QObjectList *childList = children();
   if ( childList ) {
@@ -1301,7 +1282,7 @@ void QWidget::propagateUpdates(int x, int y, int w, int h)
   }
 }
 
-static QPoint posInWindow(QWidget *w)
+QPoint posInWindow(QWidget *w)
 {
   int x = 0, y = 0;
   for(QWidget *p = w; p && p->parentWidget(); p = p->parentWidget()) {
@@ -1311,23 +1292,10 @@ static QPoint posInWindow(QWidget *w)
   return QPoint(x, y);
 }
 
-void QWidget::lockPort()
+RgnHandle QWidget::clippedRegion()
 {
-    createExtra();
-    if ( !hd || extra->is_locked)
-	return;
-    extra->is_locked = TRUE;
-
-    //this is all important, set the window port before painting can happen
-    SetPortWindowPort( (WindowPtr)hd );
     QPoint mp = posInWindow(this);
-
-    //save the old settings
-    GetClip(extra->savedClip);
-    extra->savedOrigin = QWExtra::currentOrigin;
-
     Rect rect;
-    SetOrigin(0, 0); //start with an origin in 0, 0. I'll set it properly after this
 
     //clippedRgn will contain my clipped area
     RgnHandle clippedRgn = NewRgn();
@@ -1386,35 +1354,7 @@ void QWidget::lockPort()
 	}
     }
 
-    /* NOTE TO SELF, FIXME FIXME FIXME
-       after all that we can set the clipped out area, this is horribly inefficent however.
-       we will optimize this later by doing the following:
-       1) only call lock in QPainter::begin, and unlock in QPainter::end
-       2) take the origin into account in the event handler
-    */
-    OffsetRgn(clippedRgn, -mp.x(), -mp.y());
-    SetClip(clippedRgn);
-    DisposeRgn(clippedRgn);
-
-    //handle origin now
-    QWExtra::currentOrigin = QPoint(-mp.x(), -mp.y());
-    SetOrigin( -mp.x(), -mp.y() );
+    return clippedRgn;
 }
 
-void QWidget::unlockPort() 
-{ 
-  createExtra();
-  if(!extra->is_locked)
-    return;
 
-  QWExtra::currentOrigin = extra->savedOrigin;
-  SetOrigin(extra->savedOrigin.x(), extra->savedOrigin.y());
-  SetClip(extra->savedClip);
-  extra->is_locked = FALSE;
-} 
-
-BitMap
-*QWidget::portBitMap() const
-{
-  return (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)hd));
-}
