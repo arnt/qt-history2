@@ -16,8 +16,7 @@ QAbstractItemModel::ItemFlags EditableSqlModel::flags(
     return flags;
 }
 
-bool EditableSqlModel::setData(const QModelIndex &index, int /* role */,
-                               const QVariant &value)
+bool EditableSqlModel::setData(const QModelIndex &index, const QVariant &value, int /* role */)
 {
     if (index.column() < 1 || index.column() > 2)
         return false;
@@ -40,12 +39,9 @@ bool EditableSqlModel::setData(const QModelIndex &index, int /* role */,
 void EditableSqlModel::refresh()
 {
     setQuery("select * from person");
-    setHeaderData(0, Qt::Horizontal, QAbstractItemModel::DisplayRole,
-            QObject::tr("ID"));
-    setHeaderData(1, Qt::Horizontal, QAbstractItemModel::DisplayRole,
-            QObject::tr("First name"));
-    setHeaderData(2, Qt::Horizontal, QAbstractItemModel::DisplayRole,
-            QObject::tr("Last name"));
+    setHeaderData(0, Qt::Horizontal, QObject::tr("ID"), QAbstractItemModel::DisplayRole);
+    setHeaderData(1, Qt::Horizontal, QObject::tr("First name"), QAbstractItemModel::DisplayRole);
+    setHeaderData(2, Qt::Horizontal, QObject::tr("Last name"), QAbstractItemModel::DisplayRole);
 }
 
 bool EditableSqlModel::setFirstName(int personId, const QString &firstName)

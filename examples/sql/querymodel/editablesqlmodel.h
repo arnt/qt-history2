@@ -11,7 +11,7 @@ public:
     EditableSqlModel(QObject *parent = 0);
 
     ItemFlags flags(const QModelIndex &index) const;
-    bool setData(const QModelIndex &index, int role, const QVariant &value);
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
 
 private:
     bool setFirstName(int personId, const QString &firstName);

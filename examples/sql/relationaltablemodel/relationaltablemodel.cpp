@@ -11,14 +11,10 @@ void initializeModel(QSqlRelationalTableModel *model)
     model->setRelation(2, QSqlRelation("cities", "id", "name"));
     model->setRelation(3, QSqlRelation("countries", "id", "name"));
 
-    model->setHeaderData(0, Qt::Horizontal, QAbstractItemModel::DisplayRole,
-                         QObject::tr("ID"));
-    model->setHeaderData(1, Qt::Horizontal, QAbstractItemModel::DisplayRole,
-                         QObject::tr("Name"));
-    model->setHeaderData(2, Qt::Horizontal, QAbstractItemModel::DisplayRole,
-                         QObject::tr("City"));
-    model->setHeaderData(3, Qt::Horizontal, QAbstractItemModel::DisplayRole,
-                         QObject::tr("Country"));
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"), QAbstractItemModel::DisplayRole);
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Name"), QAbstractItemModel::DisplayRole);
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("City"), QAbstractItemModel::DisplayRole);
+    model->setHeaderData(3, Qt::Horizontal, QObject::tr("Country"), QAbstractItemModel::DisplayRole);
 
     model->select();
 }
