@@ -579,39 +579,27 @@ bool QAbstractSocketPrivate::flush()
     if (!socketLayer.isValid() || writeBuffer.isEmpty())
         return false;
 
-    bool timedOut = false;
-    int timeout = blockingTimeout;
-    QTime stopWatch;
-    stopWatch.start();
-    do {
-        int nextSize = writeBuffer.nextDataBlockSize();
-        char *ptr = writeBuffer.readPointer();
+    int nextSize = writeBuffer.nextDataBlockSize();
+    char *ptr = writeBuffer.readPointer();
 
-        // Attempt to write it all in one chunk.
-        Q_LONGLONG written = socketLayer.write(ptr, nextSize);
-        if (written < 0) {
-            socketError = socketLayer.socketError();
-            q->setErrorString(socketLayer.errorString());
-            emit q->error(socketError);
-            // an unexpected error so close the socket.
-#if defined (QABSTRACTSOCKET_DEBUG)
-            qDebug("QAbstractSocketPrivate::flush() write error, aborting.");
-#endif
-            q->abort();
-            break;
-        }
-
-        // Remove what we wrote so far.
-        writeBuffer.free(written);
-        emit q->bytesWritten(written);
-    } while (!writeBuffer.isEmpty()
-             && socketLayer.waitForWrite(timeout - stopWatch.elapsed(), &timedOut));
-
-    if (timedOut) {
+    // Attempt to write it all in one chunk.
+    Q_LONGLONG written = socketLayer.write(ptr, nextSize);
+    if (written < 0) {
         socketError = socketLayer.socketError();
         q->setErrorString(socketLayer.errorString());
+        emit q->error(socketError);
+        // an unexpected error so close the socket.
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocketPrivate::flush() write error, aborting.");
+#endif
+        q->abort();
         return false;
     }
+
+    // Remove what we wrote so far.
+    writeBuffer.free(written);
+    if (written > 0)
+        emit q->bytesWritten(written);
 
     if (!writeBuffer.isEmpty()) {
         if (d->writeSocketNotifier)
