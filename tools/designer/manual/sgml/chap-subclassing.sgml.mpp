@@ -153,7 +153,60 @@ wide by about 1.5 inches (3 cm) high. Change the form's name to
 <listitem>
 <para>
 Click the <guibutton>Text Label</guibutton> toolbar button, then click
-on the form towards the top left.
+on the form towards the top left. Change the label's text to
+'Customer ID'. Click the <guibutton>Line Edit</guibutton> toolbar
+button, then click the form to the right of the Customer ID label.
+Change the Line Edit's name to 'idLineEdit'.
+</para>
+</listitem>
+<listitem>
+<para>
+We'll copy the label and line edit. Ctrl+Click the label drag to the
+line edit, press <keycap>Ctrl+C</keycap>, then press
+<keycap>Ctrl+V</keycap>. Drag the new label and line edit below the
+first pair. Don't worry about the layout since we'll use \qd's layout
+tools to size and position the widgets. Change the new label's text to
+'Customer Name'. Change the new line edit's name to 'nameLineEdit'.
+(Click each widget in turn and change the values in the Property
+Editor.)
+</para>
+</listitem>
+<listitem>
+<para>
+Click the <guibutton>Push Button</guibutton> toolbar button and click
+on the form below the Customer Name label. Change this button's name to
+'okPushButton' and its text to 'OK'. Change the button's 'default'
+property to True: this will ensure that when the user presses
+<keycap>Return</keycap> the OK button will be pressed. Add a second
+button and set its name property to 'cancelPushButton' and its text
+property to 'Cancel'.
+</para>
+</listitem>
+<listitem>
+<para>
+We'll now lay out the form. Click one of the line edits then Ctrl+Click
+a line edit and drag the rubber band so that it touches both labels
+and both line edits, then release. Press <keycap>Ctrl+G</keycap> to lay
+out the labels and line edits in a grid.
+</para>
+</listitem>
+<listitem>
+<para>
+Click one of the buttons then Shift+Click the other button. Press
+<keycap>Ctrl+H</keycap> to lay out the buttons horizontally.
+</para>
+</listitem>
+<listitem>
+<para>
+Click the form and press <keycap>Ctrl+L</keycap> to lay out the groups
+on the form vertically. (The line edits and labels are one layout group
+and the buttons are another layout group.)
+</para>
+</listitem>
+<listitem>
+<para>
+We'll now make the signals and slots connections then we can leave \qd
+and write our subclass.
 </para>
 </listitem>
 </orderedlist>
