@@ -3185,6 +3185,15 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
     return QRect( 0, 0, -1, -1 );
 }
 
+/*!
+  Inserts \a lbi at its sorted position in the list box.
+ 
+  All items must be inserted with inSort() to maintain the sorting
+  order.  inSort() treats any pixmap (or user-defined type) as
+  lexicographically less than any string.
+ 
+  \sa insertItem()
+*/
 void QListBox::inSort( const QListBoxItem * lbi )
 {
     if ( !lbi )
@@ -3201,6 +3210,15 @@ void QListBox::inSort( const QListBoxItem * lbi )
 }
 
 
+/*!
+  Inserts a new item of \a text at its sorted position in the list box.
+ 
+  All items must be inserted with inSort() to maintain the sorting
+  order.  inSort() treats any pixmap (or user-defined type) as
+  lexicographically less than any string.
+ 
+  \sa insertItem()
+*/
 void QListBox::inSort( const QString& text )
 {
     inSort( new QListBoxText(text) );
