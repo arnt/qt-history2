@@ -14,6 +14,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #else
+#include <io.h>
+#include <fcntl.h>
 #include <process.h>
 #include <direct.h>
 #endif
@@ -45,6 +47,11 @@ public:
     bool normalExit();
     int exitStatus();
 
+#if defined(UNIX)
+#else
+    QByteArray readStdout();
+#endif
+
 signals:
     // output
     void dataStdout( const QString& buf );
@@ -70,14 +77,17 @@ private:
     QSocketNotifier *notifierStdin;
     QSocketNotifier *notifierStdout;
     QSocketNotifier *notifierStderr;
+    QQueue<QByteArray> stdinBuf;
 #if defined(UNIX)
     int socketStdin[2];
     int socketStdout[2];
     int socketStderr[2];
     pid_t pid;
-    QQueue<QByteArray> stdinBuf;
     ssize_t stdinBufRead;
 #else
+    int pipeStdin[2];
+    int pipeStdout[2];
+    int pipeStderr[2];
     int pid;
 #endif
 

@@ -11,7 +11,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
     QVBox vb;
 
-//#if 0
+#if 0
     QProcess proc( "aclock" );
 #if defined(UNIX)
     proc.setPath( QDir("../../../examples/aclock/") );
@@ -19,11 +19,11 @@ int main( int argc, char **argv )
     proc.setPath( QDir("../../../examples/aclock/Debug/") );
 #endif
     proc.start();
-//#endif
+#endif
 
-#if 0
+//#if 0
     QProcess proc( "cat" );
-    proc.setPath( QDir("/bin/") );
+    proc.setPath( QDir("cat/Debug") );
 
     QLineEdit *in = new QLineEdit( &vb );
     QLabel *out = new QLabel( &vb );
@@ -37,7 +37,7 @@ int main( int argc, char **argv )
 	    out, SLOT(setText(const QString&)) );
 
     proc.start();
-#endif
+//#endif
 
 #if 0
     QProcess proc1( "echo", "b\na\nc\n" );
