@@ -335,6 +335,7 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
     own geometry to the top of the parent widget and changes it
     appropriately whenever the parent is resized.
 
+    \omit
     Example of creating a menu bar with menu items (from \l menu/menu.cpp):
     \quotefile menu/menu.cpp
     \skipto file = new QMenu
@@ -346,15 +347,16 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
     \printline
     \skipto addMenu
     \printline
+    \endomit
 
     In most main window style applications you would use the menuBar()
     provided in QMainWindow, adding \l{QMenu}s to the menu bar and
     adding \l{QAction}s to the popup menus.
 
-    Example (from \l action/application.cpp):
-    \quotefile action/application.cpp
-    \skipto file = new
-    \printuntil fileNewAction
+    Example (from \l mainwindows/menus/mainwindow.cpp):
+    \quotefile mainwindows/menus/mainwindow.cpp
+    \skipto fileMenu =
+    \printuntil fileMenu->addAction(
 
     Menu items may be removed with removeAction().
 
