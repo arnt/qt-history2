@@ -41,7 +41,7 @@
 #include "qt_windows.h"
 #include "qapplication_p.h"
 #include "qwinfunctions.h"
-
+#include "qpaintdevicemetrics.h"
 
 static HDC   shared_dc	    = 0;		// common dc for all fonts
 static HFONT shared_dc_font = 0;		// used by Windows 95/98
@@ -276,8 +276,6 @@ QString QFontPrivate::lastResortFont() const
 void QFontPrivate::initFontInfo()
 {
     currHDC = 0;
-    if ( !actual.dirty )				// already initialized
-	return;
     lineWidth = 1;
     actual = request;				// most settings are equal
 #ifdef UNICODE
@@ -300,6 +298,18 @@ void QFontPrivate::initFontInfo()
 	actual.fixedPitch = !(fin->textMetricA()->tmPitchAndFamily & TMPF_FIXED_PITCH);
     }
 #endif
+    if ( actual.pointSize == -1 ) {
+	if ( paintdevice )
+	    actual.pointSize = actual.pixelSize * 720 / QPaintDeviceMetrics( paintdevice ).logicalDpiY();
+	else 
+	    actual.pointSize = actual.pixelSize * 720 / GetDeviceCaps( GetDC( 0 ), LOGPIXELSY );
+    } else if ( request.pixelSize == -1 ) {
+	if ( paintdevice )
+	    actual.pixelSize = actual.pointSize * QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720;
+	else
+	    actual.pixelSize = actual.pointSize * GetDeviceCaps( fin->dc(), LOGPIXELSY ) / 720;
+    }
+
     actual.dirty = FALSE;
 }
 
@@ -330,7 +340,7 @@ void QFontPrivate::load()
 	SelectObject( fin->dc(), fin->hfont );
 	BOOL res;
 #ifdef Q_OS_TEMP
-    res = GetTextMetricsW( fin->dc(), &fin->tm.w );
+	res = GetTextMetricsW( fin->dc(), &fin->tm.w );
 #else
 #ifdef UNICODE
 	if ( qt_winver & Qt::WV_NT_based )
@@ -344,8 +354,8 @@ void QFontPrivate::load()
 	    qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
 #endif
 	fontCache->insert( fin->key(), fin, 1 );
-	initFontInfo();
     }
+    initFontInfo();
     exactMatch = TRUE;
     request.dirty = FALSE;
 }
