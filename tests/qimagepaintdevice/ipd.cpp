@@ -9,6 +9,24 @@
 
 class Image {
 public:
+
+    void help() 
+    {
+    	QString help =
+	    "h = Help\n"
+	    "q = Quit\n\n"
+	    "l = Lines\n"
+	    "l = Rectangles\n"
+	    "p = Polygons\n"
+	    "b = Beziers\n"
+	    "i = Images (1,2,3 changes image)\n"
+	    "t = Text (1,2,3 changes font)";
+	QRect r = painter.boundingRect(0,0,0,0,0,help);
+	r.moveBy(50,50);
+	painter.fillRect(r,Qt::white);
+	painter.setPen(Qt::black);
+	painter.drawText(r,0,help);
+    }
     Image(bool fullscreen)
     {
 	if (fullscreen) {
@@ -28,17 +46,7 @@ public:
 	painter.setClipRegion(clip);
 	QImage bg("bg.png");
 	painter.drawImage(0,0,bg);
-	QString help =
-	    "Q = Quit\n\n"
-	    "L = Lines\n"
-	    "R = Rectangles\n"
-	    "P = Polygons\n"
-	    "I = Images (1,2,3 changes image)\n"
-	    "T = Text (1,2,3 changes font)";
-	QRect r = painter.boundingRect(0,0,0,0,0,help);
-	r.moveBy(50,50);
-	painter.fillRect(r,Qt::white);
-	painter.drawText(r,0,help);
+	help();
 	drawme = QImage("pngtest.png").convertDepth(32);
 	showImage();
     }
@@ -58,6 +66,10 @@ public:
 	  case 'q':
 	    qApp->exit();
 	    break;
+	  case 'h':
+	      help();
+	      showImage();
+	      break;
 	  case 'c':
 	    for ( int i=0; i<100; i++ ) {
 		QRect rnd(rand()%qipd->image().width(),rand()%qipd->image().height(),rand()%50,rand()%50);
@@ -70,6 +82,7 @@ public:
 	  case 'p':
 	  case 't':
 	  case 'i':
+	  case 'b':
 	    shape = ascii;
 	    break;
 	  case 'S':
@@ -127,18 +140,23 @@ public:
 
 	    QPointArray poly(50);
 	    srand(1234);
-	    if ( shape == 'p' )
+	    if ( shape == 'p' ) {
 		for (int p=0; p<50; p++) {
 		    poly[p] = QPoint(rand()%qipd->image().width()/2,rand()%qipd->image().height()/2);
 		}
-	    else if ( shape == 't' )
+	    } else if ( shape == 't' ) {
 		ptr->setFont(font);
-
+	    } else if ( shape == 'b' ) {
+		poly[0] = QPoint(0,0);
+		poly[1] = QPoint(10,50);
+		poly[2] = QPoint(-50,50);
+		poly[3] = QPoint(100,50);
+	    }
 	    QTime t;
 	    t.start();
 	    int x=0,y=0;
 	    int w=qipd->image().width(),h=qipd->image().height();
-	    int n=shape == 'l' ? 5000 : 500;
+	    int n=shape == 'l'||shape=='b' ? 5000 : 500;
 	    long pix=0;
 	    for (int i=0; i<n; i++) {
 		if ( n < 2000 || i%16==0 ) {
@@ -158,6 +176,14 @@ public:
 		} else if ( shape=='p' ) {
 		    poly.translate(x,y);
 		    ptr->drawPolygon(poly);
+		    poly.translate(-x,-y);
+		    x += 12345*i;
+		    y += 2345+i;
+		    x %= w;
+		    y %= h;
+		} else if ( shape=='b' ) {
+		    poly.translate(x,y);
+		    ptr->drawQuadBezier(poly);
 		    poly.translate(-x,-y);
 		    x += 12345*i;
 		    y += 2345+i;
@@ -239,7 +265,7 @@ public:
 	} else {
 	    return QApplication::x11EventFilter(e);
 	}
-    } 
+    }
 };
 
 main(int argc, char** argv)
@@ -249,3 +275,4 @@ main(int argc, char** argv)
     gi = &i;
     return app.exec();
 }
+
