@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#61 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#61 $");
 
 static const int autoRepeatPeriod = 200;
 
@@ -69,12 +69,13 @@ QButton::QButton( QWidget *parent, const char *name )
 {
     initMetaObject();
     bpixmap    = 0;
-    toggleBt   = FALSE;			// button is not on/off
-    buttonDown = FALSE;			// button is up
-    buttonOn   = FALSE;			// button is off
-    mlbDown    = FALSE;			// mouse left button up
-    autoresize = FALSE;			// not auto resizing
-    isTiming   = FALSE;			// not in keyboard mode
+    toggleBt   = FALSE;				// button is not on/off
+    buttonDown = FALSE;				// button is up
+    buttonOn   = FALSE;				// button is off
+    mlbDown    = FALSE;				// mouse left button up
+    autoresize = FALSE;				// not auto resizing
+    isTiming   = FALSE;				// not in keyboard mode
+    repeat     = FALSE;				// not in autorepeat mode
     if ( parent && parent->inherits("QButtonGroup") ) {
 	group = (QButtonGroup*)parent;
 	group->insert( this );			// insert into button group
@@ -234,8 +235,9 @@ void QButton::setAutoResize( bool enable )
 }
 
 
-/*!  Turns on auto-repeat for the button if \a enable is TRUE, and
-  turns it off if it is FALSE.
+/*!
+  Turns on auto-repeat for the button if \a enable is TRUE, or
+  turns it off if \a enable is FALSE.
 
   When auto-repeat is enabled, the clicked() signal is emitted at
   regular intervals while the buttons \link isDown() is down. \endlink
@@ -243,13 +245,13 @@ void QButton::setAutoResize( bool enable )
   setAutoRepeat() has no effect for \link setToggleButton() toggle
   buttons. \endlink
 
-  \sa isDown() autoRepeat() clicked()
+  \sa isDown(), autoRepeat(), clicked()
 */
 
 void QButton::setAutoRepeat( bool enable )
 {
     repeat = (uint)enable;
-    if ( mlbDown )
+    if ( repeat && mlbDown )
 	QTimer::singleShot( autoRepeatPeriod, this, SLOT(autoRepeatSlot()) );
 }
 
@@ -384,7 +386,7 @@ void QButton::mousePressEvent( QMouseEvent *e )
 	buttonDown = TRUE;
 	repaint( FALSE );
 	emit pressed();
-	if ( autoRepeat() )
+	if ( repeat )
 	    QTimer::singleShot( autoRepeatPeriod,
 				this, SLOT(autoRepeatSlot()) );
     }
@@ -458,7 +460,6 @@ void QButton::paintEvent( QPaintEvent * )
 
 /*!
   Handles focus in events for the button.
-
   \sa focusOutEvent()
 */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#85 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#85 $");
 
 
 /*!
@@ -319,12 +319,21 @@ void QPushButton::drawButton( QPainter *paint )
 #define SAVE_PUSHBUTTON_PIXMAPS
 #if defined(SAVE_PUSHBUTTON_PIXMAPS)
     QString pmkey;				// pixmap key
-    int w, h;
-    w = x2 + 1;
-    h = y2 + 1;
-    pmkey.sprintf( "$qt_push_%d_%d_%d_%d_%d_%d_%d_%d_%d", gs,
-		   palette().serialNumber(), isDown(), defButton, w, h,
-		   isToggleButton(), isOn(), isEnabled() );
+    int kf = 0;
+    if ( isDown() )
+	kf |= 1;
+    if ( isOn() )
+	kf |= 2;
+    if ( isEnabled() )
+	kf |= 4;
+    if ( isToggleButton() )
+	kf |= 8;
+    if ( isDefault() )
+	kf |= 16;
+    int w = x2 + 1;
+    int h = y2 + 1;
+    pmkey.sprintf( "$qt_push_%d_%d_%d_%d_%d", gs, palette().serialNumber(),
+		   kf, w, h );
     QPixmap *pm = QPixmapCache::find( pmkey );
     QPainter pmpaint;
     if ( pm ) {					// pixmap exists
