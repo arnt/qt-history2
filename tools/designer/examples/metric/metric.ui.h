@@ -31,11 +31,11 @@ void ConversionForm::convert()
 	Feet,
 	Inches
     };
-    
+
     // Retrieve the input
     double input = numberLineEdit->text().toDouble();
     double scaledInput = input;
-    
+
     // internally convert the input to millimeters
     switch ( fromComboBox->currentItem() ) {
     case Kilometers:
@@ -48,10 +48,10 @@ void ConversionForm::convert()
 	scaledInput *= 10;
 	break;
     }
-    
+
     //convert to inches
     double result = scaledInput * 0.0393701;
-    
+
     switch ( toComboBox->currentItem() ) {
     case Miles:
 	result /= 63360;
@@ -63,10 +63,10 @@ void ConversionForm::convert()
 	result /= 12;
 	break;
     }
-    
+
     // set the result
-    resultTextLabel->setText( QString::number( result, 'f', decimalsSpinBox->value() ) );
-    
-   numberLineEdit->setText( QString::number( input, 'f', decimalsSpinBox->value() ) );
+    int decimals = decimalsSpinBox->value();
+    resultTextLabel->setText( QString::number( result, 'f', decimals ) );
+    numberLineEdit->setText( QString::number( input, 'f', decimals ) );
 }
 

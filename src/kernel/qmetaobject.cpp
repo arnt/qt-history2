@@ -775,6 +775,7 @@ QMetaObject *QMetaObject::metaObject( const char *class_name )
     return 0;
 }
 
+/*! \internal */
 bool QMetaObject::hasMetaObject( const char *class_name )
 {
     if ( !qt_metaobjects )
@@ -1051,9 +1052,9 @@ bool QMetaProperty::isEnumType() const
 
 /*!  Returns TRUE if the property is designable for object \a o;
     otherwise returns FALSE.
-    
+
     If no object \a o is given, the function returns a static
-    approximation. 
+    approximation.
  */
 bool QMetaProperty::designable( QObject* o ) const
 {
@@ -1068,9 +1069,9 @@ bool QMetaProperty::designable( QObject* o ) const
 /*!
     Returns TRUE if the property is scriptable for object \a o;
     otherwise returns FALSE.
-    
+
     If no object \a o is given, the function returns a static
-    approximation. 
+    approximation.
  */
 bool QMetaProperty::scriptable( QObject* o ) const
 {
@@ -1083,9 +1084,9 @@ bool QMetaProperty::scriptable( QObject* o ) const
 /*!
     Returns TRUE if the property shall be stored for object \a o;
     otherwise returns FALSE.
-    
+
     If no object \a o is given, the function returns a static
-    approximation. 
+    approximation.
  */
 bool QMetaProperty::stored( QObject* o ) const
 {
