@@ -390,7 +390,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
     case PO_SpinWidgetPlus:
     case PO_SpinWidgetMinus: {
 	p->save();
-	int fw = 1;
+	int fw = pixelMetric( PM_DefaultFrameWidth );
 	QRect br;
 	br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2,
 		    r.height() - fw*2 );
@@ -426,7 +426,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
     case PO_SpinWidgetUp:
     case PO_SpinWidgetDown: {
 	p->save();
-	int fw = 1;
+	int fw = pixelMetric( PM_DefaultFrameWidth );;
 	QRect br;
 	br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2,
 		    r.height() - fw*2 );
@@ -671,19 +671,32 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 {
     switch ( control ) {
     case CC_SpinWidget:
-	if ( sub != SC_None ) {
-	    // draw only specified component
-	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
-	} else {
-	    // draw the whole thing
-	    drawSubControl( SC_SpinWidgetUp, p, w, r, cg, flags,
-			    subActive, data );
-	    drawSubControl( SC_SpinWidgetDown, p, w, r, cg, flags,
-			    subActive, data );
-	    drawSubControl( SC_SpinWidgetFrame, p, w, r, cg, flags,
-			    subActive, data );
+	switch ( sub ) {
+	case SC_SpinWidgetUp:
+	case SC_SpinWidgetDown:
+	    QCommonStyle::drawComplexControl( control, p, w, r, cg, flags,
+					      sub, subActive, data );
+	    break;
+	case SC_SpinWidgetFrame:
+	    qDrawShadePanel( p, r, cg, TRUE, 
+			     pixelMetric( PM_DefaultFrameWidth) );
+	    break;
 	}
 	break;
+
+    case CC_Slider: {
+	if ( sub != SC_None ) {
+	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
+	} else {
+	    drawSubControl( SC_SliderGroove, p, w, r, cg, flags, subActive,
+			    data );
+	    drawSubControl( SC_SliderTickmarks, p, w, r, cg, flags, subActive,
+			    data );
+	    drawSubControl( SC_SliderHandle, p, w, r, cg, flags, subActive,
+			    data );
+	}
+	break; }
+
     default:
 	QCommonStyle::drawComplexControl( control, p, w, r, cg, flags,
 					  sub, subActive, data );
@@ -698,33 +711,9 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 				 CFlags flags,
 				 SCFlags subActive, void *data ) const
 {
-    switch( subCtrl ) {
-    case SC_SpinWidgetUp:
-    case SC_SpinWidgetDown: {
-	QSpinWidget * sw = (QSpinWidget *) w;
-	PFlags flags = PStyle_Default;
-	PrimitiveOperation op = (subCtrl == SC_SpinWidgetUp) ?
-	                        PO_SpinWidgetUp : PO_SpinWidgetDown;
-
-	flags |= PStyle_Enabled;
-	if (subActive == subCtrl) {
-	    flags |= PStyle_On;
-	    flags |= PStyle_Sunken;
-	}
-	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus ) {
-	    if ( subCtrl == SC_SpinWidgetUp )
-		op = PO_SpinWidgetPlus;
-	    else
-		op = PO_SpinWidgetMinus;
-	}
-
-	qDrawShadePanel( p, r, cg, flags & PStyle_Sunken, 1,
-			 &cg.brush( QColorGroup::Button ) );
-	drawPrimitive(op, p, r, cg, flags);
-    	break; }
-
-    case SC_SpinWidgetFrame:
-	qDrawShadePanel( p, r, cg, TRUE, pixelMetric( PM_DefaultFrameWidth) );
+    switch( subCtrl ) {    
+    case SC_SliderGroove:
+	qDrawShadePanel( p, r, cg, TRUE, 1, &cg.brush( QColorGroup::Mid ) );
 	break;
 	
     default:

@@ -1239,6 +1239,36 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 #endif //QT_NO_TITLEBAR
       	break; }
 
+    case CC_SpinWidget: 
+	switch( controls ) {
+	case SC_SpinWidgetUp:
+	case SC_SpinWidgetDown: {
+	    QSpinWidget * sw = (QSpinWidget *) widget;
+	    PFlags flags = PStyle_Default;
+	    PrimitiveOperation op = (controls == SC_SpinWidgetUp) ? 
+		PO_SpinWidgetUp : PO_SpinWidgetDown;
+
+	    flags |= PStyle_Enabled;
+	    if (active == controls ) {
+		flags |= PStyle_On;
+		flags |= PStyle_Sunken;
+	    }
+	    if ( sw->buttonSymbols() == QSpinWidget::PlusMinus ) {
+		if ( controls == SC_SpinWidgetUp )
+		    op = PO_SpinWidgetPlus;
+		else
+		    op = PO_SpinWidgetMinus;
+	    }
+
+	    drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
+	    drawPrimitive(op, p, r, cg, flags);
+	    break; }
+
+	case SC_SpinWidgetFrame:
+	    qDrawWinPanel( p, r, cg, TRUE ); //cstyle == Sunken );
+	    break;
+	}
+	break;
 
     default:
 	break;

@@ -1562,17 +1562,15 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 #endif //QT_NO_LISTVIEW
 
     case CC_SpinWidget: {
-	if ( sub != SC_None ) {
-	    // draw only specified component
-	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
-	} else {
-	    // draw the whole thing
-	    drawSubControl( SC_SpinWidgetUp, p, w, r, cg, flags,
-			    subActive, data );
-	    drawSubControl( SC_SpinWidgetDown, p, w, r, cg, flags,
-			    subActive, data );
-	    drawSubControl( SC_SpinWidgetFrame, p, w, r, cg, flags,
-			    subActive, data );
+	switch ( sub ) {
+	case SC_SpinWidgetUp:
+	case SC_SpinWidgetDown:
+	    QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags,
+					      sub, subActive, data );
+	    break;
+	case SC_SpinWidgetFrame:
+	    qDrawWinPanel( p, r, cg, TRUE );
+	    break;
 	}
 	break; }
 
@@ -1616,33 +1614,6 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 				    void * data ) const
 {
     switch( subCtrl ) {
-    case SC_SpinWidgetUp:
-    case SC_SpinWidgetDown: {
-	QSpinWidget * sw = (QSpinWidget *) w;
-	PFlags flags = PStyle_Default;
-	PrimitiveOperation op = (subCtrl == SC_SpinWidgetUp) ? 
-	                        PO_SpinWidgetUp : PO_SpinWidgetDown;
-
-	flags |= PStyle_Enabled;
-	if (subActive == subCtrl) {
-	    flags |= PStyle_On;
-	    flags |= PStyle_Sunken;
-	}
-	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus ) {
-	    if ( subCtrl == SC_SpinWidgetUp )
-		op = PO_SpinWidgetPlus;
-	    else
-		op = PO_SpinWidgetMinus;
-	}
-
-	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
-	drawPrimitive(op, p, r, cg, flags);
-    	break; }
-
-    case SC_SpinWidgetFrame:
-	qDrawWinPanel( p, r, cg, TRUE ); //cstyle == Sunken );
-	break;
-
     case SC_ComboBoxArrow: {
 	PFlags flags = PStyle_Default;
 
