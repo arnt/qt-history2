@@ -56,7 +56,8 @@ void AnalogClock::timeout()
 {
     QTime new_time = QTime::currentTime();	// get the current time
     time = time.addSecs( 5 );
-    if ( new_time.minute() != time.minute() ) {	// minute has changed
+    if ( new_time.minute() != time.minute() 
+	|| new_time.hour() != time.hour() ) {	// minute or hour has changed
 	if (autoMask())
 	    updateMask();
 	else
