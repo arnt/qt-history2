@@ -11,77 +11,12 @@
 #include <winable.h>
 #include <oleacc.h>
 
-bool QAccessible::notify( QObject *o, Reason reason )
+bool qt_notify_accessibility( QObject *o, int reason )
 {
     Q_ASSERT(o);
 
-    DWORD event;
-
-    switch ( reason ) {
-    case StateChange:
-	event = EVENT_OBJECT_STATECHANGE;
-	break;
-    case ValueChange:
-	event = EVENT_OBJECT_VALUECHANGE;
-	break;
-    case NameChange:
-	event = EVENT_OBJECT_NAMECHANGE;
-	break;
-    case DescriptionChange:
-	event = EVENT_OBJECT_DESCRIPTIONCHANGE;
-	break;
-    case Selection:
-	event = EVENT_OBJECT_SELECTION;
-	break;
-    case SelectionAdd:
-	event = EVENT_OBJECT_SELECTIONADD;
-	break;
-    case SelectionRemove:
-	event = EVENT_OBJECT_SELECTIONREMOVE;
-	break;
-    case SelectionWithin:
-	event = EVENT_OBJECT_SELECTIONWITHIN;
-	break;
-    case Focus:
-	event = EVENT_OBJECT_FOCUS;
-	break;
-    case MenuStart:
-	event = EVENT_SYSTEM_MENUSTART;
-	break;
-    case MenuEnd:
-	event = EVENT_SYSTEM_MENUEND;
-	break;
-    case PopupMenuStart:
-	event = EVENT_SYSTEM_MENUPOPUPSTART;
-	break;
-    case PopupMenuEnd:
-	event = EVENT_SYSTEM_MENUPOPUPEND;
-	break;
-    case DragDropStart:
-	event = EVENT_SYSTEM_DRAGDROPSTART;
-	break;
-    case DragDropEnd:
-	event = EVENT_SYSTEM_DRAGDROPEND;
-	break;
-    case DialogStart:
-	event = EVENT_SYSTEM_DIALOGSTART;
-	break;
-    case DialogEnd:
-	event = EVENT_SYSTEM_DIALOGEND;
-	break;
-    case ObjectShow:
-	event = EVENT_OBJECT_SHOW;
-	break;
-    case ObjectHide:
-	event = EVENT_OBJECT_HIDE;
-	break;
-    case ObjectReorder:
-	event = EVENT_OBJECT_REORDER;
-	break;
-    default:
-	event = 0;
-	break;
-    }
+    // An event has to be associated with a window, 
+    // so find the first parent that is a widget.
     QWidget *w = 0;
     if ( o->isWidgetType() ) {
 	w = (QWidget*)o;
@@ -98,7 +33,7 @@ bool QAccessible::notify( QObject *o, Reason reason )
     if ( !w )
 	return FALSE;
 
-    NotifyWinEvent( event, w->winId(), OBJID_WINDOW, CHILDID_SELF );
+    NotifyWinEvent( reason, w->winId(), OBJID_WINDOW, CHILDID_SELF );
 
     return TRUE;
 }
@@ -108,8 +43,8 @@ bool QAccessible::notify( QObject *o, Reason reason )
 class QWindowsAccessible : public IAccessible
 {
 public:
-    QWindowsAccessible( QWidget *w )
-	: ref( 0 ), widget( w )
+    QWindowsAccessible( QAccessibleInterface *a )
+	: ref( 0 ), accessible( a )
     {
     }
 
@@ -148,21 +83,14 @@ public:
 
 private:
     ULONG ref;
-    QWidget *widget;
+    QAccessibleInterface *accessible;
 };
 
 /*
 */
-IAccessible *qt_createWindowsAccessible( QObject *object )
+IAccessible *qt_createWindowsAccessible( QAccessibleInterface *access )
 {
-/*
-    QAccessibe *a = object->accessibilityInfo();
-    if ( !a )
-	return NULL;
-*/
-    QWidget *widget = (QWidget*)object;
-
-    QWindowsAccessible *acc = new QWindowsAccessible( widget );
+    QWindowsAccessible *acc = new QWindowsAccessible( access );
     IAccessible *iface;
     acc->QueryInterface( IID_IAccessible, (void**)&iface );
 
@@ -233,6 +161,7 @@ HRESULT QWindowsAccessible::Invoke( long, const _GUID &, unsigned long, unsigned
 */
 HRESULT QWindowsAccessible::accHitTest( long xLeft, long yTop, VARIANT *pvarID )
 { 
+#if 0
     QWidget *w = QApplication::widgetAt( xLeft, yTop, TRUE );
     if ( !w ) {
 	(*pvarID).vt = VT_EMPTY;
@@ -263,11 +192,13 @@ HRESULT QWindowsAccessible::accHitTest( long xLeft, long yTop, VARIANT *pvarID )
     }
     
     (*pvarID).vt = VT_EMPTY;
+#endif
     return S_FALSE;
 }
 
 HRESULT QWindowsAccessible::accLocation( long *pxLeft, long *pyTop, long *pcxWidth, long *pcyHeight, VARIANT varID )
 { 
+#if 0
     if ( varID.lVal == CHILDID_SELF ) {
 	QPoint wpos = widget->mapToGlobal( QPoint( 0, 0 ) );
 	*pxLeft = wpos.x();
@@ -276,7 +207,7 @@ HRESULT QWindowsAccessible::accLocation( long *pxLeft, long *pyTop, long *pcxWid
 	*pcyHeight = widget->height();
     } else {
     }
-
+#endif
     return S_OK;
 }
 
@@ -294,6 +225,7 @@ HRESULT QWindowsAccessible::accNavigate( long navDir, VARIANT varStart, VARIANT 
 
 HRESULT QWindowsAccessible::get_accChild( VARIANT varChildID, IDispatch** ppdispChild )
 { 
+#if 0
     *ppdispChild = NULL;
     if ( varChildID.vt == VT_EMPTY )
 	return E_INVALIDARG;
@@ -320,12 +252,14 @@ HRESULT QWindowsAccessible::get_accChild( VARIANT varChildID, IDispatch** ppdisp
 	return S_OK;
 
     delete acc;
+#endif
     return S_FALSE;
 }
 
 HRESULT QWindowsAccessible::get_accChildCount( long* pcountChildren )
 { 
-    QObjectList *ol = widget->queryList( "QWidget", 0, FALSE, FALSE );
+#if 0
+    QObjectList *ol = widget->queryList( "QObject", 0, FALSE, FALSE );
 
     if ( ol )
 	*pcountChildren = ol->count();
@@ -333,13 +267,14 @@ HRESULT QWindowsAccessible::get_accChildCount( long* pcountChildren )
 	*pcountChildren = 0;
 
     delete ol;
-
+#endif
     return S_OK;
 }
 
 HRESULT QWindowsAccessible::get_accParent( IDispatch** ppdispParent )
 { 
     *ppdispParent = NULL;
+#if 0
     if ( !widget->parentWidget() )
 	return S_FALSE;
 
@@ -348,7 +283,7 @@ HRESULT QWindowsAccessible::get_accParent( IDispatch** ppdispParent )
 
     if ( *ppdispParent )
 	return S_OK;
-
+#endif
     return S_FALSE;
 }
 
@@ -365,14 +300,13 @@ HRESULT QWindowsAccessible::get_accDefaultAction( VARIANT varID, BSTR* pszDefaul
 { 
     *pszDefaultAction = NULL;
     if ( varID.lVal == CHILDID_SELF ) {
-	QString def = widget->accessibilityInfo()->defaultAction();
+	QString def = accessible->defaultAction();
 	if ( !!def ) {
 	    *pszDefaultAction = SysAllocString( (TCHAR*)qt_winTchar( def, TRUE ) );
 	    return S_OK;
 	}
     } else {
     }
-
     return S_FALSE;
 }
 
@@ -380,7 +314,7 @@ HRESULT QWindowsAccessible::get_accDescription( VARIANT varID, BSTR* pszDescript
 { 
     *pszDescription = NULL;
     if ( varID.lVal == CHILDID_SELF ) {
-	QString descr = widget->accessibilityInfo()->description();
+	QString descr = accessible->description();
 	if ( !!descr ) {
 	    *pszDescription = SysAllocString( (TCHAR*)qt_winTchar( descr, TRUE ) );
 	    return S_OK;
@@ -395,9 +329,9 @@ HRESULT QWindowsAccessible::get_accHelp( VARIANT varID, BSTR *pszHelp )
 {
     *pszHelp = NULL;
     if ( varID.lVal == CHILDID_SELF ) {
-	QString help = widget->accessibilityInfo()->help();
+	QString help = accessible->help();
 	if ( !!help ) {
-	    *pszHelp = SysAllocString( (TCHAR*)qt_winTchar( widget->accessibilityInfo()->help(), TRUE ) );
+	    *pszHelp = SysAllocString( (TCHAR*)qt_winTchar( help, TRUE ) );
 	    return S_OK;
 	}
     } else {
@@ -430,7 +364,7 @@ HRESULT QWindowsAccessible::get_accName( VARIANT varID, BSTR* pszName )
 {
     *pszName = NULL;
     if ( varID.lVal == CHILDID_SELF ) {
-	QString n = widget->accessibilityInfo()->name();
+	QString n = accessible->name();
 	if ( !!n ) {
 	    *pszName = SysAllocString( (TCHAR*)qt_winTchar( n, TRUE ) );
 	    return S_OK;
@@ -450,33 +384,6 @@ HRESULT QWindowsAccessible::get_accRole( VARIANT varID, VARIANT *pvarRole )
 { 
     if ( varID.lVal == CHILDID_SELF ) {
 	(*pvarRole).vt = VT_I4;
-	long role = ROLE_SYSTEM_CLIENT;
-	if ( widget->inherits( "QMainWindow" ) )
-	    role = ROLE_SYSTEM_APPLICATION;
-	else if ( widget->inherits( "QCheckBox" ) )
-	    role = ROLE_SYSTEM_CHECKBUTTON;
-	else if ( widget->inherits( "QComboBox" ) )
-	    role = ROLE_SYSTEM_COMBOBOX;
-	else if ( widget->inherits( "QWorkspaceChild" ) )
-	    role = ROLE_SYSTEM_DOCUMENT;
-	else if ( widget->inherits( "QDial" ) )
-	    role = ROLE_SYSTEM_DIAL;
-	else if ( widget->inherits( "QDialog" ) )
-	    role = ROLE_SYSTEM_DIALOG;
-	else if ( widget->inherits( "QSizeGrip" ) )
-	    role = ROLE_SYSTEM_GRIP;
-	else if ( widget->inherits( "QGroupBox" ) )
-	    role = ROLE_SYSTEM_GROUPING;
-	else if ( widget->inherits( "QListBox" ) )
-	    role = ROLE_SYSTEM_LIST;
-	else if ( widget->inherits( "QMenuBar" ) )
-	    role = ROLE_SYSTEM_MENUBAR;
-	else if ( widget->inherits( "QPopupMenu" ) )
-	    role = ROLE_SYSTEM_MENUPOPUP;
-	else if ( widget->inherits( "QListView" ) )
-	    role = ROLE_SYSTEM_OUTLINE;
-
-	(*pvarRole).lVal = role;
 	return S_OK;
     } else {
 	(*pvarRole).vt = VT_EMPTY;
@@ -491,13 +398,6 @@ HRESULT QWindowsAccessible::get_accState( VARIANT varID, VARIANT *pvarState )
     if ( varID.lVal == CHILDID_SELF ) {
 	(*pvarState).vt = VT_I4;
 	(*pvarState).lVal = 0;
-	if ( !widget->isEnabled() )
-	    (*pvarState).lVal |= STATE_SYSTEM_UNAVAILABLE;
-	if ( widget->isActiveWindow() && widget->focusPolicy() != QWidget::NoFocus )
-	    (*pvarState).lVal |= STATE_SYSTEM_FOCUSABLE;
-	if ( widget->hasFocus() )
-	    (*pvarState).lVal |= STATE_SYSTEM_FOCUSED;
-
 	return S_OK;
     } else {
 	return S_FALSE;
@@ -510,9 +410,9 @@ HRESULT QWindowsAccessible::get_accValue( VARIANT varID, BSTR* pszValue )
 { 
     *pszValue = NULL;
     if ( varID.lVal == CHILDID_SELF ) {
-	QString value = widget->accessibilityInfo()->value();
+	QString value = accessible->value();
 	if ( !value.isNull() ) {
-	    *pszValue = SysAllocString( (TCHAR*)qt_winTchar( widget->accessibilityInfo()->value(), TRUE ) );
+	    *pszValue = SysAllocString( (TCHAR*)qt_winTchar( value, TRUE ) );
 	    return S_OK;
 	}
     } else {
@@ -530,7 +430,8 @@ HRESULT QWindowsAccessible::accSelect( long flagsSelect, VARIANT varID )
 { 
     if ( varID.lVal == CHILDID_SELF ) {
 	if ( flagsSelect & ( SELFLAG_TAKEFOCUS ) )
-	    widget->setFocus();
+	    qDebug( "Set focus" );
+
 	return S_OK;
     } else {
 	if ( flagsSelect & ( SELFLAG_TAKEFOCUS | SELFLAG_TAKESELECTION ) )
@@ -548,16 +449,14 @@ HRESULT QWindowsAccessible::accSelect( long flagsSelect, VARIANT varID )
 
 HRESULT QWindowsAccessible::get_accFocus( VARIANT *pvarID )
 { 
-    if ( !widget->isActiveWindow() )
-	return S_FALSE;
-
-    if ( widget->hasFocus() ) {
+/*
+    if ( accessible->hasFocus() ) {
 	(*pvarID).vt = VT_I4;
 	(*pvarID).lVal = CHILDID_SELF;
     } else {
 	(*pvarID).vt = VT_EMPTY;
     }	
-	
+*/
     return S_OK;
 }
 

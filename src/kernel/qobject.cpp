@@ -65,10 +65,11 @@ public:
     {}
     ~Private()
     {
-	delete accessible;
+	if ( accessible )
+	    accessible->release();
     }
 
-    QAccessible *accessible;
+    QAccessibleInterface *accessible;
 #endif
 };
 
@@ -1863,9 +1864,10 @@ void QObject::cleanupEventFilter()
 
   If an accessibility tool is running, Qt will generate an \link QEvent::Accessibility 
   accessibilty event \endlink when requested, and call the \link accessibilityEvent() event handler \endlink
-  of this object. The event handler has to update the contents of it's associated QAccessible object.
+  of this object. The event handler has to update the contents of it's associated 
+  QAccessibleInterface implementation.
 
-  \sa accessibilityInfo(), accessibilityEvent()
+  \sa accessibilityInterface(), accessibilityEvent()
 */
 
 void QObject::accessibilityChanged( int reason )
@@ -1877,28 +1879,30 @@ void QObject::accessibilityChanged( int reason )
   This slot is connected to the accessibilityChanged() signal and
   notifies the platform dependent accessibility system of the change.
 */
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+extern bool qt_notify_accessibility( QObject *, int );
+#endif
+
 void QObject::notifyAccessibility( int reason )
 {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible *acc = accessibilityInfo();
-    if ( acc )
-	acc->notify( this, (QAccessible::Reason)reason );
+    qt_notify_accessibility( this, reason );
 #endif
 }
 
 /*!
-  Returns a pointer to the QAccessible object for this object. Calls
-  createAccessibilityInfo() if neccessary.
+  Returns the QAccessibleInterface for this object. This function 
+  calls createAccessibilityInterface() if neccessary.
  
   \sa accessibilityEvent()
 */
-QAccessible *QObject::accessibilityInfo() const
+QAccessibleInterface *QObject::accessibilityInterface() const
 {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     if ( d->accessible ) 
 	return d->accessible;
 
-    d->accessible = createAccessibilityInfo();
+    d->accessible = createAccessibilityInterface();
     if ( d->accessible ) {
 	QObject *that = (QObject*)this;
 	// initialize the new accessibility object
@@ -1913,11 +1917,11 @@ QAccessible *QObject::accessibilityInfo() const
 
 /*!
   Reimplement this function for QObject subclasses that are accessible,
-  and return a new object of type QAccessible or a subclass of this type.
+  and return a new object that implements the QAccessibleInterface.
 
   The default implementation return always NULL.
 */
-QAccessible *QObject::createAccessibilityInfo() const
+QAccessibleInterface *QObject::createAccessibilityInterface() const
 {
     return 0;
 }
@@ -1927,13 +1931,12 @@ QAccessible *QObject::createAccessibilityInfo() const
   This event handler is called when an accessibility tool requests 
   information about this object.
   
-  Reimplement this function to update the QAccessible object of this
-  widget with the appropriate data for your widget. To signal a state change
-  in your widget, use QAccessible::notify().
+  Reimplement this function to update the QAccessibleInterface implementation of 
+  this widget with the appropriate data for your widget.
 
   The default implementation does nothing.
 
-  \sa accessibilityHint()
+  \sa accessibilityInterface(), accessibilityChanged()
 */
 void QObject::accessibilityEvent( QEvent * )
 {

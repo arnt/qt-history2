@@ -54,7 +54,7 @@ class QVariant;
 class QMetaProperty;
 class QPostEventList;
 struct QUObject;
-class QAccessible;
+struct QAccessibleInterface;
 
 #ifndef QT_MOC_CPP
 
@@ -134,7 +134,7 @@ public:
     virtual QVariant property( const char *name ) const;
 #endif // QT_NO_PROPERTIES
 
-    QAccessible *accessibilityInfo() const;
+    QAccessibleInterface *accessibilityInterface() const;
 
 signals:
     void	 destroyed();
@@ -167,7 +167,7 @@ protected:
     virtual void customEvent( QCustomEvent * );
 
     virtual void accessibilityEvent( QEvent * );
-    virtual QAccessible* createAccessibilityInfo() const;
+    virtual QAccessibleInterface* createAccessibilityInterface() const;
 
     virtual void connectNotify( const char *signal );
     virtual void disconnectNotify( const char *signal );

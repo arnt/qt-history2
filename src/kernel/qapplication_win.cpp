@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#481 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#482 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -57,7 +57,7 @@
 #ifndef WM_GETOBJECT
 #define WM_GETOBJECT                    0x003D
 
-extern IAccessible *qt_createWindowsAccessible( QObject *widget );
+extern IAccessible *qt_createWindowsAccessible( QAccessibleInterface *object );
 #endif
 #endif // QT_ACCESSIBILITY_SUPPORT
 
@@ -1875,13 +1875,18 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			result = FALSE;
 			break;
 		    }
+		    QAccessibleInterface *acc = widget->accessibilityInterface();
+		    if ( !acc ) {
+			result = FALSE;
+			break;
+		    }
 
 		    // ask the object to update it's information
 		    QEvent e( QEvent::Accessibility );
 		    QApplication::sendEvent( widget, &e );
 
 		    // and get an instance of the IAccessibile implementation
-		    IAccessible *iface = qt_createWindowsAccessible( widget );		// ref == 1
+		    IAccessible *iface = qt_createWindowsAccessible( acc );		// ref == 1
 		    LRESULT res = LresultFromObject( IID_IAccessible, wParam, iface );  // ref == 2
 		    iface->Release(); // the client will release the object again, and then it will destroy itself
 

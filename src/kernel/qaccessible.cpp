@@ -22,20 +22,12 @@
 */
 
 /*!
-  Creates a QAccessible event. 
+  Creates a QAccessibleObject. 
 */
-QAccessible::QAccessible()
+QAccessibleObject::QAccessibleObject( QObject *o )
+: object( o )
 {
 }
-
-#ifndef Q_WS_WIN
-
-void QAccessible::notify( QObject *o, Reason reason )
-{
-}
-
-#endif
-
 
 /*!
   Sets the current state for this object to \a state.
@@ -44,7 +36,7 @@ void QAccessible::notify( QObject *o, Reason reason )
 
   \sa state()
 */
-void QAccessible::setState( QAccessible::State state )
+void QAccessibleObject::setState( QAccessible::State state )
 {
 }
 
@@ -53,7 +45,7 @@ void QAccessible::setState( QAccessible::State state )
 
   \sa setState()
 */
-QAccessible::State QAccessible::state() const
+QAccessible::State QAccessibleObject::state() const
 {
     return state_;
 }
@@ -66,7 +58,7 @@ QAccessible::State QAccessible::state() const
 
   \sa name(), setDescription(), setHelp()
 */
-void QAccessible::setName( const QString &name )
+void QAccessibleObject::setName( const QString &name )
 {
     name_ = name;
     
@@ -77,7 +69,7 @@ void QAccessible::setName( const QString &name )
 
   \sa setName(), description(), help()
 */
-QString QAccessible::name() const
+QString QAccessibleObject::name() const
 {
     return name_;
 }
@@ -95,7 +87,7 @@ QString QAccessible::name() const
 
   \sa description(), name(), help()
 */
-void QAccessible::setDescription( const QString &desc )
+void QAccessibleObject::setDescription( const QString &desc )
 {
     descr_ = desc;
 }
@@ -105,7 +97,7 @@ void QAccessible::setDescription( const QString &desc )
 
   \sa setDescription(), name(), help()
 */
-QString QAccessible::description() const
+QString QAccessibleObject::description() const
 {
     return descr_;
 }
@@ -118,7 +110,7 @@ QString QAccessible::description() const
 
   \sa help(), setName(), setDescription()
 */
-void QAccessible::setHelp( const QString &help )
+void QAccessibleObject::setHelp( const QString &help )
 {
     help_ = help;
 }
@@ -128,7 +120,7 @@ void QAccessible::setHelp( const QString &help )
 
   \sa setHelp(), name(), description()
 */
-QString QAccessible::help() const
+QString QAccessibleObject::help() const
 {
     return help_;
 }
@@ -141,7 +133,7 @@ QString QAccessible::help() const
 
   \sa value(), setState()
 */
-void QAccessible::setValue( const QString &value )
+void QAccessibleObject::setValue( const QString &value )
 {
     value_ = value;
 }
@@ -151,7 +143,7 @@ void QAccessible::setValue( const QString &value )
 
   \sa setValue(), state()
 */
-QString QAccessible::value() const
+QString QAccessibleObject::value() const
 {
     return value_;
 }
@@ -164,7 +156,7 @@ QString QAccessible::value() const
 
   \sa defaultAction(), setHelp()
 */
-void QAccessible::setDefaultAction( const QString &def )
+void QAccessibleObject::setDefaultAction( const QString &def )
 {
     default_ = def;
 }
@@ -174,7 +166,7 @@ void QAccessible::setDefaultAction( const QString &def )
 
   \sa setDefaultAction(), help()
 */
-QString QAccessible::defaultAction() const
+QString QAccessibleObject::defaultAction() const
 {
     return default_;
 }
