@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#52 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#53 $
 #
 # this is a massive hack, written very quickly
 #
@@ -186,7 +186,7 @@ sub processdocs {
 	$doc =~ s/\s*$/\n/s;
 	$doc =~ s/^\s*//s;
 	$doc =~ s-\s*\\warning\s+-<p><strong>Warning: </strong>-gs;
-	$doc =~ s/\\internal\s.*//s if (!$internal);
+#	$doc =~ s/\\internal\s.*//s if (!$internal);
 
 	$doc =~ s-\\link\s+([\w:\.]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
 	    if (defined($anchor{$1})) {
@@ -228,7 +228,7 @@ sub processdocs {
 	$_ .= "</ul>\n";
 	$doc .= $_ if (/<li>/s);
 
-	$doc =~ s-\\internal\s-<p>Internal comments:<p>\n-s;
+	$doc =~ s-\\internal\s-<p><a href=internal.html>Internal comments:</a><p>\n-s;
 
 	$doc =~ s!\\code\b(.*?)\\endcode!&processcode($1)!esg;
 
@@ -269,10 +269,11 @@ sub processdocs {
 	    }
 	-egsx;
 
-	$doc =~ s@\bSee also:\s+(.*)\.?\n@
+	$doc =~ s@\bSee also:\s+(.*)?\n@
 	{
 	    my ($seealso);
 	    $seealso = $1;
+	    $seealso =~ s/\.?\s*$//;
 	    $seealso =~ s/,?\s+/, /g;
 	    $seealso =~ s/, (\S+)$/ and $1/;
 	    sprintf( "See also: %s.\n", $seealso );
@@ -638,6 +639,8 @@ sub templates {
 }
     
 
+#    $inheritance{$url} = $inh if (defined($inh) && $inh ne "");
+
 
 sub readc {
     local ($filename) = @_;
@@ -648,9 +651,9 @@ sub readc {
     $c =~ s-(?:(?:(/\*.*?\*/))|(?://[^\n]*))-$1-gs;
 
     while ($c =~ m@
-	   (?:/\*\![-\s]*
-	    ((?:[^\*]|(?:\*[^/]))*)
-	    \*/)\s*
+	   (?:/\*[-\!][-\s]*
+	    ((?:[^\*]|(?:\*[^/]))*?)
+	    -*\*/)\s*
 	   (?:([A-Za-z_](?:[^\{;\*]|(?:\*[^/]))+)\s*\x7b)?@gsx) {
 	my ($doc, $def, $type, $class, $name, $args, $const, $skip);
 	$skip = 0;
