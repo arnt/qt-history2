@@ -51,6 +51,8 @@ QString size_type_to_string( QSizePolicy::SizeType t )
 	return "MinimumExpanding";
     if ( t == QSizePolicy::Expanding )
 	return "Expanding";
+    if ( t == QSizePolicy::Ignored )
+	return "Ignored";
     return 0;
 }
 
@@ -68,5 +70,7 @@ QSizePolicy::SizeType int_to_size_type( int i )
 	return QSizePolicy::MinimumExpanding;
     if ( i == 5 )
 	return QSizePolicy::Expanding;
+    if ( i == 6 )
+	return QSizePolicy::Ignored;
     return QSizePolicy::Preferred;
 }

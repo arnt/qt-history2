@@ -1941,7 +1941,7 @@ QLineEdit *PropertySizePolicyItem::lined()
 void PropertySizePolicyItem::createChildren()
 {
     QStringList lst;
-    lst << "Fixed" << "Minimum" << "Maximum" << "Preferred" << "MinimumExpanding" << "Expanding";
+    lst << "Fixed" << "Minimum" << "Maximum" << "Preferred" << "MinimumExpanding" << "Expanding" << "Ignored";
 
     PropertyItem *i = this;
     i = new PropertyListItem( listview, i, this, tr( "hSizeType" ), FALSE );
