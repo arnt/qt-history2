@@ -1054,8 +1054,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                                 opt->state & (Style_Down | Style_On), 1, &fill);
                 if (stippled) {
                     p->setPen(opt->palette.button().color());
-                    p->drawRect(opt->rect.x() + 1, opt->rect.y() + 1, opt->rect.width() - 2,
-                                opt->rect.height() - 2);
+                    p->drawRect(opt->rect.adjusted(1,1,-2,-2));
                 }
             } else {
                 qDrawWinButton(p, opt->rect, opt->palette,
