@@ -890,7 +890,7 @@ struct QFileDialogPrivate {
     QSizeGrip *sizeGrip;
 
     QTimer *mimeTypeTimer;
-    
+
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1997,7 +1997,7 @@ void QFileDialog::init()
     d->mimeTypeTimer = new QTimer( this );
     connect( d->mimeTypeTimer, SIGNAL( timeout() ),
 	     this, SLOT( doMimeTypeLookup() ) );
-    
+
     d->url = QUrlOperator( QDir::currentDirPath() );
     d->oldUrl = d->url;
 
@@ -4631,10 +4631,13 @@ void QFileDialog::doMimeTypeLookup()
 	QPixmap *p = (QPixmap*)iconProvider()->pixmap( fi );
 	if ( p != item->pixmap( 0 ) && p != fifteenTransparentPixels ) {
 	    item->mimePixmap = p;
-	    if ( files->isVisible() )
+	    if ( files->isVisible() ) {
 		item->repaint();
-	    else
-		r = r.unite( d->moreFiles->itemRect( item->i ) );
+	    } else {
+		QRect ir( d->moreFiles->itemRect( item->i ) );
+		if ( ir != QRect( 0, 0, -1, -1 ) )
+		    r = r.unite( ir );
+	    }
 	}
    	d->pendingItems.removeFirst();
     }
