@@ -767,7 +767,7 @@ void QWSDisplay::Data::waitForConnection()
         if (csocket) {
             csocket->flush();
             csocket->waitForReadyRead(2000);
-            qDebug( "waitForReadyRead %d bytesAvailable %lld", i, csocket->bytesAvailable() );
+//            qDebug( "waitForReadyRead %d bytesAvailable %lld", i, csocket->bytesAvailable() );
         }
         usleep(50000);
         //sleep(1);
