@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#24 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#25 $
 **
 ** Implementation of QDns class.
 **
@@ -51,6 +51,10 @@
 #if defined(Q_OS_OSF)
 // Same problem here...
 #  define _OSF_SOURCE
+#endif
+#if defined(Q_OS_MACX)
+#  include <nameser.h>
+#  include <netinet/in.h>
 #endif
 
 #include "qdns.h"
