@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#118 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#119 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#118 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#119 $");
 
 
 /*!
@@ -1482,6 +1482,16 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
     memcpy( image.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
     return image;
 }
+
+#if defined( HAS_BOOL_TYPE )
+/*!
+  OBSOLETE - Provided for backward compatibility on some compilers.
+*/
+QImage QImage::createAlphaMask( bool yes ) const
+{
+    return createAlphaMask( (int)yes );
+}
+#endif
 
 /*!
   Builds and returns a 1-bpp mask from the alpha buffer in this image.
