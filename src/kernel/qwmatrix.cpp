@@ -407,8 +407,8 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 
     Returns the transformed rectangle \a rect.
 
-    Rotation and shearing a rectangle results in a more general
-    region, which is returned here.
+    A rectangle which has been rotated or sheared may result in a
+    non-rectangular region being returned.
 
     Calling this method can be expensive, if rotations or shearing are
     used. If you just need to know the bounding rectangle of the
