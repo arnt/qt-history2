@@ -118,9 +118,9 @@ protected:
 
 
     QString fileFixify(const QString& file, const QString &out_dir=QString::null, 
-		    const QString &in_dir=QString::null, bool force_fix=FALSE) const;
+		       const QString &in_dir=QString::null, bool force_fix=FALSE, bool canon=TRUE) const;
     QStringList fileFixify(const QStringList& files, const QString &out_dir=QString::null, 
-		    const QString &in_dir=QString::null, bool force_fix=FALSE) const;
+			   const QString &in_dir=QString::null, bool force_fix=FALSE, bool canon=TRUE) const;
 public:
     MakefileGenerator(QMakeProject *p);
     virtual ~MakefileGenerator();

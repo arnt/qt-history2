@@ -1705,11 +1705,16 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		    QFileInfo fi(wild);
 		    if(!target.isEmpty())
 			target += "\t";
-		    target += QString(fi.isDir() ? "-$(COPY_DIR)" : "-$(COPY_FILE)") + " \"" +
-			      Option::fixPathToTargetOS(fileFixify(wild), FALSE) + "\" \"" + root + dst + "\"\n";
+		    QString cmd =  QString(fi.isDir() ? "-$(COPY_DIR)" : "-$(COPY_FILE)") + " \"" +
+				   Option::fixPathToTargetOS(fileFixify(wild, QString::null, 
+									QString::null, FALSE, FALSE), FALSE) + 
+				   "\" \"" + root + dst + "\"\n";
+		    target += cmd;
 		    if(!project->isActiveConfig("debug") &&
 		       !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
-			target += QString("\t-") + var("QMAKE_STRIP") + " \"" + root + fileFixify(dst + filestr) + "\"\n";
+			target += QString("\t-") + var("QMAKE_STRIP") + " \"" + 
+				  root + fileFixify(dst + filestr, QString::null, QString::null, FALSE, FALSE) + 
+				  "\"\n";
 		    if(!uninst.isEmpty())
 			uninst.append("\n\t");
 		    uninst.append(
@@ -1718,7 +1723,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 #else
 		    QString("-$(DEL_FILE) -r")
 #endif
-		    + " \"" + root + fileFixify(dst + filestr) + "\"");
+		    + " \"" + root + fileFixify(dst + filestr, QString::null, QString::null, FALSE, FALSE) + "\"");
 		    continue;
 		}
 		QDir dir(dirstr, filestr);		    //wild
@@ -1734,16 +1739,21 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 #else
 			QString("-$(DEL_FILE) -r")
 #endif
-			+ " \"" + root + fileFixify(dst + file) + "\"");
+			+ " \"" + root + fileFixify(dst + file, QString::null, QString::null, FALSE, FALSE) + 
+			"\"");
 		    QFileInfo fi(Option::fixPathToTargetOS(fileFixify(dirstr + file), TRUE));
 		    if(!target.isEmpty())
 			target += "\t";
-		    target += QString(fi.isDir() ? "-$(COPY_DIR)" : "-$(COPY_FILE)") + " \"" + 
-			      Option::fixPathToTargetOS(fileFixify(dirstr + file), FALSE) +
-			      "\" \"" + root + fileFixify(dst) + "\"\n";
+		    QString cmd = QString(fi.isDir() ? "-$(COPY_DIR)" : "-$(COPY_FILE)") + " \"" + 
+				  Option::fixPathToTargetOS(fileFixify(dirstr + file, QString::null, 
+								       QString::null, FALSE, FALSE), FALSE) +
+				  "\" \"" + root + fileFixify(dst) + "\"\n";
+		    target += cmd;
 		    if(!project->isActiveConfig("debug") &&
 		       !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
-			target += QString("\t-") + var("QMAKE_STRIP") + " \"" + root + fileFixify(dst + file) + "\"\n";
+			target += QString("\t-") + var("QMAKE_STRIP") + " \"" + 
+				  root + fileFixify(dst + file, QString::null, QString::null, FALSE, FALSE) + 
+				  "\"\n";
 		}
 	    }
 	}
@@ -1992,27 +2002,30 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 }
 
 QStringList
-MakefileGenerator::fileFixify(const QStringList& files, const QString &out_dir, const QString &in_dir, bool force_fix) const
+MakefileGenerator::fileFixify(const QStringList& files, const QString &out_dir, const QString &in_dir, 
+			      bool force_fix, bool canon) const
 {
     if(files.isEmpty())
 	return files;
     QStringList ret;
     for(QStringList::ConstIterator it = files.begin(); it != files.end(); ++it) {
 	if(!(*it).isEmpty())
-	    ret << fileFixify((*it), out_dir, in_dir, force_fix);
+	    ret << fileFixify((*it), out_dir, in_dir, force_fix, canon);
     }
     return ret;
 }
 
 QString
-MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const QString &in_d, bool force_fix) const
+MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, 
+			      const QString &in_d, bool force_fix, bool canon) const
 {
-    if(file0.isEmpty()) 
+    if(file0.isEmpty())
 	return file0;
     QString key = file0;
-    if(!in_d.isEmpty() || !out_d.isEmpty() || force_fix)
-	key.prepend(in_d + "--" + out_d + "--" + QString::number((int)force_fix) + "-");
-    if(fileFixed.contains(key)) 
+    if(!in_d.isEmpty() || !out_d.isEmpty() || force_fix || !canon)
+	key.prepend(in_d + "--" + out_d + "--" + QString::number((int)force_fix) + "--" + 
+		    QString::number((int)canon) + "-");
+    if(fileFixed.contains(key))
 	return fileFixed[key];
 
     QString file = file0;
@@ -2033,7 +2046,7 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
     QString orig_file = file;
     if(!force_fix && project->isActiveConfig("no_fixpath")) {
 	if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH")) { //absoluteify it
-	    QString qfile = Option::fixPathToLocalOS(file);
+	    QString qfile = Option::fixPathToLocalOS(file, TRUE, canon);
 	    if(QDir::isRelativePath(file)) { //already absolute
 		QFileInfo fi(qfile);
 		if(!fi.convertToAbs()) //strange
@@ -2041,7 +2054,7 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 	    }
 	}
     } else { //fix it..
-	QString qfile(Option::fixPathToLocalOS(file, TRUE)), in_dir(in_d), out_dir(out_d);
+	QString qfile(Option::fixPathToLocalOS(file, TRUE, canon)), in_dir(in_d), out_dir(out_d);
 	{
 	    if(out_dir.isNull() || QDir::isRelativePath(out_dir))
 		out_dir.prepend(Option::output_dir + QDir::separator());
@@ -2074,13 +2087,13 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 		    file.prepend(Option::dir_sep);
 		file.prepend(in_dir);
 	    }
-	    file = Option::fixPathToTargetOS(file, FALSE);
-	    if(QFile::exists(file) && file == Option::fixPathToTargetOS(file, TRUE)) {
+	    file = Option::fixPathToTargetOS(file, FALSE, canon);
+	    if(canon && QFile::exists(file) && file == Option::fixPathToTargetOS(file, TRUE, canon)) {
 		QString real_file = QDir(file).canonicalPath();
 		if(!real_file.isEmpty())
 		    file = real_file;
 	    }
-	    QString match_dir = Option::fixPathToTargetOS(out_dir, FALSE);
+	    QString match_dir = Option::fixPathToTargetOS(out_dir, FALSE, canon);
 	    if(file == match_dir) {
 		file = "";
 	    } else if(file.startsWith(match_dir) &&
@@ -2109,10 +2122,10 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 	    }
 	}
     }
-    file = Option::fixPathToTargetOS(file, FALSE);
+    file = Option::fixPathToTargetOS(file, FALSE, canon);
     if(file.isEmpty())
 	file = ".";
-    if(!quote.isNull())
+    if(!quote.isNull()) 
 	file = quote + file + quote;
     debug_msg(3, "Fixed %s :: to :: %s (%d) [%s::%s]", orig_file.latin1(), file.latin1(), depth,
 	      in_d.latin1(), out_d.latin1());
