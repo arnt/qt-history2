@@ -63,7 +63,7 @@ public:
 
 */
 
-/*! 
+/*!
     \class QMainWindow qmainwindow.h
     \brief The QMainWindow class provides a main application window.
 
@@ -83,19 +83,19 @@ public:
     widget \a flags.
  */
 QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
-    : QWidget(*(new QMainWindowPrivate()), parent, flags)
+    : QWidget(*(new QMainWindowPrivate()), parent, flags | Qt::WType_TopLevel)
 {
     d->layout = new QMainWindowLayout(this);
 }
 
 #ifdef QT_COMPAT
-/*! 
+/*!
     \obsolete
     Constructs a QMainWindow with the given \a parent, \a name, and
     with the specified widget \a flags.
  */
 QMainWindow::QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags)
-    : QWidget(*(new QMainWindowPrivate()), parent, flags)
+    : QWidget(*(new QMainWindowPrivate()), parent, flags | Qt::WType_TopLevel)
 {
     setObjectName(name);
     d->layout = new QMainWindowLayout(this);
