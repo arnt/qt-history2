@@ -130,6 +130,7 @@ static WId qt_root_win() {
     GetCWMgrPort(ret);
 #else
     //FIXME NEED TO FIGURE OUT HOW TO GET DESKTOP ON MACX
+#if 0
     char title[2];
     title[0]=0;
     title[1]='\0';
@@ -142,6 +143,7 @@ static WId qt_root_win() {
     ret = (WindowPtr)NewCWindow( nil, &boundsRect, (const unsigned char*)title,
 				 0, plainDBox, (WindowPtr)-1, TRUE, 0);
     DisposeWindow(ret);
+#endif
 #endif
     return (WId) ret;
 }
@@ -239,6 +241,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	Rect r; 
 	SetRect(&r, crect.left(), crect.top(), crect.right(), crect.bottom());
 
+#if 1
 	WindowClass wclass = kSheetWindowClass;
 	if(testWFlags(WShowModal)) 
 	    wclass = kModalWindowClass;
@@ -271,8 +274,20 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		    wattr |= kWindowCloseBoxAttribute;
 	    }
 	} 
-
 	CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
+#else
+	char title[2];
+	title[0]=0;
+	title[1]='\0';
+	short procid;
+	if ( popup || testWFlags(WStyle_Tool ) ) {
+	    procid = plainDBox;
+	} else {
+	    procid = zoomDocProc;
+	}
+	id = (WId)NewCWindow( nil, &r, (const unsigned char*)title,
+			      0, procid, (WindowPtr)-1, TRUE, 0);
+#endif
 
 	hd = (void *)id;
 	setWinId(id);
