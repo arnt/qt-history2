@@ -1058,6 +1058,9 @@ void MainWindow::fileCloseProject()
 		activeWindowChanged( w );
 		break;
 	    }
+	} else {
+	    emit hasActiveWindow( FALSE );
+	    emit hasActiveForm( FALSE );
 	}
     }
 }
@@ -1293,6 +1296,8 @@ bool MainWindow::fileSaveAs()
     statusBar()->message( tr( "Enter a filename..." ) );
 
     QWidget *w = qworkspace->activeWindow();
+    if ( !w )
+	return TRUE;
     if ( w->inherits( "FormWindow" ) )
 	return ( (FormWindow*)w )->formFile()->saveAs();
     else if ( w->inherits( "SourceEditor" ) )
