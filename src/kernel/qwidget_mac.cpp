@@ -1129,25 +1129,16 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    RGBForeColor( &f );
 		    f.red = f.green = f.blue = ~0;
 		    RGBBackColor( &f );
-			    
-		    //temporary gworld
-		    GWorldPtr tmppix;
-		    Rect pixr; SetRect(&pixr, 0, 0, ow, oh);
-		    ASSERT(NewGWorld(&tmppix, 32, &pixr, NULL, 0, alignPix | stretchPix | newDepth) == noErr);
-		    BitMap *pixn = (BitMap *)*GetGWorldPixMap(tmppix);
+		    PenMode(patCopy);
+
 		    //calculate new and old rectangles
 		    int nx = px + pos().x(), ny = py + pos().y();  //new
 		    Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
 		    int ox = px + oldp.x(), oy = py + oldp.y(); //old
 		    Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
 		    BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
-		    //copy
-		    CopyBits(scrn, pixn, &oldr, &pixr, srcCopy, 0);
 		    SetClip((RgnHandle)bltregion.handle());
-		    CopyBits(pixn, scrn, &pixr, &newr, srcCopy, 0);
-
-		    //cleanup
-		    DisposeGWorld(tmppix);
+		    CopyBits(scrn, scrn, &oldr, &newr, srcCopy, NULL);
 		}
 	    }
 	    if(isResize)
