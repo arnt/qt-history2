@@ -2217,7 +2217,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     }
 }
 
-
+#if 0
 //
 // Generate a string that describes a transformed bitmap. This string is used
 // to insert and find bitmaps in the global pixmap cache.
@@ -2259,7 +2259,7 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
     if ( !QPixmapCache::insert(key,bm) )	// cannot insert pixmap
 	delete bm;
 }
-
+#endif
 
 void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection dir )
 {
@@ -2330,15 +2330,13 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     // for painting.
 
     for ( int i = start; i < end; i++ ) {
-	QScriptItem &si = engine->items[i];
+	QScriptItem *si = &engine->items[i];
 
-	QFontEngine *fe = si.fontEngine;
+	QFontEngine *fe = si->fontEngine;
 	Q_ASSERT( fe );
 
-	int xpos = x + si.x;
-	int ypos = y + si.y - ascent;
-
-	bool rightToLeft = si.analysis.bidiLevel % 2;
+	int xpos = x + si->x;
+	int ypos = y + si->y - ascent;
 
 #ifndef Q_OS_TEMP
 	if ( rop != CopyROP ) {
@@ -2356,8 +2354,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
 	if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
 
-	fe->draw( this, xpos,  ypos, engine->glyphs( &si ), engine->advances( &si ),
-		  engine->offsets( &si ), si.num_glyphs, rightToLeft, textFlags );
+	fe->draw( this, xpos, ypos, engine, si, textFlags );
 	fe->hdc = oldDC;
 	if ( rop != CopyROP ) {
 #ifndef Q_OS_TEMP
@@ -2390,27 +2387,20 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
     }
 
     QTextEngine *engine = ti.engine;
-    QScriptItem &si = engine->items[ti.item];
+    QScriptItem *si = &engine->items[ti.item];
 
     engine->shape( ti.item );
-    QFontEngine *fe = si.fontEngine;
+    QFontEngine *fe = si->fontEngine;
     Q_ASSERT( fe );
 
-    x += si.x;
-    y += si.y;
-
-    bool rightToLeft = si.analysis.bidiLevel % 2;
+    x += si->x;
+    y += si->y;
 
     HDC oldDC = fe->hdc;
     fe->hdc = hdc;
     SelectObject( hdc, fe->hfont );
 
-    if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
-    if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
-    if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
-
-    fe->draw( this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
-	      engine->offsets( &si ), si.num_glyphs, rightToLeft, textFlags );
+    fe->draw( this, x,  y, engine, si, textFlags );
     fe->hdc = oldDC;
 }
 

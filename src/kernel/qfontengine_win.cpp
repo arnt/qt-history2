@@ -8,6 +8,8 @@
 #include <limits.h>
 #include <math.h>
 
+#include <qbitmap.h>
+
 #ifndef M_PI
 #define M_PI 3.14159265358979
 #endif
@@ -198,12 +200,12 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
     return NoError;
 }
 
-void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags )
-{
-    HDC hdc = dc();
+#define COLOR_VALUE(c) ((p->flags & QPainter::RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 
-    bool nat_xf = ( (qt_winver & Qt::WV_NT_based) && p->txop >= QPainter::TxScale );
+
+void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
+{
+    bool nat_xf = false;//( (qt_winver & Qt::WV_NT_based) && p->txop >= QPainter::TxScale );
 
     bool force_bitmap = p->rop != QPainter::CopyROP;
     if ( force_bitmap ) {
@@ -221,8 +223,103 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	// the hard part is only shearing
 
 	if ( p->m11() != p->m22() && p->m12() != -p->m21() ) {
-	    // shearing transformation
-	    // ######## FIXME
+	    // shearing transformation, have to do the work by hand
+            QRect bbox( 0, 0, si->width, si->ascent + si->descent );
+            int w=bbox.width(), h=bbox.height();
+            int aw = w, ah = h;
+            int tx=-bbox.x(),  ty=-bbox.y();    // text position
+            QWMatrix mat1 = p->xmat;
+	    if ( aw == 0 || ah == 0 )
+		return;
+	    double rx = (double)w / (double)aw;
+	    double ry = (double)h / (double)ah;
+            QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1, aw, ah );
+	    QBitmap *wx_bm;
+#if 0
+            QString bm_key = gen_text_bitmap_key( mat2, dfont, str, pos, len );
+            wx_bm = get_text_bitmap( bm_key );
+            bool create_new_bm = wx_bm == 0;
+            if ( create_new_bm )
+#endif
+	    { 	        // no such cached bitmap
+                QBitmap bm( aw, ah, TRUE );     // create bitmap
+                QPainter paint;
+                paint.begin( &bm );             // draw text in bitmap
+		HDC oldDC = hdc;
+		hdc = paint.handle();
+		SelectObject( hdc, hfont );
+		draw( &paint, 0, si->ascent, engine, si, textFlags );
+		hdc = oldDC;
+                paint.end();
+                wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
+                if ( wx_bm->isNull() ) {
+                    delete wx_bm;               // nothing to draw
+                    return;
+                }
+            }
+            double fx=x, fy = y - si->ascent, nfx, nfy;
+            mat1.map( fx,fy, &nfx,&nfy );
+            double tfx=tx, tfy=ty, dx, dy;
+            mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
+            x = qRound(nfx-dx);
+            y = qRound(nfy-dy);
+#if 0	    
+	    if ( p->testf(QPainter::ExtDev) ) {		// to printer
+		QRegion reg( *wx_bm );
+		reg.translate( x, y );
+		HBRUSH brush = CreateSolidBrush( COLOR_VALUE(p->cpen.data->color) );
+		FillRgn( hdc, reg.handle(), brush );
+		DeleteObject( brush );
+	    } else 
+#endif
+	    {				// to screen/pixmap
+		// this code is also used in bitBlt() in qpaintdevice_win.cpp
+		// (for the case that you have a selfmask)
+		const DWORD ropCodes[] = {
+		    0x00b8074a, // PSDPxax,  CopyROP,
+		    0x00ba0b09, // DPSnao,   OrROP,
+		    0x009a0709, // DPSnax,   XorROP,
+		    0x008a0e06, // DSPnoa,   EraseROP=NotAndROP,
+		    0x008b0666, // DSPDxoxn, NotCopyROP,
+		    0x00ab0889, // DPSono,   NotOrROP,
+		    0x00a90189, // DPSoxn,   NotXorROP,
+		    0x00a803a9, // DPSoa,    NotEraseROP=AndROP,
+		    0x00990066, // DSxn,     NotROP,
+		    0x008800c6, // DSa,      ClearROP,
+		    0x00bb0226, // DSno,     SetROP,
+		    0x00aa0029, // D,        NopROP,
+		    0x00981888, // SDPSonoxn,AndNotROP,
+		    0x00b906e6, // DSPDaoxn, OrNotROP,
+		    0x009b07a8, // SDPSoaxn, NandROP,
+		    0x00891b08  // SDPSnaoxn,NorROP,
+		};
+		HBRUSH b = CreateSolidBrush( COLOR_VALUE(p->cpen.data->color) );
+		COLORREF tc, bc;
+		b = (HBRUSH)SelectObject( hdc, b );
+		tc = SetTextColor( hdc, COLOR_VALUE(Qt::black) );
+		bc = SetBkColor( hdc, COLOR_VALUE(Qt::white) );
+		HDC wx_dc;
+		int wx_sy;
+		if ( wx_bm->isMultiCellPixmap() ) {
+		    wx_dc = wx_bm->multiCellHandle();
+		    wx_sy = wx_bm->multiCellOffset();
+		} else {
+		    wx_dc = wx_bm->handle();
+		    wx_sy = 0;
+		}
+		BitBlt( hdc, x, y, wx_bm->width(), wx_bm->height(),
+			wx_dc, 0, wx_sy, ropCodes[p->rop] );
+		SetBkColor( hdc, bc );
+		SetTextColor( hdc, tc );
+		DeleteObject( SelectObject(hdc, b) );
+	    }
+#if 0
+	    if ( create_new_bm )
+                ins_text_bitmap( bm_key, wx_bm );
+#else
+	    delete wx_bm;
+#endif
+            return;
 	}
 
 	// rotation + scale + translation
@@ -259,14 +356,18 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 
     unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
 
+    glyph_t *glyphs = engine->glyphs( si );
+    advance_t *advances = engine->advances( si );
+    offset_t *offsets = engine->offsets( si );
+
     int xo = x;
 
-    if ( !reverse ) {
+    if ( !(si->analysis.bidiLevel % 2) ) {
 	// hack to get symbol fonts working on Win95. See also QFontEngine constructor
 #ifndef Q_OS_TEMP
 	if ( useTextOutA ) {
 	    // can only happen if !ttf
-	    for( int i = 0; i < numGlyphs; i++ ) {
+	    for( int i = 0; i < si->num_glyphs; i++ ) {
     		QChar chr = *glyphs;
 		QConstString str( &chr, 1 );
 		QCString cstr = str.string().local8Bit();
@@ -281,7 +382,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	{
 	    bool haveOffsets = FALSE;
 	    int w = 0;
-	    for( int i = 0; i < numGlyphs; i++ ) {
+	    for( int i = 0; i < si->num_glyphs; i++ ) {
 		if ( offsets[i].x || offsets[i].y ) {
 		    haveOffsets = TRUE;
 		    break;
@@ -290,7 +391,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	    }
 
 	    if ( haveOffsets || transform ) {
-		for( int i = 0; i < numGlyphs; i++ ) {
+		for( int i = 0; i < si->num_glyphs; i++ ) {
     		    wchar_t chr = *glyphs;
 		    int xp = x + offsets->x;
 		    int yp = y + offsets->y;
@@ -304,15 +405,15 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 		}
 	    } else {
 		// fast path
-		ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, (wchar_t *)glyphs, numGlyphs, advances );
+		ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, (wchar_t *)glyphs, si->num_glyphs, advances );
 		x += w;
 	    }
 	}
     } else {
-	offsets += numGlyphs;
-	advances += numGlyphs;
-	glyphs += numGlyphs;
-	for( int i = 0; i < numGlyphs; i++ ) {
+	offsets += si->num_glyphs;
+	advances += si->num_glyphs;
+	glyphs += si->num_glyphs;
+	for( int i = 0; i < si->num_glyphs; i++ ) {
 	    glyphs--;
 	    offsets--;
 	    advances--;
@@ -618,16 +719,14 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, glyph_
     return NoError;
 }
 
-void QFontEngineBox::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-			  const advance_t *advances, const offset_t *offsets, int numGlyphs, bool, int )
+void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
     Q_UNUSED( p );
     Q_UNUSED( x );
     Q_UNUSED( y );
-    Q_UNUSED( glyphs );
-    Q_UNUSED( advances );
-    Q_UNUSED( offsets );
-    Q_UNUSED( numGlyphs );
+    Q_UNUSED( engine );
+    Q_UNUSED( si );
+    Q_UNUSED( textFlags );
 //     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
 
     // ########

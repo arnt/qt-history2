@@ -374,8 +374,7 @@ public:
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
-    void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags );
+    void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
     glyph_metrics_t boundingBox( const glyph_t *glyphs,
 			       const advance_t *advances, const offset_t *offsets, int numGlyphs );
@@ -412,8 +411,7 @@ public:
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
-    void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags );
+    void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
     glyph_metrics_t boundingBox( const glyph_t *glyphs,
 			       const advance_t *advances, const offset_t *offsets, int numGlyphs );
@@ -437,8 +435,7 @@ public:
 class QFontEngineUniscribe : public QFontEngineWin
 {
 public:
-    void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags );
+    void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
     bool canRender( const QChar *string,  int len );
 
     Type type() const;

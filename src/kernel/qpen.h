@@ -46,7 +46,6 @@
 
 class Q_EXPORT QPen: public Qt
 {
-friend class QPainter;
 public:
     QPen();
     QPen( PenStyle );
@@ -72,6 +71,11 @@ public:
 					{ return !(operator==(p)); }
 
 private:
+    friend class QPainter;
+#ifdef Q_WS_WIN
+    friend class QFontEngineWin;
+#endif
+
     QPen	copy()	const;
     void	detach();
     void	init( const QColor &, uint, uint );
