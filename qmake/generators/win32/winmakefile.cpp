@@ -308,7 +308,8 @@ void Win32MakefileGenerator::processQtConfig()
 void Win32MakefileGenerator::processFileTagsVar()
 {
     QStringList tags;
-    char *builtins[] = { "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
+    char *builtins[] = { "SOURCES", "DEF_FILE", "RC_FILE", "TARGET",
+                         "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", 0 };
     for(int i = 0; builtins[i]; i++)
         tags += project->variables()[builtins[i]];
     if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
@@ -326,12 +327,31 @@ void Win32MakefileGenerator::processFileTagsVar()
 
 void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
 {
-    t << "clean: compiler_clean"
-      << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
-      << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
-      << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
-
-    t << endl;
+    t << "clean: compiler_clean";
+    char *clean_targets[] = { "OBJECTS", "QMAKE_CLEAN", "CLEAN_FILES", 0 };
+    for(int i = 0; clean_targets[i]; ++i) {
+        const QStringList &list = project->values(clean_targets[i]);
+        if(project->isActiveConfig("no_delete_multiple_files")) {
+            for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it)
+                t << "\n\t-$(DEL_FILE) " << (*it);
+        } else {
+            int statements = 0;
+            QString del_statement;
+            for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it) {
+                if(del_statement.isNull())
+                    del_statement = "\n\t-$(DEL_FILE)";
+                del_statement += " " + (*it);
+                ++statements;
+                if(!(statements % 40)) {
+                    t << del_statement;
+                    statements = 0;
+                }
+            }
+            if(statements)
+                t << del_statement;
+        }
+    }
+    t << endl << endl;
 
     t << "distclean: clean"
       << "\n\t-$(DEL_FILE) $(TARGET)" << endl;
@@ -340,7 +360,7 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
         if(!ofile.isEmpty())
             t << "\t-$(DEL_FILE) " << ofile << endl;
     }
-    t << endl << endl;
+    t << endl;
 }
 
 void Win32MakefileGenerator::writeStandardParts(QTextStream &t)

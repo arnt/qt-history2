@@ -1466,8 +1466,6 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 }
 	    }
 	}
-        if(tmp_inputs.isEmpty())
-            continue;
 
         t << "compiler_" << (*it) << "_make_all:";
         for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
@@ -1497,13 +1495,34 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             }
             if(!wrote_clean_cmds || !wrote_clean) {
                 QStringList cleans;
-                for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
-                    if(!wrote_clean)
-                        cleans.append("-$(DEL_FILE) " + replaceExtraCompilerVariables(tmp_clean, (*input),
-                                            replaceExtraCompilerVariables(tmp_out, (*input), QString::null)));
-                    if(!wrote_clean_cmds)
+                if(!wrote_clean) {
+                    if(project->isActiveConfig("no_delete_multiple_files")) {
+                        for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input)
+                            cleans.append("-$(DEL_FILE) " + replaceExtraCompilerVariables(tmp_clean, (*input),
+                                                       replaceExtraCompilerVariables(tmp_out, (*input), QString::null)));
+                    } else {
+                        QString del_statement;
+                        int statements = 0;
+                        for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
+                            if(del_statement.isNull())
+                                del_statement = "-$(DEL_FILE)";
+                            del_statement += " " + replaceExtraCompilerVariables(tmp_clean, (*input),
+                                                      replaceExtraCompilerVariables(tmp_out, (*input), QString::null));
+                            ++statements;
+                            if(!(statements % 40)) {
+                                cleans.append(del_statement);
+                                statements = 0;
+                            }
+                        }
+                        if(statements)
+                            cleans.append(del_statement);
+                    }
+                }
+                if(!wrote_clean_cmds) {
+                    for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
                         cleans.append(replaceExtraCompilerVariables(tmp_clean_cmds, (*input),
                                       replaceExtraCompilerVariables(tmp_out, (*input), QString::null)));
+                    }
                 }
                 if(!cleans.isEmpty())
                     t << valGlue(cleans, "\n\t", "\n\t", "");
