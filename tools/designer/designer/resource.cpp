@@ -1704,8 +1704,10 @@ void Resource::saveConnections( QTextStream &ts, int indent )
     QValueList<MetaDataBase::Connection>::Iterator it = connections.begin();
     for ( ; it != connections.end(); ++it ) {
 	MetaDataBase::Connection conn = *it;
-	if ( ( knownNames.findIndex( QString( conn.sender->name() ) ) == -1 && qstrcmp( conn.sender->name(), "this" ) != 0 ) ||
-	     ( knownNames.findIndex( QString( conn.receiver->name() ) ) == -1 && qstrcmp( conn.receiver->name(), "this" ) != 0 ) )
+	if ( ( knownNames.findIndex( QString( conn.sender->name() ) ) == -1 &&
+	       qstrcmp( conn.sender->name(), "this" ) != 0 ) ||
+	     ( knownNames.findIndex( QString( conn.receiver->name() ) ) == -1 &&
+	       qstrcmp( conn.receiver->name(), "this" ) != 0 ) )
 	    continue;
 	if ( formwindow->isMainContainer( (QWidget*)(*it).receiver ) &&
 	     !MetaDataBase::hasSlot( formwindow, MetaDataBase::normalizeSlot( (*it).slot ).latin1() ) )
@@ -1717,7 +1719,7 @@ void Resource::saveConnections( QTextStream &ts, int indent )
 		continue;
 	}
 
-	if ( conn.receiver->inherits( "CustomWidget" ) ) {
+	if ( conn.receiver->inherits( "CustomWidget" ) && !formwindow->isMainContainer( conn.receiver ) ) {
 	    MetaDataBase::CustomWidget *cw = ( (CustomWidget*)conn.receiver )->customWidget();
 	    if ( cw && !cw->hasSlot( MetaDataBase::normalizeSlot( conn.slot ).latin1() ) )
 		continue;
