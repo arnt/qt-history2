@@ -76,6 +76,7 @@ QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
     buttonDown = 0;
     act = 0;
     getColors();
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
 }
 
 #ifdef Q_WS_WIN
