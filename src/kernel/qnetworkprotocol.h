@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#13 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#14 $
 **
 ** Implementation of QFileDialog class
 **
@@ -126,7 +126,7 @@ public:
 
     QUrlOperator *url() const;
     QNetworkOperation *operationInProgress() const;
-    void dequeueOperation();
+    void clearOperationQueue();
     
 signals:
     void data( const QString &, QNetworkOperation *res );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#16 $
 **
 ** Implementation of QFileDialog class
 **
@@ -458,9 +458,10 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
     d->opInProgress = 0;
 
     if ( !checkConnection( op ) ) {
-	if ( op->state() != QNetworkProtocol::StFailed )
+	if ( op->state() != QNetworkProtocol::StFailed ) {
 	    d->opStartTimer->start( 1, TRUE );
-	else {
+	    d->opInProgress = op;
+	} else {
 	    emit finished( op );
 	    d->operationQueue.clear();
 	}
@@ -491,10 +492,13 @@ QNetworkOperation *QNetworkProtocol::operationInProgress() const
 
 /*!
  */
- 
-void QNetworkProtocol::dequeueOperation()
+
+void QNetworkProtocol::clearOperationQueue()
 {
-    d->opInProgress = d->operationQueue.dequeue();
+    d->operationQueue.dequeue();
+    d->opInProgress = 0;
+    d->operationQueue.setAutoDelete( TRUE );
+    d->operationQueue.clear();
 }
 
 /*!
