@@ -153,9 +153,12 @@ void EditSlots::slotRemove()
     if ( !slotListView->currentItem() )
 	return;
 
+    slotListView->blockSignals( TRUE );
     delete slotListView->currentItem();
     if ( slotListView->currentItem() )
 	slotListView->setSelected( slotListView->currentItem(), TRUE );
+    slotListView->blockSignals( FALSE );
+    currentItemChanged( slotListView->currentItem() );
 }
 
 void EditSlots::currentItemChanged( QListViewItem *i )
