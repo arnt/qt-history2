@@ -380,7 +380,9 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	    }
 
 	    wakeUp.stop();
-	    if ( m->state() == 0 ) {
+	    if ( m->state() == 0 &&
+		    mousePos.x() >= 0 && mousePos.x() < w->width() &&
+		    mousePos.y() >= 0 && mousePos.y() < w->height() ) {
 		if ( label && label->isVisible() ) {
 		    return FALSE;
 		} else {
