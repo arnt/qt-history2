@@ -59,7 +59,6 @@ public:
     void drawLine(const QLineF &line);
     void drawRect(const QRectF &r);
     void drawPoint(const QPointF &p);
-    void drawPoints(const QPolygonF &pa);
     void drawEllipse(const QRectF &r);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
 

@@ -258,13 +258,13 @@ void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDraw
 */
 
 /*!
-    Calls drawPoint() to draw every point in the polygon \a p.
+    Draws the first \a pointCount points in the buffer \a points
 */
 
-void QPaintEngine::drawPoints(const QPolygonF &p)
+void QPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
-    for (int i=0; i<p.size(); ++i)
-        drawPoint(p.at(i));
+    for (int i=0; i<pointCount; ++i)
+        drawPoint(points[i]);
 }
 
 /*!
@@ -288,14 +288,13 @@ void QPaintEngine::drawEllipse(const QRectF &rect)
 }
 
 /*!
-    Calls drawLine() for every pair of points in the point array \a
-    lines.
+    Draws the first \a lineCount lines in the buffer \a lines
 */
 
-void QPaintEngine::drawLines(const QList<QLineF> &lines)
+void QPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
-    for (int i=0; i<lines.size(); ++i)
-        drawLine(lines.at(i));
+    for (int i=0; i<lineCount; ++i)
+        drawLine(lines[i]);
 }
 
 /*!
@@ -818,12 +817,12 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 }
 
 /*!
-  Draws the rectangles in the list \a rects.
+  Draws the first \a rectCount rectangles in the buffer \a rects.
 */
-void QPaintEngine::drawRects(const QList<QRectF> &rects)
+void QPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
-    for (int i=0; i<rects.size(); ++i)
-        drawRect(rects.at(i));
+    for (int i=0; i<rectCount; ++i)
+        drawRect(rects[i]);
 }
 
 /*!

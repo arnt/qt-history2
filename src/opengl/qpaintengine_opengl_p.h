@@ -37,7 +37,7 @@ public:
     void updateRenderHints(QPainter::RenderHints hints);
 
     void drawLine(const QLineF &line);
-    void drawLines(const QList<QLineF> &lines);
+    void drawLines(const QLineF *lines, int lineCount);
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     void drawPoint(const QPointF &p);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);

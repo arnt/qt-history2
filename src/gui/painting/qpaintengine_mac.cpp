@@ -356,7 +356,7 @@ QQuickDrawPaintEngine::drawPoint(const QPointF &pt)
 }
 
 void
-QQuickDrawPaintEngine::drawPoints(const QPolygonF &p)
+QQuickDrawPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
     Q_ASSERT(isActive());
 
@@ -366,8 +366,8 @@ QQuickDrawPaintEngine::drawPoints(const QPolygonF &p)
             return;
         setupQDPen();
         QPolygon pa = p.toPolygon();
-        for(int i=0; i < pa.size(); i++) {
-            MoveTo(pa[i].x()+d->offx, pa[i].y()+d->offy);
+        for(int i=0; i < pointCount; i++) {
+            MoveTo(points[i].x()+d->offx, points[i].y()+d->offy);
             Line(0, 0);
         }
     }
@@ -431,7 +431,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRectF &r)
 }
 
 void
-QQuickDrawPaintEngine::drawLines(const QList<QLineF> &lines)
+QQuickDrawPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     Q_ASSERT(isActive());
 
@@ -440,7 +440,7 @@ QQuickDrawPaintEngine::drawLines(const QList<QLineF> &lines)
         return;
 
     setupQDPen();
-    for(int i = 0; i < lines.size(); i++) {
+    for(int i = 0; i < lineCount; i++) {
         const QPointF start = lines[i].start(), end = lines[i].end();
         MoveTo(qRound(start.x()) + d->offx, qRound(start.y()) + d->offy);
         LineTo(qRound(end.x()) + d->offx, qRound(end.y()) + d->offy);
@@ -1412,17 +1412,17 @@ QCoreGraphicsPaintEngine::drawPoint(const QPointF &p)
 }
 
 void
-QCoreGraphicsPaintEngine::drawPoints(const QPolygonF &pa)
+QCoreGraphicsPaintEngine::drawPoints(const QPointF points, int pointCount)
 {
     Q_ASSERT(isActive());
 
     CGContextBeginPath(d->hd);
-    for(int i=0; i < pa.size(); i++) {
-        float x = pa[i].x(), y = pa[i].y();
+    for(int i=0; i < pointCount; i++) {
+        float x = points[i].x(), y = points[i].y();
         CGContextMoveToPoint(d->hd, x, y+1);
         CGContextAddLineToPoint(d->hd, x, y+1);
-        d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
     }
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
 void
@@ -1472,12 +1472,12 @@ QCoreGraphicsPaintEngine::drawPolygon(const QPointF *points, int pointCount, Pol
 }
 
 void
-QCoreGraphicsPaintEngine::drawLines(const QList<QLineF> &lines)
+QCoreGraphicsPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     Q_ASSERT(isActive());
 
     CGContextBeginPath(d->hd);
-    for(int i = 0; i < lines.size(); i++) {
+    for(int i = 0; i < lineCount; i++) {
         const QPointF start = lines[i].start(), end = lines[i].end();
         CGContextMoveToPoint(d->hd, start.x(), start.y()+1);
         CGContextAddLineToPoint(d->hd, end.x(), end.y()+1);

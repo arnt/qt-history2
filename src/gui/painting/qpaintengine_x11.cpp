@@ -1062,23 +1062,23 @@ void QX11PaintEngine::drawRect(const QRectF &rect)
         XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
 }
 
-void QX11PaintEngine::drawRects(const QList<QRectF> &rects)
+void QX11PaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
     if (!isActive())
         return;
 
     if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() != Qt::NoPen) {
-	for (int i = 0; i < rects.size(); ++i)
-	    drawRect(rects.at(i));
+	for (int i = 0; i < rectCount; ++i)
+	    drawRect(rects[i]);
         return;
     }
 
     QVarLengthArray<XRectangle> xrects(rects.size());
-    for (int i = 0; i < rects.size(); ++i) {
-	xrects[i].x = short(rects.at(i).x());
-	xrects[i].y = short(rects.at(i).y());
-	xrects[i].width = ushort(rects.at(i).width());
-	xrects[i].height = ushort(rects.at(i).height());
+    for (int i = 0; i < rectsCount; ++i) {
+	xrects[i].x = short(rects[i].x());
+	xrects[i].y = short(rects[i].y());
+	xrects[i].width = ushort(rects[i].width());
+	xrects[i].height = ushort(rects[i].height());
     }
 
     if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() == Qt::NoPen) {

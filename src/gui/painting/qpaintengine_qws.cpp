@@ -409,15 +409,6 @@ void QWSPaintEngine::drawPoint(const QPointF &p)
     d->gfx->drawPoint(int(p.x()), int(p.y()));
 }
 
-void QWSPaintEngine::drawPoints(const QPolygonF &p)
-{
-    if (state->pen.style() == Qt::NoPen)
-        return;
-
-    QPolygon pa(p.toPolygon());
-    d->gfx->drawPoints(pa, 0, pa.size());
-}
-
 void QWSPaintEngine::drawPolyInternal(const QPolygon &a, bool close)
 {
     if (a.size() < 2 || !d->gfx)

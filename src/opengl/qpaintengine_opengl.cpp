@@ -548,12 +548,12 @@ void QOpenGLPaintEngine::drawPoint(const QPointF &p)
     glEnd();
 }
 
-void QOpenGLPaintEngine::drawLines(const QList<QLineF> &lines)
+void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     dgl->makeCurrent();
     glBegin(GL_LINES);
     {
-        for (int i = 0; i < lines.size(); ++i) {
+        for (int i = 0; i < lineCount; ++i) {
             glVertex2f(lines[i].startX(), lines[i].startY());
             glVertex2f(lines[i].endX(), lines[i].endY());
         }

@@ -2022,7 +2022,7 @@ void QPainter::drawPath(const QPainterPath &path)
 
 
 /*!
-    \fn void QPainter::drawLines(const QList<QLineF> lines, int index = 0,
+    \fn void QPainter::drawLines(const QVector<QLineF> lines, int index = 0,
                                  int nlines = -1)
 
     Draws the set of lines defined by the list \a lines, starting with
@@ -2159,7 +2159,7 @@ void QPainter::drawRect(const QRectF &r)
 
     \sa drawRect()
 */
-void QPainter::drawRects(const QList<QRectF> &rects)
+void QPainter::drawRects(const QVector<QRectF> &rects)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -2171,7 +2171,7 @@ void QPainter::drawRects(const QList<QRectF> &rects)
     Q_D(QPainter);
     d->engine->updateState(d->state);
 
-    QList<QRectF> rectangles = rects;
+    QVector<QRectF> rectangles = rects;
     if (d->state->txop == QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         for (int i=0; i<rects.size(); ++i)
@@ -2182,7 +2182,7 @@ void QPainter::drawRects(const QList<QRectF> &rects)
         return;
     }
 
-    d->engine->drawRects(rectangles);
+    d->engine->drawRects(rectangles.data(), rectangles.size());
 }
 
 
@@ -2233,7 +2233,7 @@ void QPainter::drawPoint(const QPointF &p)
     Draws a single point at position (\a x, \a y).
 */
 
-/*! \fn void QPainter::drawPoints(const QList<QPointF> &points)
+/*! \fn void QPainter::drawPoints(const QVector<QPointF> &points)
 
     \overload
 
@@ -2272,7 +2272,7 @@ void QPainter::drawPoints(const QPolygon &pa)
         }
     }
 
-    d->engine->drawPoints(a);
+    d->engine->drawPoints(a.data(), a.size());
 }
 
 
@@ -2903,7 +2903,7 @@ void QPainter::drawLineSegments(const QPolygon &a, int index, int nlines)
     Q_D(QPainter);
     d->engine->updateState(d->state);
 
-    QList<QLineF> lines;
+    QVector<QLineF> lines;
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
@@ -2924,7 +2924,17 @@ void QPainter::drawLineSegments(const QPolygon &a, int index, int nlines)
             lines << QLineF(a.at(i), a.at(i+1));
     }
 
-    d->engine->drawLines(lines);
+    d->engine->drawLines(lines.data(), lines.size());
+}
+
+void QPainter::drawLines(const QVector<QLineF> &lines, int index, int nlines)
+{
+    Q_D(QPainter);
+    d->engine->updateState(d->state);
+
+    // Dummy implementation for now.
+    for (int i=index; i<nlines; ++i)
+        drawLine(lines[i]);
 }
 
 /*!

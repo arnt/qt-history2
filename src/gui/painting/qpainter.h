@@ -150,7 +150,7 @@ public:
     inline void drawLine(const QPoint &p1, const QPoint &p2);
     inline void drawLine(const QPointF &p1, const QPointF &p2);
 
-    void drawRects(const QList<QRectF> &rectangles);
+    void drawRects(const QVector<QRectF> &rectangles);
 
     void drawRect(const QRectF &rect);
     inline void drawRect(int x1, int y1, int w, int h);
@@ -168,7 +168,7 @@ public:
     inline void drawPoint(const QPoint &p);
     inline void drawPoint(int x, int y);
 
-    void drawPoints(const QList<QPointF> &points);
+    void drawPoints(const QVector<QPointF> &points);
     void drawPoints(const QPolygon &points);
 
     void drawArc(const QRectF &rect, int a, int alen);
@@ -183,7 +183,7 @@ public:
     inline void drawChord(int x, int y, int w, int h, int a, int alen);
     inline void drawChord(const QRect &, int a, int alen);
 
-    void drawLines(const QList<QLineF> lines, int index = 0, int nlines = -1);
+    void drawLines(const QVector<QLineF> &lines, int index = 0, int nlines = -1);
     void drawLineSegments(const QPolygon &, int index = 0, int nlines = -1);
 
     void drawPolyline(const QPolygonF &polyline, int index = 0, int npoints = -1);
