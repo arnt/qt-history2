@@ -17,6 +17,7 @@
 #include <qtextstream.h>
 #include <qpushbutton.h>
 #include <qcombobox.h>
+#include <qmessagebox.h>
 
 #define BUFFERSIZE 64 * 1024
 
@@ -442,6 +443,23 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		readArchive( "tutorial.arq", installPath->text() );
 #else
 	    copyFiles( QDir::currentDirPath(), installPath->text(), true );
+
+	    QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
+	    QFile outFile( shell.windowsFolderName + "\\quninstall.exe" );
+	    QFileInfo fi( inFile );
+	    QByteArray buffer( fi.size() );
+
+	    if( buffer.size() ) {
+		if( inFile.open( IO_ReadOnly ) ) {
+		    if( outFile.open( IO_WriteOnly ) ) {
+			inFile.readBlock( buffer.data(), buffer.size() );
+			outFile.writeBlock( buffer.data(), buffer.size() );
+			outFile.close();
+		    }
+		    inFile.close();
+		}
+	    }
+	
 #endif
 	    filesCopied = true;
 	    logFiles( "All files have been copied,\nThis log has been saved to the installation directory.\n", true );
@@ -562,7 +580,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	outputDisplay->append( "Execute configure...\n" );
 
-	args << QEnvironment::getEnv( "QTDIR" ) + "\\configure.exe";
+	args << QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configure.exe";
 	entry = settings.readEntry( "/Trolltech/Qt/Mode", "Debug", &settingsOK );
 	if ( entry == "Debug" )
 	    args += "-debug";
@@ -765,7 +783,7 @@ void SetupWizardImpl::logOutput( QString entry, bool close )
 }
 
 #if !defined( USE_ARCHIVES )
-void SetupWizardImpl::copyFiles( QString sourcePath, QString destPath, bool topLevel )
+void SetupWizardImpl::copyFiles( QString& sourcePath, QString& destPath, bool topLevel )
 {
     QDir dir( sourcePath );
     const QFileInfoList* list = dir.entryInfoList();

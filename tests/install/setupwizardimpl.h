@@ -56,7 +56,7 @@ private:
 #if defined (USE_ARCHIVES)
     void readArchive( QString arcname, QString installPath );
 #else
-    void copyFiles( QString sourcePath, QString destPath, bool topLevel = false );
+    void copyFiles( QString& sourcePath, QString& destPath, bool topLevel = false );
 #endif
     bool createDir( QString fullPath );
     int totalRead;
