@@ -928,53 +928,6 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
                                 kThemeArrowDown, kThemeArrow7pt, tds, NULL, 0);
         }
         break; }
-    case CC_SpinBox: {
-#if 0
-        QSpinWidget * sw = (QSpinWidget *) widget;
-        if(sub & SC_SpinBoxFrame)
-            drawPrimitive(PE_PanelLineEdit, p, querySubControlMetrics(CC_SpinBox, sw, SC_SpinBoxFrame),
-                          pal, Style_Sunken);
-        if((sub & SC_SpinBoxDown) || (sub & SC_SpinBoxUp)) {
-            if(!sw->isUpEnabled() && !sw->isDownEnabled())
-                tds = kThemeStateUnavailable;
-            if(subActive == SC_SpinBoxDown)
-                tds = kThemeStatePressedDown;
-            else if(subActive == SC_SpinBoxUp)
-                tds = kThemeStatePressedUp;
-            ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-            if(flags & Style_HasFocus && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
-                info.adornment |= kThemeAdornmentFocus;
-            QRect updown = sw->upRect() | sw->downRect();
-            if(sw->palette().brush(sw->backgroundRole()).pixmap())
-                p->drawPixmap(updown, *sw->palette().brush(sw->backgroundRole()).pixmap());
-            else
-                p->fillRect(updown, sw->palette().color(sw->backgroundRole()));
-            ((QMacStyleQDPainter *)p)->setport();
-            ThemeButtonKind kind = kThemeIncDecButton;
-            switch (qt_aqua_size_constrain(widget)) {
-            case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                    kind = kThemeIncDecButtonMini;
-                    break;
-                }
-#endif
-            case QAquaSizeSmall:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                    kind = kThemeIncDecButtonSmall;
-                    break;
-                }
-#endif
-            case QAquaSizeUnknown:
-            case QAquaSizeLarge:
-                kind = kThemeIncDecButton;
-                break;
-            }
-            DrawThemeButton(qt_glb_mac_rect(updown, p), kind, &info, NULL, NULL, NULL, 0);
-        }
-#endif
-        break; }
     case CC_TitleBar: {
         if(!widget)
             break;
@@ -1483,24 +1436,6 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
                                             const QStyleOption& opt) const
 {
     switch(control) {
-    case CC_SpinBox: {
-        const int spinner_w = 15, spinner_h = 10; //isn't there some way to get this from the AppMan?
-        int fw = pixelMetric(PM_SpinBoxFrameWidth, w), y = fw, x = w->width() - fw - spinner_w;
-        switch(sc) {
-        case SC_SpinBoxUp:
-            return QRect(x, y + (((w->height()-(fw*2)) / 2) - spinner_h), spinner_w, spinner_h);
-        case SC_SpinBoxDown:
-            return QRect(x, y + ((w->height()-(fw*2)) / 2), spinner_w, spinner_h);
-        case SC_SpinBoxButtonField:
-            return QRect(x, y, spinner_w, w->height() - (fw*2));
-        case SC_SpinBoxEditField:
-            return QRect(fw, fw, w->width() - spinner_w - (fw*2) - macSpinBoxSep, w->height() - (fw*2));
-        case SC_SpinBoxFrame:
-            return QRect(0, 0, w->width() - spinner_w - macSpinBoxSep, w->height());
-        default:
-            break;
-        }
-        break; }
     case CC_TitleBar: {
         if(!w)
             return QRect();
@@ -2847,6 +2782,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const Q4StyleOptionSlider *
 void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
                                      QPainter *p, const QWidget *widget) const
 {
+    ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
     switch (cc) {
     case CC_Slider:
     case CC_ScrollBar:
@@ -2948,6 +2884,68 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
             }
         }
         break;
+    case CC_SpinBox:
+        if (const Q4StyleOptionSpinBox *sb = qt_cast<const Q4StyleOptionSpinBox *>(opt)) {
+            Q4StyleOptionSpinBox newSB = *sb;
+            if (sb->parts & SC_SpinBoxFrame) {
+                newSB.parts = SC_SpinBoxFrame;
+                Q4StyleOptionFrame lineedit(0);
+                lineedit.rect = querySubControlMetrics(CC_SpinBox, &newSB, widget),
+                lineedit.palette = sb->palette;
+                lineedit.state = Style_Sunken;
+                lineedit.lineWidth = 0;
+                lineedit.midLineWidth = 0;
+                drawPrimitive(PE_PanelLineEdit, &lineedit, p, widget);
+            }
+            if (sb->parts & (SC_SpinBoxDown | SC_SpinBoxUp)) {
+                if (!(sb->stepEnabled & (QAbstractSpinBox::StepUpEnabled
+                                        | QAbstractSpinBox::StepDownEnabled)))
+                    tds = kThemeStateUnavailable;
+                if (sb->activeParts == SC_SpinBoxDown)
+                    tds = kThemeStatePressedDown;
+                else if (sb->activeParts == SC_SpinBoxUp)
+                    tds = kThemeStatePressedUp;
+                ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+                if (sb->state & Style_HasFocus
+                        && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
+                    info.adornment |= kThemeAdornmentFocus;
+                newSB.parts = SC_SpinBoxUp;
+                QRect updown = visualRect(querySubControlMetrics(CC_SpinBox, &newSB, widget), widget);
+                newSB.parts = SC_SpinBoxDown;
+                updown |= visualRect(querySubControlMetrics(CC_SpinBox, &newSB, widget), widget);
+                if (widget) {
+                    QPalette::ColorRole bgRole = widget->backgroundRole();
+                    if (sb->palette.brush(bgRole).pixmap())
+                        p->drawPixmap(updown, *sb->palette.brush(bgRole).pixmap());
+                    else
+                        p->fillRect(updown, sb->palette.color(bgRole));
+                }
+                static_cast<QMacStyleQDPainter *>(p)->setport();
+                ThemeButtonKind kind = kThemeIncDecButton;
+                switch (qt_aqua_size_constrain(widget)) {
+                    case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                            kind = kThemeIncDecButtonMini;
+                            break;
+                        }
+#endif
+                    case QAquaSizeSmall:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                            kind = kThemeIncDecButtonSmall;
+                            break;
+                        }
+#endif
+                    case QAquaSizeUnknown:
+                    case QAquaSizeLarge:
+                        kind = kThemeIncDecButton;
+                        break;
+                }
+                DrawThemeButton(qt_glb_mac_rect(updown, p), kind, &info, 0, 0, 0, 0);
+            }
+        }
+        break;
     default:
         QWindowsStyle::drawComplexControl(cc, opt, p, widget);
     }
@@ -3044,6 +3042,39 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
                 break;
             }
         }
+    case CC_SpinBox:
+        if (const Q4StyleOptionSpinBox *spin = qt_cast<const Q4StyleOptionSpinBox *>(opt)) {
+            const int spinner_w = 10,
+            spinner_h = 15;
+            int fw = pixelMetric(PM_SpinBoxFrameWidth, widget),
+            y = fw,
+            x = spin->rect.width() - fw - spinner_w;
+            switch(spin->parts) {
+                case SC_SpinBoxUp:
+                    ret = QRect(x, y + ((spin->rect.height() - fw * 2) / 2 - spinner_h),
+                                spinner_w, spinner_h);
+                    break;
+                case SC_SpinBoxDown:
+                    ret = QRect(x, y + (spin->rect.height() - fw * 2) / 2, spinner_w, spinner_h);
+                    break;
+                case SC_SpinBoxButtonField:
+                    ret = QRect(x, y, spinner_w, spin->rect.height() - fw * 2);
+                    break;
+                case SC_SpinBoxEditField:
+                    ret = QRect(fw, fw, spin->rect.width() - spinner_w - fw * 2 - macSpinBoxSep,
+                                spin->rect.height() - fw * 2);
+                    break;
+                case SC_SpinBoxFrame:
+                    ret = QRect(0, 0, spin->rect.width() - spinner_w - macSpinBoxSep,
+                                spin->rect.height());
+                    break;
+                default:
+                    break;
+            }
+        }
+        break;
+    default:
+        ret = QWindowsStyle::querySubControlMetrics(cc, opt, widget);
     }
     return ret;
 }
