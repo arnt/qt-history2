@@ -1040,12 +1040,14 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
 void QWidget::setMinimumSize( int minw, int minh )
 {
-    // This is really just a work-around. Layout shouldn't be asking
-    // for minimum sizes bigger than the screen.
-    if ( minw > qt_maxWindowRect.width() )
-	minw = qt_maxWindowRect.width();
-    if ( minh > qt_maxWindowRect.height() )
-	minh = qt_maxWindowRect.height();
+    if ( !qt_maxWindowRect.isEmpty() ) {
+	// This is really just a work-around. Layout shouldn't be asking
+	// for minimum sizes bigger than the screen.
+	if ( minw > qt_maxWindowRect.width() )
+	    minw = qt_maxWindowRect.width();
+	if ( minh > qt_maxWindowRect.height() )
+	    minh = qt_maxWindowRect.height();
+    }
 
 #if defined(QT_CHECK_RANGE)
     if ( minw < 0 || minh < 0 )
