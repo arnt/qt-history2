@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: gaschmuck!
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#2 $
 **
 ** Definition of QListBox class
 **
 ** Author  : Eirik Eng
 ** Created : 941121
 **
-** Copyright (c) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -23,7 +23,7 @@ class QListBox : public QTableWidget
     Q_OBJECT
 public:
     QListBox( QWidget *parent=0, const char *name = 0 );
-    ~QListBox(){}
+   ~QListBox();
 
     void setStrList( QStrList *, bool copy = TRUE );
     void setStrList( const char **, int numStrings, bool copy = TRUE );
@@ -60,7 +60,6 @@ protected:
     void   mouseReleaseEvent( QMouseEvent * );
     void   mouseDoubleClickEvent( QMouseEvent * );
     void   resizeEvent( QResizeEvent * );
-    bool   keyPressEvent( QKeyEvent * ){};
     void   timerEvent( QTimerEvent * );
 
     long   findItem( int yPos ) const;

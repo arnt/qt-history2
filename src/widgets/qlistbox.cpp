@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#2 $
 **
 ** Implementation of QListBox class
 **
 ** Author  : Eirik Eng
 ** Created : 941121
 **
-** Copyright (c) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#2 $";
 #endif
 
 
@@ -38,6 +38,12 @@ QListBox::QListBox( QWidget *parent, const char *name )
     setClipCellPainting( FALSE );
     setCutCellsHor( TRUE );
 }
+
+QListBox::~QListBox()
+{
+    delete strList;
+}
+
 
 void QListBox::setStrList( QStrList *l, bool copy )
 {
