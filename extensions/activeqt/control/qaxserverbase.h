@@ -53,7 +53,6 @@ public:
 extern CExeModule _Module;
 #include <atlcom.h>
 #include <atlctl.h>
-#include <atlhost.h>
 
 extern GUID IID_IAxServerBase;
 
@@ -79,9 +78,7 @@ class QAxServerBase :
     public IViewObjectExImpl<QAxServerBase>,
     public IOleInPlaceObjectWindowlessImpl<QAxServerBase>,
     public IOleInPlaceActiveObjectImpl<QAxServerBase>,
-    public IQuickActivateImpl<QAxServerBase>,
     public IProvideClassInfo2,
-    public CComCoClass<QAxServerBase>,
     public IConnectionPointContainer,
     public IPersistPropertyBag,
     public ISpecifyPropertyPages,
@@ -109,7 +106,6 @@ BEGIN_COM_MAP(QAxServerBase)
     COM_INTERFACE_ENTRY_IMPL(IOleInPlaceActiveObject)
     COM_INTERFACE_ENTRY_IMPL(IOleControl)
     COM_INTERFACE_ENTRY_IMPL(IOleObject)
-    COM_INTERFACE_ENTRY_IMPL(IQuickActivate)
     COM_INTERFACE_ENTRY(IConnectionPointContainer)
     COM_INTERFACE_ENTRY(IProvideClassInfo)
     COM_INTERFACE_ENTRY(IProvideClassInfo2)
@@ -269,6 +265,12 @@ END_MSG_MAP()
     void readMetaData();
 
     static QPtrList<CComTypeInfoHolder> *typeInfoHolderList;
+
+    // required for IOleObjectImpl or whatever to compile
+    static const CLSID& WINAPI GetObjectCLSID()
+    {
+	return CLSID_NULL;
+    }
 
     bool eventFilter( QObject *o, QEvent *e );
 private:

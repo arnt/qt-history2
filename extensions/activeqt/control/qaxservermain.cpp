@@ -938,9 +938,9 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 		ObjectMap[object].pfnCreateInstance = CreateInstance;
 		ObjectMap[object].pCF = NULL;
 		ObjectMap[object].dwRegister = 0;
-		ObjectMap[object].pfnGetObjectDescription = QAxServerBase::GetObjectDescription;
-		ObjectMap[object].pfnGetCategoryMap = QAxServerBase::GetCategoryMap;
-		ObjectMap[object].pfnObjectMain = QAxServerBase::ObjectMain;
+		ObjectMap[object].pfnGetObjectDescription = 0;
+		ObjectMap[object].pfnGetCategoryMap = 0;
+		ObjectMap[object].pfnObjectMain = 0;
 		++object;
 	    }
 
