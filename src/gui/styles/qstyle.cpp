@@ -44,7 +44,7 @@
     When calling QStyle functions from your own widgets, you must only
     pass the default QStyleOption or the argument that QStyle is
     documented to accept. For example, if the function expects
-    QStyleOption(QMenuItem *, int), passing QStyleOption(QMenuItem *)
+    QStyleOption(Q3MenuItem *, int), passing QStyleOption(Q3MenuItem *)
     leaves the optional integer argument uninitialized.
 
     When subclassing QStyle, you must similarly only expect the
@@ -178,7 +178,7 @@
 */
 
 /*!
-    \fn QMenuItem* QStyleOption::menuItem() const
+    \fn Q3MenuItem* QStyleOption::menuItem() const
 
     Returns a menu item if the appropriate constructor was called;
     otherwise the return value is undefined.
@@ -621,7 +621,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \value PE_ButtonBevel  generic button bevel.
     \value PE_ButtonTool  tool button, for example, a QToolButton.
     \value PE_ButtonDropDown  drop down button, for example, a tool
-        button that displays a popup menu, for example, QPopupMenu.
+        button that displays a popup menu, for example, Q3PopupMenu.
 
 
     \value PE_FocusRect  generic focus indicator.
@@ -658,7 +658,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \value PE_Panel  generic panel frame; see also QFrame.
     \value PE_PanelPopup  panel frame for popup windows/menus; see also
-        QPopupMenu.
+        Q3PopupMenu.
     \value PE_PanelMenuBar  panel frame for menu bars.
     \value PE_PanelDockWindow  panel frame for dock windows and toolbars.
     \value PE_PanelTabWidget  panel frame for tab widgets.
@@ -669,7 +669,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
         QTab.
 
     \value PE_MenuFrame frame displayed in a QMenu
-    \value PE_MenuBarFrame frame displayed in a QMenuBar
+    \value PE_MenuBarFrame frame displayed in a Q3MenuBar
 
     \value PE_HeaderSection  section of a list or table header; see also
         QHeader.
@@ -871,7 +871,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \value CE_ToolButtonLabel a tool button's label.
 
     \value CE_MenuBarItem  a menu item in a Q3MenuBar.
-    \value CE_MenuBarEmptyArea the empty area of a QMenuBar.
+    \value CE_MenuBarEmptyArea the empty area of a Q3MenuBar.
 
     \value CE_MenuItem  a menu item in a QMenu.
     \value CE_MenuScroller scrolling areas in a QMenu when the
@@ -996,15 +996,15 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
          \i12 &nbsp;
     \row \i \l Style_HasFocus \i Set if the progressbar has input focus.
 
-    \row \i13 \l{CE_MenuItem}(const \l QPopupMenu *)
+    \row \i13 \l{CE_MenuItem}(const \l Q3PopupMenu *)
          \i \l Style_Enabled \i Set if the menuitem is enabled.
-         \i13 \l QStyleOption (QMenuItem *mi, int tabwidth, int maxpmwidth)
+         \i13 \l QStyleOption (Q3MenuItem *mi, int tabwidth, int maxpmwidth)
                 \list
                 \i opt.\link QStyleOption::menuItem() menuItem\endlink()
                 \i opt.\link QStyleOption::tabWidth() tabWidth\endlink()
                 \i opt.\link QStyleOption::maxIconWidth() maxIconWidth\endlink()
                 \endlist
-         \i \e mi is the menu item being drawn. QMenuItem is currently an
+         \i \e mi is the menu item being drawn. Q3MenuItem is currently an
             internal class.
     \row \i \l Style_Active \i Set if the menuitem is the current item.
          \i \e tabwidth is the width of the tab column where key accelerators
@@ -1014,9 +1014,9 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
          \i \e maxpmwidth is the maximum width of the check column where
             checkmarks and iconsets are drawn.
 
-    \row \i14 \l{CE_MenuBarItem}(const \l QMenuBar *)
+    \row \i14 \l{CE_MenuBarItem}(const \l Q3MenuBar *)
          \i \l Style_Enabled \i Set if the menuitem is enabled
-         \i14 \l QStyleOption (QMenuItem *mi)
+         \i14 \l QStyleOption (Q3MenuItem *mi)
                 \list
                 \i opt.\link QStyleOption::menuItem() menuItem\endlink()
                 \endlist
@@ -1220,7 +1220,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \value SC_ToolButton  tool button; see also QToolbutton.
     \value SC_ToolButtonMenu subcontrol for opening a popup menu in a
-        tool button; see also QPopupMenu.
+        tool button; see also Q3PopupMenu.
 
 
     \value SC_TitleBarSysMenu        system menu button (i.e. restore, close, etc.).
@@ -1577,13 +1577,13 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \row \i \l CT_Splitter \i (const \l QSplitter *) \i Unused. \i &nbsp;
     \row \i \l CT_DockWindow \i (const \l QDockWindow *) \i Unused. \i &nbsp;
     \row \i \l CT_ProgressBar \i (const \l QProgressBar *) \i Unused. \i &nbsp;
-    \row \i \l CT_MenuItem \i (const QPopupMenu *)
-        \i \l QStyleOption (QMenuItem *mi)
+    \row \i \l CT_MenuItem \i (const Q3PopupMenu *)
+        \i \l QStyleOption (Q3MenuItem *mi)
             \list
             \i opt.\link QStyleOption::menuItem() menuItem\endlink()
             \endlist
         \i \e mi is the menu item to use when calculating the size.
-            QMenuItem is currently an internal class.
+            Q3MenuItem is currently an internal class.
     \endtable
 */
 

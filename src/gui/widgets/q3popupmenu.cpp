@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QPopupMenu class.
+** Implementation of Q3PopupMenu class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -12,9 +12,9 @@
 **
 ****************************************************************************/
 
-#include "qpopupmenu.h"
+#include "q3popupmenu.h"
 #ifndef QT_NO_POPUPMENU
-#include "qmenubar.h"
+#include "q3menubar.h"
 #include "qevent.h"
 #include "qdesktopwidget.h"
 #include "qaccel.h"
@@ -26,7 +26,7 @@
 #include "qtimer.h"
 #include "qwhatsthis.h"
 #include "qguardedptr.h"
-#include "qeffects_p.h"
+#include <private/qeffects_p.h>
 #include "qcursor.h"
 #include "qstyle.h"
 #include "qtimer.h"
@@ -66,7 +66,7 @@ static const int motifArrowVMargin        = 2;        // arrow vertical margin
 #endif
 
 // used for internal communication
-static QPopupMenu * syncMenu = 0;
+static Q3PopupMenu * syncMenu = 0;
 static int syncMenuId = 0;
 
 // Used to detect motion prior to mouse-release
@@ -83,7 +83,7 @@ static void cleanup()
     singleSingleShot = 0;
 }
 
-static void popupSubMenuLater(int msec, QPopupMenu * receiver) {
+static void popupSubMenuLater(int msec, Q3PopupMenu * receiver) {
     if (!singleSingleShot) {
         singleSingleShot = new QTimer(qApp, "popup submenu timer");
         qAddPostRoutine(cleanup);
@@ -99,8 +99,8 @@ static bool preventAnimation = false;
 
 
 /*!
-    \class QPopupMenu qpopupmenu.h
-    \brief The QPopupMenu class provides a popup menu widget.
+    \class Q3PopupMenu q3popupmenu.h
+    \brief The Q3PopupMenu class provides a popup menu widget.
 
     \ingroup application
     \ingroup basic
@@ -110,26 +110,26 @@ static bool preventAnimation = false;
     pull-down menu in a menu bar or a standalone context (popup) menu.
     Pull-down menus are shown by the menu bar when the user clicks on
     the respective item or presses the specified shortcut key. Use
-    QMenuBar::insertItem() to insert a popup menu into a menu bar.
+    Q3MenuBar::insertItem() to insert a popup menu into a menu bar.
     Show a context menu either asynchronously with popup() or
     synchronously with exec().
 
     Technically, a popup menu consists of a list of menu items. You
     add items with insertItem(). An item is either a string, a pixmap
     or a custom item that provides its own drawing function (see
-    QCustomMenuItem). In addition, items can have an optional icon
+    Q3CustomMenuItem). In addition, items can have an optional icon
     drawn on the very left side and an accelerator key such as
     "Ctrl+X".
 
     There are three kinds of menu items: separators, menu items that
     perform an action and menu items that show a submenu. Separators
     are inserted with insertSeparator(). For submenus, you pass a
-    pointer to a QPopupMenu in your call to insertItem(). All other
+    pointer to a Q3PopupMenu in your call to insertItem(). All other
     items are considered action items.
 
     When inserting action items you usually specify a receiver and a
     slot. The receiver will be notifed whenever the item is selected.
-    In addition, QPopupMenu provides two signals, activated() and
+    In addition, Q3PopupMenu provides two signals, activated() and
     highlighted(), which signal the identifier of the respective menu
     item. It is sometimes practical to connect several items to one
     slot. To distinguish between them, specify a slot that takes an
@@ -157,7 +157,7 @@ static bool preventAnimation = false;
     For ultimate flexibility, you can also add entire widgets as items
     into a popup menu (for example, a color selector).
 
-    A QPopupMenu can also provide a tear-off menu. A tear-off menu is
+    A Q3PopupMenu can also provide a tear-off menu. A tear-off menu is
     a top-level window that contains a copy of the menu. This makes it
     possible for the user to "tear off" frequently used menus and
     position them in a convenient place on the screen. If you want
@@ -169,20 +169,20 @@ static bool preventAnimation = false;
     original menu contains a custom widget item, this item is omitted.
 
     \link menu-example.html menu/menu.cpp\endlink is an example of
-    QMenuBar and QPopupMenu use.
+    Q3MenuBar and Q3PopupMenu use.
 
     \important insertItem removeItem removeItemAt clear text pixmap iconSet insertSeparator changeItem whatsThis setWhatsThis accel setAccel setItemEnabled isItemEnabled setItemVisible isItemVisible setItemChecked isItemChecked connectItem disconnectItem setItemParameter itemParameter
 
     <img src=qpopmenu-m.png> <img src=qpopmenu-w.png>
 
-    \sa QMenuBar
+    \sa Q3MenuBar
     \link guibooks.html#fowler GUI Design Handbook: Menu, Drop-Down and
     Pop-Up\endlink
 */
 
 
 /*!
-    \fn void QPopupMenu::aboutToShow()
+    \fn void Q3PopupMenu::aboutToShow()
 
     This signal is emitted just before the popup menu is displayed.
     You can connect it to any slot that sets up the menu contents
@@ -192,7 +192,7 @@ static bool preventAnimation = false;
 */
 
 /*!
-    \fn void QPopupMenu::aboutToHide()
+    \fn void Q3PopupMenu::aboutToHide()
 
     This signal is emitted just before the popup menu is hidden after
     it has been displayed.
@@ -203,31 +203,31 @@ static bool preventAnimation = false;
 */
 
 /*!
-    \fn void QPopupMenu::setWhatsThis(int id, const QString& s)
+    \fn void Q3PopupMenu::setWhatsThis(int id, const QString& s)
 
     Sets the menu text for menu item \a id to the string \a s.
 */
 
 /*!
-    \fn QString QPopupMenu::whatsThis(int id) const
+    \fn QString Q3PopupMenu::whatsThis(int id) const
 
     Returns the menu text for menu item \a id.
 */
 
 
 /*****************************************************************************
-  QPopupMenu member functions
+  Q3PopupMenu member functions
  *****************************************************************************/
 
-class QMenuDataData {
-    // attention: also defined in qmenudata.cpp
+class Q3MenuDataData {
+    // attention: also defined in q3menudata.cpp
 public:
-    QMenuDataData();
-    QPointer<QPopupMenu> aPopup;
+    Q3MenuDataData();
+    QPointer<Q3PopupMenu> aPopup;
     int aInt;
 };
 
-class QPopupMenuPrivate {
+class Q3PopupMenuPrivate {
 public:
     struct Scroll {
         enum { ScrollNone=0, ScrollUp=0x01, ScrollDown=0x02 };
@@ -241,7 +241,7 @@ public:
     QRegion mouseMoveBuffer;
 };
 
-static QPopupMenu* active_popup_menu = 0;
+static Q3PopupMenu* active_popup_menu = 0;
 
 /*!
     Constructs a popup menu called \a name with parent \a parent.
@@ -251,12 +251,12 @@ static QPopupMenu* active_popup_menu = 0;
     destroyed (as with any other QObject).
 */
 
-QPopupMenu::QPopupMenu(QWidget *parent, const char *name)
+Q3PopupMenu::Q3PopupMenu(QWidget *parent, const char *name)
     : Q3Frame(parent, name, WType_Popup)
 {
-    d = new QPopupMenuPrivate;
+    d = new Q3PopupMenuPrivate;
     d->scroll.scrollableSize = d->scroll.topScrollableIndex = 0;
-    d->scroll.scrollable = QPopupMenuPrivate::Scroll::ScrollNone;
+    d->scroll.scrollable = Q3PopupMenuPrivate::Scroll::ScrollNone;
     d->scroll.scrolltimer = 0;
     isPopupMenu          = true;
 #ifndef QT_NO_ACCEL
@@ -287,7 +287,7 @@ QPopupMenu::QPopupMenu(QWidget *parent, const char *name)
     Destroys the popup menu.
 */
 
-QPopupMenu::~QPopupMenu()
+Q3PopupMenu::~Q3PopupMenu()
 {
     if (syncMenu == this && qApp) {
         qApp->exit_loop();
@@ -302,7 +302,7 @@ QPopupMenu::~QPopupMenu()
         hidePopups();
     }
 
-    delete (QPopupMenu*) QMenuData::d->aPopup;  // tear-off menu
+    delete (Q3PopupMenu*) Q3MenuData::d->aPopup;  // tear-off menu
 
     preventAnimation = false;
     delete d;
@@ -312,43 +312,43 @@ QPopupMenu::~QPopupMenu()
 /*!
     Updates the item with identity \a id.
 */
-void QPopupMenu::updateItem(int id)                // update popup menu item
+void Q3PopupMenu::updateItem(int id)                // update popup menu item
 {
     updateRow(indexOf(id));
 }
 
 
-void QPopupMenu::setCheckable(bool enable)
+void Q3PopupMenu::setCheckable(bool enable)
 {
     if (isCheckable() != enable) {
         checkable = enable;
         badSize = true;
-        if (QMenuData::d->aPopup)
-            QMenuData::d->aPopup->setCheckable(enable);
+        if (Q3MenuData::d->aPopup)
+            Q3MenuData::d->aPopup->setCheckable(enable);
     }
 }
 
 /*!
-    \property QPopupMenu::checkable
+    \property Q3PopupMenu::checkable
     \brief whether the display of check marks on menu items is enabled
 
     When true, the display of check marks on menu items is enabled.
     Checking is always enabled when in Windows-style.
 
-    \sa QMenuData::setItemChecked()
+    \sa Q3MenuData::setItemChecked()
 */
 
-bool QPopupMenu::isCheckable() const
+bool Q3PopupMenu::isCheckable() const
 {
     return checkable;
 }
 
-void QPopupMenu::menuContentsChanged()
+void Q3PopupMenu::menuContentsChanged()
 {
     // here the part that can't be delayed
-    QMenuData::menuContentsChanged();
+    Q3MenuData::menuContentsChanged();
     badSize = true;                                // might change the size
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
     mac_dirty_popup = 1;
 #endif
     if(pendingDelayedContentsChanges)
@@ -358,7 +358,7 @@ void QPopupMenu::menuContentsChanged()
         QTimer::singleShot(0, this, SLOT(performDelayedChanges()));
 }
 
-void QPopupMenu::performDelayedContentsChanged()
+void Q3PopupMenu::performDelayedContentsChanged()
 {
     pendingDelayedContentsChanges = 0;
     // here the part the can be delayed
@@ -374,7 +374,7 @@ void QPopupMenu::performDelayedContentsChanged()
         updateSize(true);
         update();
     }
-    QPopupMenu* p = QMenuData::d->aPopup;
+    Q3PopupMenu* p = Q3MenuData::d->aPopup;
     if (p && p->isVisible()) {
         if (p->mitemsAutoDelete) {
             while (!p->mitems->isEmpty())
@@ -383,20 +383,20 @@ void QPopupMenu::performDelayedContentsChanged()
             p->mitems->clear();
         }
         for (int i = 0; i < mitems->size(); ++i) {
-            QMenuItem *mi = mitems->at(i);
-            if (mi->id() != QMenuData::d->aInt && !mi->widget())
+            Q3MenuItem *mi = mitems->at(i);
+            if (mi->id() != Q3MenuData::d->aInt && !mi->widget())
                 p->mitems->append(mi);
         }
         p->updateSize(true);
         p->update();
     }
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
     mac_dirty_popup = 1;
 #endif
 }
 
 
-void QPopupMenu::menuStateChanged()
+void Q3PopupMenu::menuStateChanged()
 {
     // here the part that can't be delayed
     if(pendingDelayedStateChanges)
@@ -406,7 +406,7 @@ void QPopupMenu::menuStateChanged()
         QTimer::singleShot(0, this, SLOT(performDelayedChanges()));
 }
 
-void QPopupMenu::performDelayedStateChanged()
+void Q3PopupMenu::performDelayedStateChanged()
 {
     pendingDelayedStateChanges = 0;
     // here the part that can be delayed
@@ -415,11 +415,11 @@ void QPopupMenu::performDelayedStateChanged()
     // if you remove this, see performDelayedContentsChanged()
 #endif
     update();
-    if (QMenuData::d->aPopup)
-        QMenuData::d->aPopup->update();
+    if (Q3MenuData::d->aPopup)
+        Q3MenuData::d->aPopup->update();
 }
 
-void QPopupMenu::performDelayedChanges()
+void Q3PopupMenu::performDelayedChanges()
 {
     if(pendingDelayedContentsChanges)
         performDelayedContentsChanged();
@@ -427,7 +427,7 @@ void QPopupMenu::performDelayedChanges()
         performDelayedStateChanged();
 }
 
-void QPopupMenu::menuInsPopup(QPopupMenu *popup)
+void Q3PopupMenu::menuInsPopup(Q3PopupMenu *popup)
 {
     connect(popup, SIGNAL(activatedRedirect(int)),
              SLOT(subActivated(int)));
@@ -437,7 +437,7 @@ void QPopupMenu::menuInsPopup(QPopupMenu *popup)
              this, SLOT(popupDestroyed(QObject*)));
 }
 
-void QPopupMenu::menuDelPopup(QPopupMenu *popup)
+void Q3PopupMenu::menuDelPopup(Q3PopupMenu *popup)
 {
     popup->disconnect(SIGNAL(activatedRedirect(int)));
     popup->disconnect(SIGNAL(highlightedRedirect(int)));
@@ -446,7 +446,7 @@ void QPopupMenu::menuDelPopup(QPopupMenu *popup)
 }
 
 
-void QPopupMenu::frameChanged()
+void Q3PopupMenu::frameChanged()
 {
     menuContentsChanged();
 }
@@ -465,7 +465,7 @@ void QPopupMenu::frameChanged()
     depending on the menu's current contents.
 */
 
-void QPopupMenu::popup(const QPoint &pos, int indexAtPoint)
+void Q3PopupMenu::popup(const QPoint &pos, int indexAtPoint)
 {
     if (!isPopup() && isVisible())
         hide();
@@ -474,7 +474,7 @@ void QPopupMenu::popup(const QPoint &pos, int indexAtPoint)
     if (isVisible() || !isEnabled())
         return;
 
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
     if(macPopupMenu(pos, indexAtPoint))
         return;
 #endif
@@ -487,7 +487,7 @@ void QPopupMenu::popup(const QPoint &pos, int indexAtPoint)
     // #### since anything can have WType_Popup window flag.
     // #### This includes stuff in QPushButton and some stuff for setting
     // #### the geometry of QDialog.
-    // QPopupMenu
+    // Q3PopupMenu
     // ::exec()
     // ::popup()
     // QPushButton (shouldn't require QMenuPopup)
@@ -498,7 +498,7 @@ void QPopupMenu::popup(const QPoint &pos, int indexAtPoint)
 #endif
 
     if(d->scroll.scrollable) {
-        d->scroll.scrollable = QPopupMenuPrivate::Scroll::ScrollNone;
+        d->scroll.scrollable = Q3PopupMenuPrivate::Scroll::ScrollNone;
         d->scroll.topScrollableIndex = d->scroll.scrollableSize = 0;
         badSize = true;
     }
@@ -564,10 +564,10 @@ void QPopupMenu::popup(const QPoint &pos, int indexAtPoint)
             d->scroll.scrollableSize = h - off_top - off_bottom - 2*vextra;
             if(off_top) {
                 move(x, y = sy);
-                d->scroll.scrollable = d->scroll.scrollable | QPopupMenuPrivate::Scroll::ScrollUp;
+                d->scroll.scrollable = d->scroll.scrollable | Q3PopupMenuPrivate::Scroll::ScrollUp;
             }
             if(off_bottom)
-                d->scroll.scrollable = d->scroll.scrollable | QPopupMenuPrivate::Scroll::ScrollDown;
+                d->scroll.scrollable = d->scroll.scrollable | Q3PopupMenuPrivate::Scroll::ScrollDown;
             if(off_top != off_bottom && indexAtPoint >= 0) {
                 ch -= (vextra * 2);
                 if(ch > sh) //no bigger than the screen!
@@ -582,7 +582,7 @@ void QPopupMenu::popup(const QPoint &pos, int indexAtPoint)
                 for (int i = 0; i < mitems->size(); ++i) {
                     if (tmp_y >= off_top)
                         break;
-                    QMenuItem *mi = mitems->at(i);
+                    Q3MenuItem *mi = mitems->at(i);
                     QSize sz = style().sizeFromContents(QStyle::CT_Q3PopupMenuItem, this,
                                                         QSize(0, itemHeight(mi)),
                                                         QStyleOption(mi,maxPMWidth,0));
@@ -610,19 +610,19 @@ void QPopupMenu::popup(const QPoint &pos, int indexAtPoint)
     if (qApp->reverseLayout()) {
         if (snapToMouse && (x + w/2 > mouse.x()) ||
              (parentMenu && parentMenu->isPopupMenu &&
-               (x + w/2 > ((QPopupMenu*)parentMenu)->x())))
+               (x + w/2 > ((Q3PopupMenu*)parentMenu)->x())))
             hGuess = QEffects::RightScroll;
     } else {
         if (snapToMouse && (x + w/2 < mouse.x()) ||
              (parentMenu && parentMenu->isPopupMenu &&
-               (x + w/2 < ((QPopupMenu*)parentMenu)->x())))
+               (x + w/2 < ((Q3PopupMenu*)parentMenu)->x())))
             hGuess = QEffects::LeftScroll;
     }
 
 #ifndef QT_NO_MENUBAR
     if (snapToMouse && (y + h/2 < mouse.y()) ||
          (parentMenu && parentMenu->isMenuBar &&
-           (y + h/2 < ((QMenuBar*)parentMenu)->mapToGlobal(((QMenuBar*)parentMenu)->pos()).y())))
+           (y + h/2 < ((Q3MenuBar*)parentMenu)->mapToGlobal(((Q3MenuBar*)parentMenu)->pos()).y())))
         vGuess = QEffects::UpScroll;
 #endif
 
@@ -645,44 +645,44 @@ void QPopupMenu::popup(const QPoint &pos, int indexAtPoint)
 }
 
 /*!
-    \fn void QPopupMenu::activated(int id)
+    \fn void Q3PopupMenu::activated(int id)
 
     This signal is emitted when a menu item is selected; \a id is the
     id of the selected item.
 
     Normally, you connect each menu item to a single slot using
-    QMenuData::insertItem(), but sometimes you will want to connect
+    Q3MenuData::insertItem(), but sometimes you will want to connect
     several items to a single slot (most often if the user selects
     from an array). This signal is useful in such cases.
 
-    \sa highlighted(), QMenuData::insertItem()
+    \sa highlighted(), Q3MenuData::insertItem()
 */
 
 /*!
-    \fn void QPopupMenu::highlighted(int id)
+    \fn void Q3PopupMenu::highlighted(int id)
 
     This signal is emitted when a menu item is highlighted; \a id is
     the id of the highlighted item.
 
-    \sa activated(), QMenuData::insertItem()
+    \sa activated(), Q3MenuData::insertItem()
 */
 
-/*! \fn void QPopupMenu::highlightedRedirect(int id)
+/*! \fn void Q3PopupMenu::highlightedRedirect(int id)
   \internal
   Used internally to connect submenus to their parents.
 */
 
-/*! \fn void QPopupMenu::activatedRedirect(int id)
+/*! \fn void Q3PopupMenu::activatedRedirect(int id)
   \internal
   Used internally to connect submenus to their parents.
 */
 
-void QPopupMenu::subActivated(int id)
+void Q3PopupMenu::subActivated(int id)
 {
     emit activatedRedirect(id);
 }
 
-void QPopupMenu::subHighlighted(int id)
+void Q3PopupMenu::subHighlighted(int id)
 {
     emit highlightedRedirect(id);
 }
@@ -690,9 +690,9 @@ void QPopupMenu::subHighlighted(int id)
 static bool fromAccel = false;
 
 #ifndef QT_NO_ACCEL
-void QPopupMenu::accelActivated(int id)
+void Q3PopupMenu::accelActivated(int id)
 {
-    QMenuItem *mi = findItem(id);
+    Q3MenuItem *mi = findItem(id);
     if (mi && mi->isEnabledAndVisible()) {
         QGuardedPtr<QSignalEmitter> signal = mi->signal();
         int value = mi->signalValue();
@@ -704,18 +704,18 @@ void QPopupMenu::accelActivated(int id)
     }
 }
 
-void QPopupMenu::accelDestroyed()                // accel about to be deleted
+void Q3PopupMenu::accelDestroyed()                // accel about to be deleted
 {
     autoaccel = 0;                                // don't delete it twice!
 }
 #endif //QT_NO_ACCEL
 
-void QPopupMenu::popupDestroyed(QObject *o)
+void Q3PopupMenu::popupDestroyed(QObject *o)
 {
-    removePopup((QPopupMenu*)o);
+    removePopup((Q3PopupMenu*)o);
 }
 
-void QPopupMenu::actSig(int id, bool inwhatsthis)
+void Q3PopupMenu::actSig(int id, bool inwhatsthis)
 {
     if (!inwhatsthis) {
         emit activated(id);
@@ -735,7 +735,7 @@ void QPopupMenu::actSig(int id, bool inwhatsthis)
     emit activatedRedirect(id);
 }
 
-void QPopupMenu::hilitSig(int id)
+void Q3PopupMenu::hilitSig(int id)
 {
     emit highlighted(id);
     emit highlightedRedirect(id);
@@ -746,14 +746,14 @@ void QPopupMenu::hilitSig(int id)
 #endif
 }
 
-void QPopupMenu::setFirstItemActive()
+void Q3PopupMenu::setFirstItemActive()
 {
     int ai = 0;
     if(d->scroll.scrollable)
         ai = d->scroll.topScrollableIndex;
     for (int i = ai; i < mitems->size(); ++i) {
-        QMenuItem *mi = mitems->at(i);
-        if (!mi->isSeparator() && mi->id() != QMenuData::d->aInt &&
+        Q3MenuItem *mi = mitems->at(i);
+        if (!mi->isSeparator() && mi->id() != Q3MenuData::d->aInt &&
            (style().styleHint(QStyle::SH_Q3PopupMenu_AllowActiveAndDisabled, this) || mi->isEnabledAndVisible())) {
             setActiveItem(ai);
             return;
@@ -768,9 +768,9 @@ void QPopupMenu::setFirstItemActive()
   Hides all popup menus (in this menu tree) that are currently open.
 */
 
-void QPopupMenu::hideAllPopups()
+void Q3PopupMenu::hideAllPopups()
 {
-    register QMenuData *top = this;                // find top level popup
+    register Q3MenuData *top = this;                // find top level popup
     if (!preventAnimation)
         QTimer::singleShot(10, this, SLOT(allowAnimation()));
     preventAnimation = true;
@@ -779,9 +779,9 @@ void QPopupMenu::hideAllPopups()
         return; // nothing to do
 
     while (top->parentMenu && top->parentMenu->isPopupMenu
-            && ((QPopupMenu*)top->parentMenu)->isPopup())
+            && ((Q3PopupMenu*)top->parentMenu)->isPopup())
         top = top->parentMenu;
-    ((QPopupMenu*)top)->hide();                        // cascade from top level
+    ((Q3PopupMenu*)top)->hide();                        // cascade from top level
 
 }
 
@@ -790,14 +790,14 @@ void QPopupMenu::hideAllPopups()
   Hides all popup sub-menus.
 */
 
-void QPopupMenu::hidePopups()
+void Q3PopupMenu::hidePopups()
 {
     if (!preventAnimation)
         QTimer::singleShot(10, this, SLOT(allowAnimation()));
     preventAnimation = true;
 
     for (int i = 0; i < mitems->size(); ++i) {
-        QMenuItem *mi = mitems->at(i);
+        Q3MenuItem *mi = mitems->at(i);
         if (mi->popup() && mi->popup()->parentMenu == this) //avoid circularity
             mi->popup()->hide();
     }
@@ -815,17 +815,17 @@ void QPopupMenu::hidePopups()
   Sends the event to the menu bar.
 */
 
-bool QPopupMenu::tryMenuBar(QMouseEvent *e)
+bool Q3PopupMenu::tryMenuBar(QMouseEvent *e)
 {
-    register QMenuData *top = this;                // find top level
+    register Q3MenuData *top = this;                // find top level
     while (top->parentMenu)
         top = top->parentMenu;
 #ifndef QT_NO_MENUBAR
     return top->isMenuBar ?
-        ((QMenuBar *)top)->tryMouseEvent(this, e) :
-                              ((QPopupMenu*)top)->tryMouseEvent(this, e);
+        ((Q3MenuBar *)top)->tryMouseEvent(this, e) :
+                              ((Q3PopupMenu*)top)->tryMouseEvent(this, e);
 #else
-    return ((QPopupMenu*)top)->tryMouseEvent(this, e);
+    return ((Q3PopupMenu*)top)->tryMouseEvent(this, e);
 #endif
 }
 
@@ -833,7 +833,7 @@ bool QPopupMenu::tryMenuBar(QMouseEvent *e)
 /*!
   \internal
 */
-bool QPopupMenu::tryMouseEvent(QPopupMenu *p, QMouseEvent * e)
+bool Q3PopupMenu::tryMouseEvent(Q3PopupMenu *p, QMouseEvent * e)
 {
     if (p == this)
         return false;
@@ -850,17 +850,17 @@ bool QPopupMenu::tryMouseEvent(QPopupMenu *p, QMouseEvent * e)
   Tells the menu bar to go back to idle state.
 */
 
-void QPopupMenu::byeMenuBar()
+void Q3PopupMenu::byeMenuBar()
 {
 #ifndef QT_NO_MENUBAR
-    register QMenuData *top = this;                // find top level
+    register Q3MenuData *top = this;                // find top level
     while (top->parentMenu)
         top = top->parentMenu;
 #endif
     hideAllPopups();
 #ifndef QT_NO_MENUBAR
     if (top->isMenuBar)
-        ((QMenuBar *)top)->goodbye();
+        ((Q3MenuBar *)top)->goodbye();
 #endif
 }
 
@@ -871,7 +871,7 @@ void QPopupMenu::byeMenuBar()
   it is a separator item.
 */
 
-int QPopupMenu::itemAtPos(const QPoint &pos, bool ignoreSeparator) const
+int Q3PopupMenu::itemAtPos(const QPoint &pos, bool ignoreSeparator) const
 {
     if (!contentsRect().contains(pos))
         return -1;
@@ -888,10 +888,10 @@ int QPopupMenu::itemAtPos(const QPoint &pos, bool ignoreSeparator) const
     }
     int itemw = contentsRect().width() / ncols;
     QSize sz;
-    QMenuItem *mi = 0;
+    Q3MenuItem *mi = 0;
     for (; row < mitems->size(); ++row) {
         mi = mitems->at(row);
-        if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
+        if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown &&
            y >= contentsRect().height() - style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this))
             return -1;
         if (!mi->isVisible())
@@ -924,13 +924,13 @@ int QPopupMenu::itemAtPos(const QPoint &pos, bool ignoreSeparator) const
   Returns the geometry of item number \a index.
 */
 
-QRect QPopupMenu::itemGeometry(int index)
+QRect Q3PopupMenu::itemGeometry(int index)
 {
     QSize sz;
     int row = 0, scrollh = 0;
     int x = contentsRect().x();
     int y = contentsRect().y();
-    if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp) {
+    if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp) {
         scrollh = style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
         y += scrollh;
         if(d->scroll.topScrollableIndex < mitems->size())
@@ -938,8 +938,8 @@ QRect QPopupMenu::itemGeometry(int index)
     }
     int itemw = contentsRect().width() / ncols;
     for (; row < mitems->size(); ++row) {
-        QMenuItem *mi = mitems->at(row);
-        if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
+        Q3MenuItem *mi = mitems->at(row);
+        if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown &&
            y >= contentsRect().height() - scrollh)
             break;
         if (!mi->isVisible())
@@ -952,7 +952,7 @@ QRect QPopupMenu::itemGeometry(int index)
         sz = sz.expandedTo(QSize(itemw, sz.height()));
         itemw = sz.width();
         itemh = sz.height();
-        if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
+        if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown &&
            (y + itemh > contentsRect().height() - scrollh))
             itemh -= (y + itemh) - (contentsRect().height() - scrollh);
         if (ncols > 1 && y + itemh > contentsRect().bottom()) {
@@ -974,7 +974,7 @@ QRect QPopupMenu::itemGeometry(int index)
   of the items.
 */
 
-QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
+QSize Q3PopupMenu::updateSize(bool force_update, bool do_resize)
 {
     ensurePolished();
     if (count() == 0) {
@@ -987,9 +987,9 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 
     int scrheight = 0;
     if(d->scroll.scrollableSize) {
-        if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp)
+        if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp)
             scrheight += style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
-        if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown)
+        if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown)
             scrheight += style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
     }
 
@@ -1005,7 +1005,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
         tab = 0;
 
         for (int i = 0; i < mitems->size(); ++i) {
-            QMenuItem *mi = mitems->at(i);
+            Q3MenuItem *mi = mitems->at(i);
             QWidget *miw = mi->widget();
             if (miw) {
                 if (miw->parentWidget() != this) {
@@ -1013,7 +1013,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
                     miw->show();
                 }
                 // widget items musn't propgate mouse events
-                ((QPopupMenu*)miw)->setWFlags(WNoMousePropagation);
+                ((Q3PopupMenu*)miw)->setWFlags(WNoMousePropagation);
             }
             if (mi->custom())
                 mi->custom()->setFont(font());
@@ -1025,11 +1025,11 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
         int dh = QApplication::desktop()->height();
         ncols = 1;
         for (int i = 0; i < mitems->size(); ++i) {
-            QMenuItem *mi = mitems->at(i);
+            Q3MenuItem *mi = mitems->at(i);
             if (!mi->isVisible())
                 continue;
             int w = 0;
-            int itemHeight = QPopupMenu::itemHeight(mi);
+            int itemHeight = Q3PopupMenu::itemHeight(mi);
 
             if (mi->widget()) {
                 QSize s(mi->widget()->sizeHint());
@@ -1088,7 +1088,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 
                 if (mi->text().isNull() && !mi->pixmap() && !mi->iconSet() &&
                      !mi->isSeparator() && !mi->widget() && !mi->custom())
-                    qWarning("QPopupMenu: (%s) Popup has invalid menu item",
+                    qWarning("Q3PopupMenu: (%s) Popup has invalid menu item",
                               objectName("unnamed"));
             }
             height += itemHeight;
@@ -1137,7 +1137,7 @@ if(do_resize) {
 
         bool hasWidgetItems = false;
         for (int i = 0; i < mitems->size(); ++i) {
-            QMenuItem *mi = mitems->at(i);
+            Q3MenuItem *mi = mitems->at(i);
             if(mi->widget()) {
                 hasWidgetItems = true;
                 break;
@@ -1151,7 +1151,7 @@ if(do_resize) {
             int y = contentsRect().y();
             int itemw = contentsRect().width() / ncols;
             for (int i = 0; i < mitems->size(); ++i) {
-                QMenuItem *mi = mitems->at(i);
+                Q3MenuItem *mi = mitems->at(i);
                 if (!mi->isVisible())
                     continue;
 
@@ -1184,7 +1184,7 @@ if(do_resize) {
   changed a state, or it is something else if called from the menu bar.
 */
 
-void QPopupMenu::updateAccel(QWidget *parent)
+void Q3PopupMenu::updateAccel(QWidget *parent)
 {
     if (parent) {
         delete autoaccel;
@@ -1222,7 +1222,7 @@ void QPopupMenu::updateAccel(QWidget *parent)
             autoaccel->setEnabled(false);
     }
     for (int i = 0; i < mitems->size(); ++i) {
-        QMenuItem *mi = mitems->at(i);
+        Q3MenuItem *mi = mitems->at(i);
         QKeySequence k = mi->key();
         if ((int)k) {
             int id = autoaccel->insertItem(k, mi->id());
@@ -1254,7 +1254,7 @@ void QPopupMenu::updateAccel(QWidget *parent)
         }
         if (mi->popup() && parent) {                // call recursively
             // reuse
-            QPopupMenu* popup = mi->popup();
+            Q3PopupMenu* popup = mi->popup();
             if (!popup->avoid_circularity) {
                 popup->avoid_circularity = 1;
                 popup->updateAccel(parent);
@@ -1269,13 +1269,13 @@ void QPopupMenu::updateAccel(QWidget *parent)
   It would be better to check in the slot.
 */
 
-void QPopupMenu::enableAccel(bool enable)
+void Q3PopupMenu::enableAccel(bool enable)
 {
     if (autoaccel)
         autoaccel->setEnabled(enable);
     accelDisabled = !enable;                // rememeber when updateAccel
     for (int i = 0; i < mitems->size(); ++i) {
-        QMenuItem *mi = mitems->at(i);
+        Q3MenuItem *mi = mitems->at(i);
         if (mi->popup())                        // call recursively
             mi->popup()->enableAccel(enable);
     }
@@ -1285,7 +1285,7 @@ void QPopupMenu::enableAccel(bool enable)
 /*!
     \reimp
 */
-void QPopupMenu::setFont(const QFont &font)
+void Q3PopupMenu::setFont(const QFont &font)
 {
     QWidget::setFont(font);
     badSize = true;
@@ -1298,7 +1298,7 @@ void QPopupMenu::setFont(const QFont &font)
 /*!
     \reimp
 */
-void QPopupMenu::show()
+void Q3PopupMenu::show()
 {
     if (!isPopup() && isVisible())
         hide();
@@ -1324,7 +1324,7 @@ void QPopupMenu::show()
     \reimp
 */
 
-void QPopupMenu::hide()
+void Q3PopupMenu::hide()
 {
     if (syncMenu == this && qApp) {
         qApp->exit_loop();
@@ -1353,7 +1353,7 @@ void QPopupMenu::hide()
 /*!
     Calculates the height in pixels of the item in row \a row.
 */
-int QPopupMenu::itemHeight(int row) const
+int Q3PopupMenu::itemHeight(int row) const
 {
     return itemHeight(mitems->at(row));
 }
@@ -1363,7 +1363,7 @@ int QPopupMenu::itemHeight(int row) const
 
     Calculates the height in pixels of the menu item \a mi.
 */
-int QPopupMenu::itemHeight(QMenuItem *mi) const
+int Q3PopupMenu::itemHeight(Q3MenuItem *mi) const
 {
     if  (mi->widget())
         return mi->widget()->height();
@@ -1397,7 +1397,7 @@ int QPopupMenu::itemHeight(QMenuItem *mi) const
 
     \sa QStyle::drawControl()
 */
-void QPopupMenu::drawItem(QPainter* p, int tab_, QMenuItem* mi,
+void Q3PopupMenu::drawItem(QPainter* p, int tab_, Q3MenuItem* mi,
                            bool act, int x, int y, int w, int h)
 {
     QStyle::SFlags flags = QStyle::Style_Default;
@@ -1413,7 +1413,7 @@ void QPopupMenu::drawItem(QPainter* p, int tab_, QMenuItem* mi,
         pal.setCurrentColorGroup(QPalette::Disabled);
 
     if (mi->custom() && mi->custom()->fullSpan()) {
-        QMenuItem dummy;
+        Q3MenuItem dummy;
         style().drawControl(QStyle::CE_Q3PopupMenuItem, p, this, QRect(x, y, w, h), pal,
                             flags, QStyleOption(&dummy,maxPMWidth,tab_));
         mi->custom()->paint(p, pal, act, flags&QStyle::Style_Enabled, x, y, w, h);
@@ -1426,7 +1426,7 @@ void QPopupMenu::drawItem(QPainter* p, int tab_, QMenuItem* mi,
 /*!
     Draws all menu items using painter \a p.
 */
-void QPopupMenu::drawContents(QPainter* p)
+void Q3PopupMenu::drawContents(QPainter* p)
 {
     int row = 0;
     int x = contentsRect().x();
@@ -1435,7 +1435,7 @@ void QPopupMenu::drawContents(QPainter* p)
         if(d->scroll.topScrollableIndex < mitems->size())
             row = d->scroll.topScrollableIndex;
 
-        if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp) {
+        if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp) {
             QRect rect(x, y, contentsRect().width(),
                        style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this));
             if(!p->hasClipping() || p->clipRegion().contains(rect)) {
@@ -1453,8 +1453,8 @@ void QPopupMenu::drawContents(QPainter* p)
     QSize sz;
     QStyle::SFlags flags;
     for (; row < mitems->size(); ++row) {
-        QMenuItem *mi = mitems->at(row);
-        if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
+        Q3MenuItem *mi = mitems->at(row);
+        if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown &&
            y >= contentsRect().height() - style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this))
             break;
         if (!mi->isVisible())
@@ -1477,7 +1477,7 @@ void QPopupMenu::drawContents(QPainter* p)
                     if (isEnabled() && mi->isEnabledAndVisible())
                         flags |= QStyle::Style_Enabled;
                     style().drawControl(QStyle::CE_Q3PopupMenuItem, p, this, rect,
-                                        palette(), flags, QStyleOption((QMenuItem*)0,maxPMWidth));
+                                        palette(), flags, QStyleOption((Q3MenuItem*)0,maxPMWidth));
                 }
             }
             y = contentsRect().y();
@@ -1494,10 +1494,10 @@ void QPopupMenu::drawContents(QPainter* p)
             if (isEnabled())
                 flags |= QStyle::Style_Enabled;
             style().drawControl(QStyle::CE_Q3PopupMenuItem, p, this, rect,
-                                palette(), flags, QStyleOption((QMenuItem*)0,maxPMWidth));
+                                palette(), flags, QStyleOption((Q3MenuItem*)0,maxPMWidth));
         }
     }
-    if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown) {
+    if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown) {
         int sh = style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
         QRect rect(x, contentsRect().height() - sh, contentsRect().width(), sh);
         if(!p->hasClipping() || p->clipRegion().contains(rect)) {
@@ -1525,7 +1525,7 @@ void QPopupMenu::drawContents(QPainter* p)
     \reimp
 */
 
-void QPopupMenu::paintEvent(QPaintEvent *e)
+void Q3PopupMenu::paintEvent(QPaintEvent *e)
 {
     Q3Frame::paintEvent(e);
 }
@@ -1533,11 +1533,11 @@ void QPopupMenu::paintEvent(QPaintEvent *e)
 /*!
     \reimp
 */
-bool QPopupMenu::event(QEvent *e)
+bool Q3PopupMenu::event(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::WhatsThis: {
-        QMenuItem *mi = mitems->value(itemAtPos(static_cast<QHelpEvent *>(e)->pos()), 0);
+        Q3MenuItem *mi = mitems->value(itemAtPos(static_cast<QHelpEvent *>(e)->pos()), 0);
         if (mi && mi->whatsThis().size()) {
             QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(),
                                  mi->whatsThis(), this);
@@ -1547,7 +1547,7 @@ bool QPopupMenu::event(QEvent *e)
 #ifdef QT_ACCESSIBILITY_SUPPORT
     case QEvent::AccessibleQueryHelp: {
         QAccessibleInterface *iface = 0;
-        QMenuItem *mi = mitems->value(itemAtPos(static_cast<QHelpEvent *>(e)->pos()), 0);
+        Q3MenuItem *mi = mitems->value(itemAtPos(static_cast<QHelpEvent *>(e)->pos()), 0);
         if (mi && mi->whatsThis().size()
             && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
             iface->setText(QAccessible::Help, 0, mi->whatsThis());
@@ -1565,7 +1565,7 @@ bool QPopupMenu::event(QEvent *e)
 /*!
     \reimp
 */
-void QPopupMenu::closeEvent(QCloseEvent * e) {
+void Q3PopupMenu::closeEvent(QCloseEvent * e) {
     e->accept();
     byeMenuBar();
 }
@@ -1574,12 +1574,12 @@ void QPopupMenu::closeEvent(QCloseEvent * e) {
     \reimp
 */
 
-void QPopupMenu::mousePressEvent(QMouseEvent *e)
+void Q3PopupMenu::mousePressEvent(QMouseEvent *e)
 {
     int sh = style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
     if (rect().contains(e->pos()) &&
-        ((d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp && e->pos().y() <= sh) || //up
-         (d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
+        ((d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp && e->pos().y() <= sh) || //up
+         (d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown &&
              e->pos().y() >= contentsRect().height() - sh))) //down
         return;
 
@@ -1591,11 +1591,11 @@ void QPopupMenu::mousePressEvent(QMouseEvent *e)
         }
         return;
     }
-    register QMenuItem *mi = mitems->at(item);
+    register Q3MenuItem *mi = mitems->at(item);
     if (item != actItem)                        // new item activated
         setActiveItem(item);
 
-    QPopupMenu *popup = mi->popup();
+    Q3PopupMenu *popup = mi->popup();
     if (popup) {
         if (popup->isVisible()) {                // sub menu already open
             int pactItem = popup->actItem;
@@ -1615,7 +1615,7 @@ void QPopupMenu::mousePressEvent(QMouseEvent *e)
     \reimp
 */
 
-void QPopupMenu::mouseReleaseEvent(QMouseEvent *e)
+void Q3PopupMenu::mouseReleaseEvent(QMouseEvent *e)
 {
     // do not hide a standalone context menu on press-release, unless
     // the user moved the mouse significantly
@@ -1629,8 +1629,8 @@ void QPopupMenu::mouseReleaseEvent(QMouseEvent *e)
     int sh = style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
     if (!rect().contains(e->pos()) && tryMenuBar(e))
         return;
-    else if((d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp && e->pos().y() <= sh) || //up
-            (d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
+    else if((d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp && e->pos().y() <= sh) || //up
+            (d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown &&
              e->pos().y() >= contentsRect().height() - sh)) //down
         return;
 
@@ -1642,7 +1642,7 @@ void QPopupMenu::mouseReleaseEvent(QMouseEvent *e)
         else
             byeMenuBar();
     } else {        // selected menu item!
-        register QMenuItem *mi = mitems->at(actItem);
+        register Q3MenuItem *mi = mitems->at(actItem);
         if (mi ->widget()) {
             QWidget* widgetAt = QApplication::widgetAt(e->globalPos());
             if (widgetAt && widgetAt != this) {
@@ -1651,7 +1651,7 @@ void QPopupMenu::mouseReleaseEvent(QMouseEvent *e)
                 QApplication::sendEvent(widgetAt, &me);
             }
         }
-        QPopupMenu *popup = mi->popup();
+        Q3PopupMenu *popup = mi->popup();
 #ifndef QT_NO_WHATSTHIS
             bool b = QWhatsThis::inWhatsThisMode();
 #else
@@ -1689,12 +1689,12 @@ void QPopupMenu::mouseReleaseEvent(QMouseEvent *e)
     \reimp
 */
 
-void QPopupMenu::mouseMoveEvent(QMouseEvent *e)
+void Q3PopupMenu::mouseMoveEvent(QMouseEvent *e)
 {
     motion++;
 
     if (parentMenu && parentMenu->isPopupMenu) {
-        QPopupMenu* p = (QPopupMenu*)parentMenu;
+        Q3PopupMenu* p = (Q3PopupMenu*)parentMenu;
         int myIndex;
 
         p->findPopup(this, &myIndex);
@@ -1739,7 +1739,7 @@ void QPopupMenu::mouseMoveEvent(QMouseEvent *e)
         if ((e->state() & Qt::MouseButtonMask) && !mouseBtDn)
             mouseBtDn = true; // so mouseReleaseEvent will pop down
 
-        register QMenuItem *mi = mitems->at(item);
+        register Q3MenuItem *mi = mitems->at(item);
 
         if (mi->widget()) {
             QWidget* widgetAt = QApplication::widgetAt(e->globalPos());
@@ -1777,7 +1777,7 @@ void QPopupMenu::mouseMoveEvent(QMouseEvent *e)
     \reimp
 */
 
-void QPopupMenu::keyPressEvent(QKeyEvent *e)
+void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
 {
     /*
       I get nothing but complaints about this.  -Brad
@@ -1788,7 +1788,7 @@ void QPopupMenu::keyPressEvent(QKeyEvent *e)
       -            e->key() == Key_Alt)
       -            return;
       -
-      -        QMenuItem *mi = mitems->at(actItem);
+      -        Q3MenuItem *mi = mitems->at(actItem);
       -        int modifier = (((e->state() & ShiftButton) ? SHIFT : 0) |
       -                        ((e->state() & ControlButton) ? CTRL : 0) |
       -                        ((e->state() & AltButton) ? ALT : 0));
@@ -1801,8 +1801,8 @@ void QPopupMenu::keyPressEvent(QKeyEvent *e)
       - }
     */
 
-    QMenuItem  *mi = 0;
-    QPopupMenu *popup;
+    Q3MenuItem  *mi = 0;
+    Q3PopupMenu *popup;
     int dy = 0;
     bool ok_key = true;
 
@@ -1840,11 +1840,11 @@ void QPopupMenu::keyPressEvent(QKeyEvent *e)
         }
         // just hide one
         {
-            QMenuData* p = parentMenu;
+            Q3MenuData* p = parentMenu;
             hide();
 #ifndef QT_NO_MENUBAR
             if (p && p->isMenuBar)
-                ((QMenuBar*) p)->goodbye(true);
+                ((Q3MenuBar*) p)->goodbye(true);
 #endif
         }
         break;
@@ -1859,7 +1859,7 @@ void QPopupMenu::keyPressEvent(QKeyEvent *e)
             }
         }
         if (parentMenu && parentMenu->isPopupMenu) {
-            ((QPopupMenu *)parentMenu)->hidePopups();
+            ((Q3PopupMenu *)parentMenu)->hidePopups();
             if (singleSingleShot)
                 singleSingleShot->stop();
             break;
@@ -1954,15 +1954,15 @@ void QPopupMenu::keyPressEvent(QKeyEvent *e)
          e->text().length()==1) {
         QChar c = e->text()[0].toUpper();
 
-        QMenuItem* first = 0;
-        QMenuItem* currentSelected = 0;
-        QMenuItem* firstAfterCurrent = 0;
+        Q3MenuItem* first = 0;
+        Q3MenuItem* currentSelected = 0;
+        Q3MenuItem* firstAfterCurrent = 0;
 
         mi = 0;
         int indx = 0;
         int clashCount = 0;
         for (int i = 0; i < mitems->size(); ++i) {
-            QMenuItem *m = mitems->at(i);
+            Q3MenuItem *m = mitems->at(i);
             QString s = m->text();
             if (!s.isEmpty()) {
                 int i = s.indexOf('&');
@@ -2023,12 +2023,12 @@ void QPopupMenu::keyPressEvent(QKeyEvent *e)
     }
 #ifndef QT_NO_MENUBAR
     if (!ok_key) {                                // send to menu bar
-        register QMenuData *top = this;                // find top level
+        register Q3MenuData *top = this;                // find top level
         while (top->parentMenu)
             top = top->parentMenu;
         if (top->isMenuBar) {
             int beforeId = top->actItem;
-            ((QMenuBar*)top)->tryKeyEvent(this, e);
+            ((Q3MenuBar*)top)->tryKeyEvent(this, e);
             if (beforeId != top->actItem)
                 ok_key = true;
         }
@@ -2039,8 +2039,8 @@ void QPopupMenu::keyPressEvent(QKeyEvent *e)
             setFirstItemActive();
         } else if (dy < 0) {
             for (int i = mitems->size()-1; i >= 0; --i) {
-                QMenuItem *mi = mitems->at(i);
-                if (!mi->isSeparator() && mi->id() != QMenuData::d->aInt) {
+                Q3MenuItem *mi = mitems->at(i);
+                if (!mi->isSeparator() && mi->id() != Q3MenuData::d->aInt) {
                     setActiveItem(i);
                     return;
                 }
@@ -2083,16 +2083,16 @@ void QPopupMenu::keyPressEvent(QKeyEvent *e)
             QRect r = itemGeometry(actItem);
             if(r.isNull() || r.height() < itemHeight(mitems->at(actItem))) {
                 bool refresh = false;
-                if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp && dy == -1) { //up
+                if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp && dy == -1) { //up
                     if(d->scroll.topScrollableIndex >= 0) {
                         d->scroll.topScrollableIndex--;
                         refresh = true;
                     }
-                } else if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown) { //down
+                } else if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown) { //down
                     int sh = style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
-                    int y = (d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp) ? sh : 0;
+                    int y = (d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp) ? sh : 0;
                     for (int i = 0; i < mitems->size(); ++i) {
-                        QMenuItem *mi = mitems->at(i);
+                        Q3MenuItem *mi = mitems->at(i);
                         if(i >= d->scroll.topScrollableIndex) {
                             int itemh = itemHeight(mi);
                             QSize sz = style().sizeFromContents(QStyle::CT_Q3PopupMenuItem, this,
@@ -2128,7 +2128,7 @@ void QPopupMenu::keyPressEvent(QKeyEvent *e)
     \reimp
 */
 
-void QPopupMenu::timerEvent(QTimerEvent *e)
+void Q3PopupMenu::timerEvent(QTimerEvent *e)
 {
     Q3Frame::timerEvent(e);
 }
@@ -2136,7 +2136,7 @@ void QPopupMenu::timerEvent(QTimerEvent *e)
 /*!
     \reimp
 */
-void QPopupMenu::leaveEvent(QEvent *)
+void Q3PopupMenu::leaveEvent(QEvent *)
 {
     if (testWFlags(WStyle_Tool) && style().styleHint(QStyle::SH_Q3PopupMenu_MouseTracking, this)) {
         int lastActItem = actItem;
@@ -2149,14 +2149,14 @@ void QPopupMenu::leaveEvent(QEvent *)
 /*!
     \reimp
 */
-void QPopupMenu::changeEvent(QEvent *ev)
+void Q3PopupMenu::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange) {
         setMouseTracking(style().styleHint(QStyle::SH_Q3PopupMenu_MouseTracking, this));
         updateSize(true);
     } else if(ev->type() == QEvent::EnabledChange) {
-        if (QMenuData::d->aPopup) // torn-off menu
-            QMenuData::d->aPopup->setEnabled(isEnabled());
+        if (Q3MenuData::d->aPopup) // torn-off menu
+            Q3MenuData::d->aPopup->setEnabled(isEnabled());
     }
     Q3Frame::changeEvent(ev);
 }
@@ -2169,13 +2169,13 @@ void QPopupMenu::changeEvent(QEvent *ev)
 
     This functions returns the number of columns necessary.
 */
-int QPopupMenu::columns() const
+int Q3PopupMenu::columns() const
 {
     return ncols;
 }
 
 /* This private slot handles the scrolling popupmenu */
-void QPopupMenu::subScrollTimer() {
+void Q3PopupMenu::subScrollTimer() {
     QPoint pos = QCursor::pos();
     if(!d->scroll.scrollable || !isVisible()) {
         if(d->scroll.scrolltimer)
@@ -2198,17 +2198,17 @@ void QPopupMenu::subScrollTimer() {
             return;
         d->scroll.lastScroll = QTime::currentTime();
     }
-    if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp && pos.y() <= y() + sh) { //up
+    if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp && pos.y() <= y() + sh) { //up
         if(d->scroll.topScrollableIndex > 0) {
             d->scroll.topScrollableIndex--;
             updateScrollerState();
             update(contentsRect());
         }
-    } else if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
+    } else if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown &&
               pos.y() >= (y() + contentsRect().height()) - sh) { //down
         int y = contentsRect().y() + sh;
         for (int i = 0; i < mitems->size(); ++i) {
-            QMenuItem *mi = mitems->at(i);
+            Q3MenuItem *mi = mitems->at(i);
             if(i >= d->scroll.topScrollableIndex) {
                 int itemh = itemHeight(mi);
                 QSize sz = style().sizeFromContents(QStyle::CT_Q3PopupMenuItem, this, QSize(0, itemh),
@@ -2227,7 +2227,7 @@ void QPopupMenu::subScrollTimer() {
 
 /* This private slot handles the delayed submenu effects */
 
-void QPopupMenu::subMenuTimer() {
+void Q3PopupMenu::subMenuTimer() {
 
     if (!isVisible() || (actItem < 0 && popupActive < 0) || actItem == popupActive)
         return;
@@ -2241,11 +2241,11 @@ void QPopupMenu::subMenuTimer() {
     if (!isVisible() || actItem < 0 || actItem == popupActive)
         return;
 
-    QMenuItem *mi = mitems->at(actItem);
+    Q3MenuItem *mi = mitems->at(actItem);
     if (!mi || !mi->isEnabledAndVisible())
         return;
 
-    QPopupMenu *popup = mi->popup();
+    Q3PopupMenu *popup = mi->popup();
     if (!popup || !popup->isEnabled())
         return;
 
@@ -2269,7 +2269,7 @@ void QPopupMenu::subMenuTimer() {
 
         bool right = false;
         if ((parentMenu && parentMenu->isPopupMenu &&
-               ((QPopupMenu*)parentMenu)->geometry().x() < geometry().x()) ||
+               ((Q3PopupMenu*)parentMenu)->geometry().x() < geometry().x()) ||
              p.x() < 0)
             right = true;
         if (right && (ps.width() > QApplication::desktop()->width() - mapToGlobal(r.topRight()).x()))
@@ -2282,7 +2282,7 @@ void QPopupMenu::subMenuTimer() {
 
         bool left = false;
         if ((parentMenu && parentMenu->isPopupMenu &&
-               ((QPopupMenu*)parentMenu)->geometry().x() > geometry().x()) ||
+               ((Q3PopupMenu*)parentMenu)->geometry().x() > geometry().x()) ||
              p.x() + ps.width() > QApplication::desktop()->width())
             left = true;
         if (left && (ps.width() > mapToGlobal(r.topLeft()).x()))
@@ -2320,12 +2320,12 @@ void QPopupMenu::subMenuTimer() {
     popup->popup(p);
 }
 
-void QPopupMenu::allowAnimation()
+void Q3PopupMenu::allowAnimation()
 {
     preventAnimation = false;
 }
 
-void QPopupMenu::updateRow(int row)
+void Q3PopupMenu::updateRow(int row)
 {
     if (!isVisible())
         return;
@@ -2380,18 +2380,18 @@ void QPopupMenu::updateRow(int row)
     \sa popup()
 */
 
-int QPopupMenu::exec(const QPoint & pos, int indexAtPoint)
+int Q3PopupMenu::exec(const QPoint & pos, int indexAtPoint)
 {
     snapToMouse = true;
     if (!qApp)
         return -1;
 
-    QPopupMenu* priorSyncMenu = syncMenu;
+    Q3PopupMenu* priorSyncMenu = syncMenu;
 
     syncMenu = this;
     syncMenuId = -1;
 
-    QGuardedPtr<QPopupMenu> that = this;
+    QGuardedPtr<Q3PopupMenu> that = this;
     connectModal(that, true);
     popup(pos, indexAtPoint);
     qApp->enter_loop();
@@ -2407,7 +2407,7 @@ int QPopupMenu::exec(const QPoint & pos, int indexAtPoint)
   Connect the popup and all its submenus to modalActivation() if
   \a doConnect is true, otherwise disconnect.
  */
-void QPopupMenu::connectModal(QPopupMenu* receiver, bool doConnect)
+void Q3PopupMenu::connectModal(Q3PopupMenu* receiver, bool doConnect)
 {
     if (!receiver)
         return;
@@ -2422,7 +2422,7 @@ void QPopupMenu::connectModal(QPopupMenu* receiver, bool doConnect)
                     receiver, SLOT(modalActivation(int)));
 
     for (int i = 0; i < mitems->size(); ++i) {
-        QMenuItem *mi = mitems->at(i);
+        Q3MenuItem *mi = mitems->at(i);
         if (mi->popup() && mi->popup() != receiver
              && (bool)(mi->popup()->connectModalRecursionSafety) != doConnect)
             mi->popup()->connectModal(receiver, doConnect); //avoid circular
@@ -2445,7 +2445,7 @@ void QPopupMenu::connectModal(QPopupMenu* receiver, bool doConnect)
     \endcode
 */
 
-int QPopupMenu::exec()
+int Q3PopupMenu::exec()
 {
     return exec(mapToGlobal(QPoint(0,0)));
 }
@@ -2453,7 +2453,7 @@ int QPopupMenu::exec()
 
 /*  Internal slot used for exec(). */
 
-void QPopupMenu::modalActivation(int id)
+void Q3PopupMenu::modalActivation(int id)
 {
     syncMenuId = id;
 }
@@ -2463,7 +2463,7 @@ void QPopupMenu::modalActivation(int id)
     Sets the currently active item to index \a i and repaints as necessary.
 */
 
-void QPopupMenu::setActiveItem(int i)
+void Q3PopupMenu::setActiveItem(int i)
 {
     int lastActItem = actItem;
     actItem = i;
@@ -2471,7 +2471,7 @@ void QPopupMenu::setActiveItem(int i)
         updateRow(lastActItem);
     if (i >= 0 && i != lastActItem)
         updateRow(i);
-    QMenuItem *mi = mitems->at(actItem);
+    Q3MenuItem *mi = mitems->at(actItem);
     if (!mi)
         return;
 
@@ -2490,13 +2490,13 @@ void QPopupMenu::setActiveItem(int i)
 /*!
     \reimp
 */
-QSize QPopupMenu::sizeHint() const
+QSize Q3PopupMenu::sizeHint() const
 {
     ensurePolished();
     if(style().styleHint(QStyle::SH_Q3PopupMenu_Scrollable, this))
         return minimumSize(); //can be any size..
 
-    QPopupMenu* that = (QPopupMenu*) this;
+    Q3PopupMenu* that = (Q3PopupMenu*) this;
     //We do not need a resize here, just the sizeHint..
     return that->updateSize(false, false).expandedTo(QApplication::globalStrut());
 }
@@ -2508,28 +2508,28 @@ QSize QPopupMenu::sizeHint() const
     Returns the id of the item at \a pos, or -1 if there is no item
     there or if it is a separator.
 */
-int QPopupMenu::idAt(const QPoint& pos) const
+int Q3PopupMenu::idAt(const QPoint& pos) const
 {
     return idAt(itemAtPos(pos));
 }
 
 
 /*!
-    \fn int QPopupMenu::idAt(int index) const
+    \fn int Q3PopupMenu::idAt(int index) const
 
     Returns the identifier of the menu item at position \a index in
     the internal list, or -1 if \a index is out of range.
 
-    \sa QMenuData::setId(), QMenuData::indexOf()
+    \sa Q3MenuData::setId(), Q3MenuData::indexOf()
 */
 
 
 /*!
     \reimp
  */
-bool QPopupMenu::focusNextPrevChild(bool next)
+bool Q3PopupMenu::focusNextPrevChild(bool next)
 {
-    register QMenuItem *mi;
+    register Q3MenuItem *mi;
     int dy = next? 1 : -1;
     if (dy && actItem < 0) {
         setFirstItemActive();
@@ -2559,19 +2559,19 @@ bool QPopupMenu::focusNextPrevChild(bool next)
 /*!
     \reimp
  */
-void QPopupMenu::focusInEvent(QFocusEvent *)
+void Q3PopupMenu::focusInEvent(QFocusEvent *)
 {
 }
 
 /*!
     \reimp
  */
-void QPopupMenu::focusOutEvent(QFocusEvent *)
+void Q3PopupMenu::focusOutEvent(QFocusEvent *)
 {
 }
 
 
-class QTearOffMenuItem : public QCustomMenuItem
+class QTearOffMenuItem : public Q3CustomMenuItem
 {
 public:
     QTearOffMenuItem()
@@ -2616,11 +2616,11 @@ public:
     The \a index specifies the position in the menu. The tear-off
     handle is appended at the end of the list if \a index is negative.
 */
-int QPopupMenu::insertTearOffHandle(int id, int index)
+int Q3PopupMenu::insertTearOffHandle(int id, int index)
 {
     int myid = insertItem(new QTearOffMenuItem, id, index);
     connectItem(myid, this, SLOT(toggleTearOff()));
-    QMenuData::d->aInt = myid;
+    Q3MenuData::d->aInt = myid;
     return myid;
 }
 
@@ -2629,15 +2629,15 @@ int QPopupMenu::insertTearOffHandle(int id, int index)
 
   implements tear-off menus
  */
-void QPopupMenu::toggleTearOff()
+void Q3PopupMenu::toggleTearOff()
 {
     if (active_popup_menu && active_popup_menu->tornOff) {
         active_popup_menu->close();
-    } else  if (QMenuData::d->aPopup) {
-        delete (QPopupMenu *)QMenuData::d->aPopup; // delete the old one
+    } else  if (Q3MenuData::d->aPopup) {
+        delete (Q3PopupMenu *)Q3MenuData::d->aPopup; // delete the old one
     } else {
         // create a tear off menu
-        QPopupMenu* p = new QPopupMenu(parentWidget(), "tear off menu");
+        Q3PopupMenu* p = new Q3PopupMenu(parentWidget(), "tear off menu");
         connect(p, SIGNAL(activated(int)), this, SIGNAL(activated(int)));
 #ifndef QT_NO_WIDGET_TOPEXTRA
         p->setWindowTitle(windowTitle());
@@ -2649,25 +2649,25 @@ void QPopupMenu::toggleTearOff()
         p->mitemsAutoDelete = false;
         p->tornOff = true;
         for (int i = 0; i < mitems->size(); ++i) {
-            QMenuItem *mi = mitems->at(i);
-            if (mi->id() != QMenuData::d->aInt && !mi->widget())
+            Q3MenuItem *mi = mitems->at(i);
+            if (mi->id() != Q3MenuData::d->aInt && !mi->widget())
                 p->mitems->append(mi);
         }
         p->show();
-        QMenuData::d->aPopup = p;
+        Q3MenuData::d->aPopup = p;
     }
 }
 
 /*!
     \reimp
  */
-void QPopupMenu::activateItemAt(int index)
+void Q3PopupMenu::activateItemAt(int index)
 {
     if (index >= 0 && index < (int) mitems->count()) {
-        QMenuItem *mi = mitems->at(index);
+        Q3MenuItem *mi = mitems->at(index);
         if (index != actItem)                        // new item activated
             setActiveItem(index);
-        QPopupMenu *popup = mi->popup();
+        Q3PopupMenu *popup = mi->popup();
         if (popup) {
             if (popup->isVisible()) {                // sub menu already open
                 int pactItem = popup->actItem;
@@ -2716,11 +2716,11 @@ void QPopupMenu::activateItemAt(int index)
         if (tornOff) {
             close();
         } else {
-            QMenuData* p = parentMenu;
+            Q3MenuData* p = parentMenu;
             hide();
 #ifndef QT_NO_MENUBAR
             if (p && p->isMenuBar)
-                ((QMenuBar*) p)->goodbye(true);
+                ((Q3MenuBar*) p)->goodbye(true);
 #endif
         }
     }
@@ -2730,10 +2730,10 @@ void QPopupMenu::activateItemAt(int index)
 /*! \internal
   This private function is to update the scroll states in styles that support scrolling. */
 void
-QPopupMenu::updateScrollerState()
+Q3PopupMenu::updateScrollerState()
 {
     uint old_scrollable = d->scroll.scrollable;
-    d->scroll.scrollable = QPopupMenuPrivate::Scroll::ScrollNone;
+    d->scroll.scrollable = Q3PopupMenuPrivate::Scroll::ScrollNone;
     if(!style().styleHint(QStyle::SH_Q3PopupMenu_Scrollable, this))
         return;
 
@@ -2744,24 +2744,24 @@ QPopupMenu::updateScrollerState()
     int y = 0, sh = style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
     if(row) {
         // can't use |= because of a bug/feature in IBM xlC 5.0.2
-        d->scroll.scrollable = d->scroll.scrollable | QPopupMenuPrivate::Scroll::ScrollUp;
+        d->scroll.scrollable = d->scroll.scrollable | Q3PopupMenuPrivate::Scroll::ScrollUp;
         y += sh;
     }
     for (; row < mitems->size(); ++row) {
-        QMenuItem *mi = mitems->at(row);
+        Q3MenuItem *mi = mitems->at(row);
 
         int myheight = contentsRect().height();
         QSize sz = style().sizeFromContents(QStyle::CT_Q3PopupMenuItem, this,
                                             QSize(0, itemHeight(mi)),
                                             QStyleOption(mi,maxPMWidth));
         if(y + sz.height() >= myheight) {
-            d->scroll.scrollable = d->scroll.scrollable | QPopupMenuPrivate::Scroll::ScrollDown;
+            d->scroll.scrollable = d->scroll.scrollable | Q3PopupMenuPrivate::Scroll::ScrollDown;
             break;
         }
         y += sz.height();
     }
-    if((d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp) &&
-       !(old_scrollable & QPopupMenuPrivate::Scroll::ScrollUp))
+    if((d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp) &&
+       !(old_scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp))
         d->scroll.topScrollableIndex++;
 }
 

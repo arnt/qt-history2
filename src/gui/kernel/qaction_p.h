@@ -35,7 +35,7 @@ public:
     static QAccel *actionAccels;
     int accel;
 #endif
-    QPointer<Q4Menu> menu;
+    QPointer<QMenu> menu;
     uint enabled : 1, forceDisabled : 1;
     uint visible : 1, forceInvisible : 1;
     uint checkable : 1;

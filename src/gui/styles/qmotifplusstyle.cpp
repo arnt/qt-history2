@@ -18,7 +18,7 @@
 
 #include "qevent.h"
 #include "qmenu.h"
-#include "qmenubar.h"
+#include "q3menubar.h"
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qpalette.h"
@@ -156,8 +156,8 @@ void QMotifPlusStyle::polish(QWidget *widget)
 #endif
 
 #ifndef QT_NO_MENUBAR
-    if (qt_cast<QMenuBar*>(widget) && ((QMenuBar *) widget)->frameStyle() != QFrame::NoFrame)
-        ((QMenuBar *) widget)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+    if (qt_cast<Q3MenuBar*>(widget) && ((Q3MenuBar *) widget)->frameStyle() != QFrame::NoFrame)
+        ((Q3MenuBar *) widget)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 #endif
 
 #ifndef QT_NO_TOOLBAR
@@ -727,7 +727,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             if (opt.isDefault())
                 break;
 
-            QMenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = opt.menuItem();
             if ((flags & Style_Enabled) && (flags & Style_Active))
                 drawMotifPlusShade(p, r, pal, false, true);
             else
@@ -747,7 +747,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             if(!widget || opt.isDefault())
                 break;
 
-            Q4Menu *menu = (Q4Menu *)widget;
+            QMenu *menu = (QMenu *)widget;
             QAction *mi = opt.action();
             if(!mi)
                 break;
@@ -869,8 +869,8 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             if (! widget || opt.isDefault())
                 break;
 
-            QPopupMenu *popupmenu = (QPopupMenu *) widget;
-            QMenuItem *mi = opt.menuItem();
+            Q3PopupMenu *popupmenu = (Q3PopupMenu *) widget;
+            Q3MenuItem *mi = opt.menuItem();
             if (!mi)
                 break;
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QMenuBar class.
+** Implementation of Q3MenuBar class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -12,15 +12,15 @@
 **
 ****************************************************************************/
 
-// qmainwindow.h before qmenubar.h because of GCC-2.7.* compatibility
+// qmainwindow.h before q3menubar.h because of GCC-2.7.* compatibility
 // ### could be reorganised by discarding INCLUDE_MENUITEM_DEF and put
 // the relevant declarations in a private header?
 #include "qmainwindow.h"
 #ifndef QT_NO_MENUBAR
-#include "qmenubar.h"
+#include "q3menubar.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
-#include "qpopupmenu.h"
+#include "q3popupmenu.h"
 #include "qaccel.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
@@ -36,10 +36,10 @@
 #endif
 #include "qsignal.h"
 
-class QMenuDataData {
-    // attention: also defined in qmenudata.cpp
+class Q3MenuDataData {
+    // attention: also defined in q3menudata.cpp
 public:
-    QMenuDataData();
+    Q3MenuDataData();
     QGuardedPtr<QWidget> aWidget;
     int aInt;
 };
@@ -53,17 +53,17 @@ extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
 #endif
 
 /*!
-    \class QMenuBar qmenubar.h
-    \brief The QMenuBar class provides a horizontal menu bar.
+    \class Q3MenuBar q3menubar.h
+    \brief The Q3MenuBar class provides a horizontal menu bar.
 
     \ingroup application
     \mainclass
 
     A menu bar consists of a list of pull-down menu items. You add
-    menu items with \link QMenuData::insertItem()
+    menu items with \link Q3MenuData::insertItem()
     insertItem()\endlink. For example, asuming that \c menubar is a
-    pointer to a QMenuBar and \c filemenu is a pointer to a
-    QPopupMenu, the following statement inserts the menu into the menu
+    pointer to a Q3MenuBar and \c filemenu is a pointer to a
+    Q3PopupMenu, the following statement inserts the menu into the menu
     bar:
     \code
     menubar->insertItem("&File", filemenu);
@@ -83,55 +83,55 @@ extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
 
     Example of creating a menu bar with menu items (from \l menu/menu.cpp):
     \quotefile menu/menu.cpp
-    \skipto file = new QPopupMenu
+    \skipto file = new Q3PopupMenu
     \printline
     \skipto Key_O
     \printline
     \printline
-    \skipto new QMenuBar
+    \skipto new Q3MenuBar
     \printline
     \skipto insertItem
     \printline
 
     In most main window style applications you would use the menuBar()
-    provided in QMainWindow, adding \l{QPopupMenu}s to the menu bar
+    provided in QMainWindow, adding \l{Q3PopupMenu}s to the menu bar
     and adding \l{QAction}s to the popup menus.
 
     Example (from \l action/application.cpp):
     \quotefile action/application.cpp
-    \skipto file = new QPopupMenu
+    \skipto file = new Q3PopupMenu
     \printuntil fileNewAction
 
     Menu items can have text and pixmaps (or iconsets), see the
-    various \link QMenuData::insertItem() insertItem()\endlink
+    various \link Q3MenuData::insertItem() insertItem()\endlink
     overloads, as well as separators, see \link
-    QMenuData::insertSeparator() insertSeparator()\endlink. You can
+    Q3MenuData::insertSeparator() insertSeparator()\endlink. You can
     also add custom menu items that are derived from
-    \l{QCustomMenuItem}.
+    \l{Q3CustomMenuItem}.
 
     Menu items may be removed with removeItem() and enabled or
-    disabled with \link QMenuData::setItemEnabled()
+    disabled with \link Q3MenuData::setItemEnabled()
     setItemEnabled()\endlink.
 
-    <img src=qmenubar-m.png> <img src=qmenubar-w.png>
+    <img src=q3menubar-m.png> <img src=q3menubar-w.png>
 
-    \section1 QMenuBar on Qt/Mac
+    \section1 Q3MenuBar on Qt/Mac
 
-    QMenuBar on Qt/Mac is a wrapper for using the system-wide menubar.
+    Q3MenuBar on Qt/Mac is a wrapper for using the system-wide menubar.
     If you have multiple menubars in one dialog the outermost menubar
     (normally inside a widget with widget flag \c WType_TopLevel) will
     be used for the system-wide menubar.
 
     Note that arbitrary Qt widgets \e cannot be inserted into a
-    QMenuBar on the Mac because Qt uses Mac's native menus which don't
+    Q3MenuBar on the Mac because Qt uses Mac's native menus which don't
     support this functionality. This limitation does not apply to
-    stand-alone QPopupMenus.
+    stand-alone Q3PopupMenus.
 
-    Qt/Mac also provides a menubar merging feature to make QMenuBar
+    Qt/Mac also provides a menubar merging feature to make Q3MenuBar
     conform more closely to accepted Mac OS X menubar layout. The
     merging functionality is based on string matching the title of a
-    QPopupMenu entry. These strings are translated (using
-    QObject::tr()) in the "QMenuBar" context. If an entry is moved its
+    Q3PopupMenu entry. These strings are translated (using
+    QObject::tr()) in the "Q3MenuBar" context. If an entry is moved its
     slots will still fire as if it was in the original place. The
     table below outlines the strings looked for and where the entry is
     placed if matched:
@@ -152,16 +152,16 @@ extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
     \endtable
 
     \link menu-example.html menu/menu.cpp\endlink is an example of
-    QMenuBar and QPopupMenu use.
+    Q3MenuBar and Q3PopupMenu use.
 
-    \sa QPopupMenu QAccel QAction \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html Aqua Style Guidelines \endlink \link guibooks.html#fowler GUI Design Handbook: Menu Bar \endlink
+    \sa Q3PopupMenu QAccel QAction \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html Aqua Style Guidelines \endlink \link guibooks.html#fowler GUI Design Handbook: Menu Bar \endlink
 */
 
 
 /*!
-    \enum QMenuBar::Separator
+    \enum Q3MenuBar::Separator
 
-    This enum type is used to decide whether QMenuBar should draw a
+    This enum type is used to decide whether Q3MenuBar should draw a
     separator line at its bottom.
 
     \value Never In many applications there is already a separator,
@@ -172,31 +172,31 @@ extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
 */
 
 /*!
-    \fn void QMenuBar::activated(int id)
+    \fn void Q3MenuBar::activated(int id)
 
     This signal is emitted when a menu item is selected; \a id is the
     id of the selected item.
 
     Normally you will connect each menu item to a single slot using
-    QMenuData::insertItem(), but sometimes you will want to connect
+    Q3MenuData::insertItem(), but sometimes you will want to connect
     several items to a single slot (most often if the user selects
     from an array). This signal is useful in such cases.
 
-    \sa highlighted(), QMenuData::insertItem()
+    \sa highlighted(), Q3MenuData::insertItem()
 */
 
 /*!
-    \fn void QMenuBar::highlighted(int id)
+    \fn void Q3MenuBar::highlighted(int id)
 
     This signal is emitted when a menu item is highlighted; \a id is
     the id of the highlighted item.
 
     Normally, you will connect each menu item to a single slot using
-    QMenuData::insertItem(), but sometimes you will want to connect
+    Q3MenuData::insertItem(), but sometimes you will want to connect
     several items to a single slot (most often if the user selects
     from an array). This signal is useful in such cases.
 
-    \sa activated(), QMenuData::insertItem()
+    \sa activated(), Q3MenuData::insertItem()
 */
 
 
@@ -228,17 +228,17 @@ static const int motifItemVMargin        = 4;        // menu item ver text margi
 
 
 /*****************************************************************************
-  QMenuBar member functions
+  Q3MenuBar member functions
  *****************************************************************************/
 
 
 /*!
     Constructs a menu bar called \a name with parent \a parent.
 */
-QMenuBar::QMenuBar(QWidget *parent, const char *name)
+Q3MenuBar::Q3MenuBar(QWidget *parent, const char *name)
     : Q3Frame(parent, name)
 {
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
     mac_eaten_menubar = false;
     mac_d = 0;
     macCreateNativeMenubar();
@@ -283,7 +283,7 @@ QMenuBar::QMenuBar(QWidget *parent, const char *name)
 
 
 /*! \reimp */
-void QMenuBar::changeEvent(QEvent *ev)
+void Q3MenuBar::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange) {
         setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
@@ -304,12 +304,12 @@ void QMenuBar::changeEvent(QEvent *ev)
     Destroys the menu bar.
 */
 
-QMenuBar::~QMenuBar()
+Q3MenuBar::~Q3MenuBar()
 {
 #ifndef QT_NO_ACCEL
     delete autoaccel;
 #endif
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_QM3ENUBAR_NO_NATIVE)
     macRemoveNativeMenubar();
 #endif
     if (irects)                // Avoid purify complaint.
@@ -322,14 +322,14 @@ QMenuBar::~QMenuBar()
     Repaints the menu item with id \a id; does nothing if there is no
     such menu item.
 */
-void QMenuBar::updateItem(int id)
+void Q3MenuBar::updateItem(int id)
 {
     int i = indexOf(id);
     if (i >= 0 && irects)
         repaint(irects[i]);
 }
 
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
 static bool fromFrameChange = false;
 #endif
 
@@ -338,13 +338,13 @@ static bool fromFrameChange = false;
     contents.
 
     You should never need to call this; it is called automatically by
-    QMenuData whenever it needs to be called.
+    Q3MenuData whenever it needs to be called.
 */
 
-void QMenuBar::menuContentsChanged()
+void Q3MenuBar::menuContentsChanged()
 {
     // here the part that can't be delayed
-    QMenuData::menuContentsChanged();
+    Q3MenuData::menuContentsChanged();
     badSize = true;                                // might change the size
     if(pendingDelayedContentsChanges)
         return;
@@ -353,7 +353,7 @@ void QMenuBar::menuContentsChanged()
         QTimer::singleShot(0, this, SLOT(performDelayedChanges()));
 }
 
-void QMenuBar::performDelayedContentsChanged()
+void Q3MenuBar::performDelayedContentsChanged()
 {
     pendingDelayedContentsChanges = 0;
     // here the part the can be delayed
@@ -384,10 +384,10 @@ void QMenuBar::performDelayedContentsChanged()
     Recomputes the menu bar's display data according to the new state.
 
     You should never need to call this; it is called automatically by
-    QMenuData whenever it needs to be called.
+    Q3MenuData whenever it needs to be called.
 */
 
-void QMenuBar::menuStateChanged()
+void Q3MenuBar::menuStateChanged()
 {
     if(pendingDelayedStateChanges)
         return;
@@ -396,7 +396,7 @@ void QMenuBar::menuStateChanged()
         QTimer::singleShot(0, this, SLOT(performDelayedChanges()));
 }
 
-void QMenuBar::performDelayedStateChanged()
+void Q3MenuBar::performDelayedStateChanged()
 {
     pendingDelayedStateChanges = 0;
     // here the part that can be delayed
@@ -409,7 +409,7 @@ void QMenuBar::performDelayedStateChanged()
 }
 
 
-void QMenuBar::performDelayedChanges()
+void Q3MenuBar::performDelayedChanges()
 {
 #if defined(Q_WS_MAC) && !defined(QMAC_MENUBAR_NO_NATIVE)
     // I must do this here as the values change in the function below.
@@ -419,7 +419,7 @@ void QMenuBar::performDelayedChanges()
         performDelayedContentsChanged();
     if(pendingDelayedStateChanges)
         performDelayedStateChanged();
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
     if(mac_eaten_menubar && needMacUpdate) {
         macDirtyNativeMenubar();
 
@@ -440,7 +440,7 @@ void QMenuBar::performDelayedChanges()
 }
 
 
-void QMenuBar::menuInsPopup(QPopupMenu *popup)
+void Q3MenuBar::menuInsPopup(Q3PopupMenu *popup)
 {
     connect(popup, SIGNAL(activatedRedirect(int)),
              SLOT(subActivated(int)));
@@ -450,7 +450,7 @@ void QMenuBar::menuInsPopup(QPopupMenu *popup)
              this, SLOT(popupDestroyed(QObject*)));
 }
 
-void QMenuBar::menuDelPopup(QPopupMenu *popup)
+void Q3MenuBar::menuDelPopup(Q3PopupMenu *popup)
 {
     popup->disconnect(SIGNAL(activatedRedirect(int)));
     popup->disconnect(SIGNAL(highlightedRedirect(int)));
@@ -458,13 +458,13 @@ void QMenuBar::menuDelPopup(QPopupMenu *popup)
                 this, SLOT(popupDestroyed(QObject*)));
 }
 
-void QMenuBar::frameChanged()
+void Q3MenuBar::frameChanged()
 {
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
     fromFrameChange = true;
 #endif
     menuContentsChanged();
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
     fromFrameChange = false;
 #endif
 }
@@ -481,7 +481,7 @@ void QMenuBar::frameChanged()
     receives a resize event.
 */
 
-bool QMenuBar::eventFilter(QObject *object, QEvent *event)
+bool Q3MenuBar::eventFilter(QObject *object, QEvent *event)
 {
     if (object == parent() && object
 #ifndef QT_NO_TOOLBAR
@@ -551,7 +551,7 @@ bool QMenuBar::eventFilter(QObject *object, QEvent *event)
             } else if (ke->stateAfter() == AltButton) {
                 waitforalt = 1;
 #if defined(Q_WS_X11)
-                QMenuData::d->aInt = qt_xfocusout_grab_counter;
+                Q3MenuData::d->aInt = qt_xfocusout_grab_counter;
 #endif
                 if (f && f != object)
                     f->installEventFilter(this);
@@ -577,7 +577,7 @@ bool QMenuBar::eventFilter(QObject *object, QEvent *event)
         if (waitforalt && event->type() == QEvent::KeyRelease &&
             (ke->key() == Key_Alt || ke->key() == Key_Meta)
 #if defined(Q_WS_X11)
-                && QMenuData::d->aInt == qt_xfocusout_grab_counter
+                && Q3MenuData::d->aInt == qt_xfocusout_grab_counter
 #endif
            ) {
             setAltMode(true);
@@ -612,7 +612,7 @@ bool QMenuBar::eventFilter(QObject *object, QEvent *event)
   Receives signals from menu items.
 */
 
-void QMenuBar::subActivated(int id)
+void Q3MenuBar::subActivated(int id)
 {
     emit activated(id);
 }
@@ -622,7 +622,7 @@ void QMenuBar::subActivated(int id)
   Receives signals from menu items.
 */
 
-void QMenuBar::subHighlighted(int id)
+void Q3MenuBar::subHighlighted(int id)
 {
     emit highlighted(id);
 }
@@ -632,9 +632,9 @@ void QMenuBar::subHighlighted(int id)
   Receives signals from menu accelerator.
 */
 #ifndef QT_NO_ACCEL
-void QMenuBar::accelActivated(int id)
+void Q3MenuBar::accelActivated(int id)
 {
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
     if(mac_eaten_menubar)
         return;
 #endif
@@ -651,18 +651,18 @@ void QMenuBar::accelActivated(int id)
   destroyed.
 */
 #ifndef QT_NO_ACCEL
-void QMenuBar::accelDestroyed()
+void Q3MenuBar::accelDestroyed()
 {
     autoaccel = 0;                                // don't delete it twice!
 }
 #endif
 
-void QMenuBar::popupDestroyed(QObject *o)
+void Q3MenuBar::popupDestroyed(QObject *o)
 {
-    removePopup((QPopupMenu*)o);
+    removePopup((Q3PopupMenu*)o);
 }
 
-bool QMenuBar::tryMouseEvent(QPopupMenu *, QMouseEvent *e)
+bool Q3MenuBar::tryMouseEvent(Q3PopupMenu *, QMouseEvent *e)
 {
     QPoint pos = mapFromGlobal(e->globalPos());
     if (!rect().contains(pos))                // outside
@@ -680,13 +680,13 @@ bool QMenuBar::tryMouseEvent(QPopupMenu *, QMouseEvent *e)
 }
 
 
-void QMenuBar::tryKeyEvent(QPopupMenu *, QKeyEvent *e)
+void Q3MenuBar::tryKeyEvent(Q3PopupMenu *, QKeyEvent *e)
 {
     event(e);
 }
 
 
-void QMenuBar::goodbye(bool cancelled)
+void Q3MenuBar::goodbye(bool cancelled)
 {
     mouseBtDn = false;
     popupvisible = 0;
@@ -694,7 +694,7 @@ void QMenuBar::goodbye(bool cancelled)
 }
 
 
-void QMenuBar::openActPopup()
+void Q3MenuBar::openActPopup()
 {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     if (!inMenu) {
@@ -705,7 +705,7 @@ void QMenuBar::openActPopup()
 
     if (actItem < 0)
         return;
-    QPopupMenu *popup = mitems->at(actItem)->popup();
+    Q3PopupMenu *popup = mitems->at(actItem)->popup();
     if (!popup || !popup->isEnabled())
         return;
 
@@ -749,13 +749,13 @@ void QMenuBar::openActPopup()
   Hides all popup menu items.
 */
 
-void QMenuBar::hidePopups()
+void Q3MenuBar::hidePopups()
 {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     bool anyVisible = false;
 #endif
     for (int i = 0; i < mitems->size(); ++i) {
-        register QMenuItem *mi = mitems->at(i);
+        register Q3MenuItem *mi = mitems->at(i);
         if (mi->popup() && mi->popup()->isVisible()) {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
             anyVisible = true;
@@ -778,7 +778,7 @@ void QMenuBar::hidePopups()
     stack.
 */
 
-void QMenuBar::show()
+void Q3MenuBar::show()
 {
 #ifndef QT_NO_ACCEL
     setupAccelerators();
@@ -791,7 +791,7 @@ void QMenuBar::show()
     performDelayedChanges();
     calculateRects();
 
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
     if(mac_eaten_menubar) {
         //If all elements are invisible no reason for me to be visible either
         bool all_hidden = true;
@@ -823,7 +823,7 @@ void QMenuBar::show()
     item, and calls setUpLayout() for the main window.
 */
 
-void QMenuBar::hide()
+void Q3MenuBar::hide()
 {
     QWidget::hide();
     setAltMode(false);
@@ -846,7 +846,7 @@ void QMenuBar::hide()
     width and returns the height to which it WOULD have resized. A bit
     tricky, but both operations require almost identical steps.
 */
-int QMenuBar::calculateRects(int max_width)
+int Q3MenuBar::calculateRects(int max_width)
 {
     ensurePolished();
     bool update = (max_width < 0);
@@ -888,11 +888,11 @@ int QMenuBar::calculateRects(int max_width)
     const int lastItem = reverse ? 0 : mitems->count() - 1;
 
     while (i < (int)mitems->count()) {        // for each menu item...
-        QMenuItem *mi = mitems->at(i);
+        Q3MenuItem *mi = mitems->at(i);
 
         int w=0, h=0;
         if (!mi->isVisible()
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
                                   ||  (mac_eaten_menubar && !mi->custom() && !mi->widget())
 #endif
             ) {
@@ -920,14 +920,14 @@ int QMenuBar::calculateRects(int max_width)
                 separator = i; //### only motif?
         }
         if (!mi->isSeparator() || mi->widget()) {
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
             if (!mac_eaten_menubar) {
 #endif
                 if (gs == MotifStyle) {
                     w += 2*motifItemFrame;
                     h += 2*motifItemFrame;
                 }
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
             }
 #endif
 
@@ -989,7 +989,7 @@ int QMenuBar::calculateRects(int max_width)
             resize(width(), max_height);
         for (i = 0; i < (int)mitems->count(); i++) {
             irects[i].setHeight(max_item_height );
-            QMenuItem *mi = mitems->at(i);
+            Q3MenuItem *mi = mitems->at(i);
             if (mi->widget()) {
                 QRect r (QPoint(0,0), mi->widget()->sizeHint());
                 r.moveCenter(irects[i].center());
@@ -1011,11 +1011,11 @@ int QMenuBar::calculateRects(int max_width)
     menu bar is needed after items have been inserted. See \l
     showimg/showimg.cpp for an example of the usage.
 */
-int QMenuBar::heightForWidth(int max_width) const
+int Q3MenuBar::heightForWidth(int max_width) const
 {
     // Okay to cast away const, as we are not updating.
     if (max_width < 0) max_width = 0;
-    return ((QMenuBar*)this)->calculateRects(max_width);
+    return ((Q3MenuBar*)this)->calculateRects(max_width);
 }
 
 /*!
@@ -1023,7 +1023,7 @@ int QMenuBar::heightForWidth(int max_width) const
   Return the bounding rectangle for the menu item at position \a index.
 */
 
-QRect QMenuBar::itemRect(int index)
+QRect Q3MenuBar::itemRect(int index)
 {
     calculateRects();
     return irects ? irects[index] : QRect(0,0,0,0);
@@ -1035,7 +1035,7 @@ QRect QMenuBar::itemRect(int index)
   it is a separator item.
 */
 
-int QMenuBar::itemAtPos(const QPoint &pos_)
+int Q3MenuBar::itemAtPos(const QPoint &pos_)
 {
     calculateRects();
     if (!irects)
@@ -1049,7 +1049,7 @@ int QMenuBar::itemAtPos(const QPoint &pos_)
     pos.setY(qMax(margin, qMin(height() - margin, pos.y())));
     while (i < (int)mitems->count()) {
         if (!irects[i].isEmpty() && irects[i].contains(pos)) {
-            QMenuItem *mi = mitems->at(i);
+            Q3MenuItem *mi = mitems->at(i);
             return mi->isSeparator() ? -1 : i;
         }
         ++i;
@@ -1059,17 +1059,17 @@ int QMenuBar::itemAtPos(const QPoint &pos_)
 
 
 /*!
-  \property QMenuBar::separator
+  \property Q3MenuBar::separator
   \brief in which cases a menubar sparator is drawn
 
   \obsolete
 */
-void QMenuBar::setSeparator(Separator when)
+void Q3MenuBar::setSeparator(Separator when)
 {
     mseparator = when;
 }
 
-QMenuBar::Separator QMenuBar::separator() const
+Q3MenuBar::Separator Q3MenuBar::separator() const
 {
     return mseparator ? InWindowsStyle : Never;
 }
@@ -1083,7 +1083,7 @@ QMenuBar::Separator QMenuBar::separator() const
     using painter \a p.
 */
 
-void QMenuBar::drawContents(QPainter *p)
+void Q3MenuBar::drawContents(QPainter *p)
 {
     performDelayedChanges();
     QRegion reg(contentsRect());
@@ -1095,7 +1095,7 @@ void QMenuBar::drawContents(QPainter *p)
         return;
 
     for (int i=0; i<(int)mitems->count(); i++) {
-        QMenuItem *mi = mitems->at(i);
+        Q3MenuItem *mi = mitems->at(i);
         if (!mi->text().isNull() || mi->pixmap()) {
             QRect r = irects[i];
             if(r.isEmpty() || !mi->isVisible())
@@ -1124,7 +1124,7 @@ void QMenuBar::drawContents(QPainter *p)
     style().drawControl(QStyle::CE_Q3MenuBarEmptyArea, p, this, contentsRect(), pal);
     p->restore();
 
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
     if (!mac_eaten_menubar)
 #endif
     {
@@ -1142,7 +1142,7 @@ void QMenuBar::drawContents(QPainter *p)
 /*!
     \reimp
 */
-void QMenuBar::mousePressEvent(QMouseEvent *e)
+void Q3MenuBar::mousePressEvent(QMouseEvent *e)
 {
     if (e->button() != LeftButton)
         return;
@@ -1152,7 +1152,7 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
         toggleclose = 1;
     if (item >= 0) {
         QFocusEvent::Reason oldReason = QFocusEvent::reason();
-        QMenuItem *mi = findItem(idAt(item));
+        Q3MenuItem *mi = findItem(idAt(item));
         // we know that a popup will open, so set the reason to avoid
         // itemviews to redraw their selections
         if (mi && mi->popup())
@@ -1167,7 +1167,7 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
 /*!
     \reimp
 */
-void QMenuBar::mouseReleaseEvent(QMouseEvent *e)
+void Q3MenuBar::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() != LeftButton)
         return;
@@ -1197,7 +1197,7 @@ void QMenuBar::mouseReleaseEvent(QMouseEvent *e)
 /*!
     \reimp
 */
-void QMenuBar::mouseMoveEvent(QMouseEvent *e)
+void Q3MenuBar::mouseMoveEvent(QMouseEvent *e)
 {
     int item = itemAtPos(e->pos());
     if (!mouseBtDn && !popupvisible) {
@@ -1219,7 +1219,7 @@ void QMenuBar::mouseMoveEvent(QMouseEvent *e)
 /*!
     \reimp
 */
-void QMenuBar::leaveEvent(QEvent * e)
+void Q3MenuBar::leaveEvent(QEvent * e)
 {
     hasmouse = 0;
     int actId = idAt(actItem);
@@ -1233,12 +1233,12 @@ void QMenuBar::leaveEvent(QEvent * e)
 /*!
     \reimp
 */
-void QMenuBar::keyPressEvent(QKeyEvent *e)
+void Q3MenuBar::keyPressEvent(QKeyEvent *e)
 {
     if (actItem < 0)
         return;
 
-    QMenuItem  *mi = 0;
+    Q3MenuItem  *mi = 0;
     int dx = 0;
 
     if (e->state() & Qt::ControlButton &&
@@ -1283,7 +1283,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
                 i = c - 1;
             mi = mitems->at(i);
             // ### fix windows-style traversal - currently broken due to
-            // QMenuBar's reliance on QPopupMenu
+            // Q3MenuBar's reliance on Q3PopupMenu
             if (/* (style() == WindowsStyle || */ mi->isEnabledAndVisible() /*) */
                  && !mi->isSeparator())
                 break;
@@ -1292,14 +1292,14 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
     } else if ((!e->state() || (e->state()&(MetaButton|AltButton))) && e->text().length()==1 && !popupvisible) {
         QChar c = e->text()[0].toUpper();
 
-        QMenuItem* first = 0;
-        QMenuItem* currentSelected = 0;
-        QMenuItem* firstAfterCurrent = 0;
+        Q3MenuItem* first = 0;
+        Q3MenuItem* currentSelected = 0;
+        Q3MenuItem* firstAfterCurrent = 0;
 
         int indx = 0;
         int clashCount = 0;
         for (int i = 0; i < mitems->size(); ++i) {
-            register QMenuItem *m = mitems->at(i);
+            register Q3MenuItem *m = mitems->at(i);
             QString s = m->text();
             if (!s.isEmpty()) {
                 int i = s.indexOf('&');
@@ -1339,7 +1339,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
 /*!
     \reimp
 */
-void QMenuBar::resizeEvent(QResizeEvent *e)
+void Q3MenuBar::resizeEvent(QResizeEvent *e)
 {
     Q3Frame::resizeEvent(e);
     if (badSize)
@@ -1355,12 +1355,12 @@ void QMenuBar::resizeEvent(QResizeEvent *e)
     calculateRects() has been called as appropriate.
 */
 
-void QMenuBar::setActiveItem(int i, bool show, bool activate_first_item)
+void Q3MenuBar::setActiveItem(int i, bool show, bool activate_first_item)
 {
     if (i == actItem && (uint)show == popupvisible)
         return;
 
-    QMenuItem* mi = 0;
+    Q3MenuItem* mi = 0;
     if (i >= 0)
         mi = mitems->at(i);
     if (mi && !mi->isEnabledAndVisible())
@@ -1406,7 +1406,7 @@ void QMenuBar::setActiveItem(int i, bool show, bool activate_first_item)
     if (actItem < 0 || !popupvisible || !mi )
         return;
 
-    QPopupMenu *popup = mi->popup();
+    Q3PopupMenu *popup = mi->popup();
     if (popup) {
         emit highlighted(mi->id());
         openActPopup();
@@ -1423,7 +1423,7 @@ void QMenuBar::setActiveItem(int i, bool show, bool activate_first_item)
 }
 
 
-void QMenuBar::setAltMode(bool enable)
+void Q3MenuBar::setAltMode(bool enable)
 {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     if (inMenu && !enable) {
@@ -1438,23 +1438,23 @@ void QMenuBar::setAltMode(bool enable)
     waitforalt = 0;
     actItemDown = false;
     if (enable) {
-        if (!QMenuData::d->aWidget)
-            QMenuData::d->aWidget = qApp->focusWidget();
+        if (!Q3MenuData::d->aWidget)
+            Q3MenuData::d->aWidget = qApp->focusWidget();
         setFocus();
         updateItem(idAt(actItem));
     } else {
         // set the focus back to the previous widget if
         // we still have the focus.
         if (qApp->focusWidget() == this) {
-            if (QMenuData::d->aWidget)
-                QMenuData::d->aWidget->setFocus();
+            if (Q3MenuData::d->aWidget)
+                Q3MenuData::d->aWidget->setFocus();
             else
                 clearFocus();
         }
         int actId = idAt(actItem);
         actItem = -1;
         updateItem(actId);
-        QMenuData::d->aWidget = 0;
+        Q3MenuData::d->aWidget = 0;
     }
 }
 
@@ -1463,13 +1463,13 @@ void QMenuBar::setAltMode(bool enable)
 */
 #ifndef QT_NO_ACCEL
 
-void QMenuBar::setupAccelerators()
+void Q3MenuBar::setupAccelerators()
 {
     delete autoaccel;
     autoaccel = 0;
 
     for (int i = 0; i < mitems->size(); ++i) {
-        register QMenuItem *mi = mitems->at(i);
+        register Q3MenuItem *mi = mitems->at(i);
         if (!mi->isEnabledAndVisible()) // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
             continue;
         QString s = mi->text();
@@ -1490,7 +1490,7 @@ void QMenuBar::setupAccelerators()
             }
         }
         if (mi->popup()) {
-            QPopupMenu* popup = mi->popup();
+            Q3PopupMenu* popup = mi->popup();
             popup->updateAccel(this);
             if (!popup->isEnabled())
                 popup->enableAccel(false);
@@ -1502,12 +1502,12 @@ void QMenuBar::setupAccelerators()
 /*!
     \reimp
  */
-void QMenuBar::focusInEvent(QFocusEvent *)
+void Q3MenuBar::focusInEvent(QFocusEvent *)
 {
     if (actItem < 0) {
         int i = -1;
         while (actItem < 0 && ++i < (int) mitems->count()) {
-            QMenuItem* mi = mitems->at(i);
+            Q3MenuItem* mi = mitems->at(i);
             if (mi && mi->isEnabledAndVisible() && !mi->isSeparator())
                 setActiveItem(i, false);
         }
@@ -1519,7 +1519,7 @@ void QMenuBar::focusInEvent(QFocusEvent *)
 /*!
     \reimp
  */
-void QMenuBar::focusOutEvent(QFocusEvent *)
+void Q3MenuBar::focusOutEvent(QFocusEvent *)
 {
     updateItem(idAt(actItem));
     if (!popupvisible)
@@ -1530,11 +1530,11 @@ void QMenuBar::focusOutEvent(QFocusEvent *)
     \reimp
 */
 
-QSize QMenuBar::sizeHint() const
+QSize Q3MenuBar::sizeHint() const
 {
     int h = height();
     if (badSize)
-        h = ((QMenuBar*)this)->calculateRects();
+        h = ((Q3MenuBar*)this)->calculateRects();
     QSize s(2*frameWidth(),0);
     if (irects) {
         for (int i = 0; i < (int)mitems->count(); ++i)
@@ -1549,7 +1549,7 @@ QSize QMenuBar::sizeHint() const
     \reimp
 */
 
-QSize QMenuBar::minimumSize() const
+QSize Q3MenuBar::minimumSize() const
 {
 #ifndef QT_NO_TOOLBAR
     QToolBar *tb = qt_cast<QToolBar*>(parent());
@@ -1563,13 +1563,13 @@ QSize QMenuBar::minimumSize() const
     \reimp
 */
 
-QSize QMenuBar::minimumSizeHint() const
+QSize Q3MenuBar::minimumSizeHint() const
 {
     return minimumSize();
 }
 
 /*!
-    \property QMenuBar::defaultUp
+    \property Q3MenuBar::defaultUp
     \brief the popup orientation
 
     The default popup orientation. By default, menus pop "down" the
@@ -1580,12 +1580,12 @@ QSize QMenuBar::minimumSizeHint() const
     If the menu would not fit on the screen, the other direction is
     used automatically.
 */
-void QMenuBar::setDefaultUp(bool on)
+void Q3MenuBar::setDefaultUp(bool on)
 {
     defaultup = on;
 }
 
-bool QMenuBar::isDefaultUp() const
+bool Q3MenuBar::isDefaultUp() const
 {
     return defaultup;
 }
@@ -1594,7 +1594,7 @@ bool QMenuBar::isDefaultUp() const
 /*!
     \reimp
  */
-void QMenuBar::activateItemAt(int index)
+void Q3MenuBar::activateItemAt(int index)
 {
     if (index >= 0 && index < (int) mitems->count())
         setActiveItem(index);

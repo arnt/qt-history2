@@ -17,7 +17,7 @@
 #ifndef QT_NO_STYLE
 
 #include "qmenu.h"
-#include "qmenubar.h"
+#include "q3menubar.h"
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
@@ -1021,7 +1021,7 @@ void QCommonStyle::drawControl(ControlElement element,
             if (opt.isDefault())
                 break;
 
-            QMenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = opt.menuItem();
             int alignment = AlignCenter|ShowPrefix|DontClip|SingleLine;
             if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
                 alignment |= NoAccel;
@@ -2638,7 +2638,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 #ifndef QT_NO_MENU
             if (opt.isDefault())
                 break;
-            const Q4Menu *menu = (const Q4Menu *)widget;
+            const QMenu *menu = (const QMenu *)widget;
             bool checkable = menu->isCheckable();
             QAction *act = opt.action();
             int maxpmw = opt.maxIconWidth();
@@ -2674,9 +2674,9 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
             if (opt.isDefault())
                 break;
 
-            const QPopupMenu *popup = (const QPopupMenu *) widget;
+            const Q3PopupMenu *popup = (const Q3PopupMenu *) widget;
             bool checkable = popup->isCheckable();
-            QMenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = opt.menuItem();
             int maxpmw = opt.maxIconWidth();
             int w = sz.width(), h = sz.height();
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QMenuBar bindings for Apple System Menubar.
+** Implementation of Q3MenuBar bindings for Apple System Menubar.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -15,7 +15,7 @@
 #include "qplatformdefs.h"
 #if defined(Q_WS_MAC)
 #include "qt_mac.h"
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if !defined(QMAC_Q3MENUBAR_NO_NATIVE)
 
 #include <qaccel.h>
 #include <qapplication.h>
@@ -24,15 +24,15 @@
 #include <qguardedptr.h>
 #include <qhash.h>
 #include <qmainwindow.h>
-#include <qmenubar.h>
+#include <q3menubar.h>
 #include <qmessagebox.h>
-#include <qpopupmenu.h>
+#include <q3popupmenu.h>
 #include <qregexp.h>
 #include <qstring.h>
 #include <qtoolbar.h>
 
 /*****************************************************************************
-  QMenubar debug facilities
+  Q3Menubar debug facilities
  *****************************************************************************/
 //#define DEBUG_MENUBAR_ACTIVATE
 
@@ -53,27 +53,27 @@ extern bool qt_mac_no_menubar_merge; //qmenu_mac.cpp
 void qt_mac_command_set_enabled(MenuRef menu, UInt32 cmd, bool b); //qmenu_mac.cpp
 static inline void qt_mac_command_set_enabled(UInt32 cmd, bool b) { qt_mac_command_set_enabled(0, cmd, b); }
 
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if !defined(QMAC_Q3MENUBAR_NO_NATIVE)
 
 //internal class
-class QMenuBar::MacPrivate {
+class Q3MenuBar::MacPrivate {
 public:
     MacPrivate() : mac_menubar(0), apple_menu(0), in_apple(0), dirty(false), modal(false) { }
     ~MacPrivate() { clear(); }
 
     class CommandBinding {
     public:
-        CommandBinding(QPopupMenu *m = 0, uint i = 0) : qpopup(m), index(i) { }
-        QPopupMenu *qpopup;
+        CommandBinding(Q3PopupMenu *m = 0, uint i = 0) : qpopup(m), index(i) { }
+        Q3PopupMenu *qpopup;
         int index;
     };
     QHash<int, CommandBinding> commands;
 
     class PopupBinding {
     public:
-        PopupBinding(QPopupMenu *m, MenuRef r, int i, bool b) : qpopup(m), macpopup(r), id(i), tl(b) { }
+        PopupBinding(Q3PopupMenu *m, MenuRef r, int i, bool b) : qpopup(m), macpopup(r), id(i), tl(b) { }
         ~PopupBinding() { if(tl) DeleteMenu(GetMenuID(macpopup)); DisposeMenu(macpopup); }
-        QPopupMenu *qpopup;
+        Q3PopupMenu *qpopup;
         MenuRef macpopup;
         int id;
         bool tl;
@@ -104,11 +104,11 @@ public:
         }
     }
 };
-static QGuardedPtr<QMenuBar> fallbackMenuBar; //The current global menubar
-static QGuardedPtr<QMenuBar> activeMenuBar; //The current global menubar
+static QGuardedPtr<Q3MenuBar> fallbackMenuBar; //The current global menubar
+static QGuardedPtr<Q3MenuBar> activeMenuBar; //The current global menubar
 
 extern void qt_mac_set_modal_state(MenuRef, bool); //qmenu_mac.cpp
-static void qt_mac_set_modal_state(bool b, QMenuBar *mb)
+static void qt_mac_set_modal_state(bool b, Q3MenuBar *mb)
 {
     if(mb && mb != activeMenuBar) { //shouldn't be possible, but just in case
         qWarning("%s:%d: This cannot happen!", __FILE__, __LINE__);
@@ -136,12 +136,12 @@ static QString qt_mac_no_ampersands(QString str, CFStringRef *cf=NULL) {
 /*!
     \internal
 */
-bool QPopupMenu::macPopupMenu(const QPoint &p, int index)
+bool Q3PopupMenu::macPopupMenu(const QPoint &p, int index)
 {
 #if 0
     if(index == -1 && activeMenuBar && activeMenuBar->mac_d->popups) {
         MenuRef ref = 0;
-        for(QIntDictIterator<QMenuBar::MacPrivate::PopupBinding> it(*(activeMenuBar->mac_d->popups)); it.current(); ++it) {
+        for(QIntDictIterator<Q3MenuBar::MacPrivate::PopupBinding> it(*(activeMenuBar->mac_d->popups)); it.current(); ++it) {
             if(it.current()->qpopup == this) {
                 ref = it.current()->macpopup;
                 break;
@@ -162,8 +162,8 @@ bool QPopupMenu::macPopupMenu(const QPoint &p, int index)
 }
 
 
-#if !defined(QMAC_QMENUBAR_NO_MERGE)
-uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
+#if !defined(QMAC_Q3MENUBAR_NO_MERGE)
+uint Q3MenuBar::isCommand(Q3MenuItem *it, bool just_check)
 {
     if(qt_mac_no_menubar_merge || it->popup() || it->custom() || it->isSeparator())
         return 0;
@@ -216,7 +216,7 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 }
 #endif
 
-bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
+bool Q3MenuBar::syncPopups(MenuRef ret, Q3PopupMenu *d)
 {
     int added = 0;
     if(d) {
@@ -233,9 +233,9 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
         int id = 1;
 
         for (int index = 0; index < d->mitems->size(); ++index) {
-#if !defined(QMAC_QMENUBAR_NO_MERGE)
+#if !defined(QMAC_Q3MENUBAR_NO_MERGE)
             bool found = false;
-            QHash<int, QMenuBar::MacPrivate::CommandBinding>::Iterator cmd_it =
+            QHash<int, Q3MenuBar::MacPrivate::CommandBinding>::Iterator cmd_it =
                 activeMenuBar->mac_d->commands.begin();
             for (; cmd_it != mac_d->commands.end() && !found; ++cmd_it)
                 found = (cmd_it.value().index == index && cmd_it.value().qpopup == d);
@@ -243,7 +243,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
                 continue;
 #endif
 
-            QMenuItem *item = d->mitems->at(index);
+            Q3MenuItem *item = d->mitems->at(index);
             if (item->custom())
                 continue;
             if (item->widget())
@@ -254,10 +254,10 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
             QString text = "empty",
                     accel; //Yes, I need this.
             if(!item->isSeparator()) {
-#if !defined(QMAC_QMENUBAR_NO_MERGE)
+#if !defined(QMAC_Q3MENUBAR_NO_MERGE)
                 if (int cmd = isCommand(item)) {
                     activeMenuBar->mac_d->commands.insert(cmd,
-                            QMenuBar::MacPrivate::CommandBinding(d, index));
+                            Q3MenuBar::MacPrivate::CommandBinding(d, index));
                     continue;
                 }
 #endif
@@ -268,7 +268,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
                     text.remove(st, text.length()-st);
                 }
             }
-#if !defined(QMAC_QMENUBAR_NO_MERGE)
+#if !defined(QMAC_Q3MENUBAR_NO_MERGE)
             else if(index != d->mitems->count()-1) {
                 if(isCommand(d->mitems->at(index+1)), true) {
                     if(index+1 == d->mitems->count()-1)
@@ -367,7 +367,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
                                 SetItemCmd(ret, id, (CharParameter)keycode);
                             } else { //I guess I missed one, fix above if this happens
                                 QKeySequence key(keycode);
-                                qDebug("QMenuBar: Not sure how to handle accelerator 0x%04x (%s)",
+                                qDebug("Q3MenuBar: Not sure how to handle accelerator 0x%04x (%s)",
                                        keycode, ((QString)key).latin1());
                             }
                         }
@@ -383,7 +383,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
     return added != 0;
 }
 
-MenuRef QMenuBar::createMacPopup(QPopupMenu *d, int id, bool top_level)
+MenuRef Q3MenuBar::createMacPopup(Q3PopupMenu *d, int id, bool top_level)
 {
     static int mid = 0;
     MenuAttributes attr = 0;
@@ -399,13 +399,13 @@ MenuRef QMenuBar::createMacPopup(QPopupMenu *d, int id, bool top_level)
     } else {
         SetMenuID(ret, ++mid);
         activeMenuBar->mac_d->popups.insert(mid,
-                                            new QMenuBar::MacPrivate::PopupBinding(d, ret, id,
+                                            new Q3MenuBar::MacPrivate::PopupBinding(d, ret, id,
                                                                                    top_level));
     }
     return ret;
 }
 
-bool QMenuBar::updateMenuBar()
+bool Q3MenuBar::updateMenuBar()
 {
     if(this != activeMenuBar)
         qDebug("Shouldn't have happened! %s:%d", __FILE__, __LINE__);
@@ -421,7 +421,7 @@ bool QMenuBar::updateMenuBar()
     }
 
     for (int i = 0; i < mitems->size(); ++i) {
-        QMenuItem *item = mitems->at(i);
+        Q3MenuItem *item = mitems->at(i);
         if (item->isSeparator() || !item->isVisible()) //mac doesn't support these
             continue;
         if(MenuRef mp = createMacPopup(item->popup(), item->id(), true)) {
@@ -439,14 +439,14 @@ bool QMenuBar::updateMenuBar()
     return true;
 }
 
-/* qmenubar functions */
+/* q3menubar functions */
 
 /*!
     \internal
 */
-bool QMenuBar::activateCommand(uint cmd)
+bool Q3MenuBar::activateCommand(uint cmd)
 {
-#if !defined(QMAC_QMENUBAR_NO_MERGE)
+#if !defined(QMAC_Q3MENUBAR_NO_MERGE)
     if(activeMenuBar) {
         MacPrivate::CommandBinding mcb = activeMenuBar->mac_d->commands.value(cmd);
         if (mcb.qpopup) {
@@ -467,7 +467,7 @@ bool QMenuBar::activateCommand(uint cmd)
 /*!
     \internal
 */
-bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
+bool Q3MenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
 {
     if(!activeMenuBar)
         return false;
@@ -504,12 +504,12 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
     return false;
 }
 
-static QHash<QWidget *, QMenuBar *> menubars;
+static QHash<QWidget *, Q3MenuBar *> menubars;
 /*!
   \internal
   Internal function that cleans up the menubar.
 */
-void QMenuBar::macCreateNativeMenubar()
+void Q3MenuBar::macCreateNativeMenubar()
 {
     menubars.ensure_constructed();
     macDirtyNativeMenubar();
@@ -532,10 +532,10 @@ void QMenuBar::macCreateNativeMenubar()
             mac_d = new MacPrivate;
     }
 }
-void QMenuBar::macRemoveNativeMenubar()
+void Q3MenuBar::macRemoveNativeMenubar()
 {
     if (mac_eaten_menubar) {
-        for(QHash<QWidget *, QMenuBar *>::Iterator it = menubars.begin(); it != menubars.end();) {
+        for(QHash<QWidget *, Q3MenuBar *>::Iterator it = menubars.begin(); it != menubars.end();) {
             if (*it == this)
                 it = menubars.erase(it);
             else
@@ -554,7 +554,7 @@ void QMenuBar::macRemoveNativeMenubar()
 }
 
 /*!  \internal */
-void QMenuBar::macDirtyNativeMenubar()
+void Q3MenuBar::macDirtyNativeMenubar()
 {
     if(mac_eaten_menubar && mac_d) {
         mac_d->dirty = 1;
@@ -565,13 +565,13 @@ void QMenuBar::macDirtyNativeMenubar()
 /*!
     \internal
 */
-bool QMenuBar::macUpdateMenuBar()
+bool Q3MenuBar::macUpdateMenuBar()
 {
     if(qt_mac_no_native_menubar) //nothing to be done..
         return true;
     menubars.ensure_constructed();
 
-    QMenuBar *mb = 0;
+    Q3MenuBar *mb = 0;
     bool fall_back_to_empty = false;
     //find a menubar
     QWidget *w = qApp->activeWindow();
@@ -624,7 +624,7 @@ bool QMenuBar::macUpdateMenuBar()
             mb->mac_d->mac_menubar = GetMenuBar();
         } else {
             SetMenuBar(mb->mac_d->mac_menubar);
-            QHash<int, QMenuBar::MacPrivate::CommandBinding>::Iterator it
+            QHash<int, Q3MenuBar::MacPrivate::CommandBinding>::Iterator it
                 = mb->mac_d->commands.begin();
             for(; it != mb->mac_d->commands.end(); ++it)
                 qt_mac_command_set_enabled(it.key(), true);
@@ -647,7 +647,7 @@ bool QMenuBar::macUpdateMenuBar()
 /*!
     \internal
 */
-bool QMenuBar::macUpdatePopup(MenuRef mr)
+bool Q3MenuBar::macUpdatePopup(MenuRef mr)
 {
     if(!mr || !activeMenuBar)
         return false;
@@ -681,7 +681,7 @@ bool QMenuBar::macUpdatePopup(MenuRef mr)
 /*!
     \internal
 */
-bool QMenuBar::macUpdatePopupVisible(MenuRef mr, bool vis)
+bool Q3MenuBar::macUpdatePopupVisible(MenuRef mr, bool vis)
 {
     Q_UNUSED(vis);
     if(!mr || !activeMenuBar || !qApp)
@@ -701,7 +701,7 @@ bool QMenuBar::macUpdatePopupVisible(MenuRef mr, bool vis)
 /*!
     \internal
 */
-void QMenuBar::macWidgetChangedWindow()
+void Q3MenuBar::macWidgetChangedWindow()
 {
     int was_eaten = mac_eaten_menubar;
     macRemoveNativeMenubar();
@@ -710,5 +710,5 @@ void QMenuBar::macWidgetChangedWindow()
         menuContentsChanged();
 }
 
-#endif //!defined(QMAC_QMENUBAR_NO_NATIVE)
+#endif //!defined(QMAC_Q3MENUBAR_NO_NATIVE)
 #endif //WS_MAC

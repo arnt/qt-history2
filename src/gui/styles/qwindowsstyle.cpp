@@ -37,7 +37,7 @@
 #include "qbitmap.h"
 #include "qcleanuphandler.h"
 #include "qdockwindow.h"
-#include "qmenubar.h"
+#include "q3menubar.h"
 #include "qevent.h"
 
 #if defined(Q_WS_WIN)
@@ -60,8 +60,8 @@ static bool use2000style = true;
 
 enum QSliderDirection { SlUp, SlDown, SlLeft, SlRight };
 
-// A friendly class providing access to QMenuData's protected member.
-class FriendlyMenuData : public QMenuData
+// A friendly class providing access to Q3MenuData's protected member.
+class FriendlyMenuData : public Q3MenuData
 {
     friend class QWindowsStyle;
 };
@@ -135,9 +135,9 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
             // Update state
             alt_down = false;
             // Repaint only menubars
-            QList<QMenuBar *> l = qFindChildren<QMenuBar *>(widget);
+            QList<Q3MenuBar *> l = qFindChildren<Q3MenuBar *>(widget);
             for (int pos=0; pos<l.size(); ++pos) {
-                QMenuBar *menuBar  = l.at(pos);
+                Q3MenuBar *menuBar  = l.at(pos);
                 menuBar->repaint();
             }
         }
@@ -146,7 +146,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
     case QEvent::FocusOut:
         {
             // Menubars toggle based on focus
-            QMenuBar *menuBar = qt_cast<QMenuBar*>(o);
+            Q3MenuBar *menuBar = qt_cast<Q3MenuBar*>(o);
             if (menuBar && !menuBarTimer) // delayed repaint to avoid flicker
                 menuBarTimer = menuBar->startTimer(0);
         }
@@ -158,7 +158,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
         break;
     case QEvent::Timer:
         {
-            QMenuBar *menuBar = qt_cast<QMenuBar*>(o);
+            Q3MenuBar *menuBar = qt_cast<Q3MenuBar*>(o);
             QTimerEvent *te = (QTimerEvent*)e;
             if (menuBar && te->timerId() == menuBarTimer) {
                 menuBar->killTimer(te->timerId());
@@ -221,10 +221,10 @@ void QWindowsStyle::unPolish(QApplication *)
 void QWindowsStyle::polish(QWidget *widget)
 {
     QCommonStyle::polish(widget);
-    if(Q4Menu *menu = qt_cast<Q4Menu*>(widget))
+    if(QMenu *menu = qt_cast<QMenu*>(widget))
         menu->setCheckable(true);
 #ifdef QT_COMPAT
-    if(QPopupMenu *popup = qt_cast<QPopupMenu*>(widget))
+    if(Q3PopupMenu *popup = qt_cast<Q3PopupMenu*>(widget))
         popup->setCheckable(true);
 #endif
 }
@@ -840,7 +840,7 @@ void QWindowsStyle::drawControl(ControlElement element,
         {
             if(!widget || opt.isDefault())
                 break;
-            const Q4Menu *menu = (const Q4Menu *)widget;
+            const QMenu *menu = (const QMenu *)widget;
             QAction *mi = opt.action();
             if(!mi)
                 break;
@@ -1009,8 +1009,8 @@ void QWindowsStyle::drawControl(ControlElement element,
             if (! widget || opt.isDefault())
                 break;
 
-            const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
-            QMenuItem *mi = opt.menuItem();
+            const Q3PopupMenu *popupmenu = (const Q3PopupMenu *) widget;
+            Q3MenuItem *mi = opt.menuItem();
             if (!mi)
                 break;
 
@@ -1396,7 +1396,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType contents,
             if (! widget || opt.isDefault())
                 break;
 
-            const Q4Menu *menu = (const Q4Menu *)widget;
+            const QMenu *menu = (const QMenu *)widget;
             bool checkable = menu->isCheckable();
             QAction *act = opt.action();
             int maxpmw = opt.maxIconWidth();
@@ -1443,9 +1443,9 @@ QSize QWindowsStyle::sizeFromContents(ContentsType contents,
             if (opt.isDefault())
                 break;
 
-            const QPopupMenu *popup = (const QPopupMenu *) widget;
+            const Q3PopupMenu *popup = (const Q3PopupMenu *) widget;
             bool checkable = popup->isCheckable();
-            QMenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = opt.menuItem();
             int maxpmw = opt.maxIconWidth();
             int w = sz.width(), h = sz.height();
 
@@ -2307,10 +2307,10 @@ int QWindowsStyle::styleHint(StyleHint hint,
             ret = cues ? 1 : 0;
             // Do nothing if we always paint underlines
             if (!ret && widget && d) {
-                QMenuBar *menuBar = ::qt_cast<QMenuBar*>(widget);
-                QPopupMenu *popupMenu = 0;
+                Q3MenuBar *menuBar = ::qt_cast<Q3MenuBar*>(widget);
+                Q3PopupMenu *popupMenu = 0;
                 if (!menuBar)
-                    popupMenu = ::qt_cast<QPopupMenu*>(widget);
+                    popupMenu = ::qt_cast<Q3PopupMenu*>(widget);
 
                 // If we paint a menubar draw underlines if it has focus, or if alt is down,
                 // or if a popup menu belonging to the menubar is active and paints underlines
@@ -2320,8 +2320,8 @@ int QWindowsStyle::styleHint(StyleHint hint,
                     } else if (d->altDown()) {
                         ret = 1;
                     } else if (qApp->focusWidget() && qApp->focusWidget()->isPopup()) {
-                        popupMenu = ::qt_cast<QPopupMenu*>(qApp->focusWidget());
-                        QMenuData *pm = popupMenu ? static_cast<QMenuData*>(popupMenu) : 0;
+                        popupMenu = ::qt_cast<Q3PopupMenu*>(qApp->focusWidget());
+                        Q3MenuData *pm = popupMenu ? static_cast<Q3MenuData*>(popupMenu) : 0;
                         if (pm && ((FriendlyMenuData*)pm)->parentMenu == menuBar) {
                             if (d->hasSeenAlt(menuBar))
                                 ret = 1;
@@ -2329,10 +2329,10 @@ int QWindowsStyle::styleHint(StyleHint hint,
                     }
                 // If we paint a popup menu draw underlines if the respective menubar does
                 } else if (popupMenu) {
-                    QMenuData *pm = static_cast<QMenuData*>(popupMenu);
+                    Q3MenuData *pm = static_cast<Q3MenuData*>(popupMenu);
                     while (pm) {
                         if (((FriendlyMenuData*)pm)->isMenuBar) {
-                            menuBar = (QMenuBar*)pm;
+                            menuBar = (Q3MenuBar*)pm;
                             if (d->hasSeenAlt(menuBar))
                                 ret = 1;
                             break;

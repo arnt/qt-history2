@@ -63,8 +63,8 @@ void QMacStyleQDPainter::setport()
 #include <qlineedit.h>
 #include <qlistview.h>
 #include <qmainwindow.h>
-#include <qmenubar.h>
-#include <qpopupmenu.h>
+#include <q3menubar.h>
+#include <q3popupmenu.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qregexp.h>
@@ -375,14 +375,14 @@ void QMacStyleQD::polish(QWidget* w)
         label->setLineWidth(1);
         label->setWindowOpacity(0.95);
 #ifdef QT_COMPAT
-    } else if(QPopupMenu *popup = ::qt_cast<QPopupMenu*>(w)) {
+    } else if(Q3PopupMenu *popup = ::qt_cast<Q3PopupMenu*>(w)) {
         popup->setMargin(0);
         popup->setLineWidth(0);
         w->setWindowOpacity(0.95);
 #endif
     } else if(QRubberBand *rubber = ::qt_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(0.75);
-    } else if(Q4Menu *menu = ::qt_cast<Q4Menu*>(w)) {
+    } else if(QMenu *menu = ::qt_cast<QMenu*>(w)) {
         menu->setWindowOpacity(0.95);
     } else if(QTitleBar *tb = ::qt_cast<QTitleBar *>(w)) {
 //        w->font().setPixelSize(10);
@@ -398,12 +398,12 @@ void QMacStyleQD::unPolish(QWidget* w)
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise(true);
 #ifdef QT_COMPAT
-    } else if(::qt_cast<QPopupMenu*>(w)) {
+    } else if(::qt_cast<Q3PopupMenu*>(w)) {
         w->setWindowOpacity(1.0);
 #endif
     } else if(QRubberBand *rubber = ::qt_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(1.0);
-    } else if(::qt_cast<Q4Menu*>(w)) {
+    } else if(::qt_cast<QMenu*>(w)) {
         w->setWindowOpacity(1.0);
     }
 }
@@ -735,7 +735,7 @@ void QMacStyleQD::drawControl(ControlElement element,
     case CE_MenuItem: {
         if(!widget || opt.isDefault())
             break;
-        Q4Menu *menu = (Q4Menu *)widget;
+        QMenu *menu = (QMenu *)widget;
         QAction *mi = opt.action();
 
         bool dis = mi ? !mi->isEnabled() : false;
@@ -875,8 +875,8 @@ void QMacStyleQD::drawControl(ControlElement element,
     case CE_Q3PopupMenuItem: {
         if(!widget || opt.isDefault())
             break;
-        QPopupMenu *popupmenu = (QPopupMenu *)widget;
-        QMenuItem *mi = opt.menuItem();
+        Q3PopupMenu *popupmenu = (Q3PopupMenu *)widget;
+        Q3MenuItem *mi = opt.menuItem();
 
         bool dis = mi ? !mi->isEnabled() : false;
         int tab = opt.tabWidth();
@@ -1026,7 +1026,7 @@ void QMacStyleQD::drawControl(ControlElement element,
     case CE_MenuBarItem: {
         if(!widget)
             break;
-        const Q4MenuBar *mbar = (const Q4MenuBar *)widget;
+        const QMenuBar *mbar = (const QMenuBar *)widget;
         QRect ir(r.x(), 0, r.width(), mbar->height());
         Rect mrect = *qt_glb_mac_rect(mbar->rect(), p),
              irect = *qt_glb_mac_rect(ir, p, false);
@@ -1043,7 +1043,7 @@ void QMacStyleQD::drawControl(ControlElement element,
     case CE_Q3MenuBarItem: {
         if(!widget)
             break;
-        const QMenuBar *mbar = (const QMenuBar *)widget;
+        const Q3MenuBar *mbar = (const Q3MenuBar *)widget;
         QRect ir(r.x(), 0, r.width(), mbar->height());
         Rect mrect = *qt_glb_mac_rect(mbar->rect(), p),
              irect = *qt_glb_mac_rect(ir, p, false);
@@ -2325,7 +2325,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
     case CT_MenuItem: {
         if(!widget || opt.isDefault())
             break;
-        const Q4Menu *menu = (const Q4Menu *) widget;
+        const QMenu *menu = (const QMenu *) widget;
         bool checkable = menu->isCheckable();
         QAction *mi = opt.action();
         int maxpmw = opt.maxIconWidth();
@@ -2365,9 +2365,9 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
     case CT_Q3PopupMenuItem: {
         if(!widget || opt.isDefault())
             break;
-        const QPopupMenu *popup = (const QPopupMenu *) widget;
+        const Q3PopupMenu *popup = (const Q3PopupMenu *) widget;
         bool checkable = popup->isCheckable();
-        QMenuItem *mi = opt.menuItem();
+        Q3MenuItem *mi = opt.menuItem();
         int maxpmw = opt.maxIconWidth();
         int w = sz.width(), h = sz.height();
 

@@ -171,6 +171,9 @@ private:
 
     friend class QDockWindow;
     friend class QMenuBar;
+#ifdef QT_COMPAT
+    friend class Q3MenuBar;
+#endif
     friend class QHideDock;
     friend class QToolBar;
     friend class QMainWindowLayout;

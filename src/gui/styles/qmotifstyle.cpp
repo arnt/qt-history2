@@ -18,7 +18,7 @@
 
 #include "qmenu.h"
 #ifdef QT_COMPAT
-# include "qpopupmenu.h"
+# include "q3popupmenu.h"
 #endif
 #include "qapplication.h"
 #include "qpainter.h"
@@ -148,7 +148,7 @@ void QMotifStyle::polish(QPalette& pal)
 void QMotifStyle::polish(QWidget* w)
 {
     QStyle::polish(w);
-    if(Q4Menu *menu = qt_cast<Q4Menu*>(w))
+    if(QMenu *menu = qt_cast<QMenu*>(w))
         menu->setCheckable(false);
 }
 
@@ -984,7 +984,7 @@ void QMotifStyle::drawControl(ControlElement element,
         if (!widget || opt.isDefault())
             break;
 
-        const Q4Menu *menu = (const Q4Menu *) widget;
+        const QMenu *menu = (const QMenu *) widget;
         QAction *mi = opt.action();
         if(!mi)
             break;
@@ -1121,8 +1121,8 @@ void QMotifStyle::drawControl(ControlElement element,
             if (! widget || opt.isDefault())
                 break;
 
-            const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
-            QMenuItem *mi = opt.menuItem();
+            const Q3PopupMenu *popupmenu = (const Q3PopupMenu *) widget;
+            Q3MenuItem *mi = opt.menuItem();
             if (!mi)
                 break;
 
@@ -1882,7 +1882,7 @@ QSize QMotifStyle::sizeFromContents(ContentsType contents,
             if(!widget || opt.isDefault())
                 break;
 
-            const Q4Menu *menu = (Q4Menu *) widget;
+            const QMenu *menu = (QMenu *) widget;
             bool checkable = menu->isCheckable();
             QAction *mi = opt.action();
             int maxpmw = opt.maxIconWidth();
@@ -1929,9 +1929,9 @@ QSize QMotifStyle::sizeFromContents(ContentsType contents,
             if (! widget || opt.isDefault())
                 break;
 
-            const QPopupMenu *popup = (QPopupMenu *) widget;
+            const Q3PopupMenu *popup = (Q3PopupMenu *) widget;
             bool checkable = popup->isCheckable();
-            QMenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = opt.menuItem();
             int maxpmw = opt.maxIconWidth();
             int w = sz.width(), h = sz.height();
 

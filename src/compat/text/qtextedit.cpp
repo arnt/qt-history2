@@ -5027,7 +5027,11 @@ QByteArray QTextEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPoint
             }
         }
         if (n) {
-            int i = n ==1 && !always_ask ? popup.idAt(0) : popup.exec(pt);
+            int i;
+            if(n ==1 && !always_ask)
+                i = popup.idAt(0);
+            else
+                i = popup.exec(pt);
             if (i >= 0)
                 return popup.text(i).toLatin1();
         }

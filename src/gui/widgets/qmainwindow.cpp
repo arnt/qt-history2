@@ -917,7 +917,8 @@ QMenuBar * QMainWindow::menuBar() const
     if (l.size()) {
         b = static_cast<QMenuBar *>(l.at(0));
     } else {
-        b = new QMenuBar((QMainWindow *)this, "automatic menu bar");
+        b = new QMenuBar((QMainWindow *)this);
+        b->setObjectName("automatic menu bar");
         b->show();
     }
     d->mb = b;
@@ -2084,7 +2085,8 @@ QPopupMenu *QMainWindow::createDockWindowMenu(DockWindows dockWindows) const
     if (l.isEmpty())
         return 0;
 
-    QPopupMenu *menu = new QPopupMenu((QMainWindow*)this, "qt_customize_menu");
+    QPopupMenu *menu = new QPopupMenu((QMainWindow*)this);
+    menu->setObjectName("qt_customize_menu");
     menu->setCheckable(true);
     d->dockWindowModes.insert(menu, dockWindows);
     connect(menu, SIGNAL(aboutToShow()), this, SLOT(menuAboutToShow()));

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QMenuData class.
+** Implementation of Q3MenuData class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -12,45 +12,45 @@
 **
 ****************************************************************************/
 
-#include "qmenudata.h"
+#include "q3menudata.h"
 #ifndef QT_NO_MENUDATA
-#include "qpopupmenu.h"
-#include "qmenubar.h"
+#include "q3popupmenu.h"
+#include "q3menubar.h"
 #include "qapplication.h"
 #include "qguardedptr.h"
 #include "qsignal.h"
 
-class QMenuItemData {
+class Q3MenuItemData {
 public:
-    QCustomMenuItem    *custom_item;        // custom menu item
+    Q3CustomMenuItem    *custom_item;        // custom menu item
 };
 
-class QMenuDataData {
-    // attention: also defined in qmenubar.cpp and qpopupmenu.cpp
+class Q3MenuDataData {
+    // attention: also defined in q3menubar.cpp and q3popupmenu.cpp
 public:
-    QMenuDataData();
+    Q3MenuDataData();
     QGuardedPtr<QWidget> aWidget;
     int aInt;
 };
-QMenuDataData::QMenuDataData()
+Q3MenuDataData::Q3MenuDataData()
     : aInt(-1)
 {}
 
 /*!
-    \class QMenuData
-    \brief The QMenuData class is a base class for QMenuBar and QPopupMenu.
+    \class Q3MenuData
+    \brief The Q3MenuData class is a base class for Q3MenuBar and Q3PopupMenu.
 
     \ingroup misc
 
-    QMenuData has an internal list of menu items. A menu item can have
+    Q3MenuData has an internal list of menu items. A menu item can have
     a text(), an \link accel() accelerator\endlink, a pixmap(), an
     iconSet(), a whatsThis() text and a popup menu (unless it is a
     separator). Menu items may optionally be \link setItemChecked()
     checked\endlink (except for separators).
 
-    The menu item sends out an \link QMenuBar::activated()
+    The menu item sends out an \link Q3MenuBar::activated()
     activated()\endlink signal when it is chosen and a \link
-    QMenuBar::highlighted() highlighted()\endlink signal when it
+    Q3MenuBar::highlighted() highlighted()\endlink signal when it
     receives the user input focus.
 
     \keyword menu identifier
@@ -75,21 +75,21 @@ QMenuDataData::QMenuDataData()
     its list position or by its menu identifier. (See also indexOf()
     and idAt().)
 
-    \sa QAccel QPopupMenu QAction
+    \sa QAccel Q3PopupMenu QAction
 */
 
 
 /*****************************************************************************
-  QMenuItem member functions
+  Q3MenuItem member functions
  *****************************************************************************/
 
-QMenuItem::QMenuItem()
+Q3MenuItem::Q3MenuItem()
     :ident(-1), iconset_data(0), pixmap_data(0), popup_menu(0),
      widget_item(0), signal_data(0), signal_value(0), is_separator(false), is_enabled(true),
      is_checked(false), is_dirty(true), is_visible(true), d(0)
 {}
 
-QMenuItem::~QMenuItem()
+Q3MenuItem::~Q3MenuItem()
 {
     delete iconset_data;
     delete pixmap_data;
@@ -102,16 +102,16 @@ QMenuItem::~QMenuItem()
 
 
 /*****************************************************************************
-  QMenuData member functions
+  Q3MenuData member functions
  *****************************************************************************/
 
-QMenuItemData* QMenuItem::extra()
+Q3MenuItemData* Q3MenuItem::extra()
 {
-    if (!d) d = new QMenuItemData;
+    if (!d) d = new Q3MenuItemData;
     return d;
 }
 
-QCustomMenuItem *QMenuItem::custom() const
+Q3CustomMenuItem *Q3MenuItem::custom() const
 {
     if (!d) return 0;
     return d->custom_item;
@@ -129,10 +129,10 @@ static int get_seq_id()
     Constructs an empty menu data list.
 */
 
-QMenuData::QMenuData()
+Q3MenuData::Q3MenuData()
 {
     actItem = -1;                                // no active menu item
-    mitems = new QMenuItemList;                        // create list of menu items
+    mitems = new Q3MenuItemList;                        // create list of menu items
     mitemsAutoDelete = true;
     parentMenu = 0;                                // assume top-level
     isPopupMenu = false;
@@ -141,7 +141,7 @@ QMenuData::QMenuData()
     badSize = true;
     avoid_circularity = 0;
     actItemDown = false;
-    d = new QMenuDataData;
+    d = new Q3MenuDataData;
 }
 
 /*!
@@ -149,7 +149,7 @@ QMenuData::QMenuData()
     connected.
 */
 
-QMenuData::~QMenuData()
+Q3MenuData::~Q3MenuData()
 {
     if (mitemsAutoDelete) {
         while (!mitems->isEmpty())
@@ -165,7 +165,7 @@ QMenuData::~QMenuData()
     that has been changed.
 */
 
-void QMenuData::updateItem(int /* id */)        // reimplemented in subclass
+void Q3MenuData::updateItem(int /* id */)        // reimplemented in subclass
 {
 }
 
@@ -174,7 +174,7 @@ void QMenuData::updateItem(int /* id */)        // reimplemented in subclass
     been inserted or removed.
 */
 
-void QMenuData::menuContentsChanged()                // reimplemented in subclass
+void Q3MenuData::menuContentsChanged()                // reimplemented in subclass
 {
 }
 
@@ -183,7 +183,7 @@ void QMenuData::menuContentsChanged()                // reimplemented in subclas
     changed state (enabled/disabled or checked/unchecked).
 */
 
-void QMenuData::menuStateChanged()                // reimplemented in subclass
+void Q3MenuData::menuStateChanged()                // reimplemented in subclass
 {
 }
 
@@ -192,7 +192,7 @@ void QMenuData::menuStateChanged()                // reimplemented in subclass
     been inserted.
 */
 
-void QMenuData::menuInsPopup(QPopupMenu *)        // reimplemented in subclass
+void Q3MenuData::menuInsPopup(Q3PopupMenu *)        // reimplemented in subclass
 {
 }
 
@@ -201,7 +201,7 @@ void QMenuData::menuInsPopup(QPopupMenu *)        // reimplemented in subclass
     been removed.
 */
 
-void QMenuData::menuDelPopup(QPopupMenu *)        // reimplemented in subclass
+void Q3MenuData::menuDelPopup(Q3PopupMenu *)        // reimplemented in subclass
 {
 }
 
@@ -210,7 +210,7 @@ void QMenuData::menuDelPopup(QPopupMenu *)        // reimplemented in subclass
     Returns the number of items in the menu.
 */
 
-uint QMenuData::count() const
+uint Q3MenuData::count() const
 {
     return mitems->count();
 }
@@ -222,9 +222,9 @@ uint QMenuData::count() const
   functions.
 */
 
-int QMenuData::insertAny(const QString *text, const QPixmap *pixmap,
-                          QPopupMenu *popup, const QIconSet* iconset, int id, int index,
-                          QWidget* widget, QCustomMenuItem* custom)
+int Q3MenuData::insertAny(const QString *text, const QPixmap *pixmap,
+                          Q3PopupMenu *popup, const QIconSet* iconset, int id, int index,
+                          QWidget* widget, Q3CustomMenuItem* custom)
 {
     if (index < 0) {        // append, but not if the rightmost item is an mdi separator in the menubar
         index = mitems->count();
@@ -237,7 +237,7 @@ int QMenuData::insertAny(const QString *text, const QPixmap *pixmap,
     if (id < 0)                                // -2, -3 etc.
         id = get_seq_id();
 
-    QMenuItem *mi = new QMenuItem;
+    Q3MenuItem *mi = new Q3MenuItem;
     mi->ident = id;
     if (widget != 0) {
         mi->widget_item = widget;
@@ -279,10 +279,10 @@ int QMenuData::insertAny(const QString *text, const QPixmap *pixmap,
   Internal function that finds the menu item where \a popup is located,
   storing its index at \a index if \a index is not NULL.
 */
-QMenuItem *QMenuData::findPopup(QPopupMenu *popup, int *index)
+Q3MenuItem *Q3MenuData::findPopup(Q3PopupMenu *popup, int *index)
 {
     int i;
-    QMenuItem *mi = 0;
+    Q3MenuItem *mi = 0;
     for (i = 0; i < mitems->size(); ++i) {
         mi = mitems->at(i);
         if (mi->popup_menu == popup)                // found popup
@@ -293,10 +293,10 @@ QMenuItem *QMenuData::findPopup(QPopupMenu *popup, int *index)
     return mi;
 }
 
-void QMenuData::removePopup(QPopupMenu *popup)
+void Q3MenuData::removePopup(Q3PopupMenu *popup)
 {
     int index = 0;
-    QMenuItem *mi = findPopup(popup, &index);
+    Q3MenuItem *mi = findPopup(popup, &index);
     if (mi) {
         mi->popup_menu = 0;
         removeItemAt(index);
@@ -310,7 +310,7 @@ void QMenuData::removePopup(QPopupMenu *popup)
 
     A menu item is usually either a text string or a pixmap, both with
     an optional icon or keyboard accelerator. For special cases it is
-    also possible to insert custom items (see \l{QCustomMenuItem}) or
+    also possible to insert custom items (see \l{Q3CustomMenuItem}) or
     even widgets into popup menus.
 
     Some insertItem() members take a popup menu as an additional
@@ -326,8 +326,8 @@ void QMenuData::removePopup(QPopupMenu *popup)
 
     Example:
     \code
-        QMenuBar   *mainMenu = new QMenuBar;
-        QPopupMenu *fileMenu = new QPopupMenu;
+        Q3MenuBar   *mainMenu = new Q3MenuBar;
+        Q3PopupMenu *fileMenu = new Q3PopupMenu;
         fileMenu->insertItem("New",  myView, SLOT(newFile()), CTRL+Key_N);
         fileMenu->insertItem("Open", myView, SLOT(open()),    CTRL+Key_O);
         mainMenu->insertItem("File", fileMenu);
@@ -360,7 +360,7 @@ void QMenuData::removePopup(QPopupMenu *popup)
 
     Note that keyboard accelerators in Qt are not application-global,
     instead they are bound to a certain top-level window. For example,
-    accelerators in QPopupMenu items only work for menus that are
+    accelerators in Q3PopupMenu items only work for menus that are
     associated with a certain window. This is true for popup menus
     that live in a menu bar since their accelerators will then be
     installed in the menu bar itself. This also applies to stand-alone
@@ -385,7 +385,7 @@ void QMenuData::removePopup(QPopupMenu *popup)
     qnamespace.h
 */
 
-int QMenuData::insertItem(const QString &text,
+int Q3MenuData::insertItem(const QString &text,
                            const QObject *receiver, const char* member,
                            const QKeySequence& accel, int id, int index)
 {
@@ -412,7 +412,7 @@ int QMenuData::insertItem(const QString &text,
     qnamespace.h
 */
 
-int QMenuData::insertItem(const QIconSet& icon,
+int Q3MenuData::insertItem(const QIconSet& icon,
                            const QString &text,
                            const QObject *receiver, const char* member,
                            const QKeySequence& accel, int id, int index)
@@ -442,7 +442,7 @@ int QMenuData::insertItem(const QIconSet& icon,
     \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem(const QPixmap &pixmap,
+int Q3MenuData::insertItem(const QPixmap &pixmap,
                            const QObject *receiver, const char* member,
                            const QKeySequence& accel, int id, int index)
 {
@@ -474,7 +474,7 @@ int QMenuData::insertItem(const QPixmap &pixmap,
     qnamespace.h
 */
 
-int QMenuData::insertItem(const QIconSet& icon,
+int Q3MenuData::insertItem(const QIconSet& icon,
                            const QPixmap &pixmap,
                            const QObject *receiver, const char* member,
                            const QKeySequence& accel, int id, int index)
@@ -501,7 +501,7 @@ int QMenuData::insertItem(const QIconSet& icon,
     \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem(const QString &text, int id, int index)
+int Q3MenuData::insertItem(const QString &text, int id, int index)
 {
     return insertAny(&text, 0, 0, 0, id, index);
 }
@@ -518,7 +518,7 @@ int QMenuData::insertItem(const QString &text, int id, int index)
     \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem(const QIconSet& icon,
+int Q3MenuData::insertItem(const QIconSet& icon,
                            const QString &text, int id, int index)
 {
     return insertAny(&text, 0, 0, &icon, id, index);
@@ -539,7 +539,7 @@ int QMenuData::insertItem(const QIconSet& icon,
     \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem(const QString &text, QPopupMenu *popup,
+int Q3MenuData::insertItem(const QString &text, Q3PopupMenu *popup,
                            int id, int index)
 {
     return insertAny(&text, 0, popup, 0, id, index);
@@ -561,8 +561,8 @@ int QMenuData::insertItem(const QString &text, QPopupMenu *popup,
     \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem(const QIconSet& icon,
-                           const QString &text, QPopupMenu *popup,
+int Q3MenuData::insertItem(const QIconSet& icon,
+                           const QString &text, Q3PopupMenu *popup,
                            int id, int index)
 {
     return insertAny(&text, 0, popup, &icon, id, index);
@@ -582,7 +582,7 @@ int QMenuData::insertItem(const QIconSet& icon,
     \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem(const QPixmap &pixmap, int id, int index)
+int Q3MenuData::insertItem(const QPixmap &pixmap, int id, int index)
 {
     return insertAny(0, &pixmap, 0, 0, id, index);
 }
@@ -599,7 +599,7 @@ int QMenuData::insertItem(const QPixmap &pixmap, int id, int index)
     \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem(const QIconSet& icon,
+int Q3MenuData::insertItem(const QIconSet& icon,
                            const QPixmap &pixmap, int id, int index)
 {
     return insertAny(0, &pixmap, 0, &icon, id, index);
@@ -621,7 +621,7 @@ int QMenuData::insertItem(const QIconSet& icon,
     \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem(const QPixmap &pixmap, QPopupMenu *popup,
+int Q3MenuData::insertItem(const QPixmap &pixmap, Q3PopupMenu *popup,
                            int id, int index)
 {
     return insertAny(0, &pixmap, popup, 0, id, index);
@@ -644,8 +644,8 @@ int QMenuData::insertItem(const QPixmap &pixmap, QPopupMenu *popup,
     \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem(const QIconSet& icon,
-                           const QPixmap &pixmap, QPopupMenu *popup,
+int Q3MenuData::insertItem(const QIconSet& icon,
+                           const QPixmap &pixmap, Q3PopupMenu *popup,
                            int id, int index)
 {
     return insertAny(0, &pixmap, popup, &icon, id, index);
@@ -684,7 +684,7 @@ int QMenuData::insertItem(const QIconSet& icon,
     \code
         if (isVisible() &&
              parentWidget() &&
-             parentWidget()->inherits("QPopupMenu"))
+             parentWidget()->inherits("Q3PopupMenu"))
             parentWidget()->close();
     \endcode
 
@@ -692,7 +692,7 @@ int QMenuData::insertItem(const QIconSet& icon,
 
     \sa removeItem()
 */
-int QMenuData::insertItem(QWidget* widget, int id, int index)
+int Q3MenuData::insertItem(QWidget* widget, int id, int index)
 {
     return insertAny(0, 0, 0, 0, id, index, widget);
 }
@@ -711,9 +711,9 @@ int QMenuData::insertItem(QWidget* widget, int id, int index)
 
     Returns the allocated menu identifier number (\a id if \a id >= 0).
 
-    \sa connectItem(), removeItem(), QCustomMenuItem
+    \sa connectItem(), removeItem(), Q3CustomMenuItem
 */
-int QMenuData::insertItem(QCustomMenuItem* custom, int id, int index)
+int Q3MenuData::insertItem(Q3CustomMenuItem* custom, int id, int index)
 {
     return insertAny(0, 0, 0, 0, id, index, 0, custom);
 }
@@ -731,9 +731,9 @@ int QMenuData::insertItem(QCustomMenuItem* custom, int id, int index)
 
     Returns the allocated menu identifier number (\a id if \a id >= 0).
 
-    \sa connectItem(), removeItem(), QCustomMenuItem
+    \sa connectItem(), removeItem(), Q3CustomMenuItem
 */
-int QMenuData::insertItem(const QIconSet& icon, QCustomMenuItem* custom, int id, int index)
+int Q3MenuData::insertItem(const QIconSet& icon, Q3CustomMenuItem* custom, int id, int index)
 {
     return insertAny(0, 0, 0, &icon, id, index, 0, custom);
 }
@@ -749,22 +749,22 @@ int QMenuData::insertItem(const QIconSet& icon, QCustomMenuItem* custom, int id,
     menu bar separators are ignored (to comply with the Windows style
     guidelines).
 */
-int QMenuData::insertSeparator(int index)
+int Q3MenuData::insertSeparator(int index)
 {
     return insertAny(0, 0, 0, 0, -1, index);
 }
 
 /*!
-    \fn void QMenuData::removeItem(int id)
+    \fn void Q3MenuData::removeItem(int id)
 
     Removes the menu item that has the identifier \a id.
 
     \sa removeItemAt(), clear()
 */
 
-void QMenuData::removeItem(int id)
+void Q3MenuData::removeItem(int id)
 {
-    QMenuData *parent;
+    Q3MenuData *parent;
     if (findItem(id, &parent))
         parent->removeItemAt(parent->indexOf(id));
 }
@@ -775,13 +775,13 @@ void QMenuData::removeItem(int id)
     \sa removeItem(), clear()
 */
 
-void QMenuData::removeItemAt(int index)
+void Q3MenuData::removeItemAt(int index)
 {
     if (index < 0 || index >= (int)mitems->count()) {
-        qWarning("QMenuData::removeItem: Index %d out of range", index);
+        qWarning("Q3MenuData::removeItem: Index %d out of range", index);
         return;
     }
-    QMenuItem *mi = mitems->at(index);
+    Q3MenuItem *mi = mitems->at(index);
     if (mi->popup_menu)
         menuDelPopup(mi->popup_menu);
     mitems->removeAt(index);
@@ -798,10 +798,10 @@ void QMenuData::removeItemAt(int index)
     \sa removeItem(), removeItemAt()
 */
 
-void QMenuData::clear()
+void Q3MenuData::clear()
 {
     for (int i = 0; i < mitems->size(); ++i) {
-        QMenuItem *mi = mitems->at(i);
+        Q3MenuItem *mi = mitems->at(i);
         if (mi->popup_menu)
             menuDelPopup(mi->popup_menu);
     }
@@ -825,9 +825,9 @@ void QMenuData::clear()
     \sa setAccel(), QAccel
 */
 
-QKeySequence QMenuData::accel(int id) const
+QKeySequence Q3MenuData::accel(int id) const
 {
-    QMenuItem *mi = findItem(id);
+    Q3MenuItem *mi = findItem(id);
     if (mi)
         return mi->key();
     return QKeySequence();
@@ -847,7 +847,7 @@ QKeySequence QMenuData::accel(int id) const
 
     Note that keyboard accelerators in Qt are not application-global,
     instead they are bound to a certain top-level window. For example,
-    accelerators in QPopupMenu items only work for menus that are
+    accelerators in Q3PopupMenu items only work for menus that are
     associated with a certain window. This is true for popup menus
     that live in a menu bar since their accelerators will then be
     installed in the menu bar itself. This also applies to stand-alone
@@ -858,8 +858,8 @@ QKeySequence QMenuData::accel(int id) const
 
     Example:
     \code
-        QMenuBar *mainMenu = new QMenuBar;
-        QPopupMenu *fileMenu = new QPopupMenu;       // file sub menu
+        Q3MenuBar *mainMenu = new Q3MenuBar;
+        Q3PopupMenu *fileMenu = new Q3PopupMenu;       // file sub menu
         fileMenu->insertItem("Open Document", 67); // add "Open" item
         fileMenu->setAccel(CTRL + Key_O, 67);      // Ctrl+O to open
         fileMenu->insertItem("Quit", 69);          // add "Quit" item
@@ -879,10 +879,10 @@ QKeySequence QMenuData::accel(int id) const
     \sa accel() insertItem() QAccel QAction
 */
 
-void QMenuData::setAccel(const QKeySequence& key, int id)
+void Q3MenuData::setAccel(const QKeySequence& key, int id)
 {
-    QMenuData *parent;
-    QMenuItem *mi = findItem(id, &parent);
+    Q3MenuData *parent;
+    Q3MenuItem *mi = findItem(id, &parent);
     if (mi) {
         mi->accel_key = key;
         parent->menuContentsChanged();
@@ -898,9 +898,9 @@ void QMenuData::setAccel(const QKeySequence& key, int id)
     \sa changeItem(), text(), pixmap()
 */
 
-QIconSet* QMenuData::iconSet(int id) const
+QIconSet* Q3MenuData::iconSet(int id) const
 {
-    QMenuItem *mi = findItem(id);
+    Q3MenuItem *mi = findItem(id);
     return mi ? mi->iconSet() : 0;
 }
 
@@ -911,9 +911,9 @@ QIconSet* QMenuData::iconSet(int id) const
     \sa changeItem(), pixmap(), iconSet()
 */
 
-QString QMenuData::text(int id) const
+QString Q3MenuData::text(int id) const
 {
-    QMenuItem *mi = findItem(id);
+    Q3MenuItem *mi = findItem(id);
     return mi ? mi->text() : QString();
 }
 
@@ -924,14 +924,14 @@ QString QMenuData::text(int id) const
     \sa changeItem(), text(), iconSet()
 */
 
-QPixmap *QMenuData::pixmap(int id) const
+QPixmap *Q3MenuData::pixmap(int id) const
 {
-    QMenuItem *mi = findItem(id);
+    Q3MenuItem *mi = findItem(id);
     return mi ? mi->pixmap() : 0;
 }
 
 /*!
-  \fn void QMenuData::changeItem(const QString &, int)
+  \fn void Q3MenuData::changeItem(const QString &, int)
   \obsolete
 
   Changes the text of the menu item \a id. If the item has an icon,
@@ -940,7 +940,7 @@ QPixmap *QMenuData::pixmap(int id) const
   \sa text()
 */
 /*!
-  \fn void QMenuData::changeItem(const QPixmap &, int)
+  \fn void Q3MenuData::changeItem(const QPixmap &, int)
   \obsolete
 
   Changes the pixmap of the menu item \a id. If the item has an icon,
@@ -950,7 +950,7 @@ QPixmap *QMenuData::pixmap(int id) const
 */
 
 /*!
-  \fn void QMenuData::changeItem(const QIconSet &, const QString &, int)
+  \fn void Q3MenuData::changeItem(const QIconSet &, const QString &, int)
   \obsolete
 
   Changes the icon and text of the menu item \a id.
@@ -965,10 +965,10 @@ QPixmap *QMenuData::pixmap(int id) const
     \sa text()
 */
 
-void QMenuData::changeItem(int id, const QString &text)
+void Q3MenuData::changeItem(int id, const QString &text)
 {
-    QMenuData *parent;
-    QMenuItem *mi = findItem(id, &parent);
+    Q3MenuData *parent;
+    Q3MenuItem *mi = findItem(id, &parent);
     if (mi) {                                        // item found
         if (mi->text_data == text)                // same string
             return;
@@ -994,10 +994,10 @@ void QMenuData::changeItem(int id, const QString &text)
     \sa pixmap()
 */
 
-void QMenuData::changeItem(int id, const QPixmap &pixmap)
+void Q3MenuData::changeItem(int id, const QPixmap &pixmap)
 {
-    QMenuData *parent;
-    QMenuItem *mi = findItem(id, &parent);
+    Q3MenuData *parent;
+    Q3MenuItem *mi = findItem(id, &parent);
     if (mi) {                                        // item found
         register QPixmap *i = mi->pixmap_data;
         bool fast_refresh = i != 0 &&
@@ -1027,7 +1027,7 @@ void QMenuData::changeItem(int id, const QPixmap &pixmap)
     \sa pixmap()
 */
 
-void QMenuData::changeItem(int id, const QIconSet &icon, const QString &text)
+void Q3MenuData::changeItem(int id, const QIconSet &icon, const QString &text)
 {
     changeItem(id, text);
     changeItemIconSet(id, icon);
@@ -1042,7 +1042,7 @@ void QMenuData::changeItem(int id, const QIconSet &icon, const QString &text)
     \sa pixmap()
 */
 
-void QMenuData::changeItem(int id, const QIconSet &icon, const QPixmap &pixmap)
+void Q3MenuData::changeItem(int id, const QIconSet &icon, const QPixmap &pixmap)
 {
     changeItem(id, pixmap);
     changeItemIconSet(id, icon);
@@ -1056,10 +1056,10 @@ void QMenuData::changeItem(int id, const QIconSet &icon, const QPixmap &pixmap)
     \sa pixmap()
 */
 
-void QMenuData::changeItemIconSet(int id, const QIconSet &icon)
+void Q3MenuData::changeItemIconSet(int id, const QIconSet &icon)
 {
-    QMenuData *parent;
-    QMenuItem *mi = findItem(id, &parent);
+    Q3MenuData *parent;
+    Q3MenuItem *mi = findItem(id, &parent);
     if (mi) {                                        // item found
         register QIconSet *i = mi->iconset_data;
         bool fast_refresh = i != 0;
@@ -1083,9 +1083,9 @@ void QMenuData::changeItemIconSet(int id, const QIconSet &icon)
     \sa setItemEnabled(), isItemVisible()
 */
 
-bool QMenuData::isItemEnabled(int id) const
+bool Q3MenuData::isItemEnabled(int id) const
 {
-    QMenuItem *mi = findItem(id);
+    Q3MenuItem *mi = findItem(id);
     return mi ? mi->isEnabled() : false;
 }
 
@@ -1096,10 +1096,10 @@ bool QMenuData::isItemEnabled(int id) const
     \sa isItemEnabled()
 */
 
-void QMenuData::setItemEnabled(int id, bool enable)
+void Q3MenuData::setItemEnabled(int id, bool enable)
 {
-    QMenuData *parent;
-    QMenuItem *mi = findItem(id, &parent);
+    Q3MenuData *parent;
+    Q3MenuItem *mi = findItem(id, &parent);
     if (mi && (bool)mi->is_enabled != enable) {
         mi->is_enabled = enable;
 #if !defined(QT_NO_ACCEL) && !defined(QT_NO_POPUPMENU)
@@ -1115,7 +1115,7 @@ void QMenuData::setItemEnabled(int id, bool enable)
     Returns true if the menu item with the id \a id is currently
     active; otherwise returns false.
 */
-bool QMenuData::isItemActive(int id) const
+bool Q3MenuData::isItemActive(int id) const
 {
     if (actItem == -1)
         return false;
@@ -1129,29 +1129,29 @@ bool QMenuData::isItemActive(int id) const
     \sa setItemChecked()
 */
 
-bool QMenuData::isItemChecked(int id) const
+bool Q3MenuData::isItemChecked(int id) const
 {
-    QMenuItem *mi = findItem(id);
+    Q3MenuItem *mi = findItem(id);
     return mi ? mi->isChecked() : false;
 }
 
 /*!
     If \a check is true, checks the menu item with id \a id; otherwise
     unchecks the menu item with id \a id. Calls
-    QPopupMenu::setCheckable(true) if necessary.
+    Q3PopupMenu::setCheckable(true) if necessary.
 
     \sa isItemChecked()
 */
 
-void QMenuData::setItemChecked(int id, bool check)
+void Q3MenuData::setItemChecked(int id, bool check)
 {
-    QMenuData *parent;
-    QMenuItem *mi = findItem(id, &parent);
+    Q3MenuData *parent;
+    Q3MenuItem *mi = findItem(id, &parent);
     if (mi && (bool)mi->is_checked != check) {
         mi->is_checked = check;
 #ifndef QT_NO_POPUPMENU
-        if (parent->isPopupMenu && !((QPopupMenu *)parent)->isCheckable())
-            ((QPopupMenu *)parent)->setCheckable(true);
+        if (parent->isPopupMenu && !((Q3PopupMenu *)parent)->isCheckable())
+            ((Q3PopupMenu *)parent)->setCheckable(true);
 #endif
         parent->menuStateChanged();
     }
@@ -1164,9 +1164,9 @@ void QMenuData::setItemChecked(int id, bool check)
   \sa setItemVisible()
 */
 
-bool QMenuData::isItemVisible(int id) const
+bool Q3MenuData::isItemVisible(int id) const
 {
-    QMenuItem *mi = findItem(id);
+    Q3MenuItem *mi = findItem(id);
     return mi ? mi->isVisible() : false;
 }
 
@@ -1177,10 +1177,10 @@ bool QMenuData::isItemVisible(int id) const
   \sa isItemVisible(), isItemEnabled()
 */
 
-void QMenuData::setItemVisible(int id, bool visible)
+void Q3MenuData::setItemVisible(int id, bool visible)
 {
-    QMenuData *parent;
-    QMenuItem *mi = findItem(id, &parent);
+    Q3MenuData *parent;
+    Q3MenuItem *mi = findItem(id, &parent);
     if (mi && (bool)mi->is_visible != visible) {
         mi->is_visible = visible;
         parent->menuContentsChanged();
@@ -1192,7 +1192,7 @@ void QMenuData::setItemVisible(int id, bool visible)
     Returns the menu item with identifier \a id, or 0 if there is no
     item with this identifier.
 
-    Note that QMenuItem is an internal class, and that you should not
+    Note that Q3MenuItem is an internal class, and that you should not
     need to call this function. Use the higher level functions like
     text(), pixmap() and changeItem() to get and modify menu item
     attributes instead.
@@ -1200,7 +1200,7 @@ void QMenuData::setItemVisible(int id, bool visible)
     \sa indexOf()
 */
 
-QMenuItem *QMenuData::findItem(int id) const
+Q3MenuItem *Q3MenuData::findItem(int id) const
 {
     return findItem(id, 0);
 }
@@ -1213,7 +1213,7 @@ QMenuItem *QMenuData::findItem(int id) const
     item with this identifier. Changes \a *parent to point to the
     parent of the return value.
 
-    Note that QMenuItem is an internal class, and that you should not
+    Note that Q3MenuItem is an internal class, and that you should not
     need to call this function. Use the higher level functions like
     text(), pixmap() and changeItem() to get and modify menu item
     attributes instead.
@@ -1221,25 +1221,25 @@ QMenuItem *QMenuData::findItem(int id) const
     \sa indexOf()
 */
 
-QMenuItem * QMenuData::findItem(int id, QMenuData ** parent) const
+Q3MenuItem * Q3MenuData::findItem(int id, Q3MenuData ** parent) const
 {
     if (parent)
-        *parent = (QMenuData *)this;                // ###
+        *parent = (Q3MenuData *)this;                // ###
 
     if (id == -1)                                // bad identifier
         return 0;
     // search this menu
     for (int i = 0; i < mitems->size(); ++i) {
-        QMenuItem *mi = mitems->at(i);
+        Q3MenuItem *mi = mitems->at(i);
         if (mi->ident == id)                        // found item
             return mi;
     }
     // search submenus
     for (int i = 0; i < mitems->size(); ++i) {
-        QMenuItem *mi = mitems->at(i);
+        Q3MenuItem *mi = mitems->at(i);
 #ifndef QT_NO_POPUPMENU
         if (mi->popup_menu) {
-            QPopupMenu *p = mi->popup_menu;
+            Q3PopupMenu *p = mi->popup_menu;
             if (!p->avoid_circularity) {
                 p->avoid_circularity = 1;
                 mi = mi->popup_menu->findItem(id, parent);
@@ -1260,12 +1260,12 @@ QMenuItem * QMenuData::findItem(int id, QMenuData ** parent) const
     \sa idAt(), findItem()
 */
 
-int QMenuData::indexOf(int id) const
+int Q3MenuData::indexOf(int id) const
 {
     if (id == -1)                                // bad identifier
         return -1;
     for (int i = 0; i < mitems->size(); ++i) {
-        QMenuItem *mi = mitems->at(i);
+        Q3MenuItem *mi = mitems->at(i);
         if (mi->ident == id)                        // this one?
             return i;
     }
@@ -1279,7 +1279,7 @@ int QMenuData::indexOf(int id) const
     \sa setId(), indexOf()
 */
 
-int QMenuData::idAt(int index) const
+int Q3MenuData::idAt(int index) const
 {
     return index < (int)mitems->count() && index >= 0 ?
            mitems->at(index)->id() : -1;
@@ -1293,7 +1293,7 @@ int QMenuData::idAt(int index) const
     \sa idAt()
 */
 
-void QMenuData::setId(int index, int id)
+void Q3MenuData::setId(int index, int id)
 {
     if (index < (int)mitems->count())
         mitems->at(index)->ident = id;
@@ -1308,8 +1308,8 @@ void QMenuData::setId(int index, int id)
 
     \sa connectItem(), disconnectItem(), itemParameter()
 */
-bool QMenuData::setItemParameter(int id, int param) {
-    QMenuItem *mi = findItem(id);
+bool Q3MenuData::setItemParameter(int id, int param) {
+    Q3MenuItem *mi = findItem(id);
     if (!mi)                                        // no such identifier
         return false;
     if (!mi->signal_data) {                        // create new signal
@@ -1328,9 +1328,9 @@ bool QMenuData::setItemParameter(int id, int param) {
 
     \sa connectItem(), disconnectItem(), setItemParameter()
 */
-int QMenuData::itemParameter(int id) const
+int Q3MenuData::itemParameter(int id) const
 {
-    QMenuItem *mi = findItem(id);
+    Q3MenuItem *mi = findItem(id);
     if (!mi || !mi->signal_data)
         return id;
     return mi->signal_value;
@@ -1347,10 +1347,10 @@ int QMenuData::itemParameter(int id) const
     \sa disconnectItem(), setItemParameter()
 */
 
-bool QMenuData::connectItem(int id, const QObject *receiver,
+bool Q3MenuData::connectItem(int id, const QObject *receiver,
                              const char* member)
 {
-    QMenuItem *mi = findItem(id);
+    Q3MenuItem *mi = findItem(id);
     if (!mi)                                        // no such identifier
         return false;
     if (!mi->signal_data) {                        // create new signal
@@ -1371,10 +1371,10 @@ bool QMenuData::connectItem(int id, const QObject *receiver,
     \sa connectItem(), setItemParameter()
 */
 
-bool QMenuData::disconnectItem(int id, const QObject *receiver,
+bool Q3MenuData::disconnectItem(int id, const QObject *receiver,
                                 const char* member)
 {
-    QMenuItem *mi = findItem(id);
+    Q3MenuItem *mi = findItem(id);
     if (!mi || !mi->signal_data)                // no identifier or no signal
         return false;
     return mi->signal_data->disconnect(receiver, member);
@@ -1386,11 +1386,11 @@ bool QMenuData::disconnectItem(int id, const QObject *receiver,
 
     \sa whatsThis()
 */
-void QMenuData::setWhatsThis(int id, const QString& text)
+void Q3MenuData::setWhatsThis(int id, const QString& text)
 {
 
-    QMenuData *parent;
-    QMenuItem *mi = findItem(id, &parent);
+    Q3MenuData *parent;
+    Q3MenuItem *mi = findItem(id, &parent);
     if (mi) {
         mi->setWhatsThis(text);
         parent->menuContentsChanged();
@@ -1403,18 +1403,18 @@ void QMenuData::setWhatsThis(int id, const QString& text)
 
     \sa setWhatsThis()
 */
-QString QMenuData::whatsThis(int id) const
+QString Q3MenuData::whatsThis(int id) const
 {
 
-    QMenuItem *mi = findItem(id);
+    Q3MenuItem *mi = findItem(id);
     return mi? mi->whatsThis() : QString();
 }
 
 
 
 /*!
-    \class QCustomMenuItem qmenudata.h
-    \brief The QCustomMenuItem class is an abstract base class for custom menu items in popup menus.
+    \class Q3CustomMenuItem q3menudata.h
+    \brief The Q3CustomMenuItem class is an abstract base class for custom menu items in popup menus.
 
     \ingroup misc
 
@@ -1429,7 +1429,7 @@ QString QMenuData::whatsThis(int id) const
     selection of drawing utilities in a vector drawing program.
 
     A custom item is inserted into a popup menu with
-    QPopupMenu::insertItem().
+    Q3PopupMenu::insertItem().
 
     By default, a custom item can also have an icon and a keyboard
     accelerator. You can reimplement fullSpan() to return true if you
@@ -1440,7 +1440,7 @@ QString QMenuData::whatsThis(int id) const
     reimplement isSeparator() to return true.
 
     Note that you can insert pixmaps or bitmaps as items into a popup
-    menu without needing to create a QCustomMenuItem. However, custom
+    menu without needing to create a Q3CustomMenuItem. However, custom
     menu items offer more flexibility, and -- especially important
     with Windows style -- provide the possibility of drawing the item
     with a different color when it is highlighted.
@@ -1448,28 +1448,28 @@ QString QMenuData::whatsThis(int id) const
     \link menu-example.html menu/menu.cpp\endlink shows a simple
     example how custom menu items can be used.
 
-    Note: the current implementation of QCustomMenuItem will not
+    Note: the current implementation of Q3CustomMenuItem will not
     recognize shortcut keys that are from text with ampersands. Normal
     accelerators work though.
 
     <img src=qpopmenu-fancy.png>
 
-    \sa QMenuData, QPopupMenu
+    \sa Q3MenuData, Q3PopupMenu
 */
 
 
 
 /*!
-    Constructs a QCustomMenuItem
+    Constructs a Q3CustomMenuItem
 */
-QCustomMenuItem::QCustomMenuItem()
+Q3CustomMenuItem::Q3CustomMenuItem()
 {
 }
 
 /*!
-    Destroys a QCustomMenuItem
+    Destroys a Q3CustomMenuItem
 */
-QCustomMenuItem::~QCustomMenuItem()
+Q3CustomMenuItem::~Q3CustomMenuItem()
 {
 }
 
@@ -1481,7 +1481,7 @@ QCustomMenuItem::~QCustomMenuItem()
     changes. For menu items that show their own individual font entry,
     you want to ignore this.
 */
-void QCustomMenuItem::setFont(const QFont& /* font */)
+void Q3CustomMenuItem::setFont(const QFont& /* font */)
 {
 }
 
@@ -1493,7 +1493,7 @@ void QCustomMenuItem::setFont(const QFont& /* font */)
     the menu may show an icon and an accelerator key for this item as
     well.
 */
-bool QCustomMenuItem::fullSpan() const
+bool Q3CustomMenuItem::fullSpan() const
 {
     return false;
 }
@@ -1502,14 +1502,14 @@ bool QCustomMenuItem::fullSpan() const
     Returns true if this item is just a separator; otherwise returns
     false.
 */
-bool QCustomMenuItem::isSeparator() const
+bool Q3CustomMenuItem::isSeparator() const
 {
     return false;
 }
 
 
 /*!
-    \fn void QCustomMenuItem::paint(QPainter* p, const QPalette& pal, bool act,  bool enabled, int x, int y, int w, int h);
+    \fn void Q3CustomMenuItem::paint(QPainter* p, const QPalette& pal, bool act,  bool enabled, int x, int y, int w, int h);
 
     Paints this item. When this function is invoked, the painter \a p
     is set to a font and foreground color suitable for a menu item
@@ -1523,7 +1523,7 @@ bool QCustomMenuItem::isSeparator() const
 
 
 /*!
-    \fn QSize QCustomMenuItem::sizeHint();
+    \fn QSize Q3CustomMenuItem::sizeHint();
 
     Returns the item's size hint.
 */
@@ -1536,17 +1536,17 @@ bool QCustomMenuItem::isSeparator() const
     If the index is invalid (for example, -1), the object itself is
     deactivated.
 */
-void QMenuData::activateItemAt(int index)
+void Q3MenuData::activateItemAt(int index)
 {
 #ifndef QT_NO_MENUBAR
     if (isMenuBar)
-        ((QMenuBar*)this)->activateItemAt(index);
+        ((Q3MenuBar*)this)->activateItemAt(index);
     else
 #endif
     {
 #ifndef QT_NO_POPUPMENU
     if (isPopupMenu)
-        ((QPopupMenu*)this)->activateItemAt(index);
+        ((Q3PopupMenu*)this)->activateItemAt(index);
 #endif
     }
 }

@@ -33,7 +33,7 @@
 #include "qtoolbar.h"
 #include "qtoolbutton.h"
 #include "qlineedit.h"
-#include "qmenubar.h"
+#include "q3menubar.h"
 #include <limits.h>
 
 #ifndef QT_NO_SLIDER
@@ -161,11 +161,11 @@ QSGIStyle::polish(QApplication* app)
 
     pal = QApplication::palette();
     pal.setColor(QPalette::Button, pal.color(QPalette::Active, QPalette::Background));
-    QApplication::setPalette(pal, "QMenuBar");
+    QApplication::setPalette(pal, "Q3MenuBar");
     QApplication::setPalette(pal, "QToolBar");
-    QApplication::setPalette(pal, "Q4Menu");
+    QApplication::setPalette(pal, "QMenu");
 #ifdef QT_COMPAT
-    QApplication::setPalette(pal, "QPopupMenu");
+    QApplication::setPalette(pal, "Q3PopupMenu");
 #endif
 }
 
@@ -227,7 +227,7 @@ QSGIStyle::polish(QWidget* w)
                              sgiPal.color(QPalette::Disabled, QPalette::Midlight));
             sgiPal.setColor(QPalette::Disabled, QPalette::HighlightedText,
                              sgiPal.color(QPalette::Disabled, QPalette::Text));
-        } else if (qt_cast<QMenuBar*>(w) || qt_cast<QToolBar*>(w)) {
+        } else if (qt_cast<Q3MenuBar*>(w) || qt_cast<QToolBar*>(w)) {
             sgiPal.setColor(QPalette::Button, sgiPal.color(QPalette::Active, QPalette::Midlight));
         }
 
@@ -247,7 +247,7 @@ QSGIStyle::polish(QWidget* w)
         f.setItalic(true);
         w->setFont(f);
 #ifndef QT_NO_MENUBAR
-    } else if (qt_cast<QMenuBar*>(w)) {
+    } else if (qt_cast<Q3MenuBar*>(w)) {
         ((QFrame*) w)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
         QFont f = QApplication::font();
         f.setBold(true);
@@ -255,7 +255,7 @@ QSGIStyle::polish(QWidget* w)
         w->setFont(f);
 #endif
 #ifndef QT_NO_MENU
-    } else if (qt_cast<Q4Menu*>(w)) {
+    } else if (qt_cast<QMenu*>(w)) {
         QFont f = QApplication::font();
         f.setBold(true);
         f.setItalic(true);
@@ -263,7 +263,7 @@ QSGIStyle::polish(QWidget* w)
 #endif
 #ifdef QT_COMPAT
 #ifndef QT_NO_POPUPMENU
-    } else if (qt_cast<QPopupMenu*>(w)) {
+    } else if (qt_cast<Q3PopupMenu*>(w)) {
         ((QFrame*) w)->setLineWidth(pixelMetric(PM_DefaultFrameWidth) + 1);
         QFont f = QApplication::font();
         f.setBold(true);
@@ -281,18 +281,18 @@ QSGIStyle::unPolish(QWidget* w)
     if (qt_cast<QButton*>(w) || qt_cast<QSlider*>(w) || qt_cast<QScrollBar*>(w)) {
         w->removeEventFilter(this);
 #ifndef QT_NO_MENU
-    } else if (qt_cast<Q4Menu*>(w)) {
+    } else if (qt_cast<QMenu*>(w)) {
         w->setFont(QApplication::font());
 #endif
 #ifdef QT_COMPAT
 #ifndef QT_NO_POPUPMENU
-    } else if (qt_cast<QPopupMenu*>(w)) {
+    } else if (qt_cast<Q3PopupMenu*>(w)) {
         ((QFrame*)w)->setLineWidth(pixelMetric(PM_DefaultFrameWidth));
         w->setFont(QApplication::font());
 #endif
 #endif
 #if !defined(QT_NO_MENUBAR) || !defined(QT_NO_COMBOBOX)
-    } else if (qt_cast<QMenuBar*>(w) || qt_cast<QComboBox*>(w)) {
+    } else if (qt_cast<Q3MenuBar*>(w) || qt_cast<QComboBox*>(w)) {
         w->setFont(QApplication::font());
 #endif
     }
@@ -964,7 +964,7 @@ void QSGIStyle::drawControl(ControlElement element,
             QAction *mi = opt.action();
             if(!mi)
                 break;
-            const Q4Menu *menu = (const Q4Menu *)widget;
+            const QMenu *menu = (const QMenu *)widget;
             int tab = opt.tabWidth();
             int maxpmw = opt.maxIconWidth();
             bool dis = ! (flags & Style_Enabled);
@@ -1090,10 +1090,10 @@ void QSGIStyle::drawControl(ControlElement element,
 #ifndef QT_NO_POPUPMENU
             if (! widget || opt.isDefault())
                 break;
-            QMenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = opt.menuItem();
             if (!mi)
                 break;
-            const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
+            const Q3PopupMenu *popupmenu = (const Q3PopupMenu *) widget;
             int tab = opt.tabWidth();
             int maxpmw = opt.maxIconWidth();
             bool dis = ! (flags & Style_Enabled);
@@ -1279,7 +1279,7 @@ void QSGIStyle::drawControl(ControlElement element,
             if (opt.isDefault())
                 break;
 
-            QMenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = opt.menuItem();
 
             bool active = flags & Style_Active;
             int x, y, w, h;
@@ -1566,7 +1566,7 @@ QSize QSGIStyle::sizeFromContents(ContentsType contents,
 
             QAction *mi = opt.action();
             // SGI checkmark items needs a bit more room
-            const Q4Menu *menu = (Q4Menu *) widget;
+            const QMenu *menu = (QMenu *) widget;
             if(menu && menu->isCheckable())
                 sz.setWidth(sz.width() + 8);
             // submenu indicator needs a bit more room
@@ -1583,11 +1583,11 @@ QSize QSGIStyle::sizeFromContents(ContentsType contents,
             if (! widget || opt.isDefault())
                 break;
 
-            QMenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = opt.menuItem();
             sz = QMotifStyle::sizeFromContents(contents, widget, contentsSize,
                                                 opt);
             // SGI checkmark items needs a bit more room
-            const QPopupMenu *popup = (QPopupMenu *) widget;
+            const Q3PopupMenu *popup = (Q3PopupMenu *) widget;
             if (popup && popup->isCheckable())
                 sz.setWidth(sz.width() + 8);
             // submenu indicator needs a bit more room

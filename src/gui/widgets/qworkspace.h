@@ -24,7 +24,6 @@
 class QWorkspaceChild;
 class QShowEvent;
 class QWorkspacePrivate;
-class QPopupMenu;
 
 class Q_GUI_EXPORT QWorkspace : public QWidget
 {
@@ -99,9 +98,7 @@ private:
 
     QRect updateWorkspace();
 
-    QPopupMenu* popup;
     QWorkspacePrivate* d;
-
     friend class QWorkspacePrivate;
     friend class QWorkspaceChild;
 

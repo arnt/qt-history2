@@ -5184,7 +5184,7 @@ void QWidget::closeEvent(QCloseEvent *e)
 void QWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     if(d->actions) {
-        Q4Menu::exec(*d->actions, e->globalPos());
+        QMenu::exec(*d->actions, e->globalPos());
         e->accept();
     } else {
         e->ignore();

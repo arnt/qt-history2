@@ -21,7 +21,7 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qmenudata.h"
-#include "qpopupmenu.h"
+#include "q3popupmenu.h"
 
 QCompactStyle::QCompactStyle()
 : QWindowsStyle()
@@ -58,7 +58,7 @@ static const int motifCheckMarkHMargin        = 1;        // horiz. margins of c
 static const int windowsRightBorder        = 8;    // right border on windows
 static const int windowsCheckMarkWidth  = 2;    // checkmarks width on windows
 
-static int extraPopupMenuItemWidth(bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& /*fm*/)
+static int extraPopupMenuItemWidth(bool checkable, int maxpmw, Q3MenuItem* mi, const QFontMetrics& /*fm*/)
 {
     int w = 2*motifItemHMargin + 2*motifItemFrame; // a little bit of border can never harm
 
@@ -89,7 +89,7 @@ static int extraPopupMenuItemWidth(bool checkable, int maxpmw, QMenuItem* mi, co
     return w;
 }
 
-static int popupMenuItemHeight(bool /*checkable*/, QMenuItem* mi, const QFontMetrics& fm)
+static int popupMenuItemHeight(bool /*checkable*/, Q3MenuItem* mi, const QFontMetrics& fm)
 {
     int h = 0;
     if (mi->isSeparator())                        // separator height
@@ -108,7 +108,7 @@ static int popupMenuItemHeight(bool /*checkable*/, QMenuItem* mi, const QFontMet
 }
 
 void drawPopupMenuItem(QPainter* p, bool checkable,
-                        int maxpmw, int tab, QMenuItem* mi,
+                        int maxpmw, int tab, Q3MenuItem* mi,
                         const QPalette& pal, bool act,
                         bool enabled,
                         int x, int y, int w, int h)
@@ -128,8 +128,8 @@ void QCompactStyle::drawControl(ControlElement element, QPainter *p, const QWidg
             if (! widget || opt.isDefault())
                 break;
 
-            const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
-            QMenuItem *mi = opt.menuItem();
+            const Q3PopupMenu *popupmenu = (const Q3PopupMenu *) widget;
+            Q3MenuItem *mi = opt.menuItem();
             if (!mi)
                 break;
 

@@ -24,7 +24,7 @@
 
 #ifndef QT_NO_ACTION
 
-class Q4Menu;
+class QMenu;
 class QActionGroup;
 class QActionPrivate;
 class QActionGroupPrivate;
@@ -50,10 +50,10 @@ class Q_GUI_EXPORT QAction : public QObject
 public:
     QAction(QActionGroup* parent);
     QAction(QWidget* parent=0);
-    QAction(const QString& text, Q4Menu *menu, QWidget* parent=0);
+    QAction(const QString& text, QMenu *menu, QWidget* parent=0);
     QAction(const QString& text, QWidget* parent=0);
     QAction(const QIconSet& icon, const QString& text, QWidget* parent=0);
-    QAction(const QString& text, Q4Menu *menu, QActionGroup* parent);
+    QAction(const QString& text, QMenu *menu, QActionGroup* parent);
     QAction(const QString& text, QActionGroup* parent);
     QAction(const QIconSet& icon, const QString& text, QActionGroup* parent);
 #ifndef QT_NO_ACCEL
@@ -78,8 +78,8 @@ public:
     QString statusTip() const;
     void setWhatsThis(const QString&);
     QString whatsThis() const;
-    void setMenu(Q4Menu *);
-    Q4Menu *menu() const;
+    void setMenu(QMenu *);
+    QMenu *menu() const;
     void setSeparator(bool b);
     bool isSeparator() const;
 #ifndef QT_NO_ACCEL

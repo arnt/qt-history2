@@ -23,9 +23,9 @@
 
 #ifndef QT_NO_STYLE
 
-class QPopupMenu;
 class QAction;
-class QMenuItem;
+class Q3PopupMenu;
+class Q3MenuItem;
 class QTab;
 class QListViewItem;
 class QCheckListItem;
@@ -49,9 +49,9 @@ public:
     QStyleOption(QAction* a, int in1) : def(false), act(a), i1(in1) {}
     QStyleOption(QAction* a, int in1, int in2) : def(false), act(a), i1(in1), i2(in2) {}
 #ifdef QT_COMPAT
-    QStyleOption(QMenuItem* m) : def(false), mi(m) {}
-    QStyleOption(QMenuItem* m, int in1) : def(false), mi(m), i1(in1) {}
-    QStyleOption(QMenuItem* m, int in1, int in2) : def(false), mi(m), i1(in1), i2(in2) {}
+    QStyleOption(Q3MenuItem* m) : def(false), mi(m) {}
+    QStyleOption(Q3MenuItem* m, int in1) : def(false), mi(m), i1(in1) {}
+    QStyleOption(Q3MenuItem* m, int in1, int in2) : def(false), mi(m), i1(in1), i2(in2) {}
 #endif
     QStyleOption(const QColor& c) : def(false), cl(&c) {}
     QStyleOption(QTab* t) : def(false), tb(t) {}
@@ -71,7 +71,7 @@ public:
     int frameShadow() const { return i4; }
 
     int headerSection() const { return i1; }
-    QMenuItem* menuItem() const { return mi; }
+    Q3MenuItem* menuItem() const { return mi; }
     QAction* action() const { return act; }
     int maxIconWidth() const { return i1; }
     int tabWidth() const { return i2; }
@@ -92,7 +92,7 @@ private:
     bool def;
     bool b1,b2,b3; // reserved
     QAction *act;
-    QMenuItem* mi;
+    Q3MenuItem* mi;
     QTab* tb;
     QListViewItem* li;
     const QColor* cl;

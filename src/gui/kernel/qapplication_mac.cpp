@@ -395,8 +395,9 @@ void qt_mac_update_os_settings()
             { "QListBox", kThemeViewsFont },
             { "QTitleBar", kThemeWindowTitleFont },
             { "QMenuBar", kThemeMenuTitleFont },
-            { "Q4MenuBar", kThemeMenuTitleFont },
-            { "Q4Menu", kThemeMenuItemFont },
+            { "QMenu", kThemeMenuItemFont },
+            { "Q3MenuBar", kThemeMenuTitleFont },
+            { "Q3PopupMenu", kThemeMenuItemFont },
             { "QHeader", kThemeSmallSystemFont },
             { "QTipLabel", kThemeSmallSystemFont },
             { "QMessageBoxLabel", kThemeEmphasizedSystemFont },
@@ -440,7 +441,7 @@ void qt_mac_update_os_settings()
             { "QTabBar", kThemeTextColorTabFrontActive, kThemeTextColorTabFrontInactive },
             { "QLabel", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive },
             { "QGroupBox", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive },
-            { "Q4Menu", kThemeTextColorPopupLabelActive, kThemeTextColorPopupLabelInactive },
+            { "QMenu", kThemeTextColorPopupLabelActive, kThemeTextColorPopupLabelInactive },
             { 0, 0, 0 } };
         QColor qc;
         RGBColor c;
@@ -462,7 +463,7 @@ void qt_mac_update_os_settings()
                 pal.setColor(QPalette::Inactive, QPalette::HighlightedText, qc);
                 pal.setColor(QPalette::Disabled, QPalette::HighlightedText, qc);
             }
-            if(!strcmp(mac_widget_colors[i].qt_class, "Q4Menu")) {
+            if(!strcmp(mac_widget_colors[i].qt_class, "QMenu")) {
                 GetThemeTextColor(kThemeTextColorMenuItemActive, 32, true, &c);
                 pal.setBrush(QPalette::ButtonText, QColor(c.red / 256, c.green / 256, c.blue / 256));
                 GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
@@ -1564,7 +1565,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             request_wakeup_pending = 0;             //do nothing else, we just woke up!
         } else if(ekind == kEventQtRequestMenubarUpdate) {
             request_menubarupdate_pending = 0;
-            Q4MenuBar::macUpdateMenuBar();
+            QMenuBar::macUpdateMenuBar();
         } else if(ekind == kEventQtRequestSelect) {
             request_select_pending = 0;
             QGuiEventLoop *l = 0;
@@ -2325,7 +2326,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                     widget->focusWidget()->setFocus();
                 else
                     widget->setFocus();
-                Q4MenuBar::macUpdateMenuBar();
+                QMenuBar::macUpdateMenuBar();
             }
         } else if(ekind == kEventWindowDeactivated) {
             if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget))
@@ -2352,7 +2353,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                         app->setActiveWindow(tmp_w);
                 }
             }
-            Q4MenuBar::macUpdateMenuBar();
+            QMenuBar::macUpdateMenuBar();
         } else if(ekind == kEventAppDeactivated) {
             while(app->inPopupMode())
                 app->activePopupWidget()->close();

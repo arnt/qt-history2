@@ -21,18 +21,18 @@ struct QMacMenuAction {
 };
 #endif
 
-class Q4MenuPrivate : public QWidgetPrivate
+class QMenuPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(Q4Menu);
+    Q_DECLARE_PUBLIC(QMenu);
 public:
-    Q4MenuPrivate() : itemsDirty(0), maxIconWidth(0), tabWidth(0), ncols(0), mouseDown(0),
+    QMenuPrivate() : itemsDirty(0), maxIconWidth(0), tabWidth(0), ncols(0), mouseDown(0),
                       currentAction(0), scroll(0), sync(0), tearoff(0), tornoff(0), tearoffHighlighted(0),
                       checkable(0), sloppyAction(0)
 #ifdef Q_WS_MAC
                       ,mac_menu(0)
 #endif
     { }
-    ~Q4MenuPrivate()
+    ~QMenuPrivate()
     {
         for(QList<QMenuAction*>::Iterator it = actionItems.begin(); it != actionItems.end(); ++it)
             delete (*it);
@@ -59,14 +59,14 @@ public:
     void popupAction(QMenuAction *, int, bool);
 
     //scrolling support
-    struct Q4MenuScroller {
+    struct QMenuScroller {
         enum ScrollDirections { ScrollNone=0, ScrollUp=0x01, ScrollDown=0x02 };
         uint scrollFlags : 2, scrollDirection : 2;
         int scrollOffset;
         QBasicTimer *scrollTimer;
 
-        Q4MenuScroller() : scrollFlags(ScrollNone), scrollDirection(ScrollNone), scrollOffset(0), scrollTimer(0) { }
-        ~Q4MenuScroller() { delete scrollTimer; }
+        QMenuScroller() : scrollFlags(ScrollNone), scrollDirection(ScrollNone), scrollOffset(0), scrollTimer(0) { }
+        ~QMenuScroller() { delete scrollTimer; }
     } *scroll;
     void scrollMenu(uint);
 
@@ -75,7 +75,7 @@ public:
     QPointer<QAction> syncAction;
 
     //passing of mouse events up the parent heirarchy
-    QPointer<Q4Menu> activeMenu;
+    QPointer<QMenu> activeMenu;
     bool mouseEventTaken(QMouseEvent *);
 
     //used to walk up the popup list
@@ -127,17 +127,17 @@ public:
 #endif
 };
 
-class Q4MenuBarPrivate : public QWidgetPrivate
+class QMenuBarPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(Q4MenuBar);
+    Q_DECLARE_PUBLIC(QMenuBar);
 public:
-    Q4MenuBarPrivate() : itemsDirty(0), itemsWidth(0), shortcuts(0), currentAction(0), mouseDown(0),
+    QMenuBarPrivate() : itemsDirty(0), itemsWidth(0), shortcuts(0), currentAction(0), mouseDown(0),
                          closePopupMode(0), popupState(0), keyboardState(0), altPressed(0)
 #ifdef Q_WS_MAC
                          , mac_menubar(0)
 #endif
     { }
-    ~Q4MenuBarPrivate()
+    ~QMenuBarPrivate()
     {
         for(QList<QMenuAction*>::Iterator it = actionItems.begin(); it != actionItems.end(); ++it)
             delete (*it);
@@ -166,7 +166,7 @@ public:
 
     //active popup state
     uint popupState : 1;
-    QPointer<Q4Menu> activeMenu;
+    QPointer<QMenu> activeMenu;
 
     //keyboard mode for keyboard navigation
     void setKeyboardMode(bool);
@@ -179,8 +179,8 @@ public:
 #ifdef Q_WS_MAC
     //mac menubar binding
     struct QMacMenuBarPrivate {
-        static QPointer<Q4MenuBar> fallback;
-        static QHash<QWidget *, Q4MenuBar *> menubars;
+        static QPointer<QMenuBar> fallback;
+        static QHash<QWidget *, QMenuBar *> menubars;
         QList<QMacMenuAction*> actionItems;
         MenuRef menu, apple_menu;
         QMacMenuBarPrivate();
@@ -209,4 +209,4 @@ public:
 
 
 
-#endif /* __Q4MENU_P_H__ */
+#endif /* __QMENU_P_H__ */

@@ -26,9 +26,10 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qlistview.h \
 	widgets/qmainwindow.h \
         widgets/qmenu.h \
-	widgets/qmenubar.h \
-	widgets/qmenudata.h \
+	widgets/q3menubar.h \
+	widgets/q3menudata.h \
 	widgets/qpopupmenu.h \
+	widgets/q3popupmenu.h \
 	widgets/qprogressbar.h \
 	widgets/qpushbutton.h \
 	widgets/qradiobutton.h \
@@ -88,9 +89,9 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qlistview.cpp \
 	widgets/qmainwindow.cpp \
         widgets/qmenu.cpp \
-	widgets/qmenubar.cpp \
-	widgets/qmenudata.cpp \
-	widgets/qpopupmenu.cpp \
+	widgets/q3menubar.cpp \
+	widgets/q3menudata.cpp \
+	widgets/q3popupmenu.cpp \
 	widgets/qprogressbar.cpp \
 	widgets/qpushbutton.cpp \
 	widgets/qradiobutton.cpp \
@@ -125,7 +126,7 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qworkspace.cpp
    
 
-!embedded:mac:SOURCES += widgets/qmenubar_mac.cpp widgets/qmenu_mac.cpp
+!embedded:mac:SOURCES += widgets/q3menubar_mac.cpp widgets/qmenu_mac.cpp
 
 wince-* {
 	SOURCES += widgets/ce/qcemainwindow.cpp

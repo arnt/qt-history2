@@ -24,8 +24,8 @@
 #include "qvbox.h"
 #include "qaccel.h"
 #include "qcursor.h"
-#include "qpopupmenu.h"
-#include "qmenubar.h"
+#include "q3popupmenu.h"
+#include "q3menubar.h"
 #include "qguardedptr.h"
 #include "qiconset.h"
 #include "../widgets/qwidgetresizehandler_p.h"
@@ -189,14 +189,14 @@ public:
     QWorkspaceChild* maxWindow;
     QRect maxRestore;
     QGuardedPtr<QFrame> maxcontrols;
-    QGuardedPtr<QMenuBar> maxmenubar;
+    QGuardedPtr<Q3MenuBar> maxmenubar;
 
     int px;
     int py;
     QWidget *becomeActive;
     QGuardedPtr<QLabel> maxtools;
-    QPopupMenu* popup;
-    QPopupMenu* toolPopup;
+    Q3PopupMenu* popup;
+    Q3PopupMenu* toolPopup;
     int menuId;
     int controlId;
     QString topTitle;
@@ -240,11 +240,11 @@ QWorkspace::init()
     d->py = 0;
     d->becomeActive = 0;
 #if defined(Q_WS_WIN)
-    d->popup = new QPopupMenu(this, "qt_internal_mdi_popup");
-    d->toolPopup = new QPopupMenu(this, "qt_internal_mdi_popup");
+    d->popup = new Q3PopupMenu(this, "qt_internal_mdi_popup");
+    d->toolPopup = new Q3PopupMenu(this, "qt_internal_mdi_popup");
 #else
-    d->popup = new QPopupMenu(parentWidget(), "qt_internal_mdi_popup");
-    d->toolPopup = new QPopupMenu(parentWidget(), "qt_internal_mdi_popup");
+    d->popup = new Q3PopupMenu(parentWidget(), "qt_internal_mdi_popup");
+    d->toolPopup = new Q3PopupMenu(parentWidget(), "qt_internal_mdi_popup");
 #endif
 
     d->menuId = -1;
@@ -954,7 +954,7 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
         switch (e->type()) {
         case QEvent::MouseButtonPress:
             {
-                QMenuBar* b = (QMenuBar*)o->parent();
+                Q3MenuBar* b = (Q3MenuBar*)o->parent();
                 if (!t)
                     t = new QTime;
                 if (tc != this || t->elapsed() > QApplication::doubleClickInterval()) {
@@ -1075,21 +1075,21 @@ void QWorkspace::showMaximizeControls()
 {
 #ifndef QT_NO_MENUBAR
     Q_ASSERT(d->maxWindow);
-    QMenuBar* b = 0;
+    Q3MenuBar* b = 0;
 
     // Do a breadth-first search first on every parent,
     QWidget* w = parentWidget();
     QObjectList l;
     while (l.isEmpty() && w) {
-        l = w->queryList("QMenuBar", 0, false, false);
+        l = w->queryList("Q3MenuBar", 0, false, false);
         w = w->parentWidget();
     }
 
     // and query recursively if nothing is found.
     if (!l.size())
-        l = topLevelWidget()->queryList("QMenuBar", 0, 0, true);
+        l = topLevelWidget()->queryList("Q3MenuBar", 0, 0, true);
     if (l.size())
-        b = (QMenuBar *)l.at(0);
+        b = (Q3MenuBar *)l.at(0);
 
     if (!b)
         return;
@@ -1253,7 +1253,7 @@ void QWorkspace::showOperationMenu()
         return;
     Q_ASSERT(d->active->windowWidget()->testWFlags(WStyle_SysMenu));
     QPoint p;
-    QPopupMenu *popup = d->active->windowWidget()->testWFlags(WStyle_Tool) ? d->toolPopup : d->popup;
+    Q3PopupMenu *popup = d->active->windowWidget()->testWFlags(WStyle_Tool) ? d->toolPopup : d->popup;
     if (QApplication::reverseLayout()) {
         p = QPoint(d->active->windowWidget()->mapToGlobal(QPoint(d->active->windowWidget()->width(),0)));
         p.rx() -= popup->sizeHint().width();

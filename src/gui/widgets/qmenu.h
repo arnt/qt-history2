@@ -20,35 +20,37 @@
 #include <qiconset.h>
 #include <qaction.h>
 
-class Q4MenuPrivate;
-class Q4MenuBarPrivate;
+class QMenuPrivate;
+class QMenuBarPrivate;
 #ifdef QT_COMPAT
 //typedef QAction QMenuItem; 
-//typedef Q4Menu QPopupMenu;
+//typedef QMenu QPopupMenu;
 #endif
 
-class Q_GUI_EXPORT Q4Menu : public QWidget
+class Q_GUI_EXPORT QMenu : public QWidget
 {
 private:
     Q_OBJECT
-    Q_DECLARE_PRIVATE(Q4Menu);
+    Q_DECLARE_PRIVATE(QMenu);
 
     Q_PROPERTY(bool tearOffEnabled READ isTearOffEnabled WRITE setTearOffEnabled)
 
 public:
-    Q4Menu(QWidget *parent = 0);
-    ~Q4Menu();
+    QMenu(QWidget *parent = 0);
+    ~QMenu();
 
     void     addAction(QAction *action) { QWidget::addAction(action); }
     QAction *addAction(const QString &text);
     QAction *addAction(const QIconSet &icon, const QString &text);
     QAction *addAction(const QString &text, const QObject *receiver, const char* member);
     QAction *addAction(const QIconSet &icon, const QString &text, const QObject *receiver, const char* member);
-    QAction *addMenu(const QString &text, Q4Menu *menu);
+    QAction *addMenu(const QString &text, QMenu *menu);
     QAction *addSeparator();
 
-    QAction *insertMenu(QAction *before, const QString &text, Q4Menu *menu);
+    QAction *insertMenu(QAction *before, const QString &text, QMenu *menu);
     QAction *insertSeparator(QAction *before);
+
+    void clear();
 
     void setTearOffEnabled(bool);
     bool isTearOffEnabled() const;
@@ -59,9 +61,11 @@ public:
     QAction *activeAction() const;
     
     void popup(const QPoint &pos, QAction *at=0);
+    QAction *exec();
     QAction *exec(const QPoint &pos, QAction *at=0);
-    QSize sizeHint() const;
     static QAction *exec(QList<QAction*> actions, const QPoint &pos, QAction *at=0);
+
+    QSize sizeHint() const;
 
 #ifdef Q_WS_MAC
     MenuRef macMenu(MenuRef merge=0);
@@ -85,7 +89,7 @@ public:
     }
     inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, const QObject *receiver, 
                                     const char* member, const QKeySequence& accel = 0, int id = -1, int index = -1) {
-        qWarning("Q4MenuDataCompat: There is no Icon & Pixmap!");
+        qWarning("QMenuDataCompat: There is no Icon & Pixmap!");
         return insertAny(&icon, 0, receiver, member, &accel, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QString &text, int id=-1, int index=-1) {
@@ -94,10 +98,10 @@ public:
     inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text, int id=-1, int index=-1) {
         return insertAny(&icon, &text, 0, 0, 0, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QString &text, Q4Menu *popup, int id=-1, int index=-1) {
+    inline QT_COMPAT int insertItem(const QString &text, QMenu *popup, int id=-1, int index=-1) {
         return insertAny(0, &text, 0, 0, 0, popup, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text, Q4Menu *popup, int id=-1, int index=-1) {
+    inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text, QMenu *popup, int id=-1, int index=-1) {
         return insertAny(&icon, &text, 0, 0, 0, popup, id, index); 
     }
     inline QT_COMPAT int insertItem(const QPixmap &pixmap, int id=-1, int index=-1) {
@@ -105,30 +109,32 @@ public:
         return insertAny(&icon, 0, 0, 0, 0, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, int id=-1, int index=-1) {
-        qWarning("Q4MenuDataCompat: There is no Icon & Pixmap!");
+        qWarning("QMenuDataCompat: There is no Icon & Pixmap!");
         return insertAny(&icon, 0, 0, 0, 0, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QPixmap &pixmap, Q4Menu *popup, int id=-1, int index=-1) {
+    inline QT_COMPAT int insertItem(const QPixmap &pixmap, QMenu *popup, int id=-1, int index=-1) {
         QIconSet icon(pixmap);
         return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, Q4Menu *popup,
+    inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, QMenu *popup,
                                     int id=-1, int index=-1) {
-        qWarning("Q4MenuDataCompat: There is no Icon & Pixmap!");
+        qWarning("QMenuDataCompat: There is no Icon & Pixmap!");
         return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
     }
     inline int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
-                                   const QKeySequence *accel, const Q4Menu *popup, int id, int index) {
+                                   const QKeySequence *accel, const QMenu *popup, int id, int index) {
         verifyPlatformCanCastPointerToInt();
         if(id != -1)
-            qFatal("QMenuDataCompat: id cannot be passed into insertItem!");
+            qWarning("QMenuDataCompat: id cannot be passed into insertItem!");
         QAction *act = new QAction;
         if(icon)
             act->setIcon(*icon);
         if(text)
             act->setText(*text);
         if(popup)
-            act->setMenu(const_cast<Q4Menu*>(popup));
+            act->setMenu(const_cast<QMenu*>(popup));
+        if(accel)
+            act->setAccel(*accel);
         if(receiver && member)
             QObject::connect(act, SIGNAL(triggered()), receiver, member);
         if(index == -1)
@@ -150,7 +156,6 @@ public:
 
     inline QT_COMPAT void removeItem(int id) { removeAction(findActionForId(id)); }
     inline QT_COMPAT void removeItemAt(int index) { removeAction(findActionForIndex(index)); }
-    inline QT_COMPAT void clear();
 #ifndef QT_NO_ACCEL
     inline QT_COMPAT QKeySequence accel(int id) const { return findActionForId(id)->accel(); }
     inline QT_COMPAT void setAccel(const QKeySequence& key, int id) { findActionForId(id)->setAccel(key); }
@@ -169,7 +174,7 @@ public:
         act->setText(text);
     }
     inline QT_COMPAT void changeItem(int id, const QIconSet &icon, const QPixmap &) {
-        qWarning("Q4MenuDataCompat: There is no Icon & Pixmap!");
+        qWarning("QMenuDataCompat: There is no Icon & Pixmap!");
         findActionForId(id)->setIcon(icon);
     }
     inline QT_COMPAT bool isItemActive(int id) const { return findActionForId(id) == activeAction(); }
@@ -205,7 +210,7 @@ public:
     }
     inline QT_COMPAT int insertTearOffHandle(int id=-1, int index=-1) {
         if(id != -1)
-            qFatal("QMenuDataCompat: id cannot be passed into insertTearOffHandle!");
+            qWarning("QMenuDataCompat: id cannot be passed into insertTearOffHandle!");
         if(index != -1)
             qFatal("QMenuDataCompat: index cannot be passed into insertTearOffHandle!");
         setTearOffEnabled(true);
@@ -235,8 +240,8 @@ private slots:
     void internalDelayedPopup();
 
 private:
-    friend class Q4MenuBar;
-    friend class Q4MenuBarPrivate;
+    friend class QMenuBar;
+    friend class QMenuBarPrivate;
     friend class QTornOffMenu;
 
 #ifdef QT_COMPAT
@@ -255,6 +260,7 @@ private:
         else if(QAction *ret = actions()[index])
             return ret;
         qFatal("QMenuDataCompat: %d is bigger than the allowed (%d)", index, actions().size());
+        return 0;
     }
 #endif
 
@@ -262,23 +268,25 @@ private:
     friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
 #endif
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    Q4Menu(const Q4Menu &);
-    Q4Menu &operator=(const Q4Menu &);
+    QMenu(const QMenu &);
+    QMenu &operator=(const QMenu &);
 #endif
 };
 
-class Q_GUI_EXPORT Q4MenuBar : public QWidget
+class Q_GUI_EXPORT QMenuBar : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(Q4MenuBar);
+    Q_DECLARE_PRIVATE(QMenuBar);
     Q_PROPERTY(bool defaultUp READ isDefaultUp WRITE setDefaultUp)
 
 public:
-    Q4MenuBar(QWidget *parent = 0);
-    ~Q4MenuBar();
+    QMenuBar(QWidget *parent = 0);
+    ~QMenuBar();
 
-    QAction *addMenu(const QString &title, Q4Menu *menu);
-    QAction *insertMenu(QAction *before, const QString &title, Q4Menu *menu);
+    QAction *addMenu(const QString &title, QMenu *menu);
+    QAction *insertMenu(QAction *before, const QString &title, QMenu *menu);
+
+    void clear();
 
     QAction *activeAction() const;
 
@@ -307,7 +315,7 @@ public:
     }
     inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, const QObject *receiver, 
                                     const char* member, const QKeySequence& accel = 0, int id = -1, int index = -1) {
-        qWarning("Q4MenuDataCompat: There is no Icon & Pixmap!");
+        qWarning("QMenuDataCompat: There is no Icon & Pixmap!");
         return insertAny(&icon, 0, receiver, member, &accel, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QString &text, int id=-1, int index=-1) {
@@ -316,10 +324,10 @@ public:
     inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text, int id=-1, int index=-1) {
         return insertAny(&icon, &text, 0, 0, 0, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QString &text, Q4Menu *popup, int id=-1, int index=-1) {
+    inline QT_COMPAT int insertItem(const QString &text, QMenu *popup, int id=-1, int index=-1) {
         return insertAny(0, &text, 0, 0, 0, popup, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text, Q4Menu *popup, int id=-1, int index=-1) {
+    inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text, QMenu *popup, int id=-1, int index=-1) {
         return insertAny(&icon, &text, 0, 0, 0, popup, id, index); 
     }
     inline QT_COMPAT int insertItem(const QPixmap &pixmap, int id=-1, int index=-1) {
@@ -327,30 +335,30 @@ public:
         return insertAny(&icon, 0, 0, 0, 0, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, int id=-1, int index=-1) {
-        qWarning("Q4MenuDataCompat: There is no Icon & Pixmap!");
+        qWarning("QMenuDataCompat: There is no Icon & Pixmap!");
         return insertAny(&icon, 0, 0, 0, 0, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QPixmap &pixmap, Q4Menu *popup, int id=-1, int index=-1) {
+    inline QT_COMPAT int insertItem(const QPixmap &pixmap, QMenu *popup, int id=-1, int index=-1) {
         QIconSet icon(pixmap);
         return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, Q4Menu *popup,
+    inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, QMenu *popup,
                                     int id=-1, int index=-1) {
-        qWarning("Q4MenuDataCompat: There is no Icon & Pixmap!");
+        qWarning("QMenuDataCompat: There is no Icon & Pixmap!");
         return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
     }
     inline int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
-                                   const QKeySequence *accel, const Q4Menu *popup, int id, int index) {
+                                   const QKeySequence *accel, const QMenu *popup, int id, int index) {
         verifyPlatformCanCastPointerToInt();
         if(id != -1)
-            qFatal("QMenuDataCompat: id cannot be passed into insertItem!");
+            qWarning("QMenuDataCompat: id cannot be passed into insertItem!");
         QAction *act = new QAction;
         if(icon)
             act->setIcon(*icon);
         if(text)
             act->setText(*text);
         if(popup)
-            act->setMenu(const_cast<Q4Menu*>(popup));
+            act->setMenu(const_cast<QMenu*>(popup));
         if(receiver && member)
             QObject::connect(act, SIGNAL(triggered()), receiver, member);
         if(index == -1)
@@ -372,7 +380,6 @@ public:
 
     inline QT_COMPAT void removeItem(int id) { removeAction(findActionForId(id)); }
     inline QT_COMPAT void removeItemAt(int index) { removeAction(findActionForIndex(index)); }
-    inline QT_COMPAT void clear();
 #ifndef QT_NO_ACCEL
     inline QT_COMPAT QKeySequence accel(int id) const { return findActionForId(id)->accel(); }
     inline QT_COMPAT void setAccel(const QKeySequence& key, int id) { findActionForId(id)->setAccel(key); }
@@ -391,7 +398,7 @@ public:
         act->setText(text);
     }
     inline QT_COMPAT void changeItem(int id, const QIconSet &icon, const QPixmap &) {
-        qWarning("Q4MenuDataCompat: There is no Icon & Pixmap!");
+        qWarning("QMenuDataCompat: There is no Icon & Pixmap!");
         findActionForId(id)->setIcon(icon);
     }
     inline QT_COMPAT bool isItemActive(int id) const { return findActionForId(id) == activeAction(); }
@@ -448,8 +455,8 @@ private slots:
     void internalShortcutActivated(int);
 
 private:
-    friend class Q4Menu;
-    friend class Q4MenuPrivate;
+    friend class QMenu;
+    friend class QMenuPrivate;
 
 #ifdef QT_COMPAT
     inline void verifyPlatformCanCastPointerToInt() const {
@@ -467,6 +474,7 @@ private:
         else if(QAction *ret = actions()[index])
             return ret;
         qFatal("QMenuDataCompat: %d is bigger than the allowed (%d)", index, actions().size());
+        return 0;
     }
 #endif
 
@@ -476,9 +484,9 @@ private:
     friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
 #endif
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    Q4MenuBar(const Q4MenuBar &);
-    Q4MenuBar &operator=(const Q4MenuBar &);
+    QMenuBar(const QMenuBar &);
+    QMenuBar &operator=(const QMenuBar &);
 #endif
 };
 
-#endif /* __Q4MENU_H__ */
+#endif /* __QMENU_H__ */

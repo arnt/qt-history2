@@ -12,7 +12,7 @@
 #include <qpaintdevice.h>
 #include <qpainter.h>
 #include <qpointer.h>
-#include <qpopupmenu.h>
+#include <q3popupmenu.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qrubberband.h>
@@ -195,7 +195,7 @@ void QMacStyleCG::polish(QWidget *w)
         p.end();
     }
 
-    if (::qt_cast<QPopupMenu *>(w) || ::qt_cast<Q4Menu*>(w)) {
+    if (::qt_cast<Q3PopupMenu *>(w) || ::qt_cast<QMenu*>(w)) {
         px.resize(200, 200);
         QPainter p(&px);
         HIThemeMenuDrawInfo mtinfo;
@@ -224,7 +224,7 @@ void QMacStyleCG::polish(QWidget *w)
 void QMacStyleCG::unPolish(QWidget *w)
 {
     d->removeWidget(w);
-    if (::qt_cast<QPopupMenu *>(w) || ::qt_cast<Q4Menu*>(w) || qt_mac_is_metal(w)) {
+    if (::qt_cast<Q3PopupMenu *>(w) || ::qt_cast<QMenu*>(w) || qt_mac_is_metal(w)) {
         QPalette pal = w->palette();
         QPixmap tmp;
         QBrush background(tmp);
@@ -573,8 +573,8 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
     case CE_Q3PopupMenuItem: {
         if (!widget || opt.isDefault())
             break;
-        const QPopupMenu *popup = static_cast<const QPopupMenu *>(widget);
-        const QMenuItem *mi = opt.menuItem();
+        const Q3PopupMenu *popup = static_cast<const Q3PopupMenu *>(widget);
+        const Q3MenuItem *mi = opt.menuItem();
         bool disabled = mi ? !mi->isEnabled() : false;
         bool itemSelected = how & Style_Active;
         // Draw the background and then the text and stuff.

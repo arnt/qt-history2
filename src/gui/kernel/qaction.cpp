@@ -41,7 +41,7 @@ QAction::QAction(QWidget* parent) : QObject(*(new QActionPrivate), parent)
 {
 }
 
-QAction::QAction(const QString &text, Q4Menu *menu, QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
+QAction::QAction(const QString &text, QMenu *menu, QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
     d->menu = menu;
@@ -67,7 +67,7 @@ QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent
         parent->addAction(this);
 }
 
-QAction::QAction(const QString &text, Q4Menu *menu, QWidget* parent) : QObject(*(new QActionPrivate), parent)
+QAction::QAction(const QString &text, QMenu *menu, QWidget* parent) : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
     d->menu = menu;
@@ -173,13 +173,13 @@ QIconSet QAction::icon() const
     return QIconSet();
 }
 
-void QAction::setMenu(Q4Menu *menu)
+void QAction::setMenu(QMenu *menu)
 {
     d->menu = menu;
     d->sendDataChanged();
 }
 
-Q4Menu *QAction::menu() const
+QMenu *QAction::menu() const
 {
     return d->menu;
 }

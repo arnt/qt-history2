@@ -29,7 +29,7 @@
 #include "qpushbutton.h"
 #include "qcheckbox.h"
 #include "qradiobutton.h"
-#include "qpopupmenu.h"
+#include "q3popupmenu.h"
 #include "qprogressbar.h"
 #include "qcombobox.h"
 #include "qlistview.h"
@@ -40,7 +40,7 @@
 #include "qheader.h"
 #include "qslider.h"
 #include "qtoolbar.h"
-#include "qmenubar.h"
+#include "q3menubar.h"
 #include "qstatusbar.h"
 #include "qtable.h"
 #include "qtabwidget.h"
@@ -417,7 +417,7 @@ void QPocketPCStyle::polish(QWidget *w)
     /*
     if (w && !w->ownPalette()) {
         if (::qt_cast<QToolBar*>(w) ||
-            ::qt_cast<QMenuBar*>(w) ||
+            ::qt_cast<Q3MenuBar*>(w) ||
             ::qt_cast<QStatusBar*>(w) ||
             ::qt_cast<QDockWindow*>(w) ||
             ::qt_cast<QDockArea*>(w) ||
@@ -1213,9 +1213,9 @@ QSize QPocketPCStyle::sizeFromContents(ContentsType           contents,
             if (! widget || opt.isDefault())
                 break;
 
-            const QPopupMenu *popup = (const QPopupMenu *) widget;
+            const Q3PopupMenu *popup = (const Q3PopupMenu *) widget;
             bool checkable = popup->isCheckable();
-            QMenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = opt.menuItem();
             int maxpmw = opt.maxIconWidth();
             int w = sz.width(), h = sz.height();
 
@@ -2364,8 +2364,8 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             if (! widget || opt.isDefault())
                 break;
 
-            const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
-            QMenuItem *mi = opt.menuItem();
+            const Q3PopupMenu *popupmenu = (const Q3PopupMenu *) widget;
+            Q3MenuItem *mi = opt.menuItem();
             if (!mi)
                 break;
 
@@ -2596,7 +2596,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             if (opt.isDefault())
                 break;
 
-            QMenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = opt.menuItem();
             drawItem(p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, pal,
                       mi->isEnabled(), mi->pixmap(), mi->text(), -1,
                       &pal.color(QPalette::ButtonText));

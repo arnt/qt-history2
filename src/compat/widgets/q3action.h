@@ -27,7 +27,7 @@
 class Q3ActionPrivate;
 class Q3ActionGroupPrivate;
 class QStatusBar;
-class QPopupMenu;
+class Q3PopupMenu;
 class QToolTipGroup;
 class QWidget;
 
@@ -91,7 +91,7 @@ public:
 
 protected:
     virtual void addedTo(QWidget *actionWidget, QWidget *container);
-    virtual void addedTo(int index, QPopupMenu *menu);
+    virtual void addedTo(int index, Q3PopupMenu *menu);
 
 public slots:
     void activate();
@@ -160,9 +160,9 @@ public:
 protected:
     void childEvent(QChildEvent*);
     virtual void addedTo(QWidget *actionWidget, QWidget *container, Q3Action *a);
-    virtual void addedTo(int index, QPopupMenu *menu, Q3Action *a);
+    virtual void addedTo(int index, Q3PopupMenu *menu, Q3Action *a);
     virtual void addedTo(QWidget *actionWidget, QWidget *container);
-    virtual void addedTo(int index, QPopupMenu *menu);
+    virtual void addedTo(int index, Q3PopupMenu *menu);
 
 signals:
     void selected(Q3Action*);

@@ -14,7 +14,7 @@
 
 #include "qcombobox.h"
 #ifndef QT_NO_COMBOBOX
-#include "qpopupmenu.h"
+#include "q3popupmenu.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
 #include "qlistbox.h"
@@ -316,27 +316,27 @@
     than lines, a scrollbar is added.
 */
 
-class QComboBoxPopup : public QPopupMenu
+class QComboBoxPopup : public Q3PopupMenu
 {
 public:
     QComboBoxPopup(QWidget *parent=0, const char *name=0)
-        : QPopupMenu(parent, name)
+        : Q3PopupMenu(parent, name)
     {
     }
 
     int itemHeight(int index)
     {
-        return QPopupMenu::itemHeight(index);
+        return Q3PopupMenu::itemHeight(index);
     }
 
 };
 
-class QComboBoxPopupItem : public QCustomMenuItem
+class QComboBoxPopupItem : public Q3CustomMenuItem
 {
     QListBoxItem *li;
     QSize sc; // Size cache optimization
 public:
-    QComboBoxPopupItem(QListBoxItem *i) : QCustomMenuItem(), li(i), sc(0, 0) {  }
+    QComboBoxPopupItem(QListBoxItem *i) : Q3CustomMenuItem(), li(i), sc(0, 0) {  }
     virtual bool fullSpan() const { return true; }
     virtual void paint(QPainter*, const QPalette&, bool, bool, int, int, int, int);
     virtual QSize sizeHint() { if (sc.isNull()) sc = QSize(li->width(li->listBox()), qMax(25, li->height(li->listBox()))); return sc; }
@@ -1441,7 +1441,7 @@ void QComboBox::popup()
         int sw = screen.width();                        // screen width
         int sh = screen.height();                        // screen height
         QPoint pos = mapToGlobal(QPoint(0,height()));
-        // ## Similar code is in QPopupMenu
+        // ## Similar code is in Q3PopupMenu
         int x = pos.x();
         int y = pos.y();
 
@@ -1983,7 +1983,7 @@ void QComboBox::setListBox(QListBox * newListBox)
 
 /*!
     Returns the current list box, or 0 if there is no list box.
-    (QComboBox can use QPopupMenu instead of QListBox.) Provided to
+    (QComboBox can use Q3PopupMenu instead of QListBox.) Provided to
     match setListBox().
 
     \sa setListBox()

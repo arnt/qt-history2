@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QMenuData class.
+** Definition of Q3MenuData class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMENUDATA_H
-#define QMENUDATA_H
+#ifndef Q3MENUDATA_H
+#define Q3MENUDATA_H
 
 #ifndef QT_H
 #include "qglobal.h"
@@ -25,29 +25,29 @@
 
 #ifndef QT_NO_MENUDATA
 
-class QPopupMenu;
-class QMenuDataData;
+class Q3PopupMenu;
+class Q3MenuDataData;
 class QObject;
 class QSignalEmitter;
 
-class QCustomMenuItem;
-class QMenuItemData;
+class Q3CustomMenuItem;
+class Q3MenuItemData;
 
-class Q_GUI_EXPORT QMenuItem                        // internal menu item class
+class Q_GUI_EXPORT Q3MenuItem                        // internal menu item class
 {
-friend class QMenuData;
+friend class Q3MenuData;
 public:
-    QMenuItem();
-   ~QMenuItem();
+    Q3MenuItem();
+   ~Q3MenuItem();
 
     int                id()                const        { return ident; }
     QIconSet   *iconSet()        const        { return iconset_data; }
     QString        text()                const        { return text_data; }
     QString        whatsThis()        const        { return whatsthis_data; }
     QPixmap    *pixmap()        const        { return pixmap_data; }
-    QPopupMenu *popup()                const        { return popup_menu; }
+    Q3PopupMenu *popup()                const        { return popup_menu; }
     QWidget *widget()                const        { return widget_item; }
-    QCustomMenuItem *custom()        const;
+    Q3CustomMenuItem *custom()        const;
 #ifndef QT_NO_ACCEL
     QKeySequence key()                const        { return accel_key; }
 #endif
@@ -71,7 +71,7 @@ private:
     QString        text_data;                        // item text
     QString        whatsthis_data;                        // item Whats This help text
     QPixmap    *pixmap_data;                        // item pixmap
-    QPopupMenu *popup_menu;                        // item popup menu
+    Q3PopupMenu *popup_menu;                        // item popup menu
     QWidget    *widget_item;                        // widget menu item
 #ifndef QT_NO_ACCEL
     QKeySequence        accel_key;                // accelerator key (state|ascii)
@@ -83,26 +83,26 @@ private:
     uint        is_checked   : 1;                // checked flag
     uint        is_dirty     : 1;                // dirty (update) flag
     uint        is_visible     : 1;                // visibility flag
-    QMenuItemData* d;
+    Q3MenuItemData* d;
 
-    QMenuItemData* extra();
+    Q3MenuItemData* extra();
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QMenuItem(const QMenuItem &);
-    QMenuItem &operator=(const QMenuItem &);
+    Q3MenuItem(const Q3MenuItem &);
+    Q3MenuItem &operator=(const Q3MenuItem &);
 #endif
 };
 
 
-typedef QList<QMenuItem*> QMenuItemList;
+typedef QList<Q3MenuItem*> Q3MenuItemList;
 
 
-class Q_GUI_EXPORT QCustomMenuItem : public Qt
+class Q_GUI_EXPORT Q3CustomMenuItem : public Qt
 {
 public:
-    QCustomMenuItem();
-    virtual ~QCustomMenuItem();
+    Q3CustomMenuItem();
+    virtual ~Q3CustomMenuItem();
     virtual bool fullSpan() const;
     virtual bool isSeparator() const;
     virtual void setFont(const QFont& font);
@@ -112,13 +112,13 @@ public:
 };
 
 
-class Q_GUI_EXPORT QMenuData                        // menu data class
+class Q_GUI_EXPORT Q3MenuData                        // menu data class
 {
-friend class QMenuBar;
-friend class QPopupMenu;
+friend class Q3MenuBar;
+friend class Q3PopupMenu;
 public:
-    QMenuData();
-    virtual ~QMenuData();
+    Q3MenuData();
+    virtual ~Q3MenuData();
 
     uint        count() const;
 
@@ -142,26 +142,26 @@ public:
     int                insertItem(const QIconSet& icon,
                             const QString &text, int id=-1, int index=-1);
 
-    int                insertItem(const QString &text, QPopupMenu *popup,
+    int                insertItem(const QString &text, Q3PopupMenu *popup,
                             int id=-1, int index=-1);
     int                insertItem(const QIconSet& icon,
-                            const QString &text, QPopupMenu *popup,
+                            const QString &text, Q3PopupMenu *popup,
                             int id=-1, int index=-1);
 
 
     int                insertItem(const QPixmap &pixmap, int id=-1, int index=-1);
     int                insertItem(const QIconSet& icon,
                             const QPixmap &pixmap, int id=-1, int index=-1);
-    int                insertItem(const QPixmap &pixmap, QPopupMenu *popup,
+    int                insertItem(const QPixmap &pixmap, Q3PopupMenu *popup,
                             int id=-1, int index=-1);
     int                insertItem(const QIconSet& icon,
-                            const QPixmap &pixmap, QPopupMenu *popup,
+                            const QPixmap &pixmap, Q3PopupMenu *popup,
                             int id=-1, int index=-1);
 
     int                insertItem(QWidget* widget, int id=-1, int index=-1);
 
-    int                insertItem(const QIconSet& icon, QCustomMenuItem* custom, int id=-1, int index=-1);
-    int                insertItem(QCustomMenuItem* custom, int id=-1, int index=-1);
+    int                insertItem(const QIconSet& icon, Q3CustomMenuItem* custom, int id=-1, int index=-1);
+    int                insertItem(Q3CustomMenuItem* custom, int id=-1, int index=-1);
 
 
     int                insertSeparator(int index=-1);
@@ -219,16 +219,16 @@ public:
     bool        setItemParameter(int id, int param);
     int        itemParameter(int id) const;
 
-    QMenuItem  *findItem(int id)        const;
-    QMenuItem  *findItem(int id, QMenuData ** parent)        const;
-    QMenuItem * findPopup(QPopupMenu *, int *index = 0);
+    Q3MenuItem  *findItem(int id)        const;
+    Q3MenuItem  *findItem(int id, Q3MenuData ** parent)        const;
+    Q3MenuItem * findPopup(Q3PopupMenu *, int *index = 0);
 
     virtual void activateItemAt(int index);
 
 protected:
     int                   actItem;
-    QMenuItemList *mitems;
-    QMenuData          *parentMenu;
+    Q3MenuItemList *mitems;
+    Q3MenuData          *parentMenu;
     uint           mitemsAutoDelete : 1;
     uint           isPopupMenu : 1;
     uint           isMenuBar : 1;
@@ -238,25 +238,25 @@ protected:
     uint        actItemDown : 1;
     virtual void   menuContentsChanged();
     virtual void   menuStateChanged();
-    virtual void   menuInsPopup(QPopupMenu *);
-    virtual void   menuDelPopup(QPopupMenu *);
+    virtual void   menuInsPopup(Q3PopupMenu *);
+    virtual void   menuDelPopup(Q3PopupMenu *);
 
 private:
-    int                insertAny(const QString *, const QPixmap *, QPopupMenu *,
-                           const QIconSet*, int, int, QWidget* = 0, QCustomMenuItem* = 0);
-    void        removePopup(QPopupMenu *);
+    int                insertAny(const QString *, const QPixmap *, Q3PopupMenu *,
+                           const QIconSet*, int, int, QWidget* = 0, Q3CustomMenuItem* = 0);
+    void        removePopup(Q3PopupMenu *);
     void        changeItemIconSet(int id, const QIconSet &icon);
 
-    QMenuDataData *d;
+    Q3MenuDataData *d;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QMenuData(const QMenuData &);
-    QMenuData &operator=(const QMenuData &);
+    Q3MenuData(const Q3MenuData &);
+    Q3MenuData &operator=(const Q3MenuData &);
 #endif
 };
 
 
 #endif // QT_NO_MENUDATA
 
-#endif // QMENUDATA_H
+#endif // Q3MENUDATA_H

@@ -14,7 +14,7 @@
 
 #if !defined(QT_NO_STYLE_WINDOWSXP) || defined(QT_PLUGIN)
 
-#include <qmenubar.h>
+#include <q3menubar.h>
 #include <qpainter.h>
 #include <qpushbutton.h>
 #include <qtoolbutton.h>
@@ -619,7 +619,7 @@ void QWindowsXPStyle::unPolish(QWidget *widget)
     } else if (qt_cast<QTabBar*>(widget)) {
         disconnect(widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()));
     } else if (widget->inherits("QDockWindowHandle") ||
-                qt_cast<QMenuBar*>(widget) ||
+                qt_cast<Q3MenuBar*>(widget) ||
                 (qt_cast<QToolButton*>(widget) &&
                   !QString::compare("qt_close_button1", widget->objectName()))) {
         widget->setPalette(QPalette());
@@ -1181,8 +1181,8 @@ void QWindowsXPStyle::drawControl(ControlElement element,
             if (! widget || opt.isDefault())
                 break;
 
-            const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
-            QMenuItem *mi = opt.menuItem();
+            const Q3PopupMenu *popupmenu = (const Q3PopupMenu *) widget;
+            Q3MenuItem *mi = opt.menuItem();
             if (!mi)
                 break;
 
@@ -1385,7 +1385,7 @@ void QWindowsXPStyle::drawControl(ControlElement element,
             if (opt.isDefault())
                 break;
 
-            QMenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = opt.menuItem();
             if (flags & Style_Active)
                 p->fillRect(r, pal.brush(QPalette::Highlight));
             else
@@ -2515,9 +2515,9 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType contents,
             if (! widget || opt.isDefault())
                 break;
 
-            const QPopupMenu *popup = (const QPopupMenu *) widget;
+            const Q3PopupMenu *popup = (const Q3PopupMenu *) widget;
             bool checkable = popup->isCheckable();
-            QMenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = opt.menuItem();
             int maxpmw = opt.maxIconWidth();
             int w = sz.width(), h = sz.height();
 
