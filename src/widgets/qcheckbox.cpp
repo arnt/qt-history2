@@ -45,7 +45,6 @@
 #include "qtextstream.h"
 #include "qapplication.h"
 
-// NOT REVISED
 /*!
   \class QCheckBox qcheckbox.h
   \brief The QCheckBox widget provides a check box with a text label.
@@ -55,17 +54,16 @@
   QCheckBox and QRadioButton are both option buttons. That is, they
   can be switched on (checked) or off (unchecked). The classes differ
   in how the choices for the user are restricted. Radio buttons define
-  a "one of many" choice, while check-boxes provide "many of many"
+  a "one of many" choice, whereas check boxes provide "many of many"
   choices.
 
-  While it is technically possible to implement radio-behaviour with
-  check boxes and vice versa, it's strongly recommended to stick with
-  the well-known semantics. Otherwise your users would be pretty
-  confused.
+  Although it is technically possible to implement radio behavior with
+  check boxes and vice versa, we strongly recommended sticking with
+  the well-known semantics.
 
-  Use QButtonGroup to group check-buttons visually.
+  QButtonGroup may be used to group check buttons visually.
 
-  Whenver a check box is checked or cleared, it emits the signal
+  Whenever a check box is checked or cleared it emits the signal
   toggled(). Connect to this signal if you want to trigger an action
   each time the box changes state. Otherwise, use isChecked() to query
   whether or not a particular check box is selected.
@@ -133,7 +131,7 @@ QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )
 */
 
 /*!
-  Sets the checkbox into the "no change" state.
+  Sets the check box into the "no change" state.
 
   \sa setTristate()
 */
@@ -150,7 +148,7 @@ void QCheckBox::setNoChange()
   Use tristate check boxes whenever you need to give the user the
   option of neither setting nor unsetting an option. A typical example
   is the "Italic" check box in the font dialog of a word processor
-  when the marked text is partially Italic and partially not.
+  when the marked text is partially italic.
 
   \sa isTristate(), setNoChange() stateChanged(), state()
 */
@@ -370,7 +368,7 @@ void QCheckBox::updateMask()
 		      cg, TRUE,
 		      pixmap(), text() );
     y = (height() - lsz.height() + fm.height() - sz.height())/2;
-	
+
     style().drawIndicatorMask(&p, 0, y, sz.width(), sz.height(), state() );
 
     if ( hasFocus() ) {

@@ -54,18 +54,18 @@
   The class itself is abstract; two subclasses provide rudimentary
   numeric range checking.
 
-  The class includes two virtual functions, validate() and fixup().
+  The class includes two virtual functions: validate() and fixup().
 
-  validate() is pure virtual, so it must be implemented by every
+  validate() is a pure virtual function; it must be implemented by every
   subclass.  It returns \c Invalid, \c Intermediate or \c Acceptable
-  depending on whether its argument is valid (for the class'
+  depending on whether its argument is valid (for the class's
   definition of valid).
 
-  The three states require some explanation.  An \c Invalid string is
+  These three states require some explanation.  An \c Invalid string is
   \e clearly invalid.  \c Intermediate is less obvious - the concept
   of validity is slippery when the string is incomplete (still being
   edited).  QValidator defines \c Intermediate as the property of a
-  string that it is neither clearly invalid or acceptable as a final
+  string that is neither clearly invalid or acceptable as a final
   result.  \c Acceptable means that the string is acceptable as a
   final result.  One might say that any string that is a plausible
   intermediate state during entry of an \c Acceptable string is \c
@@ -82,11 +82,11 @@
   is \c Acceptable, "http://www.trolltech.com/," is \c Intermediate (it can
   be a cut-and-paste job that accidentally took in a comma at the
   end), the empty string is valid (the user might select and delete
-  all of the text in preparation to entering a new URL), and
+  all of the text in preparation of entering a new URL) and
   "http:///./" is \c Invalid.
 
   <li>For a spin box that accepts lengths, "11cm" and "1in" are \c
-  Acceptable, "11" and the empty string are \c Intermediate, and
+  Acceptable, "11" and the empty string are \c Intermediate and
   "http://www.trolltech.com" and "hour" are \c Invalid.
 
   </ol>
@@ -105,14 +105,14 @@
 /*! \enum QValidator::State
 
   This enum type defines the states in which a validated string can
-  be.  There are currently three states: <ul>
+  exist.  There are currently three states: <ul>
 
   <li> \c Invalid - the string is \e clearly invalid.
 
   <li> \c Intermediate - the string is a plausible intermediate value
   during editing.
 
-  <li> \c Acceptable - acceptable as a final result.
+  <li> \c Acceptable - the string is acceptable as a final result.
 
   </ul>
 
@@ -147,7 +147,7 @@ QValidator::~QValidator()
 
   This pure virtual function returns \c Invalid if \a input is invalid
   according to this validator's rules, \c Intermediate if it is likely that a
-  little more editing will make the input acceptable (e.g. the user
+  little more editing will make the input acceptable (e.g., the user
   types '4' into a widget which accepts 10-99) and \c Acceptable if
   the input is completely acceptable.
 
@@ -161,13 +161,13 @@ QValidator::~QValidator()
 
   Attempts to change \a input to be valid according to this validator's
   rules.  Need not result in a valid string - callers of this function
-  must re-test afterwards.  The default does nothing.
+  must re-test afterwards; the default does nothing.
 
   Reimplementations of this function can change \a input even if they
-  do not produce a valid string.  For example an ISBN validator might
+  do not produce a valid string.  For example, an ISBN validator might
   want to delete every character except digits and "-", even if the
-  result is not a valid ISBN, and a last-name validator might want to
-  remove white space from the start and end of the string, even if the
+  result is not a valid ISBN; a last-name validator might want to
+  remove whitespace from the start and end of the string, even if the
   resulting string is not in the list of known last names.
 */
 
@@ -179,7 +179,7 @@ void QValidator::fixup( QString & ) const
 /*!
   \class QIntValidator qvalidator.h
 
-  \brief The QIntValidator class provides range checking of integers.
+  \brief The QIntValidator class provides range-checking of integers.
 
   \ingroup misc
 
@@ -191,7 +191,7 @@ void QValidator::fixup( QString & ) const
 
 
 /*!
-  Constructs a validator object which accepts all integers.
+  Constructs a validator object that accepts all integers.
 */
 
 QIntValidator::QIntValidator( QWidget * parent, const char *name )
@@ -203,7 +203,7 @@ QIntValidator::QIntValidator( QWidget * parent, const char *name )
 
 
 /*!
-  Constructs a validator object which accepts all integers from \a
+  Constructs a validator object that accepts all integers from \a
   bottom up to and including \a top.
 */
 
@@ -248,9 +248,8 @@ QValidator::State QIntValidator::validate( QString & input, int & ) const
 }
 
 
-/*!
-  Sets the validator to accept only number from \a bottom up to an
-  including \a top.
+/*!  Sets the validator to accept only numbers from \a bottom to
+  \a top, both inclusive.
 */
 
 void QIntValidator::setRange( int bottom, int top )
@@ -305,7 +304,7 @@ void QIntValidator::setTop( int top )
 
   \ingroup misc
 
-  QDoubleValidator provides an upper bound, a lower bound, and a limit
+  QDoubleValidator provides an upper bound, a lower bound and a limit
   on the number of digits after the decimal point.  It does not
   provide a fixup() function.
 
@@ -354,7 +353,7 @@ QDoubleValidator::~QDoubleValidator()
 
 /*!  Returns \a Acceptable if \a input contains a number in the legal
   range and format, \a Intermediate if it contains another number, a
-  number with too many digits after the decimal point or is empty, and
+  number with too many digits after the decimal point or is empty and
   \a Invalid if \a input is not a number.
 */
 

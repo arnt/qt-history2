@@ -52,7 +52,6 @@ static const bool funnyWindowsStyle = FALSE;
 static int sliderStartVal = 0; //##### class member?
 
 
-// NOT REVISED
 /*!
   \class QSlider qslider.h
   \brief The QSlider widget provides a vertical or horizontal slider.
@@ -60,7 +59,7 @@ static int sliderStartVal = 0; //##### class member?
 
   The slider is the classic widget for controlling a bounded value.
   It lets the user move a slider along a horizontal or vertical
-  groove, and translates the slider's position into an integer value
+  groove and translates the slider's position into an integer value
   in the legal range.
 
   QSlider inherits QRangeControl, which provides the "integer" side of
@@ -71,11 +70,11 @@ static int sliderStartVal = 0; //##### class member?
   The main functions offered by the slider itself are tickmark and
   orientation control; you can use setTickmarks() to indicate where
   you want the tickmarks to be, setTickInterval() to indicate how many
-  of them you want, and setOrientation() to indicate whether the
-  slider is to e horizontal or vertical.
+  of them you want and setOrientation() to indicate whether the
+  slider is to be horizontal or vertical.
 
-  A slider has a default focusPolicy() of \a WeakWheelFocus, i.e. it
-  accepts focus on Tab and by using the mouse wheel, and a
+  A slider has a default focusPolicy() of \a WeakWheelFocus, i.e., it
+  accepts focus on Tab and uses the mouse wheel and a
   suitable keyboard interface.
 
   <img src=qslider-m.png> <img src=qslider-w.png>
@@ -87,7 +86,7 @@ static int sliderStartVal = 0; //##### class member?
 
 /*! \enum QSlider::TickSetting
 
-  This enum specifies where the tick marks are to be drawn, relative
+  This enum specifies where the tickmarks are to be drawn relative
   to the slider's groove and the handle the user moves.  The possible
   values are \c NoMarks (no tickmarks are drawn), \c Above, \c Below,
   \c Left, \c Right and \c Both.
@@ -189,7 +188,7 @@ void QSlider::initTicks()
   Enables slider tracking if \e enable is TRUE, or disables tracking
   if \e enable is FALSE.
 
-  If tracking is enabled (default), the slider emits the
+  If tracking is enabled (the default), the slider emits the
   valueChanged() signal whenever the slider is being dragged.  If
   tracking is disabled, the slider emits the valueChanged() signal
   when the user releases the mouse button (unless the value happens to
@@ -206,7 +205,7 @@ void QSlider::setTracking( bool enable )
 
 /*!
   \fn bool QSlider::tracking() const
-  Returns TRUE if tracking is enabled, or FALSE if tracking is disabled.
+  Returns TRUE if tracking is enabled or FALSE if tracking is disabled.
 
   Tracking is initially enabled.
 
@@ -387,12 +386,12 @@ QRect QSlider::sliderRect() const
 
 
 /*!
-  Paints the slider button using painter \a p with size, a colorgroup
+  Paints the slider button using painter \a p with size, a color group,
   and position given by \a r. Reimplement this function to change the
   look of the slider button.
 
-  Setting the colorgroup is useful to reuse the code to draw a mask if
-  the slider supports transparceny.
+  Setting the color group is useful for reusing the code to draw a mask if
+  the slider supports transparency.
 
   \sa setAutoMask(), updateMask()
 */
@@ -805,7 +804,7 @@ void QSlider::setValue( int value )
 
 
 /*!
-  Moves the slider one pageStep() upwards.
+  Moves the slider one pageStep() upward.
 */
 
 void QSlider::addStep()
@@ -904,9 +903,9 @@ QSizePolicy QSlider::sizePolicy() const
 
 /*!
   Returns the number of pixels to use for the business part of the
-  slider (i.e. the non-tickmark portion). The remaining space is shared
+  slider (i.e., the non-tickmark portion). The remaining space is shared
   equally between the tickmark regions. This function and  sizeHint()
-  are closely related; if you change one, you almost certainly
+  are closely related; if you change one you almost certainly
   have to change the other.
 */
 
@@ -937,17 +936,17 @@ int QSlider::thickness() const
   \obsolete
   \overload
 
-  Do not reimplement this function, it's only there for compatibility
-  reasons. It simply calls the other version with colorGroup() as the
-  second argument.
+  Do not reimplement this function; it exists purely for compatibility
+  reasons. It calls the main version, and we recommend reimplementing
+  that, when required.
 */
 
 /*!
   Using \a p, draws tickmarks at a distance of \a dist from the edge
   of the widget, using \a w pixels and with an interval of \a i.
 
-  Setting the colorgroup is useful to reuse the code to draw a mask if
-  the slider supports transparceny.
+  Setting the color group is useful for reusing the code to draw a mask if
+  the slider supports transparency.
 
   \sa setAutoMask(), updateMask()
 */
@@ -1058,8 +1057,8 @@ int QSlider::maxValue() const
 }
 
 /*!
-  A convenience function which just calls
-  setRange( i, maxValue() )
+  A convenience function that just calls
+  setRange( i, maxValue() ).
 
   \sa setRange()
 */
@@ -1069,8 +1068,8 @@ void QSlider::setMinValue( int i )
 }
 
 /*!
-  A convenience function which just calls
-  setRange( minValue(), i )
+  A convenience function that just calls
+  setRange( minValue(), i ).
 
   \sa setRange()
 */

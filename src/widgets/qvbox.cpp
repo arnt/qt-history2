@@ -39,10 +39,9 @@
 #include "qvbox.h"
 #ifndef QT_NO_VBOX
 
-// NOT REVISED
 /*!
   \class QVBox qvbox.h
-  \brief The QVBox widget performs geometry management on its children
+  \brief The QVBox widget provides simple geometry management on its children.
 
   \ingroup geomanagement
 

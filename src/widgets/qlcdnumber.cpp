@@ -49,8 +49,8 @@
 
   \ingroup basic
 
-  It can display a number in just about any size, in decimal,
-  hexadecimal, octal or binary notation, and is easy to connect to
+  It can display a number in just about any size; displays in decimal,
+  hexadecimal, octal or binary notation; and is easy to connect to
   data sources via the display() slot, which is overloaded to take any
   of five argument types.
 
@@ -58,8 +58,8 @@
   \endlink and \link setSmallDecimalPoint() decimal point mode. \endlink
 
   QLCDNumber emits the overflow() signal when it is asked to display
-  something beyond its range.  The range is set by setNumDigits() (but
-  setSmallDecimalPoint() influences it too).
+  something beyond its range.  The range is set by setNumDigits(), but
+  setSmallDecimalPoint() too influences it.
 
   These digits and other symbols can be shown: 0/O, 1, 2, 3, 4, 5/S,
   6, 7, 8, 9/g, minus, decimal point, A, B, C, D, E, F, h, H, L, o, P,
@@ -68,7 +68,7 @@
   characters.
 
   It is not possible to retrieve the contents of a QLCDNumber object.
-  If you need to, we recommend that you connect the signals which feed
+  If you need to, we recommend that you connect the signals that feed
   the display() slot to another slot as well and store the value
   there.
 
@@ -112,7 +112,7 @@
   \fn void QLCDNumber::overflow()
 
   This signal is emitted whenever the QLCDNumber is asked to display a
-  too large number or a too long string.
+  too-large number or a too-long string.
 
   It is never emitted by setNumDigits().
 */
@@ -535,8 +535,8 @@ void QLCDNumber::display( const QString &s )
 }
 
 /*!
-  Calls setMode( HEX ). Provided for convenience (e.g. for connecting
-  buttons to this).
+  Calls setMode( HEX ). Provided for convenience (e.g., for connecting
+  buttons to it).
 
   \sa setMode(), setDecMode(), setOctMode(), setBinMode(), mode()
 */
@@ -548,8 +548,8 @@ void QLCDNumber::setHexMode()
 
 
 /*!
-  Calls setMode( DEC ). Provided for convenience (e.g. for connecting
-  buttons to this).
+  Calls setMode( DEC ). Provided for convenience (e.g., for connecting
+  buttons to it).
 
   \sa setMode(), setHexMode(), setOctMode(), setBinMode(), mode()
 */
@@ -561,8 +561,8 @@ void QLCDNumber::setDecMode()
 
 
 /*!
-  Calls setMode( OCT ). Provided for convenience (e.g. for connecting
-  buttons to this).
+  Calls setMode( OCT ). Provided for convenience (e.g., for connecting
+  buttons to it).
 
   \sa setMode(), setHexMode(), setDecMode(), setBinMode(), mode()
 */
@@ -574,8 +574,8 @@ void QLCDNumber::setOctMode()
 
 
 /*!
-  Calls setMode( BIN ). Provided for convenience (e.g. for connecting
-  buttons to this).
+  Calls setMode( BIN ). Provided for convenience (e.g., for connecting
+  buttons to it).
 
   \sa setMode(), setHexMode(), setDecMode(), setOctMode(), mode()
 */
@@ -612,7 +612,7 @@ void QLCDNumber::setMode( Mode m )
   \fn bool QLCDNumber::smallDecimalPoint() const
 
   Returns TRUE if the decimal point is currently drawn between two
-  digit positions, and FALSE if it is drawn in a digit position.
+  digit positions and FALSE if it is drawn in a digit position.
 
   \sa setSmallDecimalPoint(), mode()
 */

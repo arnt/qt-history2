@@ -62,10 +62,9 @@ public:
 };
 
 
-// BEING REVISED: aavit
 /*!
   \class QLabel qlabel.h
-  \brief The QLabel widget provides a static information display
+  \brief The QLabel widget provides a static information display.
 
   \ingroup basic
 
@@ -82,7 +81,7 @@ public:
   <li> A pixmap: set by passing a QPixmap to setPixmap().
   <li> A movie: set by passing a QMovie to setMovie().
   <li> A number: set by passing an \e int or a \e double to setNum(), which converts the number to plain text.
-  <li> Nothing: The same as an empty plain text. This is the default. Set by clear().
+  <li> Nothing: the same as an empty plain text. This is the default. Set by clear().
   </ul>
 
   When the content is changed using any of these functions, any
@@ -102,10 +101,10 @@ public:
     label->setAlignment( AlignBottom | AlignRight );
   \endcode
 
-  A QLabel is often used as a label for another, interactive
-  widget. For this use, QLabel provides a handy mechanism for adding
-  an accelerator key (see QAccel) that will set the keyboard focus to
-  the other widget (called the QLabel's "buddy"). Example:
+  A QLabel is often used as a label for an interactive widget. For this
+  use QLabel provides a handy mechanism for adding an accelerator key (see
+  QAccel) that will set the keyboard focus to the other widget (called the
+  QLabel's "buddy"). Example:
 
   \code
      QLineEdit* phoneEdit = new QLineEdit( this, "phoneEdit" );
@@ -233,17 +232,17 @@ void QLabel::init()
 
   \a text will be interpreted either as a plain text or as a rich
   text, depending on the text format setting; see setTextFormat(). The
-  default setting is \c AutoText, i.e. QLabel will try to auto-detect
+  default setting is \c AutoText, i.e., QLabel will try to auto-detect
   the format of \a text.
 
-  If \a text is interpreted as a plain text, and a buddy has been set,
+  If \a text is interpreted as a plain text and a buddy has been set,
   the buddy accelerator key is updated from the new text.
 
   The label resizes itself if auto-resizing is enabled.
 
-  Note that Qlabel is well suited to display small rich text documents
+  Note that Qlabel is well-suited to display small rich text documents
   only. For large documents, use QTextView instead. It will flicker
-  less on resize and can also provide a scrollbar if necessary.
+  less on resize and can also provide a scrollbar, when necessary.
 
   \sa text(), setTextFormat(), setBuddy(), setAlignment()
 */
@@ -371,8 +370,8 @@ void QLabel::setNum( double num )
 
   The \a alignment must be a bitwise OR of Qt::AlignmentFlags
   values. The \c WordBreak, \c ExpandTabs, \c SingleLine and \c
-  ShowPrefix flags apply only if the label contains a plain text, and
-  are otherwise ignored. The \c DontClip flag is always ignored.
+  ShowPrefix flags apply only if the label contains a plain text;
+  otherwise they are ignored. The \c DontClip flag is always ignored.
 
   If the label has a buddy, the \c ShowPrefix flag is forced to TRUE.
 
@@ -452,10 +451,10 @@ void QLabel::setIndent( int indent )
   Enables auto-resizing if \a enable is TRUE, or disables it if \a
   enable is FALSE.
 
-  When auto-resizing is enabled, the label will resize itself to fit
-  the contents whenever the contents change. The top left corner is
+  When auto-resizing is enabled the label will resize itself to fit
+  the contents whenever the contents change. The top-left corner is
   not moved. This is useful for QLabel widgets that are not managed by
-  a QLayout (e.g. top-level widgets).
+  a QLayout (e.g., top-level widgets).
 
   Auto-resizing is disabled by default.
 
@@ -922,10 +921,10 @@ void QLabel::buddyDied() // I can't remember if I cried.
   When the user presses the accelerator key indicated by this label,
   the keyboard focus is transferred to the label's buddy widget.
 
-  The buddy mechanism is only available for QLabels that contain a
+  The buddy mechanism is available only for QLabels that contain a
   plain text in which one letter is prefixed with '&'. It is this
   letter that is set as the accelerator key. The letter is displayed
-  underlined, and the '&' is not displayed (i.e. the \c ShowPrefix
+  underlined, and the '&' is not displayed (i.e., the \c ShowPrefix
   alignment flag is turned on; see setAlignment()).
 
   In a dialog, you might create two data entry widgets and a label for

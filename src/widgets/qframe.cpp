@@ -51,7 +51,7 @@
 
   It draws a frame and calls a virtual function, drawContents(), to
   fill in the frame.  This function is reimplemented by
-  subclasses.  There are also two other less useful functions,
+  subclasses.  There are also two other less useful functions:
   drawFrame() and frameChanged().
 
   QPopupMenu uses this to "raise" the menu above the surrounding
@@ -69,7 +69,7 @@
 
   The QFrame class can also be used directly for creating simple frames
   without any contents, although usually you would use a QHBox or QVBox
-  as these layout the widgets you put inside the frame.
+  because they automatically lay out the widgets you put inside the frame.
 
   A frame widget has four attributes: frameStyle(), lineWidth(),
   midLineWidth(), and margin().
@@ -79,13 +79,13 @@
   \link QFrame::Shadow shadow style\endlink.
   The frame shapes are \c NoFrame, \c Box, \c Panel,
   \c StyledPanel, \c PopupPanel,
-  \c WinPanel, \c HLine and \c VLine, and the shadow styles are \c Plain,
+  \c WinPanel, \c HLine and \c VLine; the shadow styles are \c Plain,
   \c Raised and \c Sunken.
 
   The line width is the width of the frame border.
 
   The mid-line width specifies the width of an extra line in the
-  middle of the frame, that uses a third color to obtain a special 3D
+  middle of the frame, which uses a third color to obtain a special 3D
   effect.  Notice that a mid-line is only drawn for \c Box, \c HLine
   and \c VLine frames that are raised or sunken.
 
@@ -105,22 +105,15 @@
   currently defined shapes are: <ul>
 
   <li> \c NoFrame - QFrame draws nothing
-
   <li> \c Box - QFrame draws a box around its contents
-
   <li> \c Panel - QFrame draws a panel such that the contents appear raised or sunken
-
   <li> \c WinPanel - like \c Panel, but QFrame draws the 3D effects
-  the way Microsoft Windows 95 (etc) does
-
+  the way Microsoft Windows 95 (etc.) does
   <li> \c HLine - QFrame draws a horizontal line that frames nothing
   (useful as separator)
-
   <li> \c VLine - QFrame draws a vertical line that frames nothing
   (useful as separator)
-
   <li> \c StyledPanel - QFrame calls QStyle::drawPanel()
-
   <li> \c PopupPanel - QFrame calls QStyle::drawPopupPanel()
 
   </ul>
@@ -155,7 +148,7 @@
 
 
 /*!
-  Constructs a frame widget with frame style \c NoFrame and a 1 pixel frame
+  Constructs a frame widget with frame style \c NoFrame and a 1-pixel frame
   width.
 
   The \e parent, \e name and \e f arguments are passed to the QWidget
@@ -224,13 +217,13 @@ static const int wpwidth = 2; // WinPanel lwidth
   level with the surrounding screen, but the border itself may be
   raised or sunken.
   <li> \c Panel draws a rectangular panel that can be raised or sunken.
-  <li> \c StyledPanel draws a rectangular panel with a look depending on
+  <li> \c StyledPanel draws a rectangular panel with a look that depends on
   the current GUI style.  It can be raised or sunken.
   <li> \c PopupPanel is used to draw a frame suitable for popup windows.
   Its look also depends on the current GUI style,  usually the same as
   \c StyledPanel.
   <li> \c WinPanel draws a rectangular panel that can be raised or
-  sunken, very like those in Windows 95.  Specifying this shape sets
+  sunken like those in Windows 95.  Specifying this shape sets
   the line width to 2 pixels.  WinPanel is provided for compatibility.
   For GUI style independence we recommend using StyledPanel instead.
   <li> \c HLine draws a horizontal line (vertically centered).
@@ -248,8 +241,8 @@ static const int wpwidth = 2; // WinPanel lwidth
   </ul>
 
   If a mid-line width greater than 0 is specified, an additional line
-  is drawn for \c Raised or \c Sunken \c Box, \c HLine and \c VLine
-  frames.  The mid color of the current color group is used for
+  is drawn for \c Raised or \c Sunken \c Box, \c HLine, and \c VLine
+  frames.  The mid-color of the current color group is used for
   drawing middle lines.
 
   \sa <a href="#picture">Illustration</a>, frameStyle(),
@@ -427,8 +420,8 @@ void QFrame::updateFrameWidth()
   Returns the width of the frame that is drawn.
 
   Note that the frame width depends on the \link setFrameStyle() frame
-  style \endlink, not only the line width and the mid line width.  For
-  example, the style \c NoFrame always has a frame width 0, while the
+  style \endlink, not only the line width and the mid-line width.  For
+  example, the style \c NoFrame always has a frame width 0, whereas the
   style \c Panel has a frame width equivalent to the line width.
   The frame width also includes the margin.
 
@@ -509,7 +502,7 @@ QSize QFrame::sizeHint() const
 
   Paints the frame and the contents.
 
-  Opens the painter on the frame and calls first drawFrame(), then
+  Opens the painter on the frame and calls drawFrame(), then
   drawContents().
 */
 
@@ -535,7 +528,7 @@ void QFrame::paintEvent( QPaintEvent *event )
   Handles resize events for the frame.
 
   Adjusts the frame rectangle for the resized widget.  The frame
-  rectangle is elastic, the surrounding area is static.
+  rectangle is elastic, and the surrounding area is static.
 
   The resulting frame rectangle may be null or invalid.  You can use
   setMinimumSize() to avoid that possibility.
@@ -714,8 +707,9 @@ void QFrame::updateMask()
 /*!
   Virtual function that draws the mask of the frame's frame.
 
-  If you reimplemented drawFrame(QPainter*) and your widget should
-  support transparency you probably have to re-implement this function as well.
+  If you reimplemented drawFrame() and your widget should support
+  transparency, you probably have to re-implement this function as
+  well.
 
   \sa drawFrame(), updateMask(), QWidget::setAutoMask(), QPainter::setClipRect()
 */
@@ -782,8 +776,9 @@ void QFrame::drawFrameMask( QPainter* p )
 /*!
   Virtual function that draws the mask of the frame's contents.
 
-  If you reimplemented drawContents(QPainter*) and your widget should
-  support transparency you probably have to re-implement this function as well.
+  If you reimplemented drawContents() and your widget should support
+  transparency, you probably have to re-implement this function as
+  well.
 
   The default implementation masks the contents-rect.
 

@@ -57,7 +57,7 @@
 
   A group box provides a frame, a title and a keyboard shortcut, and
   displays various other widgets inside itself.  The title is on top,
-  the keyboard shortcut moves keyboard focus to one of the group box'
+  the keyboard shortcut moves keyboard focus to one of the group box's
   child widgets, and the child widgets are arranged in an array inside
   the frame.
 
@@ -70,7 +70,7 @@
   layout support and manage all that yourself.
 
   QGroupBox also lets you set the title() (normally set in the
-  constructor) and if you so please, even the title's alignment().
+  constructor) and the title's alignment().
 
   <img src=qgrpbox-w.png>
 
@@ -186,10 +186,9 @@ void QGroupBox::setTextSpacer()
     sp->changeSize( w, h, QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
 
-/*!
-  Sets the group box title text to \a title, and add a focus-change
-  accelerator if the \a title contains & followed by an appropriate
-  letter.  This produces "User information" with the U underscored and
+/*!  Sets the group box title text to \a title and adds a focus-change
+  accelerator if the \a title contains &, followed by an appropriate
+  letter.  This produces "User information" with the U underscored;
   Alt-U moves the keyboard focus into the group:
 
   \code
@@ -244,7 +243,7 @@ void QGroupBox::setTitle( const QString &title )
 /*!
   Sets the alignment of the group box title.
 
-  The title is always placed on the upper frame line, however,
+  The title is always placed on the upper frame line; however,
   the horizontal alignment can be specified by the \e alignment parameter.
 
   The \e alignment is one of the following flags:
@@ -341,14 +340,14 @@ void QGroupBox::updateMask()
 
 /*!
   Adds an empty cell at the next free position. If \a size is greater
-  than 0 then the empty cell has a fixed height or width.
-  If the groupbox is oriented horizontally then the empty cell has a fixed
-  height and if oriented vertically it has a fixed width.
+  than 0, the empty cell has a fixed height or width.
+  If the group box is oriented horizontally, the empty cell has a fixed
+  height; if oriented vertically, it has a fixed width.
 
-  Use this method to separate the widgets in the groupbox or to skip
-  the next free cell. For performance reasons call this method after
-  calling setColumnLayout(), setColumns() or setOrientation(). It is in
-  general a good idea to call these methods first (if needed at all) and
+  Use this method to separate the widgets in the group box or to skip
+  the next free cell. For performance reasons, call this method after
+  calling setColumnLayout(), setColumns(), or setOrientation(). It is
+  generally a good idea to call these methods first (if needed at all), and
   insert the widgets and spaces afterwards.
 */
 void QGroupBox::addSpace( int size )
@@ -373,7 +372,7 @@ void QGroupBox::addSpace( int size )
 }
 
 /*!
-  Returns the numbers of columns in the groupbox as passed to
+  Returns the numbers of columns in the group box as passed to
   the constructor, setColumns() or setColumnLayout().
 */
 int QGroupBox::columns() const
@@ -384,9 +383,9 @@ int QGroupBox::columns() const
 }
 
 /*!
-  Changes the numbers of columns to \a c. Usually it is no good idea
-  to use the method since it is slow (it does a complete layout).
-  Better set the numbers of columns directly in the constructor.
+  Changes the numbers of columns to \a c. Usually it is not a good idea
+  to use the method because it is slow (it does a complete layout).
+  It is better to set the number of columns directly in the constructor.
 
   \sa column() setColumnLayout()
 */
@@ -449,15 +448,15 @@ void QGroupBox::setInsideSpacing( int s )
 
 /*!
   \fn Orientation QGroupBox::orientation() const
-  Returns the current orientation of the groupbox.
+  Returns the current orientation of the group box.
 
   \sa setOrientation()
 */
 
 /*!
-  Changes the orientation of the groupbox. Usually it is no good idea
-  to use the method since it is slow (it does a complete layout).
-  Better set the orientation directly in the constructor.
+  Changes the orientation of the group box. Usually it is not a good idea
+  to use the method because it is slow (it does a complete layout).
+  It is better to set the orientation directly in the constructor.
 
   \sa orientation()
 */
@@ -467,10 +466,10 @@ void QGroupBox::setOrientation( Qt::Orientation o )
 }
 
 /*!
-  Changes the layout of the group box. This function is only useful in
+  Changes the layout of the group box. This function is useful only in
   combination with the default constructor that does not take any
   layout information. This function will put all existing children in
-  the new layout. Nevertheless is is not good programming style to
+  the new layout. Nevertheless it is not good programming style to
   call this function after children have been inserted.
 
   \sa setOrientation() setColumns()

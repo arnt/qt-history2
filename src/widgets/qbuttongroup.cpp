@@ -52,27 +52,27 @@
 
   A button group widget makes it easier to deal with groups of
   buttons.  A button in a button group is associated with a unique
-  identifer. The button group emits a clicked() signal with this
+  identifier. The button group emits a clicked() signal with this
   identifier when the button is clicked. Thus, a button group is an
   ideal solution when you have several similar buttons and want to
-  connect all their clicked() signals, for example, to one slot.
+  connect all their clicked() signals to one slot, for example.
 
   An \link setExclusive() exclusive\endlink button group switches off
   all toggle buttons except the one that was clicked. A button group
-  is by default non-exclusive. All \link QRadioButton radio
-  buttons\endlink that are \link insert() inserted\endlink, will be
+  is by default non-exclusive. All radio
+  buttons that are inserted will be
   mutually exclusive even if the button group is non-exclusive.
 
   There are two ways of using a button group:
   <ol>
   <li>The button group is a parent widget of a number of buttons,
-  i.e. the button group is the parent argument in the button constructor.
-  The buttons are assigned identifiers 0, 1, 2 etc. in the order they are
+  i.e., the button group is the parent argument in the button constructor.
+  The buttons are assigned identifiers 0, 1, 2, etc. in the order they are
   created. A QButtonGroup can display a frame and a title because it inherits
   QGroupBox.
   <li>The button group is an invisible widget and the contained buttons
   have some other parent widget.  A button must then be manually inserted
-  using the insert() function with an identifer.
+  using the insert() function with an identifier.
   </ol>
 
   <img src=qbttngrp-m.png> <img src=qbttngrp-w.png>
@@ -182,7 +182,7 @@ QButtonGroup::~QButtonGroup()
 
 
 /*!
-  Returns TRUE if the button group is exclusive, otherwise FALSE.
+  Returns TRUE if the button group is exclusive; otherwise it returns FALSE.
 
   \sa setExclusive()
 */
@@ -223,7 +223,7 @@ void QButtonGroup::setExclusive( bool enable )
 
   It is not necessary to manually insert buttons that have this button
   group as their parent widget. An exception is when you want custom
-  identifiers instead of the default 0, 1, 2 etc.
+  identifiers instead of the default 0, 1, 2, etc.
 
   The button is assigned the identifier \e id or an automatically
   generated identifier.	 It works as follows: If \e id >= 0, this
@@ -459,8 +459,8 @@ void QButtonGroup::buttonToggled( bool on )
 
 
 
-/*!  Sets the button with id \a id to be on, and if this is an
-  exclusive group, all other button in the group to be off.
+/*!  Sets the button with id \a id to be on; if this is an
+  exclusive group, all other buttons in the group to be off.
 */
 
 void QButtonGroup::setButton( int id )

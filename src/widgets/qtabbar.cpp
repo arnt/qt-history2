@@ -80,41 +80,41 @@ QTab::~QTab()
 /*!
   \class QTabBar qtabbar.h
 
-  \brief The QTabBar class provides a tab bar, for use in e.g. tabbed
-  dialogs.
+  \brief The QTabBar class provides a tab bar for use in tabbed
+  dialogs, for example.
 
   \ingroup advanced
 
-  The class is quite simple; it draws the tabs in one of four shapes
+  The class is quite simple: it draws the tabs in one of four shapes
   and emits a signal when one is selected.  It can be subclassed to
   tailor the look and feel.
 
-  QTabBar itself support four possible shapes, described in the
+  QTabBar itself supports four possible shapes, described in the
   QTabBar::Shape documentation.
 
   The choice of tab shape is still a matter of taste, to a large
   degree.  Tab dialogs (preferences and the like) invariably use \c
-  RoundedAbove and nobody uses \c TriangularAbove.  Tab controls in
-  windows other than dialogs almost always either \c RoundedBelow or
-  \c TriangularBelow.  Many spreadsheets and other tab controls where
-  all the pages are essentially similar to use \c TriangularBelow,
-  while \c RoundedBelow is used mostly when the pages are different
-  (e.g. a multi-page tool palette).  There is no strong tradition yet,
-  however, so use your taste and create the tradition.
+  RoundedAbove; nobody uses \c TriangularAbove.  Tab controls in
+  windows other than dialogs almost always use either \c RoundedBelow or
+  \c TriangularBelow.  Many spreadsheets and other tab controls in which
+  all the pages are essentially similar use \c TriangularBelow,
+  whereas \c RoundedBelow is used mostly when the pages are different
+  (e.g., a multi-page tool palette).  There is no strong tradition yet,
+  however, so use your taste and create the tradition!
 
   The most important part of QTabBar's API is the signal selected().
-  It's emitted whenever the selected page changes (even at startup,
+  It is emitted whenever the selected page changes (even at startup,
   when the selected page changes from 'none').  There are also a slot,
   setCurrentTab(), which can be used to select a page
   programmatically.
 
   QTabBar creates automatic accelerator keys in the manner of QButton;
-  e.g. if a tab's label is "\&Graphics" Alt-G becomes an accelerator
+  e.g., if a tab's label is "\&Graphics", Alt-G becomes an accelerator
   key for switching to that tab.
 
   The following virtual functions may need to be reimplemented: <ul>
   <li> paint() paints a single tab.  paintEvent() calls paint() for
-  each tab in such a way that any overlap will look right.  <li>
+  each tab so that any overlap will look right.  <li>
   addTab() creates a new tab and adds it to the bar. <li> selectTab()
   decides which, if any, tab the user selects with the mouse. </ul>
 
@@ -124,15 +124,15 @@ QTab::~QTab()
 /*! \enum QTabBar::Shape
   This enum type lists the built-in shapes supported by QTabBar:<ul>
 
-  <li> \c RoundedAbove - the normal rounded look, above the pages
+  <li> \c RoundedAbove - the normal rounded look above the pages
 
-  <li> \c RoundedBelow - the normal rounded look, below the pages
+  <li> \c RoundedBelow - the normal rounded look below the pages
 
-  <li> \c TriangularAbove - triangular tabs, above the pages (very
-  unusual, included for completeness)
+  <li> \c TriangularAbove - triangular tabs above the pages (very
+  unusual; included for completeness)
 
-  <li> \c TriangularBelow - triangular tabs, similar to those used in
-  e.g. the spreadsheet Excel
+  <li> \c TriangularBelow - triangular tabs similar to those used in
+  the spreadsheet Excel, for example
 
   </ul>
 */
@@ -152,10 +152,10 @@ struct QTabPrivate {
   \fn void QTabBar::selected( int id )
 
   QTabBar emits this signal whenever any tab is selected, whether by
-  the program or the user.  The argument \a id is the ID if the tab
+  the program or the user.  The argument \a id is the id of the tab
   as returned by addTab().
 
-  show() is guaranteed to emit this signal, so that you can display
+  show() is guaranteed to emit this signal; you can display
   your page in a slot connected to this signal.
 */
 
@@ -209,7 +209,7 @@ QTabBar::~QTabBar()
 
   Allocates a new id, sets \a newTab's id, locates it just to the right of the
   existing tabs, inserts an accelerator if the tab's label contains the
-  string "&p" for some value of p, adds it to the bar, and returns the
+  string "&p" for some value of p, adds it to the bar and returns the
   newly allocated id.
 */
 
@@ -227,7 +227,7 @@ int QTabBar::addTab( QTab * newTab )
 
   Allocates a new id, sets \a newTab's id, locates it respectively,
   inserts an accelerator if the tab's label contains the string "&p"
-  for some value of p, adds it to the bar, and returns the newly
+  for some value of p, adds it to the bar and returns the newly
   allocated id.
 */
 
@@ -268,11 +268,11 @@ void QTabBar::removeTab( QTab * t )
 
 
 /*!
-  Enable tab \a id if \a enable is TRUE, or disable it if \a enable is
+  Enables tab \a id if \a enable is TRUE or disables it if \a enable is
   FALSE.  If \a id is currently selected, setTabEnabled() makes
   another tab selected.
 
-  setTabEnabled() updates the display respectively if this causes a
+  setTabEnabled() updates the display if this causes a
   change in \a id's status.
 
   \sa update(), isTabEnabled()
@@ -360,8 +360,8 @@ QSize QTabBar::minimumSizeHint() const
     return QSize( d->rightB->sizeHint().width() * 2 + 75, sizeHint().height() );
 }
 
-/*!  Paint the single tab \a t using \a p.  If and only if \a selected
-  is TRUE, \a t is currently selected.
+/*!  Paints the single tab \a t using \a p.  If and only if \a selected
+  is TRUE, \a t is drawn currently selected.
 
   This virtual function may be reimplemented to change the look of
   QTabBar.  If you decide to reimplement it, you may also need to
@@ -534,11 +534,10 @@ void QTabBar::paintEvent( QPaintEvent * e )
 
 
 /*!
-  This virtual functions is called by the mouse event handlers to
+  This virtual function is called by the mouse event handlers to
   determine which tab is pressed.  The default implementation returns
   a pointer to the tab whose bounding rectangle contains \a p, if
-  exactly one tab's bounding rectangle contains \a p.  It returns 0
-  else.
+  exactly one tab's bounding rectangle contains \a p.  Otherwise it returns 0.
 
   \sa mousePressEvent() mouseReleaseEvent()
 */
@@ -608,17 +607,16 @@ void QTabBar::show()
 	emit selected( t->id );
 }
 
-/*!  If a page is currently visible, returns its ID.  If no page is
-  currently visible, returns either -1 or the ID of one of the pages.
+/*!  If a page is currently visible, returns its id.  If no page is
+  currently visible, returns either -1 or the id of one of the pages.
 
   Even if the return value is not -1, you cannot assume either that
-  the user can see the relevant page, or that the tab \link
-  isTabEnabled() is enabled.\endlink
+  the user can see the relevant page or that the tab is enabled.
 
-  When you need to display something, the return value from this
+  When you need to display something the return value from this
   function represents the best page to display.  That's all.
 
-  \sa selected()
+  \sa selected() isTabEnabled()
 */
 
 int QTabBar::currentTab() const
@@ -629,7 +627,7 @@ int QTabBar::currentTab() const
 }
 
 
-/*! Raises the tab with ID \a id and emits the selected() signal.
+/*! Raises the tab with id \a id and emits the selected() signal.
 
   \sa currentTab() selected() tab()
 */
@@ -669,8 +667,8 @@ void QTabBar::setCurrentTab( QTab * tab )
     }
 }
 
-/*!  If this tab control has keyboard focus, returns the ID of the
-  tab Space will select.  Otherwise, returns -1.
+/*!  If this tab control has keyboard focus, returns the id of the
+  tab Space will select.  Otherwise it returns -1.
 */
 
 int QTabBar::keyboardFocusTab() const
@@ -727,7 +725,7 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 }
 
 
-/*!  Returns a pointer to the tab with ID \a id, or 0 if there is no
+/*!  Returns a pointer to the tab with id \a id or 0 if there is no
   such tab.
 
   \sa count()
@@ -786,7 +784,7 @@ void QTabBar::setShape( Shape s )
 
 
 /*!
-  Layout all existing tabs (i.e. setting their \c r attribute) according
+  Lays out all existing tabs (i.e., sets their \c r attribute) according
   to their label and their iconset.
  */
 void QTabBar::layoutTabs()

@@ -43,7 +43,6 @@
 #include "qtimer.h"
 #include <limits.h>
 
-// REVISED: warwick
 /*!
   \class QScrollBar qscrollbar.h
 
@@ -52,35 +51,35 @@
   \ingroup basic
 
   A scroll bar allows the user to control a value within a
-  program-definable range, and to give the user visible indication of
+  program-definable range and gives users a visible indication of
   the current value of a \link QRangeControl range control \endlink.
 
   Scroll bars include four separate controls:
   <ul>
-   <li> The \e line-up and \e line-down controls are little button with
+   <li> The \e line-up and \e line-down controls are little buttons with
     which the user can move one line up or down.  The meaning of "line"
-    is configurable.  In editors and list boxes it means one line of text,
-    while an image viewer it might mean 20 pixels.
+    is configurable.  In editors and list boxes it means one line of text;
+    in an image viewer it might mean 20 pixels.
    <li> The \e slider is the handle that indicates the current value
-    of the scroll bar, and which the user can drag to change the value.
-    This part of the scroll bar is sometimes called the "thumb".
-   <li> The \a page-up/down control is the area on which the slider
+    of the scroll bar, which the user can drag to change the value.
+    This part of the scroll bar is sometimes called the "thumb."
+   <li> The \a page-up/page-down control is the area on which the slider
     slides (the scroll bar's background).  Clicking here moves the scroll
-    bar towards the click.  The meaning of page is also configurable
+    bar towards the click.  The meaning of "page" is also configurable
     - in editors and list boxes it means as many lines as there is space
     for in the widget.
   </ul>
 
   QScrollBar has not much of an API of its own; it mostly relies on
   QRangeControl.  The most useful functions are setValue() to set the
-  scroll bar directly to some value; addPage(), addLine(), subtractPage()
+  scroll bar directly to some value; addPage(), addLine(), subtractPage(),
   and subtractLine() to simulate the effects of clicking (useful for
-  accelerator keys; setSteps() to define the values of pageStep() and
+  accelerator keys); setSteps() to define the values of pageStep() and
   lineStep(); and setRange() to set the minValue()
   and maxValue() of the scroll bar.  QScrollBar has a convenience
   constructor with which you can set most of these properties.
 
-  Some GUI styles, for example the provided Windows and Motif styles,
+  Some GUI styles (for example, the Windows and Motif styles provided),
   also use the pageStep() value to calculate the size of the slider.
 
   In addition to the access functions from QRangeControl, QScrollBar
@@ -88,22 +87,22 @@
   <ul>
   <li> valueChanged() - emitted when the scroll bar's value has changed.
 	  The tracking() determines whether this signal is emitted
-	    \e during interaction.
+	  during interaction.
   <li> sliderPressed() - emitted when the user starts to drag the
-	  slider
-  <li> sliderMoved() - emitted when the user drags the slider
-  <li> sliderReleased() - emitted when the user releases the slider
+	  slider.
+  <li> sliderMoved() - emitted when the user drags the slider.
+  <li> sliderReleased() - emitted when the user releases the slider.
   <li> nextLine() - emitted when the scroll bar has moved one line
-	  down/rightwards.  Line is defined in QRangeControl.
+	  down/right.  Line is defined in QRangeControl.
   <li> prevLine() - emitted when the scroll bar has moved one line
-	  up/leftwards.
+	  up/left.
   <li> nextPage() - emitted when the scroll bar has moved one page
-	  down/rightwards.
+	  down/right.
   <li> prevPage() - emitted when the scroll bar has moved one page
-      up/leftwards.
+      up/left.
   </ul>
 
-  QScrollBar only offers integer ranges.  Note that while QScrollBar
+  QScrollBar only offers integer ranges.  Note that although QScrollBar
   handles very large numbers, scroll bars on today's screens cannot
   usefully control ranges above about 100,000 pixels.  Beyond that,
   it becomes difficult for the user to control the
@@ -114,8 +113,8 @@
   enable keyboard focus. See keyPressEvent() for a list of
   key bindings.
 
-  If you need to add scrollbars to an interface, consider using the
-  QScrollView class which encapsulates the common uses for scrollbars.
+  If you need to add scroll bars to an interface, consider using the
+  QScrollView class, which encapsulates the common uses for scroll bars.
 
   <img src=qscrbar-m.png> <img src=qscrbar-w.png>
 
@@ -408,7 +407,7 @@ void QScrollBar::doAutoRepeat()
 
 
 /*! Starts the auto-repeat logic.  Some time after this function is
-called, the auto-repeat starts taking effect, and from then on repeats
+called, the auto-repeat starts taking effect and from then on repeats
 until stopAutoRepeat() is called.
 */
 

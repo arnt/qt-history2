@@ -1,4 +1,4 @@
-/****************************************************************************
+x/****************************************************************************
 ** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#131 $
 **
 ** Implementation of QScrollView class
@@ -309,27 +309,27 @@ struct QScrollViewData {
 // NOT REVISED
 /*!
 \class QScrollView qscrollview.h
-\brief The QScrollView widget provides a scrolling area with on-demand scrollbars.
+\brief The QScrollView widget provides a scrolling area with on-demand scroll bars.
 
 \ingroup abstractwidgets
 
 The QScrollView is a large canvas - potentially larger than the
 coordinate system normally supported by the underlying window system.
-This is important, as is is quite easy to go beyond such limitations
-(eg. many web pages are more than 32000 pixels high).  Additionally,
+This is important because it is quite easy to go beyond such limitations
+(e.g., many web pages are more than 32000 pixels high).  Additionally,
 the QScrollView can have QWidgets positioned on it that scroll around
 with the drawn content.  These subwidgets can also have positions
 outside the normal coordinate range (but they are still limited in
 size).
 
-To provide content for the widget, inherit from QScrollView and
-reimplement drawContents(), and use resizeContents() to set the size
-of the viewed area.  Use addChild() / moveChild() to position widgets
+To provide content for the widget, inherit from QScrollView,
+reimplement drawContents() and use resizeContents() to set the size
+of the viewed area.  Use addChild()/moveChild() to position widgets
 on the view.
 
-To use QScrollView effectively, it is important to understand its
+To use QScrollView effectively it is important to understand its
 widget structure in the three styles of usage: a single large child widget,
-a large panning area with some widgets, a large panning area with many widgets.
+a large panning area with some widgets and a large panning area with many widgets.
 
 <dl>
 <dt><b>One Big Widget</b>
@@ -337,43 +337,43 @@ a large panning area with some widgets, a large panning area with many widgets.
 
 <img src=qscrollview-vp2.png>
 
-The first, simplest usage of QScrollView depicated above is
+The first, simplest usage of QScrollView depicted above is
 appropriate for scrolling areas
-which are \e never more than about 4000 pixels in either dimension (this
+that are never more than about 4000 pixels in either dimension (this
 is about the maximum reliable size on X11 servers).  In this usage, you
 just make one large child in the QScrollView.  The child should
-be a child of the viewport() of the scrollview, and be added with addChild():
+be a child of the viewport() of the scrollview and be added with addChild():
 \code
     QScrollView* sv = new QScrollView(...);
     QVBox* big_box = new QVBox(sv->viewport());
     sv->addChild(big_box);
 \endcode
 You may go on to add arbitrary child widgets to the single child in
-the scrollview, as you would with any widget:
+the scrollview as you would with any widget:
 \code
     QLabel* child1 = new QLabel("CHILD", big_box);
     QLabel* child2 = new QLabel("CHILD", big_box);
     QLabel* child3 = new QLabel("CHILD", big_box);
     ...
 \endcode
-Here, the QScrollView has 4 children - the viewport(),
-the verticalScrollBar(), the horizontalScrollBar(), and
-a small cornerWidget().  The viewport() has 1 child, the big QVBox.
-The QVBox has the three labels as child widgets.  When the view is scrolled,
-the QVBox is moved, and its children move with it as child widgets normally
-do.
 
-<dt><b>Very Big View, some Widgets</b>
+Here the QScrollView has four children: the viewport(), the
+verticalScrollBar(), the horizontalScrollBar() and a small cornerWidget().
+The viewport() has one child - the big QVBox. The QVBox has the three
+QLabel objects as child widgets.  When the view is scrolled, the QVBox
+is moved; its children move with it as child widgets normally do.
+
+<dt><b>Very Big View, Some Widgets</b>
 <dd>
 
 <img src=qscrollview-vp.png>
 
-The second usage of QScrollView depicated above is appropriate when
+The second usage of QScrollView depicted above is appropriate when
 few, if any, widgets are on a very large scrolling area that is
 potentially larger than 4000 pixels in either dimension. In this
-usage, you call resizeContents() to set the size of the area, and
+usage you call resizeContents() to set the size of the area and
 reimplement drawContents() to paint the contents.  You may also add
-some widgets, by making them children of the viewport() and adding
+some widgets by making them children of the viewport() and adding
 them with addChild() (this is the same as the process for the single
 large widget in the previous example): \code
     QScrollView* sv = new QScrollView(...);
@@ -384,21 +384,21 @@ large widget in the previous example): \code
     QLabel* child3 = new QLabel("CHILD", sv->viewport());
     sv->addChild(child3);
 \endcode
-Here, the QScrollView has the same 4 children - the viewport(),
-the verticalScrollBar(), the horizontalScrollBar(), and
-a small cornerWidget().  The viewport()
-has the three labels as child widgets.  When the view is scrolled,
-the scrollview moves the child widgets individually.
+Here, the QScrollView has the same four children: the viewport(),
+the verticalScrollBar(), the horizontalScrollBar() and a small
+cornerWidget().  The viewport() has the three QLabel objects as child
+widgets.  When the view is scrolled, the scrollview moves the child
+widgets individually.
 
-<dt><b>Very Big View, many Widgets</b>
+<dt><b>Very Big View, Many Widgets</b>
 <dd>
 
 <img src=qscrollview-cl.png>
 
-The final usage of QScrollView depicated above is
+The final usage of QScrollView depicted above is
 appropriate when many widgets are on a very large scrolling area
 that is potentially larger than 4000 pixels in either dimension. In this
-usage, you call resizeContents() to set the size of the area, and reimplement
+usage you call resizeContents() to set the size of the area and reimplement
 drawContents() to paint the contents.  You then call enableClipper(TRUE)
 and add widgets, again
 by making them children of the viewport() and adding them with
@@ -414,12 +414,12 @@ addChild():
     sv->addChild(child3);
 \endcode
 
-Here, the QScrollView has 4 children - the clipper() (\e not the
+Here, the QScrollView has four children:  the clipper() (not the
 viewport() this time), the verticalScrollBar(), the
-horizontalScrollBar(), and a small cornerWidget().  The clipper() has
-1 child - the viewport().  The viewport() has the three labels as
-child widgets.  When the view is scrolled, the viewport() is moved,
-and its children move with it as child widgets normally do.
+horizontalScrollBar() and a small cornerWidget().  The clipper() has
+one child: the viewport().  The viewport() has the same three labels as
+child widgets.  When the view is scrolled the viewport() is moved;
+its children move with it as child widgets normally do.
 
 </dl>
 
@@ -427,47 +427,51 @@ Normally you will use the first or third method if you want any child
 widgets in the view.
 
 Note that the widget you see in the scrolled area is the viewport()
-widget, not the QScrollView itself.  So, to turn mouse tracking on for
+widget, not the QScrollView itself.  So to turn mouse tracking on, for
 example, use viewport()->setMouseTracking(TRUE).
 
 To enable drag-and-drop, you would setAcceptDrops(TRUE) on the
-QScrollView (since drag-and-drop events propagate to the parent), but
+QScrollView (because drag-and-drop events propagate to the parent). But
 to work out what logical position in the view, you would need to map
 the drop co-ordinate from being relative to the QScrollView to being
-relative to the contents - use the function viewportToContents() for this.
+relative to the contents; use the function viewportToContents() for this.
 
-To handle mouse events on the scrolling area, subclass scrollview as
-you would subclass other widgets, but rather than overriding
-mousePressEvent(), reimplement contentsMousePressEvent() instead. 
-The contents specific event handers provide translated events in 
-the coordinate system of the scrollview.
+To handle mouse events on the scrolling area, subclass scrollview as you
+would subclass other widgets, but rather than reimplementing
+mousePressEvent(), reimplement viewportMousePressEvent() instead.  The
+contents specific event handers provide translated events in the
+coordinate system of the scrollview. aIf you reimplement
+mousePressEvent(), you'll get called only when part of the QScrollView is
+clicked - and the only such part is the "corner" (if you don't set a
+cornerWidget()) and the frame; everything else is covered up by the
+viewport, clipper or scroll bars.
 
 When you construct a QScrollView, some of the widget flags apply to the
-viewport(), instead of being sent to the QWidget constructor for the
+viewport() instead of being sent to the QWidget constructor for the
 QScrollView. This applies to \c WResizeNoErase, \c WNorthWestGravity,
 \c WRepaintNoErase and \c WPaintClever. See Qt::WidgetFlags for
 documentation about these flags.  Here are some examples: <ul>
 
-<li> An image manipulation widget would use \c
-WResizeNoErase|WNorthWestGravity, because the widget draws all pixels
-itself and when the size increases, it only needs a paint event for
-the new part, since the old part remains unchanged.
+<li> An image-manipulation widget would use \c
+WResizeNoErase|WNorthWestGravity because the widget draws all pixels
+itself, and when its size increases, it only needs a paint event for
+the new part because the old part remains unchanged.
 
 <li>A word processing widget might use \c WResizeNoErase and repaint
-itself line by line to get a less flickery resizing. If the widget is
-in a mode where no text justification can take place, it might use \c
+itself line by line to get a less-flickery resizing. If the widget is
+in a mode in which no text justification can take place, it might use \c
 WNorthWestGravity too, so that it would only get a repaint for the
 newly visible parts.
 
-<li>A scrolling game widget where the background scrolls as the
+<li>A scrolling game widget in which the background scrolls as the
 characters move might use \c WRepaintNoErase (in addition to \c
 WNorthWestGravity and \c WResizeNoErase) so that the window system
 background does not flash in and out during scrolling.
 </ul>
 
-\warning WResizeNoErase is currently set by default, i.e. you always
+\warning WResizeNoErase is currently set by default, i.e., you always
 have to clear the background manually in scrollview subclasses. This
-will change in a future version of Qt, and we recommend specifying the
+will change in a future version of Qt and we recommend specifying the
 flag explicitly.
 
 
@@ -482,14 +486,14 @@ flag explicitly.
   events.  There are three possible settings:<ul>
 
   <li> \c Default - QScrollView selects one of the other settings
-  automatically when it has to.  At the time of writing, QScrollView
-  changes to \c Manual if you resize the contents with
-  resizeContents(), and to \c AutoOne if a child is added.
+  automatically when it has to.  At the time of this writing, QScrollView
+  changes to \c Manual if you resize the contents with resizeContents()
+  and to \c AutoOne if a child is added.
 
   <li> \c Manual - the view stays the size set by resizeContents().
 
-  <li> \c AutoOne - if there is only child widget, the view stays
-  the size of that widget.  Otherwise, the behaviour is undefined.
+  <li> \c AutoOne - if there is only child widget the view stays
+  the size of that widget.  Otherwise the behaviour is undefined.
 
 
   </ul>
@@ -576,10 +580,10 @@ void QScrollView::vslide( int pos )
 }
 
 /*!
-  Called when the horizontal scrollbar geometry changes.  This is provided
+  Called when the horizontal scroll bar geometry changes.  This is provided
   as a protected function so that subclasses can do interesting things
-  like providing extra buttons in some of the space normally used by the
-  scrollbars.
+  such as providing extra buttons in some of the space normally used by the
+  scroll bars.
 
   The default implementation simply gives all the space to \a hbar.
 
@@ -592,10 +596,10 @@ void QScrollView::setHBarGeometry(QScrollBar& hbar,
 }
 
 /*!
-  Called when the vertical scrollbar geometry changes.  This is provided
+  Called when the vertical scroll bar geometry changes.  This is provided
   as a protected function so that subclasses can do interesting things
-  like providing extra buttons in some of the space normally used by the
-  scrollbars.
+  such as providing extra buttons in some of the space normally used by the
+  scroll bars.
 
   The default implementation simply gives all the space to \a vbar.
 
@@ -611,14 +615,14 @@ void QScrollView::setVBarGeometry( QScrollBar& vbar,
 /*! Returns the viewport size for size (\a x, \a y).
 
   The viewport size depends on \a x,y (the size of the contents), the
-  size of this widget, the modes of the horizontal and vertical scroll
+  size of this widget and the modes of the horizontal and vertical scroll
   bars.
 
   This function permits widgets that can trade vertical and horizontal
   space for each other to control scroll bar appearance better.  For
   example, a word processor or web browser can control the width of
-  the right margin accurately, whether there needs to be a vertical
-  scroll bar or not.
+  the right margin accurately, whether or not there needs to be a vertical
+  scroll bar.
 */
 
 QSize QScrollView::viewportSize( int x, int y ) const
@@ -678,7 +682,7 @@ QSize QScrollView::viewportSize( int x, int y ) const
 
 
 /*!
-  Updates scrollbars - all possibilities considered.  You should never
+  Updates scroll bars - all possibilities considered.  You should never
   need to call this in your code.
 */
 void QScrollView::updateScrollBars()
@@ -781,7 +785,7 @@ void QScrollView::updateScrollBars()
 	}
     }
 
-    // Position the scrollbars, viewport, and corner widget.
+    // Position the scrollbars, viewport and corner widget.
     int bottom;
     bool reverse = QApplication::reverseLayout();
     int xoffset = ( reverse && (showv || cornerWidget() )) ? vsbExt : 0;
@@ -873,7 +877,7 @@ void QScrollView::updateScrollBars()
 	moveContents( -contentsX(), -y );
     }
 
-    // Finally, show the scrollbars.
+    // Finally, show the scroll bars.
     if ( showh && !d->hbar.isVisible() )
 	d->hbar.show();
     if ( showv && !d->vbar.isVisible() )
@@ -885,7 +889,7 @@ void QScrollView::updateScrollBars()
 */
 void QScrollView::show()
 {
-    //     Ensures that scrollbars have the correct size when the
+    //     Ensures that scroll bars have the correct size when the
     //     widget is shown.
     if (isVisible()) return;
     QWidget::show();
@@ -897,7 +901,7 @@ void QScrollView::show()
  */
 void QScrollView::resize( int w, int h )
 {
-    //   Ensures that scrollbars have the correct size when the widget is
+    //   Ensures that scroll bars have the correct size when the widget is
     //   resized.
     QWidget::resize( w, h );
 }
@@ -906,7 +910,7 @@ void QScrollView::resize( int w, int h )
 */
 void QScrollView::resize( const QSize& s )
 {
-    //   Ensures that scrollbars have the correct size when the widget is
+    //   Ensures that scroll bars have the correct size when the widget is
     //   resized.
     resize(s.width(),s.height());
 }
@@ -915,15 +919,15 @@ void QScrollView::resize( const QSize& s )
 */
 void QScrollView::resizeEvent( QResizeEvent* event )
 {
-    // Ensures that scrollbars have the correct size when the widget
+    // Ensures that scroll bars have the correct size when the widget
     // is resized.
     bool u = isUpdatesEnabled();
     setUpdatesEnabled( FALSE );
     QFrame::resizeEvent( event );
 
-    // do _not_ update the scrollbars when updates have been
+    // do _not_ update the scroll bars when updates have been
     // disabled. This makes it possible for subclasses to implement
-    // dynamic wrapping without a horizontal scrollbar showing up all
+    // dynamic wrapping without a horizontal scroll bar showing up all
     // the time when making a window smaller.
     if ( QApplication::reverseLayout() ) {
 	d->fake_scroll = TRUE;
@@ -980,7 +984,7 @@ void QScrollView::wheelEvent( QWheelEvent *e ){
 }
 
 /*!
-  Returns the currently set mode for the vertical scrollbar.
+  Returns the currently set mode for the vertical scroll bar.
 
   \sa setVScrollBarMode()
 */
@@ -995,12 +999,12 @@ QScrollView::ScrollBarMode QScrollView::vScrollBarMode() const
   This enum type describes the various modes of QScrollView's scroll
   bars.  The defined modes are: <ul>
 
-   <li> \c Auto - QScrollView shows a scrollbar when the content is
-   too tall to fit and not else.  This is the default.
+   <li> \c Auto - QScrollView shows a scroll bar when the content is
+   too tall to fit and not otherwise.  This is the default.
 
-   <li> \c AlwaysOff - QScrollView never shows a scrollbar.
+   <li> \c AlwaysOff - QScrollView never shows a scroll bar.
 
-   <li> \c AlwaysOn - QScrollView always shows a scrollbar.
+   <li> \c AlwaysOn - QScrollView always shows a scroll bar.
 
    </ul>
 
@@ -1009,7 +1013,7 @@ QScrollView::ScrollBarMode QScrollView::vScrollBarMode() const
 
 
 /*!
-  Sets the mode for the vertical scrollbar.
+  Sets the mode for the vertical scroll bar.
 
   \sa vScrollBarMode(), setHScrollBarMode()
 */
@@ -1023,7 +1027,7 @@ void  QScrollView::setVScrollBarMode( ScrollBarMode mode )
 
 
 /*!
-  Returns the currently set mode for the horizontal scrollbar.
+  Returns the currently set mode for the horizontal scroll bar.
 
   \sa setHScrollBarMode()
 */
@@ -1033,11 +1037,11 @@ QScrollView::ScrollBarMode QScrollView::hScrollBarMode() const
 }
 
 /*!
-  Sets the mode for the horizontal scrollbar.
+  Sets the mode for the horizontal scroll bar.
   <ul>
-   <li> \c Auto (the default) shows a scrollbar when the content is too wide to fit.
-   <li> \c AlwaysOff never shows a scrollbar.
-   <li> \c AlwaysOn always shows a scrollbar.
+   <li> \c Auto (the default) shows a scroll bar when the content is too wide to fit.
+   <li> \c AlwaysOff never shows a scroll bar.
+   <li> \c AlwaysOn always shows a scroll bar.
   </ul>
 
   \sa hScrollBarMode(), setVScrollBarMode()
@@ -1052,7 +1056,7 @@ void  QScrollView::setHScrollBarMode( ScrollBarMode mode )
 
 
 /*!
-Returns the widget in the corner between the two scrollbars.
+Returns the widget in the corner between the two scroll bars.
 
 By default, no corner widget is present.
 */
@@ -1062,10 +1066,10 @@ QWidget* QScrollView::cornerWidget() const
 }
 
 /*!
-  Sets the widget in the corner between the two scrollbars.
+  Sets the widget in the corner between the two scroll bars.
 
   You will probably also want to
-  set at least one of the scrollbar modes to AlwaysOn.
+  set at least one of the scroll bar modes to AlwaysOn.
 
   Passing 0 shows no widget in the corner.
 
@@ -1233,8 +1237,8 @@ int QScrollView::childY(QWidget* child)
 */
 
 /*!
-  This event filter ensures the scrollbars are updated when a single
-  contents widget is resized, shown, hidden, or destroyed, and passes
+  This event filter ensures the scroll bars are updated when a single
+  contents widget is resized, shown, hidden or destroyed; it passes
   mouse events to the QScrollView.
 */
 
@@ -1398,7 +1402,7 @@ void QScrollView::contentsWheelEvent( QWheelEvent * e )
 
 /*!
   This is a low-level painting routine that draws the viewport
-  contents.  Reimplement this if drawContents() is too high-level.
+  contents.  Reimplement this if drawContents() is too high-level
   (for example, if you don't want to open a QPainter on the viewport).
 */
 void QScrollView::viewportPaintEvent( QPaintEvent* pe )
@@ -1434,7 +1438,7 @@ void QScrollView::viewportPaintEvent( QPaintEvent* pe )
 
 
 /*!
-  To provide simple processing of events on the contents, this method
+  To provide simple processing of events on the contents, this function
   receives all resize events sent to the viewport.
 
   \sa QWidget::resizeEvent()
@@ -1446,7 +1450,7 @@ void QScrollView::viewportResizeEvent( QResizeEvent* )
 /*! \internal
   
   To provide simple processing of events on the contents, this
-  method receives all mouse press events sent to the viewport,
+  function receives all mouse press events sent to the viewport,
   translates the event and calls contentsMousePressEvent().
 
   \sa contentsMousePressEvent(), QWidget::mousePressEvent()
@@ -1460,7 +1464,7 @@ void QScrollView::viewportMousePressEvent( QMouseEvent* e )
 
 /*!\internal
   
-  To provide simple processing of events on the contents, this method
+  To provide simple processing of events on the contents, this function
   receives all mouse release events sent to the viewport, translates
   the event and calls contentsMouseReleaseEvent().
 
@@ -1475,7 +1479,7 @@ void QScrollView::viewportMouseReleaseEvent( QMouseEvent* e )
 
 /*!\internal
   
-  To provide simple processing of events on the contents, this method
+  To provide simple processing of events on the contents, this function
   receives all mouse double click events sent to the viewport,
   translates the event and calls contentsMouseDoubleClickEvent().
 
@@ -1490,7 +1494,7 @@ void QScrollView::viewportMouseDoubleClickEvent( QMouseEvent* e )
 
 /*!\internal
   
-  To provide simple processing of events on the contents, this method
+  To provide simple processing of events on the contents, this function
   receives all mouse move events sent to the viewport, translates the
   event and calls contentsMouseMoveEvent().
 
@@ -1507,7 +1511,7 @@ void QScrollView::viewportMouseMoveEvent( QMouseEvent* e )
 
 /*!\internal
   
-  To provide simple processing of events on the contents, this method
+  To provide simple processing of events on the contents, this function
   receives all drag enter events sent to the viewport, translates the
   event and calls contentsDragEnterEvent().
 
@@ -1522,7 +1526,7 @@ void QScrollView::viewportDragEnterEvent( QDragEnterEvent* e )
 
 /*!\internal
   
-  To provide simple processing of events on the contents, this method
+  To provide simple processing of events on the contents, this function
   receives all drag move events sent to the viewport, translates the
   event and calls contentsDragMoveEvent().
 
@@ -1537,7 +1541,7 @@ void QScrollView::viewportDragMoveEvent( QDragMoveEvent* e )
 
 /*!\internal
   
-  To provide simple processing of events on the contents, this method
+  To provide simple processing of events on the contents, this function
   receives all drag leave events sent to the viewport and calls
   contentsDragLeaveEvent().
 
@@ -1550,7 +1554,7 @@ void QScrollView::viewportDragLeaveEvent( QDragLeaveEvent* e )
 
 /*!\internal
   
-  To provide simple processing of events on the contents, this method
+  To provide simple processing of events on the contents, this function
   receives all drop events sent to the viewport, translates the event
   and calls contentsDropEvent().
 
@@ -1567,7 +1571,7 @@ void QScrollView::viewportDropEvent( QDropEvent* e )
 
 /*!\internal 
   
-  To provide simple processing of events on the contents, this method
+  To provide simple processing of events on the contents, this function
   receives all wheel events sent to the viewport, translates the the
   event and calls contentsWheelEvent().
 
@@ -1585,8 +1589,8 @@ void QScrollView::viewportWheelEvent( QWheelEvent* e )
 }
 
 /*!
- Returns the component horizontal scrollbar.  It is made available to allow
- accelerators, autoscrolling, etc., and to allow changing
+ Returns the component horizontal scroll bar.  It is made available to allow
+ accelerators, autoscrolling, etc. and to allow changing
  of arrow scroll rates: bar->setSteps( rate, bar->pageStep() ).
 
  It should not be otherwise manipulated.
@@ -1599,8 +1603,8 @@ QScrollBar* QScrollView::horizontalScrollBar() const
 }
 
 /*!
- Returns the component vertical scrollbar.  It is made available to allow
- accelerators, autoscrolling, etc., and to allow changing
+ Returns the component vertical scroll bar.  It is made available to allow
+ accelerators, autoscrolling, etc. and to allow changing
  of arrow scroll rates: bar->setSteps( rate, bar->pageStep() ).
 
  It should not be otherwise manipulated.
@@ -1711,14 +1715,14 @@ void QScrollView::center( int x, int y )
 }
 
 /*!
- Scrolls the content so that the point (x,y) is visible,
+ Scrolls the content so that the point (x,y) is visible
  with the given margins (as fractions of visible area).
 
- eg.
+ For example:
  <ul>
-   <li>Margin 0.0 allows (x,y) to be on edge of visible area.
-   <li>Margin 0.5 ensures (x,y) is in middle 50% of visible area.
-   <li>Margin 1.0 ensures (x,y) is in the center of the visible area.
+   <li>Margin 0.0 allows (x,y) to be on the edge of the visible area.
+   <li>Margin 0.5 ensures that (x,y) is in middle 50% of the visible area.
+   <li>Margin 1.0 ensures that (x,y) is in the center of the the visible area.
  </ul>
 */
 void QScrollView::center( int x, int y, float xmargin, float ymargin )
@@ -1732,7 +1736,7 @@ void QScrollView::center( int x, int y, float xmargin, float ymargin )
 /*!
   \fn void QScrollView::contentsMoving(int x, int y)
 
-  This signal is emitted just before the contents is moved
+  This signal is emitted just before the contents are moved
   to the given position.
 
   \sa contentsX(), contentsY()
@@ -1789,7 +1793,7 @@ void QScrollView::moveContents(int x, int y)
 #endif
 
 /*!
-  Returns the X coordinate of the contents which is at the left
+  Returns the X coordinate of the contents that are at the left
   edge of the viewport.
 */
 int QScrollView::contentsX() const
@@ -1798,7 +1802,7 @@ int QScrollView::contentsX() const
 }
 
 /*!
-  Returns the Y coordinate of the contents which is at the top
+  Returns the Y coordinate of the contents that are at the top
   edge of the viewport.
 */
 int QScrollView::contentsY() const
@@ -1824,7 +1828,7 @@ int QScrollView::contentsHeight() const
 
 /*!
   Set the size of the contents area to \a w pixels wide and \a h
-  pixels high, and updates the viewport accordingly.
+  pixels high and updates the viewport accordingly.
 */
 void QScrollView::resizeContents( int w, int h )
 {
@@ -1871,8 +1875,8 @@ void QScrollView::resizeContents( int w, int h )
 }
 
 /*!
-  Calls update() on rectangle defined by \a x, \a y, \a w, \a h,
-  translated appropriately.  If the rectangle in not visible,
+  Calls update() on a rectangle defined by \a x, \a y, \a w, \a h,
+  translated appropriately.  If the rectangle is not visible,
   nothing is repainted.
 
   \sa repaintContents()
@@ -1930,7 +1934,7 @@ void QScrollView::repaintContents( const QRect& r, bool erase )
 
 
 /*!
-  Calls repaint() on rectangle defined by \a x, \a y, \a w, \a h,
+  Calls repaint() on a rectangle defined by \a x, \a y, \a w, \a h,
   translated appropriately.  If the rectangle in not visible,
   nothing is repainted.
 
@@ -1972,7 +1976,7 @@ void QScrollView::repaintContents( int x, int y, int w, int h, bool erase )
 
 
 /*!
-  For backward compatibility only.
+  For backward-compatibility only.
   It is easier to use drawContents(QPainter*,int,int,int,int).
 
   The default implementation translates the painter appropriately
@@ -1987,12 +1991,12 @@ void QScrollView::drawContentsOffset(QPainter* p, int offsetx, int offsety, int 
 /*!
   \fn void QScrollView::drawContents(QPainter* p, int clipx, int clipy, int clipw, int cliph)
 
-  Reimplement this method if you are viewing a drawing area rather
+  Reimplement this function if you are viewing a drawing area rather
   than a widget.
 
   The function should draw the rectangle (\a clipx, \a clipy, \a clipw, \a
-  cliph ) of the contents, using painter \a p.  The clip rectangle is
-  in the scroll views's coordinates.
+  cliph) of the contents using painter \a p.  The clip rectangle is
+  in the scrollview's coordinates.
 
   For example:
   \code
@@ -2045,7 +2049,7 @@ QWidget* QScrollView::viewport() const
 
 /*!
   Returns the clipper widget.
-  Contents in the scrollview is ultimately clipped to be inside
+  Contents in the scrollview are ultimately clipped to be inside
   the clipper widget.
 
   You should not need to access this.
@@ -2095,9 +2099,8 @@ void QScrollView::changeFrameRect(const QRect& r)
 
 /*!
   Sets the margins around the scrolling area.  This is useful for
-  applications such as spreadsheets with `locked' rows and columns.
-  The marginal space is \e inside the frameRect() and is left blank -
-  reimplement drawContents() or put widgets in the unused area.
+  applications such as spreadsheets with "locked" rows and columns.
+  The marginal space is \e inside the frameRect() and is left blank; reimplement drawContents() or put widgets in the unused area.
 
   By default all margins are zero.
 
@@ -2419,7 +2422,7 @@ void QScrollView::doDragAutoScroll()
 /*!
   If \a b is set to TRUE, the QScrollView automatically scrolls the contents
   in drag move events if the user moves the cursor close to a border of the
-  view. This of course only works id the viewport accepts drops!
+  view. Of course this works only if the viewport accepts drops.
   Specifying FALSE here disables this autoscroll feature.
 */
 
@@ -2430,7 +2433,7 @@ void QScrollView::setDragAutoScroll( bool b )
 
 
 /*!
-  Returns TRUE if autoscrolling in drag move events is enabled, else
+  Returns TRUE if autoscrolling in drag move events is enabled, otherwise
   FALSE.
 
   \sa setDragAutoScroll()

@@ -40,7 +40,7 @@
 // NOT REVISED
 /*!
   \class QGrid qgrid.h
-  \brief The QGrid widget performs geometry management on its children
+  \brief The QGrid widget provides simple geometry management of its children.
 
   \ingroup geomanagement
 

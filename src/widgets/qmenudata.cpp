@@ -66,11 +66,11 @@ QMenuDataData::QMenuDataData()
 
   \ingroup misc
 
-  QMenuData has an internal list of menu items.	 A menu item is a text,
-  pixmap or a separator, and may also have a popup menu (separators
+  QMenuData has an internal list of menu items. A menu item is a text,
+  pixmap or separator, and may also have a popup menu (separators
   have no popup menus).
 
-  The menu item sends out an activated() signal when it is selected, and
+  The menu item sends out an activated() signal when it is selected and
   a highlighted() signal when it receives the user input focus.
 
   Menu items can be accessed through identifiers.
@@ -300,17 +300,17 @@ void QMenuData::removePopup( QPopupMenu *popup )
   The family of insertItem() functions inserts menu items into a
   popup menu or a menu bar.
 
-  A menu item is usually either a text string or a a pixmap, both with
-  an optional icon or keyboard accelerator. As special cases it is
+  A menu item is usually either a text string or a pixmap, both with
+  an optional icon or keyboard accelerator. For special cases it is
   also possible to insert custom items (see QCustomMenuItem) or even
   widgets into popup menus.
 
-  Some insertItem() members take a popup menu as additional
-  argument. Use these to insert submenus to existing menus or pulldown
+  Some insertItem() members take a popup menu as an additional
+  argument. Use this to insert submenus to existing menus or pulldown
   menus to a menu bar.
 
-  The amount of insert functions may look confusing, but is actually
-  quite handy to use.
+  The number of insert functions may look confusing, but they are actually
+  quite simple to use.
 
   This default version inserts a menu item with a text, an accelerator
   key, an id and an optional index and connects it to an object/slot.
@@ -349,19 +349,19 @@ void QMenuData::removePopup( QPopupMenu *popup )
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
 
-  Note that keyboard accelerators in Qt are not application global, but
-  bound to a certain top level window. Accelerators in QPopupMenu items
+  Note that keyboard accelerators in Qt are not application-global but
+  are bound to a certain top-level window. Accelerators in QPopupMenu items
   therefore only work for menus that are associated with a certain
   window. This is true for popup menus that live in a menu bar, for
-  instance. In that case, the accelerator will be installed on the
+  instance; the accelerator will then be installed on the
   menu bar itself. It also works for stand-alone popup menus that have
-  a top level widget in their parentWidget()- chain. The menu will then
-  install its accelerator object on that top level widget. For all
-  other cases, use an independent QAccel object.
+  a top-level widget in their parentWidget() chain. The menu will then
+  install its accelerator object on that top-level widget. For all
+  other cases use an independent QAccel object.
 
-  \warning Be careful when passing a literal 0 to insertItem(), as
+  \warning Be careful when passing a literal 0 to insertItem() because
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
+	Cast the 0 to what you mean, e.g., <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qnamespace.h
@@ -379,8 +379,8 @@ int QMenuData::insertItem( const QString &text,
 }
 
 /*!\overload
-  Inserts a menu item with an icon, a text, an accelerator key, an id
-  and an optional index and connects it to an object/slot. The icon
+  Inserts a menu item with an icon, a text, an accelerator key, an id,
+  and an optional index; connects it to an object/slot. The icon
   will be displayed to the left of the text in the item.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
@@ -401,10 +401,10 @@ int QMenuData::insertItem( const QIconSet& icon,
 
 /*!\overload
   Inserts a menu item with a pixmap, an accelerator key, an id and an
-  optional index and connects it to an object/slot.
+  optional index; connects it to an object/slot.
 
   To look best when being highlighted as menu item, the pixmap should
-  provide a mask, see QPixmap::mask().
+  provide a mask (see QPixmap::mask()).
 
   Returns the menu item identifier.
 
@@ -424,12 +424,12 @@ int QMenuData::insertItem( const QPixmap &pixmap,
 
 
 /*!\overload
-  Inserts a menu item with an icon, a pixmap, an accelerator key, an id
-  and an optional index and connects it to an object/slot. The icon
+  Inserts a menu item with an icon, a pixmap, an accelerator key, an id,
+  and an optional index; connects it to an object/slot. The icon
   will be displayed to the left of the pixmap in the item.
 
   To look best when being highlighted as menu item, the pixmap should
-  provide a mask, see QPixmap::mask().
+  provide a mask (see QPixmap::mask()).
 
   Returns the menu item identifier.
 
@@ -476,7 +476,7 @@ int QMenuData::insertItem( const QIconSet& icon,
 }
 
 /*!\overload
-  Inserts a menu item with a text and a sub menu.
+  Inserts a menu item with a text and a submenu.
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
@@ -494,7 +494,7 @@ int QMenuData::insertItem( const QString &text, QPopupMenu *popup,
 }
 
 /*!\overload
-  Inserts a menu item with an icon, a text and a sub menu. The icon
+  Inserts a menu item with an icon, a text and a submenu. The icon
   will be displayed to the left of the text in the item.
 
   The \a popup must be deleted by the programmer or by its parent
@@ -517,7 +517,7 @@ int QMenuData::insertItem( const QIconSet& icon,
   Inserts a menu item with a pixmap.  Returns the menu item identifier.
 
   To look best when being highlighted as menu item, the pixmap should
-  provide a mask, see QPixmap::mask().
+  provide a mask (see QPixmap::mask()).
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -543,7 +543,7 @@ int QMenuData::insertItem( const QIconSet& icon,
 
 
 /*!\overload
-  Inserts a menu item with a pixmap and a sub menu. The icon
+  Inserts a menu item with a pixmap and a submenu. The icon
   will be displayed to the left of the pixmap in the item.
 
   The \a popup must be deleted by the programmer or by its parent
@@ -563,7 +563,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 
 
 /*!\overload
-  Inserts a menu item with an icon, a pixmap and a sub menu. The icon
+  Inserts a menu item with an icon, a pixmap and a submenu. The icon
   will be displayed to the left of the pixmap in the item.
 
   The \a popup must be deleted by the programmer or by its parent
@@ -587,26 +587,26 @@ int QMenuData::insertItem( const QIconSet& icon,
 /*!\overload
   Inserts a menu item that consists of the widget \a widget.
 
-  Ownership of \a widget is transferred to the popup menu or the
-  menubar.
+  Ownership of \a widget is transferred to the popup menu or to the
+  menu bar.
 
   Theoretically, any widget can be inserted into a popup menu. In
   practice, this only makes sense with certain widgets.
 
-  If a widget is not focus enabled ( see QWidget::isFocusEnabled() ),
-  the menu treats it as a separator. This means, the item is not
-  selectable and will never get focus. This way you can for example
+  If a widget is not focus-enabled (see QWidget::isFocusEnabled() ),
+  the menu treats it as a separator; this means that the item is not
+  selectable and will never get focus. In this way you can, for example,
   simply insert a QLabel if you need a popup menu with a title.
 
-  If the widget is focus enabled, it will get focus when the user
+  If the widget is focus-enabled it will get focus when the user
   traverses the popup menu with the arrow keys. If the widget does not
   accept ArrowUp and ArrowDown in its key event handler, the focus
   will move back to the menu when the respective arrow key is hit
-  one more time. This works for example with a QLineEdit.  If the
-  widget accepts the arrow keys itself, it must also provide the
+  one more time. This works with a QLineEdit, for example.  If the
+  widget accepts the arrow key itself, it must also provide the
   possibility to put the focus back on the menu again by calling
-  QWidget::focusNextPrevChild() respectively. Futhermore should the
-  embedded widget close the menu when the user made a selection.  This
+  QWidget::focusNextPrevChild(). Futhermore, if the
+  embedded widget closes the menu when the user made a selection, this
   can be done safely by calling \code if ( isVisible() &&
   parentWidget() &&
   parentWidget()->inherits("QPopupMenu") )
@@ -656,10 +656,10 @@ int QMenuData::insertItem( const QIconSet& icon, QCustomMenuItem* custom, int id
   Inserts a separator at position \a index.
   The separator becomes the last menu item if \a index is negative.
 
-  In a popup menu, a separator is rendered as a horizontal line.  In a
-  Motif menubar, a separator is spacing, so the rest of the items
-  (just "Help", normally) are drawn right-justified.  In a Windows
-  menubar, separators are ignored (to comply with the Windows style
+  In a popup menu a separator is rendered as a horizontal line.  In a
+  Motif menu bar a separator is spacing, so the rest of the items
+  (normally just "Help") are drawn right-justified.  In a Windows
+  menu bar separators are ignored (to comply with the Windows style
   guide).
 */
 int QMenuData::insertSeparator( int index )
@@ -669,7 +669,7 @@ int QMenuData::insertSeparator( int index )
 
 /*!
   \fn void QMenuData::removeItem( int id )
-  Removes the menu item which has the identifier \a id.
+  Removes the menu item that has the identifier \a id.
   \sa removeItemAt(), clear()
 */
 
@@ -734,22 +734,22 @@ int QMenuData::accel( int id ) const
   Defines an accelerator key for the menu item \a id.
 
   An accelerator key consists of a key code and a combination of the modifiers
-  \c SHIFT, \c CTRL, \c ALT, or \c UNICODE_ACCEL (OR'ed or added).
+  \c SHIFT, \c CTRL, \c ALT or \c UNICODE_ACCEL (OR'ed or added).
   The header file qnamespace.h contains a list of key codes.
 
-  Defining an accelerator key generates a text which is added to the
-  menu item, for instance, \c CTRL + \c Key_O generates "Ctrl+O".  The
+  Defining an accelerator key generates a text that is added to the
+  menu item; for instance, \c CTRL + \c Key_O generates "Ctrl+O".  The
   text is formatted differently for different platforms.
 
-  Note that keyboard accelerators in Qt are not application global, but
-  bound to a certain top level window. Accelerators in QPopupMenu items
-  therefore only work for menus that are associated with a certain
+  Note that keyboard accelerators in Qt are not application-global, but
+  are bound to a certain top-level window. Accelerators in QPopupMenu items
+  therefore work only for menus that are associated with a certain
   window. This is true for popup menus that live in a menu bar, for
-  instance. In that case, the accelerator will be installed on the
+  instance; the accelerator will then be installed on the
   menu bar itself. It also works for stand-alone popup menus that have
-  a top level widget in their parentWidget()- chain. The menu will then
-  install its accelerator object on that top level widget. For all
-  other cases, use an independent QAccel object.
+  a top-level widget in their parentWidget() chain. The menu will then
+  install its accelerator object on that top-level widget. For all
+  other cases use an independent QAccel object.
 
   Example:
   \code
@@ -990,7 +990,7 @@ bool QMenuData::isItemChecked( int id ) const
 }
 
 /*!
-  Checks the menu item with id \a id if \a check is TRUE, or unchecks
+  Checks the menu item with id \a id if \a check is TRUE or unchecks
   it if \a check is FALSE, and calls QPopupMenu::setCheckable( TRUE ) if
   necessary.
 
@@ -1093,7 +1093,7 @@ int QMenuData::idAt( int index ) const
 /*!
   Sets the menu identifier of the item at \a index to \a id.
 
-  If index is out of range the operation is ignored.
+  If index is out of range, the operation is ignored.
 
   \sa idAt()
 */
@@ -1184,10 +1184,10 @@ bool QMenuData::disconnectItem( int id, const QObject *receiver,
 }
 
 /*!
-  Sets a Whats This help for a certain menu item.
-
+  Sets a What's This help for a certain menu item.
+  
   \arg \e id is the menu item id.
-  \arg \e text is the Whats This help text in rich text format ( see QStyleSheet)
+  \arg \e text is the What's This help text in rich text format (see QStyleSheet).
 
   \sa whatsThis()
  */
@@ -1203,8 +1203,8 @@ void QMenuData::setWhatsThis( int id, const QString& text )
 }
 
 /*!
-  Returns the Whats This help text for the specified item \e id or
-  QString::null if no text has been defined yet.
+  Returns the What's This help text for the specified item \e id or
+  QString::null if no text has yet been defined.
 
   \sa setWhatsThis()
  */
@@ -1223,15 +1223,15 @@ QString QMenuData::whatsThis( int id ) const
   \brief The QCustomMenuItem class is an abstract base class for custom menu items in
   popup menus.
 
-  A custom menu item is a menu item that is defined by two purely
-  virtual functions, paint() and sizeHint(). The size hint tells the
-  menu how much space it needs to reserve for this item, whereas paint
-  is called whenever the item needs painting.
+  A custom menu item is a menu item that is defined by two purely virtual
+  functions, paint() and sizeHint(). The size hint tells the menu how much
+  space it needs to reserve for this item, whereas paint is called
+  whenever the item needs painting.
 
-  This simply mechanism gives applications the possibility to create
-  all kinds of application specific menu items. Examples are items
-  showing different fonts in a word processor, or menus that allow the
-  selection of drawing utilities in a vector drawing program.
+  This simply mechanism gives applications the possibility to create all
+  kinds of application specific menu items. Examples are items showing
+  different fonts in a word processor or menus that allow the selection of
+  drawing utilities in a vector drawing program.
 
   A custom item is inserted into a popup menu with
   QPopupMenu::insertItem().
@@ -1250,8 +1250,7 @@ QString QMenuData::whatsThis( int id ) const
   - the possibility to draw the item with a different color when it is
   highlighted.
 
-  menu/menu.cpp shows a simply example how custom menu items can be
-used.
+  menu/menu.cpp shows a simply example how custom menu items can be used.
 
   <img src=qpopmenu-fancy.png>
 

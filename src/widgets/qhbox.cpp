@@ -40,7 +40,7 @@
 // NOT REVISED
 /*!
   \class QHBox qhbox.h
-  \brief The QHBox widget performs geometry management on its children
+  \brief The QHBox widget provides simple geometry management on its children.
 
   \ingroup geomanagement
 
@@ -57,7 +57,7 @@
 
 
 /*!
-  Constructs an hbox widget with parent \a parent and name \a name
+  Constructs an hbox widget with parent \a parent and name \a name.
  */
 QHBox::QHBox( QWidget *parent, const char *name, WFlags f )
     :QFrame( parent, name, f )

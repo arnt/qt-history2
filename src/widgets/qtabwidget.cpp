@@ -43,7 +43,6 @@
 #include "qwidgetstack.h"
 #include "qbitmap.h"
 
-// NOT REVISED
 /*!
   \class QTabWidget qtabwidget.h
 
@@ -51,38 +50,37 @@
 
   \ingroup organizers
 
-  A tabbed widget is one in which several "pages" are available, and
-  the user selects which page to see and use by clicking on its tab,
-  or by pressing the indicated Alt-(letter) key combination.
+  A tabbed widget is one in which several "pages" are available and
+  the user selects which page to see and use by clicking on its tab
+  or by pressing the indicated Alt-letter key combination.
 
-  QTabWidget does not provide more than one row of tabs, and does not
+  QTabWidget does not provide more than one row of tabs and does not
   provide tabs along the sides or bottom of the pages.
 
   The normal way to use QTabWidget is to do the following in the
   constructor: <ol> <li> Create a QTabWidget. <li> Create a QWidget
   for each of the pages in the tab dialog, insert children into it,
-  set up geometry management for it, and use addTab() to set up a tab
+  set up geometry management for it and use addTab() to set up a tab
   and keyboard accelerator for it. <li> Connect to the
   signals and slots. </ol>
 
-  If you don't call addTab(), the page you have created will not be
+  If you don't call addTab() the page you have created will not be
   visible.  Please don't confuse the object name you supply to the
-  QWidget constructor and the tab label you supply to addTab():
+  QWidget constructor and the tab label you supply to addTab().
   addTab() takes a name which indicates an accelerator and is
-  meaningful and descriptive to the user, while the widget name is
+  meaningful and descriptive to the user, whereas the widget name is
   used primarily for debugging.
 
-  A signal currentChanged() is emitted when the user selects some
-  page.
+  the signal currentChanged() is emitted when the user selects a page.
 
   Each tab is either enabled or disabled at any given time.  If a tab
   is enabled, the tab text is drawn in black and the user can select
   that tab.  If it is disabled, the tab is drawn in a different way
-  and the user can not select that tab.  Note that even though a tab
+  and the user cannot select that tab.  Note that even if a tab
   is disabled, the page can still be visible, for example if all of
   the tabs happen to be disabled.
 
-  While tab widgets can be a very good way to split up a complex
+  Although tab widgets can be a very good way to split up a complex
   dialog, it's also very easy to make a royal mess out of it. See
   QTabDialog for some design hints.
 
@@ -150,7 +148,7 @@ public:
 
 
 /*!
-  Constructs a tabbed widget with parent \a parent, name \a name
+  Constructs a tabbed widget with parent \a parent, name \a name,
   and widget flags \a f.
 */
 
@@ -196,13 +194,13 @@ QTabWidget::~QTabWidget()
 /*!
   Adds another tab and page to the tab view.
 
-  The tab will be labelled \a label and \a child constitutes the new
+  The tab will be labeled \a label; \a child constitutes the new
   page.  Note the difference between the widget name (which you supply
-  to widget constructors and to e.g. setTabEnabled()) and the tab
-  label: The name is internal to the program and invariant, while the
-  label is shown on screen and may vary according to e.g. language.
+  to widget constructors and to setTabEnabled(), for example) and the tab
+  label. The name is internal to the program and invariant, whereas the
+  label is shown on-screen and may vary according to language, for example.
 
-  \a label is written in the QButton style, where &P makes Qt create
+  \a label is written in the QButton style, in which &P makes Qt create
   an accelerator key on Alt-P for this page.  For example:
 
   \code
@@ -210,7 +208,7 @@ QTabWidget::~QTabWidget()
     td->addTab( soundPane, "&Sound" );
   \endcode
 
-  If the user presses Alt-S the sound page of the tab dialog is shown,
+  If the user presses Alt-S the sound page of the tab dialog is shown;
   if the user presses Alt-P the graphics page is shown.
 
   If you call addTab() after show(), the screen will flicker and the
@@ -228,7 +226,7 @@ void QTabWidget::addTab( QWidget *child, const QString &label)
 /*!
   Adds another tab and page to the tab view.
 
-  This function is the same as addTab() but with an additional
+  This function is the same as addTab(), but with an additional
   iconset.
  */
 void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString &label)
@@ -261,13 +259,13 @@ void QTabWidget::addTab( QWidget *child, QTab* tab)
 /*!
   Inserts another tab and page to the tab view.
 
-  The tab will be labelled \a label and \a child constitutes the new
+  The tab will be labeled \a label; \a child constitutes the new
   page.  Note the difference between the widget name (which you supply
-  to widget constructors and to e.g. setTabEnabled()) and the tab
-  label: The name is internal to the program and invariant, while the
-  label is shown on screen and may vary according to e.g. language.
+  to widget constructors and to setTabEnabled(), for example) and the tab
+  label. The name is internal to the program and invariant, whereas the
+  label is shown on-screen and may vary according to language, for example.
 
-  \a label is written in the QButton style, where &P makes Qt create
+  \a label is written in the QButton style, in which &P makes Qt create
   an accelerator key on Alt-P for this page.  For example:
 
   \code
@@ -276,9 +274,9 @@ void QTabWidget::addTab( QWidget *child, QTab* tab)
   \endcode
 
   If \a index is not specified, the tab is simply added. Otherwise
-  it's inserted at the specified position.
+  it is inserted at the specified position.
 
-  If the user presses Alt-S the sound page of the tab dialog is shown,
+  If the user presses Alt-S the sound page of the tab dialog is shown;
   if the user presses Alt-P the graphics page is shown.
 
   If you call insertTab() after show(), the screen will flicker and the
@@ -296,7 +294,7 @@ void QTabWidget::insertTab( QWidget *child, const QString &label, int index)
 /*!
   Inserts another tab and page to the tab view.
 
-  This function is the same as insertTab() but with an additional
+  This function is the same as insertTab(), but with an additional
   iconset.
  */
 void QTabWidget::insertTab( QWidget *child, const QIconSet& iconset, const QString &label, int index )
@@ -326,7 +324,7 @@ void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
 
 
 /*!
-  Defines a new label for the tab of page \a w
+  Defines a new label for the tab of page \a w.
  */
 void QTabWidget::changeTab( QWidget *w, const QString &label)
 {
@@ -352,7 +350,7 @@ void QTabWidget::changeTab( QWidget *w, const QString &label)
 }
 
 /*!
-  Defines a new \a iconset and a new \a label for the tab of page \a w
+  Defines a new \a iconset and a new \a label for the tab of page \a w.
  */
 void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &label)
 {
@@ -380,8 +378,8 @@ void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &
 }
 
 /*!
-  Returns TRUE if the page \a w is enabled, and
-  false if it is disabled.
+  Returns TRUE if the page \a w is enabled and
+  FALSE if it is disabled.
 
   \sa setTabEnabled(), QWidget::isEnabled()
 */
@@ -396,14 +394,14 @@ bool QTabWidget::isTabEnabled( QWidget* w ) const
 }
 
 /*!
-  Enables/disables page \a w according to the value of \a enable, and
+  Enables/disables page \a w according to the value of \a enable and
   redraws the page's tab appropriately.
 
-  QTabWidget uses QWidget::setEnabled() internally, rather than keep a
+  QTabWidget uses QWidget::setEnabled() internally, rather than keeping a
   separate flag.
 
   Note that even a disabled tab/page may be visible.  If the page is
-  visible already, QTabWidget will not hide it, and if all the pages
+  visible already, QTabWidget will not hide it; if all the pages
   are disabled, QTabWidget will show one of them.
 
   \sa isTabEnabled(), QWidget::setEnabled()
@@ -477,7 +475,7 @@ void QTabWidget::setTabLabel( QWidget * w, const QString &l )
 
 /*!  Returns a pointer to the page currently being displayed by the
 tab dialog.  The tab dialog does its best to make sure that this value
-is never 0, but if you try hard enough it can be.
+is never 0 (but if you try hard enough, it can be).
 */
 
 QWidget * QTabWidget::currentPage() const
@@ -633,7 +631,7 @@ QTabWidget::TabPosition QTabWidget::tabPosition() const
 }
 
 /*!
-  Sets the position of the tabs to \e pos
+  Sets the position of the tabs to \e pos.
 
   Possible values are QTabWidget::Top and QTabWidget::Bottom.
   \sa tabPosition()

@@ -138,31 +138,29 @@ struct QHeaderData
 };
 
 
-// BEING REVISED: eiriken
 /*!
   \class QHeader qheader.h
   \brief The QHeader class provides a table header.
   \ingroup advanced
 
-  This class provides a table header as known from spreadsheet-like widgets.
-  QHeader can be used vertically or horizontally (see setOrientation()).
+  This class provides a table header as used in many spreadsheets. QHeader
+  can be used vertically or horizontally (see setOrientation()).
 
   With addLabel() you can add sections, and with removeLabel() you can remove
   them. If you enabled clicking for one or all sections (see setClickEnabled()),
-  the user can reorder the sections and click on them which may be used for
+  the user can reorder the sections and click on them, which may be used for
   sorting (see also setSortIndicator()). This feature is turned on by default.
 
-  So, if the user reorders the sections by clicking and moving them with the mouse the index
-  of a section may change. This means, the section you inserted at the first
-  position might be displayed at a different index then. To get the index at which e.g
+  So if the user reorders the sections by clicking and moving them with the mouse, the index
+  of a section may change. This means that the section you inserted at the first
+  position might then be displayed at a different index. To get the index at which e.g
   the first section is displayed, use mapToIndex() with 0 as argument for our example.
 
-  If you want e.g. to know which section is displayed at e.g. index 3 use
-  mapToSection() with 3 as argument.
+  If you want to know which section is displayed at index 3, for example, use
+  mapToSection(3).
 
-  So, you can always work with the section numbers as you inserted them
-  without caring about the index at which they are displayed at the moment. Also
-  the API of QHeader works with the section numbers.
+  You can always work with the section numbers as you inserted them
+  without caring about the index at which they are displayed at the moment. The API of QHeader also works with the section numbers.
 
   <img src=qheader-m.png> <img src=qheader-w.png>
 
@@ -277,8 +275,8 @@ void QHeader::showEvent( QShowEvent *e )
   This signal is emitted when a part of the header is clicked. \a
   index is the index at which the section is displayed.
 
-  In a list view, this signal would typically be connected to a slot
-  which sorts the specified column (or row).
+  In a list view this signal would typically be connected to a slot
+  that sorts the specified column (or row).
 */
 
 /*! \fn int QHeader::cellSize( int ) const
@@ -286,7 +284,7 @@ void QHeader::showEvent( QShowEvent *e )
 
   Use sectionSize() instead!
 
-  Returns the size in pixels of the section which is displayed at
+  Returns the size in pixels of the section that is displayed at
   the index \a i.
 */
 
@@ -295,7 +293,7 @@ void QHeader::showEvent( QShowEvent *e )
 
   Use sectionPos() instead!
 
-  Returns the position in pixels of the section which is displayed at the
+  Returns the position in pixels of the section that is displayed at the
   index \a i. The  position is measured from the start of the header.
 */
 
@@ -495,8 +493,8 @@ int QHeader::findLine( int c )
 
   Use moveSection() instead!
 
-  Moves the section which is currently displayed at the index \a fromIndex
-  to the index \a toIdx.
+  Moves the section that is currently displayed at index \a fromIndex
+  to index \a toIdx.
 */
 
 void QHeader::moveCell( int fromIdx, int toIdx )
@@ -797,9 +795,9 @@ QIconSet *QHeader::iconSet( int section ) const
 
 
 /*!
-  Adds a new section, with icon set \a iconset and label text \a
+  Adds a new section with icon set \a iconset and label text \a
   s. Returns the index.  If \a size is non-negative, the section width
-  is set to \a size, otherwise a size currently sufficient for the
+  is set to \a size; otherwise a size currently sufficient for the
   label is used.
 */
 int QHeader::addLabel( const QIconSet& iconset, const QString &s, int size )
@@ -954,7 +952,7 @@ int QHeader::offset() const
 }
 
 /*!
-  Scrolls the header such that \a x becomes the leftmost (or uppermost
+  Scrolls the header so that \a x becomes the leftmost (or uppermost
   for vertical headers) visible pixel.
 */
 
@@ -1051,7 +1049,7 @@ int QHeader::mapToLogical( int a ) const
 
   Use mapToIndex() instead!
 
-  Translates from logical index \a l to actual index (index, at which the section \a l is displayed) .
+  Translates from logical index \a l to actual index (index at which the section \a l is displayed) .
   Returns -1 if \a l is outside the legal range.
 
   \sa mapToLogical()
@@ -1171,7 +1169,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	    p->setClipRect( fr );
 	    style().drawBevelButton( p, fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4,
 				     colorGroup(), down );
-	
+
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
 	    p->drawLine( fr.x(), fr.y() + fr.height() - 1, fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
 	    p->drawLine( fr.x() + fr.width() - 1, fr.y(), fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
@@ -1191,7 +1189,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	    p->setClipRect( fr );
 	    style().drawBevelButton( p, fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4,
 				     colorGroup(), down );
-	
+
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
 	    p->drawLine( fr.x() + width() - 1, fr.y(), fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
 	    p->drawLine( fr.x(), fr.y() + fr.height() - 1, fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
@@ -1320,7 +1318,7 @@ void QHeader::paintEvent( QPaintEvent *e )
 }
 
 /*!
-  As often the QHeader is used together with a list widget,
+  Because the QHeader is often used together with a list widget,
   QHeader can indicate a sort order. This is done using an arrow at
   the right edge of a section which points up or down. \a section
   specifies in which section this arrow should be drawn, and \a
@@ -1388,7 +1386,7 @@ int QHeader::sectionAt( int pos ) const
 }
 
 /*!
-  Returns the section which is displayed at the index \a index.
+  Returns the section that is displayed at the index \a index.
 */
 
 int QHeader::mapToSection( int index ) const
@@ -1443,7 +1441,7 @@ void QHeader::moveSection( int section, int toIndex )
 /*!
   Returns whether the section \a section is clickable or not.
   If \a section is out of range (negative or larger than count() - 1),
-  TRUE is returned if all sections are clickable, else FALSE.
+  TRUE is returned if all sections are clickable, otherwise FALSE.
 
   \sa setClickEnabled()
 */
@@ -1464,7 +1462,7 @@ bool QHeader::isClickEnabled( int section ) const
 /*!
   Returns whether the section \a section is resizeable or not.
   If \a section is out of range (negative or larger than count() - 1),
-  TRUE is returned if all sections are resizeable, else FALSE.
+  TRUE is returned if all sections are resizeable, otherwise FALSE.
 
   \sa setResizeEnabled()
 */

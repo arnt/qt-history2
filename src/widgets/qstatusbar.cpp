@@ -59,23 +59,23 @@
   Each status indicator falls into one of three categories:
 
   <ul>
-  <li> \e Temporary - occupies most of the status bar briefly.  Used
-    e.g. for explaining tool tip texts or menu entries.
+  <li> \e Temporary - briefly occupies most of the status bar.  Used
+    to explain tool tip texts or menu entries, for example.
   <li> \e Normal - occupies part of the status bar and may be hidden
-    by temporary messages.  Used e.g. for displaying the page and line
-    number in a word processor.
+    by temporary messages.  Used to display the page and line
+    number in a word processor, for example.
   <li> \e Permanent - is never hidden.  Used for important mode
     indications.  Some applications put a Caps Lock indicator in the
     status bar.
   </ul>
 
-  QStatusBar lets you display all three types of indicator.
+  QStatusBar lets you display all three types of indicators.
 
-  To display a \e temporary message, call message(), perhaps by
-  connecting a suitable signal to it.  To remove a temporary message,
+  To display a \e temporary message, call message() (perhaps by
+  connecting a suitable signal to it).  To remove a temporary message,
   call clear().
-  There are two variants of message(), one which displays the message
-  until the next clear() or mesage(), and one which also has a time limit:
+  There are two variants of message(): one that displays the message
+  until the next clear() or mesage() and one that also has a time limit:
 
   \code
      connect( loader, SIGNAL(progressMessage(const QString&)),
@@ -87,16 +87,16 @@
   \endcode
 
   \e Normal and \e permanent messages are displayed by creating a small
-  widget then adding it to the status bar with addWidget().  Widgets
-  like QLabel, QProgressBar, or even QToolButton are useful for adding
+  widget and then adding it to the status bar with addWidget().  Widgets
+  like QLabel, QProgressBar or even QToolButton are useful for adding
   to status bars.  removeWidget() is used to remove widgets.
 
   \code
      statusBar()->addWidget(new MyReadWriteIndication(statusBar()));
   \endcode
 
-  By default, QStatusBar provides a QSizeGrip in the lower-right corner.
-  You can disable this with setSizeGripEnabled(FALSE);
+  By default QStatusBar provides a QSizeGrip in the lower-right corner.
+  You can disable it with setSizeGripEnabled(FALSE);
 
   <img src=qstatusbar-m.png> <img src=qstatusbar-w.png>
 
@@ -162,7 +162,7 @@ QStatusBar::~QStatusBar()
 /*!
   Adds \a widget to this status bar.
 
-  \a widget is permanently visible if \a permanent is TRUE, and is
+  \a widget is permanently visible if \a permanent is TRUE and is
   obscured by temporary messages if \a permanent is FALSE.  The
   default is FALSE.
 
@@ -170,7 +170,7 @@ QStatusBar::~QStatusBar()
   status bar grows and shrinks. The default of 0 uses a minimum of space.
 
   If \a permanent is TRUE, \a widget is located at the far right of
-  the status bar.  If \a permanent is FALSE (the default) \a widget is
+  the status bar.  If \a permanent is FALSE (the default), \a widget is
   located just to the left of the first permanent widget.
 
   This function may cause some flicker.
@@ -277,11 +277,9 @@ void QStatusBar::setSizeGripEnabled(bool enabled)
 }
 
 
-/*!
-  Changes the status bar's appearance to account for item
-  changes. Special subclasses may need this, but normally
-  geometry management will take care of any necessary
-  rearrangements.
+/*!  Changes the status bar's appearance to account for item
+  changes. Special subclasses may need this, but geometry management
+  will usually take care of any necessary rearrangements.
 */
 void QStatusBar::reformat()
 {
@@ -331,7 +329,7 @@ void QStatusBar::reformat()
 
 
 /*!
-  Hide the normal status indicators and display \a message, until
+  Hides the normal status indicators and displays \a message until
   clear() or another message() is called.
 
   \sa clear()
@@ -350,9 +348,9 @@ void QStatusBar::message( const QString &message )
 
 
 /*!
-  Hide the normal status indications and display \a message for \a
-  ms milli-seconds, or until clear() or another message() is called,
-  whichever is first.
+  Hides the normal status indications and displays \a message for \a
+  ms milli-seconds or until clear() or another message() is called,
+  whichever occurs first.
 */
 void QStatusBar::message( const QString &message, int ms )
 {

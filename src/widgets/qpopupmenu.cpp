@@ -111,7 +111,7 @@ static bool preventAnimation = FALSE;
   \ingroup application
   \ingroup basic
 
-  A popup menu widget is a selection menu. It can be both, a pull-down
+  A popup menu widget is a selection menu. It can be either a pull-down
   menu in a menu bar or a standalone context menu.  Pull-down menus
   are shown by the menu bar when the user clicks on the respective
   item or hits the specified shortcut key. Use QMenuBar::insertItem()
@@ -122,20 +122,20 @@ static bool preventAnimation = FALSE;
   items with insertItem().  An item is either a string, a pixmap or a
   custom item that provides its own drawing function (see
   QCustomMenuItem). In addition, items can have an optional icon drawn
-  on the very left side and an accelerator key, like "Ctrl-X".
+  on the very left side and an accelerator key such as "Ctrl-X".
 
-  There are three kind of menu items: separators, those that perform
-  an action and those that show a submenu.  Separators are inserted
+  There are three kinds of menu items: separators, menu items that perform
+  an action and menu items that show a submenu.  Separators are inserted
   with insertSeparator(). For submenus, you pass a pointer to a
   QPopupMenu in your call to insertItem().  All other items are
   considered action items.
 
-  When inserting actions items, you usually specify a receiver and a
-  slot. The receiver will be notified whenever the item was
-  selected. In addition, QPopupMenu provides two signals activated()
-  and highlighted() that signal the identifier of the respective menu
-  item. Sometimes it is practical to connect several items to one
-  slot. To distinguish between them, specify a slot that takes an
+  When inserting action items you usually specify a receiver and a
+  slot. The receiver will be notifed whenever the item was
+  selected. In addition, QPopupMenu provides two signals - activated()
+  and highlighted() - which signal the identifier of the respective menu
+  item. It is sometimes practical to connect several items to one
+  slot. To distinguish among them, specify a slot that takes an
   integer argument and use setItemParameter() to associate a unique
   value with each item.
 
@@ -155,18 +155,18 @@ static bool preventAnimation = FALSE;
 
   You can provide What's This? help for single menu items with
   setWhatsThis(). See QWhatsThis for general information about this
-  kind of light-weight online help.
+  kind of lightweight online help.
 
   For ultimate flexibility, you can also add entire widgets as items
-  into a popup menu, for example a color selector.
+  into a popup menu (for example, a color selector).
 
   A QPopupMenu can also provide a tear-off menu. A tear-off menu is a
-  "torn off" copy of a menu that lives in a separate window. This
+  "torn-off" copy of a menu that lives in a separate window. This
   makes it possible for the user to "tear off" frequently used menus
   and position them in a convenient place on the screen. If you want
   that functionality for a certain menu, insert a tear-off handle with
   insertTearOffHandle(). When using tear-off menus, keep in mind that
-  the concept isn't typically used on MS-Windows, so users may not be
+  the concept isn't typically used on Microsoft Windows so users may not be
   familiar with it. Consider using a QToolBar instead.
 
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
@@ -186,7 +186,7 @@ static bool preventAnimation = FALSE;
 /*! \fn void QPopupMenu::aboutToShow()
 
   This signal is emitted just before the popup menu is displayed.  You
-  can connect it to any slot that sets up the menu contents (e.g. to
+  can connect it to any slot that sets up the menu contents (e.g., to
   ensure that the right items are enabled).
 
   \sa aboutToHide(), setItemEnabled(), setItemChecked(), insertItem(), removeItem()
@@ -219,8 +219,8 @@ static QPopupMenu* active_popup_menu = 0;
 /*!
   Constructs a popup menu with a parent and a widget name.
 
-  Although a popup menu is always a top level widget, if a parent is
-  passed, the popup menu will be deleted on destruction of that parent
+  Although a popup menu is always a top-level widget, if a parent is
+  passed the popup menu will be deleted when that parent destructs
   (as with any other QObject).
 
 */
@@ -282,7 +282,7 @@ void QPopupMenu::updateItem( int id )		// update popup menu item
 
 
 /*!
-  Enables or disables display of check marks by the menu items.
+  Enables or disables the display of check marks by the menu items.
 
   Notice that checking is always enabled when in windows-style.
 
@@ -300,7 +300,7 @@ void QPopupMenu::setCheckable( bool enable )
 }
 
 /*!
-  Returns whether display of check marks by the menu items is enabled.
+  Returns whether the display of check marks by the menu items is enabled.
 
   \sa setCheckable(), QMenuData::setItemChecked()
 */
@@ -696,7 +696,7 @@ void QPopupMenu::byeMenuBar()
 
 /*!
   \internal
-  Return the item at \e pos, or -1 if there is no item there, or if
+  Return the item at \e pos, or -1 if there is no item there or if
   it is a separator item.
 */
 
@@ -1099,7 +1099,7 @@ int QPopupMenu::itemHeight( QMenuItem *mi ) const
 /*!
   Draws item \a mi in the area \a x, \a y, \a w, \a h,
   using painter \a p.  The item is drawn active or inactive according
-  to \a act, and using the rightmost \a tab_ pixels for accelerator
+  to \a act and using the rightmost \a tab_ pixels for accelerator
   text.
 
   \sa QStyle::drawPopupMenuItem()
@@ -1554,10 +1554,10 @@ void  QPopupMenu::styleChange( QStyle& old )
 }
 
 /*!
-  If a popup menu does not fit on the screen, it layouts itself in
-  multiple columns until it fits.
+  If a popup menu does not fit on the screen it lays itself out in
+  multiple columns until it does fit.
 
-  This functions returns in how many.
+  This functions returns the number of columns necessary.
 
 \sa sizeHint()
  */
@@ -1680,13 +1680,13 @@ void QPopupMenu::updateRow( int row )
 }
 
 
-/*!  Execute this popup synchronously.
+/*!  Executes this popup synchronously.
 
   Opens the popup menu so that the item number \a indexAtPoint will be
   at the specified \e global position \a pos.  To translate a widget's
   local coordinates into global coordinates, use QWidget::mapToGlobal().
 
-  The return code is the ID of the selected item in either the popup
+  The return code is the id of the selected item in either the popup
   menu or one of its submenus, or -1 if no item is selected (normally
   because the user presses Escape).
 
@@ -1765,11 +1765,11 @@ void QPopupMenu::connectModal( QPopupMenu* receiver, bool doConnect )
 }
 
 
-/*!  Execute this popup synchronously.
+/*!  Executes this popup synchronously.
 
   Similar to the above function, but the position of the
-  popup is not set, so you must choose an appropriate position.
-  The function move the popup if it is partially off-screen.
+  popup is not set so you must choose an appropriate position.
+  The function moves the popup if it is partially off-screen.
 
   More common usage is to position the popup at the current
   mouse position:
@@ -1833,8 +1833,8 @@ QSize QPopupMenu::sizeHint() const
 
 
 /*!
-  Return the id of the item at \e pos, or -1 if there is no item
-  there, or if it is a separator item.
+  Returns the id of the item at \e pos, or -1 if there is no item
+  there or if it is a separator item.
  */
 int QPopupMenu::idAt( const QPoint& pos ) const
 {
@@ -1934,8 +1934,8 @@ public:
 
 /*!
   Inserts a tear-off handle into the menu. A tear-off handle is a
-  special menu item, that - when selected - creates a copy of the
-  menu. This "torn off" copy lives in a separate window. It contains
+  special menu item that creates a copy of the
+  menu when the menu is selected. This "torn-off" copy lives in a separate window. It contains
   the same choices as the original menu, with the exception of the
   tear-off handle.
 

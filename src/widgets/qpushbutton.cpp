@@ -57,19 +57,19 @@
 
   \ingroup basic
 
-  The push button, also referred to as command button, is perhaps the
-  most central widget in any graphical user interface: Push it to
+  The push button, also referred to as a command button, is perhaps the
+  most central widget in any graphical user interface. Push it to
   command the computer to perform some action. Typical actions are Ok,
-  Apply, Cancel, Close or Help.
+  Apply, Cancel, Close and Help.
 
-  A command button is rectangular (ca. 80x22 pixel) and typically
+  A command button is rectangular (about 80 x 22 pixels) and typically
   displays a text label describing its action. An underscored
   character in the label, marked with an ampersand in the text,
   signals an accelerator key.
 
   This code creates a push button labelled "Rock & Roll".  Due to the
   first ampersand, the c displays underscored and the button gets the
-  automatic accelerator key, Alt-C:
+  automatic accelerator key Alt-C:
 
   \code
     QPushButton *p = new QPushButton( "Ro&ck && Roll", this );
@@ -77,35 +77,34 @@
 
   The text can be changed anytime later with setText(). You can also
   define a pixmap with setPixmap(). The text/pixmap is manipulated as
-  necessary to create "disabled" appearance according to the
-  respective GUI style when the button is disabled. A command button
-  can, in addition to the text or pixmap label, also display a little
-  icon. Use the extended constructor or setIconSet() to define this
+  necessary to create a "disabled" appearance according to the
+  respective GUI style when the button is disabled. In addition to the text or pixmap label, a command button
+  can also display a little icon. Use the extended constructor or setIconSet() to define this
   icon.
 
-  A push button emits the signal clicked() when it is activated,
-  either with the mouse, the spacebar or a keyboard accelerator.
+  A push button emits the signal clicked() when it is activated
+  with the mouse, the spacebar or a keyboard accelerator.
   Connect to this signal to perform the button's action.  Other
   signals of less importance are pressed() when the button is pressed
-  down and released() when it is released, respectively.
+  down and released() when it is released.
 
   Command buttons in dialogs are by default auto-default buttons,
-  i.e. they become the default push button automatically when they
+  i.e., they become the default push button automatically when they
   receive the keyboard input focus. A default button is a command
-  button that is activated when the users hits the Enter or Return key
+  button that is activated when the user hits the Enter or Return key
   in a dialog. Adjust this behaviour with setAutoDefault(). Note that
   auto-default buttons reserve a little extra space necessary to draw
   a default-button indicator. If you do not want this space around
-  your buttons, call setAutoDefault( FALSE ).
+  your buttons, call setAutoDefault(FALSE).
 
-  Being so central, the widget has grown to accomodate a great many
-  variations in the past decade, and by now the Microsoft style guide
-  shows about ten different states of Windows push buttons, and the
+  Being so central, the widget has grown to accommodate a great many
+  variations in the past decade. The Microsoft style guide now
+  shows about ten different states of Windows push buttons and the
   text implies that there are dozens more when all the combinations of
   features are taken into consideration.
 
-  The most important modes or states are, sorted roughly by importance: <ul>
-  <li> Available or not ("grayed out", disabled).
+  Sorted roughly by importance, the most important modes or states are: <ul>
+  <li> Available or not (grayed out, disabled).
   <li> Standard push button, toggling push button or menu button.
   <li> On or off (only for toggling push buttons).
   <li> Default or normal.  The default button in a dialog can
@@ -115,18 +114,18 @@
   </ul>
 
   As a general rule, use a push button when the application or dialog
-  window performs an action when the user clicks on it (like Apply,
-  Cancel, Close, Help, ...) \e and when the widget is supposed to have
+  window performs an action when the user clicks on it (such as Apply,
+  Cancel, Close and Help) \e and when the widget is supposed to have
   a wide, rectangular shape with a text label.  Small, typically
   square buttons that change the state of the window rather than
-  performing an action (like for example the buttons in the top/right
-  corner of the QFileDialog), are not command buttons, but tool
-  buttons. Qt provides a special class QToolButton for these.
+  performing an action (such as the buttons in the top-right
+  corner of the QFileDialog) are not command buttons, but tool
+  buttons. Qt provides a special class (QToolButton) for these buttons.
 
-  Also, if you need toggle behaviour (see setToggleButton()) or a button
+  If you need toggle behavior (see setToggleButton()) or a button
   that auto-repeats the activation signal when being pushed down like
-  the arrows in a scrollbar (see setAutoRepeat()), a command button is
-  probably not what you want. In case of doubt, go with a tool button.
+  the arrows in a scroll bar (see setAutoRepeat()), a command button is
+  probably not what you want. When in doubt, go with a tool button.
 
   A variation of a command button is a menu button. It provides not
   just one command, but several. Use the method setPopup() to
@@ -227,8 +226,7 @@ QPushButton::QPushButton( const QString &text, QWidget *parent,
 /*!
   Constructs a push button with an \a icon and a \a text.
 
-  Note that you can also pass a QPixmap object as icon (thanks to C++'
-  implicit type conversion).
+  Note that you can also pass a QPixmap object as an icon (thanks to the implicit type conversion C++).
 
   The \a parent and \a name arguments are sent to the QWidget constructor.
 */
@@ -269,7 +267,7 @@ void QPushButton::init()
 
 
 /*!
-  Makes the push button a toggle button if \a enable is TRUE, or a normal
+  Makes the push button a toggle button if \a enable is TRUE or a normal
   push button if \a enable is FALSE.
 
   Toggle buttons have an on/off state similar to \link QCheckBox check
@@ -307,15 +305,15 @@ void QPushButton::setOn( bool enable )
 */
 
 /*!
-  Sets the push buttons to an auto-default button if \a enable is TRUE,
+  Sets the push buttons to an auto-default button if \a enable is TRUE
   or to a normal button if \a enable is FALSE.
 
-  An auto-default button becomes automatically the default push button
+  An auto-default button automatically becomes the default push button
   in a dialog when it receives the keyboard input focus.
 
-  In some GUI styles, a default button is drawn with an extra frame
+  In some GUI styles a default button is drawn with an extra frame
   around it, up to 3 pixels or more. Qt automatically keeps this space
-  free around auto-default buttons, i.e. auto-default buttons may have
+  free around auto-default buttons, i.e., auto-default buttons may have
   a slightly larger size hint.
 
   \sa autoDefault(), setDefault()
@@ -333,24 +331,22 @@ void QPushButton::setAutoDefault( bool enable )
 
 /*!
   \fn bool QPushButton::isDefault() const
-  Returns TRUE if the button is currently default.
+  Returns TRUE if the button is currently the default.
 
   \sa setDefault()
 */
 
-/*!
-  Sets this button to be the current default button of a
-  \link QDialog dialog\endlink if \a enable is TRUE, or to be a normal button
-  if \a enable is FALSE.
+/*!  Sets this button to be the current default button of a QDialog if
+  \a enable is TRUE or to be a normal button if \a enable is FALSE.
 
   The current default button gets clicked when the user presses the
-  "Enter" key, independently of which widget in the dialog currently
+  Enter key, independently of which widget in the dialog currently
   has the keyboard input focus.  Only one push button can at any time
   be the default button.  This button is then displayed with an
-  additional frame ( depending on the GUI style ).
+  additional frame (depending on the GUI style).
 
-  The default button behaviour is only provided in dialogs. Buttons
-  can always be clicked from the keyboard by pressing return or the
+  The default button behavior is provided only in dialogs. Buttons
+  can always be clicked from the keyboard by pressing Return or the
   spacebar when the button has focus.
 
   \sa isDefault(), setAutoDefault(), QDialog
@@ -592,7 +588,7 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
   \obsolete
 
   Tells this button to draw a menu indication triangle if \a enable
-  is TRUE,  and to not draw one if \a enable is FALSE (the default).
+  is TRUE and not to draw one if \a enable is FALSE (the default).
 
   setIsMenuButton() does not cause the button to do anything other
   than draw the menu indication.
@@ -605,7 +601,7 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
   \obsolete
 
   Returns TRUE if this button indicates to the user that pressing
-  it will pop up a menu, and FALSE otherwise.  The default is FALSE.
+  it will pop up a menu and FALSE otherwise.  The default is FALSE.
 
   \sa setIsMenuButton()
 */

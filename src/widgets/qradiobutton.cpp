@@ -46,7 +46,6 @@
 #include "qtextstream.h"
 #include "qapplication.h"
 
-// NOT REVISED
 /*!
   \class QRadioButton qradiobutton.h
   \brief The QRadioButton widget provides a radio button with a text label.
@@ -55,21 +54,21 @@
 
   QRadioButton and QCheckBox are both option buttons. That is, they
   can be switched on (checked) or off (unchecked). The classes differ
-  in how the choices for the user are restricted. Check-boxes define
-  "many of many" choices, while radio buttons provide a "one of many"
-  choice. In a group of radio buttons, only one button at a time can
-  be checked. If the user selects another button, the previously
+  in how the choices for the user are restricted. Check boxes define
+  "many of many" choices, whereas radio buttons provide a "one of many"
+  choice. In a group of radio buttons only one button at a time can
+  be checked; if the user selects another button, the previously
   selected button is switched off.
 
-  While it is technically possible to implement radio-behaviour with
-  check boxes and vice versa, it's strongly recommended to stick with
+  Although it is technically possible to implement radio-behavior with
+  check boxes and vice versa, it is strongly recommended to stick with
   the well-known semantics. Otherwise your users would be pretty
   confused.
 
-  The easiest way to implement a "one of many" choice, is to simply
+  The easiest way to implement a "one of many" choice is simply to
   stick the radio buttons into QButtonGroup.
 
-  Whenver a button is switched on or off, it emits the signal
+  Whenever a button is switched on or off it emits the signal
   toggled(). Connect to this signal if you want to trigger an action
   each time the button changes state. Otherwise, use isChecked() to
   query whether or not a particular button is selected.
@@ -134,12 +133,12 @@ void QRadioButton::init()
 
 /*!
   \fn bool QRadioButton::isChecked() const
-  Returns TRUE if the radio button is checked, or FALSE if it is not checked.
+  Returns TRUE if the radio button is checked or FALSE if it is not checked.
   \sa setChecked()
 */
 
 /*!
-  Checks the radio button if \e check is TRUE, or unchecks it if \e check
+  Checks the radio button if \e check is TRUE or unchecks it if \e check
   is FALSE.
 
   Calling this function does not affect other radio buttons unless a radio

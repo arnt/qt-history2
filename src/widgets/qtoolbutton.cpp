@@ -80,7 +80,7 @@ public:
   A tool button is a special button that provides quick-access to
   specific commands or options. As opposed to a normal command button,
   a tool button usually doesn't show a text label, but an icon.  Its
-  classic usage is to select tools, for example the "pen"-tool in a
+  classic usage is to select tools, for example the "pen" tool in a
   drawing program. This would be implemented with a QToolButton as
   toggle button (see setToggleButton() ).
 
@@ -102,10 +102,10 @@ public:
   QMainWindow::setUsesBigPixmaps()).
 
   A tool button can offer additional choices in a popup menu.  The
-  feature is sometimes used with the "Back" button in a web browsers:
-  After pressing the button down for a while, a menu pops up showing
-  all possible pages to browse back.  With QToolButton, you can set a
-  popup menu using setPopup(). The default delay is 600ms, you may
+  feature is sometimes used with the "Back" button in a web browser.
+  After pressing the button down for awhile, a menu pops up showing
+  all possible pages to browse back.  With QToolButton you can set a
+  popup menu using setPopup(). The default delay is 600ms; you may
   adjust it with setPopupDelay().
 
   \sa QPushButton QToolBar QMainWindow
@@ -145,7 +145,7 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
   defines the arrow direction. Possible values are LeftArrow,
   RightArrow, UpArrow and DownArrow.
 
-  An arrow button has auto repeat turned on.
+  An arrow button has auto-repeat turned on.
 
   The \a parent and \a name arguments are sent to the QWidget constructor.
 */
@@ -191,8 +191,8 @@ void QToolButton::init()
   a QToolBar) and named \a name.
 
   The tool button will display \a iconSet, with text label or tool tip \a
-  textLabel and status-bar message \a grouptext, connected to \a slot
-  in object \a receiver, and returns the button.
+  textLabel and status bar message \a grouptext, it will be connected to
+  \a slot in object \a receiver.
 */
 
 QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
@@ -242,7 +242,7 @@ QToolButton::~QToolButton()
 
 
 /*!
-  Makes the tool button a toggle button if \e enable is TRUE, or a normal
+  Makes the tool button a toggle button if \e enable is TRUE or a normal
   tool button if \e enable is FALSE.
 
   Toggle buttons have an on/off state similar to \link QCheckBox check
@@ -323,7 +323,7 @@ QSize QToolButton::sizeHint() const
 
 /*! \fn QString QToolButton::textLabel() const
 
-  Returns the text label in use by this tool button, or 0.
+  Returns the text label in use by this tool button or 0.
 
   \sa setTextLabel() usesTextLabel() setUsesTextLabel() setText()
 */
@@ -331,14 +331,14 @@ QSize QToolButton::sizeHint() const
 
 
 /*!  Sets this button to use the big pixmaps provided by its QIconSet
-  if \a enable is TRUE, and to use the small ones else.
+  if \a enable is TRUE and to use the small ones otherwise.
 
   QToolButton automatically connects this slot to the relevant signal
   in the QMainWindow in which it resides.  You're strongly urged to
   use QMainWindow::setUsesBigPixmaps() instead.
 
-  \warning If you set some buttons (in a QMainWindow) to have big and
-  others small pixmaps, QMainWindow may have trouble getting the
+  \warning If you set some buttons (in a QMainWindow) to have big pixmaps and
+  others to have small pixmaps, QMainWindow may have trouble getting the
   geometry correct.
 */
 
@@ -357,14 +357,14 @@ void QToolButton::setUsesBigPixmap( bool enable )
 
 /*!  \fn bool QToolButton::usesBigPixmap() const
 
-  Returns TRUE if this tool button uses the big (32-pixel) pixmaps,
+  Returns TRUE if this tool button uses the big (32-pixel) pixmaps
   and FALSE if it does not.  \sa setUsesBigPixmap(), setPixmap(),
   usesTextLabel
 */
 
 
 /*!  Sets this button to draw a text label below the icon if \a enable
-  is TRUE, and to not draw it if \a enable is FALSE.
+  is TRUE and to not draw it if \a enable is FALSE.
 
   QToolButton automatically connects this slot to the relevant signal
   in the QMainWindow in which is resides.
@@ -386,12 +386,12 @@ void QToolButton::setUsesTextLabel( bool enable )
 /*! \fn bool QToolButton::usesTextLabel() const
 
   Returns TRUE if this tool button puts a text label below the button
-  pixmap, and FALSE if it does not. \sa setUsesTextLabel()
+  pixmap and FALSE if it does not. \sa setUsesTextLabel()
   setTextLabel() usesBigPixmap()
 */
 
 
-/*!  Sets this tool button to be on if \a enable is TRUE, and off it
+/*!  Sets this tool button to be on if \a enable is TRUE and off if
   \a enable is FALSE.
 
   This function has no effect on \link isToggleButton() non-toggling
@@ -638,7 +638,7 @@ void QToolButton::setTextLabel( const QString &newLabel )
     setTextLabel( newLabel, TRUE );
 }
 
-/*!  Sets the label of this button to \a newLabel, and automatically
+/*!  Sets the label of this button to \a newLabel and automatically
   sets it as tool tip too if \a tipToo is TRUE.
 */
 
@@ -661,7 +661,7 @@ void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
 
 /*!
   Sets the icon that is used when the button
-  is in on-state.
+  is in an on-state.
 
   \sa setIconSet()
 */
@@ -672,7 +672,7 @@ void QToolButton::setOnIconSet( const QIconSet& set )
 
 /*!
   Sets the icon that is used when the button
-  is in off-state.
+  is in an off-state.
 
   \sa setIconSet()
 */
@@ -682,7 +682,7 @@ void QToolButton::setOffIconSet( const QIconSet& set )
 }
 
 /*!
-  Returns the icon set which is used if the toolbutton
+  Returns the icon set that is used if the tool button
   is in on-state.
 
   \sa iconSet()
@@ -693,7 +693,7 @@ QIconSet QToolButton::onIconSet() const
 }
 
 /*!
-  Returns the icon set which is used if the toolbutton
+  Returns the icon set that is used if the tool button
   is in off-state.
 
   \sa iconSet()
@@ -704,8 +704,8 @@ QIconSet QToolButton::offIconSet( ) const
 }
 
 
-/*!  Sets this tool button to display the icons in \a set.
-  (setPixmap() is effectively a wrapper for this function.)
+/*!  Sets this tool button to display the icons in \a set
+  (setPixmap() is effectively a wrapper for this function).
 
   For toggle buttons it is possible to set an extra icon set with \a
   on equals TRUE, which will be used exclusively for the on-state.
@@ -765,14 +765,14 @@ QIconSet QToolButton::iconSet( bool on ) const
 
 
 /*!
-  Associates the popup menu \a popup with this toolbutton.
+  Associates the popup menu \a popup with this tool button.
 
-  The popup will be shown each time the toolbutton has been pressed
+  The popup will be shown each time the tool button has been pressed
   down for a certain amount of time. A typical application example is
-  the "back" button in a web browser's toolbar. If the user clicks it,
+  the "back" button in some web browsers's tool bars. If the user clicks it,
   the browser simply browses back to the previous page. If the user
-  holds the button down for a while, they receive a menu containing
-  the current history list.
+  holds the button down for a while, the tool button shows a menu
+  containing the current history list.
 
   Ownership of the popup menu is not transferred.
 
@@ -853,7 +853,7 @@ void QToolButton::popupTimerDone()
 
 /*!
   Sets the time delay between pressing the button and the appearance of
-  the associated popupmenu in milliseconds. Usually this is around 1/2 of
+  the associated popup menu in milliseconds. Usually this is around half
   a second.
 
   \sa popupDelay(), setPopup()
@@ -867,7 +867,7 @@ void QToolButton::setPopupDelay( int delay )
 
 /*!
   Returns the delay between pressing the button and the appearance of
-  the associated popupmenu in milliseconds.
+  the associated popup menu in milliseconds.
 
   \sa setPopupDelay(), setPopup()
 */

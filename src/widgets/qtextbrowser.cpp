@@ -64,36 +64,35 @@
 
   This class is the same as the QTextView it inherits, with the
   addition that it provides basic navigation features to follow links
-  in hypertext documents that link to other rich text documents. While
-  QTextView only allows to set its contents with setText(),
-  QTextBrowser has an additional function setSource(), that makes it
+  in hypertext documents that link to other rich text documents. Although
+  QTextView allows setting its contents only with setText(),
+  QTextBrowser has an additional function, setSource(), which makes it
   possible to set documents by name. These names are looked up in the
   text view's mime source factory. If a document name ends with an
-  anchor, for example "\c #anchor", the text browser will
-  automatically scroll accordingly (using
-  QTextView::scrollToAnchor()). When the user clicks on a hyperlink,
-  the browser will call setSource() itself, with the link's \c href
-  value as argument.
+  anchor (for example, "\c #anchor"), the text browser automatically
+  scrolls there (using scrollToAnchor()). When the user clicks on a
+  hyperlink, the browser will call setSource() itself, with the link's \c
+  href value as argument.
 
   QTextBrowser doesn't provide actual Back and Forward buttons, but it
   has backward() and forward() slots that implement the
-  functionality. The home() slots brings it back to its very first
+  functionality. The home() slots bring it back to the very first
   document displayed.
 
-  By using QTextView::setMimeSourceFactory(), you can provide your own
+  By using QTextView::setMimeSourceFactory() you can provide your own
   subclass of QMimeSourceFactory. This makes it possible to access
-  data from anywhere you need to, may it be the network or a
+  data from anywhere, whether it be the network or a
   database. See QMimeSourceFactory::data() for details.
 
   If you intend to use the mime factory to read the data directly from
   the file system, you may have to specify the encoding for the file
-  extension you are using. For example
+  extension you are using. For example:
   \code
   mimeSourceFactory()->setExtensionType("qml", "text/utf8");
   \endcode
   Otherwise, the factory will not be able to resolve the document names.
 
-  For simpler richt text use, see QLabel, QTextView or QSimpleRichText.
+  For simpler rich text use, see QLabel, QTextView or QSimpleRichText.
 
   Also see QTextEdit, if you need an editor widget which supports
   richtext formatting.
@@ -137,7 +136,7 @@ QTextBrowser::~QTextBrowser()
 /*!  Sets the text document with the given \a name to be displayed.
   The name is looked up in the mimeSourceFactory() of the browser.
 
-  In addition to the factory lookup, this functions also checks for
+  In addition to the factory lookup, this function also checks for
   optional anchors and scrolls the document accordingly.
 
   If the first tag in the document is \c &lt;qt \c type=detail&gt;, it is
@@ -147,7 +146,7 @@ QTextBrowser::~QTextBrowser()
 
   If you are using the filesystem access capabilities of the mime
   source factory, you have to ensure that the factory knows about the
-  encoding of specified text files, otherwise no data will be
+  encoding of specified text files; otherwise no data will be
   available. The default factory handles a couple of common file
   extensions such as \c *.html and \c *.txt with reasonable defaults. See
   QMimeSourceFactory::data() for details.
@@ -259,10 +258,9 @@ QString QTextBrowser::source() const
 
 /*!  \fn void QTextBrowser::forwardAvailable(bool available)
 
-  This signal is emitted when the availability of the forward()
-  changes.  It becomes available after backward() is activated, and
-  unavailable when the user navigates or goes forward() to the last
-  navigated document.
+  This signal is emitted when the availability of the forward() changes.
+  It becomes available after backward() is activated and unavailable when
+  the user navigates or goes forward() to the last navigated document.
 */
 
 /*!  \fn void QTextBrowser::highlighted (const QString &href)
@@ -286,8 +284,8 @@ void QTextBrowser::backward()
     emit forwardAvailable( TRUE );
 }
 
-/*!  Changes the document displayed to be the next document in the
-  list of documents build by navigating links.
+/*!  Changes the document displayed to be the next document in the list of
+  documents built by navigating links.
 
   \sa backward(), forwardAvailable()
 */
@@ -309,7 +307,7 @@ void QTextBrowser::home()
 }
 
 /*!
-  Add Backward and Forward on ALT-Left and ALT-Right respectively.
+  Adds backward and forward on Alt-Left and Alt-Right respectively.
 */
 void QTextBrowser::keyPressEvent( QKeyEvent * e )
 {

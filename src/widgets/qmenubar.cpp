@@ -60,26 +60,26 @@ public:
 };
 
 
-// NOT REVISED
 /*!
   \class QMenuBar qmenubar.h
   \brief The QMenuBar class provides a horizontal menu bar.
 
   \ingroup application
 
-  A menu bar consists of a list of submenu items, so-called pulldown
+  A menu bar consists of a list of submenu items - so-called pull-down
   menus.  You add submenu items with insertItem(). Assuming that \c
-  menubar is a pointer to a QMenuBar and \c filemenu a pointer to a
+  menubar is a pointer to a QMenuBar and \c filemenu is a pointer to a
   QPopupMenu, \code
   menubar->insertItem( "&File", filemenu );
   \endcode
-  inserts the menu into the menu bar. The ampersand in the item text declares
-  Alt-f as shortcut for this menu. Use "&&" to get a real ampsend in the menubar.
+  inserts the menu into the menu bar.  The ampersand in the item text
+  declares Alt-F as a shortcut for this menu. Use "&&" to get a real
+  ampersand in the menu bar.
 
   Items are either enabled or disabled. You toggle their state with
   setItemEnabled().
 
-  Note that there is no need to layout a menu bar. It automatically
+  Note that there is no need to lay out a menu bar. It automatically
   sets its own geometry to the top of the parent widget and changes it
   appropriately whenever the parent is resized.
 
@@ -99,11 +99,11 @@ public:
   This enum type is used to decide whether QMenuBar should draw a
   separator line at its bottom.  The possible values are: <ul>
 
-  <li> \c Never - in many applications, there already is a separator,
-  and two looks stupid.
+  <li> \c Never - In many applications there is already a separator,
+  and having two looks stupid.
 
-  <li> \c InWindowsStyle - in some other applications, a separator
-  looks good in Windows style but not else.
+  <li> \c InWindowsStyle - In some other applications a separator
+  looks good in Windows style, but nowhere else.
 
   </ul>
  */
@@ -114,7 +114,7 @@ public:
   This signal is emitted when a menu item is selected; \a id is the id
   of the selected item.
 
-  Normally, you will connect each menu item to a single slot using
+  Normally you will connect each menu item to a single slot using
   QMenuData::insertItem(), but sometimes you will want to connect
   several items to a single slot (most often if the user selects from
   an array).  This signal is handy in such cases.
@@ -280,7 +280,7 @@ void QMenuBar::updateItem( int id )
   Recomputes the menu bar's display data according to the new
   contents.
 
-  You should never need to call this, it is called automatically by
+  You should never need to call this; it is called automatically by
   QMenuData whenever it needs to be called.
 */
 
@@ -310,7 +310,7 @@ void QMenuBar::menuContentsChanged()
   Recomputes the menu bar's display data according to the new
   state.
 
-  You should never need to call this, it is called automatically by
+  You should never need to call this; it is called automatically by
   QMenuData whenever it needs to be called.
 */
 
@@ -593,7 +593,7 @@ void QMenuBar::hidePopups()
 
 /*!
   Reimplements QWidget::show() in order to set up the correct keyboard
-  accelerators and raise itself to the top of the widget stack.
+  accelerators and to raise itself to the top of the widget stack.
 */
 
 void QMenuBar::show()
@@ -613,8 +613,8 @@ void QMenuBar::show()
 }
 
 /*!
-  Reimplements QWidget::hide() in order to deselect any selected item and
-  calls setUpLayout() for the mainwindow.
+  Reimplements QWidget::hide() in order to deselect any selected item, and
+  calls setUpLayout() for the main window.
 */
 
 void QMenuBar::hide()
@@ -650,7 +650,7 @@ void QMenuBar::fontChange( const QFont & f )
 /*!
   This function serves two different purposes.  If the parameter is negative,
   it updates the irects member for the current width and resizes.  Otherwise,
-  it does the same calculations for the GIVEN width, and returns the height
+  it does the same calculations for the GIVEN width and returns the height
   to which it WOULD have resized.  A bit tricky, but both operations require
   almost identical steps.
 */
@@ -782,7 +782,7 @@ int QMenuBar::calculateRects( int max_width )
 /*!
   Returns the height that the menu would resize itself to if its parent
   (and hence itself) resized to the given width.  This can be useful for
-  simple layout tasks where the height of the menubar is needed after
+  simple layout tasks in which the height of the menu bar is needed after
   items have been inserted.  See examples/showimg/showimg.cpp for an
   example of the usage.
 */
@@ -806,7 +806,7 @@ QRect QMenuBar::itemRect( int index )
 
 /*!
   \internal
-  Return the item at \e pos, or -1 if there is no item there, or if
+  Return the item at \e pos, or -1 if there is no item there or if
   it is a separator item.
 */
 
@@ -828,12 +828,12 @@ int QMenuBar::itemAtPos( const QPoint &pos )
 
 
 /*!
-  When a menubar is used above an unframed widget, it may look better
+  When a menu bar is used above an unframed widget it may look better
   with a separating line when displayed with \link QWidget::style()
   WindowsStyle\endlink.
 
   This function sets the usage of such a separator to appear either
-  QMenuBar::Never, or QMenuBar::InWindowsStyle.
+  QMenuBar::Never or QMenuBar::InWindowsStyle.
 
   The default is QMenuBar::Never.
 
@@ -1277,7 +1277,7 @@ QSize QMenuBar::minimumSizeHint() const
 
 /*!
   Sets the default popup orientation. By default, menus pop "down" the
-  screen.  By calling setDefaultUp(TRUE) the menu will pop "up".  You
+  screen.  By calling setDefaultUp(TRUE), the menu will pop "up".  You
   might call this for menus that are \e below the document to which
   they refer.
 
@@ -1293,7 +1293,7 @@ void QMenuBar::setDefaultUp( bool on )
 
 /*!
   Returns whether the menus default to popping "down" the screen
-  (the default), or "up".
+  (the default) or "up".
 
   \sa setDefaultUp();
 */

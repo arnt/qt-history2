@@ -63,7 +63,7 @@ public:
 // NOT REVISED
 /*! \class QWidgetStack qwidgetstack.h
 
-  \brief The QWidgetStack class provides a stack of widgets, where the
+  \brief The QWidgetStack class provides a stack of widgets in which the
   user can see only the top widget.
 
   \ingroup organizers
@@ -77,17 +77,14 @@ public:
   stack.
 
   QWidgetStack also provides the ability to manipulate widgets through
-  application-specfied integer IDs, and to translate from widget
-  pointers to IDs using id() and from IDs to widget pointers using
-  widget().  These numeric IDs have and unique (per QWidgetStack, not
-  globally) and cannot be -1, but apart from that QWidgetStack does
-  not attach any meaning to them.
+  application-specified integer ids. You can also translate from
+  widget pointers to ids using id() and from ids to widget pointers
+  using widget().  These numeric ids are unique (in each QWidgetStack,
+  not globally) and cannot be -1, but QWidgetStack does not attach any
+  additional meaning to them.
 
-  The default widget stack is frame-less and propagates its font and
-  palette to all its children, but you can use the usual QFrame
-  functions (like setFrameStyle()) to add a frame, and use
-  setFontPropagation() and setPalettePropagation() to change the
-  propagation style.
+  The default widget stack is frameless, but you can use the usual
+  QFrame functions (such as setFrameStyle()) to add a frame.
 
   Finally, QWidgetStack provides a signal, aboutToShow(), which is
   emitted just before a managed widget is shown.
@@ -322,7 +319,7 @@ void QWidgetStack::setFrameRect( const QRect & r )
 }
 
 
-/*!  Fix up the children's geometries. */
+/*!  Fixes up the children's geometries. */
 
 void QWidgetStack::setChildGeometries()
 {
@@ -360,8 +357,8 @@ void QWidgetStack::show()
 }
 
 
-/*!  Returns a pointer to the widget with ID \a id.  If this widget
-  stack does not manage a widget with ID \a id, this function returns
+/*!  Returns a pointer to the widget with id \a id.  If this widget
+  stack does not manage a widget with id \a id, this function returns
   0.
 
   \sa id() addWidget()
@@ -373,7 +370,7 @@ QWidget * QWidgetStack::widget( int id ) const
 }
 
 
-/*!  Returns the ID of the \a widget.  If \a widget is 0 or is not
+/*!  Returns the id of the \a widget.  If \a widget is 0 or is not
   being managed by this widget stack, this function returns -1.
 
   \sa widget() addWidget()
@@ -405,9 +402,9 @@ QWidget * QWidgetStack::visibleWidget() const
 
 /*! \fn void QWidgetStack::aboutToShow( int )
 
-  This signal is emitted just before a managed widget is shown, if
-  that managed widget has a non-zero ID.  The argument is the numeric
-  ID of the widget.
+  This signal is emitted just before a managed widget is shown if
+  that managed widget has a non-zero id. The argument is the numeric
+  id of the widget.
 */
 
 

@@ -158,7 +158,7 @@ QTimer *QButton::timer()
   specify how to reply to user actions and how to draw the button.
 
   QButton provides both push and toggle buttons.  The QRadioButton and
-  QCheckBox classes provide only toggle buttons, QPushButton and
+  QCheckBox classes provide only toggle buttons; QPushButton and
   QToolButton provide both toggle and push buttons.
 
   Any button can have either a text or pixmap label.  setText() sets
@@ -181,8 +181,8 @@ QTimer *QButton::timer()
 
   The difference between isDown() and isOn() is as follows:
   When the user clicks a toggle button to toggle it on, the button is
-  first \e pressed, then released into \e on state.  When the user
-  clicks it again (to toggle it off) the button moves first to the \e
+  first \e pressed and then released into \e on state.  When the user
+  clicks it again (to toggle it off), the button moves first to the \e
   pressed state, then to the \e off state (isOn() and isDown() are
   both FALSE).
 
@@ -194,8 +194,8 @@ QTimer *QButton::timer()
   <li>pressed() is emitted when the left mouse button is pressed while
   the mouse cursor is inside the button.
   <li>released() is emitted when the left mouse button is released.
-  <li>clicked() is emitted when the button is first pressed then
-  released, or when the accelerator key is typed, or when animateClick()
+  <li>clicked() is emitted when the button is first pressed and then
+  released when the accelerator key is typed, or when animateClick()
   is called.
   <li>toggled(bool) is emitted when the state of a toggle button changes.
   <li>stateChanged(int) is emitted when the state of a tristate
@@ -215,7 +215,7 @@ QTimer *QButton::timer()
   call animateClick().
 
   You can also set a custom accelerator using the setAccel() function.
-  This is useful mostly for pixmap buttons since they have no
+  This is useful mostly for pixmap buttons because they have no
   automatic accelerator.
 
   \code
@@ -233,7 +233,7 @@ QTimer *QButton::timer()
   sizeHint() as well, and sometimes hitButton() (to determine whether
   a button press is within the button).
 
-  To reduce flickering the QButton::paintEvent() sets up a pixmap that the
+  To reduce flickering, the QButton::paintEvent() sets up a pixmap that the
   drawButton() function draws in. You should not reimplement paintEvent()
   for a subclass of QButton unless you want to take over all drawing.
 
@@ -261,7 +261,7 @@ QTimer *QButton::timer()
 
 /*! \enum QButton::ToggleState
 
-  This enum defines the state of a toggle button at any moment.  The possible values are: <ul>
+  This enum defines the state of a toggle button at any moment.  The possible values are as follows: <ul>
 
   <li> \c Off - the button is in the "off" state
   <li> \c NoChange - the button is in the default/unchanged state
@@ -329,10 +329,9 @@ QButton::~QButton()
 /*!
   \fn void QButton::clicked()
 
-  This signal is emitted when the button is activated, i.e. first
-  pressed down and then released when the mouse cursor is inside the
-  button, or when the accelerator key is typed, or when animateClick()
-  is called.
+  This signal is emitted when the button is activated (i.e. first pressed
+  down and then released when the mouse cursor is inside the button), when
+  the accelerator key is typed or when animateClick() is called.
 
   The QButtonGroup::clicked() signal does the same job, if you want to
   connect several buttons to the same slot.
@@ -411,13 +410,13 @@ void QButton::setText( const QString &text )
 */
 
 /*!
-  Sets the button to display \a pixmap
+  Sets the button to display \a pixmap.
 
-  If \a pixmap is monochrome (i.e. it is a QBitmap or its \link
+  If \a pixmap is monochrome (i.e., it is a QBitmap or its \link
   QPixmap::depth() depth\endlink is 1) and it does not have a mask,
   this function sets the pixmap to be its own mask. The purpose of
-  this is to draw transparent bitmaps, which is important for
-  e.g. toggle buttons.
+  this is to draw transparent bitmaps which are important for
+  toggle buttons, for example.
 
   \sa pixmap(), setText(), setAccel(), QPixmap::mask()
 */
@@ -547,7 +546,7 @@ void QButton::setAutoResize( bool enable )
 /*!
   \fn bool QButton::autoRepeat() const
 
-  Returns TRUE if the button is auto-repeating, else FALSE.
+  Returns TRUE if the button is auto-repeating; otherwise it returns FALSE.
 
   The default is FALSE.
 
@@ -577,8 +576,8 @@ void QButton::setAutoRepeat( bool enable )
 
 
 /*!
-  Performs an animated click: The button is pressed and a short while
-  later released.
+  Performs an animated click: The button is pressed and released a short while
+  later.
 
   pressed(), released(), clicked(), toggled(), and stateChanged()
   signals are emitted as appropriate.
@@ -603,12 +602,12 @@ void QButton::animateClick()
 
 /*!
   \fn bool QButton::isDown() const
-  Returns TRUE if the button pressed down, or FALSE if it is standing up.
+  Returns TRUE if the button pressed down or FALSE if it is standing up.
   \sa setDown()
 */
 
 /*!
-  Sets the state of the button to pressed down if \e enable is TRUE
+  Sets the state of the button to pressed down if \e enable is TRUE,
   or to standing up if \e enable is FALSE.
 
   If the button is a toggle button, it is \e not toggled.  Call
@@ -666,7 +665,7 @@ void QButton::setDown( bool enable )
 /*!
   \fn void QButton::setOn( bool enable )
 
-  Switches a toggle button on if \e enable is TRUE or off if \e enable is
+  Switches a toggle button on if \e enable is TRUE, or off if \e enable is
   FALSE.  This function should be called only for toggle buttons.
   \sa isOn(), isToggleButton()
 */

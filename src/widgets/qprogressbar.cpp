@@ -42,16 +42,15 @@
 #include "qapplication.h"
 #include <limits.h>
 
-// BEING REVISED: eiriken
 /*!
   \class QProgressBar qprogressbar.h
   \brief The QProgressBar widget provides a horizontal progress bar.
   \ingroup advanced
 
   A progress bar is used to give the user an indication of progress
-  of an operation. To reassure them that the application has not crashed.
+  of an operation and to reassure user that the application has not crashed.
 
-  QProgressBar only implements the basic progress display, while
+  QProgressBar only implements the basic progress display, whereas
   QProgressDialog provides a fuller encapsulation.
 
   <img src=qprogbar-m.png> <img src=qprogbar-w.png>
@@ -91,9 +90,9 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
 
   \a totalSteps is the total number of steps in the operation of which
   this progress bar shows the progress.  For example, if the operation
-  is to examine 50 files, this value would be 50, then before
-  examining the first file, call setProgress(0), and after examining
-  the last file call setProgress(50).
+  is to examine 50 files, this value would be 50. Before
+  examining the first file, call setProgress(0); call setProgress(50) after examining
+  the last file .
 
   \e parent, \e name and \e f are sent to the QFrame::QFrame()
   constructor.
@@ -118,7 +117,7 @@ QProgressBar::QProgressBar( int totalSteps,
 
 /*!
   Reset the progress bar.
-  The progress bar `rewinds'.
+  The progress bar "rewinds."
 */
 
 void QProgressBar::reset()
@@ -219,9 +218,9 @@ QSize QProgressBar::minimumSizeHint() const
 */
 
 /*!
-  If set to TRUE (the default) the progress bar always shows the indicator
-  text at the center of the progress bar, regardless of the GUI style
-  currently set.  If set to FALSE the progress bar always shows the
+  If set to TRUE (the default), the progress bar always shows the indicator
+  text at the center of the progress bar regardless of the GUI style
+  currently set.  If set to FALSE, the progress bar always shows the
   indicator text outside the progress bar, regardless of the GUI style
   currently set.
 
@@ -252,8 +251,8 @@ void QProgressBar::setCenterIndicator( bool on )
 */
 
 /*!
-  When set to TRUE (the default) the positioning of the indicator string
-  follows the GUI style. When set to FALSE the indicator position is decided
+  When set to TRUE (the default), the positioning of the indicator string
+  follows the GUI style. When set to FALSE, the indicator position is decided
   by the value of indicatorFollowsStyle().
 
   \sa indicatorFollowsStyle(), centerIndicator(), setCenterIndicator(),
@@ -307,12 +306,11 @@ void QProgressBar::styleChange( QStyle& old )
   The progress may be negative, indicating that the bar is in the "reset" state
   before any progress is set.
 
-  The default implementation it is the percentage of completion or blank in the
+  The default implementation is the percentage of completion or blank in the
   reset state.
 
-  This method should return FALSE if the string is unchanged since the
-  last call to the method, to allow efficient repainting of the
-  progress bar.
+  To allow efficient repainting of the progress bar, this method should return FALSE if the string is unchanged from the
+  last call to the method, .
 */
 
 bool QProgressBar::setIndicator( QString & indicator, int progress,
@@ -418,7 +416,7 @@ void QProgressBar::drawContents( QPainter *p )
 
 
 /*!
-  Draws the progressbar contents mask using the painter \e p.
+  Draws the progress bar contents mask using the painter \e p.
   Used only in transparent mode.
 
   \sa QWidget::setAutoMask();

@@ -80,65 +80,65 @@ void QCornerSquare::paintEvent( QPaintEvent * )
 // NOT REVISED
 /*!
   \class QTableView qtableview.h
-  \brief This is an abstract base class for implementing tables
+  \brief The QTableView class provides an abstract base for tables.
 
   \ingroup abstractwidgets
 
   A table view consists of a number of abstract cells organized in rows
-  and columns and a visible part called a view. The cells are identified
-  with a row index and a column index. The top left cell is in row 0,
+  and columns, and a visible part called a view. The cells are identified
+  with a row index and a column index. The top-left cell is in row 0,
   column 0.
 
   The behavior of the widget can be finely tuned using
   setTableFlags(); a typical subclass will consist of little more than a
-  call to setTableFlags(), some table content manipulation, and an
+  call to setTableFlags(), some table content manipulation and an
   implementation of paintCell().  Subclasses that need cells with
   variable width or height must reimplement cellHeight() and/or
   cellWidth(). Use updateTableSize() to tell QTableView when the
   width or height has changed.
 
   When you read this documentation, it is important to understand the
-  distinctions between the four pixel coordinate systems involved.
+  distinctions among the four pixel coordinate systems involved.
 
   <ol>
-  <li> The \e cell coordinates.  (0,0) is the top left corner of a cell.
-  This is used by functions such as paintCell().
+  <li> The \e cell coordinates.  (0,0) is the top-left corner of a cell.
+  Cell coordinates are used by functions such as paintCell().
 
-  <li> The \e table coordinates.  (0,0) is the top left corner of the cell at
+  <li> The \e table coordinates.  (0,0) is the top-left corner of the cell at
   row 0 and column 0. These coordinates are absolute; that is, they are
-  independent of what part of the table is visible at the moment. This is
+  independent of what part of the table is visible at the moment. They are
   used by functions such as setXOffset() or maxYOffset().
 
-  <li> The \e widget coordinates. (0,0) is the top left corner of the widget,
-  \e including the frame.  This is used by functions such as repaint().
+  <li> The \e widget coordinates. (0,0) is the top-left corner of the widget,
+  \e including the frame.  They are used by functions such as repaint().
 
-  <li> The \e view coordinates.  (0,0) is the top left corner of the view, \e
-  excluding the frame.  This is the least-used coordinate system, used by
+  <li> The \e view coordinates.  (0,0) is the top-left corner of the view, \e
+  excluding the frame.  This is the least-used coordinate system; it is used by
   functions such as viewWidth().  </ol>
 
   It is rather unfortunate that we have to use four different
-  coordinate systems, but if we were to provide a flexible and
-  powerful base class, there wasn't any way around it.
+  coordinate systems, but there was no alternative to provide a flexible and
+  powerful base class.
 
   Note: The row,column indices are always given in that order,
-  i.e. first the vertical (row), then the horizontal (column). This is
+  i.e., first the vertical (row), then the horizontal (column). This is
   the opposite order of all pixel operations, which take first the
-  horizontal (x), then the vertical (y).
+  horizontal (x) and then the vertical (y).
 
   <img src=qtablevw-m.png> <img src=qtablevw-w.png>
 
   \warning the functions setNumRows(), setNumCols(), setCellHeight(),
   setCellWidth(), setTableFlags() and clearTableFlags() may cause
-  virtual functions like cellWidth() and cellHeight() to be called,
+  virtual functions such as cellWidth() and cellHeight() to be called,
   even if autoUpdate() is FALSE.  This may cause errors if relevant
   state variables are not initialized.
 
-  \warning Experience has shown that use of this widget tends to bring
-  more bugs than expected, and our analysis indicates that widget's
+  \warning Experience has shown that use of this widget tends to cause
+  more bugs than expected and our analysis indicates that the widget's
   very flexibility is the problem.  If QScrollView or QListBox can
   easily be made to do the job you need, we recommend subclassing
   those widgets rather than QTableView. In addition, QScrollView makes
-  it easy to have child widgets inside tables, something QTableView
+  it easy to have child widgets inside tables, which QTableView
   doesn't support at all.
 
   \sa QScrollView
@@ -150,14 +150,14 @@ void QCornerSquare::paintEvent( QPaintEvent * )
   Constructs a table view.  All the arguments are passed to the QFrame
   constructor.
 
-  The \link setTableFlags() table flags\endlink are all cleared (set to zero).
+  The \link setTableFlags() table flags\endlink are all cleared (set to 0).
   Set \c Tbl_autoVScrollBar or \c Tbl_autoHScrollBar to get automatic scroll
   bars and \c Tbl_clipCellPainting to get safe clipping.
 
   The \link setCellHeight() cell height\endlink and \link setCellWidth()
   cell width\endlink are set to 0.
 
-  Frame line shapes (QFrame::HLink and QFrame::VLine) are disallowed,
+  Frame line shapes (QFrame::HLink and QFrame::VLine) are disallowed;
   see QFrame::setFrameStyle().
 
   Note that the \a f argument is \e not \link setTableFlags() table
@@ -234,14 +234,14 @@ void QTableView::show()
 */
 
 /*!
-  Repaints the table view directly by calling paintEvent() directly,
+  Repaints the table view directly by calling paintEvent() directly
   unless updates are disabled.
 
   Erases the view area \e (x,y,w,h) if \e erase is TRUE. Parameters \e
   (x,y) are in \e widget coordinates.
 
   If \e w is negative, it is replaced with <code>width() - x</code>.
-  If \e h is negative, it is replaced width <code>height() - y</code>.
+  If \e h is negative, it is replaced with <code>height() - y</code>.
 
   Doing a repaint() usually is faster than doing an update(), but
   calling update() many times in a row will generate a single paint
@@ -319,7 +319,7 @@ void QTableView::setNumRows( int rows )
 
 /*!
   \fn int QTableView::numCols() const
-  Returns the number of columns in the table
+  Returns the number of columns in the table.
   \sa numRows(), setNumCols()
 */
 
@@ -358,12 +358,12 @@ void QTableView::setNumCols( int cols )
 /*!
   \fn int QTableView::topCell() const
   Returns the index of the first row in the table that is visible in
-  the view.  The index of the very first row is 0.
+  the view.  The index of the first row is 0.
   \sa leftCell(), setTopCell()
 */
 
 /*!
-  Scrolls the table such that \e row becomes the top row.
+  Scrolls the table so that \e row becomes the top row.
   The index of the very first row is 0.
   \sa setYOffset(), setTopLeftCell(), setLeftCell()
 */
@@ -382,8 +382,8 @@ void QTableView::setTopCell( int row )
 */
 
 /*!
-  Scrolls the table such that \e col becomes the leftmost
-  column.  The index of the very leftmost column is 0.
+  Scrolls the table so that \e col becomes the leftmost
+  column.  The index of the leftmost column is 0.
   \sa setXOffset(), setTopLeftCell(), setTopCell()
 */
 
@@ -394,8 +394,8 @@ void QTableView::setLeftCell( int col )
 }
 
 /*!
-  Scrolls the table such that the cell at row \e row and colum \e
-  col becomes the top left cell in the view.  The cell at the extreme
+  Scrolls the table so that the cell at row \e row and colum \e
+  col becomes the top-left cell in the view.  The cell at the extreme
   top left of the table is at position (0,0).
   \sa setLeftCell(), setTopCell(), setOffset()
 */
@@ -434,13 +434,13 @@ void QTableView::setTopLeftCell( int row, int col )
 /*!
   \fn int QTableView::xOffset() const
 
-  Returns the x coordinate in \e table coordinates of the pixel which is
+  Returns the x coordinate in \e table coordinates of the pixel that is
   currently on the left edge of the view.
 
   \sa setXOffset(), yOffset(), leftCell() */
 
 /*!
-  Scrolls the table such that \e x becomes the leftmost pixel in the view.
+  Scrolls the table so that \e x becomes the leftmost pixel in the view.
   The \e x parameter is in \e table coordinates.
 
   The interaction with \link setTableFlags() Tbl_snapToHGrid
@@ -457,7 +457,7 @@ void QTableView::setXOffset( int x )
 /*!
   \fn int QTableView::yOffset() const
 
-  Returns the y coordinate in \e table coordinates of the pixel which is
+  Returns the y coordinate in \e table coordinates of the pixel that is
   currently on the top edge of the view.
 
   \sa setYOffset(), xOffset(), topCell()
@@ -465,7 +465,7 @@ void QTableView::setXOffset( int x )
 
 
 /*!
-  Scrolls the table such that \e y becomes the top pixel in the view.
+  Scrolls the table so that \e y becomes the top pixel in the view.
   The \e y parameter is in \e table coordinates.
 
   The interaction with \link setTableFlags() Tbl_snapToVGrid
@@ -480,7 +480,7 @@ void QTableView::setYOffset( int y )
 }
 
 /*!
-  Scrolls the table such that \e (x,y) becomes the top left pixel
+  Scrolls the table so that \e (x,y) becomes the top-left pixel
   in the view. Parameters \e (x,y) are in \e table coordinates.
 
   The interaction with \link setTableFlags() Tbl_snapTo*Grid \endlink
@@ -564,14 +564,14 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
 /*!
   \fn int QTableView::cellWidth() const
 
-  Returns the column width, in pixels.	Returns 0 if the columns have
+  Returns the column width in pixels.	Returns 0 if the columns have
   variable widths.
 
   \sa setCellWidth(), cellHeight()
 */
 
 /*!
-  Returns the width of column \e col, in pixels.
+  Returns the width of column \e col in pixels.
 
   This function is virtual and must be reimplemented by subclasses that
   have variable cell widths. Note that if the total table width
@@ -589,7 +589,7 @@ int QTableView::cellWidth( int )
 /*!
   Sets the width in pixels of the table cells to \e cellWidth.
 
-  Setting it to zero means that the column width is variable.  When
+  Setting it to 0 means that the column width is variable.  When
   set to 0 (this is the default) QTableView calls the virtual function
   cellWidth() to get the width.
 
@@ -626,7 +626,7 @@ void QTableView::setCellWidth( int cellWidth )
 
 
 /*!
-  Returns the height of row \e row, in pixels.
+  Returns the height of row \e row in pixels.
 
   This function is virtual and must be reimplemented by subclasses that
   have variable cell heights.  Note that if the total table height
@@ -643,8 +643,8 @@ int QTableView::cellHeight( int )
 /*!
   Sets the height in pixels of the table cells to \e cellHeight.
 
-  Setting it to zero means that the row height is variable.  When set
-  to 0 (this is the default) QTableView calls the virtual function
+  Setting it to 0 means that the row height is variable.  When set
+  to 0 (this is the default), QTableView calls the virtual function
   cellHeight() to get the height.
 
   \sa cellHeight(), setCellWidth(), totalHeight(), numRows()
@@ -736,51 +736,51 @@ int QTableView::totalHeight()
 /*!
   Sets the table flags to \e f.
 
-  If a flag setting changes the appearance of the table the table is
-  repainted if and only if autoUpdate() is TRUE.
+  If a flag setting changes the appearance of the table, the table is
+  repainted if - and only if - autoUpdate() is TRUE.
 
   The table flags are mostly single bits, though there are some multibit
   flags for convenience. Here is a complete list:
 
   <dl compact>
-  <dt> Tbl_vScrollBar <dd> The table has a vertical scroll bar.
-  <dt> Tbl_hScrollBar <dd> The table has a horizontal scroll bar.
-  <dt> Tbl_autoVScrollBar <dd> The table has a vertical scroll bar if
-  and only if the table is taller than the view.
+  <dt> Tbl_vScrollBar <dd> - The table has a vertical scroll bar.
+  <dt> Tbl_hScrollBar <dd> - The table has a horizontal scroll bar.
+  <dt> Tbl_autoVScrollBar <dd> - The table has a vertical scroll bar if
+  - and only if - the table is taller than the view.
   <dt> Tbl_autoHScrollBar <dd> The table has a horizontal scroll bar if
-  and only if the table is wider than the view.
-  <dt> Tbl_autoScrollBars <dd> The union of the previous two flags.
-  <dt> Tbl_clipCellPainting <dd> The table uses QPainter::setClipRect() to
+  - and only if - the table is wider than the view.
+  <dt> Tbl_autoScrollBars <dd> - The union of the previous two flags.
+  <dt> Tbl_clipCellPainting <dd> - The table uses QPainter::setClipRect() to
   make sure that paintCell() will not draw outside the cell
   boundaries.
-  <dt> Tbl_cutCellsV <dd> The table will never show part of a
+  <dt> Tbl_cutCellsV <dd> - The table will never show part of a
   cell at the bottom of the table; if there is not space for all of
-  a cell the space is left blank.
-  <dt> Tbl_cutCellsH <dd> The table will never show part of a
+  a cell, the space is left blank.
+  <dt> Tbl_cutCellsH <dd> - The table will never show part of a
   cell at the right side of the table; if there is not space for all of
-  a cell the space is left blank.
-  <dt> Tbl_cutCells <dd> The union of the previous two flags.
-  <dt> Tbl_scrollLastHCell <dd> When the user scrolls horizontally,
-  let him/her scroll the last cell leftward until it is at the left
+  a cell, the space is left blank.
+  <dt> Tbl_cutCells <dd> - The union of the previous two flags.
+  <dt> Tbl_scrollLastHCell <dd> - When the user scrolls horizontally,
+  let him/her scroll the last cell left until it is at the left
   edge of the view.  If this flag is not set, the user can only scroll
-  to the point where last cell is completely visible.
-  <dt> Tbl_scrollLastVCell <dd> When the user scrolls vertically, let
-  him/her scroll the last cell upward until it is at the top edge of
+  to the point where the last cell is completely visible.
+  <dt> Tbl_scrollLastVCell <dd> - When the user scrolls vertically, let
+  him/her scroll the last cell up until it is at the top edge of
   the view.  If this flag is not set, the user can only scroll to the
-  point where last cell is completely visible.
-  <dt> Tbl_scrollLastCell <dd> The union of the previous two flags.
-  <dt> Tbl_smoothHScrolling <dd> The table scrolls as smoothly as
+  point where the last cell is completely visible.
+  <dt> Tbl_scrollLastCell <dd> - The union of the previous two flags.
+  <dt> Tbl_smoothHScrolling <dd> - The table scrolls as smoothly as
   possible when the user scrolls horizontally. When this flag is not
-  set scrolling is done one cell at a time.
-  <dt> Tbl_smoothVScrolling <dd> The table scrolls as smoothly as
-  possible when scrolling vertically. When this flag is not set
+  set, scrolling is done one cell at a time.
+  <dt> Tbl_smoothVScrolling <dd> - The table scrolls as smoothly as
+  possible when scrolling vertically. When this flag is not set,
   scrolling is done one cell at a time.
-  <dt> Tbl_smoothScrolling <dd> The union of of previous two flags.
-  <dt> Tbl_snapToHGrid <dd> Except when the user is actually scrolling,
+  <dt> Tbl_smoothScrolling <dd> - The union of the previous two flags.
+  <dt> Tbl_snapToHGrid <dd> - Except when the user is actually scrolling,
   the leftmost column shown snaps to the leftmost edge of the view.
-  <dt> Tbl_snapToVGrid <dd> Except when the user is actually
+  <dt> Tbl_snapToVGrid <dd> - Except when the user is actually
   scrolling, the top row snaps to the top edge of the view.
-  <dt> Tbl_snapToGrid <dd> The union of the previous two flags.
+  <dt> Tbl_snapToGrid <dd> - The union of the previous two flags.
   </dl>
 
   You can specify more than one flag at a time using bitwise OR.
@@ -932,21 +932,21 @@ void QTableView::clearTableFlags( uint f )
 /*!
   Sets the auto-update option of the table view to \e enable.
 
-  If \e enable is TRUE (this is the default) then the view updates itself
-  automatically whenever it has changed in some way (for example when a
+  If \e enable is TRUE (this is the default), the view updates itself
+  automatically whenever it has changed in some way (for example, when a
   \link setTableFlags() flag\endlink is changed).
 
-  If \e enable is FALSE, the view does NOT repaint itself, or update
-  its internal state variables itself when it is changed.  This can be
-  useful to avoid flicker during large changes, and is singularly
-  useless otherwise: Disable auto-update, do the changes, re-enable
-  auto-update, and call repaint().
+  If \e enable is FALSE, the view does NOT repaint itself or update
+  its internal state variables when it is changed.  This can be
+  useful to avoid flicker during large changes and is singularly
+  useless otherwise. Disable auto-update, do the changes, re-enable
+  auto-update and call repaint().
 
   \warning Do not leave the view in this state for a long time
-  (i.e. between events ). If, for example, the user interacts with the
+  (i.e., between events). If, for example, the user interacts with the
   view when auto-update is off, strange things can happen.
 
-  Setting auto-update to TRUE does not repaint the view, you must call
+  Setting auto-update to TRUE does not repaint the view; you must call
   repaint() to do this.
 
   \sa autoUpdate(), repaint()
@@ -990,15 +990,15 @@ void QTableView::updateCell( int row, int col, bool erase )
 /*!
   \fn QRect QTableView::cellUpdateRect() const
 
-  This function should only be called from the paintCell() function in
+  This function should be called only from the paintCell() function in
   subclasses. It returns the portion of a cell that actually needs to be
-  updated, in \e cell coordinates. This is only useful for non-trivial
+  updated in \e cell coordinates. This is useful only for non-trivial
   paintCell().
 
 */
 
 /*!
-  Returns the rectangle which is the actual table, excluding any
+  Returns the rectangle that is the actual table, excluding any
   frame, in \e widget coordinates.
 */
 
@@ -1272,12 +1272,12 @@ void QTableView::setupPainter( QPainter * )
   must remain open.
 
   The coordinate system is \link QPainter::translate() translated \endlink
-  such that the origin is at the top left corner of the cell to be
-  painted; i.e. \e cell coordinates.  Do not scale or shear the coordinate
+  so that the origin is at the top-left corner of the cell to be
+  painted, i.e., \e cell coordinates.  Do not scale or shear the coordinate
   system (or if you do, restore the transformation matrix before you
   return).
 
-  By default, the painter is not clipped, for maximum efficiency. For safety,
+  The painter is not clipped by default and for maximum efficiency. For safety,
   call setTableFlags(Tbl_clipCellPainting) to enable clipping.
 
   \sa paintEvent(), QPainter(), setTableFlags() */
@@ -1450,9 +1450,9 @@ void QTableView::updateView()
 }
 
 /*!
-  Returns a pointer to the vertical scroll bar, mainly so you can
+  Returns a pointer to the vertical scroll bar mainly so you can
   connect() to its signals.  Note that the scroll bar works in pixel
-  values, use findRow() to translate to cell numbers.
+  values; use findRow() to translate to cell numbers.
 */
 
 QScrollBar *QTableView::verticalScrollBar() const
@@ -1481,9 +1481,9 @@ QScrollBar *QTableView::verticalScrollBar() const
 }
 
 /*!
-  Returns a pointer to the horizontal scroll bar, mainly so you can
+  Returns a pointer to the horizontal scroll bar mainly so you can
   connect() to its signals. Note that the scroll bar works in pixel
-  values, use findCol() to translate to cell numbers.
+  values; use findCol() to translate to cell numbers.
 */
 
 QScrollBar *QTableView::horizontalScrollBar() const
@@ -1804,13 +1804,13 @@ bool QTableView::colXPos( int col, int *xPos ) const
 
 
 /*!
-  Moves the visible area of the table rightwards by \e xPixels and
-  downwards by \e yPixels pixels.  Both may be negative.
+  Moves the visible area of the table right by \e xPixels and
+  down by \e yPixels pixels.  Both may be negative.
 
   \warning You might find that QScrollView offers a higher-level of
 	functionality than using QTableView and this function.
 
-  This function is \e not the same as QWidget::scroll(), in particular,
+  This function is \e not the same as QWidget::scroll(); in particular,
   the signs of \a xPixels and \a yPixels have the reverse semantics.
 
   \sa setXOffset(), setYOffset(), setOffset(), setTopCell(),
@@ -1884,7 +1884,7 @@ int QTableView::maxViewY() const
 /*!
   Returns the width of the table view, as such, in \e view
   coordinates.  This does not include any header, scroll bar or frame,
-  but does include background pixels to the right of the table data.
+  but it does include background pixels to the right of the table data.
 
   \sa minViewX() maxViewX(), viewHeight(), contentsRect() viewRect()
 */
@@ -1898,7 +1898,7 @@ int QTableView::viewWidth() const
 /*!
   Returns the height of the table view, as such, in \e view
   coordinates.  This does not include any header, scroll bar or frame,
-  but does include background pixels below the table data.
+  but it does include background pixels below the table data.
 
   \sa minViewY() maxViewY() viewWidth() contentsRect() viewRect()
 */
@@ -1966,7 +1966,7 @@ void QTableView::doAutoScrollBars()
   \fn void QTableView::updateScrollBars()
 
   Updates the scroll bars' contents and presence to match the table's
-  state.  Generally you should not need to call this.
+  state.  Generally, you should not need to call this.
 
   \sa setTableFlags()
 */
@@ -2090,7 +2090,7 @@ void QTableView::updateFrameSize()
 
 /*!
   Returns the maximum horizontal offset within the table of the
-  view's left edge, in \e table coordinates.
+  view's left edge in \e table coordinates.
 
   This is used mainly to set the horizontal scroll bar's range.
 
@@ -2136,7 +2136,7 @@ int QTableView::maxXOffset()
 
 /*!
   Returns the maximum vertical offset within the table of the
-  view's top edge, in \e table coordinates.
+  view's top edge in \e table coordinates.
 
   This is used mainly to set the vertical scroll bar's range.
 
@@ -2181,7 +2181,7 @@ int QTableView::maxYOffset()
 
 
 /*!
-  Returns the index of the last column which may be at the left edge
+  Returns the index of the last column, which may be at the left edge
   of the view.
 
   Depending on the \link setTableFlags Tbl_scrollLastHCell\endlink flag,
@@ -2207,7 +2207,7 @@ int QTableView::maxColOffset()
 
 
 /*!
-  Returns the index of the last row which may be at the top edge of
+  Returns the index of the last row, which may be at the top edge of
   the view.
 
   Depending on the \link setTableFlags Tbl_scrollLastVCell\endlink flag,

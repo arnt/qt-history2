@@ -190,20 +190,20 @@ struct QLineEditPrivate {
   \ingroup basic
 
   A line edit allows the user to enter and edit a single line of plain
-  text, with a useful collection of editing functions, including undo
-  & redo, cut & paste, and drag & drop.
+  text with a useful collection of editing functions, including undo and
+  redo, cut and paste, and drag and drop.
 
-  By changing the echoMode() of a line edit it can also be used as a
+  By changing the echoMode() of a line edit, it can also be used as a
   "write-only" field, for inputs such as passwords.
 
   The length of the field can be constrained to a maxLength(), or the
   value can be arbitrarily constrained by setting a validator().
 
-  A closely related class is QTextEdit which allows multi-line editing
-  including rich text formatting of the text.
+  A closely related class is QTextEdit which allows multi-line, rich-text
+  editing.
 
   The default QLineEdit object has its own frame as specified by the
-  Windows/Motif style guides, you can turn off the frame by calling
+  Windows/Motif style guides; you can turn off the frame by calling
   setFrame( FALSE ).
 
   The default key bindings are described in keyPressEvent().  A
@@ -223,12 +223,12 @@ struct QLineEditPrivate {
   This enum type describes how QLineEdit displays its
   contents.  The defined values are:
   <ul>
-  <li> \c Normal - display characters as they are entered.  This is
+  <li> \c Normal - displays characters as they are entered.  This is
 	the default.
-  <li> \c NoEcho - do not display anything. This may be appropriate
+  <li> \c NoEcho - does not display anything. This may be appropriate
 	for passwords where even the length of the password should
 	be kept secret.
-  <li> \c Password - display asterisks instead of the characters
+  <li> \c Password - displays asterisks instead of the characters
 	actually entered.
   </ul>
 
@@ -323,7 +323,7 @@ void QLineEdit::init()
   Sets the line edit text to \e text, clears the selection and moves
   the cursor to the end of the line.
 
-  If necessary the text is truncated to maxLength().
+  If necessary, the text is truncated to maxLength().
 
   \sa text()
 */
@@ -342,9 +342,9 @@ void QLineEdit::setText( const QString &text )
 
 
 /*!
-  Selects all text (i.e. marks it) and moves the cursor to the
-  end. This is useful when a default value has been inserted,
-  since if the user types before clicking on the widget the
+  Selects all text (i.e., marks it) and moves the cursor to the
+  end. This is useful when a default value has been inserted
+  because if the user types before clicking on the widget, the
   selected text will be erased.
   
   \sa setSelection() deselect()
@@ -361,7 +361,7 @@ void QLineEdit::selectAll()
 
 
 /*!
-  Deselects all text (i.e. removes marking) and leaves the cursor at the
+  Deselects all text (i.e., removes marking) and leaves the cursor at the
   current position.
 
   \sa setSelection() selectAll()
@@ -389,9 +389,9 @@ QString QLineEdit::text() const
 
 
 
-/*!  Returns the text that is displayed.  This is normally
-the same as text(), but can be e.g. "*****" if EchoMode is Password or
-"" if it is NoEcho.
+/*!  Returns the text that is displayed.  This is normally the same as
+text(), but can be a string like "*****" if EchoMode is Password or ""
+if it is NoEcho.
 
 \sa setEchoMode() text() EchoMode
 */
@@ -404,7 +404,7 @@ QString QLineEdit::displayText() const
 
 
 /*!
-  Returns TRUE if part of the text has been marked by the user (e.g. by
+  Returns TRUE if part of the text has been marked by the user (e.g., by
   clicking and dragging).
 
   \sa markedText()
@@ -420,7 +420,7 @@ bool QLineEdit::hasMarkedText() const
 }
 
 /*!
-  Returns the text marked by the user (e.g. by clicking and
+  Returns the text marked by the user (e.g., by clicking and
   dragging), or a \link QString::operator!() null string\endlink
   if no text is marked.
   \sa hasMarkedText()
@@ -458,45 +458,45 @@ void QLineEdit::setMaxLength( int m )
 
 /*!
   \fn void  QLineEdit::returnPressed()
-  This signal is emitted when the return or enter key is pressed.
+  This signal is emitted when the Return or Enter key is pressed.
 */
 
 
 /*!
   Converts a key press into a line edit action.
 
-  If return or enter is pressed and the current text is valid (or can be
+  If Return or Enter is pressed and the current text is valid (or can be
   \link QValidator::fixup() made valid\endlink by the validator),
   the signal returnPressed is emitted.
 
   The default key bindings are:
   <ul>
-  <li><i> Left Arrow </i> Move the cursor one character leftwards.
-  <li><i> Right Arrow </i> Move the cursor one character rightwards.
-  <li><i> Backspace </i> Delete the character to the left of the cursor.
-  <li><i> Home </i> Move the cursor to the beginning of the line.
-  <li><i> End </i> Move the cursor to the end of the line.
-  <li><i> Delete </i> Delete the character to the right of the cursor.
-  <li><i> Shift - Left Arrow </i> Move and mark text one character leftwards.
-  <li><i> Shift - Right Arrow </i> Move and mark text one character rightwards.
-  <li><i> Control-A </i> Move the cursor to the beginning of the line.
-  <li><i> Control-B </i> Move the cursor one character leftwards.
-  <li><i> Control-C </i> Copy the marked text to the clipboard.
-  <li><i> Control-D </i> Delete the character to the right of the cursor.
-  <li><i> Control-E </i> Move the cursor to the end of the line.
-  <li><i> Control-F </i> Move the cursor one character rightwards.
-  <li><i> Control-H </i> Delete the character to the left of the cursor.
-  <li><i> Control-K </i> Delete to end of line
-  <li><i> Control-V </i> Paste the clipboard text into line edit.
-  <li><i> Control-X </i> Move the marked text to the clipboard.
-  <li><i> Control-Z </i> Undo the last operation.
-  <li><i> Control-Y </i> Redo the last undone operation.
+  <li>Left Arrow - moves the cursor one character to the left.
+  <li>Right Arrow - moves the cursor one character to the right.
+  <li>Backspace - deletes the character to the left of the cursor.
+  <li>Home - moves the cursor to the beginning of the line.
+  <li>End - moves the cursor to the end of the line.
+  <li>Delete - deletes the character to the right of the cursor.
+  <li>Shift - Left Arrow - moves and marks text one character to the left.
+  <li>Shift - Right Arrow - moves and marks text one character to the right.
+  <li>Control-A - moves the cursor to the beginning of the line.
+  <li>Control-B - moves the cursor one character to the left.
+  <li>Control-C - copies the marked text to the clipboard.
+  <li>Control-D - deletes the character to the right of the cursor.
+  <li>Control-E - moves the cursor to the end of the line.
+  <li>Control-F - moves the cursor one character to the right.
+  <li>Control-H - deletes the character to the left of the cursor.
+  <li>Control-K - deletes to the end of the line.
+  <li>Control-V - pastes the clipboard text into line edit.
+  <li>Control-X - moves the marked text to the clipboard.
+  <li>Control-Z - undoes the last operation.
+  <li>Control-Y - redoes the last undone operation.
   </ul>
   In addition, the following key bindings are used on Windows:
   <ul>
-  <li><i> Shift - Delete </i> Cut the marked text, copy to clipboard
-  <li><i> Shift - Insert </i> Paste the clipboard text into line edit
-  <li><i> Control - Insert </i> Copy the marked text to the clipboard
+  <li>Shift - Delete - cuts the marked text, copies to clipboard.
+  <li>Shift - Insert - pastes the clipboard text into line edit.
+  <li>Control - Insert - copies the marked text to the clipboard.
   </ul>
 
   All other keys with valid ASCII codes insert themselves into the line.
@@ -1035,8 +1035,9 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 /*!
   \fn void QLineEdit::cursorRight( bool, int )
   \obsolete
-  For compatibilty with older applications only. Use cursorForward
-  instead.
+  
+  Use cursorForward instead.
+
   \sa cursorForward()
 */
 
@@ -1048,8 +1049,8 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
   \sa cursorBackward()
 */
 
-/*!
-  Moves the cursor back one or more characters.
+/*! Moves the cursor back one or more characters.
+
   \sa cursorForward()
 */
 void QLineEdit::cursorBackward( bool mark, int steps )
@@ -1082,7 +1083,7 @@ void QLineEdit::cursorForward( bool mark, int steps )
 /*!
   Deletes the character to the left of the text cursor and moves the
   cursor one position to the left. If a text has been marked by the user
-  (e.g. by clicking and dragging) the cursor will be put at the beginning
+  (e.g., by clicking and dragging), the cursor will be put at the beginning
   of the marked text and the marked text will be removed.  \sa del()
 */
 
@@ -1108,7 +1109,7 @@ void QLineEdit::backspace()
 
 /*!
   Deletes the character on the right side of the text cursor. If a text
-  has been marked by the user (e.g. by clicking and dragging) the cursor
+  has been marked by the user (e.g., by clicking and dragging), the cursor
   will be put at the beginning of the marked text and the marked text will
   be removed.  \sa backspace()
 */
@@ -1131,10 +1132,9 @@ void QLineEdit::del()
     emit textChanged( text() );
 }
 
-/*!
-  Moves the text cursor to the beginning of the line. If mark is TRUE text
-  will be marked towards the first position, if not any marked text will
-  be unmarked if the cursor is moved.  \sa end()
+/*!  Moves the text cursor to the beginning of the line. If mark is TRUE,
+  text is marked towards the first position; if not, any marked text is
+  unmarked if the cursor is moved.  \sa end()
 */
 
 void QLineEdit::home( bool mark )
@@ -1149,11 +1149,9 @@ void QLineEdit::home( bool mark )
     update();
 }
 
-/*!
-  Moves the text cursor to the end of the line. If mark is TRUE text
-  will be marked towards the last position, if not any marked text will
-  be unmarked if the cursor is moved.
-  \sa home()
+/*!  Moves the text cursor to the end of the line. If mark is TRUE, text
+  is marked towards the last position; if not, any marked text is unmarked
+  if the cursor is moved. \sa home()
 */
 
 void QLineEdit::end( bool mark )
@@ -1228,27 +1226,31 @@ void QLineEdit::cut()
 
 #endif
 
-/*!
-  Sets the alignment of the line edit. Possible Values are Qt::AlignAuto, Qt::AlignLeft,
-  Qt::AlignRight and Qt::Align(H)Center - see Qt::AlignmentFlags.
+/*!  Sets the alignment of the line edit to \a flag. Possible Values are
+  Qt::AlignAuto, Qt::AlignLeft, Qt::AlignRight and Qt::AlignHCenter - see
+  Qt::AlignmentFlags.
+
+  If \a flag is an illegal flag combination, this function does nothing.
+
   \sa alignment()
 */
 void QLineEdit::setAlignment( int flag )
 {
-    if ( flag == d->parag->alignment() )
+    if ( flag == AlignCenter )
+	flag = AlignHCenter;
+    if ( flag == d->parag->alignment() ||
+	 (flag & ~Qt::AlignHorizontal_Mask) != 0 )
 	return;
-    if ( !(flag & Qt::AlignVertical_Mask ) || flag & Qt::AlignCenter ) {
-	d->parag->setAlignment( flag );
-	d->parag->invalidate( 0 );
-	d->parag->format();
-	updateOffset();
-	update();
-    }
+    d->parag->setAlignment( flag );
+    d->parag->invalidate( 0 );
+    d->parag->format();
+    updateOffset();
+    update();
 }
 
 /*!
   Returns the alignment of the line edit. Possible Values
-  are Qt::AlignAuto, Qt::AlignLeft, Qt::AlignRight and Qt::Align(H)Center.
+  are Qt::AlignAuto, Qt::AlignLeft, Qt::AlignRight and Qt::AlignHCenter.
 
   \sa setAlignment(), Qt::AlignmentFlags
 */
@@ -1277,7 +1279,7 @@ void QLineEdit::clipboardChanged()
 
 
 /*!  Sets the line edit to draw itself inside a two-pixel frame if \a
-  enable is TRUE, and to draw itself without any frame if \a enable is
+  enable is TRUE and to draw itself without any frame if \a enable is
   FALSE.
 
   The default is TRUE.
@@ -1309,23 +1311,13 @@ bool QLineEdit::frame() const
 }
 
 
-/*!  Sets the echo mode of the line edit widget.
+/*!  Sets the echo mode of the line edit widget.  The initial setting
+is Normal, but QLineEdit also support NoEcho and Password.
 
-  The echo modes available are:
-  <ul>
-  <li> \c Normal - display characters as they are entered.  This is
-	the default.
-  <li> \c NoEcho - do not display anything. This may be appropriate
-	for passwords where even the length of the password should
-	be kept secret.
-  <li> \c Password - display asterisks instead of the characters
-	actually entered.
-  </ul>
+  The widget's display and the ability to copy or drag the text is
+  affected by this setting.
 
-  The widget's display, and the ability to copy or drag the
-  text is affected by this setting.
-
-  \sa echoMode() EchoMode displayText()
+  \sa EchoMode echoMode() displayText()
 */
 
 void QLineEdit::setEchoMode( EchoMode mode )
@@ -1349,10 +1341,11 @@ QLineEdit::EchoMode QLineEdit::echoMode() const
     return d->mode;
 }
 
-/*!
-  Enables or disables read-only mode, where the user can cut-and-paste
-  or drag-and-drop the text, but cannot edit it.
-  They never see a cursor in this case.
+/*!  Enables read-only mode if \a enable is TRUE and disables it if \a
+  enable is FALSE.  In read-only mode, the user can copy the text to
+  the clipboard or drag-and-drop the text but cannot edit it.
+
+  QLineEdit does not show a cursor in read-only mode.
 
   \sa setEnabled(), isReadOnly()
 */
@@ -1425,8 +1418,9 @@ QSize QLineEdit::minimumSizeHint() const
   Sets this line edit to accept input only as accepted by \a v,
   allowing arbitrary constraints on the text which the user can edit.
 
-  If \a v == 0, remove the current input validator.  The default
-  is no input validator (ie. any input is accepted up to maxLength()).
+  If \a v == 0, setValidator() removes the current input validator.
+  The initial setting is to have no input validator (i.e., any input
+  is accepted up to maxLength()).
 
   \sa validator() QValidator
 */
@@ -1559,7 +1553,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 
 
 /*!  Removes any selected text, inserts \a newText,
-  validates the result and if it is valid, sets it as the new contents
+  and validates the result. If it is valid, it sets it as the new contents
   of the line edit.
 
 */
@@ -1683,12 +1677,12 @@ void QLineEdit::setPalette( const QPalette & p )
 
 
 /*!  Sets the edited flag of this line edit to \a on.  The edited flag
-is never read by QLineEdit, and is changed to TRUE whenever the user
+is never read by QLineEdit; it is changed to TRUE whenever the user
 changes its contents.
 
-This is useful e.g. for things that need to provide a default value,
+This is useful for things that need to provide a default value
 but cannot find the default at once.  Just open the line edit without
-the best default and when the default is known, check the edited()
+the best default; when the default is known, check the edited()
 return value and set the line edit's contents if the user has not
 started editing the line edit.
 
@@ -1701,11 +1695,11 @@ void QLineEdit::setEdited( bool on )
 }
 
 
-/*!  Returns the edited flag of the line edit.  If this returns FALSE,
-the line edit's contents have not been changed since the construction
-of the QLineEdit (or the last call to either setText() or setEdited( FALSE ),
-if any).  If it returns true, the contents have been edited, or
-setEdited( TRUE ) has been called.
+/*!  Returns the edited flag of the line edit.  If this returns FALSE, the
+line edit's contents have not been changed since the construction of the
+QLineEdit (or the last call to either setText() or setEdited(FALSE), if
+any).  If it returns true, the contents have been edited or setEdited(
+TRUE ) has been called.
 
 \sa setEdited()
 */

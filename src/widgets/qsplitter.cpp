@@ -192,8 +192,8 @@ public:
   setMaximumSize() on the children. Use setResizeMode() to specify that
   a widget should keep its size when the splitter is resized.
 
-  QSplitter normally resizes the children only at the end of a
-  resize operation, but if you call setOpaqueResize( TRUE ), the
+  Although QSplitter normally resizes the children only at the end of a
+  resize operation, if you call setOpaqueResize( TRUE ) the
   widgets are resized as often as possible.
 
   The initial distribution of size between the widgets is determined
@@ -201,8 +201,8 @@ public:
   set the sizes of all the widgets. The function sizes() returns the
   sizes set by the user.
 
-  If you hide() a child, its space will be distributed among the other
-  children. When you show() it again, it will be reinstated.
+  If you hide() a child its space will be distributed among the other
+  children. It will be reinstated when you show() it again.
 
   <img src=qsplitter-m.png> <img src=qsplitter-w.png>
 
@@ -237,7 +237,7 @@ QSplitter::QSplitter( QWidget *parent, const char *name )
 
 
 /*!
-  Constructs splitter with orientation \a o.
+  Constructs a splitter with orientation \a o.
 */
 
 QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
@@ -321,10 +321,10 @@ void QSplitter::resizeEvent( QResizeEvent * )
 
 
 /*!
-  Inserts the widget \a w at the end, or at the beginning if \a first is TRUE
+  Inserts the widget \a w at the end or at the beginning if \a first is TRUE
 
   It is the responsibility of the caller of this function to make sure
-  that \a w is not already in the splitter, and to call recalcId if
+  that \a w is not already in the splitter and to call recalcId if
   needed.  (If \a first is TRUE, then recalcId is very probably
   needed.)
 */
@@ -470,8 +470,8 @@ void QSplitter::drawSplitter( QPainter *p,
 
 /*!
   Returns the id of the splitter to the right of or below the widget \a w,
-  or 0 if there is no such splitter.
-  (ie. it is either not in this QSplitter, or it is at the end).
+  or 0 if there is no such splitter
+  (i.e., it is either not in this QSplitter or it is at the end).
 */
 
 int QSplitter::idAfter( QWidget* w ) const
@@ -491,7 +491,7 @@ int QSplitter::idAfter( QWidget* w ) const
 
 /*!
   Moves the left/top edge of the splitter handle with id \a id as
-  close as possible to \a p which is the distance from the left (or
+  close as possible to \a p, which is the distance from the left (or
   top) edge of the widget.
 
   For hebrew and arabic the layout is reversed, and using this function
@@ -1022,7 +1022,7 @@ void QSplitter::storeSizes()
 #if 0 // ### remove this code ASAP
 
 /*!
-  Hides \a w if \a hide is TRUE, and updates the splitter.
+  Hides \a w if \a hide is TRUE and updates the splitter.
 
   \warning Due to a limitation in the current implementation,
   calling QWidget::hide() will not work.

@@ -53,7 +53,6 @@
 #include <ctype.h>
 
 
-// NOT REVISED
 /*!
   \class QMultiLineEdit qmultilineedit.h
 
@@ -61,30 +60,26 @@
 
   \ingroup advanced
 
-  The QMultiLineEdit was a simple editor widget in former Qt
-  versions. Since Qt 3.0, which comes with a new richtext engine,
-  which also supports editing, QMultiLineEdit is obsolete. It is still
-  included for compatibility reasons. It is now a subclass of
-  QTextEdit which wraps the old QMultiLineEdit so that it is mostly
-  source compatible to keep old applications working.
+  The QMultiLineEdit was a simple editor widget in former Qt versions.  Qt
+  3.0 includes a new richtext engine which obsoletes QMultiLineEdit. It is
+  still included for compatibility reasons. It is now a subclass of
+  QTextEdit, and provides enough of the old QMultiLineEdit API to keep old
+  applications working.
 
-  If you implement something new with QMultiLineEdit, rather use
+  If you implement something new with QMultiLineEdit, we suggest using
   QTextEdit instead.
 
-  Although most of the old QMultiLineEdit API is still available,
-  there is one important difference. Because of a design flaw the
-  old QMultiLineEdit used to operate on lines and not on paragraphs.
-  As lines do change all the time during wordwrap, the new richtext
-  engine only knows paragraphs as elements in the data structure. So
-  all functions (like numLines(), textLine()), which worked on lines,
-  now work on paragraphs.
+  Although most of the old QMultiLineEdit API is still available, there is
+  a few difference. The old QMultiLineEdit operated on lines, not on
+  paragraphs.  As lines change all the time during wordwrap, the new
+  richtext engine uses paragraphs as basic elements in the data structure.
+  All functions (numLines(), textLine(), etc.) that operated on lines, now
+  operate on paragraphs. Further, getString() has been removed completely.
+  It revealed too much of the internal data structure.
 
-  Also the function getString() has been removed as this one published
-  the internal data structure.
-
-  So, applications which made normal usage of the QMultiLineEdit,
-  should keep working without problems. Programs which did some
-  special stuff with it might require some porting.
+  Applications which made normal and reasonable use of QMultiLineEdit
+  should still work without problems. Some odd usage will require some
+  porting. In these cases, it may be better to use QTextEdit now.
 
   <img src=qmlined-m.png> <img src=qmlined-w.png>
 */
@@ -152,14 +147,14 @@ int QMultiLineEdit::lineLength( int row ) const
 
 /*! \fn bool QMultiLineEdit::isReadOnly() const
 
-  Returns FALSE if this multi line edit accepts text input.
+  Returns FALSE if this multi-line edit accepts text input.
   Scrolling and cursor movements are accepted in any case.
 
   \sa setReadOnly() QWidget::isEnabled()
 */
 
 /*!
-  If \a on is FALSE, this multi line edit accepts text input.
+  If \a on is FALSE, this multi-line edit accepts text input.
   Scrolling and cursor movements are accepted in any case.
 
   \sa isReadOnly() QWidget::setEnabled()
@@ -175,8 +170,7 @@ void QMultiLineEdit::setReadOnly( bool on )
     }
 }
 
-/*! \reimp
-*/
+/*! \reimp */
 
 QMultiLineEdit::~QMultiLineEdit()
 {
@@ -273,14 +267,14 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
     *c = tmp;
 }
 
-/*!  Deletes the paragraph at paragraph number \a line. If \a line is
-  less than zero, or larger than the number of paragraphs, no line is
-  deleted.
+/*!  Deletes the paragraph at paragraph number \a paragraph. If \a
+  paragraph is less than zero or larger than the number of paragraphs,
+  nothing is deleted.
 */
 
-void QMultiLineEdit::removeLine( int line )
+void QMultiLineEdit::removeLine( int paragraph )
 {
-    if ( line < 0 || line >= numLines() )
+    if ( paragraph < 0 || paragraph >= numLines() )
 	return;
     QTextCursor tmp = *textCursor();
     tmp.killLine(); // until end
@@ -330,8 +324,8 @@ void QMultiLineEdit::backspace()
 
 
 /*!  Moves the text cursor to the left end of the line. If \a mark is
-  TRUE, text is marked towards the first position. If it is FALSE and
-  the cursor is moved, all marked text is unmarked.
+  TRUE, text is marked toward the first position. If it is FALSE and the
+  cursor is moved, all marked text is unmarked.
 
   \sa end()
 */
@@ -341,9 +335,9 @@ void QMultiLineEdit::home( bool mark )
     moveCursor( MoveHome, mark, FALSE );
 }
 
-/*!  Moves the text cursor to the right end of the line. If mark is
-  TRUE text is marked towards the last position.  If it is FALSE and
-  the cursor is moved, all marked text is unmarked.
+/*!  Moves the text cursor to the right end of the line. If \a mark is
+  TRUE, text is marked toward the last position.  If it is FALSE and the
+  cursor is moved, all marked text is unmarked.
 
   \sa home()
 */
@@ -357,7 +351,7 @@ void QMultiLineEdit::end( bool mark )
   number \a line.  The parameters are adjusted to lie within the legal
   range.
 
-  If \a mark is FALSE, the selection is cleared. otherwise it is extended
+  If \a mark is FALSE, the selection is cleared. otherwise it is extended.
 
   \sa cursorPosition()
 */
@@ -372,9 +366,12 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 }
 
 
-/*!  Returns the current paragraph and character position within that
-  paragraph, in the variables pointed to by \a line and \a col
-  respectively.
+/*!  Returns the current paragraph in the variable pointed to by \a line
+  and the character position within that paragraph in the variable pointed
+  to by \a col.
+
+  If either variable is null, getCursorPosition() sets only the other
+  variable.
 
   \sa setCursorPosition()
 */
@@ -389,7 +386,7 @@ void QMultiLineEdit::getCursorPosition( int *line, int *col ) const
 	*col = c;
 }
 
-/*!  Returns the top center point where the cursor is drawn
+/*!  Returns the top center point where the cursor is drawn.
 */
 
 QPoint QMultiLineEdit::cursorPoint() const
@@ -397,13 +394,19 @@ QPoint QMultiLineEdit::cursorPoint() const
     return QPoint( textCursor()->x(), textCursor()->y() );
 }
 
-/*!  Sets the alignment. Possible values are \c AlignLeft, \c
-  Align(H)Center and \c AlignRight.
+/*!  Sets the alignment to \a flag, which must be \c AlignLeft, \c
+  AlignHCenter or \c AlignRight.
+
+  If \a flag is an illegal flag nothing happens.
 
   \sa alignment(), Qt::AlignmentFlags
 */
-void QMultiLineEdit::setAlignment( int flags )
+void QMultiLineEdit::setAlignment( int flag )
 {
+    if ( flag == AlignCenter )
+	flag = AlignHCenter;
+    if ( flag != AlignLeft && flag != AlignRight && flag != AlignHCenter )
+	return;
     QTextParag *p = document()->firstParag();
     while ( p ) {
 	p->setAlignment( flags );
@@ -426,12 +429,10 @@ int QMultiLineEdit::alignment() const
   is never read by QMultiLineEdit, but is changed to TRUE whenever the
   user changes its contents.
 
-  This is useful e.g. for things that need to provide a default value,
-  but cannot find the default at once.  Just open the widget without
-  the best default and when the default is known, check the edited()
-  return value and set the line edit's contents if the user has not
-  started editing the line edit.  Another example is to detect whether
-  the contents need saving.
+  This is useful e.g. for things that need to provide a default value, but
+  cannot find the default at once.  Just open the widget without the best
+  default; when the default is known, check the edited() return value and
+  set contents if the user has not started editing the line edit.
 
   \sa edited()
 */
@@ -441,10 +442,16 @@ void QMultiLineEdit::setEdited( bool e )
 }
 
 /*!  Returns the edited flag of the line edit.  If this returns FALSE,
-  the contents has not been changed since the construction of the
-  QMultiLineEdit (or the last call to setEdited( FALSE ), if any).  If
-  it returns TRUE, the contents have been edited, or setEdited( TRUE )
-  has been called.
+
+
+/*!  Returns the edited flag of the editor.  If this returns FALSE, the
+editor's contents have not been changed since the construction of the
+editor (or the last call to either setText() or setEdited(FALSE), if any).
+If it returns true, the contents have been edited or setEdited(TRUE) has
+been called.
+
+This is very useful for detecting whether its contents need saving, for
+example.
 
   \sa setEdited()
 */
@@ -453,8 +460,8 @@ bool QMultiLineEdit::edited() const
     return isModified();
 }
 
-/*!  Moves the cursor one word to the right.  If \a mark is TRUE, the
-  text is marked.
+/*!  Moves the cursor one word to the right.  If \a mark is TRUE, the text
+  is marked.
 
   \sa cursorWordBackward()
 */
@@ -494,8 +501,10 @@ void QMultiLineEdit::insertAt( const QString &s, int line, int col, bool mark )
 	setSelection( line, col, line, col + s.length() );
 }
 
+// ### reggie - is this documentation correct?
+
 /*!  Deletes text from the current cursor position to the end of the
-  line.
+  line. (Note that this function still operates on lines, not paragraphs.)
 */
 
 void QMultiLineEdit::killLine()
