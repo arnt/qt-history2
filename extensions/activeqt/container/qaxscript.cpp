@@ -775,7 +775,7 @@ QAxBase *QAxScript::findObject(const QString &name)
     if (!script_manager)
         return 0;
     
-    return script_manager->d->objectDict[name];
+    return script_manager->d->objectDict.value(name);
 }
 
 /*! \fn QString QAxScript::scriptName() const
@@ -924,7 +924,7 @@ QStringList QAxScriptManager::scriptNames() const
 */
 QAxScript *QAxScriptManager::script(const QString &name) const
 {
-    return d->scriptDict[name];
+    return d->scriptDict.value(name);
 }
 
 /*!
@@ -937,8 +937,8 @@ QAxScript *QAxScriptManager::script(const QString &name) const
 void QAxScriptManager::addObject(QAxBase *object)
 {
     QObject *obj = object->qObject();
-    QString name = QString::fromLatin1(obj->objectName());
-    if (d->objectDict[name])
+    QString name = obj->objectName();
+    if (d->objectDict.contains(name))
         return;
     
     d->objectDict.insert(name, object);
@@ -1234,8 +1234,7 @@ void QAxScriptManager::updateScript(QAxScript *script)
 */
 void QAxScriptManager::objectDestroyed(QObject *o)
 {
-    QString name = QString::fromLatin1(o->objectName());
-    d->objectDict.take(name);
+    d->objectDict.take(o->objectName());
 }
 
 /*!
