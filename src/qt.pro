@@ -61,6 +61,8 @@ unix {
 	CONFIG	   += x11 x11inc
 	DEFINES    += QT_FATAL_ASSERT
 	!macx:LIBS += -ldl
+	MOC_DIR	  = .tmp
+	OBJECTS_DIR = .obj
 }
 
 DEPENDPATH += :$$NETWORK_H:$$KERNEL_H:$$WIDGETS_H:$$SQL_H:$$TABLE_H:$$DIALOGS_H:
