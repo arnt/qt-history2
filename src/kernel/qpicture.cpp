@@ -1407,8 +1407,8 @@ QPictureHandler::QPictureHandler( const char *f, const char *h, const QByteArray
     write_picture = w;
 }
 
-typedef QList<QPictureHandler*> QPHList;// list of picture handlers
-static QPHList *pictureHandlers = 0;
+typedef QList<QPictureHandler *> QPHList;
+static QPHList pictureHandlers;
 #ifndef QT_NO_COMPONENT
 static QPluginManager<QPictureFormatInterface> *plugin_manager = 0;
 #else
@@ -1439,8 +1439,8 @@ void qt_init_picture_plugins()
 static void cleanup()
 {
     // make sure that picture handlers are delete before plugin manager
-    delete pictureHandlers;
-    pictureHandlers = 0;
+    while (!pictureHandlers.isEmpty())
+	delete pictureHandlers.takeFirst();
 #ifndef QT_NO_COMPONENT
     delete plugin_manager;
     plugin_manager = 0;
@@ -1449,18 +1449,18 @@ static void cleanup()
 
 void qt_init_picture_handlers()		// initialize picture handlers
 {
-    if ( !pictureHandlers ) {
-	pictureHandlers = new QPHList;
-	pictureHandlers->setAutoDelete( TRUE );
-	qAddPostRoutine( cleanup );
-    }
+    static bool done = false;
+    if (done) return;
+    done = true;
+
+    qAddPostRoutine( cleanup );
 }
 
 static QPictureHandler *get_picture_handler( const char *format )
 {						// get pointer to handler
     qt_init_picture_handlers();
     qt_init_picture_plugins();
-    for(QPHList::Iterator it = pictureHandlers->begin(); it != pictureHandlers->end(); ++it) {
+    for(QPHList::Iterator it = pictureHandlers.begin(); it != pictureHandlers.end(); ++it) {
 	if ( (*it)->format == format )
 	    return (*it);
     }
@@ -1529,7 +1529,7 @@ void QPictureIO::defineIOHandler( const char *format,
     QPictureHandler *p;
     p = new QPictureHandler( format, header, QByteArray(flags),
 			     readPicture, writePicture );
-    pictureHandlers->insert( 0, p );
+    pictureHandlers.insert( 0, p );
 }
 
 
@@ -1796,7 +1796,7 @@ QByteArray QPictureIO::pictureFormat( QIODevice *d )
     if ( d->status() == IO_Ok && rdlen > 0 ) {
 	buf[rdlen - 1] = '\0';
 	QString bufStr = QString::fromLatin1(buf);
-	for(QPHList::Iterator it = pictureHandlers->begin(); it != pictureHandlers->end(); ++it) {
+	for(QPHList::Iterator it = pictureHandlers.begin(); it != pictureHandlers.end(); ++it) {
 	    if ( (*it)->header.search(bufStr) != -1 ) { // try match with headers
 		format = (*it)->format;
 		break;
@@ -1818,7 +1818,7 @@ QList<QByteArray> QPictureIO::inputFormats()
     qt_init_picture_handlers();
     qt_init_picture_plugins();
 
-    for(QPHList::Iterator it = pictureHandlers->begin(); it != pictureHandlers->end(); ++it) {
+    for(QPHList::Iterator it = pictureHandlers.begin(); it != pictureHandlers.end(); ++it) {
 	if ( (*it)->read_picture && !(*it)->obsolete  && !result.contains((*it)->format) )
 	    result.append((*it)->format);
     }
@@ -1837,7 +1837,7 @@ QList<QByteArray> QPictureIO::outputFormats()
     qt_init_picture_plugins();
 
     QList<QByteArray> result;
-    for(QPHList::Iterator it = pictureHandlers->begin(); it != pictureHandlers->end(); ++it) {
+    for(QPHList::Iterator it = pictureHandlers.begin(); it != pictureHandlers.end(); ++it) {
 	if ( (*it)->write_picture && !(*it)->obsolete && !result.contains((*it)->format) )
 	    result.append((*it)->format);
     }

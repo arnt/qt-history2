@@ -70,11 +70,14 @@ public:
 #if defined(QT_THREAD_SUPPORT)
 	spinlock.initialize();
 #endif
+    }
+    virtual ~QObjectPrivate()
+    {
 #ifndef QT_NO_USERDATA
-	userData.setAutoDelete(true);
+	while (!userData.isEmpty())
+	    delete userData.takeFirst();
 #endif
     }
-    virtual ~QObjectPrivate() {}
 
 #if defined(QT_THREAD_SUPPORT)
     // id of the thread that owns the object

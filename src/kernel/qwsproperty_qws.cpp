@@ -53,7 +53,8 @@ QWSPropertyManager::QWSPropertyManager()
 
 QWSPropertyManager::~QWSPropertyManager()
 {
-    d->properties.deleteAll();
+    while (!d->properties.isEmpty())
+	delete d->properties.takeFirst();
     delete d;
 }
 
@@ -175,13 +176,13 @@ bool QWSPropertyManager::getProperty( int winId, int property, char *&data, int 
 
 bool QWSPropertyManager::removeProperties( int winId )
 {
-    QHash<int,Data::Property*>* wp = d->properties.take(winId);
+    QHash<int,Data::Property*> *wp = d->properties.take(winId);
 
     if (wp) {
-	wp->deleteAll();
+	while (!wp->isEmpty())
+	    delete wp->takeFirst();
 	delete wp;
     }
-	
     return wp != 0;
 }
 

@@ -237,7 +237,8 @@ static void sn_cleanup()
     DestroyWindow(sn_win);
     sn_win = 0;
     for ( int i=0; i<3; i++ ) {
-	(*sn_vec[i])->deleteAll();
+	while (!(*sn_vec[i])->isEmpty())
+	    delete (*sn_vec[i])->takeFirst();
 	delete *sn_vec[i];
 	*sn_vec[i] = 0;
     }

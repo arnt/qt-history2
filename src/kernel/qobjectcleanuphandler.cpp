@@ -126,8 +126,8 @@ bool QObjectCleanupHandler::isEmpty() const
 */
 void QObjectCleanupHandler::clear()
 {
-    cleanupObjects.deleteAll();
-    cleanupObjects.clear();
+    while (!cleanupObjects.isEmpty())
+	delete cleanupObjects.takeFirst();
 }
 
 void QObjectCleanupHandler::objectDestroyed(QObject *object)

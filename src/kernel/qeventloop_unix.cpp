@@ -25,7 +25,6 @@
 #define d d_func()
 #define q q_func()
 
-
 bool qt_disable_lowpriority_timers=FALSE;
 
 // Internal operator functions for timevals
@@ -173,7 +172,6 @@ int QEventLoop::registerTimer( int interval, QObject *obj )
 	while( i-- > 0 )
 	    d->timerBitVec->clearBit( i );
 	d->timerList = new QTimerList;
-	d->timerList->setAutoDelete( TRUE );
 	gettimeofday( &d->watchtime, 0 );
     }
 
@@ -218,11 +216,12 @@ bool QEventLoop::unregisterTimer( int id )
 
     for (int i = 0; i < d->timerList->size(); ++i) {
 	register QTimerInfo *t = d->timerList->at(i);
-	if (t->id != id) continue;
-
-	d->timerBitVec->clearBit(id - 1);	// set timer inactive
-	d->timerList->removeAt(i);
-	return TRUE;
+	if (t->id == id) {
+	    d->timerBitVec->clearBit(id - 1);	// set timer inactive
+	    d->timerList->removeAt(i);
+            delete t;
+	    return TRUE;
+	}
     }
 
     return FALSE; // id not found
@@ -242,6 +241,7 @@ bool QEventLoop::unregisterTimers( QObject *obj )
 	    // object found
 	    d->timerBitVec->clearBit(t->id - 1);
 	    d->timerList->removeAt(i);
+            delete t;
 
 	    // move back one so that we don't skip the new current item
 	    --i;
@@ -256,12 +256,16 @@ bool QEventLoop::unregisterTimers( QObject *obj )
  *****************************************************************************/
 QSockNotType::QSockNotType()
 {
-    list.setAutoDelete(true);
     FD_ZERO( &select_fds );
     FD_ZERO( &enabled_fds );
     FD_ZERO( &pending_fds );
 }
 
+QSockNotType::~QSockNotType()
+{
+    while (!list.isEmpty())
+	delete list.takeFirst();
+}
 
 /*****************************************************************************
  QEventLoop implementations for UNIX
@@ -275,7 +279,7 @@ void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 	return;
     }
 
-    QList<QSockNot *>  &list = d->sn_vec[type].list;
+    QList<QSockNot *> &list = d->sn_vec[type].list;
     fd_set *fds  = &d->sn_vec[type].enabled_fds;
     QSockNot *sn;
 
@@ -326,6 +330,7 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
     FD_CLR( sockfd, sn->queue );
     d->sn_pending_list.remove(sn);		// remove from activation list
     list.removeAt(i);				// remove notifier found above
+    delete sn;
 
     if ( d->sn_highest == sockfd ) {		// find highest fd
 	d->sn_highest = -1;
@@ -439,7 +444,7 @@ int QEventLoop::activateTimers()
 	}
 
 	// remove from list
-	(void) d->timerList->takeFirst();
+	d->timerList->removeFirst();
 	t->timeout += t->interval;
 	if (t->timeout < currentTime)
 	    t->timeout = currentTime + t->interval;
@@ -499,8 +504,12 @@ void QEventLoop::cleanup()
     close( d->thread_pipe[1] );
 
     //cleanup timer
-    delete d->timerList;
-    d->timerList = 0;
+    if (d->timerList) {
+        while (!d->timerList->isEmpty())
+	    delete d->timerList->takeFirst();
+        delete d->timerList;
+        d->timerList = 0;
+    }
     delete d->timerBitVec;
     d->timerBitVec = 0;
 }
@@ -561,7 +570,7 @@ int QEventLoopPrivate::eventloopSelect(uint flags, timeval *t)
 		    FD_ZERO(&fdset);
 		    FD_SET(sn->fd, &fdset);
 
-		    int ret;
+		    int ret = -1;
 		    do {
 			switch (type) {
 			case 0: // read

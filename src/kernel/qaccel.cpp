@@ -530,7 +530,8 @@ QAccelPrivate::QAccelPrivate(QAccel *p)
 
 QAccelPrivate::~QAccelPrivate()
 {
-    aitems.deleteAll();
+    while (!aitems.isEmpty())
+	delete aitems.takeFirst();
     QAccelManager::self()->unregisterAccel(this);
 }
 
@@ -711,8 +712,8 @@ void QAccel::removeItem(int id)
 
 void QAccel::clear()
 {
-    d->aitems.deleteAll();
-    d->aitems.clear();
+    while (!d->aitems.isEmpty())
+	delete d->aitems.takeFirst();
 }
 
 

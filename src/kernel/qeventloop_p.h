@@ -63,6 +63,7 @@ class QSockNotType
 {
 public:
     QSockNotType();
+    ~QSockNotType();
 
     QList<QSockNot*> list;
     fd_set select_fds;

@@ -97,25 +97,22 @@ inline bool isBreakable( Q3TextString *string, int pos )
 
 void QTextCommandHistory::addCommand( QTextCommand *cmd )
 {
-    if ( current < (int)history.count() - 1 ) {
+    if ( current < history.count() - 1 ) {
 	QList<QTextCommand *> commands;
-	commands.setAutoDelete( FALSE );
 
-	for( int i = 0; i <= current; ++i ) {
-	    commands.insert( i, history.at( 0 ) );
-	    history.take( 0 );
-	}
+	for ( int i = 0; i <= current; ++i )
+	    commands.insert(i, history.at(0));
 
 	commands.append( cmd );
-	history.clear();
+	while (!history.isEmpty())
+	    delete history.takeFirst();
 	history = commands;
-	history.setAutoDelete( TRUE );
     } else {
 	history.append( cmd );
     }
 
-    if ( (int)history.count() > steps )
-	history.removeFirst();
+    if ( history.count() > steps )
+	delete history.takeFirst();
     else
 	++current;
 }
@@ -133,7 +130,7 @@ Q3TextCursor *QTextCommandHistory::undo( Q3TextCursor *c )
 Q3TextCursor *QTextCommandHistory::redo( Q3TextCursor *c )
 {
     if ( current > -1 ) {
-	if ( current < (int)history.count() - 1 ) {
+	if ( current < history.count() - 1 ) {
 	    ++current;
 	    return history.at( current )->execute( c );
 	}
@@ -153,7 +150,7 @@ bool QTextCommandHistory::isUndoAvailable()
 
 bool QTextCommandHistory::isRedoAvailable()
 {
-   return current > -1 && current < (int)history.count() - 1 || current == -1 && history.count() > 0;
+   return current > -1 && current < history.count() - 1 || current == -1 && history.count() > 0;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1600,7 +1597,6 @@ void Q3TextDocument::setRichTextInternal( const QString &text, Q3TextCursor* cur
     Q3TextParagraph* stylesPar = curpar;
     QVector<QStyleSheetItem *>* vec = 0;
     QList< QVector<QStyleSheetItem *> *> styles;
-    styles.setAutoDelete( TRUE );
 
     if ( cursor ) {
 	cursor->splitAndInsertEmptyParagraph();
@@ -2068,13 +2064,14 @@ void Q3TextDocument::setRichTextInternal( const QString &text, Q3TextCursor* cur
 	anchorName = QString::null;
     }
 
-
     setRichTextMarginsInternal( styles, stylesPar );
 
     if ( cursor ) {
  	cursor->gotoPreviousLetter();
   	cursor->remove();
-     }
+    }
+    while (!styles.isEmpty())
+	delete styles.takeFirst();
     delete vec;
 }
 
@@ -3001,6 +2998,13 @@ void Q3TextDocument::indentSelection( int id )
 	p->indent();
 	p = p->next();
     }
+}
+
+void QTextCommandHistory::clear()
+{
+    while (!history.isEmpty())
+	delete history.takeFirst();
+    current = -1;
 }
 
 void Q3TextDocument::addCommand( QTextCommand *cmd )
@@ -6015,8 +6019,12 @@ Q3TextFormatCollection::Q3TextFormatCollection()
 
 Q3TextFormatCollection::~Q3TextFormatCollection()
 {
+    QHash<QString, Q3TextFormat *>::ConstIterator it = cKey.constBegin();
+    while (it != cKey.constEnd()) {
+	delete it.value();
+        ++it;
+    }
     delete defFormat;
-    cKey.deleteAll();
 }
 
 void Q3TextFormatCollection::setPaintDevice( QPaintDevice *pd )
@@ -7380,12 +7388,10 @@ Q3TextFlow::~Q3TextFlow()
 void Q3TextFlow::clear()
 {
 #ifndef QT_NO_TEXTCUSTOMITEM
-    leftItems.setAutoDelete( TRUE );
-    rightItems.setAutoDelete( TRUE );
-    leftItems.clear();
-    rightItems.clear();
-    leftItems.setAutoDelete( FALSE );
-    rightItems.setAutoDelete( FALSE );
+    while (!leftItems.isEmpty())
+	delete leftItems.takeFirst();
+    while (!rightItems.isEmpty())
+	delete rightItems.takeFirst();
 #endif
 }
 
@@ -7504,7 +7510,6 @@ void Q3TextCustomItem::pageBreak( int /*y*/ , Q3TextFlow* /*flow*/ )
 Q3TextTable::Q3TextTable( Q3TextDocument *p, const QMap<QString, QString> & attr  )
     : Q3TextCustomItem( p )
 {
-    cells.setAutoDelete( FALSE );
     cellspacing = 2;
     cellpadding = 1;
     border = innerborder = 0;

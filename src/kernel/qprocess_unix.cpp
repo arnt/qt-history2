@@ -228,8 +228,6 @@ int qnx6SocketPairReplacement (int socketFD[2]) {
 
 QProcessManager::QProcessManager() : sn(0)
 {
-    procList.setAutoDelete( TRUE );
-
     // The SIGCHLD handler writes to a socket to tell the manager that
     // something happened. This is done to get the processing in sync with the
     // event reporting.
@@ -297,18 +295,20 @@ QProcessManager::~QProcessManager()
 #endif
     if ( sigaction( SIGPIPE, &oldactPipe, 0 ) != 0 )
 	qWarning( "Error restoring SIGPIPE handler" );
+
+    while (!procList.isEmpty())
+	delete procList.takeFirst();
 }
 
 void QProcessManager::cleanup()
 {
-    if ( procList.count() == 0 ) {
+    if ( procList.isEmpty() )
 	QTimer::singleShot( 0, this, SLOT(removeMe()) );
-    }
 }
 
 void QProcessManager::removeMe()
 {
-    if ( procList.count() == 0 ) {
+    if ( procList.isEmpty() ) {
 	qRemovePostRoutine(qprocess_cleanup);
 	QProcessPrivate::procManager = 0;
 	delete this;
@@ -405,10 +405,12 @@ void QProcessManager::sigchldHnd( int fd )
 		removeProc = TRUE;
 	    }
 	}
-	if ( removeProc )
+	if ( removeProc ) {
 	    procList.removeAt(i);
-	else
+            delete proc;
+	} else {
 	    i++;
+	}
     }
     cleanup();
     if ( sn )
@@ -432,7 +434,6 @@ QProcessPrivate::QProcessPrivate()
     qDebug( "QProcessPrivate: Constructor" );
 #endif
     stdinBufRead = 0;
-    stdinBuf.setAutoDelete(true);
 
     notifierStdin = 0;
     notifierStdout = 0;
@@ -461,6 +462,8 @@ QProcessPrivate::~QProcessPrivate()
     delete notifierStdin;
     delete notifierStdout;
     delete notifierStderr;
+    while (!stdinBuf.isEmpty())
+	delete stdinBuf.takeFirst();
 }
 
 /*
@@ -477,7 +480,7 @@ void QProcessPrivate::closeOpenSocketsForChild()
 	    ::close( procManager->sigchldFd[1] );
 
 	// close also the sockets from other QProcess instances
-        for (int i =0; i < procManager->procList.count(); ++i) {
+        for (int i = 0; i < procManager->procList.count(); ++i) {
             QProc *p = procManager->procList.at(i);
 
 	    ::close( p->socketStdin );
@@ -918,9 +921,8 @@ bool QProcess::start( QStringList *env )
 	connect( d->notifierStdin, SIGNAL(activated(int)),
 		this, SLOT(socketWrite(int)) );
 	// setup notifiers for the sockets
-	if ( !d->stdinBuf.isEmpty() ) {
+	if ( !d->stdinBuf.isEmpty() )
 	    d->notifierStdin->setEnabled( TRUE );
-	}
     }
     if ( comms & Stdout ) {
 	::close( sStdout[1] );
@@ -1136,7 +1138,8 @@ void QProcess::closeStdin()
     if ( d->proc == 0 )
 	return;
     if ( d->proc->socketStdin !=0 ) {
-	d->stdinBuf.clear();
+	while (!d->stdinBuf.isEmpty())
+	    delete d->stdinBuf.takeFirst();
 	delete d->notifierStdin;
 	d->notifierStdin = 0;
 	if ( ::close( d->proc->socketStdin ) != 0 ) {
@@ -1289,6 +1292,7 @@ void QProcess::socketWrite( int fd )
 	d->stdinBufRead += ret;
 	if ( d->stdinBufRead == (ssize_t)d->stdinBuf.first()->size() ) {
 	    d->stdinBufRead = 0;
+            delete d->stdinBuf.first();
 	    d->stdinBuf.removeFirst();
 	    if ( wroteToStdinConnected && d->stdinBuf.isEmpty() )
 		emit wroteToStdin();

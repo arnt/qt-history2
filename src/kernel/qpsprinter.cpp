@@ -744,7 +744,9 @@ static QString toString( const float num )
 {
     long intNum = (long) num;
     QString ret = QString::number( intNum );
-    return ret += "." + QString::number( (long)((num - intNum) * 1000) );
+    ret += ".";
+    ret += QString::number((long)((num - intNum) * 1000));
+    return ret;
 }
 
 // ----------------------------- Internal class declarations -----------------------------
@@ -4579,7 +4581,11 @@ QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
 QPSPrinterPrivate::~QPSPrinterPrivate()
 {
     delete pageBuffer;
-    fonts.deleteAll();
+    QHash<QString, QPSPrinterFontPrivate *>::ConstIterator it = fonts.constBegin();
+    while (it != fonts.constEnd()) {
+	delete it.value();
+	++it;
+    }
 }
 
 void QPSPrinterPrivate::setFont( const QFont & fnt, int script )

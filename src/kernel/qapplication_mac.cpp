@@ -1020,7 +1020,8 @@ void qt_cleanup()
 	}
     }
     if(qt_mac_tsm_hash) {
-	qt_mac_tsm_hash->deleteAll();
+	while (!qt_mac_tsm_hash->isEmpty())
+	    delete qt_mac_tsm_hash->takeFirst();
 	delete qt_mac_tsm_hash;
 	qt_mac_tsm_hash = 0;
     }

@@ -378,10 +378,10 @@ protected:
 class Q_GUI_EXPORT QTextCommandHistory
 {
 public:
-    QTextCommandHistory( int s ) : current( -1 ), steps( s ) { history.setAutoDelete( TRUE ); }
-    virtual ~QTextCommandHistory();
+    QTextCommandHistory( int s ) : current( -1 ), steps( s ) {  }
+    virtual ~QTextCommandHistory(); // ### why is it virtual?
 
-    void clear() { history.clear(); current = -1; }
+    void clear();
 
     void addCommand( QTextCommand *cmd );
     Q3TextCursor *undo( Q3TextCursor *c );
@@ -399,7 +399,6 @@ public:
 private:
     QList<QTextCommand *> history;
     int current, steps;
-
 };
 
 inline QTextCommandHistory::~QTextCommandHistory()

@@ -3740,7 +3740,7 @@ QImageHandler::QImageHandler( const char *f, const char *h, const QByteArray& fl
     write_image = w;
 }
 
-typedef QList<QImageHandler *> QIHList;// list of image handlers
+typedef QList<QImageHandler *> QIHList;
 static QIHList imageHandlers;
 #ifndef QT_NO_COMPONENT
 static QPluginManager<QImageFormatInterface> *plugin_manager = 0;
@@ -3772,7 +3772,8 @@ void qt_init_image_plugins()
 static void cleanup()
 {
     // make sure that image handlers are delete before plugin manager
-    imageHandlers.clear();
+    while (!imageHandlers.isEmpty())
+	delete imageHandlers.takeFirst();
 #ifndef QT_NO_COMPONENT
     delete plugin_manager;
     plugin_manager = 0;
@@ -3785,7 +3786,6 @@ void qt_init_image_handlers()		// initialize image handlers
     if (done) return;
     done = true;
 
-    imageHandlers.setAutoDelete( TRUE );
     qAddPostRoutine( cleanup );
 #ifndef QT_NO_IMAGEIO_BMP
     QImageIO::defineIOHandler( "BMP", "^BM", 0,
@@ -4219,9 +4219,7 @@ QList<QByteArray> QImageIO::inputFormats()
 
     for (int i = 0; i < imageHandlers.size(); ++i) {
 	QImageHandler *p = imageHandlers.at(i);
-	if ( p->read_image
-	     && !p->obsolete
-	     && !result.contains(p->format) )
+	if ( p->read_image && !p->obsolete && !result.contains(p->format) )
 	    result.append(p->format);
     }
     qHeapSort(result);
@@ -4245,9 +4243,7 @@ QList<QByteArray> QImageIO::outputFormats()
 
     for (int i = 0; i < imageHandlers.size(); ++i) {
 	QImageHandler *p = imageHandlers.at(i);
-	if ( p->write_image
-	     && !p->obsolete
-	     && !result.contains(p->format) )
+	if ( p->write_image && !p->obsolete && !result.contains(p->format) )
 	    result.append(p->format);
     }
 

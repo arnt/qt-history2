@@ -1056,7 +1056,11 @@ QStyleSheet::QStyleSheet( QObject *parent, const char *name )
 */
 QStyleSheet::~QStyleSheet()
 {
-    styles.deleteAll();
+    QHash<QString, QStyleSheetItem *>::ConstIterator it = styles.begin();
+    while (it != styles.end()) {
+	delete it.value();
+	++it;
+    }
 }
 
 /*!
