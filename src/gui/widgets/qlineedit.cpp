@@ -142,10 +142,10 @@ extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
 
 
 /*!
-    \fn void QLineEdit::textChanged(const QString&)
+    \fn void QLineEdit::textChanged(const QString &text)
 
-    This signal is emitted whenever the text changes. The argument is
-    the new text.
+    This signal is emitted whenever the text changes. The \a text
+    argument is the new text.
 */
 
 /*!

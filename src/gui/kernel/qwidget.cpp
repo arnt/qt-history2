@@ -288,19 +288,13 @@ QWidgetPrivate::~QWidgetPrivate()
 
     \endtable
 
-    Every widget's constructor accepts two or three standard arguments:
+    Every widget's constructor accepts one or two standard arguments:
     \list 1
     \i \c{QWidget *parent = 0} is the parent of the new widget.
     If it is 0 (the default), the new widget will be a top-level window.
     If not, it will be a child of \e parent, and be constrained by \e
     parent's geometry (unless you specify \c Qt::WType_TopLevel as
     widget flag).
-    \i \c{const char *name = 0} is the widget name of the new
-    widget. You can access it using name(). The widget name is little
-    used by programmers but is quite useful with GUI builders such as
-    \e{Qt Designer} (you can name a widget in \e{Qt Designer}, and
-    connect() to it using the name in your code). The dumpObjectTree()
-    debugging function also uses it.
     \i \c{Qt::WFlags f = 0} (where available) sets the widget flags; the
     default is suitable for almost all widgets, but to get, for
     example, a top-level widget without a window system frame, you
@@ -321,9 +315,9 @@ QWidgetPrivate::~QWidgetPrivate()
     \list
 
     \i paintEvent() - called whenever the widget needs to be
-    repainted. Every widget which displays output must implement it,
-    and it is wise \e not to paint on the screen outside
-    paintEvent().
+    repainted. Every widget which displays output must implement it.
+    Painting using a QPainter can only take place in a paintEvent() or
+    a function called by a paintEvent().
 
     \i resizeEvent() - called when the widget has been resized.
 
@@ -441,6 +435,10 @@ QWidgetPrivate::~QWidgetPrivate()
     setWindowIcon() set the title bar and icon respectively.
 
     \endlist
+
+    From Qt 4.0, QWidget automatically double-buffers its painting, so
+    there's no need to write double-buffering code in paintEvent() to
+    avoid flicker.
 
     \sa QEvent, QPainter, QGridLayout, QBoxLayout
 */
@@ -1154,25 +1152,6 @@ QRect QWidgetPrivate::clipRect() const
     offset in the widget. This is significant if the widget has a
     background pixmap; otherwise the pixmap will simply be filled with
     the background color of the widget.
-
-    Example:
-    \code
-    void CuteWidget::paintEvent(QPaintEvent *e)
-    {
-        QRect ur = e->rect();            // rectangle to update
-        QPixmap pix(ur.size());        // Pixmap for double-buffering
-        pix.fill(this, ur.topLeft());  // fill with widget background
-
-        QPainter p(&pix);
-        p.translate(-ur.x(), -ur.y()); // use widget coordinate system
-                                         // when drawing on pixmap
-        //    ... draw on pixmap ...
-
-        p.end();
-
-        bitBlt(this, ur.topLeft(), &pix);
-    }
-    \endcode
 */
 
 /*! \overload
@@ -5213,6 +5192,10 @@ void QWidget::leaveEvent(QEvent *)
 
     The background can be set using setBackground() or
     setBackgroundRole().
+
+    From Qt 4.0, QWidget automatically double-buffers its painting, so
+    there's no need to write double-buffering code in paintEvent() to
+    avoid flicker.
 
     \sa event(), repaint(), update(), QPainter, QPixmap, QPaintEvent
 */

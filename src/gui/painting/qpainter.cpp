@@ -286,6 +286,9 @@ void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &bru
     setTabStops() and setTabArray() can change where the tab stops
     are, but these are very seldomly used.
 
+    \warning A QPainter can only be used inside a paintEvent() or a
+    function called by a paintEvent().
+
     \warning Note that QPainter does not attempt to work around
     coordinate limitations in the underlying window system. Some
     platforms may behave incorrectly with coordinates outside +/-4000.
@@ -598,22 +601,9 @@ bool QPainter::begin(QPaintDevice *pd)
 }
 
 /*!
-    Ends painting. Any resources used while painting are released.
-
-    Note that while you mostly don't need to call end(), the
-    destructor will do it, there is at least one common case when it
-    is needed, namely double buffering.
-
-    \code
-        QPainter p(myPixmap, this)
-        // ...
-        p.end(); // stops drawing on myPixmap
-        p.begin(this);
-        p.drawPixmap(0, 0, myPixmap);
-    \endcode
-
-    Since you can't draw a QPixmap while it is being painted, it is
-    necessary to close the active painter.
+    Ends painting. Any resources used while painting are released. You
+    don't normally need to call this since it is called by the
+    destructor.
 
     \sa begin(), isActive()
 */
