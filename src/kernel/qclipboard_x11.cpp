@@ -112,9 +112,9 @@ public:
 
 	delete s2;
     }
-        
+
     QMimeSource *source() const { return src; }
-    
+
     void addTransferredPixmap(QPixmap pm)
     { /* TODO: queue them */
 	transferred[tindex] = pm;
@@ -247,7 +247,7 @@ bool QClipboard::ownsClipboard() const
   calls to QClipboard::setData() and other functions which put data into the
   clipboard will be put into the mouse selection, otherwise the data will be
   put into the clipboard.
-  
+
   \sa supportsSelection(), selectionModeEnabled()
 */
 void QClipboard::setSelectionMode(bool enable)
@@ -258,7 +258,7 @@ void QClipboard::setSelectionMode(bool enable)
 
 /*!
   Returns the value set by setSelectionMode().
-  
+
   \sa setSelectionMode(), supportsSelection()
 */
 bool QClipboard::selectionModeEnabled() const
@@ -274,26 +274,26 @@ void QClipboard::clobber()
 {
     if (internalCbData) {
 	qRemovePostRoutine(cleanupClipboardData);
-	
+
 	internalCbData->src = 0;
 	delete internalCbData;
 	internalCbData = 0;
-	
+
 	Window win = XGetSelectionOwner(owner->x11Display(), XA_PRIMARY);
-	
+
 	if (win == owner->winId())
 	    XSetSelectionOwner(owner->x11Display(), XA_PRIMARY, None, qt_x_time);
     }
-    
+
     if (internalSelData) {
 	qRemovePostRoutine(cleanupSelectionData);
-	
+
 	internalSelData->src = 0;
 	delete internalSelData;
 	internalSelData = 0;
-	
+
 	Window win = XGetSelectionOwner(owner->x11Display(), qt_xa_clipboard);
-	
+
 	if (win == owner->winId())
 	    XSetSelectionOwner(owner->x11Display(), qt_xa_clipboard, None, qt_x_time);
     }
@@ -369,84 +369,84 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
     XFree( (char*)data );
 
     int  offset = 0, buffer_offset = 0, format_inc = 1, proplen = bytes_left;
-    
+
 #if defined (QCLIPBOARD_DEBUG)
     qDebug("qt_xclb_read_property: initial property length: %d", proplen);
 #endif
-    
+
     switch (*format) {
     case 8:
     default:
 	format_inc = sizeof(char) / 1;
 	break;
-	
+
     case 16:
 	format_inc = sizeof(short) / 2;
 	proplen *= sizeof(short) / 2;
 	break;
-	
+
     case 32:
 	format_inc = sizeof(long) / 4;
 	proplen *= sizeof(long) / 4;
 	break;
     }
-    
+
     bool ok = buffer->resize( proplen + (nullterm ? 1 : 0) );
-    
+
 #if defined(QCLIPBOARD_DEBUG)
     qDebug("qt_xclb_read_property: buffer resized to %d", buffer->size());
 #endif
-    
+
     if ( ok ) {
 	// could allocate buffer
-	
+
 	while ( bytes_left ) {
 	    // more to read...
-	    
+
 	    r = XGetWindowProperty( dpy, win, property, offset, maxsize/4,
 				    FALSE, AnyPropertyType, type, format,
 				    &length, &bytes_left, &data );
 	    if ( r != Success )
 		break;
-	    
+
 	    offset += length;
 	    length *= format_inc * (*format) / 8;
-	    
+
 	    // Here we check if we get a buffer overflow and tries to
 	    // recover -- this shouldn't normally happen, but it doesn't
 	    // hurt to be defensive
 	    if (buffer_offset + length > buffer->size()) {
 		length = buffer->size() - buffer_offset;
-		
+
 		// escape loop
 		bytes_left = 0;
 	    }
-	    
+
 	    memcpy(buffer->data() + buffer_offset, data, length);
 	    buffer_offset += length;
-	    
+
 	    XFree( (char*)data );
 	}
-	
+
 	// zero-terminate (for text)
        	if (nullterm)
 	    buffer->at(buffer_offset) = '\0';
     }
-     
+
     // correct size, not 0-term.
     if ( size )
 	*size = buffer_offset;
-    
+
 #if defined(QCLIPBOARD_DEBUG)
     qDebug("qt_xclb_read_property: buffer size %d, buffer offset %d, offset %d",
 	   buffer->size(), buffer_offset, offset);
 #endif
-    
+
     if ( deleteProperty )
 	XDeleteProperty( dpy, win, property );
 
     XFlush( dpy );
-    
+
     return ok;
 }
 
@@ -543,7 +543,6 @@ bool QClipboard::event( QEvent *e )
 
     XEvent *xevent = (XEvent *)(((QCustomEvent *)e)->data());
     Display *dpy = qt_xdisplay();
-    // QClipboardData *d = clipboardData();
 
     switch ( xevent->type ) {
 
@@ -557,30 +556,30 @@ bool QClipboard::event( QEvent *e )
 #endif
 	    selectionData()->clear();
 	    emit selectionChanged();
-	} else { // if (xevent->xselectionclear.selection == qt_xa_clipboard) {
-	    
+	} else {
+
 #if defined (QCLIPBOARD_DEBUG)
 	    qDebug("QClipboard: new clipboard owner 0x%lx",
 		   XGetSelectionOwner(dpy, qt_xa_clipboard));
 #endif
-	    
+
 	    clipboardData()->clear();
 	    emit dataChanged();
 	}
-	
+
 	break;
-	
+
     case SelectionNotify:
 	// some has delivered data to us
 	if (xevent->xselection.selection == XA_PRIMARY)
 	    selectionData()->clear();
-	else // if (xevent->xselection.selection == qt_xa_clipboard)
+	else
 	    clipboardData()->clear();
-	
+
 	break;
-	
+
     case SelectionRequest:
-	{	
+	{
 	    // someone wants our data
 	    XSelectionRequestEvent *req = &xevent->xselectionrequest;
 
@@ -594,7 +593,7 @@ bool QClipboard::event( QEvent *e )
 	    evt.xselection.target	= req->target;
 	    evt.xselection.property	= None;
 	    evt.xselection.time = req->time;
-	    
+
 #if defined(QCLIPBOARD_DEBUG)
 	    qDebug("qclipboard_x11.cpp: selection requested\n"
 		   "                    from 0x%lx\n"
@@ -605,12 +604,12 @@ bool QClipboard::event( QEvent *e )
 		   req->target,
 		   XGetAtomName(req->display, req->target));
 #endif
-	    
+
 	    QClipboardData *d =
 		(req->selection == XA_PRIMARY) ? selectionData() : clipboardData();
 	    if ( !d->source() )
 		d->setSource(new QClipboardWatcher());
-	    
+
 	    const char* fmt;
 	    QByteArray data;
 	    static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
@@ -693,7 +692,7 @@ bool QClipboard::event( QEvent *e )
 		    qDebug("qclipboard_x11.cpp:%d: size %d %d",
 			   __LINE__, n * sizeof(long), data.size());
 #endif
-		    
+
 		    XChangeProperty ( dpy, req->requestor, property, xa_targets, 32,
 				      PropModeReplace, (uchar *) data.data(), n );
 		    evt.xselection.property = property;
@@ -814,6 +813,7 @@ const char* QClipboardWatcher::format( int n ) const
 	if ( n == 0 )
 	    return "text/plain";
     }
+
     return 0;
 }
 
@@ -870,7 +870,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 
     Window   win   = owner->winId();
     Display *dpy   = owner->x11Display();
-    
+
     XConvertSelection( dpy, (inSelectionMode) ? XA_PRIMARY : qt_xa_clipboard,
 		       fmtatom, qt_selection_property, win, CurrentTime );
     XFlush( dpy );
@@ -902,7 +902,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 QMimeSource* QClipboard::data() const
 {
     QClipboardData *d = (inSelectionMode) ? selectionData() : clipboardData();
-    
+
     if ( !d->source() )
 	d->setSource(new QClipboardWatcher());
 
@@ -925,7 +925,7 @@ void QClipboard::setData( QMimeSource* src )
 {
     Atom atom, sentinel_atom;
     QClipboardData *d;
-    
+
     if (inSelectionMode) {
 	atom = XA_PRIMARY;
 	sentinel_atom = qt_selection_sentinel;
@@ -935,7 +935,7 @@ void QClipboard::setData( QMimeSource* src )
 	sentinel_atom = qt_clipboard_sentinel;
 	d = clipboardData();
     }
-    
+
     setupOwner();
     Window   win   = owner->winId();
     Display *dpy   = owner->x11Display();
@@ -957,7 +957,7 @@ void QClipboard::setData( QMimeSource* src )
 #endif
 	return;
     }
-    
+
     // Signal to other Qt processes that the selection has changed
     Window owners[2];
     owners[0] = win;
@@ -993,13 +993,15 @@ bool qt_check_selection_sentinel( XEvent* )
 	//# Could optimize away the X server roundtrip of XGetWindowProperty
 	// by checking if dataChanged() is connected to anything
 	// ### This is done in the main event loop in QApplication
-	Window* owners;
+	Window* owners, rootwindow;
 	Atom actualType;
 	int actualFormat;
 	ulong nitems;
 	ulong bytesLeft;
+
+	rootwindow = QApplication::desktop()->screen(owner->x11Screen())->winId();
 	if (XGetWindowProperty( owner->x11Display(),
-				QApplication::desktop()->winId(),
+				rootwindow,
 				qt_selection_sentinel, 0, 2, FALSE, XA_WINDOW,
 				&actualType, &actualFormat, &nitems,
 				&bytesLeft, (unsigned char**)&owners ) == Success) {
@@ -1008,11 +1010,14 @@ bool qt_check_selection_sentinel( XEvent* )
 		if ( owners[0] == win || owners[1] == win )
 		    doIt = FALSE;
 	    }
-	    
+
 	    XFree( owners );
 	}
     }
-    
+
+    if (doIt)
+	selectionData()->setSource(0);
+
     return doIt;
 }
 
@@ -1021,12 +1026,14 @@ bool qt_check_clipboard_sentinel( XEvent* )
 {
     bool doIt = TRUE;
     if (owner) {
-	Window *owners;
+	Window *owners, rootwindow;
 	Atom actualType;
 	int actualFormat;
 	unsigned long nitems, bytesLeft;
+
+	rootwindow = QApplication::desktop()->screen(owner->x11Screen())->winId();
 	if (XGetWindowProperty(owner->x11Display(),
-			       QApplication::desktop()->winId(),
+			       rootwindow,
 			       qt_clipboard_sentinel, 0, 2, FALSE, XA_WINDOW,
 			       &actualType, &actualFormat, &nitems, &bytesLeft,
 			       (unsigned char **) &owners) == Success) {
@@ -1036,11 +1043,14 @@ bool qt_check_clipboard_sentinel( XEvent* )
 		    owners[1] == win)
 		    doIt = FALSE;
 	    }
-	    
+
 	    XFree(owners);
 	}
     }
-    
+
+    if (doIt)
+	clipboardData()->setSource(0);
+
     return doIt;
 }
 
