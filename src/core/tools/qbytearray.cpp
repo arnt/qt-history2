@@ -1791,4 +1791,6 @@ QByteArray &QByteArray::insert(int i, const QString &s){ return insert(i, s.toAs
 QByteArray &QByteArray::replace(char c, const QString &after) { return replace(c, after.toAscii()); }
 QByteArray &QByteArray::replace(const QString &before, const char *after){ return replace(before.toAscii(), after); }
 QByteArray &QByteArray::operator+=(const QString &s) { return operator+=(s.toAscii()); }
+int QByteArray::indexOf(const QString &s, int from = 0) const { return indexOf(s.toAscii(), from); }
+int QByteArray::lastIndexOf(const QString &s, int from = -1) const  { return lastIndexOf(s.toAscii(), from); }
 #endif // QT_NO_CAST_TO_ASCII
