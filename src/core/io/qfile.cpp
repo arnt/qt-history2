@@ -1083,6 +1083,21 @@ qint64 QFile::pos() const
   \reimp
 */
 
+bool QFile::atEnd() const
+{
+    if (!isOpen()) {
+        qWarning("QFile::atEnd: IODevice is not open");
+        return true;
+    }
+    if(!d->buffer.isEmpty())
+        return false;
+    return QIODevice::atEnd();
+}
+
+/*!
+  \reimp
+*/
+
 bool QFile::seek(qint64 off)
 {
     if (!isOpen()) {

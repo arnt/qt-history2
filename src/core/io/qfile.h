@@ -114,6 +114,7 @@ public:
     qint64 size() const;
     qint64 pos() const;
     bool seek(qint64 offset);
+    bool atEnd() const;
     bool flush();
 
     bool resize(qint64 sz);
