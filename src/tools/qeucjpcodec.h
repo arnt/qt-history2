@@ -76,6 +76,7 @@ public:
     int heuristicNameMatch(const char* hint) const;
 
     QEucJpCodec();
+    ~QEucJpCodec();
 
 protected:
     const QJpUnicodeConv * const conv;

@@ -111,10 +111,15 @@ static const uchar Ss3 = 0x8f;	// Single Shift 3
 #define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar::replacement)
 
 /*!
-  Construct a QEucJpCodec.
+  Constructs a QEucJpCodec.
 */
 QEucJpCodec::QEucJpCodec() : conv(QJpUnicodeConv::newConverter(JU_Default))
 {
+}
+
+QEucJpCodec::~QEucJpCodec()
+{
+    delete conv;
 }
 
 /*!
