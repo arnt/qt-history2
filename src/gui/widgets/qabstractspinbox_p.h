@@ -123,6 +123,7 @@ public:
     uint pendingemit : 1;
     uint spindownenabled : 1;
     uint spinupenabled : 1;
+    uint readonly : 1;
     uint tracking : 1;
     uint wrapping : 1;
     uint dragging : 1;

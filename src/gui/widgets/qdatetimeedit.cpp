@@ -938,7 +938,7 @@ QValidator::State QDateTimeEdit::validate(QString &text, int &pos) const
     QValidator::State state;
     d->validateAndInterpret(text, pos, state);
     return state;
-}
+}\
 
 /*!
     \reimp
@@ -946,16 +946,17 @@ QValidator::State QDateTimeEdit::validate(QString &text, int &pos) const
 
 QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
 {
-    if (!style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds))
-        return StepEnabled(StepUpEnabled) | StepDownEnabled;
+    if (d->readonly)
+        return StepEnabled(0);
     switch (d->currentsection) {
     case QDateTimeEditPrivate::NoSection:
     case QDateTimeEditPrivate::FirstSection:
     case QDateTimeEditPrivate::LastSection: return 0;
     default: break;
     }
-    if (d->wrapping)
-        return (StepEnabled)(StepUpEnabled | StepDownEnabled);
+    if (!style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds)
+        || d->wrapping)
+        return StepEnabled(StepUpEnabled | StepDownEnabled);
 
     QAbstractSpinBox::StepEnabled ret = 0;
 

@@ -165,10 +165,12 @@ public:
 
         void keyPressEvent(QKeyEvent *e)
         {
-            if (e->key() == Qt::Key_P) {
+            StepEnabled se = stepEnabled();
+
+            if (e->key() == Qt::Key_P && (se & StepUpEnabled)) {
                 stepBy(1);
                 e->accept();
-            } else if (e->key() == Qt::Key_N) {
+            } else if (e->key() == Qt::Key_N && (se & StepDownEnabled)) {
                 stepBy(-1);
                 e->accept();
             } else {

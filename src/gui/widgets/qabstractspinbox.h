@@ -30,6 +30,7 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(bool slider READ slider WRITE setSlider)
     Q_PROPERTY(bool frame READ hasFrame WRITE setFrame)
+    Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_PROPERTY(ButtonSymbols buttonSymbols READ buttonSymbols WRITE setButtonSymbols)
     Q_PROPERTY(QString text READ text)
     Q_PROPERTY(QString cleanText READ cleanText)
@@ -38,7 +39,8 @@ public:
     explicit QAbstractSpinBox(QWidget *parent = 0);
     ~QAbstractSpinBox();
 
-    enum StepEnabledFlag { StepNone = 0x00, StepUpEnabled = 0x01, StepDownEnabled = 0x02 };
+    enum StepEnabledFlag { StepNone = 0x00, StepUpEnabled = 0x01,
+                           StepDownEnabled = 0x02 };
     Q_DECLARE_FLAGS(StepEnabled, StepEnabledFlag)
 
     enum ButtonSymbols { UpDownArrows, PlusMinus };
@@ -61,6 +63,9 @@ public:
     void setFrame(bool f);
     bool hasFrame() const;
 
+    void setReadOnly(bool r);
+    bool isReadOnly() const;
+
     void setAlignment(Qt::Alignment flag);
     Qt::Alignment alignment() const;
 
@@ -72,6 +77,8 @@ public:
 
     virtual QValidator::State validate(QString &input, int &pos) const;
     virtual void fixup(QString &input) const;
+
+    virtual void stepBy(int steps);
 public slots:
     void selectAll();
     virtual void clear();
@@ -97,7 +104,6 @@ protected:
     QLineEdit *lineEdit() const;
     void setLineEdit(QLineEdit *e);
 
-    virtual void stepBy(int steps);
     virtual StepEnabled stepEnabled() const;
 
 protected:

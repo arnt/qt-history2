@@ -290,6 +290,33 @@ void QAbstractSpinBox::setFrame(bool enable)
     updateGeometry();
 }
 
+
+/*!
+    \property QAbstractSpinBox::readOnly
+    \brief whether the spin box is read only.
+
+    In read-only mode, the user can still copy the text to the
+    clipboard, or drag and drop the text;
+    but cannot edit it.
+
+    The QLineEdit in the QAbstractSpinBox does not show a cursor in
+    read-only mode.
+
+    \sa QLineEdit::setReadOnly, QLineEdit::readOnly
+*/
+
+bool QAbstractSpinBox::isReadOnly() const
+{
+    return d->readonly;
+}
+
+void QAbstractSpinBox::setReadOnly(bool enable)
+{
+    d->readonly = enable;
+    d->edit->setReadOnly(enable);
+    update();
+}
+
 /*!
     \property QAbstractSpinBox::alignment
     \brief the alignment of the spin box
@@ -370,13 +397,16 @@ void QAbstractSpinBox::clear()
 
 QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
 {
-    if (!style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds))
-        return StepEnabled(StepUpEnabled) | StepDownEnabled;
+    if (d->readonly)
+        return StepEnabled(0);
+    if (!style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds)
+        || d->wrapping)
+        return StepEnabled(StepUpEnabled | StepDownEnabled);
     StepEnabled ret = StepNone;
-    if (d->wrapping || d->value < d->maximum) {
+    if (d->value < d->maximum) {
         ret |= StepUpEnabled;
     }
-    if (d->wrapping || d->value > d->minimum) {
+    if (d->value > d->minimum) {
         ret |= StepDownEnabled;
     }
     return ret;
@@ -944,9 +974,10 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
     : edit(0), type(QVariant::Invalid), spinclicktimerid(-1),
       spinclicktimerinterval(100), buttonstate(None), sizehintdirty(true),
       dirty(true), cachedtext("\x01"), cachedstate(QValidator::Invalid),
-      pendingemit(false), tracking(false), wrapping(false), dragging(false),
-      ignorecursorpositionchanged(false), slider(false), sliderpressed(false),
-      frame(true), buttonsymbols(QAbstractSpinBox::UpDownArrows)
+      pendingemit(false), readonly(false), tracking(false), wrapping(false),
+      dragging(false), ignorecursorpositionchanged(false), slider(false),
+      sliderpressed(false), frame(true),
+      buttonsymbols(QAbstractSpinBox::UpDownArrows)
 {
 }
 
@@ -1154,10 +1185,11 @@ void QAbstractSpinBoxPrivate::resetState()
 
 void QAbstractSpinBoxPrivate::updateState(bool up)
 {
-    if ((up && buttonstate & Up) || (!up && buttonstate & Down))
+    if ((up && (buttonstate & Up)) || (!up && (buttonstate & Down)))
         return;
     resetState();
-    if (q) {
+    if (q && (q->stepEnabled() & (up ? QAbstractSpinBox::StepUpEnabled
+                                  : QAbstractSpinBox::StepDownEnabled))) {
         spinclicktimerid = q->startTimer(spinclicktimerinterval);
         buttonstate = (up ? (Mouse | Up) : (Mouse | Down));
         q->stepBy(up ? 1 : -1);

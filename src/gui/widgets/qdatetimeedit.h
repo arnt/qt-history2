@@ -90,7 +90,8 @@ public:
     QString displayFormat() const;
     void setDisplayFormat(const QString &format);
 
-    void clear();
+    virtual void clear();
+    virtual void stepBy(int steps);
 signals:
     void dateTimeChanged(const QDateTime &date);
     void timeChanged(const QTime &date);
@@ -110,7 +111,6 @@ protected:
     virtual QValidator::State validate(QString &input, int &pos) const;
     virtual QDateTime dateTimeFromText(const QString &text) const;
     virtual QString textFromDateTime(const QDateTime &dt) const;
-    virtual void stepBy(int steps);
     virtual StepEnabled stepEnabled() const;
 
 private:
