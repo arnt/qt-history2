@@ -215,7 +215,9 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    } 
 		    if(!fixifyToMacPath(p, v))
 			continue;
-		    if(p == project->first("QMAKE_FRAMEWORKDIR")) 
+		    QString frm_p = project->first("QMAKE_FRAMEWORKDIR"), frm_v;
+		    fixifyToMacPath(frm_p, frm_v);
+		    if(frm_p == p && frm_v == v) 
 			framework = "true";
 
 		    t << "\t\t\t\t\t<SETTING>" << endl
@@ -241,11 +243,40 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    else
 			t << "SharedLibrary";
 		}
-	    } else if(variables == "FILETYPE") {
+	    } else if(variable == "CODEWARRIOR_OUTPUT_DIR") {
+		QString outdir = "{Project}/";
+		if(!project->isEmpty("DESTDIR"))
+		    outdir = project->first("DESTDIR");
+		if(project->first("TEMPLATE") == "app" && !project->isActiveConfig("console"))
+		    outdir += var("TARGET") + ".app/Contents/MacOS/";
+		QString volume;
+		if(fixifyToMacPath(outdir, volume, FALSE)) {
+                    t << "\t\t\t<SETTING><NAME>Path</NAME><VALUE>" << outdir << "</VALUE></SETTING>" 
+		      << endl
+		      << "\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
+		      << "\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>" << volume << "</VALUE></SETTING>" 
+		      << endl;
+		}
+	    } else if(variable == "CODEWARRIOR_PACKAGER_PANEL") {
+		if(project->first("TEMPLATE") == "app" && !project->isActiveConfig("console")) {
+		    t << "\t\t<SETTING><NAME>MWMacOSPackager_UsePackager</NAME><VALUE>1</VALUE></SETTING>" << endl
+		      << "\t\t<SETTING><NAME>MWMacOSPackager_FolderToPackage</NAME>" << endl
+		      << "\t\t\t<SETTING><NAME>Path</NAME><VALUE>:" << var("TARGET") << ".app:</VALUE></SETTING>" << endl
+		      << "\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
+		      << "\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>Project</VALUE></SETTING>" << endl
+		      << "\t\t</SETTING>" << endl
+		      << "\t\t<SETTING><NAME>MWMacOSPackager_CreateClassicAlias</NAME><VALUE>0</VALUE></SETTING>" << endl
+		      << "\t\t<SETTING><NAME>MWMacOSPackager_ClassicAliasMethod</NAME><VALUE>UseTargetOutput</VALUE></SETTING>" << endl
+		      << "\t\t<SETTING><NAME>MWMacOSPackager_ClassicAliasPath</NAME><VALUE></VALUE></SETTING>" << endl
+		      << "\t\t<SETTING><NAME>MWMacOSPackager_CreatePkgInfo</NAME><VALUE>1</VALUE></SETTING>" << endl
+		      << "\t\t<SETTING><NAME>MWMacOSPackager_PkgCreatorType</NAME><VALUE>CUTE</VALUE></SETTING>" << endl
+		      << "\t\t<SETTING><NAME>MWMacOSPackager_PkgFileType</NAME><VALUE>APPL</VALUE></SETTING>" << endl;
+		}
+	    } else if(variable == "CODEWARRIOR_FILETYPE") {
 		if(project->first("TEMPLATE") == "lib")
 			t << "MYDL";
 		else
-			t << "APPL";
+			t << "MEXE";
 	    } else if(variable == "CODEWARRIOR_QTDIR") {
 		t << getenv("QTDIR");
 	    } else {
@@ -314,7 +345,7 @@ MetrowerksMakefileGenerator::init()
 	if(configs.findIndex("moc")) configs.append("moc");
 	if ( !( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
 		(project->first("TARGET") == "qt-mt") ) ) 
-	    project->variables()["LIBS"] += project->variables()["QMAKE_LIBS_QT"];
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	if(configs.findIndex("moc")) 
 	    configs.append("moc");
 	if ( !project->isActiveConfig("debug") ) {
@@ -322,8 +353,20 @@ MetrowerksMakefileGenerator::init()
 	    project->variables()["DEFINES"].append("QT_NO_CHECK");
 	}
     }
-    if( !project->isEmpty("QMAKE_LIBS") )
-	project->variables()["LIBS"] += project->variables()["QMAKE_LIBS"];
+
+    //version handling
+    if(project->variables()["VERSION"].isEmpty())
+	project->variables()["VERSION"].append("1.0." + 
+					       (project->isEmpty("VER_PAT") ? QString("0") : 
+						project->first("VER_PAT")) );
+    QStringList ver = QStringList::split('.',  //make sure there are three
+					 project->first("VERSION")) << "0" << "0";
+    project->variables()["VER_MAJ"].append(ver[0]);
+    project->variables()["VER_MIN"].append(ver[1]);
+    project->variables()["VER_PAT"].append(ver[2]);
+
+    if( !project->isEmpty("LIBS") )
+	project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     if( project->variables()["QMAKE_EXTENSION_SHLIB"].isEmpty() )
 	project->variables()["QMAKE_EXTENSION_SHLIB"].append( "lib" );
 
@@ -337,9 +380,9 @@ MetrowerksMakefileGenerator::init()
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_OPENGL"];
 	if ( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
 	     (project->first("TARGET") == "qt-mt") )
-	    project->variables()["LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
 	else 
-	    project->variables()["LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
     }
 
     //let metrowerks find the files & set the files to the type I expect
@@ -390,10 +433,24 @@ MetrowerksMakefileGenerator::init()
     }
     if(project->isActiveConfig("qt"))
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
+    if(project->isEmpty("QMAKE_FRAMEWORKDIR"))
+	project->variables()["QMAKE_FRAMEWORKDIR"].append("/System/Library/Frameworks/");
+    QString dir = project->first("QMAKE_FRAMEWORKDIR");
+    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
+       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
+	project->variables()["INCLUDEPATH"].append(dir);
 
     //..grrr.. libs!
-    QStringList &l = project->variables()["LIBS"];
-    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+    QStringList extra_objs;
+    bool do_libs = TRUE;
+    if(project->first("TEMPLATE") == "app") 
+	extra_objs += project->variables()["QMAKE_CRT_OBJECTS"];
+    else if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("staticlib"))
+	do_libs = FALSE;
+    if(do_libs)
+	extra_objs += project->variables()["QMAKE_LIBS"];
+    for(QStringList::Iterator val_it = extra_objs.begin(); 
+	val_it != extra_objs.end(); ++val_it) {
 	if((*val_it).left(2) == "-L") {
 	    QString dir((*val_it).right((*val_it).length()) - 2);
 	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
@@ -406,16 +463,8 @@ MetrowerksMakefileGenerator::init()
 		project->variables()["LIBRARIES"].append(lib);
 	} else if((*val_it) == "-framework") {
 	    ++val_it;
-	    if(val_it == l.end())
+	    if(val_it == extra_objs.end())
 		break;
-
-	    if(project->isEmpty("QMAKE_FRAMEWORKDIR"))
-		project->variables()["QMAKE_FRAMEWORKDIR"].append("/System/Library/Frameworks/");
-	    QString dir = project->first("QMAKE_FRAMEWORKDIR");
-	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
-	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
-		project->variables()["INCLUDEPATH"].append(dir);
-
 	    QString frmwrk = (*val_it) + ".framework";
 	    if(project->variables()["FRAMEWORKS"].findIndex(frmwrk) == -1)
 		project->variables()["FRAMEWORKS"].append(frmwrk);
@@ -444,6 +493,16 @@ MetrowerksMakefileGenerator::init()
 	else
 	    project->variables()["TARGET"].first() =  "lib" + project->first("TARGET") + "." +
 						      project->first("QMAKE_EXTENSION_SHLIB");
+
+	project->variables()["CODEWARRIOR_VERSION"].append(project->first("VER_MAJ") +
+							  project->first("VER_MIN") +
+							  project->first("VER_PAT"));
+    } else {
+	project->variables()["CODEWARRIOR_VERSION"].append("0");
+	if(project->isEmpty("QMAKE_ENTRYPOINT"))
+	   project->variables()["QMAKE_ENTRYPOINT"].append("start");
+	project->variables()["CODEWARRIOR_ENTRYPOINT"].append(
+	    project->first("QMAKE_ENTRYPOINT"));
     }
 }
 
@@ -497,17 +556,17 @@ MetrowerksMakefileGenerator::createFork(const QString &f)
 }
 
 bool
-MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v)
+MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool exists)
 {
     v = "Absolute";
     if(p.find(':') != -1) //guess its macish already
 	return TRUE;
 
-    static QString volume;
-    if(volume.isEmpty()) {
-	volume = var("QMAKE_VOLUMENAME");
+    static QString st_volume;
+    if(st_volume.isEmpty()) {
+	st_volume = var("QMAKE_VOLUMENAME");
 #ifdef Q_OS_MAC
-	if(volume.isEmpty()) {
+	if(st_volume.isEmpty()) {
 	    uchar foo[512];
 	    HVolumeParam pb;
 	    memset(&pb, '\0', sizeof(pb));
@@ -517,31 +576,40 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v)
 		int len = foo[0];
 		memcpy(foo,foo+1, len);
 		foo[len] = '\0';
-		volume = (char *)foo;
+		st_volume = (char *)foo;
 	    }
 	}
 #endif
     }
+    QString volume = st_volume;
+
     fixEnvVariables(p);
     if(p.isEmpty()) 
 	return FALSE;
     if(p.right(1) != "/")
 	p += "/";
     if(QDir::isRelativePath(p)) {
-	if(project->isEmpty("QMAKE_MACPATH"))
+	if(p.left(1) == "{") {
+	    int eoc = p.find('}');
+	    if(eoc == -1)
+		return FALSE;
+	    volume = p.mid(1, eoc - 1);
+	    p = p.right(p.length() - eoc - 1);
+	} else if(project->isEmpty("QMAKE_MACPATH")) {
 	    p.prepend(QDir::current().currentDirPath() + '/');
-	else
+	} else {
 	    p.prepend(var("QMAKE_MACPATH") + '/');
+	}
     } else {
 	if(!project->isEmpty("QMAKE_MACPATH"))
 	    qDebug("Can't fix ::%s::", p.latin1());
     }
     p = QDir::cleanDirPath(p);
-    if(!QFile::exists(p) && project->isEmpty("QMAKE_MACPATH")) 
+    if(exists && !QFile::exists(p) && project->isEmpty("QMAKE_MACPATH")) 
 	return FALSE;
     if(!volume.isEmpty()) {
 	if(!project->isActiveConfig("separate_volume")) 
-	   p.prepend(volume); 
+	   p.prepend("{" + volume + "}"); 
 	else 
 	    v = volume;
     }
