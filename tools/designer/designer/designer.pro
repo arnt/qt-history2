@@ -1,5 +1,5 @@
 TEMPLATE	= lib
-CONFIG		+= qt warn_on staticlib
+CONFIG		+= qt warn_on staticlib qmake_cache
 CONFIG 		-= dll
 !force_static:!win32:contains(QT_PRODUCT,qt-internal) {
    CONFIG          -= staticlib
