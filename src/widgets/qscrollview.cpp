@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#8 $
 **
 ** Implementation of QScrollView class
 **
@@ -383,7 +383,7 @@ void QScrollView::view(QWidget* w)
     }
     if ( w ) {
 	if ( w->parentWidget() != &d->viewport ) {
-	    w->recreate( &d->viewport, 0, QPoint(0,0), TRUE );
+	    w->recreate( &d->viewport, 0, QPoint(0,0), isVisible() );
 	}
 	w->installEventFilter( this );
     }
@@ -424,8 +424,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 		    if (fix)
 			d->viewed->move(cx,cy);
 		}
-		return FALSE;
-		//break;
+		break;
 	    }
 	  case Event_Resize:
 	  case Event_Show:
@@ -590,13 +589,18 @@ void QScrollView::center( int x, int y, float xmargin, float ymargin )
 */
 void QScrollView::moveView(int x, int y)
 {
-    int dx = x - d->vx;
-    int dy = y - d->vy;
-    if (!dx && !dy) return; // Nothing to do
-
     if (d->viewed) {
+	if (d->viewed->pos() == QPoint(x,y))
+	    return; // Nothing to do
+
 	d->viewed->move( x, y );
     } else {
+	int dx = x - d->vx;
+	int dy = y - d->vy;
+
+	if (!dx && !dy)
+	    return; // Nothing to do
+
 	d->vx = x;
 	d->vy = y;
 
