@@ -526,6 +526,17 @@ bool MetaDataBase::hasSlot( QObject *o, const QCString &slot )
 	    return TRUE;
     }
 
+    if ( o->inherits( "CustomWidget" ) ) {
+	MetaDataBase::CustomWidget *w = ( (::CustomWidget*)o )->customWidget();
+	for ( QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it ) {
+	    QCString s = (*it).slot;
+	    if ( !s.data() )
+		continue;
+	    if ( s == slot )
+		return TRUE;
+	}
+    }
+
     for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
 	Slot s = *it;
 	if ( s.slot == slot )
