@@ -159,6 +159,7 @@ are shown on the screen)
 
 QObject
   UserData. d-pointer.
+  Why not just use named children? That costs 0 when not used.
 
 QCursor
   QCursor::QCursor(const QPixmap & pixmap, ...) should do colored cursors on
