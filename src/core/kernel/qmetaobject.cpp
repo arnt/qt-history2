@@ -108,7 +108,8 @@ enum FunctionFlags  {
     AccessPublic          = 0x02,
     AccessProtected       = 0x04,
     AccessMask            = 0x07, //mask
-    Compatability         = 0x08
+    Compatability         = 0x08,
+    Cloned                = 0x10
 };
 
 struct QMetaObjectPrivate
@@ -844,16 +845,22 @@ const char *QMetaMember::tag() const
 }
 
 
-/*!
-    Returns the access specification of this member: private,
-    protected, or public. Signals are always protected.
-*/
+/*! \internal */
 
 bool QMetaMember::isCompat() const
 {
     if (!mobj)
         return false;
     return mobj->d.data[handle + 4] & Compatability;
+}
+
+/*! \internal */
+
+bool QMetaMember::isCloned() const
+{
+    if (!mobj)
+        return false;
+    return mobj->d.data[handle + 4] & Cloned;
 }
 
 /*!

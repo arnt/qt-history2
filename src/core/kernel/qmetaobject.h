@@ -33,6 +33,7 @@ public:
     enum Access { Private, Protected, Public };
     Access access() const;
     bool isCompat() const;
+    bool isCloned() const;
 
 private:
     const QMetaObject *mobj;
