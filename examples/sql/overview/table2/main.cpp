@@ -50,26 +50,27 @@ int main( int argc, char *argv[] )
 
 bool create_connections()
 {
-
+    // create the default database connection
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );
     defaultDB->setDatabaseName( "sales" );
     defaultDB->setUserName( "salesuser" );
     defaultDB->setPassword( "salespw" );
     defaultDB->setHostName( "saleshost" );
-    if ( ! defaultDB->open() ) {
-	qWarning( "Failed to open sales database: " +
+    if ( ! defaultDB->open() ) { 
+	qWarning( "Failed to open sales database: " + 
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
 	return false;
     }
 
-    QSqlDatabase *oracle = QSqlDatabase::addDatabase( "QPSQL6", "oracle" );
+    // create a named connection to oracle
+    QSqlDatabase *oracle = QSqlDatabase::addDatabase( "QOCI", "ORACLE" );
     oracle->setDatabaseName( "orders" );
     oracle->setUserName( "ordersuser" );
     oracle->setPassword( "orderspw" );
     oracle->setHostName( "ordershost" );
     if ( ! oracle->open() ) {
-	qWarning( "Failed to open orders database: " +
+	qWarning( "Failed to open orders database: " + 
 		  oracle->lastError().driverText() );
 	qWarning( oracle->lastError().databaseText() );
 	return false;
@@ -77,3 +78,5 @@ bool create_connections()
 
     return true;
 }
+
+
