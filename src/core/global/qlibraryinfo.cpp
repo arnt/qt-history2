@@ -178,6 +178,13 @@ static bool qt_find_qlibrary_info_config()
             return true;
         }
     }
+    { //look in the /usr/local/etc
+        QString qtconfig = "/usr/local/etc/qt.conf";
+        if(QFile::exists(qtconfig)) {
+            qt_library_config_file = qtconfig;
+            return true;
+        }
+    }
 #endif
 #ifdef Q_OS_WIN
     { //registry key
@@ -216,6 +223,8 @@ static bool qt_find_qlibrary_info_config()
   from that directory to the root.
 
   \i A file in /etc/qt.conf (Unix only)
+
+  \i A file in /usr/local//etc/qt.conf (Unix only)
 
   \endlist
 
@@ -280,7 +289,7 @@ QLibraryInfo::location(LibraryLocation loc)
         }
         if(!key.isNull()) {
             QSettings settings(qt_library_config_file, Qt::IniFormat);
-            return settings.value("QtCore/" + key).toString();
+            return settings.value("QtCore/" + key, QDir::currentPath()).toString();
         }
     }
     return QString();
