@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#124 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#125 $
 **
 ** Implementation of QLabel widget class
 **
@@ -406,7 +406,7 @@ void QLabel::setNum( double num )
   <li> \c AlignTop aligns to the top border.
   <li> \c AlignBottom aligns to the bottom border.
   <li> \c AlignVCenter aligns vertically centered
-  <li> \c AlignCenter (= \c AlignHCenter | AlignVCenter)
+  <li> \c AlignCenter (= \c AlignHCenter | \c AlignVCenter)
   <li> \c ExpandTabs expands tabulators.
   <li> \c WordBreak enables automatic word breaking.
   </ul>
