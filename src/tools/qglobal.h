@@ -936,7 +936,7 @@ Q_EXPORT void qt_msg_assert(const char *message, const char *file, int line);
 #  ifndef QT_NO_DEBUG
 #    define Q_MSG_ASSERT(x, msg)  {if(!(x))qt_msg_assert(msg,__FILE__,__LINE__);}
 #  else
-#    define Q_MSG_ASSERT(x)
+#    define Q_MSG_ASSERT(x, msg)
 #  endif
 #endif
 
@@ -1032,7 +1032,11 @@ public:
   The partial specialization to catch all pointers.
 */
 template <typename T> inline void qInit(T *&t) { t = 0; }
-template <typename T> inline void qDelete(T *&t) { delete t; }
+template <typename T> inline void qDelete(T *&t)
+{
+    if (false) t->~T(); // provoke compile error if T is not a fully-defined type
+    delete t;
+}
 
 template <typename T>
 class QTypeInfo<T*>
