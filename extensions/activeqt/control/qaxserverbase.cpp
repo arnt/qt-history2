@@ -744,6 +744,39 @@ LRESULT CALLBACK axs_FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     return CallNextHookEx( qax_hhook, nCode, wParam, lParam );
 }
 
+// QApplication subclass that can handle native window messages
+class QAxApplication : public QApplication
+{
+public:
+    QAxApplication(int &argc) : QApplication(argc, 0)
+    {}
+
+    bool winEventFilter(MSG *pMsg)
+    {
+        if (!ax_ServerMapper || pMsg->message < WM_KEYFIRST || pMsg->message > WM_KEYLAST)
+	    return false;
+
+        bool ret = false;
+        QWidget *aqt = QWidget::find( pMsg->hwnd );
+        if (!aqt)
+	    return ret;
+
+        HWND baseHwnd = ::GetParent( aqt->winId() );
+        QAxServerBase *axbase = 0;
+        while ( !axbase && baseHwnd ) {
+	    axbase = (*axServerMapper())[baseHwnd];
+	    baseHwnd = ::GetParent( baseHwnd );
+        }
+        if ( !axbase )
+	    return ret;
+
+        HRESULT hres = axbase->TranslateAcceleratorW( pMsg );
+        if ( hres == S_OK )
+	    return 1;
+        return 0;
+    }
+};
+
 // COM Factory class, mapping COM requests to ActiveQt requests.
 // One instance of this class for each ActiveX the server can provide.
 class QClassFactory : public IClassFactory2
@@ -825,7 +858,7 @@ public:
 	if ( !qApp ) {
 	    qax_ownQApp = TRUE;
 	    int argc = 0;
-	    (void)new QApplication( argc, 0 );
+	    (void)new QAxApplication(argc);
 	    QT_WA( {
 		qax_hhook = SetWindowsHookExW( WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId() );
 	    }, {
@@ -2370,12 +2403,14 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
             }
 
 	    for ( int p = 0; p < pcount; ++p ) {
-		// map the VARIANT to the QVariant
+		// map the VARIANT to the void*
 		bool out;
 		QString ptype = paramType(ptypes.at(p), &out);
 		varp[p + 1] = VARIANTToQVariant(pDispParams->rgvarg[pcount - p - 1], ptype);
 		if (varp[p + 1].isValid()) {
-		    argv[p + 1] = varp[p + 1].data();
+		    argv[p + 1] = const_cast<void*>(varp[p + 1].constData());
+                    if (ptype.endsWith("*"))
+                        argv[p+1] = new void*(argv[p + 1]);
 		} else {
 		    if (puArgErr)
 			*puArgErr = pcount-p-1;
@@ -2383,13 +2418,17 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		}
 	    }
 	    if (!type.isEmpty()) {
-                if (mo->indexOfEnumerator(slot.type()) != -1) {
-                    varp[0] = QVariant(QVariant::Int);
-                } else {
-		    varp[0] = QVariant(QVariant::nameToType(slot.type()));
+                varp[0] = QVariant(QVariant::nameToType(slot.type()));
+                if (varp[0].type() == QVariant::Invalid) {
+                    if (mo->indexOfEnumerator(slot.type()) != -1)
+                        varp[0] = QVariant(QVariant::Int);
+                    else
+                        varp[0] = QVariant::UserData(0, type.latin1());
                 }
                 Q_ASSERT(varp[0].type() != QVariant::Invalid);
-		argv[0] = varp[0].data();
+		argv[0] = const_cast<void*>(varp[0].constData());
+                if (type.endsWith("*"))
+                    argv[0] = new void*(argv[0]);
 	    }
 
 	    // call the slot if everthing went fine.
@@ -2617,7 +2656,7 @@ HRESULT WINAPI QAxServerBase::Save( IStream *pStm, BOOL clearDirty )
     qtbuffer.close();
     QByteArray qtarray = qtbuffer.buffer();
     ULONG written = 0;
-    char *data = qtarray.data();
+    const char *data = qtarray.constData();
     ULARGE_INTEGER newsize;
     newsize.HighPart = 0;
     newsize.LowPart = qtarray.size();
@@ -3155,37 +3194,6 @@ HRESULT WINAPI QAxServerBase::ReactivateAndUndo()
 }
 
 //**** IOleInPlaceActiveObject
-
-/*
-    This event filter is called by QtWndProc.
-    only messages sent to Qt widgets are visible here.
-*/
-int QAxEventFilter( MSG *pMsg )
-{
-    if ( !ax_ServerMapper )
-	return 0;
-    if ( pMsg->message < WM_KEYFIRST || pMsg->message > WM_KEYLAST )
-	return 0;
-
-    int ret = 0;
-    QWidget *aqt = QWidget::find( pMsg->hwnd );
-    if ( !aqt )
-	return ret;
-
-    HWND baseHwnd = ::GetParent( aqt->winId() );
-    QAxServerBase *axbase = 0;
-    while ( !axbase && baseHwnd ) {
-	axbase = (*axServerMapper())[baseHwnd];
-	baseHwnd = ::GetParent( baseHwnd );
-    }
-    if ( !axbase )
-	return ret;
-
-    HRESULT hres = axbase->TranslateAcceleratorW( pMsg );
-    if ( hres == S_OK )
-	return 1;
-    return 0;
-}
 
 Q_GUI_EXPORT int qt_translateKeyCode(int);
 
