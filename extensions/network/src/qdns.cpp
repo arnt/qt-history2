@@ -654,8 +654,8 @@ public: // just to silence the moronic g++.
     ~QDnsManager();
 public:
     static QDnsManager * manager();
-    static void add( QDns * );
-    static void remove( QDns * );
+    static void add( const QDns * );
+    static void remove( const QDns * );
 
     QDnsDomain * domain( const QString & );
 
@@ -687,15 +687,15 @@ QDnsManager * QDnsManager::manager()
 }
 
 
-void QDnsManager::add( QDns * q )
+void QDnsManager::add( const QDns * q )
 {
-    manager()->qdns->replace( q, (void*)q );
+    manager()->qdns->replace( (void*)q, (void*)q );
 }
 
 
-void QDnsManager::remove( QDns * q )
+void QDnsManager::remove( const QDns * q )
 {
-    manager()->qdns->take( q );
+    manager()->qdns->take( (void*)q );
 }
 
 void QDnsUgleHack::ugle()
@@ -1195,6 +1195,41 @@ void QDnsSocket::answer()
 }
 
 
+/*! \class QDns qdns.h
+
+  \brief The QDns class provides asynchronous DNS lookups.
+
+  \extension network
+
+  Both Windows and UNIX provides synchronous DNS lookups; Windows
+  provides some asynchronous support too.  Neither OS provides
+  asynchronous support for anything other than hostname-to-address
+  mapping.
+
+  QDns rectifies that, by providing asynchronous caching lookups for
+  the record types that we expect modern GUI applications to need in
+  the near future.
+
+  The class is a bit hard to use (although much simpler than the
+  native APIs); QSocket provides much simpler TCP connection
+  facilities.  The aim of QDns is to provide a correct and small API
+  to the DNS: Nothing more.  (Correctness implies that the DNS
+  information is correctly cached, and correctly timed out.)
+  
+  The API is made up of a constructor, functions to set the DNS node
+  (the domain in DNS terminology) and record type: setLabel() and
+  setRecordType(), the corresponding getters, an isWorking() function
+  to determine whether QDns is working or reading, a resultsReady()
+  signal, and finally query functions for the result.
+
+  There is one query function for each RecordType, namely addresses(),
+  mailServers(), servers() and texts().  There are also two generic
+  query functions: canonicalName() return the name you'll presumably
+  end up using (the exact meaning of that depends on the record type)
+  and qualifiedNames() returns a list of the fully qualified names
+  label() maps to.
+*/
+
 /*!  Constructs a DNS query object with invalid settings both for the
   label and the search type.
 */
@@ -1209,8 +1244,8 @@ QDns::QDns()
 
 
 
-/*!  Constructs a DNS query object that will search for \a rr
-  information about \a label, and starts a query.
+/*!  Constructs a DNS query object that will return \a rr
+  information about \a label.
 
   \a rr defaults to \c A, IPv4 addresses.
 */
@@ -1278,7 +1313,7 @@ void QDns::setLabel( const QString & label )
 
 /*! \fn QString QDns::label() const
 
-  Returns the domain name for which this object can query.
+  Returns the domain name for which this object returns information.
 
   \sa setLabel()
 */
@@ -1316,7 +1351,7 @@ void QDns::setLabel( const QString & label )
   extensions will be added in future versions.
 */
 
-/*!  Sets this object to query for \a rr records. */
+/*!  Sets this object to query for \a rr records. \sa RecordType */
 
 void QDns::setRecordType( RecordType rr )
 {
@@ -1335,7 +1370,7 @@ void QDns::setRecordType( RecordType rr )
 /*! Returns TRUE if QDns is doing a lookup for this object, and FALSE
 if this object has the information it wants.
 
-QDns emits the resultsReady() when the status changes to FALSE.
+QDns emits the resultsReady() signal when the status changes to FALSE.
 */
 
 bool QDns::isWorking() const
