@@ -188,7 +188,7 @@ public:
     inline QT_COMPAT void setItemVisible(int id, bool visible) { 
         if(QAction *act = findActionForId(id)) 
             act->setVisible(visible); }
-    inline QT_COMPAT QRect itemGeometry(int index) {
+    inline QT_COMPAT QRect itemRect(int index) {
         if(QAction *act = actions().value(index)) 
             return actionGeometry(act);
         return QRect();
