@@ -801,14 +801,16 @@ QByteArray::QByteArray(const char*s, int size)
    } else if (size <= 0) {
        d = &shared_empty;
    } else {
-       d = (Data *)qMalloc(sizeof(Data)+size);
+       int slen = strlen(s);
+       int len = size < 0 ? slen : qMin(slen, size);
+       d = (Data *)qMalloc(sizeof(Data)+len);
        if (!d) {
 	   d = &shared_null;
        } else {
 	   d->ref = 0;
-	   d->alloc = d->size = size;
+	   d->alloc = d->size = len;
 	   d->data = d->array;
-	   memcpy(d->array, s, size);
+	   memcpy(d->array, s, len);
 	   d->array[size] = '\0';
        }
    }
