@@ -9,7 +9,7 @@ class QAction;
 class QIconSet;
 class Q4MainWindow;
 
-class Q4ToolBar : public QFrame
+class Q_GUI_EXPORT Q4ToolBar : public QFrame
 {
     Q_DECLARE_PRIVATE(Q4ToolBar);
     Q_OBJECT

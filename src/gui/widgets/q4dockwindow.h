@@ -6,7 +6,7 @@
 class Q4MainWindow;
 class Q4DockWindowPrivate;
 
-class Q4DockWindow : public QFrame
+class Q_GUI_EXPORT Q4DockWindow : public QFrame
 {
     Q_OBJECT
 

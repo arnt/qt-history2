@@ -9,7 +9,7 @@ class QMenuBar;
 class QStatusBar;
 class Q4ToolBar;
 
-class Q4MainWindow : public QWidget
+class Q_GUI_EXPORT Q4MainWindow : public QWidget
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(Q4MainWindow);
