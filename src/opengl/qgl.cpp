@@ -2016,7 +2016,7 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
 
 #ifdef Q_WS_WIN // always regenerate disp. lists for pixmaps under Windows
     bool regenerate = glcx->deviceIsPixmap();
-    QString key = fnt.key() + QString::number( regenerate );
+    QString key = fnt.key() + QString::number( (int)regenerate );
 #else
     bool regenerate = FALSE;
     QString key = fnt.key();
