@@ -115,6 +115,20 @@
     \sa QSharedData
 */
 
+/*! \fn T &QSharedDataPointer::operator*()
+
+    Provides access to the shared object's members.
+
+    This function does a detach().
+*/
+
+/*! \fn const T &QSharedDataPointer::operator*() const
+
+    \overload
+
+    This function does not call detach().
+*/
+
 /*! \fn T *QSharedDataPointer::operator->()
 
     Provides access to the shared object's members.
@@ -168,6 +182,22 @@
     This function does not call detach().
 
     \sa data()
+*/
+
+/*! \fn bool QSharedDataPointer::operator==(const QSharedDataPointer<T> &other) const
+
+    Returns a true if the pointer to the shared object in \a other is equal to 
+    to the pointer to the shared data in this else returns false.
+
+    This function does not call detach().
+*/
+
+/*! \fn bool QSharedDataPointer::operator!=(const QSharedDataPointer<T> &other) const
+
+    Returns a true if the pointer to the shared object in \a other is not equal to 
+    to the pointer to the shared data in this else returns false.
+
+    This function does not call detach().
 */
 
 /*! \fn QSharedDataPointer::QSharedDataPointer()
