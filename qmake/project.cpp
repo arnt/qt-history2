@@ -218,6 +218,119 @@ static void qmake_error_msg(const QString &msg)
             msg.toLatin1().constData());
 }
 
+/*
+   1) environment variable QMAKEFEATURES (as separated by colons)
+   2) property variable QMAKEFEATURES (as separated by colons)
+   3) <project_root> (where .qmake.cache lives) + FEATURES_DIR
+   4) environment variable QMAKEPATH (as separated by colons) + /mkspecs/FEATURES_DIR
+   5) your QMAKESPEC/features dir
+   6) your data_install/mkspecs/FEATURES_DIR
+   7) environment variable QTDIR/mkspecs/FEATURES_DIR
+   8) your QMAKESPEC/../features dir
+
+   FEATURES_DIR is defined as:
+
+   1) features/(unix|win32|macx)/
+   2) features/
+*/
+QStringList qmake_feature_paths(QMakeProperty *prop=0)
+{
+    QStringList concat;
+    {
+        const QString base_concat = QDir::separator() + QString("features");
+        switch(Option::target_mode) {
+        case Option::TARG_MACX_MODE:                     //also a unix
+            concat << base_concat + QDir::separator() + "macx";
+            concat << base_concat + QDir::separator() + "unix";
+            break;
+        case Option::TARG_UNIX_MODE:
+            concat << base_concat + QDir::separator() + "unix";
+            break;
+        case Option::TARG_WIN_MODE:
+            concat << base_concat + QDir::separator() + "win32";
+            break;
+        case Option::TARG_MAC9_MODE:
+            concat << base_concat + QDir::separator() + "mac9";
+            break;
+        case Option::TARG_QNX6_MODE: //also a unix
+            concat << base_concat + QDir::separator() + "qnx6";
+            concat << base_concat + QDir::separator() + "unix";
+            break;
+        }
+        concat << base_concat;
+    }
+    const QString mkspecs_concat = QDir::separator() + QString("mkspecs");
+    QStringList feature_roots;
+    if(const char *mkspec_path = qgetenv("QMAKEFEATURES")) {
+#ifdef Q_OS_WIN
+        QStringList lst = QString(mkspec_path).split(';');
+        for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
+            feature_roots += (*it).split(':');
+#else
+        feature_roots += QString(mkspec_path).split(':');
+#endif
+    }
+    if(prop) {
+#ifdef Q_OS_WIN
+        QStringList lst = prop->value("QMAKEFEATURES").split(';');
+        for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
+            feature_roots += (*it).split(':');
+#else
+        feature_roots += prop->value("QMAKEFEATURES").split(':');
+#endif
+    }
+    if(!Option::mkfile::cachefile.isEmpty()) {
+        QString path;
+        int last_slash = Option::mkfile::cachefile.lastIndexOf(Option::dir_sep);
+        if(last_slash != -1)
+            path = Option::fixPathToLocalOS(Option::mkfile::cachefile.left(last_slash));
+        for(QStringList::Iterator concat_it = concat.begin();
+            concat_it != concat.end(); ++concat_it)
+            feature_roots << (path + (*concat_it));
+    }
+    if(const char *qmakepath = qgetenv("QMAKEPATH")) {
+#ifdef Q_OS_WIN
+        QStringList lst = QString(qmakepath).split(';');
+        for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
+            QStringList lst2 = (*it).split(':');
+            for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2) {
+                for(QStringList::Iterator concat_it = concat.begin();
+                    concat_it != concat.end(); ++concat_it)
+                    feature_roots << ((*it2) + mkspecs_concat + (*concat_it));
+            }
+        }
+#else
+        QStringList lst = QString(qmakepath).split(':');
+        for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
+            for(QStringList::Iterator concat_it = concat.begin();
+                concat_it != concat.end(); ++concat_it)
+                feature_roots << ((*it) + mkspecs_concat + (*concat_it));
+        }
+#endif
+    }
+    if(!Option::mkfile::qmakespec.isEmpty())
+        feature_roots << Option::mkfile::qmakespec + QDir::separator() + "features";
+    if(const char *qtdir = qgetenv("QTDIR")) {
+        for(QStringList::Iterator concat_it = concat.begin();
+            concat_it != concat.end(); ++concat_it)
+            feature_roots << (QString(qtdir) + mkspecs_concat + (*concat_it));
+    }
+    if(!Option::mkfile::qmakespec.isEmpty()) {
+        for(QStringList::Iterator concat_it = concat.begin();
+            concat_it != concat.end(); ++concat_it)
+            feature_roots << (QDir::cleanPath(Option::mkfile::qmakespec + "/../") + (*concat_it));
+    }
+    for(QStringList::Iterator concat_it = concat.begin();
+        concat_it != concat.end(); ++concat_it)
+        feature_roots << (QLibraryInfo::location(QLibraryInfo::PrefixPath) +
+                          mkspecs_concat + (*concat_it));
+    for(QStringList::Iterator concat_it = concat.begin();
+        concat_it != concat.end(); ++concat_it)
+        feature_roots << (QLibraryInfo::location(QLibraryInfo::DataPath) +
+                          mkspecs_concat + (*concat_it));
+    return feature_roots;
+}
+
 QStringList qmake_mkspec_paths()
 {
     QStringList ret;
@@ -1242,23 +1355,6 @@ QMakeProject::doProjectExpand(QString func, const QString &params,
     return doProjectExpand(func, split_arg_list(params), place);
 }
 
-
-/* If including a feature it will look in:
-
-   1) environment variable QMAKEFEATURES (as separated by colons)
-   2) property variable QMAKEFEATURES (as separated by colons)
-   3) <project_root> (where .qmake.cache lives) + FEATURES_DIR
-   4) environment variable QMAKEPATH (as separated by colons) + /mkspecs/FEATURES_DIR
-   5) your QMAKESPEC/features dir
-   6) your data_install/mkspecs/FEATURES_DIR
-   7) environment variable QTDIR/mkspecs/FEATURES_DIR
-   8) your QMAKESPEC/../features dir
-
-   FEATURES_DIR is defined as:
-
-   1) features/(unix|win32|macx)/
-   2) features/
-*/
 QMakeProject::IncludeStatus
 QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place,
                                const QString &seek_var)
@@ -1268,106 +1364,16 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
             file += Option::prf_ext;
         if(file.indexOf(Option::dir_sep) == -1 || !QFile::exists(file)) {
             bool found = false;
-            QStringList concat;
-            {
-                const QString base_concat = QDir::separator() + QString("features");
-                switch(Option::target_mode) {
-                case Option::TARG_MACX_MODE:                     //also a unix
-                    concat << base_concat + QDir::separator() + "macx";
-                    concat << base_concat + QDir::separator() + "unix";
-                    break;
-                case Option::TARG_UNIX_MODE:
-                    concat << base_concat + QDir::separator() + "unix";
-                    break;
-                case Option::TARG_WIN_MODE:
-                    concat << base_concat + QDir::separator() + "win32";
-                    break;
-                case Option::TARG_MAC9_MODE:
-                    concat << base_concat + QDir::separator() + "mac9";
-                    break;
-                case Option::TARG_QNX6_MODE: //also a unix
-                    concat << base_concat + QDir::separator() + "qnx6";
-                    concat << base_concat + QDir::separator() + "unix";
-                    break;
-                }
-                concat << base_concat;
-            }
-            const QString mkspecs_concat = QDir::separator() + QString("mkspecs");
-            QStringList feature_roots;
-            if(const char *mkspec_path = qgetenv("QMAKEFEATURES")) {
-#ifdef Q_OS_WIN
-                QStringList lst = QString(mkspec_path).split(';');
-                for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
-                    feature_roots += (*it).split(':');
-#else
-                feature_roots += QString(mkspec_path).split(':');
-#endif
-            }
-            if(prop) {
-#ifdef Q_OS_WIN
-                QStringList lst = prop->value("QMAKEFEATURES").split(';');
-                for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
-                    feature_roots += (*it).split(':');
-#else
-                feature_roots += prop->value("QMAKEFEATURES").split(':');
-#endif
-            }
-            if(!Option::mkfile::cachefile.isEmpty()) {
-                QString path;
-                int last_slash = Option::mkfile::cachefile.lastIndexOf(Option::dir_sep);
-                if(last_slash != -1)
-                    path = Option::fixPathToLocalOS(Option::mkfile::cachefile.left(last_slash));
-                for(QStringList::Iterator concat_it = concat.begin();
-                    concat_it != concat.end(); ++concat_it)
-                    feature_roots << (path + (*concat_it));
-            }
-            if(const char *qmakepath = qgetenv("QMAKEPATH")) {
-#ifdef Q_OS_WIN
-                QStringList lst = QString(qmakepath).split(';');
-                for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
-                    QStringList lst2 = (*it).split(':');
-                    for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2) {
-                        for(QStringList::Iterator concat_it = concat.begin();
-                            concat_it != concat.end(); ++concat_it)
-                            feature_roots << ((*it2) + mkspecs_concat + (*concat_it));
-                    }
-                }
-#else
-                QStringList lst = QString(qmakepath).split(':');
-                for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
-                    for(QStringList::Iterator concat_it = concat.begin();
-                        concat_it != concat.end(); ++concat_it)
-                        feature_roots << ((*it) + mkspecs_concat + (*concat_it));
-                }
-#endif
-            }
-            if(!Option::mkfile::qmakespec.isEmpty())
-                feature_roots << Option::mkfile::qmakespec + QDir::separator() + "features";
-            if(const char *qtdir = qgetenv("QTDIR")) {
-                for(QStringList::Iterator concat_it = concat.begin();
-                    concat_it != concat.end(); ++concat_it)
-                    feature_roots << (QString(qtdir) + mkspecs_concat + (*concat_it));
-            }
-            if(!Option::mkfile::qmakespec.isEmpty()) {
-                for(QStringList::Iterator concat_it = concat.begin();
-                    concat_it != concat.end(); ++concat_it)
-                    feature_roots << (QDir::cleanPath(Option::mkfile::qmakespec + "/../") + (*concat_it));
-            }
-            for(QStringList::Iterator concat_it = concat.begin();
-                concat_it != concat.end(); ++concat_it)
-                feature_roots << (QLibraryInfo::location(QLibraryInfo::PrefixPath) +
-                                  mkspecs_concat + (*concat_it));
-            for(QStringList::Iterator concat_it = concat.begin();
-                concat_it != concat.end(); ++concat_it)
-                feature_roots << (QLibraryInfo::location(QLibraryInfo::DataPath) +
-                                  mkspecs_concat + (*concat_it));
+            static QStringList *feature_roots = 0;
+            if(!feature_roots)
+                feature_roots = new QStringList(qmake_feature_paths(prop));
             debug_msg(2, "Looking for feature '%s' in (%s)", file.toLatin1().constData(),
-			feature_roots.join("::").toLatin1().constData());
+			feature_roots->join("::").toLatin1().constData());
             int start_root = 0;
             if(parser.from_file) {
                 QFileInfo currFile(QFileInfo(parser.file).canonicalFilePath());
-                for(int root = 0; root < feature_roots.size(); ++root) {
-                    QString prf(feature_roots[root] + QDir::separator() + file);
+                for(int root = 0; root < feature_roots->size(); ++root) {
+                    QString prf(feature_roots->at(root) + QDir::separator() + file);
                     QFileInfo prfFile(QFileInfo(prf).canonicalFilePath());
                     if(prfFile == currFile) {
                         start_root = root+1;
@@ -1375,8 +1381,8 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
                     }
                 }
             }
-            for(int root = start_root; root < feature_roots.size(); ++root) {
-                QString prf(feature_roots[root] + QDir::separator() + file);
+            for(int root = start_root; root < feature_roots->size(); ++root) {
+                QString prf(feature_roots->at(root) + QDir::separator() + file);
                 if(QFile::exists(prf)) {
                     found = true;
                     file = prf;
