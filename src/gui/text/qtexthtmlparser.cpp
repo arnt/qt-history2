@@ -436,13 +436,16 @@ static QString quoteNewline(const QString &s)
 
 QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(-1), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
-      fontItalic(false), fontUnderline(false), fontOverline(false),
-      fontStrikeOut(false), fontFixedPitch(false), hasOwnListStyle(false), fontPointSize(DefaultFontSize), fontWeight(QFont::Normal),
-      alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
-      imageWidth(-1), imageHeight(-1),
-      wsm(WhiteSpaceModeUndefined)
+      fontItalic(false), fontUnderline(false), fontOverline(false), fontStrikeOut(false), fontFixedPitch(false),
+      cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), fontPointSize(DefaultFontSize),
+      fontWeight(QFont::Normal), alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
+      imageWidth(-1), imageHeight(-1), wsm(WhiteSpaceModeUndefined)
 {
-    margin[0] = margin[1] = margin[2] = margin[3] = margin[4] = 0;
+    margin[QTextHtmlParser::MarginLeft] = 0;
+    margin[QTextHtmlParser::MarginRight] = 0;
+    margin[QTextHtmlParser::MarginTop] = 0;
+    margin[QTextHtmlParser::MarginBottom] = 0;
+    margin[QTextHtmlParser::MarginFirstLine] = 0;
 }
 
 QTextCharFormat QTextHtmlParserNode::charFormat() const
@@ -464,8 +467,6 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
         format.setAnchor(true);
         format.setAnchorHref(anchorHref);
         format.setAnchorName(anchorName);
-        format.setFontUnderline(true);
-        format.setColor(Qt::blue); // ### use css
     }
 
     return format;
@@ -868,15 +869,19 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     wsm = parent->wsm;
 
     // initialize remaining properties
-    margin[0] = 0;
-    margin[1] = 0;
-    margin[2] = 0;
-    margin[3] = 0;
-    margin[4] = 0;
+    margin[QTextHtmlParser::MarginLeft] = 0;
+    margin[QTextHtmlParser::MarginRight] = 0;
+    margin[QTextHtmlParser::MarginTop] = 0;
+    margin[QTextHtmlParser::MarginBottom] = 0;
+    margin[QTextHtmlParser::MarginFirstLine] = 0;
     cssFloat = QTextFrameFormat::InFlow;
 
     // set element specific attributes
     switch (id) {
+        case Html_a:
+            fontUnderline = true;
+            color = Qt::blue; // ####
+            break;
         case Html_em:
         case Html_i:
             fontItalic = true;
@@ -981,7 +986,6 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
         default: break;
     }
 }
-
 
 void QTextHtmlParser::parseAttributes()
 {
