@@ -27,7 +27,7 @@ public:
 };
 
 QToolBarButtonPrivate::QToolBarButtonPrivate()
-    : usesTextLabel(true)
+    : usesTextLabel(false)
 { }
 
 QStyleOptionButton QToolBarButtonPrivate::getStyleOption() const
@@ -91,13 +91,13 @@ QMenu *QToolBarButton::menu() const
 void QToolBarButton::showMenu()
 {
     update();
-    d->menu->exec(mapToGlobal(q->rect().bottomLeft() + QPoint(0, 1)));
+    d->menu->exec(mapToGlobal(q->rect().bottomLeft() + QPoint(0, QRect::rectangleMode())));
     update();
 }
 
 QSize QToolBarButton::sizeHint() const
 {
-    QStyleOptionButton opt = d->getStyleOption();
+    const QStyleOptionButton opt = d->getStyleOption();
 
     const QPixmap icon = d->icon.pixmap();
     const QString text = d->text;
@@ -116,28 +116,16 @@ QSize QToolBarButton::minimumSizeHint() const
 
 bool QToolBarButton::hitButton(const QPoint &pos) const
 {
-    QRect buttonRect = q->rect();
-    QRect menuRect;
-
-    if (d->menu) {
-        buttonRect.setWidth(buttonRect.width() - 12);
-        menuRect.setRect(buttonRect.right() + 1, buttonRect.top(), 12, buttonRect.height());
-    }
-
+    const QStyleOptionButton opt = d->getStyleOption();
+    const QRect buttonRect = style().subRect(QStyle::SR_ToolBarButtonContents, &opt, this);
     return buttonRect.contains(pos);
 }
 
 void QToolBarButton::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton) {
-        QRect buttonRect = q->rect();
-        QRect menuRect;
-
-        if (d->menu) {
-            buttonRect.setWidth(buttonRect.width() - 12);
-            menuRect.setRect(buttonRect.right() + 1, buttonRect.top(), 12, buttonRect.height());
-        }
-
+    if (event->button() == Qt::LeftButton && d->menu) {
+        const QStyleOptionButton opt = d->getStyleOption();
+        const QRect menuRect = style().subRect(QStyle::SR_ToolBarButtonMenu, &opt, this);
         if (menuRect.contains(event->pos())) {
             showMenu();
             return;
@@ -163,7 +151,7 @@ void QToolBarButton::leaveEvent(QEvent *)
 void QToolBarButton::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QStyleOptionButton opt = d->getStyleOption();
+    const QStyleOptionButton opt = d->getStyleOption();
     style().drawControl(QStyle::CE_ToolBarButton, &opt, &p, this);
 }
 

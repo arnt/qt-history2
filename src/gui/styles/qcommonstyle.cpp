@@ -1074,12 +1074,12 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 qDrawShadePanel(p, cr, button->palette, false);
             }
 
-            const QRect ir(cr.topLeft() + QPoint(2, 2), QSize(pixmap.width(), cr.height() - 4));
+            const QRect ir(cr.topLeft() + QPoint(3, 3), QSize(pixmap.width(), cr.height() - 6));
             drawItem(p, ir, Qt::AlignCenter, button->palette,
                      (button->state & Style_Enabled), pixmap);
             if (!button->text.isEmpty()) {
-                const QRect tr(ir.topRight() + QPoint(2, 0),
-                               QSize(cr.width() - ir.width() - 6, ir.height()));
+                const QRect tr(ir.topRight() + QPoint(2 + QRect::rectangleMode(), 0),
+                               QSize(cr.width() - ir.width() - 9, ir.height()));
                 drawItem(p, tr, Qt::AlignLeft | Qt::AlignVCenter,
                          button->palette, (button->state & Style_Enabled), button->text);
             }
@@ -1292,7 +1292,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
             r = opt->rect;
             if (button->features & QStyleOptionButton::HasMenu) {
-                r.setRight(r.right() - 12);
+                r.setWidth(r.width() - 12);
             }
         }
         break;
@@ -1300,7 +1300,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
             if (button->features & QStyleOptionButton::HasMenu) {
                 r = opt->rect;
-                r.setLeft(r.right() - 11);
+                r.setLeft(r.right() - (12 - QRect::rectangleMode()));
             }
         }
         break;
@@ -2445,9 +2445,9 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
         break; }
     case CT_ToolBarButton:
         if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
-            sz += QSize(4, 4); // for the icon
+            sz += QSize(6, 6); // for the icon
             if (!button->text.isEmpty())
-                sz.rwidth() += 2; // between the text and the icon
+                sz.rwidth() += 3; // between the text and the icon
             if (button->features & QStyleOptionButton::HasMenu)
                 sz.rwidth() += 12;
         }
