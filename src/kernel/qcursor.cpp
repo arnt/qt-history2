@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#36 $
 **
 ** Implementation of QCursor class
 **
@@ -51,31 +51,31 @@
 
   To set a cursor shape use QCursor::setShape() or use the QCursor constructor
   which takes the shape as argument, or use one of the \e predefined cursors:
-  
+
   <ul>
-  <li> arrowCursor - standard arrow cursor
-  <li> upArrowCursor - upwards arrow
-  <li> crossCursor - crosshair
-  <li> waitCursor - hourglass/watch
-  <li> ibeamCursor - ibeam/text entry
-  <li> sizeVerCursor - vertical resize
-  <li> sizeHorCursor - horizontal resize
-  <li> sizeBDiagCursor - diagonal resize (/)
-  <li> sizeFDiagCursor - diagonal resize (\)
-  <li> sizeAllCursor - all directions resize
-  <li> blankCursor - blank/invisible cursor
-  <li> splitVCursor - vertical splitting
-  <li> splitHCursor - horziontal splitting
-  <li> pointingHandCursor - a pointing hand
+  <li> \c arrowCursor - standard arrow cursor
+  <li> \c upArrowCursor - upwards arrow
+  <li> \c crossCursor - crosshair
+  <li> \c waitCursor - hourglass/watch
+  <li> \c ibeamCursor - ibeam/text entry
+  <li> \c sizeVerCursor - vertical resize
+  <li> \c sizeHorCursor - horizontal resize
+  <li> \c sizeBDiagCursor - diagonal resize (/)
+  <li> \c sizeFDiagCursor - diagonal resize (\)
+  <li> \c sizeAllCursor - all directions resize
+  <li> \c blankCursor - blank/invisible cursor
+  <li> \c splitVCursor - vertical splitting
+  <li> \c splitHCursor - horziontal splitting
+  <li> \c pointingHandCursor - a pointing hand
   </ul>
 
-  If you want to create a cursor with an own shape, use either the QCursor
+  If you want to create a cursor with an own bitmap, use either the QCursor
   constructor which takes a a bitmap and a mask or the constructor which
   takes a pixmap as arguments.
-  
+
   To set or get the position of the mouse cursor use the static methods
   QCursor::pos() and QCursor::setPos().
-  
+
   \sa QWidget
   <a href="guibooks.html#fowler">GUI Design Handbook: Cursors.</a>
 */
@@ -138,7 +138,7 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
   and 64x64 cursors.
 
   Currently, only black-and-white pixmaps can be used.
-  
+
   \sa QPixmap::QPixmap(), QPixmap::setMask()
 */
 
@@ -184,7 +184,7 @@ QCursor::QCursor( const QPixmap &pixmap, int hotX, int hotY )
   window system). We recommend using 32x32 cursors, because this size
   is supported on all platforms. Some platforms also support 16x16, 48x48
   and 64x64 cursors.
-  
+
   \sa QBitmap::QBitmap(), QBitmap::setMask()
 */
 

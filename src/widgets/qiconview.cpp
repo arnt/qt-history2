@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#160 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#161 $
 **
 ** Definition of QIconView widget class
 **
@@ -1827,8 +1827,8 @@ void QIconViewItem::calcTmpText()
    screen anymore flow.
 
    <ul>
-   <li> \c East (Items, which don't fit onto the view, go further down (you get a vertical scrollbar)
-   <li> \c South (Items, which don't fit onto the view, go further right (you get a horizontal scrollbar)
+   <li> \c East - Items, which don't fit onto the view, go further down (you get a vertical scrollbar)
+   <li> \c South - Items, which don't fit onto the view, go further right (you get a horizontal scrollbar)
    </ul>
 */
 
@@ -1837,8 +1837,8 @@ void QIconViewItem::calcTmpText()
    This enum type specifies the position of the item text in relation to the icon.
 
    <ul>
-   <li> \c Bottom (The text is drawn at the bottom of the icon)
-   <li> \c Right (The text is drawn at the right of the icon)
+   <li> \c Bottom - The text is drawn at the bottom of the icon)
+   <li> \c Right - The text is drawn at the right of the icon)
    </ul>
 */
 
