@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <qlabel.h>
+#include <qfile.h>
+#include <qmultilinedit.h>
 #include <qstring.h>
 #include <qregexp.h>
 #include <qapplication.h>
@@ -8,12 +10,11 @@
 
 main(int argc, char** argv)
 {
-#if 0
     // Tests every QString function.
     //#define USE_Qt100_QString // or Q1String if you prefer
 
     int err=0;
-    #define TEST(A,E) /*printf("%d\n",__LINE__);*/\
+    #define TEST(A,E) printf("%d\n",__LINE__);\
 	if ( (A)!=(E) ) { err++; printf("TEST(%s,%s) failed at %d\n",#A,#E,__LINE__); }
 
     // In a perfect world, these would all be defined, and QString would work.
@@ -313,6 +314,13 @@ main(int argc, char** argv)
     TEST(a.replace(1,9999,0),"A");  // Rather unexpected
     TEST(a.append(">>"),"A>>");
     TEST(a.prepend("<["),"<[A>>");
+    a="123";
+    b="456";
+    a[0]=a[1];
+    TEST(a,"223");
+    a[1]=b[1];
+    TEST(b,"456");
+    TEST(a,"253");
 
     bool ok;
     a="TEST";
@@ -453,9 +461,23 @@ main(int argc, char** argv)
     }
     {
 	a="";
-	QTextStream ts( a, IO_WriteOnly );
+	QTextOStream ts(a,QTextStream::Unicode);
 	ts << "pi = " << 3.125;
 	TEST(a,"pi = 3.125");
+    }
+    {
+	a="123 456";
+	int x,y;
+	QTextIStream(a) >> x >> y;
+	TEST(x,123);
+	TEST(y,456);
+    }
+    {
+	QFile f("test.txt");
+	f.open( IO_WriteOnly );
+	QTextStream ts( &f );
+	ts.setEncoding(QTextStream::Unicode);
+	ts << "Abc";
     }
 
     printf("\n%d error%s\n",err,"s"+(err==1));
@@ -463,16 +485,15 @@ main(int argc, char** argv)
     QApplication app(argc,argv);
 
     QString s;
-    for (int lo=33; lo<125; lo+=1) {
-	for (int hi=33; hi<125; hi+=1)
+    for (int lo=33; lo<127; lo+=1) {
+	for (int hi=33; hi<127; hi+=1)
 	    s += QChar(lo,hi);
 	s += "\n";
     }
 
-    QLabel m(s);
+    QMultiLineEdit m;
+    m.setText(s);
     app.setMainWidget(&m);
     m.show();
     return app.exec();
-#endif
-    //QApplication app(argc,argv);
 }
