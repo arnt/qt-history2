@@ -18,8 +18,8 @@ QTreeModelItem::QTreeModelItem(QTreeModelItem *parent)
     if (parent)
 	parent->children.push_back(QExplicitSharedPointer<QTreeModelItem>(this));
     QModelIndex topLeft = model()->index(this);
-    QModelIndex parent = model()->parent(topLeft);
-    QModelIndex bottomRight = model()->index(topLeft.row(), model()->columnCount(parent) - 1, parent);
+    QModelIndex parentIndex = model()->parent(topLeft);
+    QModelIndex bottomRight = model()->index(topLeft.row(), model()->columnCount(parentIndex) - 1, parentIndex);
     emit model()->contentsInserted(topLeft, bottomRight);
 }
 
