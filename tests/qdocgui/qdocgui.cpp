@@ -16,6 +16,7 @@ QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindo
     classList->setRootIsDecorated( TRUE );
     fileText = new QMultiLineEdit( this );
     connect( classList, SIGNAL(selectionChanged(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)));
+    fileText->setTextFormat( QTextView::PlainText );
     fileText->show();
     classList->show();
     qtdirenv = getenv( "QTDIR" );
@@ -54,6 +55,8 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
     if ( !item )
 	return;
     QString subdir;
+    classList->update();
+    qApp->processEvents();
     if ( item->text(0).startsWith( "Line" ) ) {
 	if ( item->parent()->parent()->text(0).startsWith( "doc" ) )
 	    subdir = "/doc/";
@@ -65,22 +68,16 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 	QFile f(filename);
 	if ( f.open( IO_ReadOnly ) ) {
 	    fileText->clear();
-	    setUpdatesEnabled( FALSE );
-	    if ( fileText->isVisible() )
-		fileText->hide();
 	    QTextStream t(&f);
 	    while ( !t.eof() ) {
-		QString s = t.readLine();
-		fileText->append( s );
-		fileText->append( "\n" );
+		QString s = t.read();
+		fileText->append( s.latin1() );
 	    }
 	    f.close();
 	    int hypfind = item->text(0).find( '-' );
 	    QString number = item->text(0).mid( 5, (hypfind - 5 - 1));
 	    int line = number.toInt();
 	    fileText->setCursorPosition( line, 0, FALSE );
-	    setUpdatesEnabled( TRUE );
-	    fileText->show();
 	} else {
 	    qWarning("The file could not be opened");
 	}
@@ -148,14 +145,13 @@ void QDocMainWindow::saveFile()
 		QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes ) {
 		if ( f.open( IO_WriteOnly ) ) {
 		    QTextStream t( &f );
-		    t << fileText->text();
 		    f.close();
 		} else {
 		    qWarning("The file could not be opened for saving");
 		}
 	    } 
 	} else {
-	    qWarning("The file could not be open for saving on P4");
+	    qWarning("The file could not be opened for saving on P4");
 	}
     }
 }
