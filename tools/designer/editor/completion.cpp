@@ -35,11 +35,13 @@ static QColor getColor( const QString &type )
 {
     if ( type == "function" || type == "slot")
 	return Qt::blue;
-    if ( type == "variable" )
+    else if ( type == "variable" || type == "widget" )
 	return Qt::darkRed;
-    if ( type == "property" )
+    else if ( type == "object" )
+	return Qt::darkBlue;
+    else if ( type == "property" )
 	return Qt::darkGreen;
-    if ( type == "enum" )
+    else if ( type == "enum" )
 	return Qt::darkYellow;
     return Qt::black;
 }
