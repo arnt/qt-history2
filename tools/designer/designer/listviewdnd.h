@@ -23,19 +23,19 @@
 
 #include <qobject.h>
 #include <qptrlist.h>
+#include <qlistview.h>
 
 class QWidget;
 class QListView;
-class QListViewItem;
 typedef QPtrList<QListViewItem> ListViewItemList;
 
 class ListViewDnd : public QObject
 {
     Q_OBJECT
 public:
-    ListViewDnd( QListView * eventSource, const char *name = 0 );
-    
     enum DragMode { None = 0, External = 1, Internal = 2, Both = 3, Move = 4, Flat = 8, NullDrop = 16 };
+
+    ListViewDnd( QListView * eventSource, const char *name = 0 );
     void setDragMode( int mode );
     int dragMode() const;
     bool eventFilter( QObject *, QEvent * event ); 
@@ -55,9 +55,12 @@ protected:
     bool mouseMoveEvent( QMouseEvent * event );
 
 private:
-    QListViewItem *itemAt( QPoint & pos );
+    void updateLine( const QPoint &pos );
+    QListViewItem *itemAt( QPoint pos );
+    int dropDepth( QListViewItem* item, QPoint pos );
     int buildFlatList( ListViewItemList &list );
     int buildTreeList( ListViewItemList &list );
+    void setEnableItems( bool b );
     QListView *src;
     QWidget *line;
     QPoint mousePressPos;
@@ -65,6 +68,7 @@ private:
     bool dragInside;
     bool dragDelete;
     bool dropConfirmed;
+    ListViewItemList disabledItems;
     int dMode;
 };
 

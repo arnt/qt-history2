@@ -290,12 +290,6 @@
         <slot>ok()</slot>
     </connection>
     <connection>
-        <sender>listViewCommon</sender>
-        <signal>doubleClicked(QListViewItem*)</signal>
-        <receiver>ConfigToolboxDialog</receiver>
-        <slot>removeTool()</slot>
-    </connection>
-    <connection>
         <sender>listViewTools</sender>
         <signal>doubleClicked(QListViewItem*)</signal>
         <receiver>ConfigToolboxDialog</receiver>
