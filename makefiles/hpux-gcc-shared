@@ -1,6 +1,15 @@
 diff -uwr template/library/Makefile hpux-gcc-shared/library/Makefile
---- template/library/Makefile	Thu Aug 22 19:41:49 1996
-+++ hpux-gcc-shared/library/Makefile	Thu Aug 22 19:52:52 1996
+--- template/library/Makefile	Mon Sep 23 18:37:39 1996
++++ hpux-gcc-shared/library/Makefile	Mon Sep 23 18:55:42 1996
+@@ -76,7 +76,7 @@
+ .SUFFIXES: .cpp
+ 
+ .cpp.o:
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
++	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
+ 
+ # VERSION - the version number of the shared library, where applicable
+ 
 @@ -85,14 +85,9 @@
  # Creates the library when all files have been compiled
  
@@ -9,7 +18,7 @@ diff -uwr template/library/Makefile hpux-gcc-shared/library/Makefile
 -	$(CC) -shared -Wl,-soname,libqt.so.1 \
 -		-o ../lib/libqt.so.$(VERSION) \
 +	-rm -f ../lib/libqt.sl
-+	$(CC) -fpic -shared -o ../lib/libqt.sl \
++	$(CC) -fPIC -shared -o ../lib/libqt.sl \
  		$(OBJECTS) $(METAOBJ) -lX11
 -	-rm -f ../lib/libqt.so
 -	-ln -sf libqt.so.$(VERSION) ../lib/libqt.so

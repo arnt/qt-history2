@@ -1,6 +1,6 @@
 diff -uwr template/Makefile hpux-cc-shared/Makefile
---- template/Makefile	Thu Aug 22 19:08:20 1996
-+++ hpux-cc-shared/Makefile	Thu Aug 22 19:07:12 1996
+--- template/Makefile	Mon Sep 23 18:37:09 1996
++++ hpux-cc-shared/Makefile	Mon Sep 23 18:54:21 1996
 @@ -4,8 +4,8 @@
  # Read PORTING for instructions how to port Qt to a new platform.
  #
@@ -11,16 +11,16 @@ diff -uwr template/Makefile hpux-cc-shared/Makefile
 +CFLAGS	= -O -w
  LFLAGS	= -lqt
  
- all: moc library tutorial examples
+ all: library tutorial examples
 diff -uwr template/library/Makefile hpux-cc-shared/library/Makefile
---- template/library/Makefile	Thu Aug 22 19:41:49 1996
-+++ hpux-cc-shared/library/Makefile	Thu Aug 22 19:46:41 1996
+--- template/library/Makefile	Mon Sep 23 18:37:39 1996
++++ hpux-cc-shared/library/Makefile	Mon Sep 23 18:56:25 1996
 @@ -76,7 +76,7 @@
  .SUFFIXES: .cpp
  
  .cpp.o:
 -	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
-+	$(CC) -I$(INCDIR) -c $(CFLAGS) +z $<
++	$(CC) -I$(INCDIR) -c $(CFLAGS) +Z $<
  
  # VERSION - the version number of the shared library, where applicable
  

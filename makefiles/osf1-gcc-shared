@@ -1,0 +1,12 @@
+diff -uwr template/examples/xshape/Makefile osf1-gcc-shared/examples/xshape/Makefile
+--- template/examples/xshape/Makefile	Fri Aug 16 09:14:01 1996
++++ osf1-gcc-shared/examples/xshape/Makefile	Mon Sep 23 18:48:04 1996
+@@ -13,7 +13,7 @@
+ #
+ 
+ # Additional X libraries you'll need
+-XLIBS	=	-L/usr/X11R6/lib -lXext -lX11
++XLIBS	=	-lXext -lX11
+ 
+ ####### Files
+ 
