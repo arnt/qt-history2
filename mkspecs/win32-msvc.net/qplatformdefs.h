@@ -68,5 +68,7 @@
 # define W_OK	2
 # define R_OK	4
 
+typedef int mode_t;
+
 
 #endif // QPLATFORMDEFS_H
