@@ -60,6 +60,12 @@
 #include "qaquastyle.h"
 #endif
 
+//#define QMAC_LAME_TIME_LIMITED
+#ifdef QMAC_LAME_TIME_LIMITED
+#include <qtimer.h>
+#include <qmessagebox.h>
+#endif
+
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #include "qmenubar.h"
 #endif
@@ -1107,6 +1113,28 @@ bool QApplication::processNextEvent( bool canWait )
 	SendEventToWindow(ev, (WindowPtr)qt_mac_safe_pdev->handle());
 	ReleaseEvent(ev);
     }
+
+#ifdef QMAC_LAME_TIME_LIMITED
+    static bool first = FALSE;
+    if(!first) {
+	first = TRUE;
+	QDate dt = QDate::currentDate();
+	if(dt.year() != 2001) {
+	    fprintf(stderr, "Sorry, your evaluation has expired.\n" 
+		    "Please contact sales@trolltech.com to continue using Qt/Mac\n");
+	    if(qt_is_gui_used) {
+		QTimer tb;
+		QObject::connect(&tb, SIGNAL(timeout()), qApp, SLOT(quit()));
+		tb.start(4000);
+		if(QMessageBox::critical(NULL, "Evaluation over", "Sorry, your evaluation has expired."
+					 "Please contact sales@trolltech.com to continue using Qt/Mac"))
+		    qApp->quit();
+	    } else {
+		qApp->quit();
+	    }
+	}
+    }
+#endif
 
     sendPostedEvents();
     qt_activate_null_timers(); //try to send null timers..
@@ -2410,7 +2438,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 
 void QApplication::flush()
 {
-    sendPostedEvents();
+//    sendPostedEvents();
     if(qApp) {
 	if(QWidgetList *list = qApp->topLevelWidgets()) {
 	    for ( QWidget *widget = list->first(); widget; widget = list->next() ) {
