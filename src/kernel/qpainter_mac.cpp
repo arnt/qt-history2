@@ -553,7 +553,7 @@ void QPainter::setBrushOrigin( int, int )
 
 void QPainter::setClipping( bool b )
 {
-    qDebug("Enabling clipping..");
+//    qDebug("Enabling clipping..");
     QRegion reg = savedclip;
     if(b) {
 	setf(ClipOn);
@@ -571,7 +571,7 @@ void QPainter::setClipping( bool b )
 
 void QPainter::setClipRect( const QRect &r )
 {
-    qDebug("Clipping rect %d %d %dx%d", r.x(), r.y(), r.width(), r.height());
+//    qDebug("Clipping rect %d %d %dx%d", r.x(), r.y(), r.width(), r.height());
     crgn = QRegion(r);
     if(testf(ClipOn)) {
 	QRegion reg = crgn + savedclip;
@@ -591,7 +591,7 @@ void QPainter::setClipRect( const QRect &r )
 
 void QPainter::setClipRegion( const QRegion &r )
 {
-    qDebug("Setting clipping region..");
+//    qDebug("Setting clipping region..");
     crgn = r;
     if(testf(ClipOn)) {
 	QRegion reg = crgn + savedclip;
