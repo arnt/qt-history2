@@ -36,8 +36,8 @@
 #include <xdb/xbase.h>
 #include <xdb/xbexcept.h>
 
-#define DEBUG_XBASE 1
-#define VERBOSE_DEBUG_XBASE
+// #define DEBUG_XBASE 1
+// #define VERBOSE_DEBUG_XBASE
 
 static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
 {
@@ -896,7 +896,7 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
 bool FileDriver::saveResult( const localsql::List* cols, localsql::ResultSet* result )
 {
 #ifdef DEBUG_XBASE
-    env->output() << "FileDriver::markAll..." << flush;
+    env->output() << "FileDriver::saveResult..." << flush;
 #endif
     if ( !cols || !result ) {
 	ERROR_RETURN( "Internal error: no cols or result" );
