@@ -301,7 +301,7 @@ for fullname in $includefiles; do
     ln -sf "../$fullname" "$DISTDIR/qt/include/`basename $fullname`"
 done
 for fullname in $privincludefiles; do
-    ln -sf "../$fullname" "$DISTDIR/qt/include/private/`basename $fullname`"
+    ln -sf "../../$fullname" "$DISTDIR/qt/include/private/`basename $fullname`"
 done
 
 #pregenerate moc files
@@ -427,6 +427,7 @@ public_file () {
     file_WHOLE=$1
     file_BASE=`basename $file_WHOLE`
     file=`echo $file_WHOLE | sed "s,^$DISTDIR/qt/,,"`
+    
     { [ -z $file ] || [ $file = "/" ] ; } && return 1
     KEEP=
 
@@ -493,7 +494,6 @@ public_file () {
 
 	 # include (empty)
 	 [ "$file" = "include" ] ||
-	 [ "$file" = "include/private" ] ||
 
 	 # all doc files except in tests
 	 myexpr "$file_BASE" : ".*\.doc$" ||
