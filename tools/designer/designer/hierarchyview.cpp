@@ -724,8 +724,15 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 {
     if ( !i )
 	return;
-    if ( i->rtti() == HierarchyItem::SlotParent )
+    if ( i->rtti() == HierarchyItem::SlotParent ) {
+	QPopupMenu menu;
+	menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Edit..." ) );
+	if ( menu.exec( pos ) != -1 ) {
+	    EditSlots dlg( this, formWindow );
+	    dlg.exec();
+	}
 	return;
+    }
 
     if ( i->rtti() == HierarchyItem::Slot ) {
 	QPopupMenu menu;
@@ -733,12 +740,12 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	const int EDIT = 2;
 	const int REMOVE = 3;
 	const int NEW_ITEM = 4;
-	menu.insertItem( tr( "New" ), NEW_ITEM );
+	menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New" ), NEW_ITEM );
 	if ( formWindow->project()->language() == "C++" )
-	    menu.insertItem( tr( "Properties..." ), PROPS );
+	    menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Properties..." ), PROPS );
 	menu.insertItem( tr( "Goto Implementation" ), EDIT );
 	menu.insertSeparator();
-	menu.insertItem( tr( "Delete" ), REMOVE );
+	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ), tr( "Delete" ), REMOVE );
 	popupOpen = TRUE;
 	int res = menu.exec( pos );
 	popupOpen = FALSE;
@@ -773,11 +780,11 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
     QPopupMenu menu;
     const int NEW_ITEM = 1;
     const int DEL_ITEM = 2;
-    menu.insertItem( tr( "New" ), NEW_ITEM );
+    menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New" ), NEW_ITEM );
     if ( i->parent() && i->rtti() != HierarchyItem::Public &&
 	 i->rtti() != HierarchyItem::Protected &&
 	 i->rtti() != HierarchyItem::Private )
-	menu.insertItem( tr( "Delete" ), DEL_ITEM );
+	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ), tr( "Delete" ), DEL_ITEM );
     popupOpen = TRUE;
     int res = menu.exec( pos );
     popupOpen = FALSE;

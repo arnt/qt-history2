@@ -3265,8 +3265,8 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     QPopupMenu menu;
     const int NEW_ITEM = 1;
     const int DEL_ITEM = 2;
-    menu.insertItem( tr( "New Signal Handler" ), NEW_ITEM );
-    menu.insertItem( tr( "Delete Signal Handler" ), DEL_ITEM );
+    menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New Signal Handler" ), NEW_ITEM );
+    menu.insertItem( PixmapChooser::loadPixmap( "editcut" ), tr( "Delete Signal Handler" ), DEL_ITEM );
     int res = menu.exec( pos );
     if ( res == NEW_ITEM ) {
 	QString s;
