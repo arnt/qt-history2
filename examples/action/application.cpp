@@ -49,7 +49,7 @@ ApplicationWindow::ApplicationWindow()
     connect( fileNewAction, SIGNAL( activated() ) , this,
              SLOT( newDoc() ) );
 
-    fileOpenAction = new QAction( "Open File", QPixmap( fileopen ), "&Open",
+    fileOpenAction = new QAction( "Open File", QPixmap( fileopen ), "&Open...",
                                   CTRL+Key_O, this, "open" );
     connect( fileOpenAction, SIGNAL( activated() ) , this, SLOT( choose() ) );
 
@@ -71,14 +71,14 @@ ApplicationWindow::ApplicationWindow()
                      "from the <b>File</b> menu.</p>";
     fileSaveAction->setWhatsThis( fileSaveText );
 
-    fileSaveAsAction = new QAction( "Save File As", "Save &as", 0,  this,
+    fileSaveAsAction = new QAction( "Save File As", "Save &As...", 0,  this,
                                     "save as" );
     connect( fileSaveAsAction, SIGNAL( activated() ) , this,
              SLOT( saveAs() ) );
     fileSaveAsAction->setWhatsThis( fileSaveText );
 
     filePrintAction = new QAction( "Print File", QPixmap( fileprint ),
-                                   "&Print", CTRL+Key_P, this, "print" );
+                                   "&Print...", CTRL+Key_P, this, "print" );
     connect( filePrintAction, SIGNAL( activated() ) , this,
              SLOT( print() ) );
 
