@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#171 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#172 $
 **
 ** Definition of QWidget class
 **
@@ -377,8 +377,9 @@ private:
     QCursor	 curs;
     QWExtra	*extra;
     uint automask : 1;
+    uint polished : 1;
 
-    QWidget	*focus_proxy; 
+    QWidget	*focus_proxy;
     QLayout 	*lay_out;
     static void	 createMapper();
     static void	 destroyMapper();

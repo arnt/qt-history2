@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#286 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#287 $
 **
 ** Implementation of QWidget class
 **
@@ -625,6 +625,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     focus_proxy = 0;
     extra = 0;					// no extra widget info
     automask = 0;
+    polished = 0;
     lay_out = 0;
     if ( !deferredMoves )			// do it only once
 	initDeferredDicts();
@@ -2519,7 +2520,10 @@ void QWidget::show()
 	    QApplication::activePopupWidget()->hide();
     }
 
-    polish();
+    if ( polished == 0) {
+	polish();
+	polished = 0;
+    }
     showWindow();
 
     if ( testWFlags(WType_Modal) )
@@ -2587,7 +2591,8 @@ void QWidget::hide()
   guarantee since the initialization of the subclasses might not be
   finished.
 
-  The default implementation calls QApplication::polish().
+  The default implementation calls QApplication::polish() and some
+   internal stuff Warwick is currently hacking on.
 
   \sa QApplication::polish()
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#155 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#156 $
 **
 ** Implementation of QApplication class
 **
@@ -28,7 +28,9 @@
 #include "qwidget.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
-#include "qstyle.h"
+#include "qwindowsstyle.h"
+#include "qmotifstyle.h"
+#include "qplatinumstyle.h"
 
 /*!
   \class QApplication qapplication.h
@@ -162,10 +164,6 @@ void process_cmdline( int* argcptr, char ** argv )
 	    qApp->setStyle( new QMotifStyle );
 	} else if ( stricmp(arg, "-style=platinum") == 0 ) {
 	    qApp->setStyle( new QPlatinumStyle() );
-//	} else if ( stricmp(arg, "-style=hwindows") == 0 ) {
-//	    qApp->setStyle( new QHWindowsStyle() );
-//	} else if ( stricmp(arg, "-style=hmotif") == 0 ) {
-//	    qApp->setStyle( new QHMotifStyle() );
 	} else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    Q1String s = argv[++i];
 	    s = s.lower();
@@ -173,6 +171,8 @@ void process_cmdline( int* argcptr, char ** argv )
 		qApp->setStyle( new QWindowsStyle() );
 	    else if ( s == "motif" )
 		qApp->setStyle( new QMotifStyle() );
+	    else if ( s == "platinum" )
+		qApp->setStyle( new QPlatinumStyle() );
 	} else
 	    argv[j++] = argv[i];
     }
