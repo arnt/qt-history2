@@ -625,6 +625,7 @@ void QListView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
 {
     // FIXME: if the parent is above root() in the tree, nothing will happen
     d->doDelayedItemsLayout();
+    d->prepareItemsLayout(); // FIXME: causes "flicker" (one frame is drawn without any items)
     QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
 }
 
@@ -1054,7 +1055,6 @@ QModelIndexList QListView::selectedIndexes() const
 */
 void QListView::doItemsLayout()
 {
-    QDebug() << "doItemsLayout";
     d->layoutStart = 0;
     d->layoutWraps = 0;
     d->translate = 0;
@@ -1461,7 +1461,7 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
                     if (index.isValid())
                         intersectVector.push_back(index);
                     else
-                        qWarning("intersectingStaticSet: index %d was invalid", i);
+                        qFatal("intersectingStaticSet: index %d was invalid", i);
                 }
             }
         }
@@ -1480,7 +1480,7 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
                     if (index.isValid())
                         intersectVector.push_back(index);
                     else
-                        qWarning("intersectingStaticSet: index %d was invalid", i);
+                        qFatal("intersectingStaticSet: index %d was invalid", i);
                 }
             }
         }

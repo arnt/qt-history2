@@ -601,10 +601,11 @@ QAbstractItemModel::QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *p
 */
 QAbstractItemModel::~QAbstractItemModel()
 {
-    for (int i = 0; i < d->persistentIndexes.count(); ++i) {
-        Q_ASSERT(d->persistentIndexes.at(i) != &QPersistentModelIndexData::shared_null);
-        d->persistentIndexes.at(i)->index = QModelIndex::Null;
-        d->persistentIndexes.at(i)->model = 0;
+    QList<QPersistentModelIndexData*>::iterator it = d->persistentIndexes.begin();
+    for (; it != d->persistentIndexes.end(); ++it) {
+        Q_ASSERT((*it) != &QPersistentModelIndexData::shared_null);
+        (*it)->index = QModelIndex::Null;
+        (*it)->model = 0;
     }
 }
 
@@ -887,15 +888,18 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction a
                 stream >> value;
                 setData(idx, role, value);
             }
-            ++column;
             stream >> rows; // children
             stream >> columns; // children
+            ++column;
         }
         ++row;
     }
     return true;
 }
 
+/*!
+
+*/
 QDrag::DropActions QAbstractItemModel::supportedDropActions() const
 {
     return QDrag::CopyAction;
@@ -1247,11 +1251,11 @@ void QAbstractItemModel::resetPersistentIndexes()
 void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
 {
     bool all = !parent.isValid();
-    for (int i = 0; i < d->persistentIndexes.count(); ++i) {
-        if (all || d->persistentIndexes.at(i)->index.parent() == parent) {
-            Q_ASSERT(d->persistentIndexes.at(i) != &QPersistentModelIndexData::shared_null);
-            d->persistentIndexes.at(i)->index = QModelIndex::Null;
-//            d->persistentIndexes.at(i)->model = 0;
+    QList<QPersistentModelIndexData*>::iterator it = d->persistentIndexes.begin();
+    for (; it != d->persistentIndexes.end(); ++it) {
+        if (all || (*it)->index.parent() == parent) {
+            Q_ASSERT((*it) != &QPersistentModelIndexData::shared_null);
+            (*it)->index = QModelIndex::Null;
         }
     }
 }

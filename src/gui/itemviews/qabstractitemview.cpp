@@ -1850,7 +1850,7 @@ void QAbstractItemView::startDrag()
         QDrag *drag = new QDrag(this);
         drag->setPixmap(pixmap);
         drag->setMimeData(model()->mimeData(indexes));
-        if (drag->start() == QDrag::MoveAction)
+        if (drag->start() == QDrag::MoveAction || true)
             d->removeSelectedRows();
     }
 }
@@ -2170,8 +2170,7 @@ void QAbstractItemViewPrivate::removeSelectedRows()
             continue;
         if ((*it).right() != (model->columnCount(parent) - 1))
             continue;
-        //qDebug() << "removing selection" << (*it).top();
-        model->removeRows((*it).top(), parent, (*it).bottom() - (*it).top());
-        // FIXME: crashes
+        int count = (*it).bottom() - (*it).top() + 1;
+        model->removeRows((*it).top(), parent, count);
     }
 }

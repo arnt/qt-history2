@@ -171,6 +171,14 @@ bool QListModel::insertRows(int row, const QModelIndex &, int count)
             lst.append(itm);
         }
     }
+    // update persistent model indexes
+    for (int i = 0; i < persistentIndexesCount(); ++i) {
+        QModelIndex idx = persistentIndexAt(i);
+        int r = idx.row();
+        int c = idx.column();
+        if (r >= row)
+            setPersistentIndex(i, index(r + count, c, QModelIndex::Null));
+    }
     emit rowsInserted(QModelIndex::Null, row, row + count - 1);
     return true;
 }
@@ -179,12 +187,21 @@ bool QListModel::removeRows(int row, const QModelIndex &, int count)
 {
     if (row >= 0 && row < rowCount()) {
         emit rowsAboutToBeRemoved(QModelIndex::Null, row, row + count - 1);
+        // remove items
         QListWidgetItem *itm = 0;
-        for (int r = 0; r < count; ++r) {
+        for (int r = row; r < row + count; ++r) {
             itm = lst.takeAt(row);
             itm->view = 0;
             itm->model = 0;
             delete itm;
+        }
+        // update persistent model indexes
+        for (int i = 0; i < persistentIndexesCount(); ++i) {
+            int r = persistentIndexAt(i).row();
+            if (r >= lst.count())
+                setPersistentIndex(i, QModelIndex::Null);
+            else if (r >= row)
+                setPersistentIndex(i, index(r - count, 0, QModelIndex::Null));
         }
         return true;
     }
