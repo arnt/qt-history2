@@ -1015,7 +1015,6 @@ QGroupBox * QPrintDialog::setupDestination()
     d->printers->addColumn( tr("Printer"), 125 );
     d->printers->addColumn( tr("Host"), 125 );
     d->printers->addColumn( tr("Comment"), 150 );
-    d->printers->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
 
 #if defined(Q_OS_UNIX)
     char * etcLpDefault = 0;
