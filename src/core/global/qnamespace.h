@@ -23,6 +23,7 @@ namespace Qt {
 class Q_CORE_EXPORT Qt {
     Q_OBJECT
     Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy CaseSensitivity LayoutDirection)
+    Q_ENUMS(ToolButtonStyle IconSize)
     Q_FLAGS(Alignment)
 public:
 #endif
