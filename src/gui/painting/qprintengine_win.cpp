@@ -27,6 +27,8 @@
 #define d d_func()
 #define q q_func()
 
+// #define QT_DEBUG_DRAW
+
 static const struct {
     int winSizeName;
     QPrinter::PageSize qtSizeName;
@@ -178,9 +180,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
 }
 
 QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
-    : QWin32PaintEngine(*(new QWin32PrintEnginePrivate), PaintEngineFeatures(CoordTransform
-                                                                             | PenWidthTransform
-                                                                             | PixmapTransform
+    : QWin32PaintEngine(*(new QWin32PrintEnginePrivate), PaintEngineFeatures(PixmapTransform
                                                                              | PixmapScale
                                                                              | UsesFontEngine
                                                                              | LinearGradients
@@ -444,20 +444,25 @@ int QWin32PrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
     return val;
 }
 
-void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
+void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
                                    const QPixmap &originalPixmap,
-                                   const QRect &sr,
+                                   const QRectF &sr,
                                    Qt::PixmapDrawingMode mode)
 {
-    bool oldNoNativeXForm = d->noNativeXform;
-    d->noNativeXform = true;
-    updateMatrix(QMatrix(1, 0, 0, 1, 0, 0));
+#if defined QT_DEBUG_DRAW
+    printf(" - QWin32PrintEngine::drawPixmap(), [%.2f,%.2f,%.2f,%.2f], size=[%d,%d], "
+           "sr=[%.2f,%.2f,%.2f,%.2f], mode=%d\n",
+           targetRect.x(), targetRect.y(), targetRect.width(), targetRect.height(),
+           originalPixmap.width(), originalPixmap.height(),
+           sr.x(), sr.y(), sr.width(), sr.height(),
+           mode);
+#endif
 
     QPixmap pixmap = originalPixmap;
     if (sr.x()!=0 || sr.y() != 0 || sr.size() != originalPixmap.size()) {
-        QPixmap newPixmap(sr.size());
+        QPixmap newPixmap(sr.size().toSize());
         QPainter p(&newPixmap);
-        p.drawPixmap(QPoint(0, 0), originalPixmap, sr, Qt::CopyPixmap);
+        p.drawPixmap(QPointF(0, 0), originalPixmap, sr, Qt::CopyPixmap);
         p.end();
         pixmap = newPixmap;
     }
@@ -467,13 +472,13 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
     }
 
     // Turn of native transformations...
-    QRect rect(targetRect);
+    QRectF rect(targetRect);
     QPainter *paint = painter();
-    QPoint pos( rect.x(), rect.y() );
+    QPointF pos( rect.x(), rect.y() );
     QImage  image = pixmap.toImage();
 
-    int w = pixmap.width();
-    int h = pixmap.height();
+    float w = pixmap.width();
+    float h = pixmap.height();
 
     if ( pixmap.isQBitmap() ) {
         QColor bg = paint->background().color();
@@ -531,8 +536,8 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
                 //   whith pos' being the desired upper left corner of the
                 //   transformed image.
                 paint->save();
-                QPoint p1 = QPoint(0,0) * QPixmap::trueMatrix( m, origW, origH );
-                QPoint p2 = pos * paint->matrix();
+                QPointF p1 = QPointF(0,0) * QPixmap::trueMatrix( m, origW, origH );
+                QPointF p2 = pos * paint->matrix();
                 p1 = p2 - p1 - pos;
                 paint->setMatrix( QMatrix( 1, 0, 0, 1, p1.x(), p1.y() ) );
             } else
@@ -557,12 +562,11 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
 #endif
     }
 
-    int dw = qRound( xs * rect.width() );
-    int dh = qRound( ys * rect.height() );
+    float dw = xs * rect.width();
+    float dh = ys * rect.height();
     BITMAPINFO *bmi = getWindowsBITMAPINFO( image );
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
     uchar *bits;
-
 
     QRegion oldClip;
 
@@ -614,7 +618,9 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
     int rc = GetDeviceCaps(d->hdc,RASTERCAPS);
     if ( (rc & RC_STRETCHDIB) != 0 ) {
         // StretchDIBits supported
-        StretchDIBits( d->hdc, pos.x(), pos.y(), dw, dh, 0, 0, w, h,
+        StretchDIBits( d->hdc,
+                       qRound(pos.x()), qRound(pos.y()), qRound(dw), qRound(dh),
+                       0, 0, qRound(w), qRound(h),
                        bits, bmi, DIB_RGB_COLORS, SRCCOPY );
     } else if ( (rc & RC_STRETCHBLT) != 0 ) {
         // StretchBlt supported
@@ -622,8 +628,9 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
         HBITMAP hbm    = CreateDIBitmap( d->hdc, bmh, CBM_INIT,
                                          bits, bmi, DIB_RGB_COLORS );
         HBITMAP oldHbm = (HBITMAP)SelectObject( hdcPrn, hbm );
-        StretchBlt( d->hdc, pos.x(), pos.y(), dw, dh,
-                    hdcPrn, 0, 0, w, h, SRCCOPY );
+        StretchBlt( d->hdc, qRound(pos.x()), qRound(pos.y()), qRound(dw), qRound(dh),
+                    hdcPrn, qRound(0), qRound(0), qRound(w), qRound(h),
+                    SRCCOPY );
         SelectObject( hdcPrn, oldHbm );
         DeleteObject( hbm );
         DeleteObject( hdcPrn );
@@ -635,10 +642,6 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
         updateClipRegion(oldClip, !oldClip.isEmpty());
         paint->restore();
     }
-
-    // Recover from the xform hack at the top...
-    d->noNativeXform = oldNoNativeXForm;
-    setDirty(DirtyTransform);
 }
 
 void QWin32PrintEnginePrivate::setupOriginMapping()
