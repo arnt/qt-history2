@@ -26,6 +26,8 @@
  * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#define Qt_GUI
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
