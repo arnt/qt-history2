@@ -459,7 +459,7 @@ public:
     iterator erase( iterator first, iterator last )
     {
 	detach();
-	iterator i = qCopy( last, sh->finish, first );
+	qCopy( last, sh->finish, first );
 	sh->finish = sh->finish - ( last - first );
 	return first;
     }
