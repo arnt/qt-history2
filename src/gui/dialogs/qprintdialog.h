@@ -25,7 +25,7 @@ class Q_GUI_EXPORT QPrintDialog : public QAbstractPrintDialog
     Q_OBJECT
     Q_DECLARE_PRIVATE(QPrintDialog)
 public:
-    QPrintDialog(QPrinter *printer, QWidget *parent = 0);
+    explicit QPrintDialog(QPrinter *printer, QWidget *parent = 0);
     ~QPrintDialog();
 
 #if defined (Q_OS_UNIX) && !defined (Q_OS_MAC) && defined (QT_COMPAT)

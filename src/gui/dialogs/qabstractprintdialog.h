@@ -40,7 +40,7 @@ public:
 
     Q_DECLARE_FLAGS(PrintDialogOptions, PrintDialogOption)
 
-    QAbstractPrintDialog(QPrinter *printer, QWidget *parent = 0);
+    explicit QAbstractPrintDialog(QPrinter *printer, QWidget *parent = 0);
 
     virtual int exec() = 0;
 

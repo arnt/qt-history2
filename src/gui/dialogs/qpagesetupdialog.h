@@ -22,7 +22,7 @@ class Q_GUI_EXPORT QPageSetupDialog : public QAbstractPageSetupDialog
 {
     Q_DECLARE_PRIVATE(QPageSetupDialog)
 public:
-    QPageSetupDialog(QPrinter *printer, QWidget *parent = 0);
+    explicit QPageSetupDialog(QPrinter *printer, QWidget *parent = 0);
 
     virtual int exec();
 };

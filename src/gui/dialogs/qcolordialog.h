@@ -43,7 +43,7 @@ public:
 
 private:
     ~QColorDialog();
-    QColorDialog(QWidget* parent=0, bool modal=false);
+    explicit QColorDialog(QWidget* parent=0, bool modal=false);
 
     void setColor(const QColor&);
     QColor color() const;

@@ -33,7 +33,7 @@ class Q_GUI_EXPORT QDialog : public QWidget
     Q_OVERRIDE(bool modal WRITE setModal)
 
 public:
-    QDialog(QWidget *parent = 0, Qt::WFlags f = 0);
+    explicit QDialog(QWidget *parent = 0, Qt::WFlags f = 0);
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QDialog(QWidget *parent, const char *name, bool modal = false,
                                   Qt::WFlags f = 0);
@@ -90,4 +90,5 @@ private:
 };
 
 #endif // QT_NO_DIALOG
+
 #endif // QDIALOG_H

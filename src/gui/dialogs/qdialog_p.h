@@ -62,7 +62,7 @@ public:
     void        hideSpecial();
 #endif
 
-    int                rescode;
+    int rescode;
 
     QEventLoop *eventLoop;
 };
