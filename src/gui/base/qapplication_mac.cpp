@@ -400,7 +400,7 @@ void qt_mac_update_os_settings()
 		      (bool)(f_style & ::italic));
 	    bool set_font = true;
 	    extern QHash<QByteArray, QFont> app_fonts;  //qapplication.cpp
-	    if(app_fonts) {
+	    if(!app_fonts.isEmpty()) {
 		QHash<QByteArray, QFont>::ConstIterator it = app_fonts.find(mac_widget_fonts[i].qt_class);
 		if (it != app_fonts.constEnd())
 		    set_font = (fnt != *it);
@@ -470,7 +470,7 @@ void qt_mac_update_os_settings()
 	    }
 	    bool set_palette = true;
 	    extern QHash<QByteArray, QPalette> app_palettes; //qapplication.cpp
-	    if(app_palettes) {
+	    if(!app_palettes.isEmpty()) {
 		QHash<QByteArray, QPalette>::ConstIterator it = app_palettes.find(mac_widget_colors[i].qt_class);
 		if (it != app_palettes.constEnd())
 		    set_palette = (pal != *it);
