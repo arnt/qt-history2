@@ -98,6 +98,20 @@ public:
     virtual ~QWSKeyboardHandler();
 };
 
+class QWSSoundServerData;
+
+class QWSSoundServer : public QObject {
+    Q_OBJECT
+public:
+    QWSSoundServer(QObject* parent);
+    ~QWSSoundServer();
+    void playFile(const QString& filename);
+private slots:
+    void feedDevice(int fd);
+private:
+    QWSSoundServerData* d;
+};
+
 /*********************************************************************
  *
  * Class: QWSServer
@@ -278,6 +292,9 @@ private:
     void syncRegions( QWSWindow *active = 0 );
 
     void setCursor(QWSCursor *curs);
+
+    // multimedia
+    QWSSoundServer *soundserver;
 };
 
 

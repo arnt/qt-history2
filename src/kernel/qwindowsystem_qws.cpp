@@ -34,6 +34,7 @@
 #include <qlock_qws.h>
 #include <qwsregionmanager_qws.h>
 #include <qqueue.h>
+#include <qfile.h>
 
 #include <qpen.h>
 
@@ -49,6 +50,8 @@
 #include <sys/shm.h>
 #include <sys/sem.h>
 #include <signal.h>
+#include <fcntl.h>
+#include <sys/soundcard.h>
 
 #include <qgfx_qws.h>
 
@@ -205,6 +208,178 @@ void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int 
     sendEvent( &event );
 }
 
+static const int fragment_size = 8;
+static const int sound_buffer_size=1<<fragment_size;
+class QWSSoundServerBucket {
+public:
+    QWSSoundServerBucket(QIODevice* d)
+    {
+	dev = d;
+	out = 0;
+	available = dev->readBlock((char*)data,sound_buffer_size);
+    }
+    ~QWSSoundServerBucket()
+    {
+	delete dev;
+    }
+    int max() const
+    {
+	return available;
+    }
+    void add(int* mix, int count)
+    {
+	ASSERT(available>=count);
+	available -= count;
+	while ( count-- ) {
+	    *mix++ += ((int)data[out] - 128)*128;
+	    if ( ++out == sound_buffer_size )
+		out = 0;
+	}
+    }
+    void rewind(int count)
+    {
+	ASSERT(count<sound_buffer_size);
+	out = (out + (sound_buffer_size-count))%sound_buffer_size;
+	available += count;
+    }
+    bool refill()
+    {
+	int toread = sound_buffer_size - available;
+	int in = (out + available)%sound_buffer_size;
+	int a = sound_buffer_size-in; if ( a > toread ) a = toread;
+	int rd = a ? dev->readBlock((char*)data+in, a) : 0;
+	if ( rd < 0 )
+	    return FALSE; // ############
+	int b = toread - rd;
+	if ( b ) {
+	    int r = dev->readBlock((char*)data, b);
+	    if ( r > 0 )
+		rd += r;
+	}
+	available += rd;
+	return rd > 0;
+    }
+private:
+    QIODevice* dev;
+    unsigned char data[sound_buffer_size];
+    int available,out;
+};
+
+class QWSSoundServerData {
+public:
+    QWSSoundServerData(QWSSoundServer* s)
+    {
+	int fd = ::open("/dev/dsp",O_WRONLY);
+	active.setAutoDelete(TRUE);
+
+	// Setup soundcard at 16 bit mono
+	int v;
+	v=0x00040000+fragment_size; ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &v); qDebug("SNDCTL_DSP_SETFRAGMENT %x",v);
+//#define QT_SOUND_8BIT
+#ifdef QT_SOUND_8BIT
+	v=AFMT_S8; ioctl(fd, SNDCTL_DSP_SETFMT, &v); qDebug("SNDCTL_DSP_SETFMT %d",v);
+	//v=AFMT_U8; ioctl(fd, SNDCTL_DSP_SETFMT, &v); qDebug("SNDCTL_DSP_SETFMT %d",v);
+#else
+	v=AFMT_S16_LE; ioctl(fd, SNDCTL_DSP_SETFMT, &v); qDebug("SNDCTL_DSP_SETFMT %d",v);
+#endif
+	v=0; ioctl(fd, SNDCTL_DSP_STEREO, &v); qDebug("SNDCTL_DSP_STEREO %d",v);
+	v=11025; ioctl(fd, SNDCTL_DSP_SPEED, &v); qDebug("SNDCTL_DSP_SPEED %d",v);
+
+	QSocketNotifier* sn = new QSocketNotifier(fd,QSocketNotifier::Write,s);
+	QObject::connect(sn,SIGNAL(activated(int)),s,SLOT(feedDevice(int)));
+    }
+
+    void feedDevice(int fd)
+    {
+	QWSSoundServerBucket* bucket;
+	int available = sound_buffer_size;
+	int n = 0;
+	QListIterator<QWSSoundServerBucket> it(active);
+	for (; (bucket = *it);) {
+	    ++it;
+	    int m = bucket->max();
+	    if ( m ) {
+		if ( m < available )
+		    available = m;
+		n++;
+	    } else {
+		active.removeRef(bucket);
+	    }
+	}
+	if ( n ) {
+	    int data[sound_buffer_size];
+	    for (int i=0; i<available; i++)
+		data[i]=0;
+	    for (bucket = active.first(); bucket; bucket = active.next()) {
+		bucket->add(data,available);
+	    }
+#ifdef QT_SOUND_8BIT
+	    signed char d8[sound_buffer_size];
+	    for (int i=0; i<available; i++) {
+		int t = data[i] / 1; // ######### configurable
+		if ( t > 127 ) t = 127;
+		if ( t < -128 ) t = -128;
+		d8[i] = (signed char)t;
+	    }
+	    int w = ::write(fd,d8,available);
+#else
+	    short d16[sound_buffer_size];
+	    for (int i=0; i<available; i++) {
+		int t = data[i]; // ######### configurable
+		if ( t > 32767 ) t = 32767;
+		if ( t < -32768 ) t = -32768;
+		d16[i] = (short)t;
+		//d16[i] = ((t&0xff)<<8)|((t>>8)&0xff);
+	    }
+	    int w = ::write(fd,(char*)d16,available*2)/2;
+#endif
+	    if ( w < 0 )
+		return; // ##############
+	    int rw = available - w;
+	    if ( rw ) {
+		for (bucket = active.first(); bucket; bucket = active.next()) {
+		    bucket->rewind(rw);
+		    bucket->refill();
+		}
+	    }
+	    for (bucket = active.first(); bucket; bucket = active.next()) {
+		if ( !bucket->refill() )
+		    ; //active.remove(bucket);
+	    }
+	}
+    }
+
+    void playFile(const QString& filename)
+    {
+	QFile* f = new QFile(filename);
+	f->open(IO_ReadOnly);
+	active.append(new QWSSoundServerBucket(f));
+    }
+
+    QList<QWSSoundServerBucket> active;
+};
+
+QWSSoundServer::QWSSoundServer(QObject* parent) :
+    QObject(parent)
+{
+    d = new QWSSoundServerData(this);
+}
+
+QWSSoundServer::~QWSSoundServer()
+{
+    delete d;
+}
+
+void QWSSoundServer::playFile(const QString& filename)
+{
+    d->playFile(filename);
+}
+
+void QWSSoundServer::feedDevice(int fd)
+{
+    d->feedDevice(fd);
+}
+
 /*********************************************************************
  *
  * Class: QWSServer
@@ -317,6 +492,8 @@ QWSServer::QWSServer( int flags,
 
     qt_init_display();
     client[-1] = new QWSClient( this, -1 );
+
+    soundserver = new QWSSoundServer(this);
 }
 
 QWSServer::~QWSServer()
