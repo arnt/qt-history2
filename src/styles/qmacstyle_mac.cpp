@@ -500,22 +500,26 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	DrawThemeTabPane(qt_glb_mac_rect(r, p), tds);
 	break;
     case PE_HeaderArrow:
+	break;
     case PE_HeaderSection: {
 	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
 	if(qAquaActive(cg)) {
-	    if(!(flags & Style_Enabled))
+	    if(!(flags & Style_Enabled)) {
 		info.state = kThemeStateUnavailable;
+	    } else if(flags & Style_Down) {
+		qDebug("Bugger..");
+		info.state = kThemeStatePressed;
+		if(flags & Style_Sunken)
+		    info.value = kThemeButtonMixed;
+	    } else if(flags & Style_Sunken) {
+		info.value = kThemeButtonMixed;
+	    }
 	} else {
 	    if(flags & Style_Enabled)
 		info.state = kThemeStateInactive;
 	    else
 		info.state = kThemeStateUnavailableInactive;
 	}
-	if(flags & Style_Down)
-	    info.state |= kThemeStatePressed;
-
-	if(flags & Style_Sunken)
-	    info.value = kThemeButtonOn;
 	if(pe == PE_HeaderArrow && (flags & Style_Up))
 	    info.adornment |= kThemeAdornmentHeaderButtonSortUp;
 	((QMacPainter *)p)->setport();
