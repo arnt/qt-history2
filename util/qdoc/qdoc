@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#71 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#72 $
 #
 # this is a massive hack, written very quickly
 #
@@ -477,6 +477,7 @@ sub storeclass {
 	$anchor{$name{$enum}} = $enum unless (defined($anchor{$name{$enum}}));
     }
 
+    $def =~ s/\)\s*\{.*?\}\s*/\);\n/gs;
     $members{$url} = $def;
 }
 
@@ -1172,8 +1173,8 @@ sub printclass {
 	    s/\s+$//;
 	    s/\s+/ /g;
 	    s/\)\s*:\s*[A-Q].*/\)/;
-	    if (/^\s*(?:\}\s*)?((?:[^\(\~]*[\s\&\*]+)?)(?=[\w~]) (?# prelude
-								  )
+	    if (/^\s*((?:[^\(\~]*[\s\&\*]+)?)(?=[\w~]) (?# prelude
+							)
 		((?:(?:operator[^\(\s]{1,3})|(?:\~?\w+))) (?# name
 							   )
 		\s*\(([^\(\)]*)\)\s*(const)?\s*(?:[\{=].*)?$/x) {
@@ -1277,9 +1278,10 @@ sub printclass {
 	    $reimp = "";
 	    foreach $class ( sort split(/\s+/, $subclasses{$class})) {
 		$_ = join("::", $class, $name);
-		if (defined($anchor{$_}) && ($anchor{$_} ne $url)) {
+		if (defined($anchor{$_}) && $anchor{$_} ne $anchor{$name{$url}}) {
 		    $reimp .= ", <a href=" . $anchor{$_} . ">"
 			. $class . "</a>";
+		    print $anchor{$_}, " <-> ", $url, "\n";
 		}
 	    }
 	    if ($reimp ne "") {
@@ -1521,7 +1523,9 @@ if ($#ARGV > -1) {
 &templates();
 &preprocessdocs();
 &makenames();
+print "exec-1: ", $def{"qpicture.html#134"}, "\n";
 &makearglinks();
+print "exec-2: ", $def{"qpicture.html#134"}, "\n";
 &processdocs();
 &writepages();
 &readfiles();
@@ -1541,12 +1545,12 @@ if ($#ARGV > 4 || $#ARGV < 0) {
     &memberlists();
 }
 
-#foreach $c ( keys %doc ) {
-#    print "unreferenced: ", $def{$c}, "\n"
-#	if (!defined($documented{$c}) && 
-#	    ($doc{$c} =~ /\S/) && 
-#	    ($def{$c} =~ /\S/));
-#}
+foreach $c ( keys %doc ) {
+    print "unreferenced: ", $def{$c}, "\n"
+	if (!defined($documented{$c}) && 
+	    ($doc{$c} =~ /\S/) && 
+	    ($def{$c} =~ /\S/));
+}
 
 print "Documented ", $countdoc, " member functions, left out ",
     $errmsg, " undocumented member functions and ", 
