@@ -63,7 +63,7 @@
 
 static bool qt_update_cell_widget = TRUE;
 
-class Q_EXPORT QTableHeader : public QHeader
+class QM_EXPORT_TABLE QTableHeader : public QHeader
 {
     friend class QTable;
     Q_OBJECT
