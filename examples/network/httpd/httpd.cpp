@@ -99,7 +99,7 @@ public:
 		"web browser to port %1"
 	    ).arg( httpd->port() );
 	QLabel *lb = new QLabel( itext, this );
-	lb->setAlignment( AlignHCenter );
+	lb->setAlignment( Qt::AlignHCenter );
 	infoText = new QTextView( this );
 	QPushButton *quit = new QPushButton( "quit" , this );
 
