@@ -453,7 +453,7 @@ bool QPSQLDriver::open( const QString & db,
 			const QString & user,
 			const QString & password,
 			const QString & host,
-			int )
+			int port )
 {
     if ( isOpen() )
 	close();
@@ -466,6 +466,8 @@ bool QPSQLDriver::open( const QString & db,
 	connectString += QString("user=%1 ").arg( user );
     if ( password.length() )
 	connectString += QString("password=%1 ").arg( password );
+    if ( port > -1 )
+	connectString += QString("port=%1 ").arg( port );
     d->connection = PQconnectdb( connectString.local8Bit().data() );
     if ( PQstatus( d->connection) == CONNECTION_BAD ) {
 	setLastError( qMakeError("Unable to connect", QSqlError::Connection, d ) );
