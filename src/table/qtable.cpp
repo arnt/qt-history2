@@ -2101,7 +2101,6 @@ void QTable::contentsMouseMoveEvent( QMouseEvent *e )
     doAutoScroll();
     if ( pos.x() < 0 || pos.x() > visibleWidth() || pos.y() < 0 || pos.y() > visibleHeight() )
 	autoScrollTimer->start( 100, TRUE );
-    emit doubleClicked( tmpRow, tmpCol, e->button(), e->globalPos() );
 }
 
 /*! \internal
