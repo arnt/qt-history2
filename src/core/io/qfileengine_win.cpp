@@ -1036,12 +1036,17 @@ QFSFileEngine::fileName(FileName file) const
             ret = QDir::cleanPath(QDir::currentPath() + QLatin1Char('/') + d->file);
 
         // The path should be absolute at this point.
-        Q_ASSERT(ret.length() >= 2);
-        Q_ASSERT(ret.at(0).isLetter());
-        Q_ASSERT(ret.at(1) == QLatin1Char(':'));
+        // From the docs :
+        // Absolute paths begin with the directory separator "/"
+        // (optionally preceded by a drive specification under Windows).
+        if (ret.at(0) != QLatin1Char('/')) {
+            Q_ASSERT(ret.length() >= 2);
+            Q_ASSERT(ret.at(0).isLetter());
+            Q_ASSERT(ret.at(1) == QLatin1Char(':'));
 
-        // Force uppercase drive letters.
-        ret[0] = ret.at(0).toUpper();
+            // Force uppercase drive letters.
+            ret[0] = ret.at(0).toUpper();
+        }
 
         if (file == AbsolutePathName) {
             int slash = ret.lastIndexOf(QLatin1Char('/'));
