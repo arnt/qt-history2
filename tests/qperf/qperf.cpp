@@ -25,6 +25,8 @@ void output( const char *msg, ... )
 static int max_iter = 0;
 static int max_time = 1000;
 
+static bool        do_flush = FALSE;
+static bool        grpsonly = FALSE;
 static bool        dblbuf = FALSE;
 static QWidget    *widget;
 static QPixmap    *pixmap;
@@ -162,6 +164,8 @@ void run_test( QPerfEntry *e )
 	printf( "  Iterations/sec = %8d\n", perf );
 	if ( dblbuf )
 	    bitBlt( widget, 0, 0, pixmap );
+	else if ( do_flush )
+	    qperf_painter()->flush();
 	e++;
 	numTests--;
     }
@@ -179,6 +183,19 @@ void run_test( const char *funcName )
     QRegExp regx(funcName);
     for(QDictIterator<QPerfEntry> it(*perf_dict); it.current(); ++it) {
 	if(regx.exactMatch(it.currentKey())) {
+	    if(grpsonly) {
+		if(it.current()->group) {
+		    QTime group_time;
+		    group_time.start();
+		    output( "*** Running group - %s ***", it.currentKey().latin1());
+		    run_test(it.current());
+		    matches++;
+		    output( "!!! End group - %s *** (msec's %d)", it.currentKey().latin1(), group_time.elapsed());
+		}
+		continue;
+	    } 
+	    if(it.current()->group && it.currentKey() != funcName)
+		continue;
 	    run_test(it.current());
 	    matches++;
 	}
@@ -197,6 +214,8 @@ void usage()
     output( "    -c  <numcolors>           Use colors for painter tests" );
     output( "    -db                       Set/toggle double buffering" );
     output( "    -i  <iterations>          Set max # iterations (approx)" );
+    output( "    -groups                   Run groups mode only" );
+    output( "    -flush                    Cause flushes after each iteration of a paint test" );
     output( "    -if <image format>        Set image format for saving images" );
     output( "    -p                        Pause after program is finished" );
     output( "    -po <no|normal|best>      Set default pixmap optimization" );
@@ -214,7 +233,7 @@ void usage()
 	while ( t->funcName ) {
 	    if ( t->group )
 		output( "  %-27s %s", t->funcName, t->description );
-	    else
+	    else if(!grpsonly)
 		output( "    %-25s %s", t->funcName, t->description );
 	    ++t;
 	}
@@ -317,7 +336,7 @@ void run_main( int argc, char **argv )
 {
     bool dirtyPainter = TRUE;
 
-    int i = 1;
+    int i = 1, run_tests = 0;
     while ( i < argc ) {
 	char *a = argv[i++];
 	if ( a[0] == '-' ) {			// parse options
@@ -345,6 +364,10 @@ void run_main( int argc, char **argv )
 		} else {
 		    output("Invalid pixmap optimization setting");
 		}
+	    } else if( strcmp(a, "g") == 0 ) {
+		grpsonly = TRUE;
+	    } else if( strcmp(a, "f") == 0 ) {
+		do_flush = TRUE;
 	    } else if ( strcmp(a,"r") == 0 ) {	// set clip region
 		dirtyPainter = TRUE;
 	        painter_clip = argv[i++];
@@ -376,8 +399,11 @@ void run_main( int argc, char **argv )
 		dirtyPainter = FALSE;
 	    }
 	    run_test(a);
+	    run_tests++;
 	}
     }
+    if( !run_tests ) 
+	usage();
     if ( painter ) {
 	painter->end();
 	delete painter;

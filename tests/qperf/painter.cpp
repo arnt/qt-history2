@@ -84,50 +84,20 @@ static int painter_drawstring(const QString &s)
     return i;
 }
 
-static int painter_drawstring_left(const QString &s)
+static int painter_drawstring(const QString &s, int f)
 {
     int i;
     QPainter *p = qperf_painter();
-    int x, y;
-    for ( i=0; i<10000; i++ ) {
-	x = qrnd(600);
-	y = qrnd(480);
-	p->drawText(x,y,100,30,Qt::AlignLeft,s);
-    }
-    return i;
-}
-
-static int painter_drawstring_right(const QString &s)
-{
-    int i;
-    QPainter *p = qperf_painter();
-    int x, y;
-    for ( i=0; i<10000; i++ ) {
-	x = qrnd(600);
-	y = qrnd(480);
-	p->drawText(x,y,100,30,Qt::AlignRight,s);
-    }
-    return i;
-}
-
-static int painter_drawstring_center(const QString &s)
-{
-    int i;
-    QPainter *p = qperf_painter();
-    int x, y;
-    for ( i=0; i<10000; i++ ) {
-	x = qrnd(600);
-	y = qrnd(480);
-	p->drawText(x,y,100,30,Qt::AlignCenter,s);
-    }
+    for ( i=0; i<10000; i++ ) 
+	p->drawText(qrnd(600),qrnd(480),100,30,f,s);
     return i;
 }
 
 static inline QString text_string() { return "Trolltech"; }
 static inline int painter_drawtext() { return painter_drawstring(text_string()); }
-static inline int painter_drawtext_left() { return painter_drawstring_left(text_string()); }
-static inline int painter_drawtext_right() { return painter_drawstring_right(text_string()); }
-static inline int painter_drawtext_center() { return painter_drawstring_center(text_string()); }
+static inline int painter_drawtext_left() { return painter_drawstring(text_string(), Qt::AlignLeft); }
+static inline int painter_drawtext_right() { return painter_drawstring(text_string(), Qt::AlignRight); }
+static inline int painter_drawtext_center() { return painter_drawstring(text_string(), Qt::AlignCenter); }
 
 static inline const QString &unicode_string() 
 { 
@@ -141,9 +111,9 @@ static inline const QString &unicode_string()
     return ret; 
 }
 static inline int painter_drawunicode() { return painter_drawstring(unicode_string()); }
-static inline int painter_drawunicode_left() { return painter_drawstring_left(unicode_string()); }
-static inline int painter_drawunicode_right() { return painter_drawstring_right(unicode_string()); }
-static inline int painter_drawunicode_center() { return painter_drawstring_center(unicode_string()); }
+static inline int painter_drawunicode_left() { return painter_drawstring(unicode_string(), Qt::AlignLeft); }
+static inline int painter_drawunicode_right() { return painter_drawstring(unicode_string(), Qt::AlignRight); }
+static inline int painter_drawunicode_center() { return painter_drawstring(unicode_string(), Qt::AlignCenter); }
 
 static int painter_save()
 {
