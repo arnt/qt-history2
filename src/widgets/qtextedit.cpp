@@ -1244,22 +1244,26 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 
     switch ( action ) {
     case ActionDelete: {
-	checkUndoRedoInfo( UndoRedoInfo::Delete );
-	if ( !undoRedoInfo.valid() ) {
-	    undoRedoInfo.id = cursor->parag()->paragId();
-	    undoRedoInfo.index = cursor->index();
-	    undoRedoInfo.d->text = QString::null;
-	}
-	undoRedoInfo.d->text += cursor->parag()->at( cursor->index() )->c;
-	if ( cursor->parag()->at( cursor->index() )->format() ) {
-	    cursor->parag()->at( cursor->index() )->format()->addRef();
-	    undoRedoInfo.d->text.at( undoRedoInfo.d->text.length() - 1 ).setFormat( cursor->parag()->at( cursor->index() )->format() );
+	if ( undoEnabled ) {
+	    checkUndoRedoInfo( UndoRedoInfo::Delete );
+	    if ( !undoRedoInfo.valid() ) {
+		undoRedoInfo.id = cursor->parag()->paragId();
+		undoRedoInfo.index = cursor->index();
+		undoRedoInfo.d->text = QString::null;
+	    }
+	    undoRedoInfo.d->text += cursor->parag()->at( cursor->index() )->c;
+	    if ( cursor->parag()->at( cursor->index() )->format() ) {
+		cursor->parag()->at( cursor->index() )->format()->addRef();
+		undoRedoInfo.d->text.at( undoRedoInfo.d->text.length() - 1 ).
+		    setFormat( cursor->parag()->at( cursor->index() )->format() );
+	    }
 	}
 	QTextParag *old = cursor->parag();
 	if ( cursor->remove() ) {
 	    if ( old != cursor->parag() && lastFormatted == old )
 		lastFormatted = cursor->parag() ? cursor->parag()->prev() : 0;
-	    undoRedoInfo.d->text += "\n";
+	    if ( undoEnabled )
+		undoRedoInfo.d->text += "\n";
 	}
     } break;
     case ActionBackspace:
@@ -1273,35 +1277,45 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	    drawCursor( TRUE );
 	    return;
 	}
-	checkUndoRedoInfo( UndoRedoInfo::Delete );
-	if ( !undoRedoInfo.valid() ) {
-	    undoRedoInfo.id = cursor->parag()->paragId();
-	    undoRedoInfo.index = cursor->index();
-	    undoRedoInfo.d->text = QString::null;
+	if ( undoEnabled ) {
+	    checkUndoRedoInfo( UndoRedoInfo::Delete );
+	    if ( !undoRedoInfo.valid() ) {
+		undoRedoInfo.id = cursor->parag()->paragId();
+		undoRedoInfo.index = cursor->index();
+		undoRedoInfo.d->text = QString::null;
+	    }
 	}
 	cursor->gotoPreviousLetter();
-	undoRedoInfo.d->text.prepend( QString( cursor->parag()->at( cursor->index() )->c ) );
-	if ( cursor->parag()->at( cursor->index() )->format() ) {
-	    cursor->parag()->at( cursor->index() )->format()->addRef();
-	    undoRedoInfo.d->text.at( 0 ).setFormat( cursor->parag()->at( cursor->index() )->format() );
-	}
-	undoRedoInfo.index = cursor->index();
-	if ( cursor->remove() ) {
-	    undoRedoInfo.d->text.remove( 0, 1 );
-	    undoRedoInfo.d->text.prepend( "\n" );
+	if ( undoEnabled ) {
+	    undoRedoInfo.d->text.prepend( QString( cursor->parag()->
+						   at( cursor->index() )->c ) );
+	    if ( cursor->parag()->at( cursor->index() )->format() ) {
+		cursor->parag()->at( cursor->index() )->format()->addRef();
+		undoRedoInfo.d->text.at( 0 ).
+		    setFormat( cursor->parag()->at( cursor->index() )->format() );
+	    }
 	    undoRedoInfo.index = cursor->index();
-	    undoRedoInfo.id = cursor->parag()->paragId();
+	}
+	if ( cursor->remove() ) {
+	    if ( undoEnabled ) {
+		undoRedoInfo.d->text.remove( 0, 1 );
+		undoRedoInfo.d->text.prepend( "\n" );
+		undoRedoInfo.index = cursor->index();
+		undoRedoInfo.id = cursor->parag()->paragId();
+	    }
 	}
 	lastFormatted = cursor->parag();
 	break;
     case ActionReturn: {
-	checkUndoRedoInfo( UndoRedoInfo::Return );
-	if ( !undoRedoInfo.valid() ) {
-	    undoRedoInfo.id = cursor->parag()->paragId();
-	    undoRedoInfo.index = cursor->index();
-	    undoRedoInfo.d->text = QString::null;
+	if ( undoEnabled ) {
+	    checkUndoRedoInfo( UndoRedoInfo::Return );
+	    if ( !undoRedoInfo.valid() ) {
+		undoRedoInfo.id = cursor->parag()->paragId();
+		undoRedoInfo.index = cursor->index();
+		undoRedoInfo.d->text = QString::null;
+	    }
+	    undoRedoInfo.d->text += "\n";
 	}
-	undoRedoInfo.d->text += "\n";
 	cursor->splitAndInsertEmptyParag();
 	if ( cursor->parag()->prev() ) {
 	    lastFormatted = cursor->parag()->prev();
@@ -1310,34 +1324,44 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	doUpdateCurrentFormat = FALSE;
     } break;
     case ActionKill:
-	checkUndoRedoInfo( UndoRedoInfo::Delete );
-	if ( !undoRedoInfo.valid() ) {
-	    undoRedoInfo.id = cursor->parag()->paragId();
-	    undoRedoInfo.index = cursor->index();
-	    undoRedoInfo.d->text = QString::null;
+	if ( undoEnabled ) {
+	    checkUndoRedoInfo( UndoRedoInfo::Delete );
+	    if ( !undoRedoInfo.valid() ) {
+		undoRedoInfo.id = cursor->parag()->paragId();
+		undoRedoInfo.index = cursor->index();
+		undoRedoInfo.d->text = QString::null;
+	    }
 	}
 	if ( cursor->atParagEnd() ) {
-	    undoRedoInfo.d->text += cursor->parag()->at( cursor->index() )->c;
-	    if ( cursor->parag()->at( cursor->index() )->format() ) {
-		cursor->parag()->at( cursor->index() )->format()->addRef();
-		undoRedoInfo.d->text.at( undoRedoInfo.d->text.length() - 1 ).setFormat( cursor->parag()->at( cursor->index() )->format() );
+	    if ( undoEnabled ) {
+		undoRedoInfo.d->text += cursor->parag()->at( cursor->index() )->c;
+		if ( cursor->parag()->at( cursor->index() )->format() ) {
+		    cursor->parag()->at( cursor->index() )->format()->addRef();
+		    undoRedoInfo.d->text.at( undoRedoInfo.d->text.length() - 1 ).
+			setFormat( cursor->parag()->at( cursor->index() )->format() );
+		}
 	    }
 	    QTextParag *old = cursor->parag();
 	    if ( cursor->remove() ) {
 		if ( old != cursor->parag() && lastFormatted == old )
 		    lastFormatted = cursor->parag() ? cursor->parag()->prev() : 0;
-		undoRedoInfo.d->text += "\n";
+		if ( undoEnabled )
+		    undoRedoInfo.d->text += "\n";
 	    }
 	} else {
-	    int oldLen = undoRedoInfo.d->text.length();
-	    undoRedoInfo.d->text += cursor->parag()->string()->toString().mid( cursor->index() );
-	    for ( int i = cursor->index(); i < cursor->parag()->length(); ++i ) {
-		if ( cursor->parag()->at( i )->format() ) {
-		    cursor->parag()->at( i )->format()->addRef();
-		    undoRedoInfo.d->text.at( oldLen + i - cursor->index() ).setFormat( cursor->parag()->at( i )->format() );
+	    if ( undoEnabled ) {
+		int oldLen = undoRedoInfo.d->text.length();
+		undoRedoInfo.d->text +=
+		    cursor->parag()->string()->toString().mid( cursor->index() );
+		for ( int i = cursor->index(); i < cursor->parag()->length(); ++i ) {
+		    if ( cursor->parag()->at( i )->format() ) {
+			cursor->parag()->at( i )->format()->addRef();
+			undoRedoInfo.d->text.at( oldLen + i - cursor->index() ).
+			    setFormat( cursor->parag()->at( i )->format() );
+		    }
 		}
+		undoRedoInfo.d->text.remove( undoRedoInfo.d->text.length() - 1, 1 );
 	    }
-	    undoRedoInfo.d->text.remove( undoRedoInfo.d->text.length() - 1, 1 );
 	    cursor->killLine();
 	}
 	break;
@@ -1353,7 +1377,8 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	if ( !readonly ) {
 	    QFont f = cursor->parag()->at( cursor->index() )->format()->font();
 	    setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
-			       cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
+			       cursor->y() + cursor->parag()->rect().y() - contentsY() +
+			       frameWidth(), 0, h, TRUE, &f );
 	}
     }
 
@@ -1363,15 +1388,19 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
     emit textChanged();
 }
 
-void QTextEdit::readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QTextString &text, bool fillStyles )
+void QTextEdit::readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen,
+			     QTextString &text, bool fillStyles )
 {
+    if ( !undoEnabled )
+	return;
     c2.restoreState();
     c1.restoreState();
     if ( c1.parag() == c2.parag() ) {
 	for ( int i = c1.index(); i < c2.index(); ++i ) {
 	    if ( c1.parag()->at( i )->format() ) {
 		c1.parag()->at( i )->format()->addRef();
-		text.at( oldLen + i - c1.index() ).setFormat( c1.parag()->at( i )->format() );
+		text.at( oldLen + i - c1.index() ).
+		    setFormat( c1.parag()->at( i )->format() );
 	    }
 	}
 	if ( fillStyles ) {
@@ -1461,15 +1490,19 @@ void QTextEdit::removeSelectedText( int selNum )
     }
 
     drawCursor( FALSE );
-    checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
-    if ( !undoRedoInfo.valid() ) {
-	doc->selectionStart( selNum, undoRedoInfo.id, undoRedoInfo.index );
-	undoRedoInfo.d->text = QString::null;
+    if ( undoEnabled ) {
+	checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
+	if ( !undoRedoInfo.valid() ) {
+	    doc->selectionStart( selNum, undoRedoInfo.id, undoRedoInfo.index );
+	    undoRedoInfo.d->text = QString::null;
+	}
+	int oldLen = undoRedoInfo.d->text.length();
+	undoRedoInfo.d->text = doc->selectedText( selNum, FALSE );
+	undoRedoInfo.oldAligns.resize( undoRedoInfo.oldAligns.size() +
+				       QMAX( 0, c2.parag()->paragId() -
+					     c1.parag()->paragId() + 1 ) );
+	readFormats( c1, c2, oldLen, undoRedoInfo.d->text, TRUE );
     }
-    int oldLen = undoRedoInfo.d->text.length();
-    undoRedoInfo.d->text = doc->selectedText( selNum, FALSE );
-    undoRedoInfo.oldAligns.resize( undoRedoInfo.oldAligns.size() + QMAX( 0, c2.parag()->paragId() - c1.parag()->paragId() + 1 ) );
-    readFormats( c1, c2, oldLen, undoRedoInfo.d->text, TRUE );
     doc->removeSelectedText( selNum, cursor );
     if ( cursor->isValid() ) {
 	ensureCursorVisible();
@@ -2442,7 +2475,9 @@ void QTextEdit::insert( const QString &text, uint insertionFlags )
 	    for ( int i = 0; i < (int)txt.length(); ++i ) {
 		if ( txt[ i ] != '\n' && c2.parag()->at( c2.index() )->format() ) {
 		    c2.parag()->at( c2.index() )->format()->addRef();
-		    undoRedoInfo.d->text.setFormat( oldLen + i, c2.parag()->at( c2.index() )->format(), TRUE );
+		    undoRedoInfo.d->text.
+			setFormat( oldLen + i,
+				   c2.parag()->at( c2.index() )->format(), TRUE );
 		}
 		c2.gotoNextLetter();
 	    }
@@ -2799,17 +2834,19 @@ void QTextEdit::setFormat( QTextFormat *f, int flags )
 	QString str = doc->selectedText( QTextDocument::Standard );
 	QTextCursor c1 = doc->selectionStartCursor( QTextDocument::Standard );
 	QTextCursor c2 = doc->selectionEndCursor( QTextDocument::Standard );
-	clearUndoRedo();
-	undoRedoInfo.type = UndoRedoInfo::Format;
-	undoRedoInfo.id = c1.parag()->paragId();
-	undoRedoInfo.index = c1.index();
-	undoRedoInfo.eid = c2.parag()->paragId();
-	undoRedoInfo.eindex = c2.index();
-	undoRedoInfo.d->text = str;
-	readFormats( c1, c2, 0, undoRedoInfo.d->text );
-	undoRedoInfo.format = f;
-	undoRedoInfo.flags = flags;
-	clearUndoRedo();
+	if ( undoEnabled ) {
+	    clearUndoRedo();
+	    undoRedoInfo.type = UndoRedoInfo::Format;
+	    undoRedoInfo.id = c1.parag()->paragId();
+	    undoRedoInfo.index = c1.index();
+	    undoRedoInfo.eid = c2.parag()->paragId();
+	    undoRedoInfo.eindex = c2.index();
+	    undoRedoInfo.d->text = str;
+	    readFormats( c1, c2, 0, undoRedoInfo.d->text );
+	    undoRedoInfo.format = f;
+	    undoRedoInfo.flags = flags;
+	    clearUndoRedo();
+	}
 	doc->setFormat( QTextDocument::Standard, f, flags );
 	repaintChanged();
 	formatMore();
@@ -2822,7 +2859,8 @@ void QTextEdit::setFormat( QTextFormat *f, int flags )
 	currentFormat = doc->formatCollection()->format( f );
 	if ( currentFormat->isMisspelled() ) {
 	    currentFormat->removeRef();
-	    currentFormat = doc->formatCollection()->format( currentFormat->font(), currentFormat->color() );
+	    currentFormat = doc->formatCollection()->format( currentFormat->font(),
+							     currentFormat->color() );
 	}
 	emit currentFontChanged( currentFormat->font() );
 	emit currentColorChanged( currentFormat->color() );
@@ -2862,52 +2900,57 @@ void QTextEdit::setPalette( const QPalette &p )
   \sa setAlignment()
 */
 
-void QTextEdit::setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::ListStyle listStyle )
+void QTextEdit::setParagType( QStyleSheetItem::DisplayMode dm,
+			      QStyleSheetItem::ListStyle listStyle )
 {
     if ( isReadOnly() )
 	return;
 
     drawCursor( FALSE );
     if ( !doc->hasSelection( QTextDocument::Standard ) ) {
-	clearUndoRedo();
-	undoRedoInfo.type = UndoRedoInfo::ParagType;
-	QValueList< QPtrVector<QStyleSheetItem> > oldStyles;
-	undoRedoInfo.oldStyles.clear();
-	undoRedoInfo.oldStyles << cursor->parag()->styleSheetItems();
-	undoRedoInfo.oldListStyles.clear();
-	undoRedoInfo.oldListStyles << cursor->parag()->listStyle();
-	undoRedoInfo.list = dm == QStyleSheetItem::DisplayListItem;
-	undoRedoInfo.listStyle = listStyle;
-	undoRedoInfo.id = cursor->parag()->paragId();
-	undoRedoInfo.eid = cursor->parag()->paragId();
-	undoRedoInfo.d->text = " ";
-	undoRedoInfo.index = 1;
-	clearUndoRedo();
+	if ( undoEnabled ) {
+	    clearUndoRedo();
+	    undoRedoInfo.type = UndoRedoInfo::ParagType;
+	    QValueList< QPtrVector<QStyleSheetItem> > oldStyles;
+	    undoRedoInfo.oldStyles.clear();
+	    undoRedoInfo.oldStyles << cursor->parag()->styleSheetItems();
+	    undoRedoInfo.oldListStyles.clear();
+	    undoRedoInfo.oldListStyles << cursor->parag()->listStyle();
+	    undoRedoInfo.list = dm == QStyleSheetItem::DisplayListItem;
+	    undoRedoInfo.listStyle = listStyle;
+	    undoRedoInfo.id = cursor->parag()->paragId();
+	    undoRedoInfo.eid = cursor->parag()->paragId();
+	    undoRedoInfo.d->text = " ";
+	    undoRedoInfo.index = 1;
+	    clearUndoRedo();
+	}
 	cursor->parag()->setList( dm == QStyleSheetItem::DisplayListItem, listStyle );
 	repaintChanged();
     } else {
 	QTextParag *start = doc->selectionStart( QTextDocument::Standard );
 	QTextParag *end = doc->selectionEnd( QTextDocument::Standard );
 	lastFormatted = start;
-	clearUndoRedo();
-	undoRedoInfo.type = UndoRedoInfo::ParagType;
-	undoRedoInfo.id = start->paragId();
-	undoRedoInfo.eid = end->paragId();
-	undoRedoInfo.list = dm == QStyleSheetItem::DisplayListItem;
-	undoRedoInfo.listStyle = listStyle;
-	undoRedoInfo.oldStyles.clear();
-	undoRedoInfo.oldListStyles.clear();
-	while ( start ) {
-	    undoRedoInfo.oldStyles << start->styleSheetItems();
-	    undoRedoInfo.oldListStyles << start->listStyle();
-	    start->setList( dm == QStyleSheetItem::DisplayListItem, listStyle );
-	    if ( start == end )
-		break;
-	    start = start->next();
+	if ( undoEnabled ) {
+	    clearUndoRedo();
+	    undoRedoInfo.type = UndoRedoInfo::ParagType;
+	    undoRedoInfo.id = start->paragId();
+	    undoRedoInfo.eid = end->paragId();
+	    undoRedoInfo.list = dm == QStyleSheetItem::DisplayListItem;
+	    undoRedoInfo.listStyle = listStyle;
+	    undoRedoInfo.oldStyles.clear();
+	    undoRedoInfo.oldListStyles.clear();
+	    while ( start ) {
+		undoRedoInfo.oldStyles << start->styleSheetItems();
+		undoRedoInfo.oldListStyles << start->listStyle();
+		start->setList( dm == QStyleSheetItem::DisplayListItem, listStyle );
+		if ( start == end )
+		    break;
+		start = start->next();
+	    }
+	    undoRedoInfo.d->text = " ";
+	    undoRedoInfo.index = 1;
+	    clearUndoRedo();
 	}
-	undoRedoInfo.d->text = " ";
-	undoRedoInfo.index = 1;
-	clearUndoRedo();
 	repaintChanged();
 	formatMore();
     }
@@ -2932,17 +2975,19 @@ void QTextEdit::setAlignment( int a )
     drawCursor( FALSE );
     if ( !doc->hasSelection( QTextDocument::Standard ) ) {
 	if ( cursor->parag()->alignment() != a ) {
-	    clearUndoRedo();
-	    undoRedoInfo.type = UndoRedoInfo::Alignment;
-	    QMemArray<int> oa( 1 );
-	    oa[ 0 ] = cursor->parag()->alignment();
-	    undoRedoInfo.oldAligns = oa;
-	    undoRedoInfo.newAlign = a;
-	    undoRedoInfo.id = cursor->parag()->paragId();
-	    undoRedoInfo.eid = cursor->parag()->paragId();
-	    undoRedoInfo.d->text = " ";
-	    undoRedoInfo.index = 1;
-	    clearUndoRedo();
+	    if ( undoEnabled ) {
+		clearUndoRedo();
+		undoRedoInfo.type = UndoRedoInfo::Alignment;
+		QMemArray<int> oa( 1 );
+		oa[ 0 ] = cursor->parag()->alignment();
+		undoRedoInfo.oldAligns = oa;
+		undoRedoInfo.newAlign = a;
+		undoRedoInfo.id = cursor->parag()->paragId();
+		undoRedoInfo.eid = cursor->parag()->paragId();
+		undoRedoInfo.d->text = " ";
+		undoRedoInfo.index = 1;
+		clearUndoRedo();
+	    }
 	    cursor->parag()->setAlignment( a );
 	    repaintChanged();
 	}
@@ -2950,27 +2995,29 @@ void QTextEdit::setAlignment( int a )
 	QTextParag *start = doc->selectionStart( QTextDocument::Standard );
 	QTextParag *end = doc->selectionEnd( QTextDocument::Standard );
 	lastFormatted = start;
-	int len = end->paragId() - start->paragId() + 1;
-	clearUndoRedo();
-	undoRedoInfo.type = UndoRedoInfo::Alignment;
-	undoRedoInfo.id = start->paragId();
-	undoRedoInfo.eid = end->paragId();
-	QMemArray<int> oa( QMAX( 0, len ) );
-	int i = 0;
-	while ( start ) {
-	    if ( i < (int)oa.size() )
-		oa[ i ] = start->alignment();
-	    start->setAlignment( a );
-	    if ( start == end )
-		break;
-	    start = start->next();
-	    ++i;
+	if ( undoEnabled ) {
+	    int len = end->paragId() - start->paragId() + 1;
+	    clearUndoRedo();
+	    undoRedoInfo.type = UndoRedoInfo::Alignment;
+	    undoRedoInfo.id = start->paragId();
+	    undoRedoInfo.eid = end->paragId();
+	    QMemArray<int> oa( QMAX( 0, len ) );
+	    int i = 0;
+	    while ( start ) {
+		if ( i < (int)oa.size() )
+		    oa[ i ] = start->alignment();
+		start->setAlignment( a );
+		if ( start == end )
+		    break;
+		start = start->next();
+		++i;
+	    }
+	    undoRedoInfo.oldAligns = oa;
+	    undoRedoInfo.newAlign = a;
+	    undoRedoInfo.d->text = " ";
+	    undoRedoInfo.index = 1;
+	    clearUndoRedo();
 	}
-	undoRedoInfo.oldAligns = oa;
-	undoRedoInfo.newAlign = a;
-	undoRedoInfo.d->text = " ";
-	undoRedoInfo.index = 1;
-	clearUndoRedo();
 	repaintChanged();
 	formatMore();
     }
@@ -4980,11 +5027,16 @@ QColor QTextEdit::paragraphBackgroundColor( int para ) const
 /*! \property QTextEdit::undoRedoEnabled
   \brief whether undo/redo is enabled
 
+  When changing this property, the undo/redo history is cleared.
+
   The default is TRUE.
 */
 
 void QTextEdit::setUndoRedoEnabled( bool b )
 {
+    undoRedoInfo.clear();
+    doc->commands()->clear();
+
     undoEnabled = b;
 }
 
@@ -4997,14 +5049,14 @@ bool QTextEdit::isUndoRedoEnabled() const
 
 bool QTextEdit::isUndoAvailable() const
 {
-    return doc->commands()->isUndoAvailable() || undoRedoInfo.valid();
+    return undoEnabled && (doc->commands()->isUndoAvailable() || undoRedoInfo.valid());
 }
 
 /*! Returns whether redo is available */
 
 bool QTextEdit::isRedoAvailable() const
 {
-    return doc->commands()->isRedoAvailable();
+    return undoEnabled && doc->commands()->isRedoAvailable();
 }
 
 void QTextEdit::ensureFormatted( QTextParag *p )
