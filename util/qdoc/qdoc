@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#54 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#55 $
 #
 # this is a massive hack, written very quickly
 #
@@ -238,7 +238,18 @@ sub processdocs {
 	$doc =~ s/\.?\s*$/.\n/s;
 	$doc =~ s/^\s*\n//s;
 	$doc =~ s/>\.\n$/>\n/s;
-	$doc =~ s/\s*\\sa\s+/\n\nmagicwordthatyoushouldavoid /g;
+
+	$doc =~ s@\\sa\s+(.*)?\n@
+	{
+	    my ($seealso);
+	    $seealso = $1;
+	    $seealso =~ s/,?\s+and\s+/, /;
+	    $seealso =~ s/\.?\s*$//;
+	    $seealso =~ s/,?\s+/, /g;
+	    $seealso =~ s/, (\S+)$/ and $1/;
+	    sprintf( "\n\nmagicwordthatyoushouldavoid %s.\n", $seealso );
+	}@es;
+
 	$doc =~ s-\s*\n\s*\n\s*-\n<p>-gs;
 	$doc =~ s/<linebreak>//gs;
 
@@ -268,18 +279,6 @@ sub processdocs {
 		sprintf("%s", $3);
 	    }
 	-egsx;
-
-	$doc =~ s@\bSee also:\s+(.*)?\n@
-	{
-	    my ($seealso);
-	    $seealso = $1;
-	    $seealso =~ s/\.?\s*$//;
-	    $seealso =~ s/,?\s+/, /g;
-	    $seealso =~ s/\s+and\s+/, /gi;
-	    $seealso =~ s/, (\S+)$/ and $1/;
-	    sprintf( "See also: %s.\n", $seealso );
-	}@es;
-	    
 
 	$brief{$url} = $1
 	    if ($doc =~ s/\s*\\brief\s+(.*?)(?:(?:\n<p>\s*)|(?:$))//s);
