@@ -538,7 +538,9 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         // that like to have really long words.
         if(psh->text() == "OK" || psh->text() == "Cancel")
             minw = 69;
-        if(sz == QAquaSizeLarge)
+        if (psh->text().contains('\n'))
+            ret = QSize(minw, -1);
+        else if(sz == QAquaSizeLarge)
             ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricPushButtonHeight));
         else if(sz == QAquaSizeSmall)
             ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricSmallPushButtonHeight));
