@@ -86,10 +86,18 @@ static QString indexAnchor( const QString& str )
     return t;
 }
 
+/*
+  This function makes sure no two automatic links for the same identifier are
+  too close to each other.  It returns TRUE if it's OK to have a new link to
+  'name', otherwise FALSE.
+
+  The criterion is that two automatic links to the same place should be
+  separated by at least 1009 characters.
+*/
 static bool offsetOK( QMap<QString, int> *omap, int off, const QString& name )
 {
     QMap<QString, int>::Iterator prevOff = omap->find( name );
-    bool ok = ( prevOff == omap->end() || *prevOff < off - 1000 );
+    bool ok = ( prevOff == omap->end() || *prevOff <= off - 1009 );
     if ( ok )
 	omap->insert( name, off );
     return ok;
@@ -193,6 +201,10 @@ static QString getArgument( const QString& in, int& pos )
     }
 }
 
+/*
+  The DocParser class is an internal class that implements the first pass of
+  doc comment parsing.  (See Doc::finalHtml() for the second pass.)
+*/
 class DocParser
 {
 public:
@@ -249,7 +261,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     yyOut.truncate( 0 );
     yyWithinPre = FALSE;
 
-    QString arg, brief, className, enumName, fileName, groupName, moduleName;
+    QString arg, brief;
+    QString className, enumName, extName, fileName, groupName, moduleName;
     QString title, prototype, relates;
     StringSet groups, headers, parameters;
     QStringList seeAlso, important, index;
@@ -283,15 +296,20 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		command = QChar( ' ' );
 
 	    /*
-	      We use poor man's hashing to identify the qdoc commands (e.g., \a,
-	      \class, \enum).  These commands are not frequent enough to justify
-	      advanced techniques, and it turns out that we can let the C++
-	      compiler do the job for us by means of a mega-switch and simple
-	      hashing.
+	      We use poor man's hashing to identify the qdoc commands (e.g.,
+	      '\a', '\class', '\enum').  These commands are not frequent enough
+	      to justify advanced techniques, and it turns out that we can let
+	      the C++ compiler do the job for us by means of a mega-switch and
+	      simple hashing.
 
 	      If you have to insert a new command to qdoc, here's one of the
-	      two places to do it.  A second pass of processing will take care
-	      of the last-minute details.  See Doc::finalHtml().
+	      two places to do it.  In the unlikely event that you have a hash
+	      collision (that is, two commands start with the same letter and
+	      have the same length), handle it like '\endcode', '\endlink', and
+	      '\example' below.
+
+	      A second pass of processing will take care of the last-minute
+	      details.  See Doc::finalHtml().
 	    */
 
 	    int h = hash( command[0].unicode(), command.length() );
@@ -493,6 +511,17 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    skipRestOfLine( yyIn, yyPos );
 		    setKind( Doc::Example, command );
 		}
+		break;
+	    case hash( 'e', 9 ):
+		consume( "extension" );
+		extName = getWord( yyIn, yyPos );
+		skipRestOfLine( yyIn, yyPos );
+
+		if ( extName.isEmpty() )
+		    warning( 1, location(),
+			     "Expected module name after '\\extension'" );
+		else
+		    setKindHasToBe( Doc::Class, command );
 		break;
 	    case hash( 'f', 2 ):
 		consume( "fn" );
@@ -776,10 +805,11 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    brief = yyOut.mid( briefBegin, briefEnd - briefBegin )
 			 .stripWhiteSpace();
 	sanitize( className );
+	sanitize( extName );
 	sanitize( moduleName );
 	sanitize( brief ); /// ### evil sanitize, put them inside class?
-	doc = new ClassDoc( loc, yyOut, className, brief, moduleName, groups,
-			    headers, important );
+	doc = new ClassDoc( loc, yyOut, className, brief, moduleName, extName,
+			    groups, headers, important );
 	break;
     case Doc::Enum:
 	sanitize( enumName );
@@ -925,6 +955,8 @@ StringSet Doc::hflist;
 QMap<QString, QString> Doc::clist;
 QMap<QString, StringSet> Doc::findex;
 QMap<QString, StringSet> Doc::chierarchy;
+StringSet Doc::extlist;
+QMap<QString, QString> Doc::classext;
 
 Doc *Doc::create( const Location& loc, const QString& text )
 {
@@ -941,10 +973,14 @@ void Doc::setClassList( const QMap<QString, QString>& classList )
 {
     clist = classList;
 
+    /*
+      Why is here the best place to build the mega regular expression?
+      ### Donno.
+    */
     if ( !config->autoHrefs() )
 	return;
 
-    QString t( "(?:<pre>.*</pre>|(?:#magicwordthatyoushouldavoid" );
+    QString t( "(?:<pre>.*</pre>|(?:Qmagicwordthatyoushouldavoid" );
     QMap<QString, QString>::ConstIterator s = indices.begin();
     while ( s != indices.end() ) {
 	if ( s == indices.end() )
@@ -1032,10 +1068,10 @@ QString Doc::htmlClassList()
 
     const int NumParagraphs = 27; // 26 letters in Alphabits plus tax
     const int NumColumns = 5; // number of columns in the result
-    QString html;
+    QString html( "" );
 
     if ( clist.isEmpty() )
-	return QString( "" );
+	return html;
 
     /*
       First, find out the common prefix of all classes.  For Qt, the prefix is
@@ -1058,7 +1094,7 @@ QString Doc::htmlClassList()
       only place where we assume that NumParagraphs is 27.
 
       Each paragraph is a QMap<QString, QString>.  The entry for QAccel is the
-      pair (accel, QAccel).
+      pair (accel, QAccel).  The entry for QNPlugin is (nplugin, QNPlugin*).
     */
     QMap<QString, QString> paragraph[NumParagraphs];
     QString paragraphName[NumParagraphs];
@@ -1067,12 +1103,13 @@ QString Doc::htmlClassList()
     while ( c != clist.end() ) {
 	QString key = c.key().mid( commonPrefixLen ).lower();
 	int paragraphNo = NumParagraphs - 1;
+
 	if ( key[0].unicode() >= 'a' && key[0].unicode() < 'z' ) {
 	    paragraphNo = key[0].unicode() - 'a';
 	    paragraphName[paragraphNo] = key[0].upper();
 	} else {
 	    paragraphNo = 26;
-	    paragraphName[paragraphNo] = QChar( '_' );
+	    paragraphName[paragraphNo] = QChar( '?' );
 	}
 	paragraph[paragraphNo].insert( key, c.key() );
 	++c;
@@ -1220,7 +1257,11 @@ QString Doc::htmlClassList()
 	    QMap<QString, QString>::Iterator first;
 	    first = paragraph[currentParagraphNo[i]].begin();
 
-	    html += QString( "<td>%1\n" ).arg( href(*first) );
+	    QString text = *first;
+	    if ( classext.contains(text) )
+		text += QChar( '*' );
+
+	    html += QString( "<td>%1\n" ).arg( href(*first, text) );
 
 	    paragraph[currentParagraphNo[i]].remove( first );
 	    currentOffset[i]++;
@@ -1234,7 +1275,7 @@ QString Doc::htmlAnnotatedClassList()
 {
     /*
       We fight hard just to go through the QMap in case-insensitive order.  In
-      Qt, this is important to get class Qt among the t's.
+      Qt, this gets class Qt among the T's (and Quebec among the U's).
     */
     StringSet cset;
     QString html = QString( "<table>\n" );
@@ -1309,6 +1350,25 @@ QString Doc::htmlClassHierarchy()
     return html;
 }
 
+QString Doc::htmlExtensionList()
+{
+    QString html( "" );
+
+    if ( !extlist.isEmpty() ) {
+	StringSet::ConstIterator e;
+	QValueStack<QString> seps = separators( extlist.count(),
+						QString(".\n") );
+	html += QString( "* Extension classes of " );
+	e = extlist.begin();
+	while ( e != extlist.end() ) {
+	    html += *e;
+	    html += seps.pop();
+	    ++e;
+	}
+    }
+    return html;
+}
+
 Doc::Doc( Kind kind, const Location& loc, const QString& htmlText )
     : ki( kind ), lo( loc ), html( htmlText ), inter( FALSE ), obs( FALSE )
 {
@@ -1322,7 +1382,7 @@ void Doc::setLink( const QString& link, const QString& title )
     }
 
     /*
-      If there are '\index' commands in this doc, find out their full address.
+      If there are '\index' commands in this Doc, find out their full address.
      */
     if ( !idx.isEmpty() ) {
 	int k = link.find( QChar('#') );
@@ -1338,9 +1398,9 @@ void Doc::setLink( const QString& link, const QString& title )
 
     /*
       Rainer M. Schmid suggested that auto-referential links should be removed
-      automatically from '\sa'.  This is to simplify his typing if f1() refers
-      to f2() and f3(); f2() to f1() and f3(); and f3() to f1() and f2().  He
-      then copies and pastes '\sa f1() f2() f3()'.
+      automatically from '\sa'.  This is to ease his typing if f1() refers to
+      f2() and f3(); f2() to f1() and f3(); and f3() to f1() and f2().  He then
+      copies and pastes '\sa f1() f2() f3()'.
      */
     if ( !sa.isEmpty() ) {
 	QString who = title.mid( title.findRev(QChar(':')) + 1 );
@@ -1433,7 +1493,7 @@ QString Doc::finalHtml() const
     while ( yyPos < yyLen ) {
 	QChar ch = yyIn[yyPos++];
 
-	if ( ch == '\\' ) {
+	if ( ch == QChar('\\') ) {
 	    QString command;
 	    begin = yyPos;
 	    while ( yyPos < yyLen ) {
@@ -1496,6 +1556,10 @@ QString Doc::finalHtml() const
 			     "Expected file name after '\\dontinclude'" );
 		else
 		    walkthrough.dontstart( fileName, resolver() );
+		break;
+	    case hash( 'e', 13 ):
+		consume( "extensionlist" );
+		yyOut += htmlExtensionList();
 		break;
 	    case hash( 'f', 13 ):
 		consume( "functionindex" );
@@ -1594,7 +1658,7 @@ QString Doc::finalHtml() const
 		    yyOut[begin - 1] != QChar('.') )
 		begin--;
 
-	    // deal with cases like '(func())'
+	    // handle '(func())'
 	    if ( yyOut[begin] == QChar('(') )
 		begin++;
 
@@ -1602,7 +1666,7 @@ QString Doc::finalHtml() const
 		 offsetOK(&offsetMap, yyOut.length(), yyOut.mid(begin)) ) {
 		/*
 		  It's always a good idea to include the '()', as it provides
-		  some typing (in both senses of the word).
+		  some typing (in two senses of the word).
 		*/
 		if ( ch == QChar('(') && yyIn.mid(yyPos, 1) == QChar(')') ) {
 		    yyOut.replace( begin, end - begin,
@@ -1673,11 +1737,25 @@ FnDoc::FnDoc( const Location& loc, const QString& html,
 
 ClassDoc::ClassDoc( const Location& loc, const QString& html,
 		    const QString& className, const QString& brief,
-		    const QString& module, const StringSet& groups,
-		    const StringSet& headers, const QStringList& important )
+		    const QString& module, const QString& extension,
+		    const StringSet& groups, const StringSet& headers,
+		    const QStringList& important )
     : Doc( Class, loc, html ), cname( className ), bf( brief ), mod( module ),
-      ingroups( groups ), h( headers ), imp( important )
+      ext( extension ), ingroups( groups ), h( headers ), imp( important )
 {
+    if ( !ext.isEmpty() ) {
+	extlist.insert( ext );
+	classext.insert( className, ext );
+    }
+
+    /*
+      Derive the what's this from the '\brief' text (e.g., "The QFoo class is a
+      bar class." becomes "A bar class").
+
+      A Qt 3.0 regular expression could do all of that with five lines of code.
+      Unfortunately, when this code was written, Qt 3.0 QRegExp was not yet
+      available.
+    */
     bool standardWording = TRUE;
     bool finalStop = ( bf.right(1) == QChar('.') );
     if ( !finalStop )
@@ -1685,11 +1763,6 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
 
     QStringList w = QStringList::split( QChar(' '), bf.simplifyWhiteSpace() );
 
-    /*
-      A Qt 3.0 regular expression could do all of that with five lines of code.
-      Unfortunately, when this code was written, Qt 3.0 QRegExp was not yet
-      available.
-    */
     if ( !w.isEmpty() && w.first() == QString("The") )
 	w.remove( w.begin() );
     else

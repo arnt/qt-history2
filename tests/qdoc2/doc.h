@@ -15,6 +15,9 @@ class BinaryWriter;
 class HtmlWriter;
 class Resolver;
 
+/*
+  The Doc class represents a doc comment (a '/*!' comment).
+*/
 class Doc
 {
 public:
@@ -24,8 +27,8 @@ public:
     static Doc *create( const Location& loc, const QString& text );
 
     static void setHtmlResolver( const Resolver *resolver ) { res = resolver; }
-    static void setHeaderFileList( const StringSet& headerFiles ); // ### needless?
-    static void setClassList( const QMap<QString, QString>& classList );
+    static void setHeaderFileList( const StringSet& headerFiles ); // ### need?
+    static void setClassList( const QMap<QString, QString>& classList ); // ###
     static void setFunctionIndex( const QMap<QString, StringSet>& index );
     static void setClassHierarchy( const QMap<QString, StringSet>& hierarchy );
     static void printHtmlIncludeHeader( HtmlWriter& out,
@@ -39,6 +42,7 @@ public:
     static QString htmlAnnotatedClassList();
     static QString htmlFunctionIndex();
     static QString htmlClassHierarchy();
+    static QString htmlExtensionList();
 
     Doc( Kind kind, const Location& loc, const QString& htmlText );
     virtual ~Doc() { }
@@ -79,7 +83,6 @@ private:
     QStringList idx;
     QString lnk;
 
-    // ### dangerous statics?
     static const Resolver *res;
     static QRegExp *megaRegExp;
     static QMap<QString, QMap<QString, QString> > quotes;
@@ -88,6 +91,8 @@ private:
     static QMap<QString, QString> clist;
     static QMap<QString, StringSet> findex;
     static QMap<QString, StringSet> chierarchy;
+    static StringSet extlist;
+    static QMap<QString, QString> classext;
 };
 
 class FnDoc : public Doc
@@ -116,13 +121,15 @@ class ClassDoc : public Doc
 public:
     ClassDoc( const Location& loc, const QString& html,
 	      const QString& className, const QString& brief,
-	      const QString& module, const StringSet& groups,
-	      const StringSet& headers, const QStringList& important );
+	      const QString& module, const QString& extension,
+	      const StringSet& groups, const StringSet& headers,
+	      const QStringList& important );
 
     const QString& className() const { return cname; }
     const QString& brief() const { return bf; }
     const QString& whatsThis() const { return whats; }
     const QString& module() const { return mod; }
+    const QString& extension() const { return ext; }
     const StringSet& groups() const { return ingroups; }
     const StringSet& headers() const { return h; }
     const QStringList& important() const { return imp; }
@@ -132,6 +139,7 @@ private:
     QString bf;
     QString whats;
     QString mod;
+    QString ext;
     StringSet ingroups;
     StringSet h;
     QStringList imp;

@@ -35,6 +35,7 @@ public:
     void remove( const QString& str );
 
     bool isEmpty() const { return map.isEmpty(); }
+    uint count() const { return map.count(); }
     bool contains( const QString& str ) const;
     const QStringList& stringList() const;
     QStringList toIStringList() const;

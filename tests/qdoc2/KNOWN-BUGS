@@ -3,7 +3,6 @@ Here are the bugs I am aware of:
   * qlistiterator.html and qbytearray.html are not generated
   * lots of wrong warnings
   * --supervisor mode does not (yet) produce more warnings
-  * \extensionlist is not supported yet
 
 Please warn me if you find something new.
 

@@ -612,6 +612,10 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	out.putsMeta( "<p>" );
 	out.putsMeta( classDoc()->brief() );
 	out.puts( "\n" );
+	if ( !classDoc()->extension().isEmpty() )
+	    out.printfMeta( "<p>This class is part of the"
+			    " <b>Qt %s Extension.</b>\n",
+			    classDoc()->extension().latin1() );
     }
 
     out.putsMeta( "<a href=#details>More...</a>\n" );
@@ -741,8 +745,15 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 
     out.putsMeta( "<hr><a name=details></a><h2>Detailed Description</h2>\n" );
 
-    if ( classDoc() != 0 )
+    if ( classDoc() != 0 ) {
+	if ( !classDoc()->extension().isEmpty() )
+	    out.printfMeta( "<p> This class is defined in the"
+			    " <b>Qt %s Extension</b>, which can be found in"
+			    " the <tt>qt/extensions</tt> directory.  It is not"
+			    " included in the main Qt API.\n<p>",
+			    classDoc()->extension().latin1() );
 	classDoc()->printHtml( out );
+    }
 
     printHtmlLongMembers( out, memberTypes, "Member Type Documentation" );
     printHtmlLongMembers( out, memberFunctions,
@@ -1199,8 +1210,8 @@ void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
 	bracketedStuff += QString( "\xa0slot" );
 
     if ( !bracketedStuff.isEmpty() ) {
-	bracketedStuff = bracketedStuff.stripWhiteSpace();
-	bracketedStuff.prepend( QString("<tt> [") );
+	bracketedStuff[0] = QChar( '[' );
+	bracketedStuff.prepend( QString("<tt> ") );
 	bracketedStuff.append( QString("]</tt>") );
 	out.putsMeta( bracketedStuff.latin1() );
     }
