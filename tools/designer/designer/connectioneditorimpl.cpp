@@ -130,6 +130,8 @@ ConnectionEditor::~ConnectionEditor()
 void ConnectionEditor::signalChanged()
 {
     QCString signal = signalBox->currentText().latin1();
+    if ( !signal.data() )
+	return;
     signal = normalizeSignalSlot( signal.data() );
     slotBox->clear();
     if ( signalBox->currentText().isEmpty() )
@@ -151,6 +153,8 @@ void ConnectionEditor::signalChanged()
 	if ( !moreSlots.isEmpty() ) {
 	    for ( QValueList<MetaDataBase::Slot>::Iterator it = moreSlots.begin(); it != moreSlots.end(); ++it ) {
 		QCString s = (*it).slot;
+		if ( !s.data() )
+		    continue;
 		s = normalizeSignalSlot( s.data() );
 		if ( checkConnectArgs( signal.data(), receiver, s ) )
 		    slotBox->insertItem( QString( (*it).slot ) );
@@ -162,6 +166,8 @@ void ConnectionEditor::signalChanged()
 	MetaDataBase::CustomWidget *w = ( (CustomWidget*)receiver )->customWidget();
 	for ( QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it ) {
 	    QCString s = (*it).slot;
+	    if ( !s.data() )
+		continue;
 	    s = normalizeSignalSlot( s.data() );
  	    if ( checkConnectArgs( signal.data(), receiver, s ) )
 		slotBox->insertItem( QString( (*it).slot ) );
