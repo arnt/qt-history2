@@ -56,6 +56,7 @@ BEGIN_DISPATCH_MAP(CQtTestControlCtrl, COleControl)
 	DISP_FUNCTION(CQtTestControlCtrl, "SetString", SetString, VT_EMPTY, VTS_BSTR)
 	DISP_FUNCTION(CQtTestControlCtrl, "Add", Add, VT_I4, VTS_I4 VTS_I4)
 	DISP_FUNCTION(CQtTestControlCtrl, "Sub", Sub, VT_EMPTY, VTS_I4 VTS_I4 VTS_PI4)
+	DISP_FUNCTION(CQtTestControlCtrl, "OpenWidget", OpenWidget, VT_I4, VTS_NONE)
 	DISP_STOCKPROP_FONT()
 	//}}AFX_DISPATCH_MAP
 	DISP_FUNCTION_ID(CQtTestControlCtrl, "AboutBox", DISPID_ABOUTBOX, AboutBox, VT_EMPTY, VTS_NONE)
@@ -484,4 +485,30 @@ void CQtTestControlCtrl::Sub(long x, long y, long FAR* res)
 {
 	// TODO: Add your dispatch handler code here
 
+}
+
+#include <qapplication.h>
+
+class MyWidget : public QWidget
+{
+public:
+    MyWidget( HWND hwnd )
+    {
+	//create( hwnd );
+    }
+
+    void mousePressEvent( QMouseEvent *e )
+    {
+	qDebug( "Mouse Press!" );
+    }
+};
+
+long CQtTestControlCtrl::OpenWidget() 
+{
+	if ( qApp ) {
+	    MyWidget *widget = new MyWidget( m_hWnd );
+	    widget->show();
+	}
+
+	return 0;
 }

@@ -88,6 +88,7 @@ protected:
 	afx_msg void SetString(LPCTSTR string);
 	afx_msg long Add(long x, long y);
 	afx_msg void Sub(long x, long y, long FAR* res);
+	afx_msg long OpenWidget();
 	//}}AFX_DISPATCH
 	DECLARE_DISPATCH_MAP()
 
@@ -132,6 +133,7 @@ public:
 	dispidSetString = 21L,
 	dispidAdd = 22L,
 	dispidSub = 23L,
+	dispidOpenWidget = 24L,
 	eventidFoo = 1L,
 	eventidStringChanged = 2L,
 	eventidGetInt = 3L,

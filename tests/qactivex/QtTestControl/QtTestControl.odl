@@ -56,6 +56,7 @@ library QTTESTCONTROLLib
 			[id(21)] void SetString(BSTR string);
 			[id(22)] long Add(long x, long y);
 			[id(23)] void Sub(long x, long y, long* res);
+			[id(24)] long OpenWidget();
 			//}}AFX_ODL_METHOD
 
 			[id(DISPID_ABOUTBOX)] void AboutBox();
