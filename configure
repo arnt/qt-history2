@@ -31,9 +31,9 @@ if [ "$relpath" != `pwd` ]; then
        fi
     done
     relpath=`pwd`
+    QTDIR="$relpath" #this is internal, therefore safe
 fi
 
-QTDIR="$relpath"
 QMAKE_SWITCHES=""
 QMAKE_VARS=""
 QMAKE_CONFIG=""
