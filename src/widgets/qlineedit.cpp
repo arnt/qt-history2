@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#137 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#138 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1207,9 +1207,9 @@ bool QLineEdit::event( QEvent * e )
     if ( !e )
 	return QWidget::event( e );
 
-    if ( e->type() == Event_DragMove ) {
-	if ( ((QDragMoveEvent *) e)->provides( "text/plain" ) ) {
-	    ((QDragMoveEvent *) e)->accept();
+    if ( e->type() == Event_DragEnter ) {
+	if ( ((QDragEnterEvent *) e)->provides( "text/plain" ) ) {
+	    ((QDragEnterEvent *) e)->accept( rect() );
 	    return TRUE;
 	}
     } else if ( e->type() == Event_DragLeave ) {
