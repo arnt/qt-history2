@@ -4083,7 +4083,7 @@ void QTextEdit::scrollToAnchor( const QString& name )
     } while( cursor.parag() != last || !cursor.atParagEnd()  );
 }
 
-#if QT_VERSION < 400
+#if QT_VERSION <= 400
 
 /*! \overload
   If there is an anchor at position \a pos (in contents
