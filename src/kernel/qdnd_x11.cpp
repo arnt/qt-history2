@@ -236,7 +236,7 @@ static const char* default_pm[] = {
 " X.........X ",
 "X ......... X",
 " X X X X X X ",
-"X X X X X X X",
+"X X X X X X X"
 };
 
 class QShapedPixmapWidget : public QWidget {
