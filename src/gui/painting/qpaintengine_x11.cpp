@@ -529,7 +529,7 @@ struct QEdge {
     char winding;
     bool operator<(const QEdge &other) const
     {
-	return p1.y() < other.p1.y();
+        return p1.y() < other.p1.y();
     }
 };
 
@@ -646,6 +646,8 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 	    }
         }
 
+        // calculate the next y where we have to start a new set of
+        // trapezoids
 	float next_y = 99999999;
 	for (int i = 0; i < aet.size(); ++i)
 	    if (aet.at(i).p2.y() < next_y)
@@ -685,7 +687,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 
 	for (int i = 0; i < atps.size(); ++i) {
 	    XTrapezoid trap = atps.at(i);
-	    trap.bottom = FloatToXFixed(y);
+	    trap.bottom = FloatToXFixed((int) y);
 	    tps.append(trap);
 	}
 	atps.clear();
@@ -703,30 +705,30 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 		if (!left || !right)
 		    break;
 		XTrapezoid trap;
-		trap.top = FloatToXFixed(y);
+		trap.top = FloatToXFixed((int) y);
 		trap.left.p1.x = FloatToXFixed(left->p1.x());
-		trap.left.p1.y = FloatToXFixed(left->p1.y());
+		trap.left.p1.y = FloatToXFixed((int) left->p1.y());
 		trap.left.p2.x = FloatToXFixed(left->p2.x());
-		trap.left.p2.y = FloatToXFixed(left->p2.y());
+		trap.left.p2.y = FloatToXFixed((int) left->p2.y());
 		trap.right.p1.x = FloatToXFixed(right->p1.x());
-		trap.right.p1.y = FloatToXFixed(right->p1.y());
+		trap.right.p1.y = FloatToXFixed((int) right->p1.y());
 		trap.right.p2.x = FloatToXFixed(right->p2.x());
-		trap.right.p2.y = FloatToXFixed(right->p2.y());
+		trap.right.p2.y = FloatToXFixed((int) right->p2.y());
 		atps.append(trap);
 	    }
 	} else {
 	    // odd-even fill rule
 	    for (int i = 0; i < isects.size()-2; i += 2) {
 		XTrapezoid trap;
-		trap.top = FloatToXFixed(y);
+		trap.top = FloatToXFixed((int) y);
 		trap.left.p1.x = FloatToXFixed(isects[i].edge->p1.x());
-		trap.left.p1.y = FloatToXFixed(isects[i].edge->p1.y());
+		trap.left.p1.y = FloatToXFixed((int) isects[i].edge->p1.y());
 		trap.left.p2.x = FloatToXFixed(isects[i].edge->p2.x());
-		trap.left.p2.y = FloatToXFixed(isects[i].edge->p2.y());
+		trap.left.p2.y = FloatToXFixed((int) isects[i].edge->p2.y());
 		trap.right.p1.x = FloatToXFixed(isects[i+1].edge->p1.x());
-		trap.right.p1.y = FloatToXFixed(isects[i+1].edge->p1.y());
+		trap.right.p1.y = FloatToXFixed((int) isects[i+1].edge->p1.y());
 		trap.right.p2.x = FloatToXFixed(isects[i+1].edge->p2.x());
-		trap.right.p2.y = FloatToXFixed(isects[i+1].edge->p2.y());
+		trap.right.p2.y = FloatToXFixed((int) isects[i+1].edge->p2.y());
 		atps.append(trap);
 	    }
 	}
@@ -736,7 +738,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
     // close off any open trapezoids
     for (int i = 0; i < atps.size(); ++i) {
 	XTrapezoid trap = atps.at(i);
-	trap.bottom = FloatToXFixed(currentScanline);
+	trap.bottom = FloatToXFixed((int) currentScanline);
 	tps.append(trap);
     }
 
