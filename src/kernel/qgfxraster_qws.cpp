@@ -3609,6 +3609,10 @@ bool QScreen::connect()
 	screencols=0;
     }
 
+    // disable screensaver
+    printf( "\033[9;0]" );
+    fflush( stdout );
+
     return TRUE;
 }
 
@@ -3616,6 +3620,9 @@ void QScreen::disconnect()
 {
     munmap((char*)data,mapsize);
     close(fd);
+    // a reasonable screensaver timeout
+    printf( "\033[9;15]" );
+    fflush( stdout );
 }
 
 bool QScreen::initCard()
