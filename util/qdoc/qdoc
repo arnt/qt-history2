@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#203 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#204 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1971,20 +1971,23 @@ sub classlist {
     }
     $pl = "";
 
+    $eot = "";
     foreach $url ( @classurls ) {
 	$ex = defined( $extension{ $url } ) ? "*" : "";
 	$n = $name{$url};
 	$letter = uc(substr($n,$prefix_length,1));
 	if ( $pl ne $letter ) {
 	    # Start of block
-	    $result .= "<dt>       <b><big>$letter</big></b><dd>\n";
+	    $result .= "$eot<table><tr><td valign=top><b>$letter</b><tr>\n";
+	    $eot = "</table>\n";
 	}
 	$result = join( "", $result, "<a href=\"", $url, "\">",
 		       $n, "</a>", $ex, "<br>\n" );
 	$pl = $letter;
     }
-    "<dl compact>\n$result\n</dl>";
+    "$result$eot";
 }
+
 
 sub extensionlist {
     my $resulto,%x;
@@ -2016,45 +2019,6 @@ sub annotatedclasslist {
     }
     $result .= $post;
     $result;
-}
-
-
-sub classindex {
-    open(O, "> $outputdir/classes.html")
-	|| die "can't open $outputdir/classes.html for writing";
-    print O $doctype, "
-<html>
-<head><title>", $module_long, " - Class List</title>", $style, "
-</head>
-<body bgcolor=\"#ffffff\">\n", $postheader, "
-<h1 align=center>", $module, " Class Index</h1><br clear=\"all\">
-<multicol cols=3>
-<ul compact>
-";
-    open(P, "> $outputdir/annotated.html")
-	|| die "can't open $outputdir/annotated.html for writing";
-    print P $doctype, "
-<html>
-<head><title>", $module_long, " - Class List</title>", $style, "
-</head>
-<body bgcolor=\"#ffffff\">\n", $postheader, "
-<h1 align=center>Annotated ", $module, " Class Index</h1><br clear=\"all\">
-<p>Here are the classes in ", $module, ", with brief descriptions:
-<ul compact>
-";
-
-    foreach $url ( sort keys %type ) {
-	if (($type{$url} eq "class") && defined($documented{$url})) {
-	    print O "<li><a href=\"", $url, "\">", $name{$url}, "</a>\n";
-	    print P "<li><b><a href=\"", $url, "\">", $name{$url}
-	        , "</a></b> (", $capt{$url}, ")\n"
-		    if ( $capt{$url} =~ /\S/ );
-	}
-    }
-    print O "</multicol></ul>\n", $address;
-    print P "</ul>\n", $address;
-    close(O);
-    close(P);
 }
 
 
