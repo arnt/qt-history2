@@ -55,7 +55,9 @@ static QMimeData *createMimeData(const QTextDocumentFragment &fragment)
     stream << fragment;
     data->setData("application/x-qt-richtext", binary);
 
-    data->setText(fragment.toPlainText());
+    QString txt = fragment.toPlainText();
+    txt.replace(QChar::Nbsp, ' ');
+    data->setText(txt);
     return data;
 };
 
