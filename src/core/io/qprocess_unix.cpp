@@ -25,6 +25,7 @@
 #include <qsocketnotifier.h>
 
 #include <errno.h>
+#include <stdlib.h>
 
 static int qt_qprocess_deadChild_pipe[2];
 static void (*qt_sa_old_sigchld_handler)(int) = 0;

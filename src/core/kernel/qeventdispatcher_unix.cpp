@@ -11,6 +11,7 @@
 
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 bool qt_disable_lowpriority_timers=false;
 
