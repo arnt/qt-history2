@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#21 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#21 $")
 
 
 /*!
@@ -293,7 +293,21 @@ bool QGList::removeNode( QLNode *n )		// remove one item
 bool QGList::remove( GCI d )			// remove one item
 {
     if ( d ) {					// find the item
-	if ( find( d ) == -1 )
+	if ( find(d) == -1 )
+	    return FALSE;
+    }
+    QLNode *n = unlink();			// unlink node
+    if ( !n )
+	return FALSE;
+    deleteItem( n->getData() );			// deallocate this node
+    delete n;
+    return TRUE;
+}
+
+bool QGList::removeRef( GCI d )			// remove one item
+{
+    if ( d ) {					// find the item
+	if ( findRef(d) == -1 )
 	    return FALSE;
     }
     QLNode *n = unlink();			// unlink node
