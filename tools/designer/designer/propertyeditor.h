@@ -534,7 +534,7 @@ public:
     virtual void setPropertyValue( PropertyItem *i );
     virtual void setCurrentProperty( const QString &n );
 
-    void layoutInitValue( PropertyItem *i );
+    void layoutInitValue( PropertyItem *i, bool changed = FALSE );
     PropertyEditor *propertyEditor() const;
     QString whatsThisAt( const QPoint &p );
     void showCurrentWhatsThis();

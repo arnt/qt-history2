@@ -2777,15 +2777,20 @@ void PropertyList::setupProperties()
 		item->setChanged( TRUE, FALSE );
 	}
     }
-
     if ( !w->inherits( "QSplitter" ) && !w->inherits( "QDesignerMenuBar" ) && !w->inherits( "QDesignerToolBar" ) &&
 	 w->isWidgetType() && WidgetFactory::layoutType( (QWidget*)w ) != WidgetFactory::NoLayout ) {
 	item = new PropertyLayoutItem( this, item, 0, "layoutSpacing" );
 	setPropertyValue( item );
-	layoutInitValue( item );
+	if ( MetaDataBase::isPropertyChanged( editor->widget(), "layoutSpacing" ) ) 
+	    layoutInitValue( item, TRUE ); 
+	else 
+	    layoutInitValue( item );	
 	item = new PropertyLayoutItem( this, item, 0, "layoutMargin" );
 	setPropertyValue( item );
-	layoutInitValue( item );
+	if ( MetaDataBase::isPropertyChanged( editor->widget(), "layoutMargin" ) ) 
+	    layoutInitValue( item, TRUE );
+	else
+	    layoutInitValue( item );
     }
 
 
@@ -2793,7 +2798,7 @@ void PropertyList::setupProperties()
 	 !w->inherits( "QDesignerMenuBar" ) && !w->inherits( "QDesignerToolBar" ) ) {
 	item = new PropertyTextItem( this, item, 0, "toolTip", TRUE, FALSE );
 	setPropertyValue( item );
-	if ( MetaDataBase::isPropertyChanged( editor->widget(), "toolTip" ) )
+	if ( MetaDataBase::isPropertyChanged( editor->widget(), "toolTip" ) ) 
 	    item->setChanged( TRUE, FALSE );
 	item = new PropertyTextItem( this, item, 0, "whatsThis", TRUE, TRUE );
 	setPropertyValue( item );
@@ -2988,7 +2993,7 @@ void PropertyList::valueChanged( PropertyItem *i )
     editor->formWindow()->commandHistory()->addCommand( cmd, TRUE );
 }
 
-void PropertyList::layoutInitValue( PropertyItem *i )
+void PropertyList::layoutInitValue( PropertyItem *i, bool changed )
 {
     if ( !editor->widget() )
 	return;
@@ -2998,7 +3003,7 @@ void PropertyList::layoutInitValue( PropertyItem *i )
 						      i->name(), WidgetFactory::property( editor->widget(), i->name() ),
 						      i->value(), i->currentItem(), i->currentItemFromObject() );
     cmd->execute();
-    i->setChanged( FALSE );
+    i->setChanged( changed );
 }
 
 void PropertyList::itemPressed( QListViewItem *i, const QPoint &p, int c )
