@@ -18,6 +18,7 @@
 #include "qwindowdefs.h"
 #include "qpointarray.h"
 #include "qrect.h"
+#include "qpointfloat.h"
 #include "qregion.h"
 #endif // QT_H
 
@@ -71,6 +72,7 @@ public:
     QMatrix   &operator*=(const QMatrix &);
 
     /* we use matrix multiplication semantics here */
+    QPointFloat operator * (const QPointFloat &pf) const;
     QPoint operator * (const QPoint &) const;
     QPointArray operator *  (const QPointArray &a) const;
     QRegion operator*(const QRect &) const;

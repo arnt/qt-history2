@@ -402,6 +402,16 @@ QPoint QMatrix::operator *(const QPoint &p) const
                    qRound(_m12*fx + _m22*fy + _dy));
 }
 
+/*!
+  \internal
+*/
+QPointFloat QMatrix::operator *(const QPointFloat &p) const
+{
+    double fx = p.x();
+    double fy = p.y();
+    return QPointFloat(_m11*fx + _m21*fy + _dx, _m12*fx + _m22*fy + _dy);
+}
+
 
 struct QWMDoublePoint {
     double x;
