@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#23 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#24 $
 **
 ** Implementation of QFontDialog
 **
@@ -150,8 +150,6 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->familyEdit->setFocusPolicy( StrongFocus );
     d->familyList = new QListBox( this, "font family II" );
     d->familyList->setFocusPolicy( NoFocus );
-    d->familyList->setAutoScrollBar( FALSE );
-    d->familyList->setScrollBar( TRUE );
 
     d->familyAccel
 	= new QLabel( d->familyEdit, "&Font", this, "family accelerator" );
@@ -161,8 +159,6 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->styleEdit->setFocusPolicy( StrongFocus );
     d->styleList = new QListBox( this, "font style II" );
     d->styleList->setFocusPolicy( NoFocus );
-    d->styleList->setAutoScrollBar( FALSE );
-    d->styleList->setScrollBar( TRUE );
     d->styleAccel
 	= new QLabel( d->styleEdit, "Font st&yle", this, "style accelerator" );
     d->styleAccel->setMargin( 2 );
@@ -171,8 +167,6 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sizeEdit->setFocusPolicy( StrongFocus );
     d->sizeList = new QListBox( this, "font size II" );
     d->sizeList->setFocusPolicy( NoFocus );
-    d->sizeList->setAutoScrollBar( FALSE );
-    d->sizeList->setScrollBar( TRUE );
     d->sizeAccel
 	= new QLabel ( d->sizeEdit, "&Size", this, "size accelerator" );
     d->sizeAccel->setMargin( 2 );
@@ -571,7 +565,6 @@ void QFontDialog::updateStyles()
 void QFontDialog::updateSizes()
 {
     QArray<int> sizes = d->style.pointSizes();
-    d->sizeList->setAutoUpdate( FALSE );
     d->sizeList->clear();
     int i;
     QString tmp;
@@ -581,7 +574,6 @@ void QFontDialog::updateSizes()
     }
     if ( d->sizeList->count() != 0 )
 	d->sizeList->setCurrentItem( 0 );
-    d->sizeList->setAutoUpdate( TRUE );
     d->sizeList->repaint();
 }
 
