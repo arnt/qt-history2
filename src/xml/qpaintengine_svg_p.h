@@ -88,25 +88,6 @@ protected:
     QSVGPaintEngine(QSVGPaintEnginePrivate &dptr);
 
 private:
-    QSVGPaintEnginePrivate *d;
-
-    void appendChild(QDomElement &e, PaintCommand c);
-    void applyStyle(QDomElement *e, PaintCommand c) const;
-    void applyTransform(QDomElement *e) const;
-    double parseLen(const QString &str, bool *ok=0, bool horiz=true) const;
-    int lenToInt(const QDomNamedNodeMap &map, const QString &attr, int def = 0) const;
-    double lenToDouble(const QDomNamedNodeMap &map, const QString &attr, int def = 0) const;
-    bool play(const QDomNode &node, QPainter *p);
-    void setTransform(const QString &tr, QPainter *p);
-    void restoreAttributes(QPainter *p);
-    void saveAttributes(QPainter *p);
-    void setStyle(const QString &s, QPainter *p);
-    void setStyleProperty(const QString &prop, const QString &val, QPen *pen, QFont *font,
-			  int *talign, QPainter *p);
-    void drawPath(const QString &data, QPainter *p);
-    QColor parseColor(const QString &col);
-
-    private:
 #if defined(Q_DISABLE_COPY)
     QSVGPaintEngine(const QSVGPaintEngine &);
     QSVGPaintEngine &operator=(const QSVGPaintEngine &);

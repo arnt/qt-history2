@@ -79,11 +79,30 @@ typedef QMap<QString,ElementType> QSvgTypeMap;
 static QSvgTypeMap *qSvgTypeMap=0; // element types
 static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
 
-class QSVGPaintEnginePrivate : public QPaintEnginePrivate
+class QSVGPaintEnginePrivate : public QPaintEnginePrivate, public QPaintCommands
 {
+    Q_DECLARE_PUBLIC(QSVGPaintEngine);
+
 public:
     QSVGPaintEnginePrivate()
-	: dirtyTransform(false), dirtyStyle(false), currentClip(0), dev(0), wwidth(0), wheight(0) {}
+	: dirtyTransform(false), dirtyStyle(false), currentClip(0),
+	  dev(0), wwidth(0), wheight(0) {}
+    void appendChild(QDomElement &e, PaintCommand c);
+    void applyStyle(QDomElement *e, PaintCommand c) const;
+    void applyTransform(QDomElement *e) const;
+    double parseLen(const QString &str, bool *ok=0, bool horiz=true) const;
+    int lenToInt(const QDomNamedNodeMap &map, const QString &attr, int def = 0) const;
+    double lenToDouble(const QDomNamedNodeMap &map, const QString &attr, int def = 0) const;
+    bool play(const QDomNode &node, QPainter *p);
+    void setTransform(const QString &tr, QPainter *p);
+    void restoreAttributes(QPainter *p);
+    void saveAttributes(QPainter *p);
+    void setStyle(const QString &s, QPainter *p);
+    void setStyleProperty(const QString &prop, const QString &val, QPen *pen, QFont *font,
+			  int *talign, QPainter *p);
+    void drawPath(const QString &data, QPainter *p);
+    QColor parseColor(const QString &col);
+
 
     bool dirtyTransform;
     bool dirtyStyle;
@@ -225,7 +244,7 @@ void QSVGPaintEngine::updateClipRegion(QPainterState *ps)
 	ce.setAttribute("ry", cy - br.y());
     }
     e.appendChild(ce);
-    appendChild(e, PdcSetClipRegion);
+    d->appendChild(e, PdcSetClipRegion);
 }
 
 void QSVGPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
@@ -237,7 +256,7 @@ void QSVGPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
     e.setAttribute("y1", p1.y());
     e.setAttribute("x2", p2.x());
     e.setAttribute("y2", p2.y());
-    appendChild(e, PdcDrawLine);
+    d->appendChild(e, PdcDrawLine);
 }
 
 void QSVGPaintEngine::drawRect(const QRect &r)
@@ -255,7 +274,7 @@ void QSVGPaintEngine::drawRect(const QRect &r)
     e.setAttribute("y", y);
     e.setAttribute("width", width);
     e.setAttribute("height", height);
-    appendChild(e, PdcDrawRect);
+    d->appendChild(e, PdcDrawRect);
 }
 
 void QSVGPaintEngine::drawPoint(const QPoint &p)
@@ -292,7 +311,7 @@ void QSVGPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     e.setAttribute("height", height);
     e.setAttribute("rx", (xRnd*r.width())/200);
     e.setAttribute("ry", (yRnd*r.height())/200);
-    appendChild(e, PdcDrawRoundRect);
+    d->appendChild(e, PdcDrawRoundRect);
 }
 
 void QSVGPaintEngine::drawEllipse(const QRect &r)
@@ -315,7 +334,7 @@ void QSVGPaintEngine::drawEllipse(const QRect &r)
 	e.setAttribute("rx", cx - r.x());
 	e.setAttribute("ry", cy - r.y());
     }
-    appendChild(e, PdcDrawEllipse);
+    d->appendChild(e, PdcDrawEllipse);
 }
 
 void QSVGPaintEngine::drawArc(const QRect &r, int _a, int alen)
@@ -341,7 +360,7 @@ void QSVGPaintEngine::drawArc(const QRect &r, int _a, int alen)
 	   .arg(x2).arg(y2);
     e = d->doc.createElement( "path" );
     e.setAttribute( "d", str );
-    appendChild(e, PdcDrawArc);
+    d->appendChild(e, PdcDrawArc);
 }
 
 void QSVGPaintEngine::drawPie(const QRect &r, int _a, int alen)
@@ -366,7 +385,7 @@ void QSVGPaintEngine::drawPie(const QRect &r, int _a, int alen)
 	   .arg(rx).arg(ry).arg(a / deg2rad).arg(large).arg(sweep).arg(x2).arg(y2);
     e = d->doc.createElement( "path" );
     e.setAttribute( "d", str );
-    appendChild(e, PdcDrawPie);
+    d->appendChild(e, PdcDrawPie);
 }
 
 void QSVGPaintEngine::drawChord(const QRect &r, int _a, int alen)
@@ -392,7 +411,7 @@ void QSVGPaintEngine::drawChord(const QRect &r, int _a, int alen)
 	   .arg(x2).arg(y2);
     e = d->doc.createElement( "path" );
     e.setAttribute( "d", str );
-    appendChild(e, PdcDrawChord);
+    d->appendChild(e, PdcDrawChord);
 }
 
 void QSVGPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
@@ -406,7 +425,7 @@ void QSVGPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nli
 	e.setAttribute("y1", pa[int(2*i)].y());
 	e.setAttribute("x2", pa[int(2*i+1)].x());
 	e.setAttribute("y2", pa[int(2*i+1)].y());
-	appendChild(e, PdcDrawLineSegments);
+	d->appendChild(e, PdcDrawLineSegments);
     }
 }
 
@@ -420,7 +439,7 @@ void QSVGPaintEngine::drawPolyline(const QPointArray &a, int index, int npoints)
 	str += tmp;
     }
     e.setAttribute("points", str.trimmed());
-    appendChild(e, PdcDrawPolyline);
+    d->appendChild(e, PdcDrawPolyline);
 }
 
 void QSVGPaintEngine::drawPolygon(const QPointArray &a, bool, int index, int npoints)
@@ -433,7 +452,7 @@ void QSVGPaintEngine::drawPolygon(const QPointArray &a, bool, int index, int npo
 	str += tmp;
     }
     e.setAttribute("points", str.trimmed());
-    appendChild(e, PdcDrawPolygon);
+    d->appendChild(e, PdcDrawPolygon);
 }
 
 void QSVGPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
@@ -450,7 +469,7 @@ void QSVGPaintEngine::drawCubicBezier(const QPointArray &a, int index)
 		a[1].x(), a[1].y(), a[2].x(), a[2].y(),
 		a[3].x(), a[3].y());
     e.setAttribute("d", str);
-    appendChild(e, PdcDrawCubicBezier);
+    d->appendChild(e, PdcDrawCubicBezier);
 #endif
 }
 
@@ -477,7 +496,7 @@ void QSVGPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect 
 //     }
     // saving to disk and setting the xlink:href attribute will be
     // done later in save() once we now the svg document name.
-    appendChild(e, PdcDrawPixmap);
+    d->appendChild(e, PdcDrawPixmap);
 }
 
 void QSVGPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim)
@@ -488,7 +507,116 @@ void QSVGPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int tex
 {
 }
 
-void QSVGPaintEngine::appendChild(QDomElement &e, PaintCommand c)
+/*!
+    Returns the SVG as a single string of XML.
+*/
+
+QString QSVGPaintEngine::toString() const
+{
+    if (d->doc.isNull())
+	return QString();
+
+    return d->doc.toString();
+}
+
+/*!
+    Saves the SVG to \a fileName.
+*/
+
+bool QSVGPaintEngine::save(const QString &fileName)
+{
+    // guess svg id from fileName
+    QString svgName = fileName.endsWith(".svg") ?
+		      fileName.left(fileName.length()-4) : fileName;
+
+    // now we have the info about name and dimensions available
+    QDomElement root = d->doc.documentElement();
+    root.setAttribute("id", svgName);
+    // the standard doesn't take respect x and y. But we want a
+    // proper bounding rect. We make width and height bigger when
+    // writing out and subtract x and y when reading in.
+    root.setAttribute("x", d->brect.x());
+    root.setAttribute("y", d->brect.y());
+    root.setAttribute("width", d->brect.width() + d->brect.x());
+    root.setAttribute("height", d->brect.height() + d->brect.y());
+
+    // ... and know how to name any image files to be written out
+    int icount = 0;
+    ImageList::Iterator iit = d->images.begin();
+    for (; iit != d->images.end(); ++iit) {
+	QString href = QString("%1_%2.png").arg(svgName).arg(icount);
+	(*iit).image.save(href, "PNG");
+	(*iit).element.setAttribute("xlink:href", href);
+	icount++;
+    }
+    PixmapList::Iterator pit = d->pixmaps.begin();
+    for (; pit != d->pixmaps.end(); ++pit) {
+	QString href = QString("%1_%2.png").arg(svgName).arg(icount);
+	(*pit).pixmap.save(href, "PNG");
+	(*pit).element.setAttribute("xlink:href", href);
+	icount++;
+    }
+
+    QFile f(fileName);
+    if (!f.open (IO_WriteOnly))
+	return FALSE;
+    QTextStream s(&f);
+    s.setEncoding(QTextStream::UnicodeUTF8);
+    s << d->doc;
+
+    return true;
+}
+
+/*!
+    \overload
+
+    \a dev is the device to use for saving.
+*/
+
+bool QSVGPaintEngine::save(QIODevice *dev)
+{
+#if defined(CHECK_RANGE)
+    if ( !d->images.isEmpty() || !d->pixmaps.isEmpty() )
+	qWarning( "QSVGPaintEngine::save: skipping external images" );
+#endif
+
+    QTextStream s(dev);
+    s.setEncoding(QTextStream::UnicodeUTF8);
+    s << d->doc;
+
+    return TRUE;
+}
+
+/*!
+    Sets the bounding rectangle of the SVG to rectangle \a r.
+*/
+
+void QSVGPaintEngine::setBoundingRect(const QRect &r)
+{
+    d->brect = r;
+}
+
+/*!
+    Returns the SVG's bounding rectangle.
+*/
+
+QRect QSVGPaintEngine::boundingRect() const
+{
+    return d->brect;
+}
+
+/*!
+    Loads and parses a SVG from \a dev into the device. Returns TRUE
+    on success (i.e. loaded and parsed without error); otherwise
+    returns FALSE.
+*/
+
+bool QSVGPaintEngine::load(QIODevice *dev)
+{
+    return d->doc.setContent(dev);
+}
+
+void QSVGPaintEnginePrivate::appendChild(QDomElement &e, PaintCommand c)
 {
     if (!e.isNull()) {
 	d->current.appendChild(e);
@@ -514,7 +642,7 @@ void QSVGPaintEngine::appendChild(QDomElement &e, PaintCommand c)
     }
 }
 
-void QSVGPaintEngine::applyStyle(QDomElement *e, PaintCommand c) const
+void QSVGPaintEnginePrivate::applyStyle(QDomElement *e, PaintCommand c) const
 {
     // ### do not write every attribute each time
     QColor pcol = d->cpen.color();
@@ -569,7 +697,7 @@ void QSVGPaintEngine::applyStyle(QDomElement *e, PaintCommand c) const
     e->setAttribute("style", s);
 }
 
-void QSVGPaintEngine::applyTransform(QDomElement *e) const
+void QSVGPaintEnginePrivate::applyTransform(QDomElement *e) const
 {
     QWMatrix m = d->worldMatrix;
 
@@ -620,16 +748,16 @@ bool QSVGPaintEngine::play(QPainter *pt)
     pt->setWorldXForm(true);
 
     QDomNamedNodeMap attr = svg.attributes();
-    int x = lenToInt(attr, "x");
-    int y = lenToInt(attr, "y");
+    int x = d->lenToInt(attr, "x");
+    int y = d->lenToInt(attr, "y");
     d->brect.setX(x);
     d->brect.setY(y);
     QString wstr = attr.contains("width")
 		   ? attr.namedItem("width").nodeValue() : QString("100%");
     QString hstr = attr.contains("height")
 		   ? attr.namedItem("height").nodeValue() : QString("100%");
-    double width = parseLen(wstr, 0, true);
-    double height = parseLen(hstr, 0, false);
+    double width = d->parseLen(wstr, 0, true);
+    double height = d->parseLen(hstr, 0, false);
     // SVG doesn't respect x and y. But we want a proper bounding rect.
     d->brect.setWidth(int(width) - x);
     d->brect.setHeight(int(height) - y);
@@ -697,12 +825,12 @@ bool QSVGPaintEngine::play(QPainter *pt)
     d->stack.append(st);
     d->curr = &d->stack.last();
     // 'play' all elements recursively starting with 'svg' as root
-    bool b = play(svg, pt);
+    bool b = d->play(svg, pt);
     d->stack.removeFirst();
     return b;
 }
 
-bool QSVGPaintEngine::play(const QDomNode &node, QPainter *pt)
+bool QSVGPaintEnginePrivate::play(const QDomNode &node, QPainter *pt)
 {
     saveAttributes(pt);
 
@@ -941,7 +1069,7 @@ bool QSVGPaintEngine::play(const QDomNode &node, QPainter *pt)
     well. For relative units the value of \a horiz will determine
     whether the horizontal or vertical dimension will be used.
 */
-double QSVGPaintEngine::parseLen( const QString &str, bool *ok, bool horiz ) const
+double QSVGPaintEnginePrivate::parseLen( const QString &str, bool *ok, bool horiz ) const
 {
     QRegExp reg( QString::fromLatin1("([+-]?\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|%|pt|pc|cm|mm|in|)$"));
     if (reg.search(str) == -1) {
@@ -989,7 +1117,7 @@ double QSVGPaintEngine::parseLen( const QString &str, bool *ok, bool horiz ) con
     returned.
 */
 
-int QSVGPaintEngine::lenToInt(const QDomNamedNodeMap &map, const QString &attr, int def) const
+int QSVGPaintEnginePrivate::lenToInt(const QDomNamedNodeMap &map, const QString &attr, int def) const
 {
     if (map.contains(attr)) {
 	bool ok;
@@ -1000,7 +1128,7 @@ int QSVGPaintEngine::lenToInt(const QDomNamedNodeMap &map, const QString &attr, 
     return def;
 }
 
-double QSVGPaintEngine::lenToDouble(const QDomNamedNodeMap &map, const QString &attr,
+double QSVGPaintEnginePrivate::lenToDouble(const QDomNamedNodeMap &map, const QString &attr,
 				    int def) const
 {
     if (map.contains(attr)) {
@@ -1011,7 +1139,7 @@ double QSVGPaintEngine::lenToDouble(const QDomNamedNodeMap &map, const QString &
     return static_cast<double>(def);
 }
 
-void QSVGPaintEngine::setTransform(const QString &tr, QPainter *pt)
+void QSVGPaintEnginePrivate::setTransform(const QString &tr, QPainter *pt)
 {
     QString t = tr.simplified();
 
@@ -1060,7 +1188,7 @@ void QSVGPaintEngine::setTransform(const QString &tr, QPainter *pt)
     \sa restoreAttributes()
 */
 
-void QSVGPaintEngine::saveAttributes(QPainter *pt)
+void QSVGPaintEnginePrivate::saveAttributes(QPainter *pt)
 {
     pt->save();
     // copy old state
@@ -1077,7 +1205,7 @@ void QSVGPaintEngine::saveAttributes(QPainter *pt)
     \sa saveAttributes()
 */
 
-void QSVGPaintEngine::restoreAttributes(QPainter *pt)
+void QSVGPaintEnginePrivate::restoreAttributes(QPainter *pt)
 {
     pt->restore();
     Q_ASSERT(d->stack.count() > 1);
@@ -1085,7 +1213,7 @@ void QSVGPaintEngine::restoreAttributes(QPainter *pt)
     d->curr = &d->stack.last();
 }
 
-void QSVGPaintEngine::setStyle(const QString &s, QPainter *pt)
+void QSVGPaintEnginePrivate::setStyle(const QString &s, QPainter *pt)
 {
     QStringList rules = s.split(QChar(';'));
 
@@ -1107,7 +1235,7 @@ void QSVGPaintEngine::setStyle(const QString &s, QPainter *pt)
     pt->setFont(font);
 }
 
-void QSVGPaintEngine::setStyleProperty(const QString &prop, const QString &val, QPen *pen,
+void QSVGPaintEnginePrivate::setStyleProperty(const QString &prop, const QString &val, QPen *pen,
 				       QFont *font, int *talign, QPainter *pt)
 {
     if ( prop == "stroke" ) {
@@ -1189,7 +1317,7 @@ void QSVGPaintEngine::setStyleProperty(const QString &prop, const QString &val, 
     }
 }
 
-void QSVGPaintEngine::drawPath(const QString &data, QPainter *pt)
+void QSVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
 {
     double x0 = 0, y0 = 0;		// starting point
     double x = 0, y = 0;		// current point
@@ -1360,7 +1488,7 @@ void QSVGPaintEngine::drawPath(const QString &data, QPainter *pt)
     a numerical RGB specification like #ff00ff or rgb(255,0,50%).
 */
 
-QColor QSVGPaintEngine::parseColor(const QString &col)
+QColor QSVGPaintEnginePrivate::parseColor(const QString &col)
 {
     static const struct ColorTable {
 	const char *name;
@@ -1415,112 +1543,4 @@ QColor QSVGPaintEngine::parseColor(const QString &col)
 
     // check for predefined Qt color objects, #RRGGBB and #RGB
     return QColor( col );
-}
-
-/*!
-    Returns the SVG as a single string of XML.
-*/
-QString QSVGPaintEngine::toString() const
-{
-    if (d->doc.isNull())
-	return QString();
-
-    return d->doc.toString();
-}
-
-/*!
-    Saves the SVG to \a fileName.
-*/
-
-bool QSVGPaintEngine::save(const QString &fileName)
-{
-    // guess svg id from fileName
-    QString svgName = fileName.endsWith(".svg") ?
-		      fileName.left(fileName.length()-4) : fileName;
-
-    // now we have the info about name and dimensions available
-    QDomElement root = d->doc.documentElement();
-    root.setAttribute("id", svgName);
-    // the standard doesn't take respect x and y. But we want a
-    // proper bounding rect. We make width and height bigger when
-    // writing out and subtract x and y when reading in.
-    root.setAttribute("x", d->brect.x());
-    root.setAttribute("y", d->brect.y());
-    root.setAttribute("width", d->brect.width() + d->brect.x());
-    root.setAttribute("height", d->brect.height() + d->brect.y());
-
-    // ... and know how to name any image files to be written out
-    int icount = 0;
-    ImageList::Iterator iit = d->images.begin();
-    for (; iit != d->images.end(); ++iit) {
-	QString href = QString("%1_%2.png").arg(svgName).arg(icount);
-	(*iit).image.save(href, "PNG");
-	(*iit).element.setAttribute("xlink:href", href);
-	icount++;
-    }
-    PixmapList::Iterator pit = d->pixmaps.begin();
-    for (; pit != d->pixmaps.end(); ++pit) {
-	QString href = QString("%1_%2.png").arg(svgName).arg(icount);
-	(*pit).pixmap.save(href, "PNG");
-	(*pit).element.setAttribute("xlink:href", href);
-	icount++;
-    }
-
-    QFile f(fileName);
-    if (!f.open (IO_WriteOnly))
-	return FALSE;
-    QTextStream s(&f);
-    s.setEncoding(QTextStream::UnicodeUTF8);
-    s << d->doc;
-
-    return true;
-}
-
-/*!
-    \overload
-
-    \a dev is the device to use for saving.
-*/
-
-bool QSVGPaintEngine::save(QIODevice *dev)
-{
-#if defined(CHECK_RANGE)
-    if ( !d->images.isEmpty() || !d->pixmaps.isEmpty() )
-	qWarning( "QSVGPaintEngine::save: skipping external images" );
-#endif
-
-    QTextStream s(dev);
-    s.setEncoding(QTextStream::UnicodeUTF8);
-    s << d->doc;
-
-    return TRUE;
-}
-
-/*!
-    Sets the bounding rectangle of the SVG to rectangle \a r.
-*/
-
-void QSVGPaintEngine::setBoundingRect(const QRect &r)
-{
-    d->brect = r;
-}
-
-/*!
-    Returns the SVG's bounding rectangle.
-*/
-
-QRect QSVGPaintEngine::boundingRect() const
-{
-    return d->brect;
-}
-
-/*!
-    Loads and parses a SVG from \a dev into the device. Returns TRUE
-    on success (i.e. loaded and parsed without error); otherwise
-    returns FALSE.
-*/
-
-bool QSVGPaintEngine::load(QIODevice *dev)
-{
-    return d->doc.setContent(dev);
 }
