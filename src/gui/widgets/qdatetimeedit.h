@@ -103,7 +103,6 @@ public slots:
     void setTime(const QTime &time);
 
 protected:
-    virtual void changeEvent(QEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
     virtual void wheelEvent(QWheelEvent *e);
     virtual void focusInEvent(QFocusEvent *e);

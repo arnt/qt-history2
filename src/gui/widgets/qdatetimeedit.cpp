@@ -786,32 +786,6 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     \reimp
 */
 
-void QDateTimeEdit::changeEvent(QEvent *e)
-{
-    Q_D(QDateTimeEdit);
-    if (e->type() == QEvent::ActivationChange) {
-        QString *frm = 0;
-        if (d->displayFormat == d->defaultTimeFormat) {
-            frm = &d->defaultTimeFormat;
-        } else if (d->displayFormat == d->defaultDateFormat) {
-            frm = &d->defaultDateFormat;
-        } else if (d->displayFormat == d->defaultDateTimeFormat) {
-            frm = &d->defaultDateTimeFormat;
-        }
-
-        if (frm) {
-            d->readLocaleSettings();
-            if (d->displayFormat != *frm)
-                setDisplayFormat(*frm);
-        }
-    }
-    QAbstractSpinBox::changeEvent(e);
-}
-
-/*!
-    \reimp
-*/
-
 void QDateTimeEdit::wheelEvent(QWheelEvent *e)
 {
     Q_D(QDateTimeEdit);
@@ -836,6 +810,20 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
 {
     Q_D(QDateTimeEdit);
     QAbstractSpinBox::focusInEvent(e);
+    QString *frm = 0;
+    if (d->displayFormat == d->defaultTimeFormat) {
+	frm = &d->defaultTimeFormat;
+    } else if (d->displayFormat == d->defaultDateFormat) {
+	frm = &d->defaultDateFormat;
+    } else if (d->displayFormat == d->defaultDateTimeFormat) {
+	frm = &d->defaultDateTimeFormat;
+    }
+
+    if (frm) {
+	d->readLocaleSettings();
+	if (d->displayFormat != *frm)
+	    setDisplayFormat(*frm);
+    }
     QDateTimeEditPrivate::Section s;
     switch (e->reason()) {
     case Qt::ShortcutFocusReason:
@@ -843,6 +831,7 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
     case Qt::BacktabFocusReason: s = d->sections.at(d->sections.size() - 1).section; break;
     default: return;
     }
+
 
     d->setSelected(s);
 }
@@ -1807,12 +1796,13 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 	    case 'y':
 		if (newFormat.at(i+1) == QLatin1Char('y')) {
                     static const QDate YY_MIN(2000, 1, 1);
-                    static const QDate YY_MAX(2000, 12, 31);
+                    static const QDate YY_MAX(2099, 12, 31);
                     const bool four = (i + 3 <newFormat.size()
                                        && newFormat.at(i+2) == QLatin1Char('y') && newFormat.at(i+3) == QLatin1Char('y'));
 		    if (!addSection(list, four ? YearSection : YearTwoDigitsSection, i - add)
-                        || (!four && (maximum.toDate() < YY_MIN || minimum.toDate() > YY_MAX)))
+                        || (!four && (maximum.toDate() < YY_MIN || minimum.toDate() > YY_MAX))) {
                         return false;
+                    }
 
                     newSeparators << unquote(newFormat.mid(index, i - index));
                     index = (i += (four ? 3 : 1)) + 1;
