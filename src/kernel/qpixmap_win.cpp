@@ -413,7 +413,15 @@ QImage QPixmap::convertToImage() const
 	uchar alphaByte;
 	while ( p < end ) {
 	    alphaByte = *(p+3);
-	    if ( alphaByte == 0 || alphaByte == 255 ) {
+	    if ( alphaByte == 0 ) {
+		*p = 255;
+		++p;
+		*p = 255;
+		++p;
+		*p = 255;
+		++p;
+		++p;
+	    } else if ( alphaByte == 255 ) {
 		p += 4;
 	    } else {
 		*p = ( (int)(*p) * 255 ) / alphaByte;
