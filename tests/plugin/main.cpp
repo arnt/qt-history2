@@ -1,15 +1,19 @@
-#include <qapplication.h>
-
 #include "plugmainwindow.h"
+#include "qapplicationinterfaces.h"
+
+QApplicationInterface* PlugApplication::requestInterface( const QCString& request )
+{
+    if ( request == "PlugMainWindowInterface" )
+	return mwIface ? mwIface : ( mwIface = new PlugMainWindowInterface );
+    else
+	return QApplication::requestInterface( request );
+}
 
 int main( int argc, char** argv )
 {
-    QApplication app( argc, argv );
-
-    // little test scenario
+    PlugApplication app( argc, argv );
     PlugMainWindow mw;
 
-    // the rest ist silence...
     app.setMainWidget( &mw );
     mw.show();
 

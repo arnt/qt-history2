@@ -3,6 +3,8 @@
 
 #include <qstringlist.h>
 
+class QApplicationInterface;
+
 class QPlugInInterface
 {
 public:
@@ -14,7 +16,11 @@ public:
     virtual QString author() { return QString::null; }
 
     virtual QStringList featureList() { return QStringList(); }
-    virtual QString queryInterface() = 0;
+    virtual QString queryPlugInInterface() = 0;
+    virtual QApplicationInterface* requestApplicationInterface( const QCString& ) 
+    { 
+	return 0;
+    }
 };
 
 #endif

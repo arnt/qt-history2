@@ -13,13 +13,11 @@
 #include <qmessagebox.h>
 #include <qstatusbar.h>
 #include <qaction.h>
-
-#include <qarray.h>
+#include <qvariant.h>
 
 PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
-: QMainWindow( parent, name, f ), menuIDs( 53 )
+: QMainWindow( parent, name, f )
 {
-    menuIDs.setAutoDelete( TRUE );
     QWidgetFactory::installWidgetFactory( new QWidgetFactory );
     QWidgetFactory::installWidgetFactory( widgetManager = new QWidgetPlugInManager );
     QActionFactory::installActionFactory( actionManager = new QActionPlugInManager );
@@ -51,7 +49,7 @@ PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
 
     QStringList wl = QWidgetFactory::widgetList();
     for ( uint w = 0; w < wl.count(); w++ )
-	menuIDs.insert( wl[w], new int(widgetMenu->insertItem( wl[w] )) );
+	menuIDs.insert( widgetMenu->insertItem( wl[w] ), wl[w] );
 }
 
 void PlugMainWindow::fileOpen()
@@ -67,7 +65,7 @@ void PlugMainWindow::fileOpen()
 	statusBar()->message( tr("Widget-Plugin \"%1\" loaded").arg( plugin->name() ), 3000 );
 	QStringList wl = plugin->featureList();
 	for ( uint i = 0; i < wl.count(); i++ )
-	    menuIDs.insert( wl[i], new int(widgetMenu->insertItem( wl[i] )) );
+	    menuIDs.insert( widgetMenu->insertItem( wl[i] ), wl[i] );
     } else if ( ( plugin = actionManager->addLibrary( file ) ) ) {
 	statusBar()->message( tr("Action-Plugin \"%1\" loaded").arg( plugin->name() ), 3000 );
 	QStringList al = plugin->featureList();
@@ -77,6 +75,7 @@ void PlugMainWindow::fileOpen()
 		QMessageBox::information( this, "Error", tr("Couldn't create action\n%1").arg( al[a] ) );
 	    }
 	}
+	plugin->requestApplicationInterface( "PlugMainWindowInterface" );
     } else {
 	QMessageBox::information( this, "Error", tr("Couldn't load plugin\n%1").arg( file ) );
 	return;
@@ -121,7 +120,7 @@ void PlugMainWindow::fileClose()
     QListIterator<QPlugIn> it( pl );
     while ( it.current() ) {
 	QPlugIn* p = it.current();
-	QString ifc = it.current()->queryInterface();
+	QString ifc = it.current()->queryPlugInInterface();
 	if ( ifc == "QWidgetInterface" ) {
 	    QListViewItem* item = new QListViewItem( wplugins, p->name(), p->description(), p->author(), p->library() );
 	    QStringList wl = it.current()->featureList();
@@ -162,10 +161,16 @@ void PlugMainWindow::fileClose()
 		    QStringList wl = plugin->featureList();
 		    for ( uint i = 0; i < wl.count(); i++ ) {
 			QString w = wl[i];
-			int* id = menuIDs[w];
-			if ( id )
-			    widgetMenu->removeItem( *id );
-			menuIDs.remove( w );
+			QMapIterator<int,QString> it;
+			for ( it = menuIDs.begin(); it != menuIDs.end(); ++it ) {
+			    if ( it.data() == w )
+				break;
+			}
+			if ( it != menuIDs.end() ) {
+			    widgetMenu->removeItem( it.key() );
+			    menuIDs.remove( it );
+			}
+
 		    }
 		}
 	    }
@@ -188,22 +193,19 @@ void PlugMainWindow::fileClose()
 
 void PlugMainWindow::runWidget( int id )
 {
-    QDictIterator<int> it( menuIDs );
-    while ( it.current() ) {
-	if ( *(it.current()) == id )
-	    break;
-	++it;
-    }
+    if ( !menuIDs.contains(id) )
+	return;
+    QString wname = menuIDs[id];
     if ( centralWidget() )
 	delete centralWidget();
 
-    QWidget* w = QWidgetFactory::create( it.currentKey(), this );
+    QWidget* w = QWidgetFactory::create( wname, this );
     if ( !w ) {
-	QMessageBox::information( this, "Error", tr("Couldn't create widget\n%1").arg( it.currentKey() ) );
+	QMessageBox::information( this, "Error", tr("Couldn't create widget\n%1").arg( wname ) );
 	return;
     }
     setCentralWidget( w );
-    QToolTip::add( w, QString("%1 ( %2 )").arg( it.currentKey() ).arg( QWidgetFactory::widgetFactory( it.currentKey() )->factoryName() ) );
+    QToolTip::add( w, QString("%1 ( %2 )").arg( wname ).arg( QWidgetFactory::widgetFactory( wname )->factoryName() ) );
 }
 
 bool PlugMainWindow::addAction( QAction* action )
@@ -223,4 +225,15 @@ bool PlugMainWindow::addAction( QAction* action )
     action->addTo( pluginMenu );
 
     return TRUE;
+}
+
+void PlugMainWindowInterface::requestSetProperty( const QCString& p, const QVariant& v )
+{
+    ((PlugMainWindow*)qApp->mainWidget())->setProperty( p, v );
+
+}
+
+void PlugMainWindowInterface::requestProperty( const QCString& p )
+{
+    emit setProperty( p, ((PlugMainWindow*)qApp->mainWidget())->property( p ) );
 }

@@ -2,7 +2,10 @@
 #define PLUGMAINWINDOW_H
 
 #include <qmainwindow.h>
-#include <qdict.h>
+#include <qmap.h>
+
+#include <qapplication.h>
+#include "qapplicationinterfaces.h"
 
 class QHBox;
 class QScrollView;
@@ -11,6 +14,21 @@ class QActionPlugInManager;
 class QPopupMenu;
 class QToolBar;
 class QAction;
+
+class PlugApplication : public QApplication
+{
+public:
+    PlugApplication( int argc, char** argv )
+	: QApplication( argc, argv )
+    {
+	mwIface = 0;
+    }
+
+    QApplicationInterface* requestInterface( const QCString& request );
+
+protected:
+    PlugMainWindowInterface* mwIface;
+};
 
 class PlugMainWindow : public QMainWindow
 {
@@ -36,7 +54,7 @@ protected:
     QActionPlugInManager* actionManager;
 
 private:
-    QDict<int> menuIDs;
+    QMap<int, QString> menuIDs;
 };
 
 #endif // PLUGMAINWINDOW_H
