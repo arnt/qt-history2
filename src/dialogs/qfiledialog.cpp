@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#606 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#607 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3985,7 +3985,7 @@ void QFileDialog::deleteFile( const QString &filename )
     if ( filename.isEmpty() )
 	return;
 
-    QUrlInfo fi( d->url, filename );
+    QUrlInfo fi( d->url, QFileDialogPrivate::encodeFileName( filename ) );
     QString t = tr( "the file" );
     if ( fi.isDir() )
 	t = tr( "the directory" );
@@ -3997,7 +3997,7 @@ void QFileDialog::deleteFile( const QString &filename )
 			       tr( "<qt>Are you sure you wish to delete %1 \"%2\"?</qt>" )
 			       .arg( t ).arg(filename),
 			       tr( "&Yes" ), tr( "&No" ), QString::null, 1 ) == 0 )
-	d->url.remove( filename );
+	d->url.remove( QFileDialogPrivate::encodeFileName( filename ) );
 
 }
 

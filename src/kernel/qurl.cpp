@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#130 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#131 $
 **
 ** Implementation of QUrl class
 **
@@ -573,10 +573,13 @@ bool QUrl::parse( const QString& url )
     table[ 4 ][ 1 ] = User;
     table[ 4 ][ 2 ] = User;
     if ( cs == -1 || forceRel ) { // we have a relative file
-	if ( url.find( ':' ) == -1 || forceRel )
+	if ( url.find( ':' ) == -1 || forceRel ) {
 	    table[ 0 ][ 1 ] = Path;
-	else
+	    // Filenames may also begin with a digit
+	    table[ 0 ][ 2 ] = Path;
+	} else {
 	    table[ 0 ][ 1 ] = Protocol;
+	}
 	relPath = TRUE;
     } else { // some checking
 	table[ 0 ][ 1 ] = Protocol;
