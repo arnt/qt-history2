@@ -24,6 +24,10 @@ class QObject;
 class QPixmap;
 class QRect;
 class QWidget;
+class QImage;
+class QString;
+
+#include <qglobal.h>
 
 class Q_GUI_EXPORT QMovie {
 public:
