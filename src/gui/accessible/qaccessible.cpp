@@ -310,7 +310,6 @@
     avoid unnecessary computations.
 */
 
-#endif
 static QPluginManager<QAccessibleFactoryInterface> *qAccessibleManager = 0;
 class InterfaceCache : public QObject, public QHash<QObject*,QAccessibleInterface*>
 {
@@ -346,7 +345,6 @@ inline void InterfaceCache::remove(QObject *object)
 }
 
 #include "qaccessible.moc"
-#ifdef QT_ACCESSIBILITY_SUPPORT
 
 static InterfaceCache *qInterfaceCache = 0;
 static QList<QAccessible::InterfaceFactory> qAccessibleFactories;
