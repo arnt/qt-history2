@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#8 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#9 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -38,7 +38,10 @@ public:
 
 protected:
     QGDict( uint sz, bool cs, bool ck, bool th );
+    QGDict( const QGDict & );			// make copy of other dict
    ~QGDict();
+
+    QGDict &operator=( const QGDict & );	// assign from other dict
 
     bool    remove( const char *key );
     GCI	    take( const char *key );

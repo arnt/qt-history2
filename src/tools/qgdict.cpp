@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#11 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#11 $";
 #endif
 
 
@@ -112,6 +112,23 @@ QGDict::QGDict( uint sz, bool cs, bool ck, bool th )
     iterators = 0;
 }
 
+QGDict::QGDict( const QGDict & dict )		// make copy of other dict
+{
+    vec = new Qbucket *[vlen = dict.vlen];	// allocate hash table
+    CHECK_PTR( vec );
+    memset( (char*)vec, 0, vlen*sizeof(Qbucket*) );
+    numItems = 0;
+    cases = dict.cases;
+    copyk = dict.copyk;
+    trivial = dict.trivial;
+    iterators = 0;
+    QGDictIterator it( dict );
+    while ( it.get() ) {			// copy from other dict
+	look( it.getKey(), it.get(), TRUE );
+	++it;
+    }
+}
+
 QGDict::~QGDict()
 {
     clear();					// delete everything
@@ -124,6 +141,18 @@ QGDict::~QGDict()
 	i = iterators->next();
     }
     delete iterators;
+}
+
+
+QGDict &QGDict::operator=( const QGDict &dict ) // assign from other dict
+{
+    clear();
+    QGDictIterator it( dict );
+    while ( it.get() ) {			// copy from other dict
+	look( it.getKey(), it.get(), TRUE );
+	++it;
+    }
+    return *this;
 }
 
 
