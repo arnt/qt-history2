@@ -301,27 +301,29 @@ bool QSettingsWinPrivate::writeKey( const QString &key, const QByteArray &value,
     if ( !handle )
 	return FALSE;
     
-    if (e == "Default" )
+    if (e == "Default" || e == "." )
 	e = "";
 
+    if ( value.size() ) {
 #ifdef Q_OS_TEMP
-    res = RegSetValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), 0, type, (const uchar*)value.data(), value.size() );
+	res = RegSetValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), 0, type, (const uchar*)value.data(), value.size() );
 #else
 #if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based )
-	res = RegSetValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), 0, type, (const uchar*)value.data(), value.size() );
-    else
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    res = RegSetValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), 0, type, (const uchar*)value.data(), value.size() );
+	else
 #endif
-	res = RegSetValueExA( handle, e.local8Bit(), 0, type, (const uchar*)value.data(), value.size() );
+	    res = RegSetValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), 0, type, (const uchar*)value.data(), value.size() );
 #endif
-
-    if ( res != ERROR_SUCCESS ) {
+	
+	if ( res != ERROR_SUCCESS ) {
 #if defined(QT_CHECK_STATE)
-	qSystemWarning( "Couldn't write value " + key, res );
+	    qSystemWarning( "Couldn't write value " + key, res );
 #endif
-	return FALSE;
+	    return FALSE;
+	}
     }
-
+    
     RegCloseKey( handle );
     return TRUE;
 }
@@ -341,7 +343,7 @@ QByteArray QSettingsWinPrivate::readKey( const QString &key, bool *ok )
 	QString k = *it + "/" + key;
 	QString f = folder( k );
 	e = entry( k );
-	if ( e == "Default" )
+	if ( e == "Default" || e == "." )
 	    e = "";
 	if ( user ) {
 #ifdef Q_OS_TEMP
@@ -357,14 +359,14 @@ QByteArray QSettingsWinPrivate::readKey( const QString &key, bool *ok )
 
 	    if ( res == ERROR_SUCCESS ) {
 #ifdef Q_OS_TEMP
-		res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
+		res = RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
 #else
 #if defined(UNICODE)
 		if ( qWinVersion() & Qt::WV_NT_based )
-		    res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
+		    res = RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
 		else
 #endif
-		    res = RegQueryValueExA( handle, e.local8Bit(), NULL, NULL, NULL, &size );
+		    res = RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, NULL, NULL, &size );
 #endif
 	    }
 	}
@@ -385,7 +387,7 @@ QByteArray QSettingsWinPrivate::readKey( const QString &key, bool *ok )
 
 	    QString f = folder( k );
 	    e = entry( k );
-	    if ( e == "Default" )
+	    if ( e == "Default" || e == "." )
 		e = "";
 
 #ifdef Q_OS_TEMP
@@ -401,14 +403,14 @@ QByteArray QSettingsWinPrivate::readKey( const QString &key, bool *ok )
 
 	    if ( res == ERROR_SUCCESS ) {
 #ifdef Q_OS_TEMP
-		res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
+		res = RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
 #else
 #if defined(UNICODE)
 		if ( qWinVersion() & Qt::WV_NT_based )
-		    res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
+		    res = RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
 		else
 #endif
-		    res = RegQueryValueExA( handle, e.local8Bit(), NULL, NULL, NULL, &size );
+		    res = RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, NULL, NULL, &size );
 #endif
 	    }
 	    if ( res != ERROR_SUCCESS )
@@ -428,14 +430,14 @@ QByteArray QSettingsWinPrivate::readKey( const QString &key, bool *ok )
 
     uchar* data = new uchar[ size ];
 #ifdef Q_OS_TEMP
-    RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, data, &size );
+    RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, data, &size );
 #else
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
-	RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, data, &size );
+	RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, data, &size );
     else
 #endif
-	RegQueryValueExA( handle, e.local8Bit(), NULL, NULL, data, &size );
+	RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, NULL, data, &size );
 #endif
 
     QByteArray result;
