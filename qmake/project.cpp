@@ -55,24 +55,36 @@ struct QMakeProject::ScopeIterator
 	parser_info pi;
 	Test(const QString &f, QStringList &a, bool i) : func(f), args(a), invert(i) { pi = ::parser; }
     };
-    ScopeIterator() : scope_level(1) { }
+    ScopeIterator() : scope_level(1), loop_forever(FALSE) { }
     bool exec(QMakeProject *p);
 
     int scope_level;
     QList<Test> test;
     QList<Parse> parser;
     QString variable;
+
+    bool loop_forever;
     QStringList list;
 };
 bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
 {
     bool ret = TRUE;
-    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-	//save state
-	QStringList va = p->variables()[variable];
-	parser_info pi = ::parser;
+    QStringList::Iterator it;
+    if(!loop_forever)
+	it = list.begin();
+    int iterate_count = 0;
+    parser_info pi = ::parser; 	//save state
+    while(loop_forever || it != list.end()) {
+	//set up the loop variable
+	QStringList va;
+	if(!variable.isEmpty()) {
+	    va = p->variables()[variable];
+	    if(loop_forever)
+		p->variables()[variable] = QString::number(iterate_count);
+	    else
+		p->variables()[variable] = (*it);
+	}
 	//do the iterations
-	p->variables()[variable] = (*it);
 	bool succeed = true;
 	for(QList<Test>::Iterator test_it = test.begin(); test_it != test.end(); ++test_it) {
 	    ::parser = (*test_it).pi;
@@ -82,18 +94,30 @@ bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
 	    if(!succeed)
 		break;
 	}
+	bool cause_break = FALSE;
 	if(succeed) {
 	    for(QList<Parse>::Iterator parse_it = parser.begin(); parse_it != parser.end(); 
 		++parse_it) {
 		::parser = (*parse_it).pi;
-		if(!(ret = p->parse((*parse_it).text, p->variables())))
+		if((*parse_it).text == "break()" && !p->scope_blocks.top().iterate) {
+		    cause_break = TRUE;
 		    break;
+		} else if(!(ret = p->parse((*parse_it).text, p->variables()))) {
+		    break;
+		}
 	    }
 	}
-	//restore state
-	::parser = pi;
-	p->variables()[variable] = va;
+	//restore the variable in the map
+	if(!variable.isEmpty())
+	    p->variables()[variable] = va;
+	//loop counters
+	if(!loop_forever)
+	    ++it;
+	iterate_count++;
+	if(!ret || cause_break)
+	    break;
     }
+    ::parser = pi; //restore state
     return ret;
 }
 QMakeProject::ScopeBlock::~ScopeBlock()
@@ -387,30 +411,47 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 				tmp = tmp.mid(1, tmp.length() - 2);
 			}
 			if(func == "for") { //for is a builtin function here, as it modifies state
-			    if(args.count() != 2) {
+			    if(args.count() > 2 || args.count() < 1) {
 				fprintf(stderr, "%s:%d: for(iterate, list) requires two arguments.\n", 
 					parser.file.latin1(), parser.line_no);
 				return FALSE;
 			    }
 
 			    iterator = new ScopeIterator;
-			    iterator->variable = args[0];
-			    QString arg1 = doVariableReplace(args[1], place);
-			    QStringList list = place[arg1];
+			    QString it_list;
+			    if(args.count() == 1) {
+				it_list = doVariableReplace(args[0], place);
+				if(it_list != "ever") {
+				    delete iterator;
+				    iterator = 0;
+				    fprintf(stderr, "%s:%d: for(iterate, list) requires two arguments.\n", 
+					    parser.file.latin1(), parser.line_no);
+				    return FALSE;
+				}
+				it_list = "forever";
+			    } else if(args.count() == 2) {
+				iterator->variable = args[0];
+				it_list = doVariableReplace(args[1], place);
+			    }
+			    QStringList list = place[it_list];
 			    if(list.isEmpty()) {
-				int dotdot = arg1.find("..");
-				if(dotdot != -1) {
-				    bool ok;
-				    int start = arg1.left(dotdot).toInt(&ok);
-				    if(ok) {
-					int end = arg1.mid(dotdot+2).toInt(&ok);
+				if(it_list == "forever") {
+				    iterator->loop_forever = TRUE;
+				} else {
+				    int dotdot = it_list.find("..");
+				    if(dotdot != -1) {
+					bool ok;
+					int start = it_list.left(dotdot).toInt(&ok);
 					if(ok) {
-					    if(start < end) {
-						for(int i = start; i <= end; i++)
-						    list << QString::number(i);
-					    } else {
-						for(int i = start; i >= end; i--)
-						    list << QString::number(i);
+					    int end = it_list.mid(dotdot+2).toInt(&ok);
+					    if(ok) {
+						if(start < end) {
+						    for(int i = start; i <= end; i++)
+							list << QString::number(i);
+						} else {
+						    for(int i = start; i >= end; i--)
+							list << QString::number(i);
+						}
 					    }
 					}
 				    }
