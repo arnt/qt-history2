@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dirview/dirview.cpp#5 $
+** $Id: //depot/qt/main/examples/dirview/dirview.cpp#6 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -179,6 +179,7 @@ void Directory::setOpen( bool o )
             return;
         }
 
+	listView()->setUpdatesEnabled( FALSE );
         const QFileInfoList * files = thisDir.entryInfoList();
         if ( files ) {
             QFileInfoListIterator it( *files );
@@ -195,12 +196,14 @@ void Directory::setOpen( bool o )
                 else if ( f->isDir() )
                     (void)new Directory( this, f->fileName() );
                 else if ( !showDirsOnly ) {
-                    QListViewItem *item = new QListViewItem( this, f->fileName(),
-                                                             f->isFile() ? "File" : "Special" );
+                    QListViewItem *item
+			= new QListViewItem( this, f->fileName(),
+					     f->isFile()?"File":"Special" );
                     item->setPixmap( 0, QPixmap( pix_file ) );
                 }
             }
         }
+	listView()->setUpdatesEnabled( TRUE );
     }
     QListViewItem::setOpen( o );
 }
