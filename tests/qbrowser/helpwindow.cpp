@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qbrowser/helpwindow.cpp#2 $
+** $Id: //depot/qt/main/tests/qbrowser/helpwindow.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -43,6 +43,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path, QWidget* par
     fileList = path.entryList();
 
     browser = new QTextBrowser( this );
+    browser->setTextFormat( RichText );
     browser->mimeSourceFactory()->setFilePath( _path );
     browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     connect( browser, SIGNAL( textChanged() ),
