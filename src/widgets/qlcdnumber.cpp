@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#79 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -61,7 +61,7 @@
 
   Incidentally, QLCDNumber is the very oldest part of Qt, tracing back
   to a BASIC program on the <a
-  href=http://www.nvg.ntnu.no/sinclair/spectrum.htm>Sinclair
+  href="http://www.nvg.ntnu.no/sinclair/spectrum.htm">Sinclair
   Spectrum</a>.
 
   <img src=qlcdnum-m.png> <img src=qlcdnum-w.png>
