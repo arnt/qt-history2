@@ -191,6 +191,12 @@ private slots:
 	if ( o->isWidgetType() ) // sanity
 	    QWhatsThis::remove((QWidget*)o);
     }
+
+    void whatsThatDestroyed()
+   {
+       whatsThat = 0;
+   }
+
 };
 
 // static, but static the less-typing way
@@ -643,6 +649,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     whatsThat->setBackgroundMode( QWidget::NoBackground );
     whatsThat->setPalette( QToolTip::palette(), TRUE );
     whatsThat->installEventFilter( this );
+    connect( whatsThat, SIGNAL( destroyed() ), this, SLOT( whatsThatDestroyed() ) );
     say_helper(widget,ppos,TRUE);
 }
 
