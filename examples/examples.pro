@@ -7,7 +7,6 @@ SUBDIRS	=	aclock \
 		addressbook \
 		application \
 		buttongroups \
-		chart \
 		checklists \
 		cursor \
 		customlayout \
@@ -63,7 +62,8 @@ SUBDIRS	=	aclock \
 thread:SUBDIRS +=   thread/prodcons \
 		    thread/semaphores
 
-canvas:SUBDIRS +=   canvas
+canvas:SUBDIRS +=   canvas \
+		    chart
 
 opengl:SUBDIRS +=   opengl/box \
 		    opengl/gear \
