@@ -78,6 +78,8 @@ public:
     void getRgbF(float *r, float *g, float *b, float *a = 0) const;
     void setRgbF(float r, float g, float b, float a = 1.0);
 
+    QRgb rgba() const;
+
     QRgb rgb() const;
     void setRgb(QRgb rgb);
 

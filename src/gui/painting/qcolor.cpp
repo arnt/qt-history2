@@ -598,6 +598,24 @@ void QColor::setRgb(int r, int g, int b, int a)
 */
 
 /*!
+    \fn QRgb QColor::rgba() const
+
+    The return type \e QRgb is equivalent to \c unsigned \c int.
+
+    For an invalid color, the alpha value of the returned color is
+    unspecified.
+
+    \sa setRgb(), getHsv(), qRed(), qBlue(), qGreen(), isValid()
+*/
+
+QRgb QColor::rgba() const
+{
+    if (cspec != Invalid && cspec != Rgb)
+        return toRgb().rgba();
+    return qRgba(argb.red >> 8, argb.green >> 8, argb.blue >> 8, argb.alpha >> 8);
+}
+
+/*!
     \fn QRgb QColor::rgb() const
 
     Returns the RGB value of the color. The alpha is stripped for compatibility.
