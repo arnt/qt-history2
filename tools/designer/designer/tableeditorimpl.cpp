@@ -126,6 +126,11 @@ void TableEditor::currentFieldChanged( const QString &s )
 	return;
     fieldMap.remove( listColumns->currentItem() );
     fieldMap.insert( listColumns->currentItem(), s );
+    editColumnText->blockSignals( TRUE ); //## necessary
+    QString newColText = s.mid(0,1).upper() + s.mid(1);
+    editColumnText->setText( newColText );
+    columnTextChanged( newColText );
+    editColumnText->blockSignals( FALSE );
 }
 
 void TableEditor::currentRowChanged( QListBoxItem *i )
@@ -175,8 +180,12 @@ void TableEditor::newColumnClicked()
     QListBoxItem *i = listColumns->item( listColumns->count() - 1 );
     listColumns->setCurrentItem( i );
     listColumns->setSelected( i, TRUE );
-    editColumnText->setFocus();
-    editColumnText->selectAll();
+    if ( editTable->inherits( "QSqlTable" ) ) {
+	comboFields->setFocus();
+    } else {
+	editColumnText->setFocus();
+	editColumnText->selectAll();
+    }
 }
 
 void TableEditor::newRowClicked()
