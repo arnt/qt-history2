@@ -1000,11 +1000,11 @@ QApplication::~QApplication()
     app_font = 0;
     delete app_fonts;
     app_fonts = 0;
+    qt_cleanup();
 #ifndef QT_NO_STYLE
     delete app_style;
     app_style = 0;
 #endif
-    qt_cleanup();
 #ifndef QT_NO_CURSOR
     delete app_cursor;
     app_cursor = 0;
