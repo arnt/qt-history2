@@ -365,7 +365,7 @@ bool NumberComponent::registerComponents( const QString &filepath ) const
 
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
     ok = settings.writeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/Default", "NumberComponent" );
-    ok = ok && settings.writeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/InprocServer32/Default", filepath );
+    ok = settings.writeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/InprocServer32/Default", filepath ) && ok;
 
     return ok;
 }
@@ -377,7 +377,7 @@ bool NumberComponent::unregisterComponents() const
 
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
     ok = settings.removeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/InprocServer32/Default" );
-    ok = ok && settings.removeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/Default" );
+    ok = settings.removeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/Default" ) && ok;
 
     return ok;
 }
@@ -487,4 +487,36 @@ if ( iface ) {
 }
 \endcode
 
+<h3>Using a Component Trader</h3>
+While the plugin concept allows it to dynamically extend and modify an application it has one big
+drawback: the application has to load a large number of libraries to figure out which ones provide
+suitable components. This might not be a problem for a small number of highly specialized plugins,
+but as soon as plugins are supposed to be shared between different applications the number of
+libraries being loaded and unloaded unnecessarily makes application startup very inefficient.
+
+A Component Trader tells an application which components implement a certain set of interfaces, 
+and the application can then select and use one of those components. If multiple components are 
+suitable the user should be enabled to prioritize a single component. This makes it again necessary 
+for components to register their set of implemented interfaces in the central database, so that the 
+component trader can look up the components matching the request and pick the preferred one for the
+application to use.
+
+Registering (and unregistering) the component is again done in the implementation of the 
+QComponentServerInterface:
+
+\code
+bool NumberComponent::registerComponents( const QString &filepath ) const
+{
+    QSettings settings;
+    bool ok;
+
+    settings.insertSearchPath( QSettings::Windows, "/Classes" );
+    ok = settings.writeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/Default", "NumberComponent" );
+    ok = settings.writeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/InprocServer32/Default", filepath ) && ok;
+    ok = settings.writeEntry( "/Interface/" + IID_IntegerInterface.toString() + "/Default", "IntegerInterface" ) && ok;
+    ok = settings.writeEntry( "/Interface/" + IID_IntegerInterface.toString() + "/Components", "{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}" ) && ok;
+
+    return ok;
+}
+\endcode
 */
