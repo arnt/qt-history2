@@ -21,6 +21,8 @@
 //    }
 //   - qWinProcessConfigRequests?
 
+// Remaining general stuff:
+//   - Provide the "reason" parameter to streamDestroyed
 
 // Qt stuff
 #include <qapp.h>
@@ -62,7 +64,8 @@ FILE* out()
 {
     static FILE* f = 0;
     if (!f)
-	f = fdopen(4,"w"); // 2>&4 needed on cmd line for this
+	return stderr;
+	//f = fdopen(4,"w"); // 2>&4 needed on cmd line for this
     return f;
 }
 #define PLUGIN_TRACE
@@ -629,23 +632,6 @@ NPP_New(NPMIMEType /*pluginType*/,
 extern "C" NPError 
 NPP_Destroy(NPP instance, NPSavedData** /*save*/)
 {
-/*
-    {
-	uchar* ndata;
-	ndata = ((NS_Private*)(instance->ndata))->a;
-	printf("Destroy %p->ndata->a = %p:\n", instance, ndata);
-	for (int i=0; i<64; i++) {
-	    printf("%2x ",ndata[i]);
-	    if (i%8==7) printf("\n");
-	}
-	ndata = (uchar*)((NS_Private*)instance->ndata)->b;
-	printf("Destroy %p->ndata->b = %p:\n", instance, ndata);
-	for (int i=0; i<64; i++) {
-	    printf("%2x ",ndata[i]);
-	    if (i%8==7) printf("\n");
-	}
-    }
-*/
     _NPInstance* This;
 
     if (instance == NULL)
@@ -654,18 +640,8 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
     This = (_NPInstance*) instance->pdata;
 
     if (This != NULL) {
-#if 0
-#ifdef _WS_WIN_
-	if (This->fDefaultWindowProc && This->window) {
-	    SetWindowLong( This->window, GWL_WNDPROC,
-		(LONG)This->fDefaultWindowProc);
-	}
-#endif
-#endif
 	if (This->widget) {
-//#ifdef _WS_X11_
 	    This->widget->unsetWindow();
-//#endif
 	    delete This->widget;
 	}
 
@@ -710,22 +686,15 @@ NPP_SetWindow(NPP instance, NPWindow* window)
     
     if (!window) {
 	if (This->widget) {
-//#ifdef _WS_X11_
 	    This->widget->unsetWindow();
-//#endif
-#ifdef _WS_WIN_
-#if 0
-	    SetWindowLong( This->window, GWL_WNDPROC,
-		(LONG)This->fDefaultWindowProc);
-	    This->fDefaultWindowProc = NULL;
-#endif
-	    This->window = NULL;
-#endif
+	    This->window = 0;
 	    delete This->widget;
 	    This->widget = 0;
 	}
 #ifdef _WS_X11_
     } else if (This->window != (Window) window->window) {
+	if (This->window)
+	    NPP_SetWindow( instance, 0 ); // unset
 	This->window = (Window) window->window;
 #endif
 #ifdef _WS_WIN_
@@ -786,9 +755,10 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 	    This->widget->setWindow();
 	}
     } else {
-	// ### Need a geometry setter that bypasses some Qt code,
-	// ### but first need to know when netscape does this.
-	This->widget->setGeometry(window->x,window->y, window->width, window->height);
+	// ### Maybe need a geometry setter that bypasses some Qt code?
+	// ### position is always (0,0), so we get by by ignoring it.
+	//This->widget->setGeometry(window->x,window->y, window->width, window->height);
+	This->widget->resize(window->width, window->height);
     }
 
     This->fWindow = window;
@@ -1315,7 +1285,8 @@ void QNPWidget::setWindow()
 
     createNewWindowsForAllChildren(this);
 
-    setGeometry( pi->x, pi->y, pi->width, pi->height );
+    //setGeometry( pi->x, pi->y, pi->width, pi->height );
+    resize( pi->width, pi->height );
 }
 
 /*!
