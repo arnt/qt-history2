@@ -38,38 +38,39 @@
 #include "qpaintdevicemetrics.h"
 
 /*!
-  \class QPaintDeviceMetrics qpaintdevicemetrics.h
-  \brief The QPaintDeviceMetrics class provides information about a
-  paint device.
+    \class QPaintDeviceMetrics qpaintdevicemetrics.h
+    \brief The QPaintDeviceMetrics class provides information about a
+    paint device.
 
-  \ingroup graphics
-  \ingroup images
+    \ingroup graphics
+    \ingroup images
 
-  Sometimes when drawing graphics it is necessary to obtain
-  information about the physical characteristics of a paint device.
-  This class provides this information.  For example, to compute the
-  aspect ratio of a paint device:
+    Sometimes when drawing graphics it is necessary to obtain
+    information about the physical characteristics of a paint device.
+    This class provides the information. For example, to compute the
+    aspect ratio of a paint device:
 
-  \code
-    QPaintDeviceMetrics pdm( myWidget );
-    double aspect = (double)pdm.widthMM() / (double)pdm.heightMM();
-  \endcode
+    \code
+	QPaintDeviceMetrics pdm( myWidget );
+	double aspect = (double)pdm.widthMM() / (double)pdm.heightMM();
+    \endcode
 
-  QPaintDeviceMetrics contains methods to provide the width and height
-  of a device in both pixels (width() and height()) and millimeters
-  (widthMM() and heightMM()), the number of colors the device supports
-  (numColors()), the number of bit planes (depth()), and the
-  resolution of the device (logicalDpiX() and logicalDpiY()).
+    QPaintDeviceMetrics contains methods to provide the width and
+    height of a device in both pixels (width() and height()) and
+    millimeters (widthMM() and heightMM()), the number of colors the
+    device supports (numColors()), the number of bit planes (depth()),
+    and the resolution of the device (logicalDpiX() and
+    logicalDpiY()).
 
-  It is not always possible for QPaintDeviceMetrics to compute the
-  values you ask for, particularly for external devices.  The ultimate
-  example is asking for the resolution of of a QPrinter that is set to
-  "print to file": who knows what printer that file will end up on?
-
+    It is not always possible for QPaintDeviceMetrics to compute the
+    values you ask for, particularly for external devices. The
+    ultimate example is asking for the resolution of of a QPrinter
+    that is set to "print to file": who knows what printer that file
+    will end up on?
 */
 
 /*!
-  Constructs a metric for the paint device \a pd.
+    Constructs a metric for the paint device \a pd.
 */
 QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
 {
@@ -78,55 +79,60 @@ QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
 
 
 /*!
-  \fn int QPaintDeviceMetrics::width() const
+    \fn int QPaintDeviceMetrics::width() const
 
-  Returns the width of the paint device in default coordinate system
-  units (e.g. pixels for QPixmap and QWidget).
+    Returns the width of the paint device in default coordinate system
+    units (e.g. pixels for QPixmap and QWidget).
 */
 
 /*!
-  \fn int QPaintDeviceMetrics::height() const
+    \fn int QPaintDeviceMetrics::height() const
 
-  Returns the height of the paint device in default coordinate system
-  units (e.g. pixels for QPixmap and QWidget).
+    Returns the height of the paint device in default coordinate
+    system units (e.g. pixels for QPixmap and QWidget).
 */
 
 /*!
-  \fn int QPaintDeviceMetrics::widthMM() const
-  Returns the width of the paint device, measured in millimeters.
+    \fn int QPaintDeviceMetrics::widthMM() const
+
+    Returns the width of the paint device, measured in millimeters.
 */
 
 /*!
-  \fn int QPaintDeviceMetrics::heightMM() const
-  Returns the height of the paint device, measured in millimeters.
+    \fn int QPaintDeviceMetrics::heightMM() const
+
+    Returns the height of the paint device, measured in millimeters.
 */
 
 /*!
-  \fn int QPaintDeviceMetrics::numColors() const
-  Returns the number of different colors available for the paint device.
+    \fn int QPaintDeviceMetrics::numColors() const
+
+    Returns the number of different colors available for the paint
+    device.
 */
 
 /*!
-  \fn int QPaintDeviceMetrics::depth() const
-  Returns the bit depth (number of bit planes) of the paint device.
+    \fn int QPaintDeviceMetrics::depth() const
+
+    Returns the bit depth (number of bit planes) of the paint device.
 */
 
 /*!
-  \fn int QPaintDeviceMetrics::logicalDpiX() const
+    \fn int QPaintDeviceMetrics::logicalDpiX() const
 
-  Returns the horizontal resolution of the device in dots per inch, which is
-  used when computing font sizes.
-  For X, this is usually the same as could be computed
-  from widthMM(), but it varies on Windows.
+    Returns the horizontal resolution of the device in dots per inch,
+    which is used when computing font sizes. For X, this is usually
+    the same as could be computed from widthMM(), but it varies on
+    Windows.
 */
 
 /*!
-  \fn int QPaintDeviceMetrics::logicalDpiY() const
+    \fn int QPaintDeviceMetrics::logicalDpiY() const
 
-  Returns the vertical resolution of the device in dots per inch, which is
-  used when computing font sizes.
-  For X, this is usually the same as could be computed
-  from heightMM(), but it varies on Windows.
+    Returns the vertical resolution of the device in dots per inch,
+    which is used when computing font sizes. For X, this is usually
+    the same as could be computed from heightMM(), but it varies on
+    Windows.
 */
 
 /*!

@@ -464,7 +464,7 @@ void QAquaStylePrivate::doFocus(QWidget *w)
 
   \i Widget size - Aqua allows widgets to have specific fixed sizes.
   Qt does not implement this behaviour so as to maintain
-  cross-platform compatibility. As a result you may scale a widget to
+  multiplatform compatibility. As a result you may scale a widget to
   any size and QAquaStyle will respect your size, even if it is not
   appropriate in terms of the Aqua Style Guidelines.
 
@@ -2066,7 +2066,7 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		if (scr->orientation() == Qt::Horizontal)
 		    rect.setRect(16, 0, scr->width() - 32, scr->height());
 		else
-		    rect.setRect(0, 15, scr->width(), scr->height() - 31 ); 
+		    rect.setRect(0, 15, scr->width(), scr->height() - 31 );
 		break;
 	    default:
 		rect = QWindowsStyle::querySubControlMetrics( control, w, sc, opt);

@@ -37,59 +37,60 @@
 #include "qobjectlist.h"
 
 /*!
-  \class QObjectCleanupHandler qobjectcleanuphandler.h
-  \brief The QObjectCleanupHandler class watches the lifetime of multiple QObjects.
-  \ingroup objectmodel
+    \class QObjectCleanupHandler qobjectcleanuphandler.h
+    \brief The QObjectCleanupHandler class watches the lifetime of multiple QObjects.
 
-  A QObjectCleanupHandler is useful whenever you need to know when a number of
-  QObjects that are owned by someone else has been deleted. This is e.g. important
-  when referencing memory in an application that has been allocated in a shared
-  library.
+    \ingroup objectmodel
 
-  Example:
+    A QObjectCleanupHandler is useful whenever you need to know when a
+    number of \l{QObject}s that are owned by someone else have been
+    deleted. This is important, for example, when referencing memory
+    in an application that has been allocated in a shared library.
 
-  \code
-  class FactoryComponent : public FactoryInterface, public QLibraryInterface
-  {
-  public:
-     ...
+    Example:
 
-     QObject *createObject();
+    \code
+    class FactoryComponent : public FactoryInterface, public QLibraryInterface
+    {
+    public:
+	...
 
-     bool init();
-     void cleanup();
-     bool canUnload() const;
+	QObject *createObject();
 
-  private:
-     QObjectCleanupHandler objects;
-  };
+	bool init();
+	void cleanup();
+	bool canUnload() const;
 
-  // allocate a new object, and add it to the cleanup handler
-  QObject *FactoryComponent::createObject()
-  {
-      return objects.add( new QObject() );
-  }
+    private:
+	QObjectCleanupHandler objects;
+    };
 
-  // QLibraryInterface implementation
-  bool FactoryComponent::init()
-  {
-      return TRUE;
-  }
+    // allocate a new object, and add it to the cleanup handler
+    QObject *FactoryComponent::createObject()
+    {
+	return objects.add( new QObject() );
+    }
 
-  void FactoryComponent::cleanup()
-  {
-  }
+    // QLibraryInterface implementation
+    bool FactoryComponent::init()
+    {
+	return TRUE;
+    }
 
-  // it is only safe to unload the library when all QObject's have been destroyed
-  bool FactoryComponent::canUnload() const
-  {
-      return objects.isEmpty();
-  }
-  \endcode
+    void FactoryComponent::cleanup()
+    {
+    }
+
+    // it is only safe to unload the library when all QObject's have been destroyed
+    bool FactoryComponent::canUnload() const
+    {
+	return objects.isEmpty();
+    }
+    \endcode
 */
 
 /*!
-  Constructs an empty QObjectCleanupHandler.
+    Constructs an empty QObjectCleanupHandler.
 */
 QObjectCleanupHandler::QObjectCleanupHandler()
 : QObject(), cleanupObjects( 0 )
@@ -97,7 +98,8 @@ QObjectCleanupHandler::QObjectCleanupHandler()
 }
 
 /*!
-  Destroys the cleanup handler. All objects in this cleanup handler will be deleted.
+    Destroys the cleanup handler. All objects in this cleanup handler
+    will be deleted.
 */
 QObjectCleanupHandler::~QObjectCleanupHandler()
 {
@@ -105,7 +107,8 @@ QObjectCleanupHandler::~QObjectCleanupHandler()
 }
 
 /*!
-  Adds \a object to this cleanup handler and returns the pointer to the object.
+    Adds \a object to this cleanup handler and returns the pointer to
+    the object.
 */
 QObject* QObjectCleanupHandler::add( QObject* object )
 {
@@ -122,7 +125,8 @@ QObject* QObjectCleanupHandler::add( QObject* object )
 }
 
 /*!
-  Removes the \a object from this cleanup handler. The object will not be destroyed.
+    Removes the \a object from this cleanup handler. The object will
+    not be destroyed.
 */
 void QObjectCleanupHandler::remove( QObject *object )
 {
@@ -135,8 +139,8 @@ void QObjectCleanupHandler::remove( QObject *object )
 }
 
 /*!
-  Returns TRUE if this cleanup handler is empty or all objects in this cleanup handler
-  have been destroyed, otherwise return FALSE.
+    Returns TRUE if this cleanup handler is empty or if all objects in
+    this cleanup handler have been destroyed; otherwise return FALSE.
 */
 bool QObjectCleanupHandler::isEmpty() const
 {
@@ -144,7 +148,8 @@ bool QObjectCleanupHandler::isEmpty() const
 }
 
 /*!
-  Deletes all objects in this cleanup handler. The cleanup handler becomes empty.
+    Deletes all objects in this cleanup handler. The cleanup handler
+    becomes empty.
 */
 void QObjectCleanupHandler::clear()
 {

@@ -95,7 +95,7 @@
     and the previous owner of the change; in MS Windows the clipboard is
     a fully global resource so all applications are notified of changes.
     See the multiclip example in the \e{Qt Designer} examples
-    directory for an example of a cross-platform clipboard application
+    directory for an example of a multiplatform clipboard application
     that also demonstrates selection handling.
 */
 
