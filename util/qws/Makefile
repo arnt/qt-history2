@@ -1,7 +1,7 @@
 #############################################################################
-# $Id: //depot/qt/main/tests/qtfb/GNUmakefile#1 $
+# $Id: //depot/qt/main/util/qws/Makefile#1 $
 #
-# Unix Makefile, requires GNU make (gmake).
+# Win32 Makefile, requires Microsoft nmake.
 #
 # Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
 #
@@ -9,4 +9,4 @@
 
 PROJECT = qtfb
 
-include $(QTDIR)/GNUmakefile.inc
+!INCLUDE $(QTDIR)\Makefile.inc

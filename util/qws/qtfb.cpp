@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qtfb/qtfb.cpp#1 $
+** $Id: //depot/qt/main/util/qws/qtfb.cpp#1 $
 **
 ** Implementation of Qt/FB central server
 **
