@@ -4029,6 +4029,8 @@ void QCanvasText::setRect()
     QPainter p(w);
     p.setFont(fnt);
     brect = p.boundingRect(QRect(int(x()),int(y()),0,0), flags, txt);
+    brect.moveTopLeft(QPoint((int)myx, (int)myy));
+    qDebug("setting text bounding rect: %d/%d (%d/%d)", brect.x(), brect.y(), brect.width(), brect.height());
 }
 
 /*!
@@ -4132,11 +4134,11 @@ void QCanvasText::moveBy(double dx, double dy)
     int idy = int(y()+dy)-int(y());
     if ( idx || idy ) {
 	removeFromChunks();
-	brect.moveBy(idx, idy);
     }
     myx+=dx;
     myy+=dy;
     if ( idx || idy ) {
+	brect.moveTopLeft(QPoint((int)myx, (int)myy));
 	addToChunks();
     }
 }
@@ -4146,6 +4148,7 @@ void QCanvasText::moveBy(double dx, double dy)
 */
 void QCanvasText::draw(QPainter& painter)
 {
+    QRect clip = painter.clipRegion().boundingRect();
     painter.setFont(fnt);
     painter.setPen(col);
     painter.drawText(brect, flags, txt);
