@@ -2564,7 +2564,7 @@ bool QDomNamedNodeMapPrivate::contains( const QString& name ) const
 
 bool QDomNamedNodeMapPrivate::containsNS( const QString& nsURI, const QString & localName ) const
 {
-    return !namedItemNS( nsURI, localName );
+    return ( namedItemNS( nsURI, localName ) != 0 );
 }
 
 /**************************************************************
