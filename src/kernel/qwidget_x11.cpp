@@ -1488,7 +1488,8 @@ void QWidget::repaint(const QRegion& rgn)
     QPoint dboff;
     bool double_buffer = (!testAttribute(WA_PaintOnScreen)
 			  && br.width()  <= QX11DoubleBuffer::MaxWidth
-			  && br.height() <= QX11DoubleBuffer::MaxHeight);
+			  && br.height() <= QX11DoubleBuffer::MaxHeight
+			  && !QPainter::redirected(this));
 
     HANDLE old_hd = hd;
     HANDLE old_rendhd = rendhd;
