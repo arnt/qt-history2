@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#211 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#212 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#211 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#212 $");
 
 
 /*!
@@ -2742,6 +2742,7 @@ bool QWidget::event( QEvent *e )
     return TRUE;
 }
 
+
 /*!
   This event handler can be reimplemented in a subclass to receive
   mouse move events for the widget.
@@ -2751,10 +2752,16 @@ bool QWidget::event( QEvent *e )
   tracking is switched on, mouse move events occur even if no mouse
   button is down.
 
+  QMouseEvent::pos() reports the position of the mouse cursor, relative to
+  this widget.  For press and release events, the position is usually
+  the same as the position of the last mouse move event, but it might be
+  different if the user moves and clicks the mouse fast.  This is
+  a feature of the underlying window system, not Qt.
+
   The default implementation does nothing.
 
   \sa setMouseTracking(), mousePressEvent(), mouseReleaseEvent(),
-  mouseDoubleClickEvent(), event(),  QMouseEvent
+  mouseDoubleClickEvent(), event(), QMouseEvent
 */
 
 void QWidget::mouseMoveEvent( QMouseEvent * )
