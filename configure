@@ -1022,12 +1022,12 @@ fi ### help
 if [ "$CFG_EMBEDDED" != "no" ]; then
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
     QNX:*)
-	[ -z "$PLATFORM" ] && PLATFORM=qws/qnx6-generic-g++
-	if [ -z "$XPLATFORM" ]; then
-	    [ "$CFG_EMBEDDED" = "auto" ] && CFG_EMBEDDED=generic
-	    XPLATFORM="qws/qnx6-$CFG_EMBEDDED-g++"
-	fi
-	CFG_STL=no ### why?
+        QNX_PLATFORM=qws/qnx-rtp-g++
+	[ "$CFG_EMBEDDED" = "qnx4" ] && QNX_PLATFORM=qws/qnx4-cc
+	[ -z "$PLATFORM" ] && PLATFORM="$QNX_PLATFORM"
+        [ -z "$XPLATFORM" ] && XPLATFORM="$QNX_PLATFORM"
+	CFG_STL=no
+	CFG_QWS_QVFB=no
 	;;
     Darwin:*)
 	[ -z "$PLATFORM" ] && PLATFORM=qws/macx-generic-g++
@@ -1941,9 +1941,15 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	    EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
         fi
-	if [ "$PLATFORM_QNX" = "yes" ]; then
-	    EXTRA_LFLAGS="$EXTRA_LFLAGS -lcpp"
-	    EXTRA_CFLAGS="$EXTRA_CFLAGS -fhonor-std"
+	if [ "$MAC_PLATFORM" = "yes" ]; then
+	  echo "CARBON_LFLAGS +=-framework Carbon" >> $mkfile
+	  EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
+	  EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
+        elif [ $EMBEDDED = "qnx6" ]; then
+	  echo "QNX_LFLAGS += -fhonor-std -fno-builtins -pipe" >>$mkfile
+	  echo "QNX_CFLAGS += -lcpp" >>$mkfile
+	  EXTRA_LFLAGS="$EXTRA_CFLAGS \$(QNX_LFLAGS)"
+	  EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QNX_CFLAGS)"
 	fi
 	QMAKE_BIN_DIR="$QT_INSTALL_BINS"
 	[ -z "$QMAKE_BIN_DIR" ] && QMAKE_BIN_DIR="${QT_INSTALL_PREFIX}/bin"
