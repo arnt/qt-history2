@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/src/Makefile#73 $
+# $Id: //depot/qt/main/src/Makefile#74 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -7,48 +7,30 @@
 #
 #############################################################################
 
-PROJECT     = qt
-LIBTARGET   = 1
-MORETARGETS = qtmain
+PROJECT		    = qt
+LIBTARGET	    = 1
+MORETARGETS_RELEASE = qtmain-release
+MORETARGETS_DEBUG   = qtmain-debug
+MORECLEAN	    = qtmain.release.mak qtmain.debug.mak
 
 !INCLUDE $(QTDIR)\Makefile.inc
 
-
 !IF $(RELEASE) == 0
-qtmain: qtmain-debug.mak
-	$(MAKE) -f qtmain-debug.mak
+qtmain: qtmain-debug
 !ELSE
-qtmain: qtmain-release.mak
-	$(MAKE) -f qtmain-release.mak
+qtmain: qtmain-release
 !ENDIF
 
-qtmain-release.mak: qt.pro
-	tmake qt.pro -o qtmain-release.mak "CONFIG+=release"
+qtmain-debug: qtmain.debug.mak
+	$(MAKE) -f qtmain.debug.mak
 
-qtmain-debug.mak: qt.pro
-	tmake qt.pro -o qtmain-debug.mak "CONFIG+=debug"
+qtmain-release: qtmain.release.mak
+	$(MAKE) -f qtmain.release.mak
 
-qtmain: qtmain.mak
-	$(MAKE) -f qtmain.mak
+qtmain.release.mak: qtmain.pro
+	tmake qtmain.pro -o qtmain.release.mak \
+		"CONFIG+=release" "OBJECTS_DIR=.obj/release"
 
-qtmain.mak: qtmain.pro
-	tmake qtmain.pro -o qtmain.mak
-
-
-!IF $(RELEASE) == 0
-qtdll: qtdll-debug.mak
-	$(MAKE) -f qtdll-debug.mak
-	-@copy ..\lib\qt*.dll ..\bin
-!ELSE
-qtdll: qtdll-release.mak
-	$(MAKE) -f qtdll-release.mak
-	-@copy ..\lib\qt*.dll ..\bin
-!ENDIF
-
-qtdll-release.mak: qt.pro
-	tmake qt.pro -o qtdll-release.mak "CONFIG+=dll release" \
-		"DEFINES+=QT_MAKEDLL"
-
-qtdll-debug.mak: qt.pro
-	tmake qt.pro -o qtdll-debug.mak "CONFIG+=dll debug" \
-		"DEFINES+=QT_MAKEDLL"
+qtmain.debug.mak: qtmain.pro
+	tmake qtmain.pro -o qtmain.debug.mak \
+		"CONFIG+=debug" "OBJECTS_DIR=.obj/debug"
