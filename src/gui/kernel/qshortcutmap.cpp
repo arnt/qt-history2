@@ -416,10 +416,12 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
     switch (item.context) {
     case Qt::OnActiveWindow:
         {
+#ifndef QT_NO_MAINWINDOW
             /* if we live in a floating dock window, keep our parent's
              * shortcuts working */
             if (tlw->isDialog() && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw))
                 return tlw->parentWidget()->topLevelWidget() == wtlw;
+#endif
 
             if (wtlw  != tlw)
                 return false;
