@@ -51,8 +51,8 @@ QCloseEvent.
 
 Qt delivers events by calling the virtual function \Func
 QObject::event(). For convenience, \Func QWidget::event() forwards
-the most common types of event to dedicated handlers, e.g. \Func
-QWidget::mouseReleaseEvent(), \Func QWidget::keyPressEvent(), etc.
+the most common types of event to dedicated handlers, for example, \Func
+QWidget::mouseReleaseEvent() and \Func QWidget::keyPressEvent().
 Developers can easily reimplement these handlers when writing their
 own widgets or when specializing existing widgets.
 

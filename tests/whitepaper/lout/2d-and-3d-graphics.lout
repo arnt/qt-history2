@@ -7,9 +7,9 @@ Qt provides excellent support for 2D and 3D graphics. Qt's 2D graphics
 classes support painting (bitmapped graphics) and drawing (vector
 graphics). Animation and collision detection are also supported. Qt
 can load and save a wide and extensible range of image formats. Qt can
-draw Unicode @Xref{unicode} rich text, rotated and sheared as
-required. Qt is the de-facto standard GUI toolkit for
-platform-independent OpenGL programming.
+draw Unicode rich text, rotated and sheared as required. Qt is the
+de-facto standard GUI toolkit for platform-independent OpenGL
+programming.
 } }
 @BeginSubSections
 @SubSection
@@ -43,7 +43,7 @@ technology to use GIF. }, JPEG, MNG, PNG, PNM, XBM and XPM.
   xbm @Index { XBM }
   xpm @Index { XPM }
 @PP
-Many of Qt's built-in widgets can display images, for example
+Many of Qt's built-in widgets can display images, for example,
 buttons, labels, menu items, etc. Here's how to display an icon on a
 push button:
 @IndentedDisplay @CP @Begin
@@ -52,7 +52,7 @@ button->setIconSet( QIconSet(QImage("find.bmp")) );
 @End @CP
 @Figure
     @Caption { An icon on a button }
-@IncludeGraphic { "../images/icon.eps" }
+0.5 @Scale @IncludeGraphic { "images/icon.eps" }
 @PP
 @Class QImage supports images with color depths of 1, 8 and 32 bits.
 Programmers can manipulate the pixel and palette data, apply
@@ -115,7 +115,7 @@ the widget using a `viewport'.
   width @Index { width() }
 @Figure
     @Caption { Qt's @F xform example showing rotated text }
-@IncludeGraphic { "../images/xform.eps" }
+0.5 @Scale @IncludeGraphic { "images/xform.eps" }
 @PP
 The code below draws a bar-graph custom widget. It uses a @Class
 QPainter in the reimplementation of @Func paintEvent(), with the
@@ -160,7 +160,7 @@ The widget produced by this code is shown below.
   width @Index { width() }
 @Figure
     @Caption { Custom widget }
-@IncludeGraphic { "../images/painting.eps" }
+0.5 @Scale @IncludeGraphic { "images/painting.eps" }
 @PP
 @Class QPainter supports clipping using a region composed of
 rectangles, polygons, ellipses and bitmaps. Complex regions may be
@@ -171,7 +171,7 @@ The @Class QColor class stores a color specified by a RGB or HSV
 triple, or by a name (e.g. `skyblue'). Qt programmers can specify any
 24-bit color; Qt automatically allocates the requested color in the
 system's palette, or uses a similar color on color-limited displays.
-Commonly used colors, e.g. @F red, @F green, @F blue, etc., are
+Commonly used colors, including @F red, @F green and @F blue, are
 predefined in Qt.
   color @Index { Color }
   hsv @Index { HSV }
@@ -298,8 +298,8 @@ uses the system's OpenGL library (including Mesa).
   windows @Index { Windows }
   xwindowsystem @Index { X Window System }
 @Figure
-    @Caption { Brain Innovation's BrainVoyager Qt application }
-@Scale @IncludeGraphic { "../images/brain-innovation.eps" }
+    @Caption { Brain Innovation's BrainVoyager application written in Qt }
+0.5 @Scale @IncludeGraphic { "images/brain-innovation.eps" }
 @PP
 Qt developers can set the display format of an OpenGL rendering
 context: single or double buffering, depth buffer, RGBA or color
@@ -324,7 +324,7 @@ that accept a @Class QColor argument and work in any mode.
 @PP
 @Figure
     @Caption { 3D box }
-@IncludeGraphic { "../images/box3d.eps" }
+0.5 @Scale @IncludeGraphic { "images/box3d.eps" }
 @PP
 The complete code for an application that draws a 3D box, with
 sliders to rotate the box around the X, Y and Z axes, is presented
@@ -462,9 +462,9 @@ int main( int argc, char **argv )
 @End @CP
 @DP
 @OLREF @LP
-@Href{"http://www.trolltech.com/3.0/coordsys.html"}@LLP
-@Href{"http://www.trolltech.com/3.0/canvas.html"}@LLP
-@Href{"http://www.trolltech.com/3.0/opengl.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/coordsys.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/canvas.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/opengl.html"}@LLP
 @End @SubSection
 @EndSubSections
 @End @Section

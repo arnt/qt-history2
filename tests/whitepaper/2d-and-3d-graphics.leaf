@@ -34,7 +34,7 @@ The \Class QImage class supports the input, output and manipulation
 of images in several formats, including BMP, GIF*, JPEG, MNG, PNG,
 PNM, XBM and XPM.
 
-Many of Qt's built-in widgets can display images, for example
+Many of Qt's built-in widgets can display images, for example,
 buttons, labels, menu items, etc. Here's how to display an icon on a
 push button:
 
@@ -149,7 +149,7 @@ The \Class QColor class stores a color specified by a RGB or HSV
 triple, or by a name (e.g. 'skyblue'). Qt programmers can specify any
 24-bit color; Qt automatically allocates the requested color in the
 system's palette, or uses a similar color on color-limited displays.
-Commonly used colors, e.g. \c red, \c green, \c blue, etc., are
+Commonly used colors, including \c red, \c green and \c blue, are
 predefined in Qt.
 
 \section2 Paint Devices
@@ -269,7 +269,7 @@ Qt's OpenGL module is available on Windows, X11 and Macintosh, and
 uses the system's OpenGL library (including Mesa).
 
   \img brain-innovation.png
-  \caption Brain Innovation's BrainVoyager Qt application
+  \caption Brain Innovation's BrainVoyager application written in Qt
 
   \index Alpha channel
   \index Colormap

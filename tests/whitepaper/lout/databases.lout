@@ -5,7 +5,7 @@
 @QuotedDisplay { @I {
 The Qt SQL module simplifies the creation of cross-platform GUI
 database applications. Programmers can easily execute SQL statements,
-use database-specific widgets, and make any widget data aware.
+use database-specific widgets, and make any widget data-aware.
 } }
 @PP
 The Qt SQL module provides a cross-platform interface for accessing
@@ -28,7 +28,7 @@ Programmers can easily execute any arbitrary SQL statements. Qt also
 provides a high-level C++ interface that programmers can use to
 generate the appropriate SQL statements automatically.
 @PP
-Any Qt widget, including custom widgets, can be made data aware. Qt
+Any Qt widget, including custom widgets, can be made data-aware. Qt
 also includes some database-specific convenience widgets, to simplify
 the creation of dialogs and windows that present records as forms or
 in tables. Data-aware widgets automatically support browsing,
@@ -157,7 +157,7 @@ by creating a property map for the table, which matches fields
 @PP
 @Figure
     @Caption { A @Class QDataTable }
-@IncludeGraphic { "../images/bookform.eps" }
+0.5 @Scale @IncludeGraphic { "images/bookform.eps" }
 @PP
 Records can be updated and deleted without writing any code.
 Insertions require some code since most database designs expect new
@@ -185,7 +185,7 @@ menu and keyboard shortcuts for editing records.
   popupmenu @Index { Popup menu }
 @Figure
     @Caption { A @Class QDataBrowser }
-@IncludeGraphic { "../images/editbooks.eps" }
+0.5 @Scale @IncludeGraphic { "images/editbooks.eps" }
 @PP
 Programmers can manipulate data retrieved from the database before it
 is displayed by implementing a slot and connecting it to the @Func
@@ -199,7 +199,7 @@ into its ID by implementing a slot connected to @Func beforeInsert(),
 Developers can create their own forms for displaying database records.
 Unlike older toolkits that duplicate their widgets with data-aware
 versions, any Qt widget (including custom widgets) can be made
-data aware. All that is necessary is to include the widget in a @Class
+data-aware. All that is necessary is to include the widget in a @Class
 QSqlForm and set up a property map to relate the relevant database
 field to the widget that will present and edit the field's data.
   form @Index { Form }
@@ -222,7 +222,7 @@ and wizards to make creating database forms fast and simple.
   wizard @Index { Wizard }
 @DP
 @OLREF @LP
-@Href{"http://www.trolltech.com/3.0/sql.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/sql.html"}@LLP
 @End @SubSection
 @EndSubSections
 @End @Section

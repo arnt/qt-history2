@@ -54,7 +54,7 @@ The data can easily be retrieved and used, for example:
     }
 \endcode
 In practice, the above example would be written more concisely and
-easily using \link Settings settings \endlink.
+easily using \link Settings QSettings \endlink.
 
   \index Custom I/O device
   \index QBuffer

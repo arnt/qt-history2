@@ -41,7 +41,7 @@ Qt provides the following built-in styles: Windows, Motif, MotifPlus,
 CDE, Platinum, SGI and Aqua (on the Macintosh). By default, Qt uses
 the appropriate style for the user's platform and desktop
 environment. The style can also be chosen programmatically, or with
-the @F -style command-line option on Unix.
+the @F -style command-line option.
   aqua @Index { Aqua }
   cde @Index { CDE }
   macintosh @Index { Macintosh }
@@ -53,7 +53,7 @@ the @F -style command-line option on Unix.
   windows @Index { Windows }
 @Figure
     @Caption { Comboboxes in the different built-in styles }
-@IncludeGraphic { "../images/combobox.eps" }
+0.5 @Scale @IncludeGraphic { "images/combobox.eps" }
 @PP
 A style is complemented by a theme, which encapsulates the user's
 preferences for colors, fonts, sounds, etc. Qt automatically adapts
@@ -66,13 +66,13 @@ fade transition effects for menus and tooltips on Windows.
   transitioneffect @Index { Transition effect }
 @End @SubSection
 @SubSection
-    @Title { Styles-aware Widgets }
+    @Title { Style-aware Widgets }
     @Tag { style.aware.widgets }
 @Begin
 @PP
 Qt's built-in widgets are style aware. Custom widgets and dialogs are
 almost always combinations of built-in widgets and layouts, and are
-automatically style aware. On the rare occasions when it is necessary
+automatically style aware. On the rare occasions that it is necessary
 to write a custom widget from scratch, developers can use @Class
 QStyle to draw primitive user-interface elements rather than drawing
 raw rectangles directly.
@@ -117,7 +117,7 @@ functions from the appropriate base class.
     }
 }
 }
-#@IncludeGraphic { "../images/qstyle-diag.eps" }
+#@IncludeGraphic { "images/qstyle-diag.eps" }
   qaquastyle @Index { QAquaStyle }
   qcdestyle @Index { QCDEStyle }
   qcommonstyle @Index { QCommonStyle }
@@ -143,7 +143,7 @@ style plugin without recompiling the application.
   qtdesigner @Index { Qt Designer }
 @DP
 @OLREF @LP
-@Href{"http://www.trolltech.com/3.0/customstyle.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/customstyle.html"}@LLP
 @End @SubSection
 @EndSubSections
 @End @Section

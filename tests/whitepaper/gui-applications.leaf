@@ -81,7 +81,7 @@ this?" help provide balloon help for the user-interface elements.
   \index Tear-off handle
 
 The \Class QPopupMenu widget presents menu items to the user in a
-vertical list. Pop-up menus can be standalone (e.g. a context menu),
+vertical list. Popup menus can be standalone (e.g. a context menu),
 can appear in a menu bar, or can be a sub-menu of another popup menu.
 Menus can also have tear-off handles.
 
@@ -144,7 +144,7 @@ features on and off. Other toolbar buttons execute a command.
 Different icons can be provided for the active, disabled and enabled
 modes, and for the on and off states. If only one icon is provided,
 Qt automatically distinguishes the state using visual cues, for
-example graying out disabled buttons. Pressing a toolbar button can
+example, graying out disabled buttons. Pressing a toolbar button can
 also be used to trigger a popup menu.
 
 \Class {QToolButton}s usually appear side-by-side within a \Class
@@ -172,7 +172,7 @@ rarely displayed with text labels. Here's how to set the tooltip of a
 \code
     QToolTip::add( saveButton, "Save" );
 \endcode
-It is also possible to set a longer text to be displayed in
+It is also possible to set a longer piece of text to be displayed in
 the status bar when the tooltip is shown.
 
   \index What's this?
@@ -190,16 +190,16 @@ toolbar button:
   \index QWhatsThis
 
 The \Class QToolTip and \Class QWhatsThis classes provide virtual
-functions that can be reimplemented for more specialized behavior,
-for example to display different text according to the position
+functions that can be reimplemented for more specialized behavior.
+For example, to display different text according to the position
 of the mouse within the widget.
 
-\section2 The Status Bar
+\section2 Status Bars
 
   \index QStatusBar
   \index Status bar
 
-\Class QStatusBar implements a status bar. The status bar displays
+\Class QStatusBar implements a status bar. Status bars display
 three kinds of indicators:
 \list
 \i \e {Temporary messages.} These are displayed at the left.
@@ -245,7 +245,7 @@ button and a 'Save' accelerator, all with balloon help:
 
 In addition to avoiding duplication, using a \Class QAction ensures
 that the state of menu items stays in sync with the state of toolbar
-buttons, and that status tips are displayed when necessary. Disabling
+buttons, and that tool tips are displayed when necessary. Disabling
 an action will disable any corresponding menu items and toolbar
 buttons. Similarly, if the user clicks a toggle toolbar button, the
 corresponding menu item will be checked or unchecked accordingly.
@@ -269,9 +269,9 @@ widget:
   \index QWorkspace
   \index Workspace
 
-The \Class QWorkspace class provides multiple document interface
-(MDI) . \Class QWorkspace is typically used as the central widget of
-a \Class QMainWindow, but it can be used like any other widget.
+Multiple Document Interface (MDI) is provided by the \Class QWorkspace
+class. \Class QWorkspace is typically used as the central widget of a
+\Class QMainWindow, but it can be used like any other widget.
 
   \index Caption
   \index Child widget
@@ -301,8 +301,8 @@ menu bar.
 Most GUI applications use dialog boxes to interact with the user for
 certain operations. Qt includes ready-made dialog classes with
 convenience functions for the most common tasks. Many aspects of the
-dialogs can be configured, for example the buttons and labels in a
-\Class QMessageBox.
+dialogs can be configured. For example, setting the text used by the
+buttons and labels in a \Class QMessageBox.
 
 Screenshots of some of Qt's standard dialogs are presented below.
 
@@ -331,7 +331,8 @@ be used to select single or multiple local or remote files (e.g.
 using FTP), and includes functionality such as directory and file
 renaming and directory creation. Like most Qt dialogs, \Class
 QFileDialog is resizable, which makes it easy to view long file
-names and large directories.
+names and large directories. Applications can be set to automatically
+use the native file dialog when compiled for Windows.
 
   \index Progress bar
   \index QProgressDialog
@@ -345,11 +346,6 @@ names and large directories.
   \index Property box
   \index QTabDialog
   \index Tab widget
-
-  \img qtabdialog.png
-  \caption A \Class QTabDialog
-
-\Class QTabDialog provides a framework for settings dialogs.
 
   \index Assistant
   \index Druid
@@ -476,6 +472,7 @@ can be stored.
 
   \index Multi-threading
   \index QMutex
+  \index QSemaphore
   \index QThread
   \index QWaitCondition
 
@@ -483,8 +480,8 @@ GUI applications often use multiple threads: one thread to keep the
 user interface responsive, and one or many other threads to perform
 time-consuming activities such as reading large files and performing
 complex calculations. Qt can be configured to support
-multi-threading, and provides three threading classes: \Class
-QThread, \Class QMutex and \Class QWaitCondition.
+multi-threading, and provides four threading classes: \Class
+QThread, \Class QMutex, \Class QSemaphore and \Class QWaitCondition.
 
 \ONLINES
 \Online threads.html

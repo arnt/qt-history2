@@ -54,7 +54,7 @@ target string.
 @PP
 #Items in widget classes such as @Class QListBox and @Class QTable can
 #be sorted in the locale's dictionary order (only on Windows so far).
-@PP
+#@PP
 Conversion to and from different encodings and charsets is handled by
 @Class QTextCodec subclasses. Qt uses @Class QTextCodec for fonts,
 input methods and "I/O"; programmers can use it for their own purposes
@@ -67,9 +67,9 @@ as well.
 Qt 3.0 supports 37 different encodings, including Big5 and GBK for
 Chinese, EUC-JP, JIS and Shift-JIS for Japanese, KOI8-R for Russian
 and the ISO 8859 series; see 
-@Href{"http://doc.trolltech.com/qtextcodec.html"} for the complete list.
-Programmers can add their own encodings by providing a charmap or by
-subclassing @Class QTextCodec.
+@Href{"http://doc.trolltech.com/3.0/qtextcodec.html"} for the complete
+list. Programmers can add their own encodings by providing a charmap
+or by subclassing @Class QTextCodec.
   big5 @Index { Big5 }
   charmap @Index { Charmap }
   eucjp @Index { EUC-JP }
@@ -192,7 +192,6 @@ Qt Linguist and @Cmd lrelease.
   qtlinguist @Index { Qt Linguist }
   lrelease @Index { lrelease }
   lupdate @Index { lupdate }
-@PP
 @NumberedList
   designer @Index { Designer }
   qtdesigner @Index { Qt Designer }
@@ -231,14 +230,14 @@ Qt applications.
   japanese @Index { Japanese }
 @Figure
     @Caption { @I{Qt Linguist} }
-@Scale @IncludeGraphic { "../images/linguist-wp.eps" }
+0.5 @Scale @IncludeGraphic { "images/linguist-wp.eps" }
 @PP
 Translators can edit @File .ts files by hand, or more conveniently
 using Qt Linguist. The @File .ts file's contexts are listed in
 the left-hand side of the application's window. The list of source
 texts for the current context is displayed in the top-right area,
 along with translations. By selecting a source text, the translator
-can enter a translation for it, mark it as done or unfinished, and
+can enter a translation; mark it done or unfinished; and
 proceed to the next unfinished translation. Keyboard shortcuts are
 provided for all the common navigation options: @Menu {"Done & Next"},
 @Menu {Next Unfinished}, etc. The user interface's dockable windows
@@ -255,10 +254,10 @@ correctly.
   accelerator @Index { Accelerator }
 @DP
 @OLREF @LP
-@Href{"http://www.trolltech.com/3.0/i18n .html"}@LLP
-@Href{"http://www.trolltech.com/3.0/unicode.html"}@LLP
-@Href{"http://www.trolltech.com/3.0/scripts.html"}@LLP
-@Href{"http://www.trolltech.com/3.0/linguist-manual.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/i18n .html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/unicode.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/scripts.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/linguist-manual.html"}@LLP
 @End @SubSection
 @EndSubSections
 @End @Section

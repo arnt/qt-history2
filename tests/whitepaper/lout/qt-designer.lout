@@ -9,7 +9,7 @@ speed up development.
 } }
 @Figure
     @Caption { @QDR }
-@Scale @IncludeGraphic { "../images/designer-wp.eps" }
+0.5 @Scale @IncludeGraphic { "images/designer-wp.eps" }
 @PP
 Designing a form with @QDR is a simple process. Developers click a
 toolbar button representing the widget they want, then click on a
@@ -24,17 +24,17 @@ Layouts @Xref{layouts} for information about Qt's automatic layouts.
   designer @Index { Designer }
   qtdesigner @Index { Qt Designer }
 @PP
-@QDR eliminates the time consuming compile, link and run cycle, and
-makes it easy to correct or change designs. @QDR's preview options let
-developers see their forms in any style, for example, a Windows
-developer can preview a form in Motif style. @QDR provides live
-preview and editing of database data through its tight integration
-with Qt's database classes. See Databases @Xref{databases} for more
-about Qt's database support.
+@QDR eliminates the time-consuming compile, link and run cycle for
+user interface design. This makes it easy to correct or change
+designs. @QDR's preview options let developers see their forms in any
+style, for example, a Windows developer can preview a form in Motif
+style. @QDR provides live preview and editing of database data through
+its tight integration with Qt's database classes. See Databases
+@Xref{databases} for more about Qt's database support.
   database @Index { Database }
 @PP
-Developers can create both dialog-style applications and main
-window-style applications with menus, toolbars, balloon help, etc.
+Developers can create both `dialog' style applications and `main
+window' style applications with menus, toolbars, balloon help, etc.
 Several form templates are supplied, and developers can create their
 own templates to ensure consistency across an application or family of
 applications. @QDR uses wizards to make creating toolbars, menus and
@@ -71,7 +71,7 @@ developers do not need to invoke @Cmd uic themselves.
 @PP
 Usually forms are compiled into the executable, but in some
 situations customers need to modify the appearance of an application
-without accessing the source code. Qt supports 'dynamic dialogs':
+without accessing the source code. Qt supports `dynamic dialogs':
 @File .ui files that can be loaded at run-time and dynamically
 converted into fully functional forms. Companies can supply
 application executables along with the customer-modifiable forms in
@@ -97,7 +97,7 @@ for words and phrases that occur in the documentation.
   qtassistant @Index { Qt Assistant }
 @Figure
     @Caption { @I{Qt Assistant} }
-@Scale @IncludeGraphic { "../images/assistant-wp.eps" }
+0.5 @Scale @IncludeGraphic { "images/assistant-wp.eps" }
 @PP
 Qt's reference documentation consists of around 1,500 HTML pages (over
 2,500 US letter sized pages), which document Qt's classes and tools,
@@ -125,9 +125,9 @@ created with the @Class QStyleSheet class.
 @PP
 @Figure
     @Caption { Class hierarchy application }
-@Scale @IncludeGraphic { "../images/hierarchy.eps" }
+0.5 @Scale @IncludeGraphic { "images/hierarchy.eps" }
 @PP
-The class hierarchy application is a classic dialog-style application
+The class hierarchy application is a classic `dialog' style application
 where the user chooses some options, in this case paths, and then
 carries out some processing based on those options.
 @PP
@@ -222,7 +222,7 @@ QListViewItem *ClassHierarchy::insertClass( const QString& name,
 @End @CP
 @DP
 @OLREF @LP
-@Href{"http://www.trolltech.com/3.0/designer-manual.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/designer-manual.html"}@LLP
 @End @SubSection
 @EndSubSections
 @End @Section

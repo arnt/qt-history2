@@ -13,7 +13,7 @@ compiler supports STL or not.
 
 Applications often need to manage items in memory, for example,
 groups of images, widgets or custom objects. Many C++ compilers
-support the STL, which provides read-made data structures for storing
+support the STL, which provides ready-made data structures for storing
 items. Qt provides lists, stacks, queues and dictionaries with
 STL-syntax. Qt's collection classes work with both STL and non-STL
 compilers.

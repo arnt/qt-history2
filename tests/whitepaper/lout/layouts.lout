@@ -40,15 +40,13 @@ QVBoxLayout and @Class QGridLayout.
   qvboxlayout @Index { QVBoxLayout }
 @Figure
     @Caption { @Class QHBoxLayout with five child widgets }
-@IncludeGraphic { "../images/qhbox.eps" }
-@PP
+0.5 @Scale @IncludeGraphic { "images/qhbox.eps" }
 @Figure
     @Caption { @Class QVBoxLayout with five child widgets }
-@IncludeGraphic { "../images/qvbox.eps" }
-@PP
+0.5 @Scale @IncludeGraphic { "images/qvbox.eps" }
 @Figure
     @Caption { @Class QGridLayout with five child widgets }
-@IncludeGraphic { "../images/qgrid.eps" }
+0.5 @Scale @IncludeGraphic { "images/qgrid.eps" }
 @PP
 @Class QHBoxLayout organizes the managed widgets in a single
 horizontal row from left to right. @Class QVBoxLayout organizes the
@@ -123,10 +121,10 @@ Layouts can be nested to arbitrary levels. Here's an example of a
 dialog box, shown at two different sizes:
 @Figure
     @Caption { Small dialog }
-@IncludeGraphic { "../images/countries-small.eps" }
+0.5 @Scale @IncludeGraphic { "images/countries-small.eps" }
 @Figure
     @Caption { Large dialog }
-@IncludeGraphic { "../images/countries-large.eps" }
+0.5 @Scale @IncludeGraphic { "images/countries-large.eps" }
 @PP
 The dialog uses three layouts: a @Class QVBoxLayout that groups the
 push buttons, a @Class QHBoxLayout that groups the country listbox
@@ -167,8 +165,8 @@ positioning.
 @PP
 @Figure
     @Caption { Laying out a form in @QDR }
-@IncludeGraphic { "../images/countries-designer.eps" }
-@PP
+0.5 @Scale @IncludeGraphic { "images/countries-designer.eps" }
+@LLP
 @QDR makes layouts even easier. With only 17 mouse clicks, you can
 create and lay out the widgets for the dialog shown above.
 @End @SubSection
@@ -202,8 +200,8 @@ calling @Func QWidget::setGeometry() on each child widget.
   manuallayout @Index { Manual layout }
 @DP
 @OLREF @LP
-@Href{"http://www.trolltech.com/3.0/layout.html"}@LLP
-@Href{"http://www.trolltech.com/3.0/customlayout.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/layout.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/customlayout.html"}@LLP
 @End @SubSection
 @EndSubSections
 @End @Section

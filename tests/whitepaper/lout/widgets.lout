@@ -14,7 +14,7 @@ message boxes, application windows, etc., are all examples of
 widgets. Qt's widgets are not arbitrarily divided between 'controls'
 and `containers'; all widgets can be used both as controls and as
 containers. Custom widgets can easily be created by subclassing
-existing Qt widgets, or created from scratch on the rare occasions
+existing Qt widgets, or created from scratch on the rare occasion
 when this is necessary.
   control @Index { Control }
   qwidget @Index { QWidget }
@@ -42,7 +42,7 @@ custom widgets are created by subclassing.
     }
 }
 }
-#@IncludeGraphic{ "../images/qwidget-diag.eps" }
+#@IncludeGraphic{ "images/qwidget-diag.eps" }
   qdialog @Index { QDialog }
   qframe @Index { QFrame }
   qlabel @Index { QLabel }
@@ -52,7 +52,7 @@ custom widgets are created by subclassing.
   qtimer @Index { QTimer }
 @PP
 A widget may contain any number of child widgets. Child widgets are
-shown within the parent widget's area. A widget with no visible
+shown within the parent widget's area. A widget with no 
 parent is a top-level widget (a `window'), and usually has its own
 entry in the desktop environment's task bar. Qt imposes no arbitrary
 limitations on widgets. Any widget can be a top-level widget; any
@@ -80,7 +80,7 @@ Rendering @Xref{text.rendering}.
 @PP
 @Figure
     @Caption { Hello Qt! }
-@IncludeGraphic { "../images/hello.eps" }
+0.5 @Scale @IncludeGraphic { "images/hello.eps" }
 @PP
 The complete source code for a program that displays ``Hello Qt!''
 follows:
@@ -118,7 +118,7 @@ using the Windows style.
 @Figure
     @Caption { A @Class QLabel and a @Class QPushButton laid out with
 	       a @Class QHBox }
-@IncludeGraphic { "../images/qlabel-etc.eps" }
+0.5 @Scale @IncludeGraphic { "images/qlabel-etc.eps" }
   checkbox @Index { Checkbox }
   qbuttongroup @Index { QButtonGroup }
   qcheckbox @Index { QCheckBox }
@@ -127,7 +127,7 @@ using the Windows style.
 @Figure
     @Caption { Two @Class{QRadioButton}s and two @Class{QCheckBox}es
 	       laid out with a @Class QButtonGroup }
-@IncludeGraphic { "../images/qradiobutton-etc.eps" }
+0.5 @Scale @IncludeGraphic { "images/qradiobutton-etc.eps" }
   combobox @Index { Combobox }
   date @Index { Date }
   editor @Index { Editor }
@@ -144,7 +144,7 @@ using the Windows style.
     @Caption { A @Class QDateTimeEdit, a @Class QLineEdit, a @Class
 	       QTextEdit and a @Class QComboBox laid out with a
 	       @Class QGroupBox }
-@IncludeGraphic { "../images/qdatetimeedit-etc.eps" }
+0.5 @Scale @IncludeGraphic { "images/qdatetimeedit-etc.eps" }
   dial @Index { Dial }
   lcd @Index { LCD }
   progressbar @Index { Progress bar }
@@ -163,7 +163,7 @@ using the Windows style.
     @Caption { A @Class QDial, a @Class QProgressBar, a @Class QSpinBox,
 	       a @Class QScrollBar, a @Class QLCDNumber and a @Class
 	       QSlider laid out with a @Class QGrid }
-@IncludeGraphic { "../images/qdial-etc.eps" }
+0.5 @Scale @IncludeGraphic { "images/qdial-etc.eps" }
   hierarchicaltreeview @Index { Hierarchical tree view }
   iconview @Index { Icon view }
   listbox @Index { List box }
@@ -179,7 +179,7 @@ using the Windows style.
 @Figure
     @Caption { A @Class QIconView, a @Class QListView, a @Class QListBox
 	       and a @Class QTable laid out with a @Class QGrid }
-@IncludeGraphic { "../images/qiconview-etc.eps" }
+0.5 @Scale @IncludeGraphic { "images/qiconview-etc.eps" }
 @PP
 @Class QComboBox, @Class QLineEdit and @Class QSpinBox's input can be
 constrained or validated using a @Class QValidator subclass. Qt
@@ -240,7 +240,7 @@ the complete code for a digital clock widget is presented.
   subclassing @Index { Subclassing }
 @Figure
     @Caption { Clock widget }
-@IncludeGraphic { "../images/clock.eps" }
+0.5 @Scale @IncludeGraphic { "images/clock.eps" }
 @PP
 The @Class Clock widget is a LCD that displays the current time and
 updates itself automatically. A colon separator blinks to indicate
@@ -346,7 +346,7 @@ implemented in a base class. This approach is covered in 2D
 Graphics @Xref{2d.graphics}.
 @DP
 @OLREF @LP
-@Href{"http://www.trolltech.com/3.0/qwidget.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/qwidget.html"}@LLP
 @End @SubSection
 @EndSubSections
 @End @Section

@@ -12,7 +12,7 @@ message boxes, application windows, etc., are all examples of
 widgets. Qt's widgets are not arbitrarily divided between 'controls'
 and 'containers'; all widgets can be used both as controls and as
 containers. Custom widgets can easily be created by subclassing
-existing Qt widgets, or created from scratch on the rare occasions
+existing Qt widgets, or created from scratch on the rare occasion
 when this is necessary.
 
   \index Control
@@ -39,7 +39,7 @@ custom widgets are created by subclassing.
   \index Parent widget
 
 A widget may contain any number of child widgets. Child widgets are
-shown within the parent widget's area. A widget with no visible
+shown within the parent widget's area. A widget with no 
 parent is a top-level widget (a 'window'), and usually has its own
 entry in the desktop environment's task bar. Qt imposes no arbitrary
 limitations on widgets. Any widget can be a top-level widget; any

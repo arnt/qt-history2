@@ -8,7 +8,7 @@ to understand and use and are fully supported by @QDR.
 } }
 @PP
 GUI applications respond to user actions. For example, when a user
-clicks a menu item or toolbar button, the program executes some
+clicks a menu item or toolbar button, the application executes some
 code.  More generally, we want objects of any kind to be able to
 communicate with each other. The programmer must relate events to the
 relevant code. Older toolkits use mechanisms that are not type safe
@@ -117,7 +117,7 @@ is a slot. Slots are standard member functions with an implementation
 that can be called like any other function, and which can also be
 connected to signals.
   emittingasignal @Index { Emitting a signal }
-  preprocessorcpp @Index { Preprocessor }
+  preprocessor @Index { Pre-processor }
 @PP
 Here's the implementation of the slot @Func setBalance():
 @IndentedDisplay @CP @Begin
@@ -136,7 +136,7 @@ The statement
 causes the @Func balanceChanged() signal to be emitted with the new
 current balance as its argument. The keyword @F emit, like @F signals
 and @F slots, is provided by Qt and is transformed into standard C++
-by the C++ preprocessor.
+by the C++ pre-processor.
 @PP
 Here's an example of how to connect two @Class{BankAccount}s:
 @IndentedDisplay @CP @Begin
@@ -160,7 +160,7 @@ their arguments are compatible.
 @Begin
 @PP
 The signals and slots mechanism is implemented in pure standard C++.
-The implementation uses the C++ preprocessor and the Meta Object
+The implementation uses the C++ pre-processor and the Meta Object
 Compiler (@Cmd{moc}) included with the Qt toolkit.
   compilerfeatures @Index { Compiler features }
   metaobjectcompiler @Index { Meta Object Compiler }
@@ -175,8 +175,8 @@ build tool generates the correct Makefiles for the target platform.
 @PP
 In addition to handling signals and slots, @Cmd moc supports Qt's
 translation mechanism, its property system and extended run-time type
-information. The @Cmd moc also makes the cross-platform introspection
-of C++ programs possible.
+information. The meta object compiler also makes the cross-platform
+introspection of C++ programs possible.
   introspection @Index { Introspection }
   magic @Index { Magic }
   property @Index { Property }
@@ -185,9 +185,9 @@ of C++ programs possible.
   translation @Index { Translation }
 @DP
 @OLREF @LP
-@Href{"http://www.trolltech.com/3.0/object.html"}@LLP
-@Href{"http://www.trolltech.com/3.0/signalsandslots.html"}@LLP
-@Href{"http://www.trolltech.com/3.0/moc.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/object.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/signalsandslots.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/moc.html"}@LLP
 @End @SubSection
 @EndSubSections
 @End @Section

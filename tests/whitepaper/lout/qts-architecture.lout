@@ -52,11 +52,11 @@ applications.
 	C { Carbon }
 	D { @LP Embedded Linux }
     @Rowe
-	A { Windows }
-	B { X11 }
+	A { MS-Windows }
+	B { "Unix/Linux" }
 	C { Mac OS X }
 }
-#@IncludeGraphic { "../images/architecture-diag.eps" }
+#@IncludeGraphic { "images/architecture-diag.eps" }
 @PP
 Qt uses the low-level APIs of the different platforms it supports.
 This differs from traditional 'layered' cross-platform toolkits that
@@ -172,10 +172,15 @@ New in version 3.0, Qt supports Mac OS X using the Carbon API.
 "Qt/Mac" creates a new market for customers who sell Qt applications.
   carbon @Index { Carbon }
 @PP
-For Macintosh developers, the availability of "Qt/Mac" opens up a new
-world of possibilities. Macintosh developers can create applications
-on their favorite platform, using a fully object-oriented toolkit,
-and broaden their market hugely simply by recompiling on, for
+Qt introduces layouts and straightforward internationalization support
+to the Macintosh. Qt handles files, and asynchronous socket
+"input/output", in the event loop. Qt provides solid database support.
+Developers can create Macintosh applications using a modern object
+oriented API that includes comprehensive documentation and full source
+code.
+@PP
+Macintosh developers can create applications on their favorite
+platform and broaden their market hugely simply by recompiling on, for
 example, Windows.
 @PP
 "Qt/Mac" also brings some technical benefits to Macintosh development,
@@ -224,7 +229,7 @@ Qt's powerful supporting tools such as @Cmd qmake and @QDR.
 @PP
 Qt has an active and helpful user community who communicate using the
 @F qt-interest mailing list. See @Href{"http://qt-interest.trolltech.com"}
-to subscribe or browse the archive.
+to subscribe or to browse the archive.
   mailinglist @Index { Mailing list }
 @PP
 Qt's extensive documentation is available on-line

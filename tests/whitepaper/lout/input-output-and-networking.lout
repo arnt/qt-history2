@@ -59,7 +59,7 @@ if ( file.open(IO_ReadOnly) ) {
 }
 @End @CP
 In practice, the above example would be written more concisely and
-easily using settings @Xref{settings}.
+easily using @Class QSettings @Xref{settings}.
 @PP
 @Class QTextStream and @Class QDataStream operate on any @Class
 QIODevice subclass. Qt includes the @Class QFile, @Class QBuffer,
@@ -187,7 +187,7 @@ use @Class QTextStream and @Class QDataStream on a socket.
 live currency converter application illustrates this:
 @Figure
     @Caption { Live currency converter }
-@IncludeGraphic { "../images/converter.eps" }
+0.5 @Scale @IncludeGraphic { "images/converter.eps" }
 @PP
 The application uses the fictional protocol CCP (Currency Conversion
 Protocol) to access the latest exchange rates from a server. Only
@@ -249,8 +249,8 @@ used for UDP.
   udp @Index { UDP }
 @DP
 @OLREF @LP
-@Href{"http://www.trolltech.com/3.0/xml.html"}@LLP
-@Href{"http://www.trolltech.com/3.0/datastreamformat.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/xml.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/datastreamformat.html"}@LLP
 @End @SubSection
 @EndSubSections
 @End @Section

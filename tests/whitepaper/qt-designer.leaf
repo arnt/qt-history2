@@ -25,18 +25,19 @@ Layouts for information about Qt's automatic layouts.
 
   \index Database
 
-\QD eliminates the time consuming compile, link and run cycle, and
-makes it easy to correct or change designs. \QD's preview options let
-developers see their forms in any style, for example, a Windows
-developer can preview a form in Motif style. \QD provides live
-preview and editing of database data through its tight integration
-with Qt's database classes. See \l Databases for more about Qt's
-database support.
+\QD eliminates the time-consuming compile, link and run cycle for user
+interface design. This makes it easy to correct or change designs.
+\QD's preview options let developers see their forms in any style, for
+example, a Windows developer can preview a form in Motif style. \QD
+provides live preview and editing of database data through its tight
+integration with Qt's database classes. See \l Databases for more
+about Qt's database support.
 
   \index Custom widget
 
-Developers can create both dialog-style applications and main
-window-style applications with menus, toolbars, balloon help, etc.
+Developers can create both `dialog' style applications and `main
+window' style applications with menus, toolbars, balloon help, etc.
+
 Several form templates are supplied, and developers can create their
 own templates to ensure consistency across an application or family of
 applications. \QD uses wizards to make creating toolbars, menus and
@@ -125,7 +126,7 @@ that are created with the \Class QStyleSheet class.
   \img hierarchy.png
   \caption Class hierarchy application
 
-The class hierarchy application is a classic dialog-style application
+The class hierarchy application is a classic 'dialog' style application
 where the user chooses some options, in this case paths, and then
 carries out some processing based on those options.
 

@@ -3,7 +3,7 @@
 \quote
 The Qt SQL module simplifies the creation of cross-platform GUI
 database applications. Programmers can easily execute SQL statements,
-use database-specific widgets, and make any widget data aware.
+use database-specific widgets, and make any widget data-aware.
 \endquote
 
   \index Database
@@ -31,7 +31,7 @@ generate the appropriate SQL statements automatically.
   \index Key
   \index Primary key
 
-Any Qt widget, including custom widgets, can be made data aware. Qt
+Any Qt widget, including custom widgets, can be made data-aware. Qt
 also includes some database-specific convenience widgets, to simplify
 the creation of dialogs and windows that present records as forms or
 in tables. Data-aware widgets automatically support browsing,
@@ -204,7 +204,7 @@ into its ID by implementing a slot connected to \Func beforeInsert(),
 Developers can create their own forms for displaying database records.
 Unlike older toolkits that duplicate their widgets with data-aware
 versions, any Qt widget (including custom widgets) can be made
-data aware. All that is necessary is to include the widget in a \Class
+data-aware. All that is necessary is to include the widget in a \Class
 QSqlForm and set up a property map to relate the relevant database
 field to the widget that will present and edit the field's data.
 

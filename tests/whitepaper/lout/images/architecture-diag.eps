@@ -1,0 +1,811 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%Creator: Basser Lout Version 3.21 (May 2000)
+%%CreationDate: Wed Sep 26 19:00:23 2001
+%%DocumentData: Binary
+%%DocumentNeededResources: (atend)
+%%DocumentSuppliedResources: (atend)
+%%DocumentMedia: Plain 453 103 0 white ()
+%%PageOrder: Ascend
+%%Pages: (atend)
+%%BoundingBox: 0 0 453 103
+%%EndComments
+
+%%BeginProlog
+%%BeginResource: procset LoutStartUp
+/save_cp { currentpoint /cp_y exch def /cp_x exch def } def
+/restore_cp { cp_x cp_y moveto } def
+/outline { gsave 1 1 1 setrgbcolor dup show save_cp
+  grestore true charpath stroke restore_cp } bind def
+/m  { 3 1 roll moveto show } bind def
+/mo { 3 1 roll moveto outline } bind def
+/s  { exch currentpoint exch pop moveto show } bind def
+/so { exch currentpoint exch pop moveto outline } bind def
+/k  { exch neg 0 rmoveto show } bind def
+/ko { exch neg 0 rmoveto outline } bind def
+/r  { exch 0 rmoveto show } bind def
+/ro { exch 0 rmoveto outline } bind def
+/c  { gsave 3 1 roll rmoveto show grestore } bind def
+/co { gsave 3 1 roll rmoveto outline grestore } bind def
+/ul { gsave setlinewidth dup 3 1 roll
+      moveto lineto stroke grestore } bind def
+/in { 1440 mul } def
+/cm { 567 mul } def
+/pt { 20 mul } def
+/em { 120 mul } def
+/sp { louts mul } def
+/vs { loutv mul } def
+/ft { loutf mul } def
+/dg {           } def
+
+/LoutGraphic {
+  /louts exch def
+  /loutv exch def
+  /loutf exch def
+  /ymark exch def
+  /xmark exch def
+  /ysize exch def
+  /xsize exch def
+} def
+
+/LoutGr2 { gsave translate LoutGraphic gsave } def
+
+/LoutFont
+{ findfont exch scalefont setfont
+} bind def
+
+/LoutRecode {
+  { findfont dup length dict begin
+    {1 index /FID ne {def} {pop pop} ifelse} forall
+    /Encoding exch def
+    currentdict end definefont pop
+  }
+  stopped pop
+} bind def
+
+/BeginEPSF {
+  /LoutEPSFState save def
+  /dict_count countdictstack def
+  /op_count count 1 sub def
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [] 0 setdash newpath
+  /languagelevel where
+  { pop languagelevel
+    1 ne
+    { false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pop } repeat
+  countdictstack dict_count sub { end } repeat
+  LoutEPSFState restore
+} bind def
+%%EndResource
+
+%%BeginResource: procset LoutTblPrependGraphic
+% @PrependGraphic file /usr/local/lib/lout/include/tblf.lpg
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                    %
+%  PostScript @SysPrependGraphic file for @Tbl  Jeffrey H. Kingston  %
+%  Version 1.0                                             June 1998 %
+%                                                                    %
+%  To assist in avoiding name clashes, the names of all symbols      %
+%  defined here begin with "ltbl".                                   %
+%                                                                    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% painting (i.e. filling): - ltblwhite - (etc.)
+/ltblnopaint		{			       } def
+/ltblnochange		{ 			  fill } def
+/ltbldarkblue		{ 0.0 0.0 0.5 setrgbcolor fill } def
+/ltblblue		{ 0.0 0.0 1.0 setrgbcolor fill } def
+/ltbllightblue		{ 0.5 0.5 1.0 setrgbcolor fill } def
+/ltbldarkgreen		{ 0.0 0.5 0.0 setrgbcolor fill } def
+/ltblgreen		{ 0.0 1.0 0.0 setrgbcolor fill } def
+/ltbllightgreen	        { 0.5 1.0 0.5 setrgbcolor fill } def
+/ltbldarkred		{ 0.5 0.0 0.0 setrgbcolor fill } def
+/ltblred		{ 1.0 0.0 0.0 setrgbcolor fill } def
+/ltbllightred		{ 1.0 0.5 0.5 setrgbcolor fill } def
+/ltbldarkcyan		{ 0.0 0.5 0.5 setrgbcolor fill } def
+/ltblcyan		{ 0.0 1.0 1.0 setrgbcolor fill } def
+/ltbllightcyan		{ 0.5 1.0 1.0 setrgbcolor fill } def
+/ltbldarkmagenta	{ 0.5 0.0 0.5 setrgbcolor fill } def
+/ltblmagenta		{ 1.0 0.0 1.0 setrgbcolor fill } def
+/ltbllightmagenta	{ 1.0 0.5 1.0 setrgbcolor fill } def
+/ltbldarkyellow        	{ 0.5 0.5 0.0 setrgbcolor fill } def
+/ltblyellow		{ 1.0 1.0 0.0 setrgbcolor fill } def
+/ltbllightyellow	{ 1.0 1.0 0.5 setrgbcolor fill } def
+/ltbldarkgray		{ 0.2 0.2 0.2 setrgbcolor fill } def
+/ltblgray		{ 0.5 0.5 0.5 setrgbcolor fill } def
+/ltbllightgray		{ 0.8 0.8 0.8 setrgbcolor fill } def
+/ltbldarkgrey		{ 0.2 0.2 0.2 setrgbcolor fill } def
+/ltblgrey		{ 0.5 0.5 0.5 setrgbcolor fill } def
+/ltbllightgrey		{ 0.8 0.8 0.8 setrgbcolor fill } def
+/ltblblack		{ 0.0 0.0 0.0 setrgbcolor fill } def
+/ltblwhite		{ 1.0 1.0 1.0 setrgbcolor fill } def
+%%EndResource
+
+%%BeginResource: procset LoutBasicSetup
+% @PrependGraphic file /usr/local/lib/lout/include/bsf.lpg
+
+% width height linethickness louteuro -
+% draw a Euro symbol of this width and height with this line thickness
+/louteuro {
+  20 dict begin
+    /eurothick exch def
+    /euroheight exch def
+    /eurowidth exch def
+    /eurostrokewidth euroheight 0.8 mul def
+    /eurostep eurothick 60 cos mul 60 sin div def
+    /eurotheta 40 def
+
+    % llx lly width thickness louteurobox -
+    % draw angled box starting at (llx, lly) with given width and thickness
+    /louteurobox
+    {
+      /euroboxthick exch def
+      /euroboxwidth exch def
+      newpath moveto euroboxwidth 0 rlineto
+      eurostep euroboxthick rlineto
+      euroboxwidth neg 0 rlineto closepath fill
+    } def
+
+    % lower cross stroke
+    0 euroheight 2 div eurothick 1.5 mul sub
+    eurostrokewidth eurothick louteurobox
+
+    % upper cross stroke
+    0 euroheight 2 div eurothick 0.5 mul add
+    eurostrokewidth eurostep 2 mul add eurothick louteurobox
+
+    % circular part
+    /eurohctr eurowidth euroheight 2 div eurotheta cos mul sub def
+    /eurovctr euroheight 2 div def
+    newpath
+    eurohctr eurovctr eurovctr eurotheta 350 eurotheta sub arc
+    eurohctr eurovctr eurovctr eurothick sub 365 eurotheta sub eurotheta arcn
+    closepath fill
+  end
+} def
+
+% path for @FullWidthRule symbol
+/LoutRule
+{ 0 0 moveto xsize 0 lineto
+} def
+
+% path for @Box symbol
+/LoutBox
+{ 0 0 moveto xsize 0 lineto
+  xsize ysize lineto 0 ysize lineto
+  closepath
+} def
+
+% path for @CurveBox symbol
+/LoutCurveBox
+{ xmark 0 moveto
+  xsize xmark sub xmark xmark 270 360 arc
+  xsize xmark sub ysize xmark sub xmark 0 90 arc
+  xmark ysize xmark sub xmark 90 180 arc
+  xmark xmark xmark 180 270 arc
+  closepath
+} def
+
+% path for @ShadowBox symbol
+/LoutShadowBox
+{ xmark 2 mul 0 moveto xsize 0 lineto
+  xsize ysize xmark 2 mul sub lineto
+  xsize xmark sub ysize xmark 2 mul sub lineto
+  xsize xmark sub xmark lineto
+  xmark 2 mul xmark lineto
+  closepath
+} def
+
+% set up dictionary containing margin note data: parity LoutMargSet -
+/LoutMargSet
+{ /LoutMargDict 12 dict def
+  LoutMargDict begin
+    /parity exch def
+    /matr matrix currentmatrix def
+    /rightx xsize def
+    /lefty ysize def   % highest allowable point for top of next left note
+    /righty ysize def  % highest allowable point for top of next right note
+    /max { 2 copy gt { pop } { exch pop } ifelse } def
+    /min { 2 copy lt { pop } { exch pop } ifelse } def
+  end
+} def
+
+%translate coordinate system for marginal notes:  type LoutMargShift -
+% where type 0 is left margin, 1 is right margin, 2 is outer, 3 is inner
+/LoutMargShift
+{ LoutMargDict begin
+
+    % y coordinate of top of note, in margin coords, before vertical adjust
+    0 ysize transform matr itransform exch pop
+
+    % decide whether left or right margin based on type and parity
+    exch [ 0 1 parity 1 parity sub ] exch get 0 eq
+    {
+      % left margin: adjust top of note downwards if overlaps previous note
+      lefty min
+
+      % bottom of note is new lefty position and also translate position
+      ysize sub dup /lefty exch def
+
+      % want right edge of note at coordinate zero
+      xsize neg exch
+    }
+    {
+      % right margin: adjust top of note downwards if overlaps previous note
+      righty min
+
+      % bottom of note is new righty position and also translate position
+      ysize sub dup /righty exch def
+
+      % want left edge of note at coordinate rightx
+      rightx exch
+    } ifelse
+
+    % stack now contains coord of bottom left corner in margin coordinates
+    matr setmatrix translate
+  end
+} def
+
+% create LoutPageDict with left, right, foot, top for @Place symbol users
+/LoutPageSet
+{
+  /LoutPageDict 5 dict def
+  LoutPageDict begin
+    /matr matrix currentmatrix def
+    /left 0 def
+    /right xsize def
+    /foot 0 def
+    /top ysize def
+  end
+
+} def
+
+%%EndResource
+
+%%EndProlog
+
+%%BeginSetup
+%%IncludeResource: font Times-Roman
+%%BeginResource: encoding vec2
+/vec2 [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/space /exclam /quotedbl /numbersign /dollar /percent /ampersand /quoteright
+/parenleft /parenright /asterisk /plus /comma /hyphen /period /slash
+/zero /one /two /three /four /five /six /seven
+/eight /nine /colon /semicolon /less /equal /greater /question
+/at /A /B /C /D /E /F /G
+/H /I /J /K /L /M /N /O
+/P /Q /R /S /T /U /V /W
+/X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore
+/quoteleft /a /b /c /d /e /f /g
+/h /i /j /k /l /m /n /o
+/p /q /r /s /t /u /v /w
+/x /y /z /braceleft /bar /braceright /asciitilde /.notdef
+/quotesinglbase /quotedblbase /ellipsis /OE /oe /quotedblleft /quotedblright /fi
+/fl /endash /emdash /bullet /dagger /daggerdbl /florin /fraction
+/dotlessi /grave /acute /circumflex /tilde /macron /breve /dotaccent
+/dieresis /.notdef /ring /cedilla /.notdef /hungarumlaut /ogonek /caron
+/space /exclamdown /cent /sterling /currency /yen /brokenbar /section
+/dieresis /copyright /ordfeminine /guillemotleft /logicalnot /hyphen /registered /macron
+/degree /plusminus /twosuperior /threesuperior /acute /mu /paragraph /periodcentered
+/cedilla /onesuperior /ordmasculine /guillemotright /onequarter /onehalf /threequarters /questiondown
+/Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla
+/Egrave /Eacute /Ecircumflex /Edieresis /Igrave /Iacute /Icircumflex /Idieresis
+/Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde /Odieresis /multiply
+/Oslash /Ugrave /Uacute /Ucircumflex /Udieresis /Yacute /Thorn /germandbls
+/agrave /aacute /acircumflex /atilde /adieresis /aring /ae /ccedilla
+/egrave /eacute /ecircumflex /edieresis /igrave /iacute /icircumflex /idieresis
+/eth /ntilde /ograve /oacute /ocircumflex /otilde /odieresis /divide
+/oslash /ugrave /uacute /ucircumflex /udieresis /yacute /thorn /ydieresis
+] def
+%%EndResource
+
+/Times-Romanfnt1 vec2 /Times-Roman LoutRecode
+/fnt1 { /Times-Romanfnt1 LoutFont } def
+%%IncludeResource: font Helvetica
+/Helveticafnt2 vec2 /Helvetica LoutRecode
+/fnt2 { /Helveticafnt2 LoutFont } def
+%%EndSetup
+
+%%Page: ? 1
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Helvetica
+/pgsave save def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+
+gsave
+0 0 translate
+240 fnt1 0.0 0.0 0.0 setrgbcolor 9072 2064 72 1992 240 288 60 LoutGraphic
+gsave
+LoutBox gsave 0.0 0.0 0.0 setrgbcolor fill grestore 0.01 cm setlinewidth stroke
+grestore
+8928 384 0 384 240 288 60 72 1608 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+12 384 0 384 240 288 60 0 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 384 0 384 240 288 60 8928 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+8928 12 0 12 240 288 60 0 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+8928 12 0 12 240 288 60 0 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 8928 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 8928 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+240 fnt2 1.0 1.0 1.0 setrgbcolor 3008 130(Qt)m 3321(Application)s 4542(Source)s
+5357(Code)s 
+grestore
+8928 384 0 384 240 288 60 72 1224 LoutGr2
+LoutBox ltblgrey
+grestore
+12 384 0 384 240 288 60 0 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 384 0 384 240 288 60 8928 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+8928 12 0 12 240 288 60 0 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+8928 12 0 12 240 288 60 0 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 8928 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 8928 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+240 fnt2 4125 130(Qt)m 4438(API)s 
+grestore
+2232 384 0 384 240 288 60 72 840 LoutGr2
+LoutBox ltbllightgrey
+grestore
+12 384 0 384 240 288 60 0 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 384 0 384 240 288 60 2232 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+240 fnt2
+477 130(Qt/Windo)m 3(ws)k 
+grestore
+2232 384 0 384 240 288 60 2304 840 LoutGr2
+LoutBox ltbllightgrey
+grestore
+12 384 0 384 240 288 60 0 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 384 0 384 240 288 60 2232 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+240 fnt2 767 130(Qt/X11)m 
+grestore
+2232 384 0 384 240 288 60 4536 840 LoutGr2
+LoutBox ltbllightgrey
+grestore
+12 384 0 384 240 288 60 0 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 384 0 384 240 288 60 2232 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+240 fnt2
+419 130(Qt/Macintosh)m 
+grestore
+2232 384 0 384 240 288 60 6768 840 LoutGr2
+LoutBox ltbllightgrey
+grestore
+12 384 0 384 240 288 60 0 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 384 0 384 240 288 60 2232 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+240 fnt2 385 130(Qt/Embedded)m 
+grestore
+2232 384 0 384 240 288 60 72 456 LoutGr2
+LoutBox ltblwhite
+grestore
+12 384 0 384 240 288 60 0 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 384 0 384 240 288 60 2232 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+240 fnt2 914 130(GDI)m
+
+grestore
+2232 384 0 384 240 288 60 2304 456 LoutGr2
+LoutBox ltblwhite
+grestore
+12 384 0 384 240 288 60 0 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 384 0 384 240 288 60 2232 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+240 fnt2 921 130(Xlib)m 
+grestore
+2232 384 0 384 240 288 60 4536 456 LoutGr2
+LoutBox ltblwhite
+grestore
+12 384 0 384 240 288 60 0 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 384 0 384 240 288 60 2232 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+240 fnt2 731 130(Carbon)m 
+grestore
+2232 768 0 768 240 288 60 6768 72 LoutGr2
+LoutBox ltblwhite
+grestore
+12 768 0 768 240 288 60 0 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 768 0 768 240 288 60 2232 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 756 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 756 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+240 fnt2
+227 140(Embedded)m 1437(Lin)s 2(ux)k 
+grestore
+2232 384 0 384 240 288 60 72 72 LoutGr2
+LoutBox ltblwhite
+grestore
+12 384 0 384 240 288 60 0 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 384 0 384 240 288 60 2232 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+240 fnt2 417 130(MS-Windo)m 3(ws)k
+
+grestore
+2232 384 0 384 240 288 60 2304 72 LoutGr2
+LoutBox ltblwhite
+grestore
+12 384 0 384 240 288 60 0 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 384 0 384 240 288 60 2232 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+240 fnt2 559 130(Unix/Lin)m 2(ux)k 
+grestore
+2232 384 0 384 240 288 60 4536 72 LoutGr2
+LoutBox ltblwhite
+grestore
+12 384 0 384 240 288 60 0 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 384 0 384 240 288 60 2232 0 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+2232 12 0 12 240 288 60 0 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 372 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+12 12 0 12 240 288 60 2232 -12 LoutGr2
+LoutBox ltbldarkgrey
+grestore
+
+grestore
+240 fnt2 581 130(Mac)m
+1094(OS)s 1495(X)s 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Trailer
+%%DocumentNeededResources: font Times-Roman
+%%+ font Helvetica
+%%DocumentSuppliedResources: procset LoutStartUp
+%%+  procset LoutTblPrependGraphic
+%%+  procset LoutBasicSetup
+%%+ encoding vec2
+%%Pages: 1
+%%EOF

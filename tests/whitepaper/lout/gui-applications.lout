@@ -56,7 +56,7 @@ provide a framework for typical application main windows.
   qmainwindow @Index { QMainWindow }
 @Figure
     @Caption { An application main window }
-@IncludeGraphic { "../images/mainwindow.eps" }
+0.5 @Scale @IncludeGraphic { "images/mainwindow.eps" }
 @PP
 A main window contains a set of standard widgets. The top of the main
 window contains a menu bar, beneath which toolbars are laid out. The
@@ -81,7 +81,7 @@ this?'' help provide balloon help for the user-interface elements.
 @Begin
 @PP
 The @Class QPopupMenu widget presents menu items to the user in a
-vertical list. Pop-up menus can be standalone (e.g. a context menu),
+vertical list. Popup menus can be standalone (e.g. a context menu),
 can appear in a menu bar, or can be a sub-menu of another popup menu.
 Menus can also have tear-off handles.
   contextmenu @Index { Context menu }
@@ -146,7 +146,7 @@ features on and off. Other toolbar buttons execute a command.
 Different icons can be provided for the active, disabled and enabled
 modes, and for the on and off states. If only one icon is provided,
 Qt automatically distinguishes the state using visual cues, for
-example graying out disabled buttons. Pressing a toolbar button can
+example, graying out disabled buttons. Pressing a toolbar button can
 also be used to trigger a popup menu.
   icon @Index { Icon }
   qtoolbar @Index { QToolBar }
@@ -180,7 +180,7 @@ rarely displayed with text labels. Here's how to set the tooltip of a
 @IndentedDisplay @CP @Begin
 QToolTip::add( saveButton, "Save" );
 @End @CP
-It is also possible to set a longer text to be displayed in
+It is also possible to set a longer piece of text to be displayed in
 the status bar when the tooltip is shown.
 @PP
 ``What's this?'' help is similar to tooltips, except that the user must
@@ -194,22 +194,22 @@ QWhatsThis::add( saveButton, "Saves the current file." );
 @End @CP
 @PP
 The @Class QToolTip and @Class QWhatsThis classes provide virtual
-functions that can be reimplemented for more specialized behavior,
-for example to display different text according to the position
+functions that can be reimplemented for more specialized behavior.
+For example, to display different text according to the position
 of the mouse within the widget.
   qtooltip @Index { QToolTip }
   qwhatsthis @Index { QWhatsThis }
 @End @SubSubSection
 @SubSubSection
-    @Title { The Status Bar }
-    @Tag { the.status.bar }
+    @Title { Status Bar }
+    @Tag { status.bar }
 @Begin
 @PP
-@Class QStatusBar implements a status bar. The status bar displays
+@Class QStatusBar implements a status bar. Status bars display
 three kinds of indicators:
   qstatusbar @Index { QStatusBar }
   statusbar @Index { Status bar }
-@BulletList
+@NumberedList
 @ListItem { @I{Temporary messages.} These are displayed at the left.
 Temporary messages vanish after a definable amount of time, or when
 another message is shown. }
@@ -252,7 +252,7 @@ saveAct->addTo( toolbar );
 @PP
 In addition to avoiding duplication, using a @Class QAction ensures
 that the state of menu items stays in sync with the state of toolbar
-buttons, and that status tips are displayed when necessary. Disabling
+buttons, and that tool tips are displayed when necessary. Disabling
 an action will disable any corresponding menu items and toolbar
 buttons. Similarly, if the user clicks a toggle toolbar button, the
 corresponding menu item will be checked or unchecked accordingly.
@@ -279,9 +279,9 @@ mainWindow->setCentralWidget( editor );
     @Tag { multiple.document.interface }
 @Begin
 @PP
-The @Class QWorkspace class provides multiple document interface
-(MDI). @Class QWorkspace is typically used as the central widget of
-a @Class QMainWindow, but it can be used like any other widget.
+Multiple Document Interface (MDI) is provided by the @Class QWorkspace
+class. @Class QWorkspace is typically used as the central widget of a
+@Class QMainWindow, but it can be used like any other widget.
   mdi @Index { MDI }
   qworkspace @Index { QWorkspace }
   workspace @Index { Workspace }
@@ -311,8 +311,8 @@ menu bar.
 Most GUI applications use dialog boxes to interact with the user for
 certain operations. Qt includes ready-made dialog classes with
 convenience functions for the most common tasks. Many aspects of the
-dialogs can be configured, for example the buttons and labels in a
-@Class QMessageBox.
+dialogs can be configured. For example, setting the text used by the
+buttons and labels in a @Class QMessageBox.
   window @Index { Window }
   dialog @Index { Dialog }
   nativedialog @Index { Native dialog }
@@ -327,48 +327,43 @@ Screenshots of some of Qt's standard dialogs are presented below.
 @PP
 @Figure
     @Caption { A @Class QMessageBox }
-@IncludeGraphic { "../images/qmessagebox.eps" }
-@PP
+0.5 @Scale @IncludeGraphic { "images/qmessagebox.eps" }
+@LLP
 @Class QMessageBox is used to provide the user with information or to
 present the user with simple choices (e.g. `Yes' or `No').
 @PP
 @Figure
     @Caption { A @Class QFileDialog }
-@IncludeGraphic { "../images/qfiledialog.eps" }
-@PP
+0.5 @Scale @IncludeGraphic { "images/qfiledialog.eps" }
+@LLP
 @Class QFileDialog is a sophisticated file selection dialog. It can
 be used to select single or multiple local or remote files (e.g.
 using FTP), and includes functionality such as directory and file
 renaming and directory creation. Like most Qt dialogs, @Class
 QFileDialog is resizable, which makes it easy to view long file
-names and large directories.
+names and large directories. Applications can be set to automatically
+use the native file dialog when compiled for Windows.
   directory @Index { Directory }
   filedialog @Index { File dialog }
   qfiledialog @Index { QFileDialog }
 @PP
 @Figure
     @Caption { A @Class QProgressDialog }
-@IncludeGraphic { "../images/qprogressdialog.eps" }
-@PP
+0.5 @Scale @IncludeGraphic { "images/qprogressdialog.eps" }
+@LLP
 @Class QProgressDialog displays a progress bar and a `Cancel' button.
   progressbar @Index { Progress bar }
   qprogressdialog @Index { QProgressDialog }
 @PP
 @Figure
-    @Caption { A @Class QTabDialog }
-@IncludeGraphic { "../images/qtabdialog.eps" }
-@PP
-@Class QTabDialog provides a framework for settings dialogs.
+    @Caption { A @Class QWizard }
+0.5 @Scale @IncludeGraphic { "images/qwizard.eps" }
+@LLP
+@Class QWizard provides a framework for wizard dialogs.
   notebook @Index { Notebook }
   propertybox @Index { Property box }
   qtabdialog @Index { QTabDialog }
   tabwidget @Index { Tab widget }
-@PP
-@Figure
-    @Caption { A @Class QWizard }
-@Scale @IncludeGraphic { "../images/qwizard.eps" }
-@PP
-@Class QWizard provides a framework for wizard dialogs.
   assistant @Index { Assistant }
   druid @Index { Druid }
   qwizard @Index { QWizard }
@@ -376,8 +371,8 @@ names and large directories.
 @PP
 @Figure
     @Caption { A @Class QFontDialog }
-@Scale @IncludeGraphic { "../images/qfontdialog.eps" }
-@PP
+0.5 @Scale @IncludeGraphic { "images/qfontdialog.eps" }
+@LLP
 @Class QFontDialog is used to select a font.
   colordialog @Index { Color dialog }
   fontdialog @Index { Font dialog }
@@ -392,7 +387,7 @@ Dialogs operate in one of three ways:
   qdialog @Index { QDialog }
   qwidget @Index { QWidget }
   semimodaldialog @Index { Semi-modal dialog }
-@BulletList
+@NumberedList
 @ListItem { A @I modal dialog blocks input to the other visible
 windows in the same application. Users must close the dialog before
 they can access any other window in the application. }
@@ -492,15 +487,16 @@ GUI applications often use multiple threads: one thread to keep the
 user interface responsive, and one or many other threads to perform
 time-consuming activities such as reading large files and performing
 complex calculations. Qt can be configured to support
-multi-threading, and provides three threading classes: @Class
-QThread, @Class QMutex and @Class QWaitCondition.
+multi-threading, and provides four threading classes: @Class
+QThread, @Class QMutex, @Class QSemaphore and @Class QWaitCondition.
   multithreading @Index { Multi-threading }
   qmutex @Index { QMutex }
+  qsemaphore @Index { QSemaphore }
   qthread @Index { QThread }
   qwaitcondition @Index { QWaitCondition }
 @DP
 @OLREF @LP
-@Href{"http://www.trolltech.com/3.0/threads.html"}@LLP
+@Href{"http://doc.trolltech.com/3.0/threads.html"}@LLP
 @End @SubSection
 @EndSubSections
 @End @Section

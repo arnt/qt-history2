@@ -15,14 +15,14 @@ since 1995. Qt is used by companies as diverse as "AT&T", IBM, NASA
 and Xerox, and by numerous smaller companies and organizations. Qt
 3.0 retains the ease-of-use and power of earlier versions while
 adding significant functionality and introducing many new classes.
-Qt's classes are full-featured to reduce developer workload, and
+Qt's classes are fully-featured to reduce developer workload, and
 provide consistent interfaces to speed learning. Qt is, and always
 has been, fully object oriented.
 @PP
 This whitepaper gives an overview of Qt's tools and functionality.
 Each section begins with a non-technical introduction, then presents
 the technical details in increasing depth. Code extracts, and small
-complete applications, are presented. To trial Qt for 30 days, visit
+complete applications, are presented. To evaluate Qt for 30 days, visit
 @Href {"http://www.trolltech.com"}.
 @BeginSubSections
 @SubSection
@@ -76,7 +76,7 @@ they prefer the Qt approach.
   makefile @Index { Makefile }
   qmake @Index { qmake }
 @PP
-Qt uses Unicode throughout and has considerable support for l
+Qt uses Unicode throughout and has considerable support for 
 internationalization @Xref{internationalization}. Qt includes
 Qt Linguist @Xref{qt.linguist} and other tools to support
 translators. Applications can easily use and mix text in Arabic,

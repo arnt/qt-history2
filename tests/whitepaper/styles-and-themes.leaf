@@ -47,7 +47,7 @@ Qt provides the following built-in styles: Windows, Motif, MotifPlus,
 CDE, Platinum, SGI and Aqua (on the Macintosh). By default, Qt uses
 the appropriate style for the user's platform and desktop
 environment. The style can also be chosen programmatically, or with
-the \c -style command-line option on Unix.
+the \c -style command-line option.
 
   \img combobox.png
   \caption Comboboxes in the different built-in styles
@@ -69,7 +69,7 @@ fade transition effects for menus and tooltips on Windows.
 
 Qt's built-in widgets are style aware. Custom widgets and dialogs are
 almost always combinations of built-in widgets and layouts, and are
-automatically style aware. On the rare occasions when it is necessary
+automatically style aware. On the rare occasions that it is necessary
 to write a custom widget from scratch, developers can use \Class
 QStyle to draw primitive user-interface elements rather than drawing
 raw rectangles directly.

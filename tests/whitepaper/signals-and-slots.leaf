@@ -9,7 +9,7 @@ to understand and use and are fully supported by \l {Qt Designer}.
   \index Slot
 
 GUI applications respond to user actions. For example, when a user
-clicks a menu item or toolbar button, the program executes some
+clicks a menu item or toolbar button, the application executes some
 code.  More generally, we want objects of any kind to be able to
 communicate with each other. The programmer must relate events to the
 relevant code. Older toolkits use mechanisms that are not type safe
@@ -119,7 +119,7 @@ that can be called like any other function, and which can also be
 connected to signals.
 
   \index Emitting a signal
-  \index Preprocessor
+  \index Pre-processor
 
 Here's the implementation of the slot \Func setBalance():
 \code
@@ -138,7 +138,7 @@ The statement
 causes the \Func balanceChanged() signal to be emitted with the new
 current balance as its argument. The keyword \c emit, like \c signals
 and \c slots, is provided by Qt and is transformed into standard C++
-by the C++ preprocessor.
+by the C++ pre-processor.
 
 Here's an example of how to connect two \Class {BankAccount}s:
 \code
@@ -163,7 +163,7 @@ their arguments are compatible.
   \index moc
 
 The signals and slots mechanism is implemented in pure standard C++.
-The implementation uses the C++ preprocessor and the Meta Object
+The implementation uses the C++ pre-processor and the Meta Object
 Compiler (\Cmd moc) included with the Qt toolkit.
 
   \index Makefile
@@ -183,8 +183,8 @@ build tool generates the correct Makefiles for the target platform.
 
 In addition to handling signals and slots, \Cmd moc supports Qt's
 translation mechanism, its property system and extended run-time type
-information. The \Cmd moc also makes the cross-platform introspection
-of C++ programs possible.
+information. The meta object compiler also makes the cross-platform
+introspection of C++ programs possible.
 
 \ONLINES
 \Online object.html
