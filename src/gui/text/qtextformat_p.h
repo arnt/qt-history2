@@ -69,6 +69,8 @@ public:
 class Q_GUI_EXPORT QTextFormatCollection
 {
 public:
+    QTextFormatCollection() { ref = 0; }
+
     int createReferenceIndex(const QTextFormat &newFormat);
     QTextFormat updateReferenceIndex(int index, const QTextFormat &newFormat);
 
@@ -90,6 +92,7 @@ public:
 
     inline int numFormats() const { return formats.count(); }
 
+    mutable QAtomic ref;
 private:
     int indexToReference(int idx) const;
     int referenceToIndex(int ref) const;

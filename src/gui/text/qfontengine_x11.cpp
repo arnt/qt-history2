@@ -23,17 +23,17 @@
 #include "qvarlengtharray.h"
 
 #include "qpaintengine_x11.h"
-#include <private/qpaintengine_x11_p.h>
-#include <private/qpainter_p.h>
-
-#include <private/qt_x11_p.h>
 
 #include "qfont.h"
-#include "qtextengine_p.h"
 #include "qfontengine_p.h"
 #include "qopentype_p.h"
 
+#include <private/qpaintengine_x11_p.h>
+#include <private/qpainter_p.h>
 #include <private/qunicodetables_p.h>
+
+#include <private/qt_x11_p.h>
+
 
 #include <math.h>
 #include <limits.h>

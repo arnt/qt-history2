@@ -37,8 +37,12 @@ private:
 class QTextDocumentFragmentPrivate
 {
 public:
-    QTextDocumentFragmentPrivate() {}
+    QTextDocumentFragmentPrivate() {
+	localFormatCollection = new QTextFormatCollection;
+	++localFormatCollection->ref;
+    }
     QTextDocumentFragmentPrivate(const QTextCursor &cursor);
+    ~QTextDocumentFragmentPrivate();
 
     void insert(QTextCursor &cursor) const;
 
@@ -51,7 +55,7 @@ public:
     inline void appendBlock(int formatIdx)
     { appendText(QString(QTextParagraphSeparator), formatIdx); }
     inline void appendText(const QString &text, const QTextFormat &format)
-    { appendText(text, localFormatCollection.indexForFormat(format)); }
+    { appendText(text, localFormatCollection->indexForFormat(format)); }
     void appendText(const QString &text, int formatIdx, int origPos = -1);
     inline void appendImage(const QTextImageFormat &format)
     { appendText(QString(QTextObjectReplacementChar), format); }
@@ -68,7 +72,7 @@ public:
     FragmentList fragments;
 
     QString localBuffer;
-    QTextFormatCollection localFormatCollection;
+    QTextFormatCollection *localFormatCollection;
 
     QPointer<QTextPieceTable> pieceTable;
 };

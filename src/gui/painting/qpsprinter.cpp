@@ -62,6 +62,11 @@
 #include <stdlib.h>
 #endif
 
+#if defined (Q_WS_X11) || defined (Q_WS_QWS)
+#include <private/qfontengine_p.h>
+#include <qtextlayout.h>
+#endif
+
 #ifdef Q_WS_X11
 #include <private/qt_x11_p.h>
 #ifdef None
@@ -70,13 +75,6 @@
 #ifdef GrayScale
 #undef GrayScale
 #endif
-#endif
-
-#if defined (Q_WS_X11) || defined (Q_WS_QWS)
-#include <private/qfontdata_p.h>
-#include <private/qfontengine_p.h>
-#include <qtextlayout.h>
-#include <private/qtextengine_p.h>
 #endif
 
 static bool qt_gen_epsf = FALSE;

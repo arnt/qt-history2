@@ -872,6 +872,8 @@ QTextEngine::~QTextEngine()
 {
     if ( fnt && !--fnt->ref)
 	delete fnt;
+    if (formats && !--formats->ref)
+	delete formats;
     free( memory );
     allocated = 0;
 }

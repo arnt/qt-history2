@@ -18,6 +18,7 @@
 #include "qstring.h"
 #include "qnamespace.h"
 #include "qtextlayout.h"
+#include "qtextformat_p.h"
 #include <private/qfontdata_p.h>
 #include <qvector.h>
 #include <qpaintengine.h>
@@ -321,7 +322,7 @@ public:
     ~QTextEngine();
 
     void setText(const QString &str);
-    void setFormatCollection(const QTextFormatCollection *fmts) { formats = fmts; }
+    void setFormatCollection(const QTextFormatCollection *fmts) { formats = fmts; ++formats->ref; }
     void setDocumentLayout(QAbstractTextDocumentLayout *layout) { docLayout = layout; }
 
     enum Mode {

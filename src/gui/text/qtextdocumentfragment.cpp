@@ -218,6 +218,9 @@ QTextFormat::PropertyType QTextFormatCollectionState::stringToPropertyType(const
 
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cursor)
 {
+    localFormatCollection = new QTextFormatCollection;
+    ++localFormatCollection->ref;
+
     if (!cursor.hasSelection())
 	return;
 
@@ -249,11 +252,17 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     }
 
     QTextFormatCollectionState collState(pieceTable->formatCollection(), usedFormats);
-    QMap<int, int> formatIndexMap = collState.insertIntoOtherCollection(&localFormatCollection);
+    QMap<int, int> formatIndexMap = collState.insertIntoOtherCollection(localFormatCollection);
     for (int i = 0; i < fragments.count(); ++i) {
 	Fragment &f = fragments[i];
 	f.format = formatIndexMap.value(f.format, -1);
     }
+}
+
+QTextDocumentFragmentPrivate::~QTextDocumentFragmentPrivate()
+{
+    if (!--localFormatCollection->ref)
+	delete localFormatCollection;
 }
 
 void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
@@ -313,7 +322,7 @@ QTextFormatCollectionState QTextDocumentFragmentPrivate::formatCollectionState()
     Q_FOREACH(const Fragment &f, fragments)
 	usedFormats << f.format;
 
-    return QTextFormatCollectionState(&localFormatCollection, usedFormats);
+    return QTextFormatCollectionState(localFormatCollection, usedFormats);
 }
 
 void QTextDocumentFragmentPrivate::appendText(const QString &text, int formatIdx, int origPos)
@@ -505,7 +514,7 @@ QTextDocumentFragment QTextDocumentFragment::fromXML(const QString &xml)
     QTextDocumentFragmentPrivate *d = new QTextDocumentFragmentPrivate;
 
     QTextFormatCollectionState collState(parser, formatsNode);
-    QMap<int, int> formatIndexMap = collState.insertIntoOtherCollection(&d->localFormatCollection);
+    QMap<int, int> formatIndexMap = collState.insertIntoOtherCollection(d->localFormatCollection);
 
     for (int fragmentNode = parser.findChild(fragmentsNode, "fragment");
 	 fragmentNode != -1; fragmentNode = parser.findNextChild(fragmentsNode, fragmentNode)) {
@@ -567,11 +576,11 @@ void QTextHTMLImporter::import()
 
 	    const int idx = listReferences.size();
 	    listReferences.resize(idx + 1);
-	    listReferences[idx] = d->localFormatCollection.createReferenceIndex(listFmt);
+	    listReferences[idx] = d->localFormatCollection->createReferenceIndex(listFmt);
 	} else if (node->tag == QLatin1String("table")) {
 	    const int idx = tableIndices.size();
 	    tableIndices.resize(tableIndices.size() + 1);
-	    tableIndices[idx] = d->localFormatCollection.createReferenceIndex(QTextTableFormat());
+	    tableIndices[idx] = d->localFormatCollection->createReferenceIndex(QTextTableFormat());
 	} else if (node->isTableCell) {
 	    Q_ASSERT(!tableIndices.isEmpty());
 

@@ -16,8 +16,8 @@
 #ifndef QT_H
 #include "qatomic.h"
 #include "qglobal.h"
-#include "qfontdata_p.h"
 #include "qtextengine_p.h"
+#include "qfontdata_p.h"
 #endif // QT_H
 
 #ifdef Q_WS_WIN

@@ -66,6 +66,8 @@ QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
 
     undoPosition = 0;
 
+    formats = new QTextFormatCollection;
+    ++formats->ref;
     lists = new QTextListManager(this);
     tables = new QTextTableManager(this);
     if (!layout)
@@ -75,7 +77,7 @@ QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
     lout->setParent(this);
 
     undoEnabled = false;
-    insertBlockSeparator(0, formats.indexForFormat(QTextBlockFormat()));
+    insertBlockSeparator(0, formats->indexForFormat(QTextBlockFormat()));
     undoEnabled = true;
 }
 
@@ -83,6 +85,8 @@ QTextPieceTable::~QTextPieceTable()
 {
     undoPosition = 0;
     truncateUndoStack();
+    if (!--formats->ref)
+	delete formats;
 }
 
 
@@ -177,7 +181,7 @@ void QTextPieceTable::removeBlocks(int pos, int length)
 
 void QTextPieceTable::insertBlockSeparator(int pos, int blockFormat)
 {
-    Q_ASSERT(blockFormat == -1 || formats.format(blockFormat).isBlockFormat());
+    Q_ASSERT(blockFormat == -1 || formats->format(blockFormat).isBlockFormat());
     Q_ASSERT(pos > 0 || (pos == 0 && fragments.length() == 0));
 
     int strPos = text.length();
@@ -207,7 +211,7 @@ void QTextPieceTable::insert(int pos, const QString &str, int format)
 	return;
     Q_ASSERT(pos > 0);
     Q_ASSERT(!str.contains(QTextParagraphSeparator));
-    Q_ASSERT(format == -1 || formats.format(format).isCharFormat());
+    Q_ASSERT(format == -1 || formats->format(format).isCharFormat());
     int strPos = text.length();
     text.append(str);
     insert(pos, strPos, str.length(), format);
@@ -219,7 +223,7 @@ void QTextPieceTable::insert(int pos, int strPos, int strLength, int format)
 	return;
     Q_ASSERT(pos > 0);
     Q_ASSERT(!text.mid(strPos, strLength).contains(QTextParagraphSeparator));
-    Q_ASSERT(format == -1 || formats.format(format).isCharFormat());
+    Q_ASSERT(format == -1 || formats->format(format).isCharFormat());
     insertWithoutUndo(pos, strPos, strLength, format, UndoCommand::MoveCursor);
 
     Q_ASSERT(blocks.length() == fragments.length());
@@ -300,7 +304,7 @@ void QTextPieceTable::setFormat(int pos, int length, const QTextFormat &newForma
 
     int newFormatIdx = -1;
     if (mode == SetFormat)
-	newFormatIdx = formats.indexForFormat(newFormat);
+	newFormatIdx = formats->indexForFormat(newFormat);
 
     const int startPos = pos;
     const int endPos = pos + length;
@@ -314,7 +318,7 @@ void QTextPieceTable::setFormat(int pos, int length, const QTextFormat &newForma
 
 	QTextFragment *fragment = it.value();
 
-	if (!formats.format(fragment->format).inheritsFormatType(newFormat.type())) {
+	if (!formats->format(fragment->format).inheritsFormatType(newFormat.type())) {
 	    pos = it.key() + fragment->size;
 	    continue;
 	}
@@ -324,9 +328,9 @@ void QTextPieceTable::setFormat(int pos, int length, const QTextFormat &newForma
 	int oldFormat = fragment->format;
 
 	if (mode == MergeFormat) {
-	    QTextFormat format = formats.format(fragment->format);
+	    QTextFormat format = formats->format(fragment->format);
 	    format += newFormat;
-	    fragment->format = formats.indexForFormat(format);
+	    fragment->format = formats->indexForFormat(format);
 	} else {
 	    fragment->format = newFormatIdx;
 	}
@@ -433,7 +437,7 @@ void QTextPieceTable::undoRedo(bool undo)
 
 	    int oldFormat = it.value()->format;
 
-	    setFormat(c.pos, c.length, formats.format(c.format));
+	    setFormat(c.pos, c.length, formats->format(c.format));
 
 	    c.format = oldFormat;
 	} else if (c.command == UndoCommand::Custom) {

@@ -85,48 +85,58 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
 */
 
 QTextFormat::QTextFormat()
-    : d(0)
+    : d(new QTextFormatPrivate), collection(0)
 {
+    d->type = InvalidFormat;
+    d->inheritedType = InvalidFormat;
 }
 
 QTextFormat::QTextFormat(int type, int inheritedType)
-    : d(new QTextFormatPrivate)
+    : d(new QTextFormatPrivate), collection(0)
 {
     d->type = type;
     d->inheritedType = inheritedType;
 }
 
-QTextFormat::QTextFormat(QTextFormatPrivate *p)
-    :d(p)
+QTextFormat::QTextFormat(QTextFormatCollection *c, QTextFormatPrivate *p)
+    : d(p), collection(c)
 {
+    ++collection->ref;
 }
 
 
 QTextFormat::QTextFormat(const QTextFormat &rhs)
 {
-    (*this) = rhs;
+    d = rhs.d;
+    collection = rhs.collection;
+    if (collection)
+	++collection->ref;
 }
 
 QTextFormat &QTextFormat::operator=(const QTextFormat &rhs)
 {
     d = rhs.d;
+    QTextFormatCollection *x = rhs.collection;
+    if (x)
+	++x->ref;
+    x = qAtomicSetPtr(&collection, x);
+    if (x && !--x->ref)
+	delete x;
     return *this;
 }
 
 QTextFormat::~QTextFormat()
 {
+    if (collection && !--collection->ref)
+	delete collection;
 }
 
 QTextFormat &QTextFormat::operator+=(const QTextFormat &other)
 {
-    if (!d)
-	d = other.d;
-    else if (other.d) {
-	// don't use QMap's += operator, as it uses insertMulti!
-	for (QTextFormatPrivate::PropertyMap::ConstIterator it = other.d->properties.begin();
-	     it != other.d->properties.end(); ++it) {
-	    d->properties.insert(it.key(), it.value());
-	}
+    // don't use QMap's += operator, as it uses insertMulti!
+    for (QTextFormatPrivate::PropertyMap::ConstIterator it = other.d->properties.begin();
+	 it != other.d->properties.end(); ++it) {
+	d->properties.insert(it.key(), it.value());
     }
 
     return *this;
@@ -134,12 +144,12 @@ QTextFormat &QTextFormat::operator+=(const QTextFormat &other)
 
 int QTextFormat::type() const
 {
-    return d ? d->type : InvalidFormat;
+    return d->type;
 }
 
 int QTextFormat::inheritedType() const
 {
-    return d ? d->inheritedType : InvalidFormat;
+    return d->inheritedType;
 }
 
 bool QTextFormat::inheritsFormatType(int otherType) const
@@ -195,9 +205,6 @@ QTextImageFormat QTextFormat::toImageFormat() const
 
 bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 {
-    if (!d)
-	return defaultValue;
-
     const QTextFormatProperty prop = d->properties.value(propertyId);
     if (prop.type != QTextFormat::Bool)
 	return defaultValue;
@@ -206,9 +213,6 @@ bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 
 int QTextFormat::intProperty(int propertyId, int defaultValue) const
 {
-    if (!d)
-	return defaultValue;
-
     const QTextFormatProperty prop = d->properties.value(propertyId);
     if (prop.type != QTextFormat::Integer)
 	return defaultValue;
@@ -217,9 +221,6 @@ int QTextFormat::intProperty(int propertyId, int defaultValue) const
 
 float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 {
-    if (!d)
-	return defaultValue;
-
     const QTextFormatProperty prop = d->properties.value(propertyId);
     if (prop.type != QTextFormat::Float)
 	return defaultValue;
@@ -228,9 +229,6 @@ float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 
 QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue) const
 {
-    if (!d)
-	return defaultValue;
-
     const QTextFormatProperty prop = d->properties.value(propertyId);
     if (prop.type != QTextFormat::String)
 	return defaultValue;
@@ -239,9 +237,6 @@ QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue)
 
 int QTextFormat::formatReferenceProperty(int propertyId, int defaultValue) const
 {
-    if (!d)
-	return defaultValue;
-
     const QTextFormatProperty prop = d->properties.value(propertyId);
     if (prop.type != QTextFormat::FormatReference)
 	return defaultValue;
@@ -250,36 +245,26 @@ int QTextFormat::formatReferenceProperty(int propertyId, int defaultValue) const
 
 void QTextFormat::setProperty(int propertyId, bool value)
 {
-    if (!d)
-	d = new QTextFormatPrivate;
     d->properties.insert(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, int value)
 {
-    if (!d)
-	d = new QTextFormatPrivate;
     d->properties.insert(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, float value)
 {
-    if (!d)
-	d = new QTextFormatPrivate;
     d->properties.insert(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, const QString &value)
 {
-    if (!d)
-	d = new QTextFormatPrivate;
     d->properties.insert(propertyId, value);
 }
 
 void QTextFormat::setFormatReferenceProperty(int propertyId, int value)
 {
-    if (!d)
-	d = new QTextFormatPrivate;
     QTextFormatProperty prop;
     prop.type = FormatReference;
     prop.data.intValue = value;
@@ -288,8 +273,6 @@ void QTextFormat::setFormatReferenceProperty(int propertyId, int value)
 
 bool QTextFormat::hasProperty(int propertyId) const
 {
-    if (!d)
-	return false;
     return d->properties.contains(propertyId);
 }
 
@@ -500,6 +483,6 @@ QTextFormat QTextFormatCollection::format(int idx, int defaultFormatType) const
 	Q_ASSERT(idx >= 0 && idx < formats.count());
     }
 
-    return QTextFormat(formats[idx]);
+    return QTextFormat(const_cast<QTextFormatCollection *>(this), formats[idx]);
 }
 

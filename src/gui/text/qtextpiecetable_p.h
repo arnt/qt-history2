@@ -148,8 +148,8 @@ public:
     QString plainText() const;
     inline int length() const { return fragments.length(); }
 
-    inline QTextFormatCollection *formatCollection() { return &formats; }
-    inline const QTextFormatCollection *formatCollection() const { return &formats; }
+    inline QTextFormatCollection *formatCollection() { return formats; }
+    inline const QTextFormatCollection *formatCollection() const { return formats; }
     inline QTextListManager *listManager() const { return lists; }
     inline QTextTableManager *tableManager() const { return tables; }
     inline QAbstractTextDocumentLayout *layout() const { return lout; }
@@ -209,7 +209,7 @@ private:
     int docChangeOldLength;
     int docChangeLength;
 
-    QTextFormatCollection formats;
+    QTextFormatCollection *formats;
     QTextListManager *lists;
     QTextTableManager *tables;
     QAbstractTextDocumentLayout *lout;

@@ -149,8 +149,9 @@ public:
     inline bool operator!=(const QTextFormat &rhs) const { return !operator==(rhs); }
 
 private:
-    Q_EXPLICIT QTextFormat(QTextFormatPrivate *p);
+    Q_EXPLICIT QTextFormat(QTextFormatCollection *c, QTextFormatPrivate *p);
     QSharedDataPointer<QTextFormatPrivate> d;
+    QTextFormatCollection *collection;
 };
 
 class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
