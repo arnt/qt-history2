@@ -702,8 +702,10 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "\t\t\t\t" << "INSTALL_PATH = \"" << project->first("DESTDIR") << "\";" << "\n";
     if(!project->isEmpty("VERSION") && project->first("VERSION") != "0.0.0")
 	t << "\t\t\t\t" << "DYLIB_CURRENT_VERSION = \"" << project->first("VERSION") << "\";" << "\n";
+#if 0
     if(!project->isEmpty("OBJECTS_DIR"))
 	t << "\t\t\t\t" << "OBJROOT = \"" << project->first("OBJECTS_DIR") << "\";" << "\n";
+#endif
     if(project->first("TEMPLATE") == "app") {
 	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
 	    t << "\t\t\t\t" << "WRAPPER_EXTENSION = app;" << "\n";
