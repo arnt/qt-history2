@@ -186,7 +186,7 @@ struct QCharAttributes {
 
 struct QShapedItem
 {
-    QShapedItem()
+    inline QShapedItem()
 	: num_glyphs( 0 ), glyphs( 0 ), advances( 0 ), offsets( 0 ), logClusters( 0 ),
 	  glyphAttributes( 0 ), ownGlyphs( TRUE ) {}
     ~QShapedItem();
@@ -203,7 +203,7 @@ class QFontEngine;
 
 struct QScriptItem
 {
-    QScriptItem() : position( 0 ), baselineAdjustment( 0 ), ascent( 0 ), descent( 0 ),
+    inline QScriptItem() : position( 0 ), baselineAdjustment( 0 ), ascent( 0 ), descent( 0 ),
 		    x( 0 ), y( 0 ), width( 0 ), shaped( 0 ), fontEngine( 0 ) { }
     int position;
     QScriptAnalysis analysis;
@@ -230,10 +230,8 @@ public:
     QScriptItemArray() : d( 0 ) {}
     ~QScriptItemArray();
 
-    QScriptItem &operator[] (int i) const {
-	return d->items[i];
-    }
-    void append( const QScriptItem &item ) {
+    inline QScriptItem &operator[] (int i) const {return d->items[i];   }
+    inline void append( const QScriptItem &item ) {
 	if ( d->size && d->items[d->size-1].analysis == item.analysis ) {
 	    //    qDebug("QScriptItemArray::append: trying to add same item" );
 	    return;
@@ -243,9 +241,7 @@ public:
 	d->items[d->size] = item;
 	d->size++;
     }
-    int size() const {
-	return d ? d->size : 0;
-    }
+    inline int size() const { return d ? d->size : 0; }
     void split( int item, int pos );
     QScriptItemArray( const QScriptItemArray & ) {}
     QScriptItemArray &operator = ( const QScriptItemArray & ) { return *this; }

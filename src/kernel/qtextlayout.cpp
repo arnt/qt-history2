@@ -6,6 +6,12 @@
 #include <qpainter.h>
 
 
+QRect QTextItem::rect() const
+{
+    QScriptItem& si = engine->items[item];
+    return QRect( si.x, si.y, si.width, si.ascent+si.descent );
+}
+
 int QTextItem::x() const
 {
     return engine->items[item].x;
@@ -228,6 +234,17 @@ QTextItem QTextLayout::itemAt( int i )
 }
 
 
+QTextItem QTextLayout::findItem( int strPos )
+{
+    // ## TODO use bsearch
+    for ( int i = d->items.size()-1; i >= 0; --i ) {
+	if ( d->items[i].position < strPos )
+	    return QTextItem( i, d);
+    }
+    return QTextItem();
+}
+
+
 void QTextLayout::beginLayout()
 {
     d->items.clear();
@@ -270,6 +287,11 @@ void QTextLayout::setLineWidth( int newWidth )
 int QTextLayout::lineWidth() const
 {
     return d->lineWidth;
+}
+
+int QTextLayout::widthUsed() const
+{
+    return d->widthUsed;
 }
 
 int QTextLayout::availableWidth() const
@@ -524,3 +546,4 @@ bool QTextLayout::validCursorPosition( int pos ) const
 	return false;
     return attributes[pos].charStop;
 }
+

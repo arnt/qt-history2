@@ -261,6 +261,7 @@ public:
 			  QTextParag **intern=0 );
 
     void drawTextItem( int x,  int y, const QTextItem &ti );
+    void drawTextItem( const QPoint& p, const QTextItem &ti );
 
     //#####    void	drawText( const QPoint &, const QString &, int flags, int rotation = 0);
 
@@ -676,6 +677,11 @@ inline void QPainter::drawText( int x, int y, int w, int h, int tf,
 {
     QRect r(x, y, w, h);
     drawText( r, tf, str, len, br, i );
+}
+
+inline void QPainter::drawTextItem( const QPoint& p, const QTextItem &ti )
+{
+    drawTextItem( p.x(), p.y(), ti );
 }
 
 inline QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
