@@ -728,7 +728,7 @@ static void qDrawWinArrow( QPainter *p, Qt::ArrowType type, bool down,
 	a.setPoints( 7, -1,-3, -1,3, 0,-2, 0,2, 1,-1, 1,1, 2,0 );
 	break;
     }
-    if ( a.isNull() )
+    if ( a.isEmpty() )
 	return;
 
     if ( down ) {

@@ -4264,7 +4264,7 @@ QPointArray QCanvasPolygon::points() const
 */
 QPointArray QCanvasPolygon::areaPoints() const
 {
-    return poly.copy();
+    return poly;
 }
 
 // ### mark: Why don't we offer a constructor that lets the user set the

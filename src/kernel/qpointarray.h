@@ -16,7 +16,7 @@
 #define QPOINTARRAY_H
 
 #ifndef QT_H
-#include "qmemarray.h"
+#include "qvector.h"
 #include "qpoint.h"
 #endif // QT_H
 
@@ -25,48 +25,47 @@
 //Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<QPoint>;
 #endif
 
-class Q_EXPORT QPointArray : public QMemArray<QPoint>
+class Q_EXPORT QPointArray : public QVector<QPoint>
 {
 public:
-    QPointArray() {}
-    ~QPointArray() {}
-    QPointArray( int size ) : QMemArray<QPoint>( size ) {}
-    QPointArray( const QPointArray &a ) : QMemArray<QPoint>( a ) {}
-    QPointArray( const QRect &r, bool closed=FALSE );
-    QPointArray( int nPoints, const QCOORD *points );
+    inline QPointArray() {}
+    inline ~QPointArray() {}
+    inline QPointArray(int size) : QVector<QPoint>(size) {}
+    inline QPointArray(const QPointArray &a) : QVector<QPoint>(a) {}
+    QPointArray(const QRect &r, bool closed=FALSE);
+    QPointArray(int nPoints, const QCOORD *points);
 
-    QPointArray	 &operator=( const QPointArray &a )
-	{ return (QPointArray&)assign( a ); }
+#ifndef QT_NO_COMPAT
+    inline QPointArray copy() const
+	{ return *this; }
+    inline bool isNull() { return isEmpty(); }
+#endif
 
-    QPointArray copy() const
-	{ QPointArray tmp; return *((QPointArray*)&tmp.duplicate(*this)); }
+    void translate(int dx, int dy);
+    QRect boundingRect() const;
 
-    void    translate( int dx, int dy );
-    QRect   boundingRect() const;
+    void point(int i, int *x, int *y) const;
+    QPoint point(int i) const;
+    void setPoint(int index, int x, int y);
+    void setPoint(int index, const QPoint &p);
+    void setPoints(int nPoints, const QCOORD *points);
+    void setPoints(int nPoints, int firstx, int firsty, ...);
+    void putPoints(int index, int nPoints, const QCOORD *points);
+    void putPoints(int index, int nPoints, int firstx, int firsty, ...);
+    void putPoints(int index, int nPoints, const QPointArray & from, int fromIndex=0);
 
-    void    point( uint i, int *x, int *y ) const;
-    QPoint  point( uint i ) const;
-    void    setPoint( uint i, int x, int y );
-    void    setPoint( uint i, const QPoint &p );
-    bool    setPoints( int nPoints, const QCOORD *points );
-    bool    setPoints( int nPoints, int firstx, int firsty, ... );
-    bool    putPoints( int index, int nPoints, const QCOORD *points );
-    bool    putPoints( int index, int nPoints, int firstx, int firsty, ... );
-    bool    putPoints( int index, int nPoints,
-		       const QPointArray & from, int fromIndex=0 );
-
-    void    makeArc( int x, int y, int w, int h, int a1, int a2 );
-    void    makeEllipse( int x, int y, int w, int h );
-    void    makeArc( int x, int y, int w, int h, int a1, int a2,
-		     const QWMatrix& );
+    void makeArc(int x, int y, int w, int h, int a1, int a2);
+    void makeEllipse(int x, int y, int w, int h);
+    void makeArc(int x, int y, int w, int h, int a1, int a2, const QWMatrix &matrix);
     QPointArray cubicBezier() const;
 
-    void*  shortPoints( int index = 0, int nPoints = -1 ) const;
+    void *shortPoints(int index = 0, int nPoints = -1) const;
     static void cleanBuffers();
 
-protected:
-    static uint splen;
-    static void* sp;
+private:
+    // ### These are not thread safe.
+    static int splen;
+    static void *sp;
 };
 
 
@@ -74,17 +73,27 @@ protected:
   QPointArray stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QPointArray & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QPointArray & );
+Q_EXPORT QDataStream &operator<<(QDataStream &stream, const QPointArray &array);
+Q_EXPORT QDataStream &operator>>(QDataStream &stream, QPointArray &array);
 #endif
 
 /*****************************************************************************
   Misc. QPointArray functions
  *****************************************************************************/
 
-inline void QPointArray::setPoint( uint i, const QPoint &p )
+inline void QPointArray::setPoint(int index, const QPoint &p)
 {
-    setPoint( i, p.x(), p.y() );
+    (*this)[index] = p;
+}
+
+inline void QPointArray::setPoint(int index, int x, int y)
+{
+    (*this)[index] = QPoint(x, y);
+}
+
+inline QPoint QPointArray::point(int index) const
+{
+    return at(index);
 }
 
 

@@ -538,9 +538,9 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	    a = *p[0].ptarr;
 	    e = doc.createElement( ( c == PdcDrawPolyline ) ?
 				   "polyline" : "polygon" );
-	    for (uint i = 0; i < a.size(); i++) {
+	    for (int i = 0; i < a.size(); i++) {
 		QString tmp;
-		tmp.sprintf( "%d %d ", a[ (int)i ].x(), a[ (int)i ].y() );
+		tmp.sprintf( "%d %d ", a[i].x(), a[i].y() );
 		str += tmp;
 	    }
 	    e.setAttribute( "points", str.stripWhiteSpace() );

@@ -495,7 +495,7 @@ struct QWMDoublePoint {
 QPointArray QWMatrix::operator *( const QPointArray &a ) const
 {
     if( qt_old_transformations ) {
-	QPointArray result = a.copy();
+	QPointArray result = a;
 	int x, y;
 	for ( int i=0; i<(int)result.size(); i++ ) {
 	    result.point( i, &x, &y );
@@ -506,8 +506,8 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
     } else {
 	int size = a.size();
 	int i;
-	QMemArray<QWMDoublePoint> p( size );
-	QPoint *da = a.data();
+	QVector<QWMDoublePoint> p( size );
+	const QPoint *da = a.constData();
 	QWMDoublePoint *dp = p.data();
 	double xmin = INT_MAX;
 	double ymin = xmin;

@@ -490,7 +490,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		break;
 	    }
 
-	    if (a.isNull())
+	    if (a.isEmpty())
 		return;
 
 	    p->save();

@@ -1898,9 +1898,9 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
             // ### is there a better way to join QPointArrays?
             QPointArray aa;
             aa.resize( a[0].size() + a[1].size() + a[2].size() + a[3].size() );
-            uint j = 0;
+            int j = 0;
             for ( int k=0; k<4; k++ ) {
-                for ( uint i=0; i<a[k].size(); i++ ) {
+                for ( int i=0; i<a[k].size(); i++ ) {
                     aa.setPoint( j, a[k].point(i) );
                     j++;
                 }

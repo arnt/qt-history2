@@ -3214,7 +3214,7 @@ bool QVariant::isNull() const
     case Region:
 	return ((QRegion*) d->value.ptr)->isNull();
     case PointArray:
-	return ((QPointArray*) d->value.ptr)->isNull();
+	return ((QPointArray*) d->value.ptr)->isEmpty();
     case String:
 	return ((QString*) d->value.ptr)->isNull();
     case Pixmap:

@@ -568,7 +568,7 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 
 	    QColor dark( cg.dark() );
 	    QColor light( cg.light() );
-	    unsigned int i;
+	    int i;
 	    if ( flags & Style_Horizontal ) {
 		int h = r.height();
 		if ( h > 6 ) {
