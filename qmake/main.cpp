@@ -41,6 +41,7 @@
 #include "borland_bmake.h"
 #include "msvc_nmake.h"
 #include "msvc_dsp.h"
+#include "metrowerks_xml.h"
 #include "projectgenerator.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -112,6 +113,8 @@ int main(int argc, char **argv)
 		}
 	    } else if(gen == "BMAKE") {
 		mkfile = new BorlandMakefileGenerator(&proj);
+	    } else if(gen == "METROWERKS") {
+		mkfile = new MetrowerksMakefileGenerator(&proj);
 	    } else {
 		fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
 		exit_val = 4;

@@ -1,12 +1,13 @@
 #qmake code
-OBJS=project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o winmakefile.o projectgenerator.o
+OBJS=project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o winmakefile.o \
+     projectgenerator.o metrowerks_xml.o
 
 #qt code
 QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastream.o qgarray.o qbuffer.o qglist.o \
 	qptrcollection.o qfile.o qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o \
 	qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o qlibrary.o
 
-CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I@OUT_QTDIR@/include \
+CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac -I@OUT_QTDIR@/include \
 	-I@OUT_QTDIR@/src/tools -DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NO_STL -I@QMAKESPEC@
 LFLAGS=@QMAKE_LIBRARIES@
 
@@ -120,6 +121,9 @@ borland_bmake.o: generators/win32/borland_bmake.cpp
 
 msvc_nmake.o: generators/win32/msvc_nmake.cpp
 	$(CXX) -c -o $@ $(CFLAGS) generators/win32/msvc_nmake.cpp
+
+metrowerks_xml.o: generators/mac/metrowerks_xml.cpp
+	$(CXX) -c -o $@ $(CFLAGS) generators/mac/metrowerks_xml.cpp
 
 msvc_dsp.o: generators/win32/msvc_dsp.cpp
 	$(CXX) -c -o $@ $(CFLAGS) generators/win32/msvc_dsp.cpp
