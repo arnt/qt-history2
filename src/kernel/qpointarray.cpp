@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#5 $
 **
 ** Implementation of QPointArray class
 **
@@ -21,7 +21,7 @@ double qsincos( double, bool calcCos );		// def. in qptr_x11.cpp
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#5 $";
 #endif
 
 
@@ -141,10 +141,12 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
 	j = npts - 1;
 	inc = -1;
     }
+#if 0
     if ( a1 == 90*16 ) {
 	debug( "a1=%d, a2=%d, a3=%d, size=%d, npts=%d, i=%d",
 	       a1,a2,a3,size(),npts,i);
     }
+#endif
     while ( npts-- ) {
 	if ( i >= size() )			// wrap index
 	    i = 0;
