@@ -876,8 +876,7 @@ QString QAxBase::control() const
     to the raw COM object.
 
     Note that this function should be called immediately after
-    construction of the object (without passing an object identifier),
-    and before calling QAxWidget->setControl().
+    construction of the object.
 */
 void QAxBase::disableEventSink()
 {
@@ -888,15 +887,17 @@ void QAxBase::disableEventSink()
     Disables the meta object generation for this ActiveX container.
     This also disables the event sink and class info generation. If
     you don't intend to use the Qt meta object implementation call
-    this function to speed up the meta object generation.
+    this function to speed up instantiation of the control. You will
+    still be able to call the object through \l dynamicCall(), but
+    signals, slots and properties will not be available with QObject 
+    APIs.
 
     Some ActiveX controls might be unstable when used with OLE
     automation. Use standard COM methods to use those controls through
     the COM interfaces provided by queryInterface().
 
     Note that this function must be called immediately after
-    construction of the object (without passing an object identifier),
-    and before calling QAxWidget->setControl().
+    construction of the object.
 */
 void QAxBase::disableMetaObject()
 {
@@ -911,8 +912,7 @@ void QAxBase::disableMetaObject()
     use this function to speed up the meta object generation.
 
     Note that this function must be called immediately after
-    construction of the object (without passing an object identifier),
-    and before calling QAxWidget->setControl().
+    construction of the object
 */
 void QAxBase::disableClassInfo()
 {
@@ -2907,7 +2907,7 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
     if (!disp)
         return false;
     
-    if (!d->metaobj)
+    if (!d->metaobj && d->useMetaObject)
         metaObject();
     
     int varc = vars.count();
@@ -2924,15 +2924,14 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
     
     if (function.contains('(')) {
         disptype = DISPATCH_METHOD;
-        id = metaObject()->indexOfSlot(QMetaObject::normalizedSignature(function));
+        if (d->useMetaObject)
+            id = metaObject()->indexOfSlot(QMetaObject::normalizedSignature(function));
         if (id >= 0) {
             const QMetaMember slot = metaObject()->slot(id);
             function = slot.signature();
-            function.truncate(function.indexOf('('));
             type = slot.typeName();
-        } else {
-            function = function.left(function.indexOf('('));
         }
+        function.truncate(function.indexOf('('));
         parse = !varc && name.length() > function.length() + 2;
         if (parse) {
             QString args = name.mid(function.length() + 1);
@@ -2991,29 +2990,33 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
             }
             
             varc = vars.count();
-        } else if (id < 0 && !function.toLower().startsWith("set")) {
+        } else if (id < 0 && d->useMetaObject && !function.toLower().startsWith("set")) {
 #ifdef QT_CHECK_STATE
+            // a bit too noisy
+            /*
             qax_noSuchFunction(disptype, name, function, this);
             qWarning("Searching type library...");
+            */
 #endif
         }
     } else {
-        id = metaObject()->indexOfProperty(name);
-        disptype = DISPATCH_PROPERTYGET;
-        
+        if (d->useMetaObject)
+            id = metaObject()->indexOfProperty(name);
+       
         if (id >= 0) {
             const QMetaProperty prop = metaObject()->property(id);
             type = prop.typeName();
-        } else {
-            function = name;
         }
         if (varc == 1) {
             res = 0;
             disptype = DISPATCH_PROPERTYPUT;
+        } else {
+            disptype = DISPATCH_PROPERTYGET;
         }
     }
     if (varc) {
-        varc = qMin(varc, d->metaobj->numParameter(name));
+        if (d->metaobj)
+            varc = qMin(varc, d->metaobj->numParameter(name));
         arg = varc <= QAX_NUM_PARAMS ? staticarg : new VARIANT[varc];
         for (int i = 0; i < varc; ++i) {
             QVariant var(vars.at(i));
@@ -3022,12 +3025,12 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
             QByteArray paramType;
             if (disptype == DISPATCH_PROPERTYPUT)
                 paramType = type;
-            else if (parse || disptype == DISPATCH_PROPERTYGET)
+            else if (parse || disptype == DISPATCH_PROPERTYGET || !d->metaobj)
                 paramType = 0;
             else
                 paramType = d->metaobj->paramType(name, i, &out);
 
-            if (var.type() == QVariant::String || var.type() == QVariant::ByteArray) {
+            if (d->useMetaObject && var.type() == QVariant::String || var.type() == QVariant::ByteArray) {
                 int enumIndex = metaObject()->indexOfEnumerator(paramType);
                 if (enumIndex != -1) {
                     QMetaEnum metaEnum = metaObject()->enumerator(enumIndex);
@@ -3072,7 +3075,7 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
     if (hres == DISP_E_MEMBERNOTFOUND && disptype == DISPATCH_METHOD)
         hres = disp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, res, &excepinfo, &argerr);
     
-    if (disptype == DISPATCH_METHOD && id >= 0 && varc) {
+    if (disptype == DISPATCH_METHOD && hres == S_OK && varc) {
         for (int i = 0; i < varc; ++i)
             if (arg[varc-i-1].vt & VT_BYREF) // update out-parameters
                 vars[i] = VARIANTToQVariant(arg[varc-i-1], vars.at(i).typeName());
@@ -3120,6 +3123,12 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
     \endcode
     Note that it is faster to get and set properties using
     QObject::property() and QObject::setProperty().
+
+    dynamicCall() can also be used to call objects with a 
+    \link QAxBase::disableMetaObject() disabled metaobject \endlink wrapper, 
+    which can improve performance significantely, esp. when calling many
+    different objects of different types during an automation process. 
+    ActiveQt will then however not validate parameters.
 
     It is only possible to call functions through dynamicCall() that
     have parameters or return values of datatypes supported by
