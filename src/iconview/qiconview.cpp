@@ -1415,7 +1415,7 @@ bool QIconViewItem::intersects( const QRect& r ) const
   Returns TRUE if the item accepts the QMimeSource \a mime (so it
   could be dropped on the item), and FALSE if it does not.
 
-  The default implementation does nothing and returns always TRUE. A
+  The default implementation does nothing and returns always FALSE. A
   subclass must reimplement this to accept drops.
 */
 
