@@ -54,7 +54,7 @@ class QSqlSelectCursorPrivate;
 class QM_EXPORT_SQL QSqlSelectCursor : public QSqlCursor
 {
 public:
-    QSqlSelectCursor( const QString& query, QSqlDatabase* db = 0 );
+    QSqlSelectCursor( const QString& query = QString::null, QSqlDatabase* db = 0 );
     QSqlSelectCursor( const QSqlSelectCursor& other );
     ~QSqlSelectCursor();
     bool exec( const QString& query );
