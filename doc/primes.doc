@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: primes.doc,v 2.0 1996/09/24 10:15:14 agulbra Exp $
+** $Id: primes.doc,v 2.1 1996/10/10 14:02:12 agulbra Exp $
 **
 ** Prime numbers
 **
@@ -11,7 +11,7 @@
 \page primes.html
 
 <title>Table of Prime Numbers</title>
-</head><body bgcolor=white>
+</head><body bgcolor="#ffffff">
 <a name=primenumbers></a>
 
 <h1 align=center>Table of Prime Numbers 2 - 49999</h1>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: coordsys.doc,v 2.0 1996/09/24 10:15:13 agulbra Exp $
+** $Id: coordsys.doc,v 2.1 1996/10/10 14:02:10 agulbra Exp $
 **
 ** Qt Coordinate System Documentation
 **
@@ -11,7 +11,7 @@
 \page coordsys.html
 
 <title>The Coordinate System</title>
-</head><body bgcolor=white>
+</head><body bgcolor="#ffffff">
 
 <h1 align=center>The Coordinate System</h1>
 <hr>

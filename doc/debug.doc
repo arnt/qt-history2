@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 2.0 1996/09/24 10:15:13 agulbra Exp $
+** $Id: debug.doc,v 2.1 1996/10/10 14:02:11 agulbra Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -11,7 +11,7 @@
 \page debug.html
 
 <title>Qt Debugging Techniques</title>
-</head><body bgcolor=white>
+</head><body bgcolor="#ffffff">
 <h1 align=center>Qt Debugging Techniques</h1>
 <hr>
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.2 1996/09/30 18:42:39 agulbra Exp $
+** $Id: misc.doc,v 2.3 1996/10/10 14:02:11 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,13 +8,13 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.2 1996/09/30 18:42:39 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.3 1996/10/10 14:02:11 agulbra Exp $";
 #endif
 
 
 /*! \page faq.html
 <title>Qt toolkit - FAQ</title>
-</head><body bgcolor=white>
+</head><body bgcolor="#ffffff">
 <h1 align=center>
 Frequently Asked Questions
 </h1>
@@ -204,7 +204,7 @@ qt-interest.
 /*! \page license.html
 
 <title>Qt License Statement</title>
-</head><body bgcolor=white>
+</head><body bgcolor="#ffffff">
 <p>
 
 This is the free software license for Qt version \version; it covers
@@ -324,7 +324,7 @@ to the license.)
 
 <title>Troll Tech Contact Information</title>
 </head>
-<body bgcolor=white>
+<body bgcolor="#ffffff">
 
 <h1 align=center>
 <img src="letter.gif" align=right width=48 height=48>
@@ -365,7 +365,7 @@ a few minutes.
 /*! \page qt.html
 
 <title>Qt toolkit - overview</title>
-</head><body bgcolor=white>
+</head><body bgcolor="#ffffff">
 
 <h1 align=center>The Qt Application Framework</h1>
 
@@ -420,7 +420,7 @@ Here is some more information about Qt:
 /*! \page easteregg.html
 
 <title>Qt Official Easter Egg</title>
-</head><body bgcolor=white>
+</head><body bgcolor="#ffffff">
 <meta http-equiv="refresh" content="60"; URL="easteregg2.html">
 
 <h1 align=center>Congratulations!</h1>
@@ -458,7 +458,7 @@ Amen!
 /*! \page easteregg2.html
 
 <title>Qt Official Easter Egg</title>
-</head><body bgcolor=white>
+</head><body bgcolor="#ffffff">
 
 <h1 align=center>Congratulations!</h1>
 <h2>You've found our easter egg</h2>

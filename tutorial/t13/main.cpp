@@ -11,6 +11,7 @@
 
 int main( int argc, char **argv )
 {
+    QApplication::setColorMode( QApplication::CustomColors );
     QApplication a( argc, argv );
 
     GameBoard gb;

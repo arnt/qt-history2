@@ -69,6 +69,7 @@ void MyWidget::resizeEvent( QResizeEvent * )
 
 int main( int argc, char **argv )
 {
+    QApplication::setColorMode( QApplication::CustomColors );
     QApplication a( argc, argv );
 
     MyWidget w;
