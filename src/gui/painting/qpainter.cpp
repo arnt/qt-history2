@@ -2747,7 +2747,11 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
         return;
     }
 
-    d->engine->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy), mode);
+    if (d->engine->hasFeature(QPaintEngine::PixmapTransform))
+	d->engine->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy), mode);
+    else
+	d->engine->drawTiledPixmap(QRect(x - d->redirection_offset.x(), y - d->redirection_offset.y(), w, h),
+				   pixmap, QPoint(sx, sy), mode);
 }
 
 /*!
