@@ -501,9 +501,9 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
   you need to write e.g. Qt::ALT+Qt::Key_X.)
 
   We provide a \link accelerators.html list of common accelerators
-  \endlink in English.  (At the time of writing the Microsoft and The
+  \endlink in English.  At the time of writing the Microsoft and The
   Open Group appear to not have issued such recommendations for other
-  languages.)
+  languages.
 */
 
 int QAccel::shortcutKey( const QString &str )
@@ -511,15 +511,16 @@ int QAccel::shortcutKey( const QString &str )
     int p = 0;
     while ( p >= 0 ) {
 	p = str.find( '&', p ) + 1;
-	if ( p <= 0 || p == (int)str.length() )
+	if ( p <= 0 || p >= (int)str.length() )
 	    return 0;
 	if ( str[p] != '&' ) {
 	    QChar c = str[p];
-	    if ( c < QChar(' ') || ( c > QChar('\176') && c < QChar('\240') ) )
-		return 0;
-	    c = c.upper();
-	    return c.unicode() + ALT + UNICODE_ACCEL;
+	    if ( c.isPrint() ) {
+		c = c.upper();
+		return c.unicode() + ALT + UNICODE_ACCEL;
+	    }
 	}
+	p++;
     }
     return 0;
 }
