@@ -240,7 +240,7 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
     char namebuf[256];
     
     do {
-	done=PBCatSSearchSync(&params);
+	done=PBCatSearchSync(&params);
 	if(done==noErr) {
 	    int loopc;
 	    for(loopc=0;loopc<params.csParam.ioActMatchCount;loopc++) {
