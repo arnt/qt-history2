@@ -5181,10 +5181,10 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 							cell->geometry().width(), cell->geometry().height() ) ) ) {
 	    cell->draw( x+outerborder+innerborder, y+outerborder+innerborder, cx, cy, cw, ch, cg );
 	    if ( border ) {
-		QRect r( x+outerborder+cell->geometry().x() - innerborder,
-			 y+outerborder+cell->geometry().y() - innerborder,
-			 cell->geometry().width() + 2 * innerborder,
-			 cell->geometry().height() + 2 * innerborder );
+		QRect r( x+outerborder+cell->geometry().x() - us_ib,
+			 y+outerborder+cell->geometry().y() - us_ib,
+			 cell->geometry().width() + 2 * us_ib,
+			 cell->geometry().height() + 2 * us_ib );
 		int s = cellspacing;
 		if ( is_printer( p ) ) {
 		    qDrawPlainRect( p, r, cg.text(), us_ib );
