@@ -13,13 +13,13 @@
 // use a 4k page for locks
 static int locks[256][4] = { UNLOCKED256 };
 
-int *getLock(volatile void *addr) 
+int *getLock(volatile void *addr)
 { return locks[qHash(const_cast<void *>(addr)) % 256]; }
 
 static int *align16(int *lock)
 {
-    long off = (((long) lock) % 16);
-    return (int *)(long(lock) + off);
+    ulong off = (((ulong) lock) % 16);
+    return off ? (int *)(ulong(lock) + 16 - off) : lock;
 }
 
 extern "C" {
