@@ -2036,7 +2036,10 @@ fi
     cat << EOF
     -version-script .... Use a version script when linking the Qt library.
 			 Internal symbols will be marked as local. Requires
-			 a recent GNU binutils package.
+			 a recent GNU binutils package. 
+
+			 WARNING: Experimental, may be removed in future
+			 versions.
 
     -platform target ... The operating system and compiler you are building
 			 on ($PLATFORM).
