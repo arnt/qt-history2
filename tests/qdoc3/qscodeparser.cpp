@@ -15,11 +15,15 @@
 #define CONFIG_REPLACES             "replaces"
 
 #define COMMAND_BRIEF               Doc::alias( "brief" )
+#define COMMAND_CODE                Doc::alias( "code" )
+#define COMMAND_ENDCODE             Doc::alias( "endcode" )
+#define COMMAND_ENDQUICKCODE        Doc::alias( "endquickcode" )
 #define COMMAND_FILE                Doc::alias( "file" )
 #define COMMAND_GROUP               Doc::alias( "group" )
 #define COMMAND_MODULE              Doc::alias( "module" )
 #define COMMAND_PAGE                Doc::alias( "page" )
 #define COMMAND_QUICKCLASS          Doc::alias( "quickclass" )
+#define COMMAND_QUICKCODE           Doc::alias( "quickcode" )
 #define COMMAND_QUICKENUM           Doc::alias( "quickenum" )
 #define COMMAND_QUICKFN             Doc::alias( "quickfn" )
 #define COMMAND_QUICKIFY            Doc::alias( "quickify" )
@@ -246,7 +250,8 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 
 Set<QString> QsCodeParser::otherMetaCommands()
 {
-    return commonMetaCommands() << COMMAND_QUICKIFY << COMMAND_REPLACE;
+    return commonMetaCommands() << COMMAND_ENDQUICKCODE << COMMAND_QUICKCODE
+				<< COMMAND_QUICKIFY << COMMAND_REPLACE;
 }
 
 void QsCodeParser::processOtherMetaCommand( const Doc& doc,
@@ -353,6 +358,36 @@ void QsCodeParser::applyReplacementList( QString& source, const Doc& doc )
 				    .arg(COMMAND_REPLACE) );
 	}
 	++a;
+    }
+
+    QRegExp codeRegExp( "\\\\" + COMMAND_CODE + "(.*)\\\\" + COMMAND_ENDCODE );
+    codeRegExp.setMinimal( TRUE );
+
+    QRegExp quickcodeRegExp(
+	    "\\\\" + COMMAND_QUICKCODE + "(.*)\\\\" + COMMAND_ENDQUICKCODE );
+    quickcodeRegExp.setMinimal( TRUE );
+
+    int quickcodePos = doc.source().find( quickcodeRegExp );
+    if ( quickcodePos != -1 ) {
+	int codePos = source.find( codeRegExp );
+	if ( codePos == -1 ) {
+	    doc.location().warning(
+		    tr("Cannot find any '\\%1' snippet corresponding to '\\%2'")
+		    .arg(COMMAND_CODE).arg(COMMAND_QUICKCODE) );
+	} else {
+	    source.replace( codeRegExp.pos(1), codeRegExp.cap(1).length(),
+			    quickcodeRegExp.cap(1) );
+	    codePos = codeRegExp.pos( 1 ) + quickcodeRegExp.cap( 1 ).length();
+
+	    if ( doc.source().find(quickcodeRegExp, quickcodePos + 1) != -1 ) {
+		doc.location().warning(
+			tr("Cannot use '\\%1' twice in a row")
+			.arg(COMMAND_QUICKCODE) );
+	    } else if ( source.find(codeRegExp, codePos + 1) != -1 ) {
+		doc.location().warning( tr("Ambiguous '\\%1'")
+					.arg(COMMAND_QUICKCODE) );
+	    }
+	}
     }
 }
 
@@ -643,8 +678,14 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc,
 		    }
 		}
 		source.replace( pos, quickifyCommand.matchedLength(), extract );
-		pos += quickifyCommand.matchedLength();
-	    } while ( (pos = source.find(quickifyCommand)) != -1 );
+		pos += extract.length();
+	    } while ( (pos = source.find(quickifyCommand, pos)) != -1 );
+
+	    QRegExp quickcodeRegExp(
+		    "\\\\" + COMMAND_QUICKCODE + "(.*)\\\\" +
+		    COMMAND_ENDQUICKCODE );
+	    quickcodeRegExp.setMinimal( TRUE );
+	    source.replace( quickcodeRegExp, "" );
 	}
 
 	Doc quickDoc( doc.location(), source,
