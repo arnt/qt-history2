@@ -134,7 +134,6 @@ static bool hasUnqutedAP(const QString &f)
                 status = f.at(i);
             } else if ((f.at(i) == 'p' && status == QLatin1Char('a')) || (f.at(i) == 'P' && status == QLatin1Char('A'))) {
                 return true;
-                break;
             } else {
                 status = QLatin1Char('0');
             }
