@@ -157,52 +157,51 @@
   operations can potentially be performed in hardware which gives
   significant speed improvement.
 
-  Among the native transformations (Windows 2000/XP and Mac OS X,
-  OpenGL) so painting with a world matrix is much faster. Some pixmap
-  operations have also been moved closer to hardware.
+  Among these are native transformations (Windows 2000/XP and Mac OS
+  X, OpenGL) making painting with a world matrix is much faster. Some
+  pixmap operations have also been moved closer to hardware.
 
 
-  \section2 Painter paths
+  \section2 QPainterPath
 
-  A path is a complex graphical object set of graphical shapes each
+  A painter path is a complex graphical object set of graphical shapes each
   composed of lines, arcs and splines. Each graphical shape is called
   a subpath and may be closed, meaning that the first and last point
   in the shape are the same.
 
+  Below is listed a code example on how a path can be used. The
+  painter in this case has a pen width of 3 and a semitransparent
+  brush. We first add a rectangle, which becomes a closed subpath.
+  We then add two bezier curves along.
 
-
-
-  \section2 Consistency across all platforms
-
-
-  \omit
-
-  \begincode
-    - Architecture
-    - QPaintDevice::paintEngine()
-    - QPaintEngine
-    - QPainter
-    - QBrush
-    - QPen
-
-  - Whats new
-    - linear gradient patterns
-    - alpha pen/brushes
-    - opengl painter
-    - antialiasing
-    - hardware ops
-    - more extensible
-    - path support
-    - consistency
-
-  - Whats missing
-    - some rendering pipelines are not complete. X11. AlphaFill etc.
-
-  - Whats to come
-    - more gradient fill modes
-    - unified pixmap/image
+  \code
+  QPainterPath path;
+  path.addRect(20, 20, 60, 60);
+  path.addBezier(0, 0,  99, 0,  50, 50,  99, 99);
+  path.addBezier(99, 99,  0, 99,  50, 50,  0, 0);
+  painter.drawPath(path);
   \endcode
 
-  \endomit
+  The code above produces the following output:
+
+  \img pathexample.png
+
+
+
+  \section1 More to come
+
+  The Qt 4 Painting Framework is mostly completed, but there is still
+  work waiting to be done.
+
+  Part of the work in progress is the finalization of the rendering
+  pipeline for all platforms, so that all features are supported and
+  looks the same on all platforms. Among the currently unfinished
+  features we mention:
+
+  \list
+  \i QPainterPath does not support filling on X11
+  \i Gradients cannot have alpha color on X11
+  \i Antialiasing of lines on X11, (though this might not be present at all).
+  \endlist
 
 */
