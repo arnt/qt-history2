@@ -16,10 +16,14 @@ INCLUDEPATH += ../../lib/sdk \
 HEADERS += \
     default_membersheet.h \
     signalsloteditor.h \
+    signalsloteditor_tool.h \
+    signalsloteditor_plugin.h \
     signalsloteditor_global.h
 
 SOURCES += \
     default_membersheet.cpp \
+    signalsloteditor_tool.cpp \
+    signalsloteditor_plugin.cpp \
     signalsloteditor.cpp
 
 include(../../sharedcomponents.pri)
