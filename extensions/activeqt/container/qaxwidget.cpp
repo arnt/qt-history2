@@ -16,7 +16,7 @@
 
 #include <qabstracteventdispatcher.h>
 #include <qapplication.h>
-#include <qdockwindow.h>
+#include <qdockwidget.h>
 #include <qevent.h>
 #include <qlayout.h>
 #include <qmainwindow.h>
@@ -1316,18 +1316,17 @@ HRESULT WINAPI QAxClientSite::SetBorderSpace(LPCBORDERWIDTHS pborderwidths)
     }
 
     if (pborderwidths->left) {
-        QDockWindow *left = new QDockWindow(mw);
+        QDockWidget *left = new QDockWidget(mw);
         left->setFixedWidth(pborderwidths->left);
-        mw->addDockWindow(Qt::LeftDockWindowArea, left);
+        mw->addDockWidget(Qt::LeftDockWidgetArea, left);
         left->show();
     }
     if (pborderwidths->top) {
-        QDockWindow *top = new QDockWindow(mw);
+        QDockWidget *top = new QDockWidget(mw);
         top->setFixedHeight(pborderwidths->top);
-        mw->addDockWindow(Qt::TopDockWindowArea, top);
+        mw->addDockWidget(Qt::TopDockWidgetArea, top);
         top->show();
     }
-
 
     return S_OK;
 }
