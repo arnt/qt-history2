@@ -878,11 +878,11 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	const char *cleans = "uiclean mocclean preprocess_clean ";
 	mkwrapt << "#This is a makefile wrapper for PROJECT BUILDER\n"
 		<< "all:" << "\n\t" 
-		<< "cd " << project->first("QMAKE_ORIG_TARGET") << ".pbproj/ && " << pbxbuild() << "\n"
+		<< "cd " << project->first("QMAKE_ORIG_TARGET") << projectSuffix() << "/ && " << pbxbuild() << "\n"
 		<< "install: all" << "\n\t" 
-		<< "cd " << project->first("QMAKE_ORIG_TARGET") << ".pbproj/ && " << pbxbuild() << " install" << "\n"
+		<< "cd " << project->first("QMAKE_ORIG_TARGET") << projectSuffix() << "/ && " << pbxbuild() << " install" << "\n"
 		<< "distclean clean: preprocess_clean" << "\n\t" 
-		<< "cd " << project->first("QMAKE_ORIG_TARGET") << ".pbproj/ && " << pbxbuild() << " clean" << "\n"
+		<< "cd " << project->first("QMAKE_ORIG_TARGET") << projectSuffix() << "/ && " << pbxbuild() << " clean" << "\n"
 		<< (!did_preprocess ? cleans : "") << ":" << "\n";
 	if(did_preprocess) 
 	    mkwrapt << cleans << ":" << "\n\t"
@@ -964,10 +964,10 @@ ProjectBuilderMakefileGenerator::openOutput(QFile &file) const
 	    QString output = file.name();
 	    if(fi.isDir())
 		output += QDir::separator();
-	    if(fi.extension() != "pbproj") {
+	    if(output.endsWith(projectSuffix())) {
 		if(file.name().isEmpty() || fi.isDir())
 		    output += project->first("TARGET");
-		output += QString(".pbproj") + QDir::separator();
+		output += projectSuffix() + QDir::separator();
 	    } else if(output[(int)output.length() - 1] != QDir::separator()) {
 		output += QDir::separator();
 	    }
@@ -1062,6 +1062,14 @@ ProjectBuilderMakefileGenerator::ideType() const
     if(QFile::exists("/Developer/Applications/Xcode.app/Contents/version.plist") || project->isActiveConfig("pbx_xcode"))
 	return ProjectBuilderMakefileGenerator::MAC_XCODE;
     return ProjectBuilderMakefileGenerator::MAC_PBUILDER;
+}
+
+QString
+ProjectBuilderMakefileGenerator::projectSuffix() const
+{
+    if(ideType() == MAC_XCODE)
+	return ".xcode";
+    return "pbproj";
 }
 
 QString
