@@ -33,7 +33,7 @@ public:
     QCString(const QCString &s) : QByteArray(s) {}
     QCString(const QByteArray &ba) : QByteArray(ba) {}
     QCString(const char *str) : QByteArray(str) {}
-    QCString(const char *str, uint maxlen) : QByteArray(str, maxlen-1) {}
+    QCString(const char *str, uint maxlen) : QByteArray(str, qMin(qstrlen(str), maxlen - 1)) {}
 
     QCString    &operator=(const QCString &s) {
         QByteArray::operator=(s); return *this;

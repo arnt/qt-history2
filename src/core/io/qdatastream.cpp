@@ -217,12 +217,12 @@ enum {
 
 QDataStream::QDataStream()
 {
-    dev              = 0;                                // no device set
-    owndev    = false;
-    byteorder = BigEndian;                        // default byte order
+    dev = 0;
+    owndev = false;
+    byteorder = BigEndian;
     printable = false;
-    ver              = DefaultStreamVersion;
-    noswap    = QSysInfo::ByteOrder == QSysInfo::BigEndian;
+    ver = DefaultStreamVersion;
+    noswap = QSysInfo::ByteOrder == QSysInfo::BigEndian;
 }
 
 /*!
@@ -239,12 +239,12 @@ QDataStream::QDataStream()
 
 QDataStream::QDataStream(QIODevice *d)
 {
-    dev              = d;                                // set device
-    owndev    = false;
+    dev = d;                                // set device
+    owndev = false;
     byteorder = BigEndian;                        // default byte order
     printable = false;
-    ver              = DefaultStreamVersion;
-    noswap    = QSysInfo::ByteOrder == QSysInfo::BigEndian;
+    ver = DefaultStreamVersion;
+    noswap = QSysInfo::ByteOrder == QSysInfo::BigEndian;
 }
 
 /*!
@@ -266,34 +266,16 @@ QDataStream::QDataStream(QIODevice *d)
     The QByteArray::setRawData() function is not for the inexperienced.
 */
 
-QDataStream::QDataStream(QByteArray &a, int mode)
+QDataStream::QDataStream(QByteArray *a, int mode)
 {
-    dev              = new QBuffer(a);                // create device
-    ((QBuffer *)dev)->open(mode);                // open device
-    owndev    = true;
-    byteorder = BigEndian;                        // default byte order
+    QBuffer *buf = new QBuffer(a);
+    buf->open(mode);
+    dev = buf;
+    owndev = true;
+    byteorder = BigEndian;                     // default byte order
     printable = false;
-    ver              = DefaultStreamVersion;
-    noswap    = QSysInfo::ByteOrder == QSysInfo::BigEndian;
-}
-
-/*!
-    \overload
-
-    Constructs a data stream that operates on a byte array, \a a,
-    through an internal QBuffer device. The \a mode is a
-    QIODevice::mode(), usually either \c IO_ReadOnly or \c
-    IO_WriteOnly.
-*/
-QDataStream::QDataStream(const QByteArray &a, int mode)
-{
-    dev              = new QBuffer(a);                // create device
-    ((QBuffer *)dev)->open(mode);                // open device
-    owndev    = true;
-    byteorder = BigEndian;                        // default byte order
-    printable = false;
-    ver              = DefaultStreamVersion;
-    noswap    = QSysInfo::ByteOrder == QSysInfo::BigEndian;
+    ver = DefaultStreamVersion;
+    noswap = QSysInfo::ByteOrder == QSysInfo::BigEndian;
 }
 
 /*!

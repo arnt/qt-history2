@@ -79,7 +79,7 @@ QByteArray QAbstractItemModel::encodedData(const char *mime, const QModelIndexLi
         return QByteArray();
 
     QByteArray encoded;
-    QDataStream stream(encoded, IO_WriteOnly);
+    QDataStream stream(&encoded, IO_WriteOnly);
     QModelIndexList::ConstIterator it = indices.begin();
     for (; it != indices.end(); ++it) {
         QMap<int, QVariant> roles = itemData((*it));
@@ -101,7 +101,7 @@ bool QAbstractItemModel::decode(QMimeSource *src)
         return false;
 
     QByteArray encoded = src->encodedData(format(0));
-    QDataStream stream(encoded, IO_ReadOnly);
+    QDataStream stream(&encoded, IO_ReadOnly);
     bool newItem = true;
     int role;
     QVariant variantData;

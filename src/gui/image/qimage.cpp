@@ -3396,7 +3396,7 @@ bool QImage::loadFromData(const uchar *buf, uint len, const char *format)
 */
 bool QImage::loadFromData(QByteArray buf, const char *format)
 {
-    QBuffer b(buf);
+    QBuffer b(&buf);
     b.open(IO_ReadOnly);
     QImageIO io(&b, format);
     bool result = io.read();
@@ -3570,7 +3570,7 @@ static QString fbname(const QString &fileName) // get file basename (sort of)
             s = s.mid(i);
         if ((i = s.lastIndexOf('\\')) >= 0)
             s = s.mid(i);
-        QRegExp r(QString::fromLatin1("[a-zA-Z][a-zA-Z0-9_]*"));
+        QRegExp r(QLatin1String("[a-zA-Z][a-zA-Z0-9_]*"));
         int p = r.search(s);
         if (p == -1)
             s.truncate(0);
@@ -5373,15 +5373,14 @@ static inline int hex2byte(register char *p)
 
 static void read_xbm_image(QImageIO *iio)
 {
-    const int        buflen = 300;
-    char        buf[buflen];
-    QRegExp        r1, r2;
-    QIODevice  *d = iio->ioDevice();
-    int                w=-1, h=-1;
-    QImage        image;
+    const int buflen = 300;
+    char buf[buflen];
+    QRegExp r1(QLatin1String("^#define[ \t]+[a-zA-Z0-9._]+[ \t]+"));
+    QRegExp r2(QLatin1String("[0-9]+"));
+    QIODevice *d = iio->ioDevice();
+    int w = -1, h = -1;
+    QImage image;
 
-    r1 = QString::fromLatin1("^#define[ \t]+[a-zA-Z0-9._]+[ \t]+");
-    r2 = QString::fromLatin1("[0-9]+");
     d->readLine(buf, buflen);                        // "#define .._width <num>"
     QString sbuf;
     sbuf = QString::fromLatin1(buf);

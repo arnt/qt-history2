@@ -13,7 +13,7 @@
 #include <qlistview.h>
 #include <qheader.h>
 #include <qapplication.h>
-#include <qtl.h>
+#include <qalgorithms.h>
 #include <qpushbutton.h>
 #include <qprogressbar.h>
 #include <qcombobox.h>

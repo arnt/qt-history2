@@ -35,7 +35,7 @@
 #endif
 
 /*!
-    \class QTextStream qtextstream.h
+    \class QTextStream
     \reentrant
     \brief The QTextStream class provides basic functions for reading
     and writing text using a QIODevice.
@@ -535,56 +535,39 @@ int QStringBuffer::ungetch(int ch)
 
 /*!
     Constructs a text stream that operates on the Unicode QString, \a
-    str, through an internal device. The \a filemode argument is
-    passed to the device's open() function; see \l{QIODevice::mode()}.
+    str, through an internal device. The \a mode argument is passed
+    to the device's open() function; see \l{QIODevice::mode()}.
 
     If you set an encoding or codec with setEncoding() or setCodec(),
     this setting is ignored for text streams that operate on QString.
 
     Example:
     \code
-    QString str;
-    QTextStream ts(&str, IO_WriteOnly);
-    ts << "pi = " << 3.14; // str == "pi = 3.14"
+        QString str;
+        QTextStream ts(&str, IO_WriteOnly);
+        ts << "pi = " << 3.14; // str == "pi = 3.14"
     \endcode
 
     Writing data to the text stream will modify the contents of the
     string. The string will be expanded when data is written beyond
     the end of the string. Note that the string will not be truncated:
     \code
-    QString str = "pi = 3.14";
-    QTextStream ts(&str, IO_WriteOnly);
-    ts <<  "2+2 = " << 2+2; // str == "2+2 = 414"
+        QString str = "pi = 3.14";
+        QTextStream ts(&str, IO_WriteOnly);
+        ts <<  "2+2 = " << 2+2; // str == "2+2 = 414"
     \endcode
 
     Note that because QString is Unicode, you should not use
     readRawBytes() or writeRawBytes() on such a stream.
 */
 
-QTextStream::QTextStream(QString* str, int filemode)
+QTextStream::QTextStream(QString *str, int mode)
 {
     // TODO: optimize for this case as it becomes more common
     //        (see QStringBuffer above)
     init();
     dev = new QStringBuffer(str);
-    ((QStringBuffer *)dev)->open(filemode);
-    d->owndev = true;
-    setEncoding(RawUnicode);
-    reset();
-    d->sourceType = QTextStreamPrivate::String;
-}
-
-/*! \obsolete
-
-  This constructor is equivalent to the constructor taking a QString*
-  parameter.
-*/
-
-QTextStream::QTextStream(QString& str, int filemode)
-{
-    init();
-    dev = new QStringBuffer(&str);
-    ((QStringBuffer *)dev)->open(filemode);
+    ((QStringBuffer *)dev)->open(mode);
     d->owndev = true;
     setEncoding(RawUnicode);
     reset();
@@ -598,9 +581,10 @@ QTextStream::QTextStream(QString& str, int filemode)
 
     Example:
     \code
-    QByteArray array;
-    QTextStream ts(array, IO_WriteOnly);
-    ts << "pi = " << 3.14 << '\0'; // array == "pi = 3.14"
+        QByteArray array;
+        QTextStream ts(array, IO_WriteOnly);
+        ts << "pi = " << 3.14 << '\0';
+        // array == "pi = 3.14"
     \endcode
 
     Writing data to the text stream will modify the contents of the
@@ -609,20 +593,21 @@ QTextStream::QTextStream(QString& str, int filemode)
 
     Same example, using a QBuffer:
     \code
-    QByteArray array;
-    QBuffer buf(array);
-    buf.open(IO_WriteOnly);
-    QTextStream ts(&buf);
-    ts << "pi = " << 3.14 << '\0'; // array == "pi = 3.14"
-    buf.close();
+        QByteArray array;
+        QBuffer buf(array);
+        buf.open(IO_WriteOnly);
+        QTextStream ts(&buf);
+        ts << "pi = " << 3.14 << '\0'; // array == "pi = 3.14"
+        buf.close();
     \endcode
 */
 
-QTextStream::QTextStream(QByteArray &a, int mode)
+QTextStream::QTextStream(QByteArray *a, int mode)
 {
     init();
-    dev = new QBuffer(a);
-    ((QBuffer *)dev)->open(mode);
+    QBuffer *buf = new QBuffer(a);
+    buf->open(mode);
+    dev = buf;
     d->owndev = true;
     setEncoding(Latin1); //### Locale???
     reset();
@@ -2264,7 +2249,7 @@ QTextStream &reset(QTextStream &s)
 
 
 /*!
-    \class QTextIStream qtextstream.h
+    \class QTextIStream
     \reentrant
     \brief The QTextIStream class is a convenience class for input streams.
 

@@ -19,7 +19,7 @@
 #include "qwmatrix.h"
 
 /*!
-    \class QRegion qregion.h
+    \class QRegion
     \brief The QRegion class specifies a clip region for a painter.
 
     \ingroup images
@@ -128,11 +128,10 @@ void QRegion::detach()
 
 void QRegion::exec(const QByteArray &buffer, int ver)
 {
-    QBuffer buf(buffer);
-    QDataStream s(&buf);
+    QByteArray copy = buffer;
+    QDataStream s(&copy, IO_ReadOnly);
     if (ver)
         s.setVersion(ver);
-    buf.open(IO_ReadOnly);
     QRegion rgn;
 #ifndef QT_NO_DEBUG
     int test_cnt = 0;
@@ -193,7 +192,6 @@ void QRegion::exec(const QByteArray &buffer, int ver)
             }
         }
     }
-    buf.close();
     *this = rgn;
 }
 

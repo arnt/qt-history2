@@ -20,55 +20,51 @@
 #include "qbytearray.h"
 #endif // QT_H
 
-
 class Q_CORE_EXPORT QBuffer : public QIODevice
 {
 public:
     QBuffer();
-    QBuffer(QByteArray &b);
-    QBuffer(const QByteArray &b);
-   ~QBuffer();
+    QBuffer(QByteArray *buf);
+    ~QBuffer();
 
-    QByteArray &buffer() const;
-    bool  setBuffer(QByteArray &b);
+    inline QByteArray &buffer() { return *buf; }
+    inline const QByteArray &buffer() const { return *buf; }
+    void setBuffer(QByteArray *a);
+    void setData(const QByteArray &data);
+    inline void setData(const char *data, int len) { setData(QByteArray(data, len)); }
 
-    bool  open(int);
-    void  close();
-    void  flush();
+    bool open(int);
+    void close();
+    void flush();
 
     Offset size() const;
     Offset at() const;
-    bool  at(Offset);
+    bool at(Offset);
 
-    Q_LONG          readBlock(char *p, Q_ULONG);
-    Q_LONG          writeBlock(const char *p, Q_ULONG);
-    Q_LONG          writeBlock(const QByteArray& data)
-              { return QIODevice::writeBlock(data); }
-    Q_LONG          readLine(char *p, Q_ULONG);
+    Q_LONG readBlock(char *data, Q_ULONG size);
+    Q_LONG writeBlock(const char *data, Q_ULONG size);
+    Q_LONG writeBlock(const QByteArray &data) { return QIODevice::writeBlock(data); }
+    Q_LONG readLine(char *data, Q_ULONG size);
 
-    int          getch();
-    int          putch(int);
-    int          ungetch(int);
+    int getch();
+    int putch(int);
+    int ungetch(int);
 
 private:
-    QByteArray b, *p;
+    QByteArray defaultBuf;
+    QByteArray *buf;
 
-private:        // Disabled copy constructor and operator=
+private:
 #if defined(Q_DISABLE_COPY)
     QBuffer(const QBuffer &);
     QBuffer &operator=(const QBuffer &);
 #endif
 };
 
-
-inline QByteArray &QBuffer::buffer() const
-{ return const_cast<QByteArray &>(b); }
-
 inline QIODevice::Offset QBuffer::size() const
-{ return (Offset)b.size(); }
+{ return (Offset)buf->size(); }
 
 inline QIODevice::Offset QBuffer::at() const
 { return ioIndex; }
-
 
 #endif // QBUFFER_H

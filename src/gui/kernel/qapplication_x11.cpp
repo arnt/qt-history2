@@ -722,7 +722,8 @@ bool QApplication::x11_apply_settings()
             XFree(data);
         }
 
-        QDataStream ds(ts.buffer(), IO_ReadOnly);
+	QByteArray buf = ts.buffer();
+        QDataStream ds(&buf, IO_ReadOnly);
         ds >> timestamp;
     }
 
@@ -909,14 +910,13 @@ bool QApplication::x11_apply_settings()
 #endif
 
     if (update_timestamp) {
-        QBuffer stamp;
-        QDataStream s(stamp.buffer(), IO_WriteOnly);
+        QByteArray stamp;
+        QDataStream s(&stamp, IO_WriteOnly);
         s << settingsstamp;
 
         XChangeProperty(X11->display, QX11Info::appRootWindow(0),
                         ATOM(_QT_SETTINGS_TIMESTAMP), ATOM(_QT_SETTINGS_TIMESTAMP), 8,
-                        PropModeReplace, (unsigned char *) stamp.buffer().data(),
-                        stamp.buffer().size());
+                        PropModeReplace, (unsigned char *)stamp.data(), stamp.size());
     }
 
     return true;

@@ -187,8 +187,7 @@ QPicture::~QPicture()
 void QPicture::setData(const char* data, uint size)
 {
     detach();
-    QByteArray a(data, size);
-    d->pictb.setBuffer(a);                        // set byte array in buffer
+    d->pictb.setData(data, size);
     d->resetFormat();                                // we'll have to check
 }
 
@@ -258,7 +257,7 @@ bool QPicture::load(QIODevice *dev, const char *format)
     fprintf(stderr,"\n###\n");
 #endif
 
-    d->pictb.setBuffer(a);                        // set byte array in buffer
+    d->pictb.setData(a);                        // set byte array in buffer
     return d->checkFormat();
 }
 
@@ -684,9 +683,7 @@ bool QPicture::QPicturePrivate::cmd(int c, QPainter *pt, QPDevCmdParam *p)
     // when moving up to 4 the QDataStream version remained at 3
     s.setVersion(formatMajor != 4 ? formatMajor : 3);
     if (c ==  PdcBegin) {                        // begin; write header
-        QByteArray empty;
-        pictb.setBuffer(empty);                // reset byte array in buffer
-        pictb.open(IO_WriteOnly);
+        pictb.open(IO_WriteOnly | IO_Truncate);
         s.writeRawBytes(mfhdr_tag, 4);
         s << (Q_UINT16)0 << (Q_UINT16)formatMajor << (Q_UINT16)formatMinor;
         s << (Q_UINT8)c << (Q_UINT8)sizeof(Q_INT32);
@@ -975,9 +972,7 @@ void QPicture::detach_helper()
 {
     QPicturePrivate *x = new QPicturePrivate;
     int pictsize = size();
-    QByteArray a(pictsize);
-    memcpy(a.data(), data(), pictsize);
-    x->pictb.setBuffer(a);
+    x->pictb.setData(data(), pictsize);
     if (d->pictb.isOpen()) {
         x->pictb.open(d->pictb.mode());
         x->pictb.at(d->pictb.at());
@@ -1188,7 +1183,7 @@ QDataStream &operator>>(QDataStream &s, QPicture &r)
         s.readRawBytes(data.data(), len);
     }
 
-    r.d->pictb.setBuffer(data);
+    r.d->pictb.setData(data);
     r.d->resetFormat();
     return s;
 }

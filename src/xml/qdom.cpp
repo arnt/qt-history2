@@ -6051,7 +6051,7 @@ bool QDomDocument::setContent(const QString& text, bool namespaceProcessing, QSt
 
 /*!
     This function parses the XML document from the byte array \a
-    buffer and sets it as the content of the document. It tries to
+    data and sets it as the content of the document. It tries to
     detect the encoding of the document as required by the XML
     specification.
 
@@ -6078,11 +6078,12 @@ bool QDomDocument::setContent(const QString& text, bool namespaceProcessing, QSt
     \sa QDomNode::namespaceURI() QDomNode::localName()
     QDomNode::prefix() QString::isNull() QString::isEmpty()
 */
-bool QDomDocument::setContent(const QByteArray& buffer, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn)
+bool QDomDocument::setContent(const QByteArray &data, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn)
 {
     if (!impl)
         impl = new QDomDocumentPrivate;
-    QBuffer buf(buffer);
+    QBuffer buf;
+    buf.setData(data);
     QXmlInputSource source(&buf);
     return IMPL->setContent(&source, namespaceProcessing, errorMsg, errorLine, errorColumn);
 }
@@ -6167,9 +6168,8 @@ bool QDomDocument::setContent(QXmlInputSource *source, QXmlReader *reader, QStri
 QString QDomDocument::toString(int indent) const
 {
     QString str;
-    QTextStream s(str, IO_WriteOnly);
+    QTextStream s(&str, IO_WriteOnly);
     save(s, indent);
-
     return str;
 }
 

@@ -42,9 +42,8 @@ public:
 
     QTextStream();
     QTextStream(QIODevice *);
-    QTextStream(QString*, int mode);
-    QTextStream(QString&, int mode);                // obsolete
-    QTextStream(QByteArray &, int mode);
+    QTextStream(QString *, int mode);
+    QTextStream(QByteArray *, int mode);
     QTextStream(FILE *, int mode);
     virtual ~QTextStream();
 
@@ -152,7 +151,7 @@ private:
     QTextStream &writeBlock(const char* p, uint len);
     QTextStream &writeBlock(const QChar* p, uint len);
 
-private:        // Disabled copy constructor and operator=
+private:
 #if defined(Q_DISABLE_COPY)
     QTextStream(const QTextStream &);
     QTextStream &operator=(const QTextStream &);
@@ -161,32 +160,28 @@ private:        // Disabled copy constructor and operator=
 
 typedef QTextStream QTS;
 
-class Q_CORE_EXPORT QTextIStream : public QTextStream {
+class Q_CORE_EXPORT QTextIStream : public QTextStream
+{
 public:
-    QTextIStream(const QString* s) :
-        QTextStream((QString*)s,IO_ReadOnly) { }
-    QTextIStream(QByteArray ba) :
-        QTextStream(ba,IO_ReadOnly) { }
-    QTextIStream(FILE *f) :
-        QTextStream(f,IO_ReadOnly) { }
+    QTextIStream(const QString *s) : QTextStream(const_cast<QString *>(s), IO_ReadOnly) {}
+    QTextIStream(QByteArray *a) : QTextStream(a, IO_ReadOnly) {}
+    QTextIStream(FILE *f) : QTextStream(f, IO_ReadOnly) {}
 
-private:        // Disabled copy constructor and operator=
+private:
 #if defined(Q_DISABLE_COPY)
     QTextIStream(const QTextIStream &);
     QTextIStream &operator=(const QTextIStream &);
 #endif
 };
 
-class Q_CORE_EXPORT QTextOStream : public QTextStream {
+class Q_CORE_EXPORT QTextOStream : public QTextStream
+{
 public:
-    QTextOStream(QString* s) :
-        QTextStream(s,IO_WriteOnly) { }
-    QTextOStream(QByteArray ba) :
-        QTextStream(ba,IO_WriteOnly) { }
-    QTextOStream(FILE *f) :
-        QTextStream(f,IO_WriteOnly) { }
+    QTextOStream(QString *s) : QTextStream(s, IO_WriteOnly) {}
+    QTextOStream(QByteArray *a) : QTextStream(a, IO_WriteOnly) {}
+    QTextOStream(FILE *f) : QTextStream(f, IO_WriteOnly) {}
 
-private:        // Disabled copy constructor and operator=
+private:
 #if defined(Q_DISABLE_COPY)
     QTextOStream(const QTextOStream &);
     QTextOStream &operator=(const QTextOStream &);

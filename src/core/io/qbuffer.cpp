@@ -14,31 +14,8 @@
 
 #include "qbuffer.h"
 
-/* The two macros below are to conserve the QBuffer semantics. The old
- * bytearray had explicit sharing making it easy to write to it. Since
- * it is now implicitly shared, we have the problem that we cannot
- * modify the bytearray member b of QBuffer without triggering a
- * detach. For this reason we store a pointer to the original
- * bytearray and a copy of it.
- *
- * Before writing to the buffer, we check if b is detached. If it is,
- * we use p, otherwise we assume the original pointer is still valid
- * and write to that one.
- *
- * We can only use p and not b within BEGIN_BUFFER_WRITE/END_BUFFER_WRITE pairs.
- */
-#define BEGIN_BUFFER_WRITE \
-    if (p == &b || b.isDetached()) \
-        p = &b;         \
-    else                \
-        b.clear()
-
-#define END_BUFFER_WRITE \
-    b = *p
-
-
 /*!
-    \class QBuffer qbuffer.h
+    \class QBuffer
     \reentrant
     \brief The QBuffer class is an I/O device that operates on a QByteArray.
 
@@ -82,14 +59,14 @@
 
 QBuffer::QBuffer()
 {
-    p = &b;
+    buf = &defaultBuf;
     setFlags(IO_Direct);
     ioIndex = 0;
 }
 
 
 /*!
-    Constructs a buffer that operates on \a buf.
+    Constructs a buffer that operates on QByteArray \a a.
 
     If you open the buffer in write mode (\c IO_WriteOnly or
     \c IO_ReadWrite) and write something into the buffer, \a buf
@@ -97,35 +74,21 @@ QBuffer::QBuffer()
 
     Example:
     \code
-    QCString str = "abc";
-    QBuffer b(str);
-    b.open(IO_WriteOnly);
-    b.at(3); // position at the 4th character (the terminating \0)
-    b.writeBlock("def", 4); // write "def" including the terminating \0
-    b.close();
-    // Now, str == "abcdef" with a terminating \0
+        QCString str = "abc";
+        QBuffer b(str);
+        b.open(IO_WriteOnly);
+        b.at(3); // position at the 4th character (the terminating \0)
+        b.writeBlock("def", 4); // write "def" including the terminating \0
+        b.close();
+        // Now, str == "abcdef" with a terminating \0
     \endcode
 
     \sa setBuffer()
 */
 
-QBuffer::QBuffer(QByteArray &buf)
+QBuffer::QBuffer(QByteArray *a)
 {
-    buf.detach();
-    b = buf;
-    p = &buf;
-    setFlags(IO_Direct);
-    ioIndex = 0;
-}
-
-/*!
-    Constructs a buffer that operates on \a buf.
-*/
-
-QBuffer::QBuffer(const QByteArray &buf)
-{
-    b = buf;
-    p = &b;
+    buf = a;
     setFlags(IO_Direct);
     ioIndex = 0;
 }
@@ -136,14 +99,16 @@ QBuffer::QBuffer(const QByteArray &buf)
 
 QBuffer::~QBuffer()
 {
-    p = 0;
+    buf = 0;
 }
 
-
 /*!
-    Replaces the buffer's contents with \a buf and returns true.
+    Replaces the buffer's contents with \a a and returns true.
+    ###
 
-    Does nothing (and returns false) if isOpen() is true.
+    if a == 0?
+
+    Does nothing if isOpen() is true.
 
     Note that if you open the buffer in write mode (\c IO_WriteOnly or
     IO_ReadWrite) and write something into the buffer, \a buf is also
@@ -152,17 +117,31 @@ QBuffer::~QBuffer()
     \sa buffer(), open(), close()
 */
 
-bool QBuffer::setBuffer(QByteArray &buf)
+void QBuffer::setBuffer(QByteArray *a)
 {
     if (isOpen()) {
         qWarning("QBuffer::setBuffer: Buffer is open");
-        return false;
+        return;
     }
-    buf.detach();
-    b = buf;
-    p = &buf;
+    if (a) {
+        buf = a;
+    } else {
+        buf = &defaultBuf;
+    }
+    defaultBuf.clear();
     ioIndex = 0;
-    return true;
+}
+
+/*!
+    ###
+*/
+void QBuffer::setData(const QByteArray &data)
+{
+    if (isOpen()) {
+        qWarning("QBuffer::setData: Buffer is open");
+        return;
+    }
+    *buf = data;
 }
 
 /*!
@@ -191,24 +170,22 @@ bool QBuffer::setBuffer(QByteArray &buf)
     \sa close(), isOpen()
 */
 
-bool QBuffer::open(int m )
+bool QBuffer::open(int m)
 {
     if (isOpen()) {                           // buffer already open
         qWarning("QBuffer::open: Buffer already open");
         return false;
     }
     setMode(m);
-    BEGIN_BUFFER_WRITE;
     if (m & IO_Truncate)
-        p->resize(0);
+        buf->resize(0);
     if (m & IO_Append)                       // append to end of buffer
-        ioIndex = p->size();
+        ioIndex = buf->size();
     else
         ioIndex = 0;
 
     setState(IO_Open);
     resetStatus();
-    END_BUFFER_WRITE;
     return true;
 }
 
@@ -263,7 +240,7 @@ bool QBuffer::at(Offset pos)
         return false;
     }
     // #### maybe resize if not readonly?
-    if (pos > (Offset)b.size()) {
+    if (pos > (Offset)buf->size()) {
         qWarning("QBuffer::at: Index %lld out of range", pos);
         return false;
     }
@@ -290,14 +267,14 @@ Q_LONG QBuffer::readBlock(char *p, Q_ULONG len)
         qWarning("QBuffer::readBlock: Read operation not permitted");
         return -1;
     }
-    if (ioIndex + len > b.size()) {   // overflow
-        if ((int)ioIndex >= b.size()) {
+    if (ioIndex + len > buf->size()) {   // overflow
+        if ((int)ioIndex >= buf->size()) {
             return 0;
         } else {
-            len = b.size() - ioIndex;
+            len = buf->size() - ioIndex;
         }
     }
-    memcpy(p, b.constData()+ioIndex, len);
+    memcpy(p, buf->constData() + ioIndex, len);
     ioIndex += len;
     return len;
 }
@@ -337,19 +314,16 @@ Q_LONG QBuffer::writeBlock(const char *ptr, Q_ULONG len)
         qWarning("QBuffer::writeBlock: Write operation not permitted");
         return -1;
     }
-    BEGIN_BUFFER_WRITE;
-    if (ioIndex + len > p->size()) {             // overflow
-        p->resize(ioIndex +len);
-        if (p->size() != (int)(ioIndex +len)) {           // could not resize
+    if (ioIndex + len > buf->size()) {             // overflow
+        buf->resize(ioIndex + len);
+        if (buf->size() != (int)(ioIndex + len)) {           // could not resize
             qWarning("QBuffer::writeBlock: Memory allocation error");
             setStatus(IO_ResourceError);
-            END_BUFFER_WRITE;
             return -1;
         }
     }
-    memcpy(p->data()+ioIndex, ptr, len);
+    memcpy(buf->data() + ioIndex, ptr, len);
     ioIndex += len;
-    END_BUFFER_WRITE;
     return len;
 }
 
@@ -375,16 +349,16 @@ Q_LONG QBuffer::readLine(char *p, Q_ULONG maxlen)
     if (maxlen == 0)
         return 0;
     Q_ULONG start = ioIndex;
-    const char *d = b.constData() + ioIndex;
+    const char *d = buf->constData() + ioIndex;
     maxlen--;                                   // make room for 0-terminator
-    if (b.size() - ioIndex < maxlen)
-        maxlen = b.size() - ioIndex;
+    if (buf->size() - ioIndex < maxlen)
+        maxlen = buf->size() - ioIndex;
     while (maxlen--) {
         if ((*p++ = *d++) == '\n')
             break;
     }
     *p = '\0';
-    ioIndex = d - b.constData();
+    ioIndex = d - buf->constData();
     return ioIndex - start;
 }
 
@@ -403,11 +377,11 @@ int QBuffer::getch()
         qWarning("QBuffer::getch: Read operation not permitted");
         return -1;
     }
-    if (ioIndex + 1 > b.size()) {               // overflow
+    if (ioIndex >= buf->size()) {               // overflow
         setStatus(IO_ReadError);
         return -1;
     }
-    return uchar(*(b.constData()+ioIndex++));
+    return uchar(buf->constData()[ioIndex++]);
 }
 
 /*!
@@ -432,18 +406,15 @@ int QBuffer::putch(int ch)
         qWarning("QBuffer::putch: Write operation not permitted");
         return -1;
     }
-    BEGIN_BUFFER_WRITE;
-    if (ioIndex + 1 > p->size()) {               // overflow
+    if (ioIndex >= buf->size()) {               // overflow
         char buf[1];
         buf[0] = (char)ch;
-        if (writeBlock(buf,1) != 1) {
-            END_BUFFER_WRITE;
+        if (writeBlock(buf, 1) != 1) {
             return -1;                          // write error
         }
     } else {
-        *(p->data() + ioIndex++) = (char)ch;
+        buf->data()[ioIndex++] = (char)ch;
     }
-    END_BUFFER_WRITE;
     return ch;
 }
 

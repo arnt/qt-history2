@@ -31,26 +31,25 @@ class Q_CORE_EXPORT QDataStream                                // data stream cl
 public:
     QDataStream();
     QDataStream(QIODevice *);
-    QDataStream(QByteArray &, int mode);
-    QDataStream(const QByteArray &, int mode);
+    QDataStream(QByteArray *, int mode);
     virtual ~QDataStream();
 
-    QIODevice        *device() const;
-    void         setDevice(QIODevice *);
-    void         unsetDevice();
+    QIODevice *device() const;
+    void setDevice(QIODevice *);
+    void unsetDevice();
 
-    bool         atEnd() const;
-    bool         eof() const;
+    bool atEnd() const;
+    bool eof() const;
 
     enum ByteOrder { BigEndian, LittleEndian };
-    ByteOrder byteOrder()        const;
-    void         setByteOrder(ByteOrder);
+    ByteOrder byteOrder() const;
+    void setByteOrder(ByteOrder);
 
-    bool         isPrintableData() const;
-    void         setPrintableData(bool);
+    bool isPrintableData() const;
+    void setPrintableData(bool);
 
-    int                 version() const;
-    void         setVersion(int);
+    int version() const;
+    void setVersion(int);
 
     QDataStream &operator>>(Q_INT8 &i);
     QDataStream &operator>>(Q_UINT8 &i);

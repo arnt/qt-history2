@@ -1040,11 +1040,11 @@ QByteArray QImageDrag::encodedData(const char* fmt) const
     if (qstrnicmp(fmt, "image/", 6)==0) {
         QByteArray f(fmt+6);
         QByteArray dat;
-        QBuffer w(dat);
+        QBuffer w(&dat);
         w.open(IO_WriteOnly);
         QImageIO io(&w, f.toUpper());
         io.setImage(d->img);
-        if  (!io.write())
+        if (!io.write())
             return QByteArray();
         w.close();
         return dat;

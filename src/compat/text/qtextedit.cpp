@@ -1763,7 +1763,7 @@ void QTextEdit::doKeyboardAction(KeyboardAction action)
 void QTextEdit::readFormats(Q3TextCursor &c1, Q3TextCursor &c2, Q3TextString &text, bool fillStyles)
 {
 #ifndef QT_NO_DATASTREAM
-    QDataStream styleStream(undoRedoInfo.styleInformation, IO_WriteOnly);
+    QDataStream styleStream(&undoRedoInfo.styleInformation, IO_WriteOnly);
 #endif
     c2.restoreState();
     c1.restoreState();

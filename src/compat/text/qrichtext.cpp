@@ -230,7 +230,7 @@ Q3TextCursor *QTextDeleteCommand::unexecute(Q3TextCursor *c)
 
 #ifndef QT_NO_DATASTREAM
     if (!styleInformation.isEmpty()) {
-        QDataStream styleStream(styleInformation, IO_ReadOnly);
+        QDataStream styleStream(&styleInformation, IO_ReadOnly);
         int num;
         styleStream >> num;
         Q3TextParagraph *p = s;
@@ -354,7 +354,7 @@ QByteArray QTextStyleCommand::readStyleInformation( Q3TextDocument* doc, int fPa
     Q3TextParagraph *p = doc->paragAt(fParag);
     if (!p)
         return style;
-    QDataStream styleStream(style, IO_WriteOnly);
+    QDataStream styleStream(&style, IO_WriteOnly);
     int num = lParag - fParag + 1;
     styleStream << num;
     while (num -- && p) {
@@ -371,7 +371,8 @@ void QTextStyleCommand::writeStyleInformation( Q3TextDocument* doc, int fParag, 
     Q3TextParagraph *p = doc->paragAt(fParag);
     if (!p)
         return;
-    QDataStream styleStream(style, IO_ReadOnly);
+    QByteArray copy = style;
+    QDataStream styleStream(&copy, IO_ReadOnly);
     int num;
     styleStream >> num;
     while (num-- && p) {
@@ -4981,7 +4982,7 @@ void Q3TextParagraph::drawLabel(QPainter* p, int x, int y, int w, int h, int bas
 }
 
 #ifndef QT_NO_DATASTREAM
-void Q3TextParagraph::readStyleInformation(QDataStream& stream)
+void Q3TextParagraph::readStyleInformation(QDataStream &stream)
 {
     int int_align, int_lstyle;
     uchar uchar_litem, uchar_rtext, uchar_dir;

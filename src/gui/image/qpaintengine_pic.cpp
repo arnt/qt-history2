@@ -63,9 +63,7 @@ bool QPicturePaintEngine::begin(QPaintDevice *pd, QPainterState *state, bool /* 
     d->s.setDevice(&pic_d->pictb);
     d->s.setVersion(pic_d->formatMajor);
 
-    QByteArray empty;
-    pic_d->pictb.setBuffer(empty); // reset byte array in buffer
-    pic_d->pictb.open(IO_WriteOnly);
+    pic_d->pictb.open(IO_WriteOnly | IO_Truncate);
     d->s.writeRawBytes(mfhdr_tag, 4);
     d->s << (Q_UINT16) 0 << (Q_UINT16) pic_d->formatMajor << (Q_UINT16) pic_d->formatMinor;
     d->s << (Q_UINT8) PdcBegin << (Q_UINT8) sizeof(Q_INT32);

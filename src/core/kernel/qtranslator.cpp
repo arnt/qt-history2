@@ -509,7 +509,7 @@ bool QTranslator::do_load(const uchar *data, int len)
     }
 
     QConstByteArray array((const char *) data, len);
-    QDataStream s(array, IO_ReadOnly);
+    QDataStream s(&array, IO_ReadOnly);
     bool ok = true;
 
     s.device()->at(MagicLength);
@@ -667,7 +667,7 @@ void QTranslator::squeeze(SaveMode mode)
 
     QMap<QTranslatorPrivate::Offset, void *> offsets;
 
-    QDataStream ms(*d->messageArray, IO_WriteOnly);
+    QDataStream ms(d->messageArray, IO_WriteOnly);
     QMap<QTranslatorMessage, void *>::Iterator it = messages->begin(), next;
     int cpPrev = 0, cpNext = 0;
     for (it = messages->begin(); it != messages->end(); ++it) {
@@ -687,7 +687,7 @@ void QTranslator::squeeze(SaveMode mode)
     d->offsetArray->resize(0);
     QMap<QTranslatorPrivate::Offset, void *>::Iterator offset;
     offset = offsets.begin();
-    QDataStream ds(*d->offsetArray, IO_WriteOnly);
+    QDataStream ds(d->offsetArray, IO_WriteOnly);
     while (offset != offsets.end()) {
         QTranslatorPrivate::Offset k = offset.key();
         ++offset;
@@ -740,7 +740,7 @@ void QTranslator::squeeze(SaveMode mode)
         */
         d->contextArray = new QByteArray;
         d->contextArray->resize(2 + (hTableSize << 1));
-        QDataStream t(*d->contextArray, IO_WriteOnly);
+        QDataStream t(d->contextArray, IO_WriteOnly);
         Q_UINT16 *hTable = new Q_UINT16[hTableSize];
         memset(hTable, 0, hTableSize * sizeof(Q_UINT16));
 
@@ -802,7 +802,7 @@ void QTranslator::unsqueeze()
     if (!d->messageArray)
         return;
 
-    QDataStream s(*d->messageArray, IO_ReadOnly);
+    QDataStream s(d->messageArray, IO_ReadOnly);
     for (;;) {
         QTranslatorMessage m(s);
         if (m.hash() == 0)
@@ -920,7 +920,7 @@ QTranslatorMessage QTranslator::findMessage(const char* context,
     */
     if (d->contextArray) {
         Q_UINT16 hTableSize = 0;
-        QDataStream t(*d->contextArray, IO_ReadOnly);
+        QDataStream t(d->contextArray, IO_ReadOnly);
         t >> hTableSize;
         uint g = elfHash(context) % hTableSize;
         t.device()->at(2 + (g << 1));
@@ -960,13 +960,13 @@ QTranslatorMessage QTranslator::findMessage(const char* context,
                     cmp_uint32_big(r - 8, r) == 0)
                 r -= 8;
 
-            QDataStream s(*d->offsetArray, IO_ReadOnly);
+            QDataStream s(d->offsetArray, IO_ReadOnly);
             s.device()->at(r - d->offsetArray->constData());
 
             Q_UINT32 rh, ro;
             s >> rh >> ro;
 
-            QDataStream ms(*d->messageArray, IO_ReadOnly);
+            QDataStream ms(d->messageArray, IO_ReadOnly);
             while (rh == h) {
                 ms.device()->at(ro);
                 QTranslatorMessage m(ms);
