@@ -2572,7 +2572,7 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 	int from = sel.find( "<selstart/>" );
 	int to = sel.findRev( "<selend/>" );
 	if ( from >= 0 && from <= to )
-	    sel = sel.mid( from + 11, to - from - 11 );
+	    sel = sel.mid( from, to - from );
 	richTextExportStart = richTextExportEnd = 0;
 	return sel;
     }

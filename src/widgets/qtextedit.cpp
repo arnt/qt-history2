@@ -2837,8 +2837,10 @@ void QTextEdit::cut()
     if ( isReadOnly() )
 	return;
 
-    if ( doc->hasSelection( QTextDocument::Standard ) && !doc->selectedText( QTextDocument::Standard ).isEmpty() ) {
-	QApplication::clipboard()->setText( doc->selectedText( QTextDocument::Standard ) );
+    QString t;
+    if ( doc->hasSelection( QTextDocument::Standard ) &&
+	 !( t = doc->selectedText( QTextDocument::Standard, TRUE ) ).isEmpty() ) {
+	QApplication::clipboard()->setText( t );
 	removeSelectedText();
     }
     updateMicroFocusHint();
@@ -2851,14 +2853,15 @@ void QTextEdit::cut()
 
 void QTextEdit::copy()
 {
+    QString t;
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode && optimHasSelection() )
 	QApplication::clipboard()->setText( optimSelectedText() );
-    else if ( doc->hasSelection( QTextDocument::Standard ) && !doc->selectedText( QTextDocument::Standard ).isEmpty() )
-	QApplication::clipboard()->setText( doc->selectedText( QTextDocument::Standard ) );
+    if ( doc->hasSelection( QTextDocument::Standard ) && !( t = doc->selectedText( QTextDocument::Standard, TRUE ) ).isEmpty() )
+	QApplication::clipboard()->setText( t );
 #else
-    if ( doc->hasSelection( QTextDocument::Standard ) && !doc->selectedText( QTextDocument::Standard ).isEmpty())
-	QApplication::clipboard()->setText( doc->selectedText( QTextDocument::Standard ) );
+    if ( doc->hasSelection( QTextDocument::Standard ) && !( t = doc->selectedText( QTextDocument::Standard, TRUE ) ).isEmpty() )
+	QApplication::clipboard()->setText( t );
 #endif
 }
 
@@ -4323,24 +4326,48 @@ void QTextEdit::pasteSubType( const QCString& subtype )
     QString t = QApplication::clipboard()->text(st);
     removeSelection( QTextDocument::Standard );
     if ( !t.isEmpty() ) {
+	if ( t.startsWith( "<selstart/>" ) ) {
+	    t.remove( 0, 11 );
+	    QTextCursor oldC = *cursor;
+	    lastFormatted = cursor->paragraph();
+	    if ( lastFormatted->prev() )
+		lastFormatted = lastFormatted->prev();
+	    doc->setRichTextInternal( t, cursor );
+	
+	    if ( undoEnabled && !isReadOnly() ) {
+		doc->setSelectionStart( QTextDocument::Temp, oldC );
+		doc->setSelectionEnd( QTextDocument::Temp, *cursor );
 
-#if 0
-	// we cannot undo that yet :-(
-	undoRedoInfo.clear();
-	doc->commands()->clear();
-	lastFormatted = cursor->paragraph();
-	if ( lastFormatted->prev() )
-	    lastFormatted = lastFormatted->prev();
-	doc->setRichTextInternal( t, cursor );
-
-	// cursor now at end. Reggie, please do undo magic with readFormats
-	formatMore();
-	setModified();
-	emit textChanged();
-	repaintChanged();
-	ensureCursorVisible();
-	return;
-#endif
+		checkUndoRedoInfo( UndoRedoInfo::Insert );
+		if ( !undoRedoInfo.valid() ) {
+		    undoRedoInfo.id = oldC.paragraph()->paragId();
+		    undoRedoInfo.index = oldC.index();
+		    undoRedoInfo.d->text = QString::null;
+		}
+		int oldLen = undoRedoInfo.d->text.length();
+		if ( !doc->preProcessor() ) {
+		    QString txt = doc->selectedText( QTextDocument::Temp );
+		    undoRedoInfo.d->text += txt;
+		    for ( int i = 0; i < (int)txt.length(); ++i ) {
+			if ( txt[ i ] != '\n' && oldC.paragraph()->at( oldC.index() )->format() ) {
+			    oldC.paragraph()->at( oldC.index() )->format()->addRef();
+			    undoRedoInfo.d->text.
+				setFormat( oldLen + i, oldC.paragraph()->at( oldC.index() )->format(), TRUE );
+			}
+			oldC.gotoNextLetter();
+		    }
+		}
+		undoRedoInfo.clear();
+		removeSelection( QTextDocument::Temp );
+	    }
+	
+	    formatMore();
+	    setModified();
+	    emit textChanged();
+	    repaintChanged();
+	    ensureCursorVisible();
+	    return;
+	}
 
 #if defined(Q_OS_WIN32)
 	// Need to convert CRLF to LF
