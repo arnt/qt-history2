@@ -1250,6 +1250,14 @@ void QWSServer::doClient( QWSClient *client )
 	    invokeQCopSend( (QWSQCopSendCommand*)cs->command, cs->client );
 	    break;
 #endif
+#ifndef QT_NO_QWS_IM
+	case QWSCommand::ResetIM:
+	    invokeResetIM( (QWSResetIMCommand*)cs->command, cs->client );
+	    break;
+	case QWSCommand::SetMicroFocus:
+	    invokeSetMicroFocus( (QWSSetMicroFocusCommand*)cs->command, cs->client );
+	    break;
+#endif
 	case QWSCommand::RepaintRegion:
 	    invokeRepaintRegion((QWSRepaintRegionCommand*)cs->command,
 				cs->client);
