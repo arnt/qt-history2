@@ -34,6 +34,7 @@
 #include "qvariant.h"
 #include "qvector.h"
 #include "qwhatsthis.h"
+#include "qdebug.h"
 #include <private/qinternal_p.h>
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
@@ -1616,10 +1617,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
 
     if (unknown && !d->readOnly) {
         QString t = e->text();
-        if (!t.isEmpty() &&
-            e->key() != Qt::Key_Delete &&
-            e->key() != Qt::Key_Backspace &&
-            e->key() != Qt::Key_Escape) {
+        if (!t.isEmpty() && t.at(0).isPrint()) {
             insert(t);
             e->accept();
             return;

@@ -1417,7 +1417,7 @@ process:
                 d->createAutoBulletList();
             }
 
-            if (!text.isEmpty()) {
+            if (!text.isEmpty() && text.at(0).isPrint()) {
                 d->cursor.insertText(text);
                 d->selectionChanged();
             } else {
