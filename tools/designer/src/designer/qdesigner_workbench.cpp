@@ -96,6 +96,7 @@ void QDesignerWorkbench::addFormWindow(QDesignerFormWindow *formWindow)
     }
 
     m_actionManager->minimizeAction()->setEnabled(true);
+    m_actionManager->editWidgets()->trigger();
 }
 
 void QDesignerWorkbench::initialize()

@@ -190,7 +190,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_editWidgetsAction->setIcon(QIcon(m_core->resourceLocation() + QLatin1String("/widgettool.png")));
     connect(formWindowManager, SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
                 this, SLOT(activeFormWindowChanged(AbstractFormWindow *)));
-    connect(m_editWidgetsAction, SIGNAL(triggered()), this, SLOT(editWidgets()));
+    connect(m_editWidgetsAction, SIGNAL(triggered()), this, SLOT(editWidgetsSlot()));
     m_toolActions->addAction(m_editWidgetsAction);
     m_editWidgetsAction->setChecked(true);
     m_editWidgetsAction->setEnabled(false);
@@ -423,7 +423,7 @@ QAction *QDesignerActions::adjustSizeAction() const
 QAction *QDesignerActions::previewFormAction() const
 { return m_previewFormAction; }
 
-void QDesignerActions::editWidgets()
+void QDesignerActions::editWidgetsSlot()
 {
     AbstractFormWindowManager *formWindowManager = core()->formWindowManager();
     for (int i=0; i<formWindowManager->formWindowCount(); ++i) {
@@ -811,3 +811,9 @@ QActionGroup *QDesignerActions::uiMode() const
 
 QAction *QDesignerActions::useBigIconsAction() const
 { return m_useBigIcons; }
+
+QAction *QDesignerActions::editWidgets() const
+{
+    return m_editWidgetsAction;
+}
+

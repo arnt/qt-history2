@@ -124,7 +124,7 @@ private slots:
     void previewForm();
     void notImplementedYet();
     void shutdown();
-    void editWidgets();
+    void editWidgetsSlot();
     void openRecentForm();
     void clearRecentFiles();
     void closeForm();
