@@ -768,6 +768,10 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 	return TRUE;
     else if (value.lower() == "false")
 	return FALSE;
+    else if (value == "1")
+	return TRUE;
+    else if (value == "0")
+	return FALSE;
 
     if (! value.isEmpty())
 	qWarning("QString::readBoolEntry: '%s' is not 'true' or 'false'",
