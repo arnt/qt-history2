@@ -7,8 +7,8 @@
 
 //#define TEST_COLORS
 
-const int MAX_ITER  = 4000;
-const int MAX_FONTS = 100;
+const int MAX_ITER  = 100000;
+const int MAX_FONTS = 10;
 typedef QFont *pQFont;
 QFont **fontArray;
 
@@ -64,7 +64,7 @@ void drawFonts( QPainter *p )
     for ( int i=0; i<MAX_ITER; i++ ) {
 	int x = rand()%vp.width();
 	int y = rand()%vp.height();
-	p->setFont( *fontArray[rand()%MAX_FONTS] );
+	//	p->setFont( *fontArray[rand()%MAX_FONTS] );
 	p->drawText( x, y, 100, 40, AlignRight, "text to draw" );
     }
 }
@@ -83,4 +83,5 @@ int main( int argc, char **argv )
     debug( "TIME = %d", t.elapsed() );
     p.end();
     deleteFontArray();
+    return 0;
 }
