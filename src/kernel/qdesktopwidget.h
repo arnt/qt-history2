@@ -54,7 +54,7 @@ public:
     int numScreens() const;
     int primaryScreen() const;
 
-    int screenNumber( QWidget *widget = 0 ) const;
+    int screenNumber( QWidget *widget = 0 ) const; // ### 4.0: const QWidget*
     int screenNumber( const QPoint & ) const;
 
     QWidget *screen( int screen = -1 );
