@@ -6,7 +6,8 @@
     <title>Introduction</title>
     \p
     This manual presents \qd, a tool for designing and implementing user
-    interfaces built with the Qt cross-platform toolkit. \qd makes it easy to
+    interfaces built with the Qt cross-platform application development
+    framework. \qd makes it easy to
     experiment with user interface design. At any time you can generate the
     code required to reproduce the user interface from the files \qd produces,
     changing your design as often as you like. If you used the previous
@@ -111,7 +112,7 @@
 
     \p
     The manual assumes that you have some basic knowledge of C++ and the Qt
-    toolkit. If you need to learn more about C++ or Qt there are a vast number
+    application development framework. If you need to learn more about C++ or Qt there are a vast number
     of C++ books on the market, and a small but increasing number of Qt books.
     Qt comes with extensive online documentation and many example
     applications that you can try. For <xref
@@ -123,7 +124,7 @@
 </sect1>
 
 
-<sect1 id="whatsnewindesigner2">
+<sect1 id="whatsnewindesigner">
 <title>What's new in Designer?</title>
 <para> 
 This version of \qd has a great deal more functionality than its
@@ -136,6 +137,9 @@ Designer; dialogs can be created dynamically from
 from small improvements to the user interface to improved efficiency,
 for example the ability to share pixmaps across all the forms in an
 application.
+<figure><title>Qt Designer</title>
+\img[designer]
+</figure>
 </para>
 </sect1>
 

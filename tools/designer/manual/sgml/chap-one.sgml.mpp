@@ -85,7 +85,6 @@ caption is the tenth property from the top in the property editor. Save
 the form: click <guimenuitem>File|Save</guimenuitem>, enter the name
 'multiclip.ui', then click the <guibutton>Save</guibutton> button. 
 </para>
-</sect1>
 
 <sidebar id="usingthepropertyeditor">
 <title>Using the Property Editor </title>
@@ -140,6 +139,8 @@ explain the property.
 </para>
 </sidebar>
 
+</sect1>
+
 
 <sect1 id="addingwidgets">
 <title>Adding Widgets </title>
@@ -156,82 +157,83 @@ The \qd approach to laying out a form is to place the required
 widgets on the form in the approximate positions that they should
 occupy and then use the layout tools to size and position them
 correctly. We'll now add the multiclip form's widgets.
-<orderedlist numeration="arabic">
-<listitem>
-<para>
-We'll start with the current clipping text box.
-Click the Text Label toolbar button and click towards the top left
-of the form. (If you hover the mouse over a toolbar button its name
-will appear in a tooltip.) We won't bother renaming the label since
-we'll never refer to it in code; but we need to change its text, so
-change its text property to 'Current Clipping'. (See the <xref
-linkend="usingthepropertyeditor"> "Using the Property Editor" sidebar
-for an explanation of the property editor.)
-</para>
-<para>
-Click the Line Edit toolbar button and click towards the top right of
-the form. Use the Property Editor to rename the widget
-'currentLineEdit'.
-</para>
-</listitem>
-<listitem>
-<para>
-Now we'll add the list box. Click the Text Label toolbar button and
-click below the first TextLabel on the form. Change the text property to
-'Previous Clippings'. Do not worry about positioning the widgets
-precisely, nor about the fact that they are the wrong size; the layout
-tools (covered in the next section) will sort all this out for us. 
-</para>
-<para>
-Click the List Box toolbar button and click the form below the 'Previous
-Clippings' label. Change the list box's name to 'clippingsListBox'. By
-default \qd creates list boxes with a single default value of 'New
-Item'. We don't want this value (we'll be populating our list box in
-code later), so we need to remove the value. Right click the list box
-then click the <guimenuitem>Edit</guimenuitem> menu item on the pop up
-menu to invoke the listbox's value editor dialog. Click
-<guibutton>Delete Item</guibutton> to delete the default item, then
-click \ok. (See the <xref linkend="valueeditors"> "Value Editors"
-sidebar.)
-</para>
-</listitem>
-<listitem>
-<para>
-We want to know the length of the current clipping so we'll add a label
-and an LCD Number widget. Click the Text Label toolbar button and click
-below the Line Edit. Change its text property's value to 'Length'. Click
-the LCD Number toolbar button and click below the length label. Change
-the LCD Number's name to 'lengthLCDNumber'.
-</para>
-</listitem>
-<listitem>
-<para>
-Multiclip can be made to detect clipboard changes and automatically add
-new clippings. We want the user to have control over whether this should
-happen or not so we will give them a check box to indicate their
-preference. Click the Check Box toolbar button and click below the LCD
-Number. Change the checkbox's text to 'A&amp;uto Add Clippings'. Note
-that the accel property automatically changes to <keycap>Alt+U</keycap>.
-</para>
-</listitem>
-<listitem>
-<para>
-The last widgets we require are the buttons. One way to add the same
-kind of widget multiple times is to add one and use Copy and Paste. We
-will use another approach: <emphasis>double</emphasis> click the Push
-Button toolbar button; now click below the checkbox to place a button.
-Click below the button we've just added to add a second button. Add a
-third and fourth button. Now click the Pointer toolbar button to switch
-off automatically adding the same widget. Change the first button's name
-to 'addPushButton' and its text to '&amp;Add Clipping'. Change
-the second button's name to 'copyPushButton' and its text to '&amp;Copy
-Previous'. Change the third button's name and text properties to
-'deletePushButton' and '&amp;Delete Clipping' respectively. Similarly
-change the fourth button's name and text to 'quitPushButton' and
-'&amp;Quit'.
-</para>
-</listitem>
-</itemizedlist>
+    <orderedlist numeration="arabic">
+    <listitem>
+	<para>
+	We'll start with the current clipping text box.
+	Click the Text Label toolbar button and click towards the top left
+	of the form. (If you hover the mouse over a toolbar button its name
+	will appear in a tooltip.) We won't bother renaming the label since
+	we'll never refer to it in code; but we need to change its text, so
+	change its text property to 'Current Clipping'. (See the <xref
+	linkend="usingthepropertyeditor"> "Using the Property Editor" sidebar
+	for an explanation of the property editor.)
+	</para>
+	<para>
+	Click the Line Edit toolbar button and click towards the top right of
+	the form. Use the Property Editor to rename the widget
+	'currentLineEdit'.
+	</para>
+    </listitem>
+    <listitem>
+	<para>
+	Now we'll add the list box. Click the Text Label toolbar button and
+	click below the first TextLabel on the form. Change the text property to
+	'Previous Clippings'. Do not worry about positioning the widgets
+	precisely, nor about the fact that they are the wrong size; the layout
+	tools (covered in the next section) will sort all this out for us. 
+	</para>
+	<para>
+	Click the List Box toolbar button and click the form below the 'Previous
+	Clippings' label. Change the list box's name to 'clippingsListBox'. By
+	default \qd creates list boxes with a single default value of 'New
+	Item'. We don't want this value (we'll be populating our list box in
+	code later), so we need to remove the value. Right click the list box
+	then click the <guimenuitem>Edit</guimenuitem> menu item on the pop up
+	menu to invoke the listbox's value editor dialog. Click
+	<guibutton>Delete Item</guibutton> to delete the default item, then
+	click \ok. (See the <xref linkend="valueeditors"> "Value Editors"
+	sidebar.)
+	</para>
+    </listitem>
+    <listitem>
+	<para>
+	We want to know the length of the current clipping so we'll add a label
+	and an LCD Number widget. Click the Text Label toolbar button and click
+	below the Line Edit. Change its text property's value to 'Length'. Click
+	the LCD Number toolbar button and click below the length label. Change
+	the LCD Number's name to 'lengthLCDNumber'.
+	</para>
+    </listitem>
+    <listitem>
+	<para>
+	Multiclip can be made to detect clipboard changes and automatically add
+	new clippings. We want the user to have control over whether this should
+	happen or not so we will give them a check box to indicate their
+	preference. Click the Check Box toolbar button and click below the LCD
+	Number. Change the checkbox's name to 'autoCheckBox' and its
+	text to 'A&amp;uto Add Clippings'. Note that the accel property
+	automatically changes to <keycap>Alt+U</keycap>.
+	</para>
+    </listitem>
+    <listitem>
+	<para>
+	The last widgets we require are the buttons. One way to add the same
+	kind of widget multiple times is to add one and use Copy and Paste. We
+	will use another approach: <emphasis>double</emphasis> click the Push
+	Button toolbar button; now click below the checkbox to place a button.
+	Click below the button we've just added to add a second button. Add a
+	third and fourth button. Now click the Pointer toolbar button to switch
+	off automatically adding the same widget. Change the first button's name
+	to 'addPushButton' and its text to '&amp;Add Clipping'. Change
+	the second button's name to 'copyPushButton' and its text to '&amp;Copy
+	Previous'. Change the third button's name and text properties to
+	'deletePushButton' and '&amp;Delete Clipping' respectively. Similarly
+	change the fourth button's name and text to 'quitPushButton' and
+	'&amp;Quit'.
+	</para>
+    </listitem>
+    </orderedlist>
 All our widgets have been placed on the form with their properties
 changed to suit our application's needs. In the next section we will use
 \qd's layout tools to size and position the widgets correctly and in
@@ -280,13 +282,16 @@ widgets have different value editors.
     using one of the layout buttons. 
     </para>
     <para>
-    Sometimes the layout stretches some widgets to fill the available
-    space in a way that doesn't look attractive. We can fill extra space
-    with <emphasis>Spacers</emphasis>. Spacers have no visual appearance
-    on the running form and are used purely to insert space between
-    widgets or groups of widgets. The best way to learn about layouts
-    and spacers is to try them out. Layouts are fully Undoable so you
-    can experiment freely.
+    Some widgets will grow to fill the available space, vertically or
+    horizontally or both ways. Buttons and line edits will fill
+    horizontal space for example. In some situations we will want to
+    change the way widgets grow. One direct way of achieving this is to
+    change their sizePolicy property, but using \qd we can usually use  
+    <emphasis>Spacers</emphasis> to obtain the layouts we require.
+    Spacers have no visual appearance on the running form and are used
+    purely to insert space between widgets or groups of widgets. The
+    best way to learn about layouts and spacers is to try them out.
+    Layouts are fully Undoable so you can experiment freely.
     </para>
     </sect2>
 
@@ -335,7 +340,7 @@ widgets have different value editors.
     Vertically</guibutton> toolbar button.
     </para>
     </listitem>
-    </itemizedlist>
+    </orderedlist>
     </para>
     <para>
     We now have three groups of widgets which must be laid out in
@@ -365,7 +370,7 @@ widgets have different value editors.
     entire form.     
     </para>
     </listitem>
-    </itemizedlist>
+    </orderedlist>
     </para>
 
     <para>
@@ -423,7 +428,7 @@ widgets have different value editors.
     be laid out correctly.	
     </para>
     </listitem>
-    </itemizedlist>
+    </orderedlist>
     There are two small deficiencies in the layout that we have
     achieved. Firstly the list box and buttons take up an equal width
     whereas we'd rather have the list box take up about three quarters
@@ -433,21 +438,29 @@ widgets have different value editors.
     the splitter.
     </para>
     <para> 
-    Expanding the list box half of the splitter will require us to add
-    one line of code to the form's <function>init()</function> function.
-    We will write this line in the next chapter when we implement the
-    application's functionality. We will create some space around the
-    splitter by changing the margins of the layout groups that it joins
-    together. To click a layout either click a tiny bit above the
-    layout's top red line or click the layout's name in the Object
-    Explorer. (See <xref linkend="theobjectexplorer"> "The Object
-    Explorer" sidebar for an explanation of the Object Explorer window.)
-    Click the layout that contains the list box, and change the
-    layoutMargin property to 5, then press <keycap>RETURN</keycap>. Click
-    the layout that contains the buttons and other widgets and change
+    Expanding the list box half of the splitter would require us to add
+    the following code to the form's <function>init()</function>
+    function:
+<programlisting>
+    QValueList&lt; int &gt; sizes;
+    sizes &lt;&lt; 250 &lt;&lt; 40;
+    Splitter-&gt;setSizes( sizes );
+</programlisting>
+    We won't add this code since we'll deal with code when we come to
+    implement the application's functionality later in the chapter. 
+    </para>
+    <para>
+    We will create some space around the splitter by changing the
+    margins of the layout groups that it joins together. To click a
+    layout either click a tiny bit above the layout's top red line or
+    click the layout's name in the Object Explorer. (See <xref
+    linkend="theobjectexplorer"> "The Object Explorer" sidebar for an
+    explanation of the Object Explorer window.) Click the layout that
+    contains the list box, and change the layoutMargin property to 5,
+    then press <keycap>RETURN</keycap>. Click the layout that contains
+    the buttons and other widgets and change
     its layoutMargin to the same value in the same way. 
     </para>
-    </sect2>
 
     <sidebar id="theobjectexplorer">
     <title>The Object Explorer</title>
@@ -490,6 +503,7 @@ widgets have different value editors.
     linkend="subclassing"> "Subclassing" for more information.)
     </para>
     </sidebar>
+    </sect2>
 
     <sect2 id="previewing">
     <title>Previewing </title>
@@ -499,7 +513,7 @@ widgets have different value editors.
     able to test out some aspects of the form, for example how the form
     scales when resized or how the splitters work in practice. If we're
     building cross-platform applications it is also useful to see how
-    the form will look on different platforms.
+    the form will look in different environments.
     </para>
     <para>
     To see a preview either click <guimenuitem>Preview|Preview
@@ -507,16 +521,85 @@ widgets have different value editors.
     multiclip; when the preview appears try resizing the form and try
     moving the splitter. To leave preview mode press
     <keycap>Esc</keycap> or close the window in the standard way for
-    your platform. To view previews which show how the application will
+    your environment. To view previews which show how the application will
     look on other platforms click the <guimenuitem>Preview</guimenuitem>
     menu and click one of the menu items that drop down.
+    </para>
+    <para> 
+    Preview the multiclip form and try out the splitter and try resizing
+    the form. In all probability you moved the splitter to the right to
+    reduce the size of the buttons to make the form more attractive. The
+    splitter seemed like a good idea but in practice we want the buttons
+    and the other widgets on the right hand side to take up a fixed
+    amount of space. \qd makes changing layouts very easy, so we'll fix
+    this straight away.
+    </para>
+    <para>
+    Click the splitter then click the <guibutton>Break
+    Layout</guibutton> toolbar button; the splitter will be removed. Now
+    click the form itself, near the bottom, and drag the black outline
+    rectangle so that it touches both the list box and some of the
+    buttons, then release. The list box group and the buttons group are
+    selected; click the <guibutton>Lay Out Horizontally</guibutton>
+    toolbar button. Click the form then click the <guibutton>Lay Out
+    Vertically</guibutton> toolbar button. The form is now laid out as
+    we require. Preview the form (press <keycap>Ctrl+T</keycap>) and try
+    resizing it.
+    </para>
+    <para>
+    It would be useful if you experimented further with the layout of
+    multiclip. To remove a layout click the <guibutton>Break
+    Layout</guibutton> toolbar button; to apply a layout select the
+    relevant widgets or groups and click a layout button. You can
+    preview as often as you like and you can always Undo any changes
+    that didn't work out. 
+    </para>
+    <para>
+    We'll try an experiment, to see how the grid layout works. Click
+    the list box, then press <keycap>Ctrl+B</keycap> (break layout).
+    Click one of the buttons and press <keycap>Ctrl+B</keycap>. Click
+    the form at the bottom and drag until all the widgets are touching
+    or within the black outline rectangle, (but excluding the Current
+    Clipping label and the currentLineEdit line edit); then release.
+    Press <keycap>Ctrl+G</keycap> (lay out in a grid). Click the form,
+    then click <keycap>Ctrl+L</keycap> (lay out vertically). Our
+    original design is back -- but this time using a grid layout. 
     </para>
     </sect2>
 
     <sect2 id="changingthetaborder">
     <title>Changing the Tab Order </title>
     <para>
-
+    Keyboard users press the <keycap>Tab</keycap> key to move the focus
+    from widget to widget as they use a form. The order in which the
+    focus moves is called the tab order. Preview multiclip (press
+    <keycap>Ctrl+T</keycap>) and try tabbing through the widgets.
+    Because we laid out the widgets in the right order the tab order is
+    correct, but we'll experiment with it.
+    </para>
+    <para>
+    When you click the <guibutton>Tab Order</guibutton> toolbar button a
+    number in a blue circle will appear next to every widget that can
+    accept focus. You change the tab order by clicking the widgets in
+    the order you want to be the new tab order. If you make a mistake
+    and need to start again, double click the widget you want to be
+    first, then click the other widgets in the required order as before.
+    When you've finished press <keycap>Esc</keycap> to leave tab order
+    mode. If you made a mistake or preferred the previous tab order you
+    can undo your changes by pressing <keycap>Ctrl+Y</keycap> (undo). 
+    </para>
+    <para>
+    Click the <guibutton>Tab Order</guibutton> toolbar button, then
+    click the Add Clipping button. Click the Copy Previous button, the
+    Delete Clipping button and the Quit button. Press
+    <keycap>Esc</keycap> to finish tab order mode, then preview the
+    form. The tab order now begins with the Add Clipping button. 
+    </para>
+    <para>
+    The original tab order was better. We could restore it by undoing,
+    but for practice click the <guibutton>Tab Order</guibutton> toolbar
+    button and restore the original order manually. (Click the line
+    edit, the list box then the check box. Press <keycap>Esc</keycap>.)
     </para>
     </sect2>
 </sect1>
@@ -524,7 +607,42 @@ widgets have different value editors.
 <sect1 id="qtssignalsandslotsmechanism">
 <title>Qt's Signals and Slots Mechanism </title>
 <para>
-
+In GUI programming we often want a change in one widget to be notified
+to another widget. But this requirement to communicate from one part of
+an event driven program to another has broader uses. For example if we
+were parsing an XML file we might want to notify a list view that we're
+using to represent the XML file's structure whenever we encounter a new
+tag. In traditional programming this kind of notification has been
+achieve by using callbacks. A callback is the address of a function, so
+if you want a processing function to notify you about some event you
+pass a pointer to another function (the callback) to the processing
+function. The processing function then calls the callback when
+appropriate.
+Callbacks have two fundamental flaws. Firstly they are not type safe. We can never
+be certain that the processing function will call the callback with the
+correct arguments. Secondly there is a strong coupling between the
+processing function and the callback: the processing function must know
+which callback it must call.
+</para>
+<para>
+In Qt we have an alternative to the callback technique. We can use
+signals and slots. A signal is a function which is called when a
+particular event occurs. Qt's widgets have many pre-defined signals, but
+we can always subclass to add our own. A slot is a function that is
+called when a signal occurs. Qt's widgets have many pre-defined slots,
+but it is common practice to add your own slots so that you can handle
+events that you are interested in. The signals and slots mechanism is
+type safe: the signatures must match. (In fact a slot may have a shorter
+signature than the signal it receives because it can ignore extra
+arguments.) Because the signatures match the compiler can help us detect
+type mismatches. Signals and slots are loosely coupled: a class which
+emits a signal neither knows nor cares which slots receive the signal.
+Qt's signals and slots mechanism ensures that if you connect a signal to
+a slot that the slot will be called with the signal's parameters at the
+right times. (For a full explanation of Qt's signals and slots mechanism
+see the on-line <ulink
+url="http://doc.trolltech.com/signalsandslots.html">Signals and Slots</>
+documentation.) 
 </para>
 </sect1>
 
@@ -534,14 +652,125 @@ widgets have different value editors.
     <sect2 id="connectingpredefinedsignalsampslots">
     <title>Connecting Predefined Signals &amp; Slots </title>
     <para>
-
+    Some of an application's functionality can be obtained simply by
+    connecting pre-defined signals and slots. In multiclip there is only
+    one pre-defined connection that we can use, but in the richedit
+    application that we'll build in <xref linkend="main-windows">
+    "Creating Main Windows with Actions, Toolbars &amp; Menus" we will
+    use many pre-defined signals and slots to get a lot of functionality
+    without having to write any code. 
+    </para>
+    <para>
+    We will connect the Quit button's <function>clicked()</function>
+    signal to the form's <function>accept()</function> slot. The
+    <function>accept()</function> slot notifies the dialog's caller that
+    the dialog is no longer required; since our dialog is our main
+    window this will close the application. Preview the form (press
+    <keycap>Ctrl+T</keycap>); click the <guibutton>Quit</guibutton>
+    button. The button works visually but does nothing. Press
+    <keycap>Esc</keycap> or close the preview window to leave the
+    preview.
+    </para>
+    <para>
+    Click the <guibutton>Connect Signals/Slots</guibutton> toolbar
+    button. Click the Quit button, drag to the form and release. The
+    Edit Connections dialog will pop up. The top left hand list box
+    lists the Signals that the widget we've clicked can emit. At the top
+    right is a combobox which lists the form and its widgets; any of
+    these are candidates for receiving signals. Since we dragged to the
+    form the form's name, 'MulticlipForm', is shown. Below the combobox
+    is a list box which shows the slots available in the form or widget
+    shown in the combobox. Note that only those slots that can be
+    connected to the highlighted signal are shown. If you clicked a
+    different signal, for example the <function>toggled()</function>
+    signal, the list of available slots would change. Click the
+    <function>clicked()</function> signal, then click the
+    <function>accept()</function> slot. The connection will be shown in
+    the Connections list box. Click \ok.
+    </para>
+    <para>
+    We will make a great many signal/slot connections as we work through
+    the examples, including connections to our own custom slots.
+    Signal/slot connections (using pre-defined signals and slots) work
+    in preview mode. Press <keycap>Ctrl+T</keycap> to preview the form;
+    click the form's <guibutton>Quit</guibutton>. The button now works
+    correctly.
     </para>
     </sect2>
 
     <sect2 id="creatingampconnectingcustomslots">
     <title>Creating &amp; Connecting Custom Slots </title>
     <para>
-
+    In the first version of \qd you could create the signatures of your
+    custom slots and make the connections, but you could not implement
+    your slots directly. Instead you had to subclass the form and
+    code your slots in the subclass. The subclassing approach is
+    still available, and makes sense in some situations. But now you can
+    implement your slots directly in Designer so for many
+    straightforward dialogs and windows subclassing is no longer
+    necessary.
+    </para>
+    <para>
+    The multiclip application requires four slots, one for each button,
+    but only three need to be custom slots since we connected a signal
+    to a pre-defined slot to make the Quit button functional. We need a
+    slot for the Add Clipping button; this will add the current clipping
+    to the list box. The Copy Previous button requires a slot which will
+    copy the selected list box item to the current clipping line edit
+    (and to the clipboard). The Delete Clipping button needs a slot to
+    delete the current clipping and the current list box item. We will
+    also need to write some initialization code so that when the
+    application starts it will put the current clipboard text (if any)
+    into the line edit. The code is written directly in Designer; the
+    snippets are taken from the generated
+    <function>qt/tools/designer/eg/multiclip/multiclip.cpp</function>
+    file. 
+    </para>
+    <para>
+    Since we'll be using Qt's global clipboard object throughout the
+    code we write instead of writing
+    <literal>QApplication::clipboard()</literal> or
+    <literal>qApp-&gt;clipboard()</literal> in several places we'll keep
+    a pointer to the clipboard in the form itself. Click the Source tab
+    of the Object Explorer. The Source tab shows us the functions in our
+    form, the class variables, the forward declarations and the include
+    files we've asked for. Right click the Class Variables item, then
+    click <guimenuitem>New</guimenuitem> on the pop up menu. (If there
+    had been any existing variables the pop up menu would also have a
+    Delete option.) Type in 'QClipboard *cb;' and press
+    <keycap>RETURN</keycap>. In the
+    <function>init()</function> function we will assign this pointer to
+    Qt's global clipboard object. We also need to declare the clipboard
+    header file. Right click Includes (in Declaration), then click
+    <guimenuitem>New</guimenuitem>. Type in '&lt;qclipboard.h&gt;' and
+    press <keycap>RETURN</keycap>. The variable and declaration will be
+    included in the code generated from \qd's <filename>.ui</filename>
+    file.
+    </para>
+    <para>
+    Now we're ready to invoke \qd's code editor and write the code.
+<orderedlist numeration="arabic">
+<listitem>
+<para>
+We'll look at the <function>init()</function> function first.
+<programlisting>
+\scan eg/multiclip/multiclip.cpp /::init/ /^}/
+</programlisting>
+The first code lines perform cosmetic changes; we change the LCD
+number's background color and make the form start with the focus in the
+line edit. We take a pointer to Qt's global clipboard and keep it in our
+class variable, cb. We connect the clipboard's
+<function>dataChanged()</function> signal to a slot called
+<function>dataChanged()</function>; we will create this slot ourselves
+shortly. If the clipboard supports selection (for example the X Window
+system), we also connect the clipboard's
+<function>selectionChanged()</function> to a slot of the same name that
+we will create. Finally we call our <function>dataChanged()</function>
+slot to populate the line edit with the clipboard's text (if any) when
+the application begins.
+</para>
+</listitem>
+</orderedlist>
     </para>
     </sect2>
 
