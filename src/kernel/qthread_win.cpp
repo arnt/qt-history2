@@ -79,6 +79,9 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 
 void qthread_removePostedEvents( QObject *receiver )
 {
+    if ( ! qthreadposteventprivate )
+	return;
+
     qthreadposteventprivate->protect.enter();
 
     QThreadQtEvent *qte;
