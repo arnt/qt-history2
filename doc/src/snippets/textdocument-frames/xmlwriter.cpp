@@ -64,8 +64,10 @@ void XmlWriter::createItems(QDomElement &parent, QTextFrame *frame)
         QTextBlock childBlock = it.currentBlock();
 
         if (childFrame)
+        //  ...
             createItems(frameElement, childFrame);
         else if (childBlock.isValid())
+        //  ...
             createItems(frameElement, childBlock);
     }
 }
