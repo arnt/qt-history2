@@ -522,8 +522,6 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
     int y = r.y();
     int w = r.width();
     int h = r.height();
-    GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
-
     if ( (flags & Qt::AlignVCenter) == Qt::AlignVCenter )
 	y += h/2 - pixmap.height()/2;
     else if ( (flags & Qt::AlignBottom) == Qt::AlignBottom)
