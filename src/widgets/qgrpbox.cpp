@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#8 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -14,14 +14,17 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#8 $";
 #endif
 
 
-/*!
-\class QGroupBox qgrpbox.h
-\brief The QGroupBox widget provides a group box frame with a title.
-*/
+/*! \class QGroupBox qgrpbox.h
+
+  \brief The QGroupBox widget provides a group box frame with a title.
+
+  This class is only partly documented.  Our <a
+  href=http://www.troll.no/>home page</a> contains a pointer to the
+  current version of Qt. */
 
 
 /*!
