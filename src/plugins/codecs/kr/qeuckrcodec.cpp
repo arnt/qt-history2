@@ -3307,14 +3307,14 @@ static unsigned short ksc2unicode(unsigned short code)
                 /* Hangul : row 16 - row 40 : 1410 = 15 * 94 ,
                                         3760 = 40 * 94 */
     if (idx >= 1410 && idx < 1410 + 2350)
-        return (ksc5601_hangul_to_unicode[idx - 1410]);
+        return ksc5601_hangul_to_unicode[idx - 1410];
 
     else if (idx >= 3854)
         /* Hanja : row 42 - row 93 : 3854 = 94 * (42-1) */
-        return (ksc5601_hanja_to_unicode[idx - 3854]);
+        return ksc5601_hanja_to_unicode[idx - 3854];
 
     else if(idx <= 1114)
-        return (ksc5601_symbol_to_unicode[idx]);
+        return ksc5601_symbol_to_unicode[idx];
 
     return 0;
 }

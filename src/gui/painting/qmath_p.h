@@ -62,7 +62,7 @@ inline double qCos_x86(double a)
     __asm__ (
         "fcos"
         : "=t" (r) : "0" (a));
-    return(r);
+    return r;
 }
 #define qCos qCos_x86
 
@@ -72,7 +72,7 @@ inline double qSin_x86(double a)
     __asm__ (
         "fsin"
         : "=t" (r) : "0" (a));
-    return(r);
+    return r;
 }
 #define qSin qSin_x86
 

@@ -1949,5 +1949,5 @@ bool Configure::isDone()
 
 bool Configure::isOk()
 {
-    return( dictionary[ "DONE" ] != "error" );
+    return (dictionary[ "DONE" ] != "error");
 }

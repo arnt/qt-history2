@@ -1775,9 +1775,9 @@ ReadInteger(char *string, char **NextString)
     }
     *NextString = string;
     if (Sign >= 0)
-        return (Result);
+        return Result;
     else
-        return (-Result);
+        return -Result;
 }
 
 static int parseGeometry(const char* string,
@@ -1797,7 +1797,7 @@ static int parseGeometry(const char* string,
         if (*strind != '+' && *strind != '-' && *strind != 'x') {
                 tempWidth = ReadInteger(strind, &nextCharacter);
                 if (strind == nextCharacter)
-                    return (0);
+                    return 0;
                 strind = nextCharacter;
                 mask |= WidthValue;
         }
@@ -1806,7 +1806,7 @@ static int parseGeometry(const char* string,
                 strind++;
                 tempHeight = ReadInteger(strind, &nextCharacter);
                 if (strind == nextCharacter)
-                    return (0);
+                    return 0;
                 strind = nextCharacter;
                 mask |= HeightValue;
         }
@@ -1816,7 +1816,7 @@ static int parseGeometry(const char* string,
                         strind++;
                         tempX = -ReadInteger(strind, &nextCharacter);
                         if (strind == nextCharacter)
-                            return (0);
+                            return 0;
                         strind = nextCharacter;
                         mask |= XNegative;
 
@@ -1854,7 +1854,7 @@ static int parseGeometry(const char* string,
         /* If strind isn't at the end of the string the it's an invalid
                 geometry specification. */
 
-        if (*strind != '\0') return (0);
+        if (*strind != '\0') return 0;
 
         if (mask & XValue)
             *x = tempX;
@@ -1864,7 +1864,7 @@ static int parseGeometry(const char* string,
             *width = tempWidth;
         if (mask & HeightValue)
             *height = tempHeight;
-        return (mask);
+        return mask;
 }
 
 

@@ -45,7 +45,7 @@ inline double qCos(double a)
     __asm__ (
         "fcos"
         : "=t" (r) : "0" (a));
-    return(r);
+    return r;
 }
 
 inline double qSin(double a)
@@ -54,7 +54,7 @@ inline double qSin(double a)
     __asm__ (
         "fsin"
         : "=t" (r) : "0" (a));
-    return(r);
+    return r;
 }
 #else
 static const double Q_PI   = 3.14159265358979323846;   // pi

@@ -3796,7 +3796,7 @@ static quint64 qstrtoull(const char *nptr, const char **endptr, register int bas
         acc = (~acc) + 1;
     if (endptr != 0)
         *endptr = (any ? s - 1 : nptr);
-    return (acc);
+    return acc;
 }
 
 
@@ -3896,7 +3896,7 @@ static qint64 qstrtoll(const char *nptr, const char **endptr, register int base,
     }
     if (endptr != 0)
         *endptr = (any ? s - 1 : nptr);
-    return (acc);
+    return acc;
 }
 
 #ifndef QT_QLOCALE_USES_FCVT

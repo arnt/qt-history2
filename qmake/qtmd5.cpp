@@ -70,12 +70,12 @@ static unsigned char PADDING[64] = {
 // F, G, H and I are basic MD5 functions.
 static inline UINT4 F(UINT4 x, UINT4 y, UINT4 z)
 {
-    return(x & y) |((~x) & z);
+    return (x & y) |((~x) & z);
 }
 
 static inline UINT4 G(UINT4 x, UINT4 y, UINT4 z)
 {
-    return(x & z) |(y &(~z));
+    return (x & z) |(y &(~z));
 }
 
 static inline UINT4 H(UINT4 x, UINT4 y, UINT4 z)
@@ -90,7 +90,7 @@ static inline UINT4 I(UINT4 x, UINT4 y, UINT4 z)
 
 static inline UINT4 rotateLeft(UINT4 x, UINT4 n)
 {
-    return(x << n) |(x >>(32-(n)));
+    return (x << n) |(x >>(32-(n)));
 }
 
 // FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4.
