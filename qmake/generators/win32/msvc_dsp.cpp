@@ -343,13 +343,15 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
         writeFileGroup(t, project->variables()["SOURCES"] + project->variables()["DEF_FILE"],
             "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
         writeFileGroup(t, project->variables()["HEADERS"], "Header Files", "h;hpp;hxx;hm;inl");
-        writeFileGroup(t, project->variables()["FORMS"], "Form Files", "ui");
+        writeFileGroup(t, project->variables()["FORMS"] + project->variables()["INTERFACES"],
+            "Form Files", "ui");
         writeFileGroup(t, project->variables()["IMAGES"], "Image Files", "");
         writeFileGroup(t, project->variables()["RESOURCES"] + project->variables()["RC_FILE"],
             "Resources", "");
         writeFileGroup(t, project->variables()["TRANSLATIONS"], "Translations", "ts");
         writeFileGroup(t, project->variables()["LEXSOURCES"], "Lexables", "l");
         writeFileGroup(t, project->variables()["YACCSOURCES"], "Yaccables", "y");
+        writeFileGroup(t, project->variables()["TYPELIBS"], "Type Libraries", "tlb;olb");
     } else { // directory mode
         QStringList list(project->variables()["SOURCES"]
             + project->variables()["DEF_FILE"]
