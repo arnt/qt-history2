@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#33 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -32,6 +32,7 @@
 #include "qbuttongroup.h"
 
 class QWidgetStackPrivate {
+public:
     class Invisible: public QWidget
     {
     public:
