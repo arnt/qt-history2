@@ -142,22 +142,26 @@ inline void *qt_getClipRects( const QRegion &r, int &num )
 
 static inline void x11SetClipRegion( Display *dpy, GC gc, Picture rendhd, const QRegion &r )
 {
-#ifndef QT_NO_XRENDER
     int num;
     XRectangle *rects = (XRectangle *)qt_getClipRects( r, num );
+#ifndef QT_NO_XRENDER
     if (rendhd)
 	XRenderSetPictureClipRectangles(dpy, rendhd, 0, 0, rects, num );
+#else
+    Q_UNUSED( rendhd );
 #endif // QT_NO_XRENDER
     XSetClipRectangles( dpy, gc, 0, 0, rects, num, YXBanded );
 }
 
 static inline void x11SetClipRegion( Display *dpy, GC gc, Picture rendhd, const QRegion &r, GC gc2 )
 {
-#ifndef QT_NO_XRENDER
     int num;
     XRectangle *rects = (XRectangle *)qt_getClipRects( r, num );
+#ifndef QT_NO_XRENDER
     if (rendhd)
 	XRenderSetPictureClipRectangles(dpy, rendhd, 0, 0, rects, num );
+#else
+    Q_UNUSED( rendhd );
 #endif // QT_NO_XRENDER
     XSetClipRectangles( dpy, gc, 0, 0, rects, num, YXBanded );
     XSetClipRectangles( dpy, gc2, 0, 0, rects, num, YXBanded );
