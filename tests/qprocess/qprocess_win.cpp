@@ -7,7 +7,7 @@
 #include "qprocess.h"
 
 
-QProcessPrivate::QProcessPrivate()
+QProcessPrivate::QProcessPrivate( QProcess *proc )
 {
     stdinBufRead = 0;
 #if defined ( RMS_USE_SOCKETS )
@@ -35,9 +35,9 @@ QProcessPrivate::QProcessPrivate()
 	pipeStderr[0] = 0;
 	pipeStderr[1] = 0;
 
-	lookup = new QTimer( this );
-	connect( lookup, SIGNAL(timeout()),
-		this, SLOT(timeout()) );
+	lookup = new QTimer( proc );
+	qApp->connect( lookup, SIGNAL(timeout()),
+		proc, SLOT(timeout()) );
     }
 
     exitStat = 0;
@@ -55,11 +55,11 @@ QProcessPrivate::~QProcessPrivate()
 	    delete stdinBuf.dequeue();
 	}
 	if( pipeStdin[1] != 0 )
-	    close( pipeStdin[1] );
+	    CloseHandle( pipeStdin[1] );
 	if( pipeStdout[0] != 0 )
-	    close( pipeStdout[0] );
+	    CloseHandle( pipeStdout[0] );
 	if( pipeStderr[0] != 0 )
-	    close( pipeStderr[0] );
+	    CloseHandle( pipeStderr[0] );
     }
 }
 

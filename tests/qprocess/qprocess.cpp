@@ -23,7 +23,7 @@
 QProcess::QProcess( QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new QProcessPrivate;
+    d = new QProcessPrivate( this );
 }
 
 /*!
@@ -32,7 +32,7 @@ QProcess::QProcess( QObject *parent, const char *name )
 QProcess::QProcess( const QString& com, QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new QProcessPrivate;
+    d = new QProcessPrivate( this );
     setCommand( com );
 }
 
@@ -43,7 +43,7 @@ QProcess::QProcess( const QString& com, QObject *parent, const char *name )
 QProcess::QProcess( const QString& com, const QStringList& args, QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new QProcessPrivate;
+    d = new QProcessPrivate( this );
     setCommand( com );
     setArguments( args );
 }

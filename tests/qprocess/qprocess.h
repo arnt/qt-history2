@@ -20,11 +20,12 @@
 
 // this class is under development; so don't look at all the
 // ugly defines (RMS_*); just for testing...
+class QProcess;
 
 class QProcessPrivate
 {
 private:
-    QProcessPrivate();
+    QProcessPrivate( QProcess *proc );
     ~QProcessPrivate();
 
     QString     command;
