@@ -157,10 +157,11 @@ int main( int argc, char** argv )
 	app.setMainWidget( m );
 	m->show();
     }
-    // While we run "all", kill them all
-    app.exec();
 
 #ifdef USE_I18N_FONT
     memorymanager->savePrerenderedFont(font.handle(),FALSE);
 #endif
+
+    // While we run "all", kill them all
+    return app.exec();
 }
