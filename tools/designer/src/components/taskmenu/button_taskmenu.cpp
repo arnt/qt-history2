@@ -73,19 +73,23 @@ void ButtonTaskMenu::editText()
         Q_ASSERT(m_button->parentWidget() != 0);
 
         m_editor = new QLineEdit();
+        m_editor->setObjectName("__qt__passive_m_editor");
+        m_editor->installEventFilter(this); // ### we need this??
+
         m_editor->setFrame(false);
         m_editor->setText(m_button->text());
         m_editor->selectAll();
         m_editor->setBackgroundRole(m_button->backgroundRole());
-        m_editor->setObjectName("__qt__passive_m_editor");
         connect(m_editor, SIGNAL(returnPressed()), m_editor, SLOT(deleteLater()));
         connect(m_editor, SIGNAL(textChanged(const QString &)), this, SLOT(updateText(const QString&)));
-        m_editor->installEventFilter(this); // ### we need this??
+
         QStyleOptionButton opt;
         opt.init(m_button);
         QRect r = m_button->style()->subRect(QStyle::SR_PushButtonContents, &opt, m_button);
-        m_editor->setParent(m_button->parentWidget(), Qt::ToolTip);
-        m_editor->setGeometry(QRect(m_button->mapToParent(r.topLeft()), r.size()));
+
+        m_editor->setAttribute(Qt::WA_NoChildEventsForParent);
+        m_editor->setParent(m_button->window());
+        m_editor->setGeometry(QRect(m_button->mapTo(m_button->window(), r.topLeft()), r.size()));
         m_editor->setFocus();
         m_editor->show();
     }

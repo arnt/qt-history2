@@ -74,7 +74,7 @@ bool GroupBoxTaskMenu::eventFilter(QObject *object, QEvent *event)
 void GroupBoxTaskMenu::editTitle()
 {
     AbstractFormWindow *fw = formWindow();
-    
+
     if (fw != 0) {
         connect(fw, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_groupbox->parentWidget() != 0);
@@ -90,10 +90,14 @@ void GroupBoxTaskMenu::editTitle()
         m_editor->installEventFilter(this); // ### we need this??
         QStyleOption opt; // ## QStyleOptionGroupBox
         opt.init(m_groupbox);
-        QRect r = QRect(QPoint(), m_groupbox->size()); // ### m_groupbox->style()->subRect(QStyle::SR_GroupBoxTitle, &opt, m_groupbox);
+        QRect r = QRect(QPoint(), m_groupbox->size());
+        // ### m_groupbox->style()->subRect(QStyle::SR_GroupBoxTitle, &opt, m_groupbox);
         r.setHeight(20);
-        m_editor->setParent(m_groupbox->parentWidget(), Qt::ToolTip);
-        m_editor->setGeometry(QRect(m_groupbox->mapToParent(r.topLeft()), r.size()));
+
+        m_editor->setAttribute(Qt::WA_NoChildEventsForParent);
+        m_editor->setParent(m_groupbox->window());
+        m_editor->setGeometry(QRect(m_groupbox->mapTo(m_groupbox->window(), r.topLeft()), r.size()));
+
         m_editor->setFocus();
         m_editor->show();
     }
