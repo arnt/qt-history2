@@ -443,7 +443,7 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
     QString build;
     QStringList ret;
     QStack<QChar> quote;
-    for(int x = 0; x < (int)vals.length(); x++) {
+    for(int x = 0, parens = 0; x < (int)vals.length(); x++) {
         QChar curr = vals.at(x);
        if(x != (int)vals.length()-1 && curr == QLatin1Char('\\') &&
           (vals.at(x+1) == QLatin1Char('\'') || vals.at(x+1) == QLatin1Char('"'))) {
@@ -453,9 +453,13 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
             quote.pop();
        } else if(curr == QLatin1Char('\'') || curr == QLatin1Char('"')) {
             quote.push(curr);
+       } else if(curr == QLatin1Char(')')) {
+            parens--;
+       } else if(curr == QLatin1Char('(')) {
+           parens++;
        }
 
-       if(quote.isEmpty() && ((do_semicolon && curr == QLatin1Char(';')) ||
+       if(!parens && quote.isEmpty() && ((do_semicolon && curr == QLatin1Char(';')) ||
                               curr == Option::field_sep)) {
             ret << build;
             build = "";
