@@ -1916,8 +1916,8 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     option.decorationSize = QStyleOptionViewItem::Small;
     option.decorationPosition = QStyleOptionViewItem::Left;
     option.decorationAlignment = Qt::AlignCenter;
-    option.displayAlignment = layoutDirection() == Qt::LeftToRight
-                              ? Qt::AlignLeft|Qt::AlignVCenter : Qt::AlignRight|Qt::AlignVCenter;
+    option.displayAlignment = Qt::AlignAuto|Qt::AlignVCenter;
+    option.direction = layoutDirection();
     return option;
 }
 
