@@ -162,11 +162,11 @@ following features:
 
 See <a href=features.html>Qt Features</a> for a description of the features
 that can be disabled.  This leaves us with a small set of widgets and
-dialogs necessary for our application.  Compile the library for the mips
-target:
+dialogs necessary for our application.  Cross-compile the library for the mips
+target on the x86 platform:
 <pre>
 cd $QTDIR
-./configure linux-mips-g++
+./configure -xplatform linux-mips-g++ -platform linux-x86-g++
 make
 mipsel-linux-strip $QTDIR/lib/libqt.so.2.2.0
 </pre>
@@ -184,7 +184,7 @@ We have chosen to link the application dynamically.  While this is important
 if we plan to run multiple applications, it is a waste of space in an
 application such as notepad that is supposed to be the only application
 running.  You can link statically by configuring with:
-<pre>./configure -static linux-mips-g++</pre>
+<pre>./configure -static -xplatform linux-mips-g++ -platform linux-x86-g++</pre>
 <p>
 We must install our application and its support files in the ramdisk.  Mount
 the ramdisk using loopback device (you will need loopback device support
