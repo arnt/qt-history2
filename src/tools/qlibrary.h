@@ -43,6 +43,7 @@
 #endif // QT_H
 
 #ifndef QT_NO_LIBRARY
+
 class QLibraryPrivate;
 
 class Q_EXPORT QLibrary
