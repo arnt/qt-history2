@@ -2590,7 +2590,8 @@ QPopupMenu::updateScrollerState()
     }
     int y = 0, sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
     if(!it.atFirst()) {
-	d->scroll.scrollable |= QPopupMenuPrivate::Scroll::ScrollUp;
+	// can't use |= because of a bug/feature in IBM xlC 5.0.2
+	d->scroll.scrollable = d->scroll.scrollable | QPopupMenuPrivate::Scroll::ScrollUp;
 	y += sh;
     }
     while ( (mi=it.current()) ) {
@@ -2600,7 +2601,7 @@ QPopupMenu::updateScrollerState()
 					    QSize(0, itemHeight( mi )),
 					    QStyleOption(mi,maxPMWidth));
 	if(y + sz.height() >= myheight) {
-	    d->scroll.scrollable |= QPopupMenuPrivate::Scroll::ScrollDown;
+	    d->scroll.scrollable = d->scroll.scrollable | QPopupMenuPrivate::Scroll::ScrollDown;
 	    break;
 	}
 	y += sz.height();
