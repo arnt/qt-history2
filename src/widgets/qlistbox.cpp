@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#89 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#89 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -1497,7 +1497,9 @@ void QListBox::changeDangerously( const QListBoxItem *lbi, int index )
 	updateCellWidth();
     int h = cellHeight( index );
     delete old;
+    int oldpos = current;
     insertDangerously( lbi, index, TRUE );
+    current = oldpos;
     int nh = cellHeight( index );
     int y;
     // ### the update rectangles are dubious
