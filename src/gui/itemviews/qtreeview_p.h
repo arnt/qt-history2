@@ -30,7 +30,7 @@
 struct QTreeViewItem
 {
     QTreeViewItem() : open(false), total(0), level(0), height(0) {}
-    QModelIndex index; // FIXME: should be persistent
+    QModelIndex index; // we remove items whenever the indexes are invalidated (make persistent ?)
     uint open : 1;
     uint total : 30; // total number of children visible (+ hidden children)
     uint level : 16; // indentation
@@ -46,7 +46,6 @@ public:
         : QAbstractItemViewPrivate(),
           header(0), indent(20), itemHeight(-1),
           uniformRowHeights(false), rootDecoration(true), reopen(-1) { }
-    // FIXME: add a sameHeightItems property to make drawing of millions rows faster
 
     ~QTreeViewPrivate() {}
 

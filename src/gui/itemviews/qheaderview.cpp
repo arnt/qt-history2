@@ -21,6 +21,7 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qvector.h>
+#include <qabstractitemdelegate.h>
 
 #define d d_func()
 #define q q_func()
@@ -159,25 +160,19 @@
 QHeaderView::QHeaderView(Qt::Orientation orientation, QWidget *parent)
     : QAbstractItemView(*new QHeaderViewPrivate, parent)
 {
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     d->orientation = orientation;
-    setFrameStyle(NoFrame);
-    d->viewport->setMouseTracking(true);
+    initialize();
 }
 
 /*!
   \internal
 */
 QHeaderView::QHeaderView(QHeaderViewPrivate &dd,
-                               Qt::Orientation orientation, QWidget *parent)
+                         Qt::Orientation orientation, QWidget *parent)
     : QAbstractItemView(dd, parent)
 {
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     d->orientation = orientation;
-    setFrameStyle(NoFrame);
-    d->viewport->setMouseTracking(true);
+    initialize();
 }
 
 /*!
@@ -186,6 +181,21 @@ QHeaderView::QHeaderView(QHeaderViewPrivate &dd,
 
 QHeaderView::~QHeaderView()
 {
+}
+
+/*!
+  \internal
+*/
+void QHeaderView::initialize()
+{
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setFrameStyle(NoFrame);
+    d->viewport->setMouseTracking(true);
+
+    QAbstractItemDelegate *delegate = itemDelegate();
+    setItemDelegate(0);
+    delete delegate;
 }
 
 /*!
