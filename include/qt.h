@@ -237,7 +237,6 @@
 #include <qlock_qws.h>
 #include "qmemorymanager_qws.h"
 #include "qgfx.h"
-#include "sys/io.h"
 #include "qwsutils.h"
 #include "qwscommand.h"
 #include <qwscursor_qws.h>
