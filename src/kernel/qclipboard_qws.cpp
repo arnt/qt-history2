@@ -61,6 +61,7 @@ static inline void qwsInitClipboard()
     }
 }
 
+#ifdef QT_NO_MIMECLIPBOARD
 static QString qwsClipboardText()
 {
     char * data;
@@ -86,10 +87,9 @@ static void qwsSetClipboardText( const QString& s )
 	setProperty( 0, TextClipboard, QWSPropertyManager::PropReplace, ba );
 
 }
+#endif
 
 
-
-#if 0
 static QWidget * owner = 0;
 
 static void cleanup()
@@ -173,12 +173,13 @@ static QClipboardData *clipboardData()
     }
     return internalCbData;
 }
-#endif
 
 
 /*****************************************************************************
   QClipboard member functions for FB.
  *****************************************************************************/
+
+#ifdef QT_NO_MIMECLIPBOARD
 
 QString QClipboard::text() const
 {
@@ -198,6 +199,7 @@ QString QClipboard::text(QCString& subtype) const
     return r;
 }
 
+#endif
 
 void QClipboard::clear()
 {
