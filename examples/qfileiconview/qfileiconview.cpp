@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#46 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#47 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -220,6 +220,18 @@ static QIconSet *iconFolderLocked = 0;
 static QIconSet *iconFolder = 0;
 static QIconSet *iconFile = 0;
 static QIconSet *iconLink = 0;
+
+static void cleanup() 
+{
+    delete iconFolderLocked;
+    iconFolderLocked = 0;
+    delete iconFolder;
+    iconFolder = 0;
+    delete iconFile;
+    iconFile = 0;
+    delete iconLink;
+    iconLink = 0;
+}
 
 /*****************************************************************************
  *
@@ -582,6 +594,7 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
       isDesktop( isdesktop ), makeNewGradient( TRUE )
 {
     if ( !iconFolderLocked ) {
+	qAddPostRoutine( cleanup );
 	QPixmap pix( folder_locked_icon );
 	iconFolderLocked = new QIconSet( pix );
 	pix = QPixmap( folder_icon );
@@ -595,7 +608,7 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
     setGridX( 100 );
     setResizeMode( Adjust );
     setWordWrapIconText( FALSE );
-    
+
     connect( this, SIGNAL( doubleClicked( QIconViewItem * ) ),
 	     this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
     connect( this, SIGNAL( dropped( QDropEvent * ) ),
