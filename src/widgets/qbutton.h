@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#21 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#22 $
 **
 ** Definition of QButton widget class
 **
@@ -55,9 +55,6 @@ protected:
     virtual bool hitButton( const QPoint &pos ) const;
     virtual void drawButton( QPainter * );
 
-    bool	pixmapUpdate()	const	{ return pmupdate; }
-    void	setPixmapUpdate( bool enable );
-
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
@@ -72,7 +69,6 @@ private:
     uint	buttonOn	: 1;
     uint	mlbDown		: 1;
     uint	autoResize	: 1;
-    uint	pmupdate	: 1;
     QButtonGroup *group;
 
     friend class QButtonGroup;
