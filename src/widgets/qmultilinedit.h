@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#10 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#11 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -26,7 +26,7 @@ public:
     const char *text( int row ) const;
     QString text() const;
 
-    void insert( QString s, int row = -1 );
+    void insert( const char *s, int row = -1 );
     void remove( int );
     void clear();
     

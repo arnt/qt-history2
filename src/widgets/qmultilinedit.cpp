@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#14 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -369,6 +369,8 @@ bool QMultiLineEdit::hasMarkedText() const
 
 QString QMultiLineEdit::markedText() const
 {
+    if ( !markIsOn )
+	return QString();
     if ( markAnchorY == markDragY ) { //just one line
 	int minMark = markDragX < markAnchorX ? markDragX : markAnchorX;
 	int maxMark = markDragX > markAnchorX ? markDragX : markAnchorX;
@@ -688,7 +690,7 @@ void QMultiLineEdit::pageUp()
   If \a s contains newline characters, several lines are inserted.
 */
 
-void QMultiLineEdit::insert( QString s, int row )
+void QMultiLineEdit::insert( const char *txt, int row )
 {
     if ( dummy && count() == 1 && getString( 0 )->isEmpty() ) {
 	contents->remove( (uint)0 );
@@ -696,13 +698,16 @@ void QMultiLineEdit::insert( QString s, int row )
 	dummy = FALSE;
     }
 
+    QString s;
+    s.setRawData( txt, strlen(txt) + 1 );
+
     int to = s.find( '\n' );
     if ( to < 0 ) { //just one line
-	QString *line = new QString( s );
+	QString *line = new QString( txt );
 	if ( row < 0 || !contents->insert( row, line ) )
 	    contents->append( line );
 	bool updt = autoUpdate() && rowIsVisible( row );
-	int w = textWidth( &s );
+	int w = textWidth( line );
 	setCellWidth( QMAX( cellWidth(), w ) );
 	setNumRows( contents->count() );
 
@@ -725,6 +730,7 @@ void QMultiLineEdit::insert( QString s, int row )
     if ( count() == 0 )
 	insert( "" );	// belts and suspenders
     makeVisible();
+    s.resetRawData( txt, strlen(txt) + 1 );
 }
 
 /*!
@@ -1039,7 +1045,7 @@ void QMultiLineEdit::del()
 		contents->remove( markBeginY + 1 );
 	    markIsOn = FALSE;
 	    if ( contents->isEmpty() )
-		insert( "" );		// belts and suspenders
+		insert( "" );
 
 	    cursorX  = markBeginX;
 	    cursorY  = markBeginY;
