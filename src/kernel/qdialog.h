@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#2 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#3 $
 **
 ** Definition of QDialog class
 **
@@ -26,8 +26,17 @@ public:
     enum DialogCode { Rejected, Accepted };
 
     int		exec();
-
     int		result() const		{ return rescode; }
+
+    virtual void adjustSize();
+
+    void	show();
+    void	move( int x, int y );
+    void	move( const QPoint &p );
+    void	resize( int w, int h );
+    void	resize( const QSize & );
+    void	setGeometry( int x, int y, int w, int h );
+    void	setGeometry( const QRect & );
 
 slots:
     virtual void done( int );
@@ -40,6 +49,8 @@ protected:
 
 private:
     int		rescode;
+    uint	did_move   : 1;
+    uint	did_resize : 1;
 };
 
 
