@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>468</width>
-            <height>439</height>
+            <width>464</width>
+            <height>437</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -715,18 +715,6 @@
 </images>
 <connections>
     <connection>
-        <sender>buttonOk</sender>
-        <signal>pressed()</signal>
-        <receiver>PaletteEditorBase</receiver>
-        <slot>accept()</slot>
-    </connection>
-    <connection>
-        <sender>buttonCancel</sender>
-        <signal>pressed()</signal>
-        <receiver>PaletteEditorBase</receiver>
-        <slot>reject()</slot>
-    </connection>
-    <connection>
         <sender>buttonMainColor</sender>
         <signal>clicked()</signal>
         <receiver>PaletteEditorBase</receiver>
@@ -750,8 +738,20 @@
         <receiver>PaletteEditorBase</receiver>
         <slot>onTune()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <connection>
+        <sender>buttonOk</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>buttonCancel</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>reject()</slot>
+    </connection>
     <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="protected" language="C++" returnType="void">onTune()</slot>
     <slot access="protected" language="C++" returnType="void">onChoose2ndMainColor()</slot>
     <slot access="protected" language="C++" returnType="void">onChooseMainColor()</slot>
