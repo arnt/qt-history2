@@ -203,73 +203,62 @@ QDecorationDefault::~QDecorationDefault()
 }
 
 #ifndef QT_NO_IMAGEIO_XPM
-const char **QDecorationDefault::helpPixmap()
+const char **QDecorationDefault::xpmForRegion(int reg)
 {
-    return (const char **)default_help_xpm;
-}
-
-const char **QDecorationDefault::menuPixmap()
-{
-    return (const char **)default_menu_xpm;
-}
-
-const char **QDecorationDefault::closePixmap()
-{
-    return (const char **)default_close_xpm;
-}
-
-const char **QDecorationDefault::minimizePixmap()
-{
-    return (const char **)default_minimize_xpm;
-}
-
-const char **QDecorationDefault::maximizePixmap()
-{
-    return (const char **)default_maximize_xpm;
-}
-
-const char **QDecorationDefault::normalizePixmap()
-{
-    return (const char **)default_normalize_xpm;
+    switch(reg)
+    {
+    case Help:
+        return (const char **)default_help_xpm;
+    case Menu:
+        return (const char **)default_menu_xpm;
+    case Close:
+        return (const char **)default_close_xpm;
+    case Minimize:
+        return (const char **)default_minimize_xpm;
+    case Maximize:
+        return (const char **)default_maximize_xpm;
+    case Normalize:
+        return (const char **)default_normalize_xpm;
+    }
+    return 0;
 }
 #endif
-
 
 QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegion,
                                       int &xoff, int &/*yoff*/)
 {
 #ifndef QT_NO_IMAGEIO_XPM
-    static const char** staticHelpPixmapXPM=0;
-    static const char** staticMenuPixmapXPM=0;
-    static const char** staticClosePixmapXPM=0;
-    static const char** staticMinimizePixmapXPM=0;
-    static const char** staticMaximizePixmapXPM=0;
-    static const char** staticNormalizePixmapXPM=0;
-    const char** xpm;
+    static const char **staticHelpPixmapXPM = 0;
+    static const char **staticMenuPixmapXPM = 0;
+    static const char **staticClosePixmapXPM = 0;
+    static const char **staticMinimizePixmapXPM = 0;
+    static const char **staticMaximizePixmapXPM = 0;
+    static const char **staticNormalizePixmapXPM = 0;
+    const char **xpm;
 
     // Why don't we just use/extend the enum type...
 
-    if (staticHelpPixmapXPM != (xpm=helpPixmap()) || !staticHelpPixmap) {
+    if (staticHelpPixmapXPM != (xpm = xpmForRegion(Help)) || !staticHelpPixmap) {
         staticHelpPixmapXPM = xpm;
         staticHelpPixmap = new QPixmap(xpm);
     }
-    if (staticMenuPixmapXPM != (xpm=menuPixmap()) || !staticMenuPixmap) {
+    if (staticMenuPixmapXPM != (xpm = xpmForRegion(Menu)) || !staticMenuPixmap) {
         staticMenuPixmapXPM = xpm;
         staticMenuPixmap = new QPixmap(xpm);
     }
-    if (staticClosePixmapXPM != (xpm=closePixmap()) || !staticClosePixmap) {
+    if (staticClosePixmapXPM != (xpm = xpmForRegion(Close)) || !staticClosePixmap) {
         staticClosePixmapXPM = xpm;
         staticClosePixmap = new QPixmap(xpm);
     }
-    if (staticMinimizePixmapXPM != (xpm=minimizePixmap()) || !staticMinimizePixmap) {
+    if (staticMinimizePixmapXPM != (xpm = xpmForRegion(Minimize)) || !staticMinimizePixmap) {
         staticMinimizePixmapXPM = xpm;
         staticMinimizePixmap = new QPixmap(xpm);
     }
-    if (staticMaximizePixmapXPM != (xpm=maximizePixmap()) || !staticMaximizePixmap) {
+    if (staticMaximizePixmapXPM != (xpm = xpmForRegion(Maximize)) || !staticMaximizePixmap) {
         staticMaximizePixmapXPM = xpm;
         staticMaximizePixmap = new QPixmap(xpm);
     }
-    if (staticNormalizePixmapXPM != (xpm=normalizePixmap()) || staticNormalizePixmap) {
+    if (staticNormalizePixmapXPM != (xpm = xpmForRegion(Normalize)) || staticNormalizePixmap) {
         staticNormalizePixmapXPM = xpm;
         staticNormalizePixmap = new QPixmap(xpm);
     }
@@ -294,10 +283,10 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
             pm = staticClosePixmap;
             break;
         case Maximize:
-            if (widget->testWState(Qt::WState_Maximized))
-                pm = staticNormalizePixmap;
-            else
-                pm = staticMaximizePixmap;
+            pm = staticMaximizePixmap;
+            break;
+        case Normalize:
+            pm = staticNormalizePixmap;
             break;
         case Minimize:
             pm = staticMinimizePixmap;
@@ -482,6 +471,7 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int
             }
             break;
 
+        case Normalize:
         case Maximize: {
                 if (hasMaximize) {
                     QRect r(rect.right() - close_width - maximize_width + 1,
@@ -586,7 +576,9 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
         }
 
         if ((paintAll || decorationRegion & Maximize) && hasMaximize) {
-            paintButton(painter, widget, Maximize, state, pal);
+            paintButton(painter, widget,
+                        (widget->testWState(Qt::WState_Maximized) ? Normalize : Maximize),
+                        state, pal);
             handled |= true;
         }
 

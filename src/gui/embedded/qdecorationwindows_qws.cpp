@@ -20,9 +20,6 @@
 
 #ifndef QT_NO_IMAGEIO_XPM
 
-// #undef BORDER_WIDTH
-// #define BORDER_WIDTH        3
-
 /* XPM */
 static const char * const win_menu_xpm[] = {
 /* width height ncolors chars_per_pixel */

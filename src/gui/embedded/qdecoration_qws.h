@@ -62,8 +62,8 @@ public:
         BottomLeft  = 0x0000000020, Bottom   = 0x0000000040, BottomRight = 0x0000000080,
         Borders     = 0x00000000ff,
         Menu        = 0x0000000100, Title    = 0x0000000200, Help        = 0x0000000400,
-        Minimize    = 0x0000000800, Maximize = 0x0000001000, Close       = 0x0000002000,
-        Move        = 0x0000004000, Resize   = 0x0000008000
+        Minimize    = 0x0000000800, Maximize = 0x0000001000, Normalize   = 0x0000002000,
+        Close       = 0x0000004000, Move     = 0x0000008000, Resize      = 0x0000010000
     };
 
     enum DecorationState { Normal = 0x04, Disabled = 0x08, Hover = 0x01, Pressed = 0x02 };

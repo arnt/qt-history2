@@ -37,13 +37,7 @@ protected:
     virtual void paintButton(QPainter *painter, const QWidget *widget, int buttonRegion,
                              DecorationState state, const QPalette &pal);
     virtual QPixmap pixmapFor(const QWidget *widget, int decorationRegion, int &xoff, int &yoff);
-
-    virtual const char **helpPixmap();
-    virtual const char **menuPixmap();
-    virtual const char **closePixmap();
-    virtual const char **minimizePixmap();
-    virtual const char **maximizePixmap();
-    virtual const char **normalizePixmap();
+    virtual const char **xpmForRegion(int region);
 
 private:
     static QPixmap *staticHelpPixmap;
