@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#78 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#79 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -629,7 +629,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     connect( ok, SIGNAL(clicked()), SLOT(okClicked()) );
     connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
 
-    QSize ms( sizeHint() );
+    QSize ms( minimumSize() );
     QSize ss( QApplication::desktop()->size() );
     if ( ms.height() < 512 && ss.height() >= 600 )
 	ms.setHeight( 512 );
@@ -1098,7 +1098,7 @@ void QPrintDialog::setNumCopies( int copies )
 
 void QPrintDialog::browseClicked()
 {
-    QString fn = QFileDialog::getSaveFileName( QString::null, QString::null, this );
+    QString fn = QFileDialog::getSaveFileName( QString::null, tr( "Postscript files (*.ps);;All files (*)" ), this );
     if ( !fn.isNull() )
 	d->fileName->setText( fn );
 }
