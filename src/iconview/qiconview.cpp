@@ -234,6 +234,7 @@ public:
     uint pressedSelected	:1;
     uint dragging		:1;
     uint drawActiveSelection	:1;
+    uint inMenuMode		:1;
 
     QIconViewToolTip *toolTip;
     QPixmapCache maskCache;
@@ -2177,7 +2178,7 @@ void QIconViewItem::calcTmpText()
     int i = 0;
     while ( view->d->fm->width( tmpText + itemText[ i ] ) < w )
 	tmpText += itemText[ i++ ];
-    tmpText.remove( 0, 3 );
+    tmpText.remove( (uint)0, 3 );
     tmpText += "...";
 }
 
@@ -2719,6 +2720,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->dropped = FALSE;
     d->adjustTimer = new QTimer( this, "iconview adjust timer" );
     d->isIconDrag = FALSE;
+    d->inMenuMode = FALSE;
 #ifndef QT_NO_DRAGANDDROP
     d->iconDragData.clear();
 #endif
@@ -3386,8 +3388,9 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    p->restore();
 
 	    QColorGroup cg;
-	    d->drawActiveSelection = hasFocus() || !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
-		( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
+	    d->drawActiveSelection = hasFocus() || d->inMenuMode
+		|| !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this );
+
 	    if ( !d->drawActiveSelection )
 		cg = palette().inactive();
 	    else
@@ -5251,13 +5254,13 @@ bool QIconView::neighbourItem( Direction dir,
     \reimp
 */
 
-void QIconView::focusInEvent( QFocusEvent *e )
+void QIconView::focusInEvent( QFocusEvent* )
 {
-    Q_UNUSED(e) // I need this to get rid of a Borland warning
     d->mousePressed = FALSE;
-    if ( d->currentItem )
+    d->inMenuMode = FALSE;
+    if ( d->currentItem ) {
 	repaintItem( d->currentItem );
-    else if ( d->firstItem && e->reason() != QFocusEvent::Mouse ) {
+    } else if ( d->firstItem && QFocusEvent::reason() != QFocusEvent::Mouse ) {
 	d->currentItem = d->firstItem;
 	emit currentChanged( d->currentItem );
 	repaintItem( d->currentItem );
@@ -5274,15 +5277,17 @@ void QIconView::focusInEvent( QFocusEvent *e )
     \reimp
 */
 
-void QIconView::focusOutEvent( QFocusEvent *e )
+void QIconView::focusOutEvent( QFocusEvent* )
 {
-    Q_UNUSED(e) // I need this to get rid of a Borland warning
+    if (style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this )) {
+	d->inMenuMode =
+	    QFocusEvent::reason() == QFocusEvent::Popup ||
+ 	    (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
+ 	if ( !d->inMenuMode )
+	    repaintSelectedItems();
+    }
     if ( d->currentItem )
 	repaintItem( d->currentItem );
-
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this )
-	 && e->reason() != QFocusEvent::Popup )
-	repaintSelectedItems();
 }
 
 /*!
@@ -6006,11 +6011,19 @@ void QIconView::updateItemContainer( QIconViewItem *item )
 	return;
 
     if ( item->d->container1 && d->firstContainer ) {
-	item->d->container1->items.removeRef( item );
+	//Special-case to check if we can use removeLast otherwise use removeRef (slower)
+	if (item->d->container1->items.last() == item)
+	    item->d->container1->items.removeLast();
+	else
+	    item->d->container1->items.removeRef( item );
     }
     item->d->container1 = 0;
     if ( item->d->container2 && d->firstContainer ) {
-	item->d->container2->items.removeRef( item );
+	//Special-case to check if we can use removeLast otherwise use removeRef (slower)
+	if (item->d->container2->items.last() == item)
+	    item->d->container2->items.removeLast();
+	else
+	    item->d->container2->items.removeRef( item );
     }
     item->d->container2 = 0;
 
