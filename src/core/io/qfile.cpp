@@ -175,19 +175,41 @@ QFilePrivate::openExternalFile(int flags, int fd)
 /*!
     Constructs a QFile with no name.
 */
-QFile::QFile() : QIODevice(*new QFilePrivate)
+QFile::QFile() : 
+#ifndef QT_NO_QFILE_QOBJECT
+    QObject(),
+#endif
+    QIODevice(*new QFilePrivate)
 {
+    d_ptr = static_cast<QFilePrivate *>(QIODevice::d_ptr);
     setFlags(QIODevice::Direct);
     resetStatus();
 }
+
+#ifndef QT_NO_QFILE_QOBJECT
+/*!
+    Constructs a QFile with no name.
+*/
+QFile::QFile(QObject *parent) : QObject(parent), QIODevice(*new QFilePrivate)
+{
+    d_ptr = static_cast<QFilePrivate *>(QIODevice::d_ptr);
+    setFlags(QIODevice::Direct);
+    resetStatus();
+}
+#endif
 
 /*!
     Constructs a QFile with a file name \a name.
 
     \sa setFileName()
 */
-QFile::QFile(const QString &name) : QIODevice(*new QFilePrivate)
+QFile::QFile(const QString &name) : 
+#ifndef QT_NO_QFILE_QOBJECT
+    QObject(),
+#endif
+    QIODevice(*new QFilePrivate)
 {
+    d_ptr = static_cast<QFilePrivate *>(QIODevice::d_ptr);
     d->fileName = name;
     setFlags(QIODevice::Direct);
     resetStatus();
@@ -196,8 +218,13 @@ QFile::QFile(const QString &name) : QIODevice(*new QFilePrivate)
 /*!
    \internal
 */
-QFile::QFile(QFilePrivate &dd) : QIODevice(dd)
+QFile::QFile(QFilePrivate &dd) : 
+#ifndef QT_NO_QFILE_QOBJECT
+    QObject(),
+#endif
+    QIODevice(dd)
 {
+    d_ptr = static_cast<QFilePrivate *>(QIODevice::d_ptr);
     setFlags(QIODevice::Direct);
     resetStatus();
 }

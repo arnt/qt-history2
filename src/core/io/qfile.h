@@ -18,10 +18,23 @@
 #include "qstring.h"
 #include <stdio.h>
 
+#if defined(QT_BUILD_QMAKE) || defined(QT_MOC) || defined(QT_BUILD_RCC)
+#  define QT_NO_QFILE_QOBJECT
+#else
+#  include "qobject.h"
+#endif
+
 class QFileEngine;
 class QFilePrivate;
-class Q_CORE_EXPORT QFile : public QIODevice
+class Q_CORE_EXPORT QFile : 
+#ifndef QT_NO_QFILE_QOBJECT
+    public QObject, 
+#endif
+    public QIODevice
 {
+#ifndef QT_NO_QFILE_QOBJECT
+    Q_OBJECT
+#endif
     Q_DECLARE_PRIVATE(QFile)
 
 public:
@@ -33,6 +46,9 @@ public:
     };
 
     QFile();
+#ifndef QT_NO_QFILE_QOBJECT
+    QFile(QObject *parent);
+#endif
     QFile(const QString &name);
     ~QFile();
 
@@ -112,6 +128,7 @@ public:
     virtual QFileEngine *fileEngine() const;
 
 protected:
+    QFilePrivate *d_ptr;
     QFile(QFilePrivate &d);
 
 private:
