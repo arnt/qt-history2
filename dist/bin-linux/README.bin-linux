@@ -9,7 +9,7 @@ probably from wherever you got this archive.
 
 operating system : Linux
 compiler         : gcc 2.7.2 or higher
-libc version     : 5.0.9 or higher
+libc version     : 5.2.18 or higher
 library type     : ELF dynamic
 
 
