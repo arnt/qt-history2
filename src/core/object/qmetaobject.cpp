@@ -621,7 +621,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
 		constbuf.remove( i-1, 6 );
 	    else
 		constbuf.remove( i, 5 );
-	    constbuf.prepend( "const" );
+	    constbuf.prepend( "const " );
 	    t = constbuf.data();
 	    e = constbuf.data() + constbuf.length();
 	    break;
