@@ -109,8 +109,8 @@ protected:
 #else
     QIODevice(QIODevicePrivate &dd, QObject *parent = 0);
 #endif
-
     virtual qint64 readData(char *data, qint64 maxlen) = 0;
+    virtual qint64 readLineData(char *data, qint64 maxlen);
     virtual qint64 writeData(const char *data, qint64 len) = 0;
 
     void setOpenMode(OpenMode openMode);

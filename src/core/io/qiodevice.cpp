@@ -676,22 +676,7 @@ qint64 QIODevice::readLine(char *data, qint64 maxlen)
         return qint64(-1);
     }
 
-    qint64 readSoFar = 0;
-    char c;
-    bool lastGetSucceeded = false;
-    while (readSoFar + 1 < maxlen && (lastGetSucceeded = getChar(&c))) {
-        *data++ = c;
-        ++readSoFar;
-        if (c == '\n')
-            break;
-    }
-
-    if (readSoFar < maxlen)
-        *data = '\0';
-
-    if (!lastGetSucceeded && readSoFar == 0)
-        return qint64(-1);
-    return readSoFar;
+    return readLineData(data, maxlen);
 }
 
 /*!
@@ -718,13 +703,38 @@ QByteArray QIODevice::readLine(qint64 maxlen)
             tmp.resize(readSoFar + qMin(int(maxlen), int(sizeof(buffer))));
         else
             tmp.resize(readSoFar + int(sizeof(buffer)));
-        readBytes = readLine(tmp.data() + readSoFar, tmp.size());
+        readBytes = readLineData(tmp.data() + readSoFar, tmp.size());
         readSoFar += readBytes;
     } while (readSoFar < maxlen && readBytes > 0
              && readBytes == tmp.size() && tmp.at(readBytes - 1) != '\n');
 
     tmp.resize(readSoFar);
     return tmp;
+}
+
+/*!
+    This function is called by readLine(), and provides its base
+    implementation, using getChar(). Buffered devices can improve the
+    performance of readLine() by reimplementing this function.
+*/
+qint64 QIODevice::readLineData(char *data, qint64 maxlen)
+{
+    qint64 readSoFar = 0;
+    char c;
+    bool lastGetSucceeded = false;
+    while (readSoFar + 1 < maxlen && (lastGetSucceeded = getChar(&c))) {
+        *data++ = c;
+        ++readSoFar;
+        if (c == '\n')
+            break;
+    }
+
+    if (readSoFar < maxlen)
+        *data = '\0';
+
+    if (!lastGetSucceeded && readSoFar == 0)
+        return qint64(-1);
+    return readSoFar;
 }
 
 /*!

@@ -1121,20 +1121,82 @@ bool QFile::seek(qint64 off)
 /*!
   \reimp
 */
+qint64 QFile::readLineData(char *data, qint64 len)
+{
+#ifndef QT_NO_FILE_BUFFER
+    if (openMode() & Unbuffered)
+#endif
+        return QIODevice::readLineData(data, len);
+
+#ifndef QT_NO_FILE_BUFFER
+    qint64 readSoFar = 0;
+    bool foundEndOfLine = false;
+
+    forever {
+        // get a pointer to the buffer
+        uint realSize = 0;
+        char *ptr = d->buffer.take(d->buffer.used(), &realSize);
+
+        // search for a '\n' character, copy over data as we search
+        if (realSize > 0) {
+            uint i = 0;
+            while (i < realSize) {
+                ++i;
+                if (ptr[i - 1] == '\n') {
+                    foundEndOfLine = true;
+                    break;
+                }
+            }
+
+            // strip '\r' if in Text mode
+            if (openMode() & Text) {
+                char *readPtr = ptr;
+                char *endPtr = ptr + i;
+
+                while (*readPtr != '\r' && readPtr != endPtr)
+                    ++readPtr;
+                char *writePtr = readPtr;
+
+                while (readPtr != endPtr && i > 0) {
+                    char ch = *readPtr;
+                    if (ch != '\r')
+                        *writePtr++ = ch;
+                    else
+                        --i;
+                }
+            }
+
+            memcpy(data + readSoFar, ptr, i);
+            d->buffer.free(i);
+            readSoFar += i;
+        }
+
+        // return if it was found
+        if (foundEndOfLine)
+            return readSoFar;
+
+        // read more data
+        int bytesToRead = qMin(read_cache_size, int(len - readSoFar));
+        if (bytesToRead == 0)
+            return readSoFar;
+
+        char *buffer = d->buffer.alloc(bytesToRead);
+        qint64 bytesRead = fileEngine()->read(buffer, bytesToRead);
+        if (bytesRead == -1)
+            return readSoFar > 0 ? readSoFar : qint64(-1);
+
+        if (bytesRead < bytesToRead)
+            d->buffer.truncate(bytesToRead - bytesRead);
+    }
+#endif
+}
+
+/*!
+  \reimp
+*/
 
 qint64 QFile::readData(char *data, qint64 len)
 {
-    if (len <= 0) // nothing to do
-        return 0;
-    Q_CHECK_PTR(data);
-    if (!isOpen()) {
-        qWarning("QFile::read: File not open");
-        return -1;
-    }
-    if (!isReadable()) {
-        qWarning("QFile::read: Read operation not permitted");
-        return -1;
-    }
     unsetError();
 
     qint64 ret = 0;
@@ -1196,17 +1258,6 @@ qint64 QFile::readData(char *data, qint64 len)
 qint64
 QFile::writeData(const char *data, qint64 len)
 {
-    if (len <= 0) // nothing to do
-        return 0;
-    Q_CHECK_PTR(data);
-    if (!isOpen()) {                                // file not open
-        qWarning("QFile::write: File not open");
-        return -1;
-    }
-    if (!isWritable()) {                        // writing not permitted
-        qWarning("QFile::write: Write operation not permitted");
-        return -1;
-    }
     unsetError();
 
 #ifndef QT_NO_FILE_BUFFER
