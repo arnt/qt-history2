@@ -14,13 +14,11 @@
 #ifndef QMETATYPE_H
 #define QMETATYPE_H
 
-#include "qglobal.h"
+#include "qdatastream.h"
 
 #ifdef Bool // ### we seem to pick up a macro Bool --> int somewhere
 #undef Bool
 #endif
-
-class QDataStream;
 
 class Q_CORE_EXPORT QMetaType {
 public:
