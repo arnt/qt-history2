@@ -88,9 +88,8 @@ int QTsciiCodec::mibEnum() const
 QByteArray QTsciiCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     int l = qMin((int)uc.length(), lenInOut);
-    int rlen = l+1;
     QByteArray rstr;
-    rstr.resize(rlen);
+    rstr.resize(l);
     uchar* cursor = (uchar*)rstr.data();
     for (int i = 0; i < l; i++) {
         QChar ch = uc[i];
@@ -114,7 +113,7 @@ QByteArray QTsciiCodec::fromUnicode(const QString& uc, int& lenInOut) const
         *cursor++ = j;
     }
     lenInOut = cursor - (const uchar*)rstr.constData();
-    *cursor = 0;
+    rstr.resize(lenInOut);
     return rstr;
 }
 

@@ -26,7 +26,7 @@ QByteArray QUtf8Codec::fromUnicode(const QString& uc, int& lenInOut) const
     int l = uc.length();
     if (lenInOut > 0)
         l = qMin(l, lenInOut);
-    int rlen = l*3+1;
+    int rlen = l * 3;
     QByteArray rstr;
     rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
@@ -68,7 +68,7 @@ QByteArray QUtf8Codec::fromUnicode(const QString& uc, int& lenInOut) const
     }
     *cursor = 0;
     lenInOut = cursor - (const uchar*)rstr.constData();
-    ((QByteArray&)rstr).resize(lenInOut+1);
+    rstr.resize(lenInOut);
     return rstr;
 }
 

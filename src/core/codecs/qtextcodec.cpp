@@ -347,7 +347,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
     from \e chars are in the encoding.
 
     A good model for this function is the
-    QWindowsLocalCodec::heuristicContentMatch function found in the Qt
+    QWindowsLocalCodec::heuristicContentMatch() function found in the Qt
     sources.
 
     A QTextCodec subclass might have improved performance if you also
@@ -408,7 +408,7 @@ QTextCodec::~QTextCodec()
     name is compared with the \a hint.
 
     A good match returns a positive number around the length of the
-    string. A bad match is negative.
+    \a hint string. A bad match is negative.
 
     The default implementation calls simpleHeuristicNameMatch() with
     the name of the codec.
@@ -706,7 +706,7 @@ QTextCodec* QTextCodec::codecForLocale()
     \sa heuristicNameMatch()
 */
 
-QTextCodec* QTextCodec::codecForName(const char* name, int accuracy)
+QTextCodec *QTextCodec::codecForName(const char* name, int accuracy)
 {
     if (!name || !*name)
         return 0;

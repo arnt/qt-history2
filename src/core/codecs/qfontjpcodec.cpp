@@ -47,7 +47,7 @@ QFontJis0201Codec::characterFromUnicode(const QString &str, int pos) const
 QByteArray QFontJis0201Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     QByteArray rstring;
-    rstring.resize(lenInOut+1);
+    rstring.resize(lenInOut);
     uchar *rdata = (uchar *) rstring.data();
     const QChar *sdata = uc.unicode();
     int i = 0;
@@ -60,7 +60,6 @@ QByteArray QFontJis0201Codec::fromUnicode(const QString& uc, int& lenInOut) cons
             *rdata = '?';
         }
     }
-    *rdata = 0u;
     return rstring;
 }
 
@@ -110,7 +109,7 @@ int QFontJis0208Codec::heuristicContentMatch(const char *, int) const
 
 int QFontJis0208Codec::heuristicNameMatch(const char *hint) const
 {
-    if (qstrncmp(hint, "jisx0208.", 9) == 0)
+    if (qstrncmp(hint, "jisx0208", 8) == 0)
         return 20;
     return -1;
 }
@@ -153,7 +152,7 @@ unsigned short QFontJis0208Codec::characterFromUnicode(const QString &str, int p
 QByteArray QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     QByteArray result;
-    result.resize(lenInOut * 2 + 1);
+    result.resize(lenInOut * 2);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 
@@ -161,7 +160,7 @@ QByteArray QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut) cons
         QChar ch(*ucp++);
         ch = convJP->unicodeToJisx0208(ch.unicode());
 
-        if (! ch.isNull()) {
+        if (!ch.isNull()) {
             *rdata++ = ch.row();
             *rdata++ = ch.cell();
         } else {
@@ -170,9 +169,7 @@ QByteArray QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut) cons
             *rdata++ = 0x22;
         }
     }
-
     lenInOut *= 2;
-
     return result;
 }
 
