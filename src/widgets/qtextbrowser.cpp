@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#60 $
 **
 ** Implementation of the QTextView class
 **
@@ -116,6 +116,7 @@ public:
 QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
     : QTextView( parent, name )
 {
+    setReadOnly( TRUE );
     d = new QTextBrowserData;
 
     viewport()->setMouseTracking( TRUE );

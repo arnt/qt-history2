@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#62 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#63 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -56,7 +56,6 @@ class Q_EXPORT QMultiLineEdit : public QTextEdit
     Q_PROPERTY( bool atEnd READ atEnd )
     Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
     Q_PROPERTY( bool edited READ edited WRITE setEdited DESIGNABLE false )
-    Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
 
 public:
     QMultiLineEdit( QWidget *parent=0, const char *name=0 );
@@ -86,8 +85,6 @@ public:
     void cursorWordForward( bool mark );
     void cursorWordBackward( bool mark );
 
-    bool isReadOnly() const;
-
     // noops
     bool autoUpdate() const { return TRUE; }
     virtual void setAutoUpdate( bool ) {}
@@ -99,8 +96,6 @@ public:
     void setMaxLines( int ) {}
 
 public slots:
-    virtual void setReadOnly( bool );
-
     void deselect() { selectAll( FALSE ); }
 
 protected:
@@ -127,16 +122,12 @@ protected:
 private:
     QMultiLineEditData *d;
 
-    bool	readOnly;
-
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QMultiLineEdit( const QMultiLineEdit & );
     QMultiLineEdit &operator=( const QMultiLineEdit & );
 #endif
 };
-
-inline bool QMultiLineEdit::isReadOnly() const { return readOnly; }
 
 #endif // QT_NO_MULTILINEEDIT
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#194 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#195 $
 **
 ** Implementation of QMultiLineEdit widget class
 **
@@ -100,7 +100,6 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     : QTextEdit( parent, name )
 {
     d = new QMultiLineEditData;
-    readOnly = FALSE;
     setTextFormat( Qt::PlainText );
 }
 
@@ -150,23 +149,6 @@ int QMultiLineEdit::lineLength( int row ) const
     return document()->paragAt( row )->length();
 }
 
-/*! \property QMultiLineEdit::readOnly
-  \brief whether this multi-line edit accepts text input
-
-  Scrolling and cursor movements are accepted in any case.
-
-  \sa QWidget::enabled
-*/
-
-void QMultiLineEdit::setReadOnly( bool on )
-{
-    if ( readOnly != on ) {
-	readOnly = on;
-#ifndef QT_NO_CURSOR
-	viewport()->setCursor( on ? arrowCursor : ibeamCursor );
-#endif
-    }
-}
 
 /*! \reimp */
 

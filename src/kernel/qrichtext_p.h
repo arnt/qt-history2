@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext_p.h#150 $
+** $Id: //depot/qt/main/src/kernel/qrichtext_p.h#151 $
 **
 ** Definition of internal rich text classes
 **
@@ -667,7 +667,7 @@ class Q_EXPORT QTextDocument : public QObject
 
     friend class QTextTableCell;
     friend class QTextCursor;
-    friend class QTextView;
+    friend class QTextEdit;
     friend class QTextParag;
 
 public:
