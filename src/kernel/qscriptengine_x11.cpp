@@ -1166,7 +1166,7 @@ static inline void splitMatra(unsigned short *reordered, int matra, int &len, in
     len++;
 }
 
-#define INDIC_DEBUG
+// #define INDIC_DEBUG
 #ifdef INDIC_DEBUG
 #define IDEBUG qDebug
 #else
