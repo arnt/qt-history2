@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#15 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#15 $";
 #endif
 
 
@@ -60,7 +60,6 @@ This method seems to work well even with thousands of allocated colors.
 
   This example draws a color wheel.  It shows how to use QColor and
   QPainter. */
-*/
 
 // --------------------------------------------------------------------------
 // Global colors
