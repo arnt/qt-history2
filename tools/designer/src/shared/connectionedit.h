@@ -266,7 +266,7 @@ public:
     void setSelected(CEItem *item, bool selected);
     bool isSelected(const CEItem *item) const;
     bool isNew(const CEItem *item) const;
-    bool isUnderMouse(const CEItem *item) const;
+    inline bool isUnderMouse(const CEItem *item) const;
     int selectedCount() const;
     void selectNone();
 
