@@ -435,6 +435,9 @@
 #    if !defined(_BOOL)
 #      define Q_NO_BOOL_TYPE
 #    endif
+#    if defined(__SUNPRO_CC_COMPAT) && (__SUNPRO_CC_COMPAT <= 4)
+#      define Q_NO_USING_KEYWORD
+#    endif
 #    define Q_C_CALLBACKS
 /* 4.2 compiler or older */
 #  else
