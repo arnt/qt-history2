@@ -201,9 +201,8 @@ protected:
 class Q_CORE_EXPORT QCustomEvent : public QEvent
 {
 public:
-    QCustomEvent( int type );
-    QCustomEvent( Type type, void *data )
-        : QEvent(type), d(data) {};
+    QCustomEvent(int type, void *data = 0)
+        : QEvent((Type)type), d(data) {}
     void       *data()  const   { return d; }
     void        setData( void* data )   { d = data; }
 private:

@@ -26,7 +26,6 @@
 #define Q_GUI_EXPORT_STYLE_POCKETPC Q_EXPORT
 #endif
 
-#ifndef Q_QDOC
 class QPainter;
 class Q_GUI_EXPORT_STYLE_POCKETPC QPocketPCStyle : public QStyle
 {
@@ -67,15 +66,11 @@ private:
     bool gotOriginal;
 #endif // Q_OS_TEMP
 
-
-
-    // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QPocketPCStyle(const QPocketPCStyle &);
     QPocketPCStyle& operator=(const QPocketPCStyle &);
 #endif
 };
-#endif //Q_QDOC
 
 //#endif // QT_NO_STYLE_POCKETPC
 #endif

@@ -3863,3 +3863,77 @@ QString QRegExp::escape(const QString &str)
     }
     return quoted;
 }
+
+/*!
+    \fn bool QRegExp::caseSensitive() const
+
+    Use \l caseSensitivity() instead.
+*/
+
+/*!
+    \fn void QRegExp::setCaseSensitive(bool sensitive)
+
+    Use \l setCaseSensitivity() instead.
+*/
+
+/*!
+    \fn bool QRegExp::wildcard() const
+
+    Use \l patternSyntax() instead.
+
+    \oldcode
+        bool wc = rx.wildcard();
+    \newcode
+        bool wc = (rx.patternSyntax() == QRegExp::Wildcard);
+    \endcode
+*/
+
+/*!
+    \fn void QRegExp::setWildcard(bool wildcard)
+
+    Use \l setPatternSyntax() instead.
+
+    \oldcode
+        rx.setWildcard(wc);
+    \newcode
+        rx.setPatternSyntax(wc ? QRegExp::Wildcard : QRegExp::RegExp);
+    \endcode
+*/
+
+/*!
+    \fn bool QRegExp::minimal() const
+
+    Use \l isMinimalMatching() instead.
+*/
+
+/*!
+    \fn void QRegExp::setMinimal(bool minimal)
+
+    Use \l setMinimalMatching() instead.
+*/
+
+/*!
+    \fn int QRegExp::search(const QString &str, int from = 0,
+                            CaretMode caretMode = CaretAtZero) const
+
+    Use \l indexIn() instead.
+*/
+
+/*!
+    \fn int QRegExp::searchRev(const QString &str, int from = -1, \
+                               CaretMode caretMode = CaretAtZero) const
+
+    Use \l lastIndexIn() instead.
+*/
+
+/*!
+    \fn QRegExp::QRegExp(const QString &pattern, bool cs, bool wildcard = false)
+
+    Use another constructor instead.
+
+    \oldcode
+        QRegExp rx("*.txt", false, true);
+    \newcode
+        QRegExp rx("*.txt", Qt::CaseInsensitive, QRegExp::Wildcard);
+    \endcode
+*/

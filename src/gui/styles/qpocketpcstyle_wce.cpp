@@ -51,6 +51,7 @@
     \brief The QPocketPCStyle class provides a Microsoft PocketPC-like look and feel.
 
     \ingroup appearance
+    \internal
 
     This is Qt's default GUI style on the PocketPC.
 */

@@ -300,7 +300,7 @@ QEvent::~QEvent()
 */
 
 /*!
-    \class QCustomEvent qcoreevent.h
+    \class QCustomEvent
     \brief The QCustomEvent class provides support for custom events.
 
     \ingroup events
@@ -317,13 +317,13 @@ QEvent::~QEvent()
     event types defined in Qt, the value should be at least as
     large as the value of the "User" entry in the QEvent::Type enum.
 
-    QCustomEvent contains a generic \c void* data member that may
+    QCustomEvent contains a generic \c{void *} data member that may
     be used for transferring event-specific data to the receiver.
-    Note that since events are normally delivered asynchronously,
-    the data pointer, if used, must remain valid until the event
-    has been received and processed.
+    Note that since events are normally delivered asynchronously, the
+    data pointer, if used, must remain valid until the event has been
+    received and processed.
 
-    QCustomEvent can be used as-is for simple user-defined event
+    QCustomEvent can be used "as is" for simple user-defined event
     types, but normally you will want to make a subclass of it for
     your event types. In a subclass, you can add data members that
     are suitable for your event type, as in the following example:
@@ -338,19 +338,24 @@ QEvent::~QEvent()
     private:
         QColor c;
     };
+    \endcode
 
-    // To send an event of this custom event type:
+    To send an event of this custom event type:
 
-    ColorChangeEvent* ce = new ColorChangeEvent(blue);
-    QApplication::postEvent(receiver, ce);  // Qt will delete it when done
+    \code
+    ColorChangeEvent *event = new ColorChangeEvent(Qt::blue);
+    QApplication::postEvent(receiver, event);
+    // Qt will delete the event object
+    \endcode
 
-    // To receive an event of this custom event type:
+    To receive an event of this custom event type:
 
-    void MyWidget::customEvent(QCustomEvent * e)
+    \code
+    void MyWidget::customEvent(QCustomEvent *event)
     {
-        if (e->type() == 65432) {  // It must be a ColorChangeEvent
-            ColorChangeEvent* ce = (ColorChangeEvent*)e;
-            newColor = ce->color();
+        if (e->type() == 65432) {  // it must be a ColorChangeEvent
+            ColorChangeEvent *colorEvent = (ColorChangeEvent *)event;
+            newColor = colorEvent->color();
         }
     }
     \endcode
@@ -360,25 +365,14 @@ QEvent::~QEvent()
 
 
 /*!
-    Constructs a custom event object with the event \a type. The
-    value of \a type must be at least as large as QEvent::User. The
-    data pointer is set to 0.
-*/
-
-QCustomEvent::QCustomEvent(int type)
-    : QEvent((QEvent::Type)type), d(0)
-{
-}
-
-
-/*!
     \fn QCustomEvent::QCustomEvent(Type type, void *data)
 
     Constructs a custom event object with the event \a type and a
-    pointer to \a data. (Note that any int value may safely be cast to
-    QEvent::Type).
-*/
+    pointer to \a data. The value of \a type must be at least as
+    large as QEvent::User. By default, the data pointer is set to 0.
 
+
+*/
 
 /*!
     \fn void QCustomEvent::setData(void *data)
@@ -395,7 +389,3 @@ QCustomEvent::QCustomEvent(int type)
 
     \sa setData()
 */
-
-
-
-

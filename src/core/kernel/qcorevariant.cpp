@@ -1042,6 +1042,9 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
 
     \value UserType
 
+    \omitvalue CString
+    \omitvalue LastType
+
     Note that Qt's definition of bool depends on the compiler.
     \c qglobal.h has the system-dependent definition of bool.
 */

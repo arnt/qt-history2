@@ -62,7 +62,7 @@ public:
     inline QCache(int maxCost = 100)
         : f(0), l(0), mx(maxCost), total(0) {}
 #ifdef QT_COMPAT
-    inline QCache(int maxCost, int /* dummy */)
+    inline QT_COMPAT_CONSTRUCTOR QCache(int maxCost, int /* dummy */)
         : f(0), l(0), mx(maxCost), total(0) {}
 #endif
     inline ~QCache() { clear(); }

@@ -69,18 +69,14 @@ class Q_CORE_EXPORT QCoreVariant
         Time = 27,
         DateTime = 28,
         ByteArray = 29,
-#ifndef Q_QDOC
         CString = ByteArray,
-#endif
         BitArray = 30,
         KeySequence = 31,
         Pen = 32,
         LongLong = 33,
         ULongLong = 34,
         UserType = 35,
-#ifndef Q_QDOC
         LastType = 0xffffffff // need this so that gcc >= 3.4 really allocates 32 bits for Type
-#endif
     };
 
     inline QCoreVariant();
@@ -194,7 +190,7 @@ class Q_CORE_EXPORT QCoreVariant
     void detach_helper();
 
  public:
-#ifndef Q_QDOC
+#ifndef qdoc
     struct Private
     {
         QAtomic ref;
@@ -244,10 +240,8 @@ protected:
     static const Handler *handler;
 
     Private *create(Type t, const void *v);
-#ifndef Q_QDOC
     inline void cleanUp(Private *p)
     { handler->clear(p); delete p; }
-#endif
     void *castOrDetach(Type t);
 };
 

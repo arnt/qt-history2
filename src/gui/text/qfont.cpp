@@ -509,6 +509,15 @@ QFontEngineData::~QFontEngineData()
     \value KatakanaHalfWidth
 
     \value Unicode includes all the above scripts.
+
+    \omitvalue NScripts
+    \omitvalue UnknownScript
+    \omitvalue NoScript
+    \omitvalue Han_Japanese
+    \omitvalue Han_SimplifiedChinese
+    \omitvalue Han_TraditionalChinese
+    \omitvalue Han_Korean
+    \omitvalue LastPrivateScript
 */
 
 /*! \internal
@@ -558,7 +567,7 @@ QFont::QFont()
     Constructs a font object with the specified \a family, \a
     pointSize, \a weight and \a italic settings.
 
-    If \a pointSize is <= 0 it is set to 1.
+    If \a pointSize is <= 0, it is set to 12.
 
     The \a family name may optionally also include a foundry name,
     e.g. "Helvetica [Cronyx]". (The Qt 2.x syntax, i.e.

@@ -344,10 +344,8 @@ public:
         ListSquare = -3,
         ListDecimal = -4,
         ListLowerAlpha = -5,
-        ListUpperAlpha = -6
-#ifndef Q_QDOC
-        , ListStyleUndefined = 0
-#endif
+        ListUpperAlpha = -6,
+        ListStyleUndefined = 0
     };
 
     inline void setStyle(int style)

@@ -300,6 +300,11 @@
 
 #endif
 
+/*! \fn void QStringList::replace(int i, const QString &s)
+
+    \internal
+*/
+
 /*!
     \fn QStringList &QStringList::replace(const QString &before, const QString &after, Qt::CaseSensitivity cs)
 

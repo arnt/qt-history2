@@ -1402,6 +1402,7 @@ QFont QTextCharFormat::font() const
     \value ListDecimal
     \value ListLowerAlpha
     \value ListUpperAlpha
+    \omitvalue ListStyleUndefined
 */
 
 /*!

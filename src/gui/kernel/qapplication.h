@@ -67,15 +67,16 @@ public:
     static void            setStyle(QStyle*);
     static QStyle*  setStyle(const QString&);
 #endif
-#ifndef Q_QDOC
-    enum ColorMode { NormalColors, CustomColors };
-    static ColorMode colorMode();
-    static void      setColorMode(QApplication::ColorMode);
+    enum ColorSpec { NormalColor=0, CustomColor=1, ManyColor=2 };
+    static int colorSpec();
+    static void setColorSpec(int);
+
+#ifdef QT_COMPAT
+    enum ColorMode { NormalColors = NormalColor, CustomColors = CustomColor };
+    static inline QT_COMPAT ColorMode colorMode() { return (ColorMode)colorSpec(); }
+    static inline QT_COMPAT void setColorMode(ColorMode mode) { setColorSpec((ColorSpec)mode); }
 #endif
 
-    enum ColorSpec { NormalColor=0, CustomColor=1, ManyColor=2 };
-    static int             colorSpec();
-    static void      setColorSpec(int);
 #ifndef QT_NO_CURSOR
     static QCursor  *overrideCursor();
     static void             setOverrideCursor(const QCursor &, bool replace=false);

@@ -163,9 +163,7 @@ public:
     inline bool operator!() const { return isNull(); }
     inline operator QImage() const { return convertToImage(); }
 
-#ifndef Q_QDOC
     Q_DUMMY_COMPARISON_OPERATOR(QPixmap)
-#endif
 
 protected:
     QPixmap(int w, int h, const uchar *data, bool isXbitmap);

@@ -225,7 +225,7 @@ private:
     void updatePaintDevice();
 #endif
 
-private:        // Disabled copy constructor and operator=
+private:
     QGLContext() {}
     QGLContext(const QGLContext&) {}
     QGLContext& operator=(const QGLContext&) { return *this; }
@@ -257,16 +257,12 @@ public:
     virtual void swapBuffers();
 
     QGLFormat format() const;
-#ifndef Q_QDOC
     virtual void setFormat(const QGLFormat& format);
-#endif
 
     const QGLContext* context() const;
-#ifndef Q_QDOC
     virtual void setContext(QGLContext* context,
                              const QGLContext* shareContext = 0,
                              bool deleteOldContext = true);
-#endif
 
     virtual QPixmap renderPixmap(int w = 0, int h = 0,
                                   bool useContext = false);

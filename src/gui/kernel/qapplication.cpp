@@ -1262,20 +1262,6 @@ QStyle* QApplication::setStyle(const QString& style)
 #endif
 
 
-#if 1  /* OBSOLETE */
-
-QApplication::ColorMode QApplication::colorMode()
-{
-    return (QApplication::ColorMode)app_cspec;
-}
-
-void QApplication::setColorMode(QApplication::ColorMode mode)
-{
-    app_cspec = mode;
-}
-#endif
-
-
 /*!
   Returns the color specification.
   \sa QApplication::setColorSpec()

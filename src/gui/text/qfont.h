@@ -69,19 +69,9 @@ public:
         UltraExpanded  = 200
     };
 
-    // default font
     QFont();
-    // specific font
-#ifdef Q_QDOC
-    QFont(const QString &family, int pointSize = 12, int weight = Normal,
-           bool italic = false);
-#else
-    QFont(const QString &family, int pointSize = -1, int weight = -1,
-           bool italic = false);
-#endif
-    // copy constructor
+    QFont(const QString &family, int pointSize = -1, int weight = -1, bool italic = false);
     QFont(const QFont &);
-
     ~QFont();
 
     QString family() const;
@@ -253,7 +243,6 @@ public:
         TaiLe,
 
         // End
-#if !defined(Q_QDOC)
         NScripts,
         UnknownScript = NScripts,
 
@@ -269,7 +258,6 @@ public:
         Han_Korean,
 
         LastPrivateScript
-#endif
     };
 
     QString defaultFamily() const;

@@ -122,13 +122,11 @@ public:
         TextShowMnemonic = 0x0400,
         TextWordWrap = 0x0800,
         TextWrapAnywhere = 0x1000,
-#ifndef Q_QDOC
         TextDontPrint = 0x2000,
         TextUnderline = 0x01000000,
         TextOverline  = 0x02000000,
         TextStrikeOut = 0x04000000,
         TextIncludeTrailingSpaces = 0x08000000,
-#endif
         TextHideMnemonic = 0x4000
 
 #ifdef QT_COMPAT
@@ -138,13 +136,11 @@ public:
         ShowPrefix = TextShowMnemonic,
         WordBreak = TextWordWrap,
         BreakAnywhere = TextWrapAnywhere,
-#ifndef Q_QDOC
         DontPrint = TextDontPrint,
         Underline = TextUnderline,
         Overline  = TextOverline,
         StrikeOut = TextStrikeOut,
         IncludeTrailingSpaces = TextIncludeTrailingSpaces,
-#endif
         NoAccel = TextHideMnemonic
 #endif
     };

@@ -77,7 +77,7 @@ public:
     QObject(QObject *parent=0);
     virtual ~QObject();
 
-#ifdef Q_QDOC
+#ifdef qdoc
     static QString tr(const char *, const char *);
     static QString trUtf8(const char *, const char *);
     virtual const QMetaObject *metaObject() const;

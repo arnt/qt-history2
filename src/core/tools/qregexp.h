@@ -89,7 +89,7 @@ public:
     static QString escape(const QString &str);
 
 #ifdef QT_COMPAT
-    inline QRegExp(const QString &pattern, bool cs, bool wildcard = false)
+    inline QT_COMPAT_CONSTRUCTOR QRegExp(const QString &pattern, bool cs, bool wildcard = false)
     {
         new (this)
             QRegExp(pattern, cs ? Qt::CaseSensitive : Qt::CaseInsensitive,
