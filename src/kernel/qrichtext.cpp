@@ -3779,7 +3779,6 @@ void QTextString::checkBidi() const
     unsigned char bidiLevel = item->analysis.bidiLevel;
     if ( bidiLevel )
 	that->bidi = TRUE;
-    item++;
     int pos = length-1;
     while ( ch >= start ) {
 	ch->softBreak = ca->softBreak;
@@ -3789,7 +3788,7 @@ void QTextString::checkBidi() const
 	ch->invalid = ca->invalid;
 	ch->bidiLevel = bidiLevel;
 	ch->rightToLeft = (bidiLevel%2);
-	if ( item->position > pos ) {
+	if ( item->position >= pos ) {
 	    --item;
 	    bidiLevel = item->analysis.bidiLevel;
 	    if ( bidiLevel )
