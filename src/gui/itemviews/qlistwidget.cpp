@@ -155,12 +155,22 @@ bool QListModel::setData(const QModelIndex &index, int role, const QVariant &val
 bool QListModel::insertRows(int row, const QModelIndex &, int count)
 {
     QListWidget *view = ::qt_cast<QListWidget*>(QObject::parent());
-    if (row < rowCount())
-        for (int r = row; r < row + count; ++r)
-            lst.insert(r, new QListWidgetItem(view));
-    else
-        for (int r = 0; r < count; ++r)
-            lst.append(new QListWidgetItem(view));
+    QListWidgetItem *itm = 0;
+    if (row < rowCount()) {
+        for (int r = row; r < row + count; ++r) {
+            itm = new QListWidgetItem();
+            itm->view = view;
+            itm->model = this;
+            lst.insert(r, itm);
+        }
+    } else {
+        for (int r = 0; r < count; ++r) {
+            itm = new QListWidgetItem();
+            itm->view = view;
+            itm->model = this;
+            lst.append(itm);
+        }
+    }
     emit rowsInserted(QModelIndex::Null, row, row + count - 1);
     return true;
 }
@@ -169,8 +179,13 @@ bool QListModel::removeRows(int row, const QModelIndex &, int count)
 {
     if (row < rowCount()) {
         emit rowsAboutToBeRemoved(QModelIndex::Null, row, row + count - 1);
-        for (int r = 0; r < count; ++r)
-            delete lst.takeAt(row);
+        QListWidgetItem *itm = 0;
+        for (int r = 0; r < count; ++r) {
+            itm = lst.takeAt(row);
+            itm->view = 0;
+            itm->model = 0;
+            delete itm;
+        }
         return true;
     }
     return false;
@@ -179,7 +194,7 @@ bool QListModel::removeRows(int row, const QModelIndex &, int count)
 QAbstractItemModel::ItemFlags QListModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= lst.count())
-        return 0;
+        return QAbstractItemModel::ItemIsDropEnabled; // we allow drops outside the items
     return lst.at(index.row())->flags();
 }
 
@@ -272,7 +287,8 @@ void QListModel::itemChanged(QListWidgetItem *item)
 QListWidgetItem::QListWidgetItem(QListWidget *view)
     : view(view), model(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled)
+                |QAbstractItemModel::ItemIsEnabled
+                |QAbstractItemModel::ItemIsDragEnabled)
 {
     if (view)
         model = ::qt_cast<QListModel*>(view->model());
@@ -290,7 +306,8 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
 QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
     : view(view), model(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled)
+                |QAbstractItemModel::ItemIsEnabled
+                |QAbstractItemModel::ItemIsDragEnabled)
 {
     setData(QAbstractItemModel::DisplayRole, text);
     if (view)
@@ -1054,6 +1071,9 @@ void QListWidget::setup()
             this, SIGNAL(selectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             SLOT(emitItemChanged(QModelIndex,QModelIndex)));
+
+    d->viewport->setAcceptDrops(true);
+    setDraggableItems(true);
 }
 
 #include "moc_qlistwidget.cpp"

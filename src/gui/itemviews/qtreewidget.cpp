@@ -934,7 +934,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
     if (view) {
         model = ::qt_cast<QTreeModel*>(view->model());
         if (model) {
-            int i = model->tree.indexOf(after);
+            int i = model->tree.indexOf(after) + 1;
             model->tree.insert(i, this);
             model->emitRowsInserted(this);
         }
@@ -969,7 +969,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after
                 |QAbstractItemModel::ItemIsDragEnabled)
 {
     if (parent) {
-        int i = parent->indexOfChild(after);
+        int i = parent->indexOfChild(after) + 1;
         parent->insertChild(i, this);
     }
 }

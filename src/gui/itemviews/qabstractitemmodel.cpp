@@ -864,6 +864,9 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction a
     QString format = mimeTypes().at(0);
     if (!data->hasFormat(format))
         return false;
+    // check if we have a valid table
+    if (columnCount(parent) <= 0)
+        return false;
     // decode and insert
     QByteArray encoded = data->data(format);
     QDataStream stream(&encoded, QIODevice::ReadOnly);

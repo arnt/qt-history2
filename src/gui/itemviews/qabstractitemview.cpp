@@ -1147,11 +1147,11 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
             || model()->flags(index.parent()) & QAbstractItemModel::ItemIsDropEnabled) {
             switch(d->position(pos, itemViewportRect(index), 2)) {
             case QAbstractItemViewPrivate::Above:
-                row = index.row() - 1;
+                row = index.row();
                 index = index.parent();
                 break;
             case QAbstractItemViewPrivate::Below:
-                row = index.row();
+                row = index.row() + 1;
                 index = index.parent();
                 break;
             case QAbstractItemViewPrivate::On:
