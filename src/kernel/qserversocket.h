@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qserversocket.h#7 $
+** $Id: //depot/qt/main/src/kernel/qserversocket.h#8 $
 **
 ** Definition of QServerSocket class
 **
@@ -32,6 +32,8 @@
 #endif // QT_H
 
 
+class QServerSocketPrivate;
+
 class Q_EXPORT QServerSocket : public QObject
 {
     Q_OBJECT
@@ -41,13 +43,14 @@ public:
     ~QServerSocket();
 
     int		 port() const;
+    QSocket *socket() const;
     void	 setPort( int port );
 
     virtual void newConnection( int socket );
- 
+
 protected:
     QSocketDevice *socketDevice();
-    virtual bool accept( void *internet_address ) const;
+    virtual bool accept( const QSocketAddress & ) const;
 
 protected slots:
     void	 incomingConnection( int socket );
@@ -58,14 +61,14 @@ private:
 };
 
 
-inline int QServerSocket::port() const
-{
-    return serverSocket->port();
-}
+// inline int QServerSocket::port() const
+// {
+//     return sd->port();
+// }
 
-inline QSocket *QServerSocket::socket()
+inline QSocket *QServerSocket::socket() const
 {
-    return serverSocket;
+    return sd;
 }
 
 
