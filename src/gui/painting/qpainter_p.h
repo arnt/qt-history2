@@ -214,7 +214,7 @@ public:
     void init();
 
     int rectSubtraction() const {
-        return state->pen != Qt::NoPen && state->pen.width() == 0 ? 1 : 0;
+        return state->pen.style() != Qt::NoPen && state->pen.width() == 0 ? 1 : 0;
     }
 
     QPaintDevice *device;
