@@ -39,6 +39,7 @@
 #include "qfile.h"
 
 #include <errno.h>
+#include <limits.h>
 
 
 bool qt_file_access( const QString& fn, int t )
