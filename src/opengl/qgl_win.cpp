@@ -592,8 +592,10 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	ReleaseDC( win, myDc );
 
     QRgb* pal = qgl_create_rgb_palette( &realPfd );
-    if ( pal ) {
-	QColor::setPaletteEntries( pal, 256, 0 );
+    if ( pal && !deviceIsPixmap() ) {
+	QGLColormap cmap;
+	cmap.setEntries( 256, pal );
+	((QGLWidget*)d->paintDevice)->setColormap( cmap );
 	delete[] pal;
     }
 
@@ -1015,8 +1017,6 @@ static void qStoreColors( HPALETTE cmap, const QGLColormap & cols )
 
 void QGLWidget::setColormap( const QGLColormap & c )
 {
-    QWidget * tlw   = topLevelWidget(); // must return a valid widget
-
     cmap = c;
     if ( !cmap.d )
 	return;
