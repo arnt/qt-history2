@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#143 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#144 $
 **
 ** Global type declarations and definitions
 **
@@ -108,7 +108,7 @@
 #define _OS_GNU_
 #elif defined(DGUX)
 #define _OS_DGUX_
-#elif defined(sco)
+#elif defined(sco) || defined(_UNIXWARE7) || __SCO_VERSION__ == 300199811L
 #define _OS_UNIXWARE7_
 #elif defined(__QNX__)
 #define _OS_QNX_
@@ -143,6 +143,8 @@
 //   USLC	- SCO UnixWare C++
 //
 
+
+// Should be sorted most-authorative to least-authorative
 #if defined(__SC__)
 #define _CC_SYM_
 #elif defined(applec)
@@ -163,6 +165,11 @@
 #elif defined(como40)
 #define _CC_EDG_
 #define _CC_COMEAU_
+#elif defined(__USLC__)
+#define _CC_USLC_
+#ifdef __EDG__ // UnixWare7
+#define HAS_BOOL_TYPE
+#endif
 #elif defined(__EDG) || defined(__EDG__)
 // one observed on SGI DCC, the other documented
 #define _CC_EDG_
@@ -172,11 +179,6 @@
 #define _CC_SUN_
 #elif defined(__DECCXX)
 #define _CC_DEC_
-#elif defined(__USLC__)
-#define _CC_USLC_
-#ifdef __EDG__ // UnixWare7
-#define HAS_BOOL_TYPE
-#endif
 #elif defined(_OS_HPUX_)
 // this test from from aCC online help
 #if __cplusplus >= 199707L
