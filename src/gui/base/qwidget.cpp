@@ -5963,6 +5963,10 @@ const QPixmap *QWidget::icon() const
     \row \i WA_Mapped \i Indicates that the widget is mapped on screen.
     \i Qt kernel.
 
+    \row \i WA_OutsideWSRange \i Indicates that the widget is outside
+    the valid range of the window system's coordinate system. A widget
+    outside the valid range cannot be mapped on screen. \i Qt kernel.
+
     \row \i WA_MacMetalStyle \i Indicates the the widget should be drawn
     in metal style as supported by the windowing system (only meaningfull on Mac OS X).
     \i Set by widget author

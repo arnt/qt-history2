@@ -88,6 +88,7 @@ public:
     int		 alloc_region_index;
     int		 alloc_region_revision;
 #endif
+    QRect wrect;
 };
 
 class QWidgetPrivate;
@@ -484,7 +485,8 @@ public:
 	WA_CompositeParent,
 	WA_CompositeChild,
 	WA_CustomWhatsThis,
-	WA_LayoutOnEntireRect
+	WA_LayoutOnEntireRect,
+                WA_OutsideWSRange
     };
     void setAttribute(WidgetAttribute, bool = true);
     inline bool testAttribute(WidgetAttribute) const;
@@ -933,6 +935,6 @@ inline QT_COMPAT void QWidget::erase() { erase_helper(0, 0, data->crect.width(),
 inline QT_COMPAT void QWidget::erase(const QRect &r) { erase_helper(r.x(), r.y(), r.width(), r.height()); }
 #endif
 
-#define QWIDGETSIZE_MAX 32767
+#define QWIDGETSIZE_MAX ((1<<24)-1)
 
 #endif // QWIDGET_H

@@ -95,8 +95,8 @@ struct QTLWExtra {
 // dear user: you can see this struct, but it is internal. do not touch.
 
 struct QWExtra {
-    Q_INT16  minw, minh;			// minimum size
-    Q_INT16  maxw, maxh;			// maximum size
+    Q_INT32  minw, minh;			// minimum size
+    Q_INT32  maxw, maxh;			// maximum size
     QPointer<QWidget> focus_proxy;
 #ifndef QT_NO_CURSOR
     QCursor *curs;
@@ -250,6 +250,14 @@ public:
     uint clp_serial : 8;
     inline QRegion clippedRegion(bool = true) { return clp; }
     inline uint clippedSerial(bool =true) { return clp_serial; }
+#endif
+
+#if defined(Q_WS_X11)
+    void setWSGeometry();
+    inline QPoint mapToWS(const QPoint &p) const { return p - data.wrect.topLeft(); }
+    inline QPoint mapFromWS(const QPoint &p) const { return p + data.wrect.topLeft(); }
+    inline QRect mapToWS(const QRect &r) const { QRect rr(r); rr.moveBy(-data.wrect.topLeft()); return rr; }
+    inline QRect mapFromWS(const QRect &r) const { QRect rr(r); rr.moveBy(data.wrect.topLeft()); return rr; }
 #endif
 };
 

@@ -3177,24 +3177,27 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case UnmapNotify:				// window hidden
-	widget->setAttribute(QWidget::WA_Mapped, false);
-	if ( widget->isTopLevel() && widget->isShown() ) {
-	    widget->d->topData()->spont_unmapped = 1;
-	    QHideEvent e;
-	    QApplication::sendSpontaneousEvent( widget, &e );
-	    widget->hideChildren( TRUE );
-	}
+        if ( widget->isTopLevel()) {
+            widget->setAttribute(QWidget::WA_Mapped, false);
+            if (widget->isShown() ) {
+                widget->d->topData()->spont_unmapped = 1;
+                QHideEvent e;
+                QApplication::sendSpontaneousEvent( widget, &e );
+                widget->hideChildren( TRUE );
+            }
+        }
 	break;
 
     case MapNotify:				// window shown
-	widget->setAttribute(QWidget::WA_Mapped);
-	if ( widget->isTopLevel() &&
-	     widget->d->topData()->spont_unmapped ) {
-	    widget->d->topData()->spont_unmapped = 0;
-	    widget->showChildren( TRUE );
-	    QShowEvent e;
-	    QApplication::sendSpontaneousEvent( widget, &e );
-	}
+        if ( widget->isTopLevel()) {
+            widget->setAttribute(QWidget::WA_Mapped);
+            if (widget->d->topData()->spont_unmapped ) {
+                 widget->d->topData()->spont_unmapped = 0;
+                 widget->showChildren( TRUE );
+                 QShowEvent e;
+                 QApplication::sendSpontaneousEvent( widget, &e );
+             }
+        }
 	break;
 
     case ClientMessage:			// client message
@@ -3600,6 +3603,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	type = QEvent::MouseMove;
 	pos.rx() = lastMotion.x;
 	pos.ry() = lastMotion.y;
+        pos = d->mapFromWS(pos);
 	globalPos.rx() = lastMotion.x_root;
 	globalPos.ry() = lastMotion.y_root;
 	state = translateButtonState( lastMotion.state );
@@ -3624,6 +3628,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	type = QEvent::MouseMove;
 	pos.rx() = xevent->xcrossing.x;
 	pos.ry() = xevent->xcrossing.y;
+        pos = d->mapFromWS(pos);
 	globalPos.rx() = xevent->xcrossing.x_root;
 	globalPos.ry() = xevent->xcrossing.y_root;
 	state = translateButtonState( xevent->xcrossing.state );
@@ -3636,6 +3641,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     } else {					// button press or release
 	pos.rx() = event->xbutton.x;
 	pos.ry() = event->xbutton.y;
+        pos = d->mapFromWS(pos);
 	globalPos.rx() = event->xbutton.x_root;
 	globalPos.ry() = event->xbutton.y_root;
 	state = translateButtonState( event->xbutton.state );
@@ -5079,6 +5085,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     PaintEventInfo info;
     info.window = winId();
     bool should_clip = translateBySips( this, paintRect );
+    paintRect = d->mapFromWS(paintRect);
 
     QRegion paintRegion = d->invalidated_region;
     paintRegion |= paintRect;
@@ -5098,6 +5105,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 			       xevent.xexpose.height);
 		if ( translateBySips( this, exposure ) )
 		    should_clip = TRUE;
+                exposure = d->mapFromWS(exposure);
 		paintRegion = paintRegion.unite( exposure );
 	    } else {
 		translateScrollDoneEvent( &xevent );
