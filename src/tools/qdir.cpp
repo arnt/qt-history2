@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#102 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#103 $
 **
 ** Implementation of QDir class
 **
@@ -331,6 +331,7 @@ QString QDir::absPath() const
       absFilePath(), QString::isNull()
 */
 
+#ifndef _OS_MAC_
 QString QDir::canonicalPath() const
 {
     QString r;
@@ -370,6 +371,7 @@ QString QDir::canonicalPath() const
 
     return r;
 }
+#endif
 
 /*!
   Returns the name of the directory, this is NOT the same as the path, e.g.
@@ -875,6 +877,7 @@ const QFileInfoList *QDir::entryInfoList( const QString &nameFilter,
   \sa rmdir()
 */
 
+#ifndef _OS_MAC_
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
 #if defined (UNIX)
@@ -914,7 +917,6 @@ bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
     }
 #endif
 }
-
 /*!
   Returns TRUE if the directory is readable AND we can open files by
   name. This function will return FALSE if only one of these is present.
@@ -936,6 +938,9 @@ bool QDir::isReadable() const
     }
 #endif
 }
+
+// Not Mac
+#endif
 
 /*!
   Returns TRUE if the directory exists. (If a file with the same
@@ -968,6 +973,7 @@ bool QDir::exists() const
   \sa root(), rootDirPath()
 */
 
+#ifndef _OS_MAC_
 bool QDir::isRoot() const
 {
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
@@ -977,6 +983,7 @@ bool QDir::isRoot() const
     return dPath == QString::fromLatin1("/");
 #endif
 }
+#endif
 
 /*!
   Returns TRUE if the directory path is relative to the current directory,
@@ -1095,6 +1102,7 @@ bool QDir::remove( const QString &fileName, bool acceptAbsPath )
   file
 */
 
+#ifndef _OS_MAC_
 bool QDir::rename( const QString &name, const QString &newName,
 		   bool acceptAbsPaths	)
 {
@@ -1120,6 +1128,7 @@ bool QDir::rename( const QString &name, const QString &newName,
     }
 #endif
 }
+#endif
 
 /*!
   Checks for existence of a file.
@@ -1172,6 +1181,7 @@ char QDir::separator()
   Sets the the current directory. Returns TRUE if successful.
 */
 
+#ifndef _OS_MAC_
 bool QDir::setCurrent( const QString &path )
 {
     int r;
@@ -1188,6 +1198,7 @@ bool QDir::setCurrent( const QString &path )
 
     return r >= 0;
 }
+#endif
 
 /*!
   Returns the current directory.
@@ -1225,6 +1236,7 @@ QDir QDir::root()
   \sa current()
 */
 
+#ifndef _OS_MAC_
 QString QDir::currentDirPath()
 {
     QString result;
@@ -1265,6 +1277,7 @@ QString QDir::currentDirPath()
 
     return result;
 }
+#endif
 
 /*!
   Returns the absolute path for the user's home directory,
@@ -1287,6 +1300,7 @@ QString QDir::homeDirPath()
   \sa root() drives()
 */
 
+#ifndef _OS_MAC_
 QString QDir::rootDirPath()
 {
 #if defined(_OS_FATFS_)
@@ -1302,6 +1316,7 @@ QString QDir::rootDirPath()
 #endif
     return d;
 }
+#endif
 
 static QStringList makeFilterList( const QString &filter )
 {
@@ -1429,6 +1444,7 @@ QString QDir::cleanDirPath( const QString &filePath )
   \sa isRelative()
 */
 
+#ifndef _OS_MAC_
 bool QDir::isRelativePath( const QString &path )
 {
     int len = path.length();
@@ -1445,6 +1461,7 @@ bool QDir::isRelativePath( const QString &path )
 # error "Not implemented for this operating system"
 #endif
 }
+#endif
 
 struct QDirSortItem {
     QString filename_cache;
@@ -1509,6 +1526,7 @@ static int cmp_si( const void *n1, const void *n2 )
   Reads directory entries.
 */
 
+#ifndef _OS_MAC_
 bool QDir::readDirEntries( const QString &nameFilter,
 			   int filterSpec, int sortSpec )
 {
@@ -1779,3 +1797,5 @@ const QFileInfoList * QDir::drives()
 
     return knownMemoryLeak;
 }
+// Not Mac
+#endif
