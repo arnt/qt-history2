@@ -2820,7 +2820,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
     int left = r.width();
     int right = 0;
 
-    QFont fnt(painter ? painter->font() : font);
+    QFont fnt(painter ? (painter->pfont ? *painter->pfont : painter->cfont) : font);
     QTextLayout textLayout( text, fnt );
     QFontMetrics fm( fnt );
     int rb = QMAX( 0, -fm.minRightBearing() );
