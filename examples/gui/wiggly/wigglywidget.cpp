@@ -43,6 +43,7 @@ void WigglyWidget::timerEvent(QTimerEvent *event)
     if (event->timerId() == timerId) {
         step = (step + 1) % 16;
         update();
+    } else {
+	QWidget::timerEvent(event);
     }
-    QWidget::timerEvent(event);
 }

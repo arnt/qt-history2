@@ -5,8 +5,6 @@
 FindDialog::FindDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Find"));
-
     label = new QLabel(tr("Find &what:"), this);
     lineEdit = new QLineEdit(this);
     label->setBuddy(lineEdit);
@@ -20,20 +18,25 @@ FindDialog::FindDialog(QWidget *parent)
 
     closeButton = new QPushButton(tr("Close"), this);
 
-    optionsButton = new QPushButton(tr("More &Options"), this);
-    optionsButton->setCheckable(true);
+    moreButton = new QPushButton(tr("&More"), this);
+    moreButton->setCheckable(true);
+    moreButton->setAutoDefault(false);
 
-    optionsWidget = new QWidget(this);
-    optionsWidget->hide();
+    extension = new QWidget(this);
+    extension->hide();
 
-    wholeWordsCheckBox = new QCheckBox(tr("&Whole words"), optionsWidget);
-    backwardCheckBox = new QCheckBox(tr("Search &backward"), optionsWidget);
-    searchSelectionCheckBox = new QCheckBox(tr("Search se&lection"), optionsWidget);
+    wholeWordsCheckBox = new QCheckBox(tr("&Whole words"), extension);
+    backwardCheckBox = new QCheckBox(tr("Search &backward"), extension);
+    searchSelectionCheckBox = new QCheckBox(tr("Search se&lection"), extension);
 
-    connect(closeButton, SIGNAL(clicked()),
-            this, SLOT(close()));
-    connect(optionsButton, SIGNAL(toggled(bool)), optionsWidget,
-            SLOT(setShown(bool)));
+    connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(moreButton, SIGNAL(toggled(bool)), extension, SLOT(setShown(bool)));
+
+    QVBoxLayout *extensionLayout = new QVBoxLayout(extension);
+    extensionLayout->setMargin(0);
+    extensionLayout->addWidget(wholeWordsCheckBox);
+    extensionLayout->addWidget(backwardCheckBox);
+    extensionLayout->addWidget(searchSelectionCheckBox);
 
     QHBoxLayout *topLeftLayout = new QHBoxLayout;
     topLeftLayout->addWidget(label);
@@ -44,22 +47,19 @@ FindDialog::FindDialog(QWidget *parent)
     leftLayout->addWidget(caseCheckBox);
     leftLayout->addWidget(fromStartCheckBox);
     leftLayout->addStretch(1);
-    leftLayout->addWidget(optionsWidget);
+    leftLayout->addWidget(extension);
 
     QVBoxLayout *rightLayout = new QVBoxLayout;
     rightLayout->addWidget(findButton);
     rightLayout->addWidget(closeButton);
-    rightLayout->addWidget(optionsButton);
+    rightLayout->addWidget(moreButton);
     rightLayout->addStretch(1);
 
-    QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    QGridLayout *mainLayout = new QGridLayout(this);
     mainLayout->setResizeMode(QLayout::Fixed);
-    mainLayout->addLayout(leftLayout);
-    mainLayout->addLayout(rightLayout);
+    mainLayout->addLayout(leftLayout, 0, 0);
+    mainLayout->addLayout(rightLayout, 0, 1);
+    mainLayout->addWidget(extension, 1, 0, 1, 2);
 
-    QVBoxLayout *optionsLayout = new QVBoxLayout(optionsWidget);
-    optionsLayout->setMargin(0);
-    optionsLayout->addWidget(wholeWordsCheckBox);
-    optionsLayout->addWidget(backwardCheckBox);
-    optionsLayout->addWidget(searchSelectionCheckBox);
+    setWindowTitle(tr("Extension"));
 }

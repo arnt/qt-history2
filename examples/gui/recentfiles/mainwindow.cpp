@@ -2,10 +2,12 @@
 
 #include "mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow()
 {
-    setAttribute(Qt::WDestructiveClose);
+    setAttribute(Qt::WA_DeleteOnClose);
+
+    textEdit = new QTextEdit(this);
+    setCentralWidget(textEdit);
 
     createActions();
     createMenus();
@@ -13,10 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     readSettings();
 
-    connect(textEdit->document(), SIGNAL(contentsChanged()),
-            this, SLOT(documentWasModified()));
-
-    setWindowTitle(tr("Recent Files Example"));
+    setWindowTitle(tr("Recent Files"));
 }
 
 void MainWindow::closeEvent(QCloseEvent *)
@@ -24,18 +23,10 @@ void MainWindow::closeEvent(QCloseEvent *)
     writeSettings();
 }
 
-void MainWindow::contextMenuEvent(QContextMenuEvent *event)
-{
-    QMenu menu(this);
-    menu.addAction(cutAct);
-    menu.addAction(copyAct);
-    menu.addAction(pasteAct);
-    menu.exec(event->globalPos());
-}
-
 void MainWindow::newFile()
 {
-    new MainWindow();
+    MainWindow *other = new MainWindow();
+    other->show();
 }
 
 void MainWindow::open()
@@ -47,33 +38,30 @@ void MainWindow::open()
 
 void MainWindow::save()
 {
-    if (curFile.isEmpty()) {
-        return saveAs();
-    } else {
+    if (curFile.isEmpty())
+        saveAs();
+    else
         saveFile(curFile);
-        return true;
-    }
 }
 
 void MainWindow::saveAs()
 {
     QString fileName = QFileDialog::getSaveFileName(this);
     if (fileName.isEmpty())
-        return false;
+        return;
 
     if (QFile::exists(fileName)) {
-        int ret = QMessageBox::warning(this, tr("Recent Files Example"),
+        int ret = QMessageBox::warning(this, tr("Recent Files"),
                      tr("File %1 already exists.\n"
                         "Do you want to overwrite it?")
                      .arg(QDir::convertSeparators(fileName)),
                      QMessageBox::Yes | QMessageBox::Default,
                      QMessageBox::No | QMessageBox::Escape);
         if (ret == QMessageBox::No)
-            return true;
+            return;
     }
     if (!fileName.isEmpty())
         saveFile(fileName);
-    return true;
 }
 
 void MainWindow::about()
@@ -104,6 +92,11 @@ void MainWindow::createActions()
     saveAsAct->setStatusTip(tr("Save the spreadsheet under a new name"));
     connect(saveAsAct, SIGNAL(activated()), this, SLOT(saveAs()));
 
+    for (int i = 0; i < MaxRecentFiles; ++i) {
+        recentFileActs[i] = new QAction(this);
+        recentFileActs[i]->setVisible(false);
+    }
+
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Exit the application"));
@@ -126,6 +119,8 @@ void MainWindow::createMenus()
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
     fileMenu->addSeparator();
+
+    fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
     menuBar()->addSeparator();
@@ -139,7 +134,7 @@ void MainWindow::readSettings()
 {
 #if 0
     // TODO: enable settings code when the new QSettings is available
-    QSettings settings("trolltech.com", "Recent Files Example");
+    QSettings settings("doc.trolltech.com", "Recent Files");
     recentFiles = settings.value("recentFiles").toStringList();
 #endif
 }
@@ -148,7 +143,7 @@ void MainWindow::writeSettings()
 {
 #if 0
     // TODO: enable settings code when the new QSettings is available
-    QSettings settings("trolltech.com", "Recent Files Example");
+    QSettings settings("doc.trolltech.com", "Recent Files");
     settings.setValue("recentFiles", recentFiles);
 #endif
 }
@@ -157,14 +152,17 @@ void MainWindow::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly)) {
-        QMessageBox::warning(this, tr("Recent Files Example"),
+        QMessageBox::warning(this, tr("Recent Files"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return;
     }
 
-    /* ... */
+    QTextStream in(&file);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    textEdit->setPlainText(in.read());
+    QApplication::restoreOverrideCursor();
 
     setCurrentFile(fileName);
     statusBar()->message(tr("File loaded"), 2000);
@@ -174,14 +172,17 @@ void MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly)) {
-        QMessageBox::warning(this, tr("Recent Files Example"),
+        QMessageBox::warning(this, tr("Recent Files"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return;
     }
 
-    /* ... */
+    QTextStream out(&file);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    out << textEdit->plainText();
+    QApplication::restoreOverrideCursor();
 
     setCurrentFile(fileName);
     statusBar()->message(tr("File saved"), 2000);
@@ -191,10 +192,10 @@ void MainWindow::setCurrentFile(const QString &fileName)
 {
     curFile = fileName;
     if (curFile.isEmpty())
-        setWindowTitle(tr("Recent Files Example"));
+        setWindowTitle(tr("Recent Files"));
     else
         setWindowTitle(tr("%1 - %2").arg(strippedName(curFile))
-                                    .arg(tr("Recent Files Example")));
+                                    .arg(tr("Recent Files")));
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)

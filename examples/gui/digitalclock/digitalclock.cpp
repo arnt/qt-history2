@@ -5,15 +5,22 @@
 DigitalClock::DigitalClock(QWidget *parent)
     : QLCDNumber(parent)
 {
+    setSegmentStyle(Filled);
+
     showingColon = true;
+    timerId = startTimer(1000);
     showTime();
-    startTimer(1000);
+
     setWindowTitle(tr("Digital Clock"));
+    resize(150, 60);
 }
 
-void DigitalClock::timerEvent(QTimerEvent *)
+void DigitalClock::timerEvent(QTimerEvent *event)
 {
-    showTime();
+    if (event->timerId() == timerId)
+        showTime();
+    else
+        QLCDNumber::timerEvent(event);
 }
 
 void DigitalClock::showTime()

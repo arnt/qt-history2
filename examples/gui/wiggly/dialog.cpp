@@ -19,5 +19,5 @@ Dialog::Dialog(QWidget *parent)
     lineEdit->setText(tr("Hello world!"));
 
     setWindowTitle(tr("Wiggly"));
-    resize(320, 145);
+    resize(360, 145);
 }

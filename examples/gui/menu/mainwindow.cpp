@@ -2,8 +2,7 @@
 
 #include "mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow()
 {
     QVBoxWidget *vbox = new QVBoxWidget(this);
     vbox->setMargin(11);

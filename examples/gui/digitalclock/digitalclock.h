@@ -15,6 +15,7 @@ private:
     void showTime();
 
     bool showingColon;
+    int timerId;
 };
 
 #endif

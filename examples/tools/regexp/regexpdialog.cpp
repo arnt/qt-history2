@@ -99,7 +99,7 @@ void RegExpDialog::refresh()
     if (caseSensitiveCheckBox->isChecked())
         cs = Qt::CaseSensitive;
     rx.setCaseSensitivity(cs);
-    rx.setMinimalMatching(minimalCheckBox->isChecked());
+    rx.setMinimal(minimalCheckBox->isChecked());
     QRegExp::PatternSyntax syntax =
             wildcardCheckBox->isChecked() ? QRegExp::Wildcard : QRegExp::RegExp;
     rx.setPatternSyntax(syntax);

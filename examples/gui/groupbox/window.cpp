@@ -36,7 +36,7 @@ QGroupBox *Window::createFirstExclusiveGroup()
 
 QGroupBox *Window::createSecondExclusiveGroup()
 {
-    QGroupBox *groupBox = new QGroupBox(tr("&Exclusive Radio Buttons"), this);
+    QGroupBox *groupBox = new QGroupBox(tr("E&xclusive Radio Buttons"), this);
     groupBox->setCheckable(true);
     groupBox->setChecked(false);
 
@@ -44,7 +44,7 @@ QGroupBox *Window::createSecondExclusiveGroup()
     QRadioButton *radio2 = new QRadioButton(tr("Radi&o button 2"), groupBox);
     QRadioButton *radio3 = new QRadioButton(tr("Radio &button 3"), groupBox);
     radio1->setChecked(true);
-    QCheckBox *checkBox = new QCheckBox(tr("Independent checkbo&x"), groupBox);
+    QCheckBox *checkBox = new QCheckBox(tr("Ind&ependent checkbox"), groupBox);
     checkBox->setChecked(true);
 
     QVBoxLayout *vbox = new QVBoxLayout(groupBox);
@@ -79,7 +79,7 @@ QGroupBox *Window::createNonExclusiveGroup()
 
 QGroupBox *Window::createPushButtonGroup()
 {
-    QGroupBox *groupBox = new QGroupBox(tr("Push Buttons"), this);
+    QGroupBox *groupBox = new QGroupBox(tr("&Push Buttons"), this);
     groupBox->setCheckable(true);
     groupBox->setChecked(true);
 
@@ -90,12 +90,12 @@ QGroupBox *Window::createPushButtonGroup()
     QPushButton *flatButton = new QPushButton(tr("&Flat Button"), groupBox);
     flatButton->setFlat(true);
 
-    QPushButton *popupButton = new QPushButton(tr("&Popup Button"), groupBox);
+    QPushButton *popupButton = new QPushButton(tr("Pop&up Button"), groupBox);
     QMenu *menu = new QMenu(this);
-    menu->addAction(tr("Item 1"));
-    menu->addAction(tr("Item 2"));
-    menu->addAction(tr("Item 3"));
-    menu->addAction(tr("Item 4"));
+    menu->addAction(tr("&First Item"));
+    menu->addAction(tr("&Second Item"));
+    menu->addAction(tr("&Third Item"));
+    menu->addAction(tr("F&ourth Item"));
     popupButton->setMenu(menu);
 
     QVBoxLayout *vbox = new QVBoxLayout(groupBox);

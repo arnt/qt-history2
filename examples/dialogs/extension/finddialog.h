@@ -4,6 +4,7 @@
 #include <QDialog>
 
 class QCheckBox;
+class QGroupBox;
 class QLabel;
 class QLineEdit;
 class QPushButton;
@@ -24,8 +25,8 @@ private:
     QCheckBox *backwardCheckBox;
     QPushButton *findButton;
     QPushButton *closeButton;
-    QPushButton *optionsButton;
-    QWidget *optionsWidget;
+    QPushButton *moreButton;
+    QWidget *extension;
 };
 
 #endif

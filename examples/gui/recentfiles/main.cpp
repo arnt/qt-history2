@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     MainWindow *mainWin = new MainWindow;
-    connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
+    QObject::connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
     mainWin->show();
     return app.exec();
 }
