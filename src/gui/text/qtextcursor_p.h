@@ -25,7 +25,7 @@ public:
     void setX();
     bool canDelete(int pos) const;
 
-    void insertBlock(const QTextBlockFormat &format);
+    void insertBlock(const QTextBlockFormat &format, const QTextCharFormat &charFormat);
     bool moveTo(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
     inline QTextBlockIterator block() const

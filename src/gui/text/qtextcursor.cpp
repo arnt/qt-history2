@@ -104,7 +104,7 @@ bool QTextCursorPrivate::canDelete(int pos) const
     return !fmt.nonDeletable();
 }
 
-void QTextCursorPrivate::insertBlock(const QTextBlockFormat &format)
+void QTextCursorPrivate::insertBlock(const QTextBlockFormat &format, const QTextCharFormat &charFormat)
 {
     if (block().blockFormat().tableCellEndOfRow())
         moveTo(QTextCursor::NextBlock);
@@ -113,7 +113,7 @@ void QTextCursorPrivate::insertBlock(const QTextBlockFormat &format)
     int idx = formats->indexForFormat(format);
     Q_ASSERT(formats->format(idx).isBlockFormat());
 
-    pieceTable->insertBlock(position, idx, formats->indexForFormat(QTextCharFormat()));
+    pieceTable->insertBlock(position, idx, formats->indexForFormat(charFormat));
 }
 
 QTextTable *QTextCursorPrivate::createTable(int rows, int cols, const QTextTableFormat &tableFormat)
@@ -616,7 +616,7 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
     QStringList blocks = text.split(QChar::ParagraphSeparator);
     for (int i = 0; i < blocks.size(); ++i) {
         if (i > 0)
-            insertBlock(blockFmt);
+            d->insertBlock(blockFmt, format);
         d->pieceTable->insert(d->position, blocks.at(i), formatIdx);
     }
 
@@ -846,7 +846,7 @@ void QTextCursor::insertBlock()
         bfmt.setGroup(0);
         bfmt.setTableCellEndOfRow(false);
     }
-    d->insertBlock(bfmt);
+    d->insertBlock(bfmt, charFormat());
 }
 
 /*!
@@ -861,7 +861,7 @@ void QTextCursor::insertBlock(const QTextBlockFormat &format)
 
     d->pieceTable->beginEditBlock();
     d->remove();
-    d->insertBlock(format);
+    d->insertBlock(format, charFormat());
     d->pieceTable->endEditBlock();
 }
 
