@@ -14,6 +14,8 @@ compiler must recognize the .cpp extension.  Exception handling and RTTI
 (Run-Time Type Information) are not required.  Expect problems with old
 CFront-based compilers.
 
+                                 PATCHES
+
 Note that you may not distribute your port without our explicit
 permission.  Please send us the patches you had to make so we can add them
 to the code base; then we can support the new platform in an orderly
@@ -23,13 +25,13 @@ that involves patches we don't know about floating around the net.)
 Further, we would like to have copies of all Qt-related files on
 ftp.troll.no.
 
-Now the gory details.
+                           PORTING INSTRUCTIONS
 
 Make a new directory under arch and fill it in from arch/template:
 
-	cd ..../arch
-	mkdir whatever
-	( cd template; tar cf - . ) | ( cd whatever ; tar xf - )
+        cd ..../arch
+        mkdir whatever
+        ( cd template; tar cf - . ) | ( cd whatever ; tar xf - )
 
 You'll need to edit at least arch/whatever/Makefile, possibly other
 Makefiles, src/tools/qglobal.h and src/kernel/qapp_x11.cpp.
@@ -53,8 +55,8 @@ Some compilers emit bad warnings when they compile Qt.  If yours does, and
 the code in Qt is sane, please use a #pragma or two to shut your compiler
 up.  (This is a good reason for wanting the _CC_whatever_ define above.)
 
-In src/kernel/qapp_x11.cpp, you may need to add another ifdef at line
-130-140, to set the SIG_HANDLER type appropriately.
+In src/kernel/qapp_x11.cpp, you may need to add another #ifdef around line
+140, to set the SIG_HANDLER type appropriately.
 
 For most Unix varieties, that's all.  Some may need some include file
 tweaks.  Good luck, and feel free to send mail to qt-bugs@troll.no.
