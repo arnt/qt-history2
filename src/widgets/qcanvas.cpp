@@ -801,7 +801,7 @@ void QCanvas::update()
 
     for (QCanvasView* view=d->viewList.first(); view != 0; view=d->viewList.next()) {
 	QRect area(view->contentsX(),view->contentsY(),
-		view->contentsWidth(),view->contentsHeight());
+		view->visibleWidth(),view->visibleHeight());
 	if (area.width()>0 && area.height()>0) {
 	    clusterizer.add(area);
 	}
@@ -889,7 +889,6 @@ If one_view then only one view is updated, otherwise all are.
 */
 void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 {
-    qDebug("w=%i h=%i", width(), height() );
     QRect area=inarea.intersect(QRect(0,0,width(),height()));
 
     if ( !dblbuf )
@@ -936,7 +935,6 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 	    offscr.resize(QMAX(osw,offscr.width()),QMAX(osh,offscr.height()));
 	else if ( offscr.width() == 0 || offscr.height() == 0 )
 	    offscr.resize( QMAX( offscr.width(), 1), QMAX( offscr.height(), 1 ) );
-	qDebug("%i %i <-> %i %i", osw, osh, offscr.width(), offscr.height() );
 	painter.begin(&offscr);
 	painter.translate(-area.x(),-area.y());
 	drawBackground(painter,area);
