@@ -175,18 +175,19 @@ bool QHostAddress::setAddress( const QString& address )
     QStringList ipv4 = QStringList::split( ".", a, FALSE );
     if ( ipv4.count() == 4 ) {
 	Q_UINT32 maybe = 0;
-	for ( int i=0; i<4; i++ ) {
-	    bool ok = FALSE;
+	int i = 0;
+	bool ok = TRUE;
+	while( ok && i < 4 ) {
 	    uint byteValue = ipv4[i].toUInt( &ok );
-	    if ( ok && byteValue < 256 ) {
+	    if ( byteValue > 255 )
+		ok = FALSE;
+	    if ( ok )
 		maybe = maybe * 256 + byteValue;
-		if ( i == 3 ) {
-		    setAddress( maybe );
-		    return TRUE;
-		}
-	    } else {
-		break;
-	    }
+	    i++;
+	}
+	if ( ok ) {
+	    setAddress( maybe );
+	    return TRUE;
 	}
     }
 
@@ -290,7 +291,7 @@ QString QHostAddress::toString() const
     } else {
 	Q_UINT16 ugle[8];
 	for ( int i=0; i<8; i++ ) {
-	    ugle[i] = ( (Q_UINT16)( d->a6[2*i] ) << 8 ) | 
+	    ugle[i] = ( (Q_UINT16)( d->a6[2*i] ) << 8 ) |
 		( (Q_UINT16)( d->a6[2*i+1] ) );
 	}
 	QString s;
