@@ -1048,7 +1048,6 @@ QModelIndexList QListView::selectedIndexes() const
 void QListView::doItemsLayout()
 {
     d->layoutStart = 0;
-    d->layoutWraps = 0;
     d->translate = 0;
 
     d->layoutBounds = viewport()->rect();
@@ -1091,11 +1090,10 @@ bool QListView::doItemsLayout(int delta)
 
     d->layoutStart = last + 1;
 
-    if (d->layoutStart >= max) {
-        // stop items layout
-//         d->flowPositions.resize(d->flowPositions.count());
-//         d->wrapPositions.resize(d->wrapPositions.count());
-//         d->wrapStartRows.resize(d->wrapStartRows.count());
+    if (d->layoutStart >= max) { // stop items layout
+        d->flowPositions.resize(d->flowPositions.count());
+        d->wrapPositions.resize(d->wrapPositions.count());
+        d->wrapStartRows.resize(d->wrapStartRows.count());
         return true; // done
     }
     return false; // not done
@@ -1125,7 +1123,6 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
     const int spacing = useItemSize ? d->spacing : 0; // if we are using a grid ,we don't use spacing
     const QPoint topLeft = d->initStaticLayout(bounds, spacing, first);
     const QStyleOptionViewItem option = viewOptions();
-    int layoutWraps = d->layoutWraps;
 
     // The static layout data structures are as follows:
     // One vector of positions along an axis for each item
@@ -1183,15 +1180,8 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
             if (d->wrap && (flowPosition >= wrapEndPosition)) {
                 flowPosition = spacing + wrapStartPosition;
                 wrapPosition += spacing + deltaWrapPosition;
-                ++layoutWraps;
-                if (wrapPositions->size() < (layoutWraps + 2)) {
-                    int delta = last - first + 1;
-                    int size = wrapPositions->size() + delta;
-                    wrapPositions->resize(size);
-                    wrapStartRows->resize(size);
-                }
-                (*wrapPositions)[layoutWraps] = wrapPosition;
-                (*wrapStartRows)[layoutWraps] = row;
+                wrapPositions->append(wrapPosition);
+                wrapStartRows->append(row);
                 deltaWrapPosition = 0;
             }
             // save the flow positon of this item
@@ -1202,20 +1192,16 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         }
     }
     // used when laying out next batch
-    flowPositions->append(flowPosition);
+    d->position = flowPosition;
     d->translate = deltaWrapPosition;
-    if (d->layoutWraps < layoutWraps) {
-        d->layoutWraps = layoutWraps;
-        wrapStartRows->append(last + 1);
-    }
     // set the contents size
     QRect rect = bounds;
     if (d->flow == LeftToRight) {
-        rect.setRight(layoutWraps == 0 ? flowPosition : bounds.right());
+        rect.setRight(wrapPositions->count() == 1 ? flowPosition : bounds.right());
         rect.setBottom(wrapPosition + deltaWrapPosition);
     } else {
         rect.setRight(wrapPosition + deltaWrapPosition);
-        rect.setBottom(layoutWraps == 0 ? flowPosition : bounds.bottom());
+        rect.setBottom(wrapPositions->count() == 1 ? flowPosition : bounds.bottom());
     }
     resizeContents(rect.right(), rect.bottom());
     // if the new items are visble, update the viewport
@@ -1376,7 +1362,7 @@ QListViewPrivate::QListViewPrivate()
       modeProperties(0),
       layoutStart(0),
       translate(0),
-      layoutWraps(0),
+      position(0),
       startLayoutTimer(0),
       batchLayoutTimer(0),
       column(0)
@@ -1436,10 +1422,11 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
 
     if (wrapPositions.isEmpty() || flowPositions.isEmpty())
         return;
-    int wrap = qBinarySearch<int>(wrapPositions, wrapStartPosition, 0, layoutWraps);
-    for (; wrap <= layoutWraps && wrapPositions.at(wrap) < wrapEndPosition; ++wrap) {
+    const int lastWrap = wrapPositions.count() - 1;
+    int wrap = qBinarySearch<int>(wrapPositions, wrapStartPosition, 0, lastWrap);
+    for (; wrap <= lastWrap && wrapPositions.at(wrap) < wrapEndPosition; ++wrap) {
         int first = wrapStartRows.at(wrap);
-        int last = (wrap < layoutWraps ? wrapStartRows.at(wrap + 1) : layoutStart) - 1;
+        int last = (wrap < lastWrap ? wrapStartRows.at(wrap + 1) : layoutStart) - 1;
         int row = qBinarySearch<int>(flowPositions, flowStartPosition, first, last);
         for (; row <= last && flowPositions.at(row) < flowEndPosition; ++row) {
             if (hiddenRows.contains(row))
@@ -1516,7 +1503,8 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
     if (index.row() >= flowPositions.count())
         return QListViewItem();
 
-    int w = qBinarySearch<int>(wrapStartRows, index.row(), 0, layoutWraps);
+    int l = wrapStartRows.count() - 1;
+    int w = qBinarySearch<int>(wrapStartRows, index.row(), 0, l);
     QPoint pos;
     if (flow == QListView::LeftToRight) {
         pos.setX(flowPositions.at(index.row()));
@@ -1532,7 +1520,7 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
     return QListViewItem(QRect(pos, size), index.row());
 }
 
-int QListViewPrivate::itemIndex(const QListViewItem item) const
+int QListViewPrivate::itemIndex(const QListViewItem &item) const
 {
     int i = item.indexHint;
     if (movement == QListView::Static || i >= tree.itemCount() || tree.const_item(i) == item)
@@ -1590,26 +1578,21 @@ QPoint QListViewPrivate::initStaticLayout(const QRect &bounds, int spacing, int 
         y = bounds.top() + spacing;
         wrapPositions.append(flow == QListView::LeftToRight ? y : x);
         wrapStartRows.append(0);
-        layoutWraps = 0;
     } else if (wrap) {
         if (flow == QListView::LeftToRight) {
-            x = flowPositions.last();
-            flowPositions.pop_back();
-            y = wrapPositions.at(layoutWraps);
+            x = position;
+            y = wrapPositions.last();
         } else { // flow == QListView::TopToBottom
-            y = flowPositions.last();
-            flowPositions.pop_back();
-            x = wrapPositions.at(layoutWraps);
+            x = wrapPositions.last();
+            y = position;
         }
     } else { // not first and not wrap
         if (flow == QListView::LeftToRight) {
-            x = flowPositions.last();
-            flowPositions.pop_back();
+            x = position;
             y = bounds.top() + spacing;
         } else { // flow == QListView::TopToBottom
-            y = flowPositions.last();
-            flowPositions.pop_back();
             x = bounds.left() + spacing;
+            y = position;
         }
     }
     return QPoint(x, y);

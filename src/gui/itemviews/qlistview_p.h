@@ -273,10 +273,10 @@ public:
     QRect itemsRect(const QVector<QModelIndex> &indexes) const;
 
     QListViewItem indexToListViewItem(const QModelIndex &index) const;
-    inline QModelIndex listViewItemToIndex(const QListViewItem item) const
+    inline QModelIndex listViewItemToIndex(const QListViewItem &item) const
         { return q_func()->model()->index(itemIndex(item), column, q_func()->root()); }
     
-    int itemIndex(const QListViewItem item) const;
+    int itemIndex(const QListViewItem &item) const;
     static void addLeaf(QVector<int> &leaf, const QRect &area,
                         uint visited, QBinTree<QListViewItem>::Data data);
 
@@ -321,6 +321,7 @@ public:
 
     int layoutStart;
     int translate;
+    int position;
     QRect layoutBounds;
     QSize contentsSize;
 
@@ -334,7 +335,6 @@ public:
     QVector<int> flowPositions;
     QVector<int> wrapPositions;
     QVector<int> wrapStartRows;
-    int layoutWraps;
 
     // timers
     int startLayoutTimer;
