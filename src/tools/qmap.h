@@ -86,11 +86,36 @@ public:
     inline QMap(const QMap<Key, T> &other) : d(other.d) { ++d->ref; }
     inline ~QMap() { if (!--d->ref) freeData(d); }
 
-    QMap &operator=(const QMap &other);
+    QMap<Key, T> &operator=(const QMap<Key, T> &other);
 #ifndef QT_NO_STL
     QMap(const typename std::map<Key, T> &other);
     QMap<Key, T> &operator=(const typename std::map<Key,T> &other);
 #endif
+
+    bool operator==(const QMap<Key, T> &other) const;
+    inline bool operator!=(const QMap<Key, T> &other) const { return !(*this == other); }
+
+    inline int size() const { return d->size; }
+    inline bool isEmpty() const { return d->size == 0; }
+    inline bool operator!() const { return d->size == 0; }
+
+    inline void detach() { if (d->ref != 1) detach_helper(); }
+    inline bool isDetached() const { return d->ref == 1; }
+
+    void clear();
+
+    int remove(const Key &key);
+
+    bool contains(const Key &key) const;
+    const T value(const Key &key) const;
+    const T value(const Key &key, const T &defaultValue) const;
+    T &operator[](const Key &key);
+    const T operator[](const Key &key) const;
+
+    QList<Key> keys() const;
+    QList<T> values() const;
+    QList<T> values(const Key &key) const;
+    int count(const Key &key) const;
 
     class Iterator
     {
@@ -186,45 +211,7 @@ public:
     };
     friend class ConstIterator;
 
-    inline void detach() { if (d->ref != 1) detach_helper(); }
-    inline bool isDetached() const { return d->ref == 1; }
-
-    inline int size() const { return d->size; }
-    inline int count() const { return d->size; }
-    inline bool isEmpty() const { return !d->size; }
-    int count(const Key &key) const;
-
-    void clear();
-
-//    QPair<Iterator, bool> insert(const value_type &x);
-    Iterator insert(const Key &key, const T &value);
-#ifdef QT_COMPAT
-    QT_COMPAT Iterator insert(const Key &key, const T &value, bool overwrite);
-#endif
-    Iterator insertMulti(const Key &key, const T &value);
-
-    Iterator erase(Iterator it);
-    inline int remove(const Key &key);
-#ifdef QT_COMPAT
-    inline QT_COMPAT Iterator remove(Iterator it) { return erase(it); }
-#endif
-
-#ifdef QT_COMPAT
-    inline QT_COMPAT Iterator replace(const Key &key, const T &value) { return insert(key, value); }
-#endif
-
-    bool contains(const Key &key) const;
-    Iterator find(const Key &key);
-    ConstIterator find(const Key &key) const;
-    const T value(const Key &key) const;
-    const T value(const Key &key, const T &defaultValue) const;
-    T &operator[](const Key &key);
-    const T operator[](const Key &key) const;
-
-    QList<Key> keys() const;
-    QList<T> values() const;
-    QList<T> values(const Key &key) const;
-
+    // STL style
     inline Iterator begin() { detach(); return Iterator(e->forward[0]); }
     inline ConstIterator begin() const { return ConstIterator(e->forward[0]); }
     inline ConstIterator constBegin() const { return ConstIterator(e->forward[0]); }
@@ -236,14 +223,35 @@ public:
     }
     inline ConstIterator end() const { return ConstIterator(e); }
     inline ConstIterator constEnd() const { return ConstIterator(e); }
+    Iterator erase(Iterator it);
+#ifdef QT_COMPAT
+    inline QT_COMPAT Iterator remove(Iterator it) { return erase(it); }
+#endif
+    // ### QPair<Iterator, bool> insert(const value_type &x);
 
-    inline bool ensure_constructed()
-    { if (!d) { d = &QMapData::shared_null; ++d->ref; return false; } return true; }
+    // more Qt
+    inline int count() const { return d->size; }
+    Iterator find(const Key &key);
+    ConstIterator find(const Key &key) const;
+    Iterator insert(const Key &key, const T &value);
+#ifdef QT_COMPAT
+    QT_COMPAT Iterator insert(const Key &key, const T &value, bool overwrite);
+#endif
+    Iterator insertMulti(const Key &key, const T &value);
+#ifdef QT_COMPAT
+    inline QT_COMPAT Iterator replace(const Key &key, const T &value) { return insert(key, value); }
+#endif
+    QMap<Key, T> &operator+=(const QMap<Key, T> &other);
+    inline QMap<Key, T> operator+(const QMap<Key, T> &other) const
+    { QMap<Key, T> result = *this; result += other; return result; }
 
-    // stl compatibility
+    // STL compatibility
     typedef Iterator iterator;
     typedef ConstIterator const_iterator;
     inline bool empty() const { return isEmpty(); }
+
+    inline bool ensure_constructed()
+    { if (!d) { d = &QMapData::shared_null; ++d->ref; return false; } return true; }
 
 private:
     void detach_helper();
@@ -341,14 +349,11 @@ Q_INLINE_TEMPLATE T &QMap<Key, T>::operator[](const Key &key)
 {
     detach();
 
-    QMapData::Node *node = findNode(key);
-    if (node == e) {
-	QMapData::Node *update[QMapData::LastLevel + 1];
-	mutableFindNode(update, key);
-	return concrete(node_create(d, update, key, T()))->value;
-    } else {
-	return concrete(node)->value;
-    }
+    QMapData::Node *update[QMapData::LastLevel + 1];
+    QMapData::Node *node = mutableFindNode(update, key);
+    if (node == e)
+	node = node_create(d, update, key, T());
+    return concrete(node)->value;
 }
 
 template <class Key, class T>
@@ -429,6 +434,17 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::find(const Key &
 {
     detach();
     return Iterator(findNode(key));
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::operator+=(const QMap<Key, T> &other)
+{
+    QMap<Key, T>::ConstIterator it = other.begin();
+    while (it != other.end()) {
+	insert(it.key(), it.value());
+	++it;
+    }
+    return *this;
 }
 
 template <class Key, class T>
@@ -588,6 +604,26 @@ Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values(const Key &key) const
         } while (node != e && !(key < concrete(node)->key));
     }
     return list;
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE bool QMap<Key, T>::operator==(const QMap<Key, T> &other) const
+{
+    if (size() != other.size())
+	return false;
+    if (d == other.d)
+	return true;
+
+    Iterator it1 = begin();
+    Iterator it2 = other.begin();
+
+    while (it1 != end()) {
+	if (it1.key() != it2.key() || it1.value() != it2.value())
+	    return false;
+	++it2;
+	++it1;
+    }
+    return true;
 }
 
 #ifndef QT_NO_STL
