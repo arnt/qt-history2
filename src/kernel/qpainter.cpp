@@ -52,6 +52,8 @@
 #endif
 #include <string.h>
 
+#include "qtextlayout_p.h"
+
 #ifndef QT_NO_TRANSFORMATIONS
 typedef QPtrStack<QWMatrix> QWMatrixStack;
 #endif
@@ -380,7 +382,7 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
     \value WordBreak Breaks lines at appropriate points, e.g. at word
 	boundaries.
     \value BreakAnywhere Breaks lines anywhere, even within words.
-    \value NoAccel Synonym for ShowPrefix.
+    \value NoAccel Same as ShowPrefix but doesn't draw the underlines.
     \value DontPrint (internal)
 
     You can use as many modifier flags as you want, except that \c
@@ -2753,330 +2755,219 @@ void QPainter::drawText( const QRect &r, int tf,
 void qt_format_text( const QFont& font, const QRect &_r,
 		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
-		     QTextParag **internalrag, QPainter* painter )
+		     QTextParag **, QPainter* painter )
 {
     // we need to copy r here to protect against the case (&r == brect).
     QRect r( _r );
-#ifndef QT_NO_RICHTEXT
-    QTextParagraph** internal = (QTextParagraph**) internalrag;
-    bool   decode     = internal && *internal;	// decode from internal data
-    bool   encode     = internal && !*internal; // build internal data
-#else
-    const bool decode = FALSE;
-#endif
 
     bool dontclip  = (tf & Qt::DontClip)  == Qt::DontClip;
     bool wordbreak  = (tf & Qt::WordBreak)  == Qt::WordBreak;
-    bool expandtabs = (tf & Qt::ExpandTabs) == Qt::ExpandTabs;
     bool singleline = (tf & Qt::SingleLine) == Qt::SingleLine;
     bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
-    bool breakany = (tf & Qt::BreakAnywhere ) == Qt::BreakAnywhere;
     bool noaccel = ( tf & Qt::NoAccel ) == Qt::NoAccel;
 
-    bool restoreClipping = FALSE;
-    bool painterHasClip = FALSE;
-    QRegion painterClipRegion;
-    if ( painter && !( tf & QPainter::DontPrint ) && dontclip  && painter->hasClipping() ){
-	painterHasClip = painter->hasClipping();
-	painterClipRegion = painter->clipRegion();
-	restoreClipping = TRUE;
-	painter->setClipping( FALSE );
-    }
-
-    // make sure the string really isn't single line
-    if (!singleline)
-	singleline = str.find( '\n' ) == -1;
-
     bool isRightToLeft = str.isRightToLeft();
-    bool simple = !decode && singleline && !wordbreak && !expandtabs && ( !showprefix || !isRightToLeft );
+    if ( ( tf & Qt::AlignHorizontal_Mask ) == Qt::AlignAuto && isRightToLeft )
+	tf |= Qt::AlignRight;
 
-#ifdef QT_NO_RICHTEXT
-    simple = TRUE; //####### This is ugly and hopefully temporary
-#endif
+    bool expandtabs = ( (tf & Qt::ExpandTabs) && (tabstops || tabarraylen) &&
+			( ( (tf & Qt::AlignLeft) && !isRightToLeft ) ||
+			  ( (tf & Qt::AlignRight) && isRightToLeft ) ) );
 
-    if ( simple ) {
-#ifdef QT_FORMAT_TEXT_DEBUG
-	qDebug("using simple format for string %s", str.utf8().data() );
-#endif
-	// we can use a simple drawText instead of the QTextParagraph.
-	QFontMetrics fm = painter ? painter->fontMetrics() : QFontMetrics( font );
-	QString parStr = str;
-	// str.setLength() always does a deep copy, so the replacement code below is safe.
-	parStr.setLength( len );
-	// compatible behaviour to the old implementation. Replace tabs by spaces
-	QChar *chr = (QChar*)parStr.unicode();
-	int l = len;
-	while ( l-- ) {
-	    if ( *chr == '\t' || *chr == '\r' || *chr == '\n' )
+    int maxUnderlines = 0;
+    int numUnderlines = 0;
+    int underlinePositionStack[32];
+    int *underlinePositions = underlinePositionStack;
+
+    // new implementation using QTextLayout
+    QString text = str;
+    // str.setLength() always does a deep copy, so the replacement
+    // code below is safe.
+    text.setLength( len );
+    // compatible behaviour to the old implementation. Replace
+    // tabs by spaces
+    QChar *chr = (QChar*)text.unicode();
+    const QChar *end = chr + len;
+    while ( chr != end ) {
+	if ( *chr == '\r' || ( singleline && *chr == '\n' ) )
+	    *chr = ' ';
+	else if ( *chr == '\n' )
+	    *chr = QChar_linesep;
+	else if ( *chr == '&' )
+	    ++maxUnderlines;
+	chr++;
+    }
+    if ( !expandtabs ) {
+	chr = (QChar*)text.unicode();
+	while ( chr != end ) {
+	    if ( *chr == '\t' )
 		*chr = ' ';
 	    chr++;
 	}
-	QString parStr2 = parStr;
-	if ( noaccel || showprefix ) {
-	    parStr.setLength( len ); // does a detach
-	    QChar *cout = (QChar*)parStr.unicode();
-	    QChar *cin = cout;
-	    int l = len;
-	    int skip = 0;
-	    while ( l ) {
-		if ( *cin == '&' ) {
-		    if ( l > 1 && *(cin+1) != '&' ) {
-			cin++;
-			skip++;
-			l--;
-		    } else if ( l == 1 ) {
-			skip++;
-		    }
+    }
+
+    if ( noaccel || showprefix ) {
+	if ( maxUnderlines > 32 )
+	    underlinePositions = new int[maxUnderlines];
+	QChar *cout = (QChar*)text.unicode();
+	QChar *cin = cout;
+	int l = len;
+	while ( l ) {
+	    if ( *cin == '&' ) {
+		if ( l > 1 && *(cin+1) != '&' ) {
+		    cin++;
+		    if ( numUnderlines < 31 )
+			underlinePositions[numUnderlines++] =
+			    cout - text.unicode();
+		    l--;
 		}
-		*cout = *cin;
-		cout++;
-		cin++;
-		l--;
 	    }
-	    if ( skip )
-		parStr.setLength( len-skip );
-
+	    *cout = *cin;
+	    cout++;
+	    cin++;
+	    l--;
 	}
-	int w = fm.width( parStr );
-	int h = fm.height();
+	if ( numUnderlines )
+	    text.setLength( cout - text.unicode() );
+    }
 
-	if ( brect ) {
-	    QRect br( r.x(), r.y(), w, h );
-	    *brect = br;
+    int height = 0;
+    int left = r.width();
+    int right = 0;
+
+    QTextLayout textLayout( text, painter ? painter->font() : font );
+    QFontMetrics fm( painter ? painter->font() : font );
+    if ( text.isEmpty() ) {
+	height = fm.height();
+	left = right = 0;
+	tf |= QPainter::DontPrint;
+    } else {
+	textLayout.beginLayout();
+
+	int lineWidth = wordbreak ? r.width() : INT_MAX;
+
+	int add = 0;
+	int leading = fm.leading();
+	height = -leading;
+
+	//qDebug("\n\nbeginLayout: lw = %d", lineWidth );
+	while ( !textLayout.atEnd() ) {
+	    height += leading;
+	    textLayout.beginLine( lineWidth + add );
+	    //qDebug("beginLine( %d )",  lineWidth+add );
+	    bool linesep = FALSE;
+	    while ( 1 ) {
+		QTextItem ti = textLayout.currentItem();
+// 		qDebug("item: from=%d, ch=%x", ti.from(), text.unicode()[ti.from()].unicode() );
+		if ( expandtabs && ti.isTab() ) {
+		    int tw = 0;
+		    int x = textLayout.widthUsed();
+		    if ( tabarraylen ) {
+// 			qDebug("tabarraylen=%d", tabarraylen );
+			int tab = 0;
+			while ( tab < tabarraylen ) {
+			    if ( tabarray[tab] > x ) {
+				tw = tabarray[tab] - x;
+				break;
+			    }
+			    ++tab;
+			}
+		    } else {
+			tw = tabstops - (x % tabstops);
+		    }
+// 		    qDebug("tw = %d",  tw );
+		    if ( tw )
+			ti.setWidth( tw );
+		}
+		if ( ti.isObject() && text.unicode()[ti.from()] == QChar_linesep )
+		    linesep = TRUE;
+
+		if ( linesep || textLayout.addCurrentItem() != QTextLayout::Ok || textLayout.atEnd() )
+		    break;
+	    }
+
+	    int ascent, descent, lineLeft, lineRight;
+	    textLayout.setLineWidth( r.width() );
+	    int state = textLayout.endLine( 0, height, tf, &ascent, &descent,
+					    &lineLeft, &lineRight );
+	    left = QMIN( left, lineLeft );
+	    right = QMAX( right, lineRight );
+
+	    if ( state != QTextLayout::LineEmpty ) {
+		//qDebug("finalizing line: ascent = %d, descent=%d", ascent, descent );
+		height += ascent + descent;
+		add = 0;
+		if ( linesep )
+		    textLayout.nextItem();
+	    } else {
+		add += 10;
+	    }
 	}
+    }
 
-	int xoff = r.x();
-	int yoff = r.y() + fm.ascent();
+    int yoff = 0;
+    if ( tf & Qt::AlignBottom )
+	yoff = r.height() - height;
+    else if ( tf & Qt::AlignVCenter )
+	yoff = (r.height() - height)/2;
 
-	if ( tf & Qt::AlignBottom )
-	    yoff += r.height() - h;
-	else if ( tf & Qt::AlignVCenter )
-	    yoff += ( r.height() - h ) / 2;
-	if ( ( tf & Qt::AlignHorizontal_Mask ) == Qt::AlignAuto && isRightToLeft )
-	    tf |= Qt::AlignRight;
-	if ( tf & Qt::AlignRight )
-	    xoff += r.width() - w;
-	else if ( tf & Qt::AlignHCenter )
-	    xoff += ( r.width() - w ) / 2;
+    if ( brect )
+	*brect = QRect( r.x() + left, r.y() + yoff, right-left, height );
 
-	if ( brect )
-	    brect->moveBy( -r.x() + xoff, -r.y() + yoff - fm.ascent() );
-
-	if ( painter && !( tf & QPainter::DontPrint ) ) {
-	    if ( !dontclip ) {
+    if ( painter && !( tf & QPainter::DontPrint ) ) {
+	bool restoreClipping = FALSE;
+	bool painterHasClip = FALSE;
+	QRegion painterClipRegion;
+	if ( !dontclip ) {
 #ifndef QT_NO_TRANSFORMATIONS
-		QRegion reg = painter->xmat * r;
+	    QRegion reg = painter->xmat * r;
 #else
-		QRegion reg = r;
-		reg.translate( painter->xlatex, painter->xlatey );
+	    QRegion reg = r;
+	    reg.translate( painter->xlatex, painter->xlatey );
 #endif
-		if ( painter->hasClipping() )
-		    reg &= painter->clipRegion();
+	    if ( painter->hasClipping() )
+		reg &= painter->clipRegion();
 
+	    painterHasClip = painter->hasClipping();
+	    painterClipRegion = painter->clipRegion();
+	    restoreClipping = TRUE;
+	    painter->setClipRegion( reg );
+	} else {
+	    if ( painter->hasClipping() ){
 		painterHasClip = painter->hasClipping();
 		painterClipRegion = painter->clipRegion();
 		restoreClipping = TRUE;
-		painter->setClipRegion( reg );
-	    }
-
-	    if ( !noaccel )
-		parStr = parStr2;
-	    if ( !showprefix || noaccel ) {
-		painter->drawText( xoff, yoff, parStr, parStr.length() );
-	    } else {
-		QFont uf( font );
-		uf.setUnderline( TRUE );
-		QFont nf( font );
-		int lastPos = 0;
-		int i = parStr.find( '&' );
-		while ( i != -1 && i < (int)parStr.length() - 1 ) {
-		    if ( i == (int)parStr.length() - 1 || parStr[ i + 1 ] != '&' ) {
-			QString part( parStr.mid( lastPos, i - lastPos ) );
-			painter->drawText( xoff, yoff, part );
-			++i;
-			if ( !noaccel )
-			    painter->setFont( uf );
-			xoff += fm.width( part );
-			painter->drawText( xoff, yoff, QString( parStr[ i ] ) );
-			xoff += fm.charWidth( parStr, i );
-			lastPos = i + 1;
-			painter->setFont( nf );
-		    } else if ( parStr[ i + 1 ] == '&' ) {
-			parStr.remove( i, 1 );
-			i++;
-			while ( i < (int)parStr.length() && parStr[ i ] == '&' )
-			    ++i;
-		    }
-		    i = parStr.find( '&', i );
-		}
-		if ( lastPos < (int)parStr.length() )
-		    painter->drawText( xoff, yoff, parStr.mid( lastPos, parStr.length() - lastPos ) );
+		painter->setClipping( FALSE );
 	    }
 	}
 
-    }
-#ifndef QT_NO_RICHTEXT
-    else {
-
-#if defined(QT_FORMAT_TEXT_DEBUG)
-	qDebug("using richtext format for string %s", str.utf8().data() );
-	qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
-#endif
-	QTextParagraph *parag;
-
-	QRect rect = r;
-
-	if ( decode ) {
-	    parag = *internal;
-	} else {
-	    QString parStr = str;
-	    // str.setLength() always does a deep copy, so the replacement code below is safe.
-	    parStr.setLength( len );
-	    // need to build paragraph
-	    parag = new QTextParagraph( 0, 0, 0, FALSE );
-	    QTextFormatter *formatter;
-	    formatter = new QTextFormatterBreakWords;
-	    if ( !wordbreak )
-		formatter->setWrapEnabled( FALSE );
-	    else if ( breakany )
-		formatter->setAllowBreakInWords( TRUE );
-	    parag->pseudoDocument()->pFormatter = formatter;
-	    QTextFormat *f = parag->formatCollection()->format( font, painter ? painter->pen().color() : QColor() );
-	    f->setPainter( painter );
-	    QChar *chr = (QChar*)parStr.unicode();
-	    int l = parStr.length();
-	    while ( l-- ) {
-		if ( *chr == '\r' || ( singleline && *chr == '\n' ) )
-		    *chr = ' ';
-		else if ( *chr == '\n' )
-		    *chr = QChar_linesep;
-		chr++;
+	int * ulChars = underlinePositions;
+	for ( int i = 0; i < textLayout.numItems(); i++ ) {
+	    QTextItem ti = textLayout.itemAt( i );
+// 	    qDebug("Item %d: from=%d,  to=%d,  space=%d", i, ti.from(),  ti.length(), ti.isSpace() );
+	    if ( ti.isObject() || ti.isSpace() )
+		continue;
+	    int nUlChars = 0;
+	    if ( !noaccel && numUnderlines ) {
+		int from = ti.from();
+		int len = ti.length();
+		for ( nUlChars = 0; nUlChars < numUnderlines && ulChars[nUlChars] <= from + len; nUlChars++ );
 	    }
-	    if ( showprefix || noaccel ) {
-		int idx = -1;
-		int start = 0;
-		int len = str.length();
-#ifndef QT_NO_ACCEL
-		QFont fnt( font );
-		fnt.setUnderline( TRUE );
-		QTextFormat *ul = parag->formatCollection()->format( fnt, painter ? painter->pen().color() : QColor() );
-		int num = 0;
-		while ( (idx = parStr.find( '&', start ) ) != -1 ) {
-		    parag->append( parStr.mid( start, idx - start ) );
-		    parag->setFormat( start - num, idx - start, f );
-		    if ( idx == len -1 || str[idx+1] == '&' ) {
-			parag->append( QString( "&" ) );
-			parag->setFormat( start - num, 1, f );
-		    } else {
-			parag->append( parStr.mid(idx + 1, 1) );
-			if ( !noaccel )
-			    parag->setFormat( idx - num, 1, ul );
-			else
-			    parag->setFormat( idx - num, 1, f );
-			num++;
-		    }
-		    start = idx + 2;
-		}
-		parag->append( parStr.mid( start ) );
-		parag->setFormat( start - num, parStr.length() - start, f );
-		ul->removeRef();
-#else
-		while ( (idx = parStr.find( '&', start ) ) != -1 ) {
-		    parag->append( parStr.mid( start, idx - start ) );
-		    if ( idx == len -1 || str[idx+1] == '&' ) {
-			parag->append( QString( "&" ) );
-		    } else {
-			parag->append( parStr.mid(idx + 1, 1) );
-		    }
-		    start = idx + 2;
-		}
-		parag->append( parStr.mid( start ) );
-#endif
-	    } else {
-		parag->append( parStr );
-		parag->setFormat( 0, parStr.length(), f );
+	    painter->drawTextItem( r.x(), r.y() + yoff, ti, ulChars, nUlChars );
+	    if ( nUlChars ) {
+		ulChars += nUlChars;
+		numUnderlines -= nUlChars;
 	    }
-	    if ( expandtabs ) {
-		if ( tabarray ) {
-		    int *ta = new int[tabarraylen];
-		    memcpy( ta, tabarray, sizeof(int)*tabarraylen );
-		    parag->setTabArray( ta );
-		}
-		if ( tabstops > 0 )
-		    parag->setTabStops( tabstops );
-	    }
-#if defined(QT_FORMAT_TEXT_DEBUG)
-	    qDebug("rect: %d/%d size %d/%d", rect.x(), rect.y(), rect.width(), rect.height() );
-#endif
-	    parag->pseudoDocument()->docRect = rect;
-	    parag->setAlignment( tf & Qt::AlignHorizontal_Mask );
-	    parag->invalidate( 0 );
-	    parag->format();
-	    f->setPainter( 0 );
-	    f->removeRef();
 	}
-	int xoff = 0;
-	int yoff = 0;
-	QRect paragRect = parag->rect();
-	paragRect.addCoords( 0, 0, 0, -parag->at( 0 )->format()->leading() );
-	if ( painter || brect ) {
-	    if ( tf & Qt::AlignBottom )
-		yoff += r.height() - paragRect.height();
-	    else if ( tf & Qt::AlignVCenter )
-		yoff += (r.height() - paragRect.height())/2;
-	}
-	if ( brect ) {
-	    *brect = paragRect;
-	    if ( QApplication::horizontalAlignment( tf ) != Qt::AlignLeft || isRightToLeft )
-		brect->setLeft( brect->right() + 1 - parag->pseudoDocument()->wused );
-	    brect->setWidth( QMAX( brect->width(), parag->pseudoDocument()->wused ) );
-	    brect->moveBy( xoff, yoff );
-#if defined(QT_FORMAT_TEXT_DEBUG)
-	    qDebug("par: %d/%d", brect->width(), brect->height() );
-#endif
-	}
-	if ( painter && !(tf & QPainter::DontPrint) ) {
-	    xoff += r.x();
-	    yoff += r.y();
 
-	    QColorGroup cg;
-#if defined(QT_FORMAT_TEXT_DEBUG)
-	    QRect parRect = paragRect;
-	    qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
-#endif
-
-	    if ( !dontclip ) {
-#ifndef QT_NO_TRANSFORMATIONS
-		QRegion reg = painter->xmat * rect;
-#else
-		QRegion reg = rect;
-		reg.translate( painter->xlatex, painter->xlatey );
-#endif
-		if ( painter->hasClipping() )
-		    reg &= painter->clipRegion();
-
-		painterHasClip = painter->hasClipping();
-		painterClipRegion = painter->clipRegion();
-		restoreClipping = TRUE;
-		painter->setClipRegion( reg );
-	    }
-	    yoff -= (parag->at( 0 )->format()->leading() + 1) / 2;
-	    painter->translate( xoff, yoff );
-	    parag->paint( *painter, cg );
-	    painter->translate( -xoff, -yoff );
-	}
-	if ( encode ) {
-	    *internal = parag;
-	} else {
-	    delete parag;
+	if ( restoreClipping ) {
+	    painter->setClipRegion( painterClipRegion );
+	    painter->setClipping( painterHasClip );
 	}
     }
 
-    if ( painter && restoreClipping ) {
-	painter->setClipRegion( painterClipRegion );
-	painter->setClipping( painterHasClip );
-    }
-#endif //QT_NO_RICHTEXT
+    if ( underlinePositions != underlinePositionStack )
+	delete [] underlinePositions;
 }
 
 /*!

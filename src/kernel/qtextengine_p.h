@@ -134,15 +134,16 @@ struct QScriptAnalysis {
     unsigned short gcpClusters       :1;
     unsigned short reserved          :1;
     unsigned short engineReserved    :2;
-    bool operator == ( const QScriptAnalysis &other ) {
-	return
-	    script == other.script &&
-	    bidiLevel == other.bidiLevel;
-	// ###
-// 	    && override == other.override;
-    }
 };
 
+inline bool operator == ( const QScriptAnalysis &sa1, const QScriptAnalysis &sa2 )
+{
+    return
+	sa1.script == sa2.script &&
+	sa1.bidiLevel == sa2.bidiLevel;
+	// ###
+// 	    && override == other.override;
+}
 
 #endif
 
@@ -196,18 +197,22 @@ struct QShapedItem
     offset_t *offsets;
     unsigned short *logClusters;
     GlyphAttributes *glyphAttributes;
-    bool ownGlyphs : 1;
+    uint ownGlyphs : 1;
 };
 
 class QFontEngine;
 
 struct QScriptItem
 {
-    inline QScriptItem() : position( 0 ), baselineAdjustment( 0 ), ascent( 0 ), descent( 0 ),
+    inline QScriptItem() : position( 0 ), isSpace( FALSE ), isTab( FALSE ),
+			   isObject( FALSE ), ascent( 0 ), descent( 0 ),
 		    x( 0 ), y( 0 ), width( 0 ), shaped( 0 ), fontEngine( 0 ) { }
     int position;
     QScriptAnalysis analysis;
-    short baselineAdjustment;
+    unsigned short isSpace  : 1;
+    unsigned short isTab    : 1;
+    unsigned short isObject : 1;
+    unsigned short reserved : 13;
     short ascent;
     short descent;
     int x;
@@ -232,10 +237,6 @@ public:
 
     inline QScriptItem &operator[] (int i) const {return d->items[i];   }
     inline void append( const QScriptItem &item ) {
-	if ( d->size && d->items[d->size-1].analysis == item.analysis ) {
-	    //    qDebug("QScriptItemArray::append: trying to add same item" );
-	    return;
-	}
 	if ( d->size == d->alloc )
 	    resize( d->size + 1 );
 	d->items[d->size] = item;
@@ -286,8 +287,9 @@ public:
     int widthUsed;
     int firstItemInLine;
     int currentItem;
-    QChar::Direction direction;
-    QCharAttributes *charAttributes;
+    QChar::Direction direction : 5;
+    unsigned int haveCharAttributes : 1;
+    unsigned int reserved : 26;
 
     int length( int item ) const {
 	const QScriptItem &si = items[item];
@@ -295,6 +297,12 @@ public:
 	item++;
 	return ( item < items.size() ? items[item].position : string.length() ) - from;
     }
+
+//     unsigned int malloc( int size );
+//     unsigned int realloc( int offset, int size );
+
+    int allocated;
+    void *memory;
 };
 
 #endif

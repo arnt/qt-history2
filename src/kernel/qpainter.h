@@ -260,7 +260,7 @@ public:
 			  const QString&, int len = -1, QRect *br=0,
 			  QTextParag **intern=0 );
 
-    void drawTextItem( int x,  int y, const QTextItem &ti );
+    void drawTextItem( int x, int y, const QTextItem &ti, int *ulChars = 0, int nUlChars = 0 );
     void drawTextItem( const QPoint& p, const QTextItem &ti );
 
     QRect	boundingRect( int x, int y, int w, int h, int flags,

@@ -3156,16 +3156,17 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 /*! \internal
     Draws the text item \a ti at position \a (x, y ).
 */
-void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
+void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, int nUlChars )
 {
-    if ( testf(DirtyFont) ) {
-	updateFont();
-    }
-    if ( testf(ExtDev|VxF|WxF) ) {
+    if ( testf(ExtDev) || txop >= TxScale ) {
+	// ##### doesn't use correct font!
+	// #### do it natively here so underlining works!
 	drawText( x+ti.x(), y+ti.y(), ti.engine->string, ti.from(), ti.length(),
 		  (ti.engine->items[ti.item].analysis.bidiLevel %2) ? QPainter::RTL : QPainter::LTR );
 	return;
     }
+    if ( txop == TxTranslate )
+	map( x, y, &x, &y );
 
     QScriptItem &si = ti.engine->items[ti.item];
 
@@ -3180,6 +3181,25 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
 
     fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
 		  shaped->offsets, shaped->num_glyphs, rightToLeft );
+
+    if ( ulChars ) {
+	// draw underlines
+	for ( int i = 0; i < nUlChars; i++ ) {
+	    // ### fix for ligatures and indic syllables
+	    int from = si.position;
+	    int x1 = ti.cursorToX( ulChars[i] - from );
+	    int x2 = ti.cursorToX( ulChars[i] + 1 - from );
+	    if ( x2 > x1 )
+		x2--;
+	    else if ( x1 > x2 ) {
+		int tmp = x2;
+		x2 = x1;
+		x1 = tmp + 1;
+	    }
+	    int ulpos = fe->underlinePosition();
+	    XFillRectangle( dpy, hd, gc, x + x1, y + ulpos, x2-x1, fe->lineThickness() );
+	}
+    }
 }
 
 /*!

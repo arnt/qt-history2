@@ -152,36 +152,44 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
     item.analysis.reserved = 0;
     item.x = 0;
     item.y = 0;
-    item.baselineAdjustment = 0;
     item.width = -1;
     item.ascent = -1;
     item.descent = -1;
     item.shaped = 0;
     item.fontEngine = 0;
+    item.isSpace = item.isTab = item.isObject = FALSE;
 
     items.append( item );
     for ( int i = start+1; i <= stop; i++ ) {
 
-	QFont::Script s = (QFont::Script)scriptForChar( text[i].unicode() );
 	unsigned short uc = text[i].unicode();
-	if (uc == '\t' || uc == 0xfffcU ) {
-	    s = QFont::NoScript;
-	    item.position = i;
-	    item.analysis.script = QFont::Latin;
-	    item.analysis.bidiLevel = uc == '\t' ? control.baseLevel() : level;
-	    items.append( item );
+	QFont::Script s = (QFont::Script)scriptForChar( uc );
 
-	    script = s;
-	    start = i+1;
-	} else if ( s != script && ::category( uc ) != QChar::Mark_NonSpacing ) {
-	    item.position = i;
+	QChar::Category category = ::category( uc );
+	if ( uc == 0xfffcU || uc == 0x2028U ) {
+	    item.analysis.bidiLevel = level;
+	    item.analysis.script = QFont::Latin;
+	    item.isObject = TRUE;
+	    s = QFont::NoScript;
+	} else if ( (uc >= 9 && uc <=13) ||
+		    (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph ) ) {
+	    item.analysis.script = QFont::Latin;
+	    item.isSpace = TRUE;
+	    item.isTab = ( uc == '\t' );
+	    item.analysis.bidiLevel = item.isTab ? control.baseLevel() : level;
+	    s = QFont::NoScript;
+	} else if ( s != script && category != QChar::Mark_NonSpacing ) {
 	    item.analysis.script = s;
 	    item.analysis.bidiLevel = level;
-	    items.append( item );
-
-	    script = s;
-	    start = i+1;
+	} else {
+	    continue;
 	}
+
+	item.position = i;
+	items.append( item );
+	script = s;
+	start = i+1;
+	item.isSpace = item.isTab = item.isObject = FALSE;
     }
 
     ++stop;
@@ -642,6 +650,7 @@ static void bidiReorder( int numItems, const Q_UINT8 *levels, int *visualOrder )
 #endif
 }
 
+
 #if defined( Q_WS_X11 ) || defined ( Q_WS_QWS )
 # include "qtextengine_unix.cpp"
 #elif defined( Q_WS_WIN )
@@ -649,3 +658,70 @@ static void bidiReorder( int numItems, const Q_UINT8 *levels, int *visualOrder )
 #elif defined( Q_WS_MAC )
 # include "qtextengine_mac.cpp"
 #endif
+
+
+
+QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
+    : string( str ), fnt( f ), direction( QChar::DirON ), haveCharAttributes( FALSE )
+{
+#ifdef Q_WS_WIN
+    if ( !resolvedUsp10 )
+	resolveUsp10();
+#endif
+    if ( fnt ) fnt->ref();
+
+    allocated = str.length() * sizeof( void * );
+    memory = ::malloc( allocated );
+}
+
+QTextEngine::~QTextEngine()
+{
+    if ( fnt ) fnt->deref();
+    free( memory );
+    allocated = 0;
+}
+
+
+void QTextEngine::setFont( int item, QFontPrivate *f )
+{
+    QScriptItem &si = items[item];
+    if ( !f )
+	f = fnt;
+    // ### fix for uniscribe
+    QFontEngine *fe = f->engineForScript( (QFont::Script)si.analysis.script );
+    fe->ref();
+    if ( si.fontEngine )
+	si.fontEngine->deref();
+    si.fontEngine = fe;
+
+    if ( si.shaped ) {
+	delete si.shaped;
+	si.shaped = 0;
+    }
+}
+
+QFontEngine *QTextEngine::font( int item )
+{
+    return items[item].fontEngine;
+}
+
+const QCharAttributes *QTextEngine::attributes()
+{
+    // ### fix for uniscribe
+    QCharAttributes *charAttributes = (QCharAttributes *) memory;
+    if ( haveCharAttributes )
+	return charAttributes;
+
+    if ( !items.d )
+	itemize();
+
+    for ( int i = 0; i < items.size(); i++ ) {
+	QScriptItem &si = items[i];
+	int from = si.position;
+	int len = length( i );
+	int script = si.analysis.script;
+	Q_ASSERT( script < QFont::NScripts );
+	scriptEngines[si.analysis.script].charAttributes( script, string, from, len, charAttributes );
+    }
+    return charAttributes;
+}

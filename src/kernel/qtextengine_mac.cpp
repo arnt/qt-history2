@@ -74,20 +74,6 @@ void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOr
     ::bidiReorder(numRuns, levels, visualOrder );
 }
 
-
-QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
-    : string( str ), fnt( f ), direction( QChar::DirON ), charAttributes( 0 )
-{
-    if ( fnt ) fnt->ref();
-}
-
-QTextEngine::~QTextEngine()
-{
-    if ( fnt ) fnt->deref();
-    free( charAttributes );
-}
-
-
 void QTextEngine::itemize( bool doBidi )
 {
     if ( !items.d ) {
@@ -108,49 +94,6 @@ void QTextEngine::itemize( bool doBidi )
 	int stop = string.length() - 1;
 	appendItems(items, start, stop, control, QChar::DirL, string.unicode() );
     }
-}
-
-
-void QTextEngine::setFont( int item, QFontPrivate *f )
-{
-    QScriptItem &si = items[item];
-    if ( !f )
-	f = fnt;
-    QFontEngine *fe = f->engineForScript( (QFont::Script)si.analysis.script );
-    fe->ref();
-    if ( si.fontEngine )
-	si.fontEngine->deref();
-    si.fontEngine = fe;
-
-    if ( si.shaped ) {
-	delete si.shaped;
-	si.shaped = 0;
-    }
-}
-
-QFontEngine *QTextEngine::font( int item )
-{
-    return items[item].fontEngine;
-}
-
-const QCharAttributes *QTextEngine::attributes()
-{
-    if ( charAttributes )
-	return charAttributes;
-
-    if ( !items.d )
-	itemize();
-
-    charAttributes = (QCharAttributes *)malloc( sizeof(QCharAttributes)*string.length() );
-    for ( int i = 0; i < items.size(); i++ ) {
-	QScriptItem &si = items[i];
-	int from = si.position;
-	int len = length( i );
-	int script = si.analysis.script;
-	assert( script < QFont::NScripts );
-	scriptEngines[si.analysis.script].charAttributes( script, string, from, len, charAttributes );
-    }
-    return charAttributes;
 }
 
 QShapedItem *QTextEngine::shape( int item ) const

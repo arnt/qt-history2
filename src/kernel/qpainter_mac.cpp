@@ -1948,7 +1948,7 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
     }
 }
 
-void QPainter::drawTextItem(int x, int y, const QTextItem &ti)
+void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int *ulChars, int nUlChars)
 {
     if(testf(DirtyFont))
 	updateFont();

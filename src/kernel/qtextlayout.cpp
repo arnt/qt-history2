@@ -37,12 +37,6 @@ int QTextItem::descent() const
     return engine->items[item].descent;
 }
 
-int QTextItem::baselineAdjustment() const
-{
-    return engine->items[item].baselineAdjustment;
-}
-
-
 void QTextItem::setWidth( int w )
 {
     engine->items[item].width = w;
@@ -57,13 +51,6 @@ void QTextItem::setDescent( int d )
 {
     engine->items[item].descent = d;
 }
-
-
-void QTextItem::setBaselineAdjustment( int adjust )
-{
-    engine->items[item].baselineAdjustment = adjust;
-}
-
 
 void QTextItem::setFont( const QFont & f )
 {
@@ -178,13 +165,24 @@ bool QTextItem::isRightToLeft() const
 
 bool QTextItem::isObject() const
 {
-    return (engine->string.at(engine->items[item].position).unicode() == 0xfffc);
+    return engine->items[item].isObject;
 }
+
+bool QTextItem::isSpace() const
+{
+    return engine->items[item].isSpace;
+}
+
+bool QTextItem::isTab() const
+{
+    return engine->items[item].isTab;
+}
+
 
 QTextLayout::QTextLayout()
     :d(0) {}
 
-QTextLayout::QTextLayout( const QString& string, QPainter* p )
+QTextLayout::QTextLayout( const QString& string, QPainter *p )
 {
     QFontPrivate *f = p ? ( p->pfont ? p->pfont->d : p->cfont.d ) : QApplication::font().d;
     d = new QTextEngine( (string.isNull() ? QString::fromLatin1("") : string), f );
@@ -316,17 +314,28 @@ QTextLayout::Result QTextLayout::addCurrentItem()
 
     d->currentItem++;
 
-    return (d->widthUsed > d->lineWidth) ? LineFull : Ok;
+    return (d->widthUsed >= d->lineWidth) ? LineFull : Ok;
 }
 
-QTextLayout::Result QTextLayout::endLine( int x, int y, Qt::AlignmentFlags alignment, int *ascent, int *descent )
+QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
+					  int *ascent, int *descent, int *lineLeft, int *lineRight )
 {
 //     qDebug("endLine x=%d, y=%d, first=%d, current=%d", x,  y, d->firstItemInLine, d->currentItem );
     if ( d->firstItemInLine == -1 )
 	return LineEmpty;
 
-    if ( d->widthUsed > d->lineWidth ) {
+    int numSpaceItems = 0;
+    if ( d->currentItem > d->firstItemInLine && d->items[d->currentItem-1].isSpace ) {
+	int i = d->currentItem-1;
+	while ( i > d->firstItemInLine && d->items[i].isSpace ) {
+	    numSpaceItems++;
+	    d->widthUsed -= d->items[i--].width;
+	}
+    } else if ( (alignment & (Qt::WordBreak|Qt::BreakAnywhere)) &&
+		d->widthUsed > d->lineWidth ) {
 	// find linebreak
+	bool breakany = alignment & Qt::BreakAnywhere;
+
 	const QCharAttributes *attrs = d->attributes();
 	int w = 0;
 	int itemWidth = 0;
@@ -364,10 +373,13 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, Qt::AlignmentFlags align
 		    if ( lastGlyph != glyph ) {
 			while ( lastGlyph < glyph )
 			    tmpItemWidth += advances[lastGlyph++];
-			if ( w + tmpWidth + tmpItemWidth > d->lineWidth )
+			if ( w + tmpWidth + tmpItemWidth > d->lineWidth ) {
+			    d->widthUsed = w;
 			    goto found;
+			}
 		    }
-		    if ( (lastWasSpace || itemAttrs->softBreak) &&
+		    if ( (lastWasSpace || itemAttrs->softBreak ||
+			  ( breakany && itemAttrs->charStop ) ) &&
 			 (i != d->firstItemInLine || pos != 0) ) {
 			if ( breakItem != i )
 			    itemWidth = 0;
@@ -442,7 +454,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, Qt::AlignmentFlags align
     if ( alignment == Qt::AlignAuto )
 	alignment = Qt::AlignLeft;
 
-    int numRuns = d->currentItem - d->firstItemInLine;
+    int numRuns = d->currentItem - d->firstItemInLine - numSpaceItems;
     Q_UINT8 _levels[128];
     int _visual[128];
     Q_UINT8 *levels = _levels;
@@ -478,6 +490,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, Qt::AlignmentFlags align
 	desc = QMAX( desc, si.descent );
     }
 
+    int left = x;
     for ( i = 0; i < numRuns; i++ ) {
 	QScriptItem &si = d->items[d->firstItemInLine+visual[i]];
 //  	qDebug("positioning item %d with width %d (from=%d/length=%d) at %d", d->firstItemInLine+visual[i], si.width, si.position,
@@ -486,11 +499,36 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, Qt::AlignmentFlags align
 	si.y = y + asc;
 	x += si.width;
     }
+    int right = x;
 
+    if ( numSpaceItems ) {
+	if ( d->items[d->firstItemInLine+numRuns].analysis.bidiLevel % 2 ) {
+	    x = left;
+	    for ( i = 0; i < numSpaceItems; i++ ) {
+		QScriptItem &si = d->items[d->firstItemInLine + numRuns + i];
+		x -= si.width;
+		si.x = x;
+		si.y = y + asc;
+	    }
+	} else {
+	    for ( i = 0; i < numSpaceItems; i++ ) {
+		QScriptItem &si = d->items[d->firstItemInLine + numRuns + i];
+		si.x = x;
+		si.y = y + asc;
+		x += si.width;
+	    }
+	}
+    }
+
+    if ( lineLeft )
+	*lineLeft = left;
+    if ( lineRight )
+	*lineRight = right;
     if ( ascent )
 	*ascent = asc;
     if ( descent )
 	*descent = desc;
+
     return Ok;
 }
 

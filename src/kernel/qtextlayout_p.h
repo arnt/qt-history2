@@ -20,7 +20,6 @@ public:
     int width() const;
     int ascent() const;
     int descent() const;
-    int baselineAdjustment() const;
 
     enum Edge {
 	Leading,
@@ -38,11 +37,12 @@ public:
 
     bool isRightToLeft() const;
     bool isObject() const;
+    bool isSpace() const;
+    bool isTab() const;
 
     void setWidth( int w );
     void setAscent( int a );
     void setDescent( int d );
-    void setBaselineAdjustment( int adjust );
 
     void setFont( const QFont & f );
 
@@ -104,7 +104,8 @@ public:
     /* returns true if completely added */
     Result addCurrentItem();
 
-    Result endLine( int x = 0, int y = 0, Qt::AlignmentFlags alignment = Qt::AlignLeft, int *ascent = 0, int *descent = 0 );
+    Result endLine( int x = 0, int y = 0, int alignment = Qt::AlignLeft,
+		    int *ascent = 0, int *descent = 0, int *left = 0, int *right = 0 );
     void endLayout();
 
     enum CursorMode {
