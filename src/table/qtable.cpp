@@ -2248,6 +2248,7 @@ void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
     QRegion reg( QRect( cx, cy, cw, ch ) );
     // Subtract the table from it
     reg = reg.subtract( QRect( QPoint( 0, 0 ), tableSize() ) );
+
     // And draw the rectangles (transformed as needed)
     QArray<QRect> r = reg.rects();
     for ( int i = 0; i < (int)r.count(); ++i)
