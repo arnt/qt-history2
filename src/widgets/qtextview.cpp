@@ -599,6 +599,7 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 		undoRedoInfo.text += "\n";
 	} else {
 	    undoRedoInfo.text += cursor->parag()->string()->toString().mid( cursor->index() );
+	    undoRedoInfo.text.remove( undoRedoInfo.text.length() - 1, 1 );
 	    cursor->killLine();
 	}
 	break;
