@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#11 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -309,7 +309,7 @@ void QWellArray::setCellBrush( int row, int col, const QBrush &b )
 	d = new QWellArrayData;
 	d->brush = new QBrush[nRows*nCols];
     }
-    if ( 0 <= row < nRows && 0 <= col < nCols )
+    if ( row >= 0 && row < nRows && col >= 0 && col < nCols )
 	d->brush[row*nCols+col] = b;
 #ifdef CHECK_RANGE
     else
@@ -326,7 +326,7 @@ void QWellArray::setCellBrush( int row, int col, const QBrush &b )
 
 QBrush QWellArray::getCellBrush( int row, int col )
 {
-    if ( d && 0 <= row < nRows && 0 <= col < nCols )
+    if ( d && row >= 0 && row < nRows && col >= 0 && col < nCols )
 	return d->brush[row*nCols+col];
     return NoBrush;
 }
