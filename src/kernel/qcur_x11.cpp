@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#14 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -46,7 +46,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#14 $";
 #endif
 
 
@@ -152,8 +152,9 @@ QCursor *QCursor::locate( int shape )		// get global cursor
 }
 
 
-/*! This constructor makes a new cursor with the default arrow shape,
-  at the default position. */
+/*!
+Constructs a cursor with the default arrow shape.
+*/
 
 QCursor::QCursor()				// default arrow cursor
 {
@@ -169,8 +170,9 @@ QCursor::QCursor()				// default arrow cursor
     }
 }
 
-/*! This constructor makes a new cursor with the specified \e shape,
-  at the default position. */
+/*!
+Constructor a cursor with the specified \e shape.
+*/
 
 QCursor::QCursor( int shape )			// cursor with shape
 {
@@ -182,12 +184,14 @@ QCursor::QCursor( int shape )			// cursor with shape
 }
 
 
-/*! The specify-it-all constructor.
+/*!
+Constructs a custom bitmap cursor.
 
-  \arg \e bitmap and
-  \arg \e mask make up the bitmap
-  \arg \e hotX and
-  \arg \e hotY define the hot spot of this cursor */
+\arg \e bitmap and
+\arg \e mask make up the bitmap
+\arg \e hotX and
+\arg \e hotY define the hot spot of this cursor
+*/
 
 QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
 		  int hotX, int hotY )
@@ -202,8 +206,9 @@ QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
     data->hy = hotY >= 0 ? hotY : bitmap.height()/2;
 }
 
-/*! This constructor makes a new cursor exactly like an existing
-  cursor. */
+/*!
+Constructs a copy of the cursor \e c.
+*/
 
 QCursor::QCursor( const QCursor &c )
 {
@@ -211,7 +216,9 @@ QCursor::QCursor( const QCursor &c )
     data->ref();
 }
 
-/*! Free the memory allocated for the cursor. */
+/*!
+Dereferences the cursor and destroys the cursor data if it was the last
+reference. */
 
 QCursor::~QCursor()
 {
@@ -219,32 +226,24 @@ QCursor::~QCursor()
 	delete data;
 }
 
-/*! This operator allows the programmer to use = to copy cursors.  =
-  and == are handled correctly: 
-
-  \code
-  QCursor a, b;
-
-  a = b;
-  ASSERT ( a == b && a == a);
-
-  a = a; \/ no memory loss
-  \endcode
-
-  \sa operator==(), copy(). */
+/*!
+Assigns \e c to this cursor and returns a reference to the cursor.
+*/
 
 QCursor &QCursor::operator=( const QCursor &c )
 {
-    c.data->ref();				// avoid trouble when c == *this
+    c.data->ref();				// avoid c = c
     if ( data->deref() )
 	delete data;
     data = c.data;
     return *this;
 }
 
-/*! This is a deep copy; operator= is shallow and faster.
+/*!
+Returns a deep copy of the cursor.
 
-  \todo Copy bitmap data */
+\todo Copy bitmap data
+*/
 
 QCursor QCursor::copy() const
 {
@@ -277,13 +276,17 @@ bool QCursor::setShape( int shape )		// set cursor shape
 }
 
 
-/*! Returns the position of the cursor on the screen in the global
-  coordinate system.  You can use QWidget::mapFromGlobal() to
-  translate it to the widget's own coordinates.
+/*!
+Returns the position of the cursor on the screen in the global
+coordinate system.
 
-  The return value is the coordinate of the hot spot.
+You can use QWidget::mapFromGlobal() to translate it to widget
+coordinates.
 
-  \sa setPos(), QWidget::mapFromGlobal(), QWidget::mapToGlobal(). */
+The return value is the coordinate of the hot spot.
+
+\sa setPos(), QWidget::mapFromGlobal() and QWidget::mapToGlobal().
+*/
 
 QPoint QCursor::pos()				// get cursor position
 {
@@ -296,10 +299,14 @@ QPoint QCursor::pos()				// get cursor position
     return QPoint( root_x, root_y );
 }
 
-/*! Warps the cursor. \e x,y is in the global coordinate systems, not
-  the widget's own.
+/*!
+Warps the cursor to the global screen position \e (x,y).
 
-  \sa pos(), QWidget::mapFromGlobal(), QWidget::mapToGlobal(). */
+You can use QWidget::mapToGlobal() to translate widget coordinates
+to global screen coordinates.
+
+\sa pos().
+*/
 
 void QCursor::setPos( int x, int y )		// set cursor position
 {
@@ -307,9 +314,9 @@ void QCursor::setPos( int x, int y )		// set cursor position
 }
 
 
-/*! Magic.  This function does nothing at all, you should never call
-  it and do not need to know that it even exists.  It creates the
-  predefined cursors and does other initialization. */
+/*!
+\internal Creates the cursor internals.
+*/
 
 void QCursor::update() const			// update/load cursor
 {
@@ -406,13 +413,15 @@ void QCursor::update() const			// update/load cursor
 }
 
 
-/*! \warning System dependent!  Don't use this unless you have to.
+/*!
+\warning System dependent!  Do not use this unless you have to.
 
-  This function returns the window system's handle to the current cursor.
-  Rather than use it, you should <a href=mailto:qt-bugs@troll.no>tell
-  us</a> what the portable functions lack.
+This function returns the window system's handle to the current cursor.
+Rather than use it, you should <a href=mailto:qt-bugs@troll.no>tell
+us</a> what the portable functions lack.
 
-  The return type for each window system is specified in qcursor.h. */
+The return type for each window system is specified in qcursor.h.
+*/
 
 Cursor QCursor::handle() const
 {
@@ -426,18 +435,10 @@ Cursor QCursor::handle() const
 // QCursor stream functions
 //
 
-/*! This function isn't meant for humans: It will write the cursor in a
-  format which is Qt can read back (even on other CPUs, operating
-  systems and window systems).
-
-  For global cursors just a 16-bit number (the same as that returned by
-  shape()) is written, for bitmapped cursors the bitmap and mask
-  (variable size, see QBitmap), hot spot x and y (16 bits each) are
-  written as well.
-
-  \relates QCursor
-
-  \todo big/little-endianness looks doubtful */
+/*!
+\relates QCursor
+Writes the cursor to the stream.
+*/
 
 QDataStream &operator<<( QDataStream &s, const QCursor &c )
 {
@@ -449,11 +450,10 @@ QDataStream &operator<<( QDataStream &s, const QCursor &c )
     return s;
 }
 
-/*! This function will read back a cursor from a stream.  It is
-  intended for programs to load and save their state, not for
-  communication with humans.  See operator<<() for details.
-
-  \relates QCursor */
+/*!
+\relates QCursor
+Reads the cursor from the stream.
+*/
 
 QDataStream &operator>>( QDataStream &s, QCursor &c )
 {

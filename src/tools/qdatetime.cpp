@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#18 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#18 $";
 #endif
 
 
@@ -51,18 +51,20 @@ const char *QDate::weekdayNames[] ={
 // QDate member functions
 //
 
-/*! \class QDate qdatetm.h
+/*!
+\class QDate qdatetm.h
 
-  \brief The QDate class provides date functions.
+\brief The QDate class provides date functions.
 
-  The QDate is based on the Gregorian (modern western)
-  calendar. England adopted the Gregorian calendar on September 14th
-  1752, which is the earliest date that is supported by QDate.  Using
-  earlier dates will give undefined results. Some countries adopted
-  the Gregorian calendar later than England, thus the week dat of
-  early dates might be incorrect for these countries (but correct for
-  England).  The end of time ends around 8000AD, by which time we
-  expect Qt to be obsolete. */
+The QDate is based on the Gregorian (modern western)
+calendar. England adopted the Gregorian calendar on September 14th
+1752, which is the earliest date that is supported by QDate.  Using
+earlier dates will give undefined results. Some countries adopted
+the Gregorian calendar later than England, thus the week dat of
+early dates might be incorrect for these countries (but correct for
+England).  The end of time is reached around 8000AD, by which time we
+expect Qt to be obsolete. */
+
 
 /*! \fn QDate::QDate()
   Constructs a null date. Null dates are invalid. */

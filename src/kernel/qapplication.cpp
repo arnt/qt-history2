@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#32 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#32 $";
 #endif
 
 
@@ -185,6 +185,12 @@ Only MotifStyle is fully supported in the current version of Qt.
 
 void QApplication::setStyle( GUIStyle s )	// set application GUI style
 {
+#if defined(DEBUG)
+    if ( s != MotifStyle ) {
+	warning( "QApplication::setStyle: Only Motif style is supported" );
+	return;
+    }
+#endif
     appStyle = s;
 }
 
@@ -204,8 +210,8 @@ Changes the default application palette to \e p.
 
 If \e updateAllWidgets is TRUE, then this palette will be set for
 all existing widgets.
-If \e updateAllWidgets is FALSE (default), then only new widgets
-become this palette.
+If \e updateAllWidgets is FALSE (default), then only widgets that
+are created after this call will have the palette.
 */
 
 void QApplication::setPalette( const QPalette &p, bool updateAllWidgets )
@@ -272,8 +278,8 @@ Changes the default application font to \e f.
 
 If \e updateAllWidgets is TRUE, then this font will be set for
 all existing widgets.
-If \e updateAllWidgets is FALSE (default), then only new widgets
-become this font.
+If \e updateAllWidgets is FALSE (default), then only widgets
+created after this call will have this font.
 */
 
 void QApplication::setFont( const QFont &f,  bool updateAllWidgets )
@@ -311,14 +317,16 @@ d->setBackgroundColor( red );
 */
 
 
-/*! \fn int QApplication::exec( QWidget *mainWidget )
+/*!
+\fn int QApplication::exec( QWidget *mainWidget )
 
-  Enters the main event loop and waits until quit() is called or \e 
-  mainWidget is destroyed. Returns the value that was specified to quit().
+Enters the main event loop and waits until quit() is called or \e 
+mainWidget is destroyed. Returns the value that was specified to quit().
 
-  (As a special case, modal widgets like QMessageBox can be used even
-  without calling exec().  This can e.g. be used to write a very short
-  "hello world" but in general, all programs must call exec().) */
+As a special case, modal widgets like QMessageBox can be used before
+calling exec(), because modal widget have a local event loop.
+All programs must call exec() to activate other types of widgets.
+*/
 
 /*!
 \fn int QApplication::enter_loop()

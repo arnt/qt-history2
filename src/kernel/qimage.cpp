@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#26 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#26 $";
 #endif
 
 /*!
@@ -82,8 +82,9 @@ as red + green + blue.
 The QImage class uses explicit data sharing, similar to that of QArray and
 QString.
 This makes it easy to use images in your program, because you never need
-to worry about deleting an image. An image is automatically deleted when
-the last reference to the data is lost.
+to worry about who should be responsible for deleting images.
+An image is automatically destroyed when the last reference to the data is
+lost.
 
 The disadvantage of explicit data sharing is that changing one image might
 affect others (when you do not want it).  Call the detach() function to
@@ -304,7 +305,7 @@ do not use color tables, but instead encode pixel values as RGB triplets.
 \fn int QImage::bitOrder() const
 Returns the bit order for the image.
 
-It it is a 1-bit image, this function returns either QImage::BigEndian or
+If it is a 1-bit image, this function returns either QImage::BigEndian or
 QImage::LittleEndian.
 
 If it is not a 1-bit image, this function returns QImage::IgnoreEndian.

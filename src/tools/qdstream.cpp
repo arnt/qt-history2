@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#11 $
 **
 ** Implementation of QDataStream class
 **
@@ -22,7 +22,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdstream.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdstream.cpp#11 $";
 #endif
 
 
@@ -403,7 +403,7 @@ QDataStream &QDataStream::operator>>( double &f)// read 64-bit floating point
 Reads the '\0'-terminated string \e s from the stream and returns
 a reference to the stream.
 
-The string is serialized using readBytes().
+The string is read using readBytes().
 */
 
 QDataStream &QDataStream::operator>>( char *&s )// read char array
