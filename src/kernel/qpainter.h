@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#42 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#43 $
 **
 ** Definition of QPainter class
 **
@@ -207,10 +207,6 @@ public:
     static void	cleanup();
 
 private:
-    static void	changedFont( const QFont * );
-    static void changedPen( const QPen *, int );
-    static void changedBrush( const QBrush *, int );
-
     void	updateFont();			// update font data
     void	updatePen();			// update pen data
     void	updateBrush();			// update brush data
