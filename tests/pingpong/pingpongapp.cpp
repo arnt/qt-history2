@@ -18,36 +18,6 @@
 #include <qfiledialog.h>
 
 
-TeamPicker::TeamPicker( QWidget * parent = 0, const char * name = 0 )
-    : QComboBox( parent, name )
-{
-    //    setFocusPolicy( StrongFocus );
-    QSqlCursor team( "team" );
-    team.select( team.index("name") );
-    int idx = 0;
-    while( team.next() ) {
-	insertItem( team.value("name").toString(), idx );
-	index2Id[idx] = team.value("id").toInt();
-	idx++;
-    }
-}
-
-int TeamPicker::teamId() const
-{
-    return index2Id[ currentItem() ];
-}
-
-void TeamPicker::setTeamId( int id )
-{
-    QMap<int,int>::Iterator it;
-    for( it = index2Id.begin(); it != index2Id.end(); ++it ) {
-	if ( it.data() == id ) {
-	    setCurrentItem( it.key() );
-	    break;
-	}
-    }
-}
-
 MatchCursor::MatchCursor()
     : QSqlCursor( "match" )
 {

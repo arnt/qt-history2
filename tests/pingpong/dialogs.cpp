@@ -7,6 +7,39 @@
 #include <qpushbutton.h>
 
 //
+// TeamPicker editor widget
+//
+TeamPicker::TeamPicker( QWidget * parent = 0, const char * name = 0 )
+    : QComboBox( parent, name )
+{
+    //    setFocusPolicy( StrongFocus );
+    QSqlCursor team( "team" );
+    team.select( team.index("name") );
+    int idx = 0;
+    while( team.next() ) {
+	insertItem( team.value("name").toString(), idx );
+	index2Id[idx] = team.value("id").toInt();
+	idx++;
+    }
+}
+
+int TeamPicker::teamId() const
+{
+    return index2Id[ currentItem() ];
+}
+
+void TeamPicker::setTeamId( int id )
+{
+    QMap<int,int>::Iterator it;
+    for( it = index2Id.begin(); it != index2Id.end(); ++it ) {
+	if ( it.data() == id ) {
+	    setCurrentItem( it.key() );
+	    break;
+	}
+    }
+}
+
+//
 //  GenericDialog class
 //
 
@@ -85,7 +118,54 @@ UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, QWidget * parent,
 
     setCaption( "Update match results" );
 
-    form = new QSqlForm( w, buf, 2, this);
+    // Lay out the editor widgets manually
+    QSqlEditorFactory * ef = QSqlEditorFactory::defaultFactory();
+    QWidget * editor;
+    QLabel * flabel;
+    QGridLayout * formLayout = new QGridLayout( w );
+    
+    formLayout->setSpacing( 5 );
+    formLayout->setMargin( 5 );
+
+    form = new QSqlForm( this, "updatematchform" );
+    
+    flabel = new QLabel( buf->field("winner")->displayLabel(), w );
+    TeamPicker * wteam = new TeamPicker( w );
+    wteam->setTeamId( buf->value("winnerid").toInt() ); 
+    formLayout->addWidget( flabel, 0, 0 );
+    formLayout->addWidget( wteam, 0, 1 );
+    
+    flabel = new QLabel( buf->field("loser")->displayLabel(), w );
+    TeamPicker * lteam = new TeamPicker( w );
+    lteam->setTeamId( buf->value("loserid").toInt() ); 
+    formLayout->addWidget( flabel, 0, 2 );
+    formLayout->addWidget( lteam, 0, 3 );
+
+    flabel = new QLabel( buf->field("wins")->displayLabel(), w );
+    editor = ef->createEditor( w, buf->value("wins") );
+    formLayout->addWidget( flabel, 1, 0 );
+    formLayout->addWidget( editor, 1, 1 );
+    form->associate( editor, buf->field("wins") );
+
+    flabel = new QLabel( buf->field("losses")->displayLabel(), w );
+    editor = ef->createEditor( w, buf->value("losses") );
+    formLayout->addWidget( flabel, 1, 2 );
+    formLayout->addWidget( editor, 1, 3 );
+    form->associate( editor, buf->field("losses") );
+
+    flabel = new QLabel( buf->field("date")->displayLabel(), w );
+    editor = ef->createEditor( w, buf->value("date") );
+    formLayout->addWidget( flabel, 2, 0 );
+    formLayout->addWidget( editor, 2, 1 );
+    form->associate( editor, buf->field("date") );
+
+    flabel = new QLabel( buf->field("sets")->displayLabel(), w );
+    editor = ef->createEditor( w, buf->value("sets") );
+    formLayout->addWidget( flabel, 2, 2 );
+    formLayout->addWidget( editor, 2, 3 );
+    form->associate( editor, buf->field("sets") );
+    form->readRecord();
+    
     g->setMargin( 3 );
 
     QLabel * label = new QLabel( "Update match results", this );
