@@ -110,6 +110,11 @@ QWidget::unsetCursor();
 If you specify a negative value for \e len to left() or right() then an empty string is
 returned.
 
+* local8Bit() now returns a const char *. If you want a QByteArray/QCString
+use toLocal8Bit()
+* utf8() now returns a const char *. If you want a QByteArray/QCString
+use toUtf8()
+
 \section1 QByteArray
 
 QByteArray is now implicitly shared. It provides most of the
