@@ -871,6 +871,11 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
  */
 void QLineEdit::imStartEvent( QIMEvent *e )
 {
+    if ( isReadOnly() ) {
+	e->ignore();
+	return;
+    }
+
     if ( hasSelectedText() )
 	removeSelectedText();
 
@@ -886,6 +891,11 @@ void QLineEdit::imStartEvent( QIMEvent *e )
  */
 void QLineEdit::imComposeEvent( QIMEvent *e )
 {
+    if ( isReadOnly() ) {
+	e->ignore();
+	return;
+    }
+
     d->parag->removeSelection( QTextDocument::IMCompositionText );
     d->parag->removeSelection( QTextDocument::IMSelectionText );
 
@@ -915,6 +925,11 @@ void QLineEdit::imComposeEvent( QIMEvent *e )
  */
 void QLineEdit::imEndEvent( QIMEvent *e )
 {
+    if ( isReadOnly() ) {
+	e->ignore();
+	return;
+    }
+
     d->parag->removeSelection( QTextDocument::IMCompositionText );
     d->parag->removeSelection( QTextDocument::IMSelectionText );
 

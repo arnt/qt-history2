@@ -1406,6 +1406,11 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 /*! \reimp */
 void QTextEdit::imStartEvent( QIMEvent *e )
 {
+    if ( isReadOnly() ) {
+	e->ignore();
+	return;
+    }
+
     if ( hasSelectedText() )
 	removeSelectedText();
     d->preeditStart = cursor->index();
@@ -1415,6 +1420,11 @@ void QTextEdit::imStartEvent( QIMEvent *e )
 /*! \reimp */
 void QTextEdit::imComposeEvent( QIMEvent *e )
 {
+    if ( isReadOnly() ) {
+	e->ignore();
+	return;
+    }
+
     doc->removeSelection( QTextDocument::IMCompositionText );
     doc->removeSelection( QTextDocument::IMSelectionText );
 
@@ -1449,6 +1459,11 @@ void QTextEdit::imComposeEvent( QIMEvent *e )
 /*! \reimp */
 void QTextEdit::imEndEvent( QIMEvent *e )
 {
+    if ( isReadOnly() ) {
+	e->ignore();
+	return;
+    }
+
     doc->removeSelection( QTextDocument::IMCompositionText );
     doc->removeSelection( QTextDocument::IMSelectionText );
 
