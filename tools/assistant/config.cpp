@@ -47,6 +47,7 @@ void Config::load()
     fontFam = settings.readEntry( key + "Family" );
 
     fontFix = settings.readEntry( key + "FixedFamily" );
+    fontSiz = settings.readNumEntry( key + "Size" );
     linkUnder = settings.readBoolEntry( key + "LinkUnderline" );
     linkCol = settings.readEntry( key + "LinkColor" );
     src = settings.readEntry( key + "Source" );
