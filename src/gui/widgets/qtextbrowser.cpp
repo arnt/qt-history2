@@ -274,7 +274,13 @@ void QTextBrowser::setSource(const QUrl &url)
 
     bool doSetText = false;
 
-    if (url.isValid() && (url != d->currentURL || d->forceLoadOnSourceChange)) {
+    QUrl currentUrlWithoutFragment = d->currentURL;
+    currentUrlWithoutFragment.setFragment(QString::null);
+    QUrl urlWithoutFragment = url;
+    urlWithoutFragment.setFragment(QString::null);
+
+    if (url.isValid()
+        && (urlWithoutFragment != currentUrlWithoutFragment || d->forceLoadOnSourceChange)) {
         QVariant data = loadResource(QTextDocument::HtmlResource, url);
         if (data.type() == QVariant::String) {
             txt = data.toString();
@@ -299,8 +305,6 @@ void QTextBrowser::setSource(const QUrl &url)
         doSetText = true;
     }
 
-    d->forceLoadOnSourceChange = false;
-
     if (!d->home.isValid())
         d->home = url;
 
@@ -319,6 +323,8 @@ void QTextBrowser::setSource(const QUrl &url)
 
     if (doSetText)
         QTextEdit::setHtml(txt);
+
+    d->forceLoadOnSourceChange = false;
 
     if (!url.fragment().isEmpty()) {
         scrollToAnchor(url.fragment());
