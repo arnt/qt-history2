@@ -36,9 +36,8 @@ QSqlIndex::QSqlIndex( const QString& tablename, const QString& name )
 */
 
 QSqlIndex::QSqlIndex( const QSqlIndex& other )
-    : table(other.table), fieldList(other.fieldList), nm(other.nm)
+    : flist(other.flist), table(other.table), fieldList(other.fieldList), nm(other.nm)
 {
-
 }
 
 QSqlIndex& QSqlIndex::operator=( const QSqlIndex& other )
@@ -137,5 +136,5 @@ uint QSqlIndex::count() const
 {
     return fieldList.count();
 }
-    
+
 #endif

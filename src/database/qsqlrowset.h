@@ -24,7 +24,7 @@ public:
 
     QVariant& operator[]( int i );
     QVariant& operator[]( const QString& name );
-    
+
     bool select( const QString & filter = QString::null, const QSqlIndex & sort = QSqlIndex() );
     bool select( const QSqlIndex & filter, const QSqlIndex & sort = QSqlIndex() );
     QString name() const { return tableName; }

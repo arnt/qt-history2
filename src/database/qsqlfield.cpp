@@ -119,6 +119,7 @@ QSqlFieldList::QSqlFieldList( const QSqlFieldList& l )
 {
     fieldList = l.fieldList;
     fieldListStr = l.fieldListStr;
+    posMap = l.posMap;
 }
 
 /*!
@@ -139,6 +140,28 @@ QSqlFieldList::~QSqlFieldList()
 
 QVariant& QSqlFieldList::operator[]( int i )
 {
+    return value( i );
+}
+
+/*!
+  Returns a reference to the field named \a name in the list.
+  It is up to you to check wether this item really exists.
+
+*/
+
+QVariant& QSqlFieldList::operator[]( const QString& name )
+{
+    return value( name );
+}
+
+/*!
+  Returns a reference to the field located at position \a i in the list.
+  It is up to you to check wether this item really exists.
+
+*/
+
+QVariant& QSqlFieldList::value( int i )
+{
 #ifdef CHECK_RANGE
     static QVariant dbg;
 
@@ -156,7 +179,7 @@ QVariant& QSqlFieldList::operator[]( int i )
 
 */
 
-QVariant& QSqlFieldList::operator[]( const QString& name )
+QVariant& QSqlFieldList::value( const QString& name )
 {
 #ifdef CHECK_RANGE
     static QVariant dbg;

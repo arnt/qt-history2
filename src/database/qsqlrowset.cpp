@@ -106,7 +106,8 @@ bool QSqlRowset::select( const QSqlIndex & filter, const QSqlIndex & sort )
 }
 
 /*!
-  Generate the SQL 'where' clause based on an index.
+  Return a SQL WHERE clause based on an index and the current rowset
+  buffer.
 
 */
 QString QSqlRowset::whereClause( const QSqlIndex & i )
@@ -122,7 +123,7 @@ QString QSqlRowset::whereClause( const QSqlIndex & i )
 	QString        fn   = i.fields().field(j).name();
 	QVariant       val  = QSqlFieldList::operator[]( fn );
 
-	if( (type == QVariant::Invalid) || (val == QString::null) )
+	if( (type == QVariant::Invalid) )
 	    continue;
 
 	if( j > 0 )
@@ -130,9 +131,9 @@ QString QSqlRowset::whereClause( const QSqlIndex & i )
 
 	filter += fn;
 	if( (type == QVariant::String) || (type == QVariant::CString) )
-	    filter += " = '" + val.asString() + "'";
+	    filter += " = '" + val.toString() + "'";
 	else
-	    filter += " = " + val.asString();
+	    filter += " = " + val.toString();
     }
     return filter;
 }
@@ -157,7 +158,7 @@ QVariant& QSqlRowset::operator[]( int i )
 
 QVariant& QSqlRowset::operator[]( const QString& name )
 {
-    updateFieldValues();    
+    updateFieldValues();
     return QSqlFieldList::operator[]( name );
 }
 
@@ -171,6 +172,7 @@ void QSqlRowset::updateFieldValues()
 	}
     }
 }
+
 // Debugging only
 void QSqlRowset::dumpRecords()
 {
@@ -203,5 +205,6 @@ void QSqlRowset::dumpRecords()
 }
 
 #endif // QT_NO_SQL
+
 
 

@@ -4,6 +4,7 @@
 #include <qsqlindex.h>
 #include <qsqlfield.h>
 #include <qsqlrowset.h>
+#include <qsqlview.h>
 #include <qapplication.h>
 
 QSqlDatabase* database;
@@ -42,14 +43,19 @@ int main( int argc, char** argv )
 	for ( uint j = 0; j < fil.count(); ++j )
 	    qDebug("......" + fil.field(j).name() );
     }
-    
+
     qDebug("Creating rowset...");
-    QSqlRowset rset(database, "test");
-    rset.select();
-
+    QSqlView v(database, "key_test");
+    v["id"] = 999;
+    v["name"] = "Dave";
+    v.insert();
+    v.select( v.primaryIndex() );
+    ASSERT( v.next() );
+    ASSERT( v["id"] == 999 );
+    v.del();
+    v.select( v.primaryIndex() );
+    ASSERT( !v.next() );
     
-    
-
     qDebug("Closing database...");
     database->close();
     if ( !database->isOpen() )
