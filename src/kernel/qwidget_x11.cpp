@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#3 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
 ** Author  : Haavard Nord
 ** Created : 931031
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#3 $";
 #endif
 
 
@@ -69,13 +69,12 @@ bool QWidget::create()				// create widget
 
     XSizeHints size_hints;
     if ( overlap ) {				// only top level widgets
-	size_hints.flags = PPosition | PSize /*| PMinSize*/ ;
+	size_hints.flags = PPosition | PSize | PWinGravity;
 	size_hints.x = rect.left();
 	size_hints.y = rect.top();
 	size_hints.width = rect.width();
 	size_hints.height = rect.height();
-	size_hints.min_width = 0;
-	size_hints.min_height = 0;
+	size_hints.win_gravity = 1;		// NortWest
     }
     char *title = qAppName();
     XSetStandardProperties( dpy, id, title, title, 0, 0, 0,
@@ -232,23 +231,50 @@ bool QWidget::lower()				// lower widget
     return TRUE;
 }
 
+
+void qXRequestConfig( const QWidget * );	// defined in qapp_x11.cpp
+
+static void do_size_hints( Display *dpy, WId ident, QWExtra *x, XSizeHints *s )
+{
+    if ( x ) {
+	if ( x->minw >= 0 && x->minh >= 0 ) {	// add minimum size hints
+	    s->flags |= PMinSize;
+	    s->min_width = x->minw;
+	    s->min_height = x->minh;
+	}
+	if ( x->maxw >= 0 && x->maxw >= 0 ) {	// add maximum size hints
+	    s->flags |= PMaxSize;
+	    s->max_width = x->maxw;
+	    s->max_height = x->maxh;
+	}
+	if ( x->incw >= 0 && x->inch >= 0 ) {	// add resize increment hints
+	    s->flags |= PResizeInc;
+	    s->width_inc = x->incw;
+	    s->height_inc = x->inch;
+	}
+    }
+    s->flags |= PWinGravity;
+    s->win_gravity = 1;				// NorthWest
+    XSetNormalHints( dpy, ident, s );
+}
+
 bool QWidget::move( int x, int y )		// move widget
 {
+    QPoint p(x,y);
     QRect r = ncrect;
-    r.setTopLeft( QPoint(x,y) );
+    if ( r.topLeft() == p )			// same position
+	return FALSE;
+    qXRequestConfig( this );
+    r.setTopLeft( p );
     setNCRect( r );
-    if ( testFlag(WX11_OddWM) ) {		// strange window manager
-	x = rect.left();			// use client rect pos
-	y = rect.top();
-    }
-    XMoveWindow( dpy, ident, x, y );
-    if ( !testFlag(WState_Visible) && testFlag(WType_Overlap) ) {
+    if ( testFlag(WType_Overlap) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = PPosition;
 	size_hints.x = x;
 	size_hints.y = y;
-	XSetNormalHints( dpy, ident, &size_hints );
+	do_size_hints( dpy, ident, extra, &size_hints );
     }
+    XMoveWindow( dpy, ident, x, y );
     QMoveEvent evt( r.topLeft() );
     SEND_EVENT( this, &evt );			// send move event
     return TRUE;
@@ -260,18 +286,21 @@ bool QWidget::resize( int w, int h )		// resize widget
 	w = 1;
     if ( h < 1 )
 	h = 1;
-    QRect r = ncrect;
+    QRect r = rect;
     QSize s(w,h);
+    if ( r.size() == s )			// same size
+	return FALSE;
+    qXRequestConfig( this );
     r.setSize( s );
-    setNCRect( r );
-    XResizeWindow( dpy, ident, rect.width(), rect.height() );
-    if ( !testFlag(WState_Visible) && testFlag(WType_Overlap) ) {
+    setRect( r );
+    if ( testFlag(WType_Overlap) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = PSize;
-	size_hints.width = rect.width();
-	size_hints.height = rect.height();
-	XSetNormalHints( dpy, ident, &size_hints );
+	size_hints.width = w;
+	size_hints.height = h;
+	do_size_hints( dpy, ident, extra, &size_hints );
     }
+    XResizeWindow( dpy, ident, w, h );
     QResizeEvent evt( s );
     SEND_EVENT( this, &evt );			// send resize event
     return TRUE;
@@ -283,27 +312,63 @@ bool QWidget::changeGeometry( int x, int y, int w, int h )
 	w = 1;
     if ( h < 1 )
 	h = 1;
-    QRect r( x, y, w, h );
-    setNCRect( r );
-    if ( testFlag(WX11_OddWM) ) {		// strange window manager
-	x = rect.left();			// use client rect pos
-	y = rect.top();
-    }
-    XMoveResizeWindow( dpy, ident, x, y, rect.width(), rect.height() );
-    if ( !testFlag(WState_Visible) && testFlag(WType_Overlap) ) {
+    QRect  r( x, y, w, h );
+    if ( r == ncrect )
+	return FALSE;
+    qXRequestConfig( this );
+    setNCRect( r );				// ZE BIGK WESTJON!!!!
+    if ( testFlag(WType_Overlap) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = USPosition | USSize;
 	size_hints.x = x;
 	size_hints.y = y;
 	size_hints.width = rect.width();
 	size_hints.height = rect.height();
-	XSetNormalHints( dpy, ident, &size_hints );
+	do_size_hints( dpy, ident, extra, &size_hints );
     }
+    XMoveResizeWindow( dpy, ident, x, y, rect.width(), rect.height() );
     QResizeEvent evt1( r.size() );
     SEND_EVENT( this, &evt1 );			// send resize event
     QMoveEvent evt2( r.topLeft() );
     SEND_EVENT( this, &evt2 );			// send move event
     return TRUE;
+}
+
+
+void QWidget::setMinimumSize( int w, int h )	// set minimum size
+{
+    if ( testFlag(WType_Overlap) ) {
+	createExtra();
+	extra->minw = w;
+	extra->minh = h;
+	XSizeHints size_hints;
+	size_hints.flags = 0;
+	do_size_hints( dpy, ident, extra, &size_hints );
+    }
+}
+
+void QWidget::setMaximumSize( int w, int h )	// set maximum size
+{
+    if ( testFlag(WType_Overlap) ) {
+	createExtra();
+	extra->maxw = w;
+	extra->maxh = h;
+	XSizeHints size_hints;
+	size_hints.flags = 0;
+	do_size_hints( dpy, ident, extra, &size_hints );
+    }
+}
+
+void QWidget::setSizeIncrement( int w, int h )
+{						// set size increment
+    if ( testFlag(WType_Overlap) ) {
+	createExtra();
+	extra->incw = w;
+	extra->inch = h;
+	XSizeHints size_hints;
+	size_hints.flags = 0;
+	do_size_hints( dpy, ident, extra, &size_hints );
+    }
 }
 
 
