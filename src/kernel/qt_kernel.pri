@@ -251,8 +251,11 @@ kernel {
 		  	    $$KERNEL_CPP/qfontengine_qws.cpp
 
 	wince-* {
+	      SOURCES -= $$KERNEL_CPP/qregion_win.cpp
+
 	      HEADERS += $$KERNEL_H/qfunctions_wce.h
-	      SOURCES += $$KERNEL_CPP/qfunctions_wce.cpp
+	      SOURCES += $$KERNEL_CPP/qfunctions_wce.cpp \
+	      		 $$KERNEL_CPP/qregion_wce.cpp
 	}
 
 	accessibility {
