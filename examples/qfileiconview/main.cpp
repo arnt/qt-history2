@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/main.cpp#7 $
+** $Id: //depot/qt/main/examples/qfileiconview/main.cpp#8 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -21,10 +21,10 @@ int main( int argc, char **argv )
     if ( argc == 2 && QString( "-desktop" ) == argv[1] ) {
 	QtFileIconView fiv( QString::null, TRUE );
 	a.setMainWidget( &fiv );
-        fiv.setFrameStyle( QFrame::NoFrame );
+	fiv.setFrameStyle( QFrame::NoFrame );
 	fiv.setCaption( "desktop" );
 	fiv.showMaximized();
-        fiv.setSelectionMode( QIconView::StrictMulti );
+	fiv.setSelectionMode( QIconView::StrictMulti );
 	fiv.setViewMode( QIconSet::Large );
 	fiv.setDirectory( "/" );
 	return a.exec();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#16 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#17 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -234,40 +234,40 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
     view = parent;
 
     if ( itemFileInfo.isDir() )
-        itemType = Dir;
+	itemType = Dir;
     else if ( itemFileInfo.isFile() )
-        itemType = File;
+	itemType = File;
     else if ( itemFileInfo.isSymLink() )
-        itemType = Link;
+	itemType = Link;
 
     setAllowDrop( FALSE );
 
     switch ( itemType )
     {
     case Dir:
-        if ( !QDir( itemFileName ).isReadable() )
-            setIcon( QPixmap( folder_locked_icon ) );
-        else
-            setIcon( QPixmap( folder_icon ) );
-        setAllowDrop( QDir( itemFileName ).isReadable()  );
-        break;
+	if ( !QDir( itemFileName ).isReadable() )
+	    setIcon( QPixmap( folder_locked_icon ) );
+	else
+	    setIcon( QPixmap( folder_icon ) );
+	setAllowDrop( QDir( itemFileName ).isReadable()	 );
+	break;
     case File:
-        setIcon( QPixmap( file_icon ) );
-        break;
+	setIcon( QPixmap( file_icon ) );
+	break;
     case Link:
-        setIcon( QPixmap( link_icon ) );
-        break;
+	setIcon( QPixmap( link_icon ) );
+	break;
     }
 
     if ( itemFileInfo.fileName() == "." ||
-         itemFileInfo.fileName() == ".." )
-        setAllowRename( FALSE );
+	 itemFileInfo.fileName() == ".." )
+	setAllowRename( FALSE );
 
     checkSetText = TRUE;
     calcRect();
 
     connect( &timer, SIGNAL( timeout() ),
-             this, SLOT( openFolder() ) );
+	     this, SLOT( openFolder() ) );
 
 
     // now do init stuff, to align in grid and so on
@@ -283,10 +283,10 @@ void QtFileIconViewItem::setText( const QString &text )
     QIconViewItem::setText( text );
 
     if ( checkSetText ) {
-        QDir dir( itemFileInfo.dir() );
-        dir.rename( itemFileInfo.fileName(), text );
-        itemFileName = itemFileInfo.dirPath( TRUE ) + "/" + text;
-        itemFileInfo = QFileInfo( itemFileName );
+	QDir dir( itemFileInfo.dir() );
+	dir.rename( itemFileInfo.fileName(), text );
+	itemFileName = itemFileInfo.dirPath( TRUE ) + "/" + text;
+	itemFileInfo = QFileInfo( itemFileName );
     }
 }
 
@@ -294,7 +294,7 @@ bool QtFileIconViewItem::acceptDrop( QMimeSource *e )
 {
     if ( type() == Dir && e->provides( "text/uri-list" ) &&
 	 allowDrop() )
-        return TRUE;
+	return TRUE;
 
     return FALSE;
 }
@@ -304,8 +304,8 @@ void QtFileIconViewItem::dropped( QDropEvent *e )
     timer.stop();
 
     if ( !QUriDrag::canDecode( e ) ) {
-        e->ignore();
-        return;
+	e->ignore();
+	return;
     }
 
     QStringList lst;
@@ -313,27 +313,27 @@ void QtFileIconViewItem::dropped( QDropEvent *e )
 
     QString str;
     if ( e->action() == QDropEvent::Copy )
-        str = "Copy\n\n";
+	str = "Copy\n\n";
     else
-        str = "Move\n\n";
+	str = "Move\n\n";
     QStringList::Iterator it = lst.begin();
     for ( ; it != lst.end(); ++it )
-        str += QString( "   %1\n" ).arg( *it );
+	str += QString( "   %1\n" ).arg( *it );
     str += QString( "\n"
-                    "To\n\n"
-                    "   %1" ).arg( filename() );
+		    "To\n\n"
+		    "	%1" ).arg( filename() );
 
     QMessageBox::information( iconView(), e->action() == QDropEvent::Copy ? "Copy" : "Move" , str, "Not Implemented" );
     if ( e->action() == QDropEvent::Move )
-        QMessageBox::information( iconView(), "Remove" , str, "Not Implemented" );
+	QMessageBox::information( iconView(), "Remove" , str, "Not Implemented" );
     e->acceptAction();
 }
 
 void QtFileIconViewItem::dragEntered()
 {
     if ( type() != Dir ||
-         type() == Dir && !QDir( itemFileName ).isReadable() )
-        return;
+	 type() == Dir && !QDir( itemFileName ).isReadable() )
+	return;
 
     timer.start( 1500 );
 }
@@ -341,8 +341,8 @@ void QtFileIconViewItem::dragEntered()
 void QtFileIconViewItem::dragLeft()
 {
     if ( type() != Dir ||
-         type() == Dir && !QDir( itemFileName ).isReadable() )
-        return;
+	 type() == Dir && !QDir( itemFileName ).isReadable() )
+	return;
 
     timer.stop();
 }
@@ -350,8 +350,8 @@ void QtFileIconViewItem::dragLeft()
 void QtFileIconViewItem::openFolder()
 {
     if ( type() != Dir ||
-         type() == Dir && !QDir( itemFileName ).isReadable() )
-        return;
+	 type() == Dir && !QDir( itemFileName ).isReadable() )
+	return;
 
     timer.stop();
     ((QtFileIconView*)iconView())->setDirectory( itemFileName );
@@ -364,14 +364,14 @@ void QtFileIconViewItem::openFolder()
  *****************************************************************************/
 
 QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
-                                QWidget *parent, const char *name )
+				QWidget *parent, const char *name )
     : QIconView( parent, name ), viewDir( dir ), newFolderNum( 0 ),
       isDesktop( isdesktop ), makeNewGradient( TRUE )
 {
     setRastX( 100 );
     setRastY( 75 );
     setResizeMode( Adjust );
-    
+
     connect( this, SIGNAL( doubleClicked( QIconViewItem * ) ), this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
     connect( this, SIGNAL( dropped( QDropEvent * ) ), this, SLOT( slotDropped( QDropEvent * ) ) );
     connect( this, SIGNAL( itemRightClicked( QIconViewItem * ) ), this, SLOT( slotItemRightClicked( QIconViewItem * ) ) );
@@ -393,15 +393,15 @@ void QtFileIconView::setDirectory( const QDir &dir )
 void QtFileIconView::newDirectory()
 {
     if ( viewDir.mkdir( QString( "New Folder %1" ).arg( ++newFolderNum ) ) ) {
-        QFileInfo *fi = new QFileInfo( viewDir, QString( "New Folder %1" ).arg( newFolderNum ) );
-        QtFileIconViewItem *item = new QtFileIconViewItem( this, fi );
-        delete fi;
-        repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
-        ensureItemVisible( item );
-        item->setSelected( TRUE, TRUE );
-        setCurrentItem( item );
-        repaintItem( item );
-        item->rename();
+	QFileInfo *fi = new QFileInfo( viewDir, QString( "New Folder %1" ).arg( newFolderNum ) );
+	QtFileIconViewItem *item = new QtFileIconViewItem( this, fi );
+	delete fi;
+	repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
+	ensureItemVisible( item );
+	item->setSelected( TRUE, TRUE );
+	setCurrentItem( item );
+	repaintItem( item );
+	item->rename();
     }
 }
 
@@ -413,7 +413,7 @@ QDir QtFileIconView::currentDir()
 void QtFileIconView::readDir( const QDir &dir )
 {
     if ( !dir.isReadable() )
-        return;
+	return;
 
     makeNewGradient = FALSE;
     QSize cs( contentsWidth(), contentsHeight() );
@@ -430,34 +430,34 @@ void QtFileIconView::readDir( const QDir &dir )
     QFileInfo *fi;
     bool allowRename = FALSE, allowRenameSet = FALSE;
     while ( ( fi = it.current() ) != 0 ) {
-        emit readNextDir();
-        ++it;
-        QtFileIconViewItem *item = new QtFileIconViewItem( this, fi );
-        if ( !allowRenameSet ) {
-            if ( !QFileInfo( fi->absFilePath() ).isWritable() ||
-                 item->text() == "." || item->text() == ".." )
-                allowRename = FALSE;
-            else
-                allowRename = TRUE;
-            if ( item->text() == "." || item->text() == ".." )
-                allowRenameSet = FALSE;
-            else
-                allowRenameSet = TRUE;
-        }
-        item->setAllowRename( allowRename );
-        qApp->processEvents();
+	emit readNextDir();
+	++it;
+	QtFileIconViewItem *item = new QtFileIconViewItem( this, fi );
+	if ( !allowRenameSet ) {
+	    if ( !QFileInfo( fi->absFilePath() ).isWritable() ||
+		 item->text() == "." || item->text() == ".." )
+		allowRename = FALSE;
+	    else
+		allowRename = TRUE;
+	    if ( item->text() == "." || item->text() == ".." )
+		allowRenameSet = FALSE;
+	    else
+		allowRenameSet = TRUE;
+	}
+	item->setAllowRename( allowRename );
+	qApp->processEvents();
     }
     emit readDirDone();
     makeNewGradient = TRUE;
     if ( isDesktop && cs != QSize( contentsWidth(), contentsHeight() ) ) {
-        int w = QMAX( contentsWidth(), viewport()->width() );
-        int h = QMAX( contentsHeight(), viewport()->height() );
-        if ( makeNewGradient ) {
-            QSize s = pix.size();
-            makeGradient( pix, Qt::blue, Qt::yellow, w, h );
-            if ( s != pix.size() )
-                viewport()->repaint( FALSE );
-        }
+	int w = QMAX( contentsWidth(), viewport()->width() );
+	int h = QMAX( contentsHeight(), viewport()->height() );
+	if ( makeNewGradient ) {
+	    QSize s = pix.size();
+	    makeGradient( pix, Qt::blue, Qt::yellow, w, h );
+	    if ( s != pix.size() )
+		viewport()->repaint( FALSE );
+	}
     }
 }
 
@@ -466,31 +466,31 @@ void QtFileIconView::itemDoubleClicked( QIconViewItem *i )
     QtFileIconViewItem *item = ( QtFileIconViewItem* )i;
 
     if ( item->type() == QtFileIconViewItem::Dir ) {
-        viewDir = QDir( item->filename() );
-        readDir( viewDir );
+	viewDir = QDir( item->filename() );
+	readDir( viewDir );
     } else if ( item->type() == QtFileIconViewItem::Link &&
-                QFileInfo( QFileInfo( item->filename() ).readLink() ).isDir() ) {
-        viewDir = QDir( QFileInfo( item->filename() ).readLink() );
-        readDir( viewDir );
+		QFileInfo( QFileInfo( item->filename() ).readLink() ).isDir() ) {
+	viewDir = QDir( QFileInfo( item->filename() ).readLink() );
+	readDir( viewDir );
     }
 }
 
 QDragObject *QtFileIconView::dragObject()
 {
     if ( !currentItem() )
-        return 0;
+	return 0;
 
     QStrList lst;
     lst.setAutoDelete( FALSE );
 
     QtFileIconViewItem *item = ( QtFileIconViewItem* )firstItem();
     for ( ; item; item = ( QtFileIconViewItem* )item->nextItem() )
-        if ( item->isSelected() )
-            lst.append( QString( "file://" + item->filename() ).latin1() );
+	if ( item->isSelected() )
+	    lst.append( QString( "file://" + item->filename() ).latin1() );
 
     QUrlDrag *drag = new QUrlDrag( lst, viewport() );
     drag->setPixmap( QPixmap( currentItem()->icon().pixmap( viewMode(), QIconSet::Normal ) ),
-                     QPoint( currentItem()->iconRect().width() / 2, currentItem()->iconRect().height() / 2 ) );
+		     QPoint( currentItem()->iconRect().width() / 2, currentItem()->iconRect().height() / 2 ) );
 
     return drag;
 }
@@ -498,17 +498,17 @@ QDragObject *QtFileIconView::dragObject()
 void QtFileIconView::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_N &&
-         ( e->state() & ControlButton ) )
-        newDirectory();
+	 ( e->state() & ControlButton ) )
+	newDirectory();
     else
-        QIconView::keyPressEvent( e );
+	QIconView::keyPressEvent( e );
 }
 
 void QtFileIconView::slotDropped( QDropEvent *e )
 {
     if ( !QUriDrag::canDecode( e ) ) {
-        e->ignore();
-        return;
+	e->ignore();
+	return;
     }
 
     QStringList lst;
@@ -516,19 +516,19 @@ void QtFileIconView::slotDropped( QDropEvent *e )
 
     QString str;
     if ( e->action() == QDropEvent::Copy )
-        str = "Copy\n\n";
+	str = "Copy\n\n";
     else
-        str = "Move\n\n";
+	str = "Move\n\n";
     QStringList::Iterator it = lst.begin();
     for ( ; it != lst.end(); ++it )
-        str += QString( "   %1\n" ).arg( *it );
+	str += QString( "   %1\n" ).arg( *it );
     str += QString( "\n"
-                    "To\n\n"
-                    "   %1" ).arg( viewDir.absPath() );
+		    "To\n\n"
+		    "	%1" ).arg( viewDir.absPath() );
 
     QMessageBox::information( this, e->action() == QDropEvent::Copy ? "Copy" : "Move" , str, "Not Implemented" );
     if ( e->action() == QDropEvent::Move )
-        QMessageBox::information( this, "Remove" , str, "Not Implemented" );
+	QMessageBox::information( this, "Remove" , str, "Not Implemented" );
     e->acceptAction();
 }
 
@@ -559,7 +559,7 @@ void QtFileIconView::alignInGrid()
 void QtFileIconView::slotItemRightClicked( QIconViewItem *item )
 {
     if ( !item )
-        return;
+	return;
 
     setCurrentItem( item );
     item->setSelected( TRUE, TRUE );
@@ -573,12 +573,12 @@ void QtFileIconView::slotItemRightClicked( QIconViewItem *item )
     int id = menu->exec( QCursor::pos() );
 
     if ( id == -1 )
-        return;
+	return;
 
     if ( id == RENAME_ITEM && item->allowRename() )
-        item->rename();
+	item->rename();
     else if ( id == REMOVE_ITEM )
-        QMessageBox::information( this, "Not implemented!", "Deleting files not implemented yet..." );
+	QMessageBox::information( this, "Not implemented!", "Deleting files not implemented yet..." );
 }
 
 void QtFileIconView::slotViewportRightClicked()
@@ -598,31 +598,31 @@ void QtFileIconView::slotViewportRightClicked()
 int QtFileIconView::dragItems( QDropEvent *e )
 {
     if ( QUriDrag::canDecode( e ) ) {
-        QStringList l;
-        QUriDrag::decodeLocalFiles( e, l );
-        return l.count();
+	QStringList l;
+	QUriDrag::decodeLocalFiles( e, l );
+	return l.count();
     }
     else
-        return QIconView::dragItems( e );
+	return QIconView::dragItems( e );
 }
 
 void QtFileIconView::drawBackground( QPainter *p, const QRect &r )
 {
     if ( !isDesktop ) {
-        QIconView::drawBackground( p, r );
-        return;
+	QIconView::drawBackground( p, r );
+	return;
     } else {
-        QRegion rg( r );
-        p->setClipRegion( rg );
+	QRegion rg( r );
+	p->setClipRegion( rg );
 
-        p->drawTiledPixmap( 0, 0, viewport()->width(), viewport()->height(), pix,
-                            contentsX(), contentsY() );
+	p->drawTiledPixmap( 0, 0, viewport()->width(), viewport()->height(), pix,
+			    contentsX(), contentsY() );
     }
 
 }
 
 void QtFileIconView::makeGradient( QPixmap &pmCrop, const QColor &_color1,
-                                   const QColor &_color2, int _xSize, int _ySize )
+				   const QColor &_color2, int _xSize, int _ySize )
 {
     QColor cRow;
     int rca, gca, bca;
@@ -642,19 +642,19 @@ void QtFileIconView::makeGradient( QPixmap &pmCrop, const QColor &_color1,
     bDiff = _color2.blue() - _color1.blue();
 
     for ( int y = _ySize; y > 0; y-- ) {
-        p = ( unsigned int* )image.scanLine( _ySize - y );
-        rat = 1.0 * y / _ySize;
+	p = ( unsigned int* )image.scanLine( _ySize - y );
+	rat = 1.0 * y / _ySize;
 
-        cRow.setRgb( rca + (int)( rDiff * rat ),
-                     gca + (int)( gDiff * rat ),
-                     bca + (int)( bDiff * rat ) );
+	cRow.setRgb( rca + (int)( rDiff * rat ),
+		     gca + (int)( gDiff * rat ),
+		     bca + (int)( bDiff * rat ) );
 
-        rgbRow = cRow.rgb();
+	rgbRow = cRow.rgb();
 
-        for( int x = 0; x < 30; x++ ) {
-            *p = rgbRow;
-            p++;
-        }
+	for( int x = 0; x < 30; x++ ) {
+	    *p = rgbRow;
+	    p++;
+	}
     }
 
     pmCrop.convertFromImage( image );
@@ -666,5 +666,5 @@ void QtFileIconView::resizeContents( int w, int h )
     w = QMAX( w, viewport()->width() );
     h = QMAX( h, viewport()->height() );
     if ( makeNewGradient )
-        makeGradient( pix, Qt::blue, Qt::yellow, w, h );
+	makeGradient( pix, Qt::blue, Qt::yellow, w, h );
 }
