@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#16 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qpoint.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#16 $");
 
 // magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -262,12 +262,18 @@ void QTipManager::showTip()
 			    WStyle_Customize | WStyle_NoBorder | WStyle_Tool );
 	CHECK_PTR( label );
 	label->setText( t->text );
-	label->setFrameStyle( QFrame::Plain | QFrame::Box );
+	QColorGroup g( black, QColor(255,255,220),
+		       QColor(96,96,96), black, black,
+		       black, QColor(255,255,220) );
+	label->setPalette( QPalette( g, g, g ) );
+	if ( QApplication::style() == MotifStyle )
+	    label->setFrameStyle( QFrame::Plain | QFrame::Box );
+	else
+	    label->setFrameStyle( QFrame::Raised | QFrame::Panel );
 	label->setLineWidth( 1 );
 	label->setMargin( 3 );
 	label->setAlignment( AlignLeft | AlignTop );
 	label->setAutoResize( TRUE );
-	label->setBackgroundColor( QColor(255,255,220) );
     }
     if ( pos.x() + label->width() > QApplication::desktop()->width() )
 	pos.setX( QApplication::desktop()->width() - label->width() );
@@ -310,7 +316,9 @@ void QTipManager::hideTip()
 
   The tip is a short, one-line text reminding the user of the widget's
   or rectangle's function.  It is drawn immediately below the region,
-  in a distinctive black on yellow combination.
+  in a distinctive black on yellow combination.  In Motif style, Qt's
+  tool tips look much like Motif's but feel more like Windows 95 tool
+  tips.
 
   QToolTipGroup provides a way for tool tips to display another text
   elsewhere (most often in a status bar).
