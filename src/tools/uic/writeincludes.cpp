@@ -100,6 +100,9 @@ void WriteIncludes::add(const QString &className)
     } else if (className == QLatin1String("QDateEdit") // special case for datetime
             || className == QLatin1String("QTimeEdit")) {
         m_includes.insert("qdatetimeedit.h", true);
+    } else if (className == QLatin1String("Q3DateEdit") // special case for d3atetime
+            || className == QLatin1String("Q3TimeEdit")) {
+        m_includes.insert("q3datetimeedit.h", true);
     } else if (!m_includes.contains(header)
             && !m_customWidgets.contains(className)) {
         m_includes.insert(header, true);
