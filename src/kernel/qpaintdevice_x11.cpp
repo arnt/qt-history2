@@ -294,7 +294,7 @@ extern "C" Qt::HANDLE XftDrawPicture( XftDraw * );
 Qt::HANDLE QPaintDevice::x11RenderHandle() const
 {
 #ifndef QT_NO_XFTFREETYPE
-    return XftDrawPicture( (XftDraw *) rendhd );
+    return rendhd ? XftDrawPicture( (XftDraw *) rendhd ) : 0;
 #else
     return 0;
 #endif // QT_NO_XFTFREETYPE
