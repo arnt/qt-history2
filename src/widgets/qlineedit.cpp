@@ -2365,7 +2365,7 @@ void QLineEditPrivate::setText( const QString& txt )
 	text = maskString( 0, txt, TRUE );
 	text += clearString( text.length(), maxLength - text.length() );
     } else {
-	text = txt.left( maxLength );
+ 	text = txt.isEmpty() ? QString::fromLatin1( "" ) : txt.left( maxLength );
     }
     history.clear();
     undoState = 0;
