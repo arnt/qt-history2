@@ -2257,7 +2257,7 @@ char *straddSpc( const char *s1, const char *s2,
   We call B::qt_invoke() rather than A::B::qt_invoke() to
   work around a bug in MSVC 6. The bug occurs if the
   super-class is in a namespace and the sub-class isn't.
-  
+
   Exception: if B == classname
 */
 QCString purestSuperClassName()
@@ -3141,7 +3141,7 @@ void generateClass()		      // generate C++ source code for a class
 		while ( a ) {
 		    QCString type = a->leftType + ' ' + a->rightType;
 		    type = type.simplifyWhiteSpace();
-		    if ( isInOut( type ) ) {
+		    if ( validUType( type ) && isInOut( type ) ) { 
 			QCString utype = uType( type );
 			fprintf( out, "    t%d = pQUType_%s->get(o+%d);\n", offset, utype.data(), offset+1 );
 		    }
