@@ -81,7 +81,7 @@ shape. Most canvas items derive from this class.</td>
 <tr>
 <td valign="top">\l QCanvasRectangle </td>
 <td valign="top">A rectangle. The rectangle cannot be tilted or rotated.
-Rotated rectangles can be drawn using \l QCanvasPolygon.</td>
+Rotated rectangles can be drawn using QCanvasPolygon.</td>
 </tr>
 <tr>
 <td valign="top">\l QCanvasSpline </td>

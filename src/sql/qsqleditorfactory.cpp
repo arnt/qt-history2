@@ -63,7 +63,7 @@
 
 
 /*!  Constructs a SQL editor factory with parent \a parent and name \a
- * name.
+ name.
 
 */
 

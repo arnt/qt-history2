@@ -36,11 +36,13 @@
 
 \title Format of the QDataStream operators
 
-The \l QDataStream allows you to serialize some of the Qt data types. In
-the following table you find for these data types the format of the
-serialization.
+The \l QDataStream allows you to serialize some of the Qt data types.
+The table below lists the data types that QDataStream can serialize.
 
 <table>
+
+<tr bgcolor=#f0f0f0>
+<th valign=top>Type</th><th valign=top>Format</th></tr>
 
 <tr bgcolor=#f0f0f0>
 <td valign=top>

@@ -223,7 +223,7 @@ QVariant QSqlRecord::value( int i ) const
     return field(i)->value();
 }
 
-/*!  \overlaod
+/*!  \overload
 
   Returns the value of the field named \a name in the record.  If
   field \a name does not exist the resultant behaviour is undefined.

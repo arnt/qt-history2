@@ -80,13 +80,13 @@ QSqlDriver::~QSqlDriver()
 }
 
 /*! \fn bool QSqlDriver::open( const QString& db, const QString& user,
-    const QString& password, const QString& host, int port ) Derived
-    classes must reimplement this abstract virtual function in order
-    to open a database connection on database \a db, using user name
-    \a user, password \a password, host \a host and port \a
-    port.. 
+    const QString& password, const QString& host, int port ) 
     
-    The function must TRUE on success, FALSE on failure.
+    Derived classes must reimplement this abstract virtual function in
+    order to open a database connection on database \a db, using user
+    name \a user, password \a password, host \a host and port \a port. 
+    
+    The function \e must return TRUE on success and FALSE on failure.
 
     \sa setOpen()
 

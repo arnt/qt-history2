@@ -2812,12 +2812,12 @@ void QCanvasPixmapArray::reset()
 /*!
     Reads one or more pixmaps into the pixmap array.
 
-  If \a fc is not 0, \a datafilenamepattern should contain "%1", e.g.
+  If \a fc is not 0, \a filenamepattern should contain "%1", e.g.
   "foo%1.png". The actual filenames are formed by replacing the
   %1 with four-digit integers from 0 to (fc - 1), e.g. foo0000.png,
   foo0001.png, foo0002.png, etc.
 
-  If \a fc is 0, \a datafilenamepattern is asssumed to be a filename,
+  If \a fc is 0, \a filenamepattern is asssumed to be a filename,
   and the image contained in this file will be loaded as the first (and
   only) frame.
 
@@ -2842,7 +2842,7 @@ bool QCanvasPixmapArray::readPixmaps( const QString& filenamepattern,
   If count() is 1 \a filename must specify a real filename to read the
   mask from. If count() is greater than 1, the \a filename must
   contain a "%1" that will get replaced by the number of the mask to
-  be loaded, similar to \l readPixmaps.
+  be loaded, similar to QCanvasPixmapArray::readPixmaps.
   
   All collision masks must be 1-bit images or this function call will
   fail.
@@ -3063,6 +3063,7 @@ int QCanvasSprite::bottomEdge(int ny) const
 */
 
 /*!
+    \overload
   \fn QCanvasPixmap* QCanvasSprite::image(int f) const
   Returns the image for frame \a f. Does not do any bounds checking on \a f.
 */

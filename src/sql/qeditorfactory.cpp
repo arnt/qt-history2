@@ -122,7 +122,8 @@ void QEditorFactory::installDefaultFactory( QEditorFactory * factory )
 
 /*!
   Creates and returns the appropriate editor for the QVariant \a v.
-  If the QVariant is invalid, 0 is returned.
+  If the QVariant is invalid, 0 is returned. The \a parent is passed to
+  the appropriate editor's constructor.
 */
 
 QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )

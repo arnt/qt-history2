@@ -1238,7 +1238,7 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 /*!
   \fn void QDateTime::setDate( const QDate &date )
 
-  Sets the date part of this datetime.
+  Sets the date part of this datetime to \a date.
 
   \sa date(), setTime()
 */
@@ -1246,7 +1246,7 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 /*!
   \fn void QDateTime::setTime( const QTime &time )
 
-  Sets the time part of this datetime.
+  Sets the time part of this datetime to \a time.
 
   \sa time(), setDate()
 */
@@ -1554,7 +1554,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 #ifndef QT_NO_DATASTREAM
 /*!
   \relates QDate
-  Writes the date to the stream.
+  Writes the date, \a d, to the data stream, \a s.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -1566,7 +1566,7 @@ QDataStream &operator<<( QDataStream &s, const QDate &d )
 
 /*!
   \relates QDate
-  Reads a date from the stream.
+  Reads a date from the stream \a s into \a d.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -1593,7 +1593,7 @@ QDataStream &operator<<( QDataStream &s, const QTime &t )
 
 /*!
   \relates QTime
-  Reads a time from the stream.
+  Reads a time from the stream \a s into \a t.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -1608,7 +1608,7 @@ QDataStream &operator>>( QDataStream &s, QTime &t )
 
 /*!
   \relates QDateTime
-  Writes a datetime to the stream.
+  Writes the datetime \a dt to the stream \a s.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -1620,7 +1620,7 @@ QDataStream &operator<<( QDataStream &s, const QDateTime &dt )
 
 /*!
   \relates QDateTime
-  Reads a datetime from the stream.
+  Reads a datetime from the stream \a s into \a dt.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
