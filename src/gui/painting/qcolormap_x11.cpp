@@ -520,13 +520,6 @@ int QColormap::size() const
 
 uint QColormap::pixel(const QColor &color) const
 {
-    if (!color.isValid()) {
-        qWarning("requesting pixel value of invalid color!");
-        return pixel(Qt::black);
-    }
-    if (color.spec() != QColor::Rgb)
-        return pixel(color.toRgb());
-
     QRgb rgb = color.rgb();
     // Qt::color0 or Qt::color1 have fixed values for all screens
     if (rgb == 0x01ffffff)
