@@ -797,6 +797,18 @@ public:
 	    }
 	}
 
+    	// Make sure a QApplication instance is present (inprocess case)
+        if ( !qApp ) {
+            qax_ownQApp = TRUE;
+            int argc = 0;
+            (void)new QAxApplication(argc);
+            QT_WA( {
+                qax_hhook = SetWindowsHookExW( WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId() );
+            }, {
+                qax_hhook = SetWindowsHookExA( WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId() );
+            } );
+        }
+
 	const QMetaObject *mo = qAxFactory()->metaObject(className);
 	if (mo) {
 	    classKey = mo->classInfo(mo->indexOfClassInfo("LicenseKey")).value();
@@ -853,18 +865,6 @@ public:
 	    const QMetaObject *mo = qAxFactory()->metaObject(className);
 	    if (mo && QString(mo->classInfo(mo->indexOfClassInfo("Aggregatable")).value()) == "no")
 		return CLASS_E_NOAGGREGATION;
-	}
-
-	// Make sure a QApplication instance is present (inprocess case)
-	if ( !qApp ) {
-	    qax_ownQApp = TRUE;
-	    int argc = 0;
-	    (void)new QAxApplication(argc);
-	    QT_WA( {
-		qax_hhook = SetWindowsHookExW( WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId() );
-	    }, {
-		qax_hhook = SetWindowsHookExA( WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId() );
-	    } );
 	}
 
 	HRESULT res;
