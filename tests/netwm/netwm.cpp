@@ -22,8 +22,6 @@
 
 */
 
-#define DEBUG
-
 #include "netwm.h"
 
 #include <string.h>
