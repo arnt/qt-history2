@@ -1043,7 +1043,6 @@ Q_EXPORT const char *qInstallPathData();
 class QBool
 {
     bool b;
-    inline operator int() const;
 public:
     inline QBool(bool b):b(b){};
     inline operator bool() const {return b;}

@@ -294,7 +294,7 @@ bool QProcess::start( QStringList *env )
 		QString tmp = QString( "PATH=%1" ).arg( getenv( "PATH" ) );
 		uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
 		envlist.resize( envlist.size() + tmpSize );
-		memcpy( envlist.data()+pos, tmp.ucs2(), tmpSize );
+		memcpy( envlist.detach()+pos, tmp.ucs2(), tmpSize );
 		pos += tmpSize;
 	    }
 	    // add the user environment
@@ -302,7 +302,7 @@ bool QProcess::start( QStringList *env )
 		QString tmp = *it;
 		uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
 		envlist.resize( envlist.size() + tmpSize );
-		memcpy( envlist.data()+pos, tmp.ucs2(), tmpSize );
+		memcpy( envlist.detach()+pos, tmp.ucs2(), tmpSize );
 		pos += tmpSize;
 	    }
 	    // add the 2 terminating 0 (actually 4, just to be on the safe side)
@@ -317,7 +317,7 @@ bool QProcess::start( QStringList *env )
 #ifndef Q_OS_TEMP
 		| CREATE_UNICODE_ENVIRONMENT
 #endif
-		, env==0 ? 0 : envlist.data(),
+		, env==0 ? 0 : envlist.detach(),
 		(TCHAR*)workingDir.absPath().ucs2(),
 		&startupInfo, d->pid );
 	free( applicationName );
@@ -339,18 +339,18 @@ bool QProcess::start( QStringList *env )
 	    // add PATH if necessary (for DLL loading)
 	    char *path = getenv( "PATH" );
 	    if ( env->grep( QRegExp("^PATH=",FALSE) ).empty() && path ) {
-		QCString tmp = QString( "PATH=%1" ).arg( getenv( "PATH" ) ).local8Bit();
+		QByteArray tmp = QString( "PATH=%1" ).arg( getenv( "PATH" ) ).toLocal8Bit();
 		uint tmpSize = tmp.length() + 1;
 		envlist.resize( envlist.size() + tmpSize );
-		memcpy( envlist.data()+pos, tmp.data(), tmpSize );
+		memcpy( envlist.detach()+pos, tmp.data(), tmpSize );
 		pos += tmpSize;
 	    }
 	    // add the user environment
 	    for ( QStringList::Iterator it = env->begin(); it != env->end(); it++ ) {
-		QCString tmp = (*it).local8Bit();
+		QByteArray tmp = (*it).toLocal8Bit();
 		uint tmpSize = tmp.length() + 1;
 		envlist.resize( envlist.size() + tmpSize );
-		memcpy( envlist.data()+pos, tmp.data(), tmpSize );
+		memcpy( envlist.detach()+pos, tmp.data(), tmpSize );
 		pos += tmpSize;
 	    }
 	    // add the terminating 0 (actually 2, just to be on the safe side)
@@ -362,11 +362,11 @@ bool QProcess::start( QStringList *env )
 	if ( appName.isNull() )
 	    applicationName = 0;
 	else
-	    applicationName = appName.local8Bit().data();
-	success = CreateProcessA( applicationName, args.local8Bit().data(),
+	    applicationName = appName.toLocal8Bit().detach();
+	success = CreateProcessA( applicationName, args.toLocal8Bit().detach(),
 		0, 0, TRUE, comms==0 ? CREATE_NEW_CONSOLE : DETACHED_PROCESS,
-		env==0 ? 0 : envlist.data(),
-		(const char*)workingDir.absPath().local8Bit(),
+		env==0 ? 0 : envlist.detach(),
+		workingDir.absPath().local8Bit(),
 		&startupInfo, d->pid );
 #endif // Q_OS_TEMP
     }
@@ -504,7 +504,7 @@ void QProcess::socketRead( int fd )
 	    buffer = &d->bufStderr;
 
 	QByteArray *ba = new QByteArray( i );
-	uint sz = readStddev( dev, ba->data(), i );
+	uint sz = readStddev( dev, ba->detach(), i );
 	if ( sz != i )
 	    ba->resize( i );
 

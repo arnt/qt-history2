@@ -760,7 +760,7 @@ int QMembuf::ungetch( int ch )
 	QByteArray *ba = buf->first();
 	_index--;
 	_size++;
-	(*ba)[_index] = ch;
+	(*ba)[(int)_index] = ch;
     }
     return ch;
 }

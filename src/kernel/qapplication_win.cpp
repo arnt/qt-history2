@@ -943,20 +943,19 @@ static void msgHandler( QtMsgType t, const char* str )
 
     if ( !str )
 	str = "(null)";
-    QCString s = str;
-    s += "\n";
+
 #if defined(QT_THREAD_SUPPORT)
     staticSection.enter();
 #endif
-#ifndef Q_OS_TEMP
-    OutputDebugStringA( s.data() );
-#else
     QT_WA(
-	OutputDebugStringW( (TCHAR*)qt_winTchar(s,TRUE) );
+	QString s(str);
+	s += "\n";
+	OutputDebugStringW( (TCHAR*)s.ucs2() );
     ,
+	QByteArray s(str);
+	s += "\n";
 	OutputDebugStringA( s.data() );
     )
-#endif
 #if defined(QT_THREAD_SUPPORT)
     staticSection.leave();
 #endif

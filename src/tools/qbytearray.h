@@ -94,6 +94,8 @@ public:
     const char at(int i) const;
     const char operator[](int i) const;
     QByteRef operator[](int i);
+    const char operator[](uint i) const;
+    QByteRef operator[](uint i);
 
     int find(char c, int i=0) const;
     int find(const char *c, int i=0) const;
@@ -212,6 +214,8 @@ inline const char QByteArray::at(int i) const
 { Q_ASSERT(i >= 0 && i < size()); return d->data[i]; }
 inline const char QByteArray::operator[](int i) const
 { Q_ASSERT(i >= 0 && i < size()); return d->data[i]; }
+inline const char QByteArray::operator[](uint i) const
+{ Q_ASSERT(i < (uint)size()); return d->data[i]; }
 inline bool QByteArray::isEmpty() const { return d->size == 0; }
 inline QByteArray::operator const char*() const
 { return d->data; }
@@ -239,7 +243,7 @@ class Q_EXPORT QByteRef {
 public:
     inline operator const char() const
 	{ return i < a.d->size ? a.d->data[i] : 0; }
-    inline QByteRef &operator=(const char c)
+    inline QByteRef &operator=(char c)
 	{ if (a.d->ref != 1 || i >= a.d->size) a.expand(i);
 	  a.d->data[i] = c;  return *this; }
     inline QByteRef &operator=(const QByteRef &c)
@@ -261,6 +265,8 @@ public:
 
 inline QByteRef QByteArray::operator[](int i)
 { Q_ASSERT(i >= 0); return QByteRef(*this, i); }
+inline QByteRef QByteArray::operator[](uint i)
+{ return QByteRef(*this, i); }
 inline QByteArray::Iterator QByteArray::begin()
 { return detach(); }
 inline QByteArray::ConstIterator QByteArray::begin() const

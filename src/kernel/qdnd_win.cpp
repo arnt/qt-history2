@@ -325,8 +325,7 @@ const char* dnd_format( int fn )
     if (!current_dropobj) // Sanity
 	return 0;
 
-    static QCString fmt;
-    fmt="";
+    static QByteArray fmt("");
 
     int n;
     LPFORMATETC fmtetc = allFormats(n);

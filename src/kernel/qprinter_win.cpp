@@ -767,8 +767,8 @@ static void setDefaultPrinterA(const QString &printerName, HANDLE *hmode, HANDLE
     HANDLE hdevnames = *hnames;
     // Open the printer by name, to get a HANDLE
     HANDLE hPrinter;
-    QCString pName = printerName.local8Bit();
-    if ( !OpenPrinterA( pName.data(), &hPrinter,NULL ) ) {
+    QByteArray pName = printerName.toLocal8Bit();
+    if ( !OpenPrinterA( pName.detach(), &hPrinter,NULL ) ) {
 	qDebug( "OpenPrinterA(%s) failed, error %d", pName.data(), GetLastError() );
 	return;
     }
@@ -1261,9 +1261,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             DOCINFOA di;
             memset( &di, 0, sizeof(DOCINFOA) );
             di.cbSize = sizeof(DOCINFOA);
-	    QCString docNameA = doc_name.local8Bit();
+	    QByteArray docNameA = doc_name.toLocal8Bit();
             di.lpszDocName = docNameA.data();
-	    QCString outfileA = output_filename.local8Bit();
+	    QByteArray outfileA = output_filename.toLocal8Bit();
 	    if ( output_file && !output_filename.isEmpty() )
 		di.lpszOutput = outfileA.data();
             if ( ok && StartDocA(hdc, &di) == SP_ERROR )
@@ -1610,7 +1610,6 @@ void QPrinter::reinit()
 			    D->needReinit = FALSE;
 			}
 		} else {
-		    qt_winTchar( printer_name, true );
 		    hdcTmp = CreateDC( L"WINSPOOL", (TCHAR*)printer_name.ucs2(), 0, dm );
 		}
 		GlobalUnlock( hdevmode );
@@ -1629,8 +1628,7 @@ void QPrinter::reinit()
 			    D->needReinit = FALSE;
 			}
 		} else {
-		    qt_winTchar( printer_name, true );
-		    hdcTmp = CreateDCA( "WINSPOOL", printer_name.latin1(), 0, dm );
+		    hdcTmp = CreateDCA( "WINSPOOL", printer_name.local8Bit(), 0, dm );
 		}
 		GlobalUnlock( hdevmode );
 	    } else

@@ -160,10 +160,10 @@ static QString selFilter( const QString& filter, DWORD idx )
 
 #ifndef Q_OS_TEMP
 // Static vars for OFNA funcs:
-static QCString aInitDir;
-static QCString aInitSel;
-static QCString aTitle;
-static QCString aFilter;
+static QByteArray aInitDir;
+static QByteArray aInitSel;
+static QByteArray aTitle;
+static QByteArray aFilter;
 // Use ANSI strings and API
 
 // If you change this, then make sure you change makeOFN (below) too
@@ -206,7 +206,7 @@ OPENFILENAMEA* makeOFNA( QWidget* parent,
 #endif
     ofn->hwndOwner	= parent ? parent->winId() : 0;
     ofn->lpstrFilter	= aFilter.data();
-    ofn->lpstrFile	= aInitSel.data();
+    ofn->lpstrFile	= aInitSel.detach();
     ofn->nMaxFile	= maxLen;
     ofn->lpstrInitialDir = aInitDir.data();
     ofn->lpstrTitle	= aTitle.data();
@@ -535,7 +535,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	if ( idx )
 	    ofn->nFilterIndex = idx + 1;
 	if ( GetOpenFileNameA( ofn ) ) {
-	    QCString fileOrDir = ofn->lpstrFile;
+	    QByteArray fileOrDir(ofn->lpstrFile);
 	    selFilIdx = ofn->nFilterIndex;
 	    int offset = fileOrDir.length() + 1;
 	    if ( ofn->lpstrFile[offset] == '\0' ) {
@@ -548,8 +548,8 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	    else {
 		// Several files selected; first string is path
 		dir.setPath( QString::fromLocal8Bit( fileOrDir ) );
-		QCString f;
-		while( !( f = ofn->lpstrFile + offset).isEmpty() ) {
+		QByteArray f;
+		while( !( f = QByteArray(ofn->lpstrFile + offset)).isEmpty() ) {
 		    fi.setFile( dir, QString::fromLocal8Bit( f ) );
 		    QString res = fi.absFilePath();
 		    if ( !res.isEmpty() )
@@ -670,7 +670,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	QString initDir = QDir::convertSeparators(initialDirectory);
 	char path[MAX_PATH];
 	char initPath[MAX_PATH];
-	QCString ctitle = title.local8Bit();
+	QByteArray ctitle = title.toLocal8Bit();
 	initPath[0]=0;
 	path[0]=0;
 	BROWSEINFOA bi;

@@ -296,7 +296,7 @@ int QFontMetrics::leftBearing(QChar ch) const
 	} , {
 	    uint ch8;
 	    if ( ch.row() || ch.cell() > 125 ) {
-		QCString w = QString(ch).local8Bit();
+		QByteArray w = QString(ch).toLocal8Bit();
 		if ( w.length() != 1 )
 		    return 0;
 		ch8 = w[0];
@@ -340,7 +340,7 @@ int QFontMetrics::rightBearing(QChar ch) const
 	} , {
 	    uint ch8;
 	    if ( ch.row() || ch.cell() > 125 ) {
-		QCString w = QString(ch).local8Bit();
+		QByteArray w = QString(ch).toLocal8Bit();
 		if ( w.length() != 1 )
 		    return 0;
 		ch8 = w[0];

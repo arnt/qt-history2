@@ -114,7 +114,7 @@ struct QWindowsRegisteredMimeType {
     QWindowsRegisteredMimeType(int c, const char *m) :
 	cf(c), mime(m) {}
     int cf;
-    QCString mime;
+    QByteArray mime;
 };
 
 static QPtrList<QWindowsRegisteredMimeType> mimetypes;
@@ -270,10 +270,10 @@ int QWindowsMimeText::cfFor(const char* mime)
 {
     if ( 0==qstricmp( mime, "text/plain" ) )
 	return CF_TEXT;
-    QCString m(mime);
+    QByteArray m(mime);
     int i = m.find("charset=");
     if ( i >= 0 ) {
-	QCString cs(m.data()+i+8);
+	QByteArray cs(m.data()+i+8);
 	i = cs.find(";");
 	if ( i>=0 )
 	    cs = cs.left(i);
@@ -317,7 +317,7 @@ QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* /*mime*
 	const char* d = data.data();
 	const int s = qstrlen(d);
 	QByteArray r(data.size()+1);
-	char* o = r.data();
+	char* o = r.detach();
 	int j=0;
 	for (int i=0; i<s; i++) {
 	    char c = d[i];
@@ -339,11 +339,11 @@ QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* /*mime*
     QByteArray r(s+2);
     r[0]=uchar(0xff); // BOM
     r[1]=uchar(0xfe);
-    memcpy(r.data()+2,data.data(),s);
+    memcpy(r.detach()+2,data.data(),s);
     return r;
 }
 
-extern QTextCodec* findcharset(const QCString& mimetype);
+extern QTextCodec* findcharset(const QByteArray& mimetype);
 
 QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime, int cf )
 {
@@ -351,7 +351,7 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	// Anticipate required space for CRLFs at 1/40
 	int maxsize=data.size()+data.size()/40+3;
 	QByteArray r(maxsize);
-	char* o = r.data();
+	char* o = r.detach();
 	const char* d = data.data();
 	const int s = data.size();
 	bool cr=FALSE;
@@ -371,13 +371,13 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	    if ( j+3 >= maxsize ) {
 		maxsize += maxsize/4;
 		r.resize(maxsize);
-		o = r.data();
+		o = r.detach();
 	    }
 	}
 	o[j]=0;
 	return r;
     } else if ( cf == CF_UNICODETEXT ) {
-	QTextCodec *codec = findcharset(mime);
+	QTextCodec *codec = findcharset(QByteArray(mime));
 	QString str = codec->toUnicode( data );
 	const QChar *u = str.unicode();
 	QString res;
@@ -404,7 +404,7 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	res.truncate( ri );
 	const int byteLength = res.length()*2;
 	QByteArray r( byteLength + 2 );
-	memcpy( r.data(), res.unicode(), byteLength );
+	memcpy( r.detach(), res.unicode(), byteLength );
 	r[byteLength] = 0;
 	r[byteLength+1] = 0;
 	return r;
@@ -418,7 +418,7 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
     {
 	// Right way - but skip header and add nul
 	QByteArray r(data.size());
-	memcpy(r.data(),data.data()+2,data.size()-2);
+	memcpy(r.detach(),data.data()+2,data.size()-2);
 	r[(int)data.size()-2] = 0;
 	r[(int)data.size()-1] = 0;
 	return r;
@@ -429,13 +429,13 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	    // Odd byte - drop last
 	    s--;
 	}
-	char* i = data.data();
+	char* i = data.detach();
 	if ( (uchar)i[0] == uchar(0xfe) && (uchar)i[1] == uchar(0xff) ) {
 	    i += 2;
 	    s -= 2;
 	}
 	QByteArray r(s+2);
-	char* o = r.data();
+	char* o = r.detach();
 	while (s) {
 	    o[0] = i[1];
 	    o[1] = i[0];
@@ -519,9 +519,9 @@ EndFragment:xxxxxxxxxx
 */
 QByteArray QWindowsMimeHtml::convertToMime( QByteArray _data, const char* /*mime*/, int cf )
 {
-    QCString data( _data );
+    QByteArray data( _data );
     int ms = data.size();
-    QCString result;
+    QByteArray result;
     qDebug("fragment = \n%s\n", data.data() );
 #if 1
     int start = data.find("StartFragment:");
@@ -541,12 +541,12 @@ QByteArray QWindowsMimeHtml::convertToMime( QByteArray _data, const char* /*mime
     return result;
 }
 
-extern QTextCodec* findcharset(const QCString& mimetype);
+extern QTextCodec* findcharset(const QByteArray& mimetype);
 
 QByteArray QWindowsMimeHtml::convertFromMime( QByteArray _data, const char* mime, int cf )
 {
-    QCString data( _data );
-    QCString result = 
+    QByteArray data( _data );
+    QByteArray result = 
 	"Version 1.0\r\n"		    // 0-12
 	"StartHTML:0000000105\r\n"	    // 13-35
 	"EndHTML:0000000000\r\n"	    // 36-55
@@ -560,7 +560,7 @@ QByteArray QWindowsMimeHtml::convertFromMime( QByteArray _data, const char* mime
 	result += "<!--EndFragment-->";
 
     // set the correct number for EndHTML
-    QCString pos = QString::number( result.size() ).latin1();
+    QByteArray pos = QString::number( result.size() ).latin1();
     memcpy( (char *)(result.data() + 53 - pos.length()), pos.data(), pos.length() );
 
     // set correct numbers for StartFragment and EndFragment
@@ -642,7 +642,7 @@ QByteArray QWindowsMimeImage::convertToMime( QByteArray data, const char* mime, 
     QDataStream s(&iod);
     s.setByteOrder( QDataStream::LittleEndian );// Intel byte order ####
     if (qt_read_dib( s, img )) { // ##### encaps "-14"
-	QCString ofmt = mime+6;
+	QByteArray ofmt(mime+6);
 	QByteArray ba;
 	QBuffer iod(ba);
 	iod.open(IO_WriteOnly);
@@ -737,7 +737,7 @@ QByteArray QWindowsMimeUri::convertToMime( QByteArray data, const char* mime, in
     const char* files = (const char* )data.data() + hdrop->pFiles;
     const ushort* filesw = (const ushort*)files;
 
-    QCString texturi;
+    QByteArray texturi;
 
     int i=0;
     if ( hdrop->fWide ) {
@@ -775,7 +775,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	QT_WA( {
 	    size += sizeof(TCHAR)*( (*i).length()+1 );
 	} , {
-	    size += (*i).local8Bit().length()+1;
+	    size += (*i).toLocal8Bit().length()+1;
 	} );
     }
 
@@ -805,7 +805,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	char* f = files;
 
 	for ( i = fn.begin(); i!=fn.end(); ++i ) {
-	    QCString c = (*i).local8Bit();
+	    QByteArray c = (*i).toLocal8Bit();
 	    int l = c.length();
 	    memcpy(f, c.data(), l);
 	    for (int j = 0; j<l; j++)

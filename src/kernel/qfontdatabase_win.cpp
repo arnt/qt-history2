@@ -258,8 +258,8 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 		HDC hdc = GetDC( 0 );
 		LOGFONTA lf;
 		memset( &lf, 0, sizeof( LOGFONTA ) );
-		QCString lfam = familyName.local8Bit();
-		memcpy( lf.lfFaceName, familyName.local8Bit(), QMIN( LF_FACESIZE, familyName.local8Bit().length() ) );
+		QByteArray lfam = familyName.toLocal8Bit();
+		memcpy( lf.lfFaceName, lfam.data(), QMIN( LF_FACESIZE, lfam.length() ) );
 		HFONT hfont = CreateFontIndirectA( &lf );
 		HGDIOBJ oldobj = SelectObject( hdc, hfont );
 		GetTextCharsetInfo( hdc, &signature, 0 );
@@ -344,7 +344,7 @@ void populate_database(const QString& fam)
         if ( fam.isNull() ) {
             lf.lfFaceName[0] = 0;
         } else {
-            QCString lname = fam.local8Bit();
+            QByteArray lname = fam.toLocal8Bit();
             memcpy(lf.lfFaceName,lname.data(),
                 QMIN(lname.length()+1,32));  // 32 = Windows hard-coded
         }
@@ -628,7 +628,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
 	    hfont = CreateFontIndirect( &lf );
 	} , {
 	    // LOGFONTA and LOGFONTW are binary compatible
-	    QCString lname = fam.local8Bit();
+	    QByteArray lname = fam.toLocal8Bit();
 	    memcpy(lf.lfFaceName,lname.data(),
 		QMIN(lname.length()+1,32));  // 32 = Windows hard-coded
 	    hfont = CreateFontIndirectA( (LOGFONTA*)&lf );

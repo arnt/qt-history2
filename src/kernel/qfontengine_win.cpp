@@ -387,7 +387,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	    for( int i = 0; i < si->num_glyphs; i++ ) {
     		QChar chr = *glyphs;
 		QConstString str( &chr, 1 );
-		QCString cstr = str.string().local8Bit();
+		QByteArray cstr = str.string().toLocal8Bit();
 		TextOutA( hdc, x + offsets->x, y + offsets->y, cstr.data(), cstr.length() );
 		x += *advances;
 		glyphs++;
@@ -590,7 +590,7 @@ int QFontEngineWin::minRightBearing() const
 			GetCharABCWidths(hdc, char_table[i], char_table[i], abc+i);
 		}, {
 		    for( int i = 0; i < char_table_entries; i++ ) {
-			QCString w = QString(QChar(char_table[i])).local8Bit();
+			QByteArray w = QString(QChar(char_table[i])).toLocal8Bit();
 			if ( w.length() == 1 ) {
 			    uint ch8 = w[0];
 			    GetCharABCWidthsA(hdc, ch8, ch8, abc+i );

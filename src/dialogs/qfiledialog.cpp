@@ -5653,7 +5653,7 @@ static bool isRoot( const QUrl &u )
 	 p.right( 2 ) == ":/" )
 	return TRUE;
     if ( p[ 0 ] == '/' && p[ 1 ] == '/' ) {
-	int slashes = p.contains( '/' );
+	int slashes = p.count( '/' );
 	if ( slashes <= 3 )
 	    return TRUE;
 	if ( slashes == 4 && p[ (int)p.length() - 1 ] == '/' )

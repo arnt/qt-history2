@@ -8,8 +8,8 @@
 class QBitRef;
 class Q_EXPORT QBitArray
 {
-    friend QDataStream &operator<<( QDataStream &, const QBitArray & );
-    friend QDataStream &operator>>( QDataStream &, QBitArray & );
+    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QBitArray & );
+    friend Q_EXPORT QDataStream &operator>>( QDataStream &, QBitArray & );
     QByteArray d;
 public:
     inline QBitArray(){};
@@ -30,6 +30,8 @@ public:
     const bool at(int i) const;
     QBitRef operator[](int i);
     const bool operator[](int i) const;
+    QBitRef operator[](uint i);
+    const bool operator[](uint i) const;
 
     QBitArray& operator&=(const QBitArray &);
     QBitArray& operator|=(const QBitArray &);
@@ -75,6 +77,7 @@ inline bool QBitArray::toggleBit(int i)
  uchar c = *p&b; *p^=b; return c!=0; }
 
 inline const bool QBitArray::operator[](int i) const { return testBit(i); }
+inline const bool QBitArray::operator[](uint i) const { return testBit(i); }
 inline const bool QBitArray::at(int i) const { return testBit(i); }
 
 class Q_EXPORT QBitRef
@@ -92,6 +95,8 @@ public:
 
 inline QBitRef QBitArray::operator[](int i)
 { Q_ASSERT(i >= 0); return QBitRef(*this, i); }
+inline QBitRef QBitArray::operator[](uint i)
+{ return QBitRef(*this, i); }
 
 
 #ifndef QT_NO_DATASTREAM

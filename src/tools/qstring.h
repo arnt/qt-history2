@@ -46,6 +46,8 @@ public:
     const QChar at(int i) const;
     const QChar operator[](int i) const;
     QCharRef operator[](int i);
+    const QChar operator[](uint i) const;
+    QCharRef operator[](uint i);
 
     QString arg( Q_LLONG a, int fieldwidth=0, int base=10 ) const;
     QString arg( Q_ULLONG a, int fieldwidth=0, int base=10 ) const;
@@ -361,6 +363,8 @@ inline const QChar QString::at(int i) const
 { Q_ASSERT(i >= 0 && i < size()); return d->data[i]; }
 inline const QChar QString::operator[](int i) const
 { Q_ASSERT(i >= 0 && i < size()); return d->data[i]; }
+inline const QChar QString::operator[](uint i) const
+{ Q_ASSERT(i < (uint)size()); return d->data[i]; }
 inline bool QString::isEmpty() const
 { return d->size == 0; }
 inline const QChar *QString::unicode() const
@@ -493,6 +497,8 @@ public:
 };
 inline QCharRef QString::operator[](int i)
 { Q_ASSERT(i >= 0); return QCharRef(*this, i); }
+inline QCharRef QString::operator[](uint i)
+{ return QCharRef(*this, i); }
 inline QString::Iterator QString::begin()
 { return detach(); }
 inline QString::ConstIterator QString::begin() const
