@@ -15,6 +15,7 @@
 #include "qaxfactory.h"
 
 #include <qapplication.h>
+#include <qdatetime.h>
 #include <qdir.h>
 #include <qmap.h>
 #include <qmenubar.h>
@@ -174,8 +175,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
     if (typeLibVersion.isEmpty())
         typeLibVersion = "1.0";
     
-    QSettings settings;
-    settings.insertSearchPath(QSettings::Windows, "/Classes");
+    QSettings settings("HKEY_LOCAL_MACHINE\\Software\\Classes", Qt::NativeFormat);
     
     // we try to create the ActiveX widgets later on...
     bool delete_qApp = false;
@@ -187,8 +187,8 @@ HRESULT UpdateRegistry(BOOL bRegister)
     
     if (bRegister) {
         if (file.right(3).toLower() == "exe") {
-            settings.writeEntry("/AppID/" + appId + "/.", module);
-            settings.writeEntry("/AppID/" + module + ".EXE/AppID", appId);
+            settings.setValue("/AppID/" + appId + "/.", module);
+            settings.setValue("/AppID/" + module + ".EXE/AppID", appId);
         }
 
         QStringList keys = qAxFactory()->featureList();
@@ -216,34 +216,34 @@ HRESULT UpdateRegistry(BOOL bRegister)
                 else if (qFindChild<QMenuBar*>(object) && !qax_disable_inplaceframe)
                     olemisc |= OLEMISC_WANTSTOMENUMERGE;
                 
-                settings.writeEntry("/" + module + "." + className + "." + classMajorVersion + "/.", className + " Class");
-                settings.writeEntry("/" + module + "." + className + "." + classMajorVersion + "/CLSID/.", classId);
+                settings.setValue("/" + module + "." + className + "." + classMajorVersion + "/.", className + " Class");
+                settings.setValue("/" + module + "." + className + "." + classMajorVersion + "/CLSID/.", classId);
                 if (insertable)
-                    settings.writeEntry("/" + module + "." + className + "." + classMajorVersion + "/Insertable/.", QString::null);
+                    settings.setValue("/" + module + "." + className + "." + classMajorVersion + "/Insertable/.", QVariant());
                 
-                settings.writeEntry("/" + module + "." + className + "/.", className + " Class");
-                settings.writeEntry("/" + module + "." + className + "/CLSID/.", classId);
-                settings.writeEntry("/" + module + "." + className + "/CurVer/.", module + "." + className + "." + classMajorVersion);
+                settings.setValue("/" + module + "." + className + "/.", className + " Class");
+                settings.setValue("/" + module + "." + className + "/CLSID/.", classId);
+                settings.setValue("/" + module + "." + className + "/CurVer/.", module + "." + className + "." + classMajorVersion);
                 
-                settings.writeEntry("/CLSID/" + classId + "/.", className + " Class");
+                settings.setValue("/CLSID/" + classId + "/.", className + " Class");
                 if (file.right(3).toLower() == "exe")
-                    settings.writeEntry("/CLSID/" + classId + "/AppID", appId);
+                    settings.setValue("/CLSID/" + classId + "/AppID", appId);
                 if (control)
-                    settings.writeEntry("/CLSID/" + classId + "/Control/.", QString::null);
+                    settings.setValue("/CLSID/" + classId + "/Control/.", QVariant());
                 if (insertable)
-                    settings.writeEntry("/CLSID/" + classId + "/Insertable/.", QString::null);
+                    settings.setValue("/CLSID/" + classId + "/Insertable/.", QVariant());
                 if (file.right(3).toLower() == "dll")
-                    settings.writeEntry("/CLSID/" + classId + "/InProcServer32/.", file);
+                    settings.setValue("/CLSID/" + classId + "/InProcServer32/.", file);
                 else
-                    settings.writeEntry("/CLSID/" + classId + "/LocalServer32/.", file + " -activex");
-                settings.writeEntry("/CLSID/" + classId + "/MiscStatus/.", control ? "1" : "0");
-                settings.writeEntry("/CLSID/" + classId + "/MiscStatus/1/.", QString::number(olemisc));
-                settings.writeEntry("/CLSID/" + classId + "/Programmable/.", QString::null);
-                settings.writeEntry("/CLSID/" + classId + "/ToolboxBitmap32/.", file + ", 101");
-                settings.writeEntry("/CLSID/" + classId + "/TypeLib/.", libId);
-                settings.writeEntry("/CLSID/" + classId + "/Version/.", classVersion);
-                settings.writeEntry("/CLSID/" + classId + "/VersionIndependentProgID/.", module + "." + className);
-                settings.writeEntry("/CLSID/" + classId + "/ProgID/.", module + "." + className + ".1");
+                    settings.setValue("/CLSID/" + classId + "/LocalServer32/.", file + " -activex");
+                settings.setValue("/CLSID/" + classId + "/MiscStatus/.", control ? "1" : "0");
+                settings.setValue("/CLSID/" + classId + "/MiscStatus/1/.", QString::number(olemisc));
+                settings.setValue("/CLSID/" + classId + "/Programmable/.", QVariant());
+                settings.setValue("/CLSID/" + classId + "/ToolboxBitmap32/.", file + ", 101");
+                settings.setValue("/CLSID/" + classId + "/TypeLib/.", libId);
+                settings.setValue("/CLSID/" + classId + "/Version/.", classVersion);
+                settings.setValue("/CLSID/" + classId + "/VersionIndependentProgID/.", module + "." + className);
+                settings.setValue("/CLSID/" + classId + "/ProgID/.", module + "." + className + ".1");
 
                 delete object;
             }
@@ -264,28 +264,31 @@ HRESULT UpdateRegistry(BOOL bRegister)
             
             qAxFactory()->unregisterClass(className, &settings);
             
-            settings.removeEntry("/" + module + "." + className + "." + classMajorVersion + "/CLSID/.");
-            settings.removeEntry("/" + module + "." + className + "." + classMajorVersion + "/Insertable/.");
-            settings.removeEntry("/" + module + "." + className + "." + classMajorVersion + "/.");
+            settings.remove("/" + module + "." + className + "." + classMajorVersion + "/CLSID/.");
+            settings.remove("/" + module + "." + className + "." + classMajorVersion + "/Insertable/.");
+            settings.remove("/" + module + "." + className + "." + classMajorVersion + "/.");
+            settings.remove("/" + module + "." + className + "." + classMajorVersion);
             
-            settings.removeEntry("/" + module + "." + className + "/CLSID/.");
-            settings.removeEntry("/" + module + "." + className + "/CurVer/.");
-            settings.removeEntry("/" + module + "." + className + "/.");
+            settings.remove("/" + module + "." + className + "/CLSID/.");
+            settings.remove("/" + module + "." + className + "/CurVer/.");
+            settings.remove("/" + module + "." + className + "/.");
+            settings.remove("/" + module + "." + className);
             
-            settings.removeEntry("/CLSID/" + classId + "/AppID");
-            settings.removeEntry("/CLSID/" + classId + "/Control/.");
-            settings.removeEntry("/CLSID/" + classId + "/Insertable/.");
-            settings.removeEntry("/CLSID/" + classId + "/InProcServer32/.");
-            settings.removeEntry("/CLSID/" + classId + "/LocalServer32/.");
-            settings.removeEntry("/CLSID/" + classId + "/MiscStatus/1/.");
-            settings.removeEntry("/CLSID/" + classId + "/MiscStatus/.");	    
-            settings.removeEntry("/CLSID/" + classId + "/Programmable/.");
-            settings.removeEntry("/CLSID/" + classId + "/ToolboxBitmap32/.");
-            settings.removeEntry("/CLSID/" + classId + "/TypeLib/.");
-            settings.removeEntry("/CLSID/" + classId + "/Version/.");
-            settings.removeEntry("/CLSID/" + classId + "/VersionIndependentProgID/.");
-            settings.removeEntry("/CLSID/" + classId + "/ProgID/.");
-            settings.removeEntry("/CLSID/" + classId + "/.");
+            settings.remove("/CLSID/" + classId + "/AppID");
+            settings.remove("/CLSID/" + classId + "/Control/.");
+            settings.remove("/CLSID/" + classId + "/Insertable/.");
+            settings.remove("/CLSID/" + classId + "/InProcServer32/.");
+            settings.remove("/CLSID/" + classId + "/LocalServer32/.");
+            settings.remove("/CLSID/" + classId + "/MiscStatus/1/.");
+            settings.remove("/CLSID/" + classId + "/MiscStatus/.");	    
+            settings.remove("/CLSID/" + classId + "/Programmable/.");
+            settings.remove("/CLSID/" + classId + "/ToolboxBitmap32/.");
+            settings.remove("/CLSID/" + classId + "/TypeLib/.");
+            settings.remove("/CLSID/" + classId + "/Version/.");
+            settings.remove("/CLSID/" + classId + "/VersionIndependentProgID/.");
+            settings.remove("/CLSID/" + classId + "/ProgID/.");
+            settings.remove("/CLSID/" + classId + "/.");
+            settings.remove("/CLSID/" + classId);
         }
     }
     
