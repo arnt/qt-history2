@@ -81,11 +81,6 @@ QWidget *SpinBoxDelegate::editor(BeginEditAction action, QWidget *parent,
 void SpinBoxDelegate::releaseEditor(EndEditAction action, QWidget *editor,
     QAbstractItemModel *model, const QModelIndex &index)
 {
-    qDebug("releaseEditor: %d", action);
-    qDebug("(Accepted: %d", QItemDelegate::Accepted);
-    qDebug(" Cancelled: %d)", QItemDelegate::Cancelled);
-    qDebug("data: %d", spinBox->value());
-
     if (action == QItemDelegate::Accepted)
         setModelData(editor, model, index);
 
@@ -103,7 +98,7 @@ void SpinBoxDelegate::setEditorData(QWidget *editor,
 {
     int value = model->data(index, QAbstractItemModel::DisplayRole).toInt();
 
-    ((QSpinBox*)editor)->setValue(value);
+    static_cast<QSpinBox *>(editor)->setValue(value);
 }
 
 /*!
@@ -113,8 +108,14 @@ void SpinBoxDelegate::setEditorData(QWidget *editor,
 void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
                   const QModelIndex &index) const
 {
+    int value = static_cast<QSpinBox *>(editor)->value();
+#if 1
+    // ### Remmove this following line before the second Technology Preview.
+    value = static_cast<QSpinBox *>(editor)->cleanText().toInt();
+#endif
+
     if (spinBox == editor)
-        model->setData(index, QAbstractItemModel::EditRole, spinBox->value());
+        model->setData(index, QAbstractItemModel::EditRole, value);
 }
 
 /*!
