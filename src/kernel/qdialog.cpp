@@ -280,12 +280,16 @@ int QDialog::exec()
 
 void QDialog::done( int r )
 {
+    // ### change to close() 3.0?
+    // note that close() would call closeEvent() which calls close() and
+    // these recursive calls break programs that don't check the is_closing
+    // flag when overloading close...
     hide();
     setResult( r );
 }
 
 /*!
-  Closes the dialog and sets the result code to \c Accepted.
+  Hides the dialog and sets the result code to \c Accepted.
 
   Equivalent to done(Accepted);
 */
@@ -296,7 +300,7 @@ void QDialog::accept()
 }
 
 /*!
-  Closes the dialog and sets the result code to \c Rejected.
+  Hides the dialog and sets the result code to \c Rejected.
 
   Equivalent to done(Rejected);
 */
