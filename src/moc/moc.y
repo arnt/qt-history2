@@ -2740,77 +2740,15 @@ int generateProps()
 	}
     }
 
-
-    if ( displayWarnings && !Q_OBJECTdetected )
-	moc_err("The declaration of the class \"%s\" contains properties"
-		" but no Q_OBJECT macro.", g->className.data());
-
     //
     // Create meta data
     //
     if ( g->props.count() )   {
+	if ( displayWarnings && !Q_OBJECTdetected )
+		moc_err("The declaration of the class \"%s\" contains properties"
+		" but no Q_OBJECT macro.", g->className.data());
+
 	fprintf( out, "#ifndef QT_NO_PROPERTIES\n" );
-	
-/*	
-	fprintf( out, "    int id = parentObject->propertyOffset() + parentObject->numProperties();\n");
-
-	
-	fprintf( out, "    static QMetaProperty props_tbl[%d]; ", g->props.count() );
-	fprintf( out, "QMetaProperty *p; int e = 0;\n" );
-	for( QPtrListIterator<Property> it( g->props ); it.current(); ++it ) {
-
-	    fprintf( out, "    (p=&props_tbl[e++])->t = \"%s\"; ", it.current()->type.data() );
-	    fprintf( out, "p->n = \"%s\"; ", it.current()->name.data() );
-	    fprintf( out, "p->id = id++;\n" );
-
-	    QCString flags;
-	    if ( !isVariantType( it.current()->type ) ) {
-		flags += "QMetaProperty::EnumOrSet|";
-		int enumpos = -1;
-		int k = 0;
-		for( QPtrListIterator<Enum> eit( g->enums ); eit.current(); ++eit, ++k ) {
-		    if ( eit.current()->name == it.current()->type )
-			enumpos = k;
-		}
-
-		// Is it an enum of this class ?
-		if ( enumpos != -1 )
-		    fprintf( out, "    p->enumData = &enum_tbl[%i];\n", enumpos );
-		else
-		    fprintf( out, "    p->enumData = parentObject->enumerator( \"%s\", TRUE );\n", it.current()->type.data() );
-	    }
-
-	    if ( it.current()->getfunc )
-		flags += "QMetaProperty::Readable|";
-	    if ( it.current()->setfunc )
-		flags += "QMetaProperty::Writable|";
-	    if ( it.current()->stdSet() )
-		flags += "QMetaProperty::StdSet|";
-
-	    if ( !flags.isEmpty() ) {
-		if ( flags[ (int) flags.length() - 1] == '|' )
-		    flags.remove( flags.length()-1, 1);
-		fprintf( out, "    p->setFlags(%s);\n", flags.data() );
-	    }
-
-	    if ( it.current()->override ) {
-		fprintf( out, "    p->p = parentObject->property( parentObject->findProperty( \"%s\", TRUE ), TRUE );\n", it.current()->name.data() );
-		flags = "";
-		if ( !it.current()->getfunc )
-		    flags += "QMetaProperty::Readable|";
-		if ( !it.current()->setfunc )
-		    flags += "QMetaProperty::Writable|QMetaProperty::StdSet|";
-		if ( flags[ (int) flags.length() - 1] == '|' )
-		    flags.remove( flags.length()-1, 1);
-		if (!flags.isEmpty() ) {
-		    if ( flags[ (int) flags.length() - 1] == '|' )
-			flags.remove( flags.length()-1, 1);
-		    fprintf( out, "    p->copyFlags(%s);\n", flags.data() );
-		}
-	    }
-	}
-	
-*/
 
 	fprintf( out, "    static const QMetaProperty props_tbl[%d] = {\n ", g->props.count() );
 	for( QPtrListIterator<Property> it( g->props ); it.current(); ++it ) {
