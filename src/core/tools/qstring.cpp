@@ -4235,6 +4235,7 @@ QStringList QString::split(const QChar &sep) const
     return list;
 }
 
+#ifndef QT_NO_REGEXP
 /*!
     Splits the string into strings wherever the regular expression \a
     sep occurs, and returns the list of those strings.
@@ -4259,6 +4260,7 @@ QStringList QString::split(const QRegExp &sep) const
     list.append(mid(start));
     return list;
 }
+#endif
 
 struct ArgEscapeData
 {
