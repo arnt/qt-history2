@@ -124,7 +124,7 @@ private:
     QSplitterLayoutStruct *addWidget( QWidget *, bool prepend = FALSE );
     void recalcId();
     void doMove( bool backwards, int pos, int id, int delta, bool upLeft,
-		 bool maySquash );
+		 bool mayCollapse );
     void setGeo( QWidget *w, int pos, int size, bool splitterMoved );
     void updateHandles();
 
