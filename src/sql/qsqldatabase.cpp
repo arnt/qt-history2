@@ -164,6 +164,9 @@ class QNullDriver : public QSqlDriver
 public:
     QNullDriver(): QSqlDriver(){}
     ~QNullDriver(){}
+    bool    hasTransactionSupport() const { return FALSE;} ;
+    bool    hasQuerySizeSupport() const { return FALSE;} ;
+    bool    canEditBinaryFields() const { return FALSE;} ;
     bool    open( const QString & ,
     			const QString & ,
 			const QString & ,

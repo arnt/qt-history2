@@ -25,8 +25,6 @@
 QSqlDriver::QSqlDriver( QObject * parent, const char * name )
 : QObject(parent, name),
   dbState(0),
-  hasTrans(FALSE),
-  hasQuerySize(FALSE),
   error()
 {
 }
@@ -85,33 +83,29 @@ bool QSqlDriver::isOpenError() const
     return ((dbState & DBState_OpenError) == DBState_OpenError);
 }
 
-/*! Returns TRUE if the database supports transactions, FALSE otherwise.
-    Note that some databases need to be open() before this can be determined.
-    The default implementation returns FALSE.
-
-    \sa setTransactionSupport()
-
+/*! \fn bool QSqlDriver::hasTransactionSupport() const
+  
+  Returns TRUE if the database supports transactions, FALSE otherwise.
+  Note that some databases need to be open() before this can be
+  determined. 
+  
 */
 
-bool QSqlDriver::hasTransactionSupport() const
-{
-    return hasTrans;
-}
-
-/*! Returns TRUE if the database supports reporting information about
-    the size of a query, FALSE otherwise.  Note that some databases do
-    not support returning the size (in number of rows returned) of a
-    query, so therefore QSql::size() will return -1.  The default
-    implementation returns FALSE.
-
-    \sa setQuerySizeSupport()
-
+/*! \fn bool QSqlDriver::hasQuerySizeSupport() const
+  
+  Returns TRUE if the database supports reporting information about
+  the size of a query, FALSE otherwise.  Note that some databases do
+  not support returning the size (in number of rows returned) of a
+  query, so therefore QSql::size() will return -1.  
+  
 */
 
-bool QSqlDriver::hasQuerySizeSupport() const
-{
-    return hasQuerySize;
-}
+/*! \fn bool QSqlDriver::canEditBinaryFields() const
+  
+  Returns TRUE if the database can save binary fields information to
+  the database, FALSE otherwise. 
+
+*/
 
 /*! Protected method which sets the open state of the database to \a o.
     Derived classes can use this method to report the status of open().
@@ -146,31 +140,6 @@ void QSqlDriver::setOpenError( bool e )
     else
 	dbState &= ~DBState_OpenError;
 }
-
-/*! Protected method which allows derived classed to set the transaction support of
-    the database to \a t.
-
-    \sa transaction(), commit(), rollback()
-
-*/
-
-void QSqlDriver::setTransactionSupport( bool t )
-{
-    hasTrans = t;
-}
-
-/*! Protected method which allows derived classed to set the query size  support of
-    the database to \a s.
-
-    \sa hasQuerySizeSupport()
-
-*/
-
-void QSqlDriver::setQuerySizeSupport( bool s )
-{
-    hasQuerySize = s;
-}
-
 
 /*! Protected method which derived classes can override to begin a transaction.
     If successful, return TRUE, otherwise return FALSE.  The default implementation returns FALSE.

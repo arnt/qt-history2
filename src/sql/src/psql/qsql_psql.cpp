@@ -66,7 +66,7 @@ QVariant::Type qDecodePSQLType( int t )
 	break;
     case ZPBITOID	:
     case VARBITOID	:
-    case OIDOID         :	
+    case OIDOID         :
 	type = QVariant::ByteArray;
 	break;
     case REGPROCOID     :
@@ -361,15 +361,14 @@ QVariant QPSQLResult::data( int i )
 	    QByteArray ba;
 	    ((QSqlDriver*)driver())->beginTransaction();
 	    Oid oid = val.toInt();
-	    qDebug("oid:" + QString::number(oid));
 	    int fd = lo_open( d->connection, oid, INV_READ );
-#ifdef QT_CHECK_RANGE	    
+#ifdef QT_CHECK_RANGE
 	    if ( fd < 0) {
 		qWarning( "QPSQLResult::data: unable to open large object for read" );
-		((QSqlDriver*)driver())->commitTransaction();		
+		((QSqlDriver*)driver())->commitTransaction();
 		return QVariant( ba );
 	    }
-#endif	    
+#endif
 	    int size = 0;
 	    int retval = lo_lseek( d->connection, fd, 0L, SEEK_END );
 	    if ( retval >= 0 ) {
@@ -377,19 +376,21 @@ QVariant QPSQLResult::data( int i )
 		lo_lseek( d->connection, fd, 0L, SEEK_SET );
 	    }
 	    if ( size == 0 ) {
-		((QSqlDriver*)driver())->commitTransaction();				
+		lo_close( d->connection, fd );
+		((QSqlDriver*)driver())->commitTransaction();
 		return QVariant( ba );
 	    }
 	    char buf[ size ];
 	    retval = lo_read( d->connection, fd, buf, size );
 	    if (retval < 0) {
 		qWarning( "QPSQLResult::data: unable to read large object" );
-		((QSqlDriver*)driver())->commitTransaction();				
+		lo_close( d->connection, fd );		
+		((QSqlDriver*)driver())->commitTransaction();
 		return QVariant( ba );
 	    }
 	    ba.duplicate( buf, size );
-	    ((QSqlDriver*)driver())->commitTransaction();			    
-	    qDebug("bytearray size:" + QString::number(ba.size()));
+	    lo_close( d->connection, fd );	    
+	    ((QSqlDriver*)driver())->commitTransaction();
 	    return QVariant( ba );
 	}
 	default:
@@ -452,8 +453,6 @@ QPSQLDriver::QPSQLDriver( QObject * parent, const char * name )
 
 void QPSQLDriver::init()
 {
-    setTransactionSupport( TRUE );
-    setQuerySizeSupport( TRUE );
     d = new QPSQLPrivate();
 }
 
@@ -462,6 +461,21 @@ QPSQLDriver::~QPSQLDriver()
     if ( d->connection )
 	PQfinish( d->connection );
     delete d;
+}
+
+bool QPSQLDriver::hasTransactionSupport() const
+{
+    return TRUE;
+}
+
+bool QPSQLDriver::hasQuerySizeSupport() const
+{
+    return TRUE;
+}
+
+bool QPSQLDriver::canEditBinaryFields() const
+{
+    return FALSE;
 }
 
 bool QPSQLDriver::open( const QString & db,

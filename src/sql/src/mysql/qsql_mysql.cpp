@@ -211,14 +211,27 @@ QMySQLDriver::QMySQLDriver( QObject * parent, const char * name )
 
 void QMySQLDriver::init()
 {
-    setTransactionSupport( FALSE );
-    setQuerySizeSupport( TRUE );
     d = new QMySQLPrivate();
 }
 
 QMySQLDriver::~QMySQLDriver()
 {
     delete d;
+}
+
+bool QMySQLDriver::hasTransactionSupport() const
+{
+    return FALSE;
+}
+
+bool QMySQLDriver::hasQuerySizeSupport() const
+{
+    return TRUE;
+}
+
+bool QMySQLDriver::canEditBinaryFields() const
+{
+    return FALSE;
 }
 
 bool QMySQLDriver::open( const QString & db,

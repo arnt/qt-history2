@@ -706,8 +706,6 @@ QOCIDriver::QOCIDriver( QObject * parent, const char * name )
 
 void QOCIDriver::init()
 {
-    setTransactionSupport( TRUE );
-    setQuerySizeSupport( FALSE );
     d = new QOCIPrivate();
     int r = OCIEnvCreate( &d->env,
 			    OCI_DEFAULT | OCI_OBJECT,
@@ -747,6 +745,21 @@ QOCIDriver::~QOCIDriver()
 {
     cleanup();
     delete d;
+}
+
+bool QOCIDriver::hasTransactionSupport() const
+{
+    return TRUE;
+}
+
+bool QOCIDriver::hasQuerySizeSupport() const
+{
+    return FALSE;
+}
+
+bool QOCIDriver::canEditBinaryFields() const
+{
+    return FALSE;
 }
 
 bool QOCIDriver::open( const QString & db,
@@ -828,7 +841,7 @@ bool QOCIDriver::commitTransaction()
 
 bool QOCIDriver::rollbackTransaction()
 {
-    d->transaction = FALSE;    
+    d->transaction = FALSE;
     int r = OCITransRollback ( d->svc,
 			       d->err,
 			       0 );
@@ -914,7 +927,7 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 QString QOCIDriver::formatValue( const QSqlField* field ) const
 {
     switch ( field->type() ) {
-    case QVariant::DateTime: {	
+    case QVariant::DateTime: {
 	QDateTime datetime = field->value().toDateTime();
 	QString datestring;
 	if ( datetime.isValid() ) {

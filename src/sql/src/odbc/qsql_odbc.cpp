@@ -715,8 +715,6 @@ QODBCDriver::QODBCDriver( QObject * parent, const char * name )
 
 void QODBCDriver::init()
 {
-    // transaction support set in open()
-    setQuerySizeSupport( FALSE );
     d = new QODBCPrivate();
 }
 
@@ -724,6 +722,33 @@ QODBCDriver::~QODBCDriver()
 {
     cleanup();
     delete d;
+}
+
+bool QODBCDriver::hasTransactionSupport() const
+{
+    if ( !d->hDbc )
+	return FALSE;
+    SQLUSMALLINT txn;
+    SQLSMALLINT t;
+    int r = SQLGetInfo( d->hDbc,
+		   	(SQLUSMALLINT)SQL_TXN_CAPABLE,
+			&txn,
+			sizeof(txn),
+			&t);
+    if ( r != SQL_SUCCESS || txn == SQL_TC_NONE )
+	return FALSE;
+    else
+	return TRUE;
+}
+
+bool QODBCDriver::hasQuerySizeSupport() const
+{
+    return FALSE;
+}
+
+bool QODBCDriver::canEditBinaryFields() const
+{
+    return FALSE;
 }
 
 bool QODBCDriver::open( const QString & db,
@@ -798,17 +823,6 @@ bool QODBCDriver::open( const QString & db,
 	setOpenError( TRUE );
 	return FALSE;
     }
-    SQLUSMALLINT txn;
-    SQLSMALLINT t;
-    r = SQLGetInfo( d->hDbc,
-		   	(SQLUSMALLINT)SQL_TXN_CAPABLE,
-			&txn,
-			sizeof(txn),
-			&t);
-    if ( txn == SQL_TC_NONE )
-	setTransactionSupport( FALSE );
-    else
-	setTransactionSupport( TRUE );
     setOpen( TRUE );
     return TRUE;
 }

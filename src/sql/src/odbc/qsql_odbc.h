@@ -38,6 +38,9 @@ class QODBCDriver : public QSqlDriver
 public:
     QODBCDriver( QObject * parent=0, const char * name=0 );
     ~QODBCDriver();
+    bool    	        hasTransactionSupport() const;
+    bool                hasQuerySizeSupport() const;
+    bool                canEditBinaryFields() const;
     bool                open( const QString & db,
 			      const QString & user = QString::null,
 			      const QString & password = QString::null,

@@ -36,9 +36,9 @@ public:
     virtual QString       formatValue( const QSqlField* field ) const;
     QSqlError	          lastError() const;
 
-    bool    	          hasTransactionSupport() const;
-    bool                  hasQuerySizeSupport() const;
-
+    virtual bool          hasTransactionSupport() const = 0;
+    virtual bool          hasQuerySizeSupport() const = 0;
+    virtual bool          canEditBinaryFields() const = 0;
     virtual bool          open( const QString & db,
 				const QString & user = QString::null,
 				const QString & password = QString::null,
@@ -49,13 +49,9 @@ public:
 protected:
     virtual void          setOpen( bool o );
     virtual void          setOpenError( bool e );
-    virtual void	  setTransactionSupport( bool t );
-    virtual void          setQuerySizeSupport( bool s );
     virtual void	  setLastError( const QSqlError& e );
 private:
     int 	          dbState;
-    bool 	          hasTrans;
-    bool                  hasQuerySize;
     QSqlError 	          error;
 #if defined(Q_DISABLE_COPY)
     QSqlDriver( const QSqlDriver & );
