@@ -925,7 +925,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     flow_ = new QTextFlow;
     flow_->setWidth( cw );
 
-    selectionColors[ Standard ] = QApplication::palette().color( QPalette::Normal, QColorGroup::Highlight );
+    selectionColors[ Standard ] = QApplication::palette().color( QPalette::Active, QColorGroup::Highlight );
     selectionColors[ ParenMismatch ] = Qt::magenta;
     selectionColors[ ParenMatch ] = Qt::green;
     selectionColors[ Search ] = Qt::yellow;
@@ -3256,7 +3256,7 @@ QTextIndent::QTextIndent( QTextDocument *d )
 QTextFormatCollection::QTextFormatCollection()
 {
     defFormat = new QTextFormat( QApplication::font(),
-				     QApplication::palette().color( QPalette::Normal, QColorGroup::Text ) );
+				     QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
     lastFormat = cres = 0;
     cflags = -1;
     cKey.setAutoDelete( TRUE );
@@ -3517,7 +3517,7 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
 {
     if ( !defaultFormat )
 	defaultFormat = new QTextFormat( QApplication::font(),
-					     QApplication::palette().color( QPalette::Normal, QColorGroup::Text ) );
+					     QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
 
     QString tag;
     if ( f ) {
@@ -3561,7 +3561,7 @@ QString QTextFormat::makeFormatEndTags() const
 {
     if ( !defaultFormat )
 	defaultFormat = new QTextFormat( QApplication::font(),
-					     QApplication::palette().color( QPalette::Normal, QColorGroup::Text ) );
+					     QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
 
     QString tag;
     if ( font() != defaultFormat->font() ||
