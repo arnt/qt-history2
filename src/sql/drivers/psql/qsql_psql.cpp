@@ -100,7 +100,6 @@ static QVariant::Type qDecodePSQLType( int t )
 	type = QVariant::ByteArray;
 	break;
     case REGPROCOID     :
-    case TIDOID         :
     case XIDOID         :
     case CIDOID         :
 	//    case OIDVECTOROID   : // 7.x
@@ -109,6 +108,7 @@ static QVariant::Type qDecodePSQLType( int t )
 	type = QVariant::Invalid;
 	break;
     default:
+    case TIDOID         :
     case CHAROID	:
     case BPCHAROID	:
 	//    case LZTEXTOID	: // 7.x
@@ -773,7 +773,11 @@ QSqlRecord QPSQLDriver::record( const QSqlQuery& query ) const
 	QPSQLResult* result = (QPSQLResult*)query.result();
 	int count = PQnfields( result->d->result );
 	for ( int i = 0; i < count; ++i ) {
-	    QString name = PQfname( result->d->result, i );
+	    QString name;
+	    if (d->isUtf8)
+		name = QString::fromUtf8(PQfname(result->d->result, i));
+	    else
+		name = QString::fromLocal8Bit(PQfname(result->d->result, i));
 	    QVariant::Type type = qDecodePSQLType( PQftype( result->d->result, i ) );
 	    QSqlField rf( name, type );
 	    fil.append( rf );
@@ -892,7 +896,11 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QSqlQuery& query ) const
 	QPSQLResult* result = (QPSQLResult*)query.result();
 	int count = PQnfields( result->d->result );
 	for ( int i = 0; i < count; ++i ) {
-	    QString name = PQfname( result->d->result, i );
+	    QString name;
+	    if (d->isUtf8)
+		name = QString::fromUtf8(PQfname(result->d->result, i));
+	    else
+		name = QString::fromLocal8Bit(PQfname(result->d->result, i));
 	    int len = PQfsize( result->d->result, i );
 	    int precision = PQfmod( result->d->result, i );
 	    // swap length and precision if length == -1
