@@ -54,9 +54,9 @@ static void printHtmlShortMembers( HtmlWriter& out,
 	    out.putsMeta( "<li><div class=fn>" );
 	    (*m)->printHtmlShort( out );
 	    if ( (*m)->internal() )
-		out.putsMeta( "  <em>(internal)</em>" );
+		out.putsMeta( "&nbsp; <em>(internal)</em>" );
 	    else if ( (*m)->obsolete() )
-		out.putsMeta( "  <em>(obsolete)</em>" );
+		out.putsMeta( "&nbsp; <em>(obsolete)</em>" );
 	    out.putsMeta( "</div></li>\n" );
 	    ++m;
 	}
