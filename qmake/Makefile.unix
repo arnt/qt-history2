@@ -79,7 +79,7 @@ qbytearray.o: @SOURCE_PATH@/src/core/tools/qbytearray.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qbytearray.cpp
 
 qbytearraymatcher.o: @SOURCE_PATH@/src/core/tools/qbytearraymatcher.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) $<
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qbytearraymatcher.cpp
 
 qmetatype.o: @SOURCE_PATH@/src/core/kernel/qmetatype.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/kernel/qmetatype.cpp
@@ -97,7 +97,7 @@ qstring.o: @SOURCE_PATH@/src/core/tools/qstring.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qstring.cpp
 
 qstringmatcher.o: @SOURCE_PATH@/src/core/tools/qstringmatcher.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) $<
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qstringmatcher.cpp
 
 qlocale.o: @SOURCE_PATH@/src/core/tools/qlocale.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qlocale.cpp
