@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintcache.h#5 $
+** $Id: //depot/qt/main/src/tools/qintcache.h#6 $
 **
 ** Definition of QIntCache template/macro class
 **
@@ -52,10 +52,8 @@ public:									      \
     bool  remove( long k )   { return QGCache::remove((const char *)k); }     \
     type *take( long k )     { return (type *)QGCache::take((const char *)k);}\
     void  clear()		      { QGCache::clear(); }		      \
-    type *reference( long k )						      \
-			{ return (type *)QGCache::reference((const char *)k);}\
-    type *find( long k ) const						      \
-			{ return (type *)QGCache::find( (const char *)k); }   \
+    type *find( long k, bool ref=TRUE ) const				      \
+			{ return (type *)QGCache::find( (const char *)k,ref);}\
     type *operator[]( long k ) const					      \
 			{ return (type *)QGCache::find( (const char *)k); }   \
     void  statistics() const	      { QGCache::statistics(); }	      \
@@ -126,10 +124,8 @@ public:
     bool  remove( long k )   { return QGCache::remove((const char *)k); }
     type *take( long k )     { return (type *)QGCache::take((const char *)k);}
     void  clear()		      { QGCache::clear(); }
-    type *reference( long k )
-			{ return (type *)QGCache::reference((const char *)k);}
-    type *find( long k ) const
-			{ return (type *)QGCache::find( (const char *)k); }
+    type *find( long k, bool ref=TRUE ) const
+			{ return (type *)QGCache::find( (const char *)k,ref);}
     type *operator[]( long k ) const
 			{ return (type *)QGCache::find( (const char *)k); }
     void  statistics() const { QGCache::statistics(); }
