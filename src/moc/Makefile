@@ -4,17 +4,17 @@
 
 ####### Directories
 
-BASEDIR	= $(QTDIR)
-INCDIR	= $(BASEDIR)/include
-LIBDIR	= $(BASEDIR)/lib
+BASEDIR	=	$(QTDIR)
+INCDIR	=	$(BASEDIR)/include
+LIBDIR	=	$(BASEDIR)/lib
 
 ####### Compiler
 
-CFLAGS	= -O2
-CC	= gcc
+CFLAGS	=	-O2
+CC	=	gcc
 
-LEX	= flex
-YACC	= yacc -d
+LEX	=	flex
+YACC	=	yacc -d
 
 ####### Files
 
