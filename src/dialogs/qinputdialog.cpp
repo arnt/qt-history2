@@ -53,6 +53,7 @@ class QInputDialogPrivate
 {
 public:
     friend class QInputDialog;
+    QLabel *label;
     QLineEdit *lineEdit;
     QSpinBox *spinBox;
     QComboBox *comboBox, *editComboBox;
@@ -136,8 +137,8 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* n
 
     QVBoxLayout *vbox = new QVBoxLayout( this, 6, 6 );
 
-    QLabel* l = new QLabel( label, this, "qt_inputdlg_lbl" );
-    vbox->addWidget( l );
+    d->label = new QLabel( label, this, "qt_inputdlg_lbl" );
+    vbox->addWidget( d->label );
 
     d->stack = new QWidgetStack( this, "qt_inputdlg_ws" );
     vbox->addWidget( d->stack );
@@ -219,23 +220,30 @@ QComboBox *QInputDialog::editableComboBox() const
 
 void QInputDialog::setType( Type t )
 {
+    QWidget *input = 0;
     switch ( t ) {
     case LineEdit:
-	d->stack->raiseWidget( d->lineEdit );
-	d->lineEdit->setFocus();
+	input = d->lineEdit;
 	break;
     case SpinBox:
-	d->stack->raiseWidget( d->spinBox );
-	d->spinBox->setFocus();
+	input = d->spinBox;
 	break;
     case ComboBox:
-	d->stack->raiseWidget( d->comboBox );
-	d->comboBox->setFocus();
+	input = d->comboBox;
 	break;
     case EditableComboBox:
-	d->stack->raiseWidget( d->editComboBox );
-	d->editComboBox->setFocus();
+	input = d->editComboBox;
 	break;
+    default:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QInputDialog::setType: Invalid type" );
+#endif
+	break;
+    }
+    if ( input ) {
+	d->stack->raiseWidget( input );
+	input->setFocus();
+	d->label->setBuddy( input );
     }
 
     d->type = t;
