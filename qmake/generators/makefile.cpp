@@ -598,14 +598,8 @@ MakefileGenerator::init()
 	QStringList &l = v["INTERFACES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QFileInfo fi((*it));
-	    QString impl, decl;
-            if ( fi.dirPath() == "." ) {
-	    	impl = fi.baseName() + Option::cpp_ext;
-                decl = fi.baseName() + Option::h_ext;
-	    } else {
-	    	impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::cpp_ext;
-                decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::h_ext;
-	    }
+	    QString impl = fi.baseName() + Option::cpp_ext;
+	    QString decl = fi.baseName() + Option::h_ext;
 	    decls.append(decl);
 	    impls.append(impl);
 	    depends[impl].append(decl);
@@ -725,8 +719,10 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 	{
 	    QString tmp = (*it);
 	    decl = tmp.replace(QRegExp("\\.ui$"), Option::h_ext);
+	    decl = decl.right(decl.length() - (decl.findRev(Option::dir_sep) + 1));
 	    tmp = (*it);
 	    impl = tmp.replace(QRegExp("\\.ui$"), Option::cpp_ext);
+	    impl = impl.right(impl.length() - (impl.findRev(Option::dir_sep) + 1));
 	}
 	t << decl << ": " << (*it) << " " << deps << "\n\t"
 	  << "$(UIC) " << (*it) << " -o " << decl << endl << endl;
