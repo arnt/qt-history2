@@ -1298,7 +1298,7 @@ void QTextDocument::init()
     contxt = QString::null;
     fCollection->setStyleSheet( sheet_ );
 
-    underlLinks = TRUE;
+    underlLinks = par ? par->underlLinks : TRUE;
     backBrush = 0;
     buf_pixmap = 0;
     nextDoubleBuffered = FALSE;
@@ -3195,6 +3195,8 @@ void QTextDocument::setStyleSheet( QStyleSheet *s )
 void QTextDocument::updateStyles()
 {
     invalidate();
+    if ( par )
+	underlLinks = par->underlLinks;
     fCollection->updateStyles();
     for ( QTextDocument *d = childList.first(); d; d = childList.next() )
 	d->updateStyles();
@@ -4393,7 +4395,7 @@ int QTextParag::topMargin() const
 	if ( it->displayMode() != QStyleSheetItem::DisplayInline )
 	    break;
     }
-    
+
     m = scale( m, painter() );
 
     ( (QTextParag*)this )->tm = m;
@@ -4857,7 +4859,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     insertLineStart( parag, 0, lineStart );
 
     QPainter *painter = parag->painter();
-    
+
     int col = 0;
     int ww = 0;
     QChar lastChr;
@@ -5726,7 +5728,7 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
 	width = attr["width"].toInt();
     if ( attr.contains("height") )
 	height = attr["height"].toInt();
-    
+
     reg = 0;
     QString imageName = attr["src"];
 

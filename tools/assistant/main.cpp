@@ -303,7 +303,8 @@ void Socket::startOwnWindow()
     QString s = qApp->argv()[ 1 ];
     if ( s.left( 2 ) == "d:" )
 	s.remove( 0, 2 );
-    mw->showLink( s, "" );
+    if ( !s.isEmpty() )
+	mw->showLink( s, "" );
     (void)new ServerSocket( mw );
 }
 
@@ -376,7 +377,7 @@ int main( int argc, char ** argv )
     QApplication a( argc, argv );
 
 #ifdef Q_OS_MACX
-    QString qdir = QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() + 
+    QString qdir = QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() +
 				      ".." + QDir::separator());
     setenv("QTDIR", qdir.latin1(), 0);
 #endif

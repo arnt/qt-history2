@@ -12,6 +12,9 @@ HelpWindow::HelpWindow( QWidget *parent, const char *name )
 
 void HelpWindow::setSource( const QString &name )
 {
+    if ( name.isEmpty() )
+	return;
+    
     if ( name.left( 2 ) != "p:" ) {
 	QUrl u( context(), name );
 	if ( !u.isLocalFile() ) {

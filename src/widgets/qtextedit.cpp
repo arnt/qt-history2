@@ -711,6 +711,16 @@ void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw
 void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
     paintDocument( TRUE, p, cx, cy, cw, ch );
+    int v;
+    p->setPen( foregroundColor() );
+    if ( document()->isPageBreakEnabled() &&  ( v = document()->flow()->pageSize() ) > 0 ) {
+	int l = int(cy / v) * v;
+	while ( l < cy + ch ) {
+	    p->drawLine( cx, l, cx + cw - 1, l );
+	    l += v;
+	}
+    }
+
 }
 
 /*! \reimp */
@@ -1928,7 +1938,7 @@ void QTextEdit::doResize()
     doc->setWidth( visibleWidth() );
     wrapWidth = visibleWidth();
     doc->invalidate();
-    viewport()->repaint( FALSE );
+    repaintContents( FALSE );
     lastFormatted = doc->firstParag();
     interval = 0;
     formatMore();
@@ -2376,7 +2386,7 @@ void QTextEdit::setPalette( const QPalette &p )
     if ( textFormat() == PlainText ) {
 	QTextFormat *f = doc->formatCollection()->defaultFormat();
 	f->setColor( colorGroup().text() );
-	viewport()->repaint( FALSE );
+	repaintContents( FALSE );
     }
 }
 
@@ -2695,7 +2705,7 @@ void QTextEdit::setText( const QString &text, const QString &context )
     if ( qApp->font() != QScrollView::font() )
 	setFont( QScrollView::font() );
 
-    viewport()->repaint( FALSE );
+    repaintContents( FALSE );
     emit textChanged();
     formatMore();
     updateCurrentFormat();
@@ -3255,7 +3265,7 @@ void QTextEdit::setPaper( const QBrush& pap )
 {
     doc->setPaper( new QBrush( pap ) );
     viewport()->setBackgroundColor( pap.color() );
-    viewport()->update();
+    updateContents();
 }
 
 QBrush QTextEdit::paper() const
@@ -3275,7 +3285,10 @@ QBrush QTextEdit::paper() const
 
 void QTextEdit::setLinkUnderline( bool b )
 {
+    if ( b == doc->underlineLinks() )
+	return;
     doc->setUnderlineLinks( b );
+    updateStyles();
 }
 
 bool QTextEdit::linkUnderline() const
@@ -3511,6 +3524,7 @@ void QTextEdit::documentWidthChanged( int w )
 void QTextEdit::updateStyles()
 {
     doc->updateStyles();
+    updateContents();
 }
 
 void QTextEdit::setDocument( QTextDocument *dc )
@@ -3707,7 +3721,7 @@ void QTextEdit::setWrapColumnOrWidth( int value )
 	doc->setWidth( wrapWidth );
 	doc->setMinimumWidth( wrapWidth, 0 );
 	doc->invalidate();
-	viewport()->repaint( FALSE );
+	repaintContents( FALSE );
 	lastFormatted = doc->firstParag();
 	interval = 0;
 	formatMore();
@@ -3758,7 +3772,7 @@ void QTextEdit::setWrapPolicy( WrapPolicy policy )
     formatter->setWrapEnabled( document()->formatter()->isWrapEnabled( 0 ) );
     document()->setFormatter( formatter );
     doc->invalidate();
-    viewport()->repaint( FALSE );
+    repaintContents( FALSE );
     lastFormatted = doc->firstParag();
     interval = 0;
     formatMore();
@@ -3784,7 +3798,7 @@ void QTextEdit::clear()
     cursor->setDocument( doc );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
-    viewport()->repaint( FALSE );
+    repaintContents( FALSE );
 }
 
 int QTextEdit::undoDepth() const
@@ -4044,7 +4058,7 @@ void QTextEdit::setEnabled( bool b )
     if ( textFormat() == PlainText ) {
 	QTextFormat *f = doc->formatCollection()->defaultFormat();
 	f->setColor( colorGroup().text() );
-	viewport()->repaint( FALSE );
+	repaintContents();
     }
 }
 
@@ -4075,7 +4089,7 @@ void QTextEdit::windowActivationChange( bool )
     const QColorGroup icg = palette().inactive();
 
     if ( acg != icg )
-	viewport()->update();
+	updateContents();
 }
 
 void QTextEdit::setReadOnly( bool b )

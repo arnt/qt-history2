@@ -8,6 +8,7 @@
 **
 *****************************************************************************/
 
+#define protected public
 #include "helpwindow.h"
 #include <qstatusbar.h>
 #include <qpixmap.h>
@@ -33,6 +34,7 @@
 #include <qsimplerichtext.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
+#include "../../src/kernel/qrichtext_p.h"
 
 #include <ctype.h>
 
@@ -45,6 +47,10 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path,
     readBookmarks();
 
     browser = new QTextBrowser( this );
+    browser->setReadOnly( FALSE );
+    browser->document()->setPageBreakEnabled( TRUE );
+    browser->document()->flow()->setPageSize( 400 );
+    
     browser->mimeSourceFactory()->setFilePath( _path );
     browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     connect( browser, SIGNAL( textChanged() ),
@@ -167,7 +173,7 @@ void HelpWindow::textChanged()
 	setCaption( "Qt Example - Helpviewer - " + browser->documentTitle() ) ;
 	selectedURL = browser->documentTitle();
     }
-    
+
     if ( !selectedURL.isEmpty() && pathCombo ) {
 	bool exists = FALSE;
 	int i;
@@ -244,7 +250,7 @@ void HelpWindow::newWindow()
 void HelpWindow::print()
 {
 #ifndef QT_NO_PRINTER
-    QPrinter printer;
+    QPrinter printer; //( QPrinter::HighResolution );
     printer.setFullPage(TRUE);
     if ( printer.setup() ) {
 	QPainter p( &printer );
@@ -255,7 +261,7 @@ void HelpWindow::print()
 	QRect body(margin*dpix/72, margin*dpiy/72,
 		   metrics.width()-margin*dpix/72*2,
 		   metrics.height()-margin*dpiy/72*2 );
-	QFont font("times", 10);
+	QFont font("times", 8);
 	QStringList filePaths = browser->mimeSourceFactory()->filePath();
 	QString file;
 	QStringList::Iterator it = filePaths.begin();
@@ -278,6 +284,7 @@ void HelpWindow::print()
 	QRect view( body );
 	int page = 1;
 	do {
+	    qDebug("draw page %d", page );
 	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
 	    view.moveBy( 0, body.height() );
 	    p.translate( 0 , -body.height() );

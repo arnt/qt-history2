@@ -2,20 +2,22 @@ void MainWindow::init()
 {
     setWFlags( WDestructiveClose );
     browser = new HelpWindow( this, "qt_assistant_helpwindow" );
-    browser->setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
+    browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     setCentralWidget( browser );
-    
+
+    connect( actionLinksUnderlined, SIGNAL( toggled(bool) ), browser, SLOT(setLinkUnderline(bool) ) );
+
     // #### hardcoded paths - probably should read the settings from somewhere
     browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/designer/manual" );
     browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/designer" );
     browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/linguist/doc/html" );
     browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/" );
-    
+
     connect( actionGoPrev, SIGNAL( activated() ), browser, SLOT( backward() ) );
     connect( actionGoNext, SIGNAL( activated() ), browser, SLOT( forward() ) );
     connect( actionEditCopy, SIGNAL( activated() ), browser, SLOT( copy() ) );
     connect( actionFileExit, SIGNAL( activated() ), qApp, SLOT( quit() ) );
-    
+
     QDockWindow *dw = new QDockWindow;
     helpDock = new HelpDialog( dw, this, browser );
     dw->setResizeEnabled( TRUE );
@@ -23,45 +25,45 @@ void MainWindow::init()
     addDockWindow( dw, Left );
     dw->setWidget( helpDock );
     dw->setCaption( "Sidebar" );
-    dw->setFixedExtentWidth( 250 );    
- 
+    dw->setFixedExtentWidth( 250 );
+
     connect( helpDock, SIGNAL( showLink( const QString&, const QString & ) ),
     		this, SLOT( showLink( const QString&, const QString & ) ) );
-    
+
     goHome();
-    
+
     connect( bookmarkMenu, SIGNAL( activated( int ) ),
 		this, SLOT( showBookmark( int ) ) );
-    
+
     setupBookmarkMenu();
     connect( browser, SIGNAL( highlighted( const QString & ) ), statusBar(), SLOT( message( const QString & ) ) );
     connect( actionZoomIn, SIGNAL( activated() ), browser, SLOT( zoomIn() ) );
-    connect( actionZoomOut, SIGNAL( activated() ), browser, SLOT( zoomOut() ) ); 
-    
+    connect( actionZoomOut, SIGNAL( activated() ), browser, SLOT( zoomOut() ) );
+
     QAccel *a = new QAccel( this );
     a->insertItem( CTRL+Key_L, 100 );
     a->connectItem( 100, helpDock->editIndex, SLOT( setFocus() ) );
-             
-    QFontDatabase fonts;   
-    fontComboBox->insertStringList( fonts.families() );   
-    fontComboBox->lineEdit()->setText( browser->QWidget::font().family() );  
-    
+
+    QFontDatabase fonts;
+    fontComboBox->insertStringList( fonts.families() );
+    fontComboBox->lineEdit()->setText( browser->QWidget::font().family() );
+
     QString keybase("/Qt Assistant/3.0/");
-    QSettings config;  
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );  
-    QFont fnt( browser->QWidget::font() ); 
+    QSettings config;
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    QFont fnt( browser->QWidget::font() );
     fnt.setFamily( config.readEntry( keybase + "Family", fnt.family() ) );
     fnt.setPointSize( config.readNumEntry( keybase + "Size", fnt.pointSize() ) );
-    browser->setFont( fnt ); 
-    
+    browser->setFont( fnt );
+
     PopupMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu() );
 }
 
 void MainWindow::destroy()
 {
     QString keybase("/Qt Assistant/3.0/");
-    QSettings config; 
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" ); 
+    QSettings config;
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
     config.writeEntry( keybase + "Family",  browser->QWidget::font().family() );
     config.writeEntry( keybase + "Size",  browser->QWidget::font().pointSize() );
 }
@@ -101,7 +103,7 @@ void MainWindow::goHome()
 
 void MainWindow::showLinguistHelp()
 {
-    showLink( "qt-translation-tools.html", tr( "Qt Linguist Manual" ) );  
+    showLink( "qt-translation-tools.html", tr( "Qt Linguist Manual" ) );
 }
 
 void MainWindow::print()
@@ -137,7 +139,8 @@ void MainWindow::print()
 	    return;
 	QTextStream ts( &f );
 	QSimpleRichText richText( ts.read(), font, browser->context(), browser->styleSheet(),
-				  browser->mimeSourceFactory(), body.height() );
+				  browser->mimeSourceFactory(), body.height(), 
+				  Qt::black, FALSE );
 	richText.setWidth( &p, body.width() );
 	QRect view( body );
 	int page = 1;
@@ -194,7 +197,7 @@ void MainWindow::showLink( const QString & link, const QString & title )
 
 void MainWindow::showQtHelp()
 {
-    showLink( "index.html", tr( "Qt Reference Documentation" ) ); 
+    showLink( "index.html", tr( "Qt Reference Documentation" ) );
 }
 
 void MainWindow::setFamily( const QString & f )

@@ -126,7 +126,6 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
     : HelpDialogBase( parent, 0, FALSE ), help( h ), viewer( v )
 {
     documentationPath = QString( getenv( "QTDIR" ) ) + "/doc/html";
-    linguistDocPath   = QString( getenv( "QTDIR" ) ) + "/tools/linguist/doc/html";
     indexDone = FALSE;
     contentsDone = FALSE;
     contentsInserted = FALSE;
@@ -151,11 +150,9 @@ void HelpDialog::loadIndexFile()
     qApp->processEvents();
 
     QString indexFile = documentationPath + "/index";
-    QString linguistIndexFile = linguistDocPath + "/index";
 
     QProgressBar *bar = progressPrepare;
-    bar->setTotalSteps( QFileInfo( indexFile ).size() +
-	                QFileInfo( linguistIndexFile ).size() );
+    bar->setTotalSteps( QFileInfo( indexFile ).size()  );
     bar->setProgress( 0 );
 
 
@@ -165,7 +162,6 @@ void HelpDialog::loadIndexFile()
     QValueList<MyString>* lst = new QValueList<MyString>;
     bool buildDb = TRUE;
     QFile f( indexFile );
-    QFile f2( linguistIndexFile );
     if ( QFile::exists( QDir::homeDirPath() + "/.indexdb" ) ) {
 	QFile indexin( QDir::homeDirPath() + "/.indexdb" );
 	if ( !indexin.open( IO_ReadOnly ) )
@@ -176,7 +172,7 @@ void HelpDialog::loadIndexFile()
 	uint size;
 	ds >> dt;
 	ds >> size;
-	if ( size != (f.size() + f2.size()) || (dt != QFileInfo( f ).lastModified()) )
+	if ( size != f.size()  || dt != QFileInfo( f ).lastModified() )
 	    goto build_db;
 
 	ds >> *lst;
@@ -204,27 +200,6 @@ void HelpDialog::loadIndexFile()
 		    bar->setProgress( bar->progress() + l.length() );
 	    }
 	}
-
-	// Read the Linguist index as well
-	// ### This is a temp hack and should be removed when the
-	// ### Assistant becomes more generalised.
-	if ( f2.open( IO_ReadOnly ) ) {
-	    QTextStream ts( &f2 );
-	    while ( !ts.atEnd() && isVisible() ) {
-		qApp->processEvents();
-		if ( !isVisible() )
-		break;
-		QString l = ts.readLine();
-		if ( l.find( "::" ) != -1 ) {
-		    int i = l.find( "\"" ) + 1;
-		    l.remove( i, l.find( "::" ) + 2 - i );
-		}
-		lst->append( l );
-		if ( bar )
-		    bar->setProgress( bar->progress() + l.length() );
-	    }
-	}
-
 	if ( !lst->isEmpty() ) {
 	    qHeapSort( *lst );
 
@@ -232,7 +207,7 @@ void HelpDialog::loadIndexFile()
 	    if ( indexout.open( IO_WriteOnly ) ) {
 		QDataStream s( &indexout );
 		s << QFileInfo( f ).lastModified();
-		s << (f.size() + f2.size());
+		s << f.size();
 		s << *lst;
 	    }
 	    indexout.close();
