@@ -2086,13 +2086,13 @@ QString QTextDocument::richText( QTextParag *p ) const
 		} else {
 		    QString ps = p->richText();
 		    if ( ps.isEmpty() && (!item->name().isEmpty() || p->next()) )
-			s += "<br>\n"; // empty paragraph, except the last one
+			s += "<br>"; // empty paragraph, except the last one
 		    else if ( !item->name().isEmpty() )
 			s += "<" + item->name() + align_to_string( item->name(), p->alignment() )
 			     + direction_to_string( item->name(), p->direction() )  + ">" +
-			     ps + "</" + item->name() + ">\n";
+			     ps + "</" + item->name() + ">";
 		    else
-			s += ps +"\n";
+			s += ps;
 		}
 	    } else {
 		QString end;
@@ -2104,13 +2104,14 @@ QString QTextDocument::richText( QTextParag *p ) const
 		s += end;
 		QString ps = p->richText();
 		if ( ps.isEmpty() )
-		    s += "<br>\n"; // empty paragraph
+		    s += "<br>"; // empty paragraph
 		else
 		    s += "<p" + align_to_string( "p", p->alignment() ) + direction_to_string( "p", p->direction() )
-			 + ">" + ps + "</p>\n";
+			 + ">" + ps + "</p>";
 		lastItems = items;
 	    }
-	    p = p->next();
+	    if ( ( p = p->next() ) )
+		  s += '\n';
 	}
     } else {
 	s = p->richText();
@@ -4957,7 +4958,7 @@ QString QTextParag::richText() const
 	} else if ( ( formatChar->format()->key() != c->format()->key() ) ||
 		  (formatChar->isAnchor() != c->isAnchor() &&
 		   (!c->anchorHref().isEmpty() || !formatChar->anchorHref().isEmpty() ) ) )  {// lisp was here
-	
+
 	    if ( !spaces.isEmpty() ) {
 		if ( spaces.length() > 1 || spaces[0] == '\t' || lastCharWasSpace )
 		    s += "<wsp>" + spaces + "</wsp>";
@@ -4980,7 +4981,7 @@ QString QTextParag::richText() const
 		s += spaces;
 	    spaces = QString::null;
 	}
-	
+
 	lastCharWasSpace = FALSE;
 	if ( c->c == '<' ) {
 	    s += "&lt;";
