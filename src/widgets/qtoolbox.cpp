@@ -73,12 +73,17 @@ public:
 
 protected:
     void drawButton( QPainter * );
+    void drawButtonLabel( QPainter * );
 
 private:
     bool selected;
     QString label;
     QIconSet icon;
 };
+
+void QToolBoxButton::drawButtonLabel( QPainter * )
+{
+}
 
 class QToolBoxPrivate
 {
