@@ -951,7 +951,7 @@ int QCString::find( const char *str, int index, bool cs ) const
     */
     const char* needle = str;
     const char* haystack = data() + index;
-    const char* end = data() + (l-sl);
+    const char* end = data() + (l-sl-1);
     const uint sl_minus_1 = sl-1;
     uint hashNeedle, hashHaystack,i;
 
@@ -1058,9 +1058,9 @@ int QCString::findRev( const char *str, int index, bool cs ) const
     const char* needle = str;
     const char* haystack = data() + index;
     const char* end = data();
-    const char* n = needle+sl-1;
-    const char* h = haystack+sl-1;
     const uint sl_minus_1 = sl-1;
+    const char* n = needle+sl_minus_1;
+    const char* h = haystack+sl_minus_1;
     uint hashNeedle, hashHaystack, i;
 
     if ( cs ) {

@@ -14130,7 +14130,7 @@ int QString::find( const QString& str, int index, bool cs ) const
     */
     const QChar* needle = str.unicode();
     const QChar* haystack = unicode() + index;
-    const QChar* end = unicode() + (l-sl);
+    const QChar* end = unicode() + (l-sl-1);
     const uint sl_minus_1 = sl-1;
     uint hashNeedle, hashHaystack,i;
 
@@ -14260,9 +14260,9 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     const QChar* needle = str.unicode();
     const QChar* haystack = unicode() + index;
     const QChar* end = unicode();
-    const QChar* n = needle+sl-1;
-    const QChar* h = haystack+sl-1;
     const uint sl_minus_1 = sl-1;
+    const QChar* n = needle+sl_minus_1;
+    const QChar* h = haystack+sl_minus_1;
     uint hashNeedle, hashHaystack, i;
 
     if ( cs ) {
