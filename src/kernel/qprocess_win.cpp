@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#30 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -375,7 +375,7 @@ void QProcess::timeout()
 	    d->lookup->stop();
     }
 
-    if ( ioRedirection ) {
+    if ( ioRedirection || notifyOnExit ) {
 	socketRead( 1 ); // try stdout
 	socketRead( 2 ); // try stderr
     }
