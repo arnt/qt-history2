@@ -38,6 +38,7 @@
 #include "qtimer.h"
 #include "qsignal.h"
 #include "qobjectlist.h"
+#include "qapplication.h"
 
 // NOT REVISED
 /*!
@@ -231,6 +232,7 @@ void sst_init()
 class QSingleShotTimer : public QObject
 {
 public:
+    QSingleShotTimer() : QObject( qApp ) {}
     bool    start( int msec, QObject *r, const char * m );
 protected:
     bool    event( QEvent * );
