@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#84 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -320,7 +320,6 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	return FALSE;
     }
 	
-
     QTipManager::Tip *t = 0;
     while( w && !t ) {
 	t = (*tips)[ w ];
@@ -975,7 +974,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.78 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.79 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
