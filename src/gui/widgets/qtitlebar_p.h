@@ -30,8 +30,7 @@
 
 
 #ifndef QT_H
-#include "qbutton.h"
-#include "qlabel.h"
+#include "qwidget.h"
 #endif // QT_H
 
 #if !defined(QT_NO_TITLEBAR)
@@ -43,11 +42,12 @@ class QPixmap;
 class Q_GUI_EXPORT QTitleBar : public QWidget
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QTitleBar)
     Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
     Q_PROPERTY(bool movable READ isMovable WRITE setMovable)
 
 public:
-    QTitleBar (QWidget* w, QWidget* parent, const char* name=0);
+    QTitleBar (QWidget *w, QWidget *parent, const char *name=0);
     ~QTitleBar();
 
     bool isActive() const;
@@ -93,9 +93,6 @@ protected:
     virtual void cutText();
 
 private:
-    void readColors();
-
-    QTitleBarPrivate *d;
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
     QTitleBar(const QTitleBar &);
     QTitleBar &operator=(const QTitleBar &);

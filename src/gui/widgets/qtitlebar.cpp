@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of some Qt private functions.
+** Implementation of private QTitleBar class
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -18,19 +18,20 @@
 
 #ifndef QT_NO_TITLEBAR
 
-#include <qcursor.h>
-#include "qpixmap.h"
-#include "qapplication.h"
-#include "qevent.h"
-#include "qstyle.h"
-#include "qdatetime.h"
 #include "private/qapplication_p.h"
-#include "qtooltip.h"
-#include "qimage.h"
-#include "qtimer.h"
-#include "qpainter.h"
-#include "qstyle.h"
 #include "private/qinternal_p.h"
+#include "private/qwidget_p.h"
+#include "qapplication.h"
+#include "qcursor.h"
+#include "qdatetime.h"
+#include "qevent.h"
+#include "qimage.h"
+#include "qpainter.h"
+#include "qpixmap.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
+#include "qtimer.h"
+#include "qtooltip.h"
 #ifndef QT_NO_WORKSPACE
 #include "qworkspace.h"
 #endif
@@ -107,8 +108,9 @@ public:
 };
 #endif
 
-class QTitleBarPrivate
+class QTitleBarPrivate : public QWidgetPrivate
 {
+    Q_DECLARE_PUBLIC(QTitleBar)
 public:
     QTitleBarPrivate()
         : toolTip(0), act(0), window(0), movable(1), pressed(0), autoraise(0)
@@ -125,6 +127,8 @@ public:
     bool autoraise          :1;
 
     int titleBarState() const;
+    Q4StyleOptionTitleBar getStyleOption() const;
+    void readColors();
 };
 
 inline int QTitleBarPrivate::titleBarState() const
@@ -133,16 +137,27 @@ inline int QTitleBarPrivate::titleBarState() const
     return (int)state;
 }
 
-QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
-    : QWidget(parent, name, Qt::WStyle_Customize | Qt::WStyle_NoBorder)
+#define d d_func()
+#define q q_func()
+
+Q4StyleOptionTitleBar QTitleBarPrivate::getStyleOption() const
 {
-    d = new QTitleBarPrivate();
+    Q4StyleOptionTitleBar opt(0);
+    opt.text = q->windowTitle();
+    opt.icon = q->windowIcon();
+    return opt;
+}
+
+QTitleBar::QTitleBar(QWidget *w, QWidget *parent, const char *name)
+    : QWidget(*new QTitleBarPrivate, parent, Qt::WStyle_Customize | Qt::WStyle_NoBorder)
+{
+    setObjectName(name);
 
     d->window = w;
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
     if (w) {
-        setWFlags(((QTitleBar*)w)->getWFlags());
+        setWFlags(reinterpret_cast<QTitleBar *>(w)->getWFlags());
         if (w->minimumSize() == w->maximumSize())
             clearWFlags(Qt::WStyle_Maximize);
         setWindowTitle(w->windowTitle());
@@ -150,24 +165,22 @@ QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
         setWFlags(Qt::WStyle_Customize);
     }
 
-    readColors();
+    d->readColors();
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
     setMouseTracking(true);
 }
 
 QTitleBar::~QTitleBar()
 {
-    delete d;
-    d = 0;
 }
 
 #ifdef Q_WS_WIN
 extern QRgb qt_colorref2qrgb(COLORREF col);
 #endif
 
-void QTitleBar::readColors()
+void QTitleBarPrivate::readColors()
 {
-    QPalette pal = palette();
+    QPalette pal = q->palette();
 
     bool colorsInitialized = false;
 
@@ -217,8 +230,8 @@ void QTitleBar::readColors()
                       pal.color(QPalette::Inactive, QPalette::Background));
     }
 
-    setPalette(pal);
-    setActive(d->act);
+    q->setPalette(pal);
+    q->setActive(d->act);
 }
 
 void QTitleBar::changeEvent(QEvent *ev)
@@ -570,7 +583,7 @@ QWidget *QTitleBar::window() const
 bool QTitleBar::event(QEvent* e)
 {
     if (e->type() == QEvent::ApplicationPaletteChange) {
-        readColors();
+        d->readColors();
         return true;
     } else if (e->type() == QEvent::WindowActivate) {
         setActive(d->act);
