@@ -10,10 +10,10 @@
 
 /****************************************************************************
 **
-** This is a simple QGLWidget displaying an openGL alpha
+** This is a simple QGLWidget displaying an openGL accum example
 **
-** The OpenGL code is mostly borrowed from Silicon Graphics, Inc.s 
-** "accpersp" example in the Mesa distribution
+** The OpenGL code is mostly borrowed from Mark J. Kilgards  "dof"
+** example in the Mesa distribution
 **
 ****************************************************************************/
 
@@ -21,7 +21,7 @@
 #include "jitter.h"
 #include "math.h"
 
-#define ACSIZE  8
+#define ACSIZE  1
 #define PI_ 3.14159265358979323846
 
 #if defined(Q_CC_MSVC)
@@ -72,7 +72,7 @@ void GLAccum::paintGL()
 	displayObjects ();
 	glAccum(GL_ACCUM, 1.0/ACSIZE);
     }
-    glAccum (GL_RETURN, 1.0);
+    //glAccum (GL_RETURN, 1.0);
     glFlush(); 
 }
 
@@ -139,16 +139,16 @@ void GLAccum::displayObjects(void)
                 (GLdouble) viewport[2]/(GLdouble) viewport[3],
                 1.0, 15.0, 0.0, 0.0,
                 0.33*j8[jitter].x, 0.33*j8[jitter].y, 5.0);
-/*      ruby, gold, silver, emerald, and cyan teapots   */
-        renderTeapot (-1.1, -0.5, -4.5, 0.1745, 0.01175, 0.01175,
+/*      ruby, gold, silver, emerald, and cyan balls   */
+        renderBall (-1.1, -0.5, -4.5, 0.1745, 0.01175, 0.01175,
             0.61424, 0.04136, 0.04136, 0.727811, 0.626959, 0.626959, 0.6);
-        renderTeapot (-0.5, -0.5, -5.0, 0.24725, 0.1995, 0.0745,
+        renderBall (-0.5, -0.5, -5.0, 0.24725, 0.1995, 0.0745,
             0.75164, 0.60648, 0.22648, 0.628281, 0.555802, 0.366065, 0.4);
-        renderTeapot (0.2, -0.5, -5.5, 0.19225, 0.19225, 0.19225,
+        renderBall (0.2, -0.5, -5.5, 0.19225, 0.19225, 0.19225,
             0.50754, 0.50754, 0.50754, 0.508273, 0.508273, 0.508273, 0.4);
-        renderTeapot (1.0, -0.5, -6.0, 0.0215, 0.1745, 0.0215,
+        renderBall (1.0, -0.5, -6.0, 0.0215, 0.1745, 0.0215,
             0.07568, 0.61424, 0.07568, 0.633, 0.727811, 0.633, 0.6);
-        renderTeapot (1.8, -0.5, -6.5, 0.0, 0.1, 0.06, 0.0, 0.50980392,
+        renderBall (1.8, -0.5, -6.5, 0.0, 0.1, 0.06, 0.0, 0.50980392,
             0.50980392, 0.50196078, 0.50196078, 0.50196078, .25);
         glAccum (GL_ACCUM, 0.125);
     }
@@ -157,7 +157,7 @@ void GLAccum::displayObjects(void)
     glFlush();
 }
 
-void GLAccum::renderTeapot (GLfloat x, GLfloat y, GLfloat z,
+void GLAccum::renderBall (GLfloat x, GLfloat y, GLfloat z,
     GLfloat ambr, GLfloat ambg, GLfloat ambb,
     GLfloat difr, GLfloat difg, GLfloat difb,
     GLfloat specr, GLfloat specg, GLfloat specb, GLfloat shine)

@@ -10,7 +10,7 @@
 
 /****************************************************************************
 **
-** This is a simple QGLWidget displaying an openGL alpha 
+** This is a simple QGLWidget displaying an openGL accum example
 **
 ****************************************************************************/
 
@@ -48,12 +48,12 @@ private:
 				       GLdouble eyedx, GLdouble eyedy, 
 				       GLdouble focus);
     void                displayObjects(void);
-    void                renderTeapot (GLfloat x, GLfloat y, GLfloat z,
-				      GLfloat ambr, GLfloat ambg, 
-				      GLfloat ambb, GLfloat difr, 
-				      GLfloat difg, GLfloat difb,
-				      GLfloat specr, GLfloat specg, 
-				      GLfloat specb, GLfloat shine);
+    void                renderBall (GLfloat x, GLfloat y, GLfloat z,
+				    GLfloat ambr, GLfloat ambg, 
+				    GLfloat ambb, GLfloat difr, 
+				    GLfloat difg, GLfloat difb,
+				    GLfloat specr, GLfloat specg, 
+				    GLfloat specb, GLfloat shine);
     GLUquadric          *q;
 };
 

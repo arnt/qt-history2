@@ -1,6 +1,6 @@
 REQUIRES        = opengl
 TEMPLATE	= app
-CONFIG		+= qt opengl warn_on release
+CONFIG		+= qt opengl warn_on debug
 HEADERS		= glalpha.h \
 		  glstencil.h \
 		  gldouble.h \
