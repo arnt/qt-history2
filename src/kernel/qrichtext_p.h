@@ -577,6 +577,7 @@ public:
     virtual void invalidate();
 
     int verticalAlignmentOffset() const;
+    int horizontalAlignmentOffset() const;
 
 private:
     QPainter* painter() const;
@@ -659,7 +660,7 @@ private:
     int outerborder;
     int stretch;
     int innerborder;
-    int us_ib, us_b, us_ob, us_cs;
+    int us_cp, us_ib, us_b, us_ob, us_cs;
     int lastX, lastY;
     QMap<QString, QString> attributes;
     QMap<QTextCursor*, int> currCell;
@@ -1272,6 +1273,8 @@ public:
     QColor *backgroundColor() const { return bgcol; }
     void clearBackgroundColor();
 
+    bool isLineBreak() const { return is_br; }
+
 protected:
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     virtual void drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
@@ -1295,6 +1298,7 @@ private:
     bool lastInFrame : 1;
     bool visible : 1;
     bool breakable : 1;
+    bool is_br : 1;
     QMap<int, QTextParagSelection> selections;
     int state, id;
     QTextString *str;

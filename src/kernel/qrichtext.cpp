@@ -1595,6 +1595,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    emptyTag = TRUE;
 		    hasNewPar = FALSE;
 		    NEWPAR;
+		    curpar->is_br = TRUE;
 		}  else if ( tagname == "hr" ) {
 		    emptyTag = TRUE;
 		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
@@ -3360,6 +3361,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
 {
     bgcol = 0;
     breakable = TRUE;
+    is_br = FALSE;
     visible = TRUE;
     list_val = -1;
     newLinesAllowed = FALSE;
@@ -4860,6 +4862,8 @@ int QTextFormatter::formatVertically( QTextDocument* doc, QTextParag* parag )
     int m = parag->bottomMargin();
     if ( parag->next() && doc && !doc->addMargins() )
 	m = QMAX( m, parag->next()->topMargin() );
+    if ( parag->next() && parag->next()->isLineBreak() )
+	m = 0;
     h += m;
     parag->setHeight( h );
     return h - oldHeight;
@@ -4981,6 +4985,8 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     if ( parag->next() && doc && !doc->addMargins() )
 	m = QMAX( m, parag->next()->topMargin() );
     parag->setFullWidth( fullWidth );
+    if ( parag->next() && parag->next()->isLineBreak() )
+	m = 0;
     y += h + m;
     if ( !wrapEnabled )
 	minw = QMAX( minw, c->x + ww ); // #### Lars: Fix this for BiDi, please
@@ -5243,6 +5249,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     if ( parag->next() && doc && !doc->addMargins() )
 	m = QMAX( m, parag->next()->topMargin() );
     parag->setFullWidth( fullWidth );
+    if ( parag->next() && parag->next()->isLineBreak() )
+	m = 0;
     y += h + m;
 
     if ( !wrapEnabled )
@@ -6522,13 +6530,12 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
 
     innerborder = us_ib = border ? 1 : 0;
 
-    if ( border ) {
+    if ( border )
 	cellspacing += 2;
-// 	innerborder += 1;
-    }
 
     us_ib = innerborder;
     us_cs = cellspacing;
+    us_cp = cellpadding;
     outerborder = cellspacing + border;
     us_ob = outerborder;
     layout = new QGridLayout( 1, 1, cellspacing );
@@ -6604,6 +6611,7 @@ void QTextTable::adjustToPainter( QPainter* p)
     painter = p;
     if ( is_printer( p ) ) {
 	cellspacing = scale( us_cs, p );
+	cellpadding = scale( us_cp, p );
 	border = scale( us_b , p );
 	innerborder = scale( us_ib, p );
 	outerborder = scale( us_ob ,p );
@@ -6799,7 +6807,8 @@ bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&para
     currCell.remove( c );
     int lastCell = -1;
     int lastY = -1;
-    for ( int i = 0; i < (int)cells.count(); ++i ) {
+    int i;
+    for ( i = 0; i < (int)cells.count(); ++i ) {
 	QTextTableCell *cell = cells.at( i );
 	if ( !cell )
 	    continue;
@@ -6819,6 +6828,8 @@ bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&para
 	    }
 	}
     }
+    if ( i == (int) cells.count() )
+ 	return FALSE; // no cell found
 
     if ( currCell.find( c ) == currCell.end() ) {
 	if ( lastY != -1 )
@@ -6833,7 +6844,7 @@ bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&para
     doc = cell->richText();
     parag = doc->firstParag();
     idx = 0;
-    ox += cell->geometry().x() + outerborder + parent->x();
+    ox += cell->geometry().x() + cell->horizontalAlignmentOffset() + outerborder + parent->x();
     oy += cell->geometry().y() + cell->verticalAlignmentOffset() + outerborder;
     return TRUE;
 }
@@ -6866,7 +6877,7 @@ bool QTextTable::next( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
     doc = cell->richText();
     parag = doc->firstParag();
     idx = 0;
-    ox += cell->geometry().x() + outerborder + parent->x();
+    ox += cell->geometry().x() + cell->horizontalAlignmentOffset() + outerborder + parent->x();
     oy += cell->geometry().y() + cell->verticalAlignmentOffset() + outerborder;
     return TRUE;
 }
@@ -6899,7 +6910,7 @@ bool QTextTable::prev( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
     doc = cell->richText();
     parag = doc->firstParag();
     idx = parag->length() - 1;
-    ox += cell->geometry().x() + outerborder + parent->x();
+    ox += cell->geometry().x() + cell->horizontalAlignmentOffset() + outerborder + parent->x();
     oy += cell->geometry().y()  + cell->verticalAlignmentOffset() + outerborder;
     return TRUE;
 }
@@ -6937,7 +6948,7 @@ bool QTextTable::down( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
 	return FALSE;
     parag = doc->firstParag();
     idx = 0;
-    ox += cell->geometry().x() + outerborder + parent->x();
+    ox += cell->geometry().x() + cell->horizontalAlignmentOffset() + outerborder + parent->x();
     oy += cell->geometry().y()  + cell->verticalAlignmentOffset() + outerborder;
     return TRUE;
 }
@@ -6975,7 +6986,7 @@ bool QTextTable::up( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, in
 	return FALSE;
     parag = doc->lastParag();
     idx = parag->length() - 1;
-    ox += cell->geometry().x() + outerborder + parent->x();
+    ox += cell->geometry().x() + cell->horizontalAlignmentOffset() + outerborder + parent->x();
     oy += cell->geometry().y()  + cell->verticalAlignmentOffset() + outerborder;
     return TRUE;
 }
@@ -7108,16 +7119,16 @@ QSize QTextTableCell::sizeHint() const
 	return QSize( ( that->cached_sizehint = QWIDGETSIZE_MAX ), 0 );
     } else if ( stretch_ > 0 ) {
 	return QSize( QMAX( QMAX( richtext->widthUsed(), minw ),
-			    parent->width * stretch_ / 100 - 2*parent->cellspacing ), 0 );
+			    parent->width * stretch_ / 100 - 2*parent->cellspacing - 2*parent->cellpadding ), 0 );
     }
-    return QSize( ( that->cached_sizehint = richtext->widthUsed() + 2 * ( table()->innerborder + 4 ) ), 0 );
+    return QSize( ( that->cached_sizehint = richtext->widthUsed() + 2 * ( parent->innerborder + parent->cellpadding + 4 ) ), 0 );
 }
 
 QSize QTextTableCell::minimumSize() const
 {
     if ( stretch_ )
 	return QSize( QMAX( QMAX( richtext->widthUsed(), minw ),
-			    parent->width * stretch_ / 100 - 2*parent->cellspacing ), 0 );
+			    parent->width * stretch_ / 100 - 2*parent->cellspacing - 2*parent->cellpadding), 0 );
     return QSize(QMAX( richtext->minimumWidth(), minw ),0);
 }
 
@@ -7159,10 +7170,10 @@ int QTextTableCell::heightForWidth( int w ) const
 
     if ( cached_width != w ) {
 	QTextTableCell* that = (QTextTableCell*) this;
-	that->richtext->doLayout( painter(), w );
+	that->richtext->doLayout( painter(), w - 2 * parent->cellpadding );
 	that->cached_width = w;
     }
-    return richtext->height() + 2 * parent->innerborder;
+    return richtext->height() + 2 * parent->innerborder + 2* parent->cellpadding;
 }
 
 void QTextTableCell::adjustToPainter()
@@ -7182,13 +7193,18 @@ QPainter* QTextTableCell::painter() const
     return parent->painter;
 }
 
+int QTextTableCell::horizontalAlignmentOffset() const
+{
+    return parent->cellpadding;
+}
+ 
 int QTextTableCell::verticalAlignmentOffset() const
 {
     if ( (align & Qt::AlignVCenter ) == Qt::AlignVCenter )
 	return ( geom.height() - richtext->height() ) / 2;
     else if ( ( align & Qt::AlignBottom ) == Qt::AlignBottom )
-	return geom.height() - richtext->height();
-    return 0;
+	return geom.height() - parent->cellpadding - richtext->height();
+    return parent->cellpadding;
 }
 
 void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool )
@@ -7210,14 +7226,16 @@ void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const Q
     else if ( richtext->paper() )
 	painter()->fillRect( 0, 0, geom.width(), geom.height(), *richtext->paper() );
 
-    painter()->translate( 0, verticalAlignmentOffset() );
+    painter()->translate( horizontalAlignmentOffset(), verticalAlignmentOffset() );
 
     QRegion r;
     QTextCursor *c = 0;
     if ( richtext->parent()->tmpCursor )
 	c = richtext->parent()->tmpCursor;
     if ( cx >= 0 && cy >= 0 )
-	richtext->draw( painter(), cx - ( x + geom.x() ), cy - ( y + geom.y() + verticalAlignmentOffset() ), cw, ch, g, FALSE, (c != 0), c );
+	richtext->draw( painter(), cx - ( x + horizontalAlignmentOffset() + geom.x() ), 
+			cy - ( y + geom.y() + verticalAlignmentOffset() ), 
+			cw, ch, g, FALSE, (c != 0), c );
     else
 	richtext->draw( painter(), -1, -1, -1, -1, g, FALSE, (c != 0), c );
 
