@@ -35,7 +35,8 @@ enum ObjectCategory
     NoInlines        = 0x020,
     OnlyInlines      = 0x040,
     DoNothing        = 0x080,
-    Licensed         = 0x100
+    Licensed         = 0x100,
+    TypeLibID        = 0x101
 };
 
 // this comes from moc/qmetaobject.cpp
@@ -921,6 +922,8 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         declOut << endl;
     }
 
+    QList<QByteArray> subtypes;
+
     UINT typeCount = typelib->GetTypeInfoCount();
     for (UINT index = 0; index < typeCount; ++index) {
         ITypeInfo *typeinfo = 0;
@@ -976,6 +979,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
                         generateClassDecl(declOut, guid.toString(), metaObject, className, libName.toLatin1(), (ObjectCategory)(object_category|NoInlines));
                         declOut << endl;
                     }
+                    subtypes << className;
                     generateClassDecl(inlinesOut, guid.toString(), metaObject, className, libName.toLatin1(), (ObjectCategory)(object_category|OnlyInlines));
                     inlinesOut << endl;
                 }
@@ -1013,6 +1017,15 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         declOut << "}" << endl;
         declOut << endl;
 
+        // partial template specialization for qMetaTypeConstructHelper
+        for (int t = 0; t < subtypes.count(); ++t) {
+            QByteArray subType(subtypes.at(t));
+            declOut << "template<>" << endl;
+            declOut << "inline void *qMetaTypeConstructHelper(const " << libName << "::" << subType << " *t)" << endl;
+            declOut << "{ Q_ASSERT(!t); return new " << libName << "::" << subType << "; }" << endl;
+            declOut << endl;
+        }
+
         declOut << "#endif" << endl;
         declOut << endl;
     }
@@ -1033,7 +1046,8 @@ int main(int argc, char **argv)
     enum State {
         Default = 0,
         Output,
-        NameSpace
+        NameSpace,
+        GetTypeLib
     } state;
     state = Default;
     
@@ -1068,6 +1082,9 @@ int main(int argc, char **argv)
                     break;
                 } else if (arg == "compat") {
                     qax_dispatchEqualsIDispatch = true;
+                    break;
+                } else if (arg == "getfile") {
+                    state = GetTypeLib;
                     break;
                 } else if (arg == "h") {
                     qWarning("dumpcpp Version1.0\n\n"
@@ -1106,9 +1123,29 @@ int main(int argc, char **argv)
             state = Default;
             break;
 
+        case GetTypeLib:
+            typeLib = arg;
+            state = Default;
+            category = TypeLibID;
+            break;
         default:
             break;
         }
+    }
+
+    if (category == TypeLibID) {
+        QSettings settings("HKEY_LOCAL_MACHINE\\Software\\Classes\\TypeLib\\" + typeLib, QSettings::NativeFormat);
+        QStringList codes = settings.childGroups();
+        for (int c = 0; c < codes.count(); ++c) {
+            typeLib = settings.value("/" + codes.at(c) + "/0/win32/.").toByteArray();
+            if (QFile::exists(typeLib)) {
+                break;
+            }
+        }
+
+        if (!typeLib.isEmpty())
+            fprintf(stdout, "\"%s\"\n", typeLib.data());
+        return 0;
     }
 
     if (category == DoNothing)

@@ -2,12 +2,12 @@ TEMPLATE = app
 TARGET	 = qutlook
 CONFIG	+= qaxcontainer
 
-!exists("c:\program files\Microsoft Office\Office10\msoutl.olb") {
-    message("Microsoft Outlook type library not found at standard location!")
+TYPELIBS = $$system(dumpcpp -getfile {00062FFF-0000-0000-C000-000000000046})
+
+isEmpty(TYPELIBS) {
+    message("Microsoft Outlook type library not found!")
     REQUIRES += Outlook
 } else {
-    TYPELIBS = "c:\program files\Microsoft Office\Office10\msoutl.olb"
-
     HEADERS  = addressview.h
     SOURCES  = addressview.cpp main.cpp
 }
