@@ -11,7 +11,7 @@ styles {
 		  $$STYLES_CPP/qcommonstyle.cpp
 
 	contains( styles, all ) {
-		styles += aqua mac cde motifplus sgi platinum compact interlace windows motif
+		styles += mac cde motifplus sgi platinum compact interlace windows motif
 	}
 
 	embedded|!macx-*:styles -= mac
@@ -28,7 +28,7 @@ styles {
         }
 	else:DEFINES += QT_NO_STYLE_MAC
 
-	embedded|!macx-*:styles -= aqua
+	#embedded|!macx-*:styles -= aqua
 	contains( styles, aqua ) {
 		HEADERS += $$STYLES_H/qaquastyle.h 
 		SOURCES += $$STYLES_CPP/qaquastyle.cpp 

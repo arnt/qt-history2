@@ -127,6 +127,8 @@ protected:
     QAquaStylePrivate *d;
 };
 
+#elif defined(Q_WS_MAC)
+typedef QAquaStyle QMacStyle;
 #endif // QT_NO_STYLE_AQUA
 
 #endif // QAQUASTYLE_H

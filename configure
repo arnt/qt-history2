@@ -221,7 +221,7 @@ MODULES="styles tools kernel widgets dialogs iconview workspace"
 [ "$Products" != "qt-professional" ] && MODULES="$MODULES network canvas table xml opengl sql"
 AVAIL_MODULES=$MODULES
 QMAKE_VARS="$QMAKE_VARS \"QT_PRODUCT=$Products\""
-QMAKE_VARS="$QMAKE_VARS \"styles += windows motif aqua mac platinum sgi cde motifplus\""
+QMAKE_VARS="$QMAKE_VARS \"styles += windows motif mac platinum sgi cde motifplus\""
 QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\""
 
 
