@@ -101,12 +101,6 @@ then
     rm -f $outpath/tools/designer/templates
     ln -s $relpath/tools/designer/templates $outpath/tools/designer/templates
 
-    # create the include directory (will hold real qconfig.h and qmodules.h)
-    if [ ! -d $outpath/include ]
-    then
-	mkdir $outpath/include
-    fi
-
     # symlink the doc directory
     rm -f $outpath/doc
     ln -s $relpath/doc $outpath/doc
@@ -143,6 +137,11 @@ else
 	exit 1
     fi
     rm -f .test.qt.
+fi
+
+# create the include directory (will hold real qconfig.h and qmodules.h)
+if [ ! -d $outpath/include ]; then
+   mkdir $outpath/include
 fi
 
 qdir="\$(QTDIR)"
