@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#555 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#556 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2220,6 +2220,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 
     if ( !widget ) {				// don't know this window
+#if 0
 	if ( (widget=(QETWidget*)QApplication::activePopupWidget()) )
 	    {
 		// Danger - make sure we don't lock the server
@@ -2235,6 +2236,29 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
 		qt_np_process_foreign_event( event );
 	    }
+#else
+	//DIMITRI FIX
+	
+	QWidget* popup = QApplication::activePopupWidget();
+	if ( popup ) {
+	    // Danger - make sure we don't lock the server
+	    switch ( event->type ) {
+	    case ButtonPress:
+	    case ButtonRelease:
+	    case XKeyPress:
+	    case XKeyRelease:
+		do {
+		    popup->close();
+		    if ( qApp->activePopupWidget() == popup )
+			popup->hide();
+		} while ( popup = qApp->activePopupWidget() );
+		return 1;
+            }
+	} else {
+	    void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
+	    qt_np_process_foreign_event( event );
+	}
+#endif	
 	return -1;
     }
 
@@ -2269,8 +2293,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case GraphicsExpose:
     case Expose:				// paint event
 	if ( widget->testWState(WState_ForceHide) ) {
-	  //widget->setWState( WState_Visible );
-	  //widget->hide();
+	    //widget->setWState( WState_Visible );
+	    //widget->hide();
 	} else {
 	    widget->translatePaintEvent( event );
 	}
@@ -2285,8 +2309,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    return TRUE; // not interesting
  	if ( inPopupMode() ) // some delayed focus event to ignore
  	    break;
-// 	if ( event->xfocus.mode == NotifyUngrab )
-// 	    break;
+	// 	if ( event->xfocus.mode == NotifyUngrab )
+	// 	    break;
 	QWidget* old_active_window = active_window;
 	active_window = widget->topLevelWidget();
 	if (active_window && active_window->extra &&
@@ -2321,8 +2345,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case XFocusOut:				// lost focus
 	if ( widget == desktop() )
 	    return TRUE; // not interesting
-// 	if ( event->xfocus.mode == NotifyGrab )
-// 	    break;
+	// 	if ( event->xfocus.mode == NotifyGrab )
+	// 	    break;
 	active_window = 0;
 	if ( focus_widget && !inPopupMode() ) {
 	    QFocusEvent out( QEvent::FocusOut );
@@ -2377,7 +2401,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 					widget->winId(),
 					ReparentNotify,
 					event ) )
-		    ;	// skip old reparent events
+	    ;	// skip old reparent events
 	if ( event->xreparent.parent == appRootWin ) {
 
 	    QTLWExtra*  x = widget->extra? widget->extra->topextra : 0;
