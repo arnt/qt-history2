@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#67 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#68 $
 **
 ** Implementation of QTextStream class
 **
@@ -502,8 +502,11 @@ int QTextStream::ts_getc()
 {
     // WARNING: some QTextStream functions call getch directly.
 
+    int r;
+
     if ( mapper ) {
 	warning( "QTextStream::ts_getc() mapper not supported" );
+	r = 0;
     } else {
 	int c1 = dev->getch();
 	if ( c1 == EOF )
@@ -521,13 +524,12 @@ int QTextStream::ts_getc()
 		return ts_getc(); //skip byteordermark
 	    } 
 	}
-	int r;
 	if ( swapUnicode )
 	    r = c1 | (c2 << 8);
 	else
 	    r = (c1 << 8) | c2;
-	return r;    
     }
+    return r;    
 }
 
 
