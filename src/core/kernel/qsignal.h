@@ -27,7 +27,7 @@ public:
     ~QSignalEmitter();
     const QMetaObject *metaObject() const { return &staticMetaObject; }
     void *qt_metacast(const char *);
-    void activate(void * = 0);
+    void activate(const void * = 0);
     bool connect(const QObject *receiver, const char *member, Qt::ConnectionType = Qt::AutoConnection);
     bool disconnect(const QObject *receiver, const char *member=0);
 private:
@@ -43,7 +43,8 @@ class QSignal
 public:
     inline QSignal():d(0){}
     inline ~QSignal(){ delete d; }
-    inline void activate(const T& t) { if(d) d->activate(const_cast<T *>(&t)); }
+    inline void activate(const T& t)
+    { if(d) d->activate(static_cast<const void*>(&t)); }
     bool connect(const QObject *receiver, const char *member,
                   Qt::ConnectionType type = Qt::AutoConnection) {
         if (!d) d = new QSignalEmitter(QTypeInfo<T>::name());
@@ -83,16 +84,16 @@ private:        // Disabled copy constructor and operator=
 class Q_CORE_EXPORT QGenericArgument
 {
 public:
-    inline QGenericArgument(const char *aName = 0, void *aData = 0):
+    inline QGenericArgument(const char *aName = 0, const void *aData = 0):
         _data(aData), _name(aName)
     {}
     inline void *data() const
-    { return _data; }
+    { return const_cast<void *>(_data); }
     inline const char *name() const
     { return _name; }
 
 private:
-    void *_data;
+    const void *_data;
     const char *_name;
 };
 
@@ -109,7 +110,7 @@ class QArgument: public QGenericArgument
 {
 public:
     inline QArgument(const char *aName, const T &aData) :
-                QGenericArgument(aName, const_cast<T *>(&aData))
+                QGenericArgument(aName, static_cast<const void *>(&aData))
     {}
 };
 
@@ -119,7 +120,7 @@ class QReturnArgument: public QGenericReturnArgument
 {
 public:
     inline QReturnArgument(const char *aName, T &aData) :
-                QGenericReturnArgument(aName, const_cast<T *>(&aData))
+                QGenericReturnArgument(aName, static_cast<void *>(&aData))
     {}
 };
 

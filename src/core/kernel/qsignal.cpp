@@ -145,9 +145,9 @@ void *QSignalEmitter::qt_metacast(const char *clname)
     return 0;
 }
 
-void QSignalEmitter::activate(void *_t1)
+void QSignalEmitter::activate(const void *_t1)
 {
-    void *_a[] = { 0, _t1 };
+    void *_a[] = { 0, const_cast<void *>(_t1) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 
