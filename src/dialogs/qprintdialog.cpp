@@ -588,7 +588,7 @@ static char * parseCupsOutput( QListView * printers )
 
 static QPrintDialog * globalPrintDialog = 0;
 
-QCleanupHandler<QPrintDialog> qpd_cleanup_globaldialog;
+static QCleanupHandler<QPrintDialog> qpd_cleanup_globaldialog;
 
 /*!
   \class QPrintDialog qprintdialog.h

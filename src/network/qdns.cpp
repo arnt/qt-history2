@@ -61,7 +61,7 @@ static Q_UINT16 id; // ### seeded started by now()
 
 static QDateTime * originOfTime = 0;
 
-QCleanupHandler<QDateTime> qdns_cleanup_time;
+static QCleanupHandler<QDateTime> qdns_cleanup_time;
 
 static Q_UINT32 now()
 {

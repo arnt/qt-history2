@@ -166,7 +166,7 @@ public:
 
 static QPtrDict<QPushButtonPrivate> *d_ptr = 0;
 
-QCleanupHandler<QPtrDict<QPushButtonPrivate> > qpb_cleanup_private;
+static QCleanupHandler<QPtrDict<QPushButtonPrivate> > qpb_cleanup_private;
 
 static QPushButtonPrivate* d( const QPushButton* foo )
 {

@@ -62,8 +62,8 @@ static QBitmap * horizontalLine = 0;
 
 static QPixmap *buffer = 0;
 
-QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
-QCleanupHandler<QPixmap> qlv_cleanup_pixmap;
+static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
+static QCleanupHandler<QPixmap> qlv_cleanup_pixmap;
 
 static QPixmap *getCacheBuffer( const QSize &sz )
 {

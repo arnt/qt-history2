@@ -1120,7 +1120,7 @@ bool operator!=( const QCIString &s1, const QCIString &s2 )
 typedef QMap<QCIString,QString> QFontSubst;
 static QFontSubst *fontSubst = 0;
 
-QCleanupHandler<QFontSubst> qfont_cleanup_fontsubst;
+static QCleanupHandler<QFontSubst> qfont_cleanup_fontsubst;
 
 static void initFontSubst()                     // create substitution dict
 {
@@ -1400,7 +1400,7 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
 typedef QList<QFontMetrics> QFontMetricsList;
 static QFontMetricsList *fm_list = 0;
 
-QCleanupHandler<QFontMetricsList> qfont_cleanup_fontmetricslist;
+static QCleanupHandler<QFontMetricsList> qfont_cleanup_fontmetricslist;
 
 static void insertFontMetrics( QFontMetrics *fm ) {
     if ( !fm_list ) {
@@ -1748,7 +1748,7 @@ QSize QFontMetrics::size( int flgs, const QString &str, int len, int tabstops,
 typedef QList<QFontInfo> QFontInfoList;
 static QFontInfoList *fi_list = 0;
 
-QCleanupHandler<QFontInfoList> qfont_cleanup_fontinfolist;
+static QCleanupHandler<QFontInfoList> qfont_cleanup_fontinfolist;
 
 static void insertFontInfo( QFontInfo *fi )
 {

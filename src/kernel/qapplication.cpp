@@ -353,7 +353,7 @@ public:
 };
 static QPostEventList *globalPostedEvents = 0;	// list of posted events
 
-QCleanupHandler<QPostEventList> qapp_cleanup_events;
+static QCleanupHandler<QPostEventList> qapp_cleanup_events;
 
 #ifndef QT_NO_PALETTE
 QPalette *qt_std_pal = 0;

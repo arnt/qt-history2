@@ -76,7 +76,7 @@ QSqlEditorFactory::~QSqlEditorFactory()
 }
 
 static QSqlEditorFactory * defaultfactory = 0;
-QCleanupHandler< QSqlEditorFactory > qsql_cleanup_editor_factory;
+static QCleanupHandler< QSqlEditorFactory > qsql_cleanup_editor_factory;
 
 /*! Returns an instance of a default editor factory.
 

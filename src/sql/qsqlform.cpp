@@ -185,7 +185,7 @@ void QSqlPropertyMap::remove( const QString & classname )
 }
 
 static QSqlPropertyMap * defaultmap = 0;
-QCleanupHandler< QSqlPropertyMap > qsql_cleanup_property_map;
+static QCleanupHandler< QSqlPropertyMap > qsql_cleanup_property_map;
 
 /*!
 

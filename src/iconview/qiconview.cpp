@@ -118,7 +118,7 @@ static QPixmap *unknown_icon = 0;
 static QPixmap *qiv_buffer_pixmap = 0;
 static QPixmap *qiv_selection = 0;
 
-QCleanupHandler<QPixmap> qiv_cleanup_pixmap;
+static QCleanupHandler<QPixmap> qiv_cleanup_pixmap;
 
 #if !defined(Q_WS_X11)
 static void createSelectionPixmap( const QColorGroup &cg )

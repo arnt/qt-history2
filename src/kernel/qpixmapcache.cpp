@@ -150,7 +150,7 @@ bool QPMCache::insert( const QString& k, const QPixmap *d, int c, int p )
 
 static QPMCache *pm_cache = 0;			// global pixmap cache
 
-QCleanupHandler<QPMCache> qpm_cleanup_cache;
+static QCleanupHandler<QPMCache> qpm_cleanup_cache;
 
 /*!
   Returns the pixmap associated with \a key in the cache, or null if there

@@ -272,7 +272,7 @@ const char * const qt_unshade_xpm[] = {
 #endif // !Q_WS_WIN
 
 static QPixmap *buffer = 0;
-QCleanupHandler<QPixmap> buffer_cleanup;
+static QCleanupHandler<QPixmap> qtb_cleanup;
 
 
 QTitleBar::QTitleBar (QWorkspace* w, QWidget* win, QWidget* parent,
@@ -690,7 +690,7 @@ void QTitleBarLabel::drawLabel( bool redraw )
 {
     if ( !buffer ) {
 	buffer = new QPixmap;
-	buffer_cleanup.add( buffer );
+	qtb_cleanup.add( buffer );
     }
 
     if ( buffer->isNull() )
@@ -751,7 +751,7 @@ void QTitleBarLabel::resizeEvent( QResizeEvent* e )
 
     if ( !buffer ) {
 	buffer = new QPixmap;
-	buffer_cleanup.add( buffer );
+	qtb_cleanup.add( buffer );
     }
     buffer->resize( QSize( QMAX( size().width(), buffer->width() ), QMAX( size().height(), buffer->height() ) ) );
     cutText();

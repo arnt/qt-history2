@@ -67,7 +67,7 @@ QEditorFactory::~QEditorFactory()
 }
 
 static QEditorFactory * defaultfactory = 0;
-QCleanupHandler< QEditorFactory > q_cleanup_editor_factory;
+static QCleanupHandler< QEditorFactory > q_cleanup_editor_factory;
 
 /*! 
   Returns an instance of a default editor factory.

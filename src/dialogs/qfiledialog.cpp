@@ -449,10 +449,10 @@ static int sortFilesBy = (int)QDir::Name;
 static bool sortAscending = TRUE;
 static bool detailViewMode = FALSE;
 
-QCleanupHandler<QPixmap> qfd_cleanup_pixmap;
-QGuardedCleanupHandler<QFileIconProvider> qfd_cleanup_fip;
-QCleanupHandler<QSize> qfd_cleanup_size;
-QCleanupHandler<QString> qfd_cleanup_string;
+static QCleanupHandler<QPixmap> qfd_cleanup_pixmap;
+static QGuardedCleanupHandler<QFileIconProvider> qfd_cleanup_fip;
+static QCleanupHandler<QSize> qfd_cleanup_size;
+static QCleanupHandler<QString> qfd_cleanup_string;
 
 static bool isDirectoryMode( int m )
 {

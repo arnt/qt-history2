@@ -3160,7 +3160,7 @@ QImageHandler::QImageHandler( const char *f, const char *h, const QCString& fl,
 typedef QList<QImageHandler> QIHList;// list of image handlers
 static QIHList *imageHandlers = 0;
 
-QCleanupHandler<QIHList> qimg_cleanup_handler;
+static QCleanupHandler<QIHList> qimg_cleanup_handler;
 
 void qt_init_image_handlers()		// initialize image handlers
 {
