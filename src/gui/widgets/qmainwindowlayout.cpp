@@ -31,7 +31,7 @@
 
 #include <private/qlayoutengine_p.h>
 
-// #define LAYOUT_DEBUG
+#define LAYOUT_DEBUG
 #if defined(LAYOUT_DEBUG)
 #  define DEBUG qDebug
 #else
@@ -188,7 +188,7 @@ QDockWindowLayout *QMainWindowLayout::layoutForArea(Qt::DockWindowArea area)
             Qt::Horizontal, // BOTTOM
         };
 
-        l = new QDockWindowLayout(this, orientations[pos]);
+        l = new QDockWindowLayout(this, area, orientations[pos]);
         l->setObjectName(objectName() + "_dockWindowLayout" + QString::number(area, 16));
 
         info.item = l;
@@ -515,7 +515,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 	    } else {
 		ToolBarLayoutInfo &prev = tb_layout_info[k][i-1];
 		QSize minSize(0, 0);
-                if(info.item->widget()->layout()->itemAt(1)) 
+                if(info.item->widget()->layout()->itemAt(1))
                     minSize = info.item->widget()->layout()->itemAt(1)->widget()->minimumSizeHint();
 		set_perp(where, minSize, pick_perp(where, minSize) + tb_fill);
  		const int cur_pt = pick_perp(where, prev.pos) + pick_perp(where, prev.size);

@@ -12,10 +12,7 @@
 ****************************************************************************/
 
 #include "qdockwindowlayout_p.h"
-
-#include "qmainwindowlayout_p.h"
 #include "qdockwindow.h"
-#include "qdockwindowseparator_p.h"
 
 #include <qapplication.h>
 #include <qdebug.h>
@@ -25,6 +22,10 @@
 #include <qvector.h>
 
 #include <private/qlayoutengine_p.h>
+
+#include "qdockwindow_p.h"
+#include "qdockwindowseparator_p.h"
+#include "qmainwindowlayout_p.h"
 
 // #define LAYOUT_DEBUG
 #if defined(LAYOUT_DEBUG)
@@ -75,13 +76,8 @@ public:
     QRect rect;
 };
 
-QDockWindowLayout::QDockWindowLayout(QWidget *widget, Qt::Orientation o)
-    : QLayout(widget), orientation(o), save_layout_info(0),
-      relayout_type(QInternal::RelayoutNormal)
-{ connect(this, SIGNAL(emptied()), SLOT(maybeDelete()), Qt::QueuedConnection); }
-
-QDockWindowLayout::QDockWindowLayout(QLayout *layout, Qt::Orientation o)
-    : QLayout(layout), orientation(o), save_layout_info(0),
+QDockWindowLayout::QDockWindowLayout(QLayout *layout, Qt::DockWindowArea a, Qt::Orientation o)
+    : QLayout(layout), area(a), orientation(o), save_layout_info(0),
       relayout_type(QInternal::RelayoutNormal)
 { connect(this, SIGNAL(emptied()), SLOT(maybeDelete()), Qt::QueuedConnection); }
 
@@ -854,7 +850,7 @@ QRect QDockWindowLayout::place(QDockWindow *dockwindow, const QRect &r, const QP
             Q_ASSERT(l != 0);
             DEBUG("  forwarding...");
             target = l->place(dockwindow, r, mouse);
-            DEBUG("END of QMainWindowLayout::place (forwarded)");
+            DEBUG("END of QDockWindowLayout::place (forwarded)");
             return target;
         } else if (dockwindow == info.item->widget()) {
             if (orientation == Qt::Horizontal) {
@@ -972,7 +968,7 @@ void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoi
             Q_ASSERT(l != 0);
             DEBUG("  forwarding...");
             l->drop(dockwindow, r, mouse);
-            DEBUG("END of QMainWindowLayout::drop (forwarded)");
+            DEBUG("END of QDockWindowLayout::drop (forwarded)");
             return;
         } else if (dockwindow == info.item->widget()) {
             // placed back at original position
@@ -1024,8 +1020,10 @@ void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoi
     relayout(QInternal::RelayoutDropped);
     info.is_dropped = false;
 
+    // let the dock window know that it is in a new area
+    dockwindow->d_func()->area = area;
     if (dockwindow->isTopLevel()) {
-        // reparent the dockwindow to the new dock
+        // reparent the dock window into the main window
         dockwindow->setTopLevel(false);
         dockwindow->show();
     }
@@ -1041,7 +1039,7 @@ void QDockWindowLayout::extend(QDockWindow *dockwindow, Qt::Orientation directio
         Q_ASSERT(relayout_type == QInternal::RelayoutNormal);
         relayout_type = QInternal::RelayoutDropped;
 
-        QDockWindowLayout *nestedLayout = new QDockWindowLayout(this, orientation);
+        QDockWindowLayout *nestedLayout = new QDockWindowLayout(this, area, orientation);
         nestedLayout->setObjectName(objectName() + QLatin1String("_nestedCopy"));
 
         for (int i = 0; i < layout_info.count(); ++i) {
@@ -1111,7 +1109,8 @@ void QDockWindowLayout::split(QDockWindow *existing, QDockWindow *with, Qt::Dock
 
     // create a nested window dock in place of the current widget
     QDockWindowLayout *nestedLayout =
-        new QDockWindowLayout(this, orientation == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal);
+        new QDockWindowLayout(this, area,
+                              orientation == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal);
     nestedLayout->setObjectName(objectName() + "_nestedLayout");
     insert(which / 2, nestedLayout).cur_size = save_size;
     invalidate();

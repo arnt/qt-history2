@@ -56,12 +56,12 @@ class QDockWindowLayout : public QLayout
     Q_OBJECT
 
 public:
+    Qt::DockWindowArea area;
     Qt::Orientation orientation;
     QList<QDockWindowLayoutInfo> layout_info;
     QList<QDockWindowLayoutInfo> *save_layout_info;
 
-    QDockWindowLayout(QWidget *widget, Qt::Orientation o);
-    QDockWindowLayout(QLayout *layout, Qt::Orientation o);
+    QDockWindowLayout(QLayout *layout, Qt::DockWindowArea a, Qt::Orientation o);
 
     // QLayout interface
     void addItem(QLayoutItem *layoutitem);
