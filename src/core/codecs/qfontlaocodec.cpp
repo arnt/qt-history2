@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "private/qfontcodecs_p.h"
+#include "qfontlaocodec_p.h"
 
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
@@ -59,24 +59,19 @@ int QFontLaoCodec::mibEnum() const
     return -4242;
 }
 
-unsigned short QFontLaoCodec::characterFromUnicode(const QString &str, int pos) const
+QString QFontLaoCodec::convertToUnicode(const char *, int, ConverterState *) const
 {
-    const QChar * const ch = str.unicode() + pos;
-    if (ch->unicode() < 0x80)
-        return ch->unicode();
-    if (ch->unicode() >= 0x0e80 && ch->unicode() <= 0x0eff)
-        return unicode_to_mulelao[ch->unicode() - 0x0e80];
-    return 0;
+    return QString();
 }
 
-QByteArray QFontLaoCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QFontLaoCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *) const
 {
     QByteArray rstring;
-    rstring.resize(lenInOut);
+    rstring.resize(len);
     uchar *rdata = (uchar *) rstring.data();
-    const QChar *sdata = uc.unicode();
+    const QChar *sdata = uc;
     int i = 0;
-    for (; i < lenInOut; ++i, ++sdata, ++rdata) {
+    for (; i < len; ++i, ++sdata, ++rdata) {
         if (sdata->unicode() < 0x80) {
             *rdata = (uchar) sdata->unicode();
         } else if (sdata->unicode() >= 0x0e80 && sdata->unicode() <= 0x0eff) {
@@ -84,34 +79,12 @@ QByteArray QFontLaoCodec::fromUnicode(const QString& uc, int& lenInOut) const
             if (lao)
                 *rdata = lao;
             else
-                *rdata = '?';
+                *rdata = 0;
         } else {
-            *rdata = '?';
+            *rdata = 0;
         }
     }
     return rstring;
-}
-
-void QFontLaoCodec::fromUnicode(const QChar *in, unsigned short *out, int length) const
-{
-    while (length--) {
-        if (in->unicode() < 0x80) {
-            *out = (uchar) in->unicode();
-        } else if (in->unicode() >= 0x0e80 && in->unicode() <= 0x0eff) {
-            *out = unicode_to_mulelao[in->unicode() - 0x0e80];
-        } else {
-            *out = 0;
-        }
-
-        ++in;
-        ++out;
-    }
-}
-
-bool QFontLaoCodec::canEncode(QChar ch) const
-{
-    return (ch.unicode() < 0x80 ||
-             unicode_to_mulelao[ch.unicode() - 0x0e80] != 0x00);
 }
 
 

@@ -20,8 +20,6 @@ SOURCES += \
 	codecs/qtextcodecfactory.cpp \
 	codecs/qtextcodecplugin.cpp
 
-#unix {
-#	SOURCES += \
-#		codecs/qfontlaocodec.cpp
-#
-#}
+unix {
+	SOURCES += codecs/qfontlaocodec.cpp
+}

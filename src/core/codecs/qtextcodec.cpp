@@ -29,6 +29,9 @@
 #include "qtsciicodec_p.h"
 #include "qisciicodec_p.h"
 #endif // QT_NO_CODECS
+#ifdef Q_WS_X11
+#include "qfontlaocodec_p.h"
+#endif
 
 #include <private/qlocale_p.h>
 #include <private/qmutexpool_p.h>
@@ -999,6 +1002,9 @@ static void realSetup()
     for (int i = 0; i < 9; ++i)
         (void)new QIsciiCodec(i);
 #endif // QT_NO_CODECS
+#ifdef Q_WS_X11
+    (void)new QFontLaoCodec;
+#endif
 
 #ifdef Q_OS_WIN32
     (void) new QWindowsLocalCodec;

@@ -39,21 +39,10 @@ public:
     QFontLaoCodec();
 
     const char *name() const;
-
     int mibEnum() const;
 
-#if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::fromUnicode;
-#endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
-
-    unsigned short characterFromUnicode(const QString &str, int pos) const;
-
-#if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::canEncode;
-#endif
-    bool canEncode(QChar) const;
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
 
 #endif // QT_NO_CODECS
