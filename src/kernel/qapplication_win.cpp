@@ -2299,6 +2299,16 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 #endif
 
+	case WM_SETFOCUS:
+	    if ( !QWidget::find( (HWND)wParam ) ) // we didn't set focus, so set it now
+		widget->setFocus();
+	    break;
+
+	case WM_KILLFOCUS:
+	    if ( !QWidget::find( (HWND)wParam ) ) // we don't get focus, so unset it now
+		widget->clearFocus();
+	    break;
+
 	default:
 		result = FALSE;			// event was not processed
 		break;

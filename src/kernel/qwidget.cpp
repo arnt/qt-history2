@@ -2843,7 +2843,11 @@ void QWidget::setFocus()
     }
 
     QFocusData * f = focusData( TRUE );
-    if ( f->it.current() == this && qApp->focusWidget() == this )
+    if ( f->it.current() == this && qApp->focusWidget() == this 
+#if defined(Q_WS_WIN)
+	&& GetFocus() == winId()
+#endif
+	)
 	return;
 
     f->it.toFirst();
