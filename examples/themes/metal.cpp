@@ -189,16 +189,16 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ScrollBarAddLine:	
 	{
 	    drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
-			     flags & Style_Down, !flags & Style_Horizontal );
-	    drawPrimitive( flags & Style_Horizontal ? PE_ArrowRight : PE_ArrowDown,
+			     flags & Style_Down, !( flags & Style_Horizontal ) );
+	    drawPrimitive( ( flags & Style_Horizontal ) ? PE_ArrowRight : PE_ArrowDown,
 			   p, r, cg, flags );
 	    break;
 	}
     case PE_ScrollBarSubLine:
 	{
 	    drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
-			     flags & Style_Down, !flags & Style_Horizontal );
-	    drawPrimitive( flags & Style_Horizontal ? PE_ArrowLeft : PE_ArrowUp,
+			     flags & Style_Down, !( flags & Style_Horizontal ) );
+	    drawPrimitive( ( flags & Style_Horizontal ) ? PE_ArrowLeft : PE_ArrowUp,
 			   p, r, cg, flags );
 	    break;
 	}
