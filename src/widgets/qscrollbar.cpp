@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#43 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#42 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#43 $")
 
 
 /*----------------------------------------------------------------------------
@@ -732,16 +732,19 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
     }
     if ( !a )
 	return;
-    if ( down ) {
-	x += 2;
-	y += 2;
-    }
-    QPen   oldPen = p->pen();
-    BGMode m = p->backgroundMode();
+    QPen   oldPen   = p->pen();
+    QBrush oldBrush = p->brush();
+    p->setPen( NoPen );
+    p->setBrush( g.background() );
+    p->drawRect( x, y, w, h );
     p->setPen( g.foreground() );
     p->setBackgroundMode( TransparentMode );
+    if ( down ) {
+	x++;
+	y++;
+    }
     p->drawPixmap( x+w/2-4, y+h/2-4, *a );
-    p->setBackgroundMode( m );
+    p->setBrush( oldBrush );
     p->setPen( oldPen );
 }
 
