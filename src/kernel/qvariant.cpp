@@ -23,6 +23,7 @@
 **
 *****************************************************************************/
 
+#include "qvariant.h"
 #include "qstring.h"
 #include "qfont.h"
 #include "qpixmap.h"
@@ -34,7 +35,6 @@
 #include "qcolor.h"
 #include "qpalette.h"
 #include "qiconset.h"
-#include "qvariant.h"
 
 // REVISED: warwick
 /*!

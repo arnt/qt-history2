@@ -23,6 +23,7 @@
 **
 *****************************************************************************/
 
+#include "qvariant.h"
 #include "qapplication.h"
 #include "qobject.h"
 #include "qobjectlist.h"
@@ -31,7 +32,6 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-#include "qvariant.h"
 #include "qpixmap.h"
 #include "qiconset.h"
 #include "qimage.h"
