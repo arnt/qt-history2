@@ -25,6 +25,10 @@
 **
 **********************************************************************/
 
+#ifndef UNICODE
+#define UNICODE
+#endif
+
 #ifndef QCOMOBJECT_H
 #define QCOMOBJECT_H
 
