@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#460 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#461 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -761,6 +761,8 @@ const char* qt_reg_winclass( int flags )	// register window class
     } else {
 	cname = "QPopup";
 	style = CS_DBLCLKS | CS_SAVEBITS;
+	if ( qt_winver == Qt::WV_XP )
+	    style |= 0x00020000;		// CS_DROPSHADOW
 	icon  = FALSE;
     }
 
