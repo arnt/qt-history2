@@ -586,6 +586,9 @@ void QWin32PaintEngine::drawRect(const QRectF &r)
 
 void QWin32PaintEngine::drawPoint(const QPointF &p)
 {
+#ifdef QT_DEBUG_DRAW
+    printf(" - QWin32PaintEngine::drawPoint() (%.2f, %.2f)\n", r.x(), r.y());
+#endif
     Q_ASSERT(isActive());
     if (d->tryGdiplus()) {
         d->gdiplusEngine->drawPoint(p);
@@ -602,6 +605,10 @@ void QWin32PaintEngine::drawPoint(const QPointF &p)
 
 void QWin32PaintEngine::drawEllipse(const QRectF &r)
 {
+#ifdef QT_DEBUG_DRAW
+    printf(" - QWin32PaintEngine::drawEllipse() (%.2f, %.2f, %.2f, %.2f)\n",
+           r.x(), r.y(), r.width(), r.height());
+#endif
     Q_ASSERT(isActive());
     if (d->tryGdiplus()) {
         d->gdiplusEngine->drawEllipse(r);
