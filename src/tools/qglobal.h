@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#26 $ 
+** $Id: //depot/qt/main/src/tools/qglobal.h#27 $ 
 **
 ** Global type declarations and definitions
 **
@@ -286,11 +286,6 @@ bool chk_pointer( bool c, const char *, int );	// fatal error if c is TRUE
 
 typedef void (*dbg_handler)(char *);
 dbg_handler installDebugHandler( dbg_handler ); // install debug handler
-
-
-#if defined(CHECK_MEMORY)
-#include "qmemchk.h"
-#endif
 
 
 #endif // QGLOBAL_H
