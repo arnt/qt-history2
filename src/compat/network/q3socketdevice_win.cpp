@@ -91,7 +91,7 @@ static int initialized = 0x00; // Holds the Winsock version
 static void cleanupWinSock() // post-routine
 {
     WSACleanup();
-    initialized = FALSE;
+    initialized = 0x00;
 }
 
 static inline void qt_socket_getportaddr( struct sockaddr *sa,
@@ -247,8 +247,6 @@ void Q3SocketDevice::close()
 
 bool Q3SocketDevice::blocking() const
 {
-    if ( !isValid() )
-	return true;
     return true;
 }
 
