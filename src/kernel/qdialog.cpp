@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#5 $
 **
 ** Implementation of QDialog class
 **
@@ -11,17 +11,23 @@
 *****************************************************************************/
 
 #include "qdialog.h"
+#include "qpushbt.h"
 #include "qapp.h"
 #include "qkeycode.h"
+#include "qobjcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#5 $";
 #endif
 
 
 /*!
 \class QDialog qdialog.h
 \brief The QDialog class is the base class of modal dialog views.
+
+A dialog widget is a modal view that normally is popped up to get
+some input from the user.  The dialog must be finished before the
+user can continue with other parts of the program.
 */
 
 
@@ -44,6 +50,26 @@ Destroys the QDialog and all its children.
 
 QDialog::~QDialog()
 {
+}
+
+
+/*!
+\internal
+Called from the push button \e pushButton when this push button becomes the
+default button.
+*/
+
+void QDialog::setDefault( QPushButton *pushButton )
+{
+    QObjectList *list = queryList( "QPushButton" );
+    QObjectListIt it( *list );
+    QPushButton *pb;
+    while ( (pb = (QPushButton*)it.current()) ) {
+	if ( pb != pushButton )
+	    pb->setDefault( FALSE );
+	++it;
+    }
+    delete list;
 }
 
 
@@ -102,8 +128,19 @@ void QDialog::keyPressEvent( QKeyEvent *e )
     if ( e->state() == 0 ) {
 	switch ( e->key() ) {
 	    case Key_Enter:
-	    case Key_Return:
-		accept();
+	    case Key_Return: {
+		QObjectList *list = queryList( "QPushButton" );
+		QObjectListIt it( *list );
+		QPushButton *pb;
+		while ( (pb = (QPushButton*)it.current()) ) {
+		    if ( pb->isDefault() ) {
+			emit pb->clicked();
+			break;
+		    }
+		    ++it;
+		}
+		delete list;
+		}
 		break;
 	    case Key_Escape:
 		reject();
