@@ -43,11 +43,12 @@
 #include "qstylesheet.h"
 #include "qptrvector.h"
 #include "qvaluelist.h"
+#include "qptrlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_TEXTEDIT
 // uncomment below to enable optimization mode - also uncomment the
-// optimizedDoAutoScroll() private slot since moc ignores #ifdefs..
+// optimDoAutoScroll() private slot since moc ignores #ifdefs..
 //#define QT_TEXTEDIT_OPTIMIZATION
 
 class QPainter;
@@ -69,8 +70,50 @@ class QTextString;
 struct QUndoRedoInfoPrivate;
 class QPopupMenu;
 class QTextEditPrivate;
+
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-class QTextEditOptimizedPrivate;
+class QTextEditOptimPrivate
+{
+public:
+    struct FormatTag {
+	int line;
+	int index;
+	FormatTag * leftTag; // ptr to left-tag in a left-right tag pair
+	FormatTag * parent;  // ptr to parent left-tag in a nested tag
+	FormatTag * prev;
+	FormatTag * next;
+	QString tag;
+    };
+    QTextEditOptimPrivate()
+    {
+	len = numLines = maxLineWidth = 0;
+	selectionStart.line = selectionStart.index = -1;
+	selectionEnd.line = selectionEnd.index = -1;
+	search.line = search.index = 0;
+	tags = lastTag = 0;
+    }
+    ~QTextEditOptimPrivate()
+    {
+	FormatTag * itr = tags;
+	while ( tags ) {
+	    itr  = tags;
+	    tags = tags->next;
+	    delete itr;
+	}
+    }
+    
+    int len;
+    int numLines;
+    int maxLineWidth;
+    struct Selection {
+	int line;
+	int index;
+    };
+    Selection selectionStart, selectionEnd, search;
+    QMap<int, QString> lines;
+    FormatTag * tags, * lastTag;
+    QMap<int, FormatTag *> tagIndex;
+};
 #endif
 
 class Q_EXPORT QTextEdit : public QScrollView
@@ -417,24 +460,31 @@ private:
     void placeCursor( const QPoint &pos, QTextCursor *c, bool link );
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION    
-    bool checkOptimizedMode();
-    QString optimizedText() const;
-    void optimizedSetText( const QString &str );
-    void optimizedAppend( const QString &str );
-    void optimizedDrawContents( QPainter * p, int cx, int cy, int cw, int ch );
-    void optimizedMousePressEvent( QMouseEvent * e );
-    void optimizedMouseReleaseEvent( QMouseEvent * e );
-    void optimizedMouseMoveEvent( QMouseEvent * e );
-    int  optimizedCharIndex( const QString &str );
-    void optimizedSelectAll();
-    void optimizedRemoveSelection();
-    void optimizedSetSelection( int startLine, int startIdx, int endLine,
-				int endIdx );
-    bool optimizedHasSelection() const;
-    QString optimizedSelectedText() const;
+    bool checkOptimMode();
+    QString optimText() const;
+    void optimSetText( const QString &str );
+    void optimAppend( const QString &str );
+    void optimDrawContents( QPainter * p, int cx, int cy, int cw, int ch );
+    void optimMousePressEvent( QMouseEvent * e );
+    void optimMouseReleaseEvent( QMouseEvent * e );
+    void optimMouseMoveEvent( QMouseEvent * e );
+    int  optimCharIndex( const QString &str );
+    void optimSelectAll();
+    void optimRemoveSelection();
+    void optimSetSelection( int startLine, int startIdx, int endLine,
+			    int endIdx );
+    bool optimHasSelection() const;
+    QString optimSelectedText() const;
+    bool optimFind( const QString & str, bool, bool, bool, int *, int * );
+    void optimParseTags( QString * str );
+    QTextEditOptimPrivate::FormatTag * optimPreviousLeftTag( int line );
+    void optimSetTextFormat( QTextDocument *, QTextCursor *, QTextFormat * f,
+			     int, int, const QString & );
+    QTextEditOptimPrivate::FormatTag * optimAppendTag( int index,
+						       const QString & tag );
 
 // private slots:
-//     void optimizedDoAutoScroll();
+//     void optimDoAutoScroll();
 #endif
 
 private:
@@ -466,8 +516,8 @@ private:
     bool undoEnabled : 1;
     bool overWrite : 1;
 #ifdef QT_TEXTEDIT_OPTIMIZATION    
-    QTextEditOptimizedPrivate *od;
-    bool optimizedMode : 1;
+    QTextEditOptimPrivate *od;
+    bool optimMode : 1;
 #endif    
 };
 
