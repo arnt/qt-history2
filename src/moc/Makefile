@@ -24,6 +24,16 @@ LEX_FILE	= lex.yy.c
 YACC_FILE	= y.tab.c
 YACC_HDR_FILE	= y.tab.h
 CPP_FILE	= moc.cpp
+TOOLOBJECTS	= qbuffer.o	\
+		  qcollect.o	\
+		  qdatetm.o	\
+		  qdstream.o	\
+		  qgarray.o	\
+		  qglist.o	\
+		  qglobal.o	\
+		  qgvector.o	\
+		  qiodev.o	\
+		  qstring.o
 OBJECTS		= moc.o
 TARGET		= moc
 
@@ -41,22 +51,14 @@ all: $(SOURCES) $(TARGET)
 
 obj: $(HEADERS) $(SOURCES) $(OBJECTS)
 
-$(TARGET): $(OBJECTS)
-	make -C ../tools $(LIBDIR)/libqtools.a
-	$(CC) $(OBJECTS) -o $(TARGET) -L$(LIBDIR) -lqtools
-#	strip moc
-#	cp moc $(QTDIR)/bin
-
-dynamicmoc: $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(TARGET) -lqt
-#	strip moc
-#	cp moc $(QTDIR)/bin
+$(TARGET): $(OBJECTS) $(TOOLOBJECTS)
+	$(CC) $(OBJECTS) $(TOOLOBJECTS) -o $(TARGET)
 
 rcs:: ./RCS/$$@,v
 
 include: # nothing yet
 
-depend: $(SRCMETA) $(TARGET)
+depend: $(SRCMETA)
 	makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
 
 clean:
@@ -85,5 +87,37 @@ $(CPP_FILE): moc.y $(LEX_FILE)
 	$(YACC) moc.y
 	mv $(YACC_FILE) $(CPP_FILE)
 
+####### Tools
 
-# DO NOT DELETE
+qbuffer.o: ../tools/qbuffer.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qbuffer.cpp -o qbuffer.o
+
+qcollect.o: ../tools/qcollect.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qcollect.cpp -o qcollect.o
+
+qdatetm.o: ../tools/qdatetm.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qdatetm.cpp -o qdatetm.o
+
+qdstream.o: ../tools/qdstream.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qdstream.cpp -o qdstream.o
+
+qgarray.o: ../tools/qgarray.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qgarray.cpp -o qgarray.o
+
+qglist.o: ../tools/qglist.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qglist.cpp -o qglist.o
+
+qglobal.o: ../tools/qglobal.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qglobal.cpp -o qglobal.o
+
+qgvector.o: ../tools/qgvector.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qgvector.cpp -o qgvector.o
+
+qiodev.o: ../tools/qiodev.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qiodev.cpp -o qiodev.o
+
+qstring.o: ../tools/qstring.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qstring.cpp -o qstring.o
+
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
