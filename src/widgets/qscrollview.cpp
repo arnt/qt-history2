@@ -1556,40 +1556,31 @@ void QScrollView::viewportPaintEvent( QPaintEvent* pe )
     QWidget* vp = viewport();
 
     QPainter p(vp);
+    QRect r = pe->rect();
 
-    QMemArray<QRect> rects = pe->region().rects();
-    const int numrects = rects.size();
-    for ( int i = 0; i < numrects; ++i ) {
-	if ( numrects > 1 )
-	    p.save();
-	QRect r = rects[i];
-
-	if ( d->clipped_viewport ) {
-	    QRect rr(
-		-d->clipped_viewport->x(), -d->clipped_viewport->y(),
-		d->viewport->width(), d->viewport->height()
-		);
-	    r &= rr;
-	    if ( r.isValid() ) {
-		int ex = r.x() + d->clipped_viewport->x() + contentsX();
-		int ey = r.y() + d->clipped_viewport->y() + contentsY();
-		int ew = r.width();
-		int eh = r.height();
-		drawContentsOffset(&p,
-		    contentsX()+d->clipped_viewport->x(),
-		    contentsY()+d->clipped_viewport->y(),
-		    ex, ey, ew, eh);
-	    }
-	} else {
-	    r &= d->viewport->rect();
-	    int ex = r.x() + contentsX();
-	    int ey = r.y() + contentsY();
+    if ( d->clipped_viewport ) {
+	QRect rr(
+	    -d->clipped_viewport->x(), -d->clipped_viewport->y(),
+	    d->viewport->width(), d->viewport->height()
+	    );
+	r &= rr;
+	if ( r.isValid() ) {
+	    int ex = r.x() + d->clipped_viewport->x() + contentsX();
+	    int ey = r.y() + d->clipped_viewport->y() + contentsY();
 	    int ew = r.width();
 	    int eh = r.height();
-	    drawContentsOffset(&p, contentsX(), contentsY(), ex, ey, ew, eh);
+	    drawContentsOffset(&p,
+		contentsX()+d->clipped_viewport->x(),
+		contentsY()+d->clipped_viewport->y(),
+		ex, ey, ew, eh);
 	}
-	if ( numrects > 1 )
-	    p.restore();
+    } else {
+	r &= d->viewport->rect();
+	int ex = r.x() + contentsX();
+	int ey = r.y() + contentsY();
+	int ew = r.width();
+	int eh = r.height();
+	drawContentsOffset(&p, contentsX(), contentsY(), ex, ey, ew, eh);
     }
 }
 
