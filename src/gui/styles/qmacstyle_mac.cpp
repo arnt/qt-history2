@@ -2336,9 +2336,11 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 if (!(sb->stepEnabled & (QAbstractSpinBox::StepUpEnabled
                                         | QAbstractSpinBox::StepDownEnabled)))
                     tds = kThemeStateUnavailable;
-                if (sb->activeSubControls == QStyle::SC_SpinBoxDown)
+                if (sb->activeSubControls == QStyle::SC_SpinBoxDown
+                    && sb->state & QStyle::State_Down)
                     tds = kThemeStatePressedDown;
-                else if (sb->activeSubControls == QStyle::SC_SpinBoxUp)
+                else if (sb->activeSubControls == QStyle::SC_SpinBoxUp
+                         && sb->state & QStyle::State_Down)
                     tds = kThemeStatePressedUp;
                 bdi.state = tds;
                 if (!(sb->state & QStyle::State_Active)
