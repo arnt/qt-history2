@@ -1,5 +1,8 @@
 Qt OCI Driver
 
+
+Notes on Linux / Unix
+
 All files required to build driver should ship with the standard Oracle install.
 For Linux, it may be possible to copy headers from another platform's install.
 
@@ -31,6 +34,41 @@ orid.h
 orl.h
 oro.h
 ort.h
+
+
+Issue the following commands to build the plugin
+
+cd $QTDIR/src/sql/src/oci
+qmake -o Makefile "INCLUDEPATH=/usr/local/include" "LIBS=-L/usr/local/lib -lclntsh -lwtc8" oci.pro
+make
+
+Replace the paths corresponding to where the libraries and headers have been
+installed to.
+
+
+
+Notes on Windows
+
+Choosing the option "Programmer" in the Oracle Client Installer from the
+Oracle Client Installation CD is sufficient to build the plugin. 
+
+To build the plugins the following commands are neccesarry (assuming
+that QT was installed in C:\QT and Oracle Client in C:\ORACLE):
+
+cd \qt\src\sql\src\oci
+qmake -o Makefile "INCLUDEPATH=C:\ORACLE\OCI\INCLUDE" "LIBS=C:\ORACLE\OCI\LIB\MSVC\OCI.LIB" oci.pro
+nmake
+
+If you are using a Borland compiler, replace "MSVC" with "BC" in the statement
+above.
+
+Please note that the Makefile may not contain path names with special chars
+like space, so it is recommended to use the 8.3 Filename instead.
+ 
+Example: If Oracle is installed in "c:\program files\Oracle", use the
+following path as argument for qmake: "C:\progra~1\oracle"
+
+
 
 See the Qt SQL documentation for more information on compiling Qt SQL
 driver plugins.
