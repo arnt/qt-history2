@@ -44,8 +44,8 @@ public:
     ~QPalette();
     QPalette &operator=(const QPalette &palette);
 
-    enum ColorGroup { Disabled, Active, Inactive, NColorGroups, Current, All, Normal=Active };
     // Do not change the order, the serialization format depends on it
+    enum ColorGroup { Active, Disabled, Inactive, NColorGroups, Current, All, Normal = Active };
     enum ColorRole { Foreground, Button, Light, Midlight, Dark, Mid,
 		     Text, BrightText, ButtonText, Base, Background, Shadow,
 		     Highlight, HighlightedText, Link, LinkVisited,

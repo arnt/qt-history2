@@ -813,6 +813,10 @@ QPalette QPalette::resolve( const QPalette &other ) const
 
 #ifndef QT_NO_DATASTREAM
 
+static const int NumOldRoles = 7;
+static const int oldRoles[7] = { QPalette::Foreground, QPalette::Background, QPalette::Light,
+				 QPalette::Dark, QPalette::Mid, QPalette::Text, QPalette::Base };
+
 /*!
     \relates QPalette
 
@@ -824,23 +828,29 @@ QPalette QPalette::resolve( const QPalette &other ) const
 
 QDataStream &operator<<(QDataStream &s, const QPalette &p)
 {
-    for(int grp = 0; grp < (int)QPalette::NColorGroups; grp++) {
-	for(int role = 0; role < (int)QPalette::NColorRoles; role++)
-	    s << p.d->br[grp][role];
+    for (int grp = 0; grp < (int)QPalette::NColorGroups; grp++) {
+        if (s.version() == 1) {
+	    // Qt 1.x
+	    for (int i = 0; i < NumOldRoles; ++i)
+		s << p.d->br[grp][oldRoles[i]].color();
+        } else {
+	    int max = QPalette::NColorRoles;
+	    if (s.version() <= 3) // Qt 2.x
+	        max = 14;
+	    for (int r = 0; r < max; r++)
+	        s << p.d->br[grp][r];
+        }
     }
     return s;
 }
 
-static void readV1ColorGroup(QDataStream &s, QPalette &pal, QPalette::ColorGroup r)
+static void readV1ColorGroup(QDataStream &s, QPalette &pal, QPalette::ColorGroup grp)
 {
-    QColor fg, bg, light, dark, mid, text, base;
-    s >> fg >> bg >> light >> dark >> mid >> text >> base;
-    pal.setColor(r, QPalette::Foreground, fg);
-    pal.setColor(r, QPalette::Light, light);
-    pal.setColor(r, QPalette::Dark, dark);
-    pal.setColor(r, QPalette::Mid, mid);
-    pal.setColor(r, QPalette::Text, text);
-    pal.setColor(r, QPalette::Base, base);
+    for (int i = 0; i < NumOldRoles; ++i) {
+	QColor col;
+        s >> col;
+        pal.setColor(grp, (QPalette::ColorRole)oldRoles[i], col);
+    }
 }
 
 /*!
@@ -855,13 +865,20 @@ static void readV1ColorGroup(QDataStream &s, QPalette &pal, QPalette::ColorGroup
 QDataStream &operator>>(QDataStream &s, QPalette &p)
 {
     if(s.version() == 1) {
+	p = QPalette();
 	readV1ColorGroup(s, p, QPalette::Active);
 	readV1ColorGroup(s, p, QPalette::Disabled);
 	readV1ColorGroup(s, p, QPalette::Inactive);
     } else {
+	int max = QPalette::NColorRoles;
+	if (s.version() <= 3) { // Qt 2.x
+	    p = QPalette();
+	    max = 14;
+	}
+
 	QBrush tmp;
-	for(int grp = 0; grp < (int)QPalette::NColorGroups; grp++) {
-	    for(int role = 0; role < (int)QPalette::NColorRoles; role++) {
+	for(int grp = 0; grp < (int)QPalette::NColorGroups; ++grp) {
+	    for(int role = 0; role < max; ++role) {
 		s >> tmp;
 		p.setBrush((QPalette::ColorGroup)grp, (QPalette::ColorRole)role, tmp);
 	    }

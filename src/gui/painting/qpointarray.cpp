@@ -875,8 +875,9 @@ QPointArray QPointArray::cubicBezier() const
 
 QDataStream &operator<<(QDataStream &s, const QPointArray &a)
 {
-    register uint i;
-    uint len = a.size();
+    Q_UINT32 len = a.size();
+    uint i;
+
     s << len;
     for (i = 0; i < len; ++i )
 	s << a.point(i);
@@ -894,10 +895,11 @@ QDataStream &operator<<(QDataStream &s, const QPointArray &a)
 
 QDataStream &operator>>(QDataStream &s, QPointArray &a)
 {
-    register uint i;
-    uint len;
+    Q_UINT32 len;
+    uint i;
+
     s >> len;
-    a.resize(len);
+    a.resize((int)len);
     QPoint p;
     for (i = 0; i < len; ++i) {
 	s >> p;
@@ -908,13 +910,12 @@ QDataStream &operator>>(QDataStream &s, QPointArray &a)
 #endif //QT_NO_DATASTREAM
 
 
-
 struct QShortPoint {			// Binary compatible with XPoint
     short x, y;
 };
 
 static int splen = 0;
-static void *sp = 0;			// Really a QShortPoint*
+static void *sp = 0;			// Really a QShortPoint *
 
 /*!
   \internal
