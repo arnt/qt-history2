@@ -521,3 +521,104 @@ a subclass of QMouseHandler in <tt>kernel/qwsmouse_qws.cpp</tt>.
 */
 
 
+/*! \page performance-qws.html
+\title Qt/Embedded Performance Tuning
+
+When building embedded applications on low-powered devices, a number
+of options are available that would not be considered in a desktop
+application environment. These options reduce the memory and/or CPU
+requirements at the cost of other factors.
+
+<ul>
+ <li><a href=features.html><b>Tuning the functionality of Qt</b></a>
+ <li><a href=#general>General programming style</a>
+ <li><a href=#static>Static vs. Dynamic linking</a>
+ <li><a href=#alloc>Alternative memory allocation</a>
+</ul>
+
+<a name=general>
+<h3>General programming style</h3>
+</a>
+<p>
+The following guidelines will improve CPU performance:
+<ul>
+ <li>Create dialogs and widgets once, then QWidget::hide() and
+	QWidget::show() them, rather than creating them and deleting
+	them every time they are needed.
+	This will use a little more memory, but will be much faster.
+	Try to create them the first time "lazily" to avoid slow startup
+	(only create the Find dialog the first time the user invokes it).
+</ul>
+
+<a name=static>
+<h3>Static vs. Dynamic linking</h3>
+</a>
+<p>Much CPU and memory is used by the ELF linking process. You can make
+significant savings by using a static build of your application suite.
+This means that rather than having a dynamic library (<tt>libqte.so</tt>)
+and a collection of executables which link dynamically to that library,
+you build all the applications into a single executable and statically
+link that with a static library (<tt>libqt.a</tt>). This improves start-up
+time, and reduces memory usage, at the expense of flexibility (to add a new
+application, you must recompile the single executable) and robustness (if
+one application has a bug, it might harm other applications). If you need
+to install end-user applications, this may not be an option, but if you are
+building a single application suite for a device with limited CPU power
+and memory, this option could be very beneficial.
+
+To compile Qt as a static library, add the <tt>-static</tt> options when
+you run configure.
+
+To build your application suite as an all-in-one application, design each
+application as a stand-alone widget or set of widgets, with only minimal
+code in the <tt>main()</tt> function. Then, write an application that gives
+some way to choose among the applications (eg. a QIconView). The
+<a href=http://www.trolltech.com/products/qt/embedded/qpe.html>QPE</a>
+is an example of this - it can be built either as a set of dynamically-linked
+executables, or as a single static application.
+
+Note that you should generally still link dynamically against the standard
+C library and any other libraries which might be used by other applications
+on your device.
+
+<a name=alloc>
+<h3>Alternative memory allocation</h3>
+</a>
+<p>We have found that the libraries shipped with some C++ compilers on
+some platforms have poor performance in the built-in "new" and "delete"
+operators. You might gain performance by re-implementing these
+functions. For example, you can switch to the plain C allocators
+by adding the following to your code:
+
+\code
+void* operator new[](size_t size)
+{
+    return malloc(size);
+}
+
+void* operator new(size_t size)
+{
+    return malloc(size);
+}
+
+void operator delete[](void* p)
+{
+    free(p);
+}
+
+void operator delete[](void* p, size_t size)
+{
+    free(p);
+}
+
+void operator delete(void* p)
+{
+    free(p);
+}
+
+void operator delete(void* p, size_t size)
+{
+    free(p);
+}
+\endcode
+*/
