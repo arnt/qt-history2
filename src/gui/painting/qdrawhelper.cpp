@@ -3,10 +3,10 @@
 #if 0//def __x86__
 #include "qdrawhelper_x86.cpp"
 #else
-void qInitAsm(DrawHelper *) {}
+void qInitDrawhelperAsm() {}
 #endif
 
-static void blend_color(ARGB *target, const QSpan *span, ARGB color)
+static void blend_color_argb(ARGB *target, const QSpan *span, ARGB color)
 {
     if (!span->len)
         return;
@@ -16,10 +16,28 @@ static void blend_color(ARGB *target, const QSpan *span, ARGB color)
     int pg = alpha * color.g;
     int pb = alpha * color.b;
 
+    for (int i = span->len; i > 0 ; --i) {
+        qt_blend_pixel_premul(pr, pg, pb, alpha, target);
+        ++target;
+    }
+}
+
+static void blend_color_rgb32(ARGB *target, const QSpan *span, ARGB color)
+{
+    if (!span->len)
+        return;
+
+    int alpha = qt_div_255(color.a * span->coverage);
+    int pr = alpha * color.r;
+    int pg = alpha * color.g;
+    int pb = alpha * color.b;
     int rev_alpha = 255 - alpha;
 
     for (int i = span->len; i > 0 ; --i) {
-        qt_blend_pixel_premul(pr, pg, pb, alpha, target, span->coverage);
+        qt_alpha_pixel_pm(pr, target->r, rev_alpha);
+        qt_alpha_pixel_pm(pg, target->g, rev_alpha);
+        qt_alpha_pixel_pm(pb, target->b, rev_alpha);
+        target->a = 255;
         ++target;
     }
 }
@@ -216,11 +234,20 @@ static void blend_transformed_tiled(ARGB *target, const QSpan *span,
 }
 
 
-DrawHelper qDrawHelper =
+DrawHelper qDrawHelper[2] =
 {
-    blend_color,
-    blend_transformed,
-    blend_transformed_tiled,
-    blend_transformed_bilinear,
-    blend_transformed_bilinear_tiled
+    { // Layout_ARGB
+        blend_color_argb,
+        blend_transformed,
+        blend_transformed_tiled,
+        blend_transformed_bilinear,
+        blend_transformed_bilinear_tiled
+    },
+    { // Layout_RGB32
+        blend_color_rgb32,
+        blend_transformed,
+        blend_transformed_tiled,
+        blend_transformed_bilinear,
+        blend_transformed_bilinear_tiled
+    }
 };

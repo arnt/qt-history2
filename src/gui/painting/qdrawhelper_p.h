@@ -59,6 +59,11 @@ typedef void (*BlendTransformed)(ARGB *target, const QSpan *span,
                                          ARGB *image_bits, int image_width, int image_height);
 
 struct DrawHelper {
+    enum Layout {
+        Layout_ARGB,
+        Layout_RGB32,
+        Layout_Count
+    };
     BlendColor blendColor;
     BlendTransformed blendTransformed;
     BlendTransformed blendTransformedTiled;
@@ -66,9 +71,9 @@ struct DrawHelper {
     BlendTransformed blendTransformedBilinearTiled;
 };
 
-extern DrawHelper qDrawHelper;
+extern DrawHelper qDrawHelper[DrawHelper::Layout_Count];
 
-void qInitAsm(DrawHelper *);
+void qInitDrawhelperAsm();
 
 inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
 #define qt_alpha_pixel(s, t, a, ra) { int tmp = s*a + t*ra; t = qt_div_255(tmp); }
@@ -108,7 +113,7 @@ static inline void qt_blend_pixel(ARGB src, ARGB *target, int coverage)
     }
 }
 
-static inline void qt_blend_pixel_premul(int pr, int pg, int pb, int alpha, ARGB *target, int coverage)
+static inline void qt_blend_pixel_premul(int pr, int pg, int pb, int alpha, ARGB *target)
 {
     int rev_alpha = 255 - alpha;
     int res_alpha = alpha + qt_div_255(rev_alpha * target->a);

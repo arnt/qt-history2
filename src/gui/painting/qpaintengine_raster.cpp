@@ -99,6 +99,7 @@ struct SolidFillData
     QRasterBuffer *rasterBuffer;
     ARGB color;
     QRasterPaintEnginePrivate::RasterOperation rop;
+    BlendColor blendColor;
 };
 
 struct TextureFillData
@@ -491,7 +492,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 {
     Q_D(QRasterPaintEngine);
 
-    qInitAsm(&qDrawHelper);
+    qInitDrawhelperAsm();
     d->deviceDepth = device->depth();
     d->clipEnabled = false;
     d->antialiased = false;
@@ -503,6 +504,8 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
                          : QRasterPaintEnginePrivate::SourceOverComposite;
 
     d->deviceRect = QRect(0, 0, device->width(), device->height());
+
+    DrawHelper::Layout layout = DrawHelper::Layout_RGB32;
 
     // reset paintevent clip
     d->baseClip = QPainterPath();
@@ -525,21 +528,28 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         }
         d->flushOnEnd = false; // Direct access so no flush.
         d->rasterBuffer->prepare(static_cast<QImage *>(device));
+        if (static_cast<QImage *>(device)->hasAlphaBuffer())
+            layout =  DrawHelper::Layout_ARGB;
     } else {
         d->rasterBuffer->prepare(d->deviceRect.width(), d->deviceRect.height());
     }
 
     d->rasterBuffer->resetClip();
 
-#ifdef Q_WS_WIN
     // Copy contents of pixmap over to ourselves...
     if (device->devType() == QInternal::Pixmap) {
+#ifdef Q_WS_WIN
         HDC pmhdc = device->getDC();
         BitBlt(d->rasterBuffer->hdc(), 0, 0, device->width(), device->height(),
                pmhdc, 0, 0, SRCCOPY);
         device->releaseDC(pmhdc);
-    }
+#else
+        Q_ASSERT_X(false, "QRasterPaintEngine::begin()", "Painting on pixmaps not supported for this platform");
 #endif
+        if (static_cast<QPixmap *>(device)->hasAlphaChannel())
+            layout =  DrawHelper::Layout_ARGB;
+    }
+    d->drawHelper = qDrawHelper + layout;
 
     updateMatrix(QMatrix());
 
@@ -838,7 +848,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &image, const Q
         d->rasterBuffer,
         (ARGB*)image.bits(), image.width(), image.height(), image.hasAlphaBuffer(),
         0., 0., 0., 0., 0., 0.,
-        d->bilinear ? qDrawHelper.blendTransformedBilinear : qDrawHelper.blendTransformed
+        d->bilinear ? d->drawHelper->blendTransformedBilinear : d->drawHelper->blendTransformed
     };
     FillData fillData = { d->rasterBuffer, 0, &textureData };
 
@@ -890,7 +900,7 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
         d->rasterBuffer,
         (ARGB*)image->bits(), image->width(), image->height(), image->hasAlphaBuffer(),
         0., 0., 0., 0., 0., 0.,
-        d->bilinear ? qDrawHelper.blendTransformedBilinearTiled : qDrawHelper.blendTransformedTiled
+        d->bilinear ? d->drawHelper->blendTransformedBilinearTiled : d->drawHelper->blendTransformedTiled
     };
     FillData fillData = { d->rasterBuffer, 0, &textureData };
 
@@ -1182,6 +1192,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
         solidFillData->color = mapColor(brush.color());
         solidFillData->rop = rasterOperation;
         solidFillData->rasterBuffer = fillData->rasterBuffer;
+        solidFillData->blendColor = drawHelper->blendColor;
         break;
 
     case Qt::TexturePattern:
@@ -1193,8 +1204,8 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
                                  : qt_span_texturefill;
             textureFillData->init(rasterBuffer, image, brushMatrix,
                                   bilinear
-                                  ? qDrawHelper.blendTransformedBilinearTiled
-                                  : qDrawHelper.blendTransformedTiled);
+                                  ? drawHelper->blendTransformedBilinearTiled
+                                  : drawHelper->blendTransformedTiled);
         }
         break;
 
@@ -1238,7 +1249,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
             textureFillData->init(rasterBuffer, &tempImage, matrix,
-                                  qDrawHelper.blendTransformedBilinearTiled);
+                                  drawHelper->blendTransformedBilinearTiled);
         }
         break;
 
@@ -1263,7 +1274,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
             textureFillData->init(rasterBuffer, &tempImage, matrix,
-                                  qDrawHelper.blendTransformedBilinearTiled);
+                                  drawHelper->blendTransformedBilinearTiled);
         }
         break;
 
@@ -1608,12 +1619,12 @@ void QRasterBuffer::resizeClipSpan(int y, int size)
 
 void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData)
 {
+    SolidFillData *data = reinterpret_cast<SolidFillData *>(userData);
 //     fprintf(stdout, "qt_span_solidfill, y=%d, count=%d\n", y, count);
 //     fflush(stdout);
-    QRasterPaintEnginePrivate::RasterOperation rop =
-        reinterpret_cast<SolidFillData *>(userData)->rop;
-    ARGB color = reinterpret_cast<SolidFillData *>(userData)->color;
-    QRasterBuffer *rb = reinterpret_cast<SolidFillData *>(userData)->rasterBuffer;
+    QRasterPaintEnginePrivate::RasterOperation rop = data->rop;
+    ARGB color = data->color;
+    QRasterBuffer *rb = data->rasterBuffer;
     ARGB *rasterBuffer = rb->buffer() + y * rb->width();
 
     Q_ASSERT(y >= 0);
@@ -1638,7 +1649,7 @@ void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData)
                 }
                 break;
             default:
-                qDrawHelper.blendColor(target, (const QSpan *)spans, color);
+                data->blendColor(target, (const QSpan *)spans, color);
                 break;
             }
         } else {

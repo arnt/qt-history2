@@ -141,6 +141,8 @@ public:
     RadialGradientData *radialGradientData;
     ConicalGradientData *conicalGradientData;
 
+    DrawHelper *drawHelper;
+
     QImage tempImage;
 
     RasterOperation rasterOperation;

@@ -282,7 +282,7 @@ static void blend_transformed_bilinear_sse(ARGB *target, const QSpan *span,
 
 #endif // Q_CC_GCC and Q_CC_MSVC
 
-void qInitAsm(DrawHelper *dh)
+void qInitDrawhelperAsm()
 {
     static uint features = 0;
     if (features)
@@ -292,8 +292,8 @@ void qInitAsm(DrawHelper *dh)
     features = detectCPUFeatures();
 
     if (features & SSE2) {
-        dh->blendColor = blend_color_sse;
-        dh->blendTransformedBilinear = blend_transformed_bilinear_sse;
+        dh[DrawHelper_RGB32]->blendColor = blend_color_sse;
+        dh[DrawHelper_RGB32]->blendTransformedBilinear = blend_transformed_bilinear_sse;
     }
 #else
     Q_UNUSED(dh)
