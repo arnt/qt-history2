@@ -780,7 +780,14 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
             return;
         }
         case QHeaderViewPrivate::MoveSection: {
-            int idx = indexAt(pos + offset());
+            int indicatorCenter = (orientation() == Qt::Horizontal
+                                   ? d->sectionIndicator->width()
+                                   : d->sectionIndicator->height()) / 2;
+            int centerOffset = indicatorCenter - d->sectionIndicatorOffset;
+            // This will drop the moved section to the position under the center of the indicator.
+            // If centerOffset is 0, the section will be moved to the position of the mouse cursor.
+            int position = pos + d->offset + centerOffset;
+            int idx = indexAt(position);
             if (idx < 0)
                 return;
             d->target = d->sections.at(idx).section;
