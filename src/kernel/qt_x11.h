@@ -179,6 +179,9 @@ typedef char *XPointer;
 #elif defined(Q_OS_HPUX) && defined(__LP64__)
 // XCreateIC broken when compiling 64-bit ELF on HP-UX 11.0
 #define QT_NO_XIM
+#elif defined(Q_OS_SCO)
+// suggested by user...
+#define QT_NO_XIM
 #endif // QT_NO_XIM
 
 
