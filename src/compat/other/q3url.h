@@ -23,7 +23,7 @@
 
 class Q3UrlPrivate;
 
-class Q_CORE_EXPORT Q3Url
+class Q_COMPAT_EXPORT Q3Url
 {
 public:
     Q3Url();
