@@ -42,6 +42,7 @@
 #ifndef QT_NO_TITLEBAR
 
 #include "qapplication.h"
+#include "qdatetime.h"
 #include "../kernel/qapplication_p.h"
 #include "qtooltip.h"
 #include "qimage.h"
@@ -100,7 +101,7 @@ public:
 		tipstring = t->text;
 	    break;
 	}
-	if(!tipstring.isEmpty()) 
+	if(!tipstring.isEmpty())
 	    tip( QRect(pos, QSize(controlWidth, controlHeight)), tipstring );
     }
 };
@@ -184,7 +185,19 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 	case QStyle::TitleSysMenu:
 	{
 	    buttonDown = 0;
-	    QTimer::singleShot(QApplication::doubleClickInterval() + 1, this, SIGNAL(showOperationMenu()));
+	    static QTime* t = 0;
+	    static QTitleBar* tc = 0;
+	    if ( !t )
+		t = new QTime;
+	    if ( tc != this || t->elapsed() > QApplication::doubleClickInterval() ) {
+		emit showOperationMenu();
+		t->start();
+		tc = this;
+	    } else {
+		tc = 0;
+		emit doClose();
+		return;
+	    }
 	    break;
 	}
 	case QStyle::TitleShadeButton:
@@ -276,9 +289,9 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 	    ctrl = QStyle::TitleNormalButton;
 
 	QPainter p(this);
-	if(ctrl != buttonDown) 
+	if(ctrl != buttonDown)
 	    style().drawTitleBarControls(&p, this, buttonDown, QStyle::TitleNone);
-	else 
+	else
 	    style().drawTitleBarControls(&p, this, buttonDown, buttonDown);
 	break;
     }
@@ -321,7 +334,7 @@ void QTitleBar::resizeEvent( QResizeEvent *r)
     }
 }
 
-void QTitleBar::paintEvent(QPaintEvent *) 
+void QTitleBar::paintEvent(QPaintEvent *)
 {
     int ctrls = QStyle::TitleLabel | QStyle::TitleSysMenu | QStyle::TitleMaxButton;
     ctrls |= QStyle::TitleCloseButton | QStyle::TitleShadeButton | QStyle::TitleUnshadeButton;
@@ -385,7 +398,7 @@ void QTitleBar::setIcon( const QPixmap& icon )
 {
     int controlWidth, controlHeight, titleHeight, titleWidth;
     style().titleBarMetrics(this, controlWidth, controlHeight, titleWidth, titleHeight);
-    if(icon.width() > controlWidth || icon.height() > controlHeight) 
+    if(icon.width() > controlWidth || icon.height() > controlHeight)
 	pixmap.convertFromImage( icon.convertToImage().smoothScale( controlWidth, controlHeight ) );
     else
 	pixmap = icon;
