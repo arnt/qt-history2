@@ -112,7 +112,7 @@ static PaperSize paperSizes[QPrinter::NPageSize] =
 // ### deal with ColorMode GrayScale in qprinter_win.cpp.
 
 QPrinter::QPrinter( PrinterMode m )
-    : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
+: QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
     d = new QPrinterPrivate;
     d->printerMode = m;
@@ -132,7 +132,7 @@ QPrinter::QPrinter( PrinterMode m )
     doc_name = "document1";
     hdevmode  = 0;
     hdevnames = 0;
-
+    
 #if defined(UNICODE)
 #ifndef Q_OS_TEMP
     if ( qWinVersion() & Qt::WV_NT_based ) {
@@ -158,18 +158,18 @@ QPrinter::QPrinter( PrinterMode m )
     }
 #endif
     switch ( m ) {
-	case ScreenResolution:
+    case ScreenResolution:
 	{
 	    HDC dc = GetDC( 0 );
 	    res = GetDeviceCaps( dc, LOGPIXELSY );
 	    ReleaseDC( 0, dc );
 	    break;
 	}
-        case Compatible:
-            devFlags |= QInternal::CompatibilityMode;
-        case PrinterResolution:
-        case HighResolution:
-            res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
+    case Compatible:
+	devFlags |= QInternal::CompatibilityMode;
+    case PrinterResolution:
+    case HighResolution:
+	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
     }
 }
 
@@ -183,12 +183,12 @@ QPrinter::~QPrinter()
         GlobalFree( hdevnames );
         hdevnames = 0;
     }
-
+    
     if ( hdc ) {
         DeleteDC( hdc );
         hdc = 0;
     }
-
+    
     delete d;
 }
 
@@ -224,8 +224,8 @@ bool QPrinter::newPage()
 }
 
 /*!
-    \internal
-    Sets the state of the printer to be 'active'.
+\internal
+Sets the state of the printer to be 'active'.
 */
 void QPrinter::setActive()
 {
@@ -233,8 +233,8 @@ void QPrinter::setActive()
 }
 
 /*!
-    \internal
-    Sets the state of the printer to be 'idle'.
+\internal
+Sets the state of the printer to be 'idle'.
 */
 void QPrinter::setIdle()
 {
@@ -301,75 +301,75 @@ typedef struct
 } PageSizeNames;
 
 static PageSizeNames names[] = {
-          { DMPAPER_LETTER,             QPrinter::Letter },
-          { DMPAPER_LETTERSMALL,        QPrinter::Letter },
-          { DMPAPER_TABLOID,            QPrinter::Tabloid },
-          { DMPAPER_LEDGER,             QPrinter::Ledger },
-          { DMPAPER_LEGAL,              QPrinter::Legal },
-          //      { DMPAPER_STATEMENT,          QPrinter:: },
-          { DMPAPER_EXECUTIVE,          QPrinter::Executive },
-          { DMPAPER_A3,                 QPrinter::A3 },
-          { DMPAPER_A4,                 QPrinter::A4 },
-          { DMPAPER_A4SMALL,            QPrinter::A4 },
-          { DMPAPER_A5,                 QPrinter::A5 },
-          { DMPAPER_B4,                 QPrinter::B4 },
-          { DMPAPER_B5,                 QPrinter::B5 },
-          { DMPAPER_FOLIO,              QPrinter::Folio },
-          //{ DMPAPER_QUARTO,           QPrinter:: },
-          //{ DMPAPER_10X14,            QPrinter:: },
-          //{ DMPAPER_11X17,            QPrinter:: },
-          //{ DMPAPER_NOTE,             QPrinter:: },
-          //{ DMPAPER_ENV_9,            QPrinter:: },
-          { DMPAPER_ENV_10,             QPrinter::Comm10E },
-          //{ DMPAPER_ENV_11,           QPrinter:: },
-          //{ DMPAPER_ENV_12,           QPrinter:: },
-          //{ DMPAPER_ENV_14,           QPrinter:: },
-          //{ DMPAPER_CSHEET,           QPrinter:: },
-          //{ DMPAPER_DSHEET,           QPrinter:: },
-          //{ DMPAPER_ESHEET,           QPrinter:: },
-          { DMPAPER_ENV_DL,             QPrinter::DLE },
-          //{ DMPAPER_ENV_C5,           QPrinter:: },
-          { DMPAPER_ENV_C3,             QPrinter::C5E },
-          //{ DMPAPER_ENV_C4,           QPrinter:: },
-          //{ DMPAPER_ENV_C6,           QPrinter:: },
-          //{ DMPAPER_ENV_C65,          QPrinter:: },
-          //{ DMPAPER_ENV_B4,           QPrinter:: },
-          //{ DMPAPER_ENV_B5,           QPrinter:: },
-          //{ DMPAPER_ENV_B6,           QPrinter:: },
-          //{ DMPAPER_ENV_ITALY,                QPrinter:: },
-          //{ DMPAPER_ENV_MONARCH,      QPrinter:: },
-          //{ DMPAPER_ENV_PERSONAL,     QPrinter:: },
-          //{ DMPAPER_FANFOLD_US,               QPrinter:: },
-          //{ DMPAPER_FANFOLD_STD_GERMAN,       QPrinter:: },
-          //{ DMPAPER_FANFOLD_LGL_GERMAN,       QPrinter:: },
-          //{ DMPAPER_ISO_B4,           QPrinter:: },
-          //{ DMPAPER_JAPANESE_POSTCARD,        QPrinter:: },
-          //{ DMPAPER_9X11,             QPrinter:: },
-          //{ DMPAPER_10X11,            QPrinter:: },
-          //{ DMPAPER_15X11,            QPrinter:: },
-          //{ DMPAPER_ENV_INVITE,               QPrinter:: },
-          //{ DMPAPER_RESERVED_48,      QPrinter:: },
-          //{ DMPAPER_RESERVED_49,      QPrinter:: },
-          { DMPAPER_LETTER_EXTRA,       QPrinter::Letter },
-          { DMPAPER_LEGAL_EXTRA,        QPrinter::Legal },
-          { DMPAPER_TABLOID_EXTRA,      QPrinter::Tabloid },
-          { DMPAPER_A4_EXTRA,           QPrinter::A4},
-          { DMPAPER_LETTER_TRANSVERSE,  QPrinter::Letter},
-          { DMPAPER_A4_TRANSVERSE,      QPrinter::A4},
-          { DMPAPER_LETTER_EXTRA_TRANSVERSE,    QPrinter::Letter },
-          { DMPAPER_A_PLUS,             QPrinter::A4 },
-          { DMPAPER_B_PLUS,             QPrinter::A3 },
-          { DMPAPER_LETTER_PLUS,        QPrinter::Letter },
-          { DMPAPER_A4_PLUS,            QPrinter::A4 },
-          { DMPAPER_A5_TRANSVERSE,      QPrinter::A5 },
-          { DMPAPER_B5_TRANSVERSE,      QPrinter::B5 },
-          { DMPAPER_A3_EXTRA,           QPrinter::A3 },
-          { DMPAPER_A5_EXTRA,           QPrinter::A5 },
-          { DMPAPER_B5_EXTRA,           QPrinter::B5 },
-          { DMPAPER_A2,                 QPrinter::A2 },
-          { DMPAPER_A3_TRANSVERSE,      QPrinter::A3 },
-          { DMPAPER_A3_EXTRA_TRANSVERSE,        QPrinter::A3 },
-          { 0, QPrinter::Custom }
+    { DMPAPER_LETTER,             QPrinter::Letter },
+    { DMPAPER_LETTERSMALL,        QPrinter::Letter },
+    { DMPAPER_TABLOID,            QPrinter::Tabloid },
+    { DMPAPER_LEDGER,             QPrinter::Ledger },
+    { DMPAPER_LEGAL,              QPrinter::Legal },
+    //      { DMPAPER_STATEMENT,          QPrinter:: },
+    { DMPAPER_EXECUTIVE,          QPrinter::Executive },
+    { DMPAPER_A3,                 QPrinter::A3 },
+    { DMPAPER_A4,                 QPrinter::A4 },
+    { DMPAPER_A4SMALL,            QPrinter::A4 },
+    { DMPAPER_A5,                 QPrinter::A5 },
+    { DMPAPER_B4,                 QPrinter::B4 },
+    { DMPAPER_B5,                 QPrinter::B5 },
+    { DMPAPER_FOLIO,              QPrinter::Folio },
+    //{ DMPAPER_QUARTO,           QPrinter:: },
+    //{ DMPAPER_10X14,            QPrinter:: },
+    //{ DMPAPER_11X17,            QPrinter:: },
+    //{ DMPAPER_NOTE,             QPrinter:: },
+    //{ DMPAPER_ENV_9,            QPrinter:: },
+    { DMPAPER_ENV_10,             QPrinter::Comm10E },
+    //{ DMPAPER_ENV_11,           QPrinter:: },
+    //{ DMPAPER_ENV_12,           QPrinter:: },
+    //{ DMPAPER_ENV_14,           QPrinter:: },
+    //{ DMPAPER_CSHEET,           QPrinter:: },
+    //{ DMPAPER_DSHEET,           QPrinter:: },
+    //{ DMPAPER_ESHEET,           QPrinter:: },
+    { DMPAPER_ENV_DL,             QPrinter::DLE },
+    //{ DMPAPER_ENV_C5,           QPrinter:: },
+    { DMPAPER_ENV_C3,             QPrinter::C5E },
+    //{ DMPAPER_ENV_C4,           QPrinter:: },
+    //{ DMPAPER_ENV_C6,           QPrinter:: },
+    //{ DMPAPER_ENV_C65,          QPrinter:: },
+    //{ DMPAPER_ENV_B4,           QPrinter:: },
+    //{ DMPAPER_ENV_B5,           QPrinter:: },
+    //{ DMPAPER_ENV_B6,           QPrinter:: },
+    //{ DMPAPER_ENV_ITALY,                QPrinter:: },
+    //{ DMPAPER_ENV_MONARCH,      QPrinter:: },
+    //{ DMPAPER_ENV_PERSONAL,     QPrinter:: },
+    //{ DMPAPER_FANFOLD_US,               QPrinter:: },
+    //{ DMPAPER_FANFOLD_STD_GERMAN,       QPrinter:: },
+    //{ DMPAPER_FANFOLD_LGL_GERMAN,       QPrinter:: },
+    //{ DMPAPER_ISO_B4,           QPrinter:: },
+    //{ DMPAPER_JAPANESE_POSTCARD,        QPrinter:: },
+    //{ DMPAPER_9X11,             QPrinter:: },
+    //{ DMPAPER_10X11,            QPrinter:: },
+    //{ DMPAPER_15X11,            QPrinter:: },
+    //{ DMPAPER_ENV_INVITE,               QPrinter:: },
+    //{ DMPAPER_RESERVED_48,      QPrinter:: },
+    //{ DMPAPER_RESERVED_49,      QPrinter:: },
+    { DMPAPER_LETTER_EXTRA,       QPrinter::Letter },
+    { DMPAPER_LEGAL_EXTRA,        QPrinter::Legal },
+    { DMPAPER_TABLOID_EXTRA,      QPrinter::Tabloid },
+    { DMPAPER_A4_EXTRA,           QPrinter::A4},
+    { DMPAPER_LETTER_TRANSVERSE,  QPrinter::Letter},
+    { DMPAPER_A4_TRANSVERSE,      QPrinter::A4},
+    { DMPAPER_LETTER_EXTRA_TRANSVERSE,    QPrinter::Letter },
+    { DMPAPER_A_PLUS,             QPrinter::A4 },
+    { DMPAPER_B_PLUS,             QPrinter::A3 },
+    { DMPAPER_LETTER_PLUS,        QPrinter::Letter },
+    { DMPAPER_A4_PLUS,            QPrinter::A4 },
+    { DMPAPER_A5_TRANSVERSE,      QPrinter::A5 },
+    { DMPAPER_B5_TRANSVERSE,      QPrinter::B5 },
+    { DMPAPER_A3_EXTRA,           QPrinter::A3 },
+    { DMPAPER_A5_EXTRA,           QPrinter::A5 },
+    { DMPAPER_B5_EXTRA,           QPrinter::B5 },
+    { DMPAPER_A2,                 QPrinter::A2 },
+    { DMPAPER_A3_TRANSVERSE,      QPrinter::A3 },
+    { DMPAPER_A3_EXTRA_TRANSVERSE,        QPrinter::A3 },
+    { 0, QPrinter::Custom }
 };
 
 static QPrinter::PageSize mapDevmodePageSize( int s )
@@ -384,15 +384,15 @@ static int mapPageSizeDevmode( QPrinter::PageSize s )
 {
     int i = 0;
     while ( (names[i].winSizeName > 0) && (names[i].qtSizeName != s) )
-    i++;
+	i++;
     return names[i].winSizeName;
 }
 
 /*!
-    Returns the Windows page size value as used by the DEVMODE struct
-    (Windows only). Using this function is not portable.
+Returns the Windows page size value as used by the DEVMODE struct
+(Windows only). Using this function is not portable.
 
-    Use pageSize() to get the \l{PageSize}, e.g. 'A4', 'Letter', etc.
+  Use pageSize() to get the \l{PageSize}, e.g. 'A4', 'Letter', etc.
 */
 short QPrinter::winPageSize() const
 {
@@ -400,12 +400,12 @@ short QPrinter::winPageSize() const
 }
 
 /*
-  Copy the settings from the Windows structures into QPrinter
+Copy the settings from the Windows structures into QPrinter
 */
 void QPrinter::readPdlg( void* pdv )
 {
     // Note: Remember to reflect any changes here in readPdlgA below!
-
+    
     PRINTDLG* pd = (PRINTDLG*)pdv;
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
     from_pg = pd->nFromPage;
@@ -416,8 +416,8 @@ void QPrinter::readPdlg( void* pdv )
     else
         usercolcopies = FALSE;
     if ( hdc ) {
-       DeleteDC( hdc );
-       viewOffsetDone = FALSE;
+	DeleteDC( hdc );
+	viewOffsetDone = FALSE;
     }
     hdc = pd->hDC;
     if ( pd->hDevMode ) {
@@ -430,7 +430,7 @@ void QPrinter::readPdlg( void* pdv )
             setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
             paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
 	    if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
-            	ncopies = dm->dmCopies;
+		ncopies = dm->dmCopies;
             if ( dm->dmCollate == DMCOLLATE_TRUE )
                 usercolcopies = TRUE;
             else
@@ -439,10 +439,10 @@ void QPrinter::readPdlg( void* pdv )
 		color_mode = Color;
 	    else
 		color_mode = GrayScale;
+	    GlobalUnlock( pd->hDevMode );
         }
-        GlobalUnlock( pd->hDevMode );
     }
-
+    
     if ( pd->hDevNames ) {
         DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
         if ( dn ) {
@@ -452,13 +452,13 @@ void QPrinter::readPdlg( void* pdv )
             setPrintProgram( qt_winQString( drName ) );
             TCHAR* prName = ((TCHAR*)dn) + dn->wDeviceOffset;
             setPrinterName( qt_winQString( prName ) );
+	    GlobalUnlock( pd->hDevNames );
         }
-        GlobalUnlock( pd->hDevNames );
     }
-
-    if ( d->printerMode == HighResolution )
+    
+    if ( d->printerMode != ScreenResolution )
 	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
-
+    
     if ( pd->hDevMode ) {
         if ( hdevmode )
             GlobalFree( hdevmode );
@@ -487,8 +487,8 @@ void QPrinter::readPdlgA( void* pdv )
     else
 	usercolcopies = FALSE;
     if ( hdc ) {
-       DeleteDC( hdc );
-       viewOffsetDone = FALSE;
+	DeleteDC( hdc );
+	viewOffsetDone = FALSE;
     }
     hdc	= pd->hDC;
     if ( pd->hDevMode ) {
@@ -501,7 +501,7 @@ void QPrinter::readPdlgA( void* pdv )
 	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
             paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
             if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
-            	ncopies = dm->dmCopies;
+		ncopies = dm->dmCopies;
             if ( dm->dmCollate == DMCOLLATE_TRUE )
                 usercolcopies = TRUE;
 	    else
@@ -510,10 +510,10 @@ void QPrinter::readPdlgA( void* pdv )
 		color_mode = Color;
 	    else
 		color_mode = GrayScale;
+	    GlobalUnlock( pd->hDevMode );
         }
-        GlobalUnlock( pd->hDevMode );
     }
-
+    
     if ( pd->hDevNames ) {
         DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
         // (There is no DEVNAMESA)
@@ -524,13 +524,13 @@ void QPrinter::readPdlgA( void* pdv )
             setPrintProgram( QString::fromLocal8Bit( drName ) );
             char* prName = ((char*)dn) + dn->wDeviceOffset;
             setPrinterName( QString::fromLocal8Bit( prName ) );
+	    GlobalUnlock( pd->hDevNames );
         }
-        GlobalUnlock( pd->hDevNames );
     }
-
-    if ( d->printerMode == HighResolution )
+    
+    if ( d->printerMode != ScreenResolution )
 	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
-
+    
     if ( pd->hDevMode ) {
         if ( hdevmode )
             GlobalFree( hdevmode );
@@ -551,24 +551,48 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
     HANDLE hdevnames = *hnames;
     // Open the printer by name, to get a HANDLE
     HANDLE hPrinter;
-    if (! OpenPrinter((TCHAR *)qt_winTchar(printerName,TRUE),&hPrinter,NULL)) {
-        qDebug("OpenPrinter(%s) failed, error %d",printerName.latin1(),GetLastError());
-        return;
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	if (! OpenPrinter((TCHAR *)qt_winTchar(printerName,TRUE),&hPrinter,NULL)) {
+	    qDebug("OpenPrinter(%s) failed, error %d",printerName.latin1(),GetLastError());
+	    return;
+	}
+    } else
+#endif
+    {
+	if ( !OpenPrinterA((char*)printerName.latin1(),&hPrinter,NULL)) {
+	    qDebug("OpenPrinterA(%s) failed, error %d",printerName.latin1(),GetLastError());
+	    return;
+	}
     }
-
     // Obtain PRINTER_INFO_2 and close printer afterwords
     DWORD nbytes, rbytes;
-    GetPrinter(hPrinter,2,NULL,0,&nbytes);
-    PRINTER_INFO_2 *pinf2 = (PRINTER_INFO_2 *)GlobalAlloc(GPTR,nbytes);
-    BOOL callOk = GetPrinter(hPrinter,2,(LPBYTE)pinf2,nbytes,&rbytes);
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+        GetPrinter(hPrinter,2,NULL,0,&nbytes);
+    } else 
+#endif
+    {
+	GetPrinterA(hPrinter,2,NULL,0,&nbytes);
+    }
+    PRINTER_INFO_2 *pinf2 = (PRINTER_INFO_2 *)GlobalAlloc( GPTR, nbytes );
+    BOOL callOk;
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	callOk = GetPrinter(hPrinter,2,(LPBYTE)pinf2,nbytes,&rbytes);
+    } else
+#endif
+    {
+	callOk = GetPrinterA(hPrinter,2,(LPBYTE)pinf2,nbytes,&rbytes);
+    }
     ClosePrinter(hPrinter);
     if (! callOk) {
-            qDebug("GetPrinter() failed, error %d",GetLastError());
-            GlobalFree(pinf2);
-            return;
+	qDebug("GetPrinter() failed, error %d",GetLastError());
+	GlobalFree(pinf2);
+	return;
     }
-
-
+    
+    
     // There are drivers with no pDevMode structure!
     if ( pinf2->pDevMode ) {
         // Allocate a global HANDLE for a DEVMODE Structure
@@ -581,12 +605,13 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
         Q_ASSERT(hdevmode != 0);
         DEVMODE *pDevMode = (DEVMODE *)GlobalLock(hdevmode);
         Q_ASSERT(pDevMode != 0);
-
+	
         // Copy DEVMODE from PRINTER_INFO_2 Structure
         memcpy(pDevMode,pinf2->pDevMode,szDEVMODE);
-        GlobalUnlock(hdevmode);
+        if ( hdevmode )
+	    GlobalUnlock(hdevmode);
     }
-
+    
     // Allocate a global HANDLE for a DEVNAMES Structure
     DWORD   lDrvrName = lstrlen(pinf2->pDriverName) + 1;
     DWORD   lPrntName = lstrlen(pinf2->pPrinterName) + 1;
@@ -599,29 +624,30 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
     Q_ASSERT(hdevnames != 0);
     DEVNAMES *pDevNames = (DEVNAMES *)GlobalLock(hdevnames);
     Q_ASSERT(pDevNames != 0);
-
+    
     // Create DEVNAMES Information from PRINTER_INFO_2 Structure
     int tcOffset = sizeof(DEVNAMES) / sizeof(TCHAR);
     Q_ASSERT(sizeof(DEVNAMES) == tcOffset * sizeof(TCHAR));
-
+    
     pDevNames->wDriverOffset = tcOffset;
     memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pDriverName,lDrvrName * sizeof(TCHAR));
     tcOffset += lDrvrName;
-
+    
     pDevNames->wDeviceOffset = tcOffset;
     memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pPrinterName,lPrntName * sizeof(TCHAR));
     tcOffset += lPrntName;
-
+    
     pDevNames->wOutputOffset = tcOffset;
     memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pPortName,lPortName * sizeof(TCHAR));
     tcOffset += lPortName;
-
+    
     // This is (probably) not the Default Printer
     pDevNames->wDefault = 0;
-
+    
     // Clean up
     GlobalUnlock(hdevnames);
     GlobalFree(pinf2);
+    
     *hnames = hdevnames;
     *hmode = hdevmode;
 }
@@ -708,9 +734,9 @@ bool QPrinter::setup( QWidget *parent )
         parent = parent->topLevelWidget();
     else
         parent = qApp->mainWidget();
-
+    
     bool result = FALSE;
-
+    
     // Must handle the -A and -W versions separately; they're incompatible
 #if defined(UNICODE)
 #ifndef Q_OS_TEMP
@@ -719,16 +745,17 @@ bool QPrinter::setup( QWidget *parent )
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
         pd.lStructSize = sizeof(PRINTDLG);
-
+	
         pd.hDevMode   = hdevmode;
         pd.hDevNames  = hdevnames;
+	hdevnames = 0;
         if (pd.hDevMode)
             result = TRUE;
         else {
             pd.Flags = PD_RETURNDEFAULT;
             result = PrintDlg( &pd ) != 0;
         }
-
+	
 	if ( result ) {
 	    // writePdlg {
 	    pd.Flags = PD_RETURNDC;
@@ -762,7 +789,7 @@ bool QPrinter::setup( QWidget *parent )
             pd.nMinPage  = min_pg;
             pd.nMaxPage  = max_pg;
             pd.nCopies   = ncopies;
-
+	    
 	    if ( pd.hDevMode ) {
 		DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
 		writeDevmode( dm );
@@ -785,16 +812,17 @@ bool QPrinter::setup( QWidget *parent )
         PRINTDLGA pd;
         memset( &pd, 0, sizeof(PRINTDLGA) );
         pd.lStructSize = sizeof(PRINTDLGA);
-
+	
         pd.hDevMode   = hdevmode;
         pd.hDevNames  = hdevnames;
+	hdevnames = 0;
         if (pd.hDevMode)
             result = TRUE;
         else {
             pd.Flags         = PD_RETURNDEFAULT;
             result = PrintDlgA( &pd ) != 0;
         }
-
+	
 	if ( result ) {
 	    pd.Flags = PD_RETURNDC;
 #if 0
@@ -827,13 +855,13 @@ bool QPrinter::setup( QWidget *parent )
             pd.nMinPage  = min_pg;
             pd.nMaxPage  = max_pg;
             pd.nCopies   = ncopies;
-
+	    
 	    if ( pd.hDevMode ) {
 		DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd.hDevMode );
 		writeDevmodeA( dm );
 		GlobalUnlock( pd.hDevMode );
 	    }
-            result = PrintDlgA( &pd );
+	    result = PrintDlgA( &pd );
             if ( result && pd.hDC == 0 )
                 result = FALSE;
             if ( result )
@@ -841,7 +869,7 @@ bool QPrinter::setup( QWidget *parent )
         }
     }
 #endif // Q_OS_TEMP
-
+    
     SetMapMode(hdc, MM_ANISOTROPIC);
     // The following two lines are the cause of problems on Windows 9x, 
     // for some reason, either one of these functions or both don't 
@@ -849,7 +877,7 @@ bool QPrinter::setup( QWidget *parent )
     // and as of yet I can't find a workaround.
     SetWindowExtEx(hdc, res, res, NULL);
     SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL);
-
+    
     return result;
 }
 
@@ -857,7 +885,7 @@ bool QPrinter::setup( QWidget *parent )
 
 
 static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
-                                         const QImage &image )
+					const QImage &image )
 {
     int w, h, d, ncols=2;
     if ( !pixmap.isNull() ) {
@@ -869,10 +897,10 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
         h = image.height();
         d = image.depth();
     }
-
+    
     if ( w == 0 || h == 0 || d == 0 )           // invalid image or pixmap
         return 0;
-
+    
     if ( d > 1 && d <= 8 ) {                    // set to nearest valid depth
         d = 8;                                  //   2..7 ==> 8
         ncols = 256;
@@ -881,7 +909,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
         d = 32;                                 //   > 8  ==> 32
         ncols = 0;
     }
-
+    
     int   bpl = ((w*d+31)/32)*4;                // bytes per line
     int   bmi_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
     char *bmi_data = (char *)malloc( bmi_len );
@@ -891,16 +919,16 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
     bmh->biSize           = sizeof(BITMAPINFOHEADER);
     bmh->biWidth          = w;
     if ( !pixmap.isNull() && pixmap.isQBitmap() )
-      bmh->biHeight       = h;
+	bmh->biHeight       = h;
     else
-      bmh->biHeight       = -h;
+	bmh->biHeight       = -h;
     bmh->biPlanes         = 1;
     bmh->biBitCount       = d;
     bmh->biCompression    = BI_RGB;
     bmh->biSizeImage      = bpl*h;
     bmh->biClrUsed        = ncols;
     bmh->biClrImportant   = 0;
-
+    
     if ( ncols > 0  && !image.isNull()) {       // image with color map
         RGBQUAD *r = (RGBQUAD*)(bmi_data + sizeof(BITMAPINFOHEADER));
         ncols = QMIN(ncols,image.numColors());
@@ -912,7 +940,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
             r[i].rgbReserved = 0;
         }
     }
-
+    
     return bmi;
 }
 
@@ -964,10 +992,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL);
             }
 	    QSize margs = margins();
-
+	    
             OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
             //### CS097 viewOffsetDone = TRUE;
-
+	    
         }
         if ( !ok ) {
             if ( hdc ) {
@@ -1002,10 +1030,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    QPoint pos( rect.x(), rect.y() );
 	    QPixmap pixmap;
             QImage  image;
-
+	    
             int w;
             int h;
-
+	    
             if ( c == PdcDrawPixmap ) {
                 pixmap = *p[1].pixmap;
                 w = pixmap.width();
@@ -1026,7 +1054,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                 w = image.width();
                 h = image.height();
             }
-
+	    
             double xs = 1.0;                    // x stretch
             double ys = 1.0;                    // y stretch
             if ( paint ) {
@@ -1052,13 +1080,13 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             BITMAPINFO *bmi = getWindowsBITMAPINFO( pixmap, image );
             BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
             uchar *bits;
-
+	    
             if ( image.isNull() ) {
                 bits = new uchar[bmh->biSizeImage];
                 // We are guaranteed that the QPainter does not pass
                 // a multi cell pixmap, therefore we can access hbm().
                 GetDIBits( pixmap.handle(), pixmap.hbm(), 0, h,
-                           bits, bmi, DIB_RGB_COLORS );
+		    bits, bmi, DIB_RGB_COLORS );
             } else {
                 bits = image.bits();
             }
@@ -1068,17 +1096,17 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                 // StretchBlt supported
                 HDC     hdcPrn = CreateCompatibleDC( hdc );
                 HBITMAP hbm    = CreateDIBitmap( hdc, bmh, CBM_INIT,
-                                                 bits, bmi, DIB_RGB_COLORS );
+		    bits, bmi, DIB_RGB_COLORS );
                 HBITMAP oldHbm = (HBITMAP)SelectObject( hdcPrn, hbm );
                 StretchBlt( hdc, pos.x(), pos.y(), dw, dh,
-                            hdcPrn, 0, 0, w, h, SRCCOPY );
+		    hdcPrn, 0, 0, w, h, SRCCOPY );
                 SelectObject( hdcPrn, oldHbm );
                 DeleteObject( hbm );
                 DeleteObject( hdcPrn );
             } else if ( (rc & RC_STRETCHDIB) != 0 ) {
                 // StretchDIBits supported
                 StretchDIBits( hdc, pos.x(), pos.y(), dw, dh, 0, 0, w, h,
-                               bits, bmi, DIB_RGB_COLORS, SRCCOPY );
+		    bits, bmi, DIB_RGB_COLORS, SRCCOPY );
 	    }
             if ( image.isNull() ) {
                 delete [] bits;
@@ -1154,15 +1182,15 @@ QSize QPrinter::margins() const
     if ( handle() == 0 )                        // not ready
         return QSize( 0, 0 );
     return QSize( GetDeviceCaps( handle(), PHYSICALOFFSETX ) * res / GetDeviceCaps( hdc, LOGPIXELSX ),
-                  GetDeviceCaps( handle(), PHYSICALOFFSETY ) * res / GetDeviceCaps( hdc, LOGPIXELSY ) );
+	GetDeviceCaps( handle(), PHYSICALOFFSETY ) * res / GetDeviceCaps( hdc, LOGPIXELSY ) );
 }
 
 
 /*
-  This private function creates a new HDC for the printer. It takes the
-  different user settings into account. This is used by the setter functions,
-  like setOrientation() to create a printer HDC with the appropriate settings
-  -- otherwise you don't get the settings except if you show a print dialog.
+This private function creates a new HDC for the printer. It takes the
+different user settings into account. This is used by the setter functions,
+like setOrientation() to create a printer HDC with the appropriate settings
+-- otherwise you don't get the settings except if you show a print dialog.
 */
 void QPrinter::reinit()
 {
@@ -1173,6 +1201,7 @@ void QPrinter::reinit()
         if ( dm ) {
 	    writeDevmode( dm );
 	    hdcTmp = CreateDC( L"WINSPOOL", dm->dmDeviceName, 0, dm );
+	    GlobalUnlock( hdevmode );
 	}
 #else
 #if defined(UNICODE)
@@ -1181,6 +1210,7 @@ void QPrinter::reinit()
 	    if ( dm ) {
 		writeDevmode( dm );
 		hdcTmp = CreateDC( L"WINSPOOL", dm->dmDeviceName, 0, dm );
+		GlobalUnlock( hdevmode );
 	    }
 	} else
 #endif
@@ -1189,6 +1219,7 @@ void QPrinter::reinit()
 	    if ( dm ) {
 		writeDevmodeA( dm );
 		hdcTmp = CreateDCA( "WINSPOOL", (LPCSTR)dm->dmDeviceName, 0, dm );
+		GlobalUnlock( hdevmode );
 	    }
 	}
 #endif
@@ -1196,7 +1227,6 @@ void QPrinter::reinit()
 	    DeleteDC( hdc );
 	    hdc = hdcTmp;
 	}
-	GlobalUnlock( hdevmode );
     }
 }
 
