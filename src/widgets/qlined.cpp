@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#66 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,10 +17,60 @@
 #include "qkeycode.h"
 #include "qclipbrd.h"
 #include "qapp.h"
+#include "qregexp.h"
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#66 $");
+
+//### How to provide new member variables while keeping binary compatibility:
+
+#include <qintdict.h>
+
+
+struct QLineEditExtra {
+    QRegExp re;
+    bool frame;
+    QLineEdit::EchoMode mode;
+};
+
+
+static QIntDict<QLineEditExtra> *qle_extraStuff = 0;
+
+static void cleanupLineEdit()
+{
+    delete qle_extraStuff;
+    qle_extraStuff = 0;
+}
+
+
+static QLineEditExtra * makeLEDict( QLineEdit * that )
+{
+    if ( !qle_extraStuff ) {
+	qle_extraStuff = new QIntDict<QLineEditExtra>;
+	CHECK_PTR( qle_extraStuff );
+	qAddPostRoutine( cleanupLineEdit );
+    }
+
+    QLineEditExtra * x = (QLineEditExtra *)qle_extraStuff->find( (long)that );
+    if ( !x ) {
+	x = new QLineEditExtra;
+	x->frame = TRUE;
+	x->mode = QLineEdit::Normal;
+	qle_extraStuff->insert( (long)that, x );
+    }
+
+    return x;
+}
+
+
+static QLineEditExtra * lookInLEDict( const QLineEdit * that )
+{
+    QLineEditExtra * x = 0;
+    if ( qle_extraStuff )
+	x = (QLineEditExtra *)qle_extraStuff->find( (long)that );
+    return x;
+}
 
 
 /*!
@@ -29,6 +79,20 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#65 $");
   \brief The QLineEdit widget is a simple line editor for inputting text.
 
   \ingroup realwidgets
+
+  The default QLineEdit object has its own frame as specified by the
+  Windows/Motif style guides, you can turn off the frame by calling
+  setFrame( FALSE ).
+
+  It draws the text using its own \link QColorGoup color group:
+  \endlink \link QColorGroup::text() colorGroup().text() \endlink on
+  \link QColorGroup::base() colorGroup().base(). \endlink  The cursor
+  and frame use other colors from same color group, of course.
+
+  By default, the user can enter any character, and up to 32767 of
+  them.  You can restrict the maximum length using setMaxLength() and
+  the admissible characters using setPattern() or some simpler and
+  less powerful forms, setDigitsOnly() and setLegalCharacters().
 
   The default key bindings are described in keyPressEvent(); they cannot
   be customized except by inheriting the class.
@@ -44,11 +108,6 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#65 $");
 
 static const int blinkTime  = 500;		// text cursor blink time
 static const int scrollTime = 100;		// mark text scroll time
-
-#define LEFT_MARGIN 4
-#define RIGHT_MARGIN 4
-#define TOP_MARGIN 4
-#define BOTTOM_MARGIN 4
 
 
 static int xPosToCursorPos( char *s, const QFontMetrics &fm,
@@ -115,8 +174,11 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
 
 QLineEdit::~QLineEdit()
 {
+    if ( qle_extraStuff )
+	qle_extraStuff->remove( (long)this );
     delete pm;
 }
+
 
 /*!
   Sets the line editor text to \e text.
@@ -272,8 +334,6 @@ void QLineEdit::setMaxLength( int m )
   <li><i> Control-X </i> Cut the marked text, copy to clipboard.
   </ul>
 
-  <strong><a href=mailto:qt-bugs@troll.no>Comments solicited</a></strong>
-
   All other keys with valid ASCII codes insert themselves into the line.
 */
 
@@ -284,6 +344,16 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	return;
     }
     if ( e->ascii() >= 32 && e->key() != Key_Delete ) {
+	if ( hasPattern() ) { // do a slow, wasteful test first
+	    QString test( tbuf.copy() );
+	    if ( hasMarkedText() )
+		test.remove( minMark(), maxMark() - minMark() );
+	    if ( (int)test.length() < maxLen )
+		test.insert( cursorPos, e->ascii() );
+	    if ( !pattern().match( test ) )
+		return;
+	}
+
 	if ( hasMarkedText() ) {
 	    tbuf.remove( minMark(), maxMark() - minMark() );
 	    cursorPos = minMark();
@@ -295,6 +365,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    cursorRight( FALSE );			// will repaint
 	    emit textChanged( tbuf.data() );
 	}
+
 	return;
     }
     int unknown = 0;
@@ -337,14 +408,30 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 			*p = 32;
 		    p++;
 		}
+		int tlen = t.length();
+		int blen;
+		if ( hasPattern() ) {
+		    // do a test run without hurting tbuf and stuf
+		    QString test( tbuf.copy() );
+		    if ( hasMarkedText() )
+			test.remove( minMark(), maxMark() - minMark() );
+		    blen = tbuf.length();
+		    if ( tlen+blen >= maxLen ) {
+			if ( blen >= maxLen )
+			    break;
+			t.truncate( maxLen-tlen );
+		    }
+		    test.insert( cursorPos, t );
+		    if ( !pattern().match( test ) )
+			break;
+		}
 		if ( hasMarkedText() ) {
 		    tbuf.remove( minMark(), maxMark() - minMark() );
 		    cursorPos = minMark();
 		    if ( cursorPos < offset )
 			offset = cursorPos;
 		}
-		int tlen = t.length();
-		int blen = tbuf.length();
+		blen = tbuf.length();
 		if ( tlen+blen >= maxLen ) {
 		    if ( blen >= maxLen )
 			break;
@@ -410,6 +497,7 @@ void QLineEdit::focusInEvent( QFocusEvent * )
     repaint( !hasFocus() );
 }
 
+
 /*!
   Handles the cursor blinking.
 */
@@ -469,7 +557,7 @@ void QLineEdit::resizeEvent( QResizeEvent *e )
     int max = lastCharVisible();
     if ( cursorPos > max ) {
 	QFontMetrics fm = fontMetrics();
-	int w = width() - LEFT_MARGIN - RIGHT_MARGIN;
+	int w = width() - (frame() ? 8 : 4);
 	int i = cursorPos;
 	while ( w > 0 && i > 0 ) {
 	    i--;
@@ -482,6 +570,7 @@ void QLineEdit::resizeEvent( QResizeEvent *e )
     repaint( !hasFocus() );
 }
 
+
 /*!
   Handles mouse press events for this widget.
 */
@@ -489,9 +578,10 @@ void QLineEdit::resizeEvent( QResizeEvent *e )
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
     killTimers();
+    int margin = frame() ? 4 : 2;
     cursorPos = offset + xPosToCursorPos( &tbuf[(int)offset], fontMetrics(),
-				       e->pos().x() - LEFT_MARGIN,
-				       width() - LEFT_MARGIN - RIGHT_MARGIN );
+				       e->pos().x() - margin,
+				       width() - 2*margin );
     if ( e->button() == MidButton ) {		// paste
 	QKeyEvent k( Event_KeyPress, Key_V, 0, ControlButton );
 	keyPressEvent( &k );
@@ -505,6 +595,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     repaint( !hasFocus() );
 }
 
+
 /*!
   Handles mouse move events for the line editor, primarily for
   marking text.
@@ -512,8 +603,10 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( e->pos().x() < LEFT_MARGIN || e->pos().x() > width() - RIGHT_MARGIN) {
-	scrollingLeft =	 ( e->pos().x() < LEFT_MARGIN );
+    int margin = frame() ? 4 : 2;
+
+    if ( e->pos().x() < margin || e->pos().x() > width() - margin) {
+	scrollingLeft =	 ( e->pos().x() < margin );
 	if ( !dragScrolling ) {
 	    if ( scrollingLeft )
 		newMark( offset, FALSE );
@@ -526,10 +619,10 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	    repaint( !hasFocus() );
 	} else {
 	    if ( scrollingLeft ) {
-		int steps = -(e->pos().x() + LEFT_MARGIN) / 15 + 2;
+		int steps = -(e->pos().x() + margin) / 15 + 2;
 		cursorLeft( TRUE, steps );
 	    } else {
-		int steps = (e->pos().x() - width() +  RIGHT_MARGIN) / 15 + 2;
+		int steps = (e->pos().x() - width() +  margin) / 15 + 2;
 		cursorRight( TRUE, steps );
 	    }
 	}
@@ -537,8 +630,8 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	dragScrolling = FALSE;
 	int mousePos  = offset +
 	    xPosToCursorPos( &tbuf[(int)offset], fontMetrics(),
-			     e->pos().x() - LEFT_MARGIN,
-			     width() - LEFT_MARGIN - RIGHT_MARGIN );
+			     e->pos().x() - margin,
+			     width() - margin - margin );
 	newMark( mousePos, FALSE );
 	cursorOn  = TRUE;
 	killTimers();
@@ -623,69 +716,92 @@ void QLineEdit::paintText( QPainter *p, const QSize &s, bool frame )
     QColorGroup	 g    = colorGroup();
     QColor	 bg   = isEnabled() ? g.base() : g.background();
     QFontMetrics fm   = fontMetrics();
-    char *displayText = &tbuf[(int)offset];
     int markBegin     = minMark();
     int markEnd	      = maxMark();
+    int margin	     =  this->frame() ? 4 : 2;
 
     if ( frame ) {
 	QBrush fill( bg );
 	qDrawWinPanel( p, 0, 0, s.width(), s.height(), g, TRUE, &fill );
     } else {
-	p->fillRect( LEFT_MARGIN, TOP_MARGIN,
-		     width()  - LEFT_MARGIN - RIGHT_MARGIN  + 1,
-		     height() - TOP_MARGIN  - BOTTOM_MARGIN + 1, bg );
+	p->fillRect( margin, margin,
+		     width()  - 2*margin,
+		     height() - 2*margin, bg );
     }
 
-    p->setClipRect( LEFT_MARGIN, TOP_MARGIN,
-		    s.width()  - LEFT_MARGIN - RIGHT_MARGIN,
-		    s.height() - TOP_MARGIN - BOTTOM_MARGIN );
+    QString displayText;
 
-    int charsVisible = lastCharVisible() - offset;
-    if ( displayText[ charsVisible ] != '\0' )
-	charsVisible++;
-
-    int ypos = s.height() - BOTTOM_MARGIN - fm.descent() - 1 -
-	       (s.height() - BOTTOM_MARGIN - TOP_MARGIN - fm.height())/2;
-    int mark1,mark2; // start and end of inverted text, 0 = leftmost char
-
-    if ( markBegin > offset ) {
-	if ( markBegin <  offset + charsVisible )
-	    mark1 = markBegin - offset;
-	else
-	    mark1 = charsVisible;
-    } else {
-	mark1 = 0;
+    switch( echoMode() ) {
+    case Normal:
+	displayText = tbuf.mid( offset, tbuf.length() );
+	break;
+    case None:
+	displayText = "";
+	break;
+    case Password:
+	displayText.fill( '*', tbuf.length() - offset );
+	break;
     }
 
-    if ( markEnd > offset ) {
-	if ( markEnd <	offset + charsVisible )
-	    mark2 = markEnd - offset;
-	else
-	    mark2 = charsVisible;
-    } else {
-	mark2 = 0;
+    int ypos = s.height() - margin - fm.descent() - 1 -
+	       (s.height() - 2*margin - fm.height())/2;
+
+    if ( !displayText.isEmpty() ) {
+	p->setClipRect( margin, margin,
+			s.width()  - 2*margin,
+			s.height() - 2*margin );
+
+	int charsVisible = lastCharVisible() - offset;
+	if ( displayText[ charsVisible ] != '\0' )
+	    charsVisible++;
+
+	int mark1,mark2; // start and end of inverted text, 0 = leftmost char
+
+	if ( markBegin > offset ) {
+	    if ( markBegin <  offset + charsVisible )
+		mark1 = markBegin - offset;
+	    else
+		mark1 = charsVisible;
+	} else {
+	    mark1 = 0;
+	}
+
+	if ( markEnd > offset ) {
+	    if ( markEnd <	offset + charsVisible )
+		mark2 = markEnd - offset;
+	    else
+		mark2 = charsVisible;
+	} else {
+	    mark2 = 0;
+	}
+
+	// display code come here - a bit yucky but it works
+	if ( mark1 != mark2 ) {
+	    QString marked( displayText.mid( mark1, mark2 - mark1 ) );
+	    int xpos1 =  margin + fm.width( displayText, mark1 );
+	    int xpos2 =  xpos1 + fm.width( marked ) - 1;
+	    p->fillRect( xpos1, ypos - fm.ascent(),
+			 xpos2 - xpos1, fm.height(), g.text() );
+	    p->setPen( g.base() );
+	    p->drawText( xpos1, ypos, marked );
+	}
+	p->setPen( g.text() );
+	if ( mark1 != 0 )
+	    p->drawText( margin, ypos, displayText, mark1 );
+	if ( mark2 != charsVisible ) {
+	    QString rest( displayText.mid( mark2, charsVisible - mark2 ) );
+	    p->drawText( margin + fm.width( displayText.left( mark2) ), ypos,
+			 rest );
+	}
     }
-    if ( mark1 != mark2 ) {
-	int xpos1 =  LEFT_MARGIN + fm.width( displayText, mark1 );
-	int xpos2 =  xpos1 + fm.width( displayText + mark1, mark2 - mark1 ) -1;
-	p->fillRect( xpos1, ypos - fm.ascent(),
-		     xpos2 - xpos1, fm.height(), g.text() );
-	p->setPen( g.base() );
-	p->drawText( xpos1, ypos, displayText + mark1, mark2 - mark1 );
-    }
-    p->setPen( g.text() );
-    if ( mark1 != 0 )
-	p->drawText( LEFT_MARGIN, ypos, displayText, mark1 );
-    if ( mark2 != charsVisible )
-	p->drawText( LEFT_MARGIN + fm.width( displayText, mark2 ), ypos,
-		     displayText + mark2, charsVisible - mark2 );
 
     p->setPen( g.foreground() );
 
     p->setClipping( FALSE );
     if ( cursorOn ) {
-	int curXPos   = LEFT_MARGIN +
-			fm.width( displayText, cursorPos - offset ) - 1;
+	int curXPos = margin;
+	if ( echoMode() != None )
+	    curXPos += fm.width( displayText, cursorPos - offset ) - 1;
 	int curYPos   = ypos - fm.ascent();
 	if ( hasFocus() ) {
 	    p->drawLine( curXPos - 2, curYPos,
@@ -736,6 +852,7 @@ void QLineEdit::cursorLeft( bool mark, int steps )
 
 void QLineEdit::cursorRight( bool mark, int steps )
 {
+    int margin = frame() ? 4 : 2;
     if ( steps < 0 ) {
 	cursorLeft( mark, -steps );
 	return;
@@ -754,7 +871,7 @@ void QLineEdit::cursorRight( bool mark, int steps )
 	    markAnchor = cursorPos;
 	    markDrag   = markAnchor;
 	}
-	int surplusWidth = width() - LEFT_MARGIN - RIGHT_MARGIN
+	int surplusWidth = width() - 2*margin
 			   - fm.width( &tbuf[ offset ], cursorPos - offset);
 	if ( surplusWidth < 0 ) {
 	    while ( surplusWidth < 0 && offset < cursorPos - 1 ) {
@@ -795,8 +912,13 @@ void QLineEdit::backspace()
 
 void QLineEdit::del()
 {
+    QString test( tbuf.copy() );
+
     if ( hasMarkedText() ) {
-	tbuf.remove( minMark(), maxMark() - minMark() );
+	test.remove( minMark(), maxMark() - minMark() );
+	if ( hasPattern() && !pattern().match( test ) )
+	    return;
+	tbuf = test;
 	cursorPos  = minMark();
 	markAnchor = cursorPos;
 	markDrag   = cursorPos;
@@ -806,7 +928,10 @@ void QLineEdit::del()
 	emit textChanged( tbuf.data() );
     } else {
 	if ( cursorPos != (int)strlen(tbuf) ) {
-	    tbuf.remove( cursorPos, 1 );
+	    test.remove( cursorPos, 1 );
+	    if ( hasPattern() && !pattern().match( test ) )
+		return;
+	    tbuf = test;
 	    repaint( !hasFocus() );
 	    emit textChanged( tbuf.data() );
 	}
@@ -850,7 +975,7 @@ void QLineEdit::end( bool mark )
     if ( cursorPos != tlen || !mark && hasMarkedText() ) {
 	killTimers();
 	offset += showLastPartOffset( &tbuf[offset], fontMetrics(),
-				      width() - LEFT_MARGIN - RIGHT_MARGIN );
+				      width() - (frame() ? 8 : 4) );
 	cursorPos = tlen;
 	if ( mark ) {
 	    newMark( cursorPos );
@@ -948,7 +1073,7 @@ void QLineEdit::clipboardChanged()
 
 int QLineEdit::lastCharVisible() const
 {
-    int tDispWidth = width() - LEFT_MARGIN - RIGHT_MARGIN;
+    int tDispWidth = width() - (frame() ? 8 : 4);
     return offset + xPosToCursorPos( &tbuf[(int)offset], fontMetrics(),
 			       tDispWidth, tDispWidth );
 }
@@ -963,3 +1088,178 @@ int QLineEdit::maxMark() const
     return markAnchor > markDrag ? markAnchor : markDrag;
 }
 
+
+
+/*!
+
+*/
+
+void QLineEdit::setFrame( bool enable )
+{
+    if ( !enable && !qle_extraStuff )
+	return;
+
+    QLineEditExtra * x = makeLEDict( this );
+    x->frame = enable;
+    repaint();
+}
+
+
+/*!
+
+*/
+
+bool QLineEdit::frame() const
+{
+    QLineEditExtra * x = lookInLEDict( this );
+    return x ? x->frame : TRUE;
+}
+
+
+/*!
+
+*/
+
+void QLineEdit::setEchoMode( EchoMode mode )
+{
+    if ( mode == Normal && !qle_extraStuff )
+	return;
+
+    QLineEditExtra * x = makeLEDict( this );
+    x->mode = mode;
+    repaint();
+}
+
+
+/*!
+
+*/
+
+QLineEdit::EchoMode QLineEdit::echoMode() const
+{
+    QLineEditExtra * x = lookInLEDict( this );
+    return x ? x->mode : Normal;
+}
+
+
+/*!
+
+  To disable pattern checking, call disablePatternChecking().
+  
+*/
+
+void QLineEdit::setPattern( const QRegExp & re )
+{
+    if ( !re.isValid() )
+	return;
+    else if ( re.isEmpty() && !qle_extraStuff )
+	return;
+
+    QLineEditExtra * x = makeLEDict( this );
+
+    x->re = re;
+}
+
+
+/*!
+  
+*/
+
+const QRegExp QLineEdit::pattern() const
+{
+    QRegExp p;
+    QLineEditExtra * x = lookInLEDict( this );
+    if ( x )
+	p = x->re;
+    return p;
+}
+
+ 
+/*!  Returns TRUE if the line edit is currently doing pattern
+  checking.
+
+  Returns false if there is no patter, the pattern is empty or the
+  pattern is invalid.
+
+  \sa pattern() setPattern() disablePattern() setDigitsOnly()
+  setLegalCharacters()
+*/
+
+bool QLineEdit::hasPattern() const
+{
+    QLineEditExtra * x = lookInLEDict( this );
+    return x && !x->re.isEmpty() && x->re.isValid();
+}
+
+
+/*!  Sets the line edit to accept only digits.  The empty string is
+  valid, and there is no limitation except the length set by
+  setMaxLength().
+
+  If \a allowDecimalPoint is TRUE (the default is FALSE) the user may
+  enter a single \".\" as well as digits.  Strings like \".25\" and
+  \".\" are legal.  White space is rejected.
+
+  To disable pattern checking, call disablePatternChecking().
+
+  This function is a one-line wrapper around setPattern().
+
+  \sa setLegalCharacters() setMaxLength() setPattern()
+  disablePatternChecking()
+*/
+
+void QLineEdit::setDigitsOnly( bool allowDecimalPoint )
+{
+    setPattern( QRegExp( allowDecimalPoint
+			? "^[0-9]*\\.?[0-9]*$"
+			: "^[0-9]*$" ) );
+}
+
+
+/*! Sets the line edit to accept the characters in \a legalList, and
+  if \a caseSensitive is FALSE (the default is TRUE) their
+  case-switched equivalents.
+
+  No metacharacters exist:
+  \code
+    e->setLegalCharacters( "a-e", FALSE ); // -, A, E, a and e are legal
+    e->setLegalCharacters( "abc*" ); // *, a b and c are legal
+  \end
+
+  If the string is empty, nothing happens.  To disable pattern
+  checking, call disablePatternChecking().
+
+  This function is a short wrapper around setPattern().
+
+  \sa setDigitsOnly() setMaxLength() setPattern()
+  disablePatternChecking()
+*/
+
+void QLineEdit::setLegalCharacters( const char * legalList,
+				    bool caseSensitive )
+{
+    QString s( "[" );
+    const char * p = legalList;
+    while ( p && *p ) {
+	if ( !isalnum( *p ) )
+	    s += '\\';
+	s += *p;
+    }
+    s += ']';
+    setPattern( QRegExp( s, caseSensitive ) );
+}
+
+
+/*!  Disables pattern checking.  This function is equivalent to
+  setPattern( QRegExp() ) but sometimes a little more efficient.
+
+  \sa setPattern() hasPattern() pattern() setLegalCharacters()
+  setDigitsOnly()
+*/
+
+void QLineEdit::disablePatternChecking()
+{
+    QLineEditExtra * x = lookInLEDict( this );
+    if ( x )
+	x->re = QRegExp();
+}

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#72 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#72 $");
 
 
 /*!
@@ -292,6 +292,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 	else
 	    d->ed->setGeometry( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
 	d->ed->installEventFilter( this );
+	d->ed->setFrame( FALSE );
     
 	connect( d->ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
     } else {
@@ -1184,21 +1185,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
     if ( !event )
 	return TRUE;
     else if ( object == (QObject *)(d->ed) ) {
-	if ( event->type() == Event_Paint ) {
-	    if ( style() == WindowsStyle ) {
-		QLineEdit * le = (QLineEdit *) object;
-		QPainter p;
-		p.begin( le );
-		p.fillRect( 0, 0, le->width(), le->height(), isEnabled() 
-			    ? le->colorGroup().base() 
-			    : le->colorGroup().background() );
-		p.translate( 0, -4 ); // MAGIC! *_MARGIN from qlined.cpp
-		le->paintText( &p, QSize( le->width()+8, le->height()+8 ),
-			       FALSE );
-		p.end();
-		return TRUE;
-	    }
-	} else if ( event->type() == Event_KeyPress &&
+	if ( event->type() == Event_KeyPress &&
 		    style() == MotifStyle ) {
 	    int c;
 	    switch( ((QKeyEvent *)event)->key() ) {

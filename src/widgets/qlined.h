@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.h#29 $
+** $Id: //depot/qt/main/src/widgets/qlined.h#30 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -15,7 +15,8 @@
 #include "qwidget.h"
 #include "qstring.h"
 
-class  QComboBox;
+class QComboBox;
+class QRegExp;
 
 
 class QLineEdit : public QWidget
@@ -28,6 +29,21 @@ public:
     const char *text() const;
     int		maxLength()	const;
     void	setMaxLength( int );
+
+    void	setFrame( bool );
+    bool	frame() const;
+
+    enum	EchoMode { Normal, None, Password };
+    void	setEchoMode( enum EchoMode );
+    QLineEdit::EchoMode echoMode() const;
+
+    void	setPattern( const QRegExp & );
+    const QRegExp pattern() const;
+    bool	hasPattern() const;
+    void	disablePatternChecking();
+
+    void	setDigitsOnly( bool = FALSE );
+    void	setLegalCharacters( const char *, bool = TRUE );
 
 public slots:
     void	setText( const char * );
