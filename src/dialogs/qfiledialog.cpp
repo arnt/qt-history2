@@ -4563,7 +4563,7 @@ void QFileDialog::setMode( Mode newMode )
 		sel = QString::fromLatin1(".");
 	    d->types->setEnabled( FALSE );
 	} else if ( newMode == ExistingFiles ) {
-	    maxnamelen = 16384;
+	    maxnamelen = INT_MAX;
 	    files->setSelectionMode( QListView::Extended );
 	    d->moreFiles->setSelectionMode( QListBox::Extended );
 	    d->types->setEnabled( TRUE );
