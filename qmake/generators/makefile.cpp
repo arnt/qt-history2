@@ -576,98 +576,101 @@ MakefileGenerator::initOutPaths()
 	return;
     init_opath_already = TRUE;
     QMap<QString, QStringList> &v = project->variables();
-	if(!v.contains("QMAKE_ABSOLUTE_SOURCE_PATH")) {
-	    if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty() &&
-	       v.contains("QMAKE_ABSOLUTE_SOURCE_ROOT")) {
-		QString root = v["QMAKE_ABSOLUTE_SOURCE_ROOT"].first();
-		root = Option::fixPathToTargetOS( root );
-		if(!root.isEmpty()) {
-		    QFileInfo fi(Option::mkfile::cachefile);
-		    if(!fi.convertToAbs()) {
-			QString cache_r = fi.dirPath(), pwd = Option::output_dir;
-			if ( pwd.startsWith(cache_r) && !pwd.startsWith(root) ) {
-			    pwd = Option::fixPathToTargetOS(root + pwd.mid(cache_r.length()));
-			    if(QFile::exists(pwd))
-				v.insert("QMAKE_ABSOLUTE_SOURCE_PATH", pwd);
-			}
+    if(!v.contains("QMAKE_ABSOLUTE_SOURCE_PATH")) {
+	if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty() &&
+	   v.contains("QMAKE_ABSOLUTE_SOURCE_ROOT")) {
+	    QString root = v["QMAKE_ABSOLUTE_SOURCE_ROOT"].first();
+	    root = Option::fixPathToTargetOS( root );
+	    if(!root.isEmpty()) {
+		QFileInfo fi(Option::mkfile::cachefile);
+		if(!fi.convertToAbs()) {
+		    QString cache_r = fi.dirPath(), pwd = Option::output_dir;
+		    if ( pwd.startsWith(cache_r) && !pwd.startsWith(root) ) {
+			pwd = Option::fixPathToTargetOS(root + pwd.mid(cache_r.length()));
+			if(QFile::exists(pwd))
+			    v.insert("QMAKE_ABSOLUTE_SOURCE_PATH", pwd);
 		    }
 		}
 	    }
 	}
-	if(!v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty()) {
-	    QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
-	    asp = Option::fixPathToTargetOS( asp );
-	    if(asp.isEmpty() || asp == Option::output_dir) //if they're the same, why bother?
-		v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
-	}
-	QString currentDir = QDir::currentDirPath();
-	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("UI_HEADERS_DIR"),
-			   QString("UI_SOURCES_DIR"), QString("UI_DIR"), QString("DESTDIR"),
-			   QString("SUBLIBS_DIR"), QString("DLLDESTDIR"), QString::null };
-	for(int x = 0; dirs[x] != QString::null; x++) {
-	    if ( !v[dirs[x]].isEmpty() ) {
-		QString orig_path = v[dirs[x]].first();
+    }
+    if(!v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty()) {
+	QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
+	asp = Option::fixPathToTargetOS( asp );
+	if(asp.isEmpty() || asp == Option::output_dir) //if they're the same, why bother?
+	    v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
+    }
+    QString currentDir = QDir::currentDirPath();
+    QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("UI_HEADERS_DIR"),
+		       QString("UI_SOURCES_DIR"), QString("UI_DIR"), QString("DESTDIR"),
+		       QString("SUBLIBS_DIR"), QString("DLLDESTDIR"), QString::null };
+    for(int x = 0; true; x++) {
+	if(dirs[x] == QString::null)
+	    break;
+	if ( !v[dirs[x]].isEmpty() ) {
+	    QString orig_path = v[dirs[x]].first();
 #ifdef Q_WS_WIN
-		// We don't want to add a separator for DLLDESTDIR on Windows
-		if (!(dirs[x] == "DLLDESTDIR"))
+	    // We don't want to add a separator for DLLDESTDIR on Windows
+	    if (!(dirs[x] == "DLLDESTDIR"))
 #endif
-		{
-		    QString &path = v[dirs[x]].first();
-		    path = fileFixify(path, Option::output_dir, Option::output_dir);
-		    if(path.right(Option::dir_sep.length()) != Option::dir_sep)
-			path += Option::dir_sep;
-		}
-		if(noIO())
-		    continue;
+	    {
+		QString &path = v[dirs[x]].first();
+		QString op = path;
+		path = fileFixify(path, Option::output_dir, Option::output_dir);
+		if(path.right(Option::dir_sep.length()) != Option::dir_sep)
+		    path += Option::dir_sep;
+	    }
+	    if(noIO())
+		continue;
 
-		QString path = project->first(dirs[x]); //not to be changed any further
-		path = Option::fixPathToTargetOS(fileFixify(path, QDir::currentDirPath(), Option::output_dir));
-		debug_msg(3, "Fixed output_dir %s (%s) into %s (%s)", dirs[x].latin1(), orig_path.latin1(),
-			  v[dirs[x]].join("::").latin1(), path.latin1());
+	    QString path = project->first(dirs[x]); //not to be changed any further
+	    path = Option::fixPathToTargetOS(fileFixify(path, QDir::currentDirPath(), Option::output_dir));
+	    debug_msg(3, "Fixed output_dir %s (%s) into %s (%s)", dirs[x].latin1(), orig_path.latin1(),
+		      v[dirs[x]].join("::").latin1(), path.latin1());
 
-		QDir d;
-		if(path.startsWith(Option::dir_sep)) {
-		    d.cd(Option::dir_sep);
-		    path = path.right(path.length() - 1);
-		}
+	    QDir d;
+	    if(path.startsWith(Option::dir_sep)) {
+		d.cd(Option::dir_sep);
+		path = path.right(path.length() - 1);
+	    }
 #ifdef Q_WS_WIN
-		bool driveExists = TRUE;
-		if ( !QDir::isRelativePath( path ) ) {
-		    if ( QFile::exists( path.left( 3 ) ) ) {
-			d.cd( path.left( 3 ) );
-			path = path.right( path.length() - 3 );
-		    } else {
-			warn_msg(WarnLogic, "%s: Cannot access drive '%s' (%s)", dirs[x].latin1(),
-			    path.left( 3 ).latin1(), path.latin1() );
-			driveExists = FALSE;
-		    }
+	    bool driveExists = TRUE;
+	    if ( !QDir::isRelativePath( path ) ) {
+		if ( QFile::exists( path.left( 3 ) ) ) {
+		    d.cd( path.left( 3 ) );
+		    path = path.right( path.length() - 3 );
+		} else {
+		    warn_msg(WarnLogic, "%s: Cannot access drive '%s' (%s)", dirs[x].latin1(),
+			     path.left( 3 ).latin1(), path.latin1() );
+		    driveExists = FALSE;
 		}
-		if ( driveExists ) {
+	    }
+	    if ( driveExists ) {
 #endif
-		    QStringList subs = QStringList::split(Option::dir_sep, path);
-		    for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
-			if(!d.cd(*subit)) {
-			    d.mkdir((*subit));
-			    if ( d.exists( (*subit) ) )
-				d.cd((*subit));
-			    else {
-				warn_msg(WarnLogic, "%s: Cannot access directory '%s' (%s)", dirs[x].latin1(),
-				    (*subit).latin1(), path.latin1() );
-				break;
-			    }
+		QStringList subs = QStringList::split(Option::dir_sep, path);
+		for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
+		    if(!d.cd(*subit)) {
+			d.mkdir((*subit));
+			if ( d.exists( (*subit) ) )
+			    d.cd((*subit));
+			else {
+			    warn_msg(WarnLogic, "%s: Cannot access directory '%s' (%s)", dirs[x].latin1(),
+				     (*subit).latin1(), path.latin1() );
+			    break;
 			}
 		    }
-#ifdef Q_WS_WIN
 		}
-#endif
+#ifdef Q_WS_WIN
 	    }
+#endif
 	}
-	if ( !v["DESTDIR"].isEmpty() ) {
-	    QDir d(v["DESTDIR"].first());
-	    if(Option::fixPathToLocalOS(d.absPath()) == Option::fixPathToLocalOS(Option::output_dir))
-		v.remove("DESTDIR");
-	}
-	QDir::current().cd( currentDir );
+    }
+    if ( !v["DESTDIR"].isEmpty() ) {
+	QDir d(v["DESTDIR"].first());
+	if(Option::fixPathToLocalOS(d.absPath()) == Option::fixPathToLocalOS(Option::output_dir))
+	    v.remove("DESTDIR");
+    }
+    QDir::current().cd( currentDir );
 }
 
 void
@@ -1952,8 +1955,6 @@ MakefileGenerator::createObjectList(const QString &var)
     QString objdir, dir;
     if(!project->variables()["OBJECTS_DIR"].isEmpty())
 	objdir = project->first("OBJECTS_DIR");
-    if(!objdir.endsWith(Option::dir_sep))
-	objdir += Option::dir_sep;
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi(Option::fixPathToLocalOS((*it)));
 	if(objdir.isEmpty() && project->isActiveConfig("object_with_source")) {
