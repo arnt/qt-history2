@@ -70,7 +70,10 @@ bool AnimatedLabel::start(const QString& animfile)
 {
     if ( input )
 	delete input;
-    input = new QFile(animfile);
+    if ( animfile.isNull() )
+	input = 0;
+    else
+	input = new QFile(animfile);
     restart();
     return status() == IO_Ok;
 }
@@ -81,11 +84,14 @@ bool AnimatedLabel::start(const QString& animfile)
 */
 int AnimatedLabel::status() const
 {
-    return input->status();
+    return input ? input->status() : IO_Ok;
 }
 
 QSize AnimatedLabel::sizeHint() const
 {
+    if ( !decoder || !input )
+	return QWidget::sizeHint();
+
     // Ensure we have the size
     const int chunksize=16;
     char buffer[chunksize];
@@ -123,7 +129,7 @@ void AnimatedLabel::showNextFrame()
 	playframe++;
 	if ( playframe > (int)frame.count() )
 	    end();
-    } else {
+    } else if ( decoder && input ) {
 	// Keep sending until we get a frame
 	const int chunksize=256;
 	char buffer[chunksize];
@@ -160,7 +166,7 @@ bool AnimatedLabel::playing() const
 // QImageConsumer interface
 void AnimatedLabel::end()
 {
-    if ( loops >= 0 ) {
+    if ( loops >= 0 && input ) {
 	if ( !loops || loop++ != loops ) {
 	    playframe = 1;
 	    input->close();
@@ -178,8 +184,11 @@ void AnimatedLabel::end()
 
 void AnimatedLabel::restart()
 {
+    if ( !input )
+	return;
     if ( input->isOpen() )
 	input->close();
+    delete decoder;
     decoder = new QImageDecoder(this);
     input->open(IO_ReadOnly);
     if ( tid ) killTimer(tid);
@@ -189,6 +198,10 @@ void AnimatedLabel::restart()
     playframe = 0;
     gotframes = 0;
     period = 0;
+    frame.setAutoDelete(true);
+    frame.clear();
+    offset.setAutoDelete(true);
+    offset.clear();
 }
 
 void AnimatedLabel::changed( const QRect& rect )
