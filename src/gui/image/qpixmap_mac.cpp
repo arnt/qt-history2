@@ -912,11 +912,12 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
 QPaintEngine *QPixmap::engine() const
 {
     if (!data->paintEngine) {
-#if defined( USE_CORE_GRAPHICS )
-	data->paintEngine = new QCoreGraphicsPaintEngine(const_cast<QPixmap *>(this));
-#else
-	data->paintEngine = new QQuickDrawPaintEngine(const_cast<QPixmap*>(this));
+#ifdef USE_CORE_GRAPHICS
+        if(!getenv("QT_MAC_USE_QUICKDRAW"))
+            data->paintEngine = new QCoreGraphicsPaintEngine(const_cast<QPixmap *>(this));
+        else
 #endif
+            data->paintEngine = new QQuickDrawPaintEngine(const_cast<QPixmap*>(this));
     }
     return data->paintEngine;
 }

@@ -1890,11 +1890,12 @@ double QWidget::windowOpacity() const
 QPaintEngine *QWidget::engine() const
 {
     if(!d->paintEngine) {
-#if defined( USE_CORE_GRAPHICS )
-	const_cast<QWidget *>(this)->d->paintEngine = new QCoreGraphicsPaintEngine(const_cast<QWidget *>(this));
-#else
-	const_cast<QWidget *>(this)->d->paintEngine = new QQuickDrawPaintEngine(const_cast<QWidget *>(this));
-#endif
+#ifdef USE_CORE_GRAPHICS
+        if(!getenv("QT_MAC_USE_QUICKDRAW"))
+            const_cast<QWidget *>(this)->d->paintEngine = new QCoreGraphicsPaintEngine(const_cast<QWidget *>(this));
+        else
+#endif 
+            const_cast<QWidget *>(this)->d->paintEngine = new QQuickDrawPaintEngine(const_cast<QWidget *>(this));
     }
     return d->paintEngine;
 }

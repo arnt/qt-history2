@@ -582,13 +582,14 @@ void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
 QPaintEngine *QPrinter::engine() const
 {
     if (!paintEngine) {
+        QPaintEngine *wr = 0;
 #if defined( USE_CORE_GRAPHICS )
-	QPaintEngine *wr = new QCoreGraphicsPaintEngine(const_cast<QPrinter *>(this));
-#else
-	QPaintEngine *wr = new QQuickDrawPaintEngine(const_cast<QPrinter *>(this));
+        if(!getenv("QT_MAC_USE_QUICKDRAW"))
+            wr = new QCoreGraphicsPaintEngine(const_cast<QPrinter *>(this));
 #endif
-	const_cast<QPrinter *>(this)->paintEngine 
-                                = new QPrinterPaintEngine(const_cast<QPrinter *>(this), wr);
+        if(!wr)
+            wr = new QQuickDrawPaintEngine(const_cast<QPrinter *>(this));
+	const_cast<QPrinter *>(this)->paintEngine = new QPrinterPaintEngine(const_cast<QPrinter *>(this), wr);
     }
     return 0;
 }

@@ -151,7 +151,7 @@ void QMacStyle::polish(QApplication* app)
         if(!cg_style)
             cg_style = new QMacStyleCG();
         cg_style->polish(app);
-    } else
+    } 
 #endif
     {
         if(!qd_style)
