@@ -979,7 +979,7 @@ bool QSqlQuery::exec()
 	ret = exec( query );
 	d->sqlResult->setQuery( orig );
     }
-    d->sqlResult->extension()->clearValues(); // no need for the placeholder values anymore
+    d->sqlResult->extension()->resetBindCount();
     return ret;
 }
 
@@ -1028,4 +1028,20 @@ void QSqlQuery::addBindValue( const QVariant& val )
 	return;
     d->sqlResult->extension()->addBindValue( val );
 }
+
+QVariant QSqlQuery::boundValue( const QString& placeholder ) const
+{
+    if ( !d->sqlResult || !d->sqlResult->extension() )
+	return QVariant();
+    return d->sqlResult->extension()->boundValue( placeholder );
+}
+
+
+QVariant QSqlQuery::boundValue( int pos ) const
+{
+    if ( !d->sqlResult || !d->sqlResult->extension() )
+	return QVariant();
+    return d->sqlResult->extension()->boundValue( pos );
+}
+
 #endif // QT_NO_SQL

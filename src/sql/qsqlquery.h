@@ -97,12 +97,14 @@ public:
     virtual bool        last();
 
     // prepared query support
-    bool 		exec();
-    bool 		prepare( const QString& query );
-    void 		bindValue( const QString& placeholder, const QVariant& val );
-    void 		bindValue( int pos, const QVariant& val );
-    void 		addBindValue( const QVariant& val );
-
+    bool		exec();
+    bool		prepare( const QString& query );
+    void		bindValue( const QString& placeholder, const QVariant& val );
+    void		bindValue( int pos, const QVariant& val );
+    void		addBindValue( const QVariant& val );
+    QVariant		boundValue( const QString& placeholder ) const;
+    QVariant		boundValue( int pos ) const;
+    
 protected:
     virtual void        beforeSeek();
     virtual void        afterSeek();
