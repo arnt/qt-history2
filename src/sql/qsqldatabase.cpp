@@ -249,7 +249,7 @@ public:
 
 /*!
     \class QSqlDatabase qsqldatabase.h
-    \brief Class used to create SQL database connections and provide transaction handling
+    \brief This class is used to create SQL database connections and provide transaction handling
 
     \module sql
 
@@ -285,9 +285,10 @@ QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& con
 /*! Returns a pointer to the database connection named \a name.  The
   database connection must have been previously added with database().
   If \a open is TRUE (the default) and the database connection is not
-  already open it is opened now.  If \a connectionName does not exist
+  already open it is opened now.  If no \a connectionName is specified
+  the default connection is used. If \a connectionName does not exist
   in the list of databases, 0 is returned.  The pointer returned is
-  owned by QSqlDatabase and should not be deleted.
+  owned by QSqlDatabase and should \e not be deleted.
 
 */
 
@@ -500,7 +501,7 @@ bool QSqlDatabase::isOpen() const
     return d->driver->isOpen();
 }
 
-/*! Return TRUE if there was an error opening the database connection,
+/*! Returns TRUE if there was an error opening the database connection,
     otherwise returns FALSE. Error information can be retrieved
     using the lastError() function.
 
@@ -550,7 +551,7 @@ bool QSqlDatabase::rollback()
     return d->driver->rollbackTransaction();
 }
 
-/*! Sets the name of the database connection.
+/*! Sets the name of the database connection to \a name.
 
 */
 
@@ -559,7 +560,7 @@ void QSqlDatabase::setDatabaseName( const QString& name )
     d->dbname = name;
 }
 
-/*! Sets the name of the database user.
+/*! Sets the name of the database user to \a name.
 
 */
 
@@ -568,7 +569,7 @@ void QSqlDatabase::setUserName( const QString& name )
     d->uname = name;
 }
 
-/*! Sets the password of the database user.
+/*! Sets the password of the database user to \a password.
 
 */
 
@@ -577,7 +578,7 @@ void QSqlDatabase::setPassword( const QString& password )
     d->pword = password;
 }
 
-/*! Sets the host name of the database.
+/*! Sets the host name of the database to \a host.
 
 */
 
@@ -605,7 +606,8 @@ QString QSqlDatabase::userName() const
     return d->uname;
 }
 
-/*! Returns the database user password, or QString::null if one has not been set.
+/*! Returns the database user password, or QString::null if a password
+   has not been set.
 
 */
 
@@ -614,7 +616,8 @@ QString QSqlDatabase::password() const
     return d->pword;
 }
 
-/*! Returns the database host name, or QString::null if one has not been set.
+/*! Returns the database host name, or QString::null if a host name has
+   not been set.
 
 */
 

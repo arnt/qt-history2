@@ -46,7 +46,7 @@
 
 /*!
   \class QSqlDriver qsqldriver.h
-    \brief Class used to access SQL databases
+    \brief This is an abstract base class for accessing SQL databases
 
   \module sql
 
@@ -56,7 +56,8 @@
 
 */
 
-/*!  Default constructor.
+/*!  Default constructor. Creates a new driver with parent \a parent and
+   name \a name.
 
 */
 
@@ -94,8 +95,9 @@ QSqlDriver::~QSqlDriver()
 */
 
 /*! \fn QSqlQuery QSqlDriver::createQuery() const
-    Creates an empty SQL result on the database.  Derived classes must reimplement this function
-    and return a QSqlQuery object appropriate for their database to the caller.
+    Creates an empty SQL result on the database.  Derived classes must
+    reimplement this function and return a QSqlQuery object appropriate
+    for their database to the caller.
 
 */
 
@@ -310,12 +312,12 @@ QString QSqlDriver::nullText() const
   <li> If \a field is null, nullText() is returned.
 
   <li> If \a field is character data, the value is returned enclosed
-  by single quotation marks, which is appropriate for many SQL
+  in single quotation marks, which is appropriate for many SQL
   databases.  If \a trimStrings is TRUE (the default is FALSE), all
   trailing whitespace is trimmed from the field.
 
   <li> If \a field is date/time data, the value is formatted in ISO
-  format and enclosed by single quotation marks.  If the date/time
+  format and enclosed in single quotation marks.  If the date/time
   data is invalid, nullText() is returned.
 
   <li> If \a field is bytearray data, and the driver can edit binary
