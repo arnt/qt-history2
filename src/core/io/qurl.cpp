@@ -51,6 +51,21 @@
     servers, mail clients and so on.
 */
 
+/*!
+    \enum QUrl::FormattingOptions
+
+    \value None
+    \value RemoveScheme
+    \value RemovePassword
+    \value RemoveUserInfo
+    \value RemovePort
+    \value RemoveAuthority
+    \value RemovePath
+    \value RemoveQuery
+    \value RemoveFragment
+    \value StripTrailingSlash
+*/
+
 #include <private/qunicodetables_p.h>
 #include <qatomic.h>
 #include <qbytearray.h>
@@ -1238,6 +1253,12 @@ const QByteArray & QUrlPrivate::normilized()
 
 
 /*!
+    \fn QUrl::QUrl(QUrlPrivate &d)
+
+    \internal
+*/
+
+/*!
     Constructs a URL by parsing \a url. \a url is assumed to be in
     human readable representation, with no percent encoding. Any
     percent symbols '%' will be interpreted as they are.
@@ -1329,13 +1350,12 @@ void QUrl::setUrl(const QString &url)
 }
 
 /*!
-    Constructs a URL by parsing the contents of \a url.
+    Constructs a URL by parsing the contents of \a encodedUrl.
 
     \a encodedUrl is assumed to be a URL string in percent encoded
     form, containing only ASCII characters.
 
-    Calling isValid() will tell whether or not a valid URL was
-    constructed.
+    Use isValid() to determine if a valid URL was constructed.
 
     \sa setUrl()
 */
@@ -1456,9 +1476,9 @@ QString QUrl::userInfo() const
 }
 
 /*!
-    Sets the user name of the URL. The user name is part of the user
-    info element in the authority of the URL, as described in
-    setUserInfo().
+    Sets the URL's user name to \a userName. The \a userName is part
+    of the user info element in the authority of the URL, as described
+    in setUserInfo().
 
     \sa userName(), setUserInfo()
 */
@@ -1485,8 +1505,8 @@ QString QUrl::userName() const
 }
 
 /*!
-    Sets the password of the URL. The password is part of the user
-    info element in the authority of the URL, as described in
+    Sets the URL's password to \a password. The \a password is part of
+    the user info element in the authority of the URL, as described in
     setUserInfo().
 
     \sa password(), setUserInfo()
@@ -1824,8 +1844,7 @@ QString QUrl::fragment() const
          QUrl baseUrl("http://www.trolltech.com/support");
          QUrl relativeUrl("../products/solutions");
          qDebug(baseUrl.resolved(relativeUrl).toString());
-
-         // qDebug prints "http://www.trolltech.com/products/solutions"
+         // prints "http://www.trolltech.com/products/solutions"
     \encode
 
     Calling resolved() with ".." returns a QUrl whose directory is
@@ -2021,6 +2040,8 @@ inline char toHex(char c)
 }
 
 /*!
+    \fn QByteArray QUrl::toPercentEncoding(const QString &input, const char *alsoEncode)
+
     Returns an encoded copy of \a input. \a input is first converted
     to UTF-8, and then all non-ASCII characters, including any
     characters in \a alsoEncode, are percent encoded.
@@ -2085,7 +2106,7 @@ inline char encodeDigit(uint digit)
 }
 
 /*!
-
+    \internal
 */
 QByteArray QUrl::toPunycode(const QString &uc)
 {
@@ -2186,7 +2207,7 @@ QByteArray QUrl::toPunycode(const QString &uc)
 }
 
 /*!
-
+  \internal
 */
 QString QUrl::fromPunycode(const QByteArray &pc)
 {
@@ -2258,7 +2279,16 @@ QString QUrl::fromPunycode(const QByteArray &pc)
 }
 
 /*!
-    Compares this URL with url and returns true if they are equal;
+    \fn bool QUrl::operator <(const QUrl &url) const
+
+    \internal
+
+    Returns true if this URL is "less than" the given \a url. This
+    provides a means of ordering URLs.
+*/
+
+/*!
+    Returns true if this URL and the given \a url are equal;
     otherwise returns false.
 */
 bool QUrl::operator ==(const QUrl &url) const
@@ -2269,7 +2299,7 @@ bool QUrl::operator ==(const QUrl &url) const
 }
 
 /*!
-    Compares this URL with url and returns true if they are not equal;
+    Returns true if this URL and the given \a url are not equal;
     otherwise returns false.
 */
 bool QUrl::operator !=(const QUrl &url) const

@@ -63,8 +63,8 @@ public:
 
 /*!
     Constructs a QCop channel and registers it with the server using
-    the name \a channel. The standard \a parent and \a name arguments
-    are passed on to the QObject constructor.
+    the name \a channel. The standard \a parent argument is passed on
+    to the QObject constructor.
 */
 
 QCopChannel::QCopChannel(const QByteArray &channel, QObject *parent) :

@@ -301,9 +301,7 @@ void QWellArray::setCurrent(int row, int col)
 }
 
 
-/*!
-  \fn void QWellArray::setSelected(int row, int column)
-
+/*
   Sets the currently selected cell to \a row, \a column. If \a row or
   \a column are less than zero, the current cell is unselected.
 
@@ -356,9 +354,7 @@ void QWellArray::setCellBrush(int row, int col, const QBrush &b)
 
 
 
-/*!
-  \fn QBrush QWellArray::cellBrush(int row, int column)
-
+/*
   Returns the brush set for the cell at \a row, \a column. If no brush is
   set, \c Qt::NoBrush is returned.
 */

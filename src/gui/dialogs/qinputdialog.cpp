@@ -155,11 +155,10 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
 
 
 /*!
-  Constructs the dialog. The \a label is the text which is shown to the user
-  (it should tell the user what they are expected to enter). The \a parent
-  is the dialog's parent widget. The widget is called \a name. If \a
-  modal is true (the default) the dialog will be modal. The \a type
-  parameter is used to specify which type of dialog to construct. The \a f
+  Constructs the dialog. The \a label is the text which is shown to
+  the user (it should tell the user what they are expected to enter).
+  The \a parent is the dialog's parent widget. The \a type parameter
+  is used to specify which type of dialog to construct. The \a f
   parameter is passed on to the QDialog constructor.
 
   \sa getText(), getInteger(), getDouble(), getItem()

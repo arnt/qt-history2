@@ -157,8 +157,8 @@ QMetaCallEvent::~QMetaCallEvent()
     automatically add itself to the parent's children() list. The
     parent takes ownership of the object i.e. it will automatically
     delete its children in its destructor. You can look for an object
-    by name and optionally type using child() or queryList(), and get
-    the list of tree roots using objectTrees().
+    by name and optionally type using findChild() or findChildren(),
+    and get the list of tree roots using objectTrees().
 
     Every object has an objectName() and can report its className()
     and whether it inherits() another class in the QObject inheritance
@@ -189,10 +189,16 @@ QMetaCallEvent::~QMetaCallEvent()
     is much faster than inherits("QWidget").
 
     Some QObject functions, e.g. children(), objectTrees() and
-    queryList() return a QObjectList. A QObjectList is a QList of
+    findChildren() return a QObjectList. A QObjectList is a QList of
     QObjects.
 */
 
+/*!
+    \fn bool QObject::isAncestorOf(const QObject *child) const
+
+    Returns true if this object is an parent, (or grandparent and so
+    on to any level), of the given \a child; otherwise returns false.
+*/
 
 //
 // Remove white space from SIGNAL and SLOT names.
@@ -265,7 +271,7 @@ void *qt_find_obj_child(QObject *parent, const char *type, const QString &name)
     Setting \a parent to 0 constructs an object with no parent. If the
     object is a widget, it will become a top-level window.
 
-    \sa parent(), child(), queryList()
+    \sa parent(), findChild(), findChildren()
 */
 
 QObject::QObject(QObject *parent)
@@ -475,15 +481,15 @@ QObject::~QObject()
 
     \brief the name of this object
 
-    You can find an object by name (and type) using child(). You can
-    find a set of objects with queryList().
+    You can find an object by name (and type) using findChild(). You can
+    find a set of objects with findChildren().
 
     \code
         qDebug("MyClass::setPrecision(): (%s) invalid precision %f",
                 objectName().local8Bit(), newPrecision);
     \endcode
 
-    \sa className(), child(), queryList()
+    \sa className()
 */
 
 QString QObject::objectName() const
@@ -491,7 +497,7 @@ QString QObject::objectName() const
     return d->objectName;
 }
 
-/*!
+/*
     Sets the object's name to \a name.
 */
 void QObject::setObjectName(const QString &name)
@@ -529,7 +535,7 @@ static QObject *qChildHelper(const char *objName, const char *inheritsClass,
 }
 
 
-/*!
+/*
     Searches the children and optionally grandchildren of this object,
     and returns a child that is called \a objName that inherits \a
     inheritsClass. If \a inheritsClass is 0 (the default), any class
@@ -905,7 +911,7 @@ void QObject::killTimer(int id)
     in the list, and a widget that is lowered becomes the first object
     in the list.
 
-    \sa child(), queryList(), parent(), setParent()
+    \sa findChild(), findChildren(), parent(), setParent()
 */
 
 
@@ -944,7 +950,7 @@ static void objSearch(QObjectList &result,
     }
 }
 
-/*!
+/*
     Searches the children and optionally grandchildren of this object,
     and returns a list of those objects that are named or that match
     \a objName and inherit \a inheritsClass. If \a inheritsClass is 0
@@ -1014,11 +1020,24 @@ QObjectList QObject::queryList(const char *inheritsClass,
 }
 #endif
 
+/*!
+    Returns the child of this object that is called \a name, or 0 if
+    there is no such object. The search is performed recursively.
+
+    \sa findChildren()
+*/
 QObject *QObject::findChild(const QString &name) const
 {
     return findChild_helper(name, QObject::staticMetaObject);
 }
 
+/*!
+    Returns the children of this object that are called \a name, or an
+    empty list if there are no such objects. The search is performed
+    recursively.
+
+    \sa findChild()
+*/
 QObjectList QObject::findChildren(const QString &name) const
 {
     QList<QObject *> list;
@@ -1028,6 +1047,15 @@ QObjectList QObject::findChildren(const QString &name) const
 }
 
 #ifndef QT_NO_REGEXP
+/*!
+    \overload
+
+    Returns the children of this object that have names matching the
+    regular expression \a re, or an empty list if there are no such
+    objects. The search is performed recursively.
+
+    \sa findChild()
+*/
 QObjectList QObject::findChildren(const QRegExp &re) const
 {
     QList<QObject *> list;
@@ -1768,9 +1796,9 @@ int QObject::receivers(const char *signal) const
 /*!
     \threadsafe
 
-    Connects \a signal from the \a sender object to \a member in object
-    \a receiver, and returns true if the connection succeeds; otherwise
-    returns false.
+    Creates a connection of the given \a type from the \a signal in
+    the \a sender object to the \a member in the \a receiver object.
+    Returns true if the connection succeeds; otherwise returns false.
 
     You must use the SIGNAL() and SLOT() macros when specifying the \a signal
     and the \a member, for example:

@@ -365,6 +365,8 @@ QFileDialog::~QFileDialog()
 }
 
 /*!
+    Sets the file dialog's \a directory. (This is also applied to the
+    underlying model.)
 */
 
 void QFileDialog::setDirectory(const QDir &directory)
@@ -391,6 +393,8 @@ QDir QFileDialog::directory() const
 }
 
 /*!
+    Selects the given \a filename in the file dialog and in the
+    underlying model.
 */
 
 void QFileDialog::selectFile(const QString &filename)
@@ -439,10 +443,10 @@ QStringList QFileDialog::selectedFiles() const
 }
 
 /*!
-  Sets the filter used in the file dialog to \a newFilter.
+  Sets the filter used in the file dialog to \a filter.
 
-  If \a newFilter contains a pair of parentheses containing one or more
-  of <em><b>anything*something</b></em> separated by spaces or by
+  If \a filter contains a pair of parentheses containing one or more
+  of \bold{anything*something} separated by spaces or by
   semi-colons then only the text contained in the parentheses is used as
   the filter. This means that these calls are all equivalent:
 
@@ -485,6 +489,8 @@ void QFileDialog::setFilters(const QStringList &filters)
 }
 
 /*!
+    Returns the file type filters that are in operation on this file
+    dialog.
 */
 
 QStringList QFileDialog::filters() const
@@ -496,6 +502,8 @@ QStringList QFileDialog::filters() const
 }
 
 /*!
+    Sets the current file type \a filter. Multiple filters can be
+    passed in \a filter by separating them with semi-colons or spaces.
 */
 
 void QFileDialog::selectFilter(const QString &filter)
@@ -715,6 +723,8 @@ void QFileDialog::showDetail()
 }
 
 /*!
+    This is called when the user double-clicks on a a file; the file's
+    model index is passed in \a index.
 */
 
 void QFileDialog::doubleClicked(const QModelIndex &index)
@@ -730,6 +740,8 @@ void QFileDialog::doubleClicked(const QModelIndex &index)
 }
 
 /*!
+    This is called when the user presses delete on a a file; the
+    file's model index is passed in \a index.
 */
 
 void QFileDialog::deletePressed(const QModelIndex &index)
@@ -743,7 +755,9 @@ void QFileDialog::deletePressed(const QModelIndex &index)
 /*!
     \fn void QFileDialog::currentChanged(const QModelIndex &index, const QModelIndex &current)
 
-    Updates the dialog so that the model item \a index is */
+    This is called when the model index (current file) is changed from
+    \a index to \a current.
+*/
 
 void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current)
 {
@@ -754,6 +768,8 @@ void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current
 }
 
 /*!
+    This is called when the filename is changed; the new name is
+    passed in \a text.
 */
 
 void QFileDialog::fileNameChanged(const QString &text)
@@ -781,6 +797,9 @@ void QFileDialog::fileNameChanged(const QString &text)
 }
 
 /*!
+    This is called when the user changes the text in the "Look in"
+    combobox; the new text is passed in \a text. The function updates
+    the model and consequently the file dialog accordingly.
 */
 
 void QFileDialog::lookInChanged(const QString &text)
@@ -814,6 +833,9 @@ void QFileDialog::lookInChanged(const QString &text)
 }
 
 /*!
+    Adds the given \a filter to the file dialog's name filter.
+    (Actually the name filters are held in the underlying model and
+    this is what is really updated.)
 */
 
 void QFileDialog::useFilter(const QString &filter)
@@ -828,6 +850,9 @@ void QFileDialog::useFilter(const QString &filter)
 }
 
 /*!
+    Changes the file dialog's current directory to the one specified
+    by \a path. This also sets the root of the underlying model to the
+    item holding the \a path.
 */
 
 void QFileDialog::setCurrentDir(const QString &path)
@@ -838,6 +863,9 @@ void QFileDialog::setCurrentDir(const QString &path)
 }
 
 /*!
+    This creates the default context menu for the file list. The
+    context menu is passed in \a menu and the index into the
+    underlying model-view in \a index.
 */
 
 void QFileDialog::populateContextMenu(QMenu *menu, const QModelIndex &index) const
@@ -864,6 +892,9 @@ void QFileDialog::populateContextMenu(QMenu *menu, const QModelIndex &index) con
 }
 
 /*!
+    \internal
+
+    The \a{section}-th column header in the files list was clicked.
 */
 
 void QFileDialog::headerClicked(int section)
