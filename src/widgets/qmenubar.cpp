@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#3 $
 **
-** Implementation of QButton class
+** Implementation of QMenuBar class
 **
 ** Author  : Haavard Nord
 ** Created : 941209
@@ -13,11 +13,9 @@
 #define  INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
 #include "qpainter.h"
-#include "qscrbar.h"				// qDrawMotifArrow
-#include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#3 $";
 #endif
 
 
@@ -40,16 +38,16 @@ static const motifItemVMargin	= 8;		// menu item ver text margin
 /*
 
 +-----------------------------
-|      motifBarFrame
+|      BarFrame
 |   +-------------------------
-|   |      V  motifBarMargin
+|   |      V  BarMargin
 |   |   +---------------------
-|   | H |      motifItemFrame
+|   | H |      ItemFrame
 |   |   |  +-----------------
 |   |   |  |			   \
-|   |   |  |  ^  T E X T   ^	    | motifItemVMargin
+|   |   |  |  ^  T E X T   ^	    | ItemVMargin
 |   |   |  |  |		   |	   /
-|   |	|    motifItemHMargin
+|   |	|      ItemHMargin
 |   |
 |
 
@@ -65,13 +63,15 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 {
     initMetaObject();
     isMenuBar = TRUE;
+    irects = 0;
     setBackgroundColor( normalColor );
     if ( parent )				// filter parent events
-	parent->insertEventFilter( this );
+	parent->installEventFilter( this );
 }
 
 QMenuBar::~QMenuBar()
 {
+    delete irects;
     if ( parent() )
 	parent()->removeEventFilter( this );
 }
@@ -79,7 +79,11 @@ QMenuBar::~QMenuBar()
 
 void QMenuBar::menuContentsChanged()
 {
-    repaint();
+    badSize = TRUE;				// might change the size
+    if ( isVisible() ) {
+	updateRects();
+	repaint();
+    }
 }
 
 void QMenuBar::menuStateChanged()
@@ -87,21 +91,20 @@ void QMenuBar::menuStateChanged()
     repaint();
 }
 
-void QMenuBar::menuInsSubMenu( QPopupMenu *sub )
+void QMenuBar::menuInsPopup( QPopupMenu *popup )
 {
-    sub->parentMenu = this;
-    sub->topLevel = FALSE;			// it is not a top level
-    connect( sub, SIGNAL(activated(int)), SLOT(subActivated(int)) );
-    connect( sub, SIGNAL(selected(int)),  SLOT(subSelected(int)) );
+    popup->parentMenu = this;			// set parent menu
+    connect( popup, SIGNAL(activated(int)), SLOT(subActivated(int)) );
+    connect( popup, SIGNAL(selected(int)),  SLOT(subSelected(int)) );
 }
 
-void QMenuBar::menuDelSubMenu( QPopupMenu *sub )
+void QMenuBar::menuDelPopup( QPopupMenu *popup )
 {
-    sub->parentMenu = this;
-    sub->topLevel = TRUE;			// it becomes a top level popup
-    connect( sub, SIGNAL(activated(int)), SLOT(subActivated(int)) );
-    connect( sub, SIGNAL(selected(int)),  SLOT(subSelected(int)) );
+    popup->parentMenu = this;
+    connect( popup, SIGNAL(activated(int)), SLOT(subActivated(int)) );
+    connect( popup, SIGNAL(selected(int)),  SLOT(subSelected(int)) );
 }
+
 
 bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 {
@@ -109,7 +112,6 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     if ( event->type() == Event_Resize ) {
 	QResizeEvent *e = (QResizeEvent *)event;
 	resize( e->size().width(), clientSize().height() );
-	delete itemRects();
 	repaint( TRUE );
     }
     return FALSE;				// don't stop event
@@ -127,14 +129,27 @@ void QMenuBar::subSelected( int id )
 }
 
 
-void QMenuBar::hideAllMenus()			// hide all menus
+bool QMenuBar::tryMouseEvent( QPopupMenu *popup, QMouseEvent *e )
 {
+    QPoint pos = mapFromGlobal( popup->mapToGlobal( e->pos() ) );
+    if ( !clientRect().contains( pos ) )
+	return FALSE;
+    QMouseEvent ee( e->type(), pos, e->button(), e->state() );
+    event( &ee );
+    return TRUE;
 }
 
-void QMenuBar::hideSubMenus()			// hide all sub menus
+void QMenuBar::goodbye()			// set to idle state
+{
+    actItem = -1;
+    repaint( FALSE );
+}
+
+
+void QMenuBar::hidePopups()			// hide popup items
 {
     QMenuItemListIt it(*mitems);
-    QMenuItem *mi;
+    register QMenuItem *mi;
     while ( (mi=it.current()) ) {
 	++it;
 	if ( mi->popup() )
@@ -143,26 +158,10 @@ void QMenuBar::hideSubMenus()			// hide all sub menus
 }
 
 
-int QMenuBar::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
-{
-    QRect *rv = itemRects();
-    if ( !rv )
-	return -1;
-    int i = 0;
-    while ( i < mitems->count() ) {
-	if ( rv[i].contains( pos ) )
-	    break;
-	++i;
-    }
-    delete rv;
-    return i < mitems->count() ? i : -1;
-}
-
-
 void QMenuBar::setFont( const QFont &font )
 {
     QWidget::setFont( font );
-    delete itemRects();				// same as updateSize
+    badSize = TRUE;
     update();
 }
 
@@ -177,7 +176,7 @@ void QMenuBar::show()
 void QMenuBar::hide()
 {
     actItem = -1;
-    hideSubMenus();
+    hidePopups();
     killTimers();
     QWidget::hide();
 }
@@ -187,11 +186,17 @@ void QMenuBar::hide()
 // Item geometry functions
 //
 
-QRect *QMenuBar::itemRects()
+void QMenuBar::updateRects()
 {
-    if ( mitems->isEmpty() )
-	return 0;
-    QRect *rv = new QRect[ mitems->count() ];
+    if ( !badSize )				// size was not changed
+	return;
+    delete irects;
+    if ( mitems->isEmpty() ) {
+	irects = 0;
+	return;
+    }
+    irects = new QRect[ mitems->count() ];	// create rectangle array
+    CHECK_PTR( irects );
     QFontMetrics fm( font() );
     int max_width = clientSize().width();
     int max_height = 0;
@@ -222,27 +227,34 @@ QRect *QMenuBar::itemRects()
 	}
 	if ( y + h + 2*motifBarFrame > max_height )
 	    max_height = y + h + 2*motifBarFrame;
-	rv[i].setRect( x, y, w, h );
+	irects[i].setRect( x, y, w, h );
 	x += w;
 	nlitems++;
 	i++;
     }
     if ( max_height != clientSize().height() )
 	resize( max_width, max_height );
-    return rv;
+    badSize = FALSE;
 }
 
 QRect QMenuBar::itemRect( int item )
 {
-    QRect *rv = itemRects();
-    QRect r;
-    if ( rv ) {
-	r = rv[item];
-	delete rv;
+    updateRects();
+    return irects ? irects[item] : QRect(0,0,0,0);
+}
+
+int QMenuBar::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
+{
+    updateRects();
+    if ( !irects )
+	return -1;
+    int i = 0;
+    while ( i < mitems->count() ) {
+	if ( irects[i].contains( pos ) )
+	    return i;
+	++i;
     }
-    else
-	r.setRect( 0, 0, 0, 0 );
-    return r;
+    return -1;					// no match
 }
 
 
@@ -256,19 +268,17 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
     register QPainter *p = &paint;
     QFontMetrics fm( font() );
     QSize sz = clientSize();
-    p->begin( this );				// draw the menu bar frame
+    p->begin( this );
     
     p->drawShadePanel( clientRect(), lightColor, darkColor,
 		       motifBarFrame, motifBarFrame );
     p->setClipRect( motifBarFrame, motifBarFrame,
 		    sz.width()  - 2*motifBarFrame,
 		    sz.height() - 2*motifBarFrame );
-    QRect *rv = itemRects();
-    QPen pen( foregroundColor(), 2 );
-    p->setPen( pen );
+    updateRects();
     for ( int i=0; i<mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
-	QRect r = rv[i];
+	QRect r = irects[i];
 	if ( i == actItem )			// active item frame
 	    p->drawShadePanel( r, lightColor, darkColor,
 			       motifItemFrame, motifItemFrame );
@@ -288,7 +298,6 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 			 mi->string() );
 	}
     }
-    delete rv;
     p->end();
 }
 
@@ -296,21 +305,33 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 void QMenuBar::mousePressEvent( QMouseEvent *e )
 {
     int item = itemAtPos( e->pos() );
-    QMenuItem *mi = item >= 0 ? mitems->at(item) : 0;
+    if ( item == -1 ) {
+	actItem = FALSE;
+	repaint( FALSE );
+	return;
+    }
+    register QMenuItem *mi = mitems->at(item);
     if ( item != actItem ) {			// new item activated
 	actItem = item;
 	repaint( FALSE );
-	if ( actItem >= 0 && mi->id() >= 0 )
+	if ( mi->id() >= 0 )
 	    emit activated( mi->id() );
     }
-    if ( mi && mi->popup() ) {
-	if ( !mi->popup()->isVisible() ) {
+    QPopupMenu *popup = mi->popup();
+    if ( popup ) {
+	popup->actItem = -1;
+	if ( popup->isVisible() ) {		// sub menu already open
+	    popup->hidePopups();
+	    popup->repaint( FALSE );
+	}
+	else {					// open sub menu
+	    hidePopups();
 	    killTimers();
-	    startTimer( 10 );
+	    startTimer( 20 );
 	}
     }
     else
-	hideSubMenus();
+	hidePopups();
 }
 
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
@@ -318,11 +339,13 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
     actItem = itemAtPos( e->pos() );
     repaint( FALSE );
     if ( actItem >= 0 ) {			// selected menu item!
-	QMenuItem *mi = mitems->at(actItem);
-	if ( mi->popup() ) {
-	    QPoint pos = itemRect( actItem ).bottomLeft() + QPoint(0,1);
-	    mi->popup()->actItem = 0;		// NOTE!!! if separator...
-	    mi->popup()->popup( mapToGlobal(pos) );
+	register QMenuItem *mi = mitems->at(actItem);
+	QPopupMenu *popup = mi->popup();
+	if ( popup ) {
+	    if ( style() == MacStyle )
+		popup->hide();
+	    else
+		popup->setFirstItemActive();
 	}
 	else {					// not a popup
 	    actItem = -1;
@@ -338,41 +361,26 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 {
     int item = itemAtPos( e->pos() );
-    QMenuItem *mi = item >= 0 ? mitems->at(item) : 0;
+    if ( item == -1 )
+	return;
+    register QMenuItem *mi = mitems->at(item);
     if ( item != actItem ) {			// new item activated
 	actItem = item;
 	repaint( FALSE );
-	if ( actItem >= 0 && mi->id() >= 0 )
+	hidePopups();
+	if ( mi->id() != -1 )
 	    emit activated( mi->id() );
-    }
-    if ( mi && mi->popup() ) {
-	if ( !mi->popup()->isVisible() )
-	    startTimer( 10 );
-    }
-}
-
-bool QMenuBar::tryMouseEvent( QPopupMenu *popup, QMouseEvent *e )
-{
-    QPoint pos = mapFromGlobal( popup->mapToGlobal( e->pos() ) );
-    int item = itemAtPos( pos );
-    if ( item >= 0 ) {
-	QMenuItem *mi = mitems->at( item );
-	if ( popup == mi->popup() )		// popup already open
-	    return FALSE;
-	popup->hide();				// hide popup
-	repaint( FALSE );
 	if ( mi->popup() ) {
-	    pos = itemRect( actItem ).bottomLeft() + QPoint(0,1);
-	    mi->popup()->popup( mapToGlobal(pos) );
-	}
-	return TRUE;
+	    killTimers();
+	    startTimer( 20 );
+	}	    
     }
-    return FALSE;
 }
 
 
 void QMenuBar::resizeEvent( QResizeEvent * )
 {
+    badSize = TRUE;
 }
 
 
@@ -381,9 +389,9 @@ void QMenuBar::timerEvent( QTimerEvent *e )
     killTimer( e->timerId() );			// single-shot timer
     if ( actItem < 0 )
 	return;
-    QMenuItem *mi = mitems->at( actItem );
-    if ( mi->popup() ) {
-	QPoint pos = itemRect( actItem ).bottomLeft() + QPoint(0,1);
-	mi->popup()->popup( mapToGlobal(pos) );
+    QPopupMenu *popup = mitems->at(actItem)->popup();
+    if ( popup ) {
+	QPoint pos = itemRect(actItem).bottomLeft() + QPoint(0,1);
+	popup->popup( mapToGlobal(pos) );
     }
 }

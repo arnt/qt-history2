@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#2 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#3 $
 **
 ** Definition of QMenuBar class
 **
@@ -47,19 +47,20 @@ slots:
 private:
     void	menuContentsChanged();		// menu item inserted/removed
     void	menuStateChanged();		// menu item state changed
-    void	menuInsSubMenu( QPopupMenu * );	// menu sub popup inserted
-    void	menuDelSubMenu( QPopupMenu * );	// menu sub popup deleted
+    void	menuInsPopup( QPopupMenu * );	// menu popup item inserted
+    void	menuDelPopup( QPopupMenu * );	// menu popup item deleted
 
     bool	eventFilter( QObject *, QEvent * );
 
     bool	tryMouseEvent( QPopupMenu *, QMouseEvent * );
-    void	hideAllMenus();
-    void	hideSubMenus();
+    void	goodbye();
+    void	hidePopups();
 
-    void	updateSize();
+    void	updateRects();
     int		itemAtPos( const QPoint & );
-    QRect      *itemRects();
     QRect	itemRect( int item );
+
+    QRect      *irects;
 };
 
 

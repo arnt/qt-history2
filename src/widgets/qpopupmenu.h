@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#5 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#6 $
 **
 ** Definition of QPopupMenu class
 **
@@ -35,7 +35,10 @@ signals:
     void	selected( int itemId );
 
 protected:
+    int		cellHeight( long );
+    int		cellWidth( long );
     void	paintCell( QPainter *, long, long );
+
     void	paintEvent( QPaintEvent * );
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
@@ -49,21 +52,19 @@ slots:
 private:
     void	menuContentsChanged();		// menu item inserted/removed
     void	menuStateChanged();		// menu item state changed
-    void	menuInsSubMenu( QPopupMenu * );	// menu sub popup inserted
-    void	menuDelSubMenu( QPopupMenu * );	// menu sub popup deleted
+    void	menuInsPopup( QPopupMenu * );	// menu popup item inserted
+    void	menuDelPopup( QPopupMenu * );	// menu popup item deleted
 
+    void	setFirstItemActive();
+    void	hideAllPopups();
+    void	hidePopups();
     bool	tryMenuBar( QMouseEvent * );
-    void	hideAllMenus();
-    void	hideSubMenus();
+    void	byeMenuBar();
 
     int		itemAtPos( const QPoint & );
     void	updateSize();
-    int		cellHeight( long );
-    int		cellWidth( long );
 
-    uint	topLevel	: 1;		// internal popup menu flags
-    uint	badSize		: 1;
-    uint	firstMouseUp	: 1;
+    int		popupActive;
 };
 
 
