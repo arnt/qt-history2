@@ -174,13 +174,13 @@ example.
 \section2 The user uses the mouse wheel.
 
 On Microsoft Windows, mouse wheel usage is always handled by the
-widget that has keyboard focus.  On X11, it's handled by the widget
-that gets other mouse events.
+widget that has keyboard focus.  On Mac OS X and X11, it's handled by
+the widget that gets other mouse events.
 
 The way Qt handles this platform difference is by letting widgets move
 the keyboard focus when the wheel is used.  With the right focus
 policy on each widget, applications can work idiomatically correctly
-on both Windows and X11.
+on Windows, Mac OS X, and X11.
 
 
 \section2 The user moves the focus to this window.

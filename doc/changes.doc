@@ -275,9 +275,9 @@ class provides the application with runtime information about the
 number and geometry of the desktops on the different monitors and such
 allows applications to efficiently use a multi-monitor setup.
 
-The virtual desktop of Windows 98 and 2000 is supported, as well as
-the traditional multi-screen and the newer Xinerama multihead setups
-on X11.
+The virtual desktop of Mac OS X, Windows 98, and 2000 is supported, as well
+as the traditional multi-screen and the newer Xinerama multihead setups on
+X11.
 
 
 \section2 X11 specific enhancements

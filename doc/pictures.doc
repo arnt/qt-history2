@@ -58,16 +58,16 @@ you see a \l QStatusBar and at the bottom-right a \l QSizeGrip.
 
 \img mainwindow-w.png
 
-The image below shows a \l QFileDialog. On the Windows Platform you
-can either use a QFileDialog or the native Windows file dialog. This
-is explained in the \l QFileDialog class documentation.
+The image below shows a \l QFileDialog. On the Macintosh and Windows
+platforms you can either use a QFileDialog or the native file
+dialog. This is explained in the \l QFileDialog class documentation.
 
 \img qfiledlg-w.png
 
-Below is a QPrintDialog. On Windows the native print dialog is used,
-but for other platforms we provide QPrintDialog. Use QPrinter::setup()
-for portability instead of the QPrintDialog if you need to be platform
-independent.
+Below is a QPrintDialog. On Macintosh and Windows the native print
+dialog is used, but for other platforms we provide QPrintDialog. Use
+QPrinter::setup() for portability instead of the QPrintDialog if you
+need to be platform independent.
 
 \img qprintdlg-m.png
 

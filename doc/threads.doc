@@ -62,10 +62,10 @@ Win32 Multithreaded Programming\endlink
   When Qt is installed on Windows, thread support is an option on
 some compilers. 
 
-  On Unix, thread support is enabled by adding the
-\c{-thread} option when running the \c{configure} script.
-On Unix platforms where multithreaded programs must be linked in special
-ways, such as with a special libc, installation will create a separate
+  On Mac OS X and Unix, thread support is enabled by adding the
+\c{-thread} option when running the \c{configure} script.  On Unix
+platforms where multithreaded programs must be linked in special ways,
+such as with a special libc, installation will create a separate
 library, \c{libqt-mt} and hence threaded programs must be linked
 against this library (with \c{-lqt-mt}) rather than the standard Qt
 library.

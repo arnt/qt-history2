@@ -71,11 +71,11 @@ the machine!
 
 \section1  Protocols and support on different platforms
 
-On MS-Windows, there is nothing like complete session management for
-applications yet, i.e. no restoring of previous sessions.  Windows
-does support graceful logouts where applications have the chance to
-cancel the process after getting confirmation from the user. This is
-the functionality that corresponds to the \l
+On Mac OS X and MS-Windows, there is nothing like complete session
+management for applications yet, i.e. no restoring of previous
+sessions.  They do support graceful logouts where applications
+have the chance to cancel the process after getting confirmation from
+the user. This is the functionality that corresponds to the \l
 QApplication::commitData() method.
 
 X11 has supported complete session management since X11R6.
@@ -119,10 +119,10 @@ top level widgets are given the same unique names they had before.
 
 \section1  Testing and debugging session management 
 
-Session management support on Windows is fairly
-limited due to the lack of this functionality in the Windows operating
-system itself. Simply shut the session down and verify that your
-application behaves as wanted. It may be a good idea to launch another
+Session management support on Mac OS X and Windows is fairly limited
+due to the lack of this functionality in the operating system
+itself. Simply shut the session down and verify that your application
+behaves as wanted. It may be a good idea to launch another
 application, usually the integrated development environment, before
 starting your application. This other application will get the
 shutdown message afterwards, thus permitting you to cancel the

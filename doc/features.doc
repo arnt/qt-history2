@@ -230,8 +230,10 @@ The available options are:
 \row \i QT_NO_STYLE_CDE
      \i Open Group CDE style (\l QCDEStyle)
      \i QT_NO_STYLE_MOTIF
+\row \i QT_NO_STYLE_AQUA
+     \i MacOS X style (\l QAquaStyle)
 \row \i QT_NO_STYLE_PLATINUM
-     \i MacOS X style (\l QPlatinumStyle)
+     \i MacOS 9 style (\l QPlatinumStyle)
      \i QT_NO_WIDGETS
 \row \i QT_NO_STYLE_SGI
      \i SGI style (\l QSGIStyle)

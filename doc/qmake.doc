@@ -47,10 +47,10 @@ your valuable time on writing code, not makefiles.
 The main motivation for developing \e qmake was that we spent far too
 much time maintaining makefiles for <a
 href="http://www.trolltech.com/qt/">Qt</a>, our cross-platform GUI
-toolkit. Qt supports around 15 flavors of Unix, Microsoft Windows, and
-around 15 different C++ compilers.  We looked at GNU autoconf, but it
-was Unix-specific and not flexible enough in our opinion. Our makefile
-system also had to deal with Qt <a
+toolkit. Qt supports around 15 flavors of Unix, Microsoft Windows, Mac
+OS X, and around 15 different C++ compilers.  We looked at GNU
+autoconf, but it was Unix-specific and not flexible enough in our
+opinion. Our makefile system also had to deal with Qt <a
 href="http://doc.trolltech.com/metaobjects.html">meta object
 compiler</a> (moc) and <a
 href="http://doc.trolltech.com/designer/book1.html"> user interface
