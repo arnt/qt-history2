@@ -1373,6 +1373,8 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
     unsigned short fa[256];
     unsigned short *featuresToApply = fa;
 
+    si->hasPositioning = TRUE;
+
     if ( len > 127 )
 	featuresToApply = new unsigned short[ 2*len ];
 
@@ -1598,6 +1600,7 @@ static void tibetan_shape( int script, const QString &string, int from, int len,
     Q_UNUSED( script );
 #endif
 //     qDebug("tibetan_shape()");
+    si->hasPositioning = TRUE;
 
     unsigned short fa[256];
     unsigned short *featuresToApply = fa;

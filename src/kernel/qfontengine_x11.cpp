@@ -549,17 +549,23 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	    XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
 	}
     } else {
-	int i = 0;
-	while( i < si->num_glyphs ) {
-	    int xp = x+offsets[i].x;
-	    int yp = y+offsets[i].y;
-	    if ( transform )
-		p->map( xp,  yp,  &xp,  &yp );
-	    XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
-	    advance_t adv = advances[i];
-	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
-	    x += adv;
-	    i++;
+	if ( transform || si->hasPositioning ) {
+	    int i = 0;
+	    while( i < si->num_glyphs ) {
+		int xp = x+offsets[i].x;
+		int yp = y+offsets[i].y;
+		if ( transform )
+		    p->map( xp,  yp,  &xp,  &yp );
+		XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
+		advance_t adv = advances[i];
+		// 	    qDebug("advance = %d/%d", adv.x, adv.y );
+		x += adv;
+		i++;
+	    }
+	} else {
+	    // we can take a shortcut
+	    XDrawString16(dpy, hd, gc, x, y, chars, si->num_glyphs );
+	    x += si->width;
 	}
     }
 
@@ -1055,21 +1061,41 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	    x += advances[i];
 	}
     } else {
-	int i = 0;
-	while ( i < si->num_glyphs ) {
-	    int xp = x + offsets[i].x;
-	    int yp = y + offsets[i].y;
-	    if ( transform )
-		p->map( xp, yp, &xp, &yp );
+	if ( transform || si->hasPositioning ) {
+	    int i = 0;
+	    while ( i < si->num_glyphs ) {
+		int xp = x + offsets[i].x;
+		int yp = y + offsets[i].y;
+		if ( transform )
+		    p->map( xp, yp, &xp, &yp );
 #ifdef QT_XFT2
-	    FT_UInt glyph = *(glyphs + i);
-	    XftDrawGlyphs( draw, &col, fnt, xp,  yp, &glyph, 1 );
+		FT_UInt glyph = *(glyphs + i);
+		XftDrawGlyphs( draw, &col, fnt, xp,  yp, &glyph, 1 );
 #else
-	    XftDrawString16( draw, &col, fnt, xp, yp, (XftChar16 *) (glyphs+i), 1 );
+		XftDrawString16( draw, &col, fnt, xp, yp, (XftChar16 *) (glyphs+i), 1 );
 #endif // QT_XFT2
-	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
-	    x += advances[i];
-	    i++;
+		// 	    qDebug("advance = %d/%d", adv.x, adv.y );
+		x += advances[i];
+		i++;
+	    }
+	} else {
+	    // Xft has real trouble drawing the glyphs on their own.
+	    // Drawing them as one string increases performance significantly.
+#ifdef QT_XFT2
+	    // #### we should use a different method anyways on Xft2
+	    FT_UInt g[128];
+	    FT_UInt *gl = g;
+	    if ( si->num_glyphs > 128 )
+		gl = new FT_UInt[si->num_glyphs];
+	    for ( int i = 0; i < si->num_glyphs; i++ )
+		gl[i] = glyphs[i];
+	    XftDrawGlyphs( draw, &col, fnt, p, p, gl, si->num_glyphs );
+	    if ( gl != g )
+		delete [] gl;
+#else
+	    XftDrawString16( draw, &col, fnt, x, y, (XftChar16 *)glyphs, si->num_glyphs );
+#endif // QT_XFT2
+	    x += si->width;
 	}
     }
 
@@ -1675,6 +1701,8 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QTe
 	if ( !loadTables( script ) )
 	    return;
     }
+
+    si->hasPositioning = TRUE;
 
     glyph_t *glyphs = engine->glyphs( si );
     GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );

@@ -24,6 +24,7 @@
 
 static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gfrom,  int glast )
 {
+    si->hasPositioning = TRUE;
     int nmarks = glast - gfrom;
     if ( nmarks <= 0 ) {
 	qWarning( "positionCluster: no marks to position!" );
@@ -261,6 +262,7 @@ static void heuristicSetGlyphAttributes( const QString &string, int from, int le
 	    // 		qDebug("found a mark at position %d", pos );
 	    logClusters[pos] = cStart;
 	    advances[pos] = 0;
+	    si->hasPositioning = TRUE;
 	}
 	pos++;
     }
@@ -283,9 +285,12 @@ static void convertToCMap( const QChar *chars, int len, QTextEngine *engine, QSc
 static void basic_shape( int /*script*/, const QString &string, int from, int len, QTextEngine *engine, QScriptItem *si )
 {
     convertToCMap( string.unicode() + from, len, engine, si );
+#if 0 // the optimization fails in some cases. No idea why.
     if ( !engine->widthOnly ) {
+#endif
 	heuristicSetGlyphAttributes( string, from, len, engine, si );
 	q_heuristicPosition( engine, si );
+#if 0
     } else {
 	const QChar *uc = string.unicode() + from;
 	const QChar *end = uc + len;
@@ -296,6 +301,7 @@ static void basic_shape( int /*script*/, const QString &string, int from, int le
 		*advances = 0;
 	}
     }
+#endif
 }
 
 static void basic_attributes( int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes )
