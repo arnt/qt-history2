@@ -52,7 +52,6 @@ public:
 
   static int currentThread();
   static void postEvent(QObject *,QEvent *);
-  static void sendPostedEvents();
 
 };
 

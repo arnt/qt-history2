@@ -51,3 +51,7 @@ int QThread::currentThread()
 {
   return 0;
 }
+
+void QThread::postEvent(QObject *,QEvent *)
+{
+}

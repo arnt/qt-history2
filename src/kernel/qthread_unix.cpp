@@ -81,7 +81,7 @@ void QMutex::unlock()
 {
     int ret = pthread_mutex_unlock( &( d->mymutex ) );
     if( ret ) {
-        qFatak( "Mutex unlock failure %s\n", strerror( ret ) );
+        qFatal( "Mutex unlock failure %s\n", strerror( ret ) );
     }
 }
 
@@ -106,21 +106,16 @@ class QThreadPrivate : public QObject {
 
 public:
 
-    bool woken;
-
     QThreadPrivate();
-    void wakeGuiThread();
 
     QList<QThreadEvent> myevents;
     QMutex myeventmutex;
 
 public slots:
 
-    void socketActivated( int );
-
+    void sendEvents();
+    
 private:
-
-    int wakeupPipe[2];
 
 };
 
@@ -128,29 +123,23 @@ private:
 
 QThreadPrivate::QThreadPrivate()
 {
-    if (  pipe(  wakeupPipe )  ) {
-	qFatal( "Couldn't open thread pipe: %s\n", strerror( errno ) );
-    }
     myevents.setAutoDelete( TRUE );
-    QSocketNotifier * sn = new QSocketNotifier ( wakeupPipe[1], QSocketNotifier::Read, this );
-    connect( sn, SIGNAL( activated( int ) ), this, SLOT( socketActivated( int ) ) );
-    woken = false;
+    connect( qApp, SIGNAL( guiThreadAwake() ), this, SLOT( sendEvents() ) );
 }
 
-void QThreadPrivate::socketActivated( int )
+void QThreadPrivate::sendEvents()
 {
-    char c;
-    read( wakeupPipe[0], &c, 1 );
-    QThread::sendPostedEvents();
+    myeventmutex.lock();
+    QThreadEvent * qte;
+    for( qte = myevents.first(); qte != 0; qte = myevents.next() ) {
+	qApp->postEvent( qte->o, qte->e );
+    }
+    myevents.clear();
+    qApp->sendPostedEvents();
+    myeventmutex.unlock();
 }
-
+ 
 static QThreadPrivate * qthreadprivate = 0;
-
-void QThreadPrivate::wakeGuiThread()
-{
-    char c = 1;
-    write(  wakeupPipe[1], &c, 1  );
-}
 
 void QThread::postEvent( QObject * o, QEvent * e )
 {
@@ -163,24 +152,6 @@ void QThread::postEvent( QObject * o, QEvent * e )
     qte->e = e;
     qthreadprivate->myevents.append( qte );
     qthreadprivate->myeventmutex.unlock();
-    if( !qthreadprivate->woken ) {
-	qthreadprivate->wakeGuiThread();
-	qthreadprivate->woken = true;
-    }
+    qApp->wakeUpGuiThread();
 }
 
-void QThread::sendPostedEvents()
-{
-    if( !qthreadprivate ) {
-	qthreadprivate = new QThreadPrivate();
-    }
-    qthreadprivate->myeventmutex.lock();
-    qthreadprivate->woken = false;
-    QThreadEvent * qte;
-    for( qte = qthreadprivate->myevents.first(); qte != 0; qte = qthreadprivate->myevents.next() ) {
-	qApp->postEvent( qte->o, qte->e );
-    }
-    qthreadprivate->myevents.clear();
-    qApp->sendPostedEvents();
-    qthreadprivate->myeventmutex.unlock();
-}
