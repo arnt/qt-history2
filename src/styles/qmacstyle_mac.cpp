@@ -431,6 +431,19 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	    QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, opt);
 	}
 	break; }
+    case PE_PanelGroupBox: {
+	if ( opt.isDefault() )
+	    break;
+	QWidget *w = NULL;
+	//This is terrible, if I we just passed the widget in this wouldn't be necesary!
+	if(p && p->device() && p->device()->devType() == QInternal::Widget)
+	    w = (QWidget*)p->device();
+	((QMacPainter *)p)->setport();
+	if(w && w->parentWidget() && w->parentWidget()->inherits("QGroupBox"))
+	    DrawThemeSecondaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
+	else
+	    DrawThemePrimaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
+	break; }
     case PE_ArrowUp:
     case PE_ArrowDown:
     case PE_ArrowRight:
@@ -461,23 +474,6 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	((QMacPainter *)p)->setport();
 	DrawThemeStandaloneGrowBox(orig, kThemeGrowRight | kThemeGrowDown, false, 
 				   kThemeStateActive);
-	break; }
-    case PE_GroupBoxFrame: {
-	if ( opt.isDefault() )
-	    break;
-	if(opt.frameShape() == QFrame::Box && opt.frameShadow() == QFrame::Sunken) {
-	    QWidget *w = NULL;
-	    //This is terrible, if I we just passed the widget in this wouldn't be necesary!
-	    if(p && p->device() && p->device()->devType() == QInternal::Widget)
-		w = (QWidget*)p->device();
-	    ((QMacPainter *)p)->setport();
-	    if(w && w->parentWidget() && w->parentWidget()->inherits("QGroupBox"))
-		DrawThemeSecondaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
-	    else
-		DrawThemePrimaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
-	} else {
-	    QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, opt);
-	}
 	break; }
     case PE_FocusRect:
 	break;     //This is not used because of the QAquaFocusRect things..

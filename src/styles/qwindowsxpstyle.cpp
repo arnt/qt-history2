@@ -590,7 +590,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	partId = SP_PANE;
 	break;
 	
-    case PE_GroupBoxFrame:
+    case PE_PanelGroupBox:
 	name = "BUTTON";
 	partId = BP_GROUPBOX;
 	if ( !(flags & Style_Enabled) )

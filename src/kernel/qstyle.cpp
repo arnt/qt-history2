@@ -641,6 +641,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PE_PanelDockWindow  panel frame for dock windows and toolbars.
     \value PE_PanelTabWidget  panel frame for tab widgets.
     \value PE_PanelLineEdit  panel frame for line edits.
+    \value PE_PanelGroupBox  panel frame for group boxes.
 
     \value PE_TabBarBase  area below tabs in a tab widget, for example,
 	QTab.

@@ -191,7 +191,7 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
     case PE_Panel:
     case PE_PanelPopup:
     case PE_PanelMenuBar:
-    case PE_GroupBoxFrame:
+    case PE_PanelGroupBox:
 	p->setBrush( Qt::white );
 	p->setPen( Qt::black );
 	p->drawRect( r );

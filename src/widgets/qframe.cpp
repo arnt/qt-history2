@@ -215,6 +215,8 @@ static const int wpwidth = 2; // WinPanel lwidth
   look depends upon the current GUI style.
   \i MenuBarPanel is used to draw a frame suitable for menu bars. The
   look depends upon the current GUI style.
+  \i GroupBoxPanel is used to draw a frame suitable for group boxes. The
+  look depends upon the current GUI style.
   \i LineEditPanel is used to draw a frame suitable for line edits. The
   look depends upon the current GUI style.
   \i TabWidgetPanel is used to draw a frame suitable for tab widgets. The
@@ -353,6 +355,7 @@ void QFrame::updateFrameWidth()
     case Panel:
     case StyledPanel:
     case PopupPanel:
+    case GroupBoxPanel:
     case LineEditPanel:
     case TabWidgetPanel:
         switch ( frameStyle ) {
@@ -573,6 +576,10 @@ void QFrame::drawFrame( QPainter *p )
 
     case LineEditPanel:
 	style().drawPrimitive( QStyle::PE_PanelLineEdit, p, r, g, flags, opt );
+	break;
+
+    case GroupBoxPanel:
+	style().drawPrimitive( QStyle::PE_PanelGroupBox, p, r, g, flags, opt );
 	break;
 
     case TabWidgetPanel:

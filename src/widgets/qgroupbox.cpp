@@ -150,10 +150,8 @@ QGroupBox::QGroupBox( int strips, Orientation orientation,
 
 void QGroupBox::init()
 {
-    int fs;
     align = AlignAuto;
-    fs = QFrame::Box | QFrame::Sunken;
-    setFrameStyle( fs );
+    setFrameStyle( QFrame::GroupBoxPanel | QFrame::Sunken );
 #ifndef QT_NO_ACCEL
     accel = 0;
 #endif
@@ -315,11 +313,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 			  isEnabled(), 0, str );
 	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title
     }
-    // I really think this should call drawFrame() instead...
-    style().drawPrimitive( QStyle::PE_GroupBoxFrame, &paint, frameRect(),
-			   colorGroup(), QStyle::Style_Default,
-			   QStyleOption(lineWidth(), midLineWidth(),
-			    frameShape(), frameShadow()) );
+    drawFrame(&paint);
     drawContents( &paint );			// draw the contents
 }
 

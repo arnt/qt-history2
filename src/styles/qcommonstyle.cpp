@@ -552,57 +552,18 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	p->drawLineSegments( a );
 	break; }
 
+    case PE_PanelGroupBox: //We really do not need PE_GroupBoxFrame anymore, nasty holdover ###
+	drawPrimitive( PE_GroupBoxFrame, p, r, cg, flags, opt );
+	break;
     case PE_GroupBoxFrame: {
 #ifndef QT_NO_FRAME
 	if ( opt.isDefault() )
 	    break;
-
-	QFrame::Shape	type 	= (QFrame::Shape)opt.frameShape();
-	QFrame::Shadow	cstyle 	= (QFrame::Shadow)opt.frameShadow();
-	int 		lwidth 	= opt.lineWidth();
-	int 		mlwidth = opt.midLineWidth();
-
-	int x = r.x();
-	int y = r.y();
-	int w = r.width();
-	int h = r.height();
-
-	switch ( type ) {
-	case QFrame::Box:
-	    if ( cstyle == QFrame::Plain )
-		qDrawPlainRect( p, x, y, w, h, cg.foreground(), lwidth );
-	    else
-		qDrawShadeRect( p, x, y, w, h, cg, cstyle == QFrame::Sunken,
-				lwidth, mlwidth );
-	    break;
-
-	case QFrame::StyledPanel:
-	    if ( cstyle == QFrame::Plain )
-		qDrawPlainRect( p, x, y, w, h, cg.foreground(), lwidth );
-	    break;
-
-	case QFrame::PopupPanel:
-	    if ( cstyle == QFrame::Plain )
-		qDrawPlainRect( p, x, y, w, h, cg.foreground(), lwidth );
-	    break;
-
-	case QFrame::Panel:
-	    if ( cstyle == QFrame::Plain )
-		qDrawPlainRect( p, x, y, w, h, cg.foreground(), lwidth );
-	    else
-		qDrawShadePanel( p, x, y, w, h, cg, cstyle == QFrame::Sunken,
-				 lwidth );
-	    break;
-
-	case QFrame::WinPanel:
-	    if ( cstyle == QFrame::Plain )
-		qDrawPlainRect( p, x, y, w, h, cg.foreground(), 2 );
-	    else
-		qDrawWinPanel( p, x, y, w, h, cg, cstyle == QFrame::Sunken );
-	    break;
-	default:
-	    break;
-	}
+	int lwidth = opt.lineWidth(), mlwidth = opt.midLineWidth();
+	if ( flags & (Style_Sunken|Style_Raised))
+	    qDrawShadeRect( p, r.x(), r.y(), r.width(), r.height(), cg, flags & Style_Sunken, lwidth, mlwidth );
+	else
+	    qDrawPlainRect( p, r.x(), r.y(), r.width(), r.height(), cg.foreground(), lwidth );
 #endif
 	break; }
 

@@ -84,6 +84,7 @@ public:
                  ToolBarPanel = 0x0009,
 		 LineEditPanel = 0x000a,
 		 TabWidgetPanel = 0x000b,
+		 GroupBoxPanel = 0x000c,
                  MShape   = 0x000f              // mask for the shape
     };
     enum Shadow { Plain    = 0x0010,            // plain line

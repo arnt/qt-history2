@@ -65,6 +65,7 @@
 #include "qguardedptr.h"
 #include "qlineedit.h"
 #include "qcombobox.h"
+#include "qptrstack.h"
 #ifdef Q_WS_MAC
 #  include <string.h>
 #  include <qt_mac.h>
@@ -658,6 +659,68 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	}
 	break; }
 
+    case PE_PanelGroupBox: {
+	if ( opt.isDefault() )
+	    break;
+	QColor clr = gray;
+	//This is terrible, if I we just passed the widget in this wouldn't be necesary!
+	QWidget *w = NULL;
+	if(p && p->device() && p->device()->devType() == QInternal::Widget) {
+	    w = (QWidget*)p->device();
+	    if(w && w->parentWidget() && w->parentWidget()->inherits("QGroupBox"))
+		clr = lightGray;
+	}
+	enum { HORIZ, VERT, SQUARE, NONE } kind = SQUARE;
+	if(w && w->parentWidget() && w->parentWidget()->layout() && 
+	   w->inherits("QGroupBox") && ((QGroupBox*)w)->title().isEmpty()) {
+	    QPtrStack<QLayout> lays;
+	    QLayoutItem *last = NULL;
+	    lays.push(w->parentWidget()->layout());
+	    while(QLayout *lay = lays.pop()) {
+		if(lay->inherits("QBoxLayout")) {
+		    QBoxLayout *blay = (QBoxLayout*)lay;
+		    QLayoutIterator it = blay->iterator();
+		    for(QLayoutItem *child; (child = it.current()); ++it) {
+			if(child->widget() == w) {
+			    if(last && last->widget() && 
+			       last->widget()->inherits("QGroupBox") && 
+			       ((QGroupBox*)last->widget())->title().isEmpty()) {
+				if(blay->direction() == QBoxLayout::LeftToRight || 
+				   blay->direction() == QBoxLayout::TopToBottom) 
+				    kind = (blay->direction() == QBoxLayout::LeftToRight) ? VERT : HORIZ;
+				else
+				    kind = NONE;
+			    } else {
+				++it;
+				if((child = it.current()) && child->widget() && 
+				   child->widget()->inherits("QGroupBox") &&
+				    ((QGroupBox*)child->widget())->title().isEmpty()) {
+				    if(blay->direction() == QBoxLayout::LeftToRight || 
+				       blay->direction() == QBoxLayout::TopToBottom) 
+					kind = NONE;
+				    else
+					kind = (blay->direction() == QBoxLayout::RightToLeft) ? VERT : HORIZ;
+				}
+			    }
+			    break;
+			} else if(child->layout()) {
+			    lays.push(child->layout());
+			}
+			if(child->widget()) //save the last child
+			    last = child;
+		    }
+		}
+	    }
+	}
+	p->setPen(clr);
+	if(kind == VERT)
+	    p->drawLine(r.x(), r.y()+15, r.x(), r.bottom()-15);
+	else if(kind == HORIZ)
+	    p->drawLine(r.x()+15, r.y(), r.right()-15, r.y());
+	else if(kind == SQUARE)
+	    p->drawRect(r);
+	break; }
+
     case PE_HeaderArrow:
 	if(flags & Style_Up)
 	    drawPrimitive(PE_ArrowUp, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, opt);
@@ -706,24 +769,6 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	QPixmap px;
 	qAquaPixmap( "progress_" + QString::number(r.height()), px );
 	p->drawTiledPixmap( r, px, QPoint((r.x() % px.width()) - d->progressOff, 0) );
-	break; }
-
-    case PE_GroupBoxFrame: {
-	if ( opt.isDefault() )
-	    break;
-	if(opt.frameShape() == QFrame::Box && opt.frameShadow() == QFrame::Sunken) {
-	    QColor clr = gray;
-	    //This is terrible, if I we just passed the widget in this wouldn't be necesary!
-	    if(p && p->device() && p->device()->devType() == QInternal::Widget) {
-		QWidget *w = (QWidget*)p->device();
-		if(w && w->parentWidget() && w->parentWidget()->inherits("QGroupBox"))
-		    clr = lightGray;
-	    }
-	    p->setPen(clr);
-	    p->drawRect(r);
-	} else {
-	    QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, opt);
-	}
 	break; }
 
     case PE_FocusRect:

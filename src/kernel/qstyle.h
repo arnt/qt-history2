@@ -208,6 +208,8 @@ public:
 	PE_CheckListIndicator,
 	PE_CheckListExclusiveIndicator,
 
+	PE_PanelGroupBox,
+
 	// do not add any values below/greater this
 	PE_CustomBase =			0xf000000
     };
