@@ -55,7 +55,7 @@ linguisttranslations.path = $$translations.path
 INSTALLS += linguisttranslations
 
 phrasebooks.path=$$data.path/phrasebooks
-phrasebooks.files = ../phrasebooks/*
+phrasebooks.files = $$QT_SOURCE_TREE/tools/linguist/phrasebooks/*
 INSTALLS += phrasebooks
 FORMS     = about.ui \
             statistics.ui \
