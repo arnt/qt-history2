@@ -20,7 +20,6 @@
 #include <qpixmap.h>
 #include <qevent.h>
 #include <private/qgl_p.h>
-#include <qpaintengine_opengl.h>
 
 #include <windows.h>
 
@@ -1093,11 +1092,4 @@ void QGLWidget::cleanupColormaps()
 
 void QGLWidget::macInternalFixBufferRect()
 {
-}
-
-QPaintEngine *QGLWidget::engine()
-{
-    if (!d->paintEngine)
-	d->paintEngine = new QOpenGLPaintEngine(this);
-    return d->paintEngine;
 }

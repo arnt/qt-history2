@@ -483,10 +483,4 @@ void QGLWidget::macInternalFixBufferRect()
     update();
 }
 
-QPaintEngine *QGLWidget::engine()
-{
-    if (!d->paintEngine)
-	d->paintEngine = new QOpenGLPaintEngine(this);
-    return d->paintEngine;
-}
 #endif

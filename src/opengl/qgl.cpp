@@ -18,6 +18,7 @@
 #include "qimage.h"
 #include "qcleanuphandler.h"
 #include "qgl_p.h"
+#include "qpaintengine_opengl.h"
 
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
@@ -2228,6 +2229,13 @@ void QGLWidget::setAutoBufferSwap( bool on )
 bool QGLWidget::autoBufferSwap() const
 {
     return d->autoSwap;
+}
+
+QPaintEngine *QGLWidget::engine() const
+{
+    if (!d->paintEngine)
+	const_cast<QGLWidget *>(this)->d->paintEngine = new QOpenGLPaintEngine(this);
+    return d->paintEngine;
 }
 
 /*****************************************************************************
