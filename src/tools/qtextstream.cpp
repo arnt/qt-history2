@@ -728,7 +728,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 		*buf = s.constref(i++);
 		buf++;
 	    }
-	    rnum += len;
+	    rnum += end;
 	    if ( s.length() > i )
 		// could be = but append is clearer
 		d->ungetcBuf.append( s.mid( i ) );
@@ -815,7 +815,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 			i+=2;
 		    }
 		}
-		rnum += rlen;
+		rnum += i/2;
 	    }
 	    delete[] cbuf;
 	}
