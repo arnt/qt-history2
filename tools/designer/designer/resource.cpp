@@ -2266,7 +2266,6 @@ QString Resource::saveInCollection( const QImage &img )
 
 void Resource::saveImageData( const QImage &img, QTextStream &ts, int indent )
 {
-    qDebug( "Resource::saveImageData image format w %d h %d d %d", img.width(), img.height(), img.depth() );
     QByteArray ba;
     QBuffer buf( ba );
     buf.open( IO_WriteOnly | IO_Translate );
@@ -2346,9 +2345,6 @@ static QImage loadImageData( QDomElement &n2 )
 	img.loadFromData( (const uchar*)ba+lengthOffset, baSize-lengthOffset, format );
     }
     delete [] ba;
-
-    qDebug( "Resource::loadImageData image format w %d h %d d %d", img.width(), img.height(), img.depth() );
-
     return img;
 }
 
