@@ -268,8 +268,8 @@ QString QDir::currentDirPath()
 
 QString QDir::rootDirPath()
 {
-    QString d = "/";
-    return d;
+
+    return QString( "/" );
 }
 
 /*!
@@ -281,14 +281,10 @@ QString QDir::rootDirPath()
 
 bool QDir::isRelativePath( const QString &path )
 {
-    int len = path.length();
-    if ( len == 0 )
+    if ( path.isEmpty() )
 	return TRUE;
 
-    int i = 0;
-    if ( path[0].isLetter() && path[1] == ':' )		// drive, e.g. a:
-	i = 2;
-    return path[i] != '/' && path[i] != '\\';
+    return path[0] != '/' && path[0] != '\\';
 }
 
 /*!
