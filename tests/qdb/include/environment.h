@@ -89,7 +89,7 @@ namespace Interpreter {
 	virtual void setOutput( QTextStream& stream ) = 0;
 	virtual QTextStream& output() = 0;
 	virtual bool parse( const QString& commands, bool verbose = FALSE ) = 0;
-	virtual int execute( bool verbose = FALSE ) = 0;
+	virtual bool execute( bool verbose = FALSE ) = 0;
 	virtual void reset() = 0;
 	virtual QValueStack<QVariant>& stack() = 0;
 	virtual Program& program() = 0;

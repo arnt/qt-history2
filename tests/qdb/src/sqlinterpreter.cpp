@@ -86,7 +86,7 @@ void Program::setCounter( int i )
 
 void Program::setCounter( const QString& /*label*/ )
 {
-    //## todo
+    //## todo -- jasmin is this necessary?
     qWarning("Program::setCounter( const QString& label ): not yet implemented!");
 }
 
@@ -193,18 +193,17 @@ Program& Environment::program()
 
 bool Environment::parse( const QString& /*commands*/, bool verbose )
 {
-    //## todo
+    //## jasmin todo
     if ( verbose )
 	output() << "parsing..." << endl;;
-    setLastError( "Environment::parse: not implemented" );
-    return FALSE;
+    return TRUE;
 }
 
 /*!
 
 */
 
-int Environment::execute( bool verbose )
+bool Environment::execute( bool verbose )
 {
     if ( verbose )
 	output() << "executing..." << endl;
@@ -217,7 +216,7 @@ int Environment::execute( bool verbose )
 	    break;
 	}
     }
-    return 0;
+    return TRUE;
 }
 
 

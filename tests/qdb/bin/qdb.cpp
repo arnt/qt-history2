@@ -14,6 +14,7 @@ void usage( const QString& message = QString::null )
 	qWarning( appname + ": " + message );
     qWarning( "Usage: " + appname + " <options> [command]" );
     qWarning( " Options:" );
+    qWarning( " -a             Analyse and quit" );
     qWarning( " -c <commands>  Execute <commands>" );
     qWarning( " -d <dir>       Specify db directory (default:current dir)" );
     qWarning( " -e             Echo commands" );
@@ -43,11 +44,14 @@ int main( int argc, char** argv )
     QString dbdirname;
     bool verbose = FALSE;
     bool echo = FALSE;
+    bool analyse = FALSE;
 
     /* process all command line options, die if problem */
     for ( int i = 1; i < app.argc(); ++i ) {
 	QString arg = app.argv()[i];
-	if ( arg == "-c" ) {
+	if ( arg == "-a" ) {
+	    analyse = TRUE;
+	} else if ( arg == "-c" ) {
 	    if ( i+1 > app.argc()-1 )
 		die( "no command(s) specified" );
 	    commands = app.argv()[++i];
@@ -122,7 +126,9 @@ int main( int argc, char** argv )
     Environment env;
     env.setOutput( outstream );
     if ( env.parse( commands, echo ) ) {
-	if ( !env.execute( verbose ) )
+	if ( analyse )
+	    env.saveListing( outstream );
+	else if ( !env.execute( verbose ) )
 	    die( env.lastError() );
     } else
 	die( env.lastError() );

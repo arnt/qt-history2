@@ -129,7 +129,7 @@ public:
     void setOutput( QTextStream& stream ) { out = &stream; }
     QTextStream& output() { return *out; }
     bool parse( const QString& commands, bool verbose = FALSE );
-    int execute( bool verbose = FALSE );
+    bool execute( bool verbose = FALSE );
     void reset();
     void addDriver( int id, const QString& fileName );
     void addResult( int id );
