@@ -14049,6 +14049,9 @@ static int bm_find( const QString &str, int index, const QString &pattern, uint 
     return -1;
 }
 
+// macro used in ::find() and ::findRev(), undefined later
+#define  REHASH( a, b, h ) ((((h)-(a<<(sl_minus_1)))<<1)+(b))
+
 /*!
     \overload
 
@@ -14082,28 +14085,52 @@ int QString::find( const QString& str, int index, bool cs ) const
 	bm_init_skiptable( str, skiptable, cs );
 	return bm_find( *this, index, str, skiptable, cs );
     }
+
+    /*
+      We use some weird hashing for efficiency's sake. Instead of
+      comparing strings, we compare the hash value of str with that of
+      a part of this QString. Only if that matches, we call ucstrncmp
+      or ucstrnicmp.
+
+      The hash value of a string is the sum of the unicode values of its
+      QChars.
+    */
     const QChar* needle = str.unicode();
     const QChar* haystack = unicode() + index;
     const QChar* end = unicode() + (l-sl);
-    uint hashNeedle, hashHaystack,i;
-    for ( hashNeedle = hashHaystack = i = 0; i < sl; ++i ) {
-	hashNeedle = ((hashNeedle<<1) + needle[i].unicode() );
-	hashHaystack = ((hashHaystack<<1) + haystack[i].unicode() );
-    }
     const uint sl_minus_1 = sl-1;
-#define  REHASH( a, b, h ) ((((h)-(a<<(sl_minus_1)))<<1)+(b))
+    uint hashNeedle, hashHaystack,i;
+
     if ( cs ) {
+	for ( hashNeedle = hashHaystack = i = 0; i < sl; ++i ) {
+	    hashNeedle = ((hashNeedle<<1) + needle[i].unicode() );
+	    hashHaystack = ((hashHaystack<<1) + haystack[i].unicode() );
+	}
+
 	while ( haystack <= end ) {
  	    if ( hashHaystack == hashNeedle  && ucstrncmp( needle, haystack, sl ) == 0 )
 		return haystack-unicode();
-	    hashHaystack = REHASH( haystack->unicode(), (haystack+sl)->unicode(), hashHaystack );
+
+	    hashHaystack = REHASH( haystack->unicode(),
+				   (haystack+sl)->unicode(),
+				   hashHaystack );
 	    ++haystack;
 	}
     } else {
+	for ( hashNeedle = hashHaystack = i = 0; i < sl; ++i ) {
+	    hashNeedle = ((hashNeedle<<1) +
+			  ::lower( needle[i].unicode() ).unicode() );
+	    hashHaystack = ((hashHaystack<<1) +
+			    ::lower( haystack[i].unicode() ).unicode() );
+	}
+
 	while ( haystack <= end ) {
 	    if ( hashHaystack == hashNeedle && ucstrnicmp( needle, haystack, sl ) == 0 )
 		return haystack-unicode();
-	    hashHaystack = REHASH( ::lower( *haystack ).unicode(), ::lower(*(haystack+sl)).unicode(), hashHaystack );
+
+	    hashHaystack = REHASH( ::lower( *haystack ).unicode(),
+				   ::lower(*(haystack+sl)).unicode(),
+				   hashHaystack );
 	    ++haystack;
 	}
     }
@@ -14182,32 +14209,42 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     const QChar* needle = str.unicode();
     const QChar* haystack = unicode() + index;
     const QChar* end = unicode();
-    uint hashNeedle, hashHaystack,i;
     const QChar* n = needle+sl-1;
     const QChar* h = haystack+sl-1;
-    for ( hashNeedle = hashHaystack = i = 0; i < sl; ++i ) {
-	hashNeedle = ((hashNeedle<<1) + (n-i)->unicode() );
-	hashHaystack = ((hashHaystack<<1) + (h-i)->unicode() );
-    }
     const uint sl_minus_1 = sl-1;
-#define  REHASH( a, b, h ) ((((h)-(a<<(sl_minus_1)))<<1)+(b))
+    uint hashNeedle, hashHaystack, i;
+
     if ( cs ) {
+	for ( hashNeedle = hashHaystack = i = 0; i < sl; ++i ) {
+	    hashNeedle = ((hashNeedle<<1) + (n-i)->unicode() );
+	    hashHaystack = ((hashHaystack<<1) + (h-i)->unicode() );
+	}
 	while ( haystack >= end ) {
  	    if ( hashHaystack == hashNeedle  && ucstrncmp( needle, haystack, sl ) == 0 )
 		return haystack-unicode();
 	    --haystack;
-	    hashHaystack = REHASH( (haystack+sl)->unicode(), haystack->unicode(), hashHaystack );
+	    hashHaystack = REHASH( (haystack+sl)->unicode(),
+				   haystack->unicode(),
+				   hashHaystack );
 	}
     } else {
+	for ( hashNeedle = hashHaystack = i = 0; i < sl; ++i ) {
+	    hashNeedle = ((hashNeedle<<1) + ::lower( (n-i)->unicode() ).unicode() );
+	    hashHaystack = ((hashHaystack<<1) + ::lower( (h-i)->unicode() ).unicode() );
+	}
 	while ( haystack >= end ) {
 	    if ( hashHaystack == hashNeedle && ucstrnicmp( needle, haystack, sl ) == 0 )
 		return haystack-unicode();
 	    --haystack;
-	    hashHaystack = REHASH( ::lower( *(haystack+sl) ).unicode(), ::lower(*haystack).unicode(), hashHaystack );
+	    hashHaystack = REHASH( ::lower( *(haystack+sl) ).unicode(),
+				   ::lower(*haystack).unicode(),
+				   hashHaystack );
 	}
     }
     return -1;
 }
+
+#undef REHASH
 
 /*!
     \enum QString::SectionFlags
@@ -15425,13 +15462,13 @@ QString &QString::replace( const QString & before, const QString & after )
 	    }
 	    if ( !pos )
 		break;
-	
+
 	    // we have a table of replacement positions
 	    uint newlen = d->len + pos*(al-bl);
 	    int moveend = d->len;
 	    if ( newlen > d->len )
 		setLength( newlen );
-	
+
 	    while( pos ) {
 		pos--;
 		int movestart = indices[pos] + bl;
