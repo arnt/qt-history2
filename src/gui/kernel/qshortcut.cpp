@@ -5,7 +5,7 @@
 #include <qwhatsthis.h>
 
 #define d d_func()
-#define p p_func()
+#define q q_func()
 
 /*!
     \class QShortcut qshortcut.h
@@ -29,6 +29,7 @@
 */
 class QShortcutPrivate : public QObjectPrivate
 {
+    Q_DECLARE_PUBLIC(QShortcut)
 public:
     QShortcutPrivate() : sc_context(OnActiveWindow), sc_enabled(true), sc_id(0) {}
     QKeySequence sc_sequence;
@@ -36,6 +37,18 @@ public:
     bool sc_enabled;
     int sc_id;
     QString sc_whatsthis;
+
+    void redoGrab() 
+    {
+        QWidget *parent = q->parentWidget();
+        if (!parent)
+            return;
+        if (sc_id)
+            parent->releaseShortcut(sc_id);
+        sc_id = parent->grabShortcut(sc_sequence, sc_context);
+        if (!sc_enabled)
+            parent->setShortcutEnabled(sc_id, false);
+    }
 };
 
 /*!
@@ -57,7 +70,8 @@ QShortcut::QShortcut(QWidget *parent)
     operates on its parent, listening for \l{QShortcutEvent}s that
     match the key sequence \a key. Depending on the ambiguity of the
     event, the shortcut will call the \a member function, or the \a
-    ambiguousMember function.
+    ambiguousMember function, if the key press was in the shortcuts
+    \a context.
 */
 QShortcut::QShortcut(const QKeySequence &key, QWidget *parent,
                      const char *member, const char *ambiguousMember,
@@ -68,7 +82,7 @@ QShortcut::QShortcut(const QKeySequence &key, QWidget *parent,
     parent->installEventFilter(this);
     d->sc_context = context;
     d->sc_sequence = key;
-    d->sc_id = parent->grabShortcut(key, context);
+    d->redoGrab();
     if (member)
         connect(this, SIGNAL(activated()), parent, member);
     if (ambiguousMember)
@@ -106,12 +120,10 @@ QShortcut::~QShortcut()
 */
 void QShortcut::setKey(const QKeySequence &key)
 {
-    QWidget *parent = parentWidget();
-    parent->releaseShortcut(d->sc_id);
+    if (d->sc_sequence == key)
+        return;
     d->sc_sequence = key;
-    d->sc_id = parent->grabShortcut(key);
-    if (!d->sc_enabled)
-        parent->setShortcutEnabled(d->sc_id, false);
+    d->redoGrab();
 }
 
 /*!
@@ -126,7 +138,7 @@ QKeySequence QShortcut::key() const
 
 /*!
     \property QShortcut::enabled
-    \brief Whether the shortcut is enabled
+    \brief Whether the shortcut is enabled.
 
     An enabled shortcut emits the activated() or
     activatedAmbiguously() signal when a QShortcutEvent occurs that
@@ -139,6 +151,8 @@ QKeySequence QShortcut::key() const
 */
 void QShortcut::setEnabled(bool enable)
 {
+    if (d->sc_enabled == enable)
+        return;
     d->sc_enabled = enable;
     parentWidget()->setShortcutEnabled(d->sc_id, enable);
 }
@@ -153,6 +167,36 @@ void QShortcut::setEnabled(bool enable)
 bool QShortcut::isEnabled() const
 {
     return d->sc_enabled;
+}
+
+/*!
+    \property QShortcut::context
+    \brief The context in which the shortcut is valid.
+
+    A shortcut's context decides in which circumstances a shortcut is
+    allowed to be triggered. The normal context is OnActiveWindow,
+    which allows the shortcut to trigger if the parent (the widget
+    which has the shortcut) is a logical sub widget of the active top-
+    level window.
+
+    \sa context ShortcutContext
+*/
+void QShortcut::setContext(Qt::ShortcutContext context)
+{
+    if(d->sc_context == context)
+        return;
+    d->sc_context = context;
+    d->redoGrab();
+}
+
+/*!
+    Returns the context in which the shortcut will trigger.
+
+    \sa setContext
+*/
+Qt::ShortcutContext QShortcut::context()
+{
+    return d->sc_context;
 }
 
 /*!

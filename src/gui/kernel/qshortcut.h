@@ -13,6 +13,7 @@ class Q_GUI_EXPORT QShortcut : public QObject
     Q_PROPERTY(QKeySequence key READ key WRITE setKey)
     Q_PROPERTY(QString whatsThis READ whatsThis WRITE setWhatsThis)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(ShortcutContext context READ context WRITE setContext)
 public:
     QShortcut(QWidget *parent);
     QShortcut(const QKeySequence& key, QWidget *parent,
@@ -25,6 +26,9 @@ public:
 
     void setEnabled(bool enable);
     bool isEnabled() const;
+
+    void setContext(Qt::ShortcutContext context);
+    Qt::ShortcutContext context();
 
     void setWhatsThis(const QString &text);
     QString whatsThis() const;
