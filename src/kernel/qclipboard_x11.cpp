@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#4 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#3 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#4 $")
 
 
 /*****************************************************************************
@@ -222,7 +222,7 @@ void *QClipboard::data( const char *format ) const
 	return 0;
 
     Atom prop = XInternAtom( dpy, "QT_SELECTION", FALSE );
-    debug( "prop = %x", (int)prop );
+    //    debug( "prop = %x", (int)prop );
     XConvertSelection( dpy, XA_PRIMARY, XA_STRING, prop, win, CurrentTime );
 
     XFlush( dpy );
@@ -238,12 +238,12 @@ void *QClipboard::data( const char *format ) const
 	if ( started > now )			// crossed midnight
 	    started = now;
 	if ( started.msecsTo(started) > 5000 ) {
-	    debug( "selection timeout" );
+	    //	    debug( "selection timeout" );
 	    return 0;
 	}
     }
 
-    debug( "processing SelectionNotify" );
+    //    debug( "processing SelectionNotify" );
 
     prop = xevent.xselection.property;
     win  = xevent.xselection.requestor;
@@ -261,11 +261,11 @@ void *QClipboard::data( const char *format ) const
 				    &actual_format, &nitems,
 				    &bytes_after, &back );
 	if ( r != Success )
-	    debug( "XGetWindowProperty: no success" );
+	    //	    debug( "XGetWindowProperty: no success" );
 	if ( actual_type != XA_STRING ) {
-	    debug( "XGetWindowProperty: actual type not XA_STRING" );
+	    //	    debug( "XGetWindowProperty: actual type not XA_STRING" );
 	    char *n = XGetAtomName( dpy, actual_type );
-	    debug( "  the type is %s", n );
+	    //	    debug( "  the type is %s", n );
 	    XFree( n );
 	}
 	if ( r != Success || actual_type != XA_STRING )
@@ -279,7 +279,7 @@ void *QClipboard::data( const char *format ) const
 
     buf[nread] = 0;
 
-    debug( "clipboard read %d bytes", (int)nread );
+    //    debug( "clipboard read %d bytes", (int)nread );
 
     return buf.data();
 }
@@ -381,6 +381,6 @@ bool QClipboard::event( QEvent *e )
 	    }
 	    break;
     }
-    debug( "QClipboard::event: %s", s );
+    //    debug( "QClipboard::event: %s", s );
     return TRUE;
 }
