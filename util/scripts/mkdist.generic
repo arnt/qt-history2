@@ -128,6 +128,18 @@ echo "Create symlinks for Qt header files.." >&2
 ${QTDIR}/bin/syncqt
 ###${curdir}/make_qt_dot_h > ${QTDIR}/include/qt.h
 rm -f ${QTDIR}/include/qt.h
+
+echo "Fixing copyright banner in .h and .cpp files.." >&2
+if [ "${disttype}" = "free" ]; then
+  fixcopyright=fixcopyright-free
+else
+  fixcopyright=fixcopyright-prof
+fi
+cd ${DISTDIR}/qt/src
+${curdir}/${fixcopyright} ${VERSION} tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
+cd ${DISTDIR}/qt/extensions
+${curdir}/${fixcopyright} ${VERSION} */src/q*.h */src/q*.cpp
+
 if [ "$nodoc" = "yes" ]; then
   echo "Documentation won't be generated" >& 2
 else
@@ -151,34 +163,25 @@ echo "Removing local files..." >&2
 if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}/qt/src
   tmake qtinternal.pro -e "Expand('X11ONLY')" | xargs rm -v
+  cd ${DISTDIR}
+  rm -rf qt/examples/timestamp
 fi
 cd ${DISTDIR}
 find qt -name .cvsignore -o -name doc.conf | xargs rm -f
 rm -f qt/src/qtinternal.pro
 rm -f qt/make.help qt/variables
 rm -rf qt/bugs qt/etc qt/gif qt/reqs qt/tests
-rm -rf qt/examples/sheet
-rm -rf qt/examples/network
 rm -rf qt/doc/html
+cd qt/examples
+rm -rf network qfd rot13 sheet
 
 cd ${DISTDIR}/qt/bin
 rm -f syncqt*
 
 echo "Removing kernel .cpp files for other platforms..." >&2
 cd ${DISTDIR}/qt/src/kernel
-find . -name '*_x11.cpp' -o -name '*_win.cpp' -o -name '*_win.c' -o -name '*_os2.cpp' \
+find . -name '*_x11.c*' -o -name '*_win.c*' -o -name '*_os2.c*' \
 	| grep -v "_${platform}" | xargs rm -f
-
-echo "Fixing copyright banner in .h and .cpp files.." >&2
-if [ "${disttype}" = "free" ]; then
-  fixcopyright=fixcopyright-free
-else
-  fixcopyright=fixcopyright-prof
-fi
-cd ${DISTDIR}/qt/src
-${curdir}/${fixcopyright} ${VERSION} tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
-cd ${DISTDIR}/qt/extensions
-${curdir}/${fixcopyright} ${VERSION} */src/q*.h */src/q*.cpp
 
 echo "Generate lex and yacc files for moc..." >&2
 cd ${DISTDIR}/qt/src/moc
@@ -206,14 +209,30 @@ if [ "${platform}" = "win" ]; then
   rm -rf extensions/xt
   find . -name 'qtx11.*' | xargs rm -vf
 
-  cd ${DISTDIR}/qt/src
-  mv win32.mak Makefile
-
   cd ${DISTDIR}/qt
   mkdir mkfiles
 
-# Convince tmake to use the right library
-  touch ${DISTDIR}/qt/lib/qt${VERSIONWIN}.lib
+# Convince tmake to use the right DLL library and set right DLL lib Makefile
+  touch lib/qt${VERSIONWIN}.lib
+  mv src/Makefile.win32-dll src/Makefile
+
+  echo "Build DLL Makefiles for Borland C++" >&2
+  export TMAKEPATH=${TMAKEDIR}/lib/win32-borland
+  ${curdir}/buildmakefiles -win32 -dll
+  find . -name Makefile -o -name "qt*.mak" | xargs ${curdir}/unix_to_dos
+  find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/borland_dll.zip
+
+  echo "Build DLL Makefiles for Microsoft Visual C++" >&2
+  export TMAKEPATH=${TMAKEDIR}/lib/win32-msvc
+  ${curdir}/buildmakefiles -win32 -dll
+  find . -name Makefile -o -name "qt*.mak" | xargs ${curdir}/unix_to_dos
+  find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/msvc_dll.zip
+
+# Clean up after DLL library makefiles have been created
+  rm lib/qt${VERSIONWIN}.lib
+  rm src/Makefile
+  rm src/qtdll.mak
+  rm src/qtmain.mak
 
   echo "Build Makefiles for Borland C++" >&2
   export TMAKEPATH=${TMAKEDIR}/lib/win32-borland
@@ -227,12 +246,10 @@ if [ "${platform}" = "win" ]; then
   find . -name Makefile -o -name "qt*.mak" | xargs ${curdir}/unix_to_dos
   find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/msvc.zip
 
-  rm ${DISTDIR}/qt/lib/qt${VERSIONWIN}.lib
-
   echo "Converting Unix text files to DOS..." >&2
   cd ${DISTDIR}
   find qt -type f -print | fmt -1 | \
-	egrep -v '\.(gif|jpg|bmp|any|exe|zip)$' | xargs ${curdir}/unix_to_dos
+	egrep -v '\.(gif|jpg|bmp|any|pic|ppm|exe|zip)$' | xargs ${curdir}/unix_to_dos
 fi
 
 if [ "${platform}" = "x11" ]; then
@@ -240,7 +257,8 @@ if [ "${platform}" = "x11" ]; then
   echo 'Removing more Windows-specific files...' >&2
   cd ${DISTDIR}/qt
   rm -f bin/*.bat
-  rm src/qtmain.pro src/win32.mak
+  rm -r src/tmp
+  rm src/qtmain.pro src/Makefile.win32-dll
   find . -name 'qtwin.*' | xargs rm -vf
 
   echo 'Building top-level make files...' >&2
@@ -300,16 +318,20 @@ echo "Finally packing the distribution, see ${DISTDIR} ..." >&2
 
 if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}
-  mkdir qt/src/tmp
-  echo "This is a temporary directory for moc output" > qt/src/tmp/README
+  rm qt/MANIFEST
   zip -q -r -9 qtwin${VERSIONWIN}.zip qt
 fi
 
 if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}
   mv qt qt-${VERSION}
-  tar cf qt-${VERSION}.tar qt-${VERSION}
-  gzip -9 qt-${VERSION}.tar
+  if [ "${disttype}" = "commercial" ]; then
+    tar cf qt-${VERSION}-commercial.tar qt-${VERSION}
+    gzip -9 qt-${VERSION}-commercial.tar
+  else
+    tar cf qt-${VERSION}.tar qt-${VERSION}
+    gzip -9 qt-${VERSION}.tar
+  fi
 fi
 
 echo "Done" >&2
