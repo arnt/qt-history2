@@ -1784,6 +1784,15 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
+    \fn int QIMEvent::selectionLength() const
+
+    Returns the number of characters in the composition string (
+    starting at cursorPos() ) that should be marked as selected by the
+    input widget receiving the event.
+    Will return 0 for IMStartEvent and IMEndEvent.
+*/
+
+/*!
     \fn bool QIMEvent::isAccepted() const
 
     Returns TRUE if the receiver of the event processed the event;
