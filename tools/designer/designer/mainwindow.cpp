@@ -2217,14 +2217,9 @@ void MainWindow::readConfig()
 		break;
 	    }
 	}
-	// We know that the oldSettingsKey() will return 3.1
 	if ( keybase == DesignerApplication::oldSettingsKey() ) {
 	    recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles", ',' );
-	    if ( recentlyFiles.count() == 1 && recentlyFiles[0].isNull() )
-		recentlyFiles.clear();
 	    recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects", ',' );
-	    if ( recentlyProjects.count() == 1 && recentlyProjects[0].isNull() )
-		recentlyProjects.clear();
 	} else {
 	    recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles" );
 	    recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects" );
