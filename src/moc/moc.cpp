@@ -632,6 +632,7 @@ void Moc::parseSignals(ClassDef *def)
             prev();
         }
         FunctionDef funcDef;
+        funcDef.access = FunctionDef::Protected;
         parseFunction(&funcDef);
         if (funcDef.isConst)
             error("Signals cannot have const qualifier");
