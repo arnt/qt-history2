@@ -1071,9 +1071,7 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
 	QTextParag *s = doc->createParag( doc, p, string, updateIds );
 	if ( f )
 	    s->setFormat( 0, 1, f, TRUE );
-	s->setStyleSheetItems( string->styleSheetItems() );
-	s->setListStyle( string->listStyle() );
-	s->setAlignment( string->alignment() );
+	s->copyParagData( string );
 	if ( ind ) {
 	    s->indent();
 	    s->format();
@@ -1085,9 +1083,7 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
 	QTextParag *s = doc->createParag( doc, string, n, updateIds );
 	if ( f )
 	    s->setFormat( 0, 1, f, TRUE );
-	s->setStyleSheetItems( string->styleSheetItems() );
-	s->setListStyle( string->listStyle() );
-	s->setAlignment( string->alignment() );
+	s->copyParagData( string );
 	if ( ind ) {
 	    int oi, ni;
 	    s->indent( &oi, &ni );
@@ -1101,9 +1097,7 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
 	QString str = string->string()->toString().mid( idx, 0xFFFFFF );
 	QTextParag *n = string->next();
 	QTextParag *s = doc->createParag( doc, string, n, updateIds );
-	s->setStyleSheetItems( string->styleSheetItems() );
-	s->setListStyle( string->listStyle() );
-	s->setAlignment( string->alignment() );
+	s->copyParagData( string );
 	s->remove( 0, 1 );
 	s->append( str, TRUE );
 	for ( uint i = 0; i < str.length(); ++i ) {
@@ -4051,6 +4045,13 @@ int QTextParag::lineSpacing() const
     }
 
     return ls;
+}
+
+void QTextParag::copyParagData( QTextParag *parag )
+{
+    setStyleSheetItems( parag->styleSheetItems() );
+    setListStyle( parag->listStyle() );
+    setAlignment( parag->alignment() );
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -1193,9 +1193,12 @@ public:
     QTextCursor *undo( QTextCursor *c = 0 );
     QTextCursor *redo( QTextCursor *c  = 0 );
     QTextCommandHistory *commands() const { return commandHistory; }
+    virtual void copyParagData( QTextParag *parag );
+
+protected:
+    virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
 
 private:
-    void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     void drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
 			  int lastY, int baseLine, int bw, int h, bool drawSelections,
 			  QTextFormat *lastFormat, int i, int *selectionStarts,
