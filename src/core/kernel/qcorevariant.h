@@ -271,7 +271,7 @@ inline QCoreVariant::~QCoreVariant()
 inline QCoreVariant::QCoreVariant(const QCoreVariant &p) : d(p.d)
 { ++d->ref; }
 
-bool QCoreVariant::isValid() const { return d->type != Invalid; }
+inline bool QCoreVariant::isValid() const { return d->type != Invalid; }
 
 #ifdef QT_COMPAT
 inline int &QCoreVariant::asInt()
