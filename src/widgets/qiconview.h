@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#27 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#28 $
 **
 ** Definition of QIconView widget class
 **
@@ -48,6 +48,7 @@ class QDragMoveEvent;
 class QDragLeaveEvent;
 class QKeyEvent;
 class QFocusEvent;
+class QShowEvent;
 
 struct QIconViewPrivate;
 class QIconViewItem;
@@ -272,7 +273,7 @@ public:
     virtual QIconSet::Size viewMode() const;
 
     virtual void orderItemsInGrid();
-    virtual void show();
+    virtual void showEvent( QShowEvent * );
 
     virtual void setSelectionMode( SelectionMode m );
     virtual SelectionMode selectionMode() const;
@@ -360,7 +361,7 @@ protected:
 
 private:
     void findItemByName( const QString text );
-    
+
     QIconViewPrivate *d;
 
 };

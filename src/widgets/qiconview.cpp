@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#62 $
 **
 ** Definition of QIconView widget class
 **
@@ -125,6 +125,7 @@ struct QIconViewPrivate
     bool drawDragShape;
     QMap< QString, QIconViewItem* > nameMap;
     QString currInputString;
+    bool dirty;
 };
 
 /*****************************************************************************
@@ -291,18 +292,18 @@ void QIconDragItem::setRect( const QRect &r )
 /*!
   \class QIconDrag qiconview.h
   \brief The QIconDrag is the drag object which is used for moving items in the iconview
-  
+
   The QIconDrag is the drag object which is used for moving items in the iconview. The QIconDrag stores
   exact informations about the positions of the items, which are dragged, so that each iconview
   is able to draw drag shades in correct psoitions.
-  
-  It's suggested that, if you write a drag object for own QIconViewItems, you derive the 
+
+  It's suggested that, if you write a drag object for own QIconViewItems, you derive the
   drag object class from QIconDrag and just implement the methodes which are needed for
   encoding/decoding your data. Because if you do this, the position informations will be stored
   in the drag object too.
 
   An example, how to implement this, is in the QtFileIconView example.
-  
+
 */
 
 /*!
@@ -1377,7 +1378,8 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->maxItemTextLength = 255;
     d->inputTimer = new QTimer( this );
     d->currInputString = QString::null;
-
+    d->dirty = FALSE;
+    
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
     connect ( d->updateTimer, SIGNAL( timeout() ),
@@ -1470,6 +1472,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
     }
 
     d->count++;
+    d->dirty = TRUE;
 }
 
 /*!
@@ -1728,16 +1731,18 @@ void QIconView::orderItemsInGrid()
     }
 
     resizeContents( w, h );
+    d->dirty = FALSE;
 }
 
 /*!
   \reimp
 */
 
-void QIconView::show()
+void QIconView::showEvent( QShowEvent * )
 {
     resizeContents( viewport()->width(), viewport()->height() );
-    orderItemsInGrid();
+    if ( d->dirty )
+	orderItemsInGrid();
     QScrollView::show();
 }
 
