@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#20 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#21 $
 **
 ** Definition of QBrush class
 **
@@ -32,7 +32,7 @@ public:
     QBrush();
     QBrush( BrushStyle );
     QBrush( const QColor &, BrushStyle=SolidPattern );
-    QBrush( const QColor &, const QBitmap & );
+    QBrush( const QColor &, const QPixmap & );
     QBrush( const QBrush & );
    ~QBrush();
     QBrush &operator=( const QBrush & );
@@ -41,8 +41,8 @@ public:
     void	setStyle( BrushStyle );
     const QColor &color()const		{ return data->color; }
     void	setColor( const QColor & );
-    QBitmap    *bitmap() const		{ return data->bitmap; }
-    void	setBitmap( const QBitmap & );
+    QPixmap    *pixmap() const		{ return data->pixmap; }
+    void	setPixmap( const QPixmap & );
 
     bool	operator==( const QBrush &p ) const;
     bool	operator!=( const QBrush &b ) const
@@ -61,7 +61,7 @@ private:
     struct QBrushData : QShared {		// brush data
 	BrushStyle style;
 	QColor	  color;
-	QBitmap	 *bitmap;
+	QPixmap	 *pixmap;
 #if defined(_WS_WIN_)
 	HANDLE	  hbrush;
 	HANDLE	  hbm;
