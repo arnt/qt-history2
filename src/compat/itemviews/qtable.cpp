@@ -49,7 +49,7 @@ void qt_set_table_clipper_enabled(bool enabled)
     qt_table_clipper_enabled = enabled;
 }
 
-class QM_EXPORT_TABLE QTableHeader : public QHeader
+class QM_EXPORT_TABLE QTableHeader : public Q3Header
 {
     friend class QTable;
     Q_OBJECT
@@ -1671,7 +1671,7 @@ QSize QCheckTableItem::sizeHint() const
 
     QTable supports a header column, e.g. to display row numbers, and
     a header row, e.g to display column titles. To set row or column
-    labels use QHeader::setLabel() on the pointers returned by
+    labels use Q3Header::setLabel() on the pointers returned by
     verticalHeader() and horizontalHeader(). The vertical header is
     displayed within the table's left margin whose width is set with
     setLeftMargin(). The horizontal header is displayed within the
@@ -1682,7 +1682,7 @@ QSize QCheckTableItem::sizeHint() const
     size.
 
     Header labels are indexed via their section numbers. Note that the
-    default behavior of QHeader regarding section numbers is overridden
+    default behavior of Q3Header regarding section numbers is overridden
     for QTable. See the explanation below in the Rows and Columns
     section in the discussion of moving columns and rows.
 
@@ -1709,12 +1709,12 @@ QSize QCheckTableItem::sizeHint() const
     Rows and columns can be set to be moveable using
     rowMovingEnabled() and columnMovingEnabled(). The user can drag
     them to reorder them holding down the Ctrl key and dragging the
-    mouse. For performance reasons, the default behavior of QHeader
+    mouse. For performance reasons, the default behavior of Q3Header
     section numbers is overridden by QTable. Currently in QTable, when
     a row or column is dragged and reordered, the section number is
     also changed to its new position. Therefore, there is no
-    difference between the section and the index fields in QHeader.
-    The QTable QHeader classes do not provide a mechanism for indexing
+    difference between the section and the index fields in Q3Header.
+    The QTable Q3Header classes do not provide a mechanism for indexing
     independently of the user interface ordering.
 
     The table can be sorted using sortColumn(). Users can sort a
@@ -2346,34 +2346,34 @@ void QTable::updateHeaderStates()
 }
 
 /*!
-    Returns the table's top QHeader.
+    Returns the table's top Q3Header.
 
     This header contains the column labels.
 
-    To modify a column label use QHeader::setLabel(), e.g.
+    To modify a column label use Q3Header::setLabel(), e.g.
     \quotefile table/statistics/statistics.cpp
     \skipto horizontalHeader
     \printline
 
-    \sa verticalHeader() setTopMargin() QHeader
+    \sa verticalHeader() setTopMargin() Q3Header
 */
 
-QHeader *QTable::horizontalHeader() const
+Q3Header *QTable::horizontalHeader() const
 {
-    return (QHeader*)topHeader;
+    return (Q3Header*)topHeader;
 }
 
 /*!
-    Returns the table's vertical QHeader.
+    Returns the table's vertical Q3Header.
 
     This header contains the row labels.
 
-    \sa horizontalHeader() setLeftMargin() QHeader
+    \sa horizontalHeader() setLeftMargin() Q3Header
 */
 
-QHeader *QTable::verticalHeader() const
+Q3Header *QTable::verticalHeader() const
 {
-    return (QHeader*)leftHeader;
+    return (Q3Header*)leftHeader;
 }
 
 void QTable::setShowGrid(bool b)
@@ -4398,7 +4398,7 @@ void QTable::updateColWidgets(int col)
     If you want to change the column order programmatically, call
     swapRows() or swapColumns();
 
-    \sa QHeader::indexChange() rowIndexChanged()
+    \sa Q3Header::indexChange() rowIndexChanged()
 */
 
 void QTable::columnIndexChanged(int, int fromIndex, int toIndex)
@@ -4417,7 +4417,7 @@ void QTable::columnIndexChanged(int, int fromIndex, int toIndex)
     If you want to change the order programmatically, call swapRows()
     or swapColumns();
 
-    \sa QHeader::indexChange() columnIndexChanged()
+    \sa Q3Header::indexChange() columnIndexChanged()
 */
 
 void QTable::rowIndexChanged(int, int, int)
@@ -4672,7 +4672,7 @@ void QTable::updateHeaderAndResizeContents(QTableHeader *header,
 {
     updateBefore = rowCol < num;
     if (rowCol > num) {
-        header->QHeader::resizeArrays(rowCol);
+        header->Q3Header::resizeArrays(rowCol);
         header->QTableHeader::resizeArrays(rowCol);
         int old = num;
         clearSelection(false);
@@ -6298,7 +6298,7 @@ void QTable::setEnabled(bool b)
     \module table
 
 
-   QTable uses this subclass of QHeader for its headers. QTable has a
+   QTable uses this subclass of Q3Header for its headers. QTable has a
    horizontalHeader() for displaying column labels, and a
    verticalHeader() for displaying row labels.
 
@@ -6322,7 +6322,7 @@ void QTable::setEnabled(bool b)
 
 QTableHeader::QTableHeader(int i, QTable *t,
                             QWidget *parent, const char *name)
-    : QHeader(i, parent, name), mousePressed(false), startPos(-1),
+    : Q3Header(i, parent, name), mousePressed(false), startPos(-1),
       table(t), caching(false), resizedSection(-1),
       numStretches(0)
 {
@@ -6371,7 +6371,7 @@ QTableHeader::QTableHeader(int i, QTable *t,
 
 void QTableHeader::addLabel(const QString &s , int size)
 {
-    QHeader::addLabel(s, size);
+    Q3Header::addLabel(s, size);
     if (count() > (int)states.size()) {
         int s = states.size();
         states.resize(count());
@@ -6385,7 +6385,7 @@ void QTableHeader::addLabel(const QString &s , int size)
 
 void QTableHeader::removeLabel(int section)
 {
-    QHeader::removeLabel(section);
+    Q3Header::removeLabel(section);
     if (section == (int)states.size() - 1) {
         states.resize(states.size() - 1);
         stretchable.resize(stretchable.size() - 1);
@@ -6407,14 +6407,14 @@ void QTableHeader::resizeArrays(int n)
 
 void QTableHeader::setLabel(int section, const QString & s, int size)
 {
-    QHeader::setLabel(section, s, size);
+    Q3Header::setLabel(section, s, size);
     sectionLabelChanged(section);
 }
 
 void QTableHeader::setLabel(int section, const QIconSet & iconset,
                              const QString & s, int size)
 {
-    QHeader::setLabel(section, iconset, s, size);
+    Q3Header::setLabel(section, iconset, s, size);
     sectionLabelChanged(section);
 }
 
@@ -6537,7 +6537,7 @@ void QTableHeader::paintSection(QPainter *p, int index, const QRect& fr)
 
    if (sectionState(index) != Selected ||
          orientation() == Horizontal && isRowSelection(table->selectionMode())) {
-        QHeader::paintSection(p, index, fr);
+        Q3Header::paintSection(p, index, fr);
    } else {
        Q4StyleOptionHeader opt(0);
        opt.palette = palette();
@@ -6574,7 +6574,7 @@ void QTableHeader::mousePressEvent(QMouseEvent *e)
 {
     if (e->button() != LeftButton)
         return;
-    QHeader::mousePressEvent(e);
+    Q3Header::mousePressEvent(e);
     mousePressed = true;
     pressPos = real_pos(e->pos(), orientation());
     if (!table->currentSel || (e->state() & ShiftButton) != ShiftButton)
@@ -6602,12 +6602,12 @@ void QTableHeader::mouseMoveEvent(QMouseEvent *e)
          || ((e->state() & ControlButton) == ControlButton &&
               (orientation() == Horizontal
              ? table->columnMovingEnabled() : table->rowMovingEnabled()))) {
-        QHeader::mouseMoveEvent(e);
+        Q3Header::mouseMoveEvent(e);
         return;
     }
 
     if (!doSelection(e))
-        QHeader::mouseMoveEvent(e);
+        Q3Header::mouseMoveEvent(e);
 }
 
 bool QTableHeader::doSelection(QMouseEvent *e)
@@ -6723,7 +6723,7 @@ void QTableHeader::mouseReleaseEvent(QMouseEvent *e)
     autoScrollTimer->stop();
     mousePressed = false;
     setCaching(false);
-    QHeader::mouseReleaseEvent(e);
+    Q3Header::mouseReleaseEvent(e);
 #ifndef NO_LINE_WIDGET
     line1->hide();
     line2->hide();
@@ -6801,7 +6801,7 @@ void QTableHeader::resizeEvent(QResizeEvent *e)
 {
     stretchTimer->stop();
     widgetStretchTimer->stop();
-    QHeader::resizeEvent(e);
+    Q3Header::resizeEvent(e);
     if (numStretches == 0)
         return;
     stretchTimer->start(0, true);
@@ -6912,20 +6912,20 @@ void QTableHeader::sectionWidthChanged(int col, int, int)
     resizedSection = col;
     if (orientation() == Horizontal) {
 #ifndef NO_LINE_WIDGET
-        table->moveChild(line1, QHeader::sectionPos(col) - 1,
+        table->moveChild(line1, Q3Header::sectionPos(col) - 1,
                           table->contentsY());
         line1->resize(1, table->visibleHeight());
         line1->show();
         line1->raise();
         table->moveChild(line2,
-                          QHeader::sectionPos(col) + QHeader::sectionSize(col) - 1,
+                          Q3Header::sectionPos(col) + Q3Header::sectionSize(col) - 1,
                           table->contentsY());
         line2->resize(1, table->visibleHeight());
         line2->show();
         line2->raise();
 #else
         QPainter p(table->viewport());
-        int lx = QHeader::sectionPos(col) + QHeader::sectionSize(col) - 1;
+        int lx = Q3Header::sectionPos(col) + Q3Header::sectionSize(col) - 1;
         int ly = table->contentsY();
 
         if (lx != d->oldLinePos) {
@@ -6942,12 +6942,12 @@ void QTableHeader::sectionWidthChanged(int col, int, int)
     } else {
 #ifndef NO_LINE_WIDGET
         table->moveChild(line1, table->contentsX(),
-                          QHeader::sectionPos(col) - 1);
+                          Q3Header::sectionPos(col) - 1);
         line1->resize(table->visibleWidth(), 1);
         line1->show();
         line1->raise();
         table->moveChild(line2, table->contentsX(),
-                          QHeader::sectionPos(col) + QHeader::sectionSize(col) - 1);
+                          Q3Header::sectionPos(col) + Q3Header::sectionSize(col) - 1);
         line2->resize(table->visibleWidth(), 1);
         line2->show();
         line2->raise();
@@ -6955,7 +6955,7 @@ void QTableHeader::sectionWidthChanged(int col, int, int)
 #else
         QPainter p(table->viewport());
         int lx = table->contentsX();
-        int ly = QHeader::sectionPos(col) + QHeader::sectionSize(col) - 1;
+        int ly = Q3Header::sectionPos(col) + Q3Header::sectionSize(col) - 1;
 
         if (ly != d->oldLinePos) {
             QPoint pt = table->contentsToViewport(QPoint(lx, ly));
@@ -6984,7 +6984,7 @@ int QTableHeader::sectionSize(int section) const
         return -1;
     if (caching && section < (int)sectionSizes.count())
          return sectionSizes[section];
-    return QHeader::sectionSize(section);
+    return Q3Header::sectionSize(section);
 }
 
 /*!
@@ -7002,7 +7002,7 @@ int QTableHeader::sectionPos(int section) const
         return -1;
     if (caching && section < (int)sectionPoses.count())
         return sectionPoses[section];
-    return QHeader::sectionPos(section);
+    return Q3Header::sectionPos(section);
 }
 
 /*!
@@ -7017,7 +7017,7 @@ int QTableHeader::sectionPos(int section) const
 int QTableHeader::sectionAt(int pos) const
 {
     if (!caching || sectionSizes.count() <= 0 || sectionPoses.count() <= 0)
-        return QHeader::sectionAt(pos);
+        return Q3Header::sectionAt(pos);
     if (count() <= 0 || pos > sectionPoses[count() - 1] + sectionSizes[count() - 1])
         return -1;
     int l = 0;
@@ -7043,8 +7043,8 @@ void QTableHeader::updateCache()
     if (!caching)
         return;
     for (int i = 0; i < count(); ++i) {
-        sectionSizes[i] = QHeader::sectionSize(i);
-        sectionPoses[i] = QHeader::sectionPos(i);
+        sectionSizes[i] = Q3Header::sectionSize(i);
+        sectionPoses[i] = Q3Header::sectionPos(i);
     }
 }
 
@@ -7057,8 +7057,8 @@ void QTableHeader::setCaching(bool b)
     sectionSizes.resize(count());
     if (b) {
         for (int i = 0; i < count(); ++i) {
-            sectionSizes[i] = QHeader::sectionSize(i);
-            sectionPoses[i] = QHeader::sectionPos(i);
+            sectionSizes[i] = Q3Header::sectionSize(i);
+            sectionPoses[i] = Q3Header::sectionPos(i);
         }
     }
 }
@@ -7159,7 +7159,7 @@ void QTableHeader::setLabels(const QStringList & labels)
             setUpdatesEnabled(updates);
             setLabel(i, *it);
         } else {
-            QHeader::setLabel(i, *it);
+            Q3Header::setLabel(i, *it);
             emit sectionSizeChanged(i);
         }
     }

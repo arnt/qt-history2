@@ -34,7 +34,6 @@
 #include "qradiobutton.h"
 #include "qspinbox.h"
 #include "qapplication.h"
-#include "qheader.h"
 #include "qstyle.h"
 #include "qstring.h"
 #include "qregexp.h"

@@ -7,6 +7,7 @@ HEADERS +=      widgets/q3whatsthis.h \
 		widgets/q3buttongroup.h \
                 widgets/q3menudata.h \
                 widgets/q3datetimeedit.h \
+                widgets/q3header.h \
                 widgets/q3menubar.h \
                 widgets/q3popupmenu.h \
 		widgets/q3dockarea.h \
@@ -24,6 +25,7 @@ SOURCES +=      widgets/q3whatsthis.cpp \
                 widgets/q3menubar.cpp \
                 widgets/q3popupmenu.cpp \
                 widgets/q3datetimeedit.cpp \
+                widgets/q3header.cpp \
 		widgets/q3dockarea.cpp \
 		widgets/q3dockwindow.cpp \
 		widgets/q3mainwindow.cpp \

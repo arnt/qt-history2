@@ -23,7 +23,7 @@
 #include "qdragobject.h"
 #include "qevent.h"
 #include "qhash.h"
-#include "qheader.h"
+#include "q3header.h"
 #include "qiconset.h"
 #include "qlineedit.h"
 #include "qpainter.h"
@@ -131,7 +131,7 @@ struct Q3ListViewPrivate
 
     // private variables used in Q3ListView
     ViewColumnInfo * vci;
-    QHeader * h;
+    Q3Header * h;
     Root * r;
     uint rootIsExpandable : 1;
     int margin;
@@ -153,7 +153,7 @@ struct Q3ListViewPrivate
 
     Q3ListView::SelectionMode selectionMode;
 
-    // Per-column structure for information not in the QHeader
+    // Per-column structure for information not in the Q3Header
     struct Column {
         Q3ListView::WidthMode wmode;
     };
@@ -177,7 +177,7 @@ struct Q3ListViewPrivate
     QTimer *renameTimer;
     QTimer *autoopenTimer;
 
-    // sort column and order   #### may need to move to QHeader [subclass]
+    // sort column and order   #### may need to move to Q3Header [subclass]
     int sortcolumn;
     bool ascending                :1;
     bool sortIndicator                :1;
@@ -2594,7 +2594,7 @@ void Q3ListView::init()
     d->levelWidth = 20;
     d->r = 0;
     d->rootIsExpandable = 0;
-    d->h = new QHeader(this, "list view header");
+    d->h = new Q3Header(this, "list view header");
     d->h->installEventFilter(this);
     d->focusItem = 0;
     d->oldFocusItem = 0;
@@ -2684,7 +2684,7 @@ void Q3ListView::init()
     down, depending on the current sort direction. The default is
     false (don't show an indicator).
 
-    \sa QHeader::setSortIndicator()
+    \sa Q3Header::setSortIndicator()
 */
 
 void Q3ListView::setShowSortIndicator(bool show)
@@ -2734,7 +2734,7 @@ bool Q3ListView::showToolTips() const
     columns have been added to the list view, otherwise the behavior is
     undefined.
 
-    \sa QHeader, header()
+    \sa Q3Header, header()
 */
 
 void Q3ListView::setResizeMode(ResizeMode m)
@@ -6827,15 +6827,15 @@ void Q3ListView::ensureItemVisible(const Q3ListViewItem * i)
 */
 
 /*!
-    Returns the QHeader object that manages this list view's columns.
+    Returns the Q3Header object that manages this list view's columns.
     Please don't modify the header behind the list view's back.
 
-    You may safely call QHeader::setClickEnabled(),
-    QHeader::setResizeEnabled(), QHeader::setMovingEnabled(),
-    QHeader::hide() and all the const QHeader functions.
+    You may safely call Q3Header::setClickEnabled(),
+    Q3Header::setResizeEnabled(), Q3Header::setMovingEnabled(),
+    Q3Header::hide() and all the const Q3Header functions.
 */
 
-QHeader * Q3ListView::header() const
+Q3Header * Q3ListView::header() const
 {
     return d->h;
 }

@@ -22,7 +22,6 @@
 #include "qcheckbox.h"
 #include "qdrawutil.h"
 #include "qgroupbox.h"
-#include "qheader.h"
 #include "qmenu.h"
 #include "qpainter.h"
 #include "qprogressbar.h"

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QHeader widget class (table header).
+** Definition of Q3Header widget class (table header).
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -24,11 +24,11 @@
 #ifndef QT_NO_HEADER
 
 class QShowEvent;
-class QHeaderData;
+class Q3HeaderData;
 class QTable;
 class Q3ListView;
 
-class Q_GUI_EXPORT QHeader : public QWidget
+class Q_GUI_EXPORT Q3Header : public QWidget
 {
     friend class QTable;
     friend class QTableHeader;
@@ -43,9 +43,9 @@ class Q_GUI_EXPORT QHeader : public QWidget
     Q_PROPERTY(bool stretching READ isStretchEnabled WRITE setStretchEnabled)
 
 public:
-    QHeader(QWidget* parent=0, const char* name=0);
-    QHeader(int, QWidget* parent=0, const char* name=0);
-    ~QHeader();
+    Q3Header(QWidget* parent=0, const char* name=0);
+    Q3Header(int, QWidget* parent=0, const char* name=0);
+    ~Q3Header();
 
     int                addLabel(const QString &, int size = -1);
     int                addLabel(const QIconSet&, const QString &, int size = -1);
@@ -168,23 +168,23 @@ private:
     int        cachedPos; // not used
     Orientation orient;
 
-    QHeaderData *d;
+    Q3HeaderData *d;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QHeader(const QHeader &);
-    QHeader &operator=(const QHeader &);
+    Q3Header(const Q3Header &);
+    Q3Header &operator=(const Q3Header &);
 #endif
 };
 
 
-inline QHeader::Orientation QHeader::orientation() const
+inline Q3Header::Orientation Q3Header::orientation() const
 {
     return orient;
 }
 
-inline void QHeader::setTracking(bool enable) { trackingIsOn = enable; }
-inline bool QHeader::tracking() const { return trackingIsOn; }
+inline void Q3Header::setTracking(bool enable) { trackingIsOn = enable; }
+inline bool Q3Header::tracking() const { return trackingIsOn; }
 
 extern Q_GUI_EXPORT bool qt_qheader_label_return_null_strings; // needed for professional edition
 

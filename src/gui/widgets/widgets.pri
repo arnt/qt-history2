@@ -27,7 +27,6 @@ HEADERS += \
         widgets/qgridview.h \
         widgets/qgroupbox.h \
         widgets/qhbox.h \
-        widgets/qheader.h \
         widgets/qlabel.h \
         widgets/qlcdnumber.h \
         widgets/qlineedit.h \
@@ -91,7 +90,6 @@ SOURCES += \
         widgets/qgridview.cpp \
         widgets/qgroupbox.cpp \
         widgets/qhbox.cpp \
-        widgets/qheader.cpp \
         widgets/qlabel.cpp \
         widgets/qlcdnumber.cpp \
         widgets/qlineedit.cpp \

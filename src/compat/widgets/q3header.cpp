@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qheader.h"
+#include "q3header.h"
 #ifndef QT_NO_HEADER
 #include "qapplication.h"
 #include "qbitarray.h"
@@ -25,10 +25,10 @@
 #include "qstyleoption.h"
 #include "qvector.h"
 
-class QHeaderData
+class Q3HeaderData
 {
 public:
-    QHeaderData(int n)
+    Q3HeaderData(int n)
     {
         count = n;
         sizes.resize(n);
@@ -61,7 +61,7 @@ public:
         is_a_table_header = false;
         focusIdx = 0;
     }
-    ~QHeaderData()
+    ~Q3HeaderData()
     {
         for (int i = 0; i < iconsets.size(); ++i)
             delete iconsets.at(i);
@@ -113,7 +113,7 @@ public:
     }
 };
 
-static Q4StyleOptionHeader getStyleOption(const QHeader *header, int section)
+static Q4StyleOptionHeader getStyleOption(const Q3Header *header, int section)
 {
     Q4StyleOptionHeader opt(0);
     opt.init(header);
@@ -127,8 +127,8 @@ static Q4StyleOptionHeader getStyleOption(const QHeader *header, int section)
 }
 
 /*!
-    \class QHeader qheader.h
-    \brief The QHeader class provides a header row or column, e.g. for
+    \class Q3Header qheader.h
+    \brief The Q3Header class provides a header row or column, e.g. for
     tables and listviews.
 
     \ingroup advanced
@@ -159,7 +159,7 @@ static Q4StyleOptionHeader getStyleOption(const QHeader *header, int section)
     to another. If a section is moved, the index positions at which
     sections were added (with addLabel()), may not be the same after the
     move. You don't have to worry about this in practice because the
-    QHeader API works in terms of section numbers, so it doesn't matter
+    Q3Header API works in terms of section numbers, so it doesn't matter
     where a particular section has been moved to.
 
     If you want the current index position of a section call
@@ -193,7 +193,7 @@ static Q4StyleOptionHeader getStyleOption(const QHeader *header, int section)
     know which index position section 2 occupied we'd call
     mapToIndex(2) and get an index of 1.
 
-    QHeader provides the clicked(), pressed() and released() signals.
+    Q3Header provides the clicked(), pressed() and released() signals.
     If the user changes the size of a section, the sizeChange() signal
     is emitted. If you want to have a sizeChange() signal emitted
     continuously whilst the user is resizing (rather than just after
@@ -212,7 +212,7 @@ static Q4StyleOptionHeader getStyleOption(const QHeader *header, int section)
     parent.
 */
 
-QHeader::QHeader(QWidget *parent, const char *name)
+Q3Header::Q3Header(QWidget *parent, const char *name)
     : QWidget(parent, name, WStaticContents)
 {
     orient = Horizontal;
@@ -224,7 +224,7 @@ QHeader::QHeader(QWidget *parent, const char *name)
     and parent \a parent.
 */
 
-QHeader::QHeader(int n,  QWidget *parent, const char *name)
+Q3Header::Q3Header(int n,  QWidget *parent, const char *name)
     : QWidget(parent, name, WStaticContents)
 {
     orient = Horizontal;
@@ -235,7 +235,7 @@ QHeader::QHeader(int n,  QWidget *parent, const char *name)
     Destroys the header and all its sections.
 */
 
-QHeader::~QHeader()
+Q3Header::~Q3Header()
 {
     delete d;
     d = 0;
@@ -244,14 +244,14 @@ QHeader::~QHeader()
 /*! \reimp
  */
 
-void QHeader::showEvent(QShowEvent *e)
+void Q3Header::showEvent(QShowEvent *e)
 {
     calculatePositions();
     QWidget::showEvent(e);
 }
 
 /*!
-    \fn void QHeader::sizeChange(int section, int oldSize, int newSize)
+    \fn void Q3Header::sizeChange(int section, int oldSize, int newSize)
 
     This signal is emitted when the user has changed the size of a \a
     section from \a oldSize to \a newSize. This signal is typically
@@ -260,7 +260,7 @@ void QHeader::showEvent(QShowEvent *e)
 */
 
 /*!
-    \fn void QHeader::clicked(int section)
+    \fn void Q3Header::clicked(int section)
 
     If isClickEnabled() is true, this signal is emitted when the user
     clicks section \a section.
@@ -269,7 +269,7 @@ void QHeader::showEvent(QShowEvent *e)
 */
 
 /*!
-    \fn void QHeader::pressed(int section)
+    \fn void Q3Header::pressed(int section)
 
     This signal is emitted when the user presses section \a section
     down.
@@ -278,7 +278,7 @@ void QHeader::showEvent(QShowEvent *e)
 */
 
 /*!
-    \fn void QHeader::released(int section)
+    \fn void Q3Header::released(int section)
 
     This signal is emitted when section \a section is released.
 
@@ -287,14 +287,14 @@ void QHeader::showEvent(QShowEvent *e)
 
 
 /*!
-    \fn void QHeader::indexChange(int section, int fromIndex, int toIndex)
+    \fn void Q3Header::indexChange(int section, int fromIndex, int toIndex)
 
     This signal is emitted when the user moves section \a section from
     index position \a fromIndex, to index position \a toIndex.
 */
 
 /*!
-  \fn void QHeader::moved(int fromIndex, int toIndex)
+  \fn void Q3Header::moved(int fromIndex, int toIndex)
   \obsolete
 
   Use indexChange() instead.
@@ -304,7 +304,7 @@ void QHeader::showEvent(QShowEvent *e)
 */
 
 /*!
-  \fn void QHeader::sectionClicked(int index)
+  \fn void Q3Header::sectionClicked(int index)
   \obsolete
 
   Use clicked() instead.
@@ -316,7 +316,7 @@ void QHeader::showEvent(QShowEvent *e)
   that sorts the specified column (or row).
 */
 
-/*! \fn int QHeader::cellSize(int) const
+/*! \fn int Q3Header::cellSize(int) const
   \obsolete
 
   Use sectionSize() instead.
@@ -326,7 +326,7 @@ void QHeader::showEvent(QShowEvent *e)
 */
 
 /*!
-    \fn void QHeader::sectionHandleDoubleClicked(int section)
+    \fn void Q3Header::sectionHandleDoubleClicked(int section)
 
     This signal is emitted when the user doubleclicks on the edge
     (handle) of section \a section.
@@ -341,7 +341,7 @@ void QHeader::showEvent(QShowEvent *e)
   index \a i. The  position is measured from the start of the header.
 */
 
-int QHeader::cellPos(int i) const
+int Q3Header::cellPos(int i) const
 {
     if (i == count() && i > 0)
         return  d->positions[i-1] + d->sizes[d->i2s[i-1]]; // compatibility
@@ -350,18 +350,18 @@ int QHeader::cellPos(int i) const
 
 
 /*!
-    \property QHeader::count
+    \property Q3Header::count
     \brief the number of sections in the header
 */
 
-int QHeader::count() const
+int Q3Header::count() const
 {
     return d->count;
 }
 
 
 /*!
-    \property QHeader::tracking
+    \property Q3Header::tracking
     \brief whether the sizeChange() signal is emitted continuously
 
     If tracking is on, the sizeChange() signal is emitted continuously
@@ -376,11 +376,11 @@ int QHeader::count() const
 /*
     Initializes with \a n columns.
 */
-void QHeader::init(int n)
+void Q3Header::init(int n)
 {
     state = Idle;
     cachedPos = 0; // unused
-    d = new QHeaderData(n);
+    d = new Q3HeaderData(n);
     d->height = 0;
     d->heightDirty = true;
     offs = 0;
@@ -395,7 +395,7 @@ void QHeader::init(int n)
 }
 
 /*!
-    \property QHeader::orientation
+    \property Q3Header::orientation
     \brief the header's orientation
 
     The orientation is either \c Vertical or \c Horizontal (the
@@ -405,7 +405,7 @@ void QHeader::init(int n)
     size parameter otherwise the sizes will be incorrect.
 */
 
-void QHeader::setOrientation(Orientation orientation)
+void Q3Header::setOrientation(Orientation orientation)
 {
     if (orient == orientation)
         return;
@@ -422,7 +422,7 @@ void QHeader::setOrientation(Orientation orientation)
 /*
     Paints a rectangle starting at \a p, with length \s.
 */
-void QHeader::paintRect(int p, int s)
+void Q3Header::paintRect(int p, int s)
 {
     QPainter paint(this);
     paint.setPen(QPen(black, 1, DotLine));
@@ -437,7 +437,7 @@ void QHeader::paintRect(int p, int s)
 /*
   Marks the division line at \a idx.
 */
-void QHeader::markLine(int idx)
+void Q3Header::markLine(int idx)
 {
     QPainter paint(this);
     paint.setPen(QPen(black, 1, DotLine));
@@ -468,7 +468,7 @@ void QHeader::markLine(int idx)
 /*
   Removes the mark at the division line at \a idx.
 */
-void QHeader::unMarkLine(int idx)
+void Q3Header::unMarkLine(int idx)
 {
     if (idx < 0)
         return;
@@ -485,7 +485,7 @@ void QHeader::unMarkLine(int idx)
     repaint(x, y, x2-x+1, y2-y+1);
 }
 
-/*! \fn int QHeader::cellAt(int) const
+/*! \fn int Q3Header::cellAt(int) const
   \obsolete
 
   Use sectionAt() instead.
@@ -498,7 +498,7 @@ void QHeader::unMarkLine(int idx)
 /*
   Tries to find a line that is not a neighbor of  \c handleIdx.
 */
-int QHeader::findLine(int c)
+int Q3Header::findLine(int c)
 {
     int i = 0;
     if (c > d->lastPos || (reverse() && c < 0)) {
@@ -525,7 +525,7 @@ int QHeader::findLine(int c)
 /*!
     Returns the handle at position \a p, or -1 if there is no handle at \a p.
 */
-int QHeader::handleAt(int p)
+int Q3Header::handleAt(int p)
 {
     int section = d->sectionAt(p);
     if (section >= 0) {
@@ -555,7 +555,7 @@ int QHeader::handleAt(int p)
   to index \a toIdx.
 */
 
-void QHeader::moveCell(int fromIdx, int toIdx)
+void Q3Header::moveCell(int fromIdx, int toIdx)
 {
     moveSection(mapToSection(fromIdx), toIdx);
 }
@@ -566,7 +566,7 @@ void QHeader::moveCell(int fromIdx, int toIdx)
   Move and signal and repaint.
  */
 
-void QHeader::handleColumnMove(int fromIdx, int toIdx)
+void Q3Header::handleColumnMove(int fromIdx, int toIdx)
 {
     int s = d->i2s[fromIdx];
     if (fromIdx < toIdx)
@@ -582,7 +582,7 @@ void QHeader::handleColumnMove(int fromIdx, int toIdx)
 /*!
   \reimp
 */
-void QHeader::keyPressEvent(QKeyEvent *e)
+void Q3Header::keyPressEvent(QKeyEvent *e)
 {
     int i = d->focusIdx;
     if (e->key() == Key_Space) {
@@ -624,7 +624,7 @@ void QHeader::keyPressEvent(QKeyEvent *e)
 /*!
   \reimp
 */
-void QHeader::keyReleaseEvent(QKeyEvent *e)
+void Q3Header::keyReleaseEvent(QKeyEvent *e)
 {
     switch (e->key()) {
     case Key_Space:
@@ -648,7 +648,7 @@ void QHeader::keyReleaseEvent(QKeyEvent *e)
 /*!
   \reimp
 */
-void QHeader::mousePressEvent(QMouseEvent *e)
+void Q3Header::mousePressEvent(QMouseEvent *e)
 {
     if (e->button() != LeftButton || state != Idle)
         return;
@@ -696,7 +696,7 @@ void QHeader::mousePressEvent(QMouseEvent *e)
 /*!
   \reimp
 */
-void QHeader::mouseReleaseEvent(QMouseEvent *e)
+void Q3Header::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() != LeftButton)
         return;
@@ -764,7 +764,7 @@ void QHeader::mouseReleaseEvent(QMouseEvent *e)
 /*!
   \reimp
 */
-void QHeader::mouseMoveEvent(QMouseEvent *e)
+void Q3Header::mouseMoveEvent(QMouseEvent *e)
 {
     int c = orient == Horizontal ? e->pos().x() : e->pos().y();
     c += offset();
@@ -817,14 +817,14 @@ void QHeader::mouseMoveEvent(QMouseEvent *e)
         break;
     }
     default:
-        qWarning("QHeader::mouseMoveEvent: (%s) unknown state", objectName().local8Bit());
+        qWarning("Q3Header::mouseMoveEvent: (%s) unknown state", objectName().local8Bit());
         break;
     }
 }
 
 /*! \reimp */
 
-void QHeader::mouseDoubleClickEvent(QMouseEvent *e)
+void Q3Header::mouseDoubleClickEvent(QMouseEvent *e)
 {
     int p = orient == Horizontal ? e->pos().x() : e->pos().y();
     p += offset();
@@ -841,7 +841,7 @@ void QHeader::mouseDoubleClickEvent(QMouseEvent *e)
   of the header.
 */
 
-void QHeader::handleColumnResize(int index, int c, bool final, bool recalcAll)
+void Q3Header::handleColumnResize(int index, int c, bool final, bool recalcAll)
 {
     int section = d->i2s[index];
     int GripMargin = (bool)d->resize[section] ?
@@ -894,7 +894,7 @@ void QHeader::handleColumnResize(int index, int c, bool final, bool recalcAll)
     Returns the rectangle covered by the section at index \a index.
 */
 
-QRect QHeader::sRect(int index)
+QRect Q3Header::sRect(int index)
 {
 
     int section = mapToSection(index);
@@ -922,7 +922,7 @@ QRect QHeader::sRect(int index)
     Returns the rectangle covered by section \a section.
 */
 
-QRect QHeader::sectionRect(int section) const
+QRect Q3Header::sectionRect(int section) const
 {
     int index = mapToIndex(section);
     if (section < 0)
@@ -947,7 +947,7 @@ QRect QHeader::sectionRect(int section) const
     If the section does not exist, nothing happens.
 */
 
-void QHeader::setLabel(int section, const QIconSet& iconset,
+void Q3Header::setLabel(int section, const QIconSet& iconset,
                         const QString &s, int size)
 {
     if (section < 0 || section >= count())
@@ -964,7 +964,7 @@ void QHeader::setLabel(int section, const QIconSet& iconset,
 
     If the section does not exist, nothing happens.
 */
-void QHeader::setLabel(int section, const QString &s, int size)
+void Q3Header::setLabel(int section, const QString &s, int size)
 {
     if (section < 0 || section >= count())
         return;
@@ -985,7 +985,7 @@ bool qt_qheader_label_return_null_strings = false;
     Returns the text for section \a section. If the section does not
     exist, a QString::null is returned.
 */
-QString QHeader::label(int section) const
+QString Q3Header::label(int section) const
 {
     if (section < 0 || section >= count())
         return QString::null;
@@ -1001,7 +1001,7 @@ QString QHeader::label(int section) const
     not exist, 0 is returned.
 */
 
-QIconSet *QHeader::iconSet(int section) const
+QIconSet *Q3Header::iconSet(int section) const
 {
     if (section < 0 || section >= count())
         return 0;
@@ -1019,7 +1019,7 @@ QIconSet *QHeader::iconSet(int section) const
     which case the size is calculated taking account of the size of
     the text.
 */
-int QHeader::addLabel(const QIconSet& iconset, const QString &s, int size)
+int Q3Header::addLabel(const QIconSet& iconset, const QString &s, int size)
 {
     int n = count() + 1;
     d->iconsets.resize(n + 1);
@@ -1031,7 +1031,7 @@ int QHeader::addLabel(const QIconSet& iconset, const QString &s, int size)
     Removes section \a section. If the section does not exist, nothing
     happens.
 */
-void QHeader::removeLabel(int section)
+void Q3Header::removeLabel(int section)
 {
     if (section < 0 || section > count() - 1)
         return;
@@ -1079,7 +1079,7 @@ void QHeader::removeLabel(int section)
     }
 }
 
-QSize QHeader::sectionSizeHint(int section, const QFontMetrics& fm) const
+QSize Q3Header::sectionSizeHint(int section, const QFontMetrics& fm) const
 {
     int iw = 0;
     int ih = 0;
@@ -1122,7 +1122,7 @@ QSize QHeader::sectionSizeHint(int section, const QFontMetrics& fm) const
     hint and font metrics, but constrained by \a size. It also updates
     d->height.
 */
-void QHeader::setSectionSizeAndHeight(int section, int size)
+void Q3Header::setSectionSizeAndHeight(int section, int size)
 {
     QSize sz = sectionSizeHint(section, fontMetrics());
 
@@ -1154,7 +1154,7 @@ void QHeader::setSectionSizeAndHeight(int section, int size)
     is set to \a size. If \a size \< 0, an appropriate size for the
     text \a s is chosen.
 */
-int QHeader::addLabel(const QString &s, int size)
+int Q3Header::addLabel(const QString &s, int size)
 {
     int n = ++d->count;
     if ((int)d->iconsets.size() < n )
@@ -1195,7 +1195,7 @@ int QHeader::addLabel(const QString &s, int size)
     return index;
 }
 
-void QHeader::resizeArrays(int size)
+void Q3Header::resizeArrays(int size)
 {
     d->iconsets.resize(size);
     d->labels.resize(size);
@@ -1207,13 +1207,13 @@ void QHeader::resizeArrays(int size)
     d->resize.resize(size);
 }
 
-void QHeader::setIsATableHeader(bool b)
+void Q3Header::setIsATableHeader(bool b)
 {
     d->is_a_table_header = b;
 }
 
 /*! \reimp */
-QSize QHeader::sizeHint() const
+QSize Q3Header::sizeHint() const
 {
     int width;
     int height;
@@ -1250,21 +1250,21 @@ QSize QHeader::sizeHint() const
 }
 
 /*!
-    \property QHeader::offset
+    \property Q3Header::offset
     \brief the header's left-most (or top-most) visible pixel
 
     Setting this property will scroll the header so that \e offset
     becomes the left-most (or top-most for vertical headers) visible
     pixel.
 */
-int QHeader::offset() const
+int Q3Header::offset() const
 {
     if (reverse())
         return d->lastPos - width() - offs;
     return offs;
 }
 
-void QHeader::setOffset(int x)
+void Q3Header::setOffset(int x)
 {
     int oldOff = offset();
     offs = x;
@@ -1287,7 +1287,7 @@ void QHeader::setOffset(int x)
   Note that the last division line is numbered count(). (There is one
   more line than the number of sections).
 */
-int QHeader::pPos(int i) const
+int Q3Header::pPos(int i) const
 {
     int pos;
     if (i == count())
@@ -1303,7 +1303,7 @@ int QHeader::pPos(int i) const
 /*
   Returns the size of the section at index position \a i.
 */
-int QHeader::pSize(int i) const
+int Q3Header::pSize(int i) const
 {
     return d->sizes[d->i2s[i]];
 }
@@ -1319,7 +1319,7 @@ int QHeader::pSize(int i) const
   \sa mapToActual()
 */
 
-int QHeader::mapToLogical(int a) const
+int Q3Header::mapToLogical(int a) const
 {
     return mapToSection(a);
 }
@@ -1336,7 +1336,7 @@ int QHeader::mapToLogical(int a) const
   \sa mapToLogical()
 */
 
-int QHeader::mapToActual(int l) const
+int Q3Header::mapToActual(int l) const
 {
     return mapToIndex(l);
 }
@@ -1352,7 +1352,7 @@ int QHeader::mapToActual(int l) const
   \warning does not repaint or send out signals
 */
 
-void QHeader::setCellSize(int section, int s)
+void Q3Header::setCellSize(int section, int s)
 {
     if (section < 0 || section >= count())
         return;
@@ -1382,7 +1382,7 @@ void QHeader::setCellSize(int section, int s)
     \sa setMovingEnabled() setClickEnabled() setTracking()
 */
 
-void QHeader::setResizeEnabled(bool enable, int section)
+void Q3Header::setResizeEnabled(bool enable, int section)
 {
     if (section < 0) {
         d->resize.fill(enable);
@@ -1395,7 +1395,7 @@ void QHeader::setResizeEnabled(bool enable, int section)
 
 
 /*!
-    \property QHeader::moving
+    \property Q3Header::moving
     \brief whether the header sections can be moved
 
     If this property is true (the default) the user can move sections.
@@ -1404,7 +1404,7 @@ void QHeader::setResizeEnabled(bool enable, int section)
     \sa setClickEnabled(), setResizeEnabled()
 */
 
-void QHeader::setMovingEnabled(bool enable)
+void Q3Header::setMovingEnabled(bool enable)
 {
     d->move = enable;
 }
@@ -1422,7 +1422,7 @@ void QHeader::setMovingEnabled(bool enable)
     \sa setMovingEnabled(), setResizeEnabled()
 */
 
-void QHeader::setClickEnabled(bool enable, int section)
+void Q3Header::setClickEnabled(bool enable, int section)
 {
     if (section < 0) {
         d->clicks.fill(enable);
@@ -1441,7 +1441,7 @@ void QHeader::setClickEnabled(bool enable, int section)
     Calls paintSectionLabel().
 */
 
-void QHeader::paintSection(QPainter *p, int index, const QRect& fr)
+void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
 {
     int section = mapToSection(index);
     Q4StyleOptionHeader opt = getStyleOption(this, section);
@@ -1526,7 +1526,7 @@ void QHeader::paintSection(QPainter *p, int index, const QRect& fr)
 
     Called by paintSection()
 */
-void QHeader::paintSectionLabel(QPainter *p, int index, const QRect& fr)
+void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
 {
     int section = mapToSection(index);
     if (section < 0)
@@ -1575,7 +1575,7 @@ void QHeader::paintSectionLabel(QPainter *p, int index, const QRect& fr)
 
 
 /*! \reimp */
-void QHeader::paintEvent(QPaintEvent *e)
+void Q3Header::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
     p.setPen(palette().buttonText());
@@ -1627,7 +1627,7 @@ void QHeader::paintEvent(QPaintEvent *e)
   Use the other overload instead.
 */
 
-void QHeader::setSortIndicator(int section, bool ascending)
+void Q3Header::setSortIndicator(int section, bool ascending)
 {
     d->sortSection = section;
     if (section != -1)
@@ -1638,7 +1638,7 @@ void QHeader::setSortIndicator(int section, bool ascending)
 }
 
 /*!
-  \fn void QHeader::setSortIndicator(int section, SortOrder order)
+  \fn void Q3Header::setSortIndicator(int section, SortOrder order)
 
   Sets a sort indicator onto the specified \a section. The indicator's
   \a order is either Ascending or Descending.
@@ -1656,18 +1656,18 @@ void QHeader::setSortIndicator(int section, bool ascending)
     \sa setSortIndicator(), sortIndicatorOrder()
 */
 
-int QHeader::sortIndicatorSection() const
+int Q3Header::sortIndicatorSection() const
 {
     return d->sortSection;
 }
 
 /*!
-    Returns the implied sort order of the QHeaders sort indicator.
+    Returns the implied sort order of the Q3Headers sort indicator.
 
     \sa setSortIndicator(), sortIndicatorSection()
 */
 
-Qt::SortOrder QHeader::sortIndicatorOrder() const
+Qt::SortOrder Q3Header::sortIndicatorOrder() const
 {
     return d->sortDirection ? AscendingOrder : DescendingOrder;
 }
@@ -1676,7 +1676,7 @@ Qt::SortOrder QHeader::sortIndicatorOrder() const
     Resizes section \a section to \a s pixels wide (or high).
 */
 
-void QHeader::resizeSection(int section, int s)
+void Q3Header::resizeSection(int section, int s)
 {
     setCellSize(section, s);
     update();
@@ -1686,7 +1686,7 @@ void QHeader::resizeSection(int section, int s)
     Returns the width (or height) of the \a section in pixels.
 */
 
-int QHeader::sectionSize(int section) const
+int Q3Header::sectionSize(int section) const
 {
     if (section < 0 || section >= count())
         return 0;
@@ -1699,10 +1699,10 @@ int QHeader::sectionSize(int section) const
     \sa offset()
 */
 
-int QHeader::sectionPos(int section) const
+int Q3Header::sectionPos(int section) const
 {
     if (d->positionsDirty)
-        ((QHeader *)this)->calculatePositions();
+        ((Q3Header *)this)->calculatePositions();
     if (section < 0 || section >= count() )
         return 0;
     return d->positions[d->s2i[section]];
@@ -1715,7 +1715,7 @@ int QHeader::sectionPos(int section) const
     \sa offset()
 */
 
-int QHeader::sectionAt(int pos) const
+int Q3Header::sectionAt(int pos) const
 {
     if (reverse())
         pos = d->lastPos - pos;
@@ -1730,7 +1730,7 @@ int QHeader::sectionAt(int pos) const
     example\endlink.
 */
 
-int QHeader::mapToSection(int index) const
+int Q3Header::mapToSection(int index) const
 {
     return (index >= 0 && index < count()) ? d->i2s[index] : -1;
 }
@@ -1743,7 +1743,7 @@ int QHeader::mapToSection(int index) const
     example\endlink.
 */
 
-int QHeader::mapToIndex(int section) const
+int Q3Header::mapToIndex(int section) const
 {
     return (section >= 0 && section < count()) ? d->s2i[section] : -1;
 }
@@ -1752,7 +1752,7 @@ int QHeader::mapToIndex(int section) const
     Moves section \a section to index position \a toIndex.
 */
 
-void QHeader::moveSection(int section, int toIndex)
+void Q3Header::moveSection(int section, int toIndex)
 {
     int fromIndex = mapToIndex(section);
     if (fromIndex == toIndex ||
@@ -1792,7 +1792,7 @@ void QHeader::moveSection(int section, int toIndex)
     \sa setClickEnabled()
 */
 
-bool QHeader::isClickEnabled(int section) const
+bool Q3Header::isClickEnabled(int section) const
 {
     if (section >= 0 && section < count()) {
         return (bool)d->clicks[section];
@@ -1816,7 +1816,7 @@ bool QHeader::isClickEnabled(int section) const
     \sa setResizeEnabled()
 */
 
-bool QHeader::isResizeEnabled(int section) const
+bool Q3Header::isResizeEnabled(int section) const
 {
     if (section >= 0 && section < count()) {
         return (bool)d->resize[section];
@@ -1829,14 +1829,14 @@ bool QHeader::isResizeEnabled(int section) const
     return true;
 }
 
-bool QHeader::isMovingEnabled() const
+bool Q3Header::isMovingEnabled() const
 {
     return d->move;
 }
 
 /*! \reimp */
 
-void QHeader::setUpdatesEnabled(bool enable)
+void Q3Header::setUpdatesEnabled(bool enable)
 {
     if (enable)
         calculatePositions();
@@ -1844,7 +1844,7 @@ void QHeader::setUpdatesEnabled(bool enable)
 }
 
 
-bool QHeader::reverse () const
+bool Q3Header::reverse () const
 {
 #if 0
     return (orient == Qt::Horizontal && QApplication::reverseLayout());
@@ -1854,7 +1854,7 @@ bool QHeader::reverse () const
 }
 
 /*! \reimp */
-void QHeader::resizeEvent(QResizeEvent *e)
+void Q3Header::resizeEvent(QResizeEvent *e)
 {
     if (e)
         QWidget::resizeEvent(e);
@@ -1874,14 +1874,14 @@ void QHeader::resizeEvent(QResizeEvent *e)
 }
 
 /*!
-    \fn void QHeader::adjustHeaderSize()
+    \fn void Q3Header::adjustHeaderSize()
 
     Adjusts the size of the sections to fit the size of the header as
     completely as possible. Only sections for which isStretchEnabled()
     is true will be resized.
 */
 
-void QHeader::adjustHeaderSize(int diff)
+void Q3Header::adjustHeaderSize(int diff)
 {
     if (!count())
         return;
@@ -1929,16 +1929,16 @@ void QHeader::adjustHeaderSize(int diff)
 /*!
     Returns the total width of all the header columns.
 */
-int QHeader::headerWidth() const
+int Q3Header::headerWidth() const
 {
     if (d->pos_dirty) {
-        ((QHeader*)this)->calculatePositions();
+        ((Q3Header*)this)->calculatePositions();
         d->pos_dirty = false;
     }
     return d->lastPos;
 }
 
-void QHeader::calculatePositions(bool onlyVisible, int start)
+void Q3Header::calculatePositions(bool onlyVisible, int start)
 {
     d->positionsDirty = false;
     d->lastPos = count() > 0 ? d->positions[start] : 0;
@@ -1954,7 +1954,7 @@ void QHeader::calculatePositions(bool onlyVisible, int start)
 
 
 /*!
-    \property QHeader::stretching
+    \property Q3Header::stretching
     \brief whether the header sections always take up the full width
     (or height) of the header
 */
@@ -1976,7 +1976,7 @@ void QHeader::calculatePositions(bool onlyVisible, int start)
     \sa adjustHeaderSize()
 */
 
-void QHeader::setStretchEnabled(bool b, int section)
+void Q3Header::setStretchEnabled(bool b, int section)
 {
     if (b)
         d->fullSize = section;
@@ -1985,7 +1985,7 @@ void QHeader::setStretchEnabled(bool b, int section)
     adjustHeaderSize();
 }
 
-bool QHeader::isStretchEnabled() const
+bool Q3Header::isStretchEnabled() const
 {
     return d->fullSize == -1;
 }
@@ -2001,7 +2001,7 @@ bool QHeader::isStretchEnabled() const
     \sa setStretchEnabled()
 */
 
-bool QHeader::isStretchEnabled(int section) const
+bool Q3Header::isStretchEnabled(int section) const
 {
     return d->fullSize == section;
 }
@@ -2009,7 +2009,7 @@ bool QHeader::isStretchEnabled(int section) const
 /*!
   \reimp
 */
-void QHeader::changeEvent(QEvent *ev)
+void Q3Header::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::FontChange) {
         QFontMetrics fm = fontMetrics();

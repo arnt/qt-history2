@@ -18,7 +18,7 @@
 #ifndef QT_H
 #include "qscrollview.h"
 #include "qpixmap.h"
-#include "qheader.h"
+#include "q3header.h"
 #include "qpointer.h"
 #include "qshared.h"
 #include "qhash.h"
@@ -230,8 +230,8 @@ public:
             QWidget* parent=0, const char* name=0);
     ~QTable();
 
-    QHeader *horizontalHeader() const;
-    QHeader *verticalHeader() const;
+    Q3Header *horizontalHeader() const;
+    Q3Header *verticalHeader() const;
 
     enum SelectionMode { Single, Multi, SingleRow, MultiRow, NoSelection };
     virtual void setSelectionMode(SelectionMode mode);

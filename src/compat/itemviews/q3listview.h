@@ -24,7 +24,7 @@
 
 class QPixmap;
 class QFont;
-class QHeader;
+class Q3Header;
 class QIconSet;
 
 class Q3ListView;
@@ -240,7 +240,7 @@ public:
     virtual void takeItem(Q3ListViewItem *);
     virtual void removeItem(Q3ListViewItem *item) { takeItem(item); } // obsolete, use takeItem instead
 
-    QHeader * header() const;
+    Q3Header * header() const;
 
     virtual int addColumn(const QString &label, int size = -1);
     virtual int addColumn(const QIconSet& iconset, const QString &label, int size = -1);
