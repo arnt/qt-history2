@@ -20,9 +20,7 @@ DEFINES		+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
 
 TARGET		= uic
-INCLUDEPATH	+= ../shared ../../../src/3rdparty/zlib/
-unix:!zlib:LIBS	+= -lz
-mac:!system-zlib:LIBS	+= -lz
+INCLUDEPATH	+= ../shared
 DEFINES 	+= UIC
 DESTDIR		= ../../../bin
 

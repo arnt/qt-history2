@@ -40,7 +40,6 @@
 #include <private/qpluginmanager_p.h>
 #include <qmime.h>
 #include <qdragobject.h>
-#include <zlib.h>
 
 #ifndef QT_NO_SQL
 #include <qsqlrecord.h>
@@ -164,8 +163,8 @@ static QImage loadImageData( const QString& format, ulong len, QByteArray data )
     if ( format == "XPM.GZ" ) {
 	if ( len < data.size() * 10 )
 	    len = data.size() * 10;
-	QByteArray baunzip( len );
-	::uncompress( (uchar*) baunzip.data(), &len, (uchar*) data.data(), data.size() );
+	QByteArray baunzip = qUncompress( data, len );
+	len = baunzip.size();
 	img.loadFromData( (const uchar*)baunzip.data(), len, "XPM" );
     } else {
 	img.loadFromData( (const uchar*)data.data(), data.size(), format );

@@ -65,7 +65,6 @@
 #include <qwizard.h>
 #include <qtextcodec.h>
 #include <qregexp.h>
-#include <zlib.h>
 #include <qdatetime.h>
 #ifndef QT_NO_TABLE
 #include <qtable.h>
@@ -1852,10 +1851,8 @@ void Resource::saveImageData( const QImage &img, QTextStream &ts, int indent )
     iio.setImage( img );
     iio.write();
     buf.close();
-    ulong len = ba.size() * 2;
-    QByteArray bazip( len );
-    ::compress(  (uchar*) bazip.data(), &len, (uchar*) ba.data(), ba.size() );
-    QString res;
+    QByteArray bazip = qCompress( ba );
+    ulong len = bazip.size();
     ts << makeIndent( indent ) << "<data format=\"XPM.GZ\" length=\"" << ba.size() << "\">";
     static const char hexchars[] = "0123456789abcdef";
     for ( int i = 0; i < (int)len; ++i ) {
@@ -1909,8 +1906,8 @@ static QImage loadImageData( QDomElement &n2 )
 	ulong len = n2.attribute( "length" ).toULong();
 	if ( len < data.length() * 5 )
 	    len = data.length() * 5;
-	QByteArray baunzip( len );
-	::uncompress( (uchar*) baunzip.data(), &len, (uchar*) ba, data.length()/2 );
+	QByteArray baunzip = qUncompress( (uchar*)ba, data.length()/2, len );
+	len = baunzip.size();
 	img.loadFromData( (const uchar*)baunzip.data(), len, "XPM" );
     }  else {
 	img.loadFromData( (const uchar*)ba, data.length() / 2, format );

@@ -15,11 +15,10 @@ sql:HEADERS +=		  ../designer/database2.h
 DEFINES += QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
 TARGET		= qui
-INCLUDEPATH	+= ../shared ../../../src/3rdparty/zlib/
+INCLUDEPATH	+= ../shared
 DESTDIR		= ../../../lib
 VERSION		= 1.0.0
 DEFINES		+= RESOURCE
-unix:system-zlib:LIBS += -lz
 
 unix {
 	target.path=$$libs.path

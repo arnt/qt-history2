@@ -27,7 +27,6 @@
 #include <qfileinfo.h>
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
-#include <zlib.h>
 
 static QByteArray unzipXPM( QString data, ulong& length )
 {
@@ -60,8 +59,7 @@ static QByteArray unzipXPM( QString data, ulong& length )
     // crashes in some cases of slightly corrupt UIC files.
     if ( length <  data.length() * 5 )
 	length = data.length() * 5;
-    QByteArray baunzip( length );
-    ::uncompress( (uchar*) baunzip.data(), &length, ba, data.length()/2 );
+    QByteArray baunzip = qUncompress( ba, data.length()/2, length );
     delete[] ba;
     return baunzip;
 }
@@ -884,6 +882,7 @@ void Uic::createFormImpl( const QDomElement &e )
 			xpmImages += img;
 			ulong length = tmp.attribute("length").toULong();
 			QByteArray baunzip = unzipXPM( data, length );
+			length = baunzip.size();
 			// shouldn't we test the initial 'length' against the
 			// resulting 'length' to catch corrupt UIC files?
 			int a = 0;
