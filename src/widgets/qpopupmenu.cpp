@@ -115,7 +115,10 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
   slot. The receiver will be notifed whenever the item was
   selected. In addition, QPopupMenu provides two signals activated()
   and highlighted() that signal the identifier of the respective menu
-  item.
+  item. Sometimes it is practical to connect several items to one
+  slot. To distinguish between them, specify a slot that takes an
+  integer argument and use setItemParameter() to associate a unique
+  value with each item.
 
   You clear a popup menu with clear() and remove single items with
   removeItem() or removeItemAt().
