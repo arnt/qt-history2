@@ -54,7 +54,7 @@ function hasconf {
 
 cd $QTDIR
 
-for platform in `(cd $TMAKEDIR/lib; /bin/ls -d *-*)`
+for platform in `(cd $TMAKEDIR/lib; /bin/ls -d ${PLATFORM:+$PLATFORM/}*-*)`
 do
   case "$platform" in
    win32*)
