@@ -1728,10 +1728,10 @@ void QLineEdit::keyPressEvent( QKeyEvent * e )
 	    unknown = TRUE;
 	}
     }
-    if ( e->key() == Key_Direction_L )
-	d->direction = QChar::DirL;
-    else if ( e->key() == Key_Direction_R )
-	d->direction = QChar::DirR;
+    if ( e->key() == Key_Direction_L || e->key() == Key_Direction_R ) {
+	d->direction = (e->key() == Key_Direction_L) ? QChar::DirL : QChar::DirR;
+	update();
+    }
 
     if ( unknown )
 	e->ignore();
@@ -1952,7 +1952,8 @@ void QLineEdit::drawContents( QPainter *p )
 	QPoint to(from.x(), qMin(lineRect.bottom(), contentsRect().bottom()));
 	p->drawLine( from, to );
 	if ( hasRightToLeft ) {
-	    to = from + QPoint( (ci.isRightToLeft()?-2:2), 2 );
+	    bool rtl = ci.isValid() ? ci.isRightToLeft() : true;
+	    to = from + QPoint( (rtl ? -2 : 2), 2 );
 	    p->drawLine( from, to );
 	    from.ry() += 4;
 	    p->drawLine( from, to );
