@@ -75,10 +75,9 @@ public:
 
     int heightForWidth(int) const;
 
+public slots:
     virtual void	setText( const QString &);
     virtual void	setPixmap( const QPixmap & );
-
-public slots:
     virtual void	setMovie( const QMovie & );
     virtual void	setNum( int );
     virtual void	setNum( double );
