@@ -34,6 +34,7 @@ if [ -n "$VERBOSE" ] ; then echo "Build tutorial, example, and extensions Makefi
 
 cd $QTDIR
 find tutorial \
+ src/util \
  examples \
  extensions -name '*.pro' |
     while read pro_file
