@@ -999,7 +999,13 @@ void QSpinBox::updateButtonSymbols()
 	    wm.scale( 1, -1 );
 	    upBm = dnBm.xForm( wm );
 #else
-	    upBm = dnBm;    // ### fix me!
+	    upBm.resize( w, h );
+	    p.begin( &upBm );
+	    p.eraseRect( 0, 0, w, h );
+	    a.setPoints( 3,  0, h-2,  w-1, h-2,  h-2, 0 );
+	    p.setBrush( color1 );
+	    p.drawPolygon( a );
+	    p.end();
 #endif
 	}
 	QPixmapCache::insert( dnKey, dnBm );
