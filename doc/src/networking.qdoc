@@ -82,8 +82,8 @@
     commands based on the result of a previous command. It also
     enables you to provide detailed feedback to the user.
 
-    The \l network/http and \l network/ftp examples illustrate how to
-    write an HTTP and an FTP client.
+    The \l{network/http}{HTTP} and \l{network/ftp}{FTP} examples
+    illustrate how to write an HTTP and an FTP client.
 
     Writing your own HTTP or FTP server is possible using the
     lower-level classes QTcpSocket and QTcpServer.
@@ -151,7 +151,10 @@
     QTcpSocket and QTcpServer to write TCP client-server
     applications. See also \l{network/blockingfortuneclient}{Blocking
     Fortune Client} for an example on how to use a synchronous
-    QTcpSocket in a separate thread, without using an event loop.
+    QTcpSocket in a separate thread (without using an event loop),
+    and \l{network/threadedfortuneserver}{Threaded Fortune Server}
+    for an example of a multithreaded TCP server with one thread per
+    active client.
 
     \section1 Using UDP with QUdpSocket
 
@@ -190,9 +193,9 @@
     \l{QUdpSocket::readyRead()}{readyRead()} signal. Call
     QUdpSocket::readDatagram() to read the datagram.
 
-    The \l network/broadcastsender and \l network/broadcastreceiver
-    examples show how to write a UDP sender and a UDP receiver using
-    Qt.
+    The \l{network/broadcastsender}{Broadcast Sender} and
+    \l{network/broadcastreceiver}{Broadcast Receiver} examples show
+    how to write a UDP sender and a UDP receiver using Qt.
 
     \section1 Resolving Host Names using QDns
 

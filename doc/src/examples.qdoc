@@ -66,6 +66,7 @@
 
     \list
     \o \l{painting/basicdrawing}{Basic Drawing}
+    \o \l{painting/concentriccircles}{Concentric Circles}
     \o \l{painting/painterpaths}{Painter Paths}
     \o \l{painting/transformations}{Transformations}
     \endlist
@@ -102,6 +103,7 @@
     \o \l{network/ftp}{FTP}
     \o \l{network/http}{HTTP}
     \o \l{network/loopback}{Loopback}
+    \o \l{network/threadedfortuneserver}{Threaded Fortune Server}
     \endlist
 
     \section1 SQL Examples

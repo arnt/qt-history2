@@ -74,12 +74,9 @@
     caller of a \l QStyle function usually creates \l QStyleOption
     objects on the stack. This combined with Qt's extensive use of
     \l{implicit sharing} for types such as QString, QPalette, and
-    QColor ensure that no memory allocation needlessly takes place.
+    QColor ensures that no memory allocation needlessly takes place.
     (Dynamic memory allocation can be an expensive operation,
     especially when drawing very often in a short time.)
-
-    \l QStyleOption has a versioning mechanism that makes it possible to
-    add members to the class without breaking binary compatibility.
 
     \section1 Example Code
 

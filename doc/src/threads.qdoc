@@ -241,7 +241,9 @@
     putting time-consuming operations in a separate worker thread and
     displaying the results on screen in the main thread when the
     worker thread is finished. This is the approach used for
-    implementing the \l{threads/mandelbrot}{Mandelbrot} example.
+    implementing the \l{threads/mandelbrot}{Mandelbrot} and
+    the \l{network/blockingfortuneclient}{Blocking Fortune Client}
+    example.
 
     \section2 Per-Thread Event Loop
 
@@ -346,6 +348,10 @@
     Mandelbrot fractal computation is done in a separate worker
     thread. The thread emits a signal when it is done rendering the
     fractal.
+
+    Similarly, the \l{network/blockingfortuneclient}{Blocking Fortune
+    Client} example uses a separate thread for communicating with
+    a TCP server asynchronously.
 
     \section1 Threads and Implicit Sharing
 
