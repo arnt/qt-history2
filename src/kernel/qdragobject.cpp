@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#16 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -76,7 +76,7 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	//debug( "unexpected event for object %p - %s/%s",
 	//       o, o->name( "unnamed" ), o->className() );
 	o->removeEventFilter( this );
-	return;
+	return FALSE;
     }
 
     ASSERT( object != 0 );
