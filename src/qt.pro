@@ -82,6 +82,7 @@ nas {
 	LIBS	+= -laudio -lXt
 }
 
+sm:CONFIG += x11sm
 !x11sm:DEFINES += QT_NO_SM_SUPPORT
 
 cups {
@@ -101,7 +102,7 @@ include($$NETWORK_CPP/qt_network.pri)
 include($$CANVAS_CPP/qt_canvas.pri)
 include($$TABLE_CPP/qt_table.pri)
 include($$XML_CPP/qt_xml.pri)
-include($$OPENGL_CPP/qt_opengl.pri)
+opengl:include($$OPENGL_CPP/qt_opengl.pri)
 include($$SQL_CPP/qt_sql.pri)
 include($$KERNEL_CPP/qt_gfx.pri)
 include($$TOOLS_CPP/qt_tools.pri)

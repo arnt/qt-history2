@@ -314,6 +314,8 @@ UnixMakefileGenerator::init()
 	return; /* subdirs is done */
     }
 
+    bool extern_libs = !project->isActiveConfig("dll")  || (project->variables()["TARGET"].first() == "qt" ||
+							    project->variables()["TARGET"].first() == "qt-mt");
     /* ported directly from generic.t */
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty() && !project->isActiveConfig("staticlib") ) {
@@ -343,7 +345,7 @@ UnixMakefileGenerator::init()
     if ( !project->variables()["QMAKE_LIBDIR"].isEmpty() ) {
 	project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" + project->variables()["QMAKE_LIBDIR"].first());
     }
-    if ( project->isActiveConfig("qt") || project->isActiveConfig("opengl") ) {
+    if ( extern_libs && (project->isActiveConfig("qt") || project->isActiveConfig("opengl")) ) {
 	if(configs.findIndex("x11lib") == -1) configs.append("x11lib");
 	if ( project->isActiveConfig("opengl") ) {
 	    if(configs.findIndex("x11inc") == -1) configs.append("x11inc");

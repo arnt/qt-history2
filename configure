@@ -893,7 +893,7 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$JPEG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG jpeg"
 [ "x$MNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG mng"
 [ "x$FT" = "xyes" -a "x$EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
-[ "x$SM" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG x11sm"
+[ "x$SM" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sm"
 [ "x$GIF" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG gif"
 [ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
 [ "x$LIBPNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG png"
