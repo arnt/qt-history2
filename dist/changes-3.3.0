@@ -23,8 +23,8 @@ ActiveQt Extension
 ------------------
 Two new functions, QAxFactory::startServer() and QAxFactory::stopServer(),
 can be used to start and stop an out-of-process ActiveQt server in runtime. 
-In-process server DLLs no longer need a dummy implementation of the main() 
-entry point function.
+Server binaries no longer need to implement a main() entry point function.
+A default implementation will be used for out-of-process servers.
 
 COM objects developed with ActiveQt are now supported in a wider range of
 standard clients, including .NET.
