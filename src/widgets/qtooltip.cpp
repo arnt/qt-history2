@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#8 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,13 +15,15 @@
 #include "qlabel.h"
 #include "qpoint.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#8 $");
 
 // what comes out of the dict
 struct QTip
 {
     QRect rect;
     QString text;
+    QString groupText;
+    QToolTipGroup * group;
     bool autoDelete;
     QTip * next;
 };
@@ -36,7 +38,10 @@ public:
     ~QTipManager();
 
     bool eventFilter( QObject * o, QEvent * e );
-    void add( QWidget *, const QRect &, const char *, bool );
+    void add( QWidget *, const QRect &,
+	      const char *, 
+	      QToolTipGroup *, const char *,
+	      bool );
     void remove( QWidget *, const QRect & );
 
     void remove( QToolTipGroup * );
@@ -84,7 +89,8 @@ QTipManager::~QTipManager()
 }
 
 
-void QTipManager::add( QWidget * w, const QRect & r, const char * s, bool a )
+void QTipManager::add( QWidget * w, const QRect & r, const char * s,
+		       QToolTipGroup * g, const char * gs, bool a )
 {
     QTip * t = (*tips)[ (long)w ];
     if ( !t ) {
@@ -106,6 +112,9 @@ void QTipManager::add( QWidget * w, const QRect & r, const char * s, bool a )
     t->text = s;
     t->autoDelete = a;
     t->rect = r;
+
+    t->groupText = gs;
+    t->group = g;
 }
 
 
@@ -278,6 +287,8 @@ void QTipManager::showTip()
     label->show();
     killTimers();
     startTimer( 5000 );
+    if ( currentTip->group && !currentTip->groupText.isEmpty() )
+	emit currentTip->group->showTip( currentTip->groupText );
 }
 
 
@@ -285,6 +296,9 @@ void QTipManager::hideTip()
 {
     if ( label && label->isVisible() )
 	label->hide();
+
+    if ( currentTip && currentTip->group )
+	emit currentTip->group->removeTip();
 
     killTimers();
     if ( state == active ) {
@@ -380,7 +394,7 @@ void QToolTip::add( QWidget * widget, const char * text )
     tipManager->add( widget, QRect( QCOORD_MIN, QCOORD_MIN,
 				    QCOORD_MAX-QCOORD_MIN,
 				    QCOORD_MAX-QCOORD_MIN ),
-		     text, FALSE );
+		     text, 0, 0, FALSE );
 }
 
 
@@ -406,7 +420,7 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const char * text )
 {
     if ( !tipManager )
 	tipManager = new QTipManager();
-    tipManager->add( widget, rect, text, FALSE );
+    tipManager->add( widget, rect, text, 0, 0, FALSE );
 }
 
 
@@ -414,10 +428,13 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const char * text )
 
 */
 
-void QToolTip::add( QWidget *, const QRect &, const char *,
-		    QToolTipGroup *, const char * )
+void QToolTip::add( QWidget * widget, const QRect & rect,
+		    const char * text,
+		    QToolTipGroup * group, const char * groupText )
 {
-    
+    if ( !tipManager )
+	tipManager = new QTipManager();
+    tipManager->add( widget, rect, text, group, groupText, FALSE );
 }
 
 
