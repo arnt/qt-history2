@@ -410,7 +410,11 @@
   in the file qapp_xxx.cpp.
  *****************************************************************************/
 
-static const int WDictSize = 3733; // plenty for 15 big complex windows
+#ifdef _WS_QWS_
+static const int WDictSize = 163; // plenty for small devices
+#else
+static const int WDictSize = 1123; // plenty for 5 big complex windows
+#endif
 
 class QWidgetMapper : public QWidgetIntDict
 {						// maps ids -> widgets
