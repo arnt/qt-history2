@@ -101,8 +101,9 @@ bool ParsableBlock::eval(QMakeProject *p, QMap<QString, QStringList> &place)
 //defined functions
 struct FunctionBlock : public ParsableBlock
 {
-    FunctionBlock() : scope_level(1), cause_return(false) { }
+    FunctionBlock() : calling_place(0), scope_level(1), cause_return(false) { }
 
+    QMap<QString, QStringList> *calling_place;
     QString return_value;
     int scope_level;
     bool cause_return;
@@ -116,24 +117,20 @@ bool FunctionBlock::exec(const QStringList &args,
                          QMakeProject *proj, QMap<QString, QStringList> &place, QString &functionReturn)
 {
     //save state
+    calling_place = &place;
     return_value = "";
     cause_return = false;
 
     //execute
-    QList<QStringList> va;
-    QStringList args_old = place["ARGS"];
-    place["ARGS"] = args;
-    for(int i = 0; i < args.count(); i++) {
-        va.append(place[QString::number(i+1)]);
-        place[QString::number(i+1)] = QStringList(args[i]);
-    }
-    bool ret = ParsableBlock::eval(proj, place);
+    QMap<QString, QStringList> func_place = place;
+    func_place["ARGS"] = args;
+    for(int i = 0; i < args.count(); i++)
+        func_place[QString::number(i+1)] = QStringList(args[i]);
+    bool ret = ParsableBlock::eval(proj, func_place);
     functionReturn = return_value;
-    for(int i = 0; i < va.count(); i++)
-        place[QString::number(i+1)] = va[i];
-    place["ARG_COUNT"] = args_old; //just to be carefull
 
     //restore state
+    calling_place = 0;
     return_value = QString::null;
     return ret;
 }
@@ -809,9 +806,9 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                             else
                                 map = &replaceFunctions;
                             if(!map || map->contains(args[0])) {
-                                   fprintf(stderr, "%s:%d: Function[%s] multiply defined.\n",
-                                           parser.file.toLatin1().constData(), parser.line_no, args[0].toLatin1().constData());
-                                   return false;
+                                fprintf(stderr, "%s:%d: Function[%s] multiply defined.\n",
+                                        parser.file.toLatin1().constData(), parser.line_no, args[0].toLatin1().constData());
+                                return false;
                             }
                             function = new FunctionBlock;
                             map->insert(args[0], function);
@@ -1992,6 +1989,18 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
             file = file.right(file.length() - slsh - 1);
         }
         return QDir(dirstr).entryList(QStringList(file)).count();
+    } else if(func == "export") {
+        if(args.count() != 1) {
+            fprintf(stderr, "%s:%d: export(variable) requires one argument.\n", parser.file.toLatin1().constData(),
+                    parser.line_no);
+            return false;
+        }
+        if(!function_blocks.isEmpty()) {
+            FunctionBlock *f = function_blocks.top();
+            if(f->calling_place)
+                (*f->calling_place)[args[0]] = place[args[0]];
+        }
+        return true;
     } else if(func == "clear") {
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: clear(variable) requires one argument.\n", parser.file.toLatin1().constData(),
