@@ -910,18 +910,29 @@ void QMacStyle::drawControl(ControlElement element,
 		buffer->fill(color0);
 	    }
 	}
-	const QRect off_rct(1, 1, 1, 2);
+
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	if(btn->isFlat())
 	    info.adornment = kThemeAdornmentNoShadow;
+
+	QRect off_rct(0, 0, 0, 0);
+        { //The AppManager draws outside my rectangle, so account for that difference..
+	    Rect macRect, myRect;
+	    SetRect(&myRect,r.x(), r.y(), r.width(), r.height());
+	    GetThemeButtonBackgroundBounds(&myRect, kThemePushButton, &info, &macRect);
+	    off_rct = QRect(myRect.left - macRect.left, myRect.top - macRect.top,
+			    (myRect.left - macRect.left) + (macRect.right - myRect.right), 
+			    (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
+	}
+
 	((QMacPainter *)p)->setport();
-	DrawThemeButton(qt_glb_mac_rect(r, p, TRUE, off_rct), 
+	DrawThemeButton(qt_glb_mac_rect(r, p, FALSE, off_rct), 
 			kThemePushButton, &info, NULL, NULL, NULL, 0);
 	if(buffer) {
 	    if(do_draw && frame) {
 		QMacSavedPortInfo savedInfo(buffer);
 		const Rect *buff_rct = qt_glb_mac_rect(QRect(0, 0, r.width(), r.height()), 
-						       buffer, TRUE, off_rct);
+						       buffer, FALSE, off_rct);
 		DrawThemeButton(buff_rct, kThemePushButton, &info, NULL, NULL, NULL, 0);
 
 		QPixmap buffer_mask(buffer->size(), 32);
@@ -1007,8 +1018,19 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 		if(toolbutton->isOn() || toolbutton->isDown())
 		    info.value |= kThemeStatePressed;
+
+		QRect off_rct(0, 0, 0, 0);
+		{ //The AppManager draws outside my rectangle, so account for that difference..
+		    Rect macRect, myRect;
+		    SetRect(&myRect,r.x(), r.y(), r.width(), r.height());
+		    GetThemeButtonBackgroundBounds(&myRect, kThemeBevelButton, &info, &macRect);
+		    off_rct = QRect(myRect.left - macRect.left, myRect.top - macRect.top,
+				    (myRect.left - macRect.left) + (macRect.right - myRect.right), 
+				    (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
+		}
+
 		((QMacPainter *)p)->setport();
-		DrawThemeButton(qt_glb_mac_rect(button, p),
+		DrawThemeButton(qt_glb_mac_rect(button, p, FALSE, off_rct),
 				kThemeBevelButton, &info, NULL, NULL, NULL, 0);
 	    } else if(toolbutton->parentWidget() &&
 			toolbutton->parentWidget()->backgroundPixmap() &&
@@ -1740,6 +1762,25 @@ QSize QMacStyle::sizeFromContents(ContentsType contents,
 		sz.setWidth(macsz.width());
 	    if(macsz.height() != -1)
 		sz.setHeight(macsz.height());
+	}
+	if(contents == CT_PushButton) { //I hate to do this, but it seems to be needed
+	    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+	    Rect macRect, myRect;
+	    SetRect(&myRect,0, 0, sz.width(), sz.height());
+	    GetThemeButtonBackgroundBounds(&myRect, kThemePushButton, &info, &macRect);
+	    sz.setWidth(sz.width() + 
+			(myRect.left - macRect.left) + (macRect.bottom - myRect.bottom));
+	    sz.setHeight(sz.height() + 
+			 (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
+	} else if(contents == CT_ToolButton) {
+	    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+	    Rect macRect, myRect;
+	    SetRect(&myRect,0, 0, sz.width(), sz.height());
+	    GetThemeButtonBackgroundBounds(&myRect, kThemeBevelButton, &info, &macRect);
+	    sz.setWidth(sz.width() + 
+			(myRect.left - macRect.left) + (macRect.bottom - myRect.bottom));
+	    sz.setHeight(sz.height() + 
+			 (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
 	}
     }
     return sz;
