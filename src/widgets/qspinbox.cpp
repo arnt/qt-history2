@@ -657,7 +657,8 @@ bool QSpinBox::eventFilter( QObject* o, QEvent* ev )
 	}
 	if ( retval )
 	    return retval;
-    } else if ( ev->type() == QEvent::FocusOut || ev->type() == QEvent::Leave || ev->type() == QEvent::Hide ) {
+    } else if ( ev->type() == QEvent::FocusOut || ev->type() == QEvent::Leave ||
+		ev->type() == QEvent::Hide ) {
 	if ( edited ) {
 	    interpretText();
 	}
