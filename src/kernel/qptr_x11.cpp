@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#16 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#16 $";
 #endif
 
 
@@ -302,21 +302,24 @@ QPainter::~QPainter()
 
 void QPainter::setFont( const QFont &font )	// set current font
 {
+    if ( cfont != font )
+	setf( DirtyFont );
     cfont = font;
-    setf( DirtyFont );
 }
 
 void QPainter::setPen( const QPen &pen )	// set current pen
 {
+    if ( cpen != pen )
+	setf( DirtyPen );
     cpen = pen;
-    setf( DirtyPen );
 }
 
 void QPainter::setBrush( const QBrush &brush )	// set current brush
 {
+    if ( cbrush != brush )
+	setf( DirtyBrush );
     cbrush = brush;
     cbrush.data->dpy = dpy;			// give brush a display pointer
-    setf( DirtyBrush );
 }
 
 
