@@ -106,7 +106,7 @@ private:
     void  deleteItem( QPtrCollection::Item d );
 };
 
-#if !defined(Q_BROKEN_TEMPLATE_SPECIALIZATION)
+#if defined(Q_OS_IRIX)
 template<> inline void QPtrList<void>::deleteItem( QPtrCollection::Item )
 {
 }

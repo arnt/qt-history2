@@ -83,7 +83,7 @@ private:
     void  deleteItem( Item d );
 };
 
-#if !defined(Q_BROKEN_TEMPLATE_SPECIALIZATION)
+#if defined(Q_OS_IRIX)
 template<> inline void QIntDict<void>::deleteItem( QPtrCollection::Item )
 {
 }
