@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#45 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#46 $
 **
 ** Implementation of QFontDialog
 **
@@ -318,12 +318,12 @@ QFontDialog::~QFontDialog()
 /*!
   Opens a modal font dialog and returns the font selected by the user.
 
-  \a def is the default selected font.
+  \a initial is the initial selected font.
 
   The \a ok parameter is set to TRUE if the user clicked OK, and FALSE if
   the user clicked Cancel.
 
-  If the user clicks Cancel the \a def font is returned.
+  If the user clicks Cancel the \a initial font is returned.
 
   This static function is less capable than the full QFontDialog object,
   but is convenient and easy to use.
@@ -340,15 +340,15 @@ QFontDialog::~QFontDialog()
     }
   \endcode
 
+  Another example:
+  \code
+    mywidget.setFont( QFontDialog::getFont( 0, mywidget.font() ) );
+  \endcode
 */
-QFont QFontDialog::getFont( bool *ok, const QFont &def,
+QFont QFontDialog::getFont( bool *ok, const QFont &initial,
 			    QWidget *parent, const char* name)
 {
-#if 1
-    return getFont( ok, &def, parent, name );
-#else
-    return getFont( ok, 0, parent, name );
-#endif
+    return getFont( ok, &initial, parent, name );
 }
 
 /*!
@@ -389,7 +389,7 @@ QFont QFontDialog::getFont( bool *ok, const QFont *def,
 
     QFontDialog *dlg = new QFontDialog( parent, name, TRUE );
     if ( def )
-    dlg->setFont( *def );
+	dlg->setFont( *def );
     dlg->setCaption( tr("Font") );
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->font();
