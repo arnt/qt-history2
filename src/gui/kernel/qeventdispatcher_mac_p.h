@@ -3,6 +3,7 @@
 
 #include "qeventdispatcher_unix.h"
 #include "qwindowdefs.h"
+#include <private/qt_mac_p.h>
 
 class QEventDispatcherMacPrivate;
 
