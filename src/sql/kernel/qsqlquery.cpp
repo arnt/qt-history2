@@ -290,8 +290,9 @@ void QSqlQuery::init(const QString& query, QSqlDatabase db)
     QSqlDatabase database = db;
     if (!database.isValid())
         database = QSqlDatabase::database(QLatin1String(QSqlDatabase::defaultConnection), false);
-    if (database.isValid())
-        *this = database.driver()->createQuery();
+    if (database.isValid()) {
+        *this = QSqlQuery(database.driver()->createResult());
+    }
     if (!query.isEmpty())
         exec(query);
 }
@@ -343,7 +344,7 @@ bool QSqlQuery::exec(const QString& query)
 {
     if (d->ref != 1) {
         bool fo = isForwardOnly();
-        *this = driver()->createQuery();
+        *this = QSqlQuery(driver()->createResult());
         setForwardOnly(fo);
     } else {
         d->sqlResult->clear();
@@ -854,7 +855,7 @@ void QSqlQuery::afterSeek()
 */
 void QSqlQuery::clear()
 {
-    *this = driver()->createQuery();
+    *this = QSqlQuery(driver()->createResult());
 }
 
 /*!
@@ -870,7 +871,7 @@ bool QSqlQuery::prepare(const QString& query)
 {
     if (d->ref != 1) {
         bool fo = isForwardOnly();
-        *this = driver()->createQuery();
+        *this = QSqlQuery(driver()->createResult());
         setForwardOnly(fo);
     } else {
         d->sqlResult->setActive(false);
@@ -1029,6 +1030,5 @@ QString QSqlQuery::executedQuery() const
 
     Use previous() instead.
 */
-
 
 #endif // QT_NO_SQL

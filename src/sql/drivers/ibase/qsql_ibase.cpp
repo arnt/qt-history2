@@ -985,9 +985,9 @@ void QIBaseDriver::close()
     }
 }
 
-QSqlQuery QIBaseDriver::createQuery() const
+QSqlResult *QIBaseDriver::createResult() const
 {
-    return QSqlQuery(new QIBaseResult(this));
+    return new QIBaseResult(this);
 }
 
 bool QIBaseDriver::beginTransaction()
@@ -1050,7 +1050,7 @@ QStringList QIBaseDriver::tables(QSql::TableType type) const
     if (!typeFilter.isEmpty())
         typeFilter.prepend(QLatin1String("where "));
 
-    QSqlQuery q = createQuery();
+    QSqlQuery q(createResult());
     q.setForwardOnly(true);
     if (!q.exec(QLatin1String("select rdb$relation_name from rdb$relations ") + typeFilter))
         return res;
@@ -1066,7 +1066,7 @@ QSqlRecord QIBaseDriver::record(const QString& tablename) const
     if (!isOpen())
         return rec;
 
-    QSqlQuery q = createQuery();
+    QSqlQuery q(createResult());
     q.setForwardOnly(true);
 
     q.exec(QLatin1String("SELECT a.RDB$FIELD_NAME, b.RDB$FIELD_TYPE, b.RDB$FIELD_LENGTH, "
@@ -1096,7 +1096,7 @@ QSqlIndex QIBaseDriver::primaryIndex(const QString &table) const
     if (!isOpen())
         return index;
 
-    QSqlQuery q = createQuery();
+    QSqlQuery q(createResult());
     q.setForwardOnly(true);
     q.exec(QLatin1String("SELECT a.RDB$INDEX_NAME, b.RDB$FIELD_NAME, d.RDB$FIELD_TYPE "
            "FROM RDB$RELATION_CONSTRAINTS a, RDB$INDEX_SEGMENTS b, RDB$RELATION_FIELDS c, RDB$FIELDS d "

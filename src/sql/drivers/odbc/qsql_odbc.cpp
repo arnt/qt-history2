@@ -47,7 +47,7 @@ public:
     QODBCDriverPrivate()
     : hEnv(0), hDbc(0), useSchema(false)
     {
-        sql_char_type = sql_varchar_type = sql_longvarchar_type = QCoreVariant::CString;
+        sql_char_type = sql_varchar_type = sql_longvarchar_type = QCoreVariant::ByteArray;
         unicode = false;
     }
 
@@ -74,7 +74,7 @@ public:
     QODBCPrivate()
     : hEnv(0), hDbc(0), hStmt(0), useSchema(false)
     {
-        sql_char_type = sql_varchar_type = sql_longvarchar_type = QCoreVariant::CString;
+        sql_char_type = sql_varchar_type = sql_longvarchar_type = QCoreVariant::ByteArray;
         unicode = false;
     }
 
@@ -208,7 +208,7 @@ static QCoreVariant::Type qDecodeODBCType(SQLSMALLINT sqltype, const T* p)
         type = p->sql_longvarchar_type;
         break;
     default:
-        type = QCoreVariant::CString;
+        type = QCoreVariant::ByteArray;
         break;
     }
     return type;
@@ -1524,9 +1524,9 @@ void QODBCDriverPrivate::checkSchemaUsage()
         useSchema = (val != 0);
 }
 
-QSqlQuery QODBCDriver::createQuery() const
+QSqlResult *QODBCDriver::createResult() const
 {
-    return QSqlQuery(new QODBCResult(this, d));
+    return new QODBCResult(this, d);
 }
 
 bool QODBCDriver::beginTransaction()

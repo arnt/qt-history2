@@ -102,18 +102,12 @@ QSqlDriver::~QSqlDriver()
 */
 
 /*!
-    \fn QSqlQuery QSqlDriver::createQuery() const
+    \fn QSqlResult *QSqlDriver::createResult() const
 
     Creates an empty SQL result on the database. Derived classes must
-    reimplement this function and return a QSqlQuery object
+    reimplement this function and return a QSqlResult object
     appropriate for their database to the caller.
 */
-
-//void QSqlDriver::destroyResult(QSqlResult* r) const
-//{
-//    if (r)
-//        delete r;
-//}
 
 /*!
     Returns true if the database connection is open; otherwise returns

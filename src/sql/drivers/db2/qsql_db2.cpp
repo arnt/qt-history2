@@ -186,7 +186,7 @@ static QCoreVariant::Type qDecodeDB2Type(SQLSMALLINT sqltype)
         type = QCoreVariant::String;
         break;
     default:
-        type = QCoreVariant::CString;
+        type = QCoreVariant::ByteArray;
         break;
     }
     return type;
@@ -1165,9 +1165,9 @@ void QDB2Driver::close()
     setOpenError(false);
 }
 
-QSqlQuery QDB2Driver::createQuery() const
+QSqlResult *QDB2Driver::createResult() const
 {
-    return QSqlQuery(new QDB2Result(this, d));
+    return new QDB2Result(this, d);
 }
 
 QSqlRecord QDB2Driver::record(const QString& tableName) const

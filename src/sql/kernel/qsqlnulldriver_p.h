@@ -74,7 +74,7 @@ public:
               const QString &, int, const QString&)
     { return false; }
     inline void close() {}
-    inline QSqlQuery createQuery() const { return QSqlQuery(new QSqlNullResult(this)); }
+    inline QSqlResult *createResult() const { return new QSqlNullResult(this); }
 
 protected:
     inline void setOpen(bool) {}

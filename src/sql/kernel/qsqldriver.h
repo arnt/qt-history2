@@ -34,7 +34,6 @@ class QSqlDriverPrivate;
 class QSqlError;
 class QSqlField;
 class QSqlIndex;
-class QSqlQuery;
 
 class QM_EXPORT_SQL QSqlDriver : public QObject
 {
@@ -80,7 +79,7 @@ public:
 
     virtual bool hasFeature(DriverFeature f) const = 0;
     virtual void close() = 0;
-    virtual QSqlQuery createQuery() const = 0;
+    virtual QSqlResult *createResult() const = 0;
 
     virtual bool open(const QString& db,
                        const QString& user = QString(),

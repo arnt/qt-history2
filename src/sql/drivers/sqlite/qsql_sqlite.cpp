@@ -347,9 +347,9 @@ void QSQLiteDriver::close()
     }
 }
 
-QSqlQuery QSQLiteDriver::createQuery() const
+QSqlResult *QSQLiteDriver::createResult() const
 {
-    return QSqlQuery(new QSQLiteResult(this));
+    return new QSQLiteResult(this);
 }
 
 bool QSQLiteDriver::beginTransaction()
@@ -409,7 +409,7 @@ QStringList QSQLiteDriver::tables(QSql::TableType type) const
     if (!isOpen())
         return res;
 
-    QSqlQuery q = createQuery();
+    QSqlQuery q(createResult());
     q.setForwardOnly(true);
     if ((type & QSql::Tables) && (type & QSql::Views))
         q.exec(QLatin1String("SELECT name FROM sqlite_master WHERE type='table' OR type='view'"));
@@ -438,7 +438,7 @@ QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
     if (!isOpen())
         return QSqlIndex();
 
-    QSqlQuery q = createQuery();
+    QSqlQuery q(createResult());
     q.setForwardOnly(true);
     // finrst find a UNIQUE INDEX
     q.exec(QLatin1String("PRAGMA index_list('") + tblname + QLatin1String("');"));
@@ -470,7 +470,7 @@ QSqlRecord QSQLiteDriver::record(const QString &tbl) const
     if (!isOpen())
         return QSqlRecord();
 
-    QSqlQuery q = createQuery();
+    QSqlQuery q(createResult());
     q.setForwardOnly(true);
     q.exec(QLatin1String("SELECT * FROM ") + tbl + QLatin1String(" LIMIT 1"));
     return q.record();

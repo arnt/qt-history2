@@ -656,7 +656,7 @@ QSqlDatabase::~QSqlDatabase()
 
 QSqlQuery QSqlDatabase::exec(const QString & query) const
 {
-    QSqlQuery r = d->driver->createQuery();
+    QSqlQuery r(d->driver->createResult());
     if (!query.isEmpty()) {
         r.exec(query);
         d->driver->setLastError(r.lastError());

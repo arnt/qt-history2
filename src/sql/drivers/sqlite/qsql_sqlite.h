@@ -72,7 +72,7 @@ public:
             const QString & host,
             int port) { return open (db, user, password, host, port, QString()); }
     void close();
-    QSqlQuery createQuery() const;
+    QSqlResult *createResult() const;
     bool beginTransaction();
     bool commitTransaction();
     bool rollbackTransaction();

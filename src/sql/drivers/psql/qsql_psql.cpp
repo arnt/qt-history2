@@ -549,9 +549,9 @@ void QPSQLDriver::close()
     }
 }
 
-QSqlQuery QPSQLDriver::createQuery() const
+QSqlResult *QPSQLDriver::createResult() const
 {
-    return QSqlQuery(new QPSQLResult(this, d));
+    return new QPSQLResult(this, d);
 }
 
 bool QPSQLDriver::beginTransaction()
@@ -610,7 +610,7 @@ QStringList QPSQLDriver::tables(QSql::TableType type) const
     QStringList tl;
     if (!isOpen())
         return tl;
-    QSqlQuery t = createQuery();
+    QSqlQuery t(createResult());
     t.setForwardOnly(true);
 
     if (type & QSql::Tables) {
@@ -650,7 +650,7 @@ QSqlIndex QPSQLDriver::primaryIndex(const QString& tablename) const
     QSqlIndex idx(tablename);
     if (!isOpen())
         return idx;
-    QSqlQuery i = createQuery();
+    QSqlQuery i(createResult());
     QString stmt;
 
     switch(pro) {
@@ -750,7 +750,7 @@ QSqlRecord QPSQLDriver::record(const QString& tablename) const
         break;
     }
 
-    QSqlQuery query = createQuery();
+    QSqlQuery query(createResult());
     query.exec(stmt.arg(tablename.toLower()));
     if (pro >= QPSQLDriver::Version71) {
         while (query.next()) {
@@ -778,7 +778,7 @@ QSqlRecord QPSQLDriver::record(const QString& tablename) const
             QString defVal;
             QString stmt2 = QLatin1String("select pg_attrdef.adsrc from pg_attrdef where "
                             "pg_attrdef.adrelid = %1 and pg_attrdef.adnum = %2 ");
-            QSqlQuery query2 = createQuery();
+            QSqlQuery query2(createResult());
             query2.exec(stmt2.arg(query.value(5).toInt()).arg(query.value(6).toInt()));
             if (query2.isActive() && query2.next())
                 defVal = query2.value(0).toString();

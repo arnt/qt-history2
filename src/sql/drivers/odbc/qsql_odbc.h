@@ -93,7 +93,7 @@ public:
     virtual ~QODBCDriver();
     bool hasFeature(DriverFeature f) const;
     void close();
-    QSqlQuery createQuery() const;
+    QSqlResult *createResult() const;
     QStringList tables(QSql::TableType) const;
     QSqlRecord record(const QString& tablename) const;
     QSqlIndex primaryIndex(const QString& tablename) const;

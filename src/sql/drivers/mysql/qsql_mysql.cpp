@@ -102,7 +102,8 @@ static QCoreVariant::Type qDecodeMYSQLType(int mysqltype, uint flags)
     case FIELD_TYPE_TINY_BLOB :
     case FIELD_TYPE_MEDIUM_BLOB :
     case FIELD_TYPE_LONG_BLOB :
-        type = (flags & BINARY_FLAG) ? QCoreVariant::ByteArray : QCoreVariant::CString;
+ //       type = (flags & BINARY_FLAG) ? QCoreVariant::ByteArray : QCoreVariant::CString; ### FIXME
+        type = QCoreVariant::ByteArray;
         break;
     default:
     case FIELD_TYPE_ENUM :
@@ -513,9 +514,9 @@ void QMYSQLDriver::close()
     }
 }
 
-QSqlQuery QMYSQLDriver::createQuery() const
+QSqlResult *QMYSQLDriver::createResult() const
 {
-    return QSqlQuery(new QMYSQLResult(this));
+    return new QMYSQLResult(this);
 }
 
 QStringList QMYSQLDriver::tables(QSql::TableType type) const
@@ -546,7 +547,7 @@ QSqlIndex QMYSQLDriver::primaryIndex(const QString& tablename) const
     QSqlIndex idx;
     if (!isOpen())
         return idx;
-    QSqlQuery i = createQuery();
+    QSqlQuery i(createResult());
     QString stmt(QLatin1String("show index from %1;"));
     QSqlRecord fil = record(tablename);
     i.exec(stmt.arg(tablename));

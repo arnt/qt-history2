@@ -559,9 +559,9 @@ void QTDSDriver::close()
     }
 }
 
-QSqlQuery QTDSDriver::createQuery() const
+QSqlResult *QTDSDriver::createResult() const
 {
-    return QSqlQuery(new QTDSResult(this));
+    return new QTDSResult(this);
 }
 
 bool QTDSDriver::beginTransaction()
@@ -644,7 +644,7 @@ QSqlRecord QTDSDriver::record(const QString& tablename) const
     QSqlRecord info;
     if (!isOpen())
         return info;
-    QSqlQuery t = createQuery();
+    QSqlQuery t(createResult());
     t.setForwardOnly(true);
     QString stmt (QLatin1String("select name, type, length, prec from syscolumns "
                    "where id = (select id from sysobjects where name = '%1')"));
@@ -679,7 +679,7 @@ QStringList QTDSDriver::tables(QSql::TableType type) const
         return list;
     typeFilter.chop(4);
 
-    QSqlQuery t = createQuery();
+    QSqlQuery t(createResult());
     t.setForwardOnly(true);
     t.exec(QLatin1String("select name from sysobjects where ") + typeFilter);
     while (t.next())
@@ -723,7 +723,7 @@ QSqlIndex QTDSDriver::primaryIndex(const QString& tablename) const
     if ((!isOpen()) || (tablename.isEmpty()))
         return QSqlIndex();
 
-    QSqlQuery t = createQuery();
+    QSqlQuery t(createResult());
     t.setForwardOnly(true);
     t.exec(QString::fromLatin1("sp_helpindex '%1'").arg(tablename));
     if (t.next()) {

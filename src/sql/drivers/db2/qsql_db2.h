@@ -62,7 +62,7 @@ public:
     void close();
     QSqlRecord record(const QString& tableName) const;
     QStringList tables(QSql::TableType type) const;
-    QSqlQuery createQuery() const;
+    QSqlResult *createResult() const;
     QSqlIndex primaryIndex(const QString& tablename) const;
     bool beginTransaction();
     bool commitTransaction();

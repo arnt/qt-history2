@@ -89,7 +89,6 @@ protected:
 
 private:
     void init(const QString& query, QSqlDatabase db);
-//     void detach();
     QSqlQueryPrivate* d;
 };
 

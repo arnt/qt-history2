@@ -1677,13 +1677,13 @@ void QOCIDriver::cleanup()
     OCIHandleFree((dvoid *) d->env, OCI_HTYPE_ENV);
 }
 
-QSqlQuery QOCIDriver::createQuery() const
+QSqlResult *QOCIDriver::createResult() const
 {
 #ifdef QOCI_USES_VERSION_9
     if (d->serverVersion >= 9)
-        return QSqlQuery(new QOCI9Result(this, d));
+        return new QOCI9Result(this, d);
 #endif
-    return QSqlQuery(new QOCIResult(this, d));
+    return new QOCIResult(this, d);
 }
 
 bool QOCIDriver::beginTransaction()
@@ -1744,7 +1744,7 @@ QStringList QOCIDriver::tables(QSql::TableType type) const
     if (!isOpen())
         return tl;
 
-    QSqlQuery t = createQuery();
+    QSqlQuery t(createResult());
     t.setForwardOnly(true);
     if (type & QSql::Tables) {
         t.exec(QLatin1String("select owner, table_name from all_tables "
@@ -1806,7 +1806,7 @@ QSqlRecord QOCIDriver::record(const QString& tablename) const
     if (!isOpen())
         return fil;
 
-    QSqlQuery t = createQuery();
+    QSqlQuery t(createResult());
     // using two separate queries for this is A LOT faster than using
     // eg. a sub-query on the sys.synonyms table
     QString stmt(QLatin1String("select column_name, data_type, data_length, "
@@ -1862,7 +1862,7 @@ QSqlIndex QOCIDriver::primaryIndex(const QString& tablename) const
     QSqlIndex idx(tablename);
     if (!isOpen())
         return idx;
-    QSqlQuery t = createQuery();
+    QSqlQuery t(createResult());
     QString stmt(QLatin1String("select b.column_name, b.index_name, a.table_name, a.owner "
                   "from all_constraints a, all_ind_columns b "
                   "where a.constraint_type='P' "
@@ -1893,7 +1893,7 @@ QSqlIndex QOCIDriver::primaryIndex(const QString& tablename) const
         buildIndex = true;
     }
     if (buildIndex) {
-        QSqlQuery tt = createQuery();
+        QSqlQuery tt(createResult());
         tt.setForwardOnly(true);
         idx.setName(t.value(1).toString());
         do {
