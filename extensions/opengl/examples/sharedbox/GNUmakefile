@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: makeqtmake.bat,v 1.2 1998/02/26 09:37:12 hanord Exp  Win32 Makefile, requires Microsoft nmake.
+# $Id: makeqtmake.bat,v 1.2 1998/02/26 09:37:12 hanord Exp  Unix Makefile, requires GNU make (gmake).
 #
 # Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
 #
@@ -7,4 +7,4 @@
 
 PROJECT = sharedbox
 
-!INCLUDE $(QTDIR)\Makefile.inc
+include $(QTDIR)/GNUmakefile.inc
