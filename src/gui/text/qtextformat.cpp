@@ -419,6 +419,8 @@ uint QTextFormatPrivate::recalcHash() const
     \value TableColumnConstraints
     \value TableColumnConstraintValues
     \value TableCellSpacing
+    \value TableCellPadding
+    \value TableBackgroundColor
 
     Table cell properties
 
