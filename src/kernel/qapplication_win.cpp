@@ -365,6 +365,8 @@ class QETWidget : public QWidget		// event translator widget
 public:
     void	setWFlags( WFlags f )	{ QWidget::setWFlags(f); }
     void	clearWFlags( WFlags f ) { QWidget::clearWFlags(f); }
+    void	setWState( WState f )	{ QWidget::setWState(f); }
+    void	clearWState( WState f ) { QWidget::clearWState(f); }
     QWExtra    *xtra()			{ return d->extraData(); }
     bool	winEvent( MSG *m )	{ return QWidget::winEvent(m); }
 #if defined(Q_CC_GNU)
@@ -1603,14 +1605,17 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 #endif
 	    case SC_MAXIMIZE:
 		QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
+		widget->setWState(Qt::WState_Maximized);
 		result = FALSE;
 		break;
 	    case SC_MINIMIZE:
 		QApplication::postEvent( widget, new QEvent( QEvent::ShowMinimized ) );
+		widget->setWState(Qt::WState_Minimized);
 		result = FALSE;
 		break;
 	    case SC_RESTORE:
 		QApplication::postEvent( widget, new QEvent( QEvent::ShowNormal ) );
+		widget->clearWState(Qt::WState_Minimized|Qt::WState_Maximized);
 		result = FALSE;
 		break;
 	    default:

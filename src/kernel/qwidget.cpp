@@ -894,8 +894,8 @@ void QWidgetPrivate::createTLExtra()
 	x->dnd = 0;
 	x->uspos = 0;
 	x->ussize = 0;
-	x->savedFlags = 0;
 #endif
+	x->savedFlags = 0;
 #if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
 	x->decor_allocated_region = QRegion();
 	x->qwsManager = 0;
