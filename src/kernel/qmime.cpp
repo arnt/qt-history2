@@ -443,8 +443,14 @@ QString QMimeSourceFactory::makeAbsolute(const QString& abs_or_rel_name, const Q
     if ( abs_or_rel_name.isEmpty() )
 	return context;
     QFileInfo c( context );
-    QFileInfo r( c.dir(TRUE), abs_or_rel_name );
-    return r.absFilePath();
+    if (!c.isDir()) {
+	QFileInfo r( c.dir(TRUE), abs_or_rel_name );
+	return r.absFilePath();
+    } else {
+	QDir d(context);
+	QFileInfo r(d, abs_or_rel_name);
+	return r.absFilePath();
+    }
 }
 
 /*!
