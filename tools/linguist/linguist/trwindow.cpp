@@ -280,10 +280,7 @@ TrWindow::TrWindow()
     foundWhere = 0;
     foundOffset = 0;
 
-    connect( lv, SIGNAL(currentChanged(QListViewItem *)),
-	     this, SLOT(showNewScope(QListViewItem *)) );
-
-    connect( lv, SIGNAL(clicked(QListViewItem *, const QPoint&, int)),
+    connect( lv, SIGNAL(selectionChanged(QListViewItem *)),
 	     this, SLOT(showNewScope(QListViewItem *)) );
 
     connect( slv, SIGNAL(currentChanged(QListViewItem *)),
