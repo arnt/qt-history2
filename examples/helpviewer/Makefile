@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/helpviewer/Makefile#1 $
+# $Id: //depot/qt/main/examples/helpviewer/Makefile#2 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = qbrowser
+PROJECT = helpviewer
 
 !INCLUDE $(QTDIR)\Makefile.inc

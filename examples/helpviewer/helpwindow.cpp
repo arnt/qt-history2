@@ -212,8 +212,8 @@ HelpWindow::~HelpWindow()
 
 void HelpWindow::about()
 {
-    QMessageBox::about( this, "QBrowser Example",
-                        "<p>This example implements a simple HTML browser "
+    QMessageBox::about( this, "HelpViewer Example",
+                        "<p>This example implements a simple HTML help viewer "
                         "using Qt's rich text capabilities</p>"
                         "<p>It's just about 100 lines of C++ code, so don't expect too much :-)</p>"
         );
