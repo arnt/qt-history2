@@ -405,12 +405,13 @@ void WidgetDatabase::setupDataBase()
     for ( QStringList::Iterator it = widgets.begin(); it != widgets.end(); ++it ) {
 	r = new WidgetDatabaseRecord;
 	r->iconSet = widgetManager()->iconSet( *it );
-	r->group = widgetManager()->group( *it );
+	r->group = widgetGroup( widgetManager()->group( *it ) );
 	r->toolTip = widgetManager()->toolTip( *it );
 	r->whatsThis = widgetManager()->whatsThis( *it );
 	r->includeFile = widgetManager()->includeFile( *it );
 	r->isContainer = widgetManager()->isContainer( *it );
 	r->name = *it;
+	append( r );
     }
 }
 
