@@ -213,7 +213,9 @@ QKeySequence::QKeySequence( const QString& key )
 // ### BCI: Merge with constructor below for 4.0
 QKeySequence::QKeySequence( int key )
 {
-    QKeySequence( key, 0, 0, 0 );
+    d = new QKeySequencePrivate();
+    Q_CHECK_PTR( d );
+    d->key[0] = key;
 }
 
 /*!
@@ -278,7 +280,7 @@ void QKeySequence::setKey( int key, int index )
 
 /*!
     Returns the number of keys in the key sequence.
-    Maximum of 4 keys.
+    Maximum of 4 keys. 
  */
 uint QKeySequence::count() const
 {
@@ -311,7 +313,6 @@ bool QKeySequence::isEmpty() const
  */
 int QKeySequence::assign( QString keyseq )
 {
-    char *theText = (char*)keyseq.latin1();
     QString part;
     int n = 0;
     int p = 0, diff = 0;
@@ -335,7 +336,6 @@ int QKeySequence::assign( QString keyseq )
 	}
 	part = keyseq.left( -1==p?keyseq.length():p-diff );
 	keyseq = keyseq.right( -1==p?0:keyseq.length() - ( p + 1 ) );
-        char *thePart = (char*)part.latin1();
         d->key[n] = decodeString( part );
 	n++;
     }
@@ -348,7 +348,6 @@ int QKeySequence::assign( QString keyseq )
  */
 int QKeySequence::decodeString( const QString& str )
 {
-    char *theText = (char*)str.latin1();
     int k = 0;
     int p = str.findRev( '+', str.length() - 2 ); // -2 so that Ctrl++ works
     QString name;
@@ -585,7 +584,7 @@ QKeySequence::operator int () const
 int QKeySequence::operator[]( uint index ) const
 {
 #ifdef QT_CHECK_STATE
-    if ( 0 > index && 4 < index ) {
+    if ( index > 4 ) {
 	qWarning( "QKeySequence::operator[]: index %u out of range", index );
 	return 0;
     }
