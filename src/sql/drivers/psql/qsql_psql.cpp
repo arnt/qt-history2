@@ -786,18 +786,18 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
     case QPSQLDriver::Version6:
 	stmt = "select pg_att1.attname, int(pg_att1.atttypid), pg_att2.attnum, pg_cl.relname "
 		"from pg_attribute pg_att1, pg_attribute pg_att2, pg_class pg_cl, pg_index pg_ind "
-		"where pg_cl.relname = '%1_pkey' ";
+		"where lower(pg_cl.relname) = '%1_pkey' ";
 	break;
     case QPSQLDriver::Version7:
     case QPSQLDriver::Version71:
 	stmt = "select pg_att1.attname, pg_att1.atttypid::int, pg_cl.relname "
 		"from pg_attribute pg_att1, pg_attribute pg_att2, pg_class pg_cl, pg_index pg_ind "
-		"where pg_cl.relname = '%1_pkey' ";
+		"where lower(pg_cl.relname) = '%1_pkey' ";
 	break;
     case QPSQLDriver::Version73:
 	stmt = "select pg_att1.attname, pg_att1.atttypid::int, pg_cl.relname "
 		"from pg_attribute pg_att1, pg_attribute pg_att2, pg_class pg_cl, pg_index pg_ind "
-		"where pg_cl.relname = '%1_pkey' "
+		"where lower(pg_cl.relname) = '%1_pkey' "
 		"and pg_att1.attisdropped = false ";
 	break;
     }
@@ -807,7 +807,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 	    "and pg_att1.attnum = pg_ind.indkey[pg_att2.attnum-1] "
 	    "order by pg_att2.attnum";
 
-    i.exec( stmt.arg( tablename ) );
+    i.exec( stmt.arg( tablename.lower() ) );
     while ( i.isActive() && i.next() ) {
 	QSqlField f( i.value(0).toString(), qDecodePSQLType( i.value(1).toInt() ) );
 	idx.append( f );
@@ -826,7 +826,7 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
     case QPSQLDriver::Version6:
 	stmt = "select pg_attribute.attname, int(pg_attribute.atttypid) "
 			"from pg_class, pg_attribute "
-			"where pg_class.relname = '%1' "
+			"where lower(pg_class.relname) = '%1' "
 			"and pg_attribute.attnum > 0 "
 			"and pg_attribute.attrelid = pg_class.oid ";
 	break;
@@ -834,14 +834,14 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
     case QPSQLDriver::Version71:
 	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int "
 			"from pg_class, pg_attribute "
-			"where pg_class.relname = '%1' "
+			"where lower(pg_class.relname) = '%1' "
 			"and pg_attribute.attnum > 0 "
 			"and pg_attribute.attrelid = pg_class.oid ";
 	break;
     case QPSQLDriver::Version73:
 	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int "
 			"from pg_class, pg_attribute "
-			"where pg_class.relname = '%1' "
+			"where lower(pg_class.relname) = '%1' "
 			"and pg_attribute.attnum > 0 "
 			"and pg_attribute.attisdropped = false "
 			"and pg_attribute.attrelid = pg_class.oid ";
@@ -849,7 +849,7 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
     }
 
     QSqlQuery fi = createQuery();
-    fi.exec( stmt.arg( tablename ) );
+    fi.exec( stmt.arg( tablename.lower() ) );
     while ( fi.next() ) {
 	QSqlField f( fi.value(0).toString(), qDecodePSQLType( fi.value(1).toInt() ) );
 	fil.append( f );
@@ -887,7 +887,7 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
 	stmt = "select pg_attribute.attname, int(pg_attribute.atttypid), pg_attribute.attnotnull, "
 		"pg_attribute.attlen, pg_attribute.atttypmod, int(pg_attribute.attrelid), pg_attribute.attnum "
 		"from pg_class, pg_attribute "
-		"where pg_class.relname = '%1' "
+		"where lower(pg_class.relname) = '%1' "
 		"and pg_attribute.attnum > 0 "
 		"and pg_attribute.attrelid = pg_class.oid ";
 	break;
@@ -895,7 +895,7 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
 	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int, pg_attribute.attnotnull, "
 		"pg_attribute.attlen, pg_attribute.atttypmod, pg_attribute.attrelid::int, pg_attribute.attnum "
 		"from pg_class, pg_attribute "
-		"where pg_class.relname = '%1' "
+		"where lower(pg_class.relname) = '%1' "
 		"and pg_attribute.attnum > 0 "
 		"and pg_attribute.attrelid = pg_class.oid ";
 	break;
@@ -904,7 +904,7 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
 		"pg_attribute.attlen, pg_attribute.atttypmod, pg_attrdef.adsrc "
 		"from pg_class, pg_attribute "
 		"left join pg_attrdef on (pg_attrdef.adrelid = pg_attribute.attrelid and pg_attrdef.adnum = pg_attribute.attnum) "
-		"where pg_class.relname = '%1' "
+		"where lower(pg_class.relname) = '%1' "
 		"and pg_attribute.attnum > 0 "
 		"and pg_attribute.attrelid = pg_class.oid "
 		"order by pg_attribute.attnum ";
@@ -914,7 +914,7 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
 		"pg_attribute.attlen, pg_attribute.atttypmod, pg_attrdef.adsrc "
 		"from pg_class, pg_attribute "
 		"left join pg_attrdef on (pg_attrdef.adrelid = pg_attribute.attrelid and pg_attrdef.adnum = pg_attribute.attnum) "
-		"where pg_class.relname = '%1' "
+		"where lower(pg_class.relname) = '%1' "
 		"and pg_attribute.attnum > 0 "
 		"and pg_attribute.attrelid = pg_class.oid "
 		"and pg_attribute.attisdropped = false "
@@ -923,7 +923,7 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
     }
 
     QSqlQuery query = createQuery();
-    query.exec( stmt.arg( tablename ) );
+    query.exec( stmt.arg( tablename.lower() ) );
     if ( pro >= QPSQLDriver::Version71 ) {
 	while ( query.next() ) {
 	    int len = query.value( 3 ).toInt();
