@@ -100,7 +100,9 @@
 
     To change the geometry of the MDI windows it is necessary to make
     the function calls to the parentWidget() of the widget, as this
-    will move or resize the decorated window.
+    will move or resize the decorated window. Similarily you have to
+    make the function calls to the parentWidget() of the MDI window to
+    get the geometry of decorated window.
 
     A document window becomes active when it gets the keyboard focus.
     You can activate it using setFocus(), and the user can activate it
