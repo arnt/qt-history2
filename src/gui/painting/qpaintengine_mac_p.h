@@ -199,7 +199,7 @@ public:
     enum { CGStroke=0x01, CGEOFill=0x02, CGFill=0x04 };
     void drawPath(uchar ops, CGMutablePathRef path = 0);
     void setClip(const QRegion *rgn=0);
-    CGRect adjustedRect(const QRectF &r);
+    float penOffset();
     inline void setTransform(const QMatrix *matrix=0)
     {
         CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));

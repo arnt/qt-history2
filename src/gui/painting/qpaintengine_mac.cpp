@@ -942,7 +942,12 @@ static void qt_mac_clip_cg_reset(CGContextRef hd)
     CGContextConcatCTM(hd, old_xform);
 }
 
-static CGMutablePathRef qt_mac_compose_path(const QPainterPath &p)
+static CGRect qt_mac_compose_rect(const QRectF &r, float off=0)
+{
+    return CGRectMake(r.x()+off, r.y()+off, r.width(), r.height());
+}
+
+static CGMutablePathRef qt_mac_compose_path(const QPainterPath &p, float off=0)
 {
     CGMutablePathRef ret = CGPathCreateMutable();
     QPointF startPt;
@@ -955,18 +960,18 @@ static CGMutablePathRef qt_mac_compose_path(const QPainterPath &p)
                 && p.elementAt(i - 1).y == startPt.y())
                 CGPathCloseSubpath(ret);
             startPt = QPointF(elm.x, elm.y);
-            CGPathMoveToPoint(ret, 0, elm.x, elm.y);
+            CGPathMoveToPoint(ret, 0, elm.x+off, elm.y+off);
             break;
         case QPainterPath::LineToElement:
-            CGPathAddLineToPoint(ret, 0, elm.x, elm.y);
+            CGPathAddLineToPoint(ret, 0, elm.x+off, elm.y+off);
             break;
         case QPainterPath::CurveToElement:
             Q_ASSERT(p.elementAt(i+1).type == QPainterPath::CurveToDataElement);
             Q_ASSERT(p.elementAt(i+2).type == QPainterPath::CurveToDataElement);
             CGPathAddCurveToPoint(ret, 0,
-                                  elm.x, elm.y,
-                                  p.elementAt(i+1).x, p.elementAt(i+1).y,
-                                  p.elementAt(i+2).x, p.elementAt(i+2).y);
+                                  elm.x+off, elm.y+off,
+                                  p.elementAt(i+1).x+off, p.elementAt(i+1).y+off,
+                                  p.elementAt(i+2).x+off, p.elementAt(i+2).y+off);
             i+=2;
             break;
         default:
@@ -1352,7 +1357,7 @@ QCoreGraphicsPaintEngine::drawLine(const QLineF &line)
 void
 QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 {
-    CGMutablePathRef path = qt_mac_compose_path(p);
+    CGMutablePathRef path = qt_mac_compose_path(p, d->penOffset());
     uchar ops = QCoreGraphicsPaintEnginePrivate::CGStroke;
     if(p.fillRule() == Qt::WindingFill)
         ops |= QCoreGraphicsPaintEnginePrivate::CGFill;
@@ -1371,10 +1376,10 @@ QCoreGraphicsPaintEngine::drawRect(const QRectF &r)
     CGMutablePathRef path = 0;
     if(d->current.brush.style() == Qt::LinearGradientPattern) {
         path = CGPathCreateMutable();
-        CGPathAddRect(path, 0, d->adjustedRect(r));
+        CGPathAddRect(path, 0, qt_mac_compose_rect(r, d->penOffset()));
     } else {
         CGContextBeginPath(d->hd);
-        CGContextAddRect(d->hd, d->adjustedRect(r));
+        CGContextAddRect(d->hd, qt_mac_compose_rect(r, d->penOffset()));
     }
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke,
                 path);
@@ -1413,7 +1418,7 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRectF &rr)
     Q_ASSERT(isActive());
 
     CGMutablePathRef path = CGPathCreateMutable();
-    CGRect r = d->adjustedRect(rr);
+    CGRect r = qt_mac_compose_rect(rr, d->penOffset());
     CGAffineTransform transform = CGAffineTransformMakeScale(r.size.width / r.size.height, 1);
     CGPathAddArc(path, &transform,
                  (r.origin.x + (r.size.width / 2)) / (r.size.width / r.size.height),
@@ -1574,17 +1579,17 @@ QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
     CGContextSetShouldSmoothFonts(d->hd, hints & QPainter::TextAntialiasing);
 }
 
-CGRect
-QCoreGraphicsPaintEnginePrivate::adjustedRect(const QRectF &r)
+float
+QCoreGraphicsPaintEnginePrivate::penOffset()
 {
-    float adjusted = 0;
+    float ret = 0;
     if(current.pen.style() != Qt::NoPen) {
         if(current.pen.width() <= 0)
-            adjusted = 0.5;
+            ret = 0.5;
         else
-            adjusted = float(current.pen.width()) / 2;
+            ret = float(current.pen.width()) / 2;
     }
-    return CGRectMake(r.x()+adjusted, r.y()+adjusted, r.width(), r.height());
+    return ret;
 }
 
 void
