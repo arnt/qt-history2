@@ -1045,7 +1045,7 @@ void WriteInitialization::initializeComboBox(DomWidget *w)
         if (!(text || pixmap))
             continue;
 
-        refreshOut << option.indent << varName << "->insertItem(";
+        refreshOut << option.indent << varName << "->addItem(";
 
         if (pixmap != 0) {
             DomResourcePixmap *pix = pixmap->elementIconSet();
