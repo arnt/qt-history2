@@ -1,6 +1,5 @@
 #include "viewmanager.h"
 #include "editor.h"
-#include "iconloader.h"
 #include "markerwidget.h"
 #include <qlayout.h>
 #include <qrichtext_p.h>

@@ -4,6 +4,7 @@
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qobject.h>
+#include <qmap.h>
 #include "dlldefs.h"
 
 class QTextDocument;
@@ -19,17 +20,18 @@ class CPP_EXPORT EditorCompletion : public QObject
 public:
     EditorCompletion( Editor *e );
 
-    void addCompletionEntry( const QString &s, QTextDocument *doc );
-    QStringList completionList( const QString &s, QTextDocument *doc ) const;
-    void updateCompletionMap( QTextDocument *doc );
+    virtual void addCompletionEntry( const QString &s, QTextDocument *doc );
+    virtual QStringList completionList( const QString &s, QTextDocument *doc ) const;
+    virtual void updateCompletionMap( QTextDocument *doc );
 
     bool eventFilter( QObject *o, QEvent *e );
-    void setCurrentEdior( Editor *e );
+    virtual void setCurrentEdior( Editor *e );
     virtual bool doCompletion();
     virtual bool doObjectCompletion();
+    virtual bool doObjectCompletion( const QString &object );
     virtual bool doArgumentHint( bool useIndex );
 
-    void addEditor( Editor *e );
+    virtual void addEditor( Editor *e );
     virtual QStringList functionParameters( const QString &func, QChar & );
 
     virtual void setContext( QObjectList *toplevels, QObject *this_ );
@@ -45,6 +47,7 @@ protected:
     Editor *curEditor;
     QString searchString;
     QStringList cList;
+    QMap<QChar, QStringList> completionMap;
 
 };
 

@@ -7,10 +7,7 @@
 #include <qrichtext_p.h>
 #include "qapplication.h"
 #include "qregexp.h"
-#include "syntaxhighliter_cpp.h"
 #include "qlabel.h"
-
-static QMap<QChar, QStringList> *completionMap = 0;
 
 EditorCompletion::EditorCompletion( Editor *e )
 {
@@ -31,22 +28,14 @@ EditorCompletion::EditorCompletion( Editor *e )
     completionOffset = 0;
     curEditor = e;
     curEditor->installEventFilter( this );
-    if ( !completionMap ) {
-	completionMap = new QMap<QChar, QStringList >();
-	int i = 0;
-	while ( SyntaxHighlighter_CPP::keywords[ i ] != QString::null )
-	    addCompletionEntry( SyntaxHighlighter_CPP::keywords[ i++ ], 0 );
-    }
 }
 
 void EditorCompletion::addCompletionEntry( const QString &s, QTextDocument * )
 {
-    if ( !completionMap )
-	completionMap = new QMap<QChar, QStringList >();
     QChar key( s[ 0 ] );
-    QMap<QChar, QStringList>::Iterator it = completionMap->find( key );
-    if ( it == completionMap->end() )
-	completionMap->insert( key, QStringList( s ) );
+    QMap<QChar, QStringList>::Iterator it = completionMap.find( key );
+    if ( it == completionMap.end() )
+	completionMap.insert( key, QStringList( s ) );
     else
 	( *it ).append( s );
 }
@@ -57,8 +46,8 @@ QStringList EditorCompletion::completionList( const QString &s, QTextDocument *d
 	( (EditorCompletion*)this )->updateCompletionMap( doc );
 
     QChar key( s[ 0 ] );
-    QMap<QChar, QStringList>::ConstIterator it = completionMap->find( key );
-    if ( it == completionMap->end() )
+    QMap<QChar, QStringList>::ConstIterator it = completionMap.find( key );
+    if ( it == completionMap.end() )
 	return QStringList();
     QStringList::ConstIterator it2 = ( *it ).begin();
     QStringList lst;
@@ -179,7 +168,10 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 		    return FALSE;
 		if ( doCompletion() )
 			return TRUE;
-	    } else if ( ke->key() == Key_Period ) {
+	    } else if ( ke->key() == Key_Period ||
+			ke->key() == Key_Greater &&
+			curEditor->textCursor()->index() > 0 &&
+			curEditor->textCursor()->parag()->at( curEditor->textCursor()->index() )->c == '_' ) {
 		doObjectCompletion();
 	    } else {
 		if ( !doArgumentHint( ke->text() == "(" ) )
@@ -257,6 +249,27 @@ void EditorCompletion::addEditor( Editor *e )
 
 bool EditorCompletion::doObjectCompletion()
 {
+    searchString = "";
+    QString object;
+    int i = curEditor->textCursor()->index();
+    i--;
+    QTextParag *p = curEditor->textCursor()->parag();
+    while ( TRUE ) {
+	if ( i < 0 )
+	    break;
+	if ( p->at( i )->c == ' ' || p->at( i )->c == '\t' )
+	    break;
+	object.prepend( p->at( i )->c );
+	i--;
+    }
+
+    if ( object.isEmpty() )
+	return FALSE;
+    return doObjectCompletion( object );
+}
+
+bool EditorCompletion::doObjectCompletion( const QString & )
+{
     return FALSE;
 }
 
@@ -297,9 +310,110 @@ bool EditorCompletion::continueComplete()
     return TRUE;
 }
 
-bool EditorCompletion::doArgumentHint( bool )
+bool EditorCompletion::doArgumentHint( bool useIndex )
 {
-    return FALSE;
+    QTextCursor *cursor = curEditor->textCursor();
+    int i = cursor->index() ;
+    if ( !useIndex ) {
+	bool foundParen = FALSE;
+	int closeParens = 0;
+	while ( i >= 0 ) {
+	    if ( cursor->parag()->at( i )->c == ')' && i != cursor->index() )
+		closeParens++;
+	    if ( cursor->parag()->at( i )->c == '(' ) {
+		closeParens--;
+		if ( closeParens == -1 ) {
+		    foundParen = TRUE;
+		    break;
+		}
+	    }
+	    --i;
+	}
+
+	if ( !foundParen )
+	    return FALSE;
+    }
+    int j = i - 1;
+    bool foundSpace = FALSE;
+    bool foundNonSpace = FALSE;
+    while ( j >= 0 ) {
+	if ( foundNonSpace && ( cursor->parag()->at( j )->c == ' ' || cursor->parag()->at( j )->c == ',' ) ) {
+	    foundSpace = TRUE;
+	    break;
+	}
+	if ( !foundNonSpace && ( cursor->parag()->at( j )->c != ' ' || cursor->parag()->at( j )->c != ',' ) )
+	    foundNonSpace = TRUE;
+	--j;
+    }
+    if ( foundSpace )
+	++j;
+    j = QMAX( j, 0 );
+    QString function( cursor->parag()->string()->toString().mid( j, i - j + 1 ) );
+    QString part = cursor->parag()->string()->toString().mid( j, cursor->index() - j + 1 );
+    function = function.simplifyWhiteSpace();
+    while ( TRUE ) {
+	if ( function[ (int)function.length() - 1 ] == '(' ) {
+	    function.remove( function.length() - 1, 1 );
+	    function = function.simplifyWhiteSpace();
+	} else if ( function[ (int)function.length() - 1 ] == ')' ) {
+	    function.remove( function.length() - 1, 1 );
+	    function = function.simplifyWhiteSpace();
+	} else {
+	    break;
+	}
+    }
+
+    QChar sep;
+    QStringList args = functionParameters( function, sep );
+    if ( args.isEmpty() )
+	return FALSE;
+
+    int argNum = 0;
+    int inParen = 0;
+    for ( int k = 0; k < (int)part.length(); ++k ) {
+	if ( part[ k ] == sep && inParen < 2 )
+	    argNum++;
+	if ( part[ k ] == '(' )
+	    inParen++;
+	if ( part[ k ] == ')' )
+	    inParen--;
+    }
+    if ( argNum >= (int)args.count() )
+	return FALSE;
+
+    QString s = function + "( ";
+    i = 0;
+    for ( QStringList::Iterator it = args.begin(); it != args.end(); ++it, ++i ) {
+	if ( i == argNum )
+	    s += "<b>" + *it + "</b>";
+	else
+	    s += *it;
+	if ( i < (int)args.count() - 1 )
+	    s += ", ";
+	else
+	    s += " ";
+    }
+    s += ")";
+
+    functionLabel->setText( s );
+    if ( functionLabel->isVisible() ) {
+	functionLabel->resize( functionLabel->fontMetrics().width( functionLabel->text() ),
+			       functionLabel->fontMetrics().height() + 5 );
+    } else {
+	QTextStringChar *chr = cursor->parag()->at( cursor->index() );
+	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	int x = cursor->parag()->rect().x() + chr->x;
+	int y, dummy;
+	cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
+	y += cursor->parag()->rect().y();
+	functionLabel->resize( functionLabel->fontMetrics().width( functionLabel->text() ),
+			       functionLabel->fontMetrics().height() + 5 );
+	functionLabel->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
+	functionLabel->show();
+	curEditor->setFocus();
+    }
+
+    return TRUE;
 }
 
 QStringList EditorCompletion::functionParameters( const QString &, QChar & )

@@ -1,27 +1,20 @@
 TEMPLATE	= lib
 CONFIG		+= qt warn_on release plugin
-win32:DEFINES   += CPP_DLL
-HEADERS		= editor.h  \
-		  parenmatcher.h  \
+HEADERS		= cppeditor.h  \
 		  syntaxhighliter_cpp.h \
 		  indent_cpp.h \
-		  completion.h \
-		  iconloader.h \
-		  viewmanager.h \
-		  editorinterfaceimpl.h \
-		  markerwidget.h
+		  cppcompletion.h \
+		  editorinterfaceimpl.h
 
-SOURCES		= editor.cpp \
-		  parenmatcher.cpp  \
+SOURCES		= cppeditor.cpp \
 		  syntaxhighliter_cpp.cpp \
 		  indent_cpp.cpp \
-		  completion.cpp \
-		  iconloader.cpp \
-		  viewmanager.cpp \
-		  editorinterfaceimpl.cpp \
-		  markerwidget.cpp
+		  cppcompletion.cpp \
+		  editorinterfaceimpl.cpp
 		
 TARGET		= cppeditor
 DESTDIR		= $(QTDIR)/plugins
 VERSION		= 1.0.0
-INCLUDEPATH	+= $(QTDIR)/src/kernel $(QTDIR)/tools/designer/interfaces
+unix:LIBS		+= -leditor
+win32:LIBS	+= editor.lib
+INCLUDEPATH	+= $(QTDIR)/src/kernel $(QTDIR)/tools/designer/interfaces $(QTDIR)/tools/designer/editor

@@ -1,6 +1,6 @@
 #include "editorinterfaceimpl.h"
-#include "viewmanager.h"
-#include "editor.h"
+#include <viewmanager.h>
+#include "cppeditor.h"
 #include "qrichtext_p.h"
 #include "qapplication.h"
 #include "completion.h"
@@ -46,7 +46,7 @@ QWidget *EditorInterfaceImpl::editor( QWidget *parent ) const
 {
     if ( !viewManager ) {
 	( (EditorInterfaceImpl*)this )->viewManager = new ViewManager( parent, 0 );
-	(void)new Editor( QString::null, viewManager, "editor" );
+	(void)new CppEditor( QString::null, viewManager, "editor" );
     }
     return viewManager->currentView();
 }
@@ -55,78 +55,78 @@ void EditorInterfaceImpl::setText( const QString &txt )
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    ( (Editor*)viewManager->currentView() )->setText( txt );
+    ( (CppEditor*)viewManager->currentView() )->setText( txt );
 }
 
 QString EditorInterfaceImpl::text() const
 {
     if ( !viewManager || !viewManager->currentView() )
 	return QString::null;
-    return ( (Editor*)viewManager->currentView() )->text();
+    return ( (CppEditor*)viewManager->currentView() )->text();
 }
 
 void EditorInterfaceImpl::undo()
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    ( (Editor*)viewManager->currentView() )->undo();
+    ( (CppEditor*)viewManager->currentView() )->undo();
 }
 
 void EditorInterfaceImpl::redo()
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    ( (Editor*)viewManager->currentView() )->redo();
+    ( (CppEditor*)viewManager->currentView() )->redo();
 }
 
 void EditorInterfaceImpl::cut()
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    ( (Editor*)viewManager->currentView() )->cut();
+    ( (CppEditor*)viewManager->currentView() )->cut();
 }
 
 void EditorInterfaceImpl::copy()
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    ( (Editor*)viewManager->currentView() )->copy();
+    ( (CppEditor*)viewManager->currentView() )->copy();
 }
 
 void EditorInterfaceImpl::paste()
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    ( (Editor*)viewManager->currentView() )->paste();
+    ( (CppEditor*)viewManager->currentView() )->paste();
 }
 
 void EditorInterfaceImpl::selectAll()
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    ( (Editor*)viewManager->currentView() )->selectAll();
+    ( (CppEditor*)viewManager->currentView() )->selectAll();
 }
 
 bool EditorInterfaceImpl::find( const QString &expr, bool cs, bool wo, bool forward )
 {
     if ( !viewManager || !viewManager->currentView() )
 	return FALSE;
-    return ( (Editor*)viewManager->currentView() )->find( expr, cs, wo, forward );
+    return ( (CppEditor*)viewManager->currentView() )->find( expr, cs, wo, forward );
 }
 
 void EditorInterfaceImpl::indent()
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    ( (Editor*)viewManager->currentView() )->indent();
+    ( (CppEditor*)viewManager->currentView() )->indent();
 }
 
 void EditorInterfaceImpl::splitView()
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    QTextDocument *doc = ( (Editor*)viewManager->currentView() )->document();
-    Editor *editor = new Editor( QString::null, viewManager, "editor" );
+    QTextDocument *doc = ( (CppEditor*)viewManager->currentView() )->document();
+    CppEditor *editor = new CppEditor( QString::null, viewManager, "editor" );
     editor->setDocument( doc );
 }
 
@@ -135,16 +135,16 @@ void EditorInterfaceImpl::scrollTo( const QString &txt )
     if ( !viewManager || !viewManager->currentView() )
 	return;
     qApp->processEvents();
-    QTextDocument *doc = ( (Editor*)viewManager->currentView() )->document();
+    QTextDocument *doc = ( (CppEditor*)viewManager->currentView() )->document();
     QTextParag *p = doc->firstParag();
     while ( p ) {
 	if ( p->string()->toString().find( txt ) != -1 ) {
-	    ( (Editor*)viewManager->currentView() )->setCursorPosition( p->paragId() + 2, 0 );
+	    ( (CppEditor*)viewManager->currentView() )->setCursorPosition( p->paragId() + 2, 0 );
 	    break;
 	}
 	p = p->next();
     }
-    ( (Editor*)viewManager->currentView() )->setFocus();
+    ( (CppEditor*)viewManager->currentView() )->setFocus();
 }
 
 QStringList EditorInterfaceImpl::featureList() const
@@ -158,7 +158,7 @@ void EditorInterfaceImpl::setContext( QObjectList *toplevels, QObject *this_ )
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    ( (Editor*)viewManager->currentView() )->completionManager()->setContext( toplevels, this_ );
+    ( (CppEditor*)viewManager->currentView() )->completionManager()->setContext( toplevels, this_ );
 }
 
 void EditorInterfaceImpl::setError( int line )
@@ -180,7 +180,7 @@ void EditorInterfaceImpl::functions( QMap<QString, QString>* functionMap ) const
     if ( !functionMap || !viewManager || !viewManager->currentView() )
 	return;
 
-    QString text = ( (Editor*)viewManager->currentView() )->text();
+    QString text = ( (CppEditor*)viewManager->currentView() )->text();
 
     QString func;
     QString body;
