@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#137 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#138 $
 **
 ** Implementation of QPushButton class
 **
@@ -33,28 +33,49 @@
 
 /*!
   \class QPushButton qpushbutton.h
-  \brief The QPushButton widget provides a push button with a text
-	    or pixmap label.
+  \brief The QPushButton widget provides a push button with a text or pixmap label.
 
   \ingroup realwidgets
 
-  A default push button in a dialog emits the clicked signal if the user
-  presses the Enter key.
+  The push button (command button in Windows parlance) is perhaps the
+  most central widget: Push it to command the computer to perform some
+  action.
 
-  A push button has \c TabFocus as a default focusPolicy(), i.e. it can
-  get keyboard focus by tabbing but not by clicking.
+  Being so central, the widget has grown to accomodate a great many
+  variations in the past decade, and by now the
+  <a href="http://www.microsoft.com/win32dev/uiguide/uigui162.htm">"comand
+  button" chapter</a> of the Microsoft style guide shows about ten
+  different states of Windows push buttons, and the text implies that
+  there are dozens more when all the combinations of features are taken
+  into consideration.
+
+  The most important modes or states are, sorted roughly by importance: <ul>
+  <li> Available or not ("grayed out", disabled).
+  <li> Standard push button or toggling push button.
+  <li> On or off (only for toggling push buttons).
+  <li> Default or normal.  The default button in a dialog can
+  generally be "clicked" using the Enter or Return key.
+  <li> Auto-repeat or not.
+  <li> Pressed down or not.
+  </ul>
 
   <img src="qpushbt-m.png"> <img src="qpushbt-w.png">
 
+  In Qt, the QButton class provides most of the modes and other API,
+  and QPushButton provides GUI logic.  See QButton for more
+  information about the API.
+
   \sa QRadioButton QToolButton
   <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
+  <a href="http://www.microsoft.com/win32dev/uiguide/uigui162.htm">Microsoft
+  Style Guide</a>
 */
 
 
 /*!
   Constructs a push button with no text.
 
-  The \e parent and \e name arguments are sent to the QWidget constructor.
+  The \a parent and \a name arguments are sent to the QWidget constructor.
 */
 
 QPushButton::QPushButton( QWidget *parent, const char *name )
@@ -66,7 +87,7 @@ QPushButton::QPushButton( QWidget *parent, const char *name )
 /*!
   Constructs a push button with a text.
 
-  The \e parent and \e name arguments are sent to the QWidget constructor.
+  The \a parent and \a name arguments are sent to the QWidget constructor.
 */
 
 QPushButton::QPushButton( const QString &text, QWidget *parent,
@@ -87,8 +108,8 @@ void QPushButton::init()
 
 
 /*!
-  Makes the push button a toggle button if \e enable is TRUE, or a normal
-  push button if \e enable is FALSE.
+  Makes the push button a toggle button if \a enable is TRUE, or a normal
+  push button if \a enable is FALSE.
 
   Toggle buttons have an on/off state similar to \link QCheckBox check
   boxes. \endlink A push button is initially not a toggle button.
@@ -103,7 +124,7 @@ void QPushButton::setToggleButton( bool enable )
 
 
 /*!
-  Switches a toggle button on if \e enable is TRUE or off if \e enable is
+  Switches a toggle button on if \a enable is TRUE or off if \a enable is
   FALSE.
   \sa isOn(), toggle(), toggled(), isToggleButton()
 */
@@ -129,16 +150,16 @@ void QPushButton::toggle()
 }
 
 
-/*!
-  \fn bool QPushButton::autoDefault() const
+/*! \fn bool QPushButton::autoDefault() const
+
   Returns TRUE if the button is an auto-default button.
 
   \sa setAutoDefault()
 */
 
 /*!
-  Sets the push buttons to an auto-default button if \e enable is TRUE,
-  or to a normal button if \e enable is FALSE.
+  Sets the push buttons to an auto-default button if \a enable is TRUE,
+  or to a normal button if \a enable is FALSE.
 
   An auto-default button becomes the default push button automatically
   when it receives the keyboard input focus.
@@ -160,8 +181,8 @@ void QPushButton::setAutoDefault( bool enable )
 */
 
 /*!
-  Sets the button to be the default button if \e enable is TRUE, or
-  to be a normal button if \e enable is FALSE.
+  Sets the button to be the default button if \a enable is TRUE, or
+  to be a normal button if \a enable is FALSE.
 
   A default push button in a \link QDialog dialog\endlink emits the
   QButton::clicked() signal if the user presses the Enter key.	Only
@@ -203,7 +224,7 @@ QSize QPushButton::sizeHint() const
 	QString s( text() );
 	if ( s.isEmpty() )
 	    s = QString::fromLatin1("XXXX");
-	QFontMetrics fm = fontMetrics();
+	const QFontMetrics & fm = fontMetrics();
 	QSize sz = fm.size( ShowPrefix, s );
 	w = sz.width()	+ 6;
 	h = sz.height() + sz.height()/8 + 10;
@@ -307,7 +328,7 @@ void QPushButton::drawButton( QPainter *paint )
     drawButtonLabel( paint );
     int x1, y1, x2, y2;
     rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
-     if ( hasFocus() ) {
+    if ( hasFocus() ) {
  	QRect r(x1+3, y1+3, x2-x1-5, y2-y1-5);
  	style().drawFocusRect( paint, r , colorGroup(), &colorGroup().button() );
      }

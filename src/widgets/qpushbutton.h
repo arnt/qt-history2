@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#50 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#51 $
 **
 ** Definition of QPushButton class
 **
@@ -46,22 +46,22 @@ public:
     void	move( const QPoint &p );
     void	resize( int w, int h );
     void	resize( const QSize & );
-    virtual void	setGeometry( int x, int y, int w, int h );
-    virtual void	setGeometry( const QRect & );
+    virtual void setGeometry( int x, int y, int w, int h );
+    virtual void setGeometry( const QRect & );
 
 q_properties:
-    virtual void	setToggleButton( bool );
+    virtual void setToggleButton( bool );
 
     bool	autoDefault()	const	{ return autoDefButton; }
-    virtual void	setAutoDefault( bool autoDef );
+    virtual void setAutoDefault( bool autoDef );
     bool	isDefault()	const	{ return defButton; }
-    virtual void	setDefault( bool def );
+    virtual void setDefault( bool def );
 
-    virtual void	setIsMenuButton( bool );
+    virtual void setIsMenuButton( bool );
     bool	isMenuButton() const;
 
 public slots:
-    virtual void	setOn( bool );
+    virtual void setOn( bool );
 
     void	toggle();
 
@@ -71,7 +71,7 @@ protected:
     void	focusInEvent( QFocusEvent * );
     void	focusOutEvent( QFocusEvent * );
     void	resizeEvent( QResizeEvent * );
-    void updateMask();
+    void	updateMask();
 
 private:
     void	init();
