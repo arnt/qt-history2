@@ -27,6 +27,7 @@
 #include "qwidget.h"
 #include "qregexp.h"
 
+#include <math.h> // HUGE_VAL
 #include <limits.h> // *_MIN, *_MAX
 #include <ctype.h> // isdigit
 
@@ -304,20 +305,15 @@ void QIntValidator::setTop( int top )
 */
 
 /*!
-  Constructs a validator object which accepts all double from 2.7182818
-  to 3.1415926 (please, no bug reports) with at most seven digits after
-  the decimal point.
-
-  This constructor is not meant to be useful; it is provided for
-  completeness.
+  Constructs a validator object which accepts all doubles.
 */
 
 QDoubleValidator::QDoubleValidator( QWidget * parent, const char *name )
     : QValidator( parent, name )
 {
-    b = 2.7182818;
-    t = 3.1415926;
-    d = 7;
+    b = -HUGE_VAL;
+    t = HUGE_VAL;
+    d = 1000;
 }
 
 
