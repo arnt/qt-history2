@@ -144,6 +144,7 @@ void Index::parseDocument( const QString &filename, int docNum )
     }
 
     QTextStream s( &file );
+    s.setEncoding(QTextStream::Latin1);
     QString text = s.read();
     if (text.isNull())
         return;
