@@ -183,12 +183,12 @@ const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
     return func;
 }
 
-Set<QString> CppCodeParser::topicCommands()
+QSet<QString> CppCodeParser::topicCommands()
 {
-    return Set<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_EXAMPLE << COMMAND_FILE
-                          << COMMAND_FN << COMMAND_GROUP << COMMAND_HEADERFILE << COMMAND_MODULE
-			  << COMMAND_NAMESPACE << COMMAND_PAGE << COMMAND_PROPERTY
-			  << COMMAND_TYPEDEF;
+    return QSet<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_EXAMPLE << COMMAND_FILE
+                           << COMMAND_FN << COMMAND_GROUP << COMMAND_HEADERFILE << COMMAND_MODULE
+			   << COMMAND_NAMESPACE << COMMAND_PAGE << COMMAND_PROPERTY
+			   << COMMAND_TYPEDEF;
 }
 
 Node *CppCodeParser::processTopicCommand( const Doc& doc,
@@ -265,7 +265,7 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
     }
 }
 
-Set<QString> CppCodeParser::otherMetaCommands()
+QSet<QString> CppCodeParser::otherMetaCommands()
 {
     return commonMetaCommands() << COMMAND_INHEADERFILE << COMMAND_OVERLOAD << COMMAND_REIMP
 				<< COMMAND_RELATES << COMMAND_CONTENTSLINK << COMMAND_NEXTLINK
@@ -372,8 +372,8 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
 
 void CppCodeParser::processOtherMetaCommands( const Doc& doc, Node *node )
 {
-    const Set<QString> metaCommands = doc.metaCommandsUsed();
-    Set<QString>::ConstIterator c = metaCommands.begin();
+    const QSet<QString> metaCommands = doc.metaCommandsUsed();
+    QSet<QString>::ConstIterator c = metaCommands.begin();
     while ( c != metaCommands.end() ) {
 	QStringList args = doc.metaCommandArgs(*c);
 	QStringList::ConstIterator a = args.begin();
@@ -1080,10 +1080,9 @@ bool CppCodeParser::matchDeclList( InnerNode *parent )
 
 bool CppCodeParser::matchDocsAndStuff()
 {
-    Set<QString> topicsAvailable = topicCommands();
-    Set<QString> otherMetaCommandsAvailable = otherMetaCommands();
-    Set<QString> metaCommandsAvailable = topicsAvailable +
-					 otherMetaCommandsAvailable;
+    QSet<QString> topicsAvailable = topicCommands();
+    QSet<QString> otherMetaCommandsAvailable = otherMetaCommands();
+    QSet<QString> metaCommandsAvailable = topicsAvailable + otherMetaCommandsAvailable;
 
     while ( tok != Tok_Eoi ) {
 	if ( tok == Tok_Doc ) {
@@ -1097,9 +1096,9 @@ bool CppCodeParser::matchDocsAndStuff()
 	    QString command;
 	    QStringList args;
 
-	    Set<QString> topicsUsed = intersection(topicsAvailable, doc.metaCommandsUsed());
+	    QSet<QString> topicsUsed = topicsAvailable & doc.metaCommandsUsed();
 	    if ( topicsUsed.count() > 0 ) {
-		command = topicsUsed.first();
+		command = *topicsUsed.begin();
 		args = doc.metaCommandArgs( command );
 		// ### what if topicsUsed.count() > 1 ?
 	    }

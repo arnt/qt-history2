@@ -5,10 +5,10 @@
 #ifndef DOC_H
 #define DOC_H
 
-#include <qstring.h>
+#include <QSet>
+#include <QString>
 
 #include "location.h"
-#include "set.h"
 
 class Atom;
 class CodeMarker;
@@ -24,7 +24,7 @@ public:
     enum SectioningUnit { Book = -2, Part, Chapter, Section1, Section2, Section3, Section4 };
 
     Doc() : priv(0) {}
-    Doc(const Location &loc, const QString &source, const Set<QString> &metaCommandSet);
+    Doc(const Location &loc, const QString &source, const QSet<QString> &metaCommandSet);
     Doc(const Doc &doc);
     ~Doc();
 
@@ -39,10 +39,10 @@ public:
     Text legaleseText() const;
     const QString& baseName() const;
     SectioningUnit granularity() const;
-    const Set<QString> &parameterNames() const;
+    const QSet<QString> &parameterNames() const;
     const QStringList &enumItemNames() const;
     const QStringList &omitEnumItemNames() const;
-    const Set<QString> &metaCommandsUsed() const;
+    const QSet<QString> &metaCommandsUsed() const;
     QStringList metaCommandArgs( const QString& metaCommand ) const;
     const QList<Text> &alsoList() const;
     bool hasTableOfContents() const;

@@ -29,10 +29,10 @@ public:
     FunctionNode *findFunctionNode( const QString& synopsis, Tree *tree );
 
 protected:
-    virtual Set<QString> topicCommands();
+    virtual QSet<QString> topicCommands();
     virtual Node *processTopicCommand( const Doc& doc, const QString& command,
 				       const QString& arg );
-    virtual Set<QString> otherMetaCommands();
+    virtual QSet<QString> otherMetaCommands();
     virtual void processOtherMetaCommand( const Doc& doc,
 					  const QString& command,
 					  const QString& arg, Node *node );
@@ -71,7 +71,7 @@ private:
     QMap<QString, Node *> classesWithNoQuickDoc;
     QList<QRegExp> replaceBefores;
     QStringList replaceAfters;
-    Set<QString> classesWithNoQ;
+    QSet<QString> classesWithNoQ;
     Tree *cppTre;
     Tree *qsTre;
     QRegExp replaceRegExp;

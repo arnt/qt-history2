@@ -84,12 +84,12 @@ CodeParser *CodeParser::parserForLanguage( const QString& language )
     return 0;
 }
 
-Set<QString> CodeParser::commonMetaCommands()
+QSet<QString> CodeParser::commonMetaCommands()
 {
-    return Set<QString>() << COMMAND_COMPAT << COMMAND_DEPRECATED << COMMAND_INGROUP
-                          << COMMAND_INMODULE << COMMAND_INTERNAL << COMMAND_MAINCLASS
-                          << COMMAND_NONREENTRANT << COMMAND_OBSOLETE << COMMAND_PRELIMINARY
-                          << COMMAND_REENTRANT << COMMAND_THREADSAFE << COMMAND_TITLE;
+    return QSet<QString>() << COMMAND_COMPAT << COMMAND_DEPRECATED << COMMAND_INGROUP
+                           << COMMAND_INMODULE << COMMAND_INTERNAL << COMMAND_MAINCLASS
+                           << COMMAND_NONREENTRANT << COMMAND_OBSOLETE << COMMAND_PRELIMINARY
+                           << COMMAND_REENTRANT << COMMAND_THREADSAFE << COMMAND_TITLE;
 }
 
 void CodeParser::processCommonMetaCommand(const Location &location, const QString &command,

@@ -38,10 +38,10 @@ public:
     const FunctionNode *findFunctionNode(const QString& synopsis, Tree *tree, Node *relative = 0);
 
 protected:
-    virtual Set<QString> topicCommands();
+    virtual QSet<QString> topicCommands();
     virtual Node *processTopicCommand( const Doc& doc, const QString& command,
 				       const QString& arg );
-    virtual Set<QString> otherMetaCommands();
+    virtual QSet<QString> otherMetaCommands();
     virtual void processOtherMetaCommand( const Doc& doc,
 					  const QString& command,
 					  const QString& arg, Node *node );

@@ -103,7 +103,7 @@ QString CppToQsConverter::convertedDataType( Tree *qsTree,
 }
 
 QString CppToQsConverter::convertedCode( Tree *qsTree, const QString& code,
-					 const Set<QString>& classesWithNoQ )
+					 const QSet<QString>& classesWithNoQ )
 {
     QString result;
     QStringList program;
@@ -186,7 +186,7 @@ void CppToQsConverter::terminate()
 QString CppToQsConverter::convertCodeLine( Tree *qsTree,
 					   const QStringList& program,
 					   const QString& code,
-					   const Set<QString>& classesWithNoQ )
+					   const QSet<QString>& classesWithNoQ )
 {
     static QString dataTypeFmt =
 	"(?!return)(?:const\\b\\s*)?[A-Za-z_]+(?:\\s*[*&])?";
@@ -343,7 +343,7 @@ QString CppToQsConverter::convertCodeLine( Tree *qsTree,
 
 QString CppToQsConverter::convertComment( Tree * /* qsTree */,
 					  const QString& comment,
-					  const Set<QString>& classesWithNoQ )
+					  const QSet<QString>& classesWithNoQ )
 
 {
     QString result = comment;
@@ -363,7 +363,7 @@ QString CppToQsConverter::convertComment( Tree * /* qsTree */,
 }
 
 QString CppToQsConverter::convertExpr( Tree *qsTree, const QString& expr,
-				       const Set<QString>& classesWithNoQ )
+				       const QSet<QString>& classesWithNoQ )
 {
     // suboptimal
     return convertComment( qsTree, expr, classesWithNoQ );

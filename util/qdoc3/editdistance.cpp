@@ -36,13 +36,13 @@ int editDistance( const QString& s, const QString& t )
 #undef D
 }
 
-QString nearestName( const QString& actual, const Set<QString>& candidates )
+QString nearestName( const QString& actual, const QSet<QString>& candidates )
 {
     int deltaBest = 10000;
     int numBest;
     QString best;
 
-    Set<QString>::ConstIterator c = candidates.begin();
+    QSet<QString>::ConstIterator c = candidates.begin();
     while ( c != candidates.end() ) {
 	if ( (*c)[0] == actual[0] ) {
 	    int delta = editDistance( actual, *c );

@@ -5,11 +5,11 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <qmap.h>
-#include <qstringlist.h>
+#include <QMap>
+#include <QSet>
+#include <QStringList>
 
 #include "location.h"
-#include "set.h"
 
 class Config
 {
@@ -25,11 +25,11 @@ public:
     const Location& lastLocation() const { return lastLoc; }
     int getInt( const QString& var ) const;
     QString getString( const QString& var ) const;
-    Set<QString> getStringSet( const QString& var ) const;
+    QSet<QString> getStringSet( const QString& var ) const;
     QStringList getStringList( const QString& var ) const;
     QRegExp getRegExp( const QString& var ) const;
     QList<QRegExp> getRegExpList( const QString& var ) const;
-    Set<QString> subVars( const QString& var ) const;
+    QSet<QString> subVars( const QString& var ) const;
     QStringList getAllFiles( const QString& filesVar, const QString& dirsVar,
 			     const QString& defaultNameFilter );
 

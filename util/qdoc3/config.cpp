@@ -190,9 +190,9 @@ QString Config::getString( const QString& var ) const
     return stringValueMap[var];
 }
 
-Set<QString> Config::getStringSet( const QString& var ) const
+QSet<QString> Config::getStringSet( const QString& var ) const
 {
-    return Set<QString>( getStringList(var) );
+    return QSet<QString>::fromList(getStringList(var));
 }
 
 QStringList Config::getStringList( const QString& var ) const
@@ -237,9 +237,9 @@ QList<QRegExp> Config::getRegExpList( const QString& var ) const
 /*!
   This function is slower than it could be.
 */
-Set<QString> Config::subVars( const QString& var ) const
+QSet<QString> Config::subVars( const QString& var ) const
 {
-    Set<QString> result;
+    QSet<QString> result;
     QString varDot = var + ".";
     QMap<QString, QString>::ConstIterator v = stringValueMap.begin();
     while ( v != stringValueMap.end() ) {

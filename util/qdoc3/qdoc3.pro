@@ -35,7 +35,6 @@ HEADERS += apigenerator.h \
 	   qscodeparser.h \
            quoter.h \
 	   separator.h \
-           set.h \
 	   sgmlgenerator.h \
 	   text.h \
 	   tokenizer.h \

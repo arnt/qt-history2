@@ -18,7 +18,7 @@ public:
     QString convertedDataType( Tree *qsTree, const QString& leftType,
 			       const QString& rightType = "" );
     QString convertedCode( Tree *qsTree, const QString& code,
-			   const Set<QString>& classesWithNoQ );
+			   const QSet<QString>& classesWithNoQ );
 
     static void initialize( const Config& config );
     static void terminate();
@@ -27,11 +27,11 @@ private:
     void clearState();
     QString convertCodeLine( Tree *qsTree, const QStringList& program,
 			     const QString& code,
-			     const Set<QString>& classesWithNoQ );
+			     const QSet<QString>& classesWithNoQ );
     QString convertComment( Tree *qsTree, const QString& comment,
-			    const Set<QString>& classesWithNoQ );
+			    const QSet<QString>& classesWithNoQ );
     QString convertExpr( Tree *qsTree, const QString& expr,
-			 const Set<QString>& classesWithNoQ );
+			 const QSet<QString>& classesWithNoQ );
     void updateDelimDepths( const QString& code );
 
     static QRegExp qClassRegExp;

@@ -5,11 +5,10 @@
 #ifndef EDITDISTANCE_H
 #define EDITDISTANCE_H
 
-#include <qstring.h>
-
-#include "set.h"
+#include <QSet>
+#include <QString>
 
 int editDistance( const QString& s, const QString& t );
-QString nearestName( const QString& actual, const Set<QString>& candidates );
+QString nearestName( const QString& actual, const QSet<QString>& candidates );
 
 #endif

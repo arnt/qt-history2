@@ -69,7 +69,7 @@ void HtmlGenerator::terminateGenerator()
     dcfRoot.title = "Qt Reference Documentation";
     qSort(dcfRoot.subsections);
     generateDcfSections(dcfRoot, outputDir() + "/" +
-			project.toLower().replace(QRegExp("[\\s/]"), ".") + ".dcf",
+			project.toLower().replace(QRegExp("[\\s/]"), "-") + ".dcf",
                         project.toLower() + "/reference");
 
     Generator::terminateGenerator();
@@ -423,7 +423,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
                 }
                 sectionNumber.last() = QString::number(sectionNumber.last().toInt() + 1);
             }
-            out() << "<a name=\"sec." << sectionNumber.join(".") << "\"></a>\n";
+            out() << "<a name=\"sec-" << sectionNumber.join("-") << "\"></a>\n";
         }
 	break;
     case Atom::SectionRight:
@@ -931,7 +931,7 @@ void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker
             columnSize = 0;
         }
 	out() << "<li>";
-        out() << "<a href=\"" << nodeName << "#sec." << sectionNumber.join(".") << "\">";
+        out() << "<a href=\"" << nodeName << "#sec-" << sectionNumber.join("-") << "\">";
 	generateAtomList(headingText.firstAtom(), node, marker, true, numAtoms);
         out() << "</a></li>\n";
 
@@ -988,7 +988,7 @@ QString HtmlGenerator::generateListOfAllMemberFile(const InnerNode *inner, CodeM
     if (sections.isEmpty())
         return QString();
 
-    QString fileName = fileBase(inner) + ".members." + fileExtension();
+    QString fileName = fileBase(inner) + "-members." + fileExtension();
     beginSubPage(inner->location(), fileName);
     QString title = "List of All Members for " + inner->name();
     generateHeader(title, inner);
@@ -1441,19 +1441,19 @@ QString HtmlGenerator::cleanRef( const QString& ref )
 	     ref[i] == '_' || ref[i] == ':' || ref[i] == '.' ) {
 	    clean += ref[i];
 	} else if ( ref[i].isSpace() ) {
-	    clean += ".";
+	    clean += "-";
 	} else if ( ref[i] == '!' ) {
-	    clean += ".not";
+	    clean += "-not";
 	} else if ( ref[i] == '&' ) {
-	    clean += ".and";
+	    clean += "-and";
 	} else if ( ref[i] == '<' ) {
-	    clean += ".lt";
+	    clean += "-lt";
 	} else if ( ref[i] == '=' ) {
-	    clean += ".eq";
+	    clean += "-eq";
 	} else if ( ref[i] == '>' ) {
-	    clean += ".gt";
+	    clean += "-gt";
 	} else {
-	    clean += ".";
+	    clean += "-";
 	    clean += QString::number((int)ref[i].unicode(), 16);
 	}
     }
@@ -1605,7 +1605,7 @@ QString HtmlGenerator::fileBase( const Node *node,
 	    base = *b;
 	    break;
 	}
-	suffix.prepend( "." + *s );
+	suffix.prepend( "-" + *s );
     }
     return base + suffix;
 }
@@ -1623,14 +1623,14 @@ QString HtmlGenerator::refForNode(const Node *node)
     default:
 	break;
     case Node::Enum:
-	ref = node->name() + ".enum";
+	ref = node->name() + "-enum";
 	break;
     case Node::Typedef:
         typedeffe = static_cast<const TypedefNode *>(node);
         if (typedeffe->associatedEnum()) {
             return refForNode(typedeffe->associatedEnum());
         } else {
-            ref = node->name() + ".typedef";
+            ref = node->name() + "-typedef";
         }
 	break;
     case Node::Function:
@@ -1640,11 +1640,11 @@ QString HtmlGenerator::refForNode(const Node *node)
         } else {
 	    ref = func->name();
 	    if (func->overloadNumber() != 1)
-	        ref += "." + QString::number(func->overloadNumber());
+	        ref += "-" + QString::number(func->overloadNumber());
 	}
 	break;
     case Node::Property:
-	ref = node->name() + ".prop";
+	ref = node->name() + "-prop";
     case Node::Target:
         return protect(node->name());
     }

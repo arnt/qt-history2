@@ -50,7 +50,7 @@ void Generator::terminateGenerator()
 
 void Generator::initialize(const Config &config)
 {
-    Set<QString> outputFormats = config.getStringSet(CONFIG_OUTPUTFORMATS);
+    QSet<QString> outputFormats = config.getStringSet(CONFIG_OUTPUTFORMATS);
     if ( !outputFormats.isEmpty() ) {
 	outDir = config.getString(CONFIG_OUTPUTDIR);
 	if ( outDir.isEmpty() )
@@ -69,8 +69,8 @@ void Generator::initialize(const Config &config)
     imageDirs = config.getStringList(CONFIG_IMAGEDIRS);
 
     QString imagesDotFileExtensions = CONFIG_IMAGES + Config::dot + CONFIG_FILEEXTENSIONS;
-    Set<QString> formats = config.subVars( imagesDotFileExtensions );
-    Set<QString>::ConstIterator f = formats.begin();
+    QSet<QString> formats = config.subVars( imagesDotFileExtensions );
+    QSet<QString>::ConstIterator f = formats.begin();
     while ( f != formats.end() ) {
 	imgFileExts[*f] = config.getStringList(imagesDotFileExtensions + Config::dot + *f);
 	++f;
@@ -95,13 +95,13 @@ void Generator::initialize(const Config &config)
     }
 
     QRegExp secondParamAndAbove( "[\2-\7]" );
-    Set<QString> formattingNames = config.subVars( CONFIG_FORMATTING );
-    Set<QString>::ConstIterator n = formattingNames.begin();
+    QSet<QString> formattingNames = config.subVars( CONFIG_FORMATTING );
+    QSet<QString>::ConstIterator n = formattingNames.begin();
     while ( n != formattingNames.end() ) {
 	QString formattingDotName = CONFIG_FORMATTING + Config::dot + *n;
 
-	Set<QString> formats = config.subVars( formattingDotName );
-	Set<QString>::ConstIterator f = formats.begin();
+	QSet<QString> formats = config.subVars( formattingDotName );
+	QSet<QString>::ConstIterator f = formats.begin();
 	while ( f != formats.end() ) {
 	    QString def = config.getString( formattingDotName + Config::dot +
 					    *f );
@@ -219,18 +219,18 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
         if ( node->type() == Node::Enum ) {
 	    const EnumNode *enume = (const EnumNode *) node;
 
-	    Set<QString> definedItems;
+	    QSet<QString> definedItems;
 	    QList<EnumItem>::ConstIterator it = enume->items().begin();
 	    while ( it != enume->items().end() ) {
 	        definedItems.insert( (*it).name() );
 	        ++it;
 	    }
 
-	    Set<QString> documentedItems = enume->doc().enumItemNames();
-	    Set<QString> allItems = reunion( definedItems, documentedItems );
+	    QSet<QString> documentedItems = enume->doc().enumItemNames().toSet();
+	    QSet<QString> allItems = definedItems + documentedItems;
 	    if ( allItems.count() > definedItems.count() ||
 	         allItems.count() > documentedItems.count() ) {
-	        Set<QString>::ConstIterator a = allItems.begin();
+	        QSet<QString>::ConstIterator a = allItems.begin();
 	        while ( a != allItems.end() ) {
 		    if ( !definedItems.contains(*a) ) {
 		        QString details;
@@ -249,7 +249,7 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
         } else if ( node->type() == Node::Function ) {
 	    const FunctionNode *func = static_cast<const FunctionNode *>(node);
 
-	    Set<QString> definedParams;
+	    QSet<QString> definedParams;
 	    QList<Parameter>::ConstIterator p = func->parameters().begin();
 	    while (p != func->parameters().end()) {
 	        if ((*p).name().isEmpty() && (*p).leftType() != QLatin1String("...")
@@ -262,11 +262,11 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 	        ++p;
 	    }
 
-	    Set<QString> documentedParams = func->doc().parameterNames();
-	    Set<QString> allParams = reunion( definedParams, documentedParams );
+	    QSet<QString> documentedParams = func->doc().parameterNames();
+	    QSet<QString> allParams = definedParams + documentedParams;
 	    if (allParams.count() > definedParams.count()
 		    || allParams.count() > documentedParams.count()) {
-	        Set<QString>::ConstIterator a = allParams.begin();
+	        QSet<QString>::ConstIterator a = allParams.begin();
 	        while (a != allParams.end()) {
 		    if (!definedParams.contains(*a)) {
 		        QString details;

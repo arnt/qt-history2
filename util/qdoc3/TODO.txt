@@ -1,5 +1,7 @@
 From Jasmin:
 
+  * show enum values
+
   * expand QObjectList -> QList<QObject *>
   * Don't use "..." in enums for just one value
   * #include <const_iterator> is wrong
@@ -8,7 +10,6 @@ From Jasmin:
   * \enum Qt::ScrollBarPolicy (qviewport.cpp contains documentation for  \enum Qt::ScrollBarPolicy, and it 
   does show up in the docs, but not as a link from the properties in QViewport)
   * qhboxwidget.html#sizeHint is broken (apparently)
-  * show enum values
 
 --
 

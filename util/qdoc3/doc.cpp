@@ -17,7 +17,7 @@
 #include <ctype.h>
 #include <limits.h>
 
-Q_GLOBAL_STATIC(Set<QString>, null_Set_QString)
+Q_GLOBAL_STATIC(QSet<QString>, null_Set_QString)
 Q_GLOBAL_STATIC(QStringList, null_QStringList)
 Q_GLOBAL_STATIC(QList<Text>, null_QList_Text)
 
@@ -181,11 +181,11 @@ public:
     Location loc;
     QString src;
     Text text;
-    Set<QString> params;
+    QSet<QString> params;
     QList<Text> alsoList;
     QStringList enumItemList;
     QStringList omitEnumItemList;
-    Set<QString> metaCommandSet;
+    QSet<QString> metaCommandSet;
     QMap<QString, QStringList> metaCommandMap;
     bool hasLegalese : 1;
     bool hasSectioningUnits : 1;
@@ -216,7 +216,7 @@ void DocPrivate::constructExtra()
 class DocParser
 {
 public:
-    void parse(const QString &source, DocPrivate *docPrivate, const Set<QString> &metaCommandSet);
+    void parse(const QString &source, DocPrivate *docPrivate, const QSet<QString> &metaCommandSet);
 
     static int endCommandFor( int command );
     static QString commandName( int command );
@@ -234,7 +234,7 @@ public:
 
 private:
     Location& location();
-    QString detailsUnknownCommand( const Set<QString>& metaCommandSet,
+    QString detailsUnknownCommand( const QSet<QString>& metaCommandSet,
 				   const QString& str );
     void checkExpiry( const QString& date );
     void insertBaseName(const QString &baseName);
@@ -311,7 +311,7 @@ QStringList DocParser::sourceFiles;
 QStringList DocParser::sourceDirs;
 
 void DocParser::parse( const QString& source, DocPrivate *docPrivate,
-		       const Set<QString>& metaCommandSet )
+		       const QSet<QString>& metaCommandSet )
 {
     in = source;
     pos = 0;
@@ -1086,9 +1086,9 @@ Location &DocParser::location()
     return cachedLoc;
 }
 
-QString DocParser::detailsUnknownCommand(const Set<QString> &metaCommandSet, const QString &str)
+QString DocParser::detailsUnknownCommand(const QSet<QString> &metaCommandSet, const QString &str)
 {
-    Set<QString> commandSet = metaCommandSet;
+    QSet<QString> commandSet = metaCommandSet;
     int i = 0;
     while ( cmds[i].english != 0 ) {
 	commandSet.insert(*cmds[i].alias);
@@ -1987,7 +1987,7 @@ QString DocParser::slashed( const QString& str )
 #define COMMAND_BRIEF                   Doc::alias("brief")
 
 Doc::Doc( const Location& location, const QString& source,
-	  const Set<QString>& metaCommandSet )
+	  const QSet<QString>& metaCommandSet )
 {
     priv = new DocPrivate( location, source );
     DocParser parser;
@@ -2145,7 +2145,7 @@ Doc::SectioningUnit Doc::sectioningUnit() const
 }
 #endif
 
-const Set<QString> &Doc::parameterNames() const
+const QSet<QString> &Doc::parameterNames() const
 {
     return priv == 0 ? *null_Set_QString() : priv->params;
 }
@@ -2160,7 +2160,7 @@ const QStringList &Doc::omitEnumItemNames() const
     return priv == 0 ? *null_QStringList() : priv->omitEnumItemList;
 }
 
-const Set<QString> &Doc::metaCommandsUsed() const
+const QSet<QString> &Doc::metaCommandsUsed() const
 {
     return priv == 0 ? *null_Set_QString() : priv->metaCommandSet;
 }
@@ -2200,8 +2200,8 @@ void Doc::initialize( const Config& config )
 
     QMap<QString, QString> reverseAliasMap;
 
-    Set<QString> commands = config.subVars( CONFIG_ALIAS );
-    Set<QString>::ConstIterator c = commands.begin();
+    QSet<QString> commands = config.subVars( CONFIG_ALIAS );
+    QSet<QString>::ConstIterator c = commands.begin();
     while ( c != commands.end() ) {
 	QString alias = config.getString( CONFIG_ALIAS + Config::dot + *c );
 	if ( reverseAliasMap.contains(alias) ) {
@@ -2227,8 +2227,8 @@ void Doc::initialize( const Config& config )
 	i++;
     }
 
-    Set<QString> macroNames = config.subVars( CONFIG_MACRO );
-    Set<QString>::ConstIterator n = macroNames.begin();
+    QSet<QString> macroNames = config.subVars( CONFIG_MACRO );
+    QSet<QString>::ConstIterator n = macroNames.begin();
     while ( n != macroNames.end() ) {
 	QString macroDotName = CONFIG_MACRO + Config::dot + *n;
 	Macro macro;
@@ -2240,8 +2240,8 @@ void Doc::initialize( const Config& config )
 	}
 	bool silent = false;
 
-	Set<QString> formats = config.subVars( macroDotName );
-	Set<QString>::ConstIterator f = formats.begin();
+	QSet<QString> formats = config.subVars( macroDotName );
+	QSet<QString>::ConstIterator f = formats.begin();
 	while ( f != formats.end() ) {
 	    QString def = config.getString( macroDotName + Config::dot + *f );
 	    if ( !def.isEmpty() ) {

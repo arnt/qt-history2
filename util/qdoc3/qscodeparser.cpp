@@ -188,12 +188,12 @@ FunctionNode *QsCodeParser::findFunctionNode( const QString& synopsis,
     return func;
 }
 
-Set<QString> QsCodeParser::topicCommands()
+QSet<QString> QsCodeParser::topicCommands()
 {
-    return Set<QString>() << COMMAND_FILE << COMMAND_GROUP << COMMAND_MODULE
-			  << COMMAND_PAGE << COMMAND_QUICKCLASS
-			  << COMMAND_QUICKENUM << COMMAND_QUICKFN
-			  << COMMAND_QUICKPROPERTY;
+    return QSet<QString>() << COMMAND_FILE << COMMAND_GROUP << COMMAND_MODULE
+			   << COMMAND_PAGE << COMMAND_QUICKCLASS
+			   << COMMAND_QUICKENUM << COMMAND_QUICKFN
+			   << COMMAND_QUICKPROPERTY;
 }
 
 Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
@@ -285,7 +285,7 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
     }
 }
 
-Set<QString> QsCodeParser::otherMetaCommands()
+QSet<QString> QsCodeParser::otherMetaCommands()
 {
     return commonMetaCommands() << COMMAND_ENDQUICKCODE << COMMAND_QUICKCODE
 				<< COMMAND_QUICKIFY << COMMAND_REPLACE;
@@ -498,8 +498,8 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
     if ( quickClass->baseClasses().isEmpty() && quickClass->name() != "Object" )
 	quickClass->addBaseClass(Node::Public, cpp2qs.findClassNode(qsTre, "Object"));
 
-    Set<QString> funcBlackList;
-    Set<QString> propertyBlackList;
+    QSet<QString> funcBlackList;
+    QSet<QString> propertyBlackList;
 
     NodeList children;
     if ( wrapperClass != 0 ) {
@@ -713,9 +713,8 @@ QString QsCodeParser::quickifiedDoc( const QString& source )
 void QsCodeParser::setQtDoc( Node *quickNode, const Doc& doc )
 {
     if ( !doc.isEmpty() ) {
-	Doc quickDoc( doc.location(), quickifiedDoc(doc.source()),
-		      reunion(CppCodeParser::topicCommands(),
-			      CppCodeParser::otherMetaCommands()) );
+	Doc quickDoc(doc.location(), quickifiedDoc(doc.source()),
+		     CppCodeParser::topicCommands() + CppCodeParser::otherMetaCommands());
 	quickNode->setDoc( quickDoc, true );
     }
 }

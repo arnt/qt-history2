@@ -121,7 +121,7 @@ static void processQdocconfFile(const QString &fileName)
     if ( codeParser == 0 )
 	config.lastLocation().fatal(tr("Cannot parse programming language '%1'").arg(lang));
 
-    Set<QString> outputFormats = config.getStringSet(CONFIG_OUTPUTFORMATS);
+    QSet<QString> outputFormats = config.getStringSet(CONFIG_OUTPUTFORMATS);
     Location outputFormatsLocation = config.lastLocation();
 
     CodeMarker *marker = CodeMarker::markerForLanguage(lang);
@@ -150,7 +150,7 @@ static void processQdocconfFile(const QString &fileName)
     codeParser->doneParsingSourceFiles( tree );
     tree->resolveGroups();
 
-    Set<QString>::ConstIterator of = outputFormats.begin();
+    QSet<QString>::ConstIterator of = outputFormats.begin();
     while ( of != outputFormats.end() ) {
 	Generator *generator = Generator::generatorForFormat( *of );
 	if ( generator == 0 )

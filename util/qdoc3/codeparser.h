@@ -5,8 +5,9 @@
 #ifndef CODEPARSER_H
 #define CODEPARSER_H
 
+#include <QSet>
+
 #include "location.h"
-#include "set.h"
 
 class Config;
 class Node;
@@ -36,7 +37,7 @@ public:
     static CodeParser *parserForLanguage( const QString& language );
 
 protected:
-    Set<QString> commonMetaCommands();
+    QSet<QString> commonMetaCommands();
     void processCommonMetaCommand(const Location& location,
 				  const QString& command, const QString& arg,
 				  Node *node, Tree *tree);
