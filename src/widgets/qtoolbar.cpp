@@ -59,7 +59,10 @@ protected:
 	}
 	p.setPen( colorGroup().light() );
 	p.drawPolyline( a );
-	a.translate( 1, 0 );
+	if ( orient == Qt::Horizontal )
+	    a.translate( 1, 0 );
+	else
+	    a.translate( 0, 1 );
 	p.setPen( colorGroup().midlight() );
 	p.drawPolyline( a );
     }
@@ -826,7 +829,7 @@ void QToolBar::paintToolBar()
     if ( mw && !mw->toolBarsMovable() ) {
 	return;
     }
-    
+
     int w = width();
     int h = height();
     if ( orientation() == Horizontal && w < sizeHint().width() )
