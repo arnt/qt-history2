@@ -14,7 +14,7 @@
 #endif
 
 GLLandscape::GLLandscape( QWidget * parent, const char * name )
-    : QGLWidget( parent, name )
+    : QGLWidget( parent, name ), timerID(-1)
 {
     mouseButtonDown  = FALSE;
     animationRunning = FALSE;
@@ -209,7 +209,7 @@ void GLLandscape::drawSmoothShaded()
 	glMaterialfv( GL_FRONT, GL_SPECULAR, materialSpecular );
 	glMaterialfv( GL_FRONT, GL_AMBIENT, materialAmbient );
 	glMaterialfv( GL_FRONT, GL_SHININESS, materialShininess );
-	
+
 	glEnable( GL_BLEND );
 	glBegin( GL_POLYGON );
 	{
@@ -221,7 +221,6 @@ void GLLandscape::drawSmoothShaded()
 	    glVertex3f( gridHalf, gridHalf, .2 );
 	    glNormal3f( 0, 0, 1 );
 	    glVertex3f( gridHalf, -gridHalf, .2 );
-	
 	}
 	glEnd();
 	glDisable( GL_BLEND );
@@ -567,7 +566,7 @@ void GLLandscape::setLandscape( int state )
 	GLfloat ambient[]  = { 0.50, 0.50, 0.50, 0.0 };
 	GLfloat diffuse[]  = { 1.00, 1.00, 1.00, 0.0 };
 	GLfloat specular[] = { 1.0, 1.0, 1.0, 0.0 };
-	
+
 	glLightfv( GL_LIGHT0, GL_POSITION, position );
 	glLightfv( GL_LIGHT0, GL_AMBIENT, ambient );
 	glLightfv( GL_LIGHT0, GL_DIFFUSE, diffuse );
@@ -641,7 +640,7 @@ void GLLandscape::timerEvent( QTimerEvent * )
 		if ( (landscape[i][j] + wave[i][j]) < 0 )
 		    landscape[i][j] -= wave[i][j];
 		if ( (dy - j != 0) || (dx - i != 0) )
-		    wave[i][j] = (3 * sin( 2 * PI * W * (wt[i][j] + t ))) / 
+		    wave[i][j] = (3 * sin( 2 * PI * W * (wt[i][j] + t ))) /
 				 (0.2*(sqrt( pow((double)(dx-i), 2) + pow((double)(dy-j), 2))+2));
 		else
 		    wave[i][j] = ( 3 * sin( 2 * PI * W * ( wt[i][j] + t ) ) );
@@ -652,13 +651,12 @@ void GLLandscape::timerEvent( QTimerEvent * )
 		landscape[i][j] -= wave[i][j];
 
 		if ( s != 0 )
-		    wave[i][j] = 2 * sin(2 * PI * W * ( wt[i][j] + t )) / 
+		    wave[i][j] = 2 * sin(2 * PI * W * ( wt[i][j] + t )) /
 				 (0.2*(s + 2));
 		else
 		    wave[i][j] = 2 * sin( 2 * PI * W * ( wt[i][j] + t ) );
 		landscape[i][j] += wave[i][j];
 	    }
-	    
 	}
     if ( mode == SmoothShaded || mode == Landscape )
 	calculateVertexNormals();
@@ -668,10 +666,10 @@ void GLLandscape::timerEvent( QTimerEvent * )
 void GLLandscape::toggleWaveAnimation( bool state )
 {
     if ( state ) {
- 	startTimer( 20 );
+	timerID = startTimer( 20 );
 	animationRunning = TRUE;
     } else {
-	killTimers();
+	killTimer(timerID);
 	animationRunning = FALSE;
     }
 }
@@ -679,11 +677,11 @@ void GLLandscape::toggleWaveAnimation( bool state )
 void GLLandscape::showEvent( QShowEvent * )
 {
     if ( animationRunning )
- 	startTimer( 20 );	
+	timerID = startTimer( 20 );
 }
 
 void GLLandscape::hideEvent( QHideEvent * )
 {
     if ( animationRunning )
-	killTimers();
+	killTimer(timerID);
 }

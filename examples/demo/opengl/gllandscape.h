@@ -10,7 +10,7 @@ class GLLandscape : public QGLWidget
 public:
     GLLandscape( QWidget * parent = 0, const char * name = 0 );
     ~GLLandscape();
-    
+
 public slots:
     void rotateX( int );
     void rotateY( int );
@@ -18,20 +18,20 @@ public slots:
     void zoom( int );
     void fractalize();
     void resetGrid();
-    
+
     void setWireframe( int );
     void setFilled( int );
     void setSmoothShaded( int );
     void setLandscape( int );
     void setGridSize( int );
-    
+
     void toggleWaveAnimation( bool );
 
 signals:
     void rotatedX( int );
     void rotatedY( int );
     void rotatedZ( int );
-    
+
 protected:
     void paintGL();
     void initializeGL();
@@ -42,11 +42,11 @@ protected:
     void timerEvent( QTimerEvent * );
     void showEvent( QShowEvent * );
     void hideEvent( QHideEvent * );
-    
+
     void drawWireframe();
     void drawFilled();
     void drawSmoothShaded();
-    
+
 private:
     enum Axis { XAxis, YAxis, ZAxis };
     enum RenderModes { Wireframe, Filled, SmoothShaded, Landscape };
@@ -57,9 +57,9 @@ private:
     void averageNormals();
     void createGrid( int size );
     void destroyGrid();
-    
+
     RenderModes mode;
-    
+
     typedef struct grid_normals {
 	double u[3], l[3];
     } gridNormals;
@@ -80,13 +80,14 @@ private:
     gridNormals ** normals;
     avgNormals  ** vertexNormals;
     viewMatrix     views[2];
-    
+
     QPoint  oldPos;
     GLfloat oldX, oldY, oldZ;
     bool initFractals;
     int  gridSize, gridHalf;
     bool animationRunning;
     bool mouseButtonDown;
+    int timerID;
 };
 
 #endif
