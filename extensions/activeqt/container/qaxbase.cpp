@@ -2497,12 +2497,40 @@ QMetaObject *MetaObjectGenerator::metaObject( const QMetaObject *parentObject )
     return d->metaobj;
 }
 
+static const uint qt_meta_data_QAxBase[] = {
+
+ // content:
+       1,       // revision
+       0,       // classname
+       0,   12, // classinfo
+       3,   12, // signals
+       0,   27, // slots
+       1,   27, // properties
+       0,   30, // enums/sets
+
+ // signals: signature, parameters, type, tag, flags
+      46,   24,   23,   23, 0x0,
+      90,   85,   23,   23, 0x0,
+     130,  115,   23,   23, 0x0,
+
+ // properties: name, type, flags
+     164,  156, 0x03055103,
+
+       0        // eod
+};
+
+static const char qt_meta_stringdata_QAxBase[] = {
+    "QAxBase\0\0code,source,desc,help\0"
+    "exception(int,QString,QString,QString)\0name\0propertyChanged(QString)\0"
+    "name,argc,argv\0signal(QString,int,void*)\0QString\0control\0"
+};
+
 const QMetaObject QAxBase::staticMetaObject = {
     { &QObject::staticMetaObject,
-      0, //XXX
-      0 //XXX
-    }
+      qt_meta_stringdata_QAxBase,
+      qt_meta_data_QAxBase }
 };
+
 
 /*!
     \reimp
@@ -2563,9 +2591,8 @@ static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that, const cha
 #if defined(QT_CHECK_STATE)
 	    qWarning( "QAxBase: Error calling IDispatch member %s: Exception thrown by server.", name );
 #endif
-/* XXX
 	    const QMetaObject *mo = that->metaObject();
-	    int exceptionSignal = mo->findSignal( "exception(int,const QString&,const QString&,const QString&)" );
+	    int exceptionSignal = mo->indexOfSignal( "exception(int,const QString&,const QString&,const QString&)" );
 	    if ( exceptionSignal >= 0 ) {
 		if ( exc->pfnDeferredFillIn )
 		    exc->pfnDeferredFillIn( exc );
@@ -2576,21 +2603,12 @@ static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that, const cha
 		QString help = BSTRToQString( exc->bstrHelpFile );
 		unsigned long helpContext = exc->dwHelpContext;
 
-		QUObject o[5];
-		static_QUType_int.set( o+1, code );
-		static_QUType_QString.set( o+2, source );
-		static_QUType_QString.set( o+3, desc );
-		if ( !!help && !!helpContext )
-		    static_QUType_QString.set( o+4, QString( "%1 [%2]" ).arg(help).arg(helpContext) );
-		else
-		    static_QUType_QString.set( o+4, QString::null );
-		that->qt_emit( exceptionSignal, o );
-		static_QUType_QString.clear( o+4 );
-		static_QUType_QString.clear( o+3 );
-		static_QUType_QString.clear( o+2 );
-		static_QUType_int.clear( o+1 );
+		if (helpContext && !help.isEmpty())
+		    help += QString(" [%1]").arg(helpContext);
+
+		void *argv[] = {&code, &source, &desc, &help, 0};
+		that->qt_metacall(QMetaObject::EmitSignal, exceptionSignal, argv);
 	    }
-*/
 	}
 	return FALSE;
     case DISP_E_MEMBERNOTFOUND:
@@ -2848,7 +2866,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 /*!
     \internal
 */
-int QAxBase::qt_metacall(QMetaObject::Call, int id, void **v)
+int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
 {
     return 0;
 }

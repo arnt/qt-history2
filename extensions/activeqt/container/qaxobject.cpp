@@ -128,23 +128,6 @@ int QAxObject::qt_metacall(QMetaObject::Call call, int id, void **o)
 }
 
 /*!
-    \reimp
-*
-bool QAxObject::qt_emit( int _id, QUObject* _o )
-{
-    const int index = _id - metaObject()->signalOffset();
-    if ( !isNull() && index >= 0 ) {
-	// get the list of connections
-	QConnectionList *clist = receivers( _id );
-	if ( clist ) // call the signal
-	    activate_signal( clist, _o );
-
-	return TRUE;
-    }
-    return QObject::qt_emit( _id, _o );
-}
-
-/*!
     \fn QObject *QAxObject::qObject()
     \reimp
 */

@@ -98,7 +98,7 @@ public:
 
     void show();
 
-    bool qt_emit( int isignal, QUObject *obj );
+    int qt_metacall( QMetaObject::Call, int isignal, void **argv );
     QAxHostWindow *clientSite() const
     {
 	return axhost;
@@ -254,7 +254,7 @@ public:
 	return widget->translateKeyEvent(message, keycode);
     }
 
-    bool qt_emit( int isignal, QUObject *obj );
+    int qt_metacall( QMetaObject::Call, int isignal, void **argv);
 
 protected:
     void windowActivationChange( bool oldActive );
@@ -1001,26 +1001,19 @@ HRESULT WINAPI QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU /*holemenu*/,
     return S_OK;
 }
 
-bool QAxHostWindow::qt_emit( int isignal, QUObject *obj )
+int QAxHostWindow::qt_metacall(QMetaObject::Call call, int isignal, void **argv)
 {
-    if ( !m_spOleObject )
-	return FALSE;
+    if ( !m_spOleObject || call != QMetaObject::EmitSignal )
+	return -1;
 
-    switch ( isignal ) {
-    case 0: // activated(int)
-	{ /* XXX
-	    int qtid = static_QUType_int.get( obj+1 );
-	    OleMenuItem oleItem = menuItemMap[qtid];
-	    if ( oleItem.hMenu )
-		::PostMessageA( m_menuOwner, WM_COMMAND, oleItem.id, 0 );
-	*/
-	}
-	break;
+    if (isignal != QPopupMenu::staticMetaObject.indexOfSignal("activated(int)"))
+	return -1;
 
-    default:
-	return FALSE;
-    }
-    return TRUE;
+    int qtid = *(int*)argv[0];
+    OleMenuItem oleItem = menuItemMap[qtid];
+    if ( oleItem.hMenu )
+	::PostMessageA( m_menuOwner, WM_COMMAND, oleItem.id, 0 );
+    return isignal;
 }
 
 HRESULT WINAPI QAxHostWindow::RemoveMenus( HMENU /*hmenuShared*/ )
@@ -1151,11 +1144,11 @@ void QAxHostWindow::windowActivationChange( bool /*oldActive*/ )
 
 //**** QWidget
 
-bool QAxHostWidget::qt_emit( int isignal, QUObject *obj )
+int QAxHostWidget::qt_metacall( QMetaObject::Call call, int isignal, void **argv)
 {
     if ( axhost )
-	return axhost->qt_emit( isignal, obj );
-    return FALSE;
+	return axhost->qt_metacall( call, isignal, argv );
+    return -1;
 }
 
 void QAxHostWidget::show()
@@ -1502,33 +1495,6 @@ int QAxWidget::qt_metacall(QMetaObject::Call call, int id, void **o)
     if ( QAxBase::qt_metacall(call, id, o ) )
 	return TRUE;
     return QWidget::qt_metacall(call, id, o );
-}
-
-/*!
-    \reimp
-*
-bool QAxWidget::qt_emit( int _id, QUObject* _o )
-{
-    const int index = _id - metaObject()->signalOffset();
-    if ( !isNull() && index >= 0 ) {
-	// get the list of connections
-	QConnectionList *clist = receivers( _id );
-	if ( clist ) // call the signal
-	    activate_signal( clist, _o );
-
-	return TRUE;
-    }
-    return QWidget::qt_emit( _id, _o );
-}
-
-/*!
-    \reimp
-*
-bool QAxWidget::qt_property( int _id, int _f, QVariant *_v )
-{
-    if ( QAxBase::qt_property( _id, _f, _v ) )
-	return TRUE;
-    return QWidget::qt_property( _id, _f, _v );
 }
 
 /*!
