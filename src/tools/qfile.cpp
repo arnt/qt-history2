@@ -1,19 +1,21 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#4 $
 **
 ** Implementation of QFile class
 **
 ** Author  : Haavard Nord
 ** Created : 930812
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qfile.h"
 #include "qdatetm.h"
+#if !defined(_OS_MAC_)
 #include <sys/types.h>
 #include <sys/stat.h>
+#endif
 #include <fcntl.h>
 #include <errno.h>
 #if defined(UNIX)
@@ -25,7 +27,7 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#4 $";
 #endif
 
 
@@ -143,6 +145,9 @@ bool QFile::exists( const char *fileName )	// test if file exists
 
 long QFile::get_stat( bool lnk ) const		// get file stat, 0 if error
 {
+#if defined(_OS_MAC_)
+    return 0;
+#else
     if ( fn.isNull() )				// no filename specified
 	return 0;
     struct STATBUF st;
@@ -153,6 +158,7 @@ long QFile::get_stat( bool lnk ) const		// get file stat, 0 if error
     lnk = lnk;
 #endif
     return STAT(fn.data(), &st)==0 ? st.st_mode : 0;
+#endif
 }
 
 bool QFile::exists() const			// test if current file exists
@@ -162,20 +168,32 @@ bool QFile::exists() const			// test if current file exists
 
 bool QFile::isRegular() const			// is it a regular file?
 {
+#if defined(_OS_MAC_)
+    return FALSE;
+#else
     return (get_stat() & STAT_REG) == STAT_REG;
+#endif
 }
 
 bool QFile::isDirectory() const			// is it a directory?
 {
+#if defined(_OS_MAC_)
+    return FALSE;
+#else
     return (get_stat() & STAT_DIR) == STAT_DIR;
+#endif
 }
 
 bool QFile::isSymLink() const			// is it a symbolic link?
 {
+#if defined(_OS_MAC_)
+    return FALSE;
+#else
 #if defined(UNIX) || defined(STAT_LNK)
     return (get_stat(TRUE) & STAT_LNK) == STAT_LNK;
 #else
     return FALSE;
+#endif
 #endif
 }
 
@@ -254,7 +272,7 @@ bool QFile::open( int m )			// open file
 	    oflags |= (OPEN_CREAT | OPEN_TRUNC);//   but not append
 	if ( isWritable() )
 	    oflags |= isReadable() ? OPEN_WRONLY : OPEN_RDWR;
-#if defined(HAS_TEXT_FILEMODE)
+#if defined(HAS_TEXT_FILEMODE) && !defined(_OS_MAC_)
 	if ( isTranslated() )
 	    oflags |= OPEN_TEXT;
 #endif
