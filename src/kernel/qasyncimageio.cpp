@@ -329,13 +329,11 @@ QImageDecoder::~QImageDecoder()
 */
 int QImageDecoder::decode(const uchar* buffer, int length)
 {
-    if (actual_decoder) {
-	return actual_decoder->decode(img, consumer, buffer, length);
-    } else {
-	int consumed=0;
-	while (consumed < length && d->count < max_header) {
-	    d->header[d->count++] = buffer[consumed++];
-	}
+    if (!actual_decoder) {
+	int i=0;
+
+	while (i < length && d->count < max_header)
+	    d->header[d->count++] = buffer[i++];
 
 	QImageDecoderPrivate::ensureFactories();
 
@@ -346,26 +344,10 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 	    actual_decoder = f->decoderFor(d->header, d->count);
 	}
 
-	if (actual_decoder) {
-	    uchar* b = d->header;
-	    int more = 1;
-	    while (d->count > 0)  {
-		more = actual_decoder->decode(img, consumer, b, d->count);
-		if ( more <= 0 ) break;
-		d->count -= more;
-		b += more;
-	    }
-	    if (more <= 0) {
-		// Decoder must have failed.  Input not valid.  We assume
-		// consumer has been notified.
-		delete actual_decoder;
-		actual_decoder = 0;
-		return more;
-	    }
-	}
-
-	return consumed;
+	if (!actual_decoder) // not enough info yet (or failure)
+	    return i;
     }
+    return actual_decoder->decode(img, consumer, buffer, length);
 }
 
 /*!
