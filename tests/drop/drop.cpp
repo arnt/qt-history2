@@ -3,11 +3,13 @@
 #include <qpainter.h>
 #include <qapplication.h>
 #include <qdragobject.h>
+#include <qt_windows.h>
 
 
 Drop::Drop(QWidget* parent, const char* name) :
     QLabel(parent, name)
 {
+    setMouseTracking( TRUE );
     setText( "empty" );
     setAcceptDrops( TRUE );
 }
@@ -17,11 +19,12 @@ void Drop::mouseMoveEvent( QMouseEvent *e )
     QString s;
     s.sprintf( "move (%d,%d)", e->pos().x(), e->pos().y() );
     setText( s );
+    //    killTimers();
 }
 
 void Drop::mouseReleaseEvent( QMouseEvent *) 
 {
-    setMouseTracking( FALSE );
+    //    setMouseTracking( FALSE );
     setText( "mouseRelease" );
 }
 
@@ -62,11 +65,25 @@ void Drop::dragLeaveEvent( QDragLeaveEvent * )
 void Drop::dropEvent( QDropEvent * e )
 {
     setMouseTracking( TRUE );
+    //    startTimer( 1 );
     QString s;
-    s.sprintf( "Drop at (%d,%d)", e->pos().x(), e->pos().y() );
+    s.sprintf( "Drop at (%d,%d) %d", e->pos().x(), e->pos().y(), 
+	       hasMouseTracking() );
     setText( s );
+    
 }
 
+void Drop::trackOn()
+{
+    setMouseTracking(TRUE);
+}
+
+
+void Drop::timerEvent( QTimerEvent * )
+{
+    //setMouseTracking(TRUE);
+    setText( "timer" );
+}
 
 
 
@@ -79,8 +96,10 @@ void Drag::mousePressEvent( QMouseEvent * /*e*/ )
 {
     QDragObject *d = new QTextDrag( "Hi there!", this );
     d->dragCopy();
+#if defined(_WS_WIN_)
+    SendMessage( winId(), WM_LBUTTONUP, 0, 0 );
+#endif
 }
-
 
 
 
@@ -94,8 +113,10 @@ main(int argc, char** argv)
     QSplitter m;
     Drag drag( &m );
     Drop drop( &m );
+    Drop drop2( &m );
+    QLabel l( "Dummy", &m );
     m.show();
-    m.resize( 350,200 );
+    m.resize( 450,200 );
     QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
 
     return app.exec();

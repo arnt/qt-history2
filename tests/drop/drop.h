@@ -1,7 +1,5 @@
 #include <qlabel.h>
 
-
-
 class Drag : public QLabel {
     Q_OBJECT
 public:
@@ -14,6 +12,8 @@ class Drop : public QLabel {
     Q_OBJECT
 public:
     Drop(QWidget* parent=0, const char* name=0);
+public slots:
+    void trackOn();
 protected:
     void dragEnterEvent( QDragEnterEvent * );
     void dragMoveEvent( QDragMoveEvent * );
@@ -22,4 +22,6 @@ protected:
 
     void mouseMoveEvent( QMouseEvent *);
     void mouseReleaseEvent( QMouseEvent *);
+
+    void timerEvent( QTimerEvent * );
 };
