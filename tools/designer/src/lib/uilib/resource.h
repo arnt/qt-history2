@@ -60,6 +60,8 @@ protected:
 //
 // load
 //
+    virtual void loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
+
     virtual QWidget *create(DomUI *ui, QWidget *parentWidget);
     virtual QWidget *create(DomWidget *ui_widget, QWidget *parentWidget);
     virtual QLayout *create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget);

@@ -155,6 +155,7 @@ QWidget *Resource::create(DomWidget *ui_widget, QWidget *parentWidget)
         }
     }
 
+    loadExtraInfo(ui_widget, w, parentWidget);
     addItem(ui_widget, w, parentWidget);
 
     return w;
@@ -1100,5 +1101,13 @@ void Resource::saveExtraInfo(QWidget *widget, DomWidget *ui_widget, DomWidget *u
         ui_widget->setElementItem(ui_items);
     }
 }
+
+void Resource::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
+{
+    Q_UNUSED(ui_widget);
+    Q_UNUSED(widget);
+    Q_UNUSED(parentWidget);
+}
+
 
 #include "resource.moc"
