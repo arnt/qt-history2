@@ -26,7 +26,7 @@ class HttpDaemon : public QServerSocket
     Q_OBJECT
 public:
     HttpDaemon( QObject* parent=0 ) :
-	QServerSocket(8080,1,parent)
+	QServerSocket(8080,1,parent), pausing(FALSE)
     {
 	if ( !ok() ) {
 	    qService->reportEvent( "Failed to bind to port 8080", QtService::Error );
@@ -36,6 +36,9 @@ public:
 
     void newConnection( int socket )
     {
+	if ( pausing )
+	    return;
+
 	// When a new client connects, the server constructs a QSocket and all
 	// communication with the client is done over this QSocket. QSocket
 	// works asynchronouslyl, this means that all the communication is done
@@ -48,9 +51,22 @@ public:
 	qService->reportEvent( "New Connection" );
     }
 
+    void pause()
+    {
+	pausing = TRUE;
+    }
+
+    void resume()
+    {
+	pausing = FALSE;
+    }
+
 private slots:
     void readClient()
     {
+	if ( pausing )
+	    return;
+
 	// This slot is called when the client sent data to the server. The
 	// server looks if it was a get request and sends a very simple HTML
 	// document back.
@@ -77,6 +93,9 @@ private slots:
 	
 	qService->reportEvent( "Connection closed" );
     }
+
+private:
+    bool pausing;
 };
 
 class HttpService : public QtService
@@ -93,13 +112,26 @@ protected:
     {
 	QApplication app( argc, argv, FALSE );
 
-	HttpDaemon daemon;
+	daemon = new HttpDaemon( app );
 	return app.exec();
     }
     void stop()
     {
 	qApp->quit();
     }
+
+    void pause()
+    {
+	daemon->pause();
+    }
+
+    void resume()
+    {
+	daemon->resume();
+    }
+
+private:
+    HttpDaemon *daemon;
 };
 
 void main( int argc, char **argv )
