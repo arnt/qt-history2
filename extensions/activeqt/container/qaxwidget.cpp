@@ -511,6 +511,10 @@ HRESULT WINAPI QAxHostWindow::QueryInterface( REFIID iid, void **iface )
     return S_OK;
 }
 
+#if defined(QT_PLUGIN)
+extern bool runsInDesignMode;
+#endif
+
 //**** IDispatch
 HRESULT WINAPI QAxHostWindow::Invoke(DISPID dispIdMember,
 			      REFIID /*riid*/,
@@ -525,8 +529,19 @@ HRESULT WINAPI QAxHostWindow::Invoke(DISPID dispIdMember,
 	return E_POINTER;
 
     switch( dispIdMember ) {
-    case DISPID_AMBIENT_AUTOCLIP:
     case DISPID_AMBIENT_USERMODE:
+#if defined(QT_PLUGIN)
+	pVarResult->vt = VT_BOOL;
+	if ( runsInDesignMode && hostWidget() ) {
+	    bool isPreview = !hostWidget()->topLevelWidget()->inherits( "MainWindow" );
+	    pVarResult->boolVal = isPreview;
+	} else {
+	    pVarResult->boolVal = TRUE;
+	}
+	return S_OK;
+#endif
+
+    case DISPID_AMBIENT_AUTOCLIP:	
     case DISPID_AMBIENT_SUPPORTSMNEMONICS:
 	pVarResult->vt = VT_BOOL;
 	pVarResult->boolVal = TRUE;

@@ -135,6 +135,7 @@ private:
 #include "plugin.moc"
 
 DesignerInterface *QActiveXPlugin::designer = 0;
+bool runsInDesignMode = FALSE;
 
 QActiveXPlugin::QActiveXPlugin()
 : actionDocu(0)
@@ -267,6 +268,7 @@ void QActiveXPlugin::connectTo( QUnknownInterface *app )
     if ( !designer )
 	return;
 
+    runsInDesignMode = TRUE;
     designer->addRef();
     designer->onFormChange( this, SLOT(onFormChange()) );
 }
