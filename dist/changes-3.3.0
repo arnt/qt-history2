@@ -35,11 +35,11 @@ Support for new 64bit platforms and compilers has been added for Qt
 3.3.  Qt now supports Itanium on both Linux (Intel) and Windows
 (VC++). Qt 3.3 now also officially supports FreeBSD.
 
-Qt 3.3 also supports precompiled headers for both Windows and Mac OS
-X. To use precompiled headers when compiling your Qt application
-simply add PRECOMPH and then specify the header file to precompile in
-your .pro file. To learn more about precompiled headers see the
-"Using Precompiled Headers" chapter in the qmake User Guide.
+Qt 3.3 also supports precompiled headers for Windows, Mac OS X and
+X11. To use precompiled headers when compiling your Qt application
+simply add PRECOMPILED_HEADER and then specify the header file to 
+precompile in your .pro file. To learn more about precompiled headers
+see the "Using Precompiled Headers" chapter in the qmake User Guide.
 
 Two new database drivers have been added to the SQL module, Interbase
 and SQLite. This makes it possible to write database applications that
