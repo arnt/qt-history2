@@ -177,6 +177,10 @@ public:
 		} else if ( tag == "CHARSET_ENCODING" ) {
 		    charset_encoding = token[1];
 		    mapper = calc_mapper(charset_registry,charset_encoding);
+		} else if ( tag == "FONTBOUNDINGBOX" ) {
+		    bbox = QRect(token[3].toInt(),token[4].toInt(),
+				 token[1].toInt(),token[2].toInt());
+		    fmaxwidth = bbox.width();
 		} else if ( tag == "FONT_ASCENT" ) {
 		    fascent = token[1].toInt();
 		} else if ( tag == "FONT_DESCENT" ) {

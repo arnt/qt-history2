@@ -64,24 +64,38 @@ public:
 	delete [] glyph;
     }
 
-    QGlyph get(const QChar& ch, QRenderedFont* renderer)
+    bool inFont(const QChar& ch) const
+    {
+	if ( ch < min ) {
+	    if ( !less )
+		return FALSE;
+	    return less->inFont(ch);
+	} else if ( ch > max ) {
+	    if ( !more )
+		return FALSE;
+	    return more->inFont(ch);
+	}
+	return TRUE;
+    }
+
+    QGlyph* get(const QChar& ch, QRenderedFont* renderer)
     {
 	if ( ch < min ) {
 	    if ( !less ) {
 		if ( !renderer )
-		    return glyph[0];
+		    return 0;
 		less = new QGlyphTree(ch,ch,renderer);
 	    }
 	    return less->get(ch,renderer);
 	} else if ( ch > max ) {
 	    if ( !more ) {
 		if ( !renderer )
-		    return glyph[0];
+		    return 0;
 		more = new QGlyphTree(ch,ch,renderer);
 	    }
 	    return more->get(ch,renderer);
 	}
-	return glyph[ch.unicode()-min.unicode()];
+	return &glyph[ch.unicode()-min.unicode()];
     }
     int totalChars() const
     {
@@ -294,10 +308,38 @@ private:
 
 
 class QMemoryManagerFont {
+    QGlyph* default_glyph;
 public:
+    QMemoryManagerFont() : default_glyph(0) { }
+    ~QMemoryManagerFont()
+    {
+	delete default_glyph->metrics;
+	delete [] default_glyph->data;
+	delete default_glyph;
+    }
+
+    QGlyph* defaultGlyph()
+    {
+	if ( !default_glyph ) {
+	    QGlyphMetrics* m = new QGlyphMetrics;
+	    m->width = fm.maxwidth;
+	    m->linestep = fm.smooth ? m->width : (m->width+7)/8;
+	    m->height = fm.ascent;
+	    m->padding = 0;
+	    m->bearingx = 0;
+	    m->advance = m->width+1+m->width/8;
+	    m->bearingy = 0;
+	    uchar* d = new uchar[m->linestep*m->height];
+	    memset(d,255,m->linestep*m->height);
+	    default_glyph = new QGlyph(m,d);
+	}
+	return default_glyph;
+    }
+
     QFontDef def;
     QGlyphTree* tree;
-    QRenderedFont* renderer; // ==0 for ROM fonts
+    QRenderedFont* renderer; // ==0 for QPFs
+
     struct {
 	Q_UINT8 ascent,descent;
 	Q_INT8 leftbearing,rightbearing;
@@ -456,12 +498,28 @@ QRenderedFont* QMemoryManager::fontRenderer(FontID id)
     return font->renderer;
 }
 
+bool QMemoryManager::inFont(FontID id, const QChar& ch) const
+{
+    QMemoryManagerFont* font = (QMemoryManagerFont*)id;
+    if ( font->renderer )
+	return font->renderer->inFont(ch);
+    else
+	return font->tree->inFont(ch);
+}
+
 QGlyph QMemoryManager::lockGlyph(FontID id, const QChar& ch)
 {
     QMemoryManagerFont* font = (QMemoryManagerFont*)id;
-    if ( !font->tree )
-	font->tree = new QGlyphTree(ch,ch,font->renderer);
-    return font->tree->get(ch,font->renderer);
+    if ( !font->tree ) {
+	QChar c = ch;
+	if ( !font->renderer->inFont(c) )
+	    c = ' '; // ### Hope this is inFont()
+	font->tree = new QGlyphTree(c,c,font->renderer);
+    }
+    QGlyph* g = font->tree->get(ch,font->renderer);
+    if ( !g )
+	g = font->defaultGlyph();
+    return *g;
 }
 
 QGlyphMetrics* QMemoryManager::lockGlyphMetrics(FontID id, const QChar& ch)

@@ -60,6 +60,7 @@ public:
     typedef void* FontID;
     FontID findFont(const QFontDef&);
     QRenderedFont* fontRenderer(FontID); // XXX JUST FOR METRICS
+    bool inFont(FontID, const QChar&) const;
     QGlyph lockGlyph(FontID, const QChar&);
     QGlyphMetrics* lockGlyphMetrics(FontID, const QChar&);
     void unlockGlyph(FontID, const QChar&);

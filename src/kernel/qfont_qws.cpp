@@ -280,9 +280,9 @@ int QFontMetrics::descent() const
     return ((QFontMetrics*)this)->internal()->descent();
 }
 
-bool QFontMetrics::inFont(QChar) const
+bool QFontMetrics::inFont(QChar ch) const
 {
-    return TRUE; //##### XXX
+    return memorymanager->inFont(((QFontMetrics*)this)->internal()->handle(),ch);
 }
 
 int QFontMetrics::leftBearing(QChar ch) const
