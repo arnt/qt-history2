@@ -608,6 +608,9 @@ static QString addDefaultArguments(const QString &prototype, int numDefArgs)
     while (numDefArgs) {
         in = ptype.lastIndexOf("]", in);
         ptype.replace(in, 1, ",optional]");
+        in = ptype.indexOf(' ', in) + 1;
+        QString type = ptype.mid(in, ptype.indexOf(' ', in) - in);
+        ptype.replace(in, type.length(), "VARIANT");
         --numDefArgs;
     }
 
