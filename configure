@@ -866,8 +866,25 @@ fi
 
 # Create the .qmake.cache file
 [ -f .qmake.cache ] && rm -f .qmake.cache
-for a in $QMAKE_VARS; do
-    echo $a | sed 's,^",,' | sed 's,"$,,' >>.qmake.cache
+quoted=no
+tmp=""
+for i in $QMAKE_VARS; do
+  if [ "$quoted" = "no" ]
+  then 
+    case "$i" in 
+      \"*\")   echo $i | sed 's,^",,' | sed 's,"$,,' >>.qmake.cache;   ;; 
+      \"*)   quoted=yes ; tmp=$i;   ;; 
+      *)   echo $i; ;; 
+    esac
+  else 
+    case "$i" in 
+      *\") quoted=no
+           echo $tmp $i | sed 's,^",,' | sed 's,"$,,' >>.qmake.cache
+           tmp=""; ;; 
+      *) tmp="$tmp $i"; ;;
+    esac
+  fi
+#    echo $a
 done
 cat >>.qmake.cache <<EOF
 CONFIG = $QMAKE_CONFIG
