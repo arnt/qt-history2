@@ -162,7 +162,7 @@ QVariant::Type qDecodeOCIType( int ocitype )
 	type = QVariant::DateTime;
 	break;
     default:
-		type = QVariant::Invalid;
+	type = QVariant::Invalid;
 	break;
     }
 	return type;
@@ -302,19 +302,7 @@ public:
 	    dataSize = ofi.oraLength + 1;
 	    QVariant::Type type = ofi.type;
 	    createType( count-1, type );
-	    switch ( type ) {
-	    case QVariant::DateTime:
-		r = OCIDefineByPos( d->sql,
-				&dfn,
-				d->err,
-				count,
-				create(count-1, dataSize) ,
-				dataSize,
-				SQLT_DAT,
-				(dvoid *) createInd( count-1 ),
-				0, 0, OCI_DEFAULT);
-		break;
-	    case QVariant::CString:
+	    if ( type == QVariant::CString ) {
 		r = OCIDefineByPos( d->sql,
 				    &dfn,
 				    d->err,
@@ -327,18 +315,28 @@ public:
 				    (ub2 *) 0,
 				    OCI_DYNAMIC_FETCH ); /* piecewise */
 		break;
-	    default:
-	    case QVariant::ByteArray:
+	    } else {
+		ub2 oraType;
+		switch( type ) {
+		case QVariant::DateTime:
+		    oraType = SQLT_DAT;
+		    break;
+		case QVariant::ByteArray:
+		    oraType = SQLT_LBI;
+		    break;
+		default:
+		    oraType = SQLT_STR;
+		    break;
+		}
 		r = OCIDefineByPos( d->sql,
 				    &dfn,
 				    d->err,
 				    count,
 				    create(count-1,dataSize),
 				    dataSize,
-				    SQLT_STR,
+				    oraType,
 				    (dvoid *) createInd( count-1 ),
 				    0, 0, OCI_DEFAULT);
-		break;
 	    }
 	    def[(int)(count-1)] = dfn;
 	    count++;
