@@ -391,6 +391,7 @@ void MainWindow::showLink( const QString &link )
     }
     if( fi.exists() ) {
 	tabs->setSource( absLink );
+	tabs->currentBrowser()->setFocus();
     } else {
 	// ### Default 404 site!
 	statusBar()->message( tr( "Failed to open link: '%1'" ).arg( link ), 5000 );
