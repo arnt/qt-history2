@@ -142,7 +142,7 @@ public:
 #ifdef QT_COMPAT
     inline QT_COMPAT_CONSTRUCTOR QKeyEvent( Type type, int key, int /*ascii*/, int state, const QString& text = QString::null,
                              bool autorep = FALSE, ushort count = 1 )
-        : QInputEvent(type), txt(text), k(key), s((ushort)state), c(count), autor(autorep)
+        : QInputEvent(type), txt(text), k(key), s(static_cast<ushort>(state)), c(count), autor(autorep)
     {
         if ( key >= Qt::Key_Back && key <= Qt::Key_MediaLast )
             ignore();

@@ -73,8 +73,8 @@ public:
 
 #ifdef QT_COMPAT
     enum ColorMode { NormalColors = NormalColor, CustomColors = CustomColor };
-    static inline QT_COMPAT ColorMode colorMode() { return (ColorMode)colorSpec(); }
-    static inline QT_COMPAT void setColorMode(ColorMode mode) { setColorSpec((ColorSpec)mode); }
+    static inline QT_COMPAT ColorMode colorMode() { return static_cast<ColorMode>(colorSpec()); }
+    static inline QT_COMPAT void setColorMode(ColorMode mode) { setColorSpec(static_cast<ColorSpec>(mode)); }
 #endif
 
 #ifndef QT_NO_CURSOR
