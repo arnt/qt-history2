@@ -6,6 +6,7 @@
 #include "containers.h"
 
 #include <qaccessibleplugin.h>
+#include <qpushbutton.h>
 #include <qtoolbutton.h>
 #include <qtoolbar.h>
 #include <qvariant.h>
@@ -34,6 +35,7 @@ QStringList AccessibleFactory::keys() const
     list << "QToolButton";
     list << "QCheckBox";
     list << "QRadioButton";
+    list << "QPushButton";
     list << "QButton";
     list << "QViewportWidget";
     list << "QClipperWidget";
@@ -91,15 +93,21 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     } else if (classname == "QToolButton") {
 	QToolButton *tb = qt_cast<QToolButton*>(widget);
 	if (!tb->popup())
-	    iface = new QAccessibleButton(widget, PushButton);
+	    iface = new QAccessibleToolButton(widget, PushButton);
 	else if (!tb->popupDelay())
-	    iface = new QAccessibleButton(widget, ButtonDropDown);
+	    iface = new QAccessibleToolButton(widget, ButtonDropDown);
 	else
-	    iface = new QAccessibleButton(widget, ButtonMenu);
+	    iface = new QAccessibleToolButton(widget, ButtonMenu);
     } else if (classname == "QCheckBox") {
 	iface = new QAccessibleButton(widget, CheckBox);
     } else if (classname == "QRadioButton") {
 	iface = new QAccessibleButton(widget, RadioButton);
+    } else if (classname == "QPushButton") {
+	QPushButton *pb = qt_cast<QPushButton*>(widget);
+	if (pb->popup())
+	    iface = new QAccessibleButton(widget, ButtonMenu);
+	else
+	    iface = new QAccessibleButton(widget, PushButton);
     } else if (classname == "QButton") {
 	iface = new QAccessibleButton(widget, PushButton);
     } else if (classname == "QViewportWidget") {

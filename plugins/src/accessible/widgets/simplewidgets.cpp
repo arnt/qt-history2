@@ -1,13 +1,16 @@
 #include "simplewidgets.h"
 
 #include <qaccel.h>
+#include <qcheckbox.h>
 #include <qpushbutton.h>
 #include <qprogressbar.h>
+#include <qradiobutton.h>
 #include <qtoolbutton.h>
 #include <qlabel.h>
 #include <qgroupbox.h>
 #include <qlcdnumber.h>
 #include <qlineedit.h>
+#include <qstyle.h>
 
 QString Q_EXPORT qacc_stripAmp(const QString &text);
 QString Q_EXPORT qacc_hotKey(const QString &text);
@@ -19,7 +22,7 @@ QString Q_EXPORT qacc_hotKey(const QString &text);
 
 /*!
   Creates a QAccessibleButton object for \a w.
-  \a role, \a description and \a help are propagated to the QAccessibleWidget constructor.
+  \a role is propagated to the QAccessibleWidget constructor.
 */
 QAccessibleButton::QAccessibleButton(QWidget *w, Role role)
 : QAccessibleWidget(w, role)
@@ -38,15 +41,48 @@ QButton *QAccessibleButton::button() const
 }
 
 /*! \reimp */
+int QAccessibleButton::defaultAction(int child) const
+{
+    return Press;
+}
+
+/*! \reimp */
+QString QAccessibleButton::actionText(int action, Text text, int child) const
+{
+    if (action == defaultAction(child) && text == Name) {
+	switch(role(child)) {
+	case ButtonMenu:
+	    return QPushButton::tr("Open");
+	case CheckBox:
+	    {
+		if (state(child) & Checked)
+		    return QCheckBox::tr("Uncheck");
+		QCheckBox *cb = qt_cast<QCheckBox*>(object());
+		if (!cb || !cb->isTristate() || button()->state() == QButton::NoChange)
+		    return QCheckBox::tr("Check");
+		return QCheckBox::tr("Toggle");
+	    }
+	    break;
+	case RadioButton:
+	    return QRadioButton::tr("Check");
+	default:
+	    break;
+	}
+    }
+
+    return QAccessibleWidget::actionText(action, text, child);
+}
+
+/*! \reimp */
 bool QAccessibleButton::doAction(int action, int child)
 {
-    if (!widget()->isEnabled())
+    if (child || !widget()->isEnabled())
 	return FALSE;
 
     Role r = role(child);
-    QToolButton *tb = qt_cast<QToolButton*>(object());
-    if (tb && tb->popup())
-	tb->openPopup();
+    QPushButton *pb = qt_cast<QPushButton*>(object());
+    if (pb && pb->popup())
+	pb->openPopup();
     else
 	button()->animateClick();
 
@@ -70,8 +106,6 @@ QString QAccessibleButton::text(Text t, int child) const
 	break;
     case Name:
 	str = button()->text();
-	if (str.isEmpty() && qt_cast<QToolButton*>(object()))
-	    str = static_cast<QToolButton*>(object())->textLabel();
 	break;
     default:
 	break;
@@ -96,13 +130,147 @@ int QAccessibleButton::state(int child) const
     QPushButton *pb = qt_cast<QPushButton*>(b);
     if (pb && pb->isDefault())
 	state |= DefaultButton;
-    QToolButton *tb = qt_cast<QToolButton*>(b);
-    if (tb && tb->autoRaise())
-	state |= HotTracked;
 
     return state;
 }
 
+
+/*!
+  \class QAccessibleToolButton qaccessible.h
+  \brief The QAccessibleToolButton class implements the QAccessibleInterface for tool buttons.
+*/
+
+/*!
+  Creates a QAccessibleToolButton object for \a w.
+  \a role is propagated to the QAccessibleWidget constructor.
+*/
+QAccessibleToolButton::QAccessibleToolButton(QWidget *w, Role role)
+: QAccessibleButton(w, role)
+{
+    Q_ASSERT(toolButton());
+}
+
+/*! Returns the button. */
+QToolButton *QAccessibleToolButton::toolButton() const
+{
+    return qt_cast<QToolButton*>(object());
+}
+
+/*! 
+    Returns TRUE if this tool button is a split button.
+*/
+bool QAccessibleToolButton::isSplitButton() const
+{
+    return toolButton()->popup() && !toolButton()->popupDelay();
+}
+
+/*! \reimp */
+QAccessible::Role QAccessibleToolButton::role(int child) const
+{
+    if (isSplitButton()) switch(child) {
+    case 1:
+	return PushButton;
+    case 2:
+	return ButtonMenu;
+    }
+    return QAccessibleButton::role(child);
+}
+
+/*! \reimp */
+int QAccessibleToolButton::state(int child) const
+{
+    int st = QAccessibleButton::state(child);
+    if (toolButton()->autoRaise())
+	st |= HotTracked;
+    return st;
+}
+
+/*! \reimp */
+int QAccessibleToolButton::childCount() const
+{
+    return isSplitButton() ? 2 : 0;
+}
+
+QRect QAccessibleToolButton::rect(int child) const
+{
+    if (!child)
+	return QAccessibleButton::rect(child);
+
+    QRect subrect = QStyle::visualRect( widget()->style().querySubControlMetrics(QStyle::CC_ToolButton, 
+	    toolButton(), QStyle::SC_ToolButtonMenu), toolButton() );
+
+    if (child == 1)
+	subrect = QRect(0, 0, subrect.x(), widget()->height());
+
+    QPoint ntl = widget()->mapToGlobal(subrect.topLeft());
+    subrect.moveTopLeft(ntl);
+    return subrect;
+}
+
+QString QAccessibleToolButton::text(Text t, int child) const
+{
+    QString str;
+
+    switch (t) {
+    case Name:
+	str = toolButton()->text();
+	if (str.isEmpty())
+	    str = toolButton()->textLabel();
+	break;
+    default:
+	break;
+    }
+    if (str.isEmpty())
+	str = QAccessibleButton::text(t, child);;
+    return qacc_stripAmp(str);
+}
+
+int QAccessibleToolButton::actionCount(int child) const
+{
+    if (!child)
+	return toolButton()->popup() ? 1 : 0;
+    return 0;
+}
+
+int QAccessibleToolButton::defaultAction(int child) const
+{
+    if (!child && role(child) == ButtonMenu)
+	return 1;
+    return QAccessibleButton::defaultAction(child);
+}
+
+QString QAccessibleToolButton::actionText(int action, Text text, int child) const
+{
+    if (text == Name) switch(role(child)) {
+    case ButtonMenu:
+	if (child == 2 || action != Press)
+	    return QToolButton::tr("Open");
+	break;
+    case ButtonDropDown:
+	switch(child) {
+	case 0:
+	    if (action != Press)
+		return QToolButton::tr("Open");
+	    break;
+	case 2:
+	    return QToolButton::tr("Open");
+	    break;
+	}
+	break;
+    }
+    return QAccessibleButton::actionText(action, text, child);
+}
+
+bool QAccessibleToolButton::doAction(int action, int child)
+{
+    if (action == 1 || child == 2) {
+	if(!child)
+	    toolButton()->setDown(TRUE);
+	toolButton()->openPopup();
+	return TRUE;
+    }
+    return QAccessibleButton::doAction(action, 0);
+}
 
 
 /*!

@@ -5,19 +5,46 @@
 
 class QButton;
 class QLineEdit;
+class QToolButton;
 
 class QAccessibleButton : public QAccessibleWidget
 {
 public:
-    QAccessibleButton(QWidget *o, Role r);
+    QAccessibleButton(QWidget *w, Role r);
 
     QString	text(Text t, int child) const;
     int		state(int child) const;
 
+    int		defaultAction(int child) const;
+    QString	actionText(int action, Text text, int child) const;
     bool	doAction(int action, int child);
 
 protected:
     QButton *button() const;
+};
+
+class QAccessibleToolButton : public QAccessibleButton
+{
+public:
+    QAccessibleToolButton(QWidget *w, Role role);
+
+    Role	role(int child) const;
+    int		state(int child) const;
+
+    int		childCount() const;
+    QRect	rect(int child) const;
+
+    QString	text(Text t, int child) const;
+
+    int		actionCount(int child) const;
+    int		defaultAction(int child) const;
+    QString	actionText(int action, Text text, int child) const;
+    bool	doAction(int action, int child);
+
+protected:
+    QToolButton *toolButton() const;
+
+    bool	isSplitButton() const;
 };
 
 class QAccessibleDisplay : public QAccessibleWidget
