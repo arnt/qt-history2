@@ -344,6 +344,7 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     edit->insertItem("Add &Circle", this, SLOT(addCircle()), ALT+Key_C);
     edit->insertItem("Add &Hexagon", this, SLOT(addHexagon()), ALT+Key_H);
     edit->insertItem("Add &Polygon", this, SLOT(addPolygon()), ALT+Key_P);
+    edit->insertItem("Add Spl&ine", this, SLOT(addSpline()), ALT+Key_I);
     edit->insertItem("Add &Text", this, SLOT(addText()), ALT+Key_T);
     edit->insertItem("Add &Line", this, SLOT(addLine()), ALT+Key_L);
     edit->insertItem("Add &Rectangle", this, SLOT(addRectangle()), ALT+Key_R);
@@ -613,6 +614,30 @@ void Main::addPolygon()
     pa[4] = QPoint(size*3/4,size*3/4);
     pa[5] = QPoint(size*3/4,size/4);
     i->setPoints(pa);
+    i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
+    i->move(rand()%canvas.width(),rand()%canvas.height());
+    i->setZ(rand()%256);
+    i->show();
+}
+
+void Main::addSpline()
+{
+    QCanvasSpline* i = new QCanvasSpline(&canvas);
+    const int size = canvas.width()/6;
+    QPointArray pa(12);
+    pa[0] = QPoint(0,0);
+    pa[1] = QPoint(size/2,0);
+    pa[2] = QPoint(size,size/2);
+    pa[3] = QPoint(size,size);
+    pa[4] = QPoint(size,size*3/2);
+    pa[5] = QPoint(size/2,size*2);
+    pa[6] = QPoint(0,size*2);
+    pa[7] = QPoint(-size/2,size*2);
+    pa[8] = QPoint(size/4,size*3/2);
+    pa[9] = QPoint(0,size);
+    pa[10]= QPoint(-size/4,size/2);
+    pa[11]= QPoint(-size/2,0);
+    i->setControlPoints(pa);
     i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
     i->move(rand()%canvas.width(),rand()%canvas.height());
     i->setZ(rand()%256);

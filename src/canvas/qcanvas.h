@@ -576,6 +576,25 @@ protected:
 };
 
 
+class Q_EXPORT QCanvasSpline : public QCanvasPolygon
+{
+public:
+    QCanvasSpline(QCanvas* canvas);
+    ~QCanvasSpline();
+
+    void setControlPoints(QPointArray, bool closed=TRUE);
+    QPointArray controlPoints() const;
+    bool closed() const;
+
+    int rtti() const;
+
+private:
+    void recalcPoly();
+    QPointArray bez;
+    bool cl;
+};
+
+
 class Q_EXPORT QCanvasLine : public QCanvasPolygonalItem
 {
 public:

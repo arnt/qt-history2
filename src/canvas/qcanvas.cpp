@@ -3422,6 +3422,109 @@ void QCanvasPolygon::moveBy(double dx, double dy)
     }
 }
 
+/*!
+  \class QCanvasSpline qcanvas.h
+  \brief The QCanvasSpline class provides a multi-bezier spline.
+  \module canvas
+
+  A QCanvasSpline is a sequence of 4-point bezier curves joined
+  together to make a curved shape.
+
+  You set the control points of the spline with setControlPoints().
+
+  If the bezier is closed(), then the first control point will be
+  re-used as the last control point. Therefore, a closed bezier must
+  have a multiple of 3 control points and an open bezier must have
+  one extra.
+
+  The beziers are not necessarily joined "smoothly". To ensure this,
+  set control points appropriately (general references about beziers
+  will explain this in detail).
+*/
+
+/*!
+  Create a spline with no control points.
+
+  \sa setControlPoints()
+*/
+QCanvasSpline::QCanvasSpline(QCanvas* canvas) :
+    QCanvasPolygon(canvas),
+    cl(TRUE)
+{
+}
+
+/*!
+  Destruct the spline.
+*/
+QCanvasSpline::~QCanvasSpline()
+{
+}
+
+/*!
+  Set the spline control points to \a ctrl.
+
+  If \a close is TRUE,
+  then the first point in \a ctrl will be re-used as the last point,
+  and there must be a multiple of 3 control points (6, 9, 12, ...).
+
+  If \a close is FALSE,
+  one additional control point is required (4, 7, 11, ...).
+*/
+void QCanvasSpline::setControlPoints(QPointArray ctrl, bool close)
+{
+    ASSERT( (int)ctrl.count() % 3 == ( close ? 0 : 1 ) );
+    cl = close;
+    bez = ctrl;
+    recalcPoly();
+}
+
+/*!
+  Returns the current set control points.
+
+  \sa setControlPoints(), closed()
+*/
+QPointArray QCanvasSpline::controlPoints() const
+{
+    return bez;
+}
+
+/*!
+  Returns whether the control points are considered a closed set.
+*/
+bool QCanvasSpline::closed() const
+{
+    return cl;
+}
+
+void QCanvasSpline::recalcPoly()
+{
+    QList<QPointArray> segs;
+    segs.setAutoDelete(TRUE);
+    int n=0;
+    for (int i=0; i<(int)bez.count()-1; i+=3) {
+	QPointArray ctrl(4);
+	ctrl[0] = bez[i+0];
+	ctrl[1] = bez[i+1];
+	ctrl[2] = bez[i+2];
+	if ( cl )
+	    ctrl[3] = bez[(i+3)%bez.count()];
+	else
+	    ctrl[3] = bez[i+3];
+	QPointArray *seg = new QPointArray(ctrl.cubicBezier());
+	n += seg->count()-1;
+	segs.append(seg);
+    }
+    QPointArray p(n+1);
+    n=0;
+    for (QPointArray* seg = segs.first(); seg; seg = segs.next()) {
+	for (int i=0; i<(int)seg->count()-1; i++)
+	    p[n++] = seg->point(i);
+	if ( n == (int)p.count()-1 )
+	    p[n] = seg->point(seg->count()-1);
+    }
+    QCanvasPolygon::setPoints(p);
+}
+
 
 /*!
   \fn QPointArray QCanvasPolygonalItem::areaPoints() const
@@ -4168,6 +4271,14 @@ Returns 7.
 \sa QCanvasItem::rtti()
 */
 int QCanvasLine::rtti() const { return 7; }
+
+
+/*!
+Returns 8.
+
+\sa QCanvasItem::rtti()
+*/
+int QCanvasSpline::rtti() const { return 8; }
 
 
 /*!

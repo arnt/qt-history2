@@ -55,6 +55,7 @@ private slots:
     void addCircle();
     void addHexagon();
     void addPolygon();
+    void addSpline();
     void addText();
     void addLine();
     void addRectangle();
