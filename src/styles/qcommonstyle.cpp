@@ -786,7 +786,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	break; }
 
     case SR_CheckBoxIndicator:
-	rect.setRect(0, 0, 13, QMAX(13, wrect.height()));
+	rect.setRect(0, 0, pixelMetric( PM_IndicatorWidth ), QMAX( pixelMetric(PM_IndicatorHeight), wrect.height()) );
 	break;
 
     case SR_CheckBoxContents: {
@@ -812,7 +812,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	break; }
 
     case SR_RadioButtonIndicator:
-	rect.setRect(0, 0, 12, QMAX(12, wrect.height()));
+	rect.setRect(0, 0, pixelMetric( PM_ExclusiveIndicatorWidth ), QMAX( pixelMetric(PM_ExclusiveIndicatorHeight), wrect.height()) );
 	break;
 
     case SR_RadioButtonContents: {
@@ -1727,6 +1727,22 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 9;
 	break;
 
+    case PM_IndicatorWidth:
+	ret = 13;
+	break;
+	
+    case PM_IndicatorHeight:
+	ret = 13;
+	break;
+	
+    case PM_ExclusiveIndicatorWidth:
+	ret = 12;
+	break;
+	
+    case PM_ExclusiveIndicatorHeight:
+	ret = 12;
+	break;
+	
     default:
 	ret = 0;
 	break;

@@ -356,7 +356,12 @@ public:
 
 	PM_ProgressBarChunkWidth,
 
-	PM_SplitterWidth
+	PM_SplitterWidth,
+	
+	PM_IndicatorWidth,
+	PM_IndicatorHeight,
+	PM_ExclusiveIndicatorWidth,
+	PM_ExclusiveIndicatorHeight
 
 	/*
 	  PM_PopupFrameWidth,
