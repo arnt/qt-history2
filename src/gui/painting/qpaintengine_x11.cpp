@@ -742,7 +742,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     }
 }
 
-void QX11PaintEngine::drawPoints(const QPoint *points, int pointCount)
+void QX11PaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
     Q_ASSERT(points);
     Q_ASSERT(pointCount);
