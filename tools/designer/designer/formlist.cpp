@@ -36,6 +36,7 @@
 #include <qobjectlist.h>
 #include <qworkspace.h>
 #include <qpopupmenu.h>
+#include <qtextstream.h>
 
 static bool blockNewForms = FALSE;
 
@@ -126,7 +127,38 @@ void FormList::setProject( Project *pro )
 
     QStringList lst = project->uiFiles();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	(void)new FormListItem( this, tr( "<unknown>" ), *it, 0 );
+	FormListItem *item = new FormListItem( this, tr( "<unknown>" ), *it, 0 );
+	QFile f( project->makeAbsolute( item->text( 1 ) ) );
+	if ( f.open( IO_ReadOnly ) ) {
+	    QTextStream ts( &f );
+	    QString line;
+	    QString className;
+	    while ( !ts.eof() ) {
+		line = ts.readLine();
+		if ( !className.isEmpty() ) {
+		    int end = line.find( "</class>" );
+		    if ( end == -1 ) {
+			className += line;
+		    } else {
+			className += line.left( end );
+			break;
+		    }
+		    continue;
+		}
+		int start;
+		if ( ( start = line.find( "<class>" ) ) != -1 ) {
+		    int end = line.find( "</class>" );
+		    if ( end == -1 ) {
+			className = line.mid( start + 7 );
+		    } else {
+			className = line.mid( start + 7, end - ( start + 7 ) );
+			break;
+		    }
+		}	
+	    }
+	    if ( !className.isEmpty() )
+		item->setText( 0, className );
+	}
     }
 
     QObjectList *l = mainWindow->workSpace()->queryList( "FormWindow", 0, FALSE, TRUE );
