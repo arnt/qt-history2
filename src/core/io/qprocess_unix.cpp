@@ -455,6 +455,10 @@ bool QProcessPrivate::waitForWrite(int msecs)
     return qt_native_select(QList<int>() << writePipe[1], msecs < 0 ? 0 : msecs, false) == 1;
 }
 
+void QProcessPrivate::findExitCode()
+{
+}
+
 void QProcessPrivate::notified()
 {
 }

@@ -20,11 +20,12 @@
 #include <qthread.h>
 #include <qmutex.h>
 #include <qwaitcondition.h>
+#include <private/qwineventnotifier_p.h>
 
 #define SLEEPMIN 10
 #define SLEEPMAX 500
 #define NOTIFYTIMEOUT 100
-#define MAXSINGLEWRITE 10000 // may not need this now
+#define MAXSINGLEWRITE 10000 //### may not need this now
 
 class QWindowsPipeWriter : public QThread
 {
@@ -335,16 +336,15 @@ void QProcessPrivate::startProcess()
 #endif
 
     processState = QProcess::Running;
-    startupNotification();
 
-    // now that we have started, start the timer;
-    if (notifier) {
-        delete notifier;
-        notifier = 0;
-    }
+    processFinishedNotifier = new QWinEventNotifier(((PROCESS_INFORMATION*)pid)->hProcess, q);
+    QObject::connect(processFinishedNotifier, SIGNAL(activated(HANDLE)), q, SLOT(processDied()));
+    processFinishedNotifier->setEnabled(true);
     notifier = new QTimer(q);
     QObject::connect(notifier, SIGNAL(timeout()), q, SLOT(notified()));
     notifier->start(NOTIFYTIMEOUT);
+
+    startupNotification();
 }
 
 void QProcessPrivate::execChild()
@@ -437,25 +437,6 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
     return false;
 }
 
-
-static bool qt_is_process_stopped(QProcessPrivate * that, int msecs)
-{
-    if (!that->pid)
-        return true;
-
-    if (WaitForSingleObject(((PROCESS_INFORMATION*)that->pid)->hProcess, msecs) == WAIT_TIMEOUT)
-        return false;
-
-    DWORD theExitCode;
-    if (GetExitCodeProcess(((PROCESS_INFORMATION*)that->pid)->hProcess, &theExitCode)) {
-        that->exitCode = theExitCode;
-        //### for now we assume a crash if exit code is less than -1 or the magic number
-        if (that->exitCode == 0xf291 || (int)that->exitCode < 0)
-            that->crashed = true;
-    }
-    return true;
-}
-
 bool QProcessPrivate::waitForBytesWritten(int msecs)
 {
     Q_UNUSED(msecs);
@@ -468,7 +449,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::waitForFinished(%d)", msecs);
 #endif
-    if (!qt_is_process_stopped(this, msecs)) {
+    if (WaitForSingleObject(((PROCESS_INFORMATION*)pid)->hProcess, msecs) == WAIT_TIMEOUT) {
         processError = QProcess::Timedout;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
         return false;
@@ -476,6 +457,19 @@ bool QProcessPrivate::waitForFinished(int msecs)
     processDied();
     return true;
 }
+
+
+void QProcessPrivate::findExitCode()
+{
+    DWORD theExitCode;
+    if (GetExitCodeProcess(((PROCESS_INFORMATION*)pid)->hProcess, &theExitCode)) {
+        exitCode = theExitCode;
+        //### for now we assume a crash if exit code is less than -1 or the magic number
+        if (exitCode == 0xf291 || (int)exitCode < 0)
+            crashed = true;
+    }
+}
+
 
 Q_LONGLONG QProcessPrivate::writeToStdin(const char *data, Q_LONGLONG maxlen)
 {
@@ -504,11 +498,6 @@ bool QProcessPrivate::waitForWrite(int msecs)
 void QProcessPrivate::notified()
 {
     notifier->stop();
-
-    if (pid && qt_is_process_stopped(this, 0)) {
-        processDied();
-        return;
-    }
 
     if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0)))
         canWrite();

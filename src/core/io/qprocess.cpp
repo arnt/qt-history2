@@ -22,6 +22,10 @@
 #include <qsocketnotifier.h>
 #include <qtimer.h>
 
+#ifdef Q_WS_WIN
+#include <private/qwineventnotifier_p.h>
+#endif
+
 /*! \class QProcess
 
     \brief The QProcess class is used to start external programs and
@@ -58,6 +62,7 @@ QProcessPrivate::QProcessPrivate()
     crashed = false;
 #ifdef Q_WS_WIN
     pipeWriter = 0;
+    processFinishedNotifier = 0;
 #endif // Q_WS_WIN
 }
 
@@ -77,6 +82,12 @@ void QProcessPrivate::cleanup()
     if (pid) {
         delete pid;
     }
+    if (processFinishedNotifier) {
+        processFinishedNotifier->setEnabled(false);
+        delete processFinishedNotifier;
+        processFinishedNotifier = 0;
+    }
+
 #endif
     pid = 0;
     // exitCode = 0; // We deliberately do not reset the exit code.
@@ -205,6 +216,8 @@ void QProcessPrivate::processDied()
     // so the data is made available before the process dies.
     canReadStandardOutput();
     canReadStandardError();
+
+    findExitCode();
 
     processState = QProcess::Finishing;
     emit q->stateChanged(processState);
