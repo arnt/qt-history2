@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#381 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#382 $
 **
 ** Implementation of QWidget class
 **
@@ -2818,17 +2818,22 @@ void QWidget::show()
 	setBackgroundFromMode();
     }
 
+
+    bool sendLayoutHint = testWState( WState_ForceHide ) && !isTopLevel();
+
     if ( testWFlags(WType_Modal) ) {
 	// qt_enter_modal *before* show, otherwise the initial
 	// stacking might be wrong
 	qt_enter_modal( this );
 	showWindow();
-    }
-    else {
+    } else {
 	showWindow();
 	if ( testWFlags(WType_Popup) )
 	    qApp->openPopup( this );
     }
+    if ( sendLayoutHint )
+	QApplication::postEvent( parentWidget(),
+				 new QEvent( QEvent::LayoutHint) );
 }
 
 
@@ -2872,6 +2877,9 @@ void QWidget::hide()
 
     QHideEvent e(FALSE);
     QApplication::sendEvent( this, &e );
+    if ( !isTopLevel() )
+	QApplication::postEvent( parentWidget(),
+				 new QEvent( QEvent::LayoutHint) );
 }
 
 
