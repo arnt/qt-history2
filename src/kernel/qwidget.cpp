@@ -1875,6 +1875,7 @@ QWidget *QWidget::topLevelWidget() const
 
 void QWidget::setBackgroundColorForMode( BackgroundMode mode, const QColor &color )
 {
+#ifndef QT_NO_PALETTE
     switch( mode ) {
     case FixedColor:
     case FixedPixmap :
@@ -1890,6 +1891,9 @@ void QWidget::setBackgroundColorForMode( BackgroundMode mode, const QColor &colo
 	setPalette( pal );
 	break;
     }
+#else    
+    setEraseColor( color );
+#endif    
 }
 
 /*! \property QWidget::foregroundColor
@@ -1920,11 +1924,13 @@ void QWidget::setForegroundColor( const QColor & color )
 
 void QWidget::setForegroundColorForMode( BackgroundMode mode, const QColor & color )
 {
+#ifndef QT_NO_PALETTE
     QPalette pal = palette();
     pal.setForegroundColorForMode( QPalette::Active, mode, color );
     pal.setForegroundColorForMode( QPalette::Inactive, mode, color );
     pal.setForegroundColorForMode( QPalette::Disabled, mode, color );
     setPalette( pal );
+#endif
 }
 
 /*! \fn const QColor& eraseColor() const
@@ -1978,6 +1984,7 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 
 void QWidget::setBackgroundPixmapForMode( BackgroundMode mode, const QPixmap &pixmap )
 {
+#ifndef QT_NO_PALETTE
     switch( mode ) {
     case FixedColor:
     case FixedPixmap :
@@ -1993,6 +2000,9 @@ void QWidget::setBackgroundPixmapForMode( BackgroundMode mode, const QPixmap &pi
 	setPalette( pal );
 	break;
     }
+#else    
+    setErasePixmap( pixmap );
+#endif    
 }
 
 /*!
@@ -2222,6 +2232,7 @@ void QWidget::setBackgroundColor( const QColor &color )
 
 const QColor & QWidget::backgroundColorForMode( BackgroundMode mode ) const
 {
+#ifndef QT_NO_PALETTE    
     switch( mode ) {
     case FixedColor:
     case FixedPixmap :
@@ -2232,12 +2243,19 @@ const QColor & QWidget::backgroundColorForMode( BackgroundMode mode ) const
 	QPalette pal = palette();
 	return  pal.backgroundColorForMode( QPalette::Normal, mode );
     }
+#else
+    return eraseColor();
+#endif
 }
 
 const QColor &QWidget::foregroundColorForMode( BackgroundMode mode ) const
 {
+#ifndef QT_NO_PALETTE    
     QPalette pal = palette();
     return pal.foregroundColorForMode( QPalette::Normal, mode );
+#else
+    return Qt::black; //###
+#endif    
 }
 
 
@@ -2263,6 +2281,7 @@ void QWidget::backgroundColorChange( const QColor & )
 
 const QPixmap *QWidget::backgroundPixmapForMode( BackgroundMode mode ) const
 {
+#ifndef QT_NO_PALETTE    
     switch( mode ) {
     case FixedColor:
     case FixedPixmap :
@@ -2273,6 +2292,9 @@ const QPixmap *QWidget::backgroundPixmapForMode( BackgroundMode mode ) const
 	QPalette pal = palette();
 	return pal.backgroundPixmapForMode( QPalette::Normal, mode );
     }
+#else    
+    return erasePixmap();
+#endif    
 }
 
 /*!

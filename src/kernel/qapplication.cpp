@@ -428,10 +428,12 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	} else {
 	    argv[j++] = argv[i];
 	}
+#ifndef QT_NO_STYLE
 	if ( !s.isEmpty() ) {
 	    if ( !setStyle( s ) )
 		qWarning("Invalid -style option");
 	}
+#endif	
     }
 
 #ifdef Q_WS_MACX

@@ -33,7 +33,8 @@ void ExampleWidget::insertWidget()
 {
     QLabel *nl = new QLabel( "Inserting", this );
     nl->setBackgroundColor( QColor( 222, 150, 111 ) );
-    testbox->insertItem( new QWidgetItem( nl ), 1 );
+    //    testbox->insertItem( 1, new QWidgetItem( nl ) );
+    testbox->insertWidget( 1, nl );
     nl->show();
 }
 

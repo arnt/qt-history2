@@ -762,15 +762,22 @@
 */
 # define QT_NO_SLIDER
 /*!
-  Spin boxes
-*/
-# define QT_NO_SPINBOX
-/*!
   Dials
 */
 # define QT_NO_DIAL
 #endif
 
+#if defined(QT_NO_FRAME)
+# define QT_NO_RANGECONTROLWIDGET
+#endif
+
+
+#if defined(QT_NO_RANGECONTROL) || defined(QT_NO_STYLE) || defined(QT_NO_RANGECONTROLWIDGET)
+/*!
+  Spin boxes
+*/
+# define QT_NO_SPINBOX
+#endif
 
 #if defined(QT_NO_SCROLLBAR) || defined(QT_NO_FRAME)
 /*!

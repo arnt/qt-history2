@@ -36,6 +36,8 @@
 **********************************************************************/
 
 #include "qwidgetresizehandler_p.h"
+
+#ifndef QT_NO_MAINWINDOW
 #include "qframe.h"
 #include "qapplication.h"
 #include "qcursor.h"
@@ -419,3 +421,4 @@ void QWidgetResizeHandler::doMove()
     widget->grabKeyboard();
 }
 
+#endif //QT_NO_MAINWINDOW

@@ -34,6 +34,8 @@
 
 #include "qrangecontrolwidget_p.h"
 
+#ifndef QT_NO_RANGECONTROLWIDGET
+
 #include "qrect.h"
 #include "qtimer.h"
 #include "qapplication.h"
@@ -403,3 +405,4 @@ QRangeControlWidget::ButtonSymbols QRangeControlWidget::buttonSymbols() const
 {
     return d->bsyms;
 }
+#endif

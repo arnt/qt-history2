@@ -137,15 +137,19 @@ QVariant::Private::Private( Private* d )
 	case QVariant::Color:
 	    value.ptr = new QColor( *((QColor*)d->value.ptr) );
 	    break;
+#ifndef QT_NO_PALETTE
 	case QVariant::Palette:
 	    value.ptr = new QPalette( *((QPalette*)d->value.ptr) );
 	    break;
 	case QVariant::ColorGroup:
 	    value.ptr = new QColorGroup( *((QColorGroup*)d->value.ptr) );
 	    break;
+#endif
+#ifndef QT_NO_ICONSET	    
 	case QVariant::IconSet:
 	    value.ptr = new QIconSet( *((QIconSet*)d->value.ptr) );
 	    break;
+#endif	    
 	case QVariant::List:
 	    value.ptr = new QValueList<QVariant>( *((QValueList<QVariant>*)d->value.ptr) );
 	    break;
@@ -248,15 +252,19 @@ void QVariant::Private::clear()
 	case QVariant::Color:
 	    delete (QColor*)value.ptr;
 	    break;
+#ifndef QT_NO_PALETTE
 	case QVariant::Palette:
 	    delete (QPalette*)value.ptr;
 	    break;
 	case QVariant::ColorGroup:
 	    delete (QColorGroup*)value.ptr;
 	    break;
+#endif
+#ifndef QT_NO_ICONSET
 	case QVariant::IconSet:
 	    delete (QIconSet*)value.ptr;
 	    break;
+#endif
 	case QVariant::List:
 	    delete (QValueList<QVariant>*)value.ptr;
 	    break;
@@ -582,6 +590,7 @@ QVariant::QVariant( const QColor& val )
     d->value.ptr = new QColor( val );
 }
 
+#ifndef QT_NO_PALETTE
 /*!
   Constructs a new variant with a color palette value.
 */
@@ -601,7 +610,8 @@ QVariant::QVariant( const QColorGroup& val )
     d->typ = ColorGroup;
     d->value.ptr = new QColorGroup( val );
 }
-
+#endif //QT_NO_PALETTE
+#ifndef QT_NO_ICONSET
 /*!
   Constructs a new variant with an icon set value.
 */
@@ -611,7 +621,7 @@ QVariant::QVariant( const QIconSet& val )
     d->typ = IconSet;
     d->value.ptr = new QIconSet( val );
 }
-
+#endif //QT_NO_ICONSET
 /*!
   Constructs a new variant with a region.
 */
@@ -1028,6 +1038,7 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = x;
 	}
 	break;
+#ifndef QT_NO_PALETTE
     case Palette:
 	{
 	    QPalette* x = new QPalette;
@@ -1042,6 +1053,8 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = x;
 	}
 	break;
+#endif
+#ifndef QT_NO_ICONSET
     case IconSet:
 	{
 	    QPixmap* x = new QPixmap;
@@ -1049,6 +1062,7 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = x;
 	}
 	break;
+#endif
     case Int:
 	{
 	    int x;
@@ -1181,16 +1195,20 @@ void QVariant::save( QDataStream& s ) const
     case Color:
 	s << *((QColor*)d->value.ptr);
 	break;
+#ifndef QT_NO_PALETTE
     case Palette:
 	s << *((QPalette*)d->value.ptr);
 	break;
     case ColorGroup:
 	s << *((QColorGroup*)d->value.ptr);
 	break;
+#endif
+#ifndef QT_NO_ICONSET
     case IconSet:
 	//### add stream operator to iconset
 	s << ((QIconSet*)d->value.ptr)->pixmap();
 	break;
+#endif
     case Int:
 	s << d->value.i;
 	break;
@@ -1526,7 +1544,7 @@ const QColor QVariant::toColor() const
 
     return *((QColor*)d->value.ptr);
 }
-
+#ifndef QT_NO_PALETTE
 /*!
   Returns the variant as a QPalette if the variant has type()
   Palette, or a completely black palette otherwise.
@@ -1554,7 +1572,8 @@ const QColorGroup QVariant::toColorGroup() const
 
     return *((QColorGroup*)d->value.ptr);
 }
-
+#endif //QT_NO_PALETTE
+#ifndef QT_NO_ICONSET
 /*!
   Returns the variant as a QIconSet if the variant has type()
   IconSet, or an icon set of null pixmaps otherwise.
@@ -1568,7 +1587,7 @@ const QIconSet QVariant::toIconSet() const
 
     return *((QIconSet*)d->value.ptr);
 }
-
+#endif //QT_NO_ICONSET
 /*!
   Returns the variant as a QPointArray if the variant has type()
   PointArray, or an empty QPointArray otherwise.
@@ -1844,9 +1863,13 @@ Q_VARIANT_AS(Point)
 Q_VARIANT_AS(Rect)
 Q_VARIANT_AS(Size)
 Q_VARIANT_AS(Color)
+#ifndef QT_NO_PALETTE
 Q_VARIANT_AS(Palette)
 Q_VARIANT_AS(ColorGroup)
+#endif
+#ifndef QT_NO_ICONSET
 Q_VARIANT_AS(IconSet)
+#endif
 Q_VARIANT_AS(PointArray)
 Q_VARIANT_AS(Bitmap)
 Q_VARIANT_AS(Region)
@@ -2263,15 +2286,19 @@ bool QVariant::cast( Type t )
     case QVariant::Color:
 	asColor();
 	break;
+#ifndef QT_NO_PALETTE
     case QVariant::Palette:
 	asPalette();
 	break;
     case QVariant::ColorGroup:
 	asColorGroup();
 	break;
+#endif
+#ifndef QT_NO_ICONSET
     case QVariant::IconSet:
 	asIconSet();
 	break;
+#endif
     case QVariant::Point:
 	asPoint();
 	break;
@@ -2381,13 +2408,17 @@ bool QVariant::operator==( const QVariant &v ) const
 	return v.toSize() == toSize();
     case Color:
 	return v.toColor() == toColor();
+#ifndef QT_NO_PALETTE
     case Palette:
 	return v.toPalette() == toPalette();
     case ColorGroup:
 	return v.toColorGroup() == toColorGroup();
+#endif
+#ifndef QT_NO_ICONSET
     case IconSet:
 	return v.toIconSet().pixmap().serialNumber()
 	    == toIconSet().pixmap().serialNumber();
+#endif
     case Int:
 	return v.toInt() == toInt();
     case UInt:
