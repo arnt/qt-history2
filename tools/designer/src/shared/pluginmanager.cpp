@@ -37,8 +37,12 @@ PluginManager::~PluginManager()
 QStringList PluginManager::unique(const QStringList &list)
 {
     QMap<QString, bool> m;
-    foreach (QString s, list)
+    foreach (QString s, list) {
+        if (s.isEmpty())
+            continue;
+
         m.insert(s, true);
+    }
 
     return m.keys();
 }
