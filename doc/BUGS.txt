@@ -33,6 +33,9 @@ Dual Monitor support (Win32)
 QFileDialog
     Heed the ExistingFile flag (#if 0ed out for 2.2)
 
+QToolButton (for 3.0)
+    Should use QColorRole::ButtonText to draw the text, not foreground!
+
 Cosmetic
 --------
 
