@@ -39,16 +39,16 @@ public:
     QAquaFocusWidget(bool noerase=TRUE, QWidget *w=NULL);
     ~QAquaFocusWidget() {}
     void setFocusWidget( QWidget * widget );
-    QWidget* widget() { return d; }
-    QSize sizeHint() { return QSize( 0, 0 ); }
+    QWidget* widget() const { return d; }
+    QSize sizeHint() const { return QSize( 0, 0 ); }
 
 protected:
     bool eventFilter( QObject * o, QEvent * e );
 
 protected: 
     virtual void paintEvent( QPaintEvent * ) = 0;
-    virtual int focusOutset() { return 3; }
-    virtual QRegion focusRegion() { return QRegion( focusOutset() + 2, focusOutset() + 2, 
+    virtual int focusOutset() const { return 3; }
+    virtual QRegion focusRegion() const { return QRegion( focusOutset() + 2, focusOutset() + 2, 
 						    width() - ((focusOutset() + 2) * 2), 
 						    height() - ((focusOutset() + 2) * 2)); }
 
@@ -77,7 +77,7 @@ public:
     void stopAnimate(Animates, QListViewItem *);
 
     //focus things
-    bool focusable(QWidget *);
+    bool focusable(QWidget *) const;
     QWidget *focusWidget() const;
 
 protected:

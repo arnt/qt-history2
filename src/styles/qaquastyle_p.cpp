@@ -395,7 +395,7 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
     if((d->focus = w))
 	QObject::connect(w, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
 }
-bool QAquaAnimate::focusable(QWidget *w)
+bool QAquaAnimate::focusable(QWidget *w) const
 {
 #ifdef Q_WS_MAC
     QStyle *style = &w->style();
