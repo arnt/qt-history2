@@ -64,8 +64,6 @@
 #include "dbconnectionimpl.h"
 #endif
 
-#include "scriptmanager.h"
-
 static const char * whatsthis_image[] = {
     "16 16 3 1",
     "	c None",
