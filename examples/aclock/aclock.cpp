@@ -40,6 +40,7 @@ void AnalogClock::setTime( const QTime & t )
 void AnalogClock::timeout()
 {
     QTime new_time = QTime::currentTime();	// get the current time
+    time = time.addSecs( 5 );
     if ( new_time.minute() != time.minute() ) {	// minute has changed
 	if (autoMask())
 	    updateMask();
@@ -93,8 +94,7 @@ void AnalogClock::drawClock( QPainter *paint )
     paint->setViewport( v.left() + (v.width()-d)/2,
 			v.top() + (v.height()-d)/2, d, d );
 
-    time.addSecs( QTime::currentTime().second() - time.second() );
-    //    time = QTime::currentTime();
+    // time = QTime::currentTime();
     QPointArray pts;
 
     paint->save();
