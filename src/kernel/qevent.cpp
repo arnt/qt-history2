@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#4 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#4 $";
 #endif
 
 
@@ -94,4 +94,15 @@ void QEvent::peErrMsg()				// posted event error message
 		 t );
 #endif
     qRemovePostedEvent( this );
+}
+
+
+int QMouseEvent::button() const
+{
+#if defined(CHECK_STATE)
+    if ( type() == Event_MouseMove )		// probably a bug
+	warning( "QMouseEvent::button: Return value is always zero in a mouse "
+		 "move event" );
+#endif
+    return b;
 }
