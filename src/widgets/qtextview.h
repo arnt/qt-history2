@@ -91,6 +91,7 @@ public:
 	       QWidget *parent=0, const char *name=0);
     QTextView( QWidget *parent = 0, const char *name = 0 );
     virtual ~QTextView();
+    void setPalette( const QPalette & );
 
     QString text() const;
     QString text( int parag ) const;

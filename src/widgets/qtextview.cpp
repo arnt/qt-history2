@@ -1386,6 +1386,14 @@ void QTextView::setFormat( QTextFormat *f, int flags )
     }
 }
 
+/* \reimp */
+
+void QTextView::setPalette( const QPalette &p )
+{
+    QScrollView::setPalette( p );
+    doc->setSelectionColor( QTextDocument::Standard, p.color( QPalette::Active, QColorGroup::Highlight ) );
+}
+
 void QTextView::setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::ListStyle listStyle )
 {
     if ( isReadOnly() )
