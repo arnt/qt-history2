@@ -51,12 +51,12 @@ tools {
 		  $$TOOLS_CPP/qfileinfo_win.cpp \
 		  $$TOOLS_CPP/qsettings_win.cpp
 
-        mac:SOURCES += $$TOOLS_CPP/qdir_mac.cpp \
+        offmac:SOURCES += $$TOOLS_CPP/qdir_mac.cpp \
 		  $$TOOLS_CPP/qfile_mac.cpp \
 		  $$TOOLS_CPP/qfileinfo_mac.cpp \
 		  $$TOOLS_CPP/qsettings_unix.cpp
 
-	!mac:unix:SOURCES += $$TOOLS_CPP/qdir_unix.cpp \
+	!offmac:unix:SOURCES += $$TOOLS_CPP/qdir_unix.cpp \
 		  $$TOOLS_CPP/qfile_unix.cpp \
 		  $$TOOLS_CPP/qfileinfo_unix.cpp \
 		  $$TOOLS_CPP/qsettings_unix.cpp
