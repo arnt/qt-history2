@@ -12,8 +12,8 @@
 
 #include "widgetinfo.h"
 
-#include <QtGui>
-#include <Qt3Compat>
+#include <QtGui/QtGui>
+#include <Qt3Compat/Qt3Compat>
 
 WidgetInfo::WidgetInfo()
 {
