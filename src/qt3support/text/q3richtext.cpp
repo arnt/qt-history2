@@ -6588,8 +6588,8 @@ Q3TextImage::Q3TextImage(Q3TextDocument *p, const QMap<QString, QString> &attr, 
                 pmi.ref++;
             }
         }
-        if (pm.mask()) {
-            QRegion mask(*pm.mask());
+        if (pm.hasAlphaChannel()) {
+            QRegion mask(pm.mask());
             QRegion all(0, 0, pm.width(), pm.height());
             reg = new QRegion(all.subtract(mask));
         }

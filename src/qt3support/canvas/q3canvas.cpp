@@ -2713,8 +2713,8 @@ void Q3CanvasPixmap::init(const QPixmap& pixmap, int hx, int hy)
     (QPixmap&)*this = pixmap;
     hotx = hx;
     hoty = hy;
-    if(pixmap.mask())  {
-	QImage i = mask()->convertToImage();
+    if(pixmap.hasAlphaChannel())  {
+	QImage i = mask().convertToImage();
 	collision_mask = new QImage(i);
     } else
 	collision_mask = 0;

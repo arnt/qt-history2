@@ -6256,8 +6256,8 @@ QBitmap Q3IconView::mask(QPixmap *pix) const
     QBitmap m;
     if (d->maskCache.find(QString::number(pix->serialNumber()), m))
         return m;
-    if (pix->mask())
-       m = *pix->mask();
+    if (pix->hasAlphaChannel())
+       m = pix->mask();
     else
        m = pix->createHeuristicMask();
     d->maskCache.insert(QString::number(pix->serialNumber()), m);
