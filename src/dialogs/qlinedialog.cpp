@@ -1,3 +1,28 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/dialogs/qlinedialog.cpp#2 $
+**
+** Definition of QFileDialog class
+**
+** Created : 950428
+**
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
 #include "qlinedialog.h"
 
 #include <qlayout.h>
@@ -5,42 +30,51 @@
 #include <qlineedit.h>
 #include <qpushbutton.h>
 
-QLineDialog::QLineDialog( const QString& _text, QWidget* parent, const char* name, bool modal )
-  : QDialog( parent, name, modal )
+struct QLineDialogPrivate
 {
-  QVBoxLayout *vbox = new QVBoxLayout( this, 6, 6 );
+    QLineEdit* lineEdit;
+};
 
-  QLabel* l = new QLabel( _text, this );
-  vbox->addWidget( l );
+QLineDialog::QLineDialog( const QString& _text, QWidget* parent, const char* name, bool modal )
+    : QDialog( parent, name, modal )
+{
+    d = new QLineDialogPrivate;
+    d->lineEdit = 0;
+    
+    QVBoxLayout *vbox = new QVBoxLayout( this, 6, 6 );
 
-  m_pLineEdit = new QLineEdit( this );
-  vbox->addWidget( m_pLineEdit );
+    QLabel* l = new QLabel( _text, this );
+    vbox->addWidget( l );
 
-  QHBoxLayout *hbox = new QHBoxLayout( 6 );
-  vbox->addLayout( hbox, AlignRight );
+    d->lineEdit = new QLineEdit( this );
+    vbox->addWidget( d->lineEdit );
 
-  QPushButton *ok = new QPushButton( tr("Ok"), this );
-  hbox->addWidget( ok );
-  QPushButton *cancel = new QPushButton( tr("Cancel"), this );
-  hbox->addWidget( cancel );
+    QHBoxLayout *hbox = new QHBoxLayout( 6 );
+    vbox->addLayout( hbox, AlignRight );
 
-  connect( ok, SIGNAL( clicked() ), this, SLOT( accept() ) );
-  connect( m_pLineEdit, SIGNAL( returnPressed() ), this, SLOT( accept() ) );
-  connect( cancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+    QPushButton *ok = new QPushButton( tr("Ok"), this );
+    hbox->addWidget( ok );
+    QPushButton *cancel = new QPushButton( tr("Cancel"), this );
+    hbox->addWidget( cancel );
 
-  m_pLineEdit->setFocus();
+    connect( ok, SIGNAL( clicked() ), this, SLOT( accept() ) );
+    connect( d->lineEdit, SIGNAL( returnPressed() ), this, SLOT( accept() ) );
+    connect( cancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+
+    d->lineEdit->setFocus();
 }
 
 QLineDialog::~QLineDialog()
 {
+    delete d;
 }
 
-QString QLineDialog::text()
+QString QLineDialog::text() const
 {
-  return m_pLineEdit->text();
+    return d->lineEdit->text();
 }
 
-void QLineDialog::setText( const QString& _text )
+void QLineDialog::setText( const QString& text_ )
 {
- m_pLineEdit->setText( _text );
+    d->lineEdit->setText( text_ );
 }
