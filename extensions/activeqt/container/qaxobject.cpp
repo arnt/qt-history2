@@ -13,7 +13,6 @@
 ****************************************************************************/
 
 #include "qaxobject.h"
-#include <ole2.h>
 
 #include <quuid.h>
 #include <qmetaobject.h>

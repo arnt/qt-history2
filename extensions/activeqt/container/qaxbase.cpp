@@ -27,25 +27,6 @@
 #include <ocidl.h>
 #include <ctype.h>
 
-static int moduleLockCount = 0;
-static void moduleLock()
-{
-    if ( !moduleLockCount )
-	CoInitialize(0);
-    ++moduleLockCount;
-}
-static void moduleUnlock()
-{
-    if ( !moduleLockCount ) {
-#ifndef QT_NO_DEBUG
-	qWarning( "Unbalanced module count!" );
-#endif
-	return;
-    }
-    if ( !--moduleLockCount )
-	CoUninitialize();
-}
-
 static QMetaObject *tempMetaObj = 0;
 
 #define NotDesignable	0x00001000
@@ -766,9 +747,7 @@ QAxBase::QAxBase( IUnknown *iface )
 {
     d = new QAxBasePrivate();
     d->ptr = iface;
-
     if ( d->ptr ) {
-	moduleLock();
 	d->ptr->AddRef();
 	d->initialized = TRUE;
     }
@@ -867,9 +846,7 @@ bool QAxBase::setControl( const QString &c )
 	    ctrl = c;
     }
     d->tryCache = TRUE;
-    moduleLock();
     if ( !initialize( &d->ptr ) )
-	moduleUnlock();
     d->initialized = TRUE;
     if ( isNull() ) {
 #ifndef QT_NO_DEBUG
@@ -965,7 +942,6 @@ void QAxBase::clear()
 	d->ptr->Release();
 	d->ptr = 0;
 	d->initialized = FALSE;
-	moduleUnlock();
     }
 
     ctrl = QString::null;
