@@ -2230,6 +2230,7 @@ void QLineEditPrivate::updateTextLayout()
     textLayout.beginLine( INT_MAX );
     while ( !textLayout.atEnd() )
 	textLayout.addCurrentItem();
+    ascent = 0;
     textLayout.endLine(0, 0, Qt::AlignLeft, &ascent);
 }
 

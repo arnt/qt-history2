@@ -2904,7 +2904,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 		    break;
 	    }
 
-	    int ascent, descent, lineLeft, lineRight;
+	    int ascent = asc, descent = desc, lineLeft, lineRight;
 	    textLayout.setLineWidth( r.width()-rb-lb + add );
 	    int state = textLayout.endLine( 0, height, tf, &ascent, &descent,
 					    &lineLeft, &lineRight );
@@ -2913,8 +2913,6 @@ void qt_format_text( const QFont& font, const QRect &_r,
 		//qDebug("finalizing line: lw=%d ascent = %d, descent=%d lineleft=%d lineright=%d", lineWidth+add, ascent, descent,lineLeft, lineRight  );
 		left = QMIN( left, lineLeft );
 		right = QMAX( right, lineRight );
-		ascent = QMAX(ascent, asc);
-		descent = QMAX(descent, desc);
 		height += ascent + descent + 1;
 		add = 0;
 		if ( linesep )

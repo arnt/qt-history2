@@ -1657,7 +1657,7 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
 	layout.addCurrentItem();
 	end++;
     }
-    int ascent;
+    int ascent = fontMetrics().ascent();
     layout.endLine(0, 0, Qt::AlignLeft, &ascent, 0);
     // do _not_ call endLayout() here, as it would clean up the shaped items and we would do shaping another time
     // for painting.

@@ -122,6 +122,8 @@ public:
     /* returns true if completely added */
     Result addCurrentItem();
 
+    /* Note: if ascent and descent are used they must be initialized to the minimum ascent/descent
+       acceptable for the line. QFontMetrics::ascent/descent() is usually the right choice */
     Result endLine( int x = 0, int y = 0, int alignment = Qt::AlignLeft,
 		    int *ascent = 0, int *descent = 0, int *left = 0, int *right = 0 );
     void endLayout();

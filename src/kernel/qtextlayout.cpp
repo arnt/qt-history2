@@ -333,7 +333,7 @@ QTextLayout::Result QTextLayout::addCurrentItem()
 
     d->currentItem++;
 
-    return (d->widthUsed <= d->lineWidth 
+    return (d->widthUsed <= d->lineWidth
 	    || (d->currentItem < d->items.size() && d->items[d->currentItem].isSpace)) ? Ok : LineFull;
 }
 
@@ -354,18 +354,24 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
     if ( d->firstItemInLine == -1 )
 	goto end;
 
-    if ( !(alignment & (Qt::SingleLine|Qt::IncludeTrailingSpaces)) 
+    if ( !(alignment & (Qt::SingleLine|Qt::IncludeTrailingSpaces))
 	&& d->currentItem > d->firstItemInLine && d->items[d->currentItem-1].isSpace ) {
 	int i = d->currentItem-1;
 	while ( i > d->firstItemInLine && d->items[i].isSpace ) {
 	    numSpaceItems++;
 	    d->widthUsed -= d->items[i--].width;
 	}
-    } 
+    }
 
     if ( (alignment & (Qt::WordBreak|Qt::BreakAnywhere)) &&
 	 d->widthUsed > d->lineWidth ) {
 	// find linebreak
+
+	// even though we removed trailing spaces the line was too wide. We'll have to break at an earlier
+	// position. To not confuse the layouting below, reset the number of space items
+	numSpaceItems = 0;
+
+
 	bool breakany = alignment & Qt::BreakAnywhere;
 
 	const QCharAttributes *attrs = d->attributes();
@@ -495,8 +501,8 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 	x += available/2;
 
 
-    int asc = 0;
-    int desc = 0;
+    int asc = ascent ? *ascent : 0;
+    int desc = descent ? *descent : 0;
 
     for ( i = 0; i < numRuns; i++ ) {
 	QScriptItem &si = d->items[d->firstItemInLine+visual[i]];

@@ -2946,7 +2946,8 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	layout.addCurrentItem();
 	end++;
     }
-    int ascent, descent;
+    QFontMetrics fm(fontMetrics());
+    int ascent = fm.ascent(), descent = fm.descent();
     int left, right;
     layout.endLine( 0, 0, Qt::SingleLine|Qt::AlignLeft, &ascent, &descent, &left, &right );
 
