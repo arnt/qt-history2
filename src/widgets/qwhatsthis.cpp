@@ -184,7 +184,7 @@ private slots:
 // static, but static the less-typing way
 static QWhatsThisPrivate * wt = 0;
 
-static QCleanupHandler<QWhatsThisPrivate> qwt_cleanup_private;
+static QGuardedCleanupHandler<QWhatsThisPrivate> qwt_cleanup_private;
 
 // the item
 QWhatsThisPrivate::WhatsThisItem::~WhatsThisItem()
