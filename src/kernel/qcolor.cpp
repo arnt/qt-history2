@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#20 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#20 $";
 #endif
 
 
@@ -330,7 +330,7 @@ Returns a lighter color if \e factor is greater than 100.
 Setting \e factor to 150 returns a color that is 50% brighter.
 
 Returns a darker color if \e factor is less than 100, equal to
-dark(100 / \e factor).
+dark(10000 / \e factor).
 
 This function converts the current RGB color to HSV, multiplies V with
 \e factor and converts back to RGB.
@@ -341,7 +341,7 @@ QColor QColor::light( int factor ) const	// get light color
     if ( factor <= 0 )				// invalid lightness factor
 	return *this;
     else if ( factor < 100 )			// makes color darker
-	return dark( 100/factor );
+	return dark( 10000/factor );
     int h, s, v;
     getHSV( &h, &s, &v );
     v = (int)(((long)factor*v)/100L);
@@ -364,7 +364,7 @@ Setting \e factor to 300 returns a color that has
 one third the brightness.
 
 Returns a lighter color if \e factor is less than 100, equal to
-light(100 / \e factor).
+light(10000 / \e factor).
 
 This function converts the current RGB color to HSV, divides V by
 \e factor and converts back to RGB.
@@ -375,7 +375,7 @@ QColor QColor::dark( int factor ) const		// get dark color
     if ( factor <= 0 )				// invalid darkness factor
 	return *this;
     else if ( factor < 100 )			// makes color lighter
-	return light( 100/factor );
+	return light( 10000/factor );
     int h, s, v;
     getHSV( &h, &s, &v );
     v = (v*100)/factor;
