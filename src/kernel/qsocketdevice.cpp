@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#13 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -48,7 +48,8 @@
 #define FNDELAY O_NDELAY
 #endif
 
-#define QSOCKETDEVICE_DEBUG
+//#define QSOCKETDEVICE_DEBUG
+
 
 /*****************************************************************************
   QSocketAddress implementation

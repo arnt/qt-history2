@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#15 $
 **
 ** Implementation of QSocket class
 **
@@ -39,7 +39,7 @@
 #endif
 
 
-#define QSOCKET_DEBUG
+//#define QSOCKET_DEBUG
 
 
 // Private class for QSocket
