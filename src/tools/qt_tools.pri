@@ -65,6 +65,10 @@ tools {
 		  $$TOOLS_CPP/qfileinfo_unix.cpp
 
         mac:!x11:!embedded:SOURCES += $$TOOLS_CPP/qsettings_mac.cpp
+	mac { 
+		SOURCES+=3rdparty/dlcompat/dlfcn.c
+		INCLUDEPATH+=3rdparty/dlcompat
+	    }
 	unix:SOURCES += $$TOOLS_CPP/qlibrary_unix.cpp \
 		        $$TOOLS_CPP/qcrashhandler.cpp
 

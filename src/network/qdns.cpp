@@ -50,6 +50,9 @@
 #include "qsocketdevice.h"
 #include "qcleanuphandler.h"
 #include <limits.h>
+#ifdef Q_OS_MAC
+#include <dlfcn.h>
+#endif
 
 //#define QDNS_DEBUG
 
@@ -75,6 +78,20 @@ static Q_UINT32 now()
 static QList<QHostAddress*> *ns = 0;
 static QList<QByteArray> *domains = 0;
 static bool ipv6support = FALSE;
+
+static int my_res_init()
+{
+#ifdef Q_OS_MAC
+    typedef int (*PtrRes_init)();
+    PtrRes_init ptrRes_init = (PtrRes_init)dlsym(RTLD_NEXT, "res_init");
+    if (ptrRes_init)
+	return (*ptrRes_init)();
+    else
+	return -1;
+#else
+    return res_init();
+#endif
+}
 
 
 class QDnsPrivate {
@@ -2498,7 +2515,7 @@ void QDns::doResInit()
 	if ( *res.defdname )
 	    domains->append( QString::fromLatin1( res.defdname ).toLower().latin1() );
 #else
-	res_init();
+	my_res_init();
 	int i;
 	// find the name servers to use
 	for( i=0; i < MAXNS && i < _res.nscount; i++ )

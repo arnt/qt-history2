@@ -87,9 +87,11 @@ unix:SOURCES	+= $$QT_SOURCE_TREE/src/tools/qdir_unix.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qfile_unix.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qfileinfo_unix.cpp
 mac {
-    SOURCES       += $$QT_SOURCE_TREE/src/tools/qlibrary_mac.cpp
-    LIBS += -framework Carbon -framework QuickTime
-} else:unix:SOURCES += $$QT_SOURCE_TREE/src/tools/qlibrary_unix.cpp
+    SOURCES+=$$QT_SOURCE_TREE/src/3rdparty/dlcompat/dlfcn.c
+    INCLUDEPATH+=$$QT_SOURCE_TREE/src/3rdparty/dlcompat
+    LIBS += -framework CoreFoundation -framework CoreServices
+} 
+unix:SOURCES += $$QT_SOURCE_TREE/src/tools/qlibrary_unix.cpp
 win32 {
    SOURCES	+= $$QT_SOURCE_TREE/src/tools/qdir_win.cpp \
 	  	   $$QT_SOURCE_TREE/src/tools/qfile_win.cpp \
