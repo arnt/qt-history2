@@ -1077,13 +1077,15 @@ QTreeWidgetItem::~QTreeWidgetItem()
 }
 
 /*!
-  Creates an exact copy of the item.
+  Creates an exact copy of the item and it's children.
 */
 
 QTreeWidgetItem *QTreeWidgetItem::clone() const
 {
     QTreeWidgetItem *item = new QTreeWidgetItem();
-    *item = *this;
+    *item = *this; // copy the data
+    for (int i = 0; i < children.count(); ++i) // recursivly clone children
+        item->children[i] = children.at(i)->clone();
     return item;
 }
 
