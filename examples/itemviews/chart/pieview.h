@@ -55,11 +55,11 @@ private:
     int rows(const QModelIndex &index = QModelIndex()) const;
     void updateGeometries();
 
-    int m_margin;
-    int m_size;
-    int m_pieSize;
-    int m_validItems;
-    double m_totalValue;
+    int margin;
+    int totalSize;
+    int pieSize;
+    int validItems;
+    double totalValue;
 };
 
 #endif

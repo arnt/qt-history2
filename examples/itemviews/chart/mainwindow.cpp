@@ -41,7 +41,7 @@ MainWindow::MainWindow()
 
     connect(openAction, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(saveAction, SIGNAL(triggered()), this, SLOT(saveFile()));
-    connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
+    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(windowsMenu, SIGNAL(aboutToShow()), this, SLOT(updateWindowsMenu()));
     connect(pieWindowAction, SIGNAL(checked(bool)),
             pieChart, SLOT(setVisible(bool)));
@@ -50,6 +50,8 @@ MainWindow::MainWindow()
     menuBar()->addMenu(windowsMenu);
     statusBar();
     setCentralWidget(table);
+
+    openFile(":/Charts/qtdata.cht");
 
     setWindowTitle(tr("Chart"));
     resize(640, 480);
@@ -75,10 +77,14 @@ void MainWindow::setupViews()
     pieChart->setSelectionModel(selectionModel);
 }
 
-void MainWindow::openFile()
+void MainWindow::openFile(const QString &path)
 {
-    QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Choose a data file"), "", "*.cht");
+    QString fileName;
+    if (path.isNull())
+        fileName = QFileDialog::getOpenFileName(this, tr("Choose a data file"),
+                                                "", "*.cht");
+    else
+        fileName = path;
 
     if (!fileName.isEmpty()) {
         QFile file(fileName);

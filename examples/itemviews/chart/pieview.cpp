@@ -32,11 +32,11 @@ PieView::PieView(QWidget *parent)
     horizontalScrollBar()->setRange(0, 0);
     verticalScrollBar()->setRange(0, 0);
 
-    m_margin = 8;
-    m_size = 300;
-    m_pieSize = m_size - 2*m_margin;
-    m_validItems = 0;
-    m_totalValue = 0.0;
+    margin = 8;
+    totalSize = 300;
+    pieSize = totalSize - 2*margin;
+    validItems = 0;
+    totalValue = 0.0;
 }
 
 bool PieView::isIndexHidden(const QModelIndex & /*index*/) const
@@ -92,18 +92,18 @@ QRect PieView::itemRect(const QModelIndex &index) const
         case 0:
             itemHeight = QFontMetrics(viewOptions().font).height();
 
-            return QRect(int(m_size + itemHeight),
-                         int(m_margin + listItem*itemHeight),
-                         m_pieSize, int(itemHeight));
+            return QRect(int(totalSize + itemHeight),
+                         int(margin + listItem*itemHeight),
+                         pieSize, int(itemHeight));
         case 1:
             return viewport()->rect();
         case 2:
             itemHeight = QFontMetrics(viewOptions().font).height();
 
-            return QRect(m_size, int(m_margin + listItem*itemHeight),
+            return QRect(totalSize, int(margin + listItem*itemHeight),
                          int(itemHeight),
-                         int(itemHeight)).unite(QRect(m_margin, m_margin,
-                         m_pieSize, m_pieSize));
+                         int(itemHeight)).unite(QRect(margin, margin,
+                         pieSize, pieSize));
         }
 
     }
@@ -136,21 +136,21 @@ void PieView::scrollTo(const QModelIndex &index)
 
 QModelIndex PieView::indexAt(const QPoint &point) const
 {
-    if (m_validItems == 0)
+    if (validItems == 0)
         return QModelIndex();
 
     // Transform the view coordinates into contents widget coordinates.
     int wx = point.x() + horizontalScrollBar()->value();
     int wy = point.y() + verticalScrollBar()->value();
 
-    if (wx < m_size) {
-        double cx = wx - m_size/2;
-        double cy = m_size/2 - wy;
+    if (wx < totalSize) {
+        double cx = wx - totalSize/2;
+        double cy = totalSize/2 - wy;
 
         // Determine the distance from the center point of the pie chart.
         double d = pow(pow(cx, 2) + pow(cy, 2), 0.5);
 
-        if (d == 0 || d > m_pieSize/2)
+        if (d == 0 || d > pieSize/2)
             return QModelIndex();
 
         // Determine the angle of the point.
@@ -167,7 +167,7 @@ QModelIndex PieView::indexAt(const QPoint &point) const
             double value = model()->data(index).toDouble();
 
             if (value > 0.0) {
-                double sliceAngle = 360*value/m_totalValue;
+                double sliceAngle = 360*value/totalValue;
 
                 if (angle >= startAngle && angle < (startAngle + sliceAngle))
                     return model()->index(row, 0, rootIndex());
@@ -177,7 +177,7 @@ QModelIndex PieView::indexAt(const QPoint &point) const
         }
     } else {
         double itemHeight = QFontMetrics(viewOptions().font).height();
-        int listItem = int((wy - m_margin) / itemHeight);
+        int listItem = int((wy - margin) / itemHeight);
         int validRow = 0;
 
         for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
@@ -202,8 +202,8 @@ void PieView::dataChanged(const QModelIndex &topLeft,
 {
     QAbstractItemView::dataChanged(topLeft, bottomRight);
 
-    m_validItems = 0;
-    m_totalValue = 0.0;
+    validItems = 0;
+    totalValue = 0.0;
 
     for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
 
@@ -211,8 +211,8 @@ void PieView::dataChanged(const QModelIndex &topLeft,
         double value = model()->data(index).toDouble();
 
         if (value > 0.0) {
-            m_totalValue += value;
-            m_validItems++;
+            totalValue += value;
+            validItems++;
         }
     }
 }
@@ -225,8 +225,8 @@ void PieView::rowsInserted(const QModelIndex &parent, int start, int end)
         double value = model()->data(index).toDouble();
 
         if (value > 0.0) {
-            m_totalValue += value;
-            m_validItems++;
+            totalValue += value;
+            validItems++;
         }
     }
 
@@ -240,8 +240,8 @@ void PieView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end
         QModelIndex index = model()->index(row, 1, rootIndex());
         double value = model()->data(index).toDouble();
         if (value > 0.0) {
-            m_totalValue -= value;
-            m_validItems--;
+            totalValue -= value;
+            validItems--;
         }
     }
 
@@ -367,16 +367,16 @@ void PieView::paintEvent(QPaintEvent *event)
     painter.setPen(foreground);
 
     // Viewport rectangles
-    QRect pieRect = QRect(m_margin, m_margin, m_pieSize, m_pieSize);
-    QPoint keyPoint = QPoint(m_size - horizontalScrollBar()->value(),
-                             m_margin - verticalScrollBar()->value());
+    QRect pieRect = QRect(margin, margin, pieSize, pieSize);
+    QPoint keyPoint = QPoint(totalSize - horizontalScrollBar()->value(),
+                             margin - verticalScrollBar()->value());
 
-    if (m_validItems > 0) {
+    if (validItems > 0) {
 
         painter.save();
         painter.translate(pieRect.x() - horizontalScrollBar()->value(),
                           pieRect.y() - verticalScrollBar()->value());
-        painter.drawEllipse(0, 0, m_pieSize, m_pieSize);
+        painter.drawEllipse(0, 0, pieSize, pieSize);
         double startAngle = 0.0;
         int row;
 
@@ -386,13 +386,13 @@ void PieView::paintEvent(QPaintEvent *event)
             double value = model()->data(index).toDouble();
 
             if (value > 0.0) {
-                double angle = 360*value/m_totalValue;
+                double angle = 360*value/totalValue;
 
                 QModelIndex colorIndex = model()->index(row, 2, rootIndex());
                 QColor color = QColor(model()->data(colorIndex).toString());
 
                 painter.setBrush(QBrush(color));
-                painter.drawPie(0, 0, m_pieSize, m_pieSize, int(startAngle*16),
+                painter.drawPie(0, 0, pieSize, pieSize, int(startAngle*16),
                                 int(angle*16));
 
                 startAngle += angle;
@@ -470,7 +470,7 @@ void PieView::resizeEvent(QResizeEvent * /* event */)
 void PieView::updateGeometries()
 {
     horizontalScrollBar()->setPageStep(viewport()->width());
-    horizontalScrollBar()->setRange(0, qMax(0, 2*m_size - viewport()->width()));
+    horizontalScrollBar()->setRange(0, qMax(0, 2*totalSize - viewport()->width()));
     verticalScrollBar()->setPageStep(viewport()->height());
-    verticalScrollBar()->setRange(0, qMax(0, m_size - viewport()->height()));
+    verticalScrollBar()->setRange(0, qMax(0, totalSize - viewport()->height()));
 }

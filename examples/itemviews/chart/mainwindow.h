@@ -28,7 +28,7 @@ public:
     MainWindow();
 
 private slots:
-    void openFile();
+    void openFile(const QString &path = QString());
     void saveFile();
     void updateWindowsMenu();
 
