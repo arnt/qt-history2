@@ -783,7 +783,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
                             break;
                         pos = pw->isExplicitlyHidden()
                               ? pos - pw->size().width() - box->spacing()
-                      : pos = pw->pos().x();
+                              : pw->pos().x();
                     }
                     pos = pos - w->size().width() - box->spacing();
                     hide = pos < extension_size + margin;
