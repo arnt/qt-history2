@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#15 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#16 $
 **
 ** Definition of QRegion class
 **
@@ -64,7 +64,7 @@ private:
     QRegion copy() const;
     void    detach();
 #if defined(_WS_WIN_)
-    QRegion winCombine( const QRegion &, int );
+    QRegion winCombine( const QRegion &, int ) const;
 #endif
     void    cmd( int id, void *, const QRegion * = 0, const QRegion * = 0 );
     void    exec( const QByteArray & );
