@@ -2157,7 +2157,6 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
 	setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
 			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
     }
-    doc->invalidateOriginalText();
 }
 
 /*! Inserts \a text in the paragraph \a para and position \a index */
@@ -3142,8 +3141,6 @@ void QTextEdit::setModified( bool m )
 {
     bool oldModified = modified;
     modified = m;
-    if ( oldModified != modified )
-	emit modificationChanged( modified );
     if ( modified ) {
 	disconnect( this, SIGNAL( textChanged() ),
 		    this, SLOT( setModified() ) );
@@ -3152,6 +3149,8 @@ void QTextEdit::setModified( bool m )
 	connect( this, SIGNAL( textChanged() ),
 		 this, SLOT( setModified() ) );
     }
+    if ( oldModified != modified )
+	emit modificationChanged( modified );
 }
 
 /*! \property QTextEdit::modified
