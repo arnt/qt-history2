@@ -245,13 +245,14 @@ public:
 	    const QUParameter *params = signal->method->parameters;
 	    QUObject *objects = pcount ? new QUObject[pcount+1] : 0;
 	    int p;
-	    for ( p = 0; p < pcount; ++p ) {// map the VARIANT to the QUObject
+	    bool ok = TRUE;
+	    for ( p = 0; p < pcount && ok; ++p ) {// map the VARIANT to the QUObject
 		objects[p+1].payload.ptr = 0;
-		VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1, params + p );
+		ok = VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1, params + p );
 	    }
 
-	    // emit the generated signal
-	    bool ret = combase->qt_emit( index, objects );
+	    // emit the generated signal if everything went well
+	    bool ret = ok && combase->qt_emit( index, objects );
 
 	    // update the VARIANT for references and free memory
 	    for ( p = 0; p < pcount; ++p ) {
@@ -265,7 +266,7 @@ public:
 	    }
 	    delete [] objects;
 
-	    return ret ? S_OK : DISP_E_MEMBERNOTFOUND;
+	    return ret ? S_OK : ( ok ? DISP_E_MEMBERNOTFOUND : DISP_E_TYPEMISMATCH );
 	} else {
 	    return S_OK;
 	}
