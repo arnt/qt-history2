@@ -822,10 +822,28 @@ static int menuItemEntry( HMENU menu, int index, MENUITEMINFOA item, QString &te
 	text = QString::fromLocal8Bit( titlebuf );
 	delete []titlebuf;
 	return MFT_STRING;
-    } else if ( item.fType == MFT_BITMAP ) {
-	HBITMAP hbm = (HBITMAP)LOWORD(item.dwTypeData);
-	return MFT_BITMAP;
+    } 
+#if 0
+    else if ( item.fType == MFT_BITMAP ) {
+	HBITMAP hbm = (HBITMAP)LOWORD(item.hbmpItem);
+	SIZE bmsize;
+	GetBitmapDimensionEx( hbm, &bmsize );
+	QPixmap pixmap( 1,1 );
+	QPaintDeviceMetrics pdm( &pixmap );
+	QSize sz( MAP_LOGHIM_TO_PIX( bmsize.cx, pdm.logicalDpiX() ),
+	    MAP_LOGHIM_TO_PIX( bmsize.cy, pdm.logicalDpiY() ) );
+
+	pixmap.resize( bmsize.cx, bmsize.cy );
+	if ( !pixmap.isNull() ) {
+	    HDC hdc = ::CreateCompatibleDC( pixmap.handle() );
+	    ::SelectObject( hdc, hbm );
+	    BOOL res = ::BitBlt( pixmap.handle(), 0, 0, pixmap.width(), pixmap.height(), hdc, 0, 0, SRCCOPY );
+	    ::DeleteObject( hdc );
+	}
+
+	icon = pixmap;
     }
+#endif
     return -1;
 }
 
