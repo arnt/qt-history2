@@ -412,7 +412,7 @@ void QPrinter::readPdlgA( void* pdv )
     }
 }
 
-static void setDefaultPrinter(const QString &printerName)
+static void setDefaultPrinter(const QString &printerName, HANDLE hdevmode, HANDLE hdevnames)
 {
     // Open the printer by name, to get a HANDLE
     HANDLE hPrinter;
@@ -499,7 +499,7 @@ bool QPrinter::setup( QWidget *parent )
     bool result = FALSE;
 
     if ( !printerName().isEmpty() )
-        setDefaultPrinter( printerName() );
+        setDefaultPrinter( printerName(), hdevmode, hdevnames );
 
     // Must handle the -A and -W versions separately; they're incompatible
     if ( qt_winver & Qt::WV_NT_based ) {

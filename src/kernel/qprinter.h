@@ -45,6 +45,10 @@
 
 #ifndef QT_NO_PRINTER
 
+#ifdef Q_WS_WIN
+#include "qt_windows.h"
+#endif
+
 #if defined(B0)
 #undef B0 // Terminal hang-up.  We assume that you do not want that.
 #endif
