@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#16 $
 **
 ** Implementation of QML classes
 **
@@ -52,6 +52,7 @@ public:
     int align;
     int margin[4];
     QMLStyle::ListStyle list;
+    QMLStyle::WhiteSpaceMode whitespacemode;
 };
 
 /*!
@@ -113,7 +114,7 @@ void QMLStyle::init()
     d->margin[2] = Undefined;
     d->margin[3] = Undefined;
     d->list = QMLStyle::ListDisc;
-
+    d->whitespacemode = QMLStyle::WhiteSpaceNormal;
 }
 
 /*!
@@ -357,6 +358,22 @@ void QMLStyle::setAnchor(bool anc)
 }
 
 
+/*!
+  Returns  the white space mode.
+ */
+QMLStyle::WhiteSpaceMode QMLStyle::whiteSpaceMode() const
+{
+    return d->whitespacemode;
+}
+
+/*!
+  Sets the white space mode
+ */
+void QMLStyle::setWhiteSpaceMode(WhiteSpaceMode m)
+{
+    d->whitespacemode = m;
+}
+
 
 /*!
   Returns the margin in pixel.
@@ -564,6 +581,7 @@ public:
     inline QFont font() const;
     inline QColor color(const QColor&) const;
     inline int margin(QMLStyle::Margin) const;
+    inline QMLStyle::WhiteSpaceMode  whiteSpaceMode() const;
     virtual int numberOfColumns() const;
     inline int alignment() const;
 
@@ -633,6 +651,13 @@ inline int QMLContainer::margin(QMLStyle::Margin m) const
 
 }
 
+
+inline QMLStyle::WhiteSpaceMode  QMLContainer::whiteSpaceMode() const
+{
+    if ( style->whiteSpaceMode() != QMLStyle::WhiteSpaceNormal )
+	return style->whiteSpaceMode();
+    return parent?parent->whiteSpaceMode():QMLStyle::WhiteSpaceNormal;
+}
 
 inline int QMLContainer::numberOfColumns() const
 {
@@ -905,6 +930,7 @@ void QMLStyleSheet::init()
     style = new QMLStyle( this, "pre" );
     style->setFontFamily( "courier" );
     style->setDisplayMode(QMLStyle::DisplayBlock);
+    style->setWhiteSpaceMode(QMLStyle::WhiteSpacePre);
     style = new QMLStyle( this, "blockquote" );
     style->setDisplayMode(QMLStyle::DisplayBlock);
     style->setMargin(QMLStyle::MarginAll, 8 );
@@ -1021,7 +1047,7 @@ private:
     bool eatCloseTag(const QString& doc, int& pos, const QString& open);
     QChar parseHTMLSpecialChar(const QString& doc, int& pos);
     QString parseWord(const QString& doc, int& pos, bool insideTag = FALSE, bool lower = FALSE);
-    QString parsePlainText(const QString& doc, int& pos);
+    QString parsePlainText(const QString& doc, int& pos, bool pre);
     bool hasPrefix(const QString& doc, int pos, const QChar& c);
     bool hasPrefix(const QString& doc, int pos, const QString& s);
     bool valid;
@@ -2876,6 +2902,7 @@ bool QMLDocument::isValid() const
 
 bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QString &doc, int& pos)
 {
+    bool pre = current->whiteSpaceMode() == QMLStyle::WhiteSpacePre;
     while ( valid && pos < int(doc.length() )) {
 	bool sep = FALSE;
 	int beforePos = pos;
@@ -2911,11 +2938,13 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	
 	    QMLNode* tag = sheet_->tag(tagname, attr, *provider_);
 	    if (tag->isContainer ) {
-		sep = eatSpace(doc, pos);
+		QMLContainer* ctag = (QMLContainer*) tag;
+		bool cpre = ctag->whiteSpaceMode() != QMLStyle::WhiteSpacePre;
+		if (!cpre)
+		    sep = eatSpace(doc, pos);
 		if (current == this && !attr.isEmpty() ) {
 		    setAttributes( attr );
 		}
-		QMLContainer* ctag = (QMLContainer*) tag;
 		valid &= ctag != 0;
 		if (valid) {
 		    QMLNode* l = lastChild;
@@ -2934,11 +2963,12 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		    lastChild = ctag;
 
 		    bool ctagUnknown = ctag->style->name().isEmpty() ;
-		    if ( ctagUnknown || ctag->isBox )
+		    if ( !cpre && (ctagUnknown || ctag->isBox) )
 			eatSpace(doc, pos); // no whitespace within an unknown container or box
 		
 		    if (parse(ctag, 0, doc, pos) ) {
-			sep |= eatSpace(doc, pos);
+			if (!cpre)
+			    sep |= eatSpace(doc, pos);
 			int recoverPos = pos;
 			valid = (hasPrefix(doc, pos, QChar('<'))
 				 && hasPrefix(doc, pos+1, QChar('/'))
@@ -2954,7 +2984,7 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 			if (!valid)
 			    return TRUE;
 		    }
-		    if ( ctagUnknown || ctag->isBox ) // no whitespace between unknown containers or boxes
+		    if ( !pre && (ctagUnknown || ctag->isBox) ) // no whitespace between unknown containers or boxes
 			sep |= eatSpace(doc, pos);
 		}
 	    }
@@ -2973,13 +3003,13 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		    tag->isLastSibling = 1;
 		    lastChild = tag;
 			
-		    if (tag->isSimpleNode && tag->c == '\n')
+		    if (!pre && tag->isSimpleNode && tag->c == '\n')
 			eatSpace(doc, pos);
 		}
 	    }
 	}
 	else {
-	    QString word = parsePlainText(doc, pos);
+	    QString word = parsePlainText(doc, pos, pre);
 	    if (valid){
 		QMLNode* l = lastChild;
 		for (int i = 0; i < int(word.length()); i++){
@@ -2996,7 +3026,8 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		    lastChild = n;
 		    l = n;
 		}
-		sep |= eatSpace(doc, pos);
+		if (!pre)
+		    sep |= eatSpace(doc, pos);
 	    }
 	}
     }
@@ -3079,16 +3110,19 @@ QString QMLDocument::parseWord(const QString& doc, int& pos, bool insideTag, boo
     return s;
 }
 
-QString QMLDocument::parsePlainText(const QString& doc, int& pos)
+QString QMLDocument::parsePlainText(const QString& doc, int& pos, bool pre)
 {
     QString s;
     while( pos < int(doc.length()) &&
 	   doc[pos] != '<' ) {
 	if (doc[pos].isSpace()){
-	    while (pos+1 < int(doc.length() ) && doc[pos+1].isSpace() ){
+	    while ( !pre && pos+1 < int(doc.length() ) && doc[pos+1].isSpace() ){
 		pos++;
 	    }
-	    s += ' ';
+	    if (pre && doc[pos] == '\n')
+		s += '\n';
+	    else
+		s += ' ';
 	    pos++;
 	}
 	else if ( doc[pos] == '&')

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.h#5 $
+** $Id: //depot/qt/main/src/widgets/qml.h#6 $
 **
 ** Definition of QML classes
 **
@@ -73,6 +73,10 @@ public:
 
     bool isAnchor() const;
     void setAnchor(bool anc);
+
+    enum WhiteSpaceMode {WhiteSpaceNormal, WhiteSpacePre };
+    WhiteSpaceMode whiteSpaceMode() const;
+    void setWhiteSpaceMode(WhiteSpaceMode m);
 
     enum Margin { MarginLeft, MarginRight, MarginTop, MarginBottom, MarginAll, MarginVertical, MarginHorizontal };
     int margin( Margin m) const;
