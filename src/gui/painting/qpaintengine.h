@@ -37,8 +37,8 @@ public:
     int ascent;
     int width;
 
-    QChar *chars;
-    int numChars;
+    const QChar *chars;
+    int num_chars;
     QGlyphLayout *glyphs;
     int num_glyphs;
     QFontEngine *fontEngine;

@@ -600,6 +600,8 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 	gf.num_glyphs = ge - gs + 1;
 	gf.glyphs = glyphs + gs;
 	gf.fontEngine = fe;
+	gf.chars = eng->string.unicode() + si.position;
+	gf.num_chars = eng->length(item);
 	int textFlags = 0;
 	if (f.d->underline) textFlags |= Qt::Underline;
 	if (f.d->overline) textFlags |= Qt::Overline;
