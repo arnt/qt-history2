@@ -23,6 +23,8 @@ SOURCES		= finddialog.cpp \
 		  listviews.cpp \
 		  splashloader.cpp \
 		  ../shared/metatranslator.cpp
+
+DEFINES 	+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
 INCLUDEPATH	= ../pics \
 		  ../shared \

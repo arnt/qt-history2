@@ -2,7 +2,9 @@ SOURCES	+= command.cpp formwindow.cpp defs.cpp layout.cpp main.cpp mainwindow.cp
 HEADERS	+= command.h defs.h formwindow.h layout.h mainwindow.h metadatabase.h pixmapchooser.h propertyeditor.h resource.h sizehandle.h orderindicator.h widgetfactory.h hierarchyview.h listboxeditorimpl.h connectioneditorimpl.h newformimpl.h workspace.h editslotsimpl.h listvieweditorimpl.h connectionviewerimpl.h customwidgeteditorimpl.h paletteeditorimpl.h styledbutton.h iconvieweditorimpl.h multilineeditorimpl.h formsettingsimpl.h asciivalidator.h splashloader.h ../interfaces/widgetinterface.h ../interfaces/actioninterface.h ../interfaces/filterinterface.h ../interfaces/designerinterface.h designerapp.h designerappiface.h actioneditorimpl.h actionlistview.h actiondnd.h project.h projectsettingsimpl.h sourceeditor.h outputwindow.h ../shared/widgetdatabase.h ../shared/parser.h config.h previewframe.h previewwidgetimpl.h paletteeditoradvancedimpl.h pixmapcollection.h sourcefile.h filechooser.h wizardeditorimpl.h qcompletionedit.h timestamp.h formfile.h 
 OBJECTS_DIR	= .
 
-
+DEFINES += QT_INTERNAL_XML
+DEFINES += QT_INTERNAL_WORKSPACE
+DEFINES += QT_INTERNAL_ICONVIEW
 include( ../../../src/qt_professional.pri )
 
 TARGET	= designer

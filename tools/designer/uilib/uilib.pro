@@ -11,6 +11,7 @@ HEADERS		= qwidgetfactory.h \
 sql:SOURCES += 		  ../designer/database.cpp
 sql:HEADERS +=		  ../designer/database2.h
 
+DEFINES += QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
 TARGET		= qui
 INCLUDEPATH	+= ../shared ../../../src/3rdparty/zlib/

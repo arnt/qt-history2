@@ -12,6 +12,7 @@ SOURCES	= main.cpp uic.cpp form.cpp object.cpp \
 		  ../shared/domtool.cpp \
 		  ../shared/parser.cpp
 
+DEFINES		+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
 
 TARGET		= uic

@@ -10,5 +10,7 @@ SOURCES		= fetchtr.cpp \
 		  ../shared/metatranslator.cpp \
 		  ../shared/proparser.cpp
 INCLUDEPATH	= ../shared
+
+DEFINES 	+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
 DESTDIR		= ../../../bin
