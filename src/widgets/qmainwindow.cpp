@@ -2004,8 +2004,8 @@ void QMainWindow::triggerLayout( bool deleteLayout )
   If the mouse is not in any docking area, Unmanaged is returned as docking area.
 */
 
-QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &rect,
-						    QToolBar *tb, QRect *r2 = 0 )
+QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &rect, 
+						    QToolBar *tb, QRect *r2 )
 {
     // calculate some values for docking areas
     int left, right, top, bottom;
