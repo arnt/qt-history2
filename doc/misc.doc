@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.4 1996/10/10 18:18:20 agulbra Exp $
+** $Id: misc.doc,v 2.5 1996/11/26 13:12:01 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,14 +8,14 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.4 1996/10/10 18:18:20 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.5 1996/11/26 13:12:01 agulbra Exp $";
 #endif
 
 
 /*! \page faq.html
 <title>Qt toolkit - FAQ</title>
 </head><body bgcolor="#ffffff">
-<h1 align=center>
+<h1 align="center">
 Frequently Asked Questions
 </h1>
 <ol>
@@ -26,7 +26,7 @@ A: We will continue to release free versions for the X Window System,
 and they will be free for free software development.
 <p>
 <li>
-What kind of licenses exist for Qt? 
+What kind of licenses exist for Qt?
 <p>
 A: The Qt toolkit is available under several licenses; the free license
 for X, a license for shareware developers for X and a fully-fledged
@@ -43,11 +43,12 @@ when you buy a professional license.
 Can I write software for internal use in my company/organization using
 the free license?
 <p>
-A: No, if you want to use the free license within an organization,
-your software must be intended for the free software community.  Your
-software must be usable outside your organization, you must notify
-Troll Tech before starting to use it, you have to allow free
-distribution and you have to make your source code available.
+A: That depends.  If you want to use the free license within an
+organization, your software must be intended for the free software
+community.  Your software must be usable outside your organization (if
+anyone should want to use it) you must notify Troll Tech before
+starting to use it, you have to allow free distribution and you have
+to make your source code available.
 <p>
 <li>
 Can I write software under the GNU General Public License, GNU
@@ -70,7 +71,8 @@ A: Qt is not free for Windows.  We do however sell professional licenses.
 <li>
 When will 1.0 be released? 
 <p>
-A: Now!
+A: This question seems not to be a FAQ any more, so we've removed the
+answer.
 <p>
 <li>
 I don't want to give away my source. What do I do? 
@@ -91,7 +93,7 @@ copying fee.
 <li>
 Where can I find Qt?  
 <p>
-A: The latest version of Qt can be downloaded from http://www.troll.no/
+A: The latest version of Qt can be downloaded from http://www.troll.no
 or from ftp.troll.no, or (less often updated) from sunsite.unc.edu
 in /pub/Linux/X11/devel/ (or /pub/Linux/Incoming).
 <p>
@@ -105,6 +107,7 @@ A: Troll Tech consists of four talented, hard-working programmers who
 work day and night to improve Qt, and enjoy it. We started the
 company in 1994, but parts of Qt were written for earlier
 projects. The first line of code was written in 1992.
+<p>
 <p>
 Our income comes from selling Qt licenses and from a development
 contract with a customer; we develop code based on Qt for the
