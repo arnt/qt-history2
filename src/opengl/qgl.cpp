@@ -1258,7 +1258,7 @@ void qgl_delete_d( const QGLWidget * w )
 	QGLWidgetPrivate * d = qgl_d_ptr->find( (void *) w );
 	((QGLWidget*) w)->makeCurrent();
 	if ( d ) {
-	    QMapIterator<QString, int> it;
+	    QMap<QString, int>::Iterator it;
 	    for ( it = d->displayListCache.begin(); it != d->displayListCache.end(); ++it ) {
 		glDeleteLists( it.data(), 256 );
 	    }
@@ -2095,7 +2095,7 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
 	base = d->displayListCache[ key ];
     } else {
 	int maxBase = listBase - 256;
-	QMapIterator<QString,int> it;
+	QMap<QString,int>::Iterator it;
 	for ( it = d->displayListCache.begin(); it != d->displayListCache.end(); ++it ) {
 	    if ( maxBase < it.data() ) {
 		maxBase = it.data();
