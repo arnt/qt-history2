@@ -178,13 +178,18 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 
     DomTool::fixDocument( doc );
 
-    toplevel = formwindow = new FormWindow( ff, mainwindow->qWorkspace(), 0 );
-    formwindow->setProject( MainWindow::self->currProject() );
-    formwindow->setMainWindow( mainwindow );
+    QWidget *p = mainwindow ? mainwindow->qWorkspace() : 0;
+    toplevel = formwindow = new FormWindow( ff, p, 0 );
+    formwindow->setProject( MainWindow::self ? MainWindow::self->currProject() : 0 );
+    if ( mainwindow )
+	formwindow->setMainWindow( mainwindow );
     MetaDataBase::addEntry( formwindow );
 
-    if (!langIface) {
-	langIface = MetaDataBase::languageInterface( mainwindow->currProject()->language() );
+    if ( !langIface ) {
+	QString lang = "Qt Script";
+	if ( mainwindow )
+	    lang = mainwindow->currProject()->language();
+	langIface = MetaDataBase::languageInterface( lang );
 	if ( langIface )
 	    langIface->addRef();
     }
@@ -302,8 +307,8 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 	loadCustomWidgets( customWidgets, this );
 
 #if defined (QT_NON_COMMERCIAL)
-    bool previewMode = MainWindow::self->isPreviewing();
-    QWidget *w = (QWidget*)createObject( widget, !previewMode ? (QWidget*)formwindow : MainWindow::self);
+    bool previewMode = MainWindow::self ? MainWindow::self->isPreviewing() : FALSE;
+    QWidget *w = (QWidget*)createObject( widget, !previewMode ? (QWidget*)formwindow : MainWindow::self );
     if ( !w )
 	return FALSE;
     if ( previewMode )
@@ -452,7 +457,10 @@ bool Resource::save( const QString& filename, bool formCodeOnly )
     if ( !formwindow || filename.isEmpty() )
 	return FALSE;
     if (!langIface) {
-	langIface = MetaDataBase::languageInterface( mainwindow->self->currProject()->language() );
+	QString lang = "Qt Script";
+	if ( mainwindow )
+	    lang = mainwindow->currProject()->language();
+	langIface = MetaDataBase::languageInterface( lang );
 	if ( langIface )
 	    langIface->addRef();
     }
@@ -476,7 +484,10 @@ bool Resource::save( QIODevice* dev )
 	return FALSE;
 
     if (!langIface) {
-	langIface = MetaDataBase::languageInterface( mainwindow->self->currProject()->language() );
+	QString lang = "Qt Script";
+	if ( mainwindow )
+	    lang = mainwindow->currProject()->language();
+	langIface = MetaDataBase::languageInterface( lang );
 	if ( langIface )
 	    langIface->addRef();
     }
@@ -2059,7 +2070,7 @@ void Resource::loadConnections( const QDomElement &e )
 	    if ( slot.returnType.isEmpty() )
 		slot.returnType = "void";
 	    slot.function = n.firstChild().toText().data();
-	    if ( !MetaDataBase::hasFunction( formwindow, slot.function, TRUE ) ) 
+	    if ( !MetaDataBase::hasFunction( formwindow, slot.function, TRUE ) )
 		MetaDataBase::addFunction( formwindow, slot.function, slot.specifier,
 				       slot.access, "slot", slot.language, slot.returnType );
 	    else
@@ -2663,7 +2674,9 @@ void Resource::saveFormCode()
 void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileName,
 				LanguageInterface *langIface, bool hasFunctions )
 {
-    QString lang = MainWindow::self->currProject()->language();
+    QString lang = "Qt Script";
+    if ( MainWindow::self )
+	lang = MainWindow::self->currProject()->language();
     LanguageInterface *iface = langIface;
     if ( hasFunctions || !iface )
 	return;
@@ -2685,7 +2698,7 @@ void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileN
     }
     formwindow->formFile()->setCode( code );
 
-    if ( !MainWindow::self->currProject()->isCpp() )
+    if ( !MainWindow::self || !MainWindow::self->currProject()->isCpp() )
 	MetaDataBase::setupConnections( formwindow, connections );
 
     for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin();
@@ -2693,7 +2706,7 @@ void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileN
 	
 	if ( MetaDataBase::hasFunction( formwindow, (*fit).name.latin1() ) ) {
 	    QString access = (*fit).access;
-	    if ( !MainWindow::self->currProject()->isCpp() )
+	    if ( !MainWindow::self || !MainWindow::self->currProject()->isCpp() )
 		MetaDataBase::changeFunction( formwindow, (*fit).name.latin1(), (*fit).name.latin1(),
 					      access );
 	} else {

@@ -206,7 +206,6 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified, bool exportAsPackage 
 	}
     }
 
-    // #### Resource has to work without MainWindow
     Resource resource( MainWindow::self );
     resource.setWidget( formWindow() );
     bool formCodeOnly = isModified( WFormCode ) && !isModified( WFormWindow );
