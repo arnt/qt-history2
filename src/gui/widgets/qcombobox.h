@@ -59,10 +59,11 @@ public:
 
     inline int findText(const QString &text,
                         QAbstractItemModel::MatchFlags flags =
-                        QAbstractItemModel::MatchDefault) const
+                        QAbstractItemModel::MatchExactly | QAbstractItemModel::MatchCase) const
         { return findData(text, QAbstractItemModel::EditRole, flags); }
     int findData(const QVariant &data, int role = QAbstractItemModel::UserRole,
-                 QAbstractItemModel::MatchFlags flags = QAbstractItemModel::MatchDefault) const;
+                 QAbstractItemModel::MatchFlags flags =
+                 QAbstractItemModel::MatchExactly | QAbstractItemModel::MatchCase) const;
 
     enum InsertPolicy {
         NoInsert,

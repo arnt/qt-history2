@@ -485,7 +485,7 @@ QString QInputDialog::getItem(QWidget *parent, const QString &caption, const QSt
         dlg->editableComboBox()->addItems(list);
         dlg->editableComboBox()->setCurrentItem(current);
     } else {
-        dlg->comboBox()->insertStringList(list);
+        dlg->comboBox()->addItems(list);
         dlg->comboBox()->setCurrentItem(current);
     }
 

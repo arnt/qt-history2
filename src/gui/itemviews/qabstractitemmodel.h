@@ -129,8 +129,7 @@ public:
         MatchFromEnd = 2,
         MatchExactly = MatchFromStart | MatchFromEnd,
         MatchCase = 4,
-        MatchWrap = 8,
-        MatchDefault = MatchFromStart | MatchWrap
+        MatchWrap = 8
     };
 
     Q_DECLARE_FLAGS(MatchFlags, MatchFlag)
@@ -198,7 +197,8 @@ public:
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     virtual QModelIndex buddy(const QModelIndex &index) const;
     virtual QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
-                                  int hits = 1, MatchFlags flags = MatchDefault) const;
+                                  int hits = 1,
+                                  MatchFlags flags = MatchFlags(MatchFromStart | MatchWrap)) const;
     virtual QSize span(const QModelIndex &index) const;
 
 signals:

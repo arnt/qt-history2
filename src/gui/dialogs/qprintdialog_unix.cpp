@@ -1181,7 +1181,7 @@ QGroupBox *QPrintDialogPrivate::setupOptions()
 void isc(QPrintDialogPrivate *ptr, const QString & text, QPrinter::PageSize ps)
 {
     if (ptr && !text.isEmpty() && ps < QPrinter::NPageSize) {
-        ptr->sizeCombo->insertItem(text, -1);
+        ptr->sizeCombo->addItem(text);
         int index = ptr->sizeCombo->count()-1;
         if (index >= 0 && index < QPrinter::NPageSize)
             ptr->indexToPageSize[index] = ps;
@@ -1197,8 +1197,8 @@ QGroupBox *QPrintDialogPrivate::setupPaper()
 
     // page orientation
     orientationCombo = new QComboBox(g);
-    orientationCombo->insertItem(q->tr("Portrait"), -1);
-    orientationCombo->insertItem(q->tr("Landscape"), -1);
+    orientationCombo->addItem(q->tr("Portrait"));
+    orientationCombo->addItem(q->tr("Landscape"));
     tll->addWidget(orientationCombo);
 
     orientation = QPrinter::Portrait;

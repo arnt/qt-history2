@@ -549,7 +549,7 @@ QStringList QFileDialog::filters() const
 
 void QFileDialog::selectFilter(const QString &filter)
 {
-    int i = d->fileType->findText(filter, QAbstractItemModel::MatchExactly);
+    int i = d->fileType->findText(filter);
     if (i >= 0)
         d->fileType->setCurrentItem(i);
 }
@@ -1324,10 +1324,10 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
 
     // if it is not already in the list, insert the current directory
     QString currentPath = toNative(model->filePath(current));
-    int item = lookIn->findText(currentPath, QAbstractItemModel::MatchExactly);
+    int item = lookIn->findText(currentPath);
     if (item < 0) {
         lookIn->addItem(model->fileIcon(current), currentPath);
-        item = lookIn->findText(currentPath, QAbstractItemModel::MatchExactly);
+        item = lookIn->findText(currentPath);
     }
     lookIn->setCurrentItem(item);
 
@@ -1558,7 +1558,7 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     newFolder->setEnabled(!model->isReadOnly());
     QString pth = toNative(d->model->filePath(index));
     QIcon icn = d->model->fileIcon(index);
-    int i = lookIn->findText(pth, QAbstractItemModel::MatchExactly);
+    int i = lookIn->findText(pth);
     bool block = lookIn->blockSignals(true);
     if (i > -1) {
         lookIn->setCurrentItem(i);
@@ -1621,7 +1621,8 @@ QModelIndex QFileDialogPrivate::matchDir(const QString &text, const QModelIndex 
     QModelIndexList matches = model->match(first,
                                            QAbstractItemModel::DisplayRole,
                                            text, model->rowCount(first.parent()),
-                                           QAbstractItemModel::MatchDefault
+                                           QAbstractItemModel::MatchFromStart
+                                           |QAbstractItemModel::MatchWrap
                                            |QAbstractItemModel::MatchCase);
     for (int i = 0; i < matches.count(); ++i)
         if (d->model->isDir(matches.at(i)))
@@ -1634,7 +1635,8 @@ QModelIndex QFileDialogPrivate::matchName(const QString &name, const QModelIndex
     QModelIndexList matches = model->match(first,
                                            QAbstractItemModel::DisplayRole,
                                            name, 1,
-                                           QAbstractItemModel::MatchDefault
+                                           QAbstractItemModel::MatchFromStart
+                                           |QAbstractItemModel::MatchWrap
                                            |QAbstractItemModel::MatchCase);
     if (matches.count() <= 0)
         return QModelIndex();
