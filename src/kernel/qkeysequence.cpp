@@ -424,18 +424,22 @@ int QKeySequence::decodeString(const QString& str)
  */
 QString QKeySequence::encodeString(int key)
 {
+    // Note: that the order that things are searched here correspond to the way
+    // accel's are presented on the Mac. So, the order is important.
     bool plus_next = true;
     QString s;
-    if ((key & CTRL) == CTRL) {
-	plus_next = true;
-	QString ctrl = QAccel::tr("Ctrl");
-#ifdef QMAC_CTRL
-	if(ctrl == "Ctrl") {
-	    plus_next = false;
-	    ctrl = QMAC_CTRL;
+    if ( (key & META) == META ) {
+	if ( plus_next && !s.isEmpty() )
+	    s += QAccel::tr( "+" );
+	plus_next = TRUE;
+	QString meta = QAccel::tr( "Meta" ); 
+#ifdef QMAC_META
+	if(meta == "Meta") {
+	    plus_next = FALSE;
+	    meta = QMAC_META;
 	}
 #endif
-	s += ctrl;
+	s += meta;
     }
     if ((key & ALT) == ALT) {
 	if (plus_next && !s.isEmpty())
@@ -450,24 +454,11 @@ QString QKeySequence::encodeString(int key)
 #endif
 	s += alt;
     }
-    if ((key & META) == META) {
-	if (plus_next && !s.isEmpty())
-	    s += QAccel::tr("+");
-	plus_next = true;
-	QString meta = QAccel::tr("Meta");
-#ifdef QMAC_META
-	if(meta == "Meta") {
-	    plus_next = false;
-	    meta = QMAC_META;
-	}
-#endif
-	s += meta;
-    }
-    if ((key & SHIFT) == SHIFT) {
-	if (plus_next && !s.isEmpty())
-	    s += QAccel::tr("+");
-	plus_next = true;
-	QString shift = QAccel::tr("Shift");
+    if ( (key & SHIFT) == SHIFT ) {
+	if ( plus_next && !s.isEmpty() )
+	    s += QAccel::tr( "+" );
+	plus_next = TRUE;
+	QString shift = QAccel::tr( "Shift" );
 #ifdef QMAC_SHIFT
 	if(shift == "Shift") {
 	    plus_next = false;
@@ -476,7 +467,20 @@ QString QKeySequence::encodeString(int key)
 #endif
 	s += shift;
     }
-    key &= ~(SHIFT | CTRL | ALT | META);
+    if ( (key & CTRL) == CTRL ) {
+	plus_next = TRUE;
+	QString ctrl = QAccel::tr( "Ctrl" );
+#ifdef QMAC_CTRL
+	if(ctrl == "Ctrl") {
+	    plus_next = FALSE;
+	    ctrl = QMAC_CTRL;
+	}
+#endif
+	s += ctrl;
+    }
+
+
+    key &= ~(SHIFT | CTRL | ALT | META );
     QString p;
 
     if (key && key < Key_Escape) {
@@ -558,6 +562,9 @@ Qt::SequenceMatch QKeySequence::matches(const QKeySequence& seq) const
     "Alt+X, Ctrl+Y, Z". The strings, "Ctrl", "Shift", etc. are
     translated (using QObject::tr()) in the "QAccel" scope. If the key
     sequence has no keys, QString::null is returned.
+
+    On Mac OS X, the string returned resembles the sequence that is shown in
+    the menubar.
 */
 QKeySequence::operator QString() const
 {

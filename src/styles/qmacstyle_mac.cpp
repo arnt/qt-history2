@@ -967,19 +967,26 @@ void QMacStyle::drawControl(ControlElement element,
 	}
 	if(mi) {
 	    QString s = mi->text();
-	    if(!s.isNull()) {                        // draw text
+	    if (!s.isNull()) {                        // draw text
 		int t = s.find('\t');
 		int m = macItemVMargin;
-		const int text_flags = AlignVCenter|NoAccel | DontClip | SingleLine;
-		if(t >= 0) {                         // draw tab text
+		int text_flags = AlignRight | AlignVCenter | NoAccel | DontClip | SingleLine;
+		if (t >= 0) {                         // draw tab text
 		    int xp;
-		    if(reverse)
+		    if (reverse)
 			xp = x + macRightBorder+macItemHMargin+macItemFrame - 1;
 		    else
-			xp = x + w - tab - macRightBorder-macItemHMargin-macItemFrame+1;
-		    p->drawText(xp, y+m, tab, h-2*m, text_flags, s.mid(t+1));
+			xp = x + w - tab - macRightBorder-macItemHMargin-macItemFrame + 1;
+		    QFont font(p->font());
+		    int oldWeight = font.weight();
+		    font.setWeight(QFont::Bold);
+		    p->setFont(font);
+		    p->drawText(xp, y + m, tab, h - 2 * m, text_flags, s.mid(t + 1));
 		    s = s.left(t);
+		    font.setWeight(oldWeight);
+		    p->setFont(font);
 		}
+		text_flags ^= AlignRight;
 		p->drawText(xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
 	    } else if(mi->pixmap()) {                        // draw pixmap
 		QPixmap *pixmap = mi->pixmap();
