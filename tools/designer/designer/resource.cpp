@@ -133,16 +133,13 @@ bool Resource::load( const QString& filename )
     QFile f( filename );
     f.open( IO_ReadOnly );
 
-    bool b = load( &f );
+    bool b = load( &f, 0, filename );
     f.close();
-
-    if ( formwindow )
-	formwindow->setFileName( filename );
 
     return b;
 }
 
-bool Resource::load( QIODevice* dev, QValueList<Image> *imgs )
+bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& filename )
 {
     QDomDocument doc;
     if ( !doc.setContent( dev ) ) {
@@ -225,6 +222,9 @@ bool Resource::load( QIODevice* dev, QValueList<Image> *imgs )
 
     if ( previewMode )
 	MetaDataBase::doConnections( toplevel );
+
+    if ( formwindow && !filename.isEmpty() )
+	formwindow->setFileName( filename );
 
     if ( mainwindow && formwindow )
 	mainwindow->insertFormWindow( formwindow );

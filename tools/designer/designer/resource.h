@@ -59,7 +59,7 @@ public:
     QWidget *widget() const;
 
     bool load( const QString& filename );
-    bool load( QIODevice*, QValueList<Image> *images = 0 );
+    bool load( QIODevice*, QValueList<Image> *images = 0, const QString& filename = QString::null );
     QString copy();
 
     bool save( const QString& filename);
