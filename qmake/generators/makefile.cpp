@@ -176,8 +176,10 @@ MakefileGenerator::initOutPaths()
                 int slash = path.lastIndexOf(Option::dir_sep);
                 if(slash != -1) {
                     path = path.left(slash);
-                    if(path != "." && !createDir(path))
-                        warn_msg(WarnLogic, "%s: Cannot access directory '%s'", (*it).latin1(), path.latin1());
+                    if(path != "." && 
+                       !createDir(fileFixify(path, QDir::currentPath(), Option::output_dir)))
+                        warn_msg(WarnLogic, "%s: Cannot access directory '%s'", 
+                                 (*it).latin1(), path.latin1());
                 }
             }
         }
@@ -1403,14 +1405,15 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                                                                         tmp_out);
                         dep_cmd = Option::fixPathToLocalOS(dep_cmd);
                         if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+                            QString indeps;
                             while(!feof(proc)) {
                                 int read_in = fread(buff, 1, 255, proc);
                                 if(!read_in)
                                     break;
-                                deps += QByteArray(buff, read_in);
+                                indeps += QByteArray(buff, read_in);
                             }
-                            deps = deps.replace('\n', ' ').simplified();
                             fclose(proc);
+                            deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' ')).join(" ");
                         }
                     }
                 }
@@ -2126,7 +2129,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &d
                     for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
                         QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
                         if(out == dep.real() || out.endsWith("/" + dep.real())) {
-                            ret = QMakeLocalFileName(out);
+                            ret = QMakeLocalFileName(fileFixify(out, QDir::currentPath(), Option::output_dir));
                             goto found_dep_from_heuristic;
                         }
                     }
