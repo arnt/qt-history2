@@ -215,6 +215,7 @@ private:
     int cutTextPending;
     bool supportHextile;
     bool wantUpdate;
+    int nibble;
 };
 
 //===========================================================================
@@ -606,6 +607,19 @@ void QVNCServer::readClient()
 			format.blueShift = 0;
 			break;
 
+		    case 4:
+			format.bitsPerPixel = 8;
+			format.depth = 8;
+			format.bigEndian = 0;
+			format.trueColor = FALSE;
+			format.redBits = 0;
+			format.greenBits = 0;
+			format.blueBits = 0;
+			format.redShift = 0;
+			format.greenShift = 0;
+			format.blueShift = 0;
+			break;
+
 		    default:
 			qDebug( "QVNC cannot drive depth %d", qvnc_screen->depth() );
 			discardClient();
@@ -807,6 +821,13 @@ bool QVNCServer::checkFill( const uchar *data, int numPixels )
 		return FALSE;
 	    data += 4;
 	}
+    } else if ( qvnc_screen->depth() == 4 ) {
+	uchar pixel = *data++;
+	for ( int i = 2; i < numPixels/2; i++ ) {
+	    if ( pixel != *data )
+		return FALSE;
+	    data++;
+	}
     }
 
     return TRUE;
@@ -837,6 +858,15 @@ int QVNCServer::getPixel( uchar **data )
 	g = (p >> 8) & 0xff;
 	b = p & 0xff;
 	*data += 4;
+    } else if ( qvnc_screen->depth() == 4 ) {
+	if ( !nibble ) {
+	    r = ((**data) & 0x0f) << 4;
+	} else {
+	    r = (**data) & 0xf0;
+	    (*data)++;
+	}
+	nibble = !nibble;
+	g = b = r;
     } else {
 	r = g = b = 0;
 	qDebug( "QVNCServer: don't support %dbpp display", qvnc_screen->depth() );
@@ -860,12 +890,12 @@ void QVNCServer::sendHextile()
 {
     QWSDisplay::grab( TRUE );
 
-    static int pixelSize;
+    static int lineSize;
     static uchar *screendata = 0;
     
     if ( !screendata ) {
-	pixelSize = qvnc_screen->depth() / 8;
-	screendata = new uchar [MAP_TILE_SIZE*MAP_TILE_SIZE*pixelSize];
+	lineSize = MAP_TILE_SIZE*qvnc_screen->depth() / 8;
+	screendata = new uchar [MAP_TILE_SIZE*lineSize];
     }
 
     Q_UINT16 count = 0;
@@ -906,10 +936,10 @@ void QVNCServer::sendHextile()
 		    uchar *sptr = screendata;
 		    uchar *data = qvnc_screen->base() +
 				  rect.y * qvnc_screen->linestep() +
-				  rect.x * pixelSize;
+				  rect.x * qvnc_screen->depth() / 8;
 		    for ( int i = 0; i < rect.h; i++ ) {
-			memcpy( sptr, data, MAP_TILE_SIZE * pixelSize );
-			sptr += MAP_TILE_SIZE * pixelSize;
+			memcpy( sptr, data, lineSize );
+			sptr += lineSize;
 			data += qvnc_screen->linestep();
 		    }
 
@@ -927,6 +957,7 @@ void QVNCServer::sendHextile()
 			client->writeBlock( (char *)&subenc, 1 );
 			int pixel;
 			for ( int i = rect.y; i < rect.y+rect.h; i++ ) {
+			    nibble = 0;
 			    for ( int j = 0; j < rect.w; j++ ) {
 				pixel = getPixel( &sptr );
 				client->writeBlock( (char *)&pixel, pixelFormat.bitsPerPixel/8);
@@ -993,6 +1024,7 @@ void QVNCServer::sendRaw()
 	    for ( int i = rect.y; i < rect.y+rect.h; i++ ) {
 		uchar *data = qvnc_screen->base() + i * qvnc_screen->linestep() +
 				rect.x * qvnc_screen->depth() / 8;
+		nibble = rect.x & 1;
 		for ( int j = 0; j < rect.w; j++ ) {
 		    pixel = getPixel( &data );
 		    client->writeBlock( (char *)&pixel, pixelFormat.bitsPerPixel/8);
@@ -1286,8 +1318,15 @@ void QVNCScreen::disconnect()
 
 bool QVNCScreen::initDevice()
 {
-    if ( !virtualBuffer ) 
+    if ( !virtualBuffer ) {
 	VNCSCREEN_BASE::initDevice();
+    } else if ( d == 4 ) {
+	screencols = 16;
+	int val = 0;
+	for (int idx = 0; idx < 16; idx++, val += 17) {
+	    screenclut[idx]=qRgb( val, val, val );
+	}
+    }
     vncServer = new QVNCServer();
 
     hdr->dirty = FALSE;
@@ -1363,6 +1402,13 @@ QGfx * QVNCScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
 	    ret = new QGfxVNC<32,0>(bytes,w,h);
 	else
 	    ret = new QGfxRaster<32,0>(bytes,w,h);
+#endif
+#ifndef QT_NO_QWS_DEPTH_4
+    } else if (d==4) {
+	if ( bytes == qt_screen->base() )
+	    ret = new QGfxVNC<4,0>(bytes,w,h);
+	else
+	    ret = new QGfxRaster<4,0>(bytes,w,h);
 #endif
     } else {
 	qFatal("Can't drive depth %d",d);
