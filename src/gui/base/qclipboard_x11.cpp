@@ -1163,52 +1163,52 @@ const char* QClipboardWatcher::format( int n ) const
 
 	QClipboardWatcher *that = (QClipboardWatcher *) this;
 	QByteArray ba = getDataInFormat(xa_targets);
-	if (ba.size() == 0) // no clipboard data available
-	    return 0;
 
-	Atom *unsorted_target = (Atom *) ba.data();
-	int i, size = ba.size() / sizeof(Atom);
+	if (ba.size() > 0) {
+	    Atom *unsorted_target = (Atom *) ba.data();
+	    int i, size = ba.size() / sizeof(Atom);
 
-	// sort TARGETS to prefer some types over others.  some apps
-	// will report XA_STRING before COMPOUND_TEXT, and we want the
-	// latter, not the former (if it is present).
-	Atom* target = new Atom[size+4];
-	memset( target, 0, (size+4) * sizeof(Atom) );
+	    // sort TARGETS to prefer some types over others.  some apps
+	    // will report XA_STRING before COMPOUND_TEXT, and we want the
+	    // latter, not the former (if it is present).
+	    Atom* target = new Atom[size+4];
+	    memset( target, 0, (size+4) * sizeof(Atom) );
 
-	for ( i = 0; i < size; ++i ) {
-	    if ( unsorted_target[i] == ATOM(UTF8_STRING) )
-		target[0] = unsorted_target[i];
-	    else if ( unsorted_target[i] == ATOM(COMPOUND_TEXT) )
-		target[1] = unsorted_target[i];
-	    else if ( unsorted_target[i] == ATOM(TEXT) )
-		target[2] = unsorted_target[i];
-	    else if ( unsorted_target[i] == XA_STRING )
-		target[3] = unsorted_target[i];
-	    else
-		target[i + 4] = unsorted_target[i];
+	    for ( i = 0; i < size; ++i ) {
+		if ( unsorted_target[i] == ATOM(UTF8_STRING) )
+		    target[0] = unsorted_target[i];
+		else if ( unsorted_target[i] == ATOM(COMPOUND_TEXT) )
+		    target[1] = unsorted_target[i];
+		else if ( unsorted_target[i] == ATOM(TEXT) )
+		    target[2] = unsorted_target[i];
+		else if ( unsorted_target[i] == XA_STRING )
+		    target[3] = unsorted_target[i];
+		else
+		    target[i + 4] = unsorted_target[i];
+	    }
+
+	    for (i = 0; i < size + 4; ++i) {
+		if ( target[i] == 0 ) continue;
+
+		VDEBUG("    format: %s", qt_xdnd_atom_to_str(target[i]));
+
+		if ( target[i] == XA_PIXMAP )
+		    that->formatList.append("image/ppm");
+		else if ( target[i] == XA_STRING )
+		    that->formatList.append( "text/plain;charset=ISO-8859-1" );
+		else if ( target[i] == ATOM(UTF8_STRING) )
+		    that->formatList.append( "text/plain;charset=UTF-8" );
+		else if ( target[i] == ATOM(TEXT) ||
+			  target[i] == ATOM(COMPOUND_TEXT) )
+		    that->formatList.append( "text/plain" );
+		else
+		    that->formatList.append(qt_xdnd_atom_to_str(target[i]));
+	    }
+	    delete []target;
+
+	    DEBUG("QClipboardWatcher::format: %d formats available",
+		  that->formatList.count());
 	}
-
-	for (i = 0; i < size + 4; ++i) {
-	    if ( target[i] == 0 ) continue;
-
-	    VDEBUG("    format: %s", qt_xdnd_atom_to_str(target[i]));
-
-	    if ( target[i] == XA_PIXMAP )
-		that->formatList.append("image/ppm");
-	    else if ( target[i] == XA_STRING )
-		that->formatList.append( "text/plain;charset=ISO-8859-1" );
-	    else if ( target[i] == ATOM(UTF8_STRING) )
-		that->formatList.append( "text/plain;charset=UTF-8" );
-	    else if ( target[i] == ATOM(TEXT) ||
-		      target[i] == ATOM(COMPOUND_TEXT) )
-		that->formatList.append( "text/plain" );
-	    else
-		that->formatList.append(qt_xdnd_atom_to_str(target[i]));
-	}
-	delete []target;
-
-	DEBUG("QClipboardWatcher::format: %d formats available",
-	      that->formatList.count());
     }
 
     if (n >= 0 && n < (signed) formatList.count())
