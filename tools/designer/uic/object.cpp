@@ -155,9 +155,9 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    if ( isLine && prop == "orientation" ) {
 		prop = "frameShape";
 		if ( value.right(10) == "Horizontal" )
-		    value = "QFrame::HLine";
+		    value = "QFrame::HLine | QFrame::Sunken";
 		else
-		    value = "QFrame::VLine";
+		    value = "QFrame::VLine | QFrame::Sunken";
 	    }
 	    if ( prop == "buttonGroupId" ) {
 		if ( parentClass == "QButtonGroup" )
