@@ -465,6 +465,7 @@ void QFrame::drawFrame(QPainter *p)
     case QFrame::Box:
     case QFrame::HLine:
     case QFrame::VLine:
+    case QFrame::StyledPanel:
         lw = d->lineWidth;
         mlw = d->midLineWidth;
         break;
