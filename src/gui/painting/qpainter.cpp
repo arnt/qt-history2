@@ -2197,25 +2197,10 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
 
     if (((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) ||
         ((w != sw || h != sh) && !d->engine->hasFeature(QPaintEngine::PixmapScale))) {
-        QPixmap source(sw, sh);
-        {
+        QPixmap source;
+        if(sx || sy || sw != pm.width() || sh != pm.height()) {
+            source = QPixmap(sw, sh, pm.depth());
             QPainter p(&source);
-            p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh), mode);
-        }
-
-        QWMatrix mat(d->state->matrix);
-        double scalex = w / (double)sw;
-        double scaley = h / (double)sh;
-        mat = QWMatrix(scalex, 0, 0, scaley, 0, 0) * mat;
-        mat = QPixmap::trueMatrix(mat, sw, sh);
-        QPixmap pmx;
-        if (sx == 0 && sy == 0 &&
-            sw == pm.width() && sh == pm.height()) {
-            pmx = pm;                        // xform the whole pixmap
-        } else {
-            QPainter p;
-            pmx = QPixmap(sw, sh);                // xform subpixmap
-            p.begin(&pmx);
             p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh), mode);
             p.end();
             if (mode == Qt::AlphaBlend && pm.mask()) {
@@ -2223,10 +2208,18 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
                 p.begin(&mask);
                 p.drawPixmap(QRect(0, 0, sw, sh), *pm.mask(), QRect(sx, sy, sw, sh), mode);
                 p.end();
-                pmx.setMask(mask);
+                source.setMask(mask);
             }
+        } else {
+            source = pm;
         }
-        pmx = pmx.xForm(mat);
+
+        QWMatrix mat(d->state->matrix);
+        double scalex = w / (double)sw;
+        double scaley = h / (double)sh;
+        mat = QWMatrix(scalex, 0, 0, scaley, 0, 0) * mat;
+        mat = QPixmap::trueMatrix(mat, sw, sh);
+        QPixmap pmx = source.xForm(mat);
         if (pmx.isNull())                        // xformed into nothing
             return;
         if (!pmx.mask() && d->state->txop == TxRotShear) {
