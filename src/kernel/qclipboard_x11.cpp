@@ -808,7 +808,7 @@ bool QClipboard::event( QEvent *e )
 			fmt = "text/plain";
 			data = d->source()->encodedData( fmt );
 			if( data.resize(data.size() + 1) )
-			    *data.end() = '\0';
+			    data[data.size() - 1] = '\0';
 			char *list[] = { data.data(), NULL };
 
 			XICCEncodingStyle style;
