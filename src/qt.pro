@@ -73,6 +73,7 @@ HEADERS		= $$DIALOGS_H/qfiledialog.h \
 		  $$KERNEL_H/qsemimodal.h \
 		  $$KERNEL_H/qsignal.h \
 		  $$KERNEL_H/qsignalmapper.h \
+		  $$KERNEL_H/qsignalslotimp.h \
 		  $$KERNEL_H/qsize.h \
 		  $$KERNEL_H/qsocketnotifier.h \
 		  $$KERNEL_H/qstyle.h \
