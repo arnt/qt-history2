@@ -1474,11 +1474,7 @@ void QWorkspace::cascade()
     QList<QWorkspaceChild *> widgets;
     QList<QWorkspaceChild *>::Iterator it(d->windows.begin());
     QWorkspaceChild* wc = 0;
-    for (it = d->windows.begin(); it != d->windows.end(); ++it) {
-        wc = *it;
-        if (wc->iconw)
-            d->normalizeWindow(wc->windowWidget());
-    }
+
     for (it = d->focus.begin(); it != d->focus.end(); ++it) {
         wc = *it;
         if (wc->windowWidget()->isVisibleTo(this) && !wc->windowWidget()->testWFlags(Qt::WStyle_Tool))
@@ -1553,9 +1549,10 @@ void QWorkspace::tile()
     while (it != d->windows.end()) {
         c = *it;
         ++it;
-        if (!c->windowWidget()->isHidden() &&
-             !c->windowWidget()->testWFlags(Qt::WStyle_StaysOnTop) &&
-             !c->windowWidget()->testWFlags(Qt::WStyle_Tool))
+        if (!c->windowWidget()->isHidden() 
+         && !c->windowWidget()->testWFlags(Qt::WStyle_StaysOnTop)
+         && !c->windowWidget()->testWFlags(Qt::WStyle_Tool)
+         && !c->iconw)
             n++;
     }
 
@@ -1579,8 +1576,12 @@ void QWorkspace::tile()
     while (it != d->windows.end()) {
         c = *it;
         ++it;
-        if (c->windowWidget()->isHidden() || c->windowWidget()->testWFlags(Qt::WStyle_Tool))
+        if (c->iconw || c->windowWidget()->isHidden() || c->windowWidget()->testWFlags(Qt::WStyle_Tool))
             continue;
+        if (!row && !col) {
+            w -= c->baseSize().width();
+            h -= c->baseSize().height();
+        }
         if (c->windowWidget()->testWFlags(Qt::WStyle_StaysOnTop)) {
             QPoint p = c->pos();
             if (p.x()+c->width() < 0)
@@ -1599,14 +1600,12 @@ void QWorkspace::tile()
             qApp->sendPostedEvents(0, QEvent::ShowNormal);
             used[row*cols+col] = true;
             QSize sz(w, h + add ? h : 0);
-            sz = sz.expandedTo(c->windowWidget()->minimumSize()).boundedTo(c->windowWidget()->maximumSize());
-            sz += c->baseSize();
+            QSize bsize(c->baseSize());
+            sz = sz.expandedTo(c->windowWidget()->minimumSize()).boundedTo(c->windowWidget()->maximumSize()) + bsize;
+            c->setGeometry(col*w + col*bsize.width(), row*h + row*bsize.height(), sz.width(), sz.height());
             if (add) {
-                c->setGeometry(col*w, row*h, sz.width(), sz.height());
                 used[(row+1)*cols+col] = true;
                 add--;
-            } else {
-                c->setGeometry(col*w, row*h, sz.width(), sz.height());
             }
             while(row < rows && col < cols && used[row*cols+col]) {
                 col++;
