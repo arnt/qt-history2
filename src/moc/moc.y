@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#58 $
+** $Id: //depot/qt/main/src/moc/moc.y#59 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -38,7 +38,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#58 $")
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#59 $")
 
 QString rmWS( const char * );
 
@@ -880,14 +880,14 @@ int main( int argc, char **argv )
 		 );
 	return 1;
     } else {
-	yyin = fopen( fileName, "r" );
+	yyin = fopen( (const char *)fileName, "r" );
 	if ( !yyin ) {
 	    fprintf( stderr, "moc: %s: No such file\n", (const char*)fileName );
 	    return 1;
 	}
     }
     if ( !outputFile.isEmpty() ) {		// output file specified
-	out = fopen( outputFile, "w" );		// create output file
+	out = fopen( (const char *)outputFile, "w" );	// create output file
 	if ( !out ) {
 	    fprintf( stderr, "moc: Cannot create %s\n",
 		     (const char*)outputFile );
