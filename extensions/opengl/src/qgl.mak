@@ -50,10 +50,10 @@ $(TARGET): $(OBJECTS) $(OBJMOC)
 
 moc: $(SRCMOC)
 
-tmake: makefile
+tmake: qgl.mak
 
-makefile: qgl.pro
-	tmake qgl.pro -nodepend -o makefile
+qgl.mak: qgl.pro
+	tmake qgl.pro -nodepend -o qgl.mak
 
 clean:
 	-del qgl.obj
@@ -71,4 +71,3 @@ moc_qgl.obj: moc_qgl.cpp \
 
 moc_qgl.cpp: ..\..\..\include\qgl.h
 	$(MOC) ..\..\..\include\qgl.h -o moc_qgl.cpp
-
