@@ -1303,8 +1303,7 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	setCurrentItem( 0 );
     } else if ( d->usingListBox() && e->key() == Key_End && ( !d->ed || !d->ed->hasFocus() ) ) {
 	setCurrentItem( count()-1 );
-    } else if ( /* d->useCompletion && */ d->ed == 0 &&
-		e->text() != QString::null ) {
+    } else if ( !d->ed && e->text().length() && e->ascii() >= 32 && !e->text().isEmpty() ) {
 	// strictly speaking, we should test for useCompletion, but
 	// the code is a pure win, so let's do it anyway.
 	QString ct = currentText().left( d->completeAt ) + e->text();
