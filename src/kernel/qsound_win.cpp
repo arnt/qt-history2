@@ -156,7 +156,10 @@ void QAuServerWindows::stop( QSound* )
 
 bool QAuServerWindows::okay()
 {
-    return auxGetNumDevs() != 0;
+    // ### this should work, but returns 0
+    // return auxGetNumDevs() != 0;
+
+    return TRUE;
 }
 
 QAuServer* qt_new_audio_server()
