@@ -9,7 +9,7 @@
 **
 *****************************************************************************/
 
-
+#include <qaxwidget.h>
 #include <qprogressbar.h>
 #include <qstatusbar.h>
 
