@@ -33,6 +33,12 @@ Qt Assistant
 Qt Functions
 ========================================
 
+QAccel
+------
+
+ - Make sure accelerators continue to work when a toplevel is reparented
+   into another window.
+
 QApplication
 ------------
 
@@ -54,6 +60,13 @@ QComboBox
 New function:
 	virtual void setLineEdit( QLineEdit *edit );
 
+QCString
+--------
+
+ - Implemented a dummy out-of-line destructor for QCString to help the
+   compiler to optimize the number of conflicts as the location of a vtable
+   is now known.
+
 QCursor
 -------
 
@@ -62,28 +75,68 @@ QCursor
 New function:
 	QCursor( HCURSOR ); (Windows only)
 
+QDateTimeEdit
+-------------
+
+ - Windows only: better handling of localization settings.
+
+QDockWindow
+-----------
+
+ - Remeber last size of an undocked window, so when it is docked and
+   undocked again, use this size again.
+
 QDom
 ----
 
  - Fixed an infinite loop in QDomDocument::toString().
+
+QFileDialog
+-----------
+
+ - Improved handling of "~" to make it work as a directory.
+
+QFileInfo
+---------
+
+ - Windows only: permissions supports FAT permissions now.
 
 QIconView
 ---------
 
  - Added a function to find out whether an item in a view is currently being
    renamed.
+ - Fixed a crash.
 
 New function:
 	bool isRenaming() const;
+
+QInputDialog
+------------
+
+ - Improved the handling of double input formats.
 
 QListView
 ---------
 
  - Added a function to find out whether an item in a view is currently
    being renamed.
+ - Fixed a possible infinite loop.
+ - Improved spacing handling for columns that can show a sort indicator.
 
 New function:
 	bool isRenaming() const;
+
+QMainWindow
+-----------
+
+ - Make menuAboutToShow() protected to allow customized dock menus.
+ - Fixed spacing problem for menu bars.
+
+QMap
+----
+
+ - Fixed infinite looping in count( const Key& k ).
 
 QObject
 -------
@@ -95,17 +148,40 @@ QObject
 New function:
 	void deleteLater();
 
+QPainter
+--------
+
+ - Fixed bounding rectangle when printing richtext.
+ - Restore brush origin in QPainter::restore().
+
 QPixmap
 -------
 
- - X11 with render extension only: better support for alpha blending
-   (QPixmap::xForm() keeps now the alpha channel information and tiling
-   pixmaps with alpha channel works now).
+ - X11 with render extension only: better support for alpha blending:
+    - QPixmap::xForm() keeps now the alpha channel information
+    - alpha channel information is kept when copying QPixamps
+    - alpha blending works with QMovie
+    - tiling pixmaps with alpha channel works now
 
 QPrinter
 --------
 
- - Some minor printing improvements under Unix.
+ - Unix only: fixed dashed line drawing when using high resolution
+   printing.
+ - Better printing detection on Irix.
+
+QRadioButton
+------------
+
+ - Fixed focus problem for radio buttons in a button group.
+
+QSqlCursor
+----------
+
+ - Fixed primeInsert() to work if the primary key of the edit buffer has
+   changed.
+ - Changing primary index keys now also works if the cursor's position
+   moved in the meantime.
 
 QStyle
 ------
@@ -113,15 +189,38 @@ QStyle
  - Added a base value (CC_CustomBase) for custom defined primitives,
    controls, etc. -- this allows custom widgets to use the new style
    engine.
+ - Fixed spacing problem for custom menu items.
+ - Improved the look of the motif plus style.
+
+QTable
+------
+
+ - Fixed crash when drag source is the current table editor widget.
+ - Fixed a bug that prevented having different colors in different cells.
+
+QTabletEvent
+------------
+
+ - Improved Watcom tablet support to allow multiple devices to be used.
 
 QTextEdit
 ---------
 
+ - Better handling for font-sizes in the font-tag.
+ - Parse the qt-tag again.
+ - Fixed text() for read-only documents.
+ - Improved right mouse button menu handling.
  - New function to pass the position to the createPopupMenu() function for
    improved flexibility.
 
 New function:
 	virtual QPopupMenu *createPopupMenu( const QPoint& pos );
+
+QThread
+-------
+
+ - Unix only: Make sure that the seconds and nano-seconds in the sleep
+   functions are within the limits.
 
 QUrlInfo
 --------
@@ -132,8 +231,22 @@ QUrlInfo
 New function:
 	bool isValid() const;
 
+QWizard
+-------
+
+ - Set the previous pages nextEnabled to TRUE if we add a page to the end
+   of a wizard.
+
 QWMatrix
 --------
 
  - mapRect() returns always a valid QRect now.
+
+QWorkspace
+----------
+
+ - Fix for inactive top-level widget.
+ - Update the titlebar when toggling shaded/non-shaded.
+ - Update the titlebar to be deactive when the application's activation
+   status changes.
 
