@@ -242,7 +242,7 @@ private:
     static QWidget *widgetAt_sys(int x, int y);
     bool notify_helper(QObject *receiver, QEvent * e);
 
-    void construct(Type);
+    void construct();
     void initialize();
     void process_cmdline();
 #if defined(Q_WS_QWS)

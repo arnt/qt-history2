@@ -59,7 +59,6 @@ class Q_GUI_EXPORT QGuiEventLoopPrivate : public QEventLoopPrivate
 {
     Q_DECLARE_PUBLIC(QGuiEventLoop)
 public:
-    QGuiEventLoopPrivate();
 #ifdef Q_WS_MAC
     int zero_timer_count;
     EventLoopTimerRef select_timer;

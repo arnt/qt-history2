@@ -40,7 +40,7 @@ class Q_CORE_EXPORT QCoreApplication : public QObject
     Q_DECLARE_PRIVATE(QCoreApplication)
 public:
     QCoreApplication(int &argc, char **argv);
-    QCoreApplication(QCoreApplicationPrivate &, QEventLoop *);
+    QCoreApplication(QCoreApplicationPrivate &p);
     ~QCoreApplication();
 
     int                    argc()        const;

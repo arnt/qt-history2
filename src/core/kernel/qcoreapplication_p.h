@@ -36,6 +36,8 @@ public:
     QCoreApplicationPrivate(int &aargc,  char **aargv);
     ~QCoreApplicationPrivate();
 
+    virtual void createEventLoop();
+
     int &argc;
     char **argv;
     QEventLoop *eventLoop;

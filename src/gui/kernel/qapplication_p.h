@@ -83,8 +83,10 @@ class QApplicationPrivate : public QCoreApplicationPrivate
 {
     Q_DECLARE_PUBLIC(QApplication)
 public:
-    QApplicationPrivate(int &argc, char **argv);
+    QApplicationPrivate(int &argc, char **argv, QApplication::Type type);
     ~QApplicationPrivate() {}
+
+    void createEventLoop();
 
 #ifndef QT_NO_SESSIONMANAGER
     QSessionManager *session_manager;

@@ -101,8 +101,6 @@ QCoreApplication *QCoreApplication::self = 0;
 // thread data for the main() thread
 Q_GLOBAL_STATIC(QThreadData, mainData)
 
-Q_CORE_EXPORT QThreadData *qt_getMainData() { return mainData(); }
-
 QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
     : QObjectPrivate(), argc(aargc), argv(aargv), eventLoop(0)
 {
@@ -121,6 +119,9 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
     QThreadStorageData::finish(mainData()->tls);
     QThreadData::setCurrent(0);
 }
+
+void QCoreApplicationPrivate::createEventLoop()
+{ eventLoop = new QEventLoop; }
 
 /*!
     \class QCoreApplication
@@ -163,14 +164,9 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
 
 /*!\internal
  */
-QCoreApplication::QCoreApplication(QCoreApplicationPrivate &p, QEventLoop *e)
+QCoreApplication::QCoreApplication(QCoreApplicationPrivate &p)
     : QObject(p, 0)
-{
-    d->eventLoop = e;
-    d->eventLoop->setParent(this);
-
-    init();
-}
+{ init(); }
 
 /*!
     Flushes the platform specific event queues.
@@ -223,7 +219,10 @@ void QCoreApplication::init()
     QThread::initialize();
 
     if (!d->eventLoop)
-        d->eventLoop = new QEventLoop(this);
+        d->createEventLoop();
+    Q_ASSERT(d->eventLoop != 0);
+    d->eventLoop->setParent(this);
+    qDebug("eventloop type %s", d->eventLoop->metaObject()->className());
 }
 
 /*!

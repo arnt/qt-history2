@@ -57,9 +57,13 @@ extern void qt_call_post_routines();
 #define q q_func()
 
 
-QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
+QApplication::Type qt_appType=QApplication::Tty;
+
+QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::Type type)
     : QCoreApplicationPrivate(argc, argv)
 {
+    qt_appType = type;
+
 #ifndef QT_NO_SESSIONMANAGER
     is_session_restored = false;
 #endif
@@ -73,6 +77,13 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
 #endif
     QVariant::handler = &qt_gui_variant_handler;
 }
+
+void QApplicationPrivate::createEventLoop()
+{
+    qDebug("QApplicationPrivate: creating event loop! type %d %d", q->type(), QApplication::Tty);
+    eventLoop = q->type() != QApplication::Tty ? new QGuiEventLoop(q) : new QEventLoop(q);
+}
+
 
 
 /*!
@@ -371,7 +382,6 @@ bool          QApplication::animate_tooltip        = false;
 bool          QApplication::fade_tooltip        = false;
 bool          QApplication::animate_toolbox        = false;
 bool          QApplication::widgetCount        = false;
-QApplication::Type qt_appType=QApplication::Tty;
 
 #if defined(QT_TABLET_SUPPORT)
 bool chokeMouse = false;
@@ -648,12 +658,8 @@ void QApplication::process_cmdline()
 */
 
 QApplication::QApplication(int &argc, char **argv)
-        // ### FIXME - the order below is undefined, you might end up getting a
-        // QGuiEventLoop before a QApplicationPrivate - funny things will happen
-    : QCoreApplication(*new QApplicationPrivate(argc, argv), new QGuiEventLoop())
-{
-    construct(GuiClient);
-}
+    : QCoreApplication(*new QApplicationPrivate(argc, argv, GuiClient))
+{ construct(); }
 
 
 /*!
@@ -696,11 +702,8 @@ QApplication::QApplication(int &argc, char **argv)
 */
 
 QApplication::QApplication(int &argc, char **argv, bool GUIenabled )
-    : QCoreApplication(*new QApplicationPrivate(argc, argv),
-                         (GUIenabled ? new QGuiEventLoop() : new QEventLoop()))
-{
-    construct(GUIenabled ? GuiClient : Tty);
-}
+    : QCoreApplication(*new QApplicationPrivate(argc, argv, GUIenabled ? GuiClient : Tty))
+{ construct(); }
 
 /*!
   Constructs an application object with \a argc command line arguments
@@ -711,21 +714,16 @@ QApplication::QApplication(int &argc, char **argv, bool GUIenabled )
   -qws option).
 */
 QApplication::QApplication(int &argc, char **argv, Type type)
-    : QCoreApplication(*new QApplicationPrivate(argc, argv),
-                         (type != Tty ? new QGuiEventLoop() : new QEventLoop()))
-
-{
-    construct(type);
-}
+    : QCoreApplication(*new QApplicationPrivate(argc, argv, type))
+{ construct(); }
 
 /*!
     \internal
 */
-void QApplication::construct(Type type)
+void QApplication::construct()
 {
-    qt_appType = type;
-    qt_is_gui_used = (type != Tty);
-    qt_init(d, type);   // Must be called before initialize()
+    qt_is_gui_used = (qt_appType != Tty);
+    qt_init(d, qt_appType);   // Must be called before initialize()
     process_cmdline();
     initialize();
     if (qt_is_gui_used)
@@ -752,13 +750,9 @@ static char *aargv[] = { (char*)"unknown", 0 };
   This is available only on X11.
 */
 QApplication::QApplication(Display* dpy, Qt::HANDLE visual, Qt::HANDLE colormap)
-    : QCoreApplication(*new QApplicationPrivate(aargc, aargv),
-                         new QGuiEventLoop())
-
+    : QCoreApplication(*new QApplicationPrivate(aargc, aargv, GuiClient))
 {
-    qt_appType = GuiClient;
     qt_is_gui_used = true;
-    qt_appType = GuiClient;
     // ... no command line.
 
     if (! dpy)
@@ -787,12 +781,9 @@ QApplication::QApplication(Display* dpy, Qt::HANDLE visual, Qt::HANDLE colormap)
 */
 QApplication::QApplication(Display *dpy, int argc, char **argv,
                            Qt::HANDLE visual, Qt::HANDLE colormap)
-    : QCoreApplication(*new QApplicationPrivate(argc, argv),
-                         new QGuiEventLoop())
+    : QCoreApplication(*new QApplicationPrivate(argc, argv, GuiClient))
 {
-    qt_appType = GuiClient;
     qt_is_gui_used = true;
-    qt_appType = GuiClient;
 
     if (! dpy)
         qWarning("QApplication: invalid Display* argument.");
