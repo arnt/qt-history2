@@ -1566,7 +1566,7 @@ void QDns::setLabel( const QString & label )
 {
     l = label;
 
-    // consturct a list of qualified names
+    // construct a list of qualified names
     n.clear();
     if ( l.length() > 1 && l[(int)l.length()-1] == '.' ) {
 	n.append( l.left( l.length()-1 ).lower() );
@@ -1579,7 +1579,7 @@ void QDns::setLabel( const QString & label )
 		dots++;
 	}
 	if ( dots < maxDots ) {
-	    (void)QDnsManager::manager(); // ### What is this sideeffekt needed for?
+	    (void)QDnsManager::manager(); // create a QDnsManager, if it is not already there
 	    QStrListIterator it( *domains );
 	    const char * dom;
 	    while( (dom=it.current()) != 0 ) {
