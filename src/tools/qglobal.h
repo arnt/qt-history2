@@ -586,11 +586,9 @@ typedef QtMsgHandler msg_handler;
 
 Q_EXPORT void qSuppressObsoleteWarnings( bool = TRUE );
 
-#if !defined(QT_REJECT_OBSOLETE)
 Q_EXPORT void qObsolete( const char *obj, const char *oldfunc,
 			 const char *newfunc );
 Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
 Q_EXPORT void qObsolete( const char *message );
-#endif
 
 #endif // QGLOBAL_H
