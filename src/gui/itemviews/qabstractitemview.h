@@ -39,7 +39,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_PROPERTY(QColor evenRowColor READ evenRowColor WRITE setEvenRowColor)
     Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode)
     Q_PROPERTY(SelectionBehavior selectionBehavior READ selectionBehavior WRITE setSelectionBehavior)
-    Q_ENUMS(SelectionMode SelectionBehaviour)
+    Q_ENUMS(SelectionMode SelectionBehavior)
     Q_FLAGS(EditTriggers)
 
 public:
