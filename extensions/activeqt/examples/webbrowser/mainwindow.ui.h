@@ -36,7 +36,7 @@ void MainWindow::go()
 
 void MainWindow::setTitle( const QString &title )
 {
-    setCaption( "Qt WebBrowser - " + title );
+    setWindowTitle( "Qt WebBrowser - " + title );
 }
 
 void MainWindow::setProgress( int a, int b )
