@@ -1797,6 +1797,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		       mychar, chr, mystr.latin1(), modifiers,
 		       ekind == kEventRawKeyRepeat ? " Repeat" : "");
 #endif
+		if(modifiers & (Qt::ControlButton | Qt::AltButton | Qt::MetaButton)) {
+		    /* I do this so that widgets that override the accel event can
+		       use the lack of a ascii and/or the QString to detect if they
+		       should do other things with the event than just process it as
+		       a key entry (ie QLineEdit) --Sam */
+		    chr = 0;
+		    mystr = "";
+		}
 		QKeyEvent ke(etype,mychar, chr, modifiers,
 			     mystr, ekind == kEventRawKeyRepeat, mystr.length());
 		QApplication::sendSpontaneousEvent(widget,&ke);
