@@ -1145,6 +1145,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                               (bg_col.green() ^ 0xff) & 0xff,
                               (bg_col.blue() ^ 0xff) & 0xff);
             p->setBrush(QBrush(patternCol, Qt::Dense4Pattern));
+            p->setBrushOrigin(r.topLeft());
             p->setPen(Qt::NoPen);
             p->drawRect(r.left(), r.top(), r.width(), 1);    // Top
             p->drawRect(r.left(), r.bottom(), r.width(), 1); // Bottom
