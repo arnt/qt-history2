@@ -116,13 +116,13 @@ struct QAtomicPointer
 
     inline bool operator==(T *x) const
     {
-        const T * volatile * const ptr = &atomic;
+        const T * const volatile * const ptr = &atomic;
         return *ptr == x;
     }
 
     inline bool operator!=(T *x) const
     {
-        const T * volatile * const ptr = &atomic;
+        const T * const volatile * const ptr = &atomic;
         return *ptr != x;
     }
 
