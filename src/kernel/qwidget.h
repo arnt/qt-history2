@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#57 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#58 $
 **
 ** Definition of QWidget class
 **
@@ -70,6 +70,8 @@ public:
     QPoint	 mapToParent( const QPoint & )	 const;
     QPoint	 mapFromParent( const QPoint & ) const;
 
+    QWidget	*topLevelWidget()   const;
+
   // Widget attribute functions
 
     const QColor &backgroundColor() const;
@@ -81,13 +83,13 @@ public:
     const QPalette    &palette()    const;
     virtual void       setPalette( const QPalette & );
 
-    const QFont &font();
+    const QFont &font()		const;
     virtual void setFont( const QFont & );
-    const QCursor &cursor() const;
-    void	 setCursor( const QCursor & );
-
     QFontMetrics fontMetrics()	const;
     QFontInfo	 fontInfo()	const;
+
+    const QCursor &cursor() const;
+    void	 setCursor( const QCursor & );
 
     bool	 setMouseTracking( bool enable );
 
@@ -271,6 +273,15 @@ inline int QWidget::height() const
 
 inline QRect QWidget::rect() const
 { return QRect(0,0,crect.width(),crect.height()); }
+
+const QColor &QWidget::backgroundColor() const
+{ return bg_col; }
+
+inline const QPalette &QWidget::palette() const
+{ return pal; }
+
+inline const QFont &font() const
+{ return fnt; }
 
 inline QFontMetrics QWidget::fontMetrics() const
 { return QFontMetrics(this); }

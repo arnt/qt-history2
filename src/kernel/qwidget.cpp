@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#76 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#75 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#76 $";
 #endif
 
 /*!
@@ -494,27 +494,32 @@ QRect QWidget::childrenRect() const
 
 
 /*!
-  \fn QFontMetrics QWidget::fontMetrics() const
-  Returns the font metrics for the widget.
+  Returns the top level widget for this widget.
+
+  A top level widget is an overlapping widget that has no parent widget.
 */
 
-/*!
-  \fn QFontInfo QWidget::fontInfo() const
-  Returns the font info for the widget.
-*/
+QWidget *QWidget::topLevelWidget() const
+{
+    QWidget *w = (QWidget *)this;
+    QWidget *p = w->parentWidget();
+    while ( !w->testWFlags(WType_Modal) && p ) {
+	w = p;
+	p = p->parentWidget();
+    }
+    return w;
+}
+
 
 /*!
+  \fn const QColor &QWidget::backgroundColor() const
+
   Returns the background color of this widget.
 
   The background color is independent of the color group.
   The background color will be overwritten when setting a new palette.
   \sa setBackgroundColor(), foregroundColor(), colorGroup()
 */
-
-const QColor &QWidget::backgroundColor() const
-{
-    return bg_col;
-}
 
 /*!
   Returns the foreground color of this widget.
@@ -551,20 +556,16 @@ const QColorGroup &QWidget::colorGroup() const	// get current colors
 }
 
 /*!
+  \fn const QPalette &QWidget::palette() const
   Returns the widget palette.
   \sa setPalette(), colorGroup()
 */
-
-const QPalette &QWidget::palette() const	// get widget palette
-{
-    return pal;
-}
 
 /*!
   Sets the widget palette to \e p. The widget background color is set to
   <code>colorGroup().background()</code>.
 
-  \sa palette(), colorGroup() setBackgroundColor()
+  \sa palette(), colorGroup(), setBackgroundColor()
 */
 
 void QWidget::setPalette( const QPalette &p )	// set widget palette
@@ -576,17 +577,14 @@ void QWidget::setPalette( const QPalette &p )	// set widget palette
 
 
 /*!
+  \fn const QFont &QWidget::font() const
+
   Returns the font currently set for the widget.
 
-  QFontInfo will tell you what font the window system is actually using.
+  fontInfo() will tell you what font the window system is actually using.
 
   \sa setFont(), fontInfo(), fontMetrics()
 */
-
-const QFont &QWidget::font()
-{
-    return fnt;
-}
 
 /*!
   Sets the font for the widget.
@@ -609,6 +607,17 @@ void QWidget::setFont( const QFont &font )
     fnt.handle();				// force load font
     update();
 }
+
+
+/*!
+  \fn QFontMetrics QWidget::fontMetrics() const
+  Returns the font metrics for the widget.
+*/
+
+/*!
+  \fn QFontInfo QWidget::fontInfo() const
+  Returns the font info for the widget.
+*/
 
 
 /*!
