@@ -4678,16 +4678,17 @@ static void ps_r7( QTextStream& stream, const char * s, int l )
     }
 }
 
+enum {
+    quoteSize = 3, // 1-8 pixels
+    maxQuoteLength = 4+16+32+64+128+256, // magic extended quote
+    quoteReach = 10, // ... 1-1024 pixels back
+    tableSize = 1024, // 2 ** quoteReach;
+    numAttempts = 128,
 
-static const int quoteSize = 3; // 1-8 pixels
-static const int maxQuoteLength = 4+16+32+64+128+256; // magic extended quote
-static const int quoteReach = 10; // ... 1-1024 pixels back
-static const int tableSize = 1024; // 2 ** quoteReach;
-static const int numAttempts = 128;
+    hashSize = 71,
 
-static const int hashSize = 71;
-
-static const int None = INT_MAX;
+    None = INT_MAX
+};
 
 /* puts the lowest numBits of data into the out array starting at postion (byte/bit).
    Adjusts byte and bit to point ot the next position.
