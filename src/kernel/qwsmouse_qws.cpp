@@ -613,7 +613,7 @@ QMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 	    if ( !((QVFbMouseHandlerPrivate *)handler)->isOpen() ) {
 		qWarning( "Cannot open virtual mouse - using MouseMan" );
 		delete handler;
-		handler = new MouseHandlerPrivate( MouseMan );
+		handler = new QMouseHandlerPrivate( MouseMan, "" );
 	    }
 	    break;
 	
