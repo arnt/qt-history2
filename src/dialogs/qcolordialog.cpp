@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#4 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#5 $
 **
 ** Implementation of QColorDialog class
 **
@@ -130,18 +130,20 @@ private:
     int y2val( int y );
     int val2y( int val );
     void setVal( int v );
+
+    QPixmap *pix;
 };
 
 int QColorLuminancePicker::y2val( int y )
 {
     int h = height() - 4;
-    return 255 - (y - 2)*255/h;
+    return 255 - (y - 1)*255/h;
 }
 
 int QColorLuminancePicker::val2y( int v )
 {
     int h = height() - 4;
-    return 2 + (255-v)*h/255;
+    return 1 + (255-v)*h/255;
 }
 
 QColorLuminancePicker::QColorLuminancePicker(QWidget* parent,
@@ -149,11 +151,13 @@ QColorLuminancePicker::QColorLuminancePicker(QWidget* parent,
     :QWidget( parent, name )
 {
     hue = 100; val = 100; sat = 100;
+    pix = 0;
+    //    setBackgroundMode( NoBackground );
 }
 
 QColorLuminancePicker::~QColorLuminancePicker()
 {
-
+    delete pix;
 }
 
 void QColorLuminancePicker::mouseMoveEvent( QMouseEvent *m )
@@ -170,6 +174,7 @@ void QColorLuminancePicker::setVal( int v )
     if ( val == v )
 	return;
     val = QMAX( 0, QMIN(v,255));
+    delete pix; pix=0;
     repaint( FALSE ); //###
     emit newHsv( hue, sat, val );
 }
@@ -183,23 +188,35 @@ void QColorLuminancePicker::setCol( int h, int s )
 
 void QColorLuminancePicker::paintEvent( QPaintEvent * )
 {
-    QPainter p(this);
     int w = width() - 5;
 
     QRect r( 0, 0, w, height() );
-    int y;
-    for ( y = r.top() + 2; y < r.bottom() - 2; y++ ) {
-	p.setPen( QColor( hue, sat, y2val(y), QColor::Hsv ) );
-	p.drawLine( r.left()+2, y, r.right()-2,  y );
+    int wi = r.width() - 2;
+    int hi = r.height() - 2;
+    if ( !pix || pix->height() != hi || pix->width() != wi ) {
+	delete pix;
+	QImage img( wi, hi, 32 );
+	int y;
+	for ( y = 1; y < hi; y++ ) {
+	    QColor c( hue, sat, y2val(y), QColor::Hsv );
+	    QRgb r = c.rgb();
+	    int x;
+	    for ( x = 0; x < wi; x++ )
+		img.setPixel( x, y, r );
+	}
+	pix = new QPixmap;
+	pix->convertFromImage(img);
     }
+    QPainter p(this);
+    p.drawPixmap( 1, 1, *pix );
     QColorGroup g = colorGroup();
     qDrawShadePanel( &p, r, g, TRUE );
     p.setPen( g.foreground() );
     p.setBrush( g.foreground() );
     QPointArray a;
-    y = val2y(val);
+    int y = val2y(val);
     a.setPoints( 3, w, y, w+5, y+5, w+5, y-5 );
-    erase( w, 0, 5, height() );//###
+    erase( w, 0, 5, height() );
     p.drawPolygon( a );
 }
 
@@ -208,6 +225,7 @@ void QColorLuminancePicker::setCol( int h, int s , int v )
     val = v;
     hue = h;
     sat = s;
+    delete pix; pix=0;
     repaint( FALSE );//####
 }
 
