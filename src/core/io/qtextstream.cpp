@@ -193,13 +193,13 @@ public:
     QString endOfBufferState;
 
     // streaming parameters
-    int realPrecision;
-    int numberBase;
-    int padWidth;
+    int realNumberPrecision;
+    int integerBase;
+    int fieldWidth;
     QChar padChar;
-    QTextStream::PadMode padMode;
-    QTextStream::RealNumberMode realNumberMode;
-    QTextStream::NumberDisplayFlags numberDisplayFlags;
+    QTextStream::FieldAlignment fieldAlignment;
+    QTextStream::RealNumberNotation realNumberNotation;
+    QTextStream::NumberFlags numberFlags;
 
     QTextStream *q_ptr;
 };
@@ -222,13 +222,13 @@ QTextStreamPrivate::~QTextStreamPrivate()
 
 void QTextStreamPrivate::reset()
 {
-    realPrecision = 6;
-    numberBase = 0;
-    padWidth = 0;
+    realNumberPrecision = 6;
+    integerBase = 0;
+    fieldWidth = 0;
     padChar = QLatin1Char(' ');
-    padMode = QTextStream::NoPadding;
-    realNumberMode = QTextStream::Floating;
-    numberDisplayFlags = 0;
+    fieldAlignment = QTextStream::AlignRight;
+    realNumberNotation = QTextStream::SmartNotation;
+    numberFlags = 0;
 
     device = 0;
     deleteDevice = false;
@@ -535,13 +535,17 @@ inline bool QTextStreamPrivate::putString(const QString &s)
     QString tmp = s;
 
     // handle padding
-    int padSize = padWidth - s.size();
+    int padSize = fieldWidth - s.size();
     if (padSize > 0) {
         QString pad(padSize > 0 ? padSize : 0, padChar);
-        if (padMode == QTextStream::PadLeft)
-            tmp.append(pad);
-        else
-            tmp.prepend(pad);
+        if (fieldAlignment == QTextStream::AlignLeft) {
+            tmp.append(QString(padSize, padChar));
+        } else if (fieldAlignment == QTextStream::AlignRight) {
+            tmp.prepend(QString(padSize, padChar));
+        } else if (fieldAlignment == QTextStream::AlignCenter) {
+            tmp.prepend(QString(padSize/2, padChar));
+            tmp.append(QString(padSize - padSize/2, padChar));
+        }
     }
 
 #if defined (QTEXTSTREAM_DEBUG)
@@ -743,13 +747,13 @@ void QTextStream::reset()
 {
     Q_D(QTextStream);
 
-    d->realPrecision = 6;
-    d->numberBase = 0;
-    d->padWidth = 0;
+    d->realNumberPrecision = 6;
+    d->integerBase = 0;
+    d->fieldWidth = 0;
     d->padChar = QLatin1Char(' ');
-    d->padMode = QTextStream::NoPadding;
-    d->realNumberMode = QTextStream::Floating;
-    d->numberDisplayFlags = 0;
+    d->fieldAlignment = QTextStream::AlignRight;
+    d->realNumberNotation = QTextStream::SmartNotation;
+    d->numberFlags = 0;
 }
 
 void QTextStream::flush()
@@ -810,16 +814,16 @@ void QTextStream::setString(QString *string)
 }
 
 
-void QTextStream::setPadMode(PadMode mode)
+void QTextStream::setFieldAlignment(FieldAlignment mode)
 {
     Q_D(QTextStream);
-    d->padMode = mode;
+    d->fieldAlignment = mode;
 }
 
-QTextStream::PadMode QTextStream::padMode() const
+QTextStream::FieldAlignment QTextStream::fieldAlignment() const
 {
     Q_D(const QTextStream);
-    return d->padMode;
+    return d->fieldAlignment;
 }
 
 void QTextStream::setPadChar(QChar ch)
@@ -834,52 +838,52 @@ QChar QTextStream::padChar() const
     return d->padChar;
 }
 
-void QTextStream::setPadWidth(int width)
+void QTextStream::setFieldWidth(int width)
 {
     Q_D(QTextStream);
-    d->padWidth = width;
+    d->fieldWidth = width;
 }
 
-int QTextStream::padWidth() const
+int QTextStream::fieldWidth() const
 {
     Q_D(const QTextStream);
-    return d->padWidth;
+    return d->fieldWidth;
 }
 
-void QTextStream::setNumberDisplayFlags(NumberDisplayFlags flags)
+void QTextStream::setNumberFlags(NumberFlags flags)
 {
     Q_D(QTextStream);
-    d->numberDisplayFlags = flags;
+    d->numberFlags = flags;
 }
 
-QTextStream::NumberDisplayFlags QTextStream::numberDisplayFlags() const
+QTextStream::NumberFlags QTextStream::numberFlags() const
 {
     Q_D(const QTextStream);
-    return d->numberDisplayFlags;
+    return d->numberFlags;
 }
 
-void QTextStream::setNumberBase(int base)
+void QTextStream::setIntegerBase(int base)
 {
     Q_D(QTextStream);
-    d->numberBase = base;
+    d->integerBase = base;
 }
 
-int QTextStream::numberBase() const
+int QTextStream::integerBase() const
 {
     Q_D(const QTextStream);
-    return d->numberBase;
+    return d->integerBase;
 }
 
-void QTextStream::setRealNumberMode(RealNumberMode mode)
+void QTextStream::setRealNumberNotation(RealNumberNotation mode)
 {
     Q_D(QTextStream);
-    d->realNumberMode = mode;
+    d->realNumberNotation = mode;
 }
 
-QTextStream::RealNumberMode QTextStream::realNumberMode() const
+QTextStream::RealNumberNotation QTextStream::realNumberNotation() const
 {
     Q_D(const QTextStream);
-    return d->realNumberMode;
+    return d->realNumberNotation;
 }
 
 #ifdef QT_COMPAT
@@ -888,14 +892,14 @@ int QTextStream::flagsInternal() const
     Q_D(const QTextStream);
 
     int f = 0;
-    switch (d->padMode) {
-    case PadLeft: f |= left; break;
-    case PadRight: f |= right; break;
-    case PadCentered: f |= internal; break;
+    switch (d->fieldAlignment) {
+    case AlignLeft: f |= left; break;
+    case AlignRight: f |= right; break;
+    case AlignCenter: f |= internal; break;
     default:
         break;
     }
-    switch (d->numberBase) {
+    switch (d->integerBase) {
     case 2: f |= bin; break;
     case 8: f |= oct; break;
     case 10: f |= dec; break;
@@ -903,19 +907,19 @@ int QTextStream::flagsInternal() const
     default:
         break;
     }
-    switch (d->realNumberMode) {
-    case Fixed: f |= fixed; break;
-    case Scientific: f |= scientific; break;
+    switch (d->realNumberNotation) {
+    case FixedNotation: f |= fixed; break;
+    case ScientificNotation: f |= scientific; break;
     default:
         break;
     }
-    if (d->numberDisplayFlags & ShowBase)
+    if (d->numberFlags & ShowBase)
         f |= showbase;
-    if (d->numberDisplayFlags & ShowPoint)
+    if (d->numberFlags & ForcePoint)
         f |= showpoint;
-    if (d->numberDisplayFlags & ShowSign)
+    if (d->numberFlags & ForceSign)
         f |= showpos;
-    if (d->numberDisplayFlags & UppercaseBase)
+    if (d->numberFlags & UppercaseBase)
         f |= uppercase;
     return f;
 }
@@ -925,49 +929,49 @@ int QTextStream::flagsInternal(int newFlags)
     int oldFlags = flagsInternal();
 
     if (newFlags & left)
-        setPadMode(PadLeft);
+        setFieldAlignment(AlignLeft);
     else if (newFlags & right)
-        setPadMode(PadRight);
+        setFieldAlignment(AlignRight);
     else if (newFlags & internal)
-        setPadMode(PadCentered);
+        setFieldAlignment(AlignCenter);
 
     if (newFlags & bin)
-        setNumberBase(2);
+        setIntegerBase(2);
     else if (newFlags & oct)
-        setNumberBase(8);
+        setIntegerBase(8);
     else if (newFlags & dec)
-        setNumberBase(10);
+        setIntegerBase(10);
     else if (newFlags & hex)
-        setNumberBase(16);
+        setIntegerBase(16);
 
     if (newFlags & showbase)
-        setNumberDisplayFlags(numberDisplayFlags() | ShowBase);
+        setNumberFlags(numberFlags() | ShowBase);
     if (newFlags & showpos)
-        setNumberDisplayFlags(numberDisplayFlags() | ShowSign);
+        setNumberFlags(numberFlags() | ForceSign);
     if (newFlags & showpoint)
-        setNumberDisplayFlags(numberDisplayFlags() | ShowPoint);
+        setNumberFlags(numberFlags() | ForcePoint);
     if (newFlags & uppercase)
-        setNumberDisplayFlags(numberDisplayFlags() | UppercaseBase);
+        setNumberFlags(numberFlags() | UppercaseBase);
 
     if (newFlags & fixed)
-        setRealNumberMode(Fixed);
+        setRealNumberNotation(FixedNotation);
     else if (newFlags & scientific)
-        setRealNumberMode(Scientific);
+        setRealNumberNotation(ScientificNotation);
 
     return oldFlags;
 }
 #endif
 
-int QTextStream::precision() const
+int QTextStream::realNumberPrecision() const
 {
     Q_D(const QTextStream);
-    return d->realPrecision;
+    return d->realNumberPrecision;
 }
 
-void QTextStream::setPrecision(int precision)
+void QTextStream::setRealNumberPrecision(int precision)
 {
     Q_D(QTextStream);
-    d->realPrecision = precision;
+    d->realNumberPrecision = precision;
 }
 
 /*!
@@ -1030,7 +1034,7 @@ bool QTextStreamPrivate::getNumber(qulonglong *ret)
     consumeLastToken();
 
     // detect int encoding
-    int base = numberBase;
+    int base = integerBase;
     if (base == 0) {
         QChar ch;
         if (!getChar(&ch))
@@ -1489,11 +1493,11 @@ bool QTextStreamPrivate::putNumber(qulonglong number, bool negative)
     QString tmp;
     if (negative)
         tmp = QLatin1Char('-');
-    else if (numberDisplayFlags & QTextStream::ShowSign)
+    else if (numberFlags & QTextStream::ForceSign)
         tmp = QLatin1Char('+');
 
-    if (numberDisplayFlags & QTextStream::ShowBase) {
-        switch (numberBase) {
+    if (numberFlags & QTextStream::ShowBase) {
+        switch (integerBase) {
         case 2: tmp += "0b"; break;
         case 8: tmp += "0"; break;
         case 16: tmp += "0x"; break;
@@ -1501,8 +1505,8 @@ bool QTextStreamPrivate::putNumber(qulonglong number, bool negative)
         }
     }
 
-    tmp += QString::number(number, numberBase ? numberBase : 10);
-    if (numberDisplayFlags & QTextStream::UppercaseBase)
+    tmp += QString::number(number, integerBase ? integerBase : 10);
+    if (numberFlags & QTextStream::UppercaseBase)
         tmp = tmp.toUpper(); // ### in-place instead
 
     return putString(tmp);
@@ -1691,12 +1695,12 @@ QTextStream &QTextStream::operator<<(double f)
 
     char f_char;
     char format[16];
-    if (d->realNumberMode == Fixed)
+    if (d->realNumberNotation == FixedNotation)
         f_char = 'f';
-    else if (d->realNumberMode == Scientific)
-        f_char = (d->numberDisplayFlags & UppercaseBase) ? 'E' : 'e';
+    else if (d->realNumberNotation == ScientificNotation)
+        f_char = (d->numberFlags & UppercaseBase) ? 'E' : 'e';
     else
-        f_char = (d->numberDisplayFlags & UppercaseBase) ? 'G' : 'g';
+        f_char = (d->numberFlags & UppercaseBase) ? 'G' : 'g';
 
     // generate format string
     register char *fs = format;
@@ -1704,7 +1708,7 @@ QTextStream &QTextStream::operator<<(double f)
     // "%.<prec>l<f_char>"
     *fs++ = '%';
     *fs++ = '.';
-    int prec = d->realPrecision;
+    int prec = d->realNumberPrecision;
     if (prec > 99)
         prec = 99;
     if (prec >= 10) {
@@ -1719,7 +1723,7 @@ QTextStream &QTextStream::operator<<(double f)
     QString num;
     num.sprintf(format, f);                        // convert to text
 
-    if (f > 0.0 && (d->numberDisplayFlags & ShowSign))
+    if (f > 0.0 && (d->numberFlags & ForceSign))
         num.prepend(QLatin1Char('+'));
 
     d->putString(num);
@@ -1790,13 +1794,14 @@ QTextStream &QTextStream::operator<<(const void *p)
 {
     Q_D(QTextStream);
     CHECK_VALID_STREAM(*this);
-    int oldBase = d->numberBase;
-    NumberDisplayFlags oldFlags = d->numberDisplayFlags;
-    d->numberBase = 16;
-    d->numberDisplayFlags |= ShowBase;
-    d->putNumber(reinterpret_cast<quint64>(p), false);
-    d->numberBase = oldBase;
-    d->numberDisplayFlags = oldFlags;
+    int oldBase = d->integerBase;
+    NumberFlags oldFlags = d->numberFlags;
+    d->integerBase = 16;
+    d->numberFlags |= ShowBase;
+    d->putNumber((qint32)p, false);
+    d->putNumber(reinterpret_cast<qint64>(p), false);
+    d->integerBase = oldBase;
+    d->numberFlags = oldFlags;
 
     return *this;
 }
@@ -1809,85 +1814,115 @@ QTextStream &QTextStream::operator<<(const void *p)
 
 QTextStream &bin(QTextStream &s)
 {
-    s.setNumberBase(2);
+    s.setIntegerBase(2);
     return s;
 }
 
 QTextStream &oct(QTextStream &s)
 {
-    s.setNumberBase(8);
+    s.setIntegerBase(8);
     return s;
 }
 
 QTextStream &dec(QTextStream &s)
 {
-    s.setNumberBase(10);
+    s.setIntegerBase(10);
     return s;
 }
 
 QTextStream &hex(QTextStream &s)
 {
-    s.setNumberBase(16);
+    s.setIntegerBase(16);
     return s;
 }
 
 QTextStream &showbase(QTextStream &s)
 {
-    s.setNumberDisplayFlags(s.numberDisplayFlags() | QTextStream::ShowBase);
+    s.setNumberFlags(s.numberFlags() | QTextStream::ShowBase);
     return s;
 }
 
-QTextStream &showpoint(QTextStream &s)
+QTextStream &forcesign(QTextStream &s)
 {
-    s.setNumberDisplayFlags(s.numberDisplayFlags() | QTextStream::ShowPoint);
+    s.setNumberFlags(s.numberFlags() | QTextStream::ForceSign);
     return s;
 }
 
-QTextStream &showsign(QTextStream &s)
+QTextStream &forcepoint(QTextStream &s)
 {
-    s.setNumberDisplayFlags(s.numberDisplayFlags() | QTextStream::ShowSign);
+    s.setNumberFlags(s.numberFlags() | QTextStream::ForcePoint);
+    return s;
+}
+
+QTextStream &noshowbase(QTextStream &s)
+{
+    s.setNumberFlags(s.numberFlags() &= ~QTextStream::ShowBase);
+    return s;
+}
+
+QTextStream &noforcesign(QTextStream &s)
+{
+    s.setNumberFlags(s.numberFlags() &= ~QTextStream::ForceSign);
+    return s;
+}
+
+QTextStream &noforcepoint(QTextStream &s)
+{
+    s.setNumberFlags(s.numberFlags() &= ~QTextStream::ForcePoint);
     return s;
 }
 
 QTextStream &uppercasebase(QTextStream &s)
 {
-    s.setNumberDisplayFlags(s.numberDisplayFlags() | QTextStream::UppercaseBase);
+    s.setNumberFlags(s.numberFlags() | QTextStream::UppercaseBase);
+    return s;
+}
+
+QTextStream &uppercasedigits(QTextStream &s)
+{
+    s.setNumberFlags(s.numberFlags() | QTextStream::UppercaseDigits);
+    return s;
+}
+
+QTextStream &nouppercasebase(QTextStream &s)
+{
+    s.setNumberFlags(s.numberFlags() & ~QTextStream::UppercaseBase);
+    return s;
+}
+
+QTextStream &nouppercasedigits(QTextStream &s)
+{
+    s.setNumberFlags(s.numberFlags() & ~QTextStream::UppercaseDigits);
     return s;
 }
 
 QTextStream &fixed(QTextStream &s)
 {
-    s.setRealNumberMode(QTextStream::Fixed);
+    s.setRealNumberNotation(QTextStream::FixedNotation);
     return s;
 }
 
 QTextStream &scientific(QTextStream &s)
 {
-    s.setRealNumberMode(QTextStream::Scientific);
+    s.setRealNumberNotation(QTextStream::ScientificNotation);
     return s;
 }
 
-QTextStream &floating(QTextStream &s)
+QTextStream &left(QTextStream &s)
 {
-    s.setRealNumberMode(QTextStream::Floating);
+    s.setFieldAlignment(QTextStream::AlignLeft);
     return s;
 }
 
-QTextStream &padleft(QTextStream &s)
+QTextStream &right(QTextStream &s)
 {
-    s.setPadMode(QTextStream::PadLeft);
+    s.setFieldAlignment(QTextStream::AlignRight);
     return s;
 }
 
-QTextStream &padright(QTextStream &s)
+QTextStream &center(QTextStream &s)
 {
-    s.setPadMode(QTextStream::PadRight);
-    return s;
-}
-
-QTextStream &padcentered(QTextStream &s)
-{
-    s.setPadMode(QTextStream::PadCentered);
+    s.setFieldAlignment(QTextStream::AlignCenter);
     return s;
 }
 
@@ -1899,12 +1934,6 @@ QTextStream &endl(QTextStream &s)
 QTextStream &flush(QTextStream &s)
 {
     s.flush();
-    return s;
-}
-
-QTextStream &ws(QTextStream &s)
-{
-    s.skipWhiteSpace();
     return s;
 }
 

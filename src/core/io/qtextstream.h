@@ -35,6 +35,26 @@ class Q_CORE_EXPORT QTextStream                                // text stream cl
     Q_DECLARE_PRIVATE(QTextStream)
 
 public:
+    enum RealNumberNotation {
+        SmartNotation,
+        FixedNotation,
+        ScientificNotation
+    };
+    enum FieldAlignment {
+        AlignLeft,
+        AlignRight,
+        AlignCenter,
+        AlignAccountingStyle
+    };
+    enum NumberFlag {
+        ShowBase = 0x1,
+        ForcePoint = 0x2,
+        ForceSign = 0x4,
+        UppercaseBase = 0x8,
+        UppercaseDigits = 0x10
+    };
+    Q_DECLARE_FLAGS(NumberFlags, NumberFlag)
+
     QTextStream();
     explicit QTextStream(QIODevice *device);
     explicit QTextStream(FILE *fileHandle, QIODevice::OpenMode openMode = QIODevice::ReadWrite);
@@ -65,6 +85,27 @@ public:
 
     QString readLine(qint64 maxlen = 0);
     QString readAll();
+
+    void setFieldAlignment(FieldAlignment alignment);
+    FieldAlignment fieldAlignment() const;
+
+    void setPadChar(QChar ch);
+    QChar padChar() const;
+
+    void setFieldWidth(int width);
+    int fieldWidth() const;
+
+    void setNumberFlags(NumberFlags flags);
+    NumberFlags numberFlags() const;
+
+    void setIntegerBase(int base);
+    int integerBase() const;
+
+    void setRealNumberNotation(RealNumberNotation notation);
+    RealNumberNotation realNumberNotation() const;
+
+    void setRealNumberPrecision(int precision);
+    int realNumberPrecision() const;
 
     QTextStream &operator>>(QChar &ch);
     QTextStream &operator>>(char &ch);
@@ -104,47 +145,6 @@ public:
     inline QTextStream &operator<<(QFixedPoint f) { return operator<<(f.toDouble()); }
 #endif
 
-    enum RealNumberMode {
-        Floating = 0,
-        Fixed = 1,
-        Scientific = 2
-    };
-    enum PadMode {
-        NoPadding = 0,
-        PadLeft = 1,
-        PadRight = 2,
-        PadCentered = 3
-        // ### PadInternal "+      1.43"
-    };
-    enum NumberDisplayFlag {
-        ShowBase = 0x1,
-        ShowPoint = 0x2,
-        ShowSign = 0x4,
-        UppercaseBase = 0x8
-    };
-    Q_DECLARE_FLAGS(NumberDisplayFlags, NumberDisplayFlag)
-
-    void setPadMode(PadMode mode);
-    PadMode padMode() const;
-
-    void setPadChar(QChar ch);
-    QChar padChar() const;
-
-    void setPadWidth(int width);
-    int padWidth() const;
-
-    void setNumberDisplayFlags(NumberDisplayFlags flags);
-    NumberDisplayFlags numberDisplayFlags() const;
-
-    void setNumberBase(int base);
-    int numberBase() const;
-
-    void setRealNumberMode(RealNumberMode mode);
-    RealNumberMode realNumberMode() const;
-
-    void setPrecision(int p);
-    int precision() const;
-
 #ifdef QT_COMPAT
     // not marked as QT_COMPAT to avoid double compiler warnings, as
     // they are used in the QT_COMPAT functions below.
@@ -159,11 +159,11 @@ public:
     { int old = flagsInternal(); flagsInternal(flagsInternal() & ~bits); return old; }
 
     inline QT_COMPAT int width(int w)
-    { int old = padWidth(); setPadWidth(w); return old; }
+    { int old = fieldWidth(); setFieldWidth(w); return old; }
     inline QT_COMPAT int fill(int f)
     { QChar ch = padChar(); setPadChar(QChar(f)); return ch.unicode(); }
     inline QT_COMPAT int precision(int p)
-    { int old = precision(); setPrecision(p); return old; }
+    { int old = realNumberPrecision(); setRealNumberPrecision(p); return old; }
 
     enum {
         skipws       = 0x0001,                        // skip whitespace on input
@@ -205,7 +205,7 @@ private:
     QTextStreamPrivate *d_ptr;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QTextStream::NumberDisplayFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QTextStream::NumberFlags)
 
 /*****************************************************************************
   QTextStream manipulators
@@ -238,45 +238,54 @@ inline QTextStream &operator<<(QTextStream &s, QTextStreamFunction f)
 inline QTextStream &operator<<(QTextStream &s, QTextStreamManipulator m)
 { m.exec(s); return s; }
 
-Q_CORE_EXPORT QTextStream &bin(QTextStream &s);        // set bin notation
-Q_CORE_EXPORT QTextStream &oct(QTextStream &s);        // set oct notation
-Q_CORE_EXPORT QTextStream &dec(QTextStream &s);        // set dec notation
-Q_CORE_EXPORT QTextStream &hex(QTextStream &s);        // set hex notation
+Q_CORE_EXPORT QTextStream &bin(QTextStream &s);
+Q_CORE_EXPORT QTextStream &oct(QTextStream &s);
+Q_CORE_EXPORT QTextStream &dec(QTextStream &s);
+Q_CORE_EXPORT QTextStream &hex(QTextStream &s);
 
 Q_CORE_EXPORT QTextStream &showbase(QTextStream &s);
-Q_CORE_EXPORT QTextStream &showsign(QTextStream &s);
-Q_CORE_EXPORT QTextStream &showpoint(QTextStream &s);
+Q_CORE_EXPORT QTextStream &forcesign(QTextStream &s);
+Q_CORE_EXPORT QTextStream &forcepoint(QTextStream &s);
+Q_CORE_EXPORT QTextStream &noshowbase(QTextStream &s);
+Q_CORE_EXPORT QTextStream &noforcesign(QTextStream &s);
+Q_CORE_EXPORT QTextStream &noforcepoint(QTextStream &s);
+
 Q_CORE_EXPORT QTextStream &uppercasebase(QTextStream &s);
+Q_CORE_EXPORT QTextStream &uppercasedigits(QTextStream &s);
+Q_CORE_EXPORT QTextStream &nouppercasebase(QTextStream &s);
+Q_CORE_EXPORT QTextStream &nouppercasedigits(QTextStream &s);
 
 Q_CORE_EXPORT QTextStream &fixed(QTextStream &s);
 Q_CORE_EXPORT QTextStream &scientific(QTextStream &s);
-Q_CORE_EXPORT QTextStream &floating(QTextStream &s);
 
-Q_CORE_EXPORT QTextStream &padleft(QTextStream &s);
-Q_CORE_EXPORT QTextStream &padright(QTextStream &s);
-Q_CORE_EXPORT QTextStream &padcentered(QTextStream &s);
+Q_CORE_EXPORT QTextStream &left(QTextStream &s);
+Q_CORE_EXPORT QTextStream &right(QTextStream &s);
+Q_CORE_EXPORT QTextStream &center(QTextStream &s);
 
-Q_CORE_EXPORT QTextStream &endl(QTextStream &s);        // insert EOL ('\n')
-Q_CORE_EXPORT QTextStream &flush(QTextStream &s);        // flush output
-Q_CORE_EXPORT QTextStream &ws(QTextStream &s);        // eat whitespace on input
-Q_CORE_EXPORT QTextStream &reset(QTextStream &s);        // set default flags
+Q_CORE_EXPORT QTextStream &endl(QTextStream &s);
+Q_CORE_EXPORT QTextStream &flush(QTextStream &s);
+Q_CORE_EXPORT QTextStream &reset(QTextStream &s);
 
-inline QTextStreamManipulator qSetW(int w)
+#ifdef QT_COMPAT
+inline Q_CORE_EXPORT QT_COMPAT QTextStream &ws(QTextStream &s) { s.skipWhiteSpace(); return s; }
+#endif
+
+inline QTextStreamManipulator qSetFieldWidth(int width)
 {
-    QTSMFI func = &QTextStream::setPadWidth;
-    return QTextStreamManipulator(func,w);
+    QTSMFI func = &QTextStream::setFieldWidth;
+    return QTextStreamManipulator(func,width);
 }
 
-inline QTextStreamManipulator qSetFill(QChar ch)
+inline QTextStreamManipulator qSetPadChar(QChar ch)
 {
     QTSMFC func = &QTextStream::setPadChar;
-    return QTextStreamManipulator(func,ch);
+    return QTextStreamManipulator(func, ch);
 }
 
-inline QTextStreamManipulator qSetPrecision(int p)
+inline QTextStreamManipulator qSetRealNumberPrecision(int precision)
 {
-    QTSMFI func = &QTextStream::setPrecision;
-    return QTextStreamManipulator(func,p);
+    QTSMFI func = &QTextStream::setRealNumberPrecision;
+    return QTextStreamManipulator(func, precision);
 }
 
 #ifdef QT_COMPAT
