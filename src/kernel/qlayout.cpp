@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#60 $
 **
 ** Implementation of layout classes
 **
@@ -685,7 +685,7 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 				      colData[box->col].minimumSize );
     colData[box->col].maximumSize = QMIN( maxS.width(),
 				      colData[box->col].maximumSize );
-    colData[box->col].expansive = colData[box->col].expansive |
+    colData[box->col].expansive = colData[box->col].expansive ||
 				  (box->expansive() & QSizePolicy::Horizontal);
     }
     if ( r ) {
@@ -695,7 +695,7 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 				      rowData[box->row].minimumSize );
     rowData[box->row].maximumSize = QMIN( maxS.height(),
 				      rowData[box->row].maximumSize );
-    rowData[box->row].expansive = rowData[box->row].expansive |
+    rowData[box->row].expansive = rowData[box->row].expansive ||
 				  (box->expansive() & QSizePolicy::Vertical);
     }
     if ( box->type() != QLayoutBox::Spacer ) {
