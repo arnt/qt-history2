@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#35 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#36 $
 **
 ** Definition of QApplication class
 **
@@ -52,8 +52,7 @@ public:
     static QWidget *widgetAt( int x, int y, bool child=FALSE );
     static QWidget *widgetAt( const QPoint &, bool child=FALSE );
 
-    int		    exec( QWidget *mainWidget );// start event handing
-    int		    exec();
+    int		    exec();			// start event handling
     int		    enter_loop();
     void	    exit_loop();
     static void	    quit( int retcode=0 );	// quit application
