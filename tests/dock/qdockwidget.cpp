@@ -4,6 +4,7 @@
 #include <qpainter.h>
 #include <qapplication.h>
 #include <qtoolbutton.h>
+#include <qtoolbar.h>
 
 static const char * close_xpm[] = {
 "8 8 2 1",
@@ -271,6 +272,7 @@ void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
     if ( !w || !w->inherits( "QDockArea" ) ) {
 	if ( startOrientation != Horizontal )
 	    swapRect( currRect, Horizontal, startOffset );
+	emit orientationChanged( orientation() == Horizontal ? Vertical : Horizontal );
 	unclippedPainter->setPen( QPen( gray, 3 ) );
 	unclippedPainter->drawRect( currRect );
 	state = OutsideDock;
@@ -284,6 +286,7 @@ void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
     unclippedPainter->setPen( QPen( gray, 1 ) );
     unclippedPainter->drawRect( currRect );
     tmpDockArea = area;
+    emit orientationChanged( orientation() == Horizontal ? Vertical : Horizontal );
 }
 
 void QDockWidget::updateGui()
@@ -341,6 +344,10 @@ void QDockWidget::setWidget( QWidget *w )
 {
     wid = w;
     updateGui();
+
+    if ( w->inherits( "QToolBar" ) )
+	QObject::connect( this, SIGNAL( orientationChanged( Orientation ) ),
+			  (QToolBar*)w, SLOT( setOrientation( Orientation ) ) );
 }
 
 QWidget *QDockWidget::widget() const
@@ -475,6 +482,13 @@ bool QDockWidget::isHorizontalStretchable() const
 bool QDockWidget::isVerticalStretchable() const
 {
     return stretchable[ Vertical ];
+}
+
+Qt::Orientation QDockWidget::orientation() const
+{
+    if ( !dockArea || dockArea->orientation() == Horizontal )
+	return Horizontal;
+    return Vertical;
 }
 
 #include "qdockwidget.moc"

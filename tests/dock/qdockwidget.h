@@ -43,6 +43,11 @@ public:
     void setVerticalStretchable( bool b );
     bool isHorizontalStretchable() const;
     bool isVerticalStretchable() const;
+
+    Qt::Orientation orientation() const;
+
+signals:
+    void orientationChanged( Orientation o );
     
 protected:
     void resizeEvent( QResizeEvent *e );
@@ -56,7 +61,7 @@ private:
     void endRectDraw();
     void updatePosition( const QPoint &globalPos  );
     void updateSizePolicy();
-    
+
 private:
     QDockWidgetHandle *handle;
     QDockWidgetTitleBar *titleBar;
@@ -74,7 +79,7 @@ private:
     bool sizeHintSet;
     QSize sh;
     bool stretchable[ 2 ];
-    
+
 };
 
 inline QDockArea *QDockWidget::area() const

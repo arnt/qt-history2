@@ -11,7 +11,7 @@
 class MyMainWindow : public QMainWindow
 {
 public:
-    MyMainWindow() : QMainWindow() { 
+    MyMainWindow() : QMainWindow() {
 	QHBox *hbox = new QHBox( this );
 	new QDockArea( Qt::Vertical, hbox );
 	QVBox *vbox = new QVBox( hbox );
@@ -23,7 +23,7 @@ public:
 
 	resize( 500, 500 );
     };
-    
+
 };
 
 int main( int argc, char ** argv )
@@ -33,7 +33,7 @@ int main( int argc, char ** argv )
     MyMainWindow mw;
     a.setMainWidget( &mw );
     mw.show();
-    
+
     QDockWidget *dw = new QDockWidget( 0 );
     dw->setGeometry( 20, 20, 200, 70 );
     dw->show();
@@ -53,10 +53,8 @@ int main( int argc, char ** argv )
     new QPushButton( "5", b );
     dw->setWidget( b );
     dw->setResizeEnabled( FALSE );
-
+    dw->setCloseEnabled( FALSE );
     dw->show();
-
-
 
     return a.exec();
 }
