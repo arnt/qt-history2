@@ -58,9 +58,9 @@ class Q_EXPORT QGroupBox : public QFrame
     Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation DESIGNABLE false )
     Q_PROPERTY( int columns READ columns WRITE setColumns DESIGNABLE false )
-    Q_PROPERTY( bool flat READ isFlat WRITE setFlat DESIGNABLE true )
-    Q_PROPERTY( bool checkable READ isCheckable WRITE setCheckable DESIGNABLE true )
-    Q_PROPERTY( bool checked READ isChecked WRITE setChecked DESIGNABLE true )
+    Q_PROPERTY( bool flat READ isFlat WRITE setFlat )
+    Q_PROPERTY( bool checkable READ isCheckable WRITE setCheckable )
+    Q_PROPERTY( bool checked READ isChecked WRITE setChecked )
 
 public:
     QGroupBox( QWidget* parent=0, const char* name=0 );
@@ -97,10 +97,10 @@ public:
     bool isFlat() const;
     void setFlat( bool b );
     bool isCheckable() const;
+    void setCheckable( bool b );
     bool isChecked() const;
 
 public slots:
-    void setCheckable( bool b );
     void setChecked( bool b );
 
 signals:
