@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#225 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#226 $
 **
 ** Implementation of QApplication class
 **
@@ -46,36 +46,36 @@
   \ingroup kernel
 
   The QApplication class is central to Qt.  It is responsible for a
-  wide range of tasks: 
-  
+  wide range of tasks:
+
   <ul>
-   
+
    <li> It initializes the application to the user's desktop settings
    like palette(), font() or the doubleClickInterval(). It keeps track
    of these properties in case the user changes the desktop globally
    in some kind of control panel.
-   
+
   <li> It performs event handling, meaning that it receives events
   from the underlying window system and sends them to the destination
   widgets. An application usually terminates when the event loop is
   left. This can be forced with a call to quit(). By using sendEvent()
   and postEvent() you can send your own events to widgets.
-   
+
    <li> It parses common command line arguments and sets its internal
    state respectively. See the QApplication() constructor for more
    details.
-   
+
    <li> It defines the application's look and feel, which is
    encapsulate in a QStyle() object. This can be changed during
    runtime with setStyle().
-   
+
    <li> It specifies how the application is supposed to deal with colors.
    See setColorSpec() for details.
-   
-   <li> It specifies the default text endcoding (see setDefaultCodec() ) 
+
+   <li> It specifies the default text endcoding (see setDefaultCodec() )
    and provides localization of strings that are visible to the user via
    translate()
-   
+
    <li> It gives access to special objects like the desktop() widget
    or the clipboard(). Furthermore you can query for the widgetAt() a
    certain coordinate position or for example all
@@ -83,14 +83,14 @@
    and the widget that receives currently key events, dubbed the
    focusWidget(). Auxiliary slots like closeAllWindows() complete this
    list.
-   
+
    <li> It provides an interface to application wide caret handling,
    see setOverrideCursor() and setGlobalMouseTracking().
 
    <li> To deal with the specialities of the asynchronous X Window
    System, two synchronization functions flush() and syncX() are
    provided.
-   
+
    <li> It provides support to implement sophisticated \link
    session.html session management \endlink. This makes it possible
    for applications to terminate gracefully when the user logs out, to
@@ -98,9 +98,9 @@
    preserve the entire application state for a future session. See
    isSessionRestored(), sessionId() and commitData() and saveState()
    for details.
-  
+
   </ul>
-  
+
   An application object must be created before any widgets can be
   created!  Since it also deals with common command line arguments, it
   is usually a good idea to create it \e before any interpretation or
@@ -221,7 +221,7 @@
 	closingDown(),
   </ul>
 
-  <strong>Non-GUI programs</strong><br> 
+  <strong>Non-GUI programs</strong><br>
   While Qt is not optimized or designed for writing non-GUI programs,
   it's possible to use <a href="tools.html">some of its classes</a>
   without creating a QApplication.  This can be very useful if you
@@ -1922,7 +1922,7 @@ void QApplication::exit_loop()
 
   Returns whether the application has been restored from an earlier
   \link session.html session \endlink.
- 
+
 \sa sessionId(), commitData(), saveState()
  */
 
@@ -1931,10 +1931,10 @@ void QApplication::exit_loop()
 
   Returns the identifier of the current \link session.html session
   \endlink.
-  
+
   If the application has been restored from an earlier session, this
   identifier is the same as it was in that previous session.
-  
+
 \sa isSessionRestored(), commitData(), saveState()
  */
 
@@ -1945,19 +1945,22 @@ void QApplication::exit_loop()
   This function deals with \link session.html session management
   \endlink. It is invoked when the \link QSessionManager session
   manager \endlink wants the application to commit all its data.
-  
+
   Usually this means saving of all open files, after getting
   permission from the user. Furthermore you may want to provide the
   user a way to cancel the shutdown.
   
+  When completing the shutdown the session manager may or may not quit
+  the application.
+
   <strong>Important</strong><br> Within this function, no user
   interaction is possible, \e unless you ask the session manager \a sm
   for explicit permission. See QSessionManager::allowsInteraction()
   and QSessionManager::allowsErrorInteraction() for details.
-  
+
   Details about session management in general can be found \link
   session.html here \endlink.
-  
+
 \sa isSessionRestored(), sessionId(), saveState()
  */
 void QApplication::commitData( QSessionManager& /* sm */ )
@@ -1972,19 +1975,19 @@ void QApplication::commitData( QSessionManager& /* sm */ )
   \endlink It is invoked when the \link QSessionManager session
   manager \endlink wants the application to preserve its state for a
   future session.
-  
+
   For a text editor this would mean creating a temporary file that
   includes the current contents of the edit buffers, the location of
   the cursor and other aspects of the current editing session.
-  
+
   <strong>Important</strong><br> Within this function, no user
   interaction is possible, \e unless you ask the session manager \a sm
   for explicit permission. See QSessionManager::allowsInteraction()
   and QSessionManager::allowsErrorInteraction() for details.
-  
+
   Details about session management in general can be found \link
   session.html here \endlink
-  
+
 \sa isSessionRestored(), sessionId(), commitData()
  */
 void QApplication::saveState( QSessionManager& /* sm */ )
