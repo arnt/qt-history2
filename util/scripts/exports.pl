@@ -137,6 +137,7 @@ foreach (keys %GLOBALS) {
     print "\n     ${_}*";
     $symbol_count++;
 }
+print "*" unless($symbol_count);
 print "\n  };\n";
 print "  local:\n";
 print "  extern \"C++\"\n";
