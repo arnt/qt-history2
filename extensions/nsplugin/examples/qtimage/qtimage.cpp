@@ -89,7 +89,7 @@ public:
 
     void streamAsFile(QNPStream*, const char* fname)
     {
-	qInitPngIO();
+	//qInitPngIO();
 
 	image = QImage(fname);
 	if ( image.isNull() )
