@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#59 $
 **
 ** Implementation of QMenuData class
 **
@@ -14,7 +14,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudta.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudta.cpp#59 $");
 
 
 /*!
@@ -330,6 +330,105 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
     if ( accel )
 	setAccel( accel, id );
     return id;
+}
+
+/*!  
+  Inserts a menu item with a text, an accelerator key, an id and an
+  optional index and connects it to an object/slot.
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier.	 It works as follows: If \a id \>= 0, this
+  identifier is assigned.  If \a id == -1 (default), the identifier is
+  set equal to the menu item's real index (see below).	If \a id is
+  any other negative integer, for instance -2, a unique identifier
+  (negative integer \<= -2) is generated.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
+
+  Note that accelerators only work for QPopupMenu items that live in a
+  menu bar. For stand-alone popup menus, use an independent QAccel
+  object.
+
+  \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
+  qkeycode.h
+*/
+
+int QMenuData::insertItem( const char *text,
+			   const QObject *receiver, const char *member,
+			   int accel, int id, int index )
+{
+    int actualID = insertAny( text, 0, 0, id, index );
+    connectItem( actualID, receiver, member );
+    if ( accel )
+	setAccel( accel, actualID );
+    return actualID;
+}
+
+/*!
+  Inserts a menu item with a pixmap, an accelerator key, an id and an
+  optional index and connects it to an object/slot.
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier.	 It works as follows: If \a id \>= 0, this
+  identifier is assigned.  If \a id == -1 (default), the identifier is
+  set equal to the menu item's real index (see below).	If \a id is
+  any other negative integer, for instance -2, a unique identifier
+  (negative integer \<= -2) is generated.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
+
+  Note that accelerators only work for QPopupMenu items that live in a
+  menu bar. For stand-alone popup menus, use an independent QAccel
+  object.
+
+  \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
+  qkeycode.h
+*/
+
+int QMenuData::insertItem( const QPixmap &pixmap,
+			   const QObject *receiver, const char *member,
+			   int accel, int id, int index )
+{
+    int actualID = insertAny( 0, &pixmap, 0, id, index );
+    connectItem( actualID, receiver, member );
+    if ( accel )
+	setAccel( accel, actualID );
+    return actualID;
+}
+
+/*!
+  Inserts a menu item with a pixmap, a text, an accelerator key, an id and
+  an optional index and connects it to an object/slot.
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier.	 It works as follows: If \a id \>= 0, this
+  identifier is assigned.  If \a id == -1 (default), the identifier is
+  set equal to the menu item's real index (see below).	If \a id is
+  any other negative integer, for instance -2, a unique identifier
+  (negative integer \<= -2) is generated.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
+
+  Note that accelerators only work for QPopupMenu items that live in a
+  menu bar. For stand-alone popup menus, use an independent QAccel
+  object.
+
+  \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
+  qkeycode.h
+*/
+
+int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
+			   const QObject *receiver, const char *member,
+			   int accel, int id, int index )
+{
+    int actualID = insertAny( text, &pixmap, 0, id, index );
+    connectItem( actualID, receiver, member );
+    if ( accel )
+	setAccel( accel, actualID );
+    return actualID;
 }
 
 /*!
