@@ -114,7 +114,86 @@ provide the user with useful functionality:
 </ul>
 
 
-<h2><a name="featuresAndProperties">Features and properties</h2>
+<h2><a name="namespaces">Namespaces</a></h2>   
+
+<a href="xml.html#namespaces">Namespaces</a> do not change the parsing behavior. 
+They are only reported through the handler.
+
+You can configure the behavior of the reader concerning namespace
+processing. This is done with the features
+\c http://xml.org/features/namespaces and
+\c http://xml.org/features/namespace-prefixes (for details on features see
+the following section "<a href="#featuresAndProperties">Features and properties</a>").
+ 
+There are four reporting behaviors that are influenced by these features:
+<ol>
+<li>The namespace prefix and local part of elements and attributes are
+    reported.
+<li>The qualified name of elements and attributes are reported.
+<li>The startPrefixMapping() and endPrefixMapping() functions of the
+    \l QXmlContentHandler are called.
+<li>Attributes that declare namespaces (i.e. the attribute \c xmlns and
+    attributes starting with \c xmlns:) are reported.
+</ol>
+ 
+<a name="sax2namespaces"></a>
+SAX2 requires the following behavior:
+<table border="1">
+<tr>
+    <th>namespaces</th><th>namespace-prefixes</th>
+    <th>Namespace prefix and local part</th><th>Qualified names</th>
+    <th>Prefix mapping</th><th>xmlns attributes</th>
+</tr>
+<tr>
+    <td>TRUE</td><td>FALSE</td>
+    <td>Yes</td><td>Unknown</td>
+    <td>Yes</td><td>No</td>
+</tr>
+<tr>
+    <td>TRUE</td><td>TRUE</td>
+    <td>Yes</td><td>Yes</td>
+    <td>Yes</td><td>Yes</td>
+</tr>
+<tr>
+    <td>FALSE</td><td>TRUE</td>
+    <td>Unknown</td><td>Yes</td>
+    <td>Unknown</td><td>Yes</td>
+</tr>
+</table>
+The combination that both features (namespaces and namespace-prefixes) are
+FALSE is an illegal combination.
+ 
+\l QXmlSimpleReader implements the following behavior:
+<table border="1">
+<tr>
+    <th>namespaces</th><th>namespace-prefixes</th>
+    <th>Namespace prefix and local part</th><th>Qualified names</th>
+    <th>Prefix mapping</th><th>xmlns attributes</th>
+</tr>
+<tr>
+    <td>TRUE</td><td>FALSE</td>
+    <td>Yes</td><td>Yes</td>
+    <td>Yes</td><td>No</td>
+</tr>
+<tr>
+    <td>TRUE</td><td>TRUE</td>
+    <td>Yes</td><td>Yes</td>
+    <td>Yes</td><td>Yes</td>
+</tr>
+<tr>
+    <td>FALSE</td><td>TRUE</td>
+    <td>No</td><td>Yes</td>
+    <td>No</td><td>Yes</td>
+</tr>
+</table>
+ 
+The default settings are
+\c http://xml.org/features/namespaces is \c TRUE and
+\c http://xml.org/features/namespace-prefixes is \c FALSE.
+ 
+                                                                  
+
+<h2><a name="featuresAndProperties">Features and properties</a></h2>
  
 SAX2 allows you to set and query features and properties of an XML reader.
  
@@ -151,7 +230,7 @@ QXmlReader::hasProperty().
 <h2>Further reading</h2>
 
 For a practical example on how to use the Qt SAX2 classes see the 
-"<a href="xml-sax-walkthrough.html">tagreader Walkthrough</a>".
+"<a href="xml-sax-walkthrough.html">tagreader walkthrough</a>".
 
 More information about XML (e.g. <a href="xml.html#sax2namespaces">namespaces</a>)
 can be found in the <a href="xml.html">introduction to the Qt XML module</a>.
