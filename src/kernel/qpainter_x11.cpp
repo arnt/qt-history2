@@ -1633,7 +1633,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 }
 
 
-/*!
+/*! \obsolete
     Sets the current pen position to \a (x, y)
 
     \sa lineTo(), pos()
@@ -1655,7 +1655,9 @@ void QPainter::moveTo( int x, int y )
     curPt = QPoint( x, y );
 }
 
-/*!
+/*! \obsolete
+  Use drawLine() instead.
+
     Draws a line from the current pen position to \a (x, y) and sets
     \a (x, y) to be the new current pen position.
 
@@ -3099,7 +3101,11 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
     fe->draw( this, x,  y, engine, si, textFlags );
 }
 
+#if QT_VERSION >= 0x040000
+#error "remove current position and associated methods"
+#endif
 /*!
+  \obsolete
     Returns the current position of the  pen.
 
     \sa moveTo()
