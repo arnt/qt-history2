@@ -188,7 +188,7 @@ DATE QDateTimeToDATE( const QDateTime &dt )
     - QAxBase::internalInvoke( properties )
     - IPropertyBag::Read.
 */
-void QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
+bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 {
     arg.vt = VT_EMPTY;
 
@@ -264,8 +264,10 @@ void QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 	break;
 
     default:
-	break;
+	return FALSE;
     }
+
+    return TRUE;
 }
 
 static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &value )
@@ -290,7 +292,7 @@ static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &v
     QAxBase
     - QAxBase::internalInvoke( for slots )
 */
-void QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *param )
+bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *param )
 {
     QUObject obj;
     obj.type = &static_QUType_Null;
@@ -309,8 +311,10 @@ void QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
     if ( obj.type == &static_QUType_Null )
 	static_QUType_QVariant.set( &obj, var );
 
-    QUObjectToVARIANT( &obj, res, param );
+    bool ok = QUObjectToVARIANT( &obj, res, param );
     obj.type->clear( &obj );
+
+    return ok;
 }
 
 /*!
@@ -323,7 +327,7 @@ void QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
     - QAxBase::qt_invoke( return value and out-parameters )
     - QAxEventSink::Invoke
 */
-void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *param )
+bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *param )
 {
     switch ( arg.vt ) {
     case VT_BSTR: 
@@ -509,7 +513,7 @@ void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	static_QUType_ptr.set( obj, *arg.ppunkVal );
 	break;
     default:
-	break;
+	return FALSE;
     }
 
     if ( !QUType::isEqual(  param->type, obj->type ) ) {
@@ -518,10 +522,12 @@ void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    qWarning( "Can't coerce VARIANT type to requested type (%s to %s)", obj->type->desc(), param->type->desc() );
 #endif
 	    obj->type->clear( obj );
+	    return FALSE;
 	} else {
 	    param->type->convertFrom( obj, obj->type );
 	}
     }
+    return TRUE;
 }
 
 /*!
@@ -702,7 +708,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 
     No out-parameter handling necessary.
 */
-void QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *param )
+bool QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *param )
 {
     if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
 	static_QUType_QVariant.set( &obj, var );
@@ -747,7 +753,7 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
 	static_QUType_ptr.set( &obj, new QValueList<QVariant>( var.toList() ) );
 	break;
     default:
-	return;
+	return FALSE;
     }
 
     if ( !QUType::isEqual( param->type, obj.type ) ) {
@@ -758,16 +764,18 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
 	    int value;
 	    if ( enumValue( var.toString(), (const QUEnum *)param->typeExtra, value ) )
 		static_QUType_enum.set( &obj, value );
-	}
+	} else {
 #ifndef QT_NO_DEBUG
-	else {
 	    const char *type = param->type->desc();
 	    if ( QUType::isEqual( param->type, &static_QUType_ptr ) )
 		type = (const char*)param->typeExtra;
 	    qWarning( "Can't coerce QVariant to requested type (%s to %s)", var.typeName(), type );
-	}
 #endif
+	    return FALSE;
+	}
     }
+
+    return TRUE;
 }
 
 /*!
@@ -832,7 +840,7 @@ static inline void makeReference( VARIANT &arg )
     QAxBase:
     - QAxBase::qt_invoke
 */
-void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
+bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 {
     bool byref = param && ( param->inOut & QUParameter::Out ) && ( param->inOut != QUParameter::Out );
     if ( byref ) {
@@ -853,6 +861,7 @@ void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	arg.uintVal = static_QUType_uint.get( obj );
     } else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
 	arg.vt = VT_BSTR;
+	if ( !obj->payload.ptr )
 	arg.bstrVal = QStringToBSTR( static_QUType_QString.get( obj ) );
     } else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
 	arg.vt = VT_BOOL;
@@ -877,7 +886,8 @@ void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	else
 	    vartype = param->type->desc();
 
-	QVariantToVARIANT( value, arg, vartype );
+	if ( !QVariantToVARIANT( value, arg, vartype ) )
+	    return FALSE;
     } else if ( QUType::isEqual( obj->type, &static_QUType_varptr ) ||
 		QUType::isEqual( obj->type, &static_QUType_ptr ) && param ) {
 	void *ptrvalue = static_QUType_varptr.get( obj );
@@ -926,11 +936,15 @@ void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	    vartype = param->type->desc();
 	}
 
-	QVariantToVARIANT( value, arg, vartype );
+	if( !QVariantToVARIANT( value, arg, vartype ) )
+	    return FALSE;
     } else {
 	qDebug( "QUObjectToVARIANT: Unhandled QUType %s!", obj->type->desc() );
 	arg.vt = VT_EMPTY;
+	return FALSE;
     }
     if ( byref && !(arg.vt & VT_BYREF) )
 	makeReference( arg );
+
+    return TRUE;
 }
