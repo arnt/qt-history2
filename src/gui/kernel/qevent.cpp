@@ -1540,10 +1540,14 @@ QByteArray QDropEvent::encodedData(const char *format) const
 
 const char* QDropEvent::format(int n) const
 {
-    QStringList formats = mdata->formats();
-    if (n < 0 || n >= formats.size())
+    if (fmts.isEmpty()) {
+        QStringList formats = mdata->formats();
+        for (int i = 0; i < formats.size(); ++i)
+            fmts.append(formats.at(i).toLatin1());
+    }
+    if (n < 0 || n >= fmts.size())
         return 0;
-    return formats.at(n).latin1();
+    return fmts.at(n).constData();
 }
 
 /*!

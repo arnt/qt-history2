@@ -381,6 +381,7 @@ protected:
     QDrag::DropAction drop_action;
     QDrag::DropAction default_action;
     const QMimeData *mdata;
+    mutable QList<QByteArray> fmts; // only used for QT_COMPAT
 };
 
 
