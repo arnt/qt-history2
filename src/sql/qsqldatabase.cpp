@@ -649,7 +649,6 @@ QSqlDatabase::~QSqlDatabase()
 #ifndef QT_NO_COMPONENT
     delete d->plugIns;
 #endif
-    delete d;
 }
 
 /*!
