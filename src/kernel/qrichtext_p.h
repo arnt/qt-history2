@@ -335,7 +335,7 @@ private:
     void invalidateNested();
     void gotoIntoNested( const QPoint &globalPos );
 
-    class Paragraph {
+    class Q_EXPORT Paragraph {
     public:
 	Paragraph() : para( 0 ) {}
 	Paragraph( const Paragraph &other );
@@ -1729,7 +1729,7 @@ inline QTextCursor::Paragraph::~Paragraph()
     if ( para ) para->derefCursor();
 }
 
-inline QTextCursor::Paragraph::Paragraph &QTextCursor::Paragraph::operator = ( QTextParagraph *p )
+inline QTextCursor::Paragraph &QTextCursor::Paragraph::operator = ( QTextParagraph *p )
 {
     if ( p )
 	p->refCursor();
