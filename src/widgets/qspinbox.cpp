@@ -301,7 +301,7 @@ QString QSpinBox::text() const
   \property QSpinBox::cleanText
 
   \brief the text of the spin box with any prefix() or suffix() and
-  with any whitespace at the start and end removed.
+  any whitespace at the start and end removed.
 
   \sa text, prefix, suffix
 */
