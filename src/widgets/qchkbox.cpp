@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#52 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#52 $");
 
 
 /*!
@@ -212,22 +212,15 @@ void QCheckBox::drawButton( QPainter *paint )
 void QCheckBox::drawButtonLabel( QPainter *p )
 {
     int x, y, w, h;
-    int gs = style();
+    GUIStyle gs = style();
     getSizeOfBitmap( gs, &w, &h );
     y = 0;
     x = w + extraWidth( gs );
     w = width() - x;
     h = height();
 
-    p->setPen( colorGroup().text() );
-
-    if ( pixmap() ) {
-	QPixmap *pm = (QPixmap *)pixmap();
-	if ( pm->depth() == 1 )
-	    p->setBackgroundMode( OpaqueMode );
-	y += h/2 - pm->height()/2;
-	p->drawPixmap( x, y, *pm );
-    }
-    else if ( text() )
-	p->drawText( x, y, w, h, AlignLeft|AlignVCenter|ShowPrefix, text() );
+    qDrawItem( p, gs, x, y, w, h, 
+	       AlignLeft|AlignVCenter|ShowPrefix,
+	       colorGroup(), isEnabled(),
+	       pixmap(), text() );
 }

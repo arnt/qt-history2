@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#50 $
 **
 ** Implementation of QRadioButton class
 **
@@ -12,11 +12,12 @@
 #include "qradiobt.h"
 #include "qbttngrp.h"
 #include "qpainter.h"
+#include "qdrawutl.h"
 #include "qpixmap.h"
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#50 $");
 
 
 /*!
@@ -268,7 +269,7 @@ void QRadioButton::drawButton( QPainter *paint )
 void QRadioButton::drawButtonLabel( QPainter *p )
 {
     int x, y, w, h;
-    int gs = style();
+    GUIStyle gs = style();
     getSizeOfBitmap( gs, &w, &h );
     if ( gs == WindowsStyle )
 	w++;
@@ -277,39 +278,10 @@ void QRadioButton::drawButtonLabel( QPainter *p )
     w = width() - x;
     h = height();
 
-    p->setPen( colorGroup().text() );
-
-    if ( pixmap() ) {
-	const QPixmap *pm = pixmap();
-	y += h/2 - pm->height()/2;
-	if ( gs == WindowsStyle && !isEnabled() ) {
-	    if ( !pm->isQBitmap() ) {
-		if ( pm->mask() == 0 ) {
-		    // detach and build a goodish mask -- slow!
-		    QPixmap masked = *pm;
-		    masked.detach();
-		    masked.setMask( masked.isQBitmap() ?
-				    *((QBitmap*)(&masked)) :
-				    masked.reasonableMask() );
-		    setPixmap( masked );
-		}
-		pm = pm->mask();
-	    }
-	    p->setBackgroundMode( TransparentMode );
-	    p->setPen( white );
-	    p->drawPixmap( x+1, y+1, *pm );
-	    p->setPen( colorGroup().foreground() );
-	}
-	p->drawPixmap( x, y, *pm );
-    } else if ( text() ) {
-	if ( gs == WindowsStyle && !isEnabled() ) {
-	    p->setPen( white );
-	    p->drawText( x+1, y+1, w, h,
-			 AlignLeft|AlignVCenter|ShowPrefix, text() );
-	    p->setPen( colorGroup().text() );
-	}
-	p->drawText( x, y, w, h, AlignLeft|AlignVCenter|ShowPrefix, text() );
-    }
+    qDrawItem( p, gs, x, y, w, h, 
+	       AlignLeft|AlignVCenter|ShowPrefix,
+	       colorGroup(), isEnabled(),
+	       pixmap(), text() );
 }
 
 

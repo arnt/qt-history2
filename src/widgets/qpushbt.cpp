@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#84 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#84 $");
 
 
 /*!
@@ -461,35 +461,11 @@ void QPushButton::drawButtonLabel( QPainter *paint )
 	y += dt;
     }
     x += 2;  y += 2;  w -= 4;  h -= 4;
-    p->setPen( g.text() );
-    if ( pixmap() ) {
-	QPixmap pm( *pixmap() );
-	if ( pm.width() > w || pm.height() > h )
-	    p->setClipRect( x, y, w, h );
-	x += w/2 - pm.width()/2;		// center
-	y += h/2 - pm.height()/2;
-	if ( gs == WindowsStyle && !isEnabled() ) {
-	    if ( pm.depth() != 1 ) {
-		if ( pm.mask() )
-		    pm = *pm.mask();
-		else
-		    pm = pm.reasonableMask();
-		pm.setMask( *((QBitmap *)&pm) );
-	    }
-	    p->setPen( white );
-	    p->drawPixmap( x+1, y+1, pm );
-	    p->setPen( g.foreground() );
-	}
-	p->drawPixmap( x, y, pm );
-	p->setClipping( FALSE );
-    } else if ( text() ) {
-	if ( gs == WindowsStyle && !isEnabled() ) {
-	    p->setPen( white );
-	    p->drawText( x+1, y+1, w, h, AlignCenter|ShowPrefix, text() );
-	    p->setPen( g.foreground() );
-	}
-	p->drawText( x, y, w, h, AlignCenter|ShowPrefix, text() );
-    }
+    qDrawItem( p, gs, x, y, w, h, 
+	       AlignCenter|ShowPrefix,
+	       colorGroup(), isEnabled(),
+	       pixmap(), text() );
+
 }
 
 
