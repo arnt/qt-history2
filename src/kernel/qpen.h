@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#14 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#15 $
 **
 ** Definition of QPen class
 **
@@ -33,11 +33,10 @@ public:
     QPen &operator=( const QPen & );
 
     PenStyle	style() const		{ return data->style; }
-    uint	width() const		{ return data->width; }
-    const QColor &color() const		{ return data->color; }
-
     void	setStyle( PenStyle );
+    uint	width() const		{ return data->width; }
     void	setWidth( uint );
+    const QColor &color() const		{ return data->color; }
     void	setColor( const QColor & );
 
     bool	operator==( const QPen &p ) const;
