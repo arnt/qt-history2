@@ -9,3 +9,4 @@ QTDIR_build:REQUIRES	= "contains(QT_CONFIG, large-config)"
 HEADERS		= helpwindow.h
 SOURCES		= helpwindow.cpp \
 		  main.cpp
+QT	+= compat

@@ -15,7 +15,7 @@
 #include <qpixmap.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
-#include <qtoolbar.h>
+#include <q3toolbar.h>
 #include <qtoolbutton.h>
 #include <qiconset.h>
 #include <qfile.h>
@@ -37,9 +37,11 @@
 
 #include <ctype.h>
 
+using namespace Qt;
+
 HelpWindow::HelpWindow( const QString& home_, const QString& _path,
 			QWidget* parent, const char *name )
-    : QMainWindow( parent, name, WDestructiveClose ),
+    : Q3MainWindow( parent, name, WDestructiveClose ),
       pathCombo( 0 )
 {
     readHistory();
@@ -120,7 +122,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path,
 	     this, SLOT( setForwardAvailable( bool ) ) );
 
 
-    QToolBar* toolbar = new QToolBar( this );
+    Q3ToolBar* toolbar = new Q3ToolBar( this );
     addToolBar( toolbar, "Toolbar");
     QToolButton* button;
 
