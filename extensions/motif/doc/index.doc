@@ -77,6 +77,23 @@ For example:
     ...
 \endcode
 
+\i QMotifWidget can be used together with QDesktopWidget to create
+top-level windows on multiple screens.  A common mistake is to create
+a QMotifWidget on a non-default screen while the Xt/Motif widgets are
+created on the default screen.  The solution is to specify the screen
+to both QMotifWidget and the Xt/Motif child.  For example:
+
+\code
+    Display *dpy = QApplication::desktop()->x11Display();
+    Arg args[1];
+
+    // make sure both QMotifWidget and the XmMainWindow are on screen 1
+    XtSetArg(args[0], XtNscreen, ScreenOfDisplay(dpy, 1));
+    QMotifWidget *toplevel = 
+        new QMotifWidget(QApplication::desktop()->screen(1),
+                         xmMainWindowWidgetClass, args, 1, "mainwindow");
+\endcode
+
 \endlist
 
 */
