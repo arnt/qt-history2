@@ -3953,6 +3953,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
     }
     QTextParagLineStart *ls = new QTextParagLineStart( control->context, control->status );
     delete control;
+    delete runs;
     return ls;
 }
 
