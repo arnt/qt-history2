@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>438</width>
-            <height>383</height>
+            <width>434</width>
+            <height>381</height>
         </rect>
     </property>
     <property stdset="1">
@@ -242,6 +242,10 @@
                         <property stdset="1">
                             <name>name</name>
                             <cstring>listInterfaces</cstring>
+                        </property>
+                        <property stdset="1">
+                            <name>selectionMode</name>
+                            <enum>Extended</enum>
                         </property>
                     </widget>
                     <spacer row="1"  column="0" >

@@ -674,7 +674,7 @@ void MainWindow::setupFileActions()
 
     a = new QAction( this, 0 );
     a->setText( tr( "New Project" ) );
-    a->setMenuText( tr( "New &Project" ) );
+    a->setMenuText( tr( "New &Project..." ) );
     a->setIconSet( createIconSet("filenew.xpm") );
     a->setStatusTip( tr( "Creates a new project" ) );
     a->setWhatsThis( tr("<b>Create a new project</b>"

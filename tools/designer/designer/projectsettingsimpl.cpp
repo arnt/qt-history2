@@ -24,6 +24,7 @@
 #include <qlineedit.h>
 #include <qtextedit.h>
 #include <qlistbox.h>
+#include <qfiledialog.h>
 
 /*
  *  Constructs a ProjectSettings which is a child of 'parent', with the
@@ -38,7 +39,8 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
     editProjectName->setText( pro->projectName() );
     editProjectFile->setText( pro->fileName() );
     editProjectDescription->setText( pro->description() );
-    
+
+    listInterfaces->clear();
     listInterfaces->insertStringList( pro->uiFiles() );
     editDatabaseFile->setText( pro->databaseDescription() );
 }
@@ -52,12 +54,18 @@ ProjectSettings::~ProjectSettings()
 
 void ProjectSettings::chooseDatabaseFile()
 {
-    qWarning( "ProjectSettings::chooseDatabaseFile() not yet implemented!" );
+    QString fn = QFileDialog::getSaveFileName( QString::null, tr( "Project Files (*.db);;All Files (*)" ), this );
+    if ( fn.isEmpty() )
+	return;
+    editDatabaseFile->setText( fn );
 }
 
 void ProjectSettings::chooseProjectFile()
 {
-    qWarning( "ProjectSettings::chooseProjectFile() not yet implemented!" );
+    QString fn = QFileDialog::getSaveFileName( QString::null, tr( "Project Files (*.pro);;All Files (*)" ), this );
+    if ( fn.isEmpty() )
+	return;
+    editProjectFile->setText( fn );
 }
 
 void ProjectSettings::helpClicked()
@@ -67,11 +75,11 @@ void ProjectSettings::helpClicked()
 void ProjectSettings::okClicked()
 {
     // ### check for validty
-    
+
     project->setProjectName( editProjectName->text() );
     project->setFileName( editProjectFile->text(), FALSE );
     project->setDescription( editProjectDescription->text() );
-    
+
     QStringList lst;
     for ( int i = 0; i < (int)listInterfaces->count(); ++i )
 	lst << listInterfaces->text( i );
@@ -82,11 +90,21 @@ void ProjectSettings::okClicked()
 
 void ProjectSettings::removeUiFile()
 {
-    qWarning( "ProjectSettings::removeUiFile() not yet implemented!" );
+    QStringList lst;
+    for ( int i = 0; i < (int)listInterfaces->count(); ++i ) {
+	if ( listInterfaces->item( i )->selected() )
+	    continue;
+	lst << listInterfaces->text( i );
+    }
+    listInterfaces->clear();
+    listInterfaces->insertStringList( lst );
 }
 
 void ProjectSettings::addUiFile()
 {
-    qWarning( "ProjectSettings::addUiFile() not yet implemented!" );
+    QStringList lst = QFileDialog::getOpenFileNames( tr( "Project Files (*.ui);;All Files (*)" ), QString::null, this );
+    if ( lst.isEmpty() )
+	return;
+    listInterfaces->insertStringList( lst );
 }
 
