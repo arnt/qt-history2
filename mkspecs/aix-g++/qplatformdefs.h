@@ -49,6 +49,7 @@
 #define QT_FILENO		fileno
 #define QT_OPEN			::open
 #define QT_CLOSE		::close
+#define QT_TRUNCATE		::truncate
 #define QT_LSEEK		::lseek
 #define QT_READ			::read
 #define QT_WRITE		::write
