@@ -128,12 +128,21 @@ int main(int argc, char **argv)
 		    default_makefile = mkfile->defaultMakefile();
 		    proj.variables()["QMAKE_MAKEFILE"].append(default_makefile);
 		}
+
+		if(!Option::output.name().isEmpty() && Option::output.name() != "-") {
+		    QFileInfo fi(Option::output);
+		    if(fi.isDir()) { 
+			default_makefile.prepend(Option::output.name() + Option::dir_sep);
+			Option::output.setName("");
+		    }
+		}
+		Option::fixPathToLocalOS(default_makefile);
 		if(Option::output.name().isEmpty()) {
 		    if(default_makefile.findRev(Option::dir_sep) != -1) 
 			createDir(default_makefile.left(
 			    default_makefile.findRev(Option::dir_sep)));
 		    Option::output.setName(default_makefile);
-		}
+		} 
 		if(Option::output.name().isEmpty() || Option::output.name() == "-") {
 		    Option::output.setName("");
 		    Option::output.open(IO_WriteOnly | IO_Translate, stdout);
