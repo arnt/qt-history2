@@ -549,7 +549,7 @@ void MainWindow::setupToolActions()
     tb->setCloseMode( QDockWindow::Undocked );
 #endif
     QWhatsThis::add( tb, tr( "<b>The Tools toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
-					
+
     addToolBar( tb, tr( "Tools" ), QMainWindow::Top, TRUE );
     actionPointerTool->addTo( tb );
     actionConnectTool->addTo( tb );
@@ -601,7 +601,7 @@ void MainWindow::setupToolActions()
 	addToolBar( tb, grp );
 	QPopupMenu *menu = new QPopupMenu( this, grp.latin1() );
 	mmenu->insertItem( grp, menu );
-	
+
 	if ( grp == "Custom" ) {
 	    if ( !customWidgetMenu )
 		actionToolsCustomWidget->addTo( menu );
@@ -626,12 +626,12 @@ void MainWindow::setupToolActions()
 	    if ( !WidgetDatabase::isWhatsThisLoaded() )
 		WidgetDatabase::loadWhatsThis( documentationPath() );
 	    a->setStatusTip( tr( "Insert a %1").arg(WidgetDatabase::className( i )) );
-	
+
 	    QString whats = QString("<b>A %1</b>").arg( WidgetDatabase::className( i ) );
 	    if ( !WidgetDatabase::whatsThis( i ).isEmpty() )
 	    whats += QString("<p>%1</p>").arg(WidgetDatabase::whatsThis( i ));
 	    a->setWhatsThis( whats + tr("<p>Double click on this tool to keep it selected.</p>") );
-	
+
 	    if ( grp != "KDE" )
 		a->addTo( tb );
 	    a->addTo( menu );
@@ -794,7 +794,7 @@ void MainWindow::setupPreviewActions()
     QAction* a = 0;
     QPopupMenu *menu = new QPopupMenu( this, "Preview" );
     menubar->insertItem( tr( "&Preview" ), menu );
-		
+
     a = new QAction( tr( "Preview Form" ), createIconSet("previewform.xpm"),
 				     tr( "Preview &Form" ), 0, this, 0 );
     a->setAccel( CTRL + Key_T );
@@ -934,7 +934,7 @@ void MainWindow::setupWindowActions()
 	if ( j < 10 )
 	    itemText = QString("&%1 ").arg( j );
 	itemText += w->name();
-	
+
 	int id = windowMenu->insertItem( itemText, this, SLOT( windowsMenuActivated( int ) ) );
 	windowMenu->setItemParameter( id, i );
 	windowMenu->setItemChecked( id, workspace->activeWindow() == windows.at( i ) );
@@ -1220,7 +1220,7 @@ void MainWindow::fileOpen()
 	QString filename;
 	QStringList filterlist;
 	filterlist << tr( "Qt User-Interface Files (*.ui)" );
-	filterlist << tr( "TMAKE Projectfile (*.pro)" );
+	filterlist << tr( "QMAKE Project Files (*.pro)" );
 	QStringList list = manager.featureList();
 	for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
 	    filterlist << *it;
@@ -1296,7 +1296,7 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 		statusBar()->message( tr( "File %1 opened.").arg( filename ), 3000 );
 	    } else {
 		statusBar()->message( tr( "Failed to load file %1").arg( filename ), 5000 );
-		QMessageBox::information( this, tr("Load File"), tr("Couldn't load file %1").arg( filename ) );	
+		QMessageBox::information( this, tr("Load File"), tr("Couldn't load file %1").arg( filename ) );
 	    }
 	} else {
 	    statusBar()->clear();
@@ -1367,7 +1367,7 @@ void MainWindow::saveAllTemp()
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( !w->inherits( "FormWindow" ) )
 	    continue;
-	
+
 	QString fn = baseName + QString::number( i++ ) + ".ui";
 	( (FormWindow*)w )->setFileName( fn );
 	( (FormWindow*)w )->save( fn );
@@ -1934,7 +1934,7 @@ void MainWindow::helpContents()
 		    source = propertyDocumentation[s];
 	    }
 	}
-	
+
 	QString classname =  WidgetFactory::classNameOf( propertyEditor->widget() );
 	if ( source.isEmpty() ) {
 	    if ( classname.lower() == "spacer" )
@@ -1944,7 +1944,7 @@ void MainWindow::helpContents()
 	    else
 		source = QString( WidgetFactory::classNameOf( propertyEditor->widget() ) ).lower() + ".html#details";
 	}
-	
+
 	if ( !source.isEmpty() )
 	    help->setSource( source );
     }
@@ -2274,7 +2274,7 @@ bool MainWindow::unregisterClient( FormWindow *w )
     formList->closed( w );
     if ( w == lastActiveFormWindow )
 	lastActiveFormWindow = 0;
-	
+
     return TRUE;
 }
 
@@ -2629,7 +2629,7 @@ void MainWindow::selectionChanged()
  	actionEditAdjustSize->setEnabled( FALSE );
 	return;
     }
-	
+
     int selectedWidgets = formWindow()->numSelectedWidgets();
     bool enable = selectedWidgets > 0;
     actionEditCut->setEnabled( enable );
@@ -2664,7 +2664,7 @@ void MainWindow::selectionChanged()
 			   w == formWindow()->mainContainer();
  	actionEditAdjustSize->setEnabled( !w->parentWidget() ||
  					  WidgetFactory::layoutType( w->parentWidget() ) == WidgetFactory::NoLayout );
-	
+
 	if ( !isContainer ) {
 	    actionEditHLayout->setEnabled( FALSE );
 	    actionEditVLayout->setEnabled( FALSE );
@@ -3102,7 +3102,7 @@ bool MainWindow::closeForm( FormWindow *fw )
 	default:
 	    break;
 	}
-    }	
+    }
     return TRUE;
 }
 
@@ -3198,7 +3198,7 @@ void MainWindow::rebuildCustomWidgetGUI()
 			    "add and change the custom widgets. You can add properties as well as "
 			    "signals and slots to integrate them into the designer, "
 			    "and provide a pixmap which will be used to represent the widget on the form.</p>") );
-	
+
 	a->addTo( customWidgetToolBar );
 	a->addTo( customWidgetMenu);
 	count++;
@@ -3473,7 +3473,7 @@ void MainWindow::setupActionManager()
 	    grp = "3rd party actions";
 	QPopupMenu *menu = 0;
 	QToolBar *tb = 0;
-	
+
 	if ( !( menu = (QPopupMenu*)child( grp.latin1(), "QPopupMenu" ) ) ) {
 	    menu = new QPopupMenu( this, grp.latin1() );
 	    menubar->insertItem( tr( grp ), menu );
