@@ -6,10 +6,10 @@
 #include "qpaintdevice.h"
 #include "qpainter.h"
 #include "qpushbutton.h"
+#include "qpointer.h"
 #include "qt_mac.h"
 
 const int qt_mac_hitheme_version = 0; //the HITheme version we speak
-
 // Utility to generate correct rectangles for AppManager internals
 static inline const HIRect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=0,
 					    bool off=true, const QRect &rect=QRect())
@@ -45,13 +45,50 @@ static QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
     return qt_aqua_size_constrain(0);
 }
 
+class QMacStyleCGPrivate : public QObject 
+{
+public:
+    static const int RefreshRate = 33;  // Gives us about 30 frames a second.
+    QPointer<QPushButton> defaultButton, noPulse;
+    CFAbsoluteTime defaultButtonStart;
+    int timerID;
+    
+    QMacStyleCGPrivate() { defaultButtonStart = 0; timerID = -1; }
+    inline void animateButton(QPushButton *btn) {
+        defaultButton = btn;
+        defaultButtonStart = CFAbsoluteTimeGetCurrent();
+        if (timerID <= 0)
+            timerID = startTimer(RefreshRate);
+    }
+    inline void stopButtonAnimation() {
+        if (!defaultButton)
+            return;
+        QPushButton *tmp = defaultButton;
+        defaultButton = 0; // Lazily let the other stuff be reset in timerEvent.
+        if (tmp->isVisible())
+            tmp->update();
+    }
+protected:
+    inline void timerEvent(QTimerEvent *)
+    {
+        if (!defaultButton.isNull()) {
+            defaultButton->update();
+        } else {
+            // We somehow got out of sync.
+            killTimer(timerID);
+            timerID = -1;
+            defaultButtonStart = 0;
+        }
+    }
+};
+
 //externals
 QRegion qt_mac_convert_mac_region(HIShapeRef); //qregion_mac.cpp
 
 //HITheme QMacStyle
 QMacStyleCG::QMacStyleCG() : QWindowsStyle()
 {
-
+    d = new QMacStyleCGPrivate;
 }
 
 QMacStyleCG::~QMacStyleCG()
@@ -61,6 +98,13 @@ QMacStyleCG::~QMacStyleCG()
 
 void QMacStyleCG::polish(QWidget *w)
 {
+    QPushButton *btn = ::qt_cast<QPushButton *>(w);
+    if (btn) {
+        btn->installEventFilter(this);
+        if (btn->isDefault() || (btn->autoDefault() && btn->hasFocus())) {
+            d->animateButton(btn);
+        }
+    }
     QWindowsStyle::polish(w);
 }
 
@@ -199,7 +243,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
 
     switch(element) {
     case CE_PushButton: {
-	const QPushButton *const btn = static_cast<const QPushButton *const>(widget);
+	const QPushButton *btn = static_cast<const QPushButton *>(widget);
         if (btn->isFlat() && !(how & Style_Down))
 	    return;
         HIThemeButtonDrawInfo info;
@@ -209,14 +253,18 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
         else
             info.state = tds;
         info.value = kThemeButtonOff;
-        if (btn->popup() || btn->isFlat())
-            info.kind = kThemeSmallBevelButton;
-        else
+        if (btn->isMenuButton() || btn->isFlat()) {
+            info.kind = kThemeMediumBevelButton;
+        } else {
             info.kind = kThemePushButton;
-        if (how & Style_HasFocus)
-            info.adornment = kThemeAdornmentFocus;
-        else
             info.adornment = kThemeAdornmentNone;
+        }
+
+        if (how & Style_ButtonDefault && btn == d->defaultButton) {
+            info.adornment = kThemeAdornmentDefault;
+            info.animation.time.start = d->defaultButtonStart;
+            info.animation.time.current = CFAbsoluteTimeGetCurrent();
+        }
 	HIThemeDrawButton(qt_glb_mac_rect(r, p), &info, static_cast<CGContextRef>(p->handle()),
 		          kHIThemeOrientationNormal, 0);
 	break; }
@@ -260,6 +308,13 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	    tm = kThemeMetricSmallRadioButtonWidth;
 	GetThemeMetric(tm, &ret);
 	break; }
+    case PM_MenuButtonIndicator:
+        GetThemeMetric(kThemeMetricLittleArrowsWidth, &ret);
+        break;
+    case PM_ButtonShiftHorizontal:
+    case PM_ButtonShiftVertical:
+        ret = 0;
+        break;
     default:
 	ret = QWindowsStyle::pixelMetric(metric, widget);
 	break;
@@ -276,7 +331,25 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
 
 QRect QMacStyleCG::subRect(SubRect sr, const QWidget *widget) const
 {
-    return QWindowsStyle::subRect(sr, widget);
+    QRect subrect;
+    switch (sr) {
+        case SR_PushButtonContents: {
+            CGRect inRect = CGRectMake(0, 0, widget->width(), widget->height());
+            CGRect outRect;
+            HIThemeButtonDrawInfo info;
+            info.version = qt_mac_hitheme_version;
+            info.state = kThemeStateActive;
+            info.kind = kThemePushButton;
+            info.adornment = kThemeAdornmentNone;
+            HIThemeGetButtonContentBounds(&inRect, &info, &outRect);
+            subrect = QRect(QPoint((int)outRect.origin.x, (int)outRect.origin.y),
+                            QSize((int)outRect.size.width, (int)outRect.size.height));
+            break;
+        }
+        default:
+            subrect = QWindowsStyle::subRect(sr, widget);
+    }
+    return subrect;
 }
 
 QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl control, const QWidget *widget,
@@ -307,6 +380,50 @@ QPixmap QMacStyleCG::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
 				 const QPalette &pal, const QStyleOption &opt) const
 {
     return QCommonStyle::stylePixmap(pixmaptype, pixmap, pal, opt);
+}
+
+bool QMacStyleCG::eventFilter(QObject *o, QEvent *e)
+{
+    QPushButton *btn = ::qt_cast<QPushButton *>(o);
+    if (btn) {
+        switch (e->type()) {
+        default:
+            break;
+        case QEvent::FocusIn:
+            if (btn->autoDefault())
+                d->animateButton(btn);
+            break;
+        case QEvent::Hide:
+            if (btn == d->defaultButton)
+                d->stopButtonAnimation();
+            break;
+        case QEvent::MouseButtonPress:
+            // From looking at Panther it seems that pulsing stops whenever the mouse
+            // is pressed, most people will probably be happy enough if we do it
+            // just for buttons.           
+            d->stopButtonAnimation();
+            break;
+        case QEvent::MouseButtonRelease:
+        case QEvent::FocusOut:
+        case QEvent::Show: {
+            // Find the correct button and animate it.
+            QObjectList list = btn->topLevelWidget()->queryList("QPushButton");
+            for (int i = 0; i < list.size(); ++i) {
+                QPushButton *pBtn = static_cast<QPushButton *>(list.at(i));
+                if ((e->type() == QEvent::FocusOut 
+                     && (pBtn->isDefault() || (pBtn->autoDefault() && pBtn->hasFocus()))
+                     && pBtn != btn)
+                    || ((e->type() == QEvent::Show || e->type() == QEvent::MouseButtonRelease)
+                        && pBtn->isDefault())) {
+                    if (pBtn->topLevelWidget()->isActiveWindow())
+                        d->animateButton(pBtn);
+                    break;
+                }
+            }
+            break; }
+        }
+    }
+    return QWindowsStyle::eventFilter(o, e);
 }
 
 #endif

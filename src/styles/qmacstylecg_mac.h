@@ -25,9 +25,9 @@ public:
     QMacStyleCG();
     ~QMacStyleCG();
 
-    void polish(QWidget * w);
-    void unPolish(QWidget * w);
-    void polish(QApplication*);
+    void polish(QWidget *w);
+    void unPolish(QWidget *w);
+    void polish(QApplication *app);
 
     void drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r, const QPalette &pal,
 			SFlags flags, const QStyleOption& = QStyleOption::Default) const;
@@ -59,7 +59,6 @@ public:
 
     QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
 			const QPalette &pal, const QStyleOption& = QStyleOption::Default) const;
-
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QMacStyleCG(const QMacStyleCG &);
@@ -67,8 +66,8 @@ private:        // Disabled copy constructor and operator=
 #endif
 
 protected:
+    bool eventFilter(QObject *o, QEvent *e);
     QMacStyleCGPrivate *d;
-
 };
 
 #endif // Q_WS_MAC
