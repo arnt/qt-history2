@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#40 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#41 $
 **
 ** Implementation of QDns class.
 **
@@ -35,7 +35,6 @@
 **
 **********************************************************************/
 
-#include "qplatformdefs.h"
 #include "qdns.h"
 
 #ifndef QT_NO_DNS
@@ -53,6 +52,13 @@
 #include "qtextstream.h"
 #include "qsocketdevice.h"
 #include "qcleanuphandler.h"
+
+#include "qplatformdefs.h"
+
+// UnixWare7 redefines socket as _socket
+#if defined(socket)
+#  undef socket
+#endif
 
 //#define QDNS_DEBUG
 
