@@ -2734,6 +2734,8 @@ static void derefEngine( QRegExpEngine *eng, const QString& pattern )
 	if ( !pattern.isNull() &&
 	     engineCache->insert(pattern, eng, 4 + pattern.length() / 4) )
 	    return;
+#else
+	Q_UNUSED( pattern );
 #endif
 	delete eng;
     }
