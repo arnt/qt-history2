@@ -1560,6 +1560,11 @@ static void init_wintab_functions()
 
 static void qt_tablet_init()
 {
+    static bool runOnce = FALSE;
+    if (runOnce)
+	return;
+    runOnce = TRUE;
+
     if ( qt_tablet_widget )
 	return;
     LOGCONTEXT lcMine;
