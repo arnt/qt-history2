@@ -196,7 +196,6 @@ void WizardEditor::itemHighlighted( int )
 void WizardEditor::itemSelected( int index )
 {
     if ( index < 0 ) return;
-    qDebug( "itemSelected: %d", index );
     // Called when Qt::Key_Enter was pressed.
     // ListBoxRename has renamed the list item, so we only need to rename the page to the same name.
     QString pn( tr( "Rename page %1 of %2" ).arg( wizard->title( wizard->page( index ) ) ).arg( wizard->name() ) );
