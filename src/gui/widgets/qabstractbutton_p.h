@@ -16,7 +16,7 @@ public:
         {}
 
     QString text;
-    QPixmap pixmap;
+    QIconSet icon;
     QKeySequence mnemonic;
     uint checkable :1;
     uint checked :1;
@@ -28,6 +28,7 @@ public:
 
     Q4ButtonGroup* group;
     QBasicTimer repeatTimer;
+    QBasicTimer animateTimer;
 
     void init();
     void click();

@@ -17,6 +17,7 @@
 
 #ifndef QT_H
 #include "qwidget.h"
+#include "qiconset.h"
 #include "qkeysequence.h"
 #endif // QT_H
 
@@ -29,7 +30,7 @@ class Q_GUI_EXPORT QAbstractButton : public QWidget
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAbstractButton);
     Q_PROPERTY(QString text READ text WRITE setText)
-    Q_PROPERTY(QPixmap pixmap READ pixmap WRITE setPixmap)
+    Q_PROPERTY(QIconSet icon READ icon WRITE setIcon)
     Q_PROPERTY(QKeySequence mnemonic READ accel WRITE setMnemonic)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
@@ -45,8 +46,8 @@ public:
     void setText(const QString &);
     QString text() const;
 
-    void setPixmap(const QPixmap &);
-    QPixmap pixmap() const;
+    void setIcon(const QIconSet &);
+    QIconSet icon() const;
 
     void setMnemonic(const QKeySequence&);
     QKeySequence mnemonic() const;

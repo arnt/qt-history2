@@ -44,10 +44,10 @@
   only toggle buttons; QPushButton and QToolButton provide both toggle
   and push buttons.
 
-  Any button can have either a text or pixmap label. setText() sets
-  the button to be a text button and setPixmap() sets it to be a
-  pixmap button. The text/pixmap is manipulated as necessary to create
-  the "disabled" appearance when the button is disabled.
+  Any button can have a text and/or an icon. setText() sets the text
+  label, setIcon() sets the icon. The text/icon is manipulated as
+  necessary to create the "disabled" appearance when the button is
+  disabled.
 
  QAbstractButton provides most of the states used for buttons:
 
@@ -97,8 +97,8 @@
   \endlist
 
   If the button is a text button with an ampersand (\&) in its text,
-  QButton creates an automatic accelerator key. This code creates a
-  push button labelled "Ro<u>c</u>k \& Roll" (where the c is
+  QButton creates an automatic shortcut key. This code creates a push
+  button labelled "Ro<u>c</u>k \& Roll" (where the c is
   underlined). The button gets an automatic accelerator key, Alt+C:
 
   \code
@@ -108,9 +108,9 @@
   In this example, when the user presses Alt+C the button will call
   animateClick().
 
-  You can also set a custom accelerator using the setMnemonic()
-  function. This is useful mostly for pixmap buttons because they have
-  no automatic accelerator.
+  You can also set a custom shortcut key using the setMnemonic()
+  function. This is useful mostly for buttons that do not have any
+  text, because they have no automatic accelerator.
 
   \code
         p->setPixmap(QPixmap("print.png"));
@@ -355,6 +355,7 @@ void QAbstractButtonPrivate::refresh()
 
 void QAbstractButtonPrivate::click()
 {
+    d->down = false;
     if (checkable) {
         blockRefresh = true;
         q->nextCheckState();
@@ -412,7 +413,6 @@ void QAbstractButton::setText(const QString &text)
     if (d->text == text)
         return;
     d->text = text;
-    d->pixmap = QPixmap();
     if (q->autoMask())
         q->updateMask();
     update();
@@ -429,32 +429,21 @@ QString QAbstractButton::text() const
 
 
 /*!
-  \property QAbstractButton::pixmap
-  \brief the pixmap shown on the button
-
-  If the pixmap is monochrome (i.e. it is a QBitmap or its \link
-  QPixmap::depth() depth\endlink is 1) and it does not have a mask,
-  this property will set the pixmap to be its own mask. The purpose
-  of this is to draw transparent bitmaps which are important for
-  toggle buttons, for example.
+  \property QAbstractButton::icon
+  \brief the icon shown on the button
 */
-void QAbstractButton::setPixmap(const QPixmap &pixmap)
+void QAbstractButton::setIcon(const QIconSet &icon)
 {
-    if (d->pixmap.serialNumber() == pixmap.serialNumber())
-        return;
-    d->pixmap = pixmap;
-    d->text = QString();
-    if (d->pixmap.depth() == 1 && !d->pixmap.mask())
-        d->pixmap.setMask(*((QBitmap *)&d->pixmap));
+    d->icon = icon;
     if (autoMask())
         updateMask();
     update();
     updateGeometry();
 }
 
-QPixmap QAbstractButton::pixmap() const
+QIconSet QAbstractButton::icon() const
 {
-    return d->pixmap;
+    return d->icon;
 }
 
 /*!
@@ -537,6 +526,10 @@ void QAbstractButton::setDown(bool down)
         return;
     d->down = down;
     d->refresh();
+    if (d->autoRepeat && d->down)
+        d->repeatTimer.start(AUTO_REPEAT_DELAY, this);
+    else
+        d->repeatTimer.stop();
 }
 
 bool QAbstractButton::isDown() const
@@ -558,8 +551,10 @@ void QAbstractButton::setAutoRepeat(bool autoRepeat)
     if (d->autoRepeat == autoRepeat)
         return;
     d->autoRepeat = autoRepeat;
-    if (d->autoRepeat && d->mlbDown)
+    if (d->autoRepeat && d->mlbDown && d->down)
         d->repeatTimer.start(AUTO_REPEAT_DELAY, this);
+    else
+        d->repeatTimer.stop();
 }
 
 bool QAbstractButton::autoRepeat() const
@@ -621,7 +616,11 @@ Q4ButtonGroup *QAbstractButton::group() const
 */
 void QAbstractButton::animateClick(int msec)
 {
-    Q_UNUSED(msec)
+    if (!isEnabled())
+        return;
+    setDown(true);
+    emit pressed();
+    d->animateTimer.start(msec, this);
 }
 
 /*!
@@ -706,8 +705,6 @@ void QAbstractButton::mousePressEvent(QMouseEvent *e)
     }
     if (hitButton(e->pos())) {
         d->mlbDown = true;
-        if (d->autoRepeat)
-            d->repeatTimer.start(AUTO_REPEAT_DELAY, this);
         setDown(true);
         emit pressed();
     }
@@ -733,12 +730,10 @@ void QAbstractButton::mouseReleaseEvent(QMouseEvent *e)
     if (!d->down)
         return;
 
-    if (hitButton(e->pos())) {
-        d->down = false;
+    if (hitButton(e->pos()))
         d->click();
-    } else {
+    else
         setDown(false);
-    }
 }
 
 /*! \reimp */
@@ -781,8 +776,6 @@ QSize QAbstractButton::sizeHint() const
     QSize sh(8, 8);
     if (!d->text.isEmpty())
         sh += fontMetrics().boundingRect(d->text).size();
-    else
-        sh += d->pixmap.size();
     return sh;
 }
 
@@ -833,10 +826,8 @@ void QAbstractButton::keyReleaseEvent(QKeyEvent * e)
 {
     switch (e->key()) {
     case Key_Space:
-        if (!e->isAutoRepeat() && d->down) {
-            d->down = false;
+        if (!e->isAutoRepeat() && d->down)
             d->click();
-        }
         break;
     default:
         e->ignore();
@@ -854,6 +845,9 @@ void QAbstractButton::timerEvent(QTimerEvent *e)
             emit clicked();
             emit pressed();
         }
+    } else if (e->timerId() == d->animateTimer.timerId()) {
+        d->animateTimer.stop();
+        d->click();
     }
 }
 
