@@ -40,7 +40,7 @@ Alt+L -- Pulls down the \Menu Layout menu.
 Ctrl+M -- Opens an online version of this manual in the help browser.
 \i
 
-Ctrl+N -- Invokes the \Dialog {New Form} dialog.
+Ctrl+N -- Invokes the \Dialog {New File} dialog.
 \i
 
 Ctrl+O -- Invokes the \Dialog {Open File} dialog.

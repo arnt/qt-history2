@@ -97,7 +97,7 @@ There are two aspects of database connections that we must consider.
 	\img database-connections.png
 \caption Database Connections Dialog
 
-	Choose \Menu {Edit|Database Connections} from the menu
+	Choose \Menu {Project|Database Connections} from the menu
 	bar. The \Dialog {Database Connections} dialog will appear. Click
 	\Button {New Connection}. For applications that use a single
 	database it will probably be most convenient to use the default
@@ -115,15 +115,20 @@ There are two aspects of database connections that we must consider.
 	from \QD.
 
 	\index Projects!Database Connections
-	\QD can remember database connection settings in
-	\Cmd qmake project files. Create a new project, e.g.
-	click \Menu {File|New Project} and complete the
-	\Dialog {Project Settings} dialog.
+	\QD can remember database connection settings in \Cmd qmake
+	project files. Create a new project, e.g. click \Menu
+	{File|New}, then click the 'C++ Project' icon to invoke the
+	\Dialog{Project Settings} dialog. Click the ellipsis button to
+	invoke the \Dialog{Save As} dialog; navigate to the project's
+	directory (creating it if necessary). Make sure you're in the
+	project's directory, then enter a project name of 'book.pro'.
+	Click the \Button Save button to return to the \Dialog{Project
+	Settings} dialog, then click \OK. 
 	 Next time you start \QD instead of
 	opening individual \c {.ui} files open the
 	\c {.pro} project file instead and \QD will
 	automatically reload the project's connection settings.  To
-	activate the connection click \Menu {Edit|Database Connections}.
+	activate the connection click \Menu {Project|Database Connections}.
 	The connections previously saved with the
 	project will be listed in the left hand list box. Click the
 	connection you wish to use and then click \Button Connect. This
@@ -223,9 +228,15 @@ From \File {qt/tools/designer/examples/book/book1/main.cpp}
 	\File qt/tools/designer/examples/book/book1/main.cpp file shown
 	earlier. The project file for this first example is
 	\File qt/tools/designer/examples/book/book1/book.pro. Start a new
-	project by clicking \Menu {File|New Project}. Complete
-	the \Dialog {Project Settings} dialog by entering a project name and
-	a project file name. Now click \Menu {Edit|Database Connections}.
+	project by clicking  \Menu {File|New}, then click the 'C++
+	Project' icon to invoke the \Dialog{Project Settings} dialog.
+	Click the ellipsis button to invoke the \Dialog{Save As}
+	dialog; navigate to the project's directory (creating it if
+	necessary). Make sure you're in the project's directory, then
+	enter a project name of 'book.pro'.
+	Click the \Button Save button to return to the \Dialog{Project
+	Settings} dialog, then click \OK.	
+	Now click \Menu {Project|Database Connections}.
 	Fill in the
 	connection information appropriate to your database then press
 	\Button Connect. The connection name should now appear in
@@ -236,7 +247,7 @@ From \File {qt/tools/designer/examples/book/book1/main.cpp}
 	We will now create a new form with a \Class QDataTable that's
 	connected to one of our database tables.
 
-	Click \Menu File|New. The \Dialog {New Form} dialog presents us
+	Click \Menu File|New. The \Dialog {New File} dialog presents us
 	with a number of form templates to choose from. Choose the
 	'Dialog' form and click \OK. Now click
 	\Menu File|Save. You will be prompted for a filename,
@@ -812,7 +823,7 @@ QuitPushButton -- \&Quit
 \index Wizards!Data Browser
 We will now create a new form to allow users to edit book
 	records. Click the \Toolbutton New toolbar button, click the
-	Dialog template from the \Dialog {New Form} dialog and click \OK. Change
+	Dialog template from the \Dialog {New File} dialog and click \OK. Change
 	the name of the form to EditBookForm and its caption to 'Edit
 	Books'. Click the \Toolbutton Save toolbar button and call the
 	file \File editbook.ui. Now that we have the form we can add a

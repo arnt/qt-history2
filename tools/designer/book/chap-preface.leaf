@@ -65,7 +65,9 @@
     user interface from the underlying code that implements its
     functionality. Additional information on \Cmd qmake and \Cmd uic
     is included in this chapter. This chapter will also explain how
-    you can dynamically load dialogs from \index .ui \File .ui files
+    you can dynamically load dialogs from 
+    \index .ui 
+    \File .ui files
     into your application using \Class QWidgetFactory and how to
     access the widgets and sub-widgets of these dialogs.
 

@@ -200,7 +200,7 @@ First we'll create the simple template.
 \list 1
 \i
 
-Click \Menu File|New to invoke the \Dialog {New Form} dialog.
+Click \Menu File|New to invoke the \Dialog {New File} dialog.
 Click the Dialog template then click \OK.
 
 \i
@@ -233,7 +233,7 @@ project.
 \endlist
 
 Now that we have the simple template we are ready to use it. Click
-\Menu File|New to invoke the \Dialog {New Form dialog}. One
+\Menu File|New to invoke the \Dialog {New File} dialog. One
 of the templates that will appear is 'Simple Dialog'. Click the simple
 dialog, then click \OK. A new form will appear with the same widgets and
 layout as the template. Add any other widgets and functionality. When
@@ -358,7 +358,7 @@ empty \index .moc
 click the newly created \index .moc
 \File .moc file, then click
 \Menu Settings from the pop-up menu to invoke the
-\Dialog {Project Settings} dialog. Click the Custom Build tab. Click the
+Project Settings dialog. Click the Custom Build tab. Click the
 \Button Dependencies button to pop up the User Defined
 Dependencies dialog. Type in
 \c {$(InputDir)\$(InputPath)}, then press

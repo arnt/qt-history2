@@ -6,7 +6,9 @@
 This chapter describes two different approaches that you can take to
 creating forms with \QD. Subclassing is used to extend the functionality
 of a form by creating your own class based upon a form you create in
-\QD. Dynamic dialogs are \index .ui \File .ui files which can be
+\QD. Dynamic dialogs are 
+\index .ui 
+\File .ui files which can be
 executed by a Qt application; this keeps the GUI design and the code
 separate and is useful in environments where the GUI may have to
 change more often than the underlying application logic.
@@ -48,7 +50,9 @@ If you create the \File{main.cpp} file within \QD, it will
 automatically be added to your project file by \QD. If you create the
 \File{main.cpp} file outside of \QD you must add it to the project
 file manually by adding the following line at the end of your
-project's \index .pro \File .pro file: 
+project's 
+\index .pro 
+\File .pro file: 
 \code
 SOURCES += main.cpp
 \endcode
@@ -132,7 +136,7 @@ since \QD will add them for you automatically.
 
 \QD will have added
 \code
-INTERFACES = settingsformbase.ui
+FORMS = settingsformbase.ui
 \endcode
 
 to the project file. The \File settingsformbase.h and
@@ -155,11 +159,15 @@ slots, then we'll create the subclass and a simple
 
 \index Projects!Creating New
 We'll begin by creating a new project.
-Click \Menu {File|New Project} to invoke the \Dialog {Project Settings}
-dialog, and type in a project
-name of 'credit' and a project file name of 'credit.pro' then click
-\OK. Now we'll add a form to the project.
-Click \Menu File|New to invoke the \Dialog {New Form}
+Click \Menu {File|New}, then click the 'C++ Project' icon to invoke
+the \Dialog{Project Settings} dialog. Click the ellipsis button to
+invoke the \Dialog{Save As} dialog; navigate to the project's
+directory (creating it if necessary). Make sure you're in the
+project's directory, then enter a project name of 'credit.pro'. Click
+the \Button Save button to return to the \Dialog{Project Settings}
+dialog, then click \OK.
+Now we'll add a form to the project.
+Click \Menu File|New to invoke the \Dialog {New File}
 dialog. The default form is Dialog which is what we want; click \OK.
 Resize the form to make it smaller; it should be about 2 inches (5 cm)
 square. Change the form's name to 'CreditFormBase' and the caption to
@@ -409,9 +417,7 @@ TARGET      = receiver
 SOURCES    += main.cpp
 unix:LIBS  += -lqui
 win32:LIBS += $(QTDIR)/lib/qui.lib
-INTERFACES  = mainform.ui
-IMAGEFILE   = images.cpp
-PROJECTNAME = receiver
+FORMS      = mainform.ui
 LANGUAGE    = C++
 INCLUDEPATH += $(QTDIR)/tools/designer/uilib
 \endcode
@@ -447,7 +453,7 @@ widget, show it and enter the event loop in the
 	Open the \index receiver.pro
 \File receiver.pro project file in \QD. We'll create a
 	dialog as our main window which we'll use to invoke the dynamic
-	dialog. Press \Key Ctrl+N to launch the \Dialog {New Form} dialog and
+	dialog. Press \Key Ctrl+N to launch the \Dialog {New File} dialog and
 	click \OK to get the default which is a dialog. Change the
 	dialog's name to 'MainForm' and its caption to 'Main Form'. Add
 	two buttons, one called 'creditPushButton' with the text

@@ -100,13 +100,13 @@ project's image collection, and these images can be shared and used by
 any of the forms you include in the project. The images are stored as
 PNGs (portable network graphics) in a subdirectory, \File{images/},
 inside the project's directory. Whenever you modify the image
-collection, \QD creates a source file, \File{images.cpp}, which
+collection, \QD creates a source file which
 contains both the image data in binary format and a function to
 instantiate the images. The images are accessible by all forms in the
 project and the data is shared.
 
 A further benefit of using an image collection is that
-\File{images.cpp} adds the images to the default QMimeSourceFactory.
+the images are added to the default QMimeSourceFactory.
 This way they are accessible from rich-text labels, What's This?
 context help and even tooltips through standard HTML image tags. The
 \e source argument of the image tag is simply the image's name in the
@@ -143,9 +143,9 @@ contain the list of forms, \File{.ui} files, used in the project for
 We've extended the sections in the \File{.pro} file to include the
 extra information that \QD needs to manage projects. For example, when
 you add a form to your project in \QD, it is automatically added to
-the INTERFACES section of the project file, and thus \Cmd qmake will
+the FORMS section of the project file, and thus \Cmd qmake will
 generate the required build rules without any further work. Similarly,
-the image collection file \File{images.cpp} is added to the SOURCES
+the images are added to the IMAGES
 section and thus gets automatically compiled into your executable.
 
 We don't force you to use \Cmd qmake; if you prefer another build

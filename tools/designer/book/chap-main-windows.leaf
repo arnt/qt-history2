@@ -23,12 +23,21 @@ application to illustrate the necessary techniques.
 
 \index Projects
 We begin by creating a project file. Start \QD or if it is already
-running, close any existing project and files. Click
-\Menu {File|New Project} to invoke the \Dialog {Project Settings} dialog. Enter a
-name for the project, e.g. richedit, and a name for the  project file,
-e.g. richedit.pro. Click \OK. If you're unfamiliar with Actions and
-Action Groups the sidebar provides the necessary introduction; otherwise
-skip ahead to "Designing the Main Window".
+running, close any existing projects and files. Click \Menu {File|New}
+to invoke the \Dialog{New File} dialog. Click the 'C++ Project' icon,
+then click \OK to invoke the \Dialog {Project Settings} dialog. Click
+the ellipsis button to invoke the \Dialog{Save As} dialog and navigate
+to where you want to put the new project. Use the \Toolbutton{Create
+New Folder} toolbar button to create the 'richedit' directory if it
+doesn't exist. Make sure you're in the 'richedit' directory (double
+click it) and enter a file name of 'richedit.pro'. Click the \Button
+Save button. The 'Project File' field of the \Dialog{Project Settings}
+dialog will have the path and name of your new project; click \OK to
+create the project.
+
+If you're unfamiliar with Actions and Action Groups the sidebar
+provides the necessary introduction; otherwise skip ahead to
+"Designing the Main Window".
 
 \sidebar Actions and Action Groups
 
@@ -94,7 +103,7 @@ We will use the main window wizard to build a main window. The
 
 	\section2 Creating the Main Window
 
-	Click \Menu File|New to invoke the \Dialog {New Form} dialog, click
+	Click \Menu File|New to invoke the \Dialog {New File} dialog, click
 	Mainwindow, then click \OK. A new \Class QMainWindow form will
 	be created and the Mainwindow Wizard will pop up.
 
@@ -209,7 +218,7 @@ Our application requires more menu items and toolbar buttons
 	    menu you associate the action with. The \Property iconSet
 	    is also used for the toolbar button if you associate the
 	    action with a toolbar. Click the ellipsis button (\Key
-	    {...}) to invoke the \Dialog {Edit Pixmap Collection}
+	    {...}) to invoke the \Dialog {Choose an Image}
 	    dialog. The ellipsis button appears when you click in the
 	    Value part of the Properties list by a \Property pixmap or
 	    \Property iconSet property. The pixmap we require is not

@@ -54,7 +54,8 @@ clipboard.
 \index Pixmaps!Adding to Forms
 Whenever you create a new application we \e strongly recommend that
 you create a project file and open the project rather than individual
-\index .ui \File .ui files. Opening a project has the advantage that
+\index .ui 
+\File .ui files. Using a project has the advantage that
 all the forms you create for the project are available via a single
 mouse click rather than having to be loaded individually through file
 open dialogs. An additional benefit of using project files is that
@@ -65,23 +66,31 @@ information on the benefits of using project files.
 
 \index Adding!Forms
 \index Forms!Adding
-Start \QD if you haven't already. Click \Menu {File|New Project} to invoke
-the \Dialog {Project Settings} dialog. Enter 'multiclip' as the project's name and
-'multiclip.pro' as the project's filename, then click \OK.  The name of
-the current project is shown in the
-\Button Files
-toolbar which is the top left toolbar by
-default. Once we have a project we can add forms and begin to build our
-application. (See \l {Customizing Qt Designer} for
-information on changing \QD's toolbars and windows to suit your
-preferences.)
+Start \QD if you haven't already. Click \Menu {File|New} to invoke the
+\Dialog{New File} dialog. Click the 'C++ Project' icon, then click \OK
+to invoke the \Dialog {Project Settings} dialog. You need to give the
+project a name, and we recommend that you put each project in its own
+subdirectory. Click the ellipsis \Button{...} button to invoke the
+\Dialog{Save As} dialog and navigate to where you want to put the new
+project. Click the \Toolbutton{Create New Folder} toolbar button to
+create the 'multiclip' directory. Double click the 'multiclip'
+directory to make it the current directory. Enter a file name of
+'multiclip.pro', and click the \Button Save button. The 'Project File'
+field of the \Dialog{Project Settings} dialog will have the path and
+name of your new project; click \OK to create the project. 
+
+The name of the current project is shown in the \Button Files toolbar
+which is the top left toolbar by default. Once we have a project we
+can add forms and begin to build our application. (See \l {Customizing
+Qt Designer} for information on changing \QD's toolbars and windows to
+suit your preferences.)
 
 \section1 Creating a New Form
 
 \index Dialogs!Creating New
 \index Creating Forms!Dialogs
 \index Adding!Forms
-Click \Menu File|New to invoke the \Dialog {New Form} dialog.
+Click \Menu File|New to invoke the \Dialog {New File} dialog.
 Several default forms are supplied but we will use the default Dialog
 form, so just click \OK. A new form called 'Form1' will appear. Note
 that the new form is listed in the Files list and the Properties window
@@ -105,9 +114,9 @@ signifies that the property name is the collective name for a set of
 related properties. Click the form to make the Property Editor show the
 form's properties.
 Click the \Property sizePolicy property's plus sign; you will
-see two properties appear indented below sizePolicy, hSizeType and
-vSizeType. These properties are edited in the same way as any
-other properties.
+see four properties appear indented below sizePolicy, hSizeType,
+vSizeType, horizontalStretch and verticalStretch. These properties are
+edited in the same way as any other properties.
 
 Some properties have simple values, for example, the \Property name property
 has a text value, the \Property width property (within \Property minimumSize
@@ -218,7 +227,7 @@ Click the
 	\index Adding!Text Labels
 \index Adding!Labels
 Click the
-	\Toolbutton {Text Label} toolbar button and
+	\Toolbutton {Text Label} toolbar button and click below the
 	\Widget {Line Edit}. Change its \Property text
 	property's value to 'Length'. Click the
 	\Toolbutton {LCD Number} toolbar button and click below
@@ -893,7 +902,8 @@ Right click the Class Variables item, then click
     We will invoke \QD's code editor and write the code.
 
     \index Code Editing
-We'll create the \index init() \Func init() function first. One way of
+    \index init()
+We'll create the \Func init() function first. One way of
 invoking the code editor is to click the Source tab, then click the
 name of the function you want to work on. If you have no functions or
 wish to create a new function you need to use the Source tab. Right
@@ -1123,6 +1133,8 @@ in \QD. To make the application compile and run we must create a
 \File main.cpp file from which we can call our form.
 
 \index Adding!Source Files to Project Files
+To add a new source file to the project click \Menu{File|New} to
+invoke the \Dialog{New File}
 The simplest way to add a new source file to a project is to use the
 Files window. Right click 'Source Files' in the Files window, then
 click \Menu{Add new source file to project}. In the \Dialog{Save As}
