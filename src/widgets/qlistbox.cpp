@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#117 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#118 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#117 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#118 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -719,7 +719,9 @@ void QListBox::inSort( const char *text )
 
 
 /*!
-  Removes the item at position \e index.
+  Removes the item at position \e index. If \a index is equal to
+  currentItem(), a new item gets selected and the highlighted()
+  signal is emitted.
   \sa insertItem(), clear()
 */
 
@@ -727,6 +729,8 @@ void QListBox::removeItem( int index )
 {
     if ( !checkIndex( "removeItem", count(), index ) )
 	return;
+    bool currentChanged = ( current == index );
+
     if ( current >= index && current > 0 )
 	current--;
     bool    updt = autoUpdate() && itemVisible( index );
@@ -734,8 +738,16 @@ void QListBox::removeItem( int index )
     int w             = lbi->width( this );
     updateNumRows( w == cellWidth() );
     delete lbi;
-    if ( count() == 0 )
+    if ( count() == 0 ) {
 	current = -1;
+    } else if ( currentChanged ) {
+	QString tmp = 0;
+	if ( item( currentItem() ) )
+	    tmp = item( currentItem() )->text();
+	emit highlighted( current );
+	if ( !tmp.isNull() )
+	    emit highlighted( tmp );
+    }
     if ( updt )
 	repaint();
 }
