@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#341 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#342 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3268,6 +3268,7 @@ static Bool isPaintOrScrollDoneEvent( Display *, XEvent *ev, XPointer a )
     {
 	if ( ev->xexpose.window == info->window )
 	    return TRUE;
+#ifdef Q_OLD_CONFIG_WORKAROUND
     } else if ( ev->type == ConfigureNotify && info->check ) {
 	XConfigureEvent *c = (XConfigureEvent *)ev;
 	if ( c->window == info->window &&
@@ -3275,6 +3276,7 @@ static Bool isPaintOrScrollDoneEvent( Display *, XEvent *ev, XPointer a )
 	    info->config++;
 	    return TRUE;
 	}
+#endif
     }
     return FALSE;
 }
@@ -3399,6 +3401,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 	}
     }
 
+#ifdef Q_OLD_CONFIG_WORKAROUND
     if ( info.config ) {
 	XConfigureEvent *c = (XConfigureEvent *)&xevent;
 	int  x, y;
@@ -3410,6 +3413,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 	translateConfigEvent( (XEvent*)c );	// will clear window
 	paintRegion = QRect( 0, 0, w, h );
     }
+#endif
 
     if ( should_clip ) {
 	paintRegion = paintRegion.intersect( rect() );
