@@ -40,6 +40,7 @@
 
 #include <private/qpaintengine_win_p.h>
 #include <private/qcursor_p.h>
+#include <private/qmath_p.h>
 
 #ifdef QT_THREAD_SUPPORT
 #include "qmutex.h"
@@ -85,23 +86,21 @@ extern bool qt_tabletChokeMouse;
 #include <pktdef.h>
 #include <math.h>
 
-typedef HCTX        (API *PtrWTOpen)(HWND, LPLOGCONTEXT, BOOL);
-typedef BOOL        (API *PtrWTClose)(HCTX);
-typedef UINT        (API *PtrWTInfo)(UINT, UINT, LPVOID);
-typedef BOOL        (API *PtrWTEnable)(HCTX, BOOL);
-typedef BOOL        (API *PtrWTOverlap)(HCTX, BOOL);
-typedef int        (API *PtrWTPacketsGet)(HCTX, int, LPVOID);
-typedef BOOL        (API *PtrWTGet)(HCTX, LPLOGCONTEXT);
-typedef int     (API *PtrWTQueueSizeGet)(HCTX);
-typedef BOOL    (API *PtrWTQueueSizeSet)(HCTX, int);
+typedef HCTX (API *PtrWTOpen)(HWND, LPLOGCONTEXT, BOOL);
+typedef BOOL (API *PtrWTClose)(HCTX);
+typedef UINT (API *PtrWTInfo)(UINT, UINT, LPVOID);
+typedef BOOL (API *PtrWTEnable)(HCTX, BOOL);
+typedef BOOL (API *PtrWTOverlap)(HCTX, BOOL);
+typedef int  (API *PtrWTPacketsGet)(HCTX, int, LPVOID);
+typedef BOOL (API *PtrWTGet)(HCTX, LPLOGCONTEXT);
+typedef int  (API *PtrWTQueueSizeGet)(HCTX);
+typedef BOOL (API *PtrWTQueueSizeSet)(HCTX, int);
 
-static PtrWTInfo         ptrWTInfo = 0;
-static PtrWTEnable         ptrWTEnable = 0;
-static PtrWTOverlap         ptrWTOverlap = 0;
-static PtrWTPacketsGet         ptrWTPacketsGet = 0;
-static PtrWTGet                 ptrWTGet = 0;
-
-static const double PI = 3.14159265358979323846;
+static PtrWTInfo ptrWTInfo = 0;
+static PtrWTEnable ptrWTEnable = 0;
+static PtrWTOverlap ptrWTOverlap = 0;
+static PtrWTPacketsGet ptrWTPacketsGet = 0;
+static PtrWTGet ptrWTGet = 0;
 
 static PACKET localPacketBuf[QT_TABLET_NPACKETQSIZE];  // our own tablet packet queue.
 HCTX qt_tablet_context;  // the hardware context for the tablet (like a window handle)
@@ -1905,7 +1904,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             break;
 #endif
         case WT_PACKET:
-            // Get the packets and also don't link against the actual library...
             if (ptrWTPacketsGet) {
                 if ((nPackets = ptrWTPacketsGet(qt_tablet_context, QT_TABLET_NPACKETQSIZE, &localPacketBuf))) {
                     result = widget->translateTabletEvent(msg, localPacketBuf, nPackets);
@@ -1913,7 +1911,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             }
             break;
         case WT_PROXIMITY:
-            // flush the QUEUE
+            // flush the Queue
             if (ptrWTPacketsGet)
                 ptrWTPacketsGet(qt_tablet_context, QT_TABLET_NPACKETQSIZE + 1, NULL);
             if (qt_tabletChokeMouse)
@@ -3117,6 +3115,18 @@ static void tabletInit(UINT wActiveCsr, HCTX hTab)
     }
 }
 
+static inline int sign(int x)
+{
+    return x >= 0 ? 1 : -1;
+}
+
+static inline qreal scaleCoord(int coord, int inOrigin, int inExtent, int outOrigin, int outExtent)
+{
+    if (sign(outExtent) == sign(inExtent))
+        return ((coord - inOrigin) * qAbs(outExtent) / qAbs(qreal(inExtent))) + outOrigin;
+    return ((qAbs(inExtent) - (coord - inOrigin)) * qAbs(outExtent) / qAbs(qreal(inExtent))) + outOrigin;
+}
+
 bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
                                       int numPackets)
 {
@@ -3130,16 +3140,15 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         dev,
         tiltX,
         tiltY;
-    bool sendEvent;
+    bool sendEvent = false;
     QEvent::Type t;
 
-
-    // the most typical event that we get...
+    // the most common event that we get...
     t = QEvent::TabletMove;
     for (i = 0; i < numPackets; i++) {
         if (localPacketBuf[i].pkCursor == 2) {
             dev = QTabletEvent::Eraser;
-        } else if (localPacketBuf[i].pkCursor == 1){
+        } else if (localPacketBuf[i].pkCursor == 1) {
             dev = QTabletEvent::Stylus;
         } else {
             dev = QTabletEvent::NoDevice;
@@ -3152,12 +3161,17 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
             button_pressed = true;
             t = QEvent::TabletPress;
         }
-        ptNew.x = (UINT)localPacketBuf[i].pkX;
-        ptNew.y = (UINT)localPacketBuf[i].pkY;
+        ptNew.x = UINT(localPacketBuf[i].pkX);
+        ptNew.y = UINT(localPacketBuf[i].pkY);
+
         prsNew = 0;
         if (!tCursorInfo()->contains(localPacketBuf[i].pkCursor))
             tabletInit(localPacketBuf[i].pkCursor, qt_tablet_context);
         TabletDeviceData tdd = tCursorInfo()->value(localPacketBuf[i].pkCursor);
+        QSize deskotpSize = qt_desktopWidget->screenGeometry().size();
+        qreal posX = scaleCoord(ptNew.x, tdd.minX, tdd.maxX, 0, desktopSize.width());
+        qreal posY = scaleCoord(ptNew.y, tdd.minY, tdd.maxY, 0, desktopSize().height());
+        QPointF hiResGlobal(posX, posY);
         if (btnNew) {
             prsNew = localPacketBuf[i].pkNormalPressure;
         } else if (button_pressed) {
@@ -3165,11 +3179,12 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
             t = QEvent::TabletRelease;
             button_pressed = false;
         }
-        QPoint globalPos(ptNew.x, ptNew.y);
+        // Truncate the stuff here as that what wintab does.
+        QPoint globalPos(posX, posY);
 
         // make sure the tablet event get's sent to the proper widget...
         QWidget *w = QApplication::widgetAt(globalPos);
-        if (w == NULL)
+        if (!w)
             w = this;
         QPoint localPos = w->mapFromGlobal(globalPos);
         if (!qt_tablet_tilt_support)
@@ -3184,14 +3199,14 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
             // Z = sin(altitude)
             // X Tilt = arctan(X / Z)
             // Y Tilt = arctan(Y / Z)
-            double radAzim = (ort.orAzimuth / 10) * (PI / 180);
-            //double radAlt = abs(ort.orAltitude / 10) * (PI / 180);
-            double tanAlt = tan((abs(ort.orAltitude / 10)) * (PI / 180));
+            double radAzim = (ort.orAzimuth / 10) * (Q_PI / 180);
+            //double radAlt = abs(ort.orAltitude / 10) * (Q_PI / 180);
+            double tanAlt = tan((abs(ort.orAltitude / 10)) * (Q_PI / 180));
 
             double degX = atan(sin(radAzim) / tanAlt);
             double degY = atan(cos(radAzim) / tanAlt);
-            tiltX = int(degX * (180 / PI));
-            tiltY = int(-degY * (180 / PI));
+            tiltX = int(degX * (180 / Q_PI));
+            tiltY = int(-degY * (180 / Q_PI));
         }
         // get the unique ID of the device...
         int csr_type,
@@ -3200,7 +3215,7 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         ptrWTInfo(WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_PHYSID, &csr_physid);
         qint64 llId = csr_type;
         llId = (llId << 24) | csr_physid;
-        QTabletEvent e(t, localPos, globalPos, globalPos, dev,
+        QTabletEvent e(t, localPos, globalPos, hiResGlobal, dev,
                        qreal(prsNew / qreal(tdd.maxPressure - tdd.minPressure)),
                        tiltX, tiltY, 0, llId);
         sendEvent = QApplication::sendSpontaneousEvent(w, &e);
