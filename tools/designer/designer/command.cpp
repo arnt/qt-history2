@@ -2199,22 +2199,20 @@ void AddMenuCommand::execute()
     QMainWindow *mw = (QMainWindow*)formWindow()->mainContainer();
     if ( !mb ) {
 	mb = new MenuBarEditor( formWindow(), mw );
-	QString n = "MenuBarEditor";
-	formWindow()->unify( mb, n, TRUE );
-	mb->setName( n );
-	MetaDataBase::addEntry( mb );
+	mb->setName( "MenuBarEditor" );
+	formWindow()->insertWidget( mb, TRUE );
     }
     if ( !item ) {
 	PopupMenuEditor *popup = new PopupMenuEditor( formWindow(), mw );
-	QString n = "PopupMenuEditor";
-	formWindow()->unify( popup, n, TRUE );
-	popup->setName( n );
-	MetaDataBase::addEntry( popup );
+	popup->setName( "PopupMenuEditor" );
+	formWindow()->insertWidget( popup, TRUE );
 	mb->insertItem( name, popup, index );
 	index = mb->findItem( popup );
 	item = mb->item( index );
     } else {
-	MetaDataBase::addEntry( item->menu() );
+	PopupMenuEditor *popup = item->menu();
+	popup->setName( item->menuText() );
+	formWindow()->insertWidget( popup, TRUE );
 	mb->insertItem( item, index );
     }
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
@@ -2228,9 +2226,9 @@ void AddMenuCommand::unexecute()
     }
     item->menu()->hide();
     int i = mb->findItem( item );
+    formWindow()->removeWidget( item->menu() );
     mb->removeItemAt( i );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
-    MetaDataBase::removeEntry( item->menu() );
 }
 
 // ------------------------------------------------------------
@@ -2312,7 +2310,7 @@ RenameMenuCommand::RenameMenuCommand( const QString &n,
 				      MenuBarEditorItem *i )
     : Command( n, fw ), bar( b ), item( i ), newName( nm )
 {
-    oldName = item->menuText();
+    oldName = item->menu()->name();
 }
 
 QString RenameMenuCommand::makeLegal( const QString &str )
@@ -2333,21 +2331,19 @@ QString RenameMenuCommand::makeLegal( const QString &str )
 
 void RenameMenuCommand::execute()
 {
-    MetaDataBase::removeEntry( item );
+    PopupMenuEditor *popup = item->menu();
     item->setMenuText( newName );
     QString legal = makeLegal( newName );
-    formWindow()->unify( item, legal, FALSE );
-    item->setName( legal );
-    MetaDataBase::addEntry( item );
+    formWindow()->unify( popup, legal, TRUE );
+    popup->setName( legal );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void RenameMenuCommand::unexecute()
 {
-    MetaDataBase::removeEntry( item );
+    PopupMenuEditor *popup = item->menu();
     item->setMenuText( oldName );
-    item->setName( oldName );
-    MetaDataBase::addEntry( item );
+    popup->setName( oldName );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
