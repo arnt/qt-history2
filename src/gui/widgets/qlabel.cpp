@@ -783,7 +783,7 @@ void QLabel::paintEvent(QPaintEvent *)
         }
 #endif
         int alignment = align;
-        if (!style().styleHint(QStyle::SH_UnderlineAccelerator, this))
+        if ((alignment & ShowPrefix) && !style().styleHint(QStyle::SH_UnderlineAccelerator, this))
             alignment |= NoAccel;
         // ordinary text or pixmap label
         style().drawItem(&paint, cr, alignment, palette(), isEnabled(), pix, ltext);
