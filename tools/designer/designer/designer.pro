@@ -7,7 +7,6 @@ CONFIG 		-= dll
 }
 
 TARGET	= designer
-win32:TARGET = designerlib
 
 DEFINES	+= DESIGNER
 DEFINES += QT_INTERNAL_XML
