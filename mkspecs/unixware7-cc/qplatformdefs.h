@@ -9,6 +9,11 @@
 
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
+// make <sys/ioctl.h> include <sys/filio.h> to #define FIONREAD
+#ifndef BSD_COMP
+#  define BSD_COMP
+#endif
+
 #include <unistd.h>
 #include <sys/types.h>
 
@@ -19,7 +24,6 @@
 #ifdef QT_THREAD_SUPPORT
 #include <pthread.h>
 #endif
-
 
 #include <ctype.h>
 #include <dirent.h>
@@ -34,8 +38,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <netinet/in.h>
-
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/time.h>
@@ -45,9 +47,15 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
-#include <sys/filio.h>
+// DNS header files are not fully covered by X/Open specifications.
+// In particular nothing is said about res_* :/
+// On Unixware header files <netinet/in.h> and <arpa/nameser.h> are not
+// included by <resolv.h>. Note that <arpa/nameser.h> must be included
+// before <resolv.h>.
+#include <netinet/in.h>
+#include <arpa/nameser.h>
+#include <resolv.h>
 
-#undef listen
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat

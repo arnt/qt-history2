@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#38 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#39 $
 **
 ** Implementation of QDns class.
 **
@@ -1938,39 +1938,6 @@ QString QDns::canonicalName() const
 
 #if defined(Q_OS_UNIX)
 
-// Include this stuff late, so any defines won't hurt.  Funkily,
-// struct __res_state is part of the API.  Normally not used, it
-// says.  But we use it, to get various information.
-
-// DNS header files are not fully covered by X/Open specifications.
-// In particular nothing is said about res_* :/
-// The following header files <sys/types.h>, <netinet/in.h>, and
-// <arpa/nameser.h> are included by <resolv.h> on some systems.
-// But BSDs do not include them automatically. So let's always
-// include them...
-#if defined (Q_OS_SCO) || defined (Q_OS_FREEBSD)
-// Problem reported on SCO OpenServer 5.0.5, FreeBSD 3.x.
-#  define class c_class
-#endif
-#include <arpa/nameser.h>
-#if defined (Q_OS_SCO) || defined (Q_OS_FREEBSD)
-#  undef class
-#endif
-#include <resolv.h>
-
-#if defined (Q_OS_HPUX)
-// According to changelog 23685, this was introduced to fix a problem under
-// Solaris.  According to qt-bugs/arc-09/19264 it's needed for HPUX as well.
-// Need to have a closer look at it...
-extern "C" int res_init();
-#endif
-
-// if various defines aren't there, we'll set them safely.
-
-#if !defined(MAXNS)
-#define MAXNS 1
-#endif
-
 static void doResInit()
 {
     if ( ns )
@@ -2223,4 +2190,4 @@ static void doResInit()
 
 #endif
 
-#endif
+#endif // QT_NO_DNS

@@ -16,6 +16,13 @@
 #  define _BSD_SOURCE
 #endif
 
+// 1) need to reset default environment if _BSD_SOURCE is defined
+// 2) need to specify POSIX thread interfaces explicitly in glibc 2.0
+// 3) it seems older glibc need this to include the X/Open stuff
+#ifndef _GNU_SOURCE
+#  define _GNU_SOURCE
+#endif
+
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -27,7 +34,6 @@
 #ifdef QT_THREAD_SUPPORT
 #include <pthread.h>
 #endif
-
 
 #include <ctype.h>
 #include <dirent.h>
@@ -42,8 +48,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <netinet/in.h>
-
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/time.h>
@@ -52,6 +56,15 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+
+// DNS header files are not fully covered by X/Open specifications.
+// In particular nothing is said about res_* :/
+// Header files <netinet/in.h> and <arpa/nameser.h> are not included
+// by <resolv.h> on older versions of the GNU C library. Note that
+// <arpa/nameser.h> must be included before <resolv.h>.
+#include <netinet/in.h>
+#include <arpa/nameser.h>
+#include <resolv.h>
 
 
 #define QT_STATBUF		struct stat

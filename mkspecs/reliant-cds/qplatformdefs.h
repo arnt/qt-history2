@@ -23,7 +23,6 @@
 #include <pthread.h>
 #endif
 
-
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
@@ -37,8 +36,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <netinet/in.h>
-
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/time.h>
@@ -47,6 +44,10 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+
+// DNS header files are not fully covered by X/Open specifications.
+// In particular nothing is said about res_* :/
+#include <resolv.h>
 
 
 #define QT_STATBUF		struct stat
