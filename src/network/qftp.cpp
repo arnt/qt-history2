@@ -949,8 +949,8 @@ class QFtpPrivate
 {
 public:
     QFtpPrivate(QFtp *q0)
-	: q(q0), close_waitForStateChange(false), state(QFtp::Unconnected), error(QFtp::NoError)
-    { pending.setAutoDelete(true); }
+	: q(q0), close_waitForStateChange(false), state(QFtp::Unconnected), error(QFtp::NoError) { }
+    ~QFtpPrivate() { pending.deleteAll(); }
 
     int addCommand(QFtpCommand *cmd);
 
@@ -1718,7 +1718,7 @@ QByteArray QFtp::readAll()
 */
 void QFtp::abort()
 {
-    if ( d->pending.isEmpty() )
+    if (d->pending.isEmpty())
 	return;
 
     clearPendingCommands();
@@ -1733,10 +1733,9 @@ void QFtp::abort()
 */
 int QFtp::currentId() const
 {
-    QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
-    if ( c == 0 )
+    if (d->pending.isEmpty())
 	return 0;
-    return c->id;
+    return d->pending.first()->id;
 }
 
 /*!
@@ -1747,10 +1746,9 @@ int QFtp::currentId() const
 */
 QFtp::Command QFtp::currentCommand() const
 {
-    QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
-    if ( c == 0 )
+    if (d->pending.isEmpty())
 	return None;
-    return c->command;
+    return d->pending.first()->command;
 }
 
 /*!
@@ -1765,9 +1763,9 @@ QFtp::Command QFtp::currentCommand() const
 */
 QIODevice* QFtp::currentDevice() const
 {
-    QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
-    if ( !c )
+    if (d->pending.isEmpty())
 	return 0;
+    QFtpCommand *c = d->pending.first();
     if ( c->is_ba )
 	return 0;
     return c->data.dev;
@@ -1799,6 +1797,7 @@ void QFtp::clearPendingCommands()
     QFtpCommand *c = 0;
     if ( d->pending.count() > 0 )
 	c = d->pending.takeFirst();
+    d->pending.deleteAll();
     d->pending.clear();
     if ( c )
 	d->pending.append( c );
@@ -1845,9 +1844,9 @@ QString QFtp::errorString() const
 
 void QFtp::startNextCommand()
 {
-    QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
-    if ( c == 0 )
+    if (d->pending.isEmpty())
 	return;
+    QFtpCommand *c = d->pending.first();
 
     d->error = NoError;
     d->errorString = tr( "Unknown error" );
@@ -1886,9 +1885,9 @@ void QFtp::startNextCommand()
 
 void QFtp::piFinished( const QString& )
 {
-    QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
-    if ( c == 0 )
+    if (d->pending.isEmpty())
 	return;
+    QFtpCommand *c = d->pending.first();
 
     if ( c->command == Close ) {
 	// The order of in which the slots are called is arbitrary, so
@@ -1903,8 +1902,10 @@ void QFtp::piFinished( const QString& )
     emit commandFinished( c->id, FALSE );
 
     d->pending.removeFirst();
+    delete c;
+
     if ( d->pending.isEmpty() ) {
-	emit done( FALSE );
+	emit done(false);
     } else {
 	startNextCommand();
     }
@@ -1912,10 +1913,10 @@ void QFtp::piFinished( const QString& )
 
 void QFtp::piError( int errorCode, const QString &text )
 {
-    QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
+    QFtpCommand *c = d->pending.first();
 
     // non-fatal errors
-    if ( c->command==Get && d->pi.currentCommand().startsWith("SIZE ") ) {
+    if ( c->command == Get && d->pi.currentCommand().startsWith("SIZE ") ) {
 	d->pi.dtp.setBytesTotal( -1 );
 	return;
     } else if ( c->command==Put && d->pi.currentCommand().startsWith("ALLO ") ) {
@@ -1961,8 +1962,9 @@ void QFtp::piError( int errorCode, const QString &text )
     emit commandFinished( c->id, TRUE );
 
     d->pending.removeFirst();
+    delete c;
     if ( d->pending.isEmpty() )
-	emit done( TRUE );
+	emit done(true);
     else
 	startNextCommand();
 }

@@ -58,7 +58,6 @@
 
 static Q_UINT16 id; // ### seeded started by now()
 
-
 static QDateTime * originOfTime = 0;
 
 static QCleanupHandler<QDateTime> qdns_cleanup_time;
@@ -75,7 +74,7 @@ static Q_UINT32 now()
 }
 
 
-static QList<QHostAddress*> *ns = 0;
+static QList<QHostAddress *> *ns = 0;
 static QList<QByteArray> *domains = 0;
 static bool ipv6support = FALSE;
 
@@ -178,13 +177,13 @@ public:
 
     void sweep( Q_UINT32 thisSweep );
 
-    bool isEmpty() const { return rrs == 0 || rrs->isEmpty(); }
+    bool isEmpty() const { return rrs.isEmpty(); }
 
     QString name() const { return l; }
 
 public:
     QString l;
-    QList<QDnsRR *> *rrs;
+    QList<QDnsRR *> rrs;
 };
 
 
@@ -222,7 +221,7 @@ private:
     int size;
     int pp;
 
-    QList<QDnsRR *> *rrs;
+    QList<QDnsRR *> rrs;
 
     // convenience
     int next;
@@ -268,8 +267,6 @@ QDnsAnswer::QDnsAnswer( QDnsQuery * query_ )
     size = 0;
     query = query_;
     pp = 0;
-    rrs = new QList<QDnsRR *>;
-    rrs->setAutoDelete( FALSE );
     next = size;
     ttl = 0;
     label = QString::null;
@@ -281,12 +278,11 @@ QDnsAnswer::QDnsAnswer( QDnsQuery * query_ )
     newrr->expireTime = query->started + 10;
     newrr->nxdomain = TRUE;
     newrr->current = TRUE;
-    rrs->append( newrr );
+    rrs.append( newrr );
 }
 
 
-QDnsAnswer::QDnsAnswer( const QByteArray& answer_,
-			QDnsQuery * query_ )
+QDnsAnswer::QDnsAnswer( const QByteArray& answer_, QDnsQuery * query_ )
 {
     ok = TRUE;
 
@@ -294,8 +290,6 @@ QDnsAnswer::QDnsAnswer( const QByteArray& answer_,
     size = (int)answer_.size();
     query = query_;
     pp = 0;
-    rrs = new QList<QDnsRR *>;
-    rrs->setAutoDelete( FALSE );
     next = size;
     ttl = 0;
     label = QString::null;
@@ -305,20 +299,20 @@ QDnsAnswer::QDnsAnswer( const QByteArray& answer_,
 
 QDnsAnswer::~QDnsAnswer()
 {
-    if ( !ok && rrs ) {
-	for (int i = 0; i < rrs->count(); ++i)
-	    rrs->at(i)->t = QDns::None; // will be deleted soonish
+    if (!ok) {
+	for (int i = 0; i < rrs.count(); ++i)
+	    rrs.at(i)->t = QDns::None; // will be deleted soonish
     }
-    delete rrs;
+    rrs.deleteAll();
 }
 
 
 QString QDnsAnswer::readString()
 {
     int p = pp;
-    QString r = QString::null;
+    QString r;
     Q_UINT8 b;
-    for( ;; ) {
+    for ( ;; ) {
 	b = 128;
 	if ( p >= 0 && p < size )
 	    b = answer[p];
@@ -576,7 +570,7 @@ void QDnsAnswer::parse()
 	rr->expireTime = query->started + 60;
 	rr->nxdomain = TRUE;
 	rr->current = TRUE;
-	rrs->append( rr );
+	rrs.append( rr );
 	return;
     }
 
@@ -689,7 +683,7 @@ void QDnsAnswer::parse()
 		    rr->deleteTime = rr->expireTime;
 		}
 		rr->current = TRUE;
-		rrs->append( rr );
+		rrs.append( rr );
 	    }
 	}
 	if ( !ok )
@@ -709,8 +703,8 @@ void QDnsAnswer::parse()
     // by something we care about.  we want to cache such As.
     QHash<QString, int> used;
 
-    for (int i = 0; i < rrs->count(); ++i) {
-	rr = rrs->at(i);
+    for (int i = 0; i < rrs.count(); ++i) {
+	rr = rrs.at(i);
 	if ( rr->target.length() && rr->deleteTime > 0 && rr->current )
 	    used.insert(rr->target, 1);
 	if ((rr->t == QDns::A || rr->t == QDns::Aaaa) && used.contains(rr->domain->name()))
@@ -718,11 +712,11 @@ void QDnsAnswer::parse()
     }
 
     // next, for each RR, delete any older RRs that are equal to it
-    for (int i = 0; i < rrs->count(); ++i) {
-	rr = rrs->at(i);
-	if ( rr && rr->domain && rr->domain->rrs ) {
-	    for (int j = 0; j < rr->domain->rrs->count(); ++j) {
-		QDnsRR *older = rr->domain->rrs->at(j);
+    for (int i = 0; i < rrs.count(); ++i) {
+	rr = rrs.at(i);
+	if ( rr && rr->domain ) {
+	    for (int j = 0; j < rr->domain->rrs.count(); ++j) {
+		QDnsRR *older = rr->domain->rrs.at(j);
 		if ( older != rr &&
 		     older->t == rr->t &&
 		     older->nxdomain == rr->nxdomain &&
@@ -765,7 +759,7 @@ public:
 
 void QDnsAnswer::notify()
 {
-    if ( !rrs || !ok || !query || !query->dns )
+    if ( !ok || !query || !query->dns )
 	return;
 
     QHash<const QDns *, const QDns *> notified;
@@ -774,7 +768,7 @@ void QDnsAnswer::notify()
     while (it != query->dns.end()) {
 	if (!notified.contains(*it)) {
 	    notified.insert(*it, *it);
-	    if ( rrs->count() == 0 ) {
+	    if ( rrs.isEmpty() ) {
 #if defined(QDNS_DEBUG)
 		qDebug( "DNS Manager: found no answers!" );
 #endif
@@ -919,9 +913,9 @@ QDnsManager::QDnsManager()
 	}
     }
 
+    ::ns->deleteAll();
     delete ::ns;
     ::ns = ns;
-    ::ns->setAutoDelete( TRUE );
 
     QList<QByteArray> *new_domains = new QList<QByteArray>;
     for(QList<QByteArray>::Iterator it = domains->begin(); it != domains->end(); ++it) {
@@ -951,7 +945,7 @@ QDnsManager::~QDnsManager()
 {
     if ( globalManager )
 	globalManager = 0;
-    queries.setAutoDelete(true);
+    queries.deleteAll();
     cache.deleteAll();
     delete ipv4Socket;
 #if !defined (QT_NO_IPV6)
@@ -1248,29 +1242,21 @@ QDnsDomain * QDnsManager::domain( const QString & label )
 //
 
 
-// this is ONLY to be called by QDnsManager::domain().  noone else.
+// this is ONLY to be called by QDnsManager::domain().  no one else.
 QDnsDomain::QDnsDomain( const QString & label )
 {
     l = label;
-    rrs = 0;
 }
-
 
 QDnsDomain::~QDnsDomain()
 {
-    delete rrs;
-    rrs = 0;
+    rrs.deleteAll();
 }
-
 
 void QDnsDomain::add( const QString & label, QDnsRR * rr )
 {
     QDnsDomain * d = QDnsManager::manager()->domain( label );
-    if ( !d->rrs ) {
-	d->rrs = new QList<QDnsRR *>;
-	d->rrs->setAutoDelete( TRUE );
-    }
-    d->rrs->append( rr );
+    d->rrs.append( rr );
     rr->domain = d;
 }
 
@@ -1333,12 +1319,12 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 #endif
 	QDnsDomain * d = m->domain( s );
 #if defined(QDNS_DEBUG)
-	qDebug( " - found %d RRs", d && d->rrs ? d->rrs->count() : 0 );
+	qDebug( " - found %d RRs", d ? d->rrs.count() : 0 );
 #endif
 	bool answer = FALSE;
 	int i = 0;
-	while (d->rrs && i < d->rrs->count()) {
-	    QDnsRR *rr = d->rrs->at(i);
+	while (i < d->rrs.count()) {
+	    QDnsRR *rr = d->rrs.at(i);
 	    ++i;
 
 	    if ( rr->t == QDns::Cname
@@ -1450,12 +1436,9 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 
 void QDnsDomain::sweep( Q_UINT32 thisSweep )
 {
-    if ( !rrs )
-	return;
-
     QDnsRR * rr;
-    for (int i = 0; i < rrs->count(); ++i) {
-	rr = rrs->at(i);
+    for (int i = 0; i < rrs.count(); ++i) {
+	rr = rrs.at(i);
 	if ( !rr->deleteTime )
 	    rr->deleteTime = thisSweep; // will hit next time around
 
@@ -1468,13 +1451,10 @@ void QDnsDomain::sweep( Q_UINT32 thisSweep )
 	if ( rr->current == FALSE ||
 	     rr->t == QDns::None ||
 	     rr->deleteTime <= thisSweep ||
-	     rr->expireTime <= thisSweep )
-	    rrs->removeAt(i);
-    }
-
-    if ( rrs->isEmpty() ) {
-	delete rrs;
-	rrs = 0;
+	     rr->expireTime <= thisSweep ) {
+	    delete rrs.at(i);
+            rrs.removeAt(i);
+	}
     }
 }
 
@@ -2284,7 +2264,6 @@ void QDns::doResInit()
     if ( ns )
 	return;
     ns = new QList<QHostAddress *>;
-    ns->setAutoDelete( TRUE );
     domains = new QList<QByteArray>;
 
     QString domainName, nameServer, searchList;
@@ -2447,7 +2426,6 @@ void QDns::doResInit()
     if ( ns )
 	return;
     ns = new QList<QHostAddress *>;
-    ns->setAutoDelete( TRUE );
     domains = new QList<QByteArray>;
 
     // read resolv.conf manually.

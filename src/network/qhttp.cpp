@@ -29,22 +29,36 @@
 
 //#define QHTTP_DEBUG
 
+class QHttpRequest
+{
+public:
+    QHttpRequest()
+    {
+	id = ++idCounter;
+    }
+    virtual ~QHttpRequest()
+    { }
+
+    virtual void start( QHttp * ) = 0;
+    virtual bool hasRequestHeader();
+    virtual QHttpRequestHeader requestHeader();
+
+    virtual QIODevice* sourceDevice() = 0;
+    virtual QIODevice* destinationDevice() = 0;
+
+    int id;
+
+private:
+    static int idCounter;
+};
+
 class QHttpPrivate
 {
 public:
-    QHttpPrivate() :
-	state( QHttp::Unconnected ),
-	error( QHttp::NoError ),
-	hostname( QString::null ),
-	port( 0 ),
-	toDevice( 0 ),
-	postDevice( 0 ),
-	bytesDone( 0 ),
-	chunkedSize( -1 ),
-	idleTimer( 0 )
-    {
-	pending.setAutoDelete( TRUE );
-    }
+    QHttpPrivate()
+	: state(QHttp::Unconnected), error(QHttp::NoError), port(0), toDevice(0), postDevice(0),
+	  bytesDone(0), chunkedSize(-1), idleTimer(0) { }
+    ~QHttpPrivate() { pending.deleteAll(); }
 
     QSocket socket;
     QList<QHttpRequest *> pending;
@@ -73,29 +87,6 @@ public:
     int idleTimer;
 
     QMembuf rba;
-};
-
-class QHttpRequest
-{
-public:
-    QHttpRequest()
-    {
-	id = ++idCounter;
-    }
-    virtual ~QHttpRequest()
-    { }
-
-    virtual void start( QHttp * ) = 0;
-    virtual bool hasRequestHeader();
-    virtual QHttpRequestHeader requestHeader();
-
-    virtual QIODevice* sourceDevice() = 0;
-    virtual QIODevice* destinationDevice() = 0;
-
-    int id;
-
-private:
-    static int idCounter;
 };
 
 int QHttpRequest::idCounter = 0;
@@ -1377,8 +1368,7 @@ QHttp::~QHttp()
 */
 void QHttp::abort()
 {
-    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
-    if ( r == 0 )
+    if (d->pending.isEmpty())
 	return;
 
     finishedWithError( tr("Request aborted"), Aborted );
@@ -1447,10 +1437,9 @@ QByteArray QHttp::readAll()
 */
 int QHttp::currentId() const
 {
-    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
-    if ( r == 0 )
+    if (d->pending.isEmpty())
 	return 0;
-    return r->id;
+    return d->pending.first()->id;
 }
 
 /*!
@@ -1463,9 +1452,11 @@ int QHttp::currentId() const
 */
 QHttpRequestHeader QHttp::currentRequest() const
 {
-    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
-    if ( r != 0 && r->hasRequestHeader() )
-	return r->requestHeader();
+    if (!d->pending.isEmpty()) {
+	QHttpRequest *r = d->pending.first();
+	if ( r->hasRequestHeader() )
+	    return r->requestHeader();
+    }
     return QHttpRequestHeader();
 }
 
@@ -1481,10 +1472,9 @@ QHttpRequestHeader QHttp::currentRequest() const
 */
 QIODevice* QHttp::currentSourceDevice() const
 {
-    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
-    if ( !r )
+    if (d->pending.isEmpty())
 	return 0;
-    return r->sourceDevice();
+    return d->pending.first()->sourceDevice();
 }
 
 /*!
@@ -1499,10 +1489,9 @@ QIODevice* QHttp::currentSourceDevice() const
 */
 QIODevice* QHttp::currentDestinationDevice() const
 {
-    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
-    if ( !r )
+    if (d->pending.isEmpty())
 	return 0;
-    return r->destinationDevice();
+    return d->pending.first()->destinationDevice();
 }
 
 /*!
@@ -1531,6 +1520,7 @@ void QHttp::clearPendingRequests()
     QHttpRequest *r = 0;
     if ( d->pending.count() > 0 )
 	r = d->pending.takeAt(0);
+    d->pending.deleteAll();
     d->pending.clear();
     if ( r )
 	d->pending.append( r );
@@ -1746,18 +1736,18 @@ int QHttp::addRequest( QHttpRequest *req )
 {
     d->pending.append( req );
 
-    if ( d->pending.count() == 1 )
+    if ( d->pending.count() == 1 ) {
 	// don't emit the requestStarted() signal before the id is returned
 	QTimer::singleShot( 0, this, SLOT(startNextRequest()) );
-
+    }
     return req->id;
 }
 
 void QHttp::startNextRequest()
 {
-    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
-    if ( r == 0 )
+    if (d->pending.isEmpty())
 	return;
+    QHttpRequest *r = d->pending.first();
 
     d->error = NoError;
     d->errorString = tr( "Unknown error" );
@@ -1778,7 +1768,7 @@ void QHttp::sendRequest()
     killIdleTimer();
 
     // Do we need to setup a new connection or can we reuse an
-    // existing one ?
+    // existing one?
     if ( d->socket.peerName() != d->hostname || d->socket.state() != QSocket::Connection ) {
 	setState( QHttp::Connecting );
 	d->socket.connectToHost( d->hostname, d->port );
@@ -1790,12 +1780,14 @@ void QHttp::sendRequest()
 
 void QHttp::finishedWithSuccess()
 {
-    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
-    if ( r == 0 )
+    if (d->pending.isEmpty())
 	return;
+    QHttpRequest *r = d->pending.first();
 
     emit requestFinished( r->id, FALSE );
     d->pending.removeFirst();
+    delete r;
+
     if ( d->pending.isEmpty() ) {
 	emit done( FALSE );
     } else {
@@ -1805,16 +1797,18 @@ void QHttp::finishedWithSuccess()
 
 void QHttp::finishedWithError( const QString& detail, int errorCode )
 {
-    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
-    if ( r == 0 )
+    if (d->pending.isEmpty())
 	return;
+    QHttpRequest *r = d->pending.first();
 
     d->error = (Error)errorCode;
     d->errorString = detail;
-    emit requestFinished( r->id, TRUE );
+    emit requestFinished(r->id, true);
 
+    d->pending.deleteAll();
     d->pending.clear();
-    emit done( TRUE );
+
+    emit done(true);
 }
 
 void QHttp::slotClosed()
