@@ -739,13 +739,10 @@ int QPopupMenu::itemAtPos( const QPoint &pos, bool ignoreSeparator ) const
     QMenuItem *mi;
     QMenuItemListIt it( *mitems );
     QSize sz;
-    void *data[2];
     while ( (mi=it.current()) ) {
 	++it;
 	int itemh = itemHeight( mi );
 
-	data[0] = mi;
-	data[1] = (void *) &maxPMWidth;
 	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
 				      QSize(0, itemh),
 				      QStyleOption(mi,maxPMWidth));
