@@ -767,6 +767,12 @@ void QTextCursor::setPosition(int pos, MoveMode m)
 {
     if (!d || !d->priv)
         return;
+
+    if (pos < 0 || pos >= d->priv->length()) {
+        qWarning("QTextCursor::setPosition: position '%d' out of range", pos);
+        return;
+    }
+
     d->setPosition(pos);
     if (m == MoveAnchor) {
         d->anchor = pos;
