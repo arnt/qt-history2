@@ -22,6 +22,7 @@
 MingwMakefileGenerator::MingwMakefileGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
     Option::obj_ext = ".o";
+    Option::res_ext = ".o";
 }
 
 bool MingwMakefileGenerator::findLibraries() // todo - pascal
@@ -213,8 +214,6 @@ void MingwMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 
 void MingwMakefileGenerator::writeRcFilePart(QTextStream &t)
 {
-    project->variables()["RES_FILE"].value(0).replace(QRegExp("\\.rc"), Option::obj_ext);
-    
     if (!project->variables()["RC_FILE"].isEmpty()) {
         t << var("RES_FILE") << ": " << var("RC_FILE") << "\n\t"
           << var("QMAKE_RC") << " -i " << var("RC_FILE") << " -o " << var("RES_FILE") << " --include-dir=" << QFileInfo(var("RC_FILE")).path() << endl << endl;

@@ -257,13 +257,13 @@ void Win32MakefileGenerator::processRcFileVar()
 {
     if (!project->variables()["RC_FILE"].isEmpty()) {
         if (!project->variables()["RES_FILE"].isEmpty()) {
-            fprintf(stderr, "Both .rc and .res file specified.\n");
+            fprintf(stderr, "Both rc and res file specified.\n");
             fprintf(stderr, "Please specify one of them, not both.");
             exit(666);
         }
         project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
         QString resFile = project->variables()["RES_FILE"].first();
-        resFile.replace(".rc", ".res");
+        resFile.replace(".rc", Option::res_ext);
         project->variables()["RES_FILE"].first() = QFileInfo(resFile).fileName();
         if (!project->variables()["OBJECTS_DIR"].isEmpty())
             project->variables()["RES_FILE"].first().prepend(project->variables()["OBJECTS_DIR"].first() + "\\");

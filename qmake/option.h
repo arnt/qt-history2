@@ -57,6 +57,7 @@ struct Option
     static QString dir_sep;
     static QString sysenv_mod;
     static QString pro_ext;
+    static QString res_ext;
     static char field_sep;
     //both of these must be called..
     static bool init(int argc=0, char **argv=0); //parse cmdline

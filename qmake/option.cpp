@@ -37,6 +37,7 @@ QString Option::cpp_moc_mod;
 QString Option::yacc_mod;
 QString Option::lex_mod;
 QString Option::sysenv_mod;
+QString Option::res_ext;
 char Option::field_sep;
 
 //mode
@@ -429,7 +430,8 @@ Option::init(int argc, char **argv)
     //defaults for globals
     if(Option::target_mode == Option::TARG_WIN_MODE) {
         Option::dir_sep = "\\";
-        Option::obj_ext =  ".obj";
+        Option::obj_ext = ".obj";
+        Option::res_ext = ".res";
     } else {
         if(Option::target_mode == Option::TARG_MAC9_MODE)
             Option::dir_sep = ":";
@@ -449,6 +451,8 @@ bool Option::postProcessProject(QMakeProject *project)
     if(h_ext.isEmpty())
         h_ext << ".h";
 
+    if(!project->isEmpty("QMAKE_EXT_RES"))
+        Option::res_ext = project->first("QMAKE_EXT_RES");
     if(!project->isEmpty("QMAKE_EXT_PKGCONFIG"))
         Option::pkgcfg_ext = project->first("QMAKE_EXT_PKGCONFIG");
     if(!project->isEmpty("QMAKE_EXT_LIBTOOL"))
