@@ -76,8 +76,8 @@ public:
     \l QSqlCursor which already contain a list of fields.  For example:
 
     \code
-    QSqlCursor c( "Employee" );          // create cursor using the 'Employee' table
-    QSqlField* f = c.field( "name" );    // use the 'name' field
+    QSqlCursor cur( "Employee" );        // create cursor using the 'Employee' table
+    QSqlField* f = cur.field( "name" );  // use the 'name' field
     f->setValue( "Dave" );               // set field value
     ...
     \endcode
@@ -86,14 +86,14 @@ public:
     The previous example would normally be written:
 
     \code
-    QSqlCursor c( "Employee" );
-    c.setValue( "name", "Dave" );
+    QSqlCursor cur( "Employee" );
+    cur.setValue( "name", "Dave" );
     ...
     \endcode
 
 */
 
-/*!  Constructs an empty field using the name \a fieldName and type \a
+/*!  Constructs an empty field called \a fieldName of type \a
   type.
 
 */
@@ -166,14 +166,14 @@ QSqlField::~QSqlField()
   read-only (isReadOnly() returns TRUE), nothing happens.  If the data
   type of \a value differs from the field's current data type, an
   attempt is made to cast it to the proper type.  This preserves the
-  data type of the field in the cace of assignment, e.g. a QString to
+  data type of the field in the case of assignment, e.g. a QString to
   an integer data type.  For example:
 
   \code
-  QSqlCursor myCursor( "Employee" );                      // 'Employee' table
-  QSqlField* myField = myCursor.field( "student_count" ); // an integer field
+  QSqlCursor cur( "Employee" );                 // 'Employee' table
+  QSqlField* f = cur.field( "student_count" );	// an integer field
   ...
-  myField->setValue( myLineEdit->text() );                // cast the line edit text to an integer
+  f->setValue( myLineEdit->text() );		// cast the line edit text to an integer
   \endcode
 
   \sa isReadOnly()
@@ -224,7 +224,7 @@ void QSqlField::clear( bool nullify )
 
 /*! \fn QVariant::Type QSqlField::type() const
 
-  Returns the field type.
+  Returns the field's type.
 */
 
 /*! \fn void QSqlField::setReadOnly( bool readOnly )

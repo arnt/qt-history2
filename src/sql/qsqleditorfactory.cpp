@@ -43,12 +43,12 @@
 
 /*!
   \class QSqlEditorFactory qsqleditorfactory.h
-  \brief The QSqlEditorFactory class creates editors used in QSqlTable
-  and QSqlForm.
+  \brief This class is used to create the editor factories used by
+  QSqlDataTable and QSqlForm.
 
   \module sql
 
-  QSqlEditorFactory is used by QSqlTable and QSqlForm to automatically
+  QSqlEditorFactory is used by QDataTable and QSqlForm to automatically
   create appropriate editors for a given QSqlField. For example if the
   field is a QVariant::String a QLineEdit would be the default editor,
   whereas a QVariant::Int's default editor would be a QSpinBox.
@@ -57,11 +57,12 @@
   data type, subclass QSqlEditorFactory and reimplement the createEditor()
   function.
 
-  \sa QSqlTable, QSqlForm
+  \sa QDataTable, QSqlForm
  */
 
 
-/*!  Constructs a SQL editor factory
+/*!  Constructs a SQL editor factory with parent \a parent and name \a
+ * name.
 
 */
 
@@ -99,7 +100,7 @@ QSqlEditorFactory * QSqlEditorFactory::defaultFactory()
 
 /*!
 
-  Replaces the default editor factory with \a factory. All QSqlTable
+  Replaces the default editor factory with \a factory. All QDataTable
   and QSqlForm instantiations will use this new factory for creating
   field editors. <em>QSqlEditorFactory takes ownership of factory,
   and destroys it when it is no longer needed. </em>
