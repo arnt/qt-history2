@@ -232,7 +232,8 @@ private slots:
     void run(const char* cmd)
     {
 	QString c = cmd;
-	c += " 2>/dev/null >/dev/null &";
+	// c += " 2>/dev/null >/dev/null";
+	c += " &";
 	system(c.latin1());
     }
     void execute()
