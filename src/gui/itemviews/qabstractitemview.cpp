@@ -34,7 +34,7 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
     :   model(0),
         delegate(0),
         selectionModel(0),
-        selectionMode(QAbstractItemView::Extended),
+        selectionMode(QAbstractItemView::ExtendedSelection),
         selectionBehavior(QAbstractItemView::SelectItems),
         state(QAbstractItemView::NoState),
         startEditActions(QAbstractItemDelegate::DoubleClicked
@@ -136,9 +136,9 @@ void QAbstractItemViewPrivate::init()
 /*!
     \enum QAbstractItemView::SelectionMode
 
-    \value Single
-    \value Multi
-    \value Extended
+    \value SingleSelection
+    \value MultiSelection
+    \value ExtendedSelection
 */
 
 /*!
@@ -684,7 +684,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         return;
     QPoint topLeft;
     QPoint bottomRight = e->pos();
-    if (d->selectionMode != Single)
+    if (d->selectionMode != SingleSelection)
         topLeft = d->pressedPosition - QPoint(horizontalOffset(), verticalOffset());
     else
         topLeft = bottomRight;
@@ -889,11 +889,11 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         if (newCurrent != current && newCurrent.isValid()) {
             QPoint offset(horizontalOffset(), verticalOffset());
             int command = selectionCommand(e->state(), newCurrent, e->type(), (Key)e->key());
-            if (e->state() & ShiftButton && d->selectionMode != Single) {
+            if (e->state() & ShiftButton && d->selectionMode != SingleSelection) {
                 d->selectionModel->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
                 QRect rect(d->pressedPosition - offset, itemViewportRect(newCurrent).center());
                 setSelection(rect.normalize(), command);
-            } else if (e->state() & ControlButton && d->selectionMode != Single) {
+            } else if (e->state() & ControlButton && d->selectionMode != SingleSelection) {
                 d->selectionModel->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
             } else {
                 d->selectionModel->setCurrentItem(newCurrent, command);
@@ -1507,8 +1507,8 @@ int QAbstractItemView::selectionCommand(ButtonState state,
         break;
     }
 
-    // Single: ClearAndSelect on valid index otherwise NoUpdate
-    if (selectionMode() == Single) {
+    // SingleSelection: ClearAndSelect on valid index otherwise NoUpdate
+    if (selectionMode() == SingleSelection) {
         if (item.isValid()) {
             return QItemSelectionModel::ClearAndSelect | behavior;
         } else {
@@ -1516,7 +1516,7 @@ int QAbstractItemView::selectionCommand(ButtonState state,
         }
     }
 
-    if (selectionMode() == Multi) {
+    if (selectionMode() == MultiSelection) {
         // NoUpdate on Key movement and Ctrl
         if (type == QEvent::KeyPress &&
             (key == Key_Down ||

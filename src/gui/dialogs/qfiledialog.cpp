@@ -426,18 +426,18 @@ void QFileDialog::setFileMode(FileMode mode)
         d->fileType->clear();
         d->fileType->insertItem(QFileDialog::tr("Directories"));
         d->fileType->setEnabled(false);
-        d->setSelectionMode(QAbstractItemView::Single);
+        d->setSelectionMode(QAbstractItemView::SingleSelection);
         spec = QDir::Dirs;
         break;
     case Directory:
     case AnyFile:
     case ExistingFile:
-        d->setSelectionMode(QAbstractItemView::Single);
+        d->setSelectionMode(QAbstractItemView::SingleSelection);
         spec = QDir::All;
         break;
     case ExistingFiles:
     default:
-        d->setSelectionMode(QAbstractItemView::Multi);
+        d->setSelectionMode(QAbstractItemView::ExtendedSelection);
         spec = QDir::All;
     }
     d->model->setFilter(spec);
@@ -700,7 +700,7 @@ void QFileDialog::headerClicked(int section)
         spec &= ~QDir::DirsLast;
         spec |= QDir::DirsFirst;
     }
-    
+
     d->setDirSorting(spec);
     header->setSortIndicator(section, order);
 }
@@ -801,7 +801,7 @@ void QFileDialogPrivate::setup()
     showHiddenAction = new QAction(tr("Show &hidden files"), q);
     showHiddenAction->setCheckable(true);
 
-    
+
     QObject::connect(lview, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
                      q, SLOT(populateContextMenu(QMenu*, const QModelIndex&)));
     QObject::connect(tview, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
@@ -1062,7 +1062,7 @@ static QString qt_encode_file_name(const QString &filename)
 QStringList qt_make_filter_list(const QString &filter)
 {
     QString f(filter);
-    
+
     if (f.isEmpty())
         return QStringList();
 
@@ -1169,7 +1169,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
 {
     bool save_qt_resolve_symlinks = qt_resolve_symlinks;
     qt_resolve_symlinks = !(options & DontResolveSymlinks);
-    
+
     QString initialSelection;
     qt_get_dir_and_selection(dir, &qt_working_dir, &initialSelection);
 
@@ -1329,7 +1329,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
 */
 
 QString QFileDialog::getExistingDirectory(QWidget *parent,
-                                          const QString &dir, 
+                                          const QString &dir,
                                           const QString &caption,
                                           Options options)
 {

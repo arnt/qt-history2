@@ -14,7 +14,7 @@ ComboListView::ComboListView(QAbstractItemModel *model, QWidget *parent) :
     QGenericListView(model, parent), ignoreMousePress(false)
 {
     setMouseTracking(true);
-    setSelectionMode(Single);
+    setSelectionMode(SingleSelection);
     setFrameStyle(QFrame::Box|QFrame::Plain);
     setLineWidth(1);
     setStartEditActions(QAbstractItemDelegate::NeverEdit);
@@ -103,7 +103,7 @@ void QGenericComboBoxPrivate::init()
     q->setFrameStyle(QFrame::NoFrame);
     q->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     q->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    q->setSelectionMode(QAbstractItemView::Single);
+    q->setSelectionMode(QAbstractItemView::SingleSelection);
     q->setCurrentItem(q->model()->index(0, 0, q->root()));
 }
 

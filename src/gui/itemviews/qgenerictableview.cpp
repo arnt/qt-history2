@@ -606,7 +606,7 @@ void QGenericTableView::selectRow(int row, ButtonState state)
         QModelIndex tl = model()->index(row, 0, root());
         QModelIndex br = model()->index(row, model()->columnCount() - 1, root());
         selectionModel()->setCurrentItem(tl, QItemSelectionModel::NoUpdate);
-        if (d->selectionMode == Single)
+        if (d->selectionMode == SingleSelection)
             selectionModel()->select(tl, selectionCommand(state, tl));
         else
            selectionModel()->select(QItemSelection(tl, br, model()), selectionCommand(state, tl));
@@ -619,7 +619,7 @@ void QGenericTableView::selectColumn(int column, ButtonState state)
         QModelIndex tl = model()->index(0, column, root());
         QModelIndex br = model()->index(model()->rowCount() - 1, column, root());
         selectionModel()->setCurrentItem(tl, QItemSelectionModel::NoUpdate);
-        if (d->selectionMode == Single)
+        if (d->selectionMode == SingleSelection)
             selectionModel()->select(tl, selectionCommand(state, tl));
         else
            selectionModel()->select(QItemSelection(tl, br, model()), selectionCommand(state, tl));

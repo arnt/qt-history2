@@ -437,7 +437,7 @@ void QGenericListView::contentsRemoved(const QModelIndex &topLeft, const QModelI
 void QGenericListView::mouseMoveEvent(QMouseEvent *e)
 {
     QAbstractItemView::mouseMoveEvent(e);
-    if (state() == QAbstractItemView::Selecting && d->selectionMode != Single) {
+    if (state() == QAbstractItemView::Selecting && d->selectionMode != SingleSelection) {
         QPoint topLeft(d->pressedPosition.x() - horizontalOffset(),
                        d->pressedPosition.y() - verticalOffset());
         QRect rect(mapToGlobal(topLeft), mapToGlobal(e->pos()));

@@ -36,9 +36,9 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
 public:
 
     enum SelectionMode {
-        Single,
-        Multi,
-        Extended
+        SingleSelection,
+        MultiSelection,
+        ExtendedSelection
     };
 
     enum SelectionBehavior {
