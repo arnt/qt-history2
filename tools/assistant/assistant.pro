@@ -2,14 +2,8 @@ TEMPLATE = app
 LANGUAGE = C++
 TARGET         = assistant
 
-CONFIG        += qt warn_on
+CONFIG        += qt warn_on uic4
 QT += compat xml network
-
-uic4.output  = ui_${QMAKE_FILE_BASE}.h
-uic4.commands = $(QTDIR)/bin/uic4 ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
-uic4.input = UI_SOURCES
-uic4.CONFIG += no_link
-QMAKE_EXTRA_COMPILERS += uic4
 
 PROJECTNAME        = Assistant
 DESTDIR            = ../../bin
@@ -22,7 +16,7 @@ UI_SOURCES += finddialog.ui \
         tabbedbrowser.ui \
         topicchooser.ui
 
-SOURCES        += main.cpp \
+SOURCES += main.cpp \
         helpwindow.cpp \
         topicchooser.cpp \
         docuparser.cpp \
