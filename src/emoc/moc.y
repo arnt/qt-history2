@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.y#2 $
+** $Id: //depot/qt/main/src/emoc/moc.y#3 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1894,7 +1894,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 1.2 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 1.3 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2045,8 +2045,7 @@ void generateClass()		      // generate C++ source code for a class
 //
     if ( ( Q_BUILDERdetected && !Q_FACTORYdetected ) || Q_INSPECTORdetected )
     {
-        fprintf( out, "QObject *%s::factory( QObject* _parent )\n{\n",
-		 (const char*)className );
+        fprintf( out, "static QObject *factory( QObject* _parent )\n{\n" );
         fprintf( out, "    return new %s( (QWidget*)_parent );\n}\n\n", (const char*)className );
     }
     
@@ -2170,10 +2169,10 @@ void generateClass()		      // generate C++ source code for a class
            fprintf( out, "    metaObj->setComment( \"%s\" );\n", (const char*)Q_BUILDERcomment );
         if ( !Q_BUILDERpixmap.isEmpty() )
            fprintf( out, "    metaObj->setPixmap( pixmap_%s );\n", (const char*)className );
-        fprintf( out, "    metaObj->setFactory( &%s::factory );\n", (const char*)className );
+        fprintf( out, "    metaObj->setFactory( factory );\n", (const char*)className );
     }
     else if ( Q_FACTORYdetected )
-        fprintf( out, "    metaObj->setFactory( &%s::factory );\n", (const char*)className );
+        fprintf( out, "    metaObj->setFactory( factory );\n", (const char*)className );
     fprintf( out, "    return metaObj;\n}\n" );
 
 //
