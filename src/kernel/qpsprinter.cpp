@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#61 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -46,6 +46,7 @@ static const char *ps_header[] = {
 "/LT {lineto} D",
 "/MT {moveto} D",
 "/S  {stroke} D",
+"/F  {setfont} D",
 "/SW {setlinewidth} D",
 "/CP {closepath} D",
 "/RL {rlineto} D",
@@ -366,51 +367,26 @@ static const char *ps_header[] = {
 "    concat",
 "} D",
 "",
-"",
-"",// use MF like this make /F114 a 12 point font, preferably Univers, but
-"",// Helvetica if Univers is not available:
-"",//
-"",// /F114 FE0 [ 12 0 0 -12 0 0 ] [ /Univers /Helvetica ] MF
-"",
-"/F null def",
-"/MF {",				// make font [ newname encoding matrix fontlist ]
-"  /F null def",
+"/MF {",				// newname encoding fontname
+"  findfont dup length dict begin",
 "  {",
-"    dup FontDirectory exch known F null eq or",
-"    {",
-"      /F exch def",
-"      exit",
-"    } {",
-"      pop",
-"    } ifelse",
+"    1 index /FID ne",
+"    {def}{pop pop}ifelse",
 "  } forall",
-"  F findfont dup length dict begin {",
-"    1 index /FID ne {",
-"      def",
-"    } {",
-"      pop pop",
-"    } ifelse",
-"  } forall",
-"  /Encoding 3 -1 roll def",
-"  currentdict",
-"  end",
-"  2 index exch definefont",
-"  exch makefont",
-// the font now contains a /FID key.  this does not seem to hurt, but
-// apparently should not be so.
+"  /Encoding ED currentdict end",
 "  definefont pop",
 "} D",
 "",
-"",
-"/SF {",				// PDC_SETFONT [ fontname ]
-"  findfont setfont",
+"/DF {",				// newname pointsize fontmame
+"  findfont",
+"  /FONTSIZE 3 -1 roll def [ FONTSIZE 0 0 FONTSIZE -1 mul 0 0 ] makefont",
+"  def",
 "} D",
 "",
 "",
 "",// isn't this important enough to try to avoid the SC?
 "",
-"/T {",					// PDC_DRAWTEXT [x y string]
-"    3 1 roll",
+"/T {",					// PDC_DRAWTEXT [string x y]
 "    MT",				// !!!! Uff
 "    PCol SC",				// set pen/text color
 "    show",
@@ -506,17 +482,17 @@ static const char *ps_header[] = {
 "  /QCIDict 25 dict def",
 "  /QCI {",
 "    QCIDict begin",
-"      /Matrix exch def",
-"      /Bcomp exch def",
-"      /Height exch def",
-"      /Width exch def",
+"      /Matrix ED",
+"      /Bcomp ED",
+"      /Height ED",
+"      /Width ED",
 "      /Bycomp Bcomp 7 add 8 idiv def",
 "      Width Height Bcomp Matrix",
 "      /Gstr Bycomp Width mul string def",
 "      { currentfile sl readhexstring pop",
-"	/Cstr exch def",
+"	/Cstr ED",
 "	0 1 Width 1 sub {",
-"	  /I exch def",
+"	  /I ED",
 "	  /X I 3 mul def",
 "	  Gstr I",
 "	  Cstr X       get 0.30 mul",
@@ -1970,6 +1946,31 @@ QPSPrinter::~QPSPrinter()
 }
 
 
+static struct {
+    const char * input;
+    const char * roman;
+    const char * italic;
+    const char * bold;
+    const char * boldItalic;
+    const char * light;
+    const char * lightItalic;
+} postscriptFontNames[] = {
+    { "avantgarde", "AvantGarde-Book", 0, 0, 0, 0, 0 },
+    { "charter", "CharterBT-Roman", 0, 0, 0, 0, 0 },
+    { "garamond", "Garamond-Regular", 0, 0, 0, 0 },
+    { "gillsans", "GillSans", 0, 0, 0, 0, 0 },
+    { "helvetica",
+      "Helvetica", "Helvetica-Oblique",
+      "Helvetica-Bold", "Helvetica-BoldOblique",
+      "Helvetica", "Helvetica-Oblique" },
+    { "new century schoolbook", "NewCenturySchlbk-Roman", 0, 0, 0, 0, 0 },
+    { "symbol", "Symbol", "Symbol", "Symbol", "Symbol", "Symbol", "Symbol" },
+    { "terminal", "Courier", 0, 0, 0, 0, 0 },
+    { "utopia", "Utopia-Regular", 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0 }
+};
+    
+
 //static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
 void QPSPrinter::setFont( const QFont & f )
 {
@@ -1994,123 +1995,68 @@ void QPSPrinter::setFont( const QFont & f )
     bool italic = f.italic();
 
     family = family.lower();
-    if ( family == "courier" ) {
-	ps = "/Courier ";
-    } else if ( family == "helvetica" ) {
-	ps = "/Helvetica ";
-    } else if ( family == "times" ) {
-	ps = "/Times ";
-    } else if ( family == "charter" ) {
-	ps = "/CharterBT /Times ";
-    } else if ( family == "palatino" ) {
-	ps = "/Palatino /Garamond /AGaramond /Times ";
-    } else if ( family == "garamond" ) {
-	ps = "/AGaramond /Garamond /Palatino /Times ";
-    } else if ( family == "baskerville" ) {
-	ps = "/Baskerville /Palatino /Times ";
-    } else if ( family == "new century schoolbook" ) {
-	ps = "/NewCenturySchlbk /Garamond /AGaramond /Times ";
-    } else if ( family == "gillsans" ) {
-	ps = "/GillSans /Univers /Helvetica ";
-    } else if ( family == "univers" ) {
-	ps = "/Univers /GillSans /Helvetica ";
-    } else if ( family == "lucida" ) {
-	ps = "/Lucida /AvantGarde /Helvetica ";
-    } else if ( family == "lucidabright" ) {
-	// ### don't know the name of lucida bright as Type 1 font
-	ps = "/Lucida /Palatino /Times ";
-    } else if ( family == "lucidatypewriter" ) {
-	// ### don't know the name of lucida typewriter as Type 1 font
-	ps = "/Courier ";
-    } else if ( family == "utopia" ) {
-	ps = "/Utopia /Garamond /AGaramond /Times ";
-    } else if ( family == "terminal" ) {
-	ps = "/Courier "; // more?
-    } else if ( family == "symbol" ) {
-	ps = "/Symbol ";
-    } else {
-	ps = "/Courier ";
+    
+    int i;
+
+    // try to make a "good" postscript name
+    ps = family.simplifyWhiteSpace();
+    i = 0;
+    while( (unsigned int)i < ps.length() ) {
+	if ( i == 0 || ps[i-1] == ' ' ) {
+	    ps[i] = toupper( ps[i] );
+	    if ( i )
+		ps.remove( i-1, 1 );
+	    else
+		i++;
+	} else {
+	    i++;
+	}
     }
 
-    // next, modify these sh***y irregular names
+    // see if the table has a better name
+    i = 0;
+    while( postscriptFontNames[i].input &&
+	   qstrcmp( postscriptFontNames[i].input, family ) )
+	i++;
+    if ( postscriptFontNames[i].roman ) {
+	ps = postscriptFontNames[i].roman;
+	int p = ps.find( '-' );
+	if ( p > -1 )
+	    ps.truncate( p );
+    }
+    
+    // get the right modification, or build something
     if ( weight >= QFont::Bold && italic ) {
-	ps.replace( QRegExp( "/Times " ), "/Times-BoldItalic " );
-	ps.replace( QRegExp( "/Charter " ), "/CharterBT-BoldItalic " );
-	ps.replace( QRegExp( "/Palatino " ), "/Palatino-BoldItalic " );
-	ps.replace( QRegExp( "/Garamond " ), "/Garamond-BoldItalic " );
-	ps.replace( QRegExp( "/AGaramond " ), "/Garamond-BoldItalic " );
-	ps.replace( QRegExp( "/Palatino " ), "/Palatino-BoldItalic " );
-	ps.replace( QRegExp( "/Baskerville " ), "/Baskerville-BoldItalic " );
-	ps.replace( QRegExp( "/NewCenturySchlbk " ),
-		    "/NewCenturySchlbk-BoldItalic " );
-	ps.replace( QRegExp( "/GillSans " ), "/GillSans-BoldItalic " );
-	ps.replace( QRegExp( "/Univers " ), "/Univers-BoldItalic " );
-	ps.replace( QRegExp( "/Helvetica " ), "/Helvetica-BoldOBlique " );
-	ps.replace( QRegExp( "/Lucida " ), "/Lucida-BoldItalic " );
-	ps.replace( QRegExp( "/Utopia " ), "/Utopia-BoldItalic " );
+	if ( postscriptFontNames[i].boldItalic )
+	    ps = postscriptFontNames[i].boldItalic;
+	else
+	    ps.append( "-BoldItalic" );
     } else if ( weight >= QFont::Bold ) {
-	ps.replace( QRegExp( "/Times " ), "/Times-Bold " );
-	ps.replace( QRegExp( "/CharterBT " ), "/CharterBT-Bold " );
-	ps.replace( QRegExp( "/Palatino " ), "/Palatino-Bold " );
-	ps.replace( QRegExp( "/Garamond " ), "/Garamond-Bold " );
-	ps.replace( QRegExp( "/AGaramond " ), "/AGaramond-Bold " );
-	ps.replace( QRegExp( "/Palatino " ), "/Palatino-Bold " );
-	ps.replace( QRegExp( "/Baskerville " ), "/Baskerville-Bold " );
-	ps.replace( QRegExp( "/NewCenturySchlbk " ),
-		    "/NewCenturySchlbk-Bold " );
-	ps.replace( QRegExp( "/GillSans " ), "/GillSans-Bold " );
-	ps.replace( QRegExp( "/Univers " ), "/Univers-Bold " );
-	ps.replace( QRegExp( "/Helvetica " ), "/Helvetica-Bold " );
-	ps.replace( QRegExp( "/Lucida " ), "/Lucida-Bold " );
-	ps.replace( QRegExp( "/Utopia " ), "/Utopia-Bold " );
+	if ( postscriptFontNames[i].bold )
+	    ps = postscriptFontNames[i].bold;
+	else
+	    ps.append( "-Bold" );
     } else if ( weight >= QFont::DemiBold && italic ) {
-	ps.replace( QRegExp( "/AGaramond " ), "/AGaramond-SemiBoldItalic " );
-	ps.replace( QRegExp( "/AvantGarde " ), "/AvantGarde-DemiOblique " );
-    } else if ( weight >= QFont::DemiBold ) {
-	ps.replace( QRegExp( "/AGaramond " ), "/AGaramond-SemiBold " );
-	ps.replace( QRegExp( "/AvantGarde " ), "/AvantGarde-Demi " );
-    } else if ( italic ) {
-	ps.replace( QRegExp( "/Times " ), "/Times-Italic " );
-	ps.replace( QRegExp( "/CharterBT " ), "/CharterBT-Italic " );
-	ps.replace( QRegExp( "/Palatino " ), "/Palatino-Italic " );
-	ps.replace( QRegExp( "/Garamond " ), "/Garamond-Italic " );
-	ps.replace( QRegExp( "/AGaramond " ), "/AGaramond-Italic " );
-	ps.replace( QRegExp( "/Palatino " ), "/Palatino-Italic " );
-	ps.replace( QRegExp( "/Baskerville " ),
-		    "/Baskerville-Normal-Italic " );
-	ps.replace( QRegExp( "/NewCenturySchlbk " ),
-		    "/NewCenturySchlbk-Italic " );
-	ps.replace( QRegExp( "/GillSans " ), "/GillSans-Italic " );
-	ps.replace( QRegExp( "/Univers " ), "/Univers-Italic " );
-	ps.replace( QRegExp( "/Helvetica " ), "/Helvetica-OBlique " );
-	ps.replace( QRegExp( "/Lucida " ), "/Lucida-Italic " );
-	ps.replace( QRegExp( "/AvantGarde " ), "/AvantGarde-BookOblique " );
-	ps.replace( QRegExp( "/Utopia " ), "/Utopia-Italic " );
+	if ( postscriptFontNames[i].italic )
+	    ps = postscriptFontNames[i].italic;
+	else
+	    ps.append( "-Italic" );
     } else if ( weight <= QFont::Light && italic ) {
-	ps.replace( QRegExp( "/Garamond " ), "/Garamond-LightItalic " );
-	ps.replace( QRegExp( "/GillSans " ), "/GillSans-LightItalic " );
-	ps.replace( QRegExp( "/Univers " ), "/Univers-LightItalic " );
+	if ( postscriptFontNames[i].lightItalic )
+	    ps = postscriptFontNames[i].lightItalic;
+	else
+	    ps.append( "-LightItalic" );
     } else if ( weight <= QFont::Light ) {
-	ps.replace( QRegExp( "/Garamond " ), "/Garamond-Light " );
-	ps.replace( QRegExp( "/GillSans " ), "/GillSans-Light " );
-	ps.replace( QRegExp( "/Univers " ), "/Univers-Light " );
+	if ( postscriptFontNames[i].light )
+	    ps = postscriptFontNames[i].light;
+	else
+	    ps.append( "-Light" );
+    } else {
+	if ( postscriptFontNames[i].roman )
+	    ps = postscriptFontNames[i].roman;
+	else
+	    ps.append( "-Roman" );
     }
-
-    ps.replace( QRegExp( "/Times " ), "/Times-Roman " );
-    ps.replace( QRegExp( "/CharterBT " ), "/CharterBT-Roman " );
-    ps.replace( QRegExp( "/Palatino " ), "/Palatino-Roman " );
-    ps.replace( QRegExp( "/Garamond " ), "/Garamond-Regular " );
-    ps.replace( QRegExp( "/Garamond " ), "/Garamond-Regular " );
-    ps.replace( QRegExp( "/AGaramond " ), "/AGaramond-Regular " );
-    ps.replace( QRegExp( "/Palatino " ), "/Palatino-Regular " );
-    ps.replace( QRegExp( "/Baskerville " ), "/Baskerville-Normal " );
-    ps.replace( QRegExp( "/NewCenturySchlbk " ), "/NewCenturySchlbk-Roman " );
-    //ps.replace( QRegExp( "/GillSans " ), "/GillSans " );
-    //ps.replace( QRegExp( "/Univers " ), "/Univers " );
-    //ps.replace( QRegExp( "/Helvetica " ), "/Helvetica " );
-    //ps.replace( QRegExp( "/Lucida " ), "/Lucida " );
-    ps.replace( QRegExp( "/AvantGarde " ), "/AvantGarde-Book " );
-    ps.replace( QRegExp( "/Utopia " ), "/Utopia-Regular " );
 
     QString key;
     int cs = (int)f.charSet();
@@ -2133,13 +2079,13 @@ void QPSPrinter::setFont( const QFont & f )
 	fontName = *tmp;
 
     if ( fontName.isEmpty() ) {
-	QString fontMatrix;
-	fontMatrix.sprintf( " [ %d 0 0 -%d 0 0 ] ",
-			    f.pointSize(), f.pointSize() );
+	QString key2;
+	key2.sprintf( "%s %d", ps.data(), cs );
+	tmp = d->headerFontNames.find( key );
+
 	QString fontEncoding;
 	fontEncoding.sprintf( " FE%d", cs );
 	if ( d->buffer ) {
-	    fontName.sprintf( "/F%d", ++d->headerFontNumber );
 	    if ( !d->headerEncodings.find( cs ) ) {
 		QString * vector = font_vectors->find( cs );
 		if ( vector ) {
@@ -2150,11 +2096,20 @@ void QPSPrinter::setFont( const QFont & f )
 				  << cs << "\n";
 		}
 	    }
-	    d->fontStream << fontName << fontEncoding
-			  << fontMatrix << "[ " << ps << "] MF\n";
+	    if ( tmp ) {
+		fontName = *tmp;
+	    } else {
+		fontName.sprintf( "/F%d", ++d->headerFontNumber );
+		d->fontStream << fontName << fontEncoding << "/"
+			      << ps << " MF\n";
+		d->headerFontNames.insert( key2, new QString( fontName ) );
+	    }
+	    ++d->headerFontNumber;
+	    d->fontStream << "/F" << d->headerFontNumber << " " 
+			  << f.pointSize() << fontName << " DF\n";
+	    fontName.sprintf( "F%d", d->headerFontNumber );
 	    d->headerFontNames.insert( key, new QString( fontName ) );
 	} else {
-	    fontName.sprintf( "/F%d", ++d->pageFontNumber );
 	    if ( !d->headerEncodings.find( cs ) &&
 		 !d->pageEncodings.find( cs ) ) {
 		QString * vector = font_vectors->find( cs );
@@ -2163,12 +2118,24 @@ void QPSPrinter::setFont( const QFont & f )
 		stream << *vector << "\n";
 		d->pageEncodings.insert( cs, (void*)42 );
 	    }
-	    stream << fontName << fontEncoding
-		   << fontMatrix << "[ " << ps << "] MF\n";
+	    if ( !tmp )
+		tmp = d->pageFontNames.find( key );
+	    if ( tmp ) {
+		fontName = *tmp;
+	    } else {
+		fontName.sprintf( "/F%d", ++d->pageFontNumber );
+		d->fontStream << fontName << fontEncoding << "/"
+			      << ps << " MF\n";
+		d->pageFontNames.insert( key2, new QString( fontName ) );
+	    }
+	    ++d->pageFontNumber;
+	    d->fontStream << "/F" << d->pageFontNumber << " " 
+			  << f.pointSize() << fontName << " DF\n";
+	    fontName.sprintf( "F%d", d->pageFontNumber );
 	    d->pageFontNames.insert( key, new QString( fontName ) );
 	}
     }
-    stream << fontName << " SF\n";
+    stream << fontName << " F\n";
 
     // change "/Palatino-Roman /Times-Roman " to "Times-Roman "
     ps.replace( QRegExp( "^.*/" ), "" );
@@ -2443,7 +2410,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		    *to++ = *from++;
 		}
 		*to = '\0';
-		stream << POINT(0) << "(" << tmp << ") T\n";
+		stream<< "(" << tmp << ")" << POINT(0) << " T\n";
 		delete [] tmp;
 	    }
 	    break;
