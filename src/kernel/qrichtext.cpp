@@ -4233,6 +4233,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 			x -= text->width( pos );
 		}
 		c->x = x + toAdd;
+		c->rightToLeft = FALSE;
 		int ww = 0;
 		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom() ) {
 		    ww = text->width( pos );
