@@ -63,16 +63,16 @@ foreach $m ( @makefiles ) {
     push(@hdr,@h);
 }
 
-$qglobal_cpp = $ENV{"QTDIR"} . "/src/tools/qglobal.cpp";
-open(F, $qglobal_cpp) || die "Cannot open $qglobal_cpp";
+$qglobal_h = $ENV{"QTDIR"} . "/include/qglobal.h";
+open(F, $qglobal_h) || die "Cannot open $qglobal_h";
 while ( <F> ) {
-    if ( /^\#define\s+QT_VERSION\s+\"([^\"]*)\"/ ) {
+    if ( /^\#define\s+QT_VERSION_STR\s+\"([^\"]*)\"/ ) {
 	$qt_version = $1;
 	last;
     }
 }
 close(F);
-($qt_version eq "") && die "Can't find the Qt version in qglobal.cpp";
+($qt_version eq "") && die "Can't find the Qt version in qglobal.h";
 
 $headers  = join(" \\\n\t\t",sort @hdr);
 $sources  = join(" \\\n\t\t",sort @src);
