@@ -321,11 +321,14 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	     }
 	     iface->release();
 	 } else {
+#endif
 	     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 		 if ( tags.contains( n.tagName() ) )
 		     createObjectImpl( n, objClass, objName );
 	     }
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 	 }
+#endif
      }
 
     return objName;
