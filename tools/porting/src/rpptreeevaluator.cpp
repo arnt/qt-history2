@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 #include "rpptreeevaluator.h"
-#include "macroevaluator.h"
 
 using namespace TokenEngine;
 namespace Rpp {

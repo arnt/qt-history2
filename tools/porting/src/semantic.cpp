@@ -14,7 +14,7 @@
 #include <QString>
 #include <QRegExp>
 
-#include "semantic2.h"
+#include "semantic.h"
 #include "lexer.h"
 #include "smallobject.h"
 #include "tokenengine.h"

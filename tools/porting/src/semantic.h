@@ -19,7 +19,7 @@
 #include <QByteArray>
 
 #include "treewalker.h"
-#include "codemodel2.h"
+#include "codemodel.h"
 #include "tokenstreamadapter.h"
 
 
