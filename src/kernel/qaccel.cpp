@@ -45,6 +45,8 @@
 #include "qptrlist.h"
 #include "qwhatsthis.h"
 #include "qguardedptr.h"
+#include "qstatusbar.h"
+#include "qsignalslotimp.h"
 /*!
     \class QAccel qaccel.h
     \brief The QAccel class handles keyboard accelerator and shortcut keys.
@@ -170,6 +172,7 @@ private:
 
     bool correctSubWindow( QWidget *w, QAccelPrivate* d );
     SequenceMatch match( QKeyEvent* e, QAccelItem* item, QKeySequence& temp );
+    int translateModifiers( ButtonState state );
 
     QPtrList<QAccelPrivate> accels;
     static QAccelManager* self_ptr;
@@ -184,7 +187,7 @@ bool Q_EXPORT qt_dispatchAccelEvent( QWidget* w, QKeyEvent*  e){
 }
 
 /*
-    /internal
+    \internal
     Returns TRUE if the accel is in the current subwindow, else FALSE.
 */
 bool QAccelManager::correctSubWindow( QWidget* w, QAccelPrivate* d ) {
@@ -207,8 +210,23 @@ bool QAccelManager::correctSubWindow( QWidget* w, QAccelPrivate* d ) {
     return TRUE;
 }
 
+inline int QAccelManager::translateModifiers( ButtonState state )
+{
+    int result = 0;
+    if ( state & ShiftButton )
+	result |= SHIFT;
+    if ( state & ControlButton )
+	result |= CTRL;
+    if ( state & MetaButton )
+	result |= META;
+    if ( state & AltButton )
+	result |= ALT;
+    return result;
+
+}
+
 /*
-    /internal
+    \internal
     Matches the current intermediate key sequence + the latest
     keyevent, with and AccelItem. Returns Identical,
     PartialMatch or NoMatch, and fills \a temp with the
@@ -220,24 +238,16 @@ Qt::SequenceMatch QAccelManager::match( QKeyEvent *e, QAccelItem* item, QKeySequ
     int index = intermediate.count();
     temp = intermediate;
 
-    int modifier = 0;
-    if ( e->state() & ShiftButton )
-	modifier |= SHIFT;
-    if ( e->state() & ControlButton )
-	modifier |= CTRL;
-    if ( e->state() & MetaButton )
-	modifier |= META;
-    if ( e->state() & AltButton )
-	modifier |= ALT;
+    int modifier = translateModifiers( e->state() );
 
     if ( e->key() && e->key() != Key_unknown) {
 	int key = e->key()  | modifier;
 	if ( e->key() == Key_BackTab ) {
 	    /*
 	    In QApplication, we map shift+tab to shift+backtab.
-	  This code here reverts the mapping in a way that keeps
-	  backtab and shift+tab accelerators working, in that
-	  order, meaning backtab has priority.*/
+	    This code here reverts the mapping in a way that keeps
+	    backtab and shift+tab accelerators working, in that
+	    order, meaning backtab has priority.*/
 	    key &= ~SHIFT;
 
 	    temp.setKey( key, index );
@@ -271,13 +281,16 @@ Qt::SequenceMatch QAccelManager::match( QKeyEvent *e, QAccelItem* item, QKeySequ
 }
 
 /*
-    /internal
+    \internal
     Checks for possible accelerators, if no widget
     ate the keypres, or we are in the middle of a
     partial key sequence.
 */
 bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 {
+    // Needs to be declared and used here because of "goto doclash"
+    QStatusBar* mainStatusBar = 0;
+    
     if ( Qt::NoMatch == currentState ) {
 	e->spont = TRUE;
 	e->t = QEvent::AccelOverride;
@@ -323,30 +336,55 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	}
 	accel = accels.next();
     }
+    mainStatusBar = (QStatusBar*) w->topLevelWidget()->child( 0, "QStatusBar" );
     if ( n < 0 ) { // no match found
-	clash = -1; // reset
+	currentState = partial.count() ? PartialMatch : NoMatch;
+	// Only display message if we are, or were, in a partial match
+	if ( mainStatusBar && (PartialMatch == currentState || intermediate.count() ) ) {
+	    if ( currentState == Qt::PartialMatch ) {
+		mainStatusBar->message( (QString)partial + ", ...", 0 );
+	    } else {
+		mainStatusBar->message( (QString)intermediate + 
+					", " + 
+					QKeySequence::encodeString( e->key() | translateModifiers(e->state()) ) + 
+					" not defined", 2000 );
+		// Since we're a NoMatch, reset the clash count
+		clash = -1;
+	    }
+	}
 	intermediate = partial;
-	if ( partial.count() ) // Keep sequence keylock
-	    currentState = Qt::PartialMatch;
 	return FALSE;
     } else if ( n == 0 ) { // found exactly one match
 	clash = -1; // reset
-	currentState = Qt::NoMatch; // Free sequence keylock
+	if ( currentState == Qt::PartialMatch && mainStatusBar )
+		mainStatusBar->clear();
+        currentState = Qt::NoMatch; // Free sequence keylock
 	intermediate = QKeySequence();
 	lastaccel->activate( lastitem );
 	return TRUE;
     }
 
  doclash: // found more than one match
+    if ( !mainStatusBar ) // if "goto doclash", we need to get statusbar again.
+	mainStatusBar = (QStatusBar*) w->topLevelWidget()->child( 0, "QStatusBar" );
+
     if ( clash >= 0 && n > clash ) { // pick next  match
 	intermediate = QKeySequence();
 	currentState = Qt::NoMatch; // Free sequence keylock
 	clash++;
+	if ( mainStatusBar &&
+	     !lastitem->signal &&
+	     !(lastaccel->parent->receivers( "activateAmbiguously" )) )
+	    mainStatusBar->message( "Ambiguous \'" + (QString)tocheck + "\' not handled", 2000 );
 	lastaccel->activateAmbiguously( lastitem );
     } else { // start (or wrap) with the first matching
 	intermediate = QKeySequence();
 	currentState = Qt::NoMatch; // Free sequence keylock
 	clash = 0;
+	if ( mainStatusBar &&
+	     !firstitem->signal &&
+	     !(firstaccel->parent->receivers( "activateAmbiguously" )) )
+	    mainStatusBar->message( "Ambiguous \'" + (QString)tocheck + "\' not handled", 2000 );
 	firstaccel->activateAmbiguously( firstitem );
     }
     return TRUE;
