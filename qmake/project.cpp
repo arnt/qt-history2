@@ -266,7 +266,8 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     }
 
     SKIP_WS(d);
-    for( ; *d && op.find('=') == -1; op += *(d++));
+    for( ; *d && op.find('=') == -1; op += *(d++))
+	;
     op.replace(QRegExp("\\s"), "");
 
     SKIP_WS(d);
