@@ -1,6 +1,11 @@
+# Project ID used by some IDEs
+GUID 	 = {770136d6-f89f-4f25-8699-6b6a0726d6a9}
 TEMPLATE = lib
-CONFIG += qt plugin
-TARGET += qmng
+TARGET  += qmng
+
+CONFIG  += qt plugin
+DESTDIR  = ../../../imageformats
+
 VERSION = 1.0.0
 QTDIR_build:REQUIRES = !no-mng !mng
 DESTDIR = ../../../imageformats
@@ -135,7 +140,7 @@ system-jpeg {
 	    ../../../../src/3rdparty/libjpeg/jquant1.c \
 	    ../../../../src/3rdparty/libjpeg/jquant2.c \
 	    ../../../../src/3rdparty/libjpeg/jutils.c \
-	    ../../../../src/3rdparty/libjpeg/jmemansi.c
+	    ../../../../src/3rdparty/libjpeg/jmemnobs.c
 }
 
 
