@@ -71,7 +71,9 @@ QMap<QString, QString> proFileTagMap( const QString& text )
 
         while ( (i = var.search(it.data(), i)) != -1 ) {
 	    int len = var.matchedLength();
-            (*it).replace( i, len, tagMap[(*it).mid(i + 2, len - 2)] );
+	    QString after = tagMap[(*it).mid(i + 2, len - 2)];
+            (*it).replace( i, len, after );
+	    i += after.length();
 	}
     }
     return tagMap;
