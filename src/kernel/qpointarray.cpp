@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#75 $
 **
 ** Implementation of QPointArray class
 **
@@ -42,10 +42,10 @@ const double Q_PI   = 3.14159265358979323846;   // pi
 
   \inherit QArray
 
-  The QPointArray is an array of QPoint objects. In addition to the functions 
+  The QPointArray is an array of QPoint objects. In addition to the functions
   provided by QArray, QPointArray provides some handy methods:
 
-  For convenient reading and writing of the point data: setPoints(), 
+  For convenient reading and writing of the point data: setPoints(),
   putPoints(), point(), and setPoint().
 
   For geometry operations: boundingRect() and translate(). As for the latter,
@@ -904,7 +904,7 @@ QPointArray QPointArray::quadBezier() const
 	    pa[i] = QPoint(x,y);
 	}
 	// add last pt on the line, which will be at the last control pt
-	pa[pa.size()-1] = at(3);
+	pa[(int)pa.size()-1] = at(3);
 	delete[] p;
 	delete[] ctrl;
 
