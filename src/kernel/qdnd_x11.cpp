@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#44 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -131,8 +131,9 @@ public:
     {
 	pixmap = pm;
 	if ( pixmap.mask() ) {
-	    XShapeCombineMask( x11Display(), winId(), ShapeBounding, 0, 0,
-                               pixmap.mask()->handle(), ShapeSet );
+	    setMask( *pixmap.mask() );
+	} else {
+	    clearMask();
 	}
 	resize(pm.width(),pm.height());
     }

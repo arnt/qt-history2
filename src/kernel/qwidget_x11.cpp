@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#252 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#253 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1742,10 +1742,41 @@ bool QWidget::acceptDrops() const
 
   Note that this effect can be slow if the region is particularly
   complex.
+
+  \sa setMask(QBitmap), clearMask()
 */
 void QWidget::setMask(const QRegion& region)
 {
-    // ##### May need to use xOff,yOff to align with/off titlebar.
     XShapeCombineRegion( dpy, winId(), ShapeBounding, 0, 0,
 	region.handle(), ShapeSet);
 }
+
+/*!
+  Causes only the pixels of the widget for which \a bitmap
+  has a corresponding 1 bit
+  to be visible.  If the region includes pixels outside the
+  rect() of the widget, window system controls in that area
+  may or may not be visible, depending on the platform.
+
+  Note that this effect can be slow if the region is particularly
+  complex.
+
+  \sa setMask(const QRegion&), clearMask()
+*/
+void QWidget::setMask(QBitmap bitmap)
+{
+    XShapeCombineMask( dpy, winId(), ShapeBounding, 0, 0,
+	bitmap.handle(), ShapeSet);
+}
+
+/*!
+  Removes any mask set by setMask().
+
+  \sa setMask()
+*/
+void QWidget::clearMask()
+{
+    XShapeCombineRegion( dpy, winId(), ShapeBounding, 0, 0,
+	0, ShapeSet);
+}
+
