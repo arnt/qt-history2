@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#177 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#178 $
 **
 ** Implementation of QApplication class
 **
@@ -265,6 +265,7 @@ QApplication::QApplication( int &argc, char **argv )
 
     qt_init( &argc, argv );
     process_cmdline( &argc, argv );
+    
     initialize( argc, argv );
 }
 
@@ -294,12 +295,7 @@ void QApplication::init_precmdline()
 	warning( "QApplication: There should be only one application object" );
 #endif
 
-#if defined(_WS_WIN_)
-    app_style = new QWindowsStyle;// default style for Windows
-#elif defined(_WS_X11_)
-    //    app_style = new QWindowsStyle;// default style for X Windows
-    app_style = new QMotifStyle;// default style for X Windows
-#endif
+    app_style = 0;
     qApp = this;
 }
 
@@ -328,6 +324,14 @@ void QApplication::initialize( int argc, char **argv )
     QWidget::createMapper();			// create widget mapper
     is_app_running = TRUE;			// no longer starting up
 
+    if (!app_style) {
+#if defined(_WS_WIN_)
+	app_style = new QWindowsStyle;// default style for Windows
+#elif defined(_WS_X11_)
+	app_style = new QMotifStyle;// default style for X Windows
+#endif
+    }
+    
     app_style->polish( this ); //##### wrong place, still inside the qapplication constructor...grmbl....
     // no longer starting up .....
 
