@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#158 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#159 $
 **
 ** Implementation of QCheckBox class
 **
@@ -164,10 +164,11 @@ QSize QCheckBox::sizeHint() const
     constPolish();
 
     QPainter p(this);
-    QSize sz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, isEnabled(),
+    QSize sz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, FALSE,
 				pixmap(), text()).size();
 
-    return style().sizeFromContents(QStyle::CT_CheckBox, this, sz);
+    return (style().sizeFromContents(QStyle::CT_CheckBox, this, sz).
+	    expandedTo(QApplication::globalStrut()));
 }
 
 
@@ -176,7 +177,7 @@ QSize QCheckBox::sizeHint() const
 
 void QCheckBox::drawButton( QPainter *paint )
 {
-    QPainter	*p = paint;
+    QPainter *p = paint;
     QRect irect = style().subRect(QStyle::SR_CheckBoxIndicator, this);
     const QColorGroup &cg = colorGroup();
 

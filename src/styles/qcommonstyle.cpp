@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#49 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#50 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -468,7 +468,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 				  const QRect &r,
 				  const QColorGroup &cg,
 				  PFlags flags,
-				  void *data ) const
+				  void * ) const
 {
     switch (op) {
     case PO_ButtonCommand:
@@ -571,6 +571,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	if (flags & PStyle_NoChange) {
 	    p->setPen(cg.foreground());
 	    p->fillRect(ir, cg.brush(QColorGroup::Button));
+	    p->drawRect(ir);
 	    p->drawLine(ir.topLeft(), ir.bottomRight());
 	} else
 	    qDrawShadePanel(p, ir.x(), ir.y(), ir.width(), ir.height(),
@@ -591,6 +592,46 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	}
 
 	p->fillRect(ir, color1);
+	break; }
+
+    case PO_ExclusiveIndicator: {
+	// make sure the indicator is square
+	QRect ir = r;
+
+	if (r.width() < r.height()) {
+	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
+	    ir.setHeight(r.width());
+	} else if (r.height() < r.width()) {
+	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
+	    ir.setWidth(r.height());
+	}
+
+	p->setPen(cg.dark());
+	p->drawArc(ir, 0, 5760);
+
+	if (flags & (PStyle_Sunken | PStyle_On)) {
+	    ir.addCoords(2, 2, -2, -2);
+	    p->setBrush(cg.foreground());
+	    p->drawEllipse(ir);
+	}
+
+	break; }
+
+    case PO_ExclusiveIndicatorMask: {
+	// make sure the indicator is square
+	QRect ir = r;
+
+	if (r.width() < r.height()) {
+	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
+	    ir.setHeight(r.width());
+	} else if (r.height() < r.width()) {
+	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
+	    ir.setWidth(r.height());
+	}
+
+	p->setPen(color1);
+	p->setBrush(color1);
+	p->drawEllipse(ir);
 	break; }
 
     default:
@@ -712,6 +753,41 @@ void QCommonStyle::drawControl( ControlElement element,
 	drawPrimitive(PO_IndicatorMask, p, r, cg, PStyle_Default, data);
 	break;
 
+    case CE_RadioButton: {
+	QRadioButton *radiobutton = (QRadioButton *) widget;
+
+	PFlags flags = PStyle_Default;
+	if (radiobutton->isEnabled())
+	    flags |= PStyle_Enabled;
+	if (radiobutton->isDown())
+	    flags |= PStyle_Sunken;
+	if (radiobutton->state() == QButton::On)
+	    flags |= PStyle_On;
+	else if (radiobutton->state() == QButton::Off)
+	    flags |= PStyle_Off;
+
+	drawPrimitive(PO_ExclusiveIndicator, p, r, cg, flags, data);
+	break; }
+
+    case CE_RadioButtonLabel: {
+	QRadioButton *radiobutton = (QRadioButton *) widget;
+
+	PFlags flags = PStyle_Default;
+	if (radiobutton->isEnabled())
+	    flags |= PStyle_Enabled;
+
+	drawItem(p, r, AlignAuto | AlignVCenter | ShowPrefix, cg,
+		 flags & PStyle_Enabled, radiobutton->pixmap(), radiobutton->text());
+
+	if (radiobutton->hasFocus())
+	    drawPrimitive(PO_FocusRect, p, subRect(SR_RadioButtonFocusRect, widget),
+			  cg, flags, data);
+	break; }
+
+    case CE_RadioButtonMask:
+	drawPrimitive(PO_ExclusiveIndicatorMask, p, r, cg, PStyle_Default, data);
+	break;
+
     default:
 	break;
     }
@@ -756,7 +832,6 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	break;
 
     case SR_CheckBoxContents: {
-	QCheckBox *checkbox = (QCheckBox *) widget;
 	QRect ir = subRect(SR_CheckBoxIndicator, widget);
 	rect.setRect(ir.right() + 10, wrect.y(),
 		     wrect.width() - ir.width() - 10, wrect.height());
@@ -769,6 +844,33 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	QPainter p(checkbox);
 	rect = itemRect(&p, wrect, AlignAuto | AlignVCenter | ShowPrefix,
 			checkbox->isEnabled(), checkbox->pixmap(), checkbox->text());
+
+	rect.moveBy(ir.right() + 10, 0);
+	rect.setLeft( rect.left() - 3 );
+	rect.setRight( rect.right() + 2 );
+	rect.setTop( rect.top() - 2 );
+	rect.setBottom( rect.bottom() + 2);
+	rect = rect.intersect(wrect);
+	break; }
+
+    case SR_RadioButtonIndicator: {
+	rect.setRect(0, 0, 12, QMAX(12, wrect.height()));
+	break; }
+
+    case SR_RadioButtonContents: {
+	QRect ir = subRect(SR_RadioButtonIndicator, widget);
+	rect.setRect(ir.right() + 10, wrect.y(),
+		     wrect.width() - ir.width() - 10, wrect.height());
+	break; }
+
+    case SR_RadioButtonFocusRect: {
+	QRadioButton *radiobutton = (QRadioButton *) widget;
+	QRect ir = subRect(SR_RadioButtonIndicator, widget);
+
+	QPainter p(radiobutton);
+	rect = itemRect(&p, wrect, AlignAuto | AlignVCenter | ShowPrefix,
+			radiobutton->isEnabled(), radiobutton->pixmap(),
+			radiobutton->text());
 
 	rect.moveBy(ir.right() + 10, 0);
 	rect.setLeft( rect.left() - 3 );
@@ -1099,7 +1201,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 QSize QCommonStyle::sizeFromContents(ContentsType contents,
 				     const QWidget *widget,
 				     const QSize &contentsSize,
-				     void *data ) const
+				     void * ) const
 {
     QSize sz(contentsSize);
 
@@ -1125,10 +1227,18 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 
     case CT_CheckBox: {
 	QCheckBox *checkbox = (QCheckBox *) widget;
-	QSize indicator = indicatorSize();
+	QSize sz = subRect(SR_CheckBoxIndicator, widget).size();
 
-	sz = contentsSize +
-	     QSize(indicator.width() + (checkbox->text().isEmpty() ? 0 : 10), 4);
+	sz = contentsSize + QSize(sz.width() +
+				  (checkbox->text().isEmpty() ? 0 : 10), 4);
+	break; }
+
+    case CT_RadioButton: {
+	QRadioButton *radiobutton = (QRadioButton *) widget;
+	QSize sz = subRect(SR_RadioButtonIndicator, widget).size();
+
+	sz = contentsSize + QSize(sz.width() +
+				  (radiobutton->text().isEmpty() ? 0 : 10), 4);
 	break; }
 
     default:

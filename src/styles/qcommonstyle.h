@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.h#20 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.h#21 $
 **
 ** Definition of QCommonStyle class
 **
@@ -78,6 +78,9 @@ public:
     QSize indicatorSize() const { return QSize(); }
     void drawIndicator( QPainter *, int, int, int, int, const QColorGroup &,
 			int, bool = FALSE, bool = TRUE ) { }
+    QSize exclusiveIndicatorSize() const { return QSize(); }
+    void drawExclusiveIndicator(QPainter *, int, int, int, int, const QColorGroup &,
+				bool, bool = FALSE, bool = TRUE) { }
     // ### 8<
 
     virtual void drawPrimitive( PrimitiveOperation op,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#101 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#102 $
 **
 ** Definition of QStyle class
 **
@@ -164,7 +164,11 @@ public:
 
 	CE_CheckBox,
 	CE_CheckBoxLabel,
-	CE_CheckBoxMask
+	CE_CheckBoxMask,
+
+	CE_RadioButton,
+	CE_RadioButtonLabel,
+	CE_RadioButtonMask
 
 	/*
 	  CE_Tab,
@@ -196,7 +200,11 @@ public:
 
 	SR_CheckBoxIndicator,
 	SR_CheckBoxContents,
-	SR_CheckBoxFocusRect
+	SR_CheckBoxFocusRect,
+
+	SR_RadioButtonIndicator,
+	SR_RadioButtonContents,
+	SR_RadioButtonFocusRect
 
 	/*
 	  SR_DefaultFrameContents,
@@ -217,6 +225,7 @@ public:
 	CC_ComboBox,
 	CC_ScrollBar,
 	CC_Slider
+
 	/*
 	  CC_MenuItem,
 	*/
@@ -325,7 +334,8 @@ public:
 
     enum ContentsType {
 	CT_PushButton,
-	CT_CheckBox
+	CT_CheckBox,
+	CT_RadioButton
     };
 
     virtual QSize sizeFromContents( ContentsType contents,

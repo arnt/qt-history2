@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#57 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#58 $
 **
 ** Implementation of Windows-like style class
 **
@@ -95,8 +95,7 @@ QWindowsStyle::QWindowsStyle() : QCommonStyle(WindowsStyle)
 }
 
 
-/*!\reimp
-*/
+/*!\reimp*/
 QWindowsStyle::~QWindowsStyle()
 {
     delete d;
@@ -117,10 +116,7 @@ void QWindowsStyle::unPolish( QWidget *widget )
     widget->removeEventFilter( this );
 }
 
-
-/*!
-  \reimp
-*/
+/*!\reimp*/
 void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 				   QPainter *p,
 				   const QRect &r,
@@ -194,8 +190,95 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 	    p->drawLineSegments( a );
 	}
 #endif
-
 	break; }
+
+    case PO_ExclusiveIndicator: {
+#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
+	static const QCOORD pts1[] = {              // dark lines
+	    1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
+	static const QCOORD pts2[] = {              // black lines
+	    2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
+	static const QCOORD pts3[] = {              // background lines
+	    2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
+	static const QCOORD pts4[] = {              // white lines
+	    2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
+	    11,4, 10,3, 10,2 };
+	static const QCOORD pts5[] = {              // inner fill
+	    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
+	// in right to left mode, we need it reversed
+	static const QCOORD rpts1[] = {             // dark lines
+	    11-1,9, 11-1,8, 11-0,7, 11-0,4, 11-1,3, 11-1,2, 11-2,1, 11-3,1, 11-4,0, 11-7,0, 11-8,1, 11-9,1 };
+	static const QCOORD rpts2[] = {             // black lines
+	    11-2,8, 11-1,7, 11-1,4, 11-2,3, 11-2,2, 11-3,2, 11-4,1, 11-7,1, 11-8,2, 11-9,2 };
+	static const QCOORD rpts3[] = {             // background lines
+	    11-2,9, 11-3,9, 11-4,10, 11-7,10, 11-8,9, 11-9,9, 11-9,8, 11-10,7, 11-10,4, 11-9,3 };
+	static const QCOORD rpts4[] = {             // white lines
+	    11-2,10, 11-3,10, 11-4,11, 11-7,11, 11-8,10, 11-9,10, 11-10,9, 11-10,8, 11-11,7,
+	    11-11,4, 11-10,3, 11-10,2 };
+	static const QCOORD rpts5[] = {             // inner fill
+	    11-4,2, 11-7,2, 11-9,4, 11-9,7, 11-7,9, 11-4,9, 11-2,7, 11-2,4 };
+
+	// make sure the indicator is square
+	QRect ir = r;
+
+	if (r.width() < r.height()) {
+	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
+	    ir.setHeight(r.width());
+	} else if (r.height() < r.width()) {
+	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
+	    ir.setWidth(r.height());
+	}
+
+	p->eraseRect(ir);
+	bool reverse = QApplication::reverseLayout();
+	bool down = flags & PStyle_Sunken;
+	bool enabled = flags & PStyle_Enabled;
+	bool on = flags & PStyle_On;
+	QPointArray a;
+	if( reverse )
+	    a.setPoints( QCOORDARRLEN(rpts1), rpts1 );
+	else
+	    a.setPoints( QCOORDARRLEN(pts1), pts1 );
+	a.translate( ir.x(), ir.y() );
+	p->setPen( cg.dark() );
+	p->drawPolyline( a );
+	if( reverse )
+	    a.setPoints( QCOORDARRLEN(rpts2), rpts2 );
+	else
+	    a.setPoints( QCOORDARRLEN(pts2), pts2 );
+	a.translate( ir.x(), ir.y() );
+	p->setPen( cg.shadow() );
+	p->drawPolyline( a );
+	if( reverse )
+	    a.setPoints( QCOORDARRLEN(rpts3), rpts3 );
+	else
+	    a.setPoints( QCOORDARRLEN(pts3), pts3 );
+	a.translate( ir.x(), ir.y() );
+	p->setPen( cg.midlight() );
+	p->drawPolyline( a );
+	if( reverse )
+	    a.setPoints( QCOORDARRLEN(rpts4), rpts4 );
+	else
+	    a.setPoints( QCOORDARRLEN(pts4), pts4 );
+	a.translate( ir.x(), ir.y() );
+	p->setPen( cg.light() );
+	p->drawPolyline( a );
+	if( reverse )
+	    a.setPoints( QCOORDARRLEN(rpts5), rpts5 );
+	else
+	    a.setPoints( QCOORDARRLEN(pts5), pts5 );
+	a.translate( ir.x(), ir.y() );
+	QColor fillColor = ( down || !enabled ) ? cg.button() : cg.base();
+	p->setPen( fillColor );
+	p->setBrush( fillColor  ) ;
+	p->drawPolygon( a );
+	if ( on ) {
+	    p->setPen( NoPen );
+	    p->setBrush( cg.text() );
+	    p->drawRect( ir.x() + 5, ir.y() + 4, 2, 4 );
+	    p->drawRect( ir.x() + 4, ir.y() + 5, 4, 2 );
+	}
+    	break; }
 
     default:
 	if (op >= PO_ArrowUp && op <= PO_ArrowLeft) {
@@ -318,17 +401,17 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_ScrollBarMaximumDragDistance:
 	ret = 20;
 	break;
-	
+
     case PM_SliderLength:
 	ret = 11;
 	break;
-	
+
     // Returns the number of pixels to use for the business part of the
     // slider (i.e., the non-tickmark portion). The remaining space is shared
     // equally between the tickmark regions.
     case PM_SliderControlThickness: {
 	QSlider * sl = (QSlider *) widget;
-	int space = (sl->orientation() == Horizontal) ? sl->height() 
+	int space = (sl->orientation() == Horizontal) ? sl->height()
 	            : sl->width();
 	int ticks = sl->tickmarks();
 	int n = 0;
@@ -414,23 +497,18 @@ QWindowsStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
         QStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
 }
 
-
 /*! \reimp */
-void
-QWindowsStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
-                               const QColorGroup &g,  int /* lineWidth */,
-                               const QBrush *fill )
+void QWindowsStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
+				    const QColorGroup &g,  int /* lineWidth */,
+				    const QBrush *fill )
 {
     qDrawWinPanel( p, x, y,  w, h, g, FALSE, fill );
 }
 
-
 /*! \reimp */
-
-void
-QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
-                 int x, int y, int w, int h,
-                 const QColorGroup &g, bool enabled, const QBrush *fill )
+void QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
+			       int x, int y, int w, int h,
+			       const QColorGroup &g, bool enabled, const QBrush *fill )
 {
     QPointArray a;                              // arrow polygon
     switch ( type ) {
@@ -478,111 +556,7 @@ QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
         p->drawPoint( a[6] );
     }
     p->setPen( savePen );                       // restore pen
-
 }
-
-
-#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-/*! \reimp */
-
-void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
-                                   int x, int y, int w, int h, const QColorGroup &g,
-                                   bool on, bool down, bool enabled )
-{
-
-    static const QCOORD pts1[] = {              // dark lines
-        1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-    static const QCOORD pts2[] = {              // black lines
-        2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
-    static const QCOORD pts3[] = {              // background lines
-        2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
-    static const QCOORD pts4[] = {              // white lines
-        2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
-        11,4, 10,3, 10,2 };
-    static const QCOORD pts5[] = {              // inner fill
-        4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
-    // in right to left mode, we need it reversed
-    static const QCOORD rpts1[] = {             // dark lines
-        11-1,9, 11-1,8, 11-0,7, 11-0,4, 11-1,3, 11-1,2, 11-2,1, 11-3,1, 11-4,0, 11-7,0, 11-8,1, 11-9,1 };
-    static const QCOORD rpts2[] = {             // black lines
-        11-2,8, 11-1,7, 11-1,4, 11-2,3, 11-2,2, 11-3,2, 11-4,1, 11-7,1, 11-8,2, 11-9,2 };
-    static const QCOORD rpts3[] = {             // background lines
-        11-2,9, 11-3,9, 11-4,10, 11-7,10, 11-8,9, 11-9,9, 11-9,8, 11-10,7, 11-10,4, 11-9,3 };
-    static const QCOORD rpts4[] = {             // white lines
-        11-2,10, 11-3,10, 11-4,11, 11-7,11, 11-8,10, 11-9,10, 11-10,9, 11-10,8, 11-11,7,
-            11-11,4, 11-10,3, 11-10,2 };
-    static const QCOORD rpts5[] = {             // inner fill
-        11-4,2, 11-7,2, 11-9,4, 11-9,7, 11-7,9, 11-4,9, 11-2,7, 11-2,4 };
-
-    p->eraseRect( x, y, w, h );
-    bool reverse = QApplication::reverseLayout();
-    QPointArray a;
-    if( reverse )
-        a.setPoints( QCOORDARRLEN(rpts1), rpts1 );
-    else
-        a.setPoints( QCOORDARRLEN(pts1), pts1 );
-    a.translate( x, y );
-    p->setPen( g.dark() );
-    p->drawPolyline( a );
-    if( reverse )
-        a.setPoints( QCOORDARRLEN(rpts2), rpts2 );
-    else
-        a.setPoints( QCOORDARRLEN(pts2), pts2 );
-    a.translate( x, y );
-    p->setPen( g.shadow() );
-    p->drawPolyline( a );
-    if( reverse )
-        a.setPoints( QCOORDARRLEN(rpts3), rpts3 );
-    else
-        a.setPoints( QCOORDARRLEN(pts3), pts3 );
-    a.translate( x, y );
-    p->setPen( g.midlight() );
-    p->drawPolyline( a );
-    if( reverse )
-        a.setPoints( QCOORDARRLEN(rpts4), rpts4 );
-    else
-        a.setPoints( QCOORDARRLEN(pts4), pts4 );
-    a.translate( x, y );
-    p->setPen( g.light() );
-    p->drawPolyline( a );
-    if( reverse )
-        a.setPoints( QCOORDARRLEN(rpts5), rpts5 );
-    else
-        a.setPoints( QCOORDARRLEN(pts5), pts5 );
-    a.translate( x, y );
-    QColor fillColor = ( down || !enabled ) ? g.button() : g.base();
-    p->setPen( fillColor );
-    p->setBrush( fillColor  ) ;
-    p->drawPolygon( a );
-    if ( on ) {
-        p->setPen( NoPen );
-        p->setBrush( g.text() );
-        p->drawRect( x+5, y+4, 2, 4 );
-        p->drawRect( x+4, y+5, 4, 2 );
-    }
-
-}
-
-
-/*!\reimp
-*/
-void
-QWindowsStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on */)
-{
-    QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
-    drawExclusiveIndicator(p , x, y, w, h, g, FALSE, FALSE, FALSE );
-}
-
-
-
-/*!\reimp
- */
-QSize
-QWindowsStyle::exclusiveIndicatorSize() const
-{
-    return QSize(12,12);
-}
-
 
 /*!\reimp
  */
@@ -1895,7 +1869,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 			    subActive, data );
 	}
 	break; }
-       
+
     case CC_Slider: {
 	if ( sub != SC_None ) {
 	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
@@ -2012,11 +1986,11 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	    drawPrimitive( PO_FocusRect, p, re, cg );
 	}
 	break; }
-	
+
     case SC_SliderGroove: {
 	QSlider * sl = (QSlider *) w;
 	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-	int c = pixelMetric( PM_SliderThickness, sl ) + 
+	int c = pixelMetric( PM_SliderThickness, sl ) +
 		pixelMetric( PM_SliderLength, sl ) / 8;
 	p->setPen( cg.shadow() );
 	if ( sl->orientation() == Horizontal ) {
@@ -2053,7 +2027,7 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	int y2 = y+he-1;
 
 	bool reverse = QApplication::reverseLayout();
-	
+
 	QSlider * sl = (QSlider *) w;
 	Orientation orient = sl->orientation();
 	bool tickAbove = sl->tickmarks() == QSlider::Above;
@@ -2225,7 +2199,7 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
             break;
 	}
 	break; }
-    
+
     default:
 	break;
     }

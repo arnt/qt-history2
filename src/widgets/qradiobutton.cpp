@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#163 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#164 $
 **
 ** Implementation of QRadioButton class
 **
@@ -154,18 +154,13 @@ QSize QRadioButton::sizeHint() const
     // Any more complex, and we will use style().itemRect()
     // NB: QCheckBox::sizeHint() is similar
     constPolish();
-    QSize sz;
-    if (pixmap())
-	sz = pixmap()->size();
-    else
-	sz = fontMetrics().size( ShowPrefix, text() );
-    QSize bmsz = style().exclusiveIndicatorSize();
-    if ( sz.height() < bmsz.height() )
-	sz.setHeight( bmsz.height() );
 
-    return sz + QSize( bmsz.width()
-			+ (text().isEmpty() ? 0 : gutter+margin),
-			4 ).expandedTo( QApplication::globalStrut() );
+    QPainter p(this);
+    QSize sz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, FALSE,
+				pixmap(), text()).size();
+
+    return (style().sizeFromContents(QStyle::CT_RadioButton, this, sz).
+	    expandedTo(QApplication::globalStrut()));
 }
 
 
@@ -181,17 +176,9 @@ bool QRadioButton::hitButton( const QPoint &pos ) const
 */
 void QRadioButton::drawButton( QPainter *paint )
 {
-    QPainter	*p = paint;
-    const QColorGroup & g = colorGroup();
-    int		 x, y;
-
-    QFontMetrics fm = fontMetrics();
-    QSize lsz = fm.size(ShowPrefix, text());
-    QSize sz = style().exclusiveIndicatorSize();
-    x = text().isEmpty() ? 1 : 0;
-    if( QApplication::reverseLayout() )
-	x = width() - sz.width();
-    y = (height() - lsz.height() + fm.height() - sz.height())/2;
+    QPainter *p = paint;
+    QRect irect = style().subRect(QStyle::SR_CheckBoxIndicator, this);
+    const QColorGroup &cg = colorGroup();
 
 #ifndef QT_NO_TEXTSTREAM
 #define SAVE_RADIOBUTTON_PIXMAPS
@@ -215,26 +202,25 @@ void QRadioButton::drawButton( QPainter *paint )
     QPixmap *pm = QPixmapCache::find( pmkey );
     if ( pm ) {					// pixmap exists
 	drawButtonLabel( p );
-	p->drawPixmap( x, y, *pm );
+	p->drawPixmap( irect.topLeft(), *pm );
 	return;
     }
     bool use_pm = TRUE;
     QPainter pmpaint;
     int wx, wy;
     if ( use_pm ) {
-	pm = new QPixmap( sz );			// create new pixmap
+	pm = new QPixmap( irect.size() );	// create new pixmap
 	Q_CHECK_PTR( pm );
 	pmpaint.begin( pm );
 	p = &pmpaint;				// draw in pixmap
-	wx=x;  wy=y;				// save x,y coords
-	x = y = 0;
-	p->setBackgroundColor( g.background() );
+	wx = irect.x();				// save x,y coords
+	wy = irect.y();
+	irect.moveTopLeft(QPoint(0, 0));
+	p->setBackgroundColor( cg.background() );
     }
 #endif
 
-#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-
-    style().drawExclusiveIndicator(p, x, y, sz.width(), sz.height(), g, isOn(), isDown(), isEnabled() );
+    style().drawControl(QStyle::CE_RadioButton, p, this, irect, cg);
 
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
     if ( use_pm ) {
@@ -243,17 +229,17 @@ void QRadioButton::drawButton( QPainter *paint )
 	    QBitmap bm( pm->size() );
 	    bm.fill( color0 );
 	    pmpaint.begin( &bm );
-	    style().drawExclusiveIndicatorMask( &pmpaint, 0, 0, bm.width(), bm.height(), isOn() );
+	    style().drawControl(QStyle::CE_RadioButtonMask, &pmpaint, this, irect, cg);
 	    pmpaint.end();
 	    pm->setMask( bm );
 	}
-
 	p = paint;				// draw in default device
 	p->drawPixmap( wx, wy, *pm );
 	if (!QPixmapCache::insert(pmkey, pm) )	// save in cache
 	    delete pm;
     }
 #endif
+
     drawButtonLabel( p );
 }
 
@@ -263,44 +249,9 @@ void QRadioButton::drawButton( QPainter *paint )
 */
 void QRadioButton::drawButtonLabel( QPainter *p )
 {
-    int x, y, w, h;
-    GUIStyle gs = style();
-    QSize sz = style().exclusiveIndicatorSize();
-    if ( gs == WindowsStyle )
-	sz.setWidth(sz.width()+1);
-    y = 0;
-    x = sz.width() + gutter;
-    w = width() - x;
-    h = height();
-    if( QApplication::reverseLayout() )
-	x = 0;
-
-    style().drawItem( p, x, y, w, h,
-		      AlignAuto|AlignVCenter|ShowPrefix,
-		      colorGroup(), isEnabled(),
-		      pixmap(), text() );
-
-    if ( hasFocus() ) {
-	QRect br = style().itemRect( p, x, y, w, h,
-				     AlignAuto|AlignVCenter|ShowPrefix,
-				     isEnabled(),
-				     pixmap(), text() );
-	br.setLeft( br.left()-3 );
-	br.setRight( br.right()+2 );
-	br.setTop( br.top()-2 );
-	br.setBottom( br.bottom()+2);
-	br = br.intersect( QRect(0,0,width(),height()) );
-
-	if ( !text().isEmpty() )
-	    style().drawFocusRect( p, br, colorGroup() );
-	else {
-	    br.setRight( br.left()-1 );
-	    br.setLeft( br.left()-16 );
-	    br.setTop( br.top() );
-	    br.setBottom( br.bottom() );
-	    style().drawFocusRect( p, br, colorGroup() );
-	}
-    }
+    style().drawControl(QStyle::CE_RadioButtonLabel, p, this,
+			style().subRect(QStyle::SR_RadioButtonContents, this),
+			colorGroup());
 }
 
 
@@ -337,60 +288,16 @@ void QRadioButton::resizeEvent( QResizeEvent* e )
 void QRadioButton::updateMask()
 {
     QBitmap bm(width(),height());
-    {
-	bm.fill(color0);
-	QPainter p( &bm, this );
-	int x, y, w, h;
-	GUIStyle gs = style();
-	QFontMetrics fm = fontMetrics();
-	QSize lsz = fm.size(ShowPrefix, text());
-	QSize sz = style().exclusiveIndicatorSize();
-	if ( gs == WindowsStyle )
-	    sz.setWidth(sz.width()+1);
-	y = 0;
-	x = sz.width() + gutter;
-	w = width() - x;
-	if( QApplication::reverseLayout() )
-	    x = 0;
-	h = height();
+    bm.fill(color0);
 
-	QColorGroup cg(color1,color1, color1,color1,color1,color1,color1,color1, color0);
+    QPainter p( &bm, this );
+    QRect irect = style().subRect(QStyle::SR_RadioButtonIndicator, this);
+    QRect crect = style().subRect(QStyle::SR_RadioButtonContents, this);
+    QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1,color0);
 
-	style().drawItem( &p, x, y, w, h,
-			  AlignAuto|AlignVCenter|ShowPrefix,
-			  cg, TRUE,
-			  pixmap(), text() );
+    style().drawControl(QStyle::CE_RadioButtonMask, &p, this, irect, cg);
+    p.fillRect(crect, color1);
 
-	y = (height() - lsz.height() + fm.height() - sz.height())/2;
-
-	style().drawExclusiveIndicatorMask(&p, 0, y, sz.width(), sz.height(), isOn() );
-
-	if ( hasFocus() ) {
- 	    y = 0;
- 	    w = width() - x;
- 	    h = height();
-	    QRect br = style().itemRect( &p, x, y, w, h,
-					 AlignAuto|AlignVCenter|ShowPrefix,
-					 isEnabled(),
-					 pixmap(), text() );
-	    br.setLeft( br.left()-3 );
-	    br.setRight( br.right()+2 );
-	    br.setTop( br.top()-2 );
-	    br.setBottom( br.bottom()+2);
-	    br = br.intersect( QRect(0,0,width(),height()) );
-
-	    if ( !text().isEmpty() )
-		style().drawFocusRect( &p, br, cg );
-	    else {
-		br.setRight( br.left()-1 );
-		br.setLeft( br.left()-16 );
-		br.setTop( br.top() );
-		br.setBottom( br.bottom() );
-		style().drawFocusRect( &p, br, cg );
-	    }
-
-	}
-    }
     setMask(bm);
 }
 
