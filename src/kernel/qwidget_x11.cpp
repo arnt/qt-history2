@@ -375,15 +375,16 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
         ulong status;
     } mwmhints;
 
-    mwmhints.flags = mwmhints.functions = mwmhints.decorations = 0l;
-    mwmhints.input_mode = 0l;
-    mwmhints.status = 0l;
+    mwmhints.flags = mwmhints.functions = 0L;
+    mwmhints.decorations = (1L << 0); // MWM_DECOR_ALL
+    mwmhints.input_mode = 0L;
+    mwmhints.status = 0L;
 
     if (topLevel && ! (desktop || popup)) {
 	ulong wsa_mask = 0;
 	if (testWFlags(WStyle_Customize)) {
 	    if (testWFlags(WStyle_NoBorder)) {
-		mwmhints.decorations = 0;
+		mwmhints.decorations = 0L;
 		mwmhints.flags |= (1L << 1); // MWM_HINTS_DECORATIONS
 
 		// override netwm type - quick and easy for KDE noborder
@@ -422,7 +423,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    net_winstates[curr_winstate++] = qt_net_wm_state_stays_on_top;
 
         if (testWFlags(WShowModal)) {
-            mwmhints.input_mode = 3; // MWM_INPUT_FULL_APPLICATION_MODAL
+            mwmhints.input_mode = 3L; // MWM_INPUT_FULL_APPLICATION_MODAL
             mwmhints.flags |= (1L << 2); // MWM_HINTS_INPUT_MODE
 
             net_winstates[curr_winstate++] = qt_net_wm_state_modal;
