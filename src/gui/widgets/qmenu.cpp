@@ -513,9 +513,15 @@ QAction *Q4Menu::insertSeparator(QAction *before)
 
 void Q4Menu::setTearOffEnabled(bool b)
 {
+    if(d->tearoff == b)
+	return;
     if(!b && d->tornPopup)
 	d->tornPopup->close();
     d->tearoff = b;
+
+    d->itemsDirty = true;
+    if(isVisible())
+	resize(sizeHint());
 }
 
 bool Q4Menu::isTearOffEnabled() const
@@ -525,7 +531,13 @@ bool Q4Menu::isTearOffEnabled() const
 
 void Q4Menu::setCheckable(bool b)
 {
+    if(b == d->checkable)
+	return;
     d->checkable = b;
+
+    d->itemsDirty = true;
+    if(isVisible())
+	resize(sizeHint());
 }
 
 bool Q4Menu::isCheckable() const
@@ -535,6 +547,7 @@ bool Q4Menu::isCheckable() const
 
 QSize Q4Menu::sizeHint() const
 {
+    ensurePolished();
     QSize s(0, 0);
     QList<Q4MenuAction*> actions = d->calcActionRects();
     if(!actions.isEmpty())
@@ -1703,6 +1716,11 @@ void Q4MenuBar::changeEvent(QEvent *e)
     }
 }
 
+void Q4MenuBar::contextMenuEvent(QContextMenuEvent *e)
+{
+    e->accept();
+}
+
 bool
 Q4MenuBar::event(QEvent *e)
 {
@@ -1797,6 +1815,7 @@ Q4MenuBar::eventFilter(QObject *object, QEvent *event)
 
 QSize Q4MenuBar::sizeHint() const
 {
+    ensurePolished();
     QSize s(0, 0);
     const_cast<Q4MenuBar*>(this)->d->updateActions();
     for(int i = 0; i < d->actionItems.count(); ++i) {

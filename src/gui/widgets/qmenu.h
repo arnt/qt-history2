@@ -97,6 +97,7 @@ signals:
     void highlighted(QAction *action);
 
 protected:
+    void contextMenuEvent(QContextMenuEvent *);
     void changeEvent(QEvent *);
     void keyPressEvent(QKeyEvent *);
     void mouseReleaseEvent(QMouseEvent *);
