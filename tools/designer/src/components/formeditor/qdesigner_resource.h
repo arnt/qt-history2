@@ -55,6 +55,7 @@ protected:
 
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
     virtual QLayout *createLayout(const QString &layoutName, QObject *parent, const QString &name);
+    virtual void createCustomWidgets(DomCustomWidgets *);
     virtual void createConnections(DomConnections *connections, QWidget *w);
     virtual void createAuthor(const QString&);
     virtual void createComment(const QString&);

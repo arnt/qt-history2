@@ -114,10 +114,20 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
 #undef DECLARE_WIDGET
 
     if (fw && !w) {
-        QDesignerCustomWidget *customWidget = new QDesignerCustomWidget(fw, parentWidget);
-        customWidget->setWidgetClassName(widgetName);
-        qWarning("widget %s not found", widgetName.toLatin1().constData());
-        w = customWidget;
+        AbstractWidgetDataBase *db = fw->core()->widgetDataBase();
+        AbstractWidgetDataBaseItem *item = db->item(db->indexOfClassName(widgetName));
+        if (item != 0 && item->isPromoted()) {
+            QWidget *child = createWidget(item->extends(), 0);
+            if (child != 0) {
+                w = new QDesignerPromotedWidget(item, child, parentWidget);
+                child->setParent(w, 0);
+            }
+        } else {
+            QDesignerCustomWidget *customWidget = new QDesignerCustomWidget(fw, parentWidget);
+            customWidget->setWidgetClassName(widgetName);
+            qWarning("widget %s not found", widgetName.toLatin1().constData());
+            w = customWidget;
+        }
     }
 
     if (w) {

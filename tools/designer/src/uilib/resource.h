@@ -75,6 +75,7 @@ protected:
     virtual QAction *createAction(QObject *parent, const QString &name);
     virtual QActionGroup *createActionGroup(QObject *parent, const QString &name);
     
+    virtual void createCustomWidgets(DomCustomWidgets *) {}
     virtual void createConnections(DomConnections *, QWidget *) {}
     virtual void createAuthor(const QString &) {};
     virtual void createComment(const QString &) {};

@@ -366,10 +366,21 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     else if (m_internal_to_qt.contains(className))
         w->setAttributeClass(m_internal_to_qt.value(className));
 
-    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(widget))
+    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(widget)) {
         w->setAttributeName(promoted->child()->objectName());
-    else
+        QList<DomProperty*> prop_list = w->elementProperty();
+        foreach (DomProperty *prop, prop_list) {
+            if (prop->attributeName() == QLatin1String("geometry")) {
+                if (DomRect *rect = prop->elementRect()) {
+                    rect->setElementX(widget->x());
+                    rect->setElementY(widget->y());
+                }
+                break;
+            }
+        }
+    } else {
         w->setAttributeName(widget->objectName());
+    }
 
     QList<DomActionRef*> ref_list;
     QStringList action_list = m_formWindow->widgetToActionMap().actions(widget);
@@ -485,8 +496,32 @@ QString QDesignerResource::saveComment()
     return m_formWindow->comment();
 }
 
+void QDesignerResource::createCustomWidgets(DomCustomWidgets *dom_custom_widgets)
+{
+    if (dom_custom_widgets == 0)
+        return;
+    QList<DomCustomWidget*> custom_widget_list = dom_custom_widgets->elementCustomWidget();
+    AbstractWidgetDataBase *db = m_formWindow->core()->widgetDataBase();
+    foreach(DomCustomWidget *custom_widget, custom_widget_list) {
+        WidgetDataBaseItem *item
+            = new WidgetDataBaseItem(custom_widget->elementClass());
+        QString base_class = custom_widget->elementExtends();
+        item->setExtends(base_class);
+        item->setPromoted(!base_class.isEmpty());
+        item->setGroup(base_class.isEmpty() ? QObject::tr("Custom Widgets")
+                                                : QObject::tr("Promoted Widgets"));
+        if (DomHeader *header = custom_widget->elementHeader())
+            item->setIncludeFile(header->text());
+        item->setContainer(custom_widget->elementContainer());
+        item->setCustom(true);
+        db->append(item);
+    }
+}
+
 void QDesignerResource::createConnections(DomConnections *connections, QWidget *w)
 {
+    if (connections == 0 || w == 0)
+        return;
     m_formWindow->createConnections(connections, w);
 }
 
