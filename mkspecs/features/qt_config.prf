@@ -1,0 +1,2 @@
+isEmpty(QMAKE_QT_CONFIG):QMAKE_QT_CONFIG = $(QTDIR)/.qt.config
+include($$QMAKE_QT_CONFIG)
