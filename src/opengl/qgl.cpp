@@ -1060,6 +1060,14 @@ bool QGLContext::create( const QGLContext* shareContext )
     \sa QGLContext::QGLContext()
 */
 
+/*!
+    \fn void QGLContext::generateFontDisplayLists( const QFont& font, int listBase )
+
+    Generates a set of 256 display lists for the 256 first characters
+    in the font \a font. The first list will start at index \a listBase.
+
+    \sa QGLWidget::renderText()
+*/
 
 
 /*****************************************************************************
@@ -1999,7 +2007,7 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
     int base;
     
     QGLWidgetPrivate * d = qgl_d( this );
-    if ( !d ) { // this can't happen unless we run out of mem
+    if ( !d || !glcx ) { // this can't happen unless we run out of mem
 	return 0;
     }
     
@@ -2014,7 +2022,7 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
 	    }
 	}
 	maxBase += 256;
-	generateFontDisplayLists( fnt, maxBase );
+	glcx->generateFontDisplayLists( fnt, maxBase );
 	d->displayListCache[ fnt.key() ] = maxBase;
 	base = maxBase;
     }

@@ -655,6 +655,11 @@ uint QGLContext::colorIndex( const QColor& c ) const
     return 0;
 }
 
+void QGLContext::generateFontDisplayLists( const QFont & fnt, int listBase )
+{
+    glXUseXFont( (Font) fnt.handle(), 0, 256, listBase );
+}
+
 /*****************************************************************************
   QGLOverlayWidget (Internal overlay class for X11)
  *****************************************************************************/
@@ -1104,11 +1109,6 @@ void QGLWidget::cleanupColormaps()
 
 void QGLWidget::macInternalFixBufferRect()
 {
-}
-
-void QGLWidget::generateFontDisplayLists( const QFont & fnt, int listBase )
-{
-    glXUseXFont( (Font) fnt.handle(), 0, 256, listBase );
 }
 
 #endif

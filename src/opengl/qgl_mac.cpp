@@ -310,6 +310,24 @@ uint QGLContext::colorIndex( const QColor&c) const
     return (uint)(ret == -1 ? 0 : ret);
 }
 
+void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
+{
+    Style fstyle = normal; //from MacTypes.h
+    if(fnt.bold())
+	fstyle |= bold;
+    if(fnt.italic())
+	fstyle |= italic;
+    if(fnt.underline())
+	fstyle |= underline;
+
+    int fnum = 0;
+    if(QFontPrivate *fp = (QFontPrivate*)fnt.handle()) {
+	if(fp->fin)
+	    fnum = fp->fin->fnum;
+    }
+    aglUseFont((AGLContext) cx, fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
+}
+
 /*****************************************************************************
   QGLWidget AGL-specific code
  *****************************************************************************/
@@ -573,23 +591,5 @@ void QGLWidget::macInternalFixBufferRect()
 {
     glcx->fixBufferRect();
     update();
-}
-
-void QGLWidget::generateFontDisplayLists(const QFont & fnt, int listBase)
-{
-    Style fstyle = normal; //from MacTypes.h
-    if(fnt.bold())
-	fstyle |= bold;
-    if(fnt.italic())
-	fstyle |= italic;
-    if(fnt.underline())
-	fstyle |= underline;
-
-    int fnum = 0;
-    if(QFontPrivate *fp = (QFontPrivate*)fnt.handle()) {
-	if(fp->fin)
-	    fnum = fp->fin->fnum;
-    }
-    aglUseFont((AGLContext) glcx->cx, fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
 }
 #endif

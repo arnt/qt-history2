@@ -209,6 +209,7 @@ protected:
     void		setWindowCreated( bool on );
     bool		initialized() const;
     void		setInitialized( bool on );
+    void 		generateFontDisplayLists( const QFont & fnt, int listBase );
 
     uint		colorIndex( const QColor& c ) const;
 
@@ -334,7 +335,6 @@ protected:
 
 private:
     int 		displayListBase( const QFont & fnt, int listBase );
-    void 		generateFontDisplayLists( const QFont & fnt, int listBase );
     void 		cleanupColormaps();
     void		init( const QGLFormat& fmt,
 			      const QGLWidget* shareWidget );
