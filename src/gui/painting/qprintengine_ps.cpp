@@ -5456,8 +5456,9 @@ void QPSPrintEngine::updateMatrix(const QMatrix &matrix)
                   << "]ST\n";
 }
 
-void QPSPrintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
+void QPSPrintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation /*op*/)
 {
+    bool clipEnabled = !region.isEmpty();
     if (!d->clipOn && !clipEnabled)
         return;
 

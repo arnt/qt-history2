@@ -2020,9 +2020,9 @@ void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
         d->txop = QPainterPrivate::TxNone;
 }
 
-void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
+void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation /*op*/)
 {
-    bool enable = !clipRegion.isEmpty();
+    bool clipEnabled = !clipRegion.isEmpty();
     Q_ASSERT(isActive());
 
     clearf(ClipOn);
