@@ -207,14 +207,16 @@ void QAbstractItemViewPrivate::init()
 
   This enum describes the different ways to navigate between items, \sa moveCursor()
 
-  \value MoveUp       Move to the item above the current.
-  \value MoveDown     Move to the item below the current.
-  \value MoveLeft     Move to the item left of the current.
-  \value MoveRight    Move to the item right of the current.
+  \value MoveUp       Move to the item above the current item.
+  \value MoveDown     Move to the item below the current item.
+  \value MoveLeft     Move to the item left of the current item.
+  \value MoveRight    Move to the item right of the current item.
   \value MoveHome     Move to the top-left corner item.
   \value MoveEnd      Move to the bottom-right corner item.
-  \value MovePageUp   Move one page up above the current.
-  \value MovePageDown Move one page down below the current.
+  \value MovePageUp   Move one page up above the current item.
+  \value MovePageDown Move one page down below the current item.
+  \value MoveNext     Move to the item after the current item.
+  \value MovePrevious Move to the item before the current item.
 */
 
 /*!
@@ -279,14 +281,16 @@ void QAbstractItemViewPrivate::init()
   \fn void QAbstractItemView::itemEntered(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 
   This signal is emitted when the mouse cursor enters the item
-  specified by \a index.
+  specified by \a index. The state of the mouse buttons and keyboard modifiers
+  are specified by \a button and \a modifiers.
 */
 
 /*!
   \fn void QAbstractItemView::viewportEntered(Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 
-  This signal is emitted when the mouse cursor enters the
-  viewport.
+  This signal is emitted when the mouse cursor enters the viewport. The
+  state of the mouse buttons and keyboard modifiers are specified by
+  \a button and \a modifiers.
 */
 
 /*!
@@ -294,7 +298,8 @@ void QAbstractItemViewPrivate::init()
 
     This signal is emitted when a mouse button is pressed. The item the
     mouse was pressed on is specified by \a index (which may be invalid if
-    the mouse was not pressed on an item).
+    the mouse was not pressed on an item). The state of the mouse buttons
+    and keyboard modifiers are specified by \a button and \a modifiers.
 */
 
 /*!
@@ -302,7 +307,8 @@ void QAbstractItemViewPrivate::init()
 
     This signal is emitted when a mouse button is clicked. The item the
     mouse was clicked on is specified by \a index (which may be invalid if
-    the mouse was not clicked on an item).
+    the mouse was not clicked on an item). The state of the mouse buttons
+    and keyboard modifiers are specified by \a button and \a modifiers.
 */
 
 /*!
@@ -310,14 +316,18 @@ void QAbstractItemViewPrivate::init()
 
     This signal is emitted when a mouse button is double-clicked. The
     item the mouse was double-clicked on is specified by \a index (which
-    may be invalid if the mouse was not double-clicked on an item).
+    may be invalid if the mouse was not double-clicked on an item). The
+    state of the mouse buttons and keyboard modifiers are specified by
+    \a button and \a modifiers.
 */
 
 /*!
     \fn void QAbstractItemView::keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers)
 
     This signal is emitted if keyTracking is enabled and a key is
-    pressed in the view.  The item \a index is the current item.
+    pressed in the view.  The item \a index is the current item. The
+    key pressed and the keyboard modifiers used are specified by
+    \a key and \a modifiers.
 */
 
 /*!
@@ -339,10 +349,9 @@ void QAbstractItemViewPrivate::init()
 /*!
     \fn QModelIndex QAbstractItemView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers) = 0
 
-    Moves the cursor in the view in accordance with the given \a
-    cursorAction and button \a state.
+    Moves the cursor in the view according to the given \a cursorAction and
+    keyboard modifiers specified by \a modifiers.
 */
-
 
 /*!
     \fn int QAbstractItemView::horizontalOffset() const = 0
@@ -1964,13 +1973,11 @@ void QAbstractItemView::doAutoScroll()
 }
 
 /*!
-    Returns the SelectionFlags to be used when updating selections.
-    Reimplement this function to add your own selection behavior.
+    Returns the SelectionFlags to be used when updating a selection with
+    to include the \a index specified. The \a event is a user input event,
+    such as a mouse or keyboard event.
 
-    This function is called on user input events like mouse and
-    keyboard events; the mouse button state is specified by \a state, the
-    index of the relevant item by \a index, the even type by \a type,
-    and the key (if a key was pressed) by \a key.
+    Reimplement this function to define your own selection behavior.
 */
 QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(const QModelIndex &index,
                                                                         const QEvent *event) const
