@@ -6,14 +6,14 @@ static bool attachTypeLibrary( const QString &applicationName, int resource, con
 {
     HANDLE hExe = 0;
     QT_WA( {
-	TCHAR *resourceName = MAKEINTRESOURCEW(resource);
-	hExe = BeginUpdateResourceW( (TCHAR*)applicationName.ucs2(), FALSE );
+	wchar_t *resourceName = MAKEINTRESOURCEW(resource);
+	hExe = BeginUpdateResource( (TCHAR*)applicationName.ucs2(), FALSE );
 	if ( hExe == 0 ) {
 	    if ( errorMessage )
 		*errorMessage = QString("Failed to attach type library to binary %1 - could not open file.").arg(applicationName);
 	    return FALSE;
 	}
-	if ( !UpdateResourceW(hExe,L"TYPELIB",resourceName,0,data.data(),data.count()) ) {
+	if ( !UpdateResource(hExe,L"TYPELIB",resourceName,0,(void*)data.data(),data.count()) ) {
 	    EndUpdateResource( hExe, TRUE );
 	    if ( errorMessage )
 		*errorMessage = QString("Failed to attach type library to binary %1 - could not update file.").arg(applicationName);
@@ -27,7 +27,7 @@ static bool attachTypeLibrary( const QString &applicationName, int resource, con
 		*errorMessage = QString("Failed to attach type library to binary %1 - could not open file.").arg(applicationName);
 	    return FALSE;
 	}
-	if ( !UpdateResourceA(hExe,"TYPELIB",resourceName,0,data.data(),data.count()) ) {
+	if ( !UpdateResourceA(hExe,"TYPELIB",resourceName,0,(void*)data.data(),data.count()) ) {
 	    EndUpdateResource( hExe, TRUE );
 	    if ( errorMessage )
 		*errorMessage = QString("Failed to attach type library to binary %1 - could not update file.").arg(applicationName);
@@ -111,7 +111,7 @@ int main( int argc, char **argv )
 
     int i = 1;
     while ( i < argc ) {
-	QCString p = QCString(argv[i]).lower();
+	QString p = QString(argv[i]).lower();
 
 	if ( p == "/idl" || p == "-idl" ) {
 	    ++i;
@@ -179,7 +179,7 @@ int main( int argc, char **argv )
 	return 3;
     }
     slashify( input );
-    if ( tlbfile ) {
+    if ( !!tlbfile ) {
 	slashify( tlbfile );
 	QFile file( tlbfile );
 	if ( !file.open( IO_ReadOnly ) )
@@ -189,7 +189,7 @@ int main( int argc, char **argv )
 	bool ok = attachTypeLibrary( input, 1, data, &error );
 	qWarning( error );
 	return ok ? 0 : -1;
-    } else if ( idlfile ) {
+    } else if ( !!idlfile ) {
 	slashify( idlfile );
 	HMODULE hdll = 0;
 	QT_WA( {
