@@ -110,8 +110,7 @@ QRegion::QRegion(int x, int y, int w, int h, RegionType t)
 #ifdef QT_COMPAT
 QRegion::QRegion(const QPointArray &pa, bool winding)
 {
-    QRegion other(pa, winding ? Qt::WindingFill : Qt::OddEvenFill);
-    *this = other;
+    new (this) QRegion(pa, winding ? Qt::WindingFill : Qt::OddEvenFill);
 }
 #endif
 
