@@ -9,7 +9,7 @@ QTOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatast
 vpath %.cpp $(QTDIR)/src/tools
 
 CFLAGS+=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I$(QTDIR)/include \
-	-I$(QTDIR)/src/tools -g -DQT_NO_CODECS
+	-I$(QTDIR)/src/tools -g -DQT_NO_CODECS -DUSE_GROSS_BIG_BUFFER_THING
 LFLAGS+=
 
 qmake: $(OBJS) $(QTOBJS)

@@ -77,6 +77,7 @@ MakefileGenerator::MakefileGenerator(QMakeProject *p) : project(p), init_already
     }
 }
 
+#ifdef USE_GROSS_BIG_BUFFER_THING
 char *gimme_buffer(off_t s)
 {
     static char *big_buffer = NULL;
@@ -143,7 +144,6 @@ MakefileGenerator::generateMocList(QString fn_target)
 #undef COMP_LEN
     return TRUE;
 }
-
 
 bool
 MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
@@ -223,6 +223,109 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 
     return TRUE;
 }
+#else
+bool
+MakefileGenerator::generateMocList(QString fn_target)
+{
+    if(!mocablesToMOC[fn_target].isEmpty())
+	return TRUE;
+
+    QString fn_local = Option::fixPathToLocalOS(fn_target);
+    QFile file(fn_local);
+    if ( file.open(IO_ReadOnly) ) {
+	QTextStream t( &file );
+	QString s;
+	while ( !t.eof() ) {
+	    s = t.readLine();
+	    if(s.find(QRegExp("Q_OBJECT")) != -1) {
+		QString mocFile;
+		QFileInfo fi(fn_local);
+
+		if(!project->variables()["MOC_DIR"].isEmpty())
+		    mocFile = project->variables()["MOC_DIR"].first();
+		else
+		    mocFile = fi.dirPath() + Option::dir_sep;
+		mocFile = Option::fixPathToTargetOS(mocFile);
+
+		if(fi.extension(FALSE) == (Option::cpp_ext.latin1()+1)) {
+		    mocFile += fi.baseName() + Option::moc_ext;
+		    depends[fn_target].append(mocFile);
+		    project->variables()["_SRCMOC"].append(mocFile);
+		}
+		else if(fi.extension(FALSE) == (Option::h_ext.latin1()+1) &&
+			project->variables()["HEADERS"].findIndex(fn_target) != -1) {
+		    mocFile += Option::moc_mod + fi.baseName() + Option::cpp_ext;
+		    project->variables()["_HDRMOC"].append(mocFile);
+		}
+		else break;
+		mocablesToMOC[fn_target] = mocFile;
+		mocablesFromMOC[mocFile] = fn_target;
+		file.close();
+		return TRUE;
+	    }
+	}
+	file.close();
+    }
+    return FALSE;
+}
+
+
+bool
+MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
+{
+    QStringList &fndeps = depends[fn];
+    if(!fndeps.isEmpty())
+	return TRUE;
+    fn = Option::fixPathToLocalOS(fn);
+
+    QFile file(fn);
+    if ( file.open(IO_ReadOnly) ) {
+	QTextStream t( &file );
+	QString s, inc;
+	while ( !t.eof() ) {
+	    s = t.readLine().stripWhiteSpace();
+	    if(s.left(9) == "#include ")
+		inc = s.mid(10, s.length() - 11);
+	    else
+		continue;
+
+	    QString fqn;
+	    if(QFile::exists(inc))
+		fqn = inc;
+	    else if(QDir::isRelativePath(inc)) {
+		bool found=false;
+		for(QStringList::Iterator it = dirs.begin(); !found && it != dirs.end(); ++it) {
+		    found = QFile::exists((fqn = ((*it) + QDir::separator() + inc)));
+		}
+		if(!found)
+		    continue;
+	    } else {
+		continue;
+	    }
+	    fqn = Option::fixPathToTargetOS(fqn);
+
+	    if(fndeps.findIndex(fqn) == -1)
+		fndeps.append(fqn);
+
+	}
+	file.close();
+	for(QStringList::Iterator fnit = fndeps.begin(); fnit != fndeps.end(); ++fnit) {
+	    generateDependancies(dirs, (*fnit));
+
+	    QStringList &deplist = depends[(*fnit)];
+	    for(QStringList::Iterator it = deplist.begin(); it != deplist.end(); ++it)
+		if(fndeps.findIndex((*it)) == -1)
+		    fndeps.append((*it));
+	}
+
+	if(Option::debug_level >= 2)
+	    printf("Dependancies: %s -> %s\n", fn.latin1(), fndeps.join(" :: ").latin1());
+
+	return TRUE;
+    }
+    return FALSE;
+}
+#endif
 
 void
 MakefileGenerator::init()
