@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#25 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#26 $
 **
 ** Definition of QValueList class
 **
@@ -166,7 +166,7 @@ public:
      * Functions
      */
     QValueListPrivate() { node = new Node; node->next = node->prev = node; nodes = 0; }
-    QValueListPrivate( const QValueListPrivate& _p ) : QShared() {
+    QValueListPrivate( const QValueListPrivate<T>& _p ) : QShared() {
 	node = new Node; node->next = node->prev = node; nodes = 0;
 	Iterator b( _p.node->next );
 	Iterator e( _p.node );
@@ -297,7 +297,7 @@ public:
      * API
      */
     QValueList() { sh = new QValueListPrivate<T>; }
-    QValueList( const QValueList& l ) { sh = l.sh; sh->ref(); }
+    QValueList( const QValueList<T>& l ) { sh = l.sh; sh->ref(); }
     ~QValueList() { if ( sh->deref() ) delete sh; }
 
     QValueList<T>& operator= ( const QValueList<T>& l )
