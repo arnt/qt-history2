@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#29 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#29 $");
 
 
 static QRegion *empty_region = 0;
@@ -48,7 +48,10 @@ QRegion::QRegion( bool )
 {
     data = new QRegionData;
     CHECK_PTR( data );
-    data->rgn = 0;
+    data->rgn  = 0;
+    data->type = QRegionData::NullRgn;
+    data->poly = 0;
+    data->offs = QPoint(0,0);
 }
 
 QRegion::QRegion( const QRect &r, RegionType t )
@@ -56,38 +59,35 @@ QRegion::QRegion( const QRect &r, RegionType t )
     QRect rr = r.normalize();
     data = new QRegionData;
     CHECK_PTR( data );
-    int id;
+    data->rect = rr;
+    data->poly = 0;
+    data->offs = QPoint(0,0);
     if ( t == Rectangle ) {			// rectangular region
+	data->type = QRegionData::RectangleRgn;
 	data->rgn = CreateRectRgn( rr.left(),	 rr.top(),
 				   rr.right()+1, rr.bottom()+1 );
-	id = QRGN_SETRECT;
     } else if ( t == Ellipse ) {		// elliptic region
+	data->type = QRegionData::EllipseRgn;
 	data->rgn = CreateEllipticRgn( rr.left(),    rr.top(),
 				       rr.right()+1, rr.bottom()+1 );
-	id = QRGN_SETELLIPSE;
-    } else {
-#if defined(CHECK_RANGE)
-	warning( "QRegion: Invalid region type" );
-#endif
-	return;
     }
-    cmd( id, &rr );
 }
 
 QRegion::QRegion( const QPointArray &a, bool winding )
 {
-    int r, c;
-    if ( winding ) {
-	r = WINDING;
-	c = QRGN_SETPTARRAY_WIND;
-    } else {
-	r = ALTERNATE;
-	c = QRGN_SETPTARRAY_ALT;
-    }
     data = new QRegionData;
     CHECK_PTR( data );
+    int r;
+    if ( winding ) {
+	r = WINDING;
+	data->type = QRegionData::PolygonWindRgn;
+    } else {
+	r = ALTERNATE;
+	data->type = QRegionData::PolygonAltRgn;
+    }
     data->rgn = CreatePolygonRgn( (POINT*)a.data(), a.size(), r );
-    cmd( c, (QPointArray *)&a );
+    data->poly = new QPointArray( a );
+    data->offs = QPoint(0,0);
 }
 
 QRegion::QRegion( const QRegion &r )
@@ -101,16 +101,18 @@ QRegion::~QRegion()
     if ( data->deref() ) {
 	if ( data->rgn )
 	    DeleteObject( data->rgn );
+	delete data->poly;
 	delete data;
     }
 }
 
 QRegion &QRegion::operator=( const QRegion &r )
 {
-    r.data->ref();				// beware of p = p
+    r.data->ref();				// beware of r = r
     if ( data->deref() ) {
 	if ( data->rgn )
 	    DeleteObject( data->rgn );
+	delete data->poly;
 	delete data;
     }
     data = r.data;
@@ -121,7 +123,20 @@ QRegion &QRegion::operator=( const QRegion &r )
 QRegion QRegion::copy() const
 {
     QRegion r( TRUE );
-    r.data->bop = data->bop.copy();
+    r.data->type = data->type;
+    r.data->offs = data->offs;
+    switch ( r.data->type ) {			// copy the relevant data
+	case QRegionData::RectangleRgn:
+	case QRegionData::EllipseRgn:
+	    r.data->rect = data->rect;
+	    break;
+	case QRegionData::PolygonAltRgn:
+	case QRegionData::PolygonWindRgn:
+	    r.data->poly = new QPointArray( *(data->poly) );
+	    break;
+	default:
+	    ; // no action needed for NullRgn or ComplexRgn
+    }
     if ( data->rgn ) {
 	r.data->rgn = CreateRectRgn( 0, 0, 2, 2 );
 	CombineRgn( r.data->rgn, data->rgn, 0, RGN_COPY );
@@ -132,12 +147,12 @@ QRegion QRegion::copy() const
 
 bool QRegion::isNull() const
 {
-    return data->bop.isNull();
+    return data->type == QRegionData::NullRgn;
 }
 
 bool QRegion::isEmpty() const
 {
-    return data->rgn == 0;
+    return data->type == QRegionData::NullRgn || data->rgn == 0;
 }
 
 
@@ -161,9 +176,8 @@ void QRegion::translate( int dx, int dy )
     if ( !data->rgn )
 	return;
     detach();
+    data->offs += QPoint(dx,dy);
     OffsetRgn( data->rgn, dx, dy );
-    QPoint p( dx, dy );
-    cmd( QRGN_TRANSLATE, &p );
 }
 
 
@@ -208,7 +222,7 @@ QRegion QRegion::winCombine( const QRegion &r, int op ) const
 	res = CombineRgn( result.data->rgn, data->rgn, 0, left );
     else if ( r.data->rgn && right != RGN_NOP )
 	res = CombineRgn( result.data->rgn, r.data->rgn, 0, right );
-    result.cmd( op, 0, this, &r );
+    result.data->type = QRegionData::ComplexRgn;
     if ( res == NULLREGION ) {
 	if ( result.data->rgn )
 	    DeleteObject( result.data->rgn );

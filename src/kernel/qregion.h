@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#33 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#34 $
 **
 ** Definition of QRegion class
 **
@@ -25,12 +25,12 @@ public:
     enum RegionType { Rectangle, Ellipse };
 
     QRegion();
+    QRegion( int x, int y, int w, int h, RegionType = Rectangle );
     QRegion( const QRect &, RegionType = Rectangle );
     QRegion( const QPointArray &, bool winding=FALSE );
     QRegion( const QRegion & );
    ~QRegion();
     QRegion &operator=( const QRegion & );
-
 
     bool    isNull()   const;
     bool    isEmpty()  const;
@@ -90,7 +90,9 @@ private:
     void    cmd( int id, void *, const QRegion * = 0, const QRegion * = 0 );
     void    exec( const QByteArray & );
     struct QRegionData : public QShared {
-	QByteArray bop;
+	QRegionData() : unused(unused_shared) {}
+	QByteArray unused;
+	static QByteArray unused_shared;
 #if defined(_WS_WIN_)
 	HANDLE rgn;
 #elif defined(_WS_PM_)
@@ -98,6 +100,12 @@ private:
 #elif defined(_WS_X11_)
 	Region rgn;
 #endif
+	enum Type { NullRgn, RectangleRgn, EllipseRgn,
+		    PolygonAltRgn, PolygonWindRgn, ComplexRgn };
+	Type	type;
+	QRect	rect;
+	QPointArray *poly;
+	QPoint	offs;
     } *data;
 #if defined(_WS_PM_)
     static HPS hps;
@@ -114,6 +122,7 @@ private:
 #define QRGN_AND		7
 #define QRGN_SUB		8
 #define QRGN_XOR		9
+#define QRGN_RECTS	       10
 
 
 /*****************************************************************************

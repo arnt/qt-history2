@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#21 $
 **
 ** Implementation of QRegion class
 **
@@ -14,7 +14,7 @@
 #include "qbuffer.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#21 $");
 
 
 /*!
@@ -54,6 +54,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#20 $");
 */
 
 
+#if QT_VERSION == 200
+#error "Remove QRegionData::unused* entirely"
+#endif
+
+QByteArray QRegion::QRegionData::unused_shared;	// ### remove in 2.0
+
+
 /*****************************************************************************
   QRegion member functions
  *****************************************************************************/
@@ -75,48 +82,14 @@ void QRegion::detach()
 
 
 /*!
-  Stores a region command in an internal buffer so it can be played back
-  later using exec().
-
-  All region commands (unite, intersect etc.) are stored in the buffer.
-  We need to do this because it is not possible to access the native
-  region data on most platforms. This seems to be the only way to support
-  regions for QPictures.  We have sacrified speed for compatibility.
+  Obsolete function.
 */
 
-void QRegion::cmd( int id, void *param, const QRegion *r1, const QRegion *r2 )
+void QRegion::cmd( int, void *, const QRegion *, const QRegion * )
 {
-    return; // XXXXXXXXXXXXXXXXXXXX HAAVARD - YOU DON'T NEED THIS ANY MORE
-
-    QBuffer buf( data->bop );
-    QDataStream s( &buf );
-    buf.open( IO_WriteOnly );
-    buf.at( buf.size() );
-    s << id;
-    switch ( id ) {
-	case QRGN_SETRECT:
-	case QRGN_SETELLIPSE:
-	    s << *((QRect*)param);
-	    break;
-	case QRGN_SETPTARRAY_ALT:
-	case QRGN_SETPTARRAY_WIND:
-	    s << *((QPointArray*)param);
-	    break;
-	case QRGN_TRANSLATE:
-	    s << *((QPoint*)param);
-	    break;
-	case QRGN_OR:
-	case QRGN_AND:
-	case QRGN_SUB:
-	case QRGN_XOR:
-	    s << r1->data->bop << r2->data->bop;
-	    break;
-#if defined(CHECK_RANGE)
-	default:
-	    warning( "QRegion: Internal cmd error" );
+#if defined(DEBUG)
+    debug( "QRegion::cmd: This is an obsolete function and should not be called" );
 #endif
-    }
-    buf.close();
 }
 
 
@@ -148,21 +121,15 @@ void QRegion::exec( const QByteArray &buffer )
 	    QRect r;
 	    s >> r;
 	    rgn = QRegion( r, id == QRGN_SETRECT ? Rectangle : Ellipse );
-	}
-	else if ( id == QRGN_SETPTARRAY_ALT || id == QRGN_SETPTARRAY_WIND ) {
+	} else if ( id == QRGN_SETPTARRAY_ALT || id == QRGN_SETPTARRAY_WIND ) {
 	    QPointArray a;
 	    s >> a;
 	    rgn = QRegion( a, id == QRGN_SETPTARRAY_WIND );
-	}
-	else if ( id == QRGN_TRANSLATE ) {
+	} else if ( id == QRGN_TRANSLATE ) {
 	    QPoint p;
 	    s >> p;
-#if defined(DEBUG)
-	    ASSERT( !rgn.data->bop.isNull() );
-#endif
 	    rgn.translate( p.x(), p.y() );
-	}
-	else if ( id >= QRGN_OR && id <= QRGN_XOR ) {
+	} else if ( id >= QRGN_OR && id <= QRGN_XOR ) {
 	    QByteArray bop1, bop2;
 	    QRegion r1, r2;
 	    s >> bop1;	r1.exec( bop1 );
@@ -180,6 +147,14 @@ void QRegion::exec( const QByteArray &buffer )
 		case QRGN_XOR:
 		    rgn = r1.eor( r2 );
 		    break;
+	    }
+	} else if ( id == QRGN_RECTS ) {	// ### will appear in Qt 2.0
+	    Q_UINT32 n;
+	    s >> n;
+	    QRect r;
+	    for ( int i=0; i<(int)n; i++ ) {
+		s >> r;
+		rgn = rgn.unite( QRegion(r) );
 	    }
 	}
     }
@@ -199,7 +174,66 @@ void QRegion::exec( const QByteArray &buffer )
 
 QDataStream &operator<<( QDataStream &s, const QRegion &r )
 {
-    return s << r.data->bop;
+    QRect  rect = r.data->rect;
+    QPoint offs = r.data->offs;
+    rect.moveBy( offs.x(), offs.y() );
+    QPointArray poly;
+    if ( r.data->poly ) {
+	poly = *(r.data->poly);
+	if ( !offs.isNull() )
+	    poly.translate( offs.x(), offs.y() );
+    }
+    // First comes the size of the total data, then the
+    // actual data.
+    switch ( r.data->type ) {
+	case QRegion::QRegionData::NullRgn:
+	    s << (Q_UINT32)0;
+	    break;
+	case QRegion::QRegionData::RectangleRgn:
+	    s << (Q_UINT32)(4+8) << (int)QRGN_SETRECT << rect;
+	    break;
+	case QRegion::QRegionData::EllipseRgn:
+	    s << (Q_UINT32)(4+8) << (int)QRGN_SETELLIPSE << rect;
+	    break;
+	case QRegion::QRegionData::PolygonAltRgn:
+	    s << (Q_UINT32)(4+4*poly.size()) << (int)QRGN_SETPTARRAY_ALT
+	      << poly;
+	    break;
+	case QRegion::QRegionData::PolygonWindRgn:
+	    s << (Q_UINT32)(4+4*poly.size()) << (int)QRGN_SETPTARRAY_WIND
+	      << poly;
+	    break;
+#if QT_VERSION >= 200
+	case QRegion::QRegionData::ComplexRgn:
+	    {
+		QArray<QRect> a = r.getRects();
+		s << (Q_UINT32)(4+4+8*a.size());
+		s << (int)QRGN_RECTS;
+		s << (Q_UINT32)a.size();
+		for ( int i=0; i<(int)a.size(); i++ )
+		    s << a[i];
+	    } break;
+#else
+	case QRegion::QRegionData::ComplexRgn:
+	    {
+		QArray<QRect> a = r.getRects();
+		if ( a.isEmpty() ) {
+		    s << (Q_UINT32)0;
+		} else {
+		    int i;
+		    for ( i=(int)a.size()-1; i>0; i-- ) {
+			s << (Q_UINT32)(12+i*24);
+			s << (int)QRGN_OR;
+		    }
+		    for ( i=0; i<(int)a.size(); i++ ) {
+			s << (Q_UINT32)(4+8) << (int)QRGN_SETRECT << a[i];
+		    }
+		}
+	    } break;
+#endif
+    }
+    //    return s << r.data->bop;
+    return s;
 }
 
 /*!
@@ -226,4 +260,3 @@ QRegion QRegion::xor( const QRegion &r ) const
     return eor(r);
 }
 #endif
-
