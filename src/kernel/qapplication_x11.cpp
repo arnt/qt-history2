@@ -1410,6 +1410,9 @@ static Visual *find_truecolor_visual( Display *dpy, int scr, int *depth, int *nc
   qt_init() - initializes Qt for X11
  *****************************************************************************/
 
+// need to get default font?
+extern bool qt_app_has_font;
+
 #define XK_MISCELLANY
 #define XK_LATIN1
 #include <X11/keysymdef.h>
@@ -2009,8 +2012,10 @@ void qt_init_internal( int *argcptr, char **argv,
 	    (int) ( ( ( QPaintDevice::x11AppDpiY() >= 95 ? 17. : 12. ) *
 		      72. / (float) QPaintDevice::x11AppDpiY() ) + 0.5 );
 
-	QFont f( "Helvetica", ptsz );
-	QApplication::setFont( f );
+	if ( !qt_app_has_font ) {
+	    QFont f( "Helvetica", ptsz );
+	    QApplication::setFont( f );
+	}
 
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
 

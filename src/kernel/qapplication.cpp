@@ -1725,8 +1725,8 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 {
     bool all = FALSE;
     if ( !className ) {
+	qt_app_has_font = TRUE;
 	if ( !app_font ) {
-	    qt_app_has_font = TRUE;
 	    app_font = new QFont( font );
 	    Q_CHECK_PTR( app_font );
 	} else {
