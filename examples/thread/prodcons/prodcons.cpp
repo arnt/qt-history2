@@ -262,7 +262,7 @@ private:
 ProdCons::ProdCons()
     : QWidget(0, "producer consumer widget"), stopped(false), redraw(true)
 {
-    setCaption("Qt Example - Producer/Consumer");
+    setWindowTitle("Qt Example - Producer/Consumer");
 
     startButton = new QPushButton("&Start", this);
     connect(startButton, SIGNAL(clicked()), SLOT(go()));
