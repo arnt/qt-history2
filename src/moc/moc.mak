@@ -11,7 +11,7 @@
 ####### Compiler, tools and options
 
 CC	=	cl
-CFLAGS	=	-O1 -nologo
+CFLAGS	=	-O2 -nologo
 INCPATH	=	-I. -I..\..\include
 LINK	=	link
 LFLAGS	=	/SUBSYSTEM:console /NOLOGO
