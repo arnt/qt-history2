@@ -13,6 +13,7 @@
 #include <qfileinfo.h>
 #include <qstylesheet.h>
 #include <qmime.h>
+#include <qregexp.h>
 
 #include <stdlib.h>
 
@@ -677,7 +678,7 @@ void QTextEditDocument::loadPlainText( const QString &fn, bool tabify )
 	}
 	fParag = 0;
     }
-    
+
     QFile file( fn );
     file.open( IO_ReadOnly );
     QTextStream ts( &file );
@@ -735,8 +736,8 @@ void QTextEditDocument::loadRichText( const QString &fn )
     QFile file( fn );
     file.open( IO_ReadOnly );
     QTextStream ts( &file );
-    QRichText *rt = new QRichText( ts.read(), fCollection->defaultFormat()->font(), 
-				   QFileInfo( fn ).absFilePath(), 8, QMimeSourceFactory::defaultFactory(), 
+    QRichText *rt = new QRichText( ts.read(), fCollection->defaultFormat()->font(),
+				   QFileInfo( fn ).absFilePath(), 8, QMimeSourceFactory::defaultFactory(),
 				   QStyleSheet::defaultSheet() );
     QRichTextIterator it( *rt );
     lParag = 0;
@@ -744,7 +745,7 @@ void QTextEditDocument::loadRichText( const QString &fn )
     bool nextNl;
     bool empty = TRUE;
     do {
-	if ( !it.format()->customItem() && 
+	if ( !it.format()->customItem() &&
 	     ( !empty || ( empty && !it.text().simplifyWhiteSpace().isEmpty() ) ) ) {
 	    empty = FALSE;
 	    if ( !lParag || nextNl ) {
@@ -753,7 +754,7 @@ void QTextEditDocument::loadRichText( const QString &fn )
 			lParag->append( " " );
 		}
 		lParag = new QTextEditParag( this, lParag, 0 );
-		if ( it.outmostParagraph() && 
+		if ( it.outmostParagraph() &&
 		     it.outmostParagraph()->style ) {
 		    if ( it.outmostParagraph()->style->alignment() != -1 )
 			lParag->setAlignment( it.outmostParagraph()->style->alignment() );
@@ -767,19 +768,22 @@ void QTextEditDocument::loadRichText( const QString &fn )
 	    }
 	    int i = lParag->length();
 	    int len = it.text().length();
-	    lParag->append( it.text() );
+	    QString t = it.text();
+	    nextNl = t.find( '\n' ) != -1;
+	    if ( nextNl )
+		t.replace( QRegExp( "\n" ), " " );
+	    lParag->append( t );
 	    fm = fCollection->format( it.format()->font(), it.format()->color() );
 	    lParag->setFormat( i, len, fm, TRUE );
 	    fm->removeRef();
 	    fm = 0;
-	    nextNl = it.text().find( '\n' ) != -1;
 	}
     } while ( it.right( FALSE ) );
 
 #ifdef DEBUG_COLLECTION
     fCollection->debug();
 #endif
-    
+
     delete rt;
 }
 
@@ -1858,7 +1862,7 @@ QTextEditFormat *QTextEditFormatCollection::format( const QFont &f, const QColor
 	cachedFormat->addRef();
 	return cachedFormat;
     }
-    
+
     QString key = QTextEditFormat::getKey( f, c );
     cachedFormat = cKey.find( key );
     cfont = f;
@@ -1871,7 +1875,7 @@ QTextEditFormat *QTextEditFormatCollection::format( const QFont &f, const QColor
 	cachedFormat->addRef();
 	return cachedFormat;
     }
-    
+
     cachedFormat = new QTextEditFormat( f, c );
     cachedFormat->collection = this;
     cKey.insert( cachedFormat->key(), cachedFormat );
