@@ -1560,7 +1560,7 @@ void QApplication::openPopup( QWidget *popup )
     // popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
-//    setActiveWindow(popup);
+    active_window = popup;
     QFocusEvent::setReason( QFocusEvent::Popup );
     if (active_window->focusWidget())
 	active_window->focusWidget()->setFocus();
@@ -1585,6 +1585,7 @@ void QApplication::closePopup( QWidget *popup )
 	popupWidgets = 0;
 	// restore the former active window immediately, although
 	// we'll get a focusIn later
+	active_window = (*activeBeforePopup);
 	QFocusEvent::setReason( QFocusEvent::Popup );
 	if ( active_window )
 	    if (active_window->focusWidget())
@@ -1592,15 +1593,12 @@ void QApplication::closePopup( QWidget *popup )
 	    else
 		active_window->setFocus();
 	QFocusEvent::resetReason();
-	qDebug("Restoring active to %s %s", (*activeBeforePopup)->name(), 
-	       (*activeBeforePopup)->className());
-//	setActiveWindow((*activeBeforePopup));
     } else {
 	// popups are not focus-handled by the window system (the
 	// first popup grabbed the keyboard), so we have to do that
 	// manually: A popup was closed, so the previous popup gets
 	// the focus.
-//	setActiveWindow(popupWidgets->getLast());
+	active_window = popupWidgets->getLast();
 	QFocusEvent::setReason( QFocusEvent::Popup );
 	if (active_window->focusWidget())
 	    active_window->focusWidget()->setFocus();
