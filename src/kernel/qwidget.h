@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#49 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#50 $
 **
 ** Definition of QWidget class
 **
@@ -18,13 +18,14 @@
 #include "qpaintd.h"
 #include "qpalette.h"
 #include "qcursor.h"
+#include "qfont.h"
+#include "qfontmet.h"
+#include "qfontinf.h"
 #include "qevent.h"
 
 
 class QWidget : public QObject, public QPaintDevice
 {						// base class for UI objects
-friend class QApplication;
-friend class QPainter;
     Q_OBJECT
 public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
@@ -81,6 +82,9 @@ public:
     virtual void setFont( const QFont & );
     const QCursor &cursor() const;
     void	 setCursor( const QCursor & );
+
+    QFontMetrics fontMetrics()	const;
+    QFontInfo	 fontInfo()	const;
 
     bool	 setMouseTracking( bool enable );
 
@@ -212,6 +216,8 @@ private:
     static void	 createMapper();
     static void	 destroyMapper();
     static QWidgetMapper *mapper;
+    friend class QApplication;
+    friend class QPainter;
 };
 
 
@@ -250,6 +256,12 @@ inline int QWidget::height() const
 
 inline QRect QWidget::rect() const
 { return QRect(0,0,crect.width(),crect.height()); }
+
+inline QFontMetrics QPaintDevice::fontMetrics() const
+{ return QFontMetrics(this); }
+
+inline QFontInfo QPaintDevice::fontInfo() const
+{ return QFontInfo(this); }
 
 inline void QWidget::repaint( bool erase )
 { repaint( rect(), erase ); }
