@@ -112,13 +112,21 @@ static PaperSize paperSizes[QPrinter::NPageSize] =
 
 static void setPrinterMapping( HDC hdc, int res )
 {
-    SetMapMode(hdc, MM_ANISOTROPIC);
+    int mapMode = MM_ANISOTROPIC;
+    if ( GetDeviceCaps( hdc, LOGPIXELSX ) == GetDeviceCaps( hdc, LOGPIXELSY ) )
+	mapMode = MM_ISOTROPIC;
+    if ( !SetMapMode(hdc, mapMode ) )
+	qWarning( "QPrinter: setting mapping mode failed, mapMode=%x rastercaps=%x", mapMode, GetDeviceCaps(hdc,RASTERCAPS) );
     // The following two lines are the cause of problems on Windows 9x,
     // for some reason, either one of these functions or both don't
     // have an effect.  This appears to be a bug with the Windows API
     // and as of yet I can't find a workaround.
-    SetWindowExtEx(hdc, res, res, NULL);
-    SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL);
+
+    if ( !SetWindowExtEx(hdc, res, res, NULL) )
+	qWarning( "QPrinter:: setting window failed rastercaps=%x", GetDeviceCaps(hdc,RASTERCAPS) );
+    if ( !SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL) )
+	qWarning( "QPrinter:: setting viewport failed rastercaps=%x", GetDeviceCaps(hdc,RASTERCAPS) );
+
 }
 
 // ### deal with ColorMode GrayScale in qprinter_win.cpp.
