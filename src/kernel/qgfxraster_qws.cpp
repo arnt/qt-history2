@@ -4808,11 +4808,13 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 		setSource(cbrushpixmap);
 		setAlphaType(IgnoreAlpha);
 		useBrush();
-		srcclut[0]=pixel;
+		srcclut[1]=pixel;
+		transclut[1]=pixel;
 		QBrush tmp=cbrush;
 		cbrush=QBrush(backcolor);
 		useBrush();
-		srcclut[1]=pixel;
+		srcclut[0]=pixel;
+		transclut[0]=pixel;
 		cbrush=tmp;
 	    } else {
 		useBrush();
@@ -4921,11 +4923,13 @@ void QGfxRaster<depth,type>::drawPolygon( const QPointArray &pa, bool winding, i
 		    setSource(cbrushpixmap);
 		    setAlphaType(IgnoreAlpha);
 		    useBrush();
-		    srcclut[0]=pixel;
+		    srcclut[1]=pixel;
+		    transclut[1]=pixel;
 		    QBrush tmp=cbrush;
 		    cbrush=QBrush(backcolor);
 		    useBrush();
-		    srcclut[1]=pixel;
+		    srcclut[0]=pixel;
+		    transclut[0]=pixel;
 		    cbrush=tmp;
 		} else {
 		    useBrush();
