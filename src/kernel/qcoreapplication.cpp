@@ -1101,7 +1101,7 @@ QTextCodec* QCoreApplication::defaultCodec() const
   The installation directory for plugins is the only entry if no
   paths have been set.  The default installation directory for plugins
   is \c INSTALL/plugins, where \c INSTALL is the directory where Qt was
-  installed. On Windows, the directory of the application executable (NOT the
+  installed. The directory of the application executable (NOT the
   working directory) is also added to the plugin paths.
 
   If you want to iterate over the list, you should iterate over a
@@ -1125,18 +1125,24 @@ QStringList QCoreApplication::libraryPaths()
     if (!self)
 	return QStringList();
     if ( !self->d->app_libpaths ) {
-	self->d->app_libpaths = new QStringList;
+	QStringList *app_libpaths = self->d->app_libpaths = new QStringList;
 	if ( QFile::exists( qInstallPathPlugins() ) )
-	    self->d->app_libpaths->append( qInstallPathPlugins() );
+	    app_libpaths->append( qInstallPathPlugins() );
+
+	QString app_location = qApp ? qApp->applicationDirPath() 
 #ifdef Q_WS_WIN
-	QString app_location = qAppFileName();
+	    : qAppFileName();
 	app_location.truncate( app_location.findRev( '\\' ) );
-	if ( app_location != qInstallPathPlugins() && QFile::exists( app_location ) )
-	    self->d->app_libpaths->append( app_location );
+#else
+	    : QString::null;
 #endif
+	app_location.truncate( app_location.findRev( '/' ) );
+	if ( app_location != qInstallPathPlugins() && QFile::exists( app_location ) )
+	    app_libpaths->append( app_location );
     }
     return *self->d->app_libpaths;
 }
+
 
 
 /*!
