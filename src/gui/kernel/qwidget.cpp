@@ -1803,9 +1803,11 @@ void QWidget::setEnabled_helper(bool enable)
     setAttribute(Qt::WA_Disabled, !enable);
     d->updateSystemBackground();
 
-    if (!enable && topLevelWidget()->focusWidget() == this && (!parentWidget()||parentWidget()->isEnabled()))
-        if (!focusNextPrevChild(true))
+    if (!enable && topLevelWidget()->focusWidget() == this) {
+        bool parentIsEnabled == (!parentWidget()||parentWidget()->isEnabled());
+        if (!parentIsEnabled || !focusNextPrevChild(true))
             clearFocus();
+    }
 
     Qt::WidgetAttribute attribute = enable ? Qt::WA_ForceDisabled : Qt::WA_Disabled;
     for (int i = 0; i < d->children.size(); ++i) {
