@@ -68,11 +68,10 @@
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qobjectlist.h>
-
+#include <qcursor.h>
 #include <qprinter.h>
 #include <qfile.h>
 #include <qpainter.h>
-#include <q1xcompatibility.h>
 
 #include "qnp.h"
 
