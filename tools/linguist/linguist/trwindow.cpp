@@ -829,15 +829,10 @@ void TrWindow::revertSorting()
 
 void TrWindow::manual()
 {
-    QString path = QDir::cleanPath(QString(qInstallPath()) +
-        QDir::separator() + "bin/");
-#if defined(Q_OS_MAC)
-    path += QDir::separator() + ".app/Contents/MacOS/";
-#endif
     if (ac == 0)
-        ac = new QAssistantClient(path, this);
+        ac = new QAssistantClient(qInstallPathBins(), this);
 
-    ac->showPage(QString(qInstallPath()) + "/doc/html/linguist-manual.html");
+    ac->showPage(QString(qInstallPathDocs()) + "/html/linguist-manual.html");
 }
 
 void TrWindow::about()
