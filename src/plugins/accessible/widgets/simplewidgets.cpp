@@ -87,7 +87,7 @@ bool QAccessibleButton::doAction(int action, int child, const QVariantList &para
         {
             QPushButton *pb = qt_cast<QPushButton*>(object());
             if (pb && pb->menu())
-                pb->openMenu();
+                pb->showMenu();
             else
                 button()->animateClick();
         }
