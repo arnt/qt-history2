@@ -34,8 +34,7 @@ friend class QPushButton;
     Q_PROPERTY( bool modal READ isModal WRITE setModal )
 
 public:
-    Q_EXPLICIT QDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE,
-	     WFlags f=0 );
+    QDialog( QWidget* parent=0, WFlags f=0 );
     ~QDialog();
 
     enum DialogCode { Rejected, Accepted };
@@ -94,6 +93,11 @@ private:
     int		rescode;
     uint	in_loop: 1;
     Q_DECL_PRIVATE( QDialog );
+
+#ifndef QT_NO_COMPAT
+public:
+    QDialog( QWidget* parent, const char* name, bool modal=false, WFlags f=0 );
+#endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

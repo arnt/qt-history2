@@ -613,7 +613,7 @@ void QApplication::process_cmdline()
 */
 
 QApplication::QApplication( int &argc, char **argv )
-    : QKernelApplication(new QApplicationPrivate(argc, argv), new QGuiEventLoop())
+    : QKernelApplication(*new QApplicationPrivate(argc, argv), new QGuiEventLoop())
 {
     construct(GuiClient);
 }
@@ -659,7 +659,7 @@ QApplication::QApplication( int &argc, char **argv )
 */
 
 QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
-    : QKernelApplication(new QApplicationPrivate(argc, argv),
+    : QKernelApplication(*new QApplicationPrivate(argc, argv),
 			 (GUIenabled ? new QGuiEventLoop() : new QEventLoop()))
 {
     construct(GUIenabled ? GuiClient : Tty);
@@ -674,7 +674,7 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
   -qws option).
 */
 QApplication::QApplication( int &argc, char **argv, Type type )
-    : QKernelApplication(new QApplicationPrivate(argc, argv),
+    : QKernelApplication(*new QApplicationPrivate(argc, argv),
 			 (type != Tty ? new QGuiEventLoop() : new QEventLoop()))
 
 {
@@ -712,7 +712,7 @@ static char *aargv[] = { (char*)"unknown", 0 };
   This is available only on X11.
 */
 QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
-    : QKernelApplication(new QApplicationPrivate(aargc, aargv),
+    : QKernelApplication(*new QApplicationPrivate(aargc, aargv),
 			 new QGuiEventLoop())
 
 {
@@ -747,7 +747,7 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
 */
 QApplication::QApplication(Display *dpy, int argc, char **argv,
 			   HANDLE visual, HANDLE colormap)
-    : QKernelApplication(new QApplicationPrivate(argc, argv),
+    : QKernelApplication(*new QApplicationPrivate(argc, argv),
 			 new QGuiEventLoop())
 {
     qt_appType = GuiClient;
@@ -3201,8 +3201,9 @@ public:
 
 QSessionManager* qt_session_manager_self = 0;
 QSessionManager::QSessionManager( QApplication * app, QString &id, QString &key )
-    : QObject( new QSessionManagerPrivate, app, "qt_sessionmanager" )
+    : QObject( *new QSessionManagerPrivate, app)
 {
+    setObjectNameConst("qt_sessionmanager");
     qt_session_manager_self = this;
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     wchar_t guidstr[40];

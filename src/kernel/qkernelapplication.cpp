@@ -88,8 +88,8 @@ QKernelApplicationPrivate::QKernelApplicationPrivate(int &aargc,  char **aargv)
 
 /*!\internal
  */
-QKernelApplication::QKernelApplication(QKernelApplicationPrivate *p, QEventLoop *e)
-    : QObject(p, 0, 0)
+QKernelApplication::QKernelApplication(QKernelApplicationPrivate &p, QEventLoop *e)
+    : QObject(p, 0)
 {
     init();
     e->setParent(this);
@@ -121,7 +121,7 @@ void QKernelApplication::flush()
     argv().
 */
 QKernelApplication::QKernelApplication( int &argc, char **argv )
-    : QObject(new QKernelApplicationPrivate(argc, argv), 0, 0)
+    : QObject(*new QKernelApplicationPrivate(argc, argv), 0)
 {
     init();
 }
@@ -150,7 +150,7 @@ void QKernelApplication::init()
 #endif // QT_THREAD_SUPPORT
 
     QEventLoop *eventloop = QEventLoop::instance();
-    if (!eventloop) (void) new QEventLoop(self, 0);
+    if (!eventloop) (void) new QEventLoop(self);
 }
 
 QKernelApplication::~QKernelApplication()

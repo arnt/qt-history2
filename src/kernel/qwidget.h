@@ -124,7 +124,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool windowModified READ isWindowModified WRITE setWindowModified DESIGNABLE isTopLevel)
 
 public:
-    explicit QWidget( QWidget* parent=0, const char* name=0, WFlags f=0 );
+    QWidget(QWidget* parent=0, WFlags f=0 );
     ~QWidget();
 
     WId		 winId() const;
@@ -529,7 +529,7 @@ protected:
 #endif
 
 protected:
-    explicit QWidget( QWidgetPrivate *d, QWidget* parent, const char* name, WFlags f);
+    QWidget(QWidgetPrivate &d, QWidget* parent, WFlags f);
 private:
 #if defined(Q_WS_MAC)
     uint    own_id : 1, macDropEnabled : 1;
@@ -637,6 +637,7 @@ private:	// Disabled copy constructor and operator=
 
 #ifndef QT_NO_COMPAT
 public:
+    QWidget(QWidget* parent, const char *name, WFlags f = 0);
     bool isVisibleToTLW() const;
     QRect visibleRect() const;
     inline void iconify() { showMinimized(); }

@@ -5700,8 +5700,9 @@ void QSmSocketReceiver::socketActivated(int)
 #include "qapplication_x11.moc"
 
 QSessionManager::QSessionManager( QApplication * app, QString &id, QString& key )
-    : QObject( new QSessionManagerPrivate( this, id, key ), app, "session manager" )
+    : QObject( *new QSessionManagerPrivate( this, id, key ), app)
 {
+    setObjectNameConst("qt_sessionmanager");
     d->restartHint = RestartIfRunning;
 
     resetSmState();

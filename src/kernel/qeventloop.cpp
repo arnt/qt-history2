@@ -146,10 +146,10 @@ QEventLoopPrivate::QEventLoopPrivate()
     by calling QApplication::eventLoop(). To create your own event loop object create
     it before you instantiate the QApplication object.
 
-    The \a parent and \a name arguments are passed on to the QObject constructor.
+    The \a parent argument is passed on to the QObject constructor.
 */
-QEventLoop::QEventLoop(QObject *parent, const char *name)
-    : QObject(new QEventLoopPrivate(), parent, name)
+QEventLoop::QEventLoop(QObject *parent)
+    : QObject(*new QEventLoopPrivate(), parent)
 {
     init();
     d->initialized = true;
@@ -158,8 +158,8 @@ QEventLoop::QEventLoop(QObject *parent, const char *name)
 
 /*! \internal
  */
-QEventLoop::QEventLoop(QEventLoopPrivate *priv, QObject *parent, const char *name)
-    : QObject(priv, parent, name )
+QEventLoop::QEventLoop(QEventLoopPrivate &priv, QObject *parent)
+    : QObject(priv, parent)
 {
     init();
     d->initialized = true;

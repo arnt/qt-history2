@@ -688,8 +688,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     inside \a parent. The new widget is deleted when its \a parent is
     deleted.
 
-    The \a name is sent to the QObject constructor.
-
     The widget flags argument, \a f, is normally 0, but it can be set
     to customize the window frame of a top-level widget (i.e. \a
     parent must be 0). To customize the frame, set the \c
@@ -711,16 +709,26 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \endcode
 */
 
-QWidget::QWidget(QWidget *parent, const char *name, WFlags f)
-    : QObject(new QWidgetPrivate, ((parent && parent->isDesktop()) ? 0 : parent), name), QPaintDevice(QInternal::Widget)
+QWidget::QWidget(QWidget *parent, WFlags f)
+    : QObject(*new QWidgetPrivate, ((parent && parent->isDesktop()) ? 0 : parent)), QPaintDevice(QInternal::Widget)
 {
     d->init(f);
 }
 
+#ifndef QT_NO_COMPAT
+QWidget::QWidget(QWidget *parent, const char *name, WFlags f)
+    : QObject(*new QWidgetPrivate, ((parent && parent->isDesktop()) ? 0 : parent)), QPaintDevice(QInternal::Widget)
+{
+    if (name)
+	setObjectName(name);
+    d->init(f);
+}
+#endif
+
 /*! \internal
 */
-QWidget::QWidget(QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags f)
-    : QObject(dd, ((parent && parent->isDesktop()) ? 0 : parent), name), QPaintDevice(QInternal::Widget)
+QWidget::QWidget(QWidgetPrivate &dd, QWidget* parent, WFlags f)
+    : QObject(dd, ((parent && parent->isDesktop()) ? 0 : parent)), QPaintDevice(QInternal::Widget)
 {
     d->init(f);
 }
@@ -5639,7 +5647,7 @@ bool QWidget::testAttribute_helper(WidgetAttribute attribute) const
 
   The valid range of transparency is from 0 (completely opaque) to
   1 (completely transparency).
-  
+
   By default the value of this property is 0, e.g. the window is completely
   opaque.
 

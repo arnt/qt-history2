@@ -314,15 +314,23 @@ public:
 */
 
 /*!
-    Constructs an empty message file object that is not connected to
-    any file. The object is called \a name with parent \a parent.
+    Constructs an empty message file object with parent \a parent that
+    is not connected to any file.
 */
 
-QTranslator::QTranslator( QObject * parent, const char * name )
-    : QObject(new QTranslatorPrivate, parent, name )
+QTranslator::QTranslator(QObject * parent)
+    : QObject(*new QTranslatorPrivate, parent)
 {
 }
 
+#ifndef QT_NO_COMPAT
+QTranslator::QTranslator( QObject * parent, const char * name )
+    : QObject(*new QTranslatorPrivate, parent)
+{
+    if (name)
+	setObjectName(name);
+}
+#endif
 
 /*!
     Destroys the object and frees any allocated resources.

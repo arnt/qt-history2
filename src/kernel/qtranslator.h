@@ -82,14 +82,9 @@ class Q_KERNEL_EXPORT QTranslator : public QObject
     Q_OBJECT
     Q_DECL_PRIVATE(QTranslator);
 public:
-    QTranslator( QObject * parent = 0, const char * name = 0 );
+    QTranslator(QObject *parent = 0);
     ~QTranslator();
 
-#ifndef QT_NO_COMPAT
-    QString find( const char *context, const char *sourceText, const char * comment = 0 ) const {
-	return findMessage( context, sourceText, comment ).translation();
-    }
-#endif
     virtual QTranslatorMessage findMessage( const char *, const char *,
 					    const char * = 0 ) const;
 
@@ -134,6 +129,13 @@ private:
 #endif
 
     bool do_load( const uchar *data, int len );
+#ifndef QT_NO_COMPAT
+public:
+    QTranslator( QObject * parent, const char * name);
+    QString find( const char *context, const char *sourceText, const char * comment = 0 ) const {
+	return findMessage( context, sourceText, comment ).translation();
+    }
+#endif
 };
 
 #endif // QT_NO_TRANSLATION

@@ -13,7 +13,7 @@ class QGuiEventLoop : public QEventLoop
 {
     Q_OBJECT
 public:
-    QGuiEventLoop( QObject *parent = 0, const char *name = 0 );
+    QGuiEventLoop(QObject *parent = 0);
     ~QGuiEventLoop();
 
     virtual bool processEvents( ProcessEventsFlags flags );

@@ -555,8 +555,10 @@ static QAccelItem *find_key(const QAccelList &list, const QKeySequence &key)
 */
 
 QAccel::QAccel(QWidget *parent, const char *name)
-    : QObject(new QAccelPrivate(this), parent, name)
+    : QObject(*new QAccelPrivate(this), parent)
 {
+    if (name)
+	setObjectName(name);
     d->enabled = true;
     d->watch = parent;
     if (!d->watch)
@@ -570,8 +572,10 @@ QAccel::QAccel(QWidget *parent, const char *name)
     This constructor is not needed for normal application programming.
 */
 QAccel::QAccel(QWidget* watch, QObject *parent, const char *name)
-    : QObject(new QAccelPrivate(this), parent, name)
+    : QObject(*new QAccelPrivate(this), parent)
 {
+    if (name)
+	setObjectName(name);
     d->enabled = true;
     d->watch = watch;
     if (!d->watch)

@@ -302,7 +302,7 @@ QObject::QObject( QObject *parent, const char *name )
 #endif
 
 /*!\internal*/
-QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
+QObject::QObject(QObjectPrivate &dd, QObject *parent)
     :
     isWidget( FALSE ), 				// assume not a widget object
     pendTimer( FALSE ),				// no timers yet
@@ -311,11 +311,9 @@ QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
     hasPostedEvents( FALSE ),
     hasPostedChildInsertedEvents( FALSE ),
     parentObj( 0 ),				// no parent yet. It is set by setParent()
-    d_ptr(dd)
+    d_ptr(&dd)
 {
     d_ptr->q_ptr = this;
-    if (name)
-	setObjectName(name);
     setParent(parent);
     QEvent e( QEvent::Create );
     QKernelApplication::sendEvent( this, &e );
@@ -323,7 +321,7 @@ QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
 }
 
 /*!\internal*/
-QObject::QObject(QWidgetPrivate *dd, QObject *parent, const char *name)
+QObject::QObject(QWidgetPrivate &dd, QObject *parent)
     :
     isWidget(true),
     pendTimer(false),
@@ -332,11 +330,9 @@ QObject::QObject(QWidgetPrivate *dd, QObject *parent, const char *name)
     hasPostedEvents(false),
     hasPostedChildInsertedEvents(false),
     parentObj(0),
-    d_ptr((QObjectPrivate*)dd)
+    d_ptr((QObjectPrivate*)&dd)
 {
     d_ptr->q_ptr = this;
-    if (name)
-	setObjectName(name);
     if (parent) {
 	parentObj = parent;
 	parentObj->d->children.append(this);

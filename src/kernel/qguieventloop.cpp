@@ -2,8 +2,8 @@
 #include "private/qguieventloop_p.h"
 
 
-QGuiEventLoop::QGuiEventLoop( QObject *parent, const char *name )
-    : QEventLoop(new QGuiEventLoopPrivate, parent, name)
+QGuiEventLoop::QGuiEventLoop(QObject *parent)
+    : QEventLoop(*new QGuiEventLoopPrivate, parent)
 {
     init();
 }

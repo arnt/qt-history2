@@ -31,7 +31,7 @@ class Q_KERNEL_EXPORT QKernelApplication : public QObject
     Q_DECL_PRIVATE(QKernelApplication);
 public:
     QKernelApplication(int &argc, char **argv);
-    QKernelApplication(QKernelApplicationPrivate *, QEventLoop *);
+    QKernelApplication(QKernelApplicationPrivate &, QEventLoop *);
     ~QKernelApplication();
 
     static QKernelApplication *instance() { return self; }

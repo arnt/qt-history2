@@ -26,7 +26,7 @@ class Q_KERNEL_EXPORT QSignalMapper : public QObject {
     Q_OBJECT
     Q_DECL_PRIVATE(QSignalMapper);
 public:
-    QSignalMapper( QObject* parent, const char* name=0 );
+    QSignalMapper(QObject* parent);
     ~QSignalMapper();
 
     virtual void setMapping( const QObject* sender, int identifier );
@@ -43,6 +43,11 @@ public slots:
 
 private slots:
     void removeMapping();
+
+#ifndef QT_NO_COMPAT
+public:
+    QSignalMapper(QObject *parent, const char *name);
+#endif
 };
 
 #endif // QT_NO_SIGNALMAPPER

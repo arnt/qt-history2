@@ -175,9 +175,9 @@ protected:
 #endif
 
 protected:
-    explicit QObject(QObjectPrivate *d, QObject *parent, const char *name);
+    QObject(QObjectPrivate &d, QObject *parent);
 private:
-    explicit QObject(QWidgetPrivate *d, QObject *parent, const char *name);
+    QObject(QWidgetPrivate &d, QObject *parent);
     virtual void setParent_helper(QObject *);
     uint isWidget : 1;
     uint pendTimer : 1;

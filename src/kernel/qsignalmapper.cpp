@@ -64,13 +64,22 @@ static Rec *getRec(QObject *that, QHash<QObject *, Rec *> &hash,
 */
 
 /*!
-    Constructs a QSignalMapper called \a name, with parent \a parent.
+    Constructs a QSignalMapper with parent \a parent.
     Like all QObjects, it will be deleted when the parent is deleted.
 */
-QSignalMapper::QSignalMapper(QObject* parent, const char* name) :
-    QObject(new QSignalMapperPrivate, parent, name)
+QSignalMapper::QSignalMapper(QObject* parent) :
+    QObject(*new QSignalMapperPrivate, parent)
 {
 }
+
+#ifndef QT_NO_COMPAT
+QSignalMapper::QSignalMapper(QObject* parent, const char* name) :
+    QObject(*new QSignalMapperPrivate, parent)
+{
+    if (name)
+	setObjectName(name);
+}
+#endif
 
 /*!
     Destroys the QSignalMapper.

@@ -212,7 +212,7 @@ public:
 
 
 /*!
-  Constructs a dialog called \a name, with parent \a parent.
+  Constructs a dialog with parent \a parent.
 
   A dialog is always a top-level widget, but if it has a parent, its
   default location is centered on top of the parent. It will also
@@ -223,20 +223,26 @@ public:
   of the dialog, pass WStyle_Customize | WStyle_NormalBorder |
   WStyle_Title | WStyle_SysMenu in \a f.
 
-  \warning In Qt 3.2, the \a modal flag is obsolete. There is now a
-  setModal() function that can be used for obtaining a modal behavior
-  when calling show(). This is rarely needed, because modal dialogs
-  are usually invoked using exec(), which ignores the \a modal flag.
 
   \sa QWidget::setWFlags() Qt::WidgetFlags
 */
 
-QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
-    : QWidget( new QDialogPrivate, parent, name,
-	       (modal ? (f|WShowModal) : f) | WType_Dialog ),
+QDialog::QDialog( QWidget *parent, WFlags f )
+    : QWidget( *new QDialogPrivate, parent, f | WType_Dialog ),
       rescode(0), in_loop(0)
 {
 }
+
+#ifndef QT_NO_COMPAT
+QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
+    : QWidget( *new QDialogPrivate, parent,
+	       (modal ? (f|WShowModal) : f) | WType_Dialog ),
+      rescode(0), in_loop(0)
+{
+    if (!name)
+	setObjectName(name);
+}
+#endif
 
 /*!
   Destroys the QDialog, deleting all its children.

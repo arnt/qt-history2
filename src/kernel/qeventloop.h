@@ -30,8 +30,8 @@ class Q_KERNEL_EXPORT QEventLoop : public QObject
     Q_OBJECT
 
 public:
-    QEventLoop( QObject *parent = 0, const char *name = 0 );
-    QEventLoop(QEventLoopPrivate *, QObject *parent = 0, const char *name = 0);
+    QEventLoop( QObject *parent = 0);
+    QEventLoop(QEventLoopPrivate &, QObject *parent);
     ~QEventLoop();
 
     static QEventLoop *instance(Qt::HANDLE thread = 0);
