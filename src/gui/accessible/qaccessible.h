@@ -16,9 +16,10 @@
 #define QACCESSIBLE_H
 
 #ifndef QT_H
-#include <private/qcom_p.h>
 #include "qrect.h"
 #include "qvector.h"
+#include <private/qcom_p.h>
+#include "qvariant.h"
 #endif // QT_H
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -210,6 +211,23 @@ public:
         LogicalMask        = 0x00ff0000
     };
 
+    enum Action {
+        DefaultAction   = 0,
+        Press = -1,
+        FirstStandardAction = Press,
+        SetFocus        = -2,
+        Increase        = -3,
+        Decrease        = -4,
+        Accept          = -5,
+        Cancel	        = -6,
+        Select          = -7,
+        ClearSelection  = -8,
+        RemoveSelection = -9,
+        ExtendSelection = -10,
+        AddToSelection  = -11,
+        LastStandardAction = AddToSelection
+    };
+
     typedef QAccessibleInterface*(*InterfaceFactory)(const QString &key, QObject*);
     typedef void(*UpdateHandler)(QObject*, int who, Event reason);
     typedef void(*RootObjectHandler)(QObject*);
@@ -238,31 +256,31 @@ private:
 struct Q_GUI_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterface
 {
     // check for valid pointers
-    virtual bool        isValid() const = 0;
-    virtual QObject        *object() const = 0;
+    virtual bool isValid() const = 0;
+    virtual QObject *object() const = 0;
 
     // hierarchy
-    virtual int                childCount() const = 0;
-    virtual int                indexOfChild(const QAccessibleInterface *) const = 0;
+    virtual int childCount() const = 0;
+    virtual int indexOfChild(const QAccessibleInterface *) const = 0;
 
     // relations
-    virtual int                relationTo(int child, const QAccessibleInterface *other, int otherChild) const = 0;
-    virtual int                childAt(int x, int y) const = 0;
+    virtual int relationTo(int child, const QAccessibleInterface *other, int otherChild) const = 0;
+    virtual int childAt(int x, int y) const = 0;
 
     // navigation
-    virtual int                navigate(Relation relation, int index, QAccessibleInterface **iface) const = 0;
+    virtual int navigate(Relation relation, int index, QAccessibleInterface **iface) const = 0;
 
     // properties and state
-    virtual QString        text(Text t, int child) const = 0;
-    virtual void        setText(Text t, int child, const QString &text) = 0;
-    virtual QRect        rect(int child) const = 0;
-    virtual Role        role(int child) const = 0;
-    virtual int                state(int child) const = 0;
+    virtual QString text(Text t, int child) const = 0;
+    virtual void setText(Text t, int child, const QString &text) = 0;
+    virtual QRect rect(int child) const = 0;
+    virtual Role role(int child) const = 0;
+    virtual int state(int child) const = 0;
 
     // action
-    virtual int                numActions(int child) const = 0;
-    virtual QString        actionText(int action, Text t, int child) const = 0;
-    virtual bool        doAction(int action, int child) = 0;
+    virtual int userActionCount(int child) const = 0;
+    virtual QString actionText(int action, Text t, int child) const = 0;
+    virtual bool doAction(int action, int child, const QVariantList &params) = 0;
 };
 
 // {49F4C6A7-412F-41DE-9E24-648843421FD3}

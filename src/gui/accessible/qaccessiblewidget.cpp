@@ -784,42 +784,29 @@ QString QAccessibleWidget::text(Text t, int child) const
 }
 
 /*! \reimp */
-int QAccessibleWidget::numActions(int child) const
-{
-    if (child)
-        return 0;
-
-    return (widget()->focusPolicy() != QWidget::NoFocus || widget()->isTopLevel()) ? 1 : 0;
-}
-
-/*! \reimp */
 QString QAccessibleWidget::actionText(int action, Text t, int child) const
 {
-    if (child || action)
-        return QString();
-    switch (t) {
-    case Name:
-        return "Set Focus";
-    case Description:
-        return "Passes focus to this widget.";
-    default:
-	break;
-    }
-    return QString();
+    if (action == DefaultAction)
+        action = SetFocus;
+
+    return QAccessibleObject::actionText(action, t, child);
 }
 
 /*! \reimp */
-bool QAccessibleWidget::doAction(int action, int child)
+bool QAccessibleWidget::doAction(int action, int child, const QVariantList &params)
 {
-    if (action != 0 || child || !widget()->isEnabled())
-        return false;
-    if (widget()->focusPolicy() != QWidget::NoFocus)
-        widget()->setFocus();
-    else if (widget()->isTopLevel())
-        widget()->setActiveWindow();
-    else
-        return false;
-    return true;
+    if (action == SetFocus || action == DefaultAction) {
+        if (child || !widget()->isEnabled())
+            return false;
+        if (widget()->focusPolicy() != QWidget::NoFocus)
+            widget()->setFocus();
+        else if (widget()->isTopLevel())
+            widget()->setActiveWindow();
+        else
+            return false;
+        return true;
+    }
+    return QAccessibleObject::doAction(action, child, params);
 }
 
 /*! \reimp */

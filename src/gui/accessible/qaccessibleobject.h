@@ -29,15 +29,20 @@ class Q_GUI_EXPORT QAccessibleObject : public Qt, public QAccessibleInterface
 public:
     QAccessibleObject(QObject *object);
 
-    QRESULT        queryInterface(const QUuid &, QUnknownInterface**);
+    QRESULT queryInterface(const QUuid &, QUnknownInterface**);
     Q_REFCOUNT
 
-    bool        isValid() const;
-    QObject        *object() const;
+    bool isValid() const;
+    QObject *object() const;
 
     // properties
-    QRect        rect(int child) const;
-    void        setText(Text t, int child, const QString &text);
+    QRect rect(int child) const;
+    void setText(Text t, int child, const QString &text);
+
+    // actions
+    int userActionCount(int child) const;
+    bool doAction(int action, int child, const QVariantList &params);
+    QString actionText(int action, Text t, int child) const;
 
 protected:
     virtual ~QAccessibleObject();
@@ -52,23 +57,23 @@ public:
     QAccessibleApplication();
 
     // relations
-    int                childCount() const;
-    int                indexOfChild(const QAccessibleInterface*) const;
-    int                relationTo(int, const QAccessibleInterface *, int) const;
+    int childCount() const;
+    int indexOfChild(const QAccessibleInterface*) const;
+    int relationTo(int, const QAccessibleInterface *, int) const;
 
     // navigation
-    int                childAt(int x, int y) const;
-    int                navigate(Relation, int, QAccessibleInterface **) const;
+    int childAt(int x, int y) const;
+    int navigate(Relation, int, QAccessibleInterface **) const;
 
     // properties and state
-    QString        text(Text t, int child) const;
-    Role        role(int child) const;
-    int                state(int child) const;
+    QString text(Text t, int child) const;
+    Role role(int child) const;
+    int state(int child) const;
 
     // actions
-    int                numActions(int child) const;
-    bool        doAction(int action, int child);
-    QString        actionText(int action, Text t, int child) const;
+    int userActionCount(int child) const;
+    bool doAction(int action, int child, const QVariantList &params);
+    QString actionText(int action, Text t, int child) const;
 };
 
 #endif //QT_ACCESSIBILITY_SUPPORT

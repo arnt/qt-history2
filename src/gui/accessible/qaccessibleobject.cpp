@@ -19,12 +19,45 @@
 #include "qapplication.h"
 #include "qwidget.h"
 #include "qpointer.h"
+#include "qmetaobject.h"
+#include "qvarlengtharray.h"
 
 class QAccessibleObjectPrivate
 {
 public:
     QPointer<QObject> object;
+
+    QList<QByteArray> actionList() const;
 };
+
+QList<QByteArray> QAccessibleObjectPrivate::actionList() const
+{
+    QList<QByteArray> actionList;
+
+    if (!object)
+        return actionList;
+    
+    const QMetaObject *mo = object->metaObject();
+    Q_ASSERT(mo);
+
+    QByteArray defaultAction = QMetaObject::normalizedSignature(
+        mo->classInfo(mo->indexOfClassInfo("DefaultSlot")).value());
+
+    for (int i = 0; i < mo->slotCount(); ++i) {
+        const QMetaMember slot = mo->slot(i);
+        if (slot.access() != QMetaMember::Public)
+            continue;
+
+        if (!qstrcmp(slot.tag(), "QACCESSIBLE_SLOT")) {
+            if (slot.signature() == defaultAction)
+                actionList.prepend(defaultAction);
+            else
+                actionList << slot.signature();
+        }
+    }
+
+    return actionList;
+}
 
 /*!
     \class QAccessibleObject qaccessibleobject.h
@@ -112,6 +145,59 @@ QRect QAccessibleObject::rect(int) const
 void QAccessibleObject::setText(Text, int, const QString &)
 {
 }
+
+/*! \reimp */
+int QAccessibleObject::userActionCount(int child) const
+{
+    return 0;
+}
+
+/*! \reimp */
+bool QAccessibleObject::doAction(int action, int child, const QVariantList &params)
+{
+    if (child || action < 0)
+        return false;
+
+    QByteArray actionText(d->actionList().value(action));
+    int slotId = d->object->metaObject()->indexOfSlot(actionText);
+    if (slotId < 0)
+        return false;
+
+    QVarLengthArray<void*, 10> argv(params.count() + 1);
+
+    argv[0] = 0;
+    // ### here we must do some type casting, or at least verification
+    for (int p = 0; p < params.count(); ++p)
+        argv[p] = const_cast<void*>(params.at(p - 1).data());
+
+    return d->object->qt_metacall(QMetaObject::InvokeSlot, slotId, argv.data()) < 0;
+}
+
+static const char * const action_text[][5] = 
+{
+    // Name, Description, Value, Help, Accelerator
+    { "Press", "", "", "", "Space" },
+    { "SetFocus", "Passes focus to this widget", "", "", "" },
+    { "Increase", "", "", "", "" },
+    { "Decrease", "", "", "", "" },
+    { "Accept", "", "", "", "" },
+    { "Cancel", "", "", "", "" },
+    { "Select", "", "", "", "" },
+    { "ClearSelection", "", "", "", "" },
+    { "RemoveSelection", "", "", "", "" },
+    { "ExtendSelection", "", "", "", "" },
+    { "AddToSelection", "", "", "", "" }
+};
+
+/*! \reimp */
+QString QAccessibleObject::actionText(int action, Text t, int child) const
+{
+    if (child || action > FirstStandardAction || action < LastStandardAction || t > Accelerator)
+        return QString();
+
+    return QString(action_text[-(action - FirstStandardAction)][t]);
+}
+
 
 /*!
     \class QAccessibleApplication qaccessibleobject.h
@@ -259,15 +345,15 @@ int QAccessibleApplication::state(int) const
 }
 
 /*! \reimp */
-int QAccessibleApplication::numActions(int) const
+int QAccessibleApplication::userActionCount(int) const
 {
     return 1;
 }
 
 /*! \reimp */
-bool QAccessibleApplication::doAction(int action, int)
+bool QAccessibleApplication::doAction(int action, int child, const QVariantList &param)
 {
-    if (action == 0) {
+    if (action == 0 || action == 1) {
         QWidget *w = qApp->mainWidget();
         if (!w)
             w = topLevelWidgets().at(0);
@@ -276,22 +362,20 @@ bool QAccessibleApplication::doAction(int action, int)
         w->setActiveWindow();
         return true;
     }
-    return false;
+    return QAccessibleObject::doAction(action, child, param);
 }
 
 /*! \reimp */
 QString QAccessibleApplication::actionText(int action, Text text, int child) const
 {
     QString str;
-    if (action == 0 && !child) switch (text) {
+    if ((action == 0 || action == 1) && !child) switch (text) {
     case Name:
-        str = QApplication::tr("Activate");
-        break;
+        return QApplication::tr("Activate");
     case Description:
-        str = QApplication::tr("Activates the application main widget");
-        break;
+        return QApplication::tr("Activates the application main widget");
     }
-    return str;
+    return QAccessibleObject::actionText(action, text, child);
 }
 
 #endif //QT_ACCESSIBILITY_SUPPORT

@@ -797,11 +797,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accDoDefaultAction(VARIANT varID)
     if (!accessible->isValid())
         return E_FAIL;
 
-    int actions = accessible->numActions(varID.lVal);
-    if (!actions)
-        return DISP_E_MEMBERNOTFOUND;
-
-    return accessible->doAction(0, varID.lVal) ? S_OK : S_FALSE;
+    return accessible->doAction(DefaultAction, varID.lVal, QVariantList()) ? S_OK : S_FALSE;
 }
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDefaultAction(VARIANT varID, BSTR* pszDefaultAction)
@@ -809,12 +805,12 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDefaultAction(VARIANT varID
     if (!accessible->isValid())
         return E_FAIL;
 
-    int actions = accessible->numActions(varID.lVal);
-    if (!actions) {
+    QString def = accessible->actionText(DefaultAction, Name, varID.lVal);
+    if (def.isEmpty()) {
         *pszDefaultAction = 0;
         return S_FALSE;
     }
-    QString def = accessible->actionText(0, Name, varID.lVal);
+
     *pszDefaultAction = QStringToBSTR(def);
     return S_OK;
 }
@@ -934,26 +930,26 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::put_accValue(VARIANT, BSTR)
     return DISP_E_MEMBERNOTFOUND;
 }
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::accSelect(long, VARIANT)
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::accSelect(long flagsSelect, VARIANT varID)
 {
     if (!accessible->isValid())
         return E_FAIL;
 
     bool res = false;
-/*
+
     if (flagsSelect & SELFLAG_TAKEFOCUS)
-        res = accessible->doAction(SetFocus, varID.lVal);
+        res = accessible->doAction(SetFocus, varID.lVal, QVariantList());
     if (flagsSelect & SELFLAG_TAKESELECTION) {
-        accessible->clearSelection();
-        res = accessible->setSelected(varID.lVal, true, false);
+        accessible->doAction(ClearSelection, 0, QVariantList());
+        res = accessible->doAction(AddToSelection, varID.lVal, QVariantList());
     }
     if (flagsSelect & SELFLAG_EXTENDSELECTION)
-        res = accessible->setSelected(varID.lVal, true, true);
+        res = accessible->doAction(ExtendSelection, varID.lVal, QVariantList());
     if (flagsSelect & SELFLAG_ADDSELECTION)
-        res = accessible->setSelected(varID.lVal, true, false);
+        res = accessible->doAction(AddToSelection, varID.lVal, QVariantList());
     if (flagsSelect & SELFLAG_REMOVESELECTION)
-        res = accessible->setSelected(varID.lVal, false, false);
-*/
+        res = accessible->doAction(RemoveSelection, varID.lVal, QVariantList());
+
     return res ? S_OK : S_FALSE;
 }
 

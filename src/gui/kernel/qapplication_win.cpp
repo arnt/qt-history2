@@ -40,6 +40,17 @@
 #include "qmutex.h"
 #endif // QT_THREAD_SUPPORT
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include <qaccessible.h>
+#include <winable.h>
+#include <oleacc.h>
+#ifndef WM_GETOBJECT
+#define WM_GETOBJECT                    0x003D
+#endif
+
+extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
+#endif // QT_ACCESSIBILITY_SUPPORT
+
 #include "private/qapplication_p.h"
 #define d d_func()
 #define q q_func()
@@ -105,17 +116,6 @@ Q_CORE_EXPORT bool winPostMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 #define __INSIDE_CYGWIN32__
 #include <mywinsock.h>
 #endif
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include <qaccessible.h>
-#include <winable.h>
-#include <oleacc.h>
-#ifndef WM_GETOBJECT
-#define WM_GETOBJECT                    0x003D
-#endif
-
-extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
-#endif // QT_ACCESSIBILITY_SUPPORT
 
 // support for on-the-fly changes of the XP theme engine
 #ifndef WM_THEMECHANGED
