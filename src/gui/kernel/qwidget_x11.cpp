@@ -1430,14 +1430,15 @@ static QX11DoubleBuffer *qt_x11_create_double_buffer(Qt::HANDLE hd, int screen, 
 {
     QX11DoubleBuffer *db = new QX11DoubleBuffer;
     db->hd = XCreatePixmap(QX11Info::display(), hd, width, height, depth);
-
+    db->xft_hd = 0;
 #ifndef QT_NO_XFT
-    if (X11->use_xrender && X11->has_xft)
+    if (X11->use_xrender && X11->has_xft) {
         db->xft_hd =
             (Qt::HANDLE) XftDrawCreate(QX11Info::display(),
                                        db->hd,
                                        (Visual *) QX11Info::appVisual(),
                                        QX11Info::appColormap());
+    }
 #endif
     db->screen = screen;
     db->depth = depth;
