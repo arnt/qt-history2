@@ -1087,7 +1087,7 @@ void QMenuBar::drawContents( QPainter *p )
 	QMenuItem *mi = mitems->at( i );
 	if ( !mi->text().isNull() || mi->pixmap() ) {
 	    QRect r = irects[i];
-	    if(r.isEmpty())
+	    if(r.isEmpty() || !mi->isVisible())
 		continue;
 	    e = mi->isEnabledAndVisible();
 	    if ( e )
@@ -1102,7 +1102,7 @@ void QMenuBar::drawContents( QPainter *p )
 	    buffer.painter()->setBrush( p->brush() );
 
 	    QStyle::SFlags flags = QStyle::Style_Default;
-	    if (isEnabled() && mi->isEnabledAndVisible())
+	    if (isEnabled() && e)
 		flags |= QStyle::Style_Enabled;
 	    if ( i == actItem )
 		flags |= QStyle::Style_Active;
