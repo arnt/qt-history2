@@ -666,20 +666,15 @@ void QAxScript::addObject(QAxBase *object)
     The function returns a pointer to the script engine if \a code could be 
     loaded successfully, otherwise returns 0.
 
-    If \a language is empty it will be determined heuristically based 
-    on \a code:
-    \list
-    \i If the code includes the substring "End Sub" \a code is interpreted
-    as VBScript
-    \i Otherwise the code is interpreted as JScript
-    \endlist
+    If \a language is empty it will be determined heuristically. If \a code
+    contains the string "End Sub" it will be interpreted as VBScript, otherwise
+    as JScript. Additional script engines can be registered using registerEngine().
 
-    Additional script engines can be registered using registerEngine().
-
-    You need to add all objects necessary before loading any 
-    scripts. If \a code declares a function that is already available
-    (no matter in which language) the first function is overloaded and can 
-    no longer be called.
+    You need to add all objects necessary before loading any scripts. If \a code 
+    declares a function that is already available (no matter in which language) 
+    the first function is overloaded and can no longer be called via call(), but 
+    it will still be available calling the \link scriptEngine() script engine 
+    \endlink directly.
 
     \sa addObject(), scriptNames(), functions()
 */
@@ -723,13 +718,10 @@ QAxObject *QAxScript::load(const QString &code, const QString &language, const Q
 
     The code can later be referred to useing \a name.
 
-    The script engine used is determined from the file extension:
-    \list
-    \i If the extension is ".js" the contents are interpreted as JScript
-    \i Otherwise the contents are interpreted as VBScript
-    \endlist
-
-    Additional script engines can be registered using registerEngine().
+    The script engine used is determined from the file extension. By
+    default ".js" files are interpreted as JScript files, and ".vbs"
+    and ".dsm" files are interpreted as VBScript. Additional script engines 
+    can be registered using registerEngine().
 */
 QAxObject *QAxScript::load(const QString &file, const QString &name)
 {
@@ -867,8 +859,8 @@ bool QAxScript::registerEngine(const QString &name, const QString &extension, co
 */
 QString QAxScript::scriptFileFilter()
 {
-    QString allFiles = "Script Files (*.js *.dsm";
-    QString specialFiles = ";;VBScript Files (*.dsm)"
+    QString allFiles = "Script Files (*.js *.vbs *.dsm";
+    QString specialFiles = ";;VBScript Files (*.vbs *.dsm)"
 			   ";;JavaScript Files (*.js)";
 
     QValueList<QAxEngineDescriptor>::ConstIterator it;
