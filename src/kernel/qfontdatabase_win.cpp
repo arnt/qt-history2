@@ -220,6 +220,7 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 	QtFontFoundry *foundry = family->foundry( foundryName,  TRUE );
 	QtFontStyle *style = foundry->style( styleKey,  TRUE );
 	style->smoothScalable = TRUE;
+	style->pixelSize( SMOOTH_SCALABLE, TRUE );
 
 	// add fonts windows can generate for us:
 	if ( styleKey.weight <= QFont::DemiBold ) {
@@ -227,12 +228,14 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 	    key.weight = QFont::Bold;
 	    QtFontStyle *style = foundry->style( key,  TRUE );
 	    style->smoothScalable = TRUE;
+	    style->pixelSize( SMOOTH_SCALABLE, TRUE );
 	}
 	if ( !styleKey.italic ) {
 	    QtFontStyle::Key key( styleKey );
 	    key.italic = TRUE;
 	    QtFontStyle *style = foundry->style( key,  TRUE );
 	    style->smoothScalable = TRUE;
+	    style->pixelSize( SMOOTH_SCALABLE, TRUE );
 	}
 	if ( styleKey.weight <= QFont::DemiBold && !styleKey.italic ) {
 	    QtFontStyle::Key key( styleKey );
@@ -388,7 +391,7 @@ static void initializeDb()
 	populate_database( family->name );
 
 	qDebug("        scripts supported:");
-        for ( int i = 0; i < QFont::NScripts; i++ ) 
+        for ( int i = 0; i < QFont::NScripts; i++ )
 	    if(family->scripts[i] & QtFontFamily::Supported)
 		qDebug("            %d", i );
 	for ( int fd = 0; fd < family->count; fd++ ) {
@@ -681,7 +684,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
 #endif
 
     }
-    if( !paintdevice && (qt_winver & Qt::WV_DOS_based) ) 
+    if( !paintdevice && (qt_winver & Qt::WV_DOS_based) )
 	hdc = 0;
     QFontEngine *fe = new QFontEngineWin( family->name, hdc, hfont, stockFont, lf );
     if ( paintdevice )
