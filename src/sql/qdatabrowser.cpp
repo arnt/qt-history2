@@ -143,6 +143,7 @@ QDataBrowser::Boundary QDataBrowser::boundary()
     if ( cur->at() == 0 )
 	return Beginning;
     int currentAt = cur->at();
+
     Boundary b = None;
     if ( !cur->prev() )
 	b = Beginning;
@@ -248,11 +249,12 @@ QString QDataBrowser::filter() const
 
 void QDataBrowser::setCursor( QSqlCursor* cursor, bool autoDelete )
 {
+    if ( !cursor )
+	return;
     d->cur.setCursor( cursor, autoDelete );
     d->frm.setRecord( cursor->editBuffer() );
     if ( cursor->isReadOnly() )
 	setReadOnly( TRUE );
-
 }
 
 
@@ -740,6 +742,30 @@ void QDataBrowser::del()
     }
 }
 
+/*!  Moves the default cursor to the record specified by the index \a
+  i and refreshes the default form. If there is no default form or no
+  default cursor, nothing happens.  If \a relative is TRUE (the
+  default is FALSE), the cursor is moved relative to its current
+  position.  If the browser successfully moved to the desired record,
+  the default cursor is primed for update and the primeUpdate() signal
+  is emitted.
+
+  If the browser is already positioned on the desired record nothing
+  happens.
+
+*/
+
+bool QDataBrowser::seek( int i, bool relative )
+{
+    int b = 0;
+    QSqlCursor* cur = d->cur.cursor();
+    if ( !cur )
+	return FALSE;
+    if ( preNav() )
+	b = cur->seek( i, relative );
+    postNav( b );
+    return b;
+}
 
 /*!  Moves the default cursor to the first record and refreshes the
   default form. If there is no default form or no default cursor,
@@ -754,7 +780,7 @@ void QDataBrowser::del()
 
 void QDataBrowser::first()
 {
-    nav( First );
+    nav( &QSqlCursor::first );
 }
 
 
@@ -770,7 +796,7 @@ void QDataBrowser::first()
 
 void QDataBrowser::last()
 {
-    nav( Last );
+    nav( &QSqlCursor::last );
 }
 
 
@@ -785,7 +811,7 @@ void QDataBrowser::last()
 
 void QDataBrowser::next()
 {
-    nav( Next );
+    nav( &QSqlCursor::next );
 }
 
 
@@ -800,7 +826,7 @@ void QDataBrowser::next()
 
 void QDataBrowser::prev()
 {
-    nav( Prev );
+    nav( &QSqlCursor::prev );
 }
 
 /*! Reads the fields from the default cursor's edit buffer and displays
@@ -970,7 +996,7 @@ bool QDataBrowser::currentEdited()
     if ( !cur->isActive() || !cur->isValid() )
 	return FALSE;
     writeFields();
-    for ( uint i = 0; i < cur->count(); ++i ) {
+    for ( i = 0; i < cur->count(); ++i ) {
 	if ( cur->value(i) != buf->value(i) )
 	    return TRUE;
     }
@@ -978,16 +1004,14 @@ bool QDataBrowser::currentEdited()
 }
 
 /*! \internal
-
-  Navigate default cursor according to \a nav.  Handles autoEdit.
-
 */
-void QDataBrowser::nav( Nav nav )
+
+bool QDataBrowser::preNav()
 {
     QSqlRecord* buf = d->frm.record();
     QSqlCursor* cur = d->cur.cursor();
     if ( !buf || !cur )
-	return;
+	return FALSE;
 
     if ( !isReadOnly() && autoEdit() && currentEdited() ) {
 	bool ok = TRUE;
@@ -1005,7 +1029,7 @@ void QDataBrowser::nav( Nav nav )
 		d->dat.setMode( QSql::Update );
 		break;
 	    case QSql::Cancel:
-		return;
+		return FALSE;
 		break;
 	    }
 	    break;
@@ -1019,29 +1043,25 @@ void QDataBrowser::nav( Nav nav )
 	    case QSql::No:
 		break;
 	    case QSql::Cancel:
-		return;
+		return FALSE;
 		break;
 	    }
 	}
-	if ( !ok )
+	return ok;
+    }
+    return TRUE;
+}
+
+/*! \internal
+*/
+
+void QDataBrowser::postNav( bool primeUpd )
+{
+    if ( primeUpd ) {
+	QSqlRecord* buf = d->frm.record();
+	QSqlCursor* cur = d->cur.cursor();
+	if ( !buf || !cur )
 	    return;
-    }
-    int b = FALSE;
-    switch( nav ) {
-    case First:
-	b = cur->first();
-	break;
-    case Last:
-	b = cur->last();
-	break;
-    case Next:
-	b = cur->next();
-	break;
-    case Prev:
-	b = cur->prev();
-	break;
-    }
-    if ( b ) {
 	currentChanged( cur );
 	cur->primeUpdate();
 	emit primeUpdate( buf );
@@ -1052,7 +1072,21 @@ void QDataBrowser::nav( Nav nav )
 
 /*! \internal
 
-  If boundaryChecking() is TRUE, checks the boundary of the current
+  Navigate default cursor according to \a nav.  Handles autoEdit.
+
+*/
+void QDataBrowser::nav( Nav nav )
+{
+    int b = 0;
+    QSqlCursor* cur = d->cur.cursor();
+    if ( !cur )
+	return;
+    if ( preNav() )
+	b = (cur->*nav)();
+    postNav( b );
+}
+
+/*!  If boundaryChecking() is TRUE, checks the boundary of the current
   default cursor and emits signals which indicate the position of the
   cursor.
 */

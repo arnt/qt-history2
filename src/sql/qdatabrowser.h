@@ -95,7 +95,6 @@ public:
     virtual void setForm( QSqlForm* form );
     QSqlForm* form();
 
-
     virtual void setConfirmEdits( bool confirm );
     virtual void setConfirmInsert( bool confirm );
     virtual void setConfirmUpdate( bool confirm );
@@ -111,6 +110,8 @@ public:
     bool isReadOnly() const;
     virtual void setAutoEdit( bool autoEdit );
     bool autoEdit() const;
+
+    virtual bool seek( int i, bool relative = FALSE );
 
 signals:
     void firstRecordAvailable( bool available );
@@ -154,12 +155,9 @@ protected:
     virtual void handleError( const QSqlError& error );
 
 private:
-    enum Nav {
-	First,
-	Last,
-	Next,
-	Prev
-    };
+    typedef bool (QSqlCursor::*Nav)();
+    bool preNav();
+    void postNav( bool primeUpd );
     void nav( Nav nav );
     class QDataBrowserPrivate;
     QDataBrowserPrivate* d;

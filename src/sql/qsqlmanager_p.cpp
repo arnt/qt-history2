@@ -542,8 +542,9 @@ QSqlForm* QSqlFormManager::form()
 void QSqlFormManager::setRecord( QSqlRecord* record )
 {
     d->rcd = record;
-    if ( d->frm )
+    if ( d->frm ) {
 	d->frm->setRecord( d->rcd );
+    }
 }
 
 
@@ -572,8 +573,9 @@ QSqlRecord* QSqlFormManager::record()
 
 void QSqlFormManager::readFields()
 {
-    if ( d->frm )
+    if ( d->frm ) {
 	d->frm->readFields();
+    }
 }
 
 /*! \internal
@@ -587,8 +589,9 @@ void QSqlFormManager::readFields()
 
 void QSqlFormManager::writeFields()
 {
-    if ( d->frm )
+    if ( d->frm ) {
 	d->frm->writeFields();
+    }
 }
 
 class QDataManager::QDataManagerPrivate
