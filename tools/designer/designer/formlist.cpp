@@ -444,10 +444,10 @@ void FormList::fileNameChanged( const QString &fn, FormWindow *fw )
 
     QString s = project->makeRelative( fn );
     FormListItem *i = findItem( fw );
-    bufferEdit->removeCompletionEntry( i->text( 1 ) );
-    bufferEdit->removeCompletionEntry( i->text( 1 ) + extension );
     if ( !i )
 	return;
+    bufferEdit->removeCompletionEntry( i->text( 1 ) );
+    bufferEdit->removeCompletionEntry( i->text( 1 ) + extension );
     if ( s.isEmpty() ) {
 	i->setText( 1, tr( "(unnamed)" ) );
     } else {
