@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#424 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#425 $
 **
 ** Implementation of QWidget class
 **
@@ -897,7 +897,7 @@ QStyle& QWidget::style() const
 
 
 /*!
-  \fn void QWidget::styleChange( GUIStyle oldStyle )
+  \fn void QWidget::styleChange( QStyle& oldStyle )
 
   This virtual function is called when the style of the widgets.
   changes.\a oldStyle is the
@@ -911,7 +911,7 @@ QStyle& QWidget::style() const
   \sa QApplication::setStyle(), style()
 */
 
-void QWidget::styleChange( GUIStyle )
+void QWidget::styleChange( QStyle& )
 {
 }
 
@@ -4216,7 +4216,7 @@ void QWidget::setStyle( QStyle *style )
 	 && testWState(WState_Polished)) { // (and have been polished)
 	old.unPolish( this );
 	QWidget::style().polish( this );
-	styleChange(old.guiStyle());
+	styleChange( old );
 	if ( isVisibleToTLW() )
 	    repaint( TRUE );
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#49 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#50 $
 **
 ** Definition of QMessageBox class
 **
@@ -108,7 +108,7 @@ public:
     Icon	icon() const;
     void	setIcon( Icon );
     void	setIcon( const QPixmap & );
-    
+
     const QPixmap *iconPixmap() const;
     void	setIconPixmap( const QPixmap & );
 
@@ -122,7 +122,7 @@ public:
 protected:
     void	resizeEvent( QResizeEvent * );
     void	keyPressEvent( QKeyEvent * );
-    void	styleChanged( GUIStyle );
+    void	styleChanged( QStyle& );
 
 private slots:
     void	buttonClicked();

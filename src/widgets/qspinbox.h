@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#32 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#33 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -94,7 +94,7 @@ protected:
     void		resizeEvent( QResizeEvent* ev );
     void		wheelEvent( QWheelEvent * );
 
-    void		styleChange( GUIStyle ); //#?
+    void		styleChange( QStyle& );
 
 protected slots:
     void		textChanged();

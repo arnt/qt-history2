@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#37 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#38 $
 **
 ** Definition of QSlider class
 **
@@ -88,7 +88,7 @@ protected:
     void	focusOutEvent( QFocusEvent *e );
 
     void updateMask();
-    void styleChange( GUIStyle );
+    void styleChange( QStyle& );
 
     void	valueChange();
     void	rangeChange();

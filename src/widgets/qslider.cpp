@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#87 $
 **
 ** Implementation of QSlider class
 **
@@ -1077,7 +1077,7 @@ void QSlider::setTickInterval( int i )
 
 /*\reimp
  */
-void QSlider::styleChange( GUIStyle )
+void QSlider::styleChange( QStyle& )
 {
     if ( style() == MotifStyle )
 	setBackgroundMode( PaletteMid );

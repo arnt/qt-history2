@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#101 $
 **
 ** Implementation of QCheckBox class
 **
@@ -128,7 +128,7 @@ static int extraWidth( int gs )
 
 QSize QCheckBox::sizeHint() const
 {
-    // Any more complex, and we will use qItemRect()
+    // Any more complex, and we will use style().itemRect()
     // NB: QCheckBox::sizeHint() is similar
 
     QSize sz;
@@ -224,20 +224,20 @@ void QCheckBox::drawButtonLabel( QPainter *p )
     GUIStyle gs = style().guiStyle();
     QSize sz = style().indicatorSize();
     y = 0;
-    x = sz.width() + extraWidth( gs );
+    x = sz.width() + extraWidth( gs ); //###
     w = width() - x;
     h = height();
 
-    qDrawItem( p, gs, x, y, w, h,
-	       AlignLeft|AlignVCenter|ShowPrefix,
-	       colorGroup(), isEnabled(),
-	       pixmap(), text() );
+    style().drawItem( p, x, y, w, h,
+		      AlignLeft|AlignVCenter|ShowPrefix,
+		      colorGroup(), isEnabled(),
+		      pixmap(), text() );
 
     if ( hasFocus() ) {
-	QRect br = qItemRect( p, gs, x, y, w, h,
-			      AlignLeft|AlignVCenter|ShowPrefix,
-			      isEnabled(),
-			      pixmap(), text() );
+	QRect br = style().itemRect( p, x, y, w, h,
+				   AlignLeft|AlignVCenter|ShowPrefix,
+				   isEnabled(),
+				   pixmap(), text() );
 	br.setLeft( br.left()-3 );
 	br.setRight( br.right()+2 );
 	br.setTop( br.top()-2 );
@@ -258,10 +258,10 @@ void QCheckBox::resizeEvent( QResizeEvent* )
     h = height();
 
     QPainter p(this);
-    QRect br = qItemRect( &p, gs, x, 0, w, h,
-			  AlignLeft|AlignVCenter|ShowPrefix,
-			  isEnabled(),
-			  pixmap(), text() );
+    QRect br = style().itemRect( &p, x, 0, w, h,
+				 AlignLeft|AlignVCenter|ShowPrefix,
+				 isEnabled(),
+				 pixmap(), text() );
     update( br.right(), w, 0, h );
     if ( autoMask() )
 	updateMask();
@@ -291,16 +291,16 @@ void QCheckBox::updateMask()
 	x = sz.width() + extraWidth( gs );
 	w = width() - x;
 	h = height();
-	qDrawItem( &p, gs, x, y, w, h,
-		   AlignLeft|AlignVCenter|ShowPrefix,
-		   cg, TRUE,
-		   pixmap(), text() );
+	style().drawItem( &p, x, y, w, h,
+			  AlignLeft|AlignVCenter|ShowPrefix,
+			  cg, TRUE,
+			  pixmap(), text() );
 
 	if ( hasFocus() ) {
-	    QRect br = qItemRect( &p, gs, x, y, w, h,
-				  AlignLeft|AlignVCenter|ShowPrefix,
-				  isEnabled(),
-				  pixmap(), text() );
+	    QRect br = style().itemRect( &p, x, y, w, h,
+					 AlignLeft|AlignVCenter|ShowPrefix,
+					 isEnabled(),
+					 pixmap(), text() );
 	    br.setLeft( br.left()-3 );
 	    br.setRight( br.right()+2 );
 	    br.setTop( br.top()-2 );

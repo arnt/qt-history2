@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#114 $
 **
 ** Implementation of QRadioButton class
 **
@@ -126,7 +126,7 @@ void QRadioButton::setChecked( bool check )
 
 QSize QRadioButton::sizeHint() const
 {
-    // Any more complex, and we will use qItemRect()
+    // Any more complex, and we will use style().itemRect()
     // NB: QCheckBox::sizeHint() is similar
 
     QSize sz;
@@ -251,16 +251,16 @@ void QRadioButton::drawButtonLabel( QPainter *p )
     w = width() - x;
     h = height();
 
-    qDrawItem( p, gs, x, y, w, h,
-	       AlignLeft|AlignVCenter|ShowPrefix,
-	       colorGroup(), isEnabled(),
-	       pixmap(), text() );
+    style().drawItem( p, x, y, w, h,
+		      AlignLeft|AlignVCenter|ShowPrefix,
+		      colorGroup(), isEnabled(),
+		      pixmap(), text() );
 
     if ( hasFocus() ) {
-	QRect br = qItemRect( p, gs, x, y, w, h,
-			      AlignLeft|AlignVCenter|ShowPrefix,
-			      isEnabled(),
-			      pixmap(), text() );
+	QRect br = style().itemRect( p, x, y, w, h,
+				     AlignLeft|AlignVCenter|ShowPrefix,
+				     isEnabled(),
+				     pixmap(), text() );
 	br.setLeft( br.left()-3 );
 	br.setRight( br.right()+2 );
 	br.setTop( br.top()-2 );
@@ -285,10 +285,10 @@ void QRadioButton::resizeEvent( QResizeEvent* e )
     h = height();
 
     QPainter p(this);
-    QRect br = qItemRect( &p, gs, x, 0, w, h,
-			  AlignLeft|AlignVCenter|ShowPrefix,
-			  isEnabled(),
-			  pixmap(), text() );
+    QRect br = style().itemRect( &p, x, 0, w, h,
+				 AlignLeft|AlignVCenter|ShowPrefix,
+				 isEnabled(),
+				 pixmap(), text() );
     if ( autoMask() )
 	updateMask();
     update( br.right(), w, 0, h );
@@ -315,10 +315,10 @@ void QRadioButton::updateMask()
 
 	QColorGroup cg(color1,color1, color1,color1,color1,color1,color1,color1, color0);
 
-	qDrawItem( &p, gs, x, y, w, h,
-		   AlignLeft|AlignVCenter|ShowPrefix,
-		   cg, TRUE,
-		   pixmap(), text() );
+	style().drawItem( &p, x, y, w, h,
+			  AlignLeft|AlignVCenter|ShowPrefix,
+			  cg, TRUE,
+			  pixmap(), text() );
 	x = 0;
 	y = (height() - lsz.height() + fm.height() - sz.height())/2;
 	
@@ -329,10 +329,10 @@ void QRadioButton::updateMask()
  	    x = sz.width() + gutter;
  	    w = width() - x;
  	    h = height();
-	    QRect br = qItemRect( &p, gs, x, y, w, h,
-				  AlignLeft|AlignVCenter|ShowPrefix,
-				  isEnabled(),
-				  pixmap(), text() );
+	    QRect br = style().itemRect( &p, x, y, w, h,
+					 AlignLeft|AlignVCenter|ShowPrefix,
+					 isEnabled(),
+					 pixmap(), text() );
 	    br.setLeft( br.left()-3 );
 	    br.setRight( br.right()+2 );
 	    br.setTop( br.top()-2 );

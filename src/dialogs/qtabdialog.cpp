@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#91 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#92 $
 **
 ** Implementation of QTabDialog class
 **
@@ -1091,7 +1091,7 @@ QString QTabDialog::tabLabel( QWidget * w )
 /*!  Reimplemented to hndle a change of GUI style while on-screen.
 */
 
-void QTabDialog::styleChange( GUIStyle s )
+void QTabDialog::styleChange( QStyle& s )
 {
     QDialog::styleChange( s );
     setSizes();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#70 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -829,7 +829,7 @@ void QSpinBox::setEnabled( bool on )
 
 /*! \reimp */
 
-void QSpinBox::styleChange( GUIStyle )
+void QSpinBox::styleChange( QStyle& )
 {
 //#####    vi->setStyle( style() );
 //#####    up->setStyle( style() );

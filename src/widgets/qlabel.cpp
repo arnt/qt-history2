@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#127 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#128 $
 **
 ** Implementation of QLabel widget class
 **
@@ -619,9 +619,9 @@ void QLabel::drawContents( QPainter *p )
     QMovie *mov = movie();
     if ( mov ) {
 	// ### should add movie to qDrawItem
- 	QRect r = qItemRect( p, style(),
- 			cr.x(), cr.y(), cr.width(), cr.height(),
- 			align, isEnabled(), &(mov->framePixmap()), ltext );
+ 	QRect r = style().itemRect( p, 
+				    cr.x(), cr.y(), cr.width(), cr.height(),
+				    align, isEnabled(), &(mov->framePixmap()), ltext );
 	// ### could resize movie frame at this point
 	p->drawPixmap(r.x(), r.y(), mov->framePixmap() );
     }
@@ -647,9 +647,9 @@ void QLabel::drawContents( QPainter *p )
 	doc->draw(p, cr.x()+xo, cr.y()+yo, cr, colorGroup(), 0);
     } else {
 	// ordinary text label
-	qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
-		   align, colorGroup(), isEnabled(),
-		   lpixmap, ltext );
+	style().drawItem( p, cr.x(), cr.y(), cr.width(), cr.height(),
+			  align, colorGroup(), isEnabled(),
+			  lpixmap, ltext );
     }
 }
 
@@ -693,9 +693,9 @@ void QLabel::drawContentsMask( QPainter *p )
     QMovie *mov = movie();
     if ( mov ) {
 	// ### could add movie to qDrawItem
-	QRect r = qItemRect( p, style(),
-			cr.x(), cr.y(), cr.width(), cr.height(),
-			align, isEnabled(), &(mov->framePixmap()), ltext );
+	QRect r = style().itemRect( p, 
+				    cr.x(), cr.y(), cr.width(), cr.height(),
+				    align, isEnabled(), &(mov->framePixmap()), ltext );
 	// ### could resize movie frame at this point
 	QPixmap pm = mov->framePixmap();
 	if ( pm.mask() ) {
@@ -720,8 +720,8 @@ void QLabel::drawContentsMask( QPainter *p )
 	}
     }
 
-    qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
-	       align, g, isEnabled(), bm.isNull()?0:&bm, ltext );
+    style().drawItem( p, cr.x(), cr.y(), cr.width(), cr.height(),
+		      align, g, isEnabled(), bm.isNull()?0:&bm, ltext );
 }
 
 
@@ -817,8 +817,8 @@ void QLabel::movieUpdated(const QRect& rect)
     QMovie *mov = movie();
     if ( mov && !mov->isNull() ) {
 	QRect r = contentsRect();
-	r = qItemRect( 0, style(), r.x(), r.y(), r.width(), r.height(),
-		       align, isEnabled(), &(mov->framePixmap()), ltext );
+	r = style().itemRect( 0, r.x(), r.y(), r.width(), r.height(),
+			      align, isEnabled(), &(mov->framePixmap()), ltext );
 	r.moveBy(rect.x(), rect.y());
 	r.setWidth(QMIN(r.width(), rect.width()));
 	r.setHeight(QMIN(r.height(), rect.height()));

@@ -1,5 +1,5 @@
 #/****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.h#24 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.h#25 $
 **
 ** Definition of draw utilities
 **
@@ -99,7 +99,8 @@ void qDrawPlainRect( QPainter *p, const QRect &r, const QColor &,
 
 
 //
-// Other useful drawing functions
+// Other obsolete drawing functions. 
+// Use QStyle::itemRect(), QStyle::drawItem() and QStyle::drawArrow() instead.
 //
 
 Q_EXPORT

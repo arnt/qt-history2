@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#147 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#148 $
 **
 ** Implementation of QMenuBar class
 **
@@ -169,7 +169,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 \reimp
 */
 
-void QMenuBar::styleChange( GUIStyle )
+void QMenuBar::styleChange( QStyle& )
 {
     switch ( style().guiStyle() ) {
 	case WindowsStyle:
@@ -764,9 +764,9 @@ void QMenuBar::drawContents( QPainter *p )
 // 				    motifItemFrame, &palette().normal().fillButton() );
 	    }
 	    QColor btext = g.buttonText();
-	    qDrawItem( p, gs, r.left(), r.top(), r.width(), r.height(),
-		       AlignCenter|ShowPrefix|DontClip|SingleLine,
-		       g, e, mi->pixmap(), mi->text(), -1, &btext );
+	    style().drawItem( p, r.left(), r.top(), r.width(), r.height(),
+			      AlignCenter|ShowPrefix|DontClip|SingleLine,
+			      g, e, mi->pixmap(), mi->text(), -1, &btext );
 
 	}
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#23 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#24 $
 **
 ** Definition of QProgressDialog class
 **
@@ -75,7 +75,7 @@ signals:
 protected:
     void	resizeEvent( QResizeEvent * );
     void	closeEvent( QCloseEvent * );
-    void	styleChange(GUIStyle);
+    void	styleChange( QStyle& );
 
 private:
     void	   init( QWidget *creator, const QString& lbl, const QString &canc,

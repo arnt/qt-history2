@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#230 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#231 $
 **
 ** Definition of QWidget class
 **
@@ -347,7 +347,7 @@ protected:
   // Misc. protected functions
 
 protected:
-    virtual void styleChange( GUIStyle );
+    virtual void styleChange( QStyle& ); 
     virtual void enabledChange( bool );
     virtual void backgroundColorChange( const QColor & );
     virtual void backgroundPixmapChange( const QPixmap & );

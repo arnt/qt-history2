@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#43 $
 **
 ** Implementation of QProgressBar class
 **
@@ -67,10 +67,7 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
       auto_indicator( TRUE ),
       d( 0 )
 {
-    if ( style() == MotifStyle ) {
-	setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
-	setLineWidth( 2 );
-    }
+    styleChange( style() );
 }
 
 
@@ -99,10 +96,7 @@ QProgressBar::QProgressBar( int totalSteps,
       auto_indicator( TRUE ),
       d( 0 )
 {
-    if ( style() == MotifStyle ) {
-	setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
-	setLineWidth( 2 );
-    }
+    styleChange( style() );
 }
 
 
@@ -247,7 +241,14 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
 void QProgressBar::show()
 {
     setIndicator( progress_str, progress_val, total_steps );
-    // ### 2.0: Move this next stuff to styleChange()
+    QFrame::show();
+}
+
+
+/*! \reimp
+ */
+void QProgressBar::styleChange( QStyle& )
+{
     if ( style() == MotifStyle ) {
 	setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
 	setLineWidth( 2 );
@@ -256,7 +257,6 @@ void QProgressBar::show()
 	setFrameStyle(QFrame::NoFrame);
 	setLineWidth( 1 );
     }
-    QFrame::show();
 }
 
 
@@ -315,7 +315,7 @@ void QProgressBar::drawContents( QPainter *p )
     const int unit_height = 12;
     const QRect bar = contentsRect();
 
-    if ( style() == WindowsStyle && auto_indicator ||
+    if ( style() != MotifStyle && auto_indicator ||
 	 !auto_indicator && !center_indicator ) {
 	// Draw nu units out of a possible u of unit_width width, each
 	// a rectangle bordered by background color, all in a sunken panel
@@ -387,7 +387,7 @@ void QProgressBar::drawContentsMask( QPainter *p )
     const int unit_width  = 9;	    // includes 2 bg pixels
     const QRect bar = contentsRect();
 
-    if ( style() == WindowsStyle ) {
+    if ( style() != MotifStyle ) {
 	// ### This part doesn't actually change.
 	const QFontMetrics & fm = p->fontMetrics();
 	int textw = fm.width(QString::fromLatin1("100%"));

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#45 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#46 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -56,7 +56,7 @@ struct QProgressData
 	cancellation_flag( FALSE ),
 	showTime( defaultShowTime )
     {
-	label->setAlignment( that->style() != Qt::WindowsStyle 
+	label->setAlignment( that->style() != Qt::WindowsStyle
 			     ? Qt::AlignCenter
 			     : Qt::AlignLeft|Qt::AlignVCenter );
     }
@@ -516,7 +516,7 @@ void QProgressDialog::resizeEvent( QResizeEvent * )
 /*!
   Ensures layout conforms to style of GUI.
 */
-void QProgressDialog::styleChange(GUIStyle s)
+void QProgressDialog::styleChange(QStyle& s)
 {
     QSemiModal::styleChange(s);
     layout();

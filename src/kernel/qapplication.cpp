@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#250 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#251 $
 **
 ** Implementation of QApplication class
 **
@@ -638,7 +638,7 @@ void QApplication::setStyle( QStyle *style )
 		if ( !w->testWFlags(WType_Desktop) // (except desktop)
 		     && w->testWState(WState_Polished)) { // (and have been polished)
 		    app_style->polish(w);
-		    w->styleChange(old->guiStyle());
+		    w->styleChange( *old );
 		    if ( w->isVisibleToTLW() ){
 			w->update();
 		    }

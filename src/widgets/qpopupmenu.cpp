@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#227 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#228 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -872,187 +872,6 @@ void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
     bool dis = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
     style().drawPopupMenuItem(p, checkable, maxPMWidth, tab_, mi, palette(),
 			      act, !dis, x, y, w, h);
-
-    return;
-
-
-    const QColorGroup & g = colorGroup();
-    GUIStyle gs	  = style();
-    dis	  = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
-    QColorGroup itemg = dis ? palette().disabled()
-			: act ? palette().active()
-			: palette().normal();
-
-    int checkcol	  =     maxPMWidth + 2; //#######
-
-
-    if ( mi->isSeparator() ) {			// draw separator
-	p->setPen( g.dark() );
-	p->drawLine( x, y, x+w, y );
-	p->setPen( g.light() );
-	p->drawLine( x, y+1, x+w, y+1 );
-	return;
-    }
-
-        int pw = motifItemFrame;
-    if ( gs != MotifStyle )
-	pw = 1;
-
-
-    if ( gs == WindowsStyle ) {
- 	QBrush fill = act? g.brush( QColorGroup::Highlight ) :
- 		      g.brush( QColorGroup::Button );
- 	if ( mi->isChecked() )
- 	    p->fillRect( x+checkcol + 1, y, w - checkcol - 1, h, fill);
- 	else
- 	    p->fillRect( x, y, w, h, fill);
-    } else if ( gs == MotifStyle ) {
- 	if ( act && !dis ) {			// active item frame
- 	    if (style().defaultFrameWidth() > 1)
- 		qDrawShadePanel( p, x, y, w, h, g, FALSE, pw,
- 				 &g.brush( QColorGroup::Button ) );
- 	    else
- 		qDrawShadePanel( p, x+1, y+1, w-2, h-2, g, TRUE, 1,
- 				 &g.brush( QColorGroup::Button ) );
- 	}
- 	else				// incognito frame
- 	    p->fillRect(x, y, w, h, g.brush( QColorGroup::Button ));
-    }
-
-
-
-    int cm = (gs == MotifStyle && checkcol )? 2 : 0; // checkable margin
-
-    if ( mi->isChecked() ) {
-	if ( gs == WindowsStyle && act && !dis ) {
-	    qDrawShadePanel( p, x+cm, y+cm, checkcol-2*cm, h-2*cm,
-			     g, TRUE, 1, &g.brush( QColorGroup::Button ) );
-	} else if ( gs == WindowsStyle ||
-		    mi->iconSet() ) {
-	    qDrawShadePanel( p, x+cm, y+cm, checkcol-2*cm, h-2*cm,
-			     g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
-	}
-    } else if ( !act ) {
-	p->fillRect(x+cm, y+cm, checkcol - 2*cm, h - 2*cm,
-		    g.brush( QColorGroup::Button ));
-    }		
-
-    if ( mi->iconSet() ) {		// draw iconset
-	QIconSet::Mode mode = dis?QIconSet::Disabled:QIconSet::Normal;
-	if ( style() == MotifStyle )
-	    mode = QIconSet::Normal; // no disabled icons in Motif
-	if (act && !dis )
-	    mode = QIconSet::Active;
-	QPixmap pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
-	int pixw = pixmap.width();
-	int pixh = pixmap.height();
-	if ( gs == MotifStyle ) {
-	    if ( act && !dis ) {			// active item frame
-		if (style().defaultFrameWidth() > 1)
-		    qDrawShadePanel( p, x, y, w, h, g, FALSE,
-				     motifItemFrame,
-				     &g.brush( QColorGroup::Button ) );
-		else
-		    qDrawShadePanel( p, x+1, y+1, w-2, h-2, g, TRUE, 1,
-				     &g.brush( QColorGroup::Button ) );
-	    }
-	    else				// incognito frame
-		p->fillRect(x,y,w, h, g.brush( QColorGroup::Button ));
-	} else {
-	    if ( act && !dis ) {
-		if ( !mi->isChecked() )
-		    qDrawShadePanel( p, x, y, checkcol, h, g, FALSE,  1, &g.brush( QColorGroup::Button ) );
-	    }
-	}
-	QRect cr( x+cm, y+cm, checkcol-2*cm, h-2*cm );
-	QRect pmr( 0, 0, pixw, pixh );
-	pmr.moveCenter( cr.center() );
-	p->setPen( itemg.text() );
-	p->drawPixmap( pmr.topLeft(), pixmap );
-	if ( gs == WindowsStyle ) {
-	    QBrush fill = act? g.brush( QColorGroup::Highlight ) :
-			  g.brush( QColorGroup::Button );
-	    p->fillRect( x+checkcol + 1, y, w - checkcol - 1, h, fill);
-	}
-    } else  if ( isCheckable() ) {	// just "checking"...
-	int mw = checkcol - ( 2*motifCheckMarkHMargin + motifItemFrame );
-	int mh = h - 2*motifItemFrame;
-	if ( mi->isChecked() ) {
-	    style().drawCheckMark( p, x+motifItemFrame + motifCheckMarkHMargin,
-				   y+motifItemFrame, mw, mh, itemg, act, dis );
-	}
-    }
-
-
-    if ( gs == WindowsStyle )
-	p->setPen( act ? g.highlightedText() : g.buttonText() );
-    else
-	p->setPen( g.buttonText() );
-
-    QColor discol;
-    if ( dis ) {
-	discol = itemg.text();
-	p->setPen( discol );
-    }
-
-    int xm = checkcol + motifItemHMargin + ( isCheckable() ? 0 : motifItemFrame);
-
-    QString s = mi->text();
-    if ( !s.isNull() ) {			// draw text
-	int t = s.find( '\t' );
-	int m = motifItemVMargin;
-	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
-	if ( t >= 0 ) {				// draw text before tab
-	    if ( gs == WindowsStyle && dis && !act ) {
-		p->setPen( g.light() );
-		p->drawText( x+xm+1, y+m+1, w-checkcol, h-2*m, text_flags, s, t );
-		p->setPen( discol );
-	    }
-	    p->drawText( x+xm, y+m, w-xm, h-2*m, text_flags, s, t );
-	    s = s.mid(t+1);
-	    x = tab_;
-	}
-	if ( gs == WindowsStyle && dis && !act ) {
-	    p->setPen( g.light() );
-	    p->drawText( x+xm+1, y+m+1, w-xm, h-2*m, text_flags, s );
-	    p->setPen( discol );
-	}
-	p->drawText( x+xm, y+m, w-checkcol, h-2*m, text_flags, s );
-    } else if ( mi->pixmap() ) {			// draw pixmap
-	QPixmap *pixmap = mi->pixmap();
-	if ( pixmap->depth() == 1 )
-	    p->setBackgroundMode( OpaqueMode );
-	p->drawPixmap( x+xm, y+motifItemFrame, *pixmap );
-	if ( pixmap->depth() == 1 )
-	    p->setBackgroundMode( TransparentMode );
-    }
-    if ( mi->popup() ) {			// draw sub menu arrow
-	int dim = (h-2*motifItemFrame) / 2;
-	if ( gs == WindowsStyle && act ) {
-	    if ( !dis )
-		discol = white;
-	    QColorGroup g2( discol, g.highlight(),
-			    white, white,
-			    dis ? discol : white,
-			    discol, white );
-	    style().drawArrow( p, RightArrow, FALSE,
-			       x+w - motifArrowHMargin - dim,  y+h/2-dim/2,
-			       dim, dim, g2, TRUE );
-	} else if ( act ) {
-	    style().drawArrow( p, RightArrow,
-			       gs == MotifStyle && mi->isEnabled(),
-			       x+w - motifArrowHMargin - dim,  y+h/2-dim/2,
-			       dim, dim, g,
-			       gs == MotifStyle && mi->isEnabled() ||
-			       gs == WindowsStyle );
-	} else {
-	    style().drawArrow( p, RightArrow,
-			       FALSE,
-			       x+w - motifArrowHMargin - dim,  y+h/2-dim/2,
-			       dim, dim, g, mi->isEnabled() );
-	}
-    }
-    mi->setDirty( FALSE );
 }
 
 
@@ -1422,7 +1241,7 @@ void QPopupMenu::timerEvent( QTimerEvent *e )
 /*!
   Reimplemented for internal purposes.
 */
-void  QPopupMenu::styleChange( GUIStyle )
+void  QPopupMenu::styleChange( QStyle& )
 {
     style().polishPopupMenu( this );
 }
