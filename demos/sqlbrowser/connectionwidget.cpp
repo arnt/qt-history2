@@ -82,8 +82,7 @@ void ConnectionWidget::setActive(QTreeWidgetItem *item)
 }
 
 void ConnectionWidget::on_tree_doubleClicked(QTreeWidgetItem *item, int column,
-                                             Qt::ButtoState button)
+                                             Qt::ButtonState button)
 {
     qDebug("DCLICK");
 }
-
