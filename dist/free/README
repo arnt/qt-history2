@@ -1,10 +1,10 @@
-          Qt FREE EDITION %VERSION% SOURCE CODE%SPECIAL-snapshot SNAPSHOT%%SPECIAL-stable DISTRIBUTION%
+          Qt FREE EDITION %VERSION% SOURCE CODE%SNAPSHOTONLY SNAPSHOT%%STABLEONLY-stable DISTRIBUTION%
 
-This is%SPECIAL-stable the official%%SPECIAL-snapshot a snapshot% release of the Qt Free Edition version %VERSION%.
+This is%STABLEONLY the official%%SNAPSHOTONLY a snapshot% release of the Qt Free Edition version %VERSION%.
 
 You may use the Qt Free Edition for software development free of charge
 only if you develop Free (non-proprietary) Software. The LICENSE.QPL file
-explains what you may or may not do with the Qt Free Edition.%SPECIAL-snapshot Note
+explains what you may or may not do with the Qt Free Edition.%SNAPSHOTONLY Note
 that snapshot releases have one additional requirement for releases of
 software based on them - see the license and the file README.QT.%
 
@@ -26,13 +26,13 @@ FreeBSD, OSF/1, Irix, BSD/OS, NetBSD, SCO, HP-UX and AIX. If you want
 to port Qt to a new platform, please read the PORTING file.
 
 The Qt Reference Documentation is available in HTML format in the
-qt/html directory. Start your favorite Web browser with the
-html/index.html file. The class reference doc. is also included in
-Unix man format in the qt/man directory.
+qt/doc/html directory. Start your favorite Web browser with the
+doc/html/index.html file. The class reference doc. is also included in
+Unix man format in the qt/doc/man directory.
 
 If you are new to Qt it is a good idea to read the tutorial. It is located
-in html/tutorial.html. The tutorial directory contains the programs used
-in the tutorial.
+in doc/html/tutorial.html. The tutorial directory contains the programs
+used in the tutorial.
 
 All the above documentation is also available in postscript format
 from our web server, see http://www.troll.no/dl/ or
@@ -40,12 +40,11 @@ ftp://ftp.troll.no/qt/postscript/
 
 The example programs in the examples directory demonstrate some Qt
 features. You can study these examples to get an overview of how Qt
-programs can be written, or look at html/examples.html with your
+programs can be written, or look at doc/html/examples.html with your
 browser.
 
-See the FAQ for frequently asked questions about Qt, in doc/faq.html.
-
-If you find any bugs, please send a report to qt-bugs@troll.no.
+If you find any bugs, please see information in the reference
+documentation about how to report it.
 
 If you want to join the Qt user forum mailing list, send a message to
 qt-interest-request@troll.no containing a single word "subscribe".  If

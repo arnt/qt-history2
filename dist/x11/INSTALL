@@ -135,9 +135,9 @@ where you choose to install Qt.
     And don't forget to set LD_LIBRARY_PATH as explained in 2) above.
 
 
-5.  The online HTML documentation is installed in /usr/local/qt/doc/
-    The main page is /usr/local/qt/doc/index.html
-    The man pages are installed in /usr/local/qt/man/
+5.  The online HTML documentation is installed in /usr/local/qt/doc/html/
+    The main page is /usr/local/qt/doc/html/index.html
+    The man pages are installed in /usr/local/qt/doc/man/
 
 
 

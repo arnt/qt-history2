@@ -517,7 +517,10 @@ there because we use Qt's automatic layout support.
 <a name=constructor></a>
 \until {
 
-Nothing new compared to the previous chapter.
+MyWidget is now derived from QVBox instead of QWidget. That way we use
+the layout of the QVBox (which places all of its children vertically
+inside itself). Resizes are handled automatically by the QBVox and
+therefore by MyWidget too, now.
 
 \skip lcd
 \line lcd

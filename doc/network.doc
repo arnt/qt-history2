@@ -72,8 +72,11 @@ server to the local filesystem can be done with following code:
     op.copy( "ftp://ftp.troll.no/qt/source/qt-2.0.2.tar.gz", "file:/tmp", FALSE );
 \endcode
 
-And that's all! You can also do stuff like creating directories, removing files,
-renaming, etc. E.g. to create a folder on a private FTP account do
+And that's all! Of course an implementation of the FTP protocol has to be available
+and registered for doing that. More information on that later.
+
+You can also do stuff like creating directories, removing files, renaming, etc. E.g. to
+create a folder on a private FTP account do
 
 \code
     QUrlOperator op( "ftp://username:password@host.domain.no/home/username" );
@@ -91,7 +94,7 @@ to a \c QNetworkOperation.
 In this \c QNetworkOperation all information about the operation is stored.
 There is e.g. a method of \c QNetworkOperation which returns the state of
 this operation. Using that you can find out all the time in which state the operation
-currently is . Also you get the arguments you passed to the \c QUrlOperator
+currently is. Also you get the arguments you passed to the \c QUrlOperator
 method, the type of the operation and some more stuff from this \c QNetworkOperation
 object. For more details see the class documentation of \c QNetworkOperation.
 
@@ -140,18 +143,22 @@ QUrlOperator op;
 
 MyClass::MyClass() : QObject(), op( "ftp://ftp.troll.no" )
 {
-    connect( &op, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
-	     this, SLOT( slotInsertEntry( const QUrlInfo & ) ) );
+    connect( &op, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
+	     this, SLOT( slotInsertEntries( const QValueList<QUrlInfo> &, QNetworkOperation * ) ) );
     connect( &op, SIGNAL( start( QNetworkOperation * ) ),
 	     this, SLOT( slotStart( QNetworkOperation *) ) );
     connect( &op, SIGNAL( finished( QNetworkOperation * ) ),
 	     this, SLOT( slotFinished( QNetworkOperation *) ) );
 }
 
-void MyClass::slotInsertEntry( const QUrlInfo &info, QNetworkOperation * )
+void MyClass::slotInsertEntries( const QValueList<QUrlInfo> &info, QNetworkOperation * )
 {
-    qDebug( "Name: %s, Size: %d, Last Modified: %s",
-	info.name().latin1(), info.size(), info.lastModified().toString().latin1() );
+    QValueList<QUrlInfo>::ConstIterator it = info.begin();
+    for ( ; it != info.end(); ++it ) {
+        const QUrlInfo &inf = *it;
+        qDebug( "Name: %s, Size: %d, Last Modified: %s",
+	    inf.name().latin1(), inf.size(), inf.lastModified().toString().latin1() );
+    }
 }
 
 void MyClass::slotStart( QNetworkOperation * )
@@ -173,9 +180,7 @@ void MyClass::slotFinished( QNetworkOperation *operation )
 \endcode
 
 These examples explained now how to use the \c QUrlOperator and \c QNetworkOperations.
-A good example to look at is in qt/extensions/network/examples/ftpclient. This is the
-implementation of a quite complete FTP Client, which supports uploading and downloading
-files, making directories, etc. And all this is done using \c QUrlOperators.
+The network extension will contain some good examples for this too.
 
 <h2>Implementing your own Network Protocol</h2>
 
@@ -226,18 +231,18 @@ to emit the correct signals at the correct time: In general always emit
 at the end of an operation (when you either successfully finished processing
 the operation or and error occurred) the \c finished() signal with
 the network operation as argument. The whole network architecture
-relies on correctly emitted \c finished() signals. So be careful with that!
+relies on correctly emitted \c finished() signals! So be careful with that!
 Then there are some more special signals which are specific to operations:
 <ul>
   <li>Emit in \c operationListChildren:
   <ul>
     <li>\c start() just before starting listing the children
-    <li>\c newChild() for each listed child
+    <li>\c newChildren() when new children are read
   </ul>
   <li>Emit in \c operationMkDir:
   <ul>
     <li>\c createdDirectory() after the directory has been created
-    <li>\c newChild() after the directory has been created (as a new directory is a new child)
+    <li>\c newChild() (or newChildren()) after the directory has been created (as a new directory is a new child)
   </ul>
   <li>Emit in \c operationRemove:
   <ul>
@@ -364,7 +369,7 @@ method if the connection is ok.
 
 Using this knowledge it should be possible to implement network protocols. Finally
 to be able to use it with a QUrlOperator (and so e.g. in the QFileDialog), you have to
-register it. This can be done like this:
+register the enwtork protocol implementation. This can be done like this:
 
 \code
     QNetworkProtocol::registerNetworkProtocol( "myprot", new QNetworkProtocolFactory<MyProtocol> );
@@ -380,8 +385,8 @@ myprot. So if you want to use it, you would do something like
 \endcode
 
 Finally as example for a network protocol implementation you could look at the
-implementation of QFtp (in qt/extenstions/network/src/qftp.cpp) or at the example in
-qt/extenstions/network/examples/networkprotocol/nntp.cpp.
+implementation of QLocalFs. The network extension will also contain an example
+implementation of a network protocol
 
 <h2>Error Handling</h2>
 
@@ -421,7 +426,7 @@ message then which could e.g. be displayed for the user.
 
 According tho this information it should be possible to react on errors.
 
-Now, if you implement your work network protocol, you will need to tell about errors
+Now, if you implement your own network protocol, you will need to tell about errors
 which occurred. First you always need to be able to access the \c QNetworkOperation
 which is processed at the moment. This can be done using \c QNetworkOperation::operationInProgress(),
 which returns a pointer to the current network operation or 0 if no operation is processed at the moment.
@@ -451,5 +456,14 @@ with an existing one.
 
 Documentation about the low-level classes like QSocket, QDns, etc. will be included
 in the seperate network extension.
+
+\internal
+A good example to look at is in qt/extensions/network/examples/ftpclient. This is the
+implementation of a quite complete FTP Client, which supports uploading and downloading
+files, making directories, etc. And all this is done using \c QUrlOperators.
+
+\internal
+Look at QFtp (in qt/extenstions/network/src/qftp.cpp) or at the example in
+qt/extenstions/network/examples/networkprotocol/nntp.cpp.
 
 */

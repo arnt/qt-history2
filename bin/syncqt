@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/bin/syncqt#12 $
+# $Id: //depot/qt/main/bin/syncqt#13 $
 #
 # Synchronizes Qt header files - internal Troll Tech tool.
 #   - Creates symlinks on Unix.
@@ -16,6 +16,8 @@ $fast=0;
 $basedir = $ENV{"QTDIR"};
 $includedir = $basedir . "/include";
 
+$showonly = undef;
+
 while ( $#ARGV >= 0 ) {
     if ( $ARGV[0] eq "-fast" ) {
 	$fast=1;
@@ -25,6 +27,8 @@ while ( $#ARGV >= 0 ) {
 	if ( $includedir =~ /^\// ) {
 	    $includedir = `pwd` ."/". $includedir;
 	}
+    } elsif ( $ARGV[0] eq "-show" ) {
+	$showonly++;
     }
     shift;
 }
@@ -46,6 +50,13 @@ foreach $p ( @dirs ) {
     @ff = find_files( ".", "^[a-z0-9]*(?:_[^p].*)?\\.h\$" , 0 );
     foreach ( @ff ) { $_ = "$p/$_"; }
     push @files, @ff;
+}
+
+if ( $showonly ) {
+    foreach ( @files ) {
+	print "$_\n";
+    }
+    exit( 0 );
 }
 
 if ( check_unix() ) {

@@ -1,4 +1,4 @@
-%SPECIAL-snapshot
+%SNAPSHOTONLY
 This software is dependent on specific functionality included only
 in Qt snapshot version %VERSION%.  It will not work with any
 other releases of Qt.  Upgrade/downgrade to that version, or look

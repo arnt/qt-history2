@@ -52,7 +52,7 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     (void)new QCheckBox( "&Checkbox 1", grp2 );
     QCheckBox *cb12 = new QCheckBox( "C&heckbox 2", grp2 );
     cb12->setChecked( TRUE );
-    QCheckBox *cb13 = new QCheckBox( "Tripple &State Button", grp2 );
+    QCheckBox *cb13 = new QCheckBox( "Triple &State Button", grp2 );
     cb13->setTristate( TRUE );
     cb13->setChecked( TRUE );
 
@@ -67,23 +67,23 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     rb22 = new QRadioButton( "Radi&obutton 2", grp3 );
     rb23 = new QRadioButton( "Radio&button 3", grp3 );
     rb23->setChecked( TRUE );
-    
+
     // insert a checkbox...
     state = new QCheckBox( "E&nable Radiobuttons", grp3 );
     state->setChecked( TRUE );
-    // ...and connect its SIGNAL clicked() with the SLOT slotChangeGrp3State() 
+    // ...and connect its SIGNAL clicked() with the SLOT slotChangeGrp3State()
     connect( state, SIGNAL( clicked() ), this, SLOT( slotChangeGrp3State() ) );
 
     // ------------ fourth group
 
     // create a groupbox which layouts its childs in a columns
     QGroupBox *grp4 = new QButtonGroup( 1, QGroupBox::Horizontal, "Groupbox with normal buttons", box2 );
-    
+
     // insert two pushbuttons...
     (void)new QPushButton( "&Push Button", grp4 );
     QPushButton *tb = new QPushButton( "&Toggle Button", grp4 );
-    
-    // ... and make the second one a toggle button 
+
+    // ... and make the second one a toggle button
     tb->setToggleButton( TRUE );
     tb->setOn( TRUE );
 }

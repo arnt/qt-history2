@@ -42,12 +42,13 @@ sub outmsg {
     my ($file, $line, $scope, $msgid) = @_;
     # unesc
     $msgid =~ s/$esc:$esc:$esc/::/gs;
+    $msgid =~ s|$esc/$esc/$esc|//|gs;
 
     # Remove blank lines
     $msgid =~ s/\n\n+/\n/gs;
     $msgid = "\"\"\n$msgid" if $msgid =~ /\n/s;
     print "#: $file:$line\n";
-    $msgid =~ s/^"//;
+    $msgid =~ s/^"//; #"emacs bug
     print "msgid \"${scope}::$msgid\n";
     #print "msgstr \"$msgid\n";
     print "msgstr \"\"\n";
@@ -68,18 +69,23 @@ foreach $file ( @ARGV ) {
 
     $source = join( "", <I> );
 
-    # Find esc
+    # Find esc. Avoid bad case 1/// -> 1/1/1/1 -> ///1
     $esc = 1;
-    while ( $source =~ /$esc:$esc:$esc/ ) {
+    while ( $source =~ m!(?:$esc/$esc/$esc)|(?:$esc///)
+	    |(?:$esc:$esc:$esc)|(?:$esc:\:\:)! ) {
 	$esc++;
     }
 
     # Hide quoted :: in practically all strings
     $source =~ s/\"([^"\n]*)::([^"\n]*)\"/\"$1$esc:$esc:$esc$2\"/g;
 
-    # strip comments
+    # Hide quoted // in practically all strings
+    $source =~ s|\"([^"\n]*)//([^"\n]*)\"|\"$1$esc/$esc/$esc$2\"|g;
+
+
+    # strip comments -- does not handle "/*" in strings
     while( $source =~ s|/\*(.*?)\*/|justlines($1)|ges ) { }
-    while( $source =~ s|//(.*?)||g ) { }
+    while( $source =~ s|//(.*?)\n|\n|g ) { }
 
     while( $source =~ /
 	    (?:
@@ -116,7 +122,7 @@ foreach $file ( @ARGV ) {
 			\s*"([^\"]*)"
 			\s*,\s*
 			# The msgid parameter
-			\s*((?:\"(?:[^"]|[^\\]\\")*"\s*)+)
+			\s*((?:\"(?:[^"]|[^\\]\\")*"\s*)+) #"emacs
 		    \)
 		)
 	      |

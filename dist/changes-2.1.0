@@ -147,7 +147,8 @@ QSignal		- optional additional integer parameter for the emitted
 		  signal.
 
 QSimpleRichText - added adjustSize() function that implements a clever
-		  size hint.
+		  size hint. Vertical break support for printing. inText()
+		  hit test.
 
 QSpinBox	- different button symbols, currently UpDownArrows and
 		  PlusMinus.
@@ -171,8 +172,8 @@ QStyleSheet	- a couple of tags added to the default sheet, such as
 QTextView	- basic table support. Contents is selectable, selections
 		  can be pasted/dragged into other widgets.
 
-QToolBar	- different stretch modes such as NoStretch, Stretchable
-		  and FullWidth. Added orientationChanged() signal.
+QToolBar	- stretchable depending on the orientation (setHorizontalStretchable()
+		  and setVerticalStretchable(). Added orientationChanged() signal.
 
 QToolButton	- added optional delayed menu with setPopup() and
 		  setPopupDelay(). Auto-raise behaviour adjustable.
@@ -272,3 +273,7 @@ QPalette
  other windows.  Qt calls the color groups QPalette::active() and
  QPalette::inactive() respectively.
 
+QToolButton
+ The now adjustable auto-raise behaviour defaults to TRUE only when
+ a button is used inside a QToolBar. That's usually what you want. If not,
+ call setAutoRaise(FALSE).

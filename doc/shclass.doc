@@ -143,17 +143,18 @@ Code fragment:
   }
 \endcode
 
-This is clearly not possible for QString, because the programmer can
+This is clearly not possible for QByteArray, because the programmer can
 do the following:
 
 \code
-  QString s = "test";
-  s[0] = 'f';				// will modify s
-  *(s.data()+1) = 'i';			// will modify s
+  QByteArray array(10);
+  array.fill('a');
+  array[0] = 'f';			// will modify array
+  *(array.data()+1) = 'i';		// will modify array
 \endcode
 
-If we should have monitored changes in a QString, the QString class would
-be unacceptably slow.
+If we should have monitored changes in a QByteArray, the QByteArray class
+would be unacceptably slow.
 
 
 <h2>Explicitly Shared Classes</h2>

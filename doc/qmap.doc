@@ -201,7 +201,7 @@
 */
 
 /*!
-  \fn QMap<Key,T>& QMap::operator= ( const QMap<Key,T>& m )
+  \fn QMap<Key, T>& QMap::operator= (const QMap<Key, T>& m)
   Assigns \e m to this map and returns a reference to this map.
 
   All iterators of the current map become invalidated by this

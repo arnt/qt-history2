@@ -194,12 +194,12 @@ Qt Toolkit - Properties
 
 Qt provides a sophisticated property system similar to those of other
 application development frameworks shipped by certain compiler
-vendors. As compiler-independent multi-platform library, however, Qt
-cannot rely on certain non-standard compiler features like
+vendors. However, as a compiler-independent multi-platform library, Qt
+cannot rely on non-standard compiler features like
 "__property" or "[property]". Our solution works with any standard C++
 compiler on every platform we support. It's based on the \link
-metaobjects.html Meta Object System \endlink that also provides the
-object communication with signals and slots.
+metaobjects.html Meta Object System \endlink that also provides
+object communication through signals and slots.
 
 The "Q_PROPERTY" macro in a class declaration declares a
 property. Properties can only be declared in classes that inherit \l
@@ -207,24 +207,24 @@ QObject. A second macro "Q_OVERRIDE" can be used to override certain
 aspects of an inherited property in a subclass.
 
 To the outer world, a property appears quite similar to a data
-member. Properties have, however, several features that distringuish
-them:
+member. However, properties have several features that distinguish
+them from data members:
 
 <ul>
 <li> an associated read method.
 <li> an optional associated write method (so-called writeable
 properties).
-<li> an optional method or attribute "stored" that signal persistancy.
+<li> an optional method or attribute "stored" that indicates persistance.
 <li> an optional reset method to set a property back to its context
 specific default value.  
-<li> an attribute "designable" that indicates, whether a property is
+<li> an attribute "designable" that indicates whether a property is
 considered to be designable in a GUI Designer.
 </ul>
 
 In addition, properties can be read and written through generic
-functions in QObject, without knowing anything about the actual
+functions in QObject without knowing anything about the actual
 class. Through the \link QMetaObject Meta Object \endlink of a class,
-it is possible to query all available properties for a given instance
+it is possible to query all available properties of a given instance
 of a class, again without knowing anything about the class apart from
 the fact that it inherits QObject.
 
@@ -295,12 +295,12 @@ Another macro similar to "Q_ENUMS" is "Q_SETS". It also registers an
 enumeration type but marks it in addition as "set", i.e. the single
 enumeration values can be or'ed together
 
-Other keywords in the "Q_PROPERTY" section are
+Other keywords in the "Q_PROPERTY" section are:
 <ul>
 
 <li> \c STORED - followed by either \c true, \c false or a boolean
 function. Declares whether the property's value shall be stored for
-persistancy. Stored makes only sense for writeable properties. The
+persistance. Stored makes only sense for writeable properties. The
 default value is \c true.
 <li> \c DESIGNABLE - followed by either \c true or \c false. Declares,
 whether a property is considered to be designable in a GUI Designer.
@@ -308,18 +308,18 @@ The default is \c true for writeable properties, otherwise \c false.
 <li> \c RESET - followed by a non-const void function. Can be used by
 a GUI designer to set a property's value back to its context specific
 default value.
-</li>
+</ul>
 
 Properties of an object can be read and set through \l
-QObject::setProperty() and \l QObject::property(). All properties
+QObject::property() and \l QObject::setProperty(). All properties
 available for a given object can be queried through the object's meta
 object. The meta object is accessible through \l
 QObject::metaObject(). See \l QMetaObject::propertyNames(), \l
 QMetaObject::property() and \l QMetaProperty for details.
 
-Connected to the property system is an additional macro "Q_CLASSINFO"
+Connected to the property system is an additional macro, "Q_CLASSINFO",
 that can be used to attach additional name/value-pairs to a classes'
-meta object, for example
+meta object, for example:
 
 \code
 Q_CLASSINFO( "Status", "Very nice class")
