@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 2.12 1999/10/13 17:24:17 aavit Exp $
+** $Id: qarray.doc,v 2.13 1999/10/18 10:46:01 aavit Exp $
 **
 ** QArray class documentation
 **
@@ -35,14 +35,14 @@
   QArray is implemented as a template class. Define a template
   instance QArray\<X\> to create an array that contains X items.
 
-  The QVector collection class is also a kind of array.  Like all
-  \link collection.html collection classes\endlink, it has pointers to the
-  contained items.
-
   QArray stores the array elements directly in the array. It can only
   deal with simple types, i.e. C++ types, structs and classes that have
   no constructors, destructors or virtual functions.  QArray uses
   bitwise operations to copy and compare array elements.
+
+  The QVector collection class is also a kind of array.  Like all
+  \link collection.html collection classes\endlink, it has pointers to the
+  contained items.
 
   QArray uses explicit \link shclass.html sharing\endlink with a reference
   count.  If more than one array share common data, and one array is
@@ -93,6 +93,34 @@
 	1 is found 2 times
 	5 is found at index 4
   \endcode
+
+  Note about using QArray for manipulating structs or classes:
+  Compilers will often pad the size of structs of odd sizes up to the
+  nearest word boundary. This will then be the size QArray will use
+  for its bitwise element comparisons. Since the remaining bytes will
+  typically be uninitialized, this can cause find() etc. to fail to
+  find the element. Example:
+
+  \code
+    struct MyStruct
+    {
+      short i;                    // 2 bytes
+      char c;                     // 1 byte
+    };                            // sizeof(MyStruct) may be padded to 4 bytes
+
+    QArray<MyStruct> a(1);
+    a[0].i = 5;
+    a[0].c = 't';
+
+    MyStruct x;
+    x.i = '5';
+    x.c = 't';
+    int i = a.find( x );          // May return -1 if the pad bytes differ
+  \endocde
+
+  To workaround this, make sure that you use a struct where sizeof()
+  returns the same as the sum of the sizes of the members, either by
+  changing the types of the struct members or by adding dummy members.
 
   \sa \link shclass.html Shared Classes\endlink
 */
@@ -162,6 +190,13 @@
   The array is a null array if size() == 0.
 
   \sa isNull(), resize()
+*/
+
+/*!
+  \fn uint QArray::count() const
+  Returns the same as size().
+
+  \sa size()
 */
 
 /*!
@@ -324,6 +359,25 @@
   \fn int QArray::contains( const type &v ) const
   Returns the number of times \e v occurs in the array.
   \sa find()
+*/
+
+/*!
+  \fn void QArray::sort()
+  Sorts the array elements in ascending order, using bitwise
+  comparison (memcmp()).
+
+  \sa bsearch()
+*/
+
+/*!
+  \fn int QArray::bsearch( const type &v ) const
+  In a sorted array, finds the first occurrence of \e v using binary
+  search. For a sorted array, this is generally much faster than
+  find(), which does a linear search.
+
+  Returns the position of \e v, or -1 if \e v could not be found.
+
+  \sa sort(), find()
 */
 
 /*!

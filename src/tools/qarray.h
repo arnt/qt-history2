@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#28 $
+** $Id: //depot/qt/main/src/tools/qarray.h#29 $
 **
 ** Definition of QArray template/macro class
 **
@@ -51,12 +51,11 @@ public:
     type *data()    const	{ return (type *)QGArray::data(); }
     uint  nrefs()   const	{ return QGArray::nrefs(); }
     uint  size()    const	{ return QGArray::size()/sizeof(type); }
+    uint  count()   const 	{ return size(); }
     bool  isEmpty() const	{ return QGArray::size() == 0; }
     bool  isNull()  const	{ return QGArray::data() == 0; }
-    // ### bug bug bug.  this does not call constructors/destructors
     bool  resize( uint size )	{ return QGArray::resize(size*sizeof(type)); }
     bool  truncate( uint pos )	{ return QGArray::resize(pos*sizeof(type)); }
-    // end of bug bug bug.  but the bug is in the constructur too.
     bool  fill( const type &d, int size=-1 )
 	{ return QGArray::fill((char*)&d,size,sizeof(type) ); }
     void  detach()		{ QGArray::detach(); }
@@ -79,6 +78,9 @@ public:
 	{ return QGArray::find((char*)&d,i,sizeof(type)); }
     int	 contains( const type &d ) const
 	{ return QGArray::contains((char*)&d,sizeof(type)); }
+    void sort() { QGArray::sort(sizeof(type)); }
+    int  bsearch( const type &d ) const
+	{ return QGArray::bsearch((const char*)&d,sizeof(type)); }
     type& operator[]( int i ) const
 	{ return (type &)(*(type *)QGArray::at(i*sizeof(type))); }
     type& at( uint i ) const

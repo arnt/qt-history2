@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#50 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#51 $
 **
 ** Implementation of QGArray class
 **
@@ -613,6 +613,59 @@ int QGArray::contains( const char *d, uint sz ) const
     }
     return count;
 }
+
+static int cmp_item_size = 0;
+
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
+static int cmp_arr( const void *n1, const void *n2 )
+{
+    return ( n1 && n2 ) ? memcmp( n1, n2, cmp_item_size ) 
+	                : (int)((long)n1 - (long)n2);
+    // Qt 3.0: Add a virtual compareItems() method and call that instead
+}
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
+
+/*!
+  \internal
+
+  Sort the array.
+*/
+
+void QGArray::sort( uint sz )
+{
+    int numItems = size() / sz;
+    if ( numItems < 2 )
+	return;
+    cmp_item_size = sz;
+    qsort( shd->data, numItems, sz, cmp_arr );
+}
+
+/*!
+  \internal
+
+  Binary search; assumes sorted array
+*/
+
+int QGArray::bsearch( const char *d, uint sz ) const
+{
+    int numItems = size() / sz;
+    if ( !numItems )
+	return -1;
+    cmp_item_size = sz;
+    char* r = (char*)::bsearch( d, shd->data, numItems, sz, cmp_arr );
+    if ( !r )
+	return -1;
+    while( (r >= shd->data + sz) && (cmp_arr( r - sz, d ) == 0) )
+	r -= sz;	// search to first of equal elements; bsearch is undef 
+    return (int)(( r - shd->data ) / sz);
+}
+
 
 /*!
   \fn char *QGArray::at( uint index ) const
