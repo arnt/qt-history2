@@ -15,6 +15,8 @@
 #ifndef QMUTEX_H
 #define QMUTEX_H
 
+#ifdef QT_THREAD_SUPPORT
+
 #ifndef QT_H
 #include "qglobal.h"
 #endif // QT_H
@@ -81,5 +83,7 @@ inline QMutex *QMutexLocker::mutex() const
 {
     return mtx;
 }
+
+#endif // QT_THREAD_SUPPORT
 
 #endif // QMUTEX_H
