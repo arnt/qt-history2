@@ -38,9 +38,6 @@ QPicture
   file. This will allow a more clean implementation of the streaming operator
   that read from a QDataStream.
 
-QSpinBox
-  Don't use buttons in the box, and make it styleable.
-
 QMenuData
   Clean up the semi-internalness of QMenuItem, ref qmenudata.h. Either
   make it public or provide another API (e.g. methods in QMenuData) for
@@ -78,6 +75,10 @@ Drag and Drop
     Asks useless question when dropping Netscape's "Location".
     Can't paste from Netscape.
 
+QColor
+  Maybe add an alpha channel to the external API. Even XFree will soon
+  support alpha channels.
+
 QTextStream (rms)
   There is still need to optimize speed, especially readLine().
 
@@ -99,6 +100,7 @@ QFtp (rms?)
   passive transfers. See also support/arc-08/17164.
 
 QSpinBox
+  Don't use buttons in the box, and make it styleable.
   Grant access to the lineedit widget.
 
 QFileDialog
