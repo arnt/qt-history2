@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#247 $
+** $Id: //depot/qt/main/src/moc/moc.y#248 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2587,7 +2587,7 @@ int generateProps()
 	    }
 
 	    if ( it.current()->override ) {
-		fprintf( out, "    p->p = parentObject->property( \"%s\", TRUE);\n", it.current()->name.data() );
+		fprintf( out, "    p->p = parentObject->property( parentObject->findProperty( \"%s\", TRUE ), TRUE );\n", it.current()->name.data() );
 		flags = "";
 		if ( !it.current()->getfunc )
 		    flags += "QMetaProperty::Readable|";
@@ -2636,7 +2636,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#247 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#248 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;

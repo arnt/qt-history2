@@ -462,16 +462,26 @@ int QMetaObject::numProperties( bool super ) const	// number of signals
 
   \sa propertyNames()
  */
-const QMetaProperty* QMetaObject::property( const char* name, bool super ) const
+const QMetaProperty* QMetaObject::property( int index, bool super ) const
+{
+    int idx = index - ( super ? propertyOffset() : 0 );
+    if ( d->propData && idx >= 0 && idx < (int)d->numPropData )
+	return d->propData + idx;
+    if ( !super || !superclass )
+	return 0;
+    return superclass->property( index, super );
+}
+
+int QMetaObject::findProperty( const char *name, bool super ) const
 {
     for( int i = 0; i < d->numPropData; ++i ) {
 	if ( d->propData[i].isValid() && qstrcmp( d->propData[i].name(), name ) == 0 ) {
-	    return &(d->propData[i]);
+	    return ( super ? propertyOffset() : 0 ) + i;
 	}
     }
     if ( !super || !superclass )
-	return 0;
-    return superclass->property( name, super );
+	return -1;
+    return superclass->findProperty( name, super );
 }
 
 /*!

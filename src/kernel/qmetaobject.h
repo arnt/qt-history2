@@ -172,7 +172,8 @@ public:
     const char	*classInfo( const char* name, bool super = FALSE ) const;
 
 #ifndef QT_NO_PROPERTIES
-    const QMetaProperty	*property( const char* name, bool super = FALSE ) const;
+    const QMetaProperty	*property( int index, bool super = FALSE ) const;
+    int findProperty( const char *name, bool super = FALSE ) const;
     QStrList		propertyNames( bool super = FALSE ) const;
     int		numProperties( bool super = FALSE ) const;
 #endif

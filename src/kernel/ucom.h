@@ -71,12 +71,12 @@ struct UCOM_EXPORT UType
     virtual const UUid *uuid() const = 0;
     virtual const char *desc() const = 0;
 
-    
+
     virtual bool canConvertFrom( UObject *, UType * ) = 0;
     // virtual private, only called by canConvertFrom
     virtual bool canConvertTo( UObject *, UType * ) = 0;
-    
-    
+
+
     virtual bool convertFrom( UObject *, UType * ) = 0;
     // virtual private, only called by convertFrom
     virtual bool convertTo( UObject *, UType * ) = 0;
@@ -176,7 +176,7 @@ struct UCOM_EXPORT UMethod
 {
     const char* name;
     int count;
-    const UParameter* parameter;
+    const UParameter* parameters;
 };
 
 // A Property description. Not used yet in the example.

@@ -2177,7 +2177,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     QMetaObject* meta = metaObject();
     if ( !meta )
 	return FALSE;
-    const QMetaProperty* p = meta->property( name, TRUE );
+    const QMetaProperty* p = meta->property( meta->findProperty( name, TRUE ), TRUE );
     if ( !p || !p->writable() )
 	return FALSE;
 
@@ -2224,7 +2224,7 @@ QVariant QObject::property( const char *name ) const
     QMetaObject* meta = metaObject();
     if ( !meta )
 	return v;
-    const QMetaProperty* p = meta->property( name, TRUE );
+    const QMetaProperty* p = meta->property( meta->findProperty( name, TRUE ), TRUE );
     if ( !p )
 	return v;
     QObject* that = (QObject*) this; // moc ensures constness for the qt_property call
