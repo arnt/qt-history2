@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#21 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#22 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -51,7 +51,7 @@ public:
     uchar      *scanLine( int ) const;
     uchar     **jumpTable()	const;
     ulong      *colorTable()	const;
-    long	numBytes()	const;
+    int		numBytes()	const;
     int		bytesPerLine()	const;
 
     bool	create( int width, int height, int depth, int numColors=0,
@@ -73,7 +73,7 @@ private:
 	int	h;				// image height
 	int	d;				// image depth
 	int	ncols;				// number of colors
-	long	nbytes;				// number of bytes data
+	int	nbytes;				// number of bytes data
 	int	bitordr;			// bit order (1 bit depth)
 	ulong  *ctbl;				// color table
 	uchar **bits;				// image data
@@ -147,14 +147,14 @@ inline ulong *QImage::colorTable() const
     return data->ctbl;
 }
 
-inline long QImage::numBytes() const
+inline int QImage::numBytes() const
 {
     return data->nbytes;
 }
 
 inline int QImage::bytesPerLine() const
 {
-    return data->h ? (int)(data->nbytes/data->h) : 0;
+    return data->h ? data->nbytes/data->h : 0;
 }
 
 inline uchar *QImage::bits() const
