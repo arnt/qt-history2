@@ -173,9 +173,9 @@ bool QSvgDevice::play( QPainter *painter )
 
     QDomNamedNodeMap attr = svg.attributes();
     QString wstr = attr.contains( "width" )
-		   ? attr.namedItem( "width" ).nodeValue() : "100%";
+		   ? attr.namedItem( "width" ).nodeValue() : QString("100%");
     QString hstr = attr.contains( "height" )
-		   ? attr.namedItem( "height" ).nodeValue() : "100%";
+		   ? attr.namedItem( "height" ).nodeValue() : QString("100%");
     if ( attr.contains( "viewBox" ) ) {
 	QRegExp re( "\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*,?"
 		    "\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*" );
