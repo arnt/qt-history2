@@ -52,12 +52,6 @@
                     <property name="name">
                         <cstring>TextLabel1</cstring>
                     </property>
-                    <property name="frameShape">
-                        <enum>MShape</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>MShadow</enum>
-                    </property>
                     <property name="text">
                         <string>&amp;Element:</string>
                     </property>
