@@ -8,7 +8,7 @@
 class RCInterface : public FilterInterface
 {
 public:
-    RCInterface( QUnknownInterface *parent = 0 );
+    RCInterface( QUnknownInterface *parent, const char *name = 0 );
     ~RCInterface();
 
     QStringList featureList() const;
@@ -19,8 +19,8 @@ private:
     QGuardedPtr<QApplicationInterface> appInterface;
 };
 
-RCInterface::RCInterface( QUnknownInterface *parent )
-: FilterInterface( parent )
+RCInterface::RCInterface( QUnknownInterface *parent, const char *name )
+: FilterInterface( parent, name )
 {
 }
 
@@ -61,8 +61,9 @@ public:
 };
 
 RCPlugIn::RCPlugIn()
+: QPlugInInterface( "RCPlugIn" )
 {
-    new RCInterface( this );
+    new RCInterface( this, "RC Interface" );
 }
 
 RCPlugIn::~RCPlugIn()
