@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QDir class
 **
 ** Created : 950427
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -39,10 +39,9 @@
 #define QDIR_H
 
 #ifndef QT_H
+#include "qglobal.h"
 #include "qstrlist.h"
 #include "qfileinfo.h"
-#include "qglobal.h"
-#include "qwindowdefs.h"
 #endif // QT_H
 
 
@@ -60,17 +59,17 @@ public:
 		      Drives	    = 0x004,
 		      NoSymLinks    = 0x008,
 		      All	    = 0x007,
-		       TypeMask	    = 0x00F,
+		      TypeMask	    = 0x00F,
 
 		      Readable	    = 0x010,
 		      Writable	    = 0x020,
 		      Executable    = 0x040,
-		       RWEMask	    = 0x070,
+		      RWEMask	    = 0x070,
 
 		      Modified	    = 0x080,
 		      Hidden	    = 0x100,
 		      System	    = 0x200,
-		       AccessMask    = 0x3F0,
+		      AccessMask    = 0x3F0,
 
 		      DefaultFilter = -1 };
 
@@ -78,7 +77,7 @@ public:
 		      Time	    = 0x01,
 		      Size	    = 0x02,
 		      Unsorted	    = 0x03,
-		       SortByMask    = 0x03,
+		      SortByMask    = 0x03,
 
 		      DirsFirst	    = 0x04,
 		      Reversed	    = 0x08,
