@@ -1301,6 +1301,13 @@ static QString wrapDSC( const QString &str )
     return wrapped + "\n";
 }
 
+static QString toString( const float num )
+{    
+    long intNum = (long) num;
+    QString ret = QString::number( intNum );
+    return ret += "." + QString::number( (long)((num - intNum) * 1000) );
+}
+
 // ----------------------------- Internal class declarations -----------------------------
 
 class QPSPrinterFontPrivate;
@@ -1521,8 +1528,9 @@ static void appendReplacements( QStringList &list, const psfont * const * replac
     // iterate through the replacement fonts
     while ( *replacements ) {
         const psfont *psf = *replacements;
-        QString ps = "[ /" + QString::fromLatin1( psf[type].psname ) + " " + QString::number( xscale / psf[type].xscale ) + " " +
-             QString::number( psf[type].slant ) + " ]";
+        QString ps = "[ /" + QString::fromLatin1( psf[type].psname ) + " " +
+		     toString( xscale / psf[type].xscale ) + " " +
+		     toString( psf[type].slant ) + " ]";
         list.append( ps );
         ++replacements;
     }
@@ -1549,7 +1557,7 @@ static QStringList makePSFontNameList( const QFont &f, const QString &psname = Q
         // xscale for the "right" font is always 1. We scale the replacements...
         xscale = psf->xscale;
         ps = "[ /" + QString::fromLatin1( psf[type].psname ) + " 1.0 " +
-             QString::number( psf[type].slant ) + " ]";
+             toString( psf[type].slant ) + " ]";
     } else {
         ps = "[ /" + ps + " 1.0 0.0 ]";
         // only add default replacement fonts in case this font was unknown.
@@ -4127,10 +4135,10 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, uint spaces, const QPoi
     QString mdf;
     if ( paint->font().underline() )
         mdf += " " + QString().setNum( y + d->fm.underlinePos() + d->fm.lineWidth() ) +
-               " " + QString::number( d->fm.lineWidth() ) + " Tl";
+               " " + toString( d->fm.lineWidth() ) + " Tl";
     if ( paint->font().strikeOut() )
         mdf += " " + QString().setNum( y + d->fm.strikeOutPos() ) +
-               " " + QString::number( d->fm.lineWidth() ) + " Tl";
+               " " + toString( d->fm.lineWidth() ) + " Tl";
     QChar ch;
     QCString out;
     int l = text.length();
@@ -4719,7 +4727,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     // we need an extension here due to the fact that we use different
     // fonts for different scripts
     if ( xlfd && script >= QFont::Han && script <= QFont::Bopomofo )
-	xfontname += "/"+QString::number( script );
+	xfontname += "/" + toString( script );
 #endif
 
     //qDebug("looking for font %s in dict", xfontname.latin1() );
@@ -4969,9 +4977,9 @@ void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
     QString key = ff.xfontname;
 
     if ( f.pointSize() != -1 )
-	key += " " + QString::number( f.pointSize() );
+	key += " " + toString( f.pointSize() );
     else
-	key += " px" + QString::number( f.pixelSize() );
+	key += " px" + toString( f.pixelSize() );
     QString * tmp;
     if ( !buffer )
         tmp = pageFontNames.find( key );
@@ -5699,9 +5707,9 @@ void QPSPrinterPrivate::emitHeader( bool finished )
 			 " [ m s s s ] [ s m s s ]"      //   dash dot line
 			 " [ m s s s s ] [ s m s s s s ]"         //   dash dot dot line
 			 " ] d\n";
-    lineStyles.replace( "w", QString::number( 10./scale ) );
-    lineStyles.replace( "m", QString::number( 5./scale ) );
-    lineStyles.replace( "s", QString::number( 3./scale ) );
+    lineStyles.replace( QRegExp( "w" ), toString( 10./scale ) );
+    lineStyles.replace( QRegExp( "m" ), toString( 5./scale ) );
+    lineStyles.replace( QRegExp( "s" ), toString( 3./scale ) );
 
     outStream << lineStyles;
 
