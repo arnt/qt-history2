@@ -240,8 +240,8 @@ QString
 QFSFileEngine::tempPath()
 {
     QString temp = QFile::decodeName(QByteArray(getenv("TMPDIR")));
-    if(temp.isNull())
-        temp = QString::fromLatin1("/tmp");
+    if(temp.isEmpty())
+        temp = QString::fromLatin1("/tmp/");
     return temp;
 }
 
