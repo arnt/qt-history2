@@ -1895,26 +1895,37 @@ public:
     void clippingSetup( QPainter * );
     void setClippingOff( QPainter * );
     void orientationSetup();
-    void newPageSetup( QPainter * );
     void resetDrawingTools( QPainter * );
     void emitHeader( bool finished );
     void setFont( const QFont &, int script );
     void drawImage( QPainter *, const QPoint &, const QImage & );
+    void initPage( QPainter *paint );
+    void flushPage( bool last = FALSE );
 
     QPrinter   *printer;
-    QTextStream stream;
     int         pageCount;
     bool        dirtyMatrix;
     bool        dirtyNewPage;
     bool        epsf;
     QString     fontsUsed;
 
-    // stores the descriptions of the first pages. QPSPrinter::stream operates on this buffer
+    // outstream is the stream the build up pages are copied to. It points to buffer
+    // at the start, and is reset to use the outDevice after emitHeader has been called.
+    QTextStream outStream;
+
+    // stores the descriptions of the first pages. outStream operates on this buffer
     // until we call emitHeader
-    QBuffer * buffer;
+    QBuffer *buffer;
     int pagesInBuffer;
-    QIODevice * realDevice;
+
+    // the device the output is in the end streamed to.
+    QIODevice * outDevice;
     int fd;
+
+    // buffer for the current page. Needed becaus we might have page fonts.
+    QBuffer *pageBuffer;
+    QTextStream pageStream;
+
     QDict<QString> headerFontNames;
     QDict<QString> pageFontNames;
     QDict<QPSPrinterFontPrivate> fonts;
@@ -5126,7 +5137,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
 
 QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
-    : buffer( 0 ), realDevice( 0 ), fd( filedes ), fonts(27, FALSE), fontBuffer(0), savedImage( 0 ),
+    : buffer( 0 ), outDevice( 0 ), fd( filedes ), pageBuffer( 0 ), fonts(27, FALSE), fontBuffer(0), savedImage( 0 ),
       dirtypen( FALSE ), dirtybrush( FALSE ), currentFontCodec( 0 ),
       fm( 0 ), textY( 0 )
 {
@@ -5181,9 +5192,9 @@ void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
         fontName = *tmp;
 
     if ( fontName.isEmpty() ) {
-        fontName = ff.defineFont( stream, ps, f, key, this );
+        fontName = ff.defineFont( pageStream, ps, f, key, this );
     }
-    stream << fontName << " F\n";
+    pageStream << fontName << " F\n";
 
     ps.append( ' ' );
     ps.prepend( ' ' );
@@ -5620,18 +5631,18 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, const QPoint &pnt,
                     img.allGray();
 
         if ( pnt.x() || pnt.y() )
-            stream << pnt.x() << " " << pnt.y() << " TR\n";
+            pageStream << pnt.x() << " " << pnt.y() << " TR\n";
         if ( gray ) {
-            stream << "/sl " << width*height << " string d\n";
-            stream << "sl rG\n";
+            pageStream << "/sl " << width*height << " string d\n";
+            pageStream << "sl rG\n";
             QByteArray out;
             out = ::compress( img.convertDepth( 8 ), TRUE );
-            ps_r7( stream, out, out.size() );
-            stream << "pop\n";
-            stream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}image\n";
+            ps_r7( pageStream, out, out.size() );
+            pageStream << "pop\n";
+            pageStream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}image\n";
         } else {
-            stream << "/sl " << width*3*height << " string d\n";
-            stream << "sl rC\n";
+            pageStream << "/sl " << width*3*height << " string d\n";
+            pageStream << "sl rC\n";
             QByteArray out;
             if ( img.depth() < 8 )
                 out = ::compress( img.convertDepth( 8 ), FALSE );
@@ -5639,12 +5650,12 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, const QPoint &pnt,
                 out = ::compress( img.convertDepth( 24 ), FALSE );
             else
                 out = ::compress( img, FALSE );
-            ps_r7( stream, out, out.size() );
-            stream << "pop\n";
-            stream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}QCI\n";
+            ps_r7( pageStream, out, out.size() );
+            pageStream << "pop\n";
+            pageStream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}QCI\n";
         }
         if ( pnt.x() || pnt.y() )
-            stream << -pnt.x() << " " << -pnt.y() << " TR\n";
+            pageStream << -pnt.x() << " " << -pnt.y() << " TR\n";
     }
 }
 
@@ -5664,7 +5675,7 @@ void QPSPrinterPrivate::matrixSetup( QPainter *paint )
     if ( paint->hasWorldXForm() ) {
         tmp = paint->worldMatrix() * tmp;
     }
-    stream << "["
+    pageStream << "["
            << tmp.m11() << ' ' << tmp.m12() << ' '
            << tmp.m21() << ' ' << tmp.m22() << ' '
            << tmp.dx()  << ' ' << tmp.dy()
@@ -5672,7 +5683,7 @@ void QPSPrinterPrivate::matrixSetup( QPainter *paint )
 #else
     QPoint p(0,0);
     p = paint->xForm(p);
-    stream << "["
+    pageStream << "["
            << 0 << ' ' << 0 << ' '
            << 0 << ' ' << 0 << ' '
            << p.x()    << ' ' << p.y()
@@ -5684,7 +5695,7 @@ void QPSPrinterPrivate::matrixSetup( QPainter *paint )
 void QPSPrinterPrivate::orientationSetup()
 {
     if ( printer->orientation() == QPrinter::Landscape )
-        stream << "QLS\n";
+        pageStream << "QLS\n";
 }
 
 
@@ -5694,10 +5705,10 @@ void QPSPrinterPrivate::emitHeader( bool finished )
     QString creator = printer->creator();
     if ( !creator )                             // default creator
         creator = QString::fromLatin1("Qt " QT_VERSION_STR);
-    realDevice = new QFile();
-    (void)((QFile *)realDevice)->open( IO_WriteOnly, fd );
-    stream.setDevice( realDevice );
-    stream << "%!PS-Adobe-1.0";
+    outDevice = new QFile();
+    (void)((QFile *)outDevice)->open( IO_WriteOnly, fd );
+    outStream.setDevice( outDevice );
+    outStream << "%!PS-Adobe-1.0";
     QPaintDeviceMetrics m( printer );
     scale = 72. / ((float) m.logicalDpiY());
     int dpi = printer->resolution();
@@ -5708,13 +5719,13 @@ void QPSPrinterPrivate::emitHeader( bool finished )
             boundingBox.setRect( 0, 0, m.width(), m.height() );
         if ( printer->orientation() == QPrinter::Landscape )
             // ### fixme: won't work with resolution != 72
-            stream << " EPSF-3.0\n%%BoundingBox: "
+            outStream << " EPSF-3.0\n%%BoundingBox: "
                    << m.height() - boundingBox.bottom() << " " // llx
                    << m.width() - boundingBox.right() << " " // lly
                    << m.height() - boundingBox.top() << " " // urx
                    << m.width() - boundingBox.left();// ury
         else
-            stream << " EPSF-3.0\n%%BoundingBox: "
+            outStream << " EPSF-3.0\n%%BoundingBox: "
                    << boundingBox.left() << " "
                    << m.height() - boundingBox.bottom() - 1 << " "
                    << boundingBox.right() + 1 << " "
@@ -5728,78 +5739,78 @@ void QPSPrinterPrivate::emitHeader( bool finished )
         }
         // set a bounding box according to the DSC
         if ( printer->orientation() == QPrinter::Landscape )
-            stream << "\n%%BoundingBox: 0 0 " << h << " " << w;
+            outStream << "\n%%BoundingBox: 0 0 " << h << " " << w;
         else
-            stream << "\n%%BoundingBox: 0 0 " << w << " " << h;
+            outStream << "\n%%BoundingBox: 0 0 " << w << " " << h;
     }
-    stream << "\n%%Creator: " << creator;
+    outStream << "\n%%Creator: " << creator;
     if ( !!title )
-        stream << "\n%%Title: " << title;
-    stream << "\n%%CreationDate: " << QDateTime::currentDateTime().toString();
-    stream << "\n%%Orientation: ";
+        outStream << "\n%%Title: " << title;
+    outStream << "\n%%CreationDate: " << QDateTime::currentDateTime().toString();
+    outStream << "\n%%Orientation: ";
     if ( printer->orientation() == QPrinter::Landscape )
-        stream << "Landscape";
+        outStream << "Landscape";
     else
-        stream << "Portrait";
+        outStream << "Portrait";
     if ( finished )
-        stream << "\n%%Pages: " << pageCount << "\n%%DocumentFonts: "
+        outStream << "\n%%Pages: " << pageCount << "\n%%DocumentFonts: "
                << fontsUsed.simplifyWhiteSpace();
     else
-        stream << "\n%%Pages: (atend)"
+        outStream << "\n%%Pages: (atend)"
                << "\n%%DocumentFonts: (atend)";
-    stream << "\n%%EndComments\n";
+    outStream << "\n%%EndComments\n";
 
     if ( printer->numCopies() > 1 )
-        stream << "/#copies " << printer->numCopies() << " def\n";
+        outStream << "/#copies " << printer->numCopies() << " def\n";
 
     if ( !fixed_ps_header )
         makeFixedStrings();
 
-    stream << "%%BeginProlog\n";
+    outStream << "%%BeginProlog\n";
     const char * const prologLicense = "% Prolog copyright 1994-2000 Trolltech. "
                                  "You may copy this prolog in any way\n"
                                  "% that is directly related to this "
                                  "document. For other use of this prolog,\n"
                                  "% see your licensing agreement for Qt.\n";
-    stream << prologLicense << *fixed_ps_header << "\n";
-    stream << "/pageinit {\n";
+    outStream << prologLicense << *fixed_ps_header << "\n";
+    outStream << "/pageinit {\n";
     if ( !printer->fullPage() ) {
         if ( printer->orientation() == QPrinter::Portrait )
-            stream << printer->margins().width() << " "
+            outStream << printer->margins().width() << " "
                    << printer->margins().height() << " translate\n";
         else
-            stream << printer->margins().height() << " "
+            outStream << printer->margins().height() << " "
                    << printer->margins().width() << " translate\n";
     }
     if ( printer->orientation() == QPrinter::Portrait ) {
-        stream << "% " << m.widthMM() << "*" << m.heightMM()
+        outStream << "% " << m.widthMM() << "*" << m.heightMM()
                << "mm (portrait)\n0 " << m.height()
                << " translate " << scale << " -" << scale << " scale/defM matrix CM d } d\n";
     } else {
-        stream << "% " << m.heightMM() << "*" << m.widthMM()
+        outStream << "% " << m.heightMM() << "*" << m.widthMM()
                << " mm (landscape)\n 90 rotate " << scale << " -" << scale << " scale/defM matrix CM d } d\n";
     }
-    stream << "%%EndProlog\n";
+    outStream << "%%EndProlog\n";
 
 
-    stream << "%%BeginSetup\n";
+    outStream << "%%BeginSetup\n";
     if ( fontBuffer->buffer().size() ) {
         if ( pageCount == 1 || finished )
-            stream << "% Fonts and encodings used\n";
+            outStream << "% Fonts and encodings used\n";
         else
-            stream << "% Fonts and encodings used on pages 1-"
+            outStream << "% Fonts and encodings used on pages 1-"
                    << pageCount << "\n";
         QDictIterator<QPSPrinterFontPrivate> it(fonts);
         while (it.current()) {
-          it.current()->download(stream,TRUE); // true means its global
+          it.current()->download(outStream,TRUE); // true means its global
           ++it;
                 }
-        stream.writeRawBytes( fontBuffer->buffer().data(),
+        outStream.writeRawBytes( fontBuffer->buffer().data(),
                               fontBuffer->buffer().size() );
     }
-    stream << "%%EndSetup\n";
+    outStream << "%%EndSetup\n";
 
-    stream.writeRawBytes( buffer->buffer().data(),
+    outStream.writeRawBytes( buffer->buffer().data(),
                           buffer->buffer().size() );
 
     delete buffer;
@@ -5808,35 +5819,6 @@ void QPSPrinterPrivate::emitHeader( bool finished )
     delete fontBuffer;
     fontBuffer = 0;
     printer->setResolution( dpi );
-}
-
-
-void QPSPrinterPrivate::newPageSetup( QPainter *paint )
-{
-    if ( buffer &&
-// ##################################
-//         ( pagesInBuffer++ > 0 ||
-//           ( pagesInBuffer > 4 && buffer->size() > 262144 ) ) )
-         buffer->size() > 2000000 )
-        emitHeader( FALSE );
-
-    if ( !buffer ) {
-        pageFontNames.clear();
-    }
-
-    resetDrawingTools( paint );
-    dirtyNewPage      = FALSE;
-    pageFontNumber = headerFontNumber;
-
-    // a restore undefines all the fonts that have been defined
-    // inside the scope (normally within pages) and all the glyphs that
-    // have been added in the scope.
-
-    QDictIterator<QPSPrinterFontPrivate> it(fonts);
-    while (it.current()) {
-      it.current()->restore();
-      ++it;
-    }
 }
 
 
@@ -5849,10 +5831,10 @@ void QPSPrinterPrivate::resetDrawingTools( QPainter *paint )
 
     QColor c = paint->backgroundColor();
     if ( c != Qt::white )
-        stream << color( c, printer ) << "BC\n";
+        pageStream << color( c, printer ) << "BC\n";
 
     if ( paint->backgroundMode() != Qt::TransparentMode )
-            stream << "/OMo true d\n";
+            pageStream << "/OMo true d\n";
 
     //currentUsed = currentSet;
     //setFont( currentSet );
@@ -5888,7 +5870,7 @@ static void putRect( QTextStream &stream, const QRect &r )
 
 void QPSPrinterPrivate::setClippingOff( QPainter *paint )
 {
-        stream << "CLO\n";              // clipping off, includes a restore
+        pageStream << "CLO\n";              // clipping off, includes a restore
         resetDrawingTools( paint );     // so drawing tools must be reset
 }
 
@@ -5901,14 +5883,14 @@ void QPSPrinterPrivate::clippingSetup( QPainter *paint )
         const QRegion rgn = paint->clipRegion();
         QArray<QRect> rects = rgn.rects();
         int i;
-        stream<< "CLSTART\n";           // start clipping
+        pageStream<< "CLSTART\n";           // start clipping
         for( i = 0 ; i < (int)rects.size() ; i++ ) {
-            putRect( stream, rects[i] );
-            stream << "ACR\n";          // add clip rect
+            putRect( pageStream, rects[i] );
+            pageStream << "ACR\n";          // add clip rect
             if ( pageCount == 1 )
                 boundingBox = boundingBox.unite( rects[i] );
         }
-        stream << "CLEND\n";            // end clipping
+        pageStream << "CLEND\n";            // end clipping
         firstClipOnPage = FALSE;
     } else {
         if ( !firstClipOnPage )      // no need to turn off if first on page
@@ -5923,6 +5905,71 @@ void QPSPrinterPrivate::clippingSetup( QPainter *paint )
     dirtyClipping = FALSE;
 }
 
+void QPSPrinterPrivate::initPage(QPainter *paint)
+{
+
+    // a restore undefines all the fonts that have been defined
+    // inside the scope (normally within pages) and all the glyphs that
+    // have been added in the scope.
+
+    QDictIterator<QPSPrinterFontPrivate> it(fonts);
+    while (it.current()) {
+      it.current()->restore();
+      ++it;
+    }
+    pageStream.unsetDevice();
+    if ( pageBuffer )
+        delete pageBuffer;
+    pageBuffer = new QBuffer();
+    pageBuffer->open( IO_WriteOnly );
+    pageStream.setEncoding( QTextStream::Latin1 );
+    pageStream.setDevice( pageBuffer );
+    delete savedImage;
+    savedImage = 0;
+    textY = 0;
+    dirtyClipping   = TRUE;
+    firstClipOnPage = TRUE;
+
+    if ( !buffer ) {
+        pageFontNames.clear();
+    }
+
+    resetDrawingTools( paint );
+    dirtyNewPage      = FALSE;
+    pageFontNumber = headerFontNumber;
+}
+
+void QPSPrinterPrivate::flushPage( bool last )
+{
+    bool pageFonts = ( buffer == 0 );
+    if ( buffer &&
+// ##################################
+//         ( last || pagesInBuffer++ > -1 ||
+//           ( pagesInBuffer > 4 && buffer->size() > 262144 ) ) )
+         last || buffer->size() > 2000000 )
+    {
+        qDebug("emiting header at page %d", pageCount );
+        emitHeader( last );
+    }
+    outStream << "%%Page: "
+              << pageCount << ' ' << pageCount << endl
+              << "%%BeginPageSetup\n"
+              << "QI\n";
+    if ( pageFonts ) {
+        qDebug("page fonts for page %d", pageCount);
+        // we have already downloaded the header. Maybe we have page fonts here
+        QDictIterator<QPSPrinterFontPrivate> it(fonts);
+        while (it.current()) {
+            it.current()->download( outStream, FALSE ); // FALSE means its for the page only
+            ++it;
+        }
+    }
+    outStream  << "%%EndPageSetup\n";
+    outStream.writeRawBytes( pageBuffer->buffer().data(),
+                             pageBuffer->buffer().size() );
+    outStream << "\nQP\n";
+    pageCount++;
+}
 
 // ================ PSPrinter class ========================
 
@@ -5951,8 +5998,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         d->pagesInBuffer = 0;
         d->buffer = new QBuffer();
         d->buffer->open( IO_WriteOnly );
-        d->stream.setEncoding( QTextStream::Latin1 );
-        d->stream.setDevice( d->buffer );
+        d->outStream.setEncoding( QTextStream::Latin1 );
+        d->outStream.setDevice( d->buffer );
         d->fontBuffer = new QBuffer();
         d->fontBuffer->open( IO_WriteOnly );
         d->fontStream.setEncoding( QTextStream::Latin1 );
@@ -5970,42 +6017,36 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         QPaintDeviceMetrics m( d->printer );
         d->scale = 72. / ((float) m.logicalDpiY());
 
-        d->stream << "%%Page: " << d->pageCount << " " << d->pageCount << endl
-            //nothing else to do here. We don't have page fonts for the first page.
-               << "%%BeginPageSetup\n"
-               << "QI\n"
-               << "%%EndPageSetup\n";
         return TRUE;
     }
 
     if ( c == PdcEnd ) {                        // painting done
-        bool pageCountAtEnd = (d->buffer == 0);
-        if ( !pageCountAtEnd )
-            d->emitHeader( TRUE );
-        d->stream << "QP\n"
-               << "%%Trailer\n";
+        bool pageCountAtEnd = (d->buffer != 0);
+        d->flushPage( TRUE );
+
+        d->outStream << "%%Trailer\n";
         if ( pageCountAtEnd )
-            d->stream << "%%Pages: " << d->pageCount << "\n%%DocumentFonts: "
+            d->outStream << "%%Pages: " << d->pageCount - 1 << "\n%%DocumentFonts: "
                    << d->fontsUsed.simplifyWhiteSpace() << '\n';
-        d->stream << "%%EOF\n";
-        d->stream.unsetDevice();
-        d->realDevice->close();
+        d->outStream << "%%EOF\n";
+        d->outStream.unsetDevice();
+        d->outDevice->close();
         if ( d->fd >= 0 )
             ::close( d->fd );
         d->fd = -1;
-        delete d->realDevice;
-        d->realDevice = 0;
+        delete d->outDevice;
+        d->outDevice = 0;
         delete d->fm;
     }
 
     if ( c >= PdcDrawFirst && c <= PdcDrawLast ) {
         if ( !paint )
             return FALSE; // sanity
+        if ( d->dirtyNewPage )
+            d->initPage( paint );
         if ( d->dirtyMatrix )
             d->matrixSetup( paint );
-        if ( d->dirtyNewPage )
-            d->newPageSetup( paint );
-        if ( d->dirtyClipping ) // Must be after matrixSetup and newPageSetup
+        if ( d->dirtyClipping ) // Must be after matrixSetup and initPage
             d->clippingSetup( paint );
         if ( d->dirtypen ) {
             // we special-case for narrow solid lines with the default
@@ -6013,9 +6054,9 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
             if ( d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 &&
                  d->cpen.capStyle() == Qt::FlatCap &&
                  d->cpen.joinStyle() == Qt::MiterJoin )
-                d->stream << color( d->cpen.color(), d->printer ) << "P1\n";
+                d->pageStream << color( d->cpen.color(), d->printer ) << "P1\n";
             else
-                d->stream << (int)d->cpen.style() << ' ' << d->cpen.width()
+                d->pageStream << (int)d->cpen.style() << ' ' << d->cpen.width()
                        << ' ' << color( d->cpen.color(), d->printer )
                        << psCap( d->cpen.capStyle() )
                        << psJoin( d->cpen.joinStyle() ) << "PE\n";
@@ -6025,12 +6066,12 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
             // we special-case for nobrush and solid white, since
             // those are the two most common brushes
             if ( d->cbrush.style() == Qt::NoBrush )
-                d->stream << "NB\n";
+                d->pageStream << "NB\n";
             else if ( d->cbrush.style() == Qt::SolidPattern &&
                       d->cbrush.color() == Qt::white )
-                d->stream << "WB\n";
+                d->pageStream << "WB\n";
             else
-                d->stream << (int)d->cbrush.style() << ' '
+                d->pageStream << (int)d->cbrush.style() << ' '
                        << color( d->cbrush.color(), d->printer ) << "BR\n";
             d->dirtybrush = FALSE;
         }
@@ -6038,100 +6079,100 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 
     switch( c ) {
     case PdcDrawPoint:
-        d->stream << POINT(0) << "P\n";
+        d->pageStream << POINT(0) << "P\n";
         break;
     case PdcMoveTo:
-        d->stream << POINT(0) << "M\n";
+        d->pageStream << POINT(0) << "M\n";
         break;
     case PdcLineTo:
-        d->stream << POINT(0) << "L\n";
+        d->pageStream << POINT(0) << "L\n";
         break;
     case PdcDrawLine:
         if ( p[0].point->y() == p[1].point->y() )
-            d->stream << POINT(1) << p[0].point->x() << " HL\n";
+            d->pageStream << POINT(1) << p[0].point->x() << " HL\n";
         else if ( p[0].point->x() == p[1].point->x() )
-            d->stream << POINT(1) << p[0].point->y() << " VL\n";
+            d->pageStream << POINT(1) << p[0].point->y() << " VL\n";
         else
-            d->stream << POINT(1) << POINT(0) << "DL\n";
+            d->pageStream << POINT(1) << POINT(0) << "DL\n";
         break;
     case PdcDrawRect:
-        d->stream << RECT(0) << "R\n";
+        d->pageStream << RECT(0) << "R\n";
         break;
     case PdcDrawRoundRect:
-        d->stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "RR\n";
+        d->pageStream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "RR\n";
         break;
     case PdcDrawEllipse:
-        d->stream << RECT(0) << "E\n";
+        d->pageStream << RECT(0) << "E\n";
         break;
     case PdcDrawArc:
-        d->stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "A\n";
+        d->pageStream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "A\n";
         break;
     case PdcDrawPie:
-        d->stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "PIE\n";
+        d->pageStream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "PIE\n";
         break;
     case PdcDrawChord:
-        d->stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "CH\n";
+        d->pageStream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "CH\n";
         break;
     case PdcDrawLineSegments:
         if ( p[0].ptarr->size() > 0 ) {
             QPointArray a = *p[0].ptarr;
             QPoint pt;
-            d->stream << "NP\n";
+            d->pageStream << "NP\n";
             for ( int i=0; i<(int)a.size(); i+=2 ) {
                 pt = a.point( i );
-                d->stream << XCOORD(pt.x()) << ' '
+                d->pageStream << XCOORD(pt.x()) << ' '
                        << YCOORD(pt.y()) << " MT\n";
                 pt = a.point( i+1 );
-                d->stream << XCOORD(pt.x()) << ' '
+                d->pageStream << XCOORD(pt.x()) << ' '
                        << YCOORD(pt.y()) << " LT\n";
             }
-            d->stream << "QS\n";
+            d->pageStream << "QS\n";
         }
         break;
     case PdcDrawPolyline:
         if ( p[0].ptarr->size() > 1 ) {
             QPointArray a = *p[0].ptarr;
             QPoint pt = a.point( 0 );
-            d->stream << "NP\n"
+            d->pageStream << "NP\n"
                    << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
             for ( int i=1; i<(int)a.size(); i++ ) {
                 pt = a.point( i );
-                d->stream << XCOORD(pt.x()) << ' '
+                d->pageStream << XCOORD(pt.x()) << ' '
                        << YCOORD(pt.y()) << " LT\n";
             }
-            d->stream << "QS\n";
+            d->pageStream << "QS\n";
         }
         break;
     case PdcDrawPolygon:
         if ( p[0].ptarr->size() > 2 ) {
             QPointArray a = *p[0].ptarr;
             if ( p[1].ival )
-                d->stream << "/WFi true d\n";
+                d->pageStream << "/WFi true d\n";
             QPoint pt = a.point(0);
-            d->stream << "NP\n";
-            d->stream << XCOORD(pt.x()) << ' '
+            d->pageStream << "NP\n";
+            d->pageStream << XCOORD(pt.x()) << ' '
                    << YCOORD(pt.y()) << " MT\n";
             for( int i=1; i<(int)a.size(); i++) {
                 pt = a.point( i );
-                d->stream << XCOORD(pt.x()) << ' '
+                d->pageStream << XCOORD(pt.x()) << ' '
                        << YCOORD(pt.y()) << " LT\n";
             }
-            d->stream << "CP BF QS\n";
+            d->pageStream << "CP BF QS\n";
             if ( p[1].ival )
-                d->stream << "/WFi false d\n";
+                d->pageStream << "/WFi false d\n";
         }
         break;
     case PdcDrawCubicBezier:
         if ( p[0].ptarr->size() == 4 ) {
-            d->stream << "NP\n";
+            d->pageStream << "NP\n";
             QPointArray a = *p[0].ptarr;
-            d->stream << XCOORD(a[0].x()) << ' '
+            d->pageStream << XCOORD(a[0].x()) << ' '
                    << YCOORD(a[0].y()) << " MT ";
             for ( int i=1; i<4; i++ ) {
-                d->stream << XCOORD(a[i].x()) << ' '
+                d->pageStream << XCOORD(a[i].x()) << ' '
                        << YCOORD(a[i].y()) << ' ';
             }
-            d->stream << "BZ\n";
+            d->pageStream << "BZ\n";
         }
         break;
     case PdcDrawText2: {
@@ -6151,7 +6192,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
             d->setFont( d->currentSet, script );
         }
         if( d->currentFontFile ) // better not crash in case somethig goes wrong.
-            d->currentFontFile->drawText( d->stream, spaces, *p[0].point, tmp, d, paint);
+            d->currentFontFile->drawText( d->pageStream, spaces, *p[0].point, tmp, d, paint);
         break;
     }
     case PdcDrawText2Formatted:
@@ -6174,13 +6215,13 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         break;
     }
     case PdcSetBkColor:
-        d->stream << color( *(p[0].color), d->printer ) << "BC\n";
+        d->pageStream << color( *(p[0].color), d->printer ) << "BC\n";
         break;
     case PdcSetBkMode:
         if ( p[0].ival == Qt::TransparentMode )
-            d->stream << "/OMo false d\n";
+            d->pageStream << "/OMo false d\n";
         else
-            d->stream << "/OMo true d\n";
+            d->pageStream << "/OMo true d\n";
         break;
     case PdcSetROP:
 #if defined(CHECK_RANGE)
@@ -6234,27 +6275,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         d->dirtyClipping = TRUE;
         break;
     case NewPage:
-        d->pageCount++;
-        d->stream << "QP\n%%Page: "
-               << d->pageCount << ' ' << d->pageCount << endl
-               << "%%BeginPageSetup\n"
-               << "QI\n";
-        {
-            QDictIterator<QPSPrinterFontPrivate> it(d->fonts);
-            while (it.current()) {
-                it.current()->download( d->stream, FALSE ); // FALSE means its for the page only
-                ++it;
-            }
-        }
-        // setup page fonts
-        // ####
-        d->stream  << "%%EndPageSetup\n";
-        d->dirtyNewPage       = TRUE;
-        d->dirtyClipping   = TRUE;
-        d->firstClipOnPage = TRUE;
-        delete d->savedImage;
-        d->savedImage = 0;
-        d->textY = 0;
+        d->flushPage();
+        d->dirtyNewPage = TRUE;
         break;
     case AbortPrinting:
         break;
