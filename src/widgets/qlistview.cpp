@@ -5791,13 +5791,15 @@ void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
 */
 QSize QListView::sizeHint() const
 {
-    if ( ( isVisibleTo(0) || d->was_visible ) && d->sizeHint.isValid() ) {
-	d->was_visible = TRUE;
-	return d->sizeHint;
+    if ( d->was_visible ) {
+	if ( d->sizeHint.isValid() )
+	    return d->sizeHint;
+    } else {
+	d->was_visible = isVisibleTo( 0 );
     }
 
-    //    This is as wide as QHeader::sizeHint() recommends and tall
-    //    enough for perhaps 10 items.
+    // This is as wide as QHeader::sizeHint() recommends and tall
+    // enough for perhaps 10 items.
 
     constPolish();
     if ( !isVisible() &&
