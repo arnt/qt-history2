@@ -99,7 +99,8 @@ DnDDemo::DnDDemo( QWidget* parent, const char* name )
     iitem = new QIconViewItem( iconView, "Home", loadPixmap( "home.xpm" ) );
     iitem->setRenameEnabled( TRUE );
 
-    listView->addColumn( "Actions", 200 );
+    listView->addColumn( "Actions", 240 );
+    listView->setColumnWidthMode( 0, QListView::Maximum );
     QListViewItem *litem;
     litem = new QListViewItem( listView, "Copy" );
     litem->setPixmap( 0, loadPixmap ("editcopy.xpm" ) );

@@ -7,6 +7,7 @@ ListView::ListView( QWidget* parent, const char* name )
     : QListView( parent, name )
 {
     setAcceptDrops( TRUE );
+    setSorting( -1, FALSE );
     dragging = FALSE;
 }
 
@@ -27,10 +28,7 @@ void ListView::dropEvent( QDropEvent *e )
 
     if ( QTextDrag::decode( e, text ) ) {
         QListViewItem *after = itemAt( viewport()->mapFromParent( e->pos() ) );
-        if ( after )
-            cout << "insert after:" << after->text( 0 ) << endl;
         QListViewItem *item = new QListViewItem( this, after, text );
-        item->moveItem ( after );
     }
 }
 
