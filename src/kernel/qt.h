@@ -230,7 +230,6 @@
 #include "qsocket.h"
 #include <qserversocket.h>
 #include <qftp.h>
-#include <qhttp.h>
 #include <qdns.h>
 #include "qfontmanager_qws.h"
 #include <qfontfactorybdf_qws.h>

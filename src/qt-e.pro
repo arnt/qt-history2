@@ -553,7 +553,6 @@ ALLHEADERS        += $$KERNEL_H/qfontmanager_qws.h \
 ALLHEADERS		+= $$QNETWORK/qdns.h \
 		  $$QNETWORK/qftp.h \
 		  $$QNETWORK/qhostaddress.h \
-		  $$QNETWORK/qhttp.h \
 		  $$QNETWORK/qnetwork.h \
 		  $$QNETWORK/qserversocket.h \
 		  $$QNETWORK/qsocket.h \
@@ -561,7 +560,6 @@ ALLHEADERS		+= $$QNETWORK/qdns.h \
 SOURCES		+= $$QNETWORK/qdns.cpp \
 		  $$QNETWORK/qftp.cpp \
 		  $$QNETWORK/qhostaddress.cpp \
-		  $$QNETWORK/qhttp.cpp \
 		  $$QNETWORK/qnetwork.cpp \
 		  $$QNETWORK/qserversocket.cpp \
 		  $$QNETWORK/qsocket.cpp \
