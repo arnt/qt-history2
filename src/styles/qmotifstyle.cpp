@@ -1290,74 +1290,79 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 #ifndef QT_NO_LISTVIEW
     case CC_ListView:
 	{
-	    if (opt.isDefault())
-		break;
-
-	    QListViewItem *item = opt.listViewItem();
-	    QListViewItem *child = item->firstChild();
-	    int linetop = 0, linebot = 0, y = r.y();
-
-	    // each branch needs at most two lines, ie. four end points
-	    QPointArray dotlines( item->childCount() * 4 );
-	    int c = 0;
-
-	    // skip the stuff above the exposed rectangle
-	    while ( child && y + child->height() <= 0 ) {
-		y += child->totalHeight();
-		child = child->nextSibling();
+	    if ( sub & SC_ListView ) {
+		QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags, sub, subActive, opt );
 	    }
+	    if ( sub & SC_ListViewBranch | SC_ListViewExpand ) {
+		if (opt.isDefault())
+		    break;
 
-	    int bx = r.width() / 2;
+		QListViewItem *item = opt.listViewItem();
+		QListViewItem *child = item->firstChild();
+		int linetop = 0, linebot = 0, y = r.y();
 
-	    // paint stuff in the magical area
-	    while ( child && y < r.height() ) {
-		linebot = y + child->height()/2;
-		if ( (child->isExpandable() || child->childCount()) &&
-		     (child->height() > 0) ) {
-		    // needs a box
-		    p->setPen( cg.text() );
-		    p->drawRect( bx-4, linebot-4, 9, 9 );
-		    QPointArray a;
-		    if ( child->isOpen() )
-			a.setPoints( 3, bx-2, linebot-2,
-				     bx, linebot+2,
-				     bx+2, linebot-2 ); //RightArrow
-		    else
-			a.setPoints( 3, bx-2, linebot-2,
-				     bx+2, linebot,
-				     bx-2, linebot+2 ); //DownArrow
-		    p->setBrush( cg.text() );
-		    p->drawPolygon( a );
-		    p->setBrush( NoBrush );
-		    // dotlinery
-		    dotlines[c++] = QPoint( bx, linetop );
-		    dotlines[c++] = QPoint( bx, linebot - 5 );
-		    dotlines[c++] = QPoint( bx + 5, linebot );
-		    dotlines[c++] = QPoint( r.width(), linebot );
-		    linetop = linebot + 5;
-		} else {
-		    // just dotlinery
-		    dotlines[c++] = QPoint( bx+1, linebot );
-		    dotlines[c++] = QPoint( r.width(), linebot );
+		// each branch needs at most two lines, ie. four end points
+		QPointArray dotlines( item->childCount() * 4 );
+		int c = 0;
+
+		// skip the stuff above the exposed rectangle
+		while ( child && y + child->height() <= 0 ) {
+		    y += child->totalHeight();
+		    child = child->nextSibling();
 		}
 
-		y += child->totalHeight();
-		child = child->nextSibling();
-	    }
+		int bx = r.width() / 2;
 
-	    if ( child ) // there's a child, so move linebot to edge of rectangle
-		linebot = r.height();
+		// paint stuff in the magical area
+		while ( child && y < r.height() ) {
+		    linebot = y + child->height()/2;
+		    if ( (child->isExpandable() || child->childCount()) &&
+			 (child->height() > 0) ) {
+			// needs a box
+			p->setPen( cg.text() );
+			p->drawRect( bx-4, linebot-4, 9, 9 );
+			QPointArray a;
+			if ( child->isOpen() )
+			    a.setPoints( 3, bx-2, linebot-2,
+					 bx, linebot+2,
+					 bx+2, linebot-2 ); //RightArrow
+			else
+			    a.setPoints( 3, bx-2, linebot-2,
+					 bx+2, linebot,
+					 bx-2, linebot+2 ); //DownArrow
+			p->setBrush( cg.text() );
+			p->drawPolygon( a );
+			p->setBrush( NoBrush );
+			// dotlinery
+			dotlines[c++] = QPoint( bx, linetop );
+			dotlines[c++] = QPoint( bx, linebot - 5 );
+			dotlines[c++] = QPoint( bx + 5, linebot );
+			dotlines[c++] = QPoint( r.width(), linebot );
+			linetop = linebot + 5;
+		    } else {
+			// just dotlinery
+			dotlines[c++] = QPoint( bx+1, linebot );
+			dotlines[c++] = QPoint( r.width(), linebot );
+		    }
 
-	    if ( linetop < linebot ) {
-		dotlines[c++] = QPoint( bx, linetop );
-		dotlines[c++] = QPoint( bx, linebot );
-	    }
+		    y += child->totalHeight();
+		    child = child->nextSibling();
+		}
 
-	    int line; // index into dotlines
-	    p->setPen( cg.text() );
-	    for( line = 0; line < c; line += 2 ) {
-		p->drawLine( dotlines[line].x(), dotlines[line].y(),
-			     dotlines[line+1].x(), dotlines[line+1].y() );
+		if ( child ) // there's a child, so move linebot to edge of rectangle
+		    linebot = r.height();
+
+		if ( linetop < linebot ) {
+		    dotlines[c++] = QPoint( bx, linetop );
+		    dotlines[c++] = QPoint( bx, linebot );
+		}
+
+		int line; // index into dotlines
+		p->setPen( cg.text() );
+		for( line = 0; line < c; line += 2 ) {
+		    p->drawLine( dotlines[line].x(), dotlines[line].y(),
+				 dotlines[line+1].x(), dotlines[line+1].y() );
+		}
 	    }
 
 	    break;

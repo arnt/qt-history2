@@ -1838,8 +1838,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     int r = marg;
     const QPixmap * icon = pixmap( column );
 
-    p->fillRect( 0, 0, width, height(),
-		 cg.brush( QPalette::backgroundRoleFromMode( lv->viewport()->backgroundMode() ) ) );
+    lv->paintEmptyArea( p, QRect( 0, 0, width, height() ) );
 
     // (lars) what does this do???
 #if 0 // RS: ####
@@ -2701,7 +2700,11 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
 {
-    p->fillRect( rect, viewport()->backgroundBrush() );
+    QStyle::SFlags how = QStyle::Style_Default;
+    if ( isEnabled() )
+	how |= QStyle::Style_Enabled;
+
+    style().drawComplexControl( QStyle::CC_ListView, p, this, rect, colorGroup(), how, QStyle::SC_ListView );
 }
 
 
@@ -5602,7 +5605,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     if ( !lv )
 	return;
 
-    p->fillRect( 0, 0, width, height(), cg.brush( QPalette::backgroundRoleFromMode( lv->viewport()->backgroundMode() ) ) );
+    lv->paintEmptyArea( p, QRect( 0, 0, width, height() ) );
 
     if ( column != 0 ) {
 	// The rest is text, or for subclasses to change.

@@ -1575,16 +1575,21 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	break; }
 
     case CC_ListView: {
-	if (opt.isDefault())
-	    break;
-	QListViewItem *item = opt.listViewItem();
-	int y=r.y(), h=r.height();
-	for(QListViewItem *child = item->firstChild(); child && y < h;
-	    y += child->totalHeight(), child = child->nextSibling()) {
-	    if(y + child->height() > 0) {
-		if ( child->isExpandable() || child->childCount() )
-		    drawPrimitive( child->isOpen() ? PE_ArrowDown : PE_ArrowRight, p,
-				   QRect(r.right() - 10, (y + child->height()/2) - 4, 9, 9), cg );
+	if ( sub & SC_ListView ) {
+	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg, flags, sub, subActive, opt );
+	}
+	if ( sub & ( SC_ListViewBranch | SC_ListViewExpand ) ) {
+	    if (opt.isDefault())
+		break;
+	    QListViewItem *item = opt.listViewItem();
+	    int y=r.y(), h=r.height();
+	    for(QListViewItem *child = item->firstChild(); child && y < h;
+		y += child->totalHeight(), child = child->nextSibling()) {
+		if(y + child->height() > 0) {
+		    if ( child->isExpandable() || child->childCount() )
+			drawPrimitive( child->isOpen() ? PE_ArrowDown : PE_ArrowRight, p,
+				       QRect(r.right() - 10, (y + child->height()/2) - 4, 9, 9), cg );
+		}
 	    }
 	}
 	break; }

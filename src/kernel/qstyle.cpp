@@ -1156,7 +1156,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value SC_TitleBarUnshadeButton  unshade button.
 
 
-  \value SC_ListView  (internal)
+  \value SC_ListView  the list view area.
   \value SC_ListViewBranch  (internal)
   \value SC_ListViewExpand  expand item (i.e. show/hide child items).
 

@@ -1539,6 +1539,13 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	break;
 #endif // QT_NO_SLIDER
 
+    case CC_ListView:
+	if ( controls & SC_ListView ) {
+	    QListView *listview = (QListView*)widget;
+	    p->fillRect( r, listview->viewport()->backgroundBrush() );
+	}
+	break;
+
     default:
 	break;
     }
