@@ -60,6 +60,7 @@ struct QPixmapData { // internal pixmap data
     QPixmap *alphapm;
     QX11Info xinfo;
     Qt::HANDLE xft_hd;
+    void copyAlpha(const QPixmapData *data);
 #elif defined(Q_WS_MAC)
     CGImageRef cgimage;
     QPixmap *alphapm;
