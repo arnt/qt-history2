@@ -35,9 +35,8 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlDriverExtension;
-
 class QSqlDatabase;
+class QSqlDriverPrivate;
 
 class QM_EXPORT_SQL QSqlDriver : public QObject
 {
@@ -49,8 +48,8 @@ public:
 
     QSqlDriver( QObject * parent=0, const char * name=0 );
     ~QSqlDriver();
-    bool			isOpen() const;
-    bool			isOpenError() const;
+    virtual bool	isOpen() const;
+    bool		isOpenError() const;
 
     virtual bool		beginTransaction();
     virtual bool		commitTransaction();
@@ -66,29 +65,21 @@ public:
     QSqlError			lastError() const;
 
     virtual bool		hasFeature( DriverFeature f ) const = 0;
-    virtual bool		open( const QString & db,
-				      const QString & user = QString::null,
-				      const QString & password = QString::null,
-				      const QString & host = QString::null,
-				      int port = -1 ) = 0;
     virtual void		close() = 0;
     virtual QSqlQuery		createQuery() const = 0;
 
-    // ### remove for 4.0
-    bool			open( const QString& db,
-				      const QString& user,
-				      const QString& password,
-				      const QString& host,
-				      int port,
-				      const QString& connOpts );
+    virtual bool			open( const QString& db,
+				      const QString& user = QString(),
+				      const QString& password = QString(),
+				      const QString& host = QString(),
+				      int port = -1,
+				      const QString& connOpts = QString() ) = 0;
 protected:
     virtual void		setOpen( bool o );
     virtual void		setOpenError( bool e );
     virtual void		setLastError( const QSqlError& e );
 private:
-    // ### This class needs a d-pointer in 4.0.
-    int		          dbState;
-    QSqlError	          error;
+    QSqlDriverPrivate* d;
 #if defined(Q_DISABLE_COPY)
     QSqlDriver( const QSqlDriver & );
     QSqlDriver &operator=( const QSqlDriver & );

@@ -303,8 +303,7 @@ bool QSqlQuery::exec ( const QString& query )
 {
     if ( !d->sqlResult )
 	return FALSE;
-    if ( d->sqlResult->extension() && driver()->hasFeature( QSqlDriver::PreparedQueries ) )
-	d->sqlResult->extension()->clear();
+//    d->sqlResult->clear();
     d->sqlResult->setActive( FALSE );
     d->sqlResult->setLastError( QSqlError() );
     d->sqlResult->setAt( QSql::BeforeFirst );
@@ -886,12 +885,11 @@ void QSqlQuery::afterSeek()
 */
 bool QSqlQuery::prepare( const QString& query )
 {
-    if ( !d->sqlResult || !d->sqlResult->extension() )
+    if ( !d->sqlResult )
 	return FALSE;
     d->sqlResult->setActive( FALSE );
     d->sqlResult->setLastError( QSqlError() );
     d->sqlResult->setAt( QSql::BeforeFirst );
-    d->sqlResult->extension()->clear();
     if ( !driver() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlQuery::prepare: no driver" );
@@ -900,14 +898,13 @@ bool QSqlQuery::prepare( const QString& query )
     }
     if ( d->count > 1 )
 	*this = driver()->createQuery();
-    d->sqlResult->setQuery( query.stripWhiteSpace() );
     if ( !driver()->isOpen() || driver()->isOpenError() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlQuery::prepare: database not open" );
 #endif
 	return FALSE;
     }
-    if ( query.isNull() || query.length() == 0 ) {
+    if ( query.isEmpty() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlQuery::prepare: empty query" );
 #endif
@@ -916,39 +913,8 @@ bool QSqlQuery::prepare( const QString& query )
 #ifdef QT_DEBUG_SQL
     qDebug( "\n QSqlQuery: " + query );
 #endif
-    QString q = query;
-    static QRegExp rx("'[^']*'|:([a-zA-Z0-9_]+)");
-    if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
-	// below we substitute Oracle placeholders with ODBC ones and
-	// vice versa to make this db independant
-	int i = 0, cnt = 0;
-	if ( driver()->hasFeature( QSqlDriver::NamedPlaceholders ) ) {
-	    static QRegExp rx("'[^']*'|\\?");
-	    while ( (i = rx.search( q, i )) != -1 ) {
-		if ( rx.cap(0) == "?" ) {
-		    q = q.replace( i, 1, ":f" + QString::number(cnt) );
-		    cnt++;
-		}
-		i += rx.matchedLength();
-	    }
-	} else if ( driver()->hasFeature( QSqlDriver::PositionalPlaceholders ) ) {
-	    while ( (i = rx.search( q, i )) != -1 ) {
-		if ( rx.cap(1).isEmpty() ) {
-		    i += rx.matchedLength();
-		} else {
-		    // record the index of the placeholder - needed
-		    // for emulating named bindings with ODBC
-		    d->sqlResult->extension()->index[ cnt ]= rx.cap(0);
-		    q = q.replace( i, rx.matchedLength(), "?" );
-		    i++;
-		    cnt++;
-		}
-	    }
-	}
-	d->executedQuery = q;
-	return d->sqlResult->extension()->prepare( q );
-    } else {
-	int i = 0;
+    /*
+    int i = 0;
 	while ( (i = rx.search( q, i )) != -1 ) {
 	    if ( !rx.cap(1).isEmpty() )
 		d->sqlResult->extension()->holders.append( Holder( rx.cap(0), i ) );
@@ -956,6 +922,9 @@ bool QSqlQuery::prepare( const QString& query )
 	}
 	return TRUE; // fake prepares should always succeed
     }
+*/
+
+    return d->sqlResult->savePrepare( query );
 }
 
 /*!
@@ -968,56 +937,10 @@ bool QSqlQuery::prepare( const QString& query )
 */
 bool QSqlQuery::exec()
 {
-    bool ret;
-    if ( !d->sqlResult || !d->sqlResult->extension() )
+    if ( !d->sqlResult )
 	return FALSE;
-    if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
-	ret = d->sqlResult->extension()->exec();
-    } else {
-	// fake preparation - just replace the placeholders..
-	QString query = d->sqlResult->lastQuery();
-	if ( d->sqlResult->extension()->bindMethod() == QSqlExtension::BindByName ) {
-	    int i;
-	    QVariant val;
-	    QString holder;
-	    for ( i = (int)d->sqlResult->extension()->holders.count() - 1; i >= 0; --i ) {
-		holder = d->sqlResult->extension()->holders[ i ].holderName;
-		val = d->sqlResult->extension()->values[ holder ].value;
-		QSqlField f( "", val.type() );
-		if ( val.isNull() )
-		    f.setNull();
-		else
-		    f.setValue( val );
-		query = query.replace( (uint)d->sqlResult->extension()->holders[ i ].holderPos,
-			holder.length(), driver()->formatValue( &f ) );
-	    }
-	} else {
-	    QMap<int, QString>::ConstIterator it;
-	    QString val;
-	    int i = 0;
-	    for ( it = d->sqlResult->extension()->index.begin();
-		  it != d->sqlResult->extension()->index.end(); ++it ) {
-		i = query.find( '?', i );
-		if ( i > -1 ) {
-		    QSqlField f( "", d->sqlResult->extension()->values[ it.data() ].value.type() );
-		    if ( d->sqlResult->extension()->values[ it.data() ].value.isNull() )
-			f.setNull();
-		    else
-			f.setValue( d->sqlResult->extension()->values[ it.data() ].value );
-		    val = driver()->formatValue( &f );
-		    query = query.replace( i, 1, driver()->formatValue( &f ) );
-		    i += val.length();
-		}
-	    }
-	}
-	// have to retain the original query w/placeholders..
-	QString orig = d->sqlResult->lastQuery();
-	ret = exec( query );
-	d->executedQuery = query;
-	d->sqlResult->setQuery( orig );
-    }
-    d->sqlResult->extension()->resetBindCount();
-    return ret;
+    
+    return d->sqlResult->exec();
 }
 
 /*!
@@ -1031,9 +954,9 @@ bool QSqlQuery::exec()
 */
 void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val, QSql::ParameterType type )
 {
-    if ( !d->sqlResult || !d->sqlResult->extension() )
+    if ( !d->sqlResult )
 	return;
-    d->sqlResult->extension()->bindValue( placeholder, val, type );
+    d->sqlResult->bindValue( placeholder, val, type );
 }
 
 /*!
@@ -1048,9 +971,9 @@ void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val, QSql
 */
 void QSqlQuery::bindValue( int pos, const QVariant& val, QSql::ParameterType type )
 {
-    if ( !d->sqlResult || !d->sqlResult->extension() )
+    if ( !d->sqlResult )
 	return;
-    d->sqlResult->extension()->bindValue( pos, val, type );
+    d->sqlResult->bindValue( pos, val, type );
 }
 
 /*!
@@ -1064,40 +987,9 @@ void QSqlQuery::bindValue( int pos, const QVariant& val, QSql::ParameterType typ
 */
 void QSqlQuery::addBindValue( const QVariant& val, QSql::ParameterType type )
 {
-    if ( !d->sqlResult || !d->sqlResult->extension() )
+    if ( !d->sqlResult )
 	return;
-    d->sqlResult->extension()->addBindValue( val, type );
-}
-
-
-/*!
-    \overload
-
-    Binds the placeholder with type \c QSql::In.
-*/
-void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val )
-{
-    bindValue( placeholder, val, QSql::In );
-}
-
-/*!
-    \overload
-
-    Binds the placeholder at position \a pos with type \c QSql::In.
-*/
-void QSqlQuery::bindValue( int pos, const QVariant& val )
-{
-    bindValue( pos, val, QSql::In );
-}
-
-/*!
-    \overload
-
-    Binds the placeholder with type \c QSql::In.
-*/
-void QSqlQuery::addBindValue( const QVariant& val )
-{
-    addBindValue( val, QSql::In );
+    d->sqlResult->addBindValue( val, type );
 }
 
 /*!
@@ -1105,9 +997,9 @@ void QSqlQuery::addBindValue( const QVariant& val )
 */
 QVariant QSqlQuery::boundValue( const QString& placeholder ) const
 {
-    if ( !d->sqlResult || !d->sqlResult->extension() )
+    if ( !d->sqlResult )
 	return QVariant();
-    return d->sqlResult->extension()->boundValue( placeholder );
+    return d->sqlResult->boundValue( placeholder );
 }
 
 /*!
@@ -1117,9 +1009,9 @@ QVariant QSqlQuery::boundValue( const QString& placeholder ) const
 */
 QVariant QSqlQuery::boundValue( int pos ) const
 {
-    if ( !d->sqlResult || !d->sqlResult->extension() )
+    if ( !d->sqlResult )
 	return QVariant();
-    return d->sqlResult->extension()->boundValue( pos );
+    return d->sqlResult->boundValue( pos );
 }
 
 /*!
@@ -1148,9 +1040,9 @@ QVariant QSqlQuery::boundValue( int pos ) const
 */
 QMap<QString,QVariant> QSqlQuery::boundValues() const
 {
-    if ( !d->sqlResult || !d->sqlResult->extension() )
+    if ( !d->sqlResult )
 	return QMap<QString,QVariant>();
-    return d->sqlResult->extension()->boundValues();
+    return d->sqlResult->boundValues();
 }
 
 /*!

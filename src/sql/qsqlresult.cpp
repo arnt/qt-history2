@@ -12,22 +12,118 @@
 **
 ****************************************************************************/
 
+#include "qmap.h"
+#include "qregexp.h"
 #include "qsqlresult.h"
-#include "private/qsqlextension_p.h"
+#include "qvector.h"
+#include "qsqldriver.h"
 
 #ifndef QT_NO_SQL
+
+struct Param {
+    Param( const QVariant& v = QVariant(), QSql::ParameterType t = QSql::In ): value( v ), typ( t ) {}
+    QVariant value;
+    QSql::ParameterType typ;
+    Q_DUMMY_COMPARISON_OPERATOR(Param)
+};
+
+struct Holder {
+    Holder( const QString& hldr = QString::null, int pos = -1 ): holderName( hldr ), holderPos( pos ) {}
+    bool operator==( const Holder& h ) const { return h.holderPos == holderPos && h.holderName == holderName; }
+    bool operator!=( const Holder& h ) const { return h.holderPos != holderPos || h.holderName != holderName; }
+    QString holderName;
+    int	    holderPos;
+};
 
 class QSqlResultPrivate
 {
 public:
-    const QSqlDriver*   sqldriver;
-    int             idx;
-    QString         sql;
-    bool            active;
-    bool            isSel;
-    QSqlError	    error;
-    QSqlExtension * ext;
+    enum BindMethod { BindByPosition, BindByName };
+    
+    QSqlResultPrivate(QSqlResult* d)
+    : q(d), sqldriver(0), idx(QSql::BeforeFirst), active(FALSE), 
+      isSel(FALSE), forwardOnly(FALSE), bindCount(0), bindm(BindByPosition)
+    {}
+ 
+    void clearValues()
+    {
+	values.clear();
+	bindCount = 0;
+    }
+
+    void resetBindCount()
+    {
+	bindCount = 0;
+    }
+
+    void clearIndex()
+    {
+	index.clear();
+	holders.clear();
+    }
+
+    void clear()
+    {
+	clearValues();
+	clearIndex();
+    }
+
+    void positionalToNamedBinding();
+    void namedToPositionalBinding();
+    
+public:
+    QSqlResult* q;
+    const QSqlDriver* sqldriver;
+    int idx;
+    QString sql;
+    bool active;
+    bool isSel;
+    QSqlError error;
+    bool forwardOnly;
+    
+    int bindCount;
+    BindMethod bindm;
+    QMap<int, QString> index;
+    typedef QMap<QString, Param> ValueMap;
+    ValueMap values;
+    QString executedQuery;
+
+    typedef QVector<Holder> HolderVector;
+    HolderVector holders;
 };
+
+void QSqlResultPrivate::positionalToNamedBinding()
+{
+    QRegExp rx("'[^']*'|\\?");
+    QString q = sql;
+    int i = 0, cnt = 0;
+    while ( (i = rx.search( q, i )) != -1 ) {
+	if ( rx.cap(0) == "?" ) {
+	    q = q.replace( i, 1, ":f" + QString::number(++cnt) );
+	}
+	i += rx.matchedLength();
+    }    
+    executedQuery = q;    
+}
+
+void QSqlResultPrivate::namedToPositionalBinding()
+{
+    QRegExp rx("'[^']*'|:([a-zA-Z0-9_]+)");    
+    QString q = sql;
+    int i = 0, cnt = 0;
+    while ( (i = rx.search( q, i )) != -1 ) {
+	if ( rx.cap(1).isEmpty() ) {
+	    i += rx.matchedLength();
+	} else {
+	    // record the index of the placeholder - needed
+	    // for emulating named bindings with ODBC
+	    index[ ++cnt ]= rx.cap(0);
+	    q = q.replace( i, rx.matchedLength(), "?" );
+	    ++i;
+	}
+    }
+    executedQuery = q;    
+}
 
 /*!
     \class QSqlResult
@@ -50,14 +146,10 @@ public:
     db. The object is initialized to an inactive state.
 */
 
-QSqlResult::QSqlResult( const QSqlDriver * db ): forwardOnly( FALSE )
+QSqlResult::QSqlResult( const QSqlDriver * db )
 {
-    d = new QSqlResultPrivate();
+    d = new QSqlResultPrivate( this );
     d->sqldriver = db;
-    d->idx = QSql::BeforeFirst;
-    d->isSel = FALSE;
-    d->active = FALSE;
-    d->ext = new QSqlExtension();
 }
 
 /*!
@@ -66,8 +158,6 @@ QSqlResult::QSqlResult( const QSqlDriver * db ): forwardOnly( FALSE )
 
 QSqlResult::~QSqlResult()
 {
-    if ( d->ext )
-	delete d->ext;
     delete d;
 }
 
@@ -309,7 +399,7 @@ bool QSqlResult::fetchPrev()
 */
 bool QSqlResult::isForwardOnly() const
 {
-    return forwardOnly;
+    return d->forwardOnly;
 }
 
 /*!
@@ -322,21 +412,153 @@ bool QSqlResult::isForwardOnly() const
 */
 void QSqlResult::setForwardOnly( bool forward )
 {
-    forwardOnly = forward;
+    d->forwardOnly = forward;
 }
 
-// XXX BCI HACK - remove in 4.0
-/*! \internal */
-void QSqlResult::setExtension( QSqlExtension * ext )
+bool QSqlResult::savePrepare( const QString& query )
 {
-    if ( d->ext )
-	delete d->ext;
-    d->ext = ext;
+    d->sql = query;
+    if ( !driver() )
+	return FALSE;
+    if ( !driver()->hasFeature( QSqlDriver::PreparedQueries ) )
+	return TRUE;
+
+    if ( driver()->hasFeature( QSqlDriver::NamedPlaceholders ) )
+	d->positionalToNamedBinding();
+    else
+	d->namedToPositionalBinding();
+    return TRUE;
 }
 
-/*! \internal */
-QSqlExtension * QSqlResult::extension()
+bool QSqlResult::prepare( const QString& query )
 {
-    return d->ext;
+    /*
+	int i = 0;
+	while ( (i = rx.search( q, i )) != -1 ) {
+	    if ( !rx.cap(1).isEmpty() )
+		d->sqlResult->extension()->holders.append( Holder( rx.cap(0), i ) );
+	    i += rx.matchedLength();
+	}
+	return TRUE; // fake prepares should always succeed
+    */
+
+    return TRUE; // fake prepares should always succeed
 }
+
+bool QSqlResult::exec()
+{
+    bool ret;
+    // fake preparation - just replace the placeholders..
+    QString query = lastQuery();
+    if ( d->bindm == QSqlResultPrivate::BindByName ) {
+	int i;
+	QVariant val;
+	QString holder;
+	for ( i = (int)d->holders.count() - 1; i >= 0; --i ) {
+	    holder = d->holders[ i ].holderName;
+	    val = d->values[ holder ].value;
+	    QSqlField f( "", val.type() );
+	    f.setValue( val );
+	    query = query.replace( (uint)d->holders[ i ].holderPos,
+				   holder.length(), driver()->formatValue( &f ) );
+	}
+    } else {
+	QMap<int, QString>::ConstIterator it;
+	QString val;
+	int i = 0;
+	for ( it = d->index.begin();
+	it != d->index.end(); ++it ) {
+	    i = query.find( '?', i );
+	    if ( i > -1 ) {
+		QSqlField f( "", d->values[ it.data() ].value.type() );
+		if ( d->values[ it.data() ].value.isNull() )
+		    f.setNull();
+		else
+		    f.setValue( d->values[ it.data() ].value );
+		val = driver()->formatValue( &f );
+		query = query.replace( i, 1, driver()->formatValue( &f ) );
+		i += val.length();
+	    }
+	}
+    }
+    // have to retain the original query w/placeholders..
+    QString orig = lastQuery();
+    ret = reset( query );
+    d->executedQuery = query;
+    setQuery( orig );
+    d->resetBindCount();
+    return ret;
+}
+
+void QSqlResult::bindValue( const QString& placeholder, const QVariant& val, QSql::ParameterType tp )
+{
+    d->bindm = QSqlResultPrivate::BindByName;
+    // if the index has already been set when doing emulated named
+    // bindings - don't reset it
+    if ( d->index[ d->values.count() ].isEmpty() ) {
+	d->index[ d->values.count() ] = placeholder;
+    }
+    d->values[ placeholder ] = Param( val, tp );
+}
+
+void QSqlResult::bindValue( int pos, const QVariant& val, QSql::ParameterType tp )
+{
+    d->bindm = QSqlResultPrivate::BindByPosition;
+    QString nm = QString::number( pos );
+    d->index[ pos ] = nm;
+    d->values[ nm ] = Param( val, tp );
+}
+
+void QSqlResult::addBindValue( const QVariant& val, QSql::ParameterType tp )
+{
+    d->bindm = QSqlResultPrivate::BindByPosition;
+    bindValue( d->bindCount, val, tp );
+    ++d->bindCount;
+}
+
+QVariant QSqlResult::parameterValue( const QString& holder )
+{
+    return d->values[ holder ].value;
+}
+
+QVariant QSqlResult::parameterValue( int pos )
+{
+    return d->values[ d->index[ pos ] ].value;
+}
+
+QVariant QSqlResult::boundValue( const QString& holder ) const
+{
+    return d->values[ holder ].value;
+}
+
+QVariant QSqlResult::boundValue( int pos ) const
+{
+    return d->values[ d->index[ pos ] ].value;
+}
+
+QMap<QString, QVariant> QSqlResult::boundValues() const
+{
+    QMap<QString, Param>::ConstIterator it;
+    QMap<QString, QVariant> m;
+    if ( d->bindm == QSqlResultPrivate::BindByName ) {
+	for ( it = d->values.begin(); it != d->values.end(); ++it )
+	    m.insert( it.key(), it.data().value );
+    } else {
+	QString key, tmp, fmt;
+	fmt.sprintf( "%%0%dd", QString::number( d->values.count()-1 ).length() );
+	for ( it = d->values.begin(); it != d->values.end(); ++it ) {
+	    tmp.sprintf( fmt.ascii(), it.key().toInt() );
+	    m.insert( tmp, it.data().value );
+	}
+    }
+    return m;
+}
+
+/*
+QSqlExtension::BindMethod QSqlExtension::bindMethod()
+{
+    return bindm;
+}
+*/
+
 #endif // QT_NO_SQL

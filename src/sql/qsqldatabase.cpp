@@ -49,30 +49,6 @@
 
 QT_STATIC_CONST_IMPL char * const QSqlDatabase::defaultConnection = "qt_sql_default_connection";
 
-QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict = 0;
-QPtrDict<QSqlOpenExtension> *qt_open_extension_dict = 0;
-
-static QSingleCleanupHandler< QPtrDict<QSqlDriverExtension> > qt_driver_ext_cleanup;
-static QSingleCleanupHandler< QPtrDict<QSqlOpenExtension> > qt_open_ext_cleanup;
-
-Q_EXPORT QPtrDict<QSqlDriverExtension> *qSqlDriverExtDict()
-{
-    if ( !qt_driver_extension_dict ) {
-	qt_driver_extension_dict = new QPtrDict<QSqlDriverExtension>;
-	qt_driver_ext_cleanup.set( &qt_driver_extension_dict );
-    }
-    return qt_driver_extension_dict;
-}
-
-Q_EXPORT QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict()
-{
-    if ( !qt_open_extension_dict ) {
-	qt_open_extension_dict = new QPtrDict<QSqlOpenExtension>;
-	qt_open_ext_cleanup.set( &qt_open_extension_dict );
-    }
-    return qt_open_extension_dict;
-}
-
 class QNullResult : public QSqlResult
 {
 public:
@@ -100,7 +76,8 @@ public:
 		  const QString & ,
 		  const QString & ,
 		  const QString &,
-		  int ) {
+		  int,
+		  const QString& ) {
 	return FALSE;
     }
     void    close() {}

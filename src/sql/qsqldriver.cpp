@@ -17,15 +17,22 @@
 #ifndef QT_NO_SQL
 
 #include "qdatetime.h"
-#include "qsqlextension_p.h"
 
-// database states
-#define DBState_Open		0x0001
-#define DBState_OpenError	0x0002
+class QSqlDriverPrivate
+{
+public:
+    QSqlDriverPrivate(QSqlDriver* d);
+public:
+    QSqlDriver* q;
+    uint isOpen: 1;
+    uint isOpenError: 1;
+    QSqlError error;
+};
 
-// ### This needs to go in 4.0!
-QPtrDict<QSqlDriverExtension> *qSqlDriverExtDict();
-QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict();
+inline QSqlDriverPrivate::QSqlDriverPrivate(QSqlDriver* d)
+    : q(d), isOpen(FALSE), isOpenError(FALSE)
+{
+}
 
 /*!
     \class QSqlDriver qsqldriver.h
@@ -45,10 +52,9 @@ QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict();
 */
 
 QSqlDriver::QSqlDriver( QObject * parent, const char * name )
-: QObject(parent, name),
-  dbState(0),
-  error()
+: QObject(parent, name)
 {
+    d = new QSqlDriverPrivate(this);
 }
 
 /*!
@@ -57,21 +63,36 @@ QSqlDriver::QSqlDriver( QObject * parent, const char * name )
 
 QSqlDriver::~QSqlDriver()
 {
+    delete d;
 }
 
 /*!
     \fn bool QSqlDriver::open( const QString& db, const QString& user,
-    const QString& password, const QString& host, int port )
+    const QString& password, const QString& host, int port, const QString& connOpts )
 
     Derived classes must reimplement this abstract virtual function in
     order to open a database connection on database \a db, using user
-    name \a user, password \a password, host \a host and port \a port.
+    name \a user, password \a password, host \a host, port \a port and
+    connection options \a connOpts.
 
     The function \e must return TRUE on success and FALSE on failure.
 
     \sa setOpen()
 
 */
+
+/*!
+    \overload
+
+    Open a database connection on database \a db, using user name \a
+    user, password \a password, host \a host, port \a port and
+    connection options \a connOpts.
+
+    Returns TRUE on success and FALSE on failure.
+
+    \sa setOpen()
+*/
+
 
 /*!
     \fn bool QSqlDriver::close()
@@ -106,13 +127,7 @@ QSqlDriver::~QSqlDriver()
 
 bool QSqlDriver::isOpen() const
 {
-    if ( !qSqlDriverExtDict()->isEmpty() ) {
-	QSqlDriverExtension *ext = qSqlDriverExtDict()->find( (QSqlDriver *) this );
-	if ( ext )
-	    return ext->isOpen();
-    }
-
-    return ((dbState & DBState_Open) == DBState_Open);
+    return d->isOpen;
 }
 
 /*!
@@ -122,7 +137,7 @@ bool QSqlDriver::isOpen() const
 
 bool QSqlDriver::isOpenError() const
 {
-    return ((dbState & DBState_OpenError) == DBState_OpenError);
+    return d->isOpenError;
 }
 
 /*!
@@ -171,10 +186,7 @@ bool QSqlDriver::isOpenError() const
 
 void QSqlDriver::setOpen( bool o )
 {
-    if ( o )
-	dbState |= DBState_Open;
-    else
-	dbState &= ~DBState_Open;
+    d->isOpen = o;
 }
 
 /*!
@@ -188,12 +200,9 @@ void QSqlDriver::setOpen( bool o )
 
 void QSqlDriver::setOpenError( bool e )
 {
-    if ( e ) {
-	dbState |= DBState_OpenError;
-	dbState &= ~DBState_Open;
-    }
-    else
-	dbState &= ~DBState_OpenError;
+    d->isOpenError = e;
+    if ( e )
+	d->isOpen = FALSE;
 }
 
 /*!
@@ -244,7 +253,7 @@ bool QSqlDriver::rollbackTransaction()
 
 void QSqlDriver::setLastError( const QSqlError& e )
 {
-    error = e;
+    d->error = e;
 }
 
 /*!
@@ -254,7 +263,7 @@ void QSqlDriver::setLastError( const QSqlError& e )
 
 QSqlError QSqlDriver::lastError() const
 {
-    return error;
+    return d->error;
 }
 
 /*!
@@ -452,32 +461,6 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 	}
     }
     return r;
-}
-
-/*!
-    \overload
-
-    Open a database connection on database \a db, using user name \a
-    user, password \a password, host \a host, port \a port and
-    connection options \a connOpts.
-
-    Returns TRUE on success and FALSE on failure.
-
-    \sa setOpen()
-*/
-bool QSqlDriver::open( const QString& db,
-		       const QString& user,
-		       const QString& password,
-		       const QString& host,
-		       int port,
-		       const QString& connOpts )
-{
-    if ( !qSqlOpenExtDict()->isEmpty() ) {
-	QSqlOpenExtension *ext = qSqlOpenExtDict()->find( (QSqlDriver *) this );
-	if ( ext )
-	    return ext->open( db, user, password, host, port, connOpts );
-    }
-    return open( db, user, password, host, port );
 }
 
 #endif // QT_NO_SQL

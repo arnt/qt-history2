@@ -35,7 +35,6 @@ class QSqlDriver;
 class QSql;
 class QSqlResultInfo;
 class QSqlResultPrivate;
-class QSqlExtension;
 
 class QM_EXPORT_SQL QSqlResult
 {
@@ -43,10 +42,6 @@ friend class QSqlQuery;
 friend class QSqlResultShared;
 public:
     virtual ~QSqlResult();
-    
-    // BCI HACK - remove in 4.0
-    void 	    setExtension( QSqlExtension * ext );
-    QSqlExtension * extension();
 
 protected:
     QSqlResult(const QSqlDriver * db );
@@ -65,6 +60,25 @@ protected:
     virtual void    setSelect( bool s );
     virtual void    setForwardOnly( bool forward );
 
+    // prepared query support
+    virtual bool exec();
+    virtual bool prepare( const QString& query );
+    void bindValue( const QString& placeholder, const QVariant& val );
+    void bindValue( int pos, const QVariant& val );
+    void addBindValue( const QVariant& val );
+    void bindValue( const QString& placeholder, const QVariant& val, QSql::ParameterType type );
+    void bindValue( int pos, const QVariant& val, QSql::ParameterType type );
+    void addBindValue( const QVariant& val, QSql::ParameterType type );
+    QVariant boundValue( const QString& placeholder ) const;
+    QVariant boundValue( int pos ) const;
+    QMap<QString, QVariant> boundValues() const;
+    QString executedQuery() const;
+    bool savePrepare( const QString& sqlquery ); // ### TODO - find a much better name
+    QVariant parameterValue( const QString& holder );
+    QVariant parameterValue( int pos );    
+    
+//    BindMethod bindMethod() const;
+
     virtual QVariant data( int i ) = 0;
     virtual bool    isNull( int i ) = 0;
     virtual bool    reset ( const QString& sqlquery ) = 0;
@@ -75,9 +89,9 @@ protected:
     virtual bool    fetchLast() = 0;
     virtual int     size() = 0;
     virtual int     numRowsAffected() = 0;
+    
 private:
     QSqlResultPrivate* d;
-    bool forwardOnly;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -171,8 +171,7 @@ void QSqlField::setValue( const QVariant& value )
 		      nm.local8Bit(), value.typeName(), QVariant::typeToName( d->type ) );
     }
     val = value;
-    if ( val.type() != QVariant::Invalid )
-	nul = FALSE;
+    nul = val.type() == QVariant::Invalid || val.isNull();
 }
 
 /*!
