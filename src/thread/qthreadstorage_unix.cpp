@@ -20,6 +20,11 @@
 
 
 // #define QTHREADSTORAGE_DEBUG
+#ifdef QTHREADSTORAGE_DEBUG
+#  define DEBUG qDebug
+#else
+#  define DEBUG if(false)qDebug
+#endif
 
 
  // 256 maximum + 1 used in QRegExp + 1 used in QEventLoop
@@ -53,9 +58,7 @@ QThreadStorageData::QThreadStorageData( void (*func)( void * ) )
     thread_storage_usage[id].used = true;
     thread_storage_usage[id].func = func;
 
-#ifdef QTHREADSTORAGE_DEBUG
-    qDebug( "QThreadStorageData: allocated id %d", id );
-#endif // QTHREADSTORAGE_DEBUG
+    DEBUG( "QThreadStorageData: allocated id %d", id );
 
     pthread_mutex_unlock( &thread_storage_mutex );
 }
@@ -66,9 +69,7 @@ QThreadStorageData::~QThreadStorageData()
     thread_storage_usage[id].used = false;
     thread_storage_usage[id].func = 0;
 
-#ifdef QTHREADSTORAGE_DEBUG
-    qDebug( "QThreadStorageData: released id %d", id );
-#endif // QTHREADSTORAGE_DEBUG
+    DEBUG( "QThreadStorageData: released id %d", id );
 
     pthread_mutex_unlock( &thread_storage_mutex );
 }
@@ -85,21 +86,24 @@ void **QThreadStorageData::set( void *p )
     QThreadInstance *d = QThreadInstance::current();
     QMutexLocker locker( d->mutex() );
     if ( !d->thread_storage ) {
-#ifdef QTHREADSTORAGE_DEBUG
-	qDebug( "QThreadStorageData: allocating storage for thread %lx",
-		(unsigned long) pthread_self() );
-#endif // QTHREADSTORAGE_DEBUG
+	DEBUG( "QThreadStorageData: allocating storage %d for thread %lx",
+		id, (unsigned long) pthread_self() );
 
 	d->thread_storage = new void*[MAX_THREAD_STORAGE];
 	memset( d->thread_storage, 0, sizeof( void* ) * MAX_THREAD_STORAGE );
     }
 
     // delete any previous data
-    if ( d->thread_storage[id] )
+    if ( d->thread_storage[id] ) {
+	DEBUG("QThreadStorageData: deleting previous storage %d for thread %lx",
+	      id, (unsigned long) pthread_self());
 	thread_storage_usage[id].func( d->thread_storage[id] );
+    }
 
     // store new data
     d->thread_storage[id] = p;
+    DEBUG("QThreadStorageData: set storage %d for thread %lx to %p",
+	  id, (unsigned long) pthread_self(), p);
     return &d->thread_storage[id];
 }
 
@@ -107,10 +111,8 @@ void QThreadStorageData::finish( void **thread_storage )
 {
     if ( ! thread_storage ) return; // nothing to do
 
-#ifdef QTHREADSTORAGE_DEBUG
-    qDebug( "QThreadStorageData: destroying storage for thread %lx",
+    DEBUG( "QThreadStorageData: destroying storage for thread %lx",
 	    (unsigned long) pthread_self() );
-#endif // QTHREADSTORAGE_DEBUG
 
     for ( int i = 0; i < MAX_THREAD_STORAGE; ++i ) {
 	if ( ! thread_storage[i] ) continue;
@@ -148,9 +150,7 @@ bool QThreadStorageData::ensure_constructed(void (*func)(void *))
         thread_storage_usage[id].used = true;
         thread_storage_usage[id].func = func;
 
-#ifdef QTHREADSTORAGE_DEBUG
-        qDebug("QThreadStorageData: allocated id %d", id);
-#endif // QTHREADSTORAGE_DEBUG
+        DEBUG("QThreadStorageData: allocated id %d", id);
 
         pthread_mutex_unlock(&thread_storage_mutex);
 
