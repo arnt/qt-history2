@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#49 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#50 $
 **
 ** Definition of QPixmap class
 **
@@ -54,12 +54,14 @@ public:
     static QWMatrix trueMatrix( const QWMatrix &, int w, int h );
 
     QImage	convertToImage() const;
-    bool	convertFromImage( const QImage & );
+    bool	convertFromImage( const QImage &, int depth=-1 );
 
     static const char *imageFormat( const char *fileName );
-    bool	load( const char *fileName, const char *format=0 );
+    bool	load( const char *fileName, const char *format=0,
+		      int depth=-1);
     bool	loadFromData( const uchar *buf, uint len,
-			      const char *format=0 );
+			      const char *format=0,
+			      int depth=-1 );
     bool	save( const char *fileName, const char *format ) const;
 
 #if defined(_WS_WIN_) || defined(_WS_PM_)
