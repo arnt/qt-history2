@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#11 $
+** $Id: //depot/qt/main/src/xml/qdom.h#12 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -322,7 +322,7 @@ public:
 
     // Qt extensions
     QString toString() const;
-    QCString toCString() const { return toString().utf8(); }
+    QCString toCString() const;
 
 private:
     QDomDocument( QDomDocumentPrivate* );

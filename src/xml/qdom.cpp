@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#33 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#34 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -5444,12 +5444,17 @@ QString QDomDocument::toString() const
 }
 
 /*!
-  \fn QCString QDomDocument::toCString() const
-
-  Converts the parsed document back to its textual representation.
+  Converts the parsed document back to its textual representation and returns a
+  QCString for it that is encoded in UTF-8.
 
   \sa toString()
 */
+QCString QDomDocument::toCString() const
+{
+    // ### if there is an encoding specified in the xml declaration, this
+    // encoding declaration should be changed to utf8
+    return toString().utf8();
+}
 
 
 /*!
