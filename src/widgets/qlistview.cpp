@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#60 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#60 $");
 
 
 const int Unsorted = 32767;
@@ -53,7 +53,7 @@ struct QListViewPrivate
 	Pending( int level, int ypos, QListViewItem * item)
 	    : l(level), y(ypos), i(item) {};
 
-	int l; // top pixel in this item, in list view coordinates
+	int l; // level of this item; root is -1 or 0
 	int y; // level of this item in the tree
 	QListViewItem * i; // the item itself
     };
@@ -1118,7 +1118,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	if ( tx < 0 )
 	    tx = d->h->cellPos( d->h->mapToActual( 0 ) );
-
+	
 	// do any children of current need to be painted?
 	if ( ih != ith &&
 	     (current->i != d->r || d->rootIsExpandable) &&
@@ -1132,7 +1132,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    int rbottom = current->y + ith;
 	    int rleft = tx + current->l*treeStepSize();
 	    int rright = rleft + treeStepSize();
-	    
+	
 	    int crtop = QMAX( rtop, cy );
 	    int crbottom = QMIN( rbottom, cy+ch );
 	    int crleft = QMAX( rleft, cx );
@@ -1189,7 +1189,7 @@ void QListView::buildDrawableList() const
 	d->r->sortChildItems( d->column, d->ascending );
 
     QStack<QListViewPrivate::Pending> stack;
-    stack.push( new QListViewPrivate::Pending( d->rootIsExpandable ? -1 : 0,
+    stack.push( new QListViewPrivate::Pending( ((int)d->rootIsExpandable)-1,
 					       0, d->r ) );
 
     // could mess with cy and ch in order to speed up vertical
@@ -1702,8 +1702,10 @@ void QListView::mousePressEvent( QMouseEvent * e )
 
 	if ( it.current() ) {
 	    x1 -= treeStepSize() * (it.current()->l - 1);
-	    if ( x1 >= 0 && x1 < treeStepSize() )
+	    if ( x1 >= 0 && x1 < treeStepSize() ) {
 		setOpen( i, !i->isOpen() );
+		return;
+	    }
 	}
     }
 
@@ -1712,7 +1714,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
 
     i->activate();
 
-    setCurrentItem( i ); // repaints
+    setCurrentItem( i );
 
     return;
 }
@@ -1988,7 +1990,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	 ((e->state() & ShiftButton) || !isMultiSelection()) )
 	setSelected( i, d->currentSelected
 		     ? d->currentSelected->isSelected()
-		     : TRUE  );
+		     : TRUE );
 
     setCurrentItem( i );
 }
@@ -2783,7 +2785,9 @@ QSize QListView::sizeHint() const
 
 void QListView::setOpen( QListViewItem * item, bool open )
 {
-    if ( !item || !item->isExpandable() || item->isOpen() == open )
+    if ( !item ||
+	 item->isOpen() == open ||
+	 (open && !item->children() && !item->isExpandable()) )
 	return;
 
     item->setOpen( open );
