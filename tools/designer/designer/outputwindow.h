@@ -15,6 +15,7 @@ class OutputWindow : public QTabWidget
 
 public:
     OutputWindow( QWidget *parent );
+    ~OutputWindow();
 
     void setErrorMessages( const QStringList &errors, const QValueList<int> &lines, bool clear = TRUE );
 
@@ -27,6 +28,7 @@ private:
     void setupError();
     void setupDebug();
 
+    QtMsgHandler oldMsgHandler;
 };
 
 #endif

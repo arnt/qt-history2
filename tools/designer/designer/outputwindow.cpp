@@ -18,6 +18,13 @@ OutputWindow::OutputWindow( QWidget *parent )
     setupError();
 }
 
+OutputWindow::~OutputWindow()
+{
+    debugView = 0;
+    errorView = 0;
+    qInstallMsgHandler( oldMsgHandler );
+}
+
 void OutputWindow::setupError()
 {
     errorView = new QListView( this );
@@ -46,7 +53,7 @@ void OutputWindow::setupDebug()
 {
     debugView = new QTextEdit( this );
     addTab( debugView, "Debug Output" );
-    qInstallMsgHandler( debugMessageOutput );
+    oldMsgHandler = qInstallMsgHandler( debugMessageOutput );
 }
 
 void OutputWindow::setErrorMessages( const QStringList &errors, const QValueList<int> &lines, bool clear )
