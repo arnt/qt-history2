@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#23 $
 **
 ** Implementation of QStringList
 **
@@ -58,7 +58,7 @@
 	
 	// print it out
 	for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
-	    printf( "%s \n", it->latin1() );
+	    printf( "%s \n", (*it).latin1() );
 	}
   \endcode
 
@@ -165,7 +165,7 @@ QStringList QStringList::split( const QRegExp &sep, const QString &str )
 
 /*!
   Greps in the stringlist for all strings, which contain the string \a expr and returns
-  a stringlist containing all that strings. If \a cs is TRUE, the grep is done case sensitive, 
+  a stringlist containing all that strings. If \a cs is TRUE, the grep is done case sensitive,
   else not.
 */
 
