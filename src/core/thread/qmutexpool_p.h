@@ -45,23 +45,20 @@ private:
     bool recurs;
 };
 
-Q_CORE_EXPORT QMutexPool *qt_global_mutexpool_func();
-#define qt_global_mutexpool qt_global_mutexpool_func()
-
 #else // QT_NO_THREAD
 
 class QMutexPool
 {
 public:
-    inline QMutexPool(bool = false, int = 128) {}
-    ~QMutexPool() {}
+    inline QMutexPool(bool = false, int = 128)
+    { }
 
-    static QMutex *get(const void *) { return 0; }
+    static inline QMutex *get(const void *)
+    { return 0; }
 };
 
-inline Q_CORE_EXPORT QMutexPool *qt_global_mutexpool_func() { return 0; }
-#define qt_global_mutexpool qt_global_mutexpool_func()
-
 #endif // QT_NO_THREAD
+
+extern Q_CORE_EXPORT QMutexPool *qt_global_mutexpool;
 
 #endif // QMUTEXPOOL_P_H
