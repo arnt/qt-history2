@@ -953,12 +953,20 @@ static void markFrames(QTextFrame *current, int start, int end)
 void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 {
     Q_UNUSED(oldLength);
+
+    const int oldWidthUsed = widthUsed();
+
 //     qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
 
     // mark all frames between f_start and f_end as dirty
     markFrames(document()->rootFrame(), from, from + length);
 
     d->layoutFrame(document()->rootFrame(), from, from + length);
+
+    const int w = widthUsed();
+    if (oldWidthUsed != w)
+        emit usedWidthChanged();
+
     emit update();
 }
 

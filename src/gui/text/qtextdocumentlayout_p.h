@@ -13,6 +13,7 @@ class QTextDocumentLayoutPrivate;
 class Q_GUI_EXPORT QTextDocumentLayout : public QAbstractTextDocumentLayout
 {
     Q_DECLARE_PRIVATE(QTextDocumentLayout)
+    Q_OBJECT
 public:
     QTextDocumentLayout(QTextDocument *doc);
 
@@ -41,6 +42,9 @@ public:
 
     // internal, to support the ugly FixedColumnWidth wordwrap mode in QTextEdit
     void setFixedColumnWidth(int width);
+
+signals:
+    void usedWidthChanged();
 };
 
 #endif // QTEXTDOCUMENTLAYOUT_P_H
