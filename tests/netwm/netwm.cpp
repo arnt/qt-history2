@@ -318,8 +318,9 @@ static void readIcon(NETWinInfoPrivate *p) {
 
 	unsigned long s = (p->icons[j].size.width *
 			   p->icons[j].size.height * 4);
-	if ( i + s > proplen )
+	if ( i + s - 1 > proplen ) {
 	    break;
+	}
 	if (p->icons[j].data) delete [] p->icons[j].data;
 	p->icons[j].data = new CARD32[ s/4 ];
 	memcpy(p->icons[j].data, d, s);
@@ -1458,7 +1459,7 @@ NETIcon NETWinInfo::icon(int w, int h) const {
 	if ((p->icons[i].size.width >= (unsigned) w &&
 	     p->icons[i].size.width < result.size.width) &&
 	    (p->icons[i].size.height >= (unsigned) h &&
-	     p->icons[i].size.width < result.size.height))
+	     p->icons[i].size.height < result.size.height))
 	    result = p->icons[i];	
     }
 
