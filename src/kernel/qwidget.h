@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#114 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#115 $
 **
 ** Definition of QWidget class
 **
@@ -163,6 +163,7 @@ public:
 
     virtual bool close( bool forceKill=FALSE );
     bool	 isVisible()	const;
+    bool	 isReallyVisible() const;
 
     void	 raise();
     void	 lower();
@@ -276,6 +277,10 @@ private:
     void	 cancelMove();
     void	 cancelResize();
     void	 sendDeferredEvents();
+    QWidget * 	 focusWidget();
+    void 	 insertIntoFocusChain( QWidget * );
+    void 	 reparentFocusWidgets( QWidget * parent );
+    QFocusData * focusData( bool create = FALSE );
 
     WId		 winid;
     WFlags	 flags;
@@ -286,7 +291,7 @@ private:
     QFont	 fnt;
     QCursor	 curs;
     QWExtra	*extra;
-    QWidget	*focusChild;
+    QWidget	*focusChild; // ### unused now
     static void	 createMapper();
     static void	 destroyMapper();
     static QWidgetList   *tlwList();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#185 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#186 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#185 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#186 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -330,13 +330,8 @@ bool QWidget::create()
 
 void QWidget::destroy( bool destroyWindow )
 {
-    if ( qApp->focus_widget == this )
-	qApp->focus_widget = 0;			// reset focus widget
-    if ( parentWidget() && parentWidget()->focusChild == this )
-	parentWidget()->focusChild = 0;
     if ( testWFlags(WState_Created) ) {
 	clearWFlags( WState_Created );
-	focusChild = 0;
 	if ( children() ) {
 	    QObjectListIt it(*children());
 	    register QObject *obj;
@@ -376,16 +371,25 @@ bool QWidget::destroy()
 
 
 #if QT_VERSION == 200
-#error "Rename recreate to reparent"
+#error "Rename recreate as reparent"
 #endif
 
 /*!
-  Reparents the widget.  The widget gets a new \aparent, new widget
-  flags (\af, but as usual, use 0) at a new position in its new parent
-  (\ap).
+  Reparents the widget.  The widget gets a new \a parent, new widget
+  flags (\a f, but as usual, use 0) at a new position in its new
+  parent (\a p).
 
   If \a showIt is TRUE, show() is called once the widget has been
   recreated.
+
+  If the new parent widget is in a different top-level widget, the
+  reparented widget and its children are appended to the end of the
+  \link setFocusPolicy() TAB chain \endlink of the new parent widget,
+  in the same internal order as before.  If one of the moved widgets
+  had keyboard focus, recreate() calls clearFocus() for that widget.
+
+  If the new parent widget is in the same top-level widget as the old
+  parent, recreate doesn't change the TAB order or keyboard focus.
 
   \sa getWFlags()
 */
@@ -398,6 +402,9 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
     setWinId( 0 );
+
+    reparentFocusWidgets( parent );		// fix focus chains
+
     if ( parentObj )				// remove from parent
 	parentObj->removeChild( this );
     if ( parent ) {				// insert into new parent

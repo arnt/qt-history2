@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#69 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#69 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -265,13 +265,8 @@ bool QWidget::create()
 
 void QWidget::destroy( bool destroyWindow )
 {
-    if ( qApp->focus_widget == this )
-	qApp->focus_widget = 0;			// reset focus widget
-    if ( parentWidget() && parentWidget()->focusChild == this )
-	parentWidget()->focusChild = 0;
     if ( testWFlags(WState_Created) ) {
 	clearWFlags( WState_Created );
-	focusChild = 0;
 	if ( children() ) {
 	    QObjectListIt it(*children());
 	    register QObject *obj;
@@ -308,6 +303,9 @@ void QWidget::recreate( QWidget *parent, WFlags, const QPoint &p,
 {
     HANDLE parentWin = parent ? parent->winId() : 0;
     hide();
+
+    reparentFocusWidgets( parent );		// fix focus chains
+
     if ( parentObj )				// remove from parent
 	parentObj->removeChild( this );
     if ( parent ) {				// insert into new parent

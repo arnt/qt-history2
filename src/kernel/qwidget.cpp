@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#177 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#178 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#177 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#178 $");
 
 
 /*!
@@ -391,6 +391,15 @@ inline bool QWidgetMapper::remove( WId id )
 }
 
 
+// focus data class - documented in QWidget::focusData()
+
+class QFocusData {
+public:
+    QFocusData(): it(focusWidgets) { focusWidgets.setAutoDelete( FALSE ); }
+    QList<QWidget> focusWidgets;
+    QListIterator<QWidget> it;
+};
+
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
@@ -573,7 +582,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     winid = 0;					// default attributes
     flags = f;
     extra = 0;					// no extra widget info
-    focusChild = 0;				// no child has focus
     if ( !deferredMoves )			// do it only once
 	initDeferredDicts();
     create();					// platform-dependent init
@@ -620,6 +628,16 @@ QWidget::~QWidget()
 	delete childObjects;
 	childObjects = 0;
     }
+    // if I had focus, clear focus entirely.  this is probably a bad idea -
+    // better to give focus to someone else
+    if ( qApp->focus_widget == this )
+	qApp->focus_widget = 0;
+
+    // remove myself from the can-take-focus list
+    QFocusData * f = focusData();
+    if ( f && f->focusWidgets.findRef( this ) >= 0 )
+	f->focusWidgets.take();
+
     destroy();					// platform-dependent cleanup
     if ( extra )
 	deleteExtra();
@@ -734,6 +752,7 @@ void QWidget::createExtra()
 	extra->incw = extra->inch = 0;
 	extra->caption = extra->iconText = 0;
 	extra->icon = extra->bg_pix = 0;
+	extra->focusData = 0;
     }
 }
 
@@ -749,6 +768,7 @@ void QWidget::deleteExtra()
 	delete [] extra->iconText;
 	delete extra->icon;
 	delete extra->bg_pix;
+	delete extra->focusData;
 	delete extra;
 	extra = 0;
     }
@@ -1585,37 +1605,25 @@ bool QWidget::hasFocus() const
 
 void QWidget::setFocus()
 {
+
     if ( testWFlags(WFocusSet) || !(isFocusEnabled() && isEnabled()) )
 	return;
-    setWFlags( WFocusSet );
-    QWidget *ow = topLevelWidget();
-    QWidget *fw = qApp->focusWidget();
-    bool sameTLW = fw && (fw->topLevelWidget() == ow);
-    
-    while ( ow->focusChild ) {			// reset focus chain
-	QWidget *fc =  ow->focusChild;
-	ow->focusChild = 0;
-	ow = fc;
-    }
-    if ( ow != this )				//### Should always be true
-	ow->clearWFlags( WFocusSet );
-    
-    if ( sameTLW ) {				// goodbye to old focus widget
-	qApp->focus_widget = 0;
-	QFocusEvent out( Event_FocusOut );
-	QApplication::sendEvent( ow, &out );
-    }
 
-    QWidget *w = this;
-    QWidget *p;
-    while ( (p=w->parentWidget()) && !w->testWFlags(WType_TopLevel) ) {
-	p->focusChild = w;			// build new focus chain
-	w = p;
-    }
-    if ( sameTLW || isActiveWindow() ) {	// set active focus
+    QFocusData * f = focusData(TRUE);
+    if ( f->it.current() )
+	f->it.current()->clearFocus();
+    f->it.toFirst();
+    while ( f->it.current() != this && !f->it.atLast() )
+	++f->it;
+    ASSERT( f->it.current() == this );
+    setWFlags( WFocusSet );
+
+    if ( isActiveWindow() ) {
 	qApp->focus_widget = this;
 	QFocusEvent in( Event_FocusIn );
 	QApplication::sendEvent( this, &in );
+    } else {
+	qApp->focus_widget = 0;
     }
 }
 
@@ -1637,14 +1645,8 @@ void QWidget::clearFocus()
 {
     if ( !testWFlags(WFocusSet) )		// focus was never set
 	return;
+
     clearWFlags( WFocusSet );
-    QWidget *w;
-    w = topLevelWidget();
-    while ( w->focusChild ) {			// reset focus chain
-	QWidget *fc =  w->focusChild;
-	w->focusChild = 0;
-	w = fc;
-    }
     if ( qApp->focusWidget() == this ) {	// clear active focus
 	qApp->focus_widget = 0;
 	QFocusEvent out( Event_FocusOut );
@@ -1656,47 +1658,136 @@ void QWidget::clearFocus()
   Finds a new widget to give the keyboard focus to, as appropriate
   for Tab/Shift-Tab.
 
-  If \a next is true, this function searches \"forwards\", if \a next
-  is FALSE, \"backwards\".
+  If \a next is true, this function searches "forwards", if \a next is
+  FALSE, "backwards".
+
+  Reimplementing this function makes sense only top-level widgets, but
+  not for any other widgets.  
+
 */
 
 bool QWidget::focusNextPrevChild( bool next )
 {
-    QWidget *p = parentWidget();
-    if ( !p || p->children() == 0 )
+    QFocusData * f = focusData( TRUE );
+
+    QWidget * startingPoint = f->it.current();
+    QWidget * candidate = 0;
+    QWidget * w = next ? f->focusWidgets.last() : f->focusWidgets.first();
+
+    do {
+	if ( w && w != startingPoint &&
+	     w->testWFlags( WState_TabToFocus ) &&
+	     w->isReallyVisible() && w->isEnabled() )
+	    candidate = w;
+	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
+    } while( w && !(candidate && w==startingPoint) );
+
+    if ( !candidate )
 	return FALSE;
-    QObjectListIt it( *p->children() );
-    while ( it.current() && it.current() != this )
-	++it;
-    if ( !it.current() ) {
-#if defined(CHECK_NULL)
-	warning( "QWidget::focusNextPrevChild: Internal error" );
-#endif
-	return FALSE;
+
+    candidate->setFocus();
+    return TRUE;
+}
+
+
+/*!  Returns the focus widget in this widget's window.  This
+  is not the same as QApplication::focusWidget(), which returns the
+  focus widget in the currently active window.
+*/
+
+QWidget * QWidget::focusWidget()
+{
+    QFocusData * f = focusData( FALSE );
+    return f ? f->it.current() : 0;
+}
+
+
+/*!  Returns a pointer to the focus data for this widget's top-level
+  widget, optionally creating focus data.
+
+  Focus data always belongs to the top-level widget.  The focus data
+  list contains all the widgets in this top-level widget that can
+  accept focus, in tab order.  An iterator points to the current focus
+  widget (focusWidget() returns a pointer to this widget).
+*/
+
+QFocusData * QWidget::focusData( bool create )
+{
+    QWidget * tlw = topLevelWidget();
+    QWExtra * ed = tlw->extraData();
+    if ( create && !ed ) {
+	tlw->createExtra();
+	ed = tlw->extraData();
     }
-    while ( TRUE ) {
-	if ( next ) {
-	    ++it;
-	    if ( !it.current() )
-		it.toFirst();
+    if ( create && !ed->focusData ) {
+	ed->focusData = new QFocusData;
+    }
+    return ed ? ed->focusData : 0;
+}
+
+
+void QWidget::insertIntoFocusChain( QWidget * after )
+{
+    QFocusData * f = focusData( TRUE );
+    bool focusHere = (f->it.current() == this);
+    if ( f->focusWidgets.findRef( this ) >= 0 )
+	 f->focusWidgets.take();
+    if ( f->focusWidgets.findRef( after ) >= 0 )
+	f->focusWidgets.insert( f->focusWidgets.at() + 1, this );
+    else
+	f->focusWidgets.append( this );
+    
+    if ( focusHere ) // reset iterator so tab will work appropriately
+	while( f->it.current() && f->it.current() != this )
+	    ++f->it;
+}
+
+/*!  Moves the relevant widgets from the this window's tab chain to
+  that of \a parent, if there's anything to move and we're really
+  moving
+
+  \sa recreate()
+*/
+
+
+void QWidget::reparentFocusWidgets( QWidget * parent )
+{
+    if ( focusData() &&
+	 ( parentObj == 0 || parent == 0 ||
+	   parent->topLevelWidget() != topLevelWidget() ) ) {
+	QFocusData * from = focusData();
+	from->focusWidgets.first();
+	QFocusData * to;
+	if ( parent ) {
+	    to = parent->focusData( TRUE );
 	} else {
-	    --it;
-	    if ( !it.current() )
-		it.toLast();
+	    createExtra();
+	    to = extra->focusData = new QFocusData;
 	}
-	if ( it.current() == this )		// wrapped around
-	    return FALSE;
-	if ( it.current()->isWidgetType() ) {
-	    QWidget *w = (QWidget*)it.current();
-	    if ( (w->focusPolicy() & TabFocus) && w->isEnabled() ) {
-		w->setFocus();
-		return TRUE;
+		
+	do {
+	    QWidget * pw = from->focusWidgets.current();
+	    while( pw && pw != this )
+		pw = pw->parentWidget();
+	    if ( pw == this ) {
+		QWidget * w = from->focusWidgets.take();
+		if ( w->testWFlags( WFocusSet ) )
+		    // probably best to clear keyboard focus, or
+		    // the user might become rather confused
+		    w->clearFocus();
+		to->focusWidgets.append( w );
+	    } else {
+		from->focusWidgets.next();
 	    }
+	} while( from->focusWidgets.current() );
+
+	if ( parentObj == 0 ) {
+	    // this widget is no longer a top-level widget, so get rid
+	    // of old focus data
+	    delete extra->focusData;
+	    extra->focusData = 0;
 	}
     }
-#if !defined(NO_DEADCODE)
-    return FALSE;
-#endif
 }
 
 
@@ -1797,10 +1888,17 @@ void QWidget::setCRect( const QRect &r )
 
 void QWidget::setFocusPolicy( FocusPolicy policy )
 {
+    if ( policy ) {
+	QFocusData * f = focusData( TRUE );
+	if ( f->focusWidgets.findRef( this ) < 0 )
+ 	    f->focusWidgets.append( this );
+    }
+
     if ( policy & TabFocus )
 	setWFlags( WState_TabToFocus );
     else
 	clearWFlags( WState_TabToFocus );
+
     if ( policy & ClickFocus )
 	setWFlags( WState_ClickToFocus );
     else
@@ -1948,21 +2046,30 @@ void QWidget::show()
 
 void QWidget::hide()
 {
-    if ( testWFlags(WFocusSet) || focusChild ) {
-	QWidget *w = this;
-	while ( w->focusChild )			// descend focus chain
-	    w = w->focusChild;
-	w->clearFocus();
-    }
     setWFlags( WState_DoHide );
     if ( !testWFlags(WState_Visible) )
 	return;
+
     if ( testWFlags(WType_Modal) )
 	qt_leave_modal( this );
     else if ( testWFlags(WType_Popup) )
 	qt_close_popup( this );
+
     hideWindow();
+
+    // next bit tries to move the focus if the focus widget is now
+    // hidden.  if there is no suitable focus widget, clear focus.
+    if ( focusData() ) {
+	QWidget * fw, * pw;
+	fw = pw = focusData()->it.current();
+	while ( pw && pw != this && !pw->isTopLevel() )
+	    pw = pw->parentWidget();
+	if ( pw == this && !topLevelWidget()->focusNextPrevChild( TRUE ) )
+	    fw->clearFocus();
+    }
+
     clearWFlags( WState_Visible );
+
     cancelMove();
     cancelResize();
     if ( isTopLevel() ) {			// last TLW hidden?
@@ -2018,16 +2125,45 @@ bool QWidget::close( bool forceKill )
 }
 
 
-/*!
-  \fn bool QWidget::isVisible() const
-  Returns TRUE if the widget is visible, or FALSE if the widget is invisible.
+/*! \fn bool QWidget::isVisible() const
 
-  Calling show() makes the widget visible. Calling hide() makes the widget
-  invisible.
+  Returns TRUE if the widget itself is set to visible status, or else
+  FALSE.  Calling show() sets the widget to visible status; calling
+  hide() sets it to hidden status.
 
-  A widget is considered visible even if it is obscured by other windows on the
-  screen.
+  If a widget is set to visible status, but its parent widget is set
+  to hidden status, this function returns TRUE.  isReallyVisible()
+  looks at the visibility status if the parent widgets as well, and is
+  better suited to many purposes.
+
+  This function returns TRUE if the widget it is obscured by other
+  windows on the screen, but would be visible if moved.
+
+  Calling show() makes the widget visible, and calling hide() makes
+  the widget invisible.
+
+  \sa show() hide() isReallyVisible() iconified()
 */
+
+
+/*!
+  Returns TRUE if this widget and every parent up to the \link
+  topLevelWidget() top level widget \endlink is visible, or else
+  FALSE.
+
+  This function returns TRUE if the widget it is obscured by other
+  windows on the screen, but would be visible if moved.
+
+  \sa show() hide() isVisible() iconified()
+*/
+
+bool QWidget::isReallyVisible() const
+{
+    const QWidget * w = this;
+    while ( w && !w->isVisible() && !w->isTopLevel() && w->parentWidget() )
+	w = w->parentWidget();
+    return w->isVisible();
+}
 
 
 /*!
@@ -2198,10 +2334,11 @@ bool QWidget::event( QEvent *e )
 	case Event_KeyPress: {
 	    QKeyEvent *k = (QKeyEvent *)e;
 	    bool res = FALSE;
-	    if ( k->key() == Key_Tab )
-		res = focusNextPrevChild( TRUE );
-	    else if ( k->key() == Key_Backtab )
-		res = focusNextPrevChild( FALSE );
+	    if ( k->key() == Key_Backtab || 
+		 (k->key() == Key_Tab && (k->state() & ShiftButton)) )
+		res = topLevelWidget()->focusNextPrevChild( FALSE );
+	    else if ( k->key() == Key_Tab )
+		res = topLevelWidget()->focusNextPrevChild( TRUE );
 	    if ( res )
 		break;
 	    QWidget *w = this;

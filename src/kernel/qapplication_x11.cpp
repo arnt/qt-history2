@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#223 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#224 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#223 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#224 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1566,12 +1566,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 
 	case FocusIn: {			// got focus
-	    QWidget *w = widget;
-	    w = w->topLevelWidget();
-	    while ( w->focusChild )		// go down focus chain
-		w = w->focusChild;
-	    if ( w != focus_widget && w->isFocusEnabled() ) {
-		focus_widget = w;
+	    QWidget *w = widget->focusWidget();
+	    if ( !w ) {
+		// set focus to some arbitrary widget with WTabToFocus
+		widget->topLevelWidget()->focusNextPrevChild( TRUE );
+	    } else if ( w != focus_widget && w->isFocusEnabled() ) {
+		qApp->focus_widget = w;
 		QFocusEvent in( Event_FocusIn );
 		QApplication::sendEvent( w, &in );
 	    }

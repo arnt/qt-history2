@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#96 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#96 $");
 
 
 /*****************************************************************************
@@ -878,10 +878,12 @@ bool QApplication::winEventFilter( MSG * )	// Windows event filter
 
 void QApplication::winFocus( QWidget *w, bool gotFocus )
 {
+    // ### 
+
+    // bogus stuff here.  may need to muck about with
+    // tlw->extra->focusData so tab works correctly.
     if ( gotFocus ) {
-	w = w->topLevelWidget();
-	while ( w->focusChild )			// go down focus chain
-	    w = w->focusChild;
+	w = w->focusWidget();
 	if ( w != focus_widget && w->isFocusEnabled() ) {
 	    focus_widget = w;
 	    QFocusEvent in( Event_FocusIn );
