@@ -40,7 +40,7 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
     Q_ASSERT(o);
 
     if (updateHandler) {
-	updateHandle(o, who, reason);
+	updateHandler(o, who, reason);
 	return;
     }
 

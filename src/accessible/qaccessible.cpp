@@ -428,7 +428,7 @@ bool QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterfac
     if (qt_cast<QWidget*>(object))
 	*iface = new QAccessibleWidget(object);
     else if (qt_cast<QApplication*>(object))
-	*iface = new QAccessibleApplication(static_cast<QApplication*>(object));
+	*iface = new QAccessibleApplication();
     else
 	return FALSE;
 
