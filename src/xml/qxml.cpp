@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#51 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#52 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2523,7 +2523,15 @@ bool QXmlSimpleReader::parseProlog()
 	doctype_read = FALSE;
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseProlog, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -2686,7 +2694,15 @@ bool QXmlSimpleReader::parseElement()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseElement, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -3033,7 +3049,15 @@ bool QXmlSimpleReader::parseContent()
 	charDataRead = FALSE;
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseContent, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -3259,7 +3283,15 @@ bool QXmlSimpleReader::parseMisc()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseMisc, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -3394,7 +3426,15 @@ bool QXmlSimpleReader::parsePI()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parsePI, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -3607,7 +3647,15 @@ bool QXmlSimpleReader::parseDoctype()
 	d->publicId = QString::null;
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseDoctype, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -3785,7 +3833,15 @@ bool QXmlSimpleReader::parseExternalID()
 	d->publicId = QString::null;
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseExternalID, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -3921,7 +3977,15 @@ bool QXmlSimpleReader::parseMarkupdecl()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseMarkupdecl, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -4060,7 +4124,15 @@ bool QXmlSimpleReader::parsePEReference()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parsePEReference, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -4185,7 +4257,15 @@ bool QXmlSimpleReader::parseAttlistDecl()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseAttlistDecl, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -4378,7 +4458,15 @@ bool QXmlSimpleReader::parseAttType()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseAttType, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -4567,7 +4655,15 @@ bool QXmlSimpleReader::parseAttValue()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseAttValue, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -4692,7 +4788,15 @@ bool QXmlSimpleReader::parseElementDecl()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -4861,7 +4965,15 @@ bool QXmlSimpleReader::parseNotationDecl()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseNotationDecl, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -4977,7 +5089,15 @@ bool QXmlSimpleReader::parseChoiceSeq()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseChoiceSeq, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -5108,7 +5228,15 @@ bool QXmlSimpleReader::parseEntityDecl()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -5331,7 +5459,15 @@ bool QXmlSimpleReader::parseEntityValue()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseEntityValue, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -5433,7 +5569,15 @@ bool QXmlSimpleReader::parseComment()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseComment, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -5529,7 +5673,15 @@ bool QXmlSimpleReader::parseAttribute()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseAttribute, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -5610,7 +5762,15 @@ bool QXmlSimpleReader::parseName()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseName, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -5684,7 +5844,15 @@ bool QXmlSimpleReader::parseNmtoken()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseNmtoken, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -5775,7 +5943,15 @@ bool QXmlSimpleReader::parseReference()
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseReference, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
@@ -6048,7 +6224,15 @@ bool QXmlSimpleReader::parseString()
 	Done = d->parseString_s.length();
 	state = 0;
     } else {
-	// ### incremental continue stuff
+	state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	if ( !d->parseStack->isEmpty() ) {
+	    ParseFunction function = d->parseStack->top()->function;
+	    if ( !(this->*function)() ) {
+		parseFailed( &QXmlSimpleReader::parseString, state );
+		return FALSE;
+	    }
+	}
     }
 
     while ( TRUE ) {
