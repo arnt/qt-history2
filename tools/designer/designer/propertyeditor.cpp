@@ -2709,7 +2709,7 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 			if ( i->inherits("PropertyColorItem") ) {
 			    QColor col = i->value().asColor();
 			    QColorDrag *drg = new QColorDrag( col, this );
-			    QPixmap pix( 30, 25 );
+			    QPixmap pix( 25, 25 );
 			    pix.fill( col );
 			    QPainter p( &pix );
 			    p.drawRect( 0, 0, pix.width(), pix.height() );

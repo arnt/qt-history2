@@ -213,7 +213,7 @@ void StyledButton::mouseMoveEvent(QMouseEvent* e)
     if ( ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
 	if ( edit == ColorEditor ) {
 	    QColorDrag *drg = new QColorDrag( col, this );
-	    QPixmap pix( 6*width()/8, 6*height()/8 );
+	    QPixmap pix( 25, 25 );
 	    pix.fill( col );
 	    QPainter p( &pix );
 	    p.drawRect( 0, 0, pix.width(), pix.height() );
