@@ -101,53 +101,49 @@ Resource directory.
 
 \section1 Setting the Application Icon on common Linux desktops
 
-We briefly describe the issues involved in providing icons for your applications
-for two common Linux desktop environments: KDE and GNOME. The core
-technology used to describe application icons is the same for both desktops,
-and may also apply to others, but there are details which are specific to each.
-The main source of information on the standards used by these Linux desktops
-is the freedesktop.org website:
+In this section we briefly describe the issues involved in providing
+icons for applications for two common Linux desktop environments:
+\link http://www.kde.org/ KDE\endlink and \link http://www.gnome.org/
+GNOME\endlink. The core technology used to describe application icons
+is the same for both desktops, and may also apply to others, but there
+are details which are specific to each. The main source of information
+on the standards used by these Linux desktops is \link
+http://www.freedesktop.org/ freedesktop.org\endlink. For information
+on other Linux desktops please refer to the documentation for the
+desktops you are interested in.
 
-\l http://www.freedesktop.org/
-
-Generally, users do not use executable files directly, but instead
-launch applications via desktop entry files. These files contain a
-description of the application that includes information about its icon.
-Both desktop environments are able to retrieve the information in these
-files, and they use it to generate shortcuts to applications on the
-desktop background, in the start menu, and on the panel.
+Often, users do not use executable files directly, but instead launch
+applications by clicking icons on the desktop. These icons are
+representations of `desktop entry files' that contain a description of
+the application that includes information about its icon. Both desktop
+environments are able to retrieve the information in these files, and
+they use it to generate shortcuts to applications on the desktop, in
+the start menu, and on the panel.
 
 More information about desktop entry files can be found in the
-Desktop Entry Specification at the following location:
-
-\l http://www.freedesktop.org/Standards/desktop-entry-spec
+\link http://www.freedesktop.org/Standards/desktop-entry-spec
+Desktop Entry Specification\endlink.
 
 Although desktop entry files can usefully encapsulate the application's details,
 we still need to store the icons in the conventional location for each desktop
 environment. A number of locations for icons are given in the
-Icon Theme Specification document:
-
-\l http://www.freedesktop.org/Standards/icon-theme-spec
+\link http://www.freedesktop.org/Standards/icon-theme-spec
+Icon Theme Specification\endlink.
 
 Although the path used to locate icons depends on the desktop in use,
-and its configuration, the directory structure beneath each of these
-should follow the same pattern: subdirectories are arranged by theme,
-icon size, and application type. Generally, application icons are added
-to the hicolor theme, so a square application icon 32 pixels in size
-would be stored in the hicolor/32x32/apps directory beneath the icon
-path.
-
-The following sections describe the appropriate places on the
-KDE and GNOME platforms, but more detailed information can be found
-on the developer web sites for each project:
-
-\l http://developer.kde.org/
-\l http://developer.gnome.org/
+and on its configuration, the directory structure beneath each of
+these should follow the same pattern: subdirectories are arranged by
+theme, icon size, and application type. Generally, application icons
+are added to the hicolor theme, so a square application icon 32 pixels
+in size would be stored in the \c hicolor/32x32/apps directory beneath
+the icon path.
 
 \section2 KDE
 
 Application icons can be installed for use by all users, or on a per-user basis.
 A user currently logged into their KDE desktop can discover these locations
+by using \link http://developer.kde.org/documentation/other/kde-config.html
+kde-config\endlink, for example,
 by typing the following in a terminal window:
 
 \code
@@ -161,43 +157,37 @@ to the conventions described in the
 \link http://www.freedesktop.org/Standards/icon-theme-spec
 Icon Theme Specification \endlink.
 
-More information on kde-config can be found on the following page:
+If you are developing exclusively for KDE, you may wish to take
+advantage of the \link
+http://developer.kde.org/documentation/other/makefile_am_howto.html
+KDE build system\endlink to configure your application. This ensures
+that your icons are installed in the appropriate locations for KDE.
 
-\l http://developer.kde.org/documentation/other/kde-config.html
-
-If you are developing exclusively for KDE, you may wish to take advantage
-of the KDE build system to configure your application. This ensures that
-your icons are installed in the appropriate locations for KDE.
-See the following page for more information:
-
-\l http://developer.kde.org/documentation/other/makefile_am_howto.html
+The KDE developer website is \l{http://developer.kde.org/}.
 
 \section2 GNOME
 
 Application icons are stored within a standard system-wide directory containing
-architecture-independent files. This location can be determined by typing the
-following in a terminal window:
+architecture-independent files. This location can be determined by
+using \link http://developer.gnome.org/ gnome-config\endlink, for
+example by typing the following in a terminal window:
 
 \code
 gnome-config --datadir
 \endcode
 
 The path printed on stdout refers to a location that should contain a directory
-called pixmaps; the directory structure within the pixmaps directory is
-described in the
-\link http://www.freedesktop.org/Standards/icon-theme-spec
-Icon Theme Specification \endlink.
+called \c{pixmaps}; the directory structure within the \c pixmaps
+directory is described in the \link
+http://www.freedesktop.org/Standards/icon-theme-spec Icon Theme
+Specification \endlink.
 
-More information on gnome-config can be found on the following page:
+If you are developing exclusively for GNOME, you may wish to arrange
+your project in a source tree as described in the relevant section of
+the \link http://developer.gnome.org/doc/GGAD/ggad.html GTK+/Gnome
+Application Development book\endlink. This ensures that your icons are
+installed in the appropriate locations for GNOME.
 
-\l http://developer.kde.org/documentation/other/kde-config.html
-
-If you are developing exclusively for GNOME, you may wish to arrange your
-project in a source tree as described in the relevant section of the
-GTK+ / Gnome Application Development book. This ensures that
-your icons are installed in the appropriate locations for GNOME.
-Follow the following link for more information:
-
-\l http://developer.gnome.org/doc/GGAD/ggad.html
+The GNOME developer website is \l{http://developer.gnome.org/}.
 
 */

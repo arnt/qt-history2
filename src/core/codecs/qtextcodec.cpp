@@ -157,7 +157,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
 
 /*!
     \class QTextCodec qtextcodec.h
-    \brief The QTextCodec class provides conversion between text encodings.
+    \brief The QTextCodec class provides conversions between text encodings.
     \reentrant
     \ingroup i18n
 
@@ -221,7 +221,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
     QTextCodecs can be used as follows to convert some locally encoded
     string to Unicode. Suppose you have some string encoded in Russian
     KOI8-R encoding, and want to convert it to Unicode. The simple way
-    to do this is:
+    to do it is like this:
 
     \code
     QByteArray locallyEncoded = "..."; // text to convert
@@ -1004,8 +1004,8 @@ unsigned short QTextCodec::characterFromUnicode(const QString &str, int pos) con
     Returns true if the Unicode character \a ch can be fully encoded
     with this codec; otherwise returns false. The default
     implementation tests if the result of toUnicode(fromUnicode(ch))
-    is the original \a ch. Subclasses may be able to improve the
-    efficiency.
+    is the original \a ch. Subclasses may be able to provide a more
+    efficient algorithm.
 */
 bool QTextCodec::canEncode(QChar ch) const
 {
@@ -2842,8 +2842,8 @@ void QTextCodec::fromUnicode(const QChar *in, unsigned short *out, int length)
 /*!
     \fn QTextCodec* QTextCodec::codecForCStrings()
 
-    Returns the codec used by QString to convert to and from const
-    char* and QByteArrays. If this function returns 0 (the default),
+    Returns the codec used by QString to convert to and from \c{const
+    char*} and QByteArrays. If this function returns 0 (the default),
     QString assumes Latin1.
 
     \sa setCodecForCStrings()
@@ -2853,16 +2853,17 @@ void QTextCodec::fromUnicode(const QChar *in, unsigned short *out, int length)
     \fn void QTextCodec::setCodecForCStrings(QTextCodec *c)
     \nonreentrant
 
-    Sets the codec used by QString to convert to and from const char*
-    and QByteArrays. If \a c is 0 (the default), QString assumes Latin1.
+    Sets the codec used by QString to convert to and from \c{const
+    char*} and QByteArrays. If \a c is 0 (the default), QString
+    assumes Latin1.
 
-    \warning Some codecs do not preserve the characters in the ascii
+    \warning Some codecs do not preserve the characters in the ASCII
     range (0x00 to 0x7f).  For example, the Japanese Shift-JIS
     encoding maps the backslash character (0x5a) to the Yen character.
     This leads to unexpected results when using the backslash
     character to escape characters in strings used in e.g. regular
-    expressions.  Use QString::fromLatin1() to preserve characters in
-    the ascii range when needed.
+    expressions. Use QString::fromLatin1() to preserve characters in
+    the ASCII range when needed.
 
     \sa codecForCStrings(), setCodecForTr(), setCodecForCStrings()
 */

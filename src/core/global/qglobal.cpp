@@ -32,7 +32,7 @@
     "3.0.5".
 
     The \c QT_VERSION define has the numeric value in the form:
-    0xmmiibb (m = major, i = minor, b = bugfix). For example, Qt
+    0xMMIIPP (M = major, I = minor, B = patch). For example, Qt
     3.0.5's \c QT_VERSION is 0x030005.
 */
 
@@ -268,9 +268,9 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
 
     \relates QApplication
 
-    Calls the message handler with the debug message \a msg.  If no
+    Calls the message handler with the debug message \a msg. If no
     message handler has been installed, the message is printed to
-    stderr. Under Windows, the message is sent to the debugger.  This
+    stderr. Under Windows, the message is sent to the debugger. This
     function does nothing if \c QT_NO_DEBUG was defined during
     compilation.
 
@@ -307,7 +307,7 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
 
     Calls the message handler with the warning message \a msg. If no
     message handler has been installed, the message is printed to
-    stderr. Under Windows, the message is sent to the debugger.  This
+    stderr. Under Windows, the message is sent to the debugger. This
     function does nothing if \c QT_NO_DEBUG was defined during
     compilation; it exits if the environment variable \c
     QT_FATAL_WARNINGS is defined.
@@ -717,7 +717,7 @@ QtMsgHandler qInstallMsgHandler(QtMsgHandler h)
 
 
 /*
-    Dijkstra's bisection algorithm to find the square root as an integer.
+    Dijkstra's bisection algorithm to find the square root of an integer.
     Deliberately not exported as part of the Qt API, but used in both
     qsimplerichtext.cpp and qgfxraster_qws.cpp
 */
