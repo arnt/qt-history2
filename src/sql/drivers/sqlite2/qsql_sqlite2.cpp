@@ -226,7 +226,8 @@ bool QSQLite2Result::reset (const QString& query)
     setSelect(false);
     char *err = 0;
     int res = sqlite_compile(d->access,
-                                d->utf8 ? query.utf8() : query.ascii(),
+                                d->utf8 ? query.toUtf8().constData()
+                                        : query.toAscii().constData(),
                                 &(d->currentTail),
                                 &(d->currentMachine),
                                 &err);

@@ -134,7 +134,7 @@ static int CS_PUBLIC qTdsMsgHandler (DBPROCESS* dbproc,
                             int msgstate,
                             int severity,
                             char* msgtext,
-                            char* srvname,
+                            char* /*srvname*/,
                             char* /*procname*/,
                             int /*line*/)
 {
@@ -251,10 +251,10 @@ QTDSResult::QTDSResult(const QTDSDriver* db)
     d = new QTDSResultPrivate();
     d->login = db->d->login;
 
-    d->dbproc = dbopen(d->login, const_cast<char*>(db->d->hostName.latin1()));
+    d->dbproc = dbopen(d->login, const_cast<char*>(db->d->hostName.toLatin1().constData()));
     if (!d->dbproc)
         return;
-    if (dbuse(d->dbproc, const_cast<char*>(db->d->db.latin1())) == FAIL)
+    if (dbuse(d->dbproc, const_cast<char*>(db->d->db.toLatin1().constData())) == FAIL)
         return;
 
     // insert d in error handler dict
@@ -360,7 +360,7 @@ bool QTDSResult::reset (const QString& query)
         return false;
     setActive(false);
     setAt(QSql::BeforeFirstRow);
-    if (dbcmd(d->dbproc, const_cast<char*>(query.local8Bit())) == FAIL) {
+    if (dbcmd(d->dbproc, const_cast<char*>(query.toLocal8Bit().constData())) == FAIL) {
         setLastError(d->lastError);
         return false;
     }
@@ -536,8 +536,8 @@ bool QTDSDriver::open(const QString & db,
         setOpenError(true);
         return false;
     }
-    DBSETLPWD(d->login, const_cast<char*>(password.local8Bit()));
-    DBSETLUSER(d->login, const_cast<char*>(user.local8Bit()));
+    DBSETLPWD(d->login, const_cast<char*>(password.toLocal8Bit().constData()));
+    DBSETLUSER(d->login, const_cast<char*>(user.toLocal8Bit().constData()));
 
     setOpen(true);
     setOpenError(false);

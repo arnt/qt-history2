@@ -137,12 +137,14 @@ static QString qODBCWarn(const QODBCDriverPrivate* odbc)
 
 static void qSqlWarning(const QString& message, const QODBCPrivate* odbc)
 {
-    qWarning("%s\tError: %s", message.local8Bit(), qODBCWarn(odbc).local8Bit());
+    qWarning("%s\tError: %s", message.toLocal8Bit().constData(),
+             qODBCWarn(odbc).toLocal8Bit().constData());
 }
 
 static void qSqlWarning(const QString &message, const QODBCDriverPrivate *odbc)
 {
-    qWarning("%s\tError: %s", message.local8Bit(), qODBCWarn(odbc).local8Bit());
+    qWarning("%s\tError: %s", message.toLocal8Bit().constData(),
+             qODBCWarn(odbc).toLocal8Bit().constData());
 }
 
 static QSqlError qMakeError(const QString& err, QSqlError::ErrorType type, const QODBCPrivate* p)
@@ -457,7 +459,8 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
         const QString tmp(opts.at(i));
         int idx;
         if ((idx = tmp.indexOf(QLatin1Char('='))) == -1) {
-            qWarning("QODBCDriver::open: Illegal connect option value '%s'", tmp.latin1());
+            qWarning("QODBCDriver::open: Illegal connect option value '%s'",
+                     tmp.toLocal8Bit().constData());
             continue;
         }
         const QString opt(tmp.left(idx));
@@ -472,7 +475,7 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
                 v = SQL_MODE_READ_WRITE;
             } else {
                 qWarning("QODBCDriver::open: Unknown option value '%s'",
-                         val.local8Bit());
+                         val.toLocal8Bit().constData());
                 continue;
             }
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0);
@@ -488,7 +491,7 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
 #ifdef UNICODE
                                     (SQLWCHAR*) val.unicode(),
 #else
-                                    (SQLCHAR*) val.latin1(),
+                                    (SQLCHAR*) val.toLatin1().constData(),
 #endif
                                     SQL_NTS);
         } else if (opt == QLatin1String("SQL_ATTR_METADATA_ID")) {
@@ -498,7 +501,7 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
                 v = SQL_FALSE;
             } else {
                 qWarning("QODBCDriver::open: Unknown option value '%s'",
-                         val.local8Bit());
+                         val.toLocal8Bit().constData());
                 continue;
             }
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_METADATA_ID, (SQLPOINTER) v, 0);
@@ -511,7 +514,7 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
 #ifdef UNICODE
                                     (SQLWCHAR*) val.unicode(),
 #else
-                                    (SQLCHAR*) val.latin1(),
+                                    (SQLCHAR*) val.toLatin1().constData(),
 #endif
                                     SQL_NTS);
         } else if (opt == QLatin1String("SQL_ATTR_TRACE")) {
@@ -520,7 +523,8 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
             } else if (val == QLatin1String("SQL_OPT_TRACE_ON")) {
                 v = SQL_OPT_TRACE_ON;
             } else {
-                qWarning("QODBCDriver::open: Unknown option value '%s'", val.local8Bit());
+                qWarning("QODBCDriver::open: Unknown option value '%s'",
+                         val.toLocal8Bit().constData());
                 continue;
             }
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_TRACE, (SQLPOINTER) v, 0);
@@ -535,7 +539,8 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
             else if (val == QLatin1String("SQL_CP_DEFAULT"))
                 v = SQL_CP_DEFAULT;
             else {
-                qWarning("QODBCDriver::open: Unknown option value '%s'", val.local8Bit());
+                qWarning("QODBCDriver::open: Unknown option value '%s'",
+                         val.toLocal8Bit().constData());
                 continue;
             }
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_CONNECTION_POOLING, (SQLPOINTER)v, 0);
@@ -547,13 +552,15 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
             else if (val == QLatin1String("SQL_CP_MATCH_DEFAULT"))
                 v = SQL_CP_MATCH_DEFAULT;
             else {
-                qWarning("QODBCDriver::open: Unknown option value '%s'", val.local8Bit());
+                qWarning("QODBCDriver::open: Unknown option value '%s'",
+                         val.toLocal8Bit().constData());
                 continue;
             }
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_CP_MATCH, (SQLPOINTER)v, 0);
 #endif
         } else {
-                qWarning("QODBCDriver::open: Unknown connection attribute '%s'", opt.local8Bit());
+                qWarning("QODBCDriver::open: Unknown connection attribute '%s'",
+                         opt.toLocal8Bit().constData());
         }
         if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO)
             qSqlWarning(QString::fromAscii("QODBCDriver::open: Unable to set connection attribute'%1'").arg(
@@ -671,7 +678,7 @@ bool QODBCResult::reset (const QString& query)
                        (SQLWCHAR*) query.unicode(),
                        (SQLINTEGER) query.length());
 #else
-    QByteArray query8(query.local8Bit());
+    QByteArray query8 = query.toLocal8Bit();
     r = SQLExecDirect(d->hStmt,
                        (SQLCHAR*) query8.constData(),
                        (SQLINTEGER) query8.length());
@@ -967,7 +974,7 @@ bool QODBCResult::prepare(const QString& query)
                     (SQLWCHAR*) query.unicode(),
                     (SQLINTEGER) query.length());
 #else
-    QByteArray query8(query.local8Bit());
+    QByteArray query8 = query.toLocal8Bit();
     r = SQLPrepare(d->hStmt,
                     (SQLCHAR*) query8.constData(),
                     (SQLINTEGER) query8.length());
@@ -1151,7 +1158,7 @@ bool QODBCResult::exec()
 #endif
             // fall through
             default: {
-                QByteArray ba(val.toString().ascii());
+                QByteArray ba = val.toString().toAscii();
                 if (*ind != SQL_NULL_DATA)
                     *ind = ba.size();
                 r = SQLBindParameter(d->hStmt,
@@ -1168,16 +1175,16 @@ bool QODBCResult::exec()
                 break; }
         }
         if (r != SQL_SUCCESS) {
-            qWarning("QODBCResult::exec: unable to bind variable: %s", qODBCWarn(d).local8Bit()
-);
+            qWarning("QODBCResult::exec: unable to bind variable: %s",
+                     qODBCWarn(d).toLocal8Bit().constData());
             setLastError(qMakeError(QLatin1String("Unable to bind variable"), QSqlError::StatementError, d));
             return false;
         }
     }
     r = SQLExecute(d->hStmt);
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
-        qWarning("QODBCResult::exec: Unable to execute statement: %s", qODBCWarn(d).local8Bit()
-);
+        qWarning("QODBCResult::exec: Unable to execute statement: %s",
+                 qODBCWarn(d).toLocal8Bit().constData());
         setLastError(qMakeError(QLatin1String("Unable to execute statement"), QSqlError::StatementError, d));
         return false;
     }
@@ -1361,7 +1368,7 @@ bool QODBCDriver::open(const QString & db,
 #ifdef UNICODE
                           (SQLWCHAR*)connQStr.unicode(),
 #else
-                          (SQLCHAR*)connQStr.latin1(),
+                          (SQLCHAR*)connQStr.toLatin1().constData(),
 #endif
                           (SQLSMALLINT)connQStr.length(),
                           connOut,
@@ -1647,7 +1654,7 @@ QStringList QODBCDriver::tables(QSql::TableType type) const
 #ifdef UNICODE
                    (SQLWCHAR*)tableType.unicode(),
 #else
-                   (SQLCHAR*)tableType.latin1(),
+                   (SQLCHAR*)tableType.toLatin1().constData(),
 #endif
                    tableType.length() /* characters, not bytes */);
 
@@ -1696,19 +1703,19 @@ QSqlIndex QODBCDriver::primaryIndex(const QString& tablename) const
 #ifdef UNICODE
                         catalog.length() == 0 ? NULL : (SQLWCHAR*)catalog.unicode(),
 #else
-                        catalog.length() == 0 ? NULL : (SQLCHAR*)catalog.latin1(),
+                        catalog.length() == 0 ? NULL : (SQLCHAR*)catalog.toLatin1().constData(),
 #endif
                         catalog.length(),
 #ifdef UNICODE
                         schema.length() == 0 ? NULL : (SQLWCHAR*)schema.unicode(),
 #else
-                        schema.length() == 0 ? NULL : (SQLCHAR*)schema.latin1(),
+                        schema.length() == 0 ? NULL : (SQLCHAR*)schema.toLatin1().constData(),
 #endif
                         schema.length(),
 #ifdef UNICODE
                         (SQLWCHAR*)table.unicode(),
 #else
-                        (SQLCHAR*)table.latin1(),
+                        (SQLCHAR*)table.toLatin1().constData(),
 #endif
                         table.length() /* in characters, not in bytes */);
 
@@ -1717,28 +1724,27 @@ QSqlIndex QODBCDriver::primaryIndex(const QString& tablename) const
     // the primary index (e.g MS Access and FoxPro)
     if (r != SQL_SUCCESS) {
             r = SQLSpecialColumns(hStmt,
-                                   SQL_BEST_ROWID,
+                        SQL_BEST_ROWID,
 #ifdef UNICODE
-                                   catalog.length() == 0 ? NULL : (SQLWCHAR*)catalog.unicode(),
+                        catalog.length() == 0 ? NULL : (SQLWCHAR*)catalog.unicode(),
 #else
-                                   catalog.length() == 0 ? NULL : (SQLCHAR*)catalog.latin1(),
+                        catalog.length() == 0 ? NULL : (SQLCHAR*)catalog.toLatin1().constData(),
 #endif
-                                   catalog.length(),
+                        catalog.length(),
 #ifdef UNICODE
-                                   schema.length() == 0 ? NULL : (SQLWCHAR*)schema.unicode(),
+                        schema.length() == 0 ? NULL : (SQLWCHAR*)schema.unicode(),
 #else
-                                   schema.length() == 0 ? NULL : (SQLCHAR*)schema.latin1(),
+                        schema.length() == 0 ? NULL : (SQLCHAR*)schema.toLatin1().constData(),
 #endif
-                                   schema.length(),
+                        schema.length(),
 #ifdef UNICODE
-                                   (SQLWCHAR*)table.unicode(),
+                        (SQLWCHAR*)table.unicode(),
 #else
-                                   (SQLCHAR*)table.latin1(),
+                        (SQLCHAR*)table.toLatin1().constData(),
 #endif
-
-                                   table.length(),
-                                   SQL_SCOPE_CURROW,
-                                   SQL_NULLABLE);
+                        table.length(),
+                        SQL_SCOPE_CURROW,
+                        SQL_NULLABLE);
 
             if (r != SQL_SUCCESS) {
                 qSqlWarning(QLatin1String("QODBCDriver::primaryIndex: Unable to execute primary key list"), d);
@@ -1796,19 +1802,19 @@ QSqlRecord QODBCDriver::record(const QString& tablename) const
 #ifdef UNICODE
                      catalog.length() == 0 ? NULL : (SQLWCHAR*)catalog.unicode(),
 #else
-                     catalog.length() == 0 ? NULL : (SQLCHAR*)catalog.latin1(),
+                     catalog.length() == 0 ? NULL : (SQLCHAR*)catalog.toLatin1().constData(),
 #endif
                      catalog.length(),
 #ifdef UNICODE
                      schema.length() == 0 ? NULL : (SQLWCHAR*)schema.unicode(),
 #else
-                     schema.length() == 0 ? NULL : (SQLCHAR*)schema.latin1(),
+                     schema.length() == 0 ? NULL : (SQLCHAR*)schema.toLatin1().constData(),
 #endif
                      schema.length(),
 #ifdef UNICODE
                      (SQLWCHAR*)table.unicode(),
 #else
-                     (SQLCHAR*)table.latin1(),
+                     (SQLCHAR*)table.toLatin1().constData(),
 #endif
                      table.length(),
                      NULL,

@@ -121,12 +121,14 @@ static QString qDB2Warn(const QDB2ResultPrivate* d)
 
 static void qSqlWarning(const QString& message, const QDB2DriverPrivate* d)
 {
-    qWarning("%s\tError: %s", message.local8Bit(), qDB2Warn(d).local8Bit());
+    qWarning("%s\tError: %s", message.toLocal8Bit().constData(),
+                              qDB2Warn(d).toLocal8Bit().constData());
 }
 
 static void qSqlWarning(const QString& message, const QDB2ResultPrivate* d)
 {
-    qWarning("%s\tError: %s", message.local8Bit(), qDB2Warn(d).local8Bit());
+    qWarning("%s\tError: %s", message.toLocal8Bit().constData(),
+                              qDB2Warn(d).toLocal8Bit().constData());
 }
 
 static QSqlError qMakeError(const QString& err, QSqlError::ErrorType type,
@@ -723,7 +725,7 @@ bool QDB2Result::exec()
 #endif
             // fall through
             default: {
-                QByteArray ba(values.at(i).toString().local8Bit());
+                QByteArray ba = values.at(i).toString().toLocal8Bit();
                 int len = ba.length() + 1;
                 if (*ind != SQL_NULL_DATA)
                     *ind = ba.length();
@@ -741,7 +743,8 @@ bool QDB2Result::exec()
                 break; }
         }
         if (r != SQL_SUCCESS) {
-            qWarning("QDB2Result::exec: unable to bind variable: %s", qDB2Warn(d).local8Bit());
+            qWarning("QDB2Result::exec: unable to bind variable: %s",
+                     qDB2Warn(d).toLocal8Bit().constData());
             setLastError(qMakeError(QLatin1String("Unable to bind variable"),
                                     QSqlError::StatementError, d));
             return false;
@@ -750,7 +753,8 @@ bool QDB2Result::exec()
 
     r = SQLExecute(d->hStmt);
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
-        qWarning("QDB2Result::exec: Unable to execute statement: %s", qDB2Warn(d).local8Bit());
+        qWarning("QDB2Result::exec: Unable to execute statement: %s",
+                 qDB2Warn(d).toLocal8Bit().constData());
         setLastError(qMakeError(QLatin1String("Unable to execute statement"),
                                 QSqlError::StatementError, d));
         return false;
@@ -1088,7 +1092,8 @@ bool QDB2Driver::open(const QString& db, const QString& user, const QString& pas
         const QString tmp(opts.at(i));
         int idx;
         if ((idx = tmp.indexOf(QLatin1Char('='))) == -1) {
-            qWarning("QDB2Driver::open: Illegal connect option value '%s'", tmp.latin1());
+            qWarning("QDB2Driver::open: Illegal connect option value '%s'",
+                     tmp.toLocal8Bit().constData());
             continue;
         }
 
@@ -1103,7 +1108,8 @@ bool QDB2Driver::open(const QString& db, const QString& user, const QString& pas
             } else if (val == QLatin1String("SQL_MODE_READ_WRITE")) {
                 v = SQL_MODE_READ_WRITE;
             } else {
-                qWarning("QDB2Driver::open: Unknown option value '%s'", tmp.latin1());
+                qWarning("QDB2Driver::open: Unknown option value '%s'",
+                         tmp.toLocal8Bit().constData());
                 continue;
             }
             r = SQLSetConnectAttr(d->hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0);
@@ -1112,7 +1118,7 @@ bool QDB2Driver::open(const QString& db, const QString& user, const QString& pas
             r = SQLSetConnectAttr(d->hDbc, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER) v, 0);
         } else {
             qWarning("QDB2Driver::open: Unknown connection attribute '%s'",
-                      tmp.latin1());
+                      tmp.toLocal8Bit().constData());
         }
         if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO)
             qSqlWarning(QString::fromLatin1("QDB2Driver::open: "

@@ -301,7 +301,7 @@ QString qOraWarn(const QOCIPrivate* d)
 
 void qOraWarning(const char* msg, const QOCIPrivate* d)
 {
-    qWarning("%s %s", msg, qOraWarn(d).local8Bit());
+    qWarning("%s %s", msg, qOraWarn(d).toLocal8Bit().constData());
 }
 
 int qOraErrorNumber(const QOCIPrivate* d)
@@ -351,7 +351,7 @@ QCoreVariant::Type qDecodeOCIType(const QString& ocitype, int ocilen, int ocipre
             type = QCoreVariant::Double;
     }
     if (type == QCoreVariant::Invalid)
-        qWarning("qDecodeOCIType: unknown type: %s", ocitype.local8Bit());
+        qWarning("qDecodeOCIType: unknown type: %s", ocitype.toLocal8Bit().constData());
     return type;
 }
 
@@ -1059,7 +1059,7 @@ bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
     if(r == OCI_ERROR) {
         switch (qOraErrorNumber(d)) {
         case 1406:
-            qWarning("QOCI Warning: data truncated for %s", lastQuery().local8Bit());
+            qWarning("QOCI Warning: data truncated for %s", lastQuery().toLocal8Bit().constData());
             r = 0; /* ignore it */
             break;
         default:
@@ -1638,7 +1638,8 @@ static void qParseOpts(const QString &options, QOCIPrivate *d)
         const QString tmp(opts.at(i));
         int idx;
         if ((idx = tmp.indexOf(QLatin1Char('='))) == -1) {
-            qWarning("QOCIDriver::parseArgs: Invalid parameter: '%s'", tmp.latin1());
+            qWarning("QOCIDriver::parseArgs: Invalid parameter: '%s'",
+                     tmp.toLocal8Bit().constData());
             continue;
         }
         const QString opt = tmp.left(idx);
@@ -1653,7 +1654,8 @@ static void qParseOpts(const QString &options, QOCIPrivate *d)
             if (!ok)
                 d->prefetchMem = -1;
         } else {
-            qWarning ("QOCIDriver::parseArgs: Invalid parameter: '%s'", opt.latin1());
+            qWarning ("QOCIDriver::parseArgs: Invalid parameter: '%s'",
+                      opt.toLocal8Bit().constData());
         }
     }
 }

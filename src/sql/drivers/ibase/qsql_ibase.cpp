@@ -546,7 +546,7 @@ static char* fillList<float>(char *buffer, const QList<QCoreVariant> &list)
 
 static char* qFillBufferWithString(char *buffer, const QString& string, short buflen, bool varying, bool array)
 {
-    QByteArray str(string.utf8()); // keep a copy of the string alive in this scope
+    QByteArray str = string.toUtf8(); // keep a copy of the string alive in this scope
     if (varying) {
         short tmpBuflen = buflen;
         if (str.length() < buflen)
@@ -665,7 +665,6 @@ bool QIBaseResultPrivate::writeArray(int column, const QList<QCoreVariant> &list
         return false;
 
     short arraySize = 1;
-    short subArraySize = 0;
     long bufLen;
     QList<QCoreVariant> subList = list;
 
@@ -786,7 +785,8 @@ bool QIBaseResult::prepare(const QString& query)
     isc_dsql_allocate_statement(d->status, &d->ibase, &d->stmt);
     if (d->isError(QLatin1String("Could not allocate statement"), QSqlError::StatementError))
         return false;
-    isc_dsql_prepare(d->status, &d->trans, &d->stmt, 0, const_cast<char*>(query.utf8()), FBVERSION, d->sqlda);
+    isc_dsql_prepare(d->status, &d->trans, &d->stmt, 0,
+                     const_cast<char*>(query.toUtf8().constData()), FBVERSION, d->sqlda);
     if (d->isError(QLatin1String("Could not prepare statement"), QSqlError::StatementError))
         return false;
 
@@ -1198,7 +1198,8 @@ bool QIBaseDriver::open(const QString & db,
     if (!host.isEmpty())
         ldb += host + QLatin1Char(':');
     ldb += db;
-    isc_attach_database(d->status, 0, (char*)ldb.latin1(), &d->ibase, i, ba.data());
+    isc_attach_database(d->status, 0, const_cast<char *>(ldb.toLatin1().constData()),
+                        &d->ibase, i, ba.data());
     if (d->isError(QLatin1String("Error opening database"), QSqlError::ConnectionError)) {
         setOpenError(true);
         return false;

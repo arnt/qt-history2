@@ -909,7 +909,7 @@ static void setOptionFlag(uint &optionFlags, const QString &opt)
     else if (opt == QLatin1String("CLIENT_SSL"))
         optionFlags |= CLIENT_SSL;
     else
-        qWarning("QMYSQLDriver::open: Unknown connect option '%s'", opt.latin1());
+        qWarning("QMYSQLDriver::open: Unknown connect option '%s'", opt.toLocal8Bit().constData());
 }
 
 bool QMYSQLDriver::open(const QString& db,
@@ -934,7 +934,8 @@ bool QMYSQLDriver::open(const QString& db,
             if (val == QLatin1String("TRUE") || val == QLatin1String("1"))
                 setOptionFlag(optionFlags, tmp.left(idx).simplified());
             else
-                qWarning("QMYSQLDriver::open: Illegal connect option value '%s'", tmp.latin1());
+                qWarning("QMYSQLDriver::open: Illegal connect option value '%s'",
+                         tmp.toLocal8Bit().constData());
         } else {
             setOptionFlag(optionFlags, tmp);
         }
@@ -942,15 +943,15 @@ bool QMYSQLDriver::open(const QString& db,
 
     if ((d->mysql = mysql_init((MYSQL*) 0)) &&
             mysql_real_connect(d->mysql,
-                                host.local8Bit(),
-                                user.local8Bit(),
-                                password.local8Bit(),
-                                db.isNull() ? "" : db.local8Bit(),
-                                (port > -1) ? port : 0,
-                                NULL,
-                                optionFlags))
+                               host.toLocal8Bit().constData(),
+                               user.toLocal8Bit().constData(),
+                               password.toLocal8Bit().constData(),
+                               db.isNull() ? "" : db.toLocal8Bit().constData(),
+                               (port > -1) ? port : 0,
+                               NULL,
+                               optionFlags))
     {
-        if (mysql_select_db(d->mysql, db.local8Bit())) {
+        if (mysql_select_db(d->mysql, db.toLocal8Bit().constData())) {
             setLastError(qMakeError(QLatin1String("Unable open database '") + db +
                         QLatin1Char('\''), QSqlError::ConnectionError, d));
             mysql_close(d->mysql);
@@ -1046,7 +1047,7 @@ QSqlRecord QMYSQLDriver::record(const QString& tablename) const
     QSqlRecord info;
     if (!isOpen())
         return info;
-    MYSQL_RES* r = mysql_list_fields(d->mysql, tablename.local8Bit(), 0);
+    MYSQL_RES* r = mysql_list_fields(d->mysql, tablename.toLocal8Bit().constData(), 0);
     if (!r) {
         return info;
     }

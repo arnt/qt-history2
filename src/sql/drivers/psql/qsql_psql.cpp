@@ -390,7 +390,8 @@ bool QPSQLResult::reset (const QString& query)
     if (!driver()->isOpen() || driver()->isOpenError())
         return false;
     d->result = PQexec(d->driver->connection,
-                       d->driver->isUtf8 ? query.utf8() : query.local8Bit());
+                       d->driver->isUtf8 ? query.toUtf8().constData()
+                                         : query.toLocal8Bit().constData());
     return d->processResults();
 }
 
@@ -565,7 +566,7 @@ bool QPSQLDriver::open(const QString & db,
         connectString.append(QLatin1Char(' ')).append(opt);
     }
 
-    d->connection = PQconnectdb(connectString.local8Bit());
+    d->connection = PQconnectdb(connectString.toLocal8Bit().constData());
     if (PQstatus(d->connection) == CONNECTION_BAD) {
         setLastError(qMakeError(QLatin1String("Unable to connect"), QSqlError::ConnectionError, d));
         setOpenError(true);
