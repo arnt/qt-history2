@@ -347,15 +347,15 @@ bool QSharedDoubleBuffer::begin( QPainter* painter, int x, int y, int w, int h )
 #endif // Q_WS_X11
 
 	state |= BufferActive;
-	if ( flags & InitBG ) {
-	    pix->fill( wid, rx, ry );
+	p = new QPainter( pix );
+	if ( p->isActive() ) {
+	    p->setPen( external_p->pen() );
+	    p->setBackgroundColor( external_p->backgroundColor() );
+	    p->setFont( external_p->font() );
 	}
-	p = new QPainter( pix, painter->device() );
     } else {
 	state |= ExternalPainter;
 	p = external_p;
-
-	// ### what do we do about InitBG here?
     }
 
     return TRUE;
