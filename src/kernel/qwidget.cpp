@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#19 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#19 $";
 #endif
 
 
@@ -130,7 +130,7 @@ QWidget::~QWidget()
     }
     destroy();					// platform-dependent cleanup
     delete extra;
-    if ( nWidgets() == 0 )			// no more widgets left
+    if ( mapper->count() == 0 )			// no more widgets left
 	QApplication::quit();
 }
 
@@ -195,11 +195,6 @@ void QWidget::createExtra()			// create extra data
 QWidget *QWidget::find( WId id )		// find widget with id
 {
     return mapper ? mapper->find( id ) : 0;
-}
-
-ulong QWidget::nWidgets()			// number of widgets
-{
-    return mapper ? mapper->count() : 0;
 }
 
 
