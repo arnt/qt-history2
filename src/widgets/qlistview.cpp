@@ -3839,7 +3839,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     }
 
     if ( !i ) {
-	if ( isMultiSelection() )
+	if ( !( e->state() & ControlButton ) )
 	    clearSelection();
 	goto emit_signals;
     } else {
