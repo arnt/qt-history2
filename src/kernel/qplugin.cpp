@@ -11,9 +11,9 @@
   \brief An abstract class to provide a common interface to functionality a plugin provides.
 
   In order to be able to use dynamically loaded libraries it is necessary to
-  define an interface which the application can use to communicate with the plugin functionality. 
-  This class provides a number of basic functions the \link QPlugIn plugin loader needs to 
-  perform a successful loading of the library.
+  define an interface which the application can use to access functionality in the plugin. 
+  This class provides a number of basic functions the \link QPlugIn \endlink plugin loader needs 
+  to perform a successful loading of the library.
   Reimplement this class to provide a more advanced interface, according to the needs of your
   application. A simple interface for loading widgets may look like this:
 
@@ -28,8 +28,8 @@
 
   Note that the member function \code queryPlugInInterface \endcode has to be reimplemented so
   that the corresponding plugin loader can recognize the library as compatible.
-  Use the derived plugin interface both as a baseclass for the corresponding plugin loader as
-  and as the base class for implementations of the interface in plugins.
+  Use the derived plugin interface both as a baseclass for the corresponding plugin loader and 
+  as the base class for implementations of the interface in plugins.
 
   \sa QPlugIn, QPlugInManager
 */
