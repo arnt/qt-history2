@@ -1,8 +1,10 @@
 #!/bin/sh
 #
+# $Id$
+#
 # Configures to build the Qt library
 #
-# Copyright 1999-2002 Trolltech AS.  All rights reserved.
+# Copyright (C) 1999-2002 Trolltech AS.  All rights reserved.
 #
 
 
@@ -1120,7 +1122,7 @@ if [ -z "$PLATFORM" ]; then
 	"
 	fi
 	;;
-     AIX*)
+     AIX:*)
 	#PLATFORM=aix-g++
 	PLATFORM=aix-xlc
 	#PLATFORM=aix-xlc-64
@@ -1140,6 +1142,9 @@ if [ -z "$PLATFORM" ]; then
      dgux:*)
 	PLATFORM=dgux-g++
 	;;
+#     DYNIX/ptx:4*)
+#	PLATFORM=sequent-g++
+#	;;
      ULTRIX:*)
 	PLATFORM=ultrix-g++
 	;;
@@ -1152,7 +1157,7 @@ if [ -z "$PLATFORM" ]; then
      NetBSD:*)
 	PLATFORM=netbsd-g++
 	;;
-     IRIX*)
+     IRIX*:*)
 	#PLATFORM=irix-g++
 	PLATFORM=irix-cc
 	#PLATFORM=irix-cc-n64
@@ -1195,7 +1200,7 @@ if [ -z "$PLATFORM" ]; then
      SunOS:4*)
 	PLATFORM=sunos-g++
 	;;
-     ReliantUNIX-*|SINIX-*)
+     ReliantUNIX-*:*|SINIX-*:*)
 	PLATFORM=reliant-cds
 	#PLATFORM=reliant-cds-64
 	PLATFORM_NOTES="
