@@ -26,7 +26,7 @@ bool CppCodeMarker::recognizeExtension(const QString& ext)
 
 bool CppCodeMarker::recognizeLanguage(const QString &lang)
 {
-    return lang == "C" || lang == "C++";
+    return lang == "C" || lang == "Cpp";
 }
 
 QString CppCodeMarker::markedUpCode(const QString& code, const Node *relative,

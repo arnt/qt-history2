@@ -121,7 +121,8 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	out() << formattingRightMap()[ATOM_FORMATTING_TELETYPE];
 	break;
     case Atom::Code:
-	out() << "<pre>" << protect(plainCode(indent(4, atom->string()))) << "</pre>\n";
+	out() << "<pre>" << trimmedTrailing(protect(plainCode(indent(4, atom->string()))))
+	      << "</pre>\n";
 	break;
     case Atom::FootnoteLeft:
 	break;
@@ -612,6 +613,9 @@ QString HtmlGenerator::generateListOfAllMemberFile(const ClassNode *classe, Code
 void HtmlGenerator::generateClassHierarchy(const Node *relative, CodeMarker *marker,
 					   const QMap<QString, const Node *> &classMap)
 {
+    if (classMap.isEmpty())
+	return;
+
     QMap<QString, const Node *> topLevel;
     QMap<QString, const Node *>::ConstIterator c = classMap.begin();
     while (c != classMap.end()) {
@@ -674,8 +678,12 @@ void HtmlGenerator::generateAnnotatedList(const Node *relative, CodeMarker *mark
 void HtmlGenerator::generateCompactList(const Node *relative, CodeMarker *marker,
 					const QMap<QString, const Node *> &classMap)
 {
+#if 0
     const int NumParagraphs = 27; // 26 letters plus symbols
     const int NumColumns = 5; // number of columns in the result
+
+    if (classMap.isEmpty())
+	return;
 
     /*
       First, find out the common prefix of all classes. For Qt, the
@@ -689,7 +697,7 @@ void HtmlGenerator::generateCompactList(const Node *relative, CodeMarker *marker
 
     while (commonPrefixLen < first.length() + 1 && commonPrefixLen < last.length() + 1
 	   && first[commonPrefixLen] == last[commonPrefixLen])
-	commonPrefixLen++;
+	++commonPrefixLen;
 
     /*
       Divide the data into 27 paragraphs: A, B, ..., Z, misc. QAccel
@@ -791,11 +799,12 @@ void HtmlGenerator::generateCompactList(const Node *relative, CodeMarker *marker
 	}
     }
     out() << "</table>\n";
+#endif
 }
 
 void HtmlGenerator::generateFunctionIndex(const Node *relative, CodeMarker *marker)
 {
-    out() << "<center><font size=+1><b>";
+    out() << "<p><center><font size=+1><b>";
     for ( int i = 0; i < 26; i++ ) {
 	QChar ch( 'a' + i );
 	out() << QString("<a href=\"#%1\">%2</a> ").arg(ch).arg(ch.upper());

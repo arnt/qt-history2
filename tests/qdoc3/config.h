@@ -78,6 +78,7 @@ private:
 #define CONFIG_FORMATTING               "formatting"
 #define CONFIG_HEADERDIRS               "headerdirs"
 #define CONFIG_HEADERS                  "headers"
+#define CONFIG_IGNORETOKENS             "ignoretokens"
 #define CONFIG_IMAGEDIRS                "imagedirs"
 #define CONFIG_IMAGES                   "images"
 #define CONFIG_LANGUAGE                 "language"

@@ -536,12 +536,12 @@ void Config::load( Location location, const QString& fileName )
 		      QFileInfo(QFileInfo(fileName).dir(), includeFile)
 		      .filePath() );
 	    } else {
-		if ( text[i] == '+' ) {
+		if (text[i] == '+') {
 		    plus = TRUE;
 		    SKIP_CHAR();
 		}
 		if ( text[i] != '=' )
-		    location.fatal( tr("Expected '=' or '+=' after key") );
+		    location.fatal(tr("Expected '=' or '+=' after key"));
 		SKIP_CHAR();
 		SKIP_SPACES();
 

@@ -33,7 +33,7 @@ static const struct {
     const char *value;
 } defaults[] = {
     { CONFIG_FALSEHOODS, "0" },
-    { CONFIG_LANGUAGE, "C++" },
+    { CONFIG_LANGUAGE, "Cpp" },
     { CONFIG_OUTPUTFORMATS, "HTML" },
     { CONFIG_TABSIZE, "8" },
     { 0, 0 }

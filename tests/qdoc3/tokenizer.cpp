@@ -2,6 +2,7 @@
   tokenizer.cpp
 */
 
+#include <qhash.h>
 #include <qregexp.h>
 #include <qstring.h>
 
@@ -11,21 +12,24 @@
 #include "config.h"
 #include "tokenizer.h"
 
+#define LANGUAGE_CPP			"Cpp"
+
 /* qmake ignore Q_OBJECT */
 
 /*
   Keep in sync with tokenizer.h.
 */
-static const char kwords[][16] = {
-    "char", "class", "const", "double", "enum", "friend", "inline", "int", "long", "operator",
-    "private", "protected", "public", "short", "signals", "signed", "slots", "static", "struct",
-    "template", "typedef", "union", "unsigned", "virtual", "void", "volatile", "Q_ENUMS",
-    "Q_OBJECT", "Q_OVERRIDE", "Q_PROPERTY"
+static const char *kwords[] = {
+    "char", "class", "const", "double", "enum", "friend", "int", "long", "operator", "private",
+    "protected", "public", "short", "signals", "signed", "slots", "static", "struct", "template",
+    "typedef", "union", "unsigned", "virtual", "void", "volatile", "Q_ENUMS", "Q_OBJECT",
+    "Q_OVERRIDE", "Q_PROPERTY"
 };
 
-static const int KwordHashTableSize = 512;
+static const int KwordHashTableSize = 2048;
 static int kwordHashTable[KwordHashTableSize];
-static bool kwordInitialized = FALSE;
+
+static QHash<QByteArray, bool> *ignoredTokens = 0;
 
 static QRegExp *comment = 0;
 static QRegExp *versionX = 0;
@@ -39,10 +43,20 @@ static QRegExp *falsehoods = 0;
   (with a hash table size of 512). It should perform well on our
   Qt-enhanced C++ subset.
 */
-static int hashKword( const char *s, int len )
+static int hashKword(const char *s, int len)
 {
-    return ( ((uchar) s[0]) + (((uchar) s[2]) << 5) +
+    return (((uchar) s[0]) + (((uchar) s[2]) << 5) +
 	     (((uchar) s[len - 1]) << 3) ) % KwordHashTableSize;
+}
+
+static int insertKwordIntoHash(const char *s, int number)
+{
+    int k = hashKword(s, strlen(s));
+    while (kwordHashTable[k]) {
+	if (++k == KwordHashTableSize)
+	    k = 0;
+    }
+    kwordHashTable[k] = number;
 }
 
 Tokenizer::~Tokenizer()
@@ -74,12 +88,9 @@ int Tokenizer::getToken()
 	    for ( ;; ) {
 		int i = kwordHashTable[k];
 		if ( i == 0 ) {
-		    if ( strcmp(yyLex, "inline") == 0 ||
-			 strcmp(yyLex, "typename") == 0 ||
-			 strcmp(yyLex, "Q_EXPLICIT") == 0 ||
-			 strcmp(yyLex, "Q_EXPORT") == 0 ||
-			 strcmp(yyLex, "Q_TEMPLATE_INLINE") == 0 ||
-			 strcmp(yyLex, "Q_TYPENAME") == 0 )
+		    return Tok_Ident;
+		} else if ( i == -1 ) {
+		    if (ignoredTokens->contains(yyLex))
 			break;
 		    return Tok_Ident;
 		} else if ( strcmp(yyLex, kwords[i - 1]) == 0 ) {
@@ -360,11 +371,26 @@ void Tokenizer::initialize(const Config &config)
 			     + ")[ \t]+\"([^\"]*)\"[ \t]*");
     definedX = new QRegExp("defined ?\\( ?([A-Z_0-9a-z]+) ?\\)");
 
-    QStringList d = config.getStringList( CONFIG_DEFINES );
+    QStringList d = config.getStringList(CONFIG_DEFINES);
     d += "qdoc";
-    defines = new QRegExp( d.join("|") );
-    falsehoods = new QRegExp( config.getStringList(CONFIG_FALSEHOODS)
-				    .join("|") );
+    defines = new QRegExp(d.join("|"));
+    falsehoods = new QRegExp(config.getStringList(CONFIG_FALSEHOODS).join("|"));
+
+    memset(kwordHashTable, sizeof(kwordHashTable), 0);
+    for (int i = 0; i < Tok_LastKeyword - Tok_FirstKeyword + 1; i++)
+	insertKwordIntoHash(kwords[i], i + 1);
+
+    ignoredTokens = new QHash<QByteArray, bool>;
+
+    QStringList tokens = config.getStringList(LANGUAGE_CPP + Config::dot + CONFIG_IGNORETOKENS);
+    tokens.append("explicit");
+    tokens.append("inline");
+    tokens.append("typename");
+
+    foreach (QString t, tokens) {
+	ignoredTokens->insert(QByteArray(t.ascii(), t.length()), true);
+	insertKwordIntoHash(t.ascii(), -1);
+    }
 }
 
 void Tokenizer::terminate()
@@ -379,6 +405,8 @@ void Tokenizer::terminate()
     defines = 0;
     delete falsehoods;
     falsehoods = 0;
+    delete ignoredTokens;
+    ignoredTokens = 0;
 }
 
 Tokenizer::Tokenizer()
@@ -396,18 +424,6 @@ Tokenizer::Tokenizer()
     yyParenDepth = 0;
     yyBracketDepth = 0;
     yyCh = '\0';
-
-    if ( !kwordInitialized ) {
-	for ( int i = 0; i < Tok_LastKeyword - Tok_FirstKeyword + 1; i++ ) {
-	    int k = hashKword( kwords[i], strlen(kwords[i]) );
-	    while ( kwordHashTable[k] != 0 ) {
-		if ( ++k == KwordHashTableSize )
-		    k = 0;
-	    }
-	    kwordHashTable[k] = i + 1;
-	}
-	kwordInitialized = TRUE;
-    }
 }
 
 int Tokenizer::getch()

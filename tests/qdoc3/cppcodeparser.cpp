@@ -58,7 +58,7 @@ void CppCodeParser::terminateParser()
 
 QString CppCodeParser::language()
 {
-    return "C++";
+    return "Cpp";
 }
 
 QString CppCodeParser::headerFileNameFilter()
@@ -508,7 +508,6 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 
     if (match(Tok_friend))
 	return false;
-    match(Tok_inline);
     bool sta = match(Tok_static);
     FunctionNode::Virtualness vir = FunctionNode::NonVirtual;
     if ( match(Tok_virtual) )
