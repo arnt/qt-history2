@@ -16,11 +16,14 @@
 
 #include <qframe.h>
 
-class QMainWindow;
+class QDockWindowLayout;
 class QDockWindowPrivate;
+class QMainWindow;
 
 class Q_GUI_EXPORT QDockWindow : public QFrame
 {
+    friend class QDockWindowLayout;
+
     Q_DECLARE_PRIVATE(QDockWindow)
     Q_OBJECT
 
