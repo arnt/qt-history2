@@ -136,7 +136,7 @@ for $i ( readdir NSPLUGIN ) {
 
 #
 # We should just insert the version parameter into the qglobal.h, and have
-# qglobal.h use $Id: //depot/qt/main/util/scripts/mkdists#3 $ or something for purely internal use.
+# qglobal.h use $Id: //depot/qt/main/util/scripts/mkdists#4 $ or something for purely internal use.
 #
 $qglobalfile="$DISTDIR/qt/src/tools/qglobal.h";
 open QGLOBAL, $qglobalfile;
