@@ -2106,13 +2106,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_MOUSELEAVE:
 	    // We receive a mouse leave for curWin, meaning
 	    // the mouse was moved outside our widgets
-	    if ( widget->winId() == curWin ) {
+	    if ( widget->winId() == curWin && !widget->hasMouse() ) {
 		qt_dispatchEnterLeave( 0, QWidget::find( (WId)curWin ) );
 		curWin = 0;
 	    }
 	    break;
 
-        default:
+	default:
 	    result = FALSE;			// event was not processed
 	    break;
 	}
