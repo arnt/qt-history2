@@ -290,18 +290,53 @@ QRect QStyle::bevelButtonRect( int x, int y, int w, int h) const
     return QRect(x+fw, y+fw, w-2*fw, h-2*fw);
 }
 
-
 /*!
-  Draws a press-sensitive shape in the style of a tool bar button
+  Draws a press-sensitive shape in the style of a tool bar button.
 
   The default implementation calls drawBevelButton().
-  \sa drawBevelButton()
 */
-void QStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
-			     const QColorGroup &g, bool sunken,
-			     const QBrush* fill)
+void QStyle::drawToolButton( QPainter * p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool sunken,
+		     const QBrush *fill )
 {
     drawBevelButton(p, x, y, w, h, g, sunken, fill);
+}
+
+/*!
+  Draws a press-sensitive shape in the style of a tool bar button.
+
+  The default implementation calls the old drawToolButton function
+  when \a autoRaised is FALSE, otherwise drawPanel.
+
+  \sa drawBevelButton(), drawToolMenuButton()
+*/
+void QStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool on, bool down, bool /*enabled*/, 
+		     bool autoRaised, const QBrush *fill )
+{
+    if ( !autoRaised )
+	drawToolButton( p, x, y, w, h, g, on || down, fill );
+    else
+	drawPanel( p, x, y, w, h, g, on || down, defaultFrameWidth(), fill );
+}
+
+/*!
+  Draws a press-sensitive shape in the style of a tool bar button that is shown
+  when the tool button provides a popup list.
+
+  The default implementation calls drawBevelButton() when \a autoRaised is FALSE,
+  otherwise drawPanel.
+
+  \sa drawToolButton
+*/  
+void QStyle::drawDropDownButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool down, bool /*enabled*/, bool autoRaised,
+		     const QBrush *fill )
+{
+    if ( !autoRaised )
+	drawBevelButton( p, x, y, w, h, g, down, fill );
+    else
+	drawPanel( p, x, y, w, h, g, down, defaultFrameWidth(), fill );
 }
 
 /*!
@@ -313,11 +348,18 @@ void QStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
 
   \sa drawToolButton()
 */
-QRect QStyle::toolButtonRect( int x, int y, int w, int h){
+QRect QStyle::toolButtonRect( int x, int y, int w, int h)
+{
     return bevelButtonRect( x, y, w, h );
 }
 
-
+/*!
+  Returns the width for the splitted section of a tool button with a popup menu.
+*/
+int QStyle::dropDownButtonWidth() const
+{
+    return 14;
+}
 
 /*!
   Returns the rectangle available for contents in a push

@@ -68,12 +68,6 @@ public:
     // scrollbars
     ScrollControl scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p );
 
-    // toolbars
-    virtual void drawToolButton( QToolButton* btn, QPainter *p);
-    virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
-                     const QColorGroup &g, bool sunken = FALSE,
-                     const QBrush *fill = 0 );
-
     //menubars
     void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
                           QMenuItem* mi, QColorGroup& g,

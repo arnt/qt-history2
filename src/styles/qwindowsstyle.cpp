@@ -1564,4 +1564,51 @@ void QWindowsStyle::drawProgressChunk( QPainter *p, const QRect &rect, const QCo
 	g.brush( QColorGroup::Highlight ) );
 }
 
+/*!
+ \reimp
+*/
+void QWindowsStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
+		 const QColorGroup &g, bool on, bool down, bool /*enabled*/, bool autoRaised,
+		 const QBrush *fill )
+{
+    QBrush onfill( g.light(), Dense4Pattern );
+
+    const QBrush *thefill = fill;
+    if ( !thefill && on && !autoRaised )
+	thefill = &onfill;
+
+    if ( !autoRaised )
+	QCommonStyle::drawToolButton( p, x, y, w, h, g, on || down, thefill );
+    else
+	drawPanel( p, x, y, w, h, g, on || down, 1, thefill );
+
+    if ( on && 
+	( qWinVersion() == WV_2000 ||
+	  qWinVersion() == WV_98 ||
+	  qWinVersion() == WV_XP ) ) {
+        p->setPen( g.button() );
+        p->drawRect( x + 1, y + 1, w - 2, h - 2 );
+    }
+}
+
+/*!
+ \reimp
+*/
+void QWindowsStyle::drawDropDownButton( QPainter *p, int x, int y, int w, int h,
+		 const QColorGroup &g, bool down, bool /*enabled*/, bool autoRaised, const QBrush *fill )
+{
+    if ( !autoRaised )
+	drawBevelButton( p, x, y, w, h, g, down, fill );
+    else
+	drawPanel( p, x, y, w, h, g, down, 1, fill );
+
+    if ( down && 
+	( qWinVersion() == WV_2000 ||
+	  qWinVersion() == WV_98 ||
+	  qWinVersion() == WV_XP ) ) {
+        p->setPen( g.button() );
+        p->drawRect( x + 1, y + 1, w - 2, h - 2 );
+    }
+}
+
 #endif

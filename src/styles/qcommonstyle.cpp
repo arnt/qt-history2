@@ -242,80 +242,6 @@ QRect QCommonStyle::pushButtonContentsRect( QPushButton* btn ) const
 #endif
 }
 
-
-
-void QCommonStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
-                     const QColorGroup &g, bool sunken,
-                     const QBrush *fill )
-{
-    QStyle::drawToolButton( p, x, y, w, h, g, sunken, fill );
-}
-
-
-void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
-{
-#ifndef QT_NO_TOOLBUTTON
-    if ( !btn )
-        return;
-
-    int x = 0;
-    int y = 0;
-    int w = btn->width();
-    int h = btn->height();
-    const QColorGroup &g = btn->colorGroup();
-    bool sunken = ( btn->isOn() && !btn->son ) || btn->isDown();
-    QBrush fill = btn->colorGroup().brush( btn->backgroundMode() == QToolButton::PaletteBackground ?
-                                           QColorGroup::Background : QColorGroup::Button );
-    if ( guiStyle() == WindowsStyle && btn->isOn() )
-        fill = QBrush( g.light(), Dense4Pattern );
-#if defined(Q_WS_WIN)
-    if ( btn->uses3D() || btn->isDown() || ( btn->isOn() && !btn->son ) ) {
-        // WIN2000 is really tricky here!
-        bool drawRect = btn->isOn();
-        if ( guiStyle() == WindowsStyle && btn->isOn() &&
-             ( qt_winver == Qt::WV_2000 ||
-	       qt_winver == Qt::WV_98 ||
-	       qt_winver == Qt::WV_XP ) &&
-             btn->uses3D() ) {
-            fill = btn->colorGroup().brush( QColorGroup::Button );
-            drawRect = FALSE;
-        }
-        if ( guiStyle() == WindowsStyle &&
-             ( qt_winver == Qt::WV_2000 ||
-	       qt_winver == Qt::WV_98 ||
-	       qt_winver == Qt::WV_XP ) &&
-             btn->autoRaise() ) {
-            drawPanel( p, x, y, w, h, g, sunken, 1, &fill );
-            if ( drawRect ) {
-                p->setPen( QPen( g.color( QColorGroup::Button ) ) );
-                p->drawRect( x + 1, y + 1, w - 2, h - 2 );
-            }
-        } else {
-            drawToolButton( p, x, y, w, h, g, sunken, &fill );
-        }
-    } else if ( btn->parentWidget() && btn->parentWidget()->backgroundPixmap() &&
-                !btn->parentWidget()->backgroundPixmap()->isNull() ) {
-        p->drawTiledPixmap( 0, 0, btn->width(), btn->height(),
-                            *btn->parentWidget()->backgroundPixmap(),
-                            btn->x(), btn->y() );
-    }
-#else
-    if ( btn->uses3D() || btn->isDown() || ( btn->isOn() && !btn->son ) ) {
-        drawToolButton( p, x, y, w, h, g, sunken, &fill );
-    } else if ( btn->parentWidget() && btn->parentWidget()->backgroundPixmap() &&
-              !btn->parentWidget()->backgroundPixmap()->isNull() ) {
-        p->drawTiledPixmap( 0, 0, btn->width(), btn->height(),
-                            *btn->parentWidget()->backgroundPixmap(),
-                            btn->x(), btn->y() );
-    } else {
-        if ( btn->parentWidget() )
-            fill = QBrush( btn->parentWidget()->backgroundColor() );
-        drawToolButton( p, x - 10, y - 10, w + 20, h + 20, g, sunken, &fill );
-    }
-#endif
-#endif
-}
-
 void QCommonStyle::drawTitleBar( QPainter *p,
 		       const QRect &r, const QColor &left, const QColor &right,
 		       bool /*active*/ )
@@ -351,7 +277,7 @@ void QCommonStyle::drawTitleBarLabel( QPainter *p,
 
 void QCommonStyle::drawTitleBarButton( QPainter *p, const QRect &r, const QColorGroup &g, bool down )
 {
-    drawToolButton( p, r.x(), r.y(), r.width(), r.height(), g, down );
+    drawToolButton( p, r.x(), r.y(), r.width(), r.height(), g, FALSE, down, TRUE );
 }
 
 void QCommonStyle::drawTitleBarButtonLabel( QPainter *p, const QRect &r, const QPixmap *pm, int /*button*/, bool down )

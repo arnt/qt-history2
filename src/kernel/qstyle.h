@@ -126,13 +126,6 @@ public:
 
     virtual QRect bevelButtonRect( int x, int y, int w, int h) const;
 
-    virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
-		     const QColorGroup &g, bool sunken = FALSE,
-		     const QBrush *fill = 0 );
-    virtual void drawToolButton( QToolButton* btn, QPainter *p) = 0;
-
-    virtual QRect toolButtonRect(  int x, int y, int w, int h);
-
     virtual void drawPanel( QPainter *p, int x, int y, int w, int h,
 		    const QColorGroup &, bool sunken=FALSE,
 		    int lineWidth = 1, const QBrush *fill = 0 );
@@ -144,6 +137,19 @@ public:
     virtual void drawArrow( QPainter *p, Qt::ArrowType type, bool down,
 		     int x, int y, int w, int h,
 		     const QColorGroup &g, bool enabled, const QBrush *fill = 0 ) = 0;
+
+    // toolbutton
+    virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool sunken, 
+		     const QBrush *fill = 0 );
+    virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool on, bool down, bool enabled, bool autoRaised = FALSE,
+		     const QBrush *fill = 0 );
+    virtual QRect toolButtonRect(  int x, int y, int w, int h);
+    virtual void drawDropDownButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool down, bool enabled, bool autoRaised = FALSE,
+		     const QBrush *fill = 0 );
+    virtual int dropDownButtonWidth() const;    
 
     // "radio button"
     virtual QSize exclusiveIndicatorSize() const = 0;
@@ -273,7 +279,6 @@ public:
     virtual int  menuBarFrameWidth() const;
     virtual void drawMenuBarPanel( QPainter *p, int x, int y, int w, int h,
 				   const QColorGroup &, const QBrush *fill = 0 );
-
 
     // tool bars
     virtual int  toolBarHandleExtent() const;

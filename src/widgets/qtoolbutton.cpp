@@ -297,7 +297,7 @@ QSize QToolButton::sizeHint() const
 	    w = tw;
     }
     if ( d->popup && !d->delay )
-	w += 20;
+	w += style().dropDownButtonWidth();
 #ifdef Q_WS_QWS // ###### should be style option
     return QSize( w+4, h ).expandedTo( QApplication::globalStrut() );
 #else
@@ -428,8 +428,32 @@ void QToolButton::toggle()
  */
 void QToolButton::drawButton( QPainter * p )
 {
-    style().drawToolButton( this, p );
+    int x = 0;
+    int y = 0;
+    int w = width();
+    int h = height();
+    if ( d->popup && !d->delay )
+	w -= style().dropDownButtonWidth();
+
+    const QColorGroup &g = colorGroup();
+
+    if ( uses3D() || ( isOn() && !son ) || isDown() ) {
+        style().drawToolButton( p, x, y, w, h, g, isOn(), isDown(), isEnabled(), autoRaise() && threeDeeButton == this );
+    } else if ( parentWidget() && parentWidget()->backgroundPixmap() &&
+              !parentWidget()->backgroundPixmap()->isNull() ) {
+        p->drawTiledPixmap( 0, 0, width(), height(),
+                            *parentWidget()->backgroundPixmap(),
+                            this->x(), this->y() );
+    }
     drawButtonLabel( p );
+
+    if ( d->popup && !d->delay ) {
+	if ( uses3D() )
+	    style().drawDropDownButton( p, w, y, style().dropDownButtonWidth(), h, g, 
+		    d->instantPopup || isDown() || isOn(), isEnabled(), autoRaise() && threeDeeButton == this );
+	style().drawArrow( p, DownArrow, d->instantPopup || isDown() || isOn(), w+2, y+4, 
+		style().dropDownButtonWidth()-4, h-8, g, isEnabled() );
+    }
 
     if ( hasFocus() && !focusProxy() ) {
 	if ( style() == WindowsStyle ) {
@@ -447,31 +471,13 @@ void QToolButton::drawButton( QPainter * p )
  */
 void QToolButton::drawButtonLabel( QPainter * p )
 {
-    ArrowType at = DownArrow;
-    if ( parentWidget() && parentWidget()->isA( "QToolBar" ) ) {
-	QToolBar *tb = (QToolBar*)parentWidget();
-	if ( tb->orientation() == Vertical ) {
-	    if ( mapToGlobal( tb->rect().center() ).x() < topLevelWidget()->rect().center().x() )
-		at = RightArrow;
-	    else
-		at = LeftArrow;
-	} else {
-	    if ( mapToGlobal( tb->rect().center() ).y() < topLevelWidget()->rect().center().y() )
-		at = DownArrow;
-	    else
-		at = UpArrow;
-	}
-    }
-
     int sx = 0;
     int sy = 0;
     int x, y, w, h;
-    style().toolButtonRect(0, 0, width(), height() ).rect( &x, &y, &w, &h );
-    if ( d->popup && !d->delay ) {
-	w -= 20;
-	if ( at == LeftArrow )
-	    x += 20;
-    }
+    if ( d->popup && !d->delay ) 
+	style().toolButtonRect(0, 0, width() - style().dropDownButtonWidth(), height() ).rect( &x, &y, &w, &h );
+    else
+	style().toolButtonRect(0, 0, width(), height() ).rect( &x, &y, &w, &h );
     if (isDown() || (isOn()&&!son) ) {
 	style().getButtonShift(sx, sy);
 	x+=sx;
@@ -520,29 +526,6 @@ void QToolButton::drawButtonLabel( QPainter * p )
 	    style().drawItem( p, x, y, w, h,
 			      AlignCenter, colorGroup(), TRUE, &pm, QString::null );
 	}
-    }
-    if ( d->popup && !d->delay ) {
-	if ( uses3D() ) {
-	    bool sunken = ( isOn() && !son ) || isDown() || d->popup->isVisible();
-	    if ( !sunken || d->instantPopup ) {
-		if ( at == LeftArrow ) {
-		    style().drawToolButton( p, 0, 0, x-1-sx, height(), colorGroup(), sunken );
-		    if ( !sunken )
-			style().drawSeparator( p, x-1-sx, -1, x-1-sx, height(), colorGroup(), TRUE );
-		} else {
-		    style().drawSeparator( p, width()-20, 0, width()-20, height(), colorGroup(), TRUE );
-		    style().drawToolButton( p, width()-20, 0, 20, height(), colorGroup(), sunken );
-		}
-	    }
-	}
-	sx = 0;
-	sy = 0;
-	if ( d->instantPopup )
-	    style().getButtonShift( sx, sy );
-	if ( at == LeftArrow )
-	    style().drawArrow( p, at, FALSE, 0+sx, y+style().defaultFrameWidth()+sy, 20, h-2*style().defaultFrameWidth(), colorGroup(), TRUE );
-	else
-	    style().drawArrow( p, at, FALSE, w+7+sx, y+style().defaultFrameWidth()+sy, 14, h-2*style().defaultFrameWidth(), colorGroup(), TRUE );
     }
 }
 
@@ -595,11 +578,14 @@ void QToolButton::mousePressEvent( QMouseEvent *e )
 	    left = TRUE;
     }
 
-    d->instantPopup = ( ( e->pos().x() < 20 ) && left ) || ( ( e->pos().x() > ( width() - 20 ) ) && !left );
+    int dbw = style().dropDownButtonWidth();
+    d->instantPopup = ( ( e->pos().x() < dbw ) && left  ) || ( ( e->pos().x() > ( width() - dbw ) ) && !left );
 
     if ( e->button() == LeftButton && d->delay <= 0 && d->popup && d->instantPopup ) {
 	d->instantPopup = TRUE;
+	repaint( FALSE );
 	popupTimerDone();
+	d->instantPopup = FALSE;
 	repaint( FALSE );
 	return;
     }
@@ -878,6 +864,8 @@ int QToolButton::popupDelay() const
 void QToolButton::setAutoRaise( bool enable )
 {
     d->autoraise = enable;
+
+    update();
 }
 
 /*!

@@ -83,6 +83,14 @@ public:
                     int x, int y, int w, int h,
                     const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
 
+    void drawToolButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool on, bool down, bool enabled, bool autoRaised = FALSE,
+		     const QBrush *fill = 0 );
+
+    void drawDropDownButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool down, bool enabled, bool autoRaised = FALSE,
+		     const QBrush *fill = 0 );
+
     QSize indicatorSize() const;
     void drawIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
                         int s, bool down = FALSE, bool enabled = TRUE );
