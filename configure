@@ -1693,7 +1693,7 @@ if true ###[ '!' -f "$outpath/bin/qmake" ]
 then
     echo "Creating qmake. Please wait..."
     rm -f mkspecs/default
-    ln -sf `basename $QMAKESPEC` mkspecs/default
+    ln -s `basename $QMAKESPEC` mkspecs/default
     # fix makefiles
     for mkfile in GNUmakefile Makefile
     do
