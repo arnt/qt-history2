@@ -42,7 +42,7 @@
 /*!
   \class QInterfaceManager qinterfacemanager.h
   \brief The QInterfaceManager class provides basic functions to access a certain kind of functionality in libraries.
-  \ingroup components
+  \ingroup componentmodel
 
   A common usage of components is to provide a certain kind of functionality in the form of plugins. The application
   provides a set of built-in features, and different types of plugins can be loaded to add 3rd party commands to this

@@ -125,6 +125,7 @@ Overviews
 <li> \link debug.html   Debugging Techniques \endlink
 <li> \link pictures.html   Widget Screenshots \endlink
 <li> \link threads.html  Thread Support in Qt  \endlink
+<li> \link component.html  Qt Component Model \endlink
 </ul>
 
 </td>
@@ -212,6 +213,9 @@ Framework
       \link objectmodel.html   Object Model \endlink
 </td><td> The framework's underlying object model.
 </td></tr><tr><td>
+      \link componentmodel.html   Component Model \endlink
+</td><td> Interfaces and helper classes for the Qt Component Model.
+</td></tr><tr><td>
       \link abstractwidgets.html   Abstract Widgets \endlink
 </td><td> Abstract widget classes available for subclassing.
 </td></tr><tr><td>
@@ -226,7 +230,7 @@ encoding and decoding.
 </td><td> Appearance customization with styles, fonts, colors etc.
 </td></tr><tr><td>
       \link geomanagement.html   Geometry Management \endlink
-</td><td> Casses handling automatic resizing and moving of widgets. The Qt way
+</td><td> Classes handling automatic resizing and moving of widgets. The Qt way
 of composing complex dialogs.
 </td></tr>
 <tr>
@@ -312,6 +316,14 @@ these classes.
 \title Object Model
 
 These classes form the basis of the \link object.html Qt Object Model \endlink.
+
+*/
+
+/*! \defgroup componentmodel
+
+\title Component Model
+
+These classes and interfaces form the basis of the \link component.html Qt Component Model \endlink.
 
 */
 
