@@ -22,7 +22,7 @@
 // don't just silently undo people's defines: #undef topLeft
 #endif
 
-class Q_GUI_EXPORT QRect                                        // rectangle class
+class Q_CORE_EXPORT QRect                                        // rectangle class
 {
 public:
     QRect() { x1 = y1 = 0; x2 = y2 = -1; }
@@ -104,8 +104,8 @@ public:
     QRect intersect(const QRect &r) const;
     bool intersects(const QRect &r) const;
 
-    friend Q_GUI_EXPORT bool operator==(const QRect &, const QRect &);
-    friend Q_GUI_EXPORT bool operator!=(const QRect &, const QRect &);
+    friend Q_CORE_EXPORT bool operator==(const QRect &, const QRect &);
+    friend Q_CORE_EXPORT bool operator!=(const QRect &, const QRect &);
 
 #ifdef QT_COMPAT
     inline QT_COMPAT void rect(int *x, int *y, int *w, int *h) const { getRect(x, y, w, h); }
@@ -130,16 +130,16 @@ private:
 
 };
 
-Q_GUI_EXPORT bool operator==(const QRect &, const QRect &);
-Q_GUI_EXPORT bool operator!=(const QRect &, const QRect &);
+Q_CORE_EXPORT bool operator==(const QRect &, const QRect &);
+Q_CORE_EXPORT bool operator!=(const QRect &, const QRect &);
 
 
 /*****************************************************************************
   QRect stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QRect &);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QRect &);
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QRect &);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QRect &);
 #endif
 
 /*****************************************************************************
@@ -431,11 +431,11 @@ inline bool operator!=(const QRect &r1, const QRect &r2)
 }
 
 #ifndef QT_NO_DEBUG
-Q_GUI_EXPORT QDebug operator<<(QDebug, const QRect &);
+Q_CORE_EXPORT QDebug operator<<(QDebug, const QRect &);
 #endif
 
 
-class Q_GUI_EXPORT QRectF                                        // rectangle class
+class Q_CORE_EXPORT QRectF                                        // rectangle class
 {
 public:
     QRectF() { xp = yp = 0.; w = h = 0.; }
@@ -517,8 +517,8 @@ public:
     QRectF intersect(const QRectF &r) const;
     bool intersects(const QRectF &r) const;
 
-    friend Q_GUI_EXPORT bool operator==(const QRectF &, const QRectF &);
-    friend Q_GUI_EXPORT bool operator!=(const QRectF &, const QRectF &);
+    friend Q_CORE_EXPORT bool operator==(const QRectF &, const QRectF &);
+    friend Q_CORE_EXPORT bool operator!=(const QRectF &, const QRectF &);
 
     QRect toRect() const;
 
@@ -529,16 +529,16 @@ private:
     float h;
 };
 
-Q_GUI_EXPORT bool operator==(const QRectF &, const QRectF &);
-Q_GUI_EXPORT bool operator!=(const QRectF &, const QRectF &);
+Q_CORE_EXPORT bool operator==(const QRectF &, const QRectF &);
+Q_CORE_EXPORT bool operator!=(const QRectF &, const QRectF &);
 
 
 /*****************************************************************************
   QRectF stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QRectF &);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QRectF &);
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QRectF &);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QRectF &);
 #endif
 
 /*****************************************************************************
@@ -817,7 +817,7 @@ inline QRect QRectF::toRect() const
 }
 
 #ifndef QT_NO_DEBUG
-Q_GUI_EXPORT QDebug operator<<(QDebug, const QRectF &);
+Q_CORE_EXPORT QDebug operator<<(QDebug, const QRectF &);
 #endif
 
 

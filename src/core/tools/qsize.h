@@ -16,7 +16,7 @@
 
 #include "qnamespace.h"
 
-class Q_GUI_EXPORT QSize
+class Q_CORE_EXPORT QSize
 {
 public:
     QSize();
@@ -69,8 +69,8 @@ private:
   QSize stream functions
  *****************************************************************************/
 
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QSize &);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QSize &);
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QSize &);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QSize &);
 
 
 /*****************************************************************************
@@ -186,11 +186,11 @@ inline QSize QSize::boundedTo(const QSize & otherSize) const
 }
 
 #ifndef QT_NO_DEBUG
-Q_GUI_EXPORT QDebug operator<<(QDebug, const QSize &);
+Q_CORE_EXPORT QDebug operator<<(QDebug, const QSize &);
 #endif
 
 
-class Q_GUI_EXPORT QSizeF
+class Q_CORE_EXPORT QSizeF
 {
 public:
     QSizeF();
@@ -246,8 +246,8 @@ private:
   QSizeF stream functions
  *****************************************************************************/
 
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QSizeF &);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QSizeF &);
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QSizeF &);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QSizeF &);
 
 
 /*****************************************************************************
@@ -373,7 +373,7 @@ inline QSize QSizeF::toSize() const
 }
 
 #ifndef QT_NO_DEBUG
-Q_GUI_EXPORT QDebug operator<<(QDebug, const QSizeF &);
+Q_CORE_EXPORT QDebug operator<<(QDebug, const QSizeF &);
 #endif
 
 #endif // QSIZE_H

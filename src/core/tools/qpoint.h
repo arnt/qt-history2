@@ -16,7 +16,7 @@
 
 #include "qnamespace.h"
 
-class Q_GUI_EXPORT QPoint
+class Q_CORE_EXPORT QPoint
 {
 public:
     QPoint();
@@ -69,8 +69,8 @@ private:
   QPoint stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPoint &);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPoint &);
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QPoint &);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QPoint &);
 #endif
 
 /*****************************************************************************
@@ -172,14 +172,14 @@ inline const QPoint operator/(const QPoint &p, double c)
 }
 
 #ifndef QT_NO_DEBUG
-Q_GUI_EXPORT QDebug operator<<(QDebug, const QPoint &);
+Q_CORE_EXPORT QDebug operator<<(QDebug, const QPoint &);
 #endif
 
 
 
 
 
-class Q_GUI_EXPORT QPointF
+class Q_CORE_EXPORT QPointF
 {
 public:
     QPointF();
@@ -214,7 +214,7 @@ public:
     QPoint toPoint() const;
 
 private:
-    friend class Q_GUI_EXPORT QMatrix;
+    friend class QMatrix;
 
     float xp;
     float yp;
@@ -225,8 +225,8 @@ private:
   QPointF stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPointF &);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPointF &);
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QPointF &);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QPointF &);
 #endif
 
 /*****************************************************************************
@@ -346,7 +346,7 @@ inline QPoint QPointF::toPoint() const
 }
 
 #ifndef QT_NO_DEBUG
-Q_GUI_EXPORT QDebug operator<<(QDebug d, const QPointF &p);
+Q_CORE_EXPORT QDebug operator<<(QDebug d, const QPointF &p);
 #endif
 
 
