@@ -835,7 +835,7 @@ QDir::Filters QDir::filter() const
     \sa filter(), setNameFilters()
 */
 
-void QDir::setFilter(QDir::Filters filters)
+void QDir::setFilter(Filters filters)
 {
     Q_D(QDir);
 
@@ -893,7 +893,7 @@ QDir::SortFlags QDir::sorting() const
     \sa sorting() SortFlag
 */
 
-void QDir::setSorting(QDir::SortFlags sort)
+void QDir::setSorting(SortFlags sort)
 {
     Q_D(QDir);
 
@@ -952,7 +952,7 @@ QString QDir::operator[](int pos) const
     \sa entryInfoList(), setNameFilters(), setSorting(), setFilter()
 */
 
-QStringList QDir::entryList(QDir::Filters filters, QDir::SortFlags sort) const
+QStringList QDir::entryList(Filters filters, SortFlags sort) const
 {
     Q_D(const QDir);
 
@@ -977,7 +977,7 @@ QStringList QDir::entryList(QDir::Filters filters, QDir::SortFlags sort) const
     \sa entryList(), setNameFilters(), setSorting(), setFilter(), isReadable(), exists()
 */
 
-QFileInfoList QDir::entryInfoList(QDir::Filters filters, QDir::SortFlags sort) const
+QFileInfoList QDir::entryInfoList(Filters filters, SortFlags sort) const
 {
     Q_D(const QDir);
 
@@ -999,8 +999,8 @@ QFileInfoList QDir::entryInfoList(QDir::Filters filters, QDir::SortFlags sort) c
     \sa entryInfoList(), setNameFilters(), setSorting(), setFilter()
 */
 
-QStringList QDir::entryList(const QStringList &nameFilters, QDir::Filters filters,
-                            QDir::SortFlags sort) const
+QStringList QDir::entryList(const QStringList &nameFilters, Filters filters,
+                            SortFlags sort) const
 {
     Q_D(const QDir);
 
@@ -1033,8 +1033,8 @@ QStringList QDir::entryList(const QStringList &nameFilters, QDir::Filters filter
     \sa entryList(), setNameFilters(), setSorting(), setFilter(), isReadable(), exists()
 */
 
-QFileInfoList QDir::entryInfoList(const QStringList &nameFilters, QDir::Filters filters,
-                                  QDir::SortFlags sort) const
+QFileInfoList QDir::entryInfoList(const QStringList &nameFilters, Filters filters,
+                                  SortFlags sort) const
 {
     Q_D(const QDir);
 

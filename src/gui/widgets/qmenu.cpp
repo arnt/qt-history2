@@ -771,11 +771,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     Important inherited functions: addAction(), removeAction(), clear(),
     addSeparator(), and addMenu().
 
-    \inlineimage qmenu-m.png Screenshot in Motif style
-    \inlineimage qmenu-w.png Screenshot in Windows style
-
-    \sa QMenuBar
-    \link guibooks.html#fowler GUI Design Handbook: Menu, Drop-Down and
+    \sa QMenuBar \link guibooks.html#fowler GUI Design Handbook: Menu, Drop-Down and
     Pop-Up\endlink
 */
 

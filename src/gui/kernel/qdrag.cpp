@@ -53,7 +53,7 @@
 
     \quotefromfile snippets/separations/finalwidget.cpp
     \skipto setHotSpot
-    \printuntil setHotSpot
+    \printuntil ;
 
     The source and target widgets can be found with source() and target().
     These functions are often used to determine whether drag and drop operations
