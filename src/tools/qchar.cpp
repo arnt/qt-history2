@@ -303,16 +303,6 @@ QChar::QChar(uchar c)
 
 
 /*!
-    \fn bool  QChar::networkOrdered ()
-
-    \obsolete
-
-    Returns TRUE if this character is in network byte order (MSB
-    first); otherwise returns FALSE. This is platform dependent.
-*/
-
-
-/*!
     \fn bool QChar::isNull() const
 
     Returns TRUE if the character is the Unicode character 0x0000

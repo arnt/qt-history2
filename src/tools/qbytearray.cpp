@@ -433,10 +433,192 @@ QByteArray qUncompress( const uchar* data, int nbytes )
 Q_CORE_EXPORT QByteArray::Data QByteArray::shared_null = { Q_ATOMIC_INIT(1), 0, 0, shared_null.array, {0} };
 QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_empty.array, {0} };
 
+/*!
+    \class QByteArray
+*/
+
+/*!
+    \fn QByteArray::QByteArray(const QByteArray &)
+*/
+
+/*!
+    \fn QByteArray &QByteArray::operator=(const QByteArray &)
+*/
+
+/*!
+    \fn int QByteArray::size() const
+*/
+
+/*!
+    \fn bool QByteArray::isEmpty() const
+*/
+
+/*!
+    \fn bool QByteArray::operator!() const
+*/
+
+/*!
+    \fn int QByteArray::capacity() const
+*/
+
+/*!
+    \fn char *QByteArray::data()
+
+    \overload
+*/
+
+/*!
+    \fn const char *QByteArray::data() const
+*/
+
+/*!
+    \fn const char *QByteArray::constData() const
+*/
+
+/*!
+    \fn void QByteArray::detach()
+*/
+
+/*!
+    \fn bool QByteArray::isDetached() const
+*/
+
+/*!
+    \fn char QByteArray::at(int i) const
+*/
+
+/*!
+    \fn char QByteArray::operator[](int i) const
+*/
+
+/*!
+    \fn QByteRef QByteArray::operator[](int i)
+
+    \overload
+*/
+
+/*!
+    \fn char QByteArray::operator[](uint i) const
+
+    \overload
+*/
+
+/*!
+    \fn QByteRef QByteArray::operator[](uint i)
+
+    \overload
+*/
+
+/*!
+    \fn int QByteArray::indexOf(const char *c, int from = 0) const
+
+    \overload
+*/
+
+/*!
+    \fn int QByteArray::lastIndexOf(const char *c, int i) const
+
+    \overload
+*/
+
+/*!
+    \fn QBool QByteArray::contains(char c) const
+
+    \overload
+*/
+
+/*!
+    \fn QBool QByteArray::contains(const char *a) const
+
+    \overload
+*/
+
+/*!
+    \fn QBool QByteArray::contains(const QByteArray &a) const
+*/
+
+/*!
+    \fn  void QByteArray::truncate(int maxSize)
+
+    If \a maxSize is less than the length of the string, then the
+    string is truncated at position \a maxSize. Otherwise nothing
+    happens.
+
+    \code
+	QByteArray s = "truncate me";
+	s.truncate(5);            // s == "trunc"
+    \endcode
+
+    \sa resize();
+*/
+
+
+/*!
+    \fn QByteArray QByteArray::leftJustified(int width, char fill, bool truncate) const
+*/
+
+/*!
+    \fn QByteArray QByteArray::rightJustified(int width, char fill, bool truncate) const
+*/
+
+/*!
+    \fn QByteArray &QByteArray::replace(int index, int len, const char *s)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::replace(char before, const char *after)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::replace(const char *before, const char *after)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::operator+=(char c)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::operator+=(const char *s)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::operator+=(const QByteArray &a)
+*/
+
+/*!
+    \fn int QByteArray::count() const
+*/
+
+/*!
+    \fn int QByteArray::length() const
+*/
+
+/*!
+    \fn bool QByteArray::isNull() const
+*/
+
+/*!
+    \fn QByteArray::QByteArray()
+*/
+
 QByteArray::QByteArray() : d(&shared_null)
 {
     ++d->ref;
 }
+
+/*!
+    \fn QByteArray::QByteArray(const char *)
+*/
 
 QByteArray::QByteArray(const char *s)
 {
@@ -459,6 +641,10 @@ QByteArray::QByteArray(const char *s)
     ++d->ref;
 }
 
+/*!
+    \fn QByteArray::QByteArray(const char*, int size)
+*/
+
 QByteArray::QByteArray(const char*s, int size)
 {
    if (!s) {
@@ -480,6 +666,10 @@ QByteArray::QByteArray(const char*s, int size)
    ++d->ref;
 }
 
+/*!
+    \fn QByteArray::QByteArray(int size, char c)
+*/
+
 QByteArray::QByteArray(int size, char c)
 {
    if (size <= 0) {
@@ -499,6 +689,9 @@ QByteArray::QByteArray(int size, char c)
     ++d->ref;
 }
 
+/*!
+    \fn void QByteArray::resize(int size)
+*/
 
 void QByteArray::resize(int size)
 {
@@ -519,6 +712,10 @@ void QByteArray::resize(int size)
     }
 }
 
+/*!
+    \fn QByteArray &QByteArray::fill(char c, int size = -1)
+*/
+
 QByteArray& QByteArray::fill(char c, int size)
 {
     resize(size < 0 ? d->size : size);
@@ -526,6 +723,10 @@ QByteArray& QByteArray::fill(char c, int size)
 	memset(d->data, c, d->size);
     return *this;
 }
+
+/*!
+    \fn void QByteArray::reserve(int size)
+*/
 
 void QByteArray::reserve(int size)
 {
@@ -560,6 +761,12 @@ void QByteArray::expand(int i)
     resize(qMax(i+1, d->size));
 }
 
+/*!
+    \fn QByteArray &QByteArray::operator=(const char *s)
+
+    \overload
+*/
+
 QByteArray &QByteArray::operator=(const char *s)
 {
     Data *x;
@@ -582,6 +789,12 @@ QByteArray &QByteArray::operator=(const char *s)
     return *this;
 }
 
+/*!
+    \fn QByteArray &QByteArray::prepend(char c)
+
+    \overload
+*/
+
 QByteArray& QByteArray::prepend(char c)
 {
     if (d->ref != 1 || d->size + 1 > d->alloc)
@@ -592,6 +805,12 @@ QByteArray& QByteArray::prepend(char c)
     d->data[d->size] = '\0';
     return *this;
 }
+
+/*!
+    \fn QByteArray &QByteArray::prepend(const char *s)
+
+    \overload
+*/
 
 QByteArray& QByteArray::prepend(const char *s)
 {
@@ -607,6 +826,10 @@ QByteArray& QByteArray::prepend(const char *s)
     return *this;
 }
 
+/*!
+    \fn QByteArray &QByteArray::prepend(const QByteArray &a)
+*/
+
 QByteArray& QByteArray::prepend(const QByteArray& a)
 {
     if (d == &shared_null || d == &shared_empty)
@@ -619,6 +842,12 @@ QByteArray& QByteArray::prepend(const QByteArray& a)
     return *this;
 }
 
+/*!
+    \fn QByteArray &QByteArray::append(char c)
+
+    \overload
+*/
+
 QByteArray& QByteArray::append(char c)
 {
     if (d->ref != 1 || d->size + 1 > d->alloc)
@@ -627,6 +856,12 @@ QByteArray& QByteArray::append(char c)
     d->data[d->size] = '\0';
     return *this;
 }
+
+/*!
+    \fn QByteArray &QByteArray::append(const char *s)
+
+    \overload
+*/
 
 QByteArray& QByteArray::append(const char *s)
 {
@@ -639,6 +874,10 @@ QByteArray& QByteArray::append(const char *s)
     }
     return *this;
 }
+
+/*!
+    \fn QByteArray &QByteArray::append(const QByteArray &a)
+*/
 
 QByteArray& QByteArray::append(const QByteArray& a)
 {
@@ -653,6 +892,11 @@ QByteArray& QByteArray::append(const QByteArray& a)
     return *this;
 }
 
+/*!
+    \fn QByteArray &QByteArray::insert(int i, char c)
+
+    \overload
+*/
 
 QByteArray &QByteArray::insert(int i, char c)
 {
@@ -670,6 +914,12 @@ QByteArray &QByteArray::insert(int i, char c)
     return *this;
 }
 
+/*!
+    \fn QByteArray &QByteArray::insert(int i, const char *s)
+
+    \overload
+*/
+
 QByteArray &QByteArray::insert(int i, const char *s)
 {
     if (!s || *s == '\0' || i < 0)
@@ -684,6 +934,10 @@ QByteArray &QByteArray::insert(int i, const char *s)
     memcpy(d->data + i, s, l*sizeof(char));
     return *this;
 }
+
+/*!
+    \fn QByteArray &QByteArray::insert(int i, const QByteArray &a)
+*/
 
 QByteArray &QByteArray::insert(int i, const QByteArray &a)
 {
@@ -725,11 +979,21 @@ QByteArray &QByteArray::remove( int index, int len )
     return *this;
 }
 
+/*!
+    \fn QByteArray &QByteArray::replace(int index, int len, const QByteArray &after)
+*/
+
 QByteArray &QByteArray::replace(int index, int len, const QByteArray &after)
 {
     remove(index, len);
     return insert(index, after);
 }
+
+/*!
+    \fn QByteArray &QByteArray::replace(char before, const QByteArray &after)
+
+    \overload
+*/
 
 QByteArray &QByteArray::replace(char before, const QByteArray &after)
 {
@@ -737,6 +1001,12 @@ QByteArray &QByteArray::replace(char before, const QByteArray &after)
     QConstByteArray cb(b, 1);
     return replace(cb, after);
 }
+
+/*!
+    \fn QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &after)
+
+    \overload
+*/
 
 QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &after)
 {
@@ -831,6 +1101,12 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
     return *this;
 }
 
+/*!
+    \fn QByteArray &QByteArray::replace(char before, char after)
+
+    \overload
+*/
+
 QByteArray &QByteArray::replace(char before, char after)
 {
     if (d->size) {
@@ -842,6 +1118,12 @@ QByteArray &QByteArray::replace(char before, char after)
     }
     return *this;
 }
+
+/*!
+    \fn int QByteArray::indexOf(char c, int i) const
+
+    \overload
+*/
 
 int QByteArray::indexOf(char c, int i) const
 {
@@ -856,6 +1138,12 @@ int QByteArray::indexOf(char c, int i) const
     }
     return -1;
 }
+
+/*!
+    \fn int QByteArray::lastIndexOf(char c, int i) const
+
+    \overload
+*/
 
 int QByteArray::lastIndexOf(char c, int i) const
 {
@@ -878,6 +1166,10 @@ int QByteArray::lastIndexOf(char c, int i) const
 	hashHaystack -= (a) << sl_minus_1; \
     hashHaystack <<= 1
 
+
+/*!
+    \fn int QByteArray::indexOf(const QByteArray &a, int i) const
+*/
 
 int QByteArray::indexOf(const QByteArray& a, int i) const
 {
@@ -912,6 +1204,10 @@ int QByteArray::indexOf(const QByteArray& a, int i) const
     }
     return -1;
 }
+
+/*!
+    \fn int QByteArray::lastIndexOf(const QByteArray &a, int i) const
+*/
 
 int QByteArray::lastIndexOf(const QByteArray& a, int i) const
 {
@@ -951,6 +1247,12 @@ int QByteArray::lastIndexOf(const QByteArray& a, int i) const
 
 }
 
+/*!
+    \fn int QByteArray::count(char c) const
+
+    \overload
+*/
+
 int QByteArray::count(char c) const
 {
     int num = 0;
@@ -962,6 +1264,12 @@ int QByteArray::count(char c) const
     return num;
 }
 
+/*!
+    \fn int QByteArray::count(const char *a) const
+
+    \overload
+*/
+
 int QByteArray::count(const char *a) const
 {
     int num = 0;
@@ -971,6 +1279,12 @@ int QByteArray::count(const char *a) const
     return num;
 }
 
+/*!
+    \fn int QByteArray::count(const QByteArray &a) const
+
+    \overload
+*/
+
 int QByteArray::count(const QByteArray& a) const
 {
     int num = 0;
@@ -979,6 +1293,10 @@ int QByteArray::count(const QByteArray& a) const
 	++num;
     return num;
 }
+
+/*!
+    \fn QByteArray QByteArray::left(int len)  const
+*/
 
 QByteArray QByteArray::left(int len)  const
 {
@@ -991,6 +1309,10 @@ QByteArray QByteArray::left(int len)  const
     return QByteArray(d->data, len);
 }
 
+/*!
+    \fn QByteArray QByteArray::right(int len) const
+*/
+
 QByteArray QByteArray::right(int len) const
 {
     if (d == &shared_null)
@@ -1002,6 +1324,10 @@ QByteArray QByteArray::right(int len) const
     QByteArray ba = QByteArray(d->data + d->size - len, len);
     return ba;
 }
+
+/*!
+    \fn QByteArray QByteArray::mid(int i, int len) const
+*/
 
 QByteArray QByteArray::mid(int i, int len) const
 {
@@ -1021,8 +1347,8 @@ QByteArray QByteArray::mid(int i, int len) const
 }
 
 /*!
-    Returns a new string that is a copy of this string converted to lower
-    case.
+    Returns a new byte array that is a copy of this byte array
+    with the charcters converted to lower case.
 
     Example:
     \code
@@ -1047,7 +1373,8 @@ QByteArray QByteArray::toLower() const
 }
 
 /*!
-    Returns a new string that is a copy of this string converted to upper case.
+    Returns a new byte array that is a copy of this byte array
+    with the charcters converted to upper case.
 
     Example:
     \code
@@ -1072,6 +1399,10 @@ QByteArray QByteArray::toUpper() const
     return s;
 }
 
+
+/*!
+    \fn void QByteArray::clear()
+*/
 
 void QByteArray::clear()
 {
@@ -1242,20 +1573,6 @@ QByteArray QByteArray::rightJustified(int width, char fill, bool truncate) const
     }
     return result;
 }
-
-/*! \fn  void QByteArray::truncate(int maxSize)
-
-    If \a maxSize is less than the length of the string, then the
-    string is truncated at position \a maxSize. Otherwise nothing
-    happens.
-
-    \code
-	QByteArray s = "truncate me";
-	s.truncate(5);            // s == "trunc"
-    \endcode
-
-    \sa resize();
-*/
 
 bool QByteArray::isNull() const { return d == &shared_null; }
 

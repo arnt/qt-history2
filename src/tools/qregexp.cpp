@@ -3267,6 +3267,7 @@ QRegExp::QRegExp(const QString &pattern, QString::CaseSensitivity cs, bool wildc
     priv->cs = cs;
 }
 
+#ifdef QT_COMPAT
 /*!
     \overload
 
@@ -3277,7 +3278,6 @@ QRegExp::QRegExp(const QString &pattern, QString::CaseSensitivity cs, bool wildc
 
     \sa setPattern() setCaseSensitive() setWildcard() setMinimal()
 */
-#ifdef QT_COMPAT
 QRegExp::QRegExp(const QString &pattern, bool caseSensitive, bool wildcard)
 {
     priv = new QRegExpPrivate;

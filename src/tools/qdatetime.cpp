@@ -440,12 +440,6 @@ int QDate::weekNumber( int *yearNumber ) const
     return weekNum;
 }
 
-/*!
-  \fn QString QDate::monthName( int month )
-  \obsolete
-
-  Use shortMonthName() instead.
-*/
 #ifndef QT_NO_TEXTDATE
 /*!
     Returns the name of the \a month.
@@ -535,13 +529,6 @@ QString QDate::longMonthName( int month )
 
     return QString::null;
 }
-
-/*!
-  \fn QString QDate::dayName( int weekday )
-  \obsolete
-
-  Use shortDayName() instead.
-*/
 
 /*!
     Returns the name of the \a weekday.

@@ -38,7 +38,7 @@
     style with the QStyle system. The emulation is currently far from
     perfect.
 
-    \sa QAquaStyle
+    \sa QMacStyle
 */
 
 
