@@ -429,9 +429,7 @@ bool QSettingsPrivate::sysWriteEntry(const QString &key, bool value)
         qWarning("QSettingsPrivate::sysWriteEntry (bool): invalid null/empty key.");
         return false;
     }
-    CFBooleanRef val = value ? kCFBooleanTrue : kCFBooleanFalse;
-    bool ret = sysd->writeEntry(key, val, globalScope);
-    return ret;
+    return sysd->writeEntry(key, value ? kCFBooleanTrue : kCFBooleanFalse, globalScope);
 }
 #endif
 
@@ -441,8 +439,8 @@ bool QSettingsPrivate::sysWriteEntry(const QString &key, double value)
         qWarning("QSettingsPrivate::sysWriteEntry (double): invalid null/empty key.");
         return false;
     }
-    QCFHelper<CFNumberRef> val = CFNumberCreate(NULL, kCFNumberDoubleType, &value);
-    return sysd->writeEntry(key, val, globalScope);
+    return sysd->writeEntry(key, QCFHelper<CFNumberRef>(CFNumberCreate(NULL, kCFNumberDoubleType, &value)), 
+                            globalScope);
 }
 
 bool QSettingsPrivate::sysWriteEntry(const QString &key, int value)
@@ -451,8 +449,8 @@ bool QSettingsPrivate::sysWriteEntry(const QString &key, int value)
         qWarning("QSettingsPrivate::sysWriteEntry (int): invalid null/empty key.");
         return false;
     }
-    QCFHelper<CFNumberRef> val = CFNumberCreate(NULL, kCFNumberIntType, &value);
-    return sysd->writeEntry(key, val, globalScope);
+    return sysd->writeEntry(key, QCFHelper<CFNumberRef>(CFNumberCreate(NULL, kCFNumberIntType, &value)), 
+                            globalScope);
 }
 
 bool QSettingsPrivate::sysWriteEntry(const QString &key, const QString &value)
