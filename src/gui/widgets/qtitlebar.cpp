@@ -97,9 +97,9 @@ public:
             }
         }
 
-        if (tipstring.isEmpty()) {
-            if (t->visibleText() != t->windowTitle())
-                tipstring = t->windowTitle();
+        if (tipstring.isEmpty() && t->window()) {
+            if (t->windowTitle() != t->window()->windowTitle())
+                tipstring = t->window()->windowTitle();
         }
         if(!tipstring.isEmpty())
             tip(controlR, tipstring);
@@ -123,8 +123,15 @@ public:
     bool movable            :1;
     bool pressed            :1;
     bool autoraise          :1;
-    QString cuttext;
+
+    int titleBarState() const;
 };
+
+inline int QTitleBarPrivate::titleBarState() const
+{
+    uint state = window ? window->windowState() : 0;
+    return (int)state;
+}
 
 QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
     : QWidget(parent, name, WStyle_Customize | WStyle_NoBorder)
@@ -234,7 +241,8 @@ void QTitleBar::mousePressEvent(QMouseEvent * e)
         emit doActivate();
     if (e->button() == LeftButton) {
         d->pressed = true;
-        QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
+        QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos(),
+            QStyleOption(d->titleBarState()));
         switch (ctrl) {
         case QStyle::SC_TitleBarSysMenu:
             if (testWFlags(WStyle_SysMenu) && !testWFlags(WStyle_Tool)) {
@@ -297,7 +305,8 @@ void QTitleBar::mousePressEvent(QMouseEvent * e)
 
 void QTitleBar::contextMenuEvent(QContextMenuEvent *e)
 {
-    QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
+    QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos(), 
+        QStyleOption(d->titleBarState()));
     if(ctrl == QStyle::SC_TitleBarLabel || ctrl == QStyle::SC_TitleBarSysMenu)
         emit popupOperationMenu(e->globalPos());
     else
@@ -307,7 +316,8 @@ void QTitleBar::contextMenuEvent(QContextMenuEvent *e)
 void QTitleBar::mouseReleaseEvent(QMouseEvent * e)
 {
     if (e->button() == LeftButton && d->pressed) {
-        QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
+        QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos(),
+            QStyleOption(d->titleBarState()));
 
         if (ctrl == d->buttonDown) {
             switch(ctrl) {
@@ -323,13 +333,17 @@ void QTitleBar::mouseReleaseEvent(QMouseEvent * e)
                 break;
 
             case QStyle::SC_TitleBarMinButton:
-                if(testWFlags(WStyle_Minimize) && !testWFlags(WStyle_Tool))
-                    emit doMinimize();
+                if(testWFlags(WStyle_Minimize) && !testWFlags(WStyle_Tool)) {
+                    if (d->window && d->window->isMinimized())
+                        emit doNormal();
+                    else
+                        emit doMinimize();
+                }
                 break;
 
             case QStyle::SC_TitleBarMaxButton:
-                if(d->window && testWFlags(WStyle_Maximize) && !testWFlags(WStyle_Tool)) {
-                    if(d->window->isMaximized())
+                if(testWFlags(WStyle_Maximize) && !testWFlags(WStyle_Tool)) {
+                    if(d->window && d->window->isMaximized())
                         emit doNormal();
                     else
                         emit doMaximize();
@@ -372,7 +386,8 @@ void QTitleBar::mouseMoveEvent(QMouseEvent * e)
     case QStyle::SC_TitleBarCloseButton:
         {
             QStyle::SCFlags last_ctrl = d->buttonDown;
-            d->buttonDown = style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
+            d->buttonDown = style().querySubControl(QStyle::CC_TitleBar, this, e->pos(),
+                QStyleOption(d->titleBarState()));
             if(d->buttonDown != last_ctrl)
                 d->buttonDown = QStyle::SC_None;
             repaint();
@@ -450,20 +465,24 @@ void QTitleBar::paintEvent(QPaintEvent *)
     QStyle::SCFlags under_mouse = QStyle::SC_None;
     if(autoRaise() && underMouse()) {
         QPoint p(mapFromGlobal(QCursor::pos()));
-        under_mouse = style().querySubControl(QStyle::CC_TitleBar, this, p);
+        under_mouse = style().querySubControl(QStyle::CC_TitleBar, this, p,
+            QStyleOption(d->titleBarState()));
         ctrls ^= under_mouse;
     }
 
+    int flags = QStyle::Style_Default;
+    if (isEnabled())
+        flags |= QStyle::Style_Enabled;
+
+    QPalette pal(palette());
+    pal.setCurrentColorGroup(usesActiveColor() ? QPalette::Active : QPalette::Inactive);
+
     QPainter p(this);
     style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(),
-                               palette(),
-                               isEnabled() ? QStyle::Style_Enabled :
-                               QStyle::Style_Default, ctrls, d->buttonDown);
+                               pal, flags, ctrls, d->buttonDown);
     if(under_mouse != QStyle::SC_None)
         style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(),
-                                   palette(),
-                                   QStyle::Style_MouseOver |
-                                   (isEnabled() ? QStyle::Style_Enabled : 0),
+                                   pal, QStyle::Style_MouseOver | flags,
                                    under_mouse, d->buttonDown);
 }
 
@@ -472,7 +491,8 @@ void QTitleBar::mouseDoubleClickEvent(QMouseEvent *e)
     if (e->button() != LeftButton)
         return;
 
-    switch(style().querySubControl(QStyle::CC_TitleBar, this, e->pos())) {
+    switch(style().querySubControl(QStyle::CC_TitleBar, this, e->pos(),
+        QStyleOption(d->titleBarState()))) {
     case QStyle::SC_TitleBarLabel:
         emit doubleClicked();
         break;
@@ -494,17 +514,24 @@ void QTitleBar::cutText()
     int maxw = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
                                               QStyle::SC_TitleBarLabel).width();
     if (!d->window)
-        maxw = width() - 20;
-    const QString txt = windowTitle();
-    d->cuttext = txt;
+        return;
+
+    QString txt = d->window->windowTitle();
+    if ((style().styleHint(QStyle::SH_GUIStyle, this) == WindowsStyle) 
+        && d->window && d->window->isWindowModified())
+        txt += " *";
+
+    QString cuttext = txt;
     if (fm.width(txt + "m") > maxw) {
         int i = txt.length();
         int dotlength = fm.width("...");
         while (i>0 && fm.width(txt.left(i)) + dotlength > maxw)
             i--;
         if(i != (int)txt.length())
-            d->cuttext = txt.left(i) + "...";
+            cuttext = txt.left(i) + "...";
     }
+
+    setWindowTitle(cuttext);
 }
 
 
@@ -540,11 +567,6 @@ bool QTitleBar::usesActiveColor() const
 {
     return (isActive() && isActiveWindow()) ||
            (!window() && topLevelWidget()->isActiveWindow());
-}
-
-QString QTitleBar::visibleText() const
-{
-    return d->cuttext;
 }
 
 QWidget *QTitleBar::window() const

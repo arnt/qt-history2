@@ -52,7 +52,6 @@ public:
 
     bool isActive() const;
     bool usesActiveColor() const;
-    virtual QString visibleText() const;
 
     bool isMovable() const;
     void setMovable(bool);

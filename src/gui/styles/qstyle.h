@@ -70,6 +70,8 @@ public:
     int frameShape() const { return i3; }
     int frameShadow() const { return i4; }
 
+    int titleBarState() const { return i1; }
+
     int headerSection() const { return i1; }
     Q3MenuItem* menuItem() const { return mi; }
     QAction* action() const { return act; }
