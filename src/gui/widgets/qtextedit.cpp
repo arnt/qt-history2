@@ -1233,6 +1233,7 @@ void QTextEdit::setPlainText(const QString &text)
 {
     QTextDocumentFragment fragment = QTextDocumentFragment::fromPlainText(text);
     d->init(fragment);
+    d->preferRichText = false;
 }
 
 /*!
@@ -1263,6 +1264,7 @@ void QTextEdit::setHtml(const QString &text)
 {
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
     d->init(fragment);
+    d->preferRichText = true;
 }
 
 /*! \reimp
@@ -2282,10 +2284,10 @@ void QTextEdit::setText(const QString &text)
 */
 QString QTextEdit::text() const
 {
-    if (d->textFormat == Qt::PlainText)
-        return d->doc->toPlainText();
-    else
+    if (d->textFormat == Qt::RichText || (d->textFormat == Qt::AutoText && d->preferRichText))
         return d->doc->toHtml();
+    else
+        return d->doc->toPlainText();
 }
 
 

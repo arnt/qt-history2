@@ -19,7 +19,8 @@ public:
 	  imstart(0), imend(0), imselstart(0), imselend(0), readOnly(false),
           autoFormatting(QTextEdit::AutoNone), tabChangesFocus(false),
           mousePressed(false), mightStartDrag(false), wordWrap(QTextEdit::WidgetWidth), wrapColumnOrWidth(0),
-          lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText)
+          lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
+          preferRichText(false)
     {}
 
     bool cursorMoveKeyEvent(QKeyEvent *e);
@@ -112,6 +113,7 @@ public:
     // Qt3 COMPAT only
     // ### non-compat'ed append needs it, too
     Qt::TextFormat textFormat;
+    bool preferRichText;
 
     QString anchorToScrollToWhenVisible;
 };
