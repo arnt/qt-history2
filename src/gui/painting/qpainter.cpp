@@ -116,26 +116,30 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
             } else {
                 QRectF bounds;
                 q->save();
-                QPainterPath clip;
+                QRegion clip;
                 switch (shape) {
                 case EllipseShape:
                     bounds = *reinterpret_cast<const QRectF*>(data);
-                    clip.addEllipse(bounds);
+                    clip = QRegion(bounds.toRect(), QRegion::Ellipse);
                     break;
                 case PathShape:
-                    clip = *reinterpret_cast<const QPainterPath*>(data);
+                    clip = QRegion(reinterpret_cast<const QPainterPath*>(data)->toFillPolygon().toPointArray(),
+                                reinterpret_cast<const QPainterPath*>(data)->fillMode() == QPainterPath::Winding);
+                    bounds = clip.boundingRect();
                     break;
                 case RectangleShape:
-                    clip.addRect(*reinterpret_cast<const QRectF*>(data));
                     bounds = *reinterpret_cast<const QRectF*>(data);
+                    clip = QRegion(bounds.toRect());
                     break;
                 default:
                     bounds = reinterpret_cast<const QPolygon*>(data)->boundingRect();
-                    clip.addPolygon(*reinterpret_cast<const QPolygon*>(data));
+                    clip = QRegion(reinterpret_cast<const QPolygon*>(data)->toPointArray(), winding);
                     break;
                 }
-                clip.setFillMode(winding ? QPainterPath::Winding : QPainterPath::OddEven);
-                q->setClipPath(clip);
+                QRegion currentClip = q->clipRegion();
+                if (!currentClip.isEmpty())
+                    clip &= currentClip;
+                q->setClipRegion(clip);
                 if (emulationSpecifier & QPaintEngine::LinearGradients) {
                     qt_fill_linear_gradient(bounds.toRect(), q, state->brush);
                 } else { // AlphaFill
@@ -1335,14 +1339,15 @@ void QPainter::translate(double dx, double dy)
 }
 
 /*!
-    Sets the clippath for the painter to \a path. If the painter
-    has both clip region and clip path set the intersection of both
-    is used.
+    Sets the clippath for the painter to \a path.
 
     The clip path is specified in logical (painter) coordinates.
+
+
 */
 void QPainter::setClipPath(const QPainterPath &path)
 {
+#if 0
 #ifdef QT_DEBUG_DRAW
     printf("QPainter::setClipPath(), size=%d\n", path.elementCount());
 #endif
@@ -1372,6 +1377,9 @@ void QPainter::setClipPath(const QPainterPath &path)
     d->state->clipMatrix = d->state->matrix;
     d->state->clipType = QPainterState::PathClip;
     d->engine->setDirty(QPaintEngine::DirtyClipPath);
+#else
+    Q_UNUSED(path);
+#endif
 }
 
 /*!

@@ -132,6 +132,7 @@ class Q_GUI_EXPORT QPainter
     void strokePath(const QPainterPath &path, const QPen &pen);
     void fillPath(const QPainterPath &path, const QBrush &brush);
     void drawPath(const QPainterPath &path);
+
     void setClipPath(const QPainterPath &path);
 
     inline void drawLine(int x1, int y1, int x2, int y2);
