@@ -68,8 +68,7 @@ QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(FAL
 
     This class contains an IP address in a platform and protocol
     independent manner. It stores both IPv4 and IPv6 addresses in a
-    way that you can easily access on any platform. (Qt does not
-    currently provide IPv6 support.)
+    way that you can easily access on any platform.
 
     QHostAddress is normally used with the classes QSocket,
     QServerSocket and QSocketDevice to set up a server or to connect
