@@ -5589,6 +5589,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     if ( align == Qt::AlignAuto && doc && doc->alignment() != Qt::AlignAuto )
 	align = doc->alignment();
 
+    align &= Qt::AlignHorizontal_Mask;
+    
     QPainter *painter = parag->painter();
     int col = 0;
     int ww = 0;
