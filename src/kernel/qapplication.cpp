@@ -1689,6 +1689,7 @@ const QColor& QApplication::winStyleHighlightColor()
   of Qt only.
 */
 
+#ifdef QT_FEATURE_TRANSLATION
 
 /*!
   Adds \a mf to the list of message files to be used for
@@ -1705,7 +1706,6 @@ void QApplication::installTranslator( QTranslator * mf )
     if ( mf )
 	translators->insert( 0, mf );
 }
-
 
 /*!
   Removes \a mf from the list of message files used by this
@@ -1832,6 +1832,7 @@ QString QApplication::translate( const char * scope, const char * key,
 	return QString::fromLatin1(key);
 }
 
+#endif
 
 /*****************************************************************************
   QApplication management of posted events

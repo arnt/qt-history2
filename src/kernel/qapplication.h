@@ -139,6 +139,7 @@ public:
 
     static void	     beep();
 
+#ifdef QT_FEATURE_TRANSLATION
     void	     setDefaultCodec( QTextCodec* );
     QTextCodec*	     defaultCodec() const;
     void	     installTranslator( QTranslator * );
@@ -146,6 +147,7 @@ public:
     QString	     translate( const char *, const char * ) const;
     QString	     translate( const char *, const char *,
 				const char * ) const;
+#endif
 
     static void      setWinStyleHighlightColor( const QColor & );
     static const QColor &winStyleHighlightColor();

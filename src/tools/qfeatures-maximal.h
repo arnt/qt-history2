@@ -63,6 +63,7 @@
 
 // i18n
 
+#define QT_FEATURE_TRANSLATION
 #if !defined(QT_NO_CODECS)
     #define QT_FEATURE_I18N
 #endif

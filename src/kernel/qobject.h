@@ -218,5 +218,9 @@ public:
     void setSender( QObject *s ) { sigSender=s; }
 };
 
+#ifndef QT_FEATURE_TRANSLATION
+inline QString QObject::tr(const char* s) { return QString(s); }
+#endif
+
 
 #endif // QOBJECT_H

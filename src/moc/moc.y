@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#176 $
+** $Id: //depot/qt/main/src/moc/moc.y#177 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2436,7 +2436,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#176 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#177 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2526,8 +2526,10 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate tr member function
 //
+    fprintf( out, "#ifdef QT_FEATURE_TRANSLATION\n" );
     fprintf( out, "QString %s::tr(const char* s)\n{\n", (const char*)qualifiedClassName() );
     fprintf( out, "    return ((QNonBaseApplication*)qApp)->translate(\"%s\",s);\n}\n\n", (const char*)qualifiedClassName() );
+    fprintf( out, "#endif // QT_FEATURE_TRANSLATION\n" );
 
 //
 // Generate staticMetaObject member function

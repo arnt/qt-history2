@@ -1808,6 +1808,8 @@ QMetaObject *QObject::queryMetaObject() const
     return m;
 }
 
+#ifdef QT_FEATURE_TRANSLATION // Otherwise we have a simple inline version
+
 /*!
   Returns a translated version of \a text, or \a text if there is
   no appropriate translated version.  All QObject subclasses which use the
@@ -1824,6 +1826,8 @@ QString QObject::tr( const char *text )
     else
 	return QString::fromLatin1(text);
 }
+
+#endif
 
 /*!
   Initializes the \link metaObject() meta object\endlink of this

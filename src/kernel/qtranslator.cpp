@@ -25,6 +25,9 @@
 
 
 #include "qtranslator.h"
+
+#ifdef QT_FEATURE_TRANSLATION
+
 #include "qfileinfo.h"
 
 #if defined(UNIX)
@@ -1299,3 +1302,5 @@ uint QTranslatorMessage::rehash()
     h = ::hash( st + cm );
     return h;
 }
+
+#endif // QT_FEATURE_TRANSLATION

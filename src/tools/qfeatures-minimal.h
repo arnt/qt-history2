@@ -63,6 +63,7 @@
 
 // i18n
 
+//#define QT_FEATURE_TRANSLATION
 #if !defined(QT_NO_CODECS)
     //#define QT_FEATURE_I18N
 #endif
@@ -88,10 +89,11 @@
     //#define QT_FEATURE_QWS_MACH64
     //#define QT_FEATURE_QWS_VFB
     //#define QT_FEATURE_QWS_DEPTH_8GRAYSCALE
-    #define QT_FEATURE_QWS_DEPTH_8
+    //#define QT_FEATURE_QWS_DEPTH_8
     //#define QT_FEATURE_QWS_DEPTH_15
     //#define QT_FEATURE_QWS_DEPTH_16
     //#define QT_FEATURE_QWS_DEPTH_32
+    // Monochrome always defined
 #endif
 
 // network

@@ -32,6 +32,7 @@
 #include "qintdict.h"
 #endif // QT_H
 
+#ifdef QT_FEATURE_TRANSLATION
 
 class QTranslatorPrivate;
 class QTranslatorMessage;
@@ -139,5 +140,6 @@ private:
 	       Tag_Hash, Tag_SourceText, Tag_Context, Tag_Comment, Tag_Type };
 };
 
+#endif // QT_FEATURE_TRANSLATION
 
 #endif
