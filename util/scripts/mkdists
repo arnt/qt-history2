@@ -84,16 +84,12 @@ while [ -n "$1" ]; do
    free)DO_FREE=$VAL;;
    gzip)DO_GZIP=$VAL;;
    version)
-       if ! expr "$VAL" : ".*\.\d*" >/dev/null 2>&1; then
-	  die "Can't figure out version from $VAL"
-       fi
+       expr "$VAL" : ".*\.\d*" >/dev/null 2>&1 || die "Can't figure out version from $VAL"
        REL_VERSION=$VAL
        BRANCH=`echo $VAL | sed "s,\([0-9]*\.[0-9]*\).*,\1,"`
        LABEL="qt/$VAL";;
    local)
-       if [ ! -d "$VAL" ]; then
-	  die "Unknown directory: $VAL"
-       fi
+       [ -d "$VAL" ] || die "Unknown directory: $VAL"
        BRANCH="0.0.0"
        LOCAL_TREE=$VAL;;
    outdir)
@@ -131,14 +127,14 @@ if [ -z $LOCAL_TREE ]; then
     p4 -s -c $tmpclient sync -f $DISTDIR/qt/...${checkoutlabel} >/dev/null 2>&1
 else
     echo "Copying Qt depot.."
-    mkdir -p $DISTDIR/qt
+    [ ! -d $DISTDIR/qt ] && mkdir -p $DISTDIR/qt
     cp -ar $LOCAL_TREE $DISTDIR/qt
 fi
 
 
 #get include files
 includefiles=`QTDIR=$DISTDIR/qt $DISTDIR/qt/bin/syncqt -show`
-mkdir -p "$DISTDIR/qt/include"
+[ ! -d $DISTDIR/qt/include ] && mkdir -p "$DISTDIR/qt/include"
 for fullname in $includefiles; do
     ln -sf "../$fullname" "$DISTDIR/qt/include/`basename $fullname`"
 done
@@ -176,9 +172,6 @@ for a in `find $DISTDIR/qt/extensions/nsplugin/src -name 'np*' -o -name 'jri*'`;
     echo "#error \"to learn how to obtain the real file\"" >>$a
 done
 
-# changelogs?
-[ ! -f "$DISTDIR/qt/dist/changes-$BRANCH" ] && echo "Warning: qt/dist/changes-$BRANCH does not exist"
-
 # qt.h
 rm -f "$DISTDIR/qt/include/qt.h"
 
@@ -190,8 +183,8 @@ if [ -e  "$qgif" ]; then
 fi
 
 # changes files
-major=`echo $BRANCH | sed "s,^\([0-9\.]\)*,\1,"`
-for a in `find $DISTDIR/qt/dist/ -name 'changes-${major}*'`; do
+[ ! -f "$DISTDIR/qt/dist/changes-$BRANCH" ] && echo "Warning: qt/dist/changes-$BRANCH does not exist"
+for a in `find $DISTDIR/qt/dist/ -name 'changes-$(echo $BRANCH | sed "s,^\([0-9\.]\)*,\1,")*'`; do
     mv $a $DISTDIR/qt/`basename $a`
 done
 
@@ -212,7 +205,7 @@ for a in `find $DISTDIR/qt/`; do
 	execut="no"
 	[ -x $a ] && execut="yes"
 
-	mtime=`ls -l $a | sed "s,.* \([A-Z][a-z][a-z] [0-9]* [0-9][0-9]:[0-9][0-9]\).*,\1,"`
+	mtime=`ls -l $a | awk '{ print $6,$7,$8 }'` #mtime is pretty bogus, but a quick hack..
 	tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${REL_VERSION}${type}   edited $mtime"
 	sed "s,\(\$Id[:] \)[^\\$]*\\$,\1 ${tag_ID} \$,g" $a >${TMP_FILE}
 	rm -f $a
@@ -231,15 +224,12 @@ myexpr () {
 }
 
 public_file () {
-    file=$1
+    { [ ! -e "$1" ] || [ -d "$1" ] ; } && return 1
 
-    [ ! -e $file ] && continue
-    [ -d "$file" ] && file="${file}/"
-
-    file_BASE=`basename $file`
-    file_WHOLE=$file
-    file=`echo $file | sed "s,^$DISTDIR/qt/,,"`
-    { [ -z $file ] || [ $file = "/" ] ; } && continue
+    file_WHOLE=$1
+    file_BASE=`basename $file_WHOLE`
+    file=`echo $file_WHOLE | sed "s,^$DISTDIR/qt/,,"`
+    { [ -z $file ] || [ $file = "/" ] ; } && return 1
     KEEP=
 
     if
@@ -380,12 +370,14 @@ public_file () {
 	 myexpr "$file" : "bin\/qtrename140$"
      then
 	 KEEP=yes
-     else
+     fi
+
+     #fall back to asking..
+     if [ -z "$KEEP" ]; then
 	 echo -n "I've no idea what to do with $file, keep it? (yes or no): "
 	 read KEEP
      fi
- 
-     [ "$KEEP" = "yes" ] && return 0
+      [ "$KEEP" = "yes" ] && return 0
      return 1
 }
 
@@ -429,10 +421,10 @@ for plat in mac win x11 qws; do
 
 	#Remove non-dist files (tests-dir, util-dir, ... )
 	if public_file $a; then
-	    d=$PLATDIR/`echo $a | sed "s,^${DISTDIR}/qt/,,"`
+	    d=${PLATDIR}/`dirname "$a" | sed "s,^${DISTDIR}/qt,,"`
 	    [ ! -d $d ] && mkdir -p $d
 	    cp -a "$a" "$d/`basename $a`"
-	fi
+        fi
     done
 
     #cleanup some static things..
