@@ -72,6 +72,9 @@ int Tokenizer::getToken()
 		    if ( yyLex[0] == 't' && yyLexLen == 8 &&
 			 strcmp(yyLex, "typename") == 0 ) {
 			break;
+		    } else if ( yyLex[0] == 'Q' && yyLexLen == 10 &&
+				strcmp(yyLex, "Q_TYPENAME") == 0 ) {
+			break;
 		    } else {
 			return Tok_Ident;
 		    }
