@@ -54,7 +54,7 @@ public:
     ~DatabaseConnection();
 
     bool refreshCatalog();
-    bool open();
+    bool open( bool suppressDialog = TRUE );
     void close();
     DesignerDatabase *iFace();
 
@@ -149,7 +149,7 @@ public:
     void saveImages();
     void loadImages();
 
-    bool openDatabase( const QString &connection );
+    bool openDatabase( const QString &connection, bool suppressDialog = TRUE );
     void closeDatabase( const QString &connection );
 
     QObjectList *formList() const;

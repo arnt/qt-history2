@@ -23,6 +23,7 @@
 #include "config.h"
 #include "designerappiface.h"
 #include "pixmapcollection.h"
+#include "dbconnectionimpl.h"
 
 #include <qfile.h>
 #include <qtextstream.h>
@@ -31,6 +32,8 @@
 #include <qfeatures.h>
 #include <qtextcodec.h>
 #include <qdom.h>
+#include <qmessagebox.h>
+#include <qapplication.h>
 
 #ifndef QT_NO_SQL
 #include <qsqlrecord.h>
@@ -78,7 +81,7 @@ void DatabaseConnection::remove()
 }
 #endif
 
-bool DatabaseConnection::open()
+bool DatabaseConnection::open( bool suppressDialog )
 {
 #ifndef QT_NO_SQL
     // register our name, if nec
@@ -97,14 +100,54 @@ bool DatabaseConnection::open()
     conn->setUserName( uname );
     conn->setPassword( pword );
     conn->setHostName( hname );
-    bool b = conn->open();
-    if ( !b ) {
+    bool success = conn->open();
+    for( ; suppressDialog == FALSE ; ) {
+	bool done = FALSE;
+	if ( !success ) {
+	    DatabaseConnectionEditor dia( this, 0  , 0 , TRUE );
+	    switch( dia.exec() ) {
+	    case QDialog::Accepted:
+		done = FALSE;
+		break;
+	    case QDialog::Rejected:
+		done = TRUE;
+		break;
+	    }
+	}
+	if ( done )
+	    break;
+	conn->setUserName( uname );
+	conn->setPassword( pword );
+	conn->setHostName( hname );
+	success = conn->open();
+	if ( !success ) {
+	    switch( QMessageBox::warning( 0, QApplication::tr( "Connection" ),
+					  QApplication::tr( "Could not connect to the database.\n"
+							    "Press 'OK' to continue or 'Cancel' to "
+							    "specify different\nconnection information.\n" )
+					  + QString( "[" + conn->lastError().driverText() + "\n" +
+						     conn->lastError().databaseText() + "]\n" ),
+					  QApplication::tr( "&OK" ),
+					  QApplication::tr( "&Cancel" ), 0, 0, 1 ) ) {
+	    case 0: // OK or Enter
+		continue;
+		break;
+	    case 1: // Cancel or Escape
+		done = TRUE;
+		break;
+	    }
+	} else
+	    break;
+	if ( done )
+	    break;
+    }
+    if ( !success ) {
 	if ( nm == "(default)" )
 	    QSqlDatabase::removeDatabase( QSqlDatabase::defaultConnection );
 	else
 	    QSqlDatabase::removeDatabase( nm );
     }
-    return b;
+    return success;
 #else
     return FALSE;
 #endif
@@ -775,7 +818,7 @@ void Project::loadConnections()
 can be closed again with closeDatabase().
 */
 
-bool Project::openDatabase( const QString &connection )
+bool Project::openDatabase( const QString &connection, bool suppressDialog )
 {
 #ifndef QT_NO_SQL
     DatabaseConnection *conn = databaseConnection( connection );
@@ -783,7 +826,7 @@ bool Project::openDatabase( const QString &connection )
 	conn = databaseConnection( "(default)" );
     if ( !conn )
 	return FALSE;
-    bool b = conn->open();
+    bool b = conn->open( suppressDialog );
     return b;
 #else
     return FALSE;

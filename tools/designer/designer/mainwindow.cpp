@@ -2083,20 +2083,6 @@ void MainWindow::editDatabaseConnections()
 #endif
 }
 
-void MainWindow::editDatabaseConnection( const QString& name )
-{
-#ifndef QT_NO_SQL
-    FormWindow *fw = formWindow();
-    if ( !fw )
-	return;
-    DatabaseConnection* conn = fw->project()->databaseConnection( name );
-    if ( conn ) {
-	DatabaseConnectionEditor dia( conn, this, 0 , TRUE );
-	dia.exec(); //## handle return code?
-    }
-#endif
-}
-
 void MainWindow::editPreferences()
 {
     statusBar()->message( tr( "Edit preferences..." ) );
@@ -2264,10 +2250,8 @@ QObjectList *MainWindow::runProject()
 #ifndef QT_NO_SQL
     QStringList conns = currentProject->databaseConnectionList();
     QStringList::Iterator cit;
-    for ( cit = conns.begin(); cit != conns.end(); ++cit ) {
-	if ( !currentProject->openDatabase( *cit ) )
-	    editDatabaseConnection( *cit );
-    }
+    for ( cit = conns.begin(); cit != conns.end(); ++cit )
+	currentProject->openDatabase( *cit, FALSE );
 
     QApplication::setOverrideCursor( WaitCursor );
 #endif
@@ -2419,10 +2403,8 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 
     if ( fw->project() ) {
 	QStringList::Iterator it;
-	for ( it = databases.begin(); it != databases.end(); ++it ) {
-	    if ( !fw->project()->openDatabase( *it ) )
-		editDatabaseConnection( *it );
-	}
+	for ( it = databases.begin(); it != databases.end(); ++it )
+	    fw->project()->openDatabase( *it, FALSE );
     }
     QApplication::setOverrideCursor( WaitCursor );
 

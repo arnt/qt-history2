@@ -25,8 +25,6 @@
 #include <qlineedit.h>
 #include <qlayout.h>
 #include <qsqldatabase.h>
-#include <qmessagebox.h>
-#include <qapplication.h>
 
 DatabaseConnectionEditor::DatabaseConnectionEditor( DatabaseConnection* connection, QWidget* parent,
 						    const char* name, bool modal, WFlags fl )
@@ -43,29 +41,12 @@ DatabaseConnectionEditor::~DatabaseConnectionEditor()
 
 void DatabaseConnectionEditor::accept()
 {
-    bool a = TRUE;
 #ifndef QT_NO_SQL
-    conn->setPassword( connectionWidget->editPassword->text() );
     conn->setUsername( connectionWidget->editUsername->text() );
+    conn->setPassword( connectionWidget->editPassword->text() );
     conn->setHostname( connectionWidget->editHostname->text() );
-    a = conn->open();
-    if ( !a ) {
-	switch( QMessageBox::warning( this, tr( "Connection" ),
-				      tr( "Could not connect to the database.\n"
-					  "Press 'OK' to continue or 'Cancel' to specify different\n"
-					  "connection information.\n" ),
-				      tr( "&OK" ), tr( "&Cancel" ), 0, 0, 1 ) ) {
-	case 0: // OK or Enter
-	    a = TRUE;
-	    break;
-	case 1: // Cancel or Escape
-	    a = FALSE;
-	    break;
-	}
-    }
 #endif
-    if ( a )
-	DatabaseConnectionEditorBase::accept();
+    DatabaseConnectionEditorBase::accept();
 }
 
 void DatabaseConnectionEditor::init()
