@@ -1634,7 +1634,13 @@ void qt_init_internal( int *argcptr, char **argv,
 		ulong depth_bits = vis->red_mask | vis->green_mask | vis->blue_mask;
 		int depth = 0;
 		QPaintDevice::x_appdepth_arr[ screen ] = 0;
-		while ( depth_bits & 1 ) {
+		if ( !depth_bits ) {
+		    depth_bits = vis->map_entries-1;
+		    while ( depth_bits ) {
+			depth++;
+			depth_bits >>= 1;
+		    }
+		} else while ( depth_bits & 1 ) {
 		    ++depth;
 		    depth_bits >>= 1;
 		}
