@@ -31,7 +31,7 @@
 #include <QtGui/QStackedWidget>
 #include <QtGui/QTabWidget>
 #include <QtGui/QSplitter>
-#include <QtGui/QDockWindow>
+#include <QtGui/QDockWidget>
 #include <QtGui/QMainWindow>
 
 // ---- AbstractFormEditorCommand ----
@@ -940,63 +940,63 @@ void TabOrderCommand::undo()
     // ### formWindow()->updateOrderIndicators();
 }
 
-// ---- DockWindowCommand:: ----
-DockWindowCommand::DockWindowCommand(const QString &description, AbstractFormWindow *formWindow)
+// ---- DockWidgetCommand:: ----
+DockWidgetCommand::DockWidgetCommand(const QString &description, AbstractFormWindow *formWindow)
     : AbstractFormWindowCommand(description, formWindow)
 {
 }
 
-DockWindowCommand::~DockWindowCommand()
+DockWidgetCommand::~DockWidgetCommand()
 {
 }
 
-void DockWindowCommand::init(QDockWindow *dockWindow)
+void DockWidgetCommand::init(QDockWidget *dockWidget)
 {
-    m_dockWindow = dockWindow;
+    m_dockWidget = dockWidget;
 }
 
-// ---- SetDockWindowWidgetCommand ----
-SetDockWindowWidgetCommand::SetDockWindowWidgetCommand(AbstractFormWindow *formWindow)
-    : DockWindowCommand(tr("Set Dock Window Widget"), formWindow)
+// ---- SetDockWidgetWidgetCommand ----
+SetDockWidgetWidgetCommand::SetDockWidgetWidgetCommand(AbstractFormWindow *formWindow)
+    : DockWidgetCommand(tr("Set Dock Window Widget"), formWindow)
 {
 }
 
-void SetDockWindowWidgetCommand::init(QDockWindow *dockWindow, QWidget *widget)
+void SetDockWidgetWidgetCommand::init(QDockWidget *dockWidget, QWidget *widget)
 {
-    DockWindowCommand::init(dockWindow);
+    DockWidgetCommand::init(dockWidget);
     m_widget = widget;
-    m_oldWidget = dockWindow->widget();
+    m_oldWidget = dockWidget->widget();
 }
 
-void SetDockWindowWidgetCommand::undo()
+void SetDockWidgetWidgetCommand::undo()
 {
-    m_dockWindow->setWidget(m_oldWidget);
+    m_dockWidget->setWidget(m_oldWidget);
 }
 
-void SetDockWindowWidgetCommand::redo()
+void SetDockWidgetWidgetCommand::redo()
 {
-    m_dockWindow->setWidget(m_widget);
+    m_dockWidget->setWidget(m_widget);
 }
 
-// ---- AddDockWindowCommand ----
-AddDockWindowCommand::AddDockWindowCommand(AbstractFormWindow *formWindow)
+// ---- AddDockWidgetCommand ----
+AddDockWidgetCommand::AddDockWidgetCommand(AbstractFormWindow *formWindow)
     : AbstractFormWindowCommand(tr("Add Dock Window"), formWindow)
 {
 }
 
-void AddDockWindowCommand::init(QMainWindow *mainWindow, QDockWindow *dockWindow)
+void AddDockWidgetCommand::init(QMainWindow *mainWindow, QDockWidget *dockWidget)
 {
     m_mainWindow = mainWindow;
-    m_dockWindow = dockWindow;
+    m_dockWidget = dockWidget;
 }
 
-void AddDockWindowCommand::redo()
+void AddDockWidgetCommand::redo()
 {
-    m_mainWindow->addDockWindow(Qt::LeftDockWindowArea, m_dockWindow);
+    m_mainWindow->addDockWidget(Qt::LeftDockWidgetArea, m_dockWidget);
 }
 
-void AddDockWindowCommand::undo()
+void AddDockWidgetCommand::undo()
 {
-    m_mainWindow->removeDockWindow(m_dockWindow);
+    m_mainWindow->removeDockWidget(m_dockWidget);
 }
 

@@ -736,10 +736,10 @@ bool FormWindow::unify(QObject *w, QString &s, bool changeIt)
 
         if (qt_cast<QMainWindow*>(mainContainer())) {
             if (!found) {
-                QList<QDockWindow*> l = qFindChildren<QDockWindow*>(mainContainer());
-                QListIterator<QDockWindow*> it(l);
+                QList<QDockWidget*> l = qFindChildren<QDockWidget*>(mainContainer());
+                QListIterator<QDockWidget*> it(l);
                 while (it.hasNext()) {
-                    QDockWindow* o = it.next();
+                    QDockWidget* o = it.next();
                     if (o != w && o->objectName() == s) {
                         found = true;
                         if (!changeIt)

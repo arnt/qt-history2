@@ -36,7 +36,7 @@ struct AbstractMetaDataBaseItem;
 class QToolBox;
 class QTabWidget;
 class QStackedWidget;
-class QDockWindow;
+class QDockWidget;
 class QMainWindow;
 
 class AbstractFormEditorCommand: public QtCommand
@@ -438,26 +438,26 @@ public:
     virtual void undo();
 };
 
-class DockWindowCommand: public AbstractFormWindowCommand
+class DockWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    DockWindowCommand(const QString &description, AbstractFormWindow *formWindow);
-    virtual ~DockWindowCommand();
+    DockWidgetCommand(const QString &description, AbstractFormWindow *formWindow);
+    virtual ~DockWidgetCommand();
 
-    virtual void init(QDockWindow *dockWindow);
+    virtual void init(QDockWidget *dockWidget);
 
 protected:
-    QPointer<QDockWindow> m_dockWindow;
+    QPointer<QDockWidget> m_dockWidget;
 };
 
-class SetDockWindowWidgetCommand: public DockWindowCommand
+class SetDockWidgetWidgetCommand: public DockWidgetCommand
 {
     Q_OBJECT
 public:
-    SetDockWindowWidgetCommand(AbstractFormWindow *formWindow);
+    SetDockWidgetWidgetCommand(AbstractFormWindow *formWindow);
 
-    virtual void init(QDockWindow *dockWindow, QWidget *widget);
+    virtual void init(QDockWidget *dockWidget, QWidget *widget);
 
     virtual void undo();
     virtual void redo();
@@ -467,20 +467,20 @@ private:
     QPointer<QWidget> m_oldWidget;
 };
 
-class AddDockWindowCommand: public AbstractFormWindowCommand
+class AddDockWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    AddDockWindowCommand(AbstractFormWindow *formWindow);
+    AddDockWidgetCommand(AbstractFormWindow *formWindow);
 
-    virtual void init(QMainWindow *mainWindow, QDockWindow *dockWindow);
+    virtual void init(QMainWindow *mainWindow, QDockWidget *dockWidget);
 
     virtual void undo();
     virtual void redo();
 
 private:
     QPointer<QMainWindow> m_mainWindow;
-    QPointer<QDockWindow> m_dockWindow;
+    QPointer<QDockWidget> m_dockWidget;
 };
 
 #endif // QDESIGNER_COMMAND_H

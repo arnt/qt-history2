@@ -27,7 +27,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMainWindow>
-#include <QtGui/QDockWindow>
+#include <QtGui/QDockWidget>
 #include <QtCore/QVariant>
 
 #include <qdebug.h>
@@ -39,8 +39,8 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     m_changeObjectNameAction = new QAction(tr("Change Object Name"), this);
     connect(m_changeObjectNameAction, SIGNAL(triggered()), this, SLOT(changeObjectName()));
 
-    m_createDockWindowAction = new QAction(tr("Create Dock Window"), this);
-    connect(m_createDockWindowAction, SIGNAL(triggered()), this, SLOT(createDockWindow()));
+    m_createDockWidgetAction = new QAction(tr("Create Dock Window"), this);
+    connect(m_createDockWidgetAction, SIGNAL(triggered()), this, SLOT(createDockWidget()));
 
     m_promoteToCustomWidgetAction = new QAction(tr("Promote to Custom Widget"), this);
     connect(m_promoteToCustomWidgetAction, SIGNAL(triggered()), this, SLOT(promoteToCustomWidget()));
@@ -79,14 +79,14 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
     actions.append(m_changeObjectNameAction);
 
     if (qt_cast<QMainWindow*>(formWindow->mainContainer()) != 0) {
-        actions.append(m_createDockWindowAction);
+        actions.append(m_createDockWidgetAction);
     }
 
     if (qt_cast<QDesignerPromotedWidget*>(m_widget) == 0)
         actions.append(m_promoteToCustomWidgetAction);
     else
         actions.append(m_demoteFromCustomWidgetAction);
-            
+
     return actions;
 }
 
@@ -100,7 +100,7 @@ void QDesignerTaskMenu::changeObjectName()
     }
 }
 
-void QDesignerTaskMenu::createDockWindow()
+void QDesignerTaskMenu::createDockWidget()
 {
     AbstractFormWindow *formWindow = AbstractFormWindow::findFormWindow(widget());
     Q_ASSERT(formWindow != 0);
@@ -111,24 +111,24 @@ void QDesignerTaskMenu::createDockWindow()
     formWindow->beginCommand(tr("Create Dock Window"));
 
     AbstractWidgetFactory *widgetFactory = formWindow->core()->widgetFactory();
-    QDockWindow *dockWindow = (QDockWindow *) widgetFactory->createWidget(QLatin1String("QDockWindow"), formWindow->mainContainer());
-    Q_ASSERT(dockWindow);
+    QDockWidget *dockWidget = (QDockWidget *) widgetFactory->createWidget(QLatin1String("QDockWidget"), formWindow->mainContainer());
+    Q_ASSERT(dockWidget);
 
     InsertWidgetCommand *cmd = new InsertWidgetCommand(formWindow);
-    cmd->init(dockWindow);
+    cmd->init(dockWidget);
     formWindow->commandHistory()->push(cmd);
 
     ReparentWidgetCommand *reparentCmd = new ReparentWidgetCommand(formWindow);
-    reparentCmd->init(widget(), dockWindow);
+    reparentCmd->init(widget(), dockWidget);
     formWindow->commandHistory()->push(reparentCmd);
 
-    SetDockWindowWidgetCommand *setDockWidgetCmd = new SetDockWindowWidgetCommand(formWindow);
-    setDockWidgetCmd->init(dockWindow, m_widget);
+    SetDockWidgetWidgetCommand *setDockWidgetCmd = new SetDockWidgetWidgetCommand(formWindow);
+    setDockWidgetCmd->init(dockWidget, m_widget);
     formWindow->commandHistory()->push(setDockWidgetCmd);
 
-    AddDockWindowCommand *addDockWindowCmd = new AddDockWindowCommand(formWindow);
-    addDockWindowCmd->init(mainWindow, dockWindow);
-    formWindow->commandHistory()->push(addDockWindowCmd);
+    AddDockWidgetCommand *addDockWidgetCmd = new AddDockWidgetCommand(formWindow);
+    addDockWidgetCmd->init(mainWindow, dockWidget);
+    formWindow->commandHistory()->push(addDockWidgetCmd);
 
     formWindow->endCommand();
 }
@@ -159,13 +159,13 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     WidgetFactory *factory = qt_cast<WidgetFactory*>(core->widgetFactory());
 
     Q_ASSERT(qt_cast<QDesignerPromotedWidget*>(wgt) == 0);
-        
+
     QString base_class_name = factory->classNameOf(wgt);
 
     PromoteToCustomWidgetDialog dialog(db, base_class_name);
     if (!dialog.exec())
         return;
-    
+
     QString custom_class_name = dialog.customClassName();
     QString include_file = dialog.includeFile();
 
@@ -181,7 +181,7 @@ void QDesignerTaskMenu::promoteToCustomWidget()
         item = db->item(idx);
     }
     item->setIncludeFile(include_file);
-    
+
     fw->beginCommand(tr("Promote to custom widget"));
 
     QDesignerPromotedWidget *promoted
@@ -195,7 +195,7 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     ReparentWidgetCommand *reparent_cmd = new ReparentWidgetCommand(fw);
     reparent_cmd->init(wgt, promoted);
     fw->commandHistory()->push(reparent_cmd);
-    
+
     fw->endCommand();
 
     fw->clearSelection();
@@ -212,17 +212,17 @@ void QDesignerTaskMenu::demoteFromCustomWidget()
     Q_ASSERT(promoted != 0);
 
     fw->beginCommand(tr("Demote to ") + promoted->item()->extends());
-    
+
     ReparentWidgetCommand *reparent_cmd = new ReparentWidgetCommand(fw);
     reparent_cmd->init(promoted->child(), parent);
     fw->commandHistory()->push(reparent_cmd);
-    
+
     DeleteWidgetCommand *delete_cmd = new DeleteWidgetCommand(fw);
     delete_cmd->init(promoted);
     fw->commandHistory()->push(delete_cmd);
-    
+
     fw->endCommand();
-    
+
     fw->clearSelection();
     fw->selectWidget(promoted);
 }

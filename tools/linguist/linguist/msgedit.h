@@ -29,7 +29,7 @@
 
 template <typename T> class QList;
 class QSplitter;
-class QDockWindow;
+class QDockWidget;
 class QLabel;
 class QTreeView;
 class QVBoxLayout;
@@ -57,7 +57,7 @@ class GuessShortcut : public QShortcut
 {
     Q_OBJECT
 public:
-    GuessShortcut(int nkey, QWidget *parent, const char *member) 
+    GuessShortcut(int nkey, QWidget *parent, const char *member)
         : QShortcut(parent), nrkey(nkey)
     {
         setKey(Qt::CTRL + (Qt::Key_1 + nrkey));
@@ -197,8 +197,8 @@ public:
     MessageEditor(MetaTranslator *t, QMainWindow *parent = 0);
     QTreeView *sourceTextView() const;
     QTreeView *phraseView() const;
-    inline QDockWindow *sourceDockWnd() const {return topDockWnd;}
-    inline QDockWindow *phraseDockWnd() const {return bottomDockWnd;}
+    inline QDockWidget *sourceDockWnd() const {return topDockWnd;}
+    inline QDockWidget *phraseDockWnd() const {return bottomDockWnd;}
 
     void showNothing();
     void showMessage(const QString &text, const QString &comment,
@@ -257,7 +257,7 @@ private:
 
     QTreeView *srcTextView;
     MessageModel *srcMdl;
-    QDockWindow *topDockWnd, *bottomDockWnd;
+    QDockWidget *topDockWnd, *bottomDockWnd;
     EditorPage *editorPage;
 
     QLabel * phraseLbl;

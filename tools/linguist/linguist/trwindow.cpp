@@ -30,7 +30,7 @@
 #include <qaction.h>
 #include <qapplication.h>
 #include <qbitmap.h>
-#include <qdockwindow.h>
+#include <qdockwidget.h>
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qfileinfo.h>
@@ -169,15 +169,15 @@ TrWindow::TrWindow()
     pxObs = new QPixmap(":/images/s_check_obs.png");
     pxEmpty = new QPixmap(":/images/s_check_empty.png");
 
-    setCorner(Qt::TopLeftCorner, Qt::LeftDockWindowArea);
-    setCorner(Qt::TopRightCorner, Qt::RightDockWindowArea);
-    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWindowArea);
-    setCorner(Qt::BottomRightCorner, Qt::RightDockWindowArea);
+    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
     // Set up the Scope dock window
-    dwScope = new QDockWindow(this);
-    dwScope->setAllowedAreas(Qt::AllDockWindowAreas);
-    dwScope->setFeatures(QDockWindow::AllDockWindowFeatures);
+    dwScope = new QDockWidget(this);
+    dwScope->setAllowedAreas(Qt::AllDockWidgetAreas);
+    dwScope->setFeatures(QDockWidget::AllDockWidgetFeatures);
     dwScope->setWindowTitle(tr("Context"));
 
     tv = new QTreeView(dwScope);
@@ -190,7 +190,7 @@ TrWindow::TrWindow()
     tv->setSelectionMode(QAbstractItemView::SingleSelection);
     tv->setRootIsDecorated(false);
     dwScope->setWidget(tv);
-    addDockWindow(Qt::LeftDockWindowArea, dwScope);
+    addDockWidget(Qt::LeftDockWidgetArea, dwScope);
 
     QFontMetrics fm(font());
     tv->header()->setResizeMode(QHeaderView::Stretch, 1);
@@ -1827,25 +1827,25 @@ void TrWindow::readConfig()
         }
     }
 
-    QDockWindow *dw;
-    dw = static_cast<QDockWindow *>(tv->parent());
-    Qt::DockWindowArea place;
-    place = static_cast<Qt::DockWindowArea>(config.value(keybase + "Geometry/ContextwindowInDock",
-        dockWindowArea(dw)).toInt());
-    if (dockWindowArea(dw) != place)
-        addDockWindow(place, dw);
+    QDockWidget *dw;
+    dw = static_cast<QDockWidget *>(tv->parent());
+    Qt::DockWidgetArea place;
+    place = static_cast<Qt::DockWidgetArea>(config.value(keybase + "Geometry/ContextwindowInDock",
+        dockWidgetArea(dw)).toInt());
+    if (dockWidgetArea(dw) != place)
+        addDockWidget(place, dw);
 
-    dw = static_cast<QDockWindow *>(stv->parent());
-    place = static_cast<Qt::DockWindowArea>(config.value(keybase + "Geometry/SourcewindowInDock",
-        dockWindowArea(dw)).toInt());
-    if (dockWindowArea(dw) != place)
-        addDockWindow(place, dw);
+    dw = static_cast<QDockWidget *>(stv->parent());
+    place = static_cast<Qt::DockWidgetArea>(config.value(keybase + "Geometry/SourcewindowInDock",
+        dockWidgetArea(dw)).toInt());
+    if (dockWidgetArea(dw) != place)
+        addDockWidget(place, dw);
 
-    dw = static_cast<QDockWindow *>(ptv->parent()->parent());
-    place = static_cast<Qt::DockWindowArea>(config.value(keybase + "Geometry/PhrasewindowInDock",
-        dockWindowArea(dw)).toInt());
-    if (dockWindowArea(dw) != place)
-        addDockWindow(place, dw);
+    dw = static_cast<QDockWidget *>(ptv->parent()->parent());
+    place = static_cast<Qt::DockWidgetArea>(config.value(keybase + "Geometry/PhrasewindowInDock",
+        dockWidgetArea(dw)).toInt());
+    if (dockWidgetArea(dw) != place)
+        addDockWidget(place, dw);
 
     acceleratorsAct->setChecked(config.value(keybase+ "Validators/Accelerator", true).toBool());
     endingPunctuationAct->setChecked(config.value(keybase+ "Validators/EndingPunctuation", true).toBool());
@@ -1867,14 +1867,14 @@ void TrWindow::writeConfig()
     config.setValue(keybase + "Geometry/MainwindowWidth", width());
     config.setValue(keybase + "Geometry/MainwindowHeight", height());
 
-    QDockWindow * dw = static_cast<QDockWindow *>(tv->parent());
-    config.setValue(keybase + "Geometry/ContextwindowInDock", dockWindowArea(dw));
+    QDockWidget * dw = static_cast<QDockWidget *>(tv->parent());
+    config.setValue(keybase + "Geometry/ContextwindowInDock", dockWidgetArea(dw));
 
-    dw = static_cast<QDockWindow *>(stv->parent());
-    config.setValue(keybase + "Geometry/SourcewindowInDock", dockWindowArea(dw));
+    dw = static_cast<QDockWidget *>(stv->parent());
+    config.setValue(keybase + "Geometry/SourcewindowInDock", dockWidgetArea(dw));
 
-    dw = static_cast<QDockWindow *>(ptv->parent()->parent());
-    config.setValue(keybase + "Geometry/PhrasewindowInDock", dockWindowArea(dw));
+    dw = static_cast<QDockWidget *>(ptv->parent()->parent());
+    config.setValue(keybase + "Geometry/PhrasewindowInDock", dockWidgetArea(dw));
 
     config.setValue(keybase+ "Validators/Accelerator", acceleratorsAct->isChecked());
     config.setValue(keybase+ "Validators/EndingPunctuation", endingPunctuationAct->isChecked());

@@ -24,7 +24,7 @@ class FindDialog;
 class SettingsDialog;
 class HelpWindow;
 class QMenu;
-class QDockWindow;
+class QDockWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -80,7 +80,7 @@ protected:
 
 private:
     void setupGoActions();
-    bool insertActionSeparator();    
+    bool insertActionSeparator();
 
 private:
     Ui::MainWindow ui;
@@ -91,7 +91,7 @@ private:
     SettingsDialog *settingsDia;
     QMap<QAction*, QString> bookmarks;
     HelpDialog *helpDock;
-    QDockWindow *dw;
+    QDockWidget *dw;
     QPointer<FindDialog> findDialog;
     static QList<MainWindow*> windows;
     QMap<QAction*,QString> *goActionDocFiles;

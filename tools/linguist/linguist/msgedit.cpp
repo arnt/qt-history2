@@ -38,7 +38,7 @@
 #include <qheaderview.h>
 #include <qshortcut.h>
 #include <qregexp.h>
-#include <qdockwindow.h>
+#include <qdockwidget.h>
 #include <qfont.h>
 #include <qtreeview.h>
 #include <qwidgetview.h>
@@ -440,9 +440,9 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     : QWidgetView(parent), tor(t)
 {
     doGuesses = true;
-    topDockWnd = new QDockWindow(parent);
-    topDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
-    topDockWnd->setFeatures(QDockWindow::AllDockWindowFeatures);
+    topDockWnd = new QDockWidget(parent);
+    topDockWnd->setAllowedAreas(Qt::AllDockWidgetAreas);
+    topDockWnd->setFeatures(QDockWidget::AllDockWidgetFeatures);
     topDockWnd->setWindowTitle(tr("Source text"));
 
     srcTextView = new QTreeView(topDockWnd);
@@ -461,11 +461,11 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     srcTextView->header()->resizeSection(2, 300);
 
     topDockWnd->setWidget(srcTextView);
-    parent->addDockWindow(Qt::TopDockWindowArea, topDockWnd);
+    parent->addDockWidget(Qt::TopDockWidgetArea, topDockWnd);
 
-    bottomDockWnd = new QDockWindow(parent);
-    bottomDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
-    bottomDockWnd->setFeatures(QDockWindow::AllDockWindowFeatures);
+    bottomDockWnd = new QDockWidget(parent);
+    bottomDockWnd->setAllowedAreas(Qt::AllDockWidgetAreas);
+    bottomDockWnd->setFeatures(QDockWidget::AllDockWidgetFeatures);
     bottomDockWnd->setWindowTitle(tr("Phrases"));
 
     QWidget *w = new QWidget(bottomDockWnd);
@@ -495,7 +495,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     }
 
     bottomDockWnd->setWidget(w);
-    parent->addDockWindow(Qt::BottomDockWindowArea, bottomDockWnd);
+    parent->addDockWidget(Qt::BottomDockWidgetArea, bottomDockWnd);
 
     setObjectName("widget view");
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

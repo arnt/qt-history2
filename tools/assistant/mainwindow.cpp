@@ -18,7 +18,7 @@
 #include "settingsdialog.h"
 #include "config.h"
 
-#include <qdockwindow.h>
+#include <qdockwidget.h>
 #include <qdir.h>
 #include <qtimer.h>
 #include <qstatusbar.h>
@@ -63,13 +63,13 @@ MainWindow::MainWindow()
 
     updateProfileSettings();
 
-    dw = new QDockWindow(this);
-    dw->setAllowedAreas(Qt::AllDockWindowAreas);
+    dw = new QDockWidget(this);
+    dw->setAllowedAreas(Qt::AllDockWidgetAreas);
     dw->setWindowTitle(tr("Sidebar"));
     helpDock = new HelpDialog(dw, this);
     dw->setWidget(helpDock);
 
-    addDockWindow(Qt::LeftDockWindowArea, dw);
+    addDockWidget(Qt::LeftDockWidgetArea, dw);
 
     // read geometry configuration
     setupGoActions();

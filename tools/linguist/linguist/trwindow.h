@@ -186,7 +186,7 @@ private:
     int foundWhere;
     int foundOffset;
 
-    QDockWindow *dwScope;
+    QDockWidget *dwScope;
 
     QMenu *phrasep;
     QMenu *closePhraseBookp;
