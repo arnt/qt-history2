@@ -832,12 +832,36 @@ void QHttp::setState( int s )
     emit stateChanged( s );
 }
 
+void QHttp::close()
+{
+    // If no connection is open -> ignore
+    if ( d->state == Closing || d->state == Unconnected )
+	return;
+
+    d->postDevice = 0;
+    setState( Closing );
+
+    // Already closed ?
+    if ( !d->socket->isOpen() ) {
+	d->idleTimer = startTimer( 0 );
+    } else {
+	// Close now.
+	d->socket->close();
+
+	// Did close succeed immediately ?
+	if ( d->socket->state() == QSocket::Idle ) {
+	    // Prepare to emit the finishedSuccess() signal.
+	    d->idleTimer = startTimer( 0 );
+	}
+    }
+}
+
 /*!
     Destroys the QHttp object. If there is an open connection, it is closed.
 */
 QHttp::~QHttp()
 {
-    close();
+    abort();
 }
 
 /*! \reimp
@@ -1060,32 +1084,12 @@ QHttp::QHttp( const QString &hostname, Q_UINT16 port, QObject* parent, const cha
 }
 
 /*!
-    Closes the connection. This will abort a running request.
-
-    Do not call request() in response to this signal. Instead wait for finishedSuccess().
+    Aborts a running request and clears all pending requests.
 */
-void QHttp::close()
+void QHttp::abort()
 {
-    // If no connection is open -> ignore
-    if ( d->state == Closing || d->state == Unconnected )
-	return;
-
-    d->postDevice = 0;
-    setState( Closing );
-
-    // Already closed ?
-    if ( !d->socket->isOpen() ) {
-	d->idleTimer = startTimer( 0 );
-    } else {
-	// Close now.
-	d->socket->close();
-
-	// Did close succeed immediately ?
-	if ( d->socket->state() == QSocket::Idle ) {
-	    // Prepare to emit the finishedSuccess() signal.
-	    d->idleTimer = startTimer( 0 );
-	}
-    }
+    d->socket->clearPendingData();
+    close();
 }
 
 /*!

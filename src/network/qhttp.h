@@ -209,13 +209,14 @@ public:
     bool request( const QHttpRequestHeader &header, QIODevice *device=0, QIODevice *to=0 );
     bool request( const QHttpRequestHeader &header, const QByteArray &data, QIODevice *to=0 );
 
-    void close();
-
     Q_ULONG bytesAvailable() const;
     Q_LONG readBlock( char *data, Q_ULONG maxlen );
     QByteArray readAll();
 
     State state() const;
+
+public slots:
+    void abort();
 
 signals:
     void stateChanged( int );
@@ -242,6 +243,7 @@ private:
 
     void init();
     void setState( int );
+    void close();
 };
 
 #endif
