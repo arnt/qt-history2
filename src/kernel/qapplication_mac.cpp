@@ -926,7 +926,7 @@ bool QApplication::processNextEvent( bool canWait )
 	return FALSE;
     }
 
-    if(!broke_early && canWait && !zero_timer_count) {
+    if(!broke_early && canWait) {
 	EventRef event;
 	ReceiveNextEvent( 0, 0, kEventDurationForever, FALSE, &event );
     }
