@@ -58,7 +58,7 @@ void MainForm::startChanges( QString label )
     }
 
     QString file = path->currentText();
-    if ( file[file.length()-1] != '/' )
+    if ( file[(int)file.length()-1] != '/' )
 	file += "/";
     file += "..." + label;
 
