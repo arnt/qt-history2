@@ -224,7 +224,7 @@ bool QFile::open( int m )
 	} else {
 	    length = (int)st.st_size;
 	    ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
-	    if ( length == 0 ) {
+	    if ( length == 0 && isReadable() ) {
 		// try if you can read from it (if you can, it's a sequential
 		// device; e.g. a file in the /proc filesystem)
 		int c = getch();
@@ -294,7 +294,7 @@ bool QFile::open( int m, FILE *f )
 	length = INT_MAX;
     } else {
 	length = (int)st.st_size;
-	if ( length == 0 ) {
+	if ( length == 0 && isReadable() ) {
 	    // try if you can read from it (if you can, it's a sequential
 	    // device; e.g. a file in the /proc filesystem)
 	    int c = getch();
@@ -344,7 +344,7 @@ bool QFile::open( int m, int f )
 	length = INT_MAX;
     } else {
 	length = (int)st.st_size;
-	if ( length == 0 ) {
+	if ( length == 0 && isReadable() ) {
 	    // try if you can read from it (if you can, it's a sequential
 	    // device; e.g. a file in the /proc filesystem)
 	    int c = getch();
