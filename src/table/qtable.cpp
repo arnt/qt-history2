@@ -5236,7 +5236,8 @@ void QTableHeader::paintEvent( QPaintEvent *e )
     for ( int i = id; i < count(); i++ ) {
 	QRect r = sRect( i );
 	p.save();
-	if ( sectionState( i ) == Bold || sectionState( i ) == Selected ) {
+	if ( !( orientation() == Horizontal && isRowSelection( table->selectionMode() ) ) &&
+	     ( sectionState( i ) == Bold || sectionState( i ) == Selected ) ) {
 	    QFont f( font() );
 	    f.setBold( TRUE );
 	    p.setFont( f );
@@ -5261,7 +5262,8 @@ void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
     if ( section < 0 )
 	return;
 
-    if ( sectionState( index ) != Selected ) {
+    if ( sectionState( index ) != Selected ||
+	 orientation() == Horizontal && isRowSelection( table->selectionMode() ) ) {
 	QHeader::paintSection( p, index, fr );
     } else {
 	style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
