@@ -84,9 +84,9 @@ QString QAccessibleViewport::text(Text t, int child) const
     return scrollView()->text(t, child);
 }
 
-bool QAccessibleViewport::doAction(int action, int child)
+bool QAccessibleViewport::doAction(int action, int child, const QVariantList &params)
 {
-    return scrollView()->doAction(action, child);
+    return scrollView()->doAction(action, child, params);
 }
 
 QAccessible::Role QAccessibleViewport::role(int child) const

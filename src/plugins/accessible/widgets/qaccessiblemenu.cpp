@@ -117,7 +117,7 @@ int QAccessiblePopup::state(int child) const
     return s;
 }
 
-bool QAccessiblePopup::doAction(int act, int child)
+bool QAccessiblePopup::doAction(int act, int child, const QVariantList &)
 {
     if (!child)
         return false;
@@ -254,7 +254,7 @@ int QAccessibleMenuBar::state(int child) const
     return s;
 }
 
-bool QAccessibleMenuBar::doAction(int act, int child)
+bool QAccessibleMenuBar::doAction(int act, int child, const QVariantList &)
 {
     if (!child)
         return false;

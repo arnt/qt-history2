@@ -28,7 +28,7 @@ public:
     Role        role(int child) const;
     int                state(int child) const;
 
-    bool        doAction(int action, int child);
+    bool        doAction(int action, int child, const QVariantList &params);
 
 protected:
     QSpinBox        *spinBox() const;
@@ -54,7 +54,7 @@ public:
     QString        text(Text t, int child) const;
     Role        role(int child) const;
 
-    bool        doAction(int action, int child);
+    bool        doAction(int action, int child, const QVariantList &params);
 
 protected:
     QScrollBar *scrollBar() const;
@@ -80,7 +80,7 @@ public:
 
     int                defaultAction(int child) const;
     QString        actionText(int action, Text t, int child);
-    bool        doAction(int action, int child);
+    bool        doAction(int action, int child, const QVariantList &params);
 
 protected:
     QSlider *slider() const;

@@ -42,22 +42,14 @@ QButton *QAccessibleButton::button() const
 }
 
 /*! \reimp */
-int QAccessibleButton::numActions(int child) const
-{
-    if (child)
-        return 0;
-
-    return (widget()->focusPolicy() != QWidget::NoFocus) ? 2 : 1;
-}
-
-/*! \reimp */
 QString QAccessibleButton::actionText(int action, Text text, int child) const
 {
     if (child)
         return QString();
 
     if (text == Name) switch (action) {
-    case 0: // press, checking or open
+    case Press:
+    case DefaultAction: // press, checking or open
         switch (role(0)) {
         case ButtonMenu:
             return QPushButton::tr("Open");
@@ -75,20 +67,19 @@ QString QAccessibleButton::actionText(int action, Text text, int child) const
             return QRadioButton::tr("Check");
         }
         break;
-    case 1: // focus
-        return "Set Focus";
     }
-    return QString();
+    return QAccessibleWidget::actionText(action, text, child);
 }
 
 /*! \reimp */
-bool QAccessibleButton::doAction(int action, int child)
+bool QAccessibleButton::doAction(int action, int child, const QVariantList &params)
 {
     if (child || !widget()->isEnabled())
         return false;
 
     switch (action) {
-    case 0:
+    case DefaultAction:
+    case Press:
         {
             QPushButton *pb = qt_cast<QPushButton*>(object());
             if (pb && pb->popup())
@@ -97,13 +88,8 @@ bool QAccessibleButton::doAction(int action, int child)
                 button()->animateClick();
         }
         return true;
-    case 1:
-        if (widget()->focusPolicy() != QWidget::NoFocus) {
-            widget()->setFocus();
-            return true;
-        }
     }
-    return false;
+    return QAccessibleWidget::doAction(action, child, params);
 }
 
 /*! \reimp */
@@ -249,7 +235,7 @@ QString QAccessibleToolButton::text(Text t, int child) const
     return qacc_stripAmp(str);
 }
 
-int QAccessibleToolButton::numActions(int child) const
+int QAccessibleToolButton::actionCount(int child) const
 {
     // each subelement has one action
     if (child)
@@ -281,7 +267,7 @@ QString QAccessibleToolButton::actionText(int action, Text text, int child) cons
     return QString();
 }
 
-bool QAccessibleToolButton::doAction(int action, int child)
+bool QAccessibleToolButton::doAction(int action, int child, const QVariantList &params)
 {
     if (!widget()->isEnabled())
         return false;
@@ -291,7 +277,7 @@ bool QAccessibleToolButton::doAction(int action, int child)
         toolButton()->openPopup();
         return true;
     }
-    return QAccessibleButton::doAction(action, 0);
+    return QAccessibleButton::doAction(action, 0, params);
 }
 
 

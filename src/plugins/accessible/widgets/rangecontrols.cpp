@@ -136,7 +136,7 @@ int QAccessibleSpinBox::state(int child) const
 }
 
 /*! \reimp */
-bool QAccessibleSpinBox::doAction(int action, int child)
+bool QAccessibleSpinBox::doAction(int action, int child, const QVariantList &params)
 {
     if (!widget()->isEnabled())
         return false;
@@ -157,7 +157,7 @@ bool QAccessibleSpinBox::doAction(int action, int child)
         break;
     }
     */
-    return QAccessibleWidget::doAction(action, 0);
+    return QAccessibleWidget::doAction(action, 0, params);
 }
 
 /*!
@@ -274,7 +274,7 @@ QAccessible::Role QAccessibleScrollBar::role(int child) const
 }
 
 /*! \reimp */
-bool QAccessibleScrollBar::doAction(int action, int child)
+bool QAccessibleScrollBar::doAction(int action, int child, const QVariantList &params)
 {
 /*
     if (action == Press) switch (child) {
@@ -411,7 +411,7 @@ int QAccessibleSlider::defaultAction(int child) const
 }
 
 /*! \reimp */
-bool QAccessibleSlider::doAction(int action, int child)
+bool QAccessibleSlider::doAction(int action, int child, const QVariantList &params)
 {
 /*
     switch(child) {

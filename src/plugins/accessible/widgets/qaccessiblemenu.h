@@ -19,7 +19,7 @@ public:
     Role        role(int child) const;
     int                state(int child) const;
 
-    bool        doAction(int action, int child);
+    bool        doAction(int action, int child, const QVariantList &params);
 
 protected:
     QPopupMenu *popupMenu() const;
@@ -38,7 +38,7 @@ public:
     Role        role(int child) const;
     int                state(int child) const;
 
-    bool        doAction(int action, int child);
+    bool        doAction(int action, int child, const QVariantList &params);
 
 protected:
     QMenuBar *menuBar() const;

@@ -29,7 +29,7 @@ public:
     Role        role(int child) const;
     int                state(int child) const;
 
-    bool        doAction(int action, int child);
+    bool        doAction(int action, int child, const QVariantList &params);
     bool        setSelected(int child, bool on, bool extend);
     void        clearSelection();
     QVector<int> selection() const;

@@ -224,7 +224,7 @@ int QAccessibleTabBar::state(int child) const
 }
 
 /*! \reimp */
-bool QAccessibleTabBar::doAction(int, int child)
+bool QAccessibleTabBar::doAction(int, int child, const QVariantList &)
 {
     if (!child)
         return false;
@@ -422,7 +422,7 @@ int QAccessibleComboBox::state(int /*child*/) const
 }
 
 /*! \reimp */
-bool QAccessibleComboBox::doAction(int, int child)
+bool QAccessibleComboBox::doAction(int, int child, const QVariantList &)
 {
     if (child != 2)
         return false;
@@ -605,7 +605,7 @@ int QAccessibleTitleBar::state(int child) const
 }
 
 /*! \reimp */
-bool QAccessibleTitleBar::doAction(int, int child)
+bool QAccessibleTitleBar::doAction(int, int child, const QVariantList &)
 {
     switch (child) {
     case 3:
