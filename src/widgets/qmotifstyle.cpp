@@ -1130,7 +1130,7 @@ void QMotifStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
     if ( editable ) {
 	QRect r( comboButtonRect(x,y,w,h) );
-	qDrawShadePanel( p, QRect(r.x()-1, r.y()-1, r.width()-2, r.height()-2), g, TRUE, 1, &fill );
+	qDrawShadePanel( p, QRect(r.x()-1, r.y()-1, r.width()+2, r.height()+2), g, TRUE, 1, &fill );
     }
 }
 
