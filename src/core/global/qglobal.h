@@ -853,7 +853,6 @@ inline short qMax(char a, short b) { return (b < a) ? a : b; }
 inline ushort qMax(ushort a, uchar b) { return (b < a) ? a : b; }
 inline ushort qMax(uchar a, ushort b) { return (b < a) ? a : b; }
 
-
 //
 // Data stream functions are provided by many classes (defined in qdatastream.h)
 //
@@ -1812,6 +1811,13 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
 #endif
 
 Q_CORE_EXPORT char *qgetenv(const char *varName);
+
+
+#ifdef QT_USE_FIXED_POINT
+#include <qfixedpoint.h>
+#else
+typedef double qReal;
+#endif
 
 #endif /* __cplusplus */
 

@@ -509,7 +509,7 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 */
 
 /*!
-    \fn QSizeF::QSizeF(float width, float height)
+    \fn QSizeF::QSizeF(qReal width, qReal height)
 
     Constructs a size with width \a width and height \a height.
 */
@@ -558,7 +558,7 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 */
 
 /*!
-    \fn void QSizeF::setWidth(float width)
+    \fn void QSizeF::setWidth(qReal width)
 
     Sets the width to \a width.
 
@@ -566,7 +566,7 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 */
 
 /*!
-    \fn void QSizeF::setHeight(float height)
+    \fn void QSizeF::setHeight(qReal height)
 
     Sets the height to \a height.
 
@@ -589,13 +589,13 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 
 void QSizeF::transpose()
 {
-    float tmp = wd;
+    qReal tmp = wd;
     wd = ht;
     ht = tmp;
 }
 
 /*!
-  \fn void QSizeF::scale(float w, float h, Qt::AspectRatioMode mode)
+  \fn void QSizeF::scale(qReal w, qReal h, Qt::AspectRatioMode mode)
 
     Scales the size to a rectangle of width \a w and height \a h according
     to the Qt::AspectRatioMode \a mode.
@@ -638,7 +638,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
         ht = s.ht;
     } else {
         bool useHeight;
-        float rw = s.ht * wd / ht;
+        qReal rw = s.ht * wd / ht;
 
         if (mode == Qt::KeepAspectRatio) {
             useHeight = (rw <= s.wd);
@@ -723,10 +723,8 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
     \sa scale()
 */
 
-// ### FIXME: We have a float parameter here, but a double in
-// QSize::operator/=().
 /*!
-    \fn QSizeF &QSizeF::operator*=(float c)
+    \fn QSizeF &QSizeF::operator*=(qReal c)
 
     \overload
 
@@ -795,7 +793,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSizeF operator*(const QSizeF &s, float c)
+    \fn const QSizeF operator*(const QSizeF &s, qReal c)
 
     \overload
     \relates QSizeF
@@ -806,7 +804,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSizeF operator*(float c, const QSizeF &s)
+    \fn const QSizeF operator*(qReal c, const QSizeF &s)
 
     \overload
     \relates QSizeF
@@ -825,10 +823,8 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
     \sa scale()
 */
 
-// ### FIXME: We have a float parameter here, but a double in
-// QSize::operator/=().
 /*!
-    \fn QSizeF &QSizeF::operator/=(float c)
+    \fn QSizeF &QSizeF::operator/=(qReal c)
 
     \overload
 
@@ -851,7 +847,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSizeF operator/(const QSizeF &s, float c)
+    \fn const QSizeF operator/(const QSizeF &s, qReal c)
 
     \relates QSizeF
     \overload

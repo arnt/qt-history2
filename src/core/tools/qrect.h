@@ -461,7 +461,7 @@ class Q_CORE_EXPORT QRectF                                        // rectangle c
 public:
     QRectF() { xp = yp = 0.; w = h = 0.; }
     QRectF(const QPointF &topleft, const QSizeF &size);
-    QRectF(float left, float top, float width, float height);
+    QRectF(qReal left, qReal top, qReal width, qReal height);
     QRectF(const QRect &rect);
 
     bool isNull() const;
@@ -469,32 +469,32 @@ public:
     bool isValid() const;
     QRectF normalize() const;
 
-    float x() const;
-    float y() const;
+    qReal x() const;
+    qReal y() const;
 
     QPointF center() const;
 
-    void translate(float dx, float dy);
+    void translate(qReal dx, qReal dy);
     void translate(const QPointF &p);
 
-    void moveTo(float x, float t);
+    void moveTo(qReal x, qReal t);
     void moveTo(const QPointF &p);
 
-    void setRect(float x, float y, float w, float h);
-    void getRect(float *x, float *y, float *w, float *h) const;
+    void setRect(qReal x, qReal y, qReal w, qReal h);
+    void getRect(qReal *x, qReal *y, qReal *w, qReal *h) const;
 
-    void setCoords(float x1, float y1, float x2, float y2);
-    void addCoords(float x1, float y1, float x2, float y2);
-    void getCoords(float *x1, float *y1, float *x2, float *y2) const;
+    void setCoords(qReal x1, qReal y1, qReal x2, qReal y2);
+    void addCoords(qReal x1, qReal y1, qReal x2, qReal y2);
+    void getCoords(qReal *x1, qReal *y1, qReal *x2, qReal *y2) const;
 
-    QRectF adjusted(float x1, float y1, float x2, float y2) const;
+    QRectF adjusted(qReal x1, qReal y1, qReal x2, qReal y2) const;
 
     QPointF origin() const;
     QSizeF size() const;
-    float width() const;
-    float height() const;
-    void setWidth(float w);
-    void setHeight(float h);
+    qReal width() const;
+    qReal height() const;
+    void setWidth(qReal w);
+    void setHeight(qReal h);
     void setSize(const QSizeF &s);
 
     QRectF operator|(const QRectF &r) const;
@@ -503,7 +503,7 @@ public:
     QRectF& operator&=(const QRectF &r);
 
     bool contains(const QPointF &p) const;
-    bool contains(float x, float y) const;
+    bool contains(qReal x, qReal y) const;
     bool contains(const QRectF &r) const;
     QRectF unite(const QRectF &r) const;
     QRectF intersect(const QRectF &r) const;
@@ -515,10 +515,10 @@ public:
     QRect toRect() const;
 
 private:
-    float xp;
-    float yp;
-    float w;
-    float h;
+    qReal xp;
+    qReal yp;
+    qReal w;
+    qReal h;
 };
 Q_DECLARE_TYPEINFO(QRectF, Q_MOVABLE_TYPE);
 
@@ -538,7 +538,7 @@ Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QRectF &);
   QRectF inline member functions
  *****************************************************************************/
 
-inline QRectF::QRectF(float left, float top, float width, float height)
+inline QRectF::QRectF(qReal left, qReal top, qReal width, qReal height)
     : xp(left), yp(top), w(width), h(height)
 {
 }
@@ -565,19 +565,19 @@ inline bool QRectF::isEmpty() const
 inline bool QRectF::isValid() const
 { return w > 0. && h > 0.; }
 
-inline float QRectF::x() const
+inline qReal QRectF::x() const
 { return xp; }
 
-inline float QRectF::y() const
+inline qReal QRectF::y() const
 { return yp; }
 
 inline QPointF QRectF::center() const
 { return QPointF(xp + w/2, yp + h/2); }
 
-inline float QRectF::width() const
+inline qReal QRectF::width() const
 { return w; }
 
-inline float QRectF::height() const
+inline qReal QRectF::height() const
 { return h; }
 
 inline QSizeF QRectF::size() const
@@ -586,7 +586,7 @@ inline QSizeF QRectF::size() const
 inline QPointF QRectF::origin() const
 { return QPointF(xp, yp); }
 
-inline void QRectF::translate(float dx, float dy)
+inline void QRectF::translate(qReal dx, qReal dy)
 {
     xp += dx;
     yp += dy;
@@ -599,7 +599,7 @@ inline void QRectF::translate(const QPointF &p)
 }
 
 
-inline void QRectF::getRect(float *x, float *y, float *w, float *h) const
+inline void QRectF::getRect(qReal *x, qReal *y, qReal *w, qReal *h) const
 {
     *x = this->xp;
     *y = this->yp;
@@ -607,7 +607,7 @@ inline void QRectF::getRect(float *x, float *y, float *w, float *h) const
     *h = this->h;
 }
 
-inline void QRectF::setRect(float x, float y, float w, float h)
+inline void QRectF::setRect(qReal x, qReal y, qReal w, qReal h)
 {
     this->xp = x;
     this->yp = y;
@@ -615,7 +615,7 @@ inline void QRectF::setRect(float x, float y, float w, float h)
     this->h = h;
 }
 
-inline void QRectF::getCoords(float *xp1, float *yp1, float *xp2, float *yp2) const
+inline void QRectF::getCoords(qReal *xp1, qReal *yp1, qReal *xp2, qReal *yp2) const
 {
     *xp1 = xp;
     *yp1 = yp;
@@ -623,7 +623,7 @@ inline void QRectF::getCoords(float *xp1, float *yp1, float *xp2, float *yp2) co
     *yp2 = yp + h;
 }
 
-inline void QRectF::setCoords(float xp1, float yp1, float xp2, float yp2)
+inline void QRectF::setCoords(qReal xp1, qReal yp1, qReal xp2, qReal yp2)
 {
     xp = xp1;
     yp = yp1;
@@ -631,7 +631,7 @@ inline void QRectF::setCoords(float xp1, float yp1, float xp2, float yp2)
     h = yp2 - yp1;
 }
 
-inline void QRectF::addCoords(float xp1, float yp1, float xp2, float yp2)
+inline void QRectF::addCoords(qReal xp1, qReal yp1, qReal xp2, qReal yp2)
 {
     xp += xp1;
     yp += yp1;
@@ -639,13 +639,13 @@ inline void QRectF::addCoords(float xp1, float yp1, float xp2, float yp2)
     h += yp2 - yp1;
 }
 
-inline QRectF QRectF::adjusted(float xp1, float yp1, float xp2, float yp2) const
+inline QRectF QRectF::adjusted(qReal xp1, qReal yp1, qReal xp2, qReal yp2) const
 { return QRectF(xp + xp1, yp + yp2, w + xp2 - xp1, h + yp2 - yp1); }
 
-inline void QRectF::setWidth(float w)
+inline void QRectF::setWidth(qReal w)
 { this->w = w; }
 
-inline void QRectF::setHeight(float h)
+inline void QRectF::setHeight(qReal h)
 { this->h = h; }
 
 inline void QRectF::setSize(const QSizeF &s)
@@ -654,7 +654,7 @@ inline void QRectF::setSize(const QSizeF &s)
     h = s.height();
 }
 
-inline bool QRectF::contains(float x, float y) const
+inline bool QRectF::contains(qReal x, qReal y) const
 {
     return x >= xp && x < xp + w &&
            y >= yp && y < yp + h;

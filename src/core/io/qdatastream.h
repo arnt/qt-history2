@@ -98,6 +98,9 @@ public:
 
     QDataStream &operator>>(float &f);
     QDataStream &operator>>(double &f);
+#ifdef QT_USE_FIXED_POINT
+    inline QDataStream &operator>>(Q24Dot8 &f) { double d; operator>>(d); f = d; return *this; }
+#endif
     QDataStream &operator>>(char *&str);
 
     QDataStream &operator<<(Q_INT8 i);
@@ -110,6 +113,9 @@ public:
     QDataStream &operator<<(Q_UINT64 i);
     QDataStream &operator<<(float f);
     QDataStream &operator<<(double f);
+#ifdef QT_USE_FIXED_POINT
+    inline QDataStream &operator<<(Q24Dot8 f) { return operator<<(f.toDouble()); }
+#endif
     QDataStream &operator<<(const char *str);
 
     QDataStream &readBytes(char *&, uint &len);

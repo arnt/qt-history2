@@ -37,9 +37,9 @@ public:
     QPoint &operator+=(const QPoint &p);
     QPoint &operator-=(const QPoint &p);
     QPoint &operator*=(int c);
-    QPoint &operator*=(double c);
+    QPoint &operator*=(qReal c);
     QPoint &operator/=(int c);
-    QPoint &operator/=(double c);
+    QPoint &operator/=(qReal c);
 
     friend inline bool operator==(const QPoint &, const QPoint &);
     friend inline bool operator!=(const QPoint &, const QPoint &);
@@ -47,11 +47,11 @@ public:
     friend inline const QPoint operator-(const QPoint &, const QPoint &);
     friend inline const QPoint operator*(const QPoint &, int);
     friend inline const QPoint operator*(int, const QPoint &);
-    friend inline const QPoint operator*(const QPoint &, double);
-    friend inline const QPoint operator*(double, const QPoint &);
+    friend inline const QPoint operator*(const QPoint &, qReal);
+    friend inline const QPoint operator*(qReal, const QPoint &);
     friend inline const QPoint operator-(const QPoint &);
     friend inline const QPoint operator/(const QPoint &, int);
-    friend inline const QPoint operator/(const QPoint &, double);
+    friend inline const QPoint operator/(const QPoint &, qReal);
 
 private:
 
@@ -114,7 +114,7 @@ inline QPoint &QPoint::operator-=(const QPoint &p)
 inline QPoint &QPoint::operator*=(int c)
 { xp *= c; yp *= c; return *this; }
 
-inline QPoint &QPoint::operator*=(double c)
+inline QPoint &QPoint::operator*=(qReal c)
 { xp = qRound(xp*c); yp = qRound(yp*c); return *this; }
 
 inline bool operator==(const QPoint &p1, const QPoint &p2)
@@ -135,10 +135,10 @@ inline const QPoint operator*(const QPoint &p, int c)
 inline const QPoint operator*(int c, const QPoint &p)
 { return QPoint(p.xp*c, p.yp*c); }
 
-inline const QPoint operator*(const QPoint &p, double c)
+inline const QPoint operator*(const QPoint &p, qReal c)
 { return QPoint(qRound(p.xp*c), qRound(p.yp*c)); }
 
-inline const QPoint operator*(double c, const QPoint &p)
+inline const QPoint operator*(qReal c, const QPoint &p)
 { return QPoint(qRound(p.xp*c), qRound(p.yp*c)); }
 
 inline const QPoint operator-(const QPoint &p)
@@ -152,9 +152,9 @@ inline QPoint &QPoint::operator/=(int c)
     return *this;
 }
 
-inline QPoint &QPoint::operator/=(double c)
+inline QPoint &QPoint::operator/=(qReal c)
 {
-    Q_ASSERT(c != 0.0);
+    Q_ASSERT(c != 0);
     xp = qRound(xp/c);
     yp = qRound(yp/c);
     return *this;
@@ -166,7 +166,7 @@ inline const QPoint operator/(const QPoint &p, int c)
     return QPoint(p.xp/c, p.yp/c);
 }
 
-inline const QPoint operator/(const QPoint &p, double c)
+inline const QPoint operator/(const QPoint &p, qReal c)
 {
     Q_ASSERT(c != 0.0);
     return QPoint(qRound(p.xp/c), qRound(p.yp/c));
@@ -185,39 +185,39 @@ class Q_CORE_EXPORT QPointF
 public:
     QPointF();
     QPointF(const QPoint &p);
-    QPointF(float xpos, float ypos);
+    QPointF(qReal xpos, qReal ypos);
 
     bool isNull() const;
 
-    float x() const;
-    float y() const;
-    void setX(float x);
-    void setY(float y);
+    qReal x() const;
+    qReal y() const;
+    void setX(qReal x);
+    void setY(qReal y);
 
-    float &rx();
-    float &ry();
+    qReal &rx();
+    qReal &ry();
 
     QPointF &operator+=(const QPointF &p);
     QPointF &operator-=(const QPointF &p);
-    QPointF &operator*=(float c);
-    QPointF &operator/=(float c);
+    QPointF &operator*=(qReal c);
+    QPointF &operator/=(qReal c);
 
     friend inline bool operator==(const QPointF &, const QPointF &);
     friend inline bool operator!=(const QPointF &, const QPointF &);
     friend inline const QPointF operator+(const QPointF &, const QPointF &);
     friend inline const QPointF operator-(const QPointF &, const QPointF &);
-    friend inline const QPointF operator*(float, const QPointF &);
-    friend inline const QPointF operator*(const QPointF &, float);
+    friend inline const QPointF operator*(qReal, const QPointF &);
+    friend inline const QPointF operator*(const QPointF &, qReal);
     friend inline const QPointF operator-(const QPointF &);
-    friend inline const QPointF operator/(const QPointF &, float);
+    friend inline const QPointF operator/(const QPointF &, qReal);
 
     QPoint toPoint() const;
 
 private:
     friend class QMatrix;
 
-    float xp;
-    float yp;
+    qReal xp;
+    qReal yp;
 };
 
 Q_DECLARE_TYPEINFO(QPointF, Q_MOVABLE_TYPE);
@@ -236,7 +236,7 @@ Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QPointF &);
 
 inline QPointF::QPointF() : xp(0), yp(0) { }
 
-inline QPointF::QPointF(float xpos, float ypos) : xp(xpos), yp(ypos) { }
+inline QPointF::QPointF(qReal xpos, qReal ypos) : xp(xpos), yp(ypos) { }
 
 inline QPointF::QPointF(const QPoint &p) : xp(p.x()), yp(p.y()) { }
 
@@ -245,32 +245,32 @@ inline bool QPointF::isNull() const
     return xp == 0 && yp == 0;
 }
 
-inline float QPointF::x() const
+inline qReal QPointF::x() const
 {
     return xp;
 }
 
-inline float QPointF::y() const
+inline qReal QPointF::y() const
 {
     return yp;
 }
 
-inline void QPointF::setX(float x)
+inline void QPointF::setX(qReal x)
 {
     xp = x;
 }
 
-inline void QPointF::setY(float y)
+inline void QPointF::setY(qReal y)
 {
     yp = y;
 }
 
-inline float &QPointF::rx()
+inline qReal &QPointF::rx()
 {
     return xp;
 }
 
-inline float &QPointF::ry()
+inline qReal &QPointF::ry()
 {
     return yp;
 }
@@ -287,7 +287,7 @@ inline QPointF &QPointF::operator-=(const QPointF &p)
     xp-=p.xp; yp-=p.yp; return *this;
 }
 
-inline QPointF &QPointF::operator*=(float c)
+inline QPointF &QPointF::operator*=(qReal c)
 {
     xp*=c; yp*=c; return *this;
 }
@@ -312,12 +312,12 @@ inline const QPointF operator-(const QPointF &p1, const QPointF &p2)
     return QPointF(p1.xp-p2.xp, p1.yp-p2.yp);
 }
 
-inline const QPointF operator*(const QPointF &p, float c)
+inline const QPointF operator*(const QPointF &p, qReal c)
 {
     return QPointF(p.xp*c, p.yp*c);
 }
 
-inline const QPointF operator*(float c, const QPointF &p)
+inline const QPointF operator*(qReal c, const QPointF &p)
 {
     return QPointF(p.xp*c, p.yp*c);
 }
@@ -327,7 +327,7 @@ inline const QPointF operator-(const QPointF &p)
     return QPointF(-p.xp, -p.yp);
 }
 
-inline QPointF &QPointF::operator/=(float c)
+inline QPointF &QPointF::operator/=(qReal c)
 {
     Q_ASSERT(c != 0);
     xp/=c;
@@ -335,7 +335,7 @@ inline QPointF &QPointF::operator/=(float c)
     return *this;
 }
 
-inline const QPointF operator/(const QPointF &p, float c)
+inline const QPointF operator/(const QPointF &p, qReal c)
 {
     Q_ASSERT(c != 0);
     return QPointF(p.xp/c, p.yp/c);
