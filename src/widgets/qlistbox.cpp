@@ -2875,7 +2875,9 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 	    if ( d->current && d->current->s )
 		d->current->s = FALSE;
 	    d->current = item;
-
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	    QAccessible::updateAccessibility( viewport(), ind+1, QAccessible::Focus );
+#endif
 	    d->currentColumn = ind / numRows();
 	    d->currentRow = ind % numRows();
 
