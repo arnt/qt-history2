@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#102 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#103 $
 **
 ** Definition of QListBox widget class
 **
@@ -43,7 +43,7 @@ class QStringList;
 class Q_EXPORT QListBox : public QScrollView
 {
     friend class QListBoxItem;
-    
+
     Q_OBJECT
 public:
     QListBox( QWidget *parent=0, const char *name=0, WFlags f=0  );
@@ -63,7 +63,7 @@ public:
     void insertItem( const QListBoxItem *, const QListBoxItem *after );
     void insertItem( const QString &text, int index=-1 );
     void insertItem( const QPixmap &pixmap, int index=-1 );
-    
+
     void removeItem( int index );
     void clear();
 
@@ -179,10 +179,16 @@ signals:
     void selected( QListBoxItem * );
 
     void selectionChanged();
-
-    void clicked( int index );
-    void clicked( const QString & );
+    void selectionChanged( QListBoxItem * );
     void clicked( QListBoxItem * );
+    void clicked( QListBoxItem *, const QPoint & );
+    void pressed( QListBoxItem * );
+    void pressed( QListBoxItem *, const QPoint & );
+
+    void doubleClicked( QListBoxItem * );
+    void returnPressed( QListBoxItem * );
+    void rightButtonClicked( QListBoxItem *, const QPoint & );
+    void rightButtonPressed( QListBoxItem *, const QPoint & );
 
 protected:
     void viewportMousePressEvent( QMouseEvent * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#114 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#115 $
 **
 ** Definition of QListView widget class
 **
@@ -267,6 +267,7 @@ public:
 
 public slots:
     void triggerUpdate();
+    void setContentsPos( int x, int y );
 
 signals:
     void selectionChanged();

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#317 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#318 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1170,6 +1170,9 @@ void QListBox::removeItem( int index )
 
 void QListBox::clear()
 {
+    blockSignals( TRUE );
+    clearSelection();
+    blockSignals( FALSE );
     d->current = 0;
     QListBoxItem * i = d->head;
     d->head = 0;
@@ -1468,12 +1471,6 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 {
     QListBoxItem * i = itemAt( e->pos() );
 
-    if ( i ) {
-	emit clicked( index( i ) );
-	emit clicked( i );
-	emit clicked( i->text() );
-    }
-
     if ( numColumns() > 1 && !i ) {
 	if ( d->selectionMode == Single ) {
 	    if ( d->current ) {
@@ -1505,7 +1502,7 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 		for ( ;; lit = lit->n ) {
 		    if ( !lit ) {
 			triggerUpdate( FALSE );
-			return;
+			break;
 		    }
 		    if ( down && lit == i ) {
 			setSelected( i, select );
@@ -1546,6 +1543,12 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	d->mousePressRow = d->currentRow;
     }
     d->ignoreMoves = FALSE;
+
+    emit pressed( i );
+    emit pressed( i, e->globalPos() );
+
+    if ( e->button() == RightButton )
+	emit rightButtonPressed( i, e->globalPos() );
 }
 
 
@@ -1569,6 +1572,11 @@ void QListBox::mouseReleaseEvent( QMouseEvent *e )
     d->ignoreMoves = FALSE;
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
+    QListBoxItem * i = itemAt( e->pos() );
+    emit clicked( i );
+    emit clicked( i, e->globalPos() );
+    if ( e->button() == RightButton )
+	emit rightButtonClicked( i, e->globalPos() );
 }
 
 
@@ -1601,6 +1609,7 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 	emit selected( i );
 	if ( !tmp.isNull() )
 	    emit selected( tmp );
+	emit doubleClicked( i );
     }
 }
 
@@ -1883,6 +1892,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    emit selected( item( currentItem() ) );
 	    if ( !tmp.isEmpty() )
 		emit selected( tmp );
+	    emit returnPressed( item( currentItem() ) );
 	}
 	break;
     case Key_Home:
@@ -2176,9 +2186,12 @@ void QListBox::emitChangedSignal( bool lazy ) {
     if ( selectionMode() == Single )
 	return;
 
-    if ( changedListBox && (!lazy || changedListBox != this) )
+    if ( changedListBox && (!lazy || changedListBox != this) ) {
 	emit changedListBox->selectionChanged();
-
+	if ( d->selectionMode == Single )
+	    emit changedListBox->selectionChanged( item( currentItem() ) );
+    }
+    
     changedListBox = lazy ? this : 0;
 }
 

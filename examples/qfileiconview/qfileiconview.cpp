@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#48 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#49 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -610,6 +610,8 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
     setWordWrapIconText( FALSE );
 
     connect( this, SIGNAL( doubleClicked( QIconViewItem * ) ),
+	     this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
+    connect( this, SIGNAL( returnPressed( QIconViewItem * ) ),
 	     this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
     connect( this, SIGNAL( dropped( QDropEvent * ) ),
 	     this, SLOT( slotDropped( QDropEvent * ) ) );

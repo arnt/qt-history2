@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#352 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#353 $
 **
 ** Implementation of QListView widget class
 **
@@ -2090,6 +2090,9 @@ void QListView::insertItem( QListViewItem * i )
 
 void QListView::clear()
 {
+    blockSignals( TRUE );
+    clearSelection();
+    blockSignals( FALSE );
     if ( d->iterators ) {
 	QListViewItemIterator *i = d->iterators->first();
 	while ( i ) {
@@ -2121,6 +2124,15 @@ void QListView::clear()
     triggerUpdate();
 }
 
+/*!
+  \reimp
+*/
+
+void QListView::setContentsPos( int x, int y )
+{
+    updateGeometries();
+    QScrollView::setContentsPos( x, y );
+}
 
 /*!
   Adds a new column at the right end of the widget, with the header \a
@@ -2378,7 +2390,6 @@ void QListView::show()
 
 	reconfigureItems();
 	updateGeometries();
-	setContentsPos( 0, 0 );
     }
     QScrollView::show();
 }
@@ -2876,7 +2887,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
 	return;
     }
-    
+
     if ( (i->isExpandable() || i->childCount()) &&
 	 d->h->mapToLogical( d->h->cellAt( vp.x() ) ) == 0 ) {
 	int x1 = vp.x() +
