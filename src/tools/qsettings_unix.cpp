@@ -83,7 +83,7 @@
     \code
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
-    settings.insertSearchPath( QSettings::Unix, "/opt/MyCompany/share" );
+    // No search path needed for Unix; see notes further on.
     // Use default values if the keys don't exist
     QString bgColor = settings.readEntry( "/MyApplication/background color", "white" );
     int width = settings.readNumEntry( "/MyApplication/geometry/width", 640 );
@@ -94,7 +94,7 @@
     \code
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
-    settings.insertSearchPath( QSettings::Unix, "/opt/MyCompany/share" );
+    // No search path needed for Unix; see notes further on.
     settings.writeEntry( "/MyApplication/background color", bgColor );
     settings.writeEntry( "/MyApplication/geometry/width", width );
     // ...
@@ -149,6 +149,21 @@
     settings QSettings works forwards in the order shown above writing
     to the first settings file for which the user has write permission.
     ($QTDIR is the directory where Qt was installed.)
+
+    If you want to put the settings in a particular place in the
+    filesystem you could do this:
+    \code
+    settings.insertSearchPath( QSettings::Unix, "/opt/MyCompany/share" );
+    \endcode
+
+    But in practice you may prefer not to use a search path for Unix.
+    For example the following code:
+    \code
+    settings.writeEntry( "/MyApplication/geometry/width", width );
+    \endcode
+    will end up writing the "geometry/width" setting to the file
+    \c{$HOME/.qt/myapplicationrc} (assuming that the application is
+    being run by an ordinary user, i.e. not by root).
 
     For cross-platform applications you should ensure that the Windows
     size limitations are not exceeded.

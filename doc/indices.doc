@@ -92,7 +92,7 @@ Overviews
 <td valign=top >
 \list
 \i \link classes.html   All Classes\endlink
-\i \link classes-main.html Main Classes\endlink
+\i \link mainclasses.html Main Classes\endlink
 \i \link topicals.html   Grouped Classes\endlink
 \i \link annotated.html   Annotated Classes\endlink
 \i \link hierarchy.html   Inheritance Hierarchy\endlink
@@ -119,6 +119,7 @@ Overviews
 \i \link signalsandslots.html   Signals and Slots \endlink
 \i \link moc.html   Using the Meta Object Compiler (moc) \endlink
 \i \link layout.html   Geometry Management  \endlink
+\i \link eventsandfilters.html   Events and Event Filters \endlink
 \i \link dnd.html   Drag and Drop (D'n'D) \endlink
 \i \link i18n.html   Internationalization (i18n)  \endlink
 \i \link debug.html   Debugging Techniques \endlink
@@ -703,6 +704,8 @@ for XML.)
 
 \title Qt's Main Classes
 
-These are the most often used and most important Qt classes.
+These are the most frequently used Qt classes.
+For the complete list, including XML, networking and container
+classes, etc., see the <a href="classes.html">All Classes List</a>.
 
 */

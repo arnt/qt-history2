@@ -13486,10 +13486,19 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     \value SectionDefault Empty fields are counted, leading and trailing
     separators are not included, and the separator is compared case
     sensitively.
-    \value SectionSkipEmpty
+
+
+    \value SectionSkipEmpty Treat empty fields as if they don't exist,
+    i.e. they are not considered as far as \e start and \e count
+    are concerned.
+
+
     \value SectionIncludeLeadingSeps
     \value SectionIncludeTrailingSeps
-    \value SectionCaseInsensitiveSeps
+
+
+    \value SectionCaseInsensitiveSeps Compare the separator
+    case-insensitively.
 
     Any of the last four values can be OR-ed together to form a flag.
 
@@ -13499,32 +13508,48 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 /*!
     This function returns a section of the string.
 
-    This string is treated as a sequence of fields separated by \a
-    sep. The returned string consists of \a count fields from position
-    \a start.
+    This string is treated as a sequence of fields separated by the
+    character, \a sep. The returned string consists of \a count fields
+    from position \a start.
 
-    ### easy eg.
+    The \a flag argument can be used to affect some aspects of the
+    function's behaviour, e.g. whether to be case sensitive, whether
+    to skip empty fields and how to deal with leading and trailing
+    separators; see \l{SectionFlags}.
 
-    If \a start is negative, it counts fields from the right of the
+    \code
+    QString csv( "forename,middlename,surname,phone" );
+    QString s = csv.section( ',', 2, 1 );   // s == "surname"
+
+    QString path( "/usr/local/bin/myapp" ); // First field is empty
+    QString s = path.section( '/', 3, 2 );  // s == "bin/myapp"
+    QString s = path.section( '/', 3, 1, SectionSkipEmpty ); // s == "myapp"
+    \endcode
+
+    If \a start is negative, we count fields from the right of the
     string, the right-most field being -1, the one from right-most
     field being -2, and so on.
+
+    \code
+    QString csv( "forename,middlename,surname,phone" );
+    QString s = csv.section( ',', -3, 2 );  // s == "middlename,surname"
+
+    QString path( "/usr/local/bin/myapp" ); // First field is empty
+    QString s = path.section( '/', -1, 1 ); // s == "myapp"
+    \endcode
 
     If \a count is 0 then all fields from \a start to the end are
     included. If \a count is negative then all fields from \a start to
     the field \a count fields from the end are included.
 
     \code
-    QString s( "/usr/local/bin/myapp" );
-    QString p1 = s.section( '/', 0, 3 );  // p1 == "/usr/local/bin"
-    QString p2 = s.section( '/', 0, -1 ); // p2 == "/usr/local/bin"
-    QString file = s.section( '/', -1, 0 ); // p2 == "myapp"
-    \endcode
+    QString csv( "forename,middlename,surname,phone" );
+    QString s = csv.section( ',', -2, 0 );   // s == "surname,phone"
+    QString s = csv.section( ',', 1, -2 );   // s == "middlename"
 
-    \code
-    QString t( "zero,one,two,three,four" );
-    QString one = t.section( ',', 1, 1 ); // one == "one"
-    QString onetwo = t.section( ',', 1, 2 ); // one == "onetwo"
-    QString two_four = t.section( ',', 2, 3 ); // one == "twothreefour"
+    QString path( "/usr/local/bin/myapp" );  // First field is empty
+    QString s = path.section( '/', 1, 0 );   // s == "local/bin/myapp"
+    QString s = path.section( '/', -3, -2 ); // s == "local"
     \endcode
 */
 
@@ -13634,6 +13659,44 @@ QString QString::section( QChar sep, int start, int count, int flags ) const
     //done
     return QString(begin, (end - begin));
 }
+
+/*!
+    This function returns a section of the string.
+
+    This string is treated as a sequence of fields separated by the
+    string, \a sep. The returned string consists of \a count fields
+    from position \a start.
+
+    The \a flag argument can be used to affect some aspects of the
+    function's behaviour, e.g. whether to be case sensitive, whether
+    to skip empty fields and how to deal with leading and trailing
+    separators; see \l{SectionFlags}.
+
+    \code
+    QString data( "forename**middlename**surname**phone" );
+    QString s = data.section( "**", 2, 1 ); // s == "surname"
+    \endcode
+
+
+    If \a start is negative, we count fields from the right of the
+    string, the right-most field being -1, the one from right-most
+    field being -2, and so on.
+
+    \code
+    QString data( "forename**middlename**surname**phone" );
+    QString s = data.section( "**", -3, 2 ); // s == "middlename**surname"
+    \endcode
+
+    If \a count is 0 then all fields from \a start to the end are
+    included. If \a count is negative then all fields from \a start to
+    the field \a count fields from the end are included.
+
+    \code
+    QString data( "forename**middlename**surname**phone" );
+    QString s = data.section( "**", -2, 0 ); // s == "surname**phone"
+    QString s = data.section( "**", 1, -2 ); // s == "middlename"
+    \endcode
+*/
 
 QString QString::section( QString sep, int start, int count, int flags ) const
 {
@@ -13774,6 +13837,49 @@ QString QString::section( QString sep, int start, int count, int flags ) const
 }
 
 #ifndef QT_NO_REGEXP
+/*!
+    This function returns a section of the string.
+
+    This string is treated as a sequence of fields separated by the
+    regular expression, \a sep. The returned string consists of \a
+    count fields from position \a start.
+
+    The \a flag argument can be used to affect some aspects of the
+    function's behaviour, e.g. whether to be case sensitive, whether
+    to skip empty fields and how to deal with leading and trailing
+    separators; see \l{SectionFlags}.
+
+    \code
+    QString line( "forename\tmiddlename  surname \t \t phone" );
+    QRegExp sep( "\s+" );
+    QString s = line.section( sep, 2, 1 ); // s == "surname"
+    \endcode
+
+
+    If \a start is negative, we count fields from the right of the
+    string, the right-most field being -1, the one from right-most
+    field being -2, and so on.
+
+    \code
+    QString line( "forename\tmiddlename  surname \t \t phone" );
+    QRegExp sep( "\\s+" );
+    QString s = line.section( sep, -3, 2 ); // s == "middlename  surname"
+    \endcode
+
+    If \a count is 0 then all fields from \a start to the end are
+    included. If \a count is negative then all fields from \a start to
+    the field \a count fields from the end are included.
+
+    \code
+    QString line( "forename\tmiddlename  surname \t \t phone" );
+    QRegExp sep( "\\s+" );
+    QString s = line.section( sep, -2, 0 ); // s == "surname \t \t phone"
+    QString s = line.section( sep, 1, -2 ); // s == "middlename"
+    \endcode
+
+    \sa simplifyWhiteSpace()
+*/
+
 QString QString::section( const QRegExp &reg, int start, int count, int flags ) const
 {
     const QChar *uc = unicode();
