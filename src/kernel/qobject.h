@@ -54,6 +54,7 @@ class QVariant;
 class QMetaProperty;
 class QPostEventList;
 struct QUObject;
+class QAccessible;
 
 #ifndef QT_MOC_CPP
 
@@ -133,14 +134,18 @@ public:
     virtual QVariant property( const char *name ) const;
 #endif // QT_NO_PROPERTIES
 
+    QAccessible *accessibilityInfo() const;
+
 signals:
     void	 destroyed();
+    void	 accessibilityChanged( int reason );
 
 public:
     QObject	*parent() const { return parentObj; }
 
 private slots:
     void	 cleanupEventFilter();
+    void	 notifyAccessibility( int );
 
 protected:
     bool	 activate_filters( QEvent * );
@@ -160,6 +165,9 @@ protected:
     virtual void timerEvent( QTimerEvent * );
     virtual void childEvent( QChildEvent * );
     virtual void customEvent( QCustomEvent * );
+
+    virtual void accessibilityEvent( QEvent * );
+    virtual QAccessible* createAccessibilityInfo() const;
 
     virtual void connectNotify( const char *signal );
     virtual void disconnectNotify( const char *signal );
@@ -183,8 +191,8 @@ private:
     QObjectList *senderObjects;
     QObjectList *eventFilters;
     QPostEventList *postedEvents;
-    class QObjectPrivate;
-    QObjectPrivate* d;
+    class Private;
+    Private* d;
 
     friend class QApplication;
     friend class QBaseApplication;

@@ -116,6 +116,7 @@ public:
 	IMStart = 83,				// input method composition start
 	IMCompose = 84,				// input method composition
 	IMEnd = 85,				// input method composition end
+	Accessibility = 86,			// accessibility client requests information
 	User = 1000,				// first user event id
 	MaxUser  = 65535                        // last user event id
     };

@@ -53,9 +53,23 @@
 #include "qcursor.h"
 #include "qdatetime.h"
 #include "qucom.h"
+#include "qaccessible.h"
 
-class QObject::QObjectPrivate
+class QObject::Private
 {
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+public:
+    Private()
+
+	: accessible( 0 )
+    {}
+    ~Private()
+    {
+	delete accessible;
+    }
+
+    QAccessible *accessible;
+#endif
 };
 
 // NOT REVISED
@@ -355,8 +369,13 @@ QObject::QObject( QObject *parent, const char *name )
 
     // null out sigSender... this may be wrong.
     sigSender = 0;
-}
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    d = new Private;
+
+    connect( this, SIGNAL( accessibilityChanged(int) ), SLOT( notifyAccessibility(int) ) );
+#endif
+}
 
 
 /*!
@@ -437,6 +456,7 @@ QObject::~QObject()
 	}
 	delete childObjects;
     }
+    delete d;
 }
 
 
@@ -646,13 +666,17 @@ bool QObject::event( QEvent *e )
 	    return TRUE;
     }
     switch ( e->type() ) {
-      case QEvent::Timer:
+    case QEvent::Timer:
 	timerEvent( (QTimerEvent*)e );
 	return TRUE;
-      case QEvent::ChildInserted: case QEvent::ChildRemoved:
+    case QEvent::ChildInserted: 
+    case QEvent::ChildRemoved:
 	childEvent( (QChildEvent*)e );
 	return TRUE;
-      default:
+    case QEvent::Accessibility:
+	accessibilityEvent( e );
+	return TRUE;
+    default:
 	break;
     }
     return FALSE;
@@ -1807,9 +1831,8 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 
 void QObject::destroyed()
 {
-    activate_signal( 0 );
+    activate_signal( staticMetaObject()->signalOffset() );
 }
-
 
 /*!
   This slot is connected to the destroyed() signal of other objects
@@ -1822,7 +1845,97 @@ void QObject::cleanupEventFilter()
     removeEventFilter( sender() );
 }
 
+/*!
+  This signal is emitted when an object's accessibility information is
+  changed.
 
+  Notifies any running accessibility tool that properties of this accessible object
+  have changed. \a reason designates the cause of this change, e.g. ValueChange when the
+  position of e.g. a slider has been changed.
+
+  Emit this signal whenever the state of your accessible object has been changed
+  either programmatically (e.g. by calling QLabel::setText() ) or by user interaction.
+
+  If there are no accessibility tools listening to this event, the performance penalty for 
+  emitting this signal is minor.
+
+  If an accessibility tool is running, Qt will generate an \link QEvent::Accessibility 
+  accessibilty event \endlink when requested, and call the \link accessibilityEvent() event handler \endlink
+  of this object. The event handler has to update the contents of it's associated QAccessible object.
+
+  \sa accessibilityInfo(), accessibilityEvent()
+*/
+
+void QObject::accessibilityChanged( int reason )
+{
+    activate_signal( staticMetaObject()->signalOffset() + 1, reason );
+}
+
+/*!
+  This slot is connected to the accessibilityChanged() signal and
+  notifies the platform dependent accessibility system of the change.
+*/
+void QObject::notifyAccessibility( int reason )
+{
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible *acc = accessibilityInfo();
+    if ( acc )
+	acc->notify( this, (QAccessible::Reason)reason );
+#endif
+}
+
+/*!
+  Returns a pointer to the QAccessible object for this object. Calls
+  createAccessibilityInfo() if neccessary.
+ 
+  \sa accessibilityEvent()
+*/
+QAccessible *QObject::accessibilityInfo() const
+{
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    if ( d->accessible ) 
+	return d->accessible;
+
+    d->accessible = createAccessibilityInfo();
+    if ( d->accessible ) {
+	QObject *that = (QObject*)this;
+	// initialize the new accessibility object
+	QEvent e( QEvent::Accessibility );
+	that->accessibilityEvent( &e );
+    }
+    return d->accessible;
+#else
+    return 0;
+#endif
+}
+
+/*!
+  Reimplement this function for QObject subclasses that are accessible,
+  and return a new object of type QAccessible or a subclass of this type.
+
+  The default implementation return always NULL.
+*/
+QAccessible *QObject::createAccessibilityInfo() const
+{
+    return 0;
+}
+
+
+/*!
+  This event handler is called when an accessibility tool requests 
+  information about this object.
+  
+  Reimplement this function to update the QAccessible object of this
+  widget with the appropriate data for your widget. To signal a state change
+  in your widget, use QAccessible::notify().
+
+  The default implementation does nothing.
+
+  \sa accessibilityHint()
+*/
+void QObject::accessibilityEvent( QEvent * )
+{
+}
 
 #ifndef QT_NO_TRANSLATION // Otherwise we have a simple inline version
 
@@ -1929,15 +2042,25 @@ QMetaObject* QObject::staticMetaObject()
 	{ "BackgroundMode", 18, enum_3, FALSE }
     };
 
-    static const QUMethod method_slot_0 = {"cleanupEventFilter", 0,  0 };
+    static const QUMethod slot_0 = {"cleanupEventFilter", 0,  0 };
+    static const QUParameter param_slot_1[] = {
+	{ 0, pQUType_int, 0, QUParameter::In }
+    };
+    static const QUMethod slot_1 = {"notifyAccessibility", 1, param_slot_1 };
     int slot_offset = 0;
     static const QMetaData slot_tbl[] = {
-	{ "cleanupEventFilter()", slot_offset + 0, &method_slot_0, QMetaData::Private }
+	{ "cleanupEventFilter()", slot_offset + 0, &slot_0, QMetaData::Private },
+	{ "notifyAccessibility(int)", slot_offset + 1, &slot_1, QMetaData::Private }
     };
-    static const QUMethod method_signal_0 = {"destroyed", 0,  0 };
+    static const QUMethod signal_0 = {"destroyed", 0,  0 };
     int signal_offset = 0;
+    static const QUParameter param_signal_1[] = {
+	{ "reason", pQUType_int, 0, QUParameter::In }
+    };
+    static const QUMethod signal_1 = {"accessibilityChanged", 1, param_signal_1 };
     static const QMetaData signal_tbl[] = {
-	{ "destroyed()", signal_offset + 0, &method_signal_0, QMetaData::Public }
+	{ "destroyed()", signal_offset + 0, &signal_0, QMetaData::Public },
+	{ "accessibilityChanged(int)", signal_offset + 1, &signal_1, QMetaData::Public }
     };
 #ifndef QT_NO_PROPERTIES
     int pid = 0;
@@ -1947,8 +2070,8 @@ QMetaObject* QObject::staticMetaObject()
     p->setFlags(QMetaProperty::Readable|QMetaProperty::Writable|QMetaProperty::StdSet);
 #endif // QT_NO_PROPERTIES
     metaObj = new QMetaObject( "QObject", 0,
-	slot_tbl, 1,
-	signal_tbl, 1,
+	slot_tbl, 2,
+	signal_tbl, 2,
 #ifndef QT_NO_PROPERTIES
 	props_tbl, 1,
 #endif
@@ -2225,11 +2348,14 @@ QVariant QObject::property( const char *name ) const
 
 /*!\internal
  */
-bool QObject::qt_invoke( int _id, QUObject* )
+bool QObject::qt_invoke( int _id, QUObject *_o )
 {
     switch ( _id ) {
     case 0:
 	cleanupEventFilter();
+	break;
+    case 1: 
+	notifyAccessibility(pQUType_int->get(_o+1)); 
 	break;
      default:
 	return FALSE;
@@ -2239,11 +2365,14 @@ bool QObject::qt_invoke( int _id, QUObject* )
 
 /*!\internal
  */
-bool QObject::qt_emit( int _id, QUObject * )
+bool QObject::qt_emit( int _id, QUObject *_o )
 {
     switch ( _id ) {
     case 0:
 	destroyed();
+	break;
+    case 1: 
+	accessibilityChanged(pQUType_int->get(_o+1)); 
 	break;
      default:
 	 return FALSE;

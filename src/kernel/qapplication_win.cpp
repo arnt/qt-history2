@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#479 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#480 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -45,10 +45,21 @@
 #include "qt_windows.h"
 #include <windowsx.h>
 #include <limits.h>
+
 #if defined(__CYGWIN32__)
 #define __INSIDE_CYGWIN32__
 #include <mywinsock.h>
 #endif
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include <winable.h>
+#include <oleacc.h>
+#ifndef WM_GETOBJECT
+#define WM_GETOBJECT                    0x003D
+
+extern IAccessible *qt_createWindowsAccessible( QObject *widget );
+#endif
+#endif // QT_ACCESSIBILITY_SUPPORT
 
 static UINT WM95_MOUSEWHEEL = 0;
 
@@ -1854,7 +1865,42 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    qt_sendSpontaneousEvent( qt_clipboard, &e );
 		    RETURN(0);
 		}
-		// NOTE: fall-through!
+		result = FALSE;
+		break;
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	    case WM_GETOBJECT:
+		{
+		    // Ignoring all requests while starting up
+		    if ( qApp->startingUp() || !qApp->loopLevel() || lParam != OBJID_CLIENT ) {
+			result = FALSE;
+			break;
+		    }
+
+		    // ask the object to update it's information
+		    QEvent e( QEvent::Accessibility );
+		    QApplication::sendEvent( widget, &e );
+
+		    // and get an instance of the IAccessibile implementation
+		    IAccessible *iface = qt_createWindowsAccessible( widget );		// ref == 1
+		    LRESULT res = LresultFromObject( IID_IAccessible, wParam, iface );  // ref == 2
+		    iface->Release(); // the client will release the object again, and then it will destroy itself
+
+		    if ( res > 0 )
+			RETURN(res);
+#if defined(Q_CHECK_RANGE)
+		    else if ( res == E_NOINTERFACE )
+			qDebug( "WM_GETOBJECT -> No Interface" );
+		    else if ( res == E_INVALIDARG )
+			qDebug( "WM_GETOBJECT -> Invalid Argument" );
+		    else if ( res == E_OUTOFMEMORY )
+			qDebug( "WM_GETOBJECT -> Out of Memory" );
+		    else
+			qDebug( "WM_GETOBJECT -> Unexpected error" );
+#endif
+		}
+		result = FALSE;
+		break;
+#endif
 	    default:
 		result = FALSE;			// event was not processed
 		break;
