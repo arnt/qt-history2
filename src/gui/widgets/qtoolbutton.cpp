@@ -194,7 +194,7 @@ void QToolButtonPrivate::init()
     hasArrow = false;
 
     q->setFocusPolicy(Qt::NoFocus);
-    q->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    q->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     QObject::connect(q, SIGNAL(pressed()), q, SLOT(popupPressed()));
 }
