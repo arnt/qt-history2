@@ -18,7 +18,6 @@
 #include <QtCore/qstring.h>
 #include <QtGui/qdialog.h>
 
-class QMenu;
 class QModelIndex;
 class QFileIconProvider;
 class QFileDialogPrivate;
