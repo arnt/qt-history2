@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#43 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#44 $
 **
 ** Implementation of QFileDialog class
 **
@@ -17,7 +17,6 @@
 #include "qpushbt.h"
 #include "qmsgbox.h"
 #include "qapp.h"
-#include "qregexp.h"
 #if defined(_WS_WIN_)
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
@@ -28,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#44 $");
 
 
 /*!
@@ -421,7 +420,7 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
 
 #if defined(_WS_WIN_)
 
-    filedlg_dir.replace(QRegExp("/"),"\\");
+    filedlg_dir = QDir::convertSeparators( filedlg_dir );
 
     const int maxstrlen = 256;
     char *file = new char[maxstrlen];
