@@ -110,9 +110,7 @@
     The function setWhatsThis() specifies a help text that appears
     when the user presses an accelerator key in What's This mode.
 
-    A QAccel object passes key events to the QWidget::topLevelWidget()
-    containing \e parent, and hence to any child widgets of that
-    window. The accelerator will be deleted when \e parent is deleted,
+    The accelerator will be deleted when \e parent is deleted,
     and will consume relevant key events until then.
 
     Example:
