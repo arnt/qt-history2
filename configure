@@ -930,6 +930,11 @@ then
        XINERAMA=yes
        $x11tests/xinerama.test $XQMAKESPEC $VERBOSE && XINERAMA=no
    fi
+
+   if [ $XINERAMA = yes ] || [ $XRENDER = yes ] || [ $XFTFREETYPE = yes ]
+   then
+       QMAKE_VARS="\"LIBS+=-L\$\$QMAKE_LIBDIR_X11\" $QMAKE_VARS"
+   fi
 fi
 
 #unix
