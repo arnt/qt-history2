@@ -415,7 +415,7 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
             if(numDashes<4) {
                 matrox_regw(SRC0,tmp);
             }
-            matrox_regw(Qt::SHIFT,((numDashes*8)-1) << 16);
+            matrox_regw(SHIFT,((numDashes*8)-1) << 16);
             matrox_regw(DWGCTL,DWG_LINE_CLOSE | tmprop | DWG_BFCOL);
         } else {
             matrox_regw(DWGCTL,DWG_LINE_CLOSE | tmprop | DWG_SHIFTZERO |
