@@ -386,6 +386,15 @@ public:
 		                          int numPackets );
 #endif
     void	repolishStyle( QStyle &style ) { setStyle(&style); }
+    void	reparentWorkaround()
+    {
+	((QWidgetIntDict*)QWidget::wmapper())->remove((long)winid);
+	clearWState(WState_Created);
+	winid = 0;
+	QRect geom = geometry();
+	create(0, FALSE, FALSE);
+	setGeometry(geom);
+    }
 
     void eraseWindowBackground(HDC);
 };
@@ -1711,6 +1720,10 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		QApplication::sendEvent( widget, &leave );
 		curWin = 0;
 	    }
+	    // We are blown away when our parent reparents, so we have to
+	    // recreate the handle
+	    if (widget->testWState(Qt::WState_Created))
+		((QETWidget*)widget)->reparentWorkaround();
 	    if ( widget == popupButtonFocus )
 		popupButtonFocus = 0;
 	    result = FALSE;
