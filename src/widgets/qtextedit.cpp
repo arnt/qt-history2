@@ -249,7 +249,7 @@
   Inserts \a text at the current cursor position. If \a indent is
   TRUE, the paragraph is re-indented. If \a checkNewLine is TRUE,
   newline characters in \a text result in hard breaks. Otherwise, the
-  result of newlines is not defined. If \ removeSelected is TRUE,
+  result of newlines is not defined. If \a removeSelected is TRUE,
   selected text is removed before the text is inserted, else the
   inserted text gets selected.
 */

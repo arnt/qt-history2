@@ -1964,13 +1964,12 @@ static QStringList makeFiltersList( const QString &filter )
   To let the user specify a file name for opening a file, for example, you could use following
   code:
 
-  \code
-    QString s( QFileDialog::getOpenFileName( QString::null, "Images (*.png *.xpm *.jpg)", this ) );
-    if ( s.isEmpty() )
-	return;
+  \walkthrough action/application.cpp
+  \skipto QFileDialog::getOpenFileName(
+  \printuntil Loading aborted
 
-    open( s ); // open() being your function to read the file
-  \endcode
+  (Code taken from \link qaction-application-example.html examples/action/application.cpp
+  \endlink )
 
   Other convenient static methods are QFileDialog::getExistingDirectory() to let the user
   choose a directory or QFileDialog::getOpenFileNames() to let the user select multiple
@@ -2047,9 +2046,9 @@ static QStringList makeFiltersList( const QString &filter )
 */
 
 /*!
-  Constructs a file dialog with a \e parent, \e name and \e modal flag.
+  Constructs a file dialog with a \a parent, \a name and \a modal flag.
 
-  The dialog becomes modal if \e modal is TRUE; otherwise it is modeless.
+  The dialog becomes modal if \a modal is TRUE; otherwise it is modeless.
 */
 
 QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
@@ -2064,9 +2063,11 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
 
 
 /*!
-  Constructs a file dialog with a \e parent, \e name and \e modal flag.
+  Constructs a file dialog with a \a parent, \a name and \a modal flag.
+  To begin with it shows the content of the directory \a dirName and
+  uses \a filter to match files that can be chosen.
 
-  The dialog becomes modal if \e modal is TRUE; otherwise it is modeless.
+  The dialog becomes modal if \a modal is TRUE; otherwise it is modeless.
 */
 
 QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
@@ -2591,7 +2592,8 @@ QString QFileDialog::selectedFilter() const
     return d->types->currentText();
 }
 
-/*!
+/*! \overload
+
   Selects the \a n filter in the list.
 */
 
@@ -2656,7 +2658,7 @@ QStringList QFileDialog::selectedFiles() const
 }
 
 /*!
-  Sets the default selection to \a file name.  If \a file name is
+  Sets the default selection to \a filename.  If \a filename is
   absolute, setDir() is also called.
 
   \internal
@@ -2745,8 +2747,9 @@ void QFileDialog::setFilter( const QString & newFilter )
 }
 
 
-/*!
-  Sets a directory path string for the file dialog.
+/*! \overload
+  Sets the directory path string \a pathstr for the file dialog.
+
   \sa dir()
 */
 
@@ -2793,7 +2796,7 @@ const QDir *QFileDialog::dir() const
 }
 
 /*!
-  Sets a directory path for the file dialog.
+  Sets the directory path \a dir for the file dialog.
   \sa dir()
 */
 
@@ -2910,12 +2913,12 @@ void QFileDialog::rereadDir()
 #include "../kernel/qapplication_p.h"
 
 /*!
-  Opens a modal file dialog and returns the name of the file to be
-  opened.
+  Opens a modal file dialog with the window caption \a caption
+  and returns the name of the file to be opened.
 
   If \a startWith is the name of a directory, the dialog starts off in
   that directory.  If \a startWith is the name of an existing file,
-  the dialog starts in the directory where \a startWidth is located, and
+  the dialog starts in the directory where \a startWith is located, and
   the file \a startWith is selected.
 
   Only files matching \a filter are selectable. If \a filter is QString::null,
@@ -2924,8 +2927,8 @@ void QFileDialog::rereadDir()
   two filters, one to show all C++ files and one to show all header files, the filter
   string could look like "C++ Files (*.cpp *.cc *.C *.cxx *.c++);;Header Files (*.h *.hxx *.h++)".
 
-  If \a widget and/or \a name is provided, the dialog will be centered
-  over \a widget and \link QObject::name() named \endlink \a name.
+  If \a parent and/or \a name is provided, the dialog will be centered
+  over \a parent and \link QObject::name() named \endlink \a name.
 
   getOpenFileName() returns a \link QString::isNull() null string
   \endlink if the user cancels the dialog.
@@ -3024,12 +3027,12 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 }
 
 /*!
-  Opens a modal file dialog and returns the name of the file to be
-  saved.
+  Opens a modal file dialog with the window title \a caption and
+  \a parent as parent widget and returns the name of the file to be saved.
 
   If \a startWith is the name of a directory, the dialog starts off in
   that directory.  If \a startWith is the name of an existing file,
-  the dialog starts in the directory where \a startWidth is located, and
+  the dialog starts in the directory where \a startWith is located, and
   the file \a startWith is selected.
 
   Only files matching \a filter are selectable.	 If \a filter is QString::null,
@@ -3038,8 +3041,8 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
   two filters, one to show all C++ files and one to show all header files, the filter
   string could look like "C++ Files (*.cpp *.cc *.C *.cxx *.c++);;Header Files (*.h *.hxx *.h++)".
 
-  If \a widget and/or \a name is provided, the dialog will be centered
-  over \a widget and \link QObject::name() named \endlink \a name.
+  If \a parent and/or \a name is provided, the dialog will be centered
+  over \a parent and \link QObject::name() named \endlink \a name.
 
   Returns a \link QString::isNull() null string\endlink if the user
   cancels the dialog.
@@ -3048,15 +3051,14 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
   but is convenient and easy to use.
 
   Example:
-  \code
-    // start at the current working directory and with *.cpp as filter
-    QString f = QFileDialog::getSaveFileName( QString::null, "*.cpp", this );
-    if ( !f.isEmpty() ) {
-	// the user gave a file name
-    } else {
-	// the user cancelled the dialog
-    }
-  \endcode
+
+  \walkthrough action/application.cpp
+  \skipto getSaveFileName( 
+  \printuntil Saving aborted
+  \printline }
+
+  (Code taken from \link qaction-application-example.html examples/action/application.cpp
+  \endlink )
 
   getOpenFileName() is another convenience function, similar to this one
   except that it does not allow the user to specify the name of a
@@ -3437,7 +3439,7 @@ r.setHeight( QMAX(r.height(),t.height()) )
 }
 
 
-/*!  Updates the dialog when the cursor moves in the listview. */
+/*! Updates the dialog when the cursor moves in the listview. */
 
 void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
 {
@@ -3559,7 +3561,7 @@ void QFileDialog::fileNameEditDone()
 
 
 
-/*!  This private slot reacts to double-clicks in the list view. */
+/*! This private slot reacts to double-clicks in the list view. */
 
 void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 {
@@ -3898,6 +3900,8 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
   default caption will be used. If \a dirOnly if TRUE no files will be
   displayed in the file view widgets.
 
+  \a parent serves as the parent widget, and \a name as the identity string.
+
   NOTE: In the Windows version of Qt this static method uses the native
   windows file dialog, not the QFileDialog.
 */
@@ -4050,8 +4054,8 @@ void QFileDialog::done( int i )
 }
 
 /*!
-  Sets the viewmode of the file dialog. You can choose between
-  Detail, List.
+  Sets the viewmode of the file dialog to \a m. You can choose between
+  \c Detail and \c List.
 
   \sa setPreviewMode()
 */
@@ -4070,7 +4074,7 @@ void QFileDialog::setViewMode( ViewMode m )
 }
 
 /*!
-  Set the preview mode of the file dialog. You can choose between
+  Set the preview mode of the file dialog to \a m. You can choose between
   NoPreview, Info and Contents.
 
   To be able to set a preview mode other than NoPreview, you need
@@ -4307,7 +4311,8 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 */
 
 
-/*!  Constructs an empty file icon provider. */
+/*! Constructs an empty file icon providerwith the parent \a parent and
+  the identity string \a name. */
 
 QFileIconProvider::QFileIconProvider( QObject * parent, const char* name )
     : QObject( parent, name )
@@ -4812,7 +4817,8 @@ void QFileDialog::modeButtonsDestroyed()
   the current working directory).
 
   \a parent is a widget over which the dialog should be positioned and
-  \a name is the object name of the temporary QFileDialog object.
+  \a name is the object name of the temporary QFileDialog object. \a caption
+  is used as the window caption.
 
   Example:
 
@@ -5532,7 +5538,7 @@ void QFileDialog::goBack()
 
 /*!
   \class QFilePreview qfiledialog.h
-  \brief The QFilePreview class provides previewing in QFileDialog
+  \brief The QFilePreview class provides previewing in QFileDialog.
 
   This class is an abstract base class which is used to implement
   widgets that can display a preview of a file in the QFileDialog.
