@@ -522,8 +522,8 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     } else if(ct == QStyle::CT_RadioButton) {
 	QRadioButton *rdo = (QRadioButton*)widg;
         // Exception for case where multiline radiobutton text requires no size constrainment
-	if(rdo->text().find('\n') != -1)
-	    return QSize(-1, -1);
+	if(rdo->text().find('\n') != -1) 
+	    return ret;
 #ifdef Q_WS_MAC
 	if(sz == QAquaSizeLarge)
 	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricRadioButtonHeight));
@@ -738,7 +738,8 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType
     if(insz)
 	*insz = QSize();
     Q_UNUSED(widg);
-    Q_UNUSED(fix);
+    Q_UNUSED(ct);
+    Q_UNUSED(szHint);
     return QAquaSizeUnknown;
 #endif
 }
