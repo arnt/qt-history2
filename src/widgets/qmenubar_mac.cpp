@@ -491,6 +491,10 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 			    keycode = kMenuDeleteRightGlyph;
 			else if(keycode == Qt::Key_Escape)
 			    keycode = kMenuEscapeGlyph;
+			else if(keycode == Qt::Key_Home)
+			    keycode = kMenuNorthwestArrowGlyph;
+			else if(keycode == Qt::Key_End)
+			    keycode = kMenuSoutheastArrowGlyph;
 			else if(keycode == Qt::Key_PageUp)
 			    keycode = kMenuPageUpGlyph;
 			else if(keycode == Qt::Key_PageDown)
