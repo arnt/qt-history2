@@ -56,7 +56,7 @@
     A color group contains a group of colors used by widgets for
     drawing themselves. We recommend that widgets use color group
     roles such as "foreground" and "base" rather than literal colors
-    like "red" or "turqoise". The color roles are enumerated and
+    like "red" or "turquoise". The color roles are enumerated and
     defined in the \l ColorRole documentation.
 
     The most common use of QColorGroup is like this:
