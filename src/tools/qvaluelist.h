@@ -72,6 +72,14 @@ class Q_EXPORT QValueListIterator
      */
     typedef QValueListNode<T>* NodePtr;
 
+#if 0
+    typedef std::bidirectional_iterator_tag  iterator_category;
+    typedef T        value_type;
+    typedef ptrdiff_t  difference_type;
+    typedef T*   pointer;
+    typedef T& reference;
+#endif
+
     /**
      * Variables
      */
@@ -314,6 +322,11 @@ public:
     typedef QValueListIterator<T> Iterator;
     typedef QValueListConstIterator<T> ConstIterator;
     typedef T ValueType;
+
+#if 0
+    typedef QValueListIterator<T> iterator;
+    typedef T value_type;
+#endif
 
     /**
      * API
