@@ -369,6 +369,7 @@ protected:
     int offx, offy;
     int penx, peny;
     void * hd;
+    QPixmap *brush_style_pix;
 #elif defined(Q_WS_QWS)
     QGfx * gfx;
 #endif

@@ -158,6 +158,7 @@ void QPainter::init()
     penRef = brushRef = 0;
     hd = 0;
     saved = 0;
+    brush_style_pix = 0;
 }
 
 
@@ -238,6 +239,15 @@ void QPainter::updateBrush()
             return;
     }
 
+    //color
+    ::RGBColor f;
+    f.red = cbrush.color().red()*256;
+    f.green = cbrush.color().green()*256;
+    f.blue = cbrush.color().blue()*256;
+    RGBForeColor( &f );
+    if ( pdev->devType() == QInternal::Widget ) 
+	bg_col = ((QWidget *)pdev)->backgroundColor();
+
     static uchar dense1_pat[] = { 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff, 0xff };
     static uchar dense2_pat[] = { 0xff, 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd };
     static uchar dense3_pat[] = { 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee, 0x55 };
@@ -283,6 +293,7 @@ void QPainter::updateBrush()
 	dense6_pat, dense7_pat,
 	hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
 
+    brush_style_pix = 0;
     int bs = cbrush.style();
     if( bs >= Dense1Pattern && bs <= DiagCrossPattern ) {
 	uchar *pat=pat_tbl[ bs-Dense1Pattern ];
@@ -296,34 +307,21 @@ void QPainter::updateBrush()
 
 	QString key;
 	key.sprintf( "$qt-brush$%d", bs );
-	QPixmap *pm = QPixmapCache::find( key );
-	bool del = FALSE;
-	if ( !pm ) {                        // not already in pm dict
-	    pm = new QPixmap( d, d );
-	    Q_CHECK_PTR( pm );
+	brush_style_pix = QPixmapCache::find( key );
+	if ( !brush_style_pix ) {                        // not already in pm dict
+	    brush_style_pix = new QPixmap( d, d );
+	    Q_CHECK_PTR( brush_style_pix );
 
 	    QImage i(pat, d, d, 1, NULL, 2, QImage::LittleEndian);
 	    i.setColor( 0, qRgba(255,255,255, 0) );
 	    i.setColor( 1, qRgba(0,0,0, 0) );
-	    *pm = i;
-	    del = !QPixmapCache::insert( key, pm );
+	    QBitmap bitmap;
+	    bitmap = i;
+	    brush_style_pix->setMask(bitmap);
+	    QPixmapCache::insert( key, brush_style_pix );
 	}
-
-	if ( cbrush.data->pixmap )
-	    delete cbrush.data->pixmap;
-	cbrush.data->pixmap = new QPixmap( *pm );
-	if (del) delete pm;
-    }
-
-    //color
-    ::RGBColor f;
-    f.red = cbrush.color().red()*256;
-    f.green = cbrush.color().green()*256;
-    f.blue = cbrush.color().blue()*256;
-    RGBForeColor( &f );
-    if ( pdev->devType() == QInternal::Widget ) {
-	bg_col = ((QWidget *)pdev)->backgroundColor();
-    }
+	brush_style_pix->fill(black);
+    } 
 }
 
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
@@ -815,7 +813,12 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	updateBrush();
         QPixmap *pm = cbrush.data->pixmap;
 	if(pm && !pm->isNull()) 
-	    drawTile(this, x, y, w, h, *pm, 0, 0);
+	    drawTiledPixmap(x, y, w, h, *pm, 0, 0);
+	if(brush_style_pix) {
+	    if(!pm || pm->isNull()) 
+		PaintRect( &rect );
+	    drawTiledPixmap(x, y, w, h, *brush_style_pix, 0, 0);
+	}
     }
 
     if( cpen.style() != NoPen ) {
@@ -1415,36 +1418,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     else
         sy = sy % sh;
 
-
-    /*
-      Requirements for optimizing tiled pixmaps:
-      - not an external device
-      - not scale or rotshear
-      - no mask
-    */
-    QBitmap *mask = (QBitmap *)pixmap.mask();
-#if 0 //you don't work, go away and come back later FIXME FIXME FIXME
-    if ( 0 && !testf(ExtDev) && txop <= TxTranslate && mask == 0 ) {
-        if ( txop == TxTranslate )
-            map( x, y, &x, &y );
-        return;
-    }
-#endif
-    if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
-        int tw = sw, th = sh;
-        while ( tw*th < 32678 && tw < w/2 )
-            tw *= 2;
-        while ( tw*th < 32678 && th < h/2 )
-            th *= 2;
-        QPixmap tile( tw, th, pixmap.depth() );
-        if ( mask ) {
-            QBitmap tilemask( tw, th );
-            tile.setMask( tilemask );
-        }
-        drawTile( this, x, y, w, h, tile, sx, sy );
-    } else {
-        drawTile( this, x, y, w, h, pixmap, sx, sy );
-    }
+    drawTile( this, x, y, w, h, pixmap, sx, sy );
 }
 
 void QPainter::drawText( int x, int y, const QString &str, int from, int len) 
