@@ -3426,7 +3426,7 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
     shouldClearSelection = FALSE;
     mousePressed = TRUE;
     if ( isEditing() ) {
-	if ( cellRect( editRow, editCol ).contains( e->pos() ) ) {
+	if ( !cellGeometry( editRow, editCol ).contains( e->pos() ) ) {
 	    endEdit( editRow, editCol, TRUE, edMode != Editing );
 	} else {
 	    e->ignore();
