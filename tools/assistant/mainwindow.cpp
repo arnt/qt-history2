@@ -53,7 +53,7 @@ MainWindow::MainWindow()
     dw->setCloseMode(QDockWindow::Always);
     addDockWindow(dw, DockLeft);
     dw->setWidget(helpDock);
-    dw->setCaption("Sidebar");
+    dw->setWindowTitle("Sidebar");
     dw->setFixedExtentWidth(320);
 
     // read geometry configuration
@@ -88,7 +88,7 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-    windows.remove(this);
+    windows.removeAll(this);
     delete goActionDocFiles;
 }
 
@@ -112,8 +112,8 @@ void MainWindow::setup()
     connect(helpDock, SIGNAL(showSearchLink(const QString&, const QStringList&)),
              this, SLOT(showSearchLink(const QString&, const QStringList&)));
 
-    connect(gui.bookmarkMenu, SIGNAL(activated(int)),
-             this, SLOT(showBookmark(int)));
+    connect(gui.bookmarkMenu, SIGNAL(activated(QAction*)),
+             this, SLOT(showBookmark(QAction*)));
     connect(gui.actionZoomIn, SIGNAL(triggered()), tabs, SLOT(zoomIn()));
     connect(gui.actionZoomOut, SIGNAL(triggered()), tabs, SLOT(zoomOut()));
 
@@ -142,7 +142,7 @@ void MainWindow::setup()
     Config *config = Config::configuration();
 
     setupBookmarkMenu();
-    gui.PopupMenu->insertItem(tr("Vie&ws"), createDockWindowMenu());
+    gui.PopupMenu->addMenu(tr("Vie&ws"), createDockWindowMenu());
     helpDock->tabWidget()->setCurrentPage(config->sideBarPage());
 
     qApp->restoreOverrideCursor();
@@ -159,8 +159,8 @@ void MainWindow::setupGoActions()
     static bool separatorInserted = false;
 
     foreach (QAction *a, goActions) {
-        a->removeFrom(gui.goMenu);
-        a->removeFrom(gui.goActionToolbar);
+        gui.goMenu->removeAction(a);
+        gui.goActionToolbar->removeAction(a);
     }
     qDeleteAll(goActions);
     goActionDocFiles->clear();
@@ -171,7 +171,7 @@ void MainWindow::setupGoActions()
         QPixmap pix = config->docIcon(title);
         if(!pix.isNull()) {
             if(!separatorInserted) {
-                gui.goMenu->insertSeparator();
+                gui.goMenu->addSeparator();
                 separatorInserted = true;
             }
             action = new QAction(this);
@@ -195,7 +195,7 @@ void MainWindow::setupGoActions()
 
 bool MainWindow::insertActionSeparator()
 {
-    gui.goMenu->insertSeparator();
+    gui.goMenu->addSeparator();
     gui.Toolbar->addSeparator();
     return true;
 }
@@ -224,7 +224,7 @@ void MainWindow::about()
                  " with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF"
                  " DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."
                  "</p>");
-    box.setCaption(tr("Qt Assistant"));
+    box.setWindowTitle(tr("Qt Assistant"));
     box.setIcon(QMessageBox::NoIcon);
     box.exec();
 }
@@ -245,7 +245,7 @@ void MainWindow::on_actionAboutApplication_triggered()
 
     QMessageBox box(this);
     box.setText(text);
-    box.setCaption(Config::configuration()->aboutApplicationMenuText());
+    box.setWindowTitle(Config::configuration()->aboutApplicationMenuText());
     box.setIcon(QMessageBox::NoIcon);
     box.exec();
 }
@@ -336,25 +336,25 @@ void MainWindow::setupBookmarkMenu()
 {
     gui.bookmarkMenu->clear();
     bookmarks.clear();
-    gui.actionAddBookmark->addTo(gui.bookmarkMenu);
+    gui.bookmarkMenu->addAction(gui.actionAddBookmark);
 
     QFile f(QDir::homeDirPath() + "/.assistant/bookmarks." +
         Config::configuration()->profileName());
     if (!f.open(IO_ReadOnly))
         return;
     QTextStream ts(&f);
-    gui.bookmarkMenu->insertSeparator();
+    gui.bookmarkMenu->addSeparator();
     while (!ts.atEnd()) {
         QString title = ts.readLine();
         QString link = ts.readLine();
-        bookmarks.insert(gui.bookmarkMenu->insertItem(title), link);
+        bookmarks.insert(gui.bookmarkMenu->addAction(title), link);
     }
 }
 
-void MainWindow::showBookmark(int id)
+void MainWindow::showBookmark(QAction *action)
 {
-    if (bookmarks.find(id) != bookmarks.end())
-        showLink(*bookmarks.find(id));
+    if (bookmarks.contains(action))
+        showLink(bookmarks.value(action));
 }
 
 void MainWindow::showLinkFromClient(const QString &link)
@@ -373,7 +373,7 @@ void MainWindow::showLink(const QString &link)
         qWarning("The link is empty!");
     }
 
-    int find = link.find('#');
+    int find = link.indexOf('#');
     QString name = find >= 0 ? link.left(find) : link;
 
     QString absLink = link;
@@ -478,7 +478,7 @@ void MainWindow::showSettingsDialog(int page)
     QObjectList lst = gui.Toolbar->children();
     for (int i = 0; i < lst.size(); ++i) {
         QObject *obj = lst.at(i);
-        if (obj->isA("QToolBarSeparator")) {
+        if (qstrcmp(obj->metaObject()->className(), "QToolBarSeparator") == 0) {
             delete obj;
             break;
         }
@@ -536,7 +536,7 @@ void MainWindow::saveSettings()
     config->setFontFixedFamily(tabs->styleSheet()->item("pre")->fontFamily());
     config->setLinkUnderline(tabs->linkUnderline());
     config->setLinkColor(tabs->palette().color(QPalette::Active, QColorGroup::Link).name());
-    config->setSideBarPage(helpDock->tabWidget()->currentPageIndex());
+    config->setSideBarPage(helpDock->tabWidget()->currentIndex());
     config->setGeometry(QRect(x(), y(), width(), height()));
     config->setMaximized(isMaximized());
 
@@ -633,21 +633,21 @@ void MainWindow::updateProfileSettings()
 {
     Config *config = Config::configuration();
 #ifndef Q_WS_MAC
-    setIcon(config->applicationIcon());
+    setWindowIcon(config->applicationIcon());
 #endif
     gui.helpMenu->clear();
-    gui.actionHelpAssistant->addTo(gui.helpMenu);
-    gui.helpMenu->insertSeparator();
-    gui.helpAbout_Qt_AssistantAction->addTo(gui.helpMenu);
+    gui.helpMenu->addAction(gui.actionHelpAssistant);
+    gui.helpMenu->addSeparator();
+    gui.helpMenu->addAction(gui.helpAbout_Qt_AssistantAction);
     if (!config->aboutApplicationMenuText().isEmpty())
-        gui.actionAboutApplication->addTo(gui.helpMenu);
-    gui.helpMenu->insertSeparator();
-    gui.actionHelpWhatsThis->addTo(gui.helpMenu);
+        gui.helpMenu->addAction(gui.actionAboutApplication);
+    gui.helpMenu->addSeparator();
+    gui.helpMenu->addAction(gui.actionHelpWhatsThis);
 
     gui.actionAboutApplication->setMenuText(config->aboutApplicationMenuText());
 
     if(!config->title().isNull())
-        setCaption(config->title());
+        setWindowTitle(config->title());
 }
 
 void MainWindow::setupPopupMenu(QPopupMenu *m)

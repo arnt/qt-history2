@@ -34,8 +34,6 @@
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { fprintf( stderr, text "\n" ); return 1; }
 #endif
 
-static bool allowFirstRun = TRUE;
-
 class AssistantSocket : public QSocket
 {
     Q_OBJECT
@@ -125,7 +123,7 @@ int main( int argc, char ** argv )
     bool withGUI = TRUE;
     if ( argc > 1 ) {
         QString arg( argv[1] );
-        arg = arg.lower();
+        arg = arg.toLower();
         if ( arg == "-addcontentfile"
             || arg == "-removecontentfile"
 #ifndef Q_WS_WIN
@@ -142,23 +140,22 @@ int main( int argc, char ** argv )
     QString file, profileName, aDocPath;
     bool server = FALSE;
     bool hideSidebar = FALSE;
-    bool startClean = FALSE;
     if ( argc == 2 ) {
         if ( (argv[1])[0] != '-' )
             file = argv[1];
     }
     if ( file.isEmpty() ) {
         for ( int i = 1; i < argc; i++ ) {
-            if ( QString( argv[i] ).lower() == "-file" ) {
+            if ( QString( argv[i] ).toLower() == "-file" ) {
                 INDEX_CHECK( "Missing file argument!" );
                 i++;
                 file = argv[i];
-            } else if ( QString( argv[i] ).lower() == "-server" ) {
+            } else if ( QString( argv[i] ).toLower() == "-server" ) {
                 server = TRUE;
-            } else if ( QString( argv[i] ).lower() == "-profile" ) {
+            } else if ( QString( argv[i] ).toLower() == "-profile" ) {
                 INDEX_CHECK( "Missing profile argument!" );
                 profileName = argv[++i];
-            } else if ( QString( argv[i] ).lower() == "-addcontentfile" ) {
+            } else if ( QString( argv[i] ).toLower() == "-addcontentfile" ) {
                 INDEX_CHECK( "Missing content file!" );
                 Config *c = Config::loadConfig( QString::null );
                 QFileInfo file( argv[i+1] );
@@ -182,7 +179,7 @@ int main( int argc, char ** argv )
                     c->save();
                 }
                 return 0;
-            } else if ( QString( argv[i] ).lower() == "-removecontentfile" ) {
+            } else if ( QString( argv[i] ).toLower() == "-removecontentfile" ) {
                 INDEX_CHECK( "Missing content file!" );
                 Config *c = Config::loadConfig( QString::null );
                 Profile *profile = c->profile();
@@ -211,9 +208,9 @@ int main( int argc, char ** argv )
                     c->save();
                 }
                 return 0;
-            } else if ( QString( argv[i] ).lower() == "-hidesidebar" ) {
+            } else if ( QString( argv[i] ).toLower() == "-hidesidebar" ) {
                 hideSidebar = TRUE;
-            } else if ( QString( argv[i] ).lower() == "-help" ) {
+            } else if ( QString( argv[i] ).toLower() == "-help" ) {
                 QString helpText( "Usage: assistant [option]\n"
                                   "Options:\n"
                                   " -file Filename             assistant opens the specified file\n"
@@ -233,7 +230,7 @@ int main( int argc, char ** argv )
                 printf( "%s\n", helpText.latin1() );
 #endif
                 exit( 0 );
-            } else if ( QString( argv[i] ).lower() == "-resourcedir" ) {
+            } else if ( QString( argv[i] ).toLower() == "-resourcedir" ) {
                 INDEX_CHECK( "Missing resource directory argument!" );
                 resourceDir = QString( argv[++i] );
             } else {

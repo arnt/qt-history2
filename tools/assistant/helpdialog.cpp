@@ -71,13 +71,13 @@ struct IndexKeyword {
         : keyword(kw), link(l) {}
     IndexKeyword() : keyword(QString::null), link(QString::null) {}
     bool operator<(const IndexKeyword &ik) const {
-        return keyword.lower() < ik.keyword.lower();
+        return keyword.toLower() < ik.keyword.toLower();
     }
     bool operator<=(const IndexKeyword &ik) const {
-        return keyword.lower() <= ik.keyword.lower();
+        return keyword.toLower() <= ik.keyword.toLower();
     }
     bool operator>(const IndexKeyword &ik) const {
-        return keyword.lower() > ik.keyword.lower();
+        return keyword.toLower() > ik.keyword.toLower();
     }
     Q_DUMMY_COMPARISON_OPERATOR(IndexKeyword)
     QString keyword;
@@ -117,7 +117,7 @@ HelpNavigationListItem::HelpNavigationListItem(QListBox *ls, const QString &txt)
 
 void HelpNavigationListItem::addLink(const QString &link)
 {
-    int hash = link.find('#');
+    int hash = link.indexOf('#');
     if (hash == -1) {
         linkList << link;
         return;
@@ -340,7 +340,7 @@ void HelpDialog::loadIndexFile()
     QString lastKeyword = QString::null;
     QList<IndexKeyword>::ConstIterator it = lst.begin();
     for (; it != lst.end(); ++it) {
-        if (lastKeyword.lower() != (*it).keyword.lower())
+        if (lastKeyword.toLower() != (*it).keyword.toLower())
             lastItem = new HelpNavigationListItem(gui.listIndex, (*it).keyword);
         lastItem->addLink((*it).link);
         lastKeyword = (*it).keyword;
@@ -449,8 +449,8 @@ void HelpDialog::setupTitleMap()
     for(QHash<QString, ContentList>::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
         ContentList lst = it.value();
         foreach (ContentItem item, lst) {
-            QFileInfo link(item.reference.simplifyWhiteSpace());
-            titleMap[link.absFilePath()] = item.title.stripWhiteSpace();
+            QFileInfo link(item.reference.simplified());
+            titleMap[link.absFilePath()] = item.title.trimmed();
         }
     }
     processEvents();
@@ -580,11 +580,13 @@ void HelpDialog::showTopic(QListViewItem *item)
 
 void HelpDialog::showTopic()
 {
-    if (stripAmpersand(gui.tabWidget->tabLabel(gui.tabWidget->currentPage())).contains(tr("Index")))
+    QString text = gui.tabWidget->tabText(gui.tabWidget->currentIndex());
+
+    if (stripAmpersand(text).contains(tr("Index")))
         showIndexTopic();
-    else if (stripAmpersand(gui.tabWidget->tabLabel(gui.tabWidget->currentPage())).contains(tr("Bookmarks")))
+    else if (stripAmpersand(text).contains(tr("Bookmarks")))
         showBookmarkTopic();
-    else if (stripAmpersand(gui.tabWidget->tabLabel(gui.tabWidget->currentPage())).contains(tr("Contents")))
+    else if (stripAmpersand(text).contains(tr("Contents")))
         showContentsTopic();
 }
 
@@ -621,11 +623,11 @@ void HelpDialog::showIndexTopic()
 void HelpDialog::searchInIndex(const QString &s)
 {
     QListBoxItem *i = gui.listIndex->firstItem();
-    QString sl = s.lower();
+    QString sl = s.toLower();
     while (i) {
         QString t = i->text();
         if (t.length() >= sl.length() &&
-             i->text().left(s.length()).lower() == sl) {
+             i->text().left(s.length()).toLower() == sl) {
             gui.listIndex->setCurrentItem(i);
             gui.listIndex->setTopItem(gui.listIndex->index(i));
             break;
@@ -637,7 +639,7 @@ void HelpDialog::searchInIndex(const QString &s)
 QString HelpDialog::titleOfLink(const QString &link)
 {
     QString s(link);
-    s.remove(s.find('#'), s.length());
+    s.remove(s.indexOf('#'), s.length());
     s = titleMap[ s ];
     if (s.isEmpty())
         return link;
@@ -843,7 +845,7 @@ void HelpDialog::showContentsTopic()
 
 void HelpDialog::toggleContents()
 {
-    if (!isVisible() || gui.tabWidget->currentPageIndex() != 0) {
+    if (!isVisible() || gui.tabWidget->currentIndex() != 0) {
         gui.tabWidget->setCurrentPage(0);
         parentWidget()->show();
     }
@@ -853,7 +855,7 @@ void HelpDialog::toggleContents()
 
 void HelpDialog::toggleIndex()
 {
-    if (!isVisible() || gui.tabWidget->currentPageIndex() != 1 || !gui.editIndex->hasFocus()) {
+    if (!isVisible() || gui.tabWidget->currentIndex() != 1 || !gui.editIndex->hasFocus()) {
         gui.tabWidget->setCurrentPage(1);
         parentWidget()->show();
         gui.editIndex->setFocus();
@@ -864,7 +866,7 @@ void HelpDialog::toggleIndex()
 
 void HelpDialog::toggleBookmarks()
 {
-    if (!isVisible() || gui.tabWidget->currentPageIndex() != 2) {
+    if (!isVisible() || gui.tabWidget->currentIndex() != 2) {
         gui.tabWidget->setCurrentPage(2);
         parentWidget()->show();
     }
@@ -874,7 +876,7 @@ void HelpDialog::toggleBookmarks()
 
 void HelpDialog::toggleSearch()
 {
-    if (!isVisible() || gui.tabWidget->currentPageIndex() != 3) {
+    if (!isVisible() || gui.tabWidget->currentIndex() != 3) {
         gui.tabWidget->setCurrentPage(3);
         parentWidget()->show();
     }
@@ -947,13 +949,13 @@ void HelpDialog::startSearch()
     QString buf = str;
     str = str.replace("-", " ");
     str = str.replace(QRegExp("\\s[\\S]?\\s"), " ");
-    terms = QStringList::split(" ", str);
+    terms = str.split(QChar(' '));
     QStringList termSeq;
     QStringList seqWords;
     QStringList::iterator it = terms.begin();
     for (; it != terms.end(); ++it) {
-        (*it) = (*it).simplifyWhiteSpace();
-        (*it) = (*it).lower();
+        (*it) = (*it).simplified();
+        (*it) = (*it).toLower();
         (*it) = (*it).replace("\"", "");
     }
     if (str.contains('\"')) {
@@ -961,21 +963,21 @@ void HelpDialog::startSearch()
             int beg = 0;
             int end = 0;
             QString s;
-            beg = str.find('\"', beg);
+            beg = str.indexOf('\"', beg);
             while (beg != -1) {
                 beg++;
-                end = str.find('\"', beg);
+                end = str.indexOf('\"', beg);
                 s = str.mid(beg, end - beg);
-                s = s.lower();
-                s = s.simplifyWhiteSpace();
+                s = s.toLower();
+                s = s.simplified();
                 if (s.contains('*')) {
                     QMessageBox::warning(this, tr("Full Text Search"),
                         tr("Using a wildcard within phrases is not allowed."));
                     return;
                 }
-                seqWords += QStringList::split(' ', s);
+                seqWords += s.split(QChar(' '));
                 termSeq << s;
-                beg = str.find('\"', end + 1);
+                beg = str.indexOf('\"', end + 1);
             }
         } else {
             QMessageBox::warning(this, tr("Full Text Search"),
@@ -998,12 +1000,12 @@ void HelpDialog::startSearch()
     for (int i = 0; i < (int)buf.length(); ++i) {
         if (buf[i] == '\"') {
             isPhrase = !isPhrase;
-            s = s.simplifyWhiteSpace();
+            s = s.simplified();
             if (!s.isEmpty())
                 terms << s;
             s = "";
         } else if (buf[i] == ' ' && !isPhrase) {
-            s = s.simplifyWhiteSpace();
+            s = s.simplified();
             if (!s.isEmpty())
                 terms << s;
             s = "";
@@ -1044,16 +1046,18 @@ void HelpDialog::showItemMenu(QListBoxItem *item, const QPoint &pos)
 {
     if (!item)
         return;
+    QString currentTabText = gui.tabWidget->tabText(gui.tabWidget->currentIndex());
+
     QAction *action = itemPopup->exec(pos);
     if (action == actionOpenCurrentTab) {
-        if (stripAmpersand(gui.tabWidget->tabLabel(gui.tabWidget->currentPage())).contains(tr("Index")))
+        if (stripAmpersand(currentTabText).contains(tr("Index")))
             showTopic();
         else {
             showResultPage(item);
         }
     } else if (action) {
         HelpWindow *hw = help->browsers()->currentBrowser();
-        if (stripAmpersand(gui.tabWidget->tabLabel(gui.tabWidget->currentPage())).contains(tr("Index"))) {
+        if (stripAmpersand(currentTabText).contains(tr("Index"))) {
             gui.editIndex->blockSignals(true);
             gui.editIndex->setText(item->text());
             gui.editIndex->blockSignals(false);
@@ -1098,7 +1102,7 @@ void HelpDialog::showItemMenu(QListViewItem *item, const QPoint &pos)
         return;
     QAction *action = itemPopup->exec(pos);
     if (action == actionOpenCurrentTab) {
-        if (stripAmpersand(gui.tabWidget->tabLabel(gui.tabWidget->currentPage())).contains(tr("Contents")))
+        if (stripAmpersand(gui.tabWidget->tabText(gui.tabWidget->currentIndex())).contains(tr("Contents")))
             showContentsTopic();
         else
             showBookmarkTopic();

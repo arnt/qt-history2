@@ -72,29 +72,29 @@ Profile::Profile()
 
 void Profile::removeDocFileEntry( const QString &docfile )
 {
-    docs.remove( docfile );
+    docs.removeAll( docfile );
 
-    QStringList titles;    
-    
+    QStringList titles;
+
     for( QMap<QString,QString>::Iterator it = dcfTitles.begin();
-	 it != dcfTitles.end(); ++it ) {
-	if( (*it) == docfile ) {
-	    indexPages.remove( *it );
-	    icons.remove( *it );
-	    imageDirs.remove( *it );
-	    titles << it.key();
-	} 
+         it != dcfTitles.end(); ++it ) {
+        if( (*it) == docfile ) {
+            indexPages.remove( *it );
+            icons.remove( *it );
+            imageDirs.remove( *it );
+            titles << it.key();
+        }
     }
 
     for( QStringList::ConstIterator title = titles.begin();
-	 title != titles.end(); ++title ) {
-	
-	dcfTitles.remove( *title );
+         title != titles.end(); ++title ) {
+
+        dcfTitles.remove( *title );
     }
 
-#ifdef ASSISTANT_DEBUG   
+#ifdef ASSISTANT_DEBUG
     qDebug( "docs:\n  - " + docs.join( "\n  - " ) );
-    qDebug( "titles:\n  - " + titles.join( "\n  - " ) );    
+    qDebug( "titles:\n  - " + titles.join( "\n  - " ) );
     qDebug( "keys:\n  - " + ( (QStringList*) &(dcfTitles.keys()) )->join( "\n  - " ) );
     qDebug( "values:\n  - " + ( (QStringList*) &(dcfTitles.values()) )->join( "\n  - " ) );
 #endif

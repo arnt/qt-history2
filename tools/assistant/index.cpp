@@ -105,7 +105,9 @@ int Index::makeIndex()
 void Index::setupDocumentList()
 {
     QDir d( docPath );
-    QStringList lst = d.entryList( QLatin1String("*.html") );
+    QStringList filters;
+    filters.append(QLatin1String("*.html"));
+    QStringList lst = d.entryList(filters);
     QStringList::ConstIterator it = lst.begin();
     for ( ; it != lst.end(); ++it )
         docList.append( docPath + "/" + *it );
@@ -113,7 +115,7 @@ void Index::setupDocumentList()
 
 void Index::insertInDict( const QString &str, int docNum )
 {
-    if ( strcmp( str, "amp" ) == 0 || strcmp( str, "nbsp" ) == 0 )
+    if ( str == QLatin1String("amp") || str == QLatin1String("nbsp"))
         return;
     Entry *e = 0;
     if ( dict.count() )
@@ -145,7 +147,7 @@ void Index::parseDocument( const QString &filename, int docNum )
     QChar c = buf[0];
     int j = 0;
     int i = 0;
-    while ( (uint)j < text.length() ) {
+    while ( j < text.length() ) {
         if ( c == '<' || c == '&' ) {
             valid = FALSE;
             if ( i > 1 )
@@ -164,7 +166,7 @@ void Index::parseDocument( const QString &filename, int docNum )
             continue;
         }
         if ( ( c.isLetterOrNumber() || c == '_' ) && i < 63 ) {
-            str[i] = c.lower();
+            str[i] = c.toLower();
             ++i;
         } else {
             if ( i > 1 )
@@ -262,7 +264,7 @@ QStringList Index::query( const QStringList &terms, const QStringList &termSeq, 
                 }
             }
             if ( !found )
-                minDoc_it = minDocs.remove( minDoc_it );
+                minDoc_it = minDocs.erase( minDoc_it );
             else
                 ++minDoc_it;
         }
@@ -295,8 +297,8 @@ QString Index::getDocumentTitle( const QString &fileName )
     QTextStream s( &file );
     QString text = s.read();
 
-    int start = text.find( "<title>", 0, FALSE ) + 7;
-    int end = text.find( "</title>", 0, FALSE );
+    int start = text.indexOf( "<title>", 0, QString::CaseInsensitive) + 7;
+    int end = text.indexOf( "</title>", 0, QString::CaseInsensitive);
 
     QString title = text.mid( start, end - start );
     return title;
@@ -321,9 +323,9 @@ QStringList Index::getWildcardTerms( const QString &term )
                 found = FALSE;
                 break;
             }
-            index = text.find( *iter, index );
+            index = text.indexOf( *iter, index );
             if ( *iter == terms.last() && index != (int)text.length()-1 ) {
-                index = text.findRev( *iter );
+                index = text.lastIndexOf( *iter );
                 if ( index != (int)text.length() - (int)(*iter).length() ) {
                     found = FALSE;
                     break;
@@ -349,7 +351,7 @@ QStringList Index::split( const QString &str )
 {
     QStringList lst;
     int j = 0;
-    int i = str.find( '*', j );
+    int i = str.indexOf( '*', j );
 
     while ( i != -1 ) {
         if ( i > j && i <= (int)str.length() ) {
@@ -357,7 +359,7 @@ QStringList Index::split( const QString &str )
             lst << "*";
         }
         j = i + 1;
-        i = str.find( '*', j );
+        i = str.indexOf( '*', j );
     }
 
     int l = str.length() - 1;
@@ -387,7 +389,7 @@ QList<Document> Index::setupDummyTerm( const QStringList &terms )
         Term *t = &(*it);
         QList<Document> docs = t->documents;
         for (QList<Document>::iterator docIt = docs.begin(); docIt != docs.end(); ++docIt ) {
-            if ( maxList.findIndex( *docIt ) == -1 )
+            if ( maxList.indexOf( *docIt ) == -1 )
                 maxList.append( *docIt );
         }
     }
@@ -423,7 +425,7 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
     QChar c = buf[0];
     int j = 0;
     int i = 0;
-    while ( (uint)j < text.length() ) {
+    while ( j < text.length() ) {
         if ( c == '<' || c == '&' ) {
             valid = FALSE;
             if ( i > 1 )
@@ -442,7 +444,7 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
             continue;
         }
         if ( ( c.isLetterOrNumber() || c == '_' ) && i < 63 ) {
-            str[i] = c.lower();
+            str[i] = c.toLower();
             ++i;
         } else {
             if ( i > 1 )
@@ -460,17 +462,17 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
     QList<uint> a, b;
     QList<uint>::iterator aIt;
     for ( ; patIt != patterns.end(); ++patIt ) {
-        wordLst = QStringList::split( ' ', *patIt );
+        wordLst = (*patIt).split(QChar(' '));
         a = miniDict[ wordLst[0] ]->positions;
         for ( int j = 1; j < (int)wordLst.count(); ++j ) {
             b = miniDict[ wordLst[j] ]->positions;
             aIt = a.begin();
             while ( aIt != a.end() ) {
-                if ( b.find( *aIt + 1 ) != b.end() ) {
+                if ( b.contains( *aIt + 1 )) {
                     (*aIt)++;
                     ++aIt;
                 } else {
-                    aIt = a.remove( aIt );
+                    aIt = a.erase( aIt );
                 }
             }
         }

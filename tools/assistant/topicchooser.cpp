@@ -35,7 +35,7 @@ QString TopicChooser::link() const
     QString s = gui.listbox->currentText();
     if (s.isEmpty())
         return s;
-    int i = linkNames.findIndex(s);
+    int i = linkNames.indexOf(s);
     return links[i];
 }
 

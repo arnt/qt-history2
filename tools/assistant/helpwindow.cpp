@@ -180,12 +180,12 @@ QPopupMenu *HelpWindow::createPopupMenu(const QPoint& pos)
     if (!lastAnchor.isEmpty()) {
         if (lastAnchor.at(0) == '#') {
             QString src = source();
-            int hsh = src.find('#');
+            int hsh = src.indexOf(QChar('#'));
             lastAnchor = (hsh>=0 ? src.left(hsh) : src) + lastAnchor;
         }
-        m->insertItem(tr("Open Link in New Window\tShift+LMB"),
+        m->addAction(tr("Open Link in New Window\tShift+LMB"),
                        this, SLOT(openLinkInNewWindow()));
-        m->insertItem(tr("Open Link in New Tab"),
+        m->addAction(tr("Open Link in New Tab"),
                        this, SLOT(openLinkInNewPage()));
     }
     mw->setupPopupMenu(m);

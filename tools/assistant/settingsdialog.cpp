@@ -74,7 +74,7 @@ void SettingsDialog::on_buttonHome_clicked()
 void SettingsDialog::setFile(QLineEdit *le, const QString &caption)
 {
     QFileDialog *fd = new QFileDialog(this);
-    fd->setCaption(caption);
+    fd->setWindowTitle(caption);
     fd->setFileMode(QFileDialog::AnyFile);
     // ### fd->setDir(QDir::homeDirPath());
 

@@ -287,6 +287,9 @@
     <property name="objectName" >
      <cstring>actionAboutApplication</cstring>
     </property>
+    <property name="text" >
+     <string>About Qt</string>
+    </property>
    </action>
    <action name="actionZoomIn" >
     <property name="objectName" >

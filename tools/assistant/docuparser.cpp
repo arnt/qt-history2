@@ -43,7 +43,7 @@ DocuParser *DocuParser::createParser(const QString &fileName)
 {
     QFile file(fileName);
     if(!file.open(IO_ReadOnly)) {
-	return 0;
+        return 0;
     }
 
     QString str;
@@ -53,16 +53,16 @@ DocuParser *DocuParser::createParser(const QString &fileName)
     static QRegExp re("assistantconfig +version=\"(\\d)\\.(\\d)\\.(\\d)\"", false);
     Q_ASSERT(re.isValid());
     while(read != -1) {
- 	read = file.readLine(str, maxlen);
-	if(re.search(str) >= 0) {
-	    majVer = re.cap(1).toInt();
-	    minVer = re.cap(2).toInt();
-	    serVer = re.cap(3).toInt();
-	}
+         read = file.readLine(str, maxlen);
+        if(re.indexIn(str) >= 0) {
+            majVer = re.cap(1).toInt();
+            minVer = re.cap(2).toInt();
+            serVer = re.cap(3).toInt();
+        }
     }
 
     if(majVer == 3 && minVer >= 2)
-	return new DocuParser320;
+        return new DocuParser320;
 
     return new DocuParser310;
 }
@@ -100,7 +100,7 @@ QString DocuParser::absolutify(const QString &name) const
 {
     QFileInfo orgPath(name);
     if(orgPath.isRelative())
-	return QFileInfo(fname).dirPath() + QDir::separator() + name;
+        return QFileInfo(fname).dirPath() + QDir::separator() + name;
     return name;
 }
 
@@ -129,45 +129,45 @@ bool DocuParser310::startDocument()
 
 
 bool DocuParser310::startElement(const QString &, const QString &,
-			       const QString &qname,
-			       const QXmlAttributes &attr)
+                               const QString &qname,
+                               const QXmlAttributes &attr)
 {
     if (qname == "DCF" && state == StateInit) {
-	state = StateContent;
-	contentRef = absolutify(attr.value("ref"));
-	conURL = contentRef;
-	docTitle = attr.value("title");
-	iconName = absolutify(attr.value("icon"));
-	contentList.append(ContentItem(docTitle, contentRef, depth));
+        state = StateContent;
+        contentRef = absolutify(attr.value("ref"));
+        conURL = contentRef;
+        docTitle = attr.value("title");
+        iconName = absolutify(attr.value("icon"));
+        contentList.append(ContentItem(docTitle, contentRef, depth));
     } else if (qname == "section" && (state == StateContent || state == StateSect)) {
-	state = StateSect;
-	contentRef = absolutify(attr.value("ref"));
-	title = attr.value("title");
-	depth++;
-	contentList.append(ContentItem(title, contentRef, depth));
+        state = StateSect;
+        contentRef = absolutify(attr.value("ref"));
+        title = attr.value("title");
+        depth++;
+        contentList.append(ContentItem(title, contentRef, depth));
     } else if (qname == "keyword" && state == StateSect) {
-	state = StateKeyword;
-	indexRef = absolutify(attr.value("ref"));
+        state = StateKeyword;
+        indexRef = absolutify(attr.value("ref"));
     } else
-	return false;
+        return false;
     return true;
 }
 
 bool DocuParser310::endElement(const QString &nameSpace, const QString &localName,
-			     const QString &qName)
+                             const QString &qName)
 {
     switch(state) {
     case StateInit:
-	break;
+        break;
     case StateContent:
-	state = StateInit;
-	break;
+        state = StateInit;
+        break;
     case StateSect:
-	state = --depth ? StateSect : StateContent;
-	break;
+        state = --depth ? StateSect : StateContent;
+        break;
     case StateKeyword:
-	state = StateSect;
-	break;
+        state = StateSect;
+        break;
     }
     return true;
 }
@@ -175,20 +175,20 @@ bool DocuParser310::endElement(const QString &nameSpace, const QString &localNam
 
 bool DocuParser310::characters(const QString& ch)
 {
-    QString str = ch.simplifyWhiteSpace();
+    QString str = ch.simplified();
     if (str.isEmpty())
-	return true;
+        return true;
 
     switch (state) {
-	case StateInit:
+        case StateInit:
         case StateContent:
         case StateSect:
             return false;
-	    break;
+            break;
         case StateKeyword:
-	    indexList.append(new IndexItem(str, indexRef));
-	    break;
-	default:
+            indexList.append(new IndexItem(str, indexRef));
+            break;
+        default:
             return false;
     }
     return true;
@@ -217,13 +217,13 @@ void DocuParser320::addTo(Profile *p)
     QMap<QString,QString>::ConstIterator it;
 
     for (it = prof->dcfTitles.begin(); it != prof->dcfTitles.end(); ++it)
-	p->dcfTitles[it.key()] = *it;
+        p->dcfTitles[it.key()] = *it;
 
     for (it = prof->icons.begin(); it != prof->icons.end(); ++it)
-	p->icons[it.key()] = *it;
+        p->icons[it.key()] = *it;
 
     for (it = prof->indexPages.begin(); it != prof->indexPages.end(); ++it)
-	p->indexPages[it.key()] = *it;
+        p->indexPages[it.key()] = *it;
 }
 
 
@@ -244,124 +244,124 @@ bool DocuParser320::startDocument()
 }
 
 bool DocuParser320::startElement(const QString &, const QString &,
-			       const QString &qname,
-			       const QXmlAttributes &attr)
+                               const QString &qname,
+                               const QXmlAttributes &attr)
 {
-    QString lower = qname.lower();
+    QString lower = qname.toLower();
 
     switch(state) {
 
     case StateInit:
-	if(lower == "assistantconfig")
-	    state = StateDocRoot;
-	break;
+        if(lower == "assistantconfig")
+            state = StateDocRoot;
+        break;
 
     case StateDocRoot:
-	if(lower == "dcf") {
-	    state = StateContent;
-	    contentRef = absolutify(attr.value("ref"));
-	    conURL = contentRef;
-	    docTitle = attr.value("title");
-	    iconName = absolutify(attr.value("icon"));
-	    contentList.append(ContentItem(docTitle, contentRef, depth));
-	} else if(lower == "profile") {
-	    state = StateProfile;
-	}
-	break;
+        if(lower == "dcf") {
+            state = StateContent;
+            contentRef = absolutify(attr.value("ref"));
+            conURL = contentRef;
+            docTitle = attr.value("title");
+            iconName = absolutify(attr.value("icon"));
+            contentList.append(ContentItem(docTitle, contentRef, depth));
+        } else if(lower == "profile") {
+            state = StateProfile;
+        }
+        break;
 
     case StateSect:
-	if (lower == "keyword" && state == StateSect) {
-	    state = StateKeyword;
-	    indexRef = absolutify(attr.value("ref"));
-	    break;
-	} // else if (lower == "section")
+        if (lower == "keyword" && state == StateSect) {
+            state = StateKeyword;
+            indexRef = absolutify(attr.value("ref"));
+            break;
+        } // else if (lower == "section")
     case StateContent:
-	if(lower == "section") {
-	    state = StateSect;
-	    contentRef = absolutify(attr.value("ref"));
-	    title = attr.value("title");
-	    depth++;
-	    contentList.append(ContentItem(title, contentRef, depth));
-	}
-	break;
+        if(lower == "section") {
+            state = StateSect;
+            contentRef = absolutify(attr.value("ref"));
+            title = attr.value("title");
+            depth++;
+            contentList.append(ContentItem(title, contentRef, depth));
+        }
+        break;
 
     case StateProfile:
-	if(lower == "property") {
-	    state = StateProperty;
-	    propertyName = attr.value("name");
-	}
-	break;
+        if(lower == "property") {
+            state = StateProperty;
+            propertyName = attr.value("name");
+        }
+        break;
 
     case StateProperty:
-	break;
+        break;
     }
 
     return true;
 }
 
 bool DocuParser320::endElement(const QString &nameSpace,
-				const QString &localName,
-				const QString &qName)
+                                const QString &localName,
+                                const QString &qName)
 {
     switch(state) {
     case StateInit:
-	break;
+        break;
     case StateDocRoot:
-	state = StateInit;
-	break;
+        state = StateInit;
+        break;
     case StateProfile:
-	state = StateDocRoot;
-	break;
+        state = StateDocRoot;
+        break;
     case StateProperty:
-	state = StateProfile;
-	if(propertyName.isEmpty() || propertyValue.isEmpty())
-	    return false;
-	{
-	    static const QStringList lst = QStringList() << "startpage" << "abouturl"
-							 << "applicationicon" << "assistantdocs";
-	    if (lst.contains(propertyName))
-		propertyValue = absolutify(propertyValue);
-	}
-	prof->addProperty(propertyName, propertyValue);
-	break;
+        state = StateProfile;
+        if(propertyName.isEmpty() || propertyValue.isEmpty())
+            return false;
+        {
+            static const QStringList lst = QStringList() << "startpage" << "abouturl"
+                                                         << "applicationicon" << "assistantdocs";
+            if (lst.contains(propertyName))
+                propertyValue = absolutify(propertyValue);
+        }
+        prof->addProperty(propertyName, propertyValue);
+        break;
     case StateContent:
-	if(!iconName.isEmpty()) prof->addDCFIcon(docTitle, iconName);
-	if(contentRef.isEmpty())
-	    return false;
-	prof->addDCFIndexPage(docTitle, conURL);
-	prof->addDCFTitle(fname, docTitle);
-	state = StateDocRoot;
-	break;
+        if(!iconName.isEmpty()) prof->addDCFIcon(docTitle, iconName);
+        if(contentRef.isEmpty())
+            return false;
+        prof->addDCFIndexPage(docTitle, conURL);
+        prof->addDCFTitle(fname, docTitle);
+        state = StateDocRoot;
+        break;
     case StateSect:
-	state = --depth ? StateSect : StateContent;
-	break;
+        state = --depth ? StateSect : StateContent;
+        break;
     case StateKeyword:
-	state = StateSect;
-	break;
+        state = StateSect;
+        break;
     }
     return true;
 }
 
 bool DocuParser320::characters(const QString& ch)
 {
-    QString str = ch.simplifyWhiteSpace();
+    QString str = ch.simplified();
     if (str.isEmpty())
-	return true;
+        return true;
 
     switch (state) {
     case StateInit:
     case StateContent:
     case StateSect:
-	return false;
-	break;
+        return false;
+        break;
     case StateKeyword:
-	indexList.append(new IndexItem(str, indexRef));
-	break;
+        indexList.append(new IndexItem(str, indexRef));
+        break;
     case StateProperty:
         propertyValue = ch;
-	break;
+        break;
     default:
-	return false;
+        return false;
     }
     return true;
 }

@@ -2,7 +2,7 @@ TEMPLATE = app
 LANGUAGE = C++
 TARGET         = assistant
 
-CONFIG        += qt warn_off
+CONFIG        += qt warn_on
 QT += compat xml network
 
 uic4.output  = ui_${QMAKE_FILE_BASE}.h

@@ -50,7 +50,7 @@ private slots:
 
     void about();
     void setupBookmarkMenu();
-    void showBookmark(int id);
+    void showBookmark(QAction *action);
     void showLinkFromClient(const QString &link);
     void showQtHelp();
     void showWebBrowserSettings();
@@ -75,7 +75,7 @@ private:
     int setupCompleted:1;
     TabbedBrowser *tabs;
     SettingsDialog *settingsDia;
-    QMap<int, QString> bookmarks;
+    QMap<QAction*, QString> bookmarks;
     HelpDialog *helpDock;
     QDockWindow *dw;
     QPointer<FindDialog> findDialog;
