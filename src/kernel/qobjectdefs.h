@@ -107,7 +107,7 @@ private:
 #define SIGNAL(a)	"2"#a
 #endif
 
-#ifndef QT_CLEAN_NAMESPACE
+#ifdef QT_COMPAT
 #define METHOD_CODE	0			// member type codes
 #define SLOT_CODE	1
 #define SIGNAL_CODE	2
