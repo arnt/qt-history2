@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#77 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#78 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,8 +19,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#77 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#78 $")
 
+#if defined(_OS_SUN_)
+extern "C" double strtod( const char *, char ** );
+#endif
 
 /*****************************************************************************
   Safe and portable C string functions; extensions to standard string.h

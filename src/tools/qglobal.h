@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#51 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#52 $
 **
 ** Global type declarations and definitions
 **
@@ -331,5 +331,47 @@ msg_handler qInstallMsgHandler( msg_handler );	// install message handler
 #define OBSOLETE
 #endif
 
+
+#if defined(_OS_SUN_)
+// we put in our own prototypes since SunOS doesn't supply prototypes
+// and we depend on them for casting
+
+// vfprintf and friends
+#include <stdarg.h>
+// toupper and tolower
+#include <ctype.h>
+// memset
+#include <string.h>
+
+extern "C" {
+    void *memset( void *, int, size_t );
+
+    long int strtol(const char *, char **, int );
+
+    int toupper( int );
+    int tolower( int );
+
+    int vprintf( const char *, va_list );
+    int vfprintf( FILE *, const  char *,  va_list );
+    int vsprintf( char *, char *, va_list );
+
+    int printf( const char *, ... )
+#if defined(_CC_GNU_)
+	__attribute__ ((format (printf, 1, 2)))
+#endif
+	;
+    int fprintf( FILE *, const char *, ... )
+#if defined(_CC_GNU_)
+	__attribute__ ((format (printf, 2, 3)))
+#endif
+	;
+    int sprintf( char *, const char *, ... )
+#if defined(_CC_GNU_)
+	__attribute__ ((format (printf, 2, 3)))
+#endif
+	;
+}
+
+#endif
 
 #endif // QGLOBAL_H

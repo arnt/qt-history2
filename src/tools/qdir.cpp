@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#21 $
 **
 ** Implementation of QDir class
 **
@@ -25,7 +25,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#21 $")
 
 
 #if !defined(PATH_MAX)
@@ -309,9 +309,9 @@ QString QDir::canonicalPath() const
     QString tmp( PATH_MAX );
 
     GETCWD( cur.data(), PATH_MAX );
-    if ( chdir( dPath ) >= 0 )
+    if ( chdir( (const char *)dPath ) >= 0 )
 	GETCWD( tmp.data(), PATH_MAX );
-    chdir( cur );
+    chdir( (const char *)cur );
 
     return tmp;
 }
@@ -745,9 +745,9 @@ const QFileInfoList *QDir::entryInfoList( const char *nameFilter,
 bool QDir::mkdir( const char *dirName, bool acceptAbsPath ) const
 {
 #if defined (UNIX)
-    return MKDIR( filePath(dirName,acceptAbsPath), 0777 ) == 0;
+    return MKDIR( (const char *)filePath( dirName, acceptAbsPath ), 0777 )==0;
 #else
-    return MKDIR( filePath(dirName,acceptAbsPath) ) == 0;
+    return MKDIR( (const char *)filePath( dirName, acceptAbsPath ))==0;
 #endif
 }
 
@@ -767,7 +767,7 @@ bool QDir::mkdir( const char *dirName, bool acceptAbsPath ) const
 
 bool QDir::rmdir( const char *dirName, bool acceptAbsPath ) const
 {
-    return RMDIR( filePath(dirName,acceptAbsPath) ) == 0;
+    return RMDIR( (const char *)filePath(dirName,acceptAbsPath) ) == 0;
 }
 
 /*----------------------------------------------------------------------------
@@ -921,9 +921,9 @@ bool QDir::remove( const char *fileName, bool acceptAbsPath )
     }
     QString tmp = filePath( fileName, acceptAbsPath );
 #if defined(UNIX)
-    return unlink( tmp ) == 0;			// unlink more common in UNIX
+    return unlink( (const char *)tmp ) == 0;	// unlink more common in UNIX
 #else
-    return ::remove( tmp ) == 0;		// use standard ANSI remove
+    return ::remove( (const char *)tmp ) == 0;	// use standard ANSI remove
 #endif
 }
 
@@ -948,7 +948,7 @@ bool QDir::rename( const char *name, const char *newName,
     }
     QString fn1 = filePath( name, acceptAbsPaths );
     QString fn2 = filePath( newName, acceptAbsPaths );
-    return ::rename(fn1, fn2) == 0;
+    return ::rename((const char *)fn1, (const char *)fn2) == 0;
 }
 
 /*----------------------------------------------------------------------------
@@ -1056,7 +1056,7 @@ QString QDir::currentDirPath()
 
     if ( STAT( ".", &st ) == 0 ) {
 	if ( forcecwd || cINode != st.st_ino || cDevice != st.st_dev ) {
-	    if ( GETCWD( currentName.data(), PATH_MAX ) != 0 ) {
+	    if ( GETCWD( (const char *)currentName, PATH_MAX ) != 0 ) {
 		cINode	 = st.st_ino;
 		cDevice	 = st.st_dev;
 		convertSeparators( currentName.data() );
@@ -1455,7 +1455,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     DIR	     *dir;
     dirent   *file;
 
-    dir = opendir( dPath );
+    dir = opendir( (const char *)dPath );
     if ( !dir ) {
 #if defined(CHECK_NULL)
 	warning( "QDir::readDirEntries: Cannot read the directory: %s",
