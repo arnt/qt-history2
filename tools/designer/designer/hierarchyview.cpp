@@ -25,7 +25,6 @@
 #include "command.h"
 #include "widgetfactory.h"
 #include "widgetdatabase.h"
-#include "pixmapchooser.h"
 #include "project.h"
 #include "sourceeditor.h"
 #include "propertyeditor.h"
@@ -430,9 +429,9 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     else
 	item = new HierarchyItem( HierarchyItem::Widget, parent, name, className, dbInfo );
     if ( !parent )
-	item->setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
+	item->setPixmap( 0, QPixmap::fromMimeSource( "images/form.png" ) );
     else if ( o->inherits( "QLayoutWidget") )
-	item->setPixmap( 0, PixmapChooser::loadPixmap( "layout.xpm", PixmapChooser::Small ));
+	item->setPixmap( 0, QPixmap::fromMimeSource( "images/layout.png" ));
     else
 	item->setPixmap( 0, WidgetDatabase::iconSet(
 		    WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( o ) ) ).
@@ -749,7 +748,7 @@ void FormDefinitionView::setupVariables()
 	    else // default is protected
 		item = new HierarchyItem( HierarchyItem::Variable, itemVarProt, (*it).varName,
 					  QString::null, QString::null );
-	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
+	    item->setPixmap( 0, QPixmap::fromMimeSource( "images/editslots.png" ) );
 	    if ( it == varList.begin() )
 		break;
 	    --it;
@@ -851,7 +850,7 @@ void FormDefinitionView::refresh()
 		    item = new HierarchyItem( HierarchyItem::Function, itemFunctPubl, (*it).function,
 					      QString::null, QString::null );
 	    }
-	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
+	    item->setPixmap( 0, QPixmap::fromMimeSource( "images/editslots.png" ) );
 	    if ( it == functionList.begin() )
 		break;
 	    --it;
@@ -1000,16 +999,16 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 
     if ( i->rtti() == HierarchyItem::FunctParent || i->rtti() == HierarchyItem::SlotParent ||
 	 i->rtti() == HierarchyItem::VarParent ) {
-	menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Edit..." ), EDIT );
+	menu.insertItem( QPixmap::fromMimeSource( "images/editslots.png" ), tr( "Edit..." ), EDIT );
     } else
-	menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New" ), NEW );
+	menu.insertItem( QPixmap::fromMimeSource( "images/filenew.png" ), tr( "New" ), NEW );
     if ( i->rtti() == HierarchyItem::DefinitionParent || i->rtti() == HierarchyItem::Variable ||
 	 i->rtti() == HierarchyItem::Definition ) {
-	menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Edit..." ), EDIT );
+	menu.insertItem( QPixmap::fromMimeSource( "images/editslots.png" ), tr( "Edit..." ), EDIT );
     }
     if ( i->rtti() == HierarchyItem::Function || i->rtti() == HierarchyItem::Slot ) {
 	if ( formWindow->project()->isCpp() )
-	    menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Properties..." ), PROPS );
+	    menu.insertItem( QPixmap::fromMimeSource( "images/editslots.png" ), tr( "Properties..." ), PROPS );
 	if ( MetaDataBase::hasEditor( formWindow->project()->language() ) )
 	    menu.insertItem( tr( "Goto Implementation" ), GOIMPL );
 	insertDelete = TRUE;
@@ -1018,7 +1017,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	 i->rtti() == HierarchyItem::Function || i->rtti() == HierarchyItem::Slot ||
 	 i->rtti() == HierarchyItem::Definition ) {
 	menu.insertSeparator();
-	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ), tr( "Delete..." ), DELETE );
+	menu.insertItem( QPixmap::fromMimeSource( "images/editcut.png" ), tr( "Delete..." ), DELETE );
     }
     popupOpen = TRUE;
     int res = menu.exec( pos );
@@ -1189,7 +1188,7 @@ HierarchyView::HierarchyView( QWidget *parent )
 {
     formwindow = 0;
     editor = 0;
-    setIcon( PixmapChooser::loadPixmap( "logo" ) );
+    setIcon( QPixmap::fromMimeSource( "images/logo.png" ) );
     listview = new HierarchyList( this, formWindow() );
     addTab( listview, tr( "Objects" ) );
     setTabToolTip( listview, tr( "List of all widgets and objects of the current form in hierarchical order" ) );

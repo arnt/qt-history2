@@ -22,7 +22,6 @@
 #include "designerapp.h"
 #include "mainwindow.h"
 #include "formwindow.h"
-#include "splashloader.h"
 
 #include <qfile.h>
 #include <qdir.h>
@@ -79,7 +78,7 @@ QLabel *DesignerApplication::showSplash()
     if ( show ) {
 	splash = new QLabel( 0, "splash", WDestructiveClose | WStyle_Customize | WStyle_NoBorder | WX11BypassWM | WStyle_StaysOnTop );
 	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	splash->setPixmap( splashScreen() );
+	splash->setPixmap( QPixmap::fromMimeSource( "images/splash.png" ) );
 	splash->adjustSize();
 	splash->setCaption( "Qt Designer" );
 	splash->move( screen.center() - QPoint( splash->width() / 2, splash->height() / 2 ) );
@@ -150,7 +149,7 @@ bool DesignerApplication::winEventFilter( MSG *msg )
 
 		    fw = (FormWindow*) l->next();
 		}
-		
+
 		if ( !haveit ) {
 		    FlashWindow( MainWindow::self->winId(), TRUE );
 		    MainWindow::self->openFormWindow( arg );

@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
 <class>AboutDialog</class>
 <comment>*********************************************************************
 ** Copyright (C) 2001 Trolltech AS.  All rights reserved.
@@ -28,7 +28,7 @@
             <x>0</x>
             <y>0</y>
             <width>582</width>
-            <height>312</height>
+            <height>335</height>
         </rect>
     </property>
     <property name="caption">
@@ -55,7 +55,7 @@
                 <enum>Plain</enum>
             </property>
             <property name="pixmap">
-                <pixmap></pixmap>
+                <pixmap>"images/splash.png"</pixmap>
             </property>
             <property name="scaledContents">
                 <bool>false</bool>
@@ -115,7 +115,7 @@
             </property>
         </widget>
         <spacer>
-            <property name="name" stdset="0">
+            <property name="name">
                 <cstring>Spacer3</cstring>
             </property>
             <property name="orientation">
@@ -146,7 +146,7 @@
                     <number>6</number>
                 </property>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer2</cstring>
                     </property>
                     <property name="orientation">
@@ -177,7 +177,7 @@
                     </property>
                 </widget>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer1</cstring>
                     </property>
                     <property name="orientation">
@@ -205,9 +205,6 @@
         <slot>accept()</slot>
     </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in declaration">splashloader.h</include>
-</includes>
-<pixmapfunction>splashScreen</pixmapfunction>
+<pixmapfunction>QPixmap::fromMimeSource</pixmapfunction>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

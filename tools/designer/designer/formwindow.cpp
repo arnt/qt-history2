@@ -177,7 +177,7 @@ void FormWindow::init()
 	     this, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ) );
     propShowBlocked = FALSE;
 
-    setIcon( PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
+    setIcon( QPixmap::fromMimeSource( "images/form.png" ) );
 
     connect( &commands, SIGNAL( modificationChanged( bool ) ),
 	     this, SLOT( modificationChanged( bool ) ) );
@@ -364,7 +364,7 @@ void FormWindow::insertWidget()
 	return;
 
     if ( !savePixmapInline() && currTool == WidgetDatabase::idFromClassName( "PixmapLabel" ) ) // ### what to do for pixmaps in project
-	( (QLabel*)w )->setPixmap( PixmapChooser::loadPixmap( "image.xpm" ) );
+	( (QLabel*)w )->setPixmap( QPixmap::fromMimeSource( "images/image.png" ) );
     int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf(w) );
     if ( WidgetDatabase::isCustomWidget( id ) ) {
 	QWhatsThis::add( w, tr("<b>A %1 (custom widget)</b> "

@@ -30,7 +30,6 @@
 #include "layout.h"
 #include <domtool.h>
 #include "command.h"
-#include "pixmapchooser.h"
 #ifndef QT_NO_SQL
 #include "database.h"
 #endif
@@ -950,11 +949,11 @@ QPixmap Resource::loadPixmap( const QDomElement &e, const QString &/*tagname*/ )
 	if ( mainwindow && mainwindow->currProject() )
 	    pix = mainwindow->currProject()->pixmapCollection()->pixmap( arg );
 	else
-	    pix = PixmapChooser::loadPixmap( "image.xpm" );
+	    pix = QPixmap::fromMimeSource( "images/image.png" );
 	MetaDataBase::setPixmapKey( formwindow, pix.serialNumber(), arg );
 	return pix;
     }
-    QPixmap pix = PixmapChooser::loadPixmap( "image.xpm" );
+    QPixmap pix = QPixmap::fromMimeSource( "images/image.png" );
     MetaDataBase::setPixmapArgument( formwindow, pix.serialNumber(), arg );
     return pix;
 }

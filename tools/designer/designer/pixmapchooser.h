@@ -63,24 +63,4 @@ private:
 QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw = 0, const QPixmap &old = QPixmap(),  QString *fn = 0 );
 QStringList qChoosePixmaps( QWidget *parent );
 
-
-class PixmapChooser
-{
-public:
-    enum Size { Mini, Small, Large, NoSize, Disabled };
-
-    PixmapChooser();
-    QString pixmapPath( Size size ) const;
-
-    static QPixmap loadPixmap( const QString &name, Size size = Small );
-
-private:
-    QString smallPixDir;
-    QString largePixDir;
-    QString miniPixDir;
-    QString noSizePixDir;
-
-};
-
-
 #endif

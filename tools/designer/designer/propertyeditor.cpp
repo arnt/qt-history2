@@ -21,7 +21,6 @@
 #include <qvariant.h> // HP-UX compiler needs this here
 
 #include "propertyeditor.h"
-#include "pixmapchooser.h"
 #include "formwindow.h"
 #include "command.h"
 #include "metadatabase.h"
@@ -71,21 +70,6 @@
 #include <qassistantclient.h>
 
 #include <limits.h>
-
-#include "../pics/arrow.xbm"
-#include "../pics/uparrow.xbm"
-#include "../pics/cross.xbm"
-#include "../pics/wait.xbm"
-#include "../pics/ibeam.xbm"
-#include "../pics/sizeh.xbm"
-#include "../pics/sizev.xbm"
-#include "../pics/sizeb.xbm"
-#include "../pics/sizef.xbm"
-#include "../pics/sizeall.xbm"
-#include "../pics/vsplit.xbm"
-#include "../pics/hsplit.xbm"
-#include "../pics/hand.xbm"
-#include "../pics/no.xbm"
 
 static QFontDatabase *fontDataBase = 0;
 QString assistantPath();
@@ -392,7 +376,7 @@ void PropertyItem::createResetButton()
     hbox->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     hbox->setLineWidth( 1 );
     resetButton = new QPushButton( hbox );
-    resetButton->setPixmap( PixmapChooser::loadPixmap( "resetproperty.xpm", PixmapChooser::Mini ) );
+    resetButton->setPixmap( QPixmap::fromMimeSource( "images/resetproperty.png" ) );
     resetButton->setFixedWidth( resetButton->sizeHint().width() );
     hbox->layout()->setAlignment( Qt::AlignRight );
     listview->addChild( hbox );
@@ -2320,65 +2304,23 @@ QComboBox *PropertyCursorItem::combo()
     comb->hide();
     QBitmap cur;
 
-    cur = QBitmap(arrow_width, arrow_height, arrow_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("Arrow"), QObject::ArrowCursor);
-
-    cur = QBitmap(uparrow_width, uparrow_height, uparrow_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("Up-Arrow"), QObject::UpArrowCursor );
-
-    cur = QBitmap(cross_width, cross_height, cross_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("Cross"), QObject::CrossCursor );
-
-    cur = QBitmap(wait_width, wait_height, wait_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("Waiting"), QObject::WaitCursor );
-
-    cur = QBitmap(ibeam_width, ibeam_height, ibeam_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("iBeam"), QObject::IbeamCursor );
-
-    cur = QBitmap(sizev_width, sizev_height, sizev_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("Size Vertical"), QObject::SizeVerCursor );
-
-    cur = QBitmap(sizeh_width, sizeh_height, sizeh_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("Size Horizontal"), QObject::SizeHorCursor );
-
-    cur = QBitmap(sizef_width, sizef_height, sizef_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("Size Slash"), QObject::SizeBDiagCursor );
-
-    cur = QBitmap(sizeb_width, sizeb_height, sizeb_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("Size Backslash"), QObject::SizeFDiagCursor );
-
-    cur = QBitmap(sizeall_width, sizeall_height, sizeall_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("Size All"), QObject::SizeAllCursor );
-
+    comb->insertItem( QPixmap::fromMimeSource( "images/arrow.png" ), tr("Arrow"), QObject::ArrowCursor);
+    comb->insertItem( QPixmap::fromMimeSource( "images/uparrow.png" ), tr("Up-Arrow"), QObject::UpArrowCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "images/cross.png" ), tr("Cross"), QObject::CrossCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "images/wait.png" ), tr("Waiting"), QObject::WaitCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "images/ibeam.png" ), tr("iBeam"), QObject::IbeamCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "images/sizev.png" ), tr("Size Vertical"), QObject::SizeVerCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "images/sizeh.png" ), tr("Size Horizontal"), QObject::SizeHorCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "images/sizef.png" ), tr("Size Slash"), QObject::SizeBDiagCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "images/sizeb.png" ), tr("Size Backslash"), QObject::SizeFDiagCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "images/sizeall.png" ), tr("Size All"), QObject::SizeAllCursor );
     cur = QBitmap( 25, 25, 1 );
     cur.setMask( cur );
     comb->insertItem( cur, tr("Blank"), QObject::BlankCursor );
-
-    cur = QBitmap(vsplit_width, vsplit_height, vsplit_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("Split Vertical"), QObject::SplitVCursor );
-
-    cur = QBitmap(hsplit_width, hsplit_height, hsplit_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("Split Horizontal"), QObject::SplitHCursor );
-
-    cur = QBitmap(hand_width, hand_height, hand_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("Pointing Hand"), QObject::PointingHandCursor );
-
-    cur = QBitmap(no_width, no_height, no_bits, TRUE);
-    cur.setMask( cur );
-    comb->insertItem( cur, tr("Forbidden"), QObject::ForbiddenCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "images/vsplit.png" ), tr("Split Vertical"), QObject::SplitVCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "images/hsplit.png" ), tr("Split Horizontal"), QObject::SplitHCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "images/hand.png" ), tr("Pointing Hand"), QObject::PointingHandCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "images/no.png" ), tr("Forbidden"), QObject::ForbiddenCursor );
 
     connect( comb, SIGNAL( activated( int ) ),
 	     this, SLOT( setValue() ) );
@@ -3457,7 +3399,7 @@ void EventList::setup()
 		continue;
 	    HierarchyItem *item = new HierarchyItem( HierarchyItem::EventFunction, eventItem,
 						     (*cit).slot, QString::null, QString::null );
-	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
+	    item->setPixmap( 0, QPixmap::fromMimeSource( "images/editslots.png" ) );
 	}
 	++it;
     }
@@ -3481,7 +3423,7 @@ void EventList::contentsMouseDoubleClickEvent( QMouseEvent *e )
 	s = QString( editor->widget()->name() ) + "_" + i->text( 0 );
     }
 
-    insertEntry( i, PixmapChooser::loadPixmap( "editslots.xpm" ), s );
+    insertEntry( i, QPixmap::fromMimeSource( "images/editslots.png" ), s );
 }
 
 void EventList::setCurrent( QWidget * )
@@ -3502,8 +3444,8 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     QPopupMenu menu;
     const int NEW_ITEM = 1;
     const int DEL_ITEM = 2;
-    menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New Signal Handler" ), NEW_ITEM );
-    menu.insertItem( PixmapChooser::loadPixmap( "editcut" ), tr( "Delete Signal Handler" ), DEL_ITEM );
+    menu.insertItem( QPixmap::fromMimeSource( "images/filenew.png" ), tr( "New Signal Handler" ), NEW_ITEM );
+    menu.insertItem( QPixmap::fromMimeSource( "images/editcut.png" ), tr( "Delete Signal Handler" ), DEL_ITEM );
     int res = menu.exec( pos );
     if ( res == NEW_ITEM ) {
 	QString s;
@@ -3516,7 +3458,7 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	} else {
 	    s = QString( editor->widget()->name() ) + "_" + ( i->parent() ? i->parent() : i )->text( 0 );
 	}
-	insertEntry( i->parent() ? i->parent() : i, PixmapChooser::loadPixmap( "editslots.xpm" ), s );
+	insertEntry( i->parent() ? i->parent() : i, QPixmap::fromMimeSource( "images/editslots.png" ), s );
     } else if ( res == DEL_ITEM && i->parent() ) {
 	MetaDataBase::Connection conn;
 	conn.sender = editor->widget();
@@ -3609,7 +3551,7 @@ PropertyEditor::PropertyEditor( QWidget *parent )
 		  WStyle_StaysOnTop | WStyle_Tool |WStyle_MinMax | WStyle_SysMenu )
 {
     setCaption( tr( "Property Editor" ) );
-    setIcon( PixmapChooser::loadPixmap( "logo" ) );
+    setIcon( QPixmap::fromMimeSource( "images/logo.png" ) );
     wid = 0;
     formwindow = 0;
     listview = new PropertyList( this );

@@ -26,7 +26,6 @@
 #include "asciivalidator.h"
 #include "mainwindow.h"
 #include "sourcefile.h"
-#include "pixmapchooser.h"
 #include "workspace.h"
 
 #include <qlineedit.h>

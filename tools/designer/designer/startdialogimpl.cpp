@@ -36,11 +36,11 @@ StartDialog::StartDialog( QWidget *parent, const QString &templatePath )
     : StartDialogBase( parent, 0 )
 {
     newForm = new NewForm( templateView, templatePath );
-    
+
     recentFiles.clear();
 
     initFileOpen();
-    
+
     connect( buttonHelp, SIGNAL( clicked() ),
 	     MainWindow::self, SLOT( showDialogHelp() ) );
     connect( recentView, SIGNAL( doubleClicked(QIconViewItem*) ),
@@ -65,21 +65,21 @@ void StartDialog::accept()
     QString filename;
     if( !tabindex ) {
 	if ( !templateView->currentItem() )
-	    return;	
+	    return;
 	Project *pro = MainWindow::self->findProject( tr( "<No Project>" ) );
 	if ( !pro )
 	    return;
-	MainWindow::self->setCurrentProject( pro );	
-	( (NewItem*)templateView->currentItem() )->insert( pro );	
+	MainWindow::self->setCurrentProject( pro );
+	( (NewItem*)templateView->currentItem() )->insert( pro );
     } else if ( tabindex == 1 ) {
 	filename = fd->selectedFile();
-    } else if ( tabindex == 2 ) {    	
+    } else if ( tabindex == 2 ) {
 	filename = recentFiles[recentView->currentItem()->index()];
     }
-    if ( tabindex ) {    	
+    if ( tabindex ) {
 	if ( !filename.isEmpty() ) {
 	    QFileInfo fi( filename );
-	    if ( fi.extension() == "pro" )	
+	    if ( fi.extension() == "pro" )
 		MainWindow::self->openProject( filename );
 	    else
 		MainWindow::self->fileOpen( "", "", filename );
@@ -131,16 +131,16 @@ void StartDialog::setRecentlyProjects( QStringList &projects )
 
 void StartDialog::insertRecentItems( QStringList &files, bool isProject )
 {
-    QString iconName = "newform.xpm";
+    QString iconName = "images/newform.png";
     if ( isProject )
-	iconName = "project.xpm";
+	iconName = "images/project.png";
     QIconViewItem *item;
     QStringList::iterator it = files.begin();
     for( ; it != files.end(); ++it ) {
 	QFileInfo fi( *it );
 	item = new QIconViewItem( recentView, fi.fileName() );
-	recentFiles[recentView->index( item )] = *it;	
-	item->setPixmap( PixmapChooser::loadPixmap( iconName ) );
+	recentFiles[recentView->index( item )] = *it;
+	item->setPixmap( QPixmap::fromMimeSource( iconName ) );
 	item->setDragEnabled( FALSE );
     }
 }

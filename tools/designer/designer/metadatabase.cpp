@@ -1213,7 +1213,7 @@ MetaDataBase::CustomWidget::CustomWidget()
     includeFile = "mywidget.h";
     includePolicy = Local;
     sizeHint = QSize( -1, -1 );
-    pixmap = new QPixmap( PixmapChooser::loadPixmap( "customwidget.xpm" ) );
+    pixmap = new QPixmap( QPixmap::fromMimeSource( "images/customwidget.png" ) );
     id = -1;
     sizePolicy = QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
     isContainer = FALSE;

@@ -24,7 +24,6 @@
 #include "metadatabase.h"
 #include "mainwindow.h"
 #include "formwindow.h"
-#include "pixmapchooser.h"
 #include "layout.h"
 #include "listboxeditorimpl.h"
 #include "listvieweditorimpl.h"
@@ -768,7 +767,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
     } else if ( className == "PixmapLabel" ) {
 	QDesignerLabel *l = new QDesignerLabel( parent, name );
 	if ( init ) {
-	    l->setPixmap( PixmapChooser::loadPixmap( "icon.png", PixmapChooser::NoSize ) );
+	    l->setPixmap( QPixmap::fromMimeSource( "images/icon.png" ) );
 	    l->setScaledContents( TRUE );
 	    MetaDataBase::addEntry( l );
 	    MetaDataBase::setPropertyChanged( l, "pixmap", TRUE );

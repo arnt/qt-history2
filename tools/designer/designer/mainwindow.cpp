@@ -30,7 +30,6 @@
 #include "propertyeditor.h"
 #include "metadatabase.h"
 #include "resource.h"
-#include "pixmapchooser.h"
 #include "config.h"
 #include "hierarchyview.h"
 #include "newformimpl.h"
@@ -144,7 +143,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     if ( !single )
 	qApp->setMainWidget( this );
     QWidgetFactory::addWidgetFactory( new CustomWidgetFactory );
-    setIcon( PixmapChooser::loadPixmap( "logo" ) );
+    setIcon( QPixmap::fromMimeSource( "images/logo.png" ) );
 
     actionGroupTools = 0;
     prefDia = 0;
@@ -1907,7 +1906,7 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "Background/UsePixmap", backPix );
     config.writeEntry( keybase + "Background/Color", (int)qworkspace->backgroundColor().rgb() );
     if ( qworkspace->backgroundPixmap() )
-	qworkspace->backgroundPixmap()->save( QDir::home().absPath() + "/.designer/" + "background.xpm", "XPM" );
+	qworkspace->backgroundPixmap()->save( QDir::home().absPath() + "/.designer/" + "background.xpm", "PNG" );
 
     config.writeEntry( keybase + "Geometries/MainwindowX", x() );
     config.writeEntry( keybase + "Geometries/MainwindowY", y() );
@@ -2104,7 +2103,7 @@ void MainWindow::readConfig()
 	if ( l.count() > c ) {
 	    w->isContainer = (bool)l[ c++ ].toInt();
 	}
-	w->pixmap = new QPixmap( PixmapChooser::loadPixmap( QDir::home().absPath() + "/.designer/" + w->className ) );
+	w->pixmap = new QPixmap( QPixmap::fromMimeSource( QDir::home().absPath() + "/.designer/" + w->className ) );
 	MetaDataBase::addCustomWidget( w );
     }
     if ( num > 0 )

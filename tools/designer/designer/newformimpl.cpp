@@ -20,7 +20,6 @@
 
 #include "newformimpl.h"
 #include "mainwindow.h"
-#include "pixmapchooser.h"
 #include "metadatabase.h"
 #include "project.h"
 #include "formwindow.h"
@@ -97,7 +96,7 @@ void FormItem::insert( Project *pro )
 		      fw->iFace(), MainWindow::self->designerInterface() );
 	iface->release();
     }
-    
+
     // the wizard might have changed a lot, lets update everything
     MainWindow::self->actioneditor()->setFormWindow( fw );
     MainWindow::self->objectHierarchy()->setFormWindow( fw, fw );
@@ -238,7 +237,7 @@ void NewForm::insertTemplates( QIconView *tView,
 	    ProjectItem *pi = new ProjectItem( tView, *it + " " + tr( "Project" ) );
 	    allItems.append( pi );
 	    pi->setLanguage( *it );
-	    pi->setPixmap( PixmapChooser::loadPixmap( "project.xpm" ) );
+	    pi->setPixmap( QPixmap::fromMimeSource( "images/project.png" ) );
 	    pi->setDragEnabled( FALSE );
 	}
     }
@@ -246,24 +245,24 @@ void NewForm::insertTemplates( QIconView *tView,
     FormItem *fi = new FormItem( tView,tr( "Dialog" ) );
     allItems.append( fi );
     fi->setFormType( FormItem::Dialog );
-    fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
+    fi->setPixmap( QPixmap::fromMimeSource( "images/newform.png" ) );
     fi->setDragEnabled( FALSE );
     cur = fi;
     if ( !MainWindow::self->singleProjectMode() ) {
 	fi = new FormItem( tView,tr( "Wizard" ) );
 	allItems.append( fi );
 	fi->setFormType( FormItem::Wizard );
-	fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
+	fi->setPixmap( QPixmap::fromMimeSource( "images/newform.png" ) );
 	fi->setDragEnabled( FALSE );
 	fi = new FormItem( tView, tr( "Widget" ) );
 	allItems.append( fi );
 	fi->setFormType( FormItem::Widget );
-	fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
+	fi->setPixmap( QPixmap::fromMimeSource( "images/newform.png" ) );
 	fi->setDragEnabled( FALSE );
 	fi = new FormItem( tView, tr( "Main Window" ) );
 	allItems.append( fi );
 	fi->setFormType( FormItem::MainWindow );
-	fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
+	fi->setPixmap( QPixmap::fromMimeSource( "images/newform.png" ) );
 	fi->setDragEnabled( FALSE );
 
 	QString templPath = templatePath;
@@ -296,7 +295,7 @@ void NewForm::insertTemplates( QIconView *tView,
 		    CustomFormItem *ci = new CustomFormItem( tView, name );
 		    allItems.append( ci );
 		    ci->setDragEnabled( FALSE );
-		    ci->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
+		    ci->setPixmap( QPixmap::fromMimeSource( "images/newform.png" ) );
 		    ci->setTemplateFile( fi->absFilePath() );
 		}
 	    }
@@ -314,7 +313,7 @@ void NewForm::insertTemplates( QIconView *tView,
 		allItems.append( si );
 		si->setExtension( eit.key() );
 		si->setLanguage( *it );
-		si->setPixmap( PixmapChooser::loadPixmap( "filenew.xpm" ) );
+		si->setPixmap( QPixmap::fromMimeSource( "images/filenew.png" ) );
 		si->setDragEnabled( FALSE );
 	    }
 	    iface->release();
@@ -331,7 +330,7 @@ void NewForm::insertTemplates( QIconView *tView,
 	    allItems.append( si );
 	    si->setTemplate( *sit );
 	    si->setLanguage( siface->language( *sit ) );
-	    si->setPixmap( PixmapChooser::loadPixmap( "filenew.xpm" ) );
+	    si->setPixmap( QPixmap::fromMimeSource( "images/filenew.png" ) );
 	    si->setDragEnabled( FALSE );
 	    siface->release();
 	}

@@ -21,7 +21,6 @@
 #include "wizardeditorimpl.h"
 #include "formwindow.h"
 #include "mainwindow.h"
-#include "pixmapchooser.h"
 #include "command.h"
 
 #include <qwizard.h>
