@@ -637,6 +637,11 @@ public:
     \i const QDateTime&
     \i QDateTime&
     \row
+    \i CY
+    \i Q_ULLONG
+    \i Q_ULLONG
+    \i Q_ULLONG&
+    \row
     \i OLE_COLOR
     \i QColor
     \i const QColor&
@@ -672,7 +677,7 @@ public:
     \i \e unsupported
     \i QAxObject* (return value)
     \row
-    \i CY, SCODE, DECIMAL
+    \i SCODE, DECIMAL
     \i \e unsupported
     \i \e unsupported
     \i \e unsupported
@@ -1047,6 +1052,9 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
     case VT_UINT:
 	str = "uint";
 	break;
+    case VT_CY:
+	str = "Q_ULLONG";
+	break;
     case VT_R4:
     case VT_R8:
 	str = "double";
@@ -1081,6 +1089,7 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 	case VT_R8:
 	case VT_INT:
 	case VT_UINT:
+	case VT_CY:
 	    str += "&";
 	    break;
 	case VT_PTR:
@@ -1170,6 +1179,12 @@ static inline void QStringToQUType( const QString& fulltype, QUParameter *param,
     } else if ( type == "uint" ) {
 	param->type = &static_QUType_varptr;
 	param->typeExtra = new char(QVariant::UInt);
+    } else if ( type == "Q_LLONG" ) {
+	param->type = &static_QUType_varptr;
+	param->typeExtra = new char(QVariant::LongLong);
+    } else if ( type == "Q_ULLONG" ) {
+	param->type = &static_QUType_varptr;
+	param->typeExtra = new char(QVariant::ULongLong);
     } else if ( type == "bool" ) {
 	param->type = &static_QUType_bool;
     } else if ( type == "QString" ) {
