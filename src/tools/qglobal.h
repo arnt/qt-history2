@@ -507,7 +507,7 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #if !defined(QT_NO_DEBUG) && !defined(QT_DEBUG)
 #  define QT_DEBUG				// display debug messages
 #  if !defined(QT_CLEAN_NAMESPACE)
-#    if !defined(NO_DEBUG)
+#    if !defined(NO_DEBUG) && !defined(DEBUG)
 #      if !defined(Q_OS_MACX)			// clash with MacOS X headers
 #        define DEBUG
 #      endif
