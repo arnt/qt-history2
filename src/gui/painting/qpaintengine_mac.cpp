@@ -182,6 +182,11 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
         }
     }
     d->unclipped = unclipped;
+
+    setDirty(QPaintEngine::DirtyPen);
+    setDirty(QPaintEngine::DirtyBrush);
+    setDirty(QPaintEngine::DirtyBackground);
+
     if(type() != CoreGraphics)
         setupQDPort(true); //force setting paint device, this does unclipped fu
     return true;
@@ -1102,6 +1107,10 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
             return false;
         }
     }
+
+    setDirty(QPaintEngine::DirtyPen);
+    setDirty(QPaintEngine::DirtyBrush);
+    setDirty(QPaintEngine::DirtyBackground);
     return true;
 }
 
