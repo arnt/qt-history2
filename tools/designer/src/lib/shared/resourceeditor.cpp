@@ -747,8 +747,7 @@ void ResourceEditor::newView()
     }
 
     ResourceFile rf(file_name);
-    if (!rf.load())
-        rf.save();
+    rf.save();
                 
     addView(file_name);
 }
