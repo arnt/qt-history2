@@ -67,14 +67,15 @@ private:
 
     QMap<QString, Node::Type> nodeTypeMap;
     QMap<QString, Node *> classesWithNoQuickDoc;
+    QValueList<QRegExp> replaceBefores;
+    QStringList replaceAfters;
+    Set<QString> classesWithNoQ;
     Tree *cppTre;
     Tree *qsTre;
     QRegExp replaceRegExp;
     CppToQsConverter cpp2qs;
 
     static int tabSize;
-    static QValueList<QRegExp> replaceBefores;
-    static QStringList replaceAfters;
 };
 
 #endif

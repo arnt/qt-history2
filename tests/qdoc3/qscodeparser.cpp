@@ -33,9 +33,6 @@
 
 static QString balancedParens = "(?:[^()]+|\\([^()]*\\))*";
 
-QValueList<QRegExp> QsCodeParser::replaceBefores;
-QStringList QsCodeParser::replaceAfters;
-
 QsCodeParser::QsCodeParser( Tree *cppTree )
     : cppTre( cppTree ), qsTre( 0 ), replaceRegExp( "/(.+)/([^/]*)/" )
 {
@@ -394,13 +391,12 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 {
     QString qtClassName = quickClass->name();
     QString bare = quickClass->name();
-    if ( quickClass->name() != "Qt" ) {
-	if ( quickClass->name().startsWith("Q") ) {
+    if ( bare != "Qt" ) {
+	if ( bare.startsWith("Q") ) {
 	    bare = bare.mid( 1 );
 	} else {
 	    qtClassName.prepend( "Q" );
-	    replaceBefores << QRegExp( QRegExp::escape(qtClassName) );
-	    replaceAfters << bare;
+	    classesWithNoQ.insert( bare );
 	}
     }
 
@@ -582,8 +578,18 @@ QString QsCodeParser::quickifiedDoc( const QString& source )
 
     while ( i < (int) source.length() ) {
 	if ( leftWordBoundary(source, i) ) {
-	    if ( source[i] == 'C' && source.mid(i, 7) == "CString" ) {
-		i++;
+	    if ( source[i] == 'Q' ) {
+		if ( source[i + 1] == 'C' && source.mid(i, 8) == "QCString" ) {
+		    i += 2;
+		} else {
+		    int end = i + 1;
+		    while ( isWord(source[end]) )
+			++end;
+		    if ( !classesWithNoQ.contains(
+				  source.mid(i + 1, end - (i + 1))) )
+			result += "Q";
+		    i++;
+		}
 	    } else if ( source[i] == 'T' && source.mid(i, 4) == "TRUE" &&
 			rightWordBoundary(source, i + 4) ) {
 		result += "\\c{true}";
@@ -612,7 +618,8 @@ QString QsCodeParser::quickifiedDoc( const QString& source )
 		int end = source.find( "\\endcode", i );
 		if ( end != -1 ) {
 		    QString code = source.mid( begin, end - begin );
-		    result += cpp2qs.convertedCode( qsTre, code );
+		    result += cpp2qs.convertedCode( qsTre, code,
+						    classesWithNoQ );
 		    i = end;
 		}
 	    } else {
