@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#7 $
 **
 ** Implementation of movie classes
 **
@@ -76,9 +76,9 @@ public: // for QMovie
 	frametimer(this)
     {
 	pump = new QDataPump(src, this);
-	buffer = new uchar[bufsize];
 	QObject::connect(&frametimer, SIGNAL(timeout()), this, SLOT(refresh()));
 	source = src;
+	buffer = 0;
 	decoder = 0;
 	init(TRUE);
     }
@@ -95,8 +95,12 @@ public: // for QMovie
     void init(bool nonnull)
     {
 	buf_usage = buf_r = buf_w = 0;
+	delete buffer;
+	buffer = nonnull ? new uchar[buf_size] : 0;
+
 	delete decoder;
 	decoder = nonnull ? new QImageDecoder(this) : 0;
+
 	waitingForFrameTick = FALSE;
 	stepping = -1;
 	frameperiod = -1;
@@ -293,6 +297,8 @@ public: // for QMovie
 	} else {
 	    delete decoder;
 	    decoder = 0;
+	    delete buffer;
+	    buffer = 0;
 	    emit dataStatus(QMovie::EndOfMovie);
 	}
     }
@@ -673,7 +679,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.6 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.7 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
