@@ -170,6 +170,9 @@
     This signal is emitted when a new item has been activated
     (selected). The \a index is the position of the item in the
     combobox.
+
+    This signal is not emitted if the item is changed
+    programmatically, e.g. using setCurrentItem().
 */
 
 /*!
@@ -189,6 +192,9 @@
     This signal is emitted when a new item has been set to be the
     current item. The \a index is the position of the item in the
     combobox.
+
+    This signal is not emitted if the item is changed
+    programmatically, e.g. using setCurrentItem().
 */
 
 /*!
@@ -239,6 +245,10 @@
 /*!
     \property QComboBox::currentItem
     \brief the index of the current item in the combobox
+
+    Note that the activated() and highlighted() signals are only
+    emitted when the user changes the current item, not when it is
+    changed programmatically.
 */
 
 /*!
