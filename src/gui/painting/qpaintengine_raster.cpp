@@ -647,6 +647,9 @@ void QRasterPaintEngine::updateMatrix(const QMatrix &m)
 
 void QRasterPaintEngine::updateClipRegion(const QRegion &r, Qt::ClipOperation op)
 {
+#ifdef QT_DEBUG_DRAW
+    qDebug() << " - QRasterPaintEngine::updateClipRegion() op=" << op << r;
+#endif
     QPainterPath p;
     p.addRegion(r);
     updateClipPath(p, op);
@@ -663,11 +666,12 @@ void QRasterPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 
 void QRasterPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {
-#ifdef QT_DEBUG_DRAW
-    qDebug() << " - QRasterPaintEngine::updateClipPath(), op=" << op << path.boundingRect();
-#endif
     Q_D(QRasterPaintEngine);
-
+#ifdef QT_DEBUG_DRAW
+    qDebug() << " - QRasterPaintEngine::updateClipPath(), op="
+             << op
+             << path.boundingRect();
+#endif
     d->updateClip_helper(path, op);
 
     // Reset if baseClip if the operation it.
@@ -687,7 +691,7 @@ void QRasterPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperat
 }
 
 
-void QRasterPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
+void QRasterPaintEngine::updateBrush(const QBrush &brush, const QPointF &offset)
 {
 #ifdef QT_DEBUG_DRAW
     qDebug() << " - QRasterPaintEngine::updateBrush()" << brush.style() << brush.color();
@@ -695,6 +699,7 @@ void QRasterPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
     Q_D(QRasterPaintEngine);
     d->brush = brush;
     d->brushMatrix = d->matrix;
+    d->brushMatrix.translate(offset.x(), offset.y());
 }
 
 
@@ -892,7 +897,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 #endif
 
 #ifdef QT_DEBUG_DRAW
-    printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
+    printf(" - QRasterPaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
            p.x(), p.y(), QString::fromRawData(ti.chars, ti.num_chars).toLatin1().data());
 #endif
     Q_D(QRasterPaintEngine);
@@ -1157,7 +1162,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
             fillData->callback = txop > QPainterPrivate::TxTranslate
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
-            textureFillData->init(rasterBuffer, image, matrix,
+            textureFillData->init(rasterBuffer, image, brushMatrix,
                                   bilinear
                                   ? qDrawHelper.blendTransformedBilinearTiled
                                   : qDrawHelper.blendTransformedTiled);
