@@ -1015,28 +1015,14 @@ bool QDB2Driver::hasFeature( DriverFeature f ) const
 {
     switch ( f ) {
 	case Transactions:
-	    return FALSE;
-#if 0
-    if ( !d->hDbc )
-        return FALSE;
-    SQLUSMALLINT txn;
-    SQLSMALLINT t;
-    int r = SQLGetInfo( d->hDbc,
-	    (SQLUSMALLINT)SQL_TXN_CAPABLE,
-	    &txn,
-	    sizeof(txn),
-	    &t);
-    if ( r != SQL_SUCCESS || txn == SQL_TC_NONE )
-        return FALSE;
-    else
-        return TRUE;
-    }
-#endif
+	    return TRUE;
 	case QuerySize:
 	    return FALSE;
 	case BLOB:
 	    return FALSE;
 	case Unicode:
+	// this is the query that shows the codepage for the types:
+	// select typename, codepage from syscat.datatypes
 #ifdef UNICODE
 	    return TRUE;
 #else
@@ -1051,3 +1037,63 @@ bool QDB2Driver::hasFeature( DriverFeature f ) const
     }
 }
 
+bool QDB2Driver::beginTransaction()
+{
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning(" QDB2Driver::beginTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
+    return setAutoCommit( FALSE );
+}
+
+bool QDB2Driver::commitTransaction()
+{
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning(" QDB2Driver::commitTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
+    SQLRETURN r = SQLEndTran( SQL_HANDLE_ENV,
+			      d->hEnv,
+			      SQL_COMMIT );
+    if ( r != SQL_SUCCESS ) {
+	setLastError( qMakeError( "Unable to commit transaction", QSqlError::Transaction, d ) );
+	return FALSE;
+    }
+    return setAutoCommit( TRUE );
+}
+
+bool QDB2Driver::rollbackTransaction()
+{
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning(" QDB2Driver::rollbackTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
+    SQLRETURN r = SQLEndTran( SQL_HANDLE_ENV,
+			      d->hEnv,
+			      SQL_ROLLBACK );
+    if ( r != SQL_SUCCESS ) {
+	setLastError( qMakeError( "Unable to rollback transaction", QSqlError::Transaction, d ) );
+	return FALSE;
+    }
+    return setAutoCommit( TRUE );
+}
+
+bool QDB2Driver::setAutoCommit( bool autoCommit )
+{
+    SQLUINTEGER ac = autoCommit ? SQL_AUTOCOMMIT_ON : SQL_AUTOCOMMIT_OFF;
+    SQLRETURN r  = SQLSetConnectAttr( d->hDbc,
+				      SQL_ATTR_AUTOCOMMIT,
+				      (SQLPOINTER)ac,
+				      sizeof(ac) );
+    if ( r != SQL_SUCCESS ) {
+	setLastError( qMakeError( "Unable to set autocommit", QSqlError::Transaction, d ) );
+	return FALSE;
+    }
+    return TRUE;
+}

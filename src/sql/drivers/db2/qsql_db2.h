@@ -91,7 +91,12 @@ public:
     QStringList tables( const QString& /* user */ ) const;
     QSqlQuery createQuery() const;
     QSqlIndex primaryIndex( const QString& tablename ) const;
+    bool beginTransaction();
+    bool commitTransaction();
+    bool rollbackTransaction();
+    
 private:
+    bool setAutoCommit( bool autoCommit );
     QDB2DriverPrivate* d;
 };
 
