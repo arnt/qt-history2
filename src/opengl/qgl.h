@@ -63,8 +63,14 @@ QM_EXPORT_OPENGL inline const char *qGLVersion() {
 #endif
 
 #if defined(Q_WS_MAC)
-#ifndef QMAC_OPENGL_DOUBLEBUFFER
-#define QMAC_OPENGL_DOUBLEBUFFER
+#if !defined( QMAC_OPENGL_DOUBLEBUFFER )
+/* This macro is different now. If the macro is not defined QGLWidget will
+ * try to determine when you need double buffering (which is not
+ * complete). If set to 0 it will never double buffer and *can* be
+ * acclerated. If set to 1 (the default) it will always double
+ * buffer. Unlike before the value of this macro does not upset binary
+ * compatability either. */
+#define QMAC_OPENGL_DOUBLEBUFFER 1
 #endif
 # include <OpenGL/gl.h>
 # include <OpenGL/glu.h>
@@ -350,13 +356,15 @@ private:	// Disabled copy constructor and operator=
 
 #ifdef Q_WS_MAC
 private:
-#ifdef QMAC_OPENGL_DOUBLEBUFFER
-    QPaintDevice *gl_pix;
+    uint dblbuf : 1, clp_serial : 15;
+    QPixmap *gl_pix;
     QGLFormat req_format;
-#endif
+
     friend class QWidget;
     void fixReparented();
     void fixBufferRect();
+    void macInternalRecreateContext(const QGLFormat&, const QGLContext * =NULL);
+    bool macInternalDoubleBuffer(bool fix=TRUE);
 #endif
 };
 

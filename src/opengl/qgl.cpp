@@ -511,12 +511,6 @@ void QGLFormat::setOption( FormatOption opt )
 
 bool QGLFormat::testOption( FormatOption opt ) const
 {
-#if defined(Q_WS_MAC) && defined(QMAC_OPENGL_DOUBLEBUFFER)
-    /* When the mac internally double buffers double buffering (GL_BACK) cannot be turned on
-       this is due to windowing system problems. */
-    if(opt & DoubleBuffer)
-	return FALSE;
-#endif
     if ( opt & 0xffff )
        return ( opts & opt ) != 0;
     else
@@ -1257,7 +1251,7 @@ QGLWidget::~QGLWidget()
     if ( doRelease )
 	glXReleaseBuffersMESA( x11Display(), winId() );
 #endif
-#if defined(Q_WS_MAC) && defined(QMAC_OPENGL_DOUBLEBUFFER)
+#if defined(Q_WS_MAC)
     if(gl_pix) {
 	delete gl_pix;
 	gl_pix = NULL;
@@ -1346,10 +1340,8 @@ bool QGLWidget::isSharing() const
 
 void QGLWidget::makeCurrent()
 {
-#ifdef QMAC_OPENGL_DOUBLEBUFFER
-    if(!gl_pix)
-	setContext( new QGLContext( req_format, gl_pix = new QPixmap(width(), height(),
-								     QPixmap::BestOptim) ));
+#if defined( Q_WS_MAC )
+    macInternalDoubleBuffer(); //make sure the correct context is used
 #endif
     glcx->makeCurrent();
 }
@@ -1369,8 +1361,8 @@ void QGLWidget::makeCurrent()
 void QGLWidget::swapBuffers()
 {
     glcx->swapBuffers();
-#if defined(Q_WS_MAC) && defined(QMAC_OPENGL_DOUBLEBUFFER)
-    if(gl_pix)
+#if defined(Q_WS_MAC)
+    if(macInternalDoubleBuffer() && gl_pix)
 	bitBlt(this, 0, 0, gl_pix);
 #endif
 }
@@ -1683,8 +1675,8 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 */
 QImage QGLWidget::grabFrameBuffer( bool withAlpha )
 {
-#if defined( Q_WS_MAC ) && defined( QMAC_OPENGL_DOUBLEBUFFER )
-    if(gl_pix) //why not optimize?
+#if defined( Q_WS_MAC )
+    if(dblbuf == macInternalDoubleBuffer(FALSE) && gl_pix) //why not optimize?
 	return ((QPixmap*)gl_pix)->convertToImage();
 #endif
     makeCurrent();
@@ -1776,8 +1768,8 @@ void QGLWidget::glDraw()
 	    swapBuffers();
     } else {
 	glFlush();
-#if defined( Q_WS_MAC ) && defined( QMAC_OPENGL_DOUBLEBUFFER )
-	if(gl_pix)
+#if defined( Q_WS_MAC )
+	if(dblbuf && gl_pix) 
 	    bitBlt(this, 0, 0, gl_pix);
 #endif
     }

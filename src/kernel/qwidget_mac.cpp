@@ -51,7 +51,7 @@
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #  include <qmenubar.h>
 #endif
-#if !defined( QT_NO_OPENGL ) && !defined( QMAC_OPENGL_DOUBLEBUFFER )
+#if !defined( QT_NO_OPENGL ) && (!defined(QMAC_OPENGL_DOUBLEBUFFER) || !QMAC_OPENGL_DOUBLEBUFFER)
 #  include <qgl.h>
 #endif
 
@@ -777,7 +777,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 		QWidget *w = (QWidget *)obj;
 		if(((WindowPtr)w->hd) == old_hd)
 		    w->hd = hd; //all my children hd's are now mine!
-#if !defined( QT_NO_OPENGL ) && !defined( QMAC_OPENGL_DOUBLEBUFFER )
+#if !defined( QT_NO_OPENGL ) && (!defined(QMAC_OPENGL_DOUBLEBUFFER) || !QMAC_OPENGL_DOUBLEBUFFER)
 		if(w->inherits("QGLWidget"))
 		    ((QGLWidget *)w)->fixReparented();
 #endif
@@ -785,7 +785,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 	}
 	delete chldn;
     }
-#if !defined( QT_NO_OPENGL ) && !defined( QMAC_OPENGL_DOUBLEBUFFER )
+#if !defined( QT_NO_OPENGL ) && (!defined(QMAC_OPENGL_DOUBLEBUFFER) || !QMAC_OPENGL_DOUBLEBUFFER)
     if(inherits("QGLWidget"))
 	((QGLWidget *)this)->fixReparented();
 #endif
