@@ -8,7 +8,7 @@
 class ExtraWidgetsInterface : public WidgetInterface
 {
 public:
-    ExtraWidgetsInterface( QUnknownInterface *parent = 0 );
+    ExtraWidgetsInterface( QUnknownInterface *parent, const char *name = 0 );
     ~ExtraWidgetsInterface();
 
     bool disconnectNotify();
@@ -26,8 +26,8 @@ public:
     QGuardedCleanUpHandler<QObject> objects;
 };
 
-ExtraWidgetsInterface::ExtraWidgetsInterface( QUnknownInterface *parent )
-: WidgetInterface( parent )
+ExtraWidgetsInterface::ExtraWidgetsInterface( QUnknownInterface *parent, const char *name )
+: WidgetInterface( parent, name )
 {
 }
 
@@ -114,8 +114,9 @@ public:
 };
 
 ExtraWidgetsPlugIn::ExtraWidgetsPlugIn()
+: QPlugInInterface( "ExtraWidgetsPlugIn" )
 {
-    new ExtraWidgetsInterface( this );
+    new ExtraWidgetsInterface( this, "ExtraWidgetsInterface" );
 }
 
 ExtraWidgetsPlugIn::~ExtraWidgetsPlugIn()
