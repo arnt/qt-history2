@@ -959,14 +959,12 @@ for plat in mac win x11 qnx6 embedded; do
 	    rm -f "$PLATDIR/Makefile" "$PLATDIR/qmake/Makefile" "$PLATDIR/qmake/GNUmakefile"
 	    mv "$PLATDIR/GNUmakefile" "$PLATDIR/Makefile"
 	    #Some code is specific to platform though..
-	    remove_file_and_includes "extensions/activeqt" #activeqt is windows only
 	    rm -rf "$PLATDIR/tools/designer/integration/QMsDev"
 	    rm -rf "$PLATDIR/tools/designer/integration/QMsNet"
 	    rm -rf "$PLATDIR/src/3rdparty/gsos"
 	    remove_file_and_includes "src/kernel/qt_windows.h"
 	    if [ "$plat" = "embedded" ] || [ "$plat" = "qnx6" ]; then
 		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
-		remove_file_and_includes "extensions/xt" "extensions/motif" #x11 only
 	    elif [ "$plat" = "x11" ]; then
 		rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 		rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
@@ -976,7 +974,6 @@ for plat in mac win x11 qnx6 embedded; do
 		rm -f "$PLATDIR/src/widgets/qcompactstyle.h" "$PLATDIR/src/widgets/qcompactstyle.cpp"
 	    elif [ "$plat" = "mac" ]; then
 		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
-		remove_file_and_includes "extensions/xt" "extensions/motif" #x11 only
 		rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 		rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
 		rm -rf "$PLATDIR/examples/trayicon"
@@ -995,7 +992,6 @@ for plat in mac win x11 qnx6 embedded; do
 	    #Unix only code
 	    rm -rf "$PLATDIR/src/3rdparty/gsos"
 	    rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
-	    remove_file_and_includes "extensions/xt" "extensions/motif" #x11 only
 	    rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 	    rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
 	    rm -rf "$PLATDIR/src/3rdparty/freetype2" "$PLATDIR/src/3rdparty/freetype"
@@ -1062,8 +1058,15 @@ for plat in mac win x11 qnx6 embedded; do
 	copy_platform_files "$platformname" $edition $plat $PLATDIR $PLATNAME #platform specific
 	copy_platform_files "$edition" $edition $plat $PLATDIR $PLATNAME #edition specific
 
-	#remove platform specific files that don't belong
 	status "Final cleanup.."
+	#remove directories only used for documentation on some platforms
+	if [ "$plat" != "win" ]; then
+	    remove_file_and_includes "extensions/activeqt" #activeqt is windows only
+	fi
+	if [ "$plat" != "x11" ]; then
+	    remove_file_and_includes "extensions/xt" "extensions/motif" #x11 only
+	fi
+	#remove platform specific files that don't belong
 	if [ ! -e "$PLAT_RM_FILE" ]; then
 	    for file in `find $PLATDIR -name '*_[a-z0-9]*\.*'`
 	    do
