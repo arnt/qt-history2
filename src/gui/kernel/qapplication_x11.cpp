@@ -3015,7 +3015,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         break;
 
     case UnmapNotify:                                // window hidden
-        if (widget->isTopLevel()) {
+        if (widget->isTopLevel() && !widget->isPopup()) {
             widget->setAttribute(Qt::WA_Mapped, false);
             if (widget->isShown()) {
                 widget->d->topData()->spont_unmapped = 1;
@@ -3027,7 +3027,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         break;
 
     case MapNotify:                                // window shown
-        if (widget->isTopLevel()) {
+        if (widget->isTopLevel() && !widget->isPopup()) {
             widget->setAttribute(Qt::WA_Mapped);
             if (widget->d->topData()->spont_unmapped) {
                  widget->d->topData()->spont_unmapped = 0;
