@@ -1,4 +1,3 @@
-#include <qnamespace.h>
 #include <qstring.h>
 #include <qstringlist.h>
 
@@ -348,17 +347,6 @@ protected:
     VCToolBase(){};
     ~VCToolBase(){};
     virtual bool parseOption( const char* option ) = 0;
-    static const QString output( QStringList &list ) {
-	return list.join(", ");
-    }
-    static const QString output( triState state, const char* property ) {
-	if ( state == unset )
-	    return "";
-	QString result( property );
-	if ( state == _True )
-	    return (result += "TRUE\"");
-	return (result += "FALSE\"");
-    }
 };
 
 class VCCLCompilerTool : public VCToolBase
@@ -368,7 +356,7 @@ public:
     VCCLCompilerTool();
     ~VCCLCompilerTool(){};
     virtual bool parseOption( const char* option );
-
+    
     // Variables
     QStringList		    AdditionalIncludeDirectories;
     QStringList		    AdditionalOptions;
@@ -611,3 +599,10 @@ public:
     VCPreLinkEventTool();
     ~VCPreLinkEventTool(){};
 };
+
+QTextStream &operator<<( QTextStream &, const VCCLCompilerTool & );
+QTextStream &operator<<( QTextStream &, const VCLinkerTool & );
+QTextStream &operator<<( QTextStream &, const VCMIDLTool & );
+QTextStream &operator<<( QTextStream &, const VCCustomBuildTool & );
+QTextStream &operator<<( QTextStream &, const VCResourceCompilerTool & );
+QTextStream &operator<<( QTextStream &, const VCEventTool & );

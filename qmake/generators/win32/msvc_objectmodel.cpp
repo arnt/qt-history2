@@ -1,7 +1,8 @@
 #include "msvc_objectmodel.h"
+#include <qtextstream.h>
 
 // Property strings for the XML output ------------------------------
-/* 
+/*
    All string have the newline and indentation incorporated
    to keep preserve speen during project generation..
 */
@@ -144,8 +145,81 @@ const char* _WarnLevel 				= "\n\t\t\t\tWarnLevel=\"";
 const char* _WarningLevel 			= "\n\t\t\t\tWarningLevel=\"";
 const char* _WholeProgramOptimization		= "\n\t\t\t\tWholeProgramOptimization=\"";
 
-// VCCLCompilerTool -------------------------------------------------
+// Property name and value as Pairs ---------------------------------
+struct TPair {
+    TPair( const char* n, const triState v ) : name(n), value(v) {};
+    const char* name; 
+    const triState value; 
+};
+struct EPair { 
+    EPair( const char* n, const int v ) : name(n), value(v) {};
+    const char* name; 
+    const int value;
+};
+struct LPair { 
+    LPair( const char* n, const long v ) : name(n), value(v) {};
+    const char* name; 
+    const long value; 
+};
+struct SPair { 
+    SPair( const char* n, const QString& v ) : name(n), value(v) {};
+    const char* name; 
+    const QString& value; 
+};
+struct XPair { 
+    XPair( const char* n, const QStringList& v ) : name(n), value(v) {};
+    const char* name; 
+    const QStringList& value;
+};
 
+// Streaming operators for property Pairs ---------------------------
+QTextStream &operator<<( QTextStream &strm, const TPair &prop )
+{
+    switch( prop.value ) {
+    case _False:
+	strm << prop.name << "FALSE\"";
+	break;
+    case _True:
+	strm << prop.name << "TRUE\"";
+	break;
+    case unset:
+    default:
+	break;
+    }
+    return strm;
+}
+
+/* Be sure to always check that each enum is not set
+   to default before streaming it out. Defaults seem
+   to not be in the XML file.
+*/
+QTextStream &operator<<( QTextStream &strm, const EPair &prop )
+{
+    strm << prop.name << prop.value << "\"";
+    return strm;
+}
+
+QTextStream &operator<<( QTextStream &strm, const LPair &prop )
+{
+    strm << prop.name << prop.value << "\"";
+    return strm;
+}
+
+QTextStream &operator<<( QTextStream &strm, const SPair &prop )
+{
+    if ( !prop.value.isEmpty() )
+	strm << prop.name << prop.value << "\"";
+    return strm;
+}
+
+QTextStream &operator<<( QTextStream &strm, const XPair &prop )
+{
+    if ( !prop.value.isEmpty() )
+	strm << prop.name << prop.value.join(",") << "\"";
+    return strm;
+}
+
+// VCCLCompilerTool -------------------------------------------------
 VCCLCompilerTool::VCCLCompilerTool()
     :	BufferSecurityCheck( unset ), 
 	CompileOnly( unset ), 
@@ -178,13 +252,78 @@ VCCLCompilerTool::VCCLCompilerTool()
 {
 }
 
+QTextStream &operator<<( QTextStream &strm, const VCCLCompilerTool &tool )
+{
+    strm << XPair( _AdditionalIncludeDirectories, tool.AdditionalIncludeDirectories );
+    strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
+    strm << XPair( _AdditionalUsingDirectories, tool.AdditionalUsingDirectories );
+    strm << SPair( _AssemblerListingLocation, tool.AssemblerListingLocation );
+    if ( tool.AssemblerOutput != asmListingNone )	    strm << EPair( _AssemblerOutput, tool.AssemblerOutput );
+    if ( tool.BasicRuntimeChecks != runtimeBasicCheckNone ) strm << EPair( _BasicRuntimeChecks, tool.BasicRuntimeChecks );
+    if ( tool.BrowseInformation != brInfoNone )		    strm << EPair( _BrowseInformation, tool.BrowseInformation );
+    strm << SPair( _BrowseInformationFile, tool.BrowseInformationFile );
+    strm << TPair( _BufferSecurityCheck, tool.BufferSecurityCheck );
+    if ( tool.CallingConvention != callConventionDefault )  strm << EPair( _CallingConvention, tool.CallingConvention );
+    if ( tool.CompileAs != compileAsDefault )		    strm << EPair( _CompileAs, tool.CompileAs );
+    if ( tool.CompileAsManaged != managedDefault )	    strm << EPair( _CompileAsManaged, tool.CompileAsManaged );
+    strm << TPair( _CompileOnly, tool.CompileOnly );
+    strm << EPair( _DebugInformationFormat, tool.DebugInformationFormat );
+    strm << TPair( _DefaultCharIsUnsigned, tool.DefaultCharIsUnsigned );
+    strm << TPair( _Detect64BitPortabilityProblems, tool.Detect64BitPortabilityProblems );
+    strm << TPair( _DisableLanguageExtensions, tool.DisableLanguageExtensions );
+    strm << XPair( _DisableSpecificWarnings, tool.DisableSpecificWarnings );
+    strm << TPair( _EnableFiberSafeOptimizations, tool.EnableFiberSafeOptimizations );
+    strm << TPair( _EnableFunctionLevelLinking, tool.EnableFunctionLevelLinking );
+    strm << TPair( _EnableIntrinsicFunctions, tool.EnableIntrinsicFunctions );
+    strm << TPair( _ExceptionHandling, tool.ExceptionHandling );
+    strm << TPair( _ExpandAttributedSource, tool.ExpandAttributedSource );
+    if ( tool.FavorSizeOrSpeed != favorNone )		    strm << EPair( _FavorSizeOrSpeed, tool.FavorSizeOrSpeed );
+    strm << TPair( _ForceConformanceInForLoopScope, tool.ForceConformanceInForLoopScope );
+    strm << XPair( _ForcedIncludeFiles, tool.ForcedIncludeFiles );
+    strm << XPair( _ForcedUsingFiles, tool.ForcedUsingFiles );
+    strm << EPair( _GeneratePreprocessedFile, tool.GeneratePreprocessedFile );
+    strm << TPair( _GlobalOptimizations, tool.GlobalOptimizations );
+    strm << TPair( _IgnoreStandardIncludePath, tool.IgnoreStandardIncludePath );
+    strm << TPair( _ImproveFloatingPointConsistency, tool.ImproveFloatingPointConsistency );
+    strm << EPair( _InlineFunctionExpansion, tool.InlineFunctionExpansion );
+    strm << TPair( _KeepComments, tool.KeepComments );
+    strm << TPair( _MinimalRebuild, tool.MinimalRebuild );
+    strm << SPair( _ObjectFile, tool.ObjectFile );
+    strm << TPair( _OmitFramePointers, tool.OmitFramePointers );
+    strm << EPair( _Optimization, tool.Optimization );
+    if ( tool.OptimizeForProcessor != procOptimizeBlended ) strm << EPair( _OptimizeForProcessor, tool.OptimizeForProcessor );
+    strm << TPair( _OptimizeForWindowsApplication, tool.OptimizeForWindowsApplication );
+    strm << SPair( _OutputFile, tool.OutputFile );
+    strm << SPair( _PrecompiledHeaderFile, tool.PrecompiledHeaderFile );
+    strm << SPair( _PrecompiledHeaderThrough, tool.PrecompiledHeaderThrough );
+    strm << XPair( _PreprocessorDefinitions, tool.PreprocessorDefinitions );
+    strm << SPair( _ProgramDataBaseFileName, tool.ProgramDataBaseFileName );
+    strm << EPair( _RuntimeLibrary, tool.RuntimeLibrary );
+    strm << TPair( _RuntimeTypeInfo, tool.RuntimeTypeInfo );
+    strm << TPair( _ShowIncludes, tool.ShowIncludes );
+    strm << TPair( _SmallerTypeCheck, tool.SmallerTypeCheck );
+    strm << TPair( _StringPooling, tool.StringPooling );
+    if ( tool.StructMemberAlignment != alignNotSet )	    strm << EPair( _StructMemberAlignment, tool.StructMemberAlignment );
+    strm << TPair( _SuppressStartupBanner, tool.SuppressStartupBanner );
+    strm << TPair( _TreatWChar_tAsBuiltInType, tool.TreatWChar_tAsBuiltInType );
+    strm << TPair( _TurnOffAssemblyGeneration, tool.TurnOffAssemblyGeneration );
+    strm << TPair( _UndefineAllPreprocessorDefinitions, tool.UndefineAllPreprocessorDefinitions );
+    strm << XPair( _UndefinePreprocessorDefinitions, tool.UndefinePreprocessorDefinitions );
+    if ( !tool.PrecompiledHeaderFile.isEmpty() ||
+	 !tool.PrecompiledHeaderThrough.isEmpty() )
+	strm << EPair( _UsePrecompiledHeader, tool.UsePrecompiledHeader );
+    strm << TPair( _WarnAsError, tool.WarnAsError );
+    strm << EPair( _WarningLevel, tool.WarningLevel );
+    strm << TPair( _WholeProgramOptimization, tool.WholeProgramOptimization );                 
+return strm;
+}
+
 bool VCCLCompilerTool::parseOption( const char* option )
 {
     return FALSE;
 }
 
 // VCLinkerTool -----------------------------------------------------
-
 VCLinkerTool::VCLinkerTool()
     :	GenerateDebugInformation( unset ),
 	GenerateMapFile( unset ),
@@ -207,6 +346,64 @@ VCLinkerTool::VCLinkerTool()
 	TurnOffAssemblyGeneration( unset ),
 	TypeLibraryResourceID( 0 )
 {
+}
+
+QTextStream &operator<<( QTextStream &strm, const VCLinkerTool &tool )
+{
+    strm << XPair( _AdditionalDependencies, tool.AdditionalDependencies );
+    strm << XPair( _AdditionalLibraryDirectories, tool.AdditionalLibraryDirectories );
+    strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
+    strm << XPair( _AddModuleNamesToAssembly, tool.AddModuleNamesToAssembly );
+    strm << SPair( _BaseAddress, tool.BaseAddress );
+    strm << XPair( _DelayLoadDLLs, tool.DelayLoadDLLs );
+    if ( tool.EnableCOMDATFolding != optFoldingDefault )    strm << EPair( _EnableCOMDATFolding, tool.EnableCOMDATFolding );
+    strm << SPair( _EntryPointSymbol, tool.EntryPointSymbol );
+    strm << XPair( _ForceSymbolReferences, tool.ForceSymbolReferences );
+    strm << SPair( _FunctionOrder, tool.FunctionOrder );
+    strm << TPair( _GenerateDebugInformation, tool.GenerateDebugInformation );
+    strm << TPair( _GenerateMapFile, tool.GenerateMapFile );
+    strm << LPair( _HeapCommitSize, tool.HeapCommitSize );
+    strm << LPair( _HeapReserveSize, tool.HeapReserveSize );
+    strm << TPair( _IgnoreAllDefaultLibraries, tool.IgnoreAllDefaultLibraries );
+    strm << XPair( _IgnoreDefaultLibraryNames, tool.IgnoreDefaultLibraryNames );
+    strm << TPair( _IgnoreEmbeddedIDL, tool.IgnoreEmbeddedIDL );
+    strm << TPair( _IgnoreImportLibrary, tool.IgnoreImportLibrary );
+    strm << SPair( _ImportLibrary, tool.ImportLibrary );
+    if ( tool.LargeAddressAware != addrAwareDefault )	    strm << EPair( _LargeAddressAware, tool.LargeAddressAware );
+    strm << TPair( _LinkDLL, tool.LinkDLL );
+    if ( tool.LinkIncremental != linkIncrementalDefault )   strm << EPair( _LinkIncremental, tool.LinkIncremental );
+    strm << TPair( _LinkTimeCodeGeneration, tool.LinkTimeCodeGeneration );
+    strm << SPair( _LinkToManagedResourceFile, tool.LinkToManagedResourceFile );
+    strm << TPair( _MapExports, tool.MapExports );
+    strm << SPair( _MapFileName, tool.MapFileName );
+    strm << TPair( _MapLines, tool.MapLines );
+    strm << SPair( _MergedIDLBaseFileName, tool.MergedIDLBaseFileName );
+    strm << SPair( _MergeSections, tool.MergeSections );
+    strm << SPair( _MidlCommandFile, tool.MidlCommandFile );
+    strm << SPair( _ModuleDefinitionFile, tool.ModuleDefinitionFile );
+    if ( tool.OptimizeForWindows98 != optWin98Default )	    strm << EPair( _OptimizeForWindows98, tool.OptimizeForWindows98 );
+    if ( tool.OptimizeReferences != optReferencesDefault )  strm << EPair( _OptimizeReferences, tool.OptimizeReferences );
+    strm << SPair( _OutputFile, tool.OutputFile );
+    strm << SPair( _ProgramDatabaseFile, tool.ProgramDatabaseFile );
+    strm << TPair( _RegisterOutput, tool.RegisterOutput );
+    strm << TPair( _ResourceOnlyDLL, tool.ResourceOnlyDLL );
+    strm << TPair( _SetChecksum, tool.SetChecksum );
+    if ( tool.ShowProgress != linkProgressNotSet )	    strm << EPair( _ShowProgress, tool.ShowProgress );
+    strm << LPair( _StackCommitSize, tool.StackCommitSize );
+    strm << LPair( _StackReserveSize, tool.StackReserveSize );
+    strm << SPair( _StripPrivateSymbols, tool.StripPrivateSymbols );
+    strm << EPair( _SubSystem, tool.SubSystem );
+    strm << TPair( _SupportUnloadOfDelayLoadedDLL, tool.SupportUnloadOfDelayLoadedDLL );
+    strm << TPair( _SuppressStartupBanner, tool.SuppressStartupBanner );
+    strm << TPair( _SwapRunFromCD, tool.SwapRunFromCD );
+    strm << TPair( _SwapRunFromNet, tool.SwapRunFromNet );
+    if ( tool.TargetMachine != machineNotSet )		    strm << EPair( _TargetMachine, tool.TargetMachine );
+    if ( tool.TerminalServerAware != termSvrAwareDefault )  strm << EPair( _TerminalServerAware, tool.TerminalServerAware );
+    strm << TPair( _TurnOffAssemblyGeneration, tool.TurnOffAssemblyGeneration );
+    strm << SPair( _TypeLibraryFile, tool.TypeLibraryFile );
+    strm << LPair( _TypeLibraryResourceID, tool.TypeLibraryResourceID );
+    strm << SPair( _Version, tool.Version );
+    return strm;
 }
 
 bool VCLinkerTool::parseOption( const char* option )
@@ -237,6 +434,41 @@ VCMIDLTool::VCMIDLTool()
 {
 }
 
+QTextStream &operator<<( QTextStream &strm, const VCMIDLTool &tool )
+{
+    strm << XPair( _AdditionalIncludeDirectories, tool.AdditionalIncludeDirectories );
+    strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
+    strm << XPair( _CPreprocessOptions, tool.CPreprocessOptions );
+    strm << EPair( _DefaultCharType, tool.DefaultCharType );
+    strm << SPair( _DLLDataFileName, tool.DLLDataFileName );
+    strm << EPair( _EnableErrorChecks, tool.EnableErrorChecks );
+    strm << TPair( _ErrorCheckAllocations, tool.ErrorCheckAllocations );
+    strm << TPair( _ErrorCheckBounds, tool.ErrorCheckBounds );
+    strm << TPair( _ErrorCheckEnumRange, tool.ErrorCheckEnumRange );
+    strm << TPair( _ErrorCheckRefPointers, tool.ErrorCheckRefPointers );
+    strm << TPair( _ErrorCheckStubData, tool.ErrorCheckStubData );
+    strm << XPair( _FullIncludePath, tool.FullIncludePath );
+    strm << TPair( _GenerateStublessProxies, tool.GenerateStublessProxies );
+    strm << TPair( _GenerateTypeLibrary, tool.GenerateTypeLibrary );
+    strm << SPair( _HeaderFileName, tool.HeaderFileName );
+    strm << TPair( _IgnoreStandardIncludePath, tool.IgnoreStandardIncludePath );
+    strm << TPair( _InterfaceIdentifierFileName, tool.InterfaceIdentifierFileName );
+    strm << TPair( _MkTypLibCompatible, tool.MkTypLibCompatible );
+    strm << SPair( _OutputDirectory, tool.OutputDirectory );
+    strm << XPair( _PreprocessorDefinitions, tool.PreprocessorDefinitions );
+    strm << SPair( _ProxyFileName, tool.ProxyFileName );
+    strm << SPair( _RedirectOutputAndErrors, tool.RedirectOutputAndErrors );
+    if ( tool.StructMemberAlignment != midlAlignNotSet)	    strm << EPair( _StructMemberAlignment, tool.StructMemberAlignment );
+    strm << TPair( _SuppressStartupBanner, tool.SuppressStartupBanner );
+    if ( tool.TargetEnvironment != midlTargetNotSet )	    strm << EPair( _TargetEnvironment, tool.TargetEnvironment );
+    strm << SPair( _TypeLibraryName, tool.TypeLibraryName );
+    strm << XPair( _UndefinePreprocessorDefinitions, tool.UndefinePreprocessorDefinitions );
+    strm << TPair( _ValidateParameters, tool.ValidateParameters );
+    strm << TPair( _WarnAsError, tool.WarnAsError );
+    strm << EPair( _WarningLevel, tool.WarningLevel );
+    return strm;
+}
+
 bool VCMIDLTool::parseOption( const char* option )
 {
     return FALSE;
@@ -247,6 +479,17 @@ VCCustomBuildTool::VCCustomBuildTool()
 {
 }
 
+QTextStream &operator<<( QTextStream &strm, const VCCustomBuildTool &tool )
+{
+    strm << XPair( _AdditionalDependencies, tool.AdditionalDependencies );
+    strm << SPair( _CommandLine, tool.CommandLine );
+    strm << SPair( _Description, tool.Description );
+    strm << SPair( _Outputs, tool.Outputs );
+    strm << SPair( _ToolName, tool.ToolName );
+    strm << SPair( _ToolPath, tool.ToolPath );
+    return strm;
+}
+
 // VCResourceCompilerTool -------------------------------------------
 VCResourceCompilerTool::VCResourceCompilerTool()
     :   Culture( rcUseDefault ),
@@ -255,6 +498,32 @@ VCResourceCompilerTool::VCResourceCompilerTool()
 
 {
     PreprocessorDefinitions = "NDEBUG";
+}
+
+QTextStream &operator<<( QTextStream &strm, const VCResourceCompilerTool &tool )
+{
+    strm << XPair( _AdditionalIncludeDirectories, tool.AdditionalIncludeDirectories );
+    strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
+    if ( tool.Culture != rcUseDefault )			    strm << EPair( _Culture, tool.Culture );
+    strm << XPair( _FullIncludePath, tool.FullIncludePath );
+    strm << TPair( _IgnoreStandardIncludePath, tool.IgnoreStandardIncludePath );
+    strm << XPair( _PreprocessorDefinitions, tool.PreprocessorDefinitions );
+    strm << SPair( _ResourceOutputFileName, tool.ResourceOutputFileName );
+    if ( tool.ShowProgress != linkProgressNotSet )	    strm << EPair( _ShowProgress, tool.ShowProgress );
+    strm << SPair( _ToolName, tool.ToolName );
+    strm << SPair( _ToolPath, tool.ToolPath );
+    return strm;
+}
+
+// VCEventTool -------------------------------------------------
+QTextStream &operator<<( QTextStream &strm, const VCEventTool &tool )
+{
+    strm << SPair( _CommandLine, tool.CommandLine );
+    strm << SPair( _Description, tool.Description );
+    strm << TPair( _ExcludedFromBuild, tool.ExcludedFromBuild );
+    strm << SPair( _ToolName, tool.ToolName );
+    strm << SPair( _ToolPath, tool.ToolPath );
+    return strm;
 }
 
 // VCPostBuildEventTool ---------------------------------------------
