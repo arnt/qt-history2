@@ -22,7 +22,9 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
-// #include "xftint.h"
+
+extern "C" {
+
 #include <X11/Xlib.h>
 #include <X11/Xft/XftFreetype.h>
 #include <ctype.h>
@@ -143,44 +145,46 @@ XftNameUnparse (XftPattern *pat, char *dest, int len)
 
     e = XftPatternFind (pat, XFT_FAMILY, False);
     if (e)
-    {
-	if (!_XftNameUnparseValueList (e->values, XFT_ESCAPE_FIXED,
-				       &dest, &len))
-	    return False;
-    }
-    e = XftPatternFind (pat, XFT_SIZE, False);
-    if (e)
-    {
-	if (!_XftNameUnparseString ("-", 0, &dest, &len))
-	    return False;
-	if (!_XftNameUnparseValueList (e->values, XFT_ESCAPE_FIXED, &dest, &len))
-	    return False;
-    }
-    for (i = 0; i < NUM_OBJECT_TYPES; i++)
-    {
-	o = &_XftObjectTypes[i];
-	if (!strcmp (o->object, XFT_FAMILY) ||
-	    !strcmp (o->object, XFT_SIZE) ||
-	    !strcmp (o->object, XFT_FILE))
-	    continue;
-
-	e = XftPatternFind (pat, o->object, False);
-	if (e)
 	{
-	    if (!_XftNameUnparseString (":", 0, &dest, &len))
-		return False;
-	    if (!_XftNameUnparseString (o->object, XFT_ESCAPE_VARIABLE,
-					&dest, &len))
-		return False;
-	    if (!_XftNameUnparseString ("=", 0, &dest, &len))
-		return False;
-	    if (!_XftNameUnparseValueList (e->values, XFT_ESCAPE_VARIABLE,
+	    if (!_XftNameUnparseValueList (e->values, XFT_ESCAPE_FIXED,
 					   &dest, &len))
 		return False;
 	}
-    }
+    e = XftPatternFind (pat, XFT_SIZE, False);
+    if (e)
+	{
+	    if (!_XftNameUnparseString ("-", 0, &dest, &len))
+		return False;
+	    if (!_XftNameUnparseValueList (e->values, XFT_ESCAPE_FIXED, &dest, &len))
+		return False;
+	}
+    for (i = 0; i < NUM_OBJECT_TYPES; i++)
+	{
+	    o = &_XftObjectTypes[i];
+	    if (!strcmp (o->object, XFT_FAMILY) ||
+		!strcmp (o->object, XFT_SIZE) ||
+		!strcmp (o->object, XFT_FILE))
+		continue;
+
+	    e = XftPatternFind (pat, o->object, False);
+	    if (e)
+		{
+		    if (!_XftNameUnparseString (":", 0, &dest, &len))
+			return False;
+		    if (!_XftNameUnparseString (o->object, XFT_ESCAPE_VARIABLE,
+						&dest, &len))
+			return False;
+		    if (!_XftNameUnparseString ("=", 0, &dest, &len))
+			return False;
+		    if (!_XftNameUnparseValueList (e->values, XFT_ESCAPE_VARIABLE,
+						   &dest, &len))
+			return False;
+		}
+	}
     if (len == 0)
 	return False;
     *dest = '\0';
     return True;
+}
+
 }
