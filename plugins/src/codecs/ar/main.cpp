@@ -8,55 +8,21 @@
 class ARTextCodecs : public QTextCodecPlugin
 {
 public:
-    ARTextCodecs();
+    ARTextCodecs() {}
 
-    QStringList keys() const;
-    QTextCodec *createForMib( int );
+    QStringList names() const { return QStringList() << "iso8859-6.8x"; }
+    QValueList<int> mibEnums() const { return QValueList<int>(); }
+    QTextCodec *createForMib( int ) { return 0; }
     QTextCodec *createForName( const QString & );
-
-private:
-    QPtrList<QTextCodec> codecs;
 };
 
 
-ARTextCodecs::ARTextCodecs()
-{
-}
-
-QStringList ARTextCodecs::keys() const
-{
-    QStringList list;
-    list << "iso8859-6.8x";
-    return list;
-}
-
-
-QTextCodec *ARTextCodecs::createForMib( int )
-{
-    return 0;
-}
-
 QTextCodec *ARTextCodecs::createForName( const QString &name )
 {
-    QTextCodec *codec = 0;
+    if (name == "iso8859-6.8x")
+	return new QFontArabic68Codec;
 
-    QPtrListIterator<QTextCodec> it(codecs);
-    while ((codec = it.current())) {
-	++it;
-
-	if (codec->name() == name)
-	    break;
-    }
-
-    if (! codec) {
-	if (name == "iso8859-6.8x")
-	    codec = new QFontArabic68Codec;
-
-	if (codec)
-	    codecs.append(codec);
-    }
-
-    return codec;
+    return 0;
 }
 
 
