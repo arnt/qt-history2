@@ -45,14 +45,35 @@
 #include "qplatinumstyle.h"
 #include "qsgistyle.h"
 #include "qcompactstyle.h"
+#include "qapplication.h"
 #include <stdlib.h>
+
 
 static QInterfaceManager<QStyleInterface> *manager = 0;
 
+
+static void ensureManager() {
+        if ( !manager ) {
+	manager = new QInterfaceManager<QStyleInterface>( "QStyleInterface" );
+
+	QString defpath(getenv("QTDIR"));
+	if (! defpath.isNull() && ! defpath.isEmpty()) {
+	    manager->addLibraryPath(defpath + "/plugins");
+	}
+
+	QStringList paths(QApplication::libraryPaths());
+	QStringList::Iterator it = paths.begin();
+	while (it != paths.end()) {
+	    manager->addLibraryPath(*it);
+	    it++;
+	}
+    }
+}
+
+
 QStyle *QStyleFactory::create( const QString& s )
 {
-    if ( !manager )
-	manager = new QInterfaceManager<QStyleInterface>( "QStyleInterface", QString((char*)getenv( "QTDIR" )) + "/plugins" );
+    ensureManager();
 
     QStyleInterface *iface = manager->queryInterface( s );
 
@@ -63,7 +84,7 @@ QStyle *QStyleFactory::create( const QString& s )
 #ifndef QT_NO_STYLE_WINDOWS
     if ( style == "windows" )
 	return new QWindowsStyle;
-    else 
+    else
 #endif
 #ifndef QT_NO_STYLE_MOTIF
     if ( style == "motif" )
@@ -73,7 +94,7 @@ QStyle *QStyleFactory::create( const QString& s )
 #ifndef QT_NO_STYLE_CDE
     if ( style == "cde" )
 	return new QCDEStyle;
-    else 
+    else
 #endif
 #ifndef QT_NO_STYLE_MOTIFPLUS
     if ( style == "motifplus" )
@@ -99,10 +120,10 @@ QStyle *QStyleFactory::create( const QString& s )
     return 0;
 }
 
+
 QStringList QStyleFactory::styles()
 {
-    if ( !manager )
-	manager = new QInterfaceManager<QStyleInterface>( "QStyleInterface", QString((char*)getenv( "QTDIR" )) + "/plugins" );
+    ensureManager();
 
     QStringList list = manager->featureList();
 
