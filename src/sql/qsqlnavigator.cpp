@@ -38,9 +38,11 @@
 
 #ifndef QT_NO_SQL
 
+#include "qapplication.h"
 #include "qsqlcursor.h"
 #include "qsqlresult.h"
 #include "qsqlform.h"
+#include "qsqldriver.h"
 
 /*!
   \class QSqlNavigator qsqlnavigator.h
@@ -107,7 +109,8 @@ int QSqlNavigator::insertRecord()
     int ar = cursor->insert();
     if ( !ar || !cursor->isActive() )
 	handleError( cursor->lastError() );
-    // ### must seek to inserted record
+    cursor->select();
+    QSqlNavigator::relocate( cursor, cursor->editBuffer(), cursor->primaryIndex(), 0 );
     return ar;
 }
 
@@ -129,8 +132,11 @@ int QSqlNavigator::updateRecord()
     int ar = cursor->update();
     if ( !ar || !cursor->isActive() )
 	handleError( cursor->lastError() );
-    cursor->select( cursor->filter(), cursor->sort() );
-    cursor->seek( n );
+    else {
+	cursor->select();
+	QSqlNavigator::relocate( cursor, cursor->editBuffer(), cursor->primaryIndex(), n );
+	form->readFields();
+    }
     return ar;
 }
 
@@ -151,7 +157,7 @@ int QSqlNavigator::deleteRecord()
     int n = cursor->at();
     int ar = cursor->del();
     if ( ar ) {
-	cursor->select( cursor->filter(), cursor->sort() );
+	cursor->select();
 	if ( !cursor->seek( n ) )
 	    cursor->last();
 	cursor->primeUpdate();
@@ -414,6 +420,138 @@ void QSqlNavigator::emitNextRecordAvailable( bool )
 
 void QSqlNavigator::emitPrevRecordAvailable( bool )
 {
+}
+
+bool q_index_matches( const QSqlRecord* buf, const QSqlIndex& idx )
+{
+    bool indexEquals = FALSE;
+    for ( uint i = 0; i < idx.count(); ++i ) {
+	const QString fn( idx.field(i)->name() );
+	if ( idx.field(i)->value() == buf->value( fn ) )
+	    indexEquals = TRUE;
+	else {
+	    indexEquals = FALSE;
+	    break;
+	}
+    }
+    return indexEquals;
+}
+
+bool q_less( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& idx )
+{
+    bool lessThan = FALSE;
+    for ( uint i = 0; i < idx.count(); ++i ) {
+	const QString fn( idx.field(i)->name() );
+	const QSqlField* f1 = buf1->field( fn );
+	if ( f1 ) {
+	    switch( f1->type() ) { // ## more types?
+	    case QVariant::String:
+	    case QVariant::CString:
+		if ( f1->value().toString() < buf2->value( fn ).toString() )
+		    lessThan = TRUE;
+		else
+		    lessThan = FALSE;
+		break;
+	    default:
+		if ( f1->value().toDouble() < buf2->value( fn ).toDouble() )
+		    lessThan = TRUE;
+		else
+		    lessThan = FALSE;
+	    }
+	}
+	if ( lessThan == FALSE )
+	    break;
+    }
+    return lessThan;
+}
+
+bool QSqlNavigator::relocate( QSqlCursor* cursor, const QSqlRecord* buf, const QSqlIndex& idx, int atHint )
+{
+    if ( !cursor )
+	return FALSE;
+    if ( !cursor->isActive() )
+	return FALSE;
+
+    bool seekPrimary = (idx.count() ? TRUE : FALSE );
+
+    QApplication::setOverrideCursor( Qt::waitCursor );
+    bool indexEquals = FALSE;
+
+    if ( seekPrimary ) {
+
+	indexEquals = FALSE;
+
+	/* check the hint */
+	if ( cursor->seek( atHint ) )
+	    indexEquals = q_index_matches( cursor, idx );
+
+	if ( !indexEquals ) {
+	    /* check current page */
+	    int pageSize = 20;
+	    int startIdx = QMAX( atHint - pageSize, 0 );
+	    int endIdx = atHint + pageSize;
+	    for ( int j = startIdx; j <= endIdx; ++j ) {
+		if ( cursor->seek( j ) ) {
+		    indexEquals = q_index_matches( cursor, idx );
+		    if ( indexEquals )
+			break;
+		}
+	    }
+	}
+
+	if ( !indexEquals && cursor->driver()->hasQuerySizeSupport() ) {
+	    /* binary search based on record buffer and current sort fields */
+	    int lo = 0;
+	    int hi = cursor->size();
+	    int mid;
+	    if ( !q_less( buf, cursor, cursor->sort() ) )
+		lo = cursor->at();
+	    while( lo != hi ) {
+		mid = lo + (hi - lo) / 2;
+		if ( !cursor->seek( mid ) )
+		    break;
+		if ( q_index_matches( cursor, idx ) ) {
+		    indexEquals = TRUE;
+		    break;
+		}
+		if ( q_less( buf, cursor, cursor->sort() ) )
+		    hi = mid;
+		else
+		    lo = mid + 1;
+	    }
+	}
+
+	if ( !indexEquals ) {
+	    /* give up, use brute force */
+
+	    int startIdx = 0;
+	    bool reverse = FALSE;
+	    if ( q_less( buf, cursor, cursor->sort() ) ) {
+		reverse = TRUE;
+		startIdx = cursor->at();
+	    } else {
+		startIdx = cursor->at();
+	    }
+
+	    if ( cursor->at() != startIdx )
+		cursor->seek( startIdx );
+	    for ( ;; ) {
+		indexEquals = FALSE;
+		indexEquals = q_index_matches( cursor, idx );
+		if ( indexEquals )
+		    break;
+		if ( !reverse ) {
+		    if ( !cursor->next() )
+			break;
+		} else {
+		    if ( !cursor->prev() )
+			break;
+		}
+	    }
+	}
+    }
+    QApplication::restoreOverrideCursor();
+    return indexEquals;
 }
 
 #endif

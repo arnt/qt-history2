@@ -191,7 +191,7 @@ private slots:
 private:
     void         init();
     QWidget*     beginEdit ( int row, int col, bool replace );
-    void         refresh( QSqlCursor* cursor, const QSqlIndex& idx = QSqlIndex() );
+    void         refresh( QSqlCursor* cursor, const QSqlRecord* buf = 0, const QSqlIndex& idx = QSqlIndex() );
     void         updateRow( int row );
     void         endInsert();
     void         endUpdate();

@@ -38,6 +38,7 @@
 #include "qsqldriver.h"
 #include "qsqleditorfactory.h"
 #include "qsqlpropertymap.h"
+#include "qsqlnavigator.h"
 #include "qapplication.h"
 #include "qlayout.h"
 #include "qpainter.h"
@@ -832,7 +833,7 @@ void QSqlTable::insertCurrent()
 	QSqlIndex idx = d->cursor->primaryIndex( TRUE );
 	endInsert();
 	setEditMode( NotEditing, -1, -1 );
-	refresh( d->cursor, idx );
+	refresh( d->cursor, d->cursor->editBuffer(), idx );
 	emit cursorChanged( QSqlCursor::Insert );
 	setCurrentCell( currentRow(), currentColumn() );
 	break;
@@ -902,7 +903,7 @@ void QSqlTable::updateCurrent()
 	    handleError( d->cursor->lastError() );
 	QSqlIndex idx = d->cursor->primaryIndex( TRUE );
 	endUpdate();
-	refresh( d->cursor, idx );
+	refresh( d->cursor, d->cursor->editBuffer(), idx );
 	emit cursorChanged( QSqlCursor::Update );
 	setCurrentCell( currentRow(), currentColumn() );
 	break;
@@ -1039,7 +1040,7 @@ QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
   \sa QSql
 */
 
-void QSqlTable::refresh( QSqlCursor* cursor, const QSqlIndex& idx )
+void QSqlTable::refresh( QSqlCursor* cursor, const QSqlRecord* buf, const QSqlIndex& idx )
 {
     if ( !cursor )
 	return;
@@ -1050,7 +1051,6 @@ void QSqlTable::refresh( QSqlCursor* cursor, const QSqlIndex& idx )
     QSqlIndex pi;
     if ( seekPrimary )
 	pi = idx;
-    QApplication::setOverrideCursor( Qt::waitCursor );
     QString currentFilter = cursor->filter();
     if ( currentFilter.isEmpty() )
 	currentFilter = d->ftr;
@@ -1059,7 +1059,7 @@ void QSqlTable::refresh( QSqlCursor* cursor, const QSqlIndex& idx )
 	currentSort = d->srt;
     QSqlIndex newSort;
     for ( uint i = 0; i < currentSort.count(); ++i ) {
-	QString f = currentSort[i];
+	QString f = currentSort[ i ];
 	bool desc = FALSE;
 	if ( f.mid( f.length()-3 ) == "ASC" )
 	    f = f.mid( 0, f.length()-3 );
@@ -1067,60 +1067,15 @@ void QSqlTable::refresh( QSqlCursor* cursor, const QSqlIndex& idx )
 	    desc = TRUE;
 	    f = f.mid( 0, f.length()-4 );
 	}
-	newSort.append( *(cursor->field( f.simplifyWhiteSpace() )), desc );
+	newSort.append( *( cursor->field( f.simplifyWhiteSpace() ) ), desc );
     }
     cursor->select( currentFilter, newSort );
     setSize( cursor );
-    if ( seekPrimary ) {
-	// ###
-	bool indexEquals = FALSE;
-
-	/* common case, check current page */
-	int startIdx = verticalScrollBar()->value() / 20;
-	int pageSize = (int)( height() * 2 / 20 );
-	int endIdx = startIdx + pageSize;
-	for ( int j = startIdx; j <= endIdx; ++j ) {
-	    if ( cursor->seek( j ) ) {
-		for ( uint i = 0; i < pi.count(); ++i ) {
-		    const QString fn( pi.field(i)->name() );
-		    if ( pi.field(i)->value() == cursor->value( fn ) )
-			indexEquals = TRUE;
-		    else {
-			indexEquals = FALSE;
-			break;
-		    }
-		}
-		if ( indexEquals )
-		    break;
-	    }
-	}
-
-	if ( indexEquals )
-	    setCurrentCell( cursor->at(), currentColumn() );
-	else {
-	    /* give up, use brute force */
-	    cursor->first();
-	    for ( ;; ) {
-		indexEquals = FALSE;
-		for ( uint i = 0; i < pi.count(); ++i ) {
-		    const QString fn( pi.field(i)->name() );
-		    if ( pi.field(i)->value() == cursor->value( fn ) )
-			indexEquals = TRUE;
-		    else {
-			indexEquals = FALSE;
-			break;
-		    }
-		}
-		if ( indexEquals ) {
-		    setCurrentCell( cursor->at(), currentColumn() );
-		    break;
-		}
-		if ( !cursor->next() )
-		    break;
-	    }
-	}
-    }
-    QApplication::restoreOverrideCursor();
+    bool found = FALSE;
+    if ( seekPrimary && buf )
+	found = QSqlNavigator::relocate( cursor, buf, idx, lastAt );
+    if ( found )
+	setCurrentCell( cursor->at(), currentColumn() );
 }
 
 /*! Searches the current cursor for the string \a str. If the string
@@ -1718,7 +1673,7 @@ void QSqlTable::takeItem ( QTableItem * )
 void QSqlTable::refresh( const QSqlIndex& idx )
 {
     if ( d->cursor )
-	refresh( d->cursor, idx );
+	refresh( d->cursor, d->cursor->editBuffer(), idx );
 }
 
 /*!  Installs a new SQL editor factory. This enables the user to

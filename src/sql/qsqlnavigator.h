@@ -40,6 +40,7 @@
 #ifndef QT_H
 #include "qglobal.h"
 #include "qsqlerror.h"
+#include "qsqlindex.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -76,6 +77,8 @@ public:
 
     virtual QSqlCursor* defaultCursor();
     virtual QSqlForm* defaultForm();
+
+    static bool relocate( QSqlCursor* cursor, const QSqlRecord* buf, const QSqlIndex& idx, int atHint );
 
 protected:
     virtual void emitFirstRecordAvailable( bool available );
