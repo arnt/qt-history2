@@ -1841,7 +1841,7 @@ void QLineEditPrivate::drag()
     dndTimer = 0;
     QTextDrag *tdo = new QTextDrag( q->selectedText(), q );
     if ( tdo->drag() && !readOnly ) {
-	int undoState = undoState;
+	int undoState = this->undoState;
 	removeSelectedText();
 	finishChange( undoState );
     }
