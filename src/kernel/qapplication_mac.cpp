@@ -1100,7 +1100,20 @@ bool QApplication::do_mouse_down( Point *pt )
 	}
 	break;
     case inDrag:
-	DragWindow( wp, *pt, 0 );
+    {
+	    DragWindow( wp, *pt, 0 );
+	    QPoint np, op(widget->crect.x(), widget->crect.y());    
+	    {
+	        QMacSavedPortInfo savedInfo(widget);
+	        Point p = { 0, 0 };
+	        LocalToGlobal(&p);
+	        np = QPoint(p.h, p.v);
+	    }
+	    if(np != op) {
+	        widget->crect = QRect( np, widget->crect.size());
+	        QMoveEvent qme( np, op);
+	    }
+	}
 	break;
     case inContent:
 	in_widget = TRUE;
@@ -1119,8 +1132,10 @@ bool QApplication::do_mouse_down( Point *pt )
 	    // nw/nh might not match the actual size if setSizeIncrement is used
 	    int nw = LoWord( growWindowSize );
 	    int nh = HiWord( growWindowSize );
-	    if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 && widget) 
-		widget->resize(nw, nh);
+	    if(nw != widget->width() || nh != widget->height()) {
+	        if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 && widget) 
+		        widget->resize(nw, nh);
+		}
 	}
 	break;
     }
