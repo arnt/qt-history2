@@ -497,6 +497,14 @@ void PropertyItem::setFocus( QWidget *w )
 	w->setFocus();
 }
 
+void PropertyItem::setText( int col, const QString &t )
+{
+    QString txt( t );
+    if ( col == 1 )
+	txt = txt.replace( QRegExp( "\n" ), " " );
+    QListViewItem::setText( col, txt );
+}	
+
 // --------------------------------------------------------------
 
 PropertyTextItem::PropertyTextItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,

@@ -99,6 +99,7 @@ public:
     void setFocus( QWidget *w );
 
     virtual void toggle();
+    void setText( int col, const QString &txt );
 
 protected:
     PropertyList *listview;
