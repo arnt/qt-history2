@@ -3,8 +3,6 @@ TEMPLATE = lib
 IDEDIR = $$QT_BUILD_TREE/tools/designer
 DESTDIR = $$QT_BUILD_TREE/plugins/designer
 
-DEFINES += NO_INITIAL_POPUP
-
 INCLUDEPATH += \
     $$IDEDIR/src/lib/sdk \
     $$IDEDIR/src/lib/extension \

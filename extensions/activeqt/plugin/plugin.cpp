@@ -251,7 +251,7 @@ class QActiveXPlugin : public QObject, public ICustomWidget
     Q_INTERFACES(ICustomWidget)
 public:
     inline QActiveXPlugin(QObject *parent = 0)
-        : QObject(parent), m_core(0), m_activex(0) {}
+        : QObject(parent), m_core(0) {}
         
     virtual QString name() const
     { return QLatin1String("QAxWidget"); }
@@ -279,8 +279,7 @@ public:
 
     virtual QWidget *createWidget(QWidget *parent)
     {
-        m_activex = new QActiveXPluginObject(parent);
-        return m_activex;
+        return new QActiveXPluginObject(parent);
     }
     
     virtual bool isInitialized() const 
@@ -293,14 +292,6 @@ public:
 
         m_core = core;
 
-#ifndef NO_INITIAL_POPUP
-        connect(m_core->formWindowManager(), SIGNAL(formWindowAdded(AbstractFormWindow *)),
-            this, SLOT(formWindowAdded(AbstractFormWindow *)));
-
-        connect(m_core->formWindowManager(), SIGNAL(formWindowRemoved(AbstractFormWindow *)),
-            this, SLOT(formWindowRemoved(AbstractFormWindow *)));
-#endif //NO_INITIAL_POPUP
-
         QExtensionManager *mgr = core->extensionManager();
         QActiveXExtensionFactory *axf = new QActiveXExtensionFactory(mgr);
         mgr->registerExtensions(axf, Q_TYPEID(IPropertySheet));
@@ -310,42 +301,8 @@ public:
     virtual QString codeTemplate() const
     { return QString::null; }
 
-#ifndef NO_INITIAL_POPUP
-private slots:
-    void initActiveXControl(QWidget *widget)
-    {
-        if (widget == m_activex)
-            QTimer::singleShot(100, this, SLOT(openLater()));
-    }
-
-    void openLater()
-    {
-        // no need to set a control that is already set
-        if (m_activex->control().isEmpty())
-            QActiveXTaskMenu::setActiveXControl(m_activex);
-        m_activex = 0;
-    }
-
-    void formWindowAdded(AbstractFormWindow *formWindow)
-    {
-        connect(formWindow, SIGNAL(widgetManaged(QWidget *)),
-            this, SLOT(initActiveXControl(QWidget *)));
-        connect(formWindow, SIGNAL(widgetUnmanaged(QWidget *)),
-            this, SLOT(initActiveXControl(QWidget *)));
-    }
-
-    void formWindowRemoved(AbstractFormWindow *formWindow)
-    {
-        disconnect(formWindow, SIGNAL(widgetManaged(QWidget *)),
-            this, SLOT(setActiveXControl(QWidget *)));
-        disconnect(formWindow, SIGNAL(widgetUnmanaged(QWidget *)),
-            this, SLOT(setActiveXControl(QWidget *)));
-    }
-#endif //NO_INITIAL_POPUP
-    
 private:
     AbstractFormEditor *m_core;
-    QActiveXPluginObject *m_activex;
 };
 
 Q_EXPORT_PLUGIN(QActiveXPlugin)
