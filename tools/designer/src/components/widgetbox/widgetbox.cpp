@@ -63,8 +63,8 @@ static QIcon createIconSet(const QString &name)
 }
 
 static QDomElement childElement(QDomNode node, const QString &tag,
-                                    const QString &attr_name = QString(),
-                                    const QString &attr_value = QString())
+                                const QString &attr_name = QString::null,
+                                const QString &attr_value = QString::null)
 {
     if (node.isElement()) {
         QDomElement elt = node.toElement();
@@ -116,8 +116,8 @@ static void _childElementList(QDomNode node, const QString &tag,
 }
 
 static ElementList childElementList(QDomNode node, const QString &tag,
-                                    const QString &attr_name = QString(),
-                                    const QString &attr_value = QString())
+                                    const QString &attr_name = QString::null,
+                                    const QString &attr_value = QString::null)
 {
     ElementList result;
     _childElementList(node, tag, attr_name, attr_value, &result);
