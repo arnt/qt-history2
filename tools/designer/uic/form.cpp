@@ -598,6 +598,7 @@ void Uic::writeFunctionsDecl( const QStringList &fuLst, const QStringList &typLs
 	    specifier = "virtual ";
 	if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
 	    pure = " = 0";
+	type.replace( ">>", "> >" );
 	out << "    " << specifier << type << " " << *it << pure << ";" << endl;
     }
     out << endl;
