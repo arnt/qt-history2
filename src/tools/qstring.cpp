@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#282 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#283 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12958,6 +12958,10 @@ const char* QString::latin1() const
     return d->ascii;
 }
 
+/*! \obsolete
+  
+  This functions simply calls latin1() and returns the result.
+*/
 const char* QString::ascii() const
 {
     return latin1();
