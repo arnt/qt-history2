@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#23 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#24 $
 **
 ** Definition of QObject class
 **
@@ -30,7 +30,7 @@ public:
     virtual bool eventFilter( QObject *, QEvent * );
 
     virtual QMetaObject *metaObject() const { return metaObj; }
-    virtual const char  *className()  const;	// get name of class
+    virtual const char	*className()  const;	// get name of class
 
     bool	isA( const char * )	 const;
     bool	inherits( const char * ) const;
@@ -59,7 +59,7 @@ public:
     void	installEventFilter( const QObject * );
     void	removeEventFilter( const QObject * );
 
-    static bool	connect( QObject *sender, const char *signal,
+    static bool connect( QObject *sender, const char *signal,
 			 const QObject *receiver, const char *member );
     bool	connect( QObject *sender, const char *signal,
 			 const char *member ) const;
@@ -81,7 +81,7 @@ protected:
     void	activate_signal( const char *signal, int );
     void	activate_signal( const char *signal, long );
     void	activate_signal( const char *signal, const char * );
-    QObject     *sender();			// sender of last signal
+    QObject	*sender();			// sender of last signal
 
     virtual void initMetaObject();		// initialize meta object
 
@@ -96,8 +96,8 @@ private:
     bool	 bind( const char *, const QObject *, const char * );
     QMetaObject *queryMetaObject() const;
     static QMetaObject *metaObj;		// meta object for class
-    char        *objname;			// object name
-    QObject     *parentObj;			// parent object
+    char	*objname;			// object name
+    QObject	*parentObj;			// parent object
     QObjectList *childObjects;			// list of children objects
     QSignalDict *connections;			// connections (signals out)
     QObjectList *senderObjects;			// list of sender objects

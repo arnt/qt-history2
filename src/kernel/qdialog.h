@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#5 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#6 $
 **
 ** Definition of QDialog class
 **
 ** Author  : Haavard Nord
 ** Created : 950502
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 

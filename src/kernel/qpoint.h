@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#6 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#7 $
 **
 ** Definition of QPoint class
 **
@@ -20,14 +20,14 @@ class QPoint					// point class
 {
 public:
     QPoint()	{}				// undefined init values
-    QPoint( QCOORD xpos, QCOORD ypos );		// set x=xpos, y=ypos
+    QPoint( int xpos, int ypos );		// set x=xpos, y=ypos
 
     bool   isNull()	const	{ return xp==0 && yp==0; }
 
-    QCOORD x()		const	{ return xp; }	// get x
-    QCOORD y()		const	{ return yp; }	// get y
-    void   setX( QCOORD x )	{ xp=x; }	// set x
-    void   setY( QCOORD y )	{ yp=y; }	// set y
+    int	   x()		const	{ return xp; }	// get x
+    int	   y()		const	{ return yp; }	// get y
+    void   setX( int x )	{ xp=(QCOORD)x;}// set x
+    void   setY( int y )	{ yp=(QCOORD)y;}// set y
 
     QCOORD &rx()		{ return xp; }	// get reference to x
     QCOORD &ry()		{ return yp; }	// get reference to y
@@ -76,9 +76,9 @@ QDataStream &operator>>( QDataStream &, QPoint & );
 // QPoint member functions
 //
 
-inline QPoint::QPoint( QCOORD xpos, QCOORD ypos )
+inline QPoint::QPoint( int xpos, int ypos )
 {
-    xp=xpos; yp=ypos;
+    xp=(QCOORD)xpos; yp=(QCOORD)ypos;
 }
 
 inline QPoint &QPoint::operator+=( const QPoint &p )
@@ -93,7 +93,7 @@ inline QPoint &QPoint::operator-=( const QPoint &p )
 
 inline QPoint &QPoint::operator*=( int c )
 {
-    xp*=c; yp*=c; return *this;
+    xp*=(QCOORD)c; yp*=(QCOORD)c; return *this;
 }
 
 inline QPoint &QPoint::operator*=( float c )
@@ -103,7 +103,7 @@ inline QPoint &QPoint::operator*=( float c )
 
 inline QPoint &QPoint::operator/=( int c )
 {
-    xp/=c; yp/=c; return *this;
+    xp/=(QCOORD)c; yp/=(QCOORD)c; return *this;
 }
 
 inline QPoint &QPoint::operator/=( float c )

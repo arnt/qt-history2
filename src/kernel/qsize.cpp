@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#9 $
 **
 ** Implementation of QSize class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#9 $";
 #endif
 
 /*!
@@ -43,9 +43,9 @@ Constructs a size with undefined width and height.
 Constructs a size with width \e w and height \e h.
 */
 
-QSize::QSize( QCOORD w, QCOORD h )
+QSize::QSize( int w, int h )
 {
-    wd=w; ht=h;
+    wd=(QCOORD)w; ht=(QCOORD)h;
 }
 
 /*!
@@ -155,7 +155,7 @@ the size.
 
 QSize &QSize::operator*=( int c )
 {
-    wd*=c; ht*=c; return *this;
+    wd*=(QCOORD)c; ht*=(QCOORD)c; return *this;
 }
 
 /*!
@@ -185,7 +185,7 @@ QSize &QSize::operator/=( int c )
 #endif
 	return *this;
     }
-    wd/=c; ht/=c; return *this;
+    wd/=(QCOORD)c; ht/=(QCOORD)c; return *this;
 }
 
 /*!
@@ -334,9 +334,9 @@ QSize operator/( const QSize &s, float c )
 
 /*!
 \relates QSize
-Writes the size to the stream.
+Writes the size to the stream and returns a reference to the stream.
 
-The output format is two INT16 (first teh width, then the height).
+Output format: [width (INT16), height (INT16)].
 */
 
 QDataStream &operator<<( QDataStream &s, const QSize &sz )
@@ -346,7 +346,7 @@ QDataStream &operator<<( QDataStream &s, const QSize &sz )
 
 /*!
 \relates QSize
-Reads the size from the stream.
+Reads the size from the stream and returns a reference to the stream.
 */
 
 QDataStream &operator>>( QDataStream &s, QSize &sz )

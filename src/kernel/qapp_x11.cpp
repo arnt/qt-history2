@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#79 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -27,12 +27,12 @@
 #include <X11/Xatom.h>
 
 #if defined(DEBUG) && !defined(CHECK_MEMORY)
-#define  CHECK_MEMORY
+#define	 CHECK_MEMORY
 #include <qmemchk.h>
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#78 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#79 $";
 #endif
 
 
@@ -41,40 +41,40 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#78 $";
 //
 
 static char    *appName;			// application name
-static char    *appFont         = 0;		// application font
-static char    *appBGCol        = 0;		// application bg color
-static char    *appFGCol        = 0;		// application fg color
-static char    *tlwGeometry     = 0;		// top level widget geometry
-static char    *tlwTitle        = 0;		// top level widget title
-static bool     tlwIconic       = FALSE;	// top level widget iconified
+static char    *appFont		= 0;		// application font
+static char    *appBGCol	= 0;		// application bg color
+static char    *appFGCol	= 0;		// application fg color
+static char    *tlwGeometry	= 0;		// top level widget geometry
+static char    *tlwTitle	= 0;		// top level widget title
+static bool	tlwIconic	= FALSE;	// top level widget iconified
 static int	appArgc;			// argument count
 static char   **appArgv;			// argument vector
 static Display *appDpy;				// X11 application display
-static char    *appDpyName      = 0;		// X11 display name
-static bool	appSync         = FALSE;	// X11 synchronization
+static char    *appDpyName	= 0;		// X11 display name
+static bool	appSync		= FALSE;	// X11 synchronization
 static bool	appNoGrab	= FALSE;	// X11 grabbing enabled
 static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
 static bool	app_save_rootinfo = FALSE;	// save root info
 
 static bool	app_do_modal	= FALSE;	// modal mode
-static int	app_loop_level  = 1;		// event loop level
-static bool	app_exit_loop   = FALSE;	// flag to exit local loop
+static int	app_loop_level	= 1;		// event loop level
+static bool	app_exit_loop	= FALSE;	// flag to exit local loop
 static int	app_Xfd;			// X network socket
 static int	app_Xfd_width;
 static fd_set	app_fdset;
 
-static GC	app_gc_ro       = 0;		// read-only GC
-static GC	app_gc_tmp      = 0;		// temporary GC
-static GC	app_gc_ro_m     = 0;		// read-only GC (monochrome)
-static GC	app_gc_tmp_m    = 0;		// temporary GC (monochrome)
-static QWidget *desktopWidget   = 0;		// root window widget
+static GC	app_gc_ro	= 0;		// read-only GC
+static GC	app_gc_tmp	= 0;		// temporary GC
+static GC	app_gc_ro_m	= 0;		// read-only GC (monochrome)
+static GC	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
+static QWidget *desktopWidget	= 0;		// root window widget
 Atom		q_wm_delete_window;		// delete window protocol
 #if defined(DEBUG)
 static bool	appMemChk	= FALSE;	// memory checking (debugging)
 #endif
 
-static Window	mouseActWindow 	     = 0;	// window where mouse is
+static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
 static int	mouseButtonState     = 0;	// mouse button state
 static Time	mouseButtonPressTime = 0;	// when was a button pressed
@@ -445,7 +445,7 @@ GC qt_xget_readonly_gc( bool monochrome )	// get read-only GC
     GC gc;
     if ( monochrome ) {
 	if ( !app_gc_ro_m ) {			// create GC for bitmap
-	    Pixmap pm =  XCreatePixmap( appDpy, appRootWin, 8, 8, 1 );
+	    Pixmap pm =	 XCreatePixmap( appDpy, appRootWin, 8, 8, 1 );
 	    app_gc_ro_m = XCreateGC( appDpy, pm, 0, 0 );
 	    XFreePixmap( appDpy, pm );
 	}
@@ -464,7 +464,7 @@ GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
     GC gc;
     if ( monochrome ) {
 	if ( !app_gc_tmp_m ) {			// create GC for bitmap
-	    Pixmap pm =  XCreatePixmap( appDpy, appRootWin, 8, 8, 1 );
+	    Pixmap pm =	 XCreatePixmap( appDpy, appRootWin, 8, 8, 1 );
 	    app_gc_tmp_m = XCreateGC( appDpy, pm, 0, 0 );
 	    XFreePixmap( appDpy, pm );
 	}
@@ -697,13 +697,13 @@ int QApplication::exec( QWidget *mainWidget )	// enter main event loop
 	if ( tlwTitle )
 	    XStoreName( appDpy, main_widget->id(), tlwTitle );
 	if ( tlwGeometry ) {			// parse geometry
-	    int  x, y;
+	    int	 x, y;
 	    uint w, h;
 	    int m = XParseGeometry( tlwGeometry, &x, &y, &w, &h );
 	    if ( (m & XValue) == 0 )	  x = main_widget->geometry().x();
 	    if ( (m & YValue) == 0 )	  y = main_widget->geometry().y();
 	    if ( (m & WidthValue) == 0 )  w = main_widget->width();
-	    if ( (m & HeightValue) == 0 ) h = main_widget->height();	    
+	    if ( (m & HeightValue) == 0 ) h = main_widget->height();
 	    main_widget->setGeometry( x, y, w, h );
 	}
     }
@@ -727,7 +727,7 @@ int QApplication::enter_loop()			// local event loop
 	    if ( quit_now )			// quit between events
 		break;
 	    XNextEvent( appDpy, &event );	// get next event
-	    
+
 	    if ( x11EventFilter( &event ) )	// send event through filter
 		continue;
 
@@ -791,13 +791,13 @@ int QApplication::enter_loop()			// local event loop
 
 		case FocusIn: {			// got focus
 		    QWidget *w = widget;
-		    while ( w->parentWidget() )	// go to top level
+		    while ( w->parentWidget() ) // go to top level
 			w = w->parentWidget();
 		    while ( w->focusChild )	// go down focus chain
 			w = w->focusChild;
 		    if ( w != focus_widget && w->acceptFocus() ) {
-		        focus_widget = w;
-		        QFocusEvent in( Event_FocusIn );
+			focus_widget = w;
+			QFocusEvent in( Event_FocusIn );
 			QApplication::sendEvent( w, &in );
 		    }
 		    }
@@ -962,7 +962,7 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	case KeyPress:
 	case KeyRelease:
 	case ClientMessage:
-	    block_event  = TRUE;
+	    block_event	 = TRUE;
 	    break;
 	case Expose:
 	    expose_event = TRUE;
@@ -1445,7 +1445,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		return FALSE;
 	    type = Event_MouseButtonRelease;
 	    if ( (state & (LeftButton|MidButton|RightButton)) == 0 )
-		buttonDown = FALSE;	    
+		buttonDown = FALSE;
 	}
     }
     mouseActWindow = id();			// save mouse event params

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#19 $
 **
 ** Implementation of QPixmap class
 **
 ** Author  : Haavard Nord
 ** Created : 950301
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#19 $";
 #endif
 
 

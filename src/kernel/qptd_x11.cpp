@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#34 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#34 $";
 #endif
 
 
@@ -64,7 +64,7 @@ to the right:
 \endcode
 
 \warning Qt requires that a QApplication object must exist before any paint
-devices can be created.  Paint devices access window system resources, and 
+devices can be created.	 Paint devices access window system resources, and
 these resources are not initialized before an application object is created.
 */
 
@@ -81,10 +81,10 @@ QPaintDevice::QPaintDevice( uint devflags )
 	fatal( "QPaintDevice: Must construct a QApplication before a QPaintDevice" );
 #endif
 	return;
-    }    
+    }
     devFlags = devflags;
     dpy = qt_xdisplay();
-    hd  = 0;
+    hd	= 0;
 }
 
 /*!
@@ -187,14 +187,14 @@ If \e sh is negative, then bitBlt calculates
 The \e rop parameter can be one of:
 <ul>
 <li> \c CopyROP:     dst = src.
-<li> \c OrROP:       dst = dst OR src.
-<li> \c XorROP:      dst = dst XOR src.
+<li> \c OrROP:	     dst = dst OR src.
+<li> \c XorROP:	     dst = dst XOR src.
 <li> \c EraseROP:    dst = (NOT src) AND dst
 <li> \c NotCopyROP:  dst = NOT src
 <li> \c NotOrROP:    dst = (NOT src) OR dst
 <li> \c NotXorROP:   dst = (NOT src) XOR dst
 <li> \c NotEraseROP: dst = src AND dst
-<li> \c NotROP:      dst = NOT dst
+<li> \c NotROP:	     dst = NOT dst
 </ul>
 
 There are some restrictions:
@@ -251,8 +251,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	QPDevCmdParam param[3];
 	QRect  r(sx,sy,sw,sh);
 	QPoint p(dx,dy);
-	param[0].rect   = &r;
-	param[1].point  = &p;
+	param[0].rect	= &r;
+	param[1].point	= &p;
 	param[2].pixmap = pm;
 	dst->cmd( PDC_DRAWPIXMAP, param );
 	if ( ts == PDT_WIDGET )
@@ -290,7 +290,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	copy_plane = ((QPixmap*)src)->depth() == 1;
     if ( td == PDT_PIXMAP ) {
 	bool single_plane = ((QPixmap*)dst)->depth() == 1;
-	if ( single_plane && !copy_plane ) {	
+	if ( single_plane && !copy_plane ) {
 #if defined(CHECK_RANGE)
 		warning( "bitBlt: Incompatible destination pixmap" );
 #endif
@@ -300,7 +300,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	copy_plane ^= single_plane;
 	((QPixmap*)dst)->detach();   // we will change (possibly) shared pixmap
     }
-    GC        gc = qt_xget_temp_gc( mono );
+    GC	      gc = qt_xget_temp_gc( mono );
     XGCValues gcvals;
     ulong     gcflags = GCBackground | GCForeground;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#10 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#11 $
 **
 ** Definition of QRect class
 **
@@ -22,25 +22,25 @@ public:
     QRect()	{}				// undefined init values
     QRect( const QPoint &topleft, const QPoint &bottomright );
     QRect( const QPoint &topleft, const QSize &size );
-    QRect( QCOORD left, QCOORD top, QCOORD width, QCOORD height );
+    QRect( int left, int top, int width, int height );
 
     bool   isNull()	const;			// zero width and height
     bool   isEmpty()	const;			// zero or neg. width or height
     bool   isValid()	const;			// has valid coordinates
     void   fixup();				// fixup bad coordinates
 
-    QCOORD left()	 const	{ return x1; }	// get left position
-    QCOORD top()	 const	{ return y1; }	// get top position
-    QCOORD right()	 const	{ return x2; }	// get right position
-    QCOORD bottom()	 const	{ return y2; }	// get bottom position
-    QCOORD x()		 const	{ return x1; }	// same as left()
-    QCOORD y()		 const	{ return y1; }	// same as top()
-    void   setLeft( QCOORD pos );		// set left position
-    void   setTop( QCOORD pos );		// set top position
-    void   setRight( QCOORD pos );		// set right position
-    void   setBottom( QCOORD pos );		// set bottom position
-    void   setX( QCOORD x );			// same as setLeft()
-    void   setY( QCOORD y );			// same as setTop()
+    int	   left()	 const	{ return x1; }	// get left position
+    int	   top()	 const	{ return y1; }	// get top position
+    int	   right()	 const	{ return x2; }	// get right position
+    int	   bottom()	 const	{ return y2; }	// get bottom position
+    int	   x()		 const	{ return x1; }	// same as left()
+    int	   y()		 const	{ return y1; }	// same as top()
+    void   setLeft( int pos );			// set left position
+    void   setTop( int pos );			// set top position
+    void   setRight( int pos );			// set right position
+    void   setBottom( int pos );		// set bottom position
+    void   setX( int x );			// same as setLeft()
+    void   setY( int y );			// same as setTop()
 
     QPoint topLeft()	 const;			// get top left point
     QPoint bottomRight() const;			// get bottom right point
@@ -59,10 +59,10 @@ public:
     void   setCoords( int x1, int y1, int x2, int y2 );
 
     QSize  size()	 const;			// get size
-    QCOORD width()	 const;			// get width
-    QCOORD height()	 const;			// get height
-    void   setWidth( QCOORD w );		// set width
-    void   setHeight( QCOORD h );		// set height
+    int	   width()	 const;			// get width
+    int	   height()	 const;			// get height
+    void   setWidth( int w );			// set width
+    void   setHeight( int h );			// set height
     void   setSize( const QSize &s );		// set size
 
     bool   contains( const QPoint &p, bool proper=FALSE ) const;
@@ -103,34 +103,34 @@ QDataStream &operator>>( QDataStream &, QRect & );
 // QRect member functions
 //
 
-inline void QRect::setLeft( QCOORD pos )
+inline void QRect::setLeft( int pos )
 {
-    x1 = pos;
+    x1 = (QCOORD)pos;
 }
 
-inline void QRect::setTop( QCOORD pos )
+inline void QRect::setTop( int pos )
 {
-    y1 = pos;
+    y1 = (QCOORD)pos;
 }
 
-inline void QRect::setX( QCOORD x )
+inline void QRect::setX( int x )
 {
-    x1 = x;
+    x1 = (QCOORD)x;
 }
 
-inline void QRect::setY( QCOORD y )
+inline void QRect::setY( int y )
 {
-    y1 = y;
+    y1 = (QCOORD)y;
 }
 
-inline void QRect::setRight( QCOORD pos )
+inline void QRect::setRight( int pos )
 {
-    x2 = pos;
+    x2 = (QCOORD)pos;
 }
 
-inline void QRect::setBottom( QCOORD pos )
+inline void QRect::setBottom( int pos )
 {
-    y2 = pos;
+    y2 = (QCOORD)pos;
 }
 
 inline QPoint QRect::topLeft() const
@@ -178,20 +178,14 @@ inline QSize QRect::size() const
     return QSize( x2-x1+1, y2-y1+1 );
 }
 
-inline QCOORD QRect::width() const
+inline int QRect::width() const
 {
     return x2-x1+1;
 }
 
-inline QCOORD QRect::height() const
+inline int QRect::height() const
 {
     return y2-y1+1;
-}
-
-inline void QRect::setSize( const QSize &s )
-{
-    x2 = x1+s.width()-1;
-    y2 = y1+s.height()-1;
 }
 
 #endif // inline functions

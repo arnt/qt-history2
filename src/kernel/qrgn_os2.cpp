@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#3 $
 **
 ** Implementation of QRegion class for OS/2 PM
 **
 ** Author  : Haavard Nord
 ** Created : 940802
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#3 $";
 #endif
 
 

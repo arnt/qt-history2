@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#36 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#36 $";
 #endif
 
 
@@ -156,7 +156,7 @@ int computeLineWidth( const char *fontName )
 		// Ad hoc algorithm, correct for bitstream charter
     int score = pSize*weight;
     int lw = ( score ) / 700;
-    if ( lw < 2 && score >= 1050 ) // looks better with thicker line 
+    if ( lw < 2 && score >= 1050 ) // looks better with thicker line
 	lw = 2;			   // for small pointsizes
 
     return lw ? lw : 1;
@@ -175,7 +175,7 @@ struct QXFontData {
     QXFontStruct *f;
     bool dirty() { return f == 0; }
     QXFontData() {}
-   ~QXFontData() { 
+   ~QXFontData() {
 #if defined (DEBUG_FONT)
 	debug("+++ Deleting [%s]",name.data());
 #endif
@@ -204,8 +204,8 @@ public:
     void deleteItem( GCI d );
 };
 
-void QFontCache::deleteItem( GCI d ) 
-{ 
+void QFontCache::deleteItem( GCI d )
+{
     QXFontData *xfd = (QXFontData *)d;
     if ( !xfd->dirty() )
 	XFreeFont( qt_xdisplay(), xfd->f );
@@ -276,7 +276,7 @@ void QFont::cacheStatistics()
     QXFontData *tmp;
     debug("{");
     while ( (tmp = iter.current()) ) {
-	debug("	  [%s]",tmp->name.data());
+	debug("   [%s]",tmp->name.data());
 	++iter;
     }
     debug("}");
@@ -405,7 +405,7 @@ QString QFont::lastResortFamily() const
     return "helvetica";
 }
 
-const char *tryFonts[] = { "fixed", "6x13", "9x15", 
+const char *tryFonts[] = { "fixed", "6x13", "9x15",
 			      "-*-helvetica-medium-r-*-*-*-120-*-*-*-*-*-*",
 			      "-*-courier-medium-r-*-*-*-120-*-*-*-*-*-*",
 			      "-*-times-medium-r-*-*-*-120-*-*-*-*-*-*",
@@ -681,7 +681,7 @@ QString QFont_Private::bestMatch( const QString &pattern, int *score )
 				weightDiff < best.weightDiff ) {
 	    if ( scalable ) {
 		if ( sc > bestScalable.score ||
-		     sc == bestScalable.score && 
+		     sc == bestScalable.score &&
 			   weightDiff < bestScalable.weightDiff ) {
 #if defined(DEBUG_FONT)
 		    debug( "### New best scalable score." );
@@ -707,7 +707,7 @@ QString QFont_Private::bestMatch( const QString &pattern, int *score )
 
     if ( best.score != exactScore && ( bestScalable.score > best.score ||
 	     bestScalable.score == best.score && (
-		 best.pointDiff != 0 || 
+		 best.pointDiff != 0 ||
 		 best.weightDiff < bestScalable.weightDiff ) ) ) {
 	if ( smoothlyScalable( bestScalable.name ) ) {
 
@@ -812,14 +812,14 @@ QXFontData *loadXFont( const QString &fontName, bool *newFont )
 					       fontName.data() );
 #endif
 	if ( newFont )
-	    *newFont = TRUE;	
+	    *newFont = TRUE;
     }
     xfd->f    = tmp;
     xfd->name = fontName;			// used by QFontInfo
 #if defined(DEBUG_FONT)
     debug( "min_byte1 = %i, max_byte1 = %i", xfd->f->min_byte1,
 	   xfd->f->max_byte1 );
-    debug( "min_cob2 = %i, max_cob2	 = %i",
+    debug( "min_cob2 = %i, max_cob2      = %i",
 	   xfd->f->min_char_or_byte2,
 	   xfd->f->max_char_or_byte2 );
 #endif
@@ -853,7 +853,7 @@ void QFont::loadFont() const
     else
 	instanceID.sprintf("x%s_%i_%i_%i_%i_%i_%i",
 				      family(),deciPointSize(),
-				      d->req.hintSetByUser ? styleHint() : 
+				      d->req.hintSetByUser ? styleHint() :
 							     QFont::AnyStyle,
 				      charSet(), weight(), italic() ? 1 : 0,
 				      fixedPitch() ? 1 : 0 );
@@ -873,7 +873,7 @@ void QFont::loadFont() const
 		fn->exactMatch = FALSE;
 	    }
 	} else {
-	    fn->name = PRIV->findFont( &fn->exactMatch ); // Returns a 
+	    fn->name = PRIV->findFont( &fn->exactMatch ); // Returns a
 							  // loadable font.
 	}
 	fontNameDict->insert( instanceID, fn );
@@ -896,7 +896,7 @@ void QFont::loadFont() const
 	if ( !d->xfd )
 	    fatal( "QFont::loadFont: Internal error" );
     }
-    d->lineW	 = computeLineWidth( d->xfd->name ); 
+    d->lineW	 = computeLineWidth( d->xfd->name );
     d->req.dirty = FALSE;
     d->act.dirty = TRUE;      // actual font information no longer valid
 #if defined(DEBUG_FONT)
@@ -961,7 +961,7 @@ int QFontMetrics::height() const
     return f.d->xfd->f->max_bounds.ascent + f.d->xfd->f->max_bounds.descent;
 }
 
-/*! Returns the leading of the font in pixels.  This is the natural
+/*! Returns the leading of the font in pixels.	This is the natural
   inter-line spacing. \sa height(). */
 
 int QFontMetrics::leading() const
@@ -1040,7 +1040,7 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 	   width =  overall.rbearing - startX;
 	if ( f.d->act.underline && len != 0 ) {
 	    int ulTop = underlinePos();
-	    int ulBot = ulTop + lineWidth(); // X descent is 1 
+	    int ulBot = ulTop + lineWidth(); // X descent is 1
 	    if ( descent < ulBot ) // more than logical descent, so don't
 		descent = ulBot;   // subtract 1 here!
 	    if ( ascent < -ulTop )

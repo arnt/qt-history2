@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#9 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#9 $";
 #endif
 
 
@@ -44,7 +44,7 @@ Example of use:
   QWidget  w;
   QPainter p;
   QRegion r1( QRect(100,100,200,80),	\/ r1 = elliptic region
-              QRegion::Ellipse );
+	      QRegion::Ellipse );
   QRegion r2( QRect(100,120,90,30) );	\/ r2 = rectangular region
   QRegion r3 = r1.intersect( r2 );	\/ r3 = intersection
   p.begin( &w );			\/ start painting widget

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#14 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#15 $
 **
 ** Definition of QColor class
 **
@@ -17,7 +17,7 @@
 
 
 const ulong RGB_DIRTY	= 0x80000000;		// flags unset color
-const ulong RGB_INVALID	= 0x40000000;		// flags invalid color
+const ulong RGB_INVALID = 0x40000000;		// flags invalid color
 const ulong RGB_MASK	= 0x00ffffff;		// masks RGB values
 
 
@@ -67,12 +67,12 @@ public:
 
     void   getHSV( int *h, int *s, int *v ) const; // get HSV value
     void   setHSV( int h, int s, int v );	// set HSV value
-    
+
     bool   isValid()const { return (rgb & RGB_INVALID) == 0; }
     bool   isDirty()const { return (rgb & RGB_DIRTY) == RGB_DIRTY; }
 
     QColor light( int f = 112 ) const;		// get lighter color
-    QColor dark( int f = 200 )  const;		// get darker color
+    QColor dark( int f = 200 )	const;		// get darker color
 
     ulong  pixel()  const;			// get pixel value
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#11 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#12 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -48,7 +48,7 @@ public:
     void	setNumColors( int );
 
     uchar      *bits()		const;
-    uchar      *scanline( int )	const;
+    uchar      *scanline( int ) const;
     uchar     **jumpTable()	const;
     bool	contiguousBits()const;
     ulong      *colorTable()	const;
@@ -66,6 +66,7 @@ public:
     static int	systemByteOrder();
 
 private:
+    void	init();
     void	freeBits();
 
     struct QImageData : QShared {		// internal image data
@@ -84,8 +85,8 @@ private:
 };
 
 
-struct QIODevice;
-typedef void (*image_io_handler)( QImageIO * );	// image IO handler
+class QIODevice;
+typedef void (*image_io_handler)( QImageIO * ); // image IO handler
 
 
 class QImageIO
@@ -125,7 +126,7 @@ public:
 
 private:
     QImage	im;				// image
-    int	    	iostat;				// IO status
+    int		iostat;				// IO status
     QString	frmt;				// image format
     QIODevice  *iodev;				// IO device
     QString	fname;				// file name

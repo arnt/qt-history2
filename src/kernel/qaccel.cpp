@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#9 $
 **
 ** Implementation of QAccel class
 **
 ** Author  : Haavard Nord
 ** Created : 950419
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include "qsignal.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#9 $";
 #endif
 
 
@@ -39,7 +39,7 @@ children of this parent widget. */
 
 struct QAccelItem {				// accelerator item
     QAccelItem( int k, int i ) { key=k; id=i; enabled=TRUE; signal=0; }
-   ~QAccelItem() 	       { delete signal; }
+   ~QAccelItem()	       { delete signal; }
     int		id;
     int		key;
     bool	enabled;
@@ -277,7 +277,7 @@ bool QAccel::disconnectItem( int id, const QObject *receiver,
     QAccelItem *item = find_id(aitems, id);
     if ( item && item->signal )
 	return item->signal->disconnect( receiver, member );
-    return FALSE;    
+    return FALSE;
 }
 
 

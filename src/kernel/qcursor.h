@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#10 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#11 $
 **
 ** Definition of QCursor class
 **
@@ -57,7 +57,7 @@ public:
 private:
     void	  update() const;
     static QCursor *locate( int );
-    QCursorData  *data;
+    QCursorData	 *data;
 };
 
 

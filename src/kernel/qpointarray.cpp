@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#18 $
 **
 ** Implementation of QPointArray class
 **
@@ -17,7 +17,7 @@
 #include <stdarg.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#18 $";
 #endif
 
 
@@ -28,9 +28,9 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#17 $";
 QPointArray::QPointArray( const QRect &r, bool closed )
 {
     setPoints( 4, r.left(),  r.top(),
-	          r.right(), r.top(),
-	       	  r.right(), r.bottom(),
-	          r.left(),  r.bottom() );
+		  r.right(), r.top(),
+		  r.right(), r.bottom(),
+		  r.left(),  r.bottom() );
     if ( closed ) {
 	resize( 5 );
 	setPoint( 4, r.left(), r.top() );
@@ -117,7 +117,7 @@ bool QPointArray::setPoints( int nPoints, int firstx, int firsty,
 
 bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
 {
-    if ( index + nPoints > size() ) {		// extend array
+    if ( index + nPoints > (int)size() ) {		// extend array
 	if ( !resize( index + nPoints ) )
 	    return FALSE;
     }
@@ -134,7 +134,7 @@ bool QPointArray::putPoints( int index, int nPoints, int firstx, int firsty,
 			     ... )
 {
     va_list ap;
-    if ( index + nPoints > size() ) {		// extend array
+    if ( index + nPoints > (int)size() ) {		// extend array
 	if ( !resize( index + nPoints ) )
 	    return FALSE;
     }
@@ -170,7 +170,7 @@ QRect QPointArray::boundingRect() const		// get bounding rect
     minx = maxx = pd->x;
     miny = maxy = pd->y;
     pd++;
-    for ( int i=1; i<size(); i++ ) {		// find min+max x and y
+    for ( int i=1; i<(int)size(); i++ ) {	// find min+max x and y
 	if ( pd->x < minx )
 	    minx = pd->x;
 	else if ( pd->x > maxx )
@@ -231,7 +231,7 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
     }
 #endif
     while ( npts-- ) {
-	if ( i >= size() )			// wrap index
+	if ( i >= (int)size() )			// wrap index
 	    i = 0;
 	a.QArrayM(QPointData)::at( j ) = QArrayM(QPointData)::at( i );
 	i++;
@@ -383,7 +383,7 @@ const max_bezcontrols = 20;			// max Bezier control points
 // and that we don't get any numerical overflow.
 //
 
-const max_bico  = max_bezcontrols;		// max binomial coefficient n
+const max_bico	= max_bezcontrols;		// max binomial coefficient n
 const num_bicos = max_bico*(max_bico+1)/2;	// 1+2+3+...+max_bico
 static long bicot[num_bicos];			// Pascal's triangle
 
@@ -429,8 +429,8 @@ QPointArray QPointArray::bezier() const		// calculate Bezier curve
     for ( v=0; v<=n; v++ ) {			// store all x,y in xvec,yvec
 	int x, y;
 	point( v, &x, &y );
-	xvec[v] = x;
-	yvec[v] = y;
+	xvec[v] = (float)x;
+	yvec[v] = (float)y;
 	if ( v > 0 ) {
 	    x -= (int)xvec[v-1];
 	    y -= (int)yvec[v-1];
@@ -443,14 +443,13 @@ QPointArray QPointArray::bezier() const		// calculate Bezier curve
     register QPointData *pd = p.data();
     if ( n == 2 ) {				// 3 control points
 	float x0 = xvec[0],  y0 = yvec[0];
-	float dt = 1.0/m;
-	float bx = 2.0 * (xvec[1] - x0);
+	float dt = 1.0F/m;
+	float bx = 2.0F * (xvec[1] - x0);
 	float ax = xvec[2] - (x0 + bx);
-	float by = 2.0 * (yvec[1] - y0);
+	float by = 2.0F * (yvec[1] - y0);
 	float ay = yvec[2] - (y0 + by);
-	float t = 0.0;
+	float t = 0.0F;
 	float xf,yf;
-	v = 0;
 	while ( m-- ) {				// optimized loop
 	    xf = (ax * t + bx) * t + x0;
 	    yf = (ay * t + by) * t + y0;
@@ -458,20 +457,19 @@ QPointArray QPointArray::bezier() const		// calculate Bezier curve
 	    pd->y = (Qpnta_t)(yf + (yf > 0 ? 0.5 : -0.5));
 	    pd++;
 	    t += dt;
-	}	
+	}
     }
     else if ( n == 3 ) {			// 4 control points
 	float x0 = xvec[0],  y0 = yvec[0];
-	float dt = 1.0/m;
-	float cx = 3.0 * (xvec[1] - x0);
-	float bx = 3.0 * (xvec[2] - xvec[1]) - cx;
+	float dt = 1.0F/m;
+	float cx = 3.0F * (xvec[1] - x0);
+	float bx = 3.0F * (xvec[2] - xvec[1]) - cx;
 	float ax = xvec[3] - (x0 + cx + bx);
-	float cy = 3.0 * (yvec[1] - y0);
-	float by = 3.0 * (yvec[2] - yvec[1]) - cy;
+	float cy = 3.0F * (yvec[1] - y0);
+	float by = 3.0F * (yvec[2] - yvec[1]) - cy;
 	float ay = yvec[3] - (y0 + cy + by);
-	float t = 0.0;
+	float t = 0.0F;
 	float xf,yf;
-	v = 0;
 	while ( m-- ) {				// optimized loop
 	    xf = ((ax * t + bx) * t + cx) * t + x0;
 	    yf = ((ay * t + by) * t + cy) * t + y0;
@@ -488,16 +486,16 @@ QPointArray QPointArray::bezier() const		// calculate Bezier curve
 	float bv,u;
 	float uv1[max_bezcontrols];		// contains: uv1[i] = u^i
 	float uv2[max_bezcontrols];		// contains: uv2[i] = (1-u)^i
-	uv1[0] = uv2[0] = 1;
+	uv1[0] = uv2[0] = 1.0F;
 	float xf, yf;
 	int   i, b, k;
 	for ( i=0; i<=m; i++ ) {		// for each Bezier point...
 	    u = (float)i/m;
 	    for ( b=1; b<=n; b++ ) {		// compute u^1, u^2, ... u^n
 		uv1[b] = u*uv1[b-1];		//   and (1-u)^1, ... (1-u)^n
-		uv2[b] = (1.0-u)*uv2[b-1];
+		uv2[b] = (1.0F-u)*uv2[b-1];
 	    }
-	    xf = yf = 0;
+	    xf = yf = 0.0F;
 	    for ( k=0; k<=n; k++ ) {		// add control point influence
 		bv = uv1[k]*uv2[n-k]*bico[k];	// compute blending value
 		xf += bv*xvec[k];

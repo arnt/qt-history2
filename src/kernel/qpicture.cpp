@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#24 $
 **
 ** Implementation of QPicture class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#24 $";
 #endif
 
 
@@ -35,7 +35,7 @@ Pictures are called meta-files on some platforms.
 
 Qt pictures use a proprietary binary format.  Unlike native picture (meta-file)
 formats on many window systems, Qt pictures have no limitations regarding
-the contents.  Everything that can be painted can also be stored in 
+the contents.  Everything that can be painted can also be stored in
 a picture (fonts, pixmaps, regions, transformed graphics etc.)
 
 Example of how to record a picture:
@@ -54,7 +54,7 @@ Example of how to replay a picture:
   pic.load( "drawing.pic" );		\/ load picture
 
   QWidget   w;
-  QPainter  p;  
+  QPainter  p;
   p.begin( &w );			\/ paint in widget
   p.drawPicture( pic );			\/ draw the picture
   p.end();				\/ painting done
@@ -177,7 +177,7 @@ bool QPicture::play( QPainter *painter )
     if ( c == PDC_BEGIN ) {
 	s >> nrecords;
 	if ( !exec( painter, s, nrecords ) )
-	    c = 0;	
+	    c = 0;
     }
     if ( c !=  PDC_BEGIN ) {
 #if defined(CHECK_RANGE)
@@ -185,7 +185,7 @@ bool QPicture::play( QPainter *painter )
 #endif
 	pictb.close();
 	return FALSE;
-    }	 
+    }
     pictb.close();
     return TRUE;				// no end-command
 }
@@ -193,18 +193,18 @@ bool QPicture::play( QPainter *painter )
 
 bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 {
-    UINT8  	c;				// command id
-    UINT8  	tiny_len;			// 8-bit length descriptor
-    INT32  	len;				// 32-bit length descriptor
-    INT16  	i_16, i1_16, i2_16;		// parameters...
-    INT8   	i_8;
-    UINT32 	ul;
-    long   	strm_pos;
+    UINT8	c;				// command id
+    UINT8	tiny_len;			// 8-bit length descriptor
+    INT32	len;				// 32-bit length descriptor
+    INT16	i_16, i1_16, i2_16;		// parameters...
+    INT8	i_8;
+    UINT32	ul;
+    long	strm_pos;
     char       *str;
-    QPoint 	p, p1, p2;
-    QRect  	r;
+    QPoint	p, p1, p2;
+    QRect	r;
     QPointArray a;
-    QColor 	color;
+    QColor	color;
     QFont	font;
     QPen	pen;
     QBrush	brush;
@@ -294,7 +294,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 		QPixmap pixmap;
 		s >> p >> pixmap;
 		painter->drawPixmap( p, pixmap );
-	        }
+		}
 		break;
 	    case PDC_BEGIN:
 		s >> ul;			// number of records
@@ -347,7 +347,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 		s >> i_16;
 		if ( i_16 == 0 )
 		    painter->setTabArray( 0 );
-		else {		    
+		else {
 		    int *ta = new int[i_16];
 		    CHECK_PTR( ta );
 		    for ( int i=0; i<i_16; i++ ) {
@@ -480,7 +480,7 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
 	    s << *p[1].point;
 	    QPixmap *pm = (QPixmap *)p[2].pixmap;
 	    if ( r.size() != pm->size() ) {
-		QPixmap  pm2( r.width(), r.height(), pm->depth() );
+		QPixmap	 pm2( r.width(), r.height(), pm->depth() );
 		bitBlt( &pm2, 0, 0, pm, r.x(), r.y(), r.width(), r.height() );
 		s << pm2;
 	    }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.h#3 $
+** $Id: //depot/qt/main/src/kernel/qsignal.h#4 $
 **
 ** Definition of QSignal class
 **
@@ -28,7 +28,7 @@ public:
     bool    connect( const QObject *receiver, const char *member );
     bool    disconnect( const QObject *receiver, const char *member=0 );
 
-    bool    isBlocked()  const		{ return QObject::signalsBlocked(); }
+    bool    isBlocked()	 const		{ return QObject::signalsBlocked(); }
     void    block( bool b )		{ QObject::blockSignals( b ); }
 
     void    activate()			{ activate_signal("x()"); }

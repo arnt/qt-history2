@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#48 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#47 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#48 $";
 #endif
 
 
@@ -41,10 +41,10 @@ Here is a complete Qt application:
 
 int main( int argc, char **argv )
 {
-    QApplication a( argc, argv );       \/ create app object
-    QPushButton  hi( "Hello, world" );  \/ create main widget
-    hi.show();                          \/ show widget
-    return a.exec( &hi );               \/ main event loop
+    QApplication a( argc, argv );	\/ create app object
+    QPushButton	 hi( "Hello, world" );	\/ create main widget
+    hi.show();				\/ show widget
+    return a.exec( &hi );		\/ main event loop
 }
 \endcode
 
@@ -60,11 +60,11 @@ void qt_init( int *, char ** );			// defined in qapp_???.cpp
 void qt_cleanup();
 
 QApplication *qApp = 0;				// global application object
-QWidget  *QApplication::main_widget   = 0;	// main application widget
-QWidget  *QApplication::focus_widget  = 0;	// has keyboard input focus
-QCursor  *QApplication::appCursor     = 0;	// default application cursor
+QWidget	 *QApplication::main_widget   = 0;	// main application widget
+QWidget	 *QApplication::focus_widget  = 0;	// has keyboard input focus
+QCursor	 *QApplication::appCursor     = 0;	// default application cursor
 QPalette *QApplication::appPal	      = 0;	// default application palette
-QFont    *QApplication::appFont       = 0;	// default application font
+QFont	 *QApplication::appFont	      = 0;	// default application font
 bool	  QApplication::starting_up   = TRUE;	// app starting up
 bool	  QApplication::closing_down  = FALSE;	// app closing down
 
@@ -72,7 +72,7 @@ bool	  QApplication::closing_down  = FALSE;	// app closing down
 #if defined(_WS_MAC_)
 GUIStyle QApplication::appStyle = MacStyle;	// default style for Mac
 #elif defined(_WS_WIN_)
-GUIStyle QApplication::appStyle = WindowsStyle;	// default style for Windows
+GUIStyle QApplication::appStyle = WindowsStyle; // default style for Windows
 #elif defined(_WS_PM_)
 GUIStyle QApplication::appStyle = PMStyle;	// default style for OS/2 PM
 #elif defined(_WS_X11_)
@@ -85,12 +85,12 @@ static QPalette *motifPalette = 0;
 static void create_palettes()			// creates default palettes
 {
     QColorGroup motif_nor( black, lightGray,
-			   white, lightGray.dark(), gray, 
-			   black, white );
-    QColorGroup motif_dis( darkGray, lightGray, 
 			   white, lightGray.dark(), gray,
-                           darkGray, white );
-    QColorGroup motif_act( black, lightGray, 
+			   black, white );
+    QColorGroup motif_dis( darkGray, lightGray,
+			   white, lightGray.dark(), gray,
+			   darkGray, white );
+    QColorGroup motif_act( black, lightGray,
 			   white, lightGray.dark(), gray,
 			   black, white );
     motifPalette = new QPalette( motif_nor, motif_dis, motif_act );
@@ -114,7 +114,7 @@ This application object must be constructed before any paint devices
 The UNIX/X-Windows version of Qt recognizes these command line options:
 <ul>
 <li> -display \e display, Sets the X display (default is $DISPLAY).
-<li> -geometry \e geometry, Sets the client geometry of the 
+<li> -geometry \e geometry, Sets the client geometry of the
       \link exec main widget. \endlink
 <li> -fn or -font \e font, Defines the application font.
 <li> -bg or -background \e color, Sets the default background color.
@@ -237,7 +237,7 @@ void QApplication::setPalette( const QPalette &p, bool updateAllWidgets )
 
 /*!
 \fn QCursor *QApplication::cursor()
-Returns the application cursor.  This function returns 0 if no application
+Returns the application cursor.	 This function returns 0 if no application
 cursor has been defined.
 
 \sa setCursor().

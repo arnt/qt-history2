@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#5 $
 **
 ** Implementation of QColor class for Windows + NT
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_win.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_win.cpp#5 $";
 #endif
 
 

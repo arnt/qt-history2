@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#2 $
 **
 ** Implementation of QCursor class for Windows + NT
 **
 ** Author  : Haavard Nord
 ** Created : 940219
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_win.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_win.cpp#2 $";
 #endif
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#33 $
 **
 ** Implementation of QPainter class
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#33 $";
 #endif
 
 
@@ -274,15 +274,15 @@ void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 	    x2 = t;
 	}
 	x2--;
-	QPointArray a;	
+	QPointArray a;
 	int i;
 	for ( i=0; i<lw; i++ ) {		// draw top shadow
 	    a.setPoints( 3, x1+i, y+tlw-1,
 			    x1+i, y+i,
-			    x2,   y+i );
+			    x2,	  y+i );
 	    drawPolyline( a );
 	}
-        setPen( mColor );
+	setPen( mColor );
 	for ( i=0; i<mlw; i++ )			// draw lines in the middle
 	    drawLine( x1+lw, y+lw+i, x2-lw, y+lw+i );
 	setPen( bColor );
@@ -301,7 +301,7 @@ void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 	    y2 = t;
 	}
 	y2--;
-	QPointArray a;	
+	QPointArray a;
 	int i;
 	for ( i=0; i<lw; i++ ) {		// draw top shadow
 	    a.setPoints( 3, x+i,     y2,
@@ -309,7 +309,7 @@ void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 			    x+tlw-1, y1+i );
 	    drawPolyline( a );
 	}
-        setPen( mColor );
+	setPen( mColor );
 	for ( i=0; i<mlw; i++ )			// draw lines in the middle
 	    drawLine( x+lw+i, y1+lw, x+lw+i, y2 );
 	setPen( bColor );

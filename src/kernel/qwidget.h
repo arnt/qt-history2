@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#40 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#41 $
 **
 ** Definition of QWidget class
 **
@@ -115,8 +115,8 @@ public:
 
     virtual void show();			// show widget
     virtual void hide();			// hide widget
-    virtual bool close( bool forceKill=FALSE );	// close widget
-    bool    isVisible()	const { return testFlag(WState_Visible); }
+    virtual bool close( bool forceKill=FALSE ); // close widget
+    bool    isVisible() const { return testFlag(WState_Visible); }
     bool    isActive()	const { return testFlag(WState_Active); }
     void    raise();				// raise widget
     void    lower();				// lower widget
@@ -189,7 +189,7 @@ protected:
 
     virtual bool focusNextChild();
     virtual bool focusPrevChild();
-    
+
 #if defined(_WS_PM_)
     int		convertYPos( int );
     void	reposChildren();

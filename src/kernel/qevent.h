@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#17 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#18 $
 **
 ** Definition of event classes
 **
@@ -103,7 +103,7 @@ public:
     int	   key()	const	{ return k; }	// key code (Key_Code)
     uchar  ascii() const	{ return a; }	// ascii value
     int	   state()	const	{ return st; }	// keyboard status
-    bool   isAccepted()	const	{ return accpt; }
+    bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
 protected:
@@ -168,7 +168,7 @@ class QCloseEvent : public QEvent		// widget close event
 public:
     QCloseEvent()
 	: QEvent(Event_Close)	{ accpt = TRUE; }
-    bool   isAccepted()	const	{ return accpt; }
+    bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
 protected:

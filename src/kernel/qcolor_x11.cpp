@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#23 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#23 $";
 #endif
 
 
@@ -39,9 +39,9 @@ static QColorDict *colorDict = 0;		// dict of allocated colors
 static bool	   colorAvail = TRUE;		// X colors available
 
 static int	g_ncols = 0;			// number of colors
-static Colormap g_cmap  = 0;			// application global colormap
-static XColor  *g_carr  = 0;			// color array
-static Visual  *g_vis   = 0;
+static Colormap g_cmap	= 0;			// application global colormap
+static XColor  *g_carr	= 0;			// color array
+static Visual  *g_vis	= 0;
 static bool	g_truecolor;
 static uint	red_mask , green_mask , blue_mask;
 static int	red_shift, green_shift, blue_shift;
@@ -70,7 +70,7 @@ static int highest_bit( ulong v )
 {
     int i;
     ulong b = (uint)1 << 31;			// get pos of highest bit in v
-    for ( i=31; ((b & v) == 0) && i>=0;  i-- )
+    for ( i=31; ((b & v) == 0) && i>=0;	 i-- )
 	b >>= 1;
     return i;
 }
@@ -85,7 +85,7 @@ void QColor::initialize()			// called from startup routines
     if ( g_cmap )				// already initialized
 	return;
     Display *dpy    = qt_xdisplay();
-    int      screen = qt_xscreen();
+    int	     screen = qt_xscreen();
     int dd  = DefaultDepth( dpy, screen );	// default depth of display
     g_cmap  = DefaultColormap( dpy, screen );	// create colormap
     g_ncols = DisplayCells( dpy, screen );	// number of colors
@@ -101,9 +101,9 @@ void QColor::initialize()			// called from startup routines
 	red_mask    = (uint)g_vis->red_mask;
 	green_mask  = (uint)g_vis->green_mask;
 	blue_mask   = (uint)g_vis->blue_mask;
-	red_shift   = highest_bit( red_mask )   - 7;
+	red_shift   = highest_bit( red_mask )	- 7;
 	green_shift = highest_bit( green_mask ) - 7;
-	blue_shift  = highest_bit( blue_mask )  - 7;
+	blue_shift  = highest_bit( blue_mask )	- 7;
     }
     colorDict = new QColorDict(dictsize);	// create dictionary
     CHECK_PTR( colorDict );
@@ -117,21 +117,21 @@ void QColor::initialize()			// called from startup routines
 
 #if 0 /* 0 == allocate colors on demand */
     setLazyAlloc( FALSE );			// allocate global colors
-    ((QColor*)(&darkGray))->   	alloc();
-    ((QColor*)(&gray))->       	alloc();
-    ((QColor*)(&lightGray))->  	alloc();
-    ((QColor*)(&::red))->      	alloc();
-    ((QColor*)(&::green))->    	alloc();
-    ((QColor*)(&::blue))->     	alloc();
-    ((QColor*)(&cyan))->       	alloc();
-    ((QColor*)(&magenta))->    	alloc();
-    ((QColor*)(&yellow))->     	alloc();
-    ((QColor*)(&darkRed))->    	alloc();
-    ((QColor*)(&darkGreen))->  	alloc();
+    ((QColor*)(&darkGray))->	alloc();
+    ((QColor*)(&gray))->	alloc();
+    ((QColor*)(&lightGray))->	alloc();
+    ((QColor*)(&::red))->	alloc();
+    ((QColor*)(&::green))->	alloc();
+    ((QColor*)(&::blue))->	alloc();
+    ((QColor*)(&cyan))->	alloc();
+    ((QColor*)(&magenta))->	alloc();
+    ((QColor*)(&yellow))->	alloc();
+    ((QColor*)(&darkRed))->	alloc();
+    ((QColor*)(&darkGreen))->	alloc();
     ((QColor*)(&darkBlue))->	alloc();
-    ((QColor*)(&darkCyan))->   	alloc();
-    ((QColor*)(&darkMagenta))->	alloc();
-    ((QColor*)(&darkYellow))-> 	alloc();
+    ((QColor*)(&darkCyan))->	alloc();
+    ((QColor*)(&darkMagenta))-> alloc();
+    ((QColor*)(&darkYellow))->	alloc();
     setLazyAlloc( TRUE );
 #endif
 }
@@ -195,9 +195,9 @@ void QColor::alloc()				// allocate color
 	r = (int)(rgb & 0xff);
 	g = (int)((rgb >> 8) & 0xff);
 	b = (int)((rgb >> 16) & 0xff);
-	r = red_shift   > 0 ? r << red_shift   : r >> -red_shift;
+	r = red_shift	> 0 ? r << red_shift   : r >> -red_shift;
 	g = green_shift > 0 ? g << green_shift : g >> -green_shift;
-	b = blue_shift  > 0 ? b << blue_shift  : b >> -blue_shift;
+	b = blue_shift	> 0 ? b << blue_shift  : b >> -blue_shift;
 	pix = (b & blue_mask) | (g & green_mask) | (r & red_mask);
 	rgb &= RGB_MASK;
 	return;
@@ -271,7 +271,7 @@ void QColor::alloc()				// allocate color
 void QColor::setNamedColor( const char *name )	// load color from database
 {
     bool ok = FALSE;
-    if ( g_cmap  ) {				// initialized
+    if ( g_cmap	 ) {				// initialized
 	XColor col, hw_col;
 	if ( XLookupColor( qt_xdisplay(), g_cmap, name, &col, &hw_col ) ) {
 	    ok = TRUE;

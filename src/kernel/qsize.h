@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#6 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#7 $
 **
 ** Definition of QSize class
 **
@@ -20,16 +20,16 @@ class QSize					// size class
 {
 public:
     QSize()	{}				// undefined init values
-    QSize( QCOORD w, QCOORD h );		// set w=width, h=height
+    QSize( int w, int h );			// set w=width, h=height
 
     bool   isNull()	const	{ return wd==0 && ht==0; }
     bool   isEmpty()	const	{ return wd<1 || ht<1; }
     bool   isValid()	const	{ return wd>=0 && ht>=0; }
 
-    QCOORD width()	const	{ return wd; }	// get width
-    QCOORD height()	const	{ return ht; }	// get height
-    void   setWidth( QCOORD w ) { wd=(QCOORD)w;}// set width
-    void   setHeight( QCOORD h ){ ht=(QCOORD)h;}// set height
+    int	   width()	const	{ return wd; }	// get width
+    int	   height()	const	{ return ht; }	// get height
+    void   setWidth( int w )	{ wd=(QCOORD)w;}// set width
+    void   setHeight( int h )	{ ht=(QCOORD)h;}// set height
 
     QCOORD &rwidth()		{ return wd; }	// get reference to width
     QCOORD &rheight()		{ return ht; }	// get reference to height
@@ -72,14 +72,14 @@ QDataStream &operator>>( QDataStream &, QSize & );
 // QSize member functions
 //
 
-inline QSize::QSize( QCOORD w, QCOORD h )
+inline QSize::QSize( int w, int h )
 {
-    wd=w; ht=h;
+    wd=(QCOORD)w; ht=(QCOORD)h;
 }
 
 inline QSize &QSize::operator*=( int c )
 {
-    wd*=c; ht*=c; return *this;
+    wd*=(QCOORD)c; ht*=(QCOORD)c; return *this;
 }
 
 inline QSize &QSize::operator*=( float c )
@@ -89,7 +89,7 @@ inline QSize &QSize::operator*=( float c )
 
 inline QSize &QSize::operator/=( int c )
 {
-    wd/=c; ht/=c; return *this;
+    wd/=(QCOORD)c; ht/=(QCOORD)c; return *this;
 }
 
 inline QSize &QSize::operator/=( float c )

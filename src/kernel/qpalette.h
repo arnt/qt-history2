@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#5 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#6 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
 ** Author  : Haavard Nord
 ** Created : 950323
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -37,7 +37,7 @@ public:
 
     bool	operator==( const QColorGroup &g ) const;
     bool	operator!=( const QColorGroup &g ) const
-    					{ return !(operator==(g)); }
+					{ return !(operator==(g)); }
 private:
     QColor fg_col;
     QColor bg_col;
@@ -61,9 +61,9 @@ public:
 
     QPalette  copy() const;
 
-    const QColorGroup &normal()   const	{ return data->normal; }
-    const QColorGroup &disabled() const	{ return data->disabled; }
-    const QColorGroup &active()   const	{ return data->active; }
+    const QColorGroup &normal()	  const { return data->normal; }
+    const QColorGroup &disabled() const { return data->disabled; }
+    const QColorGroup &active()	  const { return data->active; }
 
     void  setNormal( const QColorGroup & );
     void  setDisabled( const QColorGroup & );
@@ -71,7 +71,7 @@ public:
 
     bool	operator==( const QPalette &p ) const;
     bool	operator!=( const QPalette &p ) const
-    					{ return !(operator==(p)); }
+					{ return !(operator==(p)); }
 
     long	serialNumber() const	{ return data->ser_num; }
 

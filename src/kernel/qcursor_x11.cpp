@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#17 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#17 $";
 #endif
 
 
@@ -474,7 +474,7 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
 	c.data = new QCursorData;
 	CHECK_PTR( c.data );
 	QBitmap bm(1,1), bmm(1,1); // ###
-	INT16   hx, hy;
+	INT16	hx, hy;
 	s >> bm >> bmm;
 	s >> hx >> hy;
 	CHECK_PTR( c.data->bm && c.data->bmm );

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#2 $
 **
 ** Implementation of QFont and QFontMetrics classes for OS/2 PM
 **
 ** Author  : Haavard Nord
 ** Created : 940712
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#2 $";
 #endif
 
 

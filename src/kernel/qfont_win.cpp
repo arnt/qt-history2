@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#3 $
 **
 ** Implementation of QFont and QFontMetrics classes for Windows + NT
 **
 ** Author  : Haavard Nord
 ** Created : 940630
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_win.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_win.cpp#3 $";
 #endif
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#43 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#44 $
 **
 ** Definition of QPainter class
 **
@@ -45,7 +45,7 @@ public:
     bool	end();				// end painting
     QPaintDevice *device() const { return pdev; }
 
-    static void	redirect( QPaintDevice *pdev, QPaintDevice *replacement );
+    static void redirect( QPaintDevice *pdev, QPaintDevice *replacement );
 
     bool	isActive() const { return testf(IsActive); }
 
@@ -82,7 +82,7 @@ public:
 
   // Scaling and transformations
 
-//    PaintUnit	unit()	       const;		// get set painter unit
+//    PaintUnit unit()	       const;		// get set painter unit
 //    void	setUnit( PaintUnit );		// NOT IMPLEMENTED!!!
 
     void	setViewXForm( bool );		// set xform on/off
@@ -96,7 +96,7 @@ public:
 
     void	setWorldXForm( bool );		// set world xform on/off
     bool	hasWorldXForm() const { return testf(WxF); }
-    Q2DMatrix   worldMatrix()	const;		// get/set world xform matrix
+    Q2DMatrix	worldMatrix()	const;		// get/set world xform matrix
     void	setWorldMatrix( const Q2DMatrix &, bool concat=FALSE );
 
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device
@@ -203,8 +203,8 @@ public:
     int	       *tabArray() const	{ return tabarray; }
     void	setTabArray( int * );
 
-    static void	initialize();
-    static void	cleanup();
+    static void initialize();
+    static void cleanup();
 
 private:
     void	updateFont();			// update font data
@@ -216,10 +216,10 @@ private:
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, ExtDev=0x80, SafePolygon=0x100,
 	   IsStartingUp=0x200 };
     ushort	flags;				// painter flags
-    bool	testf( ushort b ) const	{ return (flags&b)!=0; }
+    bool	testf( ushort b ) const { return (flags&b)!=0; }
     void	setf( ushort b )	{ flags |= b; }
     void	setf( ushort b, bool v );
-    void	clearf( ushort b )	{ flags &= ~b; }
+    void	clearf( ushort b )	{ flags &= (ushort)(~b); }
 
     QPaintDevice *pdev;				// paint device
     QColor	bg_col;				// background color

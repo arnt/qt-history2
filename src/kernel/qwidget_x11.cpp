@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#73 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#72 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#73 $";
 #endif
 
 
@@ -433,7 +433,7 @@ releaseMouse() is called.
 \warning Grabbing the mouse might lock the terminal.
 
 It is almost never necessary to grab the mouse when using Qt since Qt
-grabs and releases it sensibly.  In particular, Qt grabs the mouse
+grabs and releases it sensibly.	 In particular, Qt grabs the mouse
 when a button is pressed and keeps it until the last button is
 released.
 
@@ -517,7 +517,7 @@ void QWidget::grabKeyboard()
     }
 }
 
-/*!  
+/*!
 Releases the keyboard grab.
 
 \sa grabKeyboard(), grabMouse(), releaseMouse()
@@ -623,7 +623,7 @@ bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
     return last;
 }
 
-/*! Updates the entire widget.  If updates are enabled, of course.  The
+/*! Updates the entire widget.	If updates are enabled, of course.  The
   default action of this is to clear the widget, so widgets that wish
   to actually interact with the user should reimplement it.  */
 
@@ -673,7 +673,7 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( const QRect &r, bool eraseArea )
 {
-    if ( !isVisible() || testFlag(WNoUpdates) )	// ignore repaint
+    if ( !isVisible() || testFlag(WNoUpdates) ) // ignore repaint
 	return;
     QPaintEvent e( r );				// send fake paint event
     if ( eraseArea )
@@ -847,7 +847,7 @@ void QWidget::resize( int w, int h )		// resize widget
   move(), resize(). */
 
 /*! Changes the widget geometry to \e w pixels by \e h, positioned at
-  \e x,y in its parent widget.  If necessary, the window manager is
+  \e x,y in its parent widget.	If necessary, the window manager is
   informed.  First a resize and then a move event is sent to the widget
   itself.
 
@@ -883,8 +883,8 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 }
 
 /*! Sets the minimum size of the widget to \e w pixels wide and \e h
-  pixels high.  The user will not be able to resize the widget to a
-  smaller size.  \sa setMaximumSize(), setSizeIncrement(), size() and
+  pixels high.	The user will not be able to resize the widget to a
+  smaller size.	 \sa setMaximumSize(), setSizeIncrement(), size() and
   geometry(). */
 
 void QWidget::setMinimumSize( int w, int h )	// set minimum size
@@ -900,8 +900,8 @@ void QWidget::setMinimumSize( int w, int h )	// set minimum size
 }
 
 /*! Sets the maximum size of the widget to \e w pixels wide and \e h
-  pixels high.  The user will not be able to resize the widget to a
-  larger size.  \sa setMinimumSize(), setSizeIncrement(), size() and
+  pixels high.	The user will not be able to resize the widget to a
+  larger size.	\sa setMinimumSize(), setSizeIncrement(), size() and
   geometry(). */
 
 void QWidget::setMaximumSize( int w, int h )	// set maximum size
@@ -1005,7 +1005,7 @@ void QWidget::scroll( int dx, int dy )		// scroll widget contents
 
 /*! \fn void QWidget::drawText( const QPoint &p, const char *s )
 
-  Writes \e s to position \e p.  The y position is the base line, not
+  Writes \e s to position \e p.	 The y position is the base line, not
   the top or bottom of the text.  The text is drawn in the current
   font and so on.  \sa setFont(), FontMetrics(),
   QPainter::drawText. */
@@ -1054,7 +1054,7 @@ long QWidget::metric( int m ) const		// get metric information
 		      DisplayWidth(dpy,scr);
 		break;
 	    case PDM_HEIGHTMM:
-	        val = ((long)DisplayHeightMM(dpy,scr)*crect.height())/
+		val = ((long)DisplayHeightMM(dpy,scr)*crect.height())/
 		      DisplayHeight(dpy,scr);
 		break;
 	    case PDM_NUMCOLORS:

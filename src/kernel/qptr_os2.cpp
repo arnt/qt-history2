@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#5 $
 **
 ** Implementation of QPainter class for OS/2 PM
 **
 ** Author  : Haavard Nord
 ** Created : 940715
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,7 +19,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#5 $";
 #endif
 
 
@@ -432,7 +432,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	sh = th = w->clientSize().height();
 	dh = w->clientSize().height() - 1;	// set device height
     }
-    else if ( pdev->devType() == PDT_PIXMAP ) {	// device is a pixmap
+    else if ( pdev->devType() == PDT_PIXMAP ) { // device is a pixmap
 	QPixMap *pm = (QPixMap*)pdev;
 	hps = pm->hps;				// draw in pixmap
 	sw = tw = pm->size().width();		// default view size

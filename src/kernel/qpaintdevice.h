@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#18 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#19 $
 **
 ** Definition of QPaintDevice class
 **
@@ -30,7 +30,7 @@
 // Painter device flags
 
 #define PDF_EXTDEV	0x10
-#define PDF_PAINTACTIVE	0x20
+#define PDF_PAINTACTIVE 0x20
 
 
 // Painter device command param (defined in qpaintdc.h)
@@ -61,7 +61,7 @@ public:
 
 protected:
     QPaintDevice( uint devflags );
-				
+
 #if defined(_WS_WIN_)
     HDC	     hdc;				// device context
 #elif defined(_WS_PM_)

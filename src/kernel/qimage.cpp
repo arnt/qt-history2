@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#32 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#32 $";
 #endif
 
 /*!
@@ -124,15 +124,6 @@ char *qt_get_bitflip_array()			// called from QPixmap code
 }
 
 
-static void reset_data( QImage::QImageData *data )
-{
-    data->w = data->h = data->d = data->ncols = 0;
-    data->nbytes = 0;
-    data->ctbl = 0;
-    data->bits = 0;
-    data->bitordr = QImage::IgnoreEndian;
-}
-
 /*!
 Constructs a null image.
 \sa isNull().
@@ -142,7 +133,7 @@ QImage::QImage()
 {
     data = new QImageData;
     CHECK_PTR( data );
-    reset_data( data );
+    init();
 }
 
 /*!
@@ -159,7 +150,7 @@ QImage::QImage( int w, int h, int depth, int numColors, int bitOrder )
 {
     data = new QImageData;
     CHECK_PTR( data );
-    reset_data( data );
+    init();
     create( w, h, depth, numColors, bitOrder );
 }
 
@@ -481,7 +472,7 @@ void QImage::setNumColors( int numColors )
 	    data->ctbl = 0;
 	}
 	data->ncols = 0;
-	return;	    
+	return;
     }
     if ( data->ctbl ) {				// already has color table
 	data->ctbl = (ulong*)realloc( data->ctbl, numColors*sizeof(ulong) );
@@ -553,7 +544,7 @@ bool QImage::create( int width, int height, int depth, int numColors,
     long bpl  = nbytes/height;			// bytes per line
     long ptbl = height*sizeof(uchar*);		// pointer table size
     long size = nbytes + ptbl;			// total size of data block
-    uchar **p = 0;
+    uchar **p;
 #if defined(_WS_WIN16_)
     if ( size < 64000L )			// try to alloc one block
 	p = (uchar **)calloc( (uint)size, 1 );
@@ -596,9 +587,24 @@ bool QImage::create( int width, int height, int depth, int numColors,
     return TRUE;
 }
 
+
 /*!
-Internal function that deallocates the image data and sets the bits pointer
-to 0.
+\internal
+Initializes the image data structure.
+*/
+
+void QImage::init()
+{
+    data->w = data->h = data->d = data->ncols = 0;
+    data->nbytes = 0;
+    data->ctbl = 0;
+    data->bits = 0;
+    data->bitordr = QImage::IgnoreEndian;
+}
+
+/*!
+\internal
+Deallocates the image data and sets the bits pointer to 0.
 */
 
 void QImage::freeBits()
@@ -661,13 +667,13 @@ static bool convert_24_to_8( const QImage *src, QImage *dst )
     while ( p < end ) {				// check if <= 256 colors
 	ulong rgb = (uchar)*++p + ((ushort)*++p << 8) + ((ulong)*++p <<16);
 	if ( !(pix=cdict.find(rgb)) ) {		// new RGB color?
-	    cdict.insert( rgb, (pix=++pixel) );	// yes -> keep it
+	    cdict.insert( rgb, (pix=++pixel) ); // yes -> keep it
 	    if ( cdict.count() > 256 ) {	// oops: too many colors
 		do_quant = TRUE;
 		break;
 	    }
 	}
-	*b++ = (int)pix - 1;			// map RGB color to pixel
+	*b++ = (uchar)((int)pix - 1);			// map RGB color to pixel
     }
     int ncols =	 do_quant ? 256 : cdict.count();
     dst->setNumColors( ncols );
@@ -869,7 +875,7 @@ The depths parameter can be 1, 8 or 24.
 
 QImage QImage::convertDepth( int depth ) const
 {
-    QImage image;    
+    QImage image;
     if ( (data->d == 8 || data->d == 24) && depth == 1 ) // dither
 	dither_image( this, &image );
     else if ( data->d == 24 && depth == 8 )	// 24 -> 8
@@ -1593,8 +1599,8 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 {
     QIODevice  *d = iio->ioDevice();
     QDataStream s( d );
-    BMP_FILEHDR	bf;
-    BMP_INFOHDR	bi;
+    BMP_FILEHDR bf;
+    BMP_INFOHDR bi;
     int		startpos = d->at();
     QImage	image;
 
@@ -1773,7 +1779,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 		    }
 		}
 		else {				// encoded mode
-		    memset( p, d->getch(), b );	// repeat pixel
+		    memset( p, d->getch(), b ); // repeat pixel
 		    x += b;
 		    p += b;
 		}
@@ -1816,8 +1822,8 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
     QIODevice  *d = iio->ioDevice();
     QImage	image = iio->image();
     QDataStream s( d );
-    BMP_FILEHDR	bf;
-    BMP_INFOHDR	bi;
+    BMP_FILEHDR bf;
+    BMP_INFOHDR bi;
     long	bpl = image.bytesPerLine();
     bool	depth4 = image.depth() == 8 && image.numColors() <= 16;
     long	bpl_bmp;
@@ -2045,8 +2051,8 @@ static void write_pbm_image( QImageIO *iio )	// write PBM image data
 
 static inline int hex2byte( register char *p )
 {
-    return (isdigit(*p)	    ? *p     - '0' : toupper(*p)     - 'A' + 10) << 4 |
-	   (isdigit(*(p+1)) ? *(p+1) - '0' : toupper(*(p+1)) - 'A' + 10);
+    return ((isdigit(*p)     ? *p     - '0' : toupper(*p)     - 'A' + 10)<< 4)|
+	   ( isdigit(*(p+1)) ? *(p+1) - '0' : toupper(*(p+1)) - 'A' + 10);
 }
 
 static void read_xbm_image( QImageIO *iio )	// read X bitmap image data
@@ -2168,7 +2174,7 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
 	    if ( ++bcnt > 14 ) {
 		*p++ = '\n';
 		*p++ = ' ';
-		*p++ = '\0';
+		*p   = '\0';
 		d->writeBlock( buf, strlen(buf) );
 		p = buf;
 		bcnt = 0;
@@ -2196,7 +2202,7 @@ static int read_xpm_char( QIODevice *d )
     }
     if ( (c=d->getch()) == EOF )
 	return EOF;
-    if ( c == '"' )				// start or end of quotes
+    if ( c == '"' )                             // start or end of quotes
 	inside_quotes = !inside_quotes;
     else {
 	if ( !inside_quotes && c == '/' ) {	// C /* .. */ comment?

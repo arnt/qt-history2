@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#22 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#22 $";
 #endif
 
 
@@ -40,14 +40,14 @@ A color is normally allocated the first time it is used (lazy allocation),
 that is, whenever the pixel() function is called:
 
 <ol>
-<li> Is the pixel value valid?  If it is, just return it, otherwise,
+<li> Is the pixel value valid?	If it is, just return it, otherwise,
 allocate a pixel value (2).
 <li> Check an internal hash table to see if we allocated an equal RGB
-value earlier.  If we did, set the pixel value and return.
+value earlier.	If we did, set the pixel value and return.
 <li> Try to allocate the RGB value. If we succeed, we get a pixel value
 which we save in the internal table with the RGB value.
 Return the pixel value.
-<li> The color could not be allocated.  Find the closest matching
+<li> The color could not be allocated.	Find the closest matching
 color and save it in the internal table.
 </ol>
 
@@ -62,23 +62,23 @@ This method seems to work well even with thousands of allocated colors.
 
 const QColor color0	( 0x00ffffff, 0 );
 const QColor color1	( 0x00000000, 1 );
-const QColor black	(   0,   0,   0 );
+const QColor black	(   0,	 0,   0 );
 const QColor white	( 255, 255, 255 );
-const QColor darkGray   ( 128, 128, 128 );
+const QColor darkGray	( 128, 128, 128 );
 const QColor gray	( 160, 160, 160 );
 const QColor lightGray	( 192, 192, 192 );
-const QColor red	( 255,   0,   0 );
+const QColor red	( 255,	 0,   0 );
 const QColor green	(   0, 255,   0 );
-const QColor blue	(   0,   0, 255 );
+const QColor blue	(   0,	 0, 255 );
 const QColor cyan	(   0, 255, 255 );
-const QColor magenta	( 255,   0, 255 );
+const QColor magenta	( 255,	 0, 255 );
 const QColor yellow	( 255, 255,   0 );
-const QColor darkRed	( 128,   0,   0 );
+const QColor darkRed	( 128,	 0,   0 );
 const QColor darkGreen	(   0, 128,   0 );
-const QColor darkBlue   (   0,   0, 128 );
-const QColor darkCyan   (   0, 128, 128 );
-const QColor darkMagenta( 128,   0, 128 );
-const QColor darkYellow	( 128, 128,   0 );
+const QColor darkBlue	(   0,	 0, 128 );
+const QColor darkCyan	(   0, 128, 128 );
+const QColor darkMagenta( 128,	 0, 128 );
+const QColor darkYellow ( 128, 128,   0 );
 
 
 // --------------------------------------------------------------------------
@@ -189,19 +189,19 @@ void QColor::getHSV( int *h, int *s, int *v ) const
     else {
 	switch ( whatmax ) {
 	    case 0:				// red is max component
-	        if ( g >= b )
+		if ( g >= b )
 		    *h = (120*(g-b)+delta)/(2*delta);
 		else
 		    *h = (120*(g-b+delta)+delta)/(2*delta) + 300;
-	        break;
+		break;
 	    case 1:				// green is max component
-	        if ( b > r )
+		if ( b > r )
 		    *h = 120 + (120*(b-r)+delta)/(2*delta);
 		else
 		    *h = 60 + (120*(b-r+delta)+delta)/(2*delta);
 		break;
 	    case 2:				// blue is max component
-	        if ( r > g )
+		if ( r > g )
 		    *h = 240 + (120*(r-g)+delta)/(2*delta);
 		else
 		    *h = 180 + (120*(r-g+delta)+delta)/(2*delta);
@@ -229,7 +229,7 @@ void QColor::setHSV( int h, int s, int v )	// set HSV value
 	return;
     }
 #endif
-    if ( s == 0 || h == -1 )	       		// achromatic case
+    if ( s == 0 || h == -1 )			// achromatic case
 	r = g = b = v;
     else {					// chromatic case
 	if ( (uint)h >= 360 )
@@ -360,7 +360,7 @@ QColor QColor::light( int factor ) const	// get light color
 Returns a darker (or lighter) color.
 
 Returns a darker color if \e factor is greater than 100.
-Setting \e factor to 300 returns a color that has 
+Setting \e factor to 300 returns a color that has
 one third the brightness.
 
 Returns a lighter color if \e factor is less than 100, equal to

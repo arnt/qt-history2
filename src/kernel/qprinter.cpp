@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#2 $
 **
 ** Implementation of printer classes
 **
@@ -13,7 +13,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#2 $";
 #endif
 
 
@@ -29,6 +29,6 @@ Constructs a printer paint device.
 */
 
 QPrinter::QPrinter()
-    : QPaintDevice( PDT_PRINTER | PDF_EXTDEV )    // set device type
+    : QPaintDevice( PDT_PRINTER | PDF_EXTDEV )	  // set device type
 {
 }

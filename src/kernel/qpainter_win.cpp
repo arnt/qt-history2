@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#5 $
 **
 ** Implementation of QPainter class for Windows + NT
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#5 $";
 #endif
 
 
@@ -501,7 +501,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	sw = tw = w->clientSize().width();	// default view size
 	sh = th = w->clientSize().height();
     }
-    else if ( pdev->devType() == PDT_PIXMAP ) {	// device is a pixmap
+    else if ( pdev->devType() == PDT_PIXMAP ) { // device is a pixmap
 	QPixMap *pm = (QPixMap*)pdev;
 	hdc = pm->allocMemDC();
 	SelectObject( hdc, pm->hbm );
@@ -565,7 +565,7 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
     static short ropCodes[] =
 	{ R2_COPYPEN, R2_MERGEPEN, R2_XORPEN, R2_MASKNOTPEN,
 	  R2_NOTCOPYPEN, R2_MERGENOTPEN, R2_NOTXORPEN, R2_MASKPEN,
-      	  R2_NOT };
+	  R2_NOT };
     if ( r < CopyROP || r > NotROP ) {
 #if defined(CHECK_RANGE)
 	warning( "QPainter::setRasterOp: Invalid ROP code" );

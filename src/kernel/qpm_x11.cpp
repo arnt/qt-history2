@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#25 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#25 $";
 #endif
 
 
@@ -101,7 +101,7 @@ shared classes.
 // Internal functions
 //
 
-static uchar *flip_bits( uchar *bits, int len )	// flip bits in bitmap
+static uchar *flip_bits( uchar *bits, int len ) // flip bits in bitmap
 {
     extern char *qt_get_bitflip_array();	// defined in qimage.cpp
     register uchar *p = bits;
@@ -493,7 +493,7 @@ QImage QPixmap::convertToImage() const
 	d = 8;					//   2..7 ==> 8
     else if ( d > 8 || trucol )
 	d = 24;					//   > 9  ==> 24
-    
+
     if ( data->optim ) {
 	if ( !data->dirty )
 	    xi = (XImage *)data->ximage;
@@ -621,7 +621,7 @@ QImage QPixmap::convertToImage() const
 	while ( i-- )				// what pixels are used?
 	    use[*p++] = 1;
 	ncols = 0;
-	for ( i=0; i<256; i++ )	{		// build translation table
+	for ( i=0; i<256; i++ ) {		// build translation table
 	    if ( use[i] )
 		pix[i] = ncols++;
 	}
@@ -689,7 +689,7 @@ bool QPixmap::convertFromImage( const QImage &img )
     int scr = qt_xscreen();
     int dd  = DefaultDepth(dpy,scr);
 
-    if ( (dd == 1 || data->bitmap) && d > 1 ) {	// force to bitmap
+    if ( (dd == 1 || data->bitmap) && d > 1 ) { // force to bitmap
 	image = image.convertDepth( 1 );	// dither
 	d = 1;
     }
@@ -955,13 +955,13 @@ bool QPixmap::convertFromImage( const QImage &img )
 		    *p2++ = *p++;
 	    }
 	    free( newbits );
-	    newbits = (uchar *)newerbits;	
+	    newbits = (uchar *)newerbits;
 	}
 	else if ( xi->bits_per_pixel != 8 ) {	// !!! to be implemented
 #if defined(CHECK_RANGE)
 	    warning( "QPixmap::setImageData: DISPLAY NOT SUPPORTED (BPP=%d)",
 		     xi->bits_per_pixel );
-#endif	    
+#endif
 	}
 	xi->data = (char *)newbits;
     }
@@ -1044,7 +1044,7 @@ Example of how to manually draw a rotated text at (100,200) in a widget:
   QFontMetrics fm( f );			// get font metrics
   QRect	   r = fm.boundingRect( str );	// get text rectangle
 
-  QPixmap  pm( r.width(), r.height() );	// pixmap to be rotated
+  QPixmap  pm( r.width(), r.height() ); // pixmap to be rotated
   QPoint   bl = -r.topLeft();		// baseline position
   QPainter p;				// paints pm
 
@@ -1180,12 +1180,12 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
     debug( "bits per pixel.... %d", xi->bits_per_pixel );
 #endif
 
-    int	m11 = d2i_round((double)mat.m11()*65536.0);
-    int	m12 = d2i_round((double)mat.m12()*65536.0);
-    int	m21 = d2i_round((double)mat.m21()*65536.0);
-    int	m22 = d2i_round((double)mat.m22()*65536.0);
-    int	dx  = d2i_round((double)mat.dx() *65536.0);
-    int	dy  = d2i_round((double)mat.dy() *65536.0);
+    int m11 = d2i_round((double)mat.m11()*65536.0);
+    int m12 = d2i_round((double)mat.m12()*65536.0);
+    int m21 = d2i_round((double)mat.m21()*65536.0);
+    int m22 = d2i_round((double)mat.m22()*65536.0);
+    int dx  = d2i_round((double)mat.dx() *65536.0);
+    int dy  = d2i_round((double)mat.dy() *65536.0);
 #if 0
     dx += (dx > 0) ? 32767 : -32768;		// gives error when scaling
     dy += (dy > 0) ? 32767 : -32768;
@@ -1344,7 +1344,7 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
 	QPixmap pm( w, h, dd );
 	pm.data->bitmap = data->bitmap;
 	XPutImage( dpy, pm.handle(), gc, xi, 0, 0, 0, 0, w, h);
-	XDestroyImage( xi );	
+	XDestroyImage( xi );
 	return pm;
     }
 }

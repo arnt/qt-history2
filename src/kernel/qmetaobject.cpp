@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#5 $
 **
 ** Implementation of QMetaObject class
 **
@@ -10,13 +10,12 @@
 **
 *****************************************************************************/
 
-#define	 NO_WARNINGS
 #include "qmetaobj.h"
 #include "qobjcoll.h"
 #include "qstrlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#5 $";
 #endif
 
 /*! \class QMetaObject qmetaobj.h

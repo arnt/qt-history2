@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#9 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#10 $
 **
 ** Definition of QRegion class
 **
@@ -47,7 +47,7 @@ public:
 
     bool    operator==( const QRegion & )  const;
     bool    operator!=( const QRegion &r ) const
-    			{ return !(operator==(r)); }
+			{ return !(operator==(r)); }
 
 #if defined(_WS_WIN_)
     HANDLE  handle() const { return data->rgn; }
@@ -80,8 +80,8 @@ private:
 
 
 #define QRGN_SETRECT	1			// region stream commands
-#define QRGN_SETELLIPSE	2
-#define QRGN_SETPTARRAY	3
+#define QRGN_SETELLIPSE 2
+#define QRGN_SETPTARRAY 3
 #define QRGN_MOVE	4
 #define QRGN_OR		5
 #define QRGN_AND	6

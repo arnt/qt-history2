@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#31 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#32 $
 **
 ** Definition of QPixmap class
 **
@@ -35,11 +35,11 @@ public:
 
     bool    isNull()	const;
 
-    int	    width()     const { return data->w; }
-    int	    height()    const { return data->h; }
-    QSize   size()      const { return QSize(data->w,data->h); }
-    QRect   rect()      const { return QRect(0,0,data->w,data->h); }
-    int	    depth()     const { return data->d; }
+    int	    width()	const { return data->w; }
+    int	    height()	const { return data->h; }
+    QSize   size()	const { return QSize(data->w,data->h); }
+    QRect   rect()	const { return QRect(0,0,data->w,data->h); }
+    int	    depth()	const { return data->d; }
     int	    numColors() const { return (1 << data->d); }
 
     void    fill( const QColor &fillColor=white );
@@ -72,21 +72,21 @@ protected:
 #endif
 
     struct QPixmapData : QShared {		// internal pixmap data
-        QCOORD w, h;
-        short  d;
-        uint   dirty  : 1;
-        uint   optim  : 1;
-        uint   uninit : 1;
+	QCOORD w, h;
+	short  d;
+	uint   dirty  : 1;
+	uint   optim  : 1;
+	uint   uninit : 1;
 	uint   bitmap : 1;
 #if defined(_WS_WIN_)
-        HANDLE allocMemDC();
-        void   freeMemDC();
-        HANDLE hbm;
+	HANDLE allocMemDC();
+	void   freeMemDC();
+	HANDLE hbm;
 #elif defined(_WS_PM_)
-        HANDLE hdcmem;
-        HANDLE hbm;
+	HANDLE hdcmem;
+	HANDLE hbm;
 #elif defined(_WS_X11_)
-        void  *ximage;
+	void  *ximage;
 #endif
     } *data;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#10 $
 **
 ** Implementation of QPoint class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#10 $";
 #endif
 
 
@@ -54,9 +54,9 @@ Constructs a point with undefined x and y values.
 Constructs a point with the x value  \e xpos and y value \e ypos.
 */
 
-QPoint::QPoint( QCOORD xpos, QCOORD ypos )
+QPoint::QPoint( int xpos, int ypos )
 {
-    xp=xpos; yp=ypos;
+    xp=(QCOORD)xpos; yp=(QCOORD)ypos;
 }
 
 
@@ -67,28 +67,28 @@ Returns TRUE if both the x value and the y value are 0.
 
 
 /*!
-\fn QCOORD QPoint::x() const
+\fn int QPoint::x() const
 Returns the x coordinate of the point.
 
 \sa y().
 */
 
 /*!
-\fn QCOORD QPoint::y() const
+\fn int QPoint::y() const
 Returns the y coordinate of the point.
 
 \sa x().
 */
 
 /*!
-\fn void QPoint::setX( QCOORD x )
+\fn void QPoint::setX( int x )
 Sets the x coordinate of the point to \e x.
 
 \sa setY().
 */
 
 /*!
-\fn void QPoint::setY( QCOORD y )
+\fn void QPoint::setY( int y )
 Sets the y coordinate of the point to \e y.
 
 \sa setX().
@@ -96,7 +96,7 @@ Sets the y coordinate of the point to \e y.
 
 
 /*!
-\fn QCOORD &QPoint::rx()
+\fn int &QPoint::rx()
 Returns a reference to the x coordinate of the point.
 
 Using a reference makes it possible to directly manipulate x:
@@ -109,7 +109,7 @@ Using a reference makes it possible to directly manipulate x:
 */
 
 /*!
-\fn QCOORD &QPoint::ry()
+\fn int &QPoint::ry()
 Returns a reference to the y coordinate of the point.
 
 Using a reference makes it possible to directly manipulate y:
@@ -162,7 +162,7 @@ Multiplies both x and y with \e c, and return a reference to this point.
 
 QPoint &QPoint::operator*=( int c )
 {
-    xp*=c; yp*=c; return *this;
+    xp*=(QCOORD)c; yp*=(QCOORD)c; return *this;
 }
 
 /*!
@@ -190,7 +190,7 @@ The division will not be performed if \e c is 0.
   QPoint p( -2, 8 );
   p /= 2;			\/ p becomes (-1,4)
 \endcode
-*/ 
+*/
 
 QPoint &QPoint::operator/=( int c )
 {
@@ -200,7 +200,7 @@ QPoint &QPoint::operator/=( int c )
 #endif
 	return *this;
     }
-    xp/=c; yp/=c; return *this;
+    xp/=(QCOORD)c; yp/=(QCOORD)c; return *this;
 }
 
 /*!
@@ -214,7 +214,7 @@ The division will not be performed if \e c is 0.
 \endcode
 
 Notice that the result is truncated.
-*/ 
+*/
 
 QPoint &QPoint::operator/=( float c )
 {
@@ -365,9 +365,9 @@ QPoint operator-( const QPoint &p )
 
 /*!
 \relates QPoint
-Writes a QPoint to the stream.
+Writes a QPoint to the stream and returns a reference to the stream.
 
-The output format is two INT16 (first x, then y).
+Output format: [x (INT16), y (INT16)].
 */
 
 QDataStream &operator<<( QDataStream &s, const QPoint &p )
@@ -377,7 +377,7 @@ QDataStream &operator<<( QDataStream &s, const QPoint &p )
 
 /*!
 \relates QPoint
-Reads a QPoint from the stream.
+Reads a QPoint from the stream and returns a reference to the stream.
 */
 
 QDataStream &operator>>( QDataStream &s, QPoint &p )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#46 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#45 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#46 $";
 #endif
 
 
@@ -31,18 +31,18 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#45 $";
   to a slot in any object.
 
   When an object has changed in some way that might be interesting, it
-  emits a signal to tell whoever is interested.  If that signal is
+  emits a signal to tell whoever is interested.	 If that signal is
   connected to any slots, those slots get called.
 
   That is. the calling or emitting object doesn't need to know or care
-  what slot the signal is connected to.  It works much like the
+  what slot the signal is connected to.	 It works much like the
   traditional callback mechanism, but it isn't necessary to write null
   pointer checks or for loops all the time.
 
-  QScrollBar is a good example.  In order to use it, you create a
+  QScrollBar is a good example.	 In order to use it, you create a
   scroll bar, connect its newValue() signal to a slot which
   e.g. scrolls your widget.  Then, if it suits you, you can connect
-  e.g.  QScrollBar::nextLine() to a suitable slot.  nextLine() is
+  e.g.	QScrollBar::nextLine() to a suitable slot.  nextLine() is
   useless in most cases but if you need it, it's there.
 
   */
@@ -152,14 +152,14 @@ static QString rmWS( const char *src )
     register char *d = tmp.data();
     register char *s = (char *)src;
     while( *s && isspace(*s) )
-        s++;
+	s++;
     while ( *s ) {
-        while( *s && !isspace(*s) )
+	while( *s && !isspace(*s) )
 	    *d++ = *s++;
-        while( *s && isspace(*s) )
-            s++;
-        if ( *s && ( isalpha(*s) || *s == '_' ) )
-            *d++ = ' ';
+	while( *s && isspace(*s) )
+	    s++;
+	if ( *s && ( isalpha(*s) || *s == '_' ) )
+	    *d++ = ' ';
     }
     tmp.truncate( d - tmp.data() );
     return tmp;
@@ -296,9 +296,9 @@ Returns TRUE if this object is an instance of a specified class,
 otherwise FALSE.
 
 \code
-  QTimer *t = new QTimer;       // QTimer inherits QObject
-  t->isA("QTime");              // returns TRUE
-  t->isA("QObject");            // returns FALSE
+  QTimer *t = new QTimer;	// QTimer inherits QObject
+  t->isA("QTime");		// returns TRUE
+  t->isA("QObject");		// returns FALSE
 \endcode
 
 \sa inherits().
@@ -314,10 +314,10 @@ Returns TRUE if this object is an instance of a class that inherits
 \e clname.  (A class is considered to inherit itself.)
 
 \code
-  QTimer *t = new QTimer;       \/ QTimer inherits QObject
-  t->inherits("QTimer");        \/ returns TRUE
-  t->inherits("QObject");       \/ returns TRUE
-  t->inherits("QButton");       \/ returns FALSE
+  QTimer *t = new QTimer;	\/ QTimer inherits QObject
+  t->inherits("QTimer");	\/ returns TRUE
+  t->inherits("QObject");	\/ returns TRUE
+  t->inherits("QButton");	\/ returns FALSE
 \endcode
 
 This function may be used to determine whether a given object
@@ -428,7 +428,7 @@ Signals are not blocked by default.
 */
 
 /*!
-Blocks signals if \e block is TRUE, or unblocks signals if \e block is FALSE. 
+Blocks signals if \e block is TRUE, or unblocks signals if \e block is FALSE.
 
 Emitted signals disappear into hyperspace if signals are blocked.
 */
@@ -498,7 +498,7 @@ static void objSearch( QObjectList *result,
 		       QObjectList *list,
 		       const char  *inheritsClass,
 		       const char  *objName,
-		       QRegExp     *rx,
+		       QRegExp	   *rx,
 		       bool	    recurse )
 {
     if ( !list || list->isEmpty() )		// nothing to search
@@ -520,7 +520,7 @@ static void objSearch( QObjectList *result,
 	    objSearch( result, (QObjectList *)obj->children(), inheritsClass,
 		       objName, rx, recurse );
 	obj = list->next();
-    }    
+    }
 }
 
 
@@ -591,7 +591,7 @@ QConnectionList *QObject::receivers( const char *signal ) const
     if ( connections && signal ) {
 	if ( *signal == '2' ) {
 	    QString s = rmWS( signal+1 );
-	    return connections->find( s );	    
+	    return connections->find( s );
 	}
 	else
 	    return connections->find( signal );
@@ -721,7 +721,7 @@ static void err_member_notfound( int code, QObject *object, const char *member,
 {
     const char *type = 0;
     switch ( code ) {
-	case SLOT_CODE:   type = "slot";   break;
+	case SLOT_CODE:	  type = "slot";   break;
 	case SIGNAL_CODE: type = "signal"; break;
     }
     if ( strchr(member,')') == 0 )		// common typing mistake
@@ -737,7 +737,7 @@ static void err_member_notfound( int code, QObject *object, const char *member,
 /*! Connects \e signal from object \e sender to \e member in object \e
   receiver.  \sa disconnect(). */
 
-bool QObject::connect( QObject *sender,         const char *signal,
+bool QObject::connect( QObject *sender,		const char *signal,
 		       const QObject *receiver, const char *member )
 {
 #if defined(CHECK_NULL)
@@ -767,7 +767,7 @@ bool QObject::connect( QObject *sender,         const char *signal,
 #if defined(CHECK_RANGE)
 	err_member_notfound( SIGNAL_CODE, sender, signal, "connect" );
 #endif
-        return FALSE;
+	return FALSE;
     }
     signal = sm->name;				// use name from meta object
 
@@ -833,7 +833,7 @@ bool QObject::connect( QObject *sender,         const char *signal,
 Disconnects \e signal in object \e sender from \e member in object
 \e receiver.
 
-If \e signal is 0, it disconnects \e receiver and \e member from 
+If \e signal is 0, it disconnects \e receiver and \e member from
 any signal.
 
 If \e member is 0, it disconnects anything that is connected to
@@ -888,7 +888,7 @@ bool QObject::disconnect( QObject *sender, const char *signal,
 	if ( !rmeta )				// no meta object
 	    return FALSE;
 	switch ( membcode ) {			// get receiver member
-	    case SLOT_CODE:   rm = rmeta->slot( member, TRUE );   break;
+	    case SLOT_CODE:   rm = rmeta->slot( member, TRUE );	  break;
 	    case SIGNAL_CODE: rm = rmeta->signal( member, TRUE ); break;
 	}
 	if ( !rm ) {				// no such member
@@ -931,7 +931,7 @@ bool QObject::disconnect( QObject *sender, const char *signal,
 	signal_tmp = rmWS( signal );
 	signal = signal_tmp.data();
 #if defined(CHECK_RANGE)
-        if ( !check_signal_macro( sender, signal, "disconnect", "unbind" ) )
+	if ( !check_signal_macro( sender, signal, "disconnect", "unbind" ) )
 	    return FALSE;
 #endif
 	signal++;
@@ -1146,11 +1146,11 @@ C++ class declaration might read:
     class Foo : public Bar
     {
     public:
-        Foo();
-        void setSomethig(int);
+	Foo();
+	void setSomethig(int);
 	int something();
     private:
-        int internal;
+	int internal;
     };
 </pre>
 
@@ -1160,16 +1160,16 @@ that state.  A small Qt class might read:
 <pre>
     class QFoo : public QObject
     {
-        Q_OBJECT;
+	Q_OBJECT;
     public:
-        Foo( QObject *parent=0, const char *name=0);
-        int something() { returns internal; }
+	Foo( QObject *parent=0, const char *name=0);
+	int something() { returns internal; }
     signals:
-        void somethingChanged(int)
+	void somethingChanged(int)
     public slots:
-        void setSomething(int);
+	void setSomething(int);
     private:
-        int internal;
+	int internal;
     };
 </pre>
 
@@ -1182,7 +1182,7 @@ may send signals to.
 
 <p>
 
-To emit a signal, you say <code>emit signal(arguments)</code>.  The
+To emit a signal, you say <code>emit signal(arguments)</code>.	The
 next code fragment shows this.
 
 <p>
@@ -1240,14 +1240,14 @@ internal to Qt:
 
 <pre>
 m%.cpp: q%.h
-    	..somewhere../bin/moc $< -o $@
+	..somewhere../bin/moc $< -o $@
 </pre>
 
 A specific rule for mlcdnum.cpp would look like this:
 
 <pre>
     mlcdnum.cpp: qlcdnum.h
-    	..somewhere../bin/moc qlcdnum.h -o mlcdnum.cpp
+	..somewhere../bin/moc qlcdnum.h -o mlcdnum.cpp
 </pre>
 
 Both C++ files are compiled and linked in the usual way.
@@ -1280,7 +1280,7 @@ normal C++ functions and can be called normally; their only special
 feature is that signals can be connected to them.  Since slots are
 normal member functions with just a little extra spice, they have
 access rights like everyone else.  A slot's access right determines
-who can connect to it.  A slot's arguments cannot have default values.
+who can connect to it.	A slot's arguments cannot have default values.
 
 <p>
 
@@ -1311,7 +1311,7 @@ this to be very useful.
 
 <p>
 
-Signals and slots are fairly efficient.  Of course there's some loss
+Signals and slots are fairly efficient.	 Of course there's some loss
 of speed compared to "real" callbacks due to the increased
 flexibility, but the loss is fairly small, we measured it to
 approximately 50 microseconds on a SPARC 2, so the simplicity and
@@ -1326,7 +1326,7 @@ functions.
 
 <h2>Example</h2>
 
-Here is a simple commented example (butchered from qlcddum.h).  Unlike
+Here is a simple commented example (butchered from qlcddum.h).	Unlike
 most of the Qt documentation, this isn't peppered with links, so if
 you want to read about <a href=qlcdnumber.html>QLCDNumber</a> or any of
 its parent classes please do it now, before you go through the
@@ -1345,7 +1345,7 @@ declarations.
 
 <pre>
     {
-        Q_OBJECT
+	Q_OBJECT
 </pre>
 
 Q_OBJECT is expanded by the preprocessor to declare several member
@@ -1355,8 +1355,8 @@ you have probably forgotten to mention Q_OBJECT and run the moc.
 
 <pre>
     public:
-        QLCDNumber( QWidget *parent=0, const char *name=0 );
-        QLCDNumber( uint numDigits, QWidget *parent=0, const char *name=0 );
+	QLCDNumber( QWidget *parent=0, const char *name=0 );
+	QLCDNumber( uint numDigits, QWidget *parent=0, const char *name=0 );
 </pre>
 
 It's not obviously relevant to the moc, but if you inherit QWidget you
@@ -1371,7 +1371,7 @@ ignores member functions.
 
 <pre>
     signals:
-        void    overflow();
+	void	overflow();
 </pre>
 
 QLCDNumber emits a signal when it is asked to show an impossible
@@ -1391,13 +1391,13 @@ will call both (in arbitrary order).
 
 <pre>
     public slots:
-        void    display( int num );
-        void    display( long num );
-        void    display( float num );
-        void    display( double num );
-        void    display( const char *str );
-        void    setMode( Mode );
-        void    smallDecimalPoint( bool );
+	void	display( int num );
+	void	display( long num );
+	void	display( float num );
+	void	display( double num );
+	void	display( const char *str );
+	void	setMode( Mode );
+	void	smallDecimalPoint( bool );
 </pre>
 
 A slot is a receiving function, used to get information about state
@@ -1414,7 +1414,7 @@ the value of the scroll bar.
 <p>
 
 (Note that display() is overloaded; Qt will select the appropriate
-version when you connect a signal to the slot.  With callbacks, you'd
+version when you connect a signal to the slot.	With callbacks, you'd
 have to find five different names and keep track of the types
 yourself.)
 
@@ -1435,17 +1435,17 @@ of the resulting mlcdnum.cpp:
 <pre>
     const char *QLCDNumber::className() const
     {
-        return "QLCDNumber";
+	return "QLCDNumber";
     }
-    
+
     QMetaObject *QLCDNumber::metaObj = 0;
-    
+
     void QLCDNumber::initMetaObject()
     {
-        if ( metaObj )
-            return;
-        if ( !QFrame::metaObject() )
-            QFrame::initMetaObject();
+	if ( metaObj )
+	    return;
+	if ( !QFrame::metaObject() )
+	    QFrame::initMetaObject();
 </pre>
 
 That last line is because QLCDNumber inherits QFrame.  The next part,
@@ -1454,11 +1454,11 @@ brevity.
 
 <pre>
     }
-    
+
     // SIGNAL overflow
     void QLCDNumber::overflow()
     {
-        activate_signal( "overflow()" );
+	activate_signal( "overflow()" );
     }
 </pre>
 

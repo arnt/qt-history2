@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#96 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#95 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#96 $";
 #endif
 
 
@@ -48,14 +48,14 @@ draws a 1-pixel line very fast, but not so accurate.  Setting the line
 width to 1 or more draws lines that are precise, but drawing is slower.
 
 The line color defines the color of lines and text. The default line
-color is black.  The QColor documentation contains a list of standard colors.
+color is black.	 The QColor documentation contains a list of standard colors.
 
 Use the QBrush class for specifying fill styles.
 
 Example of how to use a pen:
 \code
   QPainter painter;
-  QPen     pen( red, 2 );		// red solid line, 2 pixel width
+  QPen	   pen( red, 2 );		// red solid line, 2 pixel width
   painter.begin( &anyPaintDevice );	// paint something
   painter.setPen( pen );		// set the red, fat pen
   painter.drawRect( 40,30, 200,100 );	// draw rectangle
@@ -277,7 +277,7 @@ A brush has a style and a color.  One of the brush styles is a custom
 pattern, which is defined by a QBitmap.
 
 The brush style defines the fill pattern. The default brush style is \c
-NoBrush (depends on how you construct a brush).  This style tells the
+NoBrush (depends on how you construct a brush).	 This style tells the
 painter to not fill shapes. The standard style for filling is called \c
 SolidPattern.
 
@@ -308,8 +308,8 @@ void QBrush::init( const QColor &color, BrushStyle style )
 {
     data = new QBrushData;
     CHECK_PTR( data );
-    data->style  = style;
-    data->color  = color;
+    data->style	 = style;
+    data->color	 = color;
     data->dpy	 = 0;
     data->pixmap = 0;
     data->bitmap = 0;
@@ -507,12 +507,12 @@ void QBrush::setColor( const QColor &c )	// set brush color
 }
 
 /*!
-Sets the brush bitmap.  The style is set to \c CustomPattern.
+Sets the brush bitmap.	The style is set to \c CustomPattern.
 
 \sa bitmap().
 */
 
-void QBrush::setBitmap( const QBitmap &bitmap )	// set brush bitmap
+void QBrush::setBitmap( const QBitmap &bitmap ) // set brush bitmap
 {
     detach();
     data->style = CustomPattern;
@@ -628,7 +628,7 @@ struct QGC {
     char mono;
 };
 
-const 	    gc_array_size = 32;
+const	    gc_array_size = 32;
 static QGC  gc_array[gc_array_size];
 static bool gc_array_init = FALSE;
 
@@ -1115,7 +1115,7 @@ static uchar *pat_tbl[] = {
 	s = FillSolid;
     if ( !gc_brush ) {				// brush not yet created
 	bool mono = pdev->devType() == PDT_PIXMAP &&
-	            ((QPixmap*)pdev)->depth() == 1;
+		    ((QPixmap*)pdev)->depth() == 1;
 	gc_brush = alloc_painter_gc( dpy, hd, mono );
 	XSetLineAttributes( dpy, gc_brush, 0, LineSolid, CapButt, JoinMiter );
 	if ( rop != CopyROP ) {			// update raster op for brush
@@ -1226,7 +1226,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    XSetSubwindowMode( w->display(), gc_brush, IncludeInferiors );
 	}
     }
-    else if ( pdev->devType() == PDT_PIXMAP ) {	// device is a pixmap
+    else if ( pdev->devType() == PDT_PIXMAP ) { // device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
 #if defined(CHECK_NULL)
@@ -1236,7 +1236,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    return FALSE;
 	}
 	bool mono = pm->depth() == 1;		// monochrome bitmap
-	gc = alloc_painter_gc( dpy, hd, mono );	// create GC
+	gc = alloc_painter_gc( dpy, hd, mono ); // create GC
 	ww = vw = pm->width();			// default view size
 	wh = vh = pm->height();
 	if ( reinit ) {
@@ -1358,14 +1358,14 @@ Sets the raster operation to \e r.
 The \e r parameter must be one of:
 <ul>
 <li> \c CopyROP:     dst = src.
-<li> \c OrROP:       dst = dst OR src.
-<li> \c XorROP:      dst = dst XOR src.
+<li> \c OrROP:	     dst = dst OR src.
+<li> \c XorROP:	     dst = dst XOR src.
 <li> \c EraseROP:    dst = (NOT src) AND dst
 <li> \c NotCopyROP:  dst = NOT src
 <li> \c NotOrROP:    dst = (NOT src) OR dst
 <li> \c NotXorROP:   dst = (NOT src) XOR dst
 <li> \c NotEraseROP: dst = src AND dst
-<li> \c NotROP:      dst = NOT dst
+<li> \c NotROP:	     dst = NOT dst
 </ul>
 \sa rasterOp().
 */
@@ -1583,16 +1583,16 @@ void QPainter::updateXForm()			// update xform params
     wm12 = d2i_round((double)m.m12()*65536.0);
     wm21 = d2i_round((double)m.m21()*65536.0);
     wm22 = d2i_round((double)m.m22()*65536.0);
-    wdx  = d2i_round((double)m.dx() *65536.0);
-    wdy  = d2i_round((double)m.dy() *65536.0);
+    wdx	 = d2i_round((double)m.dx() *65536.0);
+    wdy	 = d2i_round((double)m.dy() *65536.0);
     bool invertible;
     m = m.invert( &invertible );		// invert matrix
     im11 = d2i_round((double)m.m11()*65536.0);
     im12 = d2i_round((double)m.m12()*65536.0);
     im21 = d2i_round((double)m.m21()*65536.0);
     im22 = d2i_round((double)m.m22()*65536.0);
-    idx  = d2i_round((double)m.dx() *65536.0);
-    idy  = d2i_round((double)m.dy() *65536.0);
+    idx	 = d2i_round((double)m.dx() *65536.0);
+    idy	 = d2i_round((double)m.dy() *65536.0);
 }
 
 
@@ -1735,7 +1735,7 @@ QRect QPainter::xFormDev( const QRect &rd ) const
     int x, y, w, h;
     rd.rect( &x, &y, &w, &h );
     if ( testf(WxF) ) {
-    	int x1 = im11*x+im21*y+idx;
+	int x1 = im11*x+im21*y+idx;
 	int y1 = im12*x+im22*y+idy;
 	int x2 = im11*(x+w-1)+im21*(y+h-1)+idx;
 	int y2 = im12*(x+w-1)+im22*(y+h-1)+idy;
@@ -1818,7 +1818,7 @@ void QPainter::setClipping( bool enable )	// set clipping
 Synonymous to setClipRect(x,y,w,h).
 */
 
-void QPainter::setClipRect( const QRect &rect )	// set clip rectangle
+void QPainter::setClipRect( const QRect &rect ) // set clip rectangle
 {
     QRegion rgn( rect );
     setClipRegion( rgn );
@@ -1904,7 +1904,7 @@ void QPainter::moveTo( int x, int y )		// set current point for lineTo
 Draws a line from the current point to \e (x,y) and sets this to the new
 current point.
 \sa moveTo().
-*/ 
+*/
 
 void QPainter::lineTo( int x, int y )		// draw line from current point
 {
@@ -1946,7 +1946,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
 	    QPoint p1( x1, y1 ),
-	    	   p2( x2, y2 );
+		   p2( x2, y2 );
 	    param[0].point = &p1;
 	    param[1].point = &p2;
 	    pdev->cmd( PDC_DRAWLINE, param );
@@ -2010,7 +2010,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 		QPointArray a( QRect(x,y,w,h) );// rectangle polygon
 		a = xForm( a );			// xform polygon
 		uint tmpf = flags;
-		flags = IsActive | SafePolygon;	// fake flags to speed up
+		flags = IsActive | SafePolygon; // fake flags to speed up
 		drawPolygon( a );
 		flags = tmpf;
 		return;
@@ -2105,7 +2105,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 		}
 		a = xForm( a );			// xform polygon
 		uint tmpf = flags;
-		flags = IsActive | SafePolygon;	// fake flags to speed up
+		flags = IsActive | SafePolygon; // fake flags to speed up
 		drawPolygon( a );
 		flags = tmpf;
 		return;
@@ -2206,11 +2206,11 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 		WXFORM_R(x,y,w,h);
 	    }
 	    else {
-    		QPointArray a;
+		QPointArray a;
 		a.makeEllipse( x, y, w, h );
 		a = xForm( a );
 		uint tmpf = flags;
-		flags = IsActive | SafePolygon;	// fake flags to avoid overhead
+		flags = IsActive | SafePolygon; // fake flags to avoid overhead
 		drawPolygon( a );
 		flags = tmpf;
 		return;
@@ -2275,7 +2275,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a1, int a2 )
 		a.makeArc( x, y, w, h, a1, a2 );// arc polygon
 		a = xForm( a );			// xform polygon
 		uint tmpf = flags;
-		flags = IsActive | SafePolygon;	// fake flags to speed up
+		flags = IsActive | SafePolygon; // fake flags to speed up
 		drawPolygon( a );
 		flags = tmpf;
 		return;
@@ -2332,7 +2332,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a1, int a2 )
 		a.setPoint( n+1, a.at(0) );
 		a = xForm( a );			// xform polygon
 		uint tmpf = flags;
-		flags = IsActive | SafePolygon;	// fake flags to speed up
+		flags = IsActive | SafePolygon; // fake flags to speed up
 		drawPolygon( a );
 		flags = tmpf;
 		return;
@@ -2404,7 +2404,7 @@ void QPainter::drawChord( int x, int y, int w, int h, int a1, int a2 )
 		a.setPoint( n, a.at(0) );	// connect endpoints
 		a = xForm( a );			// xform polygon
 		uint tmpf = flags;
-		flags = IsActive | SafePolygon;	// fake flags to speed up
+		flags = IsActive | SafePolygon; // fake flags to speed up
 		drawPolygon( a );
 		flags = tmpf;
 		return;
@@ -2680,7 +2680,7 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 	    CHECK_PTR( bez );
 	    bez->controls = a2.copy();
 	    a2 = a2.bezier();
-	    bez->points   = a2;
+	    bez->points	  = a2;
 	    if ( bezlist->count() > 13 )
 		bezlist->removeLast();
 	    bezlist->insert( bez );
@@ -2720,8 +2720,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		QPDevCmdParam param[3];
 		QRect  r(0,0,sw,sh);
 		QPoint p(x,y);
-		param[0].rect   = &r;
-		param[1].point  = &p;
+		param[0].rect	= &r;
+		param[1].point	= &p;
 		param[2].pixmap = &pixmap;
 		pdev->cmd( PDC_DRAWPIXMAP, param );
 		return;
@@ -2729,7 +2729,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 							// world transform
 	    Q2DMatrix mat( wm11/65536.0, wm12/65536.0,
 			   wm21/65536.0, wm22/65536.0,
-			   wdx/65536.0,  wdy/65536.0 );
+			   wdx/65536.0,	 wdy/65536.0 );
 	    mat = QPixmap::trueMatrix( mat, sw, sh );
 	    QPixmap bm_clip( sw, sh, 1 );
 	    bm_clip.fill( color1 );
@@ -2874,7 +2874,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
 	    Q2DMatrix mat1( wm11/65536.0, wm12/65536.0,
 			   wm21/65536.0, wm22/65536.0,
-			   wdx/65536.0,  wdy/65536.0 );
+			   wdx/65536.0,	 wdy/65536.0 );
 	    Q2DMatrix mat = QPixmap::trueMatrix( mat1, w, h );
 	    QPixmap *wx_bm = get_text_bitmap( mat, cfont, str, len );
 	    bool create_new_bm = wx_bm == 0;
@@ -2886,7 +2886,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		paint.setFont( cfont );
 		paint.drawText( tx, ty, str, len );
 		paint.end();
-		wx_bm = new QPixmap( bm.xForm( mat ) );	// transform bitmap
+		wx_bm = new QPixmap( bm.xForm( mat ) ); // transform bitmap
 		if ( wx_bm->isNull() ) {
 		    delete wx_bm;		// nothing to draw
 		    return;
@@ -2900,9 +2900,9 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
 		QPointArray a(5);
 		int m, n;
-		mat.map(   0,   0, &m, &n );  a.setPoint( 0, m, n );
+		mat.map(   0,	0, &m, &n );  a.setPoint( 0, m, n );
 					      a.setPoint( 4, m, n );
-		mat.map( w-1,   0, &m, &n );  a.setPoint( 1, m, n );
+		mat.map( w-1,	0, &m, &n );  a.setPoint( 1, m, n );
 		mat.map( w-1, h-1, &m, &n );  a.setPoint( 2, m, n );
 		mat.map(   0, h-1, &m, &n );  a.setPoint( 3, m, n );
 		a.move( x, y );
@@ -2955,10 +2955,10 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	QFontMetrics fm( cfont );
 	int lw = fm.lineWidth();
 	int tw = fm.width( str, len );
-	if ( cfont.underline() )	       	// draw underline effect
+	if ( cfont.underline() )		// draw underline effect
 	    XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(),
 			    tw, lw );
-	if ( cfont.strikeOut() )       		// draw strikeout effect
+	if ( cfont.strikeOut() )		// draw strikeout effect
 	    XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(),
 			    tw, lw );
     }
@@ -3062,13 +3062,13 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     int	   codelen    = 200;
     bool   code_alloc = FALSE;
     ushort *codes     = codearray;
-    ushort cc 	      = 0;			// character code
+    ushort cc	      = 0;			// character code
     bool   decode     = internal && *internal;	// decode from internal data
     bool   encode     = internal && !*internal; // build internal data
 
     if ( len > 150 && !decode ) {		// need to alloc code array
 	codelen = len + len/2;
-	codes   = new ushort[codelen];
+	codes	= new ushort[codelen];
 	code_alloc = TRUE;
     }
 
@@ -3095,12 +3095,12 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
 #define CWIDTH(x) (charwidth[x]>=0 ? charwidth[x] : (charwidth[x]=fm.width(x)))
 
-    bool wordbreak  = (tf & WordBreak)  == WordBreak;
+    bool wordbreak  = (tf & WordBreak)	== WordBreak;
     bool expandtabs = (tf & ExpandTabs) == ExpandTabs;
     bool singleline = (tf & SingleLine) == SingleLine;
     bool showprefix = (tf & ShowPrefix) == ShowPrefix;
 
-    int  spacewidth = CWIDTH( ' ' );		// width of space char
+    int	 spacewidth = CWIDTH( ' ' );		// width of space char
 
     nlines = 0;
     index  = 1;					// first index contains BEGLINE
@@ -3145,7 +3145,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		}
 	    }
 
-	    else if ( *p == '\t' ) { 		// TAB character
+	    else if ( *p == '\t' ) {		// TAB character
 		if ( expandtabs ) {
 		    cw = 0;
 		    if ( tabarray ) {		// use tab array
@@ -3221,8 +3221,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     }
 
     if ( decode ) {				// decode from internal data
-	char      *data = *internal;
-	text_info *ti   = (text_info*)data;
+	char	  *data = *internal;
+	text_info *ti	= (text_info*)data;
 	if ( strncmp(ti->tag,"qptr",4)!=0 || ti->w != w || ti->h != h ||
 	     ti->tf != tf || ti->len != len ) {
 #if defined(CHECK_STATE)
@@ -3231,8 +3231,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    return;
 	}
 	maxwidth = ti->maxwidth;		// get internal values
-	nlines   = ti->nlines;
-	codelen  = ti->codelen;
+	nlines	 = ti->nlines;
+	codelen	 = ti->codelen;
 	codes	 = (ushort *)(data + sizeof(text_info));
     }
     else {
@@ -3244,8 +3244,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     }
 
     if ( encode ) {				// build internal data
-	char      *data = new char[sizeof(text_info)+codelen*sizeof(ushort)];
-	text_info *ti   = (text_info*)data;
+	char	  *data = new char[sizeof(text_info)+codelen*sizeof(ushort)];
+	text_info *ti	= (text_info*)data;
 	strncpy( ti->tag, "qptr", 4 );		// set tag
 	ti->w	     = w;			// save parameters
 	ti->h	     = h;
@@ -3258,11 +3258,11 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	*internal = data;
     }
 
-    int     fascent  = fm.ascent();		// get font measurements
-    int     fheight  = fm.height();
+    int	    fascent  = fm.ascent();		// get font measurements
+    int	    fheight  = fm.height();
     QRegion save_rgn = crgn;			// save the current region
     bool    clip_on  = testf(ClipOn);
-    int     xp, yp;
+    int	    xp, yp;
     char    p_array[200];
     bool    p_alloc;
 
@@ -3302,7 +3302,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( br.x() >= x && br.y() >= y && br.width() < w && br.height() < h )
 	tf |= DontClip;				// no need to clip
 
-    if ( (tf & DontClip) == 0 )	{		// clip text
+    if ( (tf & DontClip) == 0 ) {		// clip text
 	QRegion new_rgn;
 	QRect r( x, y, w, h );
 	if ( testf(WxF) ) {			// world xform active

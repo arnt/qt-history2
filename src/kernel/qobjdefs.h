@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjdefs.h#14 $
+** $Id: //depot/qt/main/src/kernel/qobjdefs.h#15 $
 **
 ** Macros and definitions related to QObject
 **
@@ -60,7 +60,7 @@ class QConnection;
 class QEvent;
 
 class QListM_QConnection;			// connection list
-#define QConnectionList   QListM_QConnection
+#define QConnectionList	  QListM_QConnection
 #define QConnectionListIt QListIteratorM_QConnection
 
 class QDictM_QListM_QConnection;		// signal dictionary

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#7 $
 **
 ** Implementation of QSignal class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qsignal.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qsignal.cpp#7 $";
 #endif
 
 /*! \class QSignal qsignal.h
@@ -54,7 +54,7 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 bool QSignal::disconnect( const QObject *receiver, const char *member )
 {
     return QObject::disconnect( (QObject *)this, SIGNAL(x()),
- 				receiver, member );
+				receiver, member );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdata.h#7 $
+** $Id: //depot/qt/main/src/kernel/qfontdata.h#8 $
 **
 ** Definition of QFontData struct
 **
@@ -19,7 +19,7 @@
 #define QFONTDTA_H
 
 
-struct QFontDef  {
+struct QFontDef	 {
 	QString	  family;
 	short	  pointSize;
 	uint	  styleHint	: 8;
@@ -39,10 +39,10 @@ struct QFontDef  {
 #endif
 
 struct QFontData : QShared {
-    QFontDef        req;                // requested
-    QFontDef        act;                // actual
-    uint	    exactMatch    : 1;
-    short           lineW;              // width of underline and strikeOut
+    QFontDef	    req;		// requested
+    QFontDef	    act;		// actual
+    uint	    exactMatch	  : 1;
+    short	    lineW;		// width of underline and strikeOut
 
 #if defined(_WS_WIN_)
 	HANDLE	hfont;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#8 $
 **
 ** Implementation of QPicture class for X11
 **
@@ -17,12 +17,12 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#8 $";
 #endif
 
 
 QPicture::QPicture()
-    : QPaintDevice( PDT_PICTURE | PDF_EXTDEV )    // set device type
+    : QPaintDevice( PDT_PICTURE | PDF_EXTDEV )	  // set device type
 {
 }
 

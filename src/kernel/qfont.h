@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#17 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#18 $
 **
 ** Definition of QFont class
 **
@@ -22,12 +22,12 @@ class QFont
 {
 public:
     enum StyleHint { Helvetica, Times, Courier, OldEnglish,  System, AnyStyle,
-                     SansSerif  = Helvetica,
-                     Serif      = Times,
-                     TypeWriter = Courier,
-                     Decorative = OldEnglish};
+		     SansSerif	= Helvetica,
+		     Serif	= Times,
+		     TypeWriter = Courier,
+		     Decorative = OldEnglish};
     enum Weight	   { Light = 25, Normal = 50, DemiBold = 63,
-                     Bold  = 75, Black  = 87 };
+		     Bold  = 75, Black	= 87 };
     enum CharSet   { Latin1, ISO_8859_1 = Latin1, AnyCharSet };
 
     QFont();					    // default font
@@ -42,8 +42,8 @@ public:
     void	setPointSize( int pointSize );
     void	setItalic( bool );
     void	setWeight( int );
-    void        setUnderline( bool );
-    void        setStrikeOut( bool );
+    void	setUnderline( bool );
+    void	setStrikeOut( bool );
     void	setFixedPitch( bool );
     void	setStyleHint( StyleHint );
     void	setCharSet( CharSet );
@@ -52,8 +52,8 @@ public:
     int		pointSize()	const;
     bool	italic()	const;
     int		weight()	const;
-    bool        underline()     const;
-    bool        strikeOut()     const;
+    bool	underline()	const;
+    bool	strikeOut()	const;
     bool	fixedPitch()	const;
     StyleHint	styleHint()	const;
     CharSet	charSet()	const;
@@ -70,23 +70,23 @@ public:
 #endif
 
     static const QFont &defaultFont();
-    static void  setDefaultFont( const QFont & );
+    static void	 setDefaultFont( const QFont & );
     static void initialize();			// initialize font system
     static void cacheStatistics();		// output cache statistics
     static void cleanup();			// cleanup font system
 
 protected:
-    bool        dirty() const;
+    bool	dirty() const;
 
     QString defaultFamily() const;
     QString lastResortFamily() const;
     QString lastResortFont() const;
-    int     deciPointSize() const;
+    int	    deciPointSize() const;
 
 private:
     void detach();
-    QFont( QFontData * );               // used by QFont::copy()
-    QFont( bool );                      // creates default font
+    QFont( QFontData * );		// used by QFont::copy()
+    QFont( bool );			// creates default font
     void updateFontInfo() const;
     void init();
     void loadFont() const;

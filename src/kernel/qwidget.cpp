@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#52 $
 **
 ** Implementation of QWidget class
 **
@@ -13,7 +13,6 @@
 ** function, otherwise widget mapping will not work.
 *****************************************************************************/
 
-#define	 NO_WARNINGS
 #include "qobjcoll.h"
 #include "qwidget.h"
 #include "qwidcoll.h"
@@ -22,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#51 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#52 $";
 #endif
 
 /*!
@@ -118,7 +117,7 @@ is another widget, the new widget will be a child window inside \e parent.
 
 The \e name is sent to the QObject constructor.
 
-The widget flags are strictly internal.  You are strongly advised to use 0.
+The widget flags are strictly internal.	 You are strongly advised to use 0.
 */
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
@@ -228,14 +227,14 @@ QWidget *QWidget::find( WId id )		// find widget with id
 
 /*! \fn QWidgetMapper *QWidget::wmapper()
 \internal
-Returns a pointer to the widget mapper.  The widget mapper is an
+Returns a pointer to the widget mapper.	 The widget mapper is an
 internal dictionary that's used to map between the underlying window
 system's window IDs and Qt's widget pointers.
 \todo isn't this really const? */
 
 /*! \fn WFlags QWidget::getFlags() const
 \internal
-Returns the widget flags for this this widget.  Widget flags are
+Returns the widget flags for this this widget.	Widget flags are
 internal, not meant for general use.  \sa testFlag(), setFlag(),
 clearFlag(). */
 
@@ -435,7 +434,7 @@ mouse move events when a mouse button is pressed down.
 bool QWidget::setMouseTracking( bool enable )
 {
     bool v = testFlag( WMouseTracking );
-    if ( onOff )
+    if ( enable )
 	setFlag( WMouseTracking );
     else
 	clearFlag( WMouseTracking );
@@ -679,7 +678,7 @@ mouseReleaseEvent(), moveEvent(), paintEvent(), resizeEvent() and
 timerEvent().
 */
 
-bool QWidget::event( QEvent *e )		// receive event(), 
+bool QWidget::event( QEvent *e )		// receive event(),
 {
     if ( eventFilters ) {			// pass through event filters
 	if ( activate_filters( e ) )		// stopped by a filter
@@ -749,7 +748,7 @@ bool QWidget::event( QEvent *e )		// receive event(),
 		w = qApp->focusWidget();
 	    }
 	    else {
-	        w = this;			// search for parent widget
+		w = this;			// search for parent widget
 		while ( w->parentWidget() )
 		    w = w->parentWidget();
 	    }
@@ -984,7 +983,7 @@ The default implementation does nothing.
 \sa event().
 */
 
-void QWidget::closeEvent( QCloseEvent *e )
+void QWidget::closeEvent( QCloseEvent * )
 {
 }
 

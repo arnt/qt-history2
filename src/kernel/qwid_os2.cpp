@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#5 $
 **
 ** Implementation of QWidget and QView classes for OS/2 PM
 **
 ** Author  : Haavard Nord
 ** Created : 940712
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_os2.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_os2.cpp#5 $";
 #endif
 
 

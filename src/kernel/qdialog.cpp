@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#8 $
 **
 ** Implementation of QDialog class
 **
 ** Author  : Haavard Nord
 ** Created : 950502
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include "qobjcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#8 $";
 #endif
 
 

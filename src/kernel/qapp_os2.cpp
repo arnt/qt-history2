@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#5 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
 ** Author  : Haavard Nord
 ** Created : 940707
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -21,7 +21,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#5 $";
 #endif
 
 

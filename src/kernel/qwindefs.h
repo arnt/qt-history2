@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#53 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#54 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -58,7 +58,7 @@ class QTimer;
 #define _WS_MAC_
 #elif defined(_OS_MSDOS_)
 #define _WS_WIN16_
-#elif defined(_OS_WINNT_)
+#elif defined(_OS_WIN32_)
 #define _WS_WIN32_
 #elif defined(_OS_OS2_)
 #define _WS_PM_
@@ -191,8 +191,8 @@ const ulong WStyle_Title	= 0x00001000;	// widget style flags
 const ulong WStyle_Border	= 0x00002000;
 const ulong WStyle_Close	= 0x00004000;
 const ulong WStyle_Resize	= 0x00008000;
-const ulong WStyle_Minimize 	= 0x00010000;
-const ulong WStyle_Maximize 	= 0x00020000;
+const ulong WStyle_Minimize	= 0x00010000;
+const ulong WStyle_Maximize	= 0x00020000;
 const ulong WStyle_MinMax	= WStyle_Minimize | WStyle_Maximize;
 const ulong WStyle_All		= 0x000ff000;
 

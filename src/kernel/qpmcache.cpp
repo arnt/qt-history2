@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpmcache.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qpmcache.cpp#3 $
 **
 ** Implementation of QPixmapCache class
 **
 ** Author  : Haavard Nord
 ** Created : 950504
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpmcache.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpmcache.cpp#3 $";
 #endif
 
 
@@ -40,7 +40,7 @@ See the QCache documentation for a more details about the cache mechanism.
 
 typedef declare(QCacheM,QPixmap) QPMCache;
 static QPMCache *pm_cache = 0;			// global pixmap cache
-const  int cache_size     = 61;			// size of internal hash array
+const  int cache_size	  = 61;			// size of internal hash array
 static int cache_limit	  = 1024;		// 1024 KB cache limit
 
 

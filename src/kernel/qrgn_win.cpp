@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#3 $
 **
 ** Implementation of QRegion class for Windows + NT
 **
 ** Author  : Haavard Nord
 ** Created : 940801
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#3 $";
 #endif
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdc.h#11 $
+** $Id: //depot/qt/main/src/kernel/qpaintdc.h#12 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -18,7 +18,7 @@
 
 // Painter device cmd() identifiers (for programmable, extended devices)
 
-#define PDC_RESERVED_START      0		// codes 0-99 are reserved
+#define PDC_RESERVED_START	0		// codes 0-99 are reserved
 #define PDC_RESERVED_STOP	99		//   for Troll Tech
 
 #define PDC_NOP			0		//  <void>
@@ -64,12 +64,12 @@
 #define PDC_SETCLIPRGN		61		// rgn
 
 union QPDevCmdParam {
-    int		 	 ival;
+    int			 ival;
     int			*ivec;
     const char		*str;
     const QPoint	*point;
     const QRect		*rect;
-    const QPointArray 	*ptarr;
+    const QPointArray	*ptarr;
     const QPixmap	*pixmap;
     const QColor	*color;
     const QFont		*font;

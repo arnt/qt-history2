@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#10 $
 **
 ** Implementation of QBitmap class
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#10 $";
 #endif
 
 
@@ -48,7 +48,7 @@ QBitmap::QBitmap( int w, int h, bool clear )
 {
     data->bitmap = TRUE;
     if ( clear )
-        fill( color0 );
+	fill( color0 );
 }
 
 /*!
@@ -63,7 +63,7 @@ QBitmap::QBitmap( const QSize &sz, bool clear )
 {
     data->bitmap = TRUE;
     if ( clear )
-        fill( color0 );
+	fill( color0 );
 }
 
 /*!
@@ -108,7 +108,7 @@ QBitmap::QBitmap( const QSize &sz, const char *bits, bool isXbitmap )
 }
 
 /*!
-Constructs a bitmap which is a copy of \e bm. 
+Constructs a bitmap which is a copy of \e bm.
 */
 
 QBitmap::QBitmap( const QBitmap &bm )
@@ -146,5 +146,5 @@ QBitmap QBitmap::copy() const
 {
     QBitmap tmp( data->w, data->h );
     bitBlt( &tmp, 0,0, this, 0,0, data->w, data->h );
-    return tmp;    
+    return tmp;
 }

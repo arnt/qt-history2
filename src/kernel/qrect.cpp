@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#16 $
 **
 ** Implementation of QRect class
 **
@@ -10,12 +10,12 @@
 **
 *****************************************************************************/
 
-#define QRECT_C
+#define	 QRECT_C
 #include "qrect.h"
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#16 $";
 #endif
 
 
@@ -65,10 +65,10 @@ Constructs a rectangle with \e topleft as the top left corner and
 
 QRect::QRect( const QPoint &topleft, const QPoint &bottomright )
 {
-    x1 = topleft.x();
-    y1 = topleft.y();
-    x2 = bottomright.x();
-    y2 = bottomright.y();
+    x1 = (QCOORD)topleft.x();
+    y1 = (QCOORD)topleft.y();
+    x2 = (QCOORD)bottomright.x();
+    y2 = (QCOORD)bottomright.y();
 }
 
 /*!
@@ -78,10 +78,10 @@ Constructs a rectangle with \e topleft as the top left corner and
 
 QRect::QRect( const QPoint &topleft, const QSize &size )
 {
-    x1 = topleft.x();
-    y1 = topleft.y();
-    x2 = x1+size.width()-1;
-    y2 = y1+size.height()-1;
+    x1 = (QCOORD)topleft.x();
+    y1 = (QCOORD)topleft.y();
+    x2 = (QCOORD)(x1+size.width()-1);
+    y2 = (QCOORD)(y1+size.height()-1);
 }
 
 /*!
@@ -89,12 +89,12 @@ Constructs a rectangle with the a top left corner and a width and a
 height.
 */
 
-QRect::QRect( QCOORD left, QCOORD top, QCOORD width, QCOORD height )
+QRect::QRect( int left, int top, int width, int height )
 {
-    x1 = left;
-    y1 = top;
-    x2 = left+width-1;
-    y2 = top+height-1;
+    x1 = (QCOORD)left;
+    y1 = (QCOORD)top;
+    x2 = (QCOORD)(left+width-1);
+    y2 = (QCOORD)(top+height-1);
 }
 
 /*!
@@ -170,99 +170,102 @@ void QRect::fixup()
 
 
 /*!
-\fn QCOORD QRect::left() const
+\fn int QRect::left() const
 Returns the left coordinate of the rectangle.
 */
 
 /*!
-\fn QCOORD QRect::top() const
+\fn int QRect::top() const
 Returns the top coordinate of the rectangle.
 */
 
 /*!
-\fn QCOORD QRect::right() const
+\fn int QRect::right() const
 Returns the right coordinate of the rectangle.
 */
 
 /*!
-\fn QCOORD QRect::bottom() const
+\fn int QRect::bottom() const
 Returns the bottom coordinate of the rectangle.
 */
 
 /*!
-\fn QCOORD QRect::x() const
+\fn int QRect::x() const
 Returns the left coordinate of the rectangle.
 
 Synonymous to left().
 */
 
 /*!
-\fn QCOORD QRect::y() const
+\fn int QRect::y() const
 Returns the top coordinate of the rectangle.
 
 Synonymous to top().
 */
 
 /*!
-Sets the left position of the rectangle, possibly changing the width.
+Sets the left position of the rectangle.
+
+Symonymous to setX().
 */
 
-void QRect::setLeft( QCOORD pos )
+void QRect::setLeft( int pos )
 {
-    x1=pos;
+    x1 = (QCOORD)pos;
 }
 
 /*!
-Sets the top position of the rectangle, possibly changing the height.
+Sets the top position of the rectangle.
+
+Symonymous to setY().
 */
 
-void QRect::setTop( QCOORD pos )
+void QRect::setTop( int pos )
 {
-    y1=pos;
+    y1 = (QCOORD)pos;
 }
 
 /*!
-Sets the x (left) position of the rectangle, possibly changing the width.
+Sets the x (left) position of the rectangle.
 
 Synonymous to setLeft().
 */
 
-void QRect::setX( QCOORD x )
+void QRect::setX( int x )
 {
-    x1 = x;
+    x1 = (QCOORD)x;
 }
 
 /*!
-Sets the y (top) position of the rectangle, possibly changing the height.
+Sets the y (top) position of the rectangle.
 
 Synonymous to setTop().
 */
 
-void QRect::setY( QCOORD y )
+void QRect::setY( int y )
 {
-    y1 = y;
+    y1 = (QCOORD)y;
 }
 
 /*!
-Sets the right position of the rectangle, possibly changing the width.
-
+Sets the right position of the rectangle.
 \sa right().
 */
 
-void QRect::setRight( QCOORD pos )
+void QRect::setRight( int pos )
 {
-    x2=pos;
+    x2 = (QCOORD)pos;
 }
 
 /*!
-Sets the bottom position of the rectangle, possibly changing the height.
+Sets the bottom position of the rectangle.
 
 \sa bottom().
 */
 
-void QRect::setBottom( QCOORD pos )
+void QRect::setBottom( int pos )
 {
-    y2=pos;
+    y2 = (QCOORD)pos;
 }
 
 /*!
@@ -342,10 +345,10 @@ unchanged.
 
 void QRect::setTopLeft( const QPoint &p )
 {
-    x2 += (p.x() - x1);
-    y2 += (p.y() - y1);
-    x1 = p.x();
-    y1 = p.y();
+    x2 += (QCOORD)(p.x() - x1);
+    y2 += (QCOORD)(p.y() - y1);
+    x1 = (QCOORD)p.x();
+    y1 = (QCOORD)p.y();
 }
 
 /*!
@@ -355,10 +358,10 @@ unchanged.
 
 void QRect::setBottomRight( const QPoint &p )
 {
-    x1 += (p.x() - x2);
-    y1 += (p.y() - y2);
-    x2 = p.x();
-    y2 = p.y();
+    x1 += (QCOORD)(p.x() - x2);
+    y1 += (QCOORD)(p.y() - y2);
+    x2 = (QCOORD)p.x();
+    y2 = (QCOORD)p.y();
 }
 
 /*!
@@ -368,10 +371,10 @@ unchanged.
 
 void QRect::setTopRight( const QPoint &p )
 {
-    x1 += (p.x() - x2);
-    y2 += (p.y() - y1);
-    x2 = p.x();
-    y1 = p.y();
+    x1 += (QCOORD)(p.x() - x2);
+    y2 += (QCOORD)(p.y() - y1);
+    x2 = (QCOORD)p.x();
+    y1 = (QCOORD)p.y();
 }
 
 /*!
@@ -381,10 +384,10 @@ unchanged.
 
 void QRect::setBottomLeft( const QPoint &p )
 {
-    x2 += (p.x() - x1);
-    y1 += (p.y() - y2);
-    x1 = p.x();
-    y2 = p.y();
+    x2 += (QCOORD)(p.x() - x1);
+    y1 += (QCOORD)(p.y() - y2);
+    x1 = (QCOORD)p.x();
+    y2 = (QCOORD)p.y();
 }
 
 /*!
@@ -396,8 +399,8 @@ void QRect::setCenter( const QPoint &p )
 {
     QCOORD w = x2 - x1;
     QCOORD h = y2 - y1;
-    x1 = p.x() - w/2;
-    y1 = p.y() - h/2;
+    x1 = (QCOORD)(p.x() - w/2);
+    y1 = (QCOORD)(p.y() - h/2);
     x2 = x1 + w;
     y2 = y1 + h;
 }
@@ -408,10 +411,10 @@ Moves the rectangle \e dx along the X axis and \e dy along the Y axis.
 
 void QRect::move( int dx, int dy )
 {
-    x1 += dx;
-    y1 += dy;
-    x2 += dx;
-    y2 += dy;
+    x1 += (QCOORD)dx;
+    y1 += (QCOORD)dy;
+    x2 += (QCOORD)dx;
+    y2 += (QCOORD)dy;
 }
 
 /*!
@@ -420,10 +423,10 @@ Sets the rectangle to a top left position and a size.
 
 void QRect::setRect( int x, int y, int w, int h )
 {
-    x1 = x;
-    y1 = y;
-    x2 = x+w-1;
-    y2 = y+h-1;
+    x1 = (QCOORD)x;
+    y1 = (QCOORD)y;
+    x2 = (QCOORD)(x+w-1);
+    y2 = (QCOORD)(y+h-1);
 }
 
 /*!
@@ -432,10 +435,10 @@ Sets the rectangle to a top left position and bottom right position.
 
 void QRect::setCoords( int xp1, int yp1, int xp2, int yp2 )
 {
-    x1 = xp1;
-    y1 = yp1;
-    x2 = xp2;
-    y2 = yp2;
+    x1 = (QCOORD)xp1;
+    y1 = (QCOORD)yp1;
+    x2 = (QCOORD)xp2;
+    y2 = (QCOORD)yp2;
 }
 
 /*!
@@ -453,7 +456,7 @@ Returns the width of the rectangle.
 width = right - left + 1.
 */
 
-QCOORD QRect::width() const
+int QRect::width() const
 {
     return x2-x1+1;
 }
@@ -464,7 +467,7 @@ Returns the height of the rectangle.
 height = bottom - top + 1.
 */
 
-QCOORD QRect::height() const
+int QRect::height() const
 {
     return y2-y1+1;
 }
@@ -473,18 +476,18 @@ QCOORD QRect::height() const
 Sets the width of the rectangle to \e w. The left position is unchanged.
 */
 
-void QRect::setWidth( QCOORD w )
+void QRect::setWidth( int w )
 {
-    x2 = x1 + w - 1;
+    x2 = (QCOORD)(x1 + w - 1);
 }
 
 /*!
 Sets the height of the rectangle to \e h. The top position is unchanged.
 */
 
-void QRect::setHeight( QCOORD h )
+void QRect::setHeight( int h )
 {
-    y2 = y1 + h - 1;
+    y2 = (QCOORD)(y1 + h - 1);
 }
 
 /*!
@@ -493,8 +496,8 @@ Sets the size of the rectangle to \e s. The top left position is unchanged.
 
 void QRect::setSize( const QSize &s )
 {
-    x2 = x1+s.width()-1;
-    y2 = y1+s.height()-1;
+    x2 = (QCOORD)(s.width() +x1-1);
+    y2 = (QCOORD)(s.height()+y1-1);
 }
 
 /*!
@@ -537,9 +540,9 @@ Returns the union rectangle of this rectangle and \e r.
 QRect QRect::unite( const QRect &r ) const
 {
     QRect tmp;
-    tmp.setLeft( QMIN( x1, r.x1 ) );
-    tmp.setRight( QMAX( x2, r.x2 ) );
-    tmp.setTop( QMIN( y1, r.y1 ) );
+    tmp.setLeft(   QMIN( x1, r.x1 ) );
+    tmp.setRight(  QMAX( x2, r.x2 ) );
+    tmp.setTop(    QMIN( y1, r.y1 ) );
     tmp.setBottom( QMAX( y2, r.y2 ) );
     return tmp;
 }
@@ -568,8 +571,8 @@ Returns TRUE if this rectangle intersects with \e r.
 
 bool QRect::intersects(const QRect &r ) const
 {
-    return ( QMAX( x1, r.x1 ) <= QMIN( x2, r.x2 ) && 
-             QMAX( y1, r.y1 ) <= QMIN( y2, r.y2 ) );
+    return ( QMAX( x1, r.x1 ) <= QMIN( x2, r.x2 ) &&
+	     QMAX( y1, r.y1 ) <= QMIN( y2, r.y2 ) );
 }
 
 
@@ -600,9 +603,9 @@ bool operator!=( const QRect &r1, const QRect &r2 )
 
 /*!
 \relates QRect
-Writes a QRect to the stream.
+Writes a QRect to the stream and returns a reference to the stream.
 
-The output format is four INT16 (order: left, top, right, bottom).
+Output format: [left (INT16), top (INT16), right (INT16), bottom (INT16)].
 */
 
 QDataStream &operator<<( QDataStream &s, const QRect &r )
@@ -613,7 +616,7 @@ QDataStream &operator<<( QDataStream &s, const QRect &r )
 
 /*!
 \relates QRect
-Reads a QRect from the stream.
+Reads a QRect from the stream and returns a reference to the stream.
 */
 
 QDataStream &operator>>( QDataStream &s, QRect &r )
