@@ -51,6 +51,9 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
     int w = 0;
     const QRegion &rgn = qt_mac_update_painter(p, FALSE);
     if(reverse) {
+	offsets += numGlyphs;
+	advances += numGlyphs;
+	glyphs += numGlyphs;
 	for(int i = 0; i < numGlyphs; i++) {
 	    glyphs--;
 	    offsets--;

@@ -202,6 +202,8 @@ class QFontEngine;
 
 struct QScriptItem
 {
+    QScriptItem() : position( 0 ), baselineAdjustment( 0 ), ascent( 0 ), descent( 0 ), 
+		    x( 0 ), y( 0 ), width( 0 ), shaped( 0 ), fontEngine( 0 ) { }
     int position;
     QScriptAnalysis analysis;
     short baselineAdjustment;

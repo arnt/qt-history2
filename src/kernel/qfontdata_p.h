@@ -363,7 +363,7 @@ public:
 #endif
 
 #if defined( Q_WS_MAC )
-    QFontEngine *engineForScript(QFont::Script) const { return fin; }
+    QFontEngine *engineForScript(QFont::Script) const { ((QFontPrivate*)this)->load(); return fin; }
     void computeLineWidth();
     void load();
     QFontStruct *fin;
