@@ -77,7 +77,7 @@
                                 </font>
                             </property>
                             <property name="text">
-                                <string>Open Qt/CD Package: </string>
+                                <string>Open Qt/CD Package</string>
                             </property>
                         </widget>
                         <widget class="QLayoutWidget">
@@ -127,7 +127,7 @@
                                                         <cstring>destLabel</cstring>
                                                     </property>
                                                     <property name="text">
-                                                        <string>Destination path</string>
+                                                        <string>Destination path:</string>
                                                     </property>
                                                 </widget>
                                                 <spacer>
@@ -184,7 +184,7 @@
                                                         <cstring>TextLabel1</cstring>
                                                     </property>
                                                     <property name="text">
-                                                        <string>License Key</string>
+                                                        <string>License Key:</string>
                                                     </property>
                                                 </widget>
                                                 <spacer>
