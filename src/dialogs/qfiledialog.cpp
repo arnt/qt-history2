@@ -1068,6 +1068,22 @@ public:
 	return newStr;
     }
 
+    static bool fileExists( const QUrlOperator &url, const QString& name )
+    {
+	QUrl u( url, QFileDialogPrivate::encodeFileName(name) );
+	if ( u.isLocalFile() ) {
+	    QFileInfo f( u.path() );
+	    return f.exists();
+	} else {
+	    QNetworkProtocol *p = QNetworkProtocol::getNetworkProtocol( url.protocol() );
+	    if ( p && (p->supportedOperations()&QNetworkProtocol::OpListChildren) ) {
+		QUrlInfo ui( url, name );
+		return ui.isValid();
+	    }
+	}
+	return TRUE;
+    }
+
 #ifndef Q_NO_CURSOR
     bool cursorOverride; // Remember if the cursor was overridden or not.
 #endif
@@ -3624,19 +3640,8 @@ void QFileDialog::okClicked()
     }
 
     if ( mode() == ExistingFile ) {
-	QUrl u( d->url, QFileDialogPrivate::encodeFileName(nameEdit->text()) );
-	if ( u.isLocalFile() ) {
-	    QFileInfo f( u.path() );
-	    if ( !f.exists() )
-		return;
-	} else {
-	    QNetworkProtocol *p = QNetworkProtocol::getNetworkProtocol( d->url.protocol() );
-	    if ( p && (p->supportedOperations()&QNetworkProtocol::OpListChildren) ) {
-		QUrlInfo ui( d->url, nameEdit->text() );
-		if ( !ui.isValid() )
-		    return;
-	    }
-	}
+	if ( !QFileDialogPrivate::fileExists( d->url, nameEdit->text() ) )
+	    return;
     }
 
     // If selection is valid, return it, else try
@@ -4070,8 +4075,15 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
     } else if ( newItem->isSelectable() &&
 		trySetSelection( i->info.isDir(), QUrlOperator( d->url, QFileDialogPrivate::encodeFileName( i->info.name() ) ), TRUE ) ) {
 	if ( !isDirectoryMode( mode() ) ) {
-	    emit fileSelected( selectedFile() );
-	    accept();
+	    if ( mode() == ExistingFile ) {
+		if ( QFileDialogPrivate::fileExists( d->url, nameEdit->text() ) ) {
+		    emit fileSelected( selectedFile() );
+		    accept();
+		}
+	    } else {
+		emit fileSelected( selectedFile() );
+		accept();
+	    }
 	}
     } else if ( isDirectoryMode( d->mode ) ) {
 	d->currentFileName = d->url;
