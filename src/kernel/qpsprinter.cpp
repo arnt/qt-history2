@@ -77,6 +77,7 @@
 
 #include "qstring.h"
 #include "qdict.h"
+#include "qarray.h"
 #include "qregexp.h"
 
 #include "qfile.h"
@@ -130,7 +131,6 @@ static const char * const ps_header[] = {
 "/D0 {0 ED} D",
 "/LT {lineto} D",
 "/MT {moveto} D",
-"/ND /.notdef d",
 "/S  {stroke} D",
 "/F  {setfont} D",
 "/SW {setlinewidth} D",
@@ -742,11 +742,13 @@ static const char * const ps_header[] = {
 //   http://www.adobe.com/asn/developer/typeforum/unicodegn.html .
 //
 // the list contains glyphs in the private use area of unicode. These should get removed when regenerating the glyphlist.
+// also 0 shout be mapped to .notdef
 static const struct {
     Q_UINT16 u;
     const char * g;
 } unicodetoglyph[] = {
     // grep '^[0-9A-F][0-9A-F][0-9A-F][0-9A-F];' < /tmp/glyphlist.txt | sed -e 's/;/, "/' -e 's-;-" },  // -' -e 's/^/    { 0x/' | sort
+    { 0x0000, ".notdef" },
     { 0x0020, "space" },  // SPACE
     { 0x0021, "exclam" },  // EXCLAMATION MARK
     { 0x0022, "quotedbl" },  // QUOTATION MARK
@@ -2128,14 +2130,24 @@ public:
     virtual void download(QTextStream& s, bool global);
     virtual void drawText( QTextStream &stream, uint spaces, const QPoint &p,
 			   const QString &text, QPSPrinterPrivate *d, QPainter *paint);
+    virtual unsigned short mapUnicode( unsigned short unicode );
+    void downloadMapping( QTextStream &s, bool global );
+    virtual QString glyphName(unsigned short glyphindex);
     virtual void restore() {}
+
+    virtual unsigned short unicode_for_glyph(int glyphindex) { return glyphindex; }
+    virtual unsigned short glyph_for_unicode(unsigned short unicode) { return unicode; }
+    void insertIntoSubset( unsigned short unicode );
+
 protected:
     QString psname;
     QStringList replacementList;
 
-  QIntDict<char> subset;      // unicode subset in the global font
-  QIntDict<char> page_subset; // subset added in this page
-  bool           global_dict;
+  QIntDict<unsigned short> subset;      // unicode subset in the global font
+  QIntDict<unsigned short> page_subset; // subset added in this page
+    int subsetCount;
+    int pageSubsetCount;
+    bool           global_dict;
   bool           downloaded;
 };
 
@@ -2143,24 +2155,36 @@ QPSPrinterFontPrivate::QPSPrinterFontPrivate()
 {
     global_dict = false;
     downloaded  = false;
+    subset.setAutoDelete( TRUE );
+    page_subset.setAutoDelete( TRUE );
+    // map 0 to .notdef
+    subset.insert( 0, new unsigned short ( 0 ) );
+    subsetCount = 1;
+    pageSubsetCount = 0;
 }
 
-void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QPoint &p,
+void QPSPrinterFontPrivate::insertIntoSubset( unsigned short u )
+{
+    if ( !subset[u] ) {
+	if ( !downloaded ) { // we need to add to the page subset
+	    subset.insert(u, new unsigned short(subsetCount)); // mark it as used
+	    printf("GLOBAL SUBSET ADDED %04x = %04x\n",u, subsetCount);
+	    subsetCount++;
+	} else if ( !page_subset[u] ) {
+	    page_subset.insert(u, new unsigned short(pageSubsetCount)); // mark it as used
+	    printf("PAGE SUBSET ADDED %04x = %04x\n",u, pageSubsetCount);
+	    pageSubsetCount++;
+	}
+    }
+}
+
+void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QPoint &p, 
 				 const QString &text, QPSPrinterPrivate *d, QPainter *paint)
 {
     if ( text.length() == 0 )
 	return;
     for (int i = 0; i < (int)text.length(); i++) {
-	ushort u = text.at(i).unicode();
-	if (!subset[u]) {
-	    if (downloaded) { // we need to add to the page subset
-		page_subset.insert(u,"x"); // mark it as used
-		printf("PAGE SUBSET ADDED %04x\n",u);
-	    } else { // we add it to the global font's subset
-		subset.insert(u,"x"); // mark it as used
-		printf("GLOBAL SUBSET ADDED %04x\n",u);
-	    }
-	}
+	insertIntoSubset( text.at(i).unicode() );
     }
 
     int x = p.x();
@@ -2178,7 +2202,7 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
     QString s;
     int i;
     for (i=0; i < (int) text.length(); i++) {
-	ushort u = text.at(i).unicode();
+	ushort u = mapUnicode(text.at(i).unicode());
 	// I don't know if this is endian safe. Sivan
 	ushort high = u / 256;
 	ushort low  = u % 256;
@@ -2209,7 +2233,7 @@ QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, cons
 	if ( tmp ) {
 	    fontName = *tmp;
 	} else {
-	    fontName.sprintf( "/%s-Unicode", ps.latin1());
+	    fontName.sprintf( "/%s-Uni", ps.latin1());
 	}
 	++d->headerFontNumber;
 	d->fontStream << "/F" << d->headerFontNumber << " "
@@ -2222,7 +2246,7 @@ QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, cons
 	if ( tmp ) {
 	    fontName = *tmp;
 	} else {
-	    fontName.sprintf( "/%s-Unicode", ps.latin1());
+	    fontName.sprintf( "/%s-UniP", ps.latin1());
 	}
 	++d->pageFontNumber;
 	stream << "/F" << d->pageFontNumber << " "
@@ -2233,171 +2257,171 @@ QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, cons
     return fontName;
 }
 
-void QPSPrinterFontPrivate::download(QTextStream &s, bool /*global*/)
+unsigned short QPSPrinterFontPrivate::mapUnicode( unsigned short unicode )
 {
-  // Sivan: output unicode ranges
-  // this really does not belong here at all, but in the top headers
-  // (at least if we don't subset these encoding vectors).
+    unsigned short *res;
+    res = subset[unicode];
+    if ( !res && downloaded )
+	res = page_subset[unicode];
+    if ( !res ) {
+	qWarning("QPSPrinterFontPrivate::internal error in mapUnicode!");
+	return 0;
+    }
+    return *res;
+}
 
-  printf("DOWNLOADING %s\n",psname.latin1());
-
-  int l = 0;
-  QString vector;
-  QString glyphname;
-  bool inuse[256];
-
-  // output a .notdef only font.
-  vector.sprintf("%% Font for Undefined Unicode ranges\n");
-  vector += "/";
-  vector += psname;
-  vector += "-ENC-ND 256 array def\n";
-  vector += "0 1 255 {";
-  vector += psname;
-  vector += "-ENC-ND exch /.notdef put} for\n";
-  s << vector;
-
-  for (int range=0; range < 256; range++) {
-    //printf("outputing range %04x\n",range*256);
-    inuse[range] = false;
-    vector.sprintf("%% Unicode range %04x\n",range*256);
-    QString dummy;
-    vector += "/";
-    vector += psname;
-    vector += dummy.sprintf("-ENC-%02x 256 array def\n",range);
-    vector += dummy.sprintf("0 1 255 {");
-    vector += psname;
-    vector += dummy.sprintf("-ENC-%02x exch /.notdef put} for\n",range);
-
-    for(int k=0; k<256; k++ ) {
-      int c = range*256+k;
-      while( unicodetoglyph[l].u < c )
+QString QPSPrinterFontPrivate::glyphName( unsigned short glyphindex )
+{
+    QString glyphname;
+    int l = 0;
+    unsigned short unicode = unicode_for_glyph( glyphindex );
+    while( unicodetoglyph[l].u < unicode )
 	l++;
-      if ( c != 0xffff && subset[c] )  {
-	inuse[range] = true;
-	if ( unicodetoglyph[l].u == c )
-	    glyphname = unicodetoglyph[l].g;
-	else
-	    glyphname.sprintf("U%04x", c);
+    if ( unicodetoglyph[l].u == unicode )
+	glyphname = unicodetoglyph[l].g;
+    else
+	glyphname.sprintf("U%04x", unicode);
+    return glyphname;
+}
+
+void QPSPrinterFontPrivate::download(QTextStream &s, bool global)
+{
+    printf("defining mapping for printer font %s\n",psname.latin1());
+    downloadMapping( s, global );
+}
+
+void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
+{
+    int rangeOffset = 0;
+    int numRanges = subsetCount/256 + 1;
+    QIntDict<unsigned short> *subsetDict = &subset;
+    if ( !global ) {
+	rangeOffset = numRanges;
+	numRanges = pageSubsetCount/256 + 1;
+	subsetDict = &page_subset;
+    }
+    // build up inverse table
+    unsigned short *inverse = new unsigned short[numRanges * 256];
+    memset( inverse, 0, numRanges * 256 * sizeof( unsigned short ) );
+    int i;
+    for ( i = 0; i < 0x10000; i++ ) {
+	unsigned short *mapped = (*subsetDict)[i];
+	if( mapped )
+	    inverse[*mapped] = i;
+    }
+
+    QString vector;
+    QString glyphname;
+
+    for (int range=0; range < numRanges; range++) {
+	//printf("outputing range %04x\n",range*256);
+	vector.sprintf("%% Font Page %04x\n",range + rangeOffset);
+	QString dummy;
+	vector += "/";
 	vector += psname;
-	vector += dummy.sprintf("-ENC-%02x %d",range,k);
-	vector += QString::fromLatin1(" /");
-	vector += glyphname;
-	vector += " put\n";
-      }
+	vector += dummy.sprintf("-ENC-%02x [\n",range + rangeOffset);
+
+	QString line;
+	for(int k=0; k<256; k++ ) {
+	    int c = range*256 + k;
+	    unsigned short unicode = inverse[c];
+	    glyphname = glyphName( glyph_for_unicode(unicode) );
+	    if ( line.length() + glyphname.length() > 76 ) {
+		vector += line + "\n";
+		line = "";
+	    }
+	    line += "/" + glyphname;
+	}
+	vector += line + "] def\n";
+	s << vector;
     }
-    if (inuse[range]) s << vector;
-  }
 
-  // DEFINE BASE FONTS
+    // DEFINE BASE FONTS
 
-  s << "/";
-  s << psname;
-  s << "-Unicode-ND ";
-  s << psname;
-  s << "-ENC-ND";
-  s << " /";
-  s << psname;
-  s << " MFUni\n";
-  for (int range=0; range < 0xff; range++) {
-    QString dummy;
-    if (inuse[range]) {
-      s << "/";
-      s << psname;
-      s << "-Unicode-";
-      s << dummy.sprintf("%02x",range);
-      s << " ";
-      s << psname;
-      s << "-ENC-";
-      s << dummy.sprintf("%02x",range);
-      s << " /";
-      s << psname;
-      s << " MFUni\n";
+    for (int range=0; range < numRanges; range++) {
+	QString dummy;
+	s << "/";
+	s << psname;
+	s << "-Uni-";
+	s << dummy.sprintf("%02x",range + rangeOffset);
+	s << " ";
+	s << psname;
+	s << "-ENC-";
+	s << dummy.sprintf("%02x",range + rangeOffset);
+	s << " /";
+	s << psname;
+	s << " MFUni\n";
     }
-  }
 
+    // === write header ===
+    //   int VMMin;
+    //   int VMMax;
+  
+    s << "%%BeginFont: " << psname << "\n";
+    s << "%!PS-AdobeFont-1.0 Composite Font\n";
 
-  // === write header ===
-//   int VMMin;
-//   int VMMax;
+    s << "%%FontName: ";
+    s << psname;
+    s << "-Uni\n";
 
-  // I am not sure that these comments conform to some specs. I could
-  // not find any appropriate specs on the adobe site. Sivan Toledo.
-  s << "%%BeginFont: " << psname << "\n";
-  s << "%!PS-AdobeFont-1.0 Composite Font\n";
+    s << "%%Creator: Composite font created by Qt\n";
+  
+    /* Start the dictionary which will eventually */
+    /* become the font. */
+    s << "25 dict begin\n"; // need to verify. Sivan
+    
+    s << "/FontName /";
+    s << psname;
+    s << "-Uni";
+    s << " def\n";
+    s << "/PaintType 0 def\n";
+  
+    // This is concatenated with the base fonts, so it should perform
+    // no transformation. Sivan
+    s << "/FontMatrix[1 0 0 1 0 0]def\n"; 
+  
+    s << "/FontType ";
+    s << 0;
+    s << " def\n";
 
-  s << "%%FontName: ";
-  s << psname;
-  s << "-Unicode\n";
+    // now come composite font structures
+    // FMapTypes: 
+    // 2: 8/8, 8 bits select the font, 8 the glyph
 
-  s << "%%Creator: Composite font created by Qt\n";
+    s << "/FMapType 2 def\n"; 
 
-  /* Start the dictionary which will eventually */
-  /* become the font. */
-  s << "25 dict begin\n"; // need to verify. Sivan
+    // The encoding in a composite font is used for indirection.
+    // Every char is split into a font-number and a character-selector.
+    // PostScript prints glyph number character-selector from the font
+    // FDepVector[ Encoding[ font-number ] ].
 
-  s << "/FontName /";
-  s << psname;
-  s << "-Unicode";
-  s << " def\n";
-  s << "/PaintType 0 def\n";
-
-  // This is concatenated with the base fonts, so it should perform
-  // no transformation. Sivan
-
-  s << "/FontMatrix[1 0 0 1 0 0]def\n";
-
-  s << "/FontType ";
-  s << 0;
-  s << " def\n";
-
-  // now come composite font structures
-
-  // FMapTypes:
-  // 5: 9/7, 9 bits select the font, 7 the glyph
-  // 2: 8/8, 8 bits select the font, 8 the glyph
-
-  s << "/FMapType 2 def\n";
-
-  // The encoding in a composite font is used for indirection.
-  // Every char is split into a font-number and a character-selector.
-  // PostScript prints glyph number character-selector from the font
-  // FDepVector[ Encoding[ font-number ] ].
-
-  s << "/Encoding [";
-  int next = 1;
-  for (int range=0; range < 0xff; range++) {
-    if (range % 16 == 0) s << "\n";
-    if (inuse[range]) {
-      s << next;
-      next++;
-    } else
-      s << 0;
-    s << " ";
-  }
-  s << "]def\n";
+    s << "/Encoding ["; 
+    for (int range=0; range < rangeOffset + numRanges; range++) {
+	if (range % 16 == 0) 
+	    s << "\n";
+	else 
+	    s << " ";
+	s << range;
+    }
+    s << "]def\n"; 
 
   // Descendent fonts
-
-  s << "/FDepVector [\n";
-  s << "/";
-  s << psname;
-  s << "-Unicode-ND findfont\n";
-  for (int range=0; range < 0xff; range++) {
-    QString dummy;
-    if (inuse[range]) {
-      s << "/";
-      s << psname;
-      s << "-Unicode-";
-      s << dummy.sprintf("%02x",range);
-      s << " findfont\n";
+  
+    s << "/FDepVector [\n"; 
+    for (int range=0; range < rangeOffset + numRanges; range++) {
+	QString dummy;
+	s << "/";
+	s << psname;
+	s << "-Uni-";
+	s << dummy.sprintf("%02x",range);
+	s << " findfont\n";
     }
-  }
-  s << "] def\n";
+    s << "]def\n"; 
 
   // === trailer ===
-
-  s << "FontName currentdict end definefont pop\n";
-  s << "%%EndFont\n";
+  
+    s << "FontName currentdict end definefont pop\n";
+    s << "%%EndFont\n";
 }
 
 
@@ -2512,11 +2536,8 @@ class QPSPrinterFontTTF
 public:
   QPSPrinterFontTTF(const QFont &f, QByteArray& data);
   virtual void    download(QTextStream& s, bool global);
-  virtual void    download_unicode(QTextStream& s);
    //  virtual ~QPSPrinterFontTTF();
 
-  virtual void drawText( QTextStream &stream, uint spaces, const QPoint &p,
-  		   const QString &text, QPSPrinterPrivate *d, QPainter *paint);
   virtual void restore();
 private:
   QByteArray     data;
@@ -2525,10 +2546,10 @@ private:
   bool           defective; // if we can't process this file
 
   BYTE*   getTable(const char *);
-  QString glyphName(int glyph);
+  QString glyphName(unsigned short glyphindex);
       void uni2glyphSetup();
-      USHORT unicode_for_glyph(int glyphindex);
-      USHORT glyph_for_unicode(unsigned short unicode);
+      unsigned short unicode_for_glyph(int glyphindex);
+      unsigned short glyph_for_unicode(unsigned short unicode);
   int   topost(FWord x) { return (int)( ((int)(x) * 1000 + HUPM) / unitsPerEm ); }
 
 #ifdef Q_PRINTER_USE_TYPE42
@@ -2728,15 +2749,8 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
 
 void QPSPrinterFontTTF::restore()
 {
-  //printf("restore for font %s\n",psname.latin1());
+  qWarning("FIXME: restore for font %s\n",psname.latin1());
 }
-
-void QPSPrinterFontTTF::drawText( QTextStream &stream, uint spaces, const QPoint &p,
-				 const QString &text, QPSPrinterPrivate *d, QPainter *paint)
- {
-  QPSPrinterFontPrivate::drawText(stream,spaces,p,text,d,paint);
-}
-
 
 void QPSPrinterFontTTF::download(QTextStream& s,bool global)
 {
@@ -2915,6 +2929,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
 
   // ===  CharStrings array ===
 
+  // ### number is incorrect!
   s << "/CharStrings ";
   s << numGlyphs;
   s << " dict dup begin\n";
@@ -2925,29 +2940,26 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
   bool glyphset[65536];
   for(int c=0; c < 65536; c++)
       glyphset[c] = FALSE;
+  glyphset[0] = TRUE; // always output .notdef
   for(int c=0; c < 65536; c++) {
       if ( subset[c] && glyph_for_unicode( c ) ) {
 	  subsetGlyph( glyph_for_unicode( c ), glyphset );
-//	  glyphset[c] = TRUE;
        }
   }
 
   // Emmit one key-value pair for each glyph.
   for(int x=0; x < 65536; x++) {
-    if(target_type == 42)	{
+    if(target_type == 42) {
       s << "/";
-      s << glyphName(x);
+      s << glyphName( x );
       s << " ";
       s << x;
       s << " def\n";
     } else { /* type 3 */
       if (!glyphset[x]) continue;
-//       if ( glyph_for_unicode( x ) == 0xffff ) {
-// 	  qDebug("internal error: glyph=%x name=%s", x, glyphName(x).latin1());
-// 	  continue;
-//       }
+
       s << "/";
-      s << glyphName(x);
+      s << glyphName( x );
       s << "{";
       charproc(x,s);
       s << "}_d\n";	/* "} bind def" */
@@ -3080,188 +3092,11 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
 
   s << "FontName currentdict end definefont pop\n";
 
-  download_unicode(s); // sivan added
+  downloadMapping(s, global);
   s << "%%EndFont\n";
 }
 
-void QPSPrinterFontTTF::download_unicode(QTextStream& s)
-{
-  if (defective) {
-    s << "% Font ";
-    s << FullName;
-    s << " cannot be downloaded\n";
-    return;
-  }
-
-  // Sivan: output unicode ranges
-  // this really does not belong here at all, but in the top headers
-  // (at least if we don't subset these encoding vectors).
-
-  printf("DOWNLOADING %s\n",FullName.latin1());
-
-  ushort glyphindex[65536];
-  for(int c=0; c < 65536; c++) {
-      if ( subset[c] )
-	  glyphindex[c] = glyph_for_unicode( c );
-      else
-	  glyphindex[c] = 0xffff;
-  }
-
-  int l = 0;
-  QString vector;
-  QString glyphname;
-  bool inuse[256];
-
-  // output a .notdef only font.
-  vector.sprintf("%% Font for Undefined Unicode ranges\n");
-  vector += "/";
-  vector += psname;
-  vector += "-ENC-ND 256 array def\n";
-  vector += "0 1 255 {";
-  vector += psname;
-  vector += "-ENC-ND exch /.notdef put} for\n";
-  s << vector;
-
-  for (int range=0; range < 256; range++) {
-    //printf("outputing range %04x\n",range*256);
-    inuse[range] = false;
-    vector.sprintf("%% Unicode range %04x\n",range*256);
-    QString dummy;
-    vector += "/";
-    vector += psname;
-    vector += dummy.sprintf("-ENC-%02x [\n",range);
-
-    QString line;
-    for(int k=0; k<256; k++ ) {
-      while( unicodetoglyph[l].u < (range*256)+k )
-	l++;
-      if ( (range*256)+k != 0xffff && glyphindex[ (range*256)+k ] != 0xffff )  {
-	inuse[range] = true;
-	glyphname = glyphName( glyphindex[ (range*256)+k ] );
-      } else
-	  glyphname = "ND";
-      if ( line.length() + glyphname.length() > 76 ) {
-	  vector += line + "\n";
-	  line = "";
-      }
-      line += "/" + glyphname;
-    }
-    vector += line + "] def\n";
-    if (inuse[range]) s << vector;
-  }
-
-  // DEFINE BASE FONTS
-
-  s << "/";
-  s << psname;
-  s << "-Unicode-ND ";
-  s << psname;
-  s << "-ENC-ND";
-  s << " /";
-  s << psname;
-  s << " MFUni\n";
-  for (int range=0; range < 0x100; range++) {
-    QString dummy;
-    if (inuse[range]) {
-      s << "/";
-      s << psname;
-      s << "-Unicode-";
-      s << dummy.sprintf("%02x",range);
-      s << " ";
-      s << psname;
-      s << "-ENC-";
-      s << dummy.sprintf("%02x",range);
-      s << " /";
-      s << psname;
-      s << " MFUni\n";
-    }
-  }
-
-
-  // === write header ===
-//   int VMMin;
-//   int VMMax;
-
-  // I am not sure that these comments conform to some specs. I could
-  // not find any appropriate specs on the adobe site. Sivan Toledo.
-
-  s << "%!PS-AdobeFont-1.0 Composite Font\n";
-
-  s << "%%FontName: ";
-  s << FullName;
-  s << "-Unicode\n";
-
-  s << "%%Creator: Composite font created by Qt\n";
-
-  /* Start the dictionary which will eventually */
-  /* become the font. */
-  s << "25 dict begin\n"; // need to verify. Sivan
-
-  s << "/FontName /";
-  s << psname;
-  s << "-Unicode";
-  s << " def\n";
-  s << "/PaintType 0 def\n";
-
-  // This is concatenated with the base fonts, so it should perform
-  // no transformation. Sivan
-
-  s << "/FontMatrix[1 0 0 1 0 0]def\n";
-
-  s << "/FontType ";
-  s << 0;
-  s << " def\n";
-
-  // now come composite font structures
-
-  // FMapTypes:
-  // 5: 9/7, 9 bits select the font, 7 the glyph
-  // 2: 8/8, 8 bits select the font, 8 the glyph
-
-  s << "/FMapType 2 def\n";
-
-  // The encoding in a composite font is used for indirection.
-  // Every char is split into a font-number and a character-selector.
-  // PostScript prints glyph number character-selector from the font
-  // FDepVector[ Encoding[ font-number ] ].
-
-  s << "/Encoding [";
-  int next = 1;
-  for (int range=0; range < 0x100; range++) {
-    if (range % 16 == 0) s << "\n";
-    if (inuse[range]) {
-      s << next;
-      next++;
-    } else
-      s << 0;
-    s << " ";
-  }
-  s << "]def\n";
-
-  // Descendent fonts
-
-  s << "/FDepVector [\n";
-  s << "/";
-  s << psname;
-  s << "-Unicode-ND findfont\n";
-  for (int range=0; range < 0x100; range++) {
-    QString dummy;
-    if (inuse[range]) {
-      s << "/";
-      s << psname;
-      s << "-Unicode-";
-      s << dummy.sprintf("%02x",range);
-      s << " findfont\n";
-    }
-  }
-  s << "] def\n";
-
-  // === trailer ===
-
-  s << "FontName currentdict end definefont pop\n";
-}
-
-BYTE* QPSPrinterFontTTF::getTable(const char* name)
+BYTE* QPSPrinterFontTTF::getTable(const char* name) 
 {
   BYTE *ptr;
   int x;
@@ -3288,57 +3123,57 @@ BYTE* QPSPrinterFontTTF::getTable(const char* name)
   return 0;
 }
 
-QString QPSPrinterFontTTF::glyphName(int charindex)
+QString QPSPrinterFontTTF::glyphName(unsigned short charindex)
 {
-  USHORT c;
-  if ((c=unicode_for_glyph(charindex)) != 0x000) {
-    //fprintf(stdout,"glyph %04x char %04x\n",charindex,c);
-    for (int i=0; unicodetoglyph[i].u != 0xffff; i++) {
-      //if (unicodetoglyph[i].u >  c) break;
-      if (unicodetoglyph[i].u == c) {
-	  //qDebug("using name %s for char %04x\n",unicodetoglyph[i].g,c);
-	  return unicodetoglyph[i].g;
-      }
+    USHORT c;
+    if ((c=unicode_for_glyph(charindex)) != 0x000) {
+	//fprintf(stdout,"glyph %04x char %04x\n",charindex,c);
+	for (int i=0; unicodetoglyph[i].u != 0xffff; i++) {
+	    //if (unicodetoglyph[i].u >  c) break;
+	    if (unicodetoglyph[i].u == c) {
+		//qDebug("using name %s for char %04x\n",unicodetoglyph[i].g,c);
+		return unicodetoglyph[i].g;
+	    }
+	}
     }
-  }
 
-  Fixed post_format = getFixed( post_table );
+    Fixed post_format = getFixed( post_table );
 
-  if( post_format.whole != 2 || post_format.fraction != 0 ) {
-    QString name;
-    ushort  u;
-    // We must have a notdef glyph. I am not sure how it is uncoded in
-    // unicode, so I assume it's the first glyph.
-    if (charindex == 0)
-      name = ".notdef";
-    else if ((u=unicode_for_glyph(charindex)) != 0x0000)
-      name.sprintf("uni%04X",u);
-    else
-      name.sprintf("glyph%04X",charindex); // may be part of a composite etc
-    return name;
-  }
-
-  int GlyphIndex = (int)getUSHORT( post_table + 34 + (charindex * 2) );
-
-  if( GlyphIndex <= 257 ) {		/* If a standard Apple name, */
-      //qDebug("post name for glyph is %s 1\n",Apple_CharStrings[GlyphIndex]);
-    return QString(Apple_CharStrings[GlyphIndex]);
-  } else {			/* Otherwise, use one */
+    if( post_format.whole != 2 || post_format.fraction != 0 ) {
+	QString name;
+	ushort  u;
+	// We must have a notdef glyph. I am not sure how it is uncoded in
+	// unicode, so I assume it's the first glyph.
+	if (charindex == 0) 
+	    name = ".notdef";
+	else if ((u=unicode_for_glyph(charindex)) != 0x0000)
+	    name.sprintf("uni%04X",u);
+	else
+	    name.sprintf("glyph%04X",charindex); // may be part of a composite etc
+	return name;
+    }
+  
+    int GlyphIndex = (int)getUSHORT( post_table + 34 + (charindex * 2) );
+  
+    if( GlyphIndex <= 257 ) {		/* If a standard Apple name, */
+	//qDebug("post name for glyph is %s 1\n",Apple_CharStrings[GlyphIndex]);
+	return QString(Apple_CharStrings[GlyphIndex]);
+    } else {			/* Otherwise, use one */
     				/* of the pascal strings. */
-    GlyphIndex -= 258;
-
-    /* Set pointer to start of Pascal strings. */
-    char* ptr = (char*)(post_table + 34 + (numGlyphs * 2));
-
-    int len = (int)*(ptr++);	/* Step thru the strings */
-    while(GlyphIndex--) {	/* until we get to the one */
+	GlyphIndex -= 258;
+      
+	/* Set pointer to start of Pascal strings. */
+	char* ptr = (char*)(post_table + 34 + (numGlyphs * 2));
+      
+	int len = (int)*(ptr++);	/* Step thru the strings */
+	while(GlyphIndex--) {	/* until we get to the one */
       			        /* that we want. */
-      ptr += len;
-      len = (int)*(ptr++);
+	    ptr += len;
+	    len = (int)*(ptr++);
+	}
+      
+	return QString::fromLatin1(ptr,len);
     }
-
-    return QString::fromLatin1(ptr,len);
-  }
 }
 
 void QPSPrinterFontTTF::uni2glyphSetup()
@@ -3346,8 +3181,8 @@ void QPSPrinterFontTTF::uni2glyphSetup()
   uni2glyph.resize(65536);
   for (int i=0; i<65536; i++) uni2glyph[i] = 0x0000;
   glyph2uni.resize(65536);
-  for (int i=0; i<65536; i++) glyph2uni[i] = 0xffff;
-
+  for (int i=0; i<65536; i++) glyph2uni[i] = 0x0000;
+  
   unsigned char* cmap = getTable("cmap");
   int pos = 0;
 
@@ -4201,7 +4036,7 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
   charproc_data cd;
 
   glyphset[charindex] = true;
-  //printf("subsetting %s ==> ",glyphName(charindex).latin1());
+  printf("subsetting %s ==> ",glyphName(charindex).latin1());
 
   /* Get a pointer to the data. */
   BYTE* glyph = charprocFindGlyphData( charindex );
@@ -4225,8 +4060,8 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
       glyph += 2;
 
       glyphset[ glyphIndex ] = true;
-      //printf("%s ",glyphName(glyphIndex).latin1());
-
+      printf("%s ",glyphName(glyphIndex).latin1());
+	     
       if(flags & ARG_1_AND_2_ARE_WORDS) {
 	glyph += 2;
 	glyph += 2;
@@ -4249,7 +4084,7 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
       }
     } while(flags & MORE_COMPONENTS);
   }
-  //printf("\n");
+  printf("\n");
 }
 
 
@@ -4338,7 +4173,7 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
 
     /* Invoke the CharStrings procedure to print the component. */
     s << "false CharStrings /";
-    s << glyphName(glyphIndex);
+    s << glyphName( glyphIndex );
     s << " get exec\n";
 
     //	printf("false CharStrings /%s get exec\n",
@@ -5033,23 +4868,6 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     // ### implement similar code for QWS and WIN
     xfontname = makePSFontName( f );
 
-    // ###
-// 	QFont::CharSet cs = f.charSet();
-// 	// ### the next four lines are a hack to not produce invalid postscript with unicode
-// 	// fonts. As we currently can't deal with Unicode fonts in Postscript, we convert
-// 	// to the most common text and assume the current locale. If that fails we use latin1.
-// 	if ( cs == QFont::Unicode )
-// 	    cs = QFont::charSetForLocale();
-// 	if ( cs == QFont::Unicode )
-// 	    cs = QFont::ISO_8859_1;
-// 	if ( cs == QFont::Set_Ja || cs == QFont::JIS_X_0208) {
-// 	    p = new QPSPrinterFontJapanese( f );
-// 	} else if ( cs == QFont::Set_Ko || cs == QFont::KSC_5601) {
-// 	    p = new QPSPrinterFontKorean( f );
-// 	} else if ( cs == QFont::Set_Big5 || cs == QFont::Big5) {
-// 	    p = new QPSPrinterFontTraditionalChinese( f );
-// 	} else
-    //qDebug("didnt find font for %s", xfontname.latin1());
 #ifdef Q_WS_X11
     f.d->load( (QFont::Script)script );
     QFontStruct *fs = f.d->x11data.fontstruct[script];
@@ -5058,12 +4876,17 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
 #ifndef QT_NO_XFTFREETYPE
     if ( qt_has_xft && fs && fs != (QFontStruct *)-1 && fs->xfthandle ) {
-	XftPattern *font = XftNameParse(fs->name.data());
+	qDebug("fontstruct name: %s", fs->name.data());
+	XftPattern *pattern = XftNameParse(fs->name.data());
 	//qDebug("xfthandle=%p", font);
-	char *filename;
-	XftPatternGetString (font, XFT_FILE, 0, &filename);
-	//qDebug("filename for font is '%s'", filename);
+	char *filename = 0;
+	XftResult res;
+	XftPattern *f = XftFontMatch(qt_xdisplay(), 0, pattern, &res);
+	XftPatternGetString (f, XFT_FILE, 0, &filename);
+	qDebug("filename for font is '%s'", filename);
 	fontfilename = QString::fromLatin1( filename );
+	XftPatternDestroy( f );
+	XftPatternDestroy( pattern );
     } else
 #endif
     {
@@ -5133,7 +4956,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     priv->fonts.size();
 
     p = priv->fonts.find(xfontname);
-    qDebug("font=%s, fontname=%s, p=%p", f.family().latin1(), xfontname.latin1(), p);
+    //qDebug("font=%s, fontname=%s, p=%p", f.family().latin1(), xfontname.latin1(), p);
 
     if ( !p ) {
 	// memory mapping would be better here
@@ -5174,8 +4997,25 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	    case PFA:
 		p = new QPSPrinterFontPFA(f, data);
 		break;
-	    case NONE:
-	    default:
+	    case NONE: 
+	    default:   
+    // ###
+// 	QFont::CharSet cs = f.charSet();
+// 	// ### the next four lines are a hack to not produce invalid postscript with unicode
+// 	// fonts. As we currently can't deal with Unicode fonts in Postscript, we convert
+// 	// to the most common text and assume the current locale. If that fails we use latin1.
+// 	if ( cs == QFont::Unicode )
+// 	    cs = QFont::charSetForLocale();
+// 	if ( cs == QFont::Unicode )
+// 	    cs = QFont::ISO_8859_1;
+// 	if ( cs == QFont::Set_Ja || cs == QFont::JIS_X_0208) {
+// 	    p = new QPSPrinterFontJapanese( f );
+// 	} else if ( cs == QFont::Set_Ko || cs == QFont::KSC_5601) {
+// 	    p = new QPSPrinterFontKorean( f );
+// 	} else if ( cs == QFont::Set_Big5 || cs == QFont::Big5) {
+// 	    p = new QPSPrinterFontTraditionalChinese( f );
+// 	} else 
+    //qDebug("didnt find font for %s", xfontname.latin1());
 		p=new QPSPrinterFontNotFound( f ); break;
 	}
 	//qDebug("inserting %s int dict (%p)", xfontname.latin1(), p);
