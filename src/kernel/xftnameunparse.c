@@ -23,6 +23,7 @@
  */
 
 // #include "xftint.h"
+#include <X11/Xlib.h>
 #include <X11/Xft/XftFreetype.h>
 #include <ctype.h>
 #include <stdlib.h>
