@@ -10,9 +10,10 @@
 
 // const char *family = "Arial Unicode Ms"; // generic
 // const char *family = "Mangal"; // Devanagari
-const char *family = "Akaash"; // Bengali
 // const char *family = "Diwani Letter"; // arabic
 // const char *family = "Serto Jerusalem"; // syriac
+// const char *family = "Akaash"; // Bengali
+const char *family = "Latha"; // Tamil
 
 class MyWidget : public QWidget
 {
@@ -133,13 +134,15 @@ int MyWidget::getCursorPosition( int _x )
 
 
 // Bengali
-const char * s = "অাবার অাসিব ফিরে ধানসিড়িটির তীরে - এই বাংলায় হয়তো মানুষ নয় - হয়তো বা শঙ্খচিল শালিখের বেশে, হয়তো ভোরের কাক হয়ে এই কার্তিকের নবান্নের দেশে  কুয়াশার বুকে ভেসে একদিন অাসিব এই কাঁঠাল - ছায়ায়, হয়তো বা হাঁস হব - কিশোরীর - ঘুঙুর রহিবে লাল পায়ে, সারাদিন কেটে যাবে কলমীর গন্ধ ভরা জলে ভেসে ভেসে, অাবার অাসিব অামি বাংলার নদী মাঠ ক্ষেত ভালোবেসে জলঙ্গীর ঢেউয়ে ভেজা বাংলার এ সবুজ করুণ ডাঙায়";
+// const char * s = "অাবার অাসিব ফিরে ধানসিড়িটির তীরে - এই বাংলায় হয়তো মানুষ নয় - হয়তো বা শঙ্খচিল শালিখের বেশে, হয়তো ভোরের কাক হয়ে এই কার্তিকের নবান্নের দেশে  কুয়াশার বুকে ভেসে একদিন অাসিব এই কাঁঠাল - ছায়ায়, হয়তো বা হাঁস হব - কিশোরীর - ঘুঙুর রহিবে লাল পায়ে, সারাদিন কেটে যাবে কলমীর গন্ধ ভরা জলে ভেসে ভেসে, অাবার অাসিব অামি বাংলার নদী মাঠ ক্ষেত ভালোবেসে জলঙ্গীর ঢেউয়ে ভেজা বাংলার এ সবুজ করুণ ডাঙায়";
 
 // mixed
 // const char *s = "Thai: ทำไมเขาถึงไม่พูด �าษาไทย "
 // "Syriac: ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ "
 // "Arabic: أوروبا, برمجيات الحاسوب "
 // "Hebrew: תוכנה והאינטרנט ";
+
+const char *s = "";
 
 int main( int argc, char **argv )
 {

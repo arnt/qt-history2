@@ -16,6 +16,7 @@ HEADERS += fontengine.h \
            scriptenginesyriac.h \
            scriptenginedevanagari.h \
            scriptenginebengali.h \
+           scriptenginetamil.h \
            scriptenginebasic.h \
 	   fontenginexlfd.h \
 	   fontenginexft.h \
@@ -34,6 +35,7 @@ SOURCES += qfont.cpp \
            scriptenginesyriac.cpp \
            scriptenginedevanagari.cpp \
            scriptenginebengali.cpp \
+           scriptenginetamil.cpp \
            scriptenginebasic.cpp \
 	   fontenginexlfd.cpp \
 	   fontenginexft.cpp \
