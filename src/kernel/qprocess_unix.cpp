@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qt/qprocess_unix.cpp   3.1.2   edited Feb 18 17:41 $
+** $Id$
 **
 ** Implementation of QProcess class for Unix
 **
@@ -1379,4 +1379,3 @@ QProcess::PID QProcess::processIdentifier()
 }
 
 #endif // QT_NO_PROCESS
-
