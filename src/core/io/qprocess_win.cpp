@@ -431,42 +431,36 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
     int nextSleep = SLEEPMIN;
     forever {
 
-        // try to empty the other buffer, if somthing is read reset the sleep time,
-        // there may be more data soon
-        if (processChannel == QProcess::StandardOutput) {
-            if (bytesAvailableFromStdout() != 0) {
-                canReadStandardOutput();
-                return true;
-            }
-            if (bytesAvailableFromStderr() != 0) {
-                canReadStandardError();
-                nextSleep = qMin(SLEEPMIN, msecs);
-            } else {
-                nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
-            }
-        } else {
-            if (bytesAvailableFromStderr() != 0) {
-                canReadStandardError();
-                return true;
-            }
-            if (bytesAvailableFromStdout() != 0) {
-                canReadStandardOutput();
-                nextSleep = qMin(SLEEPMIN, msecs);
-            } else {
-                nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
-            }      
+        if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0))) {
+            canWrite();
+            nextSleep = qMin(SLEEPMIN, msecs);
+        }
+        
+        bool readyReadEmitted = false;
+        if (bytesAvailableFromStdout() != 0) {
+            readyReadEmitted = canReadStandardOutput() ? true : readyReadEmitted;
+            nextSleep = qMin(SLEEPMIN, msecs);
         }
 
+        if (bytesAvailableFromStderr() != 0) {
+            readyReadEmitted = canReadStandardError() ? true : readyReadEmitted;
+            nextSleep = qMin(SLEEPMIN, msecs);
+        }
+
+        if (readyReadEmitted)
+            return true;
+
+        nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
         if (msecs <= start.elapsed())
             break;
-
         nextSleep = qMax(nextSleep, 0);
 
-        // instead of just slepping lets wait on the handle that way if it dies we 
-        // will atleast get that fast.
+        if (!pid)
+            break;
         if (WaitForSingleObject(pid->hProcess, nextSleep) == WAIT_OBJECT_0) {
+            // find the return value if there is noew data to read
             bool ret = processChannel == QProcess::StandardOutput ? bytesAvailableFromStdout() != 0
-                                                              : bytesAvailableFromStderr() != 0;
+                                                                  : bytesAvailableFromStderr() != 0;
             processDied();
             return ret;
         }
@@ -480,7 +474,52 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 
 bool QProcessPrivate::waitForBytesWritten(int msecs)
 {
-    Q_UNUSED(msecs);
+
+    Q_Q(QProcess);
+
+    QTime start;
+    start.start();
+
+    int nextSleep = SLEEPMIN;
+    forever {
+
+        if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0))) {
+            if (canWrite())
+                return true;
+        }
+
+        if (bytesAvailableFromStdout() != 0) {
+            canReadStandardOutput();
+            nextSleep = qMin(SLEEPMIN, msecs);
+        }
+
+        if (bytesAvailableFromStderr() != 0) {
+            canReadStandardError();
+            nextSleep = qMin(SLEEPMIN, msecs);
+        }
+        
+        if (!pid)
+            break;
+        if (WaitForSingleObject(pid->hProcess, 0) == WAIT_OBJECT_0) {
+            processDied();
+            return false;
+        }
+                
+        nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
+        if (msecs <= start.elapsed())
+            break;
+        nextSleep = qMax(nextSleep, 0);
+
+        if (pipeWriter->waitForWrite(nextSleep)) {
+             if (canWrite())
+                return true;
+        }
+        
+        nextSleep *= 2;
+    }
+
+    processError = QProcess::Timedout;
+    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
     return false;
 }
 
@@ -494,36 +533,39 @@ bool QProcessPrivate::waitForFinished(int msecs)
     QTime start;
     start.start();
 
-    // the progressive time is so that we can check the buffers for avialable data
-    // so stopping a potential dead lock
-
-    int nextSleep = qMin(SLEEPMIN, msecs);
+    int nextSleep = SLEEPMIN;
     forever {
-        if (WaitForSingleObject(pid->hProcess, nextSleep) == WAIT_OBJECT_0) {
-            processDied();
-            return true;
-        } else {
-            nextSleep *= 2;
-            nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());      
-            if (nextSleep <= 0) {
-                processError = QProcess::Timedout;
-                q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
-                return false;
-            }
+        if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0))) {
+            canWrite();
+            nextSleep = qMin(SLEEPMIN, msecs);
         }
-
-        // try to empty the buffers, if somthing is read rest the slep time,
-        // there may be more data soon
-        if (bytesAvailableFromStdout()) {
+        
+        if (bytesAvailableFromStdout() != 0) {
             canReadStandardOutput();
             nextSleep = qMin(SLEEPMIN, msecs);
         }
-        if (bytesAvailableFromStderr()) {
+        
+        if (bytesAvailableFromStderr() != 0) {
             canReadStandardError();
             nextSleep = qMin(SLEEPMIN, msecs);
         }
-    }
 
+        nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
+        if (msecs <= start.elapsed())
+            break;
+        nextSleep = qMax(nextSleep, 0);
+
+        if (!pid)
+            return true;
+        if (WaitForSingleObject(pid->hProcess, nextSleep) == WAIT_OBJECT_0) {
+            processDied();
+            return true;
+        }
+        nextSleep *= 2;
+    }
+    processError = QProcess::Timedout;
+    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
+    return false;
 }
 
 
