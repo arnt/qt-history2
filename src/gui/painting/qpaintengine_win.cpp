@@ -976,7 +976,7 @@ void QWin32PaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperati
     }
 }
 
-void QWin32PaintEngine::updateFont(const QFont &font)
+void QWin32PaintEngine::updateFont(const QFont & /*font*/)
 {
 //     if (state->pfont)
 //         delete state->pfont;

@@ -490,8 +490,6 @@ bool QWinInputContext::startComposition()
     if (!imeComposition)
         imeComposition = new QString();
 
-    bool result = true;
-
     QWidget *fw = focusWidget();
     if (fw) {
         imePosition = 0;
@@ -625,7 +623,7 @@ bool QWinInputContext::isComposing() const
     return imeComposition && !imeComposition->isEmpty();
 }
 
-void QWinInputContext::mouseHandler(int x, QMouseEvent *event)
+void QWinInputContext::mouseHandler(int /*x*/, QMouseEvent * /*event*/)
 {
     // #### implement me!
 }
