@@ -131,14 +131,13 @@ public:
     QGenericListView::ResizeMode resizeMode;
     QGenericListView::LayoutMode layoutMode;
     bool wrap;
-    uint spacing : 16;
-    uint arrange : 1;
+    int spacing;
     int layoutStart;
     int translate;
     QSize gridSize;
     QRect layoutBounds;
     QSize contentsSize;
-    // used for intersecting set1
+    // used for intersecting set
     mutable QVector<QModelIndex> intersectVector;
     // used when items are movable
     BinTree<QGenericListViewItem> tree;
@@ -152,7 +151,6 @@ public:
     QVector<QModelIndex> draggedItems; // indices to the tree.itemVector
     mutable QRect draggedItemsRect;
     mutable QPoint draggedItemsPos;
-    QSize itemSize; // used when all items are of the same height
     QRubberBand *rubberBand;
 };
 

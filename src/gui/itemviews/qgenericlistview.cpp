@@ -1257,7 +1257,6 @@ QGenericListViewPrivate::QGenericListViewPrivate()
       layoutMode(QGenericListView::Instant),
       wrap(false),
       spacing(0),
-      arrange(false),
       layoutStart(0),
       translate(0),
       layoutWraps(0),
