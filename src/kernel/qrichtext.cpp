@@ -2209,6 +2209,8 @@ QTextString::~QTextString()
     for ( int i = 0; i < (int)data.count(); ++i ) {
 	if ( data[ i ].isCustom ) {
 	    delete data[ i ].customItem();
+	    if ( ( (Char::CharData*)data[ i ].d )->format )
+		( (Char::CharData*)data[ i ].d )->format->removeRef();
 	    delete (Char::CharData*)data[ i ].d;
 	    data[ i ].d = 0;
 	} else if ( data[ i ].format() ) {

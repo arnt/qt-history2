@@ -606,7 +606,7 @@ inline bool QTextString::isRightToLeft() const
 class QTextParag
 {
     friend class QTextDocument;
-    
+
 public:
     struct LineStart {
 	LineStart() : y( 0 ), baseLine( 0 ), h( 0 ), bidicontext( 0 ) {  }
@@ -1106,8 +1106,8 @@ public:
     virtual void updateHeight( QTextCustomItem *i );
 
     virtual void draw( QPainter *, int , int , int , int ) {}
-    virtual void eraseAfter( QTextParag *, QPainter * ) {}                     
-    
+    virtual void eraseAfter( QTextParag *, QPainter * ) {}
+
     void clear();
 
 private:
@@ -1519,6 +1519,7 @@ inline QTextFormat::QTextFormat()
     : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( 12 ),
       painter( 0 ), different( NoFlags )
 {
+    ref = 0;
     missp = FALSE;
     collection = 0;
 }
@@ -1527,6 +1528,7 @@ inline QTextFormat::QTextFormat( const QStyleSheetItem *style )
     : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( 12 ),
       painter( 0 ), different( NoFlags )
 {
+    ref = 0;
     this->style = style->name();
     missp = FALSE;
     collection = 0;
@@ -1554,6 +1556,7 @@ inline QTextFormat::QTextFormat( const QFont &f, const QColor &c )
       logicalFontSize( 3 ), stdPointSize( f.pointSize() ), painter( 0 ),
       different( NoFlags )
 {
+    ref = 0;
     collection = 0;
     leftBearing = fm.minLeftBearing();
     rightBearing = fm.minRightBearing();
@@ -1570,6 +1573,7 @@ inline QTextFormat::QTextFormat( const QFont &f, const QColor &c )
 inline QTextFormat::QTextFormat( const QTextFormat &f )
     : fm( f.fm )
 {
+    ref = 0;
     collection = 0;
     fn = f.fn;
     col = f.col;
@@ -1594,6 +1598,7 @@ inline QTextFormat::QTextFormat( const QTextFormat &f )
 
 inline QTextFormat& QTextFormat::operator=( const QTextFormat &f )
 {
+    ref = 0;
     collection = f.collection;
     fn = f.fn;
     col = f.col;
