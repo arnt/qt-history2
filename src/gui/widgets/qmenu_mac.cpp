@@ -752,7 +752,7 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
             mac_menubar = new QMacMenuBarPrivate;
         } else {
             QWidget *tlw = q->topLevelWidget();
-            if(parent && (QMacMenuBarPrivate::menubars.isEmpty() || !QMacMenuBarPrivate::menubars.find(tlw)) &&
+            if(parent && (QMacMenuBarPrivate::menubars.isEmpty() || !QMacMenuBarPrivate::menubars.contains(tlw)) &&
                (((parent->isDialog() 
 #ifndef QT_NO_MAINWINDOW
                   || ::qt_cast<QMainWindow *>(parent)
