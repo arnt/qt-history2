@@ -313,9 +313,9 @@ public:
     void freeMemory();
 
     int findItem(int strPos) const;
-    void updateTextFromDocument();
     void setFormatsFromDocument();
     void invalidate();
+    void validate();
 
     mutable QScriptItemArray items;
     mutable QScriptLineArray lines;
@@ -329,7 +329,8 @@ public:
     unsigned int widthOnly : 1;
     unsigned int designMetrics : 1;
     unsigned int textColorFromPalette : 1;
-    unsigned int reserved : 7;
+    unsigned int invalid : 1;
+    unsigned int reserved : 6;
     unsigned int itemization_mode : 16;
     unsigned int textFlags;
 

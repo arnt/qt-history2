@@ -466,9 +466,8 @@ void QTextLayout::beginLayout()
     if (d->docLayout) {
         const QTextBlockData *b = d->block.p->blockMap().fragment(d->block.n);
         if (b->textDirty)
-            d->updateTextFromDocument();
+            d->invalidate();
     }
-    d->items.clear();
     d->itemize();
 }
 
@@ -486,7 +485,7 @@ void QTextLayout::endLayout()
 */
 int QTextLayout::nextCursorPosition(int oldPos, CursorMode mode) const
 {
-//     qDebug("looking for next cursor pos for %d", oldPos);
+//      qDebug("looking for next cursor pos for %d", oldPos);
     const QCharAttributes *attributes = d->attributes();
     int len = d->string.length();
     if (oldPos >= len)
@@ -499,7 +498,7 @@ int QTextLayout::nextCursorPosition(int oldPos, CursorMode mode) const
         while (oldPos < len && !attributes[oldPos].wordStop && !attributes[oldPos-1].whiteSpace)
             oldPos++;
     }
-//     qDebug("  -> %d",  oldPos);
+//      qDebug("  -> %d",  oldPos);
     return oldPos;
 }
 

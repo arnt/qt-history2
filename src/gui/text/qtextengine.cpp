@@ -860,6 +860,7 @@ static void init(QTextEngine *e)
 
     e->cursorPos = -1;
     e->underlinePositions = 0;
+    e->invalid = true;
 }
 
 QTextEngine::QTextEngine()
@@ -882,17 +883,8 @@ void QTextEngine::setText(const QString &str)
 {
     pal = 0;
     textFlags = 0;
+    invalidate();
     string = str;
-    direction = QChar::DirON;
-    haveCharAttributes = false;
-    widthOnly = false;
-    minWidth = 0;
-
-    used = 0;
-    allocated = 0;
-
-    items.clear();
-    lines.clear();
 }
 
 QTextEngine::~QTextEngine()
@@ -928,13 +920,12 @@ void QTextEngine::reallocate(int totalGlyphs)
 
 const QCharAttributes *QTextEngine::attributes()
 {
-    ensureSpace(string.length());
-    QCharAttributes *charAttributes = (QCharAttributes *) memory;
     if (haveCharAttributes)
-        return charAttributes;
+        return (QCharAttributes *) memory;
 
     if (items.size() == 0)
         itemize();
+    ensureSpace(string.length());
 
     for (int i = 0; i < items.size(); i++) {
         QScriptItem &si = items[i];
@@ -942,12 +933,12 @@ const QCharAttributes *QTextEngine::attributes()
         int len = length(i);
         int script = si.analysis.script;
         Q_ASSERT(script < QFont::NScripts);
-        qt_scriptEngines[si.analysis.script].charAttributes(script, string, from, len, charAttributes);
+        qt_scriptEngines[si.analysis.script].charAttributes(script, string, from, len, (QCharAttributes *) memory);
     }
 
-    calcLineBreaks(string, charAttributes);
+    calcLineBreaks(string, (QCharAttributes *) memory);
     haveCharAttributes = true;
-    return charAttributes;
+    return (QCharAttributes *) memory;
 }
 
 void QTextEngine::setFormat(int from, int length, int format)
@@ -1030,6 +1021,7 @@ void QTextEngine::splitItem(int item, int pos)
 
 void QTextEngine::itemize()
 {
+    validate();
     items.clear();
     if (string.length() == 0)
         return;
@@ -1419,7 +1411,7 @@ void QTextEngine::freeMemory()
 {
     free(memory);
     memory = 0;
-    haveCharAttributes = 0;
+    haveCharAttributes = false;
     allocated = 0;
     num_glyphs = 0;
     used = 0;
@@ -1440,12 +1432,14 @@ void QTextEngine::invalidate()
     boundingRect = QRect();
     minWidth = 0;
     maxWidth = 0;
+    invalid = true;
 }
 
-void QTextEngine::updateTextFromDocument()
+void QTextEngine::validate()
 {
-    invalidate();
-    string = block.text();
+    if (invalid && docLayout)
+        string = block.text();
+    invalid = false;
 }
 
 void QTextEngine::setFormatsFromDocument()
