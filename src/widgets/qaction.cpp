@@ -998,7 +998,14 @@ void QActionGroup::insertSeparator()
     d->actions.append( d->separatorAction );
 }
 
-/*!\reimp
+/*!
+  Adds this actiongroup to the widget \a w.
+
+  If \a w is a toolbar and the drop down property is currently TRUE, this method creates
+  a combobox if exclusive, otherwise a toolbutton that features an additional popup menu.
+  If drop down is FALSE, it just calls addTo for each QAction in this group.
+
+  \sa setExclusive, setUsesDropDown
  */
 bool QActionGroup::addTo( QWidget* w )
 {
