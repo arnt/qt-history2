@@ -1519,7 +1519,10 @@ void QWidget::showWindow()
 #endif
 	else
 	    ShowHide((WindowPtr)hd, true);	//now actually show it
-	qt_event_request_activate(this);
+#ifndef QMAC_NO_FAKECURSOR
+	if (qstrcmp(name(), "fake_cursor") != 0)
+#endif
+	    qt_event_request_activate(this);
     } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisible()) {
 	qt_dirty_wndw_rgn("show",this, mac_rect(posInWindow(this), geometry().size()));
     }
