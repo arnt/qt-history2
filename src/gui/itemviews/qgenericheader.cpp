@@ -396,6 +396,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
     if (d->sections.isEmpty())
         return;
     const QGenericHeaderPrivate::HeaderSection *sections = d->sections.constData();
+    QModelIndex current = selectionModel()->currentItem();
 
     int section;
     int width = d->viewport->width();
@@ -408,6 +409,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
             index = model()->index(0, section, QModelIndex(), QModelIndex::HorizontalHeader);
             if (!index.isValid())
                 continue;
+            option.font.setBold(index.column() == current.column());
             option.rect.setRect(sectionPosition(section) - offset, 0, sectionSize(section), height);
             paintSection(&painter, option, index);
         }
@@ -425,6 +427,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
             index = model()->index(section, 0, QModelIndex(), QModelIndex::VerticalHeader);
             if (!index.isValid())
                 continue;
+            option.font.setBold(index.row() == current.row());
             option.rect.setRect(0, sectionPosition(section) - offset, width, sectionSize(section));
             paintSection(&painter, option, index);
         }
@@ -642,6 +645,28 @@ void QGenericHeader::initializeSections(int start, int end)
     emit sectionCountChanged(oldCount, count());
     d->viewport->update();
 }
+
+/*!
+  \reimp
+*/
+
+void QGenericHeader::currentChanged(const QModelIndex &old, const QModelIndex &current)
+{
+    QRect oldRect, currentRect;
+    if (d->orientation == Qt::Horizontal) {
+        oldRect = QRect(sectionPosition(old.column()) - offset(), 0,
+                        sectionSize(old.column()), height());
+        currentRect = QRect(sectionPosition(current.column()) - offset(), 0,
+                            sectionSize(current.column()), height());
+    } else {
+        oldRect = QRect(0, sectionPosition(old.row()) - offset(),
+                        width(), sectionSize(old.row()));
+        currentRect = QRect(0, sectionPosition(current.row()) - offset(),
+                            width(), sectionSize(current.row()));
+    }
+    d->viewport->repaint(oldRect|currentRect);
+}
+
 
 /*!
     This slot is called when sections are inserted into the \a parent
@@ -1078,15 +1103,15 @@ QModelIndex QGenericHeader::moveCursor(QAbstractItemView::CursorAction, Qt::Butt
     \internal
 */
 
-QRect QGenericHeader::itemViewportRect(const QModelIndex &item) const
+QRect QGenericHeader::itemViewportRect(const QModelIndex &index) const
 {
-    if (!item.isValid() || item.type() == QModelIndex::View)
+    if (!index.isValid() || index.type() == QModelIndex::View)
         return QRect();
     if (orientation() == Qt::Horizontal)
-        return QRect(sectionPosition(item.column()) - offset(),
-                     0, sectionSize(item.column()), height());
-    return QRect(0, sectionPosition(item.row()) - offset(),
-                 width(), sectionSize(item.row()));
+        return QRect(sectionPosition(index.column()) - offset(),
+                     0, sectionSize(index.column()), height());
+    return QRect(0, sectionPosition(index.row()) - offset(),
+                 width(), sectionSize(index.row()));
 }
 
 /*!

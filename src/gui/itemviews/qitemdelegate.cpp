@@ -281,7 +281,7 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
 void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &option,
                                 const QRect &rect, const QString &text) const
 {
-    QPen old = painter->pen();
+    QPen pen = painter->pen();
     if (option.state & QStyle::Style_Selected) {
         QRect fill(rect.x() - border, rect.y() - border,
                    rect.width() + border * 2, rect.height() + border * 2);
@@ -290,14 +290,16 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
     } else {
         painter->setPen(option.palette.text());
     }
-    QString display;
+    QFont font = painter->font();
+    painter->setFont(option.font);
     if (painter->fontMetrics().width(text) > rect.width())
         painter->drawText(rect, option.displayAlignment,
                           ellipsisText(painter->fontMetrics(), rect.width(),
                                        option.displayAlignment, text));
     else
         painter->drawText(rect, option.displayAlignment, text);
-    painter->setPen(old);
+    painter->setFont(font);
+    painter->setPen(pen);
 }
 
 /*!

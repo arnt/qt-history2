@@ -326,6 +326,7 @@ struct QStyleOptionViewItem : public QStyleOption
     int decorationAlignment;
     Position decorationPosition;
     Size decorationSize;
+    QFont font;
     QStyleOptionViewItem(int version) : QStyleOption(version, SO_ViewItem),
     displayAlignment(0), decorationAlignment(0), decorationPosition(Left), decorationSize(Small) {}
     QDOC_PROPERTY(int displayAlignment);

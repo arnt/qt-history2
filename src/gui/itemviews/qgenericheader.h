@@ -77,7 +77,7 @@ public:
     int sortIndicatorSection() const;
     Qt::SortOrder sortIndicatorOrder() const;
 
-    QRect itemViewportRect(const QModelIndex &item) const;
+    QRect itemViewportRect(const QModelIndex &index) const;
     void ensureItemVisible(const QModelIndex &index);
     QModelIndex itemAt(int x, int y) const;
 
@@ -105,6 +105,7 @@ protected:
 
     void reset();
     void initializeSections(int start, int end);
+    void currentChanged(const QModelIndex &old, const QModelIndex &current);
 
     void paintEvent(QPaintEvent *e);
     void mousePressEvent(QMouseEvent *e);

@@ -1469,6 +1469,7 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
 {
     QStyleOptionViewItem option(0);
     option.palette = palette();
+    option.font = font();
     option.state = QStyle::Style_Enabled
                    |(state() == Editing ? QStyle::Style_Editing : QStyle::Style_Default);
     option.decorationSize = QStyleOptionViewItem::Small;
