@@ -219,6 +219,7 @@ class QSingleShotTimer : public QObject
 {
     Q_OBJECT
 public:
+    ~QSingleShotTimer();
     QSingleShotTimer(int msec, QObject *r, const char * m);
 signals:
     void timeout();
@@ -231,6 +232,14 @@ QSingleShotTimer::QSingleShotTimer(int msec, QObject *receiver, const char *memb
 {
     connect(this, SIGNAL(timeout()), receiver, member);
     startTimer(msec);
+}
+
+QSingleShotTimer::~QSingleShotTimer()
+{
+    QAbstractEventDispatcher *eventDispather = QAbstractEventDispatcher::instance(thread());
+    if (eventDispather)
+        eventDispather->unregisterTimers(this);
+    
 }
 
 void QSingleShotTimer::timerEvent(QTimerEvent *)
