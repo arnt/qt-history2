@@ -21,6 +21,11 @@
 #include "database.h"
 #include "formwindow.h"
 
+#include <qsqldatabase.h>
+#include <qsqlform.h>
+#include <qsqlcursor.h>
+#include <qsqlrecord.h>
+
 QDesignerSqlWidget::QDesignerSqlWidget( QWidget *parent, const char *name )
     : QSqlWidget( parent, name )
 {
@@ -44,4 +49,50 @@ void QDesignerSqlDialog::paintEvent( QPaintEvent *e )
 {
     if ( parentWidget() && parentWidget()->inherits( "FormWindow" ) )
 	( (FormWindow*)parentWidget() )->paintGrid( this, e );
+}
+
+
+DatabaseSupport::DatabaseSupport()
+{
+    cursor = 0;
+    defaultConnection = 0;
+    form = 0;
+    parent = 0;
+}
+    
+void DatabaseSupport::initPreview( const QString &table, QObject *o, const QMap<QString, QString> &databaseControls )
+{
+    tbl = table;
+    dbControls = databaseControls;
+    parent = o;
+    
+    defaultConnection = QSqlDatabase::database();
+    cursor = 0;
+    form = new QSqlForm( o, table );
+    autoDeleteCursors.resize( 1 );
+    autoDeleteCursors.setAutoDelete( TRUE );
+}
+
+QSqlCursor* DatabaseSupport::defCursor()
+{
+    if ( !cursor ) {
+	cursor = new QSqlCursor( tbl );
+	cursor->select();
+	autoDeleteCursors.insert( 0, cursor );
+	QSqlRecord* buf = cursor->editBuffer();
+
+	for ( QMap<QString, QString>::Iterator it = dbControls.begin(); it != dbControls.end(); ++it ) {
+	    QObject *chld = parent->child( it.key(), "QWidget" );
+	    if ( !chld )
+		continue;
+	    form->insert( (QWidget*)chld, buf->field( *it ) );
+	}
+	form->readFields();
+    }
+    return cursor;
+}
+
+QSqlForm* DatabaseSupport::defForm()
+{
+    return form;
 }

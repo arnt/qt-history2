@@ -1682,6 +1682,10 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
     FormWindow *fw = formWindow();
     if ( !fw )
 	return 0;
+    if ( fw->project() ) {
+	QStringList lst = MetaDataBase::fakeProperty( fw, "database" ).toStringList();
+	fw->project()->openDatabase( lst[ 0 ] );
+    }
     QCString s;
     QBuffer buffer( s );
     buffer.open( IO_WriteOnly );
@@ -1700,6 +1704,10 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	return preview.widget();
     }
     QApplication::restoreOverrideCursor();
+    if ( fw->project() ) {
+	QStringList lst = MetaDataBase::fakeProperty( fw, "database" ).toStringList();
+	fw->project()->closeDatabase( lst[ 0 ] );
+    }
     return 0;
 }
 

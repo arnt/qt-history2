@@ -346,10 +346,10 @@ Project::DatabaseConnection *Project::databaseConnection( const QString &name )
 
 
 
-bool Project::DatabaseConnection::connect()
+bool Project::DatabaseConnection::connect( bool keepOpen )
 {
     // register our name, if nec
-    if ( name != "(default)" ) {
+    if ( name == "(default)" ) {
 	connection = QSqlDatabase::database();
 	if ( !connection )
 	    connection = QSqlDatabase::addDatabase( driver );
@@ -375,20 +375,29 @@ bool Project::DatabaseConnection::connect()
 	fields.insert( *it, lst );
     }
 
-    connection->close();
+    if ( !keepOpen )
+	connection->close();
     loaded = TRUE;
 
     return TRUE;
 }
 
-bool Project::DatabaseConnection::sync()
+bool Project::DatabaseConnection::sync( bool keepOpen )
 {
     if ( loaded )
 	return TRUE;
-    connect();
+    connect( keepOpen );
     if ( loaded )
 	return TRUE;
     return FALSE;
+}
+
+void Project::DatabaseConnection::close()
+{
+    if ( !loaded )
+	return;
+    if ( connection )
+	connection->close();
 }
 
 QStringList Project::databaseConnectionList()
@@ -468,4 +477,24 @@ void Project::loadConnections()
 	conn->hostname = conf.readEntry( "Hostname" );
 	dbConnections.append( conn );
     }
+}
+
+void Project::openDatabase( const QString &connection )
+{
+    DatabaseConnection *conn = databaseConnection( connection );
+    if ( connection.isEmpty() && !conn )
+	conn = databaseConnection( "(default)" );
+    if ( !conn )
+	return;
+    conn->connect( TRUE );
+}
+
+void Project::closeDatabase( const QString &connection )
+{
+    DatabaseConnection *conn = databaseConnection( connection );
+    if ( connection.isEmpty() && !conn )
+	conn = databaseConnection( "(default)" );
+    if ( !conn )
+	return;
+    conn->close();
 }

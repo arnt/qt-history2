@@ -23,25 +23,58 @@
 
 #include <qsqlwidget.h>
 #include <qsqldialog.h>
+#include <qsqlcursor.h>
+#include <qvector.h>
+#include <qstring.h>
 
-class QDesignerSqlWidget : public QSqlWidget
+class QSqlDatabase;
+class QSqlForm;
+
+class DatabaseSupport
+{
+public:
+    DatabaseSupport();
+    
+    void initPreview( const QString &table, QObject *o, const QMap<QString, QString> &databaseControls );
+
+    QSqlCursor* defCursor();
+    QSqlForm* defForm();
+
+protected:
+    QSqlDatabase* defaultConnection;
+    QSqlCursor* cursor;
+    QSqlForm* form;
+    QVector< QSqlCursor > autoDeleteCursors;
+    QString tbl;
+    QMap<QString, QString> dbControls;
+    QObject *parent;
+    
+};
+
+class QDesignerSqlWidget : public QSqlWidget, public DatabaseSupport
 {
     Q_OBJECT
 
 public:
     QDesignerSqlWidget( QWidget *parent, const char *name );
 
+    QSqlCursor* defaultCursor() { return DatabaseSupport::defCursor(); }
+    QSqlForm* defaultForm() { return DatabaseSupport::defForm(); }
+
 protected:
     void paintEvent( QPaintEvent *e );
 
 };
 
-class QDesignerSqlDialog : public QSqlDialog
+class QDesignerSqlDialog : public QSqlDialog, public DatabaseSupport
 {
     Q_OBJECT
 
 public:
     QDesignerSqlDialog( QWidget *parent, const char *name );
+
+    QSqlCursor* defaultCursor() { return DatabaseSupport::defCursor(); }
+    QSqlForm* defaultForm() { return DatabaseSupport::defForm(); }
 
 protected:
     void paintEvent( QPaintEvent *e );

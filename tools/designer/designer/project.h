@@ -44,8 +44,9 @@ public:
 	QStringList tables;
 	QMap<QString, QStringList> fields;
 
-	bool connect();
-	bool sync();
+	bool connect( bool keepOpen = FALSE );
+	bool sync( bool keepOpen = FALSE );
+	void close();
     };
 
     Project( const QString &fn, const QString &pName = QString::null );
@@ -89,6 +90,9 @@ public:
     void saveConnections();
     void loadConnections();
 
+    void openDatabase( const QString &connection );
+    void closeDatabase( const QString &connection );
+    
 private:
     void parse();
     void clear();

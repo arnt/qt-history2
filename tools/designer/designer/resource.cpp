@@ -30,6 +30,7 @@
 #include <domtool.h>
 #include "command.h"
 #include "pixmapchooser.h"
+#include "database.h"
 
 #include <qfile.h>
 #include <qtextstream.h>
@@ -221,8 +222,17 @@ bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& fil
 	MetaDataBase::setMetaInfo( formwindow, metaInfo );
     }
 
-    if ( previewMode )
+    if ( previewMode ) {
 	MetaDataBase::doConnections( toplevel );
+	if ( toplevel ) {
+	    if ( toplevel->inherits( "QDesignerSqlWidget" ) )
+		( (QDesignerSqlWidget*)toplevel )->initPreview( MetaDataBase::fakeProperty( toplevel, "database" ).toStringList()[ 1 ],
+								  toplevel, dbControls );
+	    else if ( toplevel->inherits( "QDesignerSqlDialog" ) )
+		( (QDesignerSqlDialog*)toplevel )->initPreview( MetaDataBase::fakeProperty( toplevel, "database" ).toStringList()[ 1 ],
+								  toplevel, dbControls );
+	}
+    }
 
     if ( formwindow && !filename.isEmpty() )
 	formwindow->setFileName( filename );
@@ -939,7 +949,7 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	    if ( !lst.isEmpty() ) {
 		ts << makeIndent( indent ) << "<connection>" << entitize( lst[ 0 ] ) << "</connection>" << endl;
 		ts << makeIndent( indent ) << "<table>" << entitize( lst[ 1 ] ) << "</table>" << endl;
-		if ( w != formwindow->mainContainer() ) 
+		if ( w != formwindow->mainContainer() )
 		    ts << makeIndent( indent ) << "<field>" << entitize( lst[ 2 ] ) << "</field>" << endl;
 	    }
 	    break;
@@ -1363,8 +1373,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
     }
 
     if ( !p ) {
-	if ( !previewMode )
-	    MetaDataBase::setFakeProperty( obj, prop, v );
+	MetaDataBase::setFakeProperty( obj, prop, v );
 	if ( obj->isWidgetType() ) {
 	    if ( prop == "toolTip" ) {
 		if ( previewMode && !v.toString().isEmpty() )
@@ -1372,6 +1381,11 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	    } else if ( prop == "whatsThis" ) {
 		if ( previewMode && !v.toString().isEmpty() )
 		    QWhatsThis::add( (QWidget*)obj, v.toString() );
+	    }
+	    if ( prop == "database" && obj != toplevel ) {
+		QStringList lst = MetaDataBase::fakeProperty( obj, "database" ).toStringList();
+		if ( lst.count() > 2 )
+		    dbControls.insert( obj->name(), lst[ 2 ] );
 	    }
 	    return;
 	}
