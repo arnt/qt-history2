@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qlistbox.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_LISTBOX
 #include "qarray.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"
@@ -4004,4 +4004,4 @@ void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, b
     if ( changed )
 	emit selectionChanged();
 }
-#endif
+#endif // QT_NO_LISTBOX

@@ -385,6 +385,12 @@
     */
     #define QT_NO_LISTVIEW
 #endif
+#if defined(QT_NO_LISTBOX)
+    /*!
+	QComboBox
+    */
+    #define QT_NO_COMBOBOX
+#endif    
 #if defined(QT_NO_WIDGETS)
     /*!
 	Windows style
@@ -418,6 +424,10 @@
 	QMenuBar
     */
     #define QT_NO_MENUBAR
+    /*!
+	QListBox
+    */
+    #define QT_NO_LISTBOX
     /*!
 	QComboBox
     */
