@@ -191,6 +191,13 @@ public:
 */
 
 /*!
+    \fn int QStyleOption::day() const
+
+    Returns the index of the day in the month if the appropriate
+    constructor was called; otherwise the return value is undefined.
+*/
+
+/*!
     \fn int QStyleOption::lineWidth() const
 
     Returns the line width if the appropriate constructor was called;

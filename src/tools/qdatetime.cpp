@@ -148,7 +148,7 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
     if ( f.isEmpty() ) {
 	return QString::null;
     }
-    
+
     if ( dt && !dt->isValid() )
 	return QString::null;
     if ( dd && !dd->isValid() )
@@ -264,6 +264,19 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
 
     \value LocalTime Locale dependent time (Timezones and Daylight Savings Time)
     \value UTC Coordinated Universal Time, replaces Greenwich Time
+*/
+
+/*! \enum Qt::Day
+
+      This enum type defines the index of each day in the week.
+
+      \value Monday
+      \value Tuesday
+      \value Wednesday
+      \value Thursday
+      \value Friday
+      \value Saturday
+      \value Sunday
 */
 
 /*!
@@ -691,7 +704,7 @@ QString QDate::longDayName( int weekday )
     locale settings of the system.
 
     If the date is an invalid date, then QString::null will be returned.
-  
+
     \sa shortDayName(), shortMonthName()
 */
 QString QDate::toString( Qt::DateFormat f ) const
@@ -2067,7 +2080,7 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC, Qt::TimeSpec ts )
     If \a f is \c Qt::LocalDate, the string format depends on the
     locale settings of the system.
 
-    If the format \a f is invalid or the datetime is invalid, toString() 
+    If the format \a f is invalid or the datetime is invalid, toString()
     returns a null string.
 
     \sa QDate::toString() QTime::toString()
@@ -2077,7 +2090,7 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 {
     if ( !isValid() )
 	return QString::null;
-    
+
     if ( f == Qt::ISODate ) {
 	return d.toString( Qt::ISODate ) + "T" + t.toString( Qt::ISODate );
     }

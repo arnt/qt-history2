@@ -80,6 +80,8 @@ public:
 
     bool isDefault() const { return def; }
 
+    int day() const { return i1; }
+
     int lineWidth() const { return i1; }
     int midLineWidth() const { return i2; }
     int frameShape() const { return i3; }
