@@ -17,7 +17,6 @@
 #ifndef QT_NO_PICTURE
 
 #include "private/qpaintengine_pic_p.h"
-#include "private/qpaintengine_svg_p.h"
 #include "qdatastream.h"
 #include "qfile.h"
 #include "qimage.h"
