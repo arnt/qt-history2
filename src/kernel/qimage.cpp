@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#127 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#126 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#127 $");
 
 
 /*!
@@ -893,7 +893,6 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 	for ( y=0; y < src->height(); y++ ) {
 	    p = (QRgb *)src->scanLine(y);
 	    b = dst->scanLine(y);
-	    int x = 0;
 	    QRgb *end = p + sw;
 
 	    // perform quantization
@@ -912,12 +911,12 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 			);
 
 		    p++;
-		    x++;
 		}
 #undef DITHER
 	    } else if ( ( conversion_flags & Dither_Mask ) == OrderedDither ) {
 #define DITHER(p,d,m) ((uchar) ((((256 * (m) + (m) + 1)) * (p) + (d)) / 65536 ))
 
+		int x = 0;
 		while ( p < end ) {
 		    uint d = bm[y&15][x&15];
 
@@ -938,6 +937,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 #undef DITHER
 	    } else { // Diffuse
 		int endian = (QImage::systemByteOrder() == QImage::BigEndian);
+		int x;
 		uchar* q = src->scanLine(y);
 		uchar* q2 = src->scanLine(y+1 < src->height() ? y + 1 : 0);
 		for (int chan = 0; chan < 3; chan++) {

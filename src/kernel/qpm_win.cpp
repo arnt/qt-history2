@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#57 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#57 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -379,7 +379,7 @@ QImage QPixmap::convertToImage() const
 #endif
 
 		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
-		    *p & 0xff00;
+		    (*p & 0xff00);
 		p++;
 	    }
 	}
@@ -489,7 +489,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    uint *end = p + image.width();
 	    while ( p < end ) {
 		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
-		    *p & 0xff00;
+		    (*p & 0xff00);
 		p++;
 	    }
 	}
@@ -502,7 +502,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    uint *end = p + image.width();
 	    while ( p < end ) {
 		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
-		    *p & 0xff00;
+		    (*p & 0xff00);
 		p++;
 	    }
 	}
@@ -680,7 +680,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     bmh->biSizeImage	  = sbpl*hs;
     bmh->biClrUsed	  = ncols;
     bmh->biClrImportant	  = 0;
-    QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
 
     int result;
     result = GetDIBits( handle(), hbm(), 0, hs, sptr, bmi, DIB_RGB_COLORS );
@@ -717,7 +716,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     uint  trigx, trigy;
     uint  maxws = ws<<16, maxhs=hs<<16;
     uchar *p	= dptr;
-    uchar *flip = qt_get_bitflip_array();
     int	  xbpl, p_inc;
 
     if ( depth1 ) {
