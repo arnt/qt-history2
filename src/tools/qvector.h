@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvector.h#7 $
+** $Id: //depot/qt/main/src/tools/qvector.h#8 $
 **
 ** Definition of QVector template/macro class
 **
@@ -65,7 +65,6 @@ public:									      \
 					{ return QGVector::contains((GCI)d); }\
     type *operator[]( int i ) const	{ return (type *)QGVector::at(i); }   \
     type *at( uint i ) const		{ return (type *)QGVector::at(i); }   \
-	  operator const type**() const { return (const type **)data(); }     \
     void  toList( QGList *list ) const	{ QGVector::toList(list); }	      \
 private:								      \
     void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }	      \
@@ -114,7 +113,6 @@ public:
 					{ return QGVector::contains((GCI)d); }
     type *operator[]( int i ) const	{ return (type *)QGVector::at(i); }
     type *at( uint i ) const		{ return (type *)QGVector::at(i); }
-	  operator const type**() const { return (const type **)data(); }
     void  toList( QGList *list ) const	{ QGVector::toList(list); }
 private:
     void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }
