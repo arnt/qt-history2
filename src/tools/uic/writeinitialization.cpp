@@ -415,6 +415,7 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
             break;
         }
         case DomProperty::IconSet: {
+            propertyValue = pixCall(p->elementIconSet());
             break;
         }
         case DomProperty::Palette: {
