@@ -27,6 +27,10 @@
 
 #include <keyinfo.h>
 
+#if defined(Q_OS_WIN32)
+#include <process.h>
+#endif
+
 #if defined(EVAL) || defined(EDU)
 #include <check-and-patch.h>
 #endif
@@ -815,16 +819,28 @@ void SetupWizardImpl::doFinalIntegration()
 	installDir.remove( "QMsNetSetup.msi" );
     } else if ( globalInformation.sysId() == GlobalInformation::MSVCNET ){
 	if ( optionsPage->installNETIntegration->isChecked() ) {
-	    QProcess proc( installDir.filePath("QMsNetSetup.msi") );
-	    proc.start();
+	    QString filepath = installDir.filePath("QMsNetSetup.msi");
+	    filepath = filepath.replace( '/', '\\' );
 
-	    // ## Should we wait, or continue?
-	    // Wait until child process exits.
-	    PROCESS_INFORMATION *pi = (PROCESS_INFORMATION *)proc.processIdentifier();
-	    WaitForSingleObject( pi->hProcess, INFINITE );
+	    int res = _spawnlp( _P_NOWAIT, "msiexec.exe", "msiexec.exe", "-i", filepath.latin1(), NULL );
+	    if ( res == -1 ) {
+		//MSIExec is not in path, look up in registry (only works for NT machines)
+		QString msiexec = QEnvironment::getRegistryString( "SYSTEM\\CurrentControlSet\\Services\\MSIServer", 
+								   "ImagePath", 
+								   QEnvironment::LocalMachine );
+		if ( !msiexec.isEmpty() )
+		    msiexec.remove( " /V" );
+		res = _spawnl( _P_NOWAIT, msiexec.latin1(), msiexec.latin1(), "-i", filepath.latin1(), NULL );
+	    }
+
+	    if ( res == -1 ) {
+		QMessageBox::warning( this, "Couldn't execute .NET addin installer script", 
+				      "Microsoft Installer (MSI) was not found on your system.\n"
+				      "Please install MSI, then execute the .NET addin installer "
+				      "script,\nlocated at " + filepath );
+	    }
 	}
 	installDir.remove( "qmsdev.dll" );
-	installDir.remove( "QMsNetSetup.msi" );
     } else {
 	installDir.remove( "qmsdev.dll" );
 	installDir.remove( "QMsNetSetup.msi" );
