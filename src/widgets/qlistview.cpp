@@ -5534,7 +5534,12 @@ void QCheckListItem::activate()
     QPoint pos;
     if ( activatedPos( pos ) ) {
 	//ignore clicks outside the box
-	QRect r( 0, 2, BoxSize-3, BoxSize-3 );
+	QRect r;
+	if ( parent() && parent()->rtti() == 1  && 
+	     ((QCheckListItem*) parent())->type() == Controller )
+	    r.setRect( 0, 2, BoxSize-3, BoxSize-3 );
+	else
+	    r.setRect( 3, 2, BoxSize-3, BoxSize-3 );
 	if ( lv && lv->columnAlignment(0) == AlignCenter ) {
 	    QFontMetrics fm( lv->font() );
 	    r.moveBy( (lv->columnWidth(0) - (BoxSize + fm.width(text()))) / 2, 0 );
@@ -5658,7 +5663,13 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	Q_ASSERT( lv ); //###
 	//	QFontMetrics fm( lv->font() );
 	//	int d = fm.height();
+	bool parentControl = FALSE;
+	if ( parent() && parent()->rtti() == 1  && 
+	     ((QCheckListItem*) parent())->type() == Controller )
+	    parentControl = TRUE;
 	int x = 0;
+	if ( !parentControl )
+	    x += 3;
 	if ( align == AlignCenter ) {
 	    QFontMetrics fm( lv->font() );
 	    x = (width - BoxSize - fm.width(text()))/2;
@@ -5670,8 +5681,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 		p->setPen( QPen( cg.text(), 2 ) );
 	    else
 		p->setPen( QPen( lv->palette().color( QPalette::Disabled, QColorGroup::Text ), 2 ) );
-	    if ( isSelected() && !lv->rootIsDecorated() )
-	    {
+	    if ( isSelected() && !lv->rootIsDecorated() && !parentControl ) {
 		p->fillRect( 0, 0, x + marg + BoxSize + 4, height(),
 			     cg.brush( QColorGroup::Highlight ) );
 		if ( isEnabled() )
@@ -5808,7 +5818,13 @@ void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
 	xdepth += p;
 	intersect = r.intersects( QRect( p, r.y(), xdepth - p + 1, r.height() ) );
     }
-    if ( myType != Controller && intersect && lv && lv->rootIsDecorated() ) {
+    bool parentControl = FALSE;
+    if ( parent() && parent()->rtti() == 1  &&
+	 ((QCheckListItem*) parent())->type() == Controller )
+	parentControl = TRUE;
+    if ( myType != Controller && intersect && 
+	 (lv->rootIsDecorated() || myType == RadioButton ||
+	  (myType == CheckBox && parentControl) ) ) {
 	QRect rect;
 	if ( lv->columnAlignment(0) == AlignCenter ) {
 	    QFontMetrics fm( lv->font() );
