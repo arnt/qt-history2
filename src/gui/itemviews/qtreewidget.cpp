@@ -1577,13 +1577,13 @@ void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
 }
 
 /*!
-  Returns true if the \a item is selected; otherwise returns false.
+  Returns true if the \a item is selected and not-hidden; otherwise returns false.
 */
 
 bool QTreeWidget::isSelected(const QTreeWidgetItem *item) const
 {
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
-    return selectionModel()->isSelected(index);
+    return selectionModel()->isSelected(index) && !isIndexHidden(index);
 }
 
 /*!
@@ -1605,7 +1605,7 @@ void QTreeWidget::setSelected(const QTreeWidgetItem *item, bool select)
 
 QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
 {
-    QModelIndexList indexes = selectionModel()->selectedIndexes();
+    QModelIndexList indexes = selectedIndexes();
     QList<QTreeWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i)
         items.append(d->model()->item(indexes.at(i)));

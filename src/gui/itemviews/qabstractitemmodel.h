@@ -140,6 +140,7 @@ public:
     QAbstractItemModel(QObject *parent = 0);
     virtual ~QAbstractItemModel();
 
+    bool hasIndex(int row, int column, const QModelIndex &parent) const;
     virtual QModelIndex index(int row, int column,
                               const QModelIndex &parent = QModelIndex::Null) const = 0;
     virtual QModelIndex parent(const QModelIndex &child) const = 0;
@@ -222,8 +223,6 @@ protected:
 
     inline QModelIndex createIndex(int row = -1, int column = -1, void *data = 0) const
         { return QModelIndex(row, column, data); }
-
-    bool isValid(int row, int column, const QModelIndex &parent) const;
 
     void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex::Null);
     int persistentIndexesCount() const;

@@ -752,6 +752,17 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
+  Returns true if the model returns a valid QModelIndex for \a row and
+  \a column with \a parent, otherwise returns false.
+*/
+bool QAbstractItemModel::hasIndex(int row, int column, const QModelIndex &parent) const
+{
+    if (row < 0 || column < 0)
+        return false;
+    return row < rowCount(parent) && column < columnCount(parent);
+}
+
+/*!
     Returns true if \a parent has any children; otherwise returns false.
 
     \sa parent() index()
@@ -1165,20 +1176,6 @@ void QAbstractItemModel::resetPersistentIndexes()
 }
 
 /*!
-  \internal
-
-  Returns true if \a row and \a column is valid in the child table \a parent,
-  otherwise returns false.
-*/
-bool QAbstractItemModel::isValid(int row, int column, const QModelIndex &parent) const
-{
-    if (row < 0 || column < 0)
-        return false;
-    return row < rowCount(parent) && column < columnCount(parent);
-}
-
-
-/*!
     \internal
 
     Invalidates the persistent indexes by setting them to invalid
@@ -1313,7 +1310,7 @@ QAbstractTableModel::~QAbstractTableModel()
 
 QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent) const
 {
-    return isValid(row, column, parent) ? createIndex(row, column, 0) : QModelIndex::Null;
+    return hasIndex(row, column, parent) ? createIndex(row, column, 0) : QModelIndex::Null;
 }
 
 /*!
@@ -1452,7 +1449,7 @@ QAbstractListModel::~QAbstractListModel()
 
 QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent) const
 {
-    return isValid(row, column, parent) ? createIndex(row, column, 0) : QModelIndex::Null;
+    return hasIndex(row, column, parent) ? createIndex(row, column, 0) : QModelIndex::Null;
 }
 
 /*!

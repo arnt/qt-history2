@@ -131,8 +131,8 @@ bool QTableModel::removeRows(int row, const QModelIndex &, int count)
 bool QTableModel::removeColumns(int column, const QModelIndex &, int count)
 {
     emit columnsRemoved(QModelIndex::Null, column, column + count - 1);
-    for (int row = 0; row < rowCount(); ++row)
-        table.remove(tableIndex(row, column));
+    for (int row = rowCount()-1; row >= 0; --row)
+        table.remove(tableIndex(row, column), count);
     horizontal.remove(column, count);
     return true;
 }
@@ -179,7 +179,7 @@ QTableWidgetItem *QTableModel::item(const QModelIndex &index) const
 }
 
 void QTableModel::removeItem(QTableWidgetItem *item)
-{       
+{
     int i = table.indexOf(item);
     if (i != -1) {
         table[i] = 0;
@@ -236,9 +236,9 @@ QModelIndex QTableModel::index(const QTableWidgetItem *item) const
     return index(row, col);
 }
 
-QModelIndex QTableModel::index(int row, int column, const QModelIndex &) const
+QModelIndex QTableModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (row >= 0 && row < vertical.count() && column >= 0 && column < horizontal.count()) {
+    if (hasIndex(row, column, parent)) {
         QTableWidgetItem *item = table.at(tableIndex(row, column));
         return createIndex(row, column, item);
     }
@@ -381,18 +381,21 @@ void QTableModel::clear()
         if (table.at(i)) {
             table.at(i)->model = 0;
             delete table.at(i);
+            table[i] = 0;
         }
     }
     for (int j = 0; j < vertical.count(); ++j) {
         if (vertical.at(j)) {
             vertical.at(j)->model = 0;
             delete vertical.at(j);
+            vertical[j] = 0;
         }
     }
     for (int k = 0; k < horizontal.count(); ++k) {
         if (horizontal.at(k)) {
             horizontal.at(k)->model = 0;
             delete horizontal.at(k);
+            horizontal[k] = 0;
         }
     }
     emit reset();
@@ -407,11 +410,15 @@ void QTableModel::itemChanged(QTableWidgetItem *item)
 
 /*!
   \class QTableWidgetSelectionRange
-  \brief The QTableWidgetSelectionRange provides a class for storing a selection range in a QTableWidget.
+
+  \brief The QTableWidgetSelectionRange provides a class for storing a
+  selection range in a QTableWidget.
+
   \ingroup model-view
 
-  The QTableWidgetSelectionRange class stores the top left and bottom right rows and columns of a selection range
-  in a table. The selections in the table may consist of several selection ranges.
+  The QTableWidgetSelectionRange class stores the top left and bottom
+  right rows and columns of a selection range in a table. The
+  selections in the table may consist of several selection ranges.
 
   \sa QTableWidget
 */
@@ -1289,7 +1296,7 @@ void QTableWidget::closePersistentEditor(QTableWidgetItem *item)
 bool QTableWidget::isSelected(const QTableWidgetItem *item) const
 {
     QModelIndex index = d->model()->index(item);
-    return selectionModel()->isSelected(index);
+    return selectionModel()->isSelected(index) && !isIndexHidden(index);
 }
 
 /*!
@@ -1299,6 +1306,22 @@ void QTableWidget::setSelected(const QTableWidgetItem *item, bool select)
 {
     QModelIndex index = d->model()->index(item);
     selectionModel()->select(index, select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
+}
+
+/*!
+  Selects or deselects the \a range depending on \a select.
+*/
+void QTableWidget::setSelected(const QTableWidgetSelectionRange &range, bool select)
+{
+    if (!model()->hasIndex(range.topRow(), range.leftColumn(), root()) ||
+        !model()->hasIndex(range.bottomRow(), range.rightColumn(), root()))
+        return;
+
+    QModelIndex topLeft = model()->index(range.topRow(), range.leftColumn());
+    QModelIndex bottomRight = model()->index(range.bottomRow(), range.rightColumn());
+
+    selectionModel()->select(QItemSelection(topLeft, bottomRight, model()),
+                             select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
 }
 
 /*!
@@ -1326,7 +1349,7 @@ QList<QTableWidgetSelectionRange> QTableWidget::selectedRanges() const
 
 QList<QTableWidgetItem*> QTableWidget::selectedItems(bool fillEmptyCells)
 {
-    QModelIndexList indexes = selectionModel()->selectedIndexes();
+    QModelIndexList indexes = selectedIndexes();
     QList<QTableWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i) {
         QModelIndex index = indexes.at(i);

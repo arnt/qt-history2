@@ -167,6 +167,7 @@ public:
 
     bool isSelected(const QTableWidgetItem *item) const;
     void setSelected(const QTableWidgetItem *item, bool select);
+    void setSelected(const QTableWidgetSelectionRange &range, bool select);
 
     QList<QTableWidgetSelectionRange> selectedRanges() const;
     QList<QTableWidgetItem*> selectedItems(bool fillEmptyCells = false);

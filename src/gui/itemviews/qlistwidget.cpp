@@ -131,7 +131,7 @@ QModelIndex QListModel::index(QListWidgetItem *item) const
 
 QModelIndex QListModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (isValid(row, column, parent))
+    if (hasIndex(row, column, parent))
         return createIndex(row, column, lst.at(row));
     return QModelIndex::Null;
 }
@@ -926,7 +926,7 @@ void QListWidget::closePersistentEditor(QListWidgetItem *item)
 bool QListWidget::isSelected(const QListWidgetItem *item) const
 {
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
-    return selectionModel()->isSelected(index) && !isItemHidden(item);
+    return selectionModel()->isSelected(index) && !isIndexHidden(index);
 }
 
 /*!
