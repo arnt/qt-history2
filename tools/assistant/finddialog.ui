@@ -1,279 +1,234 @@
-<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
-<class>FindDialog</class>
-<comment>*********************************************************************
-** Copyright (C) 2000-$THISYEAR$ Trolltech AS.  All rights reserved.
-**
-** This file is part of Qt Assistant.
-**
-** This file may be distributed and/or modified under the terms of the
-** GNU General Public License version 2 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.
-**
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-** See http://www.trolltech.com/gpl/ for GPL licensing information.
-** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-**   information about Qt Commercial License Agreements.
-**
-** Contact info@trolltech.com if any conditions of this licensing are
-** not clear to you.
-**
-*********************************************************************</comment>
-<widget class="QDialog">
-    <property name="name">
-        <cstring>FindDialog</cstring>
-    </property>
-    <property name="geometry">
-        <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>362</width>
-            <height>156</height>
-        </rect>
-    </property>
-    <property name="caption">
-        <string>Qt Assistant - Find Text</string>
-    </property>
-    <vbox>
-        <property name="name">
-            <cstring>unnamed</cstring>
+<UI version="4.0" stdSetDef="1" >
+ <class>FindDialog</class>
+ <widget class="QDialog" name="FindDialog" >
+  <property name="objectName" >
+   <cstring>FindDialog</cstring>
+  </property>
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>362</width>
+    <height>156</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Qt Assistant - Find Text</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="objectName" >
+    <cstring>unnamed</cstring>
+   </property>
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QWidget" name="Layout5" >
+     <property name="objectName" >
+      <cstring>Layout5</cstring>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="objectName" >
+       <cstring>unnamed</cstring>
+      </property>
+      <property name="margin" >
+       <number>11</number>
+      </property>
+      <item row="1" colSpan="1" column="1" rowSpan="2" >
+       <widget class="Q3ButtonGroup" name="ButtonGroup2" >
+        <property name="objectName" >
+         <cstring>ButtonGroup2</cstring>
         </property>
-        <property name="margin">
-            <number>0</number>
+        <property name="title" >
+         <string>&amp;Direction</string>
         </property>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>Layout5</cstring>
-            </property>
-            <grid>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>11</number>
-                </property>
-                <widget class="QButtonGroup" row="1" column="1" rowspan="2" colspan="1">
-                    <property name="name">
-                        <cstring>ButtonGroup2</cstring>
-                    </property>
-                    <property name="title">
-                        <string>&amp;Direction</string>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <property name="margin">
-                            <number>11</number>
-                        </property>
-                        <property name="spacing">
-                            <number>6</number>
-                        </property>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>radioForward</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Fo&amp;rward</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>radioBackward</cstring>
-                            </property>
-                            <property name="text">
-                                <string>&amp;Backward</string>
-                            </property>
-                        </widget>
-                    </vbox>
-                </widget>
-                <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
-                    <property name="name">
-                        <cstring>Layout1</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <property name="margin">
-                            <number>0</number>
-                        </property>
-                        <property name="spacing">
-                            <number>6</number>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>TextLabel1</cstring>
-                            </property>
-                            <property name="text">
-                                <string>F&amp;ind:</string>
-                            </property>
-                            <property name="buddy" stdset="0">
-                                <cstring>comboFind</cstring>
-                            </property>
-                        </widget>
-                        <widget class="QComboBox">
-                            <property name="name">
-                                <cstring>comboFind</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>7</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="editable">
-                                <bool>true</bool>
-                            </property>
-                            <property name="duplicatesEnabled">
-                                <bool>false</bool>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-                <spacer row="2" column="2">
-                    <property name="name">
-                        <cstring>Spacer2</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Vertical</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>31</width>
-                            <height>0</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QPushButton" row="1" column="2">
-                    <property name="name">
-                        <cstring>PushButton2</cstring>
-                    </property>
-                    <property name="text">
-                        <string>C&amp;lose</string>
-                    </property>
-                    <property name="accel">
-                        <string>Alt+L</string>
-                    </property>
-                </widget>
-                <widget class="QButtonGroup" row="1" column="0" rowspan="2" colspan="1">
-                    <property name="name">
-                        <cstring>ButtonGroup1</cstring>
-                    </property>
-                    <property name="title">
-                        <string>&amp;Options</string>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <property name="margin">
-                            <number>11</number>
-                        </property>
-                        <property name="spacing">
-                            <number>6</number>
-                        </property>
-                        <widget class="QCheckBox">
-                            <property name="name">
-                                <cstring>checkWords</cstring>
-                            </property>
-                            <property name="text">
-                                <string>&amp;Whole words only</string>
-                            </property>
-                        </widget>
-                        <widget class="QCheckBox">
-                            <property name="name">
-                                <cstring>checkCase</cstring>
-                            </property>
-                            <property name="text">
-                                <string>&amp;Case sensitive</string>
-                            </property>
-                        </widget>
-                    </vbox>
-                </widget>
-                <widget class="QPushButton" row="0" column="2">
-                    <property name="name">
-                        <cstring>PushButton1</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Find</string>
-                    </property>
-                    <property name="accel">
-                        <string>Alt+F</string>
-                    </property>
-                    <property name="default">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-            </grid>
-        </widget>
-    </vbox>
-</widget>
-<connections>
-    <connection>
-        <sender>PushButton1</sender>
-        <signal>clicked()</signal>
-        <receiver>FindDialog</receiver>
-        <slot>doFind()</slot>
-    </connection>
-    <connection>
-        <sender>PushButton2</sender>
-        <signal>clicked()</signal>
-        <receiver>FindDialog</receiver>
-        <slot>reject()</slot>
-    </connection>
-</connections>
-<tabstops>
-    <tabstop>comboFind</tabstop>
-    <tabstop>checkWords</tabstop>
-    <tabstop>checkCase</tabstop>
-    <tabstop>radioForward</tabstop>
-    <tabstop>radioBackward</tabstop>
-    <tabstop>PushButton1</tabstop>
-    <tabstop>PushButton2</tabstop>
-</tabstops>
-<includes>
-    <include location="global" impldecl="in implementation">qstatusbar.h</include>
-    <include location="global" impldecl="in implementation">qtextbrowser.h</include>
-    <include location="local" impldecl="in implementation">mainwindow.h</include>
-    <include location="local" impldecl="in implementation">tabbedbrowser.h</include>
-    <include location="local" impldecl="in implementation">finddialog.ui.h</include>
-</includes>
-<forwards>
-    <forward>class QTextBrowser;</forward>
-    <forward>class QStatusBar;</forward>
-    <forward>class MainWindow;</forward>
-</forwards>
-<variables>
-    <variable>QStatusBar *sb;</variable>
-    <variable>bool onceFound;</variable>
-    <variable>QString findExpr;</variable>
-    <variable>QTextBrowser *lastBrowser;</variable>
-</variables>
-<slots>
-    <slot access="protected">init()</slot>
-    <slot access="protected">destroy()</slot>
-    <slot>doFind()</slot>
-    <slot>doFind(bool)</slot>
-    <slot>statusMessage(const QString &amp;message)</slot>
-</slots>
-<functions>
-    <function specifier="non virtual" returnType="MainWindow *">mainWindow()</function>
-    <function specifier="non virtual" returnType="bool">hasFindExpression()</function>
-</functions>
-<layoutdefaults spacing="6" margin="11"/>
+        <layout class="QVBoxLayout" >
+         <property name="objectName" >
+          <cstring>unnamed</cstring>
+         </property>
+         <property name="margin" >
+          <number>11</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QRadioButton" name="radioForward" >
+           <property name="objectName" >
+            <cstring>radioForward</cstring>
+           </property>
+           <property name="text" >
+            <string>Fo&amp;rward</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioBackward" >
+           <property name="objectName" >
+            <cstring>radioBackward</cstring>
+           </property>
+           <property name="text" >
+            <string>&amp;Backward</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="0" colSpan="2" column="0" rowSpan="1" >
+       <widget class="QWidget" name="Layout1" >
+        <property name="objectName" >
+         <cstring>Layout1</cstring>
+        </property>
+        <layout class="QHBoxLayout" >
+         <property name="objectName" >
+          <cstring>unnamed</cstring>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="TextLabel1" >
+           <property name="objectName" >
+            <cstring>TextLabel1</cstring>
+           </property>
+           <property name="text" >
+            <string>F&amp;ind:</string>
+           </property>
+           <property name="buddy" stdset="0" >
+            <cstring>comboFind</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboFind" >
+           <property name="objectName" >
+            <cstring>comboFind</cstring>
+           </property>
+           <property name="sizePolicy" >
+            <sizePolicy>
+             <hSizeType>7</hSizeType>
+             <vSizeType>0</vSizeType>
+             <horStretch>0</horStretch>
+             <verStretch>0</verStretch>
+            </sizePolicy>
+           </property>
+           <property name="editable" >
+            <bool>true</bool>
+           </property>
+           <property name="duplicatesEnabled" >
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="2" >
+       <spacer name="Spacer2" >
+        <property name="sizeHint" >
+         <size>
+          <width>31</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="sizeType" >
+         <enum>Expanding</enum>
+        </property>
+        <property name="orientation" >
+         <enum>Vertical</enum>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="2" >
+       <widget class="QPushButton" name="closeButton" >
+        <property name="objectName" >
+         <cstring>closeButton</cstring>
+        </property>
+        <property name="text" >
+         <string>C&amp;lose</string>
+        </property>
+        <property name="shortcut" >
+         <string>Alt+L</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" colSpan="1" column="0" rowSpan="2" >
+       <widget class="Q3ButtonGroup" name="ButtonGroup1" >
+        <property name="objectName" >
+         <cstring>ButtonGroup1</cstring>
+        </property>
+        <property name="title" >
+         <string>&amp;Options</string>
+        </property>
+        <layout class="QVBoxLayout" >
+         <property name="objectName" >
+          <cstring>unnamed</cstring>
+         </property>
+         <property name="margin" >
+          <number>11</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QCheckBox" name="checkWords" >
+           <property name="objectName" >
+            <cstring>checkWords</cstring>
+           </property>
+           <property name="text" >
+            <string>&amp;Whole words only</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkCase" >
+           <property name="objectName" >
+            <cstring>checkCase</cstring>
+           </property>
+           <property name="text" >
+            <string>&amp;Case sensitive</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="0" column="2" >
+       <widget class="QPushButton" name="findButton" >
+        <property name="objectName" >
+         <cstring>findButton</cstring>
+        </property>
+        <property name="text" >
+         <string>&amp;Find</string>
+        </property>
+        <property name="shortcut" >
+         <string>Alt+F</string>
+        </property>
+        <property name="default" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutDefault spacing="6" margin="11" />
+ <tabStops>
+  <tabstop>comboFind</tabstop>
+  <tabstop>checkWords</tabstop>
+  <tabstop>checkCase</tabstop>
+  <tabstop>radioForward</tabstop>
+  <tabstop>radioBackward</tabstop>
+  <tabstop>findButton</tabstop>
+  <tabstop>closeButton</tabstop>
+ </tabStops>
 </UI>

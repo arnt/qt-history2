@@ -1,36 +1,33 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the Qt Assistant.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
 
+#include "mainwindow.h"
+#include "tabbedbrowser.h"
+#include "helpdialog.h"
+#include "finddialog.h"
+#include "settingsdialog.h"
 #include "config.h"
 
-#include <qtabwidget.h>
-#include <qfileinfo.h>
-#include <qaccel.h>
+#include <qdir.h>
 #include <qtimer.h>
-#include <qdragobject.h>
-#include <qfontinfo.h>
+#include <qstatusbar.h>
 #include <qaccel.h>
-#include <qmetaobject.h>
+#include <qmessagebox.h>
+#include <qprinter.h>
+#include <qpainter.h>
 #include <qeventloop.h>
-#include <qdesktopwidget.h>
+#include <qsimplerichtext.h>
+#include <qpaintdevicemetrics.h>
+#include <qfontdatabase.h>
 
-QList<MainWindow*> *MainWindow::windows = 0;
+QList<MainWindow*> MainWindow::windows;
 
 #if defined(Q_WS_WIN)
 extern Q_EXPORT int qt_ntfs_permission_lookup;
 #endif
 
-void MainWindow::init()
+MainWindow::MainWindow()
 {
+    gui.setupUI(this);
+
 #if defined(Q_WS_WIN)
     // Workaround for QMimeSourceFactory failing in QFileInfo::isReadable() for
     // certain user configs. See task: 34372
@@ -41,10 +38,8 @@ void MainWindow::init()
     goActions = QList<QAction*>();
     goActionDocFiles = new QMap<QAction*,QString>;
 
-    if (!windows)
-        windows = new QList<MainWindow*>;
-    windows->append(this);
-    tabs = new TabbedBrowser(this, "qt_assistant_tabbedbrowser");
+    windows.append(this);
+    tabs = new TabbedBrowser(this);
     setCentralWidget(tabs);
     settingsDia = 0;
 
@@ -86,41 +81,46 @@ void MainWindow::init()
     // Use the same forward and backward browser shortcuts as Safari and Internet Explorer do
     // on the Mac. This means that if you have access to one of those cool Intellimice, the thing
     // works just fine, since that's how Microsoft hacked it.
-    actionGoPrevious->setAccel(QKeySequence(Qt::CTRL|Qt::Key_Left));
-    actionGoNext->setAccel(QKeySequence(Qt::CTRL|Qt::Key_Right));
+    actionGoPrevious->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Left));
+    actionGoNext->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Right));
 #endif
+}
+
+MainWindow::~MainWindow()
+{
+    windows.remove(this);
+    delete goActionDocFiles;
 }
 
 void MainWindow::setup()
 {
     if(setupCompleted)
- return;
+        return;
 
-    qApp->setOverrideCursor(QCursor( Qt::WaitCursor));
-    statusBar()->message(tr( "Initializing Qt Assistant..." ));
+    qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
+    statusBar()->message(tr("Initializing Qt Assistant..."));
     setupCompleted = true;
     helpDock->initialize();
-    connect(actionGoPrevious, SIGNAL(triggered()), tabs, SLOT(backward()));
-    connect(actionGoNext, SIGNAL(triggered()), tabs, SLOT(forward()));
-    connect(actionEditCopy, SIGNAL(triggered()), tabs, SLOT(copy()));
-    connect(actionFileExit, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
-    connect(actionAddBookmark, SIGNAL(triggered()),
+    connect(gui.actionGoPrevious, SIGNAL(triggered()), tabs, SLOT(backward()));
+    connect(gui.actionGoNext, SIGNAL(triggered()), tabs, SLOT(forward()));
+    connect(gui.actionEditCopy, SIGNAL(triggered()), tabs, SLOT(copy()));
+    connect(gui.actionFileExit, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
+    connect(gui.actionAddBookmark, SIGNAL(triggered()),
              helpDock, SLOT(addBookmark()));
     connect(helpDock, SIGNAL(showLink(const QString&)),
              this, SLOT(showLink(const QString&)));
     connect(helpDock, SIGNAL(showSearchLink(const QString&, const QStringList&)),
              this, SLOT(showSearchLink(const QString&, const QStringList&)));
 
-    connect(bookmarkMenu, SIGNAL(activated(int)),
+    connect(gui.bookmarkMenu, SIGNAL(activated(int)),
              this, SLOT(showBookmark(int)));
-    connect(actionZoomIn, SIGNAL(triggered()), tabs, SLOT(zoomIn()));
-    connect(actionZoomOut, SIGNAL(triggered()), tabs, SLOT(zoomOut()));
+    connect(gui.actionZoomIn, SIGNAL(triggered()), tabs, SLOT(zoomIn()));
+    connect(gui.actionZoomOut, SIGNAL(triggered()), tabs, SLOT(zoomOut()));
 
-    connect(actionOpenPage, SIGNAL(triggered()), tabs, SLOT(newTab()));
-    connect(actionClosePage, SIGNAL(triggered()), tabs, SLOT(closeTab()));
-    connect(actionNextPage, SIGNAL(triggered()), tabs, SLOT(nextTab()));
-    connect(actionPrevPage, SIGNAL(triggered()), tabs, SLOT(previousTab()));
-
+    connect(gui.actionOpenPage, SIGNAL(triggered()), tabs, SLOT(newTab()));
+    connect(gui.actionClosePage, SIGNAL(triggered()), tabs, SLOT(closeTab()));
+    connect(gui.actionNextPage, SIGNAL(triggered()), tabs, SLOT(nextTab()));
+    connect(gui.actionPrevPage, SIGNAL(triggered()), tabs, SLOT(previousTab()));
 
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
@@ -142,12 +142,12 @@ void MainWindow::setup()
     Config *config = Config::configuration();
 
     setupBookmarkMenu();
-    PopupMenu->insertItem(tr("Vie&ws"), createDockWindowMenu());
-    helpDock->tabWidget->setCurrentPage(config->sideBarPage());
+    gui.PopupMenu->insertItem(tr("Vie&ws"), createDockWindowMenu());
+    helpDock->tabWidget()->setCurrentPage(config->sideBarPage());
 
     qApp->restoreOverrideCursor();
-    actionGoPrevious->setEnabled(false);
-    actionGoNext->setEnabled(false);
+    gui.actionGoPrevious->setEnabled(false);
+    gui.actionGoNext->setEnabled(false);
 }
 
 void MainWindow::setupGoActions()
@@ -159,8 +159,8 @@ void MainWindow::setupGoActions()
     static bool separatorInserted = false;
 
     foreach (QAction *a, goActions) {
-        a->removeFrom(goMenu);
-        a->removeFrom(goActionToolbar);
+        a->removeFrom(gui.goMenu);
+        a->removeFrom(gui.goActionToolbar);
     }
     qDeleteAll(goActions);
     goActionDocFiles->clear();
@@ -171,14 +171,14 @@ void MainWindow::setupGoActions()
         QPixmap pix = config->docIcon(title);
         if(!pix.isNull()) {
             if(!separatorInserted) {
-                goMenu->insertSeparator();
+                gui.goMenu->insertSeparator();
                 separatorInserted = true;
             }
             action = new QAction(this);
             action->setText(title);
             action->setIcon(QIconSet(pix));
-            goMenu->addAction(action);
-            goActionToolbar->addAction(action);
+            gui.goMenu->addAction(action);
+            gui.goActionToolbar->addAction(action);
             goActions.append(action);
             goActionDocFiles->insert(action, config->indexPage(title));
             connect(action, SIGNAL(triggered()),
@@ -187,33 +187,23 @@ void MainWindow::setupGoActions()
         }
     }
     if(!addCount)
-        goActionToolbar->hide();
+        gui.goActionToolbar->hide();
     else
-        goActionToolbar->show();
+        gui.goActionToolbar->show();
 
 }
 
 bool MainWindow::insertActionSeparator()
 {
-    goMenu->insertSeparator();
-    Toolbar->addSeparator();
+    gui.goMenu->insertSeparator();
+    gui.Toolbar->addSeparator();
     return true;
 }
 
-bool MainWindow::close(bool alsoDelete)
+bool MainWindow::close()
 {
     saveSettings();
-    return QMainWindow::close(alsoDelete);
-}
-
-void MainWindow::destroy()
-{
-    windows->remove(this);
-    if (windows->isEmpty()) {
-        delete windows;
-        windows = 0;
-    }
-    delete goActionDocFiles;
+    return QMainWindow::close();
 }
 
 void MainWindow::about()
@@ -239,7 +229,7 @@ void MainWindow::about()
     box.exec();
 }
 
-void MainWindow::aboutApplication()
+void MainWindow::on_actionAboutApplication_triggered()
 {
     QString url = Config::configuration()->aboutURL();
     if (url == "about_qt") {
@@ -260,40 +250,38 @@ void MainWindow::aboutApplication()
     box.exec();
 }
 
-void MainWindow::find()
+void MainWindow::on_actionEditFind_triggered()
 {
     if (!findDialog)
         findDialog = new FindDialog(this);
-    findDialog->comboFind->setFocus();
-    findDialog->comboFind->lineEdit()->setSelection(
-        0, findDialog->comboFind->lineEdit()->text().length());
+    findDialog->reset();
     findDialog->show();
 }
 
-void MainWindow::findAgain()
+void MainWindow::on_actionEditFindAgain_triggered()
 {
     if (!findDialog || !findDialog->hasFindExpression()) {
-        find();
+        on_actionEditFind_triggered();
         return;
     }
     findDialog->doFind(true);
 }
 
-void MainWindow::findAgainPrev()
+void MainWindow::on_actionEditFindAgainPrev_triggered()
 {
     if (!findDialog || !findDialog->hasFindExpression()) {
-        find();
+        on_actionEditFind_triggered();
         return;
     }
     findDialog->doFind(false);
 }
 
-void MainWindow::goHome()
+void MainWindow::on_actionGoHome_triggered()
 {
     showLink(Config::configuration()->homePage());
 }
 
-void MainWindow::print()
+void MainWindow::on_actionFilePrint_triggered()
 {
     QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
@@ -340,26 +328,26 @@ void MainWindow::print()
 
 void MainWindow::updateBookmarkMenu()
 {
-    for(QList<MainWindow*>::Iterator it = windows->begin(); it != windows->end(); ++it)
+    for(QList<MainWindow*>::Iterator it = windows.begin(); it != windows.end(); ++it)
         (*it)->setupBookmarkMenu();
 }
 
 void MainWindow::setupBookmarkMenu()
 {
-    bookmarkMenu->clear();
+    gui.bookmarkMenu->clear();
     bookmarks.clear();
-    actionAddBookmark->addTo(bookmarkMenu);
+    gui.actionAddBookmark->addTo(gui.bookmarkMenu);
 
     QFile f(QDir::homeDirPath() + "/.assistant/bookmarks." +
         Config::configuration()->profileName());
     if (!f.open(IO_ReadOnly))
         return;
     QTextStream ts(&f);
-    bookmarkMenu->insertSeparator();
+    gui.bookmarkMenu->insertSeparator();
     while (!ts.atEnd()) {
         QString title = ts.readLine();
         QString link = ts.readLine();
-        bookmarks.insert(bookmarkMenu->insertItem(title), link);
+        bookmarks.insert(gui.bookmarkMenu->insertItem(title), link);
     }
 }
 
@@ -455,7 +443,7 @@ void MainWindow::showQtHelp()
     showLink(QString(qInstallPathDocs()) + "/html/index.html");
 }
 
-void MainWindow::showSettingsDialog()
+void MainWindow::on_actionSettings_triggered()
 {
     showSettingsDialog(-1);
 }
@@ -471,23 +459,23 @@ void MainWindow::showSettingsDialog(int page)
         settingsDia = new SettingsDialog(this);
     }
     QFontDatabase fonts;
-    settingsDia->fontCombo->clear();
-    settingsDia->fontCombo->insertStringList(fonts.families());
-    settingsDia->fontCombo->lineEdit()->setText(tabs->browserFont().family());
-    settingsDia->fixedfontCombo->clear();
-    settingsDia->fixedfontCombo->insertStringList(fonts.families());
-    settingsDia->fixedfontCombo->lineEdit()->setText(tabs->styleSheet()->item("pre")->fontFamily());
-    settingsDia->linkUnderlineCB->setChecked(tabs->linkUnderline());
-    settingsDia->colorButton->setPaletteBackgroundColor(tabs->palette().color(QPalette::Active, QColorGroup::Link));
+    settingsDia->fontCombo()->clear();
+    settingsDia->fontCombo()->insertStringList(fonts.families());
+    settingsDia->fontCombo()->lineEdit()->setText(tabs->browserFont().family());
+    settingsDia->fixedFontCombo()->clear();
+    settingsDia->fixedFontCombo()->insertStringList(fonts.families());
+    settingsDia->fixedFontCombo()->lineEdit()->setText(tabs->styleSheet()->item("pre")->fontFamily());
+    settingsDia->linkUnderlineCB()->setChecked(tabs->linkUnderline());
+    settingsDia->colorButton()->setPaletteBackgroundColor(tabs->palette().color(QPalette::Active, QColorGroup::Link));
     if (page != -1)
-        settingsDia->settingsTab->setCurrentPage(page);
+        settingsDia->settingsTab()->setCurrentPage(page);
 
     int ret = settingsDia->exec();
 
     if (ret != QDialog::Accepted)
         return;
 
-    QObjectList lst = Toolbar->children();
+    QObjectList lst = gui.Toolbar->children();
     for (int i = 0; i < lst.size(); ++i) {
         QObject *obj = lst.at(i);
         if (obj->isA("QToolBarSeparator")) {
@@ -499,18 +487,18 @@ void MainWindow::showSettingsDialog(int page)
     setupGoActions();
 
     QFont fnt(tabs->browserFont());
-    fnt.setFamily(settingsDia->fontCombo->currentText());
+    fnt.setFamily(settingsDia->fontCombo()->currentText());
     tabs->setBrowserFont(fnt);
-    tabs->setLinkUnderline(settingsDia->linkUnderlineCB->isChecked());
+    tabs->setLinkUnderline(settingsDia->linkUnderlineCB()->isChecked());
 
     QPalette pal = tabs->palette();
-    QColor lc = settingsDia->colorButton->paletteBackgroundColor();
+    QColor lc = settingsDia->colorButton()->paletteBackgroundColor();
     pal.setColor(QPalette::Active, QColorGroup::Link, lc);
     pal.setColor(QPalette::Inactive, QColorGroup::Link, lc);
     pal.setColor(QPalette::Disabled, QColorGroup::Link, lc);
     tabs->setPalette(pal);
 
-    QString family = settingsDia->fixedfontCombo->currentText();
+    QString family = settingsDia->fixedFontCombo()->currentText();
 
     QStyleSheet *sh = tabs->styleSheet();
     sh->item("pre")->setFontFamily(family);
@@ -536,7 +524,7 @@ MainWindow* MainWindow::newWindow()
         mw->showMaximized();
     else
         mw->show();
-    mw->goHome();
+    mw->on_actionGoHome_triggered();
     return mw;
 }
 
@@ -548,7 +536,7 @@ void MainWindow::saveSettings()
     config->setFontFixedFamily(tabs->styleSheet()->item("pre")->fontFamily());
     config->setLinkUnderline(tabs->linkUnderline());
     config->setLinkColor(tabs->palette().color(QPalette::Active, QColorGroup::Link).name());
-    config->setSideBarPage(helpDock->tabWidget->currentPageIndex());
+    config->setSideBarPage(helpDock->tabWidget()->currentPageIndex());
     config->setGeometry(QRect(x(), y(), width(), height()));
     config->setMaximized(isMaximized());
 
@@ -569,7 +557,7 @@ void MainWindow::saveToolbarSettings()
     Config::configuration()->setMainWindowLayout(mainWindowLayout);
 }
 
-TabbedBrowser* MainWindow::browsers()
+TabbedBrowser* MainWindow::browsers() const
 {
     return tabs;
 }
@@ -621,24 +609,24 @@ void MainWindow::showGoActionLink()
     showLink(docfile);
 }
 
-void MainWindow::showAssistantHelp()
+void MainWindow::on_actionHelpAssistant_triggered()
 {
     showLink(Config::configuration()->assistantDocPath() + "/assistant.html");
 }
 
-HelpDialog* MainWindow::helpDialog()
+HelpDialog* MainWindow::helpDialog() const
 {
     return helpDock;
 }
 
 void MainWindow::backwardAvailable(bool enable)
 {
-    actionGoPrevious->setEnabled(enable);
+    gui.actionGoPrevious->setEnabled(enable);
 }
 
 void MainWindow::forwardAvailable(bool enable)
 {
-    actionGoNext->setEnabled(enable);
+    gui.actionGoNext->setEnabled(enable);
 }
 
 void MainWindow::updateProfileSettings()
@@ -647,17 +635,45 @@ void MainWindow::updateProfileSettings()
 #ifndef Q_WS_MAC
     setIcon(config->applicationIcon());
 #endif
-    helpMenu->clear();
-    actionHelpAssistant->addTo(helpMenu);
-    helpMenu->insertSeparator();
-    helpAbout_Qt_AssistantAction->addTo(helpMenu);
+    gui.helpMenu->clear();
+    gui.actionHelpAssistant->addTo(gui.helpMenu);
+    gui.helpMenu->insertSeparator();
+    gui.helpAbout_Qt_AssistantAction->addTo(gui.helpMenu);
     if (!config->aboutApplicationMenuText().isEmpty())
-        actionAboutApplication->addTo(helpMenu);
-    helpMenu->insertSeparator();
-    actionHelpWhatsThis->addTo(helpMenu);
+        gui.actionAboutApplication->addTo(gui.helpMenu);
+    gui.helpMenu->insertSeparator();
+    gui.actionHelpWhatsThis->addTo(gui.helpMenu);
 
-    actionAboutApplication->setMenuText(config->aboutApplicationMenuText());
+    gui.actionAboutApplication->setMenuText(config->aboutApplicationMenuText());
 
     if(!config->title().isNull())
         setCaption(config->title());
 }
+
+void MainWindow::setupPopupMenu(QPopupMenu *m)
+{
+    m->addAction(gui.actionNewWindow);
+    m->addAction(gui.actionOpenPage);
+    m->addAction(gui.actionClosePage);
+    m->addSeparator();
+    m->addAction(gui.actionGoPrevious);
+    m->addAction(gui.actionGoNext);
+    m->addAction(gui.actionGoHome);
+    m->addSeparator();
+    m->addAction(gui.actionZoomIn);
+    m->addAction(gui.actionZoomOut);
+    m->addSeparator();
+    m->addAction(gui.actionEditCopy);
+    m->addAction(gui.actionEditFind);
+}
+
+void MainWindow::on_actionClose_triggered()
+{
+    close();
+}
+
+void MainWindow::on_actionHelpWhatsThis_triggered()
+{
+    whatsThis();
+}
+
