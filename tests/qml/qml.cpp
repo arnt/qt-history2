@@ -216,6 +216,8 @@ QMLNode::QMLNode()
     isLastSibling = 0;
     isContainer = 0;
     isBox = 0;
+    isSelected = 0;
+    isSelectionDirty = 0;
 }
 
 
@@ -432,7 +434,7 @@ QMLRow::~QMLRow()
 
 
 void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-		  QRegion& backgroundRegion, bool onlyDirty)
+		  QRegion& backgroundRegion, bool onlyDirty, bool onlySelection)
 {
 
     if (!intersects(cx-obx, cy-oby, cw,ch))
@@ -442,7 +444,7 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
     if (start->isBox) {
 	//we have to draw the box
 	((QMLBox*)start)->draw(p, obx+x, oby+y, ox, oy, cx, cy, cw, ch, 
-			       backgroundRegion, dirty?FALSE:onlyDirty);
+			       backgroundRegion, dirty?FALSE:onlyDirty, onlySelection);
 	dirty = FALSE;
 	return;
     }
@@ -457,11 +459,8 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 //     p->eraseRect(x+obx-ox, y+oby-oy, width, height);
     
     dirty = FALSE;
-    
     QMLNode* t = start;
     QMLContainer* par = parent;
-
-//     p->setBackgroundMode(Qt::OpaqueMode);
 
     int tx = x;
     do {
@@ -469,26 +468,40 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 	QFontMetrics fm = p->fontMetrics();
 	QString s = t->c;
 	QMLNode* tmp;
+	bool select = t->isSelected;
+	bool selectionDirty = t->isSelectionDirty;
+	t->isSelectionDirty = 0;
 	while ( t != end && (tmp = t->nextSibling() ) && tmp->isSimpleNode
+		&& tmp->isSelected == select
+		&& tmp->isSelectionDirty == selectionDirty
  		&& !t->isSpace()) {
 	    t = tmp;
+	    tmp->isSelectionDirty = 0;
 	    s += t->c;
 	}
 // 	debug("D:'%s'", s.data());
-	int tw = fm.width( s );
-//   	if (t==end)
-//   	    p->fillRect(tx+obx-ox, y+oby-oy, width-(tx-x), height, Qt::white);
-//   	else
-//   	    p->fillRect(tx+obx-ox, y+oby-oy, tw, height, Qt::white);
-
-  	if (t==end){
-  	    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, width-(tx-x), height, *bg, tx+obx, y+oby);
-  	}
-  	else {
-  	    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, tw, height, *bg, tx+obx, y+oby);
-  	}
 	
-	p->drawText(tx+obx-ox, y+oby-oy+base, s);
+	int tw = fm.width( s );
+
+	if (!onlySelection || selectionDirty) {
+	
+	    if (select) {
+		if (t==end)
+		    p->fillRect(tx+obx-ox, y+oby-oy, width-(tx-x), height, Qt::white);
+		else
+		    p->fillRect(tx+obx-ox, y+oby-oy, tw, height, Qt::white);
+	    }
+	    else {
+		if (t==end){
+		    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, width-(tx-x), height, *bg, tx+obx, y+oby);
+		}
+		else {
+		    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, tw, height, *bg, tx+obx, y+oby);
+		}
+	    }
+	
+	    p->drawText(tx+obx-ox, y+oby-oy+base, s);
+	}
 	tx += tw;
 	if (t == end)
 	    break;
@@ -499,7 +512,7 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 
 QMLNode* QMLRow::hitTest(QMLContainer* box, QPainter* p, int obx, int oby, int xarg, int yarg)
 {
-    if (!intersects(xarg-obx, yarg-oby, 1,1))
+    if (!intersects(xarg-obx, yarg-oby, 0,0))
  	return 0;
     
     if (start->isBox) {
@@ -672,11 +685,18 @@ QMLBox::~QMLBox()
 
 
 void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, 
-		  QRegion& backgroundRegion, bool onlyDirty)
+		  QRegion& backgroundRegion, bool onlyDirty, bool onlySelection)
 {
     for (QMLRow* row = rows.first(); row; row = rows.next()) {
-	row->draw(this, p, obx, oby, ox, oy, cx, cy, cw, ch, backgroundRegion, onlyDirty);
+	row->draw(this, p, obx, oby, ox, oy, cx, cy, cw, ch, backgroundRegion, onlyDirty, onlySelection);
     }
+    
+    QRegion oldR = p->clipRegion(); 
+    p->setClipRegion(backgroundRegion);
+    p->drawTiledPixmap(obx-ox, oby-oy, width, height, *bg, obx, oby);
+    p->setClipRegion(oldR);
+    QRegion r(obx-ox, oby-oy, width, height);
+    backgroundRegion = backgroundRegion.subtract(r);
 }
 
 
@@ -726,7 +746,7 @@ void QMLBox::resize(QPainter* p, int newWidth)
 		if (old->start == row->start && old->end == row->end
 		&& old->height == row->height && old->width == old->width
 		&& old->x == row->x && old->y == row->y) // TODO row operator==
-		    row->dirty = FALSE;
+		    row->dirty = old->dirty;
 		old = rows.next();
 	    }
 	    
@@ -838,6 +858,8 @@ QMLCursor::QMLCursor(QMLDocument* doc)
     x = y = height = rowY = rowHeight = 0;
     row = 0;
     xline = 0;
+    yline = 0;
+    ylineOffsetClean = FALSE;
 }
 
 void QMLCursor::draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int ch)
@@ -847,8 +869,17 @@ void QMLCursor::draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int c
     p->drawLine(x+1-ox, y-oy, x+1-ox, y-oy+height-1);
 }
 
-void QMLCursor::goTo(QMLNode* n, QMLContainer* par)
+void QMLCursor::goTo(QMLNode* n, QMLContainer* par, bool select)
 {
+    if (select){
+	//expand selection (TODO SLOW!)
+	if (!node->isSelected) {
+	    node->isSelected = 1;
+	    node->isSelectionDirty = 1;
+	    row->dirty = 1;
+	}
+    }
+	
     node = n;
     nodeParent = par;
 }
@@ -857,13 +888,15 @@ void QMLCursor::calculatePosition(QPainter* p)
 {
     row = nodeParent->box()->locate(p, node, x, y, height, rowY, rowHeight);
     xline = x;
+    yline = y;
+    ylineOffsetClean = FALSE;
 }
 
-void QMLCursor::goTo(QPainter* p, int xarg, int yarg)
+void QMLCursor::goTo(QPainter* p, int xarg, int yarg, bool select)
 {
     QMLNode* n = document->hitTest(p, 0, 0, xarg, yarg);
     if (n)
-	goTo(n, n->parent());
+	goTo(n, n->parent(), select);
     calculatePosition(p);
 }
 
@@ -893,18 +926,16 @@ void QMLCursor::insert(QPainter* p, const QChar& c)
     calculatePosition(p);
 }
 
-void QMLCursor::right(QPainter* p)
+void QMLCursor::right(QPainter* p, bool select)
 {
     QMLContainer* np = nodeParent;
     QMLNode* n = document->nextLeaf(node, np);
-    if (n) {
-	node = n;
-	nodeParent = np;
-    }
+    if (n) 
+	goTo(n, np, select);
     calculatePosition(p);
 }
 
-void QMLCursor::left(QPainter* p)
+void QMLCursor::left(QPainter* p, bool select)
 {
     QMLContainer* tmpParent = 0;
 
@@ -921,15 +952,12 @@ void QMLCursor::left(QPainter* p)
 	np = tmpParent;
 	tmp = document->nextLeaf(tmp, tmpParent);
     }
-
-    if (n) {
-	node = n;
-	nodeParent = np;
-    }
+    if (n) 
+	goTo(n, np, select);
     calculatePosition(p);
 }
 
-void QMLCursor::up(QPainter* p)
+void QMLCursor::up(QPainter* p, bool select)
 {
     QMLNode* tmp = node;
     int ty = rowY - 1;
@@ -937,13 +965,13 @@ void QMLCursor::up(QPainter* p)
 	tmp = document->hitTest(p, 0, 0, xline, ty--);
     }
     if (tmp)
-	goTo(tmp, tmp->parent() );
+	goTo(tmp, tmp->parent(), select );
     int oldXline = xline;
     calculatePosition(p);
     xline = oldXline;
 }
 
-void QMLCursor::down(QPainter* p)
+void QMLCursor::down(QPainter* p, bool select)
 {
     QMLNode* tmp = node;
     int ty = rowY + rowHeight + 1;
@@ -951,7 +979,7 @@ void QMLCursor::down(QPainter* p)
 	tmp = document->hitTest(p, 0, 0, xline, ty++);
     }
     if (tmp)
-	goTo(tmp, tmp->parent() );
+	goTo(tmp, tmp->parent(), select );
     int oldXline = xline;
     calculatePosition(p);
     xline = oldXline;
@@ -1214,8 +1242,8 @@ QMLView::QMLView()
     cursor_hidden = FALSE;
     bg = new QPixmap("bg.bmp");
 	
-//     viewport()->setBackgroundMode(NoBackground); //PaletteBase);
-    viewport()->setBackgroundPixmap(*bg);
+     viewport()->setBackgroundMode(NoBackground); //PaletteBase);
+    //    viewport()->setBackgroundPixmap(*bg);
     
     QPixmap pm("qt.bmp");
     QMLContext* context = new QMLContext();
@@ -1248,55 +1276,115 @@ QMLView::QMLView()
 void QMLView::keyPressEvent( QKeyEvent * e)
 {
 
+    bool select = e->state() & Qt::ShiftButton;
+    
     if (e->key() == Key_Right
 	|| e->key() == Key_Left
 	|| e->key() == Key_Up
-	|| e->key() == Key_Down) {
+	|| e->key() == Key_Down
+	|| e->key() == Key_PageUp
+	|| e->key() == Key_PageDown
+	) {
 	// cursor movement
 
 	hideCursor();
-	QPainter p( this );
-	switch (e->key()) {
-	case Key_Right:
-	    doc->cursor->right(&p);
-	    break;
-	case Key_Left:
-	    doc->cursor->left(&p);
-	    break;
-	case Key_Up:
-	    doc->cursor->up(&p);
-	    break;
-	case Key_Down:
-	    doc->cursor->down(&p);
-	    break;
+	int oldCursorY = doc->cursor->y + doc->cursor->height/2;
+	{
+	    QPainter p( viewport() );
+	    switch (e->key()) {
+	    case Key_Right:
+		doc->cursor->right(&p, select);
+		p.end();
+		ensureVisible(doc->cursor->x, doc->cursor->y);
+		break;
+	    case Key_Left:
+		doc->cursor->left(&p, select);
+		p.end();
+		ensureVisible(doc->cursor->x, doc->cursor->y);
+		break;
+	    case Key_Up:
+		doc->cursor->up(&p, select);
+		p.end();
+		ensureVisible(doc->cursor->x, doc->cursor->y);
+		break;
+	    case Key_Down:
+		doc->cursor->down(&p, select);
+		p.end();
+		ensureVisible(doc->cursor->x, doc->cursor->y);
+		break;
+	    case Key_PageUp:
+		p.end();
+		{
+		    int oldContentsY = contentsY();
+		    if (!doc->cursor->ylineOffsetClean) 
+			doc->cursor->yline-=oldContentsY;
+		    scrollBy( 0, -viewport()->height() );
+		    if (oldContentsY == contentsY() )
+			break;
+		    p.begin(viewport());
+		    int oldXline = doc->cursor->xline;
+		    int oldYline = doc->cursor->yline;
+ 		    doc->cursor->goTo( &p, oldXline, oldYline +  1 + contentsY());
+		    doc->cursor->xline = oldXline;
+		    doc->cursor->yline = oldYline;
+		    doc->cursor->ylineOffsetClean = TRUE;
+		    p.end();
+		}
+		break;
+	    case Key_PageDown:
+		p.end();
+		{
+		    int oldContentsY = contentsY();
+		    if (!doc->cursor->ylineOffsetClean) 
+			doc->cursor->yline-=oldContentsY;
+		    scrollBy( 0, viewport()->height() );
+		    if (oldContentsY == contentsY() )
+			break;
+		    p.begin(viewport());
+		    int oldXline = doc->cursor->xline;
+		    int oldYline = doc->cursor->yline;
+ 		    doc->cursor->goTo( &p, oldXline, oldYline + 1 + contentsY());
+		    doc->cursor->xline = oldXline;
+		    doc->cursor->yline = oldYline;
+		    doc->cursor->ylineOffsetClean = TRUE;
+		    p.end();
+		}
+		break;
+	    }
+	    if (select) {
+		p.begin(viewport());
+		int newCursorY = doc->cursor->y + doc->cursor->height/2;
+		int minY = QMAX(QMIN(oldCursorY, newCursorY), contentsY());
+		int maxY = QMIN(QMAX(oldCursorY, newCursorY), contentsY()+viewport()->height());
+		QRegion r(0, 0, viewport()->width(), viewport()->height());
+		doc->draw(&p, 0, 0, contentsX(), contentsY(), 
+			  contentsX(), minY, 
+			  viewport()->width(), maxY-minY, 
+			  r, TRUE, TRUE);
+	    }
 	}
-	ensureVisible(doc->cursor->x, doc->cursor->y);
 	showCursor();
     }
     else if (!e->text().isEmpty() ){
 	// other keys
 	{
-	    QPainter p( this );
+	    QPainter p( viewport() );
 	    for (unsigned int i = 0; i < e->text().length(); i++)
 		doc->cursor->insert( &p, e->text()[i] );
+	    //TODO this is the wrong way. use repaint to schedule events more clever
+	    QRegion r(0, 0, viewport()->width(), viewport()->height());
+	    doc->draw(&p, 0, 0, contentsX(), contentsY(), 
+		      contentsX(), contentsY(), 
+		      viewport()->width(), viewport()->height(), 
+		      r, TRUE);
+	    p.setClipRegion(r);
+	    // 	p.fillRect(0, 0, viewport()->width(), viewport()->height(), Qt::white);
+	    p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
+			      *bg, contentsX(), contentsY());
 	}
-    {
-	QPainter p( viewport() );
-	//TODO this is the wrong way. use repaint to schedule events more clever
-	QRegion r(0, 0, viewport()->width(), viewport()->height());
-	doc->draw(&p, 0, 0, contentsX(), contentsY(), 
-		  contentsX(), contentsY(), 
-		  viewport()->width(), viewport()->height(), 
-		  r, TRUE);
-	p.setClipRegion(r);
-// 	p.fillRect(0, 0, viewport()->width(), viewport()->height(), Qt::white);
- 	p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
- 			  *bg, contentsX(), contentsY());
-    }
-    showCursor();
-    resizeContents(doc->width, doc->height);
-    ensureVisible(doc->cursor->x, doc->cursor->y);
-
+	showCursor();
+	resizeContents(doc->width, doc->height);
+	ensureVisible(doc->cursor->x, doc->cursor->y);
 	//viewport()->repaint();
     }
 
@@ -1331,11 +1419,12 @@ void QMLView::drawContentsOffset(QPainter*p, int ox, int oy,
     p->setClipRegion(r);
 //     p->fillRect(0, 0, viewport()->width(), viewport()->height(), Qt::white);
     p->drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
-		       *bg, contentsX(), contentsY());
+ 		       *bg, ox, oy);
 //     p->eraseRect(0, 0, viewport()->width(), viewport()->height());
 
     qApp->syncX();
     
+    p->setClipping( FALSE );
     if (!cursor_hidden)
 	doc->cursor->draw(p, ox, oy, cx, cy, cw, ch);
     //    doc->dump();

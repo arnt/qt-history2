@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qml/qml.h#3 $
+** $Id: //depot/qt/main/tests/qml/qml.h#4 $
 **
 ** Definition of something or other
 **
@@ -126,6 +126,8 @@ public:
     uint isLastSibling:1;
     uint isContainer:1;
     uint isBox:1;
+    uint isSelected: 1;
+    uint isSelectionDirty: 1;
 };
 
 class QMLRow {
@@ -139,8 +141,8 @@ public:
     int height;
     int base;
     bool intersects(int xr, int yr, int wr, int hr);
-    void draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, 
-	      QRegion& backgroundRegion, bool onlyDirty = FALSE);
+    void draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
+	      QRegion& backgroundRegion, bool onlyDirty = FALSE, bool onlySelection = FALSE);
     QMLNode* hitTest(QMLContainer* box, QPainter* p, int obx, int oby, int xarg, int yarg);
 
 
@@ -182,8 +184,8 @@ public:
     QMLBox( const QMLStyle &stl);
     ~QMLBox();
 
-    void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, 
-	      QRegion& backgroundRegion, bool onlyDirty = FALSE);
+    void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
+	      QRegion& backgroundRegion, bool onlyDirty = FALSE, bool onlySelection = FALSE);
     void resize (QPainter* p, int newWidth);
 
     void update(QPainter* p, QMLRow* r = 0);
@@ -259,17 +261,19 @@ public:
 
     void insert(QPainter* p, const QChar& c);
 
-    void right(QPainter* p);
-    void left(QPainter* p);
-    void up(QPainter* p);
-    void down(QPainter* p);
-    void goTo(QPainter* p, int xarg, int yarg);
+    void right(QPainter* p, bool select = FALSE);
+    void left(QPainter* p, bool select = FALSE);
+    void up(QPainter* p, bool select = FALSE);
+    void down(QPainter* p, bool select = FALSE);
+    void goTo(QPainter* p, int xarg, int yarg, bool select = FALSE);
 
 
-    void goTo(QMLNode* n, QMLContainer* par);
+    void goTo(QMLNode* n, QMLContainer* par,  bool select = FALSE);
     void calculatePosition(QPainter* p);
 
     int xline;
+    int yline;
+    bool ylineOffsetClean;
 
 };
 
