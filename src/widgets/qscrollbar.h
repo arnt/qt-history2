@@ -85,10 +85,12 @@ public:
     void setLineStep( int );
     void setPageStep( int );
     int  value() const;
-    void setValue( int );
 
     int		sliderStart() const;
     QRect	sliderRect() const;
+
+public slots:
+    void setValue( int );
 
 signals:
     void	valueChanged( int value );
