@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qdict.doc,v 1.2 1995/12/15 15:56:18 hanord Exp $
+** $Id: qdict.doc,v 1.3 1995/12/17 14:09:15 agulbra Exp $
 **
 ** QDict and QDictIterator class documentation
 **
@@ -184,7 +184,7 @@
 
 
 /*----------------------------------------------------------------------------
-  \fn QDict::QDict( int size, bool caseSensitive=TRUE, bool copyKeys=TRUE )
+  \fn QDict::QDict( int size, bool caseSensitive, bool copyKeys )
   Constructs a dictionary with the following properties:
   \arg \e size is the size of the internal hash array.
   \arg \e caseSensitive specifies whether to use case-sensitive lookup or not.
@@ -204,7 +204,7 @@
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn QDict::QDict( const QDict\<type\> &dict )
+  \fn QDict::QDict( const QDict<type> &dict )
   Constructs copy of \e dict.
 
   Each item in \e dict are inserted into this dictionary.
@@ -221,7 +221,7 @@
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn QDict\<type\> &QDict::operator=(const QDict\<type\> &dict)
+  \fn QDict<type> &QDict::operator=(const QDict<type> &dict)
   Assigns \e dict to this dictionary and returns a reference to this
   dictionary.
 
@@ -441,7 +441,7 @@
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn QDictIterator::QDictIterator( const QDict\<type\> &dict )
+  \fn QDictIterator::QDictIterator( const QDict<type> &dict )
   Constructs an iterator for \e dict.  The current iterator item is
   set to point on the first item in the \e dict.
  ----------------------------------------------------------------------------*/

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: collect.doc,v 1.5 1995/12/15 14:51:32 hanord Exp $
+** $Id: collect.doc,v 1.6 1995/12/17 14:00:25 agulbra Exp $
 **
 ** Qt Collection Classes Documentation
 **
@@ -8,9 +8,9 @@
 *****************************************************************************/
 
 /*!
-\page collect.html
+\page collectionclasses.html
 
-<title>Qt Collection Classes</title>  <a name=collectionclasses>
+<title>Qt Collection Classes</title>
 </head><body>
 <h1>Collection Classes</h1>
 <hr>
