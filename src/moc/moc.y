@@ -126,7 +126,7 @@ bool validUType( QCString ctype )
     return isEnumType( ctype );
 }
 
-QCString castToUType( QCString ctype )
+QCString referencePlainUType( QCString ctype )
 {
      if ( ctype.right(1) == "&" )
 	 ctype = ctype.left( ctype.length() - 1 );
@@ -3223,7 +3223,7 @@ void generateClass()		      // generate C++ source code for a class
 		    else
 			fprintf( out, "static_QUType_%s.get(_o+%d)", utype.data(), offset+1 );
 		} else {
-		    fprintf( out, "*((%s*)static_QUType_ptr.get(_o+%d))", castToUType( type) .data(), offset+1 );
+		    fprintf( out, "*((%s*)static_QUType_ptr.get(_o+%d))", referencePlainUType( type) .data(), offset+1 );
 		}
 		a = f->args->next();
 		if ( a )
@@ -3291,7 +3291,7 @@ void generateClass()		      // generate C++ source code for a class
 		    else
 			fprintf( out, "static_QUType_%s.get(_o+%d)", utype.data(), offset+1 );
 		} else {
-		    fprintf( out, "*((%s*)static_QUType_ptr.get(_o+%d))", castToUType(type).data(), offset+1 );
+		    fprintf( out, "*((%s*)static_QUType_ptr.get(_o+%d))", referencePlainUType(type).data(), offset+1 );
 		}
 		a = f->args->next();
 		if ( a )
