@@ -43,7 +43,7 @@ var indentation = 0;
 const tabSize = 4;
 
 /************************************************************
- * Purging filters that will be moved into files later
+ * Purging filters
  */
 
 var checkoutRemove = [ new RegExp("^tests"),
