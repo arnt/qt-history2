@@ -742,7 +742,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps,
 	tps.append(trap);
     }
 
-    // optimize by unifying all trapezoids that share left/right lines
+    // optimize by unifying trapezoids that share left/right lines
     // and have a common top/bottom edge
     for (int i = 0; i < tps.size(); ++i) {
 	for (int k = i+1; k < tps.size(); ++k) {
@@ -753,7 +753,6 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps,
 	    {
 		tps[i].bottom = tps.at(k).bottom;
 		tps.removeAt(k);
-		i = 0;
 		break;
 	    }
 	}
