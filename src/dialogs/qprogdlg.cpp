@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#17 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#18 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -16,7 +16,7 @@
 #include "qdatetm.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#18 $");
 
 
 // If the operation is expected to take this long (as predicted by
@@ -256,6 +256,26 @@ void QProgressDialog::setCancelButtonText( const char *cancelButtonText )
 
 
 /*!
+  Sets the progress bar widget. The progress dialog resizes to fit.  The
+  progress bar becomes owned by the progress dialog and will be deleted
+  when necessary.
+*/
+
+void QProgressDialog::setBar( QProgressBar *bar )
+{
+    if ( progress() > 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QProgrssDialog::setBar: Cannot set a new progress bar "
+		 "while the old one is active" );
+#endif
+    }
+    delete d->bar;
+    d->bar = bar;
+    resize(sizeHint());
+}
+
+
+/*!
   Returns the TRUE if the dialog was cancelled, otherwise FALSE.
   \sa setProgress(), cancel(), cancelled()
 */
@@ -319,6 +339,12 @@ void QProgressDialog::cancel()
 }
 
 
+/*!
+  Returns the current amount of progress, or -1 if the progress counting
+  has not started.
+  \sa setProgress()
+*/
+
 int QProgressDialog::progress() const
 {
     return bar()->progress();
@@ -338,6 +364,8 @@ int QProgressDialog::progress() const
     don't use a QProgressDialog inside a paintEvent()!
 
   Returns TRUE if the user has clicked the cancellation button. 
+
+  \sa progress()
 */
 
 void QProgressDialog::setProgress( int progress )

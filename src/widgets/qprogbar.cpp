@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#11 $
 **
 ** Implementation of QProgressBar class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qprogbar.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qprogbar.cpp#11 $");
 
 
 /*!
@@ -119,7 +119,8 @@ void QProgressBar::setTotalSteps( int totalSteps )
 
 /*!
   \fn int QProgressBar::progress() const
-  Returns the current amount of progress.
+  Returns the current amount of progress, or -1 if the progress counting
+  has not started.
   \sa setProgress()
 */
 
