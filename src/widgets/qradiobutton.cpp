@@ -91,10 +91,6 @@
   placed in a QButtonGroup.
 */
 
-static const int gutter = 6; // between button and text
-static const int margin = 2; // to right of text
-
-
 /*!
   Constructs a radio button with no text.
 
