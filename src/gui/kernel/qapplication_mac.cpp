@@ -1678,6 +1678,9 @@ OSStatus
 QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
     QApplication *app = (QApplication *)data;
+    long result;
+    if (app->filterEvent(&event, &result))
+        return result;
     if(app->macEventFilter(er, event)) //someone else ate it
         return noErr;
     QPointer<QWidget> widget;
