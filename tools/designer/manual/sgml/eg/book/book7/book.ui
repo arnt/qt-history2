@@ -213,11 +213,11 @@
     BookDataTable-&gt;refresh();
 }</function>
     <function name="primeInsertAuthor(QSqlRecord*)" >{
-    QSqlQuery q; 
-    q.exec( "update sequence set sequence = sequence + 1 where tablename='author';" ); 
-    q.exec( "select sequence from sequence where tablename='author';" ); 
-    if ( q.next() ) { 
-	buffer-&gt;setValue( "id", q.value( 0 ) ); 
+    QSqlQuery query; 
+    query.exec( "UPDATE sequence SET sequence = sequence + 1 WHERE tablename='author';" ); 
+    query.exec( "SELECT sequence FROM sequence WHERE tablename='author';" ); 
+    if ( query.next() ) { 
+	buffer-&gt;setValue( "id", query.value( 0 ) ); 
     } 
 }</function>
 </functions>
