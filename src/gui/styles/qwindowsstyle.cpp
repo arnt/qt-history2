@@ -1123,10 +1123,13 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             }
         }
         break;
-    case PE_FrameDefaultButton:
+    case PE_FrameDefaultButton: {
         p->setPen(opt->palette.shadow().color());
-        p->drawRect(opt->rect);
+        QRect rect = opt->rect;
+        rect.addCoords(0, 0, -1, -1);
+        p->drawRect(rect);
         break;
+    }
     case PE_IndicatorArrowUp:
     case PE_IndicatorArrowDown:
     case PE_IndicatorArrowRight:
