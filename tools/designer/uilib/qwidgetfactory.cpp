@@ -2085,8 +2085,8 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		n2 = n2.nextSibling().toElement();
 	    }
 
-	    conn.signal = QMetaObject::normalizeSignature( conn.signal );
-	    conn.slot = QMetaObject::normalizeSignature( conn.slot );
+	    conn.signal = QMetaObject::normalizedSignature( conn.signal );
+	    conn.slot = QMetaObject::normalizedSignature( conn.slot );
 
 	    if ( !conn.sender || !conn.receiver ) {
 		n = n.nextSibling().toElement();

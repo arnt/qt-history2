@@ -76,7 +76,6 @@
 #include <qwizard.h>
 #include <qworkspace.h>
 #include <qworkspace.h>
-#include <private/qucom_p.h>
 
 static QString makeIndent( int indent )
 {
