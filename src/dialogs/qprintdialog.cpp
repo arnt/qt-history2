@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#54 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#55 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -88,10 +88,11 @@ static void perhapsAddPrinter( QListView * printers, const QString &name,
     const QListViewItem * i = printers->firstChild();
     while( i && qstrcmp( i->text( 0 ), name ) )
 	i = i->nextSibling();
-    if ( !i )
-	(void)new QListViewItem( printers, name,
-				 host ? host : QString("locally connected"),
-				 comment ? comment : QString("") );
+    if ( i )
+	return;
+    if ( host.isEmpty() )
+	host = qApp->translate( "QPrintDialog", "locally connected" );
+    (void)new QListViewItem( printers, name, host, comment );
 }
 
 
@@ -127,11 +128,15 @@ static void parsePrintcap( QListView * printers )
 		printerName = printerDesc.mid( j+1, i-j-1 );
 		if ( j > 0 ) {
 		    // try extracting a comment from the aliases...
-		    printerComment = "Aliases: ";
+		    printerComment = qApp->translate( "QPrintDialog",
+						      "Aliases: " );
 		    printerComment += printerDesc.mid( 0, j );
-		    for( j=printerComment.length(); j>-1; j-- )
+		    j=printerComment.length();
+		    while( j > 0 ) {
+			j--;
 			if ( printerComment[j] == '|' )
 			    printerComment[j] = ',';
+		    }
 		}
 		// then look for a real comment
 		j = i+1;
@@ -139,7 +144,7 @@ static void parsePrintcap( QListView * printers )
 		    j++;
 		if ( printerDesc[j] != ':' ) {
 		    printerComment = printerDesc.mid( i, j-i );
-		    printerComment.simplifyWhiteSpace();
+		    printerComment = printerComment.simplifyWhiteSpace();
 		}
 		// look for signs of this being a remote printer
 		i = printerDesc.find( QRegExp( ": *rm *=" ) );
