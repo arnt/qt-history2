@@ -66,7 +66,8 @@
 
 QFtp::QFtp()
     : QNetworkProtocol(), connectionReady( FALSE ),
-      passiveMode( FALSE ), startGetOnFail( FALSE )
+      passiveMode( FALSE ), startGetOnFail( FALSE ),
+      errorInListChildren( FALSE )
 {
     commandSocket = new QSocket( this );
     dataSocket = new QSocket( this );
@@ -110,6 +111,7 @@ QFtp::~QFtp()
 
 void QFtp::operationListChildren( QNetworkOperation *op )
 {
+    errorInListChildren = FALSE;
     commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
 }
 
@@ -470,11 +472,13 @@ void QFtp::okGoOn( int code, const QCString &data )
     case 250: { // file operation succesfully
 	if ( operationInProgress() && !passiveMode &&
 	     operationInProgress()->operation() == OpListChildren ) { // list dir
-	    operationInProgress()->setState( StInProgress );
-	    dataSocket->setMode( QSocket::Ascii );
-	    commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
-	    emit start( operationInProgress() );
-	    passiveMode = TRUE;
+	    if ( !errorInListChildren ) {
+		operationInProgress()->setState( StInProgress );
+		dataSocket->setMode( QSocket::Ascii );
+		commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
+		emit start( operationInProgress() );
+		passiveMode = TRUE;
+	    }
 	} else if ( operationInProgress() &&
 		    operationInProgress()->operation() == OpRename ) { // rename successfull
 	    if ( operationInProgress()->state() == StWaiting ) {
@@ -583,6 +587,7 @@ void QFtp::errorForgetIt( int code, const QCString &data )
 	    op->setState( StFailed );
 	    op->setErrorCode( (int)ErrFileNotExisting );
 	}
+	errorInListChildren = TRUE;
 	reinitCommandSocket();
 	emit finished( op );
     } break;
@@ -678,27 +683,10 @@ void QFtp::dataClosed()
 
     passiveMode = FALSE;
 
-    disconnect( dataSocket, SIGNAL( hostFound() ),
-		this, SLOT( dataHostFound() ) );
-    disconnect( dataSocket, SIGNAL( connected() ),
-		this, SLOT( dataConnected() ) );
-    disconnect( dataSocket, SIGNAL( closed() ),
-		this, SLOT( dataClosed() ) );
-    disconnect( dataSocket, SIGNAL( readyRead() ),
-		this, SLOT( dataReadyRead() ) );
-    delete dataSocket;
-    dataSocket = new QSocket( this );
-    connect( dataSocket, SIGNAL( hostFound() ),
-	     this, SLOT( dataHostFound() ) );
-    connect( dataSocket, SIGNAL( connected() ),
-	     this, SLOT( dataConnected() ) );
-    connect( dataSocket, SIGNAL( closed() ),
-	     this, SLOT( dataClosed() ) );
-    connect( dataSocket, SIGNAL( readyRead() ),
-	     this, SLOT( dataReadyRead() ) );
     reinitCommandSocket();
 
-    emit finished( operationInProgress() );
+    if ( !errorInListChildren )
+	emit finished( operationInProgress() );
 }
 
 /*!
@@ -780,29 +768,6 @@ void QFtp::dataBytesWritten( int nbytes )
 
 void QFtp::reinitCommandSocket()
 {
-    commandSocket->close();
-    disconnect( commandSocket, SIGNAL( hostFound() ),
-		this, SLOT( hostFound() ) );
-    disconnect( commandSocket, SIGNAL( connected() ),
-		this, SLOT( connected() ) );
-    disconnect( commandSocket, SIGNAL( closed() ),
-		this, SLOT( closed() ) );
-    disconnect( commandSocket, SIGNAL( readyRead() ),
-		this, SLOT( readyRead() ) );
-    disconnect( commandSocket, SIGNAL( error() ),
-		this, SLOT( error() ) );
-    delete commandSocket;
-    commandSocket = new QSocket( this );
-    connect( commandSocket, SIGNAL( hostFound() ),
-	     this, SLOT( hostFound() ) );
-    connect( commandSocket, SIGNAL( connected() ),
-	     this, SLOT( connected() ) );
-    connect( commandSocket, SIGNAL( closed() ),
-	     this, SLOT( closed() ) );
-    connect( commandSocket, SIGNAL( readyRead() ),
-	     this, SLOT( readyRead() ) );
-    connect( commandSocket, SIGNAL( error() ),
-	     this, SLOT( error() ) );
 }
 
 void QFtp::error()

@@ -57,6 +57,7 @@ protected:
     int getTotalSize, getDoneSize;
     bool startGetOnFail;
     int putToWrite, putWritten, putOffset;
+    bool errorInListChildren;
     
 private:
     bool checkConnection( QNetworkOperation *op );
@@ -79,7 +80,7 @@ protected slots:
     void dataReadyRead();
     void dataBytesWritten( int nbytes );
     void error();
-    
+
 };
 
 #endif
