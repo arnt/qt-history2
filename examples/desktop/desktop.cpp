@@ -21,6 +21,7 @@
 #include <qdragobject.h>
 #include <stdio.h>
 
+using namespace Qt;
 
 static double seed = 0.353535353535;
 static const int KINDA_RAND_MAX = 32767;
