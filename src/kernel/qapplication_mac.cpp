@@ -1443,7 +1443,7 @@ static key_sym keyscan_syms[] = { //real scan codes
 { 111, MAP_KEY(Qt::Key_F12) },
 {   0, MAP_KEY(0) } };
 
-static int get_key(int key, int scan)
+static int get_key(int modif, int key, int scan)
 {
 #ifdef DEBUG_KEY_MAPS
     qDebug("**Mapping key: %d", key);
@@ -1467,6 +1467,14 @@ static int get_key(int key, int scan)
 
     for(int i = 0; key_syms[i].qt_code; i++) {
 	if(key_syms[i].mac_code == key) {
+	    /* To work like Qt/X11 we issue Backtab when Shift + Tab are pressed */
+	    if(key_syms[i].qt_code == Qt::Key_Tab && (modif & Qt::ShiftButton)) {
+#ifdef DEBUG_KEY_MAPS
+		qDebug("%d: got key: Qt::Key_Backtab", __LINE__);
+#endif
+		return Qt::Key_Backtab;
+	    }
+
 #ifdef DEBUG_KEY_MAPS
 	    qDebug("%d: got key: %s", __LINE__, key_syms[i].desc);
 #endif
@@ -2154,7 +2162,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(chr), NULL, &chr);
 	    UInt32 keyc;
 	    GetEventParameter(key_ev, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
-	    if(get_key(chr, keyc) == Qt::Key_unknown) {
+	    if(get_key(0, chr, keyc) == Qt::Key_unknown) {
 		QIMEvent imstart(QEvent::IMStart, QString::null, -1);
 		QApplication::sendSpontaneousEvent(widget, &imstart);
 		if(imstart.isAccepted()) { //doesn't want the event
@@ -2187,7 +2195,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		   (modif & (shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
 	if(!chr)
 	    break;
-	int mychar=get_key(chr, keyc);
+	int mychar=get_key(modifiers, chr, keyc);
 	static QTextCodec *c = NULL;
 	if(!c)
 	    c = QTextCodec::codecForName("Apple Roman");
