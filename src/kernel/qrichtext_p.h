@@ -213,7 +213,6 @@ public:
     QChar::Direction direction() const;
     void setDirection( QChar::Direction d ) { dir = d; bidiDirty = TRUE; }
 
-    QMemArray<QTextStringChar> subString( int start = 0, int len = 0xFFFFFF ) const;
     QMemArray<QTextStringChar> rawData() const { return data.copy(); }
 
     void operator=( const QString &s ) { clear(); insert( 0, s, 0 ); }
@@ -249,9 +248,9 @@ inline bool QTextString::isRightToLeft() const
     return rightToLeft;
 }
 
-inline QString QTextString::toString() const 
-{ 
-    return toString( data ); 
+inline QString QTextString::toString() const
+{
+    return toString( data );
 }
 
 inline QChar::Direction QTextString::direction() const
@@ -1215,7 +1214,7 @@ class Q_EXPORT QTextParagraph
 
 public:
     QTextParagraph( QTextDocument *d, QTextParagraph *pr = 0, QTextParagraph *nx = 0, bool updateIds = TRUE );
-    virtual ~QTextParagraph();
+    ~QTextParagraph();
 
     QTextString *string() const;
     QTextStringChar *at( int i ) const; // maybe remove later
@@ -1309,15 +1308,15 @@ public:
     void setAlignment( int a );
     int alignment() const;
 
-    virtual void paint( QPainter &painter, const QColorGroup &cg, QTextCursor *cursor = 0, bool drawSelections = FALSE,
+    void paint( QPainter &painter, const QColorGroup &cg, QTextCursor *cursor = 0, bool drawSelections = FALSE,
 			int clipx = -1, int clipy = -1, int clipw = -1, int cliph = -1 );
 
-    virtual int topMargin() const;
-    virtual int bottomMargin() const;
-    virtual int leftMargin() const;
-    virtual int firstLineMargin() const;
-    virtual int rightMargin() const;
-    virtual int lineSpacing() const;
+    int topMargin() const;
+    int bottomMargin() const;
+    int leftMargin() const;
+    int firstLineMargin() const;
+    int rightMargin() const;
+    int lineSpacing() const;
 
 #ifndef QT_NO_TEXTCUSTOMITEM
     void registerFloatingItem( QTextCustomItem *i );
@@ -1340,7 +1339,7 @@ public:
     QTextFormatCollection *formatCollection() const;
     QTextFormatter *formatter() const;
 
-    virtual int nextTab( int i, int x );
+    int nextTab( int i, int x );
     int *tabArray() const;
     void setTabArray( int *a );
     void setTabStops( int tw );
@@ -1356,7 +1355,7 @@ public:
     QTextCursor *undo( QTextCursor *c = 0 );
     QTextCursor *redo( QTextCursor *c  = 0 );
     QTextCommandHistory *commands() const;
-    virtual void copyParagData( QTextParagraph *parag );
+    void copyParagData( QTextParagraph *parag );
 
     void setBreakable( bool b ) { breakable = b; }
     bool isBreakable() const { return breakable; }
@@ -1376,10 +1375,10 @@ public:
     void writeStyleInformation( QDataStream& stream ) const;
 
 protected:
-    virtual void setColorForSelection( QColor &c, QPainter &p, const QColorGroup& cg, int selection );
-    virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
-    virtual void drawString( QPainter &painter, const QString &str, int start, int len, int xstart,
-			     int y, int baseLine, int w, int h, int selection,
+    void setColorForSelection( QColor &c, QPainter &p, const QColorGroup& cg, int selection );
+    void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
+    void drawString( QPainter &painter, const QString &str, int start, int len, int xstart,
+			     int y, int baseLine, int w, int h, bool drawSelections, int fullSelectionWidth,
 			     QTextStringChar *formatChar, const QColorGroup& cg,
 			     bool rightToLeft );
 
