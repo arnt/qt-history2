@@ -244,6 +244,13 @@ QTextFrame::iterator::iterator()
     cb = 0;
 }
 
+QTextFrame::iterator::iterator(const QTextFrame *frame, int b)
+{
+    f = frame;
+    cf = 0;
+    cb = b;
+}
+
 QTextFrame::iterator::iterator(const iterator &o)
 {
     f = o.f;
