@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#55 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#56 $
 **
 ** Global functions
 **
@@ -329,7 +329,7 @@ Q_DECLARE(QDictM,int);
 static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
 {
     static bool firstWarning = TRUE;
-    static QDictM(int) obsoleteDict;
+    static QDictM(int) * obsoleteDict;
     if ( firstWarning ) {
 	firstWarning = FALSE;
 	debug(
@@ -340,8 +340,10 @@ static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
     QString s( obj );
     s += "::";
     s += oldfunc;
-    if ( obsoleteDict.find(s) == 0 ) {
-	obsoleteDict.insert( s, (int*) 666 );	// anything different from 0.
+    if ( !obsoleteDict )
+	obsoleteDict = new QDictM(int);
+    if ( obsoleteDict->find(s) == 0 ) {
+	obsoleteDict->insert( s, (int*) 666 );	// anything different from 0.
 	return TRUE;
     }
     return FALSE;
