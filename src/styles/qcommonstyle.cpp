@@ -1361,7 +1361,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		if ( controls & SC_TitleBarSysMenu ) {
 		    if ( !titlebar->pixmap.isNull() ) {
 			ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarSysMenu );
-			drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+			drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &titlebar->pixmap, QString::null );
 		    }
 		}
 	    }
