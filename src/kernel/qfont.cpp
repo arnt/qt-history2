@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#89 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -105,8 +105,8 @@
   Finally, setDefaultFont() allows you to set the default font.  The
   default default font is chosen at application startup from a set of
   common installed fonts that support the correct \link QFont::CharSet
-  character set. \endlink Of course the initialization algorithm has a
-  default to: The default default default font!
+  character set. \endlink Of course, the initialization algorithm has
+  a default, too: The default default default font!
 
   For more general information on fonts, see the
   <a href="http://www.oreilly.com/homepages/comp.fonts/ifa/">Internet Font
@@ -325,7 +325,8 @@ int QFont::deciPointSize() const
 /*!
   Returns the point size set by setPointSize().
 
-  Use QFontInfo to find the point size of the window system font actually used.
+  Use QFontInfo to find the point size of the window system font
+  actually used.
 
   Example of use:
   \code
@@ -336,7 +337,7 @@ int QFont::deciPointSize() const
     debug( "Font size actually used is: %d", info.pointSize() );
   \endcode
 
-  \sa setPointSize()
+  \sa setPointSize() deciPointSize()
 */
 
 int QFont::pointSize() const
