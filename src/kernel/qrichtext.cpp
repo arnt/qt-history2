@@ -271,7 +271,10 @@ void QTextCursor::gotoIntoNested( const QPoint &globalPos )
     oy = y + string->rect().y();
     nested = TRUE;
     QPoint p( globalPos.x() - offsetX(), globalPos.y() - offsetY() );
+    QTextDocument *oldDoc = doc;
     string->at( idx )->customItem()->enterAt( doc, string, idx, ox, oy, p );
+    if ( doc == oldDoc )
+	pop();
 }
 
 void QTextCursor::invalidateNested()
@@ -431,7 +434,6 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
 	nextLine = s->length();
     i = index;
     int x = s->rect().x();
-    int h = ch;
     int cw;
     int curpos = i;
     int dist = QABS(s->at(i)->x + x - pos.x());
@@ -455,7 +457,10 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
     setIndex( curpos, FALSE );
 
     if ( doc && parag()->at( curpos )->isCustom && parag()->at( curpos )->customItem()->isNested() ) {
+	QTextDocument *oldDoc = doc;
 	gotoIntoNested( pos );
+	if ( doc == oldDoc )
+	    return;
 	QPoint p( pos.x() - offsetX(), pos.y() - offsetY() );
 	place( p, document()->firstParag() );
     }
