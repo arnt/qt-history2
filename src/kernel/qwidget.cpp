@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#357 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#358 $
 **
 ** Implementation of QWidget class
 **
@@ -2791,13 +2791,6 @@ void QWidget::show()
 	    resize( w, h );			// deferred resize
 	}
     }
-    if ( isTopLevel() && !testWState( WState_Resized ) )  {
-	QSize s = sizeHint();
-	if ( layout() && layout()->hasHeightForWidth() )
-	    s.setHeight( layout()->heightForWidth( s.width() ) );
-	if ( s.isValid() )
-	    resize( s );
-    }
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     if ( parentWidget() )
       QApplication::sendPostedEvents( parentWidget(), QEvent::ChildInserted );
@@ -2816,6 +2809,13 @@ void QWidget::show()
 		    widget->show();
 	    }
 	}
+    }
+    if ( isTopLevel() && !testWState( WState_Resized ) )  {
+	QSize s = sizeHint();
+	if ( layout() && layout()->hasHeightForWidth() )
+	    s.setHeight( layout()->heightForWidth( s.width() ) );
+	if ( s.isValid() )
+	    resize( s );
     }
     if ( testWFlags(WStyle_Tool) ) {
 	raise();
