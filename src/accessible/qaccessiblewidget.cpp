@@ -21,6 +21,8 @@
 #include "qwhatsthis.h"
 #include "qwidget.h"
 
+#include <math.h>
+
 class QAccessibleWidgetPrivate : public QAccessible
 {
 public:
@@ -330,7 +332,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 		    break;
 		}
 
-		int dist = distp.manhattanLength();
+		int dist = (int)sqrt( distp.x() * distp.x() + distp.y() * distp.y() );
 		if (dist < mindist ) {
 		    QWidget *oldcandidate = candidate;
 		    candidate = sibling;
