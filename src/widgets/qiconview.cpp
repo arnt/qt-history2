@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#176 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#177 $
 **
 ** Definition of QIconView widget class
 **
@@ -676,10 +676,10 @@ QIconViewItem::QIconViewItem( QIconView *parent )
 
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after )
     : view( parent ), itemText(), itemIcon( *unknown_icon ),
-      prev( 0 ), next( after ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 )
 {
-    init();
+    init( after );
 }
 
 /*!
@@ -692,7 +692,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text )
       prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 )
 {
-    init();
+    init( 0 );
 }
 
 /*!
@@ -703,10 +703,10 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text )
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after,
 			      const QString &text )
     : view( parent ), itemText( text ), itemIcon( *unknown_icon ),
-      prev( 0 ), next( after ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 )
 {
-    init();
+    init( after );
 }
 
 /*!
@@ -720,7 +720,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text,
       prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 )
 {
-    init();
+    init( 0 );
 }
 
 /*!
@@ -731,17 +731,17 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text,
 
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text, const QIconSet &icon )
     : view( parent ), itemText( text ), itemIcon( icon ),
-      prev( 0 ), next( after ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 )
 {
-    init();
+    init( after );
 }
 
 /*!
   Initializes the iconview item and inserts it into the iconview.
 */
 
-void QIconViewItem::init()
+void QIconViewItem::init( QIconViewItem *after )
 {
     d = new QIconViewItemPrivate;
     f = 0;
@@ -754,7 +754,7 @@ void QIconViewItem::init()
 	itemViewMode = view->viewMode();
 
 	calcRect();
-	view->insertItem( this );
+	view->insertItem( this, after );
     }
 }
 
@@ -1647,7 +1647,7 @@ void QIconViewItem::calcTmpText()
     if ( view->d->wordWrapIconText || !fm || !wordWrapDirty )
 	return;
     wordWrapDirty = FALSE;
-    
+
     int w = iconView()->maxItemWidth() - ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
 					   iconRect().width() ) - 4;
     if ( fm->width( itemText ) < w ) {
@@ -2129,6 +2129,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 	if ( !after || after == d->lastItem ) {
 	    d->lastItem->next = item;
 	    item->prev = d->lastItem;
+	    item->next = 0;
 	    d->lastItem = item;
 	} else {
 	    QIconViewItem *i = d->firstItem;
