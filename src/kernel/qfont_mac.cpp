@@ -140,8 +140,8 @@ static QMAC_PASCAL OSStatus macFallbackChar(UniChar *, ByteCount, ByteCount *oSr
     return err == noErr ? noErr : kTECUnmappableElementErr;
 }
 
-enum text_task { GIMME_WIDTH=1, GIMME_DRAW=2 };
-static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, text_task task)
+enum text_task { GIMME_WIDTH=0x01, GIMME_DRAW=0x02 };
+static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uchar task)
 {
     //set the grafport font
     QMacSetFontInfo fi(d);
@@ -210,9 +210,9 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, tex
 	    int rlen = ((i == run_len - 1) ? converted : runs[i+1].offset) - off;
 
 	    //do the requested task
-	    if(task == GIMME_WIDTH || task == GIMME_DRAW) 
+	    if(task & GIMME_WIDTH)
 		ret += TextWidth(buf, off, rlen);
-	    if(task == GIMME_DRAW)
+	    if(task & GIMME_DRAW)
 		DrawText(buf, off, rlen);
 
 	    //restore the scale
@@ -257,14 +257,14 @@ int QFontMetrics::descent() const
     return FI->fin->descent();
 }
 
+int QFontMetrics::width(QChar c) const
+{
+    return charWidth( QString( c ), 0 );
+}
+
 int QFontMetrics::charWidth( const QString &s, int pos ) const
 {
     return do_text_task(FI, s, pos, 1, GIMME_WIDTH);
-}
-
-int QFontMetrics::width(QChar c) const
-{
-    return  width( QString( c ) );
 }
 
 int QFontMetrics::width(const QString &s,int len) const
@@ -352,8 +352,11 @@ void QFontPrivate::drawText( int x, int y, QString s, int len )
     MoveTo(x, y);
     if(len < 1)
 	len = s.length();
-    int w = do_text_task(this, s, 0, len, GIMME_DRAW);
-    if(request.underline || request.strikeOut) {
+    uchar task = GIMME_DRAW;
+    if(request.underline || request.strikeOut) 
+	task |= GIMME_WIDTH;
+    int w = do_text_task(this, s, 0, len, task);
+    if(task & GIMME_WIDTH) { //I need the width for these..
 	if(request.underline) {
 	    MoveTo(x, y + 2);
 	    LineTo(x + w, y + 2);
