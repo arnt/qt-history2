@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#229 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#230 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -29,7 +29,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#229 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#230 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1162,6 +1162,7 @@ void QWidget::move( int x, int y )
     QRect  r = frect;
     r.moveTopLeft( p );
     setFRect( r );
+#ifdef DEFERRED_GEOMETRY
     if ( !isVisible() ) {
 	deferMove( oldp );
 	return;
@@ -1170,6 +1171,16 @@ void QWidget::move( int x, int y )
     internalMove( x, y );
     QMoveEvent e( r.topLeft(), oldp );
     QApplication::sendEvent( this, &e );	// send move event immediately
+#else
+    internalMove( x, y );
+    if ( isVisible() ) {
+	QMoveEvent e( r.topLeft(), oldp );
+	QApplication::sendEvent( this, &e );	// send move event immediately
+    } else {
+	QMoveEvent *e = new QMoveEvent( r.topLeft(), oldp );
+	QApplication::postEvent( this, e );	// send move event later
+    }
+#endif
 }
 
 
@@ -1231,6 +1242,7 @@ void QWidget::resize( int w, int h )
     QSize olds = size();
     r.setSize( s );
     setCRect( r );
+#ifdef DEFERRED_GEOMETRY
     if ( !isVisible() ) {
 	deferResize( olds );
 	return;
@@ -1239,6 +1251,16 @@ void QWidget::resize( int w, int h )
     internalResize( w, h );
     QResizeEvent e( s, olds );
     QApplication::sendEvent( this, &e );       // send resize event immediately
+#else
+    internalResize( w, h );
+    if ( isVisible() ) {
+	QResizeEvent e( s, olds );
+	QApplication::sendEvent( this, &e );   // send resize event immediately
+    } else {
+	QResizeEvent *e = new QResizeEvent( s, olds );
+	QApplication::postEvent( this, e );   // send resize event immediately
+    }
+#endif
 }
 
 
@@ -1300,6 +1322,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     if ( r.topLeft() == oldp && r.size() == olds )
 	return;
     setCRect( r );
+#ifdef DEFERRED_GEOMETRY
     if ( !isVisible() ) {
 	deferMove( oldp );
 	if ( isTopLevel() )			// force internalSetGeometry
@@ -1315,6 +1338,20 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     QApplication::sendEvent( this, &e1 );	// send resize event
     QMoveEvent e2( r.topLeft(), oldp );
     QApplication::sendEvent( this, &e2 );	// send move event
+#else
+    internalSetGeometry( x, y, w, h );
+    if ( isVisible() ) {
+	QResizeEvent e1( r.size(), olds );
+	QApplication::sendEvent( this, &e1 );	// send resize event
+	QMoveEvent e2( r.topLeft(), oldp );
+	QApplication::sendEvent( this, &e2 );	// send move event
+    } else {
+	QResizeEvent *e1 = new QResizeEvent( r.size(), olds );
+	QApplication::postEvent( this, e1 );	// send resize event later
+	QMoveEvent *e2 = new QMoveEvent( r.topLeft(), oldp );
+	QApplication::postEvent( this, e2 );	// send move event later
+    }
+#endif
 }
 
 

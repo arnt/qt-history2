@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#74 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#75 $
 **
 ** Definition of QApplication class
 **
@@ -89,6 +89,7 @@ public:
     static bool	     sendEvent( QObject *receiver, QEvent *event )
 	{ return qApp->notify( receiver, event ); }
     static void	     postEvent( QObject *receiver, QEvent *event );
+    static void	     sendPostedEvents( QObject *receiver, int event_type );
 
     virtual bool     notify( QObject *, QEvent * );
 

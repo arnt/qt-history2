@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#226 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#227 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#226 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#227 $");
 
 
 /*!
@@ -429,6 +429,7 @@ public:
   QWidget member functions
  *****************************************************************************/
 
+#ifdef DEFERRED_GEOMETRY
 typedef Q_DECLARE(QIntDictM,int) QDeferDict;
 
 static QDeferDict *deferredMoves   = 0;
@@ -542,7 +543,7 @@ void QWidget::sendDeferredEvents()
 	QApplication::sendEvent( this, &e );
     }
 }
-
+#endif
 
 /*!
   Constructs a widget which is a child of \e parent, with the name \e name and
@@ -605,11 +606,20 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     flags = f;
     focusChild = 0;
     extra = 0;					// no extra widget info
+#ifdef DEFERRED_GEOMETRY
     if ( !deferredMoves )			// do it only once
 	initDeferredDicts();
+#endif
     create();					// platform-dependent init
+#ifdef DEFERRED_GEOMETRY
     deferMove( frect.topLeft() );
     deferResize( crect.size() );
+#else
+    QResizeEvent *e1 = new QResizeEvent( crect.size(), crect.size() );
+    QApplication::postEvent( this, e1 );	// send resize event later
+    QMoveEvent *e2 = new QMoveEvent( frect.topLeft(), frect.topLeft() );
+    QApplication::postEvent( this, e2 );	// send move event later
+#endif
     if ( isTopLevel() ||			// kludge alert
 	 testWFlags(WState_TabToFocus) ) {	// focus was set using WFlags
 	QFocusData *fd = focusData( TRUE );
@@ -647,10 +657,12 @@ QWidget::~QWidget()
 	QChildEvent e( Event_ChildRemoved, this );
 	QApplication::sendEvent( parentObj, &e );
     }
+#ifdef DEFERRED_GEOMETRY
     if ( deferredMoves ) {
 	deferredMoves->take( (long)this );	// clean deferred move/resize
 	deferredResizes->take( (long)this );
     }
+#endif
     if ( QApplication::main_widget == this )	// reset main widget
 	QApplication::main_widget = 0;
     if ( focusWidget() == this )
@@ -2415,7 +2427,12 @@ void QWidget::show()
 	    resize( w, h );			// deferred resize
 	}
     }
+#ifdef DEFERRED_GEOMETRY
     sendDeferredEvents();
+#else
+    qApp->sendPostedEvents(this,Event_Move);
+    qApp->sendPostedEvents(this,Event_Resize);
+#endif
     if ( children() ) {
 	QObjectListIt it(*children());
 	register QObject *object;
@@ -2478,8 +2495,11 @@ void QWidget::hide()
 
     clearWFlags( WState_Visible );
 
+#ifdef DEFERRED_GEOMETRY
+    // ### Can these ever be useful?
     cancelMove();
     cancelResize();
+#endif
     if ( isTopLevel() ) {			// last TLW hidden?
 	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
 	    emit qApp->lastWindowClosed();

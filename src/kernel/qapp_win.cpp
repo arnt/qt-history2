@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#127 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#126 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#127 $");
 
 
 /*****************************************************************************
@@ -624,6 +624,32 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
     ((QPEObject*)receiver)->setPendEventFlag();
     ((QPEvent*)event)->setPostedFlag();
     postedEvents->append( new QPostEvent(receiver,event) );
+}
+
+void QApplication::sendPostedEvents( QObject *receiver, int event_type )
+{
+    // ### This is identical to X11 version.
+
+    if ( !postedEvents )
+	return;
+    QPostEventListIt it(*postedEvents);
+    QPostEvent *pe;
+    while ( (pe = it.current()) ) {
+	if ( pe->event
+	  && pe->receiver == receiver
+	  && pe->event->type() == event_type )
+	{
+	    QApplication::sendEvent( pe->receiver, pe->event );
+	    if ( pe == it.current() ) {
+		((QPEvent*)pe->event)->clearPostedFlag();
+		++it;
+		((QPEObject*)pe->receiver)->clearPendEventFlag();
+		postedEvents->removeRef( pe );
+	    }
+	} else {
+	    ++it;
+	}
+    }
 }
 
 static void sendPostedEvents()			// transmit posted events
@@ -2020,6 +2046,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    else if ( caption() )
 		SetWindowText( winId(), caption() );
 	}
+#ifdef DEFERRED_GEOMETRY
 	if ( isVisible() ) {
 	    cancelResize();
 	    QResizeEvent e( newSize, oldSize );
@@ -2027,12 +2054,22 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	} else {
 	    deferResize( oldSize );
 	}
+#else
+	if ( isVisible() ) {
+	    QResizeEvent e( newSize, oldSize );
+	    QApplication::sendEvent( this, &e );
+	} else {
+	    QResizeEvent *e = new QResizeEvent( newSize, oldSize );
+	    QApplication::postEvent( this, e );
+	}
+#endif
 	update();
     } else if ( msg.message == WM_MOVE ) {	// move event
 	QPoint oldPos = pos();
 	QPoint newPos( a, b );
 	r.moveTopLeft( newPos );
 	setCRect( r );
+#ifdef DEFERRED_GEOMETRY
 	if ( isVisible() ) {
 	    cancelMove();
 	    QMoveEvent e( newPos, oldPos );
@@ -2040,6 +2077,15 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	} else {
 	    deferMove( oldPos );
 	}
+#else
+	if ( isVisible() ) {
+	    QMoveEvent e( newPos, oldPos );
+	    QApplication::sendEvent( this, &e );
+	} else {
+	    QMoveEvent *e = new QMoveEvent( newPos, oldPos );
+	    QApplication::sendEvent( this, e );
+	}
+#endif
     }
     clearWFlags( WConfigPending );		// clear config flag
     return TRUE;
