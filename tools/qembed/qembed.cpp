@@ -25,6 +25,7 @@
 #include <qdatetime.h>
 #include <qimage.h>
 #include <qdict.h>
+#include <qdir.h>
 #include <ctype.h>
 #include <stdlib.h>
 
@@ -74,8 +75,26 @@ int main( int argc, char **argv )
     out << "#ifndef _QEMBED_" << l << endl;
     out << "#define _QEMBED_" << l << endl;
 
-    for ( int i = 1; i < argc; i++ ) {
-	QString arg = argv[i];
+    QStringList args;
+    for ( int i = 1; i < argc; ++i ) {
+	QString file( argv[i] );
+#ifdef Q_WS_WIN
+	// Since wildcards are not expanded automatically for us on Windows, we need to do 
+	// it ourselves
+	if ( file.contains( '*' ) || file.contains( '?' ) ) {
+	    QDir d;
+	    const QFileInfoList *fiList = d.entryInfoList( file, QDir::Files );
+	    QFileInfoListIterator it(*fiList);
+	    while ( it.current() ) {
+		args << (*it)->filePath();
+		++it;
+	    }
+	} else
+#endif
+	    args << file;
+    }
+    for ( QStringList::Iterator it = args.begin(); it != args.end(); ++it ) {
+	QString arg = (*it);
 	if ( arg == "--images" ) {
 	    if ( !images ) {
 		out << "#include <qimage.h>\n";
@@ -83,21 +102,21 @@ int main( int argc, char **argv )
 		images = TRUE;
 	    }
 	} else {
-	    QFile f( argv[i] );
+	    QFile f( *it );
 	    if ( !f.open(IO_ReadOnly) ) {
-		qWarning( "Cannot open file %s, ignoring it", argv[i] );
+		qWarning( "Cannot open file %s, ignoring it", (*it).latin1() );
 		continue;
 	    }
 	    QByteArray a( f.size() );
 	    if ( f.size() == 0
 		 || f.readBlock(a.data(), f.size()) != (int)f.size() ) {
-		qWarning( "Cannot read file %s, ignoring it", argv[i] );
+		qWarning( "Cannot read file %s, ignoring it", (*it).latin1() );
 		continue;
 	    }
 	    if ( images ) {
 		QImage img;
 		if ( !img.loadFromData(a) ) {
-		    qWarning( "Cannot read image from file %s, ignoring it", argv[i] );
+		    qWarning( "Cannot read image from file %s, ignoring it", (*it).latin1() );
 		    continue;
 		}
 		EmbedImage *e = new EmbedImage;
@@ -108,7 +127,7 @@ int main( int argc, char **argv )
 		e->colorTable = new QRgb[e->numColors];
 		e->alpha = img.hasAlphaBuffer();
 		memcpy(e->colorTable, img.colorTable(), e->numColors*sizeof(QRgb));
-		QFileInfo fi(argv[i]);
+		QFileInfo fi( (*it) );
 		e->name = fi.baseName();
 		e->cname = convertFileNameToCIdentifier( e->name.latin1() );
 		list_image.append( e );
@@ -134,8 +153,8 @@ int main( int argc, char **argv )
 	    } else {
 		Embed *e = new Embed;
 		e->size = f.size();
-		e->name = argv[i];
-		e->cname = convertFileNameToCIdentifier( argv[i] );
+		e->name = (*it);
+		e->cname = convertFileNameToCIdentifier( (*it) );
 		list.append( e );
 		QString s;
 		out << s.sprintf( "static const unsigned int  %s_len = %d;\n",
@@ -145,7 +164,6 @@ int main( int argc, char **argv )
 		embedData( a, &output );
 		out << "\n};\n\n";
 	    }
-
 	    if ( !output_hdr ) {
 		output_hdr = TRUE;
 		out << header;
