@@ -942,6 +942,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
         rect.moveTop(rect.top() - d->viewport->height());
         if (rect.top() < rect.height())
             rect.moveTop(rect.height() - 1);
+    case MovePrevious:
     case MoveUp:
         while (d->intersectVector.isEmpty()) {
             rect.translate(0, -rect.height() - 1);
@@ -959,6 +960,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
         rect.moveTop(rect.top() + d->viewport->height());
         if (rect.bottom() > contents.height() - rect.height())
             rect.moveBottom(contents.height() - rect.height() - 1);
+    case MoveNext:
     case MoveDown:
         while (d->intersectVector.isEmpty()) {
             rect.translate(0, rect.height() + 1);

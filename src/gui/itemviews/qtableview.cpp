@@ -501,34 +501,36 @@ QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     int bottom = model()->rowCount(root()) - 1;
     int right = model()->columnCount(root()) - 1;
     switch (cursorAction) {
-    case QAbstractItemView::MoveUp:
+    case MoveUp:
         verticalStep = -1;
         visualRow += verticalStep;
         break;
-    case QAbstractItemView::MoveDown:
+    case MoveDown:
         verticalStep = 1;
         visualRow += verticalStep;
         break;
-    case QAbstractItemView::MoveLeft:
+    case MovePrevious:
+    case MoveLeft:
         horizontalStep = QApplication::reverseLayout() ? 1 : -1;
         visualColumn += horizontalStep;
         break;
-    case QAbstractItemView::MoveRight:
+    case MoveNext:
+    case MoveRight:
         horizontalStep = QApplication::reverseLayout() ? -1 : 1;
         visualColumn += horizontalStep;
         break;
-    case QAbstractItemView::MoveHome:
+    case MoveHome:
         verticalStep = 1;
         visualRow = 0;
         break;
-    case QAbstractItemView::MoveEnd:
+    case MoveEnd:
         verticalStep = -1;
         visualRow = bottom;
         break;
-    case QAbstractItemView::MovePageUp: {
+    case MovePageUp: {
         int newRow = rowAt(itemViewportRect(current).top() - d->viewport->height());
         return model()->index(newRow <= bottom ? newRow : 0, current.column(), root());}
-    case QAbstractItemView::MovePageDown: {
+    case MovePageDown: {
         int newRow = rowAt(itemViewportRect(current).bottom() + d->viewport->height());
         return model()->index(newRow >= 0 ? newRow : bottom, current.column(), root());}
     }

@@ -148,6 +148,8 @@ protected slots:
     virtual void doneEditing(QWidget *editor);
     virtual void commitData(QWidget *editor);
     virtual void editorDestroyed(QObject *editor);
+    virtual void editNextItem();
+    virtual void editPreviousItem();
 
 signals:
     void rootChanged(const QModelIndex &old, const QModelIndex &root);
@@ -169,7 +171,8 @@ protected:
     int verticalFactor() const;
 
     enum CursorAction { MoveUp, MoveDown, MoveLeft, MoveRight,
-                        MoveHome, MoveEnd, MovePageUp, MovePageDown };
+                        MoveHome, MoveEnd, MovePageUp, MovePageDown,
+                        MoveNext, MovePrevious };
     virtual QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
                                    Qt::KeyboardModifiers modifiers) = 0;
 

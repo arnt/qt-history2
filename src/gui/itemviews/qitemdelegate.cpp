@@ -554,12 +554,20 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
     if (!editor)
         return false;
     if (event->type() == QEvent::KeyPress) {
-        switch (static_cast<QKeyEvent *>(event)->key()) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        switch (keyEvent->key()) {
         case Qt::Key_Tab:
             emit commitData(editor);
             emit doneEditing(editor);
+            emit editNextItem();
             // not accepted nor aborted
-            return false;
+            return true;
+        case Qt::Key_Backtab:
+            emit commitData(editor);
+            emit doneEditing(editor);
+            emit editPreviousItem();
+            // not accepted nor aborted
+            return true;
         case Qt::Key_Enter:
         case Qt::Key_Return:
             emit commitData(editor);
@@ -576,6 +584,7 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
     } else if (event->type() == QEvent::FocusOut) {
         emit commitData(editor);
         emit doneEditing(editor);
+        // not accepted nor aborted
         return true;
     }
     return false;

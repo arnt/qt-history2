@@ -782,25 +782,27 @@ QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     if (vi < 0)
         return current;
     switch (cursorAction) {
-    case QAbstractItemView::MoveDown:
+    case MoveNext:
+    case MoveDown:
         return d->modelIndex(d->below(vi));
-    case QAbstractItemView::MoveUp:
+    case MovePrevious:
+    case MoveUp:
         return d->modelIndex(d->above(vi));
-    case QAbstractItemView::MoveLeft:
+    case MoveLeft:
         if (d->viewItems.at(vi).open)
             d->close(vi, true);
         break;
-    case QAbstractItemView::MoveRight:
+    case MoveRight:
         if (!d->viewItems.at(vi).open)
             d->open(vi, true);
         break;
-    case QAbstractItemView::MovePageUp:
+    case MovePageUp:
         return d->modelIndex(d->pageUp(vi));
-    case QAbstractItemView::MovePageDown:
+    case MovePageDown:
         return d->modelIndex(d->pageDown(vi));
-    case QAbstractItemView::MoveHome:
+    case MoveHome:
         return model()->index(0, 0);
-    case QAbstractItemView::MoveEnd:
+    case MoveEnd:
         return d->modelIndex(d->viewItems.count() - 1);
     }
     return current;

@@ -66,6 +66,8 @@ signals:
     void doneEditing(QWidget *editor);
     void editingAccepted();
     void editingAborted();
+    void editNextItem();
+    void editPreviousItem();
 
 protected:
     QAbstractItemDelegate(QObjectPrivate &, QObject *parent = 0);

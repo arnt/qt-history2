@@ -560,10 +560,12 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
         // view
         disconnect(d->delegate, SIGNAL(doneEditing(QWidget*)), this, SLOT(doneEditing(QWidget*)));
         disconnect(d->delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+        disconnect(d->delegate, SIGNAL(editNextItem()), this, SLOT(editNextItem()));
+        disconnect(d->delegate, SIGNAL(editPreviousItem()), this, SLOT(editPreviousItem()));
         // model
         if (d->model) {
-            disconnect(d->delegate, SIGNAL(editingAccepted(QWidget*)), d->model, SLOT(submit()));
-            disconnect(d->delegate, SIGNAL(editingAborted(QWidget*)), d->model, SLOT(revert()));
+            disconnect(d->delegate, SIGNAL(editingAccepted()), d->model, SLOT(submit()));
+            disconnect(d->delegate, SIGNAL(editingAborted()), d->model, SLOT(revert()));
         }
     }
     d->delegate = delegate;
@@ -571,10 +573,12 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
         // view
         connect(d->delegate, SIGNAL(doneEditing(QWidget*)), this, SLOT(doneEditing(QWidget*)));
         connect(d->delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+        connect(d->delegate, SIGNAL(editNextItem()), this, SLOT(editNextItem()));
+        connect(d->delegate, SIGNAL(editPreviousItem()), this, SLOT(editPreviousItem()));
         // model
         if (d->model) {
-            connect(d->delegate, SIGNAL(editingAccepted(QWidget*)), d->model, SLOT(submit()));
-            connect(d->delegate, SIGNAL(editingAborted(QWidget*)), d->model, SLOT(revert()));
+            connect(d->delegate, SIGNAL(editingAccepted()), d->model, SLOT(submit()));
+            connect(d->delegate, SIGNAL(editingAborted()), d->model, SLOT(revert()));
         }
     }
 }
@@ -631,7 +635,7 @@ QAbstractItemView::SelectionBehavior QAbstractItemView::selectionBehavior() cons
 }
 
 /*!
-    Sets the current item to be the item at \a index.
+    Sets the current item to be the itm at \a index.
     Note: Selections stays unmodified.
 
     \sa currentIndex()
@@ -891,6 +895,11 @@ bool QAbstractItemView::event(QEvent *e)
     case QEvent::WindowDeactivate:
         d->viewport->update();
         break;
+    case QEvent::KeyPress: {
+        // FIXME: hack to get Tab key before QWidget changes the focus
+        QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+        keyPressEvent(ke);
+        return ke->isAccepted(); }
     default:
         break;
     }
@@ -1163,7 +1172,10 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
             newCurrent = moveCursor(MovePageDown, e->modifiers());
             break;
         case Qt::Key_Tab:
-            newCurrent = moveCursor(MoveRight, e->modifiers());
+            newCurrent = moveCursor(MoveNext, e->modifiers());
+            break;
+        case Qt::Key_Backtab:
+            newCurrent = moveCursor(MovePrevious, e->modifiers());
             break;
         }
 
@@ -1193,11 +1205,14 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Qt::Key_End:
     case Qt::Key_PageUp:
     case Qt::Key_PageDown:
-    case Qt::Key_Tab:
     case Qt::Key_Escape:
     case Qt::Key_Shift:
     case Qt::Key_Control:
         e->ignore();
+        break;
+    case Qt::Key_Backtab:
+    case Qt::Key_Tab:
+        e->accept(); // don't change focus
         break;
     case Qt::Key_Enter:
     case Qt::Key_Return:
@@ -1212,7 +1227,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
             e->ignore();
         break;
     case Qt::Key_A:
-        if (e->modifiers() & Qt::ControlButton) {
+        if (e->modifiers() & Qt::ControlModifier) {
             selectAll();
             break;
         }
@@ -1278,7 +1293,7 @@ bool QAbstractItemView::edit(const QModelIndex &index,
     options.rect = itemViewportRect(buddy);
     options.state |= (buddy == currentIndex() ? QStyle::Style_HasFocus : QStyle::Style_None);
 
-    if (itemDelegate()->editorEvent(event, options, model(), buddy))
+    if (event && itemDelegate()->editorEvent(event, options, model(), buddy))
         return true; // the delegate handled the event
 
     if (!d->shouldEdit(action, buddy))
@@ -1437,6 +1452,34 @@ void QAbstractItemView::editorDestroyed(QObject *editor)
     d->persistent.removeAll(w);
     if (d->state == EditingState)
         d->state = NoState;
+}
+
+/*!
+  Go to the next item and start editing.
+*/
+void QAbstractItemView::editNextItem()
+{
+    QModelIndex index = moveCursor(MoveNext, Qt::NoModifier);
+    if (index.isValid()) {
+        selectionModel()->setCurrentIndex(index,
+                                          QItemSelectionModel::ClearAndSelect
+                                          |d->selectionBehaviorFlags());
+        edit(index, EditKeyPressed, 0); // FIXME: lying about EditKeyPressed
+    }
+}
+
+/*!
+  Go to the previous item and start editing.
+*/
+void QAbstractItemView::editPreviousItem()
+{
+    QModelIndex index = moveCursor(MovePrevious, Qt::NoModifier);
+    if (index.isValid()) {
+        selectionModel()->setCurrentIndex(index,
+                                          QItemSelectionModel::ClearAndSelect
+                                          |d->selectionBehaviorFlags());
+        edit(index, EditKeyPressed, 0); // FIXME: lying about EditKeyPressed
+    }
 }
 
 // ###DOC: this value is also used by the "scroll in item units" algorithm to
@@ -1881,7 +1924,9 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionComm
         case Qt::Key_End:
         case Qt::Key_PageUp:
         case Qt::Key_PageDown:
-            if (static_cast<const QKeyEvent*>(event)->modifiers() & Qt::ControlButton)
+        case Qt::Key_Tab:
+        case Qt::Key_Backtab:
+            if (static_cast<const QKeyEvent*>(event)->modifiers() & Qt::ControlModifier)
                 return QItemSelectionModel::NoUpdate;
             break;
         case Qt::Key_Space: // Select/Deselect on Space
@@ -1916,34 +1961,36 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
     switch (event->type()) {
     case QEvent::MouseMove: // Toggle on MouseMove
         modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
-        if (modifiers & Qt::ControlButton) // FIXME: problem here ?
+        if (modifiers & Qt::ControlModifier) // FIXME: problem here ?
             return QItemSelectionModel::ToggleCurrent|selectionBehaviorFlags();
         break;
     case QEvent::MouseButtonPress: {// NoUpdate when pressing without modifiers on a selected item
         modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
-        if (!(d->pressedModifiers & Qt::ShiftButton)
-            && !(d->pressedModifiers & Qt::ControlButton)
+        if (!(d->pressedModifiers & Qt::ShiftModifier)
+            && !(d->pressedModifiers & Qt::ControlModifier)
             && index.isValid()
             && selectionModel->isSelected(index))
             return QItemSelectionModel::NoUpdate;
         // Clear on MouseButtonPress on non-valid item with no modifiers and not Qt::RightButton
         Qt::MouseButton button = static_cast<const QMouseEvent*>(event)->button();
         if (!index.isValid() && !(button & Qt::RightButton)
-            && !(modifiers & Qt::ShiftButton) && !(modifiers & Qt::ControlButton))
+            && !(modifiers & Qt::ShiftModifier) && !(modifiers & Qt::ControlModifier))
             return QItemSelectionModel::Clear;
         break; }
     case QEvent::MouseButtonRelease: // ClearAndSelect on MouseButtonRelease if MouseButtonPress on selected item
         modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
         if (index.isValid()
             && index == d->pressedItem
-            && !(d->pressedModifiers & Qt::ShiftButton)
-            && !(d->pressedModifiers & Qt::ControlButton)
+            && !(d->pressedModifiers & Qt::ShiftModifier)
+            && !(d->pressedModifiers & Qt::ControlModifier)
             && selectionModel->isSelected(index))
             return QItemSelectionModel::ClearAndSelect|selectionBehaviorFlags();
         return QItemSelectionModel::NoUpdate;
     case QEvent::KeyPress: // NoUpdate on Key movement and Ctrl
         modifiers = static_cast<const QKeyEvent*>(event)->modifiers();
         switch (static_cast<const QKeyEvent*>(event)->key()) {
+        case Qt::Key_Backtab:
+            modifiers ^= Qt::ShiftModifier; // special case for backtab
         case Qt::Key_Down:
         case Qt::Key_Up:
         case Qt::Key_Left:
@@ -1952,11 +1999,12 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
         case Qt::Key_End:
         case Qt::Key_PageUp:
         case Qt::Key_PageDown:
-            if (modifiers & Qt::ControlButton)
+        case Qt::Key_Tab:
+            if (modifiers & Qt::ControlModifier)
                 return QItemSelectionModel::NoUpdate;
             break;
         case Qt::Key_Space:// Toggle on Ctrl-Qt::Key_Space, Select on Space
-            if (modifiers & Qt::ControlButton)
+            if (modifiers & Qt::ControlModifier)
                 return QItemSelectionModel::Toggle|selectionBehaviorFlags();
             return QItemSelectionModel::Select|selectionBehaviorFlags();
         default:
@@ -1966,9 +2014,9 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
         break;
     }
 
-    if (modifiers & Qt::ShiftButton)
+    if (modifiers & Qt::ShiftModifier)
         return QItemSelectionModel::SelectCurrent|selectionBehaviorFlags();
-    if (modifiers & Qt::ControlButton)
+    if (modifiers & Qt::ControlModifier)
         return QItemSelectionModel::Toggle|selectionBehaviorFlags();
     if (state == QAbstractItemView::SelectingState)
         return QItemSelectionModel::SelectCurrent|selectionBehaviorFlags();

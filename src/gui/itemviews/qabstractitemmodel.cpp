@@ -1129,7 +1129,7 @@ QSize QAbstractItemModel::span(const QModelIndex &) const
 
 /*!
   Called to let the model know that it should submit whatever it has cached
-  to the permanent storage.
+  to the permanent storage. Typically used for row editing.
 */
 
 void QAbstractItemModel::submit()
@@ -1139,6 +1139,7 @@ void QAbstractItemModel::submit()
 
 /*!
   Called to let the model know that it should discart whatever it has cached.
+  Typically used for row editing.
 */
 
 void QAbstractItemModel::revert()
