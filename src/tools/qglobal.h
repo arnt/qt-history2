@@ -204,7 +204,7 @@
 #  if defined(__SC__) && __SC__ < 0x750
 #    define Q_NO_EXPLICIT_KEYWORD
 #  endif
-#  define Q_NO_USING_KEYWORD /* ### check "using" status */
+#  define Q_NO_USING_KEYWORD
 
 #elif defined(applec)
 #  define Q_CC_MPW
