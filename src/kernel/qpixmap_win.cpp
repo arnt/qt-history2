@@ -671,8 +671,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	// "else case" of the above if (but the above can change
 	// data->hasAlpha(), so we need another if for it)
 #ifndef Q_OS_TEMP
-	SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
-		image.bits(), bmi, DIB_RGB_COLORS );
+	if ( dc )
+	    SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
+			       image.bits(), bmi, DIB_RGB_COLORS );
 #else
 /*
 		// ####
