@@ -1040,11 +1040,11 @@ void QDnsManager::answer()
     QDnsQuery * q = queries[i];
     QDnsAnswer answer( a, q );
     answer.parse();
-    if ( answer.ok )
+    if ( answer.ok ) {
 	queries.take( i );
-    answer.notify();
-    if ( answer.ok )
+	answer.notify();
 	delete q;
+    }
 }
 
 
