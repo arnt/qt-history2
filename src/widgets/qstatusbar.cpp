@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qstatusbar.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 
 #include "qlist.h"
 #include "qlayout.h"

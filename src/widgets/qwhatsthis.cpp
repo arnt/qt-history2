@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #include "qwhatsthis.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 
 #include "qapplication.h"
 #include "qpaintdevicemetrics.h"

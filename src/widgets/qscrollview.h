@@ -30,7 +30,7 @@
 #include "qscrollbar.h"
 #endif // QT_H
 
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 
 struct QScrollViewData;
 
@@ -205,6 +205,6 @@ private:	// Disabled copy constructor and operator=
     void changeFrameRect(const QRect&);
 };
 
-#endif // QT_NO_WIDGETS
+#endif // QT_NO_COMPLEXWIDGETS
 
 #endif // QSCROLLVIEW_H

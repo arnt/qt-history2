@@ -32,7 +32,7 @@
 #include "qptrdict.h"
 #endif // QT_H
 
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 
 
 class QWidgetStackPrivate;
@@ -90,6 +90,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_NO_WIDGETS
+#endif // QT_NO_COMPLEXWIDGETS
 
 #endif // QWIDGETSTACK_H

@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qcommonstyle.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now

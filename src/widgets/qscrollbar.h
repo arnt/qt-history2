@@ -34,7 +34,7 @@ class QTimer;
 #include "qdrawutil.h" // REMOVE THIS IN 3.0
 #endif // QT_H
 
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 
 
 class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
@@ -172,6 +172,6 @@ inline int QScrollBar::sliderStart() const
 }
 
 
-#endif // QT_NO_WIDGETS
+#endif // QT_NO_COMPLEXWIDGETS
 
 #endif // QSCROLLBAR_H

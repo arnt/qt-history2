@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qwidget.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 #include "qscrollbar.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
@@ -2367,4 +2367,4 @@ bool QScrollView::dragAutoScroll() const
 
 #endif // QT_NO_DRAGANDDROP
 
-#endif // QT_NO_WIDGETS
+#endif // QT_NO_COMPLEXWIDGETS

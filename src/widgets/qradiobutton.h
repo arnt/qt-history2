@@ -30,7 +30,7 @@
 #include "qbutton.h"
 #endif // QT_H
 
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 
 class Q_EXPORT QRadioButton : public QButton
 {
@@ -71,6 +71,6 @@ private:	// Disabled copy constructor and operator=
 inline bool QRadioButton::isChecked() const
 { return isOn(); }
 
-#endif // QT_NO_WIDGETS
+#endif // QT_NO_COMPLEXWIDGETS
 
 #endif // QRADIOBUTTON_H

@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qtoolbar.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 
 #include "qmainwindow.h"
 #include "qpushbutton.h"

@@ -25,7 +25,7 @@
 
 #define	 INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 #include "qmenubar.h"
 #include "qaccel.h"
 #include "qpainter.h"
@@ -1859,4 +1859,4 @@ void QPopupMenu::toggleTearOff()
     }
 }
 
-#endif // QT_NO_WIDGETS
+#endif // QT_NO_COMPLEXWIDGETS

@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qlabel.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 #include "qbitmap.h"
 #include "qpainter.h"
 #include "qdrawutil.h"

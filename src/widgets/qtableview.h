@@ -30,7 +30,7 @@
 #include "qframe.h"
 #endif // QT_H
 
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 
 class QScrollBar;
 class QCornerSquare;
@@ -257,6 +257,6 @@ inline void QTableView::updateScrollBars()
 { updateScrollBars( 0 ); }
 
 
-#endif // QT_NO_WIDGETS
+#endif // QT_NO_COMPLEXWIDGETS
 
 #endif // QTABLEVIEW_H

@@ -20,7 +20,7 @@
 *****************************************************************************/
 
 #include "qhbox.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 #include "qlayout.h"
 #include "qapplication.h"
 #include "qobjectlist.h"

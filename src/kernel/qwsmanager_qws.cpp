@@ -366,7 +366,7 @@ QWSManager::QWSManager(QWidget *w)
 
 QWSManager::~QWSManager()
 {
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
     if (popup)
 	delete popup;
 #endif
@@ -624,7 +624,7 @@ void QWSManager::paintEvent(QPaintEvent *)
 
 void QWSManager::menu(const QPoint &pos)
 {
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
     if (!popup) {
 	popup = QApplication::qwsDecorator().menu(managed, managed->pos());
 	connect(popup, SIGNAL(activated(int)), SLOT(menuActivated(int)));
@@ -986,7 +986,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
     return region;
 }
 
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 QPopupMenu *QWSDecorator::menu(const QWidget *, const QPoint &)
 {
     QPopupMenu *m = new QPopupMenu();
@@ -1012,7 +1012,7 @@ QPopupMenu *QWSDecorator::menu(const QWidget *, const QPoint &)
 
 void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 {
-#ifndef QT_NO_WIDGETS // implies style    
+#ifndef QT_NO_COMPLEXWIDGETS // implies style    
     QStyle &style = QApplication::style();
 #endif
     
@@ -1024,7 +1024,7 @@ void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 #ifndef QT_NO_PALETTE
     const QColorGroup &cg = widget->palette().active();
 
-#if !defined(QT_NO_WIDGETS)
+#if !defined(QT_NO_COMPLEXWIDGETS)
     style.drawPanel(painter, r.x(), r.y(), r.width(),
 		    r.height(), cg, FALSE, 2,
 		    &cg.brush(QColorGroup::Background));
@@ -1047,7 +1047,7 @@ void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 	    titlePen   = cg.color(QColorGroup::Text);
 	}
 
-#if !defined(QT_NO_WIDGETS)
+#if !defined(QT_NO_COMPLEXWIDGETS)
 	style.drawPanel(painter, TITLE_HEIGHT, -TITLE_HEIGHT,
 			titleWidth, TITLE_HEIGHT - 1,
 			cg, TRUE, 1, &titleBrush);
@@ -1081,7 +1081,7 @@ void QWSDefaultDecorator::paintButton(QPainter *painter, const QWidget *w,
 			QWSManager::Region type, int state)
 {
 #ifndef QT_NO_PALETTE    
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
     QStyle &style = QApplication::style();
 #endif
     const QColorGroup &cg = w->palette().active();
@@ -1092,7 +1092,7 @@ void QWSDefaultDecorator::paintButton(QPainter *painter, const QWidget *w,
     const QPixmap *pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
 
     if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked)) {
-#if !defined(QT_NO_WIDGETS)
+#if !defined(QT_NO_COMPLEXWIDGETS)
 	style.drawToolButton(painter, brect.x(), brect.y(), brect.width()-1,
 		    brect.height()-1, cg, TRUE,
 		    &cg.brush(QColorGroup::Background));

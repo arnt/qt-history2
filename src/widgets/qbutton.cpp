@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qbutton.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 #include "qbuttongroup.h"
 #include "qbitmap.h"
 #include "qpainter.h"

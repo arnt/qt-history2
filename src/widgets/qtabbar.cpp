@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #include "qtabbar.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 #include "qaccel.h"
 #include "qbitmap.h"
 #include "qtoolbutton.h"

@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qprogressbar.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qapplication.h"

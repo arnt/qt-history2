@@ -368,7 +368,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	} else if ( stricmp(arg, "-style=sgi") == 0 ) {
 	    setStyle( new QSGIStyle );
 #endif
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 	} else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    s = s.lower();
@@ -602,7 +602,7 @@ void QApplication::initialize( int argc, char **argv )
 #endif
     is_app_running = TRUE; // no longer starting up
 
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
     if (!app_style) {
 
 // Somewhat complicated compile-time search for default style
@@ -637,7 +637,7 @@ void QApplication::initialize( int argc, char **argv )
 #endif
 #endif
 
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
     app_style->polish( *app_pal );
     app_style->polish( qApp ); //##### wrong place, still inside the qapplication constructor...grmbl....
 #endif
@@ -838,7 +838,7 @@ QApplication::~QApplication()
 
 void QApplication::setStyle( QStyle *style )
 {
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
     QStyle* old = app_style;
     app_style = style;
 
@@ -1234,7 +1234,7 @@ void QApplication::polish( QWidget *w )
     if ( qdevel && w->isTopLevel() )
 	qdevel->addTopLevelWidget(tlw);
 #endif
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
     w->style().polish( w );
 #endif
 }

@@ -356,11 +356,11 @@
 
 #if defined(QT_NO_PALETTE) || defined(QT_NO_STYLE) || defined(QT_NO_ICONSET) || defined(QT_NO_IMAGE_SMOOTHSCALE)
     /*!
-	Pre-defined widgets
+	Pre-defined complex widgets
     */
-    #define QT_NO_WIDGETS
+    #define QT_NO_COMPLEXWIDGETS
 #endif
-#if defined(QT_NO_WIDGETS) || defined(QT_NO_RICHTEXT)
+#if defined(QT_NO_COMPLEXWIDGETS) || defined(QT_NO_RICHTEXT)
     /*!
 	QTextView
     */
@@ -373,7 +373,7 @@
     #define QT_NO_TEXTBROWSER
 #endif
 
-#if defined(QT_NO_WIDGETS) || defined(QT_NO_DRAGANDDROP) || defined(QT_NO_HEADER)
+#if defined(QT_NO_COMPLEXWIDGETS) || defined(QT_NO_DRAGANDDROP) || defined(QT_NO_HEADER)
     /*!
 	QIconView
     */
@@ -391,7 +391,7 @@
     */
     #define QT_NO_COMBOBOX
 #endif    
-#if defined(QT_NO_WIDGETS)
+#if defined(QT_NO_COMPLEXWIDGETS)
     /*!
 	Windows style
     */
@@ -402,7 +402,7 @@
     #define QT_NO_STYLE_MOTIF
 #endif
 
-#if defined(QT_NO_WIDGETS)
+#if defined(QT_NO_COMPLEXWIDGETS)
     /*!
 	QAccel
     */
@@ -453,7 +453,7 @@
     */
     #define QT_NO_ACTION
 #endif
-#if defined(QT_NO_WIDGETS) || defined(QT_NO_DIALOG)
+#if defined(QT_NO_COMPLEXWIDGETS) || defined(QT_NO_DIALOG)
    /*!
 	Built-in dialogs
     */

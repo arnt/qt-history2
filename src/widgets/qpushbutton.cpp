@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qpushbutton.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 #include "qdialog.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"

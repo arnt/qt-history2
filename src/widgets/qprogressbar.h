@@ -30,7 +30,7 @@
 #include "qframe.h"
 #endif // QT_H
 
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMPLEXWIDGETS
 
 
 class QProgressBarPrivate;
@@ -115,6 +115,6 @@ inline bool QProgressBar::indicatorFollowsStyle() const
 }
 
 
-#endif // QT_NO_WIDGETS
+#endif // QT_NO_COMPLEXWIDGETS
 
 #endif // QPROGRESSBAR_H
