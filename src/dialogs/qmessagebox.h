@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#10 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#11 $
 **
 ** Definition of QMessageBox class
 **
@@ -26,6 +26,11 @@ public:
 			const char *text,  const char *buttonText=0,
 			QWidget *parent=0, const char *name=0 );
 
+    static int query( const char *caption,
+		      const char *text,  const char *yesButtonText=0,
+		      const char *noButtonText=0,
+		      QWidget *parent=0, const char *name=0 );
+
     QMessageBox( QWidget *parent=0, const char *name=0 );
 
     const char *text()		const;
@@ -44,6 +49,8 @@ private:
     QPushButton *button;
     void	*reserved1;
     void	*reserved2;
+
+    QPushButton *button2() { return (QPushButton*) reserved1; }
 
 private:	// Disabled copy constructor and operator=
     QMessageBox( const QMessageBox & ) {}

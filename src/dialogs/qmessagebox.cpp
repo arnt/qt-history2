@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#19 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#20 $
 **
 ** Implementation of QMessageBox class
 **
@@ -13,7 +13,7 @@
 #include "qlabel.h"
 #include "qpushbt.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#20 $");
 
 
 /*!
@@ -65,6 +65,7 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
     label->setFont( font );
     font.setWeight( QFont::Bold );
     button->setFont( font );
+    reserved1 = 0;
 }
 
 
@@ -122,13 +123,23 @@ void QMessageBox::setButtonText( const char *text )
 
 void QMessageBox::adjustSize()
 {
-    button->adjustSize();
+    QSize bSize = button->sizeHint();
+    if ( button2() ) {
+	QSize s2 = button2()->sizeHint();
+	bSize = QSize( QMAX( s2.width(), bSize.width() ), 
+		       QMAX( s2.height(), bSize.height() ));
+	button2()->resize( bSize );
+    }
+    button->resize( bSize );
     label->adjustSize();
     QString labelStr = label->text();
     int nlines = labelStr.contains( '\n' );
     QFontMetrics fm = label->fontMetrics();
     nlines += 2;
-    int w = QMAX(button->width(),label->width());
+    int bw = button->width();
+    if ( button2() )
+	bw += button2()->width() + 5;
+    int w = QMAX( bw, label->width() );
     int h = button->height() + fm.lineSpacing()*nlines;
     resize( w + w/3, h + h/3 );
 }
@@ -140,12 +151,26 @@ void QMessageBox::adjustSize()
 
 void QMessageBox::resizeEvent( QResizeEvent * )
 {
-    button->adjustSize();
+    QSize bSize = button->sizeHint();
+    if ( button2() ) {
+	QSize s2 = button2()->sizeHint();
+	bSize = QSize( QMAX( s2.width(), bSize.width() ), 
+		       QMAX( s2.height(), bSize.height() ));
+	button2()->resize( bSize );
+    }
+    button->resize( bSize );
     label->adjustSize();
     int h = (height() - button->height() - label->height())/3;
-    button->move( width()/2 - button->width()/2,
-		  height() - h - button->height() );
     label->move( width()/2 - label->width()/2, h );
+    if ( button2() ) {
+	int bw = button->width() + button2()->width();
+	int w = width() - bw;
+	button->move( w/3, height() - h - button->height() );
+	button2()->move( width() - w/3 - button2()->width() ,
+			 height() - h - button->height() );
+    } else
+	button->move( width()/2 - button->width()/2,
+		      height() - h - button->height() );
 }
 
 
@@ -174,6 +199,53 @@ int QMessageBox::message( const char *caption,
     mb->setText( text );
     if ( buttonText )
 	mb->setButtonText( buttonText );
+    int retcode = mb->exec();
+    delete mb;
+    return retcode;
+}
+
+
+/*!
+  Queries the user using a modal message box with two buttons.
+  Note that \a caption is not always shown, it depends on the window manager.
+
+  \a text is the question the user is to answer. \a yesButtonText defaults to
+  "Yes" and \a noButtonText defaults to "No".
+
+  Example:
+  \code
+    bool ok = QMessageBox::query( "Consider this carefully", 
+                             "Should I delete all your files?", 
+                             "Go ahead!", "Wait a minute" );
+    if ( ok )
+        deleteAllFiles();
+  \endcode
+
+*/
+
+int QMessageBox::query( const char *caption,
+			       const char *text,
+			       const char *yesButtonText,
+			       const char *noButtonText,
+			       QWidget *parent, const char *name )
+{
+    QMessageBox *mb = new QMessageBox( parent, name );
+    CHECK_PTR( mb );
+    mb->setCaption( caption );
+    mb->setText( text );
+    if ( yesButtonText )
+	mb->setButtonText( yesButtonText );
+    else
+	mb->setButtonText( "Yes" );
+    mb->button->setDefault( TRUE );
+    mb->reserved1 = (void*)new QPushButton( mb );
+    connect( mb->button2(), SIGNAL(clicked()), mb, SLOT(reject()) );
+    if ( noButtonText )
+	mb->button2()->setText( noButtonText );
+    else
+	mb->button2()->setText( "No" );
+    mb->button2()->setFont( mb->button->font() );
+    mb->button2()->setAutoDefault( TRUE );
     int retcode = mb->exec();
     delete mb;
     return retcode;
