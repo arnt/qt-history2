@@ -61,22 +61,22 @@ public:
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
     bool isValid(const QModelIndex &index) const;
-    inline long tableIndex(int row, int column) const {  return (row * c) + column; }
+    inline long tableIndex(int row, int column) const
+        {  return (row * horizontal.count()) + column; }
 
     void clear();
     void itemChanged(QTableWidgetItem *item);
 
 private:
-    int r, c;
     QVector<QTableWidgetItem*> table;
-    QVector<QTableWidgetItem*> verticalHeader;
-    QVector<QTableWidgetItem*> horizontalHeader;
+    QVector<QTableWidgetItem*> vertical;
+    QVector<QTableWidgetItem*> horizontal;
     mutable QChar strbuf[65];
 };
 
 QTableModel::QTableModel(int rows, int columns, QTableWidget *parent)
-    : QAbstractTableModel(parent), r(rows), c(columns),
-      table(rows * columns), verticalHeader(rows), horizontalHeader(columns) {}
+    : QAbstractTableModel(parent),
+      table(rows * columns), vertical(rows), horizontal(columns) {}
 
 QTableModel::~QTableModel()
 {
@@ -85,18 +85,22 @@ QTableModel::~QTableModel()
 
 bool QTableModel::insertRows(int row, const QModelIndex &, int count)
 {
-    int i = tableIndex(row, c - 1);
-    table.insert(i, count * c, 0);
-    verticalHeader.insert(row, 0);
+    vertical.insert(row, count, 0);
+    int i = tableIndex(row, qMax(horizontal.count() - 1, 0));
+    table.insert(i, count * horizontal.count(), 0);
     emit rowsInserted(QModelIndex::Null, row, row + count - 1);
     return true;
 }
 
 bool QTableModel::insertColumns(int column, const QModelIndex &, int count)
 {
-    for (int row = 0; row < r; ++row)
-        table.insert(tableIndex(row, column), 0);
-    horizontalHeader.insert(column, 0);
+    int cc = horizontal.count();
+    horizontal.insert(column, count, 0);
+    if (cc == 0)
+        table.resize(vertical.count() * count);
+    else
+        for (int row = 0; row < vertical.count(); ++row)
+            table.insert(tableIndex(row, column), count, 0);
     emit columnsInserted(QModelIndex::Null, column, column + count - 1);
     return true;
 }
@@ -104,18 +108,18 @@ bool QTableModel::insertColumns(int column, const QModelIndex &, int count)
 bool QTableModel::removeRows(int row, const QModelIndex &, int count)
 {
     emit rowsRemoved(QModelIndex::Null, row, row + count - 1);
-    int i = tableIndex(row, c - 1);
-    table.remove(i, count * c);
-    verticalHeader.remove(row);
+    int i = tableIndex(row, columnCount() - 1);
+    table.remove(qMax(i, 0), count * columnCount());
+    vertical.remove(row);
     return true;
 }
 
 bool QTableModel::removeColumns(int column, const QModelIndex &, int count)
 {
     emit columnsRemoved(QModelIndex::Null, column, column + count - 1);
-    for (int row = 0; row < r; ++row)
+    for (int row = 0; row < rowCount(); ++row)
         table.remove(tableIndex(row, column));
-    horizontalHeader.remove(column);
+    horizontal.remove(column);
     return true;
 }
 
@@ -164,15 +168,15 @@ void QTableModel::removeItem(QTableWidgetItem *item)
         return;
     }
 
-    i = verticalHeader.indexOf(item);
+    i = vertical.indexOf(item);
     if (i != -1) {
-        verticalHeader[i] = 0;
+        vertical[i] = 0;
         return;
     }
 
-    i = horizontalHeader.indexOf(item);
+    i = horizontal.indexOf(item);
     if (i != -1) {
-        horizontalHeader[i] = 0;
+        horizontal[i] = 0;
         return;
     }
 }
@@ -181,24 +185,24 @@ void QTableModel::setHorizontalHeaderItem(int section, QTableWidgetItem *item)
 {
     Q_ASSERT(item);
     item->model = this;
-    verticalHeader[section] = item;
+    vertical[section] = item;
 }
 
 void QTableModel::setVerticalHeaderItem(int section, QTableWidgetItem *item)
 {
     Q_ASSERT(item);
     item->model = this;
-    horizontalHeader[section] = item;
+    horizontal[section] = item;
 }
 
 QTableWidgetItem *QTableModel::horizontalHeaderItem(int section)
 {
-    return horizontalHeader.at(section);
+    return horizontal.at(section);
 }
 
 QTableWidgetItem *QTableModel::verticalHeaderItem(int section)
 {
-    return verticalHeader.at(section);
+    return vertical.at(section);
 }
 
 QModelIndex QTableModel::index(const QTableWidgetItem *item) const
@@ -211,7 +215,7 @@ QModelIndex QTableModel::index(const QTableWidgetItem *item) const
 
 QModelIndex QTableModel::index(int row, int column, const QModelIndex &) const
 {
-    if (row >= 0 && row < r && column >= 0 && column < c) {
+    if (row >= 0 && row < vertical.count() && column >= 0 && column < horizontal.count()) {
         QTableWidgetItem *item = table.at(tableIndex(row, column));
         return createIndex(row, column, item);
     }
@@ -220,58 +224,34 @@ QModelIndex QTableModel::index(int row, int column, const QModelIndex &) const
 
 void QTableModel::setRowCount(int rows)
 {
-    if (r == rows)
+    int rc = vertical.count();
+    if (rc == rows)
         return;
-    int _r = qMin(r, rows);
-    int s = rows * c;
-    r = rows;
-
-    int top = qMax(_r - 1, 0);
-    int bottom = qMax(r - 1, 0);
-
-    if (r < _r)
-        emit rowsRemoved(QModelIndex::Null, top, bottom);
-
-    table.resize(s); // FIXME: this will destroy the layout
-    verticalHeader.resize(r);
-    for (int j = _r; j < r; ++j)
-        verticalHeader[j] = 0;
-
-    if (r >= _r)
-        emit rowsInserted(QModelIndex::Null, top, bottom);
+    if (rc < rows)
+        insertRows(qMax(rc - 1, 0), QModelIndex::Null, rows - rc);
+    else
+        removeRows(qMax(rows - 1, 0), QModelIndex::Null, rc - rows);
 }
 
 void QTableModel::setColumnCount(int columns)
 {
-    if (c == columns)
+    int cc = horizontal.count();
+    if (cc == columns)
         return;
-    int _c = qMin(c, columns);
-    long s = r * columns;
-    c = columns;
-
-    int left = qMax(_c - 1, 0);
-    int right = qMax(c - 1, 0);
-
-    if (c < _c)
-        emit columnsRemoved(QModelIndex::Null, left, right);
-
-    table.resize(s); // FIXME: this will destroy the layout
-    horizontalHeader.resize(c);
-    for (int j = _c; j < c; ++j)
-        horizontalHeader[j] = 0;
-
-    if (c >= _c)
-        emit columnsInserted(QModelIndex::Null, left, right);
+    if (cc < columns)
+        insertColumns(qMax(cc - 1, 0), QModelIndex::Null, columns - cc);
+    else
+        removeColumns(qMax(columns - 1, 0), QModelIndex::Null, cc - columns);
 }
 
 int QTableModel::rowCount() const
 {
-    return r;
+    return vertical.count();
 }
 
 int QTableModel::columnCount() const
 {
-    return c;
+    return horizontal.count();
 }
 
 QVariant QTableModel::data(const QModelIndex &index, int role) const
@@ -309,9 +289,9 @@ QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int r
 {
     QTableWidgetItem *itm = 0;
     if (orientation == Qt::Horizontal)
-        itm = horizontalHeader.at(section);
+        itm = horizontal.at(section);
     else
-        itm = verticalHeader.at(section);
+        itm = vertical.at(section);
 
     if (itm)
         return itm->data(role);
@@ -322,9 +302,9 @@ bool QTableModel::setHeaderData(int section, Qt::Orientation orientation, int ro
 {
     QTableWidgetItem *itm = 0;
     if (orientation == Qt::Horizontal)
-        itm = horizontalHeader.at(section);
+        itm = horizontal.at(section);
     else
-        itm = verticalHeader.at(section);
+        itm = vertical.at(section);
 
     if (itm) {
         itm->setData(role, value);
@@ -336,30 +316,29 @@ bool QTableModel::setHeaderData(int section, Qt::Orientation orientation, int ro
 
 bool QTableModel::isValid(const QModelIndex &index) const
 {
-    return index.isValid() && index.row() < r && index.column() < c;
+    return index.isValid() && index.row() < vertical.count() && index.column() < horizontal.count();
 }
 
 void QTableModel::clear()
 {
-    for (int i = 0; i < r * c; ++i) {
+    for (int i = 0; i < table.count(); ++i) {
         if (table.at(i)) {
             table.at(i)->model = 0;
             delete table.at(i);
         }
     }
-    for (int j = 0; j < r; ++j) {
-        if (verticalHeader.at(j)) {
-            verticalHeader.at(j)->model = 0;
-            delete verticalHeader.at(j);
+    for (int j = 0; j < vertical.count(); ++j) {
+        if (vertical.at(j)) {
+            vertical.at(j)->model = 0;
+            delete vertical.at(j);
         }
     }
-    for (int k = 0; k < c; ++k) {
-        if (horizontalHeader.at(k)) {
-            horizontalHeader.at(k)->model = 0;
-            delete horizontalHeader.at(k);
+    for (int k = 0; k < horizontal.count(); ++k) {
+        if (horizontal.at(k)) {
+            horizontal.at(k)->model = 0;
+            delete horizontal.at(k);
         }
     }
-
     emit reset();
 }
 
