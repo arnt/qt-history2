@@ -449,12 +449,6 @@ public:
 #if defined(Q_WS_QWS)
     virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
 #endif
-#if defined(Q_WS_MAC)
-    QRegion clippedRegion(bool do_children=TRUE);
-    uint clippedSerial(bool do_children=TRUE);
-    Qt::HANDLE macCGHandle(bool) const;
-    virtual Qt::HANDLE macCGHandle() const { return macCGHandle(TRUE); }
-#endif
 #if defined(Q_WS_X11)
     QX11Info *x11Info() const;
 #endif
@@ -575,37 +569,9 @@ protected:
 
     void setMicroFocusHint(int x, int y, int w, int h, bool text=TRUE, QFont *f = 0);
 
-#if defined(Q_WS_MAC)
-    void dirtyClippedRegion(bool);
-    bool isClippedRegionDirty();
-    virtual void setRegionDirty(bool);
-    virtual void macWidgetChangedWindow();
-#endif
-
 protected:
     QWidget(QWidgetPrivate &d, QWidget* parent, WFlags f);
 private:
-#if defined(Q_WS_MAC)
-    uint    own_id : 1, macDropEnabled : 1;
-    EventHandlerRef window_event;
-    //mac event functions
-    void    propagateUpdates(bool update_rgn=TRUE);
-    //friends
-    friend class QGuiEventLoop;
-    friend void qt_clean_root_win();
-    friend bool qt_recreate_root_win();
-    friend QPoint posInWindow(QWidget *);
-    friend void qt_mac_destroy_cg_hd(QWidget *, bool);
-    friend bool qt_mac_update_sizer(QWidget *, int);
-    friend QWidget *qt_recursive_match(QWidget *widg, int x, int y);
-    friend bool qt_paint_children(QWidget *,QRegion &, uchar ops);
-    friend void qt_event_request_flush_updates();
-    friend QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *);
-    friend void qt_event_request_updates(QWidget *, const QRegion &, bool subtract=FALSE);
-    friend bool qt_window_rgn(WId, short, RgnHandle, bool);
-    friend class QDragManager;
-#endif
-
     void	 setWinId( WId );
     void	 showWindow();
     void	 hideWindow();
@@ -656,6 +622,11 @@ private:
     friend class QETWidget;
     friend class QLayout;
     friend class QWidgetItem;
+    friend class QGuiEventLoop;
+    
+    // These two friends are needed because of the limitations of QuickDraw.
+    friend class QMacSavedPortInfo;
+    friend class QQuickDrawPaintEngine;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -28,6 +28,7 @@
 
 #include "qpainter.h"
 #include "qwidget.h"
+#include "private/qwidget_p.h"
 #ifdef QT_THREAD_SUPPORT
 #include "qmutex.h"
 #include "qthread.h"
@@ -63,7 +64,8 @@ class QMacSavedPortInfo
 public:
     inline QMacSavedPortInfo() { init(); }
     inline QMacSavedPortInfo(QPaintDevice *pd) { init(); setPaintDevice(pd); }
-    inline QMacSavedPortInfo(QWidget *w, bool set_clip=FALSE) { init(); setPaintDevice(w, set_clip); }
+    inline QMacSavedPortInfo(QWidget *w, bool set_clip = false)
+        { init(); setPaintDevice(w, set_clip); }
     inline QMacSavedPortInfo(QPaintDevice *pd, const QRect &r)
 	{ init(); setPaintDevice(pd); setClipRegion(r); }
     inline QMacSavedPortInfo(QPaintDevice *pd, const QRegion &r)
@@ -71,10 +73,12 @@ public:
     ~QMacSavedPortInfo();
     static bool setClipRegion(const QRect &r);
     static bool setClipRegion(const QRegion &r);
+    inline static bool setClipRegion(QWidget *w)
+        { return setClipRegion(w->d_func()->clippedRegion()); }
     static bool setPaintDevice(QPaintDevice *);
-    static bool setPaintDevice(QWidget *, bool set_clip=FALSE, bool with_child=TRUE);
+    static bool setPaintDevice(QWidget *, bool set_clip=false, bool with_child=true);
     static bool flush(QPaintDevice *);
-    static bool flush(QPaintDevice *, QRegion r, bool force=FALSE);
+    static bool flush(QPaintDevice *, QRegion r, bool force=false);
     static void setWindowAlpha(QWidget *, float);
 };
 
@@ -85,10 +89,10 @@ QMacSavedPortInfo::flush(QPaintDevice *pdev)
 	QWidget *w = (QWidget *)pdev;
 	if(!w->isHidden() && QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle()))) {
 	    QDFlushPortBuffer(GetWindowPort((WindowPtr)w->handle()), NULL);
-	    return TRUE;
+	    return true;
 	}
     }
-    return FALSE;
+    return false;
 }
 
 inline bool
@@ -99,10 +103,10 @@ QMacSavedPortInfo::flush(QPaintDevice *pdev, QRegion r, bool force)
 	r.translate(w->topLevelWidget()->geometry().x(), w->topLevelWidget()->geometry().y());
 	if(!w->isHidden() || QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle()))) {
 	    QDFlushPortBuffer(GetWindowPort((WindowPtr)w->handle()), r.handle(force));
-	    return TRUE;
+	    return true;
 	}
     }
-    return FALSE;
+    return false;
 }
 
 extern "C" {
@@ -134,7 +138,7 @@ QMacSavedPortInfo::setClipRegion(const QRect &rect)
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->unlock();
 #endif
-    return TRUE;
+    return true;
 }
 
 inline bool
@@ -154,27 +158,27 @@ QMacSavedPortInfo::setClipRegion(const QRegion &r)
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->unlock();
 #endif
-    return TRUE;
+    return true;
 }
 
 inline bool
 QMacSavedPortInfo::setPaintDevice(QWidget *w, bool set_clip, bool with_child)
 {
-    if(!w)
-	return FALSE;
+    if (!w)
+        return false;
     if(!setPaintDevice((QPaintDevice *)w))
-	return FALSE;
+	return false;
     if(set_clip)
-	return setClipRegion(w->clippedRegion(with_child));
-    return TRUE;
+	return setClipRegion(w->d_func()->clippedRegion(with_child));
+    return true;
 }
 
 inline bool
 QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
 {
     if(!pd)
-	return FALSE;
-    bool ret = TRUE;
+	return false;
+    bool ret = true;
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->lock();
@@ -185,7 +189,7 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
     else if(pd->devType() == QInternal::Pixmap || pd->devType() == QInternal::Printer)
 	SetGWorld((GrafPtr)pd->handle(), 0); //set the gworld
     else
-	ret = FALSE;
+	ret = false;
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->unlock();
@@ -207,7 +211,7 @@ QMacSavedPortInfo::init()
    	GetBackColor(&back);
 	GetForeColor(&fore);
 	GetGWorld(&world, &handle);
-	valid_gworld = TRUE;
+	valid_gworld = true;
 	clip = NewRgn();
 	GetClip(clip);
 	GetPenState(&pen);

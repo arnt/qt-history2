@@ -561,7 +561,7 @@ void qt_event_request_updates()
     PostEventToQueue(GetMainEventQueue(), request_updates_pending, kEventPriorityHigh);
     ReleaseEvent(request_updates_pending);
 }
-static QList<WId> request_updates_pending_list;
+
 void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
 {
     QWExtra *extra = ((QExtraWidget*)w)->extraData();
@@ -569,7 +569,7 @@ void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
 	if(extra->has_dirty_area) {
 	    extra->dirty_area -= r;
 	    if(extra->dirty_area.isEmpty()) {
-		request_updates_pending_list.remove(w->winId());
+                QWidgetPrivate::request_updates_pending_list.remove(w->winId());
 		extra->has_dirty_area = FALSE;
 	    }
 	}
@@ -581,36 +581,16 @@ void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
     extra->has_dirty_area = TRUE;
     extra->dirty_area = r;
     //now maintain the list of widgets to be updated
-    if(request_updates_pending_list.isEmpty()) {
+    if(QWidgetPrivate::request_updates_pending_list.isEmpty()) {
 	EventRef upd = 0;
 	CreateEvent(0, kEventClassQt, kEventQtRequestPropagateWidgetUpdates,
 		    GetCurrentEventTime(), kEventAttributeUserEvent, &upd);
 	PostEventToQueue(GetMainEventQueue(), upd, kEventPriorityStandard);
 	ReleaseEvent(upd);
     }
-    request_updates_pending_list.append(w->winId());
+    QWidgetPrivate::request_updates_pending_list.append(w->winId());
 }
-void qt_event_request_flush_updates()
-{
-    QList<WId> update_list = request_updates_pending_list;
-    request_updates_pending_list.clear(); //clear now and let it get filled elsewhere
-    for(QList<WId>::Iterator it = update_list.begin(); it != update_list.end(); ++it) {
-	QWidget *widget = QWidget::find((*it));
-	if(widget && widget->d->extra && widget->d->extra->has_dirty_area &&
-	   widget->topLevelWidget()->isVisible()) {
-	    widget->d->extra->has_dirty_area = FALSE;
-	    QRegion r = widget->d->extra->dirty_area;
-	    widget->d->extra->dirty_area = QRegion();
-	    QRegion cr = widget->clippedRegion();
-	    if(!widget->isTopLevel()) {
-		QPoint point(posInWindow(widget));
-		cr.translate(-point.x(), -point.y());
-	    }
-	    if(!r.isEmpty())
-		widget->repaint(r & cr);
-	}
-    }
-}
+
 
 /* socket notifiers */
 static EventRef request_select_pending = 0;
@@ -1685,8 +1665,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     case kEventClassQt:
 	remove_context_timer = FALSE;
 	if(ekind == kEventQtRequestPropagateWidgetUpdates) {
-	    QList<WId> update_list = request_updates_pending_list;
-	    request_updates_pending_list.clear(); //clear now and use the saved list (above)..
+	    QList<WId> update_list = QWidgetPrivate::request_updates_pending_list;
+            QWidgetPrivate::request_updates_pending_list.clear(); //clear now and use the saved list (above)..
 	    for(QList<WId>::Iterator it = update_list.begin(); it != update_list.end(); ++it) {
 		QWidget *widget = QWidget::find((*it));
 		if(!widget)
@@ -1696,7 +1676,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    extra->has_dirty_area = FALSE;
 		    QRegion r = extra->dirty_area;
 		    extra->dirty_area = QRegion();
-		    QRegion cr = widget->clippedRegion();
+		    QRegion cr = widget->d->clippedRegion();
 		    if(!widget->isTopLevel()) {
 			QPoint point(posInWindow(widget));
 			cr.translate(-point.x(), -point.y());
@@ -1713,7 +1693,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    for(int i = 0; i < tlws.size(); i++) {
 		QWidget *tlw = tlws.at(i);
 		if(!tlw->isHidden())
-		    tlw->propagateUpdates();
+		    tlw->d->propagateUpdates();
 	    }
 	} else if(ekind == kEventQtRequestShowSheet) {
 	    request_showsheet_pending = 0;
@@ -2477,7 +2457,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 	if(ekind == kEventWindowUpdate || ekind == kEventWindowDrawContent) {
 	    remove_context_timer = FALSE;
-	    widget->propagateUpdates(ekind == kEventWindowUpdate);
+	    widget->d->propagateUpdates(ekind == kEventWindowUpdate);
 	} else if(ekind == kEventWindowDispose) {
 	    qt_mac_unicode_cleanup(widget);
 	} else if(ekind == kEventWindowExpanded) {
@@ -2506,7 +2486,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		if(widget->width() != nw || widget->height() != nh) {
 		    widget->resize(nw, nh);
 		    if(widget->isVisible())
-			widget->propagateUpdates();
+			widget->d->propagateUpdates();
 		}
 	    }
 	} else if(ekind == kEventWindowHidden) {

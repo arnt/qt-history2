@@ -464,7 +464,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     set_drag_mode = mode;
     updateDragMode(theDrag);
     //kick off the drag by calling the callback ourselves first..
-    qt_mac_tracking_handler(kDragTrackingEnterWindow, (WindowPtr)widget->hd,
+    qt_mac_tracking_handler(kDragTrackingEnterWindow, (WindowPtr)widget->handle(),
 			     (void *)extra->macDndExtra, theDrag);
     //now let the mac take control..
     {

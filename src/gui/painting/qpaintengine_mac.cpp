@@ -29,6 +29,7 @@
 #include <private/qpaintengine_mac_p.h>
 #include <private/qpainter_p.h>
 #include <private/qtextlayout_p.h>
+#include <private/qwidget_p.h>
 
 #include <string.h>
 
@@ -45,7 +46,6 @@ QPaintEngine *qt_mac_current_engine = 0; //Current "active" QPaintEngine
   External functions
  *****************************************************************************/
 QPoint posInWindow(QWidget *w); //qwidget_mac.cpp
-bool qt_recreate_root_win(); //qwidget_mac.cpp
 QRegion make_region(RgnHandle handle);
 void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
 void unclippedBitBlt(QPaintDevice *dst, int dx, int dy, const QPaintDevice *src, int sx, int sy, int sw, int sh,
@@ -788,7 +788,7 @@ QQuickDrawPaintEngine::setupQDPen()
     //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
     //xor doesn't really work on an overlay widget FIXME
     if(d->current.rop != CopyROP && d->pdev->devType() == QInternal::Widget && ((QWidget *)d->pdev)->isDesktop())
-	qt_recreate_root_win();
+        QWidgetPrivate::qt_recreate_root_win();
     PenMode(ropCodes[d->current.rop]);
 }
 
@@ -845,7 +845,7 @@ QQuickDrawPaintEngine::setupQDBrush()
     //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
     //xor doesn't really work on an overlay widget FIXME
     if(d->current.rop != CopyROP && d->pdev->devType() == QInternal::Widget && ((QWidget *)d->pdev)->isDesktop())
-	qt_recreate_root_win();
+        QWidgetPrivate::qt_recreate_root_win();
 
     //color
     ::RGBColor f;
@@ -920,7 +920,7 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
 	    else if(!clip->isVisible())
 		remade_clip = d->clip.serial;
 	    else
-		remade_clip = (d->clip.serial != clip->clippedSerial(!d->unclipped));
+		remade_clip = (d->clip.serial != clip->d_func()->clippedSerial(!d->unclipped));
 	}
 	if(remade_clip) {
 	    //offset painting in widget relative the tld
@@ -932,8 +932,8 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
 		d->clip.pdev = QRegion(0, 0, 0, 0); //make the clipped reg empty if not visible!!!
 		d->clip.serial = 0;
 	    } else {
-		d->clip.pdev = clip->clippedRegion(!d->unclipped);
-		d->clip.serial = clip->clippedSerial(!d->unclipped);
+		d->clip.pdev = clip->d_func()->clippedRegion(!d->unclipped);
+		d->clip.serial = clip->d_func()->clippedSerial(!d->unclipped);
 	    }
 	    if(pevent)
 		d->clip.pdev &= pevent->region();
@@ -1059,13 +1059,13 @@ static void qt_mac_dispose_pattern(void *info)
     pat = NULL;
 }
 
-static inline bool qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *paint_d)
+inline bool QWidgetPrivate::qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *paint_d)
 {
     CGContextRef ret = 0;
     if(paint_d->pdev->devType() == QInternal::Widget)
-	ret = (CGContextRef)((QWidget*)paint_d->pdev)->macCGHandle(!paint_d->unclipped);
+	ret = static_cast<CGContextRef>(static_cast<QWidget *>(paint_d->pdev)->d_func()->macCGHandle(!paint_d->unclipped));
     else
-	ret = (CGContextRef)paint_d->pdev->macCGHandle();
+	ret = static_cast<CGContextRef>(paint_d->pdev->macCGHandle());
     //apply paint event region (in global coords)
     if(paintevent_item *pevent = qt_mac_get_paintevent()) {
 	if((*pevent) == paint_d->pdev)
@@ -1111,7 +1111,7 @@ QCoreGraphicsPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, 
     }
 
     d->pdev = const_cast<QPaintDevice*>(pdev);
-    if(qt_mac_update_cg(d)) // get handle to drawable
+    if(QWidgetPrivate::qt_mac_update_cg(d)) // get handle to drawable
 	CGContextRetain((CGContextRef)d->hd);
     setActive(true);
     assignf(IsActive | DirtyFont);
@@ -1367,7 +1367,7 @@ QCoreGraphicsPaintEngine::updateClipRegion(QPainterState *ps)
     if(d->hd) {
 	if(ps->clipEnabled || ps->clipEnabled != old_clipon) { //reset the clip
 	    CGContextRelease((CGContextRef)d->hd);
-	    if(qt_mac_update_cg(d))
+	    if(QWidgetPrivate::qt_mac_update_cg(d))
 		CGContextRetain((CGContextRef)d->hd);
 	}
 	if(d->hd && ps->clipEnabled)

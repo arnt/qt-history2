@@ -330,7 +330,7 @@ void scaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
   QMacSavedPortInfo saveportstate(dst);
 
   if(dst && dst->devType() == QInternal::Widget) {
-      QMacSavedPortInfo::setClipRegion(((QWidget *)dst)->clippedRegion());
+      QMacSavedPortInfo::setClipRegion(static_cast<QWidget *>(dst));
   } else if(dst && dst->devType() == QInternal::Pixmap) {
       QPixmap *pm = (QPixmap *)dst;
       QMacSavedPortInfo::setClipRegion(QRect(0, 0, pm->width(), pm->height()));

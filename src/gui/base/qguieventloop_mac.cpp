@@ -17,6 +17,7 @@
 #include "qt_mac.h"
 #include <qhash.h>
 #include "qsocketnotifier.h"
+#include "private/qwidget_p.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"
@@ -34,7 +35,6 @@ MacTimerInfo *qt_event_get_timer(EventRef); //qapplication_mac.cpp
 void qt_event_request_select(QGuiEventLoop *); //qapplication_mac.cpp
 void qt_event_request_sockact(QGuiEventLoop *); //qapplication_mac.cpp
 void qt_event_request_updates(); //qapplication_mac.cpp
-void qt_event_request_flush_updates(); //qapplication_mac.cpp
 void qt_event_request_wakeup(); //qapplication_mac.cpp
 bool qt_mac_send_event(QEventLoop::ProcessEventsFlags, EventRef, WindowPtr =0); //qapplication_mac.cpp
 extern bool qt_is_gui_used; //qapplication.cpp
@@ -408,12 +408,12 @@ void QGuiEventLoop::flush()
 {
 //    sendPostedEvents();
     if(qApp) {
-	qt_event_request_flush_updates();
+        QWidgetPrivate::qt_event_request_flush_updates();
 	QWidgetList tlws = QApplication::topLevelWidgets();
 	for(int i = 0; i < tlws.size(); i++) {
 	    QWidget *tlw = tlws.at(i);
 	    if(tlw->isVisible()) {
-		tlw->propagateUpdates();
+		tlw->d->propagateUpdates();
 		QMacSavedPortInfo::flush(tlw);
 	    }
 	}

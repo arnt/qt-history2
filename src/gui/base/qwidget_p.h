@@ -42,6 +42,7 @@ class QOleDropTarget;
 #if defined(Q_WS_MAC)
 class QMacDndExtra;
 class QMacCGExtra;
+class QCoreGraphicsPaintEnginePrivate;
 #endif
 #if defined(Q_WS_X11)
 class QX11Info;
@@ -232,6 +233,39 @@ public:
     uint high_attributes[1]; // the low ones are in QWidget::widget_attributes
 #if defined(Q_WS_X11)
     QX11Info *xinfo;
+#endif
+#if defined(Q_WS_MAC)
+    enum PaintChildrenOPs {
+        PC_None = 0x00,
+        PC_Now = 0x01,
+        PC_NoPaint = 0x04,
+        PC_Later = 0x10
+    };
+    static QList<WId> request_updates_pending_list;
+    void dirtyClippedRegion(bool);
+    bool isClippedRegionDirty();
+    virtual void setRegionDirty(bool);
+    uint    own_id : 1, macDropEnabled : 1;
+    EventHandlerRef window_event;
+    //mac event functions
+    friend QPoint posInWindow(QWidget *);
+    friend QWidget *qt_recursive_match(QWidget *widg, int x, int y);
+    void propagateUpdates(bool update_rgn=true);
+    friend class QGuiEventLoop;
+    static bool qt_create_root_win();
+    static void qt_clean_root_win();
+    static bool qt_recreate_root_win();
+    static void qt_mac_destroy_cg_hd(QWidget *, bool);
+    static bool qt_mac_update_sizer(QWidget *, int);
+    static bool qt_paint_children(QWidget *,QRegion &, uchar ops = PC_None);
+    static void qt_event_request_flush_updates();
+    static QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *);
+    static bool qt_window_rgn(WId, short, RgnHandle, bool);
+    static bool qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *paint_d);
+    QRegion clippedRegion(bool do_children = false);
+    uint clippedSerial(bool do_children = true);
+    Qt::HANDLE macCGHandle(bool b = true);
+    
 #endif
 };
 
