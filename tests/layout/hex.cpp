@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/hex.cpp#5 $
+** $Id: //depot/qt/main/tests/layout/hex.cpp#6 $
 **
 ** Geometry management example: Putting a QBoxLayout inside a
 ** QGridLayout
@@ -63,26 +63,26 @@ int main( int argc, char **argv )
     int i;
     for ( i=0; i<4; i++ ) {
 	QLabel* lab = new QLabel(f);
-	lab->setBackgroundColor(darkGreen);
+	lab->setBackgroundColor(Qt::darkGreen);
 	above->addWidget( lab );
     }
 
     Kill* kill = new Kill( f );
     above->addWidget( kill );
-    kill->setBackgroundColor( red );
+    kill->setBackgroundColor( Qt::red );
 
     QBoxLayout *below = new QBoxLayout( QBoxLayout::LeftToRight );
     box->addLayout( below, 4 );
     for ( i=0; i<3; i++ ) {
 	QLabel* lab = new QLabel(f);
-	lab->setBackgroundColor(darkBlue);
+	lab->setBackgroundColor(Qt::darkBlue);
 	below->addWidget( lab );
     }
 
     QPushButton* qb = new QPushButton( "Quit", f );
     a.connect( qb, SIGNAL(clicked()), SLOT(quit()) );
     qb->setFixedSize( qb->size() );
-    gm->addWidget( qb, 0, 2, AlignCenter );
+    gm->addWidget( qb, 0, 2, Qt::AlignCenter );
 
 
     QMultiLineEdit *ed = new QMultiLineEdit(f);
@@ -92,25 +92,25 @@ int main( int argc, char **argv )
 
     QLabel* l1 = new QLabel(f);
     l1->setText("This is label 1.");
-    l1->setBackgroundColor( yellow );
+    l1->setBackgroundColor( Qt::yellow );
     l1->setMinimumSize( l1->sizeHint() );
     gm->addWidget( l1, 0, 1 );
 
     QLabel* l2 = new QLabel(f);
     l2->setText("This\nis\nlabel\ntoo.");
-    l2->setBackgroundColor( red );
+    l2->setBackgroundColor( Qt::red );
     l2->setMinimumSize( l2->sizeHint() );
     gm->addWidget( l2, 1, 0 );
 
     QLabel* l3 = new QLabel(f);
     l3->setText("This is label III.");
-    l3->setBackgroundColor( red );
+    l3->setBackgroundColor( Qt::red );
     l3->setMinimumSize( l3->sizeHint() );
     gm->addWidget( l3, 2, 2 );
 
     QLabel* l4 = new QLabel(f);
     l4->setText("More label.");
-    l4->setBackgroundColor( cyan );
+    l4->setBackgroundColor( Qt::cyan );
     l4->setMinimumSize( l4->sizeHint() );
     gm->addMultiCellWidget( l4, 2, 2, 0, 1 );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/cex.cpp#4 $
+** $Id: //depot/qt/main/tests/layout/cex.cpp#5 $
 **
 ** Geometry Management example: putting a QGridLayout inside a QBoxLayout
 **
@@ -9,13 +9,13 @@
 #include <qapplication.h>
 #include <qlabel.h>
 #include <qcolor.h>
-#include <qgroupbox.h> 
+#include <qgroupbox.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
 
 #include <qwidget.h>
 
-class Kill : public QWidget 
+class Kill : public QWidget
 {
 public:
     Kill( QWidget *parent, const char *name=0 )
@@ -42,7 +42,7 @@ int main( int argc, char **argv )
     QGroupBox *f = new QGroupBox;
     f->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
 
-    QBoxLayout *gm = new QBoxLayout( f, QBoxLayout::TopToBottom, 5 ); 
+    QBoxLayout *gm = new QBoxLayout( f, QBoxLayout::TopToBottom, 5 );
 
     QBoxLayout *b1 = new QBoxLayout( QBoxLayout::LeftToRight );
     gm->addLayout( b1, 10 );
@@ -55,24 +55,24 @@ int main( int argc, char **argv )
 	    lab->adjustSize();
 	    lab->setMinimumSize( lab->size());
 	    lab->setFrameStyle( QFrame::Panel   | QFrame::Plain );
-	    lab->setAlignment( AlignTop | AlignHCenter );
-	    lab->setBackgroundColor(yellow);
+	    lab->setAlignment( Qt::AlignTop | Qt::AlignHCenter );
+	    lab->setBackgroundColor(Qt::yellow);
 	    lab->setMaximumSize( 150, 200 );
 	    b1->addWidget( lab, 20 );
 	} else {
 	    QString s;
 	    QGridLayout *grid = new QGridLayout( 2, 2 );
 	    b1->addLayout( grid );
-	    for ( int j = 0; j < 2; j++ ) 
-		for ( int k = 0; k < 2; k++ ) { 
+	    for ( int j = 0; j < 2; j++ )
+		for ( int k = 0; k < 2; k++ ) {
 		    QLabel* lab = new QLabel(f);
 		    s.sprintf( "Grid %d,%d", j, k );
 		    lab->setText(s);
 		    lab->adjustSize();
 		    lab->setMinimumSize( lab->size());
 		    lab->setFrameStyle( QFrame::Panel | QFrame::Plain );
-		    lab->setAlignment( AlignCenter );
-		    lab->setBackgroundColor(cyan);
+		    lab->setAlignment( Qt::AlignCenter );
+		    lab->setBackgroundColor(Qt::cyan);
 		    grid->addWidget( lab, j, k );
 		}
 	}
@@ -80,16 +80,16 @@ int main( int argc, char **argv )
 
     Kill* kill = new Kill( f );
     b1->addWidget( kill );
-    kill->setBackgroundColor( red );
+    kill->setBackgroundColor( Qt::red );
 
     QPushButton* qb = new QPushButton( "Quit", f );
     a.connect( qb, SIGNAL(clicked()), SLOT(quit()) );
     qb->setFixedSize( qb->size() );
-    b1->addWidget( qb, 0, AlignTop );
+    b1->addWidget( qb, 0, Qt::AlignTop );
 
 
     kill->setFixedSize( qb->sizeHint() );
-    
+
 
 
 
@@ -99,8 +99,8 @@ int main( int argc, char **argv )
     large->adjustSize();
     large->setMinimumSize( large->size());
     large->setFrameStyle( QFrame::Panel | QFrame::Plain );
-    large->setAlignment( AlignVCenter | AlignHCenter );
-    large->setBackgroundColor(white);
+    large->setAlignment( Qt::AlignVCenter | Qt::AlignHCenter );
+    large->setBackgroundColor(Qt::white);
 
     QBoxLayout *b2 = new QBoxLayout( QBoxLayout::LeftToRight);
     gm->addLayout( b2, 50 );
@@ -115,9 +115,9 @@ int main( int argc, char **argv )
 	s->adjustSize();
 	s->setMinimumSize( s->size());
 	s->setFrameStyle( QFrame::Panel | QFrame::Plain );
-	s->setAlignment( AlignVCenter | AlignHCenter );
-	s->setBackgroundColor(cyan);
-	b2->addWidget( s, 10, AlignCenter );
+	s->setAlignment( Qt::AlignVCenter | Qt::AlignHCenter );
+	s->setBackgroundColor(Qt::cyan);
+	b2->addWidget( s, 10, Qt::AlignCenter );
     }
 
     {
@@ -127,8 +127,8 @@ int main( int argc, char **argv )
 	s->adjustSize();
 	s->setMinimumSize( s->width(), s->height() );
 	s->setFrameStyle( QFrame::Panel | QFrame::Plain );
-	s->setAlignment( AlignVCenter | AlignHCenter );
-	s->setBackgroundColor(red);
+	s->setAlignment( Qt::AlignVCenter | Qt::AlignHCenter );
+	s->setBackgroundColor(Qt::red);
 	gm->addWidget( s, 1 );
     }
 

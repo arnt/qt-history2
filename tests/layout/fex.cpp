@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/fex.cpp#1 $
+** $Id: //depot/qt/main/tests/layout/fex.cpp#2 $
 **
 ** Implementing your own layout: flow example
 **
@@ -30,7 +30,7 @@ public:
     //    void add( QLayout *layout);
     QSize minSize() { return QSize(0,0); }
 protected:
-    void childRemoved( QWidget *w ) { list.removeRef( w ); }
+    bool removeWidget( QWidget *w ) { return list.removeRef( w ); }
     void setGeometry( const QRect& );
 private:
     QList<QWidget> list;
@@ -77,7 +77,7 @@ int main( int argc, char **argv )
 	lab->resize( 90 - i*5, 20 + i*10 );
 	lab->setFrameStyle( QFrame::Panel   | QFrame::Plain );
 	lab->setAlignment( AlignTop | AlignHCenter );
-	lab->setBackgroundColor(yellow);
+	lab->setBackgroundColor(QColor::yellow);
 	b1->add(lab);
     }
     QPushButton* qb = new QPushButton( "Quit", f );
@@ -91,7 +91,7 @@ int main( int argc, char **argv )
     large->setMinimumSize( large->size());
     large->setFrameStyle( QFrame::Panel | QFrame::Plain );
     large->setAlignment( AlignVCenter | AlignHCenter );
-    large->setBackgroundColor(white);
+    large->setBackgroundColor(QColor::white);
 
     QBoxLayout *b2 = new QBoxLayout( QBoxLayout::LeftToRight);
     gm->addLayout( b2, 20 );
@@ -103,7 +103,7 @@ int main( int argc, char **argv )
 	s->setText("This\n is\n supposed\n to be\n centered\n relatively.");
 	s->setFrameStyle( QFrame::Panel | QFrame::Plain );
 	s->setAlignment( AlignVCenter | AlignHCenter );
-	s->setBackgroundColor(cyan);
+	s->setBackgroundColor(QColor::cyan);
 	b2->addWidget( s, 10, AlignCenter );
     }
 
@@ -112,7 +112,7 @@ int main( int argc, char **argv )
 	s->setText("outermost box");
 	s->setFrameStyle( QFrame::Panel | QFrame::Plain );
 	s->setAlignment( AlignVCenter | AlignHCenter );
-	s->setBackgroundColor(red);
+	s->setBackgroundColor(QColor::red);
 	gm->addWidget( s, 1 );
     }
 
