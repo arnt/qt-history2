@@ -770,6 +770,20 @@ void QProcess::close()
 }
 
 /*! \reimp
+
+   Returns true if the process is not running, and no more data is available
+   for reading; otherwise returns false.
+*/
+bool QProcess::atEnd() const
+{
+    Q_D(const QProcess);
+    const QRingBuffer *readBuffer = (d->processChannel == QProcess::StandardError)
+                                    ? &d->errorReadBuffer
+                                    : &d->outputReadBuffer;
+    return readBuffer->isEmpty() && d->processState == NotRunning;
+}
+
+/*! \reimp
 */
 bool QProcess::isSequential() const
 {

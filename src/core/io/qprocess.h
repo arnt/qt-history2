@@ -97,6 +97,7 @@ public:
     bool isSequential() const;
     bool canReadLine() const;
     void close();
+    bool atEnd() const;
 
     static int execute(const QString &program, const QStringList &arguments);
     static int execute(const QString &program);
