@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#51 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#51 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -142,6 +142,11 @@ bool QWidget::create()
     if ( testWFlags(WStyle_Title) )
 	title = qAppName();
 
+	// The WState_Creates flag is checked by translateConfigEvent()
+        // in qapp_win.cpp. We switch it off temporarily to avoid move
+        // and resize events during creation
+    clearWFlags( WState_Created );
+
     if ( desktop ) {				// desktop widget
 	id = GetDesktopWindow();
 	QWidget *otherDesktop = find( id );	// is there another desktop?
@@ -205,6 +210,8 @@ bool QWidget::create()
 		       QPoint(pt.x+cr.right, pt.y+cr.bottom) );
 	setCursor( arrowCursor );		// default cursor
     }
+
+    setWFlags( WState_Created );		// accept move/resize events
 
     hdc = 0;					// no display context
 
@@ -298,8 +305,7 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	    delete extra->bg_pix;
 	    extra->bg_pix = 0;
 	}
-    }
-    else {
+    } else {
 	if ( extra && extra->bg_pix )
 	    delete extra->bg_pix;
 	else
@@ -499,8 +505,6 @@ void QWidget::show()
 	    }
 	}
     }
-    if ( testWFlags(WType_Popup) )
-	raise();
     if ( testWFlags(WStyle_Tool) )
 	SetWindowPos( winId(), 0,
 		      frect.x(), frect.y(), crect.width(), crect.height(),
@@ -544,12 +548,15 @@ void QWidget::iconify()
 
 void QWidget::raise()
 {
-    SetWindowPos( winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
+    uint f = testWFlags(WStyle_Tool) ? SWP_NOACTIVATE : 0;
+    SetWindowPos( winId(), HWND_TOP, 0, 0, 0, 0, f | SWP_NOMOVE | SWP_NOSIZE );
 }
 
 void QWidget::lower()
 {
-    SetWindowPos( winId(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
+    uint f = testWFlags(WStyle_Tool) ? SWP_NOACTIVATE : 0;
+    SetWindowPos( winId(), HWND_BOTTOM, 0, 0, 0, 0, f | SWP_NOMOVE |
+		  SWP_NOSIZE );
 }
 
 

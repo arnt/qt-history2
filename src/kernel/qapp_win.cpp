@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#60 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#60 $");
 
 
 /*****************************************************************************
@@ -1488,6 +1488,8 @@ bool QETWidget::translatePaintEvent( const MSG & )
 
 bool QETWidget::translateConfigEvent( const MSG &msg )
 {
+    if ( !testWFlags(WState_Created) )		// in QWidget::create()
+	return TRUE;
     setWFlags( WConfigPending );		// set config flag
     QRect r = geometry();
     WORD a = LOWORD(msg.lParam);
