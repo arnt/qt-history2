@@ -1,4 +1,3 @@
-  
 TEMPLATE    =	qtlib
 HEADERS     =	dialogs/qfiledlg.h \
 		dialogs/qmsgbox.h \
