@@ -193,7 +193,10 @@ void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
 	    break;
 	case '\n':
 	    if( currentOLine.length() ) {
-		if( currentOLine.right( 4 ) == ".cpp" || currentOLine.right( 2 ) == ".c" )
+		if( currentOLine.right( 4 ) == ".cpp" || 
+		    currentOLine.right( 2 ) == ".c" ||
+		    currentOLine.right( 4 ) == ".pro" ||
+		    currentOLine.right( 3 ) == ".ui" )
 		    compileProgress->setProgress( ++filesCompiled );
 
 		logOutput( currentOLine );
@@ -224,10 +227,11 @@ void SetupWizardImpl::updateErrorDisplay( QProcess* proc )
 	    break;
 	case '\n':
 	    if( currentELine.length() ) {
-		if( currentELine.right( 4 ) == ".cpp" ) {
-		    filesCompiled++;
-		    compileProgress->setProgress( filesCompiled );
-		}
+		if( currentOLine.right( 4 ) == ".cpp" || 
+		    currentOLine.right( 2 ) == ".c" || 
+		    currentOLine.right( 4 ) == ".pro" )
+		    compileProgress->setProgress( ++filesCompiled );
+
 		logOutput( currentELine );
 		currentELine = "";
 	    }
@@ -353,6 +357,8 @@ void SetupWizardImpl::makeDone()
     if( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) )
 	logOutput( "The build process failed.\n" );
     else {
+	compileProgress->setProgress( compileProgress->totalSteps() );
+
 	if( sysID != MSVC )
 	    integratorDone();
 	else {
@@ -817,7 +823,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    configure.setArguments( args );
 
 	    // Start the configure process
-	    compileProgress->setTotalSteps( filesToCompile );
+	    compileProgress->setTotalSteps( int(double(filesToCompile) * 2.6) );
 	    if( !configure.start() )
 		logOutput( "Could not start configure process" );
 	}
@@ -1092,7 +1098,10 @@ void SetupWizardImpl::readArchive( const QString& arcname, const QString& instal
 		if( outFile.open( IO_WriteOnly ) ) {
 
 		    // Try to count the files to get some sort of idea of compilation progress
-		    if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".c" ) )
+		    if( entryName.right( 4 ) == ".cpp" || 
+			entryName.right( 2 ) == ".c" ||
+			entryName.right( 4 ) == ".pro" ||
+			entryName.right( 3 ) == ".ui" )
 			filesToCompile++;
 
 		    // Get timestamp from the archive
@@ -1174,7 +1183,10 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 		} else {
 		    return FALSE;
 		}
-		if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".c" ) )
+		if( entryName.right( 4 ) == ".cpp" || 
+		    entryName.right( 2 ) == ".c" ||
+		    entryName.right( 4 ) == ".pro" ||
+		    entryName.right( 3 ) == ".ui" )
 		    filesToCompile++;
 		bool res = TRUE;
 		if ( !QFile::exists( targetName ) )
