@@ -489,9 +489,8 @@ void MainWindow::showSettingsDialog( int page )
     sh->item( "pre" )->setFontFamily( family );
     sh->item( "code" )->setFontFamily( family );
     sh->item( "tt" )->setFontFamily( family );
-    browser->setStyleSheet( sh );
-    browser->setText( browser->text() );
-    showLink( browser->source() );
+    tabs->currentBrowser()->setText( tabs->currentBrowser()->text() );
+    showLink( tabs->currentBrowser()->source() );
 }
 
 void MainWindow::hide()
@@ -519,7 +518,7 @@ void MainWindow::saveSettings()
 {
     Config *config = Config::configuration();
     config->setFontFamily( tabs->font().family() );
-    config->setFontSize( tabs->font().pointSize() );
+    config->setFontSize( tabs->currentBrowser()->font().pointSize() );
     config->setFontFixedFamily( tabs->styleSheet()->item( "pre" )->fontFamily() );
     config->setLinkUnderline( tabs->linkUnderline() );
     config->setLinkColor( tabs->palette().color( QPalette::Active, QColorGroup::Link ).name() );
