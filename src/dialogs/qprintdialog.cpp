@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#43 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#44 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -701,7 +701,7 @@ QGroupBox * QPrintDialog::setupOptions()
     QGroupBox * g = new QGroupBox( tr( "Options"),
 				   this, "options group box" );
 
-    QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 12, 0 );
+    QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 12, 2 );
     tll->addSpacing( 8 );
 
     d->printRange = new QButtonGroup( this );

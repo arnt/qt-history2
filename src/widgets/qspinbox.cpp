@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#36 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -369,8 +369,6 @@ QSize QSpinBox::sizeHint() const
 	     + 4 // top/bottom margins
 	     + h // font height
 	     );
-    if ( style() == WindowsStyle && r.height() < 26 )
-	r.setHeight( 22 );
     return r;
 }
 
@@ -493,15 +491,21 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 
 void QSpinBox::resizeEvent( QResizeEvent* )
 {
-    if ( !up || !down ) // happens if the application has a pointer error
+    if ( !up || !down ) // may happen if the application has a pointer error
 	return;
 
     QSize bs; // no, it's short for 'button size'
-    bs.setHeight( height()/2 );
+    if ( style() == WindowsStyle )
+	bs.setHeight( height()/2 - frameWidth() );
+    else
+	bs.setHeight( height()/2 );
     if ( bs.height() < 8 )
 	bs.setHeight( 8 );
     bs.setWidth( bs.height() * 8 / 5 ); // 1.6 - approximate golden mean
-    setFrameRect( QRect( 0, 0, width() - bs.width(), height() ) );
+    if ( style() == WindowsStyle )
+	setFrameRect( QRect( 0, 0, 0, 0 ) );
+    else
+	setFrameRect( QRect( 0, 0, width() - bs.width(), height() ) );
     QSize bms( (bs.height()-5)*2-1, bs.height()-4 );
 
     if ( up->size() != bs ) {
@@ -519,7 +523,7 @@ void QSpinBox::resizeEvent( QResizeEvent* )
 	p.end();
 	up->setPixmap( bm );
     }
-
+    
     if ( down->size() != bs ) {
 	down->resize( bs );
 	QBitmap bm( bms );
@@ -536,12 +540,15 @@ void QSpinBox::resizeEvent( QResizeEvent* )
 	down->setPixmap( bm );
     }
 
-    int x = width() - bs.width();
-
-    up->move( x, 0 );
-    down->move( x, height() - up->height() );
-
-    vi->setGeometry( contentsRect() );
+    int y = style() == WindowsStyle ? frameWidth() : 0;
+    int x = width() - y - bs.width();
+    up->move( x, y );
+    down->move( x, height() - y - up->height() );
+    if ( style() == WindowsStyle )
+	vi->setGeometry( frameWidth(), frameWidth(),
+			 x - frameWidth(), height() - 2*frameWidth() );
+    else
+	vi->setGeometry( contentsRect() );
 }
 
 
@@ -772,8 +779,7 @@ void QSpinBox::enabledChange( bool )
     }
     else {
 	vi->setEnabled( TRUE );
-	up->setEnabled( wrapping() || value() < maxValue() );
-	down->setEnabled( wrapping() || value() > minValue() );
+	updateDisplay();
     }
     update();
 }
@@ -802,20 +808,7 @@ void QSpinBox::styleChange( GUIStyle )
 	setFrameStyle( WinPanel | Sunken );
     else
 	setFrameStyle( Panel | Sunken );
+    resizeEvent( 0 );
     update();
 }
 
-
-/*! \reimp */
-
-void QSpinBox::setEnabled( bool e )
-{
-    QFrame::setEnabled( e );
-    vi->setEnabled( e );
-    if ( e ) {
-	updateDisplay();
-    } else {
-	up->setEnabled( FALSE );
-	down->setEnabled( FALSE );
-    }
-}
