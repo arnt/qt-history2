@@ -540,7 +540,7 @@ static inline int runWidth( QFontPrivate *d, QFontStruct *qfs, const QString &st
     }
 
     if ( !fs ) {
-	width = len * (d->request.pointSize * 3 / 40);
+	width = len * (d->request.pixelSize * 3 / 4);
 	goto end;
     }
 
@@ -760,7 +760,7 @@ static inline void runExtents( QFontPrivate *d, QFontStruct *qfs, const QString 
     const QChar *ch = str.unicode() + pos;
 
     if ( !fs ) {
-	int size = (d->request.pointSize * 3 / 40);
+	int size = (d->request.pixelSize * 3 / 4);
 	overall->ascent = QMAX(overall->ascent, size);
 	overall->descent = QMAX(overall->descent, 0);
 	overall->lbearing = QMIN(overall->lbearing, 0);
@@ -911,7 +911,7 @@ void QFontPrivate::drawText( Display *dpy, WId hd, GC gc, int x, int y,
 
 	    int l = cache->length;
 	    XRectangle *rects = new XRectangle[l];
-	    int inc = request.pointSize * 3 / 40;
+	    int inc = request.pixelSize * 3 / 4;
 
 	    for (int k = 0; k < l; k++) {
 		rects[k].x = x + cache->xoff + (k * inc);
@@ -977,7 +977,7 @@ bool QFontPrivate::inFont( const QChar &chr )
 	if ( ch16 >= f->min_char_or_byte2 && ch16 <= f->max_char_or_byte2 )
 	    xcs = &f->per_char[ch16-f->min_char_or_byte2];
     }
-    if ( !xcs && xcs->width == 0 && xcs->ascent + xcs->descent == 0)
+    if ( !xcs || (xcs->width == 0 && xcs->ascent + xcs->descent == 0) )
 	return FALSE;
     return TRUE;
 }
@@ -2259,7 +2259,7 @@ int QFontMetrics::ascent() const
 
     QFontStruct *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs || qfs == (QFontStruct *) -1) {
-	return d->request.pointSize * 3 / 40;
+	return d->request.pixelSize * 3 / 4;
     }
 
     XFontStruct *f = (XFontStruct *) qfs->handle;
@@ -2516,7 +2516,7 @@ int QFontMetrics::height() const
 
     QFontStruct *qfs =  d->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs || qfs == (QFontStruct *) -1) {
-	return (d->request.pointSize * 3 / 40) + 1;
+	return (d->request.pixelSize * 3 / 4) + 1;
     }
 
     XFontStruct *f = (XFontStruct *) qfs->handle;
@@ -2594,14 +2594,14 @@ int QFontMetrics::width(QChar ch) const
     QFontPrivate::Script script = d->scriptForChar(ch);
 
     if (script == QFontPrivate::UnknownScript) {
-	return d->request.pointSize * 3 / 40;
+	return d->request.pixelSize * 3 / 4;
     }
 
     d->load(script);
 
     QFontStruct *qfs =  d->x11data.fontstruct[script];
     if (! qfs || qfs == (QFontStruct *) -1) {
-	return d->request.pointSize * 3 / 40;
+	return d->request.pixelSize * 3 / 4;
     }
 
     XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), ch, 0);
@@ -2626,14 +2626,14 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     QFontPrivate::Script script = d->scriptForChar(ch);
 
     if (script == QFontPrivate::UnknownScript) {
-	return d->request.pointSize * 3 / 40;
+	return d->request.pixelSize * 3 / 4;
     }
 
     d->load(script);
 
     QFontStruct *qfs = d->x11data.fontstruct[script];
     if (! qfs || qfs == (QFontStruct *) -1) {
-	return d->request.pointSize * 3 / 40;
+	return d->request.pixelSize * 3 / 4;
     }
 
     XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), str, pos);
