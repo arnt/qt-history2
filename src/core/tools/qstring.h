@@ -45,7 +45,7 @@ class QLatin1String;
 class Q_CORE_EXPORT QString
 {
 public:
-    QString() { ++d->ref; }
+    inline QString() : d(&shared_null) { ++d->ref; }
     QString(const QChar *unicode, int size);
     QString(int size, QChar c);
     explicit QString(QChar c);

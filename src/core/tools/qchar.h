@@ -29,7 +29,7 @@ public:
 #ifdef Q_QDOC
     QChar(const QChar& c);
 #endif
-    QChar(ushort rc) : ucs(rc){}
+    inline QChar(ushort rc) : ucs(rc){}
     QChar(short rc);
     QChar(uint rc);
     QChar(int rc);
