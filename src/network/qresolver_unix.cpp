@@ -1,10 +1,7 @@
 #include "qresolver_p.h"
-
-#if defined QT_NO_IPV6
-#  include <sys/types.h>
-#  include <sys/socket.h>
-#  include <netdb.h>
-#endif
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 void QResolverAgent::run()
 {
