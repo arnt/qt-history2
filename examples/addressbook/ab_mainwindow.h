@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/addressbook/ab_mainwindow.h#1 $
+** $Id: //depot/qt/main/examples/addressbook/ab_mainwindow.h#2 $
 **
 ** Copyright ( C ) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -41,7 +41,6 @@ protected:
     void setupCentralWidget();
 
     QToolBar *fileTools;
-    QPopupMenu *file;
     QString filename;
     ABCentralWidget *view;
 
