@@ -41,7 +41,7 @@
 
 #include <limits.h>
 
-#if 0
+#ifdef Q_WS_MAC
 const QString rsrcPath = ":/images/mac";
 #else
 const QString rsrcPath = ":/images/win";
