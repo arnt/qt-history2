@@ -194,6 +194,9 @@ QGVector::~QGVector()
 
 QGVector& QGVector::operator=( const QGVector &v )
 {
+    if ( &v == this )
+	return *this;
+
     clear();
     len = v.len;
     numItems = v.numItems;

@@ -262,6 +262,9 @@ QGList::~QGList()
 
 QGList& QGList::operator=( const QGList &list )
 {
+    if ( &list == this )
+	return *this;
+
     clear();
     if ( list.count() > 0 ) {
 	QLNode *n = list.firstNode;
