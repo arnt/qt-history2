@@ -218,11 +218,24 @@ QSGIStyle::polish( QWidget* w )
             w->setBackgroundMode( QWidget::PaletteBackground );
         if ( w->inherits("QScrollBar") )
             w->setBackgroundMode( QWidget::NoBackground );
+    } else if ( w->inherits( "QComboBox" ) ) {
+	QFont f = QApplication::font();
+	f.setBold( TRUE );
+	f.setItalic( TRUE );
+	w->setFont( f );
     } else if ( w->inherits("QMenuBar") ) {
         ((QFrame*) w)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
         w->setBackgroundMode( QWidget::PaletteBackground );
+	QFont f = QApplication::font();
+	f.setBold( TRUE );
+	f.setItalic( TRUE );
+	w->setFont( f );
     } else if ( w->inherits("QPopupMenu") ) {
         ((QFrame*) w)->setLineWidth( pixelMetric( PM_DefaultFrameWidth ) + 1 );
+	QFont f = QApplication::font();
+	f.setBold( TRUE );
+	f.setItalic( TRUE );
+	w->setFont( f );
     } else if ( w->inherits("QToolBar") ) {
         w->setBackgroundMode( QWidget::PaletteBackground );
     } else if ( w->inherits("QToolBarSeparator") ) {
@@ -236,6 +249,12 @@ QSGIStyle::unPolish( QWidget* w )
 {
     if ( w->inherits("QButton") || w->inherits("QSlider") || w->inherits("QScrollBar") )
         w->removeEventFilter( this );
+    else if ( w->inherits( "QPopupMenu" ) ) {
+	((QFrame*)w)->setLineWidth( pixelMetric( PM_DefaultFrameWidth ) );
+	w->setFont( QApplication::font() );
+    } else if ( w->inherits( "QMenuBar" ) || w->inherits( "QComboBox" ) ) {
+	w->setFont( QApplication::font() );
+    }
 }
 
 /*! \reimp */
