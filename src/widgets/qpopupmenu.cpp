@@ -289,7 +289,6 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     ncols = 1;
     setFrameStyle( QFrame::PopupPanel | QFrame::Raised );
     setMouseTracking(style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this));
-    style().polishPopupMenu( this );
     setBackgroundMode( PaletteButton );
     connectModalRecursionSafety = 0;
 
@@ -2153,7 +2152,6 @@ void QPopupMenu::styleChange( QStyle& old )
 {
     QFrame::styleChange( old );
     setMouseTracking(style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this));
-    style().polishPopupMenu( this );
     updateSize();
 }
 

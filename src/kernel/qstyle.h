@@ -138,18 +138,43 @@ public:
 
     virtual void polish( QPalette & );
 
-    virtual void polishPopupMenu( QPopupMenu* ) = 0;
+    virtual QRect itemRect( QPainter *p, const QRect &r,
+			    int flags, bool enabled,
+			    const QString &text, int len = -1 ) const;
 
     virtual QRect itemRect( QPainter *p, const QRect &r,
 			    int flags, bool enabled,
-			    const QPixmap *pixmap,
-			    const QString &text, int len = -1 ) const;
+			    const QPixmap &pixmap ) const;
+
+    QRect itemRect( QPainter *p, const QRect &r,
+		    int flags, bool enabled,
+		    const QPixmap *pixmap,
+		    const QString &text, int len = -1 ) const {
+	return pixmap
+	    ? itemRect(p, r, flags, enabled, *pixmap)
+	    : itemRect(p, r, flags, enabled, text, len);
+    }
 
     virtual void drawItem( QPainter *p, const QRect &r,
 			   int flags, const QColorGroup &g, bool enabled,
-			   const QPixmap *pixmap, const QString &text,
-			   int len = -1, const QColor *penColor = 0 ) const;
+			   const QString &text, int len = -1,
+			   const QColor *penColor = 0 ) const;
 
+    virtual void drawItem( QPainter *p, const QRect &r,
+			   int flags, const QColorGroup &g, bool enabled,
+			   const QPixmap &pixmap,
+			   const QColor *penColor = 0 ) const;
+
+    void drawItem( QPainter *p, const QRect &r,
+		   int flags, const QColorGroup &g, bool enabled,
+		   const QPixmap *pixmap,
+		   const QString &text, int len = -1,
+		   const QColor *penColor = 0 ) const {
+	if (pixmap)
+	    drawItem(p, r, flags, g, enabled, *pixmap, penColor);
+	else
+	    drawItem(p, r, flags, g, enabled, text, len, penColor);
+    }
 
     enum PrimitiveElement {
 	PE_ButtonCommand,

@@ -103,8 +103,13 @@ public:
 
     virtual void drawItem( QPainter *p, const QRect &r,
 			   int flags, const QColorGroup &g, bool enabled,
-			   const QPixmap *pixmap, const QString &text,
-			   int len = -1, const QColor *penColor = 0 ) const;
+			   const QString &text, int len = -1,
+			   const QColor *penColor = 0 ) const;
+
+    virtual void drawItem( QPainter *p, const QRect &r,
+			   int flags, const QColorGroup &g, bool enabled,
+			   const QPixmap &pixmap,
+			   const QColor *penColor = 0 ) const;
 
 #ifdef Q_WS_MAC
     static void appearanceChanged();

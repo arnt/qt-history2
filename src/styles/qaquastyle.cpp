@@ -330,13 +330,21 @@ bool QAquaStyle::event(QEvent *e)
 
 /*! \reimp */
 void QAquaStyle::drawItem(QPainter *p, const QRect &r,
-			   int flags, const QColorGroup &g, bool enabled,
-			   const QPixmap *pixmap, const QString& text,
-			   int len, const QColor* penColor) const
+			  int flags, const QColorGroup &g, bool enabled,
+			  const QString& text, int len, const QColor* penColor) const
 {
     //No accelerators drawn here!
-    QWindowsStyle::drawItem(p, r, flags | NoAccel, g, enabled, pixmap, text,
-			     len, penColor);
+    QWindowsStyle::drawItem(p, r, flags | NoAccel, g, enabled, text, len, penColor);
+}
+
+/*! \reimp */
+void QAquaStyle::drawItem(QPainter *p, const QRect &r,
+			  int flags, const QColorGroup &g, bool enabled,
+			  const QPixmap &pixmap,
+			  const QColor* penColor) const
+{
+    //No accelerators drawn here!
+    QWindowsStyle::drawItem(p, r, flags | NoAccel, g, enabled, pixmap, penColor);
 }
 
 /*!

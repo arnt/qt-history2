@@ -42,7 +42,7 @@
 #include "qwindowsstyle.h"
 #endif // QT_H
 
-#if defined( Q_WS_MAC ) && !defined( QT_NO_STYLE_MAC ) 
+#if defined( Q_WS_MAC ) && !defined( QT_NO_STYLE_MAC )
 
 class QPalette;
 
@@ -67,8 +67,13 @@ public:
 
     void drawItem( QPainter *p, const QRect &r,
 		   int flags, const QColorGroup &g, bool enabled,
-		   const QPixmap *pixmap, const QString &text,
-		   int len = -1, const QColor *penColor = 0 ) const;
+		   const QString &text, int len = -1,
+		   const QColor *penColor = 0 ) const;
+
+    void drawItem( QPainter *p, const QRect &r,
+		   int flags, const QColorGroup &g, bool enabled,
+		   const QPixmap &pixmap,
+		   const QColor *penColor = 0 ) const;
 
     void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,
@@ -112,7 +117,7 @@ public:
 				const QPoint &pos,
 				const QStyleOption& = QStyleOption::Default ) const;
 
-    virtual int styleHint(StyleHint sh, const QWidget *, const QStyleOption &, 
+    virtual int styleHint(StyleHint sh, const QWidget *, const QStyleOption &,
 			  QStyleHintReturn *) const;
 
     QSize sizeFromContents( ContentsType contents,

@@ -96,8 +96,8 @@ static const int macRightBorder       = 12;   // right border on mac
 #define QMAC_DO_SECONDARY_GROUPBOXES
 
 void QMacPainter::setport()
-{ 
-    QPainter::initPaintDevice(TRUE); 
+{
+    QPainter::initPaintDevice(TRUE);
     NormalizeThemeDrawingState(); //just to be extra sure
 }
 
@@ -187,7 +187,7 @@ protected:
     void doFocus(QWidget *);
 };
 QMacStylePrivate::QMacStylePrivate() : QAquaAnimate()
-{ 
+{
     progressbarState.frame = 0;
     buttonState.frame = 0;
     buttonState.dir = ButtonState::ButtonDark;
@@ -260,7 +260,7 @@ static int mac_count = 0;
     Manager. This allows your application to be styled by whatever
     theme your Macintosh is using. This is done by having primitives
     in QStyle implemented in terms of what the Macintosh would
-    normally theme (i.e. the Finder). 
+    normally theme (i.e. the Finder).
 
     There are additional issues that should be taken
     into consideration to make an application compatible with the
@@ -348,16 +348,16 @@ void QMacStyle::polish(QApplication* app)
 /*! \reimp */
 void QMacStyle::polish(QWidget* w)
 {
-    if(!w->isTopLevel() && !w->inherits("QSplitter") && 
-       w->backgroundPixmap() && 
+    if(!w->isTopLevel() && !w->inherits("QSplitter") &&
+       w->backgroundPixmap() &&
        qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap() &&
-	w->backgroundPixmap()->serialNumber() == 
-       qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()->serialNumber()) 
+	w->backgroundPixmap()->serialNumber() ==
+       qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()->serialNumber())
 	w->setBackgroundOrigin(QWidget::WindowOrigin);
     d->addWidget(w);
 
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
-    if(w->parentWidget() && w->parentWidget()->inherits("QGroupBox") && !w->ownPalette() && 
+    if(w->parentWidget() && w->parentWidget()->inherits("QGroupBox") && !w->ownPalette() &&
        w->parentWidget()->parentWidget() && w->parentWidget()->parentWidget()->inherits("QGroupBox")) {
 	QPalette pal = w->palette();
 	QPixmap px(200, 200, 32);
@@ -365,8 +365,8 @@ void QMacStyle::polish(QWidget* w)
 	{
 	    QPainter p(&px);
 	    ((QMacPainter *)&p)->setport();
-	    Rect r; SetRect(&r, 0, 0, px.width(), px.height()); 
-	    ApplyThemeBackground(kThemeBackgroundSecondaryGroupBox, &r, 
+	    Rect r; SetRect(&r, 0, 0, px.width(), px.height());
+	    ApplyThemeBackground(kThemeBackgroundSecondaryGroupBox, &r,
 				 kThemeStateActive, px.depth(), TRUE);
 	    EraseRect(&r);
 	}
@@ -431,70 +431,78 @@ void QMacStyle::unPolish(QWidget* w)
 
 /*! \reimp */
 void QMacStyle::drawItem(QPainter *p, const QRect &r,
-			   int flags, const QColorGroup &cg, bool enabled,
-			   const QPixmap *pixmap, const QString& text,
-			   int len, const QColor* penColor) const
+			 int flags, const QColorGroup &cg, bool enabled,
+			 const QString& text, int len,
+			 const QColor* penColor) const
 {
     flags |= NoAccel;     //No accelerators drawn here!
     int x = r.x(), y = r.y(), w = r.width(), h = r.height();
     p->setPen(penColor ? *penColor : cg.foreground());
-    if(pixmap) {
-	QPixmap  pm(*pixmap);
-	bool clip = (flags & Qt::DontClip) == 0;
-	if(clip) {
-	    if(pm.width() < w && pm.height() < h)
-		clip = FALSE;
-	    else
-		p->setClipRect(r);
-	}
-	if((flags & Qt::AlignVCenter) == Qt::AlignVCenter)
-	    y += h/2 - pm.height()/2;
-	else if((flags & Qt::AlignBottom) == Qt::AlignBottom)
-	    y += h - pm.height();
-	if((flags & Qt::AlignRight) == Qt::AlignRight)
-	    x += w - pm.width();
-	else if((flags & Qt::AlignHCenter) == Qt::AlignHCenter)
-	    x += w/2 - pm.width()/2;
-	else if(((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout())
-	    x += w - pm.width();
-
-	if(!enabled) {
-	    if(pm.mask()) {			// pixmap with a mask
-		if(!pm.selfMask()) {		// mask is not pixmap itself
-		    QPixmap pmm(*pm.mask());
-		    pmm.setMask(*((QBitmap *)&pmm));
-		    pm = pmm;
-		}
-	    } else if(pm.depth() == 1) {	// monochrome pixmap, no mask
-		pm.setMask(*((QBitmap *)&pm));
-#ifndef QT_NO_IMAGE_HEURISTIC_MASK
-	    } else {				// color pixmap, no mask
-		QString k;
-		k.sprintf("$qt-drawitem-%x", pm.serialNumber());
-		QPixmap *mask = QPixmapCache::find(k);
-		bool del=FALSE;
-		if(!mask) {
-		    mask = new QPixmap(pm.createHeuristicMask());
-		    mask->setMask(*((QBitmap*)mask));
-		    del = !QPixmapCache::insert(k, mask);
-		}
-		pm = *mask;
-		if(del) 
-		    delete mask;
-#endif
-	    }
-	    { //do we want the drop thingie for QMacStyle?
-		p->setPen(cg.light());
-		p->drawPixmap(x+1, y+1, pm);
-		p->setPen(cg.text());
-	    }
-	}
-	p->drawPixmap(x, y, pm);
-	if(clip)
-	    p->setClipping(FALSE);
-    } else if(!text.isNull()) {
+    if(!text.isNull())
 	p->drawText(x, y, w, h, flags, text, len);
+}
+
+void QMacStyle::drawItem(QPainter *p, const QRect &r,
+			 int flags, const QColorGroup &cg, bool enabled,
+			 const QPixmap &pixmap,
+			 const QColor* penColor) const
+{
+    flags |= NoAccel;     //No accelerators drawn here!
+    int x = r.x(), y = r.y(), w = r.width(), h = r.height();
+    p->setPen(penColor ? *penColor : cg.foreground());
+    QPixmap  pm(pixmap);
+    bool clip = (flags & Qt::DontClip) == 0;
+    if(clip) {
+	if(pm.width() < w && pm.height() < h)
+	    clip = FALSE;
+	else
+	    p->setClipRect(r);
     }
+    if((flags & Qt::AlignVCenter) == Qt::AlignVCenter)
+	y += h/2 - pm.height()/2;
+    else if((flags & Qt::AlignBottom) == Qt::AlignBottom)
+	y += h - pm.height();
+    if((flags & Qt::AlignRight) == Qt::AlignRight)
+	x += w - pm.width();
+    else if((flags & Qt::AlignHCenter) == Qt::AlignHCenter)
+	x += w/2 - pm.width()/2;
+    else if(((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout())
+	x += w - pm.width();
+
+    if(!enabled) {
+	if(pm.mask()) {			// pixmap with a mask
+	    if(!pm.selfMask()) {		// mask is not pixmap itself
+		QPixmap pmm(*pm.mask());
+		pmm.setMask(*((QBitmap *)&pmm));
+		pm = pmm;
+	    }
+	} else if(pm.depth() == 1) {	// monochrome pixmap, no mask
+	    pm.setMask(*((QBitmap *)&pm));
+#ifndef QT_NO_IMAGE_HEURISTIC_MASK
+	} else {				// color pixmap, no mask
+	    QString k;
+	    k.sprintf("$qt-drawitem-%x", pm.serialNumber());
+	    QPixmap *mask = QPixmapCache::find(k);
+	    bool del=FALSE;
+	    if(!mask) {
+		mask = new QPixmap(pm.createHeuristicMask());
+		mask->setMask(*((QBitmap*)mask));
+		del = !QPixmapCache::insert(k, mask);
+	    }
+	    pm = *mask;
+	    if(del)
+		delete mask;
+#endif
+	}
+	{ //do we want the drop thingie for QMacStyle?
+	    p->setPen(cg.light());
+	    p->drawPixmap(x+1, y+1, pm);
+	    p->setPen(cg.text());
+	}
+    }
+    p->drawPixmap(x, y, pm);
+    if(clip)
+	p->setClipping(FALSE);
 }
 
 /*! \reimp */
@@ -537,7 +545,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    const Rect *rect = qt_glb_mac_rect(r, p, FALSE,
 					       QRect(frame_size, frame_size, frame_size * 2, frame_size * 2));
 	    ((QMacPainter *)p)->setport();
-	    if(pe == PE_PanelLineEdit) 
+	    if(pe == PE_PanelLineEdit)
 		DrawThemeEditTextFrame(rect, tds);
 	    else
 		DrawThemeListBoxFrame(rect, tds);
@@ -623,9 +631,9 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	if(flags & Style_HasFocus)
 	    info.adornment |= kThemeAdornmentFocus;
 	if(qAquaActive(cg)) {
-	    if(!(flags & Style_Enabled)) 
+	    if(!(flags & Style_Enabled))
 		info.state = kThemeStateUnavailable;
-	    else if(flags & Style_Down) 
+	    else if(flags & Style_Down)
 		info.state = kThemeStatePressed;
 	} else {
 	    if(flags & Style_Enabled)
@@ -633,19 +641,19 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    else
 		info.state = kThemeStateUnavailableInactive;
 	}
-	if(flags & Style_Sunken) 
+	if(flags & Style_Sunken)
 	    info.value = kThemeButtonOn;
 
 	QRect ir = r;
-	if((flags & Style_Off)) 
+	if((flags & Style_Off))
 	    ir.setRight(ir.right() + 50);
-	else if((flags & Style_Up)) 
+	else if((flags & Style_Up))
 	    info.adornment |= kThemeAdornmentHeaderButtonSortUp;
 	((QMacPainter *)p)->setport();
-	DrawThemeButton(qt_glb_mac_rect(ir, p, FALSE), kThemeListHeaderButton, 
+	DrawThemeButton(qt_glb_mac_rect(ir, p, FALSE), kThemeListHeaderButton,
 			&info, NULL, NULL, NULL, 0);
 	break; }
-    case PE_CheckListController: 
+    case PE_CheckListController:
 	break;
     case PE_CheckListExclusiveIndicator:
     case PE_ExclusiveIndicatorMask:
@@ -726,7 +734,7 @@ void QMacStyle::drawControl(ControlElement element,
     }
 
     switch(element) {
-    case CE_ToolBoxTab: 
+    case CE_ToolBoxTab:
 	QCommonStyle::drawControl(element, p, widget, r, cg, how, opt);
 	break;
     case CE_PopupMenuHorizontalExtra:
@@ -743,7 +751,7 @@ void QMacStyle::drawControl(ControlElement element,
 		tmit = kThemeMenuItemScrollDownArrow;
 	    else
 		tmit = kThemeMenuItemScrollUpArrow;
-	} 
+	}
 	((QMacPainter *)p)->setport();
 	DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, NULL, 0);
 	break; }
@@ -962,7 +970,7 @@ void QMacStyle::drawControl(ControlElement element,
 	    tts = kThemeTabNonFrontPressed;
 	}
 	ThemeTabDirection ttd = kThemeTabNorth;
-	if(tb->shape() == QTabBar::RoundedBelow || tb->shape() == QTabBar::TriangularBelow) 
+	if(tb->shape() == QTabBar::RoundedBelow || tb->shape() == QTabBar::TriangularBelow)
 	    ttd = kThemeTabSouth;
 	QRect tabr(r.x(), r.y(), r.width(), r.height() + pixelMetric(PM_TabBarBaseOverlap, widget));
 	if(ttd == kThemeTabSouth)
@@ -973,21 +981,21 @@ void QMacStyle::drawControl(ControlElement element,
 	    //The "fudge" is just so the left and right side doesn't
 	    //get drawn onto my widget (not sure it will really happen)
 	    const int fudge = 20;
-	    QRect pr = QRect(r.x() - fudge, r.bottom() - 2, 
+	    QRect pr = QRect(r.x() - fudge, r.bottom() - 2,
 			     r.width() + (fudge * 2), pixelMetric(PM_TabBarBaseHeight, widget));
-	    if(ttd == kThemeTabSouth) 
+	    if(ttd == kThemeTabSouth)
 		pr.moveBy(0, -(r.height() + 2));
 	    p->save();
 	    p->setClipRect(QRect(pr.x() + fudge, pr.y(), pr.width() - (fudge * 2), pr.height()));
 	    ((QMacPainter *)p)->setport();
 	    ThemeDrawState tabpane_tds = kThemeStateActive;
 	    if(qAquaActive(cg)) {
-		if(!tb->isEnabled()) 
+		if(!tb->isEnabled())
 		    tabpane_tds = kThemeStateUnavailable;
-	    } else { 
-		if(tb->isEnabled()) 
+	    } else {
+		if(tb->isEnabled())
 		    tabpane_tds = kThemeStateInactive;
-		else 
+		else
 		    tabpane_tds = kThemeStateUnavailableInactive;
 	    }
 	    DrawThemeTabPane(qt_glb_mac_rect(pr, p), tabpane_tds);
@@ -1040,17 +1048,17 @@ void QMacStyle::drawControl(ControlElement element,
 	    SetRect(&myRect,r.x(), r.y(), r.width(), r.height());
 	    GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
 	    off_rct = QRect(myRect.left - macRect.left, myRect.top - macRect.top,
-			    (myRect.left - macRect.left) + (macRect.right - myRect.right), 
+			    (myRect.left - macRect.left) + (macRect.right - myRect.right),
 			    (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
 	}
 
 	((QMacPainter *)p)->setport();
-	DrawThemeButton(qt_glb_mac_rect(r, p, FALSE, off_rct), 
+	DrawThemeButton(qt_glb_mac_rect(r, p, FALSE, off_rct),
 			bkind, &info, NULL, NULL, NULL, 0);
 	if(buffer) {
 	    if(do_draw && frame) {
 		QMacSavedPortInfo savedInfo(buffer);
-		const Rect *buff_rct = qt_glb_mac_rect(QRect(0, 0, r.width(), r.height()), 
+		const Rect *buff_rct = qt_glb_mac_rect(QRect(0, 0, r.width(), r.height()),
 						       buffer, FALSE, off_rct);
 		DrawThemeButton(buff_rct, bkind, &info, NULL, NULL, NULL, 0);
 
@@ -1076,7 +1084,7 @@ void QMacStyle::drawControl(ControlElement element,
 		    }
 		    //pulse the colours
 		    uchar *bytes = img.scanLine(y);
-		    for(int x = 0; x < img.bytesPerLine(); x++) 
+		    for(int x = 0; x < img.bytesPerLine(); x++)
 			*(bytes + x) = (*(bytes + x) * (100 - frame)) / 100;
 		}
 		*buffer = img;
@@ -1146,11 +1154,11 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		    SetRect(&myRect,r.x(), r.y(), r.width(), r.height());
 		    GetThemeButtonBackgroundBounds(&myRect, kThemeBevelButton, &info, &macRect);
 		    off_rct = QRect(myRect.left - macRect.left, myRect.top - macRect.top,
-				    (myRect.left - macRect.left) + (macRect.right - myRect.right), 
+				    (myRect.left - macRect.left) + (macRect.right - myRect.right),
 				    (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
 		}
 
-		// If the background color is set then make the toolbutton 
+		// If the background color is set then make the toolbutton
 		// translucent so the background color is visible
 		if (widget->paletteBackgroundColor() != white) {
 		    p->fillRect( r, widget->backgroundColor() );
@@ -1230,7 +1238,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 				    curPaint = &pm_paint;
 				    ((QMacPainter *)curPaint)->setport();
 				    rot = frame;
-				} 
+				}
 			    }
 			}
 			if(!rot && child->isOpen())
@@ -1243,7 +1251,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 			    wm.translate((pm.width()/2), (pm.height()/2));
 			    p->drawPixmap(mr.topLeft()-QPoint(border, border), pm.xForm(wm));
 			    ((QMacPainter *)p)->setport();
-			} 
+			}
 		    }
 		}
 	    }
@@ -1251,8 +1259,8 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	break; }
     case CC_SpinWidget: {
 	QSpinWidget * sw = (QSpinWidget *) widget;
-	if(sub & SC_SpinWidgetFrame) 
-	    drawPrimitive(PE_PanelLineEdit, p, querySubControlMetrics(CC_SpinWidget, sw, SC_SpinWidgetFrame), 
+	if(sub & SC_SpinWidgetFrame)
+	    drawPrimitive(PE_PanelLineEdit, p, querySubControlMetrics(CC_SpinWidget, sw, SC_SpinWidgetFrame),
 			  cg, Style_Sunken);
 	if((sub & SC_SpinWidgetDown) || (sub & SC_SpinWidgetUp)) {
 	    if(!sw->isUpEnabled() && !sw->isDownEnabled())
@@ -1310,7 +1318,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    if(!tbar->visibleText().isEmpty()) {
 		QString pmkey;
 		QTextOStream os(&pmkey);
-		os << "$qt_mac_style_titlebar_" << "_" << newr.width() 
+		os << "$qt_mac_style_titlebar_" << "_" << newr.width()
 		   << "x" << newr.height() << "_" << twa << "_" << tds << "_" << tbar->visibleText();
 		if(QPixmap *dblbuf = QPixmapCache::find(pmkey)) {
 		    p->drawPixmap(r.topLeft(), *dblbuf);
@@ -1319,7 +1327,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		    QPainter pixp(pix);
 
 		    ((QMacPainter *)&pixp)->setport();
-		    DrawThemeWindowFrame(macWinType, qt_glb_mac_rect(newr, &pixp, FALSE), tds, 
+		    DrawThemeWindowFrame(macWinType, qt_glb_mac_rect(newr, &pixp, FALSE), tds,
 					 &twm, twa, NULL, 0);
 
 		    pixp.save();
@@ -1327,7 +1335,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 					 tds, &twm, twa, kWindowTitleTextRgn, treg.handle(TRUE));
 		    pixp.setClipRegion(treg);
 		    QRect br = treg.boundingRect();
-		    int x = br.x(), 
+		    int x = br.x(),
 			y = br.y() + ((tbar->height() / 2) - (p->fontMetrics().height() / 2));
 		    if(br.width() <= (p->fontMetrics().width(tbar->caption())+iw*2))
 			x += iw;
@@ -1343,11 +1351,11 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		}
 	    } else {
 		((QMacPainter *)p)->setport();
-		DrawThemeWindowFrame(macWinType, qt_glb_mac_rect(newr, p, FALSE), tds, 
+		DrawThemeWindowFrame(macWinType, qt_glb_mac_rect(newr, p, FALSE), tds,
 				     &twm, twa, NULL, 0);
 	    }
 	}
-	if(sub & (SC_TitleBarCloseButton | SC_TitleBarMaxButton | SC_TitleBarMinButton | 
+	if(sub & (SC_TitleBarCloseButton | SC_TitleBarMaxButton | SC_TitleBarMinButton |
 		  SC_TitleBarNormalButton)) {
 	    ThemeDrawState wtds = tds;
 	    if(flags & Style_MouseOver)
@@ -1468,7 +1476,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    info.adornment |= kThemeAdornmentArrowDownArrow;
 	    QRect buttonR = querySubControlMetrics(CC_ComboBox, widget, SC_ComboBoxArrow, opt);
 	    ((QMacPainter *)p)->setport();
-	    DrawThemeButton(qt_glb_mac_rect(buttonR, p, TRUE, QRect(1, 0, 0, 0)), 
+	    DrawThemeButton(qt_glb_mac_rect(buttonR, p, TRUE, QRect(1, 0, 0, 0)),
 			    kThemeArrowButton, &info, NULL, NULL, NULL, 0);
 	} else {
 	    info.adornment |= kThemeAdornmentArrowLeftArrow;
@@ -1488,7 +1496,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     SInt32 ret = 0;
     switch(metric) {
     case PM_TabBarTabVSpace:
-	ret = 4; 
+	ret = 4;
 	break;
     case PM_CheckListControllerSize:
 	break;
@@ -1532,8 +1540,8 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	break;
     case PM_DefaultFrameWidth:
 	if(widget &&
-	   (widget->isTopLevel() || !widget->parentWidget() || 
-	    (widget->parentWidget()->inherits("QMainWindow") && 
+	   (widget->isTopLevel() || !widget->parentWidget() ||
+	    (widget->parentWidget()->inherits("QMainWindow") &&
 	     ((QMainWindow*)widget->parentWidget())->centralWidget() == widget)) &&
 	    (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild")))
 	    ret = 0;
@@ -1639,15 +1647,15 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	const int spinner_w = 15, spinner_h = 10; //isn't there some way to get this from the AppMan?
 	int fw = pixelMetric(PM_SpinBoxFrameWidth, w), y = fw, x = w->width() - fw - spinner_w;
 	switch(sc) {
-	case SC_SpinWidgetUp: 
+	case SC_SpinWidgetUp:
 	    return QRect(x, y + ((w->height() / 2) - spinner_h), spinner_w, spinner_h);
-	case SC_SpinWidgetDown: 
+	case SC_SpinWidgetDown:
 	    return QRect(x, y + (w->height() / 2), spinner_w, spinner_h);
 	case SC_SpinWidgetButtonField:
 	    return QRect(x, y, spinner_w, w->height() - (fw*2));
-	case SC_SpinWidgetEditField: 
-	    return QRect(fw, fw, w->width() - spinner_w - (fw*2) - macSpinBoxSep, w->height() - (fw*2)); 
-	case SC_SpinWidgetFrame: 
+	case SC_SpinWidgetEditField:
+	    return QRect(fw, fw, w->width() - spinner_w - (fw*2) - macSpinBoxSep, w->height() - (fw*2));
+	case SC_SpinWidgetFrame:
 	    return QRect(0, 0, w->width() - spinner_w - macSpinBoxSep, w->height());
 	default:
 	    break;
@@ -1827,7 +1835,7 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 	else if(r == SR_DialogButtonAbort)
 	    srch = QDialogButtons::Abort;
 
-	const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, w), 
+	const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, w),
 		 bheight = pixelMetric(PM_DialogButtonsButtonHeight, w),
 		  bspace = pixelMetric(PM_DialogButtonsSeparator, w),
 		      fw = pixelMetric(PM_DefaultFrameWidth, w);
@@ -1850,7 +1858,7 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 		}
 		cnt++;
 		if(macBtnOrder[i] == srch) {
-		    if(dbtns->orientation() == Horizontal) 
+		    if(dbtns->orientation() == Horizontal)
 			ret = QRect(start, wrect.bottom() - fw - mheight, mwidth, mheight);
 		    else
 			ret = QRect(fw, start, mwidth, mheight);
@@ -1868,14 +1876,14 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 	    if(dbtns->buttonText(QDialogButtons::Help) == "?") {
 		help_width = 35;
 		help_height = bheight;
-	    } else { 
+	    } else {
 		QSize szH = dbtns->sizeHint(QDialogButtons::Help);
 		help_width = szH.width();
 		help_height = szH.height();
 	    }
 	}
 	if(r == SR_DialogButtonCustom) {
-	    if(dbtns->orientation() == Horizontal) 
+	    if(dbtns->orientation() == Horizontal)
 		ret = QRect(fw + help_width, fw, start - help_width - (fw*2) - bspace, wrect.height() - (fw*2));
 	    else
 		ret = QRect(fw, start, wrect.width() - (fw*2), wrect.height() - help_height - start - (fw*2));
@@ -1890,7 +1898,7 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 	SetRect(&myRect, 0, 0, w->width(), w->height());
 	GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
 	int offx = myRect.left - macRect.left, offy = myRect.top - macRect.top,
-	    offw = (myRect.left - macRect.left) + (macRect.right - myRect.right), 
+	    offw = (myRect.left - macRect.left) + (macRect.right - myRect.right),
 	    offh = (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom);
 	myRect.left   += offx;
 	myRect.top    += offy;
@@ -1898,7 +1906,7 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 	myRect.bottom -= offh;
 	myRect.bottom -= 2; //account for the shadow of the pushbutton? ##Sam
 	GetThemeButtonContentBounds(&myRect, bkind, &info, &macRect);
-	ret.setRect(macRect.left - offx, macRect.top - offy, 
+	ret.setRect(macRect.left - offx, macRect.top - offy,
 		    (macRect.right + offw) - (macRect.left - offx), macRect.bottom + offh);
 	break; }
     case SR_ProgressBarLabel:
@@ -2055,14 +2063,14 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
     case CT_DialogButtons: {
 	const QDialogButtons *dbtns = (const QDialogButtons *)widget;
 	int w = contentsSize.width(), h = contentsSize.height();
-	const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, widget), 
+	const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, widget),
 		  bspace = pixelMetric(PM_DialogButtonsSeparator, widget),
 		 bheight = pixelMetric(PM_DialogButtonsButtonHeight, widget);
 	if(dbtns->orientation() == Horizontal) {
 	    if(!w)
 		w = bwidth;
 	} else {
-	    if(!h) 
+	    if(!h)
 		h = bheight;
 	}
 	for(unsigned int i = 0, cnt = 0; i < (sizeof(macBtnOrder)/sizeof(macBtnOrder[0])); i++) {
@@ -2074,10 +2082,10 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 		else
 		    w = QMAX(w, mwidth);
 
-		if(cnt) 
+		if(cnt)
 		    w += bspace;
 		cnt++;
-		if(dbtns->orientation() == Horizontal) 
+		if(dbtns->orientation() == Horizontal)
 		    w += mwidth;
 		else
 		    h += mheight;
@@ -2091,20 +2099,20 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	}
 	if(dbtns->isButtonVisible(QDialogButtons::Help)) {
 	    if(dbtns->buttonText(QDialogButtons::Help) == "?") {
-		if(dbtns->orientation() == Horizontal) 
+		if(dbtns->orientation() == Horizontal)
 		    w += 35;
 	    } else {
 		QSize szH = dbtns->sizeHint(QDialogButtons::Help);
-		if(dbtns->orientation() == Horizontal) 
+		if(dbtns->orientation() == Horizontal)
 		    w += QMAX(bwidth, szH.width());
 		else
-		    h += QMAX(bheight, szH.height());		    
+		    h += QMAX(bheight, szH.height());
 	    }
 	}
 	const int fw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
 	sz = QSize(w + fw, h + fw);
 	break; }
-    case CT_SpinBox: 
+    case CT_SpinBox:
 	sz.setWidth(sz.width() + macSpinBoxSep); //leave space between the spinner and the editor
 	break;
     case CT_TabWidget:
@@ -2190,9 +2198,9 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	    Rect macRect, myRect;
 	    SetRect(&myRect,0, 0, sz.width(), sz.height());
 	    GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
-	    sz.setWidth(sz.width() + 
+	    sz.setWidth(sz.width() +
 			(myRect.left - macRect.left) + (macRect.bottom - myRect.bottom));
-	    sz.setHeight(sz.height() + 
+	    sz.setHeight(sz.height() +
 			 (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
 	}
     }

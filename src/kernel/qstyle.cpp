@@ -492,23 +492,12 @@ void QStyle::polish( QPalette&)
 }
 
 /*!
-    Polishes the popup menu according to the GUI style. This usually
-    means setting the mouse tracking
-    (\l{QPopupMenu::setMouseTracking()}) and whether the menu is
-    checkable by default (\l{QPopupMenu::setCheckable()}).
-*/
-void QStyle::polishPopupMenu( QPopupMenu *)
-{
-}
-
-/*!
     Returns the appropriate area (see below) within rectangle \a r in
-    which to draw the \a text or \a pixmap using painter \a p. If \a
-    len is -1 (the default) all the \a text is drawn; otherwise only
-    the first \a len characters of \a text are drawn. The text is
-    aligned in accordance with the alignment \a flags (see
-    \l{Qt::AlignmentFlags}). The \a enabled bool indicates whether or
-    not the item is enabled.
+    which to draw \a text using painter \a p. If \a len is -1 (the
+    default) all the \a text is drawn; otherwise only the first \a len
+    characters of \a text are drawn. The text is aligned in accordance
+    with the alignment \a flags (see \l{Qt::AlignmentFlags}). The \a
+    enabled bool indicates whether or not the item is enabled.
 
     If \a r is larger than the area needed to render the \a text the
     rectangle that is returned will be offset within \a r in
@@ -516,13 +505,10 @@ void QStyle::polishPopupMenu( QPopupMenu *)
     \c AlignCenter the returned rectangle will be centered within \a
     r. If \a r is smaller than the area needed the rectangle that is
     returned will be \e larger than \a r (the smallest rectangle large
-    enough to render the \a text or \a pixmap).
-
-    By default, if both the text and the pixmap are not null, the
-    pixmap is drawn and the text is ignored.
+    enough to render the \a text).
 */
 QRect QStyle::itemRect( QPainter *p, const QRect &r,
-			int flags, bool enabled, const QPixmap *pixmap,
+			int flags, bool enabled,
 			const QString& text, int len ) const
 {
     QRect result;
@@ -532,19 +518,7 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
     int h = r.height();
     GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
 
-    if ( pixmap ) {
-	if ( (flags & Qt::AlignVCenter) == Qt::AlignVCenter )
-	    y += h/2 - pixmap->height()/2;
-	else if ( (flags & Qt::AlignBottom) == Qt::AlignBottom)
-	    y += h - pixmap->height();
-	if ( (flags & Qt::AlignRight) == Qt::AlignRight )
-	    x += w - pixmap->width();
-	else if ( (flags & Qt::AlignHCenter) == Qt::AlignHCenter )
-	    x += w/2 - pixmap->width()/2;
-	else if ( (flags & Qt::AlignLeft) != Qt::AlignLeft && QApplication::reverseLayout() )
-	    x += w - pixmap->width();
-	result = QRect(x, y, pixmap->width(), pixmap->height());
-    } else if ( !text.isNull() && p ) {
+    if ( !text.isNull() && p ) {
 	result = p->boundingRect( x, y, w, h, flags, text, len );
 	if ( gs == Qt::WindowsStyle && !enabled ) {
 	    result.setWidth(result.width()+1);
@@ -557,23 +531,77 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
     return result;
 }
 
+/*! \overload Returns the appropriate area within rectangle \a r in
+    which to draw \a pixmap using painter \a p.
+ */
+QRect QStyle::itemRect( QPainter *p, const QRect &r,
+			int flags, bool enabled,
+			const QPixmap &pixmap ) const
+{
+    Q_UNUSED(p)
+    Q_UNUSED(enabled)
+    QRect result;
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
+    GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
+
+    if ( (flags & Qt::AlignVCenter) == Qt::AlignVCenter )
+	y += h/2 - pixmap.height()/2;
+    else if ( (flags & Qt::AlignBottom) == Qt::AlignBottom)
+	y += h - pixmap.height();
+    if ( (flags & Qt::AlignRight) == Qt::AlignRight )
+	x += w - pixmap.width();
+    else if ( (flags & Qt::AlignHCenter) == Qt::AlignHCenter )
+	x += w/2 - pixmap.width()/2;
+    else if ( (flags & Qt::AlignLeft) != Qt::AlignLeft && QApplication::reverseLayout() )
+	x += w - pixmap.width();
+    result = QRect(x, y, pixmap.width(), pixmap.height());
+    return result;
+}
+
 
 /*!
-    Draws the \a text or \a pixmap in rectangle \a r using painter \a
-    p and color group \a g. The pen color is specified with \a
-    penColor. The \a enabled bool indicates whether or not the item is
-    enabled; when reimplementing this bool should influence how the
-    item is drawn. If \a len is -1 (the default) all the \a text is
-    drawn; otherwise only the first \a len characters of \a text are
+    Draws the \a text in rectangle \a r using painter \a p and color
+    group \a g. The pen color is specified with \a penColor. The \a
+    enabled bool indicates whether or not the item is enabled; when
+    reimplementing this bool should influence how the item is
+    drawn. If \a len is -1 (the default) all the \a text is drawn;
+    otherwise only the first \a len characters of \a text are
     drawn. The text is aligned and wrapped according to the alignment
     \a flags (see \l{Qt::AlignmentFlags}).
-
-    By default, if both the text and the pixmap are not null, the
-    pixmap is drawn and the text is ignored.
 */
 void QStyle::drawItem( QPainter *p, const QRect &r,
 		       int flags, const QColorGroup &g, bool enabled,
-		       const QPixmap *pixmap, const QString& text, int len,
+		       const QString& text, int len,
+		       const QColor* penColor ) const
+{
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
+    GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
+    p->setPen( penColor?*penColor:g.foreground() );
+    if ( !text.isNull() ) {
+	if ( gs == Qt::WindowsStyle && !enabled ) {
+	    p->setPen( g.light() );
+	    p->drawText( x+1, y+1, w, h, flags, text, len );
+	    p->setPen( g.text() );
+	}
+	p->drawText( x, y, w, h, flags, text, len );
+    }
+}
+
+/*! \overload
+
+    Draws the \a pixmap in rectangle \a r using painter \a p and color
+    group \a g.
+ */
+
+void QStyle::drawItem( QPainter *p, const QRect &r,
+		       int flags, const QColorGroup &g, bool enabled,
+		       const QPixmap &pixmap,
 		       const QColor* penColor ) const
 {
     int x = r.x();
@@ -583,67 +611,58 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
 
     p->setPen( penColor?*penColor:g.foreground() );
-    if ( pixmap ) {
-	QPixmap  pm( *pixmap );
-	bool clip = (flags & Qt::DontClip) == 0;
-	if ( clip ) {
-	    if ( pm.width() < w && pm.height() < h ) {
-		clip = FALSE;
-	    } else {
-		p->save();
-		QRegion cr = p->clipRegion(QPainter::CoordPainter);
-		cr &= QRect(x, y, w, h);
-		p->setClipRegion(cr);
-	    }
+    QPixmap  pm( pixmap );
+    bool clip = (flags & Qt::DontClip) == 0;
+    if ( clip ) {
+	if ( pm.width() < w && pm.height() < h ) {
+	    clip = FALSE;
+	} else {
+	    p->save();
+	    QRegion cr = p->clipRegion(QPainter::CoordPainter);
+	    cr &= QRect(x, y, w, h);
+	    p->setClipRegion(cr);
 	}
-	if ( (flags & Qt::AlignVCenter) == Qt::AlignVCenter )
-	    y += h/2 - pm.height()/2;
-	else if ( (flags & Qt::AlignBottom) == Qt::AlignBottom)
-	    y += h - pm.height();
-	if ( (flags & Qt::AlignRight) == Qt::AlignRight )
-	    x += w - pm.width();
-	else if ( (flags & Qt::AlignHCenter) == Qt::AlignHCenter )
-	    x += w/2 - pm.width()/2;
-	else if ( ((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout() ) // AlignAuto && rightToLeft
-	    x += w - pm.width();
+    }
+    if ( (flags & Qt::AlignVCenter) == Qt::AlignVCenter )
+	y += h/2 - pm.height()/2;
+    else if ( (flags & Qt::AlignBottom) == Qt::AlignBottom)
+	y += h - pm.height();
+    if ( (flags & Qt::AlignRight) == Qt::AlignRight )
+	x += w - pm.width();
+    else if ( (flags & Qt::AlignHCenter) == Qt::AlignHCenter )
+	x += w/2 - pm.width()/2;
+    else if ( ((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout() ) // AlignAuto && rightToLeft
+	x += w - pm.width();
 
-	if ( !enabled ) {
-	    if ( pm.mask() ) {			// pixmap with a mask
-		if ( !pm.selfMask() ) {		// mask is not pixmap itself
-		    QPixmap pmm( *pm.mask() );
-		    pmm.setMask( *((QBitmap *)&pmm) );
-		    pm = pmm;
-		}
-	    } else if ( pm.depth() == 1 ) {	// monochrome pixmap, no mask
-		pm.setMask( *((QBitmap *)&pm) );
+    if ( !enabled ) {
+	if ( pm.mask() ) {			// pixmap with a mask
+	    if ( !pm.selfMask() ) {		// mask is not pixmap itself
+		QPixmap pmm( *pm.mask() );
+		pmm.setMask( *((QBitmap *)&pmm) );
+		pm = pmm;
+	    }
+	} else if ( pm.depth() == 1 ) {	// monochrome pixmap, no mask
+	    pm.setMask( *((QBitmap *)&pm) );
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
-	    } else {				// color pixmap, no mask
-		QString k;
-		k.sprintf( "$qt-drawitem-%x", pm.serialNumber() );
-		if ( !QPixmapCache::find(k, pm) ) {
-		    pm = pm.createHeuristicMask();
-		    pm.setMask( (QBitmap&)pm );
-		    QPixmapCache::insert( k, pm );
-		}
+	} else {				// color pixmap, no mask
+	    QString k;
+	    k.sprintf( "$qt-drawitem-%x", pm.serialNumber() );
+	    if ( !QPixmapCache::find(k, pm) ) {
+		pm = pm.createHeuristicMask();
+		pm.setMask( (QBitmap&)pm );
+		QPixmapCache::insert( k, pm );
+	    }
 #endif
-	    }
-	    if ( gs == Qt::WindowsStyle ) {
-		p->setPen( g.light() );
-		p->drawPixmap( x+1, y+1, pm );
-		p->setPen( g.text() );
-	    }
 	}
-	p->drawPixmap( x, y, pm );
-	if ( clip )
-	    p->restore();
-    } else if ( !text.isNull() ) {
-	if ( gs == Qt::WindowsStyle && !enabled ) {
+	if ( gs == Qt::WindowsStyle ) {
 	    p->setPen( g.light() );
-	    p->drawText( x+1, y+1, w, h, flags, text, len );
+	    p->drawPixmap( x+1, y+1, pm );
 	    p->setPen( g.text() );
 	}
-	p->drawText( x, y, w, h, flags, text, len );
     }
+    p->drawPixmap( x, y, pm );
+    if ( clip )
+	p->restore();
 }
 
 /*!
