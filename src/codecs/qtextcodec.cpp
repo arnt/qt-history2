@@ -809,10 +809,9 @@ QByteArray QTextCodec::fromUnicode( const QString &str, int pos, int len ) const
     QByteArray a;
     if( len < 0 )
 	len = str.length() - pos;
-    if( len > 0 ) {
-	a  = fromUnicode( str.mid(pos, len) );
-	a.resize( a.size() - 1 ); // remove '\0'
-    }
+    a = fromUnicode( str.mid(pos, len) );
+    if( a.size() > 0 && a[a.size() - 1] != '\0' )
+	a.resize( a.size() - 1 );
     return a;
 }
 
