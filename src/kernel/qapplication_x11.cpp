@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#578 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#579 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2160,7 +2160,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 		QWidget *w = widget->focusWidget();
 		while ( w && w->focusProxy() )
 		    w = w->focusProxy();
-		if ( w && w->isFocusEnabled() )
+		if ( w )
 		    w->setFocus();
 		else
 		    widget->focusNextPrevChild( TRUE );
@@ -2429,7 +2429,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	QWidget *w = widget->focusWidget();
 	while ( w && w->focusProxy() )
 	    w = w->focusProxy();
-	if ( w && w->isFocusEnabled() )
+	if ( w )
 	    w->setFocus();
 	else
 	    widget->focusNextPrevChild( TRUE );
@@ -2467,12 +2467,15 @@ int QApplication::x11ProcessEvent( XEvent* event )
     break;
 
     case UnmapNotify:			// window hidden
-	if ( widget->isVisible() ) {
-	    widget->clearWState( WState_Visible );
-	    widget->clearWState( WState_Withdrawn );
-	    QHideEvent e( TRUE );
-	    QApplication::sendEvent( widget, &e );
-	    widget->sendHideEventsToChildren( TRUE );
+	if ( widget->isVisible() && widget->isTopLevel() ) {
+	    if ( widget->extra && widget->extra->topextra 
+		 && ( widget->extra->topextra->wmstate || widget->extra->topextra->embedded ) ) {
+		widget->clearWState( WState_Visible );
+		widget->clearWState( WState_Withdrawn );
+		QHideEvent e( TRUE );
+		QApplication::sendEvent( widget, &e );
+		widget->sendHideEventsToChildren( TRUE );
+	    }
 	}
 	break;
 
@@ -2480,7 +2483,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( !widget->isVisible() )  {
 	    if ( widget->testWState( WState_Withdrawn ) ) {
 		// this cannot happen in normal applications but might happen with embedding
-		widget->show();
+		if ( widget->isTopLevel() && 
+		     widget->extra->topextra &&
+		     widget->extra->topextra->embedded)
+		    widget->show();
 	    }
 	    else {
 		widget->setWState( WState_Visible );
@@ -2793,7 +2799,6 @@ void QApplication::closePopup( QWidget *popup )
 {
     if ( !popupWidgets )
 	return;
-
     popupWidgets->removeRef( popup );
     if (popup == popupOfPopupButtonFocus) {
 	popupButtonFocus = 0;
@@ -2812,16 +2817,18 @@ void QApplication::closePopup( QWidget *popup )
 		mouseButtonPressTime -= 10000;	// avoid double click
 		XAllowEvents( popup->x11Display(), ReplayPointer,CurrentTime );
 	    }
+	    XUngrabPointer( popup->x11Display(), CurrentTime );
 	    XFlush( popup->x11Display() );
 	}
 	active_window = (*activeBeforePopup);
 	// restore the former active window immediately, although
 	// we'll get a focusIn later from X
-	if ( active_window )
+	if ( active_window ) {
 	    if (active_window->focusWidget())
 		active_window->focusWidget()->setFocus();
 	    else
 		active_window->setFocus();
+	}
     }
      else {
 	// popups are not focus-handled by the window system (the

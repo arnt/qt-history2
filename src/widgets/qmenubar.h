@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#44 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#45 $
 **
 ** Definition of QMenuBar class
 **
@@ -69,8 +69,10 @@ protected:
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent * );
+    void	focusInEvent( QFocusEvent * );
     void	focusOutEvent( QFocusEvent * );
     void	resizeEvent( QResizeEvent * );
+    void	enterEvent( QEvent * );
     void	leaveEvent( QEvent * );
     void	menuContentsChanged();
     void	menuStateChanged();
@@ -89,12 +91,15 @@ private:
 
     bool	tryMouseEvent( QPopupMenu *, QMouseEvent * );
     void	tryKeyEvent( QPopupMenu *, QKeyEvent * );
-    void	goodbye();
+    void	goodbye( bool cancelled = FALSE );
     void	openActPopup();
     void	hidePopups();
 
-    virtual void	setActItem( int, bool );
+    virtual void	setActItem( int, bool = FALSE );
     virtual void	setWindowsAltMode( bool, int = 0 );
+    
+    void setActiveItem( int index, bool show = TRUE, bool activate_first_item = TRUE );
+    void setAltMode( bool );
 
     int		calculateRects( int max_width = -1 );
     int		itemAtPos( const QPoint & );
@@ -106,8 +111,10 @@ private:
     int		rightSide;
 
     uint	mseparator	: 1;
-    uint	windowsaltactive : 1;
-
+    uint	waitforalt : 1;
+    uint	popupvisible  : 1;
+    uint	hasmouse : 1;
+    
     friend class QPopupMenu;
 
 private:	// Disabled copy constructor and operator=

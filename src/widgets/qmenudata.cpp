@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#100 $
 **
 ** Implementation of QMenuData class
 **
@@ -27,7 +27,7 @@
 #include "qmenudata.h"
 #include "qpopupmenu.h"
 #include "qapplication.h"
-
+#include "qguardedptr.h"
 #ifdef QT_BUILDER
 #include "qdom.h"
 #include "qvariant.h"
@@ -37,7 +37,12 @@
 
 // Not used yet...
 class QMenuItemData { };
-class QMenuDataData { };
+class QMenuDataData {
+    // attention: also defined in qmenubar.cpp
+public:
+    QGuardedPtr<QWidget> activeBefore; // ## only useful for QMenuBar
+
+};
 
 // NOT REVISED
 /*!
@@ -116,7 +121,7 @@ QMenuData::QMenuData()
     mouseBtDn = FALSE;
     badSize = TRUE;
     avoid_circularity = 0;
-    d = 0; // FOR EXTENSION
+    d = new QMenuDataData;
 }
 
 /*!

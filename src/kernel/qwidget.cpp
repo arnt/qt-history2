@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#479 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#480 $
 **
 ** Implementation of QWidget class
 **
@@ -2344,22 +2344,20 @@ void QWidget::setFocus()
 	focusProxy()->setFocus();
 	return;
     }
-    
+
     QFocusData * f = focusData(TRUE);
     if ( f->it.current() == this && qApp->focusWidget() == this )
 	return;
 
-    if ( isFocusEnabled() ) {
-	f->it.toFirst();
-	while ( f->it.current() != this && !f->it.atLast() )
-	    ++f->it;
-	// at this point, the iterator should point to 'this'.  if it
-	// does not, 'this' must not be in the list - an error, but
-	// perhaps possible.  fix it.
-	if ( f->it.current() != this ) {
-	    f->focusWidgets.append( this );
-	    f->it.toLast();
-	}
+    f->it.toFirst();
+    while ( f->it.current() != this && !f->it.atLast() )
+	++f->it;
+    // at this point, the iterator should point to 'this'.  if it
+    // does not, 'this' must not be in the list - an error, but
+    // perhaps possible.  fix it.
+    if ( f->it.current() != this ) {
+	f->focusWidgets.append( this );
+	f->it.toLast();
     }
 
     if ( isActiveWindow() ) {
@@ -3002,6 +3000,8 @@ void QWidget::show()
     if ( !isTopLevel() && !parentWidget()->isVisible() )
 	return; // nothing we can do
 
+    bool sendLayoutHint = testWState( WState_Withdrawn ) && !isTopLevel();
+    clearWState( WState_Withdrawn );
     setWState( WState_Visible );
 
      QApplication::sendPostedEvents( this, QEvent::ChildInserted );
@@ -3069,9 +3069,6 @@ void QWidget::show()
 	}
     }
 
-    bool sendLayoutHint = testWState( WState_Withdrawn ) && !isTopLevel();
-
-    clearWState( WState_Withdrawn );
     QShowEvent e(FALSE);
     QApplication::sendEvent( this, &e );
 
@@ -3150,7 +3147,7 @@ void QWidget::sendShowEventsToChildren( bool spontaneous )
 	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->isVisible() && !widget->testWState(WState_ForceHide) ) {
+		if ( !widget->isTopLevel() && !widget->isVisible() && !widget->testWState(WState_ForceHide) ) {
 		    widget->setWState( WState_Visible );
 		    widget->sendShowEventsToChildren( spontaneous );
 		    QShowEvent e( spontaneous );
@@ -3172,7 +3169,7 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
 	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( widget->isVisible() ) {
+		if ( !widget->isTopLevel() && widget->isVisible() ) {
 		    widget->clearWState( WState_Visible );
 		    widget->sendHideEventsToChildren( spontaneous );
 		    QHideEvent e( spontaneous );

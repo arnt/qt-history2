@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#258 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#259 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -804,7 +804,7 @@ void QPopupMenu::setFont( const QFont &font )
 
 void QPopupMenu::show()
 {
-    if ( testWState(WState_Visible) ){
+    if ( isVisible() ) {
 	supressAboutToShow = FALSE;
 	return;
     }
@@ -823,9 +823,10 @@ void QPopupMenu::show()
 */
 
 void QPopupMenu::hide()
-{
+{	
     if ( !isVisible() )
-	return;
+ 	return;
+    
     actItem = popupActive = -1;
     mouseBtDn = FALSE;				// mouse button up
     hidePopups();
@@ -910,8 +911,7 @@ void QPopupMenu::paintEvent( QPaintEvent *e )
 void QPopupMenu::closeEvent( QCloseEvent * e) {
     e->accept();
     hide();
-     if ( parentMenu && parentMenu->isMenuBar )
-	byeMenuBar();
+    byeMenuBar();
 }
 
 
@@ -1102,8 +1102,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     case Key_Escape:
 	// just hide one
 	hide();
-	if ( parentMenu && parentMenu->isMenuBar )
-	    ((QMenuBar *)parentMenu)->setWindowsAltMode( FALSE, -1);
+  	if ( parentMenu && parentMenu->isMenuBar )
+	    ((QMenuBar*) parentMenu)->goodbye( TRUE );
 	break;
 
     case Key_Left:
