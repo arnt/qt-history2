@@ -130,6 +130,7 @@ private:
     QMap<QString, QString> languageSlots;
     QMap<QString, Functions*> languageFunctions;
     QStringList variables;
+    QStringList noDatabaseWidgets;
 
 };
 

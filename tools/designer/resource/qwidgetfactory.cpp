@@ -230,6 +230,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 #ifndef QT_NO_SQL
 	QMap<QWidget*, SqlWidgetConnection>::Iterator cit = widgetFactory->sqlWidgetConnections.begin();
 	for( ; cit != widgetFactory->sqlWidgetConnections.end(); ++cit ) {
+	    if ( widgetFactory->noDatabaseWidgets.find( cit.key()->name() ) != widgetFactory->noDatabaseWidgets.end() )
+		continue;
 	    if ( cit.key()->inherits( "QDesignerDataBrowser" ) )
 		( (QDesignerDataBrowser*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
  	    else if ( cit.key()->inherits( "QDesignerDataView" ) )
@@ -239,6 +241,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	for ( QMap<QString, QStringList>::Iterator it = widgetFactory->dbTables.begin(); it != widgetFactory->dbTables.end(); ++it ) {
 	    QDataTable *table = (QDataTable*)widgetFactory->toplevel->child( it.key(), "QDataTable" );
 	    if ( !table )
+		continue;
+	    if ( widgetFactory->noDatabaseWidgets.find( table->name() ) != widgetFactory->noDatabaseWidgets.end() )
 		continue;
 	    QValueList<Field> fieldMap = *widgetFactory->fieldMaps.find( table );
 	    QString conn = (*it)[ 0 ];
@@ -805,6 +809,10 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 		}
 	    } else if ( prop == "buddy" ) {
 		buddies.insert( obj->name(), v.toCString() );
+	    } else if ( prop == "frameworkCode" ) {
+		if ( !DomTool::elementToVariant( e, QVariant( TRUE, 0 ) ).toBool() ) {
+		    noDatabaseWidgets << obj->name();
+		}
 	    }
 
 	    return;

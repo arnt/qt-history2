@@ -227,7 +227,10 @@ QVariant MetaDataBase::fakeProperty( QObject * o, const QString &property)
 		  o, o->name(), o->className() );
 	return QVariant();
     }
-    return r->fakeProperties[property];
+    QMap<QString, QVariant>::Iterator it = r->fakeProperties.find( property );
+    if ( it != r->fakeProperties.end() )
+	return r->fakeProperties[property];
+    return WidgetFactory::defaultValue( o, property );
 
 }
 

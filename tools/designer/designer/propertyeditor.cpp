@@ -2464,6 +2464,10 @@ void PropertyList::setupProperties()
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
 	    item->setChanged( TRUE, FALSE );
+	item = new PropertyBoolItem( this, item, 0, "frameworkCode" );
+	setPropertyValue( item );
+	if ( MetaDataBase::isPropertyChanged( editor->widget(), "frameworkCode" ) )
+	    item->setChanged( TRUE, FALSE );
     }
 #endif
 
@@ -2703,7 +2707,7 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	    ( (PropertyIntItem*)i )->setValue( MetaDataBase::spacing( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
 	} else if ( i->name() == "layoutMargin" ) {
 	    ( (PropertyIntItem*)i )->setValue( MetaDataBase::margin( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
-	} else if ( i->name() == "toolTip" || i->name() == "whatsThis" || i->name() == "database" ) {
+	} else if ( i->name() == "toolTip" || i->name() == "whatsThis" || i->name() == "database" || i->name() == "frameworkCode" ) {
 	    i->setValue( MetaDataBase::fakeProperty( editor->widget(), i->name() ) );
 	} else if ( editor->widget()->inherits( "CustomWidget" ) ) {
 	    MetaDataBase::CustomWidget *cw = ( (CustomWidget*)editor->widget() )->customWidget();

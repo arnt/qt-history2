@@ -455,7 +455,7 @@ void QSqlFormManager::clearValues()
 void QSqlFormManager::setForm( QSqlForm* form )
 {
     d->frm = form;
-    if ( d->rcd )
+    if ( d->rcd && d->frm )
 	d->frm->setRecord( d->rcd );
 }
 

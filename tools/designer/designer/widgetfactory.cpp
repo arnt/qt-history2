@@ -1051,6 +1051,8 @@ QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
 	return QVariant( QString::fromLatin1( "" ) );
     } else if ( w->inherits( "CustomWidget" ) ) {
 	return QVariant();
+    } else if ( propName == "frameworkCode" ) {
+	return QVariant( TRUE, 0 );
     }
     return *( *defaultProperties->find( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) ).find( propName );
 }

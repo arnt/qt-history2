@@ -535,7 +535,7 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	    MetaDataBase::setSpacing( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ), v.toInt() );
 	} else if ( propName == "layoutMargin" ) {
 	    MetaDataBase::setMargin( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ), v.toInt() );
-	} else if ( propName == "toolTip" || propName == "whatsThis" || propName == "database" ) {
+	} else if ( propName == "toolTip" || propName == "whatsThis" || propName == "database" || propName == "frameworkCode" ) {
 	    MetaDataBase::setFakeProperty( editor->widget(), propName, v );
 	} else if ( editor->widget()->inherits( "CustomWidget" ) ) {
 	    MetaDataBase::CustomWidget *cw = ( (CustomWidget*)widget )->customWidget();
