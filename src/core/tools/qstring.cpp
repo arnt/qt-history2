@@ -31,6 +31,13 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#ifdef QT_NO_CAST_TO_ASCII
+QString::operator const char*() const
+{
+    return ascii();
+}
+#endif
+
 #ifndef LLONG_MAX
 #define LLONG_MAX Q_INT64_C(9223372036854775807)
 #endif
