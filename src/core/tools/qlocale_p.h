@@ -66,6 +66,11 @@ public:
         CapitalEorX                = 0x40
     };
 
+    enum GroupSeparatorMode {
+        FailOnGroupSeparators,
+        ParseGroupSeparators
+    };
+
     QString doubleToString(double d,
                            int precision = -1,
                            DoubleForm form = DFSignificantDigits,
@@ -79,16 +84,17 @@ public:
                                 int base = 10,
                                 int width = -1,
                                 unsigned flags = NoFlags) const;
-    double stringToDouble(QString num, bool *ok) const;
-    Q_LLONG stringToLongLong(QString num, int base, bool *ok) const;
-    Q_ULLONG stringToUnsLongLong(QString num, int base, bool *ok) const;
+    double stringToDouble(const QString &num, bool *ok, GroupSeparatorMode group_sep_mode) const;
+    Q_LLONG stringToLongLong(const QString &num, int base, bool *ok, GroupSeparatorMode group_sep_mode) const;
+    Q_ULLONG stringToUnsLongLong(const QString &num, int base, bool *ok, GroupSeparatorMode group_sep_mode) const;
 
 
     static double bytearrayToDouble(QByteArray num, bool *ok);
     static Q_LLONG bytearrayToLongLong(QByteArray num, int base, bool *ok);
     static Q_ULLONG bytearrayToUnsLongLong(QByteArray num, int base, bool *ok);
 
-    QByteArray numberToCLocale(const QString &locale_num) const;
+    QByteArray numberToCLocale(const QString &num,
+    	    	    	  GroupSeparatorMode group_sep_mode) const;
 
     Q_UINT32 m_language_id, m_country_id;
 

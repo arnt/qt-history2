@@ -4390,8 +4390,24 @@ Q_LLONG QString::toLongLong(bool *ok, int base) const
     }
 #endif
 
-    QLocale locale(QLocale::C);
-    return locale.d->stringToLongLong(*this, base, ok);
+    bool my_ok;
+    QLocale def_locale;
+    Q_LLONG result = def_locale.d->stringToLongLong(*this, base, &my_ok, QLocalePrivate::FailOnGroupSeparators);
+    if (my_ok) {
+        if (ok != 0)
+            *ok = true;
+        return result;
+    }
+
+    // If the default was not "C", try the "C" locale
+    if (def_locale.language() == QLocale::C) {
+        if (ok != 0)
+            *ok = false;
+        return 0;
+    }
+
+    QLocale c_locale(QLocale::C);
+    return c_locale.d->stringToLongLong(*this, base, ok, QLocalePrivate::FailOnGroupSeparators);
 }
 
 /*!
@@ -4428,8 +4444,24 @@ Q_ULLONG QString::toULongLong(bool *ok, int base) const
     }
 #endif
 
-    QLocale locale(QLocale::C);
-    return locale.d->stringToUnsLongLong(*this, base, ok);
+    bool my_ok;
+    QLocale def_locale;
+    Q_ULLONG result = def_locale.d->stringToUnsLongLong(*this, base, &my_ok, QLocalePrivate::FailOnGroupSeparators);
+    if (my_ok) {
+        if (ok != 0)
+            *ok = true;
+        return result;
+    }
+
+    // If the default was not "C", try the "C" locale
+    if (def_locale.language() == QLocale::C) {
+        if (ok != 0)
+            *ok = false;
+        return 0;
+    }
+
+    QLocale c_locale(QLocale::C);
+    return c_locale.d->stringToUnsLongLong(*this, base, ok, QLocalePrivate::FailOnGroupSeparators);
 }
 
 /*!
@@ -4702,10 +4734,9 @@ ushort QString::toUShort(bool *ok, int base) const
 
 double QString::toDouble(bool *ok) const
 {
-    // Try the default locale
     bool my_ok;
     QLocale def_locale;
-    double result = def_locale.d->stringToDouble(*this, &my_ok);
+    double result = def_locale.d->stringToDouble(*this, &my_ok, QLocalePrivate::FailOnGroupSeparators);
     if (my_ok) {
         if (ok != 0)
             *ok = true;
@@ -4720,7 +4751,7 @@ double QString::toDouble(bool *ok) const
     }
 
     QLocale c_locale(QLocale::C);
-    return c_locale.d->stringToDouble(*this, ok);
+    return c_locale.d->stringToDouble(*this, ok, QLocalePrivate::FailOnGroupSeparators);
 }
 
 /*!
