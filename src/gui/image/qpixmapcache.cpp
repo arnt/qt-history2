@@ -85,7 +85,7 @@ private:
     int ps;
     bool t;
 };
-
+#include "qpixmapcache.moc"
 
 /*
   This is supposed to cut the cache size down by about 80-90% in a
@@ -292,3 +292,4 @@ void QPixmapCache::clear()
     if (pm_cache)
         pm_cache->clear();
 }
+
