@@ -24,6 +24,11 @@
 #include "qws_gui.h"
 
 #include <stdlib.h>
+#include <signal.h>
+
+static QWSServer *server = 0;
+
+void handleHardExit(int sig);
 
 main(int argc, char** argv)
 {
@@ -40,11 +45,11 @@ main(int argc, char** argv)
 	while ( argc > 1 && argv[1][0]=='-' ) {
 	    if ( argc > 2 ) {
 		switch ( argv[1][1] ) {
-		  case 'r':
+		case 'r':
 		    argc--; argv++;
 		    refresh_delay = atoi(argv[1]);
 		    break;
-		  case 'd':
+		case 'd':
 		    argc--; argv++;
 		    depth = atoi(argv[1]);
 		    break;
@@ -58,26 +63,68 @@ main(int argc, char** argv)
 	m.serve(depth,refresh_delay);
 	return app.exec();
     } else {
+	signal(SIGQUIT, handleHardExit);
+	signal(SIGSEGV, handleHardExit);
 	int w = 0;
 	int h = 0;
-	if ( argc > 1 ) {
-	    QString s = argv[1];
-	    int x = s.find( "x" );
-	    if ( x > 0 ) {
-		bool ok;
-		QString sub = s.mid(0,x);
-		w = sub.toInt(&ok);
-		sub = s.mid(x+1);
-		if ( ok )
-		    h = sub.toInt(&ok);
-		if ( !ok ) {
-		    w = 0;
-		    h = 0;
+	int flags = QWSServer::DisableKeyboard;
+	int i = 1;
+	while ( i < argc  ) {
+	    //OK, OK this isn't the world's best command line parser
+	    bool ok = FALSE;
+	    QCString s = argv[i++];
+	    if ( s[0] == '-' ) {
+		ok = TRUE;
+		if ( s.find( 'a' ) > 0 )
+		    flags |= QWSServer::DisableAccel;
+		if ( s.find( 'm' ) > 0 )
+		    flags |= QWSServer::DisableMouse;
+		if ( s.find( 'k' ) > 0 )
+		    flags |= QWSServer::DisableKeyboard;
+		if ( s.find( 'h' ) > 0 )
+		    ok = FALSE; //give help
+	    } else if ( s[0] == '+' ) {
+		ok = TRUE;
+		if ( s.find( 'k' ) > 0 )
+		    flags &= ~QWSServer::DisableKeyboard;
+		else
+		    ok = FALSE;
+	    } else {
+		int x = s.find( 'x' );
+		if ( x > 0 ) {
+		    QString sub = s.mid(0,x);
+		    w = sub.toInt(&ok);
+		    sub = s.mid(x+1);
+		    if ( ok )
+			h = sub.toInt(&ok);
+		    if ( !ok ) {
+			w = 0;
+			h = 0;
+		    }
+		    qDebug( "%dx%d", w, h );
 		}
-		qDebug( "%dx%d", w, h );
+	    }
+	    if ( !ok ) {
+		qDebug( "usage %s [-kma] [+k] [widthxheight]", argv[0] );
+		qDebug( "  -k  Disable keyboard [default]" );
+		qDebug( "  +k  Enable keyboard" );
+		qDebug( "  -m  Disable mouse" );
+		qDebug( "  -a  Disable acceleration (not yet implemented)" );
+		exit(1);
 	    }
 	}
-	(void)new QWSServer( w, h );
-	return app.exec();
+	server = new QWSServer( w, h, 0, flags );
+	int rv = app.exec();
+	delete server;
+	return rv;
     }
 }
+
+void handleHardExit(int sig)
+{
+    if (server)
+	delete server;	// will cleanup device connections.
+    if (sig == SIGSEGV)
+	abort();
+}
+

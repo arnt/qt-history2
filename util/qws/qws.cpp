@@ -259,10 +259,10 @@ struct QWSCommandStruct
   QWSServer maintains the invariant.
 */
 
-QWSServer::QWSServer( int sw, int sh, int simulate_depth,
-		      QObject *parent=0, const char *name=0 ) :
+QWSServer::QWSServer( int sw, int sh, int simulate_depth, int flags,
+		      QObject *parent, const char *name ) :
     QServerSocket(QTFB_PORT,16,parent,name),
-    mouseBuf(0), pending_region_acks(0)
+    disablePainting(false), pending_region_acks(0)
 {
     focusw = 0;
     mouseGrabber = 0;
@@ -304,7 +304,15 @@ QWSServer::QWSServer( int sw, int sh, int simulate_depth,
 	offscreen=0;
 	offscreenlen=0;
 	shmid = -1; //let client do all FB handling.
-	initIO(); //device specific init
+
+	// initialise devices
+	if ( !(flags&DisableKeyboard) )
+	    openKeyboard();
+	openDisplay();
+	if ( !(flags&DisableMouse) ) {
+	    openMouse();
+	    setMouse(QPoint(swidth/2, sheight/2), 0);
+	}
     }
 
     // Now we allocate a chunk of main ram for font cache and any
@@ -336,8 +344,9 @@ QWSServer::QWSServer( int sw, int sh, int simulate_depth,
 QWSServer::~QWSServer()
 {
     // XXX destroy all clients
-    if ( mouseBuf )
-	delete[] mouseBuf; //??? is delete[] 0 safe?
+    closeDisplay();
+    closeKeyboard();
+    closeMouse();
 }
 
 void QWSServer::newConnection( int socket )
@@ -365,6 +374,8 @@ void QWSServer::clientClosed()
 	if ( w->forClient(cl) ) {
 	    if ( mouseGrabber == w )
 		mouseGrabber = 0;
+	    if ( focusw == w )
+		focusw = 0;
 	    exposed += w->allocation();
 	    pending_region_acks -= w->pending_acks;
 	    windows.removeRef(w);
@@ -547,6 +558,27 @@ void QWSServer::showCursor()
     a.translate( cursorPos.x()-1, cursorPos.y()-1 );
     setWindowRegion( 0, QRegion(a) & QRegion(0,0,swidth,sheight) );
 }
+
+// ### don't like this
+void QWSServer::enablePainting(bool e)
+{
+    if (e)
+    {
+	disablePainting = false;
+	setWindowRegion( 0, QRegion() );
+    }
+    else
+    {
+	disablePainting = true;
+	setWindowRegion( 0, QRegion(0,0,swidth,sheight) );
+    }
+}
+
+void QWSServer::refresh()
+{
+    exposeRegion( QRegion(0,0,swidth,sheight) );
+}
+
 
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
@@ -1044,7 +1076,7 @@ void QWSServer::givePendingRegion()
 	QWSWindow* changingw = windows.at( pendingWindex );
 	ASSERT( changingw );
 	changingw->addAllocation( pendingAllocation, TRUE );
-    } else {
+    } else if (!disablePainting) {
 	paintServerRegion();
     }
     for (uint i=pendingWindex+1; i<windows.count(); i++) {
@@ -1061,6 +1093,9 @@ void QWSServer::setMouse(const QPoint& p,int bstate)
 {
     mousePos.setX( QMIN( QMAX( p.x(), 0 ), swidth ) );
     mousePos.setY( QMIN( QMAX( p.y(), 0 ), sheight ) );
+    if (probed_card) {
+	probed_card->move_cursor(mousePos.x(), mousePos.y());
+    }
     sendMouseEvent( mousePos, bstate );
 }
 

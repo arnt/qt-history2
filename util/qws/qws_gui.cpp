@@ -99,7 +99,7 @@ void DummyFramebuffer::serve(int depth, int refresh_delay)
 	int swidth = width();
 	int sheight = height();
 	setFixedSize(swidth,sheight);
-	server = new QWSServer( swidth, sheight, depth, this );
+	server = new QWSServer( swidth, sheight, depth, 0,  this );
 	int nc=0;
 	if ( depth == 8 || depth == 1 )
 	    nc = 1<<depth;

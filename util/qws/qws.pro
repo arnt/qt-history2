@@ -6,6 +6,6 @@ INCLUDEPATH	= $(QTDIR)/extensions/network/src $(QTDIR)/include $(QTDIR)/../e/src
 HEADERS	= qws.h qwscommand.h qwsproperty.h qws_gui.h qwsaccel.h \
 	  qwsmach64.h qwsmach64_defs.h
 SOURCES	= qws.cpp qwsproperty.cpp qws_gui.cpp qws_linuxfb.cpp main.cpp \
-	  qwsaccel.cpp qwsmach64.cpp
+	  qwsaccel.cpp qwsmach64.cpp qws_linuxmouse.cpp qws_linuxkb.cpp
 TARGET		= qws
 TMAKE_CXXFLAGS += -fno-exceptions -fno-rtti

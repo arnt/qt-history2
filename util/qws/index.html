@@ -139,10 +139,11 @@
     int type = QWSEvent::Focus;
     int windowid;
     uchar get_focus; </pre>
-	If <i>get_focus</i> is 1, this indicates that <i>window</i> now has keyboard
-	focus.  If <i>get_focus</i> is 0, this indicates that <i>window</i> no longer
-	has keyboard focus.
-	<font color=red>[we don't currently define when this happens]</font>
+	If <i>get_focus</i> is 1, this indicates that <i>window</i> now has
+	keyboard focus.  If <i>get_focus</i> is 0, this indicates that
+	<i>window</i> no longer has keyboard focus. A client may receive this
+	event as a result of sending a QWSRequestFocusCommand, or
+	as a result of activity by other clients.
       </p>
       <dt>QWSKeyEvent
       <dd>
@@ -334,6 +335,18 @@ During processing, clients may send the following commands.
     <p>
     The <i>rectangles</i> must be in <a href=#yxbanded>YXBanded</a> format.
     </p>
+  <dt>QWSRequestFocusCommand
+    <dd>
+    Type: <i>QWSCommand::RequestFocus</i>
+    <pre>
+    struct SimpleData {
+        int windowid;
+	int flag;
+    } simpleData;</pre>
+    This command is sent by the client to request that the
+    the window with the id <i>windowid</i> be given keyboard focus.
+    The client may later receive a QWSFocusEvent.
+    </p>
   <dt>QWSAddPropertyCommand
     <dd>
     Type: <i>QWSCommand::AddProperty</i>
@@ -464,3 +477,4 @@ unicode field set to UFFFF (not a unicode character).
 Every QWS server implementation provides some way to generate all distinct key
 events, though only some will be "easy" to generate (eg. single key presses),
 and this will vary from one locale to another.
+<font color=red>The current implementation varies from this considerably</font>

@@ -33,6 +33,7 @@
 const int QTFB_PORT=0x4642; // FB
 
 class QWSClient;
+class QGfx;
 
 class QWSWindow
 {
@@ -79,10 +80,14 @@ class QWSServer : private QServerSocket
 
 public:
     QWSServer( int swidth=0, int sheight=0, int simulate_depth = 0,
-	       QObject *parent=0, const char *name=0 );
+	       int flags = 0, QObject *parent=0, const char *name=0 );
     ~QWSServer();
     void newConnection( int socket );
 
+    enum ServerFlags { DisableKeyboard = 0x01,
+		       DisableMouse = 0x02,
+		       DisableAccel = 0x04 };
+    
     uchar* frameBuffer() { return framebuffer; }
 
     void sendKeyEvent(int unicode, int modifiers, bool isPress,
@@ -99,6 +104,12 @@ public:
     // For debugging only at this time
     QList<QWSWindow> clientWindows() { return windows; }
 
+    void openMouse();
+    void closeMouse();
+
+    void refresh();
+    void enablePainting(bool);
+
 private:
     void invokeCreate( QWSCreateCommand *cmd, QWSClient *client );
     void invokeRegion( QWSRegionCommand *cmd, QWSClient *client );
@@ -113,8 +124,13 @@ private:
 
     void setFocus( QWSWindow*, bool gain );
 
-    void initIO();
     void handleMouseData();
+
+    void openKeyboard();
+    void closeKeyboard();
+
+    void openDisplay();
+    void closeDisplay();
 
     void showCursor();
     void paintServerRegion();
@@ -139,6 +155,8 @@ private:
     int fblen;
     int ramlen;
 
+    QGfx *gfx;
+
     ClientMap client;
     QWSPropertyManager propertyManager;
     struct SelectionOwner {
@@ -156,14 +174,11 @@ private:
     QWSWindow *mouseGrabber;
     bool mouseGrabbing;
     int swidth, sheight, sdepth;
-    int mouseFD;
-    int kbdFD;
-    int mouseIdx;
-    uchar *mouseBuf;
     QPoint mousePos;
     QPoint cursorPos;
     bool cursorNeedsUpdate;
     QRegion serverRegion;
+    bool disablePainting;
 
     QQueue<QWSCommandStruct> commandQueue;
     QRegion pendingAllocation;
