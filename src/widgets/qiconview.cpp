@@ -770,9 +770,9 @@ QIconViewItem::~QIconViewItem()
 }
 
 /*!
-  Sets \a text as text of the iconview item.  This method might be a no-op 
+  Sets \a text as text of the iconview item.  This method might be a no-op
   if you reimplement text().
-  
+
   \sa text()
 */
 
@@ -807,7 +807,7 @@ void QIconViewItem::setKey( const QString &k )
 /*!
   Sets \a icon as item icon of the iconview item. This method might be a no-op
   if you reimplement pixmap().
-  
+
   \sa pixmap()
 */
 
@@ -830,7 +830,7 @@ void QIconViewItem::setPixmap( const QPixmap &icon )
   should be repainted or not.
 
   This method might be a no-op if you reimplement text().
-  
+
   \sa text()
 */
 
@@ -854,7 +854,7 @@ void QIconViewItem::setText( const QString &text, bool recalc, bool redraw )
   should be repainted or not.
 
   This method might be a no-op if you reimplement pixmap().
-  
+
   \sa pixmap()
 */
 
@@ -908,9 +908,9 @@ void QIconViewItem::setDropEnabled( bool allow )
 
 /*!
   Returns the text of the iconview item. Normally you will set the text
-  if the item with setText(), but somethimes you don't want to call setText/) 
-  for each item,  so you can reimplement this method and return the text of 
-  the item directly here. If you do this you have to call calcRect() manually each 
+  if the item with setText(), but somethimes you don't want to call setText/)
+  for each item,  so you can reimplement this method and return the text of
+  the item directly here. If you do this you have to call calcRect() manually each
   time the text (and so the size of it) changes.
 
   \sa setText()
@@ -935,11 +935,11 @@ QString QIconViewItem::key() const
 /*!
   Returns the icon of the iconview item. Normally you will set the pixmap
   if the item with setPixmap(), but somethimes you don't want that every item
-  stores a copy of a pixmap or that you need to call setPixmap() for each item, 
+  stores a copy of a pixmap or that you need to call setPixmap() for each item,
   so you can reimplement this method and return the pointer to the item pixmap
   directly here. If you do this you have to call calcRect() manually each time
   the size of this pixmap changes!
-  
+
   \sa setPixmap()
 */
 
@@ -2444,7 +2444,7 @@ void QIconView::doAutoScroll()
     bool alreadyIntersected = FALSE;
     QRect nr = d->rubber->normalize();
     QRect rubberUnion = nr.unite( oldRubber.normalize() );
-    QIconViewPrivate::ItemContainer *c = (QIconViewPrivate::ItemContainer*)firstItemContainer( rubberUnion.topLeft() );
+    QIconViewPrivate::ItemContainer *c = d->firstContainer;
     for ( ; c; c = c->n ) {
 	if ( c->rect.intersects( rubberUnion ) ) {
 	    alreadyIntersected = TRUE;
@@ -2542,7 +2542,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
     QRect r = QRect( cx, cy, cw, ch );
 
-    QIconViewPrivate::ItemContainer *c = (QIconViewPrivate::ItemContainer*)firstItemContainer( QPoint( cx, cy ) );
+    QIconViewPrivate::ItemContainer *c = d->firstContainer;
     QRegion remaining( QRect( cx, cy, cw, ch ) );
     bool alreadyIntersected = FALSE;
     while ( c ) {
@@ -2764,7 +2764,7 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
     if ( !d->firstItem )
 	return 0;
 
-    QIconViewPrivate::ItemContainer *c = (QIconViewPrivate::ItemContainer*)firstItemContainer( pos );
+    QIconViewPrivate::ItemContainer *c = d->firstContainer;
     for ( ; c; c = c->n ) {
 	if ( c->rect.contains( pos ) ) {
 	    QIconViewItem *item = c->items.first();
@@ -2891,7 +2891,7 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
 
 QIconViewItem* QIconView::findFirstVisibleItem( const QRect &r ) const
 {
-    QIconViewPrivate::ItemContainer *c = (QIconViewPrivate::ItemContainer*)firstItemContainer( r.topLeft() );
+    QIconViewPrivate::ItemContainer *c = d->firstContainer;
     QIconViewItem *i = 0;
     bool alreadyIntersected = FALSE;
     for ( ; c; c = c->n ) {
@@ -2929,7 +2929,7 @@ QIconViewItem* QIconView::findFirstVisibleItem( const QRect &r ) const
 
 QIconViewItem* QIconView::findLastVisibleItem( const QRect &r ) const
 {
-    QIconViewPrivate::ItemContainer *c = (QIconViewPrivate::ItemContainer*)firstItemContainer( r.topLeft() );
+    QIconViewPrivate::ItemContainer *c = d->firstContainer;
     QIconViewItem *i = 0;
     bool alreadyIntersected = FALSE;
     for ( ; c; c = c->n ) {
@@ -3409,8 +3409,7 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 		else
 		    r.setHeight( d->currentItem->y() - item->y() + d->currentItem->height() );
 		r = r.normalize();
-		QIconViewPrivate::ItemContainer *c =
-		    (QIconViewPrivate::ItemContainer*)firstItemContainer( r.topLeft() );
+		QIconViewPrivate::ItemContainer *c = d->firstContainer;
 		bool alreadyIntersected = FALSE;
 		QRect redraw;
 		for ( ; c; c = c->n ) {
@@ -4934,34 +4933,5 @@ void QIconView::movedContents( int, int )
 /*!
   \internal
 */
-
-void *QIconView::firstItemContainer( const QPoint &pos ) const
-{
-    if ( !d->firstItem )
-	return 0;
-    QIconViewPrivate::ItemContainer *c = d->firstContainer;
-    if ( !c ) {
-	qWarning( "ItemContainers are not built - have to do this now!" );
-	( (QIconView*)this )->rebuildContainers();
-	c = d->firstContainer;
-    }
-
-    int p = -1;
-    if ( d->alignMode == East ) {
-	p = pos.y() / RECT_EXTENSION;
-    } else {
-	p = pos.x() / RECT_EXTENSION;
-    }
-
-    if ( p == -1 ) {
-	qWarning( "(%d/%d) not in any rect!", pos.x(), pos.y() );
-	return 0;
-    }
-
-    while ( p-- > 0 && c )
-	c = c->n;
-
-    return c;
-}
 
 #include "qiconview.moc"

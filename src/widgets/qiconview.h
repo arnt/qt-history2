@@ -441,7 +441,6 @@ private:
     void updateItemContainer( QIconViewItem *item );
     void appendItemContainer();
     void rebuildContainers();
-    void *firstItemContainer( const QPoint &pos ) const;
 
     QIconViewPrivate *d;
 
