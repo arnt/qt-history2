@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#333 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#334 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3753,9 +3753,8 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	    insertEntry( ui, 0 );
 	}
 	resortDir();
-//     } else if ( op->operation() == QNetworkProtocol::OpGet ||
-// 		op->operation() == QNetworkProtocol::OpPut ) {
-// 	rereadDir();
+    } else if ( op->operation() == QNetworkProtocol::OpPut ) {
+ 	rereadDir();
     }
     // ############# todo progressdia
 //     } else if ( ( op->operation() == QNetworkProtocol::OpCopy ||
