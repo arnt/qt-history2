@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#20 $
 **
 ** Implementation of QApplication class
 **
@@ -17,8 +17,40 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#20 $";
 #endif
+
+
+/*!
+\class QApplication qapp.h
+\brief The QApplication class manages the application event queue.
+
+The QApplication class is very central in Qt.  It receives events from
+the underlying window system and sends them to appropriate widgets.
+An application object must be created before widgets can be created!
+
+Only one single QApplication objects should be created, and this is
+normally done in the main() function.  When a QApplication object has
+been created, <code>qApp</code> (defined as
+<code>extern QApplication *qApp</code>) will refer to this object.
+
+Here is a complete Qt application:
+\code
+#include <qapp.h>
+#include <qpushbt.h>
+
+int main( int argc, char **argv )
+{
+    QApplication a( argc, argv );       \/ create app object
+    QPushButton  hi( "Hello, world" );  \/ create main widget
+    hi.show();                          \/ show widget
+    return a.exec( &hi );               \/ main event loop
+}
+\endcode
+
+Notice that the QApplication object must be created before the widget is
+defined!
+*/
 
 
 void qt_init( int, char ** );			// defined in qapp_???.cpp
@@ -64,6 +96,27 @@ static void destroy_palettes()
 }
 
 
+/*!
+Creates an application object with the command line parameters \e argc
+and \e argv.  The <code>qApp</code> will be set to point to this
+application object.
+
+Only one application object should be created.
+This application object must be constructed before any paint devices
+(includes widgets, pixmaps, bitmaps etc.)
+
+The UNIX/X-Windows version of Qt recognizes these command line options:
+<ul>
+<li> -display \e display, Sets the X display (default is $DISPLAY).
+<li> -fn or -font \e font, Defines the application font.
+<li> -bg or -background \e color, Sets the default background color.
+<li> -fg or -foreground \e color, Sets the default foreground color.
+<li> -name \e name, Sets the application name.
+<li> -title \e title, Sets the application title (caption).
+<li> -sync, Turns X into synchronous mode for debugging.
+</ul>
+*/
+
 QApplication::QApplication( int argc, char **argv )
 {
 #if defined(CHECK_STATE)
@@ -77,10 +130,20 @@ QApplication::QApplication( int argc, char **argv )
     if ( !appPal ) {				// palette not already set
 	create_palettes();
 	appPal = new QPalette( *motifPalette );
+	CHECK_PTR( appPal );
+    }
+    if ( !appFont ) {				// font not already set
+	appFont = new QFont;
+	CHECK_PTR( appFont );
     }
     QWidget::createMapper();			// create widget mapper
     starting_up = FALSE;			// no longer starting up
 }
+
+/*!
+Closes all widgets and cleans up all window system resources.
+Sets <code>qApp</code> to 0.
+*/
 
 QApplication::~QApplication()
 {
@@ -99,23 +162,54 @@ QApplication::~QApplication()
 }
 
 
+/*!
+\fn GUIStyle QApplication::style()
+Returns the GUI style of the application.
+
+\sa setStyle().
+*/
+
+
+/*!
+Sets the application GUI style to \e s.
+
+The style parameter can be MacStyle, WindowsStyle, PMStyle or MotifStyle.
+Only MotifStyle is fully supported in the current version of Qt.
+
+\sa style().
+*/
+
 void QApplication::setStyle( GUIStyle s )	// set application GUI style
 {
     appStyle = s;
 }
 
 
+/*!
+Returns a pointer to the default application palette.  There will always
+be an application palette.
+*/
+
 QPalette *QApplication::palette()		// get application palette
 {
     return appPal;
 }
 
-void QApplication::setPalette( const QPalette &p, bool forceAllWidgets )
+/*!
+Changes the default application palette to \e p.
+
+If \e updateAllWidgets is TRUE, then this palette will be set for
+all existing widgets.
+If \e updateAllWidgets is FALSE (default), then only new widgets
+become this palette.
+*/
+
+void QApplication::setPalette( const QPalette &p, bool updateAllWidgets )
 {						// set application palette
     delete appPal;
     appPal = new QPalette( p.copy() );
     CHECK_PTR( appPal );
-    if ( forceAllWidgets && !(starting_up || closing_down) ) {
+    if ( updateAllWidgets && !(starting_up || closing_down) ) {
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
@@ -125,6 +219,130 @@ void QApplication::setPalette( const QPalette &p, bool forceAllWidgets )
     }
 }
 
+
+/*!
+\fn QCursor *QApplication::cursor()
+Returns the application cursor.  This function returns 0 if no application
+cursor has been defined.
+
+\sa setCursor().
+*/
+
+/*!
+\fn void QApplication::setCursor( const QCursor &c )
+Sets the application cursor to \e c.
+
+This cursor will be displayed in all application widgets until restoreCursor()
+is called.  Here is an example:
+
+\code
+QApplication::setCursor( hourGlassCursor );
+calculate_mandelbrot();		\/ this takes time...
+QApplication::restoreCursor();
+\endcode
+
+\sa cursor(), restoreCursor().
+*/
+
+/*!
+\fn void QApplication::restoreCursor()
+Restores after some application cursor was set.
+
+\sa setCursor().
+*/
+
+
+/*!
+\fn QFont *QApplication::font()
+Returns the default application font.  There will always be an application
+font.
+
+\sa setFont().
+*/
+
+
+/*!
+Changes the default application font to \e f.
+
+If \e updateAllWidgets is TRUE, then this font will be set for
+all existing widgets.
+If \e updateAllWidgets is FALSE (default), then only new widgets
+become this font.
+*/
+
+void QApplication::setFont( const QFont &f,  bool updateAllWidgets )
+{						// set application font
+    if ( appFont )
+	delete appFont;
+    appFont = new QFont( f );
+    CHECK_PTR( appFont );
+    QFont::setDefaultFont( *appFont );
+    if ( updateAllWidgets ) {			// set for all widgets now
+	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+	register QWidget *w;
+	while ( (w=it.current()) ) {		// for all widgets...
+	    w->setFont( *appFont );
+	    ++it;
+	}
+    }
+}
+
+
+/*!
+\fn QWidget *QApplication::desktop()
+Returns the desktop widget (also called root window).
+
+The desktop widget is useful for obtaining the size of the screen.
+It can also be used to draw on the desktop.
+
+\code
+QWidget *d = QApplication::desktop();
+d->height();			\/ height of display
+d->width();			\/ width of display
+d->setBackgroundColor( red );
+\encode
+*/
+
+
+/*!
+\fn int QApplication::exec( QWidget *mainWidget )
+Enters the main event loop and waits until quit() is called.
+Returns the value that was specified to quit().
+*/
+
+
+/*!
+\fn int QApplication::enter_loop()
+This function enters the main event loop (recursively).
+Do not call it unless you are an expert.
+
+\sa exit_loop().
+*/
+
+/*!
+\fn void QApplication::exit_loop()
+This function leaves from a recursive call to the main event loop.
+Do not call it unless you are an expert.
+
+\sa enter_loop().
+*/
+
+
+/*!
+\fn QWidget *QApplication::mainWidget() const
+Returns the widget that was specified to exec().
+*/
+
+
+/*!
+Tells the application to quit.
+
+After quit has been called, the application leaves the main event
+loop an returns from the call to exec(). The exec() function
+returns \e retcode.
+
+\sa exec().
+*/
 
 void QApplication::quit( int retcode )		// quit application
 {
@@ -137,6 +355,36 @@ void QApplication::quit( int retcode )		// quit application
 }
 
 
+/*!
+\fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
+Sends an event directly to a receiver, using the notify() function.
+Returns the value that was returned from the event handler.
+
+\sa postEvent().
+*/
+
+/*!
+\fn void QApplication::postEvent( QObject *receiver, QEvent *event )
+Stores the event in a queue and returns immediatly.
+
+Back in the main event loop, all events that are stored in the queue
+will be sent using the notify() function.
+
+\sa sendEvent().
+*/
+
+
+/*!
+Sends \e event to \e receiver: <code>receiver->event( event );</code>
+Returns the value that was returned from the event handler.
+
+All Qt events are sent using the notify function. Since this function
+is virtual, you can make a subclass of QApplication and reimplement
+notify() to get total control of Qt events.
+
+\sa QObject::event().
+*/
+
 bool QApplication::notify( QObject *receiver, QEvent *event )
 {						// send event to object
 #if defined(CHECK_NULL)
@@ -147,15 +395,36 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 }
 
 
+/*!
+Returns TRUE if an application object has not been created yet.
+*/
+
 bool QApplication::startingUp()			// is application starting up?
 {
     return starting_up;
 }
 
+/*!
+Returns TRUE if the application objects is being destroyed.
+*/
+
 bool QApplication::closingDown()		// is application closing down?
 {
     return closing_down;
 }
+
+
+/*!
+\fn void QApplication::flushX()
+Flushes the X event queue in the X-Windows implementation.
+Does nothing on other platforms.
+*/
+
+/*!
+\fn void QApplication::syncX()
+Synchronizes with the X server in the X-Windows implementation.
+Does nothing on other platforms.
+*/
 
 
 #if !defined(_WS_X11_)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#60 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#59 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#60 $";
 #endif
 
 
@@ -93,7 +93,7 @@ static timeval	watchtime;			// watch if time is turned back
 
 static bool	qt_try_modal( QWidget *, XEvent * );
 
-void		qResetColorAvailFlag();		// defined in qcolor.cpp
+void		qt_reset_color_avail();		// defined in qcol_x11.cpp
 
 
 class QETWidget : public QWidget {		// event translator widget
@@ -203,8 +203,10 @@ void qt_init( int argc, char **argv )
 	}
 	else if ( arg == "-iconic" )
 	    tlwIconic = !tlwIconic;
+#if defined(DEBUG)
 	else if ( arg == "-sync" )
 	    appSync = !appSync;
+#endif
 	else
 	    break;
     }
@@ -435,24 +437,6 @@ void QApplication::restoreCursor()		// restore application cursor
     XFlush( appDpy );
     delete appCursor;				// reset appCursor
     appCursor = 0;
-}
-
-
-void QApplication::setFont( const QFont &f,  bool forceAllWidgets )
-{						// set application font
-    if ( appFont )
-	delete appFont;
-    appFont = new QFont( f );
-    CHECK_PTR( appFont );
-    QFont::setDefaultFont( *appFont );
-    if ( forceAllWidgets ) {			// set for all widgets now
-	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-	register QWidget *w;
-	while ( (w=it.current()) ) {		// for all widgets...
-	    w->setFont( *appFont );
-	    ++it;
-	}
-    }
 }
 
 
@@ -783,7 +767,7 @@ int QApplication::enter_loop()			// local event loop
 	FD_SET( app_Xfd, &app_fdset );
 	timeval *tm = waitTimer();		// wait for timer or X event
 	select( app_Xfd_width, &app_fdset, NULL, NULL, tm );
-	qResetColorAvailFlag();			// color approx. optimization
+	qt_reset_color_avail();			// color approx. optimization
 	activateTimer();			// activate timer(s)
     }
     app_exit_loop = FALSE;
