@@ -146,7 +146,7 @@ void AlphaShade::paintEvent(QPaintEvent *)
     QPainter p(this);
     fillBackground(&p);
 
-    drawShadedCube(this, &p, 2, 5, animationStep);
+    drawShadedCube(this, &p, 1, 1, animationStep);
     drawPrimitives(this, &p, 50, .3, animationStep);
 }
 
