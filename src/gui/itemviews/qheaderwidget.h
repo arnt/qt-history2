@@ -115,12 +115,14 @@ public slots:
 
 signals:
     void clicked(QHeaderWidgetItem *item, Qt::ButtonState state);
+    void itemChanged(QHeaderWidgetItem *item);
 
 protected:
     void setModel(QAbstractItemModel *model);
 
 private:
     Q_PRIVATE_SLOT(d, void emitClicked(int section, Qt::ButtonState state));
+    Q_PRIVATE_SLOT(d, void emitItemChanged(Qt::Orientation orientation, int first, int last));
 };
 
 #endif

@@ -467,6 +467,7 @@ public:
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
     void emitItemEntered(const QModelIndex &index);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
+    void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 };
 
 void QListWidgetPrivate::emitPressed(const QModelIndex &index, int button)
@@ -508,6 +509,15 @@ void QListWidgetPrivate::emitItemEntered(const QModelIndex &index)
 void QListWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
 {
     emit q->aboutToShowContextMenu(menu, model()->at(index.row()));
+}
+
+void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+    if (topLeft == bottomRight) // this should always be true
+        emit q->itemChanged(model()->at(topLeft.row()));
+    else
+        qWarning("QListWidgetPrivate: several items were changed");
+    // Only one item at a time can change, so the warning should never be shown
 }
 
 #ifdef QT_COMPAT
@@ -798,6 +808,8 @@ void QListWidget::setup()
     connect(selectionModel(),
             SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
             this, SIGNAL(selectionChanged()));
+    connect(model(), SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+            SLOT(emitItemChanged(const QModelIndex&, const QModelIndex &)));
 }
 
 #include "moc_qlistwidget.cpp"

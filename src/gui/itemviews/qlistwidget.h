@@ -163,6 +163,7 @@ signals:
     void selectionChanged();
     void itemEntered(QListWidgetItem *item);
     void aboutToShowContextMenu(QMenu *menu, QListWidgetItem *item);
+    void itemChanged(QListWidgetItem *item);
 
 protected:
     void removeItem(QListWidgetItem *item);
@@ -178,6 +179,7 @@ private:
     Q_PRIVATE_SLOT(d, void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current));
     Q_PRIVATE_SLOT(d, void emitItemEntered(const QModelIndex &index));
     Q_PRIVATE_SLOT(d, void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index));
+    Q_PRIVATE_SLOT(d, void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight));
 };
 
 #endif

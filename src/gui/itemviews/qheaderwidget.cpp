@@ -256,12 +256,23 @@ class QHeaderWidgetPrivate : public QHeaderViewPrivate
 public:
     QHeaderWidgetPrivate() : QHeaderViewPrivate() {}
     inline QHeaderModel *model() const { return ::qt_cast<QHeaderModel*>(q_func()->model()); }
+
     void emitClicked(int section, Qt::ButtonState state);
+    void emitItemChanged(Qt::Orientation orientation, int first, int last);
 };
 
 void QHeaderWidgetPrivate::emitClicked(int section, Qt::ButtonState state)
 {
     emit q->clicked(model()->item(section), state);
+}
+
+void QHeaderWidgetPrivate::emitItemChanged(Qt::Orientation orientation, int first, int last)
+{
+    if (first == left) // this should always be true
+        emit q->itemChanged(model()->item(first));
+    else
+        qWarning("QHeaderWidgetPrivate: several items were changed");
+    // Only one item at a time can change, so the warning should never be shown
 }
 
 // public
