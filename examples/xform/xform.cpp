@@ -18,7 +18,7 @@
 #include <qpushbutton.h>
 #include <qcheckbox.h>
 #include <qradiobutton.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qlcdnumber.h>
 #include <qslider.h>
 #include <qmenubar.h>
@@ -33,6 +33,7 @@
 
 #include <stdlib.h>
 
+using namespace Qt;
 
 class ModeNames {
 public:
@@ -120,10 +121,10 @@ XFormControl::XFormControl( const QFont &initialFont,
     mode = Image;
 
     rotLCD	= new QLCDNumber( 4, this, "rotateLCD" );
-    rotS	= new QSlider( QSlider::Horizontal, this,
+    rotS	= new QSlider( Qt::Horizontal, this,
 				  "rotateSlider" );
     shearLCD	= new QLCDNumber( 5,this, "shearLCD" );
-    shearS	= new QSlider( QSlider::Horizontal, this,
+    shearS	= new QSlider( Qt::Horizontal, this,
 				  "shearSlider" );
     mirror	= new QCheckBox( this, "mirrorCheckBox" );
     rb_txt = new QRadioButton( this, "text" );
@@ -155,7 +156,7 @@ XFormControl::XFormControl( const QFont &initialFont,
     mirror->setText( tr("Mirror") );
     connect( mirror, SIGNAL(clicked()), SLOT(newMtx()) );
 
-    QButtonGroup *bg = new QButtonGroup(this);
+    Q3ButtonGroup *bg = new Q3ButtonGroup(this);
     bg->hide();
     bg->insert(rb_txt,0);
     bg->insert(rb_img,1);
@@ -175,7 +176,7 @@ XFormControl::XFormControl( const QFont &initialFont,
 
     magLCD = new QLCDNumber( 4,optionals_other, "magLCD" );
     magLCD->display( "100" );
-    magS = new QSlider( QSlider::Horizontal, optionals_other,
+    magS = new QSlider( Qt::Horizontal, optionals_other,
 			   "magnifySlider" );
     magS->setRange( 0, 800 );
     connect( magS, SIGNAL(valueChanged(int)), SLOT(newMtx()) );
