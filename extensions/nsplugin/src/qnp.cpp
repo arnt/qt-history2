@@ -64,6 +64,7 @@
 
 #include "qnp.h"
 
+#include <stdlib.h>		// Must be here for Borland C++
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
