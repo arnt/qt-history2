@@ -32,7 +32,7 @@ public:
     }
 };
 
-ListBoxRename::ListBoxRename( QListBox * eventSource, const char * name = 0 )
+ListBoxRename::ListBoxRename( QListBox * eventSource, const char * name )
     : QObject( eventSource, name ),
       clickedItem( 0 ), activity( FALSE )
 {
