@@ -141,11 +141,19 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 	    }
 	}
     }
-#endif
     if( envBlock & LocalEnv ) {
-	// ### This fails if compiled with Borland! (Unicode issue)
-	putenv( varName + QString( "=" ) + varValue );
+	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
+	    TCHAR *varNameT = (TCHAR*)qt_winTchar_new( varName );
+	    SetEnvironmentVariableW( varNameT, (TCHAR*)qt_winTchar(varValue,TRUE) );
+	    delete varNameT;
+	} else {
+	    SetEnvironmentVariableA( varName.local8Bit(), varValue.local8Bit() );
+	}
     }
+#else
+    if( envBlock & LocalEnv )
+	putenv( varName + QString( "=" ) + varValue );
+#endif
 }
 
 #if defined(Q_OS_WIN32)
