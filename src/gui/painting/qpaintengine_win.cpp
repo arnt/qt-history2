@@ -355,6 +355,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
         RealizePalette(d->hdc);
     }
 
+    SetBkMode(d->hdc, TRANSPARENT);
     SetTextAlign(d->hdc, TA_BASELINE);
     return true;
 }
@@ -1945,6 +1946,11 @@ static void qt_resolve_gdiplus()
     }
 
     QLibrary lib("gdiplus");
+    qt_resolved_gdiplus = true;
+
+    lib.load();
+    if (!lib.isLoaded())
+        return;
 
     // Global functions
     GdiplusStartup           = (PtrGdiplusStartup)     lib.resolve("GdiplusStartup");
@@ -2050,7 +2056,6 @@ static void qt_resolve_gdiplus()
 
     QGdiplusPaintEngine::initialize();
     qt_gdiplus_support = true;
-    qt_resolved_gdiplus = true;
 }
 
 
