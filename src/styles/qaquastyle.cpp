@@ -684,6 +684,8 @@ void QAquaStyle::drawControl( ControlElement element,
 	break; }
     case CE_PopupMenuItem: {
 #ifndef QT_NO_POPUPMENU
+	if(!widget || !data || !data[0])
+	    break;
 	QPopupMenu *popupmenu = (QPopupMenu *)widget;
 	QMenuItem *mi = (QMenuItem *)data[0];
 
