@@ -1338,13 +1338,8 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
     }
 
     // Copy clut
-
-    QRgb *clutptr = cols;
-    if(depth>8) {
-	for(loopc=0;loopc<numcols;loopc++) {
-	    srcclut[loopc] = *clutptr++;
-	}
-    }
+    for(loopc=0;loopc<numcols;loopc++)
+	srcclut[loopc] = cols[loopc];
 
     // Transclut[sourceval]==destval
 

@@ -412,20 +412,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	dd=32;
     }
 
-    if (image.colorTable() && dd<=8) {
-	delete[] data->clut;
-	data->clut=new QRgb[image.numColors()];
-	data->numcols = image.numColors();
-	int loopc;
-	for (loopc=0; loopc<image.numColors(); loopc++) {
-	    data->clut[loopc] = image.colorTable()[loopc];
-	}
-    }
-
-    data->w = w;
-    data->h = h;
-    data->d = dd;
-    data->id = memorymanager->newPixmap(data->w,data->h,data->d);
+    init( w, h, dd, FALSE, defOptim );
 
     QGfx * mygfx=graphicsContext();
     mygfx->setAlphaType(QGfx::IgnoreAlpha);
