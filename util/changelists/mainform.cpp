@@ -52,7 +52,7 @@ MainForm::MainForm(bool g) :
     connect( &process, SIGNAL(readyReadStderr()), SLOT(readyReadStderr()) );
     connect( &process, SIGNAL(processExited()), SLOT(processExited()) );
 
-    QValueList<int> sizes;
+    QList<int> sizes;
     sizes << 1 << 3;
     splitter->setSizes( sizes );
 
@@ -110,9 +110,9 @@ void MainForm::go()
 
     if(grouped) 
 	changeWhoTo = new QMap<int, QString>;
-    changeListFrom = new QValueList<int>;
+    changeListFrom = new QList<int>;
     if ( allChanges->isChecked() ) {
-	changeListTo = new QValueList<int>;
+	changeListTo = new QList<int>;
 	changeDateTo = new QMap<int,QString>;
 	startChanges( "" );
     } else {
@@ -194,7 +194,7 @@ void MainForm::processExited()
 		path->insertItem( depot );
 	}
     } else if ( command == "changes" ) {
-	QValueList<int> *list;
+	QList<int> *list;
 	if ( changeListTo != 0 ) {
 	    list = changeListTo;
 	} else if ( changeListFrom != 0 ) {
@@ -230,7 +230,7 @@ void MainForm::processExited()
 	    }
 
 	    if ( changeListTo == 0 ) {
-		changeListTo = new QValueList<int>;
+		changeListTo = new QList<int>;
 		changeDateTo = new QMap<int,QString>;
 		startChanges( changesTo->currentText() );
 	    } else {
@@ -239,7 +239,7 @@ void MainForm::processExited()
 		changes->clear();
 		qHeapSort( *changeListFrom );
 		qHeapSort( *changeListTo );
-		QValueList<int>::iterator itFrom, itTo;
+		QList<int>::iterator itFrom, itTo;
 		itFrom = changeListFrom->begin();
 		itTo = changeListTo->begin();
 		while ( !TO_AT_END ) {

@@ -30,8 +30,8 @@ private:
 
     bool grouped;
     QProcess process;
-    QValueList<int> *changeListFrom;
-    QValueList<int> *changeListTo;
+    QList<int> *changeListFrom;
+    QList<int> *changeListTo;
     QMap<int,QString> *changeDateTo;
     QMap<int,QString> *changeWhoTo;
 };
