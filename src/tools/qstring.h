@@ -250,7 +250,7 @@ struct Q_EXPORT QStringData : public QShared {
 	unicode(0), ascii(0), len(0), maxl(0), dirtyascii(0) { ref(); }
     QStringData(QChar *u, uint l, uint m) :
 	unicode(u), ascii(0), len(l), maxl(m), dirtyascii(0) { }
-    ~QStringData() { if ( unicode ) delete[] ((char*)unicode);
+    ~QStringData() { if ( unicode ) delete[] unicode;
                      if ( ascii ) delete[] ascii; }
     void deleteSelf();
     QChar *unicode;

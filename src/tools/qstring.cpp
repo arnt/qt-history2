@@ -11942,8 +11942,8 @@ QString QString::visual(int index, int len)
 // IMPORTANT! If you change these, make sure you also change the
 // "delete unicode" statement in ~QStringData() in qstring.h correspondingly!
 
-#define QT_ALLOC_QCHAR_VEC( N ) (QChar*) new char[ 2*( N ) ]
-#define QT_DELETE_QCHAR_VEC( P ) delete[] ((char*)( P ))
+#define QT_ALLOC_QCHAR_VEC( N ) new QChar[ N ]
+#define QT_DELETE_QCHAR_VEC( P ) delete[] P
 
 
 /*!
@@ -12434,7 +12434,7 @@ void QString::setLength( uint newLen )
 }
 
 /*!  Returns a string equal to this one, but with the lowest-numbered
-  occurrence of \c %i (for a positive integer i) replaced by \a a.
+  occurence of \c %i (for a positive integer i) replaced by \a a.
 
   \code
     label.setText( tr("Rename %1 to %2?").arg(oldName).arg(newName) );
@@ -12837,75 +12837,36 @@ int QString::find( QChar c, int index, bool cs ) const
   if -2, the string is checked for one character from the end then
   at the end, etc.
 
-  The search is case sensitive if \a cs is TRUE, or case insensitive if
-  \a cs is FALSE.
+  The search is case sensitive if \a cs is TRUE, or case insensitive if \a
+  cs is FALSE.
 
   Returns the position of \a str, or -1 if \a str could not be found.
 */
 
 int QString::find( const QString& str, int index, bool cs ) const
 {
-    /*
-      We use some weird hashing for efficiency's sake.  Instead of
-      comparing strings, we compare the hash value of str with that of
-      a part of this QString.  Only if that matches, we call ucstrncmp
-      or ucstrnicmp.
-
-      The hash value of a string is the sum of the cells of the QChars
-      that form it.
-    */
-    int lstr = str.length();
-    if ( index < 0 )
-	index = length() - lstr + index + 1;
-    int lthis = length() - index;
-    if ( lthis < 0 || lthis > (int) length() )
+    if ( (uint)index >= length() )		// index outside string
 	return -1;
-    int delta = lthis - lstr;
-    if ( delta < 0 )
-	return -1;
-
-    const QChar *uthis = unicode() + index;
-    const QChar *ustr = str.unicode();
-    uint hthis = 0;
-    uint hstr = 0;
-    int i;
+    uint strl = str.length();
+    if ( index < 0 )				// neg index ==> start from end
+	index = length()-strl+index+1;
+    register const QChar *uc;
+    uc = unicode()+index;
+    uint n = length()-index+1;
     if ( cs ) {
-	for ( i = 0; i < lstr; i++ ) {
-	    hthis += uthis[i].cell();
-	    hstr += ustr[i].cell();
-	}
-	i = 0;
-	while ( TRUE ) {
-	    if ( hthis == hstr && ucstrncmp(uthis + i, ustr, lstr) == 0 )
-		return index + i;
-	    if ( i == delta )
-		return -1;
-	    hthis += uthis[i + lstr].cell();
-	    hthis -= uthis[i].cell();
-	    i++;
-	}
+	while ( n-- > strl && ucstrncmp(uc,str.d->unicode,strl) )
+	    uc++;
     } else {
-	for ( i = 0; i < lstr; i++ ) {
-	    hthis += uthis[i].lower().cell();
-	    hstr += ustr[i].lower().cell();
-	}
-	i = 0;
-	while ( TRUE ) {
-	    if ( hthis == hstr && ucstrnicmp(uthis + i, ustr, lstr) == 0 )
-		return index + i;
-	    if ( i == delta )
-		return -1;
-	    hthis += uthis[i + lstr].lower().cell();
-	    hthis -= uthis[i].lower().cell();
-	    i++;
-	}
+	while ( n-- > strl && ucstrnicmp(uc,str.d->unicode,strl) )
+	    uc++;
     }
+    return uc - unicode() <= int(length()-strl) ? int(uc - unicode()) : -1;
 }
 
 /*!
   \fn int QString::findRev( const char* str, int index ) const
 
-  Equivalent to findRev( QString(str), index ).
+  Equivalent to findRev(QString(str), index).
 */
 
 /*!
@@ -12944,57 +12905,31 @@ int QString::findRev( QChar c, int index, bool cs ) const
 
 int QString::findRev( const QString& str, int index, bool cs ) const
 {
-    /*
-      See QString::find() for explanations.
-    */
-    int lstr = str.length();
+    uint slen = str.length();
+    if ( !slen )
+	return index;
+    if ( index < 0 )				// neg index ==> start from end
+	index = length()-slen+index+1;
+    else if ( (uint)index > length() )		// bad index
+	return -1;
+    else if ( (uint)index == length() )		// bad index, but accept it
+	index--;
+    else if ( (uint)(index + slen) > length() ) // str would be too long
+	index = length() - slen;
     if ( index < 0 )
-	index = length() - lstr + index + 1;
-    if ( index < 0 || index > (int) length() )
 	return -1;
-    int lthis = length();
-    int delta = lthis - lstr;
-    if ( delta < 0 )
-	return -1;
-    if ( index > delta )
-	index = delta;
 
-    const QChar *uthis = unicode();
-    const QChar *ustr = str.unicode();
-    uint hthis = 0;
-    uint hstr = 0;
-    int i;
-    if ( cs ) {
-	for ( i = 0; i < lstr; i++ ) {
-	    hthis += uthis[index + i].cell();
-	    hstr += ustr[i].cell();
-	}
-	i = index;
-	while ( TRUE ) {
-	    if ( hthis == hstr && ucstrncmp(uthis + i, ustr, lstr) == 0 )
+    register const QChar *uc = unicode() + index;
+    if ( cs ) {					// case sensitive
+	for ( int i=index; i>=0; i-- )
+	    if ( ucstrncmp(uc--,str.unicode(),slen)==0 )
 		return i;
-	    if ( i == 0 )
-		return -1;
-	    i--;
-	    hthis -= uthis[i + lstr].lower().cell();
-	    hthis += uthis[i].lower().cell();
-	}
-    } else {
-	for ( i = 0; i < lstr; i++ ) {
-	    hthis += uthis[index + i].lower().cell();
-	    hstr += ustr[i].lower().cell();
-	}
-	i = index;
-	while ( TRUE ) {
-	    if ( hthis == hstr && ucstrnicmp(uthis + i, ustr, lstr) == 0 )
+    } else {					// case insensitive
+	for ( int i=index; i>=0; i-- )
+	    if ( ucstrnicmp(uc--,str.unicode(),slen)==0 )
 		return i;
-	    if ( i == 0 )
-		return -1;
-	    i--;
-	    hthis -= uthis[i + lstr].lower().cell();
-	    hthis += uthis[i].lower().cell();
-	}
     }
+    return -1;
 }
 
 
