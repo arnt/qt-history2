@@ -218,7 +218,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "\n"
 	    "static QImage uic_findImage( const QString& name )\n"
 	    "{\n"
-	    "    for (int i=0; embed_image_vec[i].data; i++) {\n"
+	    "    for ( int i=0; embed_image_vec[i].data; i++ ) {\n"
 	    "	if ( QString::fromUtf8(embed_image_vec[i].name) == name ) {\n"
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
 	    "	    QByteArray baunzip;\n"
