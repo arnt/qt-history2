@@ -1405,8 +1405,8 @@ QHostAddress Q3Socket::address() const
 
 
 /*!
-    Returns the host address as resolved from the name specified to
-    the connectToHost() function.
+    Returns the address of the connected peer if the socket is in
+    Connected state; otherwise an empty QHostAddress is returned.
 */
 
 QHostAddress Q3Socket::peerAddress() const
