@@ -63,9 +63,9 @@ QCString QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 	    *rdata++ = ch.row();
 	    *rdata++ = ch.cell();
 	} else {
-	    //black square
+	    //white square
 	    *rdata++ = 0x22;
-	    *rdata++ = 0x23;
+	    *rdata++ = 0x22;
 	}
     }
     
@@ -125,9 +125,9 @@ QCString QFontKsc5601Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 	    *rdata++ = ch.row() & 0x7f ;
 	    *rdata++ = ch.cell() & 0x7f;
 	} else {
-	    //black square
+	    //white square
 	    *rdata++ = 0x21;
-	    *rdata++ = 0x61;
+	    *rdata++ = 0x60;
 	}
     }
     
@@ -199,9 +199,9 @@ QCString QFontGB2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 	    *rdata++ = ch.row() & 0x7f ;
 	    *rdata++ = ch.cell() & 0x7f;
 	} else {
-	    //black square
+	    //white square
 	    *rdata++ = 0x21;
-	    *rdata++ = 0x76;
+	    *rdata++ = 0x75;
 	}
     }
     
@@ -260,9 +260,9 @@ QCString QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 	    *rdata++ = ch.row();
 	    *rdata++ = ch.cell();
 	} else {
-	    //black square
+	    //white square
 	    *rdata++ = 0xa1;
-	    *rdata++ = 0xbd;
+	    *rdata++ = 0xbc;
 	}
     }
     lenInOut *=2;
