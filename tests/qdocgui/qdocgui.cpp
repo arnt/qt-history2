@@ -90,8 +90,6 @@ QDocMainWindow::QDocMainWindow( const QString &qtdir, QStringList defines,
     int height = settings.readNumEntry( "/qDocGUI/geometry/height", 200 );
     setGeometry( x, y, width, height );
 
-    msgCount = 0;
-
     updateTitle();
     setEditor();
     classList->setFocus();
@@ -144,6 +142,8 @@ void QDocMainWindow::timeout()
 
 void QDocMainWindow::populateListView()
 {
+    msgCount = 0;
+
     updateTitle();
     redo->setEnabled( FALSE );
     commercial->setEnabled( FALSE );
