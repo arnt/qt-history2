@@ -171,7 +171,7 @@
     value of \c isComplete() and \c isFinalPage(), we enable or
     disable the \gui Next or the \gui Finish button.
 
-    \skipto ::switchPage()
+    \skipto ::switchPage(
     \printuntil }
 
     The \c switchPage() function contains all the ugly logic for
