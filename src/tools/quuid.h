@@ -160,4 +160,9 @@ struct Q_EXPORT QUuid
     uchar   data4[ 8 ];
 };
 
+#ifndef QT_NO_DATASTREAM
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QUuid & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QUuid & );
+#endif
+
 #endif //QUUID_H

@@ -35,6 +35,8 @@
 
 #include "quuid.h"
 
+#include <qdatastream.h>
+
 /*!
   \class QUuid quuid.h
   \brief The QUuid class defines a Universally Unique Identifier (UUID).
@@ -169,6 +171,45 @@ QString QUuid::toString() const
     return result + "}";
 }
 #endif
+
+#ifndef QT_NO_DATASTREAM
+/*!
+  \relates QUuid
+  Writes the \a id to the datastream \a s.
+*/
+QDataStream &operator<<( QDataStream &s, const QUuid &id )
+{
+    s << (Q_UINT32)id.data1;
+    s << (Q_UINT16)id.data2;
+    s << (Q_UINT16)id.data3;
+    for (int i = 0; i < 8; i++ )
+	s << (Q_UINT8)id.data4[i];
+    return s;
+}
+
+/*!
+  \relates QUuid
+  Reads a universally unique id from from the stream \a s into \a id.
+*/
+QDataStream &operator>>( QDataStream &s, QUuid &id )
+{
+    Q_UINT32 u32;
+    Q_UINT16 u16;
+    Q_UINT8 u8;
+    s >> u32;
+    id.data1 = u32;
+    s >> u16;
+    id.data2 = u16;
+    s >> u16;
+    id.data3 = u16;
+    for (int i = 0; i < 8; i++ ) {
+	s >> u8;
+	id.data4[i] = u8;
+    }
+    return s;
+}
+#endif
+
 /*!
   Returns TRUE if this is the null UUID {00000000-0000-0000-0000-000000000000}, otherwise returns FALSE.
 */
