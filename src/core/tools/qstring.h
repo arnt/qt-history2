@@ -67,7 +67,7 @@ public:
 
     int capacity() const;
     void reserve(int size);
-    void squeeze();
+    inline void squeeze() { if (d->size < d->alloc) realloc(); }
 
     inline const QChar *unicode() const;
     inline QChar *data();

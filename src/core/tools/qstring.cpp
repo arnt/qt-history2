@@ -796,6 +796,8 @@ void QString::reserve(int size)
 }
 
 /*!
+    \fn void QString::squeeze()
+
     Releases any memory not required to store the character data.
 
     The sole purpose of this function is to provide a means of fine
@@ -805,22 +807,13 @@ void QString::reserve(int size)
     \sa reserve(), capacity()
 */
 
-void QString::squeeze()
-{
-    realloc(d->size);
-}
-
 void QString::realloc(int alloc)
 {
-    if (d->ref == 1) {
-        d = (Data*) qRealloc(d, sizeof(Data)+alloc*sizeof(QChar));
-        d->alloc = alloc;
-        d->data = d->array;
-    } else {
-        Data *x = (Data*) qMalloc(sizeof(Data)+alloc*sizeof(QChar));
+    if (d->ref != 1 || d->data != d->array) {
+        Data *x = static_cast<Data *>(qMalloc(sizeof(Data) + alloc * sizeof(QChar)));
         *x = *d;
         x->data = x->array;
-        ::memcpy(x->data, d->data, qMin(alloc, d->alloc)*sizeof(QChar));
+        ::memcpy(x->data, d->data, (qMin(alloc, d->alloc) + 1) * sizeof(QChar));
         x->c = 0;
         x->cache = 0;
         x->ref = 1;
@@ -828,6 +821,10 @@ void QString::realloc(int alloc)
         x = qAtomicSetPtr(&d, x);
         if (!--x->ref)
             free(x);
+    } else {
+        d = (Data*) qRealloc(d, sizeof(Data)+alloc*sizeof(QChar));
+        d->alloc = alloc;
+        d->data = d->array;
     }
 }
 
