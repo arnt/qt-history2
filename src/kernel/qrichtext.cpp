@@ -4617,9 +4617,9 @@ void QTextParagraph::readStyleInformation( QDataStream& stream )
 {
     int int_align, int_lstyle;
     uchar uchar_litem, uchar_rtext, uchar_dir;
-    stream >> int_align >> int_lstyle >> utm >> ubm >> ulm >> urm >> uflm  
+    stream >> int_align >> int_lstyle >> utm >> ubm >> ulm >> urm >> uflm
 	   >> ulineextra >> ldepth >> uchar_litem >> uchar_rtext >> uchar_dir;
-    align = int_align; lstyle = (QStyleSheetItem::ListStyle) int_lstyle; 
+    align = int_align; lstyle = (QStyleSheetItem::ListStyle) int_lstyle;
     litem = uchar_litem; rtext = uchar_rtext; str->setDirection( (QChar::Direction)uchar_dir );
     QTextParagraph* s = prev() ? prev() : this;
     while ( s ) {
@@ -5712,6 +5712,8 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *of, QTextFormat *nf, in
 	cres->fn.setItalic( nf->fn.italic() );
     if ( flags & QTextFormat::Underline )
 	cres->fn.setUnderline( nf->fn.underline() );
+    if ( flags & QTextFormat::StrikeOut )
+	cres->fn.setStrikeOut( nf->fn.strikeOut() );
     if ( flags & QTextFormat::Family )
 	cres->fn.setFamily( nf->fn.family() );
     if ( flags & QTextFormat::Size ) {
@@ -5886,6 +5888,14 @@ void QTextFormat::setUnderline( bool b )
     update();
 }
 
+void QTextFormat::setStrikeOut( bool b )
+{
+    if ( b == fn.strikeOut() )
+	return;
+    fn.setStrikeOut( b );
+    update();
+}
+
 void QTextFormat::setFamily( const QString &f )
 {
     if ( f == fn.family() )
@@ -5969,6 +5979,7 @@ QString QTextFormat::makeFormatEndTags( QTextFormat* defaultFormat, const QStrin
 	 || font().weight() != defaultFormat->font().weight()
 	 || font().italic() != defaultFormat->font().italic()
 	 || font().underline() != defaultFormat->font().underline()
+	 || font().strikeOut() != defaultFormat->font().strikeOut()
 	 || vAlign() != defaultFormat->vAlign()
 	 || color().rgb() != defaultFormat->color().rgb() )
 	tag += "</span>";
@@ -6028,6 +6039,8 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 	format.fn.setItalic( style->fontItalic() );
     if ( style->definesFontUnderline() )
 	format.fn.setUnderline( style->fontUnderline() );
+    if ( style->definesFontStrikeOut() )
+	format.fn.setStrikeOut( style->fontStrikeOut() );
 
 
     if ( style->name() == "font") {

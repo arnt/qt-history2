@@ -81,13 +81,13 @@ public:
 
     int alignment() const;
     void setAlignment( int f);
-    
+
     enum VerticalAlignment {
 	VAlignBaseline,
 	VAlignSub,
 	VAlignSuper
     };
-    
+
     VerticalAlignment verticalAlignment() const;
     void setVerticalAlignment( VerticalAlignment valign );
 
@@ -119,6 +119,10 @@ public:
     bool fontUnderline() const;
     void setFontUnderline( bool );
     bool definesFontUnderline() const;
+
+    bool fontStrikeOut() const;
+    void setFontStrikeOut( bool );
+    bool definesFontStrikeOut() const;
 
     bool isAnchor() const;
     void setAnchor(bool anc);

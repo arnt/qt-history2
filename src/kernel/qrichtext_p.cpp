@@ -222,6 +222,7 @@ QTextFormat::QTextFormat( const QStyleSheetItem *style )
 		style->fontWeight(),
 		style->fontItalic() );
     fn.setUnderline( style->fontUnderline() );
+    fn.setStrikeOut( style->fontStrikeOut() );
     col = style->color();
     fm = QFontMetrics( fn );
     leftBearing = fm.minLeftBearing();

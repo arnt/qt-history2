@@ -52,6 +52,7 @@ public:
     QStyleSheetItem::DisplayMode disp;
     int fontitalic;
     int fontunderline;
+    int fontstrikeout;
     int fontweight;
     int fontsize;
     int fontsizelog;
@@ -95,8 +96,8 @@ public:
     setListStyle(). An item may be a hypertext link anchor; see
     setAnchor(). Other attributes are set with setAlignment(),
     setVerticalAlignment(), setFontFamily(), setFontSize(),
-    setFontWeight(), setFontItalic(), setFontUnderline() and
-    setColor().
+    setFontWeight(), setFontItalic(), setFontUnderline(),
+    setFontStrikeOut and setColor().
 */
 
 /*! \enum QStyleSheetItem::AdditionalStyleValues
@@ -215,6 +216,7 @@ void QStyleSheetItem::init()
 
     d->fontitalic = Undefined;
     d->fontunderline = Undefined;
+    d->fontstrikeout = Undefined;
     d->fontweight = Undefined;
     d->fontsize = Undefined;
     d->fontsizelog = Undefined;
@@ -416,6 +418,41 @@ void QStyleSheetItem::setFontUnderline(bool underline)
 bool QStyleSheetItem::definesFontUnderline() const
 {
     return d->fontunderline != Undefined;
+}
+
+
+/*!
+    Returns TRUE if the style sets a strike out font; otherwise
+    returns FALSE.
+
+    \sa setFontStrikeOut(), definesFontStrikeOut()
+*/
+bool QStyleSheetItem::fontStrikeOut() const
+{
+    return d->fontstrikeout > 0;
+}
+
+/*!
+    If \a strikeOut is TRUE, sets strike out for the style; otherwise
+    sets no strike out.
+
+    \sa fontStrikeOut(), definesFontStrikeOut()
+*/
+void QStyleSheetItem::setFontStrikeOut(bool strikeOut)
+{
+    d->fontstrikeout = strikeOut?1:0;
+}
+
+/*!
+    Returns TRUE if the style defines a setting for the strikeOut
+    property of the font; otherwise returns FALSE. A style does not
+    define this until setFontStrikeOut() is called.
+
+    \sa setFontStrikeOut(), fontStrikeOut()
+*/
+bool QStyleSheetItem::definesFontStrikeOut() const
+{
+    return d->fontstrikeout != Undefined;
 }
 
 
@@ -914,6 +951,8 @@ int QStyleSheetItem::lineSpacing() const
 	 \i Bold font style.
     \row \i \c{<u>...</u>}
 	 \i Underlined font style.
+    \row \i \c{<s>...</s>}
+	 \i Strike out font style.
     \row \i \c{<big>...</big>}
 	 \i A larger font size.
     \row \i \c{<small>...</small>}
@@ -1183,6 +1222,8 @@ void QStyleSheet::init()
      style->setContexts(QString::fromLatin1("dt dl") );
      style = new QStyleSheetItem( this, QString::fromLatin1("u") );
      style->setFontUnderline( TRUE);
+     style = new QStyleSheetItem( this, QString::fromLatin1("s") );
+     style->setFontStrikeOut( TRUE);
      style = new QStyleSheetItem( this, QString::fromLatin1("nobr") );
      style->setWhiteSpaceMode( QStyleSheetItem::WhiteSpaceNoWrap );
 

@@ -1444,7 +1444,8 @@ public:
 	Color = 32,
 	Misspelled = 64,
 	VAlign = 128,
-	Font = Bold | Italic | Underline | Family | Size,
+	StrikeOut= 256,
+	Font = Bold | Italic | Underline | Family | Size | StrikeOut,
 	Format = Font | Color | Misspelled | VAlign
     };
 
@@ -1475,6 +1476,7 @@ public:
     void setBold( bool b );
     void setItalic( bool b );
     void setUnderline( bool b );
+    void setStrikeOut( bool b );
     void setFamily( const QString &f );
     void setPointSize( int s );
     void setFont( const QFont &f );
