@@ -727,6 +727,9 @@ QSize QScrollView::viewportSize( int x, int y ) const
 */
 void QScrollView::updateScrollBars()
 {
+    if(!horizontalScrollBar() && !verticalScrollBar())
+	return;
+
     // I support this should use viewportSize()... but it needs
     // so many of the temporary variables from viewportSize.  hm.
     int fw = frameWidth();

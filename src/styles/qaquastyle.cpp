@@ -304,7 +304,10 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 {
     if(d->focusWidget && ((e->type() == QEvent::FocusOut && d->focusWidget == o) ||
 			  (e->type() == QEvent::FocusIn && d->focusWidget != o)))  { //restore it
-	if(o != d->focusWidget || o->inherits("QFrame")) {
+	/* I do this game with inherits() & className() because once the QFrame is destructed it
+	   becomes a QWidget. Then in ~QWidget() it does clearFocus() so by the time this gets 
+	   called inherits("QFrame") returns TRUE, but classname will be wrong. Hackyness. */
+	if(o != d->focusWidget || (o->inherits("QFrame") && strcmp(o->className(), "QWidget"))) {
 	    d->focusWidget->setFrameShape(d->oldFrameShape);
 	    d->focusWidget->setFrameShadow(d->oldFrameShadow);
 	    d->focusWidget->setLineWidth(d->oldFrameWidth);
