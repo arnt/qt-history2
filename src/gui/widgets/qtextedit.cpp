@@ -500,6 +500,7 @@ void QTextEditPrivate::paste(const QMimeSource *source)
 	return;
 
     cursor.insertFragment(fragment);
+    q->ensureCursorVisible();
 }
 
 void QTextEditPrivate::setCursorPosition(const QPoint &pos)
