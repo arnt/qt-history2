@@ -746,9 +746,10 @@ void QPopupMenu::setFirstItemActive()
     int ai = 0;
     if(d->scroll.scrollable)
 	ai = d->scroll.topScrollableIndex;
-    for (int i = 0; i < mitems->size(); ++i) {
+    for (int i = ai; i < mitems->size(); ++i) {
 	QMenuItem *mi = mitems->at(i);
-	if ( !mi->isSeparator() && mi->id() != QMenuData::d->aInt ) {
+	if ( !mi->isSeparator() && mi->id() != QMenuData::d->aInt &&
+	   ( style().styleHint( QStyle::SH_PopupMenu_AllowActiveAndDisabled, this ) || mi->isEnabledAndVisible() )) {
 	    setActiveItem( ai );
 	    return;
 	}
