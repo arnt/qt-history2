@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#5 $
 **
 ** Implementation of QJisCodec class
 **
@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 // Most of the code here was originally written by Serika Kurusugawa
-// a.k.a. Junji Takagi, and is include in Qt with the authors permission,
+// a.k.a. Junji Takagi, and is include in Qt with the author's permission,
 // and the grateful thanks of the Troll Tech team.
 
 /*
@@ -53,24 +53,6 @@
  */
 
 #include "qjiscodec.h"
-
-unsigned int qt_Jisx0208ToSjis(unsigned int jis);
-unsigned int qt_Jisx0208ToSjis(unsigned int h, unsigned int l);
-unsigned int qt_SjisToJisx0208(unsigned int sjis);
-unsigned int qt_SjisToJisx0208(unsigned int h, unsigned int l);
-
-unsigned int qt_Jisx0201ToUnicode(unsigned int jis);
-unsigned int qt_Jisx0208ToUnicode(unsigned int jis);
-unsigned int qt_Jisx0208ToUnicode(unsigned int h, unsigned int l);
-unsigned int qt_Jisx0212ToUnicode(unsigned int jis);
-unsigned int qt_Jisx0212ToUnicode(unsigned int h, unsigned int l);
-
-unsigned int qt_UnicodeToJisx0201(unsigned int unicode);
-unsigned int qt_UnicodeToJisx0201(unsigned int h, unsigned int l);
-unsigned int qt_UnicodeToJisx0208(unsigned int unicode);
-unsigned int qt_UnicodeToJisx0208(unsigned int h, unsigned int l);
-unsigned int qt_UnicodeToJisx0212(unsigned int unicode);
-unsigned int qt_UnicodeToJisx0212(unsigned int h, unsigned int l);
 
 static const uchar Esc = 0x1b;
 static const uchar So = 0x0e;	// Shift Out
@@ -107,6 +89,10 @@ static const char *Esc_SEQ[] = { Esc_Ascii,
 				 Esc_JISX0208_1983,
 				 Esc_JISX0212 };
 
+QJisCodec::QJisCodec() : conv(QJpUnicodeConv::newConverter(JU_Default))
+{
+}
+
 int QJisCodec::mibEnum() const
 {
     /*
@@ -134,7 +120,7 @@ QCString QJisCodec::fromUnicode(const QString& uc, int& len_in_out) const
 		state = Ascii;
 	    }
 	    j = ch.cell;
-	} else if ((j = qt_UnicodeToJisx0201(ch.row, ch.cell)) != 0) {
+	} else if ((j = conv->UnicodeToJisx0201(ch.row, ch.cell)) != 0) {
 	    if (j < 0x80) {
 		// JIS X 0201 Latin
 		if (state != Ascii ||
@@ -146,10 +132,10 @@ QCString QJisCodec::fromUnicode(const QString& uc, int& len_in_out) const
 		state = JISX0201_Kana;
 		j &= 0x7f;
 	    }
-	} else if ((j = qt_UnicodeToJisx0208(ch.row, ch.cell)) != 0) {
+	} else if ((j = conv->UnicodeToJisx0208(ch.row, ch.cell)) != 0) {
 	    // JIS X 0208
 	    state = JISX0208_1983;
-	} else if ((j = qt_UnicodeToJisx0212(ch.row, ch.cell)) != 0) {
+	} else if ((j = conv->UnicodeToJisx0212(ch.row, ch.cell)) != 0) {
 	    // JIS X 0212
 	    state = JISX0212;
 	} else {
@@ -257,25 +243,25 @@ QString QJisCodec::toUnicode(const char* chars, int len) const
 		}
 		/* fall throught */
 	      case JISX0201_Latin:
-		u = qt_Jisx0201ToUnicode(ch);
+		u = conv->Jisx0201ToUnicode(ch);
 		result += QValidChar(u);
 		break;
 	      case JISX0201_Kana:
-		u = qt_Jisx0201ToUnicode(ch | 0x80);
+		u = conv->Jisx0201ToUnicode(ch | 0x80);
 		result += QValidChar(u);
 		break;
 	      case JISX0208_1978:
 	      case JISX0208_1983:
 		if ( i < len-1 ) {
 		    uchar c2 = chars[++i];
-		    u = qt_Jisx0208ToUnicode(ch & 0x7f, c2 & 0x7f);
+		    u = conv->Jisx0208ToUnicode(ch & 0x7f, c2 & 0x7f);
 		    result += QValidChar(u);
 		}
 		break;
 	      case JISX0212:
 		if ( i < len-1 ) {
 		    uchar c2 = chars[++i];
-		    u = qt_Jisx0212ToUnicode(ch & 0x7f, c2 & 0x7f);
+		    u = conv->Jisx0212ToUnicode(ch & 0x7f, c2 & 0x7f);
 		    result += QValidChar(u);
 		}
 		break;
@@ -290,7 +276,7 @@ QString QJisCodec::toUnicode(const char* chars, int len) const
 
 const char* QJisCodec::name() const
 {
-    return "JIS";
+    return "JIS7";
 }
 
 int QJisCodec::heuristicNameMatch(const char* hint) const
@@ -459,8 +445,9 @@ class QJisDecoder : public QTextDecoder {
     int nbuf;
     Iso2022State state, prev;
     bool esc;
+    const QJpUnicodeConv * const conv;
 public:
-    QJisDecoder() : nbuf(0), state(Ascii), prev(Ascii), esc(FALSE)
+    QJisDecoder(const QJpUnicodeConv *c) : nbuf(0), state(Ascii), prev(Ascii), esc(FALSE), conv(c)
     {
     }
 
@@ -557,11 +544,11 @@ public:
 			    }
 			    /* fall throught */
 			  case JISX0201_Latin:
-			    u = qt_Jisx0201ToUnicode(ch);
+			    u = conv->Jisx0201ToUnicode(ch);
 			    result += QValidChar(u);
 			    break;
 			  case JISX0201_Kana:
-			    u = qt_Jisx0201ToUnicode(ch | 0x80);
+			    u = conv->Jisx0201ToUnicode(ch | 0x80);
 			    result += QValidChar(u);
 			    break;
 			  case JISX0208_1978:
@@ -578,11 +565,11 @@ public:
 			switch (state) {
 			  case JISX0208_1978:
 			  case JISX0208_1983:
-			    u = qt_Jisx0208ToUnicode(buf[0] & 0x7f, ch & 0x7f);
+			    u = conv->Jisx0208ToUnicode(buf[0] & 0x7f, ch & 0x7f);
 			    result += QValidChar(u);
 			    break;
 			  case JISX0212:
-			    u = qt_Jisx0212ToUnicode(buf[0] & 0x7f, ch & 0x7f);
+			    u = conv->Jisx0212ToUnicode(buf[0] & 0x7f, ch & 0x7f);
 			    result += QValidChar(u);
 			    break;
 			  default:
@@ -601,6 +588,6 @@ public:
 
 QTextDecoder* QJisCodec::makeDecoder() const
 {
-    return new QJisDecoder;
+    return new QJisDecoder(conv);
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeucjpcodec.h#3 $
+** $Id: //depot/qt/main/src/tools/qeucjpcodec.h#4 $
 **
 ** Definition of QEucJpCodec class
 **
@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 // Most of the code here was originally written by Serika Kurusugawa
-// a.k.a. Takagi Junji, and is include in Qt with the authors permission,
+// a.k.a. Junji Takagi, and is include in Qt with the author's permission,
 // and the grateful thanks of the Troll Tech team.
 
 /*
@@ -56,6 +56,7 @@
 #define QEUCJPCODEC_H
 
 #include "qtextcodec.h"
+#include "qjpunicode.h"
 
 class Q_EXPORT QEucJpCodec : public QTextCodec {
 public:
@@ -69,6 +70,11 @@ public:
 
     int heuristicContentMatch(const char* chars, int len) const;
     int heuristicNameMatch(const char* hint) const;
+
+    QEucJpCodec();
+
+protected:
+    const QJpUnicodeConv * const conv;
 };
 
 #endif

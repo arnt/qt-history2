@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#450 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#451 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -443,6 +443,7 @@ static void qt_x11_process_intern_atoms()
   set_local_font() - tries to set a sensible default font char set
  *****************************************************************************/
 
+/* This will go away - we'll just use codecForLocale() */
 static struct {
     const char * name;
     QFont::CharSet cs;
@@ -458,6 +459,8 @@ static struct {
     { "ISO8859-9", QFont::ISO_8859_9 },
     { "KOI8-R", QFont::KOI8R },
     { "eucJP", QFont::Set_Ja },
+    { "SJIS", QFont::Set_Ja },
+    { "JIS7", QFont::Set_Ja },
     { "eucKR", QFont::Set_Ko },
     { "TACTIS", QFont::Set_Th_TH },
     { "eucCN", QFont::Set_Zh },
