@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#48 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#49 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -1892,9 +1892,10 @@ private:
     QXmlSimpleReader::EntityRecognitionContext parsePEReference_context;
     QString parseString_s;
 
+    typedef bool (QXmlSimpleReader::*parseFunction) ();
     // for incremental parsing
     struct ParseState {
-	QXmlSimpleReader::parseFunction function;
+	parseFunction function;
 	int state;
     };
     QStack<ParseState> *parseStack;
