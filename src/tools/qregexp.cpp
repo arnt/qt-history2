@@ -3290,7 +3290,9 @@ QString QRegExp::cap( int nth )
     rx.pos( 2 );                        // 8 (position of null)
   \endcode
 
-  Zero-length matches are considered as non-matches.
+  Note that pos() returns -1 for zero-length matches. (For example, if
+  cap(4) would return an empty string, pos(4) returns -1.) This is due
+  to an implementation tradeoff.
 
   \sa capturedTexts() cap()
 */
