@@ -19,6 +19,7 @@
 
 #include <qstring.h>
 #include <qpixmap.h>
+#include <qbitmap.h>
 #include <qtooltip.h>
 #include <qevent.h>
 #include <qshortcut.h>
@@ -90,7 +91,7 @@ public:
         : QWidget(parent)
     {
         QPixmap px = TrWindow::pageCurl();
-        if ( !px.mask().isNull() ) {
+        if ( px.hasAlphaChannel() ) {
             setMask( px.mask() );
         }
         QPalette pal = palette();
