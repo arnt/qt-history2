@@ -704,7 +704,7 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	    if ( returnValue )
 		continue;
 
-	    if ( param->inOut & QUParameter::Out )
+	    if ( param->inOut & QUParameter::Out && !paramType.endsWith("** ") )
 		slot += "*";
 	    if ( param->name )
 		slot += "p_" + replaceKeyword( param->name );
