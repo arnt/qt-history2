@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#41 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -444,7 +444,7 @@ QGIFFormat::QGIFFormat()
 */
 QGIFFormat::~QGIFFormat()
 {
-    delete globalcmap;
+    delete[] globalcmap;
 }
 
 
