@@ -1645,7 +1645,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
 */
 void QMenu::mouseMoveEvent(QMouseEvent *e)
 {
-    if(d->mouseEventTaken(e))
+    if(!isVisible() || d->mouseEventTaken(e))
         return;
 
     QMenuAction *action = d->actionAt(e->pos());
