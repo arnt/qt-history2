@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qurl.cpp#32 $
+** $Id: //depot/qt/main/tests/url/qurl.cpp#33 $
 **
 ** Implementation of QFileDialog class
 **
@@ -154,8 +154,8 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 
 QUrl::~QUrl()
 {
-//     if ( d->networkProtocol )
-// 	delete d->networkProtocol;
+    if ( d->networkProtocol )
+ 	delete d->networkProtocol;
     delete d;
 }
 
@@ -278,8 +278,8 @@ void QUrl::reset()
     d->refEncoded = "";
     d->isMalformed = FALSE;
     d->port = -1;
-//     if ( d->networkProtocol )
-// 	delete d->networkProtocol;
+    if ( d->networkProtocol )
+ 	delete d->networkProtocol;
     d->networkProtocol = 0;
 }
 
@@ -454,8 +454,8 @@ NodeOk:
     if ( d->path.isEmpty() )
 	d->path = "/";
     delete []orig;
-//     if ( d->networkProtocol )
-// 	delete d->networkProtocol;
+    if ( d->networkProtocol )
+ 	delete d->networkProtocol;
     getNetworkProtocol();
 
     return;
@@ -480,8 +480,6 @@ QUrl& QUrl::operator=( const QString& url )
 QUrl& QUrl::operator=( const QUrl& url )
 {
     *d = *url.d;
-//     if ( d->networkProtocol )
-// 	delete d->networkProtocol;
     getNetworkProtocol();
     return *this;
 }
@@ -1092,13 +1090,13 @@ void QUrl::getNetworkProtocol()
 	d->networkProtocol = 0;
 	return;
     }
-    
+
     QNetworkProtocol *p = qGetNetworkProtocol( d->protocol );
     if ( !p ) {
 	d->networkProtocol = 0;
 	return;
     }
-    
+
     d->networkProtocol = p;
     d->networkProtocol->setUrl( this );
 }
