@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#10 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -49,7 +49,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
 
     px = 0;
     py = 0;
-    
+
     maxClient = 0;
 
 }
@@ -74,7 +74,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	windows.append( child );
 	place( child );
 	child->raise();
-	if ( TRUE || doShow ) {
+	if ( doShow ) {
 	  child->show();
 	  activateClient( w );
 	}
@@ -89,6 +89,8 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    icons.remove( (QWidget*)e->child() );
 	    layoutIcons();
 	}
+	if(active == e->child())
+	    active = 0;
     }
 }
 
@@ -106,23 +108,13 @@ void QWorkspace::activateClient( QWidget* w)
 
     active->raise();
 
-    QObjectList* ol = active->queryList( "QWidget" );
-    bool hasFocus = FALSE;
-    for (QObject* o = ol->first(); o; o = ol->next() ) {
-	hasFocus |= ((QWidget*)o)->hasFocus();
-    }
-    if ( !hasFocus ) {
-	active->clientWidget()->setFocus();
-    }
-    delete ol;
-
     emit clientActivated( w );
 }
 
 
 QWidget* QWorkspace::activeClient() const
 {
-    return active;
+    return active?active->clientWidget():0;
 }
 
 
@@ -214,7 +206,7 @@ void QWorkspace::minimizeClient( QWidget* w)
 	    maxClient = 0;
 	    hideMaxHandles();
 	}
-	    
+	
     }
 }
 

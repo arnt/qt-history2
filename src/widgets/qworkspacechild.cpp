@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#17 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -245,10 +245,13 @@ void QWorkspaceChildTitleBar::mouseMoveEvent( QMouseEvent * e)
 }
 
 
+void QWorkspaceChildTitleBar::setText( const QString& title )
+{
+    titleL->setText( title );
+}
 
 bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 {
-    titleL->setText( caption() );
     if ( o == titleL ) {
 	if ( e->type() == QEvent::MouseButtonPress
 	     || e->type() == QEvent::MouseButtonRelease
@@ -291,7 +294,6 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
 
 void QWorkspaceChildTitleBar::setActive( bool active )
 {
-    titleL->setText( caption() );
     act = active;
     if ( active ) {
 	if ( imode ){
@@ -324,9 +326,16 @@ bool QWorkspaceChildTitleBar::isActive() const
     return act;
 }
 
+class QGetWFlagsWidget : public QWidget
+{
+public:
+    WFlags getWFlags() const { return QWidget::getWFlags(); }
+};
+
+
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 				  const char *name )
-    : QFrame( parent, name, WStyle_Customize | WStyle_NoBorder )
+    : QFrame( parent, name, WStyle_Customize | WStyle_NoBorder  | WDestructiveClose )
 {
     mode = 0;
     buttonDown = FALSE;
@@ -338,7 +347,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     connect( titlebar, SIGNAL( doActivate() ),
 	     this, SLOT( activate() ) );
     connect( titlebar, SIGNAL( doClose() ),
-	     this, SLOT( close() ) );
+	     window, SLOT( close() ) );
     connect( titlebar, SIGNAL( doMinimize() ),
 	     this, SLOT( showMinimized() ) );
     connect( titlebar, SIGNAL( doMaximize() ),
@@ -351,21 +360,22 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     if (!clientw)
 	return;
 
+    titlebar->setText( clientw->caption() );
 
-    connect( clientw, SIGNAL( destroyed() ), this, SLOT( clientDestroyed() ) );
-
-    clientw->reparent( this, 0, QPoint( contentsRect().x()+BORDER, TITLEBAR_HEIGHT + BORDER + contentsRect().y() ) );
+    clientw->reparent( this, ((QGetWFlagsWidget*)clientw)->getWFlags(), QPoint( contentsRect().x()+BORDER, TITLEBAR_HEIGHT + BORDER + contentsRect().y() ) );
     clientw->show();
 
     resize( clientw->width() + 2*frameWidth() + 2*BORDER, clientw->height() + 2*frameWidth() + TITLEBAR_HEIGHT +2*BORDER);
 
     clientw->installEventFilter( this );
-
-    //setActive( TRUE );
 }
 
 QWorkspaceChild::~QWorkspaceChild()
 {
+    if (iconw) {
+	delete iconw->parentWidget();
+	iconw = 0;
+    }
 }
 
 
@@ -394,13 +404,10 @@ void QWorkspaceChild::activate()
 bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 {
 
-    titlebar->setCaption( clientw->caption() );
-
     if ( !isActive() ) {
-	if ( e->type() == QEvent::MouseButtonPress) {
+	if ( e->type() == QEvent::MouseButtonPress || e->type() == QEvent::FocusIn ) {
 	    setActive( TRUE );
 	}
-	return FALSE;
     }
 
     if (o != clientw)
@@ -408,14 +415,31 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 
     switch ( e->type() ) {
     case QEvent::Show:
+	if ( TRUE ) { // ######### hack for broken layout
+	    QSize cs = clientw->sizeHint();
+	    if ( cs != clientSize ){
+		QSize s( cs.width() + 2*frameWidth() + 2*BORDER,
+			 cs.height() + 3*frameWidth() + TITLEBAR_HEIGHT +TITLEBAR_SEPARATION+2*BORDER );
+		resize( s );
+	    }
+	
+	}
 	show();
 	break;
     case QEvent::Hide:
-	if (iconw) {
-	    delete iconw->parentWidget();
-	    iconw = 0;
+	if ( !clientw->isVisibleTo( this ) ) {
+	    if (iconw) {
+		delete iconw->parentWidget();
+		iconw = 0;
+	    }
+	    hide();
 	}
-	hide();
+	break;
+    case QEvent::CaptionChange:
+	titlebar->setText( clientw->caption() );
+	break;
+    case QEvent::LayoutHint:
+	//layout()->activate();
 	break;
     case QEvent::Resize:
 	{
@@ -434,6 +458,14 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
     return FALSE;
 }
 
+
+void QWorkspaceChild::childEvent( QChildEvent*  e)
+{
+    if ( e->type() == QEvent::ChildRemoved && e->child() == clientw ) {
+	clientw = 0;
+	close();
+    }
+}
 
 void QWorkspaceChild::mousePressEvent( QMouseEvent * e)
 {
@@ -569,8 +601,16 @@ void QWorkspaceChild::setActive( bool b)
 	QObjectList* ol = clientw->queryList( "QWidget" );
 	for (QObject* o = ol->first(); o; o = ol->next() )
 	    o->removeEventFilter( this );
-	delete ol;
 	((QWorkspace*)parentWidget())->activateClient( clientWidget() );
+	bool hasFocus = FALSE;
+	for (QObject* o = ol->first(); o; o = ol->next() ) {
+	    hasFocus |= ((QWidget*)o)->hasFocus();
+	}
+	if ( !hasFocus ) {
+	    clientw->setFocus(); // insufficient, need toplevel semantics ########
+	}
+	delete ol;
+	
     }
     else {
 	QObjectList* ol = clientw->queryList( "QWidget" );
@@ -605,13 +645,13 @@ QWidget* QWorkspaceChild::iconWidget() const
 	connect( iconw, SIGNAL( doActivate() ),
 		 this, SLOT( activate() ) );
 	connect( iconw, SIGNAL( doClose() ),
-		 this, SLOT( close() ) );
+		 clientWidget(), SLOT( close() ) );
 	connect( iconw, SIGNAL( doNormal() ),
 		 this, SLOT( showNormal() ) );
 	connect( iconw, SIGNAL( doMaximize() ),
 		 this, SLOT( showMaximized() ) );
     }
-    iconw->setCaption( clientWidget()->caption() );
+    iconw->setText( clientWidget()->caption() );
     return iconw->parentWidget();
 }
 
@@ -630,16 +670,4 @@ void QWorkspaceChild::showNormal()
     ((QWorkspace*)parentWidget())->normalizeClient( clientWidget() );
 }
 
-bool QWorkspaceChild::close( bool forceKill )
-{
-    if (iconw) {
-	delete iconw->parentWidget();
-	iconw = 0;
-    }
-    return QWidget::close( forceKill );
-}
 
-void QWorkspaceChild::clientDestroyed()
-{
-    close( TRUE );
-}
