@@ -13,13 +13,12 @@ important and the application-set is often fixed.
 
 <p>
 The feature definition file is a C++ header file which defines a set of
-definitions each of which can be 1 (enabled) or 0 (disabled). Some features
-are dependent on other features and these dependencies are expressed in the
-file as additional qualifiers on the features.
+definitions. Some features are dependent on other features and these
+dependencies are expressed in the file.
 
 <p>
-Editing the qfeatures.h file consists of changing your selection of
-definitions from 1 to 0. No other parts of the file need to be changed.
+Editing the qfeatures.h file consists of commenting-out your selection of
+definitions. No other parts of the file need to be changed.
 
 <p>
 The available options are:
