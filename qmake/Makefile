@@ -66,8 +66,8 @@ qfile.obj: $(QTDIR)\src\tools\qfile.cpp
 qfile_win.obj: $(QTDIR)\src\tools\qfile_win.cpp
 	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\tools\qfile_win.cpp
 
-qtextcodec.obj: $(QTDIR)\src\tools\qtextcodec.cpp
-	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\tools\qtextcodec.cpp
+qtextcodec.obj: $(QTDIR)\src\codecs\qtextcodec.cpp
+	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\codecs\qtextcodec.cpp
 
 qregexp.obj: $(QTDIR)\src\tools\qregexp.cpp
 	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\tools\qregexp.cpp
