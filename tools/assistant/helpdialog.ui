@@ -59,7 +59,7 @@
             </property>
             <widget class="QWidget">
                 <property name="name">
-                    <cstring>Widget7</cstring>
+                    <cstring>contentPage</cstring>
                 </property>
                 <attribute name="title">
                     <string>Con&amp;tents</string>
@@ -198,7 +198,7 @@
                                 <number>6</number>
                             </property>
                             <spacer>
-                                <property name="name">
+                                <property name="name" stdset="0">
                                     <cstring>Spacer1</cstring>
                                 </property>
                                 <property name="orientation">

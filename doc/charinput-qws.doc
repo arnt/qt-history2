@@ -124,17 +124,9 @@ One way to make sure that the input widget never takes focus is to set
 the <tt>WStyle_Customize</tt> and <tt>WStyle_Tool</tt> widget flags in
 the QWidget constructor.
 <p>
-The compact example contains three example input widgets:
-<ul>
-<li> A simple handwriting recognition example.
-<li> A virtual keyboard example.
-<li> An example Unicode input widget. 
-</ul>
-
-
-
-
-
+The <a href=http://www.trolltech.com/products/palmtop/>Qt Palmtop</a>
+environment contains various input widgets such as
+Handwriting Recognition and Virtual Keyboard.
 
 
 

@@ -158,7 +158,11 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
     : HelpDialogBase( parent, 0, FALSE ), help( h ), viewer( v ), lwClosed( FALSE )
 {
     bookPixmap = new QPixmap( book_xpm );
+#ifdef QT_PALMTOPCENTER_DOCS
+    documentationPath = QString( getenv( "PALMTOPCENTERDIR" ) ) + "/doc";
+#else
     documentationPath = QString( getenv( "QTDIR" ) ) + "/doc/html";
+#endif
     indexDone = FALSE;
     contentsDone = FALSE;
     contentsInserted = FALSE;
@@ -171,6 +175,9 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
     framePrepare->hide();
     setupTitleMap();
     connect( qApp, SIGNAL(lastWindowClosed()), SLOT(lastWinClosed()) );
+#ifdef QT_PALMTOPCENTER_DOCS
+    tabWidget->removePage( contentPage );
+#endif
 }
 
 void HelpDialog::lastWinClosed()
@@ -544,6 +551,12 @@ void HelpDialog::insertContents()
 
     listContents->setSorting( -1 );
     HelpNavigationContentsItem *qtDocu, *handbook, *linguistDocu, *assistantDocu;
+#ifdef QT_PALMTOPCENTER_DOCS
+    qtDocu = new HelpNavigationContentsItem( listContents, 0 );
+    qtDocu->setText( 0, tr( "Qt Palmtopcenter Documentation" ) );
+    qtDocu->setLink( "palmtopcenter.html" );
+    qtDocu->setPixmap( 0, *bookPixmap );
+#else    
     qtDocu = new HelpNavigationContentsItem( listContents, 0 );
     qtDocu->setText( 0, tr( "Qt Reference Documentation" ) );
     qtDocu->setLink( "index.html" );
@@ -560,7 +573,8 @@ void HelpDialog::insertContents()
     assistantDocu->setText( 0, tr( "Qt Assistant Manual" ) );
     assistantDocu->setLink( "assistant.html" );
     assistantDocu->setPixmap( 0, *bookPixmap );
-
+#endif
+    
     HelpNavigationContentsItem *lastItem = 0;
     HelpNavigationContentsItem *lastGroup = 0;
 
@@ -640,12 +654,17 @@ void HelpDialog::insertContents()
 	}
     }
     delete lst;
+#ifdef QT_PALMTOPCENTER_DOCS
+    QString manualdir = QString( getenv( "PALMTOPCENTERDIR" ) ) + "/book.html/palmtopcenter.html";
+    insertContents( manualdir, tr( "Qt Palmtopcenter Manual" ), lastItem, handbook );
+#else    
     QString manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/designer-manual.html";
     insertContents( manualdir, tr( "Qt Designer Manual" ), lastItem, handbook );
     manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/linguist-manual.html";
     insertContents( manualdir, tr( "Qt Linguist Manual" ), lastItem, linguistDocu );
     manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/assistant.html";
     insertContents( manualdir, tr( "Qt Assistant" ), lastItem, assistantDocu );
+#endif
 }
 
 void HelpDialog::insertContents( const QString &filename, const QString &titl,

@@ -19,10 +19,20 @@ void MainWindow::init()
 
     settings = 0L;
 
+#ifdef QT_PALMTOPCENTER_DOCS
+    browser->mimeSourceFactory()->addFilePath( QString( getenv( "PALMTOPCENTERDIR" ) ) + "/doc/" );
+    actionGoLinguist->removeFrom( goMenu );
+    actionGoLinguist->removeFrom( Toolbar );
+    actionGoQt->removeFrom( goMenu );
+    actionGoQt->removeFrom( Toolbar );
+    actionGoDesigner->removeFrom( goMenu );
+    actionGoDesigner->removeFrom( Toolbar );
+#else    
     // #### hardcoded paths - probably should read the settings from somewhere
     browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/linguist/doc/html" );
     browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/" );
     browser->mimeSourceFactory()->addFilePath( QString( getenv( "PALMTOPCENTERDIR" ) ) + "/book/html/" );
+#endif
 
     connect( actionGoPrev, SIGNAL( activated() ), browser, SLOT( backward() ) );
     connect( actionGoNext, SIGNAL( activated() ), browser, SLOT( forward() ) );
@@ -159,8 +169,12 @@ void MainWindow::find()
 
 void MainWindow::goHome()
 {
+#ifdef QT_PALMTOPCENTER_DOCS
+    showLink( "palmtopcenter.html", "Qt Palmtopcenter Documentation" );
+#else    
     // #### we need a general Qt frontpage with links to Qt Class docu, Designer Manual, Linguist Manual, etc,
     showLink( "index.html", "Qt Reference Documentation" );
+#endif    
 }
 
 void MainWindow::showLinguistHelp()
@@ -265,7 +279,11 @@ void MainWindow::showLink( const QString & link, const QString & title )
 
 void MainWindow::showQtHelp()
 {
+#ifdef QT_PALMTOPCENTER_DOCS    
+    showLink( "palmtopcenter.html", tr( "Qt Palmtopcenter Documentation" ) );
+#else
     showLink( "index.html", tr( "Qt Reference Documentation" ) );
+#endif
 }
 
 void MainWindow::setFamily( const QString & f )

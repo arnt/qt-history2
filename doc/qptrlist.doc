@@ -634,7 +634,7 @@
 /*!
   \fn type *QPtrList::current() const
   Returns a pointer to the current list item.  The current item may be
-  null (implies that the current index is -1).
+  null (implies that the current index is -1). 
   \sa at()
 */
 
@@ -769,9 +769,9 @@
   iterators can traverse the same list independently.
 
   An iterator has its own current list item and can get the next
-  and previous list items. It doesn't modifies the list in any way.
+  and previous list items. It doesn't modify the list in any way.
 
-  When an item is removed from the list, all iterator that points
+  When an item is removed from the list, all iterators that point
   to that item are updated to point to QPtrList::current()
   instead to avoid dangling references.
 
@@ -843,7 +843,9 @@
 
 /*!
   \fn type *QPtrListIterator::current() const
-  Returns a pointer to the current iterator item.
+  Returns a pointer to the current iterator item.If the iterator is
+    positioned before the first item in the list or after the last
+    item in the list, a null is returned.
 */
 
 /*!
@@ -868,8 +870,8 @@
   Sets the current item to the item \a jump positions after the current item
   and returns a pointer to that item.
 
-  If that item is beyond the last item or if the dictionary is  empty,
-  it sets the current item to null and  returns null
+  If that item is beyond the last item or if the list is empty,
+  it sets the current item to null and returns null
 */
 
 /*!

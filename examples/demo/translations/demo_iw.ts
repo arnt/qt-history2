@@ -889,7 +889,7 @@ contact Trolltech if you want to upgrade to the Enterprise Edition.</source>
 &lt;&gt; &lt;/&gt;
 </source>
         <translation>&lt;p&gt;&lt;h1&gt;&lt;b&gt;&lt;font size=&quot;5&quot; &gt;טקסט עשיר  &lt;/h1&gt;
-&lt;/p&gt;&lt;p dir=&quot;rtl&quot;&gt;Qt תומך בטקסט עשיר מעוצב, כמו בכותרת לעיל, טקסט &lt;i&gt;&lt;font &gt;נטוי&lt;/font&gt;&lt;/i&gt;, &lt;b&gt;&lt;font &gt;מודגש &lt;/font&gt;&lt;/b&gt;ו&lt;u&gt;&lt;font &gt;קו תחתי &lt;/font&gt;&lt;/u&gt;,וכן טקסט צבעוני. זהו &lt;font color=&quot;#ff0000&quot; &gt;אדום&lt;/font&gt;, בעוד שזהו &lt;font color=&quot;#00bb00&quot; &gt;ירוק&lt;/font&gt;, וזהו &lt;font color=&quot;#0000ff&quot; &gt;כחול&lt;/font&gt;.  &lt;/p&gt;
+&lt;/p&gt;&lt;p dir=&quot;rtl&quot;&gt;Qt תומך בטקסט עשיר מעוצב, כמו בכותרת לעיל, טקסט &lt;i&gt;&lt;font &gt;נטוי&lt;/font&gt;&lt;/i&gt;, &lt;b&gt;&lt;font &gt;מודגש &lt;/font&gt;&lt;/b&gt;ו&lt;u&gt;&lt;font &gt;קו תחתי&lt;/font&gt;&lt;/u&gt;, וכן טקסט צבעוני. זהו &lt;font color=&quot;#ff0000&quot; &gt;אדום&lt;/font&gt;, בעוד שזהו &lt;font color=&quot;#00bb00&quot; &gt;ירוק&lt;/font&gt;, וזהו &lt;font color=&quot;#0000ff&quot; &gt;כחול&lt;/font&gt;.  &lt;/p&gt;
 &lt;&gt; &lt;/&gt;</translation>
     </message>
     <message encoding="UTF-8">

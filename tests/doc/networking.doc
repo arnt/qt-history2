@@ -1,0 +1,179 @@
+/*!
+
+\page networking.html
+
+\title Network Module
+
+This module is part of the \link editions.html Qt Enterprise Edition \endlink.
+
+\tableofcontents
+
+\section1 Introduction
+
+Qt's networking classes make it straightforward to write
+cross-platform networking applications. 
+
+The networking classes can be divided into three groups:
+\list 1
+\i <b>High Level Network Programming</b>
+
+QUrlOperator, QNetworkProtocol (and its QFtp and QHttp subclasses),
+along with QNetworkOperator, provide a simple high level API for
+performing network operations in a network- and protocol-transparent
+manner. For example, using QUrlOperator, you can fetch a file across
+the network, with just one line of code.
+\omit
+When QHttpClient, QFtpClient and QHttpServer are available, we'll
+refer to them her.
+\endomit
+
+\i <b>Medium Level Network Programming</b>
+
+The QSocket and QServerSocket classes provide an easy-to-use 
+API for client and server socket programming.
+
+These classes require an event loop and must be used within an
+application's GUI thread. They are ideal for end-user
+applications that need network access, but they are not suitable for
+console applications or for high performance daemons (services).
+
+\i <b>Low Level Network Programming</b>
+
+The QSocketDevice and QDns classes provide low level networking
+access. QSocketDevice can be used for UDP as well as TCP/IP, and can
+be used in the non-GUI threads of a multi-threaded application. QDns
+performs simple hostname lookups, and also more specialised lookups,
+such as Mx records, name Ptr records, etc.
+
+These classes are suitable for all types of applications, from GUI
+end-user applications to console applications and high performance
+daemons (services). 
+
+\endlist
+
+The class documentation for each class presents the functionality and
+usage of the class. In this document we will explore typical uses of
+Qt's networking classes, showing how they are used in practice.
+
+If you are using standard network protocols, such as FTP and HTTP, you
+must register them before you can use QUrlOperator. For example, put
+the following call in your \c main() function, after creating your
+QApplication object:
+\code
+    qInitNetworkProtocols();
+\endcode
+
+\section1 Network- and Protocol-Transparent Operations
+
+Copying files is simple:
+\code
+    QUrlOperator url;
+    url.copy( QString("ftp://ftp.trolltech.com/qt/source/qt-3.0.0.tar.gz"), "file:/tmp" );
+\endcode
+The first (source) URL is copied to the second (destination) URL. The
+\link QUrlOperator::copy() copy()\endlink function can be used to move
+as well as copy.
+
+QUrlOperator also provides \link QUrlOperator::listChildren()
+listChildren()\endlink to obtain a list of the files in a given
+directory, \link QUrlOperator::mkdir() mkdir()\endlink, to create a
+directory, as well as \link QUrlOperator::rename() rename()\endlink
+and \link QUrlOperator::remove() remove()\endlink.
+
+\code
+    QUrlOperator url;
+    url.get( "http://www.somedomain.com/cgi-bin/lookup.pl?name=Buzz" );
+\endcode
+The \link QUrlOperator::get() get()\endlink function is used to get
+data, in this example from a query issued to a web site. There is also
+a \link QUrlOperator::put() put()\endlink function for writing data to
+a remote file.
+
+All operations are performed asynchronously. To find out the results
+of an operation connect to the QUrlOperator::finished() signal and
+examine the QNetworkOperation object passed to it.
+
+The QUrlOperator class also provides other functions and many more
+signals to make it easy to track the progress of an operation. These
+signals could be used, for example, to provide feedback on progress to
+the user.
+
+\section2 Example: Fetching All the Files in a Remote Directory
+
+This example class is used as follows:
+\code
+    FetchFiles ff( "ftp://ftp.trolltech.com" );
+    connect( &myWidget, stop(), &ff, stop() );
+    connect( &ff, start(), &myWidget, start() );
+    connect( &ff, startFile(), &myWidget, startFile() );
+    connect( &ff, finishedFile(), &myWidget, finishedFile() );
+    connect( &ff, finished(), &myWidget, finished() );
+    connect( &ff, error(), &myWidget, error() );
+    ff.fetch();
+\endcode
+The FetchFiles constructor takes a URL. When \c fetch() is called, the
+FetchFiles object will iterate over every file it finds at the given
+URL and download each one that is a regular file, (i.e. ignoring
+directories). The FetchFiles object will emit signals as follows:
+\list
+\i start() -- emitted when it calls listChildren().
+\i startFile( QString ) -- emitted once for each file it starts to
+copy, parameterised by the filename.
+\i finishedFile( QString ) -- emitted once for each file it finishes
+copying, parameterised by the filename.
+\i finished() -- emitted when all files have been read.
+\i error() -- emitted if an error occurs.
+\endlist
+
+By connecting the signals to a widget you can keep the user notified
+regarding progress.
+
+The object also has a \c stop() slot, which you can connect to. This
+is useful if you want the user to be able to cancel the operation
+before it is complete.
+
+### Rainer: is this a good example? If it is, I'll try to write the code.
+
+\section3 The FetchFiles header file
+
+\section3 The FetchFiles C++ file
+
+
+\section1 Client/Server Applications that use Custom Protocols
+
+### Rainer: have we an example that I can use?
+
+\section2 Creating a Custom Protocol
+
+### Rainer: have we an example that I can use?
+
+\section2 Client Applications that use Custom Protocols
+
+### Rainer: have we an example that I can use?
+
+\section2 Server Applications that use Custom Protocols
+
+### Rainer: have we an example that I can use?
+
+\section1 Client/Server Applications that use Standard Protocols
+
+### Rainer: have we an example that I can use?
+
+\section2 Client Applications that use Standard Protocols
+
+### Rainer: have we an example that I can use?
+
+\section2 Server Applications that use Standard Protocols
+
+### Rainer: have we an example that I can use?
+
+\section1 Inter-Process Communication between Qt Applications
+
+### Rainer: have we an example that I can use?
+
+\section1 Inter-Process Communication between Qt and non-Qt Applications
+
+### Rainer: have we an example that I can use?
+
+
+*/

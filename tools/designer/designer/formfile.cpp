@@ -236,18 +236,32 @@ bool FormFile::saveAs()
     QString f = pro->makeAbsolute( fileName() );
     if ( fileNameTemp )
 	f = pro->makeAbsolute( QString( formWindow()->name() ).lower() + ".ui" );
-    QString fn = QFileDialog::getSaveFileName( f,
+    bool saved = FALSE;
+    while ( !saved ) {
+	QString fn = QFileDialog::getSaveFileName( f,
 					       tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
 					       tr( "All Files (*)" ), MainWindow::self, 0,
 					       tr( "Save form '%1' as ....").arg( formWindow()->name() ),
 					       &MainWindow::self->lastSaveFilter );
-    if ( fn.isEmpty() )
-	return FALSE;
-    QFileInfo fi( fn );
-    if ( fi.extension() != "ui" )
-	fn += ".ui";
-    fileNameTemp = FALSE;
-    filename = pro->makeRelative( fn );
+	if ( fn.isEmpty() )
+	    return FALSE;
+	QFileInfo fi( fn );
+	if ( fi.extension() != "ui" )
+	    fn += ".ui";
+	fileNameTemp = FALSE;
+	filename = pro->makeRelative( fn );
+	QFileInfo relfi( filename );
+	if ( relfi.exists() ) {
+	    if ( QMessageBox::warning( MainWindow::self, tr( "The file already exists" ), 
+		tr( "The file already exists, do you wish to overwrite it?" ),
+		QMessageBox::Yes,
+		QMessageBox::No ) == QMessageBox::Yes ) {
+		saved = TRUE;
+	    }
+	    
+	} else
+	    saved = TRUE;
+    }
     checkFileName();
     pro->setModified( TRUE );
     timeStamp.setFileName( pro->makeAbsolute( codeFile() ) );
@@ -383,10 +397,10 @@ SourceEditor *FormFile::showEditor()
     return e;
 }
 
-static int count = 0;
+static int counter = 0;
 QString FormFile::createUnnamedFileName()
 {
-    return QString( "unnamed" ) + QString::number( ++count ) + QString( ".ui" );
+    return QString( "unnamed" ) + QString::number( ++counter ) + QString( ".ui" );
 }
 
 QString FormFile::codeExtension() const

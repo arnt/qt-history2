@@ -50,6 +50,8 @@
 
   \important autoDelete setAutoDelete
 
+  QMap is an STL-compatible alternative to this class.
+
   QDict is implemented as a template class. Define a template instance
   QDict\<X\> to create a dictionary that operates on pointers to X (X*).
 
