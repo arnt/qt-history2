@@ -103,7 +103,7 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
     QListViewItemIterator lvit = functionListView->firstChild();
     for ( ; *lvit; lvit++ )
 	(*lvit)->setRenameEnabled( 0, TRUE );
-    
+
     // Connect listview signal to signal-relay
     QObject::connect( functionListView,
 		      SIGNAL( itemRenamed( QListViewItem*, int, const QString & ) ),
@@ -170,7 +170,7 @@ void EditFunctions::okClicked()
 	    QString s = function.function;
 	    s = s.simplifyWhiteSpace();
 	    bool startNum = s[ 0 ] >= '0' && s[ 0 ] <= '9';
-	    bool noParens = s.contains( '(' ) != 1 || s.contains( ')' ) != 1;
+	    bool noParens = s.count( '(' ) != 1 || s.count( ')' ) != 1;
 	    bool illegalSpace = s.find( ' ' ) != -1 && s.find( ' ' ) < s.find( '(' );
 
 	    if ( startNum || noParens || illegalSpace || lst.find( function.function ) != -1 ) {
@@ -291,7 +291,7 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
 	i->setText( 0, "newFunction()" );
 	i->setText( 5, "---" );
     }
-    
+
     functionListView->setCurrentItem( i );
     functionListView->setSelected( i, TRUE );
     functionListView->ensureItemVisible( i );
