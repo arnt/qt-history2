@@ -1129,12 +1129,12 @@ void *qMemCopy(void *dest, const void *src, size_t n);
 
 class QObject;
 template <class T>
-Q_INLINE_TEMPLATES T qt_cast(const QObject *object)
+inline T qt_cast(const QObject *object)
 { T t = 0; return (T) t->staticMetaObject.cast(object); }
 
 #define Q_DECLARE_INTERFACE(Iface) \
-template <> Q_INLINE_TEMPLATES IFace *qt_cast<IFace *>(const QObject *object) \
-{ return (IFace *) object->qt_metacast(#Iface); }
+template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
+{ return (IFace *) object ? object->qt_metacast(#Iface) : 0; }
 
 #endif // QGLOBAL_H
 
