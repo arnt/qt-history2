@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#293 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#294 $
 **
 ** Implementation of QListView widget class
 **
@@ -2884,9 +2884,10 @@ void QListView::focusInEvent( QFocusEvent * )
 {
     if ( d->focusItem )
 	repaintItem( d->focusItem );
-    else
-	triggerUpdate();
-    return;
+    else if ( d->r ) {
+	d->focusItem = d->r;
+	repaintItem( d->focusItem );
+    }
 }
 
 
@@ -2897,9 +2898,6 @@ void QListView::focusOutEvent( QFocusEvent * )
 {
     if ( d->focusItem )
 	repaintItem( d->focusItem );
-    else
-	triggerUpdate();
-    return;
 }
 
 
@@ -3744,14 +3742,14 @@ void QCheckListItem::activate()
 {
     QPoint pos = QCursor::pos();
     pos = listView()->viewport()->mapFromGlobal( pos );
-    
+
     QRect r = listView()->itemRect( this );
     r.setWidth( BoxSize );
     r.moveBy( listView()->itemMargin() + ( depth() + 1 ) * listView()->treeStepSize(), 0 );
-    
+
     if ( !r.contains( pos ) )
 	return;
-    
+
     if ( myType == CheckBox ) {
 	setOn( !on );
     } else if ( myType == RadioButton ) {
