@@ -473,7 +473,7 @@ QString QProcess::readLineStdout()
 	    else
 		a[size - 1] = '\0';
 	}
-	return QString( a );
+	return QString( a.data() );
     } else if ( canReadLineStdout() ) {
 	return QString( buf->readAll() );
     }
@@ -502,7 +502,7 @@ QString QProcess::readLineStderr()
 	    else
 		a[size - 1] = '\0';
 	}
-	return QString( a );
+	return QString( a.data() );
     } else if ( canReadLineStderr() ) {
 	return QString( buf->readAll() );
     }
