@@ -601,7 +601,7 @@ QPixmap QGenericComboBox::pixmap(int row) const
 
 void QGenericComboBox::insertStringList(const QStringList &list, int row)
 {
-    if (list.isEmpty())
+    if (list.isEmpty() || list.count() + count() > d->maxCount)
         return;
 
     if (row < 0)
@@ -620,6 +620,8 @@ void QGenericComboBox::insertStringList(const QStringList &list, int row)
 
 void QGenericComboBox::insertItem(const QString &text, int row)
 {
+    if (!(count() < d->maxCount))
+        return;
     if (row < 0)
         row = model()->rowCount(root());
     QModelIndex item;
@@ -633,6 +635,8 @@ void QGenericComboBox::insertItem(const QString &text, int row)
 
 void QGenericComboBox::insertItem(const QIconSet &icon, int row)
 {
+    if (!(count() < d->maxCount))
+        return;
     if (row < 0)
         row = model()->rowCount(root());
     QModelIndex item;
@@ -646,6 +650,8 @@ void QGenericComboBox::insertItem(const QIconSet &icon, int row)
 
 void QGenericComboBox::insertItem(const QString &text, const QIconSet &icon, int row)
 {
+    if (!(count() < d->maxCount))
+        return;
     if (row < 0)
         row = model()->rowCount(root());
     QModelIndex item;

@@ -190,6 +190,16 @@ public:
         emit rowsInserted(parent, row, row+count-1);
         return true;
     }
+    bool removeRows(int row, const QModelIndex &parent, int count) {
+        // this model only allows a 1D list
+        if (parent.isValid() || count < 1 || row < 0 || row+count > rowCount(QModelIndex()))
+            return false;
+
+        emit rowsRemoved(parent, row, row+count-1);
+        for (int i=row+count-1; i >= row; --i)
+            list.removeAt(i);
+        return true;
+    }
 
 private:
     QList<QPair<QString,QIconSet> > list;
