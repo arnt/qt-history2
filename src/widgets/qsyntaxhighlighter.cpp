@@ -49,7 +49,7 @@ public:
 	highlighter->para = p;
 	QString text = p->string()->toString();
 	int endState = p->prev() ? p->prev()->endState() : -2;
-	p->setEndState( highlighter->highlighteParagraph( text, endState ) );
+	p->setEndState( highlighter->highlightParagraph( text, endState ) );
 	highlighter->para = 0;
     }
     QTextFormat *format( int ) { return 0; }
@@ -97,7 +97,7 @@ QSyntaxHighlighter::QSyntaxHighlighter( QTextEdit *textEdit )
     textEdit->document()->setPreProcessor( new QSyntaxHighlighterInternal( this ) );
 }
 
-/*! \fn int QSyntaxHighlighterInternal::highlighteParagraph( const QString &text, int endStateOfLastPara )
+/*! \fn int QSyntaxHighlighterInternal::highlightParagraph( const QString &text, int endStateOfLastPara )
 
   highlighteParagraph() is called only when necessary by the richtext
   engine on the paragraphs which changed. All you have to do to is to
