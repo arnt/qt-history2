@@ -90,7 +90,7 @@
     is selected it is immediately available in the selection buffer; MS
     Windows only adds text to the clipboard when an explicit copy or cut
     is made. The X Window system also has a concept of ownership; if you
-    change the selection within a window X11 will only notify the owner
+    change the selection within a window, X11 will only notify the owner
     and the previous owner of the change; in MS Windows the clipboard is
     a fully global resource so all applications are notified of changes.
     See the multiclip example in the <em>Qt Designer</em> examples

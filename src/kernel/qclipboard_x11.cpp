@@ -234,7 +234,7 @@ bool QClipboard::ownsSelection() const
 }
 
 /*!
-  Returns TRUE is this clipboard object owns the clipboard data, FALSE
+  Returns TRUE if this clipboard object owns the clipboard data, FALSE
   otherwise.
 */
 bool QClipboard::ownsClipboard() const

@@ -1297,6 +1297,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 #ifndef QT_NO_LISTVIEW
     case CC_ListView:
 	{
+	    QColor listViewGray( 128, 128, 128 );
 	    if (opt.isDefault())
 		break;
 
@@ -1323,7 +1324,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		if ( (child->isExpandable() || child->childCount()) &&
 		     (child->height() > 0) ) {
 		    // needs a box
-		    p->setPen( cg.mid() );
+		    p->setPen( listViewGray );
 		    p->drawRect( bx-4, linebot-4, 9, 9 );
 		    // plus or minus
 		    p->setPen( cg.text() );
@@ -1331,6 +1332,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		    if ( !child->isOpen() )
 			p->drawLine( bx, linebot - 2, bx, linebot + 2 );
 		    // dotlinery
+		    p->setPen( listViewGray );
 		    dotlines[c++] = QPoint( bx, linetop );
 		    dotlines[c++] = QPoint( bx, linebot - 5 );
 		    dotlines[c++] = QPoint( bx + 5, linebot );
