@@ -15,65 +15,54 @@
 #endif
 #endif
 
+#ifndef Q_EXPORT_PLUGIN
+#define Q_PLUGIN_INSTANTIATE( IMPLEMENTATION )	\
+	{ \
+	    IMPLEMENTATION *i = new IMPLEMENTATION;	\
+	    return i->iface(); \
+	}
+
 #if defined(QT_THREAD_SUPPORT)
 #define QT_THREADED_BUILD 1
 #else
 #define QT_THREADED_BUILD 0
 #endif
 
-#if defined(QT_DEBUG)
-#define QT_DEBUG_BUILD 1
-#else
-#define QT_DEBUG_BUILD 0
-#endif
-
-#ifndef Q_EXPORT_PLUGIN
-#define Q_PLUGIN_INITIALIZE \
-    { \
-	if ( !qApp && theApp ) \
-	    qt_ucm_initialize( theApp ); \
-	if ( mt ) \
-	    *mt = QT_THREADED_BUILD; \
-	if ( debug ) \
-	    *debug = QT_DEBUG_BUILD; \
-	return QT_VERSION; \
-    }
-#define Q_PLUGIN_INSTANTIATE( IMPLEMENTATION )	\
-    { \
-	IMPLEMENTATION *i = new IMPLEMENTATION;	\
-	return i->iface(); \
-    }
-
+#define Q_PLUGIN_QUERY \
+	{ \
+	    if ( version ) \
+		*version = QT_VERSION; \
+	    if ( flags ) { \
+		*flags = 1; \
+		if ( QT_THREADED_BUILD ) \
+		    *flags |= 2; \
+	    } \
+	    if ( key ) \
+		*key = QT_BUILD_KEY; \
+	    return 0; \
+	}
 #    ifdef Q_WS_WIN
 #	ifdef Q_CC_BOR
-#	    define Q_EXPORT_PLUGIN( PLUGIN ) \
-		class QApplication;\
-		extern Q_EXPORT QApplication *qApp; \
-		extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
-		Q_EXTERN_C __declspec(dllexport) int __stdcall ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
-		    Q_PLUGIN_INITIALIZE \
+#	    define Q_EXPORT_PLUGIN(PLUGIN) \
+		Q_EXTERN_C __declspec(dllexport) int __stdcall qt_ucm_query( uint * version, uint* flags, const char** key ) \
+		    Q_PLUGIN_QUERY \
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* __stdcall ucm_instantiate() \
 		    Q_PLUGIN_INSTANTIATE( PLUGIN )
 #	else
-#	    define Q_EXPORT_PLUGIN( PLUGIN ) \
-		class QApplication;\
-		extern Q_EXPORT QApplication *qApp; \
-		extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
-		Q_EXTERN_C __declspec(dllexport) int ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
-		    Q_PLUGIN_INITIALIZE \
+#	    define Q_EXPORT_PLUGIN(PLUGIN) \
+		Q_EXTERN_C __declspec(dllexport) int qt_ucm_query( uint * version, uint* flags, const char** key ) \
+		    Q_PLUGIN_QUERY \
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* ucm_instantiate() \
 		    Q_PLUGIN_INSTANTIATE( PLUGIN )
 #	endif
 #    else
-#	define Q_EXPORT_PLUGIN( PLUGIN ) \
-	    class QApplication;\
-	    extern Q_EXPORT QApplication *qApp; \
-	    extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
-	    Q_EXTERN_C int ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
-		Q_PLUGIN_INITIALIZE \
+#	define Q_EXPORT_PLUGIN(PLUGIN) \
+	    Q_EXTERN_C int qt_ucm_query( uint * version, uint* flags, const char** key ) \
+	        Q_PLUGIN_QUERY \
 	    Q_EXTERN_C QUnknownInterface* ucm_instantiate() \
-		Q_PLUGIN_INSTANTIATE( PLUGIN )
+	        Q_PLUGIN_INSTANTIATE( PLUGIN )
 #    endif
+
 #endif
 
 struct QUnknownInterface;

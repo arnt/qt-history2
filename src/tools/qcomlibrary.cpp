@@ -37,12 +37,17 @@
 
 #ifndef QT_NO_COMPONENT
 #include "qapplication.h"
+#include "qsettings.h"
+#include "qfileinfo.h"
+#include "qdatetime.h"
 
 #ifndef QT_DEBUG_COMPONENT
 # if defined(QT_DEBUG)
 #  define QT_DEBUG_COMPONENT 1
 # endif
 #endif
+
+#define QT_WARN_PLUGINS
 
 QComLibrary::QComLibrary( const QString &filename )
 : QLibrary( filename ), entry( 0 ), libiface( 0 )
@@ -73,97 +78,125 @@ bool QComLibrary::unload()
     return QLibrary::unload();
 }
 
+
+static bool verify( const QString& library, uint version, uint flags, const char* key, bool didLoad = 
+#ifndef QT_DEBUG_PLUGINS		    
+		    FALSE 
+#else		    
+		    TRUE 
+#endif
+		    )
+{
+    uint our_flags = 1;
+#if defined(QT_THREAD_SUPPORT)
+    our_flags |= 2;
+#endif
+    
+    if ( (flags & 1) == 0 ) {
+	if ( didLoad )
+	    qWarning( "Conflict in %s:\n Plugin cannot be queried successfully!", 
+		      (const char*) QFile::encodeName(library) );
+    } else if ( qstrcmp( key, QT_BUILD_KEY ) && qstrcmp( QT_BUILD_KEY, "*" )  && qstrcmp( key, "*" ) ) {
+	if ( didLoad )
+	    qWarning( "Conflict in %s:\n Plugin uses incompatible Qt library (expected build key \"%s\", got \"%s\")!", 
+		      (const char*) QFile::encodeName(library),
+		      QT_BUILD_KEY, key ? key : "<null>" );
+    } else if ( (version >  QT_VERSION)  ||
+	 (QT_VERSION & 0xffff00  >  version & 0xffff00) ) {
+	if ( didLoad )
+	    qWarning( "Conflict in %s:\n Plugin uses incompatible Qt library (%d.%d.%d)!", (const char*) QFile::encodeName(library),
+		      version&0xff0000,version&0xff00,version&0xff );
+    } else if ( (flags & 2) != (our_flags & 2 ) ) {
+	if ( didLoad )
+	    qWarning( "Conflict in %s:\n Plugin uses %s Qt library!", (const char*) QFile::encodeName(library),
+		      (flags & 2) ? "multi threaded" : "single threaded" );
+    } else {
+	return TRUE;
+    }
+    return FALSE;
+}
+
 void QComLibrary::createInstanceInternal()
 {
     if ( library().isEmpty() )
 	return;
 
+    QSettings settings;
+    QString regkey = QString("/qt_plugin%1.%2/%3").arg( QT_MAJOR_VERSION ).arg( QT_MINOR_VERSION ).arg( library() );
+    QStringList reg;
+
+    uint version, flags;
+    const char* key = 0;
+    QFileInfo fileinfo( library() );
+    QString lastModified  = fileinfo.lastModified().toString();
+
+    reg =  settings.readListEntry( regkey );
+    if ( reg.count() == 4 ) {
+	version = reg[0].toUInt(0, 16);
+	flags = reg[1].toUInt(0, 16);
+	key = reg[2].data();
+	
+	// check timestamp
+	if ( lastModified == reg[3] &&
+	     !verify( library(), version, flags, key ) )
+	    return;
+    }
+	
     if ( !isLoaded() ) {
 	Q_ASSERT( entry == 0 );
-	load();
+	if ( !load() )
+	    return;
     }
-
     if ( isLoaded() && !entry ) {
-#if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
-	qWarning( "%s has been loaded.", library().latin1() );
-#endif
-#ifndef QT_LITE_COMPONENT
 #  ifdef Q_CC_BOR
-	typedef int __stdcall (*UCMInitProc)(QApplication*, bool*, bool* );
+	typedef int __stdcall (*UCMQueryProc)(uint*, uint*, const char** );
 #  else
-	typedef int (*UCMInitProc)(QApplication*, bool*, bool* );
+	typedef int (*UCMQueryProc)(uint*, uint*, const char** );
 #  endif
-#else
-#  ifdef Q_CC_BOR
-	typedef int __stdcall (*UCMInitProc)(void*, bool*, bool* );
-#  else
-	typedef int (*UCMInitProc)(void*, bool*, bool* );
-#  endif
-#endif
-	UCMInitProc ucmInitProc;
-	ucmInitProc = (UCMInitProc) resolve( "ucm_initialize" );
-
-	bool ucm_init = TRUE;
-	if ( ucmInitProc ) {
-	    bool plugQtThreaded;
-	    bool plugQtDebug;
-#ifndef QT_LITE_COMPONENT
-	    int plugQtVersion = ucmInitProc( qApp, &plugQtThreaded, &plugQtDebug );
-#else
-	    int plugQtVersion = ucmInitProc( 0, &plugQtThreaded, &plugQtDebug );
-#endif
-	    if ( QABS(plugQtVersion - QT_VERSION ) > 99 ) {
-#if defined(QT_DEBUG_COMPONENT)
-		qWarning( "Conflict in %s: Plugin links against incompatible Qt library (%d)!", library().latin1(), plugQtVersion );
-#endif
-		ucm_init = FALSE;
-	    }
-	    if ( plugQtThreaded != QT_THREADED_BUILD ) {
-#if defined(QT_DEBUG_COMPONENT)
-		qWarning( "Conflict in %s: Plugin uses %s Qt library!", library().latin1(), plugQtThreaded ? "multi threaded" : "single threaded" );
-#endif
-		// the plugin is threaded, but the application is not. If we live long enough to cancel the load, do it...
-		if ( plugQtThreaded )
-		    ucm_init = FALSE;
-	    }
-#if defined(QT_DEBUG_COMPONENT)
-	    if ( plugQtDebug != QT_DEBUG_BUILD )
-		qWarning( "Possible conflict in %s: Plugin %s debug symbols!", library().latin1(), plugQtDebug ? "has" : "has no" );
-#endif
+	UCMQueryProc ucmQueryProc;
+	ucmQueryProc = (UCMQueryProc) resolve( "qt_ucm_query" );
+	if ( !ucmQueryProc  || ucmQueryProc( &version, &flags, &key ) != 0 ) {
+	    version = 0; 
+	    flags = 0;
+	    key = "unknown";
 	}
-	if ( !ucm_init ) {
+	QStringList queried;
+	queried << QString::number( version,16 ) << QString::number( flags, 16 ) << QString::fromLatin1( key ) << lastModified;
+	if ( queried != reg )
+	    settings.writeEntry( regkey, queried );
+	if ( !verify( library(), version, flags, key ,TRUE ) ) {
 	    unload();
 	    return;
 	}
+    }
 
 #ifdef Q_CC_BOR
-	typedef QUnknownInterface* __stdcall (*UCMInstanceProc)();
+    typedef QUnknownInterface* __stdcall (*UCMInstanceProc)();
 #else
-	typedef QUnknownInterface* (*UCMInstanceProc)();
+    typedef QUnknownInterface* (*UCMInstanceProc)();
 #endif
-	UCMInstanceProc ucmInstanceProc;
-	ucmInstanceProc = (UCMInstanceProc) resolve( "ucm_instantiate" );
+    UCMInstanceProc ucmInstanceProc;
+    ucmInstanceProc = (UCMInstanceProc) resolve( "ucm_instantiate" );
 #if defined(QT_DEBUG_COMPONENT)
-	if ( !ucmInstanceProc )
-	    qWarning( "%s: Not a UCOM library.", library().latin1() );
+    if ( !ucmInstanceProc )
+	qWarning( "%s: Not a UCOM library.", library().latin1() );
 #endif
-	entry = ucmInstanceProc ? ucmInstanceProc() : 0;
+    entry = ucmInstanceProc ? ucmInstanceProc() : 0;
 
-	if ( entry ) {
-	    if ( entry->queryInterface( IID_QLibrary, (QUnknownInterface**)&libiface ) == QS_OK ) {
-		if ( libiface && !libiface->init() ) {
-		    libiface->release();
-		    libiface = 0;
-		    unload();
-		    return;
-		}
+    if ( entry ) {
+	if ( entry->queryInterface( IID_QLibrary, (QUnknownInterface**)&libiface ) == QS_OK ) {
+	    if ( libiface && !libiface->init() ) {
+		libiface->release();
+		libiface = 0;
+		unload();
+		return;
 	    }
-	} else {
-#if defined(QT_DEBUG_COMPONENT)
-	    qWarning( "%s: No exported component provided.", library().latin1() );
-#endif
-	    unload();
 	}
+    } else {
+#if defined(QT_DEBUG_COMPONENT)
+	qWarning( "%s: No exported component provided.", library().latin1() );
+#endif
+	unload();
     }
 }
 

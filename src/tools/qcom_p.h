@@ -82,7 +82,7 @@ struct Q_EXPORT QUnknownInterface
     virtual ulong   release() = 0;
 };
 
-// {FBAC965E-A441-413F-935E-CDF582573FAB} 
+// {FBAC965E-A441-413F-935E-CDF582573FAB}
 #ifndef IID_QDispatch
 #define IID_QDispatch QUuid( 0xfbac965e, 0xa441, 0x413f, 0x93, 0x5e, 0xcd, 0xf5, 0x82, 0x57, 0x3f, 0xab)
 #endif
@@ -161,23 +161,23 @@ public:
 
     operator T*() const { return iface; }
 
-    QUnknownInterface** operator &() const { 
-	if( iface ) 
+    QUnknownInterface** operator &() const {
+	if( iface )
 	    iface->release();
-	return (QUnknownInterface**)&iface; 
+	return (QUnknownInterface**)&iface;
     }
 
-    T** operator &() { 
+    T** operator &() {
 	if ( iface )
 	    iface->release();
-	return &iface; 
+	return &iface;
     }
 
 private:
     T* iface;
 };
 
-// {10A1501B-4C5F-4914-95DD-C400486CF900} 
+// {10A1501B-4C5F-4914-95DD-C400486CF900}
 #ifndef IID_QObject
 #define IID_QObject QUuid( 0x10a1501b, 0x4c5f, 0x4914, 0x95, 0xdd, 0xc4, 0x00, 0x48, 0x6c, 0xf9, 0x00)
 #endif
@@ -283,68 +283,42 @@ public:		   \
     ulong addRef() {return qtrefcount++;} \
     ulong release() {if(!--qtrefcount){delete this;return 0;}return qtrefcount;}
 
+#ifndef Q_EXPORT_COMPONENT
 #if defined(QT_THREAD_SUPPORT)
 #define QT_THREADED_BUILD 1
 #else
 #define QT_THREADED_BUILD 0
 #endif
 
-#if defined(QT_DEBUG)
-#define QT_DEBUG_BUILD 1
-#else
-#define QT_DEBUG_BUILD 0
-#endif
-
-#ifndef Q_EXPORT_COMPONENT
+#define Q_UCM_QUERY \
+	{ \
+	    if ( version ) \
+		*version = QT_VERSION; \
+	    if ( flags ) { \
+		*flags = 1; \
+		if ( QT_THREADED_BUILD ) \
+		    *flags |= 2; \
+	    } \
+	    if ( key ) \
+		*key = QT_BUILD_KEY; \
+	    return 0; \
+	}
 #    ifdef Q_WS_WIN
 #	ifdef Q_CC_BOR
 #	    define Q_EXPORT_COMPONENT() \
-		class QApplication;\
-		extern Q_EXPORT QApplication *qApp; \
-		extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
-		Q_EXTERN_C __declspec(dllexport) int __stdcall ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
-		{ \
-		    if ( !qApp && theApp ) \
-			qt_ucm_initialize( theApp ); \
-		    if ( mt ) \
-			*mt = QT_THREADED_BUILD; \
-		    if ( debug ) \
-		        *debug = QT_DEBUG_BUILD; \
-		    return QT_VERSION; \
-		} \
+		Q_EXTERN_C __declspec(dllexport) int __stdcall qt_ucm_query( uint * version, uint* flags, const char** key ) \
+		    Q_UCM_QUERY \
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* __stdcall ucm_instantiate()
 #	else
 #	    define Q_EXPORT_COMPONENT() \
-		class QApplication;\
-		extern Q_EXPORT QApplication *qApp; \
-		extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
-		Q_EXTERN_C __declspec(dllexport) int ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
-		{ \
-		    if ( !qApp && theApp ) \
-			qt_ucm_initialize( theApp ); \
-		    if ( mt ) \
-			*mt = QT_THREADED_BUILD; \
-		    if ( debug ) \
-		        *debug = QT_DEBUG_BUILD; \
-		    return QT_VERSION; \
-		} \
+		Q_EXTERN_C __declspec(dllexport) int qt_ucm_query( uint * version, uint* flags, const char** key ) \
+		    Q_UCM_QUERY \
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* ucm_instantiate()
 #	endif
 #    else
 #	define Q_EXPORT_COMPONENT() \
-	    class QApplication;\
-	    extern Q_EXPORT QApplication *qApp; \
-	    extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
-	    Q_EXTERN_C int ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
-	    { \
-		if ( !qApp && theApp ) \
-		    qt_ucm_initialize( theApp ); \
-		if ( mt ) \
-		    *mt = QT_THREADED_BUILD; \
-		if ( debug ) \
-		    *debug = QT_DEBUG_BUILD; \
-		return QT_VERSION; \
-	    } \
+	    Q_EXTERN_C int qt_ucm_query( uint * version, uint* flags, const char** key ) \
+	        Q_UCM_QUERY \
 	    Q_EXTERN_C QUnknownInterface* ucm_instantiate()
 #    endif
 #    define Q_EXPORT_INTERFACE() Q_EXPORT_COMPONENT()
