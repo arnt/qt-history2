@@ -136,6 +136,17 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	out << objName << " = new " << createObjectInstance( objClass, parent, objName ) << ";" << endl;
     }
 
+    if ( objClass == "QAxWidget" ) {
+	QString controlId;
+	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	    if ( n.tagName() == "property" && n.attribute( "name" ) == "control" ) {
+		controlId = n.firstChild().toElement().text();
+	    }
+	}
+	out << "    ";
+	out << objName << "->setControl(\"" << controlId << "\");" << endl;
+    }
+
     lastItem = "0";
     // set the properties and insert items
     bool hadFrameShadow = FALSE;
@@ -502,12 +513,15 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	if ( stdset )
 	    v = "%1::%2";
 	else
-	    v = "(int)%1::%2";
+	    v = "\"%1\"";
 	QString oc = objClass;
 	QString ev = e.firstChild().toText().data();
 	if ( oc == "QListView" && ev == "Manual" ) // #### workaround, rename QListView::Manual of WithMode enum in 3.0
 	    oc = "QScrollView";
-	v = v.arg( oc ).arg( ev );
+	if ( stdset )
+	    v = v.arg( oc ).arg( ev );
+	else
+	    v = v.arg( ev );
     } else if ( e.tagName() == "set" ) {
 	QString keys( e.firstChild().toText().data() );
 	QStringList lst = QStringList::split( '|', keys );
