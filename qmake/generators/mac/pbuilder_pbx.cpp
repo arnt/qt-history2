@@ -257,7 +257,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    }
 	    mkt << "\n";
 	    mkt << "preprocess: $(FORMS) $(MOCS) $(PARSERS) $(IMAGES)" << endl;
-	    mkt << "preprocess_clean: mocclean uiclean parser_clean images_clean" << endl << endl;
+	    mkt << "preprocess_clean: mocclean uiclean parser_clean" << endl << endl;
 	    mkt << "mocclean:" << "\n";
 	    if(!project->isEmpty("SRCMOC"))
 		mkt << "\t-rm -f $(MOCS)" << "\n";
@@ -827,11 +827,11 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	const char *cleans = "uiclean mocclean preprocess_clean ";
 	mkwrapt << "#This is a makefile wrapper for PROJECT BUILDER\n"
 		<< "all:" << "\n\t" 
-		<< "cd " << (project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild") << "\n"
+		<< "cd " << project->first("QMAKE_ORIG_TARGET") << ".pbproj/ && " << pbxbuild() << "\n"
 		<< "install: all" << "\n\t" 
-		<< "cd " << (project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild install") << "\n"
+		<< "cd " << project->first("QMAKE_ORIG_TARGET") << ".pbproj/ && " << pbxbuild() << " install" << "\n"
 		<< "distclean clean: preprocess_clean" << "\n\t" 
-		<< "cd " << (project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild clean") << "\n"
+		<< "cd " << project->first("QMAKE_ORIG_TARGET") << ".pbproj/ && " << pbxbuild() << " clean" << "\n"
 		<< (!did_preprocess ? cleans : "") << ":" << "\n";
 	if(did_preprocess) 
 	    mkwrapt << cleans << ":" << "\n\t"
@@ -1003,4 +1003,12 @@ ProjectBuilderMakefileGenerator::reftypeForFile(const QString &where)
     if(QDir::isRelativePath(where))
 	return "4"; //relative
     return "0"; //absolute
+}
+
+QString
+ProjectBuilderMakefileGenerator::pbxbuild()
+{
+    if(QFile::exists("/usr/bin/pbbuild"))
+	return "pbbuild";
+    return "pbxbuild";
 }

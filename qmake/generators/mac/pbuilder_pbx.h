@@ -24,6 +24,7 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
     bool writeMakeParts(QTextStream &);
     bool writeMakefile(QTextStream &);
 
+    QString pbxbuild();
     QMap<QString, QString> keys;
     QString keyFor(const QString &file);
     QString fixEnvs(const QString &file);
