@@ -927,26 +927,26 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	return objName;
     objName = getObjectName( e );
 
-    bool isTmpObject = objName.isEmpty();
+    QString definedName = objName;
+    bool isTmpObject = objName.isEmpty() || objClass == "QLayoutWidget";
     if ( isTmpObject ) {
 	if ( objClass[0] == 'Q' )
-	    objName = objClass[1].lower() + objClass.mid(2);
+	    objName = objClass.mid(1);
 	else
 	    objName = objClass.lower();
+	objName.prepend( "private" );
     }
 
     bool isLine = objClass == "Line";
     if ( isLine )
 	objClass = "QFrame";
 
-    // register the object and unify its name
-    if (objClass != "QLayoutWidget" || layout.isEmpty())
-	objName = registerObject( objName );
-
     out << endl;
     if ( objClass == "QLayoutWidget" ) {
 	if ( layout.isEmpty() ) {
-	    out << "    QWidget* " << objName << " = new QWidget( " << parent << ", \"" << objName << "\" );" << endl;
+	    // register the object and unify its name
+	    objName = registerObject( objName );
+	    out << "    QWidget* " << objName << " = new QWidget( " << parent << ", \"" << definedName << "\" );" << endl;
 	} else {
 	    // the layout widget is not necessary, hide it by creating its child in the parent
 	    QString result;
@@ -957,6 +957,8 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    return result;
 	}
     }   else {
+	// register the object and unify its name
+	objName = registerObject( objName );
 	out << "    ";
 	if ( isTmpObject )
 	    out << objClass << "* ";
