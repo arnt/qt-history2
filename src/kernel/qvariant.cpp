@@ -965,7 +965,8 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
 	dbg.nospace() << v.toBitmap();
 	break;
     case QVariant::PointArray:
-	dbg.nospace() << v.toPointArray();
+	dbg.nospace() << "operator<<(QDebug dbg, const QVariant &v) : FIXME PointArray";
+//	dbg.nospace() << v.toPointArray();
 	break;
     case QVariant::Region:
 	dbg.nospace() << v.toRegion();
@@ -980,7 +981,8 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
 	dbg.nospace() << v.toImage();
 	break;
     case QVariant::Brush:
-	dbg.nospace() << v.toBrush();
+//	dbg.nospace() << v.toBrush();
+	dbg.nospace() << "operator<<(QDebug dbg, const QVariant &v) : FIXME Brush";
 	break;
     case QVariant::Point:
 	dbg.nospace() << v.toPoint();
