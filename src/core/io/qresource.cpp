@@ -96,8 +96,10 @@ const uchar
 {
     if(!d->compressed) 
         return d->data;
-    if(!d->decompressed)
+    if(!d->decompressed) {
+        d->decompressed = new QByteArray;
         *d->decompressed = qUncompress(d->data, d->size);
+    }
     return (uchar *)d->decompressed->data();
 }
 
