@@ -137,7 +137,6 @@ public:
     virtual void setFilter( const QString& filter );
     virtual void setSort( const QStringList& sort );
     virtual void setSort( const QSqlIndex& sort );
-    void setColumnWidth( int col, int w );
 
     enum Refresh {
 	RefreshData = 1,
@@ -176,6 +175,7 @@ public slots:
     virtual void sortAscending( int col );
     virtual void sortDescending( int col );
     virtual void refresh();
+    void setColumnWidth( int col, int w );
 
 protected:
     virtual bool insertCurrent();
