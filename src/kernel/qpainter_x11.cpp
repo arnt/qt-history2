@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#188 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#189 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#188 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#189 $");
 
 
 /*****************************************************************************
@@ -44,7 +44,6 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#188 $");
 const double Q_PI   = 3.14159265358979323846;	// pi
 const double Q_2PI  = 6.28318530717958647693;	// 2*pi
 const double Q_PI2  = 1.57079632679489661923;	// pi/2
-const double Q_3PI2 = 4.71238898038468985769;	// 3*pi/2
 
 #if defined(_CC_GNU_) && defined(__i386__)
 

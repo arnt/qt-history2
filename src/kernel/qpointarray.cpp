@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#36 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#36 $");
 
 
 /*----------------------------------------------------------------------------
@@ -373,16 +373,6 @@ QRect QPointArray::boundingRect() const
     return QRect( QPoint(minx,miny), QPoint(maxx,maxy) );
 }
 
-
-#if defined(_WS_X11_)
-double qsincos( double, bool calcCos );		// def. in qptr_x11.cpp
-inline double qsin( double d ) { return qsincos(d,TRUE); }
-inline double qcos( double d ) { return qsincos(d,FALSE); }
-#else
-#include <math.h>
-#define qsin sin
-#define qcos cos
-#endif
 
 static inline int fix_angle( int a )
 {

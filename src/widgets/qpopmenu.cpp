@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#74 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,18 +19,8 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#74 $");
 
-
-// Windows style parameters
-
-static const int winPopupFrame		= 2;	// popup frame width
-static const int winItemFrame		= 2;	// menu item frame width
-static const int winSepHeight		= 2;	// separator item height
-static const int winItemHMargin		= 3;	// menu item hor text margin
-static const int winItemVMargin		= 8;	// menu item ver text margin
-static const int winArrowHMargin	= 6;	// arrow horizontal margin
-static const int winArrowVMargin	= 4;	// arrow horizontal margin
 
 // Motif style parameters
 
