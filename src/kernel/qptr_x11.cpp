@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#80 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#79 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#80 $";
 #endif
 
 
@@ -240,12 +240,10 @@ Sets the pen color to \e c.
 \sa color().
 */
 
-void QPen::setColor( const QColor & c )		// set pen color
+void QPen::setColor( const QColor &c )		// set pen color
 {
-    if ( data->color == c )
-	return;
-    detach();
     ulong pixel = data->color.pixel();
+    detach();
     data->color = c;
     if ( pixel != c.pixel() )
 	QPainter::changedPen( this, CHANGE_COLOR );
@@ -513,11 +511,11 @@ Sets the brush color to \e c.
 
 void QBrush::setColor( const QColor &c )	// set brush color
 {
-    if ( data->color == c )
-	return;
+    ulong pixel = data->color.pixel();
     detach();
     data->color = c;
-    QPainter::changedBrush( this, CHANGE_COLOR );
+    if ( pixel != c.pixel() )
+	QPainter::changedBrush( this, CHANGE_COLOR );
 }
 
 /*!
@@ -1149,7 +1147,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	ww = vw = pm->width();			// default view size
 	wh = vh = pm->height();
 	if ( reinit ) {
-	    QFont  defaultFont;		// default drawing tools
+	    QFont  defaultFont;			// default drawing tools
 	    QPen   defaultPen;
 	    QBrush defaultBrush;
 	    cfont  = defaultFont;		// set these drawing tools
