@@ -2220,17 +2220,31 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    if(reverse) {
 		myptr+=x2;
 		srcdata+=(srcdepth*(w-1))/8;
-		while (w--) {
-		    if (srctype==SourceImage)
-			gv = get_value_32(srcdepth,&srcdata,TRUE);
-		    *(myptr--) = gv;
+		if ( srcdepth == depth && srctype==SourceImage ) {
+		    while (w--) {
+			*(myptr--) = *((unsigned int *)srcdata);
+			srcdata-=4;
+		    }
+		} else {
+		    while (w--) {
+			if (srctype==SourceImage)
+			    gv = get_value_32(srcdepth,&srcdata,TRUE);
+			*(myptr--) = gv;
+		    }
 		}
 	    } else {
 		myptr+=x1;
-		while ( w-- ) {
-		    if (srctype==SourceImage)
-			gv = get_value_32(srcdepth,&srcdata);
-		    *(myptr++) = gv;
+		if ( srcdepth == depth && srctype==SourceImage ) {
+		    while (w--) {
+			*(myptr++) = *((unsigned int *)srcdata);
+			srcdata+=4;
+		    }
+		} else {
+		    while ( w-- ) {
+			if (srctype==SourceImage)
+			    gv = get_value_32(srcdepth,&srcdata);
+			*(myptr++) = gv;
+		    }
 		}
 	    }
 	} else {
@@ -2275,61 +2289,74 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    srcdata+=((srcdepth*(w-1))/8);
 	}
 	if(!ismasking) {
-	    unsigned int put;
-	    unsigned short int *fun = (unsigned short int*)&put;
-	    if(reverse) {
-		// 32-bit writes - should be made 64?
-		int backadd = (((unsigned long)(myptr+1)) & 0x3)>>1;
-		int frontadd = (((unsigned long)(myptr-w+1)) & 0x3)>>1;
-		int count = (w - frontadd - backadd) / 2;
-		ASSERT (count*2+frontadd+backadd == w );
-		if ( backadd )
-		    *(myptr--)=get_value_16(srcdepth,&srcdata,TRUE);
-		myptr--;
-		while ( count-- ) {
-		    *(fun+1) = get_value_16(srcdepth,&srcdata,TRUE);
-		    *(fun) = get_value_16(srcdepth,&srcdata,TRUE);
-		    *((unsigned int*)myptr) = put;
-		    myptr -= 2;
+	    if ( srcdepth == depth && srctype==SourceImage ) {
+		if ( reverse ) {
+		    while (w--) {
+			*(myptr--) = *((unsigned short int *)srcdata);
+			srcdata-=2;
+		    }
+		} else {
+		    while (w--) {
+			*(myptr++) = *((unsigned short int *)srcdata);
+			srcdata+=2;
+		    }
 		}
-		myptr++;
-		if ( frontadd )
-		    *(myptr--)=get_value_16(srcdepth,&srcdata,TRUE);
 	    } else {
-#ifdef QWS_NO_WRITE_PACKING
-		while ( w-- )
-		    *(myptr++)=get_value_16(srcdepth,&srcdata);
-#else
-		// 64-bit writes
-		int frontadd;
-		int backadd;
-		int count;
+		unsigned int put;
+		unsigned short int *fun = (unsigned short int*)&put;
+		if(reverse) {
+		    // 32-bit writes - should be made 64?
+		    int backadd = (((unsigned long)(myptr+1)) & 0x3)>>1;
+		    int frontadd = (((unsigned long)(myptr-w+1)) & 0x3)>>1;
+		    int count = (w - frontadd - backadd) / 2;
+		    ASSERT (count*2+frontadd+backadd == w );
+		    if ( backadd )
+			*(myptr--)=get_value_16(srcdepth,&srcdata,TRUE);
+		    myptr--;
+		    while ( count-- ) {
+			*(fun+1) = get_value_16(srcdepth,&srcdata,TRUE);
+			*(fun) = get_value_16(srcdepth,&srcdata,TRUE);
+			*((unsigned int*)myptr) = put;
+			myptr -= 2;
+		    }
+		    myptr++;
+		    if ( frontadd )
+			*(myptr--)=get_value_16(srcdepth,&srcdata,TRUE);
+		} else {
+    #ifdef QWS_NO_WRITE_PACKING
+		    while ( w-- )
+			*(myptr++)=get_value_16(srcdepth,&srcdata);
+    #else
+		    // 64-bit writes
+		    int frontadd;
+		    int backadd;
+		    int count;
 
-		calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
+		    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
-		QuadByte dput;
-		fun=(unsigned short int *)&dput;
+		    QuadByte dput;
+		    fun=(unsigned short int *)&dput;
 
-		while ( frontadd-- )
-		    *(myptr++)=get_value_16(srcdepth,&srcdata);
+		    while ( frontadd-- )
+			*(myptr++)=get_value_16(srcdepth,&srcdata);
 
-		while ( count-- ) {
-		    *fun = get_value_16(srcdepth,&srcdata);
-		    *(fun+1) = get_value_16(srcdepth,&srcdata);
-		    *(fun+2) = get_value_16(srcdepth,&srcdata);
-		    *(fun+3) = get_value_16(srcdepth,&srcdata);
-		    *((QuadByte*)myptr) = dput;
-		    myptr += 4;
+		    while ( count-- ) {
+			*fun = get_value_16(srcdepth,&srcdata);
+			*(fun+1) = get_value_16(srcdepth,&srcdata);
+			*(fun+2) = get_value_16(srcdepth,&srcdata);
+			*(fun+3) = get_value_16(srcdepth,&srcdata);
+			*((QuadByte*)myptr) = dput;
+			myptr += 4;
+		    }
+		    while ( backadd-- )
+			*(myptr++)=get_value_16(srcdepth,&srcdata);
+    #endif
 		}
-		while ( backadd-- )
-		    *(myptr++)=get_value_16(srcdepth,&srcdata);
-#endif
 	    }
 	} else {
 	    // Probably not worth trying to pack writes if there's a mask
 	    // colour, at least not yet
 	    int count=( x2-x1+1 );
-	    //if(xoffs<srcoffs.x()) {
 	    if(reverse) {
 		unsigned short int gv = srccol;
 		while( count-- ) {
@@ -2371,74 +2398,88 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	if(!ismasking) {
 	    if(reverse) {
 		// 64-bit writes
+		if ( srcdepth == depth && srctype==SourceImage ) {
+		    while (w--) {
+			*(myptr--) = *srcdata;
+			--srcdata;
+		    }
+		} else {
 #ifdef QWS_NO_WRITE_PACKING
-		while ( w-- )
-		    *(myptr--)=get_value_8(srcdepth,&srcdata,true);
+		    while ( w-- )
+			*(myptr--)=get_value_8(srcdepth,&srcdata,true);
 #else
-		unsigned int put;
-		unsigned char *fun = (unsigned char *)&put;
-		int frontadd;
-		int backadd;
-		int count;
+		    unsigned int put;
+		    unsigned char *fun = (unsigned char *)&put;
+		    int frontadd;
+		    int backadd;
+		    int count;
 
-		myptr=l+x1;
-		calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
-		myptr=l+x2;
+		    myptr=l+x1;
+		    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
+		    myptr=l+x2;
 
-		QuadByte dput;
-		fun=(unsigned char *)&dput;
+		    QuadByte dput;
+		    fun=(unsigned char *)&dput;
 
-		while ( backadd-- )
-		    *(myptr--)=get_value_8(srcdepth,&srcdata,true);
+		    while ( backadd-- )
+			*(myptr--)=get_value_8(srcdepth,&srcdata,true);
 
-		while ( count-- ) {
-		    *(fun+7) = get_value_8(srcdepth,&srcdata,true);
-		    *(fun+6) = get_value_8(srcdepth,&srcdata,true);
-		    *(fun+5) = get_value_8(srcdepth,&srcdata,true);
-		    *(fun+4) = get_value_8(srcdepth,&srcdata,true);
-		    *(fun+3) = get_value_8(srcdepth,&srcdata,true);
-		    *(fun+2) = get_value_8(srcdepth,&srcdata,true);
-		    *(fun+1) = get_value_8(srcdepth,&srcdata,true);
-		    *(fun+0) = get_value_8(srcdepth,&srcdata,true);
-		    *((QuadByte*)myptr) = dput;
-		    myptr -= 8;
-		}
-		while ( frontadd-- )
-		    *(myptr--)=get_value_8(srcdepth,&srcdata,true);
+		    while ( count-- ) {
+			*(fun+7) = get_value_8(srcdepth,&srcdata,true);
+			*(fun+6) = get_value_8(srcdepth,&srcdata,true);
+			*(fun+5) = get_value_8(srcdepth,&srcdata,true);
+			*(fun+4) = get_value_8(srcdepth,&srcdata,true);
+			*(fun+3) = get_value_8(srcdepth,&srcdata,true);
+			*(fun+2) = get_value_8(srcdepth,&srcdata,true);
+			*(fun+1) = get_value_8(srcdepth,&srcdata,true);
+			*(fun+0) = get_value_8(srcdepth,&srcdata,true);
+			*((QuadByte*)myptr) = dput;
+			myptr -= 8;
+		    }
+		    while ( frontadd-- )
+			*(myptr--)=get_value_8(srcdepth,&srcdata,true);
 #endif
+		}
 	    } else {
+		if ( srcdepth == depth && srctype==SourceImage ) {
+		    while (w--) {
+			*(myptr++) = *srcdata;
+			++srcdata;
+		    }
+		} else {
 #ifdef QWS_NO_WRITE_PACKING
-		while ( w-- )
-		    *(myptr++)=get_value_8(srcdepth,&srcdata);
+		    while ( w-- )
+			*(myptr++)=get_value_8(srcdepth,&srcdata);
 #else
-		// 64-bit writes
-		int frontadd;
-		int backadd;
-		int count;
+		    // 64-bit writes
+		    int frontadd;
+		    int backadd;
+		    int count;
 
-		calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
+		    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
-		QuadByte dput;
-		unsigned char *fun = (unsigned char *)&dput;
+		    QuadByte dput;
+		    unsigned char *fun = (unsigned char *)&dput;
 
-		while ( frontadd-- )
-		    *(myptr++)=get_value_8(srcdepth,&srcdata);
+		    while ( frontadd-- )
+			*(myptr++)=get_value_8(srcdepth,&srcdata);
 
-		while ( count-- ) {
-		    *(fun+0) = get_value_8(srcdepth,&srcdata);
-		    *(fun+1) = get_value_8(srcdepth,&srcdata);
-		    *(fun+2) = get_value_8(srcdepth,&srcdata);
-		    *(fun+3) = get_value_8(srcdepth,&srcdata);
-		    *(fun+4) = get_value_8(srcdepth,&srcdata);
-		    *(fun+5) = get_value_8(srcdepth,&srcdata);
-		    *(fun+6) = get_value_8(srcdepth,&srcdata);
-		    *(fun+7) = get_value_8(srcdepth,&srcdata);
-		    *((QuadByte*)myptr) = dput;
-		    myptr += 8;
-		}
-		while ( backadd-- )
-		    *(myptr++)=get_value_8(srcdepth,&srcdata);
+		    while ( count-- ) {
+			*(fun+0) = get_value_8(srcdepth,&srcdata);
+			*(fun+1) = get_value_8(srcdepth,&srcdata);
+			*(fun+2) = get_value_8(srcdepth,&srcdata);
+			*(fun+3) = get_value_8(srcdepth,&srcdata);
+			*(fun+4) = get_value_8(srcdepth,&srcdata);
+			*(fun+5) = get_value_8(srcdepth,&srcdata);
+			*(fun+6) = get_value_8(srcdepth,&srcdata);
+			*(fun+7) = get_value_8(srcdepth,&srcdata);
+			*((QuadByte*)myptr) = dput;
+			myptr += 8;
+		    }
+		    while ( backadd-- )
+			*(myptr++)=get_value_8(srcdepth,&srcdata);
 #endif
+		}
 	    }
 	} else {
 
@@ -3274,7 +3315,7 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
 
     srcbits=buffer;
 
-    if ( depth%8 != 0 ) {
+    if ( depth<8 != 0 ) {
 	// low bit depth - use slow blt based method.
 	srclinestep=linestep();
 	srcdepth=depth;
@@ -3294,7 +3335,7 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
     sy += yoffs;
     QRect cr;
 
-    int bytesPerPixel = depth/8;
+    const int bytesPerPixel = depth/8;
     int bytesPerLine = linestep();
     int bytesDy = QABS(dy) * bytesPerLine;
     int bytesDx = dx * bytesPerPixel;
@@ -3318,6 +3359,7 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
 	bytesDy = -bytesDy;
     }
 
+    int rowoff = bytesPerLine * row;
     for ( ; row != tr; row += dr )
     {
 	if ( ! cr.contains( QPoint(rx,row) ) )
@@ -3327,14 +3369,14 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
 	    int x2 = cr.right();
 	    if ( x2 >= rx+w-1 ) {
 		if (plot) {
-		    dest = buffer + bytesPerLine * row + x * bytesPerPixel;
+		    dest = buffer + rowoff + x * bytesPerPixel;
 		    src = dest + bytesDy + bytesDx;
 		    memmove(dest, src, (rx+w-x) * bytesPerPixel);
 		}
 		break;
 	    } else {
 		if (plot) {
-		    dest = buffer + bytesPerLine * row + x * bytesPerPixel;
+		    dest = buffer + rowoff + x * bytesPerPixel;
 		    src = dest + bytesDy + bytesDx;
 		    memmove(dest, src, (x2-x+1) * bytesPerPixel);
 		}
@@ -3342,7 +3384,9 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
 		plot=inClip(x,row,&cr,plot);
 	    }
 	}
+	rowoff += dr < 0 ? -bytesPerLine : bytesPerLine;
     }
+
     GFX_END
 }
 
@@ -3411,59 +3455,100 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h )
     }
 
     unsigned char* l = scanLine(ry);
-    for (; j!=tj; j+=dj,ry+=dry,l+=dl) {
-	l=scanLine(ry);
-	bool plot=inClip(rx,ry,&cr);
-	int x=rx;
-	for (;;) {
-	    int x2 = cr.right();
-	    if ( x2 > rx+w-1 ) {
-		x2 = rx+w-1;
-		if ( x2 < x ) break;
-	    }
-	    if (plot) {
-		unsigned char * srcptr=srcScanLine(j+srcoffs.y());
-		if(srcdepth==32) {
-		    srcptr+=(((x-rx)+(srcoffs.x()))*4);
-		} else if(srcdepth==16 || srcdepth==15) {
-		    srcptr+=(((x-rx)+(srcoffs.x()))*2);
-		} else if(srcdepth==8) {
-		    srcptr+=(((x-rx)+(srcoffs.x())));
-		} else if(srcdepth==1) {
-		    srcptr+=(((x-rx)+srcoffs.x())/8);
+
+#define FASTPATH_BLIT
+#ifdef FASTPATH_BLIT
+    // Fast path for 8/16/32 bit same-depth opaque blit. (ie. the common case)
+    if ( depth >= 8 && srcdepth == depth && alphatype == IgnoreAlpha )
+    {
+	for (; j!=tj; j+=dj,ry+=dry,l+=dl) {
+	    l=scanLine(ry);
+	    bool plot=inClip(rx,ry,&cr);
+	    int x=rx;
+	    for (;;) {
+		int x2 = cr.right();
+		if ( x2 > rx+w-1 ) {
+		    x2 = rx+w-1;
+		    if ( x2 < x ) break;
 		}
-		if(srctype==SourceImage && srcdepth==1)
-		    find_pointer(srcScanLine(0),(x-rx),j,
-				 srclinestep,monobitcount,
-				 monobitval,!src_little_endian);
-		switch ( alphatype ) {
-		  case LittleEndianMask:
-	          case BigEndianMask:
-		    maskp=find_pointer(alphabits,(x-rx),j,
-				       alphalinestep,
-				       amonobitcount,amonobitval,
-				       alphatype==BigEndianMask);
-		    // Fall through
-		  case IgnoreAlpha:
+		if (plot) {
+		    unsigned char * srcptr=srcScanLine(j+srcoffs.y());
+		    if(depth==32) {
+			srcptr+=(((x-rx)+(srcoffs.x()))*4);
+		    } else if(depth==16 || depth==15) {
+			srcptr+=(((x-rx)+(srcoffs.x()))*2);
+		    } else if(depth==8) {
+			srcptr+=(((x-rx)+(srcoffs.x())));
+		    } else if(depth==1) {
+			srcptr+=(((x-rx)+srcoffs.x())/8);
+		    }
 		    hImageLineUnclipped(x,x2,l,srcptr,reverse);
-		    break;
-		  case InlineAlpha:
-		  case SolidAlpha:
-		    hAlphaLineUnclipped(x,x2,l,srcptr,0);
-		    break;
-		  case SeparateAlpha:
-		    // Separate alpha table
-		    unsigned char * alphap=alphabits+(j*alphalinestep)
-					   +(x-rx);
-		    hAlphaLineUnclipped(x,x2,l,srcptr,alphap);
 		}
+		if ( x >= rx+w-1 )
+		    break;
+		x=x2+1;
+		plot=inClip(x,ry,&cr,plot);
 	    }
-	    if ( x >= rx+w-1 )
-		break;
-	    x=x2+1;
-	    plot=inClip(x,ry,&cr,plot);
+	}
+    } else
+#endif
+
+    {
+	for (; j!=tj; j+=dj,ry+=dry,l+=dl) {
+	    l=scanLine(ry);
+	    bool plot=inClip(rx,ry,&cr);
+	    int x=rx;
+	    for (;;) {
+		int x2 = cr.right();
+		if ( x2 > rx+w-1 ) {
+		    x2 = rx+w-1;
+		    if ( x2 < x ) break;
+		}
+		if (plot) {
+		    unsigned char * srcptr=srcScanLine(j+srcoffs.y());
+		    if(srcdepth==32) {
+			srcptr+=(((x-rx)+(srcoffs.x()))*4);
+		    } else if(srcdepth==16 || srcdepth==15) {
+			srcptr+=(((x-rx)+(srcoffs.x()))*2);
+		    } else if(srcdepth==8) {
+			srcptr+=(((x-rx)+(srcoffs.x())));
+		    } else if(srcdepth==1) {
+			srcptr+=(((x-rx)+srcoffs.x())/8);
+		    }
+		    if(srctype==SourceImage && srcdepth==1)
+			find_pointer(srcScanLine(0),(x-rx),j,
+				     srclinestep,monobitcount,
+				     monobitval,!src_little_endian);
+		    switch ( alphatype ) {
+		      case LittleEndianMask:
+		      case BigEndianMask:
+			maskp=find_pointer(alphabits,(x-rx),j,
+					   alphalinestep,
+					   amonobitcount,amonobitval,
+					   alphatype==BigEndianMask);
+			// Fall through
+		      case IgnoreAlpha:
+			hImageLineUnclipped(x,x2,l,srcptr,reverse);
+			break;
+		      case InlineAlpha:
+		      case SolidAlpha:
+			hAlphaLineUnclipped(x,x2,l,srcptr,0);
+			break;
+		      case SeparateAlpha:
+			// Separate alpha table
+			unsigned char * alphap=alphabits+(j*alphalinestep)
+					       +(x-rx);
+			hAlphaLineUnclipped(x,x2,l,srcptr,alphap);
+		    }
+		}
+		if ( x >= rx+w-1 )
+		    break;
+		x=x2+1;
+		plot=inClip(x,ry,&cr,plot);
+	    }
 	}
     }
+
     srcdepth=osrcdepth;
     if ( alphabuf ) {
 	delete [] alphabuf;
