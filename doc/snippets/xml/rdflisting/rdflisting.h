@@ -35,9 +35,9 @@ public slots:
     void readData(const QHttpResponseHeader &);
 
 private:
-    Handler *handler;
-    QXmlInputSource xmlInput;
     QXmlSimpleReader xmlReader;
+    QXmlInputSource xmlInput;
+    Handler *handler;
 
     bool newInformation;
 

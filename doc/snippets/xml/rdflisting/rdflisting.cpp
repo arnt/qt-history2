@@ -105,7 +105,7 @@ RDFListing::RDFListing(QWidget *parent, const char *name, WFlags flags)
 void RDFListing::fetch()
 {
     lineEdit->setReadOnly(true);
-    fetchButton->setDisabled(true);
+    fetchButton->setEnabled(false);
     abortButton->setEnabled(true);
     listView->clear();
 
@@ -141,20 +141,25 @@ void RDFListing::fetch()
     If parsing fails for any reason, we abort the fetch.
 */
 
-void RDFListing::readData(const QHttpResponseHeader &)
+void RDFListing::readData(const QHttpResponseHeader &resp)
 {
     bool ok;
 
-    xmlInput.setData(http.readAll());
+    if (resp.statusCode() != 200)
+        http.abort();
+    else {
+        xmlInput.setData(http.readAll());
 
-    if (newInformation) {
-        ok = xmlReader.parse(&xmlInput, true);
-        newInformation = false;
+        if (newInformation) {
+            ok = xmlReader.parse(&xmlInput, true);
+            newInformation = false;
+        }
+        else
+            ok = xmlReader.parseContinue();
+
+        if (!ok)
+            http.abort();
     }
-    else
-        ok = xmlReader.parseContinue();
-
-    if (!ok) http.abort();
 }
 
 /*!
@@ -177,7 +182,7 @@ void RDFListing::finished(int id, bool error)
     if (error) {
         qWarning("Received error during HTTP fetch.");
         lineEdit->setReadOnly(false);
-        abortButton->setDisabled(true);
+        abortButton->setEnabled(false);
         fetchButton->setEnabled(true);
     }
     else if (id == connectionId) {
@@ -187,7 +192,7 @@ void RDFListing::finished(int id, bool error)
             qWarning("Parse error at the end of input.");
 
         lineEdit->setReadOnly(false);
-        abortButton->setDisabled(true);
+        abortButton->setEnabled(false);
         fetchButton->setEnabled(true);
     }
 }
