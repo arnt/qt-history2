@@ -2290,8 +2290,10 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		}
 	    }
 
+            int lookupIndex = index;
+
 	    // get slot info
-	    const QMetaMember slot = mo->slot(index);
+	    QMetaMember slot = mo->slot(index);
 	    QByteArray type = slot.type();
 	    name = slot.signature();
             nameLength = name.indexOf('(');
@@ -2303,10 +2305,25 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 	    int pcount = ptypes.count();
 
 	    // verify parameter count
-	    if (pcount > pDispParams->cArgs)
-		return DISP_E_PARAMNOTOPTIONAL;
-	    else if (pcount < pDispParams->cArgs)
+            if (pcount > pDispParams->cArgs) {
+                // count cloned slots immediately following the real thing
+                int defArgs = 0;
+                while (index < mo->slotCount()) {
+                    ++index;
+                    slot = mo->slot(index);
+                    if (!slot.isCloned())
+                        break;
+                    --pcount;
+                    // found a matching overload. ptypes still valid
+                    if (pcount <= pDispParams->cArgs)
+                        break;
+                }
+                // still wrong :(
+                if (pcount > pDispParams->cArgs)
+		    return DISP_E_PARAMNOTOPTIONAL;
+            } else if (pcount < pDispParams->cArgs) {
 		return DISP_E_BADPARAMCOUNT;
+            }
 
 	    // setup parameters (pcount + return)
 	    bool ok = true;
@@ -2346,6 +2363,8 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
                     if (varp[p + 1].type() == QVariant::UserType) {
                         argv_pointer[p + 1] = varp[p + 1].toUserType().data();
                         argv[p + 1] = argv_pointer + p + 1;
+                    } else if (ptype == "QVariant") {
+                        argv[p + 1] = varp + p + 1;
                     } else {
                         argv[p + 1] = const_cast<void*>(varp[p + 1].constData());
                         if (ptype.endsWith("*")) {
@@ -2353,6 +2372,8 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
                             argv[p + 1] = argv_pointer + p + 1;
                         }
                     }
+                } else if (ptype == "QVariant") {
+                    argv[p + 1] = varp + p + 1;
 		} else {
 		    if (puArgErr)
 			*puArgErr = pcount-p-1;
@@ -2402,6 +2423,9 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
             }
 
 	    res = ok ? S_OK : DISP_E_TYPEMISMATCH;
+
+            // reset in case index changed for default-arg handling
+            index = lookupIndex;
 	}
 	break;
     case DISPATCH_PROPERTYPUT:
