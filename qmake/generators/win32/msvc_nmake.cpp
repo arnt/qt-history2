@@ -177,14 +177,14 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	    version = "1.0";
 
 	if ( project->isActiveConfig("dll")) {
-	    t << "\n\t" << "-$(IDC) $(TARGET) /idl tmp\\" + targetfilename + ".idl -version " + version;
-	    t << "\n\t" << "-$(IDL) tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl";
-	    t << "\n\t" << "-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb";
-	    t << "\n\t" << "regsvr32 /s " + targetfilename;
+	    t << "\n\t" << ("-$(IDC) $(TARGET) /idl tmp\\" + targetfilename + ".idl -version " + version);
+	    t << "\n\t" << ("-$(IDL) tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl");
+	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb");
+	    t << "\n\t" << ("regsvr32 /s " + targetfilename);
 	} else {
-	    t << "\n\t" << "-$(TARGET) -dumpidl tmp\\" + targetfilename + ".idl -version " + version;
-	    t << "\n\t" << "-$(IDL) tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl";
-	    t << "\n\t" << "-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb";
+	    t << "\n\t" << ("-$(TARGET) -dumpidl tmp\\" + targetfilename + ".idl -version " + version);
+	    t << "\n\t" << ("-$(IDL) tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl");
+	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb");
 	    t << "\n\t" << "-$(TARGET) -regserver";
 	}
     }
@@ -212,7 +212,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
       << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","");
     if ( project->isActiveConfig("activeqt")) {
-	t << "\n\t-del tmp\\" + targetfilename + ".*";
+	t << ("\n\t-del tmp\\" + targetfilename + ".*");
 	t << "\n\t-del tmp\\dump.*";
     }
     if(!project->isEmpty("IMAGES"))

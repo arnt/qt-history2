@@ -655,7 +655,7 @@ MetrowerksMakefileGenerator::createFork(const QString &f)
 }
 
 bool
-MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool exists)
+MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool )
 {
     v = "Absolute";
     if(p.find(':') != -1) //guess its macish already

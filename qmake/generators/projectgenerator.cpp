@@ -378,7 +378,7 @@ ProjectGenerator::addFile(QString file)
 
 
 QString
-ProjectGenerator::getWritableVar(const QString &v, bool fixPath)
+ProjectGenerator::getWritableVar(const QString &v, bool /*fixPath*/)
 {
     QStringList &vals = project->variables()[v];
     if(vals.isEmpty())
