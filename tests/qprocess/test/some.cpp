@@ -3,81 +3,140 @@
 #include <qlineedit.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
-#include <qradiobutton.h>
+#include <qmessagebox.h>
 
 #include "../qprocess.h"
+#include "some.h"
 
-int main( int argc, char **argv )
+
+/*
+ * Some
+*/
+
+Some::Some( QObject *p ) : QObject( p )
 {
-    QApplication a( argc, argv );
-    QVBox vb;
-
 #if 0
-    QProcess proc( "aclock" );
-#if defined(UNIX)
-    proc.setPath( QDir("../../../examples/aclock/") );
-#else
-    proc.setPath( QDir("../../../examples/aclock/Debug/") );
-#endif
-    proc.start();
-#endif
-
-#if 1
-#if defined(UNIX)
-    QProcess proc( "cat" );
+#if defined( UNIX )
+    proc = new QProcess( "cat" );
 #else
     QDir dir( "cat/Debug" );
-    QProcess proc( dir.absFilePath("cat.exe").latin1() );
+    proc = new QProcess( dir.absFilePath("cat.exe").latin1() );
 #endif
+#endif
+    proc = new QProcess( this );
+    proc->setCommand( QDir::current().absFilePath("some") );
+    proc->addArgument( "-cat" );
 
-    QLineEdit *in = new QLineEdit( &vb );
-    QLabel *out = new QLabel( &vb );
-    QLabel *err = new QLabel( &vb );
-    QRadioButton *radio = new QRadioButton( "Process Exited", &vb );
-    QPushButton *close = new QPushButton( "Close Stdin", &vb );
+    // io stuff
+    QLineEdit *in = new QLineEdit( &main );
+    QLabel *out = new QLabel( &main );
+    QLabel *err = new QLabel( &main );
+    QPushButton *close = new QPushButton( "Close Stdin", &main );
 
+    // hup, kill
+    QPushButton *hupButton  = new QPushButton( "Hang up", &main );
+    QPushButton *killButton = new QPushButton( "Kill", &main );
+    QObject::connect( hupButton, SIGNAL(clicked()),
+	    this, SLOT(hup()) );
+    QObject::connect( killButton, SIGNAL(clicked()),
+	    this, SLOT(kill()) );
+
+    // info stuff
+    isRunningInfo  = new QLabel( &info );
+    normalExitInfo = new QLabel( &info );
+    exitStatusInfo = new QLabel( &info );
+    QPushButton *closeInfo = new QPushButton( "Close", &info );
+    QPushButton *updateInfoButton = new QPushButton( "Update Info", &info );
+    QPushButton *showInfoButton = new QPushButton( "Show Info", &main );
+    QObject::connect( closeInfo, SIGNAL(clicked()),
+	    &info, SLOT(hide()) );
+    QObject::connect( updateInfoButton, SIGNAL(clicked()),
+	    this, SLOT(updateInfo()) );
+    QObject::connect( showInfoButton, SIGNAL(clicked()),
+	    this, SLOT(showInfo()) );
+
+    // slot dataStdin( const QString& )
     QObject::connect( in, SIGNAL(textChanged(const QString&)),
-	    &proc, SLOT(dataStdin(const QString&)) );
+	    proc, SLOT(dataStdin(const QString&)) );
+    // slot closeStdin()
     QObject::connect( close, SIGNAL(clicked()),
-	    &proc, SLOT(closeStdin()) );
+	    proc, SLOT(closeStdin()) );
 
-    QObject::connect( &proc, SIGNAL(dataStdout(const QString&)),
+    // signal dataStdout( const QString& )
+    QObject::connect( proc, SIGNAL(dataStdout(const QString&)),
 	    out, SLOT(setText(const QString&)) );
-    QObject::connect( &proc, SIGNAL(dataStderr(const QString&)),
+    // signal dataStderr( const QString& )
+    QObject::connect( proc, SIGNAL(dataStderr(const QString&)),
 	    err, SLOT(setText(const QString&)) );
-    QObject::connect( &proc, SIGNAL(processExited()),
-	    radio, SLOT(toggle()) );
+    // signal processExited()
+    QObject::connect( proc, SIGNAL(processExited()),
+	    this, SLOT(procExited()) );
 
-    if ( !proc.start() ) {
-	return -1 ;
+    if ( !proc->start() ) {
+	qWarning( "Could not start process" );
+	return;
     }
-#endif
+    main.show();
+}
 
-#if 0
-    QProcess proc1( "echo", "b\na\nc\n" );
-    proc1.setPath( QDir("/bin/") );
+void Some::kill()
+{
+    if ( proc->kill() ) {
+	qDebug( "kill() Successful!" );
+//	QMessageBox::information( &main, "kill()", "Successful!" );
+    } else {
+	qDebug( "kill() Fail!" );
+//	QMessageBox::information( &main, "kill()", "Fail!" );
+    }
+    showInfo();
+}
 
-    QProcess proc2( "sort" );
-    proc2.setPath( QDir("/usr/bin/") );
+void Some::hup()
+{
+    if ( proc->hangUp() ) {
+	qDebug( "hangUp() Successful!" );
+//	QMessageBox::information( &main, "hangUp()", "Successful!" );
+    } else {
+	qDebug( "hangUp() Fail!" );
+//	QMessageBox::information( &main, "hangUp()", "Fail!" );
+    }
+    showInfo();
+}
 
-    QLabel *out = new QLabel( &vb );
+void Some::updateInfo()
+{
+    isRunningInfo->setText( ( proc->isRunning() ?
+		"isRunning: TRUE" : "isRunning: FALSE" ) );
+    normalExitInfo->setText( ( proc->normalExit() ?
+		"normalExit: TRUE" : "normalExit: FALSE" ) );
+    exitStatusInfo->setText(
+	    QString( "exitStatus: %1").arg( proc->exitStatus() ) );
+}
 
-    QObject::connect( &proc1, SIGNAL(dataStdout(const QString&)),
-	    &proc2, SLOT(dataStdin(const QString&)) );
-    QObject::connect( &proc2, SIGNAL(dataStdout(const QString&)),
-	    out, SLOT(setText(const QString&)) );
-    QObject::connect( &proc1, SIGNAL(processExited()),
-	    &proc2, SLOT(closeStdin()) );
+void Some::showInfo()
+{
+    updateInfo();
+    info.show();
+}
 
-    proc1.start();
-    proc2.start();
-#endif
+void Some::procExited()
+{
+    showInfo();
+    main.hide();
+}
 
-    QPushButton quit( "Quit", &vb );
-    QObject::connect( &quit, SIGNAL(clicked()),
-	    &a, SLOT(quit()) );
+/*
+ * SomeFactory
+*/
 
-    a.setMainWidget( &vb );
-    vb.show();
-    return a.exec();
+void SomeFactory::newProcess()
+{
+    new Some( parent );
+}
+
+void SomeFactory::quit()
+{
+    delete parent;
+    parent = 0;
+    emit quitted();
 }
