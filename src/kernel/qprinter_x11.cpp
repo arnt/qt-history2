@@ -176,8 +176,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
     if ( c ==  PdcBegin ) {
 	if ( state == PST_IDLE ) {
 	    if ( output_file ) {
-#if defined(_OS_WIN32_)
 		int fd;
+#if defined(_OS_WIN32_)
 		if ( qt_winver == Qt::WV_NT )
 		    fd = _topen( qt_winTchar(output_filename,TRUE),
 				_O_CREAT | _O_BINARY | _O_TRUNC | _O_WRONLY );
@@ -185,9 +185,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    fd = _open( output_filename.ascii(),
 				_O_CREAT | _O_BINARY | _O_TRUNC | _O_WRONLY );
 #else
-		int fd = ::open( output_filename.local8Bit(),
-				 O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
-				 0666 );
+		fd = ::open( output_filename.local8Bit(),
+			     O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
+			     0666 );
 #endif
 		if ( fd >= 0 ) {
 		    pdrv = new QPSPrinter( this, fd );
