@@ -673,8 +673,6 @@ bool QPrinter::fullPage() const
     return to_edge;
 }
 
-#endif // QT_NO_PRINTER
-
 
 /*! Requests the printer to operate at \a dpi if possible, or do the
 best it can.
@@ -706,3 +704,7 @@ int QPrinter::resolution() const
 {
     return res;
 }
+
+
+#endif // QT_NO_PRINTER
+
