@@ -2861,8 +2861,9 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
         return QPixmap((const char **)filedialog_mclistview_xpm);
     case SP_FileDialogBack:
         return QPixmap((const char **)filedialog_back_xpm);
-    case SP_DriveFDIcon:
     case SP_DriveHDIcon:
+        return QPixmap((const char **)drive_hd_xpm);
+    case SP_DriveFDIcon:
     case SP_TrashIcon:
     case SP_DriveNetIcon:
         break; // Grab from Windows

@@ -4248,3 +4248,31 @@ static const char * const file_link_xpm[]={
     ".aaaacaagchac###",
     ".ddddcaaahaac###",
     "ccccccccccccc###"};
+
+/* XPM */
+static char * drive_hd_xpm[] = {
+"16 16 7 1",
+"# c #000000",
+"a c #008000",
+"h c #808080",
+"g c #c0c0c0",
+"b c #00ff00",
+"* c #ffffff",
+". c None",
+"................",
+"................",
+"................",
+"................",
+"..hhhhhhhhhhhhh.",
+".hggggggggggggh#",
+"h************gh#",
+"hgggggggggbaggh#",
+"hgggggggggggggh#",
+"hghhhhhhhhhhggh#",
+"hg**********ggh#",
+"hhhhhhhhhhhhhh#.",
+".#############..",
+"................",
+"................",
+"................"};
+
