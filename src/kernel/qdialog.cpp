@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#40 $
 **
 ** Implementation of QDialog class
 **
@@ -15,7 +15,7 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#40 $");
 
 
 /*!
@@ -79,6 +79,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#39 $");
 
   The dialog will by default be modeless, unless you set \e modal to
   TRUE, which constructs a modal dialog.
+
+  The \a f argument is the \link QWidget::QWidget() widget
+  flags \endlink , which can be used to customize the window frame style.
 
   \warning Creating a modeless dialog with a parent makes it an ordinary
   child widget, which is probably not what you want. Expect strange
