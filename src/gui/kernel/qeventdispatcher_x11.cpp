@@ -104,21 +104,20 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
         }
     } while (!d->interrupt && XEventsQueued(X11->display, QueuedAfterFlush));
 
-    if (d->interrupt) {
+    if (!d->interrupt) {
+        // 0x08 == ExcludeTimers for X11 only
+        const uint exclude_all =
+            QEventLoop::ExcludeSocketNotifiers | 0x08 | QEventLoop::WaitForMoreEvents;
+        if (nevents > 0 && (flags & exclude_all) == exclude_all) {
+            QApplication::sendPostedEvents();
+            return nevents > 0;
+        }
+        // return true if we handled events, false otherwise
+        return QEventDispatcherUNIX::processEvents(flags) ||  (nevents > 0);
+    } else {
         d->interrupt = false;
-	return false;
     }
-
-    // 0x08 == ExcludeTimers for X11 only
-    const uint exclude_all =
-        QEventLoop::ExcludeSocketNotifiers | 0x08 | QEventLoop::WaitForMoreEvents;
-    if (nevents > 0 && (flags & exclude_all) == exclude_all) {
-        QApplication::sendPostedEvents();
-        return true;
-    }
-
-    // return true if we handled events, false otherwise
-    return QEventDispatcherUNIX::processEvents(flags) ||  (nevents > 0);
+    return nevents > 0;
 }
 
 bool QEventDispatcherX11::hasPendingEvents()
