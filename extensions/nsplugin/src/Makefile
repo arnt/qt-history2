@@ -49,11 +49,6 @@ $(TARGET): $(OBJECTS) $(OBJMOC)
 	$(RANLIB) $(TARGET)
 	-mv $(TARGET) ../../../lib
 
-tmake: Makefile
-
-Makefile: qnp.pro
-	tmake qnp.pro -nodepend -o Makefile
-
 moc: $(SRCMOC)
 
 include:

@@ -82,11 +82,6 @@ $(TARGETA): $(OBJECTS) $(OBJMOC)
 	ranlib $(TARGETA)
 	-mv $(TARGETA) ../../../lib
 
-tmake: Makefile
-
-Makefile: qimageio.pro
-	tmake qimageio.pro -nodepend -o Makefile
-
 moc: $(SRCMOC)
 
 include:
