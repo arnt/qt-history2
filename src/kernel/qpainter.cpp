@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#93 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#93 $");
 
 
 /*!
@@ -74,7 +74,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#92 $");
     }
   \endcode
 
-  This can be useful, since it is not legal to have to painters active
+  This can be useful, since it is not legal to have two painters active
   on the same paint device at a time.
 
   QPainter is almost never used outside \link QWidget::paintEvent()
@@ -1251,10 +1251,8 @@ void QPen::setColor( const QColor &c )
 
 bool QPen::operator==( const QPen &p ) const
 {
-    return ((p.data == data) ||
-	    (p.data->style == data->style &&
-	     p.data->width == data->width &&
-	     p.data->color.rgb() == data->color.rgb() ));
+    return (p.data == data) || (p.data->style == data->style &&
+	    p.data->width == data->width && p.data->color == data->color);
 }
 
 
@@ -1585,10 +1583,9 @@ void QBrush::setPixmap( const QPixmap &pixmap )
 
 bool QBrush::operator==( const QBrush &b ) const
 {
-    return ((b.data == data) ||
-	    (b.data->style == data->style &&
-	     b.data->color.rgb() == data->color.rgb() &&
-	     b.data->pixmap == data->pixmap));
+    return (b.data == data) || (b.data->style == data->style &&
+	    b.data->color  == data->color &&
+	    b.data->pixmap == data->pixmap);
 }
 
 
