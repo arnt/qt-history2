@@ -85,7 +85,7 @@ public:
 
     \value NoResources  The operating system ran out of a resource.
 
-    \value Bug  An internal error occurred in QSocketDevice.
+    \value InternalError  An internal error occurred in QSocketDevice.
 
     \value Impossible  An attempt was made to do something which makes
     no sense. For example:

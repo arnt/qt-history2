@@ -111,10 +111,20 @@ public:
     QHostAddress address() const;
     QHostAddress peerAddress() const;
 
-    enum Error { NoError, AlreadyBound, Inaccessible, NoResources,
-		 Bug, Impossible, NoFiles, ConnectionRefused,
-		 NetworkFailure, UnknownError };
-    Error 	 error() const;
+    enum Error {
+	NoError,
+	AlreadyBound,
+	Inaccessible,
+	NoResources,
+	InternalError,
+	Bug = InternalError, // ### remove in 4.0?
+	Impossible,
+	NoFiles,
+	ConnectionRefused,
+	NetworkFailure,
+	UnknownError
+    };
+    Error	 error() const;
 
 protected:
     void setError( Error err );

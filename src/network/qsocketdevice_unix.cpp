@@ -108,7 +108,7 @@ int QSocketDevice::createNewSocket ()
     if ( s < 0 ) {
 	switch( errno ) {
 	case EPROTONOSUPPORT:
-	    e = Bug; // 0 is supposed to work for both types
+	    e = InternalError; // 0 is supposed to work for both types
 	    break;
 	case ENFILE:
 	    e = NoFiles; // special case for this
@@ -268,7 +268,7 @@ int QSocketDevice::option( Option opt ) const
 		that->e = Impossible;
 		break;
 	    case EFAULT:
-		that->e = Bug;
+		that->e = InternalError;
 		break;
 	    default:
 		that->e = UnknownError;
@@ -313,7 +313,7 @@ void QSocketDevice::setOption( Option opt, int v )
 	    e = Impossible;
 	    break;
 	case EFAULT:
-	    e = Bug;
+	    e = InternalError;
 	    break;
 	default:
 	    e = UnknownError;
@@ -367,7 +367,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	break;
     case EFAULT:
     case EAFNOSUPPORT:
-	e = Bug;
+	e = InternalError;
 	break;
     case ECONNREFUSED:
 	e = ConnectionRefused;
@@ -430,7 +430,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	    break;
 	case EFAULT: // a was illegal
 	case ENAMETOOLONG: // sz was wrong
-	    e = Bug;
+	    e = InternalError;
 	    break;
 	case EBADF: // AF_UNIX only
 	case ENOTSOCK: // AF_UNIX only
@@ -523,7 +523,7 @@ int QSocketDevice::accept()
 	    e = Impossible;
 	    break;
 	case EFAULT:
-	    e = Bug;
+	    e = InternalError;
 	    break;
 	case ENOMEM:
 	case ENOBUFS:

@@ -99,7 +99,7 @@ int QSocketDevice::createNewSocket( )
 	    case WSAEPROTOTYPE:
 	    case WSAEPROTONOSUPPORT:
 	    case WSAESOCKTNOSUPPORT:
-		e = Bug;
+		e = InternalError;
 		break;
 	    default:
 		e = UnknownError;
@@ -176,7 +176,7 @@ int QSocketDevice::option( Option opt ) const
 	    return v;
 	if ( !e ) {
             QSocketDevice *that = (QSocketDevice*)this; // mutable function
- 	    switch( WSAGetLastError() ) {
+	    switch( WSAGetLastError() ) {
 		case WSANOTINITIALISED:
 		    that->e = Impossible;
 		    break;
@@ -186,7 +186,7 @@ int QSocketDevice::option( Option opt ) const
 		case WSAEFAULT:
 		case WSAEINVAL:
 		case WSAENOPROTOOPT:
-		    that->e = Bug;
+		    that->e = InternalError;
 		    break;
 		case WSAEINPROGRESS:
 		    that->e = NoResources;
@@ -238,7 +238,7 @@ void QSocketDevice::setOption( Option opt, int v )
 	    case WSAEFAULT:
 	    case WSAEINVAL:
 	    case WSAENOPROTOOPT:
-		e = Bug;
+		e = InternalError;
 		break;
 	    case WSAEINPROGRESS:
 		e = NoResources;
@@ -300,7 +300,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 		break;
 	    case WSAEAFNOSUPPORT:
 	    case WSAEFAULT:
-		e = Bug;
+		e = InternalError;
 		break;
 	    case WSAEINVAL:
 		// I experienced that this should be not an error situation.
@@ -372,7 +372,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 		e = Inaccessible;
 		break;
 	    case WSAEFAULT:
-		e = Bug;
+		e = InternalError;
 		break;
 	    case WSAEINPROGRESS:
 	    case WSAENOBUFS:
@@ -428,7 +428,7 @@ int QSocketDevice::accept()
 		// just treat it like the client-closed-quickly case.
 		break;
 	    case WSAEFAULT:
-		e = Bug;
+		e = InternalError;
 		break;
 	    case WSAEINTR:
 		// ### ?
@@ -558,7 +558,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 		e = Impossible;
 		break;
 	    case WSAEOPNOTSUPP:
-		e = Bug; // ### ?
+		e = InternalError; // ### ?
 		break;
 	    case WSAEWOULDBLOCK:
 		break;
@@ -634,7 +634,7 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 		    break;
 		case WSAEFAULT:
 		case WSAEOPNOTSUPP:
-		    e = Bug;
+		    e = InternalError;
 		    break;
 		case WSAENOBUFS:
 		    // ### try later?
@@ -739,7 +739,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 		case WSAEFAULT:
 		case WSAEOPNOTSUPP:
 		case WSAEAFNOSUPPORT:
-		    e = Bug;
+		    e = InternalError;
 		    break;
 		case WSAENOBUFS:
 		case WSAEMSGSIZE:
