@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#8 $
 **
 ** Implementation of QRect class
 **
@@ -15,14 +15,11 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#8 $";
 #endif
 
-
-#if defined(min) || defined(max)
 #undef min
 #undef max
-#endif
 
 static inline QCOOT min( QCOOT a, QCOOT b )	// replaces min macro
 {
