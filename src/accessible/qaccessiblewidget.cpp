@@ -148,11 +148,6 @@ int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, 
     if (!o || !o->isWidgetType())
 	return relation;
 
-    if (other->relationTo(otherChild, this, child) & Label)
-	relation |= Buddy;
-    if (other->relationTo(otherChild, this, child) & Controller)
-	relation |= Controlled;
-
     if(o == object()) {
 	if (child && !otherChild)
 	    return relation | Child;
