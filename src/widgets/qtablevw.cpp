@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#15 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#14 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#15 $")
 
 
 const int sbDim = 16;
@@ -83,7 +83,6 @@ void CornerSquare::paintEvent( QPaintEvent * )
   distinctions between the four coordinate systems involved.
 
   <ol>
-
   <li> The index number counts table data items.  0 is the top or
   leftmost item.  This is used by function such as setTopCell() and
   lastColVisible().
@@ -100,11 +99,10 @@ void CornerSquare::paintEvent( QPaintEvent * )
   table data area, which excludes the frame and scroll bars.  This is
   the least-used coordinate system, used by functions such as
   viewWidth().
-
   </ol>
 
   It is rather unfortunate that we have to use four different
-  coordinate systems, but it we were to provide a flexible and
+  coordinate systems, but if we were to provide a flexible and
   powerful base class, there wasn't any way around it. */
 
 /*! Constructs a table view.  All the arguments are passed to the
@@ -182,7 +180,7 @@ void QTableView::setPalette( const QPalette &p )
 	hScrollBar->setPalette( p );
 }
 
-/*!  Reimplements QWidget::show(). */
+/*!  Reimplements QWidget::show() in order to do scroll bar tricks. */
 
 void QTableView::show()
 {
@@ -200,10 +198,10 @@ void QTableView::show()
 /*!  Repaints the table view.  If \e erase is TRUE, the view is cleared to
   the background color/pixmap first.
 
-  Presently, QTableView is the only widget that reimplements \link
+  At present, QTableView is the only widget that reimplements \link
   QWidget::repaint() repaint() \endlink.  It does this because by
-  clearing and then repainting one cell at at time, it can make the screen
-  flicker less than it would otherwise. */
+  clearing and then repainting one cell at at time, it can make the
+  screen flicker less than it would otherwise. */
 
 void QTableView::repaint( const QRect &r, bool erase )
 {						// repaint table
@@ -627,11 +625,11 @@ int QTableView::totalHeight()
   <dt> Tbl_vScrollBar <dd> The table has a vertical scroll bar.
   <dt> Tbl_hScrollBar <dd> The table has a horizontal scroll bar.
   <dt> Tbl_autoVScrollBar <dd> The table has a vertical scroll bar if
-  and only if the contents are taller than the view.
+  and only if the table is taller than the view.
   <dt> Tbl_autoHScrollBar <dd> The table has a horizontal scroll bar if
-  and only if the contents are wider than the view.
+  and only if the table is wider than the view.
   <dt> Tbl_autoScrollBars <dd> The union of the previous two flags.
-  <dt> Tbl_clipCellPainting <dd> The table uses QPainter::clipRect() to
+  <dt> Tbl_clipCellPainting <dd> The table uses QPainter::setClipRect() to
   make sure that paintCell() will not draw outside the cell
   boundaries.
   <dt> Tbl_cutCellsV <dd> The table will never show part of a
@@ -1715,13 +1713,6 @@ int QTableView::viewHeight() const
 }
 
 
-/*! \internal
-
-  Enable or disable scroll bars as required by the \link
-  setTableFlags table flags. \endlink
-
-  \sa setTableFlags() updateScrollBars() */
-
 void QTableView::doAutoScrollBars()
 {
     int viewW = width()	 - frameWidth()*2;
@@ -1779,12 +1770,12 @@ void QTableView::doAutoScrollBars()
   Update the scroll bars' contents and presence to match the table's
   state.  Generally you should not need to call this.
 
-  \sa setTableFlags() doAutoScrollBars() */
+  \sa setTableFlags() */
 
 /*! Update the scroll bars' contents and presence to match the table's
   state \c or \e f.
 
-  \sa setTableFlags() doAutoScrollBars() */
+  \sa setTableFlags() */
 
 void QTableView::updateScrollBars( uint f )
 {
