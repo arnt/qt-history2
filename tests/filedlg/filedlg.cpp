@@ -194,26 +194,6 @@ void Main::tusch()
     fd->exec();
 }
 
-void Main::resizeEvent(QResizeEvent*)
-{
-}
-
-void Main::keyPressEvent(QKeyEvent*)
-{
-}
-
-void Main::keyReleaseEvent(QKeyEvent*)
-{
-}
-
-void Main::paintEvent(QPaintEvent* e)
-{
-    QPainter p(this);
-    p.setClipRect(e->rect());
-
-    // ...
-}
-
 main(int argc, char** argv)
 {
     QApplication app(argc, argv);
