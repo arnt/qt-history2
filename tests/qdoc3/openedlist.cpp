@@ -9,6 +9,11 @@
 
 static const char roman[] = "m\2d\5c\2l\5x\2v\5i";
 
+OpenedList::OpenedList( const Location& location, Style style )
+    : sty( style ), ini( 1 ), nex( 0 )
+{
+}
+
 OpenedList::OpenedList( const Location& location, const QString& hint )
     : sty( Bullet ), ini( 1 )
 {
@@ -41,6 +46,13 @@ OpenedList::OpenedList( const Location& location, const QString& hint )
 QString OpenedList::styleString() const
 {
     switch ( style() ) {
+    case Bullet:
+    default:
+	return ATOM_LIST_BULLET;
+    case Tag:
+	return ATOM_LIST_TAG;
+    case Value:
+	return ATOM_LIST_VALUE;
     case Numeric:
 	return ATOM_LIST_NUMERIC;
     case UpperAlpha:
@@ -51,9 +63,6 @@ QString OpenedList::styleString() const
 	return ATOM_LIST_UPPERROMAN;
     case LowerRoman:
 	return ATOM_LIST_LOWERROMAN;
-    case Bullet:
-    default:
-	return ATOM_LIST_BULLET;
     }
 }
 

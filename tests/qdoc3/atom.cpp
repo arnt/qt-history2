@@ -19,7 +19,7 @@
       (FormattingLeft, ATOM_FORMATTING_ITALIC)
       (String, "italic")
       (FormattingRight, ATOM_FORMATTING_ITALIC)
-      (String, " text looks nicer than ")
+      (String, " text is more attractive than ")
       (FormattingLeft, ATOM_FORMATTING_BOLD)
       (String, "bold")
       (FormattingRight, ATOM_FORMATTING_BOLD)
@@ -54,12 +54,14 @@
   \value LinkNode
   \value ListLeft
   \value ListItemNumber
+  \value ListTagLeft
+  \value ListTagRight
   \value ListItemLeft
   \value ListItemRight
   \value ListRight
   \value Nop
-  \value ParagraphLeft
-  \value ParagraphRight
+  \value ParaLeft
+  \value ParaRight
   \value QuotationLeft
   \value QuotationRight
   \value RawString
@@ -105,12 +107,14 @@ static const struct {
     { "LinkNode", Atom::LinkNode },
     { "ListLeft", Atom::ListLeft },
     { "ListItemNumber", Atom::ListItemNumber },
+    { "ListTagLeft", Atom::ListTagLeft },
+    { "ListTagRight", Atom::ListTagRight },
     { "ListItemLeft", Atom::ListItemLeft },
     { "ListItemRight", Atom::ListItemRight },
     { "ListRight", Atom::ListRight },
     { "Nop", Atom::Nop },
-    { "ParagraphLeft", Atom::ParagraphLeft },
-    { "ParagraphRight", Atom::ParagraphRight },
+    { "ParaLeft", Atom::ParaLeft },
+    { "ParaRight", Atom::ParaRight },
     { "QuotationLeft", Atom::QuotationLeft },
     { "QuotationRight", Atom::QuotationRight },
     { "RawString", Atom::RawString },

@@ -193,9 +193,6 @@ private:
     void insertTarget( const QString& target );
     void include( const QString& fileName );
     void startFormat( const QString& format, int command );
-    void startHeading( Atom::Type leftType, Atom::Type rightType,
-		       const QString& string = "" );
-    void endHeading();
     bool openCommand( int command );
     bool closeCommand( int endCommand );
     void startSection( Doc::SectioningUnit unit, int command );
@@ -204,9 +201,12 @@ private:
     void append( Atom::Type type, const QString& string = "" );
     void appendChar( QChar ch );
     void appendToCode( const QString& code );
-    void startNewParagraph();
-    void enterParagraph();
-    void leaveParagraph();
+    void startNewPara();
+    void enterPara( Atom::Type leftType = Atom::ParaLeft,
+		    Atom::Type rightType = Atom::ParaRight,
+		    const QString& string = "" );
+    void leavePara();
+    void flushValueList();
     CodeMarker *quoteFromFile( int command );
     void expandMacro( const QString& name, const QString& def, int numParams );
     Doc::SectioningUnit getSectioningUnit();
@@ -220,7 +220,7 @@ private:
     void skipSpacesOrOneEndl();
     void skipAllSpaces();
 
-    static int endCommandOf( int command );
+    static int endCommandFor( int command );
     static QString commandName( int command );
     static QString endCommandName( int command );
     static QString untabifyEtc( const QString& str );
@@ -238,16 +238,17 @@ private:
     int cachedPos;
 
     DocPrivate *priv;
-    bool inPara;
+    enum ParaState { OutsidePara, InsideSingleLinePara, InsideMultiLinePara };
+    ParaState paraState;
     bool indexStartedPara; // ### rename
+    Atom::Type pendingParaRightType;
+    QString pendingParaString;
+
     int braceDepth;
     int minIndent;
     Doc::SectioningUnit currentSectioningUnit;
     QMap<QString, Location> targetMap;
     QMap<int, QString> pendingFormats;
-    bool inHeading;
-    Atom::Type pendingHeadingRightType;
-    QString pendingHeadingString;
     QValueStack<int> openedCommands;
     QValueStack<OpenedList> openedLists;
     Quoter quoter;
@@ -269,13 +270,14 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     cachedPos = 0;
     priv = docPrivate;
     priv->text << Atom::Nop;
-    inPara = FALSE;
+
+    paraState = OutsidePara;
     indexStartedPara = FALSE;
+    pendingParaRightType = Atom::Nop;
+
     braceDepth = 0;
     minIndent = INT_MAX;
     currentSectioningUnit = Doc::Book;
-    inHeading = FALSE;
-    pendingHeadingRightType = Atom::Nop;
     openedCommands.push( CMD_OMIT );
     quoter.reset();
 
@@ -305,7 +307,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 	    }
 	    if ( commandStr.isEmpty() ) {
 		if ( pos < len ) {
-		    enterParagraph();
+		    enterPara();
 		    if ( in[pos].isSpace() ) {
 			skipAllSpaces();
 			appendChar( ' ' );
@@ -319,7 +321,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 
 		switch ( command ) {
 		case CMD_A:
-		    enterParagraph();
+		    enterPara();
 		    x = getArgument();
 		    append( Atom::FormattingLeft, ATOM_FORMATTING_PARAMETER );
 		    append( Atom::String, x );
@@ -330,7 +332,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_ABSTRACT:
 		    if ( openCommand(command) ) {
-			leaveParagraph();
+			leavePara();
 			append( Atom::AbstractLeft );
 		    }
 		    break;
@@ -338,30 +340,31 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    parseAlso();
 		    break;
 		case CMD_BASENAME:
-		    leaveParagraph();
+		    leavePara();
 		    insertBaseName( getArgument() );
 		    break;
 		case CMD_BOLD:
 		    startFormat( ATOM_FORMATTING_BOLD, command );
 		    break;
 		case CMD_BRIEF:
-		    startHeading( Atom::BriefLeft, Atom::BriefRight );
+		    leavePara();
+		    enterPara( Atom::BriefLeft, Atom::BriefRight );
 		    break;
 		case CMD_C:
-		    enterParagraph();
+		    enterPara();
 		    x = untabifyEtc( getArgument(TRUE) );
 		    marker = CodeMarker::markerForCode( x );
 		    append( Atom::C, marker->markedUpCode(x, 0, "") );
 		    break;
 		case CMD_CAPTION:
-		    leaveParagraph();
+		    leavePara();
 		    /* ... */
 		    break;
 		case CMD_CHAPTER:
 		    startSection( Doc::Chapter, command );
 		    break;
 		case CMD_CODE:
-		    leaveParagraph();
+		    leavePara();
 		    begin = pos;
 		    x = getUntilEnd( command );
 		    x = untabifyEtc( x );
@@ -374,7 +377,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_ENDABSTRACT:
 		    if ( closeCommand(command) ) {
-			leaveParagraph();
+			leavePara();
 			append( Atom::AbstractRight );
 		    }
 		    break;
@@ -386,17 +389,17 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_ENDFOOTNOTE:
 		    if ( closeCommand(command) ) {
-			leaveParagraph();
+			leavePara();
 			append( Atom::FootnoteRight );
-			inPara = TRUE;
+			paraState = InsideMultiLinePara; // ###
 		    }
 		    break;
 		case CMD_ENDLIST:
 		    if ( closeCommand(command) ) {
-			leaveParagraph();
+			leavePara();
 			if ( openedLists.top().isStarted() ) {
 			    append( Atom::ListItemRight,
-				    openedLists.top().numberString() );
+				    openedLists.top().styleString() );
 			    append( Atom::ListRight,
 				    openedLists.top().styleString() );
 			}
@@ -411,7 +414,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_ENDQUOTATION:
 		    if ( closeCommand(command) ) {
-			leaveParagraph();
+			leavePara();
 			append( Atom::QuotationRight );
 		    }
 		    break;
@@ -429,7 +432,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_ENDSIDEBAR:
 		    if ( closeCommand(command) ) {
-			leaveParagraph();
+			leavePara();
 			append( Atom::SidebarRight );
 		    }
 		    break;
@@ -444,9 +447,9 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_FOOTNOTE:
 		    if ( openCommand(command) ) {
-			enterParagraph();
+			enterPara();
 			append( Atom::FootnoteLeft );
-			inPara = FALSE;
+			paraState = OutsidePara; // ###
 		    }
 		    break;
 		case CMD_GRANULARITY:
@@ -467,15 +470,15 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    include( getArgument() );
 		    break;
 		case CMD_INDEX:
-		    if ( inPara ) {
+		    if ( paraState == OutsidePara ) {
+			enterPara();
+			indexStartedPara = TRUE;
+		    } else {
 			const Atom *last = priv->text.lastAtom();
 			if ( indexStartedPara &&
 			     (last->type() != Atom::FormattingRight ||
 			      last->string() != ATOM_FORMATTING_INDEX) )
 			    indexStartedPara = FALSE;
-		    } else {
-			enterParagraph();
-			indexStartedPara = TRUE;
 		    }
 		    startFormat( ATOM_FORMATTING_INDEX, command );
 		    break;
@@ -484,7 +487,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    insertTarget( x );
 		    break;
 		case CMD_L:
-		    enterParagraph();
+		    enterPara();
 		    if ( isLeftBraceAhead() ) {
 			x = getArgument();
 			append( Atom::Link, x );
@@ -507,13 +510,13 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_LIST:
 		    if ( openCommand(command) ) {
-			leaveParagraph();
+			leavePara();
 			openedLists.push( OpenedList(location(),
 						     getOptionalArgument()) );
 		    }
 		    break;
 		case CMD_O:
-		    leaveParagraph();
+		    leavePara();
 		    if ( openedLists.isEmpty() ) {
 #if 0
 			location().warning( tr("Command '\\%1' outside '\\%2'")
@@ -522,19 +525,18 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 #endif
 		    } else {
 			if ( openedLists.top().isStarted() ) {
-			    leaveParagraph();
 			    append( Atom::ListItemRight,
-				    openedLists.top().numberString() );
+				    openedLists.top().styleString() );
 			} else {
 			    append( Atom::ListLeft,
 				    openedLists.top().styleString() );
 			}
 			openedLists.top().next();
 			append( Atom::ListItemNumber,
-				QString::number(openedLists.top().number()) );
-			append( Atom::ListItemLeft,
 				openedLists.top().numberString() );
-			enterParagraph();
+			append( Atom::ListItemLeft,
+				openedLists.top().styleString() );
+			enterPara();
 			skipSpacesOrOneEndl();
 		    }
 		    break;
@@ -545,39 +547,39 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    startSection( Doc::Part, command );
 		    break;
 		case CMD_PRINTLINE:
-		    leaveParagraph();
+		    leavePara();
 		    appendToCode( quoter.quoteLine(location(), commandStr,
 						   getRestOfLine()) );
 		    break;
 		case CMD_PRINTTO:
-		    leaveParagraph();
+		    leavePara();
 		    appendToCode( quoter.quoteTo(location(), commandStr,
 				  getRestOfLine()) );
 		    break;
 		case CMD_PRINTUNTIL:
-		    leaveParagraph();
+		    leavePara();
 		    appendToCode( quoter.quoteUntil(location(), commandStr,
 						    getRestOfLine()) );
 		    break;
 		case CMD_QUOTATION:
 		    if ( openCommand(command) ) {
-			leaveParagraph();
+			leavePara();
 			append( Atom::QuotationLeft );
 		    }
 		    break;
 		case CMD_QUOTEFILE:
-		    leaveParagraph();
+		    leavePara();
 		    quoteFromFile( command );
 		    append( Atom::Code,
 			    quoter.quoteUntil(location(), commandStr) );
 		    quoter.reset();
 		    break;
 		case CMD_QUOTEFROMFILE:
-		    leaveParagraph();
+		    leavePara();
 		    quoteFromFile( command );
 		    break;
 		case CMD_QUOTEFUNCTION:
-		    leaveParagraph();
+		    leavePara();
 		    marker = quoteFromFile( command );
 		    x = getRestOfLine();
 		    quoter.quoteTo( location(), commandStr,
@@ -588,7 +590,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    quoter.reset();
 		    break;
 		case CMD_RAW:
-		    leaveParagraph();
+		    leavePara();
 		    begin = pos;
 		    x = getUntilEnd( command );
 		    x = untabifyEtc( in.mid(begin, end - begin) );
@@ -614,20 +616,20 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_SIDEBAR:
 		    if ( openCommand(command) ) {
-			leaveParagraph();
+			leavePara();
 			append( Atom::SidebarLeft );
 		    }
 		    break;
 		case CMD_SKIPLINE:
-		    leaveParagraph();
+		    leavePara();
 		    quoter.quoteLine( location(), commandStr, getRestOfLine() );
 		    break;
 		case CMD_SKIPTO:
-		    leaveParagraph();
+		    leavePara();
 		    quoter.quoteTo( location(), commandStr, getRestOfLine() );
 		    break;
 		case CMD_SKIPUNTIL:
-		    leaveParagraph();
+		    leavePara();
 		    quoter.quoteUntil( location(), commandStr, getRestOfLine() );
 		    break;
 		case CMD_SUB:
@@ -638,7 +640,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_TABLE:
 		    if ( openCommand(command) ) {
-			leaveParagraph();
+			leavePara();
 			append( Atom::TableLeft );
 		    }
 		    break;
@@ -657,13 +659,39 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    startFormat( ATOM_FORMATTING_UNDERLINE, command );
 		    break;
 		case CMD_VALUE:
-		    /* ... */
+		    leavePara();
+		    if ( openedLists.isEmpty() ) {
+			openedLists.push( OpenedList(location(),
+						     OpenedList::Value) );
+			append( Atom::ListLeft, ATOM_LIST_VALUE );
+		    } else {
+			append( Atom::ListItemRight, ATOM_LIST_VALUE );
+		    }
+
+		    if ( openedLists.top().style() == OpenedList::Value ) {
+			openedLists.top().next();
+			append( Atom::ListTagLeft, ATOM_LIST_VALUE );
+			append( Atom::FormattingLeft, ATOM_FORMATTING_BOLD );
+			append( Atom::FormattingLeft,
+				ATOM_FORMATTING_TELETYPE );
+			append( Atom::String, getArgument() );
+			append( Atom::FormattingRight,
+				ATOM_FORMATTING_TELETYPE );
+			append( Atom::FormattingRight, ATOM_FORMATTING_BOLD );
+			append( Atom::ListTagRight, ATOM_LIST_VALUE );
+			append( Atom::ListItemLeft, ATOM_LIST_VALUE );
+			enterPara();
+			skipSpacesOrOneEndl();
+		    } else {
+			// ### problems
+		    }
 		    break;
 		case CMD_WARNING:
-		    startNewParagraph();
+		    startNewPara();
 		    append( Atom::FormattingLeft, ATOM_FORMATTING_BOLD );
-		    append( Atom::String, "Warning: " );
+		    append( Atom::String, "Warning:" );
 		    append( Atom::FormattingRight, ATOM_FORMATTING_BOLD );
+		    append( Atom::String, " " );
 		    break;
 		case UNKNOWN_COMMAND:
 		    if ( metaCommandSet.contains(commandStr) ) {
@@ -701,13 +729,13 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 				tr("Unknown command '\\%1'").arg(commandStr),
 				detailsUnknownCommand(metaCommandSet,
 						      commandStr) );
-			enterParagraph();
+			enterPara();
 			append( Atom::UnknownCommand, commandStr );
 		    }
 		}
 	    }
 	} else if ( ch == '{' ) {
-	    enterParagraph();
+	    enterPara();
 	    appendChar( '{' );
 	    braceDepth++;
 	    pos++;
@@ -717,7 +745,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 
 	    QMap<int, QString>::Iterator f = pendingFormats.find( braceDepth );
 	    if ( f == pendingFormats.end() ) {
-		enterParagraph();
+		enterPara();
 		appendChar( '}' );
 	    } else {
 		append( Atom::FormattingRight, *f );
@@ -726,28 +754,27 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		pendingFormats.remove( f );
 	    }
 	} else {
-	    if ( inPara ) {
-		pos++;
+	    pos++;
+	    if ( paraState == OutsidePara ) {
+		if ( !ch.isSpace() ) {
+		    enterPara();
+		    appendChar( ch );
+		}
+	    } else {
 		if ( ch == '\n' ) {
-		    if ( isBlankLine() ) {
-			leaveParagraph();
+		    if ( paraState == InsideSingleLinePara || isBlankLine() ) {
+			leavePara();
 		    } else {
-			endHeading();
 			appendChar( ' ' );
 		    }
 		} else {
 		    appendChar( ch );
 		}
-	    } else {
-		if ( !ch.isSpace() ) {
-		    enterParagraph();
-		    appendChar( ch );
-		}
-		pos++;
 	    }
 	}
     }
-    leaveParagraph();
+    leavePara();
+    flushValueList();
 
     if ( openedCommands.top() != CMD_OMIT )
 	location().warning( tr("Missing '\\%1'")
@@ -780,7 +807,7 @@ QString DocParser::detailsUnknownCommand( const Set<QString>& metaCommandSet,
     }
 
     if ( aliasMap->contains(str) )
-	return tr( "The command '\\%1' was renamed '\\%2' in the configuration"
+	return tr( "The command '\\%1' was renamed '\\%2' by the configuration"
 		   " file. Use the new name." )
 	       .arg( str ).arg( (*aliasMap)[str] );
 
@@ -906,7 +933,7 @@ void DocParser::include( const QString& fileName )
 
 void DocParser::startFormat( const QString& format, int command )
 {
-    enterParagraph();
+    enterPara();
 
     QMap<int, QString>::ConstIterator f = pendingFormats.begin();
     while ( f != pendingFormats.end() ) {
@@ -935,33 +962,6 @@ void DocParser::startFormat( const QString& format, int command )
     }
 }
 
-void DocParser::startHeading( Atom::Type leftType, Atom::Type rightType,
-			      const QString& string )
-{
-    leaveParagraph();
-    skipSpacesOnLine();
-    if ( pos < len && in[pos] != '\n' ) {
-	append( leftType, string );
-	inPara = TRUE;
-	indexStartedPara = FALSE;
-	inHeading = TRUE;
-	pendingHeadingRightType = rightType;
-	pendingHeadingString = string;
-    }
-}
-
-void DocParser::endHeading()
-{
-    if ( inHeading ) {
-	append( pendingHeadingRightType, pendingHeadingString );
-	inPara = FALSE;
-	indexStartedPara = FALSE;
-	inHeading = FALSE;
-	pendingHeadingRightType = Atom::Nop;
-	pendingHeadingString = "";
-    }
-}
-
 bool DocParser::openCommand( int command )
 {
     int top = openedCommands.top();
@@ -985,14 +985,14 @@ bool DocParser::openCommand( int command )
 
 bool DocParser::closeCommand( int endCommand )
 {
-    if ( endCommandOf(openedCommands.top()) == endCommand ) {
+    if ( endCommandFor(openedCommands.top()) == endCommand ) {
 	openedCommands.pop();
 	return TRUE;
     } else {
 	bool contains = FALSE;
 	QValueStack<int> opened2 = openedCommands;
 	while ( !opened2.isEmpty() ) {
-	    if ( endCommandOf(opened2.top()) == endCommand ) {
+	    if ( endCommandFor(opened2.top()) == endCommand ) {
 		contains = TRUE;
 		break;
 	    }
@@ -1000,7 +1000,7 @@ bool DocParser::closeCommand( int endCommand )
 	}
 
 	if ( contains ) {
-	    while ( endCommandOf(openedCommands.top()) != endCommand ) {
+	    while ( endCommandFor(openedCommands.top()) != endCommand ) {
 		location().warning( tr("Missing '\\%1' before '\\%2'")
 				    .arg(endCommandName(openedCommands.top()))
 				    .arg(commandName(endCommand)) );
@@ -1016,7 +1016,7 @@ bool DocParser::closeCommand( int endCommand )
 
 void DocParser::startSection( Doc::SectioningUnit unit, int command )
 {
-    leaveParagraph();
+    leavePara();
 
     if ( currentSectioningUnit == Doc::Book ) {
 	if ( unit > Doc::Section1 )
@@ -1040,15 +1040,15 @@ void DocParser::startSection( Doc::SectioningUnit unit, int command )
 
 	int delta = unit - priv->extra->sectioningUnit;
 	append( Atom::SectionLeft, QString::number(delta) );
-	startHeading( Atom::SectionHeadingLeft, Atom::SectionHeadingRight,
-		      QString::number(delta) );
+	enterPara( Atom::SectionHeadingLeft, Atom::SectionHeadingRight,
+		   QString::number(delta) );
 	currentSectioningUnit = unit;
     }
 }
 
 void DocParser::endSection( int unit, int endCommand )
 {
-    leaveParagraph();
+    leavePara();
 
     if ( unit < priv->extra->sectioningUnit ) {
 	location().warning( tr("Unexpected '\\%1' in this documentation")
@@ -1068,7 +1068,7 @@ void DocParser::endSection( int unit, int endCommand )
 
 void DocParser::parseAlso()
 {
-    leaveParagraph();
+    leavePara();
     skipSpacesOnLine();
     while ( pos < len && in[pos] != '\n' ) {
 	QString target;
@@ -1131,39 +1131,57 @@ void DocParser::appendToCode( const QString& markedCode )
     priv->text.lastAtom()->appendString( markedCode );
 }
 
-void DocParser::startNewParagraph()
+void DocParser::startNewPara()
 {
-    leaveParagraph();
-    enterParagraph();
+    leavePara();
+    enterPara();
 }
 
-void DocParser::enterParagraph()
+void DocParser::enterPara( Atom::Type leftType, Atom::Type rightType,
+			   const QString& string )
 {
-    if ( !inPara ) {
-	append( Atom::ParagraphLeft );
-	inPara = TRUE;
+    if ( paraState == OutsidePara ) {
+	flushValueList();
+	append( leftType, string );
 	indexStartedPara = FALSE;
+	pendingParaRightType = rightType;
+	pendingParaString = string;
+	if ( leftType == Atom::BriefLeft ||
+	     leftType == Atom::SectionHeadingLeft ) {
+	    paraState = InsideSingleLinePara;
+	} else {
+	    paraState = InsideMultiLinePara;
+	}
     }
 }
 
-void DocParser::leaveParagraph()
+void DocParser::leavePara()
 {
-    if ( inPara ) {
-	if ( inHeading ) {
-	    endHeading();
-	} else {
-	    if ( !pendingFormats.isEmpty() ) {
-		location().warning( tr("Missing '}'") );
-		pendingFormats.clear();
-	    }
-
-	    if ( priv->text.lastAtom()->type() == Atom::String &&
-		 priv->text.lastAtom()->string().endsWith(" ") )
-		priv->text.lastAtom()->chopString();
-	    append( Atom::ParagraphRight );
-	    inPara = FALSE;
-	    indexStartedPara = FALSE;
+    if ( paraState != OutsidePara ) {
+	if ( !pendingFormats.isEmpty() ) {
+	    location().warning( tr("Missing '}'") );
+	    pendingFormats.clear();
 	}
+
+	if ( priv->text.lastAtom()->type() == Atom::String &&
+	     priv->text.lastAtom()->string().endsWith(" ") )
+	    priv->text.lastAtom()->chopString();
+	append( pendingParaRightType, pendingParaString );
+	paraState = OutsidePara;
+	indexStartedPara = FALSE;
+	pendingParaRightType = Atom::Nop;
+	pendingParaString = "";
+    }
+}
+
+void DocParser::flushValueList()
+{
+    if ( !openedLists.isEmpty() &&
+	 openedLists.top().style() == OpenedList::Value &&
+	 priv->text.lastAtom()->type() != Atom::ListItemLeft ) {
+	append( Atom::ListItemRight, ATOM_LIST_VALUE );
+	append( Atom::ListRight, ATOM_LIST_VALUE );
+	openedLists.pop();
     }
 }
 
@@ -1403,7 +1421,7 @@ QString DocParser::getRestOfLine()
 
 QString DocParser::getUntilEnd( int command )
 {
-    int endCommand = endCommandOf( command );
+    int endCommand = endCommandFor( command );
     QRegExp rx( "\\\\" + commandName(endCommand) + "\\b" );
     QString t;
     int end = rx.search( in, pos );
@@ -1474,7 +1492,7 @@ void DocParser::skipAllSpaces()
 	pos++;
 }
 
-int DocParser::endCommandOf( int command )
+int DocParser::endCommandFor( int command )
 {
     switch ( command ) {
     case CMD_ABSTRACT:
@@ -1517,7 +1535,7 @@ QString DocParser::commandName( int command )
 
 QString DocParser::endCommandName( int command )
 {
-    return commandName( endCommandOf(command) );
+    return commandName( endCommandFor(command) );
 }
 
 QString DocParser::untabifyEtc( const QString& str )
@@ -1586,7 +1604,7 @@ QString DocParser::unindent( int level, const QString& str )
 
 QString DocParser::slashed( const QString& str )
 {
-    QString result;
+    QString result = str;
     // ### remove QRegExp cast in Qt 3.1
     result.replace( QRegExp("/"), "\\/" );
     return "/" + result + "/";
@@ -1735,7 +1753,7 @@ Doc Doc::propertyFunctionDoc( const Doc& propertyDoc, const QString& role,
     doc.priv->loc = propertyDoc.location();
 
     Text brief = propertyDoc.body().subText( Atom::BriefLeft, Atom::BriefRight );
-    doc.priv->text << Atom::ParagraphLeft;
+    doc.priv->text << Atom::ParaLeft;
     if ( !brief.isEmpty() ) {
 	bool whether = ( brief.firstAtom()->type() == Atom::String &&
 			 brief.firstAtom()->string().lower()
@@ -1766,7 +1784,7 @@ Doc Doc::propertyFunctionDoc( const Doc& propertyDoc, const QString& role,
 	    doc.priv->text << "Resets " << brief << ".";
 	}
     }
-    doc.priv->text << Atom::ParagraphRight;
+    doc.priv->text << Atom::ParaRight;
     // set priv->params
     return doc;
 }

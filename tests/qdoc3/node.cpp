@@ -292,6 +292,11 @@ EnumNode::EnumNode( InnerNode *parent, const QString& name )
 {
 }
 
+void EnumNode::addItem( const EnumItem& item )
+{
+    itms.append( item );
+}
+
 TypedefNode::TypedefNode( InnerNode *parent, const QString& name )
     : LeafNode( Typedef, parent, name )
 {

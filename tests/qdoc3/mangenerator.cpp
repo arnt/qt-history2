@@ -23,8 +23,8 @@ QString ManGenerator::format()
     return "man";
 }
 
-void ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
-				 CodeMarker * /* marker */ )
+int ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
+				CodeMarker * /* marker */ )
 {
 #if 0
     switch ( atom->type() ) {
@@ -85,10 +85,10 @@ void ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
 	break;
     case Atom::Nop:
 	break;
-    case Atom::ParagraphBegin:
+    case Atom::ParaBegin:
 	out() << ".PP\n";
 	break;
-    case Atom::ParagraphEnd:
+    case Atom::ParaEnd:
 	out() << "\n";
 	break;
     case Atom::RawFormat:
@@ -123,6 +123,7 @@ void ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
     }
 #endif
     unknownAtom( atom );
+    return 0;
 }
 
 void ManGenerator::generateNamespaceNode( const NamespaceNode *namespasse,

@@ -39,11 +39,11 @@ private:
 			const Doc& doc );
     void applyReplacementList( QString& source, const Doc& doc );
     void quickifyClass( ClassNode *quickClass );
+    void quickifyEnum( ClassNode *quickClass, EnumNode *enume );
     void quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
-			   FunctionNode *func, QMap<QString, int> *blackList );
+			   FunctionNode *func );
     void quickifyProperty( ClassNode *quickClass, ClassNode *qtClass,
-			   PropertyNode *property,
-			   QMap<QString, int> *blackList );
+			   PropertyNode *property );
     QString quickifiedDataType( const QString& leftType,
 				const QString& rightType = "" );
     QString quickifiedCode( const QString& code );

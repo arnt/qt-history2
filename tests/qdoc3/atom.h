@@ -14,13 +14,13 @@ public:
 		CaptionLeft, CaptionRight, Code, FootnoteLeft, FootnoteRight,
 		FormatElse, FormatEndif, FormatIf, FormattingLeft,
 		FormattingRight, GeneratedList, Image, ImageText, Link,
-		LinkNode, ListLeft, ListItemNumber, ListItemLeft, ListItemRight,
-		ListRight, Nop, ParagraphLeft, ParagraphRight, QuotationLeft,
-		QuotationRight, RawString, SectionLeft, SectionRight,
-		SectionHeadingLeft, SectionHeadingRight, SidebarLeft,
-		SidebarRight, String, TableLeft, TableRight, TableOfContents,
-		Target, UnhandledFormat, UnknownCommand,
-		Last = UnknownCommand };
+		LinkNode, ListLeft, ListItemNumber, ListTagLeft, ListTagRight,
+		ListItemLeft, ListItemRight, ListRight, Nop, ParaLeft,
+		ParaRight, QuotationLeft, QuotationRight, RawString,
+		SectionLeft, SectionRight, SectionHeadingLeft,
+		SectionHeadingRight, SidebarLeft, SidebarRight, String,
+		TableLeft, TableRight, TableOfContents, Target, UnhandledFormat,
+		UnknownCommand, Last = UnknownCommand };
 
     Atom( Type type, const QString& string = "" )
 	: nex( 0 ), typ( type ), str( string ) { }
@@ -54,6 +54,8 @@ private:
 #define ATOM_FORMATTING_UNDERLINE   "underline"
 
 #define ATOM_LIST_BULLET            "bullet"
+#define ATOM_LIST_TAG               "tag"
+#define ATOM_LIST_VALUE             "value"
 #define ATOM_LIST_LOWERALPHA        "loweralpha"
 #define ATOM_LIST_LOWERROMAN        "lowerroman"
 #define ATOM_LIST_NUMERIC           "numeric"

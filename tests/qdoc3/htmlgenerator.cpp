@@ -65,9 +65,11 @@ void HtmlGenerator::startText( const Node * /* relative */,
     link = "";
 }
 
-void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
-				  CodeMarker *marker )
+int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
+				 CodeMarker *marker )
 {
+    int skipAtoms = 0;
+
     switch ( atom->type() ) {
     case Atom::AbstractLeft:
 	break;
@@ -150,48 +152,79 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 			    relative );
 	break;
     case Atom::ListLeft:
-	if ( atom->string() == "bullet" ) {
+	if ( atom->string() == ATOM_LIST_BULLET ||
+	     atom->string() == ATOM_LIST_VALUE ) {
 	    out() << "<ul>\n";
+	} else if ( atom->string() == ATOM_LIST_TAG ) {
+	    out() << "<dl>\n";
 	} else {
             out() << "<ol type=";
-            if ( atom->string() == "upperalpha" ) {
+            if ( atom->string() == ATOM_LIST_UPPERALPHA ) {
         	out() << "A";
-            } else if ( atom->string() == "loweralpha" ) {
+            } else if ( atom->string() == ATOM_LIST_LOWERALPHA ) {
         	out() << "a";
-            } else if ( atom->string() == "upperroman" ) {
+            } else if ( atom->string() == ATOM_LIST_UPPERROMAN ) {
         	out() << "I";
-            } else if ( atom->string() == "lowerroman" ) {
+            } else if ( atom->string() == ATOM_LIST_LOWERROMAN ) {
         	out() << "i";
-            } else {
+            } else { // ( atom->string() == ATOM_LIST_NUMERIC )
         	out() << "1";
             }
-            if ( atom->next()->string() != "1" )
+            if ( atom->next()->string().toInt() != 1 )
         	out() << " start=" << atom->next()->string();
             out() << ">\n";
 	}
 	break;
     case Atom::ListItemNumber:
 	break;
+    case Atom::ListTagLeft:
+	if ( atom->string() == ATOM_LIST_TAG ) {
+	    out() << "<dt>";
+	} else { // ( atom->string() == ATOM_LIST_VALUE )
+	    out() << "<li>";
+	}
+	break;
+    case Atom::ListTagRight:
+	if ( atom->string() == ATOM_LIST_TAG ) {
+	    out() << "</dt>\n";
+	} else { // ( atom->string() == ATOM_LIST_VALUE )
+	    out() << " -- ";
+	}
+	break;
     case Atom::ListItemLeft:
-	out() << "<li>";
+	if ( atom->string() == ATOM_LIST_TAG ) {
+	    out() << "<dd>";
+	} else if ( atom->string() != ATOM_LIST_VALUE ) {
+	    out() << "<li>";
+	}
+	if ( atom->next() != 0 && atom->next()->type() == Atom::ParaLeft )
+	    skipAtoms = 1;
 	break;
     case Atom::ListItemRight:
-	out() << "</li>\n";
+	if ( atom->string() == ATOM_LIST_TAG ) {
+	    out() << "</dd>\n";
+	} else {
+	    out() << "</li>\n";
+	}
 	break;
     case Atom::ListRight:
-	if ( atom->string() == "bullet" ) {
+	if ( atom->string() == ATOM_LIST_BULLET ||
+	     atom->string() == ATOM_LIST_VALUE ) {
 	    out() << "</ul>\n";
+	} else if ( atom->string() == ATOM_LIST_TAG ) {
+	    out() << "</dl>\n";
 	} else {
 	    out() << "</ol>\n";
 	}
 	break;
     case Atom::Nop:
 	break;
-    case Atom::ParagraphLeft:
+    case Atom::ParaLeft:
 	out() << "<p>";
 	break;
-    case Atom::ParagraphRight:
-	out() << "</p>\n";
+    case Atom::ParaRight:
+	if ( atom->next() == 0 || atom->next()->type() != Atom::ListItemRight )
+	    out() << "</p>\n";
 	break;
     case Atom::QuotationLeft:
 	out() << "<blockquote>";
@@ -249,6 +282,7 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
     default:
 	unknownAtom( atom );
     }
+    return skipAtoms;
 }
 
 void HtmlGenerator::generateNamespaceNode( const NamespaceNode *namespasse,

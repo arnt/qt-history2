@@ -162,7 +162,12 @@ private:
 class EnumItem
 {
 public:
-    EnumItem( const QString& name, const QString& value );
+    EnumItem() { }
+    EnumItem( const QString& name, const QString& value )
+	: nam( name ), val( value ) { }
+
+    const QString& name() const { return nam; }
+    const QString& value() const { return val; }
 
 private:
     QString nam;
@@ -173,6 +178,13 @@ class EnumNode : public LeafNode
 {
 public:
     EnumNode( InnerNode *parent, const QString& name );
+
+    void addItem( const EnumItem& item );
+
+    const QValueList<EnumItem>& items() const { return itms; }
+
+private:
+    QValueList<EnumItem> itms;
 };
 
 class TypedefNode : public LeafNode

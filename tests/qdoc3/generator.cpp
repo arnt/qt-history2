@@ -153,10 +153,11 @@ void Generator::endText( const Node * /* relative */,
 {
 }
 
-void Generator::generateAtom( const Atom * /* atom */,
-			      const Node * /* relative */,
-			      CodeMarker * /* marker */ )
+int Generator::generateAtom( const Atom * /* atom */,
+			     const Node * /* relative */,
+			     CodeMarker * /* marker */ )
 {
+    return 0;
 }
 
 void Generator::generateNamespaceNode( const NamespaceNode * /* namespasse */,
@@ -217,7 +218,7 @@ void Generator::generateAlsoList( const Node *node, CodeMarker *marker )
 
     if ( node->doc().alsoList() != 0 && !node->doc().alsoList()->isEmpty() ) {
 	Text text;
-	text << Atom::ParagraphLeft << "See also ";
+	text << Atom::ParaLeft << "See also ";
 
 	a = node->doc().alsoList()->begin();
 	index = 0;
@@ -225,7 +226,7 @@ void Generator::generateAlsoList( const Node *node, CodeMarker *marker )
 	    text << *a << separator( index++, node->doc().alsoList()->count() );
             ++a;
         }
-        text << Atom::ParagraphRight;
+        text << Atom::ParaRight;
 	generateText( text, node, marker );
     }
 }
@@ -238,7 +239,7 @@ void Generator::generateInherits( const ClassNode *classe,
 
     if ( !classe->baseClasses().isEmpty() ) {
 	Text text;
-	text << Atom::ParagraphLeft << "Inherits ";
+	text << Atom::ParaLeft << "Inherits ";
 
 	r = classe->baseClasses().begin();
 	index = 0;
@@ -253,7 +254,7 @@ void Generator::generateInherits( const ClassNode *classe,
 	    text << separator( index++, classe->baseClasses().count() );
 	    ++r;
 	}
-	text << Atom::ParagraphRight;
+	text << Atom::ParaRight;
 	generateText( text, classe, marker );
     }
 }
@@ -266,7 +267,7 @@ void Generator::generateInheritedBy( const ClassNode *classe,
 
     if ( !classe->derivedClasses().isEmpty() ) {
 	Text text;
-	text << Atom::ParagraphLeft << "Inherited by ";
+	text << Atom::ParaLeft << "Inherited by ";
 
 	r = classe->derivedClasses().begin();
 	index = 0;
@@ -276,7 +277,7 @@ void Generator::generateInheritedBy( const ClassNode *classe,
 		     << separator( index++, classe->derivedClasses().count() );
 	    ++r;
 	}
-	text << Atom::ParagraphRight;
+	text << Atom::ParaRight;
 	generateText( text, classe, marker );
     }
 }
@@ -406,27 +407,27 @@ void Generator::generateStatus( const Node *node, CodeMarker *marker )
     case Node::Commendable:
 	break;
     case Node::Preliminary:
-	text << Atom::ParagraphLeft
+	text << Atom::ParaLeft
 	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
 	     << typeString( node )
 	     << " is under development and is subject to change."
 	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
-	     << Atom::ParagraphRight;
+	     << Atom::ParaRight;
 	break;
     case Node::Deprecated:
-	text << Atom::ParagraphLeft
+	text << Atom::ParaLeft
 	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
 	     << typeString( node ) << " is deprecated."
 	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
-	     << Atom::ParagraphRight;
+	     << Atom::ParaRight;
 	break;
     case Node::Obsolete:
-	text << Atom::ParagraphLeft
+	text << Atom::ParaLeft
 	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This " << typeString( node )
 	     << " is obsolete."
 	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
 	     << " It is provided to keep old source code working.  We strongly"
-	     << " advise against using it in new code." << Atom::ParagraphRight;
+	     << " advise against using it in new code." << Atom::ParaRight;
     }
     generateText( text, node, marker );
 }
@@ -434,10 +435,10 @@ void Generator::generateStatus( const Node *node, CodeMarker *marker )
 void Generator::generateOverload( const Node *node, CodeMarker *marker )
 {
     Text text;
-    text << Atom::ParagraphLeft
+    text << Atom::ParaLeft
 	 << "This is an overloaded member function, provided for convenience."
 	 << " It behaves essentially like the above function."
-	 << Atom::ParagraphRight;
+	 << Atom::ParaRight;
     generateText( text, node, marker );
 }
 
@@ -447,12 +448,12 @@ void Generator::generateReimplementedFrom( const FunctionNode *func,
     if ( func->reimplementedFrom() != 0 ) {
 	const FunctionNode *from = func->reimplementedFrom();
 	Text text;
-	text << Atom::ParagraphLeft << "Reimplemented from "
+	text << Atom::ParaLeft << "Reimplemented from "
 	     << Atom( Atom::LinkNode, CodeMarker::stringForNode(from) )
 	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_LINK )
 	     << Atom( Atom::C, marker->markedUpFullName(from->parent(), func) )
 	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_LINK ) << "."
-	     << Atom::ParagraphRight;
+	     << Atom::ParaRight;
 	generateText( text, func, marker );
     }
 }
@@ -492,11 +493,13 @@ const Atom *Generator::generateAtomList( const Atom *atom, const Node *relative,
 		    atom->type() == Atom::FormatEndif ) {
 	    return atom;
 	} else {
+	    int n = 1;
 	    if ( generate ) {
-		generateAtom( atom, relative, marker );
-		numAtoms++;
+		n += generateAtom( atom, relative, marker );
+		numAtoms += n;
 	    }
-	    atom = atom->next();
+	    while ( n-- > 0 )
+		atom = atom->next();
 	}
     }
     return 0;
@@ -509,7 +512,7 @@ void Generator::generateReimplementedBy( const FunctionNode *func,
     int index;
 
     Text text;
-    text << Atom::ParagraphLeft << "Reimplemented by";
+    text << Atom::ParaLeft << "Reimplemented by";
 
     r = func->reimplementedBy().begin();
     index = 0;
@@ -518,6 +521,6 @@ void Generator::generateReimplementedBy( const FunctionNode *func,
 	     << separator( index++, func->reimplementedBy().count() );
 	++r;
     }
-    text << Atom::ParagraphRight;
+    text << Atom::ParaRight;
     generateText( text, func, marker );
 }

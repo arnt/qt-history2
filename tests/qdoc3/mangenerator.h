@@ -16,8 +16,8 @@ public:
     virtual QString format();
 
 protected:
-    virtual void generateAtom( const Atom *atom, const Node *relative,
-			       CodeMarker *marker );
+    virtual int generateAtom( const Atom *atom, const Node *relative,
+			      CodeMarker *marker );
     virtual void generateNamespaceNode( const NamespaceNode *namespasse,
 					CodeMarker *marker );
     virtual void generateClassNode( const ClassNode *classe,

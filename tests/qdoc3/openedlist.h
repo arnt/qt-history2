@@ -12,11 +12,12 @@
 class OpenedList
 {
 public:
-    enum Style { Bullet, Numeric, UpperAlpha, LowerAlpha, UpperRoman,
-		 LowerRoman };
+    enum Style { Bullet, Tag, Value, Numeric, UpperAlpha, LowerAlpha,
+		 UpperRoman, LowerRoman };
 
     OpenedList()
 	: sty( Bullet ), ini( 1 ), nex( 0 ) { }
+    OpenedList( const Location& location, Style style );
     OpenedList( const Location& location, const QString& hint );
 
     void next() { nex++; }

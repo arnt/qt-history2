@@ -49,7 +49,9 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
     if ( style == Summary )
         name = linkTag( node, name );
     name = "<@name>" + name + "</@name>";
-    if ( style == Detailed && !node->parent()->name().isEmpty() )
+
+    if ( style == Detailed && !node->parent()->name().isEmpty() &&
+	 node->type() != Node::Enum )
 	name.prepend( taggedNode(node->parent()) + "." );
 
     switch ( node->type() ) {

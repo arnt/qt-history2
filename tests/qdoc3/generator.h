@@ -39,8 +39,8 @@ public:
 protected:
     virtual void startText( const Node *relative, CodeMarker *marker );
     virtual void endText( const Node *relative, CodeMarker *marker );
-    virtual void generateAtom( const Atom *atom, const Node *relative,
-			       CodeMarker *marker );
+    virtual int generateAtom( const Atom *atom, const Node *relative,
+			      CodeMarker *marker );
     virtual void generateNamespaceNode( const NamespaceNode *namespasse,
 					CodeMarker *marker );
     virtual void generateClassNode( const ClassNode *classe,

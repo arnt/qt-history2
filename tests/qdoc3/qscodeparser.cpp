@@ -353,14 +353,17 @@ qDebug( "Quickifying '%s'", qtClassName.latin1() );
     if ( wrapperClass != 0 )
 	children += wrapperClass->childNodes();
 
-    QMap<QString, int> ;
+    QMap<QString, int> blackList;
     for ( int pass = 0; pass < 2; pass++ ) {
 	NodeList::ConstIterator c = children.begin();
 	while ( c != children.end() ) {
 	    if ( (*c)->access() == Node::Public &&
 		 (*c)->status() == Node::Commendable ) {
 		if ( pass == 0 ) {
-		    if ( (*c)->type() == Node::Property ) {
+		    if ( (*c)->type() == Node::Enum ) {
+			EnumNode *enume = (EnumNode *) *c;
+			quickifyEnum( quickClass, enume );
+		    } else if ( (*c)->type() == Node::Property ) {
 			PropertyNode *property = (PropertyNode *) *c;
 			quickifyProperty( quickClass, qtClass, property );
 			blackList.insert( property->getter(), 0 );
@@ -379,6 +382,22 @@ qDebug( "Quickifying '%s'", qtClassName.latin1() );
 	}
     }
     setQtDoc( quickClass, qtClass->doc() );
+}
+
+void QsCodeParser::quickifyEnum( ClassNode *quickClass, EnumNode *enume )
+{
+    EnumNode *quickEnum = new EnumNode( quickClass, enume->name() );
+    quickEnum->setLocation( enume->location() );
+
+    QValueList<EnumItem>::ConstIterator it = enume->items().begin();
+    while ( it != enume->items().end() ) {
+	QString name = (*it).name();
+	QString value = (*it).value();
+	// ### drop value in most cases
+	quickEnum->addItem( EnumItem(name, value) );
+	++it;
+    }
+    setQtDoc( quickEnum, enume->doc() );
 }
 
 void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
@@ -403,9 +422,9 @@ void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
 
 	if ( func->doc().isEmpty() ) {
 	    if ( func->parent() != (InnerNode *) qtClass ) {
-		FunctionNode *qtFunc = qtClass->findFunctionNode( func );
-		if ( qtFunc != 0 )
-		    setQtDoc( quickFunc, qtFunc->doc() );
+		func = qtClass->findFunctionNode( func );
+		if ( func != 0 )
+		    setQtDoc( quickFunc, func->doc() );
 	    }
 	} else {
 	    setQtDoc( quickFunc, func->doc() );
