@@ -993,52 +993,27 @@ QSize QComboBox::sizeHint() const
 	return d->sizeHint;
 
     constPolish();
-    int i, w, h;
+    int i, w;
     QFontMetrics fm = fontMetrics();
 
     int maxW = count() ? 18 : 7 * fm.width(QChar('x')) + 18;
     int maxH = QMAX( fm.lineSpacing() + 2, 12 );
 
-    for( i = 0; i < count(); i++ ) {
-	if ( d->usingListBox() ) {
-	    w = d->listBox()->item( i )->width( d->listBox() );
-	    h = d->listBox()->item( i )->height( d->listBox() );
-	}
-	else {
-	    h = d->popup()->itemHeight( i );
-	    w = d->popup()->sizeHint().width() - 2* d->popup()->frameWidth();
-	}
+    if ( !d->usingListBox() ) {
+	w = d->popup()->sizeHint().width() - 2* d->popup()->frameWidth();
 	if ( w > maxW )
 	    maxW = w;
-	if ( h > maxH )
-	    maxH = h;
+    } else {
+	for( i = 0; i < count(); i++ ) {
+	    w = d->listBox()->item( i )->width( d->listBox() );
+	    if ( w > maxW )
+		maxW = w;
+	}
     }
-
 
     d->sizeHint = (style().sizeFromContents(QStyle::CT_ComboBox, this,
 					    QSize(maxW, maxH)).
 		   expandedTo(QApplication::globalStrut()));
-
-//     if ( maxH <= 20 && style() == WindowsStyle || parentWidget() &&
-// 	 ( parentWidget()->inherits( "QToolBar" ) ||
-// 	   parentWidget()->inherits( "QDialog" ) && d->ed ) )
-// 	maxH = 12;
-
-//     int sw, sh;
-//     if ( d->usingListBox() ) {
-// 	sw = 4 + 4 + maxW;
-// 	sh = 5 + 5 + maxH;
-// 	QRect cr = style().comboButtonRect( 0, 0, sw, sh );
-// 	sw += sw - cr.width();
-// 	sw += sh - cr.height();
-//     } else {
-// 	//hardcoded values for motif 1.x style
-// 	int extraW = 20+5;
-// 	sw = 4 + 4 + maxW + extraW;
-// 	sh = 5 + 5 + maxH;
-//     }
-
-//     d->sizeHint = QSize( sw, sh ).expandedTo( QApplication::globalStrut() );
 
     return d->sizeHint;
 }

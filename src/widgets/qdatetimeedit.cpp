@@ -329,7 +329,7 @@ public:
 	parag->format();
 
 	int xoff = 2 + fw - offset;
-	int yoff = (rect.height() - parag->rect().height())/2;
+	int yoff = ( rect.height() - parag->rect().height() + 1 ) / 2;
 	if ( yoff < 0 )
 	    yoff = 0;
 
@@ -970,7 +970,7 @@ QSize QDateEdit::sizeHint() const
     constPolish();
     QFontMetrics fm( font() );
     int fw = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
-    int h = fm.height();
+    int h = fm.lineSpacing() + 2;
     int w = 2 + fm.width( '9' ) * 8 + fm.width( d->ed->separator() ) * 2 + d->controls->upRect().width() + fw * 4;
 
     return QSize( w, QMAX(h + fw * 2,20) ).expandedTo( QApplication::globalStrut() );
@@ -2243,7 +2243,7 @@ QSize QTimeEdit::sizeHint() const
     constPolish();
     QFontMetrics fm( font() );
     int fw = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
-    int h = fm.height();
+    int h = fm.lineSpacing() + 2;
     int w = 2 + fm.width( '9' ) * 6 + fm.width( d->ed->separator() ) * 2 +
 		d->controls->upRect().width() + fw * 4 + (lAMPM ? fm.width( *lAM ) + 4 : 0 );
 

@@ -901,7 +901,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
 
 void QLineEdit::drawContents( QPainter *painter )
 {
-    int marg = frameWidth() + margin() + 1;
+    int marg = frameWidth() + 1;
     painter->translate( marg, 0 );
     const QColorGroup & g = colorGroup();
 
@@ -936,13 +936,13 @@ void QLineEdit::drawContents( QPainter *painter )
     QTextFormat *f = parag->formatCollection()->format( font(), buffer.painter()->pen().color() );
     parag->setFormat( 0, parag->length(), f );
     f->removeRef();
-    QRect r( rect().x(), rect().y(), width() - 4, rect().height() );
+    QRect r( rect().x(), rect().y(), width() - 2 * marg, rect().height() );
     parag->pseudoDocument()->docRect = r;
     parag->invalidate( 0 );
     parag->format();
     updateOffset();
     int xoff = 1 - d->offset;
-    int yoff = ( height() - parag->rect().height() ) / 2;
+    int yoff = ( height() - parag->rect().height()  + 1 ) / 2;
     if ( yoff < 0 )
 	yoff = 0;
     buffer.painter()->translate( xoff, yoff );
@@ -1612,9 +1612,9 @@ QSize QLineEdit::sizeHint() const
 {
     constPolish();
     QFontMetrics fm( font() );
-    int h = fm.height();
+    int h = fm.lineSpacing();
     int w = fm.width( 'x' ) * 17; // "some"
-    return QSize( w + 4 + frameWidth(), h + 4 + frameWidth() + margin() ).expandedTo( QApplication::globalStrut() );
+    return QSize( w + 2 + 2*frameWidth(), h + 2 + 2*frameWidth() ).expandedTo( QApplication::globalStrut() );
 }
 
 
@@ -1629,9 +1629,9 @@ QSize QLineEdit::minimumSizeHint() const
 {
     constPolish();
     QFontMetrics fm( font() );
-    int h = fm.height();
+    int h = fm.lineSpacing();
     int w = fm.maxWidth();
-    return QSize( w + 4 + frameWidth(), h + 4 + frameWidth() + margin() );
+    return QSize( w + 2 + 2*frameWidth(), h + 2 + 2 * frameWidth() );
 }
 
 
@@ -1702,7 +1702,7 @@ void QLineEdit::dragMoveEvent( QDragMoveEvent *e )
 	e->acceptAction();
     else
 	return;
-    QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
+    QPoint p( e->pos().x() + d->offset - frameWidth() - 1, 0 );
     d->cursor->place( p, d->parag );
     update();
 }
@@ -1725,7 +1725,7 @@ void QLineEdit::dropEvent( QDropEvent *e )
 	if ( e->source() == this && hasSelectedText() )
 	    deselect();
 	if ( !hasSelectedText() ) {
-	    QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
+	    QPoint p( e->pos().x() + d->offset - frameWidth() - 1, 0 );
 	    d->cursor->place( p, d->parag );
 	}
 	insert( str );
@@ -2042,7 +2042,7 @@ void QLineEdit::updateOffset()
     int textWidth = parWidth - leftGap;
     int w = width();
     int fw = 0;
-    fw = frameWidth() + margin() + 1;
+    fw = frameWidth() + 1;
     w -= 2*fw + 4;
     int cursorPos = d->cursor->x();
 

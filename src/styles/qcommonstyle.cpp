@@ -875,7 +875,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		// color, all in a sunken panel with a percentage text
 		// display at the end.
 		int x = 0;
-		int x0 = reverse ? r.right() - ((unit_width > 1) ? 
+		int x0 = reverse ? r.right() - ((unit_width > 1) ?
 						unit_width : 2) : r.x() + 2;
 		for (int i=0; i<nu; i++) {
 		    drawPrimitive( PE_ProgressBarChunk, p,
@@ -2347,7 +2347,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
     case CT_ComboBox:
 	{
 	    int dfw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
-	    sz = QSize(sz.width() + dfw + 21, sz.height() + dfw + 1);
+	    sz = QSize(sz.width() + dfw + 21, sz.height() + dfw );
 	    break;
 	}
 

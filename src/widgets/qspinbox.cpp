@@ -48,6 +48,7 @@
 #include "qpixmapcache.h"
 #include "qapplication.h"
 #include "qtimer.h"
+#include "qstyle.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -496,7 +497,7 @@ QSize QSpinBox::sizeHint() const
 	w = QMAX( w, fm.width( s ) + wx );
     }
 
-    return QSize( w + d->controls->downRect().width(), h ).expandedTo( QApplication::globalStrut() );
+    return QSize( w + d->controls->downRect().width(), h + style().defaultFrameWidth() * 2 ).expandedTo( QApplication::globalStrut() );
 }
 
 
