@@ -65,7 +65,7 @@ int Model::columnCount(const QModelIndex &parent) const
 
 QVariant Model::data(const QModelIndex &index, int role) const
 {
-    static QIcon folder(QPixmap("folder.png"));
+    static QIcon folder(QPixmap(":/images/folder.png"));
 
     if (role == DisplayRole)
 	return "Item " + QString::number(index.row()) + ":" + QString::number(index.column());
@@ -76,16 +76,17 @@ QVariant Model::data(const QModelIndex &index, int role) const
 
 QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    static QIcon service(QPixmap("services.png"));
+    static QIcon services(QPixmap(":/images/services.png"));
     if (role == DisplayRole)
         return QString::number(section);
     if (role == DecorationRole)
-        return service;
+        return services;
     return QAbstractItemModel::headerData(section, orientation, role);
 }
 
 bool Model::hasChildren(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent);
     return rc > 0 && cc > 0;
 }
 
