@@ -44,6 +44,8 @@ void FtpMainWindow::init()
 	    SLOT(ftp_stateChanged(int)) );
     connect( ftp, SIGNAL(listInfo(const QUrlInfo &)),
 	    SLOT(ftp_listInfo(const QUrlInfo &)) );
+    connect( ftp, SIGNAL(ftpCommandReply(int, const QString &)),
+	    SLOT(ftp_ftpCommandReply(int, const QString &)) );
 }
 
 void FtpMainWindow::destroy()
@@ -158,8 +160,9 @@ void FtpMainWindow::connectToHost()
 // remotePath.
 void FtpMainWindow::changePath( const QString &newPath )
 {
-    currentFtpDir = newPath;
+//    currentFtpDir = newPath;
     ftp->cd( newPath );
+    ftp->ftpCommand( "PWD" );
     ftp->list();
 }
 
@@ -233,4 +236,15 @@ void FtpMainWindow::ftp_listInfo( const QUrlInfo &i )
 
     new FtpViewItem( remoteView, type,
 	    i.name(), QString::number(i.size()), i.lastModified().toString() );
+}
+
+void FtpMainWindow::ftp_ftpCommandReply( int code, const QString &text )
+{
+    if ( code == 257 ) {
+	if ( text.startsWith( "\"" ) && text.endsWith( "\"" )  )
+	    currentFtpDir = text.mid( 1, text.length()-2 );
+	else
+	    currentFtpDir = text;
+	remotePath->insertItem( currentFtpDir, 0 );
+    }
 }
