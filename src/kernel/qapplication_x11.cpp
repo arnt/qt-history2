@@ -2875,16 +2875,17 @@ Window qt_x11_findClientWindow( Window win, Atom property, bool leaf )
 
 QWidget *QApplication::widgetAt( int x, int y, bool child )
 {
+    int screen = QCursor::x11Screen();
     int lx, ly;
 
     Window target;
     if ( !XTranslateCoordinates(appDpy,
-				QPaintDevice::x11AppRootWindow(),
-				QPaintDevice::x11AppRootWindow(),
+				QPaintDevice::x11AppRootWindow(screen),
+				QPaintDevice::x11AppRootWindow(screen),
 				x, y, &lx, &ly, &target) ) {
 	return 0;
     }
-    if ( !target || target == QPaintDevice::x11AppRootWindow() )
+    if ( !target || target == QPaintDevice::x11AppRootWindow(screen) )
 	return 0;
     QWidget *w, *c;
     w = QWidget::find( (WId)target );
@@ -2906,13 +2907,14 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 		if ( widget->isVisible() && !widget->isDesktop() ) {
 		    Window wid = widget->winId();
 		    while ( ctarget && !w ) {
-			XTranslateCoordinates(appDpy, QPaintDevice::x11AppRootWindow(),
+			XTranslateCoordinates(appDpy,
+					      QPaintDevice::x11AppRootWindow(screen),
 					      ctarget, x, y, &lx, &ly, &ctarget);
 			if ( ctarget == wid ) {
 			    // Found
 			    w = widget;
 			    XTranslateCoordinates(appDpy,
-						  QPaintDevice::x11AppRootWindow(),
+						  QPaintDevice::x11AppRootWindow(screen),
 						  ctarget, x, y, &lx, &ly, &ctarget);
 			}
 		    }
@@ -3515,30 +3517,27 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	{
 	    if ( keywidget && keywidget->isEnabled() ) { // should always exist
 #ifndef QT_NO_XIM
-		if ( (qt_xim_style & XIMPreeditCallbacks) && event->xkey.keycode == 0 ) {
+		QInputContext *qic =
+		    (QInputContext *) keywidget->topLevelWidget()->topData()->xic;
+
+		if ((qt_xim_style & XIMPreeditCallbacks) && event->xkey.keycode == 0 &&
+		     qic && qic->composing && qic->focusWidget) {
 		    // input method has sent us a commit string
-		    QInputContext *qic =
-			(QInputContext *) keywidget->topLevelWidget()->topData()->xic;
-		    if ( qic && qic->composing && qic->focusWidget ) {
-			QCString data(513);
-			KeySym sym;    // unused
-			Status status; // unused
-			QString text;
-			int count = qic->lookupString( &(event->xkey), data,
-						       &sym, &status );
-			if ( count > 0 )
-			    text = input_mapper->toUnicode( data, count );
+		    QCString data(513);
+		    KeySym sym;    // unused
+		    Status status; // unused
+		    QString text;
+		    int count = qic->lookupString( &(event->xkey), data,
+						   &sym, &status );
+		    if ( count > 0 )
+			text = input_mapper->toUnicode( data, count );
 
-			// qDebug( "sending IMEnd with %d chars", text.length() );
-			QIMEvent endevent( QEvent::IMEnd, text, -1 );
-			QApplication::sendEvent( qic->focusWidget, &endevent );
+		    // qDebug( "sending IMEnd with %d chars", text.length() );
+		    QIMEvent endevent( QEvent::IMEnd, text, -1 );
+		    QApplication::sendEvent( qic->focusWidget, &endevent );
 
-			qic->focusWidget = 0;
-			qic->text = QString::null;
-		    } else {
-			// qDebug( "invalid keypress, reseting input context" );
-			if ( qic ) qic->reset();
-		    }
+		    qic->focusWidget = 0;
+		    qic->text = QString::null;
 		} else
 #endif // !QT_NO_XIM
 		    {
