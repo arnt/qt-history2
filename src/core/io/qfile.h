@@ -66,6 +66,11 @@ public:
 
     virtual Q_LONG readBlock(char *data, Q_LONG len);
     virtual Q_LONG writeBlock(const char *data, Q_LONG len);
+#ifdef Q_NO_USING_KEYWORD
+    inline Q_LONG writeBlock(const QByteArray &ba) { return QIODevice::writeBlock(ba); }
+#else
+    using QIODevice::writeBlock;
+#endif
     virtual Q_LONG readLine(char *data, Q_LONG maxlen);
     Q_LONG readLine(QString &string, Q_LONG maxlen);
 

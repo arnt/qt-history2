@@ -39,7 +39,7 @@ public:
     ~QMenu();
 
 #ifdef Q_NO_USING_KEYWORD
-    void addAction(QAction *action) { QWidget::addAction(action); }
+    inline void addAction(QAction *action) { QWidget::addAction(action); }
 #else
     using QWidget::addAction;
 #endif
