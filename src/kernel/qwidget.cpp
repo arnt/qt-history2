@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#100 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#99 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#100 $")
 
 
 /*----------------------------------------------------------------------------
@@ -992,6 +992,7 @@ bool QWidget::close( bool forceKill )
 bool QWidget::isActive() const
 {
     warning( "QWidget::isActive: This function is OBSOLETE" );
+    return FALSE;  // it's not really the truth, so don't return TRUE :)
 }
 
 #endif // OBSOLETE
