@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#167 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#168 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -270,7 +270,7 @@ bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes )
   Sets or clears a pointer flag.
 */
 
-void QPainter::setf( ushort b, bool v )
+void QPainter::setf( uint b, bool v )
 {
     if ( v )
 	setf( b );

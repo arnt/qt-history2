@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#135 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#136 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -2057,7 +2057,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
 	    if ( testf(ExtDev) ) {		// to printer
-		ushort oldf = flags;
+		uint oldf = flags;
 		flags &= ~(VxF|WxF);
 		drawPixmap( x, y, *wx_bm );
 		flags = oldf;

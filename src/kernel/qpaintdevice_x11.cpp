@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#95 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -121,23 +121,73 @@ QPaintDevice::~QPaintDevice()
 	warning( "QPaintDevice: Cannot destroy paint device that is being "
 		 "painted" );
 #endif
+    if ( x11Data ) {
+	delete x11Data;
+	x11Data = 0;
+    }	
 }
 
 
 /*
+  \internal
   Copy X11-specific data (which normally is null).
 */
 
 void QPaintDevice::copyX11Data( const QPaintDevice *fromDevice )
 {
-    if ( fromDevice->x11Data ) {
+    setX11Data( fromDevice ? fromDevice->x11Data : 0 );
+}
+
+/*
+  \internal
+
+  Set the x11-specific data
+*/
+  
+void QPaintDevice::setX11Data( const QPaintDeviceX11Data* d )
+{
+    if ( d ) {
 	if ( !x11Data )
 	    x11Data = new QPaintDeviceX11Data;
-	*x11Data = *fromDevice->x11Data;
-    } else if ( x11Data ) {
+	*x11Data = *d;
+    } 
+    else if ( x11Data ) {
 	delete x11Data;
 	x11Data = 0;
     }
+}
+    
+
+/*
+  \internal
+
+  If \a def is FALSE, returns a copy of the x11Data, or 0 if x11Data is 0.
+  If \a def is TRUE, makes a QPaintDeviceX11Data struct filled with the default
+  values.
+  In any case the caller is responsible for deleting the returned struct.
+*/
+
+
+QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
+{
+    QPaintDeviceX11Data* res = 0;
+
+    if ( def ) {
+	res = new QPaintDeviceX11Data;
+	res->x_display = x11AppDisplay();
+	res->x_screen = x11AppScreen();
+	res->x_depth = x11AppDepth();
+	res->x_cells = x11AppCells();
+	res->x_colormap = x11Colormap();
+	res->x_defcolormap = x11AppDefaultColormap();
+	res->x_visual = x11AppVisual();
+	res->x_defvisual = x11AppDefaultVisual();
+    }
+    else if ( x11Data ) {
+	res = new QPaintDeviceX11Data;
+	*res = *x11Data;
+    }
+    return res;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#127 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#128 $
 **
 ** Definition of QPainter class
 **
@@ -255,12 +255,13 @@ private:
     enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04, NoCache=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, SafePolygon=0x80, MonoDev=0x100,
 	   DirtyFont=0x200, DirtyPen=0x400, DirtyBrush=0x800,
-	   RGBColor=0x1000, FontMet=0x2000, FontInf=0x4000, CtorBegin=0x8000 };
-    ushort	flags;
-    bool	testf( ushort b ) const { return (flags&b)!=0; }
-    void	setf( ushort b )	{ flags |= b; }
-    void	setf( ushort b, bool v );
-    void	clearf( ushort b )	{ flags &= (ushort)(~b); }
+	   RGBColor=0x1000, FontMet=0x2000, FontInf=0x4000, CtorBegin=0x8000,
+           UsePrivateCx = 0x10000 };
+    uint	flags;
+    bool	testf( uint b ) const { return (flags&b)!=0; }
+    void	setf( uint b )	{ flags |= b; }
+    void	setf( uint b, bool v );
+    void	clearf( uint b )	{ flags &= (uint)(~b); }
     void	fix_neg_rect( int *x, int *y, int *w, int *h );
 
     QPaintDevice *pdev;

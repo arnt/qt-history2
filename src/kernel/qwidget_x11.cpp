@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#333 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#334 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -128,6 +128,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     setWState( WState_Created );			// set created flag
     clearWState( WState_USPositionX );
     clearWState( WState_DND );
+    setX11Data( 0 );
 
     if ( !parentWidget() )
 	setWFlags( WType_TopLevel );		// top-level widget
@@ -318,6 +319,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    clearWState( WState_Visible );
 	else
 	    setWState( WState_Visible );
+	if ( a.depth != x11AppDepth() )	{	// multi-depth system
+	    // #Handling of various X11 factors can be added here
+	    QPaintDeviceX11Data* xd = getX11Data( TRUE );
+	    xd->x_depth = a.depth;
+	    setX11Data( xd );
+	    delete xd;
+	}
     }
 
     if ( destroyw )

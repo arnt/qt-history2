@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#65 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#66 $
 **
 ** Definition of QPaintDevice class
 **
@@ -35,6 +35,10 @@
 // Painter device command param (defined in qpaintdevicedefs.h)
 
 union QPDevCmdParam;
+
+#if defined(_WS_X11_)
+struct QPaintDeviceX11Data;
+#endif
 
 
 class Q_EXPORT QPaintDevice				// device for QPainter
@@ -81,7 +85,9 @@ protected:
     HDC		hdc;				// device context
 #elif defined(_WS_X11_)
     HANDLE	hd;				// handle to drawable
-    void	copyX11Data( const QPaintDevice * );
+    void		copyX11Data( const QPaintDevice * );
+    virtual void	setX11Data( const QPaintDeviceX11Data* );
+    QPaintDeviceX11Data* getX11Data( bool def=FALSE ) const;
 #endif
 
     virtual bool cmd( int, QPainter *, QPDevCmdParam * );
@@ -111,16 +117,8 @@ private:
     static bool	    x_appdefcolormap;
     static void	   *x_appvisual;
     static bool     x_appdefvisual;
-    struct QPaintDeviceX11Data {
-	Display *x_display;
-	int	 x_screen;
-	int	 x_depth;
-	int	 x_cells;
-	HANDLE   x_colormap;
-	bool	 x_defcolormap;
-	void	*x_visual;
-	bool	 x_defvisual;
-    } *x11Data;
+
+    QPaintDeviceX11Data* x11Data;
 #endif
 
 private:	// Disabled copy constructor and operator=
@@ -141,6 +139,21 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QImage *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
 	     int conversion_flags=0 );
 
+
+#if defined(_WS_X11_)
+
+struct Q_EXPORT QPaintDeviceX11Data {
+    Display*	x_display;
+    int		x_screen;
+    int		x_depth;
+    int		x_cells;
+    HANDLE	x_colormap;
+    bool	x_defcolormap;
+    void*	x_visual;
+    bool	x_defvisual;
+};
+
+#endif
 
 /*****************************************************************************
   Inline functions
@@ -220,6 +233,8 @@ inline void bitBlt( QPaintDevice *dst, const QPoint &dp,
     bitBlt( dst, dp.x(), dp.y(), src, sr.x(), sr.y(), sr.width(), sr.height(),
 	    rop, ignoreMask );
 }
+
+
 
 
 #endif // QPAINTDEVICE_H

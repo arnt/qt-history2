@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#286 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#287 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -167,13 +167,17 @@ static void cleanup_gc_array( Display *dpy )
 
 // #define DONT_USE_GC_ARRAY
 
-static GC alloc_gc( Display *dpy, Drawable hd, bool monochrome=FALSE )
+static GC alloc_gc( Display *dpy, Drawable hd, bool monochrome=FALSE,
+		    bool privateGC = FALSE )
 {
 #if defined(DONT_USE_GC_ARRAY)
-    GC gc = XCreateGC( dpy, hd, 0, 0 );		// will be slow!
-    XSetGraphicsExposures( dpy, gc, FALSE );
-    return gc;
-#else
+    privateGC = TRUE;				// will be slower
+#endif
+    if ( privateGC ) {
+	GC gc = XCreateGC( dpy, hd, 0, 0 );	
+	XSetGraphicsExposures( dpy, gc, FALSE );
+	return gc;
+    }
     register QGC *p = gc_array;
     int i = gc_array_size;
     if ( !gc_array_init )			// not initialized
@@ -197,16 +201,18 @@ static GC alloc_gc( Display *dpy, Drawable hd, bool monochrome=FALSE )
     GC gc = XCreateGC( dpy, hd, 0, 0 );
     XSetGraphicsExposures( dpy, gc, FALSE );
     return gc;
-#endif
 }
 
-static void free_gc( Display *dpy, GC gc )
+static void free_gc( Display *dpy, GC gc, bool privateGC = FALSE )
 {
 #if defined(DONT_USE_GC_ARRAY)
-    ASSERT( dpy != 0 );
-    XFreeGC( dpy, gc );				// will be slow
-    return;
+    privateGC = TRUE;				// will be slower
 #endif
+    if ( privateGC ) {
+	ASSERT( dpy != 0 );
+	XFreeGC( dpy, gc );
+	return;
+    }
     register QGC *p = gc_array;
     int i = gc_array_size;
     if ( gc_array_init ) {
@@ -556,7 +562,7 @@ void QPainter::updatePen()
 		gc = alloc_gc( dpy, hd, testf(MonoDev) );
 	    }
 	} else {
-	    gc = alloc_gc( dpy, hd, testf(MonoDev) );
+	    gc = alloc_gc( dpy, hd, testf(MonoDev), testf(UsePrivateCx) );
 	}
     }
 
@@ -676,7 +682,7 @@ static uchar *pat_tbl[] = {
 		gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
 	    }
 	} else {
-	    gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
+	    gc_brush = alloc_gc( dpy, hd, testf(MonoDev), testf(UsePrivateCx));
 	}
     }
 
@@ -840,6 +846,11 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    setTabArray( tabarray );
     }
 
+    if ( pdev->x11Depth() != pdev->x11AppDepth() ) {	// non-standard depth
+	setf(NoCache);
+	setf(UsePrivateCx);
+    }
+
     pdev->painters++;				// also tell paint device
     bro = curPt = QPoint( 0, 0 );
     if ( reinit ) {
@@ -947,7 +958,7 @@ bool QPainter::end()				// end painting
 	    release_gc( brushRef );
 	    brushRef = 0;
 	} else {
-	    free_gc( dpy, gc_brush );
+	    free_gc( dpy, gc_brush, testf(UsePrivateCx) );
 	}
 	gc_brush = 0;
 
@@ -957,7 +968,7 @@ bool QPainter::end()				// end painting
 	    release_gc( penRef );
 	    penRef = 0;
 	} else {
-	    free_gc( dpy, gc );
+	    free_gc( dpy, gc, testf(UsePrivateCx) );
 	}
 	gc = 0;
     }
@@ -2227,7 +2238,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		map( x, y, &x, &y );		// compute position of pixmap
 		int dx, dy;
 		mat.map( 0, 0, &dx, &dy );
-		ushort save_flags = flags;
+		uint save_flags = flags;
 		flags = IsActive | (save_flags & ClipOn);
 		drawPixmap( x-dx, y-dy, pm );
 		flags = save_flags;
