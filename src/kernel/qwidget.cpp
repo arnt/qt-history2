@@ -5419,6 +5419,7 @@ void QWidget::showFullScreen()
 {
     if ( !isTopLevel() )
 	return;
+    const QRect screen = qApp->desktop()->screenGeometry( qApp->desktop()->screenNumber( this ) );
     if ( topData()->fullscreen ) {
 #if defined(Q_WS_QWS)
 	resize( screen.size() );
@@ -5427,7 +5428,6 @@ void QWidget::showFullScreen()
 	raise();
 	return;
     }
-    const QRect screen = qApp->desktop()->screenGeometry( qApp->desktop()->screenNumber( this ) );
     if ( topData()->normalGeometry.width() < 0 )
 	topData()->normalGeometry = QRect( pos(), size() );
     reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
