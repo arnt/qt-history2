@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#72 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#72 $");
 
 
 /*****************************************************************************
@@ -888,7 +888,8 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
     }
     else if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
 	if ( widget->isEnabled() ) {
-	    if ( message == WM_LBUTTONDOWN && (w->focusPolicy() & ClickFocus) )
+	    if ( message == WM_LBUTTONDOWN &&
+		 (widget->focusPolicy() & QWidget::ClickFocus) )
 		widget->setFocus(); 
 	    widget->translateMouseEvent( msg ); // mouse event
 	}
