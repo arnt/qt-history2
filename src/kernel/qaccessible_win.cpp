@@ -6,7 +6,6 @@
 #include "qt_windows.h"
 #include "qwidget.h"
 #include "qobjectlist.h"
-#include "qwhatsthis.h"
 
 #include <winable.h>
 #include <oleacc.h>
@@ -352,8 +351,8 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accRole( VARIANT varID, VARIAN
 { 
     int role = accessible->role( varID.lVal );
     if ( role != QAccessible::NoRole ) {
-	(*pvarRole).lVal = role;
 	(*pvarRole).vt = VT_I4;
+	(*pvarRole).lVal = role;	
     } else {
 	(*pvarRole).vt = VT_EMPTY;
     }
