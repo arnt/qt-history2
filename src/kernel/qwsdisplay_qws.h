@@ -127,8 +127,9 @@ public:
 	{ lock->lock( write ? QLock::Write : QLock::Read ); }
     static void ungrab() { lock->unlock(); }
 
+#ifdef QT_QWS_DYNAMIC_TRANSFORMATION
     static void setTransformation( int t );
-
+#endif
     static void setRawMouseEventFilter( void (*filter)(QWSMouseEvent *) );
 
 private:

@@ -1222,6 +1222,7 @@ void QWSDisplay::setRawMouseEventFilter( void (*filter)(QWSMouseEvent *) )
 	qt_fbdpy->d->setMouseFilter(filter);
 }
 
+#ifdef QT_QWS_DYNAMIC_TRANSFORMATION
 #ifndef QT_NO_QWS_TRANSFORMED
 extern void qws_setScreenTransformation( int );
 extern void qws_mapPixmaps( bool from );
@@ -1274,6 +1275,7 @@ void QWSDisplay::setTransformation( int t )
 	qt_setMaxWindowRect( mwr );
 #endif
 }
+#endif
 
 static bool	qt_try_modal( QWidget *, QWSEvent * );
 
