@@ -4,6 +4,7 @@
 #include <qlayout.h>
 #include <qsqlform.h>
 #include <qsqleditorfactory.h>
+#include <qsqlpropertymap.h>
 #include <qlabel.h>
 #include <qfont.h>
 #include <qpushbutton.h>
@@ -61,34 +62,34 @@ MatchDialog::MatchDialog( QSqlRecord* buf, Mode mode, QWidget * parent,
     wteam->setTeamId( buf->value("winnerid").toInt() );
     formLayout->addWidget( fLabel, 0, 0 );
     formLayout->addWidget( wteam, 0, 1 );
-    form->associate( wteam, buf->field("winnerid") );
+    form->insert( wteam, buf->field("winnerid") );
 
     fLabel = new QLabel( buf->displayLabel("loser"), w );
     lteam = new TeamPicker( w );
     lteam->setTeamId( buf->value("loserid").toInt() );
     formLayout->addWidget( fLabel, 0, 2 );
     formLayout->addWidget( lteam, 0, 3 );
-    form->associate( lteam, buf->field("loserid") );
+    form->insert( lteam, buf->field("loserid") );
 
     fLabel = new QLabel( buf->displayLabel("winnerwins"), w );
     wins = new QSpinBox( w );
     formLayout->addWidget( fLabel, 1, 0 );
     formLayout->addWidget( wins, 1, 1 );
-    form->associate( wins, buf->field("winnerwins") );
+    form->insert( wins, buf->field("winnerwins") );
     connect( wins, SIGNAL( valueChanged(int) ), SLOT( updateSets() ) );
 
     fLabel = new QLabel( buf->displayLabel("loserwins"), w );
     losses = new QSpinBox( w );
     formLayout->addWidget( fLabel, 1, 2 );
     formLayout->addWidget( losses, 1, 3 );
-    form->associate( losses, buf->field("loserwins") );
+    form->insert( losses, buf->field("loserwins") );
     connect( losses, SIGNAL( valueChanged(int) ), SLOT( updateSets() ) );
 
     fLabel = new QLabel( buf->displayLabel("date"), w );
     editor = new QDateEdit( buf->value("date").toDate(), w );
     formLayout->addWidget( fLabel, 2, 0 );
     formLayout->addWidget( editor, 2, 1 );
-    form->associate( editor, buf->field("date") );
+    form->insert( editor, buf->field("date") );
 
     fLabel = new QLabel( "Sets", w );
     sets = new QLineEdit( w );
