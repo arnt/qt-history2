@@ -87,7 +87,7 @@ private:
     friend class Q4MenuBarPrivate;
     friend class QTornOffMenu;
 #ifdef Q_WS_MAC
-    friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent);
+    friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
 #endif
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
     Q4Menu(const Q4Menu &);
@@ -142,7 +142,7 @@ private:
     friend class Q4Menu;
     friend class Q4MenuPrivate;
 #ifdef Q_WS_MAC
-    friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent);
+    friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
 #endif
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
     Q4MenuBar(const Q4MenuBar &);

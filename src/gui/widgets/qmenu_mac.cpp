@@ -74,7 +74,7 @@ inline static void qt_mac_clear_menubar()
     InvalMenuBar();
 }
 
-bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent action_e)
+bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent action_e, bool by_accel)
 {
     MenuItemIndex index;
     {
@@ -88,10 +88,12 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
     }
 
     //fire event
-    QAction *action = 0;
+    QMacMenuAction *action = 0;
     if(GetMenuItemProperty(menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), 0, &action) != noErr)
 	return false;
-    action->activate(action_e);
+    if(action_e == QAction::Trigger && by_accel && action->ignore_accel) //no, not a real accel (ie tab)
+	return false;
+    action->action->activate(action_e);
 
     //now walk up firing for each "caused" widget (like in the platform independant menu)
     while(menu) {
@@ -100,14 +102,14 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
 	GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0, &widget);
 	if(Q4Menu *qmenu = ::qt_cast<Q4Menu*>(widget)) {
 	    if(action_e == QAction::Trigger) 
-		emit qmenu->activated(action);
+		emit qmenu->activated(action->action);
 	    else if(action_e == QAction::Hover)
-		emit qmenu->highlighted(action);
+		emit qmenu->highlighted(action->action);
 	} else if(Q4MenuBar *qmenubar = ::qt_cast<Q4MenuBar*>(widget)) {
 	    if(action_e == QAction::Trigger) 
-		emit qmenubar->activated(action);
+		emit qmenubar->activated(action->action);
 	    else if(action_e == QAction::Hover)
-		emit qmenubar->highlighted(action);
+		emit qmenubar->highlighted(action->action);
 	    break; //nothing more..
 	}
 
@@ -139,7 +141,11 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
 	HICommand cmd;
 	GetEventParameter(event, kEventParamDirectObject, typeHICommand,
 			  0, sizeof(cmd), 0, &cmd);
-	handled_event = qt_mac_activate_action(cmd.menu.menuRef, cmd.commandID, QAction::Trigger);
+	UInt32 context;
+	GetEventParameter(event, kEventParamMenuContext, typeUInt32,
+			  0, sizeof(context), 0, &context);
+	handled_event = qt_mac_activate_action(cmd.menu.menuRef, cmd.commandID, 
+					       QAction::Trigger, context & kMenuContextKeyMatching);
 	break; }
     case kEventClassMenu: {
 	MenuRef menu;
@@ -148,7 +154,7 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
 	    MenuCommand command;
 	    GetEventParameter(event, kEventParamMenuCommand, typeMenuCommand,
 			      0, sizeof(command), 0, &command);
-	    handled_event = qt_mac_activate_action(menu, command, QAction::Hover);
+	    handled_event = qt_mac_activate_action(menu, command, QAction::Hover, false);
 	} else {
 	    handled_event = false;
 	}
@@ -233,10 +239,7 @@ Q4MenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction
 	InsertMenuItemTextWithCFString(menu, 0, before_index-1, attr, action->command);
     else
 	AppendMenuItemTextWithCFString(menu, 0, attr, action->command, &index);
-    {
-	QAction *qaction = action->action;
-	SetMenuItemProperty(menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(qaction), &qaction);
-    }
+    SetMenuItemProperty(menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
     syncAction(action);
 }
 
@@ -444,10 +447,7 @@ Q4MenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenu
 	InsertMenuItemTextWithCFString(menu, 0, before_index-1, 0, action->command);
     else
 	AppendMenuItemTextWithCFString(menu, 0, 0, action->command, &index);
-    {
-	QAction *qaction = action->action;
-	SetMenuItemProperty(menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(qaction), &qaction);
-    }
+    SetMenuItemProperty(menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
     syncAction(action);
 }
 
