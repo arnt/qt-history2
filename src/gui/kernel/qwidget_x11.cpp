@@ -2094,7 +2094,9 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         w = qMax(1, w);
         h = qMax(1, h);
     } else {
-        data.window_state &= ~(Qt::WindowMaximized | Qt::WindowFullScreen);
+        uint s = data.window_state;
+        s &= ~(Qt::WindowMaximized | Qt::WindowFullScreen);
+        data.window_state = s;
     }
     if (extra) {                                // any size restrictions?
         w = qMin(w,extra->maxw);
