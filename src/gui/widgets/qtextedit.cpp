@@ -581,7 +581,8 @@ void QTextEdit::clear()
     if (d->readOnly)
 	return;
     selectAll();
-    cut();
+    d->cursor.removeSelectedText();
+    d->selectionChanged();
 }
 
 void QTextEdit::selectAll()
