@@ -604,65 +604,62 @@ void QMenuBar::cleanup()
 
 bool QMenuBar::macUpdateMenuBar()
 {
+    QMenuBar *mb = NULL;
+    bool fall_back_to_empty = FALSE;
+    //find a menubar
+    if(menubars) {
+	QWidget *w = qApp->activeWindow();
+	if(!w) {
+	    WindowClass c;
+	    for(WindowPtr wp = FrontWindow(); wp; wp = GetNextWindow(wp)) {
+		if(GetWindowClass(wp, &c))
+		    break;
+		if(c == kOverlayWindowClass) 
+		    continue;
+		w = QWidget::find((WId)wp);
+		break;
+	    }
+	}
+	if(!w) //last ditch effort
+	    w = qApp->mainWidget();
+	if(w) {
+	    mb = menubars->find((int)w);
+	    if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop()) && w->inherits("QDockWindow")) {
+		if(QWidget *area = ((QDockWindow*)w)->area()) {
+		    QWidget *areaTL = area->topLevelWidget();
+		    if((mb = menubars->find((int)areaTL))) 
+			w = areaTL;
+		}
+	    }
+	    while(w && !w->testWFlags(WShowModal) && !mb) 
+		mb = menubars->find((int)(w = w->parentWidget()));
+	    if(!w || (!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup)))
+		fall_back_to_empty = TRUE;
+	}
+    }
+    if(!mb)
+	mb = fallbackMenuBar;
+    //now set it
     static bool first = TRUE;
-    if(!menubars && !fallbackMenuBar) {
-	if(first) {
-	    first = FALSE;
-	    ClearMenuBar();
+    if(mb) {
+	if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar))) 
+		return mb->mac_eaten_menubar;
+	first = FALSE;
+	activeMenuBar = mb;
+	if(mb->mac_d->dirty || !mb->mac_d->mac_menubar) {
+	    mb->mac_d->dirty = 0;
+	    mb->updateMenuBar();
+	    mb->mac_d->mac_menubar = GetMenuBar();
+	} else {
+	    SetMenuBar(mb->mac_d->mac_menubar);
 	    InvalMenuBar();
 	}
-	return FALSE;
-    }
-    QWidget *w = qApp->activeWindow();
-    if(!w) {
-	WindowClass c;
-	for(WindowPtr wp = FrontWindow(); wp; wp = GetNextWindow(wp)) {
-	    if(GetWindowClass(wp, &c))
-		break;
-	    if(c == kOverlayWindowClass) 
-		continue;
-	    w = QWidget::find((WId)wp);
-	    break;
-	}
-    }
-    if(!w) //last ditch effort
-	w = qApp->mainWidget();
-    if(w) {
-	QMenuBar *mb = menubars->find((int)w);
-	if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop()) && w->inherits("QDockWindow")) {
-	    if(QWidget *area = ((QDockWindow*)w)->area()) {
-		QWidget *areaTL = area->topLevelWidget();
-		if((mb = menubars->find((int)areaTL))) 
-		    w = areaTL;
-	    }
-	}
-	while(w && !w->testWFlags(WShowModal) && !mb) 
-	    mb = menubars->find((int)(w = w->parentWidget()));
-	if(!mb)
-	    mb = fallbackMenuBar;
-  	if(mb) {
-	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar))) 
-		return mb->mac_eaten_menubar;
-	    first = FALSE;
-	    activeMenuBar = mb;
-	    if(mb->mac_d->dirty || !mb->mac_d->mac_menubar) {
-		mb->mac_d->dirty = 0;
-		mb->updateMenuBar();
-		mb->mac_d->mac_menubar = GetMenuBar();
-	    } else {
-		SetMenuBar(mb->mac_d->mac_menubar);
-		InvalMenuBar();
-	    }
-	    return TRUE;
-	} else {
-	    if(first || !w || 
-		(!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup))) {
-	    	first = FALSE;
-		activeMenuBar = 0;
-		ClearMenuBar();
-		InvalMenuBar();
-	    }
-	}
+	return TRUE;
+    } else if(first || fall_back_to_empty) {
+	first = FALSE;
+	activeMenuBar = NULL;
+	ClearMenuBar();
+	InvalMenuBar();
     }
     return FALSE;
 }
