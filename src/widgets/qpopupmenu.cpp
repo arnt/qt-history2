@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#125 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#126 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -20,7 +20,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#125 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#126 $");
 
 
 // Motif style parameters
@@ -503,8 +503,9 @@ void QPopupMenu::frameChanged()
 
 
 /*!
-  Opens the popup menu so that the item number \e indexAtPoint
-  will be at the specified global position \e pos.
+  Opens the popup menu so that the item number \a indexAtPoint will be
+  at the specified \e global position \a pos.  To translate a widget's
+  local coordinates into global coordinates, use QWidget::mapToGlobal().
 */
 
 void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
