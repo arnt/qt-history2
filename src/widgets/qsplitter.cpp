@@ -694,9 +694,9 @@ void QSplitter::getRange( int id, int *farMin, int *min, int *max, int *farMax )
     int leftMinSize = 0;
     int leftId = id - 1;
     do {
-	QWidget *w = data->list.at( leftId )->wid;
+	QWidget *w = d->list.at( leftId )->wid;
 	if ( !w->isHidden() ) {
-	    if ( collapsible(data->list.at(rightId)) )
+	    if ( collapsible(d->list.at(leftId)) )
 		leftMinSize = pick( qSmartMinSize(w) );
 	    break;
 	}
@@ -706,9 +706,9 @@ void QSplitter::getRange( int id, int *farMin, int *min, int *max, int *farMax )
     int rightMinSize = 0;
     int rightId = id + 1;
     do {
-	QWidget *w = data->list.at( rightId )->wid;
+	QWidget *w = d->list.at( rightId )->wid;
 	if ( !w->isHidden() ) {
-	    if ( collapsible(data->list.at(rightId)) )
+	    if ( collapsible(d->list.at(rightId)) )
 		rightMinSize = pick( qSmartMinSize(w) );
 	    break;
 	}
