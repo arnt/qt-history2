@@ -2258,7 +2258,7 @@ void QListBox::contentsContextMenuEvent( QContextMenuEvent *e )
 	    emit contextMenuRequested( i, mapToGlobal( r.topLeft() + QPoint( width() / 2, r.height() / 2 ) ) );
 	}
     } else {
-	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
+	QMouseEvent me( QEvent::MouseButtonPress, contentsToViewport(e->pos()), e->globalPos(), RightButton, e->state() );
 	d->context_menu = TRUE;
 	mousePressEvent( &me );
 	d->context_menu = FALSE;
