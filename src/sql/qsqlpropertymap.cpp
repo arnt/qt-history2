@@ -128,7 +128,8 @@ Constructs a QSqlPropertyMap.
 The default property mappings used by Qt widgets are:
 \table
 \header \i Widgets \i Property
-\row \i \l QCheckBox
+\row \i \l QCheckBox,
+	\l QRadioButton
      \i checked
 \row \i \l QComboBox,
 	\l QListBox
@@ -145,7 +146,6 @@ The default property mappings used by Qt widgets are:
 	\l QLineEdit,
 	\l QMultiLineEdit,
 	\l QPushButton,
-	\l QRadioButton,
 	\l QTextEdit,
      \i text
 \row \i \l QTimeEdit
@@ -167,6 +167,7 @@ QSqlPropertyMap::QSqlPropertyMap()
     } mapData[] = {
 	{ "QButton", 		"text" },
 	{ "QCheckBox", 		"checked" },
+	{ "QRadioButton",	"checked" },
 	{ "QComboBox", 		"currentItem" },
 	{ "QDateEdit", 		"date" },
 	{ "QDateTimeEdit",	"dateTime" },
@@ -177,7 +178,6 @@ QSqlPropertyMap::QSqlPropertyMap()
 	{ "QListBox",		"currentItem" },
 	{ "QMultiLineEdit",	"text" },
 	{ "QPushButton",	"text" },
-	{ "QRadioButton",	"text" },
 	{ "QScrollBar",		"value" },
 	{ "QSlider",		"value" },
 	{ "QSpinBox",		"value" },
