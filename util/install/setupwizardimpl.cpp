@@ -853,6 +853,14 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
 	item->setOn( entry == "Direct" );
 
+	entry = settings.readEntry( "/Trolltech/Qt/Advanced C++", "Off", &settingsOK );
+	folder = new QCheckListItem( advancedList, "Advanced C++" );
+	folder->setOpen( true );
+	advancedCppOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	advancedCppOff->setOn( entry == "Off" );
+	advancedCppOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
+	advancedCppOn->setOn( entry == "On" );
+
 	folder = new QCheckListItem( advancedList, "Tablet Support" );
 	folder->setOpen( true );
 	entry = settings.readEntry( "/Trolltech/Qt/Tablet Support", "Off", &settingsOK );
@@ -1062,6 +1070,12 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    args += "-tablet";
 	else
 	    args += "-no-tablet";
+
+	entry = settings.readEntry( "/Trolltech/Qt/Advanced C++", "Off", &settingsOK );
+	if ( entry == "On" )
+	    args += "-stl";
+	else
+	    args += "-no-stl";
 
 	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/PNG", "Direct", &settingsOK );
 	if ( entry == "Plugin" )
@@ -1425,6 +1439,15 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 				"To use a supported tablet, you must have built the Wintab SDK available "
 				"at http://www.pointing.com/FTP.HTM and have your INCLUDE and LIBRARY path "
 				"set appropriately." );
+    } else if ( i->text(0) == "Advanced C++" ) {
+	explainOption->setText( "Qt can be built with exception handling and STL support enabled or "
+				"disabled. The default is to disable advanced C++ features." );
+    } else if ( i == advancedCppOn ) {
+	explainOption->setText( "This option builds Qt with exception handling and STL support enabled. "
+				"Depending on your compiler, this might cause slower execution, larger "
+				"binaries, or compiler issues." );
+    } else if ( i == advancedCppOff ) {
+	explainOption->setText( "This option turns advanced C++ features off when building Qt." );
     } else if ( i->text(0) == "Image Formats" ) {
 	explainOption->setText( "Qt ships with support for a wide range of common image formats. "
 				"Standard formats are always included in Qt, and some more special formats "

@@ -105,6 +105,8 @@ private:
 
     QCheckListItem *tabletOn, *tabletOff;
 
+    QCheckListItem *advancedCppOn, *advancedCppOff;
+
     QCheckListItem *mngPresent, *mngDirect, *mngPlugin, *mngOff;
     QCheckListItem *jpegPresent, *jpegDirect, *jpegPlugin, *jpegOff;
     QCheckListItem *pngPresent, *pngDirect, *pngPlugin, *pngOff;
