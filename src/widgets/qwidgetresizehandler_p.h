@@ -51,7 +51,7 @@ class Q_EXPORT QWidgetResizeHandler : public QObject
 
 public:
     QWidgetResizeHandler( QWidget *parent, QWidget *cw = 0, const char *name = 0 );
-    void setActive( bool b ) { active = b; }
+    void setActive( bool b ) { active = b; if ( !active ) setMouseCursor( Nowhere ); }
     bool isActive() const { return active; }
     void setMovingEnabled( bool b ) { moving = b; }
     bool isMovingEnabled() const { return moving; }
