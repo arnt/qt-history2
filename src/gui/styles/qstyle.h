@@ -702,6 +702,7 @@ public:
 private:
     Q_DISABLE_COPY(QStyle)
 
+protected:
 #if defined(QT_COMPAT) && !defined(QT_NO_UNRESOLVED_EXTERNALS)
     // Cause a compile error when trying to use style functions that
     // accept QColorGroup arguments. Remove in Qt 5.x.
