@@ -173,26 +173,25 @@ public:
     void setInputWidget(QWidget *w) { act = w; }
     QWidget *inputWidget() const { return act; }
 };
-static QHash<Qt::HANDLE, QTSMDocumentWrapper *> *qt_mac_tsm_hash = 0;
+static QHash<Qt::HANDLE, QTSMDocumentWrapper *> qt_mac_tsm_hash;
 void qt_mac_unicode_init(QWidget *w)
 {
-    if(!qt_mac_tsm_hash) {
-	qt_mac_tsm_hash = new QHash<Qt::HANDLE, QTSMDocumentWrapper*>();
-    } else if(qt_mac_tsm_hash->contains(w->handle())) {
-	return;
-    }
-    qt_mac_tsm_hash->insert(w->handle(), new QTSMDocumentWrapper());
+    qt_mac_tsm_hash.ensure_constructed();
+    if(!qt_mac_tsm_hash.contains(w->handle()))
+	qt_mac_tsm_hash.insert(w->handle(), new QTSMDocumentWrapper());
 }
 void qt_mac_unicode_cleanup(QWidget *w)
 {
-    if(w && qt_mac_tsm_hash && w->isTopLevel())
-	delete qt_mac_tsm_hash->take(w->handle());
+    if(w && w->isTopLevel()) {
+	qt_mac_tsm_hash.ensure_constructed();
+	delete qt_mac_tsm_hash.take(w->handle());
+    }
 }
 static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w)
 {
-    if(!w || !qt_mac_tsm_hash || !qt_mac_tsm_hash->contains(w->handle()))
+    if(!w)
 	return 0;
-    return qt_mac_tsm_hash->value(w->handle());
+    return qt_mac_tsm_hash.value(w->handle());
 }
 void qt_mac_unicode_reset_input(QWidget *w)
 {
@@ -1019,16 +1018,13 @@ void qt_cleanup()
 	    qt_mac_safe_pdev = 0;
 	}
     }
-    if(qt_mac_tsm_hash) {
-	QHash<Qt::HANDLE, QTSMDocumentWrapper *>::ConstIterator it = qt_mac_tsm_hash->constBegin();
-	while (it != qt_mac_tsm_hash->end()) {
-	    QTSMDocumentWrapper *val = it.value();
-	    delete val;
-	    ++it;
-	}
-	delete qt_mac_tsm_hash;
-	qt_mac_tsm_hash = 0;
+
+    QHash<Qt::HANDLE, QTSMDocumentWrapper *>::ConstIterator it = qt_mac_tsm_hash.constBegin();
+    while (it != qt_mac_tsm_hash.end()) {
+	delete it.value();
+	++it;
     }
+    qt_mac_tsm_hash.clear();
 }
 
 /*****************************************************************************
