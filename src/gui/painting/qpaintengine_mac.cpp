@@ -1104,6 +1104,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     setDirty(QPaintEngine::DirtyPen);
     setDirty(QPaintEngine::DirtyBrush);
     setDirty(QPaintEngine::DirtyBackground);
+    setDirty(QPaintEngine::DirtyHints);
     return true;
 }
 
