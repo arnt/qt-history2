@@ -1,13 +1,13 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QSqlDriverPlugin class
 **
 ** Created : 010920
 **
-** Copyright (C) 2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
-** This file is part of the widgets module of the Qt GUI Toolkit.
+** This file is part of the sql module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Trolltech AS of Norway and appearing in the file

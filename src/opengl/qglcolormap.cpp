@@ -1,13 +1,13 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QGLColormap class
 **
 ** Created : 20010326
 **
-** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the opengl module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Trolltech AS of Norway and appearing in the file
