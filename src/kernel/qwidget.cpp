@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#201 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#202 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#201 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#202 $");
 
 
 /*!
@@ -591,6 +591,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
     flags = f;
+    focusChild = 0;
     extra = 0;					// no extra widget info
     if ( !deferredMoves )			// do it only once
 	initDeferredDicts();
@@ -2199,6 +2200,9 @@ void QWidget::setCRect( const QRect &r )
 
 void QWidget::setFocusPolicy( FocusPolicy policy )
 {
+    if ( focusProxy() )
+	focusProxy()->setFocusPolicy( policy );
+
     if ( policy ) {
 	QFocusData * f = focusData( TRUE );
 	if ( f->focusWidgets.findRef( this ) < 0 )
