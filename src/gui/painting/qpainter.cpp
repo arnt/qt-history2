@@ -1311,31 +1311,24 @@ void QPainter::drawPath(const QPainterPath &path)
 
     // Fill the path...
     if (d->state->brush.style() != Qt::NoBrush) {
-//         QRect outBounds;
-//         QRect pathBounds = d->state->clipRegion.boundingRect();
-//         QBitmap scanlines = pd->scanToBitmap(pathBounds, worldMatrix, &outBounds);
-// 	if ((d->state->brush.color().alpha() != 255 ) // ### should be: && !d->engine->hasFeature(QPaintEngine::SolidAlphaFill))
-// 	    || (d->state->brush.style() == Qt::LinearGradientPattern
-// 		&& !d->engine->hasFeature(QPaintEngine::LinearGradients))) {
-// 	    save();
-// 	    setPen(Qt::NoPen);
-// 	    translate(outBounds.left(), outBounds.top());
-// 	    setClipRegion(scanlines);
-// 	    drawRect(0, 0, outBounds.width(), outBounds.height());
-// 	    restore();
-// 	} else {
-// 	    QPen oldPen = d->state->pen;
-// 	    setPen(d->state->brush.color());
-// 	    drawPixmap(outBounds.topLeft(), scanlines);
-// 	    setPen(oldPen);
-// 	}
-        QPointArray p;
-        for (int i=0; i<polygons.size(); ++i) {
-            p += polygons.at(i);
-            if (!polygons.at(i).isEmpty() && polygons.at(i).first() != polygons.at(i).last())
-                p += polygons.at(i).first();
-        }
-        drawPolygon(p);
+        QRect outBounds;
+        QRect pathBounds = d->state->clipRegion.boundingRect();
+        QBitmap scanlines = pd->scanToBitmap(pathBounds, worldMatrix, &outBounds);
+	if ((d->state->brush.color().alpha() != 255 ) // ### should be: && !d->engine->hasFeature(QPaintEngine::SolidAlphaFill))
+	    || (d->state->brush.style() == Qt::LinearGradientPattern
+		&& !d->engine->hasFeature(QPaintEngine::LinearGradients))) {
+	    save();
+	    setPen(Qt::NoPen);
+	    translate(outBounds.left(), outBounds.top());
+	    setClipRegion(scanlines);
+	    drawRect(0, 0, outBounds.width(), outBounds.height());
+	    restore();
+	} else {
+	    QPen oldPen = d->state->pen;
+	    setPen(d->state->brush.color());
+	    drawPixmap(outBounds.topLeft(), scanlines);
+	    setPen(oldPen);
+	}
     }
 
     // Draw the outline of the path...
