@@ -1506,10 +1506,6 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
                               kHIThemeOrientationNormal);
     }
 
-    if (QLineEdit *lined = qt_cast<QLineEdit*>(w)) {
-        if (qt_cast<QComboBox*>(w->parentWidget()) && !lined->testAttribute(Qt::WA_SetFont))
-            lined->setFont(*qt_app_fonts_hash()->find("QComboLineEdit"));
-    }
     if (::qt_cast<QMenu*>(w)) {
         px.resize(200, 200);
         HIThemeMenuDrawInfo mtinfo;
@@ -4657,6 +4653,12 @@ void QMacStyle::polish(QApplication* app)
 /*! \reimp */
 void QMacStyle::polish(QWidget* w)
 {
+    if (QLineEdit *lined = qt_cast<QLineEdit*>(w)) {
+        if (qt_cast<QComboBox*>(lined->parentWidget())
+		&& !lined->testAttribute(Qt::WA_SetFont))
+            lined->setFont(*qt_app_fonts_hash()->find("QComboLineEdit"));
+    }
+
     if (d->useHITheme)
 	d->HIThemePolish(w);
     else
