@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#34 $
 **
 ** Implementation of movie classes
 **
@@ -194,6 +194,11 @@ void QMoviePrivate::init(bool fully)
 
     delete decoder;
     decoder = fully ? new QImageDecoder(this) : 0;
+
+#ifdef AVOID_OPEN_FDS
+    if ( source && !source->isOpen() )
+	source->open(IO_ReadOnly);
+#endif
 
     waitingForFrameTick = FALSE;
     stepping = -1;
@@ -416,6 +421,10 @@ void QMoviePrivate::eof()
 	    delete [] buffer;
 	buffer = 0;
 	emit dataStatus(QMovie::EndOfMovie);
+#ifdef AVOID_OPEN_FDS
+	if ( source )
+	    source->close();
+#endif
     }
 }
 
@@ -825,7 +834,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Sep 4 15:31:20 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.33 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.34 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
