@@ -25,6 +25,8 @@
 #define QT_POPEN popen
 #endif
 
+struct FileFixifyCacheKey;
+
 class MakefileGenerator : protected QMakeSourceFileInfo
 {
     QString spec;
