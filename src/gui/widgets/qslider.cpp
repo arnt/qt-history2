@@ -76,8 +76,7 @@ int QSliderPrivate::pixelPosToRangeValue(int pos) const
         sliderMin = gr.y();
         sliderMax = gr.bottom() - sliderLength + 1;
     }
-    return QStyle::valueFromPosition(d->minimum, d->maximum, pos - sliderMin, sliderMax - sliderMin,
-                                     (!d->invertedAppearance == !(d->orientation == Qt::Horizontal)));
+    return QStyle::valueFromPosition(d->minimum, d->maximum, pos - sliderMin, sliderMax - sliderMin, opt.useRightToLeft);
 }
 
 inline int QSliderPrivate::pick(const QPoint &pt) const
@@ -97,7 +96,8 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
     opt.minimum = minimum;
     opt.tickPosition = (QSlider::TickPosition)tickPosition;
     opt.tickInterval = tickInterval;
-    opt.useRightToLeft = !(orientation == Qt::Horizontal) == !invertedAppearance;
+    opt.useRightToLeft = (orientation == Qt::Horizontal) && (invertedAppearance ^  (opt.direction == Qt::RightToLeft));
+    opt.direction = Qt::LeftToRight; // we use the useRightToLeft option instead
     opt.sliderPosition = position;
     opt.sliderValue = value;
     opt.singleStep = singleStep;
