@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#49 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#50 $
 **
 ** Implementation of QRegExp class
 **
@@ -59,6 +59,10 @@
     e.g. [a-zA-Z0-9\.] matches upper and lower case ASCII letters, digits,
     and dot, and [^z] matches everything except lower-case z.
   </ul>
+  
+  When writing regular expressions in C++ code, remember that the C++
+  preprocessor processes \ characters.  So in order to match a "."
+  character, you must write "\\." in C++ source, not "\.".
 */
 
 
@@ -894,7 +898,14 @@ int QString::contains( const QRegExp &rx ) const
   \code
     QString s = "banana";
     s.replace( QRegExp("a.*a"), "" );		// becomes "b"
+
+    QString s = "banana";
+    s.replace( QRegExp("^[bn]a"), " " );	// becomes " nana"
+
+    QString s = "banana";
+    s.replace( QRegExp("^[bn]a"), "" );		// NOTE! becomes ""
   \endcode
+  
 */
 
 QString &QString::replace( const QRegExp &rx, const char *str )
