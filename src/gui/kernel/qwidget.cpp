@@ -3818,15 +3818,25 @@ void QWidgetPrivate::hide_helper()
     if (wasVisible) {
         q->setAttribute(Qt::WA_WState_Visible, false);
 
-        // next bit tries to move the focus if the focus widget is now
-        // hidden.
-        if (QApplication::focusWidget() == q)
-            q->focusNextPrevChild(true);
     }
 
     QHideEvent hideEvent;
     QApplication::sendEvent(q, &hideEvent);
     hideChildren(false);
+
+    // next bit tries to move the focus if the focus widget is now
+    // hidden.
+    if (wasVisible) {
+        QWidget *fw = QApplication::focusWidget();
+        while (fw &&  !fw->isWindow()) {
+            if (fw == q) {
+                q->focusNextPrevChild(true);
+                break;
+            }
+            fw = fw->parentWidget();
+        }
+    }
+
 
 #ifndef QT_NO_ACCESSIBILITY
     if (wasVisible)
