@@ -190,7 +190,7 @@ protected:
     void         endEdit( int row, int col, bool accept, bool replace );
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
     void         activateNextCell();
-    int          indexOf( uint i ) const;
+    int          indexOf( uint i ) const; // ### make this public in 4.0
     void         reset();
     void         setSize( QSqlCursor* sql );
     void         repaintCell( int row, int col );
