@@ -58,7 +58,7 @@ public:
     QSize minimumSizeHint() const;
 
     QList<int> sizes() const;
-    void setSizes(QList<int>);
+    void setSizes(const QList<int> &list);
 
     int handleWidth() const;
     void setHandleWidth(int);

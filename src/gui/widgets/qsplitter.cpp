@@ -32,12 +32,14 @@
 #define d d_func()
 #define q q_func()
 
+//#define QSPLITTER_DEBUG
+
 static QSize verySmartMinSize(QWidget *widget)
 {
     QSize ret = qSmartMinSize(widget);
-    if (ret.width() == 1)
+    if (ret.width() <= 1)
         ret.setWidth(0);
-    if (ret.height() == 1)
+    if (ret.height() <= 1)
         ret.setHeight(0);
     return ret;
 }
@@ -275,6 +277,16 @@ void QSplitterPrivate::doResize()
     QVector<QLayoutStruct> a(n);
     int i;
 
+    bool noStretchFactorsSet = true;
+    for (i = 0; i < n; ++i) {
+        QSizePolicy p = list.at(i)->wid->sizePolicy();
+        int sf = orient == Horizontal ? p.horStretch() : p.verStretch();
+        if (sf != 0) {
+            noStretchFactorsSet = false;
+            break;
+        }
+    }
+
     for (i = 0; i < n; ++i) {
         a[i].init();
         QSplitterLayoutStruct *s = list.at(i);
@@ -288,33 +300,38 @@ void QSplitterPrivate::doResize()
             a[i].maximumSize = pick(s->wid->maximumSize());
             a[i].empty = false;
 
-            QSizePolicy p = s->wid->sizePolicy();
-            int sf = orient == Horizontal ? p.horStretch() : p.verStretch();
-            if (sf > 0) {
+            bool stretch = noStretchFactorsSet;
+            if (!stretch) {
+                QSizePolicy p = s->wid->sizePolicy();
+                int sf = orient == Horizontal ? p.horStretch() : p.verStretch();
+                stretch = (sf != 0);
+            }
+            if (stretch) {
                 a[i].stretch = s->getSizer(orient);
                 a[i].sizeHint = a[i].minimumSize;
+                a[i].expansive = true;
             } else {
                 a[i].sizeHint = s->getSizer(orient);
             }
         }
     }
 
-    Q_LLONG total = 0;
-    for (i = 0; i < n; ++i) {
-        if (a[i].stretch == 0) {
-            total += a[i].sizeHint;
-        } else {
-            total += a[i].maximumSize;
-        }
-    }
-    if (total < (Q_LLONG)pick(r.size())) {
-        for (i = 0; i < n; i += 2) {
-            if (a[i].stretch == 0)
-                a[i].stretch = 1;
-        }
-    }
-
     qGeomCalc(a, 0, n, pick(r.topLeft()), pick(r.size()), 0);
+
+#ifdef QSPLITTER_DEBUG
+    for (i = 0; i < n; ++i) {
+        qDebug("%*s%d: stretch %d, sh %d, minS %d, maxS %d, exp %d, emp %d -> %d, %d",
+               i, "", i,
+               a[i].stretch,
+               a[i].sizeHint,
+               a[i].minimumSize,
+               a[i].maximumSize,
+               a[i].expansive,
+               a[i].empty,
+               a[i].pos,
+               a[i].size);
+    }
+#endif
 
     for (i = 0; i < n; ++i) {
         QSplitterLayoutStruct *s = list.at(i);
@@ -1207,36 +1224,37 @@ QList<int> QSplitter::sizes() const
     If \a list contains too few values, the result is undefined but
     the program will still be well-behaved.
 
-    Note that the values in \a list should be the height/width that
-    the widgets should be resized to.
+    The values in \a list should be the height or width (depending on
+    orientation()) that the widgets should be resized to.
 
     \sa sizes()
 */
 
-void QSplitter::setSizes(QList<int> list)
+void QSplitter::setSizes(const QList<int> &list)
 {
+    int j = 0;
+
     d->processChildEvents();
-    QList<int>::Iterator it = list.begin();
-    QList<QSplitterLayoutStruct*>::iterator it2 = d->list.begin();
-    while (it2 != d->list.end() && it != list.end()) {
-        if (!(*it2)->isHandle) {
-            (*it2)->collapsed = false;
-            (*it2)->sizer = qMax(*it, 0);
-            int smartMinSize = d->pick(verySmartMinSize((*it2)->wid));
-            // Make sure that we reset the collapsed state.
-            if ((*it2)->sizer == 0) {
-                if (d->collapsible(*it2) && smartMinSize > 0) {
-                    (*it2)->collapsed = true;
-                } else {
-                    (*it2)->sizer = smartMinSize;
-                }
+    for (int i = 0; i < d->list.size(); ++i) {
+        QSplitterLayoutStruct *s = d->list.at(i);
+        if (s->isHandle)
+            continue;
+
+        s->collapsed = false;
+        s->sizer = qMax(list.value(j++), 0);
+        int smartMinSize = d->pick(verySmartMinSize(s->wid));
+
+        // Make sure that we reset the collapsed state.
+        if (s->sizer == 0) {
+            if (d->collapsible(s) && smartMinSize > 0) {
+                s->collapsed = true;
             } else {
-                if ((*it2)->sizer < smartMinSize)
-                    (*it2)->sizer = smartMinSize;
+                s->sizer = smartMinSize;
             }
-            ++it;
+        } else {
+            if (s->sizer < smartMinSize)
+                s->sizer = smartMinSize;
         }
-        ++it2;
     }
     d->doResize();
 }
