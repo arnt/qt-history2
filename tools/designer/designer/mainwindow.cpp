@@ -2818,8 +2818,8 @@ void MainWindow::addRecentlyOpened( const QString &fn, QStringList &lst )
     if ( lst.find( f ) != lst.end() )
 	lst.remove( f );
     if ( lst.count() >= 10 )
-	lst.remove( lst.begin() );
-    lst << f;
+	lst.pop_back();
+    lst.prepend( f );
 }
 
 TemplateWizardInterface * MainWindow::templateWizardInterface( const QString& className )
