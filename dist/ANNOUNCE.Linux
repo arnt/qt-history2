@@ -5,8 +5,8 @@ complete Qt source code for X.
 
 Qt 0.96 includes clipboard support.
 
-Qt 0.96 includes makefiles for Linux, HP-UX and Solaris. New platforms
-will be added in the near future.
+Qt 0.96 includes makefiles for Linux and Solaris. New platforms will be
+added in the near future.
 
 Qt is a complete and well-developed object-oriented framework for
 developing graphical user interface applications using C++. It has been

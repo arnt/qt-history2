@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 1.14 1996/02/09 22:59:03 agulbra Exp $
+** $Id: tutorial.doc,v 1.15 1996/05/24 14:21:03 eiriken Exp $
 **
 ** Tutorial
 **
@@ -21,10 +21,6 @@ features, but the emphasis is on the programming philosophy in Qt.
 
 It starts with a tiny hello-world and builds gradually, introducing
 one or a few concepts at a time, into a simple, 650-line game.
-
-To compile and run the tutorial programs under Linux, you need the Qt
-toolkit, gcc version 2.7.0 or later, and X11R6.  You do not need libg++ or
-libstdc++.
 
 Tutorial chapters:
 <ol>

@@ -4,8 +4,8 @@ Read this file if you want to port Qt to a new platform or C++ compiler.
 
                                REQUIREMENTS
 
-The new platform needs Xlib for X11R5 or newer. Motif is not required. If
-it is not a Unix system (for instance VMS) things may get complicated.
+The new platform needs Xlib for X11R5 or newer.  Motif is not required.
+If it is not a Unix system (for instance VMS) things may get complicated.
 Porting to other Unixes is generally straight-forward.
 
 Qt requires that your C++ compiler supports multiple inheritance.
@@ -25,8 +25,14 @@ ftp.troll.no.
 
 Now the gory details.
 
-You'll need to edit at least a Makefile or two, src/tools/qglobal.h and
-src/kernel/qapp_x11.cpp.
+Make a new directory under arch and fill it in from arch/template:
+
+	cd ..../arch
+	mkdir whatever
+	( cd template; tar cf - . ) | ( cd whatever ; tar xf - )
+
+You'll need to edit at least arch/whatever/Makefile, possibly other
+Makefiles, src/tools/qglobal.h and src/kernel/qapp_x11.cpp.
 
 The Makefiles will generally need CFLAGS, CC and so on.  You may need to
 add some more libraries.  Edit arch/whatever/Makefile, then say 'make
