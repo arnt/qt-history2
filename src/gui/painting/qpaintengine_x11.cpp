@@ -230,6 +230,9 @@ static void free_gc(Display *dpy, GC gc, bool privateGC = false)
             p++;
         }
     }
+
+    // not found in gc_array
+    XFreeGC(dpy, gc);
 }
 
 
