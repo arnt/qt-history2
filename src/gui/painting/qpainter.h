@@ -129,6 +129,7 @@ public:
 
     // drawing functions
     void drawPath(const QPainterPath &path);
+    void setClipPath(const QPainterPath &path);
 
     void drawLine(int x1, int y1, int x2, int y2);
     void drawLine(const QPoint &p1, const QPoint &p2);

@@ -1239,6 +1239,35 @@ double QPainter::translationY() const
 
 
 /*!
+    Sets the clippath for the painter to \a path. If the painter
+    has both clip region and clip path set the intersection of both
+    is used.
+
+    The clip path is specified in logical (painter) coordinates.
+*/
+void QPainter::setClipPath(const QPainterPath &path)
+{
+    if (!isActive())
+        return;
+
+    d->state->clipEnabled = true;
+    d->state->clipPath = path;
+    d->state->clipPathMatrix = d->state->matrix;
+    d->engine->setDirty(QPaintEngine::DirtyClipPath);
+
+    // If supported nativly, we don't need to do anything..
+    if (d->engine->hasFeature(QPaintEngine::PainterPaths))
+        return;
+
+    if (d->engine->hasFeature(QPaintEngine::ClipTransform)) {
+        d->state->clipPathRegion = path.d_ptr->scanToBitmap(d->state->clipRegion.boundingRect(), QWMatrix(), 0);
+    } else {
+        d->state->clipPathRegion = path.d_ptr->scanToBitmap(d->state->clipRegion.boundingRect(),
+                                                     d->state->matrix, 0);
+    }
+}
+
+/*!
     Draws the painter path specified by \a path using the current pen
     for outline and the current brush for filling.
 */

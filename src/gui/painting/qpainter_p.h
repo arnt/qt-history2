@@ -22,6 +22,7 @@
 #include "qwmatrix.h"
 
 #include "qpainter.h"
+#include "qpainterpath.h"
 
 class QPaintEngine;
 
@@ -51,6 +52,9 @@ public:
         bgBrush = QBrush(s->bgBrush);
         clipRegion = QRegion(s->clipRegion);
         clipRegionMatrix = s->clipRegionMatrix;
+        clipPath = s->clipPath;
+        clipPathRegion = s->clipPathRegion;
+        clipPathMatrix = s->clipPathMatrix;
         clipEnabled = s->clipEnabled;
         bgMode = s->bgMode;
         VxF = s->VxF;
@@ -88,6 +92,9 @@ public:
     QBrush bgBrush;             // background brush
     QRegion clipRegion;
     QWMatrix clipRegionMatrix;
+    QPainterPath clipPath;
+    QRegion clipPathRegion;
+    QWMatrix clipPathMatrix;
 #ifndef QT_NO_TRANSFORMATIONS
     QWMatrix worldMatrix;       // World transformation matrix, not window and viewport
     QWMatrix matrix;            // Complete transformation matrix, including win and view.

@@ -260,7 +260,8 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
     if (clipRect.isValid())
         scanRegion &= xform * clipRect;
     QRect scanRect = scanRegion.boundingRect();
-    *boundingRect = scanRect;
+    if (boundingRect)
+        *boundingRect = scanRect;
     if (!scanRect.isValid())
         return QBitmap();
 
@@ -628,4 +629,12 @@ QRect QPainterPath::boundingRect() const
         rect |= pa.boundingRect();
     }
     return rect;
+}
+
+/*!
+    Returns true if there are no elements in this path
+*/
+bool QPainterPath::isEmpty() const
+{
+    return d->subpaths.isEmpty();
 }

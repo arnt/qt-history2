@@ -55,6 +55,8 @@ public:
 
     FillMode fillMode() const;
     void setFillMode(FillMode fillMode);
+
+    bool isEmpty() const;
 private:
     QPainterPathPrivate *d_ptr;
 

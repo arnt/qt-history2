@@ -1561,7 +1561,17 @@ void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled
     } else {
         SelectClipRgn(d->hdc, 0);
     }
+}
 
+void QWin32PaintEngine::updateClipPath(const QPainterPath &path, bool clipEnabled)
+{
+    if (clipEnabled && !path.isEmpty()) {
+        d->composeGdiPath(path.d_ptr);
+        SelectClipPath(d->hdc, RGN_AND);
+    } else {
+        updateClipRegion(QRegion(), false);
+        setDirty(DirtyClip);
+    }
 }
 
 void QWin32PaintEngine::updateFont(const QFont &font)

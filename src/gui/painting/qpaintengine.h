@@ -71,9 +71,10 @@ public:
         DirtyBackground         = 0x0008,
         DirtyTransform          = 0x0010,
         DirtyClip               = 0x0020,
-        DirtyHints              = 0x0040,
+        DirtyClipPath           = 0x0040,
+        DirtyHints              = 0x0080,
 
-        AllDirty                = 0x007f
+        AllDirty                = 0x00ff
     };
 
     QPaintEngine(PaintEngineFeatures features=0);
@@ -92,6 +93,7 @@ public:
     virtual void updateXForm(const QWMatrix &matrix) = 0;
     virtual void updateClipRegion(const QRegion &region, bool enabled) = 0;
     virtual void updateRenderHints(QPainter::RenderHints hints);
+    virtual void updateClipPath(const QPainterPath &path, bool enabled);
 
     virtual void drawPath(const QPainterPath &path);
     virtual void drawLine(const QPoint &p1, const QPoint &p2) = 0;

@@ -452,16 +452,35 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         updateBackground(s->bgMode, s->bgBrush);
         clearDirty(DirtyBackground);
     }
+    bool joinWithPath = false;
+    if (testDirty(DirtyClipPath)) {
+        // Assume for now that painterpaths implies native clip xform.
+        if (hasFeature(PainterPaths)) {
+            updateXForm(s->clipPathMatrix);
+            updateClipPath(s->clipPath, s->clipEnabled);
+            setDirty(DirtyTransform);
+        } else {
+            joinWithPath = true;
+            setDirty(DirtyClip);
+        }
+        clearDirty(DirtyClipPath);
+    }
     if (testDirty(DirtyClip)) {
         if (hasFeature(ClipTransform)) {
+            if (joinWithPath) {
+                qWarning("QPaintEngine::updateInternal(), feature combination ClipTransform and"
+                         " not PainterPaths is not supported");
+            }
             updateXForm(s->clipRegionMatrix);
             updateClipRegion(s->clipRegion, s->clipEnabled);
             setDirty(DirtyTransform);
         } else {
-            updateClipRegion(s->txop > QPainter::TxNone
-                             ? s->clipRegionMatrix * s->clipRegion
-                             : s->clipRegion,
-                             s->clipEnabled);
+            QRegion region = s->txop > QPainter::TxNone
+                             ? (s->clipRegionMatrix * s->clipRegion)
+                             : s->clipRegion;
+            if (joinWithPath)
+                region &= s->clipPathMatrix * s->clipPathRegion;
+            updateClipRegion(region, s->clipEnabled);
         }
         clearDirty(DirtyClip);
     }
@@ -608,6 +627,18 @@ void QPaintEngine::clearRenderHints(QPainter::RenderHints hints)
 
 void QPaintEngine::updateRenderHints(QPainter::RenderHints /*hints*/)
 {
+}
+
+
+/*!
+    This function is called when the engine needs to be update with
+    the new clip path \path. The value of \a enabled determines
+    if the clippath should be enabled or not.
+*/
+void QPaintEngine::updateClipPath(const QPainterPath &path, bool enabled)
+{
+    Q_UNUSED(path);
+    Q_UNUSED(enabled);
 }
 
 /*!
