@@ -33,7 +33,7 @@
 #include <qtabwidget.h>
 #include <qspinbox.h>
 #include <qpushbutton.h>
-#include <qstack.h>
+#include <qptrstack.h>
 
 ListViewEditor::ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw )
     : ListViewEditorBase( parent, 0, TRUE ), listview( lv ), formwindow( fw )

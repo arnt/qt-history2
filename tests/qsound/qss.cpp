@@ -1,5 +1,5 @@
 #include "qss.h"
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qsocketnotifier.h>
 #include <qfile.h>
 #include <qserversocket.h>
@@ -289,7 +289,7 @@ private slots:
 	if ( w < 0 )
 	    return;
 
-	QListIterator<QWSSoundServerBucket> it(active);
+	QPtrListIterator<QWSSoundServerBucket> it(active);
 	for (; (bucket = *it);) {
 	    ++it;
 	    if ( bucket->finished() )
@@ -331,7 +331,7 @@ private:
 	}
     }
 
-    QList<QWSSoundServerBucket> active;
+    QPtrList<QWSSoundServerBucket> active;
     QSocketNotifier* sn;
 };
 

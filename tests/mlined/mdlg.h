@@ -1,4 +1,4 @@
-#include <qmultilinedit.h>
+#include <qmultilineedit.h>
 
 class QMultiLineEdit;
 class FontSelect;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -282,7 +282,7 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 
 ApplicationWindow::~ApplicationWindow()
 {
-    QList<QToolBar> lst;
+    QPtrList<QToolBar> lst;
     ToolBarDock da[] = { Left, Right, Top, Bottom, Minimized };
     QMap< QString, int > docks;
     QMap< QString, int > indices;

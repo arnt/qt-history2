@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -12,7 +12,7 @@
 #define APPLICATION_H
 
 #include <qmainwindow.h>
-#include <qlist.h>
+#include <qptrlist.h>
 
 class QMultiLineEdit;
 class QToolBar;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of Qt/FB central server classes
 **
@@ -235,7 +235,7 @@ public:
 
     void enablePainting(bool);
     static void processEventQueue();
-    static QList<QWSInternalWindowInfo> * windowList();
+    static QPtrList<QWSInternalWindowInfo> * windowList();
 
     void sendPropertyNotifyEvent( int property, int state );
 #ifndef QT_NO_QWS_PROPERTIES

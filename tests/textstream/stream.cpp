@@ -7,7 +7,7 @@
 #include <qdatastream.h>
 #include <qtextstream.h>
 
-#include <qmultilinedit.h>
+#include <qmultilineedit.h>
 #include <qhbox.h>
 
 

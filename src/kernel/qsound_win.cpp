@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QSound class and QAuServer internal class
 **
@@ -31,7 +31,7 @@
 
 #ifndef QT_NO_SOUND
 
-#include "qsocknot.h"
+#include "qsocketnotifier.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include <qfile.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QWidget and QWindow classes for mac
 **
@@ -110,7 +110,7 @@ static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &
     QPoint mp(posInWindow(w));
     qDebug("%s %s %s (%s) [ %d %d %d %d ]", where, paint ? "paint" : "invalid",
 	   w->className(), w->name(), mp.x(), mp.y(), w->width(), w->height());
-    QArray<QRect> rs = r.rects();
+    QMemArray<QRect> rs = r.rects();
     int offx = 0, offy = 0;
     if(paint) {
 	offx = mp.x();
@@ -217,10 +217,10 @@ void qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_ForceErase)
     }
 }
 
-static QList<QWidget> qt_root_win_widgets;
+static QPtrList<QWidget> qt_root_win_widgets;
 static WindowPtr qt_root_win = NULL;
 void qt_clean_root_win() {
-    for(QListIterator<QWidget> it(qt_root_win_widgets); it.current(); ++it) {
+    for(QPtrListIterator<QWidget> it(qt_root_win_widgets); it.current(); ++it) {
 	if((*it)->hd == qt_root_win) {
 #if 0
 	    warning( "%s:%d: %s (%s) had his handle taken away!", __FILE__, __LINE__,
@@ -259,7 +259,7 @@ bool qt_recreate_root_win() {
     WindowPtr old_root_win = qt_root_win;
     qt_root_win = NULL;
     qt_create_root_win();
-    for(QListIterator<QWidget> it(qt_root_win_widgets); it.current(); ++it) {
+    for(QPtrListIterator<QWidget> it(qt_root_win_widgets); it.current(); ++it) {
 	if((*it)->hd == old_root_win)
 	    (*it)->hd = qt_root_win;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QBitArray class
 **
@@ -86,7 +86,7 @@
   \ingroup tools
   \ingroup shared
 
-  Because QBitArray is a QArray, it uses explicit
+  Because QBitArray is a QMemArray, it uses explicit
   \link shclass.html sharing\endlink with a reference count.
 
   A QBitArray is a special byte array that can access individual bits

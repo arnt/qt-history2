@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt/FB dummy framebuffer debug GUI
 **
@@ -245,7 +245,7 @@ void DummyFramebuffer::paintEvent(QPaintEvent* e)
     pm.convertFromImage(img,OrderedDither);
     if ( showregions ) {
 	QPainter p(&pm);
-	QList<QWSWindow> windows = server->clientWindows();
+	QPtrList<QWSWindow> windows = server->clientWindows();
 	int nc=0;
 	for (QWSWindow* i = windows.first(); i; i=windows.next()) {
 	    p.setPen(QColor(rgb[nc]));
@@ -253,7 +253,7 @@ void DummyFramebuffer::paintEvent(QPaintEvent* e)
 	    p.setBrush(QBrush(QColor(rgb[nc]),Dense6Pattern));
 	    nc = (nc + 1)%(sizeof(rgb)/sizeof(rgb[0]));
 	    QRegion r = i->allocation();
-	    QArray<QRect> rects = r.rects();
+	    QMemArray<QRect> rects = r.rects();
 	    for (int j=0; j<(int)rects.count(); j++) {
 		p.drawRect(rects[j]);
 	    }

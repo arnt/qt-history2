@@ -7,7 +7,7 @@
 #include <qlayout.h>
 #include <qevent.h>
 #include <qlabel.h>
-#include <qarray.h>
+#include <qcstring.h>
 #include <qtextstream.h>
 #include <qfile.h>
 

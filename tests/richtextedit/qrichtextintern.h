@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Internal rich text classes
 **
@@ -366,7 +366,7 @@ public:
 
 private:
     QGridLayout* layout;
-    QList<QtTextTableCell> cells;
+    QPtrList<QtTextTableCell> cells;
 
     friend class QtTextTableCell;
     void addCell( QtTextTableCell* cell );
@@ -512,8 +512,8 @@ public:
     void validateRect() { updaterect = QRect(); }
 
 private:
-    QList<QtTextCustomItem> leftItems;
-    QList<QtTextCustomItem> rightItems;
+    QPtrList<QtTextCustomItem> leftItems;
+    QPtrList<QtTextCustomItem> rightItems;
     QRect updaterect;
 
 };

@@ -148,7 +148,7 @@ protected slots:
     void itemChanged( QIconViewItem *item );
 
 private:
-    QList<QIconViewItem> allItems;
+    QPtrList<QIconViewItem> allItems;
 
 };
 

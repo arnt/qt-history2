@@ -55,7 +55,7 @@
 #include "qsessionmanager.h"
 #include "qvaluelist.h"
 #include "qdict.h"
-#include "qqueue.h"
+#include "qptrqueue.h"
 #include "qguardedptr.h"
 #include "qclipboard.h"
 #include "qbitmap.h"
@@ -344,8 +344,8 @@ public:
 // Single-process stuff. This should maybe move into qwindowsystem_qws.cpp
 
 static bool qws_single_process;
-static QQueue<QWSEvent> incoming;
-static QQueue<QWSCommand> outgoing;
+static QPtrQueue<QWSEvent> incoming;
+static QPtrQueue<QWSCommand> outgoing;
 
 void qt_client_enqueue(const QWSEvent *event )
 {
@@ -354,7 +354,7 @@ void qt_client_enqueue(const QWSEvent *event )
     incoming.enqueue( copy );
 }
 
-QQueue<QWSCommand> *qt_get_server_queue()
+QPtrQueue<QWSCommand> *qt_get_server_queue()
 {
     return &outgoing;
 }
@@ -990,7 +990,7 @@ void QWSDisplay::requestRegion(int winId, QRegion r)
     } else {
 	//by sending the event, I promise not to paint outside the region
 
-	QArray<QRect> ra = r.rects();
+	QMemArray<QRect> ra = r.rects();
 
 	/*
 	  for ( int i = 0; i < ra.size(); i++ ) {

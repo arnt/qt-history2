@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of Aqua-like style class
 **
@@ -49,9 +49,9 @@
 #include "qpixmapcache.h"
 #include "qtoolbutton.h"
 #include "qtoolbar.h"
-#include "qobjcoll.h"
+#include "qobjectlist.h"
 #include "qlayout.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qbuttongroup.h"
 #include "qtabwidget.h"
 #include "qslider.h"

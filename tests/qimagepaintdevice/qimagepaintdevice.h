@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QImagePaintDevice classes
 **
@@ -145,7 +145,7 @@ private:
     QBrush brush; QRgb br/*redundant*/;
     QPoint cursor;
     QPoint brushorg;
-    //QArray<QRect> cliprect;
+    //QMemArray<QRect> cliprect;
 
     // Current clip
     QRect* cliprect;

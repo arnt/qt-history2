@@ -2,7 +2,7 @@
 #define QTEXTEDITINTERN_H
 
 #include <qstring.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qrect.h>
 #include <qfontmetrics.h>
 #include <qintdict.h>
@@ -93,7 +93,7 @@ public:
     QTextEditCursor *redo( QTextEditCursor *c );
 
 private:
-    QList<QTextEditCommand> history;
+    QPtrList<QTextEditCommand> history;
     int current, steps;
 
 };
@@ -331,7 +331,7 @@ public:
     void setFormat( int index, QTextEditFormat *f, bool useCollection );
 
 private:
-    QArray<Char> data;
+    QMemArray<Char> data;
     QString cache;
 
 };

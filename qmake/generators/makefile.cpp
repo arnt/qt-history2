@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
@@ -184,7 +184,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 }
 
 bool
-MakefileGenerator::generateDependencies(QList<MakefileDependDir> &dirs, QString fn, bool recurse)
+MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QString fn, bool recurse)
 {
     fileFixify(fn);
     QStringList &fndeps = findDependencies(fn);
@@ -409,7 +409,7 @@ MakefileGenerator::init()
 
     /* get deps and mocables */
     {
-	QList<MakefileDependDir> deplist;
+	QPtrList<MakefileDependDir> deplist;
 	deplist.setAutoDelete(TRUE);
 	if(doDepends()) {
 	    QStringList incDirs;

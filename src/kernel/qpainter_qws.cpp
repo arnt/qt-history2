@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPainter class for FB
 **
@@ -63,7 +63,7 @@ void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 
 #ifdef QWS_EXTRA_DEBUG
     qDebug( "qt_set_paintevent_clipping" );
-    QArray<QRect> ar = region.rects();
+    QMemArray<QRect> ar = region.rects();
     for ( int i=0; i<int(ar.size()); i++ ) {
 	QRect r = ar[i];
         qDebug( "   r[%d]:  %d,%d %dx%d", i,

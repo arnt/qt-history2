@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -15,6 +15,7 @@
 //
 
 #include "sound.h"
+#include <qapplication.h>
 #include <qmessagebox.h>
 #include <qmenubar.h>
 

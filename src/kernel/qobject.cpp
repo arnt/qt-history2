@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QObject class
 **
@@ -952,7 +952,7 @@ static void objSearch( QObjectList *result,
   Returns a pointer to the list of all object trees (their root objects),
   or 0 if there are no objects.
 
-  The QObjectList class is defined in the qobjcoll.h header file.
+  The QObjectList class is defined in the qobjectlist.h header file.
 
   The latest root object created is the \link QPtrList::first()
   first\endlink object in the list and the first root object added is

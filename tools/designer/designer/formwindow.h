@@ -29,7 +29,6 @@
 #include <qwidget.h>
 #include <qptrdict.h>
 #include <qpixmap.h>
-#include <qarray.h>
 #include <qwidgetlist.h>
 #include <qmap.h>
 

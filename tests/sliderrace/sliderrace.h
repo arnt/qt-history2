@@ -3,7 +3,7 @@
 
 #include <qthread.h>
 #include <qvbox.h>
-#include <qlist.h>
+#include <qptrlist.h>
 
 class QSlider;
 class QPushButton;
@@ -72,7 +72,7 @@ private:
     Race* race;
     bool exit;
 
-    QList<Horse> horses;
+    QPtrList<Horse> horses;
 
 private slots:
     void placeHorses();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of the internal Qt classes dealing with rich text
 **
@@ -60,7 +60,7 @@ public:
 
 private:
     QGridLayout* layout;
-    QList<QTextTableCell> cells;
+    QPtrList<QTextTableCell> cells;
 
     friend class QTextTableCell;
     friend class QRichTextIterator;
@@ -598,7 +598,7 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
     return TRUE;
 }
 
-static bool qt_is_cell_in_use( QList<QTextTableCell>& cells, int row, int col )
+static bool qt_is_cell_in_use( QPtrList<QTextTableCell>& cells, int row, int col )
 {
     for ( QTextTableCell* c = cells.first(); c; c = cells.next() ) {
 	if ( row >= c->row() && row < c->row() + c->rowspan()
@@ -619,7 +619,7 @@ QTextCustomItem* QRichText::parseTable( const QMap<QString, QString> &attr, cons
     QString rowalign;
     QString tablebgcolor = attr["bgcolor"];
 
-    QList<QTextTableCell> multicells;
+    QPtrList<QTextTableCell> multicells;
 
     QString tagname;
     (void) eatSpace(doc, pos);
@@ -1109,7 +1109,7 @@ QRect QRichTextIterator::lineGeometry() const
     }
     QRect geom( fc.lineGeometry() );
     const QRichTextFormatter* f = &fc;
-    QListIterator<Item> it( stack );
+    QPtrListIterator<Item> it( stack );
     while ( it.current() ) {
 	Item* item = it.current();
 	++it;
@@ -2082,7 +2082,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 
     widthUsed = 0;
 
-    QList<QTextCustomItem> floatingItems;
+    QPtrList<QTextCustomItem> floatingItems;
 
     bool isTableRow = FALSE;
     QTextCustomItem::Clear clear = QTextCustomItem::ClearNone;

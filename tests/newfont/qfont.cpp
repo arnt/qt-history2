@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1447,7 +1447,7 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
 // with non-null painter pointers, and no other objects.  Callers of
 // these functions must maintain this invariant.
 
-typedef QList<QFontMetrics> QFontMetricsList;
+typedef QPtrList<QFontMetrics> QFontMetricsList;
 static QFontMetricsList *fm_list = 0;
 
 QCleanupHandler<QFontMetricsList> qfont_cleanup_fontmetricslist;
@@ -1480,7 +1480,7 @@ static void removeFontMetrics( QFontMetrics *fm )
 void QFontMetrics::reset( const QPainter *painter )
 {
     if ( fm_list ) {
-        QListIterator<QFontMetrics> it( *fm_list );
+        QPtrListIterator<QFontMetrics> it( *fm_list );
         QFontMetrics * fm;
         while( (fm=it.current()) != 0 ) {
             ++it;
@@ -1813,7 +1813,7 @@ QSize QFontMetrics::size( int flgs, const QString &str, int len, int tabstops,
 // with non-null painter pointers, and no other objects.  Callers of
 // these functions must maintain this invariant.
 
-typedef QList<QFontInfo> QFontInfoList;
+typedef QPtrList<QFontInfo> QFontInfoList;
 static QFontInfoList *fi_list = 0;
 
 QCleanupHandler<QFontInfoList> qfont_cleanup_fontinfolist;
@@ -1847,7 +1847,7 @@ static void removeFontInfo( QFontInfo *fi )
 void QFontInfo::reset( const QPainter *painter )
 {
     if ( fi_list ) {
-        QListIterator<QFontInfo> it( *fi_list );
+        QPtrListIterator<QFontInfo> it( *fi_list );
         QFontInfo * fi;
         while( (fi=it.current()) != 0 ) {
             ++it;

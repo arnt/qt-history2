@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#553 $
+** $Id$
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -325,7 +325,7 @@ static void set_winapp_name()
 
 #if defined( Q_OS_TEMP )
 Q_EXPORT void __cdecl qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
-	       int cmdShow, int &argc, QArray<pchar> &argv )
+	       int cmdShow, int &argc, QMemArray<pchar> &argv )
 #else
 Q_EXPORT
 void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,

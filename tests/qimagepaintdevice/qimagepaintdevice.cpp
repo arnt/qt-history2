@@ -1649,7 +1649,7 @@ void QImagePaintDevice32::setMatrix(const QWMatrix&, int)
 
 void QImagePaintDevice32::setClipRegion(const QRegion& rgn)
 {
-    QArray<QRect> a = rgn.rects();
+    QMemArray<QRect> a = rgn.rects();
     delete [] ocliprect;
     cliprect = ocliprect = new QRect[a.size()];
     for (int i=0; i<(int)a.size(); i++)

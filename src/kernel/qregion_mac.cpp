@@ -461,10 +461,10 @@ static OSStatus qt_mac_get_rgn_rect(UInt16 msg, RgnHandle, const Rect *rect, voi
     return noErr;
 }
 
-QArray<QRect> QRegion::rects() const
+QMemArray<QRect> QRegion::rects() const
 {
     if(data->is_rect) {
-	QArray<QRect> ret(1);
+	QMemArray<QRect> ret(1);
 	ret[0] = data->rect;
 	return ret;
     }
@@ -478,10 +478,10 @@ QArray<QRect> QRegion::rects() const
 
     //check for error
     if(oss != noErr) 
-	return QArray<QRect>(0);
+	return QMemArray<QRect>(0);
 
     //turn list into array
-    QArray<QRect> ret(rl.count());
+    QMemArray<QRect> ret(rl.count());
     int cnt = 0;
     for(RectList::Iterator it = rl.begin(); it != rl.end(); ++it) 
 	ret[cnt++] = (*it);

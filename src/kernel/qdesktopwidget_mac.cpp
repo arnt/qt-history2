@@ -47,7 +47,7 @@ public:
     int appScreen;
     int screenCount;
 
-    QArray<QRect> rects;
+    QMemArray<QRect> rects;
     QPtrList<GDPtr> devs;
 };
 

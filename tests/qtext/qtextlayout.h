@@ -4,7 +4,7 @@
 #include <qstring.h>
 #include <qpoint.h>
 #include <qrect.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qapplication.h>
 #include <qtextstream.h>
 #include <qdict.h>

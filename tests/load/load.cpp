@@ -9,7 +9,7 @@
 #define MAXCHUNKS 8
 
 class LoadData {
-    QArray<int> ins,outs;
+    QMemArray<int> ins,outs;
     struct {
 	int start,end;
 	int total;

@@ -601,16 +601,16 @@ static int approxTextWidth( const QString& text )
 }
 
 static void computeTableColumnWidths( const QValueList<Cell>& cells,
-				      QArray<int> *columnPercents )
+				      QMemArray<int> *columnPercents )
 {
     int n = columnPercents->count();
     if ( n == 0 )
 	return;
 
-    QArray<int> sumWidths( n );
+    QMemArray<int> sumWidths( n );
     sumWidths.fill( 0 );
 
-    QArray<int> numNonEmpty( n );
+    QMemArray<int> numNonEmpty( n );
     numNonEmpty.fill( 0 );
 
     QValueList<Cell>::ConstIterator c = cells.begin();
@@ -660,7 +660,7 @@ static void laTeXifyTables( QString& html )
 	    int numRows = -1;
 	    int nextCol = 0;
 
-	    QArray<int> leftOvers( MaxCols );
+	    QMemArray<int> leftOvers( MaxCols );
 	    leftOvers.fill( 0 );
 
 	    QValueList<Cell>::Iterator c;
@@ -740,7 +740,7 @@ static void laTeXifyTables( QString& html )
 	    /*
 	      Compute the column widths and fill in the cell widths.
 	    */
-	    QArray<int> columnPercents( numCols );
+	    QMemArray<int> columnPercents( numCols );
 	    columnPercents.fill( 0 );
 	    computeTableColumnWidths( cells, &columnPercents );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of something useful.
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 
 #include <qfiledialog.h>
-#include <qapp.h>
+#include <qapplication.h>
 
 int main( int argc, char ** argv )
 {

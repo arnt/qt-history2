@@ -1,4 +1,4 @@
-#include <qapp.h>
+#include <qapplication.h>
 #include <qwidget.h>
 #include <qptrdict.h>
 #include <qdatetime.h>

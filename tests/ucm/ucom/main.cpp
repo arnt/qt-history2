@@ -1,7 +1,7 @@
 #include "ucom.h"
 #include "utypes.h"
 #include "qutypes.h"
-#include <qlist.h>
+#include <qptrlist.h>
 
 double foo( int i, double d )
 {

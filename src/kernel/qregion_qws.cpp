@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QRegion class for FB
 **
@@ -138,7 +138,7 @@ SOFTWARE.
 
 typedef struct _XRegion {
     int numRects;
-    QArray<QRect> rects;
+    QMemArray<QRect> rects;
     QRect extents;
 
     _XRegion() { numRects = 0; }
@@ -1015,7 +1015,7 @@ miRegionOp(register Region newReg, Region reg1, Region reg2,
     r1End = r1 + reg1->numRects;
     r2End = r2 + reg2->numRects;
 
-    QArray<QRect> oldRects = newReg->rects;
+    QMemArray<QRect> oldRects = newReg->rects;
 
     newReg->rects.detach();
     EMPTY_REGION(newReg);
@@ -2925,10 +2925,10 @@ QRect QRegion::boundingRect() const
 }
 
 
-QArray<QRect> QRegion::rects() const
+QMemArray<QRect> QRegion::rects() const
 {
     if (((Region)data->rgn)->numRects == 0)
-	return QArray<QRect>();
+	return QMemArray<QRect>();
 
     ((Region)data->rgn)->rects.truncate(((Region)data->rgn)->numRects);
     return ((Region)data->rgn)->rects;

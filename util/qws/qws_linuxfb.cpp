@@ -122,7 +122,7 @@ void QWSServer::paintServerRegion()
 	//### testcode - should paint properly
 	uint col = fb_vinfo.bits_per_pixel == 32 ? 0x003000 : 0x0200;
 	
-	QArray<QRect> reg = sr.rects();
+	QMemArray<QRect> reg = sr.rects();
 	
 	for ( int i = 0;  i < int(reg.count());  i++ ) {
 	    QRect r = reg[i];
@@ -159,7 +159,7 @@ void QWSServer::paintBackground( QRegion r )
 	uint col = fb_vinfo.bits_per_pixel == 32 ? 0x0030e0 : 0x0118;
 
 /*
-	QArray<QRect> reg = r.rects();
+	QMemArray<QRect> reg = r.rects();
 	
 	for ( int i = 0;  i < int(reg.count());  i++ ) {
 	    QRect r = reg[i];
@@ -178,7 +178,7 @@ void QWSServer::paintBackground( QRegion r )
 		}
 	}
 */
-	QArray<QRect> reg = r.rects();
+	QMemArray<QRect> reg = r.rects();
 
 	gfx->setPen(QPen::NoPen);
 	gfx->setBrush(QBrush(QColor(col, col)));

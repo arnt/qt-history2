@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of the QtTextView class
 **
@@ -30,7 +30,6 @@
 #include "qlayout.h"
 #include "qpainter.h"
 
-#include "qstack.h"
 #include "stdio.h"
 #include "qfile.h"
 #include "qtextstream.h"

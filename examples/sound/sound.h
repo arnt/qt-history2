@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -11,7 +11,6 @@
 #define PLAY_H
 
 #include "qsound.h"
-#include <qapp.h>
 #include <qmainwindow.h>
 
 class SoundPlayer : public QMainWindow {

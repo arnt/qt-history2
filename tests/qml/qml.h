@@ -1,5 +1,5 @@
 /****************************************************************************
- ** $Id: $
+ ** $Id$
  **
  ** Definition of something or other
  **
@@ -15,7 +15,7 @@
 
 #include <qpushbutton.h>
 #include <qlineedit.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qdict.h>
 #include <qpixmap.h>
 #include <qscrollview.h>
@@ -302,7 +302,7 @@ public:
 
     QMLContainer* copy() const;
 
-    QList<QMLRow> rows;
+    QPtrList<QMLRow> rows;
 
     int width;
     int height;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -30,7 +30,6 @@
 #include <qlayout.h>
 #include <qpainter.h>
 
-#include <qstack.h>
 #include <stdio.h>
 #include <values.h>
 #include <qfile.h>
@@ -489,7 +488,7 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
     return TRUE;
 }
 
-static bool qt_is_cell_in_use( QList<QtTextTableCell>& cells, int row, int col )
+static bool qt_is_cell_in_use( QPtrList<QtTextTableCell>& cells, int row, int col )
 {
     for ( QtTextTableCell* c = cells.first(); c; c = cells.next() ) {
 	if ( row >= c->row() && row < c->row() + c->rowspan()
@@ -510,7 +509,7 @@ QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, co
     QString rowalign;
     QString tablebgcolor = attr["bgcolor"];
 
-    QList<QtTextTableCell> multicells;
+    QPtrList<QtTextTableCell> multicells;
 
     QString tagname;
     (void) eatSpace(doc, pos);
@@ -2011,7 +2010,7 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 
     widthUsed = 0;
 
-    QList<QtTextCustomItem> floatingItems;
+    QPtrList<QtTextCustomItem> floatingItems;
 
     while ( !pastEnd() ) {
 

@@ -66,7 +66,7 @@
   \internal
 
   QGVector is an internal class that acts as a base class for the
-  QVector collection class.
+  QPtrVector collection class.
 
   QGVector has some virtual functions that may be reimplemented in
   subclasses to customize behavior.
@@ -100,7 +100,7 @@
   <li> \< 0 (negative integer) if \a d1 \< \a d2
   </ul>
 
-  The QVector::sort() and QVector::bsearch() functions require that
+  The QPtrVector::sort() and QPtrVector::bsearch() functions require that
   compareItems() is implemented as described here.
 
   This function should not modify the vector because some const

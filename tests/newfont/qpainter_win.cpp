@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPainter class for Win32
 **
@@ -33,7 +33,7 @@
 #include "qbitmap.h"
 #include "qpaintdevicemetrics.h"
 #include "qpixmapcache.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qintdict.h"
 #include "qprinter.h"
 #include <stdlib.h>

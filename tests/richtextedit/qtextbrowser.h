@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of the QTextBrowser class
 **
@@ -26,7 +26,7 @@
 #ifndef QTEXTBROWSER_H
 #define QTEXTBROWSER_H
 
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qpixmap.h"
 #include "qscrollview.h"
 #include "qcolor.h"

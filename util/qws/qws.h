@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of Qt/FB central server classes
 **
@@ -24,7 +24,7 @@
 #include <qserversocket.h>
 #include <qmap.h>
 #include <qdatetime.h>
-#include <qqueue.h>
+#include <qptrqueue.h>
 #include <qptrlist.h>
 #include <qmap.h>
 
@@ -189,7 +189,7 @@ private:
     QRegion serverRegion;
     bool disablePainting;
 
-    QQueue<QWSCommandStruct> commandQueue;
+    QPtrQueue<QWSCommandStruct> commandQueue;
     QRegion pendingAllocation;
     QRegion pendingRegion;
     int pendingWindex;

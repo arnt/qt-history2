@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt/FB central server
 **
@@ -48,7 +48,7 @@
 #include "qwindowdefs.h"
 #include "qlock_qws.h"
 #include "qwsregionmanager_qws.h"
-#include "qqueue.h"
+#include "qptrqueue.h"
 #include "qfile.h"
 #include "qtimer.h"
 #include "qpen.h"
@@ -93,7 +93,7 @@ extern void qt_client_enqueue(const QWSEvent *); //qapplication_qws.cpp
 typedef void MoveRegionF( const QWSRegionMoveCommand*);
 typedef void RequestRegionF( int, QRegion );
 typedef void SetAltitudeF( const QWSChangeAltitudeCommand* );
-extern QQueue<QWSCommand> *qt_get_server_queue();
+extern QPtrQueue<QWSCommand> *qt_get_server_queue();
 
 static QRect maxwindow_rect;
 static const char *defaultMouse = "Auto";
@@ -819,7 +819,7 @@ static void ignoreSignal( int )
 */
 
 /*!
-  \fn const QList<QWSWindow> &QWSServer::clientWindows()
+  \fn const QPtrList<QWSWindow> &QWSServer::clientWindows()
 
   Returns the list of top-level windows.  This list will change as
   applications add and remove wigdets so it should not be stored for future

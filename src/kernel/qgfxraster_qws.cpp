@@ -1120,7 +1120,7 @@ void QGfxRasterBase::fixClip()
 
 struct _XRegion {
     int numRects;
-    QArray<QRect> rects;
+    QMemArray<QRect> rects;
     // ... etc.
 };
 
@@ -1186,7 +1186,7 @@ void QGfxRasterBase::update_clip()
 	clipbounds = sr.intersect(trgn.boundingRect());
 
 	// Convert to simple array for speed
-	QArray<QRect> a = trgn.rects();
+	QMemArray<QRect> a = trgn.rects();
 	delete [] cliprect;
 	cliprect = new QRect[a.size()];
 #ifdef QWS_EXTRA_DEBUG

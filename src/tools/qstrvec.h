@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QStrVec and QStrIVec classes
 **
@@ -40,15 +40,15 @@
 
 #ifndef QT_H
 #include "qstring.h"
-#include "qvector.h"
+#include "qptrvector.h"
 #include "qdatastream.h"
 #endif // QT_H
 
-class Q_EXPORT QStrVec : public QVector<char>
+class Q_EXPORT QStrVec : public QPtrVector<char>
 {
 public:
     QStrVec()  { dc = TRUE; }
-    QStrVec( uint size, bool deepc = TRUE ) : QVector<char>(size) {dc=deepc;}
+    QStrVec( uint size, bool deepc = TRUE ) : QPtrVector<char>(size) {dc=deepc;}
    ~QStrVec()  { clear(); }
 private:
     Item	 newItem( Item d )	{ return dc ? qstrdup( (const char*)d ) : d; }

@@ -6,7 +6,7 @@
 #include <qapplication.h>
 #include <qcombobox.h>
 #include <qstylefactory.h>
-#include <qobjcoll.h>
+#include <qobjectlist.h>
 #include <qfontdatabase.h>
 #include <qlineedit.h>
 #include <qlistbox.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of the QtTextView class
 **
@@ -26,7 +26,7 @@
 #ifndef QTEXTVIEW_H
 #define QTEXTVIEW_H
 
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qpixmap.h"
 #include "qscrollview.h"
 #include "qcolor.h"

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** C++ file skeleton
 **
@@ -15,7 +15,7 @@
 
 #include <qimage.h>
 #include <qfile.h>
-#include <qdstream.h>
+#include <qdatastream.h>
 
 #include <ctype.h>
 

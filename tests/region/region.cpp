@@ -12,7 +12,7 @@ void print( QRegion region )
 {
     QRect r = region.boundingRect();
     qDebug( "Bounding rect %d,%d,%d,%d", r.x(), r.y(), r.width(), r.height() );
-    QArray<QRect> a = region.rects();
+    QMemArray<QRect> a = region.rects();
     qDebug( "nrects = %d", a.size() );
     for ( int i=0; i<(int)a.size(); i++ )
 	outr( a[i] );

@@ -1,12 +1,9 @@
-
-
-
 #include <qdatastream.h>
 #include <qbitarray.h>
 #include <qwidget.h>
 #include <qdatetime.h>
-#include <qlist.h>
-#include <qvector.h>
+#include <qptrlist.h>
+#include <qptrvector.h>
 #include <qpixmap.h>
 #include <qimage.h>
 #include <qpen.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementing your own layout: flow example
 **
@@ -11,11 +11,8 @@
 #include <qcolor.h>
 #include <qgroupbox.h>
 #include <qpushbutton.h>
-
 #include <qlayout.h>
-
-
-#include <qlist.h>
+#include <qptrlist.h>
 
 class SimpleFlow : public QLayout
 {
@@ -37,7 +34,7 @@ protected:
     void setGeometry( const QRect& );
 private:
     int layout( const QRect&, bool testonly = FALSE );
-    QList<QLayoutItem> list;
+    QPtrList<QLayoutItem> list;
     int cached_width;
     int cached_hfw;
 };
@@ -63,7 +60,7 @@ void SimpleFlow::addItem( QLayoutItem *item)
 
 bool SimpleFlow::removeWidget( QWidget *w )
 {
-    QListIterator<QLayoutItem> it(list);
+    QPtrListIterator<QLayoutItem> it(list);
     QLayoutItem *o;
     while ( (o=it.current()) != 0 ) {
 	++it;
@@ -91,7 +88,7 @@ int SimpleFlow::layout( const QRect &r, bool testonly )
     int x = r.x();
     int y = r.y();
     int h = 0;		//height of this line so far.
-    QListIterator<QLayoutItem> it(list);
+    QPtrListIterator<QLayoutItem> it(list);
     QLayoutItem *o;
     while ( (o=it.current()) != 0 ) {
 	++it;

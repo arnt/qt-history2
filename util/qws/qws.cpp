@@ -139,7 +139,7 @@ static void copyRects( QRegion reg, void *data )
 {
     // XXX when the protocol is finalized, we should
     // XXX make it possible to write reg.rects directly
-    QArray<QRect> ra = reg.rects();
+    QMemArray<QRect> ra = reg.rects();
     if ( ra.size() == 0 )
 	return;
     QWSRegionRemoveEvent::Rectangle *r=(QWSRegionRemoveEvent::Rectangle*)data;

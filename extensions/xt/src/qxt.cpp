@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt extension classes for Xt/Motif support.
 **
@@ -37,8 +37,7 @@
 
 #include <qapplication.h>
 #include <qwidget.h>
-#include <qobjcoll.h>
-#include <qwidcoll.h>
+#include <qobjectlist.h>
 
 #include "qxt.h"
 

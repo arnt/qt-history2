@@ -78,12 +78,12 @@
   \class QGArray qgarray.h
   \ingroup shared
   \ingroup collection
-  \brief The QGArray class is an internal class for implementing the QArray class.
+  \brief The QGArray class is an internal class for implementing the QMemArray class.
 
   \internal
 
   QGArray is a strictly internal class that acts as base class for the
-  QArray template array.
+  QMemArray template array.
 
   It contains an array of bytes and has no notion of an array element.
 */
@@ -448,8 +448,8 @@ void QGArray::store( const char *d, uint len )
   array data when raw data has been set.
   Call resetRawData(d,len) to reset the array.
 
-  Setting raw data is useful because it set QArray data without allocating
-  memory or copying data.
+  Setting raw data is useful because it sets QMemArray data without
+  allocating memory or copying data.
 
   Example of intended use:
   \code

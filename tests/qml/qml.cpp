@@ -4,7 +4,6 @@
 #include <qlayout.h>
 #include <qpainter.h>
 
-#include <qstack.h>
 #include <stdio.h>
 #include <qfile.h>
 #include <qtextstream.h>
@@ -893,7 +892,7 @@ void QMLBox::resize(QPainter* p, int newWidth, bool forceResize)
 	return;
 
 
-    QList<QMLRow> oldRows;
+    QPtrList<QMLRow> oldRows;
     if ( newWidth == width ){
 	// reduce flicker by storing the old rows.
 	oldRows = rows;
@@ -974,7 +973,7 @@ void QMLBox::update(QPainter* p, QMLRow* r)
 	QMLRow* row;
 	QMLRow* prev = 0;
 	
-	//todo drop QList and connect the rows directly *sigh*
+	//todo drop QPtrList and connect the rows directly *sigh*
 	for ( row = rows.first(); row && row != r; row = rows.next()) {
 	    prev = row;
 	}

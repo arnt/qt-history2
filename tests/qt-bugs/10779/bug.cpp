@@ -41,7 +41,7 @@ cDrawWindow::cDrawWindow(QWidget *parent)
 void cDrawWindow::viewportPaintEvent(QPaintEvent *pe)
 {
   printf("viewportPaintEvent\n");
-  QArray<QRect> rects = pe->region().rects();
+  QMemArray<QRect> rects = pe->region().rects();
   QPainter p(viewport());
   for (int i = rects.size(); i--; ) {
       printf("rect %5d %5d %5d %5d\n", rects[i].x(), rects[i].y(), rects[i].width(), rects[i].height());

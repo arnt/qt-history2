@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
@@ -93,7 +93,7 @@ ProjectGenerator::init()
 	    v["DEPENDPATH"] += dir;
     }
 
-    QList<MakefileDependDir> deplist;
+    QPtrList<MakefileDependDir> deplist;
     deplist.setAutoDelete(TRUE);
     {
 	QStringList &d = v["DEPENDPATH"];

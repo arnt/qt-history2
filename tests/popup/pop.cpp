@@ -3,7 +3,7 @@
 #include <qfiledialog.h>
 #include <qpushbutton.h>
 #include <qpopupmenu.h>
-#include <qmultilinedit.h>
+#include <qmultilineedit.h>
 #include <qpainter.h>
 #include <qdrawutil.h>
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <qlabel.h>
 #include <qfile.h>
-#include <qmultilinedit.h>
+#include <qmultilineedit.h>
 #include <qstring.h>
 #include <qregexp.h>
 #include <qapplication.h>

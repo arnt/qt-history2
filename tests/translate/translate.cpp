@@ -2,7 +2,7 @@
 #include <qpainter.h>
 #include <qapplication.h>
 #include <qpushbutton.h>
-#include <qmultilinedit.h>
+#include <qmultilineedit.h>
 #include <qlabel.h>
 
 #include <qtranslator.h>

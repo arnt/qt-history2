@@ -1654,7 +1654,7 @@ QWidgetList *QApplication::topLevelWidgets()
     delete list;			// delete the list, not the widgets
   \endcode
 
-  The QWidgetList class is defined in the qwidcoll.h header file.
+  The QWidgetList class is defined in the qwidgetlist.h header file.
 
   \warning Delete the list as soon you have finished using it.
   The widgets in the list may be deleted by someone else at any time.

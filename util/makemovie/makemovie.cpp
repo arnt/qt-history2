@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** C++ file
 **
@@ -8,12 +8,12 @@
 *****************************************************************************/
 
 #include <qimage.h>
-#include <qdstream.h>
+#include <qdatastream.h>
 #include <qlabel.h>
 #include <qpen.h>
 #include <qpainter.h>
 #include <qcolor.h>
-#include <qapp.h>
+#include <qapplication.h>
 #include <qmovie.h>
 #include <qfile.h>
 #include <qstrlist.h>

@@ -1,6 +1,5 @@
-
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
@@ -68,7 +67,7 @@ protected:
 	MakefileDependDir(QString r, QString l) : real_dir(r), local_dir(l) { }
 	QString real_dir, local_dir;
     };
-    bool generateDependencies(QList<MakefileDependDir> &dirs, QString x, bool recurse);
+    bool generateDependencies(QPtrList<MakefileDependDir> &dirs, QString x, bool recurse);
 
     QString cleanFilePath(const QString &file) const;
     bool generateMocList(QString fn);

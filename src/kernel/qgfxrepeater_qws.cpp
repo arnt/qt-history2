@@ -1,4 +1,4 @@
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qbitmap.h>
@@ -91,7 +91,7 @@ public:
 
 private:
 
-    QList<QGfxRec> gfxen;
+    QPtrList<QGfxRec> gfxen;
     QRegion widgetclip;
     bool desktopsource;
     int xoffs;
@@ -512,7 +512,7 @@ public:
 
 private:
 
-    QList<QCursorRec> cursors;
+    QPtrList<QCursorRec> cursors;
 
 };
 
@@ -554,7 +554,7 @@ private:
 
     bool sw_cursor_exists;
 
-    QList<QScreenRec> screens;
+    QPtrList<QScreenRec> screens;
 
 };
 

@@ -18,7 +18,7 @@
 #include <qmessagebox.h>
 #include <qprogressdialog.h>
 #include <qtabdialog.h>
-#include <qgrpbox.h>
+#include <qgroupbox.h>
 #include <qbuttongroup.h>
 #include <qlcdnumber.h>
 #include <qlabel.h>
@@ -27,7 +27,7 @@
 #include <qtableview.h>
 #include <qtabwidget.h>
 #include <qlistbox.h>
-#include <qmultilinedit.h>
+#include <qmultilineedit.h>
 #include <qpopupmenu.h>
 #include <qheader.h>
 #include <qlineedit.h>

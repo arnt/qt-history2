@@ -1,5 +1,5 @@
-#include "qlist.h"
-#include "qstack.h"
+#include "qptrlist.h"
+#include "qptrstack.h"
 #include "qxpath.h"
 
 #define QXPATH_DEBUG
@@ -201,7 +201,7 @@ public:
     }
 
 protected:
-    QList<QXPathAtom> children; // QList is more complex than needed
+    QPtrList<QXPathAtom> children; // QPtrList is more complex than needed
 };
 
 class QXPathAtomLocationPath : public QXPathAtomWithChildren
@@ -966,7 +966,7 @@ private:
     bool reduce( QXPathAtom* &act );
 
     QXPathLexicalAnalyzer *lex;
-    QStack<QXPathAtom> *stack;
+    QPtrStack<QXPathAtom> *stack;
 };
 
 
@@ -1051,7 +1051,7 @@ QXPathAtom* QXPathParser::parse( const QString& expr )
     Token token;
     QXPathAtom *act_root = 0;
     QXPathAtom *tmp;
-    stack = new QStack<QXPathAtom>;
+    stack = new QPtrStack<QXPathAtom>;
 
     // init lexical analyzer
     delete lex;

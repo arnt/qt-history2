@@ -37,8 +37,8 @@
 #include "qsql_oci.h"
 
 #include <qdatetime.h>
-#include <qvector.h>
-#include <qarray.h>
+#include <qptrvector.h>
+#include <qmemarray.h>
 #include <qstringlist.h>
 #include <stdlib.h>
 
@@ -451,11 +451,11 @@ private:
 	typ.insert( position, new QVariant::Type(type) );
     }
 
-    QVector<char> data;
-    QVector<int> len;
-    QVector<sb2> ind;
-    QVector<QVariant::Type> typ;
-    QArray< OCIDefine* > def;
+    QPtrVector<char> data;
+    QPtrVector<int> len;
+    QPtrVector<sb2> ind;
+    QPtrVector<QVariant::Type> typ;
+    QMemArray< OCIDefine* > def;
 };
 
 

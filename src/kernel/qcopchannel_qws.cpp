@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QCOP protocol
 **
@@ -37,7 +37,7 @@
 #include "qwsdisplay_qws.h"
 #include "qwscommand_qws.h"
 #include "qwindowsystem_qws.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qmap.h"
 
 typedef QMap<QString, QPtrList<QWSClient> > QCopServerMap;

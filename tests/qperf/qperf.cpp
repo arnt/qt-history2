@@ -2,7 +2,7 @@
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qpixmap.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qdict.h>
 #include <qdatetime.h>
 #if defined(Q_OS_WIN32)
@@ -79,7 +79,7 @@ QString qperf_imageExt()
 typedef GCI Item;
 #endif
 
-class QPerfList : public QList<QPerfEntry>
+class QPerfList : public QPtrList<QPerfEntry>
 {
 public:
     QPerfList() {}
@@ -90,9 +90,9 @@ protected:
 			((QPerfEntry*)s2)->funcName); }
 };
 
-typedef QListIterator<QPerfEntry> QPerfListIt;
-typedef QDict<QPerfEntry>	  QPerfDict;
-typedef QDictIterator<QPerfEntry> QPerfDictIt;
+typedef QPtrListIterator<QPerfEntry> QPerfListIt;
+typedef QDict<QPerfEntry>	     QPerfDict;
+typedef QDictIterator<QPerfEntry>    QPerfDictIt;
 
 static QPerfList *perf_list;
 static QPerfDict *perf_dict;

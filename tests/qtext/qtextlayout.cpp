@@ -466,7 +466,7 @@ int QTextRow::bidiReorderLine(int posToCheck = -1, bool logicalToVisual)
 {
     //printf("doing BiDi reordering from %d to %d!\n", start, len+start);
 
-    QList<QBidiRun> runs;
+    QPtrList<QBidiRun> runs;
     runs.setAutoDelete(true);
 
     QBidiContext *context = startEmbed;
@@ -909,7 +909,7 @@ int QTextRow::bidiReorderLine(int posToCheck = -1, bool logicalToVisual)
 #ifdef BIDI_DEBUG
     cout << "reorderLine: lineLow = " << (uint)levelLow << ", lineHigh = " << (uint)levelHigh << endl;
     cout << "logical order is:" << endl;
-    QListIterator<QBidiRun> it2(runs);
+    QPtrListIterator<QBidiRun> it2(runs);
     QBidiRun *r2;
     for ( ; (r2 = it2.current()); ++it2 )
 	cout << "    " << r2 << "  start=" << r2->start << "  stop=" << r2->stop << "  level=" << (uint)r2->level << endl;
@@ -946,7 +946,7 @@ int QTextRow::bidiReorderLine(int posToCheck = -1, bool logicalToVisual)
 
 #ifdef BIDI_DEBUG
     cout << "visual order is:" << endl;
-    QListIterator<QBidiRun> it3(runs);
+    QPtrListIterator<QBidiRun> it3(runs);
     QBidiRun *r3;
     for ( ; (r3 = it3.current()); ++it3 )
     {

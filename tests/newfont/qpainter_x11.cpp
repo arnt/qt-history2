@@ -88,7 +88,7 @@ void qt_erase_region( QWidget* w, const QRegion& region)
     if ( w == paintEventDevice )
 	reg = paintEventClipRegion->intersect( reg );
 
-    QArray<QRect> r = reg.rects();
+    QMemArray<QRect> r = reg.rects();
     for (uint i=0; i<r.size(); i++) {
 	const QRect& rr = r[(int)i];
 	XClearArea( w->x11Display(), w->winId(),

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Geometry management example: Putting a QBoxLayout inside a
 ** QGridLayout
@@ -9,7 +9,7 @@
 *****************************************************************************/
 #include <qapplication.h>
 #include <qlabel.h>
-#include <qmultilinedit.h>
+#include <qmultilineedit.h>
 #include <qcolor.h>
 #include <qgroupbox.h>
 #include <qpushbutton.h>

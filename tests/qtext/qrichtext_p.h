@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of internal rich text classes
 **
@@ -47,7 +47,7 @@
 #include "qdict.h"
 #include "qcolor.h"
 #include "qfont.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qlayout.h"
 
 
@@ -541,15 +541,15 @@ public:
 
 private:
     struct Item {
-	Item( const QRichTextFormatter& cur, QList<QTextTableCell> &cells )
+	Item( const QRichTextFormatter& cur, QPtrList<QTextTableCell> &cells )
 	    : fc( cur ), it( cells )
     {}
 	QRichTextFormatter fc;
-	QListIterator<QTextTableCell> it;
+	QPtrListIterator<QTextTableCell> it;
     };
     QRichText& doc;
     QRichTextFormatter fc;
-    QList<Item> stack;
+    QPtrList<Item> stack;
     bool dirty;
     void update();
 };
@@ -581,8 +581,8 @@ public:
     int pagesize;
 
 private:
-    QList<QTextCustomItem> leftItems;
-    QList<QTextCustomItem> rightItems;
+    QPtrList<QTextCustomItem> leftItems;
+    QPtrList<QTextCustomItem> rightItems;
 
 };
 

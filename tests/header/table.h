@@ -2,7 +2,7 @@
 #define TABLE_H
 
 #include <qtableview.h>
-#include <qarray.h>
+#include <qmemarray.h>
 
 class QHeader;
 
@@ -29,7 +29,7 @@ protected slots:
     */
 private:
     QHeader *bar;
-    QArray<int> numbers;
+    QMemArray<int> numbers;
 };
 
 #endif //TABLE_H

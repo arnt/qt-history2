@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** makergb - Utility to generate X11 RGB color lookup function
 **
@@ -19,7 +19,7 @@
 *****************************************************************************/
 
 #include <qstring.h>
-#include <qvector.h>
+#include <qptrvector.h>
 #include <qdict.h>
 #include <qregexp.h>
 #include <stdio.h>
@@ -35,10 +35,10 @@ struct Color {					// data read from rgb.txt
 };
 
 
-class ColorVector : public QVector<Color>	// vector of Color data
+class ColorVector : public QPtrVector<Color>	// vector of Color data
 {
 public:
-    ColorVector( uint sz ) : QVector<Color>(sz)
+    ColorVector( uint sz ) : QPtrVector<Color>(sz)
 	{ setAutoDelete(TRUE); }
    ~ColorVector()
 	{ clear(); }

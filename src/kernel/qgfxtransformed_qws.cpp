@@ -1,5 +1,5 @@
 /*****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QGfxRaster (unaccelerated graphics context) class for
 ** Embedded Qt
@@ -337,7 +337,7 @@ QRegion QTransformedScreen::mapToDevice( const QRegion &rgn, const QSize &s ) co
 	return rgn;
 
     QRegion trgn;
-    QArray<QRect> a = rgn.rects();
+    QMemArray<QRect> a = rgn.rects();
     for ( int i = 0; i < (int)a.size(); i++ ) {
 	const QRect &r = a[i];
 	QRect tr;
@@ -369,7 +369,7 @@ QRegion QTransformedScreen::mapFromDevice( const QRegion &rgn, const QSize &s ) 
 	return rgn;
 
     QRegion trgn;
-    QArray<QRect> a = rgn.rects();
+    QMemArray<QRect> a = rgn.rects();
     for ( int i = 0; i < (int)a.size(); i++ ) {
 	const QRect &r = a[i];
 	QRect tr;

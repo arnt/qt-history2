@@ -5,7 +5,7 @@
 #include <qlayout.h>
 #include <qapplication.h>
 #include <qlineedit.h>
-#include <qmultilinedit.h>
+#include <qmultilineedit.h>
 #include <qtextstream.h>
 #include <qpushbutton.h>
 

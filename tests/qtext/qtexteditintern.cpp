@@ -24,7 +24,7 @@ static QMap<QChar, QStringList> *eCompletionMap = 0;
 void QTextEditCommandHistory::addCommand( QTextEditCommand *cmd )
 {
     if ( current < (int)history.count() - 1 ) {
-	QList<QTextEditCommand> commands;
+	QPtrList<QTextEditCommand> commands;
 	commands.setAutoDelete( FALSE );
 
 	for( int i = 0; i <= current; ++i ) {

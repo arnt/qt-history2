@@ -14,7 +14,7 @@
 **
 **********************************************************************/
 
-#include <qarray.h>
+#include <qmemarray.h>
 #include <qcstring.h>
 #include <qmap.h>
 #include <qstringlist.h>
@@ -84,8 +84,8 @@ static QString translationAttempt( const QString& oldTranslation,
     QString attempt;
     QStringList oldNumbers;
     QStringList newNumbers;
-    QArray<bool> met( p );
-    QArray<int> matchedYet( p );
+    QMemArray<bool> met( p );
+    QMemArray<int> matchedYet( p );
     int i, j;
     int k = 0, ell, best;
     int m, n;
