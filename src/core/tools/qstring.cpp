@@ -4120,12 +4120,29 @@ QString QString::toUpper() const
     \sa arg()
 */
 
-QString &QString::sprintf(const char* cformat, ...)
+QString &QString::sprintf(const char *cformat, ...)
 {
-    QLocale locale(QLocale::C);
-
     va_list ap;
     va_start(ap, cformat);
+    QString &s = vsprintf(cformat, ap);
+    va_end(ap);
+    return s;
+}
+
+/*!
+    Equivalent method to sprintf(), but takes a va_list \a ap
+    instead a list of variable arguments. See the sprintf()
+    documentation for an explanation of \a cformat.
+
+    This method does not call the va_end macro, the caller
+    is responsible to call va_end on \a ap.
+
+    \sa sprintf()
+*/
+
+QString &QString::vsprintf(const char* cformat, va_list ap)
+{
+    QLocale locale(QLocale::C);
 
     if (!cformat || !*cformat) {
         // Qt 1.x compat
@@ -4443,7 +4460,6 @@ QString &QString::sprintf(const char* cformat, ...)
             result.append(subst.rightJustified(width));
     }
 
-    va_end(ap);
     *this = result;
 
     return *this;
