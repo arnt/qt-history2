@@ -7,12 +7,16 @@
 BASEDIR		= $(QTDIR)
 INCDIR		= $(BASEDIR)/include
 LIBDIR		= $(BASEDIR)/lib
-DISTDIR		= /tmp/qt-0.94
+DISTDIR		= /tmp/qt-0.96
 
 ####### Compiler
 
 #CFLAGS		= -O2 -DNO_DEBUG -DNO_CHECK
-CFLAGS		= -O2 -W -Wall -Wpointer-arith -Wsynth -Wconversion
+CFLAGS		= -W -Wtemplate-debugging -Wparentheses -Wuninitialized \
+		-Wchar-subscripts -Wformat -Wtrigraphs -Wcomment -Wswitch \
+		-Wunused -Wreturn-type -Wimplicit -Wpointer-arith -Wsynth \
+		-Wconversion -Wno-overloaded-virtual \
+		-O2 -fno-strength-reduce
 CDBGFLAGS	= -g -W -Wall -Wpointer-arith -Wsynth -Wconversion
 CSTATICFLAGS	=
 CSHAREDFLAGS	= -fPIC
@@ -21,7 +25,7 @@ CC		= gcc
 ####### Targets
 
 STATICTARGET	= $(LIBDIR)/libqt.a
-SHAREDTARGET	= $(LIBDIR)/libqt.so.0.9.4
+SHAREDTARGET	= $(LIBDIR)/libqt.so.0.9.5
 
 #######	Sub directories (excluding moc)
 
@@ -58,6 +62,7 @@ FORCE:
 
 lib: tools kernel widgets dialogs
 
+# need FORCE because the directories' dates confuse make terribly
 tools kernel widgets dialogs: FORCE
 	-mkdir -p $(OBJDIR)/$@
 	-rm -f $@/*.o
@@ -81,34 +86,53 @@ staticdbg:
 shared:
 	$(MAKE) lib 'CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shared'
 	/bin/rm -f $(SHAREDTARGET)
-	$(CC) -shared -o $(SHAREDTARGET) obj/shared/*/*.o -lX11 -lgcc -lc
+	$(CC) -shared -Wl,-soname,libqt.so.0 -o $(SHAREDTARGET) \
+		obj/shared/*/*.o -lX11 -lgcc -lc
 
 shareddbg:
 	$(MAKE) lib 'CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shareddbg'
 	/bin/rm -f $(SHAREDTARGET)
-	$(CC) -shared -o $(SHAREDTARGET) obj/shareddbg/*/*.o -lX11 -lgcc -lc
+	$(CC) -shared -o -Wl,-soname,libqt.so.0 -o $(SHAREDTARGET) \
+		obj/shareddbg/*/*.o -lX11 -lgcc -lc
 
-dist: clean include depend static shared
+#static shared clean include depend 
+dist: 
 	-$(RM) -rf $(DISTDIR)
-	find /local/qt/examples -type d -print \
-	    | grep -v RCS \
-	    | sed s@/local@$(DISTDIR)/lib@ \
-	    | xargs mkdir -p
-	mkdir -p $(DISTDIR)/{lib/qt/include,lib/qt/doc,bin,man}
+	# misc
+	mkdir -p $(DISTDIR)/{include/qt,lib/qt/include,lib/qt/doc,bin,man/man1,man/man3}
+	ln -s ../lib/qt/include $(DISTDIR)/include/qt
 	cp -fR /local/qt/install-extra/. $(DISTDIR)
+	rm -rf $(DISTDIR)/RCS
 	cp -f $(INCDIR)/*.h $(DISTDIR)/lib/qt/include
+	co -p -q moc/moc.1 > $(DISTDIR)/man/man1/moc.1
+	cp -f /local/man/man3/*.3qt $(DISTDIR)/man/man3
 	cp -f /local/qt/doc/html/*.html $(DISTDIR)/lib/qt/doc
+	cp -f /local/qt/doc/html/*.gif $(DISTDIR)/lib/qt/doc
+	# examples
+	mkdir -p `make -s -C /local/qt/examples showdirs | fmt -1 | sed 's_^_'$(DISTDIR)/lib/qt/examples/_g`
 	set -e ; for a in `find $(DISTDIR)/lib/qt/examples -type d -print` ; \
 	do \
 	    ( set -e ; cd $$a ; co -r `pwd | sed s@$(DISTDIR)/lib@/local@`/RCS/*,v ); \
 	done
+	# tutorial
+	mkdir -p `make -s -C /local/qt/tutorial showdirs | fmt -1 | sed 's_^_'$(DISTDIR)/lib/qt/tutorial/_g`
+	set -e ; for a in `find $(DISTDIR)/lib/qt/tutorial -type d -print` ; \
+	do \
+	    ( set -e ; cd $$a ; co -r `pwd | sed s@$(DISTDIR)/lib@/local@`/RCS/*,v ); \
+	done
+	chmod -R u+w $(DISTDIR)
 
-tar: dist
+rpm:
+	rpm -bi --short-circuit qt-0.96-1.spec
+	rpm -bl qt-0.96-1.spec
+	rpm -bb qt-0.96-1.spec
+
+tar:
 	-rm $(DISTDIR).tar.gz
 	( set -e ; cd $(DISTDIR) ; tar cf misc.tar bin lib man )
 	( set -e ; cd $(LIBDIR) ; tar cf $(DISTDIR)/shared.tar libqt.so* )
 	( set -e ; cd $(LIBDIR) ; tar cf $(DISTDIR)/static.tar libqt.a )
-	( set -e ; cd $(DISTDIR)/.. ; tar cf $(DISTDIR).tar `basename $(DISTDIR)`/{INSTALL,README,ANNOUNCE,MANIFEST,LICENCE,misc.tar,static.tar,shared.tar} ; gzip -f9 $(DISTDIR).tar )
+	( set -e ; cd $(DISTDIR)/.. ; tar cf $(DISTDIR).tar `basename $(DISTDIR)`/{README,INSTALL,misc.tar,static.tar,shared.tar,CHANGES,ANNOUNCE,MANIFEST,LICENCE} ; gzip -f9 $(DISTDIR).tar )
 
 info:
 	@for d in $(DIRS); do cd $$d ; rinfo ; cd .. ; done
