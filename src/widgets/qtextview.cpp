@@ -605,10 +605,21 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 	}
 	if ( cursor->atParagEnd() ) {
 	    undoRedoInfo.d->text += cursor->parag()->at( cursor->index() )->c;
+	    if ( cursor->parag()->at( cursor->index() )->format() ) {
+		cursor->parag()->at( cursor->index() )->format()->addRef();
+		undoRedoInfo.d->text.at( undoRedoInfo.d->text.length() - 1 ).setFormat( cursor->parag()->at( cursor->index() )->format() );
+	    }
 	    if ( cursor->remove() )
 		undoRedoInfo.d->text += "\n";
 	} else {
+	    int oldLen = undoRedoInfo.d->text.length();
 	    undoRedoInfo.d->text += cursor->parag()->string()->toString().mid( cursor->index() );
+	    for ( int i = cursor->index(); i < cursor->parag()->length(); ++i ) {
+		if ( cursor->parag()->at( i )->format() ) {
+		    cursor->parag()->at( i )->format()->addRef();
+		    undoRedoInfo.d->text.at( oldLen + i - cursor->index() ).setFormat( cursor->parag()->at( i )->format() );
+		}
+	    }
 	    undoRedoInfo.d->text.remove( undoRedoInfo.d->text.length() - 1, 1 );
 	    cursor->killLine();
 	}
