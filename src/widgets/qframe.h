@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#12 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#13 $
 **
 ** Definition of QFrame widget class
 **
@@ -26,8 +26,9 @@ public:
     enum { NoFrame  = 0,			// no frame
 	   Box	    = 0x0001,			// rectangular box
 	   Panel    = 0x0002,			// rectangular panel
-	   HLine    = 0x0003,			// horizontal line
-	   VLine    = 0x0004,			// vertical line
+	   WinPanel = 0x0003,			// rectangular panel (Windows)
+	   HLine    = 0x0004,			// horizontal line
+	   VLine    = 0x0005,			// vertical line
 	   MShape   = 0x000f,
 	   Plain    = 0x0010,			// plain line
 	   Raised   = 0x0020,			// raised shadow effect
