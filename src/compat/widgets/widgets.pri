@@ -22,7 +22,8 @@ HEADERS += \
     widgets/qgridview.h \
     widgets/qpopupmenu.h \
     widgets/qrangecontrol.h \
-    widgets/qwidgetstack.h
+    widgets/qwidgetstack.h \
+    widgets/q3workspace.h
 
 SOURCES += \
     widgets/q3action.cpp \
@@ -41,5 +42,5 @@ SOURCES += \
     widgets/qgridview.cpp \
     widgets/qrangecontrol.cpp \
     widgets/qspinwidget.cpp \
-    widgets/qwidgetstack.cpp
-
+    widgets/qwidgetstack.cpp \
+    widgets/q3workspace.cpp
