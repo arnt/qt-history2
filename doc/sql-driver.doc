@@ -149,51 +149,52 @@ statement above.
 
 \keyword QOCI8
 
+\section3 General information
+
+The Qt OCI plugin supports both Oracle 8 and Oracle 9. After connecting to the Oracle
+server, the plugin will auto-detect its version and enable features accordingly.
+
+\section3 Unicode support
+
+If the Oracle server supports unicode, the OCI plugin will use the Utf8
+encoding to communicate with the server. Oracle 8 only supports fetching
+unicode strings, Oracle 9 supports fetching as well as inserting unicode strings.
+
+\section3 BLOB support
+
+(Binary) Large Objects can be fetched but they consume a lot of memory.
+We recommend using separate queries to fetch only one LOB at a time.
+
+Inserting (B)LOB fields is limited to Oracle's maximum SQL string size.
+
 \section3 How to build the plugin on Unix/Linux
 
 All files required to build driver should ship with the standard Oracle
-install. For Linux, it may be possible to copy headers from another
-platform's install.
+Client install.
 
 Oracle library files required to build driver:
 
 \list
 \i libclntsh.so
-\i libclntsh.so.8.0
-\i libwtc8.so
-\endlist
-
-Oracle header files required to build driver:
-
-\list
-\i nzerror.h
-\i nzt.h
-\i oci.h
-\i oci1.h
-\i oci8dp.h
-\i ociap.h
-\i ociapr.h
-\i ocidef.h
-\i ocidem.h
-\i ocidfn.h
-\i ociextp.h
-\i ocikp.h
-\i ocikpr.h
-\i odci.h
-\i oratypes.h
-\i ori.h
-\i orid.h
-\i orl.h
-\i oro.h
-\i ort.h
+\i libclntsh.so.8.0 (Oracle 8) or libclntsh.so.9.0 (Oracle 9)
+\i libwtc8.so or libwtc9.so
 \endlist
 
 Tell qmake where to find the Oracle header files and shared libraries
-(here it is assumed that Oracle is installed in /usr/local) and run make:
+(it is assumed that the variable $ORACLE_HOME points to the directory
+where Oracle is installed) and run make:
 
+If you are using Oracle 8:
 \code
 cd $QTDIR/plugins/src/sqldrivers/oci
-qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/lib -lclntsh -lwtc8" oci.pro
+qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh -lwtc8" oci.pro
+make
+\endcode
+
+For Oracle version 9:
+\code
+cd $QTDIR/plugins/src/sqldrivers/oci
+qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh -lwtc9" oci.pro
 make
 \endcode
 
@@ -304,6 +305,11 @@ Unicode support has been introduced in PostgreSQL version 7.1 and only works
 if both the server and the client library have been compiled with multibyte support.
 More information about how to set up a multibyte enabled PostgreSQL server can be
 found in the PostgreSQL Administrator Guide, Chapter 5.
+
+\section3 BLOB support
+
+Binary Large Objects can be fetched but not inserted. Please use the PostgreSQL
+command lo_import to insert binary data into the database.
 
 \section3 How to build the plugin on Unix/Linux
 
