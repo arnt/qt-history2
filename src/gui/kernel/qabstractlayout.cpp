@@ -999,11 +999,11 @@ void QLayout::childEvent(QChildEvent *e)
 */
 int QLayout::totalHeightForWidth(int w) const
 {
-    if (d->topLevel)
-        parentWidget()->ensurePolished();
     int side=0, top=0;
     if (d->topLevel) {
-        QWidgetPrivate *wd = parentWidget()->d;
+        QWidget *parent = parentWidget();
+        parent->ensurePolished();
+        QWidgetPrivate *wd = parent->d;
         side += wd->leftmargin + wd->rightmargin;
         top += wd->topmargin + wd->bottommargin;
     }
@@ -1184,7 +1184,9 @@ void QLayout::freeze(int w, int h)
         h = s.height();
     }
     setResizeMode(FreeResize); // layout will not change min/max size
-    parentWidget()->setFixedSize(w, h);
+    QWidget *parent = parentWidget();
+    if (parent)
+        parent->setFixedSize(w, h);
 }
 
 /*!
@@ -1767,7 +1769,8 @@ QRect QLayout::alignmentRect(const QRect &r) const
     else if (!(a & Qt::AlignTop))
         y += (r.height() - s.height()) / 2;
 
-    a = QStyle::horizontalAlignment(parentWidget()->layoutDirection(), a);
+    QWidget *parent = parentWidget();
+    a = QStyle::horizontalAlignment(parent ? parent->layoutDirection() : Qt::LeftToRight, a);
     if (a & Qt::AlignRight)
         x += (r.width() - s.width());
     else if (!(a & Qt::AlignLeft))

@@ -741,7 +741,8 @@ void QGridLayoutPrivate::setupHfwLayoutData(int spacing)
 void QGridLayoutPrivate::distribute(QRect r, int spacing)
 {
     bool visualHReversed = hReversed;
-    if (q->parentWidget()->isRightToLeft())
+    QWidget *parent = q->parentWidget();
+    if (parent && parent->isRightToLeft())
         visualHReversed = !visualHReversed;
 
     setupLayoutData(spacing);
