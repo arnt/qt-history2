@@ -524,12 +524,11 @@ int QPrinter::metric( int m ) const
 
 /*!
     Returns the width of the left margin and the height of the top
-    margin of the printer. This is a best-effort guess, not based on
-    perfect knowledge.
+    margin of the printer. On Unix, this is a best-effort guess, not
+    based on perfect knowledge.
 
-    If you have called setFullPage( TRUE ) (this is recommended for
-    high-quality printing), margins().width() may be treated as the
-    smallest sane left/right margin you can use, and
+    If you have called setFullPage( TRUE ), margins().width() may be
+    treated as the smallest sane left/right margin you can use, and
     margins().height() as the smallest sane top/bottom margins you can
     use.
 

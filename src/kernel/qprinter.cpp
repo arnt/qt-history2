@@ -66,10 +66,12 @@
     \i setResolution() tells QPrinter what resolution you wish the
     printer to provide (in dpi).
     \i setFullPage() tells QPrinter whether you want to deal with the
-    full page (so you can have accurate margins, etc.) or just with
-    the part the printer can draw on. The default is FALSE, so that by
-    default you can probably paint on (0,0) but the document's margins
-    are unknown.
+    full page or just with the part the printer can draw on. The
+    default is FALSE, so that by default you should be able to paint
+    on (0,0). If TRUE the origin of the coordinate system will be in
+    the top left corner of the paper and most probably the printer
+    will not be able to paint something there due to it's physical
+    margins.
     \i setNumCopies() tells QPrinter how many copies of the document
     it should print.
     \i setMinMax() tells QPrinter and QPrintDialog what the allowed
@@ -112,9 +114,7 @@
     printer (see the \link simple-application.html#printersimple print
     function\endlink in the Application walk-through). Note that the
     paint device metrics are valid only after the QPrinter has been
-    set up, i.e. after setup() has returned successfully. If you want
-    high-quality printing with accurate margins, you must call
-    setFullPage(TRUE).
+    set up, i.e. after setup() has returned successfully. 
 
     If you want to abort the print job, abort() will try its best to
     stop printing. It may cancel the entire job or just some of it.
@@ -813,8 +813,9 @@ void QPrinter::setPrinterSelectionOption( const QString & option )
 
     The default is FALSE. You can (probably) print on (0,0), and
     QPaintDeviceMetrics will report something smaller than the size
-    indicated by PageSize. (Note that QPrinter may be wrong - it does
-    not have perfect knowledge of the physical printer.)
+    indicated by PageSize. (Note that QPrinter may be wrong on Unix
+    systems - it does not have perfect knowledge of the physical
+    printer.)
 
     If you set \a fp to TRUE, QPaintDeviceMetrics will report the
     exact same size as indicated by \c PageSize, but you cannot print
