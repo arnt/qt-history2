@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#41 $
 **
 ** Implementation of QStatusBar class
 **
@@ -233,6 +233,8 @@ void QStatusBar::reformat()
 
 void QStatusBar::message( const QString &message )
 {
+    if ( d->temporary == message )
+	return;
     d->temporary = message; // ### clip and add ellipsis if necessary
     if ( d->timer ) {
 	delete d->timer;

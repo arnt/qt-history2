@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#76 $
 **
 ** Implementation of QTabBar class
 **
@@ -176,7 +176,7 @@ int QTabBar::addTab( QTab * newTab )
 int QTabBar::insertTab( QTab * newTab, int index )
 {
     newTab->id = d->id++;
-    l->append( newTab );
+    l->insert( 0, newTab );
     if ( index < 0 || index > int(lstatic->count()) )
 	lstatic->append( newTab );
     else
@@ -519,8 +519,6 @@ void QTabBar::mouseReleaseEvent( QMouseEvent * e )
 void QTabBar::show()
 {
     QTab * t = l->last();
-    if ( !isVisible() && (t = l->first()) != 0 )
-	l->append( l->take() );
     QWidget::show();
     if ( t )
 	emit selected( t->id );

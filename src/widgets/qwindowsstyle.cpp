@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#12 $
 **
 ** Implementation of Windows-like style class
 **
@@ -181,8 +181,16 @@ QWindowsStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 		const QColorGroup &g, bool sunken,
 		   int lineWidth, const QBrush* fill)
 {
-    if ( lineWidth == 2 )
-	QWindowsStyle::drawButton(p, x, y, w, h, g, sunken, fill);
+    if ( lineWidth == 2 ) {
+	if (sunken)
+	    drawWinShades( p, x, y, w, h,
+			   g.shadow(), g.light(), g.dark(), g.button(),
+			   fill );
+	else
+	    drawWinShades( p, x, y, w, h,
+			   g.light(), g.shadow(), g.midlight(), g.dark(),
+			   fill );
+    }
     else
 	QStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
 }

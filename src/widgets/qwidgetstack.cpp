@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#46 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -262,7 +262,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
     if ( f )
 	f->setFocus();
 
-    if ( isVisible() ) {
+    if ( isVisible() ) { 
 	emit aboutToShow( w );
 	if ( receivers( SIGNAL(aboutToShow(int)) ) ) {
 	    int i = id( w );
