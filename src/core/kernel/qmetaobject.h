@@ -124,7 +124,8 @@ public:
 
     static int registerType(const char *typeName, Destructor destructor, CopyConstructor copyConstructor);
     static int type(const char *typeName);
-    static void *copy(int type, void *data);
+    static bool isRegistered(int type);
+    static void *copy(int type, const void *data);
     static void destroy(int type, void *data);
 };
 

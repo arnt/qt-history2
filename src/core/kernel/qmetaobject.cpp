@@ -1475,6 +1475,8 @@ public:
     ~QCustomTypeInfo() { delete typeName; }
     void setData(const char *tname, QMetaType::CopyConstructor cp, QMetaType::Destructor de)
     { delete typeName; typeName = qstrdup(tname); copy = cp; destr = de; }
+    void setData(QMetaType::CopyConstructor cp, QMetaType::Destructor de)
+    { copy = cp; destr = de; }
 
     const char *typeName;
     QMetaType::CopyConstructor copy;
@@ -1504,12 +1506,21 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
             qWarning("cannot re-register basic type '%s'", typeName);
             return -1;
         }
+        customTypes[idx - User].setData(copyConstructor, destructor);
     } else {
         idx = currentIdx++;
         customTypes.resize(customTypes.count() + 1);
+        customTypes[idx - User].setData(typeName, copyConstructor, destructor);
     }
-    customTypes[idx - User].setData(typeName, copyConstructor, destructor);
     return idx;
+}
+
+/*!
+  Returns whether a custom datatype with id \a type is registred or not.
+ */
+bool QMetaType::isRegistered(int type)
+{
+    return (type >= User) && (customTypes.count() > type - User);
 }
 
 /*!
@@ -1536,46 +1547,46 @@ int QMetaType::type(const char *typeName)
 /*
   Returns a copy of data, assuming it is of type \a type.
  */
-void *QMetaType::copy(int type, void *data)
+void *QMetaType::copy(int type, const void *data)
 {
     if (!data)
         return 0;
     switch(type) {
     case QMetaType::VoidStar:
-        return new void *(*static_cast<void**>(data));
+        return new void *(*static_cast<void* const *>(data));
     case QMetaType::Long:
-        return new long(*static_cast<long*>(data));
+        return new long(*static_cast<const long*>(data));
     case QMetaType::Int:
-        return new int(*static_cast<int*>(data));
+        return new int(*static_cast<const int*>(data));
     case QMetaType::Short:
-        return new short(*static_cast<short*>(data));
+        return new short(*static_cast<const short*>(data));
     case QMetaType::Char:
-        return new char(*static_cast<char*>(data));
+        return new char(*static_cast<const char*>(data));
     case QMetaType::ULong:
-        return new ulong(*static_cast<ulong*>(data));
+        return new ulong(*static_cast<const ulong*>(data));
     case QMetaType::UInt:
-        return new uint(*static_cast<uint*>(data));
+        return new uint(*static_cast<const uint*>(data));
     case QMetaType::UShort:
-        return new ushort(*static_cast<ushort*>(data));
+        return new ushort(*static_cast<const ushort*>(data));
     case QMetaType::UChar:
-        return new uchar(*static_cast<uchar*>(data));
+        return new uchar(*static_cast<const uchar*>(data));
     case QMetaType::Bool:
-        return new bool(*static_cast<bool*>(data));
+        return new bool(*static_cast<const bool*>(data));
     case QMetaType::Float:
-        return new float(*static_cast<float*>(data));
+        return new float(*static_cast<const float*>(data));
     case QMetaType::Double:
-        return new double(*static_cast<double*>(data));
+        return new double(*static_cast<const double*>(data));
     case QMetaType::QChar:
-        return new ::QChar(*static_cast< ::QChar*>(data));
+        return new ::QChar(*static_cast<const ::QChar*>(data));
     case QMetaType::QByteArray:
-        return new ::QByteArray(*static_cast< ::QByteArray*>(data));
+        return new ::QByteArray(*static_cast<const ::QByteArray*>(data));
     case QMetaType::QString:
-        return new ::QString(*static_cast< ::QString*>(data));
+        return new ::QString(*static_cast<const ::QString*>(data));
     case QMetaType::Void:
         return 0;
     default:
         customTypes.ensure_constructed();
-        if (customTypes.count() > type - User)
+        if (type >= User && customTypes.count() > type - User)
             return customTypes.at(type - User).copy(data);
         return 0;
     }
@@ -1638,7 +1649,7 @@ void QMetaType::destroy(int type, void *data)
         break;
     default:
         customTypes.ensure_constructed();
-        if (customTypes.count() > type - User)
+        if (type >= User && customTypes.count() > type - User)
             customTypes.at(type - User).destr(data);
         break;
     }
