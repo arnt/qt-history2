@@ -24,6 +24,9 @@ class QPaintDevice;
 class QPaintEnginePrivate;
 class QPainterPath;
 class QPainterState;
+class QRectFloat;
+class QLineFloat;
+class QPointFloat;
 struct QGlyphLayout;
 
 class QTextItem {
@@ -77,6 +80,13 @@ public:
         AllDirty                = 0x00ff
     };
 
+    enum PolygonDrawMode {
+        OddEvenMode,
+        WindingMode,
+        ConvexMode,
+        UnconnectedMode
+    };
+
     QPaintEngine(PaintEngineFeatures features=0);
     virtual ~QPaintEngine();
 
@@ -95,30 +105,26 @@ public:
     virtual void updateRenderHints(QPainter::RenderHints hints);
     virtual void updateClipPath(const QPainterPath &path, bool enabled);
 
-    virtual void drawPath(const QPainterPath &path);
-    virtual void drawLine(const QPoint &p1, const QPoint &p2) = 0;
-    virtual void drawRect(const QRect &r) = 0;
+    virtual void drawLine(const QPoint &p1, const QPoint &p2);
+    virtual void drawRect(const QRect &r);
     virtual void drawRects(const QList<QRect> &rects);
     virtual void drawPoint(const QPoint &p) = 0;
-    virtual void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1) = 0;
-    virtual void drawRoundRect(const QRect &r, int xRnd, int yRnd) = 0;
-    virtual void drawEllipse(const QRect &r) = 0;
-    virtual void drawArc(const QRect &r, int a, int alen) = 0;
-    virtual void drawPie(const QRect &r, int a, int alen) = 0;
-    virtual void drawChord(const QRect &r, int a, int alen) = 0;
-    virtual void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1) = 0;
-    virtual void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1) = 0;
-    virtual void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints = -1) = 0;
-    virtual void drawConvexPolygon(const QPointArray &, int index = 0, int npoints = -1) = 0;
-#ifndef QT_NO_BEZIER
-    virtual void drawCubicBezier(const QPointArray &, int index = 0) = 0;
-#endif
+    virtual void drawPoints(const QPointArray &pa);
+    virtual void drawEllipse(const QRect &r);
+    virtual void drawLineSegments(const QPointArray &);
+    virtual void drawPolygon(const QPointArray &pa, PolygonDrawMode mode) = 0;
 
     virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
                             Qt::PixmapDrawingMode mode = Qt::ComposePixmap) = 0;
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
 				 Qt::PixmapDrawingMode mode = Qt::ComposePixmap) = 0;
+
+    // Float functions
+    virtual void drawPath(const QPainterPath &path);
+    virtual void drawLine(const QLineFloat &line);
+    virtual void drawRect(const QRectFloat &rf);
+    virtual void drawPoint(const QPointFloat &pf);
 
     virtual QPainter::RenderHints supportedRenderHints() const;
     QPainter::RenderHints renderHints() const;

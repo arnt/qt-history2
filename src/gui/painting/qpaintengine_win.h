@@ -45,24 +45,14 @@ public:
     void drawLine(const QPoint &p1, const QPoint &p2);
     void drawRect(const QRect &r);
     void drawPoint(const QPoint &p);
-    void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
-    void drawRoundRect(const QRect &r, int xRnd, int yRnd);
     void drawEllipse(const QRect &r);
-    void drawArc(const QRect &r, int a, int alen);
-    void drawPie(const QRect &r, int a, int alen);
-    void drawChord(const QRect &r, int a, int alen);
-    void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
-    void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
-    void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints = -1);
-    void drawConvexPolygon(const QPointArray &, int index = 0, int npoints = -1);
-#ifndef QT_NO_BEZIER
-    void drawCubicBezier(const QPointArray &, int index = 0);
-#endif
+    void drawPolygon(const QPointArray &pa, PolygonDrawMode mode);
 
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode);
     void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
 			 Qt::PixmapDrawingMode mode);
+
     void drawPath(const QPainterPath &path);
 
     inline Type type() const { return QPaintEngine::Windows; }
@@ -82,9 +72,6 @@ public:
 
 protected:
     QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, PaintEngineFeatures caps);
-
-private:
-    void drawPolyInternal(const QPointArray &a, bool close);
 
 protected:
     friend class QPainter;
@@ -112,17 +99,8 @@ public:
     void drawLine(const QPoint &p1, const QPoint &p2);
     void drawRect(const QRect &r);
     void drawPoint(const QPoint &p);
-    void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
-    void drawRoundRect(const QRect &r, int xRnd, int yRnd);
     void drawEllipse(const QRect &r);
-    void drawArc(const QRect &r, int a, int alen);
-    void drawPie(const QRect &r, int a, int alen);
-    void drawChord(const QRect &r, int a, int alen);
-    void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
-    void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
-    void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0,
-		     int npoints = -1);
-    void drawConvexPolygon(const QPointArray &, int index = 0, int npoints = -1);
+    void drawPolygon(const QPointArray &pa, PolygonDrawMode mode);
 
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
 		    Qt::PixmapDrawingMode mode);
@@ -132,10 +110,6 @@ public:
     void drawPath(const QPainterPath &p);
 
     Type type() const { return Gdiplus; }
-
-#ifndef QT_NO_BEZIER
-    void drawCubicBezier(const QPointArray &, int index = 0);
-#endif
 
     static void initialize();
     static void cleanup();

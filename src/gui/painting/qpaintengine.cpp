@@ -159,13 +159,26 @@
     \fn void QPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 
     Reimplement this function to draw a line from point \a p1 to point \a p2.
+    The default implementation calls drawPolygon.
 */
+
+void QPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
+{
+    QPointArray pa;
+    pa << p1 << p2;
+    drawPolygon(pa, UnconnectedMode);
+}
 
 /*!
     \fn void QPaintEngine::drawRect(const QRect &rectangle)
 
     Reimplement this function to draw the given \a rectangle.
 */
+
+void QPaintEngine::drawRect(const QRect &r)
+{
+    drawPolygon(r, ConvexMode);
+}
 
 /*!
     \fn void QPaintEngine::drawPoint(const QPoint &point)
@@ -174,56 +187,35 @@
 */
 
 /*!
-    \fn void QPaintEngine::drawPoints(const QPointArray &pa, int
-    index, int npoints)
+    \fn void QPaintEngine::drawPoints(const QPointArray &pa)
 
     Reimplement this function to draw at most \a npoints from the
     point array \a pa, starting at the \a{index}-th point in \a pa.
 */
 
-// ### DOC: how are xRnd and yRnd to be used?
-/*!
-    \fn void QPaintEngine::drawRoundRect(const QRect &rectangle, int xRnd, int yRnd)
-
-    Reimplement this function to draw the given \a rectangle with
-    rounded corners. The point (\a{xRnd}, \a{yRnd}) is the offset from
-    which the rounded corner is notionally drawn.
-*/
+void QPaintEngine::drawPoints(const QPointArray &pa)
+{
+    for (int i=0; i<pa.size(); ++i)
+        drawPoint(pa.at(i));
+}
 
 /*!
     \fn void QPaintEngine::drawEllipse(const QRect &rectangle)
 
     Reimplement this function to draw the largest ellipse that can be
     contained within the given \a rectangle.
+
+    The default implementation calls drawPolygon
+
+    \sa drawPolygon
 */
 
-// ### DOC: are the angles in degrees, 1/16 degrees, or radians?
-/*!
-    \fn void QPaintEngine::drawArc(const QRect &rectangle, int
-    startAngle, int spanAngle)
-
-    Reimplement this function to draw the largest arc that can be
-    contained within the given \a rectangle, starting at position \a
-    startAngle and moving anti-clockwise by \a spanAngle.
-*/
-
-/*!
-    \fn void QPaintEngine::drawPie(const QRect &rectangle, int startAngle, int
-    spanAngle)
-
-    Reimplement this function to draw the largest pie segment that can
-    be contained within the given \a rectangle, starting at position
-    \a startAngle and moving anti-clockwise by \a spanAngle.
-*/
-
-/*!
-    \fn void QPaintEngine::drawChord(const QRect &rectangle, int
-    startAngle, int spanAngle)
-
-    Reimplement this function to draw the largest chord that can be
-    contained within the given \a rectangle, starting at position \a
-    startAngle and moving anti-clockwise by \a spanAngle.
-*/
+void QPaintEngine::drawEllipse(const QRect &r)
+{
+    QPointArray a;
+    a.makeEllipse(r.x(), r.y(), r.width(), r.height());
+    drawPolygon(a, ConvexMode);
+}
 
 /*!
     \fn void QPaintEngine::drawLineSegments(const QPointArray &pa, int
@@ -234,14 +226,11 @@
     the \a{index}-th point in \a pa.
 */
 
-/*!
-    \fn void QPaintEngine::drawPolyline(const QPointArray &pa, int
-    index, int npoints)
-
-    Reimplement this function to draw a polyline consisting of at most
-    \a npoints points from the point array \a pa, starting with the
-    \a{index}-th point in \a pa.
-*/
+void QPaintEngine::drawLineSegments(const QPointArray &pa)
+{
+    for (int i=0; i+1<pa.size(); i+=2)
+        drawLine(pa.at(i), pa.at(i+1));
+}
 
 /*!
     \fn void QPaintEngine::drawPolygon(const QPointArray &pa, bool
@@ -252,23 +241,6 @@
     \a{index}-th point in \a pa. If \a winding is true the polygon
     should be filled using the Winding algorithm; otherwise it should
     be filled using the Odd-Even algorithm.
-*/
-
-/*!
-    \fn void QPaintEngine::drawConvexPolygon(const QPointArray &pa, int
-    index, int npoints)
-
-    Reimplement this function to draw a convex polygon consisting of
-    at most \a npoints points from the point array \a pa, starting
-    with the \a{index}-th point in \a pa.
-*/
-
-/*!
-    \fn void QPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
-
-    Reimplement this function to draw a cubic bezier whose control
-    points are given in the point array \a pa, starting with the
-    \a{index}-th point in \a pa.
 */
 
 /*!
@@ -511,6 +483,35 @@ void QPaintEngine::drawPath(const QPainterPath &)
 }
 
 /*!
+    The default implementation calls the int version of drawLine
+*/
+void QPaintEngine::drawLine(const QLineFloat &line)
+{
+    drawLine(line.start().toPoint(), line.end().toPoint());
+}
+
+/*!
+    \overload
+
+    The default implementation calls the int version of drawRect
+*/
+void QPaintEngine::drawRect(const QRectFloat &rf)
+{
+    drawRect(rf.toRect());
+}
+
+/*!
+    \overload
+
+    The default implementation calls the int version of drawPoint
+*/
+void QPaintEngine::drawPoint(const QPointFloat &pf)
+{
+    drawPoint(pf.toPoint());
+}
+
+
+/*!
     This function draws the text item \a ti at position \a p in
     accordance with the given \a textFlags. The default implementation
     of this function renders the text to a pixmap and draws the
@@ -575,8 +576,10 @@ void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFl
 /*!
   Draws the rectangles in the list \a rects.
 */
-void QPaintEngine::drawRects(const QList<QRect> &/*rects*/)
+void QPaintEngine::drawRects(const QList<QRect> &rects)
 {
+    for (int i=0; i<rects.size(); ++i)
+        drawRect(rects.at(i));
 }
 
 /*!

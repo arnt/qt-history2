@@ -209,7 +209,7 @@ void QWin32PrintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEna
             xoff = - GetDeviceCaps(d->hdc, PHYSICALOFFSETX);
             yoff = - GetDeviceCaps(d->hdc, PHYSICALOFFSETY);
 	}
-	QRegion rgn = QMatrix(xscale, 0, 0, yscale, xoff, yoff) * clipRegion;
+	QRegion rgn = clipRegion * QMatrix(xscale, 0, 0, yscale, xoff, yoff);
 	if (rgn.isEmpty())
             rgn = QRect(-0x1000000, -0x1000000, 1, 1);
         SelectClipRgn(d->hdc, rgn.handle());
@@ -533,8 +533,8 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
                 //   whith pos' being the desired upper left corner of the
                 //   transformed image.
                 paint->save();
-                QPoint p1 = QPixmap::trueMatrix( m, origW, origH ) * QPoint(0,0);
-                QPoint p2 = paint->worldMatrix() * pos;
+                QPoint p1 = QPoint(0,0) * QPixmap::trueMatrix( m, origW, origH );
+                QPoint p2 = pos * paint->worldMatrix();
                 p1 = p2 - p1 - pos;
                 paint->setWorldMatrix( QMatrix( 1, 0, 0, 1, p1.x(), p1.y() ) );
             } else

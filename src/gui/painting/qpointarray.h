@@ -27,6 +27,7 @@ public:
     inline ~QPointArray() {}
     inline QPointArray(int size) : QVector<QPoint>(size) {}
     inline QPointArray(const QPointArray &a) : QVector<QPoint>(a) {}
+    inline QPointArray(const QVector<QPoint> &v) : QVector<QPoint>(v) {}
     QPointArray(const QRect &r, bool closed=false);
     QPointArray(int nPoints, const QCOORD *points);
 

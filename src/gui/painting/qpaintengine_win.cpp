@@ -578,62 +578,6 @@ void QWin32PaintEngine::drawPoint(const QPoint &p)
 #endif
 }
 
-void QWin32PaintEngine::drawPoints(const QPointArray &pts, int index, int npoints)
-{
-    Q_ASSERT(isActive());
-    if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawPoints(pts, index, npoints);
-        return;
-    }
-    QPointArray pa = pts;
-    if (d->penStyle != Qt::NoPen) {
-        for (int i=0; i<npoints; i++) {
-#ifndef Q_OS_TEMP
-            SetPixelV(d->hdc, pa[index+i].x(), pa[index+i].y(),
-                       d->pColor);
-#else
-            SetPixel(d->hdc, pa[index+i].x(), pa[index+i].y(),
-                       d->pColor);
-#endif
-        }
-    }
-}
-
-void QWin32PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
-{
-    Q_ASSERT(isActive());
-    if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawRoundRect(r, xRnd, yRnd);
-        return;
-    }
-
-    if (xRnd <= 0 || yRnd <= 0) {
-        drawRect(r);                        // draw normal rectangle
-        return;
-    }
-    if (xRnd >= 100)                                // fix ranges
-        xRnd = 99;
-    if (yRnd >= 100)
-        yRnd = 99;
-
-    int w = r.width(), h = r.height();
-
-    if (d->advancedMode) {
-        --w;
-        --h;
-    } else if (d->penStyle == Qt::NoPen) {
-        ++w;
-        ++h;
-    }
-
-    if (d->nocolBrush)
-        SetTextColor(d->hdc, d->bColor);
-    RoundRect(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h,
-              w*xRnd/100, h*yRnd/100);
-    if (d->nocolBrush)
-        SetTextColor(d->hdc, d->pColor);
-}
-
 void QWin32PaintEngine::drawEllipse(const QRect &r)
 {
     Q_ASSERT(isActive());
@@ -669,308 +613,71 @@ void QWin32PaintEngine::drawEllipse(const QRect &r)
         SetTextColor(d->hdc, d->pColor);
 }
 
-void QWin32PaintEngine::drawArc(const QRect &r, int a, int alen)
+void QWin32PaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawArc(r, a, alen);
+        d->gdiplusEngine->drawPolygon(pa, mode);
         return;
     }
 
-    double ra1 = 1.09083078249645598e-3 * a;
-    double ra2 = 1.09083078249645598e-3 * alen + ra1;
-    if (alen < 0.0) {                                // swap angles
-        double t = ra1;
-        ra1 = ra2;
-        ra2 = t;
-    }
+    if (mode == UnconnectedMode) {
+        int x1, y1, x2, y2;
+        int npoints = pa.size();
+        pa.point(npoints-2, &x1, &y1);        // last line segment
+        pa.point(npoints-1, &x2, &y2);
+        bool plot_pixel = false;
+        QT_WA({
+            plot_pixel = (d->pWidth == 0) && (d->penStyle == Qt::SolidLine);
+        } , {
+            plot_pixel = (d->pWidth <= 1) && (d->penStyle == Qt::SolidLine);
+        });
 
-    int w = r.width(), h = r.height();
-#ifdef NO_NATIVE_XFORM
-    if (d->penStyle == Qt::NoPen) {
-        ++w;
-        ++h;
-    }
-#else
-    --w;
-    --h;
-#endif
-
-    if (d->pWidth > 3) {
-        // work around a bug in the windows Arc method that
-        // sometimes draw wrong cap styles.
-        if (w % 2)
-            w += 1;
-        if (h % 2)
-            h += 1;
-    }
-
-    double w2 = 0.5*w;
-    double h2 = 0.5*h;
-    int xS = qRound(w2 + (cos(ra1)*w2) + r.x());
-    int yS = qRound(h2 - (sin(ra1)*h2) + r.y());
-    int xE = qRound(w2 + (cos(ra2)*w2) + r.x());
-    int yE = qRound(h2 - (sin(ra2)*h2) + r.y());
-    if (QABS(alen) < 90*16) {
-        if ((xS == xE) && (yS == yE)) {
-            // don't draw a whole circle
-            return;
+        if (plot_pixel) {
+            if (x1 == x2) {                                // vertical
+                if (y1 < y2)
+                    y2++;
+                else
+                    y2--;
+                plot_pixel = false;
+            } else if (y1 == y2) {                        // horizontal
+                if (x1 < x2)
+                    x2++;
+                else
+                    x2--;
+                plot_pixel = false;
+            }
         }
-    }
+        if (plot_pixel) {
+            Polyline(d->hdc, (POINT*)pa.data(), npoints);
 #ifndef Q_OS_TEMP
-    Arc(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h, xS, yS, xE, yE);
+            SetPixelV(d->hdc, x2, y2, d->pColor);
 #else
-    QPointArray pa;
-    pa.makeArc(r.x(), r.y(), w, h, a, alen);        // arc polyline
-    drawPolyInternal(pa, false);
+            SetPixel(d->hdc, x2, y2, d->pColor);
 #endif
-}
-
-void QWin32PaintEngine::drawPie(const QRect &r, int a, int alen)
-{
-    Q_ASSERT(isActive());
-    if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawPie(r, a, alen);
-        return;
-    }
-
-    double ra1 = 1.09083078249645598e-3 * a;
-    double ra2 = 1.09083078249645598e-3 * alen + ra1;
-    if (alen < 0.0) {                                // swap angles
-        double t = ra1;
-        ra1 = ra2;
-        ra2 = t;
-    }
-
-    int w = r.width(), h = r.height();
-#ifdef NO_NATIVE_XFORM
-    if (d->penStyle == Qt::NoPen) {
-        ++w;
-        ++h;
-    }
-#else
-    --w;
-    --h;
-#endif
-
-    double w2 = 0.5*w;
-    double h2 = 0.5*h;
-    int xS = qRound(w2 + (cos(ra1)*w) + r.x());
-    int yS = qRound(h2 - (sin(ra1)*h) + r.y());
-    int xE = qRound(w2 + (cos(ra2)*w) + r.x());
-    int yE = qRound(h2 - (sin(ra2)*h) + r.y());
-    if (QABS(alen) < 90*16) {
-        if ((xS == xE) && (yS == yE)) {
-            // don't draw a whole circle
-            return;
-        }
-    }
-    if (d->nocolBrush)
-        SetTextColor(d->hdc, d->bColor);
-#ifndef Q_OS_TEMP
-    Pie(d->hdc, r.x(), r.y(), r.right()+1, r.bottom()+1, xS, yS, xE, yE);
-#endif
-    if (d->nocolBrush)
-        SetTextColor(d->hdc, d->pColor);
-}
-
-void QWin32PaintEngine::drawChord(const QRect &r, int a, int alen)
-{
-    Q_ASSERT(isActive());
-
-    double ra1 = 1.09083078249645598e-3 * a;
-    double ra2 = 1.09083078249645598e-3 * alen + ra1;
-    if (ra2 < 0.0) {                                // swap angles
-        double t = ra1;
-        ra1 = ra2;
-        ra2 = t;
-    }
-
-    int w = r.width(), h = r.height();
-#ifdef NO_NATIVE_XFORM
-    if (d->penStyle == Qt::NoPen) {
-        ++w;
-        ++h;
-    }
-#else
-    --w;
-    --h;
-#endif
-
-    double w2 = 0.5*w;
-    double h2 = 0.5*h;
-    int xS = qRound(w2 + (cos(ra1)*w) + r.x());
-    int yS = qRound(h2 - (sin(ra1)*h) + r.y());
-    int xE = qRound(w2 + (cos(ra2)*w) + r.x());
-    int yE = qRound(h2 - (sin(ra2)*h) + r.y());
-    if (QABS(alen) < 90*16) {
-        if ((xS == xE) && (yS == yE)) {
-            // don't draw a whole circle
-            return;
-        }
-    }
-    if (d->nocolBrush)
-        SetTextColor(d->hdc, d->bColor);
-#ifndef Q_OS_TEMP
-    Chord(d->hdc, r.x(), r.y(), r.right()+1, r.bottom()+1, xS, yS, xE, yE);
-#endif
-    if (d->nocolBrush)
-        SetTextColor(d->hdc, d->pColor);
-}
-
-
-void QWin32PaintEngine::drawLineSegments(const QPointArray &a, int index, int nlines)
-{
-    Q_ASSERT(isActive());
-    QPointArray pa = a;
-
-    int         x1, y1, x2, y2;
-    uint i = index;
-    uint pixel = d->pColor;
-    bool maybe_plot_pixel = false;
-    QT_WA({
-        maybe_plot_pixel = (d->pWidth == 0) && (d->penStyle == Qt::SolidLine);
-    } , {
-        maybe_plot_pixel = (d->pWidth <= 1) && (d->penStyle == Qt::SolidLine);
-    });
-
-    while (nlines--) {
-        pa.point(i++, &x1, &y1);
-        pa.point(i++, &x2, &y2);
-        if (x1 == x2) {                        // vertical
-            if (y1 < y2)
-                y2++;
-            else
-                y2--;
-        } else if (y1 == y2) {                // horizontal
-            if (x1 < x2)
-                x2++;
-            else
-                x2--;
-        } else if (maybe_plot_pixel) {        // draw last pixel
-#ifndef Q_OS_TEMP
-            SetPixelV(d->hdc, x2, y2, pixel);
-#else
-            SetPixel(d->hdc, x2, y2, pixel);
-#endif
+        } else {
+            QPointArray copy = pa;
+            copy.setPoint(npoints-1, x2, y2);
+            Polyline(d->hdc, (POINT*)copy.data(), npoints);
         }
 
+    }
+
 #ifndef Q_OS_TEMP
-        MoveToEx(d->hdc, x1, y1, 0);
-        LineTo(d->hdc, x2, y2);
-#else
-        // PolyLine from x1, y1 to x2, y2.
-        POINT linePts[2] = { { x1, y1 }, { x2, y2 } };
-        Polyline(d->hdc, linePts, 2);
-        internalCurrentPos = QPoint(x2, y2);
-#endif
-    }
-}
-
-void QWin32PaintEngine::drawPolyline(const QPointArray &a, int index, int npoints)
-{
-    Q_ASSERT(isActive());
-    if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawPolyline(a, index, npoints);
-        return;
-    }
-    QPointArray pa = a;
-    int x1, y1, x2, y2, xsave, ysave;
-    pa.point(index+npoints-2, &x1, &y1);        // last line segment
-    pa.point(index+npoints-1, &x2, &y2);
-    xsave = x2; ysave = y2;
-    bool plot_pixel = false;
-    QT_WA({
-        plot_pixel = (d->pWidth == 0) && (d->penStyle == Qt::SolidLine);
-    } , {
-        plot_pixel = (d->pWidth <= 1) && (d->penStyle == Qt::SolidLine);
-    });
-
-    if (plot_pixel) {
-        if (x1 == x2) {                                // vertical
-            if (y1 < y2)
-                y2++;
-            else
-                y2--;
-            plot_pixel = false;
-        } else if (y1 == y2) {                        // horizontal
-            if (x1 < x2)
-                x2++;
-            else
-                x2--;
-            plot_pixel = false;
-        }
-    }
-    if (plot_pixel) {
-        Polyline(d->hdc, (POINT*)(pa.data()+index), npoints);
-#ifndef Q_OS_TEMP
-        SetPixelV(d->hdc, x2, y2, d->pColor);
-#else
-        SetPixel(d->hdc, x2, y2, d->pColor);
-#endif
-    } else {
-        pa.setPoint(index+npoints-1, x2, y2);
-        Polyline(d->hdc, (POINT*)(pa.data()+index), npoints);
-        pa.setPoint(index+npoints-1, xsave, ysave);
-    }
-}
-
-void QWin32PaintEngine::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
-{
-    Q_ASSERT(isActive());
-    if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawPolygon(a, winding, index, npoints);
-        return;
-    }
-
-    QPointArray pa = a;
-#ifndef Q_OS_TEMP
-    if (winding)                                // set to winding fill mode
+    if (mode == WindingMode)                    // set to winding fill mode
         SetPolyFillMode(d->hdc, WINDING);
 #endif
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->bColor);
-    Polygon(d->hdc, (POINT*)(pa.data()+index), npoints);
+    Polygon(d->hdc, (POINT*)pa.data(), pa.size());
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->pColor);
 #ifndef Q_OS_TEMP
-    if (winding)                                // set to normal fill mode
+    if (mode == WindingMode)                    // set to normal fill mode
         SetPolyFillMode(d->hdc, ALTERNATE);
 #endif
 
 }
-
-void QWin32PaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
-{
-    Q_ASSERT(isActive());
-    if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawConvexPolygon(pa, index, npoints);
-        return;
-    }
-    // Any efficient way?
-    drawPolygon(pa,false,index,npoints);
-
-}
-
-#ifndef QT_NO_BEZIER
-void QWin32PaintEngine::drawCubicBezier(const QPointArray &a, int index)
-{
-    Q_ASSERT(isActive());
-    if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawCubicBezier(a, index);
-        return;
-    }
-    if ((int)a.size() - index < 4) {
-        qWarning("QPainter::drawCubicBezier: Cubic Bezier needs 4 control "
-                 "points");
-        return;
-    }
-    QPointArray pa(a);
-#ifndef Q_OS_TEMP
-    PolyBezier(d->hdc, (POINT*)(pa.data()+index), 4);
-#endif
-}
-#endif
 
 void QWin32PaintEngine::drawPath(const QPainterPath &p)
 {
@@ -1047,20 +754,6 @@ void QWin32PaintEngine::cleanup()
     }
 }
 
-
-void QWin32PaintEngine::drawPolyInternal(const QPointArray &a, bool close)
-{
-    Q_ASSERT(isActive());
-    if (d->nocolBrush)
-        SetTextColor(d->hdc, d->bColor);
-    if (close) {
-        Polygon(d->hdc, (POINT*)a.data(), a.size());
-    } else {
-        Polyline(d->hdc, (POINT*)a.data(), a.size());
-    }
-    if (d->nocolBrush)
-        SetTextColor(d->hdc, d->pColor);
-}
 
 void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
                                    Qt::PixmapDrawingMode mode)
@@ -1546,11 +1239,11 @@ void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled
         return;
     }
     if (clipEnabled) {
-        QRegion rgn =
+        QRegion rgn = region
 #ifndef NO_NATIVE_XFORM
-            d->matrix *
+            * d->matrix
 #endif
-            region;
+            ;
 
         // Setting an empty region as clip region on Win just dmainisables clipping completely.
         // To workaround this and get the same semantics on Win and Unix, we set a 1x1 pixel
@@ -1861,17 +1554,27 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPathPrivate *pd)
             }
             case QPainterPathElement::Arc: {
                 // Not supported on Win9x
-                QPointArray array;
-                array.makeArc(elm.arcData.x, elm.arcData.y,
-                              elm.arcData.w, elm.arcData.h,
-                              elm.arcData.start, elm.arcData.length);
-                Q_ASSERT(array.size() > 1);
-                POINT *pts = new POINT[array.size()-1];
-                for (int pt=1; pt<array.size(); ++pt) {
-                    pts[pt-1].x = array.at(pt).x();
-                    pts[pt-1].y = array.at(pt).y();
-                }
-                PolylineTo(hdc, pts, array.size()-1);
+                QT_WA( {
+                    ArcTo(hdc,
+                          qRound(elm.arcData.x), qRound(elm.arcData.y),
+                          qRound(elm.arcData.x + elm.arcData.w),
+                          qRound(elm.arcData.y + elm.arcData.h),
+                          qRound(elm.arcData.fpx), qRound(elm.arcData.fpy),
+                          qRound(elm.arcData.lpx), qRound(elm.arcData.lpy));
+                }, {
+                    QPointArray array;
+                    array.makeArc(elm.arcData.x, elm.arcData.y,
+                                  elm.arcData.w, elm.arcData.h,
+                                  qRound(elm.arcData.start * 16),
+                                  qRound(elm.arcData.length * 16));
+                    Q_ASSERT(array.size() > 1);
+                    POINT *pts = new POINT[array.size()-1];
+                    for (int pt=1; pt<array.size(); ++pt) {
+                        pts[pt-1].x = array.at(pt).x();
+                        pts[pt-1].y = array.at(pt).y();
+                    }
+                    PolylineTo(hdc, pts, array.size()-1);
+                } );
                 break;
             }
             default:
@@ -1931,7 +1634,7 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
 #endif
         | QPaintEngine::PainterPaths
         | QPaintEngine::UsesFontEngine
-        |= QPaintEngine::LinearGradients;
+        | QPaintEngine::LinearGradients;
 
 
     int shadeCaps = GetDeviceCaps(qt_display_dc(), SHADEBLENDCAPS);
@@ -1997,7 +1700,9 @@ typedef int (__stdcall *PtrGdipDeletePath) (QtGpPath *path);
 typedef int (__stdcall *PtrGdipAddPathLine) (QtGpPath *path, float x1, float y1, float x2, float y2);
 typedef int (__stdcall *PtrGdipAddPathArc) (QtGpPath *path, float x, float y, float w, float h,
                                             float startAngle, float sweepAngle);
-typedef int (__stdcall *PtrGdipAddPathBezierI)(QtGpPath *path, int, int, int, int, int, int, int, int);
+typedef int (__stdcall *PtrGdipAddPathBezier)(QtGpPath *path,
+                                              float, float, float, float,
+                                              float, float, float, float);
 typedef int (__stdcall *PtrGdipClosePathFigure) (QtGpPath *path);
 
 typedef int (__stdcall *PtrGdipCreateBitmapFromHBITMAP)(HBITMAP, HPALETTE, QtGpBitmap **);
@@ -2050,7 +1755,7 @@ static PtrGdipCreatePath GdipCreatePath = 0;                 // Path::Path(fillM
 static PtrGdipDeletePath GdipDeletePath = 0;                 // Path::~Path()
 static PtrGdipAddPathLine GdipAddPathLine = 0;               // Path::AddLine(x1, y1, x2, y2)
 static PtrGdipAddPathArc GdipAddPathArc = 0;                 // Path::AddArc(x, y, w, h, start, sweep)
-static PtrGdipAddPathBezierI GdipAddPathBezierI = 0;         // Path::AddPathBezier(x1, y1, ... x4, y4)
+static PtrGdipAddPathBezier GdipAddPathBezier = 0;           // Path::AddPathBezier(x1, y1, ... x4, y4)
 static PtrGdipClosePathFigure GdipClosePathFigure = 0;       // Path::CloseFigure()
 
 static PtrGdipCreateBitmapFromHBITMAP GdipCreateBitmapFromHBITMAP = 0;  // Bitmap::Bitmap(hbm, hpalette)
@@ -2124,7 +1829,7 @@ static void qt_resolve_gdiplus()
     GdipDeletePath               = (PtrGdipDeletePath)         lib.resolve("GdipDeletePath");
     GdipAddPathLine              = (PtrGdipAddPathLine)        lib.resolve("GdipAddPathLine");
     GdipAddPathArc               = (PtrGdipAddPathArc)         lib.resolve("GdipAddPathArc");
-    GdipAddPathBezierI           = (PtrGdipAddPathBezierI)     lib.resolve("GdipAddPathBezierI");
+    GdipAddPathBezier            = (PtrGdipAddPathBezier)      lib.resolve("GdipAddPathBezier");
     GdipClosePathFigure          = (PtrGdipClosePathFigure)    lib.resolve("GdipClosePathFigure");
 
     // Bitmap functions
@@ -2172,7 +1877,7 @@ static void qt_resolve_gdiplus()
     Q_ASSERT(GdipDeletePath);
     Q_ASSERT(GdipAddPathLine);
     Q_ASSERT(GdipAddPathArc);
-    Q_ASSERT(GdipAddPathBezierI);
+    Q_ASSERT(GdipAddPathBezier);
     Q_ASSERT(GdipClosePathFigure);
     Q_ASSERT(GdipCreateBitmapFromHBITMAP);
     Q_ASSERT(GdipCreateBitmapFromScan0);
@@ -2417,68 +2122,6 @@ void QGdiplusPaintEngine::drawPoint(const QPoint &p)
         GdipDrawRectangleI(d->graphics, d->pen, p.x(), p.y(), 0, 0);
 }
 
-void QGdiplusPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
-{
-    if (d->usePen)
-        for (int i=0; i<npoints; ++i)
-            GdipDrawRectangleI(d->graphics, d->pen, pa[index+i].x(), pa[index+i].y(), 0, 0);
-}
-
-void QGdiplusPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
-{
-//     GraphicsPath path(FillModeAlternate);
-    QtGpPath *path = 0;
-    GdipCreatePath(0, &path);
-
-    int subtract = d->usePen ? 1 : 0;
-
-    int top = r.y();
-    int bottom = r.y() + r.height() - subtract;
-    int left = r.x();
-    int right = r.x() + r.width() - subtract;
-
-    int horLength = (99 - xRnd) / 99.0 * r.width() / 1;
-    int horStart  = r.x() + r.width() / 2 - horLength / 2;
-    int horEnd = horStart + horLength;
-    int arcWidth = r.width() - horLength;
-
-    int verLength = (99 - yRnd) / 99.0 * r.height() / 1;
-    int verStart  = r.y() + r.height() / 2 - verLength / 2;
-    int verEnd = verStart + verLength;
-    int arcHeight = r.width() - horLength;
-
-//     path.AddLine(horStart, r.y(), horEnd, r.y());
-//     path.AddArc(right - arcWidth, top, arcWidth, arcHeight, 270, 90);
-//     path.AddLine(right, verStart, right, verEnd);
-//     path.AddArc(right - arcWidth, bottom - arcHeight, arcWidth, arcHeight, 0, 90);
-//     path.AddLine(horEnd, bottom, horStart, bottom);
-//     path.AddArc(left, bottom - arcHeight, arcWidth, arcHeight, 90, 90);
-//     path.AddLine(left, verEnd, left, verStart);
-//     path.AddArc(left, top, arcWidth, arcHeight, 180, 90);
-//     path.CloseFigure();
-
-    GdipAddPathLine(path, horStart, r.y(), horEnd, r.y());
-    GdipAddPathArc(path, right - arcWidth, top, arcWidth, arcHeight, 270, 90);
-    GdipAddPathLine(path, right, verStart, right, verEnd);
-    GdipAddPathArc(path, right - arcWidth, bottom - arcHeight, arcWidth, arcHeight, 0, 90);
-    GdipAddPathLine(path, horEnd, bottom, horStart, bottom);
-    GdipAddPathArc(path, left, bottom - arcHeight, arcWidth, arcHeight, 90, 90);
-    GdipAddPathLine(path, left, verEnd, left, verStart);
-    GdipAddPathArc(path, left, top, arcWidth, arcHeight, 180, 90);
-    GdipClosePathFigure(path);
-
-    if (d->brush) {
-//         d->graphics->FillPath(d->brush, &path);
-        GdipFillPath(d->graphics, d->brush, path);
-    }
-    if (d->usePen) {
-//         d->graphics->DrawPath(d->pen, &path);
-        GdipDrawPath(d->graphics, d->pen, path);
-    }
-
-    GdipDeletePath(path);
-}
-
 void QGdiplusPaintEngine::drawEllipse(const QRect &r)
 {
     int subtract = QT_GDIPLUS_SUBTRACT;
@@ -2494,91 +2137,7 @@ void QGdiplusPaintEngine::drawEllipse(const QRect &r)
     }
 }
 
-void QGdiplusPaintEngine::drawArc(const QRect &r, int a, int alen)
-{
-    Q_UNUSED(r);
-    Q_UNUSED(a);
-    Q_UNUSED(alen);
-//     int subtract = d->usePen ? 1 : 0;
-//     if (d->usePen) {
-//         d->graphics->DrawArc(d->pen, r.x(), r.y(),
-//                              r.width()-subtract, r.height()-subtract,
-//                              -a/16.0, -alen/16.0);
-//     }
-}
-
-void QGdiplusPaintEngine::drawPie(const QRect &r, int a, int alen)
-{
-    Q_UNUSED(r);
-    Q_UNUSED(a);
-    Q_UNUSED(alen);
-//     int subtract = d->usePen ? 1 : 0;
-//     if (d->brush) {
-//         d->graphics->FillPie(d->brush, r.x(), r.y(),
-//                              r.width()-subtract, r.height()-subtract,
-//                              -a/16.0, -alen/16.0);
-//     }
-//     if (d->usePen) {
-//         d->graphics->DrawPie(d->pen, r.x(), r.y(),
-//                              r.width()-subtract, r.height()-subtract,
-//                              -a/16.0, -alen/16.0);
-//     }
-}
-
-void QGdiplusPaintEngine::drawChord(const QRect &r, int a, int alen)
-{
-    Q_UNUSED(r);
-    Q_UNUSED(a);
-    Q_UNUSED(alen);
-//     GraphicsPath path(FillModeAlternate);
-//     int subtract = d->usePen ? 1 : 0;
-//     path.AddArc(r.x(), r.y(), r.width()-subtract, r.height()-subtract, -a/16.0, -alen/16.0);
-//     path.CloseFigure();
-//     if (d->brush)
-//         d->graphics->FillPath(d->brush, &path);
-//     if (d->usePen)
-//         d->graphics->DrawPath(d->pen, &path);
-}
-
-void QGdiplusPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
-{
-    Q_UNUSED(pa);
-    Q_UNUSED(index);
-    Q_UNUSED(nlines);
-//     if (d->usePen) {
-//         GraphicsPath path;
-//         for (int i=0; i<nlines*2; i+=2) {
-//             path.AddLine(pa[index+i].x(), pa[index+i].y(), pa[index+i+1].x(), pa[index+i+1].y());
-//             path.CloseFigure();
-//         }
-//         d->graphics->DrawPath(d->pen, &path);
-//     }
-}
-
-void QGdiplusPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
-{
-    Q_UNUSED(pa);
-    Q_UNUSED(index);
-    Q_UNUSED(npoints);
-    if (d->usePen) {
-//         GraphicsPath path;
-//         for (int i=1; i<npoints; ++i)
-//             path.AddLine(pa.at(index+i-1).x(), pa.at(index+i-1).y(),
-//                          pa.at(index+i).x(), pa.at(index+i).y());
-//         d->graphics->DrawPath(d->pen, &path);
-        QtGpPath *path = 0;
-        GdipCreatePath(0, &path);
-        for (int i=1; i<npoints; ++i) {
-            GdipAddPathLine(path,
-                            pa.at(index+i-1).x(), pa.at(index+i-1).y(),
-                            pa.at(index+i).x(), pa.at(index+i).y());
-        }
-        GdipDrawPath(d->graphics, d->pen, path);
-        GdipDeletePath(path);
-    }
-}
-
-void QGdiplusPaintEngine::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
+void QGdiplusPaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
 {
 //     if (d->usePen || d->brush) {
 //         Point *p = new Point[npoints];
@@ -2592,21 +2151,16 @@ void QGdiplusPaintEngine::drawPolygon(const QPointArray &pa, bool winding, int i
 //         delete [] p;
 //     }
     if (d->usePen || d->brush) {
-        if (d->brush) {
-            GdipFillPolygonI(d->graphics, d->brush, pa.data()+index, npoints,
-                             winding
+        if (d->brush && mode != UnconnectedMode) {
+            GdipFillPolygonI(d->graphics, d->brush, pa.data(), pa.size(),
+                             mode == WindingMode
                              ? 1 // FillModeWinding
                              : 0 // FillModeAlternate
                              );
         }
         if (d->usePen)
-            GdipDrawPolygonI(d->graphics, d->pen, pa.data()+index, npoints);
+            GdipDrawPolygonI(d->graphics, d->pen, pa.data(), pa.size());
     }
-}
-
-void QGdiplusPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
-{
-    drawPolygon(pa, true, index, npoints);
 }
 
 
@@ -2652,23 +2206,6 @@ void QGdiplusPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm,
 //     d->graphics->FillRectangle(&texture, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
 }
 
-#ifndef QT_NO_BEZIER
-void QGdiplusPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
-{
-    Q_UNUSED(pa);
-    Q_UNUSED(index);
-//     if (d->usePen) {
-//         Point *p = new Point[pa.size()];
-//         for (int i=0; i<pa.size() - index; ++i) {
-//             p[i] = Point(pa[i+index].x(), pa[i+index].y());
-//         }
-//         if (d->usePen)
-//             d->graphics->DrawCurve(d->pen, p, pa.size());
-//         delete [] p;
-//     }
-}
-#endif
-
 void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
 {
     QtGpPath *path = 0;
@@ -2691,7 +2228,7 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
                 break;
             }
             case QPainterPathElement::Bezier: {
-                GdipAddPathBezierI(path,
+                GdipAddPathBezier(path,
                                    elm.bezierData.x1, elm.bezierData.y1,
                                    elm.bezierData.x2, elm.bezierData.y2,
                                    elm.bezierData.x3, elm.bezierData.y3,
@@ -2702,7 +2239,7 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
                 GdipAddPathArc(path,
                                elm.arcData.x, elm.arcData.y,
                                elm.arcData.w, elm.arcData.h,
-                               elm.arcData.start/16.0, elm.arcData.length/16.0);
+                               -elm.arcData.start, -elm.arcData.length);
                 break;
             }
             default:

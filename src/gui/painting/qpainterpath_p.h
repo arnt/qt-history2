@@ -76,19 +76,24 @@ struct QPainterSubpath
 class QPainterPathPrivate
 {
 public:
+    enum FlattenInclusion { ClosedSubpaths   = 0x0001,
+                            UnclosedSubpaths = 0x0002,
+                            AllSubpaths      = 0x0003
+    };
+
     QPainterPathPrivate() :
         fillMode(QPainterPath::OddEven)
     {
     }
 
     /* Flattens all the curves in the path to linear polygons */
-    QList<QPointArray> flatten(const QMatrix &matrix);
+    QList<QPointArray> flatten(const QMatrix &matrix, FlattenInclusion include = AllSubpaths);
 
     /* Scanline converts the path to a bitmap */
     QBitmap scanToBitmap(const QRect &clip, const QMatrix &xform, QRect *boundingRect);
 
     /* Creates a path containing the outline of this path of width \a penwidth */
-    QPainterPath createPathOutline(int penWidth);
+    QPainterPath createPathOutlineFlat(int penWidth, const QMatrix &matrix);
 
     QList<QPainterSubpath> subpaths;
     QPainterPath::FillMode fillMode;

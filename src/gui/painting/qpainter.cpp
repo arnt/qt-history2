@@ -1311,24 +1311,31 @@ void QPainter::drawPath(const QPainterPath &path)
 
     // Fill the path...
     if (d->state->brush.style() != Qt::NoBrush) {
-        QRect outBounds;
-        QRect pathBounds = d->state->clipRegion.boundingRect();
-        QBitmap scanlines = pd->scanToBitmap(pathBounds, worldMatrix, &outBounds);
-	if ((d->state->brush.color().alpha() != 255 ) // ### should be: && !d->engine->hasFeature(QPaintEngine::SolidAlphaFill))
-	    || (d->state->brush.style() == Qt::LinearGradientPattern
-		&& !d->engine->hasFeature(QPaintEngine::LinearGradients))) {
-	    save();
-	    setPen(Qt::NoPen);
-	    translate(outBounds.left(), outBounds.top());
-	    setClipRegion(scanlines);
-	    drawRect(0, 0, outBounds.width(), outBounds.height());
-	    restore();
-	} else {
-	    QPen oldPen = d->state->pen;
-	    setPen(d->state->brush.color());
-	    drawPixmap(outBounds.topLeft(), scanlines);
-	    setPen(oldPen);
-	}
+//         QRect outBounds;
+//         QRect pathBounds = d->state->clipRegion.boundingRect();
+//         QBitmap scanlines = pd->scanToBitmap(pathBounds, worldMatrix, &outBounds);
+// 	if ((d->state->brush.color().alpha() != 255 ) // ### should be: && !d->engine->hasFeature(QPaintEngine::SolidAlphaFill))
+// 	    || (d->state->brush.style() == Qt::LinearGradientPattern
+// 		&& !d->engine->hasFeature(QPaintEngine::LinearGradients))) {
+// 	    save();
+// 	    setPen(Qt::NoPen);
+// 	    translate(outBounds.left(), outBounds.top());
+// 	    setClipRegion(scanlines);
+// 	    drawRect(0, 0, outBounds.width(), outBounds.height());
+// 	    restore();
+// 	} else {
+// 	    QPen oldPen = d->state->pen;
+// 	    setPen(d->state->brush.color());
+// 	    drawPixmap(outBounds.topLeft(), scanlines);
+// 	    setPen(oldPen);
+// 	}
+        QPointArray p;
+        for (int i=0; i<polygons.size(); ++i) {
+            p += polygons.at(i);
+            if (!polygons.at(i).isEmpty() && polygons.at(i).first() != polygons.at(i).last())
+                p += polygons.at(i).first();
+        }
+        drawPolygon(p);
     }
 
     // Draw the outline of the path...
@@ -1604,11 +1611,11 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
         QPointArray a = xForm(pa, index, npoints);
         index = 0;
         npoints = a.size();
-        d->engine->drawPoints(a, index, npoints);
+        d->engine->drawPoints(static_cast<QPointArray&>(a.mid(index, npoints)));
         return;
     }
 
-    d->engine->drawPoints(pa, index, npoints);
+    d->engine->drawPoints(static_cast<QPointArray&>(pa.mid(index, npoints)));
 }
 
 
@@ -1855,63 +1862,31 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
         return;
     }
 
-    d->engine->updateState(d->state);
-
     QRect rect = r.normalize();
 
-    if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
-        && ((d->state->brush.style() == Qt::SolidPattern
-             && d->state->brush.color().alpha() != 255)
-            || (d->state->pen.style() != Qt::NoPen
-                && d->state->pen.color().alpha() != 255))) {
-        QT_ALPHA_BLEND(rect,
-                       drawRoundRect(0, 0, r.width(), r.height(), xRnd, yRnd),
-                       drawRoundRect(r, xRnd, yRnd), 0);
-    }
+    QPainterPath path;
 
-    if (d->state->brush.style() == Qt::LinearGradientPattern
-        && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
-        QT_FILL_GRADIENT(rect,
-                         drawRoundRect(0, 0, r.width(), r.height(), xRnd, yRnd),
-                         drawRoundRect(r, xRnd, yRnd));
+    int x = rect.x();
+    int y = rect.y();
+    int w = rect.width();
+    int h = rect.height();
+    int rxx = w*xRnd/200;
+    int ryy = h*yRnd/200;
+    // were there overflows?
+    if (rxx < 0)
+        rxx = w/200*xRnd;
+    if (ryy < 0)
+        ryy = h/200*yRnd;
+    int rxx2 = 2*rxx;
+    int ryy2 = 2*ryy;
 
-    }
+    path.addArc(x, y, rxx2, ryy2, 90, 90);
+    path.addArc(x, y+h-ryy2, rxx2, ryy2, 2*90, 90);
+    path.addArc(x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*90, 90);
+    path.addArc(x+w-rxx2, y, rxx2, ryy2, 0, 90);
+    path.closeSubpath();
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        if (d->state->txop == TxRotShear) {
-            int x = rect.x();
-            int y = rect.y();
-            int w = rect.width();
-            int h = rect.height();
-            int rxx = w*xRnd/200;
-            int ryy = h*yRnd/200;
-            // were there overflows?
-            if (rxx < 0)
-                rxx = w/200*xRnd;
-            if (ryy < 0)
-                ryy = h/200*yRnd;
-            int rxx2 = 2*rxx;
-            int ryy2 = 2*ryy;
-            QPointArray a[4];
-            a[0].makeArc(x, y, rxx2, ryy2, 1*16*90, 16*90, d->state->matrix);
-            a[1].makeArc(x, y+h-ryy2, rxx2, ryy2, 2*16*90, 16*90, d->state->matrix);
-            a[2].makeArc(x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*16*90, 16*90, d->state->matrix);
-            a[3].makeArc(x+w-rxx2, y, rxx2, ryy2, 0*16*90, 16*90, d->state->matrix);
-            QPointArray aa;
-            aa.resize(a[0].size() + a[1].size() + a[2].size() + a[3].size());
-            uint j = 0;
-            for (int k=0; k<4; k++) {
-                for (int i=0; i<a[k].size(); i++) {
-                    aa.setPoint(j, a[k].point(i));
-                    j++;
-                }
-            }
-            d->engine->drawPolygon(aa, false, 0, aa.size());
-            return;
-        }
-        rect = xForm(rect);
-    }
-    d->engine->drawRoundRect(rect, xRnd, yRnd);
+    drawPath(path);
 }
 
 /*! \fn void QPainter::drawEllipse(int x, int y, int w, int h)
@@ -1934,6 +1909,13 @@ void QPainter::drawEllipse(const QRect &r)
 
     QRect rect = r.normalize();
 
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
+        QPainterPath path;
+        path.addArc(rect, 0, 360);
+        drawPath(path);
+        return;
+    }
+
     if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
         && ((d->state->brush.style() == Qt::SolidPattern
              && d->state->brush.color().alpha() != 255)
@@ -1950,16 +1932,6 @@ void QPainter::drawEllipse(const QRect &r)
                          drawEllipse(0, 0, rect.width(), rect.height()),
                          drawEllipse(rect));
 
-    }
-
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        if (d->state->txop == TxRotShear) {
-            QPointArray a;
-            a.makeArc(rect.x(), rect.y(), rect.width(), rect.height(), 0, 360*16, d->state->matrix);
-            d->engine->drawPolygon(a, false, 0, a.size());
-            return;
-        }
-        rect = xForm(rect);
     }
 
     d->engine->drawEllipse(rect);
@@ -2001,16 +1973,9 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
 
     QRect rect = r.normalize();
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        if (d->state->txop == TxRotShear) {
-            QPointArray pa;
-            pa.makeArc(rect.x(), rect.y(), rect.width(), rect.height(), a, alen, d->state->matrix);
-            d->engine->drawPolyline(pa, 0, pa.size());
-            return;
-        }
-        rect = xForm(rect);
-    }
-    d->engine->drawArc(rect, a, alen);
+    QPainterPath path;
+    path.addArc(rect, a/16.0, alen/16.0);
+    drawPath(path);
 }
 
 
@@ -2052,40 +2017,12 @@ void QPainter::drawPie(const QRect &r, int a, int alen)
 
     QRect rect = r.normalize();
 
-    if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
-        && ((d->state->brush.style() == Qt::SolidPattern
-             && d->state->brush.color().alpha() != 255)
-            || (d->state->pen.style() != Qt::NoPen
-                && d->state->pen.color().alpha() != 255))) {
-        QT_ALPHA_BLEND(rect,
-                       drawPie(0, 0, rect.width(), rect.height(), a, alen),
-                       drawPie(rect, a, alen), 0);
-    }
+    QPainterPath path;
+    path.addArc(rect.x(), rect.y(), rect.width(), rect.height(), a/16.0, alen/16.0);
+    path.addLine(rect.center());
+    path.closeSubpath();
+    drawPath(path);
 
-    if (d->state->brush.style() == Qt::LinearGradientPattern
-        && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
-        QT_FILL_GRADIENT(rect,
-                         drawPie(0, 0, rect.width(), rect.height(), a, alen),
-                         drawPie(rect, a, alen));
-
-    }
-
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        if (d->state->txop == TxRotShear) {                // rotate/shear
-            // arc polyline
-            QPointArray pa;
-            pa.makeArc(rect.x(), rect.y(), rect.width(), rect.height(), a, alen, d->state->matrix);
-            int n = pa.size();
-            QPoint p = xForm(QPoint(r.x()+r.width()/2, r.y()+r.height()/2));
-            pa.resize(n+2);
-            pa.setPoint(n, p);        // add legs
-            pa.setPoint(n+1, pa.at(0));
-            d->engine->drawPolygon(pa, false, 0, pa.size());
-            return;
-        }
-        rect = xForm(rect);
-    }
-    d->engine->drawPie(rect, a, alen);
 }
 
 /*!
@@ -2121,37 +2058,10 @@ void QPainter::drawChord(const QRect &r, int a, int alen)
 
     QRect rect = r.normalize();
 
-    if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
-        && ((d->state->brush.style() == Qt::SolidPattern
-             && d->state->brush.color().alpha() != 255)
-            || (d->state->pen.style() != Qt::NoPen
-                && d->state->pen.color().alpha() != 255))) {
-        QT_ALPHA_BLEND(rect,
-                       drawChord(0, 0, rect.width(), rect.height(), a, alen),
-                       drawChord(rect, a, alen), 0);
-    }
-
-    if (d->state->brush.style() == Qt::LinearGradientPattern
-        && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
-        QT_FILL_GRADIENT(rect,
-                         drawChord(0, 0, rect.width(), rect.height(), a, alen),
-                         drawChord(rect, a, alen));
-
-    }
-
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        if (d->state->txop == TxRotShear) {                // rotate/shear
-            QPointArray pa;
-            pa.makeArc(rect.x(), rect.y(), rect.width()-1, rect.height()-1, a, alen, d->state->matrix); // arc polygon
-            int n = pa.size();
-            pa.resize(n+1);
-            pa.setPoint(n, pa.at(0));                // connect endpoints
-            d->engine->drawPolygon(pa, false, 0, pa.size());
-            return;
-        }
-        rect = xForm(rect);
-    }
-    d->engine->drawChord(rect, a, alen);
+    QPainterPath path;
+    path.addArc(rect.x(), rect.y(), rect.width(), rect.height(), a/16.0, alen/16.0);
+    path.closeSubpath();
+    drawPath(path);
 }
 
 /*!
@@ -2179,17 +2089,12 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
     if (!isActive() || nlines < 1 || index < 0)
         return;
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        QPointArray pa = xForm(a, index, nlines*2);
-        if (pa.size() != a.size()) {
-            index  = 0;
-            nlines = pa.size()/2;
-        }
-        d->engine->drawLineSegments(pa, index, nlines);
-        return;
-    }
+    QPointArray pa = a.mid(index, nlines * 2);
 
-    d->engine->drawLineSegments(a, index, nlines);
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
+        pa = xForm(pa);
+
+    d->engine->drawLineSegments(pa);
 }
 
 /*!
@@ -2218,13 +2123,12 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     if (!isActive() || npoints < 2 || index < 0)
         return;
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        QPointArray ar = xForm(a, index, npoints);
-        d->engine->drawPolyline(ar, index, npoints);
-        return;
-    }
+    QPointArray pa = a.mid(index, npoints);
 
-    d->engine->drawPolyline(a, index, npoints);
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
+        pa = xForm(pa);
+
+    d->engine->drawPolygon(pa, QPaintEngine::UnconnectedMode);
 }
 
 /*!
@@ -2261,35 +2165,26 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
     if (!isActive() || npoints < 2 || index < 0)
         return;
 
-    if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
-        && ((d->state->brush.style() == Qt::SolidPattern
-             && d->state->brush.color().alpha() != 255)
-            || (d->state->pen.style() != Qt::NoPen
-                && d->state->pen.color().alpha() != 255))) {
-        QRect bounds = a.boundingRect();
-        QPointArray copy(a);
-        copy.translate(-bounds.x(), -bounds.y());
-        QT_ALPHA_BLEND(bounds,
-                       drawPolygon(copy, winding, index, npoints),
-                       drawPolygon(a, winding, index, npoints), 0);
-    }
+    QPointArray pa = a.mid(index, npoints);
 
-    if (d->state->brush.style() == Qt::LinearGradientPattern
-        && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
-        QRect bounds = a.boundingRect();
-        QPointArray copy(a);
-        copy.translate(-bounds.x(), -bounds.y());
-        QT_FILL_GRADIENT(bounds,
-                         drawPolygon(copy, winding, index, npoints),
-                         drawPolygon(a, winding, index, npoints));
-    }
-
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        QPointArray ar = xForm(a, index, npoints);
-        d->engine->drawPolygon(ar, winding, index, npoints);
+    if (((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
+        || (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
+            && ((d->state->brush.style() == Qt::SolidPattern
+                 && d->state->brush.color().alpha() != 255)
+                || (d->state->pen.style() != Qt::NoPen
+                    && d->state->pen.color().alpha() != 255)))
+        || (d->state->brush.style() == Qt::LinearGradientPattern
+            && !d->engine->hasFeature(QPaintEngine::LinearGradients))) {
+        QPainterPath path;
+        path.setFillMode(winding ? QPainterPath::Winding : QPainterPath::OddEven);
+        for (int i=1; i<a.size(); ++i)
+            path.addLine(a.at(i-1), a.at(i));
+        path.closeSubpath();
+        drawPath(path);
         return;
     }
-    d->engine->drawPolygon(a, winding, index, npoints);
+
+    d->engine->drawPolygon(pa, winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
 }
 
 /*!
@@ -2304,23 +2199,8 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
 
 void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
 {
-    if (!isActive())
-        return;
-    d->engine->updateState(d->state);
-
-    if (npoints < 0)
-        npoints = a.size() - index;
-    if (index + npoints > (int)a.size())
-        npoints = a.size() - index;
-    if (!isActive() || npoints < 2 || index < 0)
-        return;
-
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        QPointArray ar = xForm(a, index, npoints);
-        d->engine->drawConvexPolygon(ar, index, npoints);
-        return;
-    }
-    d->engine->drawConvexPolygon(a, index, npoints);
+    // Fix when QPainter::drawPolygon(QPointArray, PolyDrawMode) is in place
+    drawPolygon(a, true, index, npoints);
 }
 
 /*!
@@ -2343,13 +2223,9 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
         return;
     }
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        QPointArray pa = xForm(a, index, a.size()-index);
-        d->engine->drawCubicBezier(pa, index);
-        return;
-    }
-
-    d->engine->drawCubicBezier(a, index);
+    QPainterPath path;
+    path.addBezier(a.at(index), a.at(index+1), a.at(index+2), a.at(index+3));
+    drawPath(path);
 }
 
 /*!

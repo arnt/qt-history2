@@ -224,22 +224,6 @@ void QPicturePaintEngine::drawPoint(const QPoint &p)
     writeCmdLength(pos, QRect(p,p), true);
 }
 
-void QPicturePaintEngine::drawPoints(const QPointArray &a, int index, int npoints)
-{
-    int pos;
-    SERIALIZE_CMD(PdcDrawPoints);
-    d->s << a << (Q_INT32) index << (Q_INT32) npoints;
-    writeCmdLength(pos, a.boundingRect(), true);
-}
-
-void QPicturePaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
-{
-    int pos;
-    SERIALIZE_CMD(PdcDrawRoundRect);
-    d->s << r << (Q_INT16)xRnd << (Q_INT16)yRnd;
-    writeCmdLength(pos, r, true);
-}
-
 void QPicturePaintEngine::drawEllipse(const QRect &r)
 {
     int pos;
@@ -248,72 +232,18 @@ void QPicturePaintEngine::drawEllipse(const QRect &r)
     writeCmdLength(pos, r, true);
 }
 
-void QPicturePaintEngine::drawArc(const QRect &r, int a, int alen)
+void QPicturePaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
 {
     int pos;
-    SERIALIZE_CMD(PdcDrawArc);
-    d->s << r << (Q_INT16)a << (Q_INT16)alen;
-    writeCmdLength(pos, r, true);
-}
-
-void QPicturePaintEngine::drawPie(const QRect &r, int _a, int alen)
-{
-    int pos;
-    SERIALIZE_CMD(PdcDrawPie);
-    d->s << r << (Q_INT16)_a << (Q_INT16)alen;
-    writeCmdLength(pos, r, true);
-}
-
-void QPicturePaintEngine::drawChord(const QRect &r, int _a, int alen)
-{
-    int pos;
-    SERIALIZE_CMD(PdcDrawChord);
-    d->s << r << (Q_INT16)_a << (Q_INT16)alen;
-    writeCmdLength(pos, r, true);
-}
-
-// ### Stream out index and nlines
-void QPicturePaintEngine::drawLineSegments(const QPointArray &a, int /* index */, int /* nlines */)
-{
-    int pos;
-    SERIALIZE_CMD(PdcDrawLineSegments);
-    d->s << a;
-    writeCmdLength(pos, a.boundingRect(), true);
-}
-
-// ### Stream out index and npoints
-void QPicturePaintEngine::drawPolyline(const QPointArray &a, int /* index */, int /* npoints */)
-{
-    int pos;
-    SERIALIZE_CMD(PdcDrawPolyline);
-    d->s << a;
-    writeCmdLength(pos, a.boundingRect(), true);
-}
-
-void QPicturePaintEngine::drawPolygon(const QPointArray &a, bool winding, int, int)
-{
-    int pos;
-    SERIALIZE_CMD(PdcDrawPolygon);
-    d->s << a << (Q_INT8) winding;
-    writeCmdLength(pos, a.boundingRect(), true);
-}
-
-void QPicturePaintEngine::drawConvexPolygon(const QPointArray &a, int index, int npoints)
-{
-    drawPolygon(a, false, index, npoints);
-}
-
-// ### Stream out: index:
-void QPicturePaintEngine::drawCubicBezier(const QPointArray &a, int /* index */)
-{
-#ifndef QT_NO_BEZIER
-    int pos;
-    SERIALIZE_CMD(PdcDrawCubicBezier);
-    d->s << a;
-    writeCmdLength(pos, a.cubicBezier().boundingRect(), true);
-#else
-    (void) a;
-#endif
+    if (mode == UnconnectedMode) {
+        SERIALIZE_CMD(PdcDrawPolyline);
+        d->s << a;
+        writeCmdLength(pos, a.boundingRect(), true);
+    } else {
+        SERIALIZE_CMD(PdcDrawPolygon);
+        d->s << a << (Q_INT8) (mode == WindingMode);
+        writeCmdLength(pos, a.boundingRect(), true);
+    }
 }
 
 // ### Stream out sr

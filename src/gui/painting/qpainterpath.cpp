@@ -100,11 +100,12 @@ void QPainterSubpath::addBezier(const QPointFloat &p1, const QPointFloat &p2,
 
 void QPainterSubpath::addArc(const QRectFloat &rect, float angle, float alen)
 {
+#define ANGLE(t) ((t) * 2 * M_PI / 360.0)
     float a = rect.width() / 2.0;
     float b = rect.height() / 2.0;
 
-    QPointFloat startPoint(a * cos(angle), -b * sin(angle));
-    QPointFloat endPoint(a * cos(angle + alen), -b * sin(angle + alen));
+    QPointFloat startPoint(a * cos(ANGLE(angle)), -b * sin(ANGLE(angle)));
+    QPointFloat endPoint(a * cos(ANGLE(angle + alen)), -b * sin(ANGLE(angle + alen)));
 
     startPoint += rect.center();
     endPoint   += rect.center();
@@ -152,10 +153,10 @@ QPointArray QPainterSubpath::toPolygon(const QMatrix &matrix) const
         }
         case QPainterPathElement::Arc: {
             QPointArray ar;
-            ar.makeArc(int(elm.arcData.x), int(elm.arcData.y),
-                       int(elm.arcData.w), int(elm.arcData.h),
-                       int(elm.arcData.start / M_PI * 360),
-                       int(elm.arcData.length / M_PI * 360),
+            ar.makeArc(qRound(elm.arcData.x), qRound(elm.arcData.y),
+                       qRound(elm.arcData.w), qRound(elm.arcData.h),
+                       qRound(elm.arcData.start * 16),
+                       qRound(elm.arcData.length * 16),
                        matrix);
             p += ar;
             break;
@@ -173,14 +174,15 @@ QPointArray QPainterSubpath::toPolygon(const QMatrix &matrix) const
 
   Converts all the curves in the path to linear polylines.
 */
-QList<QPointArray> QPainterPathPrivate::flatten(const QMatrix &matrix)
+QList<QPointArray> QPainterPathPrivate::flatten(const QMatrix &matrix, FlattenInclusion incl)
 {
     QList<QPointArray> flatCurves;
     if (!flatCurves.isEmpty() || subpaths.isEmpty())
         return flatCurves;
 
+    bool includeUnclosed = incl & UnclosedSubpaths;
     for (int i=0; i<subpaths.size(); ++i)
-        if (subpaths.at(i).isClosed())
+        if (includeUnclosed || subpaths.at(i).isClosed())
             flatCurves.append(subpaths.at(i).toPolygon(matrix));
 
     return flatCurves;
@@ -249,7 +251,7 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
                                           const QMatrix &xform,
                                           QRect *boundingRect)
 {
-    QList<QPointArray> flatCurves = flatten(xform);
+    QList<QPointArray> flatCurves = flatten(xform, ClosedSubpaths);
 
     QRect pathBounds;
     for (int fc=0; fc<flatCurves.size(); ++fc)
@@ -344,47 +346,36 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
     \internal
 */
 
-QPainterPath QPainterPathPrivate::createPathOutline(int penWidth)
+QPainterPath QPainterPathPrivate::createPathOutlineFlat(int penWidth, const QMatrix &matrix)
 {
-    float pw2 = penWidth/2.0;
+//     QList<QPointArray> outlines = flatten(matrix, AllSubpaths);
 
-    QPainterPath outline;
-    outline.setFillMode(QPainterPath::Winding);
+//     QPainterSubpath rightHand;
+//     QPainterSubpath leftHand;
+//     float width = penWidth / 2.0;
 
+//     for (int i=0; i<outlines.size(); ++i) {
+//         const QPointArray &outline = outlines.at(i);
+//         if (outline.isEmpty())
+//             continue;
 
-    for (int sp=0; subpaths.size(); ++sp) {
-        const QPainterSubpath &subpath = subpaths.at(sp);
-        QPainterSubpath side;
-        for (int elmno=0; subpath.elements.size(); ++elmno) {
-            const QPainterPathElement &elm = subpath.elements.at(elmno);
-            switch (elm.type) {
+//         if (outline.size() == 2)
+//             continue;
 
-            case QPainterPathElement::Line:
-                {
-                    QLineFloat l(elm.lineData.x1, elm.lineData.y1, elm.lineData.x2, elm.lineData.y2);
-                    QLineFloat nv = l.normalVector();
-                    nv.setLength(pw2);
-                    l.moveBy(nv);
-                    side.addLine(l);
-                }
-                break;
+//         for (int l=2; l<outline.size(); ++l) {
+//             QLineFloat l1(outline.at(l-2), outline.at(l-1));
+//             QLineFloat l2(outline.at(l), outline.at(l+1));
 
-            case QPainterPathElement::Arc:
-                printf("QPainterPathElement::createPathOutline() - elm is arc\n");
-                break;
-            case QPainterPathElement::Bezier:
-                printf("QPainterPathElement::createPathOutline() - elm is bezier\n");
-                break;
+//             QLineFloat n1 = l1.normalVector();
+//             QLineFloat n2 = l2.normalVector();
 
-            default:
-                Q_ASSERT(0);
-                break;
-            }
-        }
-        outline.d_func()->subpaths.append(side);
-    }
+//             n
 
-    return outline;
+//         }
+//     }
+
+//     return outline;
+    return QPainterPath();
 }
 
 #define d d_func()
@@ -621,6 +612,7 @@ void QPainterPath::addBezier(const QPointFloat &p1, const QPointFloat &p2,
 */
 void QPainterPath::addArc(const QRectFloat &rect, float startAngle, float sweepLength)
 {
+    qDebug() << "QPainterPath::addArc()" << rect;
     d->subpaths.last().addArc(rect, startAngle, sweepLength);
 }
 
@@ -670,5 +662,5 @@ bool QPainterPath::isEmpty() const
 
 QPainterPath QPainterPath::createPathOutline(int width)
 {
-    return d->createPathOutline(width);
+    return d->createPathOutlineFlat(width, QMatrix());
 }
