@@ -65,7 +65,7 @@
     \i \link accelerators.html   Standard Accelerators \endlink
     \i \link nsplugin.html Qt-based LiveConnect Plugins \endlink
     \i \link activeqt.html ActiveX support \endlink
-    \i \link qmotif-extension.html QMotif Support Extension \endlink
+    \i \link motif-extension.html Motif Support Extension \endlink
     \i \link mailinglists.html Mailing Lists \endlink
     \i \link opengl-x11-overlays.html OpenGL Overlays (X11)\endlink
     \i \link appicon.html Setting the Application Icon \endlink
