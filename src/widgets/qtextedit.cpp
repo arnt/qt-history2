@@ -83,7 +83,7 @@ class QTextEditPrivate
 {
 public:
     QTextEditPrivate()
-	:preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(FALSE), 
+	:preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(FALSE),
 	allowTabs(FALSE), mouseInternalPress(FALSE)
 #ifdef QT_TEXTEDIT_OPTIMIZATION
 	, od(0), optimMode( FALSE)
@@ -2608,7 +2608,6 @@ void QTextEdit::insert( const QString &text, uint insertionFlags )
 
 void QTextEdit::insertAt( const QString &text, int para, int index )
 {
-    removeSelection( QTextDocument::Standard );
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode )
 	return;
@@ -2616,6 +2615,7 @@ void QTextEdit::insertAt( const QString &text, int para, int index )
     QTextParag *p = doc->paragAt( para );
     if ( !p )
 	return;
+    removeSelection( QTextDocument::Standard );
     QTextCursor tmp = *cursor;
     cursor->setParag( p );
     cursor->setIndex( index );
@@ -5483,7 +5483,7 @@ void QTextEdit::optimParseTags( QString * line )
 		    format = FALSE;
 		tag = optimAppendTag( startIndex, tagStr );
 		// everything that is not a b, u or i tag is considered
-		// to be a color tag. 
+		// to be a color tag.
 		tag->type = format ? QTextEditOptimPrivate::Format
 			    : QTextEditOptimPrivate::Color;
 		if ( tagStr[0] == '/' ) {
