@@ -31,54 +31,12 @@
 #include "qsizepolicy.h"
 #include "qtextformat.h"
 
+#include "private/qcorevariant_p.h"
+
 extern QDataStream &qt_stream_out_qcolorgroup(QDataStream &s, const QColorGroup &g);
 extern QDataStream &qt_stream_in_qcolorgroup(QDataStream &s, QColorGroup &g);
 
 Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler();
-
-// takes a type, returns the internal void* pointer casted
-// to a pointer of the input type
-template <typename T>
-inline static const T *v_cast(const QCoreVariant::Private *d)
-{
-    if (sizeof(T) > sizeof(QCoreVariant::Private::Data))
-        // this is really a static_cast, but gcc 2.95 complains about it.
-        return reinterpret_cast<const T*>(d->data.shared->ptr);
-    return reinterpret_cast<const T*>(&d->data.ptr);
-}
-
-template <typename T>
-inline static T *v_cast(QCoreVariant::Private *d)
-{
-    if (sizeof(T) > sizeof(QCoreVariant::Private::Data))
-        // this is really a static_cast, but gcc 2.95 complains about it.
-        return reinterpret_cast<T*>(d->data.shared->ptr);
-    return reinterpret_cast<T*>(&d->data.ptr);
-}
-
-template <class T>
-inline static void v_construct(QCoreVariant::Private *x)
-{
-    if (sizeof(T) > sizeof(QCoreVariant::Private::Data)) {
-        x->data.shared = new QCoreVariant::PrivateShared(new T);
-        x->is_shared = true;
-    } else {
-        new (&x->data.ptr) T;
-        x->is_shared = false;
-    }
-}
-
-template <class T>
-inline static void v_construct(QCoreVariant::Private *x, const void *copy)
-{
-    if (sizeof(T) > sizeof(QCoreVariant::Private::Data)) {
-        x->data.shared = new QCoreVariant::PrivateShared(new T(*static_cast<const T *>(copy)));
-        x->is_shared = true;
-    } else {
-        new (&x->data.ptr) T(*static_cast<const T *>(copy));
-        x->is_shared = false;
-    }
-}
 
 static void construct(QCoreVariant::Private *x, const void *copy)
 {
@@ -207,17 +165,6 @@ static void construct(QCoreVariant::Private *x, const void *copy)
         default:
             qcoreVariantHandler()->construct(x, copy);
         }
-    }
-}
-
-template <class T>
-inline static void v_clear(QCoreVariant::Private *d)
-{
-    if (sizeof(T) > sizeof(QCoreVariant::Private::Data)) {
-        delete v_cast<T>(d);
-        delete d->data.shared;
-    } else {
-        reinterpret_cast<T *>(&d->data.ptr)->~T();
     }
 }
 

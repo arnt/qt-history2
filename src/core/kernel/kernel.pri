@@ -20,6 +20,7 @@ HEADERS += \
 	kernel/qinternal_p.h \
 	kernel/qabstracteventdispatcher_p.h \
 	kernel/qcoreapplication_p.h \
+        kernel/qcorevariant_p.h \
 	kernel/qobjectcleanuphandler.h
 
 SOURCES += \
