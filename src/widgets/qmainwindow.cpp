@@ -494,16 +494,16 @@ public:
     \endcode
 
     QMainWindows may be created in their own right as shown above.  The
-    central widget is added with setCentralWidget(). Menus can be added
-    to the default menu bar, widgets can be added to the status bar and
-    toolbars can be added to any of the dock areas.
+    central widget is set with setCentralWidget(). Popup menus can be added
+    to the default menu bar, widgets can be added to the status bar, 
+    toolbars and dock windows can be added to any of the dock areas.
 
     \walkthrough application/main.cpp
     \skipto ApplicationWindow
     \printuntil show
 
     In the extract above ApplicationWindow is a subclass of QMainWindow
-    that we must write for ourselves; this is the commonest approach to
+    that we must write for ourselves; this is the usual approach to
     using QMainWindow. (The source for the extracts in this description
     are taken from \l application/main.cpp, \l
     application/application.cpp, action/main.cpp, \l
@@ -537,7 +537,7 @@ public:
     default). The slot will be called when the toolbar button is
     clicked. Any dock window can be added to a dock area either using
     addDockWindow(), or by creating a dock window with the QMainWindow
-    as parent.
+    as the parent.
     
     \walkthrough application/application.cpp
     \skipto editor
@@ -552,9 +552,9 @@ public:
     further status information. See the QStatusBar documentation for
     details, particularly the addWidget() function.
 
-    Often we want to synchronise a toolbar button with a menu item.
+    Often we want to synchronize a toolbar button with a menu item.
     For example, if the user clicks a 'bold' toolbar button we want the
-    'bold' menu item to be checked. This syncronisation can be achieved
+    'bold' menu item to be checked. This synchronization can be achieved
     automatically by creating actions and adding the actions to the
     toolbar and menu.
 
@@ -593,15 +593,15 @@ public:
     are left to you. QMainWindow automatically detects the creation of a
     menu bar or status bar if you specify the QMainWindow as parent, or
     you can use the provided menuBar() and statusBar() functions.
-    menuBar() and statusBar() create a suitable widget if one doesn't
+    The functions menuBar() and statusBar() create a suitable widget if one doesn't
     exist, and update the window's layout to make space.
 
     QMainWindow provides a QToolTipGroup connected to the status bar.
-    toolTipGroup() provides access to the default QToolTipGroup. 
+    The function toolTipGroup() provides access to the default QToolTipGroup. 
     It isn't possible to set a different tool tip group.
 
     New dock windows and toolbars can be added to a QMainWindow using
-    addDockWindow(). Dock windows are moved with moveDockWindow() and
+    addDockWindow(). Dock windows can be moved using moveDockWindow() and
     removed with removeDockWindow(). QMainWindow allows default dock
     window (toolbar) docking in all its dock areas (top, left, right,
     bottom).  You can use setDockEnabled() to enable and disable docking
@@ -613,7 +613,10 @@ public:
     included for backward compatibility, all new code should use the
     *DockWindow functions. QToolbar is a subclass of QDockWindow so all
     functions that work with dock windows work on toolbars in the same
-    way.
+    way.  If the user minimizes a dock window by clicking the dock window's 
+    window handle then the dock window is moved to the \c Minimized dock 
+    area.  If the user clicks the close button, then the dock window is 
+    hidden and can only be shown again by using the dock window menu.  
 
     Some functions change the appearance of a QMainWindow globally: 
     <ul>
@@ -633,23 +636,22 @@ public:
     dragged outside any docking area (undocked or 'floated'). Being
     able to drag dock windows can be enabled (the default) and disabled
     using setDockWindowsMovable(). If the user clicks the close button
-    on a floating dock window the window will disappear. To get the dock
+    on a floating dock window then the dock window will disappear. To get the dock
     window back the user must right click a dock area, then click the
     name of the dock window they want to restore. Visible dock windows
-    have a tick by their name in the right-click pop up menu. This menu
-    is created automatically as required by createDockWindowMenu().
+    have a tick by their name in the right-click popup menu (dock window
+    menu). This menu is created automatically as required by createDockWindowMenu().
     Since it may not always be appropriate for a dock window to appear
     on this menu the setAppropriate() function is used to inform the
-    main window whether or not the right-click dock window menu should
+    main window whether or not the dock window menu should
     include a particular dock window. Double clicking a dock window
-    handle undocks (floats) the dock window. Double clicking a floating
+    handle (usually on the left-hand side of the dock window) undocks 
+    (floats) the dock window. Double clicking a floating
     dock window's titlebar will dock the floating dock window. 
     
     The \c Minimized edge is a hidden dock area. If this dock area is
     enabled the user can hide (minimize) a dock window or show (restore)
-    a minimized dock window by clicking the dock window handle. The
-    handles of all minimized dock windows are drawn below the menu bar
-    (usually at the left) in a row. If the user hovers the mouse cursor
+    a minimized dock window by clicking the dock window handle. If the user hovers the mouse cursor
     over one of the handles, the caption of the dock window is displayed
     in a tool tip (see QDockWindow::caption() or QToolBar::label()), so
     if you enable the \c Minimized dock area, it is best to specify a
@@ -765,7 +767,7 @@ public:
 /*!
     \enum QMainWindow::DockWindows
 
-    Right-clicking a dock area will pop up a menu
+    Right-clicking a dock area will pop-up a menu
     (createDockWindowMenu() is called automatically). When called in
     code you can specify what items should appear on the menu with this
     enum.
@@ -832,7 +834,7 @@ void QMainWindow::setMenuBar( QMenuBar * newMenuBar )
 
 /*!  Returns the menu bar for this window.  
 
-    If there isn't one, menuBar() creates an empty menu bar on the fly.
+    If there isn't one, then menuBar() creates an empty menu bar.
 
   \sa statusBar()
 */
@@ -889,7 +891,7 @@ void QMainWindow::setStatusBar( QStatusBar * newStatusBar )
 
 
 /*!  Returns the status bar for this window.  If there isn't one,
-  statusBar() creates an empty status bar on the fly, and if necessary
+  statusBar() creates an empty status bar, and if necessary
   a tool tip group too.
 
   \sa  menuBar() toolTipGroup()
@@ -941,7 +943,7 @@ void QMainWindow::setToolTipGroup( QToolTipGroup * newToolTipGroup )
 
 
 /*!  Returns the tool tip group for this window.  If there isn't one,
-  toolTipGroup() creates an empty tool tip group on the fly.
+  toolTipGroup() creates an empty tool tip groups.
 
   \sa menuBar() statusBar()
 */
@@ -972,7 +974,7 @@ void QMainWindow::setDockEnabled( Dock dock, bool enable )
 }
 
 
-/*!  Returns TRUE if the \a dock dock area is enabled, i.e. can accept
+/*!  Returns TRUE if the \a dock dock area is enabled, i.e. it can accept
     user dragged dock windows; otherwise returns FALSE.
 
   \sa setDockEnabled()
@@ -983,7 +985,9 @@ bool QMainWindow::isDockEnabled( Dock dock ) const
     return d->docks[ dock ];
 }
 
-/*!  Returns TRUE if \a area is enabled, i.e. can accept user dragged
+/*!  \overload
+
+  Returns TRUE if \a area is enabled, i.e. it can accept user dragged
  dock windows; otherwise returns FALSE.
 
   \sa setDockEnabled()
@@ -1003,6 +1007,8 @@ bool QMainWindow::isDockEnabled( QDockArea *area ) const
 }
 
 /*!
+    \overload
+      
     If \a enable is TRUE then users can dock the \a dw dock window in
     the \a dock area.  If \a enable is FALSE users cannot dock the \a dw
     dock window in the \a dock area. 
@@ -1044,7 +1050,9 @@ void QMainWindow::setDockEnabled( QDockWindow *dw, Dock dock, bool enable )
     }
 }
 
-/*!  Returns TRUE if \a area is enabled for the dock window \a dw,
+/*!  \overload
+
+  Returns TRUE if \a area is enabled for the dock window \a dw,
  otherwise returns FALSE.
 
   \sa setDockEnabled()
@@ -1066,7 +1074,9 @@ bool QMainWindow::isDockEnabled( QDockWindow *dw, QDockArea *area ) const
     return isDockEnabled( dw, dock );
 }
 
-/*!  Returns TRUE if \a dock is enabled for the dock window \a tb, 
+/*!  \overload
+
+  Returns TRUE if \a dock is enabled for the dock window \a tb, 
  otherwise returns FALSE.
 
   \sa setDockEnabled()
@@ -1081,9 +1091,9 @@ bool QMainWindow::isDockEnabled( QDockWindow *tb, Dock dock ) const
 
 
 
-/*!  Adds \a dockWindow to the dock area. 
+/*!  Adds \a dockWindow to the \a edge dock area. 
 
-    If \a newLine is FALSE (the default) the \a dockWindow is added at
+    If \a newLine is FALSE (the default) then the \a dockWindow is added at
     the end of the \a edge. For vertical edges the end is at the bottom,
     for horizontal edges (including \c Minimized) the end is at the
     right.  If \a newLine is TRUE a new line of dock windows is started
@@ -1107,7 +1117,9 @@ void QMainWindow::addDockWindow( QDockWindow *dockWindow,
 }
 
 
-/*!  Adds \a dockWindow to the dock area with label \a label. 
+/*! \overload 
+
+    Adds \a dockWindow to the dock area with label \a label. 
 
     If \a newLine is FALSE (the default) the \a dockWindow is added at
     the end of the \a edge. For vertical edges the end is at the bottom,
@@ -1170,18 +1182,18 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge )
 	( (QToolBar*)dockWindow )->setOrientation( dockWindow->orientation() );
 }
 
-/*!
-  Moves \a dockWindow to position \a index of \a edge.
+/*! \overload
+  
+    Moves \a dockWindow to position \a index of \a edge.
 
-    The \a dockWindow is moved after the \a index - 1 position dock
-    window. Any dock windows with positions \a index or higher have
+    Any dock windows with positions \a index or higher have
     their position number incremented and any of these on the same line
     are moved right (down for vertical dock areas) to make room.
 
-    If \a nl is TRUE (FALSE is the default) a new dock window line is
-    created below the line in which the moved dock window appears and
-    the moved dock window, with any others with higher positions on the
-    same line, is moved to this new line.
+    If \a nl is TRUE, a new dock window line is created below the line 
+    in which the moved dock window appears and the moved dock window, 
+    with any others with higher positions on the same line, is moved 
+    to this new line.
 
     The \a extraOffset is the space to put between the left side of the
     dock area (top side for vertical dock areas) and the dock window.
@@ -1227,7 +1239,7 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, 
 }
 
 /*!
-  Removes \a dockWindow from this main window's docking area, if \a
+  Removes \a dockWindow from the main window's docking area, provided \a
   dockWindow is non-null and managed by this main window.
 */
 
@@ -1240,7 +1252,7 @@ void QMainWindow::removeDockWindow( QDockWindow * dockWindow )
     dockWindow->removeEventFilter( this );
 }
 
-/*!  Sets up the geometry management of this window. It is called
+/*!  Sets up the geometry management of the window. It is called
   automatically when needed, so you shouldn't need to call it.
 */
 
@@ -1348,7 +1360,7 @@ void QMainWindow::setCentralWidget( QWidget * w )
 }
 
 
-/*!  Returns a pointer this main window's central widget.  
+/*!  Returns a pointer to the main window's central widget.  
 
     The central widget is surrounded by the left, top, right and bottom
     dock areas. The menu bar is above the top dock area.
@@ -1463,7 +1475,7 @@ bool QMainWindow::usesBigPixmaps() const
 
 
 /*!  
-    If \a enable is FALSE (the default) the tool buttons will use small
+    If \a enable is FALSE, the tool buttons will use small
     pixmaps. If \a enable is TRUE, big pixmaps will be used. 
 
   Tool buttons and other widgets that wish to respond to this setting
@@ -1505,7 +1517,7 @@ bool QMainWindow::usesTextLabel() const
 
 
 /*!  
-    If \a enable is FALSE (the default) the tool buttons will not use
+    If \a enable is FALSE, the tool buttons will not use
     text labels. If \a enable is TRUE, text labels will be used. 
 
   Tool buttons and other widgets that wish to respond to this setting
@@ -1538,7 +1550,7 @@ void QMainWindow::setUsesTextLabel( bool enable )
 /*! \fn void QMainWindow::pixmapSizeChanged( bool )
 
   This signal is called whenever the setUsesBigPixmaps() is called
-  with a value which is different from the current setting.  All
+  with a value different to the current setting.  All
   widgets that should respond to such changes, e.g. toolbar buttons,
   must connect to this signal.
 */
@@ -1546,7 +1558,7 @@ void QMainWindow::setUsesTextLabel( bool enable )
 /*! \fn void QMainWindow::usesTextLabelChanged( bool )
 
   This signal is called whenever the setUsesTextLabel() is called
-  with a value which is different from the current setting.  All
+  with a value different to the current setting.  All
   widgets that should respond to such changes, e.g. toolbar buttons,
   must connect to this signal.
 */
@@ -1565,7 +1577,7 @@ void QMainWindow::setUsesTextLabel( bool enable )
 /*!  If \a enable is FALSE (the default), stretchable dock windows
     are expanded, and non-stretchable dock windows are given the minimum
     space they need. Since most dock windows are not stretchable, this
-    usually results in a ragged right edge (or ragged bottom edge for a
+    usually results in a unjustified right edge (or unjustified bottom edge for a
     vertical dock area). If \a enable is TRUE, the main window will
     right-justify its dock windows. 
 
@@ -1581,8 +1593,8 @@ void QMainWindow::setRightJustification( bool enable )
 }
 
 
-/*!  Returns TRUE if this main windows right-justifies its dock
-  windows, otherwise returns FALSE (which is the default).
+/*!  Returns TRUE if the main window right-justifies its dock
+  windows, otherwise returns FALSE.
 
   \sa setRightJustification()
 */
@@ -1607,7 +1619,7 @@ void QMainWindow::triggerLayout( bool deleteLayout )
 }
 
 /*!
-    Enters What's This? question mode and returns immediately.
+    Enters 'What's This?' question mode and returns immediately.
 
     This is the same as QWhatsThis::enterWhatsThisMode(), but
     implemented as a main window object's slot. This way it can easily
@@ -1645,11 +1657,11 @@ void QMainWindow::styleChange( QStyle& old )
     area. It also sets \a nl to TRUE if the \a dw begins a new line
     (otherwise FALSE), and \a extraOffset with the dw's offset.
 
-    If the \a dw dock window is not found the function returns FALSE and
+    If the \a dw dock window is not found then the function returns FALSE and
     the state of \a dock, \a index, \a nl and \a extraOffset is
     undefined.
 
-    If you want to save and restore dock window positions use
+    If you want to save and restore dock window positions then use
     operator>>() and operator<<().
 
     \sa operator>>() operator<<()
@@ -1683,6 +1695,8 @@ bool QMainWindow::getLocation( QDockWindow *dw, Dock &dock, int &index, bool &nl
  
  For example, the \c TornOff dock area may contain closed toolbars but
  these are returned along with the visible toolbars.
+
+  \sa dockWindows()
 */
 
 QList<QToolBar> QMainWindow::toolBars( Dock dock ) const
@@ -1752,7 +1766,7 @@ QList<QDockWindow> QMainWindow::dockWindows() const
 }
 
 /*!  
-    If \a enable is TRUE (the default) the user will be able to move
+    If \a enable is TRUE, the user will be able to move
     dock windows. Movable dock windows can be moved from one QMainWindow
     dock area to another, including the \c TearOff area (i.e. where the
     dock window floats freely as a window in its own right), and the \c
@@ -1794,7 +1808,7 @@ bool QMainWindow::dockWindowsMovable() const
 }
 
 /*!  
-    If \a b is TRUE dock windows are moved opaquely (i.e. the window is
+    If \a b is TRUE then dock windows are moved opaquely (i.e. the window is
     shown normally as it is moved). If \a b is FALSE when dock windows
     are moved only an outline is shown.
 
@@ -1815,7 +1829,8 @@ void QMainWindow::setOpaqueMoving( bool b )
 }
 
 /*!  Returns TRUE if the dock windows of the main window are shown
-  opaquely when moved. Returns FALSE if they are shown transparently,
+  opaquely (i.e. it shows the toolbar as it looks when docked) when 
+  moved. Returns FALSE if they are shown transparently,
   (i.e. as an outline rectangle). 
 
   \sa setOpaqueMoving()
@@ -1832,7 +1847,7 @@ bool QMainWindow::opaqueMoving() const
     possible.
 
   If \a keepNewLines is TRUE, all dock windows stay on their original
-  lines. If \a keepNewLines is FALSE newlines may be removed to achieve
+  lines. If \a keepNewLines is FALSE then newlines may be removed to achieve
   the most compact layout possible.
 
   The method only works if dockWindowsMovable() returns TRUE.
@@ -1848,12 +1863,14 @@ void QMainWindow::lineUpDockWindows( bool keepNewLines )
     d->bottomDock->lineUp( keepNewLines );
 }
 
-/*!  Returns TRUE, if right clicking a dock window or dock area
-  pops up the right-click pop up menu. Otherwise returns FALSE.
+/*!  
+
+  Returns TRUE, if the dock window menu is enabled; otherwise returns
+  FALSE.
   
   The menu lists the (appropriate()) dock windows (which may be shown
-  or hidden), and has a line up dock window menu item. It will also have
-  a Customize menu item if isCustomizable() returns TRUE.
+  or hidden), and has a "Line Up Dock Windows" menu item. It will also have
+  a "Customize" menu item if isCustomizable() returns TRUE.
 
   \sa setDockEnabled(), lineUpDockWindows() appropriate() setAppropriate()
 */
@@ -1865,7 +1882,7 @@ bool QMainWindow::isDockMenuEnabled() const
 
 /*!  
     If \a b is TRUE then right clicking on a dock window or dock area
-    will pop up the right-click pop up menu. If \a b is FALSE right
+    will pop up the dock window menu. If \a b is FALSE right
     clicking a dock window or dock area will not pop up the menu.
     
   The menu lists the (appropriate()) dock windows (which may be shown or
@@ -1883,10 +1900,10 @@ void QMainWindow::setDockMenuEnabled( bool b )
 /*!  Creates a menu which contains all toolbars (if \a dockWindows
   is \c OnlyToolBars ), all dock windows (if \a dockWindows is \c
   NoToolBars) or all toolbars and dock windows ( if \a dockWindows is
-  \c AllDockWindows).
+  \c AllDockWindows - the default).
 
   This function is called internally when necessary, e.g. when the user
-  right clicks a dock area (assuming isDockMenuEnabled() returns TRUE).
+  right clicks a dock area (providing isDockMenuEnabled() returns TRUE).
   You may reimplement this function if you wish to customize the
   behaviour.
 
@@ -1905,7 +1922,7 @@ void QMainWindow::setDockMenuEnabled( bool b )
   If isCustomizable() returns TRUE, a Customize menu item is added to
   the menu, which if clicked will call customize(). The isCustomizable()
   function we provide returns FALSE and customize() does nothing, so
-  they must be reimplemented to be useful.
+  they must be reimplemented in a subclass to be useful.
 */
 
 QPopupMenu *QMainWindow::createDockWindowMenu( DockWindows dockWindows ) const
@@ -2044,28 +2061,40 @@ bool QMainWindow::hasDockWindow( QDockWindow *dw )
     return d->dockWindows.findRef( dw ) != -1;
 }
 
-/*! Returns the \c Left dock area */
+/*! Returns the \c Left dock area 
+
+  \sa rightDock() topDock() bottomDock()
+*/
 
 QDockArea *QMainWindow::leftDock() const
 {
     return d->leftDock;
 }
 
-/*! Returns the \c Right dock area */
+/*! Returns the \c Right dock area 
+
+  \sa leftDock() topDock() bottomDock()
+*/
 
 QDockArea *QMainWindow::rightDock() const
 {
     return d->rightDock;
 }
 
-/*! Returns the \c Top dock area */
+/*! Returns the \c Top dock area 
+
+  \sa bottomDock() leftDock() rightDock()
+*/
 
 QDockArea *QMainWindow::topDock() const
 {
     return d->topDock;
 }
 
-/*! Returns the \c Bottom dock area */
+/*! Returns a pointer the \c Bottom dock area 
+
+  \sa topDock() leftDock() rightDock()
+*/
 
 QDockArea *QMainWindow::bottomDock() const
 {
@@ -2073,7 +2102,7 @@ QDockArea *QMainWindow::bottomDock() const
 }
 
 /*! This function is called when the user clicks the Customize menu item
-    on the right-click pop up menu.
+    on the dock window menu.
 
     The customize menu item will only appear if isCustomizable() returns
     TRUE (it returns FALSE by default).
@@ -2085,7 +2114,7 @@ QDockArea *QMainWindow::bottomDock() const
     The default implementation does nothing, but this may change in
     later Qt versions. In view of this the Customize menu item is not
     shown on the right-click menu by default. If you want the item to
-    appear reimplement isCustomizable() to return TRUE.
+    appear then reimplement isCustomizable() to return TRUE.
 
    \sa isCustomizable()
 */
@@ -2095,10 +2124,12 @@ void QMainWindow::customize()
 }
 
 /*! 
-    Returns TRUE if the dock area right-click pop up menu includes the
+    Returns TRUE if the dock area dock window menu includes the
     Customize menu item (which calls customize when clicked). Returns
-    FALSE by default, i.e. the pop up menu will not contain a Customize
-    menu item.
+    FALSE by default, i.e. the popup menu will not contain a Customize
+    menu item.  You will need to reimplement this function and set it
+    to return TRUE if you wish the user to be able to see the dock window
+    menu.
 
   \sa customize()
 */
@@ -2110,14 +2141,14 @@ bool QMainWindow::isCustomizable() const
 
 /*! 
     Returns TRUE if it is appropriate to include a menu item listing
-    the \a dw dock window on the right-click pop up menu. Otherwise
+    the \a dw dock window on the dock window menu. Otherwise
     returns FALSE.
 
     The user is able to change the state (show or hide) a dock window
     that has a menu item by clicking the item.
 
     Call setAppropriate() to indicate whether or not a particular dock
-    window should appear on the pop up menu.
+    window should appear on the popup menu.
 
   \sa setAppropriate()
 */
@@ -2132,15 +2163,15 @@ bool QMainWindow::appropriate( QDockWindow *dw ) const
 
 /*! 
     Use this function to control whether or not the \a dw dock window's
-    caption should appear as a menu item on the right-click pop up menu
-    that lists the dock windows. The user is able to change the state
-    (show or hide) a dock window that has a menu item by clicking the
-    item; depending on the state of your application, this may or may
-    not be appropriate.
+    caption should appear as a menu item on the dock window menu
+    that lists the dock windows. 
     
     If \a a is TRUE then the \a dw will appear as a menu item on the
-    right-click pop up menu; if \a a is FALSE the \a dw will not appear
-    on the menu.
+    dock window menu.  The user is able to change the state
+    (show or hide) a dock window that has a menu item by clicking the
+    item; depending on the state of your application, this may or may
+    not be appropriate.  If \a a is FALSE the \a dw will not appear
+    on the popup menu.
 
     \sa showDockMenu() isCustomizable() customize()
 
@@ -2167,7 +2198,7 @@ static void saveDockArea( QTextStream &ts, QDockArea *a )
     \relates QMainWindow
 
     Writes the layout (sizes and positions) of the dock windows in the
-    dock areas of the \a mainWindow, including \c Minimized and \c
+    dock areas of the QMainWindow \a mainWindow, including \c Minimized and \c
     TornOff dock windows, to the text stream \a ts.
 
     This can be used, for example, in conjunction with QSettings to save
@@ -2218,7 +2249,7 @@ static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QL
     \relates QMainWindow
 
     Reads the layout (sizes and positions) of the dock windows in the
-    dock areas of the \a mainWindow from the text stream, \a ts,
+    dock areas of the QMainWindow \a mainWindow from the text stream, \a ts,
     including \c Minimized and \c TornOff dock windows. Restores the
     dock windows and dock areas to these sizes and positions. The layout
     information must be in the format produced by operator<<().
