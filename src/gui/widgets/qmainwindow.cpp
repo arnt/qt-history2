@@ -50,7 +50,7 @@ public:
 
 */
 
-/*! \class QMainWindow
+/*! \class QMainWindow qmainwindow.h
     \brief The QMainWindow class provides a main application window.
 
     \ingroup application
