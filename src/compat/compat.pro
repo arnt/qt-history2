@@ -15,7 +15,7 @@ include(widgets/widgets.pri)
 include(dialogs/dialogs.pri)
 include(text/text.pri)
 include(canvas/canvas.pri)
-include(network/network.pri)
+# while re-porting (talk to andreas) include(network/network.pri)
 
 mac:LIBS += -framework Carbon
 
