@@ -1055,6 +1055,8 @@ void QTextLine::layout(int width, LineWidthUnit unit)
             e = eng->fnt->engineForScript(QFont::Latin);
         } else {
             f = eng->block.charFormat().font();
+            if (eng->docLayout)
+                f = f.resolve(eng->docLayout->defaultFont());
             e = f.d->engineForScript(QFont::Latin);
         }
 
@@ -1308,6 +1310,8 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
                 p->setPen(c);
             }
             f = chf.font();
+            if (eng->docLayout)
+                f = f.resolve(eng->docLayout->defaultFont());
         }
         QFontEngine *fe = f.d->engineForScript((QFont::Script)si.analysis.script);
         Q_ASSERT(fe);

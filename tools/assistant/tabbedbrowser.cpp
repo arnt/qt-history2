@@ -143,14 +143,12 @@ void TabbedBrowser::newTab(const QString &lnk)
 
 void TabbedBrowser::zoomIn()
 {
-    // ### FIXME
-    //currentBrowser()->zoomIn();
+    currentBrowser()->zoomIn();
 }
 
 void TabbedBrowser::zoomOut()
 {
-    // ### FIXME
-    //currentBrowser()->zoomOut();
+    currentBrowser()->zoomOut();
 }
 
 void TabbedBrowser::init()

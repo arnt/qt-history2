@@ -33,6 +33,8 @@ public:
     HandlerHash handlers;
 
     void handlerDestroyed(QObject *obj);
+
+    QFont defaultFont;
 };
 
 

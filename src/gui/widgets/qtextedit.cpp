@@ -378,6 +378,8 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         QObject::connect(doc->documentLayout(), SIGNAL(usedSizeChanged()), q, SLOT(adjustScrollbars()));
         cursor = QTextCursor(doc);
 
+        doc->documentLayout()->setDefaultFont(q->font());
+
         hbar->setSingleStep(20);
         vbar->setSingleStep(20);
 
@@ -1771,6 +1773,22 @@ void QTextEdit::showEvent(QShowEvent *)
     }
 }
 
+/*! \reimp
+*/
+void QTextEdit::changeEvent(QEvent *ev)
+{
+    QViewport::changeEvent(ev);
+    if (ev->type() == QEvent::ApplicationFontChange
+        || ev->type() == QEvent::FontChange) {
+        d->doc->documentLayout()->setDefaultFont(font());
+        // ####
+        for (QFragmentMap<QTextBlockData>::ConstIterator it = d->doc->docHandle()->blockMap().begin();
+             !it.atEnd(); ++it)
+            it.value()->invalidate();
+        resizeEvent(0);
+    }
+}
+
 /*!
     This function is called to create a right mouse button popup menu
     at the document position \a pos. If you want to create a custom
@@ -1967,6 +1985,40 @@ void QTextEdit::scrollToAnchor(const QString &name)
             }
         }
     }
+}
+
+/*!
+    \fn QTextEdit::zoomIn()
+
+    Zooms in on the text by by making the base font size \a range
+    points larger and recalculating all font sizes to be the new size.
+    This does not change the size of any images.
+
+    \sa zoomOut()
+*/
+void QTextEdit::zoomIn(int range)
+{
+    QFont f = font();
+    f.setPointSize(f.pointSize() + range);
+    setFont(f);
+}
+
+/*!
+    \fn QTextEdit::zoomOut()
+
+    \overload
+
+    Zooms out on the text by making the base font size \a range points
+    smaller and recalculating all font sizes to be the new size. This
+    does not change the size of any images.
+
+    \sa zoomIn()
+*/
+void QTextEdit::zoomOut(int range)
+{
+    QFont f = font();
+    f.setPointSize(qMax(1, f.pointSize() - range));
+    setFont(f);
 }
 
 /*! \property QTextEdit::tabChangesFocus

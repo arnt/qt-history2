@@ -1147,7 +1147,10 @@ QFont QTextEngine::font(const QScriptItem &si) const
         QTextFormat f = formats->format(si.format);
         Q_ASSERT(f.isCharFormat());
         QTextCharFormat chf = f.toCharFormat();
-        return chf.font();
+        QFont fnt = chf.font();
+        if (docLayout)
+            fnt = fnt.resolve(docLayout->defaultFont());
+        return fnt;
     }
     return QFont(fp, 0);
 }

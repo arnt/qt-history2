@@ -301,5 +301,15 @@ QRect QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
     return QRect();
 }
 
+void QAbstractTextDocumentLayout::setDefaultFont(const QFont &font)
+{
+    d->defaultFont = font;
+}
+
+QFont QAbstractTextDocumentLayout::defaultFont() const
+{
+    return d->defaultFont;
+}
+
 #include "moc_qabstracttextdocumentlayout.cpp"
 

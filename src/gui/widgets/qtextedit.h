@@ -167,6 +167,9 @@ public slots:
 
     void scrollToAnchor(const QString &name);
 
+    void zoomIn(int range = 1);
+    void zoomOut(int range = 1);
+
 signals:
     void currentCharFormatChanged(const QTextCharFormat &format);
     void copyAvailable(bool b);
@@ -189,6 +192,7 @@ protected:
     virtual void focusInEvent(QFocusEvent *ev);
     virtual void focusOutEvent(QFocusEvent *ev);
     virtual void showEvent(QShowEvent *);
+    virtual void changeEvent(QEvent *ev);
 
     virtual QMenu *createContextMenu(const QPoint &pos);
 

@@ -69,6 +69,9 @@ public:
 
     virtual QRect frameBoundingRect(QTextFrame *frame) const;
 
+    void setDefaultFont(const QFont &font);
+    QFont defaultFont() const;
+
 protected:
     QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &, QTextDocument *);
 
