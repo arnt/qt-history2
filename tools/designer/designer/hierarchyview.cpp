@@ -538,23 +538,15 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 		insertObject( obj, item );
 	    }
 	}
-	//} else if ( o->inherits( "QMenuBar" ) ) {
     } else if ( o->inherits( "MenuBarEditor" ) ) {
-	//QMenuBar *mb = (QMenuBar*)o;
 	MenuBarEditor *mb = (MenuBarEditor*)o;
 	for ( int i = mb->count() -1; i >= 0; --i ) {
-	    //QMenuItem *md = mb->findItem( mb->idAt( i ) );
 	    MenuBarEditorItem *md = mb->item( i );
-	    //if ( !md || !md->popup() )
 	    if ( !md || !md->menu() )
 		continue;
-	    //insertObject( md->popup(), item );
 	    insertObject( md->menu(), item );
 	}
-    }
-
-    if ( item->firstChild() )
-	item->setOpen( TRUE );
+    }    
 }
 
 void HierarchyList::setCurrent( QObject *o )
@@ -576,7 +568,6 @@ void HierarchyList::showRMBMenu( QListViewItem *i, const QPoint & p )
 {
     if ( !i )
 	return;
-
 
     QObject *o = findObject( i );
     if ( !o )
