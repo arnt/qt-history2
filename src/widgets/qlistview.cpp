@@ -5313,7 +5313,7 @@ QListViewItem * QListView::selectedItem() const
 
 void QListView::setCurrentItem( QListViewItem * i )
 {
-    if ( d->focusItem == i || !i->isEnabled() )
+    if ( !i || d->focusItem == i || !i->isEnabled() )
 	return;
 
     if ( currentItem() && currentItem()->renameBox ) {
