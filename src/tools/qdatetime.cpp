@@ -418,6 +418,7 @@ QString QDate::shortMonthName( int month )
 #endif
     char buffer[255];
     tm tt;
+    memset( &tt, 0, sizeof( tm ) );
     tt.tm_mon = month - 1;
     if ( strftime( buffer, sizeof( buffer ), "%b", &tt ) )
 	return QString::fromLocal8Bit( buffer );
@@ -444,6 +445,7 @@ QString QDate::longMonthName( int month )
 #endif
     char buffer[255];
     tm tt;
+    memset( &tt, 0, sizeof( tm ) );
     tt.tm_mon = month - 1;
     if ( strftime( buffer, sizeof( buffer ), "%B", &tt ) )
 	return QString::fromLocal8Bit( buffer );
@@ -477,6 +479,7 @@ QString QDate::shortDayName( int weekday )
 #endif
     char buffer[255];
     tm tt;
+    memset( &tt, 0, sizeof( tm ) );
     tt.tm_wday = ( weekday == 7 ) ? 0 : weekday;
     if ( strftime( buffer, sizeof( buffer ), "%a", &tt ) )
 	return QString::fromLocal8Bit( buffer );
@@ -503,6 +506,7 @@ QString QDate::longDayName( int weekday )
 #endif
     char buffer[255];
     tm tt;
+    memset( &tt, 0, sizeof( tm ) );
     tt.tm_wday = ( weekday == 7 ) ? 0 : weekday;
     if ( strftime( buffer, sizeof( buffer ), "%A", &tt ) )
 	return QString::fromLocal8Bit( buffer );
@@ -539,6 +543,7 @@ QString QDate::toString( Qt::DateFormat f ) const
     case Qt::LocalDate:
 	{
 	    tm tt;
+	    memset( &tt, 0, sizeof( tm ) );
 	    char buf[255];
 	    tt.tm_mday = day();
 	    tt.tm_mon = month() - 1;
@@ -1095,6 +1100,7 @@ QString QTime::toString( Qt::DateFormat f ) const
     case Qt::LocalDate:
 	{
 	    tm tt;
+	    memset( &tt, 0, sizeof( tm ) );
 	    char buf[255];
 	    tt.tm_sec = second();
 	    tt.tm_min = minute();
