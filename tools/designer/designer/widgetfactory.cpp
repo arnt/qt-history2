@@ -1013,7 +1013,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
 	return;
     }
 
-    if ( className == "QMultiLineEdit" ) {
+    if ( className == "QMultiLineEdit" || className == "QTextEdit" ) {
 	MultiLineEditor *e = new MultiLineEditor( parent, editWidget, fw );
 	e->exec();
 	delete e;

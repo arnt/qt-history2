@@ -2759,6 +2759,11 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	if ( currentTool() == CONNECT_TOOL )
 	    return TRUE;
 	return !passiveInteractor;
+    case QEvent::ContextMenu:
+	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
+	    break;
+	( (QContextMenuEvent*)e )->ignore(); // ### Reggie: have to implement that properly, for now just keep using mousePress
+	return TRUE;
     case QEvent::MouseButtonRelease:
 	lastPressWidget = 0;
 	if ( isAToolBarChild( o )  && currentTool() != CONNECT_TOOL )
@@ -3212,7 +3217,7 @@ void MainWindow::setupRMBProperties( QValueList<int> &ids, QMap<QString, int> &p
 	    ids << ( id = rmbWidgets->insertItem( tr("Choose Pixmap..."), -1, 0) );
 	    props.insert( "pixmap", id );
 	}
-	if ( text && text->designable(w) && !w->inherits( "QMultiLineEdit" ) ) {
+	if ( text && text->designable(w) && !w->inherits( "QTextEdit" ) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Edit Text..."), -1, 0) );
 	    props.insert( "text", id );
 	}
