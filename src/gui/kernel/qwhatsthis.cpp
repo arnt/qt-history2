@@ -176,7 +176,7 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
     QRect r;
 #ifndef QT_NO_RICHTEXT
     doc = 0;
-    if (QText::mightBeRichText(text)) {
+    if (Qt::mightBeRichText(text)) {
         doc = new QTextDocument();
         doc->setUndoRedoEnabled(false);
         doc->setHtml(text);

@@ -37,7 +37,7 @@
     before the first line break. Although the result may be correct
     for common cases, there is no guarantee.
 */
-bool QText::mightBeRichText(const QString& text)
+bool Qt::mightBeRichText(const QString& text)
 {
     if (text.isEmpty())
         return false;
@@ -93,7 +93,7 @@ bool QText::mightBeRichText(const QString& text)
   Auxiliary function. Converts the plain text string \a plain to a
   rich text formatted string with any HTML meta-characters escaped.
  */
-QString QText::escape(const QString& plain)
+QString Qt::escape(const QString& plain)
 {
     QString rich;
     rich.reserve(int(plain.length() * 1.1));
@@ -120,7 +120,7 @@ QString QText::escape(const QString& plain)
 
     \sa escape()
 */
-QString QText::convertFromPlainText(const QString &plain, QText::WhiteSpaceMode mode)
+QString Qt::convertFromPlainText(const QString &plain, Qt::WhiteSpaceMode mode)
 {
     int col = 0;
     QString rich;
@@ -142,7 +142,7 @@ QString QText::convertFromPlainText(const QString &plain, QText::WhiteSpaceMode 
             }
             col = 0;
         } else {
-            if (mode == QText::WhiteSpacePre && plain[i] == '\t'){
+            if (mode == Qt::WhiteSpacePre && plain[i] == '\t'){
                 rich += 0x00a0U;
                 ++col;
                 while (col % 8) {
@@ -150,7 +150,7 @@ QString QText::convertFromPlainText(const QString &plain, QText::WhiteSpaceMode 
                     ++col;
                 }
             }
-            else if (mode == QText::WhiteSpacePre && plain[i].isSpace())
+            else if (mode == Qt::WhiteSpacePre && plain[i].isSpace())
                 rich += 0x00a0U;
             else if (plain[i] == '<')
                 rich +="&lt;";
@@ -168,7 +168,10 @@ QString QText::convertFromPlainText(const QString &plain, QText::WhiteSpaceMode 
     return rich;
 }
 
-QTextCodec *QText::codecForHtml(const QByteArray &ba)
+/*!
+  \internal
+*/
+QTextCodec *Qt::codecForHtml(const QByteArray &ba)
 {
     // determine charset
     int mib = 4; // Latin1
@@ -990,7 +993,7 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
     } else {
         Q_ASSERT(!txt.contains(QChar::ObjectReplacementCharacter));
 
-        txt = QText::escape(txt);
+        txt = Qt::escape(txt);
 
         // split for [\n{LineSeparator}]
         QString forcedLineBreakRegExp = QString::fromLatin1("[\\na]");

@@ -46,7 +46,7 @@ public:
     QAbstractTextDocumentLayout(QTextDocument *doc);
 
     virtual void draw(QPainter *painter, const PaintContext &context) = 0;
-    virtual int hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const = 0;
+    virtual int hitTest(const QPoint &point, Qt::HitTestAccuracy accuracy) const = 0;
 
     virtual void documentChange(int from, int oldLength, int length) = 0;
 

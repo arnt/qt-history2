@@ -1327,7 +1327,7 @@ const QStyleSheetItem* QStyleSheet::item(const QString& name) const
 */
 QString QStyleSheet::convertFromPlainText(const QString& plain, QStyleSheetItem::WhiteSpaceMode mode)
 {
-    return QText::convertFromPlainText(plain, QText::WhiteSpaceMode(mode));
+    return Qt::convertFromPlainText(plain, Qt::WhiteSpaceMode(mode));
 }
 
 /*!
@@ -1338,7 +1338,7 @@ QString QStyleSheet::convertFromPlainText(const QString& plain, QStyleSheetItem:
 */
 QString QStyleSheet::escape(const QString& plain)
 {
-    return QText::escape(plain);
+    return Qt::escape(plain);
 }
 
 // Must doc this enum somewhere, and it is logically related to QStyleSheet
@@ -1377,7 +1377,7 @@ QString QStyleSheet::escape(const QString& plain)
 */
 bool QStyleSheet::mightBeRichText(const QString& text)
 {
-    return QText::mightBeRichText(text);
+    return Qt::mightBeRichText(text);
 }
 
 

@@ -252,7 +252,7 @@ void QTextBrowser::setSource(const QString& name)
 
     if (!source.isEmpty() && (source != d->currentURL || d->forceLoadOnSourceChange)) {
         QByteArray data = loadResource(HtmlResource, source);
-        QTextCodec *codec = QText::codecForHtml(data);
+        QTextCodec *codec = Qt::codecForHtml(data);
         txt = codec->toUnicode(data);
 
         if (txt.isEmpty())
@@ -489,7 +489,7 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
 
 /*!
     This function is called when the document is loaded. the \a type indercates the type
-    of resurece to be loaded. For now this is only Source or Image. For each image in 
+    of resurece to be loaded. For now this is only Source or Image. For each image in
     the document loadImage is called at least once. If the \a type is Image \a name corresponds
     to the name of the attribute of QTextImageFormat or the source attribute of the html img tag.
 
@@ -513,7 +513,7 @@ QByteArray QTextBrowser::loadResource(ResourceType /*type*/, const QString &name
     } else {
         qWarning("QTextBrowser: cannot open '%s' for reading", fileName.toLocal8Bit().data());
     }
-    
+
     return data;
 }
 

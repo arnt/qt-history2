@@ -1427,13 +1427,13 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
     emit update();
 }
 
-int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const
+int QTextDocumentLayout::hitTest(const QPoint &point, Qt::HitTestAccuracy accuracy) const
 {
     Q_D(const QTextDocumentLayout);
     QTextFrame *f = document()->rootFrame();
     int position = 0;
     QTextDocumentLayoutPrivate::HitPoint p = d->hitTest(f, point, &position);
-    if (accuracy == QText::ExactHit && p < QTextDocumentLayoutPrivate::PointExact)
+    if (accuracy == Qt::ExactHit && p < QTextDocumentLayoutPrivate::PointExact)
         return -1;
 
     // ensure we stay within document bounds

@@ -500,7 +500,7 @@ void QTextEditPrivate::paste(const QMimeData *source)
 
 void QTextEditPrivate::setCursorPosition(const QPoint &pos)
 {
-    const int cursorPos = doc->documentLayout()->hitTest(translateCoordinates(pos), QText::FuzzyHit);
+    const int cursorPos = doc->documentLayout()->hitTest(translateCoordinates(pos), Qt::FuzzyHit);
     if (cursorPos == -1)
         return;
     cursor.setPosition(cursorPos);
@@ -1573,7 +1573,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *ev)
 
         d->trippleClickTimer.stop();
     } else {
-        int cursorPos = d->doc->documentLayout()->hitTest(pos, QText::FuzzyHit);
+        int cursorPos = d->doc->documentLayout()->hitTest(pos, Qt::FuzzyHit);
         if (cursorPos != -1) {
 
             if (d->cursor.hasSelection()
@@ -1612,7 +1612,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
         return;
     }
 
-    int cursorPos = d->doc->documentLayout()->hitTest(d->translateCoordinates(ev->pos()), QText::FuzzyHit);
+    int cursorPos = d->doc->documentLayout()->hitTest(d->translateCoordinates(ev->pos()), Qt::FuzzyHit);
     if (cursorPos == -1)
         return;
 
@@ -2314,7 +2314,7 @@ void QTextEdit::doKeyboardAction(KeyboardAction action)
 void QTextEdit::setText(const QString &text)
 {
     if (d->textFormat == Qt::AutoText)
-        d->textFormat = QText::mightBeRichText(text) ? Qt::RichText : Qt::PlainText;
+        d->textFormat = Qt::mightBeRichText(text) ? Qt::RichText : Qt::PlainText;
     if (d->textFormat == Qt::RichText)
         setHtml(text);
     else
@@ -2361,7 +2361,7 @@ void QTextEdit::append(const QString &text)
 {
     Qt::TextFormat f = d->textFormat;
     if (f == Qt::AutoText) {
-        if (QText::mightBeRichText(text))
+        if (Qt::mightBeRichText(text))
             f = Qt::RichText;
         else
             f = Qt::PlainText;

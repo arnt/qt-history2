@@ -263,9 +263,9 @@ bool TextEdit::load(const QString &f)
         return false;
 
     QByteArray data = file.readAll();
-    QTextCodec *codec = QText::codecForHtml(data);
+    QTextCodec *codec = Qt::codecForHtml(data);
     QString str = codec->toUnicode(data);
-    if (QText::mightBeRichText(str))
+    if (Qt::mightBeRichText(str))
         edit->setHtml(str);
     else
         edit->setPlainText(str);

@@ -690,7 +690,7 @@ void QMessageBox::setText(const QString &text)
     Q_D(QMessageBox);
     d->label->setText(text);
     bool wordwrap = d->label->textFormat() == Qt::RichText
-                    || (d->label->textFormat() == Qt::AutoText && QText::mightBeRichText(text));
+                    || (d->label->textFormat() == Qt::AutoText && Qt::mightBeRichText(text));
     d->label->setWordWrap(wordwrap);
 }
 
@@ -1594,7 +1594,7 @@ void QMessageBox::setTextFormat(Qt::TextFormat format)
     Q_D(QMessageBox);
     d->label->setTextFormat(format);
     bool wordwrap = format == Qt::RichText
-                    || (format == Qt::AutoText && QText::mightBeRichText(d->label->text()));
+                    || (format == Qt::AutoText && Qt::mightBeRichText(d->label->text()));
     d->label->setWordWrap(wordwrap);
 }
 

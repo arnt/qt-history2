@@ -31,7 +31,7 @@ public:
     // from the abstract layout
     void draw(QPainter *painter, const PaintContext &context);
     void documentChange(int from, int oldLength, int length);
-    int hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const;
+    int hitTest(const QPoint &point, Qt::HitTestAccuracy accuracy) const;
 
     void setSize(QTextInlineObject item, const QTextFormat &format);
     void layoutObject(QTextInlineObject item, const QTextFormat &format);

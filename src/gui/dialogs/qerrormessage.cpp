@@ -129,7 +129,7 @@ void jump(QtMsgType t, const char * m)
         rich = QErrorMessage::tr("Fatal Error:");
     }
     rich = QString("<p><b>%1</b></p>").arg(rich);
-    rich += QText::convertFromPlainText(m, QText::WhiteSpaceNormal);
+    rich += Qt::convertFromPlainText(m, Qt::WhiteSpaceNormal);
 
     // ### work around text engine quirk
     if (rich.endsWith("</p>"))

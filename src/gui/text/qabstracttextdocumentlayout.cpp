@@ -302,7 +302,7 @@ const QTextDocument *QAbstractTextDocumentLayout::document() const
 */
 QString QAbstractTextDocumentLayout::anchorAt(const QPoint& pos) const
 {
-    int cursorPos = hitTest(pos, QText::ExactHit);
+    int cursorPos = hitTest(pos, Qt::ExactHit);
     if (cursorPos == -1)
         return QString();
 

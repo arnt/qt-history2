@@ -320,7 +320,7 @@ void QLabel::setText(const QString &text)
     d->ltext = text;
 #ifndef QT_NO_RICHTEXT
     if (d->textformat == Qt::RichText
-        || ((d->textformat == Qt::AutoText) && QText::mightBeRichText(d->ltext))) {
+        || ((d->textformat == Qt::AutoText) && Qt::mightBeRichText(d->ltext))) {
         QString t = d->ltext;
         if (d->align & Qt::AlignRight)
             t.prepend("<div d->align=\"right\">");
