@@ -28,10 +28,10 @@ FORMS		= about.ui
 DEFINES 	+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
 
+DESTDIR		= ../../../bin
 TARGET		= linguist
 INCLUDEPATH	= ../pics \
 		  ../shared \
-DESTDIR		= ../../../bin
 
 PROJECTNAME	= Qt Linguist
 
