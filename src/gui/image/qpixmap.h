@@ -172,6 +172,10 @@ public:
     Q_DUMMY_COMPARISON_OPERATOR(QPixmap)
 #endif
 
+#if !defined QT_NO_COMPAT
+    static inline QT_COMPAT QPixmap fromMimeSource(const QString &name) { return QPixmap(name); }
+#endif
+
 protected:
     QPixmap(int w, int h, const uchar *data, bool isXbitmap);
     int metric(int) const;
