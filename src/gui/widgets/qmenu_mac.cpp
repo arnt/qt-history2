@@ -37,8 +37,11 @@ struct QMacMenuBind {
 /*****************************************************************************
   QMenu globals
  *****************************************************************************/
+bool qt_mac_no_menubar_icons = false;
+bool qt_mac_no_native_menubar = false;
+bool qt_mac_no_menubar_merge = false;
+
 static uint qt_mac_menu_command = 'QT00';
-static bool qt_mac_no_native_menubar = false;
 const UInt32 kMenuCreatorQt = 'cute';
 enum { 
     kMenuPropertyQAction = 'QAcT',
@@ -73,6 +76,10 @@ inline static void qt_mac_clear_menubar()
     //qt_mac_command_set_enabled(kHICommandPreferences, false);
     InvalMenuBar();
 }
+
+void qt_mac_set_no_menubar_icons(bool b) { qt_mac_no_menubar_icons = b; } //backdoor to disable menubar icons
+void qt_mac_set_no_native_menubar(bool b) { qt_mac_no_native_menubar = b; } //backdoor to disable menubars
+void qt_mac_set_no_menubar_merge(bool b) { qt_mac_no_menubar_merge = b; } //backdoor to disable merging
 
 bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent action_e, bool by_accel)
 {
@@ -291,7 +298,7 @@ Q4MenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     //icon
     data.whichData |= kMenuItemDataIconHandle;
     data.iconType = kMenuIconRefType;
-    if(!action->action->icon().isNull()) 
+    if(!action->action->icon().isNull() && !qt_mac_no_menubar_icons) 
 	data.iconHandle = (Handle)qt_mac_create_iconref(action->action->icon().pixmap(QIconSet::Small, QIconSet::Normal));
     
     data.whichData |= kMenuItemDataSubmenuHandle;

@@ -43,6 +43,10 @@ QByteArray p2qstring(const unsigned char *); //qglobal.cpp
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
 bool qt_modal_state(); //qapplication_mac.cpp
 
+extern bool qt_mac_no_menubar_icons; //qmenu_mac.cpp
+extern bool qt_mac_no_native_menubar; //qmenu_mac.cpp
+extern bool qt_mac_no_menubar_merge; //qmenu_mac.cpp
+
 #endif
 
 void qt_mac_command_set_enabled(UInt32 cmd, bool b)
@@ -64,9 +68,6 @@ void qt_mac_command_set_enabled(UInt32 cmd, bool b)
 }
 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-
-static bool qt_mac_no_menubar_icons = FALSE;
-void qt_mac_set_no_menubar_icons(bool b) { qt_mac_no_menubar_icons = b; } //backdoor to disable menubar icons
 
 //internal class
 class QMenuBar::MacPrivate {
@@ -305,8 +306,6 @@ bool QPopupMenu::macPopupMenu(const QPoint &p, int index)
 
 
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
-static bool qt_mac_no_menubar_merge = false;
-void qt_mac_set_no_menubar_merge(bool b) { qt_mac_no_menubar_merge = b; } //backdoor to disable merging
 uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 {
     if(qt_mac_no_menubar_merge || it->popup() || it->custom() || it->isSeparator())
@@ -660,8 +659,6 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
     return false;
 }
 
-static bool qt_mac_no_native_menubar = false;
-void qt_mac_set_no_native_menubar(bool b) { qt_mac_no_native_menubar = b; } //backdoor to disable menubars
 static QHash<QWidget *, QMenuBar *> menubars;
 /*!
   \internal
