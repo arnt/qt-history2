@@ -181,6 +181,7 @@ void WidgetGallery::createBottomRightGroupBox()
 
     dial = new QDial(bottomRightGroupBox);
     dial->setValue(30);
+    dial->setNotchesVisible(true);
 
     QGridLayout *layout = new QGridLayout(bottomRightGroupBox);
     layout->addWidget(lineEdit, 0, 0, 1, 2);
