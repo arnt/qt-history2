@@ -388,7 +388,7 @@ QMakeProject::isActiveConfig(const QString &x)
     if(x.isEmpty())
 	return TRUE;
 	
-    if((Option::Option::mode == Option::MACX_MODE || Option::Option::mode == Option::UNIX_MODE) && x == "unix")
+    if((Option::mode == Option::MACX_MODE || Option::mode == Option::UNIX_MODE) && x == "unix")
 	return TRUE;
     else if((Option::mode == Option::MAC9_MODE || Option::mode == Option::MACX_MODE) && x == "mac")
 	return TRUE;
