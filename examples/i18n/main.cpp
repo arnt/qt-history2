@@ -65,12 +65,6 @@ private:
 MyWidget* showLang(QString lang)
 {
     qApp->setPalette(QPalette(QColor(220-rand()%64,220-rand()%64,220-rand()%64)));
-#ifndef USE_I18N_FONT
-    if ( lang == "jp" || lang == "ko" )
-	qApp->setFont(QFont("unifont",16));
-    else
-	qApp->setFont(QFont("smoothtimes",16));
-#endif
 
     lang = "mywidget_" + lang + ".qm";
     QFileInfo fi( lang );
@@ -98,10 +92,8 @@ int main( int argc, char** argv )
 
     srand(getpid()<<2);
 
-#ifdef USE_I18N_FONT
-    QFont font("i18n",13);
+    QFont font("i18n,unifont,cyberbit;helvetica",16,50,FALSE,QFont::Unicode);
     qApp->setFont(font);
-#endif
 
     QString lang;
     if ( argc == 2 )
