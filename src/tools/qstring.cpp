@@ -3110,7 +3110,7 @@ QString& QString::fill(QChar c, int size)
     \code
 	int a = QString::compare("def", "abc");   // a > 0
 	int b = QString::compare("abc", "def");   // b < 0
-	int c = QString::compare(" abc", "abc");   // c == 0
+	int c = QString::compare("abc", "abc");   // c == 0
     \endcode
 */
 
