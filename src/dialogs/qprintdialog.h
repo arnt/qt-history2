@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#15 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#16 $
 **
 ** Definition of print dialog.
 **
@@ -31,7 +31,7 @@ public:
 
     static bool getPrinterSetup( QPrinter * );
 
-    void setPrinter( QPrinter * );
+    void setPrinter( QPrinter *, bool = FALSE );
     QPrinter * printer() const;
 
 private slots:

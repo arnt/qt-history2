@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#26 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#27 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#27 $");
 
 
 struct QPrintDialogPrivate
@@ -315,7 +315,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
 	ms.setHeight( 460 );
     resize( ms );
 
-    setPrinter( prn );
+    setPrinter( prn, TRUE );
     d->printers->setFocus();
 }
 
@@ -773,31 +773,77 @@ void QPrintDialog::setLastPage( int lp )
 }
 
 
-/*!  Sets this dialog to configure \a p, or no printer if \a p is FALSE. */
+/*!  Sets this dialog to configure \a p, or no printer if \a p is
+  FALSE.  If \a pickUpSettings is TRUE, the dialog reads most of its
+  settings from \a printer.  If \a pickUpSettings is FALSE (the
+  default) the dialog keeps its old settings. */
 
-void QPrintDialog::setPrinter( QPrinter * p )
+void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 {
     d->printer = p;
+
+    if ( p && pickUpSettings ) {
+	// top to botton in the old dialog.
+	// printer or file
+	d->printerOrFile->setButton( p->outputToFile() );
+	// printer name
+	if ( p->printerName() ) {
+	    QListViewItem * i = d->printers->firstChild();
+	    while( i && qstrcmp( i->text( 0 ), p->printerName() ) )
+		i = i->nextSibling();
+	    if ( i )
+		d->printers->setSelected( i, TRUE );
+		
+	}
+	// print command does not exist any more
+	// file name
+	d->fileName->setText( p->outputFileName() );
+	// orientation
+	d->orient->setButton( (int)p->orientation() );
+	// page size
+	switch( p->pageSize() ) {
+	case QPrinter::B5:
+	    d->paperSize->setButton( 0 );
+	    break;
+	case QPrinter::Legal:
+	    d->paperSize->setButton( 1 );
+	    break;
+	case QPrinter::Executive:
+	    d->paperSize->setButton( 2 );
+	    break;
+	case QPrinter::A4:
+	default:
+	    d->paperSize->setButton( 3 );
+	    break;
+	case QPrinter::Letter:
+	    d->paperSize->setButton( 4 );
+	    break;
+	}	
+	// also some new stuff.
+	d->pageOrder->setButton( (int)p->pageOrder() );
+	// more new stuff can be set, but it'll be difficult to get
+	// right.
+    }
 
     if ( p && p->maxPage() ) {
 	d->printRangeButton->setEnabled( TRUE );
 	d->firstPage->setEnabled( TRUE );
 	d->firstPage->setRange( p->minPage(), p->maxPage() );
-	d->firstPage->setValue( p->minPage() );
 	d->lastPage->setEnabled( TRUE );
 	d->lastPage->setRange( p->minPage(), p->maxPage() );
-	d->lastPage->setValue( p->maxPage() );
 	d->firstPageLabel->setEnabled( TRUE );
 	d->lastPageLabel->setEnabled( TRUE );
+	d->firstPage->setValue( p->minPage() );
+	d->lastPage->setValue( p->maxPage() );
     } else {
 	d->printRange->setButton( 0 );	
 	d->printRangeButton->setEnabled( FALSE );
-	d->firstPage->setValue( 1 );
-	d->lastPage->setValue( 1 );
 	d->firstPage->setEnabled( FALSE );
 	d->lastPage->setEnabled( FALSE );
 	d->firstPageLabel->setEnabled( FALSE );
 	d->lastPageLabel->setEnabled( FALSE );
+	d->firstPage->setValue( 1 );
+	d->lastPage->setValue( 1 );
     }
 }
 
