@@ -56,6 +56,26 @@ bool QText::mightBeRichText(const QString& text)
     return false;
 }
 
+/*!
+  Auxiliary function. Converts the plain text string \a plain to a
+  rich text formatted string with any HTML meta-characters escaped.
+ */
+QString QText::escape(const QString& plain)
+{
+    QString rich;
+    rich.reserve(int(plain.length() * 1.1));
+    for (int i = 0; i < plain.length(); ++i) {
+        if (plain.at(i) == QLatin1Char('<'))
+            rich += QLatin1String("&lt;");
+        else if (plain.at(i) == QLatin1Char('>'))
+            rich += QLatin1String("&gt;");
+        else if (plain.at(i) == QLatin1Char('&'))
+            rich += QLatin1String("&amp;");
+        else
+            rich += plain.at(i);
+    }
+    return rich;
+}
 
 /*!
     \class QTextDocument qtextdocument.h

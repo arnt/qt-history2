@@ -24,7 +24,7 @@ namespace QText
     enum ChangeOperation { Insert, Remove };
 
     bool mightBeRichText(const QString&);
-
+    QString escape(const QString& plain);
 }
 
 class Q_GUI_EXPORT QAbstractUndoItem
