@@ -96,7 +96,7 @@ public:
 	QPopupMenu *popup = (QPopupMenu *) object;
 	if (event->type() == QEvent::Show) {
 	    QPixmap pix =
-		QPixmap::grabWindow(qt_xrootwin(), popup->x(), popup->y(),
+		QPixmap::grabWindow( QApplication::desktop()->winId(), popup->x(), popup->y(),
 				    popup->width(), popup->height());
 
 	    constrainPixmap(pix, popup->colorGroup().button());
