@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#76 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#76 $");
 
 
 /*
@@ -1443,6 +1443,11 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 }
 
+
+void QPainter::drawWinFocusRect( int x, int y, int w, int h, const QColor & )
+{
+    drawWinFocusRect( x, y, w, h );
+}
 
 void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#116 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#115 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#116 $");
 
 
 /*!
@@ -787,7 +787,7 @@ void QApplication::syncX()	{}		// do nothing
 
 /*!
   Sets the color used to mark selections in windows style for all widgets
-  in the application. Will repaint all widgets. 
+  in the application. Will repaint all widgets if the color is changed.
 
   The default color is \c darkBlue.
   \sa winStyleHighlightColor()
@@ -795,6 +795,9 @@ void QApplication::syncX()	{}		// do nothing
 
 void QApplication::setWinStyleHighlightColor( const QColor &c )
 {
+    if ( winHighlightColor == c )
+	return;
+
     winHighlightColor = c;
 
     if ( is_app_running && !is_app_closing ) {
@@ -802,7 +805,8 @@ void QApplication::setWinStyleHighlightColor( const QColor &c )
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( !w->testWFlags(WType_Desktop) )// (except desktop)
+	    if ( w->style() == WindowsStyle &&
+		 !w->testWFlags(WType_Desktop) )// (except desktop)
 		w->repaint( FALSE );
 	}
     }

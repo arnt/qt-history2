@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#221 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#222 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#221 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#222 $");
 
 
 /*****************************************************************************
@@ -1792,17 +1792,37 @@ void QPainter::drawRect( int x, int y, int w, int h )
 
 void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 {
+    drawWinFocusRect( x, y, w, h, TRUE, color0 );
+}
+
+void QPainter::drawWinFocusRect( int x, int y, int w, int h, 
+				 const QColor &penColor )
+{
+    drawWinFocusRect( x, y, w, h, FALSE, penColor );
+}
+
+void QPainter::drawWinFocusRect( int x, int y, int w, int h,
+				 bool xorPaint, const QColor &penColor )
+{
     if ( !isActive() || txop == TxRotShear )
 	return;
-    static char winfocous_line[] = { 1, 1 };
+    static char winfocus_line[] = { 1, 1 };
 
     QPen     old_pen = cpen;
     RasterOp old_rop = (RasterOp)rop;
-    if ( QColor::numBitPlanes() <= 8 )
-	setPen( color1 );
-    else
-	setPen( white );
-    setRasterOp( XorROP );
+
+    if ( xorPaint ) {
+	if ( QColor::numBitPlanes() <= 8 )
+	    setPen( color1 );
+	else
+	    setPen( white );
+	setRasterOp( XorROP );
+    } else {
+	if ( qGray( penColor.rgb() ) < 128 )
+	    setPen( white );
+	else
+	    setPen( black );
+    }
 
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
@@ -1819,7 +1839,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 	    return;
 	fix_neg_rect( &x, &y, &w, &h );
     }
-    XSetDashes( dpy, gc, 0, winfocous_line, 2 );
+    XSetDashes( dpy, gc, 0, winfocus_line, 2 );
     XSetLineAttributes( dpy, gc, 0, LineOnOffDash, CapButt, JoinMiter );
 
     XDrawRectangle( dpy, hd, gc, x, y, w-1, h-1 );

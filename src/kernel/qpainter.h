@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#91 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#92 $
 **
 ** Definition of QPainter class
 **
@@ -140,7 +140,10 @@ public:
     void	drawRect( int x, int y, int w, int h );
     void	drawRect( const QRect & );
     void	drawWinFocusRect( int x, int y, int w, int h );
+    void	drawWinFocusRect( int x, int y, int w, int h,
+				  const QColor &penColor );
     void	drawWinFocusRect( const QRect & );
+    void	drawWinFocusRect( const QRect &, const QColor &penColor );
     void	drawRoundRect( int x, int y, int w, int h, int, int );
     void	drawRoundRect( const QRect &, int, int );
     void	drawEllipse( int x, int y, int w, int h );
@@ -210,6 +213,8 @@ private:
     void	mapInv( int, int, int *, int * ) const;
     void	mapInv( int, int, int, int, int *, int *, int *, int * ) const;
     void	drawPolyInternal( const QPointArray &, bool close=TRUE );
+    void	drawWinFocusRect( int x, int y, int w, int h, bool xorPaint, 
+				  const QColor &penColor );
 
     enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04, NoCache=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, SafePolygon=0x80, MonoDev=0x100,
@@ -435,6 +440,11 @@ inline void QPainter::drawRect( const QRect &r )
 inline void QPainter::drawWinFocusRect( const QRect &r )
 {
     drawWinFocusRect( r.x(), r.y(), r.width(), r.height() );
+}
+
+inline void QPainter::drawWinFocusRect( const QRect &r,const QColor &penColor )
+{
+    drawWinFocusRect( r.x(), r.y(), r.width(), r.height(), penColor );
 }
 
 inline void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
