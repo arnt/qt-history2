@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#14 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#15 $
 **
 ** Definition of QCursor class
 **
@@ -76,7 +76,7 @@ enum CursorShape {
 extern const QCursor arrowCursor;		// standard arrow cursor
 extern const QCursor upArrowCursor;		// upwards arrow
 extern const QCursor crossCursor;		// crosshair
-extern const QCursor hourGlassCursor;		// hourglass/watch
+extern const QCursor waitCursor;		// hourglass/watch
 extern const QCursor ibeamCursor;		// ibeam/text entry
 extern const QCursor sizeVerCursor;		// vertical resize
 extern const QCursor sizeHorCursor;		// horizontal resize
