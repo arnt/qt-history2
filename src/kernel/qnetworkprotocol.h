@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#17 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#18 $
 **
 ** Implementation of QFileDialog class
 **
@@ -78,10 +78,10 @@ public:
 	OpMkdir = 2,
 	OpRemove = 4,
 	OpRename = 8,
-	OpCopy = 16,
 	OpGet = 32,
-	OpPost = 64,
-	OpMove = 128
+	OpPut = 64,
+	OpCopy = OpGet | OpPut,
+	OpMove = OpCopy | OpRemove
     };
 
     enum ConnectionState {
@@ -116,7 +116,7 @@ public:
     virtual const QNetworkOperation *rename( const QString &oldname, const QString &newname );
     virtual const QNetworkOperation *copy( const QString &from, const QString &to, bool move );
     virtual const QNetworkOperation *get();
-    virtual const QNetworkOperation *post( const QCString &data );
+    virtual const QNetworkOperation *put( const QCString &data );
 
     static void registerNetworkProtocol( const QString &protocol,
 					 QNetworkProtocolFactoryBase *protocolFactory );
@@ -149,7 +149,7 @@ protected:
     virtual void operationRename( QNetworkOperation *op );
     virtual void operationCopy( QNetworkOperation *op );
     virtual void operationGet( QNetworkOperation *op );
-    virtual void operationPost( QNetworkOperation *op );
+    virtual void operationPut( QNetworkOperation *op );
     virtual bool checkConnection( QNetworkOperation *op );
 
 private:

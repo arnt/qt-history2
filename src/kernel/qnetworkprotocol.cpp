@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#27 $
 **
 ** Implementation of QFileDialog class
 **
@@ -156,7 +156,7 @@ struct QNetworkProtocolPrivate
   \fn void QNetworkProtocol::data( const QCString &data, QNetworkOperation *op )
 
   This signal is emitted when new \a data has been received
-  after e.g. calling get or post.
+  after e.g. calling get or put.
 
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
@@ -334,7 +334,7 @@ const QNetworkOperation *QNetworkProtocol::get()
 }
 
 /*!
-  Tells the network protocol to post \a d. When data comes back,
+  Tells the network protocol to put \a d. When data comes back,
   the data( const QCString &, QNetworkOperation * ) signal
   is emitted.
 
@@ -348,9 +348,9 @@ const QNetworkOperation *QNetworkProtocol::get()
   methode returns immediately.
 */
 
-const QNetworkOperation *QNetworkProtocol::post( const QCString &d )
+const QNetworkOperation *QNetworkProtocol::put( const QCString &d )
 {
-    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpPost,
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpPut,
 						    QString::fromLatin1( d ),
 						    QString::null, QString::null );
     addOperation( res );
@@ -628,8 +628,8 @@ void QNetworkProtocol::processOperation( QNetworkOperation *op )
     case OpGet:
 	operationGet( op );
 	break;
-    case OpPost:
-	operationPost( op );
+    case OpPut:
+	operationPut( op );
 	break;
     }
 }
@@ -696,11 +696,11 @@ void QNetworkProtocol::operationGet( QNetworkOperation * )
 
 /*!
   When implemeting a new newtork protocol this methode should
-  be reimplemented, if the protocol supports posting data and
+  be reimplemented, if the protocol supports putting data and
   this methode should then process this operation.
 */
 
-void QNetworkProtocol::operationPost( QNetworkOperation * )
+void QNetworkProtocol::operationPut( QNetworkOperation * )
 {
 }
 

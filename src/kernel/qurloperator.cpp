@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#12 $
 **
 ** Implementation of QFileDialog class
 **
@@ -142,7 +142,7 @@ struct QUrlOperatorPrivate
   \fn void QUrlOperator::data( const QCString &data, QNetworkOperation *op )
 
   This signal is emitted when new \a data has been received
-  after e.g. calling get or post.
+  after e.g. calling get or put.
 
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
@@ -560,7 +560,7 @@ const QNetworkOperation *QUrlOperator::get()
 }
 
 /*!
-  Tells the network protocol to post \a data. When data comes back,
+  Tells the network protocol to put \a data. When data comes back,
   the data( const QCString &, QNetworkOperation * ) signal
   is emitted.
   Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
@@ -568,12 +568,12 @@ const QNetworkOperation *QUrlOperator::get()
   operation was successful or not.
  */
 
-const QNetworkOperation *QUrlOperator::post( const QCString &data )
+const QNetworkOperation *QUrlOperator::put( const QCString &data )
 {
     if ( !checkValid() )
 	return 0;
 
-    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpPost,
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpPut,
 						    QString::fromLatin1( data ),
 						    QString::null, QString::null );
 
@@ -583,7 +583,7 @@ const QNetworkOperation *QUrlOperator::post( const QCString &data )
 	return res;
     } else {
 	QString msg = tr( "The protocol `%1' is not supported\n"
-			  "or `%2' doesn't support post" ).
+			  "or `%2' doesn't support putq" ).
 		      arg( protocol() ).arg( protocol() );
 	res->setState( QNetworkProtocol::StFailed );
 	res->setProtocolDetail( msg );

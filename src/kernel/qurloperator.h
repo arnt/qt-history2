@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#7 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#8 $
 **
 ** Implementation of QFileDialog class
 **
@@ -54,7 +54,7 @@ public:
     virtual const QNetworkOperation *rename( const QString &oldname, const QString &newname );
     virtual const QNetworkOperation *copy( const QString &from, const QString &to, bool move );
     virtual const QNetworkOperation *get();
-    virtual const QNetworkOperation *post( const QCString &data );
+    virtual const QNetworkOperation *put( const QCString &data );
     virtual QList<QNetworkOperation> copy( const QStringList &files, const QString &dest, bool move );
     virtual bool isDir();
 

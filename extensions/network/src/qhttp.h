@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qhttp.h#3 $
+** $Id: //depot/qt/main/extensions/network/src/qhttp.h#4 $
 **
 ** Implementation of Network Extension Library
 **
@@ -44,7 +44,7 @@ public:
 
 protected:
     virtual void operationGet( QNetworkOperation *op );
-    virtual void operationPost( QNetworkOperation *op );
+    virtual void operationPut( QNetworkOperation *op );
 
     QSocket *commandSocket;
     bool connectionReady, passiveMode;

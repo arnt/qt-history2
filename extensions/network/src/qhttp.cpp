@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qhttp.cpp#3 $
+** $Id: //depot/qt/main/extensions/network/src/qhttp.cpp#4 $
 **
 ** Implementation of Network Extension Library
 **
@@ -51,7 +51,7 @@ QHttp::~QHttp()
     delete commandSocket;
 }
 
-void QHttp::operationPost( QNetworkOperation *op )
+void QHttp::operationPut( QNetworkOperation *op )
 {
     QString cmd = "POST ";
     cmd += url()->encodedPathAndQuery();
@@ -96,7 +96,7 @@ void QHttp::close()
 
 int QHttp::supportedOperations() const
 {
-    return OpGet | OpPost;
+    return OpGet | OpPut;
 }
 
 void QHttp::hostFound()
