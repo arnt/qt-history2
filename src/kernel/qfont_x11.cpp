@@ -272,6 +272,20 @@ static inline float pixelSize( const QFontDef &request, QPaintDevice *paintdevic
 
 }
 
+static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice )
+{
+    float pSize;
+    if ( fd.pointSize == -1 ) {
+	if ( paintdevice )
+	    pSize = fd.pixelSize * 10 * QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 72. + 0.5;
+	else
+	    pSize = fd.pixelSize * 10 * QPaintDevice::x11AppDpiY() / 72. + 0.5;
+    } else {
+	pSize = fd.pointSize;
+    }
+    return pSize;
+}
+
 
 class QXFontName
 {
@@ -1324,7 +1338,6 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample, bool *exact) const
     return match;
 }
 
-
 // finds an XftPattern best matching the familyname, foundryname and other
 // requested pieces of the font
 XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
@@ -1455,7 +1468,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 #define PitchScore	     0x102
 #define CJKPitchScore 0x100
 #define SizeScore	     0x80
-#define ScaledBitmapScore 0x40
+#define NotScaledBitmapScore 0x40
 #define ResolutionScore	     0x20
 #define WeightScore	     0x10
 #define SlantScore	     0x08
@@ -1717,6 +1730,7 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 	sc = fontMatchScore( xFontNames[i], matchBuffer,
 			     &pointDiff, &weightDiff,
 			     &scalable, &smoothScalable, script );
+	//qDebug("font '%s' has score %d", xFontNames[i], sc );
 
 	if ( scalable ) {
 	    if ( sc > bestScalable.score ||
@@ -1787,6 +1801,7 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 	}
     }
 
+    //qDebug("best match ='%s', score=%d", best.name, best.score);
     *score = best.score;
     bestName = best.name;
 
@@ -1851,7 +1866,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	diff = 0.9;	// choose scalable font over >= 0.9 point difference
 	if ( *smoothScalable ) {
 	    score |= SizeScore;
-	    if ( request.styleStrategy & QFont::PreferOutline || request.styleStrategy & QFont::ForceOutline )
+	    if ( request.styleStrategy & (QFont::PreferDefault | QFont::PreferOutline | QFont::ForceOutline) )
 		diff = 0;
 	} else {
 	    // scaled bitmap fonts look just ugly. Never give them a size score if not PreferMatch
@@ -1873,7 +1888,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	    diff = (float)pSize;
 	    percentDiff = 100;
 	}
-	if ( diff == 0 && (request.styleStrategy & QFont::PreferOutline || request.styleStrategy & QFont::ForceOutline) )
+	if ( diff == 0 && (request.styleStrategy & (QFont::PreferOutline | QFont::ForceOutline) ) )
 	    diff = 0.9;
 
 	if ( percentDiff < 10 &&
@@ -1881,6 +1896,8 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	    score |= SizeScore;
 
 	}
+	if ( !(request.styleStrategy & QFont::PreferMatch) )
+	    score |= NotScaledBitmapScore;
 	if ( pSize != reqPSize ) {
 	    exactmatch = FALSE;
 	}
@@ -1953,12 +1970,10 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	actual.dirty = FALSE;
 
 	if ( actual.pointSize == -1 )
-	    actual.pointSize = int( (actual.pixelSize * 10 *
-				     QPaintDevice::x11AppDpiY()) / 72. + 0.5);
+	    actual.pointSize = (int)pointSize( actual, paintdevice );
 	else
-	    actual.pixelSize = (actual.pointSize * 72 /
-				(10 * QPaintDevice::x11AppDpiY()));
-
+	    actual.pixelSize = (int)pixelSize( actual, paintdevice );
+	
 	return;
     }
 
@@ -1968,14 +1983,14 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 
 	actual.family = QString::fromLatin1(x11data.fontstruct[script]->name);
 	actual.rawMode = TRUE;
+	actual.pointSize = request.pointSize;
+	actual.pixelSize = request.pixelSize;
 	exactMatch = FALSE;
 
 	if ( actual.pointSize == -1 )
-	    actual.pointSize = int( (actual.pixelSize * 10 *
-				     QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
+	    actual.pointSize = (int)pointSize( actual, paintdevice );
 	else
-	    actual.pixelSize = (actual.pointSize * 72 /
-				(10 * QPaintDevice::x11AppDpiY() ));
+	    actual.pixelSize = (int)pixelSize( actual, paintdevice );
     }
 
     actual.underline = request.underline;
