@@ -271,7 +271,7 @@ public:
 	return queue.first();
     }
     bool directServerConnection() { return csocket == 0; }
-    
+
     void fillQueue();
     void waitForRegionAck();
     void waitForCreation();
@@ -330,7 +330,7 @@ void QWSDisplayData::init()
 
     if ( csocket )
 	csocket->connectToLocalFile(QTE_PIPE);
-    
+
     if ( !QWSDisplay::initLock( "/dev/fb0" ) )
 	qFatal( "Cannot get display lock" );
 
@@ -356,8 +356,6 @@ void QWSDisplayData::init()
 	perror("Can't attach to main ram memory.");
 	exit(1);
     }
-    if ( !qws_single_process )
-	qt_probe_bus(); //### should probably be removced from qws instead...
 
     int offset=qt_screen->screenSize();
 
@@ -633,12 +631,12 @@ void QWSDisplay::moveRegion( int winId, int dx, int dy )
 {
     QETWidget *widget = (QETWidget*)QWidget::find( (WId)winId );
     widget->translateRegion( dx, dy );
-    
+
     QWSRegionMoveCommand cmd;
     cmd.simpleData.windowid = winId;
     cmd.simpleData.dx = dx;
     cmd.simpleData.dy = dy;
-    
+
     if ( d->directServerConnection() ) {
 	QWSServer::move_region( &cmd );
     } else {
@@ -992,7 +990,7 @@ void qt_cleanup()
     QColor::cleanup();
     QFontManager::cleanup();
 
-    if ( qws_single_process ) 
+    if ( qws_single_process )
 	QWSServer::closedown();
     if ( qt_is_gui_used ) {
 	delete qt_fbdpy;
@@ -1595,7 +1593,7 @@ bool QApplication::processNextEvent( bool canWait )
 
     if ( !outgoing.isEmpty() )
 	QWSServer::processEventQueue();
-    
+
     static timeval zerotm;
     timeval *tm = qt_wait_timer();		// wait for timer or X event
     if ( !incoming.isEmpty() )
@@ -1877,7 +1875,7 @@ static bool qt_try_modal( QWidget *widget, QWSEvent *event )
 	return TRUE;
 
     QWidget *modal=0, *top=modal_stack->getFirst();
-    
+
     if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
 	modal = widget;
     if ( modal == top )				// don't block event
