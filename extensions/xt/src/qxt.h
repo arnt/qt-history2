@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.h#7 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.h#8 $
 **
 ** Definition of Qt extension classes for Xt/Motif support.
 **
@@ -30,7 +30,7 @@
 
 class QXtApplication : public QApplication {
     Q_OBJECT
-    void init();
+    void init( bool useQtEventLoop = FALSE);
 public:
     QXtApplication(int& argc, char** argv,
 	const char* appclass=0,

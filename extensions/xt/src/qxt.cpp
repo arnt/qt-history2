@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#9 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#10 $
 **
 ** Implementation of Qt extension classes for Xt/Motif support.
 **
@@ -290,7 +290,7 @@ QXtApplication::QXtApplication(int& argc, char** argv,
 	XtAppSetFallbackResources(appcon, (char**)resources);
     XtDisplayInitialize(appcon, qt_xdisplay(), name(),
 	appclass, options, num_options, &argc, argv);
-    init();
+    init( TRUE );
 }
 
 /*!
@@ -324,14 +324,15 @@ QXtApplication::~QXtApplication()
 //      }
 }
 
-void QXtApplication::init()
+void QXtApplication::init( bool useQtEventLoop )
 {
     ASSERT(qxtapp==0);
     qxtapp = this;
     installXtEventFilters();
     qt_np_add_timeoutcb(np_do_timers);
     qt_np_add_timer_setter(np_set_timer);
-    qt_np_add_event_proc(np_event_proc);
+    if ( useQtEventLoop )
+	qt_np_add_event_proc(np_event_proc);
     qt_np_count++;
 }
 
