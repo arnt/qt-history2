@@ -30,7 +30,7 @@ class QRectF;
 struct QGlyphLayout;
 class QTextItemInt;
 
-class QTextItem {
+class Q_GUI_EXPORT QTextItem {
 public:
     enum RenderFlag {
         RightToLeft = 0x1,
