@@ -656,7 +656,7 @@ void QMotifStyle::drawControl( ControlElement element,
 			       const QWidget *widget,
 			       const QRect &r,
 			       const QColorGroup &cg,
-			       SFlags how,
+			       SFlags flags,
 			       void **data ) const
 {
     switch( element ) {
@@ -724,7 +724,7 @@ void QMotifStyle::drawControl( ControlElement element,
 
 	    const QTabBar * tb = (const QTabBar *) widget;
 	    int dfw = pixelMetric( PM_DefaultFrameWidth, tb );
-	    bool selected = how & Style_Selected;
+	    bool selected = flags & Style_Selected;
 	    int o =  dfw > 1 ? 1 : 0;
 	    bool lastIsCurrent = FALSE;
 
@@ -819,7 +819,7 @@ void QMotifStyle::drawControl( ControlElement element,
 			     r2.left(), r2.bottom() - 2 );
 
 	    } else {
-		QCommonStyle::drawControl( element, p, widget, r, cg, how, data );
+		QCommonStyle::drawControl( element, p, widget, r, cg, flags, data );
 	    }
 	    break;
 	}
@@ -868,9 +868,9 @@ void QMotifStyle::drawControl( ControlElement element,
 
 	    int tab = *((int *) data[1]);
 	    int maxpmw = *((int *) data[2]);
-	    bool dis = ! mi->isEnabled();
+	    bool dis = ! (flags & Style_Enabled);
 	    bool checkable = popupmenu->isCheckable();
-	    bool act = how & Style_Selected;
+	    bool act = flags & Style_Selected;
 	    int x, y, w, h;
 
 	    r.rect(&x, &y, &w, &h);
@@ -1006,17 +1006,17 @@ void QMotifStyle::drawControl( ControlElement element,
 
     case CE_MenuBarItem:
  	{
- 	    if ( how & Style_Active )  // active item
+ 	    if ( flags & Style_Active )  // active item
  		qDrawShadePanel( p, r, cg, FALSE, motifItemFrame,
  				 &cg.brush(QColorGroup::Button) );
  	    else  // other item
  		p->fillRect( r, cg.brush(QColorGroup::Button) );
-	    QCommonStyle::drawControl( element, p, widget, r, cg, how, data );
+	    QCommonStyle::drawControl( element, p, widget, r, cg, flags, data );
  	    break;
  	}
 
     default:
-	QCommonStyle::drawControl( element, p, widget, r, cg, how, data );
+	QCommonStyle::drawControl( element, p, widget, r, cg, flags, data );
 	break;
     }
 }
@@ -1067,7 +1067,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 				     const QWidget *widget,
 				     const QRect &r,
 				     const QColorGroup &cg,
-				     SFlags how,
+				     SFlags flags,
 				     SCFlags sub,
 				     SCFlags subActive,
 				     void **data ) const
@@ -1075,7 +1075,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
     switch ( control ) {
     case CC_SpinWidget:
 	if ( sub & SC_SpinWidgetUp || sub & SC_SpinWidgetDown )
-	    QCommonStyle::drawComplexControl( control, p, widget, r, cg, how,
+	    QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
 					      sub, subActive, data );
 	if ( sub & SC_SpinWidgetFrame )
 	    qDrawShadePanel( p, r, cg, TRUE,
@@ -1119,7 +1119,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    }
 
 	    if ( sub & SC_SliderTickmarks )
-		QCommonStyle::drawComplexControl( control, p, widget, r, cg, how,
+		QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
 						  SC_SliderTickmarks, subActive,
 						  data );
 
@@ -1132,10 +1132,10 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    int awh, ax, ay, sh, sy, dh, ew;
 	    int fw = pixelMetric( PM_DefaultFrameWidth, cb);
 
-	    drawPrimitive( PE_ButtonCommand, p, r, cg, how );
+	    drawPrimitive( PE_ButtonCommand, p, r, cg, flags );
 	    QRect ar = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb, SC_ComboBoxArrow,
 								   data ), cb );
-	    drawPrimitive( PE_ArrowDown, p, ar, cg, how | Style_Enabled );
+	    drawPrimitive( PE_ArrowDown, p, ar, cg, flags | Style_Enabled );
 
 	    QRect tr = r;
 	    tr.addCoords( fw, fw, -fw, -fw );
@@ -1175,7 +1175,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 		qDrawShadePanel(p, widget->rect(), cg, TRUE,
 				pixelMetric(PM_DefaultFrameWidth, widget),
 				&cg.brush(QColorGroup::Mid));
-	    QCommonStyle::drawComplexControl(control, p, widget, r, cg, how, sub,
+	    QCommonStyle::drawComplexControl(control, p, widget, r, cg, flags, sub,
 					     subActive, data);
 	    break;
 	}
@@ -1258,14 +1258,13 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 #endif // QT_NO_LISTVIEW
 
     default:
-	QCommonStyle::drawComplexControl( control, p, widget, r, cg, how,
+	QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
 					  sub, subActive, data );
     }
 }
 
 
-/*!\reimp
-*/
+/*! \reimp */
 int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 {
      int ret;

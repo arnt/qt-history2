@@ -120,6 +120,26 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 {
     switch (pe) {
     case PE_ButtonCommand:
+	{
+	    QBrush fill;
+
+	    if (! (flags & Style_Down) && (flags & Style_On))
+		fill = QBrush(cg.light(), Dense4Pattern);
+	    else
+		fill = cg.brush(QColorGroup::Button);
+
+	    if (flags & Style_ButtonDefault && flags & Style_Down) {
+		p->setPen(cg.dark());
+		p->setBrush(fill);
+		p->drawRect(r);
+	    } else if (flags & (Style_Raised | Style_Down | Style_On | Style_Sunken))
+		qDrawWinButton(p, r, cg, flags & (Style_Sunken | Style_Down |
+						  Style_On), &fill);
+	    else
+		p->fillRect(r, fill);
+	    break;
+	}
+
     case PE_ButtonBevel:
     case PE_HeaderSection:
 	{
@@ -136,6 +156,11 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		p->fillRect(r, fill);
 	    break;
 	}
+
+    case PE_ButtonDefault:
+	p->setPen(cg.shadow());
+	p->drawRect(r);
+	break;
 
     case PE_ButtonTool:
 	{
@@ -468,46 +493,10 @@ void QWindowsStyle::drawControl( ControlElement element,
 				 const QWidget *widget,
 				 const QRect &r,
 				 const QColorGroup &cg,
-				 SFlags how,
+				 SFlags flags,
 				 void **data ) const
 {
     switch (element) {
-    case CE_PushButton:
-	{
-	    const QPushButton *button = (const QPushButton *) widget;
-	    QRect br = r;
-	    int dbi = pixelMetric(PM_ButtonDefaultIndicator, widget);
-
-	    SFlags flags = Style_Default;
-	    if (button->isEnabled())
-		flags |= Style_Enabled;
-	    if (button->isDown())
-		flags |= Style_Down;
-	    if (button->isOn())
-		flags |= Style_On;
-	    if (! button->isFlat() && ! (flags & Style_Down))
-		flags |= Style_Raised;
-
-	    if (button->isDefault() || button->autoDefault()) {
-		if ( button->isDefault()) {
-		    p->setPen(cg.shadow());
-		    p->drawRect(br);
-		}
-
-		br.setCoords(br.left()   + dbi,
-			     br.top()    + dbi,
-			     br.right()  - dbi,
-			     br.bottom() - dbi);
-	    }
-
-	    if (button->isDown() && button->isDefault()) {
-		p->setPen(cg.dark());
-		p->drawRect(br);
-	    } else
-		drawPrimitive(PE_ButtonCommand, p, br, cg, flags);
-	    break;
-	}
-
 #ifndef QT_NO_TABBAR
     case CE_TabBarTab:
 	{
@@ -516,7 +505,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 
 	    const QTabBar * tb = (const QTabBar *) widget;
 	    bool lastIsCurrent = FALSE;
-	    bool selected = how & Style_Selected;
+	    bool selected = flags & Style_Selected;
 
 	    if ( styleHint( SH_TabBar_Alignment, tb ) == AlignRight &&
 		 tb->currentTab() == tb->indexOf(tb->count()-1) )
@@ -606,7 +595,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 			     r2.left(), r2.bottom() - 2 );
 
 	    } else {
-		QCommonStyle::drawControl(element, p, widget, r, cg, how, data);
+		QCommonStyle::drawControl(element, p, widget, r, cg, flags, data);
 	    }
 	    break;
 	}
@@ -627,7 +616,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    int maxpmw = *((int *) data[2]);
 	    bool dis = ! mi->isEnabled();
 	    bool checkable = popupmenu->isCheckable();
-	    bool act = how & Style_Selected;
+	    bool act = flags & Style_Selected;
 	    int x, y, w, h;
 
 	    r.rect(&x, &y, &w, &h);
@@ -796,9 +785,9 @@ void QWindowsStyle::drawControl( ControlElement element,
 
     case CE_MenuBarItem:
 	{
-	    bool active = how & Style_Active;
-	    bool hasFocus = how & Style_HasFocus;
-	    bool down = how & Style_Down;
+	    bool active = flags & Style_Active;
+	    bool hasFocus = flags & Style_HasFocus;
+	    bool down = flags & Style_Down;
 	    QRect pr = r;
 
 	    p->fillRect( r, cg.brush( QColorGroup::Button ) );
@@ -818,12 +807,12 @@ void QWindowsStyle::drawControl( ControlElement element,
 		    p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
 		}
 	    }
-	    QCommonStyle::drawControl(element, p, widget, pr, cg, how, data);
+	    QCommonStyle::drawControl(element, p, widget, pr, cg, flags, data);
 	    break;
 	}
 
     default:
-	QCommonStyle::drawControl(element, p, widget, r, cg, how, data);
+	QCommonStyle::drawControl(element, p, widget, r, cg, flags, data);
     }
 }
 
@@ -1170,7 +1159,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					const QWidget *widget,
 					const QRect &r,
 					const QColorGroup &cg,
-					SFlags how,
+					SFlags flags,
 					SCFlags sub,
 					SCFlags subActive,
 					void **data ) const
@@ -1311,7 +1300,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	switch ( sub ) {
 	case SC_SpinWidgetUp:
 	case SC_SpinWidgetDown:
-	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
+	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, flags,
 					      sub, subActive, data );
 	    break;
 	case SC_SpinWidgetFrame:
@@ -1384,7 +1373,6 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
     case CC_Slider:
 	{
 	    const QSlider *sl = (const QSlider *) widget;
-	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, widget );
 	    int thickness  = pixelMetric( PM_SliderControlThickness, widget );
 	    int len        = pixelMetric( PM_SliderLength, widget );
 	    int ticks = sl->tickmarks();
@@ -1418,7 +1406,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    }
 
 	    if (sub & SC_SliderTickmarks)
-		QCommonStyle::drawComplexControl(ctrl, p, widget, r, cg, how,
+		QCommonStyle::drawComplexControl(ctrl, p, widget, r, cg, flags,
 						 SC_SliderTickmarks, subActive,
 						 data );
 
@@ -1631,7 +1619,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 #endif // QT_NO_SLIDER
 
     default:
-	QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how, sub,
+	QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, flags, sub,
 					  subActive, data );
 	break;
     }

@@ -762,7 +762,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 				   const QWidget *widget,
 				   const QRect &r,
 				   const QColorGroup &cg,
-				   SFlags how,
+				   SFlags flags,
 				   void **data ) const
 {
     switch (element) {
@@ -772,17 +772,8 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    QRect br = r;
 	    int dbi = pixelMetric(PM_ButtonDefaultIndicator, widget);
 
-	    if (button->isEnabled())
-		how |= Style_Enabled;
-	    if (button->isOn())
-		how |= Style_On;
-	    if (button->isDown())
-		how |= Style_Down;
-	    else if (! button->isFlat() && ! (how & Style_Down))
-		how |= Style_Raised;
-
 	    if (button->isDefault() || button->autoDefault()) {
-		if ( button->isDefault())
+		if (button->isDefault())
 		    drawMotifPlusShade(p, br, cg, TRUE,
 				       &cg.brush(QColorGroup::Background));
 
@@ -792,9 +783,9 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 			     br.bottom() - dbi);
 	    }
 
-	    if (button->hasFocus())
+	    if (flags & Style_HasFocus)
 		br.addCoords(1, 1, -1, -1);
-	    drawPrimitive(PE_ButtonCommand, p, br, cg, how);
+	    drawPrimitive(PE_ButtonCommand, p, br, cg, flags);
 	    break;
 	}
 
@@ -804,11 +795,11 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
 	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
-		     how & Style_Enabled, checkbox->pixmap(), checkbox->text());
+		     flags & Style_Enabled, checkbox->pixmap(), checkbox->text());
 
 	    if (checkbox->hasFocus()) {
 		QRect fr = visualRect(subRect(SR_CheckBoxFocusRect, widget), widget);
-		drawPrimitive(PE_FocusRect, p, fr, cg, how);
+		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
 	    }
 	    break;
 	}
@@ -819,11 +810,11 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
 	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
-		     how & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
+		     flags & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
 
 	    if (radiobutton->hasFocus()) {
 		QRect fr = visualRect(subRect(SR_RadioButtonFocusRect, widget), widget);
-		drawPrimitive(PE_FocusRect, p, fr, cg, how);
+		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
 	    }
 
 	    break;
@@ -835,15 +826,14 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 		break;
 
 	    QMenuItem *mi = (QMenuItem *) data[0];
-	    bool enabled = mi->isEnabled();
-	    bool active = how & Style_Active;
-	    if (enabled && active)
+	    if ((flags & Style_Enabled) && (flags & Style_Active))
 		drawMotifPlusShade(p, r, singleton->prelight_palette.active(), FALSE);
 	    else
 		p->fillRect(r, cg.button());
 
 	    drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine,
-		     cg, enabled, mi->pixmap(), mi->text(), -1, &cg.buttonText());
+		     cg, flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
+		     &cg.buttonText());
 	    break;
 	}
 
@@ -861,9 +851,9 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 
 	    int tab = *((int *) data[1]);
 	    int maxpmw = *((int *) data[2]);
-	    bool dis = ! mi->isEnabled();
+	    bool dis = ! (flags & Style_Enabled);
 	    bool checkable = popupmenu->isCheckable();
-	    bool act = how & Style_Selected;
+	    bool act = flags & Style_Selected;
 	    int x, y, w, h;
 	    const QColorGroup &g = ((act && !dis) ?
 				    singleton->prelight_palette.active() : cg);
@@ -992,7 +982,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	{
 	    const QTabBar *tabbar = (const QTabBar *) widget;
 	    int dfw = pixelMetric(PM_DefaultFrameWidth, widget);
-	    bool selected = how & Style_Selected;
+	    bool selected = flags & Style_Selected;
 
 	    QColorGroup g = tabbar->colorGroup();
 	    QPen oldpen = p->pen();
@@ -1024,7 +1014,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 			    fr.right() - 1, fr.top());
 		if (! selected)
 		    p->drawLine(fr.left(), fr.bottom(),
-					    fr.right() + 3, fr.bottom());
+				fr.right() + 3, fr.bottom());
 
 		if (fr.left() == 0)
 		    p->drawLine(fr.left(), fr.bottom(),
@@ -1083,14 +1073,14 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 		}
 	    } else
 		// triangular drawing code
-		QMotifStyle::drawControl(element, p, widget, r, cg, how, data);
+		QMotifStyle::drawControl(element, p, widget, r, cg, flags, data);
 
 	    p->setPen(oldpen);
 	    break;
 	}
 
     default:
-	QMotifStyle::drawControl(element, p, widget, r, cg, how, data);
+	QMotifStyle::drawControl(element, p, widget, r, cg, flags, data);
 	break;
     }
 }
@@ -1189,7 +1179,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 			    const QWidget *widget,
 			    const QRect &r,
 			    const QColorGroup &cg,
-			    SFlags how,
+			    SFlags flags,
 			    SCFlags controls,
 			    SCFlags active,
 			    void **data ) const
@@ -1346,8 +1336,8 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 		    arrow.addCoords(space, space, -space, -space);
 
 		    if (active == SC_ComboBoxArrow)
-			how |= Style_Sunken;
-		    drawPrimitive(PE_ArrowDown, p, arrow, cg, how);
+			flags |= Style_Sunken;
+		    drawPrimitive(PE_ArrowDown, p, arrow, cg, flags);
 		}
 	    } else {
 		if (controls & SC_ComboBoxEditField && editfield.isValid()) {
@@ -1364,7 +1354,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 	    if (combobox->hasFocus() ||
 		(combobox->editable() && combobox->lineEdit()->hasFocus())) {
 		QRect fr = visualRect(subRect(SR_ComboBoxFocusRect, widget), widget);
-		drawPrimitive(PE_FocusRect, p, fr, cg, how);
+		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
 	    }
 
 	    break;
@@ -1448,14 +1438,14 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 	    }
 
 	    if (controls & SC_SliderTickmarks)
-		QCommonStyle::drawComplexControl(control, p, widget, r, cg, how,
-						 SC_SliderTickmarks, active, data);
+		QMotifStyle::drawComplexControl(control, p, widget, r, cg, flags,
+						SC_SliderTickmarks, active, data);
 
 	    break;
 	}
 
     default:
-	QMotifStyle::drawComplexControl(control, p, widget, r, cg, how,
+	QMotifStyle::drawComplexControl(control, p, widget, r, cg, flags,
 					controls, active, data);
     }
 }

@@ -500,7 +500,7 @@ void QCommonStyle::drawControl( ControlElement element,
 				const QWidget *widget,
 				const QRect &r,
 				const QColorGroup &cg,
-				SFlags how,
+				SFlags flags,
 				void **data ) const
 {
 #if defined(QT_CHECK_STATE)
@@ -510,23 +510,24 @@ void QCommonStyle::drawControl( ControlElement element,
     }
 #endif
 
-    SFlags flags = Style_Default;
-    if (widget->isEnabled())
-	flags |= Style_Enabled;
-
     switch (element) {
     case CE_PushButton:
 	{
 	    const QPushButton *button = (const QPushButton *) widget;
+	    QRect br = r;
+	    int dbi = pixelMetric(PM_ButtonDefaultIndicator, widget);
 
-	    if (button->isOn())
-		flags |= Style_On;
-	    if (button->isDown())
-		flags |= Style_Down;
-	    else if (! button->isFlat() && ! (flags & Style_Sunken))
-		flags |= Style_Raised;
+	    if (button->isDefault() || button->autoDefault()) {
+		if ( button->isDefault())
+		    drawPrimitive(PE_ButtonDefault, p, br, cg, flags);
 
-	    drawPrimitive(PE_ButtonCommand, p, r, cg, flags, data);
+		br.setCoords(br.left()   + dbi,
+			     br.top()    + dbi,
+			     br.right()  - dbi,
+			     br.bottom() - dbi);
+	    }
+
+	    drawPrimitive(PE_ButtonCommand, p, br, cg, flags);
 	    break;
 	}
 
@@ -570,28 +571,15 @@ void QCommonStyle::drawControl( ControlElement element,
 	    drawItem(p, ir, AlignCenter | ShowPrefix, cg,
 		     flags & Style_Enabled, button->pixmap(), button->text());
 
-	    if (button->hasFocus())
+	    if (flags & Style_HasFocus)
 		drawPrimitive(PE_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
 			      cg, flags);
 	    break;
 	}
 
     case CE_CheckBox:
-	{
-	    const QCheckBox *checkbox = (const QCheckBox *) widget;
-
-	    if (checkbox->isDown())
-		flags |= Style_Down;
-	    if (checkbox->state() == QButton::On)
-		flags |= Style_On;
-	    else if (checkbox->state() == QButton::Off)
-		flags |= Style_Off;
-	    else if (checkbox->state() == QButton::NoChange)
-		flags |= Style_NoChange;
-
-	    drawPrimitive(PE_Indicator, p, r, cg, flags, data);
-	    break;
-	}
+	drawPrimitive(PE_Indicator, p, r, cg, flags, data);
+	break;
 
     case CE_CheckBoxLabel:
 	{
@@ -601,7 +589,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
 		     flags & Style_Enabled, checkbox->pixmap(), checkbox->text());
 
-	    if (checkbox->hasFocus()) {
+	    if (flags & Style_HasFocus) {
 		QRect fr = subRect(SR_CheckBoxFocusRect, widget);
 		fr.moveBy(r.left() - 1, r.top());
 		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
@@ -610,19 +598,8 @@ void QCommonStyle::drawControl( ControlElement element,
 	}
 
     case CE_RadioButton:
-	{
-	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
-
-	    if (radiobutton->isDown())
-		flags |= Style_Down;
-	    if (radiobutton->state() == QButton::On)
-		flags |= Style_On;
-	    else if (radiobutton->state() == QButton::Off)
-		flags |= Style_Off;
-
-	    drawPrimitive(PE_ExclusiveIndicator, p, r, cg, flags, data);
-	    break;
-	}
+	drawPrimitive(PE_ExclusiveIndicator, p, r, cg, flags, data);
+	break;
 
     case CE_RadioButtonLabel:
 	{
@@ -632,7 +609,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
 		     flags & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
 
-	    if (radiobutton->hasFocus()) {
+	    if (flags & Style_HasFocus) {
 		QRect fr = subRect(SR_RadioButtonFocusRect, widget);
 		fr.moveBy(r.left() - 1, r.top());
 		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
@@ -672,7 +649,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
 		a.translate( r.left(), r.top() );
 
-		if ( how & Style_Selected )
+		if ( flags & Style_Selected )
 		    p->setBrush( cg.base() );
 		else
 		    p->setBrush( cg.background() );
@@ -690,17 +667,16 @@ void QCommonStyle::drawControl( ControlElement element,
 
 	    const QTabBar * tb = (const QTabBar *) widget;
 	    QTab * t = (QTab *) data[0];
-	    bool has_focus = *((bool *) data[1]);
 
 	    QRect tr = r;
 	    if ( t->identifier() == tb->currentTab() )
 		tr.setBottom( tr.bottom() -
 			      pixelMetric( QStyle::PM_DefaultFrameWidth, tb ) );
 
-	    drawItem( p, tr, AlignCenter | ShowPrefix, cg, tb->isEnabled() &&
-		      t->isEnabled(), 0, t->text() );
+	    drawItem( p, tr, AlignCenter | ShowPrefix, cg,
+		      flags & Style_Enabled, 0, t->text() );
 
-	    if ( has_focus )
+	    if ( flags & Style_HasFocus )
 		drawPrimitive( PE_FocusRect, p, r, cg );
 	    break;
 	}
@@ -759,7 +735,7 @@ void QCommonStyle::drawControl( ControlElement element,
     case CE_ProgressBarLabel:
 	{
 	    const QProgressBar *progressbar = (const QProgressBar *) widget;
-	    drawItem(p, r, AlignCenter | SingleLine, cg, progressbar->isEnabled(), 0,
+	    drawItem(p, r, AlignCenter | SingleLine, cg, flags & Style_Enabled, 0,
 		     progressbar->progressString());
 	}
 	break;
@@ -772,7 +748,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
 	    QMenuItem *mi = (QMenuItem *) data[0];
 	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, cg,
-		      mi->isEnabled(), mi->pixmap(), mi->text(), -1,
+		      flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
 		      &cg.buttonText() );
 	    break;
 	}
@@ -1032,7 +1008,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				       const QWidget *widget,
 				       const QRect &r,
 				       const QColorGroup &cg,
-				       SFlags how,
+				       SFlags flags,
 				       SCFlags controls,
 				       SCFlags active,
 				       void **data ) const
@@ -1043,6 +1019,8 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	return;
     }
 #endif
+
+    Q_UNUSED(flags);
 
     switch (control) {
 #ifndef QT_NO_SCROLLBAR

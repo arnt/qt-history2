@@ -1196,6 +1196,12 @@ void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
     else
 	cg = colorGroup();
 
+    QStyle::SFlags flags = QStyle::Style_Default;
+    if (isEnabled() && mi->isEnabled())
+	flags |= QStyle::Style_Enabled;
+    if (act)
+	flags |= QStyle::Style_Selected;
+
     void *data[3];
     data[0] = mi;
     data[1] = &tab_;
@@ -1205,13 +1211,11 @@ void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 	QMenuItem dummy;
 	data[0] = &dummy;
 	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), cg,
-			    (act ? QStyle::Style_Selected : QStyle::Style_Default),
-			    data);
+			    flags, data);
 	mi->custom()->paint( p, cg, act, !dis, x, y, w, h );
     } else
 	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), cg,
-			    (act ? QStyle::Style_Selected : QStyle::Style_Default),
-			    data);
+			    flags, data);
 }
 
 
@@ -1227,10 +1231,15 @@ void QPopupMenu::drawContents( QPainter* p )
     int y = contentsRect().y();
     int itemw = contentsRect().width() / ncols;
     QSize sz;
+    QStyle::SFlags flags;
     void *data[3];
     while ( (mi=it.current()) ) {
 	++it;
 	int itemh = itemHeight( mi );
+
+	flags = QStyle::Style_Default;
+	if (isEnabled() && mi->isEnabled())
+	    flags |= QStyle::Style_Enabled;
 
 	data[0] = mi;
 	data[1] = &maxPMWidth;
@@ -1248,7 +1257,7 @@ void QPopupMenu::drawContents( QPainter* p )
 		data[2] = &maxPMWidth;
 		style().drawControl(QStyle::CE_PopupMenuItem, p, this,
 				    QRect(x, y, itemw, contentsRect().bottom() - y),
-				    colorGroup(), QStyle::Style_Default, data);
+				    colorGroup(), flags, data);
 	    }
 	    y = contentsRect().y();
 	    x +=itemw;
@@ -1258,12 +1267,16 @@ void QPopupMenu::drawContents( QPainter* p )
 	++row;
     }
     if ( y < contentsRect().bottom() ) {
+	flags = QStyle::Style_Default;
+	if (isEnabled() && mi->isEnabled())
+	    flags |= QStyle::Style_Enabled;
+
 	data[0] = 0;
 	data[1] = &tab;
 	data[2] = &maxPMWidth;
 	style().drawControl(QStyle::CE_PopupMenuItem, p, this,
 			    QRect(x, y, itemw, contentsRect().bottom() - y),
-			    colorGroup(), QStyle::Style_Default, data);
+			    colorGroup(), flags, data);
     }
 }
 

@@ -372,11 +372,14 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 {
     QStyle::SFlags flags = QStyle::Style_Default;
 
+    if (isEnabled() && t->isEnabled())
+	flags |= QStyle::Style_Enabled;
+    if ( selected )
+	flags |= QStyle::Style_Selected;
+
     void *data[1];
     data[0] = t;
 
-    if ( selected )
-	flags |= QStyle::Style_Selected;
     style().drawControl( QStyle::CE_TabBarTab, p, this, t->rect(),
 			 colorGroup(), flags, data );
 
@@ -418,11 +421,17 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	p->drawPixmap( br.left()+2, br.center().y()-pixh/2, pixmap );
     }
 
-    void * data[2];
+    QStyle::SFlags flags = QStyle::Style_Default;
+
+    if (isEnabled() && t->isEnabled())
+	flags |= QStyle::Style_Enabled;
+    if (has_focus)
+	flags |= QStyle::Style_HasFocus;
+
+    void *data[1];
     data[0] = (void *) t;
-    data[1] = (void *) &has_focus;
     style().drawControl( QStyle::CE_TabBarLabel, p, this, r, colorGroup(),
-			 QStyle::Style_Default, data );
+			 flags, data );
 }
 
 
@@ -492,7 +501,7 @@ QTab * QTabBar::selectTab( const QPoint & p ) const
 {
     QTab * selected = 0;
     bool moreThanOne = FALSE;
-        
+
     QPtrListIterator<QTab> i( *l );
     while( i.current() ) {
 	QTab * t = i.current();

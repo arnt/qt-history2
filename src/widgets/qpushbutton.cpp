@@ -470,7 +470,21 @@ void QPushButton::drawButton( QPainter *paint )
 	}
     }
 
-    style().drawControl(QStyle::CE_PushButton, paint, this, rect(), colorGroup());
+    QStyle::SFlags flags = QStyle::Style_Default;
+    if (isEnabled())
+	flags |= QStyle::Style_Enabled;
+    if (hasFocus())
+	flags |= QStyle::Style_HasFocus;
+    if (isDown())
+	flags |= QStyle::Style_Down;
+    if (isOn())
+	flags |= QStyle::Style_On;
+    if (! isFlat() && ! isDown())
+	flags |= QStyle::Style_Raised;
+    if (isDefault())
+	flags |= QStyle::Style_ButtonDefault;
+
+    style().drawControl(QStyle::CE_PushButton, paint, this, rect(), colorGroup(), flags);
     drawButtonLabel( paint );
 
     lastEnabled = isEnabled();
@@ -481,9 +495,24 @@ void QPushButton::drawButton( QPainter *paint )
 */
 void QPushButton::drawButtonLabel( QPainter *paint )
 {
+
+    QStyle::SFlags flags = QStyle::Style_Default;
+    if (isEnabled())
+	flags |= QStyle::Style_Enabled;
+    if (hasFocus())
+	flags |= QStyle::Style_HasFocus;
+    if (isDown())
+	flags |= QStyle::Style_Down;
+    if (isOn())
+	flags |= QStyle::Style_On;
+    if (! isFlat() && ! isDown())
+	flags |= QStyle::Style_Raised;
+    if (isDefault())
+	flags |= QStyle::Style_ButtonDefault;
+
     style().drawControl(QStyle::CE_PushButtonLabel, paint, this,
 			style().subRect(QStyle::SR_PushButtonContents, this),
-			colorGroup());
+			colorGroup(), flags);
 }
 
 

@@ -163,7 +163,8 @@ public:
 	Style_MouseOver =		0x00004000,
 	Style_Up =			0x00008000,
 	Style_Selected =	 	0x00010000,
-	Style_Active =			0x00020000
+	Style_Active =			0x00020000,
+	Style_ButtonDefault =		0x00040000
     };
     typedef uint SFlags;
 

@@ -433,6 +433,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value Style_Selected
   \value Style_HasFocus
   \value Style_Active
+  \value Style_ButtonDefault
 
   \sa drawPrimitive()
 */
@@ -634,9 +635,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     <tr bgcolor=#d0d0d0>
       <td valign=top><b>CE_TabBarTab</b></td>
       <td valign=top>const QTabBar *</b></td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
+      <td valign=top>data[0]</td>
+      <td valign=top>QTab *</td>
+      <td valign=top>pointer to the QTab being drawn.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CE_TabBarLabel</b></td>

@@ -211,7 +211,19 @@ void QRadioButton::drawButton( QPainter *paint )
     }
 #endif
 
-    style().drawControl(QStyle::CE_RadioButton, p, this, irect, cg);
+    QStyle::SFlags flags = QStyle::Style_Default;
+    if (isEnabled())
+	flags |= QStyle::Style_Enabled;
+    if (hasFocus())
+	flags |= QStyle::Style_HasFocus;
+    if (isDown())
+	flags |= QStyle::Style_Down;
+    if (state() == QButton::On)
+	flags |= QStyle::Style_On;
+    else if (state() == QButton::Off)
+	flags |= QStyle::Style_Off;
+
+    style().drawControl(QStyle::CE_RadioButton, p, this, irect, cg, flags);
 
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
     if ( use_pm ) {
@@ -240,9 +252,23 @@ void QRadioButton::drawButton( QPainter *paint )
 */
 void QRadioButton::drawButtonLabel( QPainter *p )
 {
-    style().drawControl(QStyle::CE_RadioButtonLabel, p, this,
-			QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonContents, this), this ),
-			colorGroup());
+    QRect r =
+	QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonContents,
+					    this), this );
+
+    QStyle::SFlags flags = QStyle::Style_Default;
+    if (isEnabled())
+	flags |= QStyle::Style_Enabled;
+    if (hasFocus())
+	flags |= QStyle::Style_HasFocus;
+    if (isDown())
+	flags |= QStyle::Style_Down;
+    if (state() == QButton::On)
+	flags |= QStyle::Style_On;
+    else if (state() == QButton::Off)
+	flags |= QStyle::Style_Off;
+
+    style().drawControl(QStyle::CE_RadioButtonLabel, p, this, r, colorGroup(), flags);
 }
 
 
@@ -274,8 +300,12 @@ void QRadioButton::updateMask()
     bm.fill(color0);
 
     QPainter p( &bm, this );
-    QRect irect = QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonIndicator, this), this );
-    QRect crect = QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonContents, this), this );
+    QRect irect =
+	QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonIndicator,
+					    this), this );
+    QRect crect =
+	QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonContents,
+					    this), this );
 
     style().drawControlMask(QStyle::CE_RadioButton, &p, this, irect);
     p.fillRect(crect, color1);
