@@ -1,7 +1,6 @@
 #include "qeventdispatcher_win.h"
 
 #include "qcoreapplication.h"
-#include "qdebug.h"
 #include "qhash.h"
 #include "qsocketnotifier.h"
 #include "qwineventnotifier_p.h"
@@ -361,8 +360,6 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                 return false;
             }
         }
-
-        qDebug() << "processing message" << msg;
 
         if (!filterEvent(&msg)) {
             TranslateMessage(&msg);
