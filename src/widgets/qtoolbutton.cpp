@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#47 $
 **
 ** Implementation of QToolButton class
 **
@@ -131,7 +131,7 @@ QToolButton::QToolButton( const QPixmap &pm, const QString &textLabel,
   in object \a receiver, and returns the button.
 */
 
-QToolButton::QToolButton( QIconSet iconSet, const QString &textLabel,
+QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
 			  const QString& grouptext,
 			  QObject * receiver, const char *slot,
 			  QToolBar * parent, const char *name )
