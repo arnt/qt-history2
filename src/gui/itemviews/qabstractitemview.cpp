@@ -104,7 +104,7 @@ void QAbstractItemViewPrivate::init()
     QObject::connect(q, SIGNAL(needMore()), model, SLOT(fetchMore()), QueuedConnection);
 
     QApplication::postEvent(q, new QMetaCallEvent(QEvent::InvokeSlot,
-                            q->metaObject()->indexOfSlot("startItemsLayout()"), q));
+                               q->metaObject()->indexOfSlot("startItemsLayout()"), q));
 }
 
 /*!
@@ -313,8 +313,6 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 
     d->rubberBand->setGeometry(QRect(d->viewport->mapToGlobal(topLeft),
                                      d->viewport->mapToGlobal(bottomRight)).normalize());
-
-//    ensureVisible(pos.x(), pos.y());
 
     if (state() == Dragging && // the user has already started moving the mouse
         (topLeft - bottomRight).manhattanLength() > QApplication::startDragDistance()) {

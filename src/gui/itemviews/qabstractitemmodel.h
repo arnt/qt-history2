@@ -83,11 +83,11 @@ public:
     virtual bool canDecode(QMimeSource *src) const;
     virtual bool decode(QMimeSource *src);
 
-    virtual QVariant data(const QModelIndex &index, int role) const = 0;
-    virtual void setData(const QModelIndex &index, int role, const QVariant &value);
+    virtual QVariant data(const QModelIndex &index, int role = Display) const = 0;
+    virtual bool setData(const QModelIndex &index, int role, const QVariant &value);
 
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
-    void setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
+    bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
 
     virtual bool insertRow(const QModelIndex &parent, int row);
     virtual bool insertColumn(const QModelIndex &parent, int column);

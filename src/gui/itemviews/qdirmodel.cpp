@@ -303,30 +303,32 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void QDirModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool QDirModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     if (!index.isValid()) {
         qWarning("setData: the index was not valid");
-        return;
+        return false;
     }
     if (index.column() != 0) {
         qWarning("setData: wrong column %d", index.column());
-        return;
+        return false;
     }
     if (role != Edit) {
         qWarning("setData: wrong role %d", role);
-        return;
+        return false;
     }
     if (!isEditable(index)) {
         qWarning("setData: the item is not editable");
-        return;
+        return false;
     }
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     QDir dir = node->info.dir();
-    if (dir.rename(node->info.fileName(), value.toString()))
+    if (dir.rename(node->info.fileName(), value.toString())) {
         emit contentsChanged(index, index);
-    else
-        qWarning("setData: file renaming failed");
+        return true;
+    }
+    qWarning("setData: file renaming failed");
+    return false;
 }
 
 bool QDirModel::hasChildren(const QModelIndex &parent) const

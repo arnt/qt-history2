@@ -26,8 +26,8 @@ public:
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
 
-    QVariant data(const QModelIndex &index, int role) const;
-    void setData(const QModelIndex &index, int role, const QVariant &value);
+    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Display) const;
+    bool setData(const QModelIndex &index, int role, const QVariant &value);
 
     bool insertRow(const QModelIndex &parent, int row);
     bool removeRow(const QModelIndex &parent, int row);
@@ -178,14 +178,17 @@ QVariant QTreeModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void QTreeModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool QTreeModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     if (!index.isValid())
-        return;
+        return false;
     QTreeViewItem *itm = item(index);
-    if (itm)
+    if (itm) {
         itm->setData(index.column(), role, value);
-    emit contentsChanged(index, index);
+        emit contentsChanged(index, index);
+        return true;
+    }
+    return false;
 }
 
 bool QTreeModel::insertRow(const QModelIndex &parent, int row)

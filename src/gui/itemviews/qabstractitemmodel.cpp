@@ -140,15 +140,17 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
     return roles;
 }
 
-void QAbstractItemModel::setData(const QModelIndex &, int, const QVariant &)
+bool QAbstractItemModel::setData(const QModelIndex &, int, const QVariant &)
 {
-    // do nothing - read only
+    return false;
 }
 
-void QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles)
+bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles)
 {
+    bool b = true;
     for (QMap<int, QVariant>::ConstIterator it = roles.begin(); it != roles.end(); ++it)
-        setData(index, it.key(), it.value());
+        b = b && setData(index, it.key(), it.value());
+    return b;
 }
 
 bool QAbstractItemModel::insertRow(const QModelIndex &parent, int row)

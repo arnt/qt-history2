@@ -42,10 +42,8 @@ public:
     int rowCount(const QModelIndex &parent = 0) const;
     int columnCount(const QModelIndex &parent = 0) const;
 
-    QVariant data(const QModelIndex &index, int role) const;
-    void setData(const QModelIndex &index, int role, const QVariant &value);
-
-    QModelIndex insertItem(const QModelIndex &index);
+    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Display) const;
+    bool setData(const QModelIndex &index, int role, const QVariant &value);
 
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;
@@ -263,10 +261,10 @@ QVariant QTableModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void QTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool QTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     if (!index.isValid())
-        return;
+        return false;
     if (index.type() == QModelIndex::VerticalHeader)
         leftHeader[index.row()].setData(role, value);
     else if (index.type() == QModelIndex::HorizontalHeader)
@@ -274,26 +272,7 @@ void QTableModel::setData(const QModelIndex &index, int role, const QVariant &va
     else
         table[tableIndex(index.row(), index.column())].setData(role, value);
     emit contentsChanged(index, index);
-}
-
-// inserts a complete row, returns index of leftmost item
-QModelIndex QTableModel::insertItem(const QModelIndex &index)
-{
-    QModelIndex insert = index;
-    if (!insert.isValid() ||
-        insert.row() > rowCount() ||
-        insert.column() > 0)
-        insert = QModelIndex(rowCount(), 0, 0);
-
-    int ti = tableIndex(insert.row(), 0) - 1;
-    table.insert(ti, c, QTableViewItem());
-
-    QTableViewItem item;
-    item.setText(QString::number(index.row()));
-    leftHeader.insert(index.row(), 1, item);
-    ++r;
-
-    return index;
+    return true;
 }
 
 bool QTableModel::isSelectable(const QModelIndex &index) const
