@@ -2989,6 +2989,7 @@ void QCanvasPixmapArray::reset()
 	delete img[i];
     delete [] img;
     img = 0;
+    framecount = 0;
 }
 
 #ifndef QT_NO_IMAGEIO
