@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#46 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#47 $
 **
 ** Implementation of QFontDialog
 **
@@ -390,7 +390,7 @@ QFont QFontDialog::getFont( bool *ok, const QFont *def,
     QFontDialog *dlg = new QFontDialog( parent, name, TRUE );
     if ( def )
 	dlg->setFont( *def );
-    dlg->setCaption( tr("Font") );
+    dlg->setCaption( tr("Select Font") );
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->font();
 	if ( ok )

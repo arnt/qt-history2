@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#17 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#18 $
 **
 ** Implementation of QColorDialog class
 **
@@ -778,6 +778,7 @@ QColor QColorDialog::getColor( QColor initial, QWidget *parent,
 {
     int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
+    dlg->setCaption( QColorDialog::tr( "Select color" ) );
     dlg->setSelectedColor( initial );
     int resultCode = dlg->exec();
     QColor::leaveAllocContext();
