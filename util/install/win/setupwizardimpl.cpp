@@ -37,7 +37,7 @@
 #define FILESTOCOPY 4582
 
 
-static const char* const logo_data[] = { 
+static const char* const logo_data[] = {
 "32 32 238 2",
 "Qt c None",
 "#u c #000000",
@@ -347,7 +347,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     // initialize
     if ( !pName )
 	setName( "SetupWizard" );
-    resize( 600, 390 ); 
+    resize( 600, 390 );
     setCaption( trUtf8( "Qt Installation Wizard" ) );
     QPixmap logo( ( const char** ) logo_data );
     setIcon( logo );
@@ -363,7 +363,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     // try to read the archive header information and use them instead of
     // QT_VERSION_STR if possible
     QArchiveHeader *archiveHeader = 0;
-    ResourceLoader rcLoader( "QT_ARQ", 500 );	
+    ResourceLoader rcLoader( "QT_ARQ", 500 );
     if ( rcLoader.isValid() ) {
 	// First, try to find qt.arq as a binary resource to the file.
 	QArchive ar;
@@ -694,7 +694,7 @@ void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
     QString outbuffer;
 
     outbuffer = QString( proc->readStdout() );
-    
+
     for( int i = 0; i < (int)outbuffer.length(); i++ ) {
 	QChar c = outbuffer[ i ];
 	switch( char( c ) ) {
@@ -707,7 +707,7 @@ void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
 	case '\n':
 	    if( currentOLine.length() ) {
 		if ( !globalInformation.reconfig() ) {
-		    if ( currentOLine.right( 4 ) == ".cpp" || 
+		    if ( currentOLine.right( 4 ) == ".cpp" ||
 			 currentOLine.right( 2 ) == ".c" ||
 			 currentOLine.right( 4 ) == ".pro" ||
 			 currentOLine.right( 3 ) == ".ui" ) {
@@ -730,7 +730,7 @@ void SetupWizardImpl::updateErrorDisplay( QProcess* proc )
     QString outbuffer;
 
     outbuffer = QString( proc->readStderr() );
-    
+
     for( int i = 0; i < (int)outbuffer.length(); i++ ) {
 	QChar c = outbuffer[ i ];
 	switch( char( c ) ) {
@@ -742,8 +742,8 @@ void SetupWizardImpl::updateErrorDisplay( QProcess* proc )
 	    break;
 	case '\n':
 	    if( currentELine.length() ) {
-		if( currentOLine.right( 4 ) == ".cpp" || 
-		    currentOLine.right( 2 ) == ".c" || 
+		if( currentOLine.right( 4 ) == ".cpp" ||
+		    currentOLine.right( 2 ) == ".c" ||
 		    currentOLine.right( 4 ) == ".pro" )
 		    buildPage->compileProgress->setProgress( ++filesCompiled );
 
@@ -1251,7 +1251,7 @@ void SetupWizardImpl::showPageProgress()
 	connect( &ar, SIGNAL( operationFeedback( const QString& ) ), this, SLOT( archiveMsg( const QString& ) ) );
 	connect( &ar, SIGNAL( operationFeedback( int ) ), progressPage->operationProgress, SLOT( setProgress( int ) ) );
 	// First, try to find qt.arq as a binary resource to the file.
-	ResourceLoader rcLoader( "QT_ARQ", 500 );	
+	ResourceLoader rcLoader( "QT_ARQ", 500 );
 	if ( rcLoader.isValid() ) {
 	    progressPage->operationProgress->setTotalSteps( rcLoader.data().count() );
 	    QDataStream ds( rcLoader.data(), IO_ReadOnly );
@@ -1349,7 +1349,7 @@ void SetupWizardImpl::showPageProgress()
 #	if !defined(Q_OS_MAC)
 	    QStringList qtDlls = lib.entryList( "qt*.dll" );
 #	else
- 	    QStringList qtDlls = lib.entryList( "libqt-mt-eval.dylib" );
+	    QStringList qtDlls = lib.entryList( "libqt-mt-eval.dylib" );
 #	endif
 	    if ( qtDlls.count() == 0 ) {
 		copySuccessful = FALSE;
@@ -1424,6 +1424,21 @@ void SetupWizardImpl::showPageProgress()
 	    if ( tdsPluginInstall && !tdsPluginInstall->isOn() ) {
 		plugins.remove( "qsqltds.dll" );
 	    }
+	    // patch the .qmake.cache with the correct paths
+	    QFile cacheFile( installDir.filePath(".qmake.cache") );
+	    if ( cacheFile.open( IO_ReadOnly | IO_Translate ) ) {
+		QTextStream tsIn( &cacheFile );
+		QString cache = tsIn.read();
+		cacheFile.close();
+		if ( cacheFile.open( IO_WriteOnly | IO_Translate ) ) {
+		    QTextStream tsOut( &cacheFile );
+		    if ( globalInformation.sysId() == GlobalInformation::Borland )
+			tsOut << cache.replace( "C:/QtEvaluation/qtborland", installDir.absPath() );
+		    else
+			tsOut << cache.replace( "C:/QtEvaluation/qtmsvc", installDir.absPath() );
+		    cacheFile.close();
+		}
+	    }
 #  endif
 #endif
 	    logFiles( tr("All files have been installed.\n"
@@ -1477,7 +1492,7 @@ void SetupWizardImpl::showPageFinish()
 	}
 	else {
 #if defined(Q_OS_MACX)
-            finishMsg = QString( "Qt has been installed to " ) + optionsPage->installPath->text() + 
+            finishMsg = QString( "Qt has been installed to " ) + optionsPage->installPath->text() +
                         " and is ready to use.\n\nPlease try out the developer tools in the bin folder and example "
                         "programs in the examples folder.\n\nFor further information please consult the "
 			"README.txt file included in the installation folder.";
@@ -1948,7 +1963,7 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 		} else {
 		    return false;
 		}
-		if( entryName.right( 4 ) == ".cpp" || 
+		if( entryName.right( 4 ) == ".cpp" ||
 		    entryName.right( 2 ) == ".c" ||
 		    entryName.right( 4 ) == ".pro" ||
 		    entryName.right( 3 ) == ".ui" )
@@ -2061,7 +2076,7 @@ void SetupWizardImpl::writeLicense( QString filePath )
 
     if( licenseFile.open( IO_WriteOnly | IO_Translate ) ) {
 	QTextStream licStream( &licenseFile );
-	
+
 	licenseInfo[ "CUSTOMERID" ] = licensePage->customerID->text();
 	licenseInfo[ "LICENSEID" ] = licensePage->licenseID->text();
 	licenseInfo[ "LICENSEE" ] = licensePage->licenseeName->text();
