@@ -4797,6 +4797,10 @@ QWidget *QTable::cellWidget( int row, int col ) const
     If you don't use QTableItems you may need to reimplement this function:
     see the notes on \link #bigtables large tables\endlink.
 
+    This function deletes the widget at \a row, \a col. Note that the
+    widget is not deleted immediately but QObject::deferredDelete() is
+    called on the widget to avoid problems with timing issues.
+
   \sa cellWidget() setCellWidget()
 */
 
