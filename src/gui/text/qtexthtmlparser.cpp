@@ -725,8 +725,7 @@ void QTextHtmlParser::parseTag()
         node->style = QStyleSheet::defaultSheet()->item("");
     Q_ASSERT(node->style != 0);
 
-    node->isBlock = (node->style->displayMode() != QStyleSheetItem::DisplayInline
-                     && node->tag != QLatin1String("body"));
+    node->isBlock = (node->style->displayMode() != QStyleSheetItem::DisplayInline);
     node->isImage = (node->tag == QLatin1String("img"));
     node->isListItem = (node->style->displayMode() == QStyleSheetItem::DisplayListItem);
     node->isListStart = (node->tag == QLatin1String("ol") || node->tag == QLatin1String("ul"));
