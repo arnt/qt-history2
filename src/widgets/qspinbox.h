@@ -109,6 +109,7 @@ public slots:
     virtual void	setSuffix( const QString &text );
     virtual void	stepUp();
     virtual void	stepDown();
+    virtual void        setEnabled( bool enabled );
 
 signals:
     void		valueChanged( int value );

@@ -553,6 +553,13 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
     return FALSE;
 }
 
+/*! \reimp
+ */
+void QSpinBox::setEnabled( bool enabled )
+{
+    QWidget::setEnabled( enabled );
+    updateDisplay();
+}
 
 /*!\reimp
 */
