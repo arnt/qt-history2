@@ -633,9 +633,11 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
 void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
 {
     d->dragging = true;
-    if (d->sliderpressed)
+    if (d->sliderpressed) {
         d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
-    QWidget::mouseMoveEvent(e);
+    } else {
+        QWidget::mouseMoveEvent(e);
+    }
 }
 
 /*!
@@ -1345,19 +1347,8 @@ QCoreVariant operator+(const QCoreVariant &arg1, const QCoreVariant &arg2)
     switch (arg1.type()) {
     case QCoreVariant::Int: ret = QCoreVariant(arg1.toInt() + arg2.toInt()); break;
     case QCoreVariant::Double: ret = QCoreVariant(arg1.toDouble() + arg2.toDouble()); break;
-    case QCoreVariant::Time: {
-        QTime a2 = arg2.toTime();
-        QTime a1 = arg1.toTime();
-        ret = QCoreVariant(a1.addMSecs(QTime().msecsTo(a2)));
-        break;
-    }
-    case QCoreVariant::Date: {
-        QDate a2 = arg2.toDate();
-        QDate a1 = arg1.toDate().addDays(DATETIME_MIN.daysTo(a2));
-        ret = QCoreVariant(a1);
-        break;
-    }
     case QCoreVariant::DateTime: {
+        qDebug("%s %d: case QCoreVariant::DateTime: {", __FILE__, __LINE__);
         QDateTime a2 = arg2.toDateTime();
         QDateTime a1 = arg1.toDateTime().addDays(DATETIME_MIN.daysTo(a2));
         a1.setTime(a1.time().addMSecs(QTime().msecsTo(a2.time())));
@@ -1383,38 +1374,12 @@ QCoreVariant operator-(const QCoreVariant &arg1, const QCoreVariant &arg2)
     switch (arg1.type()) {
     case QCoreVariant::Int: ret = QCoreVariant(arg1.toInt() - arg2.toInt()); break;
     case QCoreVariant::Double: ret = QCoreVariant(arg1.toDouble() - arg2.toDouble()); break;
-    case QCoreVariant::Time: {
-        QTime a1 = arg1.toTime();
-        QTime a2 = arg2.toTime();
-        int secs = a2.secsTo(a2);
-        int msecs = qMax(0, a1.msec() - a2.msec());
-        if (secs < 0 || msecs < 0) {
-            ret = arg1;
-        } else {
-            QTime dt = a2.addSecs(secs);
-            if (msecs > 0)
-                dt = dt.addMSecs(msecs);
-            ret = QCoreVariant(dt);
-        }
-        break;
-    }
-    case QCoreVariant::Date: {
-        QDate a1 = arg1.toDate();
-        QDate a2 = arg2.toDate();
-        int days = a2.daysTo(a1);
-        if (days < 0) {
-            ret = arg1;
-        } else {
-            QDate dt = a2.addDays(days);
-            ret = QCoreVariant(dt);
-        }
-        break;
-    }
     case QCoreVariant::DateTime: {
+        qDebug("%s %d: case QCoreVariant::DateTime: {", __FILE__, __LINE__);
         QDateTime a1 = arg1.toDateTime();
         QDateTime a2 = arg2.toDateTime();
         int days = a2.daysTo(a1);
-        int secs = a2.secsTo(a2);
+        int secs = a2.secsTo(a1);
         int msecs = qMax(0, a1.time().msec() - a2.time().msec());
         if (days < 0 || secs < 0 || msecs < 0) {
             ret = arg1;
@@ -1442,19 +1407,8 @@ QCoreVariant operator*(const QCoreVariant &arg1, double multiplier) // should pr
     switch (arg1.type()) {
     case QCoreVariant::Int: ret = QCoreVariant((int)(arg1.toInt() * multiplier)); break;
     case QCoreVariant::Double: ret = QCoreVariant(arg1.toDouble() * multiplier); break;
-    case QCoreVariant::Time: {
-        long msecs = (long)((TIME_MIN.msecsTo(arg1.toDateTime().time()) * multiplier));
-        ret = QTime().addMSecs(msecs);
-        break;
-    }
-    case QCoreVariant::Date: {
-        double days = DATE_MIN.daysTo(arg1.toDateTime().date()) * multiplier;
-        int daysInt = (int)days;
-        days -= daysInt;
-        ret = QDate().addDays(int(days));
-        break;
-    }
     case QCoreVariant::DateTime: {
+        qDebug("%s %d: case QCoreVariant::DateTime: {", __FILE__, __LINE__);
         double days = DATE_MIN.daysTo(arg1.toDateTime().date()) * multiplier;
         int daysInt = (int)days;
         days -= daysInt;
@@ -1484,20 +1438,11 @@ double operator/(const QCoreVariant &arg1, const QCoreVariant &arg2)
         a1 = arg1.toDouble();
         a2 = arg2.toDouble();
         break;
-    case QVariant::Time: {
-        a1 = (double)TIME_MIN.msecsTo(arg1.toTime()) / (long)(3600 * 24 * 1000);
-        a2 = (double)TIME_MIN.msecsTo(arg2.toTime()) / (long)(3600 * 24 * 1000);
-    }
-    case QVariant::Date: {
-        a1 = DATE_MIN.daysTo(arg1.toDate());
-        a2 = DATE_MIN.daysTo(arg2.toDate());
-    }
-    case QVariant::DateTime: {
+    case QVariant::DateTime:
         a1 = DATE_MIN.daysTo(arg1.toDate());
         a2 = DATE_MIN.daysTo(arg2.toDate());
         a1 += (double)TIME_MIN.msecsTo(arg1.toDateTime().time()) / (long)(3600 * 24 * 1000);
         a2 += (double)TIME_MIN.msecsTo(arg2.toDateTime().time()) / (long)(3600 * 24 * 1000);
-    }
     default: break;
     }
 

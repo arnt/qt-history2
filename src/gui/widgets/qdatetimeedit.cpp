@@ -57,7 +57,9 @@ public:
     void editorCursorPositionChanged(int lastpos, int newpos);
     QValidator::State validate(QString *input, int *pos, QCoreVariant *val) const;
 
-//    QStyleOptionSpinBox styleOption() const;
+    QStyleOptionSpinBox styleOption() const;
+    QCoreVariant QDateTimeEditPrivate::valueForPosition(int pos) const;
+
 
     void clearSection(Section s);
 
@@ -1096,6 +1098,30 @@ QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
     return bound(v, value, steps);
 }
 
+QCoreVariant QDateTimeEditPrivate::valueForPosition(int pos) const
+{
+    QStyleOptionSpinBox sb = styleOption();
+    QRect r = q->style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
+                                                QStyle::SC_SpinBoxSlider, q);
+
+    double percentage = (double)pos / r.width();
+
+
+    double totalDays = (double)minimum.toDateTime().daysTo(maximum.toDateTime());
+    totalDays += (double)minimum.toDateTime().time().msecsTo(maximum.toDateTime().time()) / (24 * 3600 * 1000);
+
+    if (percentage == 0) {
+        return minimum;
+    } else if (percentage == 1) {
+        return maximum;
+    }
+
+    double diff = (totalDays * percentage);
+    QDate date = minimum.toDate().addDays((long long)diff); // ### hack. There must be a nicer way
+    QTime time = QTime().addMSecs((int)(24 * 3600 * 1000 * (diff - ((double)(long long)diff))));
+    return QCoreVariant(QDateTime(date, time));
+}
+
 
 /*!
     \internal
@@ -1455,31 +1481,32 @@ QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(Section 
     return (forward ? last : first);
 }
 
-// QStyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
-// {
-//     QStyleOptionSpinBox opt(0);
-//     opt.init(q);
-//     opt.stepEnabled = q->stepEnabled();
-//     opt.activeParts = 0;
-//     opt.buttonSymbols = buttonsymbols;
-//     opt.parts = QStyle::SC_SpinBoxFrame|QStyle::PE_SpinBoxUp|QStyle::PE_SpinBoxDown;
-//     if (slider) {
-//         opt.parts |= QStyle::PE_SpinBoxSlider;
-//     }
-//     if (d->buttonstate & Up) {
-//         opt.activeParts = QStyle::PE_SpinBoxUp;
-//     } else if (buttonstate & Down) {
-//         opt.activeParts = QStyle::PE_SpinBoxDown;
-//     }
-//     double days = minimum.toDateTime().daysTo(value.toDateTime()) +
-//                   (minimum.toDateTime().secsTo(value.toDateTime()) * 24 * 3600);
-//     double totalDays = minimum.toDateTime().daysTo(maximum.toDateTime()) +
-//                   (minimum.toDateTime().secsTo(maximum.toDateTime()) * 24 * 3600);
+QStyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
+{
+    QStyleOptionSpinBox opt(0);
+    opt.init(q);
+    opt.stepEnabled = q->stepEnabled();
+    opt.activeParts = 0;
+    opt.buttonSymbols = buttonsymbols;
+    opt.parts = QStyle::SC_SpinBoxFrame|QStyle::PE_SpinBoxUp|QStyle::PE_SpinBoxDown;
+    if (slider) {
+        opt.parts |= QStyle::PE_SpinBoxSlider;
+    }
+    if (d->buttonstate & Up) {
+        opt.activeParts = QStyle::PE_SpinBoxUp;
+    } else if (buttonstate & Down) {
+        opt.activeParts = QStyle::PE_SpinBoxDown;
+    }
 
-//     opt.percentage = totalDays;
-//     opt.slider = slider;
-//     return opt;
-// }
+    double days = (double)minimum.toDateTime().daysTo(value.toDateTime());
+    days += (double)minimum.toDateTime().time().msecsTo(value.toDateTime().time()) / (24 * 3600 * 1000);
+    double totalDays = (double)minimum.toDateTime().daysTo(maximum.toDateTime());
+    totalDays += (double)minimum.toDateTime().time().msecsTo(maximum.toDateTime().time()) / (24 * 3600 * 1000);
+
+    opt.percentage = days / totalDays;
+    opt.slider = slider;
+    return opt;
+}
 
 
 

@@ -73,9 +73,8 @@ public:
     void updateEdit() const;
     void calculateSizeHints() const;
 
-    QStyleOptionSpinBox styleOption() const;
-
-    QCoreVariant valueForPosition(int pos) const;
+    virtual QStyleOptionSpinBox styleOption() const;
+    virtual QCoreVariant valueForPosition(int pos) const;
 
     virtual void emitSignals();
     virtual void refresh(EmitPolicy ep);
