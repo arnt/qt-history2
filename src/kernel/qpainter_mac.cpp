@@ -1780,9 +1780,9 @@ void QPainter::drawText(int x, int y, const QString &str, int from, int len, QPa
 {
     if(!isActive())
 	return;
-    if(len < 0)
-	len = str.length();
-    if(len == 0 || from >= (int)str.length()-1)   // empty string
+    if(len < 0 || from + len > (int)str.length())
+	len = str.length() - from;
+    if(len == 0 || from >= (int)str.length())   // empty string
 	return;
 
     updateBrush();
