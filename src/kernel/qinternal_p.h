@@ -49,8 +49,10 @@
 // We mean it.
 //
 //
+#ifndef QT_H
 #include <qnamespace.h>
 #include <qrect.h>
+#endif // QT_H
 
 class QWidget;
 class QPainter;

@@ -4,7 +4,7 @@
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : Thu Apr 19 16:37:59 EST 2001
+** Generated : Mon Apr 30 21:11:44 EST 2001
 
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
@@ -19,8 +19,8 @@
 #include <qfeatures.h>
 #include "qshared.h"
 #include "qnamespace.h"
-#include "qpair.h"
 #include "qptrcollection.h"
+#include "qglist.h"
 #include "qobjectdefs.h"
 #include "qgarray.h"
 #include "qmemarray.h"
@@ -28,76 +28,76 @@
 #include "qstring.h"
 #include "qwindowdefs.h"
 #include "qpoint.h"
-#include "qiodevice.h"
+#include "qplatformdefs.h"
 #include "qsize.h"
-#include <qrect.h>
+#include "qrect.h"
 #include "qgdict.h"
-#include "qbitarray.h"
+#include "qcolor.h"
 #include "qsizepolicy.h"
 #include "qregion.h"
-#include "qglist.h"
-#include "qdatastream.h"
-#include "qcolor.h"
 #include "qptrlist.h"
-#include "qfont.h"
-#include <stdio.h>
-#include "qtextstream.h"
-#include "qfontinfo.h"
-#include "qtl.h"
-#include <quuid.h>
-#include "qmap.h"
+#include "qiodevice.h"
 #include "qpen.h"
-#include "qmime.h"
-#include "qsql.h"
-#include "qevent.h"
+#include "qfont.h"
+#include "qdatastream.h"
+#include "qpair.h"
 #include "qpaintdevice.h"
+#include <stdio.h>
+#include <quuid.h>
+#include "qtextstream.h"
+#include "qtl.h"
+#include "qfontinfo.h"
+#include "qsql.h"
+#include "qmap.h"
+#include "qpixmap.h"
 #include "qfontmetrics.h"
 #include "qbrush.h"
 #include "qpalette.h"
 #include "qasciidict.h"
-#include "qobject.h"
-#include "qstyle.h"
+#include "qmime.h"
+#include "qevent.h"
 #include "qdict.h"
 #include "qdatetime.h"
 #include "qhostaddress.h"
-#include "qwidget.h"
-#include "qframe.h"
+#include "qobject.h"
+#include "qstyle.h"
 #include <qdom.h>
-#include "qgroupbox.h"
+#include "qwidget.h"
 #include <qdrawutil.h>
 #include "qbutton.h"
-#include "qconnection.h"
+#include "qframe.h"
 #include "qdialog.h"
 #include "qjpunicode.h"
 #include "qtextcodec.h"
+#include "qgroupbox.h"
+#include "qstrlist.h"
 #include "qdockwindow.h"
-#include "qcommonstyle.h"
-#include "qvaluelist.h"
 #include "qfile.h"
 #include "qfileinfo.h"
 #include <qwidgetlist.h>
 #include <qdataview.h>
-#include "qstrlist.h"
+#include "qvaluelist.h"
 #include <qfontdialog.h>
 #include <qcolordialog.h>
-#include "qpixmap.h"
+#include "qiconset.h"
 #include "qlineedit.h"
 #include "qurlinfo.h"
-#include <qeuckrcodec.h>
+#include "qbitarray.h"
 #include <qgbkcodec.h>
 #include "qgcache.h"
 #include "qrangecontrol.h"
 #include <qgif.h>
+#include <qglcolormap.h>
 #include <qcache.h>
 #include <qdropsite.h>
 #include "qstringlist.h"
 #include <qgrid.h>
 #include "qbuttongroup.h"
-#include "qwindowsstyle.h"
+#include "qguardedptr.h"
 #include "qgvector.h"
 #include "qhbox.h"
 #include <qhbuttongroup.h>
-#include "qiconset.h"
+#include <qheader.h>
 #include <qhgroupbox.h>
 #include "qsocketnotifier.h"
 #include "qnetworkprotocol.h"
@@ -107,7 +107,7 @@
 #include <qinputdialog.h>
 #include <qintcache.h>
 #include "qintdict.h"
-#include "qmotifstyle.h"
+#include "qcommonstyle.h"
 #include <qpicture.h>
 #include <qjiscodec.h>
 #include <qeucjpcodec.h>
@@ -120,15 +120,14 @@
 #include "qscrollbar.h"
 #include "qscrollview.h"
 #include "qdir.h"
-#include <qmacstyle_mac.h>
-#include <qfontdatabase.h>
-#include <qerrormessage.h>
 #include "qlibrary.h"
+#include "qmotifstyle.h"
+#include <qeuckrcodec.h>
 #include "qmenudata.h"
 #include "qpopupmenu.h"
 #include <qmessagebox.h>
-#include "qmetaobject.h"
-#include "qvariant.h"
+#include "qconnection.h"
+#include "qwindowsstyle.h"
 #include <qmotifplusstyle.h>
 #include <qcdestyle.h>
 #include <qmovie.h>
@@ -138,22 +137,23 @@
 #include <qftp.h>
 #include "qlayout.h"
 #include <qaccel.h>
-#include <qobjectdict.h>
+#include "qmetaobject.h"
 #include <qobjectlist.h>
-#include <qheader.h>
 #include <qbitmap.h>
+#include <qpaintdevicemetrics.h>
 #include "qpointarray.h"
-#include <qclipboard.h>
-#include "qtranslator.h"
+#include "qvariant.h"
+#include <qerrormessage.h>
 #include "qptrdict.h"
 #include <qdragobject.h>
 #include "qsqlfield.h"
 #include <qpixmapcache.h>
+#include <qfontdatabase.h>
 #include <qplatinumstyle.h>
 #include "qgpluginmanager.h"
 #include <qpngio.h>
 #include <qcursor.h>
-#include <qcombobox.h>
+#include <qclipboard.h>
 #include <qpolygonscanner.h>
 #include <qmenubar.h>
 #include <qprintdialog.h>
@@ -163,16 +163,16 @@
 #include "qsemimodal.h"
 #include <qasciicache.h>
 #include <qcanvas.h>
-#include "qguardedptr.h"
+#include <qcleanuphandler.h>
 #include <qptrqueue.h>
 #include <qptrstack.h>
 #include "qvector.h"
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qdial.h>
-#include "qwmatrix.h"
+#include <qaccessible.h>
 #include "qregexp.h"
-#include <qcolormap.h>
+#include <qcombobox.h>
 #include <qrtlcodec.h>
 #include <qlistview.h>
 #include <qlistbox.h>
@@ -181,12 +181,12 @@
 #include <qsessionmanager.h>
 #include <qsettings.h>
 #include <qsgistyle.h>
-#include <qaquastyle.h>
+#include "qtranslator.h"
 #include "qsignal.h"
 #include <qsignalmapper.h>
 #include <qsignalslotimp.h>
 #include <qsimplerichtext.h>
-#include <qpaintdevicemetrics.h>
+#include "qwmatrix.h"
 #include <qsizegrip.h>
 #include <qdockarea.h>
 #include <qsjiscodec.h>
@@ -206,7 +206,7 @@
 #include "qsqlindex.h"
 #include "qsqlcursor.h"
 #include <qsqldriver.h>
-#include <qsqlform.h>
+#include <qobjectdict.h>
 #include "qtable.h"
 #include <qsqlpropertymap.h>
 #include <qsqldatabase.h>
@@ -214,8 +214,8 @@
 #include <qsqlresult.h>
 #include <qstatusbar.h>
 #include <qasyncio.h>
-#include <qiconview.h>
 #include <qcomponentfactory.h>
+#include <qiconview.h>
 #include "qstylesheet.h"
 #include <qinterlacestyle.h>
 #include <qstylefactory.h>
@@ -234,7 +234,7 @@
 #include <qmultilineedit.h>
 #include <qthread.h>
 #include <qdatetimeedit.h>
-#include <qcleanuphandler.h>
+#include <qsqlform.h>
 #include <qmainwindow.h>
 #include <qtoolbutton.h>
 #include <qtooltip.h>
@@ -273,6 +273,7 @@
 #include "../kernel/qlayoutengine_p.h"
 #include "../widgets/qeffects_p.h"
 #include "../kernel/qfontdata_p.h"
+#include "../kernel/qinternal_p.h"
 #include "../kernel/qcomplextext_p.h"
 #include "../sql/qsqlmanager_p.h"
 #include "../xml/qsvgdevice_p.h"
@@ -282,6 +283,10 @@
 #include "../kernel/qrichtext_p.h"
 #include "../widgets/qwidgetresizehandler_p.h"
 #endif // Private headers
+
+
+#ifdef Q_WS_MAC
+#endif // Q_WS_MAC
 
 
 #ifdef Q_WS_QWS
