@@ -61,7 +61,7 @@ public:
     SourceFile *lookupFile(const char *);
     inline SourceFile *lookupFile(const QString &f) { return lookupFile(f.latin1()); }
     inline SourceFile *lookupFile(const QMakeLocalFileName &f) { return lookupFile(f.local().latin1()); }
-    void addFile(SourceFile *);
+    void addFile(SourceFile *, const char *k=0);
 };
 SourceFiles::SourceFiles()
 {
@@ -119,9 +119,10 @@ SourceFile *SourceFiles::lookupFile(const char *file)
     return 0;
 }
 
-void SourceFiles::addFile(SourceFile *p)
+void SourceFiles::addFile(SourceFile *p, const char *k)
 {
-    const char *k = key(p->file.local());
+    if(!k)
+        k = key(p->file.local());
     int h = hash(k) % num_nodes;
     SourceFileNode *pn = new SourceFileNode;
     pn->next = nodes[h];
@@ -382,12 +383,24 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 		while(x < buffer_len && //Skip spaces after hash
 		      (*(buffer+x) == ' ' || *(buffer+x) == '\t'))
 		    x++;
-		if(buffer_len >= x + 8 && !strncmp(buffer + x, "include", 7) &&
-		   (*(buffer + x + 7) == ' ' || *(buffer + x + 7) == '\t' ||
-		    *(buffer + x + 7) == '<' || *(buffer + x + 7) == '"')) {
-		    for(x+=7; //skip spaces after keyword
-			x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t');
-			x++);
+
+                int keyword_len = 0;
+                const char *keyword = buffer+x;
+                while(x+keyword_len < buffer_len) {
+                    if((*(buffer+x+keyword_len) == ' ' || *(buffer+x+keyword_len) == '\t')) {
+                        for(x+=keyword_len; //skip spaces after keyword
+                            x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t');
+                            x++);
+                        break;
+                    } else if(*(buffer+x+keyword_len) == '\n') {
+                        x += keyword_len;
+                        keyword_len = 0;
+                        break;
+                    }
+                    keyword_len++;
+                }
+
+		if(keyword_len == 7 && !strncmp(keyword, "include", keyword_len)) {
 		    char term = *(buffer + x);
 		    if(term == '"');
 		    else if(term == '<')
@@ -421,7 +434,6 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 	}
 
 	if(inc) {
-	    bool found = true;
 	    QMakeLocalFileName lfn(inc);
 	    SourceFile *dep = files->lookupFile(lfn);
 	    if(!dep) {
@@ -445,6 +457,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 	for(; x < buffer_len && (*(buffer + x) != '\n'); x++);
         line_count++;
     }
+    //done last because buffer is shared
     for(int i = 0; i < file->deps->used_nodes; i++) { //now recurse
 	if(!file->deps->children[i]->deps)
 	    findDeps(file->deps->children[i]);
