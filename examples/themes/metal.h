@@ -40,18 +40,19 @@ public:
 		      const QColorGroup &cg,
 		      SFlags how = Style_Default,
 		      void **data = 0 ) const;
-    
-    void drawButton( QPainter *p, int x, int y, int w, int h,
-			     const QColorGroup &g, bool sunken = FALSE,
-			     const QBrush *fill = 0 );
-    void drawBevelButton( QPainter *p, int x, int y, int w, int h,
-			  const QColorGroup &g, bool sunken = FALSE,
-			  const QBrush *fill = 0 );
-
-    void drawPushButton( QPushButton* btn, QPainter *p);
-    void drawPushButtonLabel( QPushButton* btn, QPainter *p);
+    void drawComplexControl( ComplexControl cc,
+			     QPainter *p,
+			     const QWidget *widget,
+			     const QRect &r,
+			     const QColorGroup &cg,
+			     SFlags how = Style_Default,
+			     SCFlags sub = SC_All,
+			     SCFlags subActive = SC_None,
+			     void **data = 0 ) const;
 
 private:
+    void drawMetalButton( QPainter *p, int x, int y, int w, int h,
+			  bool sunken, bool horz ) const;
     QPalette oldPalette;
 };
 

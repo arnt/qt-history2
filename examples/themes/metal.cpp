@@ -10,6 +10,7 @@
 
 #include "metal.h"
 #include "qapplication.h"
+#include "qcombobox.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now
 #include "qpixmap.h" // for now
@@ -21,11 +22,11 @@
 #include "qwidget.h"
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
+#include "qslider.h"
 #include <limits.h>
 
 
 /////////////////////////////////////////////////////////
-#include "metal.xpm"
 #include "stonedark.xpm"
 #include "stone1.xpm"
 #include "marble.xpm"
@@ -177,7 +178,28 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe,
 				const QColorGroup &cg,
 				SFlags flags ) const
 {
-    QWindowsStyle::drawPrimitive( pe, p, r, cg, flags );
+    switch( pe ) {
+    case PE_ButtonBevel:
+    case PE_ButtonCommand:
+	{
+	    drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
+			     bool(flags & (Style_Sunken|Style_On|Style_Down)), TRUE );
+	    break;
+	}
+//     case PE_ScrollBarAddLine:
+// 	{
+// 	    int b = 2;
+// 	    int w;
+// 	    if ( flags & Style_Horizontal )
+// 		w = r.height();
+// 	    else
+// 		r.width();	    
+// 	    bool sunken = flags & Style_Sunken;
+// 	    QRect rect( b, b, 
+    default:
+	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags );
+	break;
+    }
 }
 
 void MetalStyle::drawControl( ControlElement element,
@@ -188,143 +210,250 @@ void MetalStyle::drawControl( ControlElement element,
 			      SFlags how,
 			      void **data ) const
 {
-    QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
-}
-
-
-
-/*!
-  Reimplementation from QStyle
- */
-void MetalStyle::drawButton( QPainter *p, int x, int y, int w, int h,
-			     const QColorGroup &, bool sunken, const QBrush*)
-{
-
-    static QImage *img1;
-    if ( !img1 ) {
-	img1 = new QImage(metal_xpm);
+    switch( element ) {
+    case CE_PushButton:
+	{
+	    const QPushButton *btn;
+	    btn = (const QPushButton*)widget;
+	    int x1, y1, x2, y2;
+	    
+	    r.coords( &x1, &y1, &x2, &y2 );
+	    
+	    p->setPen( cg.foreground() );
+	    p->setBrush( QBrush(cg.button(), NoBrush) );
+	    
+	    QBrush fill;
+	    if ( btn->isDown() )
+		fill = cg.brush( QColorGroup::Mid );
+	    else if ( btn->isOn() )
+		fill = QBrush( cg.mid(), Dense4Pattern );
+	    else
+		fill = cg.brush( QColorGroup::Button );
+	    
+	    if ( btn->isDefault() ) {
+		QPointArray a;
+		a.setPoints( 9,
+			     x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
+			     x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
+		p->setPen( Qt::black );
+		p->drawPolyline( a );
+		x1 += 2;
+		y1 += 2;
+		x2 -= 2;
+		y2 -= 2;
+	    }
+	    SFlags flags = Style_Default;
+	    if ( btn->isOn() )
+		flags |= Style_On;
+	    if ( btn->isDown() )
+		flags |= Style_Down;
+	    drawPrimitive( PE_ButtonCommand, p, 
+			   QRect( x1, y1, x2 - x1 + 1, y2 - y1 + 1),
+			   cg, flags );
+	    
+	    if ( btn->isMenuButton() ) {
+		flags = Style_Default;
+		if ( btn->isEnabled() )
+		    flags |= Style_Enabled;
+		
+		int dx = ( y1 - y2 - 4 ) / 3;
+		drawPrimitive( PE_ArrowDown, p, QRect(x2 - dx, dx, y1, y2 - y1),
+			       cg, flags );
+	    }
+	    if ( p->brush().style() != NoBrush )
+		p->setBrush( NoBrush );
+	    break;
+	}
+    case CE_PushButtonLabel:
+	{
+	    const QPushButton *btn;
+	    btn = (const QPushButton*)widget;
+	    int x, y, w, h;
+	    r.rect( &x, &y, &w, &h );
+	    
+	    int x1, y1, x2, y2;
+	    r.coords( &x1, &y1, &x2, &y2 );
+	    int dx = 0;
+	    int dy = 0;
+	    if ( btn->isMenuButton() )
+		dx = ( y2 - y1 ) / 3;
+	    if ( btn->isOn() || btn->isDown() ) {
+		dx--;
+		dy--;
+	    }
+	    if ( dx || dy )
+		p->translate( dx, dy );
+	    x += 2;
+	    y += 2;
+	    w -= 4;
+	    h -= 4;
+	    drawItem( p, QRect( x, y, w, h ),
+		      AlignCenter|ShowPrefix,
+		      cg, btn->isEnabled(),
+		      btn->pixmap(), btn->text(), -1,
+		      (btn->isDown() || btn->isOn())? &cg.brightText() : &cg.buttonText() );
+	    if ( dx || dy )
+		p->translate( -dx, -dy );
+	    break;
+	}
+    default:
+	QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
+	break;
     }
-
-    QImage scaledImage = img1->smoothScale( w, h );
-    QPixmap pix;
-    pix.convertFromImage( scaledImage );
-    p->drawPixmap( x, y, pix );
-    QColorGroup g2;
-    g2.setColor( QColorGroup::Light,  white  );
-    g2.setColor( QColorGroup::Dark,  black  );
-    qDrawShadePanel( p, x, y, w, h, g2, sunken, sunken?2:1);
-	
-
-//    static QPixmap* darkpixmap = 0;
-//    if (!pixmap) {
-//	  pixmap = new QPixmap;
-//	  pixmap->convertFromImage(img);
-//	  for (int i=0; i<img.numColors(); i++) {
-//	      QRgb rgb = img.color(i);
-//	      QColor c(rgb);
-//	      rgb = c.dark().rgb();
-//	      img.setColor(i,rgb);
-//	  }
-//	  darkpixmap = new QPixmap;
-//	  darkpixmap->convertFromImage(img);
-//    }
-//    if (!pixmap)
-//	  return;
-//    p->drawPixmap( x, y, *pixmap );
-
 }
-
-/*!
-  Reimplementation from QStyle
- */
-void MetalStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
-				const QColorGroup &g, bool sunken, const QBrush* fill)
+void MetalStyle::drawComplexControl( ComplexControl cc,
+				     QPainter *p,
+				     const QWidget *widget,
+				     const QRect &r,
+				     const QColorGroup &cg,
+				     SFlags how,
+				     SCFlags sub,
+				     SCFlags subActive,
+				     void **data ) const
 {
-    MetalStyle::drawButton(p, x, y, w, h, g, sunken, fill);
-}
-
-/*!
-  Reimplementation from QStyle
- */
-void MetalStyle::drawPushButton( QPushButton* btn, QPainter *p)
-{
-    QColorGroup g = btn->colorGroup();
-    int x1, y1, x2, y2;
-
-    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
-
-    p->setPen( g.foreground() );
-    p->setBrush( QBrush(g.button(),NoBrush) );
-
-    QBrush fill;
-    if ( btn->isDown() )
-	fill = g.brush( QColorGroup::Mid );
-    else if ( btn->isOn() )
-	fill = QBrush( g.mid(), Dense4Pattern );
-    else
-	fill = g.brush( QColorGroup::Button );	
-
-    if ( btn->isDefault() ) {
-	QPointArray a;
-	a.setPoints( 9,
-		     x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
-		     x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
-	p->setPen( Qt::black );
-	p->drawPolyline( a );
-	x1 += 2;
-	y1 += 2;
-	x2 -= 2;
-	y2 -= 2;
+    switch ( cc ) {
+    case CC_Slider:
+	{
+	    const QSlider *slider = ( const QSlider* ) widget;
+	    QRect handle = querySubControlMetrics( CC_Slider, widget,
+						   SC_SliderHandle, data);
+	    if ( sub & SC_SliderGroove )
+		QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how, 
+						   SC_SliderGroove, subActive, data );
+	    if ( (sub & SC_SliderHandle) && handle.isValid() )
+		drawMetalButton( p, handle.x(), handle.y(), handle.width(),
+				 handle.height(), FALSE, 
+				 slider->orientation() == QSlider::Horizontal);
+	    break;
+	}
+    case CC_ComboBox:
+	{
+	    // not exactly correct...
+	    const QComboBox *cmb = ( const QComboBox* ) widget;
+	    
+	    qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), cg, TRUE,
+			   cmb->isEnabled() ? &cg.brush( QColorGroup::Base ) :
+			                      &cg.brush( QColorGroup::Background ) );
+	    drawMetalButton( p, r.x() + r.width() - 2 - 16, r.y() + 2, 16, r.height() - 4,
+			     how & Style_Sunken, TRUE );
+	    drawPrimitive( PE_ArrowDown, p, QRect( r.x() + r.width() - 2 - 16 + 2,
+						   r.y() + 2 + 2, 16 - 4, r.height() - 4 -4 ),
+			   cg, cmb->isEnabled() ? Style_Enabled : Style_Default );
+	    break;
+	}
+			  
+    default:
+	QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how, sub, subActive,
+					   data );
+	break;
     }
-	
-    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(), &fill);
-	
+}
+		
+		
 
-    if ( btn->isMenuButton() ) {
-	int dx = (y1-y2-4)/3;
-	/*
-	drawArrow( p, DownArrow, FALSE,
-		   x2 - dx, dx, y1, y2 - y1,
-		   g, btn->isEnabled() );
+
+
+/*!
+  Draw a metallic button, sunken if \a sunken is TRUE, horizontal if 
+  /a horz is TRUE.
 */
-    }
 
-    if ( p->brush().style() != NoBrush )
-	p->setBrush( NoBrush );
-
-}
-
-
-/*!
-  Reimplementation from QStyle
- */
-void MetalStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
+void MetalStyle::drawMetalButton( QPainter *p, int x, int y, int w, int h,
+				  bool sunken, bool horz ) const
 {
-    QRect r = btn->rect();
-    int x, y, w, h;
-    r.rect( &x, &y, &w, &h );
+    QColor top1("#878769691515");
+    QColor top2("#C6C6B4B44949");
+    
+    QColor bot2("#70705B5B1414");
+    QColor bot1("56564A4A0E0E"); //first from the bottom
+    
+    QColor highlight("#E8E8DDDD6565");
+    QColor subh1("#CECEBDBD5151");
+    QColor subh2("#BFBFACAC4545");
+    
+    QColor topgrad("#B9B9A5A54040");
+    QColor botgrad("#89896C6C1A1A");
+    
 
-    int x1, y1, x2, y2;
-    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
-    int dx = 0;
-    int dy = 0;
-    if ( btn->isMenuButton() )
-	dx = (y2-y1) / 3;
-    if ( btn->isOn() || btn->isDown() ) {
-	dx--;
-	dy--;
+    int x2 = x + w - 1;
+    int y2 = y + h - 1;
+    
+    //frame:
+    
+    p->setPen( top1 );
+    p->drawLine( x, y2, x, y );
+    p->drawLine( x, y, x2-1, y );
+    p->setPen( top2 );
+    p->drawLine( x+1, y2 -1, x+1, y+1 );
+    p->drawLine( x+1, y+1 , x2-2, y+1 );
+
+    p->setPen( bot1 );
+    p->drawLine( x+1, y2, x2, y2 );
+    p->drawLine( x2, y2, x2, y );
+    p->setPen( bot2 );
+    p->drawLine( x+1, y2-1, x2-1, y2-1 );
+    p->drawLine( x2-1, y2-1, x2-1, y+1 );
+
+    // highlight:
+    int i = 0;
+    int x1 = x + 2;
+    int y1 = y + 2;
+    if ( horz ) 
+	x2 = x2 - 2; 
+    else
+	y2 = y2 - 2;
+    // Note that x2/y2 mean something else from this point down...
+
+#define DRAWLINE if (horz) \
+                    p->drawLine( x1, y1+i, x2, y1+i ); \
+		 else \
+                    p->drawLine( x1+i, y1, x1+i, y2 ); \
+                 i++; 
+    
+    if ( !sunken ) {
+	p->setPen( highlight );
+	DRAWLINE;
+	DRAWLINE;
+	p->setPen( subh1 );
+	DRAWLINE;
+	p->setPen( subh2 );
+	DRAWLINE;
     }
-    if ( dx || dy )
-	p->translate( dx, dy );
+    // gradient:
+    int ng = (horz ? h : w) - 8; // how many lines for the gradient?
+    
+    int h1, h2, s1, s2, v1, v2;
+    if ( !sunken ) {
+	topgrad.hsv( &h1, &s1, &v1 );
+	botgrad.hsv( &h2, &s2, &v2 );
+    } else {
+	botgrad.hsv( &h1, &s1, &v1 );
+	topgrad.hsv( &h2, &s2, &v2 );
+    }
+    
+    if ( ng > 1 ) {
+	
+	for ( int j =0; j < ng; j++ ) {
+	    p->setPen( QColor( h1 + ((h2-h1)*j)/(ng-1), 
+			       s1 + ((s2-s1)*j)/(ng-1), 
+			       v1 + ((v2-v1)*j)/(ng-1),  QColor::Hsv ) ); 
+	    DRAWLINE;
+	}
+    } else if ( ng == 1 ) {
+	p->setPen( QColor( (h1+h2)/2, (s1+s2)/2, (v1+v2)/2, QColor::Hsv ) ); 
+	DRAWLINE;
+    }
+    if ( sunken ) {
+	p->setPen( subh2 );
+	DRAWLINE;
+	
+	p->setPen( subh1 );
+	DRAWLINE;
 
-    x += 2;  y += 2;  w -= 4;  h -= 4;
-    QColorGroup g = btn->colorGroup();
-    drawItem( p, QRect(x, y, w, h),
-	      AlignCenter|ShowPrefix,
-	      g, btn->isEnabled(),
-	      btn->pixmap(), btn->text(), -1,
-	      (btn->isDown() || btn->isOn())?&btn->colorGroup().brightText():&btn->colorGroup().buttonText());
-
-    if ( dx || dy )
-	p->translate( -dx, -dy );
+	p->setPen( highlight );
+	DRAWLINE;
+	DRAWLINE;
+    }
+    
 }
+
