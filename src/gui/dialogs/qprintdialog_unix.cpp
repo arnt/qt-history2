@@ -1322,7 +1322,8 @@ void QPrintDialogPrivate::setNumCopies(int copies)
 
 void QPrintDialogPrivate::browseClicked()
 {
-    QString fn = QFileDialog::getSaveFileName(fileName->text(), q->tr("PostScript Files (*.ps);;All Files (*)"), q);
+    QString fn = QFileDialog::getSaveFileName(q, QString(), fileName->text(),
+                                              q->tr("PostScript Files (*.ps);;All Files (*)"));
     if (!fn.isNull())
         fileName->setText(fn);
 }
