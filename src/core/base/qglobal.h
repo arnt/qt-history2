@@ -912,6 +912,11 @@ class QDataStream;
 #    else
 #      define Q_XML_EXPORT __declspec(dllimport)
 #    endif
+#    if defined(QT_BUILD_CANVAS_LIB)
+#      define Q_CANVAS_EXPORT __declspec(dllexport)
+#    else
+#      define Q_CANVAS_EXPORT __declspec(dllimport)
+#    endif
 #    if defined(QT_BUILD_COMPAT_LIB)
 #      define Q_COMPAT_EXPORT __declspec(dllexport)
 #    else
@@ -924,6 +929,7 @@ class QDataStream;
 #    define Q_GUI_EXPORT __declspec(dllimport)
 #    define Q_SQL_EXPORT __declspec(dllimport)
 #    define Q_NETWORK_EXPORT __declspec(dllimport)
+#    define Q_CANVAS_EXPORT __declspec(dllimport)
 #    define Q_OPENGL_EXPORT __declspec(dllimport)
 #    define Q_XML_EXPORT __declspec(dllimport)
 #    define Q_COMPAT_EXPORT __declspec(dllimport)
@@ -957,6 +963,10 @@ class QDataStream;
 
 #ifndef Q_NETWORK_EXPORT
 #  define Q_NETWORK_EXPORT
+#endif
+
+#ifndef Q_CANVAS_EXPORT
+#  define Q_CANVAS_EXPORT
 #endif
 
 #ifndef Q_OPENGL_EXPORT

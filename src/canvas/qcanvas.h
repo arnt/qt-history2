@@ -25,12 +25,6 @@
 #include "qpointarray.h"
 #endif // QT_H
 
-#if !defined( QT_MODULE_CANVAS ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_CANVAS )
-#define QM_EXPORT_CANVAS
-#else
-#define QM_EXPORT_CANVAS Q_GUI_EXPORT
-#endif
-
 #ifndef QT_NO_CANVAS
 
 
@@ -49,7 +43,7 @@ class QCanvasPixmap;
 class QCanvasItemList;
 class QCanvasItemExtra;
 
-class QM_EXPORT_CANVAS QCanvasItem : public Qt
+class Q_CANVAS_EXPORT QCanvasItem : public Qt
 {
 public:
     QCanvasItem(QCanvas* canvas);
@@ -173,7 +167,7 @@ private:
 
 class QCanvasData;
 
-class QM_EXPORT_CANVAS QCanvas : public QObject
+class Q_CANVAS_EXPORT QCanvas : public QObject
 {
     Q_OBJECT
 public:
@@ -319,7 +313,7 @@ private:
 
 class QCanvasViewData;
 
-class QM_EXPORT_CANVAS QCanvasView : public QScrollView
+class Q_CANVAS_EXPORT QCanvasView : public QScrollView
 {
     Q_OBJECT
 public:
@@ -358,7 +352,7 @@ private:
 };
 
 
-class QM_EXPORT_CANVAS QCanvasPixmap : public QPixmap
+class Q_CANVAS_EXPORT QCanvasPixmap : public QPixmap
 {
 public:
 #ifndef QT_NO_IMAGEIO
@@ -392,7 +386,7 @@ private:
 };
 
 
-class QM_EXPORT_CANVAS QCanvasPixmapArray
+class Q_CANVAS_EXPORT QCanvasPixmapArray
 {
 public:
     QCanvasPixmapArray();
@@ -433,7 +427,7 @@ private:
 };
 
 
-class QM_EXPORT_CANVAS QCanvasSprite : public QCanvasItem
+class Q_CANVAS_EXPORT QCanvasSprite : public QCanvasItem
 {
 public:
     QCanvasSprite(QCanvasPixmapArray* array, QCanvas* canvas);
@@ -511,7 +505,7 @@ private:
 
 class QPolygonalProcessor;
 
-class QM_EXPORT_CANVAS QCanvasPolygonalItem : public QCanvasItem
+class Q_CANVAS_EXPORT QCanvasPolygonalItem : public QCanvasItem
 {
 public:
     QCanvasPolygonalItem(QCanvas* canvas);
@@ -562,7 +556,7 @@ private:
 };
 
 
-class QM_EXPORT_CANVAS QCanvasRectangle : public QCanvasPolygonalItem
+class Q_CANVAS_EXPORT QCanvasRectangle : public QCanvasPolygonalItem
 {
 public:
     QCanvasRectangle(QCanvas* canvas);
@@ -600,7 +594,7 @@ private:
 };
 
 
-class QM_EXPORT_CANVAS QCanvasPolygon : public QCanvasPolygonalItem
+class Q_CANVAS_EXPORT QCanvasPolygon : public QCanvasPolygonalItem
 {
 public:
     QCanvasPolygon(QCanvas* canvas);
@@ -620,7 +614,7 @@ protected:
 };
 
 
-class QM_EXPORT_CANVAS QCanvasSpline : public QCanvasPolygon
+class Q_CANVAS_EXPORT QCanvasSpline : public QCanvasPolygon
 {
 public:
     QCanvasSpline(QCanvas* canvas);
@@ -640,7 +634,7 @@ private:
 };
 
 
-class QM_EXPORT_CANVAS QCanvasLine : public QCanvasPolygonalItem
+class Q_CANVAS_EXPORT QCanvasLine : public QCanvasPolygonalItem
 {
 public:
     QCanvasLine(QCanvas* canvas);
@@ -667,7 +661,7 @@ private:
 };
 
 
-class QM_EXPORT_CANVAS QCanvasEllipse : public QCanvasPolygonalItem
+class Q_CANVAS_EXPORT QCanvasEllipse : public QCanvasPolygonalItem
 {
 
 public:
@@ -709,7 +703,7 @@ private:
 
 class QCanvasTextExtra;
 
-class QM_EXPORT_CANVAS QCanvasText : public QCanvasItem
+class Q_CANVAS_EXPORT QCanvasText : public QCanvasItem
 {
 public:
     QCanvasText(QCanvas* canvas);
@@ -769,7 +763,7 @@ private:
 // If we want to be able to a Qt version that was compiled with MSVC 6, in a
 // project that uses MSVC .NET, we have to first export QList<QCanvasItem*> in
 // order to ensure that all symbols of QList as exported.
-class QM_EXPORT_CANVAS QCanvasItemList : public QList<QCanvasItem*> {
+class Q_CANVAS_EXPORT QCanvasItemList : public QList<QCanvasItem*> {
 public:
     void sort();
     void drawUnique( QPainter& painter );
