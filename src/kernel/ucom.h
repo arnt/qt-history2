@@ -21,6 +21,7 @@ struct UInterfaceDescription;
 #define URESULT_OK 0
 #define URESULT_TYPE_MISMATCH -1
 #define URESULT_INVALID_ID 5
+#define URESULT_FAILED -2
 
 
 // Universal unique interface ids
