@@ -17,7 +17,8 @@
 
     \title Debugging Techniques
 
-    Here we present some useful hints to debugging your Qt-based software.
+    Here we present some useful hints to help you with debugging your
+    Qt-based software.
 
     \section1 Command-Line Options Recognized by Qt
 
@@ -29,31 +30,39 @@
     \header \o Option \o Description
     \row \o \c -nograb
          \o The application should never grab \link QWidget::grabMouse()
-	    the mouse\endlink or \link QWidget::grabKeyboard() the
-	    keyboard \endlink. This option is set by default when the
-	    program is running in the \c gdb debugger under Linux.
+            the mouse\endlink or \link QWidget::grabKeyboard() the
+            keyboard \endlink. This option is set by default when the
+            program is running in the \c gdb debugger under Linux.
     \row \o \c -dograb
          \o Ignore any implicit or explicit \c{-nograb}. \c -dograb wins over
-	    \c -nograb even when \c -nograb is last on the command line.
+            \c -nograb even when \c -nograb is last on the command line.
     \row \o \c -sync
          \o Runs the application in X synchronous mode. Synchronous mode
-	    forces the X server to perform each X client request
-	    immediately and not use buffer optimization. It makes the
-	    program easier to debug and often much slower. The \c -sync
-	    option is only valid for the X11 version of Qt.
+            forces the X server to perform each X client request
+            immediately and not use buffer optimization. It makes the
+            program easier to debug and often much slower. The \c -sync
+            option is only valid for the X11 version of Qt.
     \endtable
 
     \section1 Warning and Debugging Messages
 
     Qt includes four global functions for writing out warning and debug
-    text.
+    text. You can use them for the following purposes:
+
     \list
-    \o qDebug() for writing debug output.
-    \o qWarning() writing warning output when program errors occur. 
-    \o qCritical() for writing critical error mesages when system errors
-       occur.
-    \o qFatal() for writing fatal error messages and exiting.
+    \o qDebug() is used for writing custom debug output.
+    \o qWarning() is used to report warnings and recoverable errors in
+       your application.
+    \o qCritical() is used for writing critical error mesages and
+       reporting system errors.
+    \o qFatal() is used for writing fatal error messages shortly before exiting.
     \endlist
+
+    Each of these functions can also be used as output streams; for example:
+
+    \code
+        qDebug() << "Widget" << widget << "at position" << widget->pos();
+    \endcode
 
     The Qt implementation of these functions prints the text to the
     \c stderr output under Unix/X11 and Mac OS X, and to the debugger
