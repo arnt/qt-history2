@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#119 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#120 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -28,6 +28,7 @@
 #ifndef QT_H
 #include "qobjectdefs.h"
 #include "qstring.h"
+#include "qnamespace.h"
 #endif // QT_H
 
 
@@ -177,17 +178,6 @@ Q_EXPORT void *qt_find_obj_child( QObject *, const char *, const char * );
 	((type*)qt_find_obj_child(parent,#type,name))
 
 
-// GUI styles
-
-enum GUIStyle {
-    MacStyle, // OBSOLETE
-    WindowsStyle,
-    Win3Style, // OBSOLETE
-    PMStyle, // OBSOLETE
-    MotifStyle
-};
-
-
 // Widget flags
 
 typedef uint WFlags;
@@ -241,7 +231,7 @@ class QOleDropTarget;
 //  - to minimize memory usage for members that are seldom used.
 
 struct QWExtra {
-    GUIStyle guistyle;				// GUI Style
+    Qt::GUIStyle guistyle;			// GUI Style
     short    minw, minh;			// minimum size
     short    maxw, maxh;			// maximum size
     short    incw, inch;			// size increments
@@ -273,24 +263,6 @@ struct QWExtra {
 enum RasterOp					// raster op/transfer mode
     { CopyROP, OrROP, XorROP, EraseROP,
       NotCopyROP, NotOrROP, NotXorROP, NotEraseROP, NotROP };
-
-
-// Text formatting flags for QPainter::drawText and QLabel
-
-const int AlignLeft	= 0x0001;		// text alignment
-const int AlignRight	= 0x0002;
-const int AlignHCenter	= 0x0004;
-const int AlignTop	= 0x0008;
-const int AlignBottom	= 0x0010;
-const int AlignVCenter	= 0x0020;
-const int AlignCenter	= AlignVCenter | AlignHCenter;
-
-const int SingleLine	= 0x0040;		// misc. flags
-const int DontClip	= 0x0080;
-const int ExpandTabs	= 0x0100;
-const int ShowPrefix	= 0x0200;
-const int WordBreak	= 0x0400;
-const int DontPrint	= 0x1000;		// internal
 
 
 // Image conversion flags

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#179 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#180 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -123,7 +123,7 @@ static void popupSubMenuLater( int msec, QObject * receiver ) {
 
 static void getSizeOfBitmap( int gs, int *w, int *h )
 {
-	if ( gs == WindowsStyle )
+	if ( gs == Qt::WindowsStyle )
 	    *w = *h = 7;
 	else
 	    *w = *h = 6;
@@ -143,7 +143,7 @@ int QPopupMenu::getWidthOfCheckCol() const
 
 // Checkmark drawing -- temporarily here...
 static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
-			    const QColorGroup &g, GUIStyle gs,
+			    const QColorGroup &g, Qt::GUIStyle gs,
 			    bool act, bool dis )
 {
     int markW, markH;
@@ -151,7 +151,7 @@ static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
     int posX = x + ( w - markW )/2 - 1;
     int posY = y + ( h - markH )/2;
 
-    if ( gs == WindowsStyle ) {
+    if ( gs == Qt::WindowsStyle ) {
 	// Could do with some optimizing/caching...
 	QPointArray a( 7*2 );
 	int i, xx, yy;

@@ -1,5 +1,5 @@
 #/****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.h#19 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.h#20 $
 **
 ** Definition of draw utilities
 **
@@ -27,6 +27,7 @@
 #ifndef QT_H
 #include "qpainter.h"
 #include "qpalette.h"
+#include "qnamespace.h"
 #endif // QT_H
 
 
@@ -100,12 +101,12 @@ void qDrawPlainRect( QPainter *p, const QRect &r, const QColor &,
 //
 
 Q_EXPORT
-QRect qItemRect( QPainter *p, GUIStyle gs, int x, int y, int w, int h,
+QRect qItemRect( QPainter *p, Qt::GUIStyle gs, int x, int y, int w, int h,
 		int flags, bool enabled,
 		const QPixmap *pixmap, const QString& text, int len=-1 );
 
 Q_EXPORT
-void qDrawItem( QPainter *p, GUIStyle gs, int x, int y, int w, int h,
+void qDrawItem( QPainter *p, Qt::GUIStyle gs, int x, int y, int w, int h,
 		int flags, const QColorGroup &g, bool enabled,
 		const QPixmap *pixmap, const QString& text,
 		int len=-1, bool bright_text = FALSE );
@@ -114,7 +115,7 @@ enum ArrowType
     { UpArrow, DownArrow, LeftArrow, RightArrow };
 
 Q_EXPORT
-void qDrawArrow( QPainter *p, ArrowType type, GUIStyle style, bool down,
+void qDrawArrow( QPainter *p, ArrowType type, Qt::GUIStyle style, bool down,
 		 int x, int y, int w, int h,
 		 const QColorGroup &g, bool enabled );
 

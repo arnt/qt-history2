@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#16 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#17 $
 **
 ** Definition of QToolBar class
 **
@@ -48,7 +48,6 @@ public:
 
     void addSeparator();
 
-    enum Orientation { Horizontal, Vertical };
     virtual void setOrientation( Orientation );
     Orientation orientation() const { return o; }
 

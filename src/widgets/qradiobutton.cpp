@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#89 $
 **
 ** Implementation of QRadioButton class
 **
@@ -50,12 +50,12 @@
 */
 
 
-static QSize sizeOfBitmap( GUIStyle gs )
+static QSize sizeOfBitmap( Qt::GUIStyle gs )
 {
     switch ( gs ) {
-	case WindowsStyle:
+	case Qt::WindowsStyle:
 	    return QSize(12,12);
-	case MotifStyle:
+	case Qt::MotifStyle:
 	    return QSize(13,13);
 	default:
 	    return QSize(10,10);

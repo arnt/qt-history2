@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#85 $
 **
 ** Implementation of QCheckBox class
 **
@@ -87,7 +87,7 @@ QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )
 
 static int extraWidth( int gs )
 {
-    if ( gs == MotifStyle )
+    if ( gs == Qt::MotifStyle )
 	return 8;
     else
 	return 6;

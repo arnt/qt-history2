@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#29 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#30 $
 **
 ** Definition of QSlider class
 **
@@ -38,7 +38,6 @@ class Q_EXPORT QSlider : public QWidget, public QRangeControl
 {
     Q_OBJECT
 public:
-    enum Orientation { Horizontal, Vertical };
     enum TickSetting { NoMarks = 0, Above = 1, Left = Above,
 		       Below = 2, Right = Below, Both = 3 };
 
@@ -86,7 +85,7 @@ protected:
     void	focusOutEvent( QFocusEvent *e );
 
     void updateMask();
-    
+
     void	valueChange();
     void	rangeChange();
 
@@ -99,7 +98,7 @@ protected:
     void	drawTicks( QPainter *,  int, int, int=1 ) const;
 
     virtual int	thickness() const;
-    
+
 
 private slots:
     void	repeatTimeout();

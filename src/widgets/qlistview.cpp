@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#156 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#157 $
 **
 ** Implementation of QListView widget class
 **
@@ -106,7 +106,7 @@ struct QListViewPrivate
 
     class ViewColumnInfo {
       public:
-	ViewColumnInfo(): align(AlignLeft), sortable(TRUE), next( 0 ) {}
+	ViewColumnInfo(): align(Qt::AlignLeft), sortable(TRUE), next( 0 ) {}
 	~ViewColumnInfo() { delete next; }
 	int align;
 	bool sortable;

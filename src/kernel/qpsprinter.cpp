@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#71 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2437,7 +2437,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    stream << COLOR(*(p[0].color)) << "BC\n";
 	    break;
 	case PDC_SETBKMODE:
-	    if ( p[0].ival == TransparentMode )
+	    if ( p[0].ival == Qt::TransparentMode )
 		stream << "/OMo false def\n";
 	    else
 		stream << "/OMo true def\n";
@@ -2658,7 +2658,7 @@ void QPSPrinter::resetDrawingTools( QPainter *paint )
 	cmd( PDC_SETBKCOLOR, paint, param );
 
     param[0].ival = paint->backgroundMode();
-    if (param[0].ival != TransparentMode )
+    if (param[0].ival != Qt::TransparentMode )
 	cmd( PDC_SETBKMODE, paint, param );
 
     param[0].font = &paint->font();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#38 $
 **
 ** Implementation of draw utilities
 **
@@ -494,7 +494,7 @@ void qDrawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,
 }
 
 
-QRect qItemRect( QPainter *p, GUIStyle gs,
+QRect qItemRect( QPainter *p, Qt::GUIStyle gs,
 		int x, int y, int w, int h,
 		int flags,
 		bool enabled,
@@ -504,18 +504,18 @@ QRect qItemRect( QPainter *p, GUIStyle gs,
     QRect result;
 
     if ( pixmap ) {
-	if ( (flags & AlignVCenter) == AlignVCenter )
+	if ( (flags & Qt::AlignVCenter) == Qt::AlignVCenter )
 	    y += h/2 - pixmap->height()/2;
-	else if ( (flags & AlignBottom) == AlignBottom)
+	else if ( (flags & Qt::AlignBottom) == Qt::AlignBottom)
 	    y += h - pixmap->height();
-	if ( (flags & AlignRight) == AlignRight )
+	if ( (flags & Qt::AlignRight) == Qt::AlignRight )
 	    x += w - pixmap->width();
-	else if ( (flags & AlignHCenter) == AlignHCenter )
+	else if ( (flags & Qt::AlignHCenter) == Qt::AlignHCenter )
 	    x += w/2 - pixmap->width()/2;
 	result = QRect(x, y, pixmap->width(), pixmap->height());
     } else if ( !text.isNull() && p ) {
 	result = p->boundingRect( x, y, w, h, flags, text, len );
-	if ( gs == WindowsStyle && !enabled ) {
+	if ( gs == Qt::WindowsStyle && !enabled ) {
 	    result.setWidth(result.width()+1);
 	    result.setHeight(result.height()+1);
 	}
@@ -527,7 +527,7 @@ QRect qItemRect( QPainter *p, GUIStyle gs,
 }
 
 
-void qDrawItem( QPainter *p, GUIStyle gs,
+void qDrawItem( QPainter *p, Qt::GUIStyle gs,
 		int x, int y, int w, int h,
 		int flags,
 		const QColorGroup &g, bool enabled,
@@ -537,20 +537,20 @@ void qDrawItem( QPainter *p, GUIStyle gs,
     p->setPen( bright?g.brightText():g.text() );
     if ( pixmap ) {
 	QPixmap  pm( *pixmap );
-	bool clip = (flags & DontClip) == 0;
+	bool clip = (flags & Qt::DontClip) == 0;
 	if ( clip ) {
 	    if ( pm.width() < w && pm.height() < h )
 		clip = FALSE;
 	    else
 		p->setClipRect( x, y, w, h );
 	}
-	if ( (flags & AlignVCenter) == AlignVCenter )
+	if ( (flags & Qt::AlignVCenter) == Qt::AlignVCenter )
 	    y += h/2 - pm.height()/2;
-	else if ( (flags & AlignBottom) == AlignBottom)
+	else if ( (flags & Qt::AlignBottom) == Qt::AlignBottom)
 	    y += h - pm.height();
-	if ( (flags & AlignRight) == AlignRight )
+	if ( (flags & Qt::AlignRight) == Qt::AlignRight )
 	    x += w - pm.width();
-	else if ( (flags & AlignHCenter) == AlignHCenter )
+	else if ( (flags & Qt::AlignHCenter) == Qt::AlignHCenter )
 	    x += w/2 - pm.width()/2;
 	if ( !enabled ) {
 	    if ( pm.mask() ) {			// pixmap with a mask
@@ -574,7 +574,7 @@ void qDrawItem( QPainter *p, GUIStyle gs,
 		pm = *mask;
 		if (del) delete mask;
 	    }
-	    if ( gs == WindowsStyle ) {
+	    if ( gs == Qt::WindowsStyle ) {
 		p->setPen( g.light() );
 		p->drawPixmap( x+1, y+1, pm );
 		p->setPen( g.text() );
@@ -584,7 +584,7 @@ void qDrawItem( QPainter *p, GUIStyle gs,
 	if ( clip )
 	    p->setClipping( FALSE );
     } else if ( !text.isNull() ) {
-	if ( gs == WindowsStyle && !enabled ) {
+	if ( gs == Qt::WindowsStyle && !enabled ) {
 	    p->setPen( g.light() );
 	    p->drawText( x+1, y+1, w, h, flags, text, len );
 	    p->setPen( g.text() );
@@ -851,15 +851,15 @@ static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
 }
 
 
-void qDrawArrow( QPainter *p, ArrowType type, GUIStyle style, bool down,
+void qDrawArrow( QPainter *p, ArrowType type, Qt::GUIStyle style, bool down,
 		 int x, int y, int w, int h,
 		 const QColorGroup &g, bool enabled )
 {
     switch ( style ) {
-	case WindowsStyle:
+	case Qt::WindowsStyle:
 	    qDrawWinArrow( p, type, down, x, y, w, h, g, enabled );
 	    break;
-	case MotifStyle:
+	case Qt::MotifStyle:
 	    qDrawMotifArrow( p, type, down, x, y, w, h, g, enabled );
 	    break;
 	default:

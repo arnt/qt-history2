@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#35 $
 **
 ** Implementation of QMainWindow class
 **
@@ -479,7 +479,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 				QBoxLayout::Direction dockDirection,
 				bool mayNeedDockLayout,
 				bool justify,
-				GUIStyle style )
+				Qt::GUIStyle style )
 {
     if ( !dock || dock->isEmpty() )
 	return;
@@ -520,7 +520,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	}
     } while ( (t=dock->next()) != 0 );
 
-    if ( anyToolBars && style == MotifStyle )
+    if ( anyToolBars && style == Qt::MotifStyle )
 	dockLayout->addSpacing( 2 );
 
     if ( toolBarRowLayout && (!justify || !anyToolBars) )

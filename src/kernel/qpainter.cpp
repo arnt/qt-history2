@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#153 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#154 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1915,10 +1915,10 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 #define ISPRINT(x) ((x).row || (x).cell>' ')
     // ##### should use (unicode) QChar::isPrint() -- WWA to AG
 
-    bool wordbreak  = (tf & WordBreak)	== WordBreak;
-    bool expandtabs = (tf & ExpandTabs) == ExpandTabs;
-    bool singleline = (tf & SingleLine) == SingleLine;
-    bool showprefix = (tf & ShowPrefix) == ShowPrefix;
+    bool wordbreak  = (tf & Qt::WordBreak)	== Qt::WordBreak;
+    bool expandtabs = (tf & Qt::ExpandTabs) == Qt::ExpandTabs;
+    bool singleline = (tf & Qt::SingleLine) == Qt::SingleLine;
+    bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
 
     int	 spacewidth = CWIDTH( QChar(' ') );	// width of space char
 
@@ -2078,16 +2078,16 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     int	    xp, yp;
     int	    xc;					// character xp
 
-    if ( (tf & AlignVCenter) == AlignVCenter )	// vertically centered text
+    if ( (tf & Qt::AlignVCenter) == Qt::AlignVCenter )	// vertically centered text
 	yp = h/2 - nlines*fheight/2;
-    else if ( (tf & AlignBottom) == AlignBottom)// bottom aligned
+    else if ( (tf & Qt::AlignBottom) == Qt::AlignBottom)// bottom aligned
 	yp = h - nlines*fheight;
     else					// top aligned
 	yp = 0;
     maxwidth -= fm.minLeftBearing()+fm.minRightBearing();
-    if ( (tf & AlignRight) == AlignRight ) {
+    if ( (tf & Qt::AlignRight) == Qt::AlignRight ) {
 	xp = w - maxwidth;			// right aligned
-    } else if ( (tf & AlignHCenter) == AlignHCenter ) {
+    } else if ( (tf & Qt::AlignHCenter) == Qt::AlignHCenter ) {
 	xp = w/2 - maxwidth/2;			// centered text
     } else {
 	xp = 0;				// left aligned
@@ -2095,11 +2095,11 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 
 #if defined(CHECK_RANGE)
     int hAlignFlags = 0;
-    if ( (tf & AlignRight) == AlignRight )
+    if ( (tf & Qt::AlignRight) == Qt::AlignRight )
 	hAlignFlags++;
-    if ( (tf & AlignHCenter) == AlignHCenter )
+    if ( (tf & Qt::AlignHCenter) == Qt::AlignHCenter )
 	hAlignFlags++;
-    if ( (tf & AlignLeft ) == AlignLeft )
+    if ( (tf & Qt::AlignLeft ) == Qt::AlignLeft )
 	hAlignFlags++;
 
     if ( hAlignFlags > 1 )
@@ -2108,11 +2108,11 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 		);
 
     int vAlignFlags = 0;
-    if ( (tf & AlignTop) == AlignTop )
+    if ( (tf & Qt::AlignTop) == Qt::AlignTop )
 	vAlignFlags++;
-    if ( (tf & AlignVCenter) == AlignVCenter )
+    if ( (tf & Qt::AlignVCenter) == Qt::AlignVCenter )
 	vAlignFlags++;
-    if ( (tf & AlignBottom ) == AlignBottom )
+    if ( (tf & Qt::AlignBottom ) == Qt::AlignBottom )
 	vAlignFlags++;
 
     if ( hAlignFlags > 1 )
@@ -2125,7 +2125,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     if ( brect )				// set bounding rect
 	*brect = br;
 
-    if ( !painter || (tf & DontPrint) != 0 ) {	// can't/don't print any text
+    if ( !painter || (tf & Qt::DontPrint) != 0 ) {	// can't/don't print any text
 	if ( code_alloc )
 	    free( codes );
 	return;
@@ -2137,9 +2137,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     bool    clip_on  = painter->testf(QPainter::ClipOn);
 
     if ( br.x() >= x && br.y() >= y && br.width() < w && br.height() < h )
-	tf |= DontClip;				// no need to clip
+	tf |= Qt::DontClip;				// no need to clip
 
-    if ( (tf & DontClip) == 0 ) {		// clip text
+    if ( (tf & Qt::DontClip) == 0 ) {		// clip text
 	QRegion new_rgn;
 	QRect r( x, y, w, h );
 	if ( painter->txop == TxRotShear ) {		// world xform active
@@ -2177,9 +2177,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	    continue;
 	}
 
-	if ( (tf & AlignRight) == AlignRight ) {
+	if ( (tf & Qt::AlignRight) == Qt::AlignRight ) {
 	    xc = w - tw + fm.minRightBearing();
-	} else if ( (tf & AlignHCenter) == AlignHCenter ) {
+	} else if ( (tf & Qt::AlignHCenter) == Qt::AlignHCenter ) {
 	    xc = w/2 - (tw-fm.minLeftBearing()-fm.minRightBearing())/2
 		 - fm.minLeftBearing();
 	} else {
@@ -2238,7 +2238,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	delete pm;
     }
 
-    if ( (tf & DontClip) == 0 ) {		// restore clipping
+    if ( (tf & Qt::DontClip) == 0 ) {		// restore clipping
 	if ( clip_on ) {			// set original region
 	    painter->setClipRegion( save_rgn );
 	} else {				// clipping was off

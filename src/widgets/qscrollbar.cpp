@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#106 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#107 $
 **
 ** Implementation of QScrollBar class
 **
@@ -934,7 +934,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 #undef SUB_LINE_ACTIVE
 
 
-void qDrawArrow( QPainter *p, ArrowType type, GUIStyle style, bool down,
+void qDrawArrow( QPainter *p, ArrowType type, Qt::GUIStyle style, bool down,
 		 int x, int y, int w, int h,
 		 const QColorGroup & g )
 {

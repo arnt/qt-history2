@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#25 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#26 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -34,8 +34,6 @@ class Q_EXPORT QHeader : public QTableView
 {
     Q_OBJECT
 public:
-    enum Orientation { Horizontal, Vertical };
-
     QHeader( QWidget *parent=0, const char *name=0 );
     QHeader( int, QWidget *parent=0, const char *name=0 );
     ~QHeader();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#53 $
 **
 ** Implementation of QPicture class
 **
@@ -380,7 +380,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PDC_SETBKMODE:
 		s >> i_8;
-		painter->setBackgroundMode( (BGMode)i_8 );
+		painter->setBackgroundMode( (Qt::BGMode)i_8 );
 		break;
 	    case PDC_SETROP:
 		s >> i_8;

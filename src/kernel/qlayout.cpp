@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#52 $
 **
 ** Implementation of layout classes
 **
@@ -120,13 +120,13 @@ void QLayoutBox::setGeometry( const QRect &r )
 	    QSize s = r.size().boundedTo( wid->maximumSize() );
 	    int x = r.x();
 	    int y = r.y();
-	    if ( align & AlignHCenter )
+	    if ( align & Qt::AlignHCenter )
 		x = x + ( r.width() - s.width() ) / 2;
-	    else if ( align & AlignRight )
+	    else if ( align & Qt::AlignRight )
 		x = x + ( r.width() - s.width() );
-	    if ( align & AlignVCenter )
+	    if ( align & Qt::AlignVCenter )
 		y = y + ( r.height() - s.height() ) / 2;
-	    else if ( align & AlignBottom )
+	    else if ( align & Qt::AlignBottom )
 		y = y + ( r.height() - s.height() );
 	    wid->setGeometry( x, y, s.width(), s.height() );
 	} else {

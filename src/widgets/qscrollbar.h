@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#37 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#38 $
 **
 ** Definition of QScrollBar class
 **
@@ -34,8 +34,6 @@ class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
 {
     Q_OBJECT
 public:
-    enum Orientation { Horizontal, Vertical };
-
     QScrollBar( QWidget *parent=0, const char *name=0 );
     QScrollBar( Orientation, QWidget *parent=0, const char *name=0 );
     QScrollBar( int minValue, int maxValue, int LineStep, int PageStep,
@@ -125,7 +123,7 @@ inline int QScrollBar::sliderStart() const
 }
 
 
-void qDrawArrow( QPainter *, ArrowType type, GUIStyle style, bool down,
+void qDrawArrow( QPainter *, ArrowType type, Qt::GUIStyle style, bool down,
 		 int x, int y, int w, int h, const QColorGroup & );
 
 

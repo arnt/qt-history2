@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#33 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#34 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -53,8 +53,9 @@ struct QProgressData
 	cancellation_flag( FALSE ),
 	showTime( defaultShowTime )
     {
-	label->setAlignment( that->style() != WindowsStyle ?
-			     AlignCenter : AlignLeft|AlignVCenter );
+	label->setAlignment( that->style() != Qt::WindowsStyle 
+			     ? Qt::AlignCenter
+			     : Qt::AlignLeft|Qt::AlignVCenter );
     }
 
     QWidget	 *creator;
@@ -98,7 +99,7 @@ struct QProgressData
   \endcode
 
   <img src=qprogdlg-m.gif> <img src=qprogdlg-w.gif>
-  
+
   \sa QDialog QProgressBar
   <a href="guibooks.html#fowler">GUI Design Handbook: Progress Indicator</a>
 */
@@ -559,7 +560,7 @@ void QProgressDialog::setMinimumDuration( int ms )
 
 /*!
   Returns the currently set minimum duration for the QProgressDialog
-  
+
   \sa setMinimumDuration()
 */
 int QProgressDialog::minimumDuration() const

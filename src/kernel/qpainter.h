@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#115 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#116 $
 **
 ** Definition of QPainter class
 **
@@ -38,20 +38,12 @@
 #endif // QT_H
 
 
-enum BGMode					// background mode
-    { TransparentMode, OpaqueMode };
-
-enum PaintUnit					// paint unit
-    { PixelUnit, LoMetricUnit, HiMetricUnit, LoEnglishUnit, HiEnglishUnit,
-      TwipsUnit };
-
-
 #if defined(_WS_WIN_)
 struct QWinFont;
 #endif
 
 
-class Q_EXPORT QPainter					// painter class
+class Q_EXPORT QPainter: public Qt		// painter class
 {
 public:
     QPainter();
@@ -366,7 +358,7 @@ inline const QColor &QPainter::backgroundColor() const
     return bg_col;
 }
 
-inline BGMode QPainter::backgroundMode() const
+inline Qt::BGMode QPainter::backgroundMode() const
 {
     return (BGMode)bg_mode;
 }
