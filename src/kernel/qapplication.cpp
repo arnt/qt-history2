@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#242 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#243 $
 **
 ** Implementation of QApplication class
 **
@@ -424,7 +424,7 @@ QApplication::QApplication( int &argc, char **argv )
         argc = 0;
         argv = &empty;
     }
-    qt_init( &argc, argv );
+    qt_init( &argc, argv );   // Must be called before initialize()
     process_cmdline( &argc, argv );
 
     initialize( argc, argv );
@@ -475,11 +475,6 @@ void QApplication::initialize( int argc, char **argv )
 	create_palettes();
 	app_pal = new QPalette( *stdPalette );
 	CHECK_PTR( app_pal );
-    }
-    if ( !app_font ) {				// font not already set
-        app_font = new QFont;
-        app_font->setCharSet( QFont::defaultFont().charSet() );
-        CHECK_PTR( app_font );
     }
     QWidget::createMapper();			// create widget mapper
     is_app_running = TRUE;			// no longer starting up
@@ -897,8 +892,7 @@ QFont QApplication::font( const QWidget* w )
 	}
     }
     if ( !app_font ) {
-        app_font = new QFont;
-        app_font->setCharSet( QFont::defaultFont().charSet() );
+        app_font = new QFont( "Helvtica" );
         CHECK_PTR( app_font );
     }
     return *app_font;

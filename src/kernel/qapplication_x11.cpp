@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#491 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#492 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -972,8 +972,9 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     // pick default character set (now that we have done setlocale stuff)
     QFont::locale_init();
-    QApplication::setFont( QFont( "Helvetica", 12 ) ); // default font,
-                                             // must come after locale_init()
+    QFont f( "Helvetica", 12 ); // default font
+    f.setCharSet( QFont::charSetForLocale() ); // must come after locale_init()
+    QApplication::setFont( f );
 }
 
 void qt_init( int *argcptr, char **argv )
