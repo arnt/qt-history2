@@ -44,6 +44,8 @@ public:
     bool isSortable() const;
     void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
 
+    void itemChanged(QListWidgetItem *item);
+
 private:
     QList<QListWidgetItem*> lst;
 };
@@ -188,6 +190,12 @@ void QListModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
     emit dataChanged(index(0, 0), index(lst.count() - 1, 0));
 }
 
+void QListModel::itemChanged(QListWidgetItem *item)
+{
+    QModelIndex idx = index(item);
+    emit dataChanged(idx, idx);
+}
+
 /*!
     \class QListWidgetItem
     \brief The QListWidgetItem class provides an item for use with the
@@ -216,7 +224,7 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
 }
 
 /*!
-    Destroys the list item.
+  Destroys the list item.
 */
 
 QListWidgetItem::~QListWidgetItem()
@@ -235,6 +243,8 @@ void QListWidgetItem::setData(int role, const QVariant &value)
         }
     }
     values.append(Data(role, value));
+    if (model)
+        model->itemChanged(this);
 }
 
 QVariant QListWidgetItem::data(int role) const

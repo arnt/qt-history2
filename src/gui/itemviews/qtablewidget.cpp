@@ -64,6 +64,7 @@ public:
     inline long tableIndex(int row, int column) const {  return (row * c) + column; }
 
     void clear();
+    void itemChanged(QTableWidgetItem *item);
 
 private:
     int r, c;
@@ -354,6 +355,12 @@ void QTableModel::clear()
     emit reset();
 }
 
+void QTableModel::itemChanged(QTableWidgetItem *item)
+{
+    QModelIndex idx = index(item);
+    emit dataChanged(idx, idx);
+}
+
 // item
 
 QTableWidgetItem::QTableWidgetItem()
@@ -387,6 +394,8 @@ void QTableWidgetItem::setData(int role, const QVariant &value)
         }
     }
     values.append(Data(role, value));
+    if (model)
+        model->itemChanged(this);
 }
 
 QVariant QTableWidgetItem::data(int role) const

@@ -49,6 +49,8 @@ public:
     bool isSortable() const;
     void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
 
+    void itemChanged(QTreeWidgetItem *item);
+
 protected:
     void append(QTreeWidgetItem *item);
     void remove(QTreeWidgetItem *item);
@@ -375,6 +377,12 @@ void QTreeModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
     emit dataChanged(index(0, 0, parent), index(count - 1, columnCount() - 1, parent));
 }
 
+void QTreeModel::itemChanged(QTreeWidgetItem *item)
+{
+    QModelIndex idx = index(item);
+    emit dataChanged(idx, idx);
+}
+
 /*!
   \internal
 
@@ -679,6 +687,10 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
         }
     }
     values[column].append(Data(role, value));
+    if (view) {
+        QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
+        model->itemChanged(this);
+    }
 }
 
 /*!

@@ -20,7 +20,7 @@
 
 class QHeaderModel : public QAbstractTableModel
 {
-    friend class QHeaderWidget;
+    friend class QHeaderWidgetItem;
 public:
     QHeaderModel(Qt::Orientation orientation, int sections, QHeaderWidget *parent);
     ~QHeaderModel();
@@ -42,10 +42,14 @@ public:
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null);
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool setHeaderData(int section, Qt::Orientation orientation, int role, QVariant &value);
+    
     int rowCount() const;
     int columnCount() const;
 
     void clear();
+    void itemChanged(QHeaderWidgetItem *item);
 
 private:
     QVector<QHeaderWidgetItem*> items;
@@ -154,6 +158,22 @@ QVariant QHeaderModel::data(const QModelIndex &, int) const
     return QVariant();
 }
 
+QVariant QHeaderModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation != this->orientation || section < 0 || section >= items.count())
+        return QVariant();
+    return items.at(section)->data(role);
+}
+
+bool QHeaderModel::setHeaderData(int section, Qt::Orientation orientation, int role, QVariant &value)
+{
+    if (orientation != this->orientation || section < 0 || section >= items.count())
+        return false;
+    items.at(section)->setData(role, value);
+    emit headerDataChanged(orientation, section, section);
+    return true;
+}
+
 int QHeaderModel::rowCount() const
 {
     return orientation == Qt::Vertical ? items.count() : 1;
@@ -173,17 +193,28 @@ void QHeaderModel::clear()
     emit reset();
 }
 
+void QHeaderModel::itemChanged(QHeaderWidgetItem *item)
+{
+    int sec = items.indexOf(item);
+    emit headerDataChanged(orientation, sec, sec);
+}
+
 // item
 
 QHeaderWidgetItem::QHeaderWidgetItem(QHeaderWidget *view)
     : itemFlags(QAbstractItemModel::ItemIsEnabled),
-      view(view)
+      model(model)
 {
+    if (view)
+        model = ::qt_cast<QHeaderModel*>(view->model());
 }
 
 QHeaderWidgetItem::~QHeaderWidgetItem()
 {
-    view->removeItem(this);
+    if (model) {
+        int sec = model->items.indexOf(this);
+        model->items[sec] = 0;
+    }
 }
 
 bool QHeaderWidgetItem::operator<(const QHeaderWidgetItem &other) const
@@ -201,6 +232,8 @@ void QHeaderWidgetItem::setData(int role, const QVariant &value)
         }
     }
     values.append(Data(role, value));
+    if (model)
+        model->itemChanged(this);
 }
 
 QVariant QHeaderWidgetItem::data(int role) const
@@ -266,11 +299,6 @@ QHeaderWidgetItem *QHeaderWidget::takeItem(int section)
 void QHeaderWidget::clear()
 {
     d->model()->clear();
-}
-
-void QHeaderWidget::removeItem(QHeaderWidgetItem *item)
-{
-    d->model()->removeItem(item);
 }
 
 void QHeaderWidget::setModel(QAbstractItemModel *model)

@@ -20,6 +20,7 @@ class QHeaderWidget;
 
 class Q_GUI_EXPORT QHeaderWidgetItem
 {
+    friend class QHeaderModel;
 public:
     QHeaderWidgetItem(QHeaderWidget *view);
     virtual ~QHeaderWidgetItem();
@@ -86,7 +87,7 @@ protected:
 
     QVector<Data> values;
     QAbstractItemModel::ItemFlags itemFlags;
-    QHeaderWidget *view;
+    QHeaderModel *model;
 };
 
 class QHeaderWidgetPrivate;
@@ -95,7 +96,6 @@ class Q_GUI_EXPORT QHeaderWidget : public QHeaderView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QHeaderWidget)
-    friend class QHeaderWidgetItem;
 
 public:
 #ifdef QT_COMPAT
@@ -117,7 +117,6 @@ signals:
     void clicked(QHeaderWidgetItem *item, Qt::ButtonState state);
 
 protected:
-    void removeItem(QHeaderWidgetItem *item);
     void setModel(QAbstractItemModel *model);
 
 private:
