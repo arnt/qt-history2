@@ -2274,7 +2274,7 @@ void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
 		if ( slot.language != "C++" )
 		    ts << " language=\"" << slot.language<< "\"";
 		if ( slot.returnType != "void" )
-		    ts << " returnType=\"" << slot.returnType  << "\"";
+		    ts << " returnType=\"" << entitize( slot.returnType ) << "\"";
 		ts << ">" << entitize( slot.slot ) << "</slot>" << endl;
 	    }
 	    indent--;
