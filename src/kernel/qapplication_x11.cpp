@@ -3963,12 +3963,6 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 
 void QApplication::openPopup( QWidget *popup )
 {
-    if (! activeWindow()) {
-	QWidget *tlw = popup->topLevelWidget();
-	if (tlw)
-	    tlw->setActiveWindow();
-    }
-
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
 	Q_CHECK_PTR( popupWidgets );
@@ -3986,6 +3980,11 @@ void QApplication::openPopup( QWidget *popup )
 			      None, None, CurrentTime );
 	if ( (popupGrabOk = (r == GrabSuccess)) ) {
 	    XAllowEvents( popup->x11Display(), SyncPointer, CurrentTime );
+	}
+	if (! activeWindow()) {
+	    QWidget *tlw = popup->topLevelWidget();
+	    if (tlw)
+		tlw->setActiveWindow();
 	}
     } else if ( popupGrabOk ) {
 	XAllowEvents(  popup->x11Display(), SyncPointer, CurrentTime );
