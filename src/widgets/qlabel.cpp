@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#36 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#36 $")
 
 
 /*----------------------------------------------------------------------------
@@ -47,8 +47,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#35 $")
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Constructs an empty label which is left-aligned, vertically centered and
-  without automatic resizing. The default margin is -1.
+  Constructs an empty label which is left-aligned, vertically centered,
+  without automatic resizing, and with automatic margin determination.
 
   The \e parent and \e name arguments are passed to the QFrame constructor.
 
@@ -61,13 +61,14 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
     initMetaObject();
     lpixmap    = 0;
     align      = AlignLeft | AlignVCenter | ExpandTabs;
-    marg       = -1;
+    extraMargin= -1;
     autoresize = FALSE;
 }
 
 /*----------------------------------------------------------------------------
-  Constructs a label with a text. The label is left-aligned, vertically
-  centered and without automatic resizing. The default margin is -1.
+  Constructs a label with a text. The label is left-aligned,
+  vertically centered,without automatic resizing, and with automatic
+  margin determination.
 
   The \e parent and \e name arguments are passed to the QFrame constructor.
 
@@ -80,7 +81,7 @@ QLabel::QLabel( const char *text, QWidget *parent, const char *name, WFlags f )
     initMetaObject();
     lpixmap    = 0;
     align      = AlignLeft | AlignVCenter | ExpandTabs;
-    marg       = -1;
+    extraMargin= -1;
     autoresize = FALSE;
 }
 
@@ -258,18 +259,15 @@ void QLabel::setAlignment( int alignment )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Sets the margin of the label to \e margin.
+  Sets the margin of the label to \e margin pixels.
 
-  The margin applies to the left edge if alignment() is \c AlignLeft,
-  to the right edge if alignment() is \c AlignRight, to the top edge
-  if alignment() is \c AlignTop, and to to the bottom edge if
-  alignment() is \c AlignBottom.
+  If \e margin is negative (as it is by default), the label computes a
+  hopefully suitable value itself.
 
-  The default margin value is -1. This special value makes the label
-  calculate a suitable margin. If the \link frameWidth() frame
-  width\endlink is zero, the effective margin becomes 0. If the frame style
-  is greater than zero, the effective margin becomes half the width of the
-  "x" character (of the widget's current \link font() font\endlink.
+  If the content is vertically centered (\c AlignVCenter), no extra
+  margin is added to the top or bottom edges.  If the content is
+  horizontally centered (\c AlignHCenter), no extra margin is added to
+  the left or right edges.
 
   Setting a non-negative margin gives the specified margin in pixels.
   
@@ -278,7 +276,7 @@ void QLabel::setAlignment( int alignment )
 
 void QLabel::setMargin( int margin )
 {
-    marg = margin;
+    extraMargin = margin;
 }
 
 
@@ -337,8 +335,8 @@ void QLabel::adjustSize()
 	else
 	    m = 0;
     }
-    int w = br.width()	+ m + 2*fw;
-    int h = br.height() + m + 2*fw;
+    int w = br.width() + 2*fw + ( (align & AlignHCenter) ? 0 : m );
+    int h = br.height() + 2*fw + ( (align & AlignVCenter) ? 0 : m );
     p.end();
     if ( w == width() && h == height() )
 	updateLabel();
@@ -363,14 +361,14 @@ void QLabel::drawContents( QPainter *p )
 	else
 	    m = 0;
     }
-    if ( align & AlignLeft )
+    if ( !(align & AlignHCenter) ) {
 	cr.setLeft( cr.left() + m );
-    if ( align & AlignRight )
 	cr.setRight( cr.right() - m );
-    if ( align & AlignTop )
+    }
+    if ( !(align & AlignVCenter) ) {
 	cr.setTop( cr.top() + m );
-    if ( align & AlignBottom )
 	cr.setBottom( cr.bottom() - m );
+    }
     if ( lpixmap ) {
 	int x, y, w, h;
 	cr.rect( &x, &y, &w, &h );
