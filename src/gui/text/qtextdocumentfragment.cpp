@@ -387,7 +387,7 @@ QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, const QSt
 
 void QTextHTMLImporter::import()
 {
-    bool hasBlock = true;
+    bool hasBlock = false;
     for (int i = 0; i < count(); ++i) {
         const QTextHtmlParserNode *node = &at(i);
 
@@ -415,6 +415,7 @@ void QTextHTMLImporter::import()
             Table t;
             t.tableIndex = d->formatCollection.createObjectIndex(fmt);
             tables.append(t);
+            hasBlock = false;
         } else if (node->isTableCell) {
             Q_ASSERT(!tables.isEmpty());
 
@@ -426,39 +427,46 @@ void QTextHTMLImporter::import()
             if (node->bgColor.isValid())
                 fmt.setBackgroundColor(node->bgColor);
             appendBlock(fmt, charFmt, QTextBeginningOfFrame);
+            hasBlock = false;
         }
 
         if (node->isBlock) {
+            QTextBlockFormat block;
+
             if (hasBlock) {
-                hasBlock = false;
-            } else {
-                QTextBlockFormat block;
+                Q_ASSERT(d->fragments.last().blockFormat >= 0);
+                block = d->formatCollection.blockFormat(d->fragments.last().blockFormat);
+            }
 
-                block.setTopMargin(topMargin(i));
-                block.setBottomMargin(bottomMargin(i));
-                block.setLeftMargin(leftMargin(i));
-                block.setRightMargin(rightMargin(i));
-                block.setFirstLineMargin(firstLineMargin(i));
+            block.setTopMargin(topMargin(i));
+            block.setBottomMargin(bottomMargin(i));
+            block.setLeftMargin(leftMargin(i));
+            block.setRightMargin(rightMargin(i));
+            block.setFirstLineMargin(firstLineMargin(i));
 
-                if (node->isListItem) {
-                    Q_ASSERT(!listReferences.isEmpty());
-                    block.setObjectIndex(listReferences[listReferences.size() - 1]);
-                } else if (indent)
-                    block.setIndent(indent);
+            if (node->isListItem) {
+                Q_ASSERT(!listReferences.isEmpty());
+                block.setObjectIndex(listReferences.last());
+            } else if (indent && !block.objectIndex() == listReferences.last()) {
+                block.setIndent(indent);
+            }
+            block.setAlignment(node->alignment);
 
-                block.setAlignment(node->alignment);
-
-                // ####################
+            // ####################
 //                block.setFloatPosition(node->cssFloat);
 
-                if (node->wsm == QStyleSheetItem::WhiteSpacePre)
-                    block.setNonBreakableLines(true);
+            if (node->wsm == QStyleSheetItem::WhiteSpacePre)
+                block.setNonBreakableLines(true);
 
-                if (node->bgColor.isValid())
-                    block.setBackgroundColor(node->bgColor);
+            if (node->bgColor.isValid())
+                block.setBackgroundColor(node->bgColor);
 
+            if (hasBlock) {
+                d->fragments.last().blockFormat = d->formatCollection.indexForFormat(block);
+            } else {
                 appendBlock(block);
             }
+            hasBlock = true;
         } else if (node->isImage) {
             QTextImageFormat fmt;
             fmt.setName(node->imageName);
@@ -481,10 +489,11 @@ void QTextHTMLImporter::import()
             fmt.setObjectIndex(objIndex);
 
             appendImage(fmt);
+            hasBlock = false;
             continue;
         } else if (node->tag == QLatin1String("title")) {
-              d->hasTitle = true;
-              d->title = node->text;
+            d->hasTitle = true;
+            d->title = node->text;
             continue;
         }
         if (node->text.size() == 0)

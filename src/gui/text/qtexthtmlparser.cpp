@@ -482,12 +482,23 @@ static QTextListFormat::Style convertListStyle(QStyleSheetItem::ListStyle style)
     return QTextListFormat::ListStyleUndefined;
 }
 
+QTextHtmlParserNode::QTextHtmlParserNode()
+    : parent(0), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
+      isImage(false), fontItalic(false), fontUnderline(false), fontOverline(false),
+      fontStrikeOut(false), fontFixedPitch(false), fontPointSize(12), fontWeight(QFont::Normal),
+      alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
+      imageWidth(-1), imageHeight(-1),
+      wsm(QStyleSheetItem::WhiteSpaceModeUndefined), style(0)
+{
+    margin[0] = margin[1] = margin[2] = margin[3] = margin[4] = 0;
+}
+
 void QTextHtmlParser::dumpHtml()
 {
     for (int i = 0; i < count(); ++i) {
         qDebug().nospace() << QString(depth(i)*4, ' ')
                            << at(i).tag << ":"
-                           << "\"" << quoteNewline(at(i).text) << "\""
+                           << "\"" << quoteNewline(at(i).text) << "\" "
             ;
     }
 }

@@ -36,13 +36,7 @@ struct QTextHtmlParserAttribute {
 Q_DECLARE_TYPEINFO(QTextHtmlParserAttribute, Q_MOVABLE_TYPE);
 
 struct QTextHtmlParserNode {
-    inline QTextHtmlParserNode():parent(0), isBlock(0), isListItem(0), isListStart(false), isTableCell(false), isAnchor(false),
-                          isImage(false), fontItalic(0), fontUnderline(0), fontOverline(0),
-                          fontStrikeOut(0), fontFixedPitch(0), fontPointSize(12), fontWeight(QFont::Normal),
-                          alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
-                          imageWidth(-1), imageHeight(-1),
-                          wsm(QStyleSheetItem::WhiteSpaceModeUndefined), style(0)
-    { margin[0] = margin[1] = margin[2] = margin[3] = margin[4] = 0; }
+    QTextHtmlParserNode();
     QString tag;
     QString text;
     QVector<QTextHtmlParserAttribute> attributes;

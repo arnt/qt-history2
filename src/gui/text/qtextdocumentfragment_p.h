@@ -105,7 +105,7 @@ private:
     { appendText(QString(QChar::ObjectReplacementCharacter), format); }
 
     QTextDocumentFragmentPrivate *d;
-    QVarLengthArray<int> listReferences;
+    QVector<int> listReferences;
     int indent;
 
     struct Table
