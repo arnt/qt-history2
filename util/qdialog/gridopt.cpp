@@ -1,8 +1,11 @@
 #include "gridopt.h"
 #include "formeditor.h"
+#include "xml.h"
 
 #include <qmap.h>
 #include <qtl.h>
+#include <qxmlparser.h>
+#include <qresource.h>
 
 void DRange::setGeometry( int _left, int _width )
 {
@@ -288,73 +291,372 @@ DGridLayout* dGuessGrid( QWidget* _parent, QList<QWidget>& _widgets )
  *
  ********************************************/
 
-DGridLayout::DGridLayout( QWidget* _parent, int _rows, int _cols, int _outborder, int _innerspace )
-  : QGridLayout( _parent, _rows, _cols, _outborder, _innerspace )
+DGridLayout::DGridLayout( QWidget* _parent, const QResource& _resource )
+  : QGridLayout( _parent, _resource )
 {
-  for( int i = 0; i < _rows * _cols; ++i )
-    m_widgets.append( Widget() );
+}
+
+DGridLayout::DGridLayout( QWidget* _parent, int _rows, int _cols, int _outborder, int _innerspace )
+  : QGridLayout( _parent, _rows, _cols, _outborder, _innerspace ), m_matrix( _rows, _cols )
+{
+}
+
+DGridLayout::DGridLayout( QWidget* _parent, const Matrix& _m, int _outborder, int _innerspace )
+  : QGridLayout( _parent, _m.rows(), _m.cols(), _outborder, _innerspace ), m_matrix( _m )
+{
+  uint r, c;
+  
+  for( r = 0; r < _m.rows(); ++r )
+    for( c = 0; c < _m.cols(); ++c )
+      if ( !_m.cell( r, c ).isOverlapped && _m.cell( r, c ).w != 0 )
+      {
+	if ( _m.cell( r, c ).multirow > 1 || _m.cell( r, c ).multicol > 1 )
+	  addMultiCellWidget( _m.cell( r, c ).w, r, r +  _m.cell( r, c ).multirow - 1,
+			      c, c + _m.cell( r, c ).multicol - 1,  _m.cell( r, c ).align );
+	else
+	  addWidget( _m.cell( r, c ).w, r, c, _m.cell( r, c ).align );
+      }
+
+  for( r = 0; r < _m.rows(); ++r )
+    setRowStretch( r, _m.row( r ).stretch );
+
+  for( c = 0; c < _m.cols(); ++c )
+    setColStretch( r, _m.col( c ).stretch );
 }
 
 void DGridLayout::addWidget2( QWidget* _widget, int _row, int _col, int _align )
 {
-  Widget& w = m_widgets[ _row * numCols() + _col ];
-  w.w = _widget;
+  m_matrix.expand( _row + 1, _col + 1 );
 
+  Cell c;
+  c.w = _widget;
+  c.align = _align;
+  m_matrix.cell( _row, _col ) = c;
+  
   addWidget( _widget, _row, _col, _align );
 }
 
 void DGridLayout::addMultiCellWidget2( QWidget* _widget, int _fromrow, int _torow,
 				       int _fromcol, int _tocol, int _align )
 {
-  Widget& w = m_widgets[ _fromrow * numCols() + _fromcol ];
-  w.w = _widget;
-  w.multicol = _tocol - _fromcol + 1;
-  w.multirow = _torow - _fromrow + 1;
-  
+  m_matrix.expand( _torow + 1, _tocol + 1 );
+
+  Cell c1;
+  c1.w = _widget;
+  c1.multicol = _tocol - _fromcol + 1;
+  c1.multirow = _torow - _fromrow + 1;
+  c1.align = _align;
+  m_matrix.cell( _fromrow, _fromcol ) = c1;
+
   for( int r = _fromrow; r <= _torow; ++r )
     for( int c = _fromcol; c <= _tocol; ++c )
       if ( r != _fromrow || c != _fromcol )
       { 
-	Widget& w2 = m_widgets[ r * numCols() + c ];
-	w2.w = _widget;
-	w2.multicol = w.multicol - ( r - _fromrow );
-	w2.multirow = w.multirow - ( c - _fromcol );
-	w2.isOverlapped = TRUE;
+	Cell c2( c1 );
+        c2.multicol = c1.multicol - ( r - _fromrow );
+	c2.multirow = c1.multirow - ( c - _fromcol );
+	c2.isOverlapped = TRUE;
+	m_matrix.cell( _fromrow, _torow ) = c2;
       }
 
   addMultiCellWidget( _widget, _fromrow, _torow, _fromcol, _tocol, _align );
 }
 
-QWidget* DGridLayout::widget( int _row, int _col )
-{
-  Widget& w = m_widgets[ _row * numCols() + _col ];
-  return w.w;
-}
 
-int DGridLayout::multicol( int _row, int _col )
+void DGridLayout::fillWithForms( DFormEditor* _editor )
 {
-  Widget& w = m_widgets[ _row * numCols() + _col ];
-  return w.multicol;
-}
-
-int DGridLayout::multirow( int _row, int _col )
-{
-  Widget& w = m_widgets[ _row * numCols() + _col ];
-  return w.multirow;
-}
-
-void DGridLayout::fillWithForms( DFormEditor* _editor, QWidget* _parent )
-{
-  for( int r = 0; r < numRows(); ++r )
+  ASSERT( mainWidget() != 0 );
+  
+  for( uint r = 0; r < m_matrix.rows(); ++r )
   {
-    for( int c = 0; c < numCols(); ++c )
+    for( uint c = 0; c < m_matrix.cols(); ++c )
     {
-      Widget& w = m_widgets[ r * numCols() + c ];
-      if ( w.w == 0 )
+      Cell& cell = m_matrix.cell( r, c );
+      if ( cell.w == 0 )
       {
-	w.w = new DFormWidget( DFormWidget::LayoutHelper, _editor, _parent );
-	addWidget( w.w, r, c );
+	cell.w = new DFormWidget( DFormWidget::GridHelper, _editor, mainWidget() );
+	_editor->addWidget( cell.w );
+	cell.w->show();
+	addWidget( cell.w, r, c );
       }
     }
   }
+}
+
+void DGridLayout::updateGeometry()
+{
+  for( uint r = 0; r < m_matrix.rows(); ++r )
+  {
+    int top = QCOORD_MAX, bottom = 0;
+    for( uint c = 0; c < m_matrix.cols(); ++c )
+    {
+      if ( m_matrix.cell( r, c ).w &&
+	   !m_matrix.cell( r, c ).isOverlapped && m_matrix.cell( r, c ).w->y() < top )
+	top = m_matrix.cell( r, c ).w->y();
+      if ( m_matrix.cell( r, c ).w && m_matrix.cell( r, c ).multirow == 1 &&
+	   m_matrix.cell( r, c ).w->y() + m_matrix.cell( r, c ).w->height() > bottom )
+	bottom = m_matrix.cell( r, c ).w->y() + m_matrix.cell( r, c ).w->height();
+    }
+
+    m_matrix.row( r ).top = top;
+    m_matrix.row( r ).bottom = bottom;
+  }
+
+  for( uint c = 0; c < m_matrix.cols(); ++c )
+  {
+    int left = QCOORD_MAX, right = 0;
+    for( uint r = 0; r < m_matrix.rows(); ++r )
+    {
+      if ( m_matrix.cell( r, c ).w &&
+	   !m_matrix.cell( r, c ).isOverlapped && m_matrix.cell( r, c ).w->x() < left )
+	left = m_matrix.cell( r, c ).w->x();
+      if ( m_matrix.cell( r, c ).w && m_matrix.cell( r, c ).multicol == 1 &&
+	   m_matrix.cell( r, c ).w->y() + m_matrix.cell( r, c ).w->width() > right )
+	right = m_matrix.cell( r, c ).w->x() + m_matrix.cell( r, c ).w->width();
+    }
+
+    m_matrix.col( c ).left = left;
+    m_matrix.col( c ).right = right;    
+  }
+}
+
+DGridLayout::Insert DGridLayout::insertTest( const QPoint& _p, int *_row, int *_col )
+{
+  for( uint r = 0; r <= m_matrix.rows(); ++r )
+  {
+    int top, bottom;
+    if ( r == 0 )
+      top = 0;
+    else
+      top = m_matrix.row( r - 1 ).bottom;
+    if ( r == m_matrix.rows() )
+      bottom = mainWidget()->height();
+    else
+      bottom = m_matrix.row( r ).top;
+
+    if ( _p.y() >= top && _p.y() <= bottom )
+    {
+      for( uint c = 0; c < m_matrix.cols(); ++c )
+	if ( m_matrix.col( c ).left <= _p.x() &&
+	     m_matrix.col( c ).right >= _p.x() )
+	{
+	  *_row = r;
+	  *_col = c;
+	  return InsertRow;
+	}
+    }
+  }
+
+  for( uint c = 0; c <= m_matrix.cols(); ++c )
+  {
+    int left, right;
+    if ( c == 0 )
+      left = 0;
+    else
+      left = m_matrix.col( c - 1 ).right;
+    if ( c == m_matrix.cols() )
+      right = mainWidget()->width();
+    else
+      right = m_matrix.col( c ).left;
+
+    if ( _p.x() >= left && _p.x() <= right )
+    {
+      for( uint r = 0; r < m_matrix.rows(); ++r )
+	if ( m_matrix.row( r ).top <= _p.y() &&
+	     m_matrix.row( r ).bottom >= _p.y() )
+	{    
+	  *_row = r;
+	  *_col = c;
+	  return InsertCol;
+	}
+    }
+  }
+  
+  return InsertNone;
+}
+
+QRect DGridLayout::insertRect( DGridLayout::Insert ins, uint r, uint c )
+{
+  if ( ins == InsertRow )
+  {    
+    uint top, bottom;
+    if ( r == 0 )
+      top = 0;
+    else
+      top = m_matrix.row( r - 1 ).bottom;
+    if ( r == m_matrix.rows() )
+      bottom = mainWidget()->height();
+    else
+      bottom = m_matrix.row( r ).top;
+
+    uint left = m_matrix.col( c ).left;
+    uint right = m_matrix.col( c ).right;
+
+    return QRect( left, top, right - left, bottom - top );
+  }
+
+  if ( ins == InsertCol )
+  {    
+    uint left, right;
+    if ( c == 0 )
+      left = 0;
+    else
+      left = m_matrix.col( c - 1 ).right;
+    if ( c == m_matrix.cols() )
+      right = mainWidget()->width();
+    else
+      right = m_matrix.col( c ).left;
+
+    uint top = m_matrix.row( r ).top;
+    uint bottom = m_matrix.row( r ).bottom;
+
+    return QRect( left, top, right - left, bottom - top );
+  }
+  
+  return QRect();
+}
+
+QXMLTag* DGridLayout::save() const
+{
+  QXMLTag* t = new QXMLTag( "QGridLayout" );
+
+  // TODO borders
+  // TODO stretches rows/columns
+  // Matrix::ConstIterator it = matrix.begin();
+  // for( ; it != matrix.end(); ++it )
+
+  // TODO: handle multicolumn/row
+  for( uint y = 0; y < m_matrix.rows(); ++y )
+  {
+    QXMLTag* r = new QXMLTag( "Row" );
+    t->insert( t->end(), r );
+
+    for( uint x = 0; x < m_matrix.cols(); ++x )
+    {
+      QXMLTag* c = new QXMLTag( "Cell" );
+      r->insert( r->end(), c );
+
+      Cell cell = m_matrix.cell( y, x );
+      if ( cell.w && cell.w->inherits( "DFormWidget" ) )
+      {
+	// Save gridhelper widgets as empty Cell tags
+	if ( ((DFormWidget*)cell.w)->mode() != DFormWidget::GridHelper )
+	  c->insert( ((DFormWidget*)cell.w)->save() );
+      }
+      else if ( cell.w )
+      {
+	QXMLTag* w = new QXMLTag( "Widget" );
+	c->insert( w );
+	w->insert( qObjectToXML( cell.w, TRUE ) );
+      }
+    }
+  }
+  
+  return t;
+}
+
+bool DGridLayout::configure( const QResource& _resource )
+{
+  QResource irow = _resource.firstChild();
+  uint r = 0;
+
+  for( ; irow.isValid(); irow = irow.nextSibling() )
+  {
+    if ( irow.type() == "Row" )
+    {
+      QXMLConstIterator t = irow.xmlTree();
+      if ( t->hasAttrib( "size" ) )
+	addRowSpacing( r, t->intAttrib( "size" ) );
+      if ( t->hasAttrib( "stretch" ) )
+	setRowStretch( r, t->intAttrib( "stretch" ) );
+
+      QResource icol = irow.firstChild();
+      int c = 0;
+      while( icol.isValid() )
+      {
+	if ( icol.type() == "Cell" )
+	{
+	  debug("QGridLayout child at %i %i", r, c );
+
+	  QXMLConstIterator t = icol.xmlTree();
+
+	  int multicol = 1;
+	  int multirow = 1;
+	  if ( t->hasAttrib( "multicol" ) )
+	    multicol = t->intAttrib( "multicol" );
+	  if ( multicol < 1 )
+	    return FALSE;
+	  if ( t->hasAttrib( "multirow" ) )
+	    multirow = t->intAttrib( "multirow" );
+	  if ( multirow < 1 )
+	    return FALSE;
+	  int align = 0;
+	  int x,y;
+	  if ( stringToAlign( t->attrib( "valign" ), &y ) )
+	    align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
+	  if ( stringToAlign( t->attrib( "halign" ), &x ) )
+	    align |= x & ~Qt::AlignVCenter;
+
+	  QResource cell = icol.firstChild();
+	  QWidget *w = 0;
+	  if ( cell.isValid() && cell.type() == "Widget" )
+	  {
+	    QResource r( cell.firstChild() );
+	    if ( !r.isValid() )
+	      return FALSE;
+	    w = r.createWidget( mainWidget() );
+	    if ( w == 0 )
+	      return FALSE;
+	    DFormEditor::loadingInstance()->addWidget( w );
+	  }
+	  else if ( cell.isValid() && cell.type() == "Layout" )
+	  {
+	    // This should never happen since we replace that construct
+	    // with a "Widget" tag in the parse tree.
+	    ASSERT( 0 );
+	    /* QResource r( cell.firstChild() );
+	    if ( !r.isValid() )
+	      return FALSE;
+	    w = new DFormWidget( DFormWidget::Container, DFormEditor::loadingInstance(), mainWidget() );
+	    if ( !r.createLayout( w ) )
+	      return FALSE;
+	      DFormEditor::loadingInstance()->addWidget( w ); */
+	  }
+	  // Unknown tag ?
+	  else if ( cell.isValid() )
+	    return FALSE;
+
+	  // #### QGridLayout does not like empty cells
+	  // if ( !w )
+	  // w = new QWidget( mainWidget() );
+
+	  if ( w )
+	  {
+	    if ( multicol != 1 || multirow != 1 )
+	      addMultiCellWidget2( w, r, r + multirow - 1, c, c + multicol - 1, align );
+	    else
+	      addWidget2( w, r, c, align );
+	  }
+
+	  if ( t->hasAttrib( "size" ) )
+	    addColSpacing( c, t->intAttrib( "size" ) );
+	  if ( t->hasAttrib( "stretch" ) )
+	  {
+	    debug("Setting stretch of col %i to %i",c,t->intAttrib( "stretch" ) );
+	    setColStretch( c, t->intAttrib( "stretch" ) );
+	  }
+	  
+	  icol = icol.nextSibling();
+	  ++c;
+	}
+	else
+	  return FALSE;
+      }
+      ++r;
+    }
+  }
+
+  fillWithForms( DFormEditor::loadingInstance() );
+
+  return TRUE;
 }

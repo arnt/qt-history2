@@ -5,8 +5,15 @@
 #include <qlist.h>
 #include <qvaluelist.h>
 #include <qlayout.h>
+#include <qpoint.h>
+#include <qrect.h>
+
+#include "qtable.h"
 
 // #define GRID_TEST
+
+class QXMLTag;
+class QResource;
 
 class DRange
 {
@@ -48,30 +55,69 @@ class DFormEditor;
 class DGridLayout : public QGridLayout
 {
   Q_OBJECT
+  Q_BUILDER( "", "", DefaultInspector )
+
 public:
-  DGridLayout( QWidget* _parent, int _rows, int _cols, int _outborder = 0, int _innerspace = -1 );
-
-  void addWidget2( QWidget* _widget, int _row, int _col, int _align = 0);
-  void addMultiCellWidget2( QWidget* _widget, int _fromrow, int _torow, int _fromcol, int _tocol, int _align = 0 );
-
-  QWidget* widget( int _row, int _col );
-  int multicol( int _row, int _col );
-  int multirow( int _row, int _col );
-
-  void fillWithForms( DFormEditor* _editor, QWidget* _parent );
-
-private:
-  struct Widget
+  struct Cell
   {
-    Widget() { w = 0; multicol = 1; multirow = 1; isOverlapped = FALSE; }
-    Widget( const Widget& _w ) { w = _w.w; multicol = _w.multicol; multirow = _w.multirow; }
+    Cell() { align = 0; w = 0; multicol = 1; multirow = 1; isOverlapped = FALSE; }
+    Cell( const Cell& _w ) { align = _w.align; w = _w.w; multicol = _w.multicol;
+                             multirow = _w.multirow; isOverlapped = _w.isOverlapped; }
     QWidget* w;
     int multicol;
     int multirow;
     bool isOverlapped;
+    int align;
+  };
+  struct Row
+  {
+    Row() { stretch = 0; }
+    Row( const Row& r ) { top = r.top; bottom = r.bottom; stretch = r.stretch; }
+    int top;
+    int bottom;
+    int stretch;
+  };
+  struct Col
+  {
+    Col() { stretch = 0; }
+    Col( const Col& r ) { left = r.left; right = r.right; stretch = r.stretch; }
+    int left;
+    int right;
+    int stretch;
   };
 
-  QValueList<Widget> m_widgets;
+  typedef QTable<Row,Col,Cell> Matrix;
+
+  enum Insert { InsertCol, InsertRow, InsertNone };
+  
+  DGridLayout( QWidget* _parent, int _rows = 1, int _cols = 1, int _outborder = 6, int _innerspace = 6 );
+  DGridLayout( QWidget* _parent, const QResource& _resource );
+  DGridLayout( QWidget* _parent, const Matrix& _m, int _outborder = 6, int _innerspace = 6 );
+
+  void addWidget2( QWidget* _widget, int _row, int _col, int _align = 0);
+  void addMultiCellWidget2( QWidget* _widget, int _fromrow, int _torow,
+			    int _fromcol, int _tocol, int _align = 0 );
+
+  const Cell& cell( uint _row, uint _col ) const { return m_matrix.cell( _row, _col ); }
+  const Row& row( uint _row ) const { return m_matrix.row( _row ); }
+  const Col& col( uint _col ) const { return m_matrix.col( _col ); }
+  const Matrix& matrix() const { return m_matrix; }
+  
+  uint rows() const { return m_matrix.rows(); }
+  uint cols() const { return m_matrix.cols(); }
+  
+  void fillWithForms( DFormEditor* _editor );
+  void updateGeometry();
+
+  Insert insertTest( const QPoint& _p, int *_row, int *_col );
+  QRect insertRect( Insert _ins, uint _row, uint _col );
+
+  QXMLTag* save() const;
+
+  bool configure( const QResource& _resource );
+ 
+private:  
+  Matrix m_matrix;
 };
 
 DGridLayout* dGuessGrid( QWidget* _parent, QList<QWidget>& _widgets );

@@ -1,5 +1,7 @@
 #include "widgetinfo.h"
 
+#include <qmetaobject.h>
+#include <qwidget.h>
 #include <qresource.h>
 
 DWidgetInfo::DWidgetInfo( const QString& _class, const QPixmap& _pixmap, const QString& _tooltip )
@@ -11,8 +13,13 @@ DWidgetInfo::DWidgetInfo( const QString& _class, const QPixmap& _pixmap, const Q
 
 QSize DWidgetInfo::sizeHint() const
 {
-  QWidget* w = QResourceFactory::factory()->createWidget( m_className, 0 );
-  ASSERT( w );
+  QMetaObject* m = QMetaObjectInit::metaObject( m_className );
+  ASSERT( m );
+  QObjectFactory f = m->factory();
+  ASSERT( f );
+  QWidget* w = (QWidget*)(*f)( 0, QResource() );
+  ASSERT( w != 0 );
+
   QSize s = w->sizeHint();
   delete w;
 

@@ -163,6 +163,16 @@ DWidgetsPage::DWidgetsPage( QWidget* _parent, const char* _name )
   DWidgetInfo info4( "QMultiLineEdit", pixmap4, "An editor" );
   b = new DWidgetButton( info4, this );
   m_layout->addWidget( b );
+
+  QPixmap pixmap5( "dspacing.xpm" );
+  DWidgetInfo info5( "DSpacing", pixmap5, "A spacing" );
+  b = new DWidgetButton( info5, this );
+  m_layout->addWidget( b );
+
+  QPixmap pixmap6( "dstretch.xpm" );
+  DWidgetInfo info6( "DStretch", pixmap6, "A stretch" );
+  b = new DWidgetButton( info6, this );
+  m_layout->addWidget( b );
     
   for( int i = 0; i < 5; i++ )
   {
