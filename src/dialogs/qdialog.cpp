@@ -503,8 +503,9 @@ void QDialog::closeEvent( QCloseEvent *e )
     if ( isModal() && QWhatsThis::inWhatsThisMode() )
 	QWhatsThis::leaveWhatsThisMode();
 #endif
-    e->accept();
     reject();
+    if ( isHidden() )
+	e->accept();
 }
 
 
