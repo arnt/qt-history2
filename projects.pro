@@ -16,4 +16,5 @@ SUBDIRS  = src/qt.pro \
 	   tools \
 	   examples \
 	   tutorial \
-	  
+
+!win32-msvc.net:SUBDIRS+=qmake	  
