@@ -73,10 +73,15 @@ public:
     const char *currentTail;
     sqlite_vm *currentMachine;
 
+#if (QT_VERSION-0 < 0x030000)
     typedef QVector<QSqlVariant> RowCache;
     typedef QVector<RowCache> RowsetCache;
+#else
+    typedef QPtrVector<QSqlVariant> RowCache;
+    typedef QPtrVector<RowCache> RowsetCache;
+#endif
     RowsetCache rowCache;
-    uint rowCacheEnd;
+    int rowCacheEnd;
     
     uint skipFetch: 1; // skip the next fetchNext()
     uint skippedStatus: 1; // the status of the fetchNext() that's skipped
