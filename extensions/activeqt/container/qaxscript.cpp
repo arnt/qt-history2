@@ -145,7 +145,7 @@ HRESULT WINAPI QAxScriptSite::GetItemInfo(LPCOLESTR pstrName, DWORD mask, IUnkno
     else if (mask & SCRIPTINFO_ITYPEINFO)
 	return E_POINTER;
 
-    QAxBase *object = script->findObject(QString::fromUcs2(pstrName));
+    QAxBase *object = script->findObject(QString::fromUcs2((unsigned short *)pstrName));
     if (!object)
 	return TYPE_E_ELEMENTNOTFOUND;
 
@@ -398,7 +398,7 @@ bool QAxScriptEngine::initialize(IUnknown **ptr)
 	return FALSE;
 
     CLSID clsid;
-    HRESULT hres = CLSIDFromProgID( script_language.ucs2(), &clsid );
+    HRESULT hres = CLSIDFromProgID((WCHAR*)script_language.ucs2(), &clsid );
     if(FAILED(hres))
 	return FALSE;
 
@@ -526,7 +526,7 @@ void QAxScriptEngine::addItem(const QString &name)
     if (!engine)
 	return;
 
-    engine->AddNamedItem(name.ucs2(), SCRIPTITEM_ISSOURCE|SCRIPTITEM_ISVISIBLE);
+    engine->AddNamedItem((WCHAR*)name.ucs2(), SCRIPTITEM_ISSOURCE|SCRIPTITEM_ISVISIBLE);
 }
 
 /*!
@@ -933,13 +933,13 @@ QAxScript *QAxScriptManager::load(const QString &file, const QString &name)
 {
     QFile f(file);
     if (!f.open(IO_ReadOnly))
-	return FALSE;
+	return 0;
     QByteArray data = f.readAll();
     QString contents = QString::fromLocal8Bit(data, data.size());
     f.close();
 
     if (contents.isEmpty())
-	return FALSE;
+	return 0;
 
     QString language;
     if (file.endsWith(".js")) {
@@ -1031,7 +1031,7 @@ bool QAxScriptManager::registerEngine(const QString &name, const QString &extens
 	return FALSE;
 
     CLSID clsid;
-    HRESULT hres = CLSIDFromProgID( name.ucs2(), &clsid );
+    HRESULT hres = CLSIDFromProgID((WCHAR*)name.ucs2(), &clsid );
     if (hres != S_OK)
 	return FALSE;
 

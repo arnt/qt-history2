@@ -835,7 +835,7 @@ bool QAxBase::setControl( const QString &c )
 	QUuid uuid( ctrl );
 	if ( uuid.isNull() ) {
 	    CLSID clsid;
-	    HRESULT res = CLSIDFromProgID(c.ucs2(), &clsid);
+	    HRESULT res = CLSIDFromProgID((WCHAR*)c.ucs2(), &clsid);
 	    if (res == S_OK)
 		ctrl = QUuid(clsid).toString();
 	    else {
@@ -1218,7 +1218,7 @@ static inline QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info,
 	usertypeinfo->GetContainingTypeLib( &usertypelib, &index );
 	if ( usertypelib ) {
 	    // get type name
-	    BSTR usertypename;
+	    BSTR usertypename = 0;
 	    usertypelib->GetDocumentation( index, &usertypename, 0, 0, 0 );
 	    QString userTypeName = BSTRToQString( usertypename );
 	    SysFreeString( usertypename );
