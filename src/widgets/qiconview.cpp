@@ -4884,6 +4884,7 @@ void QIconView::rebuildContainers()
 		    continue;
 		}
 	    }
+
 	    c = c->n;
 	    if ( !c ) {
 		appendItemContainer();
