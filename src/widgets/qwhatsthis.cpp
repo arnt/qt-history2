@@ -673,7 +673,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 		QApplication::desktop()->screenNumber( ppos )
 #endif // Q_WS_X11
 		);
-    QRect screen = QApplication::desktop()->availableGeometry( scr );
+    QRect screen = QApplication::desktop()->screenGeometry( scr );
 
     int x;
     int w = whatsThat->width();
