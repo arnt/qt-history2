@@ -361,6 +361,9 @@ void HelpNavigation::setupContentsView( QProgressBar * )
     while ( !ts.atEnd() ) {
 	QString s = ts.readLine();
 	s = s.stripWhiteSpace();
+	if ( s.lower().find( "easter egg" ) != -1 ||
+	     s.lower().find( "easteregg" ) != -1 )
+	    continue;
 	int i = s.find( " - " );
 	if ( i == -1 ) {
 	    QListViewItem *oldLast = lastItem;
