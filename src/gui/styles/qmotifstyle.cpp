@@ -1516,7 +1516,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
 int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt,
                              const QWidget *widget) const
 {
-    int ret;
+    int ret = 0;
 
     switch(pm) {
     case PM_ButtonDefaultIndicator:
