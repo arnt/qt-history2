@@ -177,7 +177,8 @@ bool QSvgDevice::play( QPainter *painter )
 	return FALSE;
     }
     pt = painter;
-    pt->setPen( Qt::NoPen );
+    pt->setPen( Qt::NoPen ); // SVG default pen and brush
+    pt->setBrush( Qt::black );
     if ( doc.isNull() ) {
 	qWarning( "QSvgDevice::play: No SVG data set." );
 	return FALSE;
@@ -1348,10 +1349,11 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 	if ( pw == 0 && pt->pen().style() != Qt::NoPen )
 	    pw = 0.9;
 	s += QString( "stroke-width:%1;" ).arg( pw );
-	if ( pt->brush().style() != Qt::NoBrush ) {
+	if ( pt->brush().style() == Qt::NoBrush || c == PdcDrawPolyline )
+	    s += "fill:none;"; // Qt polylines use no brush
+	else
 	    s += QString( "fill:rgb(%1,%2,%3);" )
 		 .arg( bcol.red() ).arg( bcol.green() ).arg( bcol.blue() );
-	}
     }
     e->setAttribute( "style", s );
 }
