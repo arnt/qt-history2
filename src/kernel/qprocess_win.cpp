@@ -385,7 +385,7 @@ void QProcess::tryTerminate() const
 void QProcess::kill() const
 {
     if ( d->pid )
-	TerminateProcess( d->pid->hProcess, 0 );
+	TerminateProcess( d->pid->hProcess, 0xf291 );
 }
 
 bool QProcess::isRunning() const
@@ -404,7 +404,7 @@ bool QProcess::isRunning() const
 	    if ( GetExitCodeProcess( d->pid->hProcess, &exitCode ) ) {
 		if ( exitCode != STILL_ACTIVE ) { // this should ever be true?
 		    QProcess *that = (QProcess*)this; // mutable 
-		    that->exitNormal = TRUE;
+		    that->exitNormal = exitCode != 0xf291;
 		    that->exitStat = exitCode;
 		}
 	    }
