@@ -8,8 +8,6 @@
 #include "qabstracteventdispatcher_p.h"
 #include <private/qthread_p.h>
 
-#define NO_NEW_WIN_DISPATCHING
-
 struct QSockNot {
     QSocketNotifier *obj;
     int fd;
@@ -44,28 +42,13 @@ public:
     QSNDict sn_write;
     QSNDict sn_except;
 
-    QVector<HANDLE> winEventNotifierHandles;
     QList<QWinEventNotifier *> winEventNotifierList;
-    int activateEventNotifiers();
     void activateEventNotifier(QWinEventNotifier * wen);
 };
 
 QEventDispatcherWin32Private::QEventDispatcherWin32Private()
     : threadId(GetCurrentThreadId()), interrupt(false), sn_win(0)
 { }
-
-// will go throw the entire list an activate any that are set
-int QEventDispatcherWin32Private::activateEventNotifiers()
-{
-    int n_act = 0;
-    for (int i=0; i<winEventNotifierList.count(); i++) {
-        if (WaitForSingleObject(winEventNotifierList.at(i)->handle(), 0) == WAIT_OBJECT_0) {
-            activateEventNotifier(winEventNotifierList.at(i));
-            ++n_act;
-        }
-    }
-    return n_act;
-}
 
 void QEventDispatcherWin32Private::activateEventNotifier(QWinEventNotifier * wen)
 {
@@ -225,114 +208,6 @@ QEventDispatcherWin32::~QEventDispatcherWin32()
 {
 }
 
-#ifndef NO_NEW_WIN_DISPATCHING
-bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
-{
-    emit awake();
-
-    QCoreApplication::sendPostedEvents();
-
-    Q_D(QEventDispatcherWin32);
-    bool shortcut = d->interrupt;
-
-    QThreadData *data = QThreadData::current();
-    bool canWait = (data->postEventList.size() == 0
-                    && !d->interrupt
-                    && (flags & QEventLoop::WaitForMoreEvents));
-
-
-
-
-    MSG msg;
-
-    if (flags & QEventLoop::ExcludeUserInputEvents) {
-        // purge all userinput messages from eventDispatcher
-        while (winPeekMessage(&msg, 0, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE))
-            ;
-        while (winPeekMessage(&msg, 0, WM_MOUSEFIRST, WM_MOUSELAST, PM_REMOVE))
-            ;
-        while (winPeekMessage(&msg, 0, WM_MOUSEWHEEL, WM_MOUSEWHEEL, PM_REMOVE))
-            ;
-        // ### tablet?
-
-        // now that we have eaten all userinput we shouldn't wait for the next one...
-        canWait = false;
-    }
-
-    // activate all full-speed timers until there is a message (timers have low priority)
-    bool message = false;
-    if (d->numZeroTimers) {
-        while (d->numZeroTimers && !(message=winPeekMessage(&msg, 0, 0, 0, PM_NOREMOVE))) {
-            d->activateZeroTimers();
-        }
-    }
-
-    message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
-    if (!message && !canWait) // still no message, and shouldn't block
-        return false;
-
-    // process all messages, unless userinput is blocked, then we process only one
-    if (flags & QEventLoop::ExcludeUserInputEvents) {
-        winProcessEvent(&msg);
-        shortcut = d->interrupt;
-    } else {
-        // ### Don't send two timers in a row, since it could potentially block
-        // other events from being fired.
-        bool lastWasTimer = false;
-        while (message && !shortcut && !lastWasTimer) {
-            winProcessEvent(&msg);
-            if (msg.message == WM_TIMER)
-                lastWasTimer = true;
-            message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
-            shortcut = d->interrupt;
-        }
-
-        if (lastWasTimer)
-            winProcessEvent(&msg);
-    }
-
-    // don't wait if there are pending socket notifiers
-    canWait = d->sn_pending_list.isEmpty() && canWait;
-
-    // don't wait if event notifiers notified any thing
-    canWait = d->activateEventNotifiers() && canWait;
-
-    shortcut = d->interrupt;
-
-    // wait for next message if allowed to block
-    if (canWait && !shortcut) {
-        emit aboutToBlock();
-        
-        DWORD wakeMask = QS_ALLEVENTS;
-        if (flags & QEventLoop::ExcludeUserInputEvents)
-            wakeMask &= !(QS_KEY | QS_MOUSE | QS_HOTKEY);
-
-        // has enough reserved space so this is cheap
-        d->winEventNotifierHandles.resize(d->winEventNotifierList.count());
-        for (int i=0; i<d->winEventNotifierList.count(); i++)
-            d->winEventNotifierHandles[i] = d->winEventNotifierList.at(i)->handle();
-        
-        DWORD ret = MsgWaitForMultipleObjectsEx(d->winEventNotifierHandles.count(), (LPHANDLE)d->winEventNotifierHandles.data(),
-                                                INFINITE, wakeMask, MWMO_ALERTABLE);
-        if (ret - WAIT_OBJECT_0 >= 0 && ret - WAIT_OBJECT_0 < d->winEventNotifierHandles.count()) {
-            d->activateEventNotifier(d->winEventNotifierList.at(ret - WAIT_OBJECT_0));
-        }
-    }
-
-    if (!(flags & QEventLoop::ExcludeSocketNotifiers))
-        d->activateSocketNotifiers();
-
-    QCoreApplication::sendPostedEvents();
-
-    if (d->interrupt) {
-        d->interrupt = false;
-        return false;
-    }
-    return true;
-}
-
-#else
-
 bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
     Q_D(QEventDispatcherWin32);
@@ -343,9 +218,21 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     QThreadData *data = QThreadData::current();
     bool pending;
+    HANDLE pHandles[MAXIMUM_WAIT_OBJECTS - 1];
     do {
-        MSG msg;
+        DWORD nCount = d->winEventNotifierList.count();
+        Q_ASSERT(nCount < MAXIMUM_WAIT_OBJECTS - 1);
+        for (int i=0; i<nCount; i++)
+            pHandles[i] = d->winEventNotifierList.at(i)->handle();
+        
+        DWORD waitRet = WAIT_OBJECT_0 + nCount;
+        MSG msg;        
         pending = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
+        
+        if (!pending) {
+            waitRet = MsgWaitForMultipleObjectsEx(nCount, pHandles, 0, QS_ALLEVENTS, MWMO_ALERTABLE);
+            pending = waitRet != WAIT_TIMEOUT;
+        }
 
         if (!pending) {
             bool canWait = (data->postEventList.size() == 0
@@ -355,16 +242,21 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                 break;
 
             emit aboutToBlock();
-            if (!winGetMessage(&msg, NULL, 0, 0)) {
-                exit(0);
-                return false;
-            }
+            waitRet = MsgWaitForMultipleObjectsEx(nCount, pHandles, INFINITE, QS_ALLEVENTS, MWMO_ALERTABLE);
+            
         }
 
-        if (!filterEvent(&msg)) {
-            TranslateMessage(&msg);
-            QT_WA({ DispatchMessage(&msg);  } ,
-                  { DispatchMessageA(&msg); });
+        if (waitRet == WAIT_OBJECT_0 + nCount) {
+            if (!filterEvent(&msg)) {
+                TranslateMessage(&msg);
+                QT_WA({ 
+                    DispatchMessage(&msg);
+                } , { 
+                    DispatchMessageA(&msg); 
+                });
+            }
+        } else if (waitRet >= WAIT_OBJECT_0 && waitRet < WAIT_OBJECT_0 + nCount) {
+            d->activateEventNotifier(d->winEventNotifierList.at(waitRet - WAIT_OBJECT_0));
         }
     } while (!d->interrupt && pending);
 
@@ -374,7 +266,6 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     }
     return true;
 }
-#endif
 
 bool QEventDispatcherWin32::hasPendingEvents()
 {
