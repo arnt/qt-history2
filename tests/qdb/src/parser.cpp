@@ -114,9 +114,10 @@ enum { Node_Abs, Node_Add, Node_And, Node_Avg, Node_Ceil, Node_Count,
        Node_Length, Node_LessThan, Node_Like, Node_Lower, Node_Max,
        Node_Min, Node_Mod, Node_Multiply, Node_Not, Node_NotEq,
        Node_Or, Node_Power, Node_Replace, Node_ResolvedField,
-       Node_ResultColumnNo, Node_Sign, Node_Soundex, Node_Star,
-       Node_Substring, Node_Subtract, Node_Sum, Node_Translate,
-       Node_UnresolvedField, Node_Upper };
+       Node_ResolvedStar, Node_ResultColumnNo, Node_Sign,
+       Node_Soundex, Node_Substring, Node_Subtract, Node_Sum,
+       Node_Translate, Node_UnresolvedField, Node_UnresolvedStar,
+       Node_Upper };
 
 static QVariant resolvedField( int tableId, const QString& fieldName )
 {
@@ -628,6 +629,21 @@ void Parser::resolveFieldNames( QVariant *expr )
 	    } else {
 		*updateMe = resolveTableId( tableName );
 	    }
+	} else if ( node == Node_UnresolvedStar ) {
+	    *v = (int) Node_ResolvedStar;
+
+	    QString tableName = (*++v).toString();
+	    if ( tableName.isEmpty() ) {
+		expr->asList().remove( v );
+
+		QValueList<int>::ConstIterator id = yyActiveTableIds.begin();
+		while ( id != yyActiveTableIds.end() ) {
+		    expr->asList().append( *id );
+		    ++id;
+		}
+	    } else {
+		*v = resolveTableId( tableName );
+	    }
 	} else {
 	    ++v;
 	    while ( v != expr->asList().end() ) {
@@ -771,7 +787,6 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	int fieldNo;
 	int resultColumn;
 	int nextCond;
-	int i;
 
 	switch ( node ) {
     	case Node_Avg:
@@ -819,15 +834,17 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	    field = (*++v).toString();
 	    yyProg->append( new PushFieldValue(tableId, field) );
 	    break;
+	case Node_ResolvedStar:
+	    ++v;
+	    while ( v != expr.listEnd() ) {
+		tableId = (*v).toInt();
+		yyProg->append( new PushStarValue(tableId) );
+		++v;
+	    }
+	    break;
 	case Node_ResultColumnNo:
 	    fieldNo = (*++v).toInt();
 	    yyProg->append( new PushGroupValue(0, fieldNo) );
-	    break;
-	case Node_Star:
-	    for ( i = 0; i < (int) yyActiveTableIds.count(); i++ ) {
-		tableId = yyActiveTableIds[i];
-		yyProg->append( new PushStarValue(tableId) );
-	    }
 	    break;
 	case Node_Sum:
 	    resultColumn = (*++v).toList()[1].toInt();
@@ -1056,17 +1073,19 @@ void Parser::emitConstants( const QValueList<QVariant>& constants )
 
 void Parser::emitFieldDesc( const QString& columnName, const QVariant& column )
 {
-    yyProg->append( new PushSeparator );
     QVariant borrowFrom;
-    int i;
 
     if ( column.type() == QVariant::List &&
-	 column.toList()[0].toInt() == Node_Star ) {
-	for ( i = 0; i < (int) yyActiveTableIds.count(); i++ ) {
-	    int tableId = yyActiveTableIds[i];
+	 column.toList()[0].toInt() == Node_ResolvedStar ) {
+	QValueList<QVariant>::ConstIterator v = column.listBegin();
+	++v;
+	while ( v != column.listEnd() ) {
+	    int tableId = (*v).toInt();
 	    yyProg->append( new PushStarDesc(tableId) );
+	    ++v;
 	}
     } else {
+	yyProg->append( new PushSeparator );
 	yyProg->append( new Push(columnName) );
 	borrowFrom = exprType( column );
 	if ( borrowFrom.type() == QVariant::List ) {
@@ -1076,8 +1095,8 @@ void Parser::emitFieldDesc( const QString& columnName, const QVariant& column )
 	} else {
 	    yyProg->append( new Push(borrowFrom.toInt()) );
 	}
+	yyProg->append( new MakeList );
     }
-    yyProg->append( new MakeList );
 }
 
 void Parser::emitFieldDescs( const QStringList& columnNames,
@@ -1227,7 +1246,7 @@ QVariant Parser::matchColumnRef()
 	if ( yyTok == Tok_Aster ) {
 	    QValueList<QVariant> aster;
 	    yyTok = getToken();
-	    aster.append( (int) Node_Star );
+	    aster.append( (int) Node_UnresolvedStar );
 	    aster.append( columnName );
 	    return aster;
 	}
@@ -1279,7 +1298,9 @@ void Parser::matchFunctionArguments( int numArguments,
     }
     matchOrInsert( Tok_RightParen, "')'" );
     if ( met != numArguments )
-	error( "Met %d arguments where %d where expected", met, numArguments );
+	error( "Met %d argument%s where %d w%s expected", met,
+	       met == 1 ? "" : "s", numArguments,
+	       numArguments == 1 ? "as" : "ere" );
 }
 
 QVariant Parser::matchPrimaryExpr()
@@ -1302,6 +1323,7 @@ QVariant Parser::matchPrimaryExpr()
 	matchOrInsert( Tok_RightParen, "')'" );
 	break;
     case Tok_Name:
+    case Tok_Aster:
 	right = matchColumnRef();
 	break;
     case Tok_IntNum:
@@ -1391,6 +1413,7 @@ QVariant Parser::matchPrimaryExpr()
 	    n = 3;
 	    break;
 	default:
+	    n = -1;
 	    error( "Met '%s' where primary expression was expected", yyLex );
 	}
 
@@ -1996,14 +2019,17 @@ void Parser::matchCreateStatement()
 
 void Parser::matchDeleteStatement()
 {
-    QVariant cond;
-    QValueList<QVariant> constants;
+    QVariant whereCond;
+    QValueList<QVariant> whereConstants;
     QString table;
 
     yyTok = getToken();
     matchOrInsert( Tok_from, "'from'" );
     int tableId = activateTable( matchTable() );
-    cond = matchOptWhereClause( &constants );
+
+    whereCond = matchOptWhereClause( &whereConstants );
+    emitWhere( &whereCond, &whereConstants );
+
     yyProg->append( new DeleteMarked(tableId) );
 }
 
@@ -2310,6 +2336,9 @@ void Parser::matchSelectStatement()
 
 void Parser::matchUpdateStatement()
 {
+    QVariant whereCond;
+    QValueList<QVariant> whereConstants;
+
     yyTok = getToken();
     int tableId = activateTable( matchTable() );
     matchOrInsert( Tok_set, "'set'" );
@@ -2335,12 +2364,12 @@ void Parser::matchUpdateStatement()
 	yyTok = getToken();
     }
 
-    matchOptWhereClause();
+    whereCond = matchOptWhereClause( &whereConstants );
+    emitWhere( &whereCond, &whereConstants );
 
     int next = yyNextLabel--;
     int end = yyNextLabel--;
 
-    yyProg->append( new MarkAll(tableId) );
     yyProg->appendLabel( next );
     yyProg->append( new NextMarked(tableId, end) );
 
