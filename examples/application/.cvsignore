@@ -1,5 +1,0 @@
-application
-*moc*
-*.debug
-*.release
-.obj

@@ -1,5 +1,0 @@
-lex.yy.c
-y.tab.h
-mocgen.cpp
-moc
-*.debug

@@ -1,8 +1,0 @@
-Makefile.shareddbg
-dodepend obj
-*.debug
-GNUmakefile.static
-tmp
-tmp
-*.mak
-NMakefile.qtmain-*
