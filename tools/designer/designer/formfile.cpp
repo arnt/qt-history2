@@ -372,10 +372,19 @@ QString FormFile::codeExtension() const
     return "";
 }
 
+static const char * const comment =
+"/****************************************************************************\n"
+"** ui.h extension file, included from the uic-generated form implementation.\n"
+"**\n"
+"** If you wish to add, delete or rename slots use Qt Designer which will\n"
+"** update this file, preserving your code. Create an init() slot in place of\n"
+"** a constructor, and a destroy() slot in place of a destructor.\n"
+"*****************************************************************************/\n";
+
+
 bool FormFile::hasFormCode() const
 {
-    QMap<QString, QString> bodies = MetaDataBase::functionBodies( formWindow() );
-    return !bodies.isEmpty();
+    return !cod.isEmpty() && cod != QString( comment );
 }
 
 void FormFile::createFormCode()
@@ -385,14 +394,7 @@ void FormFile::createFormCode()
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
     if ( !iface )
 	return;
-    cod =
-	"/****************************************************************************\n"
-	"** ui.h extension file, included from the uic-generated form implementation.\n"
-	"**\n"
-	"** If you wish to add, delete or rename slots use Qt Designer which will\n"
-	"** update this file, preserving your code. Create an init() slot in place of\n"
-	"** a constructor, and a destroy() slot in place of a destructor.\n"
-	"*****************************************************************************/\n";
+    cod = comment;
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow() );
     for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
 	cod += "\n\n" + iface->createFunctionStart( formWindow()->name(), (*it).slot,
