@@ -150,11 +150,12 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
 	}
 	if(is_latin) {
 	    int ret = 0;
-	    const unsigned char *str = p_str(s.mid(pos, len));
 	    if(task & GIMME_WIDTH)
-		ret = StringWidth(str);
-	    if(task & GIMME_DRAW)
-		DrawString(str);
+		ret = TextWidth(chs, 0, len * 2);
+	    if(task & GIMME_DRAW) {
+		TextFace(fi.style() & ~(underline)); //do my own underlining
+		DrawText(chs, 0, len * 2);
+	    }
 	    return ret;
 	}
     }
@@ -203,9 +204,6 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
 	}
 	read_so_far += read;
 
-	if(task == GIMME_DRAW) 
-	    TextFace(fi.style() & ~(underline));
-
 	for(ItemCount i = 0; i < run_len; i++) {
 	    //set the font
 	    short fn = runs[i].script == sc ? fi.font() : GetScriptVariable(runs[i].script, smScriptSysFond);
@@ -227,8 +225,11 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
 	    //do the requested task
 	    if(task & GIMME_WIDTH)
 		ret += TextWidth(buf, off, rlen);
-	    if(task & GIMME_DRAW)
+	    if(task & GIMME_DRAW) {
+		TextFace(fi.style() & ~(underline)); //do my own underlining
 		DrawText(buf, off, rlen);
+		TextFace(fi.style());
+	    }
 
 	    //restore the scale
 	    if(msz != sz)
@@ -250,8 +251,10 @@ static inline int do_text_task( const QFontPrivate *d, const QChar &c, uchar tas
     int ret = 0; //latin1 optimization
     if(task & GIMME_WIDTH)
 	ret = CharWidth((char)c.cell());
-    if(task & GIMME_DRAW)
+    if(task & GIMME_DRAW) {
+	TextFace(fi.style() & ~(underline)); //do my own underlining
 	DrawChar((char)c.cell());
+    }
     return ret;
 }
 
