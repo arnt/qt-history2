@@ -66,12 +66,10 @@ public:
     QDir workingDirectory() const;
     virtual void setWorkingDirectory( const QDir& dir );
 #endif
-    // control the execution
+    // start the execution
     virtual bool start( QStringList *env=0 );
     virtual bool launch( const QString& buf, QStringList *env=0  );
     virtual bool launch( const QByteArray& buf, QStringList *env=0  );
-    void tryTerminate() const;
-    void kill() const;
 
     // inquire the status
     bool isRunning() const;
@@ -104,6 +102,10 @@ signals:
     void launchFinished();
 
 public slots:
+    // end the execution
+    void tryTerminate() const;
+    void kill() const;
+
     // input
     virtual void writeToStdin( const QByteArray& buf );
     virtual void writeToStdin( const QString& buf );

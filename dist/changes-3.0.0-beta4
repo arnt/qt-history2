@@ -25,9 +25,13 @@ QProcess
  - The function hangUp() was renamed to tryTerminate() to make the purpose
    more clear. Furthermore, under Unix the signal that is sent was changed
    from SIGHUP to SIGTERM.
+ - The function kill() and the function tryTerminate() (former hangUp())
+   are now slots for convenience.
 
-New function:
+New slots:
 	void tryTerminate();
+	void kill();
 
 Removed function:
 	void hangUp();
+	void kill();

@@ -773,10 +773,9 @@ error:
 
 /*!
   Asks the process to terminate. Processes can ignore this wish. If you want to
-  be sure that the process really terminates, you must use kill()
-  instead.
+  be sure that the process really terminates, you must use kill() instead.
 
-  The function returns immediately: it does not wait until the process has
+  The slot returns immediately: it does not wait until the process has
   finished. When the process really exited, the signal processExited() is
   emitted.
 
@@ -790,10 +789,23 @@ void QProcess::tryTerminate() const
 
 /*!
   Terminates the process. This is not a safe way to end a process since the
-  process will not be able to do cleanup. tryTerminate() is a safer way to do it,
-  but processes might ignore a tryTerminate().
+  process will not be able to do cleanup. tryTerminate() is a safer way to do
+  it, but processes might ignore a tryTerminate().
 
-  The function returns immediately: it does not wait until the process has
+  The nice way to end a process and to be sure that it is finished, is doing
+  something like this:
+  \code
+    process->tryTerminate();
+    QTimer::singleShot( 5000, process, SLOT( kill() ) );
+  \endcode
+
+  This tries to terminate the process the nice way. If the process is still
+  running after 5 seconds, it terminates the process the hard way. The timeout
+  should be chosen depending on the time the process needs to do all the
+  cleanup: use a higher value if the process is likely to do heavy computation
+  on cleanup.
+
+  The slot returns immediately: it does not wait until the process has
   finished. When the process really exited, the signal processExited() is
   emitted.
 
