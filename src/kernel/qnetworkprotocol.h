@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#58 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#59 $
 **
 ** Definition of QNetworkProtocol class
 **
@@ -164,6 +164,7 @@ protected:
     virtual void operationRename( QNetworkOperation *op );
     virtual void operationGet( QNetworkOperation *op );
     virtual void operationPut( QNetworkOperation *op );
+    virtual void operationPutChunk( QNetworkOperation *op );
     virtual bool checkConnection( QNetworkOperation *op );
 
 private:

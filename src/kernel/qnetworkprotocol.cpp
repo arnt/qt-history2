@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#87 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -746,6 +746,13 @@ void QNetworkProtocol::operationGet( QNetworkOperation * )
 */
 
 void QNetworkProtocol::operationPut( QNetworkOperation * )
+{
+}
+
+/*! \internal
+*/
+
+void QNetworkProtocol::operationPutChunk( QNetworkOperation * )
 {
 }
 
