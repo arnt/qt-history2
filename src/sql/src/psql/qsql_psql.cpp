@@ -571,7 +571,7 @@ bool QPSQLDriver::open( const QString & db,
     PGresult* dateResult;
     switch( pro ) {
     case QPSQLDriver::Version6:
-	dateResult = PQexec( d->connection, "SET DATESTYLE TO 'ISO';" );	
+	dateResult = PQexec( d->connection, "SET DATESTYLE TO 'ISO';" );
 	break;
     case QPSQLDriver::Version7:
 	dateResult = PQexec( d->connection, "SET DATESTYLE=ISO;" );
@@ -694,8 +694,7 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
                "and int4out(u.usesysid) = int4out(c.relowner) "
                "and c.oid= a.attrelid "
 	       "and a.atttypid = t.oid "
-	       "and (a.attnum > 0) "
-	       "order by a.attrelid;";
+	       "and (a.attnum > 0);";
 	break;
     }
     QSqlQuery fi = createQuery();
