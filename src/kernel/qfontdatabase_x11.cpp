@@ -1109,10 +1109,11 @@ void QFontDatabase::createDatabase()
 #define MAXFONTSIZE 128
 
 static
-QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
+QFontEngine *loadEngine( QFont::Script script,
+			 const QFontPrivate *fp, const QFontDef &request,
 			 QtFontFamily *family, QtFontFoundry *foundry,
-			 QtFontStyle *style, QtFontSize *size, QtFontEncoding *encoding,
-			 int screen )
+			 QtFontStyle *style, QtFontSize *size,
+			 QtFontEncoding *encoding )
 {
 #ifndef QT_NO_XFTFREETYPE
     if ( encoding->encoding == -1 ) {
@@ -1190,7 +1191,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 	    scale = (double)size_value/(double)MAXFONTSIZE;
 	    size_value = MAXFONTSIZE;
 	}
-	size_value *= 72.0 / QPaintDevice::x11AppDpiY( screen );
+	size_value *= 72.0 / QPaintDevice::x11AppDpiY( fp->screen );
 
 	XftPatternAddDouble( pattern, XFT_SIZE, size_value );
 
@@ -1219,7 +1220,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 
 	XftResult res;
 	XftPattern *result =
-	    XftFontMatch( QPaintDevice::x11AppDisplay(), screen, pattern, &res );
+	    XftFontMatch( QPaintDevice::x11AppDisplay(), fp->screen, pattern, &res );
 	XftPatternDestroy(pattern);
 
 	// We pass a duplicate to XftFontOpenPattern because either xft font
