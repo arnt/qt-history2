@@ -33,12 +33,12 @@ TARGET	=	gear
 
 ####### Implicit rules
 
-.SUFFIXES: .cpp .c
+.SUFFIXES: .cpp .C
 
 .cpp.o:
 	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<
 
-.c.o:
+.C.o:
 	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<
 
 ####### Build rules
