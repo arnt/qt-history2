@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#105 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#106 $
 **
 ** Implementation of QDir class
 **
@@ -1123,12 +1123,12 @@ bool QDir::rename( const QString &name, const QString &newName,
 		     QFile::encodeName(fn2) ) == 0;
 #elif defined(_OS_WIN32_)
     if ( qt_winunicode ) {
-	TCHAR* t2 = (TCHAR*)qt_winTchar_new(fn1);
+	TCHAR* t2 = (TCHAR*)qt_winTchar_new(fn2);
 	bool r = _trename((const TCHAR*)qt_winTchar(fn1,TRUE), t2) == 0;
 	delete [] t2;
 	return r;
     } else {
-	return rename(qt_win95Name(fn1), qt_win95Name(fn2)) == 0;
+	return ::rename(qt_win95Name(fn1), qt_win95Name(fn2)) == 0;
     }
 #endif
 }
