@@ -65,6 +65,9 @@
     SQL drivers contribute to making Qt 4 database applications more
     snappy.
 
+    See the \l{sql.html}{SQL Model} for a more complete introduction
+    to Qt's SQL classes.
+
     \section1 Example Code
 
     The simplest way to present data from a database is to simply
