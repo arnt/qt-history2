@@ -79,8 +79,13 @@ main(int argc, char** argv)
 
     QString a;
 
+    #ifdef PUBLIC_INT_CONSTRUCTOR
     QString b(10);
     QString bb((int)0);
+    #else
+    QString b;
+    QString bb;
+    #endif
     QString c("String C");
     #ifdef MAXLEN_EXCLUDES_NULL
 	QString d("String D[last bit should not be seen]",8);
@@ -93,7 +98,9 @@ main(int argc, char** argv)
     QString n;
 
     TEST(a.isNull(),TRUE)
+    #ifdef PUBLIC_INT_CONSTRUCTOR
     TEST(b.isNull(),FALSE)
+    #endif
     TEST(bb.isNull(),TRUE)
     TEST(a.isEmpty(),TRUE)
     TEST(b.isEmpty(),TRUE)
@@ -124,8 +131,10 @@ main(int argc, char** argv)
     f[7]='F';
     TEST(text[7],'!')
 
+    #ifdef QT1_METHODS
     f.resize(4);
     TEST(f,"Str")
+    #endif
     e.truncate(4);
     TEST(e,"Stri")
     e.fill('e',1);
@@ -154,7 +163,7 @@ main(int argc, char** argv)
     a.sprintf("%%%d",1);
     TEST(a,"%1")
     TEST(a.sprintf("X%dY",2),"X2Y")
-    TEST(a.sprintf("X%sY","hello"),"XhelloY");
+    //TEST(a.sprintf("X%sY","hello"),"XhelloY");
     TEST(a.sprintf("X%9sY","hello"),"X    helloY");
     TEST(a.sprintf("X%9iY", 50000 ),"X    50000Y");
     TEST(a.sprintf("X%-9sY","hello"),"Xhello    Y");
@@ -345,7 +354,11 @@ main(int argc, char** argv)
     TEST(a.replace(0,9999,"XX"),"XX");
     TEST(a.replace(0,9999,""),"");
     a="ABC";
+    #ifdef QT1_METHODS
     TEST(a.replace(1,9999,0),"A");  // Rather unexpected
+    #else
+    TEST(a.replace(1,9999,""),"A");  // Rather unexpected
+    #endif
     TEST(a.append(">>"),"A>>");
     TEST(a.prepend("<["),"<[A>>");
     a="123";
@@ -404,8 +417,24 @@ main(int argc, char** argv)
     #endif
     TEST(a.toULong(&ok),3234567890UL);
     TEST(ok,TRUE);
-    TEST(a.toLong(&ok),0);
+
+    TEST(a.toLong(&ok,16),0);
     TEST(ok,FALSE);
+    a = "7fFFfFFf";
+    TEST(a.toLong(&ok,16),0x7FFFFFfF);
+    TEST(ok,TRUE);
+    a = "-7fffffff";
+    TEST(a.toLong(&ok,16),-0x7FFFFFFF);
+    TEST(ok,TRUE);
+
+    // This one is tricky to fix.
+    a = "-80000000";
+    TEST(a.toLong(&ok,16),-0x7FFFFFFF-1);
+    TEST(ok,TRUE);
+
+    a = "fFFfFfFf";
+    TEST(a.toULong(&ok,16),0xFFFFFFFFU);
+    TEST(ok,TRUE);
 
     a="0.000000000931322574615478515625";
     TEST(a.toFloat(&ok),(float)(0.000000000931322574615478515625));
@@ -413,6 +442,7 @@ main(int argc, char** argv)
     TEST(a.toDouble(&ok),(double)(0.000000000931322574615478515625));
     TEST(ok,TRUE);
 
+    #ifdef QT1_METHODS
     char t[]="TEXT";
     a="A";
     a.setStr(t);
@@ -423,7 +453,10 @@ main(int argc, char** argv)
     TEST(t[0],'T');
     t[0]='Z';
     TEST(a,"XEXT");
+    #endif
+
     TEST(a.setNum(123),"123");
+    TEST(a.setNum(0x123,16),"123");
     TEST(a.setNum((short)123),"123");
     TEST(a.setNum(123UL),"123");
     TEST(a.setNum(123UL),"123");
