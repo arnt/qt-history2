@@ -438,7 +438,6 @@ void QWSDisplayData::fillQueue()
     while ( e ) {
   	if ( e->type == QWSEvent::Creation ) {
 	    QWSCreationEvent *ce = (QWSCreationEvent*)e;
-	    qDebug("%d created",ce->simpleData.objectid);
 	    unused_identifiers.append(ce->simpleData.objectid);
 	    delete e;
 	} else if ( e->type == QWSEvent::Mouse ) {

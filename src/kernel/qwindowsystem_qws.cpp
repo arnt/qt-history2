@@ -642,7 +642,6 @@ void QWSServer::sendPropertyNotifyEvent( int property, int state )
 
 void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
 {
-    qDebug( "QWSServer::invokeCreate" );
     QWSCreationEvent event;
     event.simpleData.objectid = get_object_id();
     client->sendEvent( &event );
