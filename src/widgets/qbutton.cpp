@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#68 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,7 +18,7 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#68 $");
 
 static const int autoRepeatPeriod = 200;
 
@@ -575,7 +575,7 @@ void QButton::focusInEvent( QFocusEvent * )
 
 void QButton::focusOutEvent( QFocusEvent * )
 {
-    repaint( FALSE );
+    repaint();
 }
 
 
