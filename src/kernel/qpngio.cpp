@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#12 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -130,7 +130,7 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
 	    image.setAlphaBuffer( TRUE );
 	    int i;
 	    for (i=0; i<info_ptr->num_trans; i++) {
-		image.setColor(i, image.color(i) | 
+		image.setColor(i, image.color(i) |
 		    (info_ptr->trans[i] << 24));
 	    }
 	    while (i < info_ptr->num_palette) {
@@ -181,7 +181,7 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
 	image.create(info_ptr->width,info_ptr->height,32);
     }
 
-    if (!noalpha && (info_ptr->channels == 4 || 
+    if (!noalpha && (info_ptr->channels == 4 ||
 	(info_ptr->channels == 3 && (info_ptr->valid & PNG_INFO_tRNS)))) {
 	image.setAlphaBuffer(TRUE);
     }
@@ -670,7 +670,7 @@ class Q_EXPORT QPNGFormatType : public QImageFormatType
 	    which specifies looping.
   </dl>
 
-  The subimages usually contain a offset chunk (oFFs) but need not.  
+  The subimages usually contain a offset chunk (oFFs) but need not.
 
   The first image defines the "screen" size.  Any subsequent image that
   doesn't fit is clipped.
@@ -881,7 +881,7 @@ int QPNGFormat::user_chunk(png_structp png_ptr, png_infop,
 
 	QPNGImageWriter::DisposalMethod disposal =
 	    (QPNGImageWriter::DisposalMethod)data[0];
-	// TODO: use the disposal method
+	// ### TODO: use the disposal method
 	int ms_delay = ((data[2] << 8) | data[3])*10;
 	consumer->setFramePeriod(ms_delay);
 	return 1;
