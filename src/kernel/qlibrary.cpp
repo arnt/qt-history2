@@ -117,6 +117,7 @@ static void* qt_resolve_symbol( const QString& symbol, void* handle )
 #elif defined(Q_OS_MACX)
 
 #define DO_MAC_LIBRARY
+#include <qdict.h>
 
 #ifdef DO_MAC_LIBRARY
 //is this gross or what!?! God I love the preprocessor..
@@ -136,14 +137,24 @@ enum DYLD_BOOL { DYLD_TRUE=1, DYLD_FALSE=0 };
 #define FALSE OLD_F
 #endif
 
+static QDict<void> *glibs_loaded = NULL;
+
 // Mac
 static void* qt_load_library( const QString &file )
 {
+    if(!glibs_loaded)
+	glibs_loaded = new QDict<void>();
+    else if(glibs_loaded->find(file)) 
+	return glibs_loaded->find(file);
+
 #ifdef DO_MAC_LIBRARY
     NSObjectFileImage img;
     if( NSCreateObjectFileImageFromFile(file, &img)  != NSObjectFileImageSuccess )
 	return NULL;
-    return NSLinkModule(img, file, TRUE);
+
+    void *ret = (void *)NSLinkModule(img, file, TRUE);
+    glibs_loaded->insert(file, ret); //insert it in the loaded hash
+    return ret;
 #else
     return NULL;
 #endif
@@ -151,6 +162,14 @@ static void* qt_load_library( const QString &file )
 
 static bool qt_free_library( void *handle )
 {
+    if(glibs_loaded) {
+	for(QDictIterator<void> it(*glibs_loaded); it.current(); ++it) {
+	    if( it.current() == handle) {
+		glibs_loaded->remove(it.currentKey());
+		break;
+	    }
+	}
+    }
 #ifdef DO_MAC_LIBRARY
     NSUnLinkModule(handle, FALSE);
     return TRUE;
