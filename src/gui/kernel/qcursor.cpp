@@ -75,7 +75,7 @@
     \row \i Qt::CrossCursor             \i cross
     \row \i Qt::WaitCursor              \i wait
     \row \i Qt::BusyCursor              \i left_ptr_watch
-    \row \i Qt::IbeamCursor             \i ibeam
+    \row \i Qt::IBeamCursor             \i ibeam
     \row \i Qt::SizeVerCursor           \i size_ver
     \row \i Qt::SizeHorCursor           \i size_hor
     \row \i Qt::SizeBDiagCursor         \i size_bdiag
@@ -99,7 +99,7 @@
     \value CrossCursor  crosshair
     \value WaitCursor  hourglass/watch
     \value BusyCursor  standard arrow with hourglass/watch
-    \value IbeamCursor  ibeam/text entry
+    \value IBeamCursor  ibeam/text entry
     \value SizeVerCursor  vertical resize
     \value SizeHorCursor  horizontal resize
     \value SizeFDiagCursor  diagonal resize (\)

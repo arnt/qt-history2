@@ -382,7 +382,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         cursor.setBlockCharFormat(fmt);
     }
 
-    viewport->setCursor(readOnly ? Qt::ArrowCursor : Qt::IbeamCursor);
+    viewport->setCursor(readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
 
     QTextFrame *rootFrame = doc->rootFrame();
     QTextFrameFormat ffmt = rootFrame->format();
@@ -2126,7 +2126,7 @@ void QTextEdit::setReadOnly(bool ro)
         return;
 
     d->readOnly = ro;
-    d->viewport->setCursor(d->readOnly ? Qt::ArrowCursor : Qt::IbeamCursor);
+    d->viewport->setCursor(d->readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
 
     d->setBlinkingCursorEnabled(!ro);
 }

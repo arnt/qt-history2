@@ -913,7 +913,7 @@ QWidget *CursorProperty::createEditor(QWidget *parent, const QObject *target, co
     addCursor(combo, Qt::UpArrowCursor);
     addCursor(combo, Qt::CrossCursor);
     addCursor(combo, Qt::WaitCursor);
-    addCursor(combo, Qt::IbeamCursor);
+    addCursor(combo, Qt::IBeamCursor);
     addCursor(combo, Qt::SizeVerCursor);
     addCursor(combo, Qt::SizeHorCursor);
     addCursor(combo, Qt::SizeBDiagCursor);
@@ -956,7 +956,7 @@ QString CursorProperty::cursorName(int shape)
     case Qt::UpArrowCursor: return QString::fromLatin1("Up-Arrow");
     case Qt::CrossCursor: return QString::fromLatin1("Cross");
     case Qt::WaitCursor: return QString::fromLatin1("Waiting");
-    case Qt::IbeamCursor: return QString::fromLatin1("iBeam");
+    case Qt::IBeamCursor: return QString::fromLatin1("IBeam");
     case Qt::SizeVerCursor: return QString::fromLatin1("Size Vertical");
     case Qt::SizeHorCursor: return QString::fromLatin1("Size Horizontal");
     case Qt::SizeBDiagCursor: return QString::fromLatin1("Size Slash");
@@ -980,7 +980,7 @@ QPixmap CursorProperty::cursorPixmap(int shape)
     case Qt::UpArrowCursor: return QPixmap(":/trolltech/formeditor/images/uparrow.png");
     case Qt::CrossCursor: return QPixmap(":/trolltech/formeditor/images/cross.png");
     case Qt::WaitCursor: return QPixmap(":/trolltech/formeditor/images/wait.png");
-    case Qt::IbeamCursor: return QPixmap(":/trolltech/formeditor/images/ibeam.png");
+    case Qt::IBeamCursor: return QPixmap(":/trolltech/formeditor/images/ibeam.png");
     case Qt::SizeVerCursor: return QPixmap(":/trolltech/formeditor/images/sizev.png");
     case Qt::SizeHorCursor: return QPixmap(":/trolltech/formeditor/images/sizeh.png");
     case Qt::SizeBDiagCursor: return QPixmap(":/trolltech/formeditor/images/sizef.png");

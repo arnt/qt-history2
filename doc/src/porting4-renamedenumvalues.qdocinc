@@ -210,7 +210,7 @@
 \row \o Qt::blankCursor \o Qt::BlankCursor
 \row \o Qt::crossCursor \o Qt::CrossCursor
 \row \o Qt::forbiddenCursor \o Qt::ForbiddenCursor
-\row \o Qt::ibeamCursor \o Qt::IbeamCursor
+\row \o Qt::ibeamCursor \o Qt::IBeamCursor
 \row \o Qt::pointingHandCursor \o Qt::PointingHandCursor
 \row \o Qt::sizeAllCursor \o Qt::SizeAllCursor
 \row \o Qt::sizeBDiagCursor \o Qt::SizeBDiagCursor

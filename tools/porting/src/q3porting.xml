@@ -6398,7 +6398,7 @@
         <Qt3>Qt::forbiddenCursor</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
-        <Qt4>Qt::IbeamCursor</Qt4>
+        <Qt4>Qt::IBeamCursor</Qt4>
         <Qt3>Qt::ibeamCursor</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
@@ -8290,8 +8290,8 @@
         <Qt3>Qt::WaitCursor</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
-        <Qt4>Qt::IbeamCursor</Qt4>
-        <Qt3>Qt::IbeamCursor</Qt3>
+        <Qt4>Qt::IBeamCursor</Qt4>
+        <Qt3>Qt::IBeamCursor</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
         <Qt4>Qt::SizeVerCursor</Qt4>

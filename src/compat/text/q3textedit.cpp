@@ -955,7 +955,7 @@ void Q3TextEdit::init()
     setAttribute(Qt::WA_KeyCompression, true);
     viewport()->setMouseTracking(true);
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
+    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
     cursor = new Q3TextCursor(doc);
 
@@ -1255,7 +1255,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
             insert(QString(QChar::LineSeparator), true, false);
         } else {
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
             clearUndoRedoInfo = false;
             doKeyboardAction(ActionReturn);
@@ -1835,7 +1835,7 @@ void Q3TextEdit::removeSelectedText(int selNum)
             viewport()->repaint(0, contentsHeight(), visibleWidth(), visibleHeight() - contentsHeight());
 #endif
 #ifndef QT_NO_CURSOR
-        viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
+        viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
     } else {
         delete cursor;
@@ -1922,7 +1922,7 @@ void Q3TextEdit::moveCursor(CursorAction action, bool select)
             ensureCursorVisible();
             drawCursor(true);
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
         }
         if (redraw) {
@@ -2182,7 +2182,7 @@ void Q3TextEdit::contentsMousePressEvent(QMouseEvent *e)
         } else {
             repaintChanged();
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
         }
     } else if (e->button() == Qt::MidButton) {
@@ -2192,7 +2192,7 @@ void Q3TextEdit::contentsMousePressEvent(QMouseEvent *e)
         } else {
             repaintChanged();
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
         }
     }
@@ -2221,7 +2221,7 @@ void Q3TextEdit::contentsMouseMoveEvent(QMouseEvent *e)
                 startDrag();
 #ifndef QT_NO_CURSOR
             if (!isReadOnly())
-                viewport()->setCursor(Qt::IbeamCursor);
+                viewport()->setCursor(Qt::IBeamCursor);
 #endif
             return;
         }
@@ -2236,7 +2236,7 @@ void Q3TextEdit::contentsMouseMoveEvent(QMouseEvent *e)
         if (doc->hasSelection(Q3TextDocument::Standard) && doc->inSelection(Q3TextDocument::Standard, e->pos()))
             viewport()->setCursor(Qt::ArrowCursor);
         else
-            viewport()->setCursor(Qt::IbeamCursor);
+            viewport()->setCursor(Qt::IBeamCursor);
     }
 #endif
     updateCursor(e->pos());
@@ -2315,7 +2315,7 @@ void Q3TextEdit::contentsMouseReleaseEvent(QMouseEvent * e)
             } else {
                 repaintChanged();
 #ifndef QT_NO_CURSOR
-                viewport()->setCursor(Qt::IbeamCursor);
+                viewport()->setCursor(Qt::IBeamCursor);
 #endif
             }
             d->clipboard_mode = QClipboard::Selection;
@@ -2532,7 +2532,7 @@ void Q3TextEdit::contentsDropEvent(QDropEvent *e)
         } else {
             doc->removeSelection(Q3TextDocument::Standard);
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
         }
         drawCursor(false);
@@ -3074,7 +3074,7 @@ void Q3TextEdit::undo()
         doc->removeSelection(i);
 
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
+    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
 
     clearUndoRedo();
@@ -3123,7 +3123,7 @@ void Q3TextEdit::redo()
         doc->removeSelection(i);
 
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
+    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
 
     clearUndoRedo();
@@ -3778,7 +3778,7 @@ bool Q3TextEdit::find(const QString &expr, bool cs, bool wo, bool forward,
 #endif
     drawCursor(false);
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
+    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
     Q3TextCursor findcur = *cursor;
     if (para && index) {
@@ -4297,7 +4297,7 @@ void Q3TextEdit::selectAll(bool select)
     emit copyAvailable(doc->hasSelection(Q3TextDocument::Standard));
     emit selectionChanged();
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
+    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
 }
 
@@ -4634,7 +4634,7 @@ bool Q3TextEdit::handleReadOnlyKeyEvent(QKeyEvent *e)
                     emit browser->anchorClicked(doc->focusIndicator.name, doc->focusIndicator.href);
 
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
         }
     } break;
@@ -5569,7 +5569,7 @@ void Q3TextEdit::setReadOnly(bool b)
     if (readonly)
         viewport()->setCursor(Qt::ArrowCursor);
     else
-        viewport()->setCursor(Qt::IbeamCursor);
+        viewport()->setCursor(Qt::IBeamCursor);
     setInputMethodEnabled(!readonly);
 #endif
 #ifdef QT_TEXTEDIT_OPTIMIZATION
@@ -5781,7 +5781,7 @@ void Q3TextEdit::updateCursor(const QPoint & pos)
             }
         } else {
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
             onLink = QString::null;
             emitHighlighted(QString::null);

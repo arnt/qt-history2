@@ -354,8 +354,8 @@ void QWSCursor::createSystemCursor(int id)
                 new QWSCursor(cur_cross_bits, mcur_cross_bits, 16, 16, 7, 7);
             break;
 
-        case Qt::IbeamCursor:
-            systemCursorTable[Qt::IbeamCursor] =
+        case Qt::IBeamCursor:
+            systemCursorTable[Qt::IBeamCursor] =
                 new QWSCursor(cur_ibeam_bits, mcur_ibeam_bits, 16, 16, 7, 7);
             break;
 
@@ -574,4 +574,3 @@ void QWSCursor::createDropShadow(int dropx, int dropy)
     }
 #endif
 }
-

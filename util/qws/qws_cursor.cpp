@@ -219,7 +219,7 @@ void QWSServer::initializeCursor()
 				    mcur_up_arrow_bits, 16, 16, 7, 0);
     systemCursorTable[CrossCursor].set(cur_cross_bits,
 				    mcur_cross_bits, 16, 16, 7, 7);
-    systemCursorTable[IbeamCursor].set(cur_ibeam_bits,
+    systemCursorTable[IBeamCursor].set(cur_ibeam_bits,
 				    mcur_ibeam_bits, 16, 16, 7, 7);
     systemCursorTable[SizeVerCursor].set(cur_ver_bits,
 				    mcur_ver_bits, 16, 16, 7, 7);

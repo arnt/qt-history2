@@ -2859,7 +2859,7 @@ void QWidget::unsetLayoutDirection()
 
     An editor widget might use an I-beam cursor:
     \code
-        setCursor(Qt::IbeamCursor);
+        setCursor(Qt::IBeamCursor);
     \endcode
 
     If no cursor has been set, or after a call to unsetCursor(), the

@@ -488,7 +488,7 @@ void QCursor::update() const
     case Qt::WaitCursor:
         sh = XC_watch;
         break;
-    case Qt::IbeamCursor:
+    case Qt::IBeamCursor:
         sh = XC_xterm;
         break;
     case Qt::SizeAllCursor:

@@ -367,7 +367,7 @@ void QCursor::update() const
         d->type = QCursorData::TYPE_ThemeCursor;
         d->curs.tc.curs = kThemeWatchCursor;
         break; }
-    case Qt::IbeamCursor: {
+    case Qt::IBeamCursor: {
         d->type = QCursorData::TYPE_ThemeCursor;
         d->curs.tc.curs = kThemeIBeamCursor;
         break; }

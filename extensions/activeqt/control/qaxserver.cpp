@@ -685,7 +685,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
         out << "\t\tUpArrowCursor           = " << Qt::UpArrowCursor << "," << endl;
         out << "\t\tCrossCursor             = " << Qt::CrossCursor << "," << endl;
         out << "\t\tWaitCursor              = " << Qt::WaitCursor << "," << endl;
-        out << "\t\tIbeamCursor             = " << Qt::IbeamCursor << "," << endl;
+        out << "\t\tIBeamCursor             = " << Qt::IBeamCursor << "," << endl;
         out << "\t\tSizeVerCursor           = " << Qt::SizeVerCursor << "," << endl;
         out << "\t\tSizeHorCursor           = " << Qt::SizeHorCursor << "," << endl;
         out << "\t\tSizeBDiagCursor         = " << Qt::SizeBDiagCursor << "," << endl;

@@ -190,7 +190,7 @@ void QCursor::update() const
     case Qt::WaitCursor:
         sh = (unsigned short*)IDC_WAIT;
         break;
-    case Qt::IbeamCursor:
+    case Qt::IBeamCursor:
         sh = (unsigned short*)IDC_IBEAM;
         break;
     case Qt::SizeVerCursor:
