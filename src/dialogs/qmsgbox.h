@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#7 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#8 $
 **
 ** Definition of QMessageBox class
 **
@@ -41,6 +41,8 @@ protected:
 private:
     QLabel	*label;
     QPushButton *button;
+    void	*reserved1;
+    void	*reserved2;
 
 private:	// Disabled copy constructor and operator=
     QMessageBox( const QMessageBox & ) {}
