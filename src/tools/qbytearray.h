@@ -26,9 +26,6 @@
   Safe and portable C string functions; extensions to standard string.h
  *****************************************************************************/
 
-inline void *qmemmove( void *dst, const void *src, uint len )
-{ return memmove(dst, src, len); }
-
 Q_CORE_EXPORT char *qstrdup( const char * );
 
 inline uint qstrlen( const char *str )
@@ -51,13 +48,15 @@ Q_CORE_EXPORT int qstricmp( const char *, const char * );
 Q_CORE_EXPORT int qstrnicmp( const char *, const char *, uint len );
 
 #ifdef QT_COMPAT
-inline uint cstrlen( const char *str )
+inline QT_COMPAT void *qmemmove( void *dst, const void *src, uint len )
+{ return memmove(dst, src, len); }
+inline QT_COMPAT uint cstrlen( const char *str )
 { return (uint)strlen(str); }
-inline char *cstrcpy( char *dst, const char *src )
+inline QT_COMPAT char *cstrcpy( char *dst, const char *src )
 { return strcpy(dst,src); }
-inline int cstrcmp( const char *str1, const char *str2 )
+inline QT_COMPAT int cstrcmp( const char *str1, const char *str2 )
 { return strcmp(str1,str2); }
-inline int cstrncmp( const char *str1, const char *str2, uint len )
+inline QT_COMPAT int cstrncmp( const char *str1, const char *str2, uint len )
 { return strncmp(str1,str2,len); }
 #endif
 

@@ -34,17 +34,7 @@
  *****************************************************************************/
 
 /*!
-  \fn void *qmemmove( void *dst, const void *src, uint len )
-
-  \obsolete
-
-  Use memmove instead.
-*/
-
-
-
-/*!
-    \relates QCString
+    \relates QByteArray
 
     Returns a duplicate string.
 
@@ -65,7 +55,7 @@ char *qstrdup( const char *src )
 /*!
     \fn char *qstrcpy( char *dst, const char *src )
 
-    \relates QCString
+    \relates QByteArray
 
     A safe strcpy() function.
 
@@ -74,7 +64,7 @@ char *qstrdup( const char *src )
 */
 
 /*!
-    \relates QCString
+    \relates QByteArray
 
     A safe strncpy() function.
 
@@ -99,7 +89,7 @@ char *qstrncpy( char *dst, const char *src, uint len )
 /*!
     \fn uint qstrlen( const char *str );
 
-    \relates QCString
+    \relates QByteArray
 
     A safe strlen function.
 
@@ -110,7 +100,7 @@ char *qstrncpy( char *dst, const char *src, uint len )
 /*!
     \fn int qstrcmp( const char *str1, const char *str2 );
 
-    \relates QCString
+    \relates QByteArray
 
     A safe strcmp() function.
 
@@ -130,7 +120,7 @@ char *qstrncpy( char *dst, const char *src, uint len )
 /*!
     \fn int qstrncmp( const char *str1, const char *str2, uint len );
 
-    \relates QCString
+    \relates QByteArray
 
     A safe strncmp() function.
 
@@ -150,7 +140,7 @@ char *qstrncpy( char *dst, const char *src, uint len )
 */
 
 /*!
-    \relates QCString
+    \relates QByteArray
 
     A safe stricmp() function.
 
@@ -184,7 +174,7 @@ int qstricmp( const char *str1, const char *str2 )
 }
 
 /*!
-    \relates QCString
+    \relates QByteArray
 
     A safe strnicmp() function.
 
