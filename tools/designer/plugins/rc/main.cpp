@@ -8,7 +8,7 @@
 class RCInterface : public FilterInterface
 {
 public:
-    RCInterface( QUnknownInterface *parent );
+    RCInterface();
     ~RCInterface();
 
     QStringList featureList() const;
@@ -19,8 +19,7 @@ private:
     QGuardedPtr<QApplicationInterface> appInterface;
 };
 
-RCInterface::RCInterface( QUnknownInterface *parent )
-: FilterInterface( parent )
+RCInterface::RCInterface()
 {
 }
 
@@ -52,13 +51,29 @@ QStringList RCInterface::import( const QString &, const QString& filename )
 class RCPlugIn : public QPlugInInterface
 {
 public:
+    RCPlugIn();
+    ~RCPlugIn();
+
     QString name() const { return "MS Resource File import"; }
     QString description() const { return "Qt Designer import filter for Microsoft Resource Files"; }
     QString author() const { return "Trolltech"; }
 
     QUnknownInterface* queryInterface( const QString& );
     QStringList interfaceList() const;
+
+private:
+    RCInterface* rc;
 };
+
+RCPlugIn::RCPlugIn()
+: rc( 0 )
+{
+}
+
+RCPlugIn::~RCPlugIn()
+{
+    delete rc;
+}
 
 QStringList RCPlugIn::interfaceList() const
 {
@@ -72,7 +87,7 @@ QStringList RCPlugIn::interfaceList() const
 QUnknownInterface* RCPlugIn::queryInterface( const QString &request )
 {
     if ( request == "RCInterface" )
-	return new RCInterface( this );
+	return rc ? rc : ( rc = new RCInterface );
     return 0;
 }
 
