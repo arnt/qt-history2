@@ -57,17 +57,18 @@ PluginPreferenceWidget::PluginPreferenceWidget(PluginManager *pluginManager, QWi
     : QWidget(parent)
 {
     m_pluginManager = pluginManager;
-    QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->setMargin(0);
     m_tree = new QTreeWidget(this);
     mainLayout->addWidget(m_tree);
     
-    QVBoxLayout *vLayout = new QVBoxLayout(mainLayout);
+    QHBoxLayout *hLayout = new QHBoxLayout(mainLayout);
     m_add_path_button = new QPushButton(tr("Add path..."), this);
     connect(m_add_path_button, SIGNAL(clicked()), this, SLOT(addPath()));
-    vLayout->addWidget(m_add_path_button);
+    hLayout->addWidget(m_add_path_button);
     m_remove_path_button = new QPushButton(tr("Remove path"), this);
     connect(m_remove_path_button, SIGNAL(clicked()), this, SLOT(removePath()));
-    vLayout->addWidget(m_remove_path_button);
+    hLayout->addWidget(m_remove_path_button);
     m_remove_path_button->setEnabled(false);
     
     connect(m_tree, SIGNAL(itemSelectionChanged()),
