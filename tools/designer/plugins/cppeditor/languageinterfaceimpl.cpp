@@ -68,7 +68,7 @@ public:
     static QCString normalizeSignalSlot( const char *signalSlot ) { return QObject::normalizeSignalSlot( signalSlot ); }
 };
 
-void LanguageInterfaceImpl::functions( const QString &code, QMap<QString, QString> *functionMap ) const
+void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function> *functionMap ) const
 {
     QString text( code );
     QString func;
@@ -114,7 +114,10 @@ void LanguageInterfaceImpl::functions( const QString &code, QMap<QString, QStrin
 	}
 	body = text.mid( i, j - i + 1 );
 
-	functionMap->insert( func, body );
+	Function f;
+	f.name = func;
+	f.body = body;
+	functionMap->append( f );
     }
 }
 

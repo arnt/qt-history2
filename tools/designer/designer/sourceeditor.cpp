@@ -84,9 +84,41 @@ void SourceEditor::closeEvent( QCloseEvent *e )
 
 void SourceEditor::save()
 {
-    QMap<QString, QString> functions;
+    if ( !formWindow )
+	return;
+    QValueList<LanguageInterface::Function> functions;
+    QValueList<MetaDataBase::Slot> newSlots, oldSlots;
+    oldSlots = MetaDataBase::slotList( formWindow );
     lIface->functions( iFace->text(), &functions );
-    MetaDataBase::setFunctionBodies( formWindow, functions, lang );
+    QMap<QString, QString> funcs;
+    for ( QValueList<LanguageInterface::Function>::Iterator it = functions.begin(); it != functions.end(); ++it ) {
+	bool found = FALSE;
+	for ( QValueList<MetaDataBase::Slot>::Iterator sit = oldSlots.begin(); sit != oldSlots.end(); ++sit ) {
+	    QString s( (*sit).slot );
+	    if ( MetaDataBase::normalizeSlot( s ) == MetaDataBase::normalizeSlot( (*it).name ) ) {
+		found = TRUE;
+		MetaDataBase::Slot slot;
+		slot.slot = (*it).name;
+		slot.access = (*sit).access;
+		slot.language = (*sit).language;
+		newSlots << slot;
+		funcs.insert( (*it).name, (*it).body );
+		oldSlots.remove( sit );
+		break;
+	    }
+	}
+	if ( !found ) {
+	    MetaDataBase::Slot slot;
+	    slot.slot = (*it).name;
+	    slot.access = "public";
+	    slot.language = lang;
+	    newSlots << slot;
+	    funcs.insert( (*it).name, (*it).body );
+	}
+    }
+
+    MetaDataBase::setSlotList( formWindow, newSlots );
+    MetaDataBase::setFunctionBodies( formWindow, funcs, lang );
 }
 
 QString SourceEditor::language() const

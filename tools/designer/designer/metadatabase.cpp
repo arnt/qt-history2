@@ -474,6 +474,18 @@ void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString &acc
 	r->slotList.append( s );
 }
 
+void MetaDataBase::setSlotList( QObject *o, const QValueList<Slot> &slotList )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+    r->slotList = slotList;
+}
+
 void MetaDataBase::removeSlot( QObject *o, const QCString &slot, const QString &access, const QString &language )
 {
     setupDataBase();

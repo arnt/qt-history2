@@ -23,7 +23,7 @@
 
 #include <qcomponentinterface.h>
 #include <qstringlist.h>
-#include <qmap.h>
+#include <qvaluelist.h>
 
 // {f208499a-6f69-4883-9219-6e936e55a330}
 #ifndef IID_LanguageInterface
@@ -32,8 +32,14 @@
 
 struct LanguageInterface : public QUnknownInterface
 {
+    struct Function
+    {
+	QString name;
+	QString body;
+    };
+
     virtual QStringList featureList() const = 0;
-    virtual void functions( const QString &code, QMap<QString, QString> *funcs ) const = 0;
+    virtual void functions( const QString &code, QValueList<Function> *funcs ) const = 0;
     virtual QString createFunctionStart( const QString &className, const QString &func ) = 0;
     virtual QStringList definitions() const = 0;
     virtual QStringList definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const = 0;

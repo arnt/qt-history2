@@ -159,6 +159,7 @@ public:
     static bool isSlotUsed( QObject *o, const QCString &slot );
     static bool hasSlot( QObject *o, const QCString &slot );
     static QString languageOfSlot( QObject *o, const QCString &slot );
+    static void setSlotList( QObject *o, const QValueList<Slot> &slotList );
 
     static bool addCustomWidget( CustomWidget *w );
     static void removeCustomWidget( CustomWidget *w );
