@@ -48,7 +48,7 @@
 
 //#define QDOCKAREA_DEBUG
 
-struct DockData
+struct Q_EXPORT DockData
 {
     DockData() : w( 0 ), rect() {}
     DockData( QDockWindow *dw, const QRect &r ) : w( dw ), rect( r ) {}

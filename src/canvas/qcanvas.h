@@ -75,7 +75,7 @@ template class Q_EXPORT QValueList< QCanvasItem* >;
 #endif
 
 
-class QCanvasItemList : public QValueList<QCanvasItem*> {
+class Q_EXPORT QCanvasItemList : public QValueList<QCanvasItem*> {
 public:
     void sort();
     void drawUnique( QPainter& painter );

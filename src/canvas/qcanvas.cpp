@@ -265,7 +265,7 @@ const QRect& QCanvasClusterizer::operator[](int i)
 
 
 
-class QCanvasItemPtr {
+class Q_EXPORT QCanvasItemPtr {
 public:
     QCanvasItemPtr() : ptr(0) { }
     QCanvasItemPtr( QCanvasItem* p ) : ptr(p) { }

@@ -171,7 +171,7 @@ public:
     bool operator==( const QIconDragData &i ) const;
 };
 
-class QIconDragDataItem
+class Q_EXPORT QIconDragDataItem
 {
 public:
     QIconDragDataItem() {}

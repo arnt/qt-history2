@@ -1353,7 +1353,7 @@ void QTextDocument::setPlainText( const QString &text )
 	lParag = fParag = createParag( this, 0, 0 );
 }
 
-struct Tag {
+struct Q_EXPORT Tag {
     Tag(){}
     Tag( const QString&n, const QStyleSheetItem* s ):name(n),style(s) {
 	wsm = QStyleSheetItem::WhiteSpaceNormal;
