@@ -143,6 +143,7 @@ static void construct(QCoreVariant::Private *x, const void *copy)
             x->value.ull = *static_cast<const Q_ULLONG *>(copy);
             break;
         case QCoreVariant::Invalid:
+        case QCoreVariant::UserType:
             break;
         default:
             x->value.ptr = QMetaType::construct(x->type, copy);
@@ -153,6 +154,7 @@ static void construct(QCoreVariant::Private *x, const void *copy)
     } else {
         switch (x->type) {
         case QCoreVariant::Invalid:
+        case QCoreVariant::UserType:
             break;
         case QCoreVariant::String:
             QCONSTRUCT_EMPTY(QString);
@@ -211,13 +213,13 @@ static void construct(QCoreVariant::Private *x, const void *copy)
 
 #define QCLEAR(vType) \
     if (QTypeInfo<vType >::isLarge) \
-        delete static_cast<vType *>(p->value.ptr); \
+        delete static_cast<vType *>(d->value.ptr); \
     else \
-        reinterpret_cast<vType *>(&p->value.ptr)->~vType()
+        reinterpret_cast<vType *>(&d->value.ptr)->~vType()
 
-static void clear(QCoreVariant::Private *p)
+static void clear(QCoreVariant::Private *d)
 {
-    switch (p->type) {
+    switch (d->type) {
     case QCoreVariant::String:
         QCLEAR(QString);
         break;
@@ -248,6 +250,7 @@ static void clear(QCoreVariant::Private *p)
         QCLEAR(QBitArray);
         break;
     case QCoreVariant::Invalid:
+    case QCoreVariant::UserType:
     case QCoreVariant::Int:
     case QCoreVariant::UInt:
     case QCoreVariant::LongLong:
@@ -256,19 +259,18 @@ static void clear(QCoreVariant::Private *p)
     case QCoreVariant::Double:
         break;
     default:
-        if (QMetaType::isRegistered(p->type))
-            QMetaType::destroy(p->type, p->value.ptr);
+        if (QMetaType::isRegistered(d->type))
+            QMetaType::destroy(d->type, d->value.ptr);
         else
-            qFatal("cannot handle GUI types of QCoreVariant "
-                   "without a Gui application");
+            qFatal("QCoreVariant::clear: type %d unknown to QCoreVariant.", d->type);
         break;
     }
 
-    p->type = QCoreVariant::Invalid;
-    p->is_null = true;
-    if (p->str_cache) {
-        reinterpret_cast<QString *>(&p->str_cache)->~QString();
-        p->str_cache = 0;
+    d->type = QCoreVariant::Invalid;
+    d->is_null = true;
+    if (d->str_cache) {
+        reinterpret_cast<QString *>(&d->str_cache)->~QString();
+        d->str_cache = 0;
     }
 }
 
@@ -300,6 +302,7 @@ static bool isNull(const QCoreVariant::Private *d)
     case QCoreVariant::List:
 #endif
     case QCoreVariant::Invalid:
+    case QCoreVariant::UserType:
     case QCoreVariant::Int:
     case QCoreVariant::UInt:
     case QCoreVariant::LongLong:
@@ -309,8 +312,7 @@ static bool isNull(const QCoreVariant::Private *d)
         break;
     default:
         if (!QMetaType::isRegistered(d->type))
-            qFatal("cannot handle GUI types of QCoreVariant "
-                   "without a Gui application");
+            qFatal("QCoreVariant::isNull: type %d unknown to QCoreVariant.", d->type);
         break;
     }
     return d->is_null;
@@ -385,7 +387,7 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
         QLOAD(QBitArray);
         break;
     default:
-        qFatal("cannot handle GUI types of QCoreVariant without a Gui application");
+        qFatal("QCoreVariant::load: type %d unknown to QCoreVariant.", d->type);
     }
 }
 
@@ -449,7 +451,7 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
         s << QString();
         break;
     default:
-        qFatal("cannot handle GUI types of QCoreVariant without a Gui application");
+        qFatal("QCoreVariant::save: type %d unknown to QCoreVariant.", d->type);
     }
 }
 #endif // QT_NO_DATASTREAM
@@ -514,8 +516,7 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
         return true;
     default:
         if (!QMetaType::isRegistered(a->type))
-            qFatal("cannot handle GUI types of QCoreVariant "
-                   "without a Gui application");
+            qFatal("QCoreVariant::compare: type %d unknown to QCoreVariant.", a->type);
         return a->value.ptr == b->value.ptr;
     }
     return false;
