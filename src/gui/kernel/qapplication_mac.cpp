@@ -376,7 +376,8 @@ void qt_mac_update_os_settings()
     { //setup the global peltte
         QColor qc;
         RGBColor c;
-        QPalette pal = QApplication::palette();
+        (void) QApplication::style();  // trigger creation of application style and system palettes
+        QPalette pal = *QApplicationPrivate::sys_pal;
         if(!GetThemeBrushAsColor(kThemeBrushPrimaryHighlightColor, 32, true, &c))
             pal.setBrush(QPalette::Active, QPalette::Highlight,
                          QColor(c.red / 256, c.green / 256, c.blue / 256));
