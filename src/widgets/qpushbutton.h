@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#19 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#20 $
 **
 ** Definition of QPushButton class
 **
@@ -32,6 +32,14 @@ public:
     void	setDefault( bool def );
 
     void	adjustSize();
+
+  // Reimplemented move,resize and setGeometry
+    void	move( int x, int y );
+    void	move( const QPoint &p );
+    void	resize( int w, int h );
+    void	resize( const QSize & );
+    void	setGeometry( int x, int y, int w, int h );
+    void	setGeometry( const QRect & );
 
 public slots:
     void	setOn( bool );
