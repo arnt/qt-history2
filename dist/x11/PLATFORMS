@@ -9,7 +9,7 @@ Supported platforms and compilers:
   aix-xlc        hpux-cc        irix-o32       qnx-g++        ultrix-g++
   bsdi-g++       hpux-g++       linux-g++      sco-g++        unixware-g++
   dgux-g++       irix-64        netbsd-g++     solaris-cc     unixware7-cc
-  freebsd-g++    irix-dcc       openbsd-g++    solaris-cc64   unixware7-g++
+  freebsd-g++    irix-dcc       openbsd-g++    solaris-64   unixware7-g++
   gnu-g++        irix-g++       osf1-cxx       solaris-g++
 
 Limitations:

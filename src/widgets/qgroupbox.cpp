@@ -184,6 +184,13 @@ void QGroupBox::setTitle( const QString &title )
     }
     calculateFrame();
     setTextSpacer();
+    if ( vbox ) {
+	vbox->activate();
+	QSize s( size() );
+	QSize ms( minimumSizeHint() );
+	resize( QMAX( s.width(), ms.width() ),
+		QMAX( s.height(), ms.height() ) );
+    }
     if ( isVisible() ) {
 	update();
 	updateGeometry();
@@ -388,7 +395,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 
     if ( columns < 0 ) // if 0, we create the vbox but not the grid. See below.
 	return;
-    
+
     vbox = new QVBoxLayout( this, 8, 0 );
 
     QSpacerItem *spacer = new QSpacerItem( 0, 0, QSizePolicy::Minimum,

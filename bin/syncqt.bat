@@ -15,7 +15,7 @@ goto endofperl
 @rem ';
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/bin/syncqt.bat#12 $
+# $Id: //depot/qt/main/bin/syncqt.bat#13 $
 #
 # Synchronizes Qt header files - internal Troll Tech tool.
 #   - Creates symlinks on Unix.
@@ -59,9 +59,6 @@ foreach $p ( @dirs ) {
     @ff = find_files( ".", "^[a-z0-9]*(?:_[^p].*)?\\.h\$" , 0 );
     foreach ( @ff ) { $_ = "$p/$_"; }
     push @files, @ff;
-    @ff = find_files( ".", "^[a-z0-9]*_p.*\\.h\$" , 0 );
-    foreach ( @ff ) { $_ = "$p/$_"; }
-    push @p_files, @ff;
 }
 
 if ( check_unix() ) {
@@ -74,28 +71,11 @@ if ( check_unix() ) {
 	    print "symlink created for $f\n";
 	}
     }
-    if ( ! -d "private" ) {
-	mkdir "private", 0777;
-    }
-    chdir "private";
-    foreach $f ( @p_files ) {
-	$h = $f;
-	$h =~ s-.*/--g;
-	if ( ! -l $h ) {
-	    symlink("../../" . $f, $h);
-	    print "symlink created for $f\n";
-	}
-    }
 } else {
     foreach $f ( @files ) {
 	$h = $f;
 	$h =~ s-.*/--g;
 	sync_files("$basedir/$f", "$includedir/$h", $fast);
-    }
-    foreach $f ( @p_files ) {
-	$h = $f;
-	$h =~ s-.*/--g;
-	sync_files("$basedir/$f", "$includedir/private/$h", $fast);
     }
 }
 

@@ -47,8 +47,7 @@ class QTipLabel : public QLabel
 public:
     QTipLabel(const QString& text) : QLabel( 0, "toolTipTip",
 			  WStyle_StaysOnTop +
-			  WStyle_Customize + WStyle_NoBorder + WStyle_Tool +
-			   WX11BypassWM )
+			  WStyle_Customize + WStyle_NoBorder + WStyle_Tool )
     {
 	setMargin(1);
 	setIndent(0);
@@ -879,7 +878,7 @@ void QToolTip::clear()
   \class QToolTipGroup qtooltip.h
 
   \brief The QToolTipGroup class collects tool tips into natural groups.
-  
+
   \ingroup helpsystem
 
   Tool tips can display \e two texts, the one in the tip and

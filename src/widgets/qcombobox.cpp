@@ -1231,6 +1231,8 @@ QRect QComboBox::arrowRect() const
 
 void QComboBox::mousePressEvent( QMouseEvent *e )
 {
+    if ( e->button() != LeftButton )
+	return;
     if ( d->discardNextMousePress ) {
 	d->discardNextMousePress = FALSE;
 	return;

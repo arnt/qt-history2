@@ -379,7 +379,7 @@
 	QDictIterator<char> it( dict ); // iterator for dict
 
         while ( it.current() ) {
-	    printf( "%s -> %s\n", it.currentKey(), it.current() );
+	    printf( "%s -> %s\n", it.currentKey().latin1(), it.current() );
 	    ++it;
 	}
     }

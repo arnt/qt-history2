@@ -763,6 +763,16 @@ void QTabBar::layoutTabs()
 /*!
   \reimp
 */
+
+void QTabBar::styleChange( QStyle& old )
+{
+	layoutTabs();
+	QWidget::styleChange( old );
+}
+
+/*!
+  \reimp
+*/
 void QTabBar::focusInEvent( QFocusEvent * )
 {
     QTab *t = l->first();

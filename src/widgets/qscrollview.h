@@ -95,8 +95,9 @@ public:
     void	updateContents( const QRect& r );
     void	repaintContents( int x, int y, int w, int h, bool erase=TRUE );
     void	repaintContents( const QRect& r, bool erase=TRUE );
-
+//### make this const in 3.0
     void	contentsToViewport(int x, int y, int& vx, int& vy);
+//### make this const in 3.0
     void	viewportToContents(int vx, int vy, int& x, int& y);
     QPoint	contentsToViewport(const QPoint&);
     QPoint	viewportToContents(const QPoint&);

@@ -60,7 +60,7 @@ void AnalogClock::updateMask()	// paint clock mask
     paint.begin( &bm, this );
     paint.setBrush( color1 );		// use non-transparent color
     paint.setPen( color1 );
-    
+
     drawClock( &paint );
 
     paint.end();
@@ -68,41 +68,42 @@ void AnalogClock::updateMask()	// paint clock mask
 }
 
 //
-// The clock is painted using a 1000x1000 square coordinate system.
-// The painter's pen and brush colors are used.
+// The clock is painted using a 1000x1000 square coordinate system, in
+// the a centered square, as big as possible.  The painter's pen and
+// brush colors are used.
 //
 void AnalogClock::drawClock( QPainter *paint )
 {
-    time = QTime::currentTime();		// save current time
+    paint->save();
+    
+    paint->setWindow( -500,-500, 1000,1000 );
 
+    QRect v = paint->viewport();
+    int d = QMIN( v.width(), v.height() );
+    paint->setViewport( v.left() + (v.width()-d)/2,
+			v.top() + (v.height()-d)/2, d, d );
+
+    time = QTime::currentTime();
     QPointArray pts;
-    QPoint cp = rect().center();		// widget center point
-    int d = QMIN(width(),height());		// we want a circular clock
 
-    QWMatrix matrix;				// setup transformation matrix
-    matrix.translate( cp.x(), cp.y() );		// origin at widget center
-    matrix.scale( d/1000.0F, d/1000.0F );	// scale coordinate system
-
-    float h_angle = 30*(time.hour()%12-3) + time.minute()/2;
-    matrix.rotate( h_angle );			// rotate to draw hour hand
-    paint->setWorldMatrix( matrix );
+    paint->save();
+    paint->rotate( 30*(time.hour()%12-3) + time.minute()/2 );
     pts.setPoints( 4, -20,0,  0,-20, 300,0, 0,20 );
-    paint->drawPolygon( pts );			// draw hour hand
-    matrix.rotate( -h_angle );			// rotate back to zero
+    paint->drawPolygon( pts );
+    paint->restore();
 
-    float m_angle = (time.minute()-15)*6;
-    matrix.rotate( m_angle );			// rotate to draw minute hand
-    paint->setWorldMatrix( matrix );
+    paint->save();
+    paint->rotate( (time.minute()-15)*6 );
     pts.setPoints( 4, -10,0, 0,-10, 400,0, 0,10 );
-    paint->drawPolygon( pts );			// draw minute hand
-    matrix.rotate( -m_angle );			// rotate back to zero
+    paint->drawPolygon( pts );
+    paint->restore();
 
-    for ( int i=0; i<12; i++ ) {		// draw hour lines
-	paint->setWorldMatrix( matrix );
+    for ( int i=0; i<12; i++ ) {
 	paint->drawLine( 440,0, 460,0 );
-	matrix.rotate( 30 );
+	paint->rotate( 30 );
     }
 
+    paint->restore();
 }
 
 

@@ -876,6 +876,10 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	appDpy  = display;
 	app_Xfd = XConnectionNumber( appDpy );
 
+	// Install default error handlers
+
+	XSetErrorHandler( qt_x_errhandler );
+	XSetIOErrorHandler( qt_xio_errhandler );
     } else {
 	// Qt controls everything (default)
 
@@ -1424,7 +1428,7 @@ GC qt_xget_temp_gc( bool monochrome )		// get temporary GC
 
   You need not have a main widget; conecting lastWindowClosed() to quit() is
   another alternative.
-  
+
   For X11, this function also resizes and moves the main widget
   according to the \e -geometry command-line option, so you should set
   the default geometry (using \l QWidget::setGeometry()) before
@@ -1507,11 +1511,11 @@ static QCursorList *cursorStack = 0;
   until restoreOverrideCursor() or another setOverrideCursor() is
   called.
 
-  Application cursors are stored on an internal stack. 
+  Application cursors are stored on an internal stack.
   setOverrideCursor() pushes the cursor onto the stack, and
   restoreOverrideCursor() pops the active cursor off the stack. Every
   setOverrideCursor() must eventually be followed by a corresponding
-  restoreOverrideCursor(), otherwise the stack will never be emptied. 
+  restoreOverrideCursor(), otherwise the stack will never be emptied.
 
   If \a replace is TRUE, the new cursor will replace the last override
   cursor (the stack keeps its depth). If \a replace is FALSE, the new
@@ -1519,7 +1523,7 @@ static QCursorList *cursorStack = 0;
 
   Example:
   \code
-    QApplication::setOverrideCursor( waitCursor );
+    QApplication::setOverrideCursor( Qt::waitCursor );
     calculateHugeMandelbrot();			// lunch time...
     QApplication::restoreOverrideCursor();
   \endcode
@@ -1777,7 +1781,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 /*!
   Flushes the X event queue in the X11 implementation. This normally
   returns almost immediately. Does nothing on other platforms.
-  
+
   \sa syncX()
 */
 
@@ -2264,7 +2268,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 
 /*! This virtual does the core processing of individual X events,
 normally by dispatching Qt events to the right destination.
-  
+
 It returns 1 if the event was consumed by special handling, 0 if the
 event was consumed by normal handling, and -1 if the event was for an
 unrecognized widget.

@@ -248,17 +248,11 @@ bool QDir::setCurrent( const QString &path )
 {
     int r;
 
-#if defined(UNIX)
-    r = CHDIR( QFile::encodeName(path) );
-#elif defined(_OS_WIN32_)
     if ( qt_winunicode ) {
 	r = _tchdir((const TCHAR*)qt_winTchar(path,TRUE));
     } else {
 	r = CHDIR(qt_win95Name(path));
     }
-#elif defined( _OS_MAC_)
-#warning "not implemented"
-#endif
 
     return r >= 0;
 }

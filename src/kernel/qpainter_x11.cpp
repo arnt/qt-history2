@@ -62,7 +62,7 @@ void qt_clear_paintevent_clipping()
 void qt_erase_region( QWidget* w, const QRegion& region)
 {
     QRegion reg = region;
-    
+
     if ( !w->paintingActive() && !w->isTopLevel() && w->backgroundPixmap()
 	 && w->backgroundOrigin() == QWidget::ParentOrigin ) {
 	QPainter p( w );
@@ -72,10 +72,10 @@ void qt_erase_region( QWidget* w, const QRegion& region)
 			   w->x(), w->y() );
 	return;
     }
-    
+
     if ( w == paintEventDevice )
 	reg = paintEventClipRegion->intersect( reg );
-    
+
     QArray<QRect> r = reg.rects();
     for (uint i=0; i<r.size(); i++) {
 	const QRect& rr = r[(int)i];
@@ -90,10 +90,10 @@ void qt_erase_rect( QWidget* w, const QRect& r)
 	qt_erase_region( w, r );
     else
 	XClearArea( w->x11Display(), w->winId(), r.x(), r.y(), r.width(), r.height(), FALSE );
-	
+
 }
 
-	       
+
 
 
 /*****************************************************************************
@@ -300,12 +300,12 @@ static void free_gc( Display *dpy, GC gc, bool privateGC = FALSE )
   color value of the GC currently in use. The cache structure is
   optimized for fast lookup.  Only solid line pens with line width 0
   and solid brushes are cached.
-  
+
   In addition, stored GCs may have an implicit clipping region
   set. This prevents any drawing outside paint events. Both
   updatePen() and updateBrush() keep track of the validity of this
   clipping region by storing the clip_serial number in the cache.
-   
+
 *****************************************************************************/
 
 struct QGCC					// cached GC
@@ -491,19 +491,12 @@ typedef QIntDict<QPaintDevice> QPaintDeviceDict;
 static QPaintDeviceDict *pdev_dict = 0;
 
 /*!
-  Redirects all paint command for a paint device \e pdev to another paint
-  device \e replacement.
+  Redirects all paint command for a paint device \a pdev to another
+  paint device \a replacement, unless \a replacement is 0.  If \a
+  replacement is 0, the redirection for \a pdev is removed.
 
-  A redirected paint device is reset if \e replacement is 0.
-
-  The following example redirects painting of a widget to a pixmap:
-  \code
-    QPixmap pm( myWidget->width(), myWidget->height() );
-    pm.fill( myWidget->backgroundColor() );
-    QPainter::redirect( myWidget, &pm );
-    myWidget->repaint( FALSE );
-    QPainter::redirect( myWidget, 0 );
-  \endcode
+  Mostly, you can get better results with less work by calling
+  QPixmap::grabWidget() or QPixmap::grapWindow().
 */
 
 void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
@@ -551,15 +544,16 @@ void QPainter::init()
 
 /*!
   \fn const QFont &QPainter::font() const
-  Returns the current painter font.
+
+  Returns the currently set painter font.
   \sa setFont(), QFont
 */
 
 /*!
   Sets a new painter font.
 
-  This font is used by all subsequent drawText() functions.
-  The text color is the same as the pen color.
+  This font is used by subsequent drawText() functions.  The text
+  color is the same as the pen color.
 
   \sa font(), drawText()
 */
@@ -654,7 +648,7 @@ void QPainter::updatePen()
 	    ((QGCC*)penRef)->clip_serial = 0;
 	}
     }
-    
+
     if ( obtained )
 	return;
 
@@ -808,7 +802,7 @@ static uchar *pat_tbl[] = {
 	    gc_brush = alloc_gc( dpy, hd, testf(MonoDev), testf(UsePrivateCx));
 	}
     }
-    
+
     if ( !internclipok ) {
 	if ( pdev == paintEventDevice ) {
 	    if ( brushRef &&((QGCC*)brushRef)->clip_serial < gc_cache_clip_serial ) {
@@ -875,53 +869,27 @@ static uchar *pat_tbl[] = {
 
 /*!
   Begins painting the paint device \a pd and returns TRUE if successful,
-  or FALSE if it cannot begin painting. Call end() when you have finished
-  painting.
+  or FALSE if an error occurs.
 
-  On the X Window System, paint commands are buffered and may not appear
-  on the screen immediately. The flush() function flushes the buffer.
+  The errors that can occur are serious problems, such as these:
 
-  As an alternative to calling begin() and end(), you can use the QPainter
-  constructor that takes a paint device argument. This is for short-lived
-  painters, for example in \link QWidget::paintEvent() paint events\endlink.
+  \code
+    p->begin( 0 ); // impossible - paint device cannot be 0
 
-  This function initializes all painter settings:
-  <ul>
-  <li>The \link setFont() font\endlink is set to the default \link
-  QApplication::setFont() application font\endlink, or to the \link
-  QWidget::setFont() widget's font\endlink if \e pd is a widget.
-  <li>The \link setPen() pen\endlink is set to QPen(black,0,SolidLine),
-  or to QPen(\link QWidget::foregroundColor() widget->foreground()\endlink,
-  0,SolidLine) if \e pd is a widget.
-  <li>The \link setBrush() brush\endlink is set to QBrush(NoBrush).
-  <li>The \link setBackgroundColor() background color\endlink is set
-  to white, or to the \link QWidget::setBackgroundColor() widget's
-  background color\endlink if \e pd is a widget.
-  <li>The \link setBackgroundMode() background mode\endlink is set
-  to \c TransparentMode.
-  <li>The \link setRasterOp() raster operation\endlink is set to
-  \c CopyROP.
-  <li>The \link setBrushOrigin() brush origin\endlink is set to (0,0).
-  <li>The \link setViewXForm() view transformation\endlink setting
-  is turned off.
-  <li>The \link setWindow() window\endlink is set to the paint device
-  rectangle; (0,0,pd->width(),pd->height()).
-  <li>The \link setViewport() viewport\endlink is set to the paint device
-  rectangle; (0,0,pd->width(),pd->height()).
-  <li>The \link setWorldXForm() world transformation\endlink setting
-  is turned off.
-  <li>The \link setWorldMatrix() world matrix\endlink is set to the
-  \link QWMatrix::reset() identify matrix\endlink.
-  <li>\link setClipping() Clipping\endlink is disabled.
-  <li>The \link setClipRegion() clip region\endlink is set to an empty region.
-  </ul>
+    QPixmap pm( 0, 0 );
+    p->begin( pm ); // impossible - pm.isNull();
+
+    p->begin( myWidget );
+    p2->begin( myWidget ); // impossible - only one painter at a time
+  \endcode
+
+  Note that most of the time, you can use one of the constructors
+  instead of begin(), and that end() is automatically done at
+  destruction.
 
   \warning A paint device can only be painted by one painter at a time.
 
-  \sa end(), flush(), setFont(), setPen(), setBrush(), setBackgroundColor(),
-  setBackgroundMode(), setRasterOp(), setBrushOrigin(), setViewXForm(),
-  setWindow(), setViewport(), setWorldXForm(), setWorldMatrix(),
-  setClipRegion()
+  \sa end(), flush()
 */
 
 bool QPainter::begin( const QPaintDevice *pd )
@@ -1071,7 +1039,23 @@ bool QPainter::begin( const QPaintDevice *pd )
 
 /*!
   Ends painting.  Any resources used while painting are released.
-  \sa begin()
+
+  Note that while you mostly don't need to call end(), the destructor
+  will do it, there is at least one common case, namely double
+  buffering.
+
+  \code
+    QPainter p( myPixmap, this )
+    // ...
+    p.end(); // stops drawing on myPixmap
+    p.begin( this );
+    p.drawPixmap( myPixmap );
+  \endcode
+
+  Since you can't draw a QPixmap while it is being painted, it is
+  necessary to close the active painter.
+
+  \sa begin(), isActive()
 */
 
 bool QPainter::end()				// end painting
@@ -1082,6 +1066,11 @@ bool QPainter::end()				// end painting
 #endif
 	return FALSE;
     }
+#if defined(CHECK_STATE)
+//     if ( ps_stack && !((QPStateStack *)ps)->isEmpty() ) ####### Arnt, this didn't compile (RS)
+// 	qWarning( "QPainter::end: Missing restore() before end()" );
+#endif
+    killPStack();
     if ( testf(FontMet) )			// remove references to this
 	QFontMetrics::reset( this );
     if ( testf(FontInf) )			// remove references to this
@@ -1139,14 +1128,13 @@ void QPainter::flush()
 
 
 /*!
-  Sets the background color of the painter to \e c.
+  Sets the background color of the painter to \a c.
 
   The background color is the color that is filled in when drawing
-  opaque text, stippled lines and bitmaps.
-  The background color has no effect when transparent background mode
-  is set.
+  opaque text, stippled lines and bitmaps.  The background color has
+  no effect in transparent background mode (which is the default).
 
-  \sa backgroundColor(), setBackgroundMode()
+  \sa backgroundColor() setBackgroundMode() BackgroundMode
 */
 
 void QPainter::setBackgroundColor( const QColor &c )
@@ -1171,17 +1159,14 @@ void QPainter::setBackgroundColor( const QColor &c )
 }
 
 /*!
-  Sets the background mode of the painter to \e m, which must be one of:
-  <ul>
-  <li> \c TransparentMode (default)
-  <li> \c OpaqueMode
-  </ul>
+  Sets the background mode of the painter to \a m, which must be one
+  of \c TransparentMode (the default) and \c OpaqueMode.
 
   Transparent mode draws stippled lines and text without setting the
   background pixels. Opaque mode fills these space with the current
   background color.
 
-  In order to draw a bitmap or pixmap transparently, you must use
+  Note that in order to draw a bitmap or pixmap transparently, you must use
   QPixmap::setMask().
 
   \sa backgroundMode(), setBackgroundColor() */
@@ -1221,28 +1206,7 @@ static short ropCodes[] = {			// ROP translation table
 };
 
 /*!
-  Sets the raster operation to \e r.
-
-  The \e r parameter must be one of:
-  <ul>
-  <li> \c Qt::CopyROP:     dst = src.
-  <li> \c Qt::OrROP:       dst = src OR dst.
-  <li> \c Qt::XorROP:      dst = src XOR dst.
-  <li> \c Qt::NotAndROP:   dst = (NOT src) AND dst
-  <li> \c Qt::NotCopyROP:  dst = NOT src
-  <li> \c Qt::NotOrROP:    dst = (NOT src) OR dst
-  <li> \c Qt::NotXorROP:   dst = (NOT src) XOR dst
-  <li> \c Qt::AndROP       dst = src AND dst
-  <li> \c Qt::NotROP:      dst = NOT dst
-  <li> \c Qt::ClearROP:    dst = 0
-  <li> \c Qt::SetROP:      dst = 1
-  <li> \c Qt::NopROP:      dst = dst
-  <li> \c Qt::AndNotROP:   dst = src AND (NOT dst)
-  <li> \c Qt::OrNotROP:    dst = src OR (NOT dst)
-  <li> \c Qt::NandROP:     dst = NOT (src AND dst)
-  <li> \c Qt::NorROP:      dst = NOT (src OR dst)
-  </ul>
-
+  Sets the raster operation to \a r.  The default is \c CopyROP.
   \sa rasterOp()
 */
 
@@ -1275,12 +1239,14 @@ void QPainter::setRasterOp( RasterOp r )
     XSetFunction( dpy, gc_brush, ropCodes[rop] );
 }
 
+// ### matthias - true?
 
 /*!
-  Sets the brush origin to \e (x,y).
+  Sets the brush origin to \a (x,y).
 
-  The brush origin specifies the (0,0) coordinate of the painter's brush.
-  This setting is only necessary for pattern brushes or pixmap brushes.
+  The brush origin specifies the (0,0) coordinate of the painter's
+  brush.  This setting only applies to pattern brushes and pixmap
+  brushes.
 
   \sa brushOrigin()
 */
@@ -1308,7 +1274,7 @@ void QPainter::setBrushOrigin( int x, int y )
 
 
 /*!
-  Enables clipping if \e enable is TRUE, or disables clipping if \e enable
+  Enables clipping if \a enable is TRUE, or disables clipping if \a enable
   is FALSE.
   \sa hasClipping(), setClipRect(), setClipRegion()
 */
@@ -1365,11 +1331,11 @@ void QPainter::setClipRect( const QRect &r )
 }
 
 /*!
-  Sets the clip region to \e rgn and enables clipping.
+  Sets the clip region to \a rgn and enables clipping.
 
   Note that the clip region is given in physical device coordinates and
-  \e not subject to any \link setWorldMatrix() coordinate
-  transformation\endlink.
+  \e not subject to any \link coordsys.html coordinate
+  transformation.\endlink
 
   \sa setClipRect(), clipRegion(), setClipping()
 */
@@ -1427,7 +1393,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 
 
 /*!
-  Draws/plots a single point at \e (x,y) using the current pen.
+  Draws/plots a single point at \a (x,y) using the current pen.
 
   \sa QPen
 */
@@ -1453,9 +1419,12 @@ void QPainter::drawPoint( int x, int y )
 
 
 /*!
-  Draws/plots an array of points using the current pen.  The
-  \a index and \a npoints arguments allow a subsequence of the
-  array to be drawn.
+  Draws/plots an array of points using the current pen.
+
+  If \a index is non-zero (the default is zero) only points from \a
+  index are drawn.  If \a npoints is negative (the default) the rest
+  of the points from \a index are drawn.  If is is zero or greater, \a
+  npoints points are drawn.
 */
 
 void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
@@ -1515,8 +1484,8 @@ void QPainter::moveTo( int x, int y )
 }
 
 /*!
-  Draws a line from the current pen position to \a (x,y) and sets this to the new
-  current pen position.
+  Draws a line from the current pen position to \a (x,y) and sets \a
+  (x,y) to be the new current pen position.
 
   \sa QPen moveTo(), drawLine(), pos()
 */
@@ -1541,7 +1510,8 @@ void QPainter::lineTo( int x, int y )
 }
 
 /*!
-  Draws a line from \e (x1,y2) to \e (x2,y2).
+  Draws a line from \a (x1,y2) to \a (x2,y2) and sets \a (x2,y2) to be
+  the new current pen position.
 
   \sa QPen
 */
@@ -1570,8 +1540,8 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 
 
 /*!
-  Draws a rectangle with upper left corner at \e (x,y) and with
-  width \e w and height \e h.
+  Draws a rectangle with upper left corner at \a (x,y) and with
+  width \a w and height \a h.
 
   \sa QPen, drawRoundRect()
 */
@@ -1613,12 +1583,11 @@ void QPainter::drawRect( int x, int y, int w, int h )
 }
 
 /*!
-  Draws a Windows focus rectangle with upper left corner at \e (x,y) and with
-  width \e w and height \e h.
+  Draws a Windows focus rectangle with upper left corner at \a (x,y) and with
+  width \a w and height \a h.
 
   This function draws a stippled XOR rectangle that is used to indicate
-  keyboard focus (when the \link QApplication::style() GUI style\endlink
-  is \c WindowStyle).
+  keyboard focus (when QApplication::style() is \c WindowStyle).
 
   \warning This function draws nothing if the coordinate system has been
   \link rotate() rotated\endlink or \link shear() sheared\endlink.
@@ -1632,15 +1601,15 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 }
 
 /*!
-  Draws a Windows focus rectangle with upper left corner at \e (x,y) and with
-  width \e w and height \e h using a pen color that contrasts with \e bgColor.
+  Draws a Windows focus rectangle with upper left corner at \a (x,y) and with
+  width \a w and height \a h using a pen color that contrasts with \a bgColor.
 
-  This function draws a stippled rectangle (XOR is not used) that is used
-  to indicate keyboard focus (when the \link QApplication::style() GUI
-  style\endlink is \c WindowStyle).
+  This function draws a stippled rectangle (XOR is not used) that is
+  used to indicate keyboard focus (when the QApplication::style() is
+  \c WindowStyle).
 
   The pen color used to draw the rectangle is either white or black
-  depending on the grayness of \e bgColor (see QColor::gray()).
+  depending on the color of \a bgColor (see QColor::gray()).
 
   \warning This function draws nothing if the coordinate system has been
   \link rotate() rotated\endlink or \link shear() sheared\endlink.
@@ -1725,10 +1694,10 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 
 
 /*!
-  Draws a rectangle with round corners at \e (x,y), with width \e w
-  and height \e h.
+  Draws a rectangle with round corners at \a (x,y), with width \a w
+  and height \a h.
 
-  The \e xRnd and \e yRnd arguments specify how rounded the corners
+  The \a xRnd and \a yRnd arguments specify how rounded the corners
   should be.  0 is angled corners, 99 is maximum roundedness.
 
   The width and height include all of the drawn lines.
@@ -1864,7 +1833,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 }
 
 /*!
-  Draws an ellipse with center at \e (x+w/2,y+h/2) and size \e (w,h).
+  Draws an ellipse with center at \a (x+w/2,y+h/2) and size \a (w,h).
 */
 
 void QPainter::drawEllipse( int x, int y, int w, int h )
@@ -1908,20 +1877,18 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 
 
 /*!
-  Draws an arc defined by the rectangle \e (x,y,w,h), the start
-  angle \e a and the arc length \e alen.
+  Draws an arc defined by the rectangle \a (x,y,w,h), the start
+  angle \a a and the arc length \a alen.
 
-  The angles \e a and \e alen are 1/16th of a degree, i.e. a full
-  circle equals 5760 (16*360). Positive values of \e a and \e alen mean
+  The angles \a a and \a alen are 1/16th of a degree, i.e. a full
+  circle equals 5760 (16*360). Positive values of \a a and \a alen mean
   counter-clockwise while negative values mean clockwise direction.
   Zero degrees is at the 3'o clock position.
 
   Example:
   \code
-    QPainter p;
-    p.begin( myWidget );
+    QPainter p( myWidget );
     p.drawArc( 10,10, 70,100, 100*16, 160*16 ); // draws a "(" arc
-    p.end();
   \endcode
 
   \sa drawPie(), drawChord()
@@ -1963,13 +1930,13 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 
 
 /*!
-  Draws a pie defined by the rectangle \e (x,y,w,h), the start
-  angle \e a and the arc length \e alen.
+  Draws a pie defined by the rectangle \a (x,y,w,h), the start
+  angle \a a and the arc length \a alen.
 
-  The pie is filled with the current \link setBrush() brush\endlink.
+  The pie is filled with the current brush().
 
-  The angles \e a and \e alen are 1/16th of a degree, i.e. a full
-  circle equals 5760 (16*360). Positive values of \e a and \e alen mean
+  The angles \a a and \a alen are 1/16th of a degree, i.e. a full
+  circle equals 5760 (16*360). Positive values of \a a and \a alen mean
   counter-clockwise while negative values mean clockwise direction.
   Zero degrees is at the 3'o clock position.
 
@@ -2050,13 +2017,13 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 
 
 /*!
-  Draws a chord defined by the rectangle \e (x,y,w,h), the start
-  angle \e a and the arc length \e alen.
+  Draws a chord defined by the rectangle \a (x,y,w,h), the start
+  angle \a a and the arc length \a alen.
 
-  The chord is filled with the current \link setBrush() brush\endlink.
+  The chord is filled with the current brush().
 
-  The angles \e a and \e alen are 1/16th of a degree, i.e. a full
-  circle equals 5760 (16*360). Positive values of \e a and \e alen mean
+  The angles \a a and \a alen are 1/16th of a degree, i.e. a full
+  circle equals 5760 (16*360). Positive values of \a a and \a alen mean
   counter-clockwise while negative values mean clockwise direction.
   Zero degrees is at the 3'o clock position.
 
@@ -2124,12 +2091,13 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 
 
 /*!
-  Draws \e nlines separate lines from points defined in \e a, starting at
-  a[\e index]. If \e nlines is -1 all points until the end of the array
-  are used (i.e. (a.size()-index)/2 lines are drawn).
+  Draws \a nlines separate lines from points defined in \a a, starting
+  at a[\a index] (\a index detaults to 0). If \a nlines is -1 (the
+  defauls) all points until the end of the array are used
+  (i.e. (a.size()-index)/2 lines are drawn).
 
-  Draws the 1st line from \e a[index] to \e a[index+1].
-  Draws the 2nd line from \e a[index+2] to \e a[index+3] etc.
+  Draws the 1st line from \a a[index] to \a a[index+1].
+  Draws the 2nd line from \a a[index+2] to \a a[index+3] etc.
 
   \sa drawPolyline(), drawPolygon(), QPen
 */
@@ -2171,11 +2139,11 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 
 
 /*!
-  Draws the polyline defined by the \e npoints points in \e a starting
-  at \e a[index].
+  Draws the polyline defined by the \a npoints points in \a a starting
+  at \a a[index].  (\a index defaults to 0.)
 
-  If \e npoints is -1 all points until the end of the array are used
-  (i.e. a.size()-index-1 line segments are drawn).
+  If \a npoints is -1 (the default) all points until the end of the
+  array are used (i.e. a.size()-index-1 line segments are drawn).
 
   \sa drawLineSegments(), drawPolygon(), QPen
 */
@@ -2217,17 +2185,18 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 
 
 /*!
-  Draws the polygon defined by the \e npoints points in \e a starting at
-  \e a[index].
+  Draws the polygon defined by the \a npoints points in \a a starting at
+  \a a[index].  (\a index defaults to 0.)
 
-  If \e npoints is -1 all points until the end of the array are used
-  (i.e. a.size()-index line segments define the polygon).
+  If \a npoints is -1 (the default) all points until the end of the
+  array are used (i.e. a.size()-index line segments define the
+  polygon).
 
   The first point is always connected to the last point.
 
-  The polygon is filled with the current \link setBrush() brush\endlink.
-  If \e winding is TRUE, the polygon is filled using the winding
-  fill algorithm. If \e winding is FALSE, the polygon is filled using the
+  The polygon is filled with the current brush().
+  If \a winding is TRUE, the polygon is filled using the winding
+  fill algorithm. If \a winding is FALSE, the polygon is filled using the
   even-odd (alternative) fill algorithm.
 
   \sa drawLineSegments(), drawPolyline(), QPen
@@ -2290,11 +2259,11 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 
 
 /*!
-  Draws a cubic Bezier curve defined by the control points in \e a,
-  starting at \e a[index].
+  Draws a cubic Bezier curve defined by the control points in \a a,
+  starting at \a a[index].  (\a index defaults to 0.)
 
-  \e a must have 4 points or more.  The control point \e a[index+4] and
-  beyond are ignored.
+  Control points after \a a[index+3] are ignored.  Nothing happens if
+  there aren't enough control points.
 */
 
 void QPainter::drawQuadBezier( const QPointArray &a, int index )
@@ -2333,17 +2302,14 @@ void QPainter::drawQuadBezier( const QPointArray &a, int index )
 
 
 /*!
-  Draws a pixmap at \e (x,y) by copying a part of the pixmap into the
+  Draws a pixmap at \a (x,y) by copying a part of \a pixmap into the
   paint device.
 
-  \arg \e (x,y) specify the point in the paint device.
-  \arg \e (sx,sy) specify an offset in the pixmap.
-  \arg \e (sw,sh) specify the area of the area of the pixmap to
-  be copied.  The value -1 means to the right/bottom of the
-  pixmap.
-
-  The pixmap is clipped if a \link QPixmap::setMask() mask\endlink has
-  been set.
+  \a (x,y) specify the top-left point in the paint device that is to
+  be drawn onto.  \a (sx,sy) specify the top-left point in \a pixmap
+  that is to be drawn (the default is (0,0).  \a (sw,sh) specify the
+  size of the pixmap that is to be drawn (the default, (-1,-1), means
+  all the way to the right/bottom of the pixmap).
 
   \sa bitBlt(), QPixmap::setMask()
 */
@@ -2428,7 +2394,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
     QBitmap *mask = (QBitmap *)pixmap.mask();
     bool mono = pixmap.depth() == 1;
-    
+
     if ( mask && !hasClipping() && pdev != paintEventDevice ) {
 	if ( mono ) {				// needs GCs pen color
 	    bool selfmask = pixmap.data->selfmask;
@@ -2463,7 +2429,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( mask ) {				// pixmap has clip mask
 	// Implies that clipping is on, either explicit or implicit
 	// Create a new mask that combines the mask with the clip region
-	
+
 	if ( pdev == paintEventDevice ) {
 	    if ( hasClipping() )
 		rgn = rgn.intersect( *paintEventClipRegion );
@@ -2563,14 +2529,13 @@ static void fillTile(  QPixmap *tile, const QPixmap &pixmap )
 /*!
   Draws a tiled \a pixmap in the specified rectangle.
 
-  \arg \a (x,y,w,h) is the rectangle to be filled.
-  \arg \a (sx,sy) specify an offset in the pixmap.
+  \a (x,y) specify the top-left point in the paint device that is to
+  be drawn onto.  \a (sx,sy) specify the top-left point in \a pixmap
+  that is to be drawn (the default is (0,0).
 
-  The pixmap is clipped if a \link QPixmap::setMask() mask\endlink has
-  been set.
-
-  Calling drawTiledPixmap() is similar to calling drawPixmap()
-  several times to fill (tile) an area with a pixmap.
+  Calling drawTiledPixmap() is similar to calling drawPixmap() several
+  times to fill (tile) an area with a pixmap, but can be much more
+  efficient.
 
   \sa drawPixmap()
 */
@@ -2686,9 +2651,9 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 
 
 /*!
-  Draws at most \e len characters from \e str at position \e (x,y).
+  Draws at most \a len characters from \a str at position \a (x,y).
 
-  \e (x,y) is the base line position.  Note that the meaning of \a y
+  \a (x,y) is the base line position.  Note that the meaning of \a y
   is not the same for the two drawText() varieties.
 */
 
@@ -2863,7 +2828,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 
 /*!
   Returns the current position of the  pen.
-  
+
   \sa moveTo()
  */
 QPoint QPainter::pos() const

@@ -1409,13 +1409,13 @@ void  QPopupMenu::styleChange( QStyle& old )
     QFrame::styleChange( old );
 }
 
-/*!  
+/*!
   If a popup menu does not fit on the screen, it layouts itself in
   multiple columns until it fits.
-  
+
   This functions returns in how many.
-  
-\sa sizeHint()  
+
+\sa sizeHint()
  */
 int QPopupMenu::columns() const
 {
@@ -1804,6 +1804,7 @@ void QPopupMenu::toggleTearOff()
     } else {
 	// create a tear off menu
 	QPopupMenu* p = new QPopupMenu( 0, "tear off menu" );
+	connect( p, SIGNAL( activated(int) ), this, SIGNAL( activated(int) ) );
 	p->setCaption( caption() );
 	p->setCheckable( isCheckable() );
 	p->reparent( parentWidget(), WType_TopLevel | WStyle_Tool |

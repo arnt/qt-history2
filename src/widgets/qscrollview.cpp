@@ -2112,6 +2112,7 @@ void QScrollView::enableClipper(bool y)
   translated to
     a point on the viewport() widget.
 */
+//### make this const in 3.0
 QPoint QScrollView::contentsToViewport(const QPoint& p)
 {
     if ( d->clipped_viewport ) {
@@ -2129,6 +2130,7 @@ QPoint QScrollView::contentsToViewport(const QPoint& p)
   translated to
     a point in the contents.
 */
+//### make this const in 3.0
 QPoint QScrollView::viewportToContents(const QPoint& vp)
 {
     if ( d->clipped_viewport ) {

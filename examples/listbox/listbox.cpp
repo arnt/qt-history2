@@ -115,7 +115,7 @@ ListBoxDemo::ListBoxDemo()
     v->addStretch( 100 );
 
     int i = 0;
-    while( ++i <= 256 )
+    while( ++i <= 2560 )
         l->insertItem( QString::fromLatin1( "Item " ) + QString::number( i ),
                        i );
     columns->setRange( 1, 256 );

@@ -1634,7 +1634,7 @@ void QListViewPrivate::Root::setup()
   \ingroup advanced
 
   It can display and control a hierarchy of multi-column items, and
-  provides the ability to add new items at run-time, let the user
+  provides the ability to add new items at any time, let the user
   select one or many items, sort the list in increasing or decreasing
   order by any column, and so on.
 

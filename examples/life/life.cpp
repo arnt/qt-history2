@@ -109,11 +109,6 @@ void LifeWidget::nextGeneration()
 }
 
 
-//
-// Normally you implement drawContents() instead since LifeWidget
-// inherits QFrame.
-//
-
 void LifeWidget::paintEvent( QPaintEvent * e )
 {
     int starti = pos2index( e->rect().left() );
@@ -130,8 +125,6 @@ void LifeWidget::paintEvent( QPaintEvent * e )
     for ( int i = starti; i <= stopi; i++ ) {
 	for ( int j = startj; j <= stopj; j++ ) {
 	    if ( cells[current][i][j] )
-		// could avoid this if cells[!current][i][j] and this
-		// is a repaint(FALSE)... probably not worth it
 		qDrawShadePanel( &paint, index2pos( i ), index2pos( j ),
 				 SCALE - 1, SCALE - 1, colorGroup() );
 	    else if ( cells[!current][i][j] )

@@ -1880,9 +1880,35 @@ void QIconViewItem::checkRect()
 
 /*!
   \class QIconView qiconview.h
-  \brief The QIconView class
+  \brief The QIconView class provides an area with movable labelled icons.
 
   \ingroup advanced
+
+  It can display and control a grid or other 2-d layout of items, and
+  provides the ability to add or remove new items at any time, lets
+  the user select one or may items, rearrange the items, provides drag
+  and drop of items, and so on.
+
+  Each item (a QIconViewItem) contains a text and a pixmap (the icon itself).
+
+  The simplest usage of QIconView is to create the object, create some
+  QIconViewItems with the view as parent, set the view's geometry, and
+  show it.
+  
+  When an item is inserted, QIconView allocates a spot for it. The
+  default Arrangement is \c LeftToRight - QIconView fills up the
+  leftmost column first, then goes rightwards. You can change that
+  using setArrangement(), or insert items in a specified position by
+  calling the appropriate constructors or QIconViewItem::insertItem(),
+  or sort while the view is on-screen using setSorting() and/or
+  sort().
+
+  Each (\link QIconViewItem::isSelectable() selectable\endlink) item
+  can be selected, and the view provides various SelectionMode
+  settings. The default is \c Single - when one item is selected, the
+  previously selected item is unselected.
+
+  
 
   The QIconView provides a widget which can contain lots of iconview
   items which can be selected, dragged and so on.

@@ -407,6 +407,8 @@ void QToolLayout::init()
 {
     cached_width = 0;
     cached_height = 0;
+    cached_hfw = -1;
+    cached_wfh = -1;
 }
 
 QToolLayout::~QToolLayout()

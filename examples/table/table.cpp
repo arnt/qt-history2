@@ -449,7 +449,10 @@ void Table::columnWidthChanged( int col, int, int )
 {
     updateContents( columnPos( col ), 0, contentsWidth(), contentsHeight() );
     QSize s( tableSize() );
+    int w = contentsWidth();
     resizeContents( s.width(), s.height() );
+    if ( contentsWidth() < w )
+	repaintContents( s.width(), 0, w - s.width() + 1, contentsHeight(), TRUE );
     if ( editor ) {
 	moveChild( editor, columnPos( curCol ) + 1, rowPos( curRow ) + 1 );
 	editor->resize( columnWidth( curCol ) - 2, rowHeight( curRow ) - 2 );
@@ -461,7 +464,10 @@ void Table::rowHeightChanged( int row, int, int )
 {
     updateContents( 0, rowPos( row ), contentsWidth(), contentsHeight() );
     QSize s( tableSize() );
+    int h = contentsHeight();
     resizeContents( s.width(), s.height() );
+    if ( contentsHeight() < h )
+	repaintContents( 0, contentsHeight(), contentsWidth(), h - s.height() + 1, TRUE );
     if ( editor ) {
 	moveChild( editor, columnPos( curCol ) + 1, rowPos( curRow ) + 1 );
 	editor->resize( columnWidth( curCol ) - 2, rowHeight( curRow ) - 2 );

@@ -108,10 +108,10 @@ struct QProgressData
 
   There are two ways of using QProgressDialog, modal and non-modal.
 
-  Using a modal QProgressDialog is simpler for the programmer, but it
-  freezes the application, making it inaccessible to the user for the
-  duration of the operation.  Do the operation in a loop, calling
-  \l setProgress() at intervals, and checking for cancellation with
+  Using a modal QProgressDialog is simpler for the programmer, but you
+  have to call qApp->processEvents() to keep the event loop running
+  and prevent the application from freezing. Do the operation in a loop,
+  calling \l setProgress() at intervals, and checking for cancellation with
   wasCancelled().
 
   Example:
@@ -120,6 +120,8 @@ struct QProgressData
 				this, "progress", TRUE );
     for (int i=0; i<numFiles; i++) {
 	progress.setProgress( i );
+	qApp->processEvents();
+		
 	if ( progress.wasCancelled() )
 	    break;
 	... // copy one file
@@ -304,7 +306,7 @@ void QProgressDialog::init( QWidget *creator,
   The label becomes owned by the
   progress dialog and will be deleted when necessary,
   so do not pass the address of an object on the stack.
-  \sa setLabelText(), label()
+  \sa setLabelText()
 */
 
 void QProgressDialog::setLabel( QLabel *label )

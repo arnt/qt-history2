@@ -230,16 +230,16 @@ void QTextView::setText( const QString& text, const QString& context)
 }
 
 /*!\overload
-  
+
   Changes the contents of the view to the string \a text.
 
   \a text may be interpreted either as plain text or as rich text,
   depending on the textFormat(). The default setting is \c AutoText,
   i.e. the text view autodetects the format from \a text.
-  
+
   This function calls setText( text, QString::null ), i.e. it sets a
   text without any context.
-  
+
   \sa text(), setTextFormat()
  */
 void QTextView::setText( const QString& text )
@@ -258,9 +258,10 @@ void QTextView::append( const QString& text )
     richText().append( text,  mimeSourceFactory(), styleSheet() );
     int y = contentsHeight();
     int h = richText().lastChild()->bottomMargin();
-    if ( d->fcresize )
+    if ( d->fcresize ) {
+	d->fcresize->updateLayout();
 	doResize();
-    else
+    } else
 	updateLayout();
     updateContents( contentsX(), y-h, visibleWidth(), h );
 }
@@ -572,7 +573,7 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     to.selstart = QtTriple();
     to.selstart = to.selend;
     richText().flow()->drawFloatingItems( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), to );
-    
+
     p->setClipRegion(r);
 
     if ( paper().pixmap() )
@@ -592,8 +593,8 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 			 pagesize - oy );
 	}
     }
-#endif    
-    
+#endif
+
 }
 
 /*!

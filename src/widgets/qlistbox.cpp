@@ -39,12 +39,13 @@ class QListBoxPrivate
 {
 public:
     QListBoxPrivate( QListBox *lb ):
-	head( 0 ), current( 0 ), highlighted( 0 ),
+	head( 0 ), last( 0 ), cache( 0 ), cacheIndex( -1 ), current( 0 ), highlighted( 0 ),
 	layoutDirty( TRUE ),
 	mustPaintAll( TRUE ),
 	dragging( FALSE ),
 	variableHeight( TRUE /* !!! ### FALSE */ ),
 	variableWidth( FALSE ),
+	columnPosOne( 0 ),
 	rowModeWins( FALSE ),
 	rowMode( QListBox::FixedNumber ), columnMode( QListBox::FixedNumber ),
 	numRows( 1 ), numColumns( 1 ),
@@ -60,7 +61,8 @@ public:
     void findItemByName( const QString &text );
     ~QListBoxPrivate();
 
-    QListBoxItem * head;
+    QListBoxItem * head, *last, *cache;
+    int cacheIndex;
     QListBoxItem * current, *highlighted, *tmpCurrent;
     bool layoutDirty;
     bool mustPaintAll;
@@ -70,6 +72,7 @@ public:
 
     QArray<int> columnPos;
     QArray<int> rowPos;
+    int columnPosOne;
 
     bool rowModeWins;
     QListBox::LayoutMode rowMode;
@@ -952,17 +955,7 @@ void QListBox::setFont( const QFont &font )
 
 uint QListBox::count() const
 {
-    if ( d->count > 0 )
-	return d->count;
-
-    int c = 0;
-    QListBoxItem * i = d->head;
-    while ( i ) {
-	i = i->n;
-	c++;
-    }
-    d->count = c;
-    return c;
+    return d->count;
 }
 
 
@@ -1111,9 +1104,16 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 #endif
 
     if ( index < 0 )
-	index = count();
+	index = d->count;
+    
+    if ( index >= d->count ) {
+	insertItem( lbi, d->last );
+	return;
+    }
 
     QListBoxItem * item = (QListBoxItem *)lbi;
+    d->count++;
+    d->cache = 0;
 
     item->lbox = this;
     if ( !d->head || index == 0 ) {
@@ -1146,7 +1146,6 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 	updateItem( d->current );
     }
 
-    d->count++;
     triggerUpdate( TRUE );
 }
 
@@ -1168,6 +1167,8 @@ void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 #endif
 
     QListBoxItem * item = (QListBoxItem*)lbi;
+    d->count++;
+    d->cache = 0;
 
     item->lbox = this;
     if ( !d->head || !after ) {
@@ -1178,10 +1179,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 	if ( item->n )
 	    item->n->p = item;
     } else {
-	QListBoxItem * i = d->head;
-	while ( i && i != after )
-	    i = i->n;
-
+	QListBoxItem * i = (QListBoxItem*) after;
 	if ( i ) {
 	    item->n = i->n;
 	    item->p = i;
@@ -1192,12 +1190,15 @@ void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 	}
     }
 
+    if ( after == d->last )
+	d->last = (QListBoxItem*) lbi;
+    
+    
     if ( hasFocus() && !d->current ) {
 	d->current = d->head;
 	updateItem( d->current );
     }
 
-    d->count++;
     triggerUpdate( TRUE );
 }
 
@@ -1516,11 +1517,33 @@ index is out of bounds. \sa index()
 
 QListBoxItem *QListBox::item( int index ) const
 {
+    if ( index < 0 || index > d->count -1 ) 
+	return 0;
+    
     QListBoxItem * i = d->head;
-    while ( i && index > 0 ) {
-	index--;
-	i = i->n;
+    
+    if ( d->cache && index > 0 ) {
+	i = d->cache;
+	int idx = d->cacheIndex;
+	while ( i && idx < index ) {
+	    idx++;
+	    i = i->n;
+	}
+	while ( i && idx > index ) {
+	    idx--;
+	    i = i->p;
+	}
+    } else {
+	int idx = index;
+	while ( i && idx > 0 ) {
+	    idx--;
+	    i = i->n;
+	}
     }
+    
+    d->cache = i;
+    d->cacheIndex = index;
+
     return i;
 }
 
@@ -2469,7 +2492,7 @@ void QListBox::emitChangedSignal( bool )
 
 QSize QListBox::sizeHint() const
 {
-    d->layoutDirty = TRUE;
+//     d->layoutDirty = TRUE;
     doLayout();
 
     int i=0;
@@ -2501,7 +2524,7 @@ QSize QListBox::sizeHint() const
 
 QSize QListBox::minimumSizeHint() const
 {
-    d->layoutDirty = TRUE;
+//     d->layoutDirty = TRUE;
     doLayout();
 
     int x, y;
@@ -2764,6 +2787,7 @@ void QListBox::doLayout() const
     w = QMAX( w, s.width() );
     h = QMAX( h, s.height() );
 
+    d->columnPosOne = d->columnPos[1]; 
     // extend the column for simple single-column listboxes
     if ( columnMode() == FixedNumber && d->numColumns == 1 &&
 	 d->columnPos[1] < w )
@@ -2941,21 +2965,8 @@ QListBoxItem * QListBox::itemAt( QPoint p ) const
     if ( y > d->rowPos[ numRows() ] )
 	return 0;
 
-    int col = 0;
-    while ( TRUE ) {
-	if ( x > d->columnPos[ col + 1 ] && col < numColumns() - 1 )
-	    col ++;
-	else
-	    break;
-    }
-
-    int row = 0;
-    while ( TRUE ) {
-	if ( y > d->rowPos[ row + 1 ] && row < numRows() - 1 )
-	    row ++;
-	else
-	    break;
-    }
+    int col = columnAt( x );
+    int row = rowAt( y );
 
     QListBoxItem *i = item( col * numRows()  +row );
     if ( i && numColumns() > 1 ) {
@@ -3252,14 +3263,11 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
     int w = vp->width();
     int h = vp->height();
 
-    int col = 0;
-    int row = 0;
-    int top = row;
-    while( col < (int)d->columnPos.size()-1 && d->columnPos[col+1] < x )
-	col++;
-    while( top < (int)d->rowPos.size()-1 && d->rowPos[top+1] < y )
-	top++;
-    QListBoxItem * i = item( col*numRows() );
+    int col = columnAt( x );
+    int top = rowAt( y );
+    int row = top;
+
+    QListBoxItem * i = item( col*numRows() + row );
 
     const QColorGroup & g = colorGroup();
     p.setPen( g.text() );
@@ -3313,8 +3321,6 @@ If \a index is too large, this function returns 0.
 
 int QListBox::itemHeight( int index ) const
 {
-    if ( !d->layoutDirty )
-	doLayout();
     if ( index >= (int)count() || index < 0 )
 	return 0;
     int r = index % numRows();
@@ -3330,8 +3336,6 @@ int QListBox::itemHeight( int index ) const
 
 int QListBox::columnAt( int x ) const
 {
-    if ( !d->layoutDirty )
-	doLayout();
     if ( x < 0 )
 	return 0;
     if ( x >= d->columnPos[( int)d->columnPos.size()-1 ] )
@@ -3352,16 +3356,27 @@ int QListBox::columnAt( int x ) const
 
 int QListBox::rowAt( int y ) const
 {
-    if ( !d->layoutDirty )
-	doLayout();
     if ( y < 0 )
 	return 0;
-    if ( y >= d->rowPos[ (int)d->rowPos.size() - 1 ] )
-	return numRows() - 1;
-    int row = 0;
-    while( row < (int)d->rowPos.size()-1 && d->rowPos[row+1] < y )
- 	row++;
-    return row;
+    
+    // find the top item, use bsearch for speed
+    int l = 0;
+    int r = d->rowPos.size() - 2;
+    int i = ( (l+r+1) / 2 );
+    static int n = 0;
+    n = 0;
+    while ( r - l ) {
+	n++;
+	if ( d->rowPos[i] > y )
+	    r = i -1;
+	else
+	    l = i;
+	i = ( (l+r+1) / 2 );
+    }
+    if ( d->rowPos[i] <= y && y <= d->rowPos[i+1]  )
+	return  i;
+
+    return d->count - 1;
 }
 
 
@@ -3374,9 +3389,6 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
 {
     if ( d->resizeTimer->isActive() )
 	return QRect( 0, 0, -1, -1 );
-    if ( !d->layoutDirty )
-	doLayout();
-
     if ( !item )
 	return QRect( 0, 0, -1, -1 );
 
@@ -3453,9 +3465,16 @@ void QListBox::inSort( const QString& text )
 
 void QListBox::resizeEvent( QResizeEvent *e )
 {
-    d->layoutDirty = (d->layoutDirty || rowMode() == FitToHeight || columnMode() == FitToWidth ||
-		      columnMode() == FixedNumber );
-
+    d->layoutDirty = (d->layoutDirty || rowMode() == FitToHeight || columnMode() == FitToWidth );
+    
+    if ( !d->layoutDirty && columnMode() == FixedNumber && d->numColumns == 1) {
+	int w = d->columnPosOne;
+	QSize s( viewportSize( w, contentsHeight() ) );
+	w = QMAX( w, s.width() );
+	d->columnPos[1] = QMAX( w, d->columnPosOne );
+	resizeContents( d->columnPos[1], contentsHeight() ); 
+    }
+    
     if ( d->resizeTimer->isActive() )
 	d->resizeTimer->stop();
     if ( d->rowMode == FixedNumber && d->columnMode == FixedNumber ) {
@@ -3554,7 +3573,6 @@ void QListBox::showEvent( QShowEvent * )
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
     d->mustPaintAll = FALSE;
-    d->layoutDirty = TRUE;
     ensureCurrentVisible();
 }
 
@@ -3621,7 +3639,10 @@ void QListBox::takeItem( const QListBoxItem * item)
 {
     if ( !item || d->clearing )
 	return;
+    d->cache = 0;
     d->count--;
+    if ( item == d->last ) 
+	d->last = d->last->p;
     if ( item->p && item->p->n == item )
 	item->p->n = item->n;
     if ( item->n && item->n->p == item )
@@ -3647,7 +3668,7 @@ void QListBox::takeItem( const QListBoxItem * item)
 
     if ( d->selectAnchor == item )
 	d->selectAnchor = d->current;
-    
+
     if ( item->s )
 	emit selectionChanged();
 
@@ -3938,7 +3959,7 @@ void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, b
 	    }
 	}
     }
-    
+
     for ( i = from; i; i = i->next() ) {
 	if ( !invert ) {
 	    if ( !i->s && i->isSelectable() ) {

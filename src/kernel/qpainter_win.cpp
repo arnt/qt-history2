@@ -823,6 +823,11 @@ bool QPainter::end()
 #endif
 	return FALSE;
     }
+#if defined(CHECK_STATE)
+//     if ( ps_stack && !((QPStateStack *)ps)->isEmpty() ) ####### Arnt, this didn't compile (RS)
+// 	qWarning( "QPainter::end: Missing restore() before end()" );
+#endif
+    killPStack();
     if ( testf(FontMet) )			// remove references to this
 	QFontMetrics::reset( this );
     if ( testf(FontInf) )			// remove references to this
@@ -1097,7 +1102,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
     if ( close ) {
 	Polygon( hdc, (POINT*)a.data(), a.size() );
     } else {
-	Polyline( hdc, (POINT*)a.data(), a.size() );	
+	Polyline( hdc, (POINT*)a.data(), a.size() );
     }
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
@@ -1148,7 +1153,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 	    if ( pa.size() != a.size() ) {
 		index = 0;
 		npoints = pa.size();
-	    }		
+	    }
 	}
     }
     if ( cpen.style() != NoPen ) {
@@ -1634,7 +1639,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	    if ( pa.size() != a.size() ) {
 		index  = 0;
 		nlines = pa.size()/2;
-	    }		
+	    }
 	}
     }
 
@@ -1696,7 +1701,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	    if ( pa.size() != a.size() ) {
 		index   = 0;
 		npoints = pa.size();
-	    }		
+	    }
 	}
     }
     int x1, y1, x2, y2, xsave, ysave;
@@ -1762,7 +1767,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
 	    if ( pa.size() != a.size() ) {
 		index   = 0;
 		npoints = pa.size();
-	    }		
+	    }
 	}
     }
     if ( winding )				// set to winding fill mode

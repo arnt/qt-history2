@@ -2855,6 +2855,7 @@ void QMultiLineEdit::resizeEvent( QResizeEvent *e )
  	d->maxLineWidth = 0; // trigger update
 	updateCellWidth();
     }
+    deselect();
 }
 
 /*!

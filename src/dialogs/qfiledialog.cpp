@@ -2841,7 +2841,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 #if defined(_WS_WIN_)
     if ( qApp->style() == WindowsStyle )
 	return winGetOpenFileName( initialSelection, filter, workingDirectory,
-				   parent, name );
+				   parent, name, caption );
 #endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null,
@@ -2947,7 +2947,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 #if defined(_WS_WIN_)
     if ( qApp->style() == WindowsStyle )
 	return winGetSaveFileName( initialSelection, filter, workingDirectory,
-				   parent, name );
+				   parent, name, caption );
 #endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name, TRUE );
@@ -4594,7 +4594,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 
 #if defined(_WS_WIN_)
     if ( qApp->style() == WindowsStyle )
-	return winGetOpenFileNames( filter, workingDirectory, parent, name );
+	return winGetOpenFileNames( filter, workingDirectory, parent, name, caption );
 #endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null,

@@ -242,7 +242,7 @@ class Q_EXPORT QIconView : public QScrollView
     friend class QIconViewToolTip;
 
     Q_OBJECT
-    // #### sorting and soring direction dont work
+    // #### sorting and sort direction do not work
     Q_ENUMS( SelectionMode ItemTextPos Arrangement ResizeMode )
     Q_PROPERTY( bool sorting READ sorting )
     Q_PROPERTY( bool sortDirection READ sortDirection )

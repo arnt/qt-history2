@@ -123,6 +123,7 @@ protected:
     void mousePressEvent ( QMouseEvent * );
     void mouseReleaseEvent ( QMouseEvent * );
     void keyPressEvent( QKeyEvent * );
+    void styleChange( QStyle& );
 
     QList<QTab> * tabList();
 

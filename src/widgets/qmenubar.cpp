@@ -334,7 +334,7 @@ void QMenuBar::frameChanged()
 
 bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 {
-    if ( object == parent() && object && !object->inherits( "QToolBar" ) && 
+    if ( object == parent() && object && !object->inherits( "QToolBar" ) &&
 	 event->type() == QEvent::Resize ) {
 	QResizeEvent *e = (QResizeEvent *)event;
 	int w = e->size().width();
@@ -855,8 +855,7 @@ void QMenuBar::drawContents( QPainter *p )
 */
 void QMenuBar::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton &&
-	 e->button() != RightButton )
+    if ( e->button() != LeftButton )
 	return;
     mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
@@ -870,8 +869,7 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 */
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton &&
-	 e->button() != RightButton )
+    if ( e->button() != LeftButton )
 	return;
     mouseBtDn = FALSE;				// mouse button up
     int item = itemAtPos( e->pos() );
@@ -1073,7 +1071,7 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
     }
 
     hidePopups();
-    
+
     if ( actItem < 0 || !popupvisible || !mi  )
 	return;
 

@@ -1254,7 +1254,7 @@ QCString QFont_Private::findFont( bool *exact )
 		      familyName.ascii(), wt, slant, size, xdpi, ydpi,
 		      familyName.ascii(), slant, size, xdpi, ydpi,
 		      familyName.ascii(), slant2, size, xdpi, ydpi,
-		      slant, wt, size, xdpi, ydpi,
+		      wt, slant, size, xdpi, ydpi,
 		      slant, size, xdpi, ydpi,
 		      size, xdpi, ydpi );
 	} else {
@@ -1274,11 +1274,10 @@ QCString QFont_Private::findFont( bool *exact )
 		      familyName.ascii(), wt, slant, size, xdpi, ydpi,
 		      familyName.ascii(), slant, size, xdpi, ydpi,
 		      familyName.ascii(), slant2, size, xdpi, ydpi,
-		      slant, wt, size, xdpi, ydpi,
+		      wt, slant, size, xdpi, ydpi,
 		      slant, size, xdpi, ydpi,
 		      size, xdpi, ydpi );
 	}
-
 	return s;
     } else {
 	int score;

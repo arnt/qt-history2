@@ -1,8 +1,23 @@
-Getting Started with Qt Evaluation for Windows
-==============================================
+Getting Started with Qt/Windows Evaluation version
+==================================================
 
-When you install the Qt Evaluation version, you get a prebuilt Qt
-library which is time-limited to work for 31 days.
+Thank you for chhosing to evaluate Qt/Windows!
+
+This Qt/Windows Evaluation version has the following limitations compared
+to the full Qt/Windows Professional Edition:
+
+- Library source code is not included
+- The library is time-limited to work for 31 days
+- The library is prebuilt as a static, single-threaded library wihtout
+  debugging information. The Professional Edition may be built as a DLL,
+  it may be built in multi-threaded mode, and it may be built with
+  debugging information as an assistance during application development.
+- Applications display an information window on startup
+- GIF support is disabled
+
+Note that since the evaluation library is static, the application .exe
+files will be large. Linking towards the Professional Edition DLL library
+results in much smaller .exe files.
 
 
 Build the Qt Example Programs
@@ -23,17 +38,25 @@ directory and the environment variable QTDIR has been set.  After
 installing Qt, you may need to reboot your computer to make sure these
 settings are applied.
 
+If the compilation fails because the "make", "nmake", or the compiler
+itself cannot be found, you must make sure that the environment (PATH
+etc.) is set up for command-line use of the compiler. For Microsoft Visual
+C++ users, run the vcvars32.bat file to setup the environment. This file
+can be found in the bin directory of the Visual Studio installation.
+
 If the compilation fails because the compiler does not find the system
 header files (e.g. stdio.h or windows.h), you must set the INCLUDE and LIB
 environment variables to contain the paths of the compiler's header files
-and library files.  For Microsoft Visual C++ users, run the vcvars32.bat
-file to setup the environment.
+and library files. For Microsoft Visual C++ users, the vcvars32.bat file
+takes care of this.
 
+Also, make sure you check the relevant Platform Notes for your OS and
+compiler at http://www.trolltech.com/platforms/
 
 The Qt Reference Manual
 -----------------------
 
-The Qt reference documentation is installed in the qt\html directory
+The Qt reference documentation is installed in the qt\doc\html directory
 (unless you chose not to install it.)  The Qt folder in "Start menu ->
 Programs" contains a shortcut to browse the documentation.
 
@@ -47,7 +70,7 @@ The documentation is also available as postscript from
 http://www.trolltech.com/postscript.html
 
 
-Create Makefiles with Tmake
+Create Makefiles with tmake
 ---------------------------
 
 If you want to spend less time writing your own makefiles or you need to

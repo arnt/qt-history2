@@ -36,22 +36,30 @@ Troubleshooting
 ---------------
 
 If the compilation fails because the moc.exe program cannot be found or
-the Qt header files are missing, check if the PATH contains the Qt\bin
+the Qt header files are missing, check if the PATH contains the qt\bin
 directory and the environment variable QTDIR has been set.  After
 installing Qt, you may need to reboot your computer to make sure these
 settings are applied.
 
-If the compilation fails because the compiler cannot find the system
+If the compilation fails because the "make", "nmake", or the compiler
+itself cannot be found, you must make sure that the environment (PATH
+etc.) is set up for command-line use of the compiler. For Microsoft Visual
+C++ users, run the vcvars32.bat file to setup the environment. This file
+can be found in the bin directory of the Visual Studio installation.
+
+If the compilation fails because the compiler does not find the system
 header files (e.g. stdio.h or windows.h), you must set the INCLUDE and LIB
 environment variables to contain the paths of the compiler's header files
-and library files.  For Microsoft Visual C++ users, run the vcvars32.bat
-file to setup the environment.
+and library files. For Microsoft Visual C++ users, the vcvars32.bat file
+takes care of this.
 
+Also, make sure you check the relevant Platform Notes for your OS and
+compiler at http://www.trolltech.com/platforms/
 
 The Qt Reference Manual
 -----------------------
 
-The Qt reference documentation is installed in the qt\doc directory
+The Qt reference documentation is installed in the qt\doc\html directory
 (unless you chose not to install it.)  The Qt folder in "Start menu ->
 Programs" contains a shortcut to browse the documentation.
 
