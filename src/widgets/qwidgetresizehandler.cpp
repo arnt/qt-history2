@@ -84,6 +84,8 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
     QMouseEvent *e = (QMouseEvent*)ee;
     switch ( e->type() ) {
     case QEvent::MouseButtonPress: {
+	if ( w->isMaximized() )
+	    break;
 	if ( !widget->rect().contains( widget->mapFromGlobal( e->globalPos() ) ) )
 	    return FALSE;
 	if ( e->button() == LeftButton ) {
@@ -98,6 +100,8 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	}
     } break;
     case QEvent::MouseButtonRelease:
+	if ( w->isMaximized() )
+	    break;
 	if ( e->button() == LeftButton ) {
 	    moveResizeMode = FALSE;
 	    buttonDown = FALSE;
@@ -106,6 +110,8 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	}
 	break;
     case QEvent::MouseMove: {
+	if ( w->isMaximized() )
+	    break;
 	bool me = isMovingEnabled();
 	setMovingEnabled( me && o == widget );
 	mouseMoveEvent( e );

@@ -238,7 +238,7 @@
   A mouse event contains a special accept flag that indicates whether the
   receiver wants the event.  You should call QMouseEvent::ignore() if the
   mouse event is not handled by your widget. A mouse event is propagated up
-  the parent widget chain until a widget accepts it with QMousEvent::accept()
+  the parent widget chain until a widget accepts it with QMouseEvent::accept()
   or an event filter consumes it.
 
   The functions pos(), x() and y() give the cursor position relative
@@ -246,7 +246,7 @@
   as a result of the mouse event, use the global position returned by
   globalPos() to avoid a shaking motion.
 
-  The QWidget::setEnable() function can be used to enable or disable mouse
+  The QWidget::setEnabled() function can be used to enable or disable mouse
   and keyboard events for a widget.
 
   The event handlers QWidget::mousePressEvent(), QWidget::mouseReleaseEvent(),

@@ -1006,6 +1006,8 @@ void QWorkspace::minimizeWindow( QWidget* w)
 
 	fake->clearWState( WState_Maximized );
 	fake->setWState( WState_Minimized );
+	c->clearWState( WState_Maximized );
+	c->setWState( WState_Minimized );
     }
 }
 
@@ -1025,6 +1027,7 @@ void QWorkspace::normalizeWindow( QWidget* w)
 		c->titlebar->setMovable(TRUE);
 	}
 	fake->clearWState( WState_Minimized | WState_Maximized );
+	c->clearWState( WState_Minimized | WState_Maximized );
 
 	if ( c == d->maxWindow ) {
 	    c->setGeometry( d->maxRestore );
@@ -1106,6 +1109,8 @@ void QWorkspace::maximizeWindow( QWidget* w)
 
 	fake->clearWState( WState_Minimized );
 	fake->setWState( WState_Maximized );
+	c->clearWState( WState_Minimized );
+	c->setWState( WState_Maximized );
     }
 }
 
@@ -2440,6 +2445,8 @@ void QWorkspaceChild::adjustToFullscreen()
 		     parentWidget()->width() + width() - childWidget->width(),
 		     parentWidget()->height() + height() - childWidget->height() );
     }
+    setWState( WState_Maximized );
+    ((QWorkspaceChild*)childWidget)->setWState( WState_Maximized );
 }
 
 void QWorkspaceChild::adjustSize()
