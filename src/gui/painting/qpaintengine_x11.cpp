@@ -1360,6 +1360,8 @@ void QX11PaintEngine::drawEllipse(const QRectF &rect)
     int y = r.y();
     int w = r.width();
     int h = r.height();
+    if (w < 1 || h < 1)
+        return;
     if (w == 1 && h == 1) {
         XDrawPoint(d->dpy, d->hd, (d->cpen.style() == Qt::NoPen) ? d->gc_brush : d->gc, x, y);
         return;
