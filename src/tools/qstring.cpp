@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#133 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#134 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -429,6 +429,15 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
     QChar al = uctolower(*a);
     QChar bl = uctolower(*b);
     return al.row == bl.row ? al.cell - bl.cell : al.row - bl.row;
+}
+
+
+/*!
+  Returns whether the character is a white space.
+*/
+bool QChar::isSpace() const
+{
+    return ucisspace(*this);
 }
 
 /*!

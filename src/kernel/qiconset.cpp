@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#17 $
 **
 ** Implementation of QIconSet class
 **
@@ -297,9 +297,13 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 			tmp.convertFromImage( i, MonoOnly + ThresholdDither );
 		    }
 		} else {
-		    i = pixmap( Large, Normal ).convertToImage();
-		    i = i.createHeuristicMask();
-		    tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+		    if (pixmap( Large, Normal).mask())
+			tmp = *pixmap( Large, Normal).mask();
+		    else {
+			i = pixmap( Large, Normal ).convertToImage();
+			i = i.createHeuristicMask();
+			tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+		    }
 		    p->largeDisabled.pm
 			= new QPixmap( p->large.pm->width()+1,
 				       p->large.pm->height()+1);
@@ -369,9 +373,13 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 			tmp.convertFromImage( i, MonoOnly + ThresholdDither );
 		    }
 		} else {
-		    i = pixmap( Small, Normal ).convertToImage();
-		    i = i.createHeuristicMask();
-		    tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+		    if ( pixmap( Small, Normal).mask())
+			tmp = *pixmap( Small, Normal).mask();
+		    else {
+			i = pixmap( Small, Normal ).convertToImage();
+			i = i.createHeuristicMask();
+			tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+		    }
 		    p->smallDisabled.pm
 			= new QPixmap( p->small.pm->width()+1,
 				       p->small.pm->height()+1);
@@ -384,8 +392,8 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    painter.drawPixmap( 0, 0, tmp );
 		}
 		if ( !p->smallDisabled.pm->mask() ) {
-		    if ( !tmp.mask() )
-			tmp.setMask( tmp );
+ 		    if ( !tmp.mask() )
+ 			tmp.setMask( tmp );
 		    QBitmap mask( d->smallDisabled.pm->size() );
 		    mask.fill( Qt::color0 );
 		    QPainter painter( &mask );

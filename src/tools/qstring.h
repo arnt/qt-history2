@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#76 $
+** $Id: //depot/qt/main/src/tools/qstring.h#77 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -155,6 +155,8 @@ public:
     QChar( const QChar& c ) : row(c.row), cell(c.cell) { }
 
     QT_STATIC_CONST QChar null;
+
+    bool isSpace() const;
 
     operator char() const { return row?0:cell; }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#189 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#190 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -3971,7 +3971,6 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 
     QDict<void> colorMap( 569, TRUE );
     colorMap.setAutoDelete( FALSE );
-    image.setAlphaBuffer( TRUE );
 
     int currentColor;
 
@@ -4021,6 +4020,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	    image.setColor( currentColor, 0xff000000 | qRgb( r, g, b ) );
 	    colorMap.insert( index, (void*)(currentColor+1) );
 	} else if ( buf == "c none" ) {
+	    image.setAlphaBuffer( TRUE );
 	    int transparentColor = currentColor;
 	    image.setColor( transparentColor, RGB_MASK & qRgb( 200,200,200 ) );
 	    colorMap.insert( index, (void*)(transparentColor+1) );
@@ -4367,7 +4367,7 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 /*!  Returns TRUE if this image and \a i have the same contents, and
   FALSE if they differ.  This can be slow.  Of course, this function
   returns quickly if e.g. the two images' widths are different.
-  
+
   \sa operator=()
 */
 
@@ -4395,7 +4395,7 @@ bool QImage::operator==( const QImage & i ) const
   FALSE if they they have the same.  This can be slow.  Of course,
   this function returns quickly if e.g. the two images' widths are
   different.
-  
+
   \sa operator=()
 */
 
