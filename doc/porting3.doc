@@ -59,7 +59,7 @@ a simple task well worth the amount of effort required.
 
 To port code using Qt 2.x to use Qt 3.x:
 
-<ul>
+<ol>
  <li> Briefly read the porting notes below to get an idea of what to expect.
  <li> Be sure your code compiles and runs well on all your target platforms
         with Qt 2.x.
@@ -70,11 +70,11 @@ To port code using Qt 2.x to use Qt 3.x:
  <li> If you get stuck, ask on the qt-interest mailing list, or
 	Trolltech Technical Support if you're a Professional Edition
 	licensee.
-</ul>
+</ol>
 
 
 Many very major projects, such as ###
-have been port, so there is plenty of expertise in the collective conscious
+have been ported, so there is plenty of expertise in the collective conscious
 that is the Qt Developer Community!
 </p>
 
@@ -84,20 +84,51 @@ that is the Qt Developer Community!
 <h2 align=center>The Porting Notes</h2>
 
 <ul>
+ <li><b><a href="#Headers">Header file inclusion changes</a></b>
  <li><b><a href="#Namespace">Namespace</a></b>
  <li><b><a href="#Removed">Removed functions</a></b>
 </ul>
 
 <hr>
 
+<h3><a name="Headers">Header file inclusion changes</a></h3>
+
+<p> Qt 3.x remove some unnecessary nested #include directives from
+header files. This speeds up compilation when you don't need those
+nested header files. But in some cases you will find you need to add
+an extra #include to your files.
+
+<p> For example, if you get a message about QStringList or its functions
+not being defined, then add <code>#include &lt;qstring.h&gt;</code> at
+the top of the file giving the error.
+
 <h3><a name="Namespace">Namespace</a></h3>
 
 <p> Qt 3.x is namespace-clean.  A few global identifiers that have been
-left in Qt 2.x have been discarded.  Enumaration <code>QCursorShape</code>
-and it values <code>ArrowCursor</code>, <code>UpArrowCursor</code>,
-<code>CrossCursor</code>, <code>WaitCursor</code>, etc. are now part of the
-special <code>Qt</code> class defined in qnamespace.h.
+left in Qt 2.x have been discarded.  Enumeration <code>QCursorShape</code>
+and it values are now part of the
+special <code>Qt</code> class defined in qnamespace.h. If you get compilation
+errors about these being missing (unlikely, since most of your code will
+be in classes that inherit from the Qt namespace class), then change:
 
+<ul>
+    <li><code>QCursorShape</code> becomes <code>Qt::CursorShape</code>
+    <li><code>ArrowCursor</code> becomes <code>Qt::ArrowCursor</code>
+    <li><code>UpArrowCursor</code> becomes <code>Qt::UpArrowCursor</code>
+    <li><code>CrossCursor</code> becomes <code>Qt::CrossCursor</code>
+    <li><code>WaitCursor</code> becomes <code>Qt::WaitCursor</code>
+    <li><code>IbeamCursor</code> becomes <code>Qt::IbeamCursor</code>
+    <li><code>SizeVerCursor</code> becomes <code>Qt::SizeVerCursor</code>
+    <li><code>SizeHorCursor</code> becomes <code>Qt::SizeHorCursor</code>
+    <li><code>SizeBDiagCursor</code> becomes <code>Qt::SizeBDiagCursor</code>
+    <li><code>SizeFDiagCursor</code> becomes <code>Qt::SizeFDiagCursor</code>
+    <li><code>SizeAllCursor</code> becomes <code>Qt::SizeAllCursor</code>
+    <li><code>BlankCursor</code> becomes <code>Qt::BlankCursor</code>
+    <li><code>SplitVCursor</code> becomes <code>Qt::SplitVCursor</code>
+    <li><code>SplitHCursor</code> becomes <code>Qt::SplitHCursor</code>
+    <li><code>PointingHandCursor</code> becomes <code>Qt::PointingHandCursor</code>
+    <li><code>BitmapCursor</code> becomes <code>Qt::BitmapCursor</code>
+</ul>
 
 <h3><a name="Renamed">Removed functions</a></h3>
 
