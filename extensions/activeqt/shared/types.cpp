@@ -758,21 +758,19 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const QString &hint )
 		    var = QPixmap();
 		}
 	    } else {
-		//XXX var.rawAccess( (IUnknown*)disp, (QVariant::Type)1000 );
+                var = QVariant(QVariant::UserData(disp, "IDispatch*"));
 	    }
 	}
 	break;
     case VT_UNKNOWN:
     case VT_UNKNOWN|VT_BYREF:
 	{
-	    /* XXX
 	    IUnknown *unkn = 0;
 	    if ( arg.vt & VT_BYREF )
 		unkn = *arg.ppunkVal;
 	    else
 		unkn = arg.punkVal;
-	    var.rawAccess( unkn, (QVariant::Type)1000 );
-	    */
+            var = QVariant(QVariant::UserData(unkn, "IUnknown*"));
 	}
 	break;
     case VT_ARRAY|VT_VARIANT:
