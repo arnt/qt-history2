@@ -80,8 +80,8 @@ bool GenericTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacemen
 
 ///////////////////
 
-ScopedTokenReplacement::ScopedTokenReplacement(QByteArray oldToken, 
-                                               QByteArray newToken, 
+ScopedTokenReplacement::ScopedTokenReplacement(QByteArray oldToken,
+                                               QByteArray newToken,
                                                const QStringList inheritsQt)
 :oldToken(oldToken)
 ,newToken(newToken)
@@ -91,7 +91,7 @@ ScopedTokenReplacement::ScopedTokenReplacement(QByteArray oldToken,
 bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacements &textReplacements)
 {
     QByteArray tokenText=tokenStream->currentTokenText();
-    //printf("Scoped token: Matching %s aganinst %s \n", tokenText.constData(), oldToken.constData() );
+    //qDebug("Scoped token: Matching (%s -> %s) against %s", oldToken.constData(),newToken.constData(), tokenText.constData());
     QByteArray oldTokenName;
     QByteArray oldTokenScope;
     if (oldToken.contains("::")) {
@@ -107,26 +107,24 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
         if(!oldTokenScope.isEmpty()) {
             int scopeTokenIndex = getNextScopeToken(tokenStream, tokenStream->cursor());
             if(scopeTokenIndex  != -1) {
-                //token in tokenStream is qualified 
-                QByteArray scopeText = tokenStream->tokenText(scopeTokenIndex);    
+                //token in tokenStream is qualified
+                QByteArray scopeText = tokenStream->tokenText(scopeTokenIndex);
                 if(scopeText != oldTokenScope) {
                     // special case! if oldTokenScope is Qt, meaning the Qt class,
                     // we check if scopeText is one of the Qt3 classes that inherits Qt.
-                    // This will cach cases such as QWidget::ButtonState, wich will be 
+                    // This will cach cases such as QWidget::ButtonState, wich will be
                     // renamed to Qt:ButtonState
                     if(oldTokenScope == "Qt") {
-                        if(!inheritsQt.contains(scopeText)) 
+                        if(!inheritsQt.contains(scopeText))
                             return false;    //false alarm, scopeText is not a Qt class
                      } else {
-                         return false;    
+                         return false;
                      }
-                } 
+                }
                 Token token = tokenStream->token();
-                QByteArray newTokenName;
-                QByteArray newTokenScope;
                 if (newToken.contains("::")) {
-                    newTokenName = newToken.mid(newToken.lastIndexOf(':')+1);
-                    newTokenScope = newToken.mid(0, newToken.indexOf(':'));
+                    QByteArray newTokenName = newToken.mid(newToken.lastIndexOf(':')+1);
+                    QByteArray newTokenScope = newToken.mid(0, newToken.indexOf(':'));
                     if(newTokenScope == scopeText){
                         //the old and new scopes are equal, replace name part only
                         makeLogEntry("ScopedReplace", tokenText + " -> " + newTokenName, tokenStream);
@@ -140,8 +138,17 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
                         textReplacements.insert(newTokenName, token.position, tokenText.size());
                         return true;
                     }
-                } 
+                }
             } else {
+                QByteArray newTokenScope = newToken.mid(0, newToken.indexOf(':'));
+                // ##### this is a bit hacky. We just try to avoid replacements of
+                // e.g. Vertical with QSizePolicy::Vertically. Unqualified tokens
+                // can't happen for classes one does not usually inherit from, so
+                // we only let them pass for stuff that people usually inherited from.
+                if (newTokenScope != "Qt"
+                    && newTokenScope != "QFrame"
+                    && newTokenScope != "QValidator")
+                    return false;
                 // token in the tokenStream is not qualified
                 // relplace token with qualified new token
                 Token token = tokenStream->token();
@@ -152,7 +159,7 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
         } else {
             //oldToken is not qualified - This won't happen. (use a plain TokenReplacement
             //for unqualified tokens)
-            
+
             //relplace token with (non-qualified) new token
             /*
             Token token = tokenStream->token();
@@ -176,7 +183,7 @@ QByteArray ScopedTokenReplacement::getReplaceKey()
 }
 
 /*
-    looks for "::" backwards from startTokenIndex, returns the token index 
+    looks for "::" backwards from startTokenIndex, returns the token index
     for it if found. If the first non-whitespace token found is something else,
     -1 is returned
 */
@@ -196,10 +203,10 @@ int ScopedTokenReplacement::findScopeOperator(TokenStream *tokenStream, int star
 }
 
 /*
-    This function "unwinds" a qualified name like QString::null, by returning 
+    This function "unwinds" a qualified name like QString::null, by returning
     the token index for the next class/namespace in the qualifier chain. Thus, if null
     is the start token, getNextScopeToken will return QString's index.
-    
+
     returns -1 if the end of the qualifier chain is found.
 */
 int ScopedTokenReplacement::getNextScopeToken(TokenStream *tokenStream, int startTokenIndex)
