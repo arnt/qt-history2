@@ -4945,7 +4945,9 @@ void QDOM_DocumentPrivate::save( QTextStream& s, int ) const
   \code
   QDomDocument doc( "mydocument" );
   QFile f( "mydocument.xml" );
-  doc.setContent( f );
+  f.open( IO_ReadOnly );
+  doc.setContent( &f );
+  f.close()
 
   // print out the element names of all elements that are a direct child
   // of the outermost element.
