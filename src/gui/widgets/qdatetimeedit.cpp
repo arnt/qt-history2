@@ -1097,6 +1097,17 @@ QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
 
     const int tmp = v.toDate().day();
     setDigit(&v, s, val); // if this sets year or month it will make sure that days are lowered if needed.
+
+    //changing one section should only modify that section, if possible
+    if (!(s&AMPMSection)) {
+        if (v < minimum) {
+            val = getDigit(wrapping ? maximum : minimum, s);
+            setDigit(&v, s, val);
+        } else if (v > maximum) {
+            val = getDigit(wrapping ? minimum : maximum, s);
+            setDigit(&v, s, val);
+        }
+    }
     if (!test && tmp != v.toDate().day() && s != DaysSection) { // this should not happen when called from stepEnabled
         cachedday = qMax(tmp, cachedday);
     }
