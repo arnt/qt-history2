@@ -1268,24 +1268,20 @@ void QPainter::updateXForm()
 		d->txop = TxTranslate;
 	} else {
 	    d->txop = TxScale;
-// #if defined(Q_WS_WIN)
-// 	    setf(DirtyFont);
-// #endif
 	}
     } else {
 	d->txop = TxRotShear;
-// #if defined(Q_WS_WIN)
-// 	setf(DirtyFont);
-// #endif
     }
-// ###    setBrushOrigin(bro.x(), bro.y() );
-
     if (!d->redirection_offset.isNull()) {
 	d->txop |= TxTranslate;
 	ds->WxF = true;
-	ds->matrix.translate(-d->redirection_offset.x(), -d->redirection_offset.y());
+	// We want to translate in dev space so we do the adding of the redirection
+	// offset manually.
+	ds->matrix = QWMatrix(ds->matrix.m11(), ds->matrix.m12(),
+			      ds->matrix.m21(), ds->matrix.m22(),
+			      ds->matrix.dx()-d->redirection_offset.x(),
+			      ds->matrix.dy()-d->redirection_offset.y());
     }
-
     dgc->setDirty(QAbstractGC::DirtyTransform);
 }
 
