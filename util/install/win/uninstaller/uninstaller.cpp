@@ -57,7 +57,16 @@ int main( int argc, char** argv )
 	// Delete the two directories we have written files to during the installation.
 	// The OK button is disabled at this point.
 	// Messages will be processed during the delete process.
-	rmDirRecursive( QDir(argv[1]) );
+	
+	// Check if moc.exe exists, if not this could potentially be a 
+	// corrupted registry setting
+	
+	if ( QFile::exists( QString( argv[1] ) + QString( "\\bin\\moc.exe" ) ) )
+	    rmDirRecursive( QDir(argv[1]) );
+	else 
+	    QMessageBox::warning( 0, "Uninstalling failed", "Qt could not be uninstalled, you will "
+				  "need to remove Qt manually" );
+
 	rmDirRecursive( QDir(argv[2]) );
     
 	progress->okButton->setEnabled( true );
