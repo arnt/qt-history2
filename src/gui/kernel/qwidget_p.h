@@ -144,6 +144,7 @@ public:
     QTLWExtra        *topData() const;
 
     void init(Qt::WFlags f);
+    void create_sys(WId window, bool initializeWindow, bool destroyOldWindow);
 
     void createTLExtra();
     void createExtra();

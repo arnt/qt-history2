@@ -86,15 +86,8 @@ extern void qt_clear_paintevent_clipping();
  *****************************************************************************/
 
 
-void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
+void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyOldWindow)
 {
-    if (testAttribute(Qt::WA_WState_Created) && window == 0)
-        return;
-    setAttribute(Qt::WA_WState_Created);                        // set created flag
-
-    if (!parentWidget() || parentWidget()->isDesktop())
-        setWFlags(Qt::WType_TopLevel);                // top-level widget
-
     static int sw = -1, sh = -1;
 
     bool topLevel = testWFlags(Qt::WType_TopLevel);

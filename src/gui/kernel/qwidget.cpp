@@ -792,18 +792,6 @@ void QWidgetPrivate::init(Qt::WFlags f)
 
     data.winid = 0;
     data.widget_attributes = 0;
-#ifdef QT3_SUPPORT
-    if (f & Qt::WStaticContents)
-        q->setAttribute(Qt::WA_StaticContents);
-    if (f & Qt::WDestructiveClose)
-	q->setAttribute(Qt::WA_DeleteOnClose);
-    if (f & Qt::WShowModal)
-	q->setAttribute(Qt::WA_ShowModal);
-    if (f & Qt::WMouseNoMask)
-	q->setAttribute(Qt::WA_MouseNoMask);
-    if (f & Qt::WGroupLeader)
-	q->setAttribute(Qt::WA_GroupLeader);
-#endif
     data.window_flags = f;
     data.window_type = 0;
     data.window_state = 0;
@@ -873,19 +861,65 @@ void QWidgetPrivate::init(Qt::WFlags f)
     if (++QWidgetPrivate::instanceCounter > QWidgetPrivate::maxInstances)
         QWidgetPrivate::maxInstances = QWidgetPrivate::instanceCounter;
 
-    // send and post remaining QObject events
-    if (q->parent() && sendChildEvents) {
-        QChildEvent e(QEvent::ChildAdded, q);
-        QApplication::sendEvent(q->parent(), &e);
-#ifdef QT3_SUPPORT
-        QApplication::postEvent(q->parent(), new QChildEvent(QEvent::ChildInserted, q));
-#endif
-    }
     QEvent e(QEvent::Create);
     QApplication::sendEvent(q, &e);
     QApplication::postEvent(q, new QEvent(QEvent::PolishRequest));
 }
 
+
+/*!
+    Creates a new widget window if \a window is 0, otherwise sets the
+    widget's window to \a window.
+
+    Initializes the window (sets the geometry etc.) if \a
+    initializeWindow is true. If \a initializeWindow is false, no
+    initialization is performed. This parameter only makes sense if \a
+    window is a valid window.
+
+    Destroys the old window if \a destroyOldWindow is true. If \a
+    destroyOldWindow is false, you are responsible for destroying the
+    window yourself (using platform native code).
+
+    The QWidget constructor calls create(0,true,true) to create a
+    window for this widget.
+*/
+
+void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
+{
+    Q_D(QWidget);
+    if (testAttribute(Qt::WA_WState_Created) && window == 0)
+        return;
+    setAttribute(Qt::WA_WState_Created);                        // set created flag
+
+#ifdef QT3_SUPPORT
+    if (data->window_flags & Qt::WStaticContents)
+        setAttribute(Qt::WA_StaticContents);
+    if (data->window_flags & Qt::WDestructiveClose)
+	setAttribute(Qt::WA_DeleteOnClose);
+    if (data->window_flags & Qt::WShowModal)
+	setAttribute(Qt::WA_ShowModal);
+    if (data->window_flags & Qt::WMouseNoMask)
+	setAttribute(Qt::WA_MouseNoMask);
+    if (data->window_flags & Qt::WGroupLeader)
+	setAttribute(Qt::WA_GroupLeader);
+#endif
+    if(testWFlags(Qt::WType_Dialog) && !testAttribute(Qt::WA_ShowModal)
+       && parentWidget() && parentWidget()->testAttribute(Qt::WA_ShowModal))
+        setAttribute(Qt::WA_ShowModal);
+    if (!parentWidget() || parentWidget()->isDesktop())
+        setWFlags(Qt::WType_TopLevel);                // top-level widget
+
+    d->create_sys(window, initializeWindow, destroyOldWindow);
+
+    // send and post remaining QObject events
+    if (parent() && d->sendChildEvents) {
+        QChildEvent e(QEvent::ChildAdded, this);
+        QApplication::sendEvent(parent(), &e);
+#ifdef QT3_SUPPORT
+        QApplication::postEvent(parent(), new QChildEvent(QEvent::ChildInserted, this));
+#endif
+    }
+}
 
 /*!
     Destroys the widget.
@@ -5952,14 +5986,9 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
     d->resolveFont();
     d->resolvePalette();
     d->resolveLayoutDirection();
-    if (parent && d->sendChildEvents){
-        const QMetaObject *polished = d->polished;
-        QChildEvent e(QEvent::ChildAdded, this);
+    if (parent && d->sendChildEvents && d->polished) {
+        QChildEvent e(QEvent::ChildPolished, this);
         QCoreApplication::sendEvent(parent, &e);
-        if (polished) {
-            QChildEvent e(QEvent::ChildPolished, this);
-            QCoreApplication::sendEvent(parent, &e);
-        }
     }
     QEvent e(QEvent::ParentChange);
     QApplication::sendEvent(this, &e);

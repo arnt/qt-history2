@@ -293,48 +293,21 @@ static void qt_change_net_wm_state(const QWidget* w, bool set, Atom one, Atom tw
                false, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
 }
 
-/*!
-    Creates a new widget window if \a window is 0, otherwise sets the
-    widget's window to \a window.
-
-    Initializes the window (sets the geometry etc.) if \a
-    initializeWindow is true. If \a initializeWindow is false, no
-    initialization is performed. This parameter only makes sense if \a
-    window is a valid window.
-
-    Destroys the old window if \a destroyOldWindow is true. If \a
-    destroyOldWindow is false, you are responsible for destroying the
-    window yourself (using platform native code).
-
-    The QWidget constructor calls create(0,true,true) to create a
-    window for this widget.
-*/
-
-void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
+void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyOldWindow)
 {
-    if (testAttribute(Qt::WA_WState_Created) && window == 0)
-        return;
-
-    // set created flag
-    setAttribute(Qt::WA_WState_Created);
-
-    bool popup = testWFlags(Qt::WType_Popup);
-    bool dialog = testWFlags(Qt::WType_Dialog);
-    bool desktop = testWFlags(Qt::WType_Desktop);
-
-    // top-level widget
-    if (!parentWidget() || parentWidget()->isDesktop())
-        setWFlags(Qt::WType_TopLevel);
+    bool popup = q->testWFlags(Qt::WType_Popup);
+    bool dialog = q->testWFlags(Qt::WType_Dialog);
+    bool desktop = q->testWFlags(Qt::WType_Desktop);
 
     // these are top-level, too
-    if (dialog || popup || desktop || testWFlags(Qt::WStyle_Splash))
-        setWFlags(Qt::WType_TopLevel);
+    if (dialog || popup || desktop || q->testWFlags(Qt::WStyle_Splash))
+        q->setWFlags(Qt::WType_TopLevel);
 
     // a popup stays on top
     if (popup)
-        setWFlags(Qt::WStyle_StaysOnTop);
+        q->setWFlags(Qt::WStyle_StaysOnTop);
 
-    bool topLevel = testWFlags(Qt::WType_TopLevel);
+    bool topLevel = q->testWFlags(Qt::WType_TopLevel);
     Window parentw, destroyw = 0;
     WId           id;
 
@@ -344,32 +317,32 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     if (desktop &&
         qt_x11_create_desktop_on_screen >= 0 &&
-        qt_x11_create_desktop_on_screen != d->xinfo.screen()) {
+        qt_x11_create_desktop_on_screen != xinfo.screen()) {
         // desktop on a certain screen other than the default requested
         QX11InfoData *xd = &X11->screens[qt_x11_create_desktop_on_screen];
-        d->xinfo.setX11Data(xd);
+        xinfo.setX11Data(xd);
     } else if (parentWidget() &&  parentWidget()->d->xinfo.screen() != d->xinfo.screen()) {
-        d->xinfo = parentWidget()->d->xinfo;
+        xinfo = q->parentWidget()->d->xinfo;
     }
 
     //get display, screen number, root window and desktop geometry for
     //the current screen
     Display *dpy = X11->display;
-    int scr = d->xinfo.screen();
+    int scr = xinfo.screen();
     Window root_win = RootWindow(dpy, scr);
     int sw = DisplayWidth(dpy,scr);
     int sh = DisplayHeight(dpy,scr);
 
     if (desktop) {                                // desktop widget
         dialog = popup = false;                        // force these flags off
-        data->crect.setRect(0, 0, sw, sh);
+        q->data->crect.setRect(0, 0, sw, sh);
     } else if (topLevel) {                        // calc pos/size from screen
-        data->crect.setRect(sw/4, 3*sh/10, sw/2, 4*sh/10);
+        q->data->crect.setRect(sw/4, 3*sh/10, sw/2, 4*sh/10);
     } else {                                        // child widget
-        data->crect.setRect(0, 0, 100, 30);
+        qw->data->crect.setRect(0, 0, 100, 30);
     }
 
-    parentw = topLevel ? root_win : parentWidget()->winId();
+    parentw = topLevel ? root_win : q->parentWidget()->winId();
 
     XSetWindowAttributes wsa;
 
@@ -377,17 +350,17 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if (destroyOldWindow)
             destroyw = data->winid;
         id = window;
-        d->setWinId(window);
+        setWinId(window);
         XWindowAttributes a;
         XGetWindowAttributes(dpy, window, &a);
-        data->crect.setRect(a.x, a.y, a.width, a.height);
+        q->data->crect.setRect(a.x, a.y, a.width, a.height);
 
         if (a.map_state == IsUnmapped)
-            setAttribute(Qt::WA_WState_Visible, false);
+            q->setAttribute(Qt::WA_WState_Visible, false);
         else
-            setAttribute(Qt::WA_WState_Visible);
+            q->setAttribute(Qt::WA_WState_Visible);
 
-        QX11InfoData* xd = d->xinfo.getX11Data(true);
+        QX11InfoData* xd = xinfo.getX11Data(true);
 
         // find which screen the window is on...
         xd->screen = QX11Info::appScreen(); // by default, use the default :)
@@ -405,8 +378,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         xd->defaultVisual = (XVisualIDFromVisual((Visual *) a.visual) ==
                              XVisualIDFromVisual((Visual *) QX11Info::appVisual(d->xinfo.screen())));
         xd->colormap = a.colormap;
-        xd->defaultColormap = (a.colormap == QX11Info::appColormap(d->xinfo.screen()));
-        d->xinfo.setX11Data(xd);
+        xd->defaultColormap = (a.colormap == QX11Info::appColormap(xinfo.screen()));
+        xinfo.setX11Data(xd);
     } else if (desktop) {                        // desktop widget
         id = (WId)parentw;                        // id = root window
         QWidget *otherDesktop = find(id);        // is there another desktop?
@@ -418,18 +391,18 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             d->setWinId(id);
         }
     } else {
-        if (d->xinfo.defaultVisual() && d->xinfo.defaultColormap()) {
-            id = (WId)qt_XCreateSimpleWindow(this, dpy, parentw,
-                                             data->crect.left(), data->crect.top(),
-                                             data->crect.width(), data->crect.height(),
+        if (xinfo.defaultVisual() && xinfo.defaultColormap()) {
+            id = (WId)qt_XCreateSimpleWindow(q, dpy, parentw,
+                                             q->data->crect.left(), q->data->crect.top(),
+                                             q->data->crect.width(), q->data->crect.height(),
                                              0,
-                                             BlackPixel(dpy, d->xinfo.screen()),
-                                             WhitePixel(dpy, d->xinfo.screen()));
+                                             BlackPixel(dpy, xinfo.screen()),
+                                             WhitePixel(dpy, xinfo.screen()));
         } else {
             wsa.background_pixel = WhitePixel(dpy, d->xinfo.screen());
             wsa.border_pixel = BlackPixel(dpy, d->xinfo.screen());
             wsa.colormap = d->xinfo.colormap();
-            id = (WId)qt_XCreateWindow(this, dpy, parentw,
+            id = (WId)qt_XCreateWindow(q, dpy, parentw,
                                        data->crect.left(), data->crect.top(),
                                        data->crect.width(), data->crect.height(),
                                        0, d->xinfo.depth(), InputOutput,

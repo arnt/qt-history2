@@ -114,15 +114,8 @@ static void paint_hierarchy(QWidget *w, bool update)
   QWidget member functions
  *****************************************************************************/
 
-void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*/)
+void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destroyOldWindow*/)
 {
-    if (testAttribute(Qt::WA_WState_Created) && window == 0)
-        return;
-    setAttribute(Qt::WA_WState_Created);                        // set created flag
-
-    if (!parentWidget() || parentWidget()->isDesktop())
-        setWFlags(Qt::WType_TopLevel);                // top-level widget
-
     data->alloc_region_index = -1;
     data->alloc_region_revision = -1;
     d->isSettingGeometry = false;
