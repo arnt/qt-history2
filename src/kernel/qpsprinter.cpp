@@ -2322,11 +2322,11 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
     stream << w << " " << x;
 
     if ( paint->font().underline() )
-        stream << ' ' << y + d->fm.underlinePos() +1
-               << " " << d->fm.ascent()/20 << " Tl";
+        stream << ' ' << y + d->fm.underlinePos() + d->fm.lineWidth()
+               << " " << d->fm.lineWidth() << " Tl";
     if ( paint->font().strikeOut() )
         stream << ' ' << y + d->fm.strikeOutPos()
-               << " " << d->fm.ascent()/20 << " Tl";
+               << " " << d->fm.lineWidth() << " Tl";
     stream << " T\n";
 
 }
@@ -4779,11 +4779,11 @@ void QPSPrinterFontJapanese::drawText( QTextStream &stream, uint spaces, const Q
     d->textY = y;
     QString mdf;
     if ( paint->font().underline() )
-        mdf += " " + QString().setNum( y + d->fm.underlinePos() + 1 ) +
-               " " + QString::number(d->fm.ascent()/d->scale/20) + " Tl";
+        mdf += " " + QString().setNum( y + d->fm.underlinePos() + d->fm.lineWidth() ) +
+               " " + QString::number( d->fm.lineWidth() ) + " Tl";
     if ( paint->font().strikeOut() )
         mdf += " " + QString().setNum( y + d->fm.strikeOutPos() ) +
-               " " + QString::number(d->fm.ascent()/d->scale/20) + " Tl";
+               " " + QString::number( d->fm.lineWidth() ) + " Tl";
     int code = 0, codeOld = 0;
     QChar ch;
     QCString out, oneChar;
