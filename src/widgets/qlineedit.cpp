@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#237 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#238 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1344,7 +1344,8 @@ void QLineEdit::setEnabled( bool e )
 
 void QLineEdit::setFont( const QFont & f )
 {
-    d->pmDirty = TRUE;
+    d->pmDirty     = TRUE;
+    d->offsetDirty = TRUE;
     QWidget::setFont( f );
 }
 
