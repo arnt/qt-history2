@@ -2895,3 +2895,15 @@ void QTextView::sync()
     }
     resizeContents( contentsWidth(), doc->height() );
 }
+
+/*! \reimp */
+
+void QTextView::setEnabled( bool b )
+{
+    QScrollView::setEnabled( b );
+    if ( textFormat() == PlainText ) {
+	QTextFormat *f = doc->formatCollection()->defaultFormat();
+	f->setColor( colorGroup().text() );
+	viewport()->repaint( FALSE );
+    }
+}

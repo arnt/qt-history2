@@ -148,6 +148,7 @@ public:
     QSize sizeHint() const;
 
 public slots:
+    void setEnabled( bool );
     virtual void setMimeSourceFactory( QMimeSourceFactory* factory );
     virtual void setStyleSheet( QStyleSheet* styleSheet );
     virtual void scrollToAnchor( const QString& name );
