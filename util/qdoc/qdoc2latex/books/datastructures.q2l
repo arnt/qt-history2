@@ -1,6 +1,6 @@
 \title Datastructures and String Handling with Qt
 
-\page qtl.html
+\page qt-template-lib.html
 \page collection.html
 \page qasciicache.html
 \class QAsciiCacheIterator

@@ -32,8 +32,8 @@
 \class QIconDrag
 \class QIconDragItem
 \class QImageDrag
-\class QInterlaceStyle
 \class QKeyEvent
+\class QKeySequence
 \class QLayout
 \class QLayoutItem
 \class QLayoutIterator
@@ -41,6 +41,7 @@
 \class QMotifStyle
 \class QMouseEvent
 \class QMoveEvent
+\class QObjectCleanupHandler
 \class QPaintEvent
 \class QPlatinumStyle
 \class QResizeEvent

@@ -12,10 +12,12 @@
 \class QSqlEditorFactory
 \class QSqlError
 \class QSqlField
+\class QSqlFieldInfo
 \class QSqlForm
 \class QSqlIndex
 \class QSqlPropertyMap
 \class QSqlQuery
 \class QSqlRecord
+\class QSqlRecordInfo
 \class QSqlResult
 

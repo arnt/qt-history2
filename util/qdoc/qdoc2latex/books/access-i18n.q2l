@@ -16,7 +16,6 @@
 #\class QAccessibleWidget
 \page i18n.html
 \page scripts.html
-\page bidi.html
 \page unicode.html
 \class QIMEvent
 \class QTranslator

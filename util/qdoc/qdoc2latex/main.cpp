@@ -93,7 +93,7 @@ static const char laTeXPrologue[] =
     "% cf. The LaTeX Companion, p. 364\n"
     "\\renewenvironment{theindex}{\\newpage\n"
     "  \\label{index}%\n"
-    "  \\markboth{\\uppercase{\\indexname}}{\\uppercase{\\indexname}}%\n"
+    "  \\markboth{\\indexname}{\\indexname}%\n"
     "  \\thispagestyle{plain}\n"
     "  \\begin{multicols}{3}[\\@makechapterhead{\\indexname}]%\n"
     "  \\parindent=0pt \\parskip=0pt\n"
@@ -461,7 +461,7 @@ static bool laTeXifyHeadings( QString& html, const QString& chapterLabel )
 	    }
 
 	    s = QString( "chapter" );
-	    extra = QString( "\n\\markboth{\\uppercase{%1}}{\\uppercase{%2}}\n"
+	    extra = QString( "\n\\markboth{%1}{%2}\n"
 			     "\\label{%3}" )
 		    .arg( title )
 		    .arg( title )
@@ -734,7 +734,7 @@ static void laTeXifyTables( QString& html )
 
 		if ( end == (int) t.length() )
 		    break;
-		start = end + tx.matchedLength();		
+		start = end + tx.matchedLength();
 	    }
 
 	    /*
@@ -1101,8 +1101,8 @@ static void emitTableOfContents( int pos )
     QString toc;
 
     toc += QString( "\\chapter*{\\contentsname}\n"
-		    "\\markboth{\\uppercase{\\contentsname}}"
-		    "{\\uppercase{\\contentsname}}\n\n" );
+		    "\\markboth{\\contentsname}"
+		    "{\\contentsname}\n\n" );
     /*
       \dottedtocline is a synonym for \@dottedtocline, thanks to our
       prologue. \@dottedtocline is an internal LaTeX2e command. We

@@ -6,6 +6,7 @@
 \page abstractwidgets.html
 \page aclock-example.html
 \page actiongroup.html
+\page actiongroup-example.html
 \page addressbook-example.html
 \page advanced.html
 \page annotated.html
@@ -15,16 +16,14 @@
 \page biff-example.html
 \page bigtable-example.html
 \page buttongroups-example.html
-\page changes30.html
 \page checklists-example.html
+\page classchart.html
 \page classes.html
 \page clientserver-example.html
-\page componentmodel.html
 \page credits.html
 \page cursor-example.html
 \page customlayout-example.html
 \page database.html
-\page datetime-main-cpp.html
 \page dclock-example.html
 \page design.html
 \page desktop-example.html
@@ -44,6 +43,7 @@
 \page geomanagement.html
 \page grapher-nsplugin-example.html
 \page graphics.html
+\page groups.html
 \page guibooks.html
 \page headers.html
 \page hello-example.html
@@ -64,6 +64,7 @@
 \page listboxcombo-example.html
 \page listviews-example.html
 \page mail-example.html
+\page mainclasses.html
 \page mainlyMotif-editor-example.html
 \page mainlyQt-editor-example.html
 \page mainlyXt-editor-example.html
@@ -80,8 +81,10 @@
 \page objectmodel.html
 \page organizers.html
 \page outliner-example.html
+\page overviews-list.html
 \page picture-example.html
 \page pictures.html
+\page plugins.html
 \page popup-example.html
 \page porting2.html
 \page primes.html
@@ -104,8 +107,6 @@
 \page qlist.html
 \page qlistiterator.html
 \page qmag-example.html
-\page qmake-commandreference.html
-\page qmake-guide.html
 \page qmake.html
 \page qnpinstance.html
 \page qnplugin.html
@@ -118,6 +119,7 @@
 \page qtabletevent.html
 \page qtextview.html
 \page qtimage-nsplugin-example.html
+\page qtl.html
 \page qtmultilineedit.html
 \page qttableview.html
 \page qvector.html
@@ -136,8 +138,6 @@
 \page simple-application.html
 \page simple-font-demo-example.html
 \page simple-qfont-demo-walkthrough.html
-\page small-table-demo-example.html
-\page small-table-demo-walkthrough.html
 \page splitter-example.html
 \page sql-examples.html
 \page sql-overview-basicbrowsing-main-cpp.html
@@ -165,9 +165,7 @@
 \page sql-overview-table3-main-cpp.html
 \page sql-overview-table4-main-cpp.html
 \page sql-overview-update-main-cpp.html
-\page sqloverview-example.html
 \page sqltable-example.html
-\page statistics-statistics-cpp.html
 \page step-by-step-examples.html
 \page t1.html
 \page t10-Makefile.html
@@ -220,6 +218,7 @@
 \page table-bigtable-main-cpp.html
 \page table-examples.html
 \page table-small-table-demo-main-cpp.html
+\page table-statistics-statistics-cpp.html
 \page tagreader-example.html
 \page tagreader-with-features-example.html
 \page tetrix-example.html
@@ -228,11 +227,9 @@
 \page thread.html
 \page tictac-example.html
 \page time.html
-\page tinyeditor-example.html
 \page toggleaction-example.html
 \page tools.html
 \page tooltip-example.html
-\page topicals.html
 \page trivial-nsplugin-example.html
 \page troll.html
 \page tutorial.html

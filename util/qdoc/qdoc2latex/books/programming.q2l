@@ -5,7 +5,6 @@
 \page buyhowto.html
 \page keyfeatures30.html
 \page mailinglists.html
-\page designer.html
 \page appicon.html
 \page accelerators.html
 \page layout.html
@@ -28,7 +27,6 @@
 \page shclass.html
 #\page shared.html
 \page y2k.html
-\page imageio.html
 \page commonproblems.html
 \page bughowto.html
 \page install-win.html

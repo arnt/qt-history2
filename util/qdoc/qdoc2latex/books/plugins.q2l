@@ -1,0 +1,11 @@
+\title Plugins with Qt
+
+\page plugins-howto.html
+\class QImageFormatPlugin
+\class QSqlDriverPlugin
+\class QStylePlugin
+\class QStyleFactory
+\class QStyleOption
+\class QTextCodecPlugin
+\class QWidgetPlugin
+\class QLibrary

@@ -7,7 +7,9 @@
 \page HOWTO-framebuffer.html
 \page fonts-qws.html
 \page pointer-qws.html
+\page accel.html
 \page vnc-qws.html
+\page embedclasses.html
 \class QCopChannel
 \class QScreen
 \class QWSServer
@@ -16,6 +18,8 @@
 \class QWSMouseHandler
 \class QWSWindow
 \page install-qws.html
+\page envvars.html
 \page performance-qws.html
 \page porting-qws.html
 \page qembed.html
+\page embedporting.html
