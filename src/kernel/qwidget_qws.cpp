@@ -191,7 +191,10 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	setWinId( id );				// set widget id/handle + hd
     }
 
-    if ( topLevel && !(desktop || popup) ) {
+    if ( !topLevel ) {
+	if ( !testWFlags(WStyle_Customize) )
+	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
+    } else if ( !(desktop || popup) ) {
 	if ( testWFlags(WStyle_Customize) ) {	// customize top-level widget
 	    if ( testWFlags(WStyle_NormalBorder) ) {
 		// XXX ...
@@ -723,8 +726,10 @@ void QWidget::showMaximized()
 	} else {
 	    setGeometry( QApplication::desktop()->rect() );
 	}
-	show();
     }
+    show();
+    QCustomEvent e( QEvent::ShowMaximized, 0 );
+    QApplication::sendEvent( this, &e );
 }
 
 void QWidget::showNormal()
