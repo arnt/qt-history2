@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#31 $
 **
 ** Implementation of QFileDialog class
 **
@@ -325,7 +325,7 @@ bool QUrl::isRelativeUrl( const QString &url )
 }
 
 /*!
-  Constructs and URL taking \a url as base and \a relUrl_ as 
+  Constructs and URL taking \a url as base and \a relUrl_ as
   relative URL to \a url.
 */
 
@@ -714,7 +714,7 @@ void QUrl::parse( const QString& url )
 	    p.setNum( d->port );
 	    p += c;
 	    d->port = p.toInt();
-	    } break;
+	} break;
 	default:
 	    break;
 	}
@@ -1526,7 +1526,7 @@ void QUrl::put( const QCString &data )
 
 /*!
   Sets the name filter of the URL
-  
+
   \sa QDir::setNameFilter()
 */
 
@@ -1596,7 +1596,7 @@ bool QUrl::cdUp()
 }
 
 /*!
-  #### todo
+  Clears the cache of file entries.
 */
 
 void QUrl::clearEntries()
@@ -1605,7 +1605,7 @@ void QUrl::clearEntries()
 }
 
 /*!
-  #### todo
+  Adds an entry to the file entry cache.
 */
 
 void QUrl::addEntry( const QUrlInfo &i )
@@ -1614,7 +1614,7 @@ void QUrl::addEntry( const QUrlInfo &i )
 }
 
 /*!
-  #### todo
+  Returns the URL information for the file entry \a entry. 
 */
 
 QUrlInfo QUrl::info( const QString &entry ) const
@@ -1627,7 +1627,7 @@ QUrlInfo QUrl::info( const QString &entry ) const
 }
 
 /*!
-  #### todo
+  Find a network protocol for the URL.
 */
 
 void QUrl::getNetworkProtocol()
