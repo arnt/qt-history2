@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QFtp class.
 **
@@ -838,8 +838,10 @@ void QFtp::dataClosed()
 
     reinitCommandSocket();
 
-    if ( !errorInListChildren && operationInProgress() )
+    if ( !errorInListChildren && operationInProgress() ) {
+	operationInProgress()->setState( StDone );
 	emit finished( operationInProgress() );
+    }
 }
 
 /*!
