@@ -1458,15 +1458,16 @@ static void qt_mac_raster_data_free(void *, const void *data, size_t)
 
 void QRasterBuffer::prepareBuffer(int width, int height)
 {
+    m_buffer = new ARGB[width*height*sizeof(ARGB)];
+    memset(m_buffer, 255, width*height*sizeof(ARGB));
+
 #ifdef QMAC_NO_COREGRAPHICS
 # warning "Unhandled!!"
 #else
     if (m_data)
         CGImageRelease(m_data);
-
-    char *buffer = malloc(width*height*32);
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-    CGDataProviderRef provider = CGDataProviderCreateWithData(0, buffer, width*height,
+    CGDataProviderRef provider = CGDataProviderCreateWithData(0, m_buffer, width*height,
                                                               qt_mac_raster_data_free);
     m_data = CGImageCreate(width, height, 8, 32, width, colorspace,
                            kCGImageAlphaFirst, provider, 0, 0, kCGRenderingIntentDefault);
@@ -1474,9 +1475,6 @@ void QRasterBuffer::prepareBuffer(int width, int height)
     CGDataProviderRelease(provider);
 #endif
 
-    delete[] m_buffer;
-    m_buffer = new ARGB[width*height];
-    memset(m_buffer, 255, width*height*sizeof(ARGB));
 }
 #endif
 
