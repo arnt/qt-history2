@@ -540,10 +540,12 @@ QMakeProject::read(QString project, QString)
 	vars["TEMPLATE"].first().prepend(Option::user_template_prefix);
 
     if(vars["TARGET"].isEmpty()) {
-	QFileInfo fi(pfile);
+	// ### why not simply use:
+	// QFileInfo fi(pfile);
+	// fi.baseName();
 	QString tmp = pfile;
-	if(tmp.findRev(Option::dir_sep) != -1)
-	    pfile = pfile.right(pfile.length() - pfile.findRev(Option::dir_sep));
+	if(tmp.findRev('/') != -1)
+	    tmp = tmp.right( tmp.length() - tmp.findRev('/') - 1 );
 	if(tmp.findRev('.') != -1)
 	    tmp = tmp.left(tmp.findRev('.'));
 	vars["TARGET"].append(tmp);
