@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QSjisCodec class
 **
 ** Created : 990225
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -88,6 +88,9 @@ public:
 
     QTextDecoder* makeDecoder() const;
 
+#if defined(Q_USING)
+    using QTextCodec::fromUnicode;
+#endif
     QCString fromUnicode(const QString& uc, int& len_in_out) const;
     QString toUnicode(const char* chars, int len) const;
 
