@@ -584,8 +584,7 @@ static const struct {
     // if you add more chacater sets at the end, change LAST_MIB above
 };
 
-QSimpleTextCodec::QSimpleTextCodec(int i)
-    : QTextCodec(), forwardIndex(i)
+QSimpleTextCodec::QSimpleTextCodec(int i) : forwardIndex(i)
 {
 }
 

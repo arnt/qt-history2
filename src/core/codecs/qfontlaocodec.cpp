@@ -46,10 +46,6 @@ static unsigned char const unicode_to_mulelao[256] =
     };
 
 
-QFontLaoCodec::QFontLaoCodec()
-{
-}
-
 QFontLaoCodec::~QFontLaoCodec()
 {
 }
