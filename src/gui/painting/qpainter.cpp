@@ -2822,7 +2822,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
 {
 #if defined QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawPixmap(), target=[%d,%d,%d,%d], pix=[%d,%d], source=[%d,%d,%d,%d], mode=%d\n",
+        printf("QPainter::drawPixmap(), target=[%.2f,%.2f,%.2f,%.2f], pix=[%d,%d], source=[%.2f,%.2f,%.2f,%.2f], mode=%d\n",
            r.x(), r.y(), r.width(), r.height(),
            pm.width(), pm.height(),
            sr.x(), sr.y(), sr.width(), sr.height(),
@@ -3338,13 +3338,6 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
 
 void QPainter::drawPicture(const QPoint &p, const QPicture &picture)
 {
-    Q_UNUSED(p);
-    Q_UNUSED(picture);
-
-    qWarning("QPainter::drawPicture() is disabled");
-    return;
-
-#if 0
     if (!isActive())
         return;
     d->engine->updateState(d->state);
@@ -3352,7 +3345,6 @@ void QPainter::drawPicture(const QPoint &p, const QPicture &picture)
     translate(p);
     const_cast<QPicture *>(&picture)->play(this);
     restore();
-#endif
 }
 
 /*!
