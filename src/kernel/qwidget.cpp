@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#141 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#140 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#141 $");
 
 
 /*!
@@ -1360,12 +1360,15 @@ bool QWidget::close( bool forceKill )
 */
 
 
-/*!  Adjusts the size of the widget to fit the contents. Uses sizeHint()
-  if valid (i.e returns a size with both width and height equal to or
-  greater than 0), otherwise sets the size to the children rectangle (the
-  union of all child widget geometries).
+/*!
+  Adjusts the size of the widget to fit the contents.
 
-  \sa sizeHint(), childrenRect() */
+  Uses sizeHint() if valid (i.e if the size hint's width and height are
+  equal to or greater than 0), otherwise sets the size to the children
+  rectangle (the union of all child widget geometries).
+
+  \sa sizeHint(), childrenRect()
+*/
 
 void QWidget::adjustSize()
 {
