@@ -1376,7 +1376,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
         if (logicalIndex == d->hover)
             state |= QStyle::State_MouseOver;
         if (logicalIndex == d->pressed)
-            state |= QStyle::State_Down;
+            state |= QStyle::State_Sunken;
         else if (d->highlightSelected && d->isSectionSelected(logicalIndex))
             state |= QStyle::State_On;
     }
