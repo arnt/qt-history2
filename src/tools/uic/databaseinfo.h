@@ -25,8 +25,8 @@ class DatabaseInfo : public TreeWalker
 public:
     DatabaseInfo(Driver *driver);
 
-    void accept(DomUI *node);
-    void accept(DomWidget *node);
+    void acceptUI(DomUI *node);
+    void acceptWidget(DomWidget *node);
 
     inline QStringList connections() const
     { return m_connections; }

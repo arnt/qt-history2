@@ -33,16 +33,16 @@ WriteInitialization::WriteInitialization(Uic *uic)
     this->uic = uic;
 }
 
-void WriteInitialization::accept(DomUI *node)
+void WriteInitialization::acceptUI(DomUI *node)
 {
     m_actionGroupChain.push(0);
     m_widgetChain.push(0);
     m_layoutChain.push(0);
 
-    accept(node->elementLayoutDefault());
+    acceptLayoutDefault(node->elementLayoutDefault());
 
     if (node->elementCustomWidgets())
-        TreeWalker::accept(node->elementCustomWidgets());
+        TreeWalker::acceptCustomWidgets(node->elementCustomWidgets());
 
     if (option.generateImplemetation)
         output << "#include <" << driver->headerFileName() << ">\n\n";
@@ -73,7 +73,7 @@ void WriteInitialization::accept(DomUI *node)
         output << option.indent << varConn << " = QSqlDatabase::database(" << fixString(connection) << ");\n";
     }
 
-    accept(node->elementWidget());
+    acceptWidget(node->elementWidget());
 
     for (int i=0; i<m_buddies.size(); ++i) {
         const Buddy &b = m_buddies.at(i);
@@ -91,7 +91,7 @@ void WriteInitialization::accept(DomUI *node)
     }
 
     if (node->elementTabStops())
-        accept(node->elementTabStops());
+        acceptTabStops(node->elementTabStops());
 
     if (m_delayedActionInitialization.size())
         output << "\n" << m_delayedActionInitialization;
@@ -113,7 +113,7 @@ void WriteInitialization::accept(DomUI *node)
     m_actionGroupChain.pop();
 }
 
-void WriteInitialization::accept(DomWidget *node)
+void WriteInitialization::acceptWidget(DomWidget *node)
 {
     QString className = node->attributeClass();
     QString varName = driver->findOrInsertWidget(node);
@@ -186,7 +186,7 @@ void WriteInitialization::accept(DomWidget *node)
 
     m_widgetChain.push(node);
     m_layoutChain.push(0);
-    TreeWalker::accept(node);
+    TreeWalker::acceptWidget(node);
     m_layoutChain.pop();
     m_widgetChain.pop();
 
@@ -238,7 +238,7 @@ void WriteInitialization::accept(DomWidget *node)
         m_layoutChain.pop();
 }
 
-void WriteInitialization::accept(DomLayout *node)
+void WriteInitialization::acceptLayout(DomLayout *node)
 {
     QString className = node->attributeClass();
     QString varName = driver->findOrInsertLayout(node);
@@ -318,11 +318,11 @@ void WriteInitialization::accept(DomLayout *node)
     writeProperties(varName, className, node->elementProperty());
 
     m_layoutChain.push(node);
-    TreeWalker::accept(node);
+    TreeWalker::acceptLayout(node);
     m_layoutChain.pop();
 }
 
-void WriteInitialization::accept(DomSpacer *node)
+void WriteInitialization::acceptSpacer(DomSpacer *node)
 {
     QHash<QString, DomProperty *> properties = propertyMap(node->elementProperty());
     QString varName = driver->findOrInsertSpacer(node);
@@ -349,12 +349,12 @@ void WriteInitialization::accept(DomSpacer *node)
     else
         output << "QSizePolicy::" << sizeType << ", QSizePolicy::Minimum);\n";
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptSpacer(node);
 }
 
-void WriteInitialization::accept(DomLayoutItem *node)
+void WriteInitialization::acceptLayoutItem(DomLayoutItem *node)
 {
-    TreeWalker::accept(node);
+    TreeWalker::acceptLayoutItem(node);
 
     DomLayout *layout = m_layoutChain.top();
 
@@ -399,7 +399,7 @@ void WriteInitialization::accept(DomLayoutItem *node)
     output << "\n" << option.indent << layoutName << "->" << method << "(" << varName << opt << ");\n\n";
 }
 
-void WriteInitialization::accept(DomActionGroup *node)
+void WriteInitialization::acceptActionGroup(DomActionGroup *node)
 {
     QString actionName = driver->findOrInsertActionGroup(node);
     QString varName = driver->findOrInsertWidget(m_widgetChain.top());
@@ -411,11 +411,11 @@ void WriteInitialization::accept(DomActionGroup *node)
     writeProperties(actionName, QLatin1String("QActionGroup"), node->elementProperty());
 
     m_actionGroupChain.push(node);
-    TreeWalker::accept(node);
+    TreeWalker::acceptActionGroup(node);
     m_actionGroupChain.pop();
 }
 
-void WriteInitialization::accept(DomAction *node)
+void WriteInitialization::acceptAction(DomAction *node)
 {
     if (node->hasAttributeMenu())
         return;
@@ -430,7 +430,7 @@ void WriteInitialization::accept(DomAction *node)
     writeProperties(actionName, QLatin1String("QAction"), node->elementProperty());
 }
 
-void WriteInitialization::accept(DomActionRef *node)
+void WriteInitialization::acceptActionRef(DomActionRef *node)
 {
     QString actionName = node->attributeName();
     bool isSeparator = actionName == QLatin1String("separator");
@@ -733,17 +733,17 @@ void WriteInitialization::writeColorGroup(DomColorGroup *colorGroup, const QStri
     }
 }
 
-void WriteInitialization::accept(DomCustomWidget *node)
+void WriteInitialization::acceptCustomWidget(DomCustomWidget *node)
 {
     Q_UNUSED(node);
 }
 
-void WriteInitialization::accept(DomCustomWidgets *node)
+void WriteInitialization::acceptCustomWidgets(DomCustomWidgets *node)
 {
     Q_UNUSED(node);
 }
 
-void WriteInitialization::accept(DomTabStops *tabStops)
+void WriteInitialization::acceptTabStops(DomTabStops *tabStops)
 {
     QString lastName;
 
@@ -779,7 +779,7 @@ QString WriteInitialization::translate(const QString &text, const QString &class
     return QLatin1String("QApplication::translate(\"") + m_generatedClass + QLatin1String("\", ") + text + QLatin1String(")");
 }
 
-void WriteInitialization::accept(DomLayoutDefault *node)
+void WriteInitialization::acceptLayoutDefault(DomLayoutDefault *node)
 {
     m_defaultMargin = INT_MIN;
     m_defaultSpacing = INT_MIN;

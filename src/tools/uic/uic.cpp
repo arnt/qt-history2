@@ -115,17 +115,17 @@ bool Uic::write(DomUI *ui)
 
     externalPix = ui->elementImages() == 0;
 
-    info.accept(ui);
-    cWidgetsInfo.accept(ui);
-    WriteIncludes(this).accept(ui);
+    info.acceptUI(ui);
+    cWidgetsInfo.acceptUI(ui);
+    WriteIncludes(this).acceptUI(ui);
 
     if (opt.generateNamespace)
         out << "namespace Ui {\n\n";
 
-    Validator(this).accept(ui);
-    WriteDeclaration(this).accept(ui);
-    WriteInitialization(this).accept(ui);
-    WriteIconInitialization(this).accept(ui);
+    Validator(this).acceptUI(ui);
+    WriteDeclaration(this).acceptUI(ui);
+    WriteInitialization(this).acceptUI(ui);
+    WriteIconInitialization(this).acceptUI(ui);
 
     if (opt.generateNamespace)
         out << "}\n\n";

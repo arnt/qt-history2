@@ -25,16 +25,16 @@ WriteIncludes::WriteIncludes(Uic *uic)
     this->uic = uic;
 }
 
-void WriteIncludes::accept(DomUI *node)
+void WriteIncludes::acceptUI(DomUI *node)
 {
     m_includes.clear();
     m_customWidgets.clear();
 
     if (node->elementIncludes())
-        accept(node->elementIncludes());
+        acceptIncludes(node->elementIncludes());
 
     if (node->elementCustomWidgets())
-        TreeWalker::accept(node->elementCustomWidgets());
+        TreeWalker::acceptCustomWidgets(node->elementCustomWidgets());
 
     m_includes.insert(QLatin1String("qapplication.h"), true);
     m_includes.insert(QLatin1String("qvariant.h"), true);
@@ -53,7 +53,7 @@ void WriteIncludes::accept(DomUI *node)
         m_includes.insert(QLatin1String("qsqlform.h"), true);
     }
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptUI(node);
 
     QHashIterator<QString, bool> it(m_includes);
     while (it.hasNext()) {
@@ -67,26 +67,26 @@ void WriteIncludes::accept(DomUI *node)
     output << "\n";
 }
 
-void WriteIncludes::accept(DomWidget *node)
+void WriteIncludes::acceptWidget(DomWidget *node)
 {
     if (node->attributeClass() == QLatin1String("Line"))
         add(QLatin1String("QFrame"));
     else
         add(node->attributeClass());
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptWidget(node);
 }
 
-void WriteIncludes::accept(DomLayout *node)
+void WriteIncludes::acceptLayout(DomLayout *node)
 {
     add(node->attributeClass());
-    TreeWalker::accept(node);
+    TreeWalker::acceptLayout(node);
 }
 
-void WriteIncludes::accept(DomSpacer *node)
+void WriteIncludes::acceptSpacer(DomSpacer *node)
 {
     add(QLatin1String("QSpacerItem"));
-    TreeWalker::accept(node);
+    TreeWalker::acceptSpacer(node);
 }
 
 void WriteIncludes::add(const QString &className)
@@ -122,7 +122,7 @@ void WriteIncludes::add(const QString &className)
     }
 }
 
-void WriteIncludes::accept(DomCustomWidget *node)
+void WriteIncludes::acceptCustomWidget(DomCustomWidget *node)
 {
     if (node->elementClass().isEmpty())
         return;
@@ -138,17 +138,17 @@ void WriteIncludes::accept(DomCustomWidget *node)
     m_customWidgets.insert(node->elementClass(), true);
 }
 
-void WriteIncludes::accept(DomCustomWidgets *node)
+void WriteIncludes::acceptCustomWidgets(DomCustomWidgets *node)
 {
     Q_UNUSED(node);
 }
 
-void WriteIncludes::accept(DomIncludes *node)
+void WriteIncludes::acceptIncludes(DomIncludes *node)
 {
-    TreeWalker::accept(node);
+    TreeWalker::acceptIncludes(node);
 }
 
-void WriteIncludes::accept(DomInclude *node)
+void WriteIncludes::acceptInclude(DomInclude *node)
 {
     bool global = true;
     if (node->hasAttributeLocation())

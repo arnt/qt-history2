@@ -26,14 +26,14 @@ struct Validator : public TreeWalker
 {
     Validator(Uic *uic);
 
-    void accept(DomUI *node);
-    void accept(DomWidget *node);
+    void acceptUI(DomUI *node);
+    void acceptWidget(DomWidget *node);
 
-    void accept(DomLayoutItem *node);
-    void accept(DomLayout *node);
+    void acceptLayoutItem(DomLayoutItem *node);
+    void acceptLayout(DomLayout *node);
 
-    void accept(DomActionGroup *node);
-    void accept(DomAction *node);
+    void acceptActionGroup(DomActionGroup *node);
+    void acceptAction(DomAction *node);
 
 private:
     Driver *driver;

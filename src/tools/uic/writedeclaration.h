@@ -26,12 +26,12 @@ struct WriteDeclaration : public TreeWalker
 {
     WriteDeclaration(Uic *uic);
 
-    void accept(DomUI *node);
-    void accept(DomWidget *node);
-    void accept(DomLayout *node);
-    void accept(DomSpacer *node);
-    void accept(DomActionGroup *node);
-    void accept(DomAction *node);
+    void acceptUI(DomUI *node);
+    void acceptWidget(DomWidget *node);
+    void acceptLayout(DomLayout *node);
+    void acceptSpacer(DomSpacer *node);
+    void acceptActionGroup(DomActionGroup *node);
+    void acceptAction(DomAction *node);
 
 private:
     Uic *uic;

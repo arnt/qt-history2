@@ -26,7 +26,7 @@ WriteIconInitialization::WriteIconInitialization(Uic *uic)
     this->uic = uic;
 }
 
-void WriteIconInitialization::accept(DomUI *node)
+void WriteIconInitialization::acceptUI(DomUI *node)
 {
     if (node->elementImages() == 0)
         return;
@@ -36,11 +36,11 @@ void WriteIconInitialization::accept(DomUI *node)
     output << "inline QPixmap " << className << "::icon(" << className << "::IconID id)\n"
            << "{\n";
 
-    WriteIconData(uic).accept(node);
+    WriteIconData(uic).acceptUI(node);
 
     output << option.indent << "switch (id) {\n";
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptUI(node);
 
     output << option.indent << option.indent << "default: return QPixmap();\n";
 
@@ -48,12 +48,12 @@ void WriteIconInitialization::accept(DomUI *node)
            << "}\n\n";
 }
 
-void WriteIconInitialization::accept(DomImages *images)
+void WriteIconInitialization::acceptImages(DomImages *images)
 {
-    TreeWalker::accept(images);
+    TreeWalker::acceptImages(images);
 }
 
-void WriteIconInitialization::accept(DomImage *image)
+void WriteIconInitialization::acceptImage(DomImage *image)
 {
     QString img = image->attributeName() + QLatin1String("_data");
     QString data = image->elementData()->text();

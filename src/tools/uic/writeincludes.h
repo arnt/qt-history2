@@ -27,22 +27,22 @@ struct WriteIncludes : public TreeWalker
 {
     WriteIncludes(Uic *uic);
 
-    void accept(DomUI *node);
-    void accept(DomWidget *node);
-    void accept(DomLayout *node);
-    void accept(DomSpacer *node);
+    void acceptUI(DomUI *node);
+    void acceptWidget(DomWidget *node);
+    void acceptLayout(DomLayout *node);
+    void acceptSpacer(DomSpacer *node);
 
 //
 // custom widgets
 //
-    void accept(DomCustomWidgets *node);
-    void accept(DomCustomWidget *node);
+    void acceptCustomWidgets(DomCustomWidgets *node);
+    void acceptCustomWidget(DomCustomWidget *node);
 
 //
 // include hints
 //
-    void accept(DomIncludes *node);
-    void accept(DomInclude *node);
+    void acceptIncludes(DomIncludes *node);
+    void acceptInclude(DomInclude *node);
 
 private:
     void add(const QString &className);

@@ -53,35 +53,35 @@ struct TreeWalker
 {
     inline virtual ~TreeWalker() {}
 
-    virtual void accept(DomUI *ui);
-    virtual void accept(DomLayoutDefault *layoutDefault);
-    virtual void accept(DomLayoutFunction *layoutFunction);
-    virtual void accept(DomTabStops *tabStops);
-    virtual void accept(DomCustomWidgets *customWidgets);
-    virtual void accept(DomCustomWidget *customWidget);
-    virtual void accept(DomLayout *layout);
-    virtual void accept(DomLayoutItem *layoutItem);
-    virtual void accept(DomWidget *widget);
-    virtual void accept(DomSpacer *spacer);
-    virtual void accept(DomColor *color);
-    virtual void accept(DomColorGroup *colorGroup);
-    virtual void accept(DomPalette *palette);
-    virtual void accept(DomFont *font);
-    virtual void accept(DomPoint *point);
-    virtual void accept(DomRect *rect);
-    virtual void accept(DomSizePolicy *sizePolicy);
-    virtual void accept(DomSize *size);
-    virtual void accept(DomDate *date);
-    virtual void accept(DomTime *time);
-    virtual void accept(DomDateTime *dateTime);
-    virtual void accept(DomProperty *property);
-    virtual void accept(DomImages *images);
-    virtual void accept(DomImage *image);
-    virtual void accept(DomIncludes *includes);
-    virtual void accept(DomInclude *incl);
-    virtual void accept(DomAction *action);
-    virtual void accept(DomActionGroup *actionGroup);
-    virtual void accept(DomActionRef *actionRef);
+    virtual void acceptUI(DomUI *ui);
+    virtual void acceptLayoutDefault(DomLayoutDefault *layoutDefault);
+    virtual void acceptLayoutFunction(DomLayoutFunction *layoutFunction);
+    virtual void acceptTabStops(DomTabStops *tabStops);
+    virtual void acceptCustomWidgets(DomCustomWidgets *customWidgets);
+    virtual void acceptCustomWidget(DomCustomWidget *customWidget);
+    virtual void acceptLayout(DomLayout *layout);
+    virtual void acceptLayoutItem(DomLayoutItem *layoutItem);
+    virtual void acceptWidget(DomWidget *widget);
+    virtual void acceptSpacer(DomSpacer *spacer);
+    virtual void acceptColor(DomColor *color);
+    virtual void acceptColorGroup(DomColorGroup *colorGroup);
+    virtual void acceptPalette(DomPalette *palette);
+    virtual void acceptFont(DomFont *font);
+    virtual void acceptPoint(DomPoint *point);
+    virtual void acceptRect(DomRect *rect);
+    virtual void acceptSizePolicy(DomSizePolicy *sizePolicy);
+    virtual void acceptSize(DomSize *size);
+    virtual void acceptDate(DomDate *date);
+    virtual void acceptTime(DomTime *time);
+    virtual void acceptDateTime(DomDateTime *dateTime);
+    virtual void acceptProperty(DomProperty *property);
+    virtual void acceptImages(DomImages *images);
+    virtual void acceptImage(DomImage *image);
+    virtual void acceptIncludes(DomIncludes *includes);
+    virtual void acceptInclude(DomInclude *incl);
+    virtual void acceptAction(DomAction *action);
+    virtual void acceptActionGroup(DomActionGroup *actionGroup);
+    virtual void acceptActionRef(DomActionRef *actionRef);
 
 };
 

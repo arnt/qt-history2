@@ -27,7 +27,7 @@ WriteDeclaration::WriteDeclaration(Uic *uic)
     this->uic = uic;
 }
 
-void WriteDeclaration::accept(DomUI *node)
+void WriteDeclaration::acceptUI(DomUI *node)
 {
     QString className = node->elementClass() + option.postfix;
 
@@ -47,7 +47,7 @@ void WriteDeclaration::accept(DomUI *node)
         output << option.indent << "QSqlDatabase *" << connection << "Connection;\n";
     }
 
-    TreeWalker::accept(node->elementWidget());
+    TreeWalker::acceptWidget(node->elementWidget());
 
     output << "\n"
            << option.indent << "inline void setupUi(" << widgetClassName << " *" << varName << ");\n"
@@ -58,7 +58,7 @@ void WriteDeclaration::accept(DomUI *node)
             << "protected:\n"
             << option.indent << "enum IconID\n"
             << option.indent << "{\n";
-        WriteIconDeclaration(uic).accept(node);
+        WriteIconDeclaration(uic).acceptUI(node);
 
         output << option.indent << option.indent << "unknown_ID\n"
             << option.indent << "};\n";
@@ -69,7 +69,7 @@ void WriteDeclaration::accept(DomUI *node)
     output << "};\n\n";
 }
 
-void WriteDeclaration::accept(DomWidget *node)
+void WriteDeclaration::acceptWidget(DomWidget *node)
 {
     QString className = QLatin1String("QWidget");
     if (node->hasAttributeClass())
@@ -77,10 +77,10 @@ void WriteDeclaration::accept(DomWidget *node)
 
     output << option.indent << className << " *" << driver->findOrInsertWidget(node) << ";\n";
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptWidget(node);
 }
 
-void WriteDeclaration::accept(DomLayout *node)
+void WriteDeclaration::acceptLayout(DomLayout *node)
 {
     QString className = QLatin1String("QLayout");
     if (node->hasAttributeClass())
@@ -88,26 +88,26 @@ void WriteDeclaration::accept(DomLayout *node)
 
     output << option.indent << className << " *" << driver->findOrInsertLayout(node) << ";\n";
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptLayout(node);
 }
 
-void WriteDeclaration::accept(DomSpacer *node)
+void WriteDeclaration::acceptSpacer(DomSpacer *node)
 {
     output << option.indent << "QSpacerItem *" << driver->findOrInsertSpacer(node) << ";\n";
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptSpacer(node);
 }
 
-void WriteDeclaration::accept(DomActionGroup *node)
+void WriteDeclaration::acceptActionGroup(DomActionGroup *node)
 {
     output << option.indent << "QActionGroup *" << driver->findOrInsertActionGroup(node) << ";\n";
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptActionGroup(node);
 }
 
-void WriteDeclaration::accept(DomAction *node)
+void WriteDeclaration::acceptAction(DomAction *node)
 {
     output << option.indent << "QAction *" << driver->findOrInsertAction(node) << ";\n";
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptAction(node);
 }

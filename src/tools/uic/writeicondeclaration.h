@@ -27,9 +27,9 @@ class WriteIconDeclaration : public TreeWalker
 public:
     WriteIconDeclaration(Uic *uic);
 
-    void accept(DomUI *node);
-    void accept(DomImages *images);
-    void accept(DomImage *image);
+    void acceptUI(DomUI *node);
+    void acceptImages(DomImages *images);
+    void acceptImage(DomImage *image);
 
 private:
     Uic *uic;

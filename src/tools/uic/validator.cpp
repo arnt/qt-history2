@@ -24,12 +24,12 @@ Validator::Validator(Uic *uic)
     this->uic = uic;
 }
 
-void Validator::accept(DomUI *node)
+void Validator::acceptUI(DomUI *node)
 {
-    TreeWalker::accept(node);
+    TreeWalker::acceptUI(node);
 }
 
-void Validator::accept(DomWidget *node)
+void Validator::acceptWidget(DomWidget *node)
 {
     (void) driver->findOrInsertWidget(node);
 
@@ -38,34 +38,34 @@ void Validator::accept(DomWidget *node)
     if (widgetClass == QLatin1String("Line"))
         node->setAttributeClass(QLatin1String("QFrame"));
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptWidget(node);
 }
 
-void Validator::accept(DomLayoutItem *node)
+void Validator::acceptLayoutItem(DomLayoutItem *node)
 {
     (void) driver->findOrInsertLayoutItem(node);
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptLayoutItem(node);
 }
 
-void Validator::accept(DomLayout *node)
+void Validator::acceptLayout(DomLayout *node)
 {
     (void) driver->findOrInsertLayout(node);
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptLayout(node);
 }
 
-void Validator::accept(DomActionGroup *node)
+void Validator::acceptActionGroup(DomActionGroup *node)
 {
     (void) driver->findOrInsertActionGroup(node);
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptActionGroup(node);
 }
 
-void Validator::accept(DomAction *node)
+void Validator::acceptAction(DomAction *node)
 {
     (void) driver->findOrInsertAction(node);
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptAction(node);
 }
 

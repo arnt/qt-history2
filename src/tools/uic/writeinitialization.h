@@ -32,34 +32,34 @@ struct WriteInitialization : public TreeWalker
 //
 // widgets
 //
-    void accept(DomUI *node);
-    void accept(DomWidget *node);
-    void accept(DomLayout *node);
-    void accept(DomSpacer *node);
-    void accept(DomLayoutItem *node);
+    void acceptUI(DomUI *node);
+    void acceptWidget(DomWidget *node);
+    void acceptLayout(DomLayout *node);
+    void acceptSpacer(DomSpacer *node);
+    void acceptLayoutItem(DomLayoutItem *node);
 
 //
 // actions
 //
-    void accept(DomActionGroup *node);
-    void accept(DomAction *node);
-    void accept(DomActionRef *node);
+    void acceptActionGroup(DomActionGroup *node);
+    void acceptAction(DomAction *node);
+    void acceptActionRef(DomActionRef *node);
 
 //
 // tab stops
 //
-    void accept(DomTabStops *tabStops);
+    void acceptTabStops(DomTabStops *tabStops);
 
 //
 // custom widgets
 //
-    void accept(DomCustomWidgets *node);
-    void accept(DomCustomWidget *node);
+    void acceptCustomWidgets(DomCustomWidgets *node);
+    void acceptCustomWidget(DomCustomWidget *node);
 
 //
 // layout defaults
 //
-    void accept(DomLayoutDefault *node);
+    void acceptLayoutDefault(DomLayoutDefault *node);
 
 private:
     static QString domColor2QString(DomColor *c);

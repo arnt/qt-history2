@@ -21,18 +21,18 @@ DatabaseInfo::DatabaseInfo(Driver *drv)
 {
 }
 
-void DatabaseInfo::accept(DomUI *node)
+void DatabaseInfo::acceptUI(DomUI *node)
 {
     m_connections.clear();
     m_cursors.clear();
     m_fields.clear();
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptUI(node);
 
     m_connections = unique(m_connections);
 }
 
-void DatabaseInfo::accept(DomWidget *node)
+void DatabaseInfo::acceptWidget(DomWidget *node)
 {
     QHash<QString, DomProperty*> properties = propertyMap(node->elementProperty());
 
@@ -60,6 +60,6 @@ void DatabaseInfo::accept(DomWidget *node)
         m_fields[connection].append(field);
     }
 
-    TreeWalker::accept(node);
+    TreeWalker::acceptWidget(node);
 }
 

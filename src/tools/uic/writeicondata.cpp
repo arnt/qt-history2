@@ -54,17 +54,17 @@ WriteIconData::WriteIconData(Uic *uic)
 {
 }
 
-void WriteIconData::accept(DomUI *node)
+void WriteIconData::acceptUI(DomUI *node)
 {
-    TreeWalker::accept(node);
+    TreeWalker::acceptUI(node);
 }
 
-void WriteIconData::accept(DomImages *images)
+void WriteIconData::acceptImages(DomImages *images)
 {
-    TreeWalker::accept(images);
+    TreeWalker::acceptImages(images);
 }
 
-void WriteIconData::accept(DomImage *image)
+void WriteIconData::acceptImage(DomImage *image)
 {
     QString img = image->attributeName() + QLatin1String("_data");
     QString data = image->elementData()->text();

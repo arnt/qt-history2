@@ -23,17 +23,17 @@ WriteIconDeclaration::WriteIconDeclaration(Uic *uic)
 {
 }
 
-void WriteIconDeclaration::accept(DomUI *node)
+void WriteIconDeclaration::acceptUI(DomUI *node)
 {
-    TreeWalker::accept(node);
+    TreeWalker::acceptUI(node);
 }
 
-void WriteIconDeclaration::accept(DomImages *images)
+void WriteIconDeclaration::acceptImages(DomImages *images)
 {
-    TreeWalker::accept(images);
+    TreeWalker::acceptImages(images);
 }
 
-void WriteIconDeclaration::accept(DomImage *image)
+void WriteIconDeclaration::acceptImage(DomImage *image)
 {
     QString name = image->attributeName();
     if (name.isEmpty())

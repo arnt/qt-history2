@@ -21,20 +21,20 @@ CustomWidgetsInfo::CustomWidgetsInfo(Driver *drv)
 {
 }
 
-void CustomWidgetsInfo::accept(DomUI *node)
+void CustomWidgetsInfo::acceptUI(DomUI *node)
 {
     m_customWidgets.clear();
 
     if (node->elementCustomWidgets())
-        accept(node->elementCustomWidgets());
+        acceptCustomWidgets(node->elementCustomWidgets());
 }
 
-void CustomWidgetsInfo::accept(DomCustomWidgets *node)
+void CustomWidgetsInfo::acceptCustomWidgets(DomCustomWidgets *node)
 {
-    TreeWalker::accept(node);
+    TreeWalker::acceptCustomWidgets(node);
 }
 
-void CustomWidgetsInfo::accept(DomCustomWidget *node)
+void CustomWidgetsInfo::acceptCustomWidget(DomCustomWidget *node)
 {
     if (node->elementClass().isEmpty())
         return;
