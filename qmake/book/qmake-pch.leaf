@@ -172,136 +172,40 @@ to remain cross platform.
 \target EXAMPLE_PROJECT
 \section1 Example project
 
-Package: \link pch_example.zip pch_example.zip\endlink
+You may find the following source code in the
+\e {qt/qmake/examples/precompile} directory:
 
 \Menu mydialog.ui
-\code
-	<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-	<class>MyDialog</class>
-	<widget class="QDialog">
-	    <property name="name">
-	        <cstring>MyDialog</cstring>
-	    </property>
-	    <property name="caption">
-	        <string>Mach 2!</string>
-	    </property>
-	    <vbox>
-	        <widget class="QLabel">
-	            <property name="name">
-	                <cstring>aLabel</cstring>
-	            </property>
-	            <property name="text">
-	                <string>Join the life in the fastlane; - PCH enable your project today! -</string>
-	            </property>
-	        </widget>
-	        <widget class="QPushButton">
-	            <property name="name">
-	                <cstring>aButton</cstring>
-	            </property>
-	            <property name="text">
-	                <string>&amp;Quit</string>
-	            </property>
-	            <property name="accel">
-	                <string>Alt+Q</string>
-	            </property>
-	        </widget>
-	    </vbox>
-	</widget>
-	</UI>
-\endcode
+\quotefile precompile/mydialog.ui
+\skipto <!
+\printuntil </UI>
 
 \Menu stable.h
-\code
-	#include <iostream>
-	#include <qapplication.h>
-	#include <qpushbutton.h>
-	#include <qlabel.h>
-\endcode
+\quotefile precompile/stable.h
+\skipto #include
+\printuntil <qlabel.h>
 
 \Menu myobject.h
-\code
-	#include <qobject.h>
-	
-	class MyObject : public QObject
-	{
-	public:
-	    MyObject();
-	    ~MyObject();
-	};
-\endcode
+\quotefile precompile/myobject.h
+\skipto #include
+\printuntil }
 
 \Menu myobject.cpp
-\code
-	#include <iostream>
-	#include <qobject.h>
-	#include "stable.h"    // Last stable header
-	#include "myobject.h"  // Own header
-	
-	MyObject::MyObject()
-	    : QObject()
-	{
-	    std::cout << "MyObject::MyObject()\n";
-	}
-	
-	MyObject::~MyObject()
-	{
-	    qDebug("MyObject::~MyObject()");
-	}
-\endcode
+\quotefile precompile/myobject.cpp
+\skipto #include
+\printuntil }
 
 \Menu util.cpp
-\code
-	#include "stable.h" // Last stable header
-	
-	void util_function_does_nothing()
-	{
-	    // Nothing here...
-	    int x = 0;
-	    ++x;
-	}
-\endcode
+\quotefile precompile/util.cpp
+\skipto #include
+\printuntil }
 
 \Menu main.cpp
-\code
-	#include <qapplication.h>
-	#include <qpushbutton.h>
-	#include <qlabel.h>
-	#include "stable.h"    // Last stable header
-	#include "myobject.h"  // Unstable
-	#include "mydialog.h"
-	
-	int main(int argc, char **argv)
-	{
-	    QApplication app(argc, argv);
-	    
-	    MyObject obj;
-	    MyDialog dia;
-	    app.setMainWidget( &dia );
-	    dia.connect( dia.aButton, SIGNAL(clicked()), SLOT(close()) );
-	    dia.show();
-	
-	    return app.exec();
-	}
-\endcode
+\quotefile precompile/main.cpp
+\skipto #include
+\printuntil }
 
-\Menu pch_example.pro
-\code
-	#############################################
-	#
-	# Example for using Precompiled Headers
-	#
-	#############################################
-	TEMPLATE  = app
-	LANGUAGE  = C++
-	CONFIG	 += console
-	
-	# Use Precompiled headers (PCH)
-	PRECOMPH  = stable.h
-	
-	HEADERS	 += stable.h \
-	            myobject.h
-	SOURCES	 += main.cpp \
-	            myobject.cpp \
-	            util.cpp
-	FORMS     = mydialog.ui
-\endcode
+\Menu precompile.pro
+\quotefile precompile/precompile.pro
+\skipto #
+\printuntil .ui
