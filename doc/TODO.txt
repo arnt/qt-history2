@@ -400,3 +400,6 @@ QTable (Reggie):
 
 QPrinter
     get a list of the available printers
+
+QListViewComboItem:
+    A request to have a class that will easily insert a QComboBox into a QListView.
