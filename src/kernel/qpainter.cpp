@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#96 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#96 $");
 
 
 /*!
@@ -1195,7 +1195,8 @@ QPen &QPen::operator=( const QPen &p )
 
 
 /*!
-  Returns a deep copy of the pen.
+  Returns a
+  \link shclass.html deep copy\endlink of the pen.
 */
 
 QPen QPen::copy() const
@@ -1444,7 +1445,8 @@ QBrush::QBrush( const QColor &color, const QPixmap &pixmap )
 }
 
 /*!
-  Constructs a brush which is a shallow copy of \e b.
+  Constructs a brush which is a 
+  \link shclass.html shallow copy\endlink of \e b.
 */
 
 QBrush::QBrush( const QBrush &b )
@@ -1499,7 +1501,8 @@ QBrush &QBrush::operator=( const QBrush &b )
 
 
 /*!
-  Returns a deep copy of the brush.
+  Returns a 
+  \link shclass.html deep copy\endlink of the brush.
 */
 
 QBrush QBrush::copy() const

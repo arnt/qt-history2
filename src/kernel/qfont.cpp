@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#72 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#72 $");
 
 
 /*!
@@ -113,7 +113,8 @@ void QFont::init()
 
 /*!
   \internal
-  Constructs a font that gets a deep copy of \e data.
+  Constructs a font that gets a 
+  \link shclass.html deep copy\endlink of \e data.
 */
 
 QFont::QFont( QFontData *data )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#10 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -12,7 +12,7 @@
 #include "qpalette.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#10 $");
 
 
 /*****************************************************************************
@@ -245,7 +245,9 @@ QPalette::QPalette( const QColorGroup &normal, const QColorGroup &disabled,
 }
 
 /*!
-  Constructs a palette that is a copy of \e p.
+  Constructs a palette that is a 
+  \link shclass.html shallow copy\endlink of \e p.
+  \sa copy()
 */
 
 QPalette::QPalette( const QPalette &p )
@@ -266,6 +268,8 @@ QPalette::~QPalette()
 
 /*!
   Assigns \e p to this palette and returns a reference to this palette.
+  Note that a \e shallow copy of \a p is used.
+  \sa copy()
 */
 
 QPalette &QPalette::operator=( const QPalette &p )
@@ -279,7 +283,8 @@ QPalette &QPalette::operator=( const QPalette &p )
 
 
 /*!
-  Returns a deep copy of the palette.
+  Returns a 
+  \link shclass.html deep copy\endlink of the palette.
 */
 
 QPalette QPalette::copy() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#27 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#27 $");
 
 
 static QRegion *empty_region = 0;
@@ -118,7 +118,8 @@ QRegion::QRegion( const QPointArray &a, bool winding )
 }
 
 /*!
-  Constructs a region which is a shallow copy of \e r.
+  Constructs a region which is a
+  \link shclass.html shallow copy\endlink of \e r.
 */
 
 QRegion::QRegion( const QRegion &r )
@@ -140,8 +141,9 @@ QRegion::~QRegion()
 }
 
 /*!
-  Assigns a shallow copy of \e r to this region and returns a reference to
-  the region.
+  Assigns a 
+  \link shclass.html shallow copy\endlink of \e r to this region and
+  returns a reference to the region.
 */
 
 QRegion &QRegion::operator=( const QRegion &r )
@@ -157,7 +159,8 @@ QRegion &QRegion::operator=( const QRegion &r )
 
 
 /*!
-  Returns a deep copy of the region.
+  Returns a 
+  \link shclass.html deep copy\endlink of the region.
 */
 
 QRegion QRegion::copy() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#74 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#74 $");
 
 
 /*!
@@ -193,8 +193,9 @@ void QPixmap::detach()
 }
 
 /*!
-  Returns a deep copy of the pixmap using the bitBlt() function to copy
-  the pixels.
+  Returns a 
+  \link shclass.html deep copy\endlink of the pixmap using the bitBlt()
+  function to copy the pixels.
   \sa operator=()
 */
 

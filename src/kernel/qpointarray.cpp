@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#46 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#46 $");
 
 /*!
   \class QPointVal qpntarry.h
@@ -74,7 +74,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#45 $");
   has member functions that operate on QPoint to make programming
   easier.
 
-  Note that since this class is a QArray, it is explicitly shared
+  Note that since this class is a QArray, it is
+  \link shclass.html explicitly shared\endlink
   and works with shallow copies by default.
 */
 
@@ -99,7 +100,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#45 $");
 
 /*!
   \fn QPointArray::QPointArray( const QPointArray &a )
-  Constructs a shallow copy of the point array \e a.
+  Constructs a 
+  \link shclass.html shallow copy\endlink of the point array \e a.
 
   \sa copy()
 */
@@ -147,8 +149,9 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
 
 /*!
   \fn QPointArray &QPointArray::operator=( const QPointArray &a )
-  Assigns a shallow copy of \e a to this point array and returns a reference
-  to this point array.
+  Assigns a 
+  \link shclass.html shallow copy\endlink of \e a to this point array
+  and returns a reference to this point array.
 
   Equivalent to assign( a ).
 
@@ -158,7 +161,8 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
 /*!
   \fn QPointArray QPointArray::copy() const
 
-  Creates a deep copy of the array.
+  Creates a 
+  \link shclass.html deep copy\endlink of the array.
 */
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#121 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#122 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#121 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#122 $");
 
 
 /*!
@@ -205,7 +205,8 @@ QImage::QImage( const char *xpm[] )
 }
 
 /*!
-  Constructs a shallow copy of \e image.
+  Constructs a
+  \link shclass.html shallow copy\endlink of \e image.
 */
 
 QImage::QImage( const QImage &image )
@@ -229,8 +230,9 @@ QImage::~QImage()
 
 
 /*!
-  Assigns a shallow copy of \e image to this image and returns a reference
-  to this image.
+  Assigns a 
+  \link shclass.html shallow copy\endlink
+  of \e image to this image and returns a reference to this image.
 
   \sa copy()
 */
@@ -278,7 +280,8 @@ void QImage::detach()
 }
 
 /*!
-  Returns a deep copy of the image.
+  Returns a 
+  \link shclass.html deep copy\endlink of the image.
 */
 
 QImage QImage::copy() const
