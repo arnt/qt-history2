@@ -513,6 +513,7 @@ bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
 */
 void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 {
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (column >= values.count())
         values.resize(column + 1);
     QVector<Data> column_values = values.at(column);
