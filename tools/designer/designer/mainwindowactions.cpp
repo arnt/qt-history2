@@ -1918,6 +1918,7 @@ void MainWindow::searchGotoLine()
     gotoLineDialog->setEditor( ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface() );
     gotoLineDialog->spinLine->setFocus();
     gotoLineDialog->spinLine->setMaxValue( ( (SourceEditor*)qWorkspace()->activeWindow() )->numLines() - 1 );
+    gotoLineDialog->spinLine->selectAll();
 }
 
 void MainWindow::toolsCustomWidget()
