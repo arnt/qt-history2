@@ -41,6 +41,28 @@
 #ifndef QT_NO_CODECS
 
 // NOT REVISED
+/*! \class QHebrewCodec qrtlcodec.h
+
+  \brief The QHebrewCodec class provides conversion to and from visually ordered Hebrew.
+
+  Hebrew as a semitic language is written from right to left. As older computer systems
+  couldn't handle reordering a string so that the first letter appears on the right, many older documents
+  were encoded in visual order, so that the first letter of a line is the rightmost one in the string.
+  
+  Opposed to this, Unicode defines characters to be in logical order (the order you would read the string).
+  This codec tries to convert visually ordered Hebrew (8859-8) to Unicode. This might not always be 100%,
+  as reversing the bidi algorithm that transforms from logical to visual order is non trivial.
+  
+  Transformation from Unicode to visual Hebrew (8859-8) is done using the BiDi algorithm in Qt, and will
+  produce correct results, as long as you feed one paragraph of text to the codec at a time. Places where newlines
+  are supposed to start can be indicated by a newline character ('\n'). Please be aware, that these newline characters
+  change the reordering behaviour of the algorithm, as the BiDi reordering only takes place within one line of text, whereas
+  linebreaks are determined in visual order.
+  
+  Visually ordered Hebrew is still used quite often in some places, mainly in email communication (as most email programs still
+  don't understand logically ordered hebrew) and on web pages. The use on web pages is strongly decreasing however,
+  as there are nowadays a few browsers available that correctly support logically ordered hebrew.
+*/
 
 static const uchar unkn = '?'; // BLACK SQUARE (94) would be better
 
@@ -281,6 +303,18 @@ QString QHebrewCodec::toUnicode(const char* chars, int len,
     return r;
 }
 
+/*!
+  Transforms a logically ordered QString into a visually ordered string in the 8859-8
+  encoding. Qt's BiDi algorithm is used to perform this task. Please note, that newline
+  characters do affect the reordering, as reordering is done on a line by line basis.
+  
+  You might however get wrong results if you feed the string line by line to the method, as
+  the algorithm operates on a whole paragraph of text, and the contents of a previous line
+  may affect reordering of the next line.
+  
+  To ensure you get correct results please always call this method with one paragraph of text
+  to reorder.
+*/
 QCString QHebrewCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     // process only len chars...
@@ -313,6 +347,8 @@ QCString QHebrewCodec::fromUnicode(const QString& uc, int& len_in_out) const
     return rstr;
 }
 
+/*! \internal
+ */
 bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
 {
     bool converted = FALSE;
@@ -365,6 +401,8 @@ bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
     return converted;
 }
 
+/*! \reimp
+ */
 int QHebrewCodec::heuristicContentMatch(const char* chars, int len) const
 {
     const unsigned char * c = (const unsigned char *)chars;
