@@ -542,6 +542,15 @@ QAction and QActionGroup classes.
 
 */
 
+/*! \defgroup sql-examples 
+
+\title Qt SQL examples 
+
+The following example programs show how to use the 
+Qt SQL classes.
+
+*/
+
 /*! \defgroup xml-examples 
 
 \title Qt XML examples 
