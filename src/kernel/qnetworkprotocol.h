@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#3 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -30,14 +30,33 @@
 #include "qurlinfo.h"
 
 #include <qstring.h>
-#include <qmap.h>
+#include <qdict.h>
 #include <qdir.h>
 #include <qstringlist.h>
 #include <qobject.h>
 
 class QNetworkProtocol;
 
-extern Q_EXPORT QMap< QString, QNetworkProtocol* > *qNetworkProtocolRegister;
+class QInternetProtocolFactoryBase
+{
+public:
+   virtual QNetworkProtocol *createObject() = 0;
+
+};
+
+template< class Protocol >
+class QInternetProtocolFactory : public QInternetProtocolFactoryBase
+{
+public:
+    QNetworkProtocol *createObject() {
+	return new Protocol;
+    }
+
+};
+
+typedef QDict< QInternetProtocolFactoryBase > QNetworkProtocolDict;
+extern Q_EXPORT QNetworkProtocolDict *qNetworkProtocolRegister;
+
 
 class QNetworkProtocol : public QObject
 {
@@ -67,7 +86,8 @@ public:
 
     virtual QNetworkProtocol *copy() const;
 
-    static void registerNetworkProtocol( const QString &protocol, QNetworkProtocol *nprotocol );
+    static void registerNetworkProtocol( const QString &protocol, 
+					 QInternetProtocolFactoryBase *protocolFactory );
     static QNetworkProtocol *getNetworkProtocol( const QString &protocol );
 
 signals:

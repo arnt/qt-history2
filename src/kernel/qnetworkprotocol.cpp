@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#5 $
 **
 ** Implementation of QFileDialog class
 **
@@ -25,7 +25,7 @@
 
 #include "qnetworkprotocol.h"
 
-QMap< QString, QNetworkProtocol* > *qNetworkProtocolRegister = 0;
+QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 
 /*!
   \class QNetworkProtocol qnetworkprotocol.h
@@ -167,12 +167,13 @@ QNetworkProtocol *QNetworkProtocol::copy() const
   #### todo
 */
 
-void QNetworkProtocol::registerNetworkProtocol( const QString &protocol, QNetworkProtocol *nprotocol )
+void QNetworkProtocol::registerNetworkProtocol( const QString &protocol, 
+						QInternetProtocolFactoryBase *protocolFactory )
 {
     if ( !qNetworkProtocolRegister )
-	qNetworkProtocolRegister = new QMap< QString, QNetworkProtocol* >;
+	qNetworkProtocolRegister = new QNetworkProtocolDict;
 
-    qNetworkProtocolRegister->insert( protocol, nprotocol );
+    qNetworkProtocolRegister->insert( protocol, protocolFactory );
 }
 
 /*!
@@ -182,13 +183,16 @@ void QNetworkProtocol::registerNetworkProtocol( const QString &protocol, QNetwor
 QNetworkProtocol *QNetworkProtocol::getNetworkProtocol( const QString &protocol )
 {
     if ( !qNetworkProtocolRegister )
-	qNetworkProtocolRegister = new QMap< QString, QNetworkProtocol* >;
+	qNetworkProtocolRegister = new QNetworkProtocolDict;
 
-    QMap< QString, QNetworkProtocol*>::Iterator it = qNetworkProtocolRegister->find( protocol );
-    if ( it == qNetworkProtocolRegister->end() )
+    if ( protocol.isNull() )
 	return 0;
-
-    return ( *it )->copy();
+    
+    QInternetProtocolFactoryBase *factory = qNetworkProtocolRegister->find( protocol );
+    if ( factory )
+	return factory->createObject();
+    
+    return 0;
 }
 
 
