@@ -732,10 +732,10 @@ QApplication::~QApplication()
     app_fonts = 0;
     delete app_style;
     app_style = 0;
+    qt_cleanup();
     delete app_cursor;
     app_cursor = 0;
-    qt_cleanup();
-
+    
     /*
     Cannot delete objectDict, as then all Class::metaObj variables
     become invalid.  We could make a separate function to do this
