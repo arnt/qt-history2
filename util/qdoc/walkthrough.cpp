@@ -418,7 +418,7 @@ QString Walkthrough::xto( const QString& substr, const Location& docLoc,
 	    return s;
 	s += getNextLine( docLoc );
     }
-    if ( !shutUp ) {
+    if ( !shutUp && substr != QString("EOF") ) {
 	warning( 2, docLoc, "Command '\\%s %s' failed at end of '%s'",
 		 command.latin1(), subs.latin1(),
 		 walkloc.shortFilePath().latin1() );
