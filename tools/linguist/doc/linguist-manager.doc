@@ -23,10 +23,10 @@ lrelease. These tools depend on <tt>qmake</tt> project files.
 
 <h2><a name="Qt_Project_Files">Qt Project Files</a></h2>
 
-\e lupdate and \e lrelease depend on information in the application's \c
-.pro Qt project file. For each language additional to the native
-language there must be an entry in the \c TRANSLATIONS section of the
-project file. A typical entry looks like this:
+\e lupdate and \e lrelease depend on information in the application's
+\c .pro Qt project file. There must be an entry in the \c TRANSLATIONS
+section of the project file for each language that is additional to
+the native language. A typical entry looks like this:
 
 \walkthrough  tt2/tt2.pro
 \skipto TRANSLATIONS

@@ -85,7 +85,7 @@ not be the order in which they are shown on screen.
 
 The Context List is a dockable window so it can be dragged to another
 position in the main window, or dragged out of the main window to be a
-window in its own right. If you move the Context List <em>Qt
+window in its own right. If you move the Context List, <em>Qt
 Linguist</em> will remember its position and restore it whenever you
 start the program.
 
@@ -98,6 +98,17 @@ question mark indicates that the translation has not been done. An
 exclamation mark indicates that the translation has failed validation.
 The second column 'Source text' shows the text that must be translated.
 The third column shows the translation.
+
+\e{Qt Linguist} provides three kinds of validation, accelerator,
+punctuation and phrase. If the source text contains an
+accelerator i.e. an ampersand, '&' and the translated text does not
+contain an ampersand the translation will fail the accelerator
+validation. Similarly, if the source text ends with a particular
+punctuation mark, e.g. '?', '!' or '.' and the translation ends with a
+different punctuation mark the translation will fail the punctuation
+validation. If the source text has a translation in one of the open
+phrase books that differs from the translation used the translation
+will fail phrase validation. (See \link #Validation Validation\endlink.)
 
 The Source Text Area is a dockable window.
 
@@ -121,7 +132,7 @@ translation. If the phrase is the same or similar to another phrase that
 has already been translated the phrase and translation will be shown in
 this area. To copy a translation from the phrases and guesses area press
 <em>F6</em> to move to the phrases and guesses area, use the up and down arrow
-keys to move to the phrase you want to use and press Return to copy it.
+keys to move to the phrase you want to use and press Enter to copy it.
 If you decide that you don't want to copy a phrase after all, press Esc.
 In both cases the focus will return to the Translation area.
 Alternatively, double click the translation you want to use and it will
@@ -152,7 +163,7 @@ later occurrence of the same phrase \e {Qt Linguist} will provide
 the previous translation as a possible translation candidate in the
 phrases and guesses area. If the
 previous translation is acceptable just click the <em>Done & Next</em>
-button (press Alt+N) to move on to the next unfinished phrase.
+button (press Alt+Enter) to move on to the next unfinished phrase.
 
 If a phrase occurs more than once in a particular context it will only
 be shown once in <em>Qt Linguist's</em> context list and
@@ -310,15 +321,14 @@ the phrase book.
 Validation may be switched on or off from the menu bar's Validation item
 or using the toolbar buttons. Phrases that fail validation are marked
 with a question mark in the source text pane. If you switch validation
-off and then switch it on later \e {Qt Linguist} will recheck all
+off and then switch it on later, \e{Qt Linguist} will recheck all
 phrases and mark any that fail validation.
 
-If any phrase in a context is invalid the context itself will be marked
-with a question mark; if all the phrases in a context are done and valid the
-context will be marked with a tick, otherwise the context has a question
-mark.
+If any phrase in a context is invalid then the context itself will be
+marked with a question mark; if all the phrases in a context are done
+and are valid the context will be marked with a tick. 
 
-Note that only phrases which are marked as done, (with a tick), will be
+Note that only phrases which are marked as done, (with a tick), will 
 appear in the application. Invalid phrases and phrases which are
 translated but not marked as done are kept in the translation source
 file but are not used by the application.
@@ -352,13 +362,13 @@ number of projects and applications.
 <ul>
 <li><em>File</em>
     <ul>
-    <li><em>Open...</em> Ctrl+O<br>pops up a file open dialog from which a
+    <li><em>Open...</em> Ctrl+O<br>pops up an open file dialog from which a
     translation source \c .ts file can be chosen.
     <li><em>Save </em>Ctrl+S<br>saves the current translation source \c .ts file.
-    <li><em>Save As...</em><br>pops up a file save as dialog so that the
+    <li><em>Save As...</em><br>pops up a save as file dialog so that the
     current translation source \c .ts file may be saved with a different
     name and/or put in a different location.
-    <li><em>Release...</em><br>pops up a file save as dialog. The
+    <li><em>Release...</em><br>pops up a save as file dialog. The
     filename entered will be a Qt message \c .qm file of the translation
     based on the current translation source file. The release manager's
     command line tool \e lrelease performs the same function on
@@ -367,7 +377,7 @@ number of projects and applications.
     OK the translation source and the translations will be printed.
     <li><em>Recently opened files</em><br>shows the \c .ts files that
     have been opened recently, click one to open it.
-    <li><em>Exit</em> Ctrl+Q<br>quits \e {Qt Linguist}.
+    <li><em>Exit</em> Ctrl+Q<br>closes \e {Qt Linguist}.
     </ul>
     <br><br>
 <li><em>Edit</em>
@@ -396,16 +406,16 @@ number of projects and applications.
     <br><br>
 <li><em>Translation</em>
     <ul>
-    <li><em>Prev Unfinished</em> Ctrl+K<br>move to the nearest previous
+    <li><em>Prev Unfinished</em> Ctrl+K<br>moves to the nearest previous
     unfinished source phrase (unfinished means untranslated or
     translated but failed validation)
-    <li><em>Next Unfinished</em> Ctrl+L<br>move to the next unfinished source
+    <li><em>Next Unfinished</em> Ctrl+L<br>moves to the next unfinished source
     phrase
-    <li><em>Prev</em> Shift+Ctrl+K<br>move the the previous source phrase
-    <li><em>Next</em> Shift+Ctrl+L<br>move the the next source phrase
+    <li><em>Prev</em> Shift+Ctrl+K<br>moves to the previous source phrase
+    <li><em>Next</em> Shift+Ctrl+L<br>moves to the next source phrase
     <li><em>Done & Next</em>Ctrl+Enter<br>mark this phrase as 'done'
     (translated) and move to the next unfinished source phrase
-    <li><em>Begin from Source</em> Ctrl+B<br>copy the source text into
+    <li><em>Begin from Source</em> Ctrl+B<br>copies the source text into
     the translation
     </ul>
     <br><br>
@@ -425,11 +435,11 @@ number of projects and applications.
 <a href="#Creating_and_Using_Phrase_Books">"Creating and Using Phrase
 Books"</a> for details.)
     <ul>
-    <li><em>New Phrase Book...</em><br> pops up a file save as dialog.
+    <li><em>New Phrase Book...</em><br> pops up a save as file dialog.
     You must enter a filename to be used for the phrase book and save
     the file. Once saved you should open the phrase book to begin using
     it.
-    <li><em>Open Phrase Book...</em> Ctrl+H<br> pops up a file open dialog.
+    <li><em>Open Phrase Book...</em> Ctrl+H<br> pops up an open file dialog.
     Find and choose a phrase book to open.
     <li><em>Close Phrase Book</em><br> closes the current phrase book.
     This will stop any further phrase validation taking place.
@@ -465,44 +475,44 @@ Books"</a> for details.)
 
 <dl>
 <dt><img src="../images/fileopen.png"></dt>
-<dd>Pop up the file open dialog to open a new translation source \c .ts
+<dd>Pops up the open file dialog to open a new translation source \c .ts
 file.</dd>
 <dt><p><img src="../images/filesave.png"></dt>
-<dd>Save the current translation source \c .ts file.</dd>
+<dd>Saves the current translation source \c .ts file.</dd>
 <dt><p><img src="../images/fileprint.png"></dt>
-<dd>Print the current translation source \c .ts file.</dd>
+<dd>Prints the current translation source \c .ts file.</dd>
 <dt><p><img src="../images/phrasebookopen.png"></dt>
-<dd>Pop up the file open dialog to open a new phrase book \c .qph file.</dd>
+<dd>Pops up the file open dialog to open a new phrase book \c .qph file.</dd>
 <dt><p><img src="../images/editundo.png"></dt>
-<dd>Undo the last editing action in the translation pane.</dd>
+<dd>Undoes the last editing action in the translation pane.</dd>
 <dt><p><img src="../images/editredo.png"></dt>
-<dd>Redo the last editing action in the translation pane.</dd>
+<dd>Redoes the last editing action in the translation pane.</dd>
 <dt><p><img src="../images/editcut.png"></dt>
-<dd>Delete any highlighted text in the translation pane and save a copy to
+<dd>Deletes any highlighted text in the translation pane and save a copy to
 the clipboard.</dd>
 <dt><p><img src="../images/editcopy.png"></dt>
-<dd>Copy the highlighted text in the translation pane to the clipboard.</dd>
+<dd>Copies the highlighted text in the translation pane to the clipboard.</dd>
 <dt><p><img src="../images/editpaste.png"></dt>
-<dd>Paste the clipboard text into the translation pane.</dd>
+<dd>Pastes the clipboard text into the translation pane.</dd>
 <dt><p><img src="../images/editfind.png"></dt>
-<dd>Pop up the <a href="#The_Find_Dialog">Find dialog</a>.</dd>
+<dd>Pops up the <a href="#The_Find_Dialog">Find dialog</a>.</dd>
 <dt><p><img src="../images/prev.png"></dt>
-<dd>Move to the previous source phrase.</dd>
+<dd>Moves to the previous source phrase.</dd>
 <dt><p><img src="../images/next.png"></dt>
-<dd>Move to the next source phrase.</dd>
+<dd>Moves to the next source phrase.</dd>
 <dt><p><img src="../images/prevunfinished.png"></dt>
-<dd>Move to the previous unfinished source phrase.</dd>
+<dd>Moves to the previous unfinished source phrase.</dd>
 <dt><p><img src="../images/nextunfinished.png"></dt>
-<dd>Move to the next unfinished source phrase.</dd>
+<dd>Moves to the next unfinished source phrase.</dd>
 <dt><p><img src="../images/doneandnext.png"></dt>
-<dd>Mark the phrase as 'done' (translated) and move to the next
+<dd>Marks the phrase as 'done' (translated) and move to the next
 unfinished source phrase.</dd>
 <dt><p><img src="../images/validateaccelerators.png"></dt>
-<dd>Toggle accelerator validation on and off.</dd>
+<dd>Toggles accelerator validation on and off.</dd>
 <dt><p><img src="../images/validatepunctuation.png"></dt>
-<dd>Toggle phrase ending punctuation validation on and off.</dd>
+<dd>Toggles phrase ending punctuation validation on and off.</dd>
 <dt><p><img src="../images/validatephrases.png"></dt>
-<dd>Toggle phrase book validation on or off.</dd>
+<dd>Toggles phrase book validation on or off.</dd>
 </dl>
 
 <h3><a name="The_Find_Dialog">The Find Dialog</a></h3>
