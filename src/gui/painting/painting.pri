@@ -22,6 +22,7 @@ HEADERS += \
 	painting/qprinter.h \
 	painting/qprinter_p.h \
 	painting/qrect.h \
+	painting/qrectfloat.h \
 	painting/qregion.h \
 	painting/qsize.h \
 	painting/qsizefloat.h \
@@ -46,6 +47,7 @@ SOURCES += \
 	painting/qpolygonscanner.cpp \
 	painting/qprinter.cpp \
 	painting/qrect.cpp \
+	painting/qrectfloat.cpp \
 	painting/qregion.cpp \
 	painting/qsize.cpp \
 	painting/qsizefloat.cpp \
