@@ -926,7 +926,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     if ( isMove == FALSE && olds.width()==w && olds.height()==h )
 	return;
     if ( testWState(WState_ConfigPending) ) {	// processing config event
-	qWinRequestConfig( winId(), 2, x, y, w, h );
+	qWinRequestConfig( winId(), isMove ? 2 : 1, x, y, w, h );
     } else {
 	setWState( WState_ConfigPending );
 	if ( isTopLevel() ) {
