@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#31 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#32 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#32 $");
 
 
 struct QPrintDialogPrivate
@@ -669,7 +669,8 @@ QGroupBox * QPrintDialog::setupPaper()
 }
 
 
-/*!  Display a dialog and allow the user to configure the QPrinter \a
+/*!
+  Display a dialog and allow the user to configure the QPrinter \a
   p.  Returns TRUE if the user clicks OK or presses Enter, FALSE if
   the user clicks Cancel or presses Escape.
 
