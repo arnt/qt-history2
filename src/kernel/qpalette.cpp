@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#49 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -934,7 +934,7 @@ bool QPalette::isCopyOf( const QPalette & p )
 
 QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
 {
-    if ( (uint)gr > (uint)QPalette::MaxColorGroup ) {
+    if ( (uint)gr > (uint)QPalette::NColorGroups ) {
 #if defined(CHECK_RANGE)
 	qWarning( "QPalette::directBrush: colorGroup(%i) out of range", gr );
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#43 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#44 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -105,7 +105,7 @@ public:
    ~QPalette();
     QPalette &operator=( const QPalette & );
 
-    enum ColorGroup { Normal, Disabled, Active, MaxColorGroup = Active };
+    enum ColorGroup { Normal, Disabled, Active, NColorGroups };
 
     const QColor &color( ColorGroup, QColorGroup::ColorRole ) const;
     const QBrush &brush( ColorGroup, QColorGroup::ColorRole ) const;
