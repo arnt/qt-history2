@@ -65,7 +65,7 @@ The currently available drivers shipped with Qt are:
 \endlist
 
 Note that not all of the plugins are shipped with the Qt Free Edition
-due to licence incompatibilities with the GPL. 
+due to license incompatibilities with the GPL. 
 
 \section1 Building the drivers using configure
 
