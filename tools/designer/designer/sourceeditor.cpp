@@ -130,6 +130,7 @@ void SourceEditor::closeEvent( QCloseEvent *e )
 	return;
     if ( formWindow() ) {
 	save();
+	formWindow()->formFile()->cm = formWindow()->formFile()->isModified();
     } else {
 	if ( !sourceFile()->closeEvent() )
 	    e->ignore();

@@ -32,6 +32,7 @@ class SourceEditor;
 class FormFile : public QObject
 {
     Q_OBJECT
+    friend class SourceEditor;
 
 public:
     enum Who {
