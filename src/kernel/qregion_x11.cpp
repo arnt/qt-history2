@@ -379,7 +379,7 @@ bool QRegion::contains( const QRect &r ) const
 
 void QRegion::translate( int dx, int dy )
 {
-    if ( data == empty_region->data )
+    if ( empty_region && data == empty_region->data )
 	return;
     detach();
     XOffsetRegion( data->rgn, dx, dy );
