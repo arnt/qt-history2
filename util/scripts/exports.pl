@@ -77,9 +77,13 @@ sub find_classnames {
 	if($definition && $definition =~ /$EXPORT_SYMBOL /) {
 	    if($definition =~ m/^ *typedef/) {
 	    } elsif($definition =~ m/^ *(template<.*> *)?(class|struct) +$EXPORT_SYMBOL +([^ ]+) ?((,|:) *(public|private) *.*)? *\{\}$/) {
-		$CLASSES{$3} = "$file" unless(defined $CLASSES{$3});
+		my $symbol = $3;
+		$symbol =~ s/[<>+=*!-]/?/g;
+		$CLASSES{$symbol} = "$file" unless(!length "$symbol" || defined $CLASSES{$symbol});
 	    } elsif($definition =~ /$EXPORT_SYMBOL +([a-zA-Z0-9_\*& ]* +)?[&\*]?([a-zA-Z0-9>=!\*<+_-]*)( *\(.*\))? *(;|\{\})$/) {
-		$GLOBALS{$2} = "$file" unless(defined $GLOBALS{$2});
+		my $symbol = $2;
+		$symbol =~ s/[<>+=*!-]/?/g;
+		$GLOBALS{$symbol} = "$file" unless(!length "$symbol" || defined $GLOBALS{$symbol});
 	    }
 	}
     }

@@ -19,6 +19,15 @@ dll:unix {
   }
 }
 
+0:linux-*:!isEmpty(QPRO_PWD) {
+   TARGET_MAP = lib$${TARGET}.map
+   QMAKE_LFLAGS += -Wl,--version-script=$${TARGET_MAP}
+   TARGETDEPS += $$TARGET_MAP
+   VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl $$QPRO_PWD >$$TARGET_MAP
+   VERSION_MAP.target = $$TARGET_MAP
+   QMAKE_EXTRA_TARGETS += VERSION_MAP
+}
+
 # Qt project file
 TEMPLATE	= lib
 VERSION		= 4.0.0
