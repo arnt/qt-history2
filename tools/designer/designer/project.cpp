@@ -345,19 +345,25 @@ QStringList parse_multiline_part( const QString &contents, const QString &key, i
 	    QStringList lst;
 	    bool inName = FALSE;
 	    QString currName;
-	    bool hadEqual = 0;
+	    bool hadEqual = FALSE;
 	    for ( ; i < (int)contents.length(); ++i ) {
 		c = contents[ i ];
 		if ( !hadEqual && c != '=' )
 		    continue;
-		hadEqual = TRUE;
+		if ( !hadEqual ) {
+		    hadEqual = TRUE;
+		    continue;
+		}
 		if ( ( c.isLetter() || c.isDigit() || c == '.' || c == '/' || c == '_' || c == '\\' ||
+		       c == '\"' || c == '\'' || c == '=' ||
 		       c == '$' || c == '-' || c == '(' || c == ')' || c == ':'  || c == '+' || c == ',' ) &&
-		     c != ' ' && c != '\t' && c != '\n' && c != '=' ) {
+		     c != ' ' && c != '\t' && c != '\n' ) {
 		    if ( !inName )
 			currName = QString::null;
-		    currName += c;
-		    inName = TRUE;
+		    if ( c != '\\' || contents[i+1] != '\n' ) {
+			currName += c;
+			inName = TRUE;
+		    }
 		} else {
 		    if ( inName ) {
 			inName = FALSE;
