@@ -15,12 +15,14 @@ public:
 
 private:
     void run( const char* path, const char* cmd );
+    void showSource( const char* path );
 
 private slots:
     void nextInfo();
     void execute();
     void executeOther( int i );
     void source();
+    void sourceOther( QListBoxItem *, const QPoint & );
 
 private:
     QLabel* info;

@@ -71,12 +71,13 @@ Launcher::Launcher() : QHBox( 0, 0, WStyle_NoBorder | WStyle_Maximize | WStyle_C
     // commands in the list view
     QListBox *lb = new QListBox( vb );
     for ( i=0; other_command[i].label; i++ ) {
-	lb->insertItem(other_command[i].label);
+	lb->insertItem( other_command[i].label );
     }
-    //	lb->setFont(QFont("smoothtimes",17));
     lb->setMaximumHeight(qb->height()*8);
-    connect(lb, SIGNAL(highlighted(int)), this, SLOT(executeOther(int)) );
+//    connect(lb, SIGNAL(highlighted(int)), this, SLOT(executeOther(int)) );
     connect(lb, SIGNAL(selected(int)), this, SLOT(executeOther(int)) );
+    connect(lb, SIGNAL(rightButtonClicked( QListBoxItem *, const QPoint &)),
+	    this, SLOT(sourceOther(QListBoxItem *, const QPoint &)) );
 
     QHBox* hb = new QHBox(vb);
     hb->setBackgroundColor(white);
@@ -98,7 +99,7 @@ void Launcher::nextInfo()
     }
 }
 
-void Launcher::run(const char*path, const char* cmd)
+void Launcher::run( const char*path, const char* cmd )
 {
     QStringList list = QStringList::split( QChar(' '), cmd );
     QString command = list.first();
@@ -125,17 +126,33 @@ void Launcher::execute()
     run( command[i].path, command[i].file );
 }
 
-void Launcher::executeOther(int i)
+void Launcher::executeOther( int i )
 {
     run( other_command[i].path, other_command[i].file );
+}
+
+void Launcher::showSource( const char* path )
+{
+    QDir p( baseDir );
+    p.cd( path );
+    SourceViewer *sv = new SourceViewer( p );
+    sv->resize( 650, 700 );
+    sv->show();
 }
 
 void Launcher::source()
 {
     int i = atoi( sender()->name() );
-    QDir p( baseDir );
-    p.cd( command[i].path );
-    SourceViewer *sv = new SourceViewer( p );
-    sv->resize( 650, 700 );
-    sv->show();
+    showSource( command[i].path );
+}
+
+void Launcher::sourceOther( QListBoxItem *lbi, const QPoint & )
+{
+    if ( lbi == 0 )
+	return;
+
+    // ### not really beautiful...
+    QListBox *lb = (QListBox*)sender();
+    int i = lb->index( lbi );
+    showSource( other_command[i].path );
 }
