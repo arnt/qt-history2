@@ -72,9 +72,8 @@ QStyle *QStyleFactory::create(const QString& key)
     QStyle *ret = 0;
     QString style = key.toLower();
 #ifndef QT_NO_STYLE_WINDOWS
-    if (style == "windows") {
+    if (style == "windows")
         ret = new QWindowsStyle;
-    }
     else
 #endif
 #ifndef QT_NO_STYLE_WINDOWSXP
@@ -115,10 +114,12 @@ QStyle *QStyleFactory::create(const QString& key)
 #ifndef QT_NO_STYLE_POCKETPC
     if (style == "pocketpc")
         ret = new QPocketPCStyle;
+    else
 #endif
 #if !defined(QT_NO_STYLE_MAC) && defined(Q_WS_MAC)
     if(style.left(9) == "macintosh")
         ret = new QMacStyle;
+    else
 #endif
     { } // Keep these here - they make the #ifdefery above work
 #ifndef QT_NO_COMPONENT
