@@ -211,7 +211,7 @@ void QAuServerNAS::init(QSound* s)
 
     if ( nas ) {
         AuBucketID b_id =
-            AuSoundCreateBucketFromFile(nas, s->fileName(),
+            AuSoundCreateBucketFromFile(nas, s->fileName().local8Bit(),
                                         0 /*AuAccessAllMasks*/, NULL, NULL);
 	setBucket(s, new QAuBucketNAS(b_id));
     }
