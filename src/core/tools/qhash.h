@@ -359,7 +359,7 @@ Q_INLINE_TEMPLATE void QHash<Key, T>::deleteNode(Node *node)
 {
 #ifdef Q_CC_BOR
     node->~QHashNode<Key, T>();
-#elif QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
+#elif defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
     node->~QHashNode();
 #else
     node->~Node();
