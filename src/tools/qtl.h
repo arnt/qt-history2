@@ -18,10 +18,10 @@
 #ifndef QT_H
 #include "qglobal.h"
 #include "qstring.h"
+#include "qtextstream.h"
 #endif // QT_H
 
 #ifndef QT_NO_TEXTSTREAM
-#include "qtextstream.h"
 template <class T>
 class QTextOStreamIterator
 {

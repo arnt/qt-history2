@@ -17,6 +17,7 @@
 #define QT_H
 #include "qglobal.h"
 #include <new>
+#include <stdio.h>
 #include "qfeatures.h"
 #include "qnamespace.h"
 #include "qatomic.h"
@@ -53,12 +54,12 @@
 #include "qsizepolicy.h"
 #include "qfontmetrics.h"
 #include "qdatetime.h"
+#include "qtextstream.h"
 #include "qtl.h"
 #include "qvector.h"
 #include "qbrush.h"
 #include "qpalette.h"
 #include "qdict.h"
-#include <stdio.h>
 #include "qhostaddress.h"
 #include "qregion.h"
 #include "qwidget.h"
@@ -129,7 +130,6 @@
 #include "qscrollbar.h"
 #include "qscrollview.h"
 #include "qnetworkprotocol.h"
-#include "qtextstream.h"
 #include <qcache.h>
 #include <qglcolormap.h>
 #include "qsignal.h"
