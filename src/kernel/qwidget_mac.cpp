@@ -324,9 +324,14 @@ void QWidget::setFontSys()
 }
 
 
-void QWidget::setBackgroundColorDirect( const QColor & )
+void QWidget::setBackgroundColorDirect( const QColor &color )
 {
     qDebug( "QWidget::setBackgroundColorDirect" );
+    back_type = 1;
+    bg_col = color;
+    if ( bg_pix )
+      delete bg_pix;
+    erase( 0, 0, width(), height());
 }
 
 void QWidget::setBackgroundPixmapDirect( const QPixmap & )
