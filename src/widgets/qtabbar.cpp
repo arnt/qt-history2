@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#58 $
 **
 ** Implementation of QTabBar class
 **
@@ -296,81 +296,96 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 {
     QRect r( t->r );
     int o = style().defaultFrameWidth() > 1 ? 1 : 0;
+    
     if ( d->s == RoundedAbove ) {
+	if ( t == l->getFirst() ) {
+	    p->drawLine( r.left(), r.bottom()-o, r.right(), r.bottom()-o );
+	    if ( o ) {
+		p->setPen( style() == MotifStyle ? colorGroup().light() : colorGroup().midlight() );
+		p->drawLine( rect().left(), rect().bottom(), rect().right(), rect().bottom() );
+		p->setPen( colorGroup().light() );
+		p->drawLine( rect().left(), rect().bottom()-1, rect().right(), rect().bottom()-1 );
+		p->drawPoint( rect().bottomLeft() );
+		//p->drawPoint( rect().bottomRight() );
+	    }
+	    else {
+		p->setPen( colorGroup().light() );
+		p->drawLine( rect().left(), rect().bottom(), rect().right(), rect().bottom() );
+	    }
+	}
+
 	if ( selected ) {
 	    p->setPen( colorGroup().background() );
-	    p->drawLine( r.left()+1+o, r.bottom(), r.right()-2, r.bottom() );
-	    p->drawLine( r.left()+1+o, r.bottom(), r.left()+1+o, r.top()+2 );
-	    if ( style() == MotifStyle )
-		p->setPen( colorGroup().light() ); // uglify
-	    else
-		p->setPen( colorGroup().midlight() );
-	    if ( o )
-		p->drawLine( r.left(), r.top()+3,
-			     r.left(), r.bottom());
+	    p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
+	    if (o)
+		p->drawLine( r.left()+1, r.bottom()-1, r.right()-2, r.bottom()-1 );
+	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
 	    p->setPen( colorGroup().light() );
 	} else {
 	    p->setPen( colorGroup().light() );
-	    p->drawLine( r.left()+o, r.bottom(), r.right(), r.bottom() );
 	    r.setRect( r.left() + 2, r.top() + 2,
 		       r.width() - 4, r.height() - 2 );
 	}
 
-	p->drawLine( r.left()+o, r.bottom(), r.left()+o, r.top() + 2 );
-	p->drawPoint( r.left()+1+o, r.top() + 1 );
-	p->drawLine( r.left()+2+o, r.top(),
+	p->drawLine( r.left(), r.bottom()-1, r.left(), r.top() + 2 );
+	p->drawPoint( r.left()+1, r.top() + 1 );
+	p->drawLine( r.left()+2, r.top(),
 		     r.right() - 2, r.top() );
+	if ( style() == WindowsStyle &&  r.left() > 0 ) {
+ 	    p->setPen( colorGroup().midlight() );
+	}
+	p->drawPoint( r.left(), r.bottom());
+	
+	if ( o ) {
+	    if ( style() == WindowsStyle )
+		p->setPen( colorGroup().midlight() );
+	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top() + 2 );
+	    p->drawLine( r.left()+2, r.top()+1,
+			 r.right() - 2, r.top()+1 );
+	}
 
 	p->setPen( colorGroup().dark() );
 	p->drawLine( r.right() - 1, r.top() + 2,
-		     r.right() - 1, r.bottom() - 1 );
+		     r.right() - 1, r.bottom() - 1 + (selected?o:-o));
 	p->setPen( colorGroup().shadow() );
 	if ( o ) {
 	    p->drawPoint( r.right() - 1, r.top() + 1 );
-	    p->drawLine( r.right(), r.top() + 2, r.right(), r.bottom() - 1 );
+	    p->drawLine( r.right(), r.top() + 2, r.right(), r.bottom() - (selected?1:1+o));
+	    p->drawPoint( r.right() - 1, r.top() + 1 );
 	}
     } else if ( d->s == RoundedBelow ) {
-	if ( selected ) {
-	    p->setPen( colorGroup().background() );
-	    p->drawLine( r.left()+1+o, r.top(), r.right()-2, r.top() );
-	    p->drawLine( r.left()+1+o, r.top(), r.left()+1+o, r.bottom()-2 );
-	    if ( o ) {
-		if ( style() == MotifStyle )
-		    p->setPen( colorGroup().light() ); // uglify
-		else
-		    p->setPen( colorGroup().midlight() );
-		p->drawLine( r.left(), r.top(),
-			     r.left(), r.bottom() - 3 );
-	    }
-	    p->setPen( colorGroup().dark() );
-	} else {
-	    p->setPen( colorGroup().dark() );
-	    p->drawLine( r.left()+o, r.top(), r.right(), r.top() );
-	    r.setRect( r.left() + 1+o, r.top(),
-		       r.width() - 4, r.height() - 2 );
-	}
+        if ( selected ) {
+            p->setPen( colorGroup().background() );
+            p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
+            p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
+            p->setPen( colorGroup().dark() );
+        } else {
+            p->setPen( colorGroup().dark() );
+            p->drawLine( r.left(), r.top(), r.right(), r.top() );
+            r.setRect( r.left() + 2, r.top(),
+                       r.width() - 4, r.height() - 2 );
+        }
 
-	p->drawLine( r.right() - 1, r.top(),
-		     r.right() - 1, r.bottom() - 2 );
-	p->drawPoint( r.right() - 2, r.bottom() - 2 );
-	p->drawLine( r.right() - 2, r.bottom() - 1,
-		     r.left() + o, r.bottom() - 1 );
-	p->drawPoint( r.left() + o, r.bottom() - 2 );
+        p->drawLine( r.right() - 1, r.top(),
+                     r.right() - 1, r.bottom() - 2 );
+        p->drawPoint( r.right() - 2, r.bottom() - 2 );
+        p->drawLine( r.right() - 2, r.bottom() - 1,
+                     r.left() + 1, r.bottom() - 1 );
+        p->drawPoint( r.left() + 1, r.bottom() - 2 );
+
+        p->setPen( colorGroup().shadow() );
+        if (style().defaultFrameWidth() > 1) {
+            p->drawLine( r.right(), r.top(),
+                         r.right(), r.bottom() - 1 );
+            p->drawPoint( r.right() - 1, r.bottom() - 1 );
+            p->drawLine( r.right() - 1, r.bottom(),
+                         r.left() + 2, r.bottom() );
+        }
+
+        p->setPen( colorGroup().light() );
+        p->drawLine( r.left(), r.top(),
+                     r.left(), r.bottom() - 2 );
 	
-	p->setPen( colorGroup().shadow() );
-	if ( o ) {
-	    p->drawLine( r.right(), r.top(),
-			 r.right(), r.bottom() - 1 );
-	    p->drawPoint( r.right() - 1, r.bottom() - 1 );
-	    p->drawLine( r.right() - 1, r.bottom(),
-			 r.left() + 2+o, r.bottom() );
-	}
-
-	if ( o || selected) {
-	    p->setPen( colorGroup().light() );
-	    p->drawLine( r.left()+o, r.top(),
-			 r.left()+o, r.bottom() - 2 );
-	}
     } else {
 	
 	// triangular, above or below
@@ -430,7 +445,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 void QTabBar::paintLabel( QPainter* p, const QRect& br,
                           QTab* t, bool has_focus ) const
 {
-    
+
     QRect r = br;
     if ( t->iconset) {
 	// the tab has an iconset, draw it in the right mode
@@ -443,7 +458,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	r.setLeft( r.left() + pixw + 2 );
 	p->drawPixmap( br.left()+2, br.center().y()-pixh/2, pixmap );
     }
-    
+
    if ( t->enabled ) {
 	p->setPen( palette().normal().text() );
 	p->drawText( r, AlignCenter | ShowPrefix, t->label );
@@ -510,7 +525,6 @@ void QTabBar::paintEvent( QPaintEvent * e )
 {
     QPainter p( this );
     p.setClipRegion( e->region() );
-
     QTab * t;
     t = l->first();
     do {
@@ -519,7 +533,7 @@ void QTabBar::paintEvent( QPaintEvent * e )
 	    paint( &p, t, n == 0 );
 	t = n;
     } while ( t != 0 );
-
+    
 }
 
 
