@@ -1842,12 +1842,9 @@ void QDataTable::setSqlCursor( QSqlCursor* cursor, bool autoPopulate, bool autoD
 	    d->fldLabel.clear();
 	    d->fldWidth.clear();
 	    d->fldIcon.clear();
-	    QSqlIndex idx = cursor->primaryIndex();
 	    for ( uint i = 0; i < sqlCursor()->count(); ++i ) {
-		//## need algorithm for better display label
 		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->field( i )->name() );
-		if ( sqlCursor()->field( i )->isReadOnly() || idx.contains( sqlCursor()->field( i )->name() ) )
-		    setColumnReadOnly( numCols()-1, TRUE );
+		setColumnReadOnly( i, sqlCursor()->field( i )->isReadOnly() );
 	    }
 	}
 	setReadOnly( sqlCursor()->isReadOnly() );
