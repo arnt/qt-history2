@@ -743,67 +743,8 @@ void QWidget::repaint(const QRegion& rgn)
         }
     }
 
-    if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground)) {
-#ifndef QT_NO_PALETTE
-        QBrush bg = palette().brush(d->bg_role);
-#else
-        QBrush bg(red); //##########
-#endif
-
-        // Contents propagation list
-        QPoint offset = redirectionOffset;
-        QStack<QWidget*> parents;
-        QWidget *w = this;
-        while (w->d->isBackgroundInherited()) {
-            offset += w->pos();
-            w = w->parentWidget();
-            parents += w;
-        }
-
-        // Erase background
-        bool was_unclipped = testAttribute(Qt::WA_PaintUnclipped);
-        setAttribute(Qt::WA_PaintUnclipped, false);
-        p.begin(this);
-        if(was_unclipped)
-            setAttribute(Qt::WA_PaintUnclipped);
-        p.setClipRegion(rgn);
-        const QPixmap bg_pix = bg.texture();
-        if(!bg_pix.isNull())
-            p.drawTiledPixmap(br,bg_pix, QPoint(br.x()+(offset.x()%bg_pix.width()),
-                                                br.y()+(offset.y()%bg_pix.height())));
-        else
-            p.fillRect(br, bg.color());
-        p.end();
-
-        // Actual contents propagation (..parentparentparent->parentparent->parent)
-        if (!parents.isEmpty()) {
-            w = parents.pop();
-            for (;;) {
-                if (w->testAttribute(Qt::WA_ContentsPropagated)) {
-                    if (double_buffer)
-                        QPainter::setRedirected(w, qDoubleBuffer->hd, offset+redirectionOffset);
-                    else
-                        QPainter::setRedirected(w, this, offset);
-                    QRect rr = rect();
-                    rr.translate(offset);
-                    QPaintEvent e(rr);
-                    bool was_in_paint_event = w->testAttribute(Qt::WA_WState_InPaintEvent);
-                    w->setAttribute(Qt::WA_WState_InPaintEvent);
-                    QApplication::sendEvent(w, &e);
-                    if(!was_in_paint_event) {
-                        w->setAttribute(Qt::WA_WState_InPaintEvent, false);
-                        if(!w->testAttribute(Qt::WA_PaintOutsidePaintEvent) && w->paintingActive())
-                            qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
-                    }
-                    QPainter::restoreRedirected(w);
-                }
-                if (parents.isEmpty())
-                    break;
-                w = parents.pop();
-                offset -= w->pos();
-            }
-        }
-    }
+    if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
+        d->composeBackground(redirectonOffset);
 
     // Send paint event to self
     QPaintEvent e(rgn);

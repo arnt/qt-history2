@@ -1120,8 +1120,9 @@ bool QWidgetPrivate::isBackgroundInherited() const
 {
     Q_Q(const QWidget);
     return (!q->isWindow() && !(q->windowType() == Qt::SubWindow)
-            && (!q->testAttribute(Qt::WA_SetPalette)
-                    && !q->testAttribute(Qt::WA_SetBackgroundRole)));
+            && (!q->testAttribute(Qt::WA_SetBackgroundRole)
+                ||  (q->testAttribute(Qt::WA_SetPalette)
+                     && !q->palette().brush(q->backgroundRole()).isOpaque())));
 }
 
 /*
@@ -1151,20 +1152,16 @@ bool QWidgetPrivate::isTransparent() const
   more paints than are necessary, this is a NO-OP for a composited
   windowing system like Mac OS X.
  */
-void QWidgetPrivate::updateInheritedBackground(bool force)
+void QWidgetPrivate::updateInheritedBackground()
 {
 #ifndef Q_WS_MAC
     Q_Q(QWidget);
     if (!q->isVisible() || !isBackgroundInherited())
         return;
-    if (!force)
-        force = (!q->palette().brush(q->backgroundRole()).texture().isNull() || isTransparent());
-    if (force) {
-        q->repaint();
-        for (int i = 0; i < children.size(); ++i)
-            if (children.at(i)->isWidgetType())
-                static_cast<QWidget*>(children.at(i))->d_func()->updateInheritedBackground(force);
-    }
+    q->repaint();
+    for (int i = 0; i < children.size(); ++i)
+        if (children.at(i)->isWidgetType())
+            static_cast<QWidget*>(children.at(i))->d_func()->updateInheritedBackground();
 #else
     Q_UNUSED(force)
 #endif
@@ -1187,14 +1184,55 @@ void QWidgetPrivate::updatePropagatedBackground(const QRegion *reg)
     for (int i = 0; i < children.size(); ++i) {
         if (children.at(i)->isWidgetType()) {
             QWidget *w = static_cast<QWidget*>(children.at(i));
-            if (reg && !reg->contains(w->geometry()))
+            if (reg && !reg->boundingRect().intersects(w->geometry()))
                 continue;
-            w->d_func()->updateInheritedBackground(true);
+            w->d_func()->updateInheritedBackground();
         }
     }
 #else
     Q_UNUSED(reg)
 #endif
+}
+
+
+void QWidgetPrivate::composeBackground(const QPoint &oset)
+{
+    Q_Q(QWidget);
+
+    QPoint offset = oset;
+    QVector<QWidget*> layers;
+    QWidget *w = q;
+    layers += w;
+    while (w->d_func()->isBackgroundInherited()) {
+        offset += w->pos();
+        layers += (w = w->parentWidget());
+    }
+
+    QWidget *top = w;
+    for (int i=layers.size() - 1; i>=0; --i) {
+        w = layers.at(i);
+
+        QRect rr = d_func()->clipRect();
+        rr.translate(offset);
+        bool was_in_paint_event = w->testAttribute(Qt::WA_WState_InPaintEvent);
+        w->setAttribute(Qt::WA_WState_InPaintEvent);
+        QPainter::setRedirected(w, q, offset);
+
+        QBrush bgBrush = w->palette().brush(w->d_func()->bg_role);
+        if (w == top || (!bgBrush.isOpaque() && w->testAttribute(Qt::WA_SetPalette))) {
+            QPainter bgPainter(w);
+            bgPainter.fillRect(rr, bgBrush);
+        }
+
+        if (w->testAttribute(Qt::WA_ContentsPropagated)) {
+            QPaintEvent e(rr);
+            QApplication::sendEvent(w, &e);
+        }
+        w->setAttribute(Qt::WA_WState_InPaintEvent, was_in_paint_event);
+
+        QPainter::restoreRedirected(w);
+        offset -= w->pos();
+    }
 }
 
 
@@ -2650,7 +2688,9 @@ QT3_SUPPORT QWidgetMapper *QWidget::wmapper() { return QWidgetPrivate::mapper; }
 QPalette::ColorRole QWidget::backgroundRole() const
 {
     const QWidget *w = this;
-    while (w->d_func()->isBackgroundInherited())
+
+    while (!w->isWindow() && w->windowType() != Qt::SubWindow
+           && !w->testAttribute(Qt::WA_SetBackgroundRole))
         w = w->parentWidget();
     return w->d_func()->bg_role;
 }

@@ -956,65 +956,8 @@ void QWidget::repaint(const QRegion& rgn)
         }
     }
 
-    if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground) ) {
-        QPoint offset = redirectionOffset;
-        QStack<QWidget*> parents;
-        QWidget *w = q;
-        while (w->d->isBackgroundInherited()) {
-            offset += w->pos();
-            w = w->parentWidget();
-            parents += w;
-        }
-
-        if (double_buffer) {
-            qt_erase_background((HDC)d->hd, br.x()-redirectionOffset.x(), br.y()-redirectionOffset.y(),
-                                br.width(), br.height(),
-                                palette().brush(w->d->bg_role),
-                                br.x() + offset.x(), br.y() + offset.y(),
-                                this);
-        } else {
-#ifdef QT_RASTER_PAINTENGINE
-            QPainter p(this);
-            QSize bgsize = data->wrect.isValid() ? data->wrect.size() : data->crect.size();
-            p.fillRect(0, 0, bgsize.width(), bgsize.height(), palette().brush(w->d->bg_role));
-#else
-            QRegion mappedRegion(rgn);
-            mappedRegion.translate(-data->wrect.topLeft());
-            SelectClipRgn((HDC)d->hd, mappedRegion.handle());
-            QSize bgsize = data->wrect.isValid() ? data->wrect.size() : data->crect.size();
-            // ### This triggers bitblt on entire area. Potentially a lot. Clip here too!
-            qt_erase_background((HDC)d->hd, 0, 0, bgsize.width(), bgsize.height(),
-                                palette().brush(w->d->bg_role), offset.x(), offset.y(),
-                                this);
-#endif
-        }
-
-        if (parents.size()) {
-            w = parents.pop();
-            for (;;) {
-                if (w->testAttribute(Qt::WA_ContentsPropagated)) {
-                    QPainter::setRedirected(w, q, offset);
-                    QRect rr = d->clipRect();
-                    rr.translate(offset);
-                    QPaintEvent e(rr);
-                    bool was_in_paint_event = w->testAttribute(Qt::WA_WState_InPaintEvent);
-                    w->setAttribute(Qt::WA_WState_InPaintEvent);
-                    QApplication::sendEvent(w, &e);
-                    if(!was_in_paint_event) {
-                        w->setAttribute(Qt::WA_WState_InPaintEvent, false);
-                        if(!w->testAttribute(Qt::WA_PaintOutsidePaintEvent) && w->paintingActive())
-                            qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
-                    }
-                    QPainter::restoreRedirected(w);
-                }
-                if (parents.size() == 0)
-                    break;
-                w = parents.pop();
-                offset -= w->pos();
-            }
-        }
-        SelectClipRgn((HDC)d->hd, 0);
-    }
+    if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
+        d->composeBackground(redirectionOffset);
 
 #ifdef QT_RASTER_PAINTENGINE
     rasterEngine->setFlushOnEnd(true);
