@@ -1184,12 +1184,13 @@ void Q4Menu::internalSetSloppyAction()
 
 void Q4Menu::internalDelayedPopup()
 {
+    if(!d->currentAction || !d->currentAction->action || d->currentAction->action->menu() == d->activeMenu)
+	return;
+
     //hide the current item
     if(Q4Menu *menu = d->activeMenu) {
 	d->activeMenu = NULL;
 	menu->hide();
-    } else if(!d->currentAction->action->menu()) { //nope..
-	return;
     }
 
     //setup
