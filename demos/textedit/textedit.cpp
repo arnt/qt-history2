@@ -41,6 +41,12 @@
 
 #include <limits.h>
 
+#if 0
+const QString rsrcPath = ":/images/mac";
+#else
+const QString rsrcPath = ":/images/win";
+#endif
+
 TextEdit::TextEdit(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -75,13 +81,13 @@ void TextEdit::setupFileActions()
 
     QAction *a;
 
-    a = new QAction(QIcon(":/images/filenew.png"), tr("&New..."), this);
+    a = new QAction(QIcon(rsrcPath + "/filenew.png"), tr("&New..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_N);
     connect(a, SIGNAL(triggered()), this, SLOT(fileNew()));
     tb->addAction(a);
     menu->addAction(a);
 
-    a = new QAction(QIcon(":/images/fileopen.png"), tr("&Open..."), this);
+    a = new QAction(QIcon(rsrcPath + "/fileopen.png"), tr("&Open..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_O);
     connect(a, SIGNAL(triggered()), this, SLOT(fileOpen()));
     tb->addAction(a);
@@ -89,7 +95,7 @@ void TextEdit::setupFileActions()
 
     menu->addSeparator();
 
-    actionSave = a = new QAction(QIcon(":/images/filesave.png"), tr("&Save..."), this);
+    actionSave = a = new QAction(QIcon(rsrcPath + "/filesave.png"), tr("&Save..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_S);
     connect(a, SIGNAL(triggered()), this, SLOT(fileSave()));
     a->setEnabled(false);
@@ -101,7 +107,7 @@ void TextEdit::setupFileActions()
     menu->addAction(a);
     menu->addSeparator();
 
-    a = new QAction(QIcon(":/images/fileprint.png"), tr("&Print..."), this);
+    a = new QAction(QIcon(rsrcPath + "/fileprint.png"), tr("&Print..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_P);
     connect(a, SIGNAL(triggered()), this, SLOT(filePrint()));
     tb->addAction(a);
@@ -127,24 +133,24 @@ void TextEdit::setupEditActions()
     menuBar()->addMenu(menu);
 
     QAction *a;
-    a = actionUndo = new QAction(QIcon(":/images/editundo.png"), tr("&Undo"), this);
+    a = actionUndo = new QAction(QIcon(rsrcPath + "/editundo.png"), tr("&Undo"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_Z);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionRedo = new QAction(QIcon(":/images/editredo.png"), tr("&Redo"), this);
+    a = actionRedo = new QAction(QIcon(rsrcPath + "/editredo.png"), tr("&Redo"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_Y);
     tb->addAction(a);
     menu->addAction(a);
     menu->addSeparator();
-    a = actionCut = new QAction(QIcon(":/images/editcut.png"), tr("Cu&t"), this);
+    a = actionCut = new QAction(QIcon(rsrcPath + "/editcut.png"), tr("Cu&t"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_X);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionCopy = new QAction(QIcon(":/images/editcopy.png"), tr("&Copy"), this);
+    a = actionCopy = new QAction(QIcon(rsrcPath + "/editcopy.png"), tr("&Copy"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_C);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionPaste = new QAction(QIcon(":/images/editpaste.png"), tr("&Paste"), this);
+    a = actionPaste = new QAction(QIcon(rsrcPath + "/editpaste.png"), tr("&Paste"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_V);
     tb->addAction(a);
     menu->addAction(a);
@@ -160,7 +166,7 @@ void TextEdit::setupTextActions()
     QMenu *menu = new QMenu(tr("F&ormat"), this);
     menuBar()->addMenu(menu);
 
-    actionTextBold = new QAction(QIcon(":/images/textbold.png"), tr("&Bold"), this);
+    actionTextBold = new QAction(QIcon(rsrcPath + "/textbold.png"), tr("&Bold"), this);
     actionTextBold->setShortcut(Qt::CTRL + Qt::Key_B);
     QFont bold;
     bold.setBold(true);
@@ -170,7 +176,7 @@ void TextEdit::setupTextActions()
     menu->addAction(actionTextBold);
     actionTextBold->setCheckable(true);
 
-    actionTextItalic = new QAction(QIcon(":/images/textitalic.png"), tr("&Italic"), this);
+    actionTextItalic = new QAction(QIcon(rsrcPath + "/textitalic.png"), tr("&Italic"), this);
     actionTextItalic->setShortcut(Qt::CTRL + Qt::Key_I);
     QFont italic;
     italic.setItalic(true);
@@ -180,7 +186,7 @@ void TextEdit::setupTextActions()
     menu->addAction(actionTextItalic);
     actionTextItalic->setCheckable(true);
 
-    actionTextUnderline = new QAction(QIcon(":/images/textunder.png"), tr("&Underline"), this);
+    actionTextUnderline = new QAction(QIcon(rsrcPath + "/textunder.png"), tr("&Underline"), this);
     actionTextUnderline->setShortcut(Qt::CTRL + Qt::Key_U);
     QFont underline;
     underline.setUnderline(true);
@@ -195,16 +201,16 @@ void TextEdit::setupTextActions()
     QActionGroup *grp = new QActionGroup(this);
     connect(grp, SIGNAL(triggered(QAction *)), this, SLOT(textAlign(QAction *)));
 
-    actionAlignLeft = new QAction(QIcon(":/images/textleft.png"), tr("&Left"), grp);
+    actionAlignLeft = new QAction(QIcon(rsrcPath + "/textleft.png"), tr("&Left"), grp);
     actionAlignLeft->setShortcut(Qt::CTRL + Qt::Key_L);
     actionAlignLeft->setCheckable(true);
-    actionAlignCenter = new QAction(QIcon(":/images/textcenter.png"), tr("C&enter"), grp);
+    actionAlignCenter = new QAction(QIcon(rsrcPath + "/textcenter.png"), tr("C&enter"), grp);
     actionAlignCenter->setShortcut(Qt::CTRL + Qt::Key_E);
     actionAlignCenter->setCheckable(true);
-    actionAlignRight = new QAction(QIcon(":/images/textright.png"), tr("&Right"), grp);
+    actionAlignRight = new QAction(QIcon(rsrcPath + "/textright.png"), tr("&Right"), grp);
     actionAlignRight->setShortcut(Qt::CTRL + Qt::Key_R);
     actionAlignRight->setCheckable(true);
-    actionAlignJustify = new QAction(QIcon(":/images/textjustify.png"), tr("&Justify"), grp);
+    actionAlignJustify = new QAction(QIcon(rsrcPath + "/textjustify.png"), tr("&Justify"), grp);
     actionAlignJustify->setShortcut(Qt::CTRL + Qt::Key_J);
     actionAlignJustify->setCheckable(true);
 
