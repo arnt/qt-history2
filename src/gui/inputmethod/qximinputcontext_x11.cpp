@@ -489,8 +489,16 @@ void QXIMInputContext::widgetDestroyed(QWidget *w)
     delete d;
 }
 
-void QXIMInputContext::mouseHandler(int, QMouseEvent *)
+void QXIMInputContext::mouseHandler(int pos, QMouseEvent *)
 {
+    XIM_DEBUG("QXIMInputContext::mouseHandler pos=%d", pos);
+    ICData *data = ximData.value(focusWidget());
+    Q_ASSERT(data);
+    if (pos < 0 || pos > data->text.length()) {
+	sendIMEvent(QEvent::InputMethodEnd);
+        reset();
+    }
+    // ##### handle mouse position
 }
 
 bool QXIMInputContext::isComposing() const

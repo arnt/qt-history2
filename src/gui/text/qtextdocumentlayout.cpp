@@ -553,24 +553,34 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
         painter->fillRect(r , bgCol);
     }
 
-    QTextLayout::Selection s;
+    QTextLayout::Selection s[3];
     int nSel = 0;
     if (context.cursor.hasSelection()) {
         int selStart = context.cursor.selectionStart();
         int selEnd = context.cursor.selectionEnd();
-        s.setRange(selStart - bl.position(), selEnd - selStart);
-        s.setType(QTextLayout::Highlight);
+        s[nSel].setRange(selStart - bl.position(), selEnd - selStart);
+        s[nSel].setType(QTextLayout::Highlight);
+        ++nSel;
+    }
+    if (context.imStart != context.imEnd) {
+        s[nSel].setRange(context.imStart - bl.position(), context.imEnd - context.imStart);
+        s[nSel].setType(QTextLayout::ImText);
+        ++nSel;
+    }
+    if (context.imSelectionStart != context.imSelectionEnd) {
+        s[nSel].setRange(context.imSelectionStart - bl.position(), context.imSelectionEnd - context.imSelectionStart);
+        s[nSel].setType(QTextLayout::ImSelection);
         ++nSel;
     }
 
     QTextObject *object = q->document()->objectForFormat(bl.blockFormat());
     if (object && object->format().toListFormat().style() != QTextListFormat::ListStyleUndefined)
-        drawListItem(offset, painter, context, bl, s);
+        drawListItem(offset, painter, context, bl, s[0]);
 
     const_cast<QTextLayout *>(tl)->setPalette(context.palette,
                                               context.textColorFromPalette ? QTextLayout::UseTextColor : QTextLayout::None);
 
-    tl->draw(painter, offset, cursor, &s, nSel, context.rect);
+    tl->draw(painter, offset, cursor, s, nSel, context.rect);
 }
 
 

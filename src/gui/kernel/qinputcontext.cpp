@@ -398,13 +398,13 @@ void QInputContextPrivate::sendIMEventInternal(QEvent::Type type,
 #ifdef IM_DEBUG
     if (type == QEvent::InputMethodStart) {
 	qDebug("sending InputMethodStart with %d chars to %p",
-		text.length(), receiver);
+		text.length(), focusWidget);
     } else if (type == QEvent::InputMethodEnd) {
 	qDebug("sending InputMethodEnd with %d chars to %p, text=%s",
-		text.length(), receiver, text.utf8());
+		text.length(), focusWidget, text.utf8());
     } else if (type == QEvent::InputMethodCompose) {
 	qDebug("sending InputMethodCompose to %p with %d chars, cpos=%d, sellen=%d, text=%s",
-		receiver, text.length(), cursorPosition, selLength, text.utf8());
+		focusWidget, text.length(), cursorPosition, selLength, text.utf8());
     }
 #endif
 

@@ -24,7 +24,6 @@
 #include <qmenu.h>
 #include <qstyle.h>
 #include <qtimer.h>
-
 #include "private/qtextdocumentlayout_p.h"
 #include "private/qtextdocument_p.h"
 #include "qtextdocument.h"
@@ -35,6 +34,10 @@
 #include <limits.h>
 #include <qtexttable.h>
 #include <qvariant.h>
+
+#ifdef Q_WS_X11
+#include <qinputcontext.h>
+#endif
 
 #ifndef QT_NO_ACCEL
 #include <qkeysequence.h>
@@ -1513,6 +1516,10 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
     ctx.cursor = d->cursor;
     ctx.palette = palette();
     ctx.rect = r;
+    ctx.imStart = d->imstart;
+    ctx.imEnd = d->imend;
+    ctx.imSelectionStart = d->imselstart;
+    ctx.imSelectionEnd = d->imselend;
 
     d->doc->documentLayout()->draw(&p, ctx);
 }
@@ -1549,6 +1556,13 @@ void QTextEdit::mousePressEvent(QMouseEvent *ev)
                 return;
             }
 
+#ifdef Q_WS_X11
+            if (d->imstart != d->imend) {
+                inputContext()->mouseHandler(cursorPos - d->imstart, ev);
+                if (d->imstart != d->imend)
+                    return;
+            }
+#endif
             d->setCursorPosition(cursorPos);
         }
 
@@ -1717,32 +1731,24 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
     switch(e->type()) {
     case QEvent::InputMethodStart:
         d->cursor.removeSelectedText();
-        //d->imstart = d->imend = d->imselstart = d->imselend = d->cursor;
+        d->imstart = d->imend = d->imselstart = d->imselend = d->cursor.position();
         break;
     case QEvent::InputMethodCompose:
-        //d->text.replace(d->imstart, d->imend - d->imstart, e->text());
+        d->cursor.setPosition(d->imstart);
+        d->cursor.setPosition(d->imend, QTextCursor::KeepAnchor);
+        d->cursor.insertText(e->text());
         d->imend = d->imstart + e->text().length();
         d->imselstart = d->imstart + e->cursorPos();
         d->imselend = d->imselstart + e->selectionLength();
-#if 0
-        d->cursor = e->selectionLength() ? d->imend : d->imselend;
-#else
-        // Cursor placement code is changed for Asian input method that
-        // shows candidate window. This behavior is same as Qt/E 2.3.7
-        // which supports Asian input methods. Asian input methods need
-        // start point of IM selection text to place candidate window as
-        // adjacent to the selection text.
-        //d->cursor = d->imselstart;
-#endif
-        //d->updateTextLayout();
-        update();
-        //d->emitCursorPositionChanged();
+        d->cursor.setPosition(d->imselstart);
+        d->viewport->update();
         break;
     case QEvent::InputMethodEnd:
-        //d->text.remove(d->imstart, d->imend - d->imstart);
-        //d->cursor = d->imselstart = d->imselend = d->imend = d->imstart;
-        //d->textDirty = true;
-        //insert(e->text());
+        d->cursor.setPosition(d->imstart);
+        d->cursor.setPosition(d->imend, QTextCursor::KeepAnchor);
+        d->cursor.insertText(e->text());
+        d->imselstart = d->imselend = d->imend = d->imstart = 0;
+        d->viewport->update();
         break;
     default:
         Q_ASSERT(false);

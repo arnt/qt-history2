@@ -861,7 +861,7 @@ void QTextCursor::insertText(const QString &text)
 */
 void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
 {
-    if (!d || !d->priv || text.isEmpty())
+    if (!d || !d->priv)
         return;
 
     Q_ASSERT(format.isValid());
@@ -869,20 +869,20 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
     d->priv->beginEditBlock();
 
     d->remove();
+    if (!text.isEmpty()) {
+        QTextFormatCollection *formats = d->priv->formatCollection();
+        int formatIdx = formats->indexForFormat(format);
+        Q_ASSERT(formats->format(formatIdx).isCharFormat());
 
-    QTextFormatCollection *formats = d->priv->formatCollection();
-    int formatIdx = formats->indexForFormat(format);
-    Q_ASSERT(formats->format(formatIdx).isCharFormat());
+        QTextBlockFormat blockFmt = blockFormat();
 
-    QTextBlockFormat blockFmt = blockFormat();
-
-    QStringList blocks = text.split(QChar::ParagraphSeparator);
-    for (int i = 0; i < blocks.size(); ++i) {
-        if (i > 0)
-            d->insertBlock(blockFmt, format);
-        d->priv->insert(d->position, blocks.at(i), formatIdx);
+        QStringList blocks = text.split(QChar::ParagraphSeparator);
+        for (int i = 0; i < blocks.size(); ++i) {
+            if (i > 0)
+                d->insertBlock(blockFmt, format);
+            d->priv->insert(d->position, blocks.at(i), formatIdx);
+        }
     }
-
     d->priv->endEditBlock();
 }
 
