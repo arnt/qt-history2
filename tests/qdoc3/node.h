@@ -208,6 +208,7 @@ public:
 
     void setName( const QString& name ) { nam = name; }
 
+    bool hasType() const { return lef.length() + rig.length() > 0; }
     const QString& leftType() const { return lef; }
     const QString& rightType() const { return rig; }
     const QString& name() const { return nam; }

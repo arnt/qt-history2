@@ -623,7 +623,8 @@ bool QsCodeParser::makeFunctionNode( const QString& synopsis,
     */
     QRegExp funcRegExp( "\\s*([A-Za-z0-9_]+)\\.([A-Za-z0-9_]+)\\s*\\((" +
 			balancedParentheses + ")\\)\\s*" );
-    QRegExp paramRegExp( "\\s*([A-Za-z0-9_]+)(\\s+[A-Za-z0-9_]+)?\\s*" );
+    QRegExp paramRegExp( "\\s*var\\s+([A-Za-z0-9_]+)?"
+			 "\\s*(?::\\s*([A-Za-z0-9_]+)\\s*)?" );
 
     if ( !funcRegExp.exactMatch(synopsis) )
 	return FALSE;
@@ -640,8 +641,8 @@ bool QsCodeParser::makeFunctionNode( const QString& synopsis,
     QStringList::ConstIterator p = params.begin();
     while ( p != params.end() ) {
 	if ( paramRegExp.exactMatch(*p) ) {
-	    clone->addParameter( Parameter(paramRegExp.cap(1), "",
-					   paramRegExp.cap(2)) );
+	    clone->addParameter( Parameter(paramRegExp.cap(2), "",
+					   paramRegExp.cap(1)) );
 	} else {
 	    delete clone;
 	    return FALSE;

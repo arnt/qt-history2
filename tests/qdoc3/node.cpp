@@ -168,9 +168,11 @@ bool InnerNode::isSameSignature( const FunctionNode *f1,
     QValueList<Parameter>::ConstIterator p1 = f1->parameters().begin(),
 					 p2 = f2->parameters().begin();
     while ( p2 != f2->parameters().end() ) {
-	if ( (*p1).leftType() != (*p2).leftType() ||
-	     (*p1).rightType() != (*p2).rightType() )
-	    return FALSE;
+	if ( (*p1).hasType() && (*p2).hasType() ) {
+	    if ( (*p1).leftType() != (*p2).leftType() ||
+		 (*p1).rightType() != (*p2).rightType() )
+		return FALSE;
+	}
 	++p1;
 	++p2;
     }
