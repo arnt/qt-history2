@@ -1164,7 +1164,9 @@ static bool isXInputSupported(Display *dpy)
         return false;
 
     int tmp;
+#ifdef Q_OS_IRIX
     sgi_extension_exists = XSGIMiscQueryExtension(dpy, &tmp, &tmp);
+#endif
     XFree(version);
     return true;
 }
