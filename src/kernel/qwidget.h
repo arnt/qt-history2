@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#240 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#241 $
 **
 ** Definition of QWidget class
 **
@@ -255,7 +255,7 @@ public slots:
     virtual void	setGeometry( const QRect & );
 
 public:
-    virtual bool	close( bool forceKill );
+    virtual bool	close( bool alsoDelete );
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
     bool		isVisibleToTLW() const;
