@@ -154,7 +154,7 @@ bool QSqlRowset::select( const QSqlIndex & filter, const QSqlIndex & sort )
 
 QString qMakeFieldValue( const QSqlDriver* driver, const QString& prefix, QSqlField& field, const QString& op = "=" )
 {
-    QString f = ( prefix.length() > 0 ? QString(".") : QString::null ) + field.name();
+    QString f = ( prefix.length() > 0 ? prefix + QString(".") : QString::null ) + field.name();
     if ( !field.isNull() ) {
 	if( (field.type() == QVariant::String) || (field.type() == QVariant::CString) )
 	    f += " " + op + " '" + field.value().toString() + "'";
