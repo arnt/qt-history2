@@ -180,6 +180,12 @@ public:
     QToolBar * moving;
     QPoint pos;
     QPoint offset;
+
+    QWidget *invisibleDrawArea;
+    QPainter *rectPainter;
+    QRect oldPosRect;
+    QRect origPosRect;
+    bool oldPosRectValid;
 };
 
 
@@ -370,6 +376,8 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
 {
     d = new QMainWindowPrivate;
     d->timer = new QTimer( this );
+    d->invisibleDrawArea = 0;
+    d->rectPainter = 0;
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(setUpLayout()) );
 }
@@ -1143,11 +1151,11 @@ void QMainWindow::triggerLayout()
 }
 
 
-QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos )
+QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &rect )
 {
     int x = pos.x();
     int y = pos.y();
-    
+
     // calculate the docking areas
     int left, right, top, bottom;
     left = right = top = bottom = 30;
@@ -1165,16 +1173,24 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos )
     }
     top += h1;
     bottom += h2;
-    
-    // find the docking area into which the toolbar should be moved
-    if ( x < left && y > top && y < height()- bottom )
+
+    // find the docking area into which the toolbar should/could be moved
+    if ( x < left && y > top && y < height()- bottom ) {
+	rect = QRect( 0, top, left, height() - top - bottom );
 	return Left;
-    if ( x > left && y < top && x < width()- right )
+    }
+    if ( x > 0 && y < top && x < width()- right ) {
+	rect = QRect( left, h1, width() - left - right, top - h1 );
 	return Top;
-    if ( x > width()- right && y > top && y < height()- bottom )
+    }
+    if ( x > width()- right && y > top && y < height()- bottom ) {
+	rect = QRect( width() - right, top, right, height() - top - bottom );
 	return Right;
-    if ( x > left && y > height()- bottom && x < width()- right )
+    }
+    if ( x > left && y > height() - bottom && x < width()- right ) {
+	rect = QRect( left, height() - bottom, width() - left - right, bottom - h2 );
 	return Bottom;
+    }
 
     return Unmanaged;
 }
@@ -1188,12 +1204,37 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
     if ( e->type() == QEvent::MouseButtonPress ) {
 	QApplication::setOverrideCursor( Qt::pointingHandCursor );
 	d->moving = 0;
-	d->offset = e->pos();
-	d->pos = QCursor::pos();
+	d->invisibleDrawArea = new QWidget( this );
+	d->invisibleDrawArea->setBackgroundMode( NoBackground );
+	d->invisibleDrawArea->raise();
+	d->invisibleDrawArea->setGeometry( 0, 0, width(), height() );
+	d->invisibleDrawArea->show();
+	d->rectPainter = new QPainter;
+	d->rectPainter->begin( d->invisibleDrawArea );
+	d->rectPainter->setRasterOp( NotROP );
+	d->rectPainter->setPen( QPen( black, 1, DashLine ) );
+
+	QPoint pos = mapFromGlobal( QCursor::pos() );
+	QRect r;
+	(void)findDockArea( pos, r );
+	d->rectPainter->drawRect( r );
+	d->oldPosRect = r;
+	d->origPosRect = r;
+	d->oldPosRectValid = TRUE;
 	return;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
 	QApplication::restoreOverrideCursor();
 	d->moving = 0;
+	d->rectPainter->end();
+	delete d->invisibleDrawArea;
+	delete d->rectPainter;
+	d->invisibleDrawArea = 0;
+	d->rectPainter = 0;
+	QPoint pos = mapFromGlobal( QCursor::pos() );
+	QRect r;
+	ToolBarDock dock = findDockArea( pos, r );
+	if ( dock != Unmanaged )
+	    moveToolBar( t, dock );
 	return;
     }
 
@@ -1202,12 +1243,20 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	 QABS( p.x() - d->pos.x() ) < 3 &&
 	 QABS( p.y() - d->pos.y() ) < 3 )
 	return;
-    
+
     QPoint pos = mapFromGlobal( p );
-    ToolBarDock dock = findDockArea( pos );
-    if ( dock != Unmanaged )
-	moveToolBar( t, dock );
+    QRect r;
+    ToolBarDock dock = findDockArea( pos, r );
+
+    if ( dock == Unmanaged )
+	r = d->origPosRect;
     
+    if ( d->oldPosRectValid && d->oldPosRect != r )
+	d->rectPainter->drawRect( d->oldPosRect );
+    if ( d->oldPosRect != r )
+	d->rectPainter->drawRect( r );
+    d->oldPosRect = r;
+    d->oldPosRectValid = TRUE;
     
 #if 0
     if ( e->type() == QEvent::MouseButtonPress ) {
