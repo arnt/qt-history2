@@ -383,13 +383,15 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
             h = hint ? textRect->height() : h - pixmapRect->height();
             display.setRect(x, y + pixmapRect->height(), w, h);
             break;}
-        case QStyleOptionViewItem::Bottom: { // FIXME: doesn't work properly
+        case QStyleOptionViewItem::Bottom: {
+            h = hint ? textRect->height() + pixmapRect->height() : h;
             decoration.setRect(x, y + h - pixmapRect->height(), w, pixmapRect->height());
             h = hint ? textRect->height() : h - pixmapRect->height();
             display.setRect(x, y, w, h);
             break;}
         case QStyleOptionViewItem::Left: {
-            if (option.direction == Qt::RightToLeft){
+            if (option.direction == Qt::RightToLeft) {
+                w = hint ? textRect->width() + pixmapRect->width() : w;
                 decoration.setRect(x + w - pixmapRect->width(), y, pixmapRect->width(), h);
                 w = hint ? textRect->width() : w - pixmapRect->width();
                 display.setRect(x, y, w, h);
@@ -400,13 +402,14 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
             display.setRect(x + pixmapRect->width(), y, w, h);
             break;}
         case QStyleOptionViewItem::Right: {
-            if (option.direction == Qt::RightToLeft){
+            if (option.direction == Qt::RightToLeft) {
                 decoration.setRect(x, y, pixmapRect->width(), h);
                 w = hint ? textRect->width() : w - pixmapRect->width();
                 display.setRect(x + pixmapRect->width(), y, w, h);
                 break;
             }
-            decoration.setRect(x + w - pixmapRect->width(), y, pixmapRect->width(), h);
+            w = hint ? textRect->width() + pixmapRect->width() : w;
+            decoration.setRect(x + w + pixmapRect->width(), y, pixmapRect->width(), h);
             w = hint ? textRect->width() : w - pixmapRect->width();
             display.setRect(x, y, w, h);
             break;}
