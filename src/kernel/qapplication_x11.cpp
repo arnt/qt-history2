@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#494 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#495 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -952,8 +952,8 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	if ( qt_xim ) {
 	    const char* locale = XLocaleOfIM( qt_xim );
 	    input_mapper = QTextCodec::codecForName( locale );
-	    qDebug( "Codec for %s (%p) is %s", locale, qt_xim,
-		   input_mapper ? input_mapper->name() : "<null>" );
+	    //qDebug( "Codec for %s (%p) is %s", locale, qt_xim,
+	    //   input_mapper ? input_mapper->name() : "<null>" );
 	}
     }
 #endif
