@@ -442,6 +442,10 @@ int QDockAreaLayout::widthForHeight( int h ) const
   QDockArea somewhere other than a QMainWindow you can always create
   your own QDockAreas using this class.
 
+  Using the sreaming operators it is possible to write the exact
+  positions of the dock windows in this dock area to a QTextStream and
+  read and restore this setup again later.
+
 */
 
 /*! \fn Orientation QDockArea::orientation() const
@@ -1071,6 +1075,10 @@ bool QDockArea::isLastDockWindow( QDockWindow *dw )
 }
 
 #ifndef QT_NO_TEXTSTREAM
+
+/* Writes the layout of the dock windows in the \a dockArea to the
+   text stream \a ts.*/
+
 QTextStream &operator<<( QTextStream &ts, const QDockArea &dockArea )
 {
     QString str;
@@ -1084,6 +1092,9 @@ QTextStream &operator<<( QTextStream &ts, const QDockArea &dockArea )
 
     return ts;
 }
+
+/* Reads the layout description of the dock windows in the \a dockArea
+   from the text stream \a ts and restores it. */
 
 QTextStream &operator>>( QTextStream &ts, QDockArea &dockArea )
 {

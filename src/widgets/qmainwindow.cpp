@@ -563,10 +563,31 @@ public:
 
   An application with multiple dock windows can choose to save the
   current dock window layout in order to restore it in the next
-  session. To do so, use getLocation() on each dock window, store the
-  data and restore the layout using moveDockWindow() on each dock
-  window again. When restoring, ensure to move the dock windows in
-  exactly the same order in which you got the information.
+  session. You can do this by using the streaming operators for
+  QMainWindow.
+
+  To save the layout and all positions do this:
+
+  \code
+  QFile f( filename );
+  if ( f.open( IO_WriteOnly ) ) {
+      QTextStream ts( &f );
+      ts << *mainWindow;
+      f.close();
+  }
+  /endcode
+
+  To restore the dock window positions and sizes (normally on the next
+  start of the applications), do following:
+
+  \code
+  QFile f( filename );
+  if ( f.open( IO_ReadOnly ) ) {
+      QTextStream ts( &f );
+      ts >> *mainWindow;
+      f.close();
+  }
+  /endcode
 
   For multi-document interfaces (MDI), use a QWorkspace as central
   widget.
@@ -1741,6 +1762,9 @@ static void saveDockArea( QTextStream &ts, QDockArea *a )
     ts << *a;
 }
 
+/* Writes the layout of the dock windows in the dock areas of the \a
+   mainWindow to the text stream \a ts.*/
+
 QTextStream &operator<<( QTextStream &ts, const QMainWindow &mainWindow )
 {
     QList<QDockWindow> l = mainWindow.dockWindows( Qt::Minimized );
@@ -1777,6 +1801,9 @@ static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QL
     if ( a )
 	ts >> *a;
 }
+
+/* Reads the layout description of the dock windows in the dock areas
+   of the \a mainWindow from the text stream \a ts and restores it. */
 
 QTextStream &operator>>( QTextStream &ts, QMainWindow &mainWindow )
 {
