@@ -98,6 +98,12 @@ UnixMakefileGenerator::init()
 
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
+    if ( project->isActiveConfig("qtopia") ) {
+	if(configs.findIndex("qtopialib") == -1)
+	    configs.append("qtopialib");
+	if(configs.findIndex("qtopiainc") == -1)
+	    configs.append("qtopiainc");
+    }
     if ( project->isActiveConfig("qtopiainc") )
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QTOPIA"];
     if ( project->isActiveConfig("qtopialib") ) {
@@ -160,12 +166,6 @@ UnixMakefileGenerator::init()
 	    configs.append("x11lib");
 	if(configs.findIndex("x11inc") == -1)
 	    configs.append("x11inc");
-    }
-    if ( project->isActiveConfig("qtopia") ) {
-	if(configs.findIndex("qtopialib") == -1)
-	    configs.append("qtopialib");
-	if(configs.findIndex("qtopiainc") == -1)
-	    configs.append("qtopiainc");
     }
     if ( project->isActiveConfig("qt") ) {
 	if ( project->isActiveConfig("accessibility" ) )
