@@ -1256,11 +1256,24 @@ void QPainter::setBackgroundMode( BGMode m )
 }
 
 static short ropCodes[] = {			// ROP translation table
-    GXcopy, GXor, GXxor, GXandInverted,
-    GXcopyInverted, GXorInverted, GXequiv, GXand,
-    GXinvert, GXclear, GXset, GXnoop,
-    GXandReverse, GXorReverse, GXnand, GXnor
+    GXcopy, // CopyROP
+    GXor, // OrROP
+    GXxor, // XorROP
+    GXandInverted, // NotAndROP EraseROP
+    GXcopyInverted, // NotCopyROP
+    GXorInverted, // NotOrROP
+    GXequiv, // NotXorROP
+    GXand, // AndROP
+    GXinvert, // NotROP
+    GXclear, // ClearROP
+    GXset, // SetROP
+    GXnoop, // NopROP
+    GXandReverse, // AndNotROP
+    GXorReverse, // OrNotROP
+    GXnand, // NandROP
+    GXnor // NorROP
 };
+
 
 /*!
   Sets the raster operation to \a r.  The default is \c CopyROP.
