@@ -34,9 +34,9 @@ then
 	ABSPATH="QMAKE_ABSOLUTE_SOURCE_PATH=$SRCDIR/config.tests/x11"
     fi
 
-    test -d $OUTDIR/config.tests/x11/notypetest || mkdir -p $OUTDIR/config.tests/x11/notypetest
-    $OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "$ABSPATH" $SRCDIR/config.tests/x11/notypetest/notypetest.pro -o $OUTDIR/config.tests/x11/notypetest/Makefile >/dev/null 2>&1
-    cd $OUTDIR/config.tests/x11/notypetest
+    test -d $OUTDIR/config.tests/x11/notype || mkdir -p $OUTDIR/config.tests/x11/notype
+    $OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "$ABSPATH" $SRCDIR/config.tests/x11/notype/notypetest.pro -o $OUTDIR/config.tests/x11/notype/Makefile >/dev/null 2>&1
+    cd $OUTDIR/config.tests/x11/notype
 
     if [ "$VERBOSE" = "yes" ]; then
 	make
