@@ -435,7 +435,8 @@ static void cleanup_texture_cache()
     GLuint textures[tx_cache.size()];
     for(int i = 0; i < tx_cache.size(); ++i)
 	textures[i] = tx_cache.value(i);
-    glDeleteTextures(1, textures);
+    glDeleteTextures(tx_cache.size(), textures);
+    tx_cache.clear();
 }
 
 static void bind_texture_from_cache(const QPixmap &pm)
@@ -464,6 +465,7 @@ static void bind_texture_from_cache(const QPixmap &pm)
 	GLuint tx_id;
 	glGenTextures(1, &tx_id);
 	glBindTexture(GL_TEXTURE_2D, tx_id);
+	// ### fix: better error handling - what if there's no more room for textures
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tx.width(), tx.height(), 0, GL_RGBA,
 		     GL_UNSIGNED_BYTE, tx.bits());
 	tx_cache.insert(pm.serialNumber(), tx_id);
