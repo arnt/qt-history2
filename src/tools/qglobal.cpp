@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#9 $
 **
 ** Global functions
 **
@@ -17,11 +17,11 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#9 $";
 #endif
 
 
-const char *qVersion() { return "0.91"; }
+const char *qVersion() { return "0.91b"; }
 
 // --------------------------------------------------------------------------
 // System detection routines
