@@ -42,6 +42,7 @@
 #include "qfileinfo.h"
 #include "qdir.h"
 #include "qdragobject.h"
+#include "qcleanuphandler.h"
 #include "qapplication.h" // ### for now
 #include "qclipboard.h" // ### for now
 
@@ -61,12 +62,7 @@
 
 static int qt_mime_serial_number = 0;
 static QMimeSourceFactory* defaultfactory = 0;
-
-void qt_cleanup_defaultfactory()
-{
-    delete defaultfactory;
-    defaultfactory = 0;
-}
+static QCleanupHandler<QMimeSourceFactory> qmime_cleanup_factory;
 
 /*! Constructs a mime source and assigns a globally unique serial
   number to it.
@@ -542,7 +538,7 @@ QMimeSourceFactory* QMimeSourceFactory::defaultFactory()
 {
     if (!defaultfactory) {
 	defaultfactory = new QMimeSourceFactory();
-	qAddPostRoutine( qt_cleanup_defaultfactory );
+	qmime_cleanup_factory.add( &defaultfactory );
     }
     return defaultfactory;
 }
