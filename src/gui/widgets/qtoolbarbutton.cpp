@@ -181,7 +181,7 @@ void QToolBarButton::actionEvent(QActionEvent *event)
         // fall through intended
 
     case QEvent::ActionChanged:
-        setText(action->text());
+        setText(action->iconText());
         setIcon(action->icon());
         setToolTip(action->toolTip());
         setStatusTip(action->statusTip());
