@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#8 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#8 $";
 #endif
 
 
@@ -733,6 +733,7 @@ int translateButtonState( int s )		// translate button state
 bool QETWidget::translateMouseEvent( const XEvent *event )
 {
     static Window lastWindow = 0;		// keep state; get doubleclicks
+    static bool buttonDown = FALSE;
     static uint lastButton;
     static Time lastTime;
     static int lastX, lastY;
@@ -746,6 +747,11 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	pos.rx() = event->xmotion.x;
 	pos.ry() = event->xmotion.y;
 	state = translateButtonState( event->xmotion.state );
+	if ( !buttonDown ) {
+	    state &= ~(LeftButton|MidButton|RightButton);
+	    if ( !testFlag(WEtc_MouseMove) )
+		return FALSE;			// unexpected event
+	}
     }
     else {					// button press or release
 	pos.rx() = event->xbutton.x;
@@ -757,6 +763,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	}
 	state = translateButtonState( event->xbutton.state );
 	if ( event->type == ButtonPress ) {	// mouse button pressed
+	    buttonDown = TRUE;
 	    if ( lastWindow == event->xbutton.window &&
 		 lastButton == button &&
 		 (int)event->xbutton.time - lastTime < 400 &&
@@ -772,8 +779,13 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    lastX = event->xbutton.x;
 	    lastY = event->xbutton.y;
 	}
-	else					// mouse button released
+	else {					// mouse button released
+	    if ( !buttonDown )			// unexpected event
+		return FALSE;
 	    type = Event_MouseButtonRelease;
+	    if ( (state & (LeftButton|MidButton|RightButton)) == 0 )
+		buttonDown = FALSE;
+	}
     }
     QMouseEvent evt( type, pos, button, state );
     return SEND_EVENT( this, &evt );
