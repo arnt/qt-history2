@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#92 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#93 $
 **
 ** Definition of QStyle class
 **
@@ -106,7 +106,12 @@ public:
 	PO_ArrowUp,
 	PO_ArrowDown,
 	PO_ArrowRight,
-	PO_ArrowLeft
+	PO_ArrowLeft,
+	
+	PO_SpinWidgetUp,
+	PO_SpinWidgetDown,
+	PO_SpinWidgetPlus,
+	PO_SpinWidgetMinus
 
 	/*
 	  PO_Panel,
@@ -198,12 +203,12 @@ public:
 
 
     enum ComplexControl{
-	CC_SpinWidget
+	CC_SpinWidget,
+	CC_ComboBox
 	/*
 	  CC_ScrollBar,
 	  CC_Slider,
-	  CC_MenuItem,
-	  CC_ComboBox
+	  CC_MenuItem, 
 	*/
     };
 
@@ -226,7 +231,11 @@ public:
 	SC_SpinWidgetDown = 		0x00000002,
 	SC_SpinWidgetFrame = 		0x00000004,
 	SC_SpinWidgetEditField =	0x00000008,
-	SC_SpinWidgetButtonField =	0x00000010
+	SC_SpinWidgetButtonField =	0x00000010,
+
+	SC_ComboBoxEditField =	0x00000001,
+	SC_ComboBoxArrow =	0x00000002,
+	SC_ComboBoxFocusRect =	0x00000004
 
 	/*
 	  SC_MenuItemCheck =	0x00000001,
@@ -234,9 +243,6 @@ public:
 	  SC_MenuItemAccel =	0x00000004,
 	  SC_MenuItemSubMenu =	0x00000008,
 
-	  SC_ComboBoxEditField =	0x00000001,
-	  SC_ComboBoxArrow =	0x00000002,
-	  SC_ComboBoxFocusRect =	0x00000004
 	*/
     };
     typedef uint SCFlags;

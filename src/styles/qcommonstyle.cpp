@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#41 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#42 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -573,7 +573,77 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	p->drawRect(r);
 	p->setPen(oldPen);
 	break; }
+    
+    case PO_SpinWidgetPlus:
+    case PO_SpinWidgetMinus: {
+	p->save();
+	int fw = pixelMetric( PM_DefaultFrameWidth, 0 );
+	QRect br;
+	br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2, 
+		    r.height() - fw*2 );
 
+	p->fillRect( br, cg.brush( QColorGroup::Button ) );
+	p->setPen( cg.buttonText() );
+	p->setBrush( cg.buttonText() );
+	
+	int length;
+	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
+	if ( w <= 8 || h <= 6 )
+	    length = QMIN( w-2, h-2 );
+	else
+	    length = QMIN( 2*w / 3, 2*h / 3 );
+
+	if ( !(length & 1) )
+	    length -=1;
+	int xmarg = ( w - length ) / 2;
+	int ymarg = ( h - length ) / 2;
+
+	p->drawLine( x + xmarg, ( y + h / 2 - 1 ),
+		     x + xmarg + length - 1, ( y + h / 2 - 1 ) );
+	if ( op == PO_SpinWidgetPlus )	    
+	    p->drawLine( ( x+w / 2 ) - 1, y + ymarg,
+			 ( x+w / 2 ) - 1, y + ymarg + length - 1 );
+	p->restore();
+	break; }
+
+    case PO_SpinWidgetUp:
+    case PO_SpinWidgetDown: {
+	p->save();
+	int fw = pixelMetric( PM_DefaultFrameWidth, 0 );
+	QRect br;
+	br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2, 
+		    r.height() - fw*2 );
+	p->fillRect( br, cg.brush( QColorGroup::Button ) );
+	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
+	int sw = w-4;
+	if ( sw < 3 )
+	    return;
+	else if ( !(sw & 1) )
+	    sw--;
+	sw -= ( sw / 7 ) * 2;	// Empty border
+	int sh = sw/2 + 2;      // Must have empty row at foot of arrow
+
+	int sx = x + w / 2 - sw / 2 - 1;
+	int sy = y + h / 2 - sh / 2 - 1;
+
+	QPointArray a;
+	if ( op == PO_SpinWidgetDown )
+	    a.setPoints( 3,  0, 1,  sw-1, 1,  sh-2, sh-1 );
+	else
+	    a.setPoints( 3,  0, sh-1,  sw-1, sh-1,  sh-2, 1 );
+	int bsx = 0;
+	int bsy = 0;
+	if ( flags & PStyle_Sunken ) {
+	    bsx = pixelMetric(PM_ButtonShiftHorizontal);
+	    bsy = pixelMetric(PM_ButtonShiftVertical);
+	}
+	p->translate( sx + bsx, sy + bsy );
+	p->setPen( cg.buttonText() );
+	p->setBrush( cg.buttonText() );
+	p->drawPolygon( a );
+	p->restore();
+	break; }
+    
     default:
 	break;
     }

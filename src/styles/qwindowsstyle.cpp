@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#50 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#51 $
 **
 ** Implementation of Windows-like style class
 **
@@ -1930,29 +1930,37 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 {
     switch( subCtrl ) {
     case SC_SpinWidgetUp: {
+	QSpinWidget * sw = (QSpinWidget *) w;
 	PFlags flags = PStyle_Default;
+	PrimitiveOperation op = PO_SpinWidgetUp;
 
 	flags |= PStyle_Enabled;
 	if (subActive == subCtrl) {
 	    flags |= PStyle_On;
 	    flags |= PStyle_Sunken;
 	}
-
+	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
+	    op = PO_SpinWidgetPlus;
+	
 	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
-	drawPrimitive(PO_ArrowUp, p, r, cg, flags);
+	drawPrimitive(op, p, r, cg, flags);
     	break; }
 
     case SC_SpinWidgetDown: {
+	QSpinWidget * sw = (QSpinWidget *) w;
 	PFlags flags = PStyle_Default;
-
+	PrimitiveOperation op = PO_SpinWidgetDown;
+	
 	flags |= PStyle_Enabled;
 	if (subActive == subCtrl) {
 	    flags |= PStyle_On;
 	    flags |= PStyle_Sunken;
-	}
-
+	}	
+	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
+	    op = PO_SpinWidgetMinus;
+	
 	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
-	drawPrimitive(PO_ArrowDown, p, r, cg, flags);
+	drawPrimitive(op, p, r, cg, flags);
 	break; }
 
     case SC_SpinWidgetFrame:
