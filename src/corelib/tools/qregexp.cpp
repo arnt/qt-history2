@@ -3172,7 +3172,7 @@ static void derefEngine(QRegExpEngine *eng, const QString &pattern)
 
     if (!--eng->ref) {
 #if !defined(QT_NO_REGEXP_OPTIM)
-        if (!pattern.isNull()) {
+        if (!pattern.isNull() && engineCache) {
             engineCache->insert(pattern, eng, 4 + pattern.length() / 4);
             return;
         }
