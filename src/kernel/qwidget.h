@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#17 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#18 $
 **
 ** Definition of QWidget class
 **
@@ -200,7 +200,7 @@ private:
 
 inline void QWidget::repaint( bool erase )
 {
-    repaint( rect, erase );
+    repaint( clientRect(), erase );
 }
 
 inline void QWidget::repaint( int x, int y, int w, int h, bool erase )
