@@ -380,7 +380,6 @@
 #    endif
 /* The new UnixWare 7 compiler is based on EDG and does define __EDG__ */
 #  elif defined(__USLC__)
-#    define Q_CC_EDG
 #    define Q_CC_USLC
 #    define Q_NO_USING_KEYWORD /* ### check "using" status */
 /* Never tested! */
@@ -390,16 +389,12 @@
 /* CDS++ is not documented to define __EDG__ or __EDG in the Reliant
    documentation but we suppose it does, in any case it does follow
    conventions like _BOOL */
-#elif defined(sinix)
-#  define Q_CC_EDG
-#  define Q_CC_CDS
-#  if !defined(_BOOL)
-#    define Q_NO_BOOL_TYPE
-#  endif
-#  define Q_NO_USING_KEYWORD
-#  if defined(__cplusplus) && (__cplusplus < 2) /* Cfront C++ mode */
-#    define Q_NO_EXCEPTIONS
-#  endif
+#  elif defined(sinix)
+#    define Q_CC_CDS
+#    define Q_NO_USING_KEYWORD
+#    if defined(__cplusplus) && (__cplusplus < 2) /* Cfront C++ mode */
+#      define Q_NO_EXCEPTIONS
+#    endif
 /* The MIPSpro compiler in o32 mode is based on EDG but disables features
    such as template specialization nevertheless */
 #  elif defined(sgi) || defined(__sgi)
