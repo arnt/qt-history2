@@ -112,6 +112,9 @@ static void* qt_resolve_symbol( const QString& symbol, void* handle )
 
 #elif defined(Q_OS_MACX)
 
+#define DO_MAC_LIBRARY
+
+#ifdef DO_MAC_LIBRARY
 //is this gross or what!?! God I love the preprocessor..
 #define OLD_T TRUE
 #define OLD_F FALSE
@@ -127,27 +130,40 @@ enum DYLD_BOOL { DYLD_TRUE=1, DYLD_FALSE=0 };
 #define TRUE OLD_T
 #undef FALSE
 #define FALSE OLD_F
+#endif
 
 // Mac
 static void* qt_load_library( const QString &file )
 {
+#ifdef DO_MAC_LIBRARY
     NSObjectFileImage img;
     if( NSCreateObjectFileImageFromFile(file, &img)  != NSObjectFileImageSuccess )
 	return NULL;
     return NSLinkModule(img, file, TRUE);
+#else
+    return NULL;
+#endif
 }
 
 static bool qt_free_library( void *handle )
 {
+#ifdef DO_MAC_LIBRARY
     NSUnLinkModule(handle, FALSE);
     return TRUE;
+#else
+    return FALSE;
+#endif
 }
 
 static void* qt_resolve_symbol( void *, const char *symbol)
 {
+#ifdef DO_MAC_LIBRARY
     QCString symn2;
     symn2.sprintf("_%s", symbol);
     return NSAddressOfSymbol(NSLookupAndBindSymbol(symn2));
+#else
+    return NULL;
+#endif
 }
 
 #else
