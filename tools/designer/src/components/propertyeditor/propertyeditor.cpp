@@ -93,7 +93,7 @@ public:
     void setPixmap(const QPixmap &pm);
     QIcon icon() const { return m_mode == Icon ? m_icon : QIcon(); }
     QPixmap pixmap() const { return m_mode == Pixmap ? m_pixmap : QPixmap(); }
-    
+
 signals:
     void iconChanged(const QIcon &pm);
     void pixmapChanged(const QPixmap &pm);
@@ -154,10 +154,10 @@ int GraphicsPropertyEditor::indexOfIcon(const QIcon &icon)
 {
     if (m_mode == Pixmap)
         return -1;
-        
+
     if (icon.isNull())
         return 0;
-        
+
     for (int i = 1; i < m_combo->count(); ++i) {
         if (qvariant_cast<QIcon>(m_combo->itemData(i)).serialNumber() == icon.serialNumber())
             return i;
@@ -177,10 +177,10 @@ int GraphicsPropertyEditor::indexOfPixmap(const QPixmap &pixmap)
 {
     if (m_mode == Icon)
         return -1;
-    
+
     if (pixmap.isNull())
         return 0;
-        
+
     for (int i = 1; i < m_combo->count(); ++i) {
         if (qvariant_cast<QPixmap>(m_combo->itemData(i)).serialNumber() == pixmap.serialNumber())
             return i;
@@ -228,9 +228,9 @@ void GraphicsPropertyEditor::populateCombo()
                                 QVariant(pixmap));
         }
     }
-    m_combo->blockSignals(true);
+    bool blocked = m_combo->blockSignals(true);
     m_combo->setCurrentIndex(0);
-    m_combo->blockSignals(false);
+    m_combo->blockSignals(blocked);
 }
 
 GraphicsPropertyEditor::GraphicsPropertyEditor(AbstractFormEditor *core, const QIcon &pm,
@@ -277,7 +277,7 @@ void GraphicsPropertyEditor::showDialog()
             qrc_path = m_core->iconCache()->pixmapToQrcPath(m_pixmap);
         }
     }
-    
+
     dialog.setPaths(qrc_path, file_path);
     if (dialog.exec()) {
         file_path = dialog.filePath();
@@ -295,7 +295,7 @@ void GraphicsPropertyEditor::setIcon(const QIcon &pm)
 {
     if (m_mode == Pixmap)
         return;
-        
+
     if (pm.isNull() && m_icon.isNull())
         return;
     if (pm.serialNumber() == m_icon.serialNumber())
@@ -303,10 +303,10 @@ void GraphicsPropertyEditor::setIcon(const QIcon &pm)
 
     m_icon = pm;
 
-    m_combo->blockSignals(true);
+    bool blocked = m_combo->blockSignals(true);
     m_combo->setCurrentIndex(indexOfIcon(m_icon));
-    m_combo->blockSignals(false);
-    
+    m_combo->blockSignals(blocked);
+
     emit iconChanged(m_icon);
 }
 
@@ -314,7 +314,7 @@ void GraphicsPropertyEditor::setPixmap(const QPixmap &pm)
 {
     if (m_mode == Icon)
         return;
-        
+
     if (pm.isNull() && m_pixmap.isNull())
         return;
     if (pm.serialNumber() == m_pixmap.serialNumber())
@@ -322,10 +322,10 @@ void GraphicsPropertyEditor::setPixmap(const QPixmap &pm)
 
     m_pixmap = pm;
 
-    m_combo->blockSignals(true);
+    bool blocked = m_combo->blockSignals(true);
     m_combo->setCurrentIndex(indexOfPixmap(m_pixmap));
-    m_combo->blockSignals(false);
-    
+    m_combo->blockSignals(blocked);
+
     emit pixmapChanged(m_pixmap);
 }
 

@@ -28,7 +28,7 @@ class ModelCache
 {
 public:
     ResourceModel *model(const QString &file);
-    
+
 private:
     QList<ResourceModel*> m_model_list;
 };
@@ -89,14 +89,14 @@ ResourceEditor::ResourceEditor(AbstractFormWindow *form, QWidget *parent)
     QHBoxLayout *layout2 = new QHBoxLayout;
     layout1->addLayout(layout2);
     layout2->addWidget(new QLabel(tr("Resource file:"), this));
-    
+
     m_qrc_combo = new QComboBox(this);
     m_qrc_combo->setEditable(false);
     m_qrc_combo->setInsertPolicy(QComboBox::NoInsert);
     m_qrc_combo->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
     connect(m_qrc_combo, SIGNAL(activated(int)), this, SLOT(setCurrentIndex(int)));
     layout2->addWidget(m_qrc_combo);
-    
+
     m_new_button = createToolButton(this, tr("New"), QLatin1String("filenew.png"),
                                     SLOT(newView()));
     m_open_button = createToolButton(this, tr("Open"), QLatin1String("fileopen.png"),
@@ -123,7 +123,7 @@ ResourceEditor::ResourceEditor(AbstractFormWindow *form, QWidget *parent)
     connect(m_prefix_edit, SIGNAL(textChanged(const QString&)),
             this, SLOT(setCurrentPrefix(const QString&)));
     layout4->addWidget(m_prefix_edit);
-    
+
     QHBoxLayout *layout3 = new QHBoxLayout;
     layout1->addLayout(layout3);
     layout3->addStretch();
@@ -156,7 +156,7 @@ ResourceModel *ResourceEditor::model(int i) const
 {
     if (i >= qrcCount() || i < 0)
         return 0;
-    return qobject_cast<ResourceModel*>(view(i)->model());    
+    return qobject_cast<ResourceModel*>(view(i)->model());
 }
 
 QTreeView *ResourceEditor::currentView() const
@@ -179,7 +179,7 @@ void ResourceEditor::getCurrentItem(QString &prefix, QString &file)
 {
     prefix.clear();
     file.clear();
-    
+
     QTreeView *view = currentView();
     if (view == 0)
         return;
@@ -187,7 +187,7 @@ void ResourceEditor::getCurrentItem(QString &prefix, QString &file)
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
-    
+
     model->getItem(view->currentIndex(), prefix, file);
 }
 
@@ -196,7 +196,7 @@ void ResourceEditor::addPrefix()
     QTreeView *view = currentView();
     if (view == 0)
         return;
-    
+
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
@@ -212,7 +212,7 @@ void ResourceEditor::setCurrentPrefix(const QString &prefix)
     QTreeView *view = currentView();
     if (view == 0)
         return;
-    
+
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
@@ -226,7 +226,7 @@ void ResourceEditor::addFiles()
     QTreeView *view = currentView();
     if (view == 0)
         return;
-    
+
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
@@ -250,7 +250,7 @@ void ResourceEditor::deleteItem()
     QTreeView *view = currentView();
     if (view == 0)
         return;
-    
+
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
@@ -258,8 +258,8 @@ void ResourceEditor::deleteItem()
     QModelIndex cur_idx = view->currentIndex();
     if (!cur_idx.isValid())
         return;
-    
-    QModelIndex idx = model->deleteItem(cur_idx);        
+
+    QModelIndex idx = model->deleteItem(cur_idx);
 
     if (idx.isValid()) {
         QModelIndex pref_idx = model->prefixIndex(idx);
@@ -279,10 +279,10 @@ void ResourceEditor::updateUi()
     m_add_files_button->setEnabled(!prefix.isEmpty());
     m_delete_button->setEnabled(!prefix.isEmpty());
     m_prefix_edit->setEnabled(!prefix.isEmpty());
-    
-    m_prefix_edit->blockSignals(true);
+
+    bool blocked = m_prefix_edit->blockSignals(true);
     m_prefix_edit->setText(prefix);
-    m_prefix_edit->blockSignals(false);
+    m_prefix_edit->blockSignals(blocked);
 
     m_new_button->setEnabled(true);
     m_open_button->setEnabled(true);
@@ -301,9 +301,9 @@ void ResourceEditor::setCurrentIndex(int i)
     if (i > qrcCount())
         return;
 
-    m_qrc_combo->blockSignals(true);
+    bool blocked = m_qrc_combo->blockSignals(true);
     m_qrc_combo->setCurrentIndex(i);
-    m_qrc_combo->blockSignals(false);
+    m_qrc_combo->blockSignals(blocked);
     m_qrc_stack->setCurrentIndex(i);
 
     updateUi();
@@ -317,7 +317,7 @@ void ResourceEditor::updateQrcStack()
         m_qrc_stack->removeWidget(w);
         delete w;
     }
-    
+
     QStringList qrc_file_list = m_form->resourceFiles();
     foreach (QString qrc_file, qrc_file_list)
         addView(qrc_file);
@@ -355,7 +355,7 @@ void ResourceEditor::addView(const QString &qrc_file)
     connect(view->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(updateUi()));
     connect(model, SIGNAL(dirtyChanged(bool)), this, SLOT(updateUi()));
-            
+
     setCurrentIndex(idx);
 
     if (!qrc_file.isEmpty())
@@ -369,7 +369,7 @@ void ResourceEditor::saveCurrentView()
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
-    
+
     if (model->fileName().isEmpty()) {
         QString file_name = QFileDialog::getSaveFileName(this, tr("Save resource file"),
                                                             m_form->absolutePath(QString()),
@@ -379,13 +379,13 @@ void ResourceEditor::saveCurrentView()
         model->setFileName(file_name);
         m_form->addResourceFile(file_name);
         QString s = QFileInfo(file_name).fileName();
-        m_qrc_combo->blockSignals(true);
+        bool blocked = m_qrc_combo->blockSignals(true);
         m_qrc_combo->setItemText(currentIndex(), s);
         m_qrc_combo->setCurrentIndex(-1);
         m_qrc_combo->setCurrentIndex(currentIndex());
-        m_qrc_combo->blockSignals(false);
+        m_qrc_combo->blockSignals(blocked);
     }
-    
+
     model->save();
     updateUi();
 }
@@ -404,13 +404,13 @@ void ResourceEditor::removeCurrentView()
     QTreeView *view = currentView();
     if (view == 0)
         return;
-    
+
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
 
     QString file_name = model->fileName();
-        
+
     int idx = indexOfView(view);
     if (idx == -1)
         return;
@@ -420,7 +420,7 @@ void ResourceEditor::removeCurrentView()
     delete view;
 
     disconnect(model, SIGNAL(dirtyChanged(bool)), this, SLOT(updateUi()));
-    
+
     if (!file_name.isEmpty())
         m_form->removeResourceFile(file_name);
 

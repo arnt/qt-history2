@@ -58,7 +58,7 @@ PromoteToCustomWidgetDialog::PromoteToCustomWidgetDialog(AbstractWidgetDataBase 
 
 void PromoteToCustomWidgetDialog::checkInputs()
 {
-    m_header_file_input->blockSignals(true);
+    bool blocked = m_header_file_input->blockSignals(true);
     if (sender() == m_class_name_input->lineEdit()) {
         if (m_automatic_include) {
             QString class_name = customClassName();
@@ -70,7 +70,7 @@ void PromoteToCustomWidgetDialog::checkInputs()
     } else if (sender() == m_header_file_input) {
         m_automatic_include = false;
     }
-    m_header_file_input->blockSignals(false);
+    m_header_file_input->blockSignals(blocked);
 
     m_ok_button->setEnabled(!customClassName().isEmpty()
                                 && !includeFile().isEmpty());
@@ -78,7 +78,7 @@ void PromoteToCustomWidgetDialog::checkInputs()
 
 void PromoteToCustomWidgetDialog::setIncludeForClass(const QString &name)
 {
-    m_header_file_input->blockSignals(true);
+    bool blocked = m_header_file_input->blockSignals(true);
     m_header_file_input->clear();
     foreach (PromotedWidgetInfo info, m_promoted_list) {
         if (info.first == name) {
@@ -86,7 +86,7 @@ void PromoteToCustomWidgetDialog::setIncludeForClass(const QString &name)
             break;
         }
     }
-    m_header_file_input->blockSignals(false);
+    m_header_file_input->blockSignals(blocked);
     m_automatic_include = true;
 }
 
@@ -136,7 +136,7 @@ void PromoteToCustomWidgetDialog::accept()
             break;
         }
     }
-    
+
     QDialog::accept();
 }
 

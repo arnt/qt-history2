@@ -30,7 +30,7 @@ FindIconDialog::FindIconDialog(AbstractFormWindow *form, QWidget *parent)
         rel_res_list.append(m_form->relativePath(res));
     m_resource_combo->addItems(rel_res_list);
     m_resource_tree->header()->hide();
-    
+
     updateButtons();
 }
 
@@ -64,7 +64,7 @@ void FindIconDialog::setPaths(const QString &qrcPath, const QString &filePath)
 void FindIconDialog::resourceSelected(const QModelIndex &index)
 {
     m_icon_file_name.clear();
-    
+
     ResourceModel *model = qobject_cast<ResourceModel*>(m_resource_tree->model());
     if (model != 0) {
         QString prefix, file;
@@ -82,9 +82,9 @@ void FindIconDialog::updateBoxes()
         QString dir_path = m_file_dir_input->text();
         if (dir_path.isEmpty()) {
             dir_path = m_form->absolutePath(QString());
-            m_file_dir_input->blockSignals(true);
+            bool blocked = m_file_dir_input->blockSignals(true);
             m_file_dir_input->setText(dir_path);
-            m_file_dir_input->blockSignals(false);
+            m_file_dir_input->blockSignals(blocked);
         }
         QDir dir(dir_path);
         if (dir.exists()) {
@@ -123,7 +123,7 @@ void FindIconDialog::updateBoxes()
             } else {
                 m_icon_file_name.clear();
             }
-            
+
             connect(m_resource_tree->selectionModel(),
                         SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
                         this, SLOT(resourceSelected(const QModelIndex &)));
@@ -156,7 +156,7 @@ void FindIconDialog::activateBox(InputBox box)
 {
     m_specify_file_input->setChecked(box == FileBox);
     m_specify_file_box->setEnabled(box == FileBox);
-    
+
     m_specify_resource_box->setEnabled(box == ResourceBox);
     m_specify_resource_input->setChecked(box == ResourceBox);
 
