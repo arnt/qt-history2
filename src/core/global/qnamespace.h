@@ -1031,15 +1031,6 @@ public:
         SmoothTransformation
     };
 
-    enum RectangleEdge {
-        LeftEdge        = 0x0001,
-        TopEdge         = 0x0002,
-        RightEdge       = 0x0004,
-        BottomEdge      = 0x0008
-    };
-
-    Q_DECLARE_FLAGS(RectangleEdges, RectangleEdge)
-
     enum SettingsFormat {
         NativeFormat,
         IniFormat

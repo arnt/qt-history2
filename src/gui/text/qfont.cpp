@@ -45,10 +45,10 @@
 #endif
 
 
-extern void qt_format_text(const QFont& font, const QRect &_r,
-                            int tf, const QString& str, int len, QRect *brect,
-                            int tabstops, int* tabarray, int tabarraylen,
-                            QPainter* painter);
+extern void qt_format_text(const QFont& font, const QRectF &_r,
+                           int tf, const QString& str, int len, QRectF *brect,
+                           int tabstops, int* tabarray, int tabarraylen,
+                           QPainter* painter);
 
 
 bool QFontDef::exactMatch(const QFontDef &other) const
@@ -2381,12 +2381,12 @@ QRect QFontMetrics::boundingRect(int x, int y, int w, int h, int flgs,
         while (tabarray[tabarraylen])
             tabarraylen++;
 
-    QRect rb;
-    QRect r(x, y, w, h);
+    QRectF rb;
+    QRectF r(x, y, w, h);
     qt_format_text(QFont(d, d->paintdevice), r, flgs|Qt::TextDontPrint, str, len, &rb,
                     tabstops, tabarray, tabarraylen, 0);
 
-    return rb;
+    return rb.toRect();
 }
 
 /*!

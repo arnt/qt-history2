@@ -45,9 +45,12 @@ bool qt_show_painter_debug_output = true;
 
 extern QPixmap qt_pixmapForBrush(int style, bool invert);
 
-void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& str,
-                    int len, QRect *brect, int tabstops, int* tabarray, int tabarraylen,
-                    QPainter* painter);
+void qt_format_text(const QFont &font,
+                    const QRectF &_r, int tf, const QString& str, int len, QRectF *brect,
+                    int tabstops, int* tabarray, int tabarraylen,
+                    QPainter *painter);
+
+
 void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &brush);
 
 QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, ShapeType shape)
@@ -1143,7 +1146,7 @@ QFontInfo QPainter::fontInfo() const
 
 QPoint QPainter::brushOrigin() const
 {
-    return d->state->bgOrigin + d->redirection_offset;
+    return QPointF(d->state->bgOrigin + d->redirection_offset).toPoint();
 }
 
 /*!
@@ -1164,11 +1167,11 @@ QPoint QPainter::brushOrigin() const
     \sa brushOrigin()
 */
 
-void QPainter::setBrushOrigin(const QPoint &p)
+void QPainter::setBrushOrigin(const QPointF &p)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::setBrushOrigin(), (%d,%d)\n", p.x(), p.y());
+        printf("QPainter::setBrushOrigin(), (%.2f,%.2f)\n", p.x(), p.y());
 #endif
     d->state->bgOrigin = p - d->redirection_offset;
     if (d->engine)
@@ -1322,9 +1325,16 @@ QRegion QPainter::clipRegion() const
 
     Sets the clip region of the rectange \a rect.
 */
-void QPainter::setClipRect(const QRect &rect, Qt::ClipOperation op)
+void QPainter::setClipRect(const QRectF &rect, Qt::ClipOperation op)
 {
-    setClipRegion(QRegion(rect), op);
+    // ### use setClipPath
+    setClipRegion(QRegion(rect.toRect()), op);
+}
+
+void QPainter::setClipRectangle(const QRectF &rect, Qt::ClipOperation op)
+{
+    // ### use setClipPath
+    setClipRegion(QRegion(rect.toRect()), op);
 }
 
 /*!
@@ -1783,11 +1793,12 @@ void QPainter::drawPath(const QPainterPath &path)
     \sa pen()
 */
 
-void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
+void QPainter::drawLine(const QLineF &l)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawLine(), p1=(%d,%d), p2=(%d,%d)\n", p1.x(), p1.y(), p2.x(), p2.y());
+        printf("QPainter::drawLine(), p1=(%.2f,%.2f), p2=(%.2f,%.2f)\n",
+               l.startX(), l.startY(), l.endX(), l.endY());
 #endif
 
     if (!isActive())
@@ -1799,15 +1810,14 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
                          & (QPaintEngine::CoordTransform
                             | QPaintEngine::PenWidthTransform
                             | QPaintEngine::AlphaStroke);
-
-    QLineF line(p1, p2);
+    QLineF line(l);
     if (lineEmulation) {
         if (lineEmulation == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
             line += QPointF(d->state->matrix.dx(), d->state->matrix.dy());
         } else {
             QPolygon polyline;
-            polyline << p1 << p2;
+            polyline << line.start() << line.end();
             d->draw_helper(&polyline,
                            Qt::OddEvenFill, // Not used
                            QPainterPrivate::LineShape, QPainterPrivate::StrokeDraw);
@@ -1843,6 +1853,44 @@ void QPainter::drawRect(const QRectF &r)
         return;
     d->engine->updateState(d->state);
 
+    int subtract = d->rectSubtraction();
+    if (subtract != 0)
+        rect = QRect(rect.x(), rect.y(), rect.width() - subtract, rect.height() - subtract);
+
+    uint emulationSpecifier = d->engine->emulationSpecifier;
+
+    if ((emulationSpecifier & QPaintEngine::AlphaFill)
+        && d->engine->hasFeature(QPaintEngine::AlphaFillPolygon))
+        emulationSpecifier &= ~QPaintEngine::AlphaFill;
+
+    if (emulationSpecifier) {
+        if (emulationSpecifier == QPaintEngine::CoordTransform
+            && d->state->txop == QPainterPrivate::TxTranslate) {
+            rect.moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
+        } else {
+            d->draw_helper(&rect,
+                           Qt::OddEvenFill, // Not used.
+                           QPainterPrivate::RectangleShape,
+                           QPainterPrivate::StrokeAndFillDraw,
+                           emulationSpecifier);
+            return;
+        }
+    }
+    d->engine->drawRect(rect);
+}
+
+void QPainter::drawRectangle(const QRectF &r)
+{
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawRectangle(), [%.2f,%.2f,%.2f,%.2f]\n", r.x(), r.y(), r.width(), r.height());
+#endif
+    QRectF rect = r.normalize();
+
+    if (!isActive() || rect.isEmpty())
+        return;
+    d->engine->updateState(d->state);
+
     uint emulationSpecifier = d->engine->emulationSpecifier;
 
     if ((emulationSpecifier & QPaintEngine::AlphaFill)
@@ -1867,41 +1915,12 @@ void QPainter::drawRect(const QRectF &r)
 
 
 /*!
-    \fn void QPainter::drawEdges(int x, int y, int width, int height,
-    Qt::RectangleEdges edges)
-
-    \overload
-
-    Draws the edges specified by the rectangle at position (\a{x},
-    \a{y}) and with the given \a width and \a height.
-*/
-
-/*!
-  Draws the one or more edges of the rectangle \a r. Edges to draw are
-  specified in \a edges. Drawing all edges are equivalent to setting
-  the current brush to Qt::NoBrush and calling QPainter::drawRec(t).
-
-  \sa drawRect(),
-*/
-void QPainter::drawEdges(const QRect &r, Qt::RectangleEdges edges)
-{
-    if (edges & Qt::LeftEdge)
-        drawLine(r.x(), r.y(), r.x(), r.y() + r.height() - 1);
-    if (edges & Qt::TopEdge)
-        drawLine(r.x(), r.y(), r.x() + r.width() - 1, r.y());
-    if (edges & Qt::RightEdge)
-        drawLine(r.x() + r.width() - 1, r.y(), r.x() + r.width() - 1, r.y() + r.height() - 1);
-    if (edges & Qt::BottomEdge)
-        drawLine(r.x(), r.y() + r.height() - 1, r.x() + r.width() - 1, r.y() + r.height() - 1);
-}
-
-/*!
     Draws all the rectangles in the \a rects list using the current
     pen and brush.
 
     \sa drawRect()
 */
-void QPainter::drawRects(const QList<QRectF> &rects)
+void QPainter::drawRectangles(const QList<QRectF> &rects)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -1931,11 +1950,11 @@ void QPainter::drawRects(const QList<QRectF> &rects)
 
     \sa QPen
 */
-void QPainter::drawPoint(const QPoint &p)
+void QPainter::drawPoint(const QPointF &p)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawPoint(), p=(%d,%d)\n", p.x(), p.y());
+        printf("QPainter::drawPoint(), p=(%.2f,%.2f)\n", p.x(), p.y());
 #endif
     if (!isActive())
         return;
@@ -2269,11 +2288,28 @@ const QFont &QPainter::font() const
     \sa drawRect(), QPen
 */
 
-void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
+void QPainter::drawRoundRect(const QRectF &r, int xRnd, int yRnd)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawRoundRect(), [%d,%d,%d,%d]\n", r.x(), r.y(), r.width(), r.height());
+        printf("QPainter::drawRoundRect(), [%.2f,%.2f,%.2f,%.2f]\n", r.x(), r.y(), r.width(), r.height());
+#endif
+
+    if (!isActive())
+        return;
+
+    QRectF rect = r.normalize();
+    int subtract = d->rectSubtraction();
+    if (subtract != 0)
+        rect = QRectF(rect.x(), rect.y(), rect.width(), rect.height());
+    drawRoundRectangle(rect, xRnd, yRnd);
+}
+
+void QPainter::drawRoundRectangle(const QRectF &r, int xRnd, int yRnd)
+{
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawRoundRectangle(), [%.2f,%.2f,%.2f,%.2f]\n", r.x(), r.y(), r.width(), r.height());
 #endif
 
     if (!isActive())
@@ -2288,16 +2324,14 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
         return;
     }
 
-    QRect rect = r.normalize();
+    QRectF rect = r.normalize();
 
     QPainterPath path;
 
-    int subtract = d->rectSubtraction();
-
     int x = rect.x();
     int y = rect.y();
-    int w = rect.width() - subtract;
-    int h = rect.height() - subtract;
+    int w = rect.width();
+    int h = rect.height();
     int rxx = w*xRnd/200;
     int ryy = h*yRnd/200;
     // were there overflows?
@@ -2331,11 +2365,42 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 /*!
     Draws the ellipse that fits inside rectangle \a r.
 */
-void QPainter::drawEllipse(const QRect &r)
+void QPainter::drawEllipse(const QRectF &r)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawEllipse(), [%d,%d,%d,%d]\n", r.x(), r.y(), r.width(), r.height());
+        printf("QPainter::drawEllipse(), [%.2f,%.2f,%.2f,%.2f]\n", r.x(), r.y(), r.width(), r.height());
+#endif
+
+    if (!isActive())
+        return;
+    d->engine->updateState(d->state);
+
+    QRectF rect(r.normalize());
+    int subtract = d->rectSubtraction();
+    if (subtract != 0)
+        rect = QRect(rect.x(), rect.y(), rect.width() - subtract, rect.height() - subtract);
+
+    if (d->engine->emulationSpecifier) {
+        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+            && d->state->txop == QPainterPrivate::TxTranslate) {
+            rect.moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
+        } else {
+            d->draw_helper(&rect, Qt::OddEvenFill, QPainterPrivate::EllipseShape,
+                           QPainterPrivate::StrokeAndFillDraw);
+            return;
+        }
+    }
+
+    d->engine->drawEllipse(rect);
+}
+
+
+void QPainter::drawOval(const QRectF &r)
+{
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawEllipse(), [%.2f,%.2f,%.2f,%.2f]\n", r.x(), r.y(), r.width(), r.height());
 #endif
 
     if (!isActive())
@@ -2386,11 +2451,11 @@ void QPainter::drawEllipse(const QRect &r)
     \sa drawPie(), drawChord()
 */
 
-void QPainter::drawArc(const QRect &r, int a, int alen)
+void QPainter::drawArc(const QRectF &r, int a, int alen)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawArc(), [%d,%d,%d,%d], angle=%d, sweep=%d\n",
+        printf("QPainter::drawArc(), [%.2f,%.2f,%.2f,%.2f], angle=%d, sweep=%d\n",
            r.x(), r.y(), r.width(), r.height(), a/16, alen/16);
 #endif
 
@@ -2398,7 +2463,7 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
         return;
     d->engine->updateState(d->state);
 
-    QRect rect = r.normalize();
+    QRectF rect = r.normalize();
 
     QPointF startPoint;
     qt_find_ellipse_coords(r, a/16.0, alen/16.0, &startPoint, 0);
@@ -2433,11 +2498,11 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
 
     \sa drawArc(), drawChord()
 */
-void QPainter::drawPie(const QRect &r, int a, int alen)
+void QPainter::drawPie(const QRectF &r, int a, int alen)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawPie(), [%d,%d,%d,%d], angle=%d, sweep=%d\n",
+        printf("QPainter::drawPie(), [%.2f,%.2f,%.2f,%.2f], angle=%d, sweep=%d\n",
            r.x(), r.y(), r.width(), r.height(), a/16, alen/16);
 #endif
 
@@ -2452,7 +2517,7 @@ void QPainter::drawPie(const QRect &r, int a, int alen)
         if (a < 0) a += (360*16);
     }
 
-    QRect rect = r.normalize();
+    QRectF rect = r.normalize();
 
     QPainterPath path;
     path.moveTo(rect.center());
@@ -2487,11 +2552,11 @@ void QPainter::drawPie(const QRect &r, int a, int alen)
     \sa drawArc(), drawPie()
 */
 
-void QPainter::drawChord(const QRect &r, int a, int alen)
+void QPainter::drawChord(const QRectF &r, int a, int alen)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawChord(), [%d,%d,%d,%d], angle=%d, sweep=%d\n",
+        printf("QPainter::drawChord(), [%.2f,%.2f,%.2f,%.2f], angle=%d, sweep=%d\n",
            r.x(), r.y(), r.width(), r.height(), a/16, alen/16);
 #endif
 
@@ -2499,7 +2564,7 @@ void QPainter::drawChord(const QRect &r, int a, int alen)
         return;
     d->engine->updateState(d->state);
 
-    QRect rect = r.normalize();
+    QRectF rect = r.normalize();
 
     QPointF startPoint;
     qt_find_ellipse_coords(r, a/16.0, alen/16.0, &startPoint, 0);
@@ -2575,10 +2640,10 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
     \sa drawLineSegments(), drawPolygon(), QPen
 */
 
-void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
+void QPainter::drawPolyline(const QPolygon &a, int index, int npoints)
 {
 #ifdef QT_DEBUG_DRAW
-    QRect rect = a.boundingRect();
+    QRectF rect = a.boundingRect();
     if (qt_show_painter_debug_output)
         printf("QPainter::drawPolyline(), count=%d, [%d,%d,%d,%d]\n",
            a.size(), rect.x(), rect.y(), rect.width(), rect.height());
@@ -2598,7 +2663,7 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     if (!isActive() || npoints < 2 || index < 0)
         return;
 
-    QPolygon pa = QPolygon::fromPointArray(a.mid(index, npoints));
+    QPolygon pa = a.mid(index, npoints);
 
     uint lineEmulation = d->engine->emulationSpecifier
                          & (QPaintEngine::CoordTransform
@@ -2617,6 +2682,13 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     }
 
     d->engine->drawPolygon(pa, QPaintEngine::PolylineMode);
+}
+
+
+void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
+{
+    // ###
+    drawPolyline(QPolygon::fromPointArray(a), index, npoints);
 }
 
 /*!
@@ -2714,6 +2786,11 @@ void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
     drawPolygon(a, Qt::WindingFill, index, npoints);
 }
 
+void QPainter::drawConvexPolygon(const QPolygon &p, int index, int npoints)
+{
+    // Fix when QPainter::drawPolygon(QPointArray, PolyDrawMode) is in place
+    drawPolygon(p, Qt::WindingFill, index, npoints);
+}
 /*!
     \fn void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, Qt::PixmapDrawingMode mode)
 
@@ -2782,11 +2859,6 @@ void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
 
     Draws the pixmap \a pm with its origin at point \a p.
 */
-void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, Qt::PixmapDrawingMode mode)
-{
-    drawPixmap(QRect(p.x(), p.y(), -1, -1), pm, QRect(0, 0, pm.width(), pm.height()), mode);
-}
-
 
 /*!
     \fn void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, Qt::PixmapDrawingMode mode)
@@ -2794,10 +2866,6 @@ void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, Qt::PixmapDrawingM
 
     Draws the pixmap \a pm into the rectangle \a r.
 */
-void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, Qt::PixmapDrawingMode mode)
-{
-    drawPixmap(r, pm, QRect(0, 0, pm.width(), pm.height()), mode);
-}
 
 /*!
     Draws the rectanglular portion \a sr, of pixmap \a pm, into rectangle
@@ -2806,7 +2874,8 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, Qt::PixmapDrawingMo
 
     \sa Qt::PixmapDrawingMode
 */
-void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode)
+void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
+                          Qt::PixmapDrawingMode mode)
 {
 #if defined QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -3004,7 +3073,7 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
     \sa QPainter::TextDirection
 */
 
-void QPainter::drawText(const QPoint &p, const QString &str, TextDirection dir)
+void QPainter::drawText(const QPointF &p, const QString &str, TextDirection dir)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -3062,6 +3131,29 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, int len, 
     if (len == 0)                                // empty string
         return;
 
+    QRectF bounds;
+    qt_format_text(font(), r, flags, str, len, &bounds, 0, 0, 0, this);
+    if (br)
+        *br = bounds.toRect();
+}
+
+void QPainter::drawText(const QRectF &r, int flags, const QString &str, int len, QRectF *br)
+{
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawText(), r=[%d,%d,%d,%d], flags=%d, str='%s'\n",
+           r.x(), r.y(), r.width(), r.height(), flags, str.latin1());
+#endif
+
+    if (!isActive())
+        return;
+    d->engine->updateState(d->state);
+
+    if (len < 0)
+        len = str.length();
+    if (len == 0)                                // empty string
+        return;
+
     qt_format_text(font(), r, flags, str, len, br, 0, 0, 0, this);
 }
 
@@ -3087,11 +3179,11 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, int len, 
     underlining and strikeout.
 */
 
-void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
+void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti, int textFlags)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawTextItem(), pos=[%d,%d], flags=%d, str='%s'\n",
+        printf("QPainter::drawTextItem(), pos=[%.f,%.f], flags=%d, str='%s'\n",
            p.x(), p.y(), textFlags, QString(ti.chars, ti.num_chars).latin1());
 #endif
     if (!isActive())
@@ -3148,13 +3240,26 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
     \sa Qt::TextFlags
 */
 
-QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QString &str, int len)
+QRect QPainter::boundingRect(const QRect &bounds, int flags, const QString &str, int len)
 {
     QRect brect;
     if (str.isEmpty())
-        brect.setRect(x,y, 0,0);
+        brect.setRect(bounds.x(),bounds.y(), 0,0);
     else
-        drawText(QRect(x, y, w, h), flags | Qt::TextDontPrint, str, len, &brect);
+        drawText(bounds, flags | Qt::TextDontPrint, str, len, &brect);
+    return brect;
+}
+
+/*!
+  \overload
+*/
+QRectF QPainter::boundingRect(const QRectF &bounds, int flags, const QString &str, int len)
+{
+    QRectF brect;
+    if (str.isEmpty())
+        brect.setRect(bounds.x(),bounds.y(), 0,0);
+    else
+        drawText(bounds, flags | Qt::TextDontPrint, str, len, &brect);
     return brect;
 }
 
@@ -3184,7 +3289,8 @@ QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QStrin
     Draws a tiled \a pixmap, inside rectangle \a r with its origin
     at point \a sp, using the given drawing \a mode.
 */
-void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &sp, Qt::PixmapDrawingMode mode)
+void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &sp,
+                               Qt::PixmapDrawingMode mode)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -3231,12 +3337,12 @@ void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoi
         p.setPen(pen());
         p.setBackground(background());
         p.setBackgroundMode(backgroundMode());
-        p.drawTiledPixmap(QRect(0, 0, r.width(), r.height()), pixmap, QPoint(sx, sy), Qt::CopyPixmap);
+        p.drawTiledPixmap(QRectF(0, 0, r.width(), r.height()), pixmap, QPointF(sx, sy), Qt::CopyPixmap);
         p.end();
         if (pixmap.depth() == 1) {
             QBitmap mask(pm.width(), pm.height(), true);
             p.begin(&mask);
-            p.drawTiledPixmap(QRect(0, 0, r.width(), r.height()), pixmap, QPoint(sx, sy));
+            p.drawTiledPixmap(QRectF(0, 0, r.width(), r.height()), pixmap, QPointF(sx, sy));
             p.end();
             pm.setMask(mask);
         }
@@ -3254,6 +3360,7 @@ void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoi
 
     d->engine->drawTiledPixmap(QRect(x, y, r.width(), r.height()), pixmap, QPoint(sx, sy), mode);
 }
+
 
 /*!
     \fn void QPainter::drawPicture(int x, int y, const QPicture &picture)
@@ -3288,12 +3395,11 @@ void QPainter::drawPicture(const QPoint &p, const QPicture &picture)
 #endif
 }
 
-
 /*!
     Erases the area inside the rectangle \a r. Equivalent to
     \c{fillRect(r, backgroundColor())}.
 */
-void QPainter::eraseRect(const QRect &r)
+void QPainter::eraseRect(const QRectF &r)
 {
     if (!isActive())
         return;
@@ -3323,7 +3429,7 @@ void QPainter::eraseRect(const QRect &r)
 
     \sa drawRect()
 */
-void QPainter::fillRect(const QRect &r, const QBrush &brush)
+void QPainter::fillRect(const QRectF &r, const QBrush &brush)
 {
     QPen oldPen   = pen();
     bool swap = oldPen.style() != Qt::NoPen;
@@ -3966,13 +4072,13 @@ QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *offset)
 }
 
 
-void qt_format_text(const QFont& font, const QRect &_r,
-                     int tf, const QString& str, int len, QRect *brect,
-                     int tabstops, int *, int tabarraylen,
-                     QPainter* painter)
+void qt_format_text(const QFont &font, const QRectF &_r,
+                    int tf, const QString& str, int len, QRectF *brect,
+                    int tabstops, int *, int tabarraylen,
+                    QPainter *painter)
 {
     // we need to copy r here to protect against the case (&r == brect).
-    QRect r(_r);
+    QRectF r(_r);
 
     bool dontclip  = (tf & Qt::TextDontClip);
     bool wordwrap  = (tf & Qt::TextWordWrap);

@@ -101,7 +101,7 @@ public:
         pfont = 0;
         painter = p;
         pen = QPen();
-        bgOrigin = QPoint(0, 0);
+        bgOrigin = QPointF(0, 0);
         brush = bgBrush = QBrush();
         font = deviceFont = QFont();
         tmpClipRegion = QRegion();
@@ -116,7 +116,7 @@ public:
 #endif
     }
 
-    QPoint bgOrigin;
+    QPointF bgOrigin;
     QFont font;
     QFont deviceFont;
     QFont *pfont;

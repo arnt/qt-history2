@@ -69,10 +69,7 @@ void ItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &options,
     }
 
     QRect r = options.rect;
-    painter->setPen(Qt::NoPen);
-    painter->setBrush(QBrush(r.topLeft(), g1, r.bottomLeft(), g2));
-    painter->drawRect(r.x() + 1, r.y() + 1, r.width() - 2, r.height() - 2);
-    painter->setBrush(Qt::NoBrush);
+    painter->fillRect(r, QBrush(r.topLeft(), g1, r.bottomLeft(), g2));
 
     painter->setPen(Qt::black);
     QRect textRect = r;
@@ -81,10 +78,12 @@ void ItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &options,
     painter->drawText(textRect, Qt::AlignCenter, model->data(index).toString());
 
     painter->setPen(selected ? Qt::white : Qt::black);
-    painter->drawEdges(r, Qt::RectangleEdges(Qt::BottomEdge | Qt::RightEdge));
+    painter->drawLine(r.left(), r.bottom()-1, r.right()-1, r.bottom()-1);
+    painter->drawLine(r.right()-1, r.top()+1, r.right()-1, r.bottom()-2);
 
     painter->setPen(selected ? Qt::black : Qt::white);
-    painter->drawEdges(r, Qt::RectangleEdges(Qt::TopEdge | Qt::LeftEdge));
+    painter->drawLine(r.left(), r.top(), r.right()-1, r.top());
+    painter->drawLine(r.left(), r.top()+1, r.left(), r.bottom()-2);
 }
 
 
