@@ -1,5 +1,253 @@
-/*! 
+/*!
     \example widgets/sliders
     \title Sliders Example
 
+    Qt provides three types of sliders: QSlider, QScrollBar and
+    QDial. They all inherit most of their functionality from
+    QAbstractSlider, and can in theory replace each other in an
+    application since the differences only concern their design. This
+    example shows what they look like, how they work and how their
+    behavior and appearance can be manipulated through their
+    properties.
+
+    The example also demonstrates how signals and slots can be used to
+    synchronize the behavior of two or more widgets.
+
+    \image sliders-example.png Screenshot of the Sliders example
+
+    The Sliders Example consists of two classes:
+
+    \list
+
+    \i \c SlidersGroup is a custom widget. It combines a QSlider, a
+    QScrollBar and a QDial.
+
+    \i \c Window is the main widget combining a QGroupBox and a
+    QStackedWidget. In this example, the QStackedWidget provides a
+    stack of two \c SlidersGroup widgets. The QGroupBox contain
+    several widgets that control the behaviour of the sliders.
+
+    \endlist
+
+    First we will review the \c Window class, then we
+    will take a look at the \c SlidersGroup class.
+
+    \section1 Window Class Definition
+
+    \quotefromfile widgets/sliders/window.h
+    \skipto class Window
+    \printuntil };
+
+    The \c Window class inherits from QWidget. It displays the sliders
+    and allows the user to manipulate their behaviour through the
+    minimum, maximum and current value in addition to their
+    appearance, key bindings and orientation. We implement a private
+    \c createControls() function to create the widgets that provide
+    these controlling mechanisms, and to connect them to the sliders.
+
+    \section1 Window Class Implementation
+
+    \quotefromfile widgets/sliders/window.cpp
+    \skipto Window
+    \printuntil createControls
+
+    In the constructor we first create the two \c SlidersGroup widgets
+    which displays the sliders horizontally and vertically, and add
+    them to the QStackedWidget (\c pages). QStackedWidget provides a
+    stack of widgets where only the top widget is visible. With \c
+    createControls() we create a connection from a controlling widget
+    to \c pages, making the user able to choose between horizontal and
+    vertical orientation of the sliders. The rest of the controlling
+    mechanisms is implemented by the same function call.
+
+    \printline connect
+    \printuntil /^\}/
+
+    Then we connect the \c horizontalSliders, \c verticalSliders and
+    \c valueSpinBox with each other, so that the sliders and the
+    control widget will behave synchronized when the current value of
+    one of them changes. The sliders inherit their \l
+    {QAbstractSlider::valueChanged()}{valueChanged()} signal and \l
+    {QAbstractSlider::setValue()}{setValue()} slot from
+    QAbstractSlider, while the signal and slot are implemented in
+    QSpinBox. The \c valueChanged() signal is emitted with the new
+    value as argument. The \c setValue() slot sets the current value
+    of the slider or spin box to the new value, and emit
+    valueChanged() if the new value is different from the old one.
+
+    We put the group of control widgets (\c controlsGroup) and the
+    stacked widget (\c pages) in a horizontal layout before we
+    initialize the minimum, maximum and current values. The
+    initialization of the current value will propagate to the sliders
+    through the connection we made between \c valueSpinBox and the \c
+    SlidersGroup widgets. The minimum and maximum values propagate
+    through the connections we created with \c createControls().
+
+    \printline createControls
+    \printto minimumSpinBox
+
+    In the private \c createControls() function, we let a QGroupBox
+    (\c controlsGroup) display the control widgets. A group box can
+    provide a frame, a title and a keyboard shortcut, and displays
+    various other widgets inside itself. The group of control widgets
+    is composed by two checkboxes, three spin boxes (with labels) and
+    one combo box.
+
+    After creating the labels, we create the two
+    checkboxes. Checkboxes are typically used to represent features in
+    an application that can be enabled or disabled. When enabled, \c
+    invertedAppearance displays the sliders' values inverted. The
+    table below shows how the appearance (the direction from the
+    lowest displayed value to the highest), also depend on the
+    sliders' orientation:
+
+    \table
+    \header \o
+            \o Normal appearance
+            \o Inverted appearance
+    \header \o QSlider: \o \o
+
+    \row    \o horizontal
+            \o left->right
+            \o right->left
+
+    \row    \o vertical
+            \o bottom->top
+            \o top->bottom
+
+    \header \o QScrollBar: \o \o
+    \row    \o horizontal
+            \o left->right
+            \o right->left
+
+    \row    \o vertical
+            \o top->bottom
+            \o bottom->top
+
+    \header \o QDial: \o \o
+    \row    \o horizontal
+            \o clockwise
+            \o counter clockwise
+
+    \row    \o vertical
+            \o clockwise
+            \o counter clockwise
+    \endtable
+
+    It is most common to invert the appearance when using a vertical
+    slider. A vertical slider controlling volume, for example, will go
+    from bottom to top (the non-inverted appearance), whereas a
+    vertical slider controlling the position of some object on screen
+    might go from top to bottom (because screen coordinates go from
+    top to bottom).
+
+    Enabled, \c invertedKeyBindings invert the sliders' wheel and key
+    events. The normal key bindings mean that scrolling the mouse
+    wheel "up" or using keys like page up will increase the sliders'
+    current value towards its maximum. Inverted, the same wheel and
+    key events will move the value towards the sliders' minimum. This
+    can be useful if the \e appearance of a slider is inverted: some
+    people might want the keys to still work the same way on the
+    value, whereas other people might want PageUp to mean up on the
+    screen. Inverting the key bindings is a property that control
+    this.
+
+    Note that for scroll bars (both horizontal and vertical), the key
+    bindings are inverted by default: PageDown always increases the
+    current value, and PageUp decreases it.
+
+    \printline minimumSpinBox
+    \printto connect
+
+    Then we create the spin boxes. QSpinBox allows the user to
+    choose a value by clicking the up/down buttons or pressing up/down
+    on the keyboard to increase/decrease the value currently
+    displayed. The user can also type the value in manually. The spin
+    boxes control the minimum, maximum and current values for the
+    sliders. Changing the minimum or maximum value will reduce or
+    enlarge the value range, and the sliders' handles will be adjusted
+    accordingly. Any increment or decrement of the current value will
+    move the sliders' handles directly to the new value.
+
+    We create a QComboBox providing the option to choose
+    between a horizontal and vertical orientation of the sliders. The
+    QComboBox widget is a combined button and popup list. It provides
+    a means of presenting a list of options to the user in a way that
+    takes up the minimum amount of screen space.
+
+    \printline connect
+    \printuntil /^\}/
+
+    We synchronize the behavior of the control widgets and the sliders
+    through their signals and slots. We connect each control widget to
+    both the horizontal and vertical group of sliders with one
+    exception: \c orientationCombo is connected to the QStackedWidget
+    \c pages instead. Finally, we lay out the control widgets in a
+    QGridLayout within the  QGroupBox \c controlsGroup.
+
+    \section1 SlidersGroup Class Definition
+
+    \quotefromfile widgets/sliders/slidersgroup.h
+    \skipto class SlidersGroup
+    \printuntil };
+
+    The SlidersGroup class inherits from QGroupBox. It provides a frame and
+    a title, and displays a QSlider, a QScrollBar and a QDial inside
+    itself.
+
+    We implement a \c valueChanged() signal and a public \c setValue()
+    slot with equivalent functionality to the ones in QAbstractSlider
+    and QSpinBox. In addition we implement several other public slots
+    to set the minimum and maximum value, and invert the sliders'
+    appearance as well as key bindings.
+
+    \section1 SlidersGroup Class Implementation
+
+    \quotefromfile widgets/sliders/slidersgroup.cpp
+    \printto connect(dial, SIGNAL(valueChanged(int)), this, SIGNAL(valueChanged(int)));
+
+    First we create the sliders with the appropiate properties. In
+    particular vi set the focus policy for each
+    slider. Qt::FocusPolicy is a enum type that defines the various
+    policies a widget can have with respect to acquiring keyboard
+    focus. Qt::StrongFocus imply that the widget accepts focus by both
+    tabbing and clicking.
+
+    Then we connect the sliders with each other, so that they will
+    behave synchronized when the current value of one of them changes.
+
+    \printline connect(dial, SIGNAL(valueChanged(int)), this, SIGNAL(valueChanged(int)));
+    \printto QBoxLayout
+
+    In addition we connect \c {dial}'s \c valueChanged() signal to the
+    sliders group's \c valueChanged() signal. The rationale is to
+    notify the other widgets in the application, i.e. the control
+    widgets, of the changed value.
+
+    \printline QBoxLayout
+    \printuntil /^\}/
+
+    Finally, depending on the \l {QT::orientation}{orientation} given
+    at the time of construction, we choose and create the layout for
+    the sliders within the group box.
+
+    \printline setValue
+    \printto invertAppearance
+
+    The \c setValue(), \c setMinimum() and \c setMaximum() slots are
+    used by the \c Window class's constructor to initialize the
+    application. The slots use the sliders' inherited functionality
+    from QAbstractSlider.
+
+    \printline invertAppearance
+    \printuntil /^\}/
+
+    \printline invertKeyBindings
+    \printuntil /^\}/
+
+    We also use the inherited functionality from QAbstractSlider to
+    implement the features of inverting the sliders' appearances and
+    key bindings. The slots are used by the \c createControls()
+    function in the \c Window class when creating the controlling
+    mechanisms.
 */
