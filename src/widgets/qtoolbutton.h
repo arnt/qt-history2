@@ -148,7 +148,6 @@ private slots:
 
 private:
     void init();
-    bool isOnAndNoOnPixmap();
 
     QPixmap bp;
     int bpID;

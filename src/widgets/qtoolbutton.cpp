@@ -938,21 +938,6 @@ bool QToolButton::autoRaise() const
     return d->autoraise;
 }
 
-/*!
-  Returns TRUE if the button is on and the "on" pixmap is the same as
-  the "off" pixmap; otherwise returns FALSE.
-
-  We don't really compare the pixmaps, not even their serial numbers,
-  but we do check whether the "on" component is generated or not.
-*/
-bool QToolButton::isOnAndNoOnPixmap()
-{
-    return isOn() &&
-	   ( s == 0 ||
-	    (s->isGenerated(QIconSet::Small, QIconSet::Normal, QIconSet::On) &&
-	     s->isGenerated(QIconSet::Large, QIconSet::Normal, QIconSet::On)) );
-}
-
 QToolButton::TextPosition QToolButton::textPosition() const
 {
     return d->textPos;
