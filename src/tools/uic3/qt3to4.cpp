@@ -130,7 +130,7 @@ void Porting::readXML(QString fileName, RuleList *renamedHeaders, RuleList *rena
     }
     
     if(fileName.isEmpty()) {
-        fileName= QDir::cleanPath(QFile::decodeName(qgetenv("QTDIR")) + "/tools/porting/src/rules.xml" + rulesFileName);
+        fileName= QDir::cleanPath(QFile::decodeName(qgetenv("QTDIR")) + "/tools/porting/src/" + rulesFileName);
         QFile f(fileName);
         if (!f.exists())
             fileName=QString();
