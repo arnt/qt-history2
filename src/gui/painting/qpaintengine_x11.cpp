@@ -1653,7 +1653,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     bool mono = pixmap.depth() == 1;
 
     if (mono && mode == Qt::CopyPixmapNoMask) {
-	qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, mode == Qt::CopyPixmapNoMask ? true : false);
+	qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, true);
         return;
     }
 
@@ -1723,17 +1723,10 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     }
 
     if (mono) {
-  	XSetClipMask(d->dpy, d->gc, pixmap.handle());
-  	XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
-        XSetBackground(d->dpy, d->gc, d->bg_brush.color().pixel(d->scrn));
-        XSetFillStyle(d->dpy, d->gc, FillOpaqueStippled);
-        XSetStipple(d->dpy, d->gc, pixmap.handle());
-        XSetTSOrigin(d->dpy, d->gc, x-sx, y-sy);
+   	XSetClipMask(d->dpy, d->gc, pixmap.handle());
+   	XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
+	XSetBackground(d->dpy, d->gc, d->bg_brush.color().pixel(d->scrn));
         XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
-        XSetTSOrigin(d->dpy, d->gc, 0, 0);
-        XSetFillStyle(d->dpy, d->gc, FillSolid);
-	XSetClipMask(d->dpy, d->gc, XNone);
-  	XSetClipOrigin(d->dpy, d->gc, 0, 0);
     } else {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         ::Picture pict = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
@@ -1751,7 +1744,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
         }
     }
 
-    if (mask) { // restore clipping
+    if (mask || mono) { // restore clipping
         XSetClipOrigin(d->dpy, d->gc, 0, 0);
         int num;
         XRectangle *rects = (XRectangle *)qt_getClipRects(d->crgn, num);
