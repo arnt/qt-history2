@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#25 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#26 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#26 $";
 #endif
 
 
@@ -554,26 +554,31 @@ QTime QTime::currentTime()			// get current time
 
 bool QTime::currentTime( QTime *ct )			// get current time
 {
+    if (!ct) {
+#if defined(DEBUG)
+	warning("QTime::currentTime( QTime * ) called with null pointer");
+#endif
+	return FALSE;
+    }
+
 #if defined(_OS_MSDOS_)
 
     _dostime_t t;
     _dos_gettime( &t );
     ct->ds = MSECS_PER_HOUR*t.hour + MSECS_PER_MIN*t.minute +
-	    t.second*1000L + t.hsecond*10L;
+	t.second*1000L + t.hsecond*10L;
     return ( t.hour== 0 && t.minute == 0 );
 
 #elif defined(_OS_OS2_)
 
-    QTime ct;
     DATETIME t;
     DosGetDateTime( &t );
-    ct.ds = MSECS_PER_HOUR*t.hours + MSECS_PER_MIN*t.minutes +
-	    1000*t.seconds + 10*t.hundredths;
+    ct->ds = MSECS_PER_HOUR*t.hours + MSECS_PER_MIN*t.minutes +
+	1000*t.seconds + 10*t.hundredths;
     return ( t.hours == 0 && t.minutes == 0 );
 
 #elif defined(UNIX)
 
-    QTime ct;
     struct timeval tv;
 #if defined(_OS_SUN_)
     gettimeofday( &tv );
@@ -582,17 +587,16 @@ bool QTime::currentTime( QTime *ct )			// get current time
 #endif
     time_t ltime = tv.tv_sec;
     tm *t = localtime( &ltime );
-    ct.ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
-	    1000*t->tm_sec + tv.tv_usec/1000;
+    ct->ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
+	1000*t->tm_sec + tv.tv_usec/1000;
     return ( t->tm_hour== 0 && t->tm_min == 0 );
 #else						// !! no millisec resolution
 
-    QTime ct;
     time_t ltime;
     ::time( &ltime );
     tm *t = localtime( &ltime );
-    ct.ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
-	    1000*t->tm_sec;
+    ct->ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
+	1000*t->tm_sec;
     return ( t->tm_hour== 0 && t->tm_min == 0 );
 #endif
 }
