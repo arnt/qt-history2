@@ -69,7 +69,7 @@ public:
       } 					\
   }
 
-static const enum PrinterState {
+enum PrinterState {
     PST_IDLE, PST_ACTIVE, PST_ABORTED, PST_ACTIVEDOC
 };
 
