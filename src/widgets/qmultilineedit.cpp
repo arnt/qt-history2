@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#27 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -506,7 +506,8 @@ void QMultiLineEdit::leaveEvent( QEvent * )
 #if defined(_WS_X11_)
     if ( style() == WindowsStyle ) {
 	// X11 users are very accustomed to "auto-copy"
-	copy();
+	if ( echoMode() == Normal )
+	    copy();
     }
 #endif
 }
@@ -521,7 +522,8 @@ void QMultiLineEdit::focusOutEvent( QFocusEvent * )
 #if defined(_WS_X11_)
     if ( style() == WindowsStyle ) {
 	// X11 users are very accustomed to "auto-copy"
-	copy();
+	if ( echoMode() == Normal )
+	    copy();
     }
 #endif
 
@@ -875,7 +877,8 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    cursorLeft( e->state() & ShiftButton );
 	    break;
 	case Key_C:
-	    copy();
+	    if ( echoMode() == Normal )
+		copy();
 	    break;
 	case Key_D:
 	    del();
@@ -1851,10 +1854,10 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
     if ( markAnchorY == markDragY && markAnchorX == markDragX )
 	markIsOn = FALSE;
 #if defined(_WS_X11_)
-    else
+    else if ( echoMode() == Normal )
 	copy();
 #else
-    else if ( style() == MotifStyle )
+    else if ( style() == MotifStyle && echoMode() == Normal )
 	copy();
 #endif
 
@@ -2155,7 +2158,7 @@ void QMultiLineEdit::newMark( int posx, int posy, bool copy )
     cursorX    = posx;
     cursorY    = posy;
     markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
-    if ( copy )
+    if ( echoMode() == Normal )
 	this->copy();
 }
 
@@ -2213,7 +2216,7 @@ void QMultiLineEdit::markWord( int posx, int posy )
     markDragX = i;
     markDragY = posy;
     markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
-    if ( style() == MotifStyle )
+    if ( echoMode() == Normal )
 	copy();
 }
 
@@ -2272,7 +2275,8 @@ void QMultiLineEdit::copyText() const
 void QMultiLineEdit::cut()
 {
     if ( hasMarkedText() ) {
-	copyText();
+	if ( echoMode() == Normal )
+	    copy();
 	del();
 	if ( textDirty && !mlData->isHandlingEvent )
 	    emit textChanged();
