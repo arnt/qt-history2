@@ -110,7 +110,7 @@ Option::parseCommandLine(int argc, char **argv)
 		Option::mode = UNIX_MODE;
 	    } else if(opt == "win32") {
 		Option::mode = WIN_MODE;
-	    } else if(opt == "qmakepath") {
+	    } else if(opt == "path") {
 		Option::qmakepath = argv[++x];
 	    }  else if(opt == "v" || opt == "d") {
 		Option::debug_level++;
