@@ -106,6 +106,9 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
         }
     }
 
+    QString fileBase = file.left(file.lastIndexOf('.'));
+    fileBase = fileBase.mid(fileBase.lastIndexOf('\\') + 1);
+
     { // moc rules
         QString mocFile(QMakeSourceFileInfo::mocFile(file));
 
@@ -134,14 +137,15 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
     bool hasBuildStep = false;
     QStringList buildSteps;
     QStringList buildNames;
-    QStringList buildOutputs;
+    QList<QStringList> buildOutputs;
     foreach (QString config, configurations) {
         buildSteps << QString();
         buildNames << QString();
-        buildOutputs << QString();
+        buildOutputs << QStringList();
     }
 
     QStringList compilers = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    QStringList dependencies;
     foreach (QString compiler, compilers) {
         if (project->variables()[compiler + ".input"].isEmpty())
             continue;
@@ -172,21 +176,22 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
             compilerDepends += inputList;
         }
 
-        QString fileBase = file.left(file.lastIndexOf('.'));
-        fileBase = fileBase.mid(fileBase.lastIndexOf('\\') + 1);
         QString fileOut(compilerOutput.first());
         fileOut.replace("${QMAKE_FILE_BASE}", fileBase);
         fileOut.replace('/', '\\');
 
-        QString dependencies(valGlue(compilerDepends, "\"", "\"\t\"", "\""));
-        dependencies.replace("${QMAKE_FILE_BASE}", fileBase);
+        foreach(QString dependency, compilerDepends) {
+            dependency.replace("${QMAKE_FILE_BASE}", fileBase);
+            dependency.replace('/', '\\');
+            if (!dependencies.contains(dependency, Qt::CaseInsensitive))
+                dependencies << dependency;
+        }
 
-        t << "USERDEP_" << file << "=" << dependencies << endl;
         for (int iconfig = 0; iconfig < configurations.count(); ++iconfig) {
             QString config(configurations.at(iconfig));
             QString &buildName = buildNames[iconfig];
             QString &buildStep = buildSteps[iconfig];
-            QString &buildOutput = buildOutputs[iconfig];
+            QStringList &buildOutput = buildOutputs[iconfig];
 
             if (buildStep.isEmpty())
                 buildStep = "BuildCmds= \\\n\t";
@@ -201,21 +206,35 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
 
             buildName = compilerName.first();
             buildStep += command;
-            buildOutput += "\"" + fileOut + "\": $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n\t$(BuildCmds)\n";
+            buildOutput += fileOut;
         }
     }
 
     if (!hasBuildStep)
         return true;
 
+    QStringList dependencyList;
+    // remove dependencies that are also output
+    foreach (QString config, configurations) {
+        QStringList buildOutput(buildOutputs.at(configurations.indexOf(config)));
+        
+        foreach (QString dependency, dependencies) {
+            if (!buildOutput.contains(dependency) && !dependencyList.contains(dependency))
+                dependencyList << dependency;
+        }
+    }
+    QString allDependencies = valGlue(dependencyList, "\"", "\"\t\"", "\"");
+    t << "USERDEP_" << file << "=" << allDependencies << endl;
     begin_configs(config);
         QString buildName(buildNames.at(iconfig));
         QString buildStep(buildSteps.at(iconfig));
-        QString buildOutput(buildOutputs.at(iconfig));
+        QStringList buildOutputList(buildOutputs.at(iconfig));
         t << "# Begin Custom Build - Running " << buildName << " on " << file << endl;
         t << "InputPath=" << file << endl;
         t << buildStep << endl;
-        t << buildOutput;
+        foreach (QString buildOutput, buildOutputList) {
+            t << "\"" << buildOutput << "\": $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n\t$(BuildCmds)\n";
+        }
         t << endl;
         t << "# End Custom Build" << endl;
     end_configs();
