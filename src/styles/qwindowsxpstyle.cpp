@@ -191,6 +191,8 @@ public:
     QRgb groupBoxTextColor;
     QRgb groupBoxTextColorDisabled;
     QRgb tabPaneBorderColor;
+    QBrush dockColorActive;
+    QBrush dockColorInactive;
 
 private:
     static QWidget *limboWidget;
@@ -330,6 +332,14 @@ const QPixmap *QWindowsXPStylePrivate::tabBody( QWidget *widget )
 	COLORREF cref;
 	pGetThemeColor( theme.handle(), TABP_PANE, 0, TMT_BORDERCOLORHINT, &cref );
 	tabPaneBorderColor = qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) );
+	// Active Title Bar ( Color 1 in the gradient )
+	cref = GetSysColor(COLOR_ACTIVECAPTION);
+	dockColorActive.setColor( qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) ) );
+	dockColorActive.setStyle( QBrush::SolidPattern );
+	// 3D Objects
+	cref = GetSysColor(COLOR_3DFACE);
+	dockColorInactive.setColor( qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) ) );
+	dockColorInactive.setStyle( QBrush::SolidPattern );
 
 	painter.end();
 	tabbody->resize( sz.cx, QApplication::desktop()->screenGeometry().height() );
@@ -719,12 +729,61 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	break;
 
     case PE_DockWindowHandle:
-	name = "REBAR";
-	if ( flags & Style_Horizontal )
-	    partId = RP_GRIPPER;
-	else
-	    partId = RP_GRIPPERVERT;
-	break;
+	{
+	    QString title;
+	    bool drawDockTitle = FALSE;
+	    bool isDockWindow = FALSE;
+	    if ( p && p->device()->devType() == QInternal::Widget ) {
+		QWidget *w = (QWidget *) p->device();
+		QWidget *p = w->parentWidget();
+		if (p->inherits("QDockWindow") && ! p->inherits("QToolBar")) {
+		    drawDockTitle = TRUE;
+		    isDockWindow = TRUE;
+		    title = p->caption();
+		}
+	    }
+
+	    if ( !isDockWindow ) {
+		name = "REBAR";
+		if ( flags & Style_Horizontal )
+		    partId = RP_GRIPPER;
+		else
+		    partId = RP_GRIPPERVERT;
+		break;
+	    }
+
+	    // Dock window...
+	    name = "WINDOW";
+	    partId = WP_MAXCAPTION;
+	    if ( !(flags & Style_Enabled) )
+		stateId = GBS_DISABLED;
+	    else
+		stateId = GBS_NORMAL;
+
+	    if ( flags & Style_Enabled )
+		p->fillRect( r, d->dockColorActive );
+	    else
+		p->fillRect( r, d->dockColorInactive );
+
+	    if ( drawDockTitle ) {
+		QRect rt = r;
+		QColorGroup cgroup = ((QWidget*)p->device())->palette().active();
+		p->setPen( cgroup.highlightedText() );
+		if ( flags & Style_Horizontal ) {
+		    // Vertical Title  ( Horizontal DockWindow )
+		    rt.addCoords( 2, 4, -1, -4 );
+		    p->rotate( 270.0 );
+		    p->translate( -(rt.height()+rt.y()), (rt.width()-rt.x()) );
+		    p->drawText( 0,0, title );
+
+		} else {
+		    // Horizontal Title
+		    rt.addCoords( 4, 1, -4, 1 );
+		    p->drawText( rt, AlignLeft, title );
+		}
+	    }
+	    return;
+	}
 
     case PE_DockWindowSeparator:
 	name = "TOOLBAR";
