@@ -18,6 +18,7 @@ struct Symbol
     QByteArray lexem_data;
     int from, len;
 };
+Q_DECLARE_TYPEINFO(Symbol, Q_MOVABLE_TYPE);
 
 typedef QVector<Symbol> Symbols;
 
