@@ -18,10 +18,9 @@
 
 struct QTreeViewItem
 {
-    QTreeViewItem() : open(false), hidden(false), total(0), level(0) {}
+    QTreeViewItem() : open(false), total(0), level(0) {}
     QModelIndex index;
     uint open : 1;
-    uint hidden : 1;
     uint total : 30; // total number of children visible
     uint level : 16; // indentation
 };
@@ -44,10 +43,11 @@ public:
 
     int pageUp(int item) const;
     int pageDown(int item) const;
-    int above(int item) const;
-    int below(int item) const;
-    int first() const;
-    int last() const;
+
+    inline int above(int item) const
+        { return (--item < 0 ? 0 : item); }
+    inline int below(int item) const
+        { return (++item >= items.count() ? items.count() - 1 : item); }
 
     int indentation(int item) const;
     int coordinate(int item) const;
