@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#136 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#137 $
 **
 ** Implementation of QMenuBar class
 **
@@ -1004,9 +1004,11 @@ void QMenuBar::resizeEvent( QResizeEvent * )
 	setFrameRect( r );
     }
 
+    if ( badSize )
+	return;
     badSize = TRUE;
-    calculateRects();
-
+    if ( isVisible() )
+	calculateRects();
 }
 
 
