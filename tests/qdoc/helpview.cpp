@@ -8,7 +8,7 @@ HelpView::HelpView( QWidget *parent, const QString &dd )
     docDir = dd;
 }
     
-void HelpView::showLink( const QString &link )
+void HelpView::showLink( const QString &link , const QString& title )
 {
     QString file( docDir + "/" + link );
     QUrl u( file );
@@ -16,8 +16,8 @@ void HelpView::showLink( const QString &link )
 	qDebug( "could not find %s", u.path().latin1() );
 	return;
     }
-    
-    
+
+    setCaption( title );
     setSource( u.path() );
     if ( !u.ref().isEmpty() )
 	scrollToAnchor( u.ref() );

@@ -11,7 +11,7 @@ public:
     HelpView( QWidget *parent, const QString &dd );
     
 public slots:
-    void showLink( const QString &link );
+    void showLink( const QString &link,  const QString &title );
 
 private:
     QString docDir;

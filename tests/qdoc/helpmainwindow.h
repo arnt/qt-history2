@@ -15,7 +15,7 @@ public:
     HelpMainWindow();
     
 private:
-    HelpView *view;
+    HelpView *viewer;
     HelpNavigation *navigation;
     
 private slots:

@@ -59,7 +59,7 @@ public:
     bool eventFilter( QObject *, QEvent * );
 
 signals:
-    void showLink( const QString &s );
+    void showLink( const QString &s, const QString& t );
     
 private slots:
     void searchInIndexLine( const QString &s );

@@ -177,7 +177,7 @@ void HelpNavigation::showTopic( QListBoxItem *i )
 
     QStringList links = item->links();
     if ( links.count() == 1 ) {
-	emit showLink( links.first() );
+	emit showLink( links.first(), item->text() );
     } else {
 	QStringList::Iterator it = links.begin();
 	QStringList linkList;
@@ -188,7 +188,7 @@ void HelpNavigation::showTopic( QListBoxItem *i )
 	}
 	QString link = HelpTopicChooser::getLink( this, linkNames, linkList, i->text() );
 	if ( !link.isEmpty() )
-	    emit showLink( link );
+	    emit showLink( link, i->text() );
     }
 }
 
@@ -281,7 +281,7 @@ void HelpNavigation::showContents( QListViewItem *i )
     if ( !i || i->firstChild() )
 	return;
     HelpNavigationContentsItem *item = (HelpNavigationContentsItem*)i;
-    emit showLink( item->link() );
+    emit showLink( item->link(), item->text(0) );
 }
 
 bool HelpNavigation::eventFilter( QObject * o, QEvent * e )

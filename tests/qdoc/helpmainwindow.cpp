@@ -10,6 +10,9 @@
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qpixmap.h>
+#include <qprinter.h>
+#include <qpaintdevicemetrics.h>
+#include <qsimplerichtext.h>
 
 #include <stdlib.h>
 
@@ -141,12 +144,12 @@ HelpMainWindow::HelpMainWindow()
 
     navigation = new HelpNavigation( splitter, docDir + "/index",
 				     docDir + "/titleindex");
-    view = new HelpView( splitter, docDir );
+    viewer = new HelpView( splitter, docDir );
     splitter->setResizeMode( navigation, QSplitter::KeepSize );
     setCentralWidget( splitter );
     
-    connect( navigation, SIGNAL( showLink( const QString & ) ),
-	     view, SLOT( showLink( const QString & ) ) );
+    connect( navigation, SIGNAL( showLink( const QString &, const QString& ) ),
+	     viewer, SLOT( showLink( const QString &, const QString& ) ) );
     
     QPopupMenu *file = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&File" ), file );
@@ -205,6 +208,47 @@ HelpMainWindow::HelpMainWindow()
 
 void HelpMainWindow::slotFilePrint()
 {
+    QPrinter printer;
+    printer.setFullPage(TRUE);
+    if ( printer.setup() ) {
+	QPainter p( &printer );
+	QPaintDeviceMetrics metrics(p.device());
+	int dpix = metrics.logicalDpiX();
+	int dpiy = metrics.logicalDpiY();
+	const int margin = 72; // pt
+	QRect body(margin*dpix/72, (30+margin)*dpiy/72,
+		   metrics.width()-margin*dpix/72*2,
+		   metrics.height()-(margin+30)*dpiy/72*2 );
+	double scale = 0.75;
+	p.scale(scale, scale );
+	body = QRect( int(body.x()/scale), int(body.y()/scale), 
+		      int(body.width()/scale), int(body.height()/scale) );
+	QFont font("times");
+	QSimpleRichText richText( viewer->text(), font, viewer->context(), viewer->styleSheet(), 
+				  viewer->mimeSourceFactory(), body.height() );
+	richText.setWidth( &p, body.width() );
+	font.setItalic( TRUE );
+	font.setPointSize( 10 );
+	p.setFont( font );
+	QRect view( body );
+	int page = 1;
+	do {
+	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
+	    p.setFont( font );
+	    p.drawText( view.right() - p.fontMetrics().width( viewer->caption() ), 
+			view.top() - p.fontMetrics().descent() - 5, viewer->caption() );
+	    p.setPen(1);
+	    p.drawLine( view.left(), view.top()-2, view.right(), view.top()-2 );
+	    p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ), 
+			view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page) );
+	    view.moveBy( 0, body.height() );
+	    p.translate( 0 , -body.height() );
+	    if ( view.top()  >= richText.height() )
+		break;
+	    printer.newPage();
+	    page++;
+	} while (TRUE);
+    }
 }
 
 void HelpMainWindow::slotEditCopy()
