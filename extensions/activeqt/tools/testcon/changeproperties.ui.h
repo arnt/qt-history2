@@ -16,7 +16,7 @@
 #define PropRequesting	0x00010000
 
 #include <qmessagebox.h>
-#include <qfiledialog.h>
+//#include <qfiledialog.h>
 #include <qpixmap.h>
 #include <qregexp.h>
 
@@ -26,7 +26,7 @@ public:
     CheckListItem( QListView *parent, const QString &text )
 	    : QCheckListItem( parent, text, CheckBox )
     {
-	dialog = (ChangeProperties*)parent->topLevelWidget()->qt_cast( "ChangeProperties" );
+	dialog = (ChangeProperties*)parent->topLevelWidget()->qt_metacast( "ChangeProperties" );
     }
     
 protected:
@@ -61,11 +61,11 @@ void ChangeProperties::propertySelected( QListViewItem *item )
     valueLabel->setText( prop + " =" );
 
     const QMetaObject *mo = activex->metaObject();
-    const QMetaProperty *property = mo->property( mo->findProperty( prop, FALSE ), FALSE );
+    const QMetaProperty property = mo->property(mo->indexOfProperty(prop.latin1()));
 
-    valueLabel->setEnabled( property->writable() );
-    editValue->setEnabled( property->writable() );
-    buttonSet->setEnabled( property->writable() );
+    valueLabel->setEnabled( property.isWritable() );
+    editValue->setEnabled( property.isWritable() );
+    buttonSet->setEnabled( property.isWritable() );
 }
 
 void ChangeProperties::setValue()
@@ -75,12 +75,12 @@ void ChangeProperties::setValue()
 	return;
     
     QString prop = item->text(0);
-    QVariant value = activex->property( prop );
+    QVariant value = activex->property(prop.latin1());
     QVariant::Type type = value.type();
     if ( !value.isValid() ) {
 	const QMetaObject *mo = activex->metaObject();
-	const QMetaProperty *mp = mo->property( mo->findProperty( prop, TRUE ), TRUE );
-	type = QVariant::nameToType( mp->type() );
+	const QMetaProperty property = mo->property(mo->indexOfProperty(prop.latin1()));
+	type = QVariant::nameToType( property.type() );
     }
     switch ( type ) {
     case QVariant::Color:
@@ -114,6 +114,7 @@ void ChangeProperties::setValue()
 	break;
     case QVariant::Pixmap:
 	{
+/*
 	    QString fileName = editValue->text();
 	    if ( fileName.isEmpty() )
 		fileName = QFileDialog::getOpenFileName( QString::null, QString::null, this );
@@ -122,22 +123,23 @@ void ChangeProperties::setValue()
 		return;
 
 	    value = pm;
+*/
 	}
 	break;
     case QVariant::Bool:
 	{
-	    QString txt = editValue->text().lower();
-	    value = QVariant( ( txt != "0" && txt != "false" ), 23 );
+	    QString txt = editValue->text().toLower();
+	    value = QVariant(txt != "0" && txt != "false" );
 	}
 	break;
     case QVariant::List:
 	{
-	    QStringList txtList = QStringList::split( QRegExp( "[,;]" ), editValue->text() );
-	    QValueList<QVariant> varList;
-	    for ( QStringList::Iterator it = txtList.begin(); it != txtList.end(); ++it ) {
-		QVariant svar = *it;
+	    QStringList txtList = editValue->text().split(QRegExp( "[,;]" ));
+	    QList<QVariant> varList;
+	    for (int i = 0; i < txtList.count(); ++i) {
+		QVariant svar(txtList.at(i));
 		QString str = svar.toString();
-		str = str.stripWhiteSpace();
+		str = str.trimmed();
 		bool ok;
 		int i = str.toInt( &ok );
 		if ( ok ) {
@@ -160,7 +162,7 @@ void ChangeProperties::setValue()
 	break;
     }
  
-    activex->setProperty( prop, value );
+    activex->setProperty(prop.latin1(), value);
     setControl( activex );
     listProperties->setCurrentItem( listProperties->findItem( prop, 0 ) );
 }
@@ -176,7 +178,7 @@ void ChangeProperties::editRequestChanged( QCheckListItem *item )
     if ( !item )
 	return;
     QString property = item->text();
-    activex->setPropertyWritable( property.latin1(), item->isOn() );
+    activex->setPropertyWritable(property.latin1(), item->isOn());
 }
 
 
@@ -189,18 +191,13 @@ void ChangeProperties::updateProperties()
     listEditRequests->clear();
     if ( hasControl ) {
 	const QMetaObject *mo = activex->metaObject();
-	const int numprops = mo->numProperties( FALSE );
-	for ( int i = 0; i < numprops; ++i ) {
-	    const QMetaProperty *property = mo->property( i, FALSE );
-	    QListViewItem *item = new QListViewItem( listProperties );
-	    item->setText( 0, property->name() );
-	    if ( property->isEnumType() ) {
-		const QMetaEnum *enumData = property->enumData;
-		item->setText( 1, enumData->name );
-	    } else {
-		item->setText( 1, property->type() );
-	    }
-	    QVariant var = activex->property( property->name() );
+	const int numprops = mo->propertyCount();
+	for ( int i = mo->propertyOffset(); i < numprops; ++i ) {
+	    const QMetaProperty property = mo->property(i);
+	    QListViewItem *item = new QListViewItem(listProperties);
+	    item->setText(0, property.name());
+	    item->setText(1, property.type());
+	    QVariant var = activex->property(property.name());
 	    
 	    switch ( var.type() ) {
 	    case QVariant::Color:
@@ -228,18 +225,19 @@ void ChangeProperties::updateProperties()
 		break;
 	    case QVariant::List:
 		{
-		    QValueList<QVariant> varList = var.toList();
+		    QList<QCoreVariant> varList = var.toList();
 		    QStringList strList;
-		    for ( QValueList<QVariant>::Iterator it = varList.begin(); it != varList.end(); ++it ) {
-			QVariant var = *it;
+		    for (int i = 0; i < varList.count(); ++i) {
+			QVariant var = varList.at(i);
 			strList << var.toString();
 		    }
 		    item->setText( 2, strList.join( ", " ) );
 		}
 		break;
 	    case QVariant::Int:
-		if ( property->isEnumType() ) {
-		    item->setText( 2, property->valueToKey( var.toInt() ) );
+		if (property.isEnumType()) {
+		    const QMetaEnum enumerator = mo->enumerator(mo->indexOfEnumerator(property.type()));
+		    item->setText(2, enumerator.valueToKey(var.toInt()));
 		    break;
 		}
 		//FALLTHROUGH
@@ -247,11 +245,12 @@ void ChangeProperties::updateProperties()
 		item->setText( 2, var.toString() );
 		break;
 	    }
- 
-	    if ( property->testFlags( PropRequesting ) ) {
+ /*
+	    if ( property.testFlags( PropRequesting ) ) {
 		CheckListItem *check = new CheckListItem( listEditRequests, property->name() );
 		check->setOn( activex->propertyWritable( property->name() ) );
 	    }
+*/
 	}
 	listProperties->setCurrentItem( listProperties->firstChild() );
     } else {

@@ -19,8 +19,13 @@ void AmbientProperties::init()
 void AmbientProperties::setControl( QWidget *widget )
 {
     container = widget;
-    backSample->setPaletteBackgroundColor( container->paletteBackgroundColor() );
-    foreSample->setPaletteBackgroundColor( container->paletteForegroundColor() );
+
+    QColor c = container->palette().color(container->backgroundRole());
+    QPalette p = backSample->palette(); p.setColor(backSample->backgroundRole(), c); backSample->setPalette(p);
+
+    c = container->palette().color(container->foregroundRole());
+    p = foreSample->palette(); p.setColor(foreSample->backgroundRole(), c); foreSample->setPalette(p);
+
     fontSample->setFont( container->font() );
     enabledButton->setOn( container->isEnabled() );
     enabledSample->setEnabled( container->isEnabled() );
@@ -28,36 +33,32 @@ void AmbientProperties::setControl( QWidget *widget )
 
 void AmbientProperties::backColor()
 {
-    QColor col = QColorDialog::getColor( backSample->paletteBackgroundColor(), this );
-    backSample->setPaletteBackgroundColor( col );
-    container->setPaletteBackgroundColor( col );
+    QColor c = QColorDialog::getColor(backSample->palette().color(backSample->backgroundRole()), this);
+    QPalette p = backSample->palette(); p.setColor(backSample->backgroundRole(), c); backSample->setPalette(p);
+    p = container->palette(); p.setColor(container->backgroundRole(), c); container->setPalette(p);
 
-    QWorkspace *ws = (QWorkspace*)container->qt_cast( "QWorkspace" );
+    QWorkspace *ws = (QWorkspace*)container->qt_metacast( "QWorkspace" );
     if ( ws ) {
 	QWidgetList list( ws->windowList() );
-	QWidgetListIt it( list );
-	while ( it.current() ) {
-	    QWidget *widget = it.current();
-	    widget->setPaletteBackgroundColor( col );
-	    ++it;
+	for (int i = 0; i < list.count(); ++i) {
+	    QWidget *widget = list.at(i);
+	    p = widget->palette(); p.setColor(widget->backgroundRole(), c); widget->setPalette(p);
 	}
     }
 }
 
 void AmbientProperties::foreColor()
 {
-    QColor col = QColorDialog::getColor( foreSample->paletteBackgroundColor(), this );
-    foreSample->setPaletteBackgroundColor( col );
-    container->setPaletteForegroundColor( col );
+    QColor c = QColorDialog::getColor(foreSample->palette().color(foreSample->backgroundRole()), this);
+    QPalette p = foreSample->palette(); p.setColor(foreSample->backgroundRole(), c); foreSample->setPalette(p);
+    p = container->palette(); p.setColor(container->foregroundRole(), c); container->setPalette(p);
 
-    QWorkspace *ws = (QWorkspace*)container->qt_cast( "QWorkspace" );
+    QWorkspace *ws = (QWorkspace*)container->qt_metacast( "QWorkspace" );
     if ( ws ) {
 	QWidgetList list( ws->windowList() );
-	QWidgetListIt it( list );
-	while ( it.current() ) {
-	    QWidget *widget = it.current();
-	    widget->setPaletteForegroundColor( col );
-	    ++it;
+	for (int i = 0; i < list.count(); ++i) {
+	    QWidget *widget = list.at(i);
+	    p = widget->palette(); p.setColor(widget->foregroundRole(), c); widget->setPalette(p);
 	}
     }
 }
@@ -71,14 +72,12 @@ void AmbientProperties::pickFont()
     fontSample->setFont( f );
     container->setFont( f );
 
-    QWorkspace *ws = (QWorkspace*)container->qt_cast( "QWorkspace" );
+    QWorkspace *ws = (QWorkspace*)container->qt_metacast( "QWorkspace" );
     if ( ws ) {
 	QWidgetList list( ws->windowList() );
-	QWidgetListIt it( list );
-	while ( it.current() ) {
-	    QWidget *widget = it.current();
+	for (int i = 0; i < list.count(); ++i) {
+	    QWidget *widget = list.at(i);
 	    widget->setFont( f );
-	    ++it;
 	}
     }
 }

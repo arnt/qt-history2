@@ -14,26 +14,26 @@ void ControlInfo::setControl( QAxWidget *activex )
 {
     listInfo->clear();
 
-    QMetaObject *mo = activex->metaObject();
-    QListViewItem *item = new QListViewItem( listInfo, "Class Info", QString::number( mo->numClassInfo() ) );
+    const QMetaObject *mo = activex->metaObject();
+    QListViewItem *item = new QListViewItem(listInfo, "Class Info", QString::number(mo->classInfoCount()));
     int i;
-    for ( i = 0; i < mo->numClassInfo(FALSE ); ++i ) {
-	const QClassInfo *info = mo->classInfo( i, FALSE );
-	(void)new QListViewItem( item, info->name, info->value );
+    for (i = mo->classInfoOffset(); i < mo->classInfoCount(); ++i) {
+	const QMetaClassInfo info = mo->classInfo(i);
+	(void)new QListViewItem(item, info.name(), info.value());
     }
-    item = new QListViewItem( listInfo, "Signals", QString::number( mo->numSignals( FALSE ) ) );
-    for ( i = 0; i < mo->numSignals(FALSE ); ++i ) {
-	const QMetaData *signal = mo->signal( i, FALSE );
-	(void)new QListViewItem( item, signal->name );
+    item = new QListViewItem(listInfo, "Signals", QString::number(mo->signalCount()));
+    for (i = mo->signalOffset(); i < mo->signalCount(); ++i) {
+	const QMetaMember signal = mo->signal(i);
+	(void)new QListViewItem(item, signal.signature());
     }
-    item = new QListViewItem( listInfo, "Slots", QString::number( mo->numSlots( FALSE ) ) );
-    for ( i = 0; i < mo->numSlots( FALSE ); ++i ) {
-	const QMetaData *slot = mo->slot( i, FALSE );
-	(void)new QListViewItem( item, slot->name );
+    item = new QListViewItem(listInfo, "Slots", QString::number(mo->slotCount()));
+    for (i = mo->slotOffset(); i < mo->slotCount(); ++i) {
+	const QMetaMember slot = mo->slot(i);
+	(void)new QListViewItem(item, slot.signature());
     }
-    item = new QListViewItem( listInfo, "Properties", QString::number( mo->numProperties( FALSE ) ) );    
-    for ( i = 0; i < mo->numProperties( FALSE ); ++i ) {
-	const QMetaProperty *property = mo->property( i, FALSE );
-	(void)new QListViewItem( item, property->name(), property->type() );
+    item = new QListViewItem(listInfo, "Properties", QString::number(mo->propertyCount()));    
+    for (i = mo->propertyOffset(); i < mo->propertyCount(); ++i) {
+	const QMetaProperty property = mo->property(i);
+	(void)new QListViewItem(item, property.name(), property.type());
     }
 }

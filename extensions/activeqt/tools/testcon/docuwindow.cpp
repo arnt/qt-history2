@@ -2,7 +2,7 @@
 #include <qtextbrowser.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
-#include <qfiledialog.h>
+//#include <qfiledialog.h>
 #include <qfile.h>
 #include <qstatusbar.h>
 #include <qprinter.h>
@@ -60,7 +60,7 @@ static const char *fileprint[] = {
 DocuWindow::DocuWindow( const QString& docu, QWidget *parent, QWidget *source )
     : QMainWindow( parent, 0, WDestructiveClose )
 {
-    setCaption( source->caption() + " - Documentation" );
+    setWindowTitle( source->windowTitle() + " - Documentation" );
 
     browser = new QTextBrowser( this );
     browser->setSource( docu );
@@ -84,7 +84,7 @@ DocuWindow::DocuWindow( const QString& docu, QWidget *parent, QWidget *source )
 }
 
 void DocuWindow::save()
-{
+{/*
     QString filename = QFileDialog::getSaveFileName( QString::null, QString::null,
 					       this );
 
@@ -103,7 +103,7 @@ void DocuWindow::save()
     f.close();
 
     statusBar()->message( QString( "File %1 saved" ).arg(filename), 2000 );
-
+*/
 }
 
 void DocuWindow::print()
@@ -137,7 +137,7 @@ void DocuWindow::print()
     QRect view( body );
     int page = 1;
     do {
-	richText.draw( &painter, body.left(), body.top(), view, colorGroup() );
+	richText.draw( &painter, body.left(), body.top(), view, palette() );
 	view.moveBy( 0, body.height() );
 	painter.translate( 0 , -body.height() );
 	painter.drawText( view.right() - painter.fontMetrics().width( QString::number(page) ),

@@ -55,7 +55,7 @@ void MainWindow::changeProperties()
 {
     QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
+	container = (QAxWidget*)workspace->activeWindow()->qt_metacast("QAxWidget");
 
     if ( !dlgProperties ) {
 	dlgProperties = new ChangeProperties( this, 0, FALSE );
@@ -69,7 +69,7 @@ void MainWindow::clearControl()
 {
     QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
+	container = (QAxWidget*)workspace->activeWindow()->qt_metacast("QAxWidget");
     if ( container )
 	container->clear();
     updateGUI();
@@ -88,27 +88,27 @@ void MainWindow::invokeMethods()
 {
     QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
+	container = (QAxWidget*)workspace->activeWindow()->qt_metacast("QAxWidget");
 
     if ( !dlgInvoke )
 	dlgInvoke = new InvokeMethod( this, 0, FALSE );
     dlgInvoke->setControl( container );
-    dlgInvoke->show();    
+    dlgInvoke->show();
 }
 
 void MainWindow::logPropertyChanged( const QString &prop )
 {
-    QAxWidget *container = (QAxWidget*)((QObject*)sender())->qt_cast("QAxWidget");
+    QAxWidget *container = (QAxWidget*)((QObject*)sender())->qt_metacast("QAxWidget");
     if ( !container )
 	return;
 
-    QVariant var = container->property( prop );
-    logProperties->append( container->caption() + ": Property Change: " + prop + " - { " + var.toString() + " }" );
+    QVariant var = container->property(prop.latin1());
+    logProperties->append( container->windowTitle() + ": Property Change: " + prop + " - { " + var.toString() + " }" );
 }
 
 void MainWindow::logSignal( const QString &signal, int argc, void *argv )
 {
-    QAxWidget *container = (QAxWidget*)((QObject*)sender())->qt_cast("QAxWidget");
+    QAxWidget *container = (QAxWidget*)((QObject*)sender())->qt_metacast("QAxWidget");
     if ( !container )
 	return;
 
@@ -126,17 +126,17 @@ void MainWindow::logSignal( const QString &signal, int argc, void *argv )
     }
     if ( argc )
 	paramlist += "}";
-    logSignals->append( container->caption() + ": " + signal + paramlist );
+    logSignals->append( container->windowTitle() + ": " + signal + paramlist );
 }
 
 void MainWindow::logException( int code, const QString&source, const QString&desc, const QString&help )
 {
-    QAxWidget *container = (QAxWidget*)((QObject*)sender())->qt_cast("QAxWidget");
+    QAxWidget *container = (QAxWidget*)((QObject*)sender())->qt_metacast("QAxWidget");
     if ( !container )
 	return;
 
     QString str = QString( "%1: Exception code %2 thrown by %3" ).
-	arg( container->caption() ).arg( code ).arg( source );
+	arg( container->windowTitle() ).arg( code ).arg( source );
     logDebug->append( str );
 
     if ( !help.isEmpty() )
@@ -149,7 +149,7 @@ void MainWindow::setControl()
 {
     QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
+	container = (QAxWidget*)workspace->activeWindow()->qt_metacast("QAxWidget");
     if ( !container )
 	return;
 
@@ -164,7 +164,7 @@ void MainWindow::controlInfo()
 {
     QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
+	container = (QAxWidget*)workspace->activeWindow()->qt_metacast("QAxWidget");
     if ( !container )
 	return;
 
@@ -175,6 +175,7 @@ void MainWindow::controlInfo()
 
 void MainWindow::fileLoad()
 {
+/*
     QString fname = QFileDialog::getOpenFileName( QString::null, "*.qax", this );
     if ( fname.isEmpty() )
 	return;
@@ -193,13 +194,15 @@ void MainWindow::fileLoad()
     container->show();
 
     updateGUI();
+*/
 }
 
 void MainWindow::fileSave()
 {
+/*
     QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
+	container = (QAxWidget*)workspace->activeWindow()->qt_metacast("QAxWidget");
     if ( !container )
 	return;
 
@@ -214,13 +217,15 @@ void MainWindow::fileSave()
     }
     QDataStream d( &file );
     d << *container;
+*/
 }
 
 void MainWindow::updateGUI()
 {
+/*
     QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
+	container = (QAxWidget*)workspace->activeWindow()->qt_metacast("QAxWidget");
 
     bool hasControl = container && !container->isNull();
     actionFileNew->setEnabled( TRUE );
@@ -239,11 +244,11 @@ void MainWindow::updateGUI()
 	dlgProperties->setControl( hasControl ? container : 0 );
 
     QWidgetList list = workspace->windowList();
-    QWidgetListIt it( list );
-    while ( it.current() ) {
-	QWidget *container = it.current();
+    QWidgetList::Iterator it = list.begin();
+    while ( it != list.end() ) {
+	QWidget *container = *it;
 
-	QAxWidget *ax = (QAxWidget*)container->qt_cast( "QAxWidget" );
+	QAxWidget *ax = (QAxWidget*)container->qt_metacast( "QAxWidget" );
 	if ( ax ) {
 	    container->disconnect( SIGNAL(signal(const QString&, int, void*)) );
 	    if ( actionLogSignals->isOn() )
@@ -260,7 +265,7 @@ void MainWindow::updateGUI()
 	}
 
 	++it;
-    }
+    }*/
 }
 
 
@@ -269,7 +274,7 @@ void MainWindow::fileNew()
     QActiveXSelect select( this, 0, TRUE );
     if ( select.exec() ) {
 	QAxWidget *container = new QAxWidget( select.selectedControl(), workspace, 0, WDestructiveClose );
-	container->setName(container->caption().latin1());
+	container->setObjectName(container->windowTitle().latin1());
 	container->show();
     }
     updateGUI();
@@ -285,7 +290,7 @@ void MainWindow::showDocumentation()
 {
     QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
+	container = (QAxWidget*)workspace->activeWindow()->qt_metacast("QAxWidget");
     if ( !container )
 	return;
     
@@ -302,7 +307,7 @@ void MainWindow::renderPixmap()
 {
     QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
+	container = (QAxWidget*)workspace->activeWindow()->qt_metacast("QAxWidget");
     if ( !container )
 	return;
 
@@ -310,7 +315,7 @@ void MainWindow::renderPixmap()
 
     QLabel *label = new QLabel( workspace, "pixmap_label", WDestructiveClose );
     label->setPixmap( pm );
-    label->setCaption( container->caption() + " - Pixmap" );
+    label->setWindowTitle( container->windowTitle() + " - Pixmap" );
 
     label->show();
 }
@@ -325,7 +330,7 @@ void MainWindow::runMacro()
     QStringList scriptList = scripts->scriptNames();
     if (scriptList.count() == 1) {
 	InvokeMethod scriptInvoke( this, 0, TRUE );
-	scriptInvoke.setCaption("Execute Script Function");
+	scriptInvoke.setWindowTitle("Execute Script Function");
 	scriptInvoke.setControl(scripts->script(scriptList[0])->scriptEngine());
 	scriptInvoke.exec();
 	return;
@@ -340,12 +345,13 @@ void MainWindow::runMacro()
 
     QVariant result = scripts->call(macro);
     if (result.isValid())
-	logMacros->append(QString("Return value of %1: %2").arg(macro).arg(result.asString()));
+	logMacros->append(QString("Return value of %1: %2").arg(macro).arg(result.toString()));
 #endif
 }
 
 void MainWindow::loadScript()
 {
+/*
 #ifndef QT_NO_QAXSCRIPT
     QString file = QFileDialog::getOpenFileName(QString::null, QAxScriptManager::scriptFileFilter(),
 						this, 0, "Open Script");
@@ -359,9 +365,9 @@ void MainWindow::loadScript()
     }
 
     QWidgetList widgets = workspace->windowList();
-    QWidgetListIt it(widgets);
-    while (it.current()) {
-	QAxBase *ax = (QAxBase*)it.current()->qt_cast("QAxBase");
+    QWidgetList::Iterator it(widgets.begin());
+    while (it != widgets.end()) {
+	QAxBase *ax = (QAxBase*)(*it)->qt_metacast("QAxBase");
 	++it;
 	if (!ax)
 	    continue;
@@ -378,6 +384,7 @@ void MainWindow::loadScript()
     QMessageBox::information(this, "Function not available",
 	"QAxScript functionality is not available with this compiler.");
 #endif
+*/
 }
 
 void MainWindow::logMacro(int code, const QString &description, int sourcePosition, const QString &sourceText )

@@ -10,7 +10,6 @@
 *****************************************************************************/
 
 #include <qlistbox.h>
-#include <private/qucomextra_p.h>
 
 void InvokeMethod::invoke()
 {
@@ -18,15 +17,15 @@ void InvokeMethod::invoke()
 	return;
     
     setValue();
-    QCString method = comboMethods->currentText().local8Bit();
-    QValueList<QVariant> vars;
+    QString method = comboMethods->currentText();
+    QList<QVariant> vars;
     QListViewItemIterator it( listParameters );
     while ( it.current() ) {
 	QListViewItem *parameter = it.current();
 	++it;
 	vars << parameter->text(2);
     }
-    QVariant result = activex->dynamicCall( method, vars );
+    QVariant result = activex->dynamicCall(method, vars);
     it = QListViewItemIterator( listParameters );
     int v = 0;
     while ( it.current() ) {
@@ -44,10 +43,10 @@ void InvokeMethod::methodSelected( const QString &method )
 {
     if ( !activex )
 	return;
-    
     listParameters->clear();
     listParameters->setSorting( -1 );
     const QMetaObject *mo = activex->metaObject();
+/*
     const QMetaData *data = mo->slot( mo->findSlot( method, FALSE ), TRUE );
     const QUMethod *slot = data ? data->method : 0;
     if ( !slot )
@@ -84,9 +83,11 @@ void InvokeMethod::methodSelected( const QString &method )
 	    item->setText( 1, ptype );
 	}
     }
+
     if ( slot->count ) {
 	listParameters->setCurrentItem( listParameters->firstChild() );
     }
+*/
 }
 
 void InvokeMethod::parameterSelected( QListViewItem *item )
@@ -127,17 +128,18 @@ void InvokeMethod::setControl( QAxBase *ax )
     comboMethods->clear();
     listParameters->clear();
     
-    if ( hasControl ) {
-	const QMetaObject *mo = activex->metaObject();
-	const int nummethods = mo->numSlots( FALSE );
-	for ( int i = 0; i < nummethods; ++i ) {
-	    const QMetaData *data = mo->slot( i, FALSE );
-	    comboMethods->insertItem( data->name );
+    if ( !hasControl ) {
+	editValue->clear();
+	return;
+    }
+
+    const QMetaObject *mo = activex->metaObject();
+    if (mo->slotCount()) {
+	for ( int i = mo->slotOffset(); i < mo->slotCount(); ++i ) {
+	    const QMetaMember slot = mo->slot(i);
+	    comboMethods->insertItem(slot.signature());
 	}
 	comboMethods->listBox()->sort();
-	if ( nummethods )
-	    methodSelected( comboMethods->currentText() );
-    } else {
-	editValue->clear();
+	methodSelected( comboMethods->currentText() );
     }
 }

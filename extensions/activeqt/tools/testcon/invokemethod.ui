@@ -288,10 +288,8 @@
     </connection>
 </connections>
 <includes>
-    <include location="global" impldecl="in implementation">qcstring.h</include>
     <include location="global" impldecl="in implementation">qmetaobject.h</include>
     <include location="global" impldecl="in implementation">qaxbase.h</include>
-    <include location="global" impldecl="in implementation">private/qucom_p.h</include>
     <include location="local" impldecl="in implementation">invokemethod.ui.h</include>
 </includes>
 <forwards>
