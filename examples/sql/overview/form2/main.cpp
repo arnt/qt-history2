@@ -36,11 +36,11 @@ FormDialog::FormDialog()
     staffCursor->select( idIndex );
     staffCursor->first();
 
-    QSqlRecord *buffer = staffCursor->primeUpdate();
     sqlForm = new QSqlForm( this );
-    sqlForm->insert( forenameEdit, buffer->field( "forename" ) );
-    sqlForm->insert( surnameEdit, buffer->field( "surname" ) );
-    sqlForm->insert( salaryEdit, buffer->field( "salary" ) );
+    sqlForm->setRecord( staffCursor->primeUpdate() );
+    sqlForm->insert( forenameEdit, "forename" );
+    sqlForm->insert( surnameEdit, "surname" );
+    sqlForm->insert( salaryEdit, "salary" );
     sqlForm->readFields();
 }
 
