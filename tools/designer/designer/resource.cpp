@@ -2886,8 +2886,10 @@ void Resource::savePopupMenu( PopupMenuEditor *pm, QMainWindow *mw, QTextStream 
 	    ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
 	PopupMenuEditor *s =  i->menu();
 	if ( s && s->count() ) {
+	    QString n = a->name();
+	    n.replace( "Action", "Menu" );
 	    ts << makeIndent( indent ) << "<item text=\"" << entitize( a->menuText() )
-	       << "\" name=\"" << entitize( s->name() ) << "\">" << endl;
+	       << "\" name=\"" << entitize( n ) << "\">" << endl;
 	    indent++;
 	    savePopupMenu( s, mw, ts, indent );
 	    indent--;

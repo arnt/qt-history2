@@ -2101,7 +2101,10 @@ void RenameActionCommand::execute()
 {
     action->setMenuText( newName );
     action->setText( newName );
-    action->setName( mangle( newName ) );
+    QString n = mangle( newName );
+    formWindow()->unify( action, n, TRUE );
+    action->setName( n );
+    MetaDataBase::addEntry( action );
     ActionEditor *ae = actionEditor();
     if ( ae )
 	ae->updateActionName( action );

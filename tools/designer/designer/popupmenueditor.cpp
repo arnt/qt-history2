@@ -170,15 +170,15 @@ PopupMenuEditorItem::~PopupMenuEditorItem()
 
 void PopupMenuEditorItem::init()
 {
-    QAction * a = anyAction();
-    if ( a && m && !isSeparator() ) {
-	// FIXME: unify doesn't
+    QAction * action = anyAction();
+    
+    if ( action && m && !isSeparator() ) {
 	s = new PopupMenuEditor( m->formWindow(), m );
-	QString n = QString( a->name() ) + "Menu";
+	QString n = "PopupMenu";
 	m->formWindow()->unify( s, n, TRUE );
 	s->setName( n );
 	MetaDataBase::addEntry( s );
-    }
+    }    
        
     QObject * o = 0;
     if ( a ) {
@@ -1099,7 +1099,6 @@ void PopupMenuEditor::focusOutEvent( QFocusEvent * )
     if ( !w || ( !( w->inherits( "PopupMenuEditor" ) ||
 		    w->inherits( "MenuBarEditor" ) ) &&
 		 w != lineEdit ) ) {
-	qDebug( "FocusOutEvent" );
 	hideCurrentItemMenu();
 	hide();
     }
