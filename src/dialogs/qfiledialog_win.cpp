@@ -237,7 +237,7 @@ OPENFILENAME* makeOFN( QWidget* parent,
 
     int maxLen = mode == QFileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
     TCHAR *tInitSel = new TCHAR[maxLen+1];
-    if ( initSel.length() > 0 && initSel.length() <= (uint)maxLen )
+    if ( initSel.length() > 0 && initSel.length() <= maxLen )
 	memcpy( tInitSel, initSel.ucs2(), (initSel.length()+1)*sizeof( QChar ) );
     else
         tInitSel[0] = 0;
