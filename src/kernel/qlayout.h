@@ -51,19 +51,16 @@
 Q_OBJECT
 #endif
 
-static const int QLAYOUTSIZE_MAX=INT_MAX/256/16;
+static const int QLAYOUTSIZE_MAX = INT_MAX/256/16;
 
-/*
-  First comes the definition of QLayout and of related abstract
-  classes that used to be defined in qabstractlayout.h.
-*/
-
-class QMenuBar;
-class QWidget;
-struct QLayoutData;
-class QLayoutItem;
+class QGridLayoutBox;
+class QGridLayoutData;
 class QLayout;
+class QLayoutItem;
+struct QLayoutData;
+class QMenuBar;
 class QSpacerItem;
+class QWidget;
 
 class Q_EXPORT QGLayoutIterator : public QShared
 {
@@ -77,14 +74,17 @@ public:
 class Q_EXPORT QLayoutIterator
 {
 public:
-    QLayoutIterator( QGLayoutIterator *i ) :it( i ) { }
-    QLayoutIterator( const QLayoutIterator &i ) :it( i.it )
-    { if ( it ) it->ref(); }
+    QLayoutIterator( QGLayoutIterator *i ) : it( i ) { }
+    QLayoutIterator( const QLayoutIterator &i ) : it( i.it ) {
+	if ( it )
+	    it->ref();
+    }
     ~QLayoutIterator() { if ( it && it->deref() ) delete it; }
-    QLayoutIterator &operator=( const QLayoutIterator &i )
-    {
-	if ( i.it ) i.it->ref();
-	if ( it && it->deref() ) delete it;
+    QLayoutIterator &operator=( const QLayoutIterator &i ) {
+	if ( i.it )
+	    i.it->ref();
+	if ( it && it->deref() )
+	    delete it;
 	it = i.it;
 	return *this;
     }
@@ -127,14 +127,14 @@ protected:
 
 class Q_EXPORT QSpacerItem : public QLayoutItem
 {
- public:
+public:
     QSpacerItem( int w, int h,
-		 QSizePolicy::SizeType hData=QSizePolicy::Minimum,
-		 QSizePolicy::SizeType vData= QSizePolicy::Minimum )
+		 QSizePolicy::SizeType hData = QSizePolicy::Minimum,
+		 QSizePolicy::SizeType vData = QSizePolicy::Minimum )
 	: width( w ), height( h ), sizeP( hData, vData ) { }
     void changeSize( int w, int h,
-		     QSizePolicy::SizeType hData=QSizePolicy::Minimum,
-		     QSizePolicy::SizeType vData=QSizePolicy::Minimum );
+		     QSizePolicy::SizeType hData = QSizePolicy::Minimum,
+		     QSizePolicy::SizeType vData = QSizePolicy::Minimum );
     QSize sizeHint() const;
     QSize minimumSize() const;
     QSize maximumSize() const;
@@ -180,11 +180,13 @@ class Q_EXPORT QLayout : public QObject, public QLayoutItem
     Q_PROPERTY( ResizeMode resizeMode READ resizeMode WRITE setResizeMode )
 
 public:
+    // ### Qt 4.0: put 'Default' first in enum
+    enum ResizeMode { FreeResize, Minimum, Fixed, Default };
+
     QLayout( QWidget *parent, int margin = 0, int spacing = -1,
 	     const char *name = 0 );
     QLayout( QLayout *parentLayout, int spacing = -1, const char *name = 0 );
     QLayout( int spacing = -1, const char *name = 0 );
-
     ~QLayout();
 
     int margin() const { return outsideBorder; }
@@ -198,7 +200,6 @@ public:
     void freeze( int w, int h );
     void freeze() { setResizeMode( Fixed ); }
 
-    enum ResizeMode { FreeResize, Minimum, Fixed };
     void setResizeMode( ResizeMode );
     ResizeMode resizeMode() const;
 
@@ -223,8 +224,8 @@ public:
     QSizePolicy::ExpandData expanding() const;
     QSize minimumSize() const;
     QSize maximumSize() const;
-    void setGeometry( const QRect& )=0;
-    QLayoutIterator iterator()=0;
+    void setGeometry( const QRect& ) = 0;
+    QLayoutIterator iterator() = 0;
     bool isEmpty() const;
 
     int totalHeightForWidth( int w ) const;
@@ -253,18 +254,20 @@ private:
     int insideSpacing;
     int outsideBorder;
     uint topLevel : 1;
-    uint autoMinimum : 1;
+    uint enabled : 1;
     uint autoNewChild : 1;
     uint frozen : 1;
     uint activated : 1;
     uint marginImpl : 1;
-    uint enabled : 1;
+    uint autoMinimum : 1;
+    uint defaultResizeMode : 1;
     QRect rect;
     QLayoutData *extraData;
 #ifndef QT_NO_MENUBAR
     QMenuBar *menubar;
 #endif
-private:	// Disabled copy constructor and operator=
+
+private:
 #if defined(Q_DISABLE_COPY)
     QLayout( const QLayout & );
     QLayout &operator=( const QLayout & );
@@ -276,13 +279,6 @@ inline void QLayoutIterator::deleteCurrent()
 {
     delete takeCurrent();
 }
-
-/*
-  Follow the Q*Layout classes, that always belonged to qlayout.h.
-*/
-
-class QGridLayoutData;
-class QGridLayoutBox;
 
 class Q_EXPORT QGridLayout : public QLayout
 {
@@ -341,7 +337,7 @@ protected:
     bool findWidget( QWidget* w, int *r, int *c );
     void add( QLayoutItem*, int row, int col );
 
-private:	// Disabled copy constructor and operator=
+private:
 #if defined(Q_DISABLE_COPY)
     QGridLayout( const QGridLayout & );
     QGridLayout &operator=( const QGridLayout & );
@@ -361,12 +357,11 @@ public:
     enum Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop,
 		     Down = TopToBottom, Up = BottomToTop };
 
-    QBoxLayout( QWidget *parent, Direction, int border=0,
-		int spacing = -1, const char *name=0 );
+    QBoxLayout( QWidget *parent, Direction, int border = 0,
+		int spacing = -1, const char *name = 0 );
     QBoxLayout( QLayout *parentLayout, Direction, int spacing = -1,
-		const char *name=0 );
-    QBoxLayout(	Direction, int spacing = -1,
-		const char *name=0 );
+		const char *name = 0 );
+    QBoxLayout( Direction, int spacing = -1, const char *name = 0 );
     ~QBoxLayout();
 
     void addItem( QLayoutItem * );
@@ -406,7 +401,7 @@ public:
 protected:
     void insertItem( int index, QLayoutItem * );
 
-private:	// Disabled copy constructor and operator=
+private:
     friend class QDockWindow;
 #if defined(Q_DISABLE_COPY)
     QBoxLayout( const QBoxLayout & );

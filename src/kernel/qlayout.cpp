@@ -440,9 +440,9 @@ void QGridLayoutData::add( QGridBox *box, int row1, int row2, int col1,
 {
 #ifdef QT_CHECK_RANGE
     if ( row2 >= 0 && row2 < row1 )
-	qWarning( "QGridLayout: multicell fromRow greater than toRow" );
+	qWarning( "QGridLayout: Multi-cell fromRow greater than toRow" );
     if ( col2 >= 0 && col2 < col1 )
-	qWarning( "QGridLayout: multicell fromCol greater than toCol" );
+	qWarning( "QGridLayout: Multi-cell fromCol greater than toCol" );
 #endif
     if ( row1 == row2 && col1 == col2 ) {
 	add( box, row1, col1 );
@@ -1191,7 +1191,7 @@ static bool checkWidget( QLayout *l, QWidget *w )
 {
     if ( !w ) {
 #if defined(QT_CHECK_STATE)
-	qWarning( "cannot add null widget to %s/%s", l->className(),
+	qWarning( "QLayout: Cannot add null widget to %s/%s", l->className(),
 		  l->name() );
 #endif
 	return FALSE;
@@ -1199,12 +1199,12 @@ static bool checkWidget( QLayout *l, QWidget *w )
     if ( w->parentWidget() != l->mainWidget() && l->mainWidget() ) {
 #if defined(QT_CHECK_STATE)
 	if ( w->parentWidget() )
-	    qWarning( "Warning: adding %s/%s (child of %s/%s) to layout for "
+	    qWarning( "QLayout: Adding %s/%s (child of %s/%s) to layout for "
 		      "%s/%s", w->className(), w->name(),
 		      w->parentWidget()->className(), w->parentWidget()->name(),
 		      l->mainWidget()->className(), l->mainWidget()->name() );
 	else
-	    qWarning( "Warning: adding %s/%s (top-level widget) to layout for"
+	    qWarning( "QLayout: Adding %s/%s (top-level widget) to layout for"
 		      " %s/%s", w->className(), w->name(),
 		      l->mainWidget()->className(), l->mainWidget()->name() );
 #endif
@@ -1237,8 +1237,8 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
 	return;
     if ( row < 0 || col < 0 ) {
 #if defined(QT_CHECK_STATE)
-	qWarning( "cannot add %s/%s to %s/%s at row %d col %d",
-		 w->className(), w->name(), className(), name(), row, col );
+	qWarning( "QGridLayout: Cannot add %s/%s to %s/%s at row %d col %d",
+		  w->className(), w->name(), className(), name(), row, col );
 #endif
 	return;
     }
