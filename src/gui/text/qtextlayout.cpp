@@ -1222,8 +1222,8 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
         gf.num_glyphs = ge - gs + 1;
         gf.glyphs = glyphs + gs;
         gf.fontEngine = fe;
-        gf.chars = eng->string.unicode() + si.position;
-        gf.num_chars = eng->length(item);
+        gf.chars = eng->string.unicode() + start;
+        gf.num_chars = end - start;
         int textFlags = 0;
         if (f.d->underline) textFlags |= Qt::TextUnderline;
         if (f.d->overline) textFlags |= Qt::TextOverline;
@@ -1235,31 +1235,43 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
                 ++ul;
         do {
             int gtmp = ge;
-            if (ul && *ul != -1 && *ul < end)
+            int stmp = end;
+            if (ul && *ul != -1 && *ul < end) {
+                stmp = *ul;
                 gtmp = logClusters[*ul-si.position];
+            }
 
             gf.num_glyphs = gtmp - gs;
             gf.glyphs = glyphs + gs;
+            gf.num_chars = stmp - start;
+            gf.chars = eng->string.unicode() + start;
             Q26Dot6 w;
             while (gs < gtmp) {
                 w += glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
                 ++gs;
             }
+            start = stmp;
             gf.width = w.toInt();
-            p->drawTextItem(QPoint(x.toInt(), y.toInt()), gf, textFlags);
+            if (gf.num_chars)
+                p->drawTextItem(QPoint(x.toInt(), y.toInt()), gf, textFlags);
             x += w;
             if (ul && *ul != -1 && *ul < end) {
                 // draw underline
                 gtmp = (*ul == end-1) ? ge : logClusters[*ul+1-si.position];
+                ++stmp;
                 gf.num_glyphs = gtmp - gs;
                 gf.glyphs = glyphs + gs;
+                gf.num_chars = stmp - start;
+                gf.chars = eng->string.unicode() + start;
                 w = 0;
                 while (gs < gtmp) {
                     w += glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
                     ++gs;
                 }
+                ++start;
                 gf.width = w.toInt();
                 p->drawTextItem(QPoint(x.toInt(), y.toInt()), gf, (textFlags ^ Qt::TextUnderline));
+                ++gf.chars;
                 x += w;
                 ++ul;
             }
