@@ -673,7 +673,7 @@ void MessageEditor::showMessage( const QString& text,
 	while ( it != cl.end() ) {
 	    QString def;
 	    if ( n < 9 )
-		def = tr( "Guess (Ctrl+%1)" ).arg( n + 1 );
+		def = tr( "Guess (%1)" ).arg( QString(QKeySequence(CTRL | (Key_0 + (n + 1)))) );
 	    else
 		def = tr( "Guess" );
 	    (void) new PhraseLVI( phraseLv,
