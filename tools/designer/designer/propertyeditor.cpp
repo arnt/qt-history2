@@ -1503,11 +1503,15 @@ void PropertyDatabaseItem::initChildren()
     for ( int i = 0; i < childCount(); ++i ) {
 	item = PropertyItem::child( i );
 	if ( item->name() == tr( "Table" ) ) {
+	    // ##### insert all tables here
 	    if ( lst.count() > 0 )
 		item->setValue( QVariant( QStringList( lst[ 0 ] ) ) );
+	    item->setCurrentItem( 0 );
 	} else if ( item->name() == tr( "Field" ) ) {
+	    // ##### insert all fields here
 	    if ( lst.count() > 1 )
 		item->setValue( QVariant( QStringList( lst[ 1 ] ) ) );
+	    item->setCurrentItem( 0 );
 	}
     }
 }
@@ -1554,11 +1558,14 @@ bool PropertyDatabaseItem::hasSubItems() const
     return TRUE;
 }
 
-void PropertyDatabaseItem::childValueChanged( PropertyItem * )
+void PropertyDatabaseItem::childValueChanged( PropertyItem *c )
 {
     QStringList lst;
     lst << ( (PropertyListItem*)PropertyItem::child( 0 ) )->currentItem() << ( (PropertyListItem*)PropertyItem::child( 1 ) )->currentItem();
     setValue( lst );
+    if ( c == PropertyItem::child( 0 ) ) { // if the table changed
+	// ### updates fields combo and make first or so the current one
+    }
     notifyValueChange();
 }
 
@@ -2133,7 +2140,7 @@ void PropertyList::setupProperties()
 	    item->setChanged( TRUE, FALSE );
     }
 
-    if ( editor->formWindow()->mainContainer() != w && 
+    if ( editor->formWindow()->mainContainer() != w &&
 	 ( editor->formWindow()->mainContainer()->inherits( "QDesignerSqlWidget" ) ||
 	   editor->formWindow()->mainContainer()->inherits( "QDesignerSqlDialog" ) ) ) {
 	item = new PropertyDatabaseItem( this, item, 0, "database" );
@@ -2141,7 +2148,7 @@ void PropertyList::setupProperties()
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
 	    item->setChanged( TRUE, FALSE );
     }
-    
+
     if ( w->inherits( "CustomWidget" ) ) {
 	MetaDataBase::CustomWidget *cw = ( (CustomWidget*)w )->customWidget();
 	if ( cw ) {
@@ -2167,7 +2174,7 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 {
     switch ( t ) {
     case QVariant::String:
-	item = new PropertyTextItem( this, item, 0, name, TRUE, 
+	item = new PropertyTextItem( this, item, 0, name, TRUE,
 				     editor->widget()->inherits( "QLabel" ) || editor->widget()->inherits( "QTextView" ) );
 	break;
     case QVariant::CString:
