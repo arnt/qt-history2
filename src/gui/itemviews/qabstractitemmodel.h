@@ -93,7 +93,6 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
 template<typename T> class QList;
 typedef QList<QModelIndex> QModelIndexList;
 
-class QVariant;
 class QMimeData;
 class QAbstractItemModelPrivate;
 template <class Key, class T> class QMap;
@@ -282,7 +281,7 @@ public:
     ~QAbstractListModel();
 
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
-    
+
 protected:
     QAbstractListModel(QAbstractItemModelPrivate &dd, QObject *parent);
 
