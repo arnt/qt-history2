@@ -29,6 +29,8 @@ public:
     explicit QListWidgetItem(const QString &text, QListWidget *view = 0);
     virtual ~QListWidgetItem();
 
+    virtual QListWidgetItem *clone() const;
+
     inline QListWidget *listWidget() const { return view; }
 
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
@@ -88,8 +90,11 @@ public:
     virtual void setData(int role, const QVariant &value);
 
     virtual bool operator<(const QListWidgetItem &other) const;
-    virtual QDataStream &operator<<(QDataStream &stream) const;
-    virtual QDataStream &operator>>(QDataStream &stream);
+
+#ifndef QT_NO_DATASTREAM
+    virtual void read(QDataStream &stream);
+    virtual void write (QDataStream &stream) const;
+#endif
 
 private:
     struct Data {
@@ -104,6 +109,13 @@ private:
     QListModel *model;
     QAbstractItemModel::ItemFlags itemFlags;
 };
+
+#ifndef QT_NO_DATASTREAM
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, QListWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QListWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QListWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, const QListWidgetItem &item);
+#endif
 
 class QListWidgetPrivate;
 

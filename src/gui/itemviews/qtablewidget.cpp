@@ -791,6 +791,16 @@ QTableWidgetItem::~QTableWidgetItem()
 }
 
 /*!
+  Creates an exact copy of the item.
+*/
+QTableWidgetItem *QTableWidgetItem::clone() const
+{
+    QTableWidgetItem *item = new QTableWidgetItem();
+    *item = *this;
+    return item;
+}
+
+/*!
     Sets the item's data for the given \a role to the specified \a value.
 */
 void QTableWidgetItem::setData(int role, const QVariant &value)
@@ -828,23 +838,12 @@ bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
     return text() < other.text();
 }
 
-/*!
-  Writes the item to the \a stream.
-*/
-QDataStream &QTableWidgetItem::operator<<(QDataStream &stream) const
-{
-    stream << values.count();
-    for (int i = 0; i < values.count(); ++i) {
-        stream << values.at(i).role;
-        stream << values.at(i).value;
-    }
-    return stream;
-}
+#ifndef QT_NO_DATASTREAM
 
 /*!
   Reads the item from the \a stream.
 */
-QDataStream &QTableWidgetItem::operator>>(QDataStream &stream)
+void QTableWidgetItem::read(QDataStream &stream)
 {
     int count;
     int role;
@@ -855,18 +854,45 @@ QDataStream &QTableWidgetItem::operator>>(QDataStream &stream)
         stream >> value;
         values.append(Data(role, value));
     }
-    return stream;
 }
 
 /*!
-  Creates an exact copy of the item.
+  Writes the item to the \a stream.
 */
-QTableWidgetItem *QTableWidgetItem::clone() const
+void QTableWidgetItem::write(QDataStream &stream) const
 {
-    QTableWidgetItem *item = new QTableWidgetItem();
-    *item = *this;
-    return item;
+    stream << values.count();
+    for (int i = 0; i < values.count(); ++i) {
+        stream << values.at(i).role;
+        stream << values.at(i).value;
+    }
 }
+
+QDataStream &operator<<(QDataStream &stream, QTableWidgetItem &item)
+{
+    item.read(stream);
+    return stream;
+}
+
+QDataStream &operator<<(QDataStream &stream, const QTableWidgetItem &item)
+{
+    item.write(stream);
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, QTableWidgetItem &item)
+{
+    item.read(stream);
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, const QTableWidgetItem &item)
+{
+    item.write(stream);
+    return stream;
+}
+
+#endif // QT_NO_DATASTREAM
 
 /*!
     \class QTableWidget

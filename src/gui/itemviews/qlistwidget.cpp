@@ -354,6 +354,16 @@ QListWidgetItem::~QListWidgetItem()
 }
 
 /*!
+  Creates an exact copy of the item.
+*/
+QListWidgetItem *QListWidgetItem::clone() const
+{
+    QListWidgetItem * item = new QListWidgetItem();
+    *item = *this;
+    return item;
+}
+
+/*!
   This function sets the data for a given \a role to the given \a value (see
   \l{QAbstractItemModel::Role}). Reimplement this function if you need
   extra roles or special behavior for certain roles.
@@ -395,23 +405,12 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
     return text() < other.text();
 }
 
-/*!
-  Writes the item to the \a stream.
-*/
-QDataStream &QListWidgetItem::operator<<(QDataStream &stream) const
-{
-    stream << values.count();
-    for (int i = 0; i < values.count(); ++i) {
-        stream << values.at(i).role;
-        stream << values.at(i).value;
-    }
-    return stream;
-}
+#ifndef QT_NO_DATASTREAM
 
 /*!
   Reads the item from the \a stream.
 */
-QDataStream &QListWidgetItem::operator>>(QDataStream &stream)
+void QListWidgetItem::read(QDataStream &stream)
 {
     int count;
     int role;
@@ -422,8 +421,45 @@ QDataStream &QListWidgetItem::operator>>(QDataStream &stream)
         stream >> value;
         values.append(Data(role, value));
     }
+}
+
+/*!
+  Writes the item to the \a stream.
+*/
+void QListWidgetItem::write(QDataStream &stream) const
+{
+    stream << values.count();
+    for (int i = 0; i < values.count(); ++i) {
+        stream << values.at(i).role;
+        stream << values.at(i).value;
+    }
+}
+
+QDataStream &operator<<(QDataStream &stream, QListWidgetItem &item)
+{
+    item.read(stream);
     return stream;
 }
+
+QDataStream &operator<<(QDataStream &stream, const QListWidgetItem &item)
+{
+    item.write(stream);
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, QListWidgetItem &item)
+{
+    item.read(stream);
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, const QListWidgetItem &item)
+{
+    item.write(stream);
+    return stream;
+}
+
+#endif // QT_NO_DATASTREAM
 
 /*!
   \fn QAbstractItemModel::ItemFlags QListWidgetItem::flags() const

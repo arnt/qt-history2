@@ -1080,6 +1080,17 @@ QTreeWidgetItem::~QTreeWidgetItem()
 }
 
 /*!
+  Creates an exact copy of the item.
+*/
+
+QTreeWidgetItem *QTreeWidgetItem::clone() const
+{
+    QTreeWidgetItem *item = new QTreeWidgetItem();
+    *item = *this;
+    return item;
+}
+
+/*!
     Sets the value for the item's \a column and \a role to the given
     \a value.
 */
@@ -1137,27 +1148,12 @@ bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
     return text(column) < other.text(column);
 }
 
-/*!
-  Writes the item to the \a stream.
-*/
-QDataStream &QTreeWidgetItem::operator<<(QDataStream &stream) const
-{
-    stream << values.count(); // column count
-    for (int i = 0; i < values.count(); ++i) {
-        QVector<Data> column = values.at(i);
-        stream << column.count(); // number of values in the column
-        for (int j = 0; j < column.count(); ++j) {
-            stream << column.at(j).role;
-            stream << column.at(j).value;
-        }
-    }
-    return stream;
-}
+#ifndef QT_NO_DATASTREAM
 
 /*!
   Reads the item from the \a stream.
 */
-QDataStream &QTreeWidgetItem::operator>>(QDataStream &stream)
+void QTreeWidgetItem::read(QDataStream &stream)
 {
     int columnCount;
     int valueCount;
@@ -1173,8 +1169,25 @@ QDataStream &QTreeWidgetItem::operator>>(QDataStream &stream)
             values[i].append(Data(role, value));
         }
     }
-    return stream;
 }
+
+/*!
+  Writes the item to the \a stream.
+*/
+void QTreeWidgetItem::write(QDataStream &stream) const
+{
+    stream << values.count(); // column count
+    for (int i = 0; i < values.count(); ++i) {
+        QVector<Data> column = values.at(i);
+        stream << column.count(); // number of values in the column
+        for (int j = 0; j < column.count(); ++j) {
+            stream << column.at(j).role;
+            stream << column.at(j).value;
+        }
+    }
+}
+
+#endif // QT_NO_DATASTREAM
 
 /*!
   Appends the \a child item to the list of children.
@@ -1251,6 +1264,34 @@ QVariant QTreeWidgetItem::childrenCheckState(int column) const
         return Qt::Unchecked;
     return Qt::PartiallyChecked;
 }
+
+#ifndef QT_NO_DATASTREAM
+
+QDataStream &operator<<(QDataStream &stream, QTreeWidgetItem &item)
+{
+    item.read(stream);
+    return stream;
+}
+
+QDataStream &operator<<(QDataStream &stream, const QTreeWidgetItem &item)
+{
+    item.write(stream);
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, QTreeWidgetItem &item)
+{
+    item.read(stream);
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, const QTreeWidgetItem &item)
+{
+    item.write(stream);
+    return stream;
+}
+
+#endif // QT_NO_DATASTREAM
 
 #define d d_func()
 #define q q_func()

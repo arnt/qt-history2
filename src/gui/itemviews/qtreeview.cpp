@@ -1454,20 +1454,20 @@ void QTreeViewPrivate::updateVerticalScrollbar()
     }
 
     // set page step size
+    int verticalScrollBarValue = q->verticalScrollBar()->value();
+    int topItemInViewport = itemAt(verticalScrollBarValue);
     int itemsInViewport = 0;
     if (uniformRowHeights) {
-        q->verticalScrollBar()->setPageStep((viewHeight / itemHeight)
-                                            * verticalStepsPerItem);
+        itemsInViewport = viewHeight / itemHeight;
     } else {
-        int v = q->verticalScrollBar()->value();
-        int i = itemAt(v);
-        int s = height(i);
-        int y = topItemDelta(v, s);
-        int j = i;
+        int h = height(topItemInViewport);
+        int y = topItemDelta(verticalScrollBarValue, h);
+        int i = topItemInViewport;
         for (; y < viewHeight && i < itemCount; ++i)
             y += height(i);
-        q->verticalScrollBar()->setPageStep((i - j) * verticalStepsPerItem);
+        itemsInViewport = i - topItemInViewport;
     }
+    q->verticalScrollBar()->setPageStep(itemsInViewport * verticalStepsPerItem);
 
     // set the scroller range
     int y = viewHeight;

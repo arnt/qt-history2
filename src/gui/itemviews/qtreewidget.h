@@ -31,6 +31,8 @@ public:
     QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after);
     virtual ~QTreeWidgetItem();
 
+    virtual QTreeWidgetItem *clone() const;
+
     inline QTreeWidget *treeWidget() const { return view; }
 
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
@@ -90,8 +92,11 @@ public:
     virtual void setData(int column, int role, const QVariant &value);
 
     virtual bool operator<(const QTreeWidgetItem &other) const;
-    virtual QDataStream &operator<<(QDataStream &stream) const;
-    virtual QDataStream &operator>>(QDataStream &stream);
+
+#ifndef QT_NO_DATASTREAM
+    virtual void read(QDataStream &stream);
+    virtual void write(QDataStream &stream) const;
+#endif
 
     inline QTreeWidgetItem *parent() const { return par; }
     inline QTreeWidgetItem *child(int index) const
@@ -124,6 +129,13 @@ private:
     QList<QTreeWidgetItem*> children;
     QAbstractItemModel::ItemFlags itemFlags;
 };
+
+#ifndef QT_NO_DATASTREAM
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, QTreeWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QTreeWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTreeWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, const QTreeWidgetItem &item);
+#endif
 
 class QTreeWidgetPrivate;
 

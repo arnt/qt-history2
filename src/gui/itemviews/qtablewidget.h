@@ -45,6 +45,8 @@ public:
     explicit QTableWidgetItem(const QString &text);
     virtual ~QTableWidgetItem();
 
+    virtual QTableWidgetItem *clone() const;
+
     inline QTableWidget *tableWidget() const { return view; }
 
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
@@ -104,9 +106,11 @@ public:
     virtual void setData(int role, const QVariant &value);
 
     virtual bool operator<(const QTableWidgetItem &other) const;
-    virtual QDataStream &operator<<(QDataStream &stream) const;
-    virtual QDataStream &operator>>(QDataStream &stream);
-    virtual QTableWidgetItem *clone() const;
+
+#ifndef QT_NO_DATASTREAM
+    virtual void read(QDataStream &stream);
+    virtual void write(QDataStream &stream) const;
+#endif
 
 private:
     struct Data {
@@ -121,6 +125,13 @@ private:
     QTableModel *model;
     QAbstractItemModel::ItemFlags itemFlags;
 };
+
+#ifndef QT_NO_DATASTREAM
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, QTableWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QTableWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTableWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, const QTableWidgetItem &item);
+#endif
 
 class QTableWidgetPrivate;
 
