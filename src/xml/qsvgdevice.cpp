@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#20 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#21 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -961,14 +961,24 @@ void QSVGDevice::applyTransform( QDomElement *e ) const
     QWMatrix m = pt->worldMatrix();
 
     QString s;
-    // ### catch pure translation and scaling
-    s = QString( "matrix(%1 %2 %3 %4 %5 %6)" )
-	.arg( m.m11() ).arg( m.m12() )
-	.arg( m.m21() ).arg( m.m22() )
-	.arg( m.dx() ).arg( m.dy() );
+    bool rot = ( m.m11() != 1.0 || m.m12() != 0.0 ||
+		 m.m21() != 0.0 && m.m22() != 1.0 );
+    if ( !rot && ( m.dx() != 0.0 || m.dy() != 0.0 ) )
+	s = QString( "translate(%1 %2)" ).arg( m.dx() ).arg( m.dy() );
+    else if ( rot ) {
+	if ( m.m12() == 0.0 && m.m21() == 0.0 &&
+	     m.dx() == 0.0 && m.dy() == 0 )
+	    s = QString( "scale(%1 %2)" ).arg( m.m11() ).arg( m.m22() );
+	else
+	    s = QString( "matrix(%1 %2 %3 %4 %5 %6)" )
+		.arg( m.m11() ).arg( m.m12() )
+		.arg( m.m21() ).arg( m.m22() )
+		.arg( m.dx() ).arg( m.dy() );
+    }
+    else
+	return;
 
-    if ( !s.isEmpty() )
-	e->setAttribute( "transform", s );
+    e->setAttribute( "transform", s );
 }
 
 #endif // QT_NO_SVG
