@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#149 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#150 $
 **
 ** Implementation of QMenuBar class
 **
@@ -327,7 +327,9 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	     (((QKeyEvent *)event)->key() == Key_Alt ||
 	      ((QKeyEvent *)event)->key() == Key_Meta) ) {
 	    actItem = 0;
+	    setUpdatesEnabled( FALSE );
 	    setFocus();
+	    setUpdatesEnabled( TRUE );
 	    if ( object->parent() )
 		object->removeEventFilter( this );
 	    QWidget * tlw = ((QWidget *)object)->topLevelWidget();
@@ -1086,16 +1088,22 @@ void QMenuBar::setWindowsAltMode( bool enable, int index )
     if ( enable ) {
 	if ( !windowsaltactive ) {
 	    windowsaltactive = 1;
-	    if ( style() == WindowsStyle )
+	    if ( style() == WindowsStyle ) {
+		setUpdatesEnabled( FALSE );
 		setFocus();
+		setUpdatesEnabled( TRUE );
+	    }
 	}
 	if ( index == actItem ) // work around setActItem overoptimization
 	    actItem = -1;
 	setActItem( index, FALSE );
     } else {
 	if ( windowsaltactive ) {
-	    if ( style() == WindowsStyle && focusWidget() )
+	    if ( style() == WindowsStyle && focusWidget() ) {
+		setUpdatesEnabled( FALSE );
 		focusWidget()->setFocus();
+		setUpdatesEnabled( TRUE );
+	    }
 	    windowsaltactive = 0;
 	}
 	if ( index == actItem ) // work around setActItem overoptimization
