@@ -140,14 +140,13 @@ MakefileGenerator::initOutPaths()
         if(dirs[x].isNull())
             break;
         if(!v[dirs[x]].isEmpty()) {
-            QString orig_path = v[dirs[x]].first();
+            const QString orig_path = v[dirs[x]].first();
 #ifdef Q_WS_WIN
             // We don't want to add a separator for DLLDESTDIR on Windows
             if(!(dirs[x] == "DLLDESTDIR"))
 #endif
             {
                 QString &path = v[dirs[x]].first();
-                QString op = path;
                 path = fileFixify(path, Option::output_dir, Option::output_dir);
                 if(path.right(Option::dir_sep.length()) != Option::dir_sep)
                     path += Option::dir_sep;
@@ -157,8 +156,8 @@ MakefileGenerator::initOutPaths()
 
             QString path = project->first(dirs[x]); //not to be changed any further
             path = Option::fixPathToLocalOS(fileFixify(path, currentDir, Option::output_dir));
-            debug_msg(3, "Fixed output_dir %s (%s) into %s (%s)", dirs[x].toLatin1().constData(), orig_path.toLatin1().constData(),
-                      v[dirs[x]].join("::").toLatin1().constData(), path.toLatin1().constData());
+            debug_msg(3, "Fixed output_dir %s (%s) into %s", dirs[x].toLatin1().constData(), 
+                      orig_path.toLatin1().constData(), path.toLatin1().constData());
             if(!createDir(path))
                 warn_msg(WarnLogic, "%s: Cannot access directory '%s'", dirs[x].toLatin1().constData(), path.toLatin1().constData());
         }
@@ -2217,8 +2216,10 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
         }
         QFileInfo qfileinfo(qfile);
         if(out_dir != in_dir || !qfileinfo.isRelative()) {
-            if(qfileinfo.isRelative()) 
-                qfileinfo.setFile(in_dir + "/" + qfile);
+            if(qfileinfo.isRelative()) {
+                ret = in_dir + "/" + qfile;
+                qfileinfo.setFile(ret);
+            }
             ret = Option::fixPathToTargetOS(ret, false, canon);
             if(canon && qfileinfo.exists() && 
                file == Option::fixPathToTargetOS(ret, true, canon))
