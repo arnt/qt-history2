@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#4 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#5 $
 **
 ** Definition of QBitMap class
 **
 ** Author  : Haavard Nord
 ** Created : 941020
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,8 +18,6 @@
 
 class QBitMap : public QPixMap			// bitmap class
 {
-friend class QBrush;
-friend class QCursor;
 public:
     QBitMap( int w, int h ) : QPixMap(w,h,1) {}
     QBitMap( int w, int h, const char *data ) : QPixMap(w,h,data) {}
