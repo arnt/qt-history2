@@ -314,7 +314,7 @@ ThirdPage::ThirdPage(ClassWizard *wizard)
     QString className = wizard->firstPage->classNameLineEdit->text();
     headerLineEdit->setText(className.toLower() + ".h");
     implementationLineEdit->setText(className.toLower() + ".cpp");
-    outputDirLineEdit->setText(QDir::homePath());
+    outputDirLineEdit->setText(QDir::convertSeparators(QDir::homePath()));
 
     QGridLayout *layout = new QGridLayout(this);
     layout->addWidget(topLabel, 0, 0, 1, 2);
