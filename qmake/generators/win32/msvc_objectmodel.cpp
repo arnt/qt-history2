@@ -1781,8 +1781,8 @@ void VCFilter::addFile(const VCFilterFile& fileInfo)
 
 void VCFilter::addFiles(const QStringList& fileList)
 {
-    Q_FOREACH(QString aFile, fileList)
-        addFile(aFile);
+    for (int i = 0; i < fileList.count(); ++i)
+        addFile(fileList.at(i));
 }
 
 void VCFilter::addMOCstage(const VCFilterFile &file, bool hdr)
