@@ -41,10 +41,10 @@
 #define GSUB_ID  Build_Extension_ID( 'G', 'S', 'U', 'B' )
 
 
-#define ADD_String( in, num_in, out, num_out, glyph_data, component, ligID ) \
+#define ADD_String( in, num_in, out, num_out, glyph_data, component ) \
           ( ( error = TT_GSUB_Add_String( (in), (num_in),                    \
                                           (out), (num_out),                  \
-                                          (glyph_data), (component), (ligID) \
+                                          (glyph_data), (component) \
                                         ) ) != TT_Err_Ok )
 
 
@@ -90,8 +90,7 @@
                                 TTO_GSUB_String*  out,
                                 FT_UShort         num_out,
                                 FT_UShort*        glyph_data,
-                                FT_UShort         component,
-                                FT_UShort         ligID )
+                                FT_UShort         component)
   {
 
     /* sanity check */
@@ -104,24 +103,17 @@
     {
       int n = num_out;
       FT_UShort *dest_glyph = out->string + out->pos;
-      FT_UShort *dest_comp = out->components + out->pos;
-      FT_UShort *dest_lig = out->ligIDs + out->pos;
-      FT_Int *dest_log = out->logClusters + out->pos;
-      FT_Int src_log = in->logClusters[in->pos];
-      FT_UShort p_in = in->properties[in->pos];
-      FT_UShort *p_out = out->properties + out->pos;
+      TTO_Glyph_property *dest_prop = out->glyph_properties + out->pos;
+      FT_Int *dest_ci = out->character_index + out->pos;
+      FT_Int src_ci = in->character_index[in->pos];
 
       if ( component == 0xFFFF )
-        component = in->components[in->pos];
-      if ( ligID == 0xFFFF )
-        ligID = in->ligIDs[in->pos];
+        component = in->glyph_properties[in->pos].component;
 
       while ( n-- ) {
 	  *(dest_glyph++) = *(glyph_data++);
-	  *(dest_comp++) = component;
-	  *(dest_lig++) = ligID;
-	  *(dest_log++) = src_log;
-          *(p_out++) = p_in;
+	  (dest_prop++)->component = component;
+	  *(dest_ci++) = src_ci;
       }
 
       out->pos += num_out;
@@ -140,8 +132,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
                                 FT_UShort         num_in,
                                 TTO_GSUB_String*  out,
                                 FT_UShort        glyph,
-                                FT_UShort         component,
-                                FT_UShort         ligID )
+                                FT_UShort         component)
 {
 
     /* sanity check */
@@ -151,10 +142,8 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 	TT_GSUB_String_Allocate( out, out->pos + 1 );
 
     out->string[out->pos] = glyph;
-    out->components[out->pos] = component;
-    out->ligIDs[out->pos] = ligID;
-    out->logClusters[out->pos] = in->logClusters[in->pos];
-    out->properties[out->pos] = in->properties[in->pos];
+    out->glyph_properties[out->pos].component = component;
+    out->character_index[out->pos] = in->character_index[in->pos];
     out->pos++;
     in->pos  += num_in;
     out->length = out->pos;
@@ -531,7 +520,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     case 1:
 	value = ( in->string[in->pos] + ss->ssf.ssf1.DeltaGlyphID ) & 0xFFFF;
 	glyph_copy( in, 1, out, value,
-		    in->components[in->pos], in->ligIDs[in->pos] );
+		    in->glyph_properties[in->pos].component);
       break;
 
     case 2:
@@ -539,7 +528,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
         return TTO_Err_Invalid_GSUB_SubTable;
       value = ss->ssf.ssf2.Substitute[index];
       glyph_copy( in, 1, out, value,
-		  in->components[in->pos], in->ligIDs[in->pos] );
+		  in->glyph_properties[in->pos].component);
       break;
 
     default:
@@ -737,7 +726,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     count = ms->Sequence[index].GlyphCount;
     s     = ms->Sequence[index].Substitute;
 
-    if ( ADD_String( in, 1, out, count, s, 0xFFFF, 0xFFFF ) )
+    if ( ADD_String( in, 1, out, count, s, 0xFFFF ) )
       return error;
 
     if ( gdef && gdef->NewGlyphClasses )
@@ -942,7 +931,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
       alt_index = 0;
 
     glyph_copy( in, 1, out, aset.Alternate[alt_index],
-		in->components[in->pos], in->ligIDs[in->pos] );
+		in->glyph_properties[in->pos].component);
 
     if ( gdef && gdef->NewGlyphClasses )
     {
@@ -1265,21 +1254,13 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 
         if ( i == j )
         {
-          /* We don't use a new ligature ID if there are no skipped
-             glyphs and the ligature already has an ID.             */
-	  FT_UShort l_id;
-
-	  if ( in->ligIDs[in->pos] )
-	      l_id = in->ligIDs[in->pos];
-	  else
-	      l_id = (in->max_ligID)++;
 	  glyph_copy( in, i, out, lig->LigGlyph,
-		      in->components[in->pos], l_id );
+		      in->glyph_properties[in->pos].component );
         }
         else
         {
 	  glyph_copy( in, 1, out, lig->LigGlyph,
-		      in->components[in->pos], in->max_ligID );
+		      in->glyph_properties[in->pos].component);
 
           /* Now we must do a second loop to copy the skipped glyphs to
              `out' and assign component values to it.  We start with the
@@ -1292,12 +1273,9 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
           {
             while ( CHECK_Property( gdef, in->string[in->pos],
                                     flags, &property ) )
-		glyph_copy( in, 1, out, in->string[in->pos],
-			    i, in->max_ligID );
+		glyph_copy( in, 1, out, in->string[in->pos], i);
             (in->pos)++;
           }
-
-          (in->max_ligID)++;
         }
 
         return TT_Err_Ok;
@@ -1346,7 +1324,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
           /* XXX "can't happen" -- but don't count on it */
 
 	  glyph_copy( in, 1, out, in->string[in->pos],
-		      in->components[in->pos], in->ligIDs[in->pos] );
+		      in->glyph_properties[in->pos].component);
           i++;
         }
         else if ( error )
@@ -1357,7 +1335,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
         /* No substitution for this index */
 
 	  glyph_copy( in, 1, out, in->string[in->pos],
-		      in->components[in->pos], in->ligIDs[in->pos] );
+		      in->glyph_properties[in->pos].component);
           return error;
         i++;
       }
@@ -4252,23 +4230,20 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
   /* apply one lookup to the input string object */
 
   static FT_Error  GSub_Do_String_Lookup( TTO_GSUBHeader*   gsub,
-                                     FT_UShort         lookup_index,
-                                     TTO_GSUB_String*  in,
-                                     TTO_GSUB_String*  out )
+					  FT_UShort         lookup_index,
+					  unsigned char *where_to_apply,
+					  TTO_GSUB_String*  in,
+					  TTO_GSUB_String*  out )
   {
     FT_Error  error = TTO_Err_Not_Covered;
 
-    FT_UShort*  properties = gsub->LookupList.Properties;
-    FT_UShort*  p_in       = in->properties;
     FT_UShort*  s_in       = in->string;
 
     const int nesting_level = 0;
-    const int prop = properties[lookup_index];
-
 
     while ( in->pos < in->length )
     {
-      if ( ~p_in[in->pos] & prop )
+      if ( where_to_apply[in->pos] )
       {
         /* 0xFFFF indicates that we don't have a context length yet */
         error = GSub_Do_Glyph_Lookup( gsub, lookup_index, in, out,
@@ -4279,60 +4254,12 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 
       if ( error == TTO_Err_Not_Covered )
 	  glyph_copy( in, 1, out, s_in[in->pos],
-		      in->components[in->pos], in->ligIDs[in->pos] );
+		      in->glyph_properties[in->pos].component);
       else if ( error )
 	  return error;
     }
 
     return error;
-  }
-
-
-  EXPORT_FUNC
-  FT_Error  TT_GSUB_Add_Feature( TTO_GSUBHeader*  gsub,
-                                 FT_UShort        feature_index,
-                                 FT_UShort        property )
-  {
-    FT_UShort    i;
-
-    TTO_Feature  feature;
-    FT_UShort*   properties;
-    FT_UShort*   index;
-
-
-    if ( !gsub ||
-         feature_index >= gsub->FeatureList.FeatureCount )
-      return TT_Err_Invalid_Argument;
-
-    properties = gsub->LookupList.Properties;
-
-    feature = gsub->FeatureList.FeatureRecord[feature_index].Feature;
-    index   = feature.LookupListIndex;
-
-    for ( i = 0; i < feature.LookupListCount; i++ )
-      properties[index[i]] |= property;
-
-    return TT_Err_Ok;
-  }
-
-
-  EXPORT_FUNC
-  FT_Error  TT_GSUB_Clear_Features( TTO_GSUBHeader*  gsub )
-  {
-    FT_UShort i;
-
-    FT_UShort*  properties;
-
-
-    if ( !gsub )
-      return TT_Err_Invalid_Argument;
-
-    properties = gsub->LookupList.Properties;
-
-    for ( i = 0; i < gsub->LookupList.LookupCount; i++ )
-      properties[i] = 0;
-
-    return TT_Err_Ok;
   }
 
 
@@ -4352,30 +4279,16 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 
 
   EXPORT_FUNC
-  FT_Error  TT_GSUB_String_New( FT_Memory           memory,
-				TTO_GSUB_String   **result )
+  FT_Error  TT_GSUB_String_New( TTO_GSUB_String   **str )
   {
-    FT_Error error;
+    *str = (TTO_GSUB_String *) malloc( sizeof(TTO_GSUB_String) );
 
-    TTO_GSUB_String *str;
-
-    if ( ALLOC( str, sizeof( *str ) ) )
-      return error;
-
-    str->memory = memory;
-
-    str->length = 0;
-    str->allocated = 0;
-    str->pos = 0;
-    str->string = NULL;
-    str->properties = NULL;
-    str->components = NULL;
-    str->max_ligID = 0;
-    str->ligIDs = 0;
-    str->logClusters = 0;
-
-    *result = str;
-
+    (*str)->length = 0;
+    (*str)->allocated = 0;
+    (*str)->pos = 0;
+    (*str)->string = NULL;
+    (*str)->glyph_properties = NULL;
+    (*str)->character_index = NULL;
     return TT_Err_Ok;
   }
 
@@ -4394,24 +4307,15 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
   FT_Error  TT_GSUB_String_Allocate( TTO_GSUB_String *str,
 				     FT_ULong         alloc)
   {
-    FT_Memory memory = str->memory;
-    FT_Error error;
-
     if ( alloc > str->allocated )
     {
 	alloc = (alloc + (1<<5)) >> 5 << 5;
-      if ( REALLOC_ARRAY( str->string, str->allocated, alloc, FT_UShort ) )
-        return error;
-      if ( REALLOC_ARRAY( str->properties, str->allocated, alloc, FT_UShort ) )
-        return error;
-      if ( REALLOC_ARRAY( str->components, str->allocated, alloc, FT_UShort ) )
-        return error;
-      if ( REALLOC_ARRAY( str->ligIDs, str->allocated, alloc, FT_UShort ) )
-        return error;
-      if ( REALLOC_ARRAY( str->logClusters, str->allocated, alloc, FT_Int ) )
-        return error;
+	str->string = (FT_UShort *) realloc(str->string, alloc*sizeof(FT_UShort));
+	str->glyph_properties = (TTO_Glyph_property *)
+				realloc(str->glyph_properties, alloc*sizeof(TTO_Glyph_property));
+	str->character_index = (FT_Int *) realloc(str->character_index, alloc*sizeof(FT_Int));
 
-      str->allocated = alloc;
+	str->allocated = alloc;
     }
 
     return TT_Err_Ok;
@@ -4420,76 +4324,70 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 EXPORT_FUNC
   FT_Error  TT_GSUB_String_Done( TTO_GSUB_String   *str )
   {
-    FT_Memory memory = str->memory;
+    free( str->string );
+    free( str->glyph_properties );
+    free( str->character_index );
 
-    FREE( str->string );
-    FREE( str->properties );
-    FREE( str->components );
-    FREE( str->ligIDs );
-    FREE( str->logClusters );
-
-    FREE( str );
+    free( str );
 
     return TT_Err_Ok;
   }
 
   EXPORT_FUNC
-  FT_Error  TT_GSUB_Apply_String( TTO_GSUBHeader*   gsub,
-                                  TTO_GSUB_String*  in,
-                                  TTO_GSUB_String** out,
-				  TTO_GSUB_String** tmp )
+  FT_Error  TT_GSUB_Apply_Feature( TTO_GSUBHeader*   gsub,
+				   FT_UShort feature_index,
+				   unsigned char *where_to_apply,
+				   TTO_GSUB_String**  str,
+				   TTO_GSUB_String** tmp )
   {
     FT_Error          error = TTO_Err_Not_Covered;
     FT_UShort         j;
 
     TTO_GSUB_String*  t;
-    TTO_GSUB_String *ptmp1 = *tmp;
-    TTO_GSUB_String *ptmp2 = *out;
+    TTO_GSUB_String *tmp1 = *str;
+    TTO_GSUB_String *tmp2 = *tmp;
 
-    FT_UShort*        properties = gsub->LookupList.Properties;
+    TTO_Feature  feature;
+    FT_UShort*   index;
 
-    if ( !gsub ||
-         !in || !out || in->length == 0 || in->pos >= in->length )
+    if ( !gsub || tmp1->length == 0 || feature_index >= gsub->FeatureList.FeatureCount )
       return TT_Err_Invalid_Argument;
 
-    TT_GSUB_String_Allocate( ptmp1, 3*in->length+1 );
-    TT_GSUB_String_Allocate( ptmp2, 3*in->length+1 );
+    feature = gsub->FeatureList.FeatureRecord[feature_index].Feature;
+    index   = feature.LookupListIndex;
 
-    ptmp1->length    = in->length;
-    ptmp1->pos       = in->pos;
-    ptmp1->max_ligID = 1;
-    MEM_Copy( ptmp1->string, in->string, in->length * sizeof ( FT_UShort ) );
-    MEM_Copy( ptmp1->properties, in->properties,
-	      in->length * sizeof( FT_UShort ) );
-    MEM_Copy( ptmp1->logClusters, in->logClusters,
-	      in->length * sizeof( FT_Int ) );
+    TT_GSUB_String_Allocate( tmp1, 3*tmp1->length+1 );
+    TT_GSUB_String_Allocate( tmp2, 3*tmp1->length+1 );
 
-    for ( j = 0; j < gsub->LookupList.LookupCount; j++ )
-      if ( properties[j] )
-      {
-        error = GSub_Do_String_Lookup( gsub, j, ptmp1, ptmp2 );
+    tmp1->pos = 0;
+    tmp2->pos = 0;
+
+    //###### need to order lookups in the order they appear in the
+    //###### lookup list, not the order they appear in the
+    //###### featurelist.
+
+    for ( j = 0; j < feature.LookupListCount; j++ ) {
+        error = GSub_Do_String_Lookup( gsub, index[j], where_to_apply, tmp1, tmp2 );
         if ( error && error != TTO_Err_Not_Covered )
-          return error;
+	    return error;
 
         /* flipping `in' and `out', preparing the next loop */
 
-        ptmp1->pos       = in->pos;
-        ptmp2->length    = ptmp2->pos;
-        ptmp2->pos       = in->pos;
-        ptmp2->max_ligID = ptmp1->max_ligID;
+        tmp1->pos       = 0;
+        tmp2->length    = tmp2->pos;
+        tmp2->pos       = 0;
 
-        t     = ptmp2;
-        ptmp2 = ptmp1;
-        ptmp1 = t;
-      }
+        t     = tmp2;
+        tmp2 = tmp1;
+        tmp1 = t;
+    }
 
-    *out = ptmp1;
-    (*out)->pos = 0;
+    *str = tmp1;
+    (*str)->pos = 0;
 
-    *tmp = ptmp2;
+    *tmp = tmp2;
 
     return error;
   }
-
 
 /* END */

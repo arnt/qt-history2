@@ -1837,21 +1837,28 @@ QFontEngine::Type QFontEngineXft::type() const
 
 #ifndef QT_NO_XFTFREETYPE
 
-static inline void tag_to_string( char *string, FT_ULong tag )
+// #define OT_DEBUG
+
+#ifdef OT_DEBUG
+static inline char *tag_to_string( FT_ULong tag )
 {
+    static char string[5];
     string[0] = (tag >> 24)&0xff;
     string[1] = (tag >> 16)&0xff;
     string[2] = (tag >> 8)&0xff;
     string[3] = tag&0xff;
     string[4] = 0;
+    return string;
 }
+#endif
 
 #define DefaultLangSys 0xffff
 #define DefaultScript FT_MAKE_TAG( 'D', 'F', 'L', 'T' )
 
+#if 0
 struct Features {
     FT_ULong tag;
-    unsigned short bit;
+    unsigned short index;
 };
 
 // GPOS features are always applied. We only have to note the GSUB features that should not get
@@ -1898,6 +1905,7 @@ const Features syriacFeatures[] = {
 
 const Features indicFeatures[] = {
     // Language based forms
+    { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), CcmpFeature },
     { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), InitFeature },
     { FT_MAKE_TAG( 'n', 'u', 'k', 't' ), NuktaFeature },
     { FT_MAKE_TAG( 'a', 'k', 'h', 'n' ), AkhantFeature },
@@ -1921,126 +1929,118 @@ const Features tibetanFeatures[] = {
     { FT_MAKE_TAG( 'b', 'l', 'w', 's' ), BelowSubstFeature },
     { FT_MAKE_TAG( 'a', 'b', 'v', 's' ), AboveSubstFeature }
 };
+#endif
 
-
-struct SupportedScript {
-    FT_ULong tag;
-    const Features *features;
-    unsigned short required_bits;
-    unsigned short always_apply;
-};
-
-
-const SupportedScript supported_scripts [] = {
+static const unsigned int supported_scripts [] = {
 // 	// European Alphabetic Scripts
 // 	Latin,
-    { FT_MAKE_TAG( 'l', 'a', 't', 'n' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'l', 'a', 't', 'n' ),
 // 	Greek,
-    { FT_MAKE_TAG( 'g', 'r', 'e', 'k' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'g', 'r', 'e', 'k' ),
 // 	Cyrillic,
-    { FT_MAKE_TAG( 'c', 'y', 'r', 'l' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'c', 'y', 'r', 'l' ),
 // 	Armenian,
-        { FT_MAKE_TAG( 'a', 'r', 'm', 'n' ), standardFeatures, 0x0000, 0x8000 },
+        FT_MAKE_TAG( 'a', 'r', 'm', 'n' ),
 // 	Georgian,
-    { FT_MAKE_TAG( 'g', 'e', 'o', 'r' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'g', 'e', 'o', 'r' ),
 // 	Runic,
-    { FT_MAKE_TAG( 'r', 'u', 'n', 'r' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'r', 'u', 'n', 'r' ),
 // 	Ogham,
-    { FT_MAKE_TAG( 'o', 'g', 'a', 'm' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'o', 'g', 'a', 'm' ),
 // 	SpacingModifiers,
-    { FT_MAKE_TAG( 'D', 'F', 'L', 'T' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'D', 'F', 'L', 'T' ),
 // 	CombiningMarks,
-    { FT_MAKE_TAG( 'D', 'F', 'L', 'T' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'D', 'F', 'L', 'T' ),
 
 // 	// Middle Eastern Scripts
 // 	Hebrew,
-    { FT_MAKE_TAG( 'h', 'e', 'b', 'r' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'h', 'e', 'b', 'r' ),
 // 	Arabic,
-    { FT_MAKE_TAG( 'a', 'r', 'a', 'b' ), arabicFeatures, 0x400e, 0xc000 },
+    FT_MAKE_TAG( 'a', 'r', 'a', 'b' ),
 // 	Syriac,
-    { FT_MAKE_TAG( 's', 'y', 'r', 'c' ), syriacFeatures, 0x400e, 0xc000 },
+    FT_MAKE_TAG( 's', 'y', 'r', 'c' ),
 // 	Thaana,
-    { FT_MAKE_TAG( 't', 'h', 'a', 'a' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 't', 'h', 'a', 'a' ),
 
 // 	// South and Southeast Asian Scripts
 // 	Devanagari,
-    { FT_MAKE_TAG( 'd', 'e', 'v', 'a' ), indicFeatures, 0x1fbe, 0x8f00 },
+    FT_MAKE_TAG( 'd', 'e', 'v', 'a' ),
 // 	Bengali,
-    { FT_MAKE_TAG( 'b', 'e', 'n', 'g' ), indicFeatures, 0x1fff, 0x8f00 },
+    FT_MAKE_TAG( 'b', 'e', 'n', 'g' ),
 // 	Gurmukhi,
-    { FT_MAKE_TAG( 'g', 'u', 'r', 'u' ), indicFeatures, 0x1fd2, 0x8f00 },
+    FT_MAKE_TAG( 'g', 'u', 'r', 'u' ),
 // 	Gujarati,
-    { FT_MAKE_TAG( 'g', 'u', 'j', 'r' ), indicFeatures, 0x1fbe, 0x8f00 },
+    FT_MAKE_TAG( 'g', 'u', 'j', 'r' ),
 // 	Oriya,
-    { FT_MAKE_TAG( 'o', 'r', 'y', 'a' ), indicFeatures, 0x1ffe, 0x8f00 },
+    FT_MAKE_TAG( 'o', 'r', 'y', 'a' ),
 // 	Tamil,
-    { FT_MAKE_TAG( 't', 'a', 'm', 'l' ), indicFeatures, 0x1f24, 0x8f00 },
+    FT_MAKE_TAG( 't', 'a', 'm', 'l' ),
 // 	Telugu,
-    { FT_MAKE_TAG( 't', 'e', 'l', 'u' ), indicFeatures, 0x1e14, 0x8f00 },
+    FT_MAKE_TAG( 't', 'e', 'l', 'u' ),
 // 	Kannada,
-    { FT_MAKE_TAG( 'k', 'n', 'd', 'a' ), indicFeatures, 0x1e1c, 0x8f00 },
+    FT_MAKE_TAG( 'k', 'n', 'd', 'a' ),
 // 	Malayalam,
-    { FT_MAKE_TAG( 'm', 'l', 'y', 'm' ), indicFeatures, 0x1f7c, 0x8f00 },
+    FT_MAKE_TAG( 'm', 'l', 'y', 'm' ),
 // 	Sinhala,
     // ### could not find any OT specs on this
-    { FT_MAKE_TAG( 's', 'i', 'n', 'h' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 's', 'i', 'n', 'h' ),
 // 	Thai,
-    { FT_MAKE_TAG( 't', 'h', 'a', 'i' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 't', 'h', 'a', 'i' ),
 // 	Lao,
-    { FT_MAKE_TAG( 'l', 'a', 'o', ' ' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'l', 'a', 'o', ' ' ),
 // 	Tibetan,
-    { FT_MAKE_TAG( 't', 'i', 'b', 't' ), tibetanFeatures, AboveSubstFeature|BelowSubstFeature, 0x8000 },
+    FT_MAKE_TAG( 't', 'i', 'b', 't' ),
 // 	Myanmar,
-    { FT_MAKE_TAG( 'm', 'y', 'm', 'r' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'm', 'y', 'm', 'r' ),
 // 	Khmer,
-    { FT_MAKE_TAG( 'k', 'h', 'm', 'r' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'k', 'h', 'm', 'r' ),
 
 // 	// East Asian Scripts
 // 	Han,
-    { FT_MAKE_TAG( 'h', 'a', 'n', 'i' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'h', 'a', 'n', 'i' ),
 // 	Hiragana,
-    { FT_MAKE_TAG( 'k', 'a', 'n', 'a' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'k', 'a', 'n', 'a' ),
 // 	Katakana,
-    { FT_MAKE_TAG( 'k', 'a', 'n', 'a' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'k', 'a', 'n', 'a' ),
 // 	Hangul,
-    { FT_MAKE_TAG( 'h', 'a', 'n', 'g' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'h', 'a', 'n', 'g' ),
 // 	Bopomofo,
-    { FT_MAKE_TAG( 'b', 'o', 'p', 'o' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'b', 'o', 'p', 'o' ),
 // 	Yi,
-    { FT_MAKE_TAG( 'y', 'i', ' ', ' ' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'y', 'i', ' ', ' ' ),
 
 // 	// Additional Scripts
 // 	Ethiopic,
-    { FT_MAKE_TAG( 'e', 't', 'h', 'i' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'e', 't', 'h', 'i' ),
 // 	Cherokee,
-    { FT_MAKE_TAG( 'c', 'h', 'e', 'r' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'c', 'h', 'e', 'r' ),
 // 	CanadianAboriginal,
-    { FT_MAKE_TAG( 'c', 'a', 'n', 's' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'c', 'a', 'n', 's' ),
 // 	Mongolian,
-    { FT_MAKE_TAG( 'm', 'o', 'n', 'g' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'm', 'o', 'n', 'g' ),
 
 // 	// Symbols
 // 	CurrencySymbols,
-    { FT_MAKE_TAG( 'D', 'F', 'L', 'T' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'D', 'F', 'L', 'T' ),
 // 	LetterlikeSymbols,
-    { FT_MAKE_TAG( 'D', 'F', 'L', 'T' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'D', 'F', 'L', 'T' ),
 // 	NumberForms,
-    { FT_MAKE_TAG( 'D', 'F', 'L', 'T' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'D', 'F', 'L', 'T' ),
 // 	MathematicalOperators,
-    { FT_MAKE_TAG( 'D', 'F', 'L', 'T' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'D', 'F', 'L', 'T' ),
 // 	TechnicalSymbols,
-    { FT_MAKE_TAG( 'D', 'F', 'L', 'T' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'D', 'F', 'L', 'T' ),
 // 	GeometricSymbols,
-    { FT_MAKE_TAG( 'D', 'F', 'L', 'T' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'D', 'F', 'L', 'T' ),
 // 	MiscellaneousSymbols,
-    { FT_MAKE_TAG( 'D', 'F', 'L', 'T' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'D', 'F', 'L', 'T' ),
 // 	EnclosedAndSquare,
-    { FT_MAKE_TAG( 'D', 'F', 'L', 'T' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'D', 'F', 'L', 'T' ),
 // 	Braille,
-    { FT_MAKE_TAG( 'b', 'r', 'a', 'i' ), standardFeatures, 0x0000, 0x8000 },
+    FT_MAKE_TAG( 'b', 'r', 'a', 'i' ),
 
 //                Unicode, should be used
-    { FT_MAKE_TAG( 'D', 'F', 'L', 'T' ), standardFeatures, 0x0000, 0x8000 }
+    FT_MAKE_TAG( 'D', 'F', 'L', 'T' )
     // ### where are these?
 // 	FT_MAKE_TAG( 'b', 'y', 'z', 'm' ),
 //     FT_MAKE_TAG( 'D', 'F', 'L', 'T' ),
@@ -2049,107 +2049,14 @@ const SupportedScript supported_scripts [] = {
 };
 
 
-bool QOpenType::loadTables( FT_ULong script)
-{
-    always_apply = 0;
-
-    assert( script < QFont::Unicode );
-    // find script in our list of supported scripts.
-    const SupportedScript *s = supported_scripts + script;
-
-    FT_Error error = TT_GSUB_Select_Script( gsub, s->tag, &script_index );
-    if ( error ) {
-// 	qDebug("could not select script %d: %d", (int)script, error );
-	if ( s->tag == DefaultScript ) {
-	    // try to load default language system
-	    error = TT_GSUB_Select_Script( gsub, DefaultScript, &script_index );
-	    if ( error )
-		return FALSE;
-	} else {
-	    return FALSE;
-	}
-    }
-    script = s->tag;
-
-//     qDebug("arabic is script %d", script_index );
-
-    TTO_FeatureList featurelist = gsub->FeatureList;
-
-    int numfeatures = featurelist.FeatureCount;
-
-//     qDebug("table has %d features", numfeatures );
-
-
-    found_bits = 0;
-    for( int i = 0; i < numfeatures; i++ ) {
-	TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
-	FT_ULong feature = r->FeatureTag;
-	const Features *f = s->features;
-	while ( f->tag ) {
-	    if ( f->tag == feature ) {
-		found_bits |= f->bit;
-		break;
-	    }
-	    f++;
-	}
-	FT_UShort feature_index;
-	TT_GSUB_Select_Feature( gsub, f->tag, script_index, DefaultLangSys,
-				&feature_index );
-	TT_GSUB_Add_Feature( gsub, feature_index, f->bit );
-
-	char featureString[5];
-	tag_to_string( featureString, r->FeatureTag );
-// 	qDebug("found feature '%s' in GSUB table", featureString );
-// 	qDebug("setting bit %x for feature, feature_index = %d", f->bit, feature_index );
-    }
-    if ( hasGPos ) {
-	FT_UShort script_index;
-	error = TT_GPOS_Select_Script( gpos, script, &script_index );
-	if ( error ) {
-// 	    qDebug("could not select arabic script in gpos table: %d", error );
-	    return TRUE;
-	}
-
-	TTO_FeatureList featurelist = gpos->FeatureList;
-
-	int numfeatures = featurelist.FeatureCount;
-
-// 	qDebug("table has %d features", numfeatures );
-
-	for( int i = 0; i < numfeatures; i++ ) {
-	    TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
-	    FT_UShort feature_index;
-	    TT_GPOS_Select_Feature( gpos, r->FeatureTag, script_index, 0xffff, &feature_index );
-	    TT_GPOS_Add_Feature( gpos, feature_index, s->always_apply );
-
-	    char featureString[5];
-	    tag_to_string( featureString, r->FeatureTag );
-// 	    qDebug("found feature '%s' in GPOS table", featureString );
-	}
-
-
-    }
-    if ( found_bits & s->required_bits != s->required_bits ) {
-// 	qDebug( "not all required features for script found! found_bits=%x", found_bits );
-	TT_GSUB_Clear_Features( gsub );
-	return FALSE;
-    }
-//     qDebug("found_bits = %x", (uint)found_bits );
-
-    always_apply = s->always_apply;
-    current_script = script;
-
-    return TRUE;
-}
-
-
 QOpenType::QOpenType( FT_Face _face )
     : face( _face ), gdef( 0 ), gsub( 0 ), gpos( 0 ), current_script( 0 )
 {
     hasGDef = hasGSub = hasGPos = TRUE;
-    in = out = tmp = 0;
+    str = tmp = 0;
+    positions = 0;
     tmpAttributes = 0;
-    tmpAttributesLen = 0;
+    tmpLogClusters = 0;
 }
 
 QOpenType::~QOpenType()
@@ -2160,31 +2067,32 @@ QOpenType::~QOpenType()
 	TT_Done_GSUB_Table( gsub );
     if ( gdef )
 	TT_Done_GDEF_Table( gdef );
-    if ( in )
-	TT_GSUB_String_Done( in );
-    if ( out )
-	TT_GSUB_String_Done( out );
+    if ( str )
+	TT_GSUB_String_Done( str );
     if ( tmp )
 	TT_GSUB_String_Done( tmp );
+    if (positions)
+	free(positions);
     if ( tmpAttributes )
-	free( tmpAttributes );
+	free(tmpAttributes);
+    if (tmpLogClusters)
+	free(tmpLogClusters);
 }
 
 bool QOpenType::supportsScript( unsigned int script )
 {
-    if ( current_script == supported_scripts[script].tag )
+    if ( current_script == supported_scripts[script] )
 	return TRUE;
 
-    char featureString[5];
-    tag_to_string( featureString, supported_scripts[script].tag );
-//     qDebug("trying to load tables for script %d (%s))", script, featureString);
+#ifdef OT_DEBUG
+    qDebug("trying to load tables for script %d (%s))", script, tag_to_string( supported_scripts[script] ));
+#endif
 
     FT_Error error;
     if ( !gdef ) {
 	if ( (error = TT_Load_GDEF_Table( face, &gdef )) ) {
 // 	    qDebug("error loading gdef table: %d", error );
 	    hasGDef = FALSE;
-// 	    return FALSE;
 	}
     }
 
@@ -2218,105 +2126,244 @@ bool QOpenType::supportsScript( unsigned int script )
     return FALSE;
 }
 
+bool QOpenType::loadTables( FT_ULong script)
+{
+    assert( script < QFont::Unicode );
+    // find script in our list of supported scripts.
+    unsigned int stag = supported_scripts[script];
+
+    FT_Error error = TT_GSUB_Select_Script( gsub, stag, &script_index );
+    if ( error ) {
+#ifdef OT_DEBUG
+ 	qDebug("could not select script %d: %d", (int)script, error );
+#endif
+	if ( stag == DefaultScript ) {
+	    // try to load default language system
+	    error = TT_GSUB_Select_Script( gsub, DefaultScript, &script_index );
+	    if ( error )
+		return FALSE;
+	} else {
+	    return FALSE;
+	}
+    }
+    script = stag;
+
+#ifdef OT_DEBUG
+    qDebug("script %s has script index %d", tag_to_string(script), script_index );
+#endif
+
+    TTO_FeatureList featurelist = gsub->FeatureList;
+
+#ifdef OT_DEBUG
+    int numfeatures = featurelist.FeatureCount;
+    qDebug("gsub table has %d features", numfeatures );
+    for( int i = 0; i < numfeatures; i++ ) {
+	TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
+	qDebug("   feature '%s'", tag_to_string(r->FeatureTag));
+    }
+#endif
+    if ( hasGPos ) {
+	FT_UShort script_index;
+	error = TT_GPOS_Select_Script( gpos, script, &script_index );
+	if ( error ) {
+// 	    qDebug("could not select script in gpos table: %d", error );
+	    return TRUE;
+	}
+
+	TTO_FeatureList featurelist = gpos->FeatureList;
+
+	int numfeatures = featurelist.FeatureCount;
+
+#ifdef OT_DEBUG
+ 	qDebug("gpos table has %d features", numfeatures );
+#endif
+
+	for( int i = 0; i < numfeatures; i++ ) {
+	    TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
+	    FT_UShort feature_index;
+	    TT_GPOS_Select_Feature( gpos, r->FeatureTag, script_index, 0xffff, &feature_index );
+
+#ifdef OT_DEBUG
+ 	    qDebug("   feature '%s'", tag_to_string(r->FeatureTag));
+#endif
+	}
+
+
+    }
+
+    current_script = script;
+
+    return TRUE;
+}
+
+void QOpenType::init(glyph_t *glyphs, GlyphAttributes *glyphAttributes, int num_glyphs,
+		     unsigned short *logClusters, int len, int char_offset)
+{
+    if ( !str )
+	TT_GSUB_String_New(&str);
+    if ( str->allocated < (uint)num_glyphs )
+	TT_GSUB_String_Allocate( str, num_glyphs );
+    if ( !tmp )
+	TT_GSUB_String_New(&tmp);
+    if ( tmp->allocated < (uint)num_glyphs )
+	TT_GSUB_String_Allocate( tmp, num_glyphs );
+    tmp->length = 0;
+
+    length = len;
+
+    memcpy(str->string, glyphs, num_glyphs*sizeof(unsigned short));
+    // map from log clusters.
+    int i = length - 1;
+    int j = num_glyphs;
+    while (j--) {
+	if (logClusters[i] > j)
+	    --i;
+	str->character_index[j] = i + char_offset;
+    }
+#ifdef OT_DEBUG
+    qDebug("-----------------------------------------");
+    qDebug("log clusters before shaping: char_offset = %d",  char_offset);
+    for (int j = 0; j < length; j++)
+	qDebug("    log[%d] = %d", j, logClusters[j] );
+    qDebug("original glyphs:");
+    for (i = 0; i < num_glyphs; ++i)
+	qDebug("   glyph=%4x char_index=%d", str->string[i], str->character_index[i]);
+#endif
+    str->length = num_glyphs;
+
+    tmpLogClusters = (unsigned short *) realloc( tmpLogClusters, length*sizeof(unsigned short) );
+    memcpy( tmpLogClusters, logClusters, length*sizeof(unsigned short) );
+    tmpAttributes = (GlyphAttributes *) realloc( tmpAttributes, num_glyphs*sizeof(GlyphAttributes) );
+    memcpy( tmpAttributes, glyphAttributes, num_glyphs*sizeof(GlyphAttributes) );
+}
+
+void QOpenType::applyGSUBFeature(unsigned int featureTag, bool *where)
+{
+    FT_UShort feature_index;
+    FT_Error err = TT_GSUB_Select_Feature( gsub, featureTag, script_index, 0xffff, &feature_index);
+    if (err) {
+#ifdef OT_DEBUG
+// 	qDebug("feature %s not covered by table or language system", tag_to_string( featureTag ));
+#endif
+	return;
+    }
+
+#ifdef OT_DEBUG
+    qDebug("applying GSUB feature %s with index %d", tag_to_string( featureTag ), feature_index);
+#endif
+
+    unsigned char w[256];
+    unsigned char *where_to_apply = w;
+    if (str->length > 255)
+	where_to_apply = (unsigned char *)malloc(str->length*sizeof(unsigned char));
+
+    if (where) {
+	for ( unsigned int i = 0; i < str->length; i++) {
+	    where_to_apply[i] = where[str->character_index[i]] ? 1 : 0;
+#ifdef OT_DEBUG
+	    qDebug("   apply=%s", where_to_apply[i] ? "true" : "false");
+#endif
+	}
+    } else {
+	for ( unsigned int i = 0; i < str->length; i++)
+	    where_to_apply[i] = 1;
+    }
+
+    TT_GSUB_Apply_Feature(gsub, feature_index, where_to_apply, &str, &tmp);
+
+    if (w != where_to_apply)
+	free(where_to_apply);
+
+#ifdef OT_DEBUG
+    qDebug("after applying:");
+    for ( int i = 0; i < str->length; i++) {
+      qDebug("   %4x", str->string[i]);
+    }
+#endif
+}
+
 
 extern void q_heuristicPosition( QTextEngine *engine, QScriptItem *item );
 
-void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QTextEngine *engine, QScriptItem *si, int stringLength )
+void QOpenType::applyGPOSFeatures()
 {
-    if ( current_script != supported_scripts[script].tag ) {
-	TT_GSUB_Clear_Features( gsub );
+#ifdef OT_DEBUG
+    qDebug("applying GPOS features");
+#endif
+    // currently just apply all features
 
-	if ( !loadTables( script ) )
-	    return;
-    }
+    if ( hasGPos ) {
+	positions = (TTO_GPOS_Data *) realloc( positions, str->length*sizeof(TTO_GPOS_Data) );
+	memset(positions, 0, str->length*sizeof(TTO_GPOS_Data));
 
-    si->hasPositioning = TRUE;
+	TTO_FeatureList featurelist = gpos->FeatureList;
+	int numfeatures = featurelist.FeatureCount;
 
-    glyph_t *glyphs = engine->glyphs( si );
-    GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
-    unsigned short *logClusters = engine->logClusters( si );
-
-    // shaping code
-
-    if ( !in )
-	TT_GSUB_String_New( face->memory, &in );
-    if ( in->allocated < (uint)si->num_glyphs )
-	TT_GSUB_String_Allocate( in, si->num_glyphs );
-    if ( !out )
-	TT_GSUB_String_New( face->memory, &out );
-    if ( !tmp )
-	TT_GSUB_String_New( face->memory, &tmp );
-    out->length = 0;
-    tmp->length = 0;
-    out->pos = tmp->pos = 0;
-
-    for ( int i = 0; i < si->num_glyphs; i++) {
-      in->string[i] = glyphs[i];
-      in->logClusters[i] = i;
-      in->properties[i] = ~((featuresToApply ? featuresToApply[i] : 0)|always_apply);
-    }
-    in->max_ligID = 0;
-    in->length = si->num_glyphs;
-
-
-    TT_GSUB_Apply_String (gsub, in, &out, &tmp);
-
-    // #### do this in place!
-    if ( tmpAttributesLen < si->num_glyphs ) {
-	tmpAttributes = ( GlyphAttributes *) realloc( tmpAttributes, si->num_glyphs*sizeof(GlyphAttributes) );
-	tmpAttributesLen = si->num_glyphs;
-    }
-    memcpy( tmpAttributes, glyphAttributes, si->num_glyphs*sizeof(GlyphAttributes) );
-
-    si->num_glyphs = out->length;
-    engine->ensureSpace( si->num_glyphs );
-    glyphAttributes = engine->glyphAttributes( si );
-
-//     qDebug("out: num_glyphs = %d", si->num_glyphs );
-
-    int clusterStart = 0;
-    int oldlc = 0;
-    for ( int i = 0; i < si->num_glyphs; i++ ) {
-	glyphs[i] = out->string[i];
-	int lc = out->logClusters[i];
-	glyphAttributes[i] = tmpAttributes[lc];
-	if ( !glyphAttributes[i].mark && glyphAttributes[i].clusterStart && lc != oldlc ) {
-	    for ( int j = oldlc; j < lc; j++ )
-		logClusters[j] = clusterStart;
-	    clusterStart = i;
-	    oldlc = lc;
+	for( int i = 0; i < numfeatures; i++ ) {
+	    TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
+	    FT_UShort feature_index;
+	    TT_GPOS_Select_Feature( gpos, r->FeatureTag, script_index, 0xffff, &feature_index );
+	    // ### is FT_LOAD_DEFAULT the right thing to do?
+	    TT_GPOS_Apply_Feature( face, gpos, feature_index, FT_LOAD_DEFAULT, str, &positions, FALSE, false );
 	}
-//      	qDebug("    glyph[%d]=%4x logcluster=%d mark=%d", i, out->string[i], out->logClusters[i], glyphAttributes[i].mark );
-	// ### need to fix logclusters aswell!!!!
     }
-    for ( int j = oldlc; j < stringLength; j++ )
-	logClusters[j] = clusterStart;
-//     qDebug("log clusters after shaping:");
-//     for ( int j = 0; j < stringLength; j++ )
-// 	qDebug("    log[%d] = %d", j, logClusters[j] );
+}
+
+const int *QOpenType::mapping(int &len)
+{
+    len = str->length;
+    return str->character_index;
+}
+
+void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogClusters)
+{
+#ifdef OT_DEBUG
+    qDebug("QOpenType::finalize:");
+#endif
+    // make sure we have enough space to write everything back
+    engine->ensureSpace( si->num_glyphs + str->length );
+
+    glyph_t *glyphs = engine->glyphs( si ) + si->num_glyphs;
+    advance_t *advances = engine->advances(si) + si->num_glyphs;
+    qoffset_t *offsets = engine->offsets(si) + si->num_glyphs;
+    GlyphAttributes *glyphAttributes = engine->glyphAttributes( si ) + si->num_glyphs;
+
+    memcpy(glyphs, str->string, str->length*sizeof(glyph_t));
+    if (doLogClusters) {
+	// we can't do this for indic, as we pass the stuf in syllables and it's easier to do it in the shaper.
+	unsigned short *logClusters = engine->logClusters( si );
+	int clusterStart = 0;
+	int oldCi = 0;
+	for ( int i = 0; i < (int)str->length; i++ ) {
+	    int ci = str->character_index[i];
+	    glyphAttributes[i] = tmpAttributes[tmpLogClusters[ci]];
+	    // 	qDebug("   ci[%d] = %d mark=%d, cs=%d tmplc=%d",
+	    // 	       i, ci, glyphAttributes[i].mark, glyphAttributes[i].clusterStart,  tmpLogClusters[ci]);
+	    if ( !glyphAttributes[i].mark && glyphAttributes[i].clusterStart && ci != oldCi ) {
+		for ( int j = oldCi; j < ci; j++ )
+		    logClusters[j] = clusterStart;
+		clusterStart = i;
+		oldCi = ci;
+	    }
+	}
+	for ( int j = oldCi; j < length; j++ )
+	    logClusters[j] = clusterStart;
+    }
 
     // calulate the advances for the shaped glyphs
-    glyphs = engine->glyphs( si );
-    advance_t *advances = engine->advances( si );
-    qoffset_t *offsets = engine->offsets( si );
-
-    ((QFontEngineXft *)si->fontEngine)->recalcAdvances( si->num_glyphs, glyphs, advances );
-    for ( int i = 0; i < si->num_glyphs; i++ ) {
+//     qDebug("unpositioned: ");
+    ((QFontEngineXft *)si->fontEngine)->recalcAdvances( str->length, glyphs, advances );
+    for ( int i = 0; i < (int)str->length; i++ ) {
 	if ( glyphAttributes[i].mark )
 	    advances[i] = 0;
+// 	    qDebug("   adv=%d", advances[i]);
     }
 
     // positioning code:
     if ( hasGPos ) {
-	TTO_GPOS_Data *positions = 0;
-
-	bool reverse = (si->analysis.bidiLevel % 2);
-	// ### is FT_LOAD_DEFAULT the right thing to do?
-	TT_GPOS_Apply_String( face, gpos, FT_LOAD_DEFAULT, out, &positions, FALSE, false );
-
 	float scale = si->fontEngine->scale();
 // 	qDebug("positioned glyphs:" );
-	for ( int i = 0; i < si->num_glyphs; i++) {
+	for ( int i = 0; i < (int)str->length; i++) {
 // 	    qDebug("    %d:\t orig advance: %d\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
 // 		   advances[i], (int)(positions[i].x_advance >> 6), (int)(positions[i].y_advance >> 6 ),
 // 		   (int)(positions[i].x_pos >> 6 ), (int)(positions[i].y_pos >> 6),
@@ -2332,7 +2379,7 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QTe
 	    offsets[i].x = (int)((positions[i].x_pos >> 6)*scale);
 	    offsets[i].y = -(int)((positions[i].y_pos >> 6)*scale);
 	    int back = positions[i].back;
-	    if ( reverse ) {
+	    if ( si->analysis.bidiLevel % 2 ) {
 		while ( back-- )
 		    offsets[i].x -= advances[i-back];
 	    } else {
@@ -2342,10 +2389,26 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QTe
 // 	    qDebug("   ->\tadv=%d\tpos=(%d/%d)",
 // 		   advances[i], offsets[i].x, offsets[i].y );
 	}
-	free( positions );
+	si->hasPositioning = TRUE;
     } else {
 	q_heuristicPosition( engine, si );
     }
+
+#ifdef OT_DEBUG
+    qDebug("log clusters after shaping:");
+    if (doLogClusters) {
+	for (int j = 0; j < length; j++)
+	    qDebug("    log[%d] = %d", j, engine->logClusters(si)[j] );
+    }
+    qDebug("final glyphs:");
+    for (int i = 0; i < (int)str->length; ++i)
+	qDebug("   glyph=%4x char_index=%d mark: %d, clusterStart: %d width=%d",
+	       glyphs[i], str->character_index[i], glyphAttributes[i].mark, glyphAttributes[i].clusterStart,
+	       advances[i]);
+    qDebug("-----------------------------------------");
+#endif
+
+    si->num_glyphs += str->length;
 }
 
 #endif

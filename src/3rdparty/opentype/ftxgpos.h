@@ -75,12 +75,12 @@ extern "C" {
 				      FT_UShort    metric_id,
                                       FT_Pos*      metric_value,
                                       void*        data );
-                                          
+
 
   struct  TTO_GPOSHeader_
   {
     FT_Memory          memory;
-    
+
     FT_Fixed           Version;
 
     TTO_ScriptList     ScriptList;
@@ -821,13 +821,6 @@ extern "C" {
                                     FT_ULong**       feature_tag_list );
 
   EXPORT_DEF
-  FT_Error  TT_GPOS_Add_Feature( TTO_GPOSHeader*  gpos,
-                                 FT_UShort        feature_index,
-                                 FT_UShort        property );
-  EXPORT_DEF
-  FT_Error  TT_GPOS_Clear_Features( TTO_GPOSHeader*  gpos );
-
-  EXPORT_DEF
   FT_Error  TT_GPOS_Register_Glyph_Function( TTO_GPOSHeader*    gpos,
                                              TTO_GlyphFunction  gfunc );
 
@@ -840,13 +833,14 @@ extern "C" {
      tables are ignored -- you will get device independent values.         */
 
   EXPORT_DEF
-  FT_Error  TT_GPOS_Apply_String( FT_Face           face,
-                                  TTO_GPOSHeader*   gpos,
-                                  FT_UShort         load_flags,
-                                  TTO_GSUB_String*  in,
-                                  TTO_GPOS_Data**   out,
-                                  FT_Bool           dvi,
-                                  FT_Bool           r2l );
+  FT_Error  TT_GPOS_Apply_Feature( FT_Face           face,
+				   TTO_GPOSHeader*   gpos,
+				   FT_UShort         feature_index,
+				   FT_UShort         load_flags,
+				   TTO_GSUB_String*  in,
+				   TTO_GPOS_Data**   out,
+				   FT_Bool           dvi,
+				   FT_Bool           r2l );
 
 #ifdef __cplusplus
 }

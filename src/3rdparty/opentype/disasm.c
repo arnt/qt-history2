@@ -545,10 +545,10 @@ Dump_GPOS_Lookup_Pair (TTO_SubTable *subtable, FILE *stream, int indent, FT_Bool
 }
 
 static void
-Dump_GPOS_Lookup_Markbase (TTO_GPOS_SubTable *subtable, FILE *stream, int indent, FT_Bool is_gsub)
+Dump_GPOS_Lookup_Markbase (TTO_SubTable *subtable, FILE *stream, int indent, FT_Bool is_gsub)
 {
     int i;
-    TTO_MarkBasePos *markbase = &subtable->markbase;
+    TTO_MarkBasePos *markbase = &subtable->st.gpos.markbase;
 
     DUMP_FUINT( markbase, PosFormat );
     RECURSE( Coverage, Coverage, &markbase->MarkCoverage );

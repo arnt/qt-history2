@@ -190,19 +190,20 @@ public:
 
 
 enum IndicFeatures {
-    InitFeature = 0x0001,
-    NuktaFeature = 0x0002,
-    AkhantFeature = 0x0004,
-    RephFeature = 0x0008,
-    BelowFormFeature = 0x0010,
-    HalfFormFeature = 0x0020,
-    PostFormFeature = 0x0040,
-    VattuFeature = 0x0080,
-    PreSubstFeature = 0x0100,
-    BelowSubstFeature = 0x0200,
-    AboveSubstFeature = 0x0400,
-    PostSubstFeature = 0x0800,
-    HalantFeature = 0x1000
+    CcmpFeature,
+    InitFeature,
+    NuktaFeature,
+    AkhantFeature,
+    RephFeature,
+    BelowFormFeature,
+    HalfFormFeature,
+    PostFormFeature,
+    VattuFeature,
+    PreSubstFeature,
+    AboveSubstFeature,
+    BelowSubstFeature,
+    PostSubstFeature,
+    HalantFeature,
 };
 
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
@@ -432,9 +433,15 @@ public:
 
     bool supportsScript( unsigned int script );
 
-    void apply( unsigned int script, unsigned short *featuresToApply, QTextEngine *engine,
-		QScriptItem *si, int stringLength );
+    void applyGSUBFeature(unsigned int feature, bool *where = 0);
+    void applyGPOSFeatures();
 
+
+    void init(glyph_t *glyphs, GlyphAttributes *glyphAttributes, int num_glyphs,
+	      unsigned short *logClusters, int len, int char_offset = 0);
+    void appendTo(QTextEngine *engine, QScriptItem *si, bool doLogClusters = TRUE);
+
+    const int *mapping(int &len);
 private:
     bool loadTables( FT_ULong script);
 
@@ -444,16 +451,15 @@ private:
     TTO_GPOS gpos;
     FT_UShort script_index;
     FT_ULong current_script;
-    unsigned short found_bits;
-    unsigned short always_apply;
     bool hasGDef : 1;
     bool hasGSub : 1;
     bool hasGPos : 1;
-    TTO_GSUB_String *in;
-    TTO_GSUB_String *out;
+    TTO_GSUB_String *str;
     TTO_GSUB_String *tmp;
+    TTO_GPOS_Data *positions;
     GlyphAttributes *tmpAttributes;
-    int tmpAttributesLen;
+    unsigned short *tmpLogClusters;
+    int length;
 };
 #endif // QT_NO_XFTFREETYPE
 

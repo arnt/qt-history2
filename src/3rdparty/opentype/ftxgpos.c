@@ -32,6 +32,7 @@
 #include "fterrcompat.h"
 
 #include "ftxopen.h"
+#include "ftxgsub.h"
 #include "ftxopenf.h"
 
 
@@ -2817,20 +2818,16 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     lat = &la->LigatureAttach[lig_index];
 
-    /* We must now check whether the ligature ID of the current mark glyph
-       is identical to the ligature ID of the found ligature.  If yes, we
-       can directly use the component index.  If not, we attach the mark
-       glyph to the last component of the ligature.                        */
+    /* Use the component id if defined. If not we simply attach the
+       mark glyph to the last component of the ligature */
 
-    if ( in->ligIDs && in->components &&
-         in->ligIDs[j] == in->ligIDs[in->pos] )
-    {
-      comp_index = in->components[in->pos];
-      if ( comp_index >= lat->ComponentCount )
+    comp_index = in->glyph_properties[in->pos].component;
+
+    // ###### why the hell doesn't this compile?
+//     if (comp_index == MAX_COMPONENT_INDEX)
+// 	comp_index = lat->ComponentCount - 1;
+    if ( comp_index >= lat->ComponentCount )
         return TTO_Err_Not_Covered;
-    }
-    else
-      comp_index = lat->ComponentCount - 1;
 
     cr         = &lat->ComponentRecord[comp_index];
     lig_anchor = &cr->LigatureAnchor[klass];
@@ -6125,14 +6122,11 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   static FT_Error  GPos_Do_String_Lookup( GPOS_Instance*    gpi,
                                      FT_UShort         lookup_index,
+//					  unsigned char *where_to_apply,
                                      TTO_GSUB_String*  in,
                                      TTO_GPOS_Data*    out )
   {
     FT_Error         error = TTO_Err_Not_Covered;
-    TTO_GPOSHeader*  gpos = gpi->gpos;
-
-    FT_UShort*  properties = gpos->LookupList.Properties;
-    FT_UShort*  p_in       = in->properties;
 
     int      nesting_level = 0;
 
@@ -6143,7 +6137,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     while ( in->pos < in->length )
     {
-      if ( ~p_in[in->pos] & properties[lookup_index] )
+	if (1) //where_to_apply[in->pos])
       {
         /* 0xFFFF indicates that we don't have a context length yet. */
 
@@ -6176,52 +6170,6 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  EXPORT_FUNC
-  FT_Error  TT_GPOS_Add_Feature( TTO_GPOSHeader*  gpos,
-                                 FT_UShort        feature_index,
-                                 FT_UShort        property )
-  {
-    FT_UShort    i;
-
-    TTO_Feature  feature;
-    FT_UShort*   properties;
-    FT_UShort*   index;
-
-
-    if ( !gpos ||
-         feature_index >= gpos->FeatureList.FeatureCount )
-      return TT_Err_Invalid_Argument;
-
-    properties = gpos->LookupList.Properties;
-
-    feature = gpos->FeatureList.FeatureRecord[feature_index].Feature;
-    index   = feature.LookupListIndex;
-
-    for ( i = 0; i < feature.LookupListCount; i++ )
-      properties[index[i]] |= property;
-
-    return TT_Err_Ok;
-  }
-
-
-  EXPORT_FUNC
-  FT_Error  TT_GPOS_Clear_Features( TTO_GPOSHeader*  gpos )
-  {
-    FT_UShort i;
-
-    FT_UShort*  properties;
-
-
-    if ( !gpos )
-      return TT_Err_Invalid_Argument;
-
-    properties = gpos->LookupList.Properties;
-
-    for ( i = 0; i < gpos->LookupList.LookupCount; i++ )
-      properties[i] = 0;
-
-    return TT_Err_Ok;
-  }
 
 
   EXPORT_FUNC
@@ -6256,28 +6204,25 @@ static FT_Error  default_mmfunc( FT_Face      face,
      tables are ignored -- you will get device independent values.         */
 
   EXPORT_FUNC
-  FT_Error  TT_GPOS_Apply_String( FT_Face            face,
+  FT_Error  TT_GPOS_Apply_Feature(FT_Face            face,
                                   TTO_GPOSHeader*    gpos,
+				  FT_UShort          feature_index,
                                   FT_UShort          load_flags,
                                   TTO_GSUB_String*   in,
                                   TTO_GPOS_Data**    out,
                                   FT_Bool            dvi,
                                   FT_Bool            r2l )
   {
-    FT_Memory      memory = gpos->memory;
     FT_Error       error = TTO_Err_Not_Covered;
     GPOS_Instance  gpi;
+    TTO_Feature  feature;
+    FT_UShort *index;
 
     FT_UShort j;
-
-    FT_UShort* properties;
-
 
     if ( !face || !gpos ||
          !in || in->length == 0 || in->pos >= in->length )
       return TT_Err_Invalid_Argument;
-
-    properties = gpos->LookupList.Properties;
 
     gpi.face       = face;
     gpi.gpos       = gpos;
@@ -6285,18 +6230,18 @@ static FT_Error  default_mmfunc( FT_Face      face,
     gpi.r2l        = r2l;
     gpi.dvi        = dvi;
 
-    if ( *out )
-      FREE( *out );
-    if ( ALLOC_ARRAY( *out, in->length, TTO_GPOS_Data ) )
-      return error;
+    feature = gpos->FeatureList.FeatureRecord[feature_index].Feature;
+    index   = feature.LookupListIndex;
 
-    for ( j = 0; j < gpos->LookupList.LookupCount; j++ )
-      if ( !properties || properties[j] )
-      {
-        error = GPos_Do_String_Lookup( &gpi, j, in, *out );
+    //###### need to order lookups in the order they appear in the
+    //###### lookup list, not the order they appear in the
+    //###### featurelist.
+
+    for ( j = 0; j < feature.LookupListCount; j++ ) {
+        error = GPos_Do_String_Lookup( &gpi, index[j], in, *out );
         if ( error && error != TTO_Err_Not_Covered )
           return error;
-      }
+    }
 
     return error;
   }

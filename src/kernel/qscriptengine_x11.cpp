@@ -12,7 +12,7 @@ static void syriac_shape( int script, const QString &string, int from, int len,
     QOpenType *openType = item->fontEngine->openType();
 
     if ( openType && openType->supportsScript( QFont::Syriac ) ) {
-	openTypeShape( QFont::Syriac, openType, string, from, len, engine, item );
+	arabicSyriacOpenTypeShape( QFont::Syriac, openType, string, from, len, engine, item );
 	return;
     }
 #endif
@@ -452,23 +452,6 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Other, Other, Other, Other,
 };
 
-static inline Form form( const QChar &ch ) {
-    ushort uc = ch.unicode();
-    if ( uc < 0x900 || uc > 0xdff ) {
-	if ( uc == 0x25cc )
-	    return Consonant;
-	return Other;
-    }
-    return (Form)indicForms[uc-0x900];
-}
-
-static inline bool isRa( const QChar &ch ) {
-    ushort uc = ch.unicode();
-    if ( uc < 0x900 || uc > 0xd80 )
-	return false;
-    return ((uc & 0x7f) == 0x30 );
-}
-
 enum Position {
     None,
     Pre,
@@ -495,7 +478,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
 
-    None, None, None, None,
+    Below, None, None, None,
     None, None, None, None,
     None, None, None, None,
     None, None, Post, Pre,
@@ -534,9 +517,9 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, None, None, None,
+    Below, None, None, Post,
 
-    None, None, None, None,
+    Below, None, None, None,
     None, None, None, None,
     None, None, None, None,
     Below, None, Post, Pre,
@@ -575,10 +558,10 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, None, None, None,
+    None, None, None, Post,
 
-    None, None, None, None,
-    None, None, None, None,
+    Below, None, None, None,
+    None, Below, None, None,
     None, None, None, None,
     Below, None, Post, Pre,
 
@@ -618,7 +601,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
 
-    None, None, None, None,
+    Below, None, None, None,
     None, None, None, None,
     None, None, None, None,
     None, None, Post, Pre,
@@ -655,11 +638,11 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
 
     None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
+    Below, None, None, None,
+    Below, None, None, None,
+    Below, Below, Below, Post,
 
-    None, None, None, None,
+    Below, None, Below, Below,
     None, None, None, None,
     None, None, None, None,
     None, None, Post, Above,
@@ -732,18 +715,18 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
 
     None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
+    None, Below, Below, Below,
+    Below, Below, Below, Below,
+    Below, Below, Below, Below,
 
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
+    Below, Below, Below, Below,
+    Below, Below, Below, Below,
+    Below, None, Below, Below,
+    Below, Below, Below, Below,
 
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
+    Below, None, Below, Below,
+    None, Below, Below, Below,
+    Below, Below, None, None,
     None, None, Post, Above,
 
     Above, Post, Post, Post,
@@ -773,18 +756,18 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
 
     None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
+    None, Below, Below, Below,
+    Below, Below, Below, Below,
+    Below, Below, Below, Below,
 
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
+    Below, Below, Below, Below,
+    Below, Below, Below, Below,
+    Below, Below, Below, Below,
+    Below, Below, Below, Below,
 
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
+    Below, None, Below, Below,
+    None, Below, Below, Below,
+    Below, Below, None, None,
     None, None, Post, Above,
 
     Split, Post, Post, Post,
@@ -816,15 +799,15 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, None, None, None,
+    None, None, None, Below,
 
+    None, None, None, Below,
+    None, Below, Below, None,
     None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
+    None, None, None, Post,
 
-    None, None, None, None,
-    None, None, None, None,
+    Post, None, Below, None,
+    None, Post, None, None,
     None, None, None, None,
     None, None, Post, Post,
 
@@ -890,9 +873,17 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None
 };
 
-static inline Position indic_position( const QChar &ch ) {
-    unsigned short uc = ch.unicode();
-    if ( uc < 0x900 && uc > 0xdff )
+static inline Form form( unsigned short uc ) {
+    if ( uc < 0x900 || uc > 0xdff ) {
+	if ( uc == 0x25cc )
+	    return Consonant;
+	return Other;
+    }
+    return (Form)indicForms[uc-0x900];
+}
+
+static inline Position indic_position( unsigned short uc ) {
+    if ( uc < 0x900 || uc > 0xdff )
 	return None;
     return (Position) indicPosition[uc-0x900];
 }
@@ -927,13 +918,490 @@ const uchar scriptProperties[10] = {
     HasSplit
 };
 
+
+// vowel matras that have to be split into two parts.
+static const unsigned short bengali_o[2]  = { 0x9c7, 0x9be };
+static const unsigned short bengali_au[2] = { 0x9c7, 0x9d7 };
+
+static const unsigned short oriya_ai[2]    = { 0xb47, 0xb56 };
+static const unsigned short oriya_o[2]    = { 0xb47, 0xb3e };
+static const unsigned short oriya_au[2]    = { 0xb47, 0xb57 };
+
+static const unsigned short tamil_o[2]    = { 0xbc6, 0xbbe };
+static const unsigned short tamil_oo[2]   = { 0xbc7, 0xbbe };
+static const unsigned short tamil_au[2]   = { 0xbc6, 0xbd7 };
+
+static const unsigned short telugu_ai[2]   = { 0xc46, 0xc56 };
+
+static const unsigned short kannada_ii[2]   = { 0xcbf, 0xcd5 };
+static const unsigned short kannada_ee[2]   = { 0xcc6, 0xcd5 };
+static const unsigned short kannada_ai[2]   = { 0xcc6, 0xcd6 };
+static const unsigned short kannada_o[2]    = { 0xcc6, 0xcc2 };
+static const unsigned short kannada_oo[2]   = { 0xcca, 0xcd5 };
+
+static const unsigned short malayalam_o[2]   = { 0xd46, 0xd3e };
+static const unsigned short malayalam_oo[2]   = { 0xd47, 0xd3e };
+static const unsigned short malayalam_au[2]   = { 0xd46, 0xd57 };
+
+static const unsigned short sinhala_ee[2]   = { 0xdd9, 0xdca };
+static const unsigned short sinhala_o[2]   = { 0xdd9, 0xdcf };
+static const unsigned short sinhala_oo[2]   = { 0xddc, 0xdca };
+static const unsigned short sinhala_au[2]   = { 0xdd9, 0xddf };
+
+inline void splitMatra( int script, unsigned short *reordered, int matra, int &len)
+{
+    const unsigned short *split = 0;
+    unsigned short matra_uc = reordered[matra];
+    if ( script == QFont::Bengali ) {
+	if ( matra_uc == 0x9cb )
+	    split = bengali_o;
+	else if ( matra_uc == 0x9cc )
+	    split = bengali_au;
+    } else if ( script == QFont::Oriya ) {
+	if ( matra_uc == 0xb48 )
+	    split = oriya_ai;
+	else if ( matra_uc == 0xb4b )
+	    split = oriya_o;
+	else if ( matra_uc == 0xb4c )
+	    split = oriya_au;
+    } else if ( script == QFont::Tamil ) {
+	if ( matra_uc == 0xbca )
+	    split = tamil_o;
+	else if ( matra_uc == 0xbcb )
+	    split = tamil_oo;
+	else if ( matra_uc == 0xbcc )
+	    split = tamil_au;
+    } else if ( script == QFont::Telugu ) {
+	if ( matra_uc == 0xc48 )
+	    split = telugu_ai;
+    } else if ( script == QFont::Kannada ) {
+	if ( matra_uc == 0xcc0 )
+	    split = kannada_ii;
+	else if ( matra_uc == 0xcc7 )
+	    split = kannada_ee;
+	else if ( matra_uc == 0xcc8 )
+	    split = kannada_ai;
+	else if ( matra_uc == 0xcca )
+	    split = kannada_o;
+	else if ( matra_uc == 0xccb )
+	    split = kannada_oo;
+    } else if ( script == QFont::Malayalam ) {
+	if ( matra_uc == 0xd4a )
+	    split = malayalam_o;
+	else if ( matra_uc == 0xd4b )
+	    split = malayalam_oo;
+	else if ( matra_uc == 0xd4c )
+	    split = malayalam_au;
+    } else if ( script == QFont::Sinhala ) {
+	if ( matra_uc == 0xdda )
+	    split = sinhala_ee;
+	else if ( matra_uc == 0xddc )
+	    split = sinhala_o;
+	else if ( matra_uc == 0xddd )
+	    split = sinhala_oo;
+	else if ( matra_uc == 0xdde )
+	    split = sinhala_au;
+    }
+    assert(split);
+    if (indic_position(*split) == Pre) {
+	reordered[matra] = split[1];
+	memmove(reordered + 1, reordered, len*sizeof(unsigned short));
+	reordered[0] = split[0];
+    } else {
+	memmove(reordered + matra + 1, reordered + matra, (len-matra)*sizeof(unsigned short));
+	reordered[matra] = split[0];
+	reordered[matra+1] = split[1];
+    }
+    len++;
+}
+
+#ifdef INDIC_DEBUG
+#define IDEBUG qDebug
+#else
+#define IDEBUG if(0) qDebug
+#endif
+
+static void devanagari_shape( int script, const QString &string, int from, int syllableLength,
+			      QTextEngine *engine, QScriptItem *si, QOpenType *openType, bool invalid )
+{
+    assert( script == QFont::Devanagari );
+    const unsigned short script_base = 0x0900 + 0x80*(script-QFont::Devanagari);
+    const unsigned short ra = script_base + 0x30;
+    const unsigned short halant = script_base + 0x4d;
+    const unsigned short nukta = script_base + 0x3c;
+
+    int len = syllableLength;
+    IDEBUG(">>>>> devanagari shape: from=%d, len=%d invalid=%d", from, len, invalid);
+
+    unsigned short r[64];
+    unsigned short *reordered = r;
+    GlyphAttributes ga[64];
+    GlyphAttributes *glyphAttributes = ga;
+    glyph_t gl[64];
+    glyph_t *glyphs = gl;
+    if ( len > 60 ) {
+	reordered = (unsigned short *)malloc((len+4)*sizeof(unsigned short));
+	glyphAttributes = (GlyphAttributes *)malloc((len+4)*sizeof(GlyphAttributes));
+	glyphs = (glyph_t *)malloc((len+4)*sizeof(glyph_t));
+    }
+
+    unsigned char properties = scriptProperties[script-QFont::Devanagari];
+
+    unsigned short *copyTo = reordered;
+    if ( invalid ) {
+	*reordered = 0x25cc;
+	len++;
+	copyTo++;
+    }
+    memcpy( copyTo, string.unicode() + from, len*sizeof( QChar ) );
+
+    int base = 0;
+    int reph = -1;
+
+#ifdef INDIC_DEBUG
+    IDEBUG("original:");
+    for ( int i = 0; i < len; i++ ) {
+	IDEBUG("    %d: %4x", i, reordered[i]);
+    }
+#endif
+
+    if ( len != 1 ) {
+	unsigned short *uc = reordered;
+	bool beginsWithRa = FALSE;
+
+	// Rule 1: find base consonant
+	//
+	// The shaping engine finds the base consonant of the
+	// syllable, using the following algorithm: starting from the
+	// end of the syllable, move backwards until a consonant is
+	// found that does not have a below-base or post-base form
+	// (post-base forms have to follow below-base forms), or
+	// arrive at the first consonant. The consonant stopped at
+	// will be the base.
+	//
+ 	//  * If the syllable starts with Ra + H (in a script that has
+ 	//    'Reph'), Ra is excluded from candidates for base
+ 	//    consonants.
+	//
+ 	// * In Kannada and Telugu, the base consonant cannot be
+ 	//   farther than 3 consonants from the end of the syllable.
+	if (form(*uc) == Consonant) {
+	    beginsWithRa = ((len > 1) && *uc == ra && *(uc+1) == halant);
+	    IDEBUG("    length = %d, beginsWithRa = %d", len, beginsWithRa );
+
+	    int lastConsonant = 0;
+	    int matra = -1;
+	    bool excludeRa = beginsWithRa && (properties & HasReph);
+	    int skipped = 0;
+	    Position pos = Post;
+	    // we remember:
+	    // * the last consonant since we need it for rule 2
+	    // * the matras position for rule 3 and 4
+	    for (int i = len-1; i > 0; i--) {
+		Form f = form(uc[i]);
+		if (f == Consonant) {
+		    if (!lastConsonant)
+			lastConsonant = i;
+		    Position charPosition = indic_position(uc[i]);
+		    if (pos == Post && charPosition == Post) {
+			;
+		    } else if ((pos == Post || pos == Below) && charPosition == Below) {
+			pos = Below;
+		    } else if ( !excludeRa || uc[i] != ra ) {
+			base = i;
+			break;
+		    }
+		    if (skipped == 2 && (script == QFont::Kannada || script == QFont::Telugu)) {
+			base = i;
+			break;
+		    }
+		    ++skipped;
+		} else if (f == Matra) {
+		    matra = i;
+		}
+	    }
+
+	    IDEBUG("    base consonant at %d skipped=%d, lastConsonant=%d", base, skipped, lastConsonant );
+
+	    // Rule 2:
+	    //
+	    // If the base consonant is not the last one, Uniscribe
+	    // moves the halant from the base consonant to the last
+	    // one.
+	    if ( lastConsonant != base && uc[base+1] == halant ) {
+		IDEBUG("    moving halant from %d to %d!", base+1, lastConsonant);
+		for ( int i = base+1; i < lastConsonant; i++ )
+		    uc[i] = uc[i+1];
+		uc[lastConsonant] = halant;
+
+	    }
+
+	    // Rule 3:
+	    //
+	    // If the syllable starts with Ra + H, Uniscribe moves
+	    // this combination so that it follows either:
+
+	    // * the post-base 'matra' (if any) or the base consonant
+	    //   (in scripts that show similarity to Devanagari, i.e.,
+	    //   Devanagari, Gujarati, Bengali)
+	    // * the base consonant (other scripts)
+	    // * the end of the syllable (Kannada)
+
+	    Position matra_position = None;
+	    if (matra > 0)
+		matra_position = indic_position( uc[matra] );
+	    IDEBUG("    matra at %d with form %d", matra, matra_position);
+
+ 	    if (beginsWithRa && base != 0) {
+		int toPos = base+1;
+		if ( toPos < len && uc[toPos] == nukta )
+		    toPos++;
+		if ( toPos < len-1 && uc[toPos] == ra && uc[toPos+1] == halant )
+		    toPos += 2;
+		if (script == QFont::Devanagari || script == QFont::Gujarati || script == QFont::Bengali) {
+		    if (matra_position == Post || matra_position == Split) {
+			toPos = matra + 1;
+			matra -= 2;
+		    }
+		} else if (script == QFont::Kannada) {
+		    toPos = len - 1;
+		    matra -= 2;
+		}
+
+		IDEBUG("moving leading ra+halant to position %d", toPos);
+		for ( int i = 2; i < toPos; i++ )
+		    uc[i-2] = uc[i];
+		uc[toPos-2] = ra;
+		uc[toPos-1] = halant;
+		base -= 2;
+		if (properties & HasReph)
+		    reph = toPos-2;
+	    }
+
+	    // Rule 4:
+
+	    // Uniscribe splits two- or three-part matras into their
+	    // parts. This splitting is a character-to-character
+	    // operation).
+	    //
+	    //      Uniscribe describes some moving operations for these
+	    //      matras here. For shaping however all pre matras need
+	    //      to be at the begining of the syllable, so we just move
+	    //      them there now.
+	    if (matra_position == Split)
+		splitMatra(script, uc, matra, len);
+	    else if (matra_position == Pre) {
+		unsigned short m = uc[matra];
+		while (matra--)
+		    uc[matra+1] = uc[matra];
+		uc[0] = m;
+	    }
+	}
+
+	// all reordering happens now to the chars after (base+(reph halant)_vattu?)
+	// so we move base to there
+	int fixed = base+1;
+	if ( fixed < len && uc[fixed] == nukta )
+	    fixed++;
+	if ( fixed < len - 1 && uc[fixed] == ra && uc[fixed+1] == halant )
+	    fixed += 2;
+
+	// we continuosly position the matras and vowel marks and increase the fixed
+	// until we reached the end.
+	static struct {
+	    Form form;
+	    Position position;
+	} finalOrder [] = {
+	    { Matra, Below },
+	    { VowelMark, Below },
+	    { StressMark, Below },
+	    { Matra, Above },
+	    { Matra, Post },
+	    { VowelMark, Above },
+	    { StressMark, Above },
+	    { VowelMark, Post },
+	    { (Form)0, None }
+	};
+
+	IDEBUG("    reordering pass:");
+	IDEBUG("        base=%d fixed=%d", base, fixed );
+	int toMove = 0;
+	while ( fixed < len-1 ) {
+	    IDEBUG("        fixed = %d", fixed );
+	    for ( int i = fixed; i < len; i++ ) {
+		if ( form( uc[i] ) == finalOrder[toMove].form &&
+		     indic_position( uc[i] ) == finalOrder[toMove].position ) {
+		    // need to move this glyph
+		    int to = fixed;
+		    IDEBUG("         moving from %d to %d", i,  to );
+		    unsigned short ch = uc[i];
+		    for ( int j = i; j > to; j-- )
+			uc[j] = uc[j-1];
+		    uc[to] = ch;
+		    fixed++;
+		}
+	    }
+	    toMove++;
+	    if ( finalOrder[toMove].form == 0 )
+		break;
+	}
+
+    }
+    IDEBUG("reordered:");
+    for ( int i = 0; i < len; i++ ) {
+	glyphAttributes[i].mark = FALSE;
+	glyphAttributes[i].clusterStart = FALSE;
+	IDEBUG("    %d: %4x", i, reordered[i]);
+    }
+    IDEBUG("  base=%d, reph=%d", base, reph);
+    glyphAttributes[0].clusterStart = TRUE;
+
+    // now we have the syllable in the right order, and can start running it through open type.
+
+    int firstGlyph = si->num_glyphs;
+
+    if (openType) {
+	int error = si->fontEngine->stringToCMap((QChar *)reordered, len, glyphs, 0, &len,
+						 (si->analysis.bidiLevel %2));
+	assert (!error);
+
+	// we need to keep track of where the base glyph is for some scripts and abuse the logcluster feature for this.
+	// This also means we have to correct the logCluster output from the open type engine manually afterwards.
+	// for indic this is rather simple, as all chars just point to the first glyph in the syllable.
+	unsigned short lc[64];
+	unsigned short *logClusters = lc;
+	bool w[64];
+	bool *where = w;
+	if (len > 63) {
+	    where = (bool *)malloc(len*sizeof(bool));
+	    logClusters = (unsigned short *)malloc((len+4)*sizeof(unsigned short));
+	}
+	memset(where, 0, len*sizeof(bool));
+	for (int i = 0; i < len; ++i)
+	    logClusters[i] = i;
+
+	openType->init(glyphs, glyphAttributes, len, logClusters, len);
+
+	// substitutions
+
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'c', 'c', 'm', 'p' ));
+
+	where[0] = TRUE;
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'i', 'n', 'i', 't' ), where);
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'n', 'u', 'k', 't' ));
+
+	for (int i = 0; i <= base; ++i)
+	    where[i] = TRUE;
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'a', 'k', 'h', 'n' ), where);
+
+	memset(where, 0, len*sizeof(bool));
+	if (reph >= 0) {
+	    where[reph] = where[reph+1] = TRUE;
+	    openType->applyGSUBFeature(FT_MAKE_TAG( 'r', 'p', 'h', 'f' ), where);
+	    where[reph] = where[reph+1] = FALSE;
+	}
+
+	for (int i = 0; i < len; ++i)
+	    where[i] = TRUE;
+	where[base] = FALSE;
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), where);
+	memset(where, 0, len*sizeof(bool));
+	for (int i = 0; i < base; ++i)
+	    where[i] = TRUE;
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'h', 'a', 'l', 'f' ), where);
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 'b', 'f' ));
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'v', 'a', 't', 'u' ));
+
+	// Conjunkts and typographical forms
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 'r', 'e', 's' ));
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'b', 'l', 'w', 's' ));
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'a', 'b', 'v', 's' ));
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 't', 's' ));
+
+	// halant forms
+	if (reordered[len-1] == halant) {
+	    where[len-1] = where[len-2] = TRUE;
+	    openType->applyGSUBFeature(FT_MAKE_TAG( 'h', 'a', 'l', 'n' ));
+	}
+
+	openType->applyGPOSFeatures();
+
+	int newLen;
+	const int *char_map = openType->mapping(newLen);
+
+	GlyphAttributes *ga = engine->glyphAttributes(si)+si->num_glyphs;
+
+	for (int i = 0; i < newLen; ++i)
+	    ga[i] = glyphAttributes[char_map[i]];
+
+
+	openType->appendTo(engine, si, FALSE);
+
+	if (w != where) {
+	    free(where);
+	    free(logClusters);
+	}
+    } else {
+	// can't do any shaping, copy the stuff to the script item.
+	engine->ensureSpace(len);
+
+	glyph_t *glyphs = engine->glyphs(si)+si->num_glyphs;
+	advance_t *advances = engine->advances(si)+si->num_glyphs;
+	GlyphAttributes *ga = engine->glyphAttributes(si)+si->num_glyphs;
+
+	int error = si->fontEngine->stringToCMap((QChar *)reordered, len, glyphs, advances, &si->num_glyphs,
+						 (si->analysis.bidiLevel %2));
+	assert (!error);
+
+	memcpy(ga, glyphAttributes, len*sizeof(GlyphAttributes));
+
+	si->num_glyphs += len;
+    }
+
+    // fix logcluster array
+    unsigned short *logClusters = engine->logClusters(si)+from-si->position;
+    for (int i = 0; i < syllableLength; ++i)
+	logClusters[i] = firstGlyph;
+
+    if (r != reordered) {
+	free(reordered);
+	free(glyphAttributes);
+	free(glyphs);
+    }
+    IDEBUG("<<<<<<");
+}
+
+
+
+static void dummy_shape( int script, const QString &, int, int, QTextEngine *, QScriptItem *, QOpenType *, bool )
+{
+    assert( script >= QFont::Devanagari && script <= QFont::Sinhala );
+    // ######## implement dummy functionality, basically copiying the input to the script item
+}
+
+
+typedef void (*IndicShapeFunction)( int script, const QString &, int, int, QTextEngine *, QScriptItem *, QOpenType *opentype, bool );
+
+// these take only one syllable and append the shaped result to the script item
+IndicShapeFunction indic_shapeFn[QFont::Sinhala - QFont::Devanagari+1] = {
+    devanagari_shape,
+    dummy_shape,
+    dummy_shape,
+    dummy_shape,
+    dummy_shape,
+    dummy_shape,
+    dummy_shape,
+    dummy_shape,
+    dummy_shape,
+    dummy_shape
+};
+
+
 /* syllables are of the form:
 
    (Consonant Nukta? Halant)* Consonant Matra? VowelMark? StressMark?
    (Consonant Nukta? Halant)* Consonant Halant
    IndependentVowel VowelMark? StressMark?
-
-   // ### check the above is correct
 
    We return syllable boundaries on invalid combinations aswell
 */
@@ -944,7 +1412,7 @@ static int indic_nextSyllableBoundary( int script, const QString &s, int start, 
     const QChar *uc = s.unicode()+start;
 
     int pos = 0;
-    Form state = form( uc[pos] );
+    Form state = form( uc[pos].unicode() );
 //     qDebug("state[%d]=%d (uc=%4x)", pos, state, uc[pos].unicode() );
     pos++;
 
@@ -955,7 +1423,7 @@ static int indic_nextSyllableBoundary( int script, const QString &s, int start, 
     }
 
     while ( pos < end - start ) {
-	Form newState = form( uc[pos] );
+	Form newState = form( uc[pos].unicode() );
 // 	qDebug("state[%d]=%d (uc=%4x)", pos, newState, uc[pos].unicode() );
 	switch( newState ) {
 	case Consonant:
@@ -1009,405 +1477,25 @@ static int indic_nextSyllableBoundary( int script, const QString &s, int start, 
 }
 
 
-// vowel matras that have to be split into two parts.
-static const unsigned short bengali_o[2]  = { 0x9c7, 0x9be };
-static const unsigned short bengali_au[2] = { 0x9c7, 0x9d7 };
-
-static const unsigned short oriya_ai[2]    = { 0xb47, 0xb56 };
-static const unsigned short oriya_o[2]    = { 0xb47, 0xb3e };
-static const unsigned short oriya_au[2]    = { 0xb47, 0xb57 };
-
-static const unsigned short tamil_o[2]    = { 0xbc6, 0xbbe };
-static const unsigned short tamil_oo[2]   = { 0xbc7, 0xbbe };
-static const unsigned short tamil_au[2]   = { 0xbc6, 0xbd7 };
-
-static const unsigned short telugu_ai[2]   = { 0xc46, 0xc56 };
-
-static const unsigned short kannada_ii[2]   = { 0xcbf, 0xcd5 };
-static const unsigned short kannada_ee[2]   = { 0xcc6, 0xcd5 };
-static const unsigned short kannada_ai[2]   = { 0xcc6, 0xcd6 };
-static const unsigned short kannada_o[2]    = { 0xcc6, 0xcc2 };
-static const unsigned short kannada_oo[2]   = { 0xcca, 0xcd5 };
-
-static const unsigned short malayalam_o[2]   = { 0xd46, 0xd3e };
-static const unsigned short malayalam_oo[2]   = { 0xd47, 0xd3e };
-static const unsigned short malayalam_au[2]   = { 0xd46, 0xd57 };
-
-static const unsigned short sinhala_ee[2]   = { 0xdd9, 0xdca };
-static const unsigned short sinhala_o[2]   = { 0xdd9, 0xdcf };
-static const unsigned short sinhala_oo[2]   = { 0xddc, 0xdca };
-static const unsigned short sinhala_au[2]   = { 0xdd9, 0xddf };
-
-static QChar *indic_reorder( int script, const QString &string, int start, int end, unsigned short *featuresToApply,
-				GlyphAttributes *attributes, bool invalid, QChar *reordered )
+static void indic_shape( int script, const QString &string, int from, int len, QTextEngine *engine, QScriptItem *si )
 {
-    int len = end - start;
-    unsigned char properties = scriptProperties[script-QFont::Devanagari];
-
-    if ( invalid ) {
-	*reordered = QChar( 0x25cc );
-	len++;
-    }
-    memcpy( reordered + (invalid ? 1 : 0), string.unicode() + start, len*sizeof( QChar ) );
-
-    QChar *uc = (QChar *)reordered;
-
-    if ( properties & HasSplit ) {
-	// We can do this rule at the beginning, as it doesn't interact with later operations.
-	// Rule 4: split two part matras into parts
-	// This could be done better, but works for now.
-	for ( int i = 0; i < len; i++ ) {
-	    const QChar *split = 0;
-	    if ( script == QFont::Bengali ) {
-		if ( uc[i].unicode() == 0x9cb )
-		    split = (const QChar *)bengali_o;
-		else if ( uc[i].unicode() == 0x9cc )
-		    split = (const QChar *)bengali_au;
-	    } else if ( script == QFont::Oriya ) {
-		if ( uc[i].unicode() == 0xb48 )
-		    split = (const QChar *)oriya_ai;
-		else if ( uc[i].unicode() == 0xb4b )
-		    split = (const QChar *)oriya_o;
-		else if ( uc[i].unicode() == 0xb4c )
-		    split = (const QChar *)oriya_au;
-	    } else if ( script == QFont::Tamil ) {
-		if ( uc[i].unicode() == 0xbca )
-		    split = (const QChar *)tamil_o;
-		else if ( uc[i].unicode() == 0xbcb )
-		    split = (const QChar *)tamil_oo;
-		else if ( uc[i].unicode() == 0xbcc )
-		    split = (const QChar *)tamil_au;
-	    } else if ( script == QFont::Telugu ) {
-		if ( uc[i].unicode() == 0xc48 )
-		    split = (const QChar *)telugu_ai;
-	    } else if ( script == QFont::Kannada ) {
-		if ( uc[i].unicode() == 0xcc0 )
-		    split = (const QChar *)kannada_ii;
-		else if ( uc[i].unicode() == 0xcc7 )
-		    split = (const QChar *)kannada_ee;
-		else if ( uc[i].unicode() == 0xcc8 )
-		    split = (const QChar *)kannada_ai;
-		else if ( uc[i].unicode() == 0xcca )
-		    split = (const QChar *)kannada_o;
-		else if ( uc[i].unicode() == 0xccb )
-		    split = (const QChar *)kannada_oo;
-	    } else if ( script == QFont::Malayalam ) {
-		if ( uc[i].unicode() == 0xd4a )
-		    split = (const QChar *)malayalam_o;
-		else if ( uc[i].unicode() == 0xd4b )
-		    split = (const QChar *)malayalam_oo;
-		else if ( uc[i].unicode() == 0xd4c )
-		    split = (const QChar *)malayalam_au;
-	    } else if ( script == QFont::Sinhala ) {
-		if ( uc[i].unicode() == 0xdda )
-		    split = (const QChar *)sinhala_ee;
-		else if ( uc[i].unicode() == 0xddc )
-		    split = (const QChar *)sinhala_o;
-		else if ( uc[i].unicode() == 0xddd )
-		    split = (const QChar *)sinhala_oo;
-		else if ( uc[i].unicode() == 0xdde )
-		    split = (const QChar *)sinhala_au;
-	    }
-	    if ( split ) {
-		memmove( reordered + i + 1, reordered + i, (len-i)*sizeof( QChar ) );
-		reordered[i] = split[0];
-		reordered[i+1] = split[1];
-		len++;
-		break;
-	    }
-	}
-    }
-
-//     qDebug("length=%d",  len );
-    int i;
-    for ( i = 0; i < len; i++ )
-	featuresToApply[i] = 0;
-
-    // nothing to do in this case!
-    if ( len == 1 ) {
-	attributes[0].mark = (category( *reordered ) == QChar::Mark_NonSpacing);
-	attributes[0].clusterStart = TRUE;
-	reordered++;
-	return reordered;
-    }
-
-    int base = 0;
-    if ( form( *uc ) == Consonant ) {
-	bool reph = FALSE;
-	if ( (properties & HasReph) && len > 2 && isRa( uc[0] ) && form( uc[1] ) == Halant ) {
-	    reph = TRUE;
-// 	    qDebug("Reph");
-	}
-
-	// Rule 1: find base consonant
-	int lastConsonant = 0;
-	for ( int i = len-1; i > 0; i-- ) {
-	    if ( form( uc[i] ) == Consonant ) {
-		if ( !lastConsonant )
-		    lastConsonant = i;
-		if ( !(properties & HasReph) || !isRa( uc[i] ) ) {
-		    base = i;
-		    break;
-		}
-	    }
-	}
-	if ( (properties & HasReph) && reph && base == 0 )
-	    base = lastConsonant;
-
-// 	qDebug("base consonant at %d skipped=%s", base, lastConsonant != base ? "true" :"false" );
-
-	// Rule 2: move halant of base consonant to last one. Only
-	// possible if we skipped consonants while finding the base
-	if ( lastConsonant != base && form( uc[base+1] ) == Halant ) {
-// 	    qDebug("moving halant from %d to %d!", base+1, lastConsonant);
-	    QChar halant = uc[base+1];
-	    for ( int i = base+1; i < lastConsonant; i++ )
-		uc[i] = uc[i+1];
-	    uc[lastConsonant] = halant;
-
-	}
-
-	// Rule 3: Move reph to follow post base matra
-	if ( reph ) {
-	    int toPos = base+1;
-	    if ( toPos < len && form( uc[toPos] ) == Nukta )
-		toPos++;
-	    // doing this twice takes care of split matras.
-	    if ( toPos < len && form( uc[toPos] ) == Matra )
-		toPos++;
-	    if ( toPos < len && form( uc[toPos] ) == Matra )
-		toPos++;
-// 	    qDebug("moving reph from %d to %d", 0, toPos );
-	    QChar ra = uc[0];
-	    QChar halant = uc[1];
-	    for ( int i = 2; i < toPos; i++ )
-		uc[i-2] = uc[i];
-	    uc[toPos-2] = ra;
-	    uc[toPos-1] = halant;
-	    featuresToApply[toPos-2] |= RephFeature;
-	    featuresToApply[toPos-1] |= RephFeature;
-	    base -= 2;
-	}
-    }
-
-    // Rule 5: identify matra position. there are no post/below base consonats
-    // in devanagari except for [Ra Halant]_Vattu, but these are already at the
-    // right position
-
-    // all reordering happens now to the chars after (base+(reph halant)_vattu?)
-    // so we move base to there
-    int fixed = base+1;
-    if ( fixed < len && form( uc[fixed] ) == Nukta )
-	fixed++;
-    if ( fixed < len - 1 && isRa( uc[fixed] ) && form( uc[fixed+1] ) == Halant )
-	fixed += 2;
-
-
-    // we continuosly position the matras and vowel marks and increase the fixed
-    // until we reached the end.
-    static struct {
-	Form form;
-	Position position;
-    } finalOrder [] = {
-	{ Matra, Pre },
-	{ Matra, Below },
-	{ VowelMark, Below },
-	{ StressMark, Below },
-	{ Matra, Above },
-	{ Matra, Post },
-	{ Consonant, None },
-	{ Halant, None },
-	{ VowelMark, Above },
-	{ StressMark, Above },
-	{ VowelMark, Post },
-	{ (Form)0, None }
-    };
-
-//      qDebug("base=%d fixed=%d", base, fixed );
-    int toMove = 0;
-    while ( fixed < len ) {
-//  	qDebug("fixed = %d", fixed );
-	for ( int i = fixed; i < len; i++ ) {
-	    if ( form( uc[i] ) == finalOrder[toMove].form &&
-		 indic_position( uc[i] ) == finalOrder[toMove].position ) {
-		// need to move this glyph
-		int to = fixed;
-		if ( finalOrder[toMove].position == Pre )
-		    to = (properties&MovePreToFront) ? 0 : base;
-//  		qDebug("moving from %d to %d", i,  to );
-		QChar ch = uc[i];
-		unsigned short feature = featuresToApply[i];
-		for ( int j = i; j > to; j-- ) {
-		    uc[j] = uc[j-1];
-		    featuresToApply[j] = featuresToApply[j-1];
-		}
-		uc[to] = ch;
-		switch( finalOrder[toMove].position ) {
-		case Pre:
-// 		    feature |= PreSubstFeature;
-		    break;
-		case Above:
-// 		    feature |= AboveSubstFeature;
-		    break;
-		case Below:
-		    feature |= BelowFormFeature;//|BelowSubstFeature;
-		    break;
-		case Post:
-		    feature |= PostSubstFeature;//|PostFormFeature;
-		    break;
-		case None:
-		    break;
-		case Split:
-		    break;
-		}
-		featuresToApply[to] = feature;
-		fixed++;
-	    }
-	}
-	toMove++;
-	if ( finalOrder[toMove].form == 0 )
-	    break;
-    }
-
-    bool halantForm = base < len-1 && (form( uc[base+1] ) == Halant);
-    if ( halantForm ) {
-	// #### we have to take care this doesn't get applied to Akhant ligatures,
-	// but that's currently rather hard (without a bigger rewrite of the open type
-	// API (ftx*.c)
-	featuresToApply[base] |= HalantFeature;
-	featuresToApply[base+1] |= HalantFeature;
-    }
-
-    // set the features we need to apply in OT
-    int state = form( uc[0] );
-    bool lastWasBase = (base == 0);
-    if ( state == Consonant )
-	featuresToApply[0] |= AkhantFeature|NuktaFeature;
-
-    for ( i = 1; i < len; i++ ) {
-	int newState = form( uc[i] );
-	switch( newState ) {
-	case Consonant:
-	    lastWasBase = (i == base);
-	    featuresToApply[i] |= AkhantFeature|NuktaFeature;
-	    break;
-	case Halant:
-	    if ( state == Nukta || state == Consonant ) {
-		// vattu or halant feature
-		if ( (properties & HasReph) && isRa( uc[i-1] ) && len > 2 ) {
-		    if ( !(featuresToApply[i] & RephFeature) ) {
-			featuresToApply[i-1] |= BelowFormFeature|VattuFeature;
-			featuresToApply[i] |= BelowFormFeature|VattuFeature;
-			int j = i-2;
-			while ( j >= 0 ) {
-			    int f = form( uc[j] );
-			    featuresToApply[j] |= VattuFeature;
-			    if ( f == Consonant )
-				break;
-			    j--;
-			}
-		    }
-		}
-		else if ( !lastWasBase  ) {
-		    if ( state == Nukta )
-			featuresToApply[i-2] |= HalfFormFeature;
-		    featuresToApply[i-1] |= HalfFormFeature;
-		    featuresToApply[i] |= HalfFormFeature;
-		}
-	    }
-	    break;
-	case Nukta:
-	    if ( state == Consonant ) {
-		featuresToApply[i-1] |= NuktaFeature;
-		featuresToApply[i] |= NuktaFeature;
-	    }
-	case StressMark:
-	case VowelMark:
-	case Matra:
-	case LengthMark:
-	case IndependentVowel:
-	case Invalid:
-	case Other:
-	    break;
-	}
-	state = newState;
-    }
-
-    //qDebug("reordered:");
-    for ( i = 0; i < len; i++ ) {
-	attributes[i].mark = (category( *reordered ) == QChar::Mark_NonSpacing);
-	attributes[i].clusterStart = FALSE;
-	//qDebug("    %d: %4x apply=%4x clusterStart=%d", i, reordered->unicode(), featuresToApply[i], attributes[i].clusterStart );
-	reordered++;
-    }
-    attributes[0].clusterStart = TRUE;
-
-
-    return reordered;
-}
-
-
-static QChar *analyzeSyllables( int script, const QString &string, int from, int length,
-				 unsigned short *featuresToApply, GlyphAttributes *attributes, QChar *reordered ) {
-
+    assert( script >= QFont::Devanagari && script <= QFont::Sinhala );
+    si->num_glyphs = 0;
     int sstart = from;
-    int end = sstart + length;
-    QChar *current = reordered;
+    int end = sstart + len;
+    IndicShapeFunction shape = indic_shapeFn[script-QFont::Devanagari];
+    QOpenType *openType = si->fontEngine->openType();
+    if (openType && !openType->supportsScript(script))
+	openType = 0;
+
     while ( sstart < end ) {
 	bool invalid;
 	int send = indic_nextSyllableBoundary( script, string, sstart, end, &invalid );
-// 	qDebug("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
-// 	       invalid ? "true" : "false" );
-	assert( script >= QFont::Devanagari && script <= QFont::Sinhala );
-	current = indic_reorder( script, string, sstart, send, featuresToApply+(current-reordered),
-				    attributes+(current-reordered), invalid, current );
+ 	qDebug("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
+ 	       invalid ? "true" : "false" );
+	shape(script, string, sstart, send-sstart, engine, si, openType, invalid);
 	sstart = send;
     }
-    return current;
-}
-
-
-static void indic_shape( int script, const QString &string, int from, int len, QTextEngine *engine, QScriptItem *si )
-{
-//       qDebug("QScriptEngineDevanagari::shape( from=%d, len=%d)",  from,  len);
-    unsigned short fa[256];
-    unsigned short *featuresToApply = fa;
-
-    si->hasPositioning = TRUE;
-
-    if ( len > 127 )
-	featuresToApply = new unsigned short[ 2*len ];
-
-    GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
-    unsigned short *logClusters = engine->logClusters( si );
-
-    QChar *reordered = (QChar *)malloc( (3*len + 1) * sizeof( QChar ) );
-
-    QChar *end = analyzeSyllables( script, string, from, len, featuresToApply,
-				   glyphAttributes, reordered );
-    si->num_glyphs = end - reordered;
-    engine->ensureSpace( si->num_glyphs );
-
-    int pos = 0;
-    for ( int i = 0; i < si->num_glyphs; i++ ) {
-	if ( glyphAttributes[i].clusterStart )
-	    pos = i;
-	logClusters[i] = pos;
-    }
-
-    convertToCMap( reordered, si->num_glyphs, engine, si );
-    ::free( reordered );
-
-#ifndef QT_NO_XFTFREETYPE
-    QOpenType *openType = si->fontEngine->openType();
-
-    if ( openType && openType->supportsScript( script ) ) {
-	((QOpenType *) openType)->apply( script, featuresToApply, engine, si, len );
-    }
-#endif
-
-    if ( featuresToApply != fa )
-	delete [] featuresToApply;
 }
 
 
@@ -1628,7 +1716,7 @@ static void tibetan_shape( int script, const QString &string, int from, int len,
     QOpenType *openType = si->fontEngine->openType();
 
     if ( openType && openType->supportsScript( script ) ) {
-	((QOpenType *) openType)->apply( script, featuresToApply, engine, si, len );
+	//	((QOpenType *) openType)->apply( script, featuresToApply, engine, si, len );
     }
 #endif
 

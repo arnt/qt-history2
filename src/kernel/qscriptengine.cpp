@@ -385,16 +385,8 @@ static void basic_attributes( int /*script*/, const QString &text, int from, int
 enum Shape {
     XIsolated,
     XFinal,
-    XInitial,
-    XMedial
-};
-
-// ### keep in sync with table entries in opentype.cpp
-static const unsigned short shapeToOpenTypeBit[] = {
-    0x01,
-    0x02,
-    0x08,
-    0x04
+    XMedial,
+    XInitial
 };
 
 /*
@@ -868,26 +860,93 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 }
 
 #if defined( Q_WS_X11) && !defined( QT_NO_XFTFREETYPE )
-static void openTypeShape( int script, const QOpenType *openType, const QString &string, int from,
-			   int len, QTextEngine *engine, QScriptItem *si )
+
+static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QString &string, int from,
+				       int len, QTextEngine *engine, QScriptItem *si )
 {
     convertToCMap( string.unicode() + from, len, engine, si );
     heuristicSetGlyphAttributes( string, from, len, engine, si );
 
-    unsigned short fa[256];
-    unsigned short *featuresToApply = fa;
+    unsigned char gv[256];
+    unsigned char *glyphVariant = gv;
+    bool ap[256];
+    bool *apply = ap;
 
-    if ( si->num_glyphs > 255 )
-	featuresToApply = (unsigned short *)malloc( si->num_glyphs );
+    if ( si->num_glyphs > 255 ) {
+	glyphVariant = (unsigned char *)malloc(si->num_glyphs*sizeof(unsigned char));
+	apply = (bool *)malloc(si->num_glyphs*sizeof(bool));
+    }
 
     for ( int i = 0; i < si->num_glyphs; i++ )
-	featuresToApply[i] = shapeToOpenTypeBit[glyphVariantLogical( string, from + i )];
+	glyphVariant[i] = glyphVariantLogical( string, from + i );
 
-    ((QOpenType *) openType)->apply( script, featuresToApply, engine, si, len );
+    openType->init(engine->glyphs(si), engine->glyphAttributes(si), si->num_glyphs,
+		   engine->logClusters(si), len);
 
-    if ( featuresToApply != fa )
-	free( featuresToApply );
+    // call features in the order defined by http://www.microsoft.com/typography/otfntdev/arabicot/shaping.htm
+    openType->applyGSUBFeature(FT_MAKE_TAG( 'c', 'c', 'm', 'p' ));
+
+    if (script == QFont::Arabic) {
+	const int features[] = {
+	    FT_MAKE_TAG( 'i', 's', 'o', 'l' ),
+	    FT_MAKE_TAG( 'f', 'i', 'n', 'a' ),
+	    FT_MAKE_TAG( 'm', 'e', 'd', 'i' ),
+	    FT_MAKE_TAG( 'i', 'n', 'i', 't' )
+	};
+	for (int j = 0; j < 4; ++j) {
+	    for ( int i = 0; i < si->num_glyphs; i++ )
+		apply[i] = (glyphVariant[i] == j);
+	    openType->applyGSUBFeature(features[j], apply);
+	}
+    } else {
+	const struct {
+	    int tag;
+	    int shape;
+	} features[] = {
+	    { FT_MAKE_TAG( 'i', 's', 'o', 'l' ), XIsolated },
+	    { FT_MAKE_TAG( 'f', 'i', 'n', 'a' ), XFinal },
+	    { FT_MAKE_TAG( 'f', 'i', 'n', '2' ), XFinal },
+	    { FT_MAKE_TAG( 'f', 'i', 'n', '3' ), XFinal },
+	    { FT_MAKE_TAG( 'm', 'e', 'd', 'i' ), XMedial },
+	    { FT_MAKE_TAG( 'm', 'e', 'd', '2' ), XMedial },
+	    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), XInitial }
+	};
+	for (int j = 0; j < 7; ++j) {
+	    for ( int i = 0; i < si->num_glyphs; i++ )
+		apply[i] = (glyphVariant[i] == features[j].shape);
+	    openType->applyGSUBFeature(features[j].tag, apply);
+	}
+    }
+    const int commonFeatures[] = {
+	// these features get applied to all glyphs and both scripts
+	FT_MAKE_TAG( 'r', 'l', 'i', 'g' ),
+	FT_MAKE_TAG( 'c', 'a', 'l', 't' ),
+	FT_MAKE_TAG( 'l', 'i', 'g', 'a' ),
+	FT_MAKE_TAG( 'd', 'l', 'i', 'g' )
+    };
+    for (int j = 0; j < 4; ++j)
+	openType->applyGSUBFeature(commonFeatures[j]);
+
+    if (script == QFont::Arabic) {
+	const int features[] = {
+	    FT_MAKE_TAG( 'c', 's', 'w', 'h' ),
+	    // mset is used in old Win95 fonts that don't have a 'mark' positioning table.
+	    FT_MAKE_TAG( 'm', 's', 'e', 't' )
+	};
+	for (int j = 0; j < 2; ++j)
+	    openType->applyGSUBFeature(features[j]);
+    }
+
+    openType->applyGPOSFeatures();
+    si->num_glyphs = 0;
+    openType->appendTo(engine, si);
+
+    if (glyphVariant != gv) {
+	free(glyphVariant);
+	free(apply);
+    }
 }
+
 #endif
 
 static void arabic_attributes( int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes )
@@ -914,7 +973,7 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
     QOpenType *openType = si->fontEngine->openType();
 
     if ( openType && openType->supportsScript( QFont::Arabic ) ) {
-	openTypeShape( QFont::Arabic, openType, string,  from,  len, engine, si );
+	arabicSyriacOpenTypeShape( QFont::Arabic, openType, string,  from,  len, engine, si );
 	return;
     }
 #endif

@@ -667,15 +667,13 @@
 
     if ( ALLOC_ARRAY( ll->Lookup, count, TTO_Lookup ) )
       return error;
-    if ( ALLOC_ARRAY( ll->Properties, count, FT_UShort ) )
-      goto Fail2;
 
     l = ll->Lookup;
 
     for ( n = 0; n < count; n++ )
     {
       if ( ACCESS_Frame( 2L ) )
-        goto Fail1;
+        goto Fail;
 
       new_offset = GET_UShort() + base_offset;
 
@@ -684,19 +682,17 @@
       cur_offset = FILE_Pos();
       if ( FILE_Seek( new_offset ) ||
            ( error = Load_Lookup( &l[n], stream, type ) ) != TT_Err_Ok )
-        goto Fail1;
+        goto Fail;
       (void)FILE_Seek( cur_offset );
     }
 
     return TT_Err_Ok;
 
-  Fail1:
-    FREE( ll->Properties );
+  Fail:
 
     for ( m = 0; m < n; m++ )
       Free_Lookup( &l[m], type, memory );
 
-  Fail2:
     FREE( ll->Lookup );
     return error;
   }
@@ -710,8 +706,6 @@
 
     TTO_Lookup*  l;
 
-
-    FREE( ll->Properties );
 
     if ( ll->Lookup )
     {

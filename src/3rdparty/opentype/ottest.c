@@ -54,6 +54,7 @@ print_tag (FT_ULong tag)
 	  (unsigned char)(tag & 0xff));
 }
 
+#if 0
 void
 maybe_add_feature (TTO_GSUB  gsub,
 		   FT_UShort script_index,
@@ -152,14 +153,14 @@ dump_string (TTO_GSUB_String *str)
   int i;
 
   fprintf (stderr, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
-  for (i = 0; i < str->length; i++)
+  for (i = 0; i < (int)str->length; i++)
     {
-      fprintf (stderr, "%2d: %#06x %#06x %4d %4d\n",
+      fprintf (stderr, "%2d: %#01x %#02x %4d %4d\n",
 	       i,
 	       str->string[i],
-	       str->properties[i],
-	       str->components[i],
-	       str->ligIDs[i]);
+	       str->glyph_properties[i].type,
+	       str->glyph_properties[i].component,
+	       str->character_index[i]);
     }
   fprintf (stderr, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 }
@@ -188,7 +189,7 @@ try_string (FT_Library library,
   if ((error = TT_GSUB_String_Set_Length (in_str, N_ELEMENTS (arabic_str))))
     croak ("TT_GSUB_String_Set_Length", error);
 
-  for (i=0; i < N_ELEMENTS (arabic_str); i++)
+  for (i=0; i < (int)N_ELEMENTS (arabic_str); i++)
     {
       in_str->string[i] = FT_Get_Char_Index (face, arabic_str[i]);
       in_str->properties[i] = arabic_props[i];
@@ -209,6 +210,7 @@ try_string (FT_Library library,
   if ((error = TT_GSUB_String_Done (tmp_str)))
     croak ("TT_GSUB_String_New", error);
 }
+#endif
 
 int
 main (int argc, char **argv)

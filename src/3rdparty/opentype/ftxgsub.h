@@ -478,6 +478,12 @@ extern "C" {
 
   typedef union TTO_GSUB_SubTable_  TTO_GSUB_SubTable;
 
+    struct TTO_Glyph_property_ {
+	unsigned char type : 3;
+	unsigned char component :5;
+    };
+    typedef struct TTO_Glyph_property_ TTO_Glyph_property;
+#define MAX_COMPONENT_INDEX = 0x1f;
 
   /* A simple string object.  It can both `send' and `receive' data.
      In case of sending, `length' and `pos' will be used.  In case of
@@ -503,19 +509,15 @@ extern "C" {
      TT_Add_String() will also handle allocation; you should use
      free() in case you want to destroy the arrays in the object. */
 
+
   struct  TTO_GSUB_String_
   {
-    FT_Memory   memory;
-
     FT_ULong    length;
     FT_ULong    pos;
     FT_ULong    allocated;
     FT_UShort*  string;
-    FT_UShort*  properties;
-    FT_UShort*  components;
-    FT_UShort   max_ligID;
-    FT_UShort*  ligIDs;
-    FT_Int*     logClusters;
+    TTO_Glyph_property*  glyph_properties;
+    FT_Int*     character_index;
   };
 
   typedef struct TTO_GSUB_String_  TTO_GSUB_String;
@@ -565,20 +567,12 @@ extern "C" {
                                     FT_ULong**       feature_tag_list );
 
   EXPORT_DEF
-  FT_Error  TT_GSUB_Add_Feature( TTO_GSUBHeader*  gsub,
-                                 FT_UShort        feature_index,
-                                 FT_UShort        property );
-  EXPORT_DEF
-  FT_Error  TT_GSUB_Clear_Features( TTO_GSUBHeader*  gsub );
-
-  EXPORT_DEF
   FT_Error  TT_GSUB_Register_Alternate_Function( TTO_GSUBHeader*  gsub,
                                                  TTO_AltFunction  altfunc,
                                                  void*            data );
 
   EXPORT_DEF
-  FT_Error  TT_GSUB_String_New( FT_Memory           memory,
-				TTO_GSUB_String   **result );
+  FT_Error  TT_GSUB_String_New( TTO_GSUB_String   **result );
 
   EXPORT_DEF
   FT_Error  TT_GSUB_String_Set_Length( TTO_GSUB_String *str,
@@ -593,10 +587,12 @@ extern "C" {
 
 
   EXPORT_DEF
-  FT_Error  TT_GSUB_Apply_String( TTO_GSUBHeader*   gsub,
-                                  TTO_GSUB_String*  in,
-                                  TTO_GSUB_String**  out,
-				  TTO_GSUB_String** tmp );
+  FT_Error  TT_GSUB_Apply_Feature( TTO_GSUBHeader*   gsub,
+				   FT_UShort feature_index,
+				   unsigned char *where_to_apply,
+				   TTO_GSUB_String**  str,
+				   TTO_GSUB_String**  tmp);
+
 
   EXPORT_DEF
   FT_Error  TT_GSUB_Add_String( TTO_GSUB_String*  in,
@@ -604,8 +600,7 @@ extern "C" {
                                 TTO_GSUB_String*  out,
                                 FT_UShort         num_out,
                                 FT_UShort*        glyph_data,
-                                FT_UShort         component,
-                                FT_UShort         ligID );
+                                FT_UShort         component);
 
 #ifdef __cplusplus
 }
