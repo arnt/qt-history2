@@ -18,21 +18,37 @@
 /*!
     \class QLineFloat
 
-    \brief The class QLineFloat describes a line using floating points.
+    \brief The QLineFloat class provides a two-dimensional vector that
+    uses floating point coordinates for accuracy.
 
-    It provides convenience functions for working with lines, such as
-    intersections, normal vectors and unit vectors.
+    A QLineFloat describes a finite length line on a two-dimensional surface.
+    The start and end points of the line are specified using floating point
+    coordinates for accuracy.
+
+    Convenience functions are provided for finding the lines's length(),
+    the unitVector() along the line, and whether two lines intersect().
+    The line can be translated along the length of another line with the
+    moveBy() function.
+
+    \sa QPointFloat
 */
 
 /*!
     \enum QLineFloat::IntersectMode
 
-    \value Unbounded This mode does intersection without being bounded
-    by the start and end points of the line. This means that
-    non-parallel lines will always have an intersection.
+    \value Unbounded In this mode, checks for intersection ignore the start and
+                     end points of each line. This means that non-parallel
+                     lines will always have an intersection.
 
-    \value Bounded This mode does intersection and takes the start
-    and end points into account.
+    \img qlinefloat-unbounded.png
+
+    \value Bounded   In this mode, checks for intersection take into account
+                     the start and end points of each line. This means that
+                     non-parallel lines will only intersect if the intersection
+                     occurs between the start and end points of each line.
+
+    \img qlinefloat-bounded.png
+
 */
 
 /*!
@@ -46,8 +62,9 @@ float QLineFloat::length() const
 }
 
 /*!
-    Returnes a normalized version of this line, starting in the same
-    point as this line. A normalized line is a line of length = 1.
+    Returns a normalized version of this line, starting at the same
+    point as this line. A normalized line is a line of unit length
+    (length() is equal to 1.0).
 */
 QLineFloat QLineFloat::unitVector() const
 {
@@ -109,6 +126,6 @@ QPointFloat QLineFloat::intersect(const QLineFloat &l, IntersectMode mode, bool 
 /*!
     \fn void QLineFloat::moveBy(const QLineFloat &l)
 
-    Translates this line along the line \a l according
-    to the distance of \l.
+    Translates this line by the vector specified by the line \a l.
+
 */
