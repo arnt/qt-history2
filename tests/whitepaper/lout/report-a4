@@ -19,6 +19,9 @@
 #                                                                             #
 ###############################################################################
 
+## 3.17 +
+#@SysInclude { fontdefs	} # font definitions
+##
   @SysInclude { langdefs	} # language definitions
   @SysInclude { bsf		} # BasicSetup package
   @SysInclude { dsf		} # DocumentSetup package
@@ -401,5 +404,7 @@
 #                                                                             #
 ###############################################################################
 
+## 3.17 -
 @SysDatabase @FontDef  { fontdefs }		  # font definitions
+#
 @SysDatabase @RefStyle { refstyle }		  # reference printing styles
