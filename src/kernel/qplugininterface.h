@@ -1,6 +1,8 @@
 #ifndef QPLUGININTERFACE_H
 #define QPLUGININTERFACE_H
 
+#ifndef QT_NO_PLUGIN
+
 #include <qstringlist.h>
 #include <qstrlist.h>
 #include <qdict.h>
@@ -26,3 +28,6 @@ public:
 };
 
 #endif
+
+#endif //QPLUGININTERFACE_H
+

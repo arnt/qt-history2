@@ -3121,6 +3121,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
   \sa isPhase2()
 */
 
+#ifndef QT_NO_PLUGIN
 /*!
   Returns an interface that matches the \a request, or null if this application 
   doesn't provide the requested interface.
@@ -3138,3 +3139,4 @@ QApplicationInterface* QApplication::requestApplicationInterface( const QCString
 {
     return 0;
 }
+#endif

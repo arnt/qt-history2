@@ -1,12 +1,9 @@
 #include "qplugin.h"
+
+#ifndef QT_NO_PLUGIN
+#include "qplugin_p.h"
 #include <qapplication.h>
 #include <qapplicationinterface.h>
-
-#ifdef _WS_WIN_
-#include <qt_windows.h>
-#else
-#include <dlfcn.h>
-#endif
 
 /*!
   \class QPlugInInterface qplugininterface.h
@@ -540,3 +537,5 @@ QStringList QPlugIn::featureList()
 
   \sa selectFeature, featureList, plugIn
 */
+
+#endif

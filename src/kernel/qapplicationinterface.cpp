@@ -1,6 +1,6 @@
 #include "qapplicationinterface.h"
 
-#ifndef QT_NO_PROPERTIES
+#ifndef QT_NO_PLUGIN
 
 /*!
   \class QApplicationInterface qapplicationinterface.h
@@ -34,6 +34,8 @@ QApplicationInterface::QApplicationInterface( QObject* o )
   This function is made protected to prevent uncontrolled access to the handled object.
 */
 
+#ifndef QT_NO_PROPERTIES
+
 /*!
   \fn QVariant QApplicationInterface::requestProperty( const QCString& p )
 
@@ -46,7 +48,6 @@ QVariant QApplicationInterface::requestProperty( const QCString& p )
 {
     return parent()->property( p );
 }
-
 /*!
   \fn void QApplicationInterface::requestSetProperty( const QCString& p, const QVariant& value )
 
@@ -60,6 +61,8 @@ bool QApplicationInterface::requestSetProperty( const QCString& p, const QVarian
 {
     return parent()->setProperty( p, v );
 }
+
+#endif
 
 /*!
   \fn bool QApplicationInterface::requestConnect( const char* signal, QObject* target, const char* slot )

@@ -1,6 +1,8 @@
 #ifndef QPLUGINMANAGER_H
 #define QPLUGINMANAGER_H
 
+#ifndef QT_NO_PLUGIN
+
 #include <qdict.h>
 #include <qdir.h>
 
@@ -187,5 +189,7 @@ private:
     QPlugIn::LibraryPolicy defPol;
     QString defFunction;
 };
+
+#endif
 
 #endif //QPLUGINMANAGER_H

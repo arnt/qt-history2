@@ -64,7 +64,9 @@ class QMutex;
 // REMOVE IN 3.0 (just here for moc source compatibility)
 #define QNonBaseApplication QApplication
 
+#ifndef QT_NO_PLUGIN
 class QApplicationInterface;
+#endif
 
 class Q_EXPORT QApplication : public QObject
 {
@@ -237,7 +239,9 @@ public:
     bool 	     locked();
 #endif
 
+#ifndef QT_NO_PLUGIN
     virtual QApplicationInterface* requestApplicationInterface( const QCString& request );
+#endif
 
 signals:
     void	     lastWindowClosed();

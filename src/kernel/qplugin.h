@@ -1,6 +1,8 @@
 #ifndef QPLUGIN_H
 #define QPLUGIN_H
 
+#ifndef QT_NO_PLUGIN
+
 #include "qplugininterface.h"
 #include <qstringlist.h>
 #include <qwindowdefs.h>
@@ -52,6 +54,8 @@ private:
     LibraryPolicy libPol;
     QCString function;
 };
+
+#endif
 
 #endif // QPLUGIN_H
 
