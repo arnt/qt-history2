@@ -271,6 +271,10 @@ void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &botto
     if (model->parent(topLeft) != model->parent(bottomRight) ||
         !topLeft.isValid() || !bottomRight.isValid())
         return;
+
+    if (topLeft.row() > bottomRight.row() || topLeft.column() > bottomRight.column())
+        qWarning("topLeft and bottomRight are swapped!");
+
     append(QItemSelectionRange(model->parent(bottomRight),
                                topLeft.row(), topLeft.column(),
                                bottomRight.row(), bottomRight.column()));
@@ -672,8 +676,9 @@ bool QItemSelectionModel::isSelected(const QModelIndex &index) const
   Returns true if all items are selected in the \a row with the given
   \a parent.
 
-  Note that this function is usually faster than calling isSelected() on
-  all items in the same row.
+  Note that this function is usually faster than calling isSelected()
+  on all items in the same row and that unselectable items are
+  ignored.
 */
 bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) const
 {
@@ -721,8 +726,9 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
   Returns true if all items are selected in the \a column with the given
   \a parent.
 
-  Note that this function is usually faster than calling isSelected() on
-  all items in the same column.
+  Note that this function is usually faster than calling isSelected()
+  on all items in the same column and that unselectable items are
+  ignored.
 */
 bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent) const
 {
