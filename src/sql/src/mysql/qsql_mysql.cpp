@@ -358,14 +358,14 @@ QSqlIndex QMYSQLDriver::primaryIndex( const QString& tablename ) const
 
 QSqlRecord QMYSQLDriver::record( const QString& tablename ) const
 {
+    MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.local8Bit().data(), 0);
     QSqlRecord fil;
-    QString fieldStmt( "show columns from %1;");
-    QSqlQuery i = createQuery();
-    i.exec( fieldStmt.arg( tablename ) );
-    while ( i.isActive() && i.next() ) {
-	QSqlField f ( i.value(0).toString() , qDecodeMYSQLType(i.value(1).toInt()) );
+    MYSQL_FIELD* field;
+    while ( (field = mysql_fetch_field( r ))) {
+	QSqlField f ( QString( field->name ) , qDecodeMYSQLType( (int)field->type ) );
 	fil.append ( f );
     }
+    mysql_free_result( r );
     return fil;
 }
 
