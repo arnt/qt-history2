@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#23 $
 **
 ** Implementation of QPainter class
 **
@@ -17,14 +17,23 @@
 #define QPAINTER_C
 #include "qpainter.h"
 #include "qpaintdc.h"
-#include "qpntarry.h"
-#include "q2matrix.h"
+#include "qbitmap.h"
 #include "qstack.h"
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#23 $";
 #endif
+
+
+/*!
+\class QPainter qpainter.h
+\brief The QPainter class paints paint devices.
+
+It does exactly what I want it to. Hurra.
+MUCH REMAINS TO BE WRITTEN HERE. YUCKYUCKYUCKJ.
+
+*/
 
 
 QPaintDevice *QPainter::pdev_ov = 0;
@@ -196,39 +205,40 @@ void QPainter::restore()			// restore/pop painter state
 // Painter functions for drawing shadow effects.
 //
 
-/*! Draw a nicely shaded line.  The arguments may not reveal it, but
-  the line has to be either vertical or horizontal.  If the line is
-  horizontal (\e y1 == \e y2), the line is drawn with \e tColor (the
-  top color) at the y coordinate and \e bColor at the line below.  If
-  the line is vertical (\e x1 == \e x2) the line drawn with \e tColor
-  at the x coordinate and bColor at the next line to the right.  The
-  end pixels are treated specially.
+/*!
+Draw a nicely shaded line.  The arguments may not reveal it, but
+the line has to be either vertical or horizontal.  If the line is
+horizontal (\e y1 == \e y2), the line is drawn with \e tColor (the
+top color) at the y coordinate and \e bColor at the line below.  If
+the line is vertical (\e x1 == \e x2) the line drawn with \e tColor
+at the x coordinate and bColor at the next line to the right.  The
+end pixels are treated specially.
 
-  You may consider the line to be illuminated from the top left corner
-  of the screen.
+You may consider the line to be illuminated from the top left corner
+of the screen.
 
-  If \e tColor is darker than \e bColor, the line will appear to be a
-  groove, and if \e bColor is darker then \e tColor, the line will
-  appear to be raised.
+If \e tColor is darker than \e bColor, the line will appear to be a
+groove, and if \e bColor is darker then \e tColor, the line will
+appear to be raised.
 
-  drawShadeLine() doesn't disturb the pen color.
+drawShadeLine() doesn't disturb the pen color.
 
-  For the curious: If the line, as specified, isn't either vertical or
-  horizontal, the routine won't notice.  It only tests for one
-  alternative, and uses the other if the test fails.  (But I'm not
-  telling which :)
+For the curious: If the line, as specified, isn't either vertical or
+horizontal, the routine won't notice.  It only tests for one
+alternative, and uses the other if the test fails.  (But I'm not
+telling which :)
 
-  \todo document mColor, mlw, lw
+\todo document mColor, mlw, lw
 
-  \sa drawShadeRect(), drawShadePanel(), drawLine(). */
+\sa drawShadeRect(), drawShadePanel(), drawLine(). */
+
 void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 			      const QColor &tColor, const QColor &bColor,
 			      int lw, const QColor &mColor, int mlw )
 {
     int tlw = lw*2 + mlw;			// total line width
     QPen oldPen = pen();			// save pen
-    QPen pen( tColor );
-    setPen( pen );    
+    setPen( tColor );				// makes new cpen
     if ( y1 == y2 ) {				// horizontal line
 	int y = y1 - tlw/2;
 	if ( x1 > x2 ) {			// swap x1 and x2
@@ -245,10 +255,10 @@ void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 			    x2,   y+i );
 	    drawPolyline( a );
 	}
-        pen.setColor( mColor );
+        cpen.setColor( mColor );
 	for ( i=0; i<mlw; i++ )			// draw lines in the middle
 	    drawLine( x1+lw, y+lw+i, x2-lw, y+lw+i );
-	pen.setColor( bColor );
+	cpen.setColor( bColor );
 	for ( i=0; i<lw; i++ ) {		// draw bottom shadow
 	    a.setPoints( 3, x1+lw, y+tlw-i-1,
 			    x2-i,  y+tlw-i-1,
@@ -272,10 +282,10 @@ void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 			    x+tlw-1, y1+i );
 	    drawPolyline( a );
 	}
-        pen.setColor( mColor );
+        cpen.setColor( mColor );
 	for ( i=0; i<mlw; i++ )			// draw lines in the middle
 	    drawLine( x+lw+i, y1+lw, x+lw+i, y2 );
-	pen.setColor( bColor );
+	cpen.setColor( bColor );
 	for ( i=0; i<lw; i++ ) {		// draw bottom shadow
 	    a.setPoints( 3, x+lw,      y2-i,
 			    x+tlw-i-1, y2-i,
@@ -283,6 +293,7 @@ void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 	    drawPolyline( a );
 	}
     }
+    setPen( oldPen );
 }
 
 
@@ -293,15 +304,14 @@ void QPainter::drawShadeRect( int x, int y, int w, int h,
     if ( w < 1 || h < 1 || lw < 0 || mlw < 0 )	// bad parameters
 	return;
     QPen oldPen = pen();			// save pen
-    QPen pen( tColor );
-    setPen( pen );
+    setPen( tColor );				// makes new cpen
     int x1=x, y1=y, x2=x+w-1, y2=y+h-1;
     QPointArray a;
     if ( lw == 1 && mlw == 0 ) {		// standard shade rectangle
 	a.setPoints( 8, x1,y1, x2,y1, x1,y1+1, x1,y2, x1+2,y2-1,
 		     x2-1,y2-1, x2-1,y1+2,  x2-1,y2-2 );
 	drawLineSegments( a );			// draw top lines
-	pen.setColor( bColor );
+	cpen.setColor( bColor );
 	a.setPoints( 8, x1+1,y1+1, x2,y1+1, x1+1,y1+2, x1+1,y2-1,
 		     x1+1,y2, x2,y2,  x2,y1+2, x2,y2-1 );
 	drawLineSegments( a );			// draw bottom lines
@@ -310,8 +320,6 @@ void QPainter::drawShadeRect( int x, int y, int w, int h,
 	int t = lw*2+mlw;
 	int m = lw+mlw;
 	int i, j=0, k=m;
-	QBrush oldBrush = brush();
-	QBrush brush( NoBrush );
 	for ( i=0; i<lw; i++ ) {		// draw top shadow
 	    drawLine( x1+j, y2-j, x1+j, y1+j );
 	    drawLine( x1+j, y1+j, x2-j, y1+j );
@@ -320,13 +328,13 @@ void QPainter::drawShadeRect( int x, int y, int w, int h,
 	    j++;
 	    k++;
 	}
-	pen.setColor( mColor );
+	cpen.setColor( mColor );
 	j = lw*2;
 	for ( i=0; i<mlw; i++ ) {		// draw lines in the middle
 	    drawRect( x1+lw+i, y1+lw+i, w-j, h-j );
 	    j += 2;
 	}
-	pen.setColor( bColor );
+	cpen.setColor( bColor );
 	j = 0;
 	k = m;
 	for ( i=0; i<lw; i++ ) {		// draw bottom shadow
@@ -337,7 +345,6 @@ void QPainter::drawShadeRect( int x, int y, int w, int h,
 	    j++;
 	    k++;
 	}
-	setBrush( oldBrush );
     }
     setPen( oldPen );				// restore pen
 }
@@ -371,7 +378,7 @@ void QPainter::drawShadePanel( int x, int y, int w, int h,
     }
     drawLineSegments( a );
     n = 0;
-    pen.setColor( bColor );
+    cpen.setColor( bColor );
     x1 = x;
     y1 = y2 = y+h-1;
     x2 = x+w-1;
@@ -388,7 +395,7 @@ void QPainter::drawShadePanel( int x, int y, int w, int h,
     }
     drawLineSegments( a );
     if ( fill ) {				// fill with fill color
-	pen.setStyle( NoPen );
+	cpen.setStyle( NoPen );
 	QBrush oldBrush = brush();
 	setBrush ( fColor );
 	drawRect( x+lw, y+lw, w-lw*2, h-lw*2 );
@@ -553,10 +560,20 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
 // QPen stream functions
 //
 
+/*!
+\relates QPen
+Writes a pen to the stream.
+*/
+
 QDataStream &operator<<( QDataStream &s, const QPen &p )
 {
     return s << (UINT8)p.style() << (UINT8)p.width() << p.color();
 }
+
+/*!
+\relates QPen
+Reads a pen from the stream.
+*/
 
 QDataStream &operator>>( QDataStream &s, QPen &p )
 {
@@ -574,10 +591,23 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
 // QBrush stream functions
 //
 
+/*!
+\relates QBrush
+Writes a brush to the stream.
+*/
+
 QDataStream &operator<<( QDataStream &s, const QBrush &b )
 {
-    return s << (UINT8)b.style() << b.color();
+    s << (UINT8)b.style() << b.color();
+    if ( b.style() == CustomPattern )
+	s >> *b.bitmap();
+    return s;
 }
+
+/*!
+\relates QBrush
+Reads a brush from the stream.
+*/
 
 QDataStream &operator>>( QDataStream &s, QBrush &b )
 {
@@ -585,10 +615,12 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
     QColor color;
     s >> style;
     s >> color;
-#if defined(DEBUG)
-    if ( style == CustomPattern )
-	warning( "QBrush: Cannot read bitmap brush from data stream" );
-#endif
-    b = QBrush( color, (BrushStyle)style );
+    if ( style == CustomPattern ) {
+	QBitmap bm;
+	s >> bm;
+	b = QBrush( color, bm );
+    }
+    else
+	b = QBrush( color, (BrushStyle)style );
     return s;
 }
