@@ -473,9 +473,9 @@ QPointArray QMatrix::map(const QPointArray &a) const
     QPolygon p(size);
     const QPoint *da = a.constData();
     QPointF *dp = p.data();
-    float xmin = INT_MAX;
+    float xmin = (float)INT_MAX;
     float ymin = xmin;
-    float xmax = INT_MIN;
+    float xmax = (float)INT_MIN;
     float ymax = xmax;
     int xminp = 0;
     int yminp = 0;
@@ -502,9 +502,9 @@ QPointArray QMatrix::map(const QPointArray &a) const
     }
 
     // now apply correction back for transformed values...
-    xmin = INT_MAX;
+    xmin = (float)INT_MAX;
     ymin = xmin;
-    xmax = INT_MIN;
+    xmax = (float)INT_MIN;
     ymax = xmax;
     for(i = 0; i < size; i++) {
         xmin = qMin(xmin, dp[i].xp);
