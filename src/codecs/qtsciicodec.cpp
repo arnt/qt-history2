@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qtsciicodec.cpp#4 $
+** $Id: $
 **
 ** Implementation of QTsciiCodec class
 **

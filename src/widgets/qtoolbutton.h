@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#55 $
+** $Id: $
 **
 ** Definition of QToolButton class
 **

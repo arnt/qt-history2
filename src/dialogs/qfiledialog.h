@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#137 $
+** $Id: $
 **
 ** Definition of QFileDialog class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfocusdata.cpp#17 $
+** $Id: $
 **
 ** Implementation of QFocusData class
 **

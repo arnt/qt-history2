@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrcollection.cpp#9 $
+** $Id: $
 **
 ** Implementation of base class for all pointer based collection classes
 **

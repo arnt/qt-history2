@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#80 $
+** $Id: $
 **
 ** Implementation of QDataStream class
 **

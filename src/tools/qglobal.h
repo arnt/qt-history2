@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#320 $
+** $Id: $
 **
 ** Global type declarations and definitions
 **

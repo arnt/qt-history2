@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#72 $
+** $Id: $
 **
 ** Definition of QToolBar class
 **

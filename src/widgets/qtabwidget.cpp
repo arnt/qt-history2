@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#82 $
+** $Id: $
 **
 ** Implementation of QTabWidget class
 **

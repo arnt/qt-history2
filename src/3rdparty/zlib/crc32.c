@@ -3,7 +3,7 @@
  * For conditions of distribution and use, see copyright notice in zlib.h 
  */
 
-/* @(#) $Id: //depot/qt/main/src/3rdparty/zlib/crc32.c#3 $ */
+/* @(#) $Id: $ */
 
 #include "zlib.h"
 

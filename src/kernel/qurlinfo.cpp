@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#44 $
+** $Id: $
 **
 ** Implementation of QUrlInfo class
 **

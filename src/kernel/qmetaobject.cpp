@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#141 $
+** $Id: $
 **
 ** Implementation of QMetaObject class
 **

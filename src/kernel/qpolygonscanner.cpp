@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpolygonscanner.cpp#16 $
+** $Id: $
 **
 ** Implementation of QPolygonScanner class
 **

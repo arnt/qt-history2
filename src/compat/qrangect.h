@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/compat/qrangect.h#10 $
+** $Id: $
 **
 ** Compatibility file - should only be included by legacy code.
 ** It #includes the file which obsoletes this one.

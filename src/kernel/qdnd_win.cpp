@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#89 $
+** $Id: $
 **
 ** Implementation of OLE drag and drop for Qt.
 **

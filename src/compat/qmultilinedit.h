@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/compat/qmultilinedit.h#9 $
+** $Id: $
 **
 ** Compatibility file - should only be included by legacy code.
 ** It #includes the file which obsoletes this one.

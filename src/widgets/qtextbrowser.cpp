@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#63 $
+** $Id: $
 **
 ** Implementation of the QTextBrowser class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmngio.cpp#18 $
+** $Id: $
 **
 ** Implementation of MNG QImage IOHandler
 **

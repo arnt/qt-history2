@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#397 $
+** $Id: $
 **
 ** Implementation of QObject class
 **

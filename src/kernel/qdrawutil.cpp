@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#75 $
+** $Id: $
 **
 ** Implementation of draw utilities
 **

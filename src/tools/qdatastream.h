@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.h#42 $
+** $Id: $
 **
 ** Definition of QDataStream class
 **

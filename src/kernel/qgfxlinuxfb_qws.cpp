@@ -1,5 +1,5 @@
 /*****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxlinuxfb_qws.cpp#24 $
+** $Id: $
 **
 ** Implementation of QLinuxFbScreen (unaccelerated Linux framebuffer) class for
 ** Embedded Qt

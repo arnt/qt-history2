@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.h#15 $
+** $Id: $
 **
 ** Definition of Qt/FB central server classes
 **

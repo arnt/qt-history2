@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#71 $
+** $Id: $
 **
 ** Implementation of QBuffer class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#84 $
+** $Id: $
 **
 ** Definition of QScrollView class
 **

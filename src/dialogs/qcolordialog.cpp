@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#67 $
+** $Id: $
 **
 ** Implementation of QColorDialog class
 **

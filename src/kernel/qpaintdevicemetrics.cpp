@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#37 $
+** $Id: $
 **
 ** Implementation of QPaintDeviceMetrics class
 **

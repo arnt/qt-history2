@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.h#43 $
+** $Id: $
 **
 ** Definition of the QWizard class.
 **

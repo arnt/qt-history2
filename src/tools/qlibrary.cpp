@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlibrary.cpp#18 $
+** $Id: $
 **
 ** Implementation of QLibrary class
 **

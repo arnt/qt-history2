@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qeucjpcodec.cpp#13 $
+** $Id: $
 **
 ** Implementation of QEucJpCodec class
 **

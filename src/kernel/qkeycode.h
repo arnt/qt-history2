@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qkeycode.h#29 $
+** $Id: $
 **
 ** Definition of keyboard codes
 **

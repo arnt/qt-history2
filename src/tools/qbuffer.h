@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.h#33 $
+** $Id: $
 **
 ** Definition of QBuffer class
 **

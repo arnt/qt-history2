@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/opengl/qglcolormap.cpp#6 $
+** $Id: $
 **
 ** Implementation of QGLColormap class
 **

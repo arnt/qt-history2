@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#36 $
+** $Id: $
 **
 ** Implementation of QFileDialog Windows-specific functionality
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#362 $
+** $Id: $
 **
 ** Implementation of QPopupMenu class
 **

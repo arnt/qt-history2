@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#88 $
+** $Id: $
 **
 ** Implementation of font database class.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#580 $
+** $Id: $
 **
 ** Implementation of QListView widget class
 **

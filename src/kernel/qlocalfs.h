@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.h#18 $
+** $Id: $
 **
 ** Definition of QLocalFs class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.h#25 $
+** $Id: $
 **
 ** Definition of the QTextEdit class
 **

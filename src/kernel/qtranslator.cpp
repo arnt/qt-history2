@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#81 $
+** $Id: $
 **
 ** Localization database support.
 **

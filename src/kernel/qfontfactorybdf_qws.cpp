@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontfactorybdf_qws.cpp#14 $
+** $Id: $
 **
 ** Definition of QFontFactory for BDF fonts for QT/Embedded
 **

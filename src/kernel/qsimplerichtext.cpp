@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#56 $
+** $Id: $
 **
 ** Implementation of the QSimpleRichText class
 **

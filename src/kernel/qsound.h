@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsound.h#19 $
+** $Id: $
 **
 ** Definition of QSound class and QAuServer internal class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread_p.h#43 $
+** $Id: $
 **
 ** QThread class for Unix
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#74 $
+** $Id: $
 **
 ** Implementation of validator classes
 **

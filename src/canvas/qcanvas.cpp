@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/canvas/qcanvas.cpp#61 $
+** $Id: $
 **
 ** Implementation of QCanvas and associated classes
 **

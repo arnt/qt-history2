@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qguardedptr.h#19 $
+** $Id: $
 **
 ** Definition of QGuardedPtr class
 **

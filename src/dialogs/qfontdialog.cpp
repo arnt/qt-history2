@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#97 $
+** $Id: $
 **
 ** Implementation of QFontDialog
 **

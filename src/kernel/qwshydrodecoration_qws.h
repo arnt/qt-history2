@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwshydrodecoration_qws.h#5 $
+** $Id: $
 **
 ** Declaration of Qt/Embedded Hydro decorations
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#215 $
+** $Id: $
 **
 ** Implementation of QPushButton class
 **

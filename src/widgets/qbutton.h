@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#100 $
+** $Id: $
 **
 ** Definition of QButton widget class
 **

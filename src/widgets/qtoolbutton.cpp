@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#143 $
+** $Id: $
 **
 ** Implementation of QToolButton class
 **

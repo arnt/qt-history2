@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#345 $
+** $Id: $
 **
 ** Implementation of QComboBox widget class
 **

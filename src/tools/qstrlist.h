@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrlist.h#47 $
+** $Id: $
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **

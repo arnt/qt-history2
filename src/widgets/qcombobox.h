@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#107 $
+** $Id: $
 **
 ** Definition of QComboBox class
 **

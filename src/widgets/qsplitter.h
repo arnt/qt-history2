@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#53 $
+** $Id: $
 **
 ** Defintion of  QSplitter class
 **

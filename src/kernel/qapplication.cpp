@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#506 $
+** $Id: $
 **
 ** Implementation of QApplication class
 **

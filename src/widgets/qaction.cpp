@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qaction.cpp#115 $
+** $Id: $
 **
 ** Implementation of QAction class
 **

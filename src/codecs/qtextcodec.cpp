@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qtextcodec.cpp#42 $
+** $Id: $
 **
 ** Implementation of QTextCodec class
 **

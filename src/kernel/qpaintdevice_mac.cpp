@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_mac.cpp#51 $
+** $Id: $
 **
 ** Implementation of QPaintDevice class for Mac
 **

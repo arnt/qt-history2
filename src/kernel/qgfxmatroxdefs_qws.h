@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxmatroxdefs_qws.h#5 $
+** $Id: $
 **
 ** Matrox defines
 **

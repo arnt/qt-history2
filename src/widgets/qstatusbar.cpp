@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#92 $
+** $Id: $
 **
 ** Implementation of QStatusBar class
 **

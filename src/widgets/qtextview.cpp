@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#240 $
+** $Id: $
 **
 ** Implementation of the QTextView class
 **

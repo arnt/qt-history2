@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#56 $
+** $Id: $
 **
 ** Implementation of QRegion class
 **

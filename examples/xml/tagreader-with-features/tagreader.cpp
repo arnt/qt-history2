@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/xml/tagreader-with-features/tagreader.cpp#7 $
+** $Id: $
 **
 ** Copyright (C) 2001 Trolltech AS.  All rights reserved.
 **

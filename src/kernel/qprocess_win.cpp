@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#47 $
+** $Id: $
 **
 ** Implementation of QProcess class for Win32
 **

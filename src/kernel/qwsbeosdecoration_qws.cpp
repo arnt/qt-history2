@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsbeosdecoration_qws.cpp#3 $
+** $Id: $
 **
 ** Implementation of Qt/Embedded beos decoration
 **

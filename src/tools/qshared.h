@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qshared.h#21 $
+** $Id: $
 **
 ** Definition of QShared struct
 **

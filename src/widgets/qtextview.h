@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.h#91 $
+** $Id: $
 **
 ** Definition of the QTextView class
 **

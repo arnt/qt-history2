@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#50 $
+** $Id: $
 **
 ** Implementation of QWMatrix class
 **

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#157 $
+** $Id: $
 **
 ** Definition of QListBox widget class
 **

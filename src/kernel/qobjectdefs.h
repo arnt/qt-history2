@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#76 $
+** $Id: $
 **
 ** Macros and definitions related to QObject
 **

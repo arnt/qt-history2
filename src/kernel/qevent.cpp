@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#175 $
+** $Id: $
 **
 ** Implementation of event classes
 **

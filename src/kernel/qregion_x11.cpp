@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#71 $
+** $Id: $
 **
 ** Implementation of QRegion class for X11
 **

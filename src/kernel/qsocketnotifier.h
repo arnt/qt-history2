@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#29 $
+** $Id: $
 **
 ** Definition of QSocketNotifier class
 **

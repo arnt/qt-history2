@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#72 $
+** $Id: $
 **
 ** Implementation of QCursor class for Win32
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.h#44 $
+** $Id: $
 **
 ** Definition of QIODevice class
 **

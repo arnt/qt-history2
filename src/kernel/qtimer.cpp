@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#58 $
+** $Id: $
 **
 ** Implementation of QTimer class
 **

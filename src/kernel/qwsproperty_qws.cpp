@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsproperty_qws.cpp#12 $
+** $Id: $
 **
 ** Implementation of Qt/FB central server
 **

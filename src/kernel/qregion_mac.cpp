@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_mac.cpp#34 $
+** $Id: $
 **
 ** Implementation of QRegion class for mac
 **

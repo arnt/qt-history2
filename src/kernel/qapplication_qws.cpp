@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#124 $
+** $Id: $
 **
 ** Implementation of Qt/FB startup routines and event handling
 **

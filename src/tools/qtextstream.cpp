@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#184 $
+** $Id: $
 **
 ** Implementation of QTextStream class
 **

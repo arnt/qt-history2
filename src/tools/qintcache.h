@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintcache.h#29 $
+** $Id: $
 **
 ** Definition of QIntCache template class
 **

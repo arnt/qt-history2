@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlibrary.h#4 $
+** $Id: $
 **
 ** Definition of QLibrary class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmemarray.h#3 $
+** $Id: $
 **
 ** Definition of QMemArray template/macro class
 **

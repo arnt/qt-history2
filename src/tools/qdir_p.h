@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir_p.h#5 $
+** $Id: $
 **
 ** Definition of some private QDir functions.
 **

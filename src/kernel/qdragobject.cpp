@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#158 $
+** $Id: $
 **
 ** Implementation of Drag and Drop support
 **

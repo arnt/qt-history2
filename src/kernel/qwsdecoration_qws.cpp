@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsdecoration_qws.cpp#5 $
+** $Id: $
 **
 ** Implementation of Qt/Embedded window manager decorations
 **

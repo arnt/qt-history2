@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_windows.h#18 $
+** $Id: $
 **
 ** Includes Win32 system header files.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qjpegio.cpp#29 $
+** $Id: $
 **
 ** Implementation of JPEG QImage IOHandler
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#113 $
+** $Id: $
 **
 ** Implementation of QPrinter class for Win32
 **

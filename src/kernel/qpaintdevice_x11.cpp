@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#134 $
+** $Id: $
 **
 ** Implementation of QPaintDevice class for X11
 **

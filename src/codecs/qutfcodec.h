@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qutfcodec.h#6 $
+** $Id: $
 **
 ** Definition of QUtf{8,16}Codec class
 **

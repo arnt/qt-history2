@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#55 $
+** $Id: $
 **
 ** Implementation of QClipboard class
 **

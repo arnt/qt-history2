@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo_unix.cpp#30 $
+** $Id: $
 **
 ** Implementation of QFileInfo class
 **

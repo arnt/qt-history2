@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs_p.h#19 $
+** $Id: $
 **
 ** Common macros and system include files for QFile, QFileInfo and QDir.
 **

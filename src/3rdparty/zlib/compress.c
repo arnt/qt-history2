@@ -3,7 +3,7 @@
  * For conditions of distribution and use, see copyright notice in zlib.h 
  */
 
-/* @(#) $Id: //depot/qt/main/src/3rdparty/zlib/compress.c#4 $ */
+/* @(#) $Id: $ */
 
 #include "zlib.h"
 

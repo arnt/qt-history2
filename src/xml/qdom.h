@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#26 $
+** $Id: $
 **
 ** Definition of QDomDocument and related classes.
 **

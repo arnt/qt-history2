@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#66 $
+** $Id: $
 **
 ** Definition of QDialog class
 **

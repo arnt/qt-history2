@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#47 $
+** $Id: $
 **
 ** Implementation of the QSvgDevice class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#149 $
+** $Id: $
 **
 ** Implementation of QMenuData class
 **

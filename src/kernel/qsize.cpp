@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#49 $
+** $Id: $
 **
 ** Implementation of QSize class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.h#36 $
+** $Id: $
 **
 ** Definition of draw utilities
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qucom.h#15 $
+** $Id: $
 **
 ** Definition of the QUcom classes
 **

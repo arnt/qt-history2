@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#32 $
+** $Id: $
 **
 ** Definition of QStringList class
 **

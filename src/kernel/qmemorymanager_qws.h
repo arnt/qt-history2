@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmemorymanager_qws.h#13 $
+** $Id: $
 **
 ** Definition of QMemoryManager class
 **

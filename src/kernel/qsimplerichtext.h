@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.h#27 $
+** $Id: $
 **
 ** Definition of the QSimpleRichText class
 **

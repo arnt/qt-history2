@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetintdict.h#17 $
+** $Id: $
 **
 ** Definition of QWidgetIntDict
 **

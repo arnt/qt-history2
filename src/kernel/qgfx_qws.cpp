@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfx_qws.cpp#20 $
+** $Id: $
 **
 ** Implementation of QGfx (graphics context) class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qsortedlist.h#11 $
+** $Id: $
 **
 ** Definition of QSortedList template/macro class
 **

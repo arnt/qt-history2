@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#49 $
+** $Id: $
 **
 ** Implementation of QDns class.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#85 $
+** $Id: $
 **
 ** Implementation of QUrlOperator class
 **

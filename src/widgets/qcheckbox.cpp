@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#161 $
+** $Id: $
 **
 ** Implementation of QCheckBox class
 **

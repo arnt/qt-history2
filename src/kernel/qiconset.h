@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.h#31 $
+** $Id: $
 **
 ** Definition of QIconSet class
 **

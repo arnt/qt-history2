@@ -1,5 +1,5 @@
 /****************************************************************************
- ** $Id: //depot/qt/main/src/sql/qdatetimeedit.cpp#69 $
+ ** $Id: $
 **
 ** Implementation of date and time edit classes
 **

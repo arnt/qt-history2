@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#228 $
+** $Id: $
 **
 ** Implementation of QScrollView class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#131 $
+** $Id: $
 **
 ** Implementation of date and time classes
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhgroupbox.cpp#18 $
+** $Id: $
 **
 ** Implementation of QHGroupBox class
 **

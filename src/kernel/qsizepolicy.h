@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#31 $
+** $Id: $
 **
 ** Definition of the QSizePolicy class
 **

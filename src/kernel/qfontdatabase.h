@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#34 $
+** $Id: $
 **
 ** Definition of the QFontDatabase class
 **

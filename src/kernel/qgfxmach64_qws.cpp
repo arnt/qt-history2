@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxmach64_qws.cpp#17 $
+** $Id: $
 **
 ** Implementation of QGfxMach64 (graphics context) class for Mach64 cards
 *

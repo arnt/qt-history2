@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#288 $
+** $Id: $
 **
 ** Implementation of QMenuBar class
 **

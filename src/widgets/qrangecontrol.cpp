@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#61 $
+** $Id: $
 **
 ** Implementation of QRangeControl class
 **

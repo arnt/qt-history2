@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvgroupbox.cpp#18 $
+** $Id: $
 **
 ** Implementation of QVGroupBox class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_mac.cpp#28 $
+** $Id: $
 **
 ** Implementation of QCursor class for mac
 **

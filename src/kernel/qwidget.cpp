@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#722 $
+** $Id: $
 **
 ** Implementation of QWidget class
 **

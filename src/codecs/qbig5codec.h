@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qbig5codec.h#4 $
+** $Id: $
 **
 ** Definition of QBig5Codec class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_x11.h#35 $
+** $Id: $
 **
 ** Includes X11 system header files.
 **

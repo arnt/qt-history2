@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluestack.h#8 $
+** $Id: $
 **
 ** Definition of QValueStack class
 **

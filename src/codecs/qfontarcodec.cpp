@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qfontarcodec.cpp#7 $
+** $Id: $
 **
 ** Arabic Font utilities for X11
 **

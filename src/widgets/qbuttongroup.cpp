@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#99 $
+** $Id: $
 **
 ** Implementation of QButtonGroup class
 **

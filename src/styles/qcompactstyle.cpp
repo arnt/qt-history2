@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcompactstyle.cpp#7 $
+** $Id: $
 **
 ** Implementation of compact style class
 **

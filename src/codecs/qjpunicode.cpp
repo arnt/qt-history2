@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qjpunicode.cpp#11 $
+** $Id: $
 **
 ** Implementation of QJpUnicodeConv class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#332 $
+** $Id: $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#151 $
+** $Id: $
 **
 ** Implementation of QSpinBox widget class
 **

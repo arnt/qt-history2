@@ -47,7 +47,7 @@
  *
  */
 
-/* @(#) $Id: //depot/qt/main/src/3rdparty/zlib/deflate.c#3 $ */
+/* @(#) $Id: $ */
 
 #include "deflate.h"
 

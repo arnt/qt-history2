@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_qws.cpp#13 $
+** $Id: $
 **
 ** Implementation of QClipboard class for FB
 **

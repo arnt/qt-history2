@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_p.cpp#16 $
+** $Id: $
 **
 ** Named color support for non-X platforms.
 ** The color names have been borrowed from X.

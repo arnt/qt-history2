@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#272 $
+** $Id: $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2678,7 +2678,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#272 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qrtlcodec.h#5 $
+** $Id: $
 **
 ** Implementation of QTextCodec class
 **

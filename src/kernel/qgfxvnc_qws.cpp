@@ -1,5 +1,5 @@
 /*****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxvnc_qws.cpp#15 $
+** $Id: $
 **
 ** Implementation of QGfxvnc (remote frame buffer driver)
 ** Proof of concept driver only, but quite complete.

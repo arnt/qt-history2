@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qplatinumstyle.cpp#10 $
+** $Id: $
 **
 ** Implementation of Platinum-like style class
 **

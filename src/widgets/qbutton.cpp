@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#221 $
+** $Id: $
 **
 ** Implementation of QButton widget class
 **

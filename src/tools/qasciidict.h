@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qasciidict.h#9 $
+** $Id: $
 **
 ** Definition of QAsciiDict template class
 **

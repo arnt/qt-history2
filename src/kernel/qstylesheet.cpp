@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#86 $
+** $Id: $
 **
 ** Implementation of the QStyleSheet class
 **

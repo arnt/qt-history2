@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhttp.cpp#35 $
+** $Id: $
 **
 ** Implementation of QHtpp and related classes.
 **

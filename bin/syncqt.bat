@@ -15,7 +15,7 @@ goto endofperl
 @rem ';
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/bin/syncqt.bat#20 $
+# $Id: $
 #
 # Synchronizes Qt header files - internal Trolltech tool.
 #   - Creates symlinks on Unix.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#118 $
+** $Id: $
 **
 ** Implementation of QLCDNumber class
 **

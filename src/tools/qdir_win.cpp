@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir_win.cpp#29 $
+** $Id: $
 **
 ** Implementation of QDir class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcopchannel_qws.h#3 $
+** $Id: $
 **
 ** QCOP protocol classes
 **

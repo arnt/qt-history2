@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#135 $
+** $Id: $
 **
 ** Implementation of QColor class
 **

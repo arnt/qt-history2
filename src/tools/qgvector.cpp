@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#60 $
+** $Id: $
 **
 ** Implementation of QGVector class
 **

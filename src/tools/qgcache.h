@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#37 $
+** $Id: $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **

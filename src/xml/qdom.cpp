@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#77 $
+** $Id: $
 **
 ** Implementation of QDomDocument and related classes.
 **

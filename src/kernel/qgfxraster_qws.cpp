@@ -1,5 +1,5 @@
 /*****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxraster_qws.cpp#67 $
+** $Id: $
 **
 ** Implementation of QGfxRaster (unaccelerated graphics context) class for
 ** Embedded Qt

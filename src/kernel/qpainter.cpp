@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#309 $
+** $Id: $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **

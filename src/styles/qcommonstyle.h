@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.h#24 $
+** $Id: $
 **
 ** Definition of QCommonStyle class
 **

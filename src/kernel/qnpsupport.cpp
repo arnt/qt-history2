@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#32 $
+** $Id: $
 **
 ** Low-level support for Netscape Plugins under X11.
 **

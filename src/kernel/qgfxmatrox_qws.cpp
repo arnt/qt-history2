@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxmatrox_qws.cpp#9 $
+** $Id: $
 **
 ** Implementation of QGfxMatrox (graphics context) class for Matrox MGA cards
 **

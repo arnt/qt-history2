@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#79 $
+** $Id: $
 **
 ** Implementation of QIconSet class
 **

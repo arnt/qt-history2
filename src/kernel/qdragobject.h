@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#63 $
+** $Id: $
 **
 ** Definition of QDragObject
 **

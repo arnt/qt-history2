@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qvariant.cpp#83 $
+** $Id: $
 **
 ** Implementation of QVariant class
 **

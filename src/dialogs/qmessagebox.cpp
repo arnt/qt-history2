@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#172 $
+** $Id: $
 **
 ** Implementation of QMessageBox class
 **

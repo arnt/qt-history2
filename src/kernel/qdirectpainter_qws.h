@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdirectpainter_qws.h#4 $
+** $Id: $
 **
 ** Definition of QDirectPainter class
 **

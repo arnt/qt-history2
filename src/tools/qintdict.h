@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#34 $
+** $Id: $
 **
 ** Definition of QIntDict template class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#126 $
+** $Id: $
 **
 ** Implementation of QTabDialog class
 **

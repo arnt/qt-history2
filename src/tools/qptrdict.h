@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrdict.h#24 $
+** $Id: $
 **
 ** Definition of QPtrDict template class
 **

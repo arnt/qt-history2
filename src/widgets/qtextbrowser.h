@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.h#32 $
+** $Id: $
 **
 ** Definition of the QTextBrowser class
 **

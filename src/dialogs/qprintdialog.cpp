@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#131 $
+** $Id: $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qsmartptr.h#14 $
+** $Id: $
 **
 ** Definition of QSmartPtr class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qucom.cpp#18 $
+** $Id: $
 **
 ** Implementation of the QUcom classes
 **

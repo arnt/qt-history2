@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#65 $
+** $Id: $
 **
 ** Definition of QMultiLineEdit widget class
 **

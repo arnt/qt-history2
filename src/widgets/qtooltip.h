@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#51 $
+** $Id: $
 **
 ** Definition of Tool Tips (or Balloon Help) for any widget or rectangle
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcomponentfactory.cpp#10 $
+** $Id: $
 **
 ** Implementation of the QComponentFactory class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#242 $
+** $Id: $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **

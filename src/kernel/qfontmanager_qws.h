@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmanager_qws.h#18 $
+** $Id: $
 **
 ** Definition of font rendering infrastructure for Embedded Qt
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfeatures.h#94 $
+** $Id: $
 **
 ** Global feature selection
 **

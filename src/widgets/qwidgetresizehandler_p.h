@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetresizehandler_p.h#6 $
+** $Id: $
 **
 ** Definition of the QWidgetResizeHandler class
 **

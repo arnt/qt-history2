@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrvec.h#30 $
+** $Id: $
 **
 ** Definition of QStrVec and QStrIVec classes
 **

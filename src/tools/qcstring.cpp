@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcstring.cpp#44 $
+** $Id: $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes

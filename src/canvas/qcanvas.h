@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/canvas/qcanvas.h#27 $
+** $Id: $
 **
 ** Definition of QCanvas classes
 **

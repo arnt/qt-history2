@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#68 $
+** $Id: $
 **
 ** Implementation of QClipboard class for Win32
 **

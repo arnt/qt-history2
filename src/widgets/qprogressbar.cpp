@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#95 $
+** $Id: $
 **
 ** Implementation of QProgressBar class
 **

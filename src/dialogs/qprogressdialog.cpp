@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#90 $
+** $Id: $
 **
 ** Implementation of QProgressDialog class
 **

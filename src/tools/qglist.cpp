@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#83 $
+** $Id: $
 **
 ** Implementation of QGList and QGListIterator classes
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.h#68 $
+** $Id: $
 **
 ** Definition of QRadioButton class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qeuckrcodec.cpp#9 $
+** $Id: $
 **
 ** Implementation of QEucKrCodec class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#89 $
+** $Id: $
 **
 ** Implementation of QNetworkProtocol class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.h#29 $
+** $Id: $
 **
 ** Definition of QColorDialog class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhostaddress.h#8 $
+** $Id: $
 **
 ** Definition of QHostAddress class.
 **

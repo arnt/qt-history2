@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#56 $
+** $Id: $
 **
 ** Implementation of QSocketDevice class.
 **

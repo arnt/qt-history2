@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdict.h#18 $
+** $Id: $
 **
 ** Definition of QObjectDictionary
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlock_qws.cpp#15 $
+** $Id: $
 **
 ** Definition of QLock class. This manages interprocess locking
 **
