@@ -29,8 +29,8 @@ QSqlPropertyMap::QSqlPropertyMap()
     propertyMap["QCheckButton"] = "checked";
     propertyMap["QSlider"]      = "value";
     propertyMap["QComboBox"]    = "currentItem";
-    propertyMap["QDateEdit"]    = "date";
-    propertyMap["QTimeEdit"]    = "time";
+    propertyMap["QDateEdit"]    = "dateValue";
+    propertyMap["QTimeEdit"]    = "timeValue";
 }
 
 /*!
