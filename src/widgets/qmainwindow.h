@@ -34,7 +34,7 @@ class QMenuBar;
 class QToolBar;
 class QStatusBar;
 class QToolTipGroup;
-template <class T> class QList;
+template <class type> class QList;
 
 class QMainWindowPrivate;
 
