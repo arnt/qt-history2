@@ -237,6 +237,7 @@ QDocMainWindow::~QDocMainWindow()
     settings.writeEntry( "/qDocGUI/geometry/y", geometry().y() );
     settings.writeEntry( "/qDocGUI/geometry/width", width() );
     settings.writeEntry( "/qDocGUI/geometry/height", height() );
+    proc->kill();
 }
 
 int main( int argc, char** argv )
