@@ -2242,7 +2242,7 @@ void qt_format_text( const QFont& font, const QRect &r,
     bool breakany = (tf & Qt::BreakAnywhere ) == Qt::BreakAnywhere;
     bool noaccel = ( tf & Qt::NoAccel ) == Qt::NoAccel;
 
-    bool simple = !decode && singleline && !showprefix && !expandtabs;
+    bool simple = !decode && singleline && !showprefix && !expandtabs && !noaccel;
 
 #ifdef QT_NO_RICHTEXT
     simple = TRUE; //####### This is ugly and hopefully temporary
