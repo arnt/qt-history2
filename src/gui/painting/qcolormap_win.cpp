@@ -53,7 +53,7 @@ void QColormap::initialize()
         return;
 
     LOGPALETTE* pal = 0;
-    int numPalEntries = 6*6*6; // System + cube
+    int numPalEntries = 6*6*6; // color cube
 
     pal = (LOGPALETTE*)malloc(sizeof(LOGPALETTE) + numPalEntries * sizeof(PALETTEENTRY));
     // Make 6x6x6 color cube
@@ -85,28 +85,29 @@ void QColormap::initialize()
     screenMap->numcolors = GetPaletteEntries(screenMap->hpal, 0, 255, paletteEntries);
 
     screenMap->palette.resize(screenMap->numcolors);
-    for(int i = 0; i < screenMap->numcolors; i++)
-        screenMap->palette[i] = qRgb(pal->palPalEntry[i].peRed, pal->palPalEntry[i].peGreen, pal->palPalEntry[i].peBlue);
+    for (int i = 0; i < screenMap->numcolors; i++) {
+        screenMap->palette[i] = qRgb(paletteEntries[i].peRed,
+                                     paletteEntries[i].peGreen,
+                                     paletteEntries[i].peBlue);
+    }
 }
 
 void QColormap::cleanup()
 {
-    if(!screenMap)
+    if (!screenMap)
         return;
 
     if (screenMap->hpal) {                                // delete application global
         DeleteObject(screenMap->hpal);                        // palette
         screenMap->hpal = 0;
     }
+
     delete screenMap;
     screenMap = 0;
-
 }
 
 QColormap QColormap::instance(int screen)
-{
-    return QColormap();
-}
+{ return QColormap(); }
 
 QColormap::QColormap()
     : d(screenMap)
@@ -129,25 +130,21 @@ int QColormap::depth() const
 { return d->depth; }
 
 int QColormap::size() const
-{
-    return d->numcolors;
-}
+{ return d->numcolors; }
 
 uint QColormap::pixel(const QColor &color) const
 {
-    QColor c = color.toRgb();
+    const QColor c = color.toRgb();
     COLORREF rgb = RGB(c.red(), c.green(), c.blue());
-    if(d->hpal) {
-        uint px = GetNearestPaletteIndex(d->hpal, rgb);
-        return px;
-    }
+    if (d->hpal) 
+        return PALETTEINDEX(GetNearestPaletteIndex(d->hpal, rgb));
     return rgb;
 }
 
 const QColor QColormap::colorAt(uint pixel) const
 {
-    if(d->hpal) {
-        if(pixel < d->numcolors)
+    if (d->hpal) {
+        if (pixel < d->numcolors)
             return d->palette.at(pixel);
         return QColor();
     }
@@ -156,12 +153,8 @@ const QColor QColormap::colorAt(uint pixel) const
 
 
 HPALETTE QColormap::hPal()
-{
-    return screenMap ? screenMap->hpal : 0;
-}
+{ return screenMap ? screenMap->hpal : 0; }
 
 
 const QVector<QColor> QColormap::colormap() const
-{
-    return d->palette;
-}
+{ return d->palette; }
