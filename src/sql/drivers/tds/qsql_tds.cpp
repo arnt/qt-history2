@@ -25,6 +25,7 @@
 **********************************************************************/
 
 #include "qsql_tds.h"
+#include "../shared/qsql_result.cpp"
 
 #include <qapplication.h>
 #include <qglobal.h>

@@ -5,8 +5,7 @@ HEADERS		= ../../../../src/sql/drivers/tds/qsql_tds.h \
 		  ../../../../src/sql/drivers/shared/qsql_result.h
 
 SOURCES		= main.cpp \
-		  ../../../../src/sql/drivers/tds/qsql_tds.cpp \
-		  ../../../../src/sql/drivers/shared/qsql_result.cpp
+		  ../../../../src/sql/drivers/tds/qsql_tds.cpp
 
 unix {
 	OBJECTS_DIR	= .obj
