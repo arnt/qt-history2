@@ -16,17 +16,22 @@
 
 #include "qplatformdefs.h"
 
+#include "qatomic.h"
 #include "qdatetime.h"
 #include "qlist.h"
-#include <qvariant.h>
+#include "qvariant.h"
 
 class QDateTimePrivate
 {
 public:
     enum Spec { LocalUnknown = -1, LocalStandard = 0, LocalDST = 1, UTC = 2 };
 
-    QDateTimePrivate() : spec(LocalUnknown) {}
+    QDateTimePrivate() : ref(1), spec(LocalUnknown) {}
+    QDateTimePrivate(const QDateTimePrivate &other)
+        : ref(1), date(other.date), time(other.time), spec(other.spec)
+    {}
 
+    QAtomic ref;
     QDate date;
     QTime time;
     Spec spec;

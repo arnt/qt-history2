@@ -219,6 +219,7 @@ public:
 #endif
 
 private:
+    void detach();
     QDateTimePrivate *d;
 
 #ifndef QT_NO_DATASTREAM

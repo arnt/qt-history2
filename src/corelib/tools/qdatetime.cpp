@@ -1981,7 +1981,8 @@ QDateTime::QDateTime(const QDate &date, const QTime &time, Qt::TimeSpec spec)
 
 QDateTime::QDateTime(const QDateTime &other)
 {
-    d = new QDateTimePrivate(*other.d);
+    d = other.d;
+    d->ref.ref();
 }
 
 /*!
@@ -1989,7 +1990,8 @@ QDateTime::QDateTime(const QDateTime &other)
 */
 QDateTime::~QDateTime()
 {
-    delete d;
+    if (!d->ref.deref())
+        delete d;
 }
 
 /*!
@@ -1999,7 +2001,7 @@ QDateTime::~QDateTime()
 
 QDateTime &QDateTime::operator=(const QDateTime &other)
 {
-    *d = *other.d;
+    qAtomicAssign(d, other.d);
     return *this;
 }
 
@@ -2068,6 +2070,7 @@ Qt::TimeSpec QDateTime::timeSpec() const
 
 void QDateTime::setDate(const QDate &date)
 {
+    detach();
     d->date = date;
 }
 
@@ -2079,6 +2082,7 @@ void QDateTime::setDate(const QDate &date)
 
 void QDateTime::setTime(const QTime &time)
 {
+    detach();
     d->time = time;
 }
 
@@ -2090,6 +2094,7 @@ void QDateTime::setTime(const QTime &time)
 
 void QDateTime::setTimeSpec(Qt::TimeSpec spec)
 {
+    detach();
     d->spec = (spec == Qt::UTC) ? QDateTimePrivate::UTC : QDateTimePrivate::LocalUnknown;
 }
 
@@ -2133,6 +2138,8 @@ uint QDateTime::toTime_t() const
 
 void QDateTime::setTime_t(uint secsSince1Jan1970UTC)
 {
+    detach();
+
     QDateTimePrivate::Spec oldSpec = d->spec;
 
     d->date = QDate(1970, 1, 1).addDays(secsSince1Jan1970UTC / SECS_PER_DAY);
@@ -2733,6 +2740,12 @@ QDateTime QDateTime::fromString(const QString &string, const QString &format)
     \sa Qt::TimeSpec
 */
 
+/*! \internal
+ */
+void QDateTime::detach()
+{
+    qAtomicDetach(d);
+}
 
 /*****************************************************************************
   Date/time stream functions
@@ -2835,6 +2848,8 @@ QDataStream &operator<<(QDataStream &out, const QDateTime &dt)
 
 QDataStream &operator>>(QDataStream &in, QDateTime &dt)
 {
+    dt.detach();
+
     qint8 ts = (qint8)QDateTimePrivate::LocalUnknown;
     in >> dt.d->date >> dt.d->time;
     if (in.version() >= 7)
@@ -3717,3 +3732,4 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
 
     return true;
 }
+
