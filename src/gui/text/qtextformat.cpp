@@ -1483,74 +1483,81 @@ QFont QTextCharFormat::font() const
 */
 
 /*!
-    \fn QTextFrameFormat::isValid()
+    \fn QTextFrameFormat::isValid() const
 
     Returns true if the format description is valid; otherwise returns false.
 */
 
 /*!
-    \fn QTextFrameFormat::setPosition(QTextFrameFormat::Position)
+    \fn QTextFrameFormat::setPosition(Position policy)
 
-    Sets the policy for positioning frames with this frame format.
+    Sets the \a policy for positioning frames with this frame format.
 
 */
 
 /*!
-    \fn QTextFrameFormat::Position QTextFrameFormat::position() const
+    \fn Position QTextFrameFormat::position() const
 
     Returns the positioning policy for frames with this frame format.
 */
 
 /*!
-    \fn QTextFrameFormat::setBorder(int border)
+    \fn QTextFrameFormat::setBorder(int width)
 
-    Sets the \a width in pixels of the frame's border.
+    Sets the \a width (in pixels) of the frame's border.
 */
 
 /*!
-    \fn int QTextFrameFormat::border()
+    \fn int QTextFrameFormat::border() const
 
     Returns the width of the border in pixels.
 */
 
 /*!
     \fn QTextFrameFormat::setMargin(int margin)
+
+    Sets the frame's \a margin in pixels.
 */
 
 /*!
-    \fn int QTextFrameFormat::margin()
+    \fn int QTextFrameFormat::margin() const
 
     Returns the width of the frame's external margin in pixels.
 */
 
 /*!
-    \fn QTextFrameFormat::setPadding(int padding)
+    \fn QTextFrameFormat::setPadding(int width)
+
+    Sets the \a width of the frame's internal padding in pixels.
 */
 
 /*!
-    \fn int QTextFrameFormat::padding()
+    \fn int QTextFrameFormat::padding() const
 
     Returns the width of the frame's internal padding in pixels.
 */
 
 /*!
-    \fn QTextFrameFormat::setWidth(int border)
+    \fn QTextFrameFormat::setWidth(int width)
+
+    Sets the frame's border rectangle's \a width.
 */
 
 /*!
-    \fn int QTextFrameFormat::width()
+    \fn int QTextFrameFormat::width() const
 
     Returns the width of the frame's border rectangle.
 */
 
 /*!
-    \fn QTextFrameFormat::setHeight(int border)
+    \fn QTextFrameFormat::setHeight(int height)
 
+    Sets the frame's \a height.
 
 */
 
 /*!
-    \fn int QTextFrameFormat::height()
+    \fn int QTextFrameFormat::height() const
 
     Returns the height of the frame's border rectangle.
 */

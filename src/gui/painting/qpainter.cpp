@@ -2711,8 +2711,9 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
 
     (\a{x}, \a{y}) specifies the top-left point in the paint device
     that is to be drawn onto; with the width and height given by \a w
-    and \a h. (\a{sx}, \a{sy}) specifies the top-left point in \a
-    pixmap that is to be drawn. The default is (0, 0).
+    and \a h. (\a{sx}, \a{sy}) specifies the top-left point in the \a
+    pixmap that is to be drawn; this defaults to (0, 0). The pixmap is
+    drawn using the given drawing \a mode.
 
     Calling drawTiledPixmap() is similar to calling drawPixmap()
     several times to fill (tile) an area with a pixmap, but is

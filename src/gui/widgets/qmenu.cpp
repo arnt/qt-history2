@@ -319,6 +319,9 @@ QMenuAction *QMenuPrivate::actionAt(QPoint p) const
 }
 
 
+/*!
+    Returns the action associated with this menu.
+*/
 QAction *QMenu::menuAction() const
 {
     return d->menuAction;
@@ -1872,7 +1875,7 @@ void QMenu::internalDelayedPopup()
 */
 
 /*!
-    \fn void QMenu::activated(QAction *action)
+    \fn void QMenu::triggered(QAction *action)
 
     This signal is emitted when a menu action is triggered; \a action
     is the action that caused the signal to be emitted.
@@ -1883,18 +1886,18 @@ void QMenu::internalDelayedPopup()
     closely related actions, such as "left justify", "center", "right
     justify".
 
-    \sa highlighted(), QAction::triggered()
+    \sa hovered(), QAction::triggered()
 */
 
 /*!
-    \fn void QMenu::highlighted(QAction *action)
+    \fn void QMenu::hovered(QAction *action)
 
     This signal is emitted when a menu action is highlighted; \a action
     is the action that caused the signal to be emitted.
 
     Often this is used to update status information.
 
-    \sa activated(), QAction::hovered()
+    \sa triggered(), QAction::hovered()
 */
 
 #ifdef QT_COMPAT

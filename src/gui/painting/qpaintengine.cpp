@@ -81,6 +81,9 @@
 
   \value ClipTransform The engine is capable of transforming clip regions.
 
+    \value PaintOutsidePaintEvent The engine is capable of painting
+    outside of paint events.
+
   \omitvalue UsesFontEngine
 */
 
@@ -104,6 +107,7 @@
     \value Windows
     \value Gdiplus (same as Windows)
     \value QuickDraw (same as CoreGraphics)
+    \value MacPrinter
     \value CoreGraphics Mac OS X
     \value QWindowSystem Qt/Embedded
     \value PostScript
@@ -112,7 +116,6 @@
     \value SVG Scalable Vector Graphics XML format
     \value User First user type ID
     \value MaxUser Last user type ID
-    \omitvalue Wrapper
 */
 
 /*!

@@ -580,6 +580,13 @@ QFileDialog::QFileDialog(QWidget *parent, Qt::WFlags f)
     d->setup(dir.absolutePath(), dir.nameFilters(), AnyFile);
 }
 
+/*!
+    Constructs a file dialog with the given \a parent. The dialog has
+    the given \a caption, starts in directory \a dir, has the filters
+    specified by \a filter, with the filter in \a selectedFilter
+    selected, and with the \a selectedFile selected. The files that
+    can be chosen are determined by the \a fileMode.
+*/
 QFileDialog::QFileDialog(QWidget *parent,
                          const QString &caption,
                          const QString &dir,

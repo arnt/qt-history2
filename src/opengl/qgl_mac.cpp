@@ -378,6 +378,10 @@ static void qt_clean_widget_opengl_handler()
 {
     DisposeEventHandlerUPP(widget_opengl_handlerUPP);
 }
+
+/*!
+    \internal
+*/
 OSStatus QGLWidget::globalEventProcessor(EventHandlerCallRef, EventRef event, void *data)
 {
     bool handled_event = true;

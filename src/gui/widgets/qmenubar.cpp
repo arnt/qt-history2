@@ -1160,7 +1160,7 @@ void QMenuBar::setRightWidget(QWidget *w)
 }
 
 /*!
-    \fn void QMenuBar::activated(QAction *action)
+    \fn void QMenuBar::triggered(QAction *action)
 
     This signal is emitted when a menu action is selected; \a action
     is the action that caused the event to be sent.
@@ -1170,18 +1170,18 @@ void QMenuBar::setRightWidget(QWidget *w)
     several items to a single slot (most often if the user selects
     from an array). This signal is useful in such cases.
 
-    \sa highlighted(), QAction::triggered()
+    \sa hovered(), QAction::triggered()
 */
 
 /*!
-    \fn void QMenuBar::highlighted(QAction *action)
+    \fn void QMenuBar::hovered(QAction *action)
 
     This signal is emitted when a menu action is highlighted; \a action
     is the action that caused the event to be sent.
 
     Often this is used to update status information.
 
-    \sa activated(), QAction::hovered()
+    \sa triggered(), QAction::hovered()
 */
 
 

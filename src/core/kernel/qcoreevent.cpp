@@ -129,6 +129,7 @@
     \value MouseButtonPress  Mouse press, \l{QMouseEvent}.
     \value MouseButtonRelease  Mouse release, \l{QMouseEvent}.
     \value MouseMove  Mouse move, \l{QMouseEvent}.
+    \value MouseTrackingChange The mouse tracking state has changed.
     \value Move  Widget's position changed, \l{QMoveEvent}.
     \value Paint  Screen update necessary, \l{QPaintEvent}.
     \value PaletteChange  Palette of the widget changed.
