@@ -95,7 +95,13 @@ public:
 		   mng_int32   iExtra2,
 		   mng_pchar   zErrortext )
     {
-	qWarning("MNG error: %s",zErrortext);
+	qWarning("MNG error %d: %s; chunk %c%c%c%c; subcode %d:%d",
+	    iErrorcode,zErrortext,
+	    (iChunkname>>24)&0xff,
+	    (iChunkname>>16)&0xff,
+	    (iChunkname>>8)&0xff,
+	    (iChunkname>>0)&0xff,
+	    iExtra1,iExtra2);
 	return TRUE;
     }
     bool processheader( mng_uint32 iWidth, mng_uint32 iHeight )
