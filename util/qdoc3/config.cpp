@@ -5,6 +5,7 @@
 #include <qdir.h>
 #include <qfile.h>
 #include <qregexp.h>
+#include <stdlib.h>
 
 #include "archiveextractor.h"
 #include "config.h"
@@ -392,7 +393,7 @@ QString Config::copyFile( const Location& location,
     QFile inFile( sourceFilePath );
     if ( !inFile.open(IO_ReadOnly) ) {
 	location.fatal( tr("Cannot open input file '%1'")
-			.arg(inFile.name()) );
+			.arg(inFile.fileName()) );
 	return "";
     }
 
@@ -404,14 +405,14 @@ QString Config::copyFile( const Location& location,
     QFile outFile( targetDirPath + "/" + outFileName );
     if ( !outFile.open(IO_WriteOnly) ) {
 	location.fatal( tr("Cannot open output file '%1'")
-			.arg(outFile.name()) );
+			.arg(outFile.fileName()) );
 	return "";
     }
 
     char buffer[1024];
     int len;
-    while ( (len = inFile.readBlock(buffer, sizeof(buffer))) > 0 ) {
-	outFile.writeBlock( buffer, len );
+    while ( (len = inFile.read(buffer, sizeof(buffer))) > 0 ) {
+	outFile.write( buffer, len );
     }
     return outFileName;
 }
@@ -440,7 +441,7 @@ bool Config::removeDirContents( const QString& dir )
 		ok = FALSE;
 	} else if ( (*it).isDir() ) {
 	    if ( (*it).fileName() != "." && (*it).fileName() != ".." ) {
-		if ( removeDirContents((*it).absFilePath()) ) {
+		if ( removeDirContents((*it).absoluteFilePath()) ) {
 		    if ( !dirInfo.rmdir((*it).fileName()) )
 			ok = FALSE;
 		} else {
@@ -477,7 +478,7 @@ void Config::load( Location location, const QString& fileName )
 
     QFile fin( fileName );
     if ( !fin.open(IO_ReadOnly | IO_Translate) ) {
-	fin.setName(fileName + ".qdoc");
+	fin.setFileName(fileName + ".qdoc");
 	if (!fin.open(IO_ReadOnly | IO_Translate))
 	    location.fatal( tr("Cannot open file '%1'").arg(fileName) );
     }

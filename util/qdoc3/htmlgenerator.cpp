@@ -7,6 +7,8 @@
 #include "node.h"
 #include "separator.h"
 #include "tree.h"
+#include <ctype.h>
+
 
 #define COMMAND_PROJECT                 Doc::alias("project")
 #define COMMAND_VERSION                 Doc::alias("version")

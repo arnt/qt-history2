@@ -6,6 +6,8 @@
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qhash.h>
+#include <limits.h>
+
 #include <qregexp.h>
 
 #include "codemarker.h"

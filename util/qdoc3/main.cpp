@@ -6,6 +6,7 @@
 #include <qdict.h>
 #include <qdir.h>
 #include <qtranslator.h>
+#include <stdlib.h>
 
 #include "ccodeparser.h"
 #include "codemarker.h"

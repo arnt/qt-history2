@@ -5,6 +5,7 @@
 #include <qregexp.h>
 #include <qtranslator.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "config.h"
 #include "location.h"

@@ -72,7 +72,7 @@ void PageGenerator::beginSubPage( const Location& location,
     QFile *outFile = new QFile( outputDir() + "/" + fileName );
     if ( !outFile->open(IO_WriteOnly) )
 	location.fatal( tr("Cannot open output file '%1'")
-			.arg(outFile->name()) );
+			.arg(outFile->fileName()) );
     outStreamStack.push( new QTextStream(outFile) );
 }
 
