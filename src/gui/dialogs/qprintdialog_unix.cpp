@@ -544,7 +544,7 @@ extern "C" {
 static int foreach(int /*status */, char * /*key */, int /*keyLen */,
                     char *val, int valLen, char *data)
 {
-    parsePrinterDesc(QLatin1String(val, valLen), (QList<QPrinterDescription> *)data);
+    parsePrinterDesc(QString::fromLatin1(val, valLen), (QList<QPrinterDescription> *)data);
     return 0;
 }
 
