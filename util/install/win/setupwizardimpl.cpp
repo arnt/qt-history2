@@ -394,7 +394,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 #endif
 
     // First check for MSVC 6.0
-    QString regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0", "InstallDir", QEnvironment::LocalMachine );
+    QString regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine );
     if ( regValue.length() )
 	sysGroupButton = 1;
 
