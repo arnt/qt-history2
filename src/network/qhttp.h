@@ -92,62 +92,76 @@ public:
     virtual QString toString() const;
     bool isValid() const;
 
+    virtual int majorVersion() const = 0;
+    virtual int minorVersion() const = 0;
+
 protected:
     virtual bool parseLine( const QString& line, int number );
-
     bool parse( const QString& str );
 
 private:
-    QMap<QString,QString> m_values;
-    bool m_bValid;
+    QMap<QString,QString> values;
+    bool valid;
 };
 
 class QM_EXPORT_HTTP QHttpResponseHeader : public QHttpHeader
 {
-public:
-    QHttpResponseHeader();
-    QHttpResponseHeader( int code, const QString& text = QString::null, int version = 10 );
-    QHttpResponseHeader( const QHttpResponseHeader& header );
+private:
+    QHttpResponseHeader( int code, const QString& text = QString::null, int majorVer = 1, int minorVer = 1 );
     QHttpResponseHeader( const QString& str );
 
-    void setStatusLine( int code, const QString& text = QString::null, int version = 10 );
+    void setStatusLine( int code, const QString& text = QString::null, int majorVer = 1, int minorVer = 1 );
+
+public:
+    QHttpResponseHeader();
+    QHttpResponseHeader( const QHttpResponseHeader& header );
+
     int statusCode() const;
     QString reasonPhrase() const;
-    int version() const;
 
-    virtual QString toString() const;
+    int majorVersion() const;
+    int minorVersion() const;
+
+    QString toString() const;
 
 protected:
-    virtual bool parseLine( const QString& line, int number );
+    bool parseLine( const QString& line, int number );
 
 private:
-    int m_code;
-    QString m_text;
-    int m_version;
+    int statCode;
+    QString reasonPhr;
+    int majVer;
+    int minVer;
+
+    friend class QHttp;
 };
 
 class QM_EXPORT_HTTP QHttpRequestHeader : public QHttpHeader
 {
 public:
     QHttpRequestHeader();
-    QHttpRequestHeader( const QString& method, const QString& path, int version = 10 );
+    QHttpRequestHeader( const QString& method, const QString& path, int majorVer = 1, int minorVer = 1 );
     QHttpRequestHeader( const QHttpRequestHeader& header );
     QHttpRequestHeader( const QString& str );
 
-    void setRequest( const QString& method, const QString& path, int version = 10 );
+    void setRequest( const QString& method, const QString& path, int majorVer = 1, int minorVer = 1 );
+
     QString method() const;
     QString path() const;
-    int version();
 
-    virtual QString toString() const;
+    int majorVersion() const;
+    int minorVersion() const;
+
+    QString toString() const;
 
 protected:
-    virtual bool parseLine( const QString& line, int number );
+    bool parseLine( const QString& line, int number );
 
 private:
-    QString m_method;
-    QString m_path;
-    int m_version;
+    QString m;
+    QString p;
+    int majVer;
+    int minVer;
 };
 
 class QM_EXPORT_HTTP QHttp : public QNetworkProtocol

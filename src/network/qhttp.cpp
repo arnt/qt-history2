@@ -120,11 +120,19 @@ public:
     \sa QHttpRequestHeader QHttpResponseHeader
 */
 
+/*!  \fn int QHttpHeader::majorVersion() const
+  Returns the major protocol-version of the HTTP header.
+*/
+
+/*!  \fn int QHttpHeader::minorVersion() const
+  Returns the minor protocol-version of the HTTP header.
+*/
+
 /*!
     Constructs an empty HTTP header.
 */
 QHttpHeader::QHttpHeader()
-    : m_bValid( TRUE )
+    : valid( TRUE )
 {
 }
 
@@ -132,9 +140,9 @@ QHttpHeader::QHttpHeader()
     Constructs a copy of \a header.
 */
 QHttpHeader::QHttpHeader( const QHttpHeader& header )
-    : m_bValid( header.m_bValid )
+    : valid( header.valid )
 {
-    m_values = header.m_values;
+    values = header.values;
 }
 
 /*!
@@ -144,7 +152,7 @@ QHttpHeader::QHttpHeader( const QHttpHeader& header )
     adds this information.
 */
 QHttpHeader::QHttpHeader( const QString& str )
-    : m_bValid( TRUE )
+    : valid( TRUE )
 {
     parse( str );
 }
@@ -161,8 +169,8 @@ QHttpHeader::~QHttpHeader()
 */
 QHttpHeader& QHttpHeader::operator=( const QHttpHeader& h )
 {
-    m_values = h.m_values;
-    m_bValid = h.m_bValid;
+    values = h.values;
+    valid = h.valid;
     return *this;
 }
 
@@ -173,7 +181,7 @@ QHttpHeader& QHttpHeader::operator=( const QHttpHeader& h )
 */
 bool QHttpHeader::isValid() const
 {
-    return m_bValid;
+    return valid;
 }
 
 /*! \internal
@@ -211,7 +219,7 @@ bool QHttpHeader::parse( const QString& str )
     it = lines.begin();
     for( ; it != lines.end(); ++it ) {
 	if ( !parseLine( *it, number++ ) ) {
-	    m_bValid = FALSE;
+	    valid = FALSE;
 	    return FALSE;
 	}
     }
@@ -226,7 +234,7 @@ bool QHttpHeader::parse( const QString& str )
 */
 QString QHttpHeader::value( const QString& key ) const
 {
-    return m_values[ key.lower() ];
+    return values[ key.lower() ];
 }
 
 /*!
@@ -238,8 +246,8 @@ QStringList QHttpHeader::keys() const
 {
     QStringList lst;
 
-    QMap<QString,QString>::ConstIterator it = m_values.begin();
-    for( ; it != m_values.end(); ++it )
+    QMap<QString,QString>::ConstIterator it = values.begin();
+    for( ; it != values.end(); ++it )
 	lst.append( *it );
 
     return lst;
@@ -253,7 +261,7 @@ QStringList QHttpHeader::keys() const
 */
 bool QHttpHeader::hasKey( const QString& key ) const
 {
-    return m_values.contains( key.lower() );
+    return values.contains( key.lower() );
 }
 
 /*!
@@ -268,7 +276,7 @@ bool QHttpHeader::hasKey( const QString& key ) const
 */
 void QHttpHeader::setValue( const QString& key, const QString& value )
 {
-    m_values[ key.lower() ] = value;
+    values[ key.lower() ] = value;
 }
 
 /*!
@@ -278,7 +286,7 @@ void QHttpHeader::setValue( const QString& key, const QString& value )
 */
 void QHttpHeader::removeValue( const QString& key )
 {
-    m_values.remove( key.lower() );
+    values.remove( key.lower() );
 }
 
 /*! \internal
@@ -295,7 +303,7 @@ bool QHttpHeader::parseLine( const QString& line, int )
     if ( i == -1 )
 	return FALSE;
 
-    m_values.insert( line.left( i ).stripWhiteSpace().lower(), line.mid( i + 1 ).stripWhiteSpace() );
+    values.insert( line.left( i ).stripWhiteSpace().lower(), line.mid( i + 1 ).stripWhiteSpace() );
 
     return TRUE;
 }
@@ -307,8 +315,8 @@ QString QHttpHeader::toString() const
 {
     QString ret = "";
 
-    QMap<QString,QString>::ConstIterator it = m_values.begin();
-    for( ; it != m_values.end(); ++it )
+    QMap<QString,QString>::ConstIterator it = values.begin();
+    for( ; it != values.end(); ++it )
 	ret += it.key() + ": " + it.data() + "\r\n";
 
     return ret;
@@ -332,7 +340,7 @@ bool QHttpHeader::hasContentLength() const
 */
 uint QHttpHeader::contentLength() const
 {
-    return m_values[ "content-length" ].toUInt();
+    return values[ "content-length" ].toUInt();
 }
 
 /*!
@@ -342,7 +350,7 @@ uint QHttpHeader::contentLength() const
 */
 void QHttpHeader::setContentLength( int len )
 {
-    m_values[ "content-length" ] = QString::number( len );
+    values[ "content-length" ] = QString::number( len );
 }
 
 /*!
@@ -363,7 +371,7 @@ bool QHttpHeader::hasContentType() const
 */
 QString QHttpHeader::contentType() const
 {
-    QString type = m_values[ "content-type" ];
+    QString type = values[ "content-type" ];
     if ( type.isEmpty() )
 	return QString::null;
 
@@ -381,7 +389,7 @@ QString QHttpHeader::contentType() const
 */
 void QHttpHeader::setContentType( const QString& type )
 {
-    m_values[ "content-type" ] = type;
+    values[ "content-type" ] = type;
 }
 
 /****************************************************
@@ -401,23 +409,12 @@ void QHttpHeader::setContentType( const QString& type )
     This class is used in the QHttp class to report the header
     information that the client received from the server.
 
-    This class is also used in the QHttpConnection class to send HTTP
-    replies from a server to a client.
-
     HTTP responses have a status code that indicates the status of the
-    response. This code is a 3-digit integer result code (for details
-    please refer to RFC 1945). In addition to the status code, you can
-    also specify a human-readable text that describes the reason for
-    the code ("reason phrase"). This class allows you to set and get
-    the status code and the reason phrase.
-
-    The code, reason and protocol version can be set in the
-    constructor or later with setReply(). The values can be obtained
-    from statusCode(), reasonPhrase() and version().
-
-    This class is a QHttpHeader subclass so that class's functions,
-    e.g. \link QHttpHeader::setValue() setValue()\endlink, \link
-    QHttpHeader::value() value()\endlink, etc. are also available.
+    response. This code is a 3-digit integer result code (for details please
+    refer to RFC 1945). In addition to the status code, you can also specify a
+    human-readable text that describes the reason for the code ("reason
+    phrase"). This class allows you to get the status code and the reason
+    phrase.
 
     \sa QHttpRequestHeader QHttp
 */
@@ -431,10 +428,10 @@ QHttpResponseHeader::QHttpResponseHeader()
 
 /*!
   Constructs a HTTP response header with the status code \a code, the reason
-  phrase \a text and the protocol-version \a version.
+  phrase \a text and the protocol-version \a majorVer and \a minorVer.
 */
-QHttpResponseHeader::QHttpResponseHeader( int code, const QString& text, int version )
-    : QHttpHeader(), m_code( code ), m_text( text ), m_version( version )
+QHttpResponseHeader::QHttpResponseHeader( int code, const QString& text = QString::null, int majorVer, int minorVer )
+    : QHttpHeader(), statCode( code ), reasonPhr( text ), majVer( majorVer ), minVer( minorVer )
 {
 }
 
@@ -442,7 +439,7 @@ QHttpResponseHeader::QHttpResponseHeader( int code, const QString& text, int ver
     Constructs a copy of \a header.
 */
 QHttpResponseHeader::QHttpResponseHeader( const QHttpResponseHeader& header )
-    : QHttpHeader( header ), m_code( header.m_code ), m_text( header.m_text ), m_version( header.m_version )
+    : QHttpHeader( header ), statCode( header.statCode ), reasonPhr( header.reasonPhr ), majVer( header.majVer ), minVer( header.minVer )
 {
 }
 
@@ -458,45 +455,56 @@ QHttpResponseHeader::QHttpResponseHeader( const QString& str )
 
 /*!
     Sets the status code to \a code, the reason phrase to \a text and
-    the protocol-version to \a version.
+    the protocol-version to \a majorVer and \a minorVer.
 
-  \sa statusCode() reasonPhrase() version()
+    \sa statusCode() reasonPhrase() majorVersion() minorVersion()
 */
-void QHttpResponseHeader::setStatusLine( int code, const QString& text, int version )
+void QHttpResponseHeader::setStatusLine( int code, const QString& text, int majorVer, int minorVer )
 {
-    m_code = code;
-    m_text = text;
-    m_version = version;
+    statCode = code;
+    reasonPhr = text;
+    majVer = majorVer;
+    minVer = minorVer;
 }
 
 /*!
   Returns the status code of the HTTP response header.
 
-  \sa setStatusLine() reasonPhrase() version()
+  \sa reasonPhrase() majorVersion() minorVersion()
 */
 int QHttpResponseHeader::statusCode() const
 {
-    return m_code;
+    return statCode;
 }
 
 /*!
   Returns the reason phrase of the HTTP response header.
 
-  \sa setStatusLine() statusCode() version()
+  \sa statusCode() majorVersion() minorVersion()
 */
 QString QHttpResponseHeader::reasonPhrase() const
 {
-    return m_text;
+    return reasonPhr;
 }
 
 /*!
-  Returns the protocol-version of the HTTP response header.
+  Returns the major protocol-version of the HTTP response header.
 
-  \sa setStatusLine() statusCode() reasonPhrase()
+  \sa minorVersion() statusCode() reasonPhrase()
 */
-int QHttpResponseHeader::version() const
+int QHttpResponseHeader::majorVersion() const
 {
-    return m_version;
+    return majVer;
+}
+
+/*!
+  Returns the minor protocol-version of the HTTP response header.
+
+  \sa majorVersion() statusCode() reasonPhrase()
+*/
+int QHttpResponseHeader::minorVersion() const
+{
+    return minVer;
 }
 
 /*! \reimp
@@ -512,15 +520,16 @@ bool QHttpResponseHeader::parseLine( const QString& line, int number )
 
     if ( l.left( 5 ) == "HTTP/" && l[5].isDigit() && l[6] == '.' &&
 	    l[7].isDigit() && l[8] == ' ' && l[9].isDigit() ) {
-	m_version = 10 * ( l[5].latin1() - '0' ) + ( l[7].latin1() - '0' );
+	majVer = l[5].latin1() - '0';
+	minVer = l[7].latin1() - '0';
 
 	int pos = l.find( ' ', 9 );
 	if ( pos != -1 ) {
-	    m_text = l.mid( pos + 1 );
-	    m_code = l.mid( 9, pos - 9 ).toInt();
+	    reasonPhr = l.mid( pos + 1 );
+	    statCode = l.mid( 9, pos - 9 ).toInt();
 	} else {
-	    m_code = l.mid( 9 ).toInt();
-	    m_text = QString::null;
+	    statCode = l.mid( 9 ).toInt();
+	    reasonPhr = QString::null;
 	}
     } else {
 	return FALSE;
@@ -534,7 +543,7 @@ bool QHttpResponseHeader::parseLine( const QString& line, int number )
 QString QHttpResponseHeader::toString() const
 {
     QString ret( "HTTP/%1.%2 %3 %4\r\n%5\r\n" );
-    return ret.arg( m_version / 10 ).arg ( m_version % 10 ).arg( m_code ).arg( m_text ).arg( QHttpHeader::toString() );
+    return ret.arg( majVer ).arg ( minVer ).arg( statCode ).arg( reasonPhr ).arg( QHttpHeader::toString() );
 }
 
 /****************************************************
@@ -555,9 +564,6 @@ QString QHttpResponseHeader::toString() const
     This class is used in the QHttp class to report the header
     information if the client requests something from the server.
 
-    This class is also used in the QHttpConnection class to receive
-    HTTP requests by a server.
-
     HTTP requests have a method which describes the request's action.
     The most common requests are "GET" and "POST". In addition to the
     request method the header also includes a request-URI to specify
@@ -565,7 +571,7 @@ QString QHttpResponseHeader::toString() const
 
     The method, request-URI and protocol-version can be set using a
     constructor or later using setRequest(). The values can be
-    obtained using method(), path() and version().
+    obtained using method(), path(), majorVersion() and minorVersion().
 
     This class is a QHttpHeader subclass so that class's functions,
     e.g. \link QHttpHeader::setValue() setValue()\endlink, \link
@@ -585,10 +591,10 @@ QHttpRequestHeader::QHttpRequestHeader()
 
 /*!
     Constructs a HTTP request header for the method \a method, the
-    request-URI \a path and the protocol-version \a version.
+    request-URI \a path and the protocol-version \a majorVer and \a minorVer.
 */
-QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& path, int version )
-    : QHttpHeader(), m_method( method ), m_path( path ), m_version( version )
+QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& path, int majorVer, int minorVer )
+    : QHttpHeader(), m( method ), p( path ), majVer( majorVer ), minVer( minorVer )
 {
 }
 
@@ -596,7 +602,7 @@ QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& pa
     Constructs a copy of \a header.
 */
 QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
-    : QHttpHeader( header ), m_method( header.m_method ), m_path( header.m_path ), m_version( header.m_version )
+    : QHttpHeader( header ), m( header.m ), p( header.p ), majVer( header.majVer ), minVer( header.minVer )
 {
 }
 
@@ -611,45 +617,57 @@ QHttpRequestHeader::QHttpRequestHeader( const QString& str )
 
 /*!
     This function sets the request method to \a method, the
-    request-URI to \a path and the protocol-version to \a version.
+    request-URI to \a path and the protocol-version to \a majorVer and \a
+    minorVer.
 
-    \sa method() path() version()
+    \sa method() path() majorVersion() minorVersion()
 */
-void QHttpRequestHeader::setRequest( const QString& method, const QString& path, int version )
+void QHttpRequestHeader::setRequest( const QString& method, const QString& path, int majorVer, int minorVer )
 {
-    m_method = method;
-    m_path = path;
-    m_version = version;
+    m = method;
+    p = path;
+    majVer = majorVer;
+    minVer = minorVer;
 }
 
 /*!
     Returns the method of the HTTP request header.
 
-    \sa path() version() setRequest()
+    \sa path() majorVersion() minorVersion() setRequest()
 */
 QString QHttpRequestHeader::method() const
 {
-    return m_method;
+    return m;
 }
 
 /*!
     Returns the request-URI of the HTTP request header.
 
-    \sa method() version() setRequest()
+    \sa method() majorVersion() minorVersion() setRequest()
 */
 QString QHttpRequestHeader::path() const
 {
-    return m_path;
+    return p;
 }
 
 /*!
-    Returns the protocol-version of the HTTP request header.
+  Returns the major protocol-version of the HTTP request header.
 
-    \sa method() path() setRequest()
+  \sa minorVersion() method() path() setRequest()
 */
-int QHttpRequestHeader::version()
+int QHttpRequestHeader::majorVersion() const
 {
-    return m_version;
+    return majVer;
+}
+
+/*!
+  Returns the minor protocol-version of the HTTP request header.
+
+  \sa majorVersion() method() path() setRequest()
+*/
+int QHttpRequestHeader::minorVersion() const
+{
+    return minVer;
 }
 
 /*! \reimp
@@ -661,15 +679,15 @@ bool QHttpRequestHeader::parseLine( const QString& line, int number )
 
     QStringList lst = QStringList::split( " ", line.simplifyWhiteSpace() );
     if ( lst.count() > 0 ) {
-	m_method = lst[0];
+	m = lst[0];
 	if ( lst.count() > 1 ) {
-	    m_path = lst[1];
+	    p = lst[1];
 	    if ( lst.count() > 2 ) {
 		QString v = lst[2];
 		if ( v.length() >= 8 && v.left( 5 ) == "HTTP/" &&
 			v[5].isDigit() && v[6] == '.' && v[7].isDigit() ) {
-		    m_version = 10 * ( v[5].latin1() - '0' ) +
-			( v[7].latin1() - '0' );
+		    majVer = v[5].latin1() - '0';
+		    minVer = v[7].latin1() - '0';
 		    return TRUE;
 		}
 	    }
@@ -685,8 +703,8 @@ QString QHttpRequestHeader::toString() const
 {
     QString first( "%1 %2");
     QString last(" HTTP/%3.%4\r\n%5\r\n" );
-    return first.arg( m_method ).arg( m_path ) +
-	last.arg( m_version / 10 ).arg( m_version % 10 ).arg( QHttpHeader::toString());
+    return first.arg( m ).arg( p ) +
+	last.arg( majVer ).arg( minVer ).arg( QHttpHeader::toString());
 }
 
 
@@ -828,13 +846,10 @@ int QHttp::supportedOperations() const
 */
 void QHttp::operationGet( QNetworkOperation *op )
 {
-    if ( d->state != Alive && d->state != Idle )
-	return; // ### store the request for later?
-
     bytesRead = 0;
     op->setState( StInProgress );
     QUrl u( operationInProgress()->arg( 0 ) );
-    QHttpRequestHeader header( "GET", u.encodedPathAndQuery() );
+    QHttpRequestHeader header( "GET", u.encodedPathAndQuery(), 1, 0 );
     header.setValue( "Host", u.host() );
     request( u.host(), u.port() != -1 ? u.port() : 80, header );
 }
@@ -843,14 +858,10 @@ void QHttp::operationGet( QNetworkOperation *op )
 */
 void QHttp::operationPut( QNetworkOperation *op )
 {
-    if ( d->state != Alive && d->state != Idle )
-	return; // ### ditto
-
     bytesRead = 0;
     op->setState( StInProgress );
     QUrl u( operationInProgress()->arg( 0 ) );
-    QHttpRequestHeader header( "POST", u.encodedPathAndQuery() );
-    // header.setContentType( "text/plain" );
+    QHttpRequestHeader header( "POST", u.encodedPathAndQuery(), 1, 0 );
     header.setValue( "Host", u.host() );
     request( u.host(), u.port() != -1 ? u.port() : 80, header, op->rawArg(1) );
 }
