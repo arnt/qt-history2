@@ -574,7 +574,7 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 						LPARAM lpData)
 {
 #ifndef Q_OS_TEMP
-    if (uMsg == BFFM_INITIALIZED && lpData != NULL) {
+    if (uMsg == BFFM_INITIALIZED && lpData != 0) {
 	QString *initDir = (QString *)(lpData);
 	if (!initDir->isEmpty()) {
 	    // ### Lars asks: is this correct for the A version????
