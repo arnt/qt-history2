@@ -2750,6 +2750,8 @@ void QApplication::enableEffect( Qt::UIEffect effect, bool enable )
 	animate_menu = enable;
 	break;
     case UI_FadeMenu:
+	if ( enable )
+	    animate_menu = TRUE;
 	fade_menu = enable;
 	break;
     case UI_AnimateCombo:
@@ -2759,6 +2761,8 @@ void QApplication::enableEffect( Qt::UIEffect effect, bool enable )
 	animate_tooltip = enable;
 	break;
     case UI_FadeTooltip:
+	if ( enable )
+	    animate_tooltip = TRUE;
 	fade_tooltip = enable;
 	break;
     default:
