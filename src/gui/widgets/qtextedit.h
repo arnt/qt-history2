@@ -22,7 +22,7 @@ class QTextBlockFormat;
 class QMenu;
 class QTextEditPrivate;
 
-class QTextEdit : public QScrollView
+class Q_GUI_EXPORT QTextEdit : public QScrollView
 {
     Q_OBJECT
     Q_FLAGS(AutoFormattingFlags)
