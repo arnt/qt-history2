@@ -2289,8 +2289,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	return;
 
     QFontMetrics fm( fontMetrics() );
-    QString shaped = QComplexText::shapedString( str, pos, len, dir );
-    len = shaped.length();
 
     if ( testf(DirtyFont) )
 	updateFont();
@@ -2310,9 +2308,10 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     if ( force_bitmap || testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[3];
+	    QString string = str.mid( pos, len );
 	    QPoint p( x, y );
 	    param[0].point = &p;
-	    param[1].str = &shaped;
+	    param[1].str = &string;
 	    param[2].ival = QFont::NoScript;
 	    if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hdc )
 		return;
