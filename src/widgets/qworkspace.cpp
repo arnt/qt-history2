@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#5 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -62,7 +62,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 
     if (e->inserted() && e->child()->isWidgetType()) {
 	QWidget* w = (QWidget*) e->child();
-	if ( w->testWFlags( WStyle_Customize | WStyle_NoBorder ) 
+	if ( w->testWFlags( WStyle_Customize | WStyle_NoBorder )
 	      || icons.contains( w ) )
 	    return; 	    // nothing to do
 	
@@ -107,6 +107,8 @@ void QWorkspace::activateClient( QWidget* w)
 	active->clientWidget()->setFocus();
     }
     delete ol;
+    
+    emit clientActivated( w );
 }
 
 
@@ -180,8 +182,15 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 void QWorkspace::layoutIcons()
 {
     int x = 0;
+    int y = height();
     for (QWidget* w = icons.first(); w ; w = icons.next() ) {
-	w->move(x, height()-w->height());
+	
+	if ( x > 0 && x + w->width() > width() ){
+	    x = 0;
+	    y -= w->height();
+	}
+	
+	w->move(x, y-w->height());
 	x = w->geometry().right();
     }
 }
