@@ -25,8 +25,9 @@
 **
 **********************************************************************/
 
-#include "qxt.h"
+#include "qxtwidget.h"
 
+#include <qapplication.h>
 #include <qobjectlist.h>
 
 #include <X11/Xlib.h>
