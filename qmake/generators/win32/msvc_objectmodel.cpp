@@ -1060,14 +1060,18 @@ static uint elfHash( const char* name )
 	h = 1;
     return h;
 }
+
+//#define USE_DISPLAY_HASH
+#ifdef USE_DISPLAY_HASH
 static void displayHash( const char* str )
 {
     printf( "case 0x%07x: // %s\n    break;\n", elfHash(str), str );
 }
+#endif
 
 bool VCLinkerTool::parseOption( const char* option )
 {
-#if 0
+#ifdef USE_DISPLAY_HASH
     // Main options
     displayHash( "/ALIGN" ); displayHash( "/ALLOWBIND" ); displayHash( "/ASSEMBLYMODULE" ); 
     displayHash( "/ASSEMBLYRESOURCE" ); displayHash( "/BASE" ); displayHash( "/DEBUG" ); 
@@ -1088,7 +1092,7 @@ bool VCLinkerTool::parseOption( const char* option )
     displayHash( "/TSAWARE" ); displayHash( "/VERBOSE" ); displayHash( "/VERSION" ); 
     displayHash( "/VXD" ); displayHash( "/WS " );
 #endif
-#if 0
+#ifdef USE_DISPLAY_HASH
     // Sub options
     displayHash( "UNLOAD" ); displayHash( "NOBIND" ); displayHash( "no" ); displayHash( "NOSTATUS" ); displayHash( "STATUS" );
     displayHash( "AM33" ); displayHash( "ARM" ); displayHash( "CEE" ); displayHash( "IA64" ); displayHash( "X86" ); displayHash( "M32R" ); 
@@ -1427,7 +1431,7 @@ QTextStream &operator<<( QTextStream &strm, const VCMIDLTool &tool )
 
 bool VCMIDLTool::parseOption( const char* option )
 {
-#if 0
+#ifdef USE_DISPLAY_HASH
     displayHash( "/D name[=def]" ); displayHash( "/I directory-list" ); displayHash( "/Oi" );
     displayHash( "/Oic" ); displayHash( "/Oicf" ); displayHash( "/Oif" ); displayHash( "/Os" );
     displayHash( "/U name" ); displayHash( "/WX" ); displayHash( "/W{0|1|2|3|4}" );
@@ -1906,9 +1910,9 @@ QTextStream &operator<<( QTextStream &strm, const VCFilter &tool )
 // VCProject --------------------------------------------------------
 VCProject::VCProject()
 {
-    QUuid uniqueId;
 #if defined(Q_WS_WIN32)
     GUID guid;
+    QUuid uniqueId;
     HRESULT h = CoCreateGuid( &guid );
     if ( h == S_OK )
 	uniqueId = QUuid( guid );

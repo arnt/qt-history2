@@ -390,7 +390,7 @@ class VCToolBase {
 protected:
     // Functions
     VCToolBase(){};
-    ~VCToolBase(){};
+    virtual ~VCToolBase(){}
     virtual bool parseOption( const char* option ) = 0;
 public:
     bool parseOptions( QStringList& options ) {
@@ -409,8 +409,8 @@ class VCCLCompilerTool : public VCToolBase
 public:
     // Functions
     VCCLCompilerTool();
-    ~VCCLCompilerTool(){};
-    virtual bool parseOption( const char* option );
+    virtual ~VCCLCompilerTool(){}
+    bool parseOption( const char* option );
     
     // Variables
     QStringList		    AdditionalIncludeDirectories;
@@ -480,8 +480,8 @@ class VCLinkerTool : public VCToolBase
 public:
     // Functions
     VCLinkerTool();
-    ~VCLinkerTool(){};
-    virtual bool parseOption( const char* option );
+    virtual ~VCLinkerTool(){}
+    bool parseOption( const char* option );
 
     // Variables
     QStringList		    AdditionalDependencies;
@@ -545,8 +545,8 @@ class VCMIDLTool : public VCToolBase
 public:
     // Functions
     VCMIDLTool();
-    ~VCMIDLTool(){};
-    virtual bool parseOption( const char* option );
+    virtual ~VCMIDLTool(){}
+    bool parseOption( const char* option );
 
     // Variables
     QStringList		    AdditionalIncludeDirectories;
@@ -587,8 +587,8 @@ class VCLibrarianTool : public VCToolBase
 public:
     // Functions
     VCLibrarianTool();
-    ~VCLibrarianTool(){};
-    virtual bool parseOption( const char* option ){ return FALSE; };
+    virtual ~VCLibrarianTool(){}
+    bool parseOption( const char* ){ return FALSE; };
 
     // Variables
     QStringList		    AdditionalDependencies;
@@ -608,8 +608,8 @@ class VCCustomBuildTool : public VCToolBase
 public:
     // Functions
     VCCustomBuildTool();
-    ~VCCustomBuildTool(){};
-    virtual bool parseOption( const char* option ){ return FALSE; };
+    virtual ~VCCustomBuildTool(){}
+    bool parseOption( const char* ){ return FALSE; };
 
     // Variables
     QStringList		    AdditionalDependencies;
@@ -625,8 +625,8 @@ class VCResourceCompilerTool : public VCToolBase
 public:
     // Functions
     VCResourceCompilerTool();
-    ~VCResourceCompilerTool(){};
-    virtual bool parseOption( const char* option ){ return FALSE; };
+    virtual ~VCResourceCompilerTool(){}
+    bool parseOption( const char* ){ return FALSE; };
 
     // Variables
     QStringList		    AdditionalIncludeDirectories;
@@ -645,8 +645,8 @@ class VCEventTool : public VCToolBase
 protected:
     // Functions
     VCEventTool() : ExcludedFromBuild( unset ){};
-    ~VCEventTool(){};
-    virtual bool parseOption( const char* option ){ return FALSE; };
+    virtual ~VCEventTool(){}
+    bool parseOption( const char* ){ return FALSE; };
 
 public:
     // Variables
@@ -661,21 +661,21 @@ class VCPostBuildEventTool : public VCEventTool
 {
 public:
     VCPostBuildEventTool();
-    ~VCPostBuildEventTool(){};
+    ~VCPostBuildEventTool(){}
 };
 
 class VCPreBuildEventTool : public VCEventTool 
 {
 public:
     VCPreBuildEventTool();
-    ~VCPreBuildEventTool(){};
+    ~VCPreBuildEventTool(){}
 };
 
 class VCPreLinkEventTool : public VCEventTool 
 {
 public:
     VCPreLinkEventTool();
-    ~VCPreLinkEventTool(){};
+    ~VCPreLinkEventTool(){}
 };
 
 class VCConfiguration
@@ -683,7 +683,7 @@ class VCConfiguration
 public:
     // Functions
     VCConfiguration();
-    ~VCConfiguration(){};
+    ~VCConfiguration(){}
 
     // Variables
     triState		ATLMinimizesCRunTimeLibraryUsage;
@@ -720,7 +720,7 @@ class VCFilter
 public:
     // Functions
     VCFilter();
-    ~VCFilter(){};
+    ~VCFilter(){}
     void generateMOC( QTextStream &strm, QString str ) const;
     void generateUIC( QTextStream &strm, const QString& str ) const;
 
@@ -739,7 +739,7 @@ class VCProject
 public:
     // Functions
     VCProject();
-    ~VCProject(){};
+    ~VCProject(){}
 
     // Variables
     QString		Name;

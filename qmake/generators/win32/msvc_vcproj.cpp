@@ -424,9 +424,9 @@ void VcprojGenerator::initConfiguration()
     vcProject.Configuration.Name =  ( project->isActiveConfig( "release" ) ? "Release|" : "Debug|" );
     vcProject.Configuration.Name += ( vcProject.Configuration.idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32" );
     vcProject.Configuration.ATLMinimizesCRunTimeLibraryUsage = ( project->first("ATLMinimizesCRunTimeLibraryUsage").isEmpty() ? _False : _True );
-    vcProject.Configuration.BuildBrowserInformation = triState( temp.isEmpty() ? unset : temp.toShort() );
+    vcProject.Configuration.BuildBrowserInformation = triState( temp.isEmpty() ? (short)unset : temp.toShort() );
     temp = project->first("CharacterSet");
-    vcProject.Configuration.CharacterSet = charSet( temp.isEmpty() ? charSetNotSet : temp.toShort() );
+    vcProject.Configuration.CharacterSet = charSet( temp.isEmpty() ? (short)charSetNotSet : temp.toShort() );
     vcProject.Configuration.DeleteExtensionsOnClean = project->first("DeleteExtensionsOnClean");
     vcProject.Configuration.ImportLibrary = vcProject.Configuration.linker.ImportLibrary;
     vcProject.Configuration.IntermediateDirectory = project->first("OBJECTS_DIR");
@@ -523,13 +523,15 @@ void VcprojGenerator::initLinkerTool()
     vcProject.Configuration.linker.AdditionalDependencies += project->variables()["MSVCPROJ_LIBS"];
 
     switch ( projectTarget ) {
-	case Application:
-	    vcProject.Configuration.linker.OutputFile = project->first( "DESTDIR" );
-	    break;
-	case SharedLib:
-	    vcProject.Configuration.linker.parseOptions( project->variables()["MSVCPROJ_LIBOPTIONS"] );
-	    vcProject.Configuration.linker.OutputFile = project->first( "DLLDESTDIR" );
-	    break;
+    case Application:
+	vcProject.Configuration.linker.OutputFile = project->first( "DESTDIR" );
+	break;
+    case SharedLib:
+	vcProject.Configuration.linker.parseOptions( project->variables()["MSVCPROJ_LIBOPTIONS"] );
+	vcProject.Configuration.linker.OutputFile = project->first( "DLLDESTDIR" );
+	break;
+    case StaticLib: //unhandled - added to remove warnings..
+	break;
     }
 
     if( vcProject.Configuration.linker.OutputFile.isEmpty() )
