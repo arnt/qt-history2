@@ -13,7 +13,7 @@ public:
 protected:
     void newUuid();
     void copyUuid();
-    void formatChanged( int );
+    void formatChanged();
 
 private:
     QString result;

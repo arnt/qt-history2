@@ -4,6 +4,7 @@
 #include <qradiobutton.h>
 #include <qapplication.h>
 #include <qclipboard.h>
+#include <qlineedit.h>
 
 #if defined(Q_WS_WIN32)
 #include <objbase.h>
@@ -50,7 +51,7 @@ void QUuidGen::newUuid()
 	
 #endif
 
-    formatChanged( formats->id( formats->selected() ) );
+    formatChanged();
 }
 
 void QUuidGen::copyUuid()
@@ -58,9 +59,13 @@ void QUuidGen::copyUuid()
     QApplication::clipboard()->setText( resultLabel->text() );
 }
 
-void QUuidGen::formatChanged( int f )
+void QUuidGen::formatChanged()
 {
+    int f = formats->id( formats->selected() );
     QString text;
+    QString name = nameEdit->text();
+    if ( name.isEmpty() )
+	name = "<<name>>";
 
     QString l = "0x" + result.left( 8 ).lower();
     QString i1 = "0x" + result.mid( 9, 4 ).lower();
@@ -75,11 +80,11 @@ void QUuidGen::formatChanged( int f )
     QString b8 = "0x" + result.mid( 34, 2 ).lower();
 
     switch ( f ) {
-    case 0: // use the Q_UUID macro
-	text = "// {" + result.upper() + "} \nQ_UUID(<<name>>, " + l + ", " + i1 +", " + i2 + ", "+b1+", "+b2+", "+b3+", "+b4+", "+b5+", "+b6+", "+b7+", "+b8+");";
+    case 0: // define a macro
+	text = "// {" + result.upper() + "} \n#ifndef " + name + "\n#define " + name + " QUuid( " + l + ", " + i1 +", " + i2 + ", "+b1+", "+b2+", "+b3+", "+b4+", "+b5+", "+b6+", "+b7+", "+b8+");\n#endif";
 	break;
     case 1: // static const QUuid ...
-	text = "// {" + result.upper() + "} \nstatic const QUuid <<name>> = { "+ l + ", " + i1 + ", " + i2 + ", { "+b1+", "+b2+", "+b3+", "+b4+", "+b5+", "+b6+", "+b7+", "+b8+" } };";
+	text = "// {" + result.upper() + "} \nstatic const QUuid " + name + " = QUuid( "+ l + ", " + i1 + ", " + i2 + ", "+b1+", "+b2+", "+b3+", "+b4+", "+b5+", "+b6+", "+b7+", "+b8+" );";
 	break;
     case 2: // Registry Entry
 	text = "{" + result.upper() + "}";
