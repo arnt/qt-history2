@@ -589,7 +589,7 @@ QList<QByteArray> QMacMimeImage::convertFromMime(QByteArray data, const char* mi
     ClosePicture();
     int size = GetHandleSize((Handle)pic);
     HLock((Handle)pic);
-    QConstByteArray ar(reinterpret_cast<char *>(*pic), size);
+    QByteArray ar = QByteArray::fromRawData(reinterpret_cast<char *>(*pic), size);
     HUnlock((Handle)pic);
     ret.append(ar);
     return ret;

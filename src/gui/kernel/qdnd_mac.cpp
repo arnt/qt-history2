@@ -227,8 +227,7 @@ QByteArray QDropEvent::encodedData(const char *mime) const
                 if(GetFlavorDataSize(current_dropobj, ref, flav, &flavorsize) == noErr) {
                     char *buffer = static_cast<char *>(malloc(flavorsize));
                     GetFlavorData(current_dropobj, ref, flav, buffer, &flavorsize, 0);
-                    QConstByteArray r(buffer, flavorsize);
-                    arrs.append(r);
+                    arrs.append(QByteArray::fromRawData(buffer, flavorsize));
                 }
             }
             if(!arrs.isEmpty())
