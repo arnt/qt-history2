@@ -537,12 +537,12 @@ void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *ob
 {
     Q_D(QEventDispatcherWin32);
 
-    register TimerInfo *t = new TimerInfo;
+    register ::TimerInfo *t = new ::TimerInfo;
     t->ind  = timerId;
     t->interval = interval;
     t->obj  = object;
     t->dispatcher = 0;
-    t->type = TimerInfo::Normal;
+    t->type = ::TimerInfo::Normal;
 
     if (interval > 10 || !interval || !qtimeSetEvent) {
         if (!interval) // optimization for single-shot-zero-timer
@@ -550,11 +550,11 @@ void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *ob
         t->id = SetTimer(0, 0, (uint) interval, (TIMERPROC) qt_timer_proc);
     } else {
         t->dispatcher = d;
-        t->type = TimerInfo::Fast;
+        t->type = ::TimerInfo::Fast;
         t->id = qtimeSetEvent(interval, 1, qt_fast_timer_proc, (DWORD_PTR)t, TIME_CALLBACK_FUNCTION|TIME_PERIODIC);
         if (!t->id) { // fall back to normal timer if no more multimedia timers avaiable
             t->dispatcher = 0;
-            t->type = TimerInfo::Normal;
+            t->type = ::TimerInfo::Normal;
             t->id = SetTimer(0, 0, (uint)interval, (TIMERPROC) qt_timer_proc);
         }
     }
@@ -566,7 +566,7 @@ void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *ob
     }
 
     d->timerVec.append(t);                      // store in timer vector
-    if (t->type != TimerInfo::Fast)
+    if (t->type != ::TimerInfo::Fast)
         d->timerDict.insert(t->id, t);          // store regular timers in dict
 }
 
@@ -576,7 +576,7 @@ bool QEventDispatcherWin32::unregisterTimer(int timerId)
     if (d->timerVec.isEmpty() || timerId <= 0)
         return false;
 
-    TimerInfo *t = 0;
+    ::TimerInfo *t = 0;
     for (int i=0; i<d->timerVec.size(); ++i) {
         if (d->timerVec.at(i)->ind == timerId) {
             t = d->timerVec.at(i);
@@ -587,13 +587,13 @@ bool QEventDispatcherWin32::unregisterTimer(int timerId)
         return false;
 
     switch (t->type) {
-    case TimerInfo::Fast:
+    case ::TimerInfo::Fast:
         EnterCriticalSection(&d->fastTimerCriticalSection);
         d->timerVec.removeAll(t);
-        t->type = TimerInfo::Off; // kill timer (and delete t) from callback
+        t->type = ::TimerInfo::Off; // kill timer (and delete t) from callback
         LeaveCriticalSection(&d->fastTimerCriticalSection);
         break;
-    case TimerInfo::Normal:
+    case ::TimerInfo::Normal:
         KillTimer(0, t->id);
         d->timerDict.remove(t->id);
         d->timerVec.removeAll(t);
@@ -609,18 +609,18 @@ bool QEventDispatcherWin32::unregisterTimers(QObject *object)
     Q_D(QEventDispatcherWin32);
     if (d->timerVec.isEmpty())
         return false;
-    register TimerInfo *t;
+    register ::TimerInfo *t;
     for (int i=0; i<d->timerVec.size(); i++) {
         t = d->timerVec.at(i);
         if (t && t->obj == object) {                // object found
             switch (t->type) {
-            case TimerInfo::Fast:
+            case ::TimerInfo::Fast:
                 EnterCriticalSection(&d->fastTimerCriticalSection);
                 d->timerVec.removeAt(i);
-                t->type = TimerInfo::Off; // kill timer (and delete t) from callback
+                t->type = ::TimerInfo::Off; // kill timer (and delete t) from callback
                 LeaveCriticalSection(&d->fastTimerCriticalSection);
                 break;
-            case TimerInfo::Normal:
+            case ::TimerInfo::Normal:
                 KillTimer(0, t->id);
                 d->timerDict.remove(t->id);
                 d->timerVec.removeAt(i);
@@ -640,7 +640,7 @@ QEventDispatcherWin32::registeredTimers(QObject *object) const
     Q_D(const QEventDispatcherWin32);
     QList<TimerInfo> list;
     for (int i = 0; i < d->timerVec.size(); ++i) {
-        const TimerInfo *t = d->timerVec.at(i);
+        const ::TimerInfo *t = d->timerVec.at(i);
         if (t && t->obj == object)
             list << TimerInfo(t->ind, t->interval);
     }
