@@ -498,7 +498,7 @@ QtFileIconView::QtFileIconView( const QString &dir, QWidget *parent, const char 
 	     this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
     connect( this, SIGNAL( dropped( QDropEvent *, const QValueList<QIconDragItem> & ) ),
 	     this, SLOT( slotDropped( QDropEvent *, const QValueList<QIconDragItem> & ) ) );
-    connect( this, SIGNAL( rightButtonPressed( QIconViewItem *, const QPoint & ) ),
+    connect( this, SIGNAL( contextMenu( QIconViewItem *, const QPoint & ) ),
 	     this, SLOT( slotRightPressed( QIconViewItem * ) ) );
 
     setHScrollBarMode( AlwaysOff );
