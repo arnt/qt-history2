@@ -2137,15 +2137,15 @@ public:
 
     virtual unsigned short unicode_for_glyph(int glyphindex) { return glyphindex; }
     virtual unsigned short glyph_for_unicode(unsigned short unicode) { return unicode; }
-    void insertIntoSubset( unsigned short unicode );
+    unsigned short insertIntoSubset( unsigned short unicode );
     virtual bool embedded() { return FALSE; }
 
 protected:
     QString psname;
     QStringList replacementList;
 
-  QIntDict<unsigned short> subset;      // unicode subset in the global font
-  QIntDict<unsigned short> page_subset; // subset added in this page
+    QIntDict<unsigned short> subset;      // unicode subset in the global font
+    QIntDict<unsigned short> page_subset; // subset added in this page
     int subsetCount;
     int pageSubsetCount;
     bool           global_dict;
@@ -2153,6 +2153,7 @@ protected:
 };
 
 QPSPrinterFontPrivate::QPSPrinterFontPrivate()
+    : subset( 1009 ), page_subset( 1009 )
 {
     global_dict = false;
     downloaded  = false;
@@ -2164,19 +2165,25 @@ QPSPrinterFontPrivate::QPSPrinterFontPrivate()
     pageSubsetCount = 0;
 }
 
-void QPSPrinterFontPrivate::insertIntoSubset( unsigned short u )
+unsigned short QPSPrinterFontPrivate::insertIntoSubset( unsigned short u )
 {
+    unsigned short retval;
     if ( !subset[u] ) {
 	if ( !downloaded ) { // we need to add to the page subset
 	    subset.insert(u, new unsigned short(subsetCount)); // mark it as used
-	    printf("GLOBAL SUBSET ADDED %04x = %04x\n",u, subsetCount);
+	    printf("GLOBAL SUBSET ADDED %04x = %04x\n",u, subsetCount);	
+	    retval = subsetCount;
 	    subsetCount++;
 	} else if ( !page_subset[u] ) {
 	    page_subset.insert(u, new unsigned short(pageSubsetCount)); // mark it as used
 	    printf("PAGE SUBSET ADDED %04x = %04x\n",u, pageSubsetCount);
+	    retval = pageSubsetCount;
 	    pageSubsetCount++;
 	}
+    } else {
+	qDebug("QPSPrinterzFont::internal error");
     }
+    return retval;
 }
 
 void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QPoint &p, 
@@ -2184,10 +2191,7 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
 {
     if ( text.length() == 0 )
 	return;
-    for (int i = 0; i < (int)text.length(); i++) {
-	insertIntoSubset( text.at(i).unicode() );
-    }
-
+    
     int x = p.x();
     if ( spaces > 0 )
 	x += spaces * d->fm->width( ' ' );
@@ -2265,8 +2269,7 @@ unsigned short QPSPrinterFontPrivate::mapUnicode( unsigned short unicode )
     if ( !res && downloaded )
 	res = page_subset[unicode];
     if ( !res ) {
-	qWarning("QPSPrinterFontPrivate::internal error in mapUnicode!");
-	return 0;
+	return insertIntoSubset( unicode );
     }
     return *res;
 }
@@ -5096,6 +5099,7 @@ void QPSPrinter::setFont( const QFont & fnt, int script )
     d->currentFont = fontName;
     d->currentFontCodec = codec;
     d->currentFontFile = ff.handle();
+    d->scriptUsed = script;
 }
 
 
