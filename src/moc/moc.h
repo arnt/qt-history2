@@ -34,7 +34,7 @@ struct ArgumentDef
 
 struct FunctionDef
 {
-    FunctionDef(): access(Private), isConst(false), inlineCode(false), wasCloned(false), isCompat(false), isInvokable(false), isScriptable(false) {}
+    FunctionDef(): access(Private), isConst(false), isVirtual(false), inlineCode(false), wasCloned(false), isCompat(false), isInvokable(false), isScriptable(false) {}
     QByteArray type, normalizedType;
     QByteArray tag;
     QByteArray name;
@@ -44,6 +44,7 @@ struct FunctionDef
     enum Access { Private, Protected, Public };
     Access access;
     bool isConst;
+    bool isVirtual;
     bool inlineCode;
     bool wasCloned;
 
@@ -90,6 +91,7 @@ struct ClassDef {
     QList<ClassInfoDef> classInfoList;
     QMap<QByteArray, bool> enumDeclarations;
     QList<EnumDef> enumList;
+    QMap<QString, QString> flagAliases;
 
     int begin;
     int end;
@@ -165,6 +167,7 @@ public:
     void parseSignals(ClassDef *def);
     void parseProperty(ClassDef *def, bool override);
     void parseEnumOrFlag(ClassDef *def, bool isFlag);
+    void parseFlag(ClassDef *def);
     void parseClassInfo(ClassDef *def);
     void parseInterfaces(ClassDef *def);
     void parseSlotInPrivate(ClassDef *def, FunctionDef::Access access);

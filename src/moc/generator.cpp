@@ -183,13 +183,23 @@ void Generator::generateCode()
 // build the data array
 //
     int i = 0;
+
+
     // filter out undeclared enumerators and sets
-    while (i < cdef->enumList.count()) {
-        if (cdef->enumDeclarations.contains(cdef->enumList.at(i).name))
-            ++i;
-        else
-            cdef->enumList.removeAt(i);
+    {
+        QList<EnumDef> enumList;
+        for (i = 0; i < cdef->enumList.count(); ++i) {
+            EnumDef def = cdef->enumList.at(i);
+            if (cdef->enumDeclarations.contains(def.name))
+                enumList += def;
+            if (cdef->flagAliases.contains(def.name)) {
+                def.name = cdef->flagAliases.value(def.name);
+                enumList += def;
+            }
+        }
+        cdef->enumList = enumList;
     }
+
 
     QByteArray qualifiedClassNameIdentifier = cdef->qualified;
     qualifiedClassNameIdentifier.replace(':', '_');
@@ -284,7 +294,7 @@ void Generator::generateCode()
         fprintf(out, "    { &%s::staticMetaObject,\n      ", purestSuperClass.constData());
     else
         fprintf(out, "    { 0, ");
-    fprintf(out, "qt_meta_stringdata_%s,\n      qt_meta_data_%s }\n",
+    fprintf(out, "qt_meta_stringdata_%s,\n      qt_meta_data_%s}\n",
              qualifiedClassNameIdentifier.constData(), qualifiedClassNameIdentifier.constData());
     fprintf(out, "};\n");
 
@@ -525,6 +535,8 @@ void Generator::generateMetacall()
     fprintf(out, "\nint %s::qt_metacall(QMetaObject::Call _c, int _id, void **_a)\n{\n",
              cdef->qualified.constData());
 
+    if (cdef->signalList.size())
+        fprintf(out, "    int _id_global = _id;\n");
     if (purestSuperClass.size() && !isQObject)
         fprintf(out, "    _id = %s::qt_metacall(_c, _id, _a);\n", purestSuperClass.constData());
 
@@ -537,11 +549,20 @@ void Generator::generateMetacall()
     memberList += cdef->slotList;
     memberList += cdef->methodList;
 
+    int signalCount = cdef->signalList.size();
     if (memberList.size()) {
         needElse = true;
-        fprintf(out, "if (_c == QMetaObject::InvokeMetaMember) {\n");
-        fprintf(out, "        switch (_id) {\n");
-        for (int memberindex = 0; memberindex < memberList.size(); ++memberindex) {
+        fprintf(out, "if (_c == QMetaObject::InvokeMetaMember) {\n        ");
+        if (signalCount) {
+            fprintf(out, "if (_id < %d)\n", signalCount);
+            fprintf(out, "            QMetaObject::activate(this, _id_global, _a);\n");
+        }
+    }
+    if (memberList.size() > signalCount) {
+        if (signalCount)
+            fprintf(out, "        else ");
+        fprintf(out, "switch (_id) {\n");
+        for (int memberindex = signalCount; memberindex < memberList.size(); ++memberindex) {
             const FunctionDef &f = memberList.at(memberindex);
             fprintf(out, "        case %d: ", memberindex);
             if (f.normalizedType.size())
@@ -562,11 +583,10 @@ void Generator::generateMetacall()
                         noRef(f.normalizedType).constData());
             fprintf(out, " break;\n");
         }
-        fprintf(out,
-                 "        }\n"
-                 "        _id -= %d;\n"
-                 "    }", memberList.count());
+        fprintf(out, "        }\n");
     }
+    if (memberList.size())
+        fprintf(out, "        _id -= %d;\n    }", memberList.size());
 
     if (cdef->propertyList.size()) {
         bool needGet = false;
@@ -745,7 +765,7 @@ void Generator::generateMetacall()
         fprintf(out, "\n#endif // QT_NO_PROPERTIES");
     }
  skip_properties:
-    if (memberList.size() || cdef->propertyList.size())
+    if (memberList.size() || cdef->signalList.size() || cdef->propertyList.size())
         fprintf(out, "\n    ");
     fprintf(out,"return _id;\n}\n");
 }
@@ -761,8 +781,8 @@ void Generator::generateSignal(FunctionDef *def,int index)
 
     if (def->arguments.isEmpty() && def->normalizedType.isEmpty()) {
         fprintf(out, ")\n{\n"
-                 "    QMetaObject::activate(this, &staticMetaObject, %d, 0);\n"
-                 "};\n", index);
+                "    QMetaObject::activate(this, &staticMetaObject, %d, 0);\n"
+                "};\n", index);
         return;
     }
 

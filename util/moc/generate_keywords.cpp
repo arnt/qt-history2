@@ -188,6 +188,7 @@ static const Keyword keywords[] = {
     { "Q_OVERRIDE", "Q_OVERRIDE_TOKEN" },
     { "Q_ENUMS", "Q_ENUMS_TOKEN" },
     { "Q_FLAGS", "Q_FLAGS_TOKEN" },
+    { "Q_DECLARE_FLAGS", "Q_DECLARE_FLAGS_TOKEN" },
     { "Q_SETS", "Q_FLAGS_TOKEN" },
     { "Q_CLASSINFO", "Q_CLASSINFO_TOKEN" },
     { "Q_INTERFACES", "Q_INTERFACES_TOKEN" },

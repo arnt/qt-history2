@@ -359,7 +359,7 @@ void Moc::parseFunctionArguments(FunctionDef *def)
 
 void Moc::parseFunction(FunctionDef *def, bool inMacro)
 {
-    test(VIRTUAL);
+    def->isVirtual = test(VIRTUAL);
     while (test(INLINE) || test(STATIC))
         ;
     switch(lookup()) {
@@ -548,6 +548,9 @@ void Moc::parse()
                 case Q_FLAGS_TOKEN:
                     parseEnumOrFlag(&def, true);
                     break;
+                case Q_DECLARE_FLAGS_TOKEN:
+                    parseFlag(&def);
+                    break;
                 case Q_CLASSINFO_TOKEN:
                     parseClassInfo(&def);
                     break;
@@ -702,6 +705,8 @@ void Moc::parseSignals(ClassDef *def)
         FunctionDef funcDef;
         funcDef.access = FunctionDef::Protected;
         parseFunction(&funcDef);
+        if (funcDef.isVirtual)
+            error("Signals cannot be declared virtual");
         if (funcDef.isConst)
             error("Signals cannot have const qualifier");
         if (funcDef.inlineCode)
@@ -806,6 +811,30 @@ void Moc::parseEnumOrFlag(ClassDef *def, bool isFlag)
         }
         def->enumDeclarations[identifier] = isFlag;
     }
+    next(RPAREN);
+}
+
+void Moc::parseFlag(ClassDef *def)
+{
+    next(LPAREN);
+    QByteArray flagName, enumName;
+    while (test(IDENTIFIER)) {
+        flagName = lexem();
+        while (test(SCOPE) && test(IDENTIFIER)) {
+            flagName += "::";
+            flagName += lexem();
+        }
+    }
+    next(COMMA);
+    while (test(IDENTIFIER)) {
+        enumName = lexem();
+        while (test(SCOPE) && test(IDENTIFIER)) {
+            enumName += "::";
+            enumName += lexem();
+        }
+    }
+
+    def->flagAliases.insert(enumName, flagName);
     next(RPAREN);
 }
 

@@ -145,6 +145,20 @@ void *QSignalEmitter::qt_metacast(const char *clname)
     return 0;
 }
 
+int QSignalEmitter::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    int _id_global = _id;
+    _id = QObject::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMember) {
+        if (_id < 1)
+            QMetaObject::activate(this, _id_global, _a);
+        _id -= 1;
+    }
+    return _id;
+}
+
 void QSignalEmitter::activate(const void *_t1)
 {
     void *_a[] = { 0, const_cast<void *>(_t1) };
