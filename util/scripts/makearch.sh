@@ -87,8 +87,8 @@ for a in `make -s showdirs` ; do
 done
 ln ${BASE}/tutorial/Makefile ${BASE}/arch/template/tutorial/Makefile
 cd ${BASE}/arch/template/moc
-sed 's/^static char yysccsid.*//' < ../../../src/moc/moc_gen.cpp > /tmp/moc_gen.cpp && mv /tmp/moc_gen.cpp ../../../src/moc/moc_gen.cpp 
-ln -s ../../../src/moc/moc.[l1y] ../../../src/moc/moc_gen.cpp ../../../src/moc/lex.yy.c .
+sed 's/^static char yysccsid.*//' < ../../../src/moc/mocgen.cpp > /tmp/mocgen.cpp && mv /tmp/mocgen.cpp ../../../src/moc/mocgen.cpp 
+ln -s ../../../src/moc/moc.[l1y] ../../../src/moc/mocgen.cpp ../../../src/moc/lex.yy.c .
 sed -e 's-\.\./tools/-../library/-' < ../../../src/moc/Makefile > Makefile
 
 # make the template makefile
