@@ -1406,6 +1406,8 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	return;
 
     QStyle::SFlags flags = ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
+    if(isEnabled())
+	flags |= QStyle::Style_Enabled;
     if(isClickEnabled()) {
 	if(index == oldHandleIdx) 
 	    flags |= QStyle::Style_Sunken; //currently selected

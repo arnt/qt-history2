@@ -1386,6 +1386,8 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
     QColorGroup c( cg );
     c.setBrush( QColorGroup::Background, c.brush( QColorGroup::Base ) );
     QStyle::SFlags flags = QStyle::Style_Default;
+    if(isEnabled())
+	flags |= QStyle::Style_Enabled;
     if ( checked )
 	flags |= QStyle::Style_On;
     else
