@@ -481,23 +481,39 @@ QString QDir::convertSeparators( const QString &pathName )
 
 bool QDir::cd( const QString &dirName, bool acceptAbsPath )
 {
-    if ( dirName.isEmpty() || dirName==QString::fromLatin1(".") )
+    if ( dirName.isEmpty() || dirName == QString::fromLatin1(".") )
 	return TRUE;
     QString old = dPath;
     if ( acceptAbsPath && !isRelativePath(dirName) ) {
 	dPath = cleanDirPath( dirName );
     } else {
-	if ( !isRoot() ) {
+	if ( isRoot() ) {
+	    if ( dirName == ".." ) {
+		dPath = old;
+		return FALSE;
+	    }
+	} else {
 	    dPath += '/';
-	} else if ( dirName == ".." ) {
-	    dPath = old;
-	    return FALSE;
 	}
+
 	dPath += dirName;
 	if ( dirName.find('/') >= 0
 		|| old == QString::fromLatin1(".")
-		|| dirName == QString::fromLatin1("..") )
+		|| dirName == QString::fromLatin1("..") ) {
 	    dPath = cleanDirPath( dPath );
+
+	    /*
+	      If dPath starts with .., we convert it to absolute to
+	      avoid infinite looping on
+
+		  QDir dir( "." );
+		  while ( dir.cdUp() )
+		      ;
+	    */
+	    if ( dPath[0] == QChar('.') && dPath[1] == QChar('.') &&
+		 (dPath.length() == 2 || dPath[2] == QChar('/')) )
+		convertToAbs();
+	}
     }
     if ( !exists() ) {
 	dPath = old;			// regret
@@ -1219,13 +1235,9 @@ QString QDir::cleanDirPath( const QString &filePath )
 
     slashify( name );
 
-    bool addedSeparator;
-    if ( isRelativePath(name) ) {
-	addedSeparator = TRUE;
+    bool addedSeparator = isRelativePath( name );
+    if ( addedSeparator )
 	name.insert( 0, '/' );
-    } else {
-	addedSeparator = FALSE;
-    }
 
     int ePos, pos, upLevel;
 
@@ -1233,7 +1245,7 @@ QString QDir::cleanDirPath( const QString &filePath )
     upLevel = 0;
     int len;
 
-    while ( pos && (pos = name.findRev('/',--pos)) != -1 ) {
+    while ( pos && (pos = name.findRev('/', pos - 1)) != -1 ) {
 	len = ePos - pos - 1;
 	if ( len == 2 && name.at(pos + 1) == '.'
 		      && name.at(pos + 2) == '.' ) {
