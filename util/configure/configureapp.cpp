@@ -491,13 +491,8 @@ void Configure::generateOutputVars()
 
     if( dictionary[ "SHARED" ] == "yes" ) {
 	dictionary[ "QMAKE_OUTDIR" ] += "_shared";
-	qmakeDefines += "QT_DLL";
     } else {
 	dictionary[ "QMAKE_OUTDIR" ] += "_static";
-    }
-
-    if( dictionary[ "STL" ] == "no" ) {
-	qmakeDefines += "QT_NO_STL";
     }
 
     if( !qmakeLibs.isEmpty() ) {
@@ -653,6 +648,24 @@ void Configure::generateCachefile()
 	}
 	cacheFile.close();
     }
+    QFile configFile( qtDir + "\\.qtwinconfig" );
+    if( configFile.open( IO_WriteOnly | IO_Translate ) ) { // Truncates any existing file.
+	QTextStream configStream( &configFile );
+	configStream << "CONFIG+=";
+	if( dictionary[ "SHARED" ] == "yes" )
+	    configStream << " shared";
+	if ( dictionary[ "THREAD" ] == "yes" ) 
+	    configStream << " thread";
+	if ( dictionary[ "DEBUG" ] == "yes" )
+	    configStream << " debug";
+	else
+	    configStream << " release";
+	configStream << endl;
+	if( dictionary[ "STL" ] == "no" )
+	    configStream << "DEFINES+= QT_NO_STL"; 
+	configFile.close();
+    }
+
     // Generate shadow .qmake.cache file in src/
     // This is to avoid problems on Windows
     QStringList srcConfig = qmakeConfig;
