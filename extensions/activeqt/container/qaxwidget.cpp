@@ -309,12 +309,27 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 	    if ( ax && msg->hwnd != ax->winId() && ax->control() != "{0002E510-0000-0000-C000-000000000046}" ) {
 		if ( message >= WM_KEYFIRST && message <= WM_KEYLAST ) {
 		    QAxHostWidget *host = (QAxHostWidget*)ax->child( "QAxHostWidget", "QWidget" );
-		    if ( host && msg->wParam == VK_TAB ) {
-			QAxHostWindow *site = host->clientSite();
-			// give the control a chance to move the focus
-			// The control will call our TranslateAccelerator if it doesn't want the message
-			if ( site && site->inPlaceObject() )
-			    site->inPlaceObject()->TranslateAccelerator( msg );
+		    QAxHostWindow *site = host ? host->clientSite() : 0;
+		    if (site && site->inPlaceObject()) {
+			if ( msg->wParam == VK_TAB ) { 
+			    // give the control a chance to move the focus
+			    // The control will call our TranslateAccelerator if it doesn't want the message
+			    site->inPlaceObject()->TranslateAcceleratorW( msg );
+			} else if (msg->message == WM_SYSKEYDOWN) {
+			    site->inPlaceObject()->TranslateAcceleratorW(msg);
+			} else if (msg->message == WM_KEYDOWN) {
+			    DWORD mod = 0;
+			    if (GetKeyState(VK_SHIFT) < 0)
+				mod |= 0x01; //KEYMOD_SHIFT;
+			    if (GetKeyState(VK_CONTROL) < 0)
+				mod |= 0x02; //KEYMOD_CONTROL;
+			    if (GetKeyState(VK_MENU) < 0)
+				mod |= 0x04; //KEYMOD_ALT;
+			    if (mod)
+				site->inPlaceObject()->TranslateAcceleratorW(msg);
+			} else if (msg->message == WM_SYSKEYUP && msg->wParam == VK_MENU) {
+			    site->inPlaceObject()->TranslateAcceleratorW(msg);
+			}
 		    }
 		} else {
 		    for ( i=0; (UINT)mouseTbl[i] != message && mouseTbl[i]; i += 3 )
