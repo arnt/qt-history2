@@ -338,7 +338,7 @@ private:
 };
 
 QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
-    : QWidget( dw, "qt_dockwidget_internal" ), dockWindow( dw ),
+    : QWidget( dw, "qt_dockwidget_internal", WRepaintNoErase ), dockWindow( dw ),
       closeButton( 0 ), opaque( FALSE ), mousePressed( FALSE )
 {
     ctrlDown = FALSE;
@@ -348,8 +348,9 @@ QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
 
 void QDockWindowHandle::paintEvent( QPaintEvent *e )
 {
-    if ( !dockWindow->dockArea )
+    if ( !dockWindow->dockArea || mousePressed )
 	return;
+    erase();
     QPainter p( this );
     QStyle::PFlags flags = QStyle::PStyle_Default;
 
@@ -362,27 +363,6 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
 			   QStyle::visualRect( style().subRect( QStyle::SR_DockWindowHandleRect,
 								this ), this ),
 			   colorGroup(), flags );
-
-// ### Remember the WindowsStyle dep. when doing the Motif impl.
-//     if ( !dockWindow->area() || !dockWindow->isCloseEnabled() ) {
-// 	style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ),
-// 				   dockWindow->orientation(), FALSE, colorGroup() );
-//     } else {
-// 	if ( dockWindow->area()->orientation() == Horizontal ) {
-// 	    int offs = 0;
-// 	    if ( dockWindow->isCloseEnabled() && style() != WindowsStyle )
-// 		offs += 2;
-// 	    style().drawToolBarHandle( &p, QRect( offs, 15, width() - offs, height() - 15 ),
-// 				       dockWindow->orientation(), FALSE, colorGroup() );
-// 	} else {
-// 	    int offs = 1;
-// 	    if ( dockWindow->isCloseEnabled() && style() != WindowsStyle )
-// 		offs++;
-// 	    style().drawToolBarHandle( &p, QRect( 0, offs, width() - 15, height() - offs ),
-// 				       dockWindow->orientation(), FALSE, colorGroup() );
-// 	}
-//     }
-
     QWidget::paintEvent( e );
 }
 
