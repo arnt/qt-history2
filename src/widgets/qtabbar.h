@@ -45,6 +45,8 @@
 
 #ifndef QT_NO_TABBAR
 
+class QTabBar;
+
 class Q_EXPORT QTab : public Qt
 {
     friend class QTabBar;
