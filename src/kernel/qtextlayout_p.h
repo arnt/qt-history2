@@ -47,11 +47,6 @@ public:
 	OnCharacters
     };
 
-    /* cPos gets set to the valid position */
-    int cursorToX( int *cPos, Edge edge = Leading ) const;
-    inline int cursorToX( int cPos, Edge edge = Leading ) const { return cursorToX( &cPos, edge ); }
-    int xToCursor( int x, CursorPosition = BetweenCharacters ) const;
-
     bool isRightToLeft() const;
     bool isObject() const;
     bool isSpace() const;
@@ -165,34 +160,10 @@ public:
     int numLines() const;
     QTextLine lineAt(int i) const;
     QTextLine findLine(int pos) const;
-#if 1
+
+    // ### go away!
     void beginLayout( LayoutMode m = MultiLine, int textFlags = 0 );
-    void beginLine( int width );
 
-    bool atEnd() const;
-    QTextItem nextItem();
-    QTextItem currentItem();
-    /* ## maybe also currentItem() */
-    void setLineWidth( int newWidth );
-    int lineWidth() const;
-    int widthUsed() const;
-    int availableWidth() const;
-
-    enum Result {
-	Ok,
-	LineFull,
-	LineEmpty,
-	Error
-    };
-    /* returns true if completely added */
-    Result addCurrentItem();
-
-    /* Note: if ascent and descent are used they must be initialized to the minimum ascent/descent
-       acceptable for the line. QFontMetrics::ascent/descent() is usually the right choice */
-    Result endLine( int x = 0, int y = 0, int alignment = Qt::AlignLeft,
-		    int *ascent = 0, int *descent = 0, int *left = 0, int *right = 0 );
-    void endLayout();
-#endif
 
     enum CursorMode {
 	SkipCharacters,

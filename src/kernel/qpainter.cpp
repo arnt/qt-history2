@@ -1082,51 +1082,20 @@ void QPainter::drawImage(const QRect &, const QImage &)
 }
 
 
-void QPainter::drawText(int x, int y, const QString &str, int pos, int len, TextDirection dir)
+void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
 {
     if ( !isActive() )
         return;
     dengine->updateState(ds);
 
-    if (len < 0)
-        len = str.length() - pos;
-    if ( len <= 0 || pos >= (int)str.length() ) // empty string
-        return;
-    if ( pos + len > (int)str.length() )
-        len = str.length() - pos;
+    if (str.isEmpty())
+	return;
+    int len = str.length();
 
-    bool simple = str.isSimpleText();
-    // we can't take the complete string here as we would otherwise
-    // get quadratic behaviour when drawing long strings in parts.
-    // we do however need some chars around the part we paint to get arabic shaping correct.
-    // ### maybe possible to remove after cursor restrictions work in QRT
-    int start;
-    int end;
-    if ( simple ) {
-	start = pos;
-	end = pos+len;
-    } else {
-	start = QMAX( 0,  pos - 8 );
-	end = QMIN( (int)str.length(), pos + len + 8 );
-    }
-    QConstString cstr( str.unicode() + start, end - start );
-    pos -= start;
-
-//     QTextEngine engine( cstr.string(), pfont ? pfont->d : cfont.d );
-//     QTextEngine engine( cstr.string(), ds->font.d );
-    QTextLayout layout(cstr.string(), ds->pfont ? *ds->pfont : ds->font);
+    QTextLayout layout(str, ds->pfont ? *ds->pfont : ds->font);
     QTextEngine *engine = layout.engine();
 
-    // this is actually what beginLayout does. Inlined here, so we can
-    // avoid the bidi algorithm if we don't need it.
-    engine->itemize( simple ? QTextEngine::NoBidi|QTextEngine::SingleLine : QTextEngine::Full|QTextEngine::SingleLine );
-    engine->currentItem = 0;
-    engine->firstItemInLine = -1;
-
-    if ( !simple ) {
-	layout.setBoundary( pos );
-	layout.setBoundary( pos + len );
-    }
+    engine->itemize(QTextEngine::SingleLine);
 
     if ( dir != Auto ) {
 	int level = dir == RTL ? 1 : 0;
@@ -1134,24 +1103,8 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, Text
 	    engine->items[i].analysis.bidiLevel = level;
     }
 
-    // small hack to force skipping of unneeded items
-    start = 0;
-    while ( engine->items[start].position < pos )
-	++start;
-    engine->currentItem = start;
-    layout.beginLine( 0xfffffff );
-    end = start;
-    while ( !layout.atEnd() && layout.currentItem().from() < pos + len ) {
-	layout.addCurrentItem();
-	end++;
-    }
-    QFontMetrics fm(fontMetrics());
-    int ascent = fm.ascent(), descent = fm.descent();
-    int left, right;
-    layout.endLine( 0, 0, Qt::SingleLine|Qt::AlignLeft, &ascent, &descent, &left, &right );
-
-    // do _not_ call endLayout() here, as it would clean up the shaped items and we would do shaping another time
-    // for painting.
+    QTextLine line = layout.createLine(0, 0, 0, INT_MAX);
+    const QScriptLine &sl = engine->lines[0];
 
     int textFlags = 0;
     if ( ds->font.underline() ) textFlags |= Qt::Underline;
@@ -1162,13 +1115,10 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, Text
 #if defined(Q_WS_X11)
     extern void qt_draw_background( QPainter *pp, int x, int y, int w,  int h );
     if (backgroundMode() == OpaqueMode)
- 	qt_draw_background(this, x, y-ascent, right-left, ascent+descent+1);
+ 	qt_draw_background(this, x, y-sl.ascent, sl.textWidth, sl.ascent+sl.descent+1);
 #endif
 
-    for ( int i = start; i < end; i++ ) {
-	QTextItem ti(i, engine);
-	drawTextItem( x, y - ascent, ti, textFlags );
-    }
+    line.draw(this, x, y-sl.ascent);
 }
 
 void QPainter::drawText(const QRect &r, int flags, const QString &str, int len,

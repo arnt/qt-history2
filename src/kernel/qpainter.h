@@ -173,10 +173,19 @@ public:
     void drawImage(const QPoint &, const QImage &, int conversion_flags = 0);
     void drawImage(const QRect &, const QImage &);
 
-    void drawText(int x, int y, const QString &, int len = -1, TextDirection dir = Auto);
-    void drawText(const QPoint &, const QString &, int len = -1, TextDirection dir = Auto);
-    void drawText(int x, int y, const QString &, int pos, int len, TextDirection dir = Auto);
-    void drawText(const QPoint &p, const QString &, int pos, int len, TextDirection dir = Auto);
+    void drawText(int x, int y, const QString &, TextDirection dir = Auto);
+    void drawText(const QPoint &, const QString &, TextDirection dir = Auto);
+
+#ifdef QT_COMPAT
+    QT_COMPAT void drawText(int x, int y, const QString &s, int pos, int len, TextDirection dir = Auto)
+	{ drawText(x, y, s.mid(pos, len), dir); }
+    QT_COMPAT void drawText(const QPoint &p, const QString &s, int pos, int len, TextDirection dir = Auto)
+	{ drawText(p, s.mid(pos, len), dir); }
+    QT_COMPAT void drawText(int x, int y, const QString &s, int len, TextDirection dir = Auto)
+	{ drawText(x, y, s.left(len), dir); }
+    QT_COMPAT void drawText(const QPoint &p, const QString &s, int len, TextDirection dir = Auto)
+	{ drawText(p, s.left(len), dir); }
+#endif
 
     void drawText(int x, int y, int w, int h, int flags, const QString&, int len = -1,
 		  QRect *br=0, QTextParag **intern=0);
@@ -350,14 +359,9 @@ inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm)
     drawPixmap(p.x(), p.y(), pm, 0, 0, pm.width(), pm.height());
 }
 
-inline void QPainter::drawText(const QPoint &p, const QString &s, int len, TextDirection dir)
+inline void QPainter::drawText(const QPoint &p, const QString &s, TextDirection dir)
 {
-    drawText(p.x(), p.y(), s, 0, len, dir);
-}
-
-inline void QPainter::drawText(int x, int y, const QString &s, int len, TextDirection dir)
-{
-    drawText(x, y, s, 0, len, dir);
+    drawText(p.x(), p.y(), s, dir);
 }
 
 inline void QPainter::eraseRect(const QRect &r)
