@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#141 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#142 $
 #
 # this is a massive hack, written very quickly
 #
@@ -437,7 +437,6 @@ sub processdocs {
 
 	if ($doc =~ s/\s*\\important\s+(.*?)(?:(?:\n\s*\n\s*)|(?:$ ))/\n\n/s) {
 	    $important{$url} = $1;
-	    print "imp: $1\n";
 	}
 
 	# this code is _really_ hard to follow... sorry
@@ -485,6 +484,24 @@ sub processdocs {
 		sprintf("%s", $tryagain);
 	    }
 	}
+	-egsx;
+
+	# refer to function or class by name
+	$doc =~ s-\\l\s+([^\s\(\.\,\)]+)((?:[\(\)]*))-
+	    if (defined($anchor{$1})) {
+		sprintf("<a href=\"%s\">%s</a>", $anchor{$1}, &html($1 . $2));
+	    } else {
+		if (defined($anchor{$class . $1})) {
+		    sprintf("<a href=\"%s\">%s</a>", 
+			    $anchor{$class . $1}, &html($1 . $2));
+		} elsif (defined($anchor{"::".$1})) {
+		    sprintf("<a href=\"%s\">%s</a>", 
+			    $anchor{"::" . $1}, &html($1 . $2));
+		} else {
+		    print "No link to '", $1, "'\n";
+		    sprintf("%s", $1 . $2);
+		}
+	    }
 	-egsx;
 
 	# try normal class::member, just class or member
@@ -621,7 +638,7 @@ sub writepages {
 	-egsx;
 
 	# refer to function or class by name
-	$doc =~ s-\\l\s+([^\s\(]+)((?:[\(\)]*))-
+	$doc =~ s-\\l\s+([^\s\(\.\,\)]+)((?:[\(\)]*))-
 	    if (defined($anchor{$1})) {
 		sprintf("<a href=\"%s\">%s</a>", $anchor{$1}, &html($1 . $2));
 	    } else {
