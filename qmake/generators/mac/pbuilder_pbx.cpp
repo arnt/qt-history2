@@ -537,7 +537,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << "OTHER_REZFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "SECTORDER_FLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "WARNING_CFLAGS = \"\";" << "\n";
+#if 1
     t << "\t\t\t\t" << "BUILD_ROOT = \"" << QDir::currentDirPath() << "\";" << "\n";
+#endif
     if(!project->isEmpty("DESTDIR"))
 	t << "\t\t\t\t" << "INSTALL_PATH = \"" << project->first("DESTDIR") << "\";" << "\n";
     if(!project->isEmpty("VERSION") && project->first("VERSION") != "0.0.0")
@@ -579,6 +581,30 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "\t\t\t" << "isa = PBXApplicationTarget;" << "\n"
 	  << "\t\t\t" << "name = \"" << project->first("QMAKE_ORIG_TARGET") << "\";" << "\n"
 	  << "\t\t\t" << "productName = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
+	t << "\t\t\t" << "productSettingsXML = " << "\"" << "<?xml version=" 
+	  << "\\\"1.0\\\" encoding=" << "\\\"UTF-8\\\"" << "?>" << "\n"
+	  << "\t\t\t\t" << "<!DOCTYPE plist SYSTEM \\\"file://localhost/System/" 
+	  << "Library/DTDs/PropertyList.dtd\\\">" << "\n"
+	  << "\t\t\t\t" << "<plist version=\\\"0.9\\\">" << "\n"
+	  << "\t\t\t\t" << "<dict>" << "\n"
+	  << "\t\t\t\t\t" << "<key>CFBundleDevelopmentRegion</key>" << "\n"
+	  << "\t\t\t\t\t" << "<string>English</string>" << "\n"
+	  << "\t\t\t\t\t" << "<key>CFBundleExecutable</key>" << "\n"
+	  << "\t\t\t\t\t" << "<string>" << project->first("QMAKE_ORIG_TARGET") << "</string>" << "\n"
+	  << "\t\t\t\t\t" << "<key>CFBundleIconFile</key>" << "\n"
+	  << "\t\t\t\t\t" << "<string></string>" << "\n"
+	  << "\t\t\t\t\t" << "<key>CFBundleInfoDictionaryVersion</key>"  << "\n"
+	  << "\t\t\t\t\t" << "<string>6.0</string>" << "\n"
+	  << "\t\t\t\t\t" << "<key>CFBundlePackageType</key>" << "\n"
+	  << "\t\t\t\t\t" << "<string>APPL</string>" << "\n"
+	  << "\t\t\t\t\t" << "<key>CFBundleSignature</key>" << "\n"
+	  << "\t\t\t\t\t" << "<string>????</string>" << "\n"
+	  << "\t\t\t\t\t" << "<key>CFBundleVersion</key>" << "\n"
+	  << "\t\t\t\t\t" << "<string>0.1</string>" << "\n"
+	  << "\t\t\t\t\t" << "<key>CSResourcesFileMapped</key>" << "\n"
+	  << "\t\t\t\t\t" << "<true/>" << "\n"
+	  << "\t\t\t\t" << "</dict>" << "\n"
+	  << "\t\t\t\t" << "</plist>" << "\";" << "\n";
     } else {
 	QString lib = project->first("QMAKE_ORIG_TARGET");
 	if(!project->isActiveConfig("frameworklib"))
