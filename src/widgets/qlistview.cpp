@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#58 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#58 $");
 
 
 const int Unsorted = 32767;
@@ -1099,8 +1099,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		int i = d->h->mapToLogical( c );
                 cs = d->h->cellSize( c );
                 r.setRect( x + ox, current->y + oy, cs, ih );
-		if ( i==0 && current->l > 0 )
-		    r.setLeft( r.left() + (current->l-1) * treeStepSize() );
+		if ( i==0 && current->i->parentItem )
+		    r.setLeft( r.left() + current->l * treeStepSize() );
 
 		p->save();
                 p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
@@ -1121,19 +1121,18 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	// do any children of current need to be painted?
 	if ( ih != ith &&
-	     (current->i->parentItem != d->r || d->rootIsExpandable) &&
-	     current->i->parentItem &&
+	     (current->i != d->r || d->rootIsExpandable) &&
 	     current->y + ith > cy &&
 	     current->y + ih < cy + ch &&
-	     tx < cx + cw &&
-	     tx + current->l * treeStepSize() > cx ) {
+	     tx + current->l * treeStepSize() < cx + cw &&
+	     tx + (current->l+1) * treeStepSize() > cx ) {
 	    // compute the clip rectangle the safe way
 
 	    int rtop = current->y + ih;
 	    int rbottom = current->y + ith;
 	    int rleft = tx + current->l*treeStepSize();
 	    int rright = rleft + treeStepSize();
-
+	    
 	    int crtop = QMAX( rtop, cy );
 	    int crbottom = QMIN( rbottom, cy+ch );
 	    int crleft = QMAX( rleft, cx );
@@ -1190,7 +1189,7 @@ void QListView::buildDrawableList() const
 	d->r->sortChildItems( d->column, d->ascending );
 
     QStack<QListViewPrivate::Pending> stack;
-    stack.push( new QListViewPrivate::Pending( (int)(d->rootIsExpandable),
+    stack.push( new QListViewPrivate::Pending( d->rootIsExpandable ? -1 : 0,
 					       0, d->r ) );
 
     // could mess with cy and ch in order to speed up vertical
@@ -1702,7 +1701,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
 	    ++it;
 
 	if ( it.current() ) {
-	    x1 -= treeStepSize() * (it.current()->l - 2);
+	    x1 -= treeStepSize() * (it.current()->l - 1);
 	    if ( x1 >= 0 && x1 < treeStepSize() )
 		setOpen( i, !i->isOpen() );
 	}
