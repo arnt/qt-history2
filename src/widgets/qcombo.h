@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#35 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#36 $
 **
 ** Definition of QComboBox class
 **
@@ -39,6 +39,7 @@ public:
     void	removeItem( int index );
     void	clear();
 
+    const char *currentText() const;
     const char *text( int index ) const;
     const QPixmap *pixmap( int index ) const;
 

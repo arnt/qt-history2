@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#71 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#71 $");
 
 
 /*!
@@ -248,10 +248,8 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 
 
 /*!
-
   Constructs a combo box with a maximum size and either Motif 2.0 or
   Windows look and feel.
-
 */
 
 
@@ -299,8 +297,6 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     } else {
 	d->ed = 0;
     }
-
-    
 }
 
 
@@ -519,7 +515,23 @@ void QComboBox::clear()
 
 
 /*!
+  Returns the text item being edited, or the current text item if the combo
+  box is not editable.
+  \sa text()
+*/
+
+const char *QComboBox::currentText() const
+{
+    if ( d->ed ) {
+	return d->ed->text();
+    } else {
+	return text( currentItem() );
+    }
+}
+
+/*!
   Returns the text item at a given index, or 0 if the item is not a string.
+  \sa currentText()
 */
 
 const char *QComboBox::text( int index ) const
