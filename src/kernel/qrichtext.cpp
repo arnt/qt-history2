@@ -5128,6 +5128,7 @@ void QTextTable::adjustToPainter( QPainter* p)
 	QPaintDeviceMetrics metrics(p->device());
 	double xscale = QMAX( scale_factor( metrics.logicalDpiX() ),
 			      scale_factor( metrics.logicalDpiY() ) );
+	xscale = QMAX( xscale, 1 );
 	cellspacing = int(cellspacing * xscale);
 	border = int(border * xscale);
 	innerborder = int(innerborder * xscale);
@@ -5180,10 +5181,10 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 							cell->geometry().width(), cell->geometry().height() ) ) ) {
 	    cell->draw( x+outerborder+innerborder, y+outerborder+innerborder, cx, cy, cw, ch, cg );
 	    if ( border ) {
-		QRect r( x+outerborder+cell->geometry().x(),
-			 y+outerborder+cell->geometry().y(),
-			 cell->geometry().width(),
-			 cell->geometry().height());
+		QRect r( x+outerborder+cell->geometry().x() - innerborder,
+			 y+outerborder+cell->geometry().y() - innerborder,
+			 cell->geometry().width() + 2 * innerborder,
+			 cell->geometry().height() + 2 * innerborder );
 		int s = cellspacing;
 		if ( is_printer( p ) ) {
 		    qDrawPlainRect( p, r, cg.text(), us_ib );
