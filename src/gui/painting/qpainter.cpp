@@ -4057,28 +4057,11 @@ void qt_format_text(const QFont& font, const QRect &_r,
         *brect = QRect(r.x() + xoff, r.y() + yoff, width, height);
 
     if (!(tf & Qt::TextDontPrint)) {
-        bool restoreClipping = false;
-        bool painterHasClip = false;
-        QRegion painterClipRegion;
-        if (!dontclip) {
-            QRegion reg(r);
-#ifdef QT_NO_TRANSFORMATIONS
-            reg.translate(painter->d->state->xlatex, painter->d->state->xlatey);
-#endif
-            if (painter->hasClipping())
-                reg &= painter->clipRegion();
-
-            painterHasClip = painter->hasClipping();
-            painterClipRegion = painter->clipRegion();
-            restoreClipping = true;
-            painter->setClipRegion(reg);
-        } else {
-            if (painter->hasClipping()){
-                painterHasClip = painter->hasClipping();
-                painterClipRegion = painter->clipRegion();
-                restoreClipping = true;
-                painter->setClipping(false);
-            }
+        bool restore = false;
+        if (!dontclip && 0) {
+            restore = true;
+            painter->save();
+            painter->setClipRect(r, Qt::IntersectClip);
         }
 
         int _tf = 0;
@@ -4092,9 +4075,8 @@ void qt_format_text(const QFont& font, const QRect &_r,
             line.draw(painter, r.x() + xoff + line.x(), r.y() + yoff);
         }
 
-        if (restoreClipping) {
-            painter->setClipRegion(painterClipRegion);
-            painter->setClipping(painterHasClip);
+        if (restore) {
+            painter->restore();
         }
     }
 
