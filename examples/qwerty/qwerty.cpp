@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qwerty/qwerty.cpp#4 $
+** $Id: //depot/qt/main/examples/qwerty/qwerty.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -184,34 +184,35 @@ bool Editor::saveAs( const QString& fileName, int code )
     return TRUE;
 }
 
-
 void Editor::print()
 {
-    const int MARGIN = 10;
-
     if ( printer.setup(this) ) {		// opens printer dialog
+	printer.setFullPage(TRUE);		// we'll set our own margins
 	QPainter p;
 	p.begin( &printer );			// paint on printer
 	p.setFont( e->font() );
-	int yPos        = 0;			// y position for each line
 	QFontMetrics fm = p.fontMetrics();
 	QPaintDeviceMetrics metrics( &printer ); // need width/height
 	                                         // of printer surface
+	const int MARGIN = metrics.logicalDpiX() / 2; // half-inch margin
+	int yPos        = MARGIN;		// y position for each line
+
 	for( int i = 0 ; i < e->numLines() ; i++ ) {
-	    if ( MARGIN + yPos > metrics.height() - MARGIN ) {
-		printer.newPage();		// no more room on this page
-		yPos = 0;			// back to top of page
+	    if ( printer.aborted() )
+	        break; 
+	    if ( yPos + fm.lineSpacing() > metrics.height() - MARGIN ) {
+	        // no more room on this page
+		if ( !printer.newPage() )          // start new page
+		    break;                           // some error
+		yPos = MARGIN;			 // back to top of page
 	    }
-	    p.drawText( MARGIN, MARGIN + yPos,
-			metrics.width(), fm.lineSpacing(),
-			ExpandTabs | DontClip,
-			e->textLine( i ) );
-	    yPos = yPos + fm.lineSpacing();
+	    p.drawText( MARGIN, yPos, metrics.width() - 2*MARGIN,
+			fm.lineSpacing(), ExpandTabs, e->textLine( i ) );
+	    yPos += fm.lineSpacing();
 	}
 	p.end();				// send job to printer
     }
 }
-
 
 void Editor::resizeEvent( QResizeEvent * )
 {
