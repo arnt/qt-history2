@@ -376,7 +376,7 @@ void QScreenCursor::drawCursor()
 		    b = srcval & 0xff;
 
 		    unsigned short hold = *(dptr+col);
-		    int or=(hold & 0xc0) >> 5;
+		    int or=(hold & 0xe0) >> 5;
 		    int og=(hold & 0x18) >> 3;
 		    int ob=(hold & 0x07);
 		    or=or << 5;
@@ -1157,8 +1157,11 @@ void QGfxRaster<depth,type>::setBrush( const QBrush & b )
     }
     QColor tmp=b.color();
     if(depth==8) {
-#ifdef QWS_DEPTH_8GRAYSCALE
+#if defined(QWS_DEPTH_8GRAYSCALE)
 	srccol=qGray(tmp.red(),tmp.green(),tmp.blue());
+#elif defined(QWS_DEPTH_8DIRECT)
+	srccol=(tmp.red() >> 5) << 5 | (tmp.green() >> 6) << 3 |
+	       (tmp.blue() >> 5);
 #else
 	srccol=closestMatch(tmp.red(),tmp.green(),tmp.blue());
 #endif
@@ -1186,7 +1189,9 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
 	hold=w->mapToGlobal(hold);
 	srcwidgetx=hold.x();
 	srcwidgety=hold.y();
-#ifdef QWS_DEPTH_8GRAYSCALE
+#if defined(QWS_DEPTH_8GRAYSCALE)
+	src_normal_palette=true;
+#elif defined(QWS_DEPTH_8DIRECT)
 	src_normal_palette=true;
 #else
 	if(srcdepth<=8)
@@ -1198,7 +1203,9 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
 	srcwidth=pix->width();
 	srcheight=pix->height();
 	if(srcdepth<=8)
-#ifdef QWS_DEPTH_8GRAYSCALE
+#if defined(QWS_DEPTH_8GRAYSCALE)
+	src_normal_palette=true;
+#elif defined(QWS_DEPTH_8DIRECT)
 	src_normal_palette=true;
 #else
 	if(srcdepth<=8)
@@ -1336,10 +1343,14 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
     if(depth<=8) {
 	// Now look for matches
 	for(loopc=0;loopc<numcols;loopc++) {
-#ifdef QWS_DEPTH_8GRAYSCALE
+#if defined(QWS_DEPTH_8GRAYSCALE)
 	    transclut[loopc]=qGray(qRed(srcclut[loopc]),
 				   qGreen(srcclut[loopc]),
 				   qBlue(srcclut[loopc]));
+#elif defined(QWS_DEPTH_8DIRECT)
+	    transclut[loopc]=(qRed(srcclut[loopc]) >> 5) << 5 |
+			     (qGreen(srcclut[loopc]) >> 6) << 3 |
+			     (qBlue(srcclut[loopc]) >> 5);
 #else
 	    unsigned int hold=0xfffff;
 	    unsigned int tmp;
@@ -1792,8 +1803,12 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    }
 	} else if(sdepth==8) {
 	    unsigned char val=*(*srcdata);
-#ifdef QWS_DEPTH_8GRAYSCALE
+#if defined(QWS_DEPTH_8GRAYSCALE)
 	    ret=(val << 16) | (val << 8) | val;
+#elif defined(QWS_DEPTH_8DIRECT)
+	    ret=(((val & 0xe0) >> 5) << (16+5)) |
+		(((val & 0x18) >> 3) << (8+6)) |
+		(val & 0x07) << 5;
 #else
 	    ret=srcclut[val];
 #endif
@@ -1868,8 +1883,10 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    }
 	} else if(sdepth==8) {
 	    unsigned char val=*((*srcdata));
-#ifdef QWS_DEPTH_8GRAYSCALE
+#if defined(QWS_DEPTH_8GRAYSCALE)
 	    ret=((val >> 3) << 11) | ((val >> 2) << 5) | (val >> 3);
+#elif defined(QWS_DEPTH_8DIRECT)
+	    qDebug("Not implemented yet");
 #else
 	    unsigned int hold=srcclut[val];
 	    r=(hold & 0xff0000) >> 16;
@@ -1972,13 +1989,19 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
     } else if(destdepth==8) {
 	if(sdepth==8) {
 	    unsigned char val=*((unsigned char *)(*srcdata));
-#ifdef QWS_DEPTH_8GRAYSCALE
+#if defined(QWS_DEPTH_8GRAYSCALE)
 	    // If source!=QImage, then the palettes will be the same
 	    if(src_normal_palette) {
 		ret=val;
 	    } else {
 		ret=transclut[val];
 	    }
+#elif defined(QWS_DEPTH_8DIRECT)
+	    if(src_normal_palette) {
+		ret=val;
+	    } else {
+		ret=transclut[val];
+	    }	    
 #else
 	    ret=transclut[val];
 #endif
@@ -2024,8 +2047,12 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    g=g << 3;
 	    ret=r | g | b;
 	    */
-#ifdef QWS_DEPTH_8GRAYSCALE
+#if defined(QWS_DEPTH_8GRAYSCALE)
 	    ret=qGray(r,g,b);
+#elif defined(QWS_DEPTH_8DIRECT)
+	    ret=(r >> 5) << 5 |
+		(g >> 6) << 3 |
+		(b >> 5);
 #else
 	    ret=closestMatch(r,g,b);
 #endif
@@ -2717,8 +2744,12 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	        b+=*(tmp+0);
 	        //mybuf[loopc]=qGray(r,g,b); // ### grayscale 8bit
 	    }
-#ifdef QWS_DEPTH_8GRAYSCALE
+#if defined(QWS_DEPTH_8GRAYSCALE)
 	    alphabuf[loopc]=qGray(r,g,b);
+#elif defined(QWS_DEPTH_8DIRECT)
+	    alphabuf[loopc]=(r >> 5) << 5 |
+			    (g >> 6) << 3 |
+			    (b >> 5);	    
 #else
 	    alphabuf[loopc]=closestMatch(r,g,b);
 #endif
@@ -3552,11 +3583,21 @@ bool QScreen::initCard()
 	cmap.transp=(unsigned short int *)
 		    malloc(sizeof(unsigned short int)*256);
 	for(loopc=0;loopc<256;loopc++) {
+#if defined(QWS_DEPTH_8GRAYSCALE)
 	    cmap.red[loopc]=loopc << 8;
 	    cmap.green[loopc]=loopc << 8;
 	    cmap.blue[loopc]=loopc << 8;
 	    cmap.transp[loopc]=0;
 	    screenclut[loopc]=qRgb(loopc,loopc,loopc);
+#else
+	    cmap.red[loopc]=((loopc & 0xe0) >> 5) << (5+8);
+	    cmap.green[loopc]=((loopc & 0x18) >> 3) << (6+8);
+	    cmap.blue[loopc]=(loopc & 0x07) << (5+8);
+	    cmap.transp[loopc]=0;
+	    screenclut[loopc]=qRgb(cmap.red[loopc] >> 8,
+				   cmap.green[loopc] >> 8,
+				   cmap.blue[loopc] >> 8);
+#endif
 	}
 	ioctl(fd,FBIOPUTCMAP,&cmap);
     }
@@ -3616,7 +3657,11 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
     } else if(d==8) {
 	ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif
-#ifdef QWS_DEPTH_8GRAYSCALE
+#if defined(QWS_DEPTH_8GRAYSCALE)
+    } else if(d==8) {
+	ret = new QGfxRaster<8,0>(bytes,w,h);
+#endif
+#if defined(QWS_DEPTH_8DIRECT)
     } else if(d==8) {
 	ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif
