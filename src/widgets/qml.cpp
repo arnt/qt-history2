@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#46 $
 **
 ** Implementation of QML classes
 **
@@ -1231,8 +1231,6 @@ QMLImage::QMLImage(const QDict<QString> &attr, QMLProvider &provider)
 	    height = pm.height();
 	  }
 	
-	  if ( !pm.mask() )
-	    pm.setMask( pm.createHeuristicMask() );
 	  if ( pm.mask() ) {
 	    QRegion mask( *pm.mask() );
 	    QRegion all( 0, 0, pm.width(), pm.height() );
