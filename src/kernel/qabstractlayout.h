@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#25 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#26 $
 **
 ** Definition of the abstract layout base class
 **
@@ -182,6 +182,7 @@ public:
     virtual void setAutoAdd( bool );
     bool autoAdd() const { return autoNewChild; }
 
+    void invalidate();
     QRect geometry() const;
     bool activate();
 
@@ -226,7 +227,7 @@ private:	// Disabled copy constructor and operator=
 
 inline void QLayoutIterator::deleteCurrent()
 {
-    delete takeCurrent(); 
+    delete takeCurrent();
 }
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#62 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -872,6 +872,18 @@ void QLayout::setGeometry( const QRect &r )
 }
 
 
+
+
+/*!
+  Invalidates cached information. Reimplementations must call this.
+*/
+
+void QLayout::invalidate()
+{
+    rect = QRect();
+}
+
+
 static bool removeWidget( QLayoutItem *lay, QWidget *w )
 {
     QLayoutIterator it = lay->iterator();
@@ -897,7 +909,7 @@ static bool removeWidget( QLayoutItem *lay, QWidget *w )
 bool QLayout::eventFilter( QObject *o, QEvent *e )
 {
     if ( o == this && e->type() == QEvent::ChildRemoved ) {
-	//we cannot implement childEvent() or event() because of 
+	//we cannot implement childEvent() or event() because of
 	//###binary compatibility.
 	QChildEvent *c = (QChildEvent*)e;
 	QLayoutIterator it = iterator();
@@ -1571,5 +1583,6 @@ void QLayout::setAutoAdd( bool b )
 {
     autoNewChild = b;
 }
+
 
 

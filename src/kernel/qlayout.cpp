@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#112 $
 **
 ** Implementation of layout classes
 **
@@ -1249,6 +1249,8 @@ void QGridLayout::setOrigin( Corner c )
 
 void QGridLayout::invalidate()
 {
+    QLayout::invalidate();
+    QLayout::setGeometry( QRect() ); //###binary compatibility
     array->setDirty();
 }
 
@@ -1460,6 +1462,8 @@ int QBoxLayout::heightForWidth( int w ) const
 
 void QBoxLayout::invalidate()
 {
+    QLayout::invalidate();
+    QLayout::setGeometry( QRect() ); //###binary compatibility
     data->setDirty();
 }
 
