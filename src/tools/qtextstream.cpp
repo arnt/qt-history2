@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#92 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#93 $
 **
 ** Implementation of QTextStream class
 **
@@ -1935,3 +1935,4 @@ void QTextStream::setCodec( QTextCodec *codec )
     mapper = codec;
     doUnicodeHeader = FALSE;
 }
+
