@@ -67,6 +67,8 @@ static QWidget *childOf( QWidget *w, QWidget *child )
     while ( child ) {
 	if ( child == w )
 	    return child;
+	if ( child->isTopLevel() )
+	    break;
 	child = child->parentWidget();
     }
     return 0;
