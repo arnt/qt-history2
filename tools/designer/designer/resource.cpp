@@ -472,6 +472,17 @@ bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
     return TRUE;
 }
 
+static bool saveCode( const QString &filename, const QString &code )
+{
+    QFile f( filename );
+    if ( f.open(IO_WriteOnly | IO_Translate) ) {
+	QTextStream ts( &f );
+	ts << code;
+	return TRUE;
+    }
+    return FALSE;
+}
+
 bool Resource::save( const QString& filename, bool formCodeOnly )
 {
     if ( !formwindow || filename.isEmpty() )
@@ -485,8 +496,20 @@ bool Resource::save( const QString& filename, bool formCodeOnly )
 	    langIface->addRef();
     }
     if ( formCodeOnly && langIface ) {
-	saveFormCode( formwindow->formFile(), langIface );
-	return TRUE; // missing error checking in saveFormCode ?
+	if ( saveFormCode(formwindow->formFile(), langIface) )
+	    return TRUE;
+	bool breakout = FALSE;
+	FormFile *ff = formwindow->formFile();
+	QString codeFile = ff->project()->makeAbsolute( ff->codeFile() );
+	QString filter = langIface->fileFilterList().join(";;");
+	while ( !breakout ) {
+	    QString fn = QFileDialog::getSaveFileName( codeFile, filter );
+	    breakout = fn.isEmpty();
+	    if ( !breakout ) {
+		if ( saveCode(fn, ff->code()) )
+		    return TRUE;
+	    }
+	}
     }
     currFileName = filename;
 
@@ -535,10 +558,10 @@ bool Resource::save( QIODevice* dev )
     saveMetaInfoAfter( ts, 0 );
     saveIncludeHints( ts, 0 );
     ts << "</UI>" << endl;
-    saveFormCode( formwindow->formFile(), langIface );
+    bool ok = saveFormCode( formwindow->formFile(), langIface );
     images.clear();
 
-    return TRUE;
+    return ok;
 }
 
 QString Resource::copy()
@@ -2750,8 +2773,7 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 
 void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
 {
-    MenuBarEditor *mb = (MenuBarEditor *)mw->child( 0, "MenuBarEditor" );
-    if ( !mb )
+    if ( !mw->child( 0, "QMenuBar" ) || QString( mw->menuBar()->name() ).startsWith( "qt_dead_widget_" ) )
 	return;
     ts << makeIndent( indent ) << "<menubar>" << endl;
     indent++;
@@ -2846,21 +2868,18 @@ void Resource::loadMenuBar( const QDomElement &e )
     }
 }
 
-void Resource::saveFormCode( FormFile *formfile, LanguageInterface *langIface )
+bool Resource::saveFormCode( FormFile *formfile, LanguageInterface *langIface )
 {
     QString lang = formfile->project()->language();
     LanguageInterface *iface = langIface;
     if ( !iface )
-	return;
+	return FALSE;
     if ( formfile->hasTempFileName() ||
 	 formfile->code().isEmpty() ||
 	 !formfile->hasFormCode() )
-	return;
-    QFile f( formfile->project()->makeAbsolute( formfile->codeFile() ) );
-    if ( f.open( IO_WriteOnly | IO_Translate ) ) {
-	QTextStream ts( &f );
-	ts << formfile->code();
-    }
+	return TRUE;  // There is no code to be saved.
+    return saveCode( formfile->project()->makeAbsolute(formfile->codeFile()),
+		     formfile->code() );
 }
 
 void Resource::loadExtraSource( FormFile *formfile, const QString &currFileName,

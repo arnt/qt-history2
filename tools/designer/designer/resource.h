@@ -76,7 +76,7 @@ public:
     static void loadCustomWidgets( const QDomElement &e, Resource *r );
     static void loadExtraSource( FormFile *formfile, const QString &currFileName,
 				 LanguageInterface *langIface, bool hasFunctions );
-    static void saveFormCode( FormFile *formfile, LanguageInterface *langIface );
+    static bool saveFormCode( FormFile *formfile, LanguageInterface *langIface );
 
 private:
     void saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream &ts, int indent );
