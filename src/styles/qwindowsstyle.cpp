@@ -1705,7 +1705,6 @@ QWindowsStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QCol
     }
     if(ctrls & ListViewBranches) {
 	p->setPen( cg.text() );
-	p->setPen( DotLine );
 
 	static QBitmap *verticalLine = 0, *horizontalLine = 0;
 	static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
@@ -1743,21 +1742,19 @@ QWindowsStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QCol
 	    QListViewItem *below = child->itemBelow();
 	    for( int line = bx - lv->treeStepSize(), count=child->depth()-1; count; count--, line-=lv->treeStepSize() ) {
 		if(below && count <= below->depth())
-		    p->drawPixmap( line, y, *verticalLine, 0, 0, -1, child->height()-y );
+		    p->drawPixmap( line, y, *verticalLine, 0, 0, -1, child->height());
 	    }
 	}
 	
 	//myself
-	int end;
+	int end = child->height();
 	QListViewItem *sib = child->nextSibling();
-	if(sib)
-	    end = child->height();
-	else
-	    end = child->height() / 2;
+	if(!sib)
+	    end /= 2;
 	if(child->childCount() || child->isExpandable()) {
 	    p->drawPixmap( bx, y, *verticalLine, 0, 0, -1, (linebot-4)-y);
 	    if(sib)
-		p->drawPixmap(bx, y+linebot+4, *verticalLine, 0, 0, -1, (y + end)-(y+linebot+4));
+		p->drawPixmap(bx, linebot+5, *verticalLine, 0, 0, -1, (child->height() / 2) - 5);
 	    p->drawPixmap(bx+4, linebot, *horizontalLine, 0, 0, w - 4, -1);
 	} else {
 	    p->drawPixmap(bx, y, *verticalLine, 0, 0, -1, end);

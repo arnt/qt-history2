@@ -1351,22 +1351,21 @@ QMotifStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QColor
 	    QListView *lv = child->listView();
 	    QListViewItem *below = child->itemBelow();
 	    for( int line = bx - lv->treeStepSize(), count=child->depth()-1; count; count--, line-=lv->treeStepSize() ) {
-		if(below && count <= below->depth())
-		    p->drawLine( line, y, line, child->height());
+		if(below && count <= below->depth()) {
+		    p->drawLine( line, y, line, y+child->height());
+		}
 	    }
 	}
 	
 	//myself
-	int end;
+	int end = child->height();
 	QListViewItem *sib = child->nextSibling();
-	if(sib)
-	    end = child->height();
-	else
-	    end = child->height() / 2;
+	if(!sib)
+	    end /= 2;
 	if(child->childCount() || child->isExpandable()) {
 	    p->drawLine(bx, y, bx, linebot-4);
-	    if(sib)
-		p->drawLine(bx, y+linebot+4, bx, y + end);
+	    if(sib) 
+		p->drawLine(bx, linebot+4, bx, linebot + child->height() / 2);
 	    p->drawLine(bx+4, linebot, bx + w, linebot);
 	} else {
 	    p->drawLine(bx, y, bx, y + end);
