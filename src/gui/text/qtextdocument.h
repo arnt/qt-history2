@@ -31,6 +31,7 @@ class QTextFrame;
 class QTextBlock;
 class QTextCodec;
 class QUrl;
+class QVariant;
 
 namespace Qt
 {
