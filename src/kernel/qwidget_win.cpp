@@ -132,16 +132,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( sw < 0 ) {				// get the (primary) screen size
 	sw = GetSystemMetrics( SM_CXSCREEN );
 	sh = GetSystemMetrics( SM_CYSCREEN );
-#ifdef Q_OS_TEMP
-	SIPINFO si = { 0 };
-	si.cbSize = sizeof(si);
-	SipGetInfo( &si );
-#define Q_OS_TEMP_MENU_HEIGHT	26
-	// The menu should be at the bottom, it is to be 26 pixels high
-	int iDelta = (si.fdwFlags & SIPF_ON) ? 0 : Q_OS_TEMP_MENU_HEIGHT;
-	sw = si.rcVisibleDesktop.right - si.rcVisibleDesktop.left;
-	sh = si.rcVisibleDesktop.bottom - si.rcVisibleDesktop.top - iDelta;
-#endif
     }
 
     if ( window ) {
@@ -204,8 +194,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    else
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
 #else
-	    style = WS_OVERLAPPED;
-	    setWFlags( WStyle_NormalBorder );
+	    style = 0;
+	    setWFlags( WStyle_NoBorder );
 #endif
 	}
 	// workaround for some versions of Windows
@@ -290,23 +280,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 #ifdef Q_OS_TEMP
 
-	int x = CW_USEDEFAULT, y = CW_USEDEFAULT, cx, cy;
-	SIPINFO si = { 0 };
-	si.cbSize = sizeof(si);
-	SipGetInfo( &si );
-
-#define MENU_HEIGHT	26
-
-	// The menu should be at the bottom, it is to be 26 pixels high
-	int iDelta = (si.fdwFlags & SIPF_ON) ? 0 : MENU_HEIGHT;
-	cx = si.rcVisibleDesktop.right - si.rcVisibleDesktop.left;
-	cy = si.rcVisibleDesktop.bottom - si.rcVisibleDesktop.top - iDelta;
-
 	const TCHAR *cname = windowClassName.ucs2();
 	if ( exsty )
-	    id = CreateWindowEx( exsty, cname, ttitle, style, x, y, cx, cy, parentw, 0, appinst, 0 );
+	    id = CreateWindowEx( exsty, cname, ttitle, style, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, parentw, 0, appinst, 0 );
 	else
-	    id = CreateWindow( cname, ttitle, style, x, y, cx, cy, parentw, 0, appinst, 0 );
+	    id = CreateWindow( cname, ttitle, style, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, parentw, 0, appinst, 0 );
 #else
 
 	QT_WA( {
