@@ -75,7 +75,7 @@ QThreadInstance *QThreadInstance::current()
 	if ( main_instance ) {
 	    qWarning( "QThread: ERROR: creating QThreadInstance for unknown thread %lx\n"
 		      "This instance and all per-thread data will be leaked.",
-		      QThread::currentThread() );
+		      (long)QThread::currentThread() );
 	}
 
 	ret = new QThreadInstance;
