@@ -2291,7 +2291,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    QBitmap *wx_bm = get_text_bitmap( bm_key );
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm && !empty ) {	// no such cached bitmap
-		QBitmap bm( aw, ah, TRUE, QPixmap::NormalOptim );
+		QBitmap bm( aw, ah, TRUE, QPixmap::MemoryOptim );
 		QFont pmFont( dfont );
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
@@ -2381,8 +2381,17 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 		b = (HBRUSH)SelectObject( hdc, b );
 		tc = SetTextColor( hdc, COLOR_VALUE(black) );
 		bc = SetBkColor( hdc, COLOR_VALUE(white) );
+		HDC wx_dc;
+		int wx_sy;
+		if ( wx_bm->isMultiCellPixmap() ) {
+		    wx_dc = wx_bm->multiCellHandle();
+		    wx_sy = wx_bm->multiCellOffset();
+		} else {
+		    wx_dc = wx_bm->handle();
+		    wx_sy = 0;
+		}
 		BitBlt( hdc, x, y, wx_bm->width(), wx_bm->height(),
-			wx_bm->handle(), 0, 0, ropCodes[rop] );
+			wx_dc, 0, wx_sy, ropCodes[rop] );
 		SetBkColor( hdc, bc );
 		SetTextColor( hdc, tc );
 		DeleteObject( SelectObject(hdc, b) );

@@ -770,11 +770,20 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    dc = handle();
 	    sy = 0;
 	}
-	QPixmap pm( w, h, depth(), NormalOptim );
+	QPixmap pm( w, h, depth(), optimization() );
+	HDC pm_dc;
+	int pm_sy;
+	if ( pm.data->mcp ) {
+	    pm_dc = pm.multiCellHandle();
+	    pm_sy = pm.multiCellOffset();
+	} else {
+	    pm_dc = pm.handle();
+	    pm_sy = 0;
+	}
 #ifndef Q_OS_TEMP	
-	SetStretchBltMode( pm.handle(), COLORONCOLOR );
+	SetStretchBltMode( pm_dc, COLORONCOLOR );
 #endif
-	StretchBlt( pm.handle(), 0, 0, w, h,	// scale the pixmap
+	StretchBlt( pm_dc, 0, pm_sy, w, h,	// scale the pixmap
 		    dc, 0, sy, ws, hs, SRCCOPY );
 	if ( data->mask ) {
 	    QBitmap bm =
@@ -967,13 +976,22 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
     delete [] sptr;
 
-    QPixmap pm( w, h, depth(), data->bitmap, NormalOptim );
+    QPixmap pm( w, h, depth(), data->bitmap, optimization() );
+    HDC pm_dc;
+    int pm_sy;
+    if ( pm.data->mcp ) {
+	pm_dc = pm.multiCellHandle();
+	pm_sy = pm.multiCellOffset();
+    } else {
+	pm_dc = pm.handle();
+	pm_sy = 0;
+    }
     pm.data->uninit = FALSE;
     bmh->biWidth  = w;
     bmh->biHeight = -h;
     bmh->biSizeImage = dbytes;
 #ifndef Q_OS_TEMP
-    SetDIBitsToDevice( pm.handle(), 0, 0, w, h, 0, 0, 0, h,
+    SetDIBitsToDevice( pm_dc, 0, pm_sy, w, h, 0, 0, 0, h,
 		       dptr, bmi, DIB_RGB_COLORS );
 #endif
     delete [] bmi_data;
