@@ -73,11 +73,14 @@
     To add "What's this?" text to a widget or an action, you simply
     call \l{QWidget::setWhatsThis()} or \l{QAction::setWhatsThis()}.
 
-    The text can be either \link qstylesheet.html#details rich
-    text\endlink or plain text. If you specify a
+    The text can be either rich text or plain text. If you specify a
     rich text formatted string, it will be rendered using the default
-    stylesheet. This makes it possible to embed images. See
-    QStyleSheet::defaultSheet() for details.
+    stylesheet, making it possible to embed images in the
+    displayed text. To be as fast as possible, the default
+    stylesheet uses a simple method to determine whether the
+    text can be rendered as plain text.
+    See QStyleSheet::defaultSheet() and
+    QStyleSheet::mightBeRichText() for details.
 
     \quotefile action/application.cpp
     \skipto fileOpenText
