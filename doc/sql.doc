@@ -183,13 +183,14 @@ e.g. showing names rather than ids of foreign keys.
 The SQL classes are divided into three layers:
 
 <em>User Interface Layer.</em> These classes provide data-aware
-widgets that can be connected to tables or views in the database. End
-users can interact directly with these widgets to browse or edit
-data. <em>Qt Designer</em> is fully integrated with the SQL classes
-and can be used to create data-aware forms. The data-aware widgets can
-also be programmed directly with your own C++ code. The classes that
-support this layer include \l QSqlEditorFactory, \l QSqlForm, \l
-QSqlPropertyMap, \l QDataTable, \l QDataBrowser and \l QDataView.
+widgets that can be connected to tables or views in the database (by
+using a QSqlCursor as a data source). End users can interact directly
+with these widgets to browse or edit data. <em>Qt Designer</em> is
+fully integrated with the SQL classes and can be used to create
+data-aware forms. The data-aware widgets can also be programmed
+directly with your own C++ code. The classes that support this layer
+include \l QSqlEditorFactory, \l QSqlForm, \l QSqlPropertyMap, \l
+QDataTable, \l QDataBrowser and \l QDataView.
 
 <em>SQL API Layer.</em> These classes provide access to databases.
 Connections are made using the \l QSqlDatabase class. Database
@@ -945,6 +946,13 @@ updated version of the record with the cursor's update() function. At
 this point the cursor is no longer positioned at a valid record so we
 reissue the select() call using our \l QSqlIndex and move to the first
 record.
+
+QDataBrowser and QDataView are widgets which provide a great deal of
+the above functionality.  \l QDataBrowser provides a data form which
+allows editing of and navigation through records in a cursor.  \l
+QDataView provides a read only form for data in a cursor or database
+record.  See the class documentation or the <em>Qt Designer</em>
+manual for more information on using these widgets.
 
 Link to \l sql/overview/form2/main.cpp
 
