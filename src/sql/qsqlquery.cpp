@@ -35,7 +35,6 @@ public:
     QSqlResultShared( QSqlResult* result );
     virtual ~QSqlResultShared();
     QSqlResult* sqlResult;
-    QString executedQuery;
 private slots:
     void slotResultDestroyed();
 };
@@ -330,7 +329,6 @@ bool QSqlQuery::exec ( const QString& query )
     if ( d->count > 1 )
 	*this = driver()->createQuery();
     d->sqlResult->setQuery( query.trimmed() );
-    d->executedQuery = d->sqlResult->lastQuery();
     if ( !driver()->isOpen() || driver()->isOpenError() ) {
 	qWarning("QSqlQuery::exec: database not open" );
 	return FALSE;
@@ -1050,6 +1048,8 @@ QMap<QString,QVariant> QSqlQuery::boundValues() const
 */
 QString QSqlQuery::executedQuery() const
 {
-    return d->executedQuery;
+    if (!d->sqlResult)
+	return QString();
+    return d->sqlResult->executedQuery();
 }
 #endif // QT_NO_SQL
