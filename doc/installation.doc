@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Installation page
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -134,8 +134,7 @@ where you choose to install Qt.
 \code
     make
 \endcode
-    If your platform or compiler is not supported, read PORTING.  If it is
-    supported but you have problems, see
+    If you have problems, see
     \l http://www.trolltech.com/platforms/.
 
 \i  In very few cases you may need to run /sbin/ldconfig or something
