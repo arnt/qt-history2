@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#14 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#14 $";
 #endif
 
 
@@ -586,6 +586,12 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	flags &= ~DirtyPen;			// pen is ok
 	gc = w->getGC();
 	borrowWidgetGC = TRUE;			// optimize gc
+	if ( w->testFlag(WPaintUnclipped) ) {	// paint direct on device
+	    createOwnGC();
+	    updateBrush();
+	    XSetSubwindowMode( w->display(), gc, IncludeInferiors );
+	    XSetSubwindowMode( w->display(), gc_brush, IncludeInferiors );
+	}
     }
     else if ( pdev->devType() == PDT_PIXMAP ) {	// device is a pixmap
 	QPixMap *pm = (QPixMap*)pdev;
