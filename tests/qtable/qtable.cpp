@@ -1881,6 +1881,8 @@ int QTable::indexOf( int row, int col ) const
 void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection,
 				bool updateVertical, bool updateHorizontal )
 {
+    if ( *oldSelection == *newSelection )
+	return;
     QRect old = rangeGeometry( oldSelection->topRow,
 			       oldSelection->leftCol,
 			       oldSelection->bottomRow,
