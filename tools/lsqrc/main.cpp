@@ -54,7 +54,7 @@ main(int argc, char **argv)
     }
 #endif
     QFile file(fileName);
-    if(!file.open(IO_ReadOnly)) {
+    if(!file.open(QFile::ReadOnly)) {
         fprintf(stderr, "Failure to open: %s\n", fileName.latin1());
         return 666;
     }
