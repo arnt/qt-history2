@@ -103,6 +103,8 @@ void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function>
 	func = text.mid( j, k - j + 1 );
 	func = func.stripWhiteSpace();
 	func = func.simplifyWhiteSpace();
+	if ( func.isEmpty() )
+	    break;
 	func = NormalizeObject::normalizeSignalSlot( func.latin1() );
 	
 	i = k;
