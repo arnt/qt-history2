@@ -854,6 +854,7 @@ QCString QDesignerMenuBar::itemName() const
 QDesignerPopupMenu::QDesignerPopupMenu( QWidget *w )
     : QPopupMenu( w, 0 )
 {
+    findFormWindow();
     setAcceptDrops( TRUE );
     insertAt = -1;
     mousePressed = FALSE;
@@ -878,17 +879,24 @@ void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
 	menu.insertItem( tr( "Insert Separator" ), ID_SEP );
 	int res = menu.exec( e->globalPos() );
 	if ( res == ID_DELETE ) {
-	    removeItemAt( itm );
-	    actionList.remove( itm );
+	    QAction *a = actionList.at( itm );
+	    if ( !a )
+		return;
+	    RemoveActionFromPopupCommand *cmd = new RemoveActionFromPopupCommand( tr( "Remove Action '%1' from the Popup Menu '%2'" ).
+										  arg( a->name() ).arg( caption() ),
+										  formWindow, a, this, itm );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    cmd->execute();
 	} else if ( res == ID_SEP ) {
 	    calcIndicatorPos( mapFromGlobal( e->globalPos() ) );
 	    QAction *a = new QSeparatorAction( 0 );
-	    a->addTo( this );
-	    actionList.insert( insertAt, a );
+	    AddActionToPopupCommand *cmd = new AddActionToPopupCommand( tr( "Add Separator to the Popup Menu '%2'" ).
+								arg( name() ),
+								formWindow, a, this, insertAt );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    cmd->execute();
 	    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
 	    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
-	    reInsert();
-	    connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
 	}
 	return;
     }
@@ -914,8 +922,11 @@ void QDesignerPopupMenu::mouseMoveEvent( QMouseEvent *e )
     QAction *a = actionList.at( itm );
     if ( !a )
 	return;
-    a->removeFrom( this );
-    actionList.remove( itm );
+    RemoveActionFromPopupCommand *cmd = new RemoveActionFromPopupCommand( tr( "Remove Action '%1' from the Popup Menu '%2'" ).
+									  arg( a->name() ).arg( caption() ),
+									  formWindow, a, this, itm );
+    formWindow->commandHistory()->addCommand( cmd );
+    cmd->execute();
 
     QString type = a->inherits( "QActionGroup" ) ? QString( "application/x-designer-actiongroup" ) :
 	a->inherits( "QSeparatorAction" ) ? QString( "application/x-designer-separator" ) : QString( "application/x-designer-actions" );
@@ -924,8 +935,11 @@ void QDesignerPopupMenu::mouseMoveEvent( QMouseEvent *e )
     drag->setEncodedData( QCString( s.latin1() ) );
     drag->setPixmap( a->iconSet().pixmap() );
     if ( !drag->drag() ) {
-	actionList.insert( itm, a );
-	reInsert();
+	AddActionToPopupCommand *cmd = new AddActionToPopupCommand( tr( "Add Action '%1'  to the Popup Menu '%2'" ).
+								    arg( a->name() ).arg( name() ),
+								    formWindow, a, this, itm );
+	formWindow->commandHistory()->addCommand( cmd );
+	cmd->execute();
     }
     indicator->hide();
     lastIndicatorPos = QPoint( -1, -1 );
@@ -978,52 +992,30 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
 	e->accept();
     else
 	return;
+
+    QAction *a = 0;
     if ( e->provides( "application/x-designer-actiongroup" ) ) {
 	QString s( e->encodedData( "application/x-designer-actiongroup" ) );
-	QDesignerActionGroup *a = (QDesignerActionGroup*)s.toLong(); // #### huha, that is evil
-	if ( a->usesDropDown() ) {
-	    a->addTo( this );
-	    actionList.insert( insertAt, a );
-	} else {
-	    a->addTo( this );
-	    QObjectListIt it( *a->children() );
-	    int i = 0;
-	    while ( it.current() ) {
-		QObject *o = it.current();
-		++it;
-		if ( !o->inherits( "QAction" ) )
-		    continue;
-		QDesignerAction *ac = (QDesignerAction*)o;
-		actionList.insert( insertAt + (i++), ac );
-	    }
-	}
-	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
-	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
-	reInsert();
-	connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
+	a = (QDesignerActionGroup*)s.toLong();
     } else {
 	QString s;
-	QAction *a = 0;
 	if ( e->provides( "application/x-designer-separator" ) ) {
 	    s = QString( e->encodedData( "application/x-designer-separator" ) );
-	    a = (QSeparatorAction*)s.toLong(); // #### huha, that is evil
+	    a = (QSeparatorAction*)s.toLong();
 	} else {
 	    s = QString( e->encodedData( "application/x-designer-actions" ) );
-	    a = (QDesignerAction*)s.toLong(); // #### huha, that is evil
-	    if ( !( (QDesignerAction*)a )->supportsMenu() ) {
-		qDebug( "Gere" );
-		e->ignore();
-		indicator->hide();
-		return;
-	    }
+	    a = (QDesignerAction*)s.toLong();
 	}
-	a->addTo( this );
-	actionList.insert( insertAt, a );
-	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
-	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
-	reInsert();
-	connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
     }
+
+    AddActionToPopupCommand *cmd = new AddActionToPopupCommand( tr( "Add Action '%1'  to the Popup Menu '%2'" ).
+								arg( a->name() ).arg( name() ),
+								formWindow, a, this, insertAt );
+    formWindow->commandHistory()->addCommand( cmd );
+    cmd->execute();
+
+    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
+    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
     indicator->hide();
 }
 
@@ -1080,6 +1072,16 @@ void QDesignerPopupMenu::paintEvent( QPaintEvent *e )
     if ( e->rect() != rect() )
 	return;
     lastIndicatorPos = QPoint( -1, -1 );
+}
+
+void QDesignerPopupMenu::findFormWindow()
+{
+    QWidget *w = this;
+    while ( w ) {
+	if ( w->inherits( "FormWindow" ) )
+	    formWindow = (FormWindow*)w;
+	w = w->parentWidget();
+    }
 }
 
 #include "actiondnd.moc"

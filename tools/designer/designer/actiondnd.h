@@ -223,6 +223,9 @@ public:
     QDesignerPopupMenu( QWidget *w );
     QList<QAction> insertedActions() const { return actionList; }
     void addAction( QAction *a );
+    void reInsert();
+    void insertAction( int index, QAction *a ) { actionList.insert( index, a ); }
+    void removeAction( QAction *a ) { actionList.remove( a ); }
 
 protected:
     void mousePressEvent( QMouseEvent *e );
@@ -242,7 +245,7 @@ private slots:
 private:
     void drawIndicator( const QPoint &pos );
     QPoint calcIndicatorPos( const QPoint &pos );
-    void reInsert();
+    void findFormWindow();
 
 private:
     QPoint lastIndicatorPos;
@@ -251,6 +254,7 @@ private:
     QPoint dragStartPos;
     bool mousePressed;
     QDesignerIndicatorWidget *indicator;
+    FormWindow *formWindow;
 
 };
 

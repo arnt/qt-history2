@@ -45,6 +45,7 @@ class QMultiLineEdit;
 class QTable;
 class QAction;
 class QDesignerToolBar;
+class QDesignerPopupMenu;
 
 class Command : public Qt
 {
@@ -83,7 +84,9 @@ public:
 	PopulateMultiLineEdit,
 	PopulateTable,
 	AddActionToToolBar,
-	RemoveActionFromToolBar
+	RemoveActionFromToolBar,
+	AddActionToPopup,
+	RemoveActionFromPopup
     };
 
     QString name() const;
@@ -684,5 +687,36 @@ public:
     Type type() const { return RemoveActionFromToolBar; }
 
 };
+
+class AddActionToPopupCommand : public Command
+{
+public:
+    AddActionToPopupCommand( const QString &n, FormWindow *fw,
+			       QAction *a, QDesignerPopupMenu *p, int idx );
+
+    void execute();
+    void unexecute();
+    Type type() const { return AddActionToPopup; }
+
+private:
+    QAction *action;
+    QDesignerPopupMenu *popup;
+    int index;
+
+};
+
+class RemoveActionFromPopupCommand : public AddActionToPopupCommand
+{
+public:
+    RemoveActionFromPopupCommand( const QString &n, FormWindow *fw,
+				    QAction *a, QDesignerPopupMenu *p, int idx )
+	: AddActionToPopupCommand( n, fw, a, p, idx ) {}
+
+    void execute() { AddActionToPopupCommand::unexecute(); }
+    void unexecute() { AddActionToPopupCommand::execute(); }
+    Type type() const { return RemoveActionFromPopup; }
+
+};
+
 
 #endif

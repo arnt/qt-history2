@@ -1437,3 +1437,60 @@ void AddActionToToolBarCommand::unexecute()
 	}
     }
 }
+
+AddActionToPopupCommand::AddActionToPopupCommand( const QString &n, FormWindow *fw,
+						  QAction *a, QDesignerPopupMenu *p, int idx )
+    : Command( n, fw ), action( a ), popup( p ), index( idx )
+{
+}
+
+void AddActionToPopupCommand::execute()
+{
+    if ( action->inherits( "QActionGroup" ) ) {
+	if ( ( (QActionGroup*)action )->usesDropDown() ) {
+	    action->addTo( popup );
+	    popup->insertAction( index, action );
+	} else {
+	    action->addTo( popup );
+	    QObjectListIt it( *action->children() );
+	    int i = 0;
+	    while ( it.current() ) {
+		QObject *o = it.current();
+		++it;
+		if ( !o->inherits( "QAction" ) )
+		    continue;
+		QDesignerAction *ac = (QDesignerAction*)o;
+		popup->insertAction( index + (i++), ac );
+	    }
+	}
+	popup->reInsert();
+	QObject::connect( action, SIGNAL( destroyed() ), popup, SLOT( actionRemoved() ) );
+    } else {
+	if ( !action->inherits( "QDesignerAction" ) || ( (QDesignerAction*)action )->supportsMenu() ) {
+	    action->addTo( popup );
+	    popup->insertAction( index, action );
+	    popup->reInsert();
+	    QObject::connect( action, SIGNAL( destroyed() ), popup, SLOT( actionRemoved() ) );
+	}
+    }
+}
+
+void AddActionToPopupCommand::unexecute()
+{
+    action->removeFrom( popup );
+    popup->removeAction( action );
+    QObject::disconnect( action, SIGNAL( destroyed() ), popup, SLOT( actionRemoved() ) );
+    if ( !action->inherits( "QActionGroup" ) || ( (QActionGroup*)action )->usesDropDown()) {
+	action->removeEventFilter( popup );
+    } else {
+	QObjectListIt it( *action->children() );
+	while ( it.current() ) {
+	    QObject *o = it.current();
+	    ++it;
+	    if ( !o->inherits( "QAction" ) )
+		continue;
+	    if ( o->inherits( "QDesignerAction" ) )
+		o->removeEventFilter( popup );
+	}
+    }
+}
