@@ -59,12 +59,11 @@ class QSqlDriver;
 class QSql;
 class QSqlResultInfo;
 class QSqlResultPrivate;
-class QSqlResultShared;
 
 class QM_EXPORT_SQL QSqlResult
 {
 friend class QSqlQuery;
-friend struct QSqlResultShared;
+friend class QSqlResultShared;
 public:
     virtual ~QSqlResult();
 protected:
