@@ -194,6 +194,9 @@ void ListViewContainer::keyPressEvent(QKeyEvent *e)
         hide();
         emit itemSelected(list->currentItem());
         break;
+    case Qt::Key_Down:
+        if (!(e->state() & Qt::AltButton))
+            break;
     case Qt::Key_F4:
     case Qt::Key_Escape:
         hide();
