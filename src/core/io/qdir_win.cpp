@@ -497,50 +497,34 @@ void QDir::readDirEntries(const QString &nameFilter,
     this returns a number of QFileInfo objects containing "C:/", "D:/"
     etc. On other operating systems, it returns a list containing just
     one root directory (e.g. "/").
-
-    The returned pointer is owned by Qt. Callers should \e not delete
-    or modify it.
 */
 
 QFileInfoList QDir::drives()
 {
-    // at most one instance of QFileInfoList is leaked, and this variable
-    // points to that list
-    static QFileInfoList drives;
-    bool initialized = false;
-
-    if (!initialized) {
-        QMutexLocker locker(qt_global_mutexpool ?
-                             qt_global_mutexpool->get(&drives) : 0);
-
-        if (!initialized) {
-            drives.ensure_constructed();
-            initialized = true;
+    QFileInfoList drives;
 
 #if defined(Q_OS_WIN32)
-            Q_UINT32 driveBits = (Q_UINT32) GetLogicalDrives() & 0x3ffffff;
+    Q_UINT32 driveBits = (Q_UINT32) GetLogicalDrives() & 0x3ffffff;
 #elif defined(Q_OS_OS2EMX)
-            Q_UINT32 driveBits, cur;
-            if (DosQueryCurrentDisk(&cur,&driveBits) != NO_ERROR)
-                exit(1);
-            driveBits &= 0x3ffffff;
+    Q_UINT32 driveBits, cur;
+    if (DosQueryCurrentDisk(&cur,&driveBits) != NO_ERROR)
+	exit(1);
+    driveBits &= 0x3ffffff;
 #endif
-
-            char driveName[4];
-
+    
+    char driveName[4];
+    
 #ifndef Q_OS_TEMP
-            qstrcpy(driveName, "A:/");
+    qstrcpy(driveName, "A:/");
 #else
-            qstrcpy(driveName, "/");
+    qstrcpy(driveName, "/");
 #endif
-
-            while(driveBits) {
-                if (driveBits & 1)
-                    drives.append(QString::fromLatin1(driveName).toUpper());
-                driveName[0]++;
-                driveBits = driveBits >> 1;
-            }
-        }
+    
+    while(driveBits) {
+	if (driveBits & 1)
+	    drives.append(QString::fromLatin1(driveName).toUpper());
+	driveName[0]++;
+	driveBits = driveBits >> 1;
     }
     return drives;
 }

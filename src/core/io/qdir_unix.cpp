@@ -239,20 +239,9 @@ void QDir::readDirEntries(const QString &nameFilter,
 
 QFileInfoList QDir::drives()
 {
-    static QFileInfoList drives;
-    static bool initialized = false;
-
-    if (!initialized) {
-
-        QMutexLocker locker(qt_global_mutexpool ?
-                             qt_global_mutexpool->get(&drives) : 0);
-
-        initialized = true;
-        drives.ensure_constructed();
-        // non-win32 versions both use just one root directory
-        drives.append(rootDirPath());
-    }
-
+    QFileInfoList drives;
+    // non-win32 versions both use just one root directory
+    drives.append(rootDirPath());
     return drives;
 }
 #endif //QT_NO_DIR

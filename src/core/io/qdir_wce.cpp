@@ -365,22 +365,9 @@ bool QDir::readDirEntries(const QString &nameFilter,
 }
 
 
-const QFileInfoList * QDir::drives()
+QFileInfoList QDir::drives()
 {
-    // at most one instance of QFileInfoList is leaked, and this variable
-    // points to that list
-    static QFileInfoList * knownMemoryLeak = 0;
-
-    if (!knownMemoryLeak) {
-
-        QMutexLocker locker(qt_global_mutexpool ?
-                             qt_global_mutexpool->get(&knownMemoryLeak) : 0);
-
-        if (!knownMemoryLeak) {
-            knownMemoryLeak = new QFileInfoList;
-            knownMemoryLeak->append(new QFileInfo(rootDirPath()));
-        }
-    }
-
-    return knownMemoryLeak;
+    QFileInfoList drives;
+    drives.append(rootDirPath());
+    return drives;
 }
