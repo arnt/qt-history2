@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/wizard/wizard.cpp#3 $
+** $Id: //depot/qt/main/examples/wizard/wizard.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -58,6 +58,7 @@ void Wizard::setupPage1()
     addPage( page1, "Personal Key" );
 
     setNextEnabled( page1, FALSE );
+    setHelpEnabled( page1, FALSE );
 }
 
 void Wizard::setupPage2()
@@ -112,6 +113,7 @@ void Wizard::setupPage2()
     connect( email, SIGNAL( textChanged( const QString & ) ), this, SLOT( dataChanged( const QString & ) ) );
 
     addPage( page2, "Personal Data" );
+    setHelpEnabled( page2, FALSE );
 }
 
 void Wizard::setupPage3()
@@ -171,6 +173,7 @@ void Wizard::setupPage3()
     addPage( page3, "Finish" );
 
     setFinish( page3, TRUE );
+    setHelpEnabled( page3, FALSE );
 }
 
 void Wizard::showPage( QWidget* page )
