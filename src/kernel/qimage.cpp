@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#62 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#61 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#62 $")
 
 
 /*----------------------------------------------------------------------------
@@ -374,7 +374,7 @@ void QImage::setColor( int i, QRgb c )
   pointer to \c uint* and use it to read/write the pixel value. You cannot
   use the \c uchar* pointer directly, because the pixel format depends on
   the byte order on the underlying platform. Hint: use \link ::qRgb()
-  qRgb()\endlink and friends (qcolor.h) to access the pixel.
+  qRgb()\endlink and friends (qcolor.h) to access the pixels.
 
   \sa bits()
  ----------------------------------------------------------------------------*/
@@ -390,7 +390,7 @@ uchar *QImage::scanLine( int i ) const
 
 /*----------------------------------------------------------------------------
   \fn uchar *QImage::bits() const
-  Returns a pointer to the first pixel data. Similar to scanLine(0).
+  Returns a pointer to the first pixel data. Equivalent to scanLine(0).
   \sa scanLine()
  ----------------------------------------------------------------------------*/
 
