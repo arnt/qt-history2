@@ -65,12 +65,12 @@ public:
     };
     Q_DECLARE_FLAGS(FECaps, Capabilities);
 
-    inline QFontEngine::QFontEngine() {
+    inline QFontEngine() {
         ref = 0;
         cache_count = 0;
         _scale = 1;
     }
-    
+
     virtual ~QFontEngine();
 
     virtual FECaps capabilites() const = 0;
