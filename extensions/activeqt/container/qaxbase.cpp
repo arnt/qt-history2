@@ -2960,9 +2960,7 @@ void QAxBase::connectNotify()
 
     MetaObjectGenerator generator(this, d);
     bool haveEnumInfo = false;
-
-    const QMetaObject *mo = metaObject();
-
+    
     ULONG c = 1;
     IConnectionPoint *cpoint = 0;
     epoints->Reset();

@@ -231,11 +231,11 @@ public:
     STDMETHOD(OnPosRectChange)(LPCRECT lprcPosRect);
 
 // IOleInPlaceSiteEx ###
-    STDMETHOD(OnInPlaceActivateEx)(BOOL *pfNoRedraw, DWORD dwFlags)
+    STDMETHOD(OnInPlaceActivateEx)(BOOL* /*pfNoRedraw*/, DWORD /*dwFlags*/)
     {
         return S_OK;
     }
-    STDMETHOD(OnInPlaceDeactivateEx)(BOOL fNoRedraw)
+    STDMETHOD(OnInPlaceDeactivateEx)(BOOL /*fNoRedraw*/)
     {
         return S_OK;
     }
@@ -253,7 +253,7 @@ public:
     {
         return S_FALSE;
     }
-    STDMETHOD(SetCapture)(BOOL fCapture)
+    STDMETHOD(SetCapture)(BOOL /*fCapture*/)
     {
         return S_FALSE;
     }
@@ -261,11 +261,11 @@ public:
     {
         return S_FALSE;
     }
-    STDMETHOD(SetFocus)(BOOL fCapture)
+    STDMETHOD(SetFocus)(BOOL /*fCapture*/)
     {
         return S_FALSE;
     }
-    STDMETHOD(GetDC)(LPCRECT pRect, DWORD grfFlags, HDC *phDC)
+    STDMETHOD(GetDC)(LPCRECT /*pRect*/, DWORD /*grfFlags*/, HDC *phDC)
     {
         *phDC = 0;
         return S_OK;
@@ -285,15 +285,15 @@ public:
         ::InvalidateRgn(host->winId(), hRGN, fErase);
         return S_OK;
     }
-    STDMETHOD(ScrollRect)(int dx, int dy, LPCRECT pRectScroll, LPCRECT pRectClip)
+    STDMETHOD(ScrollRect)(int /*dx*/, int /*dy*/, LPCRECT /*pRectScroll*/, LPCRECT /*pRectClip*/)
     {
         return S_OK;
     }
-    STDMETHOD(AdjustRect)(LPRECT prc)
+    STDMETHOD(AdjustRect)(LPRECT /*prc*/)
     {
         return S_OK;
     }
-    STDMETHOD(OnDefWindowMessage)(UINT msg, WPARAM wPara, LPARAM lParam, LRESULT *plResult)
+    STDMETHOD(OnDefWindowMessage)(UINT /*msg*/, WPARAM /*wPara*/, LPARAM /*lParam*/, LRESULT* /*plResult*/)
     {
         return S_FALSE;
     }
