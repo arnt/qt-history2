@@ -46,7 +46,8 @@ It also requires XBase version 1.2.0 or higher:
 
 	http://sourceforge.net/projects/xdb
 
-A copy of XBase 1.2.0 is included in this distribution.
+A copy of XBase an XBase CVS snapshot is included in this
+distribution.
 
 Installation
 ------------

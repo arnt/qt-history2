@@ -50,7 +50,6 @@ The following set functions are supported:
 	MIN
 	SUM
 	COUNT
-	DISTINCT ##?
 
 The following string value functions are supported:
 	UPPER
@@ -114,13 +113,15 @@ but creates the table anyway.
 Note on strings
 ---------------
 
-All string data is saved as utf8, therefore the length of a string
-column should be adjusted if multi-byte characters are being saved.
+All string data is saved as utf8, therefore the length of any string
+columns should be adjusted if multi-byte characters are being used.
 
 
 Stuff not supported
 -------------------
 
+Sub-selects are not supported.
+DISTINCT is not supported.
 DATETIME and INTERVAL data types are not supported
 Referential integrity constraints are not supported.
 UNIONs are not supported.
