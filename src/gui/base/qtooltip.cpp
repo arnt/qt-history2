@@ -19,7 +19,7 @@
 #include "qapplication.h"
 #include "qguardedptr.h"
 #include "qtimer.h"
-#include "qeffects_p.h"
+#include <private/qeffects_p.h>
 #include "qdebug.h"
 
 static bool globally_enabled = TRUE;

@@ -16,7 +16,7 @@
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qguieventloop.h"
-#include "qeventloop_p.h"
+#include <private/qeventloop_p.h>
 #include "qwidget.h"
 #include "qevent.h"
 #include "qhash.h"
@@ -51,7 +51,7 @@
 #ifdef Q_WS_WIN
 #include "qinputcontext_p.h"
 #endif
-#include "qfontdata_p.h"
+#include <private/qfontdata_p.h>
 
 #include <stdlib.h>
 

@@ -38,7 +38,7 @@
 #include "qdesktopwidget.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
-#include "qcolor_p.h"
+#include <private/qcolor_p.h>
 #include "qcursor.h"
 #include "qwidget.h"
 #include "qbitarray.h"

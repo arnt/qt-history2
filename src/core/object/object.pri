@@ -9,7 +9,6 @@ HEADERS += \
 	object/qcoreevent.h \
 	object/qcorevariant.h \
 	object/qmetaobject.h \
-	object/qnamespace.h \
 	object/qobject.h \
 	object/qobjectdefs.h \
 	object/qprocess.h \

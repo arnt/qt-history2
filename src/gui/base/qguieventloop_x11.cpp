@@ -17,7 +17,7 @@
 #include "qapplication.h"
 #include "qpaintdevice.h"
 #include "qbitarray.h"
-#include "qcolor_p.h"
+#include <private/qcolor_p.h>
 
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"

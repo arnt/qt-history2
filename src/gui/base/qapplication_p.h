@@ -34,7 +34,7 @@
 #include "qmutex.h"
 #include "qtranslator.h"
 
-#include "qcoreapplication_p.h"
+#include <private/qcoreapplication_p.h>
 #include "qapplication.h"
 #include "qbasictimer.h"
 

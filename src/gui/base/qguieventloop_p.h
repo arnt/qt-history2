@@ -28,7 +28,7 @@
 //
 
 #include "qguieventloop.h"
-#include "qeventloop_p.h"
+#include <private/qeventloop_p.h>
 
 #ifdef Q_WS_X11
 #include "private/qt_x11_p.h"

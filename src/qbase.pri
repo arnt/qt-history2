@@ -35,7 +35,7 @@ linux-*:version_script {
    TARGETDEPS += libqt.map
 }
 
-CORE_CPP	= core
+CORE_CPP	= $$QTDIR/src/core
 
 KERNEL_CPP	= kernel
 CANVAS_CPP      = canvas

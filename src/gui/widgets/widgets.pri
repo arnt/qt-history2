@@ -53,14 +53,11 @@ widgets {
 		  $$WIDGETS_H/qtoolbar.h \
 		  $$WIDGETS_H/qtoolbox.h \
 		  $$WIDGETS_H/qtoolbutton.h \
-		  $$WIDGETS_H/qtooltip.h \
 		  $$WIDGETS_H/qvalidator.h \
 		  $$WIDGETS_H/qvbox.h \
 		  $$WIDGETS_H/qvbuttongroup.h \
 		  $$WIDGETS_H/qvgroupbox.h \
-		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h \
-		  $$WIDGETS_H/qaction.h \
 		  $$WIDGETS_H/qdatetimeedit.h \
 		  $$WIDGETS_H/qtextview.h \
 		  $$WIDGETS_H/qtextbrowser.h \
@@ -115,14 +112,11 @@ widgets {
 		  $$WIDGETS_CPP/qtoolbar.cpp \
 		  $$WIDGETS_CPP/qtoolbox.cpp \
 		  $$WIDGETS_CPP/qtoolbutton.cpp \
-		  $$WIDGETS_CPP/qtooltip.cpp \
 		  $$WIDGETS_CPP/qvalidator.cpp \
 		  $$WIDGETS_CPP/qvbox.cpp \
 		  $$WIDGETS_CPP/qvbuttongroup.cpp \
 		  $$WIDGETS_CPP/qvgroupbox.cpp \
-		  $$WIDGETS_CPP/qwhatsthis.cpp \
 		  $$WIDGETS_CPP/qwidgetstack.cpp \
-		  $$WIDGETS_CPP/qaction.cpp \
 		  $$WIDGETS_CPP/qdatetimeedit.cpp \
 		  $$WIDGETS_CPP/qeffects.cpp \
 		  $$WIDGETS_CPP/qtextview.cpp \

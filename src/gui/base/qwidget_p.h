@@ -27,7 +27,7 @@
 //
 //
 #ifndef QT_H
-#include "qobject_p.h"
+#include <private/qobject_p.h>
 #endif // QT_H
 
 

@@ -6,7 +6,9 @@ thread {
  		   thread/qsemaphore.h \
  		   thread/qthread.h \
  		   thread/qthreadstorage.h \
- 		   thread/qwaitcondition.h
+ 		   thread/qwaitcondition.h \
+		   thread/qatomic.h \
+		   $$QT_SOURCE_TREE/include/arch/qatomic.h
 	
         # private headers
 	HEADERS += thread/qmutex_p.h \
