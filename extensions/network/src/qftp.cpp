@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#39 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#40 $
 **
 ** Implementation of Network Extension Library
 **
@@ -94,13 +94,11 @@ void QFtp::operationRename( QNetworkOperation *op )
 void QFtp::operationGet( QNetworkOperation *op )
 {
     commandSocket->writeBlock( "TYPE I\r\n", 8 );
-    commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
 }
 
 void QFtp::operationPut( QNetworkOperation *op )
 {
     commandSocket->writeBlock( "TYPE I\r\n", 8 );
-    commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
 }
 
 bool QFtp::checkConnection( QNetworkOperation *op )
@@ -121,6 +119,8 @@ bool QFtp::checkConnection( QNetworkOperation *op )
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
 	op->setErrorCode( ErrHostNotFound );
+	clearOperationQueue();
+	emit finished( op );
     }
 
     return FALSE;
@@ -146,29 +146,23 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 {
     QStringList lst = QStringList::split( " ", buffer );
 
-    if ( lst.count() < 9 ) {
-	if ( buffer[ 0 ] == QChar( 'd' ) ||
-	     buffer[ 0 ] == QChar( '-' ) ||
-	     buffer[ 0 ] == QChar( 'l' ) ) {
-	    tmp = buffer.simplifyWhiteSpace();
-	}
+    if ( lst.count() < 9 )
 	return;
-    }
 
-    QString tmp_;
+    QString tmp;
 
     // permissions
-    tmp_ = lst[ 0 ];
+    tmp = lst[ 0 ];
 
-    if ( tmp_[ 0 ] == QChar( 'd' ) ) {
+    if ( tmp[ 0 ] == QChar( 'd' ) ) {
 	info.setDir( TRUE );
 	info.setFile( FALSE );
 	info.setSymLink( FALSE );
-    } else if ( tmp_[ 0 ] == QChar( '-' ) ) {
+    } else if ( tmp[ 0 ] == QChar( '-' ) ) {
 	info.setDir( FALSE );
 	info.setFile( TRUE );
 	info.setSymLink( FALSE );
-    } else if ( tmp_[ 0 ] == QChar( 'l' ) ) {
+    } else if ( tmp[ 0 ] == QChar( 'l' ) ) {
 	info.setDir( TRUE ); // #### todo
 	info.setFile( FALSE );
 	info.setSymLink( TRUE );
@@ -179,21 +173,17 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     info.setWritable( TRUE );
     info.setReadable( TRUE );
 
-    if ( lst.count() > 9 && QString( "dl-" ).find( tmp_[ 0 ] ) == -1 ) {
-	return;
-    }
-
     // owner
-    tmp_ = lst[ 2 ];
-    info.setOwner( tmp_ );
+    tmp = lst[ 2 ];
+    info.setOwner( tmp );
 
     // group
-    tmp_ = lst[ 3 ];
-    info.setGroup( tmp_ );
+    tmp = lst[ 3 ];
+    info.setGroup( tmp );
 
     // size
-    tmp_ = lst[ 4 ];
-    info.setSize( tmp_.toInt() );
+    tmp = lst[ 4 ];
+    info.setSize( tmp.toInt() );
 
     // date, time #### todo
 
@@ -272,6 +262,13 @@ void QFtp::okButTryLater( int code, const QCString & )
 void QFtp::okGoOn( int code, const QCString &data )
 {
     switch ( code ) {
+    case 200: { // last command ok
+	if ( operationInProgress() ) {
+	    if ( operationInProgress()->operation() == OpGet ||
+		 operationInProgress()->operation() == OpPut )
+		commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
+	}
+    }
     case 220: { // expect USERNAME
 	QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
 	QString cmd = "USER " + user + "\r\n";
@@ -295,9 +292,9 @@ void QFtp::okGoOn( int code, const QCString &data )
 	    dataSocket->setMode( QSocket::Ascii );
     } break;
     case 250: { // cwd succesfully
-	// list dir
 	if ( operationInProgress() && !passiveMode &&
-	     operationInProgress()->operation() == OpListChildren ) {
+	     operationInProgress()->operation() == OpListChildren ) { // list dir
+	    dataSocket->setMode( QSocket::Ascii );
 	    commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
 	    emit start( operationInProgress() );
 	    passiveMode = TRUE;
@@ -364,7 +361,7 @@ void QFtp::errorForgetIt( int code, const QCString &data )
 	emit finished( op );
 	reinitCommandSocket();
     } break;
-    case 550: { // no such file or directory 
+    case 550: { // no such file or directory
 	QString msg( data.mid( 4 ) );
 	msg = msg.simplifyWhiteSpace();
 	QNetworkOperation *op = operationInProgress();
@@ -404,7 +401,6 @@ void QFtp::dataConnected()
 	QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
 	QString cmd = "CWD " + path + "\r\n";
 	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
-	tmp = QString::null;
     } break;
     case OpGet: { // retrieve file
 	if ( !operationInProgress() || operationInProgress()->arg1().isEmpty() ) {
@@ -463,22 +459,15 @@ void QFtp::dataReadyRead()
     if ( !operationInProgress() )
 	return;
 
-    QByteArray s;
-    s.resize( dataSocket->bytesAvailable() );
-    dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
-
     switch ( operationInProgress()->operation() ) {
     case OpListChildren: { // parse directory entry
-	QString ss = QString::fromLatin1( s.copy() );
-	ss = ss.stripWhiteSpace();
-	if ( !tmp.isEmpty() )
-	    ss.prepend( tmp );
-	tmp = QString::null;
-	QStringList lst = QStringList::split( "\r\n", ss );
-	QStringList::Iterator it = lst.begin();
-	for ( ; it != lst.end(); ++it ) {
+	if ( !dataSocket->canReadLine() )
+	    break;
+	while ( dataSocket->canReadLine() ) {
+	    QString ss = dataSocket->readLine();
+	    ss = ss.stripWhiteSpace();
 	    QUrlInfo inf;
-	    parseDir( ( *it ).stripWhiteSpace(), inf );
+	    parseDir( ss, inf );
 	    if ( !inf.name().isEmpty() ) {
 		if ( url() ) {
 		    QRegExp filt( url()->nameFilter(), FALSE, TRUE );
@@ -490,6 +479,9 @@ void QFtp::dataReadyRead()
 	}
     } break;
     case OpGet: {
+	QByteArray s;
+	s.resize( dataSocket->bytesAvailable() );
+	dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
 	emit data( s, operationInProgress() );
 	//qDebug( "%s", s.data() );
     } break;

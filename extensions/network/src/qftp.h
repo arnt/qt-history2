@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#18 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#19 $
 **
 ** Implementation of Network Extension Library
 **
@@ -54,7 +54,6 @@ protected:
 
     QSocket *commandSocket, *dataSocket;
     bool connectionReady, passiveMode;
-    QString tmp;
 
 private:
     bool checkConnection( QNetworkOperation *op );

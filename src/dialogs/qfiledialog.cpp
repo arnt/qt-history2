@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#337 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#338 $
 **
 ** Implementation of QFileDialog class
 **
@@ -711,7 +711,7 @@ void QFileListBox::viewportDragLeaveEvent( QDragLeaveEvent * )
     dragScrollTimer->stop();
     filedialog->drawDragShapes( oldDragPos, TRUE, urls );
     setCurrentDropItem( QPoint( -1, -1 ) );
-    if ( startDragDir != filedialog->url().toString() )
+    if ( startDragDir != filedialog->url() )
 	filedialog->setUrl( startDragUrl );
 }
 
@@ -1131,7 +1131,7 @@ void QFileListView::viewportDragLeaveEvent( QDragLeaveEvent * )
     dragScrollTimer->stop();
     filedialog->drawDragShapes( oldDragPos, FALSE, urls );
     setCurrentDropItem( QPoint( -1, -1 ) );
-    if ( startDragDir != filedialog->url().toString() )
+    if ( startDragDir != filedialog->url() )
 	filedialog->setUrl( startDragUrl );
 }
 
