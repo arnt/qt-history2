@@ -740,11 +740,11 @@ static void matchTranslationUnit( QList<CppFunction> *flist )
 	    /*
 	      Compute important line numbers.
 	    */
-	    int functionStartLineNo = 1 + QConstString( yyIn->unicode(), yyPos )
-					  .string().count( QChar('\n') );
+	    int functionStartLineNo = 1 + QString::fromRawString( yyIn->unicode(), yyPos )
+					  count( QChar('\n') );
 	    int startLineNo = functionStartLineNo +
-		    QConstString( yyIn->unicode() + yyPos, startBody - yyPos )
-		    .string().count( QChar('\n') );
+		    QString::fromRawString( yyIn->unicode() + yyPos, startBody - yyPos )
+		    .count( QChar('\n') );
 	    int endLineNo = startLineNo + body.count( QChar('\n') );
 
 	    func.setLineNums( functionStartLineNo, startLineNo, endLineNo );

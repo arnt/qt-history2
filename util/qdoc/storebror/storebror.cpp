@@ -100,8 +100,8 @@ static void analyzeFile( const QString& fileName )
     int k = 0;
     while ( (k = str.find(docComment, k)) != -1 ) {
 	analyzeComment( fileName,
-			QConstString(str.unicode() + k + 1,
-				     docComment.matchedLength() - 1).string() );
+			QString::fromRawData(str.unicode() + k + 1,
+				             docComment.matchedLength() - 1) );
 	k += docComment.matchedLength();
     }
 

@@ -635,8 +635,8 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
         // complex script shaping. Have to do some hard work
         int from = qMax(0,  pos - 8);
         int to = qMin((int)str.length(), pos + 8);
-        QConstString cstr(str.unicode()+from, to-from);
-        QTextEngine layout(cstr.string(), d);
+        QString cstr = QString::fromRawData(str.unicode()+from, to-from);
+        QTextEngine layout(cstr, d);
         layout.itemize(QTextEngine::WidthOnly);
         width = layout.width(pos-from, 1).toInt();
     } else {

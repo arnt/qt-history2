@@ -207,6 +207,7 @@ public:
     static QString fromUtf8(const char *, int size = -1);
     static QString fromLocal8Bit(const char *, int size = -1);
     static QString fromUtf16(const ushort *, int size = -1);
+    static QString fromRawData(const QChar *, int size);
 
     QString &setUnicode(const QChar *unicode, int size);
     inline QString &setUtf16(const ushort *utf16, int size)
@@ -761,14 +762,15 @@ Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QString &);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QString &);
 #endif
 
+#ifdef QT_COMPAT
 class Q_CORE_EXPORT QConstString : public QString
 {
 public:
-    QConstString(const QChar *unicode, int length);
-#ifdef QT_COMPAT
-    inline QT_COMPAT const QString &string() const { return *this; }
-#endif
+    inline QConstString(const QChar *unicode, int length)
+    { *this = static_cast<const QConstString &>(QString::fromRawData(unicode, length)); }
+    inline const QString &string() const { return *this; }
 };
+#endif
 
 Q_DECLARE_TYPEINFO(QString, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QString);

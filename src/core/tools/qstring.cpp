@@ -186,7 +186,7 @@ const QString::Null QString::null = QString::Null();
     QString makes a deep copy of the QChar data, so you can modify it
     later without experiencing side effects. (If for performance
     reasons you don't want to take a deep copy of the character data,
-    use QConstString instead.)
+    use QString::fromRawData() instead.)
 
     Another approach is to set the size of the string using resize()
     and to initialize the data character per character. QString uses
@@ -430,7 +430,7 @@ const QString::Null QString::null = QString::Null();
     QString() compares equal to QString(""). We recommend that you
     always use isEmpty() and avoid isNull().
 
-    \sa QConstString, QChar, QLatin1String, QByteArray
+    \sa fromRawData(), QChar, QLatin1String, QByteArray
 */
 
 /*! \enum QString::CaseSensitivity
@@ -3282,7 +3282,7 @@ QString QString::fromUtf8(const char *str, int size)
 
     QString makes a deep copy of the Unicode data.
 
-    \sa utf16(), setUtf16()
+    \sa utf16(), setUtf16(), setRawData()
 */
 QString QString::fromUtf16(const ushort *unicode, int size)
 {
@@ -5894,22 +5894,15 @@ void QString::updateProperties() const
 */
 
 /*!
-    \class QConstString
-    \reentrant
-    \ingroup text
-    \brief The QConstString class provides a QString object using constant Unicode data.
+    Constructs a QString that uses the first \a length Unicode
+    characters in the array \a unicode. The data in \a unicode is \e
+    not copied. The caller must be able to guarantee that \a unicode
+    will not be deleted or modified as long as the QString (or an
+    unmodified copy of it) exists.
 
-    To minimize copying, highly optimized applications can use
-    QConstString to create a QString-compatible object from existing
-    Unicode character data. It is then the programmer's
-    responsibility to ensure that the character data exists for the
-    entire lifetime of the QConstString object.
-
-    The resulting QConstString object can be used as a const QString.
-    Any attempts to modify copies of the QConstString will cause it
+    Any attempts to modify the QString or copies of it will cause it
     to create a deep copy of the data, ensuring that the raw data
-    isn't modified. The QString object itself should never be
-    modified.
+    isn't modified.
 
     Here's an example of how we can use a QRegExp on raw data in
     memory without requiring to copy the data into a QString:
@@ -5920,34 +5913,30 @@ void QString::updateProperties() const
             ...
             0x0020
         };
+        int len = sizeof(unicode) / sizeof(QChar);
 
-        QConstString str(unicode, sizeof(unicode) / sizeof(QChar));
+        QString str = QString::fromRawData(unicode, len);
         if (str.contains(QRegExp(pattern)))
             ...
     \endcode
 
-    \sa QConstByteArray
+    \sa fromUtf16()
 */
-
-/*!
-    Constructs a QConstString that uses the first \a length Unicode
-    characters in the array \a unicode. Any attempt to modify copies
-    of the string will cause it to create a copy of the data, thus it
-    remains forever unmodified.
-
-    The data in \a unicode is not copied. The caller must be able to
-    guarantee that \a unicode will not be deleted or modified.
-*/
-
-QConstString::QConstString(const QChar *unicode, int length)
-    : QString((Data *)qMalloc(sizeof(Data)))
+QString QString::fromRawData(const QChar *unicode, int size)
 {
-    d->ref = 1;
-    d->alloc = d->size = length;
-    d->c = 0;
-    d->data = unicode ? (ushort *)unicode : d->array;
-    *d->array = 0;
-    d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
+    Data *x = static_cast<Data *>(qMalloc(sizeof(Data)));
+    if (unicode) {
+        x->data = (ushort *)unicode;
+    } else {
+        x->data = x->array;
+        size = 0;
+    }
+    x->ref = 1;
+    x->alloc = x->size = size;
+    x->c = 0;
+    *x->array = 0;
+    x->clean = x->encoding = x->cache = x->simpletext = x->righttoleft = 0;
+    return QString(x);
 }
 
 /*! \class QLatin1String
@@ -6012,7 +6001,7 @@ QConstString::QConstString(const QChar *unicode, int length)
         QLabel *label = new QLabel(QLatin1String("MOD"), this);
     \endcode
 
-    \sa QString, QConstString
+    \sa QString, QString::setRawData()
 */
 
 /*! \fn QLatin1String::QLatin1String(const char *str)

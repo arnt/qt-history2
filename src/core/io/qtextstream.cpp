@@ -1059,7 +1059,7 @@ QTextStream &QTextStream::writeBlock(const QChar* p, uint len)
     } else
 #endif
     if (d->latin1) {
-        QConstString cstr(p, len);
+        QString cstr = QString::fromRawData(p, len);
         dev->writeBlock(cstr.latin1(), len);
     } else if (d->internalOrder) {
         if (d->doUnicodeHeader) {

@@ -458,8 +458,8 @@ static void laTeXifyAHref( QString& html, int pos, const QString& chapterLabel )
     QRegExp protocol( QString("^(?http|ftp):") );
     ahref.setMinimal( TRUE );
 
-    QConstString cstr( html.unicode() + pos, html.length() - pos );
-    if ( cstr.string().find(ahref) != -1 ) {
+    QString cstr = QString::fromRawData( html.unicode() + pos, html.length() - pos );
+    if ( cstr.find(ahref) != -1 ) {
 	QString n = ahref.cap( 1 );
 	n.replace( QRegExp(QString("\\\\#")), QChar('#') );
 	cleanLabel( n );

@@ -3422,8 +3422,6 @@ QByteArray QByteArray::number(double n, char f, int prec)
         QDataStream in(&buffer);
 	...
     \endcode
-
-    \sa QConstString
 */
 
 /*!

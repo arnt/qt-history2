@@ -243,7 +243,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
         while (charsToCopy > charsLeftInCurrentBlock) {
             usedFormats.append(frag->format);
 
-            appendText(QConstString(fragText + inFragmentOffset, charsLeftInCurrentBlock), frag->format);
+            appendText(QString::fromRawData(fragText + inFragmentOffset, charsLeftInCurrentBlock), frag->format);
 
             pos += charsLeftInCurrentBlock;
             charsToCopy -= charsLeftInCurrentBlock;
@@ -269,7 +269,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
 
         usedFormats.append(frag->format);
 
-        appendText(QConstString(fragText + inFragmentOffset, charsToCopy), frag->format);
+        appendText(QString::fromRawData(fragText + inFragmentOffset, charsToCopy), frag->format);
         pos += charsToCopy;
 
         if (charsToCopy == charsLeftInCurrentBlock && pos < endPos) {
@@ -359,7 +359,7 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
         }
 
         Q_FOREACH(const TextFragment &f, b.fragments) {
-            QConstString text(localBuffer.constData() + f.position, f.size);
+            QString text = QString::fromRawData(localBuffer.constData() + f.position, f.size);
 
             int formatIdx;
             if (f.format != -1)
@@ -528,7 +528,7 @@ QString QTextDocumentFragment::toPlainText() const
             result += '\n';
 
         Q_FOREACH(const QTextDocumentFragmentPrivate::TextFragment &f, d->blocks[i].fragments)
-            result += QConstString(d->localBuffer.constData() + f.position, f.size);
+            result += QString::fromRawData(d->localBuffer.constData() + f.position, f.size);
     }
 
     return result;
@@ -578,7 +578,7 @@ void QTextDocumentFragment::save(QTextStream &stream) const
 
         Q_FOREACH(const QTextDocumentFragmentPrivate::TextFragment &fragment, block.fragments) {
             stream << "<Fragment format=\"" << fragment.format << "\">";
-            stream << QStyleSheet::escape(QConstString(d->localBuffer.constData() + fragment.position, fragment.size));
+            stream << QStyleSheet::escape(QString::fromRawData(d->localBuffer.constData() + fragment.position, fragment.size));
             stream << "</Fragment>" << endl;
         }
 
