@@ -809,6 +809,8 @@ void QDesignerMenuBar::dragMoveEvent( QDragMoveEvent *e )
 	int item = itemAtPos( e->pos() );
 	bool uieffect = QApplication::isEffectEnabled( UI_AnimateMenu );
 	QApplication::setEffectEnabled( UI_AnimateMenu, FALSE );
+	if ( !qApp->activePopupWidget() )
+	    actItem = -1;
 	activateItemAt( item );
 	QApplication::setEffectEnabled( UI_AnimateMenu, uieffect );
 	if ( item == -1 )
