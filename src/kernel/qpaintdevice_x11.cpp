@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#43 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#42 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#43 $";
 #endif
 
 
@@ -93,6 +93,11 @@ QPaintDevice::QPaintDevice( uint devflags )
 
 QPaintDevice::~QPaintDevice()
 {
+#if defined(CHECK_STATE)
+    if ( paintingActive() )
+	warning( "QPaintDevice: Cannot destroy paint device that is being "
+		 "painted" );
+#endif
 }
 
 
@@ -257,7 +262,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	param[0].rect	= &r;
 	param[1].point	= &p;
 	param[2].pixmap = pm;
-	dst->cmd( PDC_DRAWPIXMAP, param );
+	dst->cmd( PDC_DRAWPIXMAP, 0, param );
 	if ( ts == PDT_WIDGET )
 	    delete pm;
 	return;

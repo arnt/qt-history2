@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#10 $
 **
 ** Implementation of QPaintDevice class for Windows
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_win.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_win.cpp#10 $";
 #endif
 
 
@@ -36,6 +36,11 @@ QPaintDevice::QPaintDevice( uint devflags )
 
 QPaintDevice::~QPaintDevice()
 {
+#if defined(CHECK_STATE)
+    if ( paintingActive() )
+	warning( "QPaintDevice: Cannot destroy paint device that is being "
+		 "painted" );
+#endif
 }
 
 
