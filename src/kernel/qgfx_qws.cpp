@@ -64,15 +64,12 @@ static QScreen * qt_do_entry(char * entry)
 
     FILE * f=fopen(entry,"r");
     if(!f) {
-	qDebug("Can't open %s",entry);
 	return 0;
     }
 
     int r=fread(config,256,1,f);
-    if(r<1) {
-	qDebug("Error reading config information, %d",r);
+    if(r<1)
 	return 0;
-    }
 
     fclose(f);
     
@@ -153,7 +150,6 @@ QScreen * qt_probe_bus()
 
     FILE * f=fopen(hardcoded_slot,"r");
     if(!f) {
-	qDebug("Can't open %s",hardcoded_slot);
 	hardcoded_slot=0;
     } else {
 	int r=fread(config,256,1,f);

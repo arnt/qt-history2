@@ -3581,8 +3581,6 @@ bool QScreen::connect()
     if ((int)data == -1) {
 	qFatal("Error: failed to map framebuffer device to memory.");
     }
-    qDebug("The framebuffer device was mapped to memory successfully at %p",
-	   data);
 
     // Now read in palette
     if(vinfo.bits_per_pixel==8) {
@@ -3654,7 +3652,7 @@ bool QScreen::initCard()
 	// MTRR entry goes away when file is closed - i.e.
 	// hopefully when QWS is killed
 	if(mfd==-1) {
-	    qDebug("/proc/mtrr not writeable - not adjusting MTRR\n");
+	    // /proc/mtrr not writeable - oh well.
 	} else {
 	    mtrr_sentry sentry;
 	    sentry.base=(unsigned long int)finfo.smem_start;

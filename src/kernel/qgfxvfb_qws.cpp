@@ -231,10 +231,8 @@ bool QVFbScreen::connect()
     if ( shmId != -1 )
 	shmrgn = (unsigned char *)shmat( shmId, 0, 0 );
 
-    if ( (int)shmrgn == -1 || shmrgn == 0 ) {
-	qWarning( "Cannot attach to VFB shared memory" );
+    if ( (int)shmrgn == -1 || shmrgn == 0 )
 	return FALSE;
-    }
 
     hdr = (QVFbHeader *) shmrgn;
     data = shmrgn + hdr->dataoffset;
@@ -244,7 +242,7 @@ bool QVFbScreen::connect()
     d = hdr->depth;
     lstep = hdr->linestep;
 
-    qDebug( "Connected to VFb server: %d x %d x %d", w, h, d );
+    qDebug( "Connected to VFB server: %d x %d x %d", w, h, d );
 
     size = lstep * h;
     mapsize = size;

@@ -321,19 +321,15 @@ public:
     {
 	// top up bag
 	create();
-qDebug("takID...");
-qDebug("%d left",unused_identifiers.count());
 	if ( !unused_identifiers.count() ) {
 	    // We have to wait!
 	    for (int o=0; o<30; o++)
 		create();
 	    waitForCreation();
 	}
-qDebug("%d left",unused_identifiers.count());
 	QValueList<int>::Iterator head = unused_identifiers.begin();
 	int i = *head;
 	unused_identifiers.remove(head);
-qDebug("ID=%d, %d left",i,unused_identifiers.count());
 	return i;
     }
 };
@@ -365,10 +361,7 @@ void QWSDisplayData::init()
     struct shmid_ds shminfo;
     if ( shmctl( ramid, IPC_STAT, &shminfo ) == -1 )
 	qFatal( "Cannot get main ram memory status" );
-    else
-	qDebug( "Found %d bytes of shared main memory", shminfo.shm_segsz);
     int ramsize=shminfo.shm_segsz;
-
 
     offscreenaddress=(uchar *)shmat(ramid,0,0);
     if(offscreenaddress==(uchar *)-1) {

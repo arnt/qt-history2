@@ -241,8 +241,6 @@ bool QWSRegionManager::attach()
 	    data = (unsigned char *)shmat( shmId, 0, SHM_RDONLY );
     }
 
-    qDebug( "QWSRegionManager: attached %d, %p", shmId, data );
-
     return ( shmId != -1 && (int)data != -1 );
 }
 

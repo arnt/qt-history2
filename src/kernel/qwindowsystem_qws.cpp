@@ -38,6 +38,7 @@
 
 
 #include <stdlib.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
 #include <sys/mount.h>
@@ -114,7 +115,6 @@ QWSClient::~QWSClient()
 
 void QWSClient::closeHandler()
 {
-    qDebug( "Client %p closed", this );
     isClosed = TRUE;
     emit connectionClosed();
 }
@@ -261,9 +261,11 @@ QWSServer::QWSServer( int flags,
     cursorPos = QPoint(-1,-1); //no software cursor
     nextCursor = 0;
 
-    if(mount(0,"/var/shm","shm",0,0)) {
-	if ( errno != EBUSY )
-	    qDebug("Failed mounting shm fs on /var/shm: %s",strerror(errno));
+    if ( !geteuid() ) {
+	if(mount(0,"/var/shm","shm",0,0)) {
+	    if ( errno != EBUSY )
+		qDebug("Failed mounting shm fs on /var/shm: %s",strerror(errno));
+	}
     }
 
     if ( !QWSDisplay::initLock( "/dev/fb0", TRUE ) )
@@ -329,7 +331,6 @@ QWSServer::~QWSServer()
 
 void QWSServer::newConnection( int socket )
 {
-    qDebug("New client...");
     client[socket] = new QWSClient(this,socket);
     connect( client[socket], SIGNAL(readyRead()),
 	     this, SLOT(doClient()) );
@@ -343,7 +344,6 @@ void QWSServer::newConnection( int socket )
 
 void QWSServer::clientClosed()
 {
-    qDebug( "QWSServer::clientClosed()" );
     QWSClient* cl = (QWSClient*)sender();
 
     // Remove any queued commands for this client
@@ -759,7 +759,6 @@ void QWSServer::setFocus( QWSWindow* changingw, bool gain )
 		bestw = w;
 	}
 	if ( !bestw && changingw->focusPriority() ) { // accept focus back?
-	    qDebug("No other windows - focus back");
 	    bestw = changingw; // must be the only one
 	}
 	focusw = bestw;
@@ -903,9 +902,6 @@ void QWSServer::invokeDefineCursor( QWSDefineCursorCommand *cmd, QWSClient *clie
 
     int dataLen = cmd->simpleData.height * ((cmd->simpleData.width+7) / 8);
 
-    qDebug( "QWSServer::invokeDefineCursor %d %d (%d)",
-	    cmd->simpleData.width, cmd->simpleData.height, dataLen );
-
     QWSCursor *curs = new QWSCursor( cmd->data, cmd->data + dataLen,
 				cmd->simpleData.width, cmd->simpleData.height,
 				cmd->simpleData.hotX, cmd->simpleData.hotY);
@@ -918,7 +914,6 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
 {
 #if QT_FEATURE_QWS_CURSOR
     int id = cmd->simpleData.id;
-//    qDebug( "QWSServer::invokeSelectCursor %d", id);
     QWSCursor *curs = 0;
     if (id <= LastCursor) {
         curs = QWSCursor::systemCursor(id);
@@ -1016,7 +1011,6 @@ static int global_focus_time_counter=100;
 
 void QWSWindow::focus(bool get)
 {
-    qDebug( "QWSWindow::focus %s %d", get?"on":"off", id );
     if ( get )
 	last_focus_time = global_focus_time_counter++;
     QWSFocusEvent event;
@@ -1030,7 +1024,6 @@ QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
     // Make a new window, put it on top.
     QWSWindow* w = new QWSWindow(id,client);
     int idx = rgnMan->add( id, QRegion() );
-    qDebug( "Adding window: id %d, idx %d", id, idx );
     w->setAllocationIndex( idx );
     // insert after "stays on top" windows
     QWSWindow *win = windows.first();
@@ -1118,8 +1111,6 @@ void QWSServer::lowerWindow( QWSWindow *changingw, int )
 	if ( visible.isEmpty() )
 	    break; //widget will be totally hidden;
     }
-    qDebug( "lower: %p, %d, %d", changingw, changingw->winId(),
-	    visible.rects().count() );
     QRegion exposed = changingw->allocation() - visible;
 
     //change position in list:
@@ -1384,13 +1375,11 @@ void QWSServer::openDisplay()
     swidth=s->width();
     sheight=s->height();
     gfx=s->screenGfx();
-    qDebug("Display opened");
 }
 
 
 void QWSServer::closeDisplay()
 {
-    qDebug("Closing display");
     qt_screen->shutdownCard();
 }
 
