@@ -791,7 +791,7 @@ void MainWindow::previewForm()
         QBuffer stream(&contents);
 
         QDesignerFormBuilder formBuilder(core);
-        QWidget *shell = new QVBoxWidget(this, Qt::WType_TopLevel);
+        QWidget *shell = new QVBoxWidget(this, Qt::WType_TopLevel | Qt::WType_Dialog);
         shell->setAttribute(Qt::WA_DeleteOnClose, true);
         QWidget *w = formBuilder.load(&stream, shell);
         if (QDialog *dlg = qt_cast<QDialog *>(w)) {
