@@ -80,7 +80,6 @@ void Roads::paintEvent(QPaintEvent *)
     p.scale(r.width() / 400.0, r.height() / 400.0);
 
 
-
     const int carCount = 4;
     for (int c=0; c<carCount; ++c) {
         int i = c % carVectors.size();
@@ -101,7 +100,7 @@ void Roads::paintEvent(QPaintEvent *)
         p.setBrush(Qt::red);
         p.rotate(angle-180);
 
-        //         p.drawRect(-8, -4, 16, 8);
+        // p.drawRect(-8, -4, 16, 8);
         p.drawPixmap(-pixmap.width() / 2, -pixmap.height() / 2, pixmap);
 
         p.translate(-vec.start().toPoint());
