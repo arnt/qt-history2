@@ -306,7 +306,7 @@ QT_ZLIB=""
 [ "x$SM" = "xyes" ] && QT_LIBS="${QT_LIBS} -lICE -lSM"
 [ "x$ZLIB" = "xyes" ] && QT_PNG=' $(PNG_OBJECTS)'
 [ "x$LIBPNG" = "xyes" ] && QT_ZLIB=' $(ZLIB_OBJECTS)'
-[ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -lzlib"
+[ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -lz"
 [ "x$LIBPNG" = "xno" ] && QT_LIBS="${QT_LIBS} -lpng"
 
 
