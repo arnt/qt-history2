@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#70 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#70 $");
 
 
 /*!
@@ -418,8 +418,10 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 
     if ( (pressedControl == ADD_PAGE || pressedControl == SUB_PAGE) &&
 	 style() == MotifStyle && e->button() == MidButton ) {
-	int newSliderPos = (HORIZONTAL ? e->pos().x() : 
-			    e->pos().y()) -clickOffset;
+	int dummy1, dummy2, sliderLength;
+	PRIV->metrics( &dummy1, &dummy2, &sliderLength );
+	int newSliderPos = (HORIZONTAL ? e->pos().x() : e->pos().y())
+			   - sliderLength/2;
 	setValue( PRIV->sliderPosToRangeValue(newSliderPos) );
 	sliderPos = newSliderPos;
 	pressedControl = SLIDER;
