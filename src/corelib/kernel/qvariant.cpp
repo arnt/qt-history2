@@ -2557,4 +2557,93 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     Use toSize() instead.
  */
 
+/*! \fn void QVariant::setValue(const T &value)
+
+    Stores a copy of \a value. If \c{T} is a type that QVariant
+    doesn't support, QMetaType is used to store the value. A compile
+    error will occur if QMetaType doesn't handle the type.
+
+    Example:
+
+    \code
+    QVariant v;
+
+    v.setValue(5);
+    int i = v.toInt(); // i is now 5
+    QString s = v.toString() // s is now "5"
+
+    MyCustomStruct c;
+    v.setValue(c);
+
+    ...
+
+    MyCustomStruct c2 = v.value<MyCustomStruct>();
+    \endcode
+
+    \sa value(), fromValue(), canConvert()
+ */
+
+/*! \fn T QVariant::value() const
+
+    Returns the stored value converted to the template type \c{T}.
+    Call canConvert() to find out whether a type can be converted.
+    If the value cannot be converted, a default constructed value will
+    be returned.
+
+    If the type \c{T} is supported by QVariant, this function behaves
+    exactly as toString(), toInt() etc.
+
+    Example:
+
+    \code
+    QVariant v;
+
+    MyCustomStruct c;
+    if (v.canConvert<MyCustomStruct>())
+        c = v.value<MyCustomStruct>(v);
+
+    v = 7;
+    int i = v.value<int>(); // same as v.toInt()
+    QString s = v.value<QString>(); // same as v.toString(), s is now "7"
+    \endcode
+
+    \sa setValue(), fromValue(), canConvert()
+*/
+
+/* \fn bool QVariant::canConvert() const
+
+    Returns true if the variant can be converted to the template type \c{T},
+    otherwise false.
+
+    Example:
+    \code
+    QVariant v = 42;
+
+    v.canConvert<int>(); // returns true
+    v.canConvert<QString>(); // returns true
+
+    MyCustomStruct s;
+    v.setValue(s);
+
+    v.canConvert<int>(); // returns false
+    v.canConvert<MyCustomStruct>(); // returns true
+    \endcode
+
+    \sa convert()
+*/
+
+/* \fn static QVariant fromValue(const T &value)
+
+    Returns a QVariant containing a copy of \a value. Behaves
+    exactly like setValue() otherwise.
+
+    Example:
+    \code
+    MyCustomStruct s;
+    return QVariant::fromValue(s);
+    \endcode
+
+    \sa setValue(), value()
+*/
+
 #endif //QT_NO_VARIANT
