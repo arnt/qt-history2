@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#60 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#59 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#60 $";
 #endif
 
 
@@ -336,7 +336,7 @@ QObject::~QObject()
   constructor did not call initMetaObject() or if the class definition
   lacks the \c Q_OBJECT macro.
 
-  \sa name()
+  \sa name() inherits() isA() isWidgetType()
  ----------------------------------------------------------------------------*/
 
 const char *QObject::className() const
@@ -356,7 +356,7 @@ const char *QObject::className() const
     t->isA("QObject");			// returns FALSE
   \endcode
 
-  \sa inherits(), metaObject()
+  \sa inherits() metaObject()
  ----------------------------------------------------------------------------*/
 
 bool QObject::isA( const char *clname ) const	// test if is-a class
@@ -406,7 +406,8 @@ bool QObject::inherits( const char *clname ) const
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Sets the name of this object to \e name.
+  Sets the name of this object to \e name.  The default name is the
+  one assigned by the constructor.
 
   The object name is not very useful in the current version of Qt, but
   it will become increasingly important in the future.
@@ -414,7 +415,7 @@ bool QObject::inherits( const char *clname ) const
   The queryList() function searches the object tree for objects that
   matches a particular object name.
 
-  \sa name()
+  \sa name(), queryList(), className()
  ----------------------------------------------------------------------------*/
 
 void QObject::setName( const char *name )
