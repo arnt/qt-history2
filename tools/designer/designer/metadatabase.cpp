@@ -935,12 +935,15 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o )
 	d.name = "onClick";
 	d.args << "int button";
 	lst << d;
+	d = EventDescription();
 	d.name = "onMousePress";
 	d.args << "int x" << "int y" << "int button" << "int state";
 	lst << d;
+	d = EventDescription();
 	d.name = "onMouseRelelase";
 	d.args << "int x" << "int y" << "int button" << "int state";
 	lst << d;
+	d = EventDescription();
 	d.name = "onMouseMove";
 	d.args << "int x" << "int y" << "int button" << "int state";
 	lst << d;
