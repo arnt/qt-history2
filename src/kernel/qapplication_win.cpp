@@ -3057,9 +3057,9 @@ static ushort mouseTbl[] = {
     WM_MBUTTONDOWN,	QEvent::MouseButtonPress,	Qt::MidButton,
     WM_MBUTTONUP,	QEvent::MouseButtonRelease,	Qt::MidButton,
     WM_MBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	Qt::MidButton,
-    WM_XBUTTONDOWN,	QEvent::MouseButtonPress,	0, //### Qt::XButton
-    WM_XBUTTONUP,	QEvent::MouseButtonRelease,	0,
-    WM_XBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	0,
+    WM_XBUTTONDOWN,	QEvent::MouseButtonPress,	Qt::MidButton*2, //### Qt::XButton1/2
+    WM_XBUTTONUP,	QEvent::MouseButtonRelease,	Qt::MidButton*2,
+    WM_XBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	Qt::MidButton*2,
     0,			0,				0
 };
 
@@ -3078,9 +3078,9 @@ static int translateButtonState( int s, int type, int button )
 	bst |= Qt::ControlButton;
 
     if ( s & MK_XBUTTON1 )
-	bst |= 0;//### Qt::XButton;
+	bst |= Qt::MidButton*2;//### Qt::XButton1;
     if ( s & MK_XBUTTON2 )
-	bst |= 0;//### Qt::XButton;
+	bst |= Qt::MidButton*4;//### Qt::XButton2;
 
     if ( GetKeyState(VK_MENU) < 0 )
 	bst |= Qt::AltButton;
@@ -3161,19 +3161,19 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	return FALSE;
     type   = (QEvent::Type)mouseTbl[++i];	// event type
     button = mouseTbl[++i];			// which button
-    if ( !button ) {
+    if ( button > Qt::MidButton ) {
 	switch( GET_XBUTTON_WPARAM( msg.wParam ) ) {
 	case XBUTTON1:
-	    //###button = XButton1;
+	    button = Qt::MidButton*2; //### XButton1;
 	    break;
 	case XBUTTON2:
-	    //###button = XButton2;
+	    button = Qt::MidButton*4; //### XButton2;
 	    break;
 	}
     }
     state  = translateButtonState( msg.wParam, type, button ); // button state    
     if ( type == QEvent::MouseMove ) {
-	if ( !(state & (LeftButton | MidButton | RightButton) ) ) //### | XButton
+	if ( !(state & MouseButtonMask) )
 	    qt_button_down = 0;
 	QCursor *c = qt_grab_cursor();
 	if ( !c )
@@ -3296,10 +3296,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    }
 	}
     } else {					// not popup mode
-	int bs = state & (Qt::LeftButton
-			| Qt::RightButton
-			| Qt::MidButton);
-	// ###		| Qt::XButton
+	int bs = state & MouseButtonMask;
 	if ( (type == QEvent::MouseButtonPress ||
 	      type == QEvent::MouseButtonDblClick) && bs == 0 ) {
 	    if ( QWidget::mouseGrabber() == 0 )
@@ -3319,9 +3316,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	}
 
 	if ( type == QEvent::MouseButtonRelease &&
-	     (state & (~button) & ( LeftButton |
-				    MidButton |
-				    RightButton)) == 0 ) { //### | XButton
+	     (state & (~button) & ( MouseButtonMask )) == 0 ) {
 	    qt_button_down = 0;
 	}
 
