@@ -1766,6 +1766,7 @@ moc_status do_moc( CWPluginContext ctx, const QCString &fin, const QCString &fou
 	memcpy(dspec, &fi.filespec, sizeof(fi.filespec));
 	const unsigned char *f = p_str(fout.data());
 	memcpy(dspec->name, f, f[0]+1);
+	free(f);
     }
     buf_size_total = fi.filedatalength;
     buf_buffer = fi.filedata;

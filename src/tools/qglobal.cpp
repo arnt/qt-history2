@@ -291,16 +291,16 @@ static const int QT_BUFFER_LENGTH = 8196;	// internal buffer length
 const unsigned char * p_str(const char * c, int len=-1)
 {
     const int maxlen = 255;
-    static unsigned char ret[maxlen+2];
     if(len == -1)
 	len = qstrlen(c);
     if(len > maxlen) {
 	qWarning( "p_str len must never exceed %d", maxlen );
 	len = maxlen;
     }
-    ret[0]=len;
+    unsigned char *ret = malloc(len+2);
+    *ret=len;
     memcpy(((char *)ret)+1,c,len);
-    ret[len+1] = '\0';
+    *(ret+len+1) = '\0';
     return ret;
 }
 
@@ -327,10 +327,13 @@ QCString p2qstring(const unsigned char *c) {
 extern bool qt_is_gui_used;
 static void mac_default_handler( const char *msg )
 {
-    if ( qt_is_gui_used )
-	DebugStr(p_str(msg));
-    else
+    if ( qt_is_gui_used ) {
+	const char *p = p_str(msg);
+	DebugStr(p);
+	free(p);
+    } else {
 	fprintf( stderr, msg );
+    }
 }
 
 #endif

@@ -42,13 +42,16 @@ const unsigned char * p_str(const char * c, int len=-1); //qglobal.cpp
 
 bool qt_file_access( const QString& fn, int t )
 {
-	static FSSpec ret;
-	const unsigned char *p = p_str(QFile::encodeName(QDir::convertSeparators(fn)));
-	if(FSMakeFSSpec(0, 0, p, &ret) != noErr)
-        return FALSE;
-#if defined(Q_OS_MACX)
+    static FSSpec ret;
+    const unsigned char *p = p_str(QFile::encodeName(QDir::convertSeparators(fn)));
+    if(FSMakeFSSpec(0, 0, p, &ret) != noErr) {
+	free(p);
+	return FALSE;
+    }
+    free(p);
+#if defined(Q_OS_UNIX)
     if ( fn.isEmpty() )
-	    return FALSE;
+	return FALSE;
     return ACCESS( QFile::encodeName(fn), t ) == 0;
 #else
     return TRUE;
@@ -278,11 +281,10 @@ bool QFile::open( int m, int f )
 QIODevice::Offset QFile::size() const
 {
     struct stat st;
-    if ( isOpen() ) {
+    if ( isOpen() ) 
 	::fstat( fh ? fileno(fh) : fd, &st );
-    } else {
+    else 
 	::stat( QFile::encodeName(fn), &st );
-    }
     return st.st_size;
 }
 
@@ -407,12 +409,9 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 
 int QFile::handle() const
 {
-    if ( !isOpen() )
-	return -1;
-    else if ( fh )
-	return fileno( fh );
-    else
-	return fd;
+    if ( isOpen() ) 
+	return fh ? fileno( fh ) : fd;
+    return -1;
 }
 
 void QFile::close()
@@ -434,6 +433,4 @@ void QFile::close()
     }
     if (!ok)
 	setStatus( IO_UnspecifiedError );
-
-    return;
 }

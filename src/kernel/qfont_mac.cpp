@@ -624,6 +624,7 @@ static inline int do_text_task(const QFontPrivate *d, QString s, int pos, int le
 		DrawString(str);
 	    if(task & GIMME_WIDTH)
 		ret += StringWidth(str);
+	    free(str);
 	    curlen -= maxlen;
 	    curpos += maxlen;
 	}
@@ -908,8 +909,10 @@ void QFontPrivate::load()
 	if(!fin->info) {
 #if defined( QMAC_FONT_ATSUI ) && 0
 	    fin->info = (ATSFontMetrics*)malloc(sizeof(ATSFontMetrics));
-	    ATSFontGetVerticalMetrics(ATSFontFamilyFindFromQuickDrawName(p_str(request.family)),
+	    const unsigned char *p = p_str(request.family);
+	    ATSFontGetVerticalMetrics(ATSFontFamilyFindFromQuickDrawName(p),
 				      kATSOptionFlagsDefault, fin->info);
+	    free(p);
 #else
 	    fin->info = (FontInfo *)malloc(sizeof(FontInfo));
 	    QMacSetFontInfo fi(this);

@@ -50,8 +50,11 @@ FSSpec *QDir::make_spec(const QString &f)
 {
     static FSSpec ret;
     const unsigned char *p = p_str(QFile::encodeName(QDir::convertSeparators(f)) + ":");
-    if(FSMakeFSSpec(0, 0, p, &ret) != noErr)
+    if(FSMakeFSSpec(0, 0, p, &ret) != noErr) {
+	free(p);
 	return NULL;
+    }
+    free(p);
     return &ret;
 }
 	
@@ -105,7 +108,7 @@ bool QDir::isReadable() const
 {
     if(!make_spec(filePath(dPath, TRUE)))
 	return FALSE;
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_UNIX)
     return ACCESS( QFile::encodeName(dPath), R_OK | X_OK ) == 0; //let macx do an additional check
 #else
     return TRUE;
