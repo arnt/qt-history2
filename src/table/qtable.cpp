@@ -1809,6 +1809,7 @@ void QTable::init( int rows, int cols )
     selections.setAutoDelete( TRUE );
 
     // Create headers
+    topLeftCorner = new QWidget( this, "qt_topleft_corner" );
     leftHeader = new QTableHeader( rows, this, this, "left table header" );
     leftHeader->setOrientation( Vertical );
     leftHeader->setTracking( TRUE );
@@ -4343,6 +4344,7 @@ void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
 
 void QTable::finishContentsResze( bool updateBefore )
 {
+    leftHeader->calculatePositions();
     QRect r( cellGeometry( numRows() - 1, numCols() - 1 ) );
     resizeContents( r.right() + 1, r.bottom() + 1 );
     updateGeometries();
@@ -6113,7 +6115,7 @@ void QTableHeader::updateStretches()
 	return;
     int i;
     int pd = dim - ( sectionPos(count() - 1)
-		     + sectionSize(count() - 1) ) - 1;
+		     + sectionSize(count() - 1) );
     bool block = signalsBlocked();
     blockSignals( TRUE );
     for ( i = 0; i < (int)stretchable.count(); ++i ) {
