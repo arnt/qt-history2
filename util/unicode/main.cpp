@@ -778,7 +778,7 @@ static void readBlocks()
 
 static QList<QByteArray> scriptNames;
 static QHash<int, int> scriptAssignment;
-static QHash<int, int> unicodeScriptHash;
+static QHash<int, int> scriptHash;
 
 struct ExtraBlock {
     int block;
@@ -854,9 +854,9 @@ static void readScripts()
 }
 
 
-static int unicodeScriptSentinel = 0;
+static int scriptSentinel = 0;
 
-QByteArray createUnicodeScriptEnumDeclaration()
+QByteArray createScriptEnumDeclaration()
 {
     static const char *specialScripts[] = {
         "Common",
@@ -890,6 +890,8 @@ QByteArray createUnicodeScriptEnumDeclaration()
     declaration += "enum Script {\n    Common";
 
     int uniqueScripts = 1; // Common
+
+    // output the ones with special processing first
     for (int i = 1; i < scriptNames.size(); ++i) {
         QByteArray scriptName = scriptNames.at(i);
         // does the script require special processing?
@@ -899,28 +901,40 @@ QByteArray createUnicodeScriptEnumDeclaration()
                 special = true;
         }
         if (!special) {
-            scriptName += " = Common";
-            unicodeScriptHash[i] =  0; // alias for 'Common'
+            scriptHash[i] =  0; // alias for 'Common'
+            continue;
         } else {
             ++uniqueScripts;
-            unicodeScriptHash[i] = i;
+            scriptHash[i] = i;
         }
 
         declaration += ",\n    ";
         declaration += scriptName;
     }
-    declaration += ",\n    ScriptCount\n};\n\n";
+    declaration += ",\n    ScriptCount";
 
-    unicodeScriptSentinel = ((uniqueScripts + 16) / 32) * 32; // a multiple of 32
+    // output the ones that are an alias for 'Common'
+    for (int i = 1; i < scriptNames.size(); ++i) {
+        if (scriptHash.value(i) != 0)
+            continue;
+        QByteArray scriptName = scriptNames.at(i);
+        scriptName += " = Common";
+        declaration += ",\n    ";
+        declaration += scriptName;
+    }
+
+    declaration += "\n};\n\n";
+
+    scriptSentinel = ((uniqueScripts + 16) / 32) * 32; // a multiple of 32
     declaration += "enum { ScriptSentinel = ";
-    declaration += QByteArray::number(unicodeScriptSentinel);
+    declaration += QByteArray::number(scriptSentinel);
     declaration += " };\n\n";
     return declaration;
 }
 
-QByteArray createUnicodeScriptTableDeclaration()
+QByteArray createScriptTableDeclaration()
 {
-    Q_ASSERT(unicodeScriptSentinel > 0);
+    Q_ASSERT(scriptSentinel > 0);
 
     QByteArray declaration;
 
@@ -944,10 +958,10 @@ QByteArray createUnicodeScriptTableDeclaration()
         }
         bool allTheSame = true;
         const int originalScript = blockAssignment[0];
-        const int unicodeScript = unicodeScriptHash.value(originalScript);
+        const int script = scriptHash.value(originalScript);
         for (int x = 1; allTheSame && x < unicodeBlockSize; ++x) {
-            const int s = unicodeScriptHash.value(blockAssignment[x]);
-            if (s != unicodeScript)
+            const int s = scriptHash.value(blockAssignment[x]);
+            if (s != script)
                 allTheSame = false;
         }
 
@@ -961,9 +975,9 @@ QByteArray createUnicodeScriptTableDeclaration()
                 QByteArray::number(block + unicodeBlockSize - 1, 16).rightJustified(4, '0');
             declaration += " */\n";
         } else {
-            const int value = extraBlockList.size() + unicodeScriptSentinel;
+            const int value = extraBlockList.size() + scriptSentinel;
             const int offset =
-                ((value - unicodeScriptSentinel) * unicodeBlockSize) + unicodeBlockCount;
+                ((value - scriptSentinel) * unicodeBlockSize) + unicodeBlockCount;
 
             declaration += "    ";
             declaration += QByteArray::number(value);
@@ -987,9 +1001,9 @@ QByteArray createUnicodeScriptTableDeclaration()
     }
 
     for (int i = 0; i < extraBlockList.size(); ++i) {
-        const int value = i + unicodeScriptSentinel;
+        const int value = i + scriptSentinel;
         const int offset =
-            ((value - unicodeScriptSentinel) * unicodeBlockSize) + unicodeBlockCount;
+            ((value - scriptSentinel) * unicodeBlockSize) + unicodeBlockCount;
         const ExtraBlock &extraBlock = extraBlockList.at(i);
         const int block = extraBlock.block;
 
@@ -1016,7 +1030,7 @@ QByteArray createUnicodeScriptTableDeclaration()
     }
     declaration += "\n};\n\n} // namespace QUnicodeTables\n\n";
 
-    qDebug("createUnicodeScriptTableDeclaration: table size is %d bytes",
+    qDebug("createScriptTableDeclaration: table size is %d bytes",
            unicodeBlockCount + (extraBlockList.size() * unicodeBlockSize));
 
     return declaration;
@@ -1537,8 +1551,8 @@ int main(int, char **)
     QByteArray compositions = createCompositionInfo();
     QByteArray ligatures = createLigatureInfo();
     QByteArray normalizationCorrections = createNormalizationCorrections();
-    QByteArray unicodeScriptEnumDeclaration = createUnicodeScriptEnumDeclaration();
-    QByteArray unicodeScriptTableDeclaration = createUnicodeScriptTableDeclaration();
+    QByteArray scriptEnumDeclaration = createScriptEnumDeclaration();
+    QByteArray scriptTableDeclaration = createScriptTableDeclaration();
 
     QFile f("../../src/core/tools/qunicodedata.cpp");
     f.open(QFile::WriteOnly|QFile::Truncate);
@@ -1576,14 +1590,14 @@ int main(int, char **)
     f.write(compositions);
     f.write(ligatures);
     f.write(normalizationCorrections);
-    f.write(unicodeScriptTableDeclaration);
+    f.write(scriptTableDeclaration);
     f.close();
 
     f.setFileName("../../src/core/tools/qunicodedata_p.h");
     f.open(QFile::WriteOnly | QFile::Truncate);
     f.write(header);
     f.write(warning);
-    f.write(unicodeScriptEnumDeclaration);
+    f.write(scriptEnumDeclaration);
     f.close();
 
     qDebug("maxMirroredDiff = %x, maxCaseDiff = %x", maxMirroredDiff, maxCaseDiff);
