@@ -15485,7 +15485,7 @@ QCString qt_winQString2MB( const QString& s, int uclen )
 {
     if ( uclen < 0 )
         uclen = s.length();
-    if ( s.data() == 0 )
+    if ( s.latin1()() == 0 )
     return QCString();
     if ( uclen == 0 )
         return QCString("");
