@@ -1697,7 +1697,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     QString s1 = swiss.toString(15714.3, 'e');
     \endcode
 
-    When a langauge/country pair is specified in the constructor, one
+    When a language/country pair is specified in the constructor, one
     of four things can happen:
 
     \list
@@ -2145,7 +2145,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     appropriate country is chosen for the specified language.
 
     The language and country codes are converted to their respective
-    \c Langauge and \c Country enums. After this conversion is
+    \c Language and \c Country enums. After this conversion is
     performed the constructor behaves exactly like QLocale(Country,
     Language).
 
