@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#131 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#132 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#131 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#132 $");
 
 
 /*!
@@ -168,7 +168,10 @@ static void destroy_palettes()
        on an 8-bit display.
   <li> \c -ncols \e count, limits the number of colors allocated in the
        color cube on a 8-bit display, if the application is using the
-       \c QApplication::ManyColor color specification.
+       \c QApplication::ManyColor color specification.  If \e count is
+       216 then a 6x6x6 color cube is used (ie. 6 levels of red, 6 of green,
+       and 6 of blue); for 108, a 3x3x3, and for other values, a cube
+       approximately proportional to a 2x3x1 cube is used.
   <li> \c -cmap, causes the application to install a private color map
        on an 8-bit display.
   </ul>
@@ -384,9 +387,10 @@ int QApplication::colorSpec()
     Under X11 the effect is:
     <ul>
       <li> For 256-color displays which have at best a 256 color true color
-	    visual, the default visual is used, and a color cube is
-	    preallocated. The number of colors in the cube is as many
-	    as possible, but can be forced lower by the \e -ncols option.
+	    visual, the default visual is used, and a colors are allocated
+	    from a color cube.
+	    The color cube is the 6x6x6 (216 color) "Web palette", but the
+	    number of colors can be changed by the \e -ncols option.
 	    The user can force the application to use the true color visual by
 	    the \link QApplication::QApplication() <em>-visual</em> \endlink
 	    option.

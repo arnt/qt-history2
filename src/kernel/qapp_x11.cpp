@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#300 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#301 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -86,7 +86,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#300 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#301 $");
 
 
 /*****************************************************************************
@@ -178,6 +178,7 @@ void		qt_reset_color_avail();		// defined in qcol_x11.cpp
 int		qt_ncols_option  = 216;		// used in qcol_x11.cpp
 int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
+QWidget*	qt_button_down	     = 0;	// the widget getting last button-down
 
 // stuff in qt_xdnd.cpp
 // setup
@@ -2659,7 +2660,6 @@ int translateButtonState( int s )
 
 bool QETWidget::translateMouseEvent( const XEvent *event )
 {
-    static bool buttonDown = FALSE;
     static bool manualGrab = FALSE;
     int	   type;				// event parameters
     QPoint pos;
@@ -2674,7 +2674,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	pos.rx() = xevent->xmotion.x;
 	pos.ry() = xevent->xmotion.y;
 	state = translateButtonState( xevent->xmotion.state );
-	if ( !buttonDown )
+	if ( !qt_button_down )
 	    state &= ~(LeftButton|MidButton|RightButton);
     } else {					// button press or release
 	pos.rx() = event->xbutton.x;
@@ -2686,7 +2686,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	}
 	state = translateButtonState( event->xbutton.state );
 	if ( event->type == ButtonPress ) {	// mouse button pressed
-	    buttonDown = TRUE;
+	    qt_button_down = this;
 	    if ( mouseActWindow == event->xbutton.window &&
 		 mouseButtonPressed == button &&
 		 (long)event->xbutton.time -(long)mouseButtonPressTime
@@ -2705,11 +2705,11 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		XUngrabPointer( dpy, CurrentTime );
 		XFlush( dpy );
 	    }
-	    if ( !buttonDown )			// unexpected event
+	    if ( qt_button_down != this )			// unexpected event
 		return FALSE;
 	    type = Event_MouseButtonRelease;
 	    if ( (state & (LeftButton|MidButton|RightButton)) == 0 )
-		buttonDown = FALSE;
+		qt_button_down = 0;
 	}
     }
     mouseActWindow = winId();			// save mouse event params

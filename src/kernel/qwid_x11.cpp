@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#234 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#235 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -29,7 +29,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#234 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#235 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -43,6 +43,7 @@ void qt_updated_rootinfo();
 
 
 extern bool qt_nograb();
+extern QWidget *qt_button_down;
 
 static QWidget *mouseGrb    = 0;
 static QWidget *keyboardGrb = 0;
@@ -344,6 +345,9 @@ bool QWidget::create()
 
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
+    if ( qt_button_down == this )
+	qt_button_down = 0;
+
     if ( testWFlags(WState_Created) ) {
 	clearWFlags( WState_Created );
 	if ( children() ) {
@@ -1038,6 +1042,8 @@ void QWidget::showWindow()
 
 void QWidget::hideWindow()
 {
+    if ( qt_button_down == this )
+	qt_button_down = 0;
     XUnmapWindow( dpy, winId() );
     if ( isPopup() ) XFlush( dpy );
 }
