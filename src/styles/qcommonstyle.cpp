@@ -1808,12 +1808,22 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 
 	switch (sc) {
 	case SC_ScrollBarSubLine:	    // top/left button
-	    return QRect(0, 0, sbextent, sbextent);
+	    if (scrollbar->orientation() == Qt::Horizontal) {
+		int buttonWidth = QMIN(scrollbar->width()/2, sbextent);
+		return QRect( 0, 0, buttonWidth, sbextent );
+	    } else {
+		int buttonHeight = QMIN(scrollbar->height()/2, sbextent);
+		return QRect( 0, 0, sbextent, buttonHeight );
+	    }
 
 	case SC_ScrollBarAddLine:	    // bottom/right button
-	    if (scrollbar->orientation() == Qt::Horizontal)
-		return QRect(scrollbar->width() - sbextent, 0, sbextent, sbextent);
-	    return QRect(0, scrollbar->height() - sbextent, sbextent, sbextent);
+	    if (scrollbar->orientation() == Qt::Horizontal) {
+		int buttonWidth = QMIN(scrollbar->width()/2, sbextent);
+		return QRect( scrollbar->width() - buttonWidth, 0, buttonWidth, sbextent );
+	    } else {
+		int buttonHeight = QMIN(scrollbar->height()/2, sbextent);
+		return QRect( 0, scrollbar->height() - buttonHeight, sbextent, buttonHeight );
+	    }
 
 	case SC_ScrollBarSubPage:	    // between top/left button and slider
 	    if (scrollbar->orientation() == Qt::Horizontal)
