@@ -230,8 +230,9 @@ QTextStream& QHttpHeader::read( QTextStream& stream )
 	}
     }
 
-    // Never reached
+#if !defined(Q_STATEMENT_NOT_REACHED)
     return stream;
+#endif
 }
 
 /*!

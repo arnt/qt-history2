@@ -345,31 +345,43 @@ void QtFileIconViewItem::viewModeChanged( QtFileIconView::ViewMode m )
 QPixmap *QtFileIconViewItem::pixmap() const
 {
     switch ( itemType ) {
-    case Dir: {
-	if ( !QDir( itemFileName ).isReadable() ) {
-	    if ( vm == QtFileIconView::Small )
-		return iconFolderLockedSmall;
-	    else
-		return iconFolderLockedLarge;
-	} else {
-	    if ( vm == QtFileIconView::Small )
-		return iconFolderSmall;
-	    else
-		return iconFolderLarge;
+    case Dir:
+	{
+	    if ( !QDir( itemFileName ).isReadable() ) {
+		if ( vm == QtFileIconView::Small )
+		    return iconFolderLockedSmall;
+		else
+		    return iconFolderLockedLarge;
+	    } else {
+		if ( vm == QtFileIconView::Small )
+		    return iconFolderSmall;
+		else
+		    return iconFolderLarge;
+	    }
 	}
-    } break;
-    case Link: {
+#if !defined(Q_STATEMENT_NOT_REACHED)
+	break;
+#endif
+    case Link:
+	{
 	    if ( vm == QtFileIconView::Small )
 		return iconLinkSmall;
 	    else
 		return iconLinkLarge;
-    } break;
-    default: {
+	}
+#if !defined(Q_STATEMENT_NOT_REACHED)
+	break;
+#endif
+    default:
+	{
 	    if ( vm == QtFileIconView::Small )
 		return iconFileSmall;
 	    else
 		return iconFileLarge;
-    } break;
+	}
+#if !defined(Q_STATEMENT_NOT_REACHED)
+	break;
+#endif
     }
 }
 

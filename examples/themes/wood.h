@@ -33,7 +33,7 @@ public:
     void drawBevelButton( QPainter *p, int x, int y, int w, int h,
 			  const QColorGroup &g, bool sunken = FALSE,
 			  const QBrush *fill = 0 );
-    QRect buttonRect( int x, int y, int w, int h);
+    QRect buttonRect( int x, int y, int w, int h) const;
     void drawButtonMask( QPainter *p, int x, int y, int w, int h);
     void drawComboButton( QPainter *p, int x, int y, int w, int h,
 				    const QColorGroup &g,

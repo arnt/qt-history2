@@ -64,13 +64,16 @@ static void signalHandler( int )
 	if ( arg[0] != '-' ) {
 	    QObjectList* l = MainWindow::self->queryList( "FormWindow" );
 	    FormWindow* fw = (FormWindow*) l->first();
+#if 0 // ### what's this dead code for?
 	    FormWindow* totop;
+#endif
 	    bool haveit = FALSE;
 	    while ( fw ) {
 		haveit = haveit || fw->fileName() == arg;
+#if 0 // ### what's this dead code for?
 		if ( haveit )
 		    totop = fw;
-		
+#endif
 		fw = (FormWindow*) l->next();
 	    }
 	    if ( !haveit )
