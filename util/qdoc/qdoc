@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#158 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#159 $
 #
 # this is a massive hack, written very quickly
 #
@@ -2313,6 +2313,46 @@ API with links to the class documentation for each function.
 
 
 
+sub readimports {
+    local( $mode, $line );
+    foreach ( sort keys %imports ) {
+	if ( open( IMP, "< $_" ) ) {
+	    while( $line = <IMP> ) {
+		chomp $line;
+		if ( $line eq "-keys" ) {
+		    $mode = "keys";
+		} elsif ( $line eq "-urls" ) {
+		    $mode = "urls";
+		} elsif ( $line eq "-anchors" ) {
+		    $mode = "anchors";
+		} else {
+		    if ( $mode eq "keys" ) {
+			# nah-thang.  yet.
+		    } elsif ( $mode eq "urls" ) {
+			if ( $line =~ /^([^:]+):\s(\S+)$/ ) {
+			    # not necessary?
+			    #$urls{$2} = $imports{$_} . $1;
+			} else {
+			    die "unable to read $_ line $.\n$line\nstopped";
+			}
+		    } elsif ( $mode eq "anchors" ) {
+			if ( $line =~ /^(\S+?):\s(\S+)$/ ) {
+			    $anchor{$1} = $imports{$_} . $2;
+			} else {
+			    die "unable to read $_ line $.\n$line\nstopped";
+			}
+		    } else {
+			die "unable to read $_ line $.\n$line\nstopped";
+		    }
+		}
+	    }
+	    close IMP;
+	}
+    }
+}
+
+
+
 ($j, $min, $hour, $mday, $mon, $year) = localtime(time);
 
 if ( $#ARGV == -1 ) {
@@ -2354,6 +2394,8 @@ $style ||= "";
 umask 0111;
 $cfile = "VOLD";
 $maxerr ||= 5;
+
+&readimports();
 
 $doctype ||= "<!doctype HTML public \"-//W3C//DTD HTML 3.2//EN\">\n";
 
@@ -2431,11 +2473,11 @@ print "Documented ", $countdoc, " member functions, left out ",
 #}
 
 
-if ( 1 == 2 && defined( $keyfile ) && open( O, "> $keyfile" ) ) {
+if ( defined( $keyfile ) && open( O, "> $keyfile" ) ) {
 
     print O "-keys\n";
     foreach ( sort keys %uniqkeys ) {
-	print $_, ": ", $uniqkeys{$_}, "\n";
+	print O $_, ": ", $uniqkeys{$_}, "\n";
     }
 
     print O "-urls\n";
@@ -2445,7 +2487,7 @@ if ( 1 == 2 && defined( $keyfile ) && open( O, "> $keyfile" ) ) {
 
     print O "-anchors\n";
     foreach ( sort keys %export ) {
-	print $_, ": ", $anchor{$_}, "\n" if ( defined( $anchor{$_} ) );
+	print O $_, ": ", $anchor{$_}, "\n" if ( defined( $anchor{$_} ) );
     }
 
     close O;
