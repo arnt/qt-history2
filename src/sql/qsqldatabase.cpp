@@ -286,54 +286,54 @@ QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * 
 */
 void QSqlDatabase::init( const QString& type, const QString&  )
 {
-    
+
     d = new QSqlDatabasePrivate();
 #ifndef QT_NO_PLUGIN
-    
+
     // ### re-enable plugins  here
-    
+
     //    d->plugIns = new QInterfaceManager<QSqlDriverInterface>( "QSqlDriverInterface", QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
     //	  QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
     //    d->driver = iface ? iface->create( type ) : 0;
 #endif
-    
+
     if ( !d->driver ) {
-	
+
 #ifdef QT_SQL_POSTGRES
 	if ( type == "QPSQL6" )
 	    d->driver = new QPSQLDriver( QPSQLDriver::Version6 );
 	if ( type == "QPSQL7" )
 	    d->driver = new QPSQLDriver( QPSQLDriver::Version7 );
 #endif
-	
+
 #ifdef QT_SQL_MYSQL
 	if ( type == "QMYSQL" )
 	    d->driver = new QMySQLDriver();
 #endif
-	
+
 #ifdef QT_SQL_ODBC
 	if ( type == "QODBC" )
 	    d->driver = new QODBCDriver();
 #endif
-	
+
 #ifdef QT_SQL_OCI
 	if ( type == "QOCI" )
 	    d->driver = new QOCIDriver();
 #endif
-	
+
     }
-    
+
     if ( !d->driver ) {
-	
+
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlDatabase warning: %s driver not loaded", type.data());
 #endif
-	
+
 	d->driver = new QNullDriver();
 	d->driver->setLastError( QSqlError( "Driver not loaded", "Driver not loaded" ) );
-	
+
     }
-    
+
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -578,9 +578,9 @@ QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
 }
 
 
-/*!
-  Returns a list of fields for table \a tablename.  If not such
-  table exists, an empty list is returned.
+/*!  Returns a list of all fields for the table (or view) \a name.
+  The order in which the fields are returned is undefined.  If no such
+  table (or view) exists, an empty list is returned.
 
 */
 
