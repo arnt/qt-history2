@@ -848,6 +848,9 @@ then
      SunOS:4*)
 	PLATFORM=sunos-g++
 	;;
+     OpenUNIX:*)
+        PLATFORM=openunix-cc
+        ;;
      UNIX_SV:4.2*)
 	PLATFORM=unixware-g++
 	;;
