@@ -36,7 +36,7 @@
 class QSessionManager;
 class QStyle;
 class QTranslator;
-template <class T> class QList;
+template <class type> class QList;
 
 class QApplication;
 extern Q_EXPORT QApplication *qApp;		// global application object
