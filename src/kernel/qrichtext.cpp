@@ -5487,7 +5487,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    continue;
 	}
 #endif // QT_NO_TEXTCUSTOMITEM
-	if ( wrapEnabled
+	if ( wrapEnabled && ( !c->c.isSpace() || lastBreak == -2 )
 	     && ( lastBreak != -1 || allowBreakInWords() ) &&
 	     ( wrapAtColumn() == -1 && x + ww > w && lastBreak != -1 ||
 	       wrapAtColumn() == -1 && x + ww > w - 4 && lastBreak == -1 && allowBreakInWords() ||
