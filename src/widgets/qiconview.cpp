@@ -731,12 +731,12 @@ void QIconViewItem::setText( const QString &text )
     QRect oldRect = rect();
     calcRect();
     oldRect = oldRect.unite( rect() );
-    
+
     if ( view ) {
-	if ( QRect( view->contentsX(), view->contentsY(), 
+	if ( QRect( view->contentsX(), view->contentsY(),
 		    view->visibleWidth(), view->visibleHeight() ).
 	     intersects( oldRect ) )
-	    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1, 
+	    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1,
 				   oldRect.width() + 2, oldRect.height() + 2, FALSE );
     }
 }
@@ -775,12 +775,12 @@ void QIconViewItem::setPixmap( const QPixmap &icon )
     QRect oldRect = rect();
     calcRect();
     oldRect = oldRect.unite( rect() );
-    
+
     if ( view ) {
-	if ( QRect( view->contentsX(), view->contentsY(), 
+	if ( QRect( view->contentsX(), view->contentsY(),
 		    view->visibleWidth(), view->visibleHeight() ).
 	     intersects( oldRect ) )
-	    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1, 
+	    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1,
 				   oldRect.width() + 2, oldRect.height() + 2, FALSE );
     }
 }
@@ -1716,6 +1716,8 @@ void QIconViewItem::calcTmpText()
 
   Finally, see also QIconViewItem::setDragEnabled(), QIconViewItem::setDropEnabled(),
   QIconViewItem::acceptDrop() and QIconViewItem::dropped()
+
+  <img src=qiconview-m.png> <img src=qiconview-w.png>
 */
 
 /*! \enum QIconView::ResizeMode

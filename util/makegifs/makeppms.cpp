@@ -980,6 +980,22 @@ public:
     }
 };
 
+class EgQIconView : public QIconView
+{
+public:
+    EgQIconView() : QIconView() {
+	(void)new QIconViewItem( this, "Item 1" );
+	(void)new QIconViewItem( this, "Item 2", QPixmap( "qtlogo.xpm" ) );
+	(void)new QIconViewItem( this, "Item 3", QPixmap( "editcut.xpm" ) );
+	(void)new QIconViewItem( this, "Item 4", QPixmap( "editcopy.xpm" ) );
+	(void)new QIconViewItem( this, "Item 5", QPixmap( "editpaste.xpm" ) );
+	(void)new QIconViewItem( this, "Item 6", QPixmap( "fileopen.xpm" ) );
+	(void)new QIconViewItem( this, "Item 7", QPixmap( "filesave.xpm" ) );
+	(void)new QIconViewItem( this, "Item 8", QPixmap( "fileprint.xpm" ) );
+	resize( 300, 150 );
+    }
+};
+
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
@@ -1044,7 +1060,8 @@ wd.depict( new eg(), ofile, wname, TRUE );
 	DEPICT( EgComplexGroupBox, "groupbox", "QGroupBox" );
 	DEPICT( EgComplexButtonGroup, "buttongroup", "QButtonGroup" );
 	DEPICT( EgQTabDialog, "qtabdlg", "QTabDialog" );
-
+	DEPICT( EgQIconView, "qiconview", "QIconView" );
+	
 	if ( !first ) break;
 
 	first = false;
