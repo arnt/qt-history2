@@ -16,7 +16,7 @@ omissions.
 
 Additionally, this technology preview is only being licensed under a
 non-commercial license. It is not meant to be used in production code
-or even for application development. Futhermore, please do not attempt
+or even for application development. Furthermore, please do not attempt
 to start porting your Qt 3 based projects over yet. Not all backwards
 compatibility functionality is in place yet, and we have not yet
 finished the porting guide and the porting tools that will help you
@@ -59,7 +59,7 @@ product. The Technology Preview supports:
  - Microsoft Windows 2000 and later, with MSVC 6 or later
 
 Other operating systems and compilers might work but are not yet part
-of the testing programme.
+of the testing program.
 
 Feedback
 --------
