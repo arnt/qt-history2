@@ -635,11 +635,11 @@ void PopupMenuEditor::remove( const int index )
     PopupMenuEditorItem * i = itemList.at( idx );
     if ( i && i->isRemovable() ) {
 	itemList.remove( idx );
-	resizeToContents();
 	int n = itemList.count() + 1;
 	if ( currentIndex >= n )
 	    currentIndex = itemList.count() + 1;
 	emit removed( i->anyAction() );
+	resizeToContents();
     }
 }
 
@@ -668,6 +668,8 @@ void PopupMenuEditor::removeItem( const int index )
 	     ((PopupMenuEditor*)parentMenu)->currentItem()->setDirty( TRUE );
 	    parentMenu->update();
 	}
+	resizeToContents();
+	drawAll++; // one more draw event
     }
 }
 
