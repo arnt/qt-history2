@@ -427,11 +427,11 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 
 	if ( depth < 8 ) {
 	    if ( data->width && data->height ) {
-		qt_sw_cursor = FALSE;   // prevent recursive call from blt
+		gfx->gfx_swcursor = FALSE;   // prevent recursive call from blt
 		gfx->setSource( imgunder );
 		gfx->setAlphaType(QGfx::IgnoreAlpha);
 		gfx->blt(x,y,data->width,data->height,0,0);
-		qt_sw_cursor = TRUE;
+		gfx->gfx_swcursor = TRUE;
 	    }
 	} else {
 	    // This is faster than the above - at least until blt is
@@ -482,11 +482,11 @@ void QScreenCursor::saveUnder()
     int y = data->y - data->hoty;
 
     if ( depth < 8 ) {
-        qt_sw_cursor = FALSE;   // prevent recursive call from blt
+        gfxunder->gfx_swcursor = FALSE;   // prevent recursive call from blt
 	gfxunder->setAlphaType(QGfx::IgnoreAlpha);
 	gfxunder->setSource( qApp->desktop() );
 	gfxunder->blt(0,0,data->width,data->height,x,y);
-	qt_sw_cursor = TRUE;
+	gfxunder->gfx_swcursor = TRUE;
     } else {
 	// This is faster than the above - at least until blt is
 	// better optimised.
