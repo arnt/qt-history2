@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#26 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#26 $")
 
 
 // --------------------------------------------------------------------------
@@ -325,6 +325,10 @@ QPainter::~QPainter()
 
 void QPainter::setFont( const QFont &font )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setFont: Will be reset by begin()" );
+#endif
     if ( cfont.d != font.d ) {
 	cfont = font;
 	updateFont();
@@ -748,8 +752,12 @@ bool QPainter::end()
 
 void QPainter::setBackgroundColor( const QColor &c )
 {
-    if ( !isActive() )
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	warning( "QPainter::setBackgroundColor: Call begin() first" );
+#endif
 	return;
+    }
     bg_col = c;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -762,8 +770,12 @@ void QPainter::setBackgroundColor( const QColor &c )
 
 void QPainter::setBackgroundMode( BGMode m )
 {
-    if ( !isActive() )
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	warning( "QPainter::setBackgroundMode: Call begin() first" );
+#endif
 	return;
+    }
     if ( m != TransparentMode && m != OpaqueMode ) {
 #if defined(CHECK_RANGE)
 	warning( "QPainter::setBackgroundMode: Invalid mode" );
@@ -786,8 +798,12 @@ void QPainter::setRasterOp( RasterOp r )
 	{ R2_COPYPEN, R2_MERGEPEN, R2_XORPEN, R2_MASKNOTPEN,
 	  R2_NOTCOPYPEN, R2_MERGENOTPEN, R2_NOTXORPEN, R2_MASKPEN,
 	  R2_NOT };
-    if ( !isActive() )
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	warning( "QPainter::setRasterOp: Call begin() first" );
+#endif
 	return;
+    }
     if ( (uint)r > NotROP ) {
 #if defined(CHECK_RANGE)
 	warning( "QPainter::setRasterOp: Invalid ROP code" );
@@ -806,8 +822,12 @@ void QPainter::setRasterOp( RasterOp r )
 
 void QPainter::setBrushOrigin( int x, int y )
 {
-    if ( !isActive() )
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	warning( "QPainter::setBrushOrigin: Call begin() first" );
+#endif
 	return;
+    }
     bro = QPoint(x,y);
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -1150,6 +1170,10 @@ QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 
 void QPainter::setClipping( bool enable )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setClipping: Will be reset by begin()" );
+#endif
     if ( !isActive() || enable == testf(ClipOn) )
 	return;
     setf( ClipOn, enable );
@@ -1174,6 +1198,10 @@ void QPainter::setClipRect( const QRect &r )
 
 void QPainter::setClipRegion( const QRegion &rgn )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setClipRegion: Will be reset by begin()" );
+#endif
     crgn = rgn;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];

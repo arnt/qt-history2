@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#147 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#148 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#147 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#148 $")
 
 
 /*****************************************************************************
@@ -495,6 +495,10 @@ QPainter::~QPainter()
 
 void QPainter::setFont( const QFont &font )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setFont: Will be reset by begin()" );
+#endif
     if ( cfont.d != font.d ) {
 	cfont = font;
 	setf(DirtyFont);
@@ -732,12 +736,41 @@ static uchar *pat_tbl[] = {
   Begins painting the paint device \e pd and returns TRUE if successful,
   or FALSE if it cannot begin painting.
 
-  \warning This function resets the pen, brush, font and all other
-  painter settings from the paint device's settings.  Clever
-  techniques like using one painter to write text on several paint
-  devices in order to use the same font and color will \e not work.
+  This function initializes all painter settings:
+  <ul>
+  <li>The \link setFont() font\endlink is set to the default \link
+  QApplication::setFont() application font\endlink, or to the \link
+  QWidget::setFont() widget's font\endlink if \e pd is a widget.
+  <li>The \link setPen() pen\endlink is set QPen(black,0,SolidLine),
+  or to QPen(\link QWidget::foregroundColor() widget->foreground()\endlink,
+  0,SolidLine) if \e pd is a widget.
+  <li>The \link setBrush() brush\endlink is set to QBrush(NoBrush).
+  <li>The \link setBackgroundColor() background color\endlink is set
+  to white, or to the \link QWidget::setBackgroundColor() widget's
+  background color\endlink if \e pd is a widget.
+  <li>The \link setBackgroundMode() background mode\endlink is set
+  to \c TransparentMode.
+  <li>The \link setRasterOp() raster operation\endlink is set to
+  \c CopyROP.
+  <li>The \link setBrushOrigin() brush origin\endlink is set to (0,0).
+  <li>The \link setViewXForm() view transformation\endlink setting
+  is turned off.
+  <li>The \link setWindow() window\endlink is set to the paint device
+  rectangle; (0,0,pd->width(),pd->height()).
+  <li>The \link setViewport() viewport\endlink is set to the paint device
+  rectangle; (0,0,pd->width(),pd->height()).
+  <li>The \link setWorldXForm() world transformation\endlink setting
+  is turned off.
+  <li>The \link setWorldMatrix() world matrix\endlink is set to the
+  \link QWMatrix::reset() identify matrix\endlink.
+  <li>\link setClipping() Clipping\endlink is disabled.
+  <li>The \link setClipRegion() clip region\endlink is set to an empty region.
+  </ul>
 
-  \sa QPaintDevice, end()
+  \sa end(), setFont(), setPen(), setBrush(), setBackgroundColor(),
+  setBackgroundMode(), setRasterOp(), setBrushOrigin(), setViewXForm(),
+  setWindow(), setViewport(), setWorldXForm(), setWorldMatrix(),
+  setClipRegion()
  ----------------------------------------------------------------------------*/
 
 bool QPainter::begin( const QPaintDevice *pd )
@@ -922,8 +955,12 @@ bool QPainter::end()				// end painting
 
 void QPainter::setBackgroundColor( const QColor &c )
 {
-    if ( !isActive() )
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	warning( "QPainter::setBackgroundColor: Call begin() first" );
+#endif
 	return;
+    }
     bg_col = c;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -953,8 +990,12 @@ void QPainter::setBackgroundColor( const QColor &c )
 
 void QPainter::setBackgroundMode( BGMode m )
 {
-    if ( !isActive() )
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	warning( "QPainter::setBackgroundMode: Call begin() first" );
+#endif
 	return;
+    }
     if ( m != TransparentMode && m != OpaqueMode ) {
 #if defined(CHECK_RANGE)
 	warning( "QPainter::setBackgroundMode: Invalid mode" );
@@ -995,8 +1036,12 @@ void QPainter::setBackgroundMode( BGMode m )
 
 void QPainter::setRasterOp( RasterOp r )
 {
-    if ( !isActive() )
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	warning( "QPainter::setRasterOp: Call begin() first" );
+#endif
 	return;
+    }
     if ( (uint)r > NotROP ) {
 #if defined(CHECK_RANGE)
 	warning( "QPainter::setRasterOp: Invalid ROP code" );
@@ -1021,12 +1066,21 @@ void QPainter::setRasterOp( RasterOp r )
 
 /*----------------------------------------------------------------------------
   Sets the brush origin to \e (x,y).
+
+  The brush origin specifies the (0,0) coordinate of the painter's brush.
+  This setting is only necessary for pattern brushes or pixmap brushes.
+
+  \sa brushOrigin()
  ----------------------------------------------------------------------------*/
 
 void QPainter::setBrushOrigin( int x, int y )
 {
-    if ( !isActive() )
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	warning( "QPainter::setBrushOrigin: Call begin() first" );
+#endif
 	return;
+    }
     bro = QPoint(x,y);
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -1274,6 +1328,10 @@ QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 
 void QPainter::setClipping( bool enable )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setClipping: Will be reset by begin()" );
+#endif
     if ( !isActive() || enable == testf(ClipOn) )
 	return;
     setf( ClipOn, enable );
@@ -1315,6 +1373,10 @@ void QPainter::setClipRect( const QRect &r )
 
 void QPainter::setClipRegion( const QRegion &rgn )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setClipRegion: Will be reset by begin()" );
+#endif
     crgn = rgn;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -2269,7 +2331,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		draw_pm = new QPixmap( sw, sh, pm.depth() );
 		QPainter paint;
 		paint.begin( draw_pm );
-		QRegion rgn = crgn.copy();
+		QRegion rgn( crgn );
 		rgn.move( -x, -y );
 		paint.setClipRegion( rgn );
 		paint.drawPixmap( 0, 0, pm );
@@ -2449,7 +2511,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		draw_bm->fill( color0 );
 		QPainter paint;
 		paint.begin( draw_bm );
-		QRegion rgn = crgn.copy();
+		QRegion rgn( crgn );
 		rgn.move( -x, -y );
 		paint.setClipRegion( rgn );
 		paint.drawPixmap( 0, 0, *wx_bm );

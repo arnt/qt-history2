@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#70 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#69 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#70 $")
 
 
 /*----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ void QPainter::save()
     ps->wm    = wxmat;
     ps->vxf   = testf(VxF);
     ps->wxf   = testf(WxF);
-    ps->rgn   = crgn.copy();
+    ps->rgn   = crgn;
     ps->clip  = testf(ClipOn);
     ps->ts    = tabstops;
     ps->ta    = tabarray;
@@ -279,6 +279,10 @@ void QPainter::restore()
 
 void QPainter::setPen( const QPen &pen )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setPen: Will be reset by begin()" );
+#endif
     cpen = pen;
     updatePen();
 }
@@ -290,6 +294,10 @@ void QPainter::setPen( const QPen &pen )
 
 void QPainter::setPen( PenStyle style )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setPen: Will be reset by begin()" );
+#endif
     register QPen::QPenData *d = cpen.data;	// low level access
     if ( d->count != 1 ) {
 	cpen.detach();
@@ -309,6 +317,10 @@ void QPainter::setPen( PenStyle style )
 
 void QPainter::setPen( const QColor &color )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setPen: Will be reset by begin()" );
+#endif
     register QPen::QPenData *d = cpen.data;	// low level access
     if ( d->count != 1 ) {
 	cpen.detach();
@@ -336,6 +348,10 @@ void QPainter::setPen( const QColor &color )
 
 void QPainter::setBrush( const QBrush &brush )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setBrush: Will be reset by begin()" );
+#endif
     cbrush = brush;
     updateBrush();
 }
@@ -347,6 +363,10 @@ void QPainter::setBrush( const QBrush &brush )
 
 void QPainter::setBrush( BrushStyle style )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setBrush: Will be reset by begin()" );
+#endif
     register QBrush::QBrushData *d = cbrush.data; // low level access
     if ( d->count != 1 ) {
 	cbrush.detach();
@@ -369,6 +389,10 @@ void QPainter::setBrush( BrushStyle style )
 
 void QPainter::setBrush( const QColor &color )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setBrush: Will be reset by begin()" );
+#endif
     register QBrush::QBrushData *d = cbrush.data; // low level access
     if ( d->count != 1 ) {
 	cbrush.detach();
@@ -427,6 +451,10 @@ void QPainter::setBrush( const QColor &color )
 
 void QPainter::setTabStops( int ts )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setTabStops: Will be reset by begin()" );
+#endif
     tabstops = ts;
     if ( isActive() && testf(ExtDev) ) {	// tell extended device
 	QPDevCmdParam param[1];
@@ -456,6 +484,10 @@ void QPainter::setTabStops( int ts )
 
 void QPainter::setTabArray( int *ta )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setTabArray: Will be reset by begin()" );
+#endif
     if ( ta != tabarray ) {
 	tabarraylen = 0;
 	delete [] tabarray;			// delete old array
@@ -496,6 +528,10 @@ void QPainter::setTabArray( int *ta )
 
 void QPainter::setViewXForm( bool enable )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setViewXForm: Will be reset by begin()" );
+#endif
     if ( !isActive() || enable == testf(VxF) )
 	return;
     setf( VxF, enable );
@@ -554,9 +590,11 @@ QRect QPainter::window() const
  ----------------------------------------------------------------------------*/
 
 void QPainter::setWindow( int x, int y, int w, int h )
-{						// set window
+{
+#if defined(CHECK_STATE)
     if ( !isActive() )
-	return;
+	warning( "QPainter::setWindow: Will be reset by begin()" );
+#endif
     wx = x;
     wy = y;
     ww = w;
@@ -615,6 +653,10 @@ QRect QPainter::viewport() const		// get viewport
 
 void QPainter::setViewport( int x, int y, int w, int h )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setViewport: Will be reset by begin()" );
+#endif
     vx = x;
     vy = y;
     vw = w;
@@ -639,6 +681,10 @@ void QPainter::setViewport( int x, int y, int w, int h )
 
 void QPainter::setWorldXForm( bool enable )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setWorldXForm: Will be reset by begin()" );
+#endif
     if ( !isActive() || enable == testf(WxF) )
 	return;
     setf( WxF, enable );
@@ -706,6 +752,10 @@ const QWMatrix &QPainter::worldMatrix() const
 
 void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 {
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+	warning( "QPainter::setWorldMatrix: Will be reset by begin()" );
+#endif
     if ( combine )
 	wxmat = m * wxmat;			// combines
     else
