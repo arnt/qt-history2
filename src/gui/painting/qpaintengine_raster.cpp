@@ -10,7 +10,7 @@
 #include <qlabel.h>
 #include <qbitmap.h>
 
-#include <math.h>
+#include <qmath_p.h>
 
 #include <private/qdatabuffer_p.h>
 #include <private/qpainter_p.h>
