@@ -60,7 +60,7 @@ public:
                       DefaultSort = -1 };
 
     QDir();
-    QDir(const QString &path, const QStringList &nameFilters = QStringList(), 
+    QDir(const QString &path, const QStringList &nameFilters = QStringList(),
          int sortSpec = Name | IgnoreCase, int filterSpec = All);
     QDir(const QDir &);
 
@@ -86,10 +86,10 @@ public:
     bool cdUp();
 
 #ifdef QT_COMPAT
-    inline QT_COMPAT QString nameFilter() const 
+    inline QT_COMPAT QString nameFilter() const
     { return nameFilts.join(QString(filterSepChar)); }
 #ifndef QT_NO_REGEXP
-    inline QT_COMPAT void setNameFilter(const QString &nameFilter) 
+    inline QT_COMPAT void setNameFilter(const QString &nameFilter)
     { filterSepChar = getFilterSepChar(nameFilter); setNameFilters(nameFilter.split(filterSepChar)); }
 #endif
 #endif
@@ -115,7 +115,7 @@ public:
                                            int sortSpec = DefaultSort) const
     { return entryList(nameFilter.split(getFilterSepChar(nameFilter)), filterSpec, sortSpec); }
 #endif
-    QStringList entryList(const QStringList &nameFilters, int filterSpec = DefaultFilter, 
+    QStringList entryList(const QStringList &nameFilters, int filterSpec = DefaultFilter,
                           int sortSpec = DefaultSort) const;
 
     QFileInfoList entryInfoList(int filterSpec = DefaultFilter,
@@ -177,7 +177,7 @@ private:
     void readDirEntries(const QStringList &nameFilters,
                         int FilterSpec, int SortSpec) const;
 #ifdef QT_COMPAT
-    inline QT_COMPAT QChar getFilterSepChar(const QString &nameFilter) const
+    inline QChar getFilterSepChar(const QString &nameFilter) const
     {
         QChar sep(';');
         int i = nameFilter.indexOf(sep, 0);

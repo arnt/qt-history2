@@ -195,7 +195,7 @@ public:
     inline QT_COMPAT void removeChild(QObject *o)
         { if (o) o->setParent(0); }
     inline QT_COMPAT bool isA(const char *classname) const
-        { return qstrcmp(classname, className()) == 0; }
+        { return qstrcmp(classname, metaObject()->className()) == 0; }
     inline QT_COMPAT const char *className() const { return metaObject()->className(); }
     inline QT_COMPAT const char *name() const { return objectName().latin1(); }
     inline QT_COMPAT const char *name(const char *defaultName) const
