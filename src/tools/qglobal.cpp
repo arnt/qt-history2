@@ -239,6 +239,9 @@ Qt::WindowsVersion qt_winver = (Qt::WindowsVersion)qWinVersion();
     \warning The internal buffer is limited to 8196 bytes (including
     the '\0'-terminator).
 
+    \warning Passing (const char *)0 as argument to qDebug might lead
+    to crashes on certain platforms due to the platforms printf implementation.
+
     \sa qWarning(), qFatal(), qInstallMsgHandler(),
 	\link debug.html Debugging\endlink
 */
@@ -268,6 +271,9 @@ Qt::WindowsVersion qt_winver = (Qt::WindowsVersion)qWinVersion();
 
     \warning The internal buffer is limited to 8196 bytes (including
     the '\0'-terminator).
+
+    \warning Passing (const char *)0 as argument to qWarning might lead
+    to crashes on certain platforms due to the platforms printf implementation.
 
     \sa qDebug(), qFatal(), qInstallMsgHandler(),
     \link debug.html Debugging\endlink
@@ -299,6 +305,9 @@ Qt::WindowsVersion qt_winver = (Qt::WindowsVersion)qWinVersion();
 
     \warning The internal buffer is limited to 8196 bytes (including
     the '\0'-terminator).
+
+    \warning Passing (const char *)0 as argument to qFatal might lead
+    to crashes on certain platforms due to the platforms printf implementation.
 
     \sa qDebug(), qWarning(), qInstallMsgHandler(),
     \link debug.html Debugging\endlink
