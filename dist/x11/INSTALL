@@ -27,7 +27,6 @@ the directories where you choose to install Qt.
 
 	QTDIR		   - the directory in which you're building Qt
 	PATH		   - to locate the moc program and other Qt tools
-	MANPATH 	   - to access the Qt man pages
 	LD_LIBRARY_PATH	   - for the shared Qt library
 
     This is done like this:
@@ -37,16 +36,14 @@ the directories where you choose to install Qt.
 
 	QTDIR=/usr/local/qt
 	PATH=$QTDIR/bin:$PATH
-	MANPATH=$QTDIR/doc/man:$MANPATH
 	LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 
-	export QTDIR PATH MANPATH LD_LIBRARY_PATH
+	export QTDIR PATH LD_LIBRARY_PATH
 
     In .login (in case your shell is csh or tcsh), add the following lines:
 
 	setenv QTDIR /usr/local/qt
 	setenv PATH $QTDIR/bin:$PATH
-	setenv MANPATH $QTDIR/doc/man:$MANPATH
 	setenv LD_LIBRARY_PATH $QTDIR/lib:$LD_LIBRARY_PATH
 
     After you have done this, you will need to login again, or
@@ -118,7 +115,6 @@ the directories where you choose to install Qt.
 
 6.  The online HTML documentation is installed in /usr/local/qt/doc/html/
     The main page is /usr/local/qt/doc/html/index.html
-    The man pages are installed in /usr/local/qt/doc/man/
 
 
 
