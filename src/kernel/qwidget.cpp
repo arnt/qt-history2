@@ -4529,7 +4529,7 @@ bool QWidget::event( QEvent *e )
 
 	    if (e->spontaneous()) {
 		QEvent e2(type);
-		QApplication::sendSpontaneousEvent(this, &e2);
+		QApplication::sendEvent(this, &e2);
 	    } else {
 		QApplication::postEvent(this, new QEvent(type));
 	    }
