@@ -102,6 +102,7 @@ extern QWidgetList *qt_modal_stack;     // stack of modal widgets
 extern bool qt_mac_in_drag;             // from qdnd_mac.cpp
 extern bool qt_resolve_symlinks;        // from qapplication.cpp
 extern bool qt_tab_all_widgets;         // from qapplication.cpp
+extern bool qt_app_has_font;
 bool qt_mac_app_fullscreen = false;
 bool qt_scrollbar_jump_to_pos = false;
 static bool qt_mac_collapse_on_dblclick = true;
@@ -364,14 +365,17 @@ void qt_mac_update_os_settings()
 #endif
         }
     }
-    { //setup the global font
-        Str255 f_name;
-        SInt16 f_size;
-        Style f_style;
-        GetThemeFont(kThemeApplicationFont, smSystemScript, f_name, &f_size, &f_style);
-        QApplication::setFont(QFont(qt_mac_from_pascal_string(f_name), f_size,
-                                    (f_style & ::bold) ? QFont::Bold : QFont::Normal,
-                                    (bool)(f_style & ::italic)));
+    {
+        if (!qt_app_has_font) {
+            //setup the global font
+            Str255 f_name;
+            SInt16 f_size;
+            Style f_style;
+            GetThemeFont(kThemeApplicationFont, smSystemScript, f_name, &f_size, &f_style);
+            QApplication::setFont(QFont(qt_mac_from_pascal_string(f_name), f_size,
+                                  (f_style & ::bold) ? QFont::Bold : QFont::Normal,
+                                  (bool)(f_style & ::italic)));
+        }
     }
     { //setup the fonts
         struct {
