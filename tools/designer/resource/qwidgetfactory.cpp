@@ -96,6 +96,7 @@ QMap<QWidget*, QString> *qwf_functions = 0;
 QMap<QWidget*, QString> *qwf_forms = 0;
 QString *qwf_language = 0;
 bool qwf_execute_code = TRUE;
+bool qwf_stays_on_top = FALSE;
 
 /*!
   \class QWidgetFactory
@@ -415,9 +416,13 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     } else if ( className == "QComboBox" ) {
 	return new QComboBox( FALSE, parent, name );
     } else if ( className == "QWidget" ) {
-	return new QWidget( parent, name );
+	if ( !qwf_stays_on_top )
+	    return new QWidget( parent, name );
+	return new QWidget( parent, name, Qt::WStyle_StaysOnTop );
     } else if ( className == "QDialog" ) {
-	return new QDialog( parent, name );
+	if ( !qwf_stays_on_top )
+	    return new QDialog( parent, name );
+	return new QDialog( parent, name, FALSE, Qt::WStyle_StaysOnTop );
     } else if ( className == "QWizard" ) {
 	return  new QWizard( parent, name );
     } else if ( className == "QLCDNumber" ) {
@@ -445,7 +450,11 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     } else if ( className == "QScrollBar" ) {
 	return new QScrollBar( parent, name );
     } else if ( className == "QMainWindow" ) {
-	QMainWindow *mw = new QMainWindow( parent, name );
+	QMainWindow *mw = 0;
+	if ( !qwf_stays_on_top )
+	    mw = new QMainWindow( parent, name );
+	else
+	    mw = new QMainWindow( parent, name, Qt::WType_TopLevel | Qt::WStyle_StaysOnTop );
 	mw->setCentralWidget( new QWidget( mw, "qt_central_widget" ) );
 	mw->centralWidget()->show();
 	(void)mw->statusBar();

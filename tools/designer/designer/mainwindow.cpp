@@ -116,6 +116,7 @@ extern QMap<QWidget*, QString> *qwf_functions;
 extern QMap<QWidget*, QString> *qwf_forms;
 extern QString *qwf_language;
 extern bool qwf_execute_code;
+extern bool qwf_stays_on_top;
 
 static const char * whatsthis_image[] = {
     "16 16 3 1",
@@ -2258,6 +2259,7 @@ QObjectList *MainWindow::runProject()
     delete qwf_language;
     qwf_language = new QString( currentProject->language() );
     qwf_execute_code = TRUE;
+    qwf_stays_on_top = TRUE;
 
     InterpreterInterface *iiface = 0;
     if ( interpreterPluginManager ) {
@@ -2297,6 +2299,8 @@ QObjectList *MainWindow::runProject()
     debuggingForms = *l;
 
     enableAll( FALSE );
+
+    qwf_stays_on_top = FALSE;
 
     return l;
 }
