@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.23 1999/03/08 19:01:26 weis Exp $
+** $Id: qlist.doc,v 2.24 1999/03/08 19:08:45 weis Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -702,11 +702,6 @@
 	Steve earns 80000
 	Ron earns 60000
   \endcode
-
-  A QListIterator can also be instantiated through a macro expansion, but this
-  is necessary only for compilers that do not support templates. See the
-  \link collection.html collection classes documentation\endlink
-  for a general discussion on template-based versus macro-based collections.
 
   Although QList has member functions to traverse the doubly linked list
   structure, using a list iterator is a much more robust way of traversing
