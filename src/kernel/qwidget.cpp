@@ -2794,6 +2794,44 @@ void QWidget::setInputMethodEnabled( bool b )
 
 
 /*!
+    Enables key event compression, if \a compress is TRUE, and
+    disables it if \a compress is FALSE.
+
+    Key compression is off by default (except for QLineEdit), so
+    widgets receive one key press event for each key press (or more,
+    since autorepeat is usually on). If you turn it on and your
+    program doesn't keep up with key input, Qt may try to compress key
+    events so that more than one character can be processed in each
+    event.
+
+    For example, a word processor widget might receive 2, 3 or more
+    characters in each QKeyEvent::text(), if the layout recalculation
+    takes too long for the CPU.
+
+    If a widget supports multiple character unicode input, it is
+    always safe to turn the compression on.
+
+    Qt performs key event compression only for printable characters.
+    Modifier keys, cursor movement keys, function keys and
+    miscellaneous action keys (e.g. Escape, Enter, Backspace,
+    PrintScreen) will stop key event compression, even if there are
+    more compressible key events available.
+
+    Not all platforms support this compression, in which case turning
+    it on will have no effect.
+
+    \sa QKeyEvent::text();
+*/
+
+void QWidget::setKeyCompression(bool compress)
+{
+    if ( compress )
+	setWState( WState_CompressKeys );
+    else
+	clearWState( WState_CompressKeys );
+}
+
+/*!
     \property QWidget::isActiveWindow
     \brief whether this widget is the active window
 

@@ -2093,11 +2093,12 @@ QRegion QPainter::clipRegion( CoordinateMode m ) const
     Sets the clip region to the rectangle \a x, \a y, \a w, \a h and
     enables clipping. The clip mode is set to \a m.
 
-    Note that the clip region is given in physical device coordinates
-    and \e not subject to any \link coordsys.html coordinate
-    transformation \endlink if \a m is equal to \c CoordDevice (the
-    default). If \a m equals \c CoordPainter the returned region is in
-    model coordinates.
+    If \a m is \c CoordDevice (the default), the coordinates given for
+    the clip region are taken to be physical device coordinates and
+    are \e not subject to any \link coordsys.html coordinate
+    transformations\endlink. If \a m is \c CoordPainter, the
+    coordinates given for the clip region are taken to be model
+    coordinates.
 
     \sa setClipRegion(), clipRegion(), setClipping() QPainter::CoordinateMode
 */

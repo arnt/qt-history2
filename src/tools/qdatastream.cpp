@@ -42,10 +42,10 @@
     unencoded binary data\endlink. If you want a "parsing" input
     stream, see QTextStream.
 
-    The QDataStream class implements serialization of primitive types,
-    like \c char, \c short, \c int, \c char* etc. Serialization of
-    more complex data is accomplished by breaking up the data into
-    primitive units.
+    The QDataStream class implements the serialization of C++'s basic
+    data types, like \c char, \c short, \c int, \c char*, etc.
+    Serialization of more complex data is accomplished by breaking up
+    the data into primitive units.
 
     A data stream cooperates closely with a QIODevice. A QIODevice
     represents an input/output medium one can read data from and write
@@ -76,6 +76,11 @@
     QVariant and many others. For the complete list of all Qt types
     supporting data streaming see the \link datastreamformat.html
     Format of the QDataStream operators \endlink.
+
+    For integers it is best to always cast to a Qt integer type for
+    writing, and to read back into the same Qt integer type. This
+    ensures that you get integers of the size you want and insulates
+    you from compiler and platform differences.
 
     To take one example, a \c char* string is written as a 32-bit
     integer equal to the length of the string including the NUL byte
@@ -474,6 +479,10 @@ void QDataStream::setByteOrder( int bo )
   QDataStream read functions
  *****************************************************************************/
 
+#if defined(Q_OS_HPUX) && !defined(__LP64__) 
+extern "C" long long __strtoll( const char *, char**, int );
+#endif
+
 static Q_INT64 read_int_ascii( QDataStream *s )
 {
     register int n = 0;
@@ -494,7 +503,6 @@ static Q_INT64 read_int_ascii( QDataStream *s )
 #  if defined(__LP64__)
     return strtol(buf, (char**)0, 10);
 #  else
-    extern "C" long long __strtoll( const char *, char**, int );
     return __strtoll( buf, (char**)0, 10 );
 #  endif
 #elif defined(Q_OS_DARWIN) && defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION < 0x1020
