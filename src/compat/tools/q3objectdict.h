@@ -36,4 +36,4 @@ public:
 	{ return (Q3ObjectDictionary&)Q3AsciiDict<QMetaObject>::operator=(dict);}
 };
 
-#endif // QOBJECTDICT_H
+#endif // Q3OBJECTDICT_H

@@ -131,4 +131,5 @@ public:
 };
 
 #endif        // QT_NO_SQL
+
 #endif

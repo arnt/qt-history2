@@ -78,4 +78,5 @@ inline QSqlRecord Q3SqlRecordInfo::toRecord() const
 }
 
 #endif        // QT_NO_SQL
+
 #endif

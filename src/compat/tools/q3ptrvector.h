@@ -80,4 +80,4 @@ template<class type> inline void Q3PtrVector<type>::deleteItem( Q3PtrCollection:
     if ( del_item ) delete (type *)d;
 }
 
-#endif // QVECTOR_H
+#endif // Q3PTRVECTOR_H

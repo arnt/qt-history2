@@ -36,4 +36,5 @@ private:
 };
 
 #endif // QT_NO_SQL
-#endif // QSQLEDITORFACTORY_H
+
+#endif // Q3SQLEDITORFACTORY_H

@@ -192,5 +192,4 @@ inline void *Q3GDictIterator::getKeyPtr() const
     return curNode ? ((Q3PtrBucket*)curNode)->getKey() : 0;
 }
 
-
 #endif // Q3GDICT_H

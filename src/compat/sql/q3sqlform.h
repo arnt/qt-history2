@@ -67,4 +67,5 @@ private:
 };
 
 #endif // QT_NO_SQL
-#endif // QSQLFORM_H
+
+#endif // Q3SQLFORM_H

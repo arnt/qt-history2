@@ -107,4 +107,4 @@ private:
 
 #endif // QT_NO_PROGRESSDIALOG
 
-#endif // QPROGRESSDIALOG_H
+#endif // Q3PROGRESSDIALOG_H

@@ -44,4 +44,4 @@ public:
 
 };
 
-#endif // QWHATSTHIS_H
+#endif // Q3WHATSTHIS_H

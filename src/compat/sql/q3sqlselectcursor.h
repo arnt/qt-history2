@@ -66,4 +66,5 @@ private:
 };
 
 #endif // QT_NO_SQL
-#endif // QSQLSELECTCURSOR_H
+
+#endif // Q3SQLSELECTCURSOR_H

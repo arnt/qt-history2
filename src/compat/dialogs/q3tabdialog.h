@@ -101,4 +101,4 @@ private:
     Q_DISABLE_COPY(Q3TabDialog)
 };
 
-#endif // QTABDIALOG_H
+#endif // Q3TABDIALOG_H

@@ -28,4 +28,4 @@ public:
     virtual void processSpans(int n, QPoint* point, int* width)=0;
 };
 
-#endif // QPOLYGONSCANNER_H
+#endif // Q3POLYGONSCANNER_H

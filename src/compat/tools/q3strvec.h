@@ -52,5 +52,4 @@ private:
 						 (const char*)s2); }
 };
 
-
-#endif // QSTRVEC_H
+#endif // Q3STRVEC_H

@@ -303,4 +303,5 @@ private:
 };
 
 #endif
+
 #endif // Q3FILEDIALOG_H

@@ -176,4 +176,4 @@ private:
 typedef QUriDrag QUrlDrag;
 #endif
 
-#endif // QDRAGOBJECT_H
+#endif // Q3DRAGOBJECT_H

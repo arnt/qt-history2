@@ -91,4 +91,4 @@ public:
     type *operator-=(uint j)  { return (type *)Q3GCacheIterator::operator-=(j);}
 };
 
-#endif // QASCIICACHE_H
+#endif // Q3ASCIICACHE_H

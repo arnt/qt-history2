@@ -67,4 +67,5 @@ private:
 };
 
 #endif // QT_NO_SYNTAXHIGHLIGHTER
+
 #endif // QSYNTAXHIGHLIGHTER_P_H

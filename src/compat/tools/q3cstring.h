@@ -235,4 +235,5 @@ Q_COMPAT_EXPORT inline const Q3CString operator+(char c1, const Q3CString &s2)
     tmp += s2;
     return tmp;
 }
-#endif // QCSTRING_H
+
+#endif // Q3CSTRING_H

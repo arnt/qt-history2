@@ -185,4 +185,4 @@ Q_OUTOFLINE_TEMPLATE QDataStream& operator<<(QDataStream& s, const Q3ValueList<T
 }
 #endif // QT_NO_DATASTREAM
 
-#endif // QVALUELIST_H
+#endif // Q3VALUELIST_H

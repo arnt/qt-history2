@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef Q3WIZARDDIALOG_H
-#define Q3WIZARDDIALOG_H
+#ifndef Q3WIZARD_H
+#define Q3WIZARD_H
 
 #include "qdialog.h"
 

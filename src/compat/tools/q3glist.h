@@ -238,5 +238,4 @@ protected:
     Q3LNode *node;
 };
 
-
 #endif	// Q3GLIST_H

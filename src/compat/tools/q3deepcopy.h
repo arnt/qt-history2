@@ -48,4 +48,4 @@ private:
     T deepcopy;
 };
 
-#endif // QDEEPCOPY_H
+#endif // Q3DEEPCOPY_H

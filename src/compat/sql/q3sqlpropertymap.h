@@ -44,4 +44,5 @@ private:
 };
 
 #endif // QT_NO_SQL_FORM
-#endif // QSQLPROPERTYMAP_H
+
+#endif // Q3SQLPROPERTYMAP_H

@@ -105,4 +105,4 @@ inline bool Q3ProgressBar::percentageVisible() const
 
 #endif // QT_NO_PROGRESSBAR
 
-#endif // QPROGRESSBAR_H
+#endif // Q3PROGRESSBAR_H

@@ -77,4 +77,4 @@ inline Q3StrList::Q3StrList( const Q3StrList &strList )
     operator=( strList );
 }
 
-#endif // QSTRLIST_H
+#endif // Q3STRLIST_H

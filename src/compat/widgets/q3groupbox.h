@@ -118,5 +118,4 @@ private:
     Q_DISABLE_COPY(Q3GroupBox)
 };
 
-
-#endif // QGROUPBOX_H
+#endif // Q3GROUPBOX_H

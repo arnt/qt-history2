@@ -100,5 +100,4 @@ inline char *Q3GArray::at(uint index) const
     return &shd->data[index];
 }
 
-
-#endif // QGARRAY_H
+#endif // Q3GARRAY_H

@@ -392,7 +392,6 @@ private:
     QPixmap pm;
 };
 
-
 #endif // QT_NO_LISTBOX
 
 #endif // QLISTBOX_H

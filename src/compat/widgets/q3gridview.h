@@ -96,4 +96,4 @@ inline QRect Q3GridView::cellRect() const
 inline QSize Q3GridView::gridSize() const
 { return QSize(ncols * cellw, nrows * cellh); }
 
-#endif // QTABLEVIEW_H
+#endif // Q3GRIDVIEW_H

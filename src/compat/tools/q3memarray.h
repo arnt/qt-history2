@@ -101,7 +101,6 @@ Q_OUTOFLINE_TEMPLATE Q3MemArray<type>::operator QVector<type>() const
     for (int i = 0; i < size(); ++i)
         vector.append(at(i));
     return vector;
-
 }
 
 #endif // Q3MEMARRAY_H

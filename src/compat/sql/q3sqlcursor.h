@@ -119,8 +119,6 @@ private:
     Q3SqlCursorPrivate*        d;
 };
 
-
-
-
 #endif        // QT_NO_SQL
+
 #endif
