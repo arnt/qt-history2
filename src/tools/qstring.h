@@ -354,8 +354,10 @@ public:
     QString    &insert( uint index, QChar );
     QString    &insert( uint index, char c ) { return insert(index,QChar(c)); }
     QString    &append( char );
+    QString    &append( QChar );
     QString    &append( const QString & );
     QString    &prepend( char );
+    QString    &prepend( QChar );
     QString    &prepend( const QString & );
     QString    &remove( uint index, uint len );
     QString    &replace( uint index, uint len, const QString & );
@@ -582,11 +584,17 @@ inline QString QString::copy() const
 inline QString &QString::prepend( const QString & s )
 { return insert(0,s); }
 
+inline QString &QString::prepend( QChar c )
+{ return insert(0,c); }
+
 inline QString &QString::prepend( char c )
 { return insert(0,c); }
 
 inline QString &QString::append( const QString & s )
 { return operator+=(s); }
+
+inline QString &QString::append( QChar c )
+{ return operator+=(c); }
 
 inline QString &QString::append( char c )
 { return operator+=(c); }

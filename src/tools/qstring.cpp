@@ -11065,7 +11065,7 @@ int QChar::digitValue() const
 #ifdef QT_LITE_UNICODE
     // ##### just latin1
     if ( rw != 0 || cl < '0' || cl > '9' )
-	return -1; 
+	return -1;
     else
 	return cl - '0';
 #else
@@ -11100,7 +11100,7 @@ QChar::Category QChar::category() const
 	    return Other_Control;
 	return Symbol_Other; //#######
     }
-    return Letter_Uppercase; //####### 
+    return Letter_Uppercase; //#######
 #else
     return (Category)(unicode_info[row()][cell()]);
 #endif
@@ -13443,6 +13443,13 @@ QString &QString::insert( uint index, QChar c )	// insert char
   \sa insert()
  */
 
+/*!
+  \fn QString& QString::prepend( QChar ch )
+  Prepends \a ch to the string and returns a reference to the result.
+
+  \sa insert()
+ */
+
 
 /*!
   Removes \a len characters starting at position \a index from the
@@ -14140,6 +14147,12 @@ void QString::setExpand( uint index, QChar c )
 
 /*!
   \fn QString& QString::append( char ch )
+  Appends \a ch to the string and returns a reference to the result.
+  Equivalent to operator+=().
+ */
+
+/*!
+  \fn QString& QString::append( QChar ch )
   Appends \a ch to the string and returns a reference to the result.
   Equivalent to operator+=().
  */
