@@ -9,66 +9,6 @@
 #include <qbytearray.h>
 #include <qdatastream.h>
 
-// need this to make sure our copied format doesn't hold a reference
-// to the original format collection anymore
-static QTextFormat cloneFormat(const QTextFormat &fmt)
-{
-    QTextFormat result(fmt.type());
-    result.merge(fmt);
-    return result;
-}
-
-QTextFormatCollectionState::QTextFormatCollectionState(const QTextFormatCollection *collection, const QVarLengthArray<int> &formatIndices)
-{
-    for (int i = 0; i < formatIndices.size(); ++i) {
-        const int formatIdx = formatIndices[i];
-        if (formatIdx == -1)
-            continue;
-
-        QTextFormat format = collection->format(formatIdx);
-
-        QTextFormatGroup *group = format.group();
-        if (group) {
-            QTextFormat groupFormat = group->commonFormat();
-            Q_ASSERT(collection->hasFormatCached(groupFormat));
-            const int idx = const_cast<QTextFormatCollection *>(collection)->indexForFormat(groupFormat);
-
-            formats[idx] = cloneFormat(groupFormat);
-            groups[format.groupIndex()] = idx;
-        }
-
-        formats[formatIdx] = cloneFormat(format);
-    }
-}
-
-QMap<int, int> QTextFormatCollectionState::insertIntoOtherCollection(QTextFormatCollection *collection) const
-{
-    QMap<int, int> formatIndexMap;
-
-    // maps from group index used in formats to real group index
-    GroupMap insertedGroups;
-
-    for (GroupMap::ConstIterator it = groups.begin(); it != groups.end(); ++it) {
-        QTextFormat format = formats[it.value()];
-
-        insertedGroups[it.key()] = collection->indexForGroup(collection->createGroup(format));
-    }
-
-    for (FormatMap::ConstIterator it = formats.begin(); it != formats.end(); ++it) {
-        QTextFormat format = it.value();
-
-        int groupIndex = format.groupIndex();
-        if (groupIndex != -1) {
-            groupIndex = insertedGroups.value(groupIndex, -1);
-            format.setGroupIndex(groupIndex);
-        }
-
-        formatIndexMap[it.key()] = collection->indexForFormat(format);
-    }
-
-    return formatIndexMap;
-}
-
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cursor)
 {
     if (!cursor.hasSelection())
@@ -154,7 +94,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
         ++fragIt;
     }
 
-    formats = QTextFormatCollectionState(pieceTable->formatCollection(), usedFormats);
+    readFormatCollection(pieceTable->formatCollection(), usedFormats);
 }
 
 void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
@@ -167,7 +107,7 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
         cursor.moveTo(QTextCursor::NextBlock);
 
     QTextFormatCollection *formats = cursor.d->pieceTable->formatCollection();
-    QMap<int, int> formatIndexMap = this->formats.insertIntoOtherCollection(formats);
+    QMap<int, int> formatIndexMap = fillFormatCollection(formats);
 
     QTextPieceTablePointer destPieceTable = cursor.d->pieceTable;
 
@@ -220,6 +160,68 @@ void QTextDocumentFragmentPrivate::appendText(const QString &text, int formatIdx
     blocks.last().fragments.append(f);
 }
 
+// need this to make sure our copied format doesn't hold a reference
+// to the original format collection anymore
+static QTextFormat cloneFormat(const QTextFormat &fmt)
+{
+    QTextFormat result(fmt.type());
+    result.merge(fmt);
+    return result;
+}
+
+void QTextDocumentFragmentPrivate::readFormatCollection(const QTextFormatCollection *collection, const QVarLengthArray<int> &formatIndices)
+{
+    formats.clear();
+    formatGroups.clear();
+
+    for (int i = 0; i < formatIndices.size(); ++i) {
+        const int formatIdx = formatIndices[i];
+        if (formatIdx == -1)
+            continue;
+
+        QTextFormat format = collection->format(formatIdx);
+
+        QTextFormatGroup *group = format.group();
+        if (group) {
+            QTextFormat groupFormat = group->commonFormat();
+            Q_ASSERT(collection->hasFormatCached(groupFormat));
+            const int idx = const_cast<QTextFormatCollection *>(collection)->indexForFormat(groupFormat);
+
+            formats[idx] = cloneFormat(groupFormat);
+            formatGroups[format.groupIndex()] = idx;
+        }
+
+        formats[formatIdx] = cloneFormat(format);
+    }
+}
+
+QMap<int, int> QTextDocumentFragmentPrivate::fillFormatCollection(QTextFormatCollection *collection) const
+{
+    QMap<int, int> formatIndexMap;
+
+    // maps from group index used in formats to real group index
+    GroupMap insertedGroups;
+
+    for (GroupMap::ConstIterator it = formatGroups.begin(); it != formatGroups.end(); ++it) {
+        QTextFormat format = formats[it.value()];
+
+        insertedGroups[it.key()] = collection->indexForGroup(collection->createGroup(format));
+    }
+
+    for (FormatMap::ConstIterator it = formats.begin(); it != formats.end(); ++it) {
+        QTextFormat format = it.value();
+
+        int groupIndex = format.groupIndex();
+        if (groupIndex != -1) {
+            groupIndex = insertedGroups.value(groupIndex, -1);
+            format.setGroupIndex(groupIndex);
+        }
+
+        formatIndexMap[it.key()] = collection->indexForFormat(format);
+    }
+
+    return formatIndexMap;
+}
 
 /*!
     \class QTextDocumentFragment qtextdocumentfragment.h
@@ -525,7 +527,7 @@ void QTextHTMLImporter::import()
             usedFormats[idx++] = f.format;
     }
 
-    d->formats = QTextFormatCollectionState(&formats, usedFormats);
+    d->readFormatCollection(&formats, usedFormats);
 }
 
 void QTextHTMLImporter::closeTag(int i)

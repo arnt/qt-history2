@@ -13,29 +13,6 @@
 #include "qtextpiecetable_p.h"
 #endif // QT_H
 
-class QTextFormatCollectionState
-{
-public:
-    QTextFormatCollectionState() {}
-    QTextFormatCollectionState(QDataStream &stream);
-    QTextFormatCollectionState(const QTextFormatCollection *collection, const QVarLengthArray<int> &formatIndices);
-
-    QMap<int, int> insertIntoOtherCollection(QTextFormatCollection *collection) const;
-
-    typedef QMap<Q_INT32, QTextFormat> FormatMap;
-    typedef QMap<Q_INT32, Q_INT32> GroupMap;
-
-    FormatMap formats;
-    // maps from group index to index (key) in 'formats' map
-    GroupMap groups;
-};
-
-inline QDataStream &operator<<(QDataStream &stream, const QTextFormatCollectionState &state)
-{ return stream << state.formats << state.groups; }
-
-inline QDataStream &operator>>(QDataStream &stream, QTextFormatCollectionState &state)
-{ return stream >> state.formats >> state.groups; }
-
 class QTextDocumentFragmentPrivate
 {
 public:
@@ -46,6 +23,9 @@ public:
 
     void appendBlock(int blockFormatIndex, int charFormatIndex);
     void appendText(const QString &text, int formatIdx);
+
+    void readFormatCollection(const QTextFormatCollection *collection, const QVarLengthArray<int> &formatIndices);
+    QMap<int, int> fillFormatCollection(QTextFormatCollection *collection) const;
 
     // ### TODO: merge back into one big vector.
 
@@ -69,7 +49,13 @@ public:
 
     BlockVector blocks;
     QString localBuffer;
-    QTextFormatCollectionState formats;
+
+    typedef QMap<Q_INT32, QTextFormat> FormatMap;
+    typedef QMap<Q_INT32, Q_INT32> GroupMap;
+
+    FormatMap formats;
+    // maps from group index to index (key) in 'formats' map
+    GroupMap formatGroups;
 };
 
 inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate::TextFragment &fragment)
@@ -83,9 +69,9 @@ inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate
 { return stream >> block.createBlockUponInsertion >> block.blockFormat >> block.charFormat >> block.fragments; }
 
 inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate &priv)
-{ return stream << priv.formats << priv.blocks << priv.localBuffer; }
+{ return stream << priv.formats << priv.formatGroups << priv.blocks << priv.localBuffer; }
 inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate &priv)
-{ return stream >> priv.formats >> priv.blocks >> priv.localBuffer; }
+{ return stream >> priv.formats >> priv.formatGroups >> priv.blocks >> priv.localBuffer; }
 
 class QTextHTMLImporter : public QTextHtmlParser
 {
