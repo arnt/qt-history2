@@ -10,89 +10,39 @@
 class CNTextCodecs : public QTextCodecPlugin
 {
 public:
-    CNTextCodecs();
+    CNTextCodecs() {}
 
-    QStringList keys() const;
+    QStringList names() const { return QStringList() << "GBK" << "gb2312.1980-0"; }
+    QValueList<int> mibEnums() const { return QValueList<int>() << 57 << 2027; }
+
     QTextCodec *createForMib( int );
     QTextCodec *createForName( const QString & );
-
-private:
-    QPtrList<QTextCodec> codecs;
 };
-
-
-CNTextCodecs::CNTextCodecs()
-{
-}
-
-QStringList CNTextCodecs::keys() const
-{
-    QStringList list;
-    list << "GBK" << "gb2312.1980-0";
-    list << "MIB-2027" << "MIB-57";
-    return list;
-}
-
 
 QTextCodec *CNTextCodecs::createForMib( int mib )
 {
-    QTextCodec *codec = 0;
-
-    QPtrListIterator<QTextCodec> it(codecs);
-    while ((codec = it.current())) {
-	++it;
-
-	if (codec->mibEnum() == mib)
-	    break;
+    switch (mib) {
+    case 57:
+	return new QFontGB2312Codec;
+    case 2027:
+	return new QGbkCodec;
+    default:
+	;
     }
 
-    if (! codec ) {
-	switch (mib) {
-	case 57:
-	    codec = new QFontGB2312Codec;
-	    break;
-
-	case 2027:
-	    codec = new QGbkCodec;
-	    break;
-
-	default:
-	    ;
-	}
-
-	if (codec)
-	    codecs.append(codec);
-    }
-
-    return codec;
+    return 0;
 }
 
 
 QTextCodec *CNTextCodecs::createForName( const QString &name )
 {
-    QTextCodec *codec = 0;
+    if (name == "GBK")
+	return new QGbkCodec;
+    if (name == "gb2312.1980-0")
+	return new QFontGB2312Codec;
 
-    QPtrListIterator<QTextCodec> it(codecs);
-    while ((codec = it.current())) {
-	++it;
-
-	if (codec->name() == name)
-	    break;
-    }
-
-    if (! codec) {
-	if (name == "GBK")
-	    codec = new QGbkCodec;
-	else if (name == "gb2312.1980-0")
-	    codec = new QFontGB2312Codec;
-
-	if (codec)
-	    codecs.append(codec);
-    }
-
-    return codec;
+    return 0;
 }
 
 
 Q_EXPORT_PLUGIN( CNTextCodecs );
-
