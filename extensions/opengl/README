@@ -2,18 +2,9 @@
 
 QGLWidget (qglwidget.h) is a Qt wrapper class for OpenGL and Mesa. To use
 OpenGL in your Qt application, create a subclass of QGLWidget and
-implement two or more virtual functions. The HTML file qgl.html
-contains documentation for the GLWidget.
+implement two or more virtual functions. The file html/qgl.html contains
+documentation for the GLWidget and related classes.
 
-The documentation is incomplete and I don't have enough sample programs.
-The gears.cpp file is a reworked example from the Mesa 2.0 distribution.
-The GearWidget is a simple OpenGL widget.
-
-If you have a small and intuitive example program that you want to give to
-us, I can include it in the distribution.
-
-Permission to use, copy, modify, and distribute this software and its
-documentation for any purpose and without fee is hereby granted, provided
-that the above copyright notice appear in all copies.
-No representations are made about the suitability of this software for any
-purpose. It is provided "as is" without express or implied warranty.
+To learn how to use Qt with OpenGL, see the box example.  It does no
+fancy OpenGL rendering, but it illustrates how things work together.
+The gears example is a reworked example from the Mesa 2.0 distribution.
