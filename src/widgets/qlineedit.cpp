@@ -1178,6 +1178,7 @@ void QLineEdit::contextMenuEvent( QContextMenuEvent* e )
 {
 #ifndef QT_NO_POPUPMENU
     d->undoRedoInfo.clear();
+    d->mousePressed = FALSE;
 
     QPopupMenu *popup = createPopupMenu();
     QPoint pos = e->reason() == QContextMenuEvent::Mouse ? e->globalPos() :

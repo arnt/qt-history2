@@ -1794,6 +1794,7 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
 void QTextEdit::contentsContextMenuEvent( QContextMenuEvent *e )
 {
     clearUndoRedo();
+    mousePressed = FALSE;
 
     e->accept();
 #ifndef QT_NO_POPUPMENU
