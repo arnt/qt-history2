@@ -1316,12 +1316,11 @@ void QFileListBox::setCurrentDropItem( const QPoint &pnt )
 {
     changeDirTimer->stop();
 
-    QListBoxItem *item = itemAt( pnt );
-    if ( pnt == QPoint( -1, -1 ) )
-	item = 0;
+    QListBoxItem *item = 0;
+    if ( pnt != QPoint( -1, -1 ) )
+	item = itemAt( pnt );
     if ( item && !QUrlInfo( filedialog->d->url, item->text() ).isDir() )
 	item = 0;
-
     if ( item && !itemRect( item ).contains( pnt ) )
 	item = 0;
 
@@ -5958,9 +5957,9 @@ void QFileDialog::resortDir()
     d->sortedList.sort();
 
     if ( files->childCount() > 0 || d->moreFiles->count() > 0 ) {
+	d->moreFiles->clear();
 	files->clear();
 	d->last = 0;
-	d->moreFiles->clear();
 	files->setSorting( -1 );
     }
 
