@@ -7570,6 +7570,7 @@ void QTextFlow::drawFloatingItems( QPainter* p, int cx, int cy, int cw, int ch, 
 void QTextCustomItem::pageBreak( int /*y*/ , QTextFlow* /*flow*/ )
 {
 }
+#endif
 
 QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
     : QTextCustomItem( p )
