@@ -1309,6 +1309,8 @@ private:
         QVariant::Type vartype = QVariant::nameToType(prop.first);
         if (vartype != QVariant::Invalid)
             prop.second |= vartype << 24;
+        else if (prop.first == "QVariant")
+            prop.second |= 0xff << 24;
     }
     
     inline bool hasProperty(const char *name)
@@ -2583,7 +2585,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
     QString propname(prop.name());
     
     // hardcoded control property
-    if (propname == "control") {
+    if (propname == QLatin1String("control")) {
         switch(call) {
         case QMetaObject::ReadProperty:
             *(QString*)*v = control();
@@ -2633,7 +2635,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
         hres = disp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &arg, &excepinfo, 0);
         
         // map result VARIANTARG to void*
-        QVariantToVoidStar(VARIANTToQVariant(arg, prop.type()), *v);
+        QVariantToVoidStar(VARIANTToQVariant(arg, prop.type()), *v, prop.type());
         break;
         
     case QMetaObject::WriteProperty:
@@ -2647,11 +2649,12 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
             arg.scode = DISP_E_TYPEMISMATCH;
             
             // map void* to VARIANTARG.
-            if (!prop.isEnumType()) {
+            if (!qstrcmp(prop.type(), "QVariant"))
+                QVariantToVARIANT(*(QVariant*)v[0], arg, prop.type());
+            else if (!prop.isEnumType())
                 QVariantToVARIANT(QCoreVariant(QCoreVariant::nameToType(prop.type()), v[0]), arg, prop.type());
-            } else {
+            else
                 QVariantToVARIANT(QVariant(QVariant::Int, v[0]), arg, prop.type());
-            }
             if (arg.vt == VT_EMPTY) {
 #ifndef QT_NO_DEBUG
                 qWarning("QAxBase::setProperty(): Unhandled property type");
@@ -2751,7 +2754,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     
     // set return value
     if (pret) {
-        QVariantToVoidStar(VARIANTToQVariant(ret, slot.type()), v[0]);
+        QVariantToVoidStar(VARIANTToQVariant(ret, slot.type()), v[0], slot.type());
         pret = 0;
     }
     
@@ -2760,7 +2763,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
         bool out;
         QByteArray ptype = d->metaobj->paramType(signature, p, &out);
         if (out)
-            QVariantToVoidStar(VARIANTToQVariant(params.rgvarg[params.cArgs - p - 1], ptype), v[p+1]);
+            QVariantToVoidStar(VARIANTToQVariant(params.rgvarg[params.cArgs - p - 1], ptype), v[p+1], ptype);
     }
     // clean up
     for (p = 0; p < params.cArgs; ++p)
