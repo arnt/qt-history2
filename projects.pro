@@ -53,7 +53,7 @@ INSTALLS += qmake
 
 #mkspecs
 mkspecs.path=$$[QT_INSTALL_DATA]/mkspecs
-mkspecs.files=$$QT_SOURCE_TREE/mkspecs/* $$QT_BUILD_TREE/mkspecs/.qt.config
+mkspecs.files=$$QT_BUILD_TREE/mkspecs/qconfig.pri $$QT_SOURCE_TREE/mkspecs/* 
 mkspecs.commands = $(SYMLINK) $$QMAKESPEC $(INSTALL_ROOT)$$mkspecs.path/default
 INSTALLS += mkspecs
 
