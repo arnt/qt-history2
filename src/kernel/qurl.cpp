@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#39 $
 **
 ** Implementation of QFileDialog class
 **
@@ -925,26 +925,34 @@ void QUrl::setEncodedPathAndQuery( const QString& path )
 
 QString QUrl::path() const
 {
+    QString res;
     if ( isLocalFile() ) {
 	QFileInfo fi( d->path );
 	if ( !fi.exists() )
-	    return d->path;
-	if ( fi.isDir() ) {
+	    res = d->path;
+	else if ( fi.isDir() ) {
 	    QString dir = QDir::cleanDirPath( QDir( d->path ).canonicalPath() ) + "/";
 	    if ( dir == "//" )
-		return "/";
+		res = "/";
 	    else
-		return dir;
+		res = dir;
 	} else {
 	    QString p = QDir::cleanDirPath( fi.dir().canonicalPath() );
-	    return p + "/" + fi.fileName();
+	    res = p + "/" + fi.fileName();
 	}
     } else {
 	if ( d->path != "/" && d->path.right( 1 ) == "/" )
-	    return QDir::cleanDirPath( d->path ) + "/";
+	    res = QDir::cleanDirPath( d->path ) + "/";
 	else
-	    return QDir::cleanDirPath( d->path );
+	    res = QDir::cleanDirPath( d->path );
     }
+    
+    if ( res.length() > 1 ) {
+	if ( res.left( 2 ) == "//" )
+	    res.remove( res.length() - 1, 1 );
+    }
+    
+    return res;
 }
 
 /*!
