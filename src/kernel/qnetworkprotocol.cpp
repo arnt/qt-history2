@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#42 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -856,7 +856,7 @@ struct QNetworkOperationPrivate
   \class QNetworkOperation qnetworkprotocol.h
 
   \brief This class is used to define operations for network
-  protocols and return the state, success, failure, etc.
+  protocols and return the state, arguments, etc.
 
   For each operation, which a network protocol should process
   such an object is created to describe the operation and the current
@@ -892,7 +892,7 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
 /*!
   Creates a network operation object. \a operation is the type
   of the operation, \a arg1, \a arg2 and  \a arg3 are the arguments
-  of the operation.
+  of the operation in raw data.
   The state is initialized to StWaiting.
 */
 
@@ -925,7 +925,7 @@ QNetworkOperation::~QNetworkOperation()
 
 /*!
   Sets the \a state of the operation object. This should be done
-  be the network protocol during processing it, and at the end
+  by the network protocol during processing it, and at the end
   it should be set to StDone or StFailed depending on
   success or failure.
 */
@@ -946,7 +946,8 @@ void QNetworkOperation::setProtocolDetail( const QString &detail )
 
 /*!
   If the operation failed, the protocol should set an error code
-  to describe the error more detailed.
+  to describe the error more detailed. Preferable one of the
+  error defined in QNetworkProtocol should be used.
 */
 
 void QNetworkOperation::setErrorCode( int ec )
@@ -983,7 +984,7 @@ void QNetworkOperation::setArg3( const QString &arg )
 
 
 /*!
-  Sets the first argument of the network operation to \a arg.
+  Sets the first raw data argument of the network operation to \a arg.
 */
 
 void QNetworkOperation::setRawArg1( const QByteArray &arg )
@@ -992,7 +993,7 @@ void QNetworkOperation::setRawArg1( const QByteArray &arg )
 }
 
 /*!
-  Sets the second argument of the network operation to \a arg.
+  Sets the second raw data argument of the network operation to \a arg.
 */
 
 void QNetworkOperation::setRawArg2( const QByteArray &arg )
@@ -1001,7 +1002,7 @@ void QNetworkOperation::setRawArg2( const QByteArray &arg )
 }
 
 /*!
-  Sets the third argument of the network operation to \a arg.
+  Sets the third raw data argument of the network operation to \a arg.
 */
 
 void QNetworkOperation::setRawArg3( const QByteArray &arg )
@@ -1058,7 +1059,7 @@ QString QNetworkOperation::arg3() const
 }
 
 /*!
-  Returns the first argument of the operation.
+  Returns the first raw data argument of the operation.
 */
 
 QByteArray QNetworkOperation::rawArg1() const
@@ -1067,7 +1068,7 @@ QByteArray QNetworkOperation::rawArg1() const
 }
 
 /*!
-  Returns the second argument of the operation.
+  Returns the second raw data argument of the operation.
 */
 
 QByteArray QNetworkOperation::rawArg2() const
@@ -1076,7 +1077,7 @@ QByteArray QNetworkOperation::rawArg2() const
 }
 
 /*!
-  Returns the third argument of the operation.
+  Returns the third raw data argument of the operation.
 */
 
 QByteArray QNetworkOperation::rawArg3() const
@@ -1085,7 +1086,7 @@ QByteArray QNetworkOperation::rawArg3() const
 }
 
 /*!
-  If the operation failed, using this methode you may
+  If the operation failed, using this method you may
   get a more detailed error message.
 */
 
