@@ -12,17 +12,19 @@
 # Options:
 #	-nodoc	Don't generate documentation
 #	-local	Copy local distribution from $QTDIR, don't use cvs
+#	-noch	Ignore the fact that the changes file doesn't exist
 #
 
 # Leave -e set - it ensures we don't miss any vital error messages.
 set -e
 # Use this if something mysterious exits
-# set -x
+#set -x
 
 while true ; do
   case "$1" in
     "-nodoc") nodoc="yes"; shift;;
     "-local") local="yes"; shift;;
+    "-noch")  noch="yes"; shift;;
     *) break;;
   esac
 done
@@ -72,7 +74,7 @@ if [ "$local" = "yes" ]; then
   cd ..
   find qt \( -type f -o -type l \) -print | \
     egrep -v 'CVS|.cvsignore|.depend|core$|\.o$|\.a$|\.so|~|#' | \
-    tar cfT - - | (cd ${DISTDIR} ; tar xf - )
+    tar cfT - - | ( cd ${DISTDIR} ; tar xf - )
   rm -f ${DISTDIR}/qt/include/*  
 else
   echo "Exporting the entire Qt archive..." >&2
@@ -83,9 +85,11 @@ echo "Removing internal files..." >&2
 cd ${DISTDIR}/qt/src
 tmake qtinternal.pro -e "Expand('INTERNAL')" | xargs rm -fv
 
-# Remove Netscape-owned code (docs direct user to PluginSDK)
-rm -rf ${DISTDIR}/qt/extensions/nsplugin/src/np*
-rm -rf ${DISTDIR}/qt/extensions/nsplugin/src/jri*
+# Replace Netscape-owned code with dummies (direct user to PluginSDK)
+for i in ${DISTDIR}/qt/extensions/nsplugin/src/np* ${DISTDIR}/qt/extensions/nsplugin/src/jri*
+do
+    echo "#error \"This file is provided by Netscape.  Please see documentation.\"" >$i
+done
 
 VERSION=`grep "#define.*QT_VERSION_STR" ${DISTDIR}/qt/src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g'`
 VERSIONMAJOR=`echo ${VERSION} | sed -e 's/\..*$//'`
@@ -104,7 +108,7 @@ VERSIONWIN=`echo ${VERSION} | sed -e 's/\.//'`
 
 echo "Auto-detected the Qt version number -- " $VERSION >&2
 
-if [ ! -f "${DISTDIR}/qt/dist/changes-$VERSION" ]
+if [ -z "$noch" -a ! -f "${DISTDIR}/qt/dist/changes-$VERSION" ]
 then
     echo "You must create qt/dist/changes-$VERSION first"
     exit 1
@@ -200,7 +204,9 @@ if [ "${platform}" = "x11" ]; then
   rm bin/*.bat
   find . -name 'qtwin.*' | xargs rm -vf
   echo 'Building top-level make files...' >&2
-  mv ${QTDIR}/src/moc/GNUmakefile ${QTDIR}/src/moc/Makefile.in
+  
+  # mv ${QTDIR}/src/moc/GNUmakefile ${QTDIR}/src/moc/Makefile.in
+  ( cd ${QTDIR}/src/moc; TMAKEPATH=$QTDIR/tmake:$TMAKEPATH tmake moc.pro >Makefile.in)
   rm ${QTDIR}/src/moc/Makefile Makefile.inc
   ${QTDIR}/util/scripts/mkconfigs
   ${QTDIR}/util/scripts/makemake
