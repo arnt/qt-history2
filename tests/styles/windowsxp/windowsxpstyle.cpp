@@ -36,7 +36,7 @@ class QWindowsXPStylePrivate
 {
 public:
     QWindowsXPStylePrivate()
-	: hotWidget( 0 ), hotSpot( -1, -1 ), hotTab( 0 ), lastScrollbarRect( 0, -1, 0, -1 ), lastSliderRect( 0, -1, 0, -1 )
+	: hotWidget( 0 ), hotSpot( -1, -1 ), hotTab( 0 )
     {
 	if ( qWinVersion() != Qt::WV_XP )
 	    init_xp = TRUE;
@@ -90,8 +90,6 @@ public:
     QRect hotHeader;
 
     QPoint hotSpot;
-    QRect lastScrollbarRect;
-    QRect lastSliderRect;
     
 private:
     static HWND hwnd;
@@ -550,7 +548,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
     LPCWSTR name = 0;
     int partId = 0;
     int stateId = 0;
-    if ( w->hasFocus() )
+    if ( w->hasMouse() )
 	flags |= Style_MouseOver;
     
     switch ( control ) {
@@ -737,31 +735,22 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    XPThemeData theme( w, L"TRACKBAR" );
 	    QSlider *sl = (QSlider*)w;
 	    QRegion tickreg = sl->rect();
-
 	    if ( sub & SC_SliderGroove ) {
 		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderGroove, data );
 		if ( sl->orientation() == Horizontal ) {
 		    partId = TKP_TRACK;
-		    if ( !w->isEnabled() )
-			stateId = 4; // no TRS_DISABLED
-		    else
-			stateId = TRS_NORMAL;
+		    stateId = TRS_NORMAL;
 		    theme.rec = QRect( 0, theme.rec.center().y() - 2, sl->width(), 4 );
 		} else {
 		    partId = TKP_TRACKVERT;
-		    if ( !w->isEnabled() )
-			stateId = 4; // no TRVS_DISABLED
-		    else
-			stateId = TRVS_NORMAL;
+		    stateId = TRVS_NORMAL;
 		    theme.rec = QRect( theme.rec.center().x() - 2, 0, 4, sl->height() );
 		}
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 		tickreg -= theme.rec;
 	    }
-	    if ( sub & SC_SliderTickmarks ) {
-		p->setClipRegion( tickreg );
-		p->fillRect( sl->rect(), cg.brush( QColorGroup::Background ) );
-
+	    p->setClipRegion( tickreg );
+	    if ( sub & SC_SliderTickmarks ) {		
 		int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
 		int ticks = sl->tickmarks();
 		int thickness = pixelMetric( PM_SliderControlThickness, sl );
@@ -783,42 +772,57 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		    interval = 1;
 		int v = sl->minValue();
 
+		const int aboveend = tickOffset-2;
+		const int belowstart = tickOffset+thickness+1;
+		const int belowend = belowstart+available-2;
+
 		if ( sl->orientation() == Horizontal ) {
+		    if ( ticks & QSlider::Above )
+			p->fillRect( 0, 0, sl->width(), aboveend, cg.brush( QColorGroup::Background ) );
+		    if ( ticks & QSlider::Below )
+			p->fillRect( 0, belowstart, sl->width(), belowend, cg.brush( QColorGroup::Background ) );
+
 		    partId = TKP_TICS;
 		    stateId = TSS_NORMAL;
 		    while ( v <= sl->maxValue() + 1 ) {
 			pos = qPositionFromValue( sl, v, available ) + fudge;
 			if ( ticks & QSlider::Above ) {
-			    theme.rec.setCoords( pos, 0, pos, tickOffset-2 );
+			    theme.rec.setCoords( pos, 0, pos, aboveend );
 			    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 			}
 			if ( ticks & QSlider::Below ) {
-			    theme.rec.setCoords( pos, tickOffset+thickness+1, pos, tickOffset+thickness+1+available-2 );
+			    theme.rec.setCoords( pos, belowstart, pos, belowend );
 			    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 			}
 
 			v += interval;
 		    }
 		} else {
+		    if ( ticks & QSlider::Left )
+			p->fillRect( 0, 0, aboveend, sl->height(), cg.brush( QColorGroup::Background ) );
+		    if ( ticks & QSlider::Right )
+			p->fillRect( belowstart, 0, belowend, sl->height(), cg.brush( QColorGroup::Background ) );
+
 		    partId = TKP_TICSVERT;
 		    stateId = TSVS_NORMAL;
 		    while ( v <= sl->maxValue() + 1 ) {
 			pos = qPositionFromValue( sl, v, available ) + fudge;
 			if ( ticks & QSlider::Left ) {
-			    theme.rec.setCoords( 0, pos, tickOffset-2, pos );
+			    theme.rec.setCoords( 0, pos, aboveend, pos );
 			    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 			}
 			if ( ticks & QSlider::Right ) {
-			    theme.rec.setCoords( tickOffset+thickness+1, pos, tickOffset+thickness+1 + available-2, pos );
+			    theme.rec.setCoords( belowstart, pos, belowend, pos );
 			    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 			}
 			v += interval;
 		    }
 		}
-		p->setClipping( FALSE );
 	    }
 	    if ( sub & SC_SliderHandle ) {
 		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderHandle, data );
+		p->fillRect( theme.rec, cg.brush( QColorGroup::Background ) );
+		p->setClipping( FALSE );
 		if ( sl->orientation() == Horizontal ) {
 		    if ( sl->tickmarks() == QSlider::Above )
 			partId = TKP_THUMBTOP;
@@ -857,7 +861,6 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			stateId = TUVS_NORMAL;
 		}
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
-		tickreg -= theme.rec;
 	    }
 	}
 	break;
@@ -1101,40 +1104,6 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
     QWidget *widget = (QWidget*)o;
 
     switch ( e->type() ) {
-    case QEvent::MouseButtonPress:
-        {
-#ifndef QT_NO_SCROLLBAR
-	    if ( widget->inherits( "QScrollBar" ) ) {
-		d->lastScrollbarRect = ((QScrollBar*)widget)->sliderRect();
-		widget->repaint( FALSE );
-	    } else 
-#endif
-	    {
-#ifndef QT_NO_SLIDER
-		if ( widget->inherits("QSlider") ) {
-		    d->lastSliderRect = ((QSlider*)widget)->sliderRect();
-		    widget->repaint( FALSE );
-		}
-#endif
-	    }
-        }
-        break;
-
-    case QEvent::MouseButtonRelease:
-        {
-	    if ( widget->inherits( "QScrollBar" ) ) {
-		QRect oldRect = d->lastScrollbarRect;
-		d->lastScrollbarRect = QRect( 0, -1, 0, -1 );
-		widget->repaint( oldRect, FALSE );
-	    } else if ( widget->inherits("QSlider") ) {
-		QRect oldRect = d->lastSliderRect;
-		d->lastSliderRect = QRect( 0, -1, 0, -1 );
-		widget->repaint( oldRect, FALSE );
-
-            }
-        }
-        break;
-
     case QEvent::MouseMove:
 	{
 	    if ( !widget->isActiveWindow() )
@@ -1185,7 +1154,8 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		static clearSlider = FALSE;
 		QSlider *slider = (QSlider*)o;
 		const QRect rect = slider->sliderRect();
-		if ( rect.contains( d->hotSpot ) || clearSlider ) {
+		const bool inSlider = rect.contains( d->hotSpot );
+		if ( ( inSlider && !clearSlider ) || ( !inSlider && clearSlider ) ) {
 		    clearSlider = rect.contains( d->hotSpot );
 		    slider->repaint( slider->sliderRect(), FALSE );
 		}
