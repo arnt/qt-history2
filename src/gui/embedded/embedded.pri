@@ -9,14 +9,8 @@ embedded {
 	HEADERS += \
 		    embedded/qcopchannel_qws.h \
 		    embedded/qdecoration_qws.h \
-		    embedded/qdecorationbeos_qws.h \
-		    embedded/qdecorationdefault_qws.h \
 		    embedded/qdecorationfactory_qws.h \
-		    embedded/qdecorationhydro_qws.h \
-		    embedded/qdecorationkde2_qws.h \
-		    embedded/qdecorationkde_qws.h \
 		    embedded/qdecorationplugin_qws.h \
-		    embedded/qdecorationwindows_qws.h \
 		    embedded/qdirectpainter_qws.h \
 		    embedded/qgfx_qws.h \
 		    embedded/qgfxraster_qws.h \
@@ -38,14 +32,8 @@ embedded {
          SOURCES +=  \
 		    embedded/qcopchannel_qws.cpp \
 		    embedded/qdecoration_qws.cpp \
-		    embedded/qdecorationbeos_qws.cpp \
-		    embedded/qdecorationdefault_qws.cpp \
 		    embedded/qdecorationfactory_qws.cpp \
-		    embedded/qdecorationhydro_qws.cpp \
-		    embedded/qdecorationkde2_qws.cpp \
-		    embedded/qdecorationkde_qws.cpp \
 		    embedded/qdecorationplugin_qws.cpp \
-		    embedded/qdecorationwindows_qws.cpp \
 		    embedded/qdirectpainter_qws.cpp \
 		    embedded/qgfx_qws.cpp \
 		    embedded/qgfxraster_qws.cpp \
@@ -97,12 +85,43 @@ embedded {
 	} else {
 	    DEFINES += QT_NO_FREETYPE
 	}
-}
 
+#
+# Decorations
+#
+    contains( decorations,  ) {
+    	HEADERS += embedded/qdecorationbeos_qws.h  
+    	SOURCES += embedded/qdecorationbeos_qws.cpp
+    }
+    
+    contains( decorations,  ) {
+    	HEADERS += embedded/qdecorationdefault_qws.h  
+    	SOURCES += embedded/qdecorationdefault_qws.cpp
+    }
+    
+    contains( decorations,  ) {
+    	HEADERS += embedded/qdecorationhydro_qws.h  
+    	SOURCES += embedded/qdecorationhydro_qws.cpp
+    }
+    
+    contains( decorations,  ) {
+    	HEADERS += embedded/qdecorationkde2_qws.h  
+    	SOURCES += embedded/qdecorationkde2_qws.cpp
+    }
+    
+    contains( decorations,  ) {
+    	HEADERS += embedded/qdecorationkde_qws.h  
+    	SOURCES += embedded/qdecorationkde_qws.cpp
+    }
+    
+    contains( decorations,  ) {
+    	HEADERS += embedded/qdecorationwindows_qws.h  
+    	SOURCES += embedded/qdecorationwindows_qws.cpp
+    }
 
+#
 # Qt/Embedded Drivers
-
-embedded {
+#
 	HEADERS += embedded/qgfxdriverplugin_qws.h \
 		    embedded/qgfxdriverfactory_qws.h \
 		    embedded/qkbd_qws.h \
@@ -190,7 +209,6 @@ embedded {
 #
 # Keyboard drivers
 #
-
 	contains( kbd-drivers, sl5000 ) {
 		HEADERS +=embedded/qkbdsl5000_qws.h
 		SOURCES +=embedded/qkbdsl5000_qws.cpp
@@ -239,7 +257,6 @@ embedded {
 #
 # Mouse drivers
 #
-
 	contains( mouse-drivers, pc ) {
 		HEADERS +=embedded/qmousepc_qws.h
 		SOURCES +=embedded/qmousepc_qws.cpp
@@ -270,4 +287,3 @@ embedded {
 	}
 	else:DEFINES += QT_NO_QWS_MOUSE_YOPY
 }
-

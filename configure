@@ -3296,7 +3296,7 @@ if [ "$VDECORATION" = "yes" ]; then
 		fi
 	fi
 else
-	if [ "$STRIPPED" = "decoration" ]; then
+	if [ "$STRIPPED" = "decorations" ]; then
 		VDECORATION=yes
 	fi
 fi
