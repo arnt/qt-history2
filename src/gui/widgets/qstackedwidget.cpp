@@ -29,15 +29,6 @@ public:
     bool blockChildAdd;
 };
 
-class QBoolBlocker
-{
-    bool &block;
-    bool reset;
-public:
-    inline QBoolBlocker(bool &b):block(b), reset(b){block = true;}
-    inline ~QBoolBlocker(){block = reset; }
-};
-
 /*!
     \class QStackedWidget qstackedwidget.h
     \brief The QStackedWidget class provides a stack of widgets where only the top

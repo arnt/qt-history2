@@ -80,4 +80,14 @@ private:
     void **args_;
 };
 
+class Q_CORE_EXPORT QBoolBlocker
+{
+public:
+    inline QBoolBlocker(bool &b):block(b), reset(b){block = true;}
+    inline ~QBoolBlocker(){block = reset; }
+private:
+    bool &block;
+    bool reset;
+};
+
 #endif // QOBJECT_P_H
