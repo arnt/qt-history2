@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#48 $
 **
 ** Implementation of QProgressBar class
 **
@@ -385,7 +385,7 @@ void QProgressBar::drawContents( QPainter *p )
 	// ### This part changes every percentage change.
 	p->setPen( colorGroup().text() );
 	p->fillRect( r.x()+r.width(), bar.y(), textw, bar.height(),
-	    backgroundColor() );
+		     colorGroup().brush(QColorGroup::Background ) );
 	p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
 	    AlignRight | AlignVCenter, progress_str );
     } else {
