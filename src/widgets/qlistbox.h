@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#59 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#60 $
 **
 ** Definition of QListBox widget class
 **
@@ -102,6 +102,8 @@ private:	// Disabled copy constructor and operator=
 };
 
 
+class QListBoxPrivate;
+
 class QListBox : public QTableView		// list box widget
 {
     Q_OBJECT
@@ -163,7 +165,6 @@ public:
     int		itemHeight( int index ) const;
 
     long	maxItemWidth() const;
-    long	maxItemWidth(); // only for bin. compat
 
     bool	isMultiSelection() const;
     void	setMultiSelection( bool );
@@ -229,6 +230,11 @@ private:
     int		current;
     QLBItemList *itemList;
 
+    int		maxWidth;
+    QListBoxPrivate * d;
+    
+    static QListBox * changedListBox;
+    
 private:	// Disabled copy constructor and operator=
     QListBox( const QListBox & );
     QListBox &operator=( const QListBox & );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#149 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#150 $
 **
 ** Implementation of QListBox widget class
 **
@@ -384,23 +384,6 @@ int QListBoxPixmap::width( const QListBox * ) const
 
 
 
-//### How to provide new member variables while keeping binary compatibility:
-
-#if QT_VERSION == 200
-#error "Remove QListBox dict."
-#endif
-
-#include "qintdict.h"
-
-static QIntDict<int> *qlb_maxLenDict = 0;
-
-static void cleanupListbox()
-{
-    delete qlb_maxLenDict;
-    qlb_maxLenDict = 0;
-}
-
-
 /*!
   Constructs a list box.  The arguments are passed directly to the
   QTableView constructor.
@@ -422,6 +405,8 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     multiSelect   = FALSE;
     goingDown	  = FALSE;
     itemList	  = new QLBItemList;
+    maxWidth	  = 0;
+    d 		  = 0;
     CHECK_PTR( itemList );
     itemList->timerId = 0;
     setCellWidth( 0 );
@@ -441,18 +426,9 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 	    setLineWidth( 1 );
     }
     setFocusPolicy( StrongFocus );
-    if ( !qlb_maxLenDict ) {
-	qlb_maxLenDict = new QIntDict<int>;
-	CHECK_PTR( qlb_maxLenDict );
-	qAddPostRoutine( cleanupListbox );
-    }
 }
 
-#if QT_VERSION == 200
-#error "Remove QListBox pointer."
-#endif
-
-static QListBox * changedListBox = 0;
+static QListBox * QListBox::changedListBox = 0;
 
 /*!
   Destroys the list box.  Deletes all list box items.
@@ -464,8 +440,6 @@ QListBox::~QListBox()
 	changedListBox = 0;
     goingDown = TRUE;
     clearList();
-    if ( qlb_maxLenDict )
-	qlb_maxLenDict->remove( (long)this );
     delete itemList;
 }
 
@@ -1733,21 +1707,7 @@ void QListBox::updateNumRows( bool updateWidth )
 
 long QListBox::maxItemWidth() const
 {
-    if ( !qlb_maxLenDict )
-	return 0;
-    return (long) qlb_maxLenDict->find( (long)this );
-}
-
-/*!
-  For binary compatibility.
-*/
-long QListBox::maxItemWidth()
-{
-    // This is only here for binary compatibility
-    if ( !qlb_maxLenDict )
-	return 0;
-    return (long) qlb_maxLenDict->find( (long)this );
-    // This is only here for binary compatibility
+    return maxWidth;
 }
 
 
@@ -1757,10 +1717,7 @@ long QListBox::maxItemWidth()
 
 void QListBox::setMaxItemWidth( int len )
 {
-    ASSERT( qlb_maxLenDict );
-    qlb_maxLenDict->remove( (long)this );
-    if ( len )
-	qlb_maxLenDict->insert( (long)this, (int*)len );
+    maxWidth = len;
 }
 
 
@@ -1893,8 +1850,6 @@ void QListBox::clearSelection()
 	updateItem( i );
     }
 }
-
-
 
 
 
