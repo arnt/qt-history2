@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#128 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#129 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#128 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#129 $");
 
 
 /*!
@@ -405,10 +405,6 @@ void QComboBox::setStyle( GUIStyle s )
     }
     if ( d->listBox )
 	d->listBox->setStyle( s );
-    if ( autoMinimumSize() ) {
-	QSize s( sizeHint() );
-	setMinimumSize( QMAX(minimumSize().width(), s.width()), s.height() );
-    }
 }
 
 
@@ -888,10 +884,6 @@ void QComboBox::setFont( const QFont &font )
 	d->ed->setFont( font );
     if ( d->autoresize )
 	adjustSize();
-    if ( autoMinimumSize() ) {
-	QSize s( sizeHint() );
-	setMinimumSize( QMAX(minimumSize().width(), s.width()), s.height() );
-    }
 }
 
 

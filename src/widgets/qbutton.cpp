@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#107 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#108 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#107 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#108 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -306,8 +306,6 @@ void QButton::setText( const char *text )
 	setAccel( 0 );
     if ( newAccelChar )
 	setAccel( ALT+toupper(newAccelChar) );
-    if ( autoMinimumSize() )
-	setMinimumSize( sizeHint() );
     repaint( FALSE );
 }
 
@@ -355,8 +353,6 @@ void QButton::setPixmap( const QPixmap &pixmap )
 	adjustSize();
     if ( oldAccelChar )
 	setAccel( 0 );
-    if ( autoMinimumSize() && newSize )
-	setMinimumSize( sizeHint() );
     repaint( FALSE );
 }
 

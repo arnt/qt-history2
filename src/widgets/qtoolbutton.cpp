@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#15 $
 **
 ** Implementation of QToolButton class
 **
@@ -22,7 +22,7 @@
 #include "qiconset.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#15 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -49,7 +49,6 @@ QToolButton::QToolButton( QWidget * parent, const char * name )
     : QButton( parent, name )
 {
     init();
-    setAutoMinimumSize( TRUE );
     setUsesBigPixmap( FALSE );
     if ( parent->inherits( "QToolBar" ) )
 	 connect( parent, SIGNAL(useBigPixmaps(bool)),
@@ -90,7 +89,6 @@ QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
     : QButton( parent, name )
 {
     init();
-    setAutoMinimumSize( TRUE );
     setPixmap( pm );
     setTextLabel( textLabel );
     setUsesBigPixmap( FALSE );
@@ -189,9 +187,7 @@ void QToolButton::setUsesBigPixmap( bool enable )
 
     ubp = enable;
 
-    if ( autoMinimumSize() )
-	setMinimumSize( sizeHint() );
-    else if ( parent() )
+    if ( parent() )
 	QApplication::postEvent( parent(), new QEvent( Event_LayoutHint ) );
 }
 
@@ -215,9 +211,7 @@ void QToolButton::setUsesTextLabel( bool enable )
 
     utl = enable;
 
-    if ( autoMinimumSize() )
-	setMinimumSize( sizeHint() );
-    else if ( parent() )
+    if ( parent() )
 	QApplication::postEvent( parent(), new QEvent( Event_LayoutHint ) );
 }
 
@@ -441,7 +435,7 @@ QIconSet QToolButton::iconSet() const
 
     if ( that->s )
 	return *that->s;
-    
+
     QPixmap tmp1;
     QIconSet tmp2( tmp1, QIconSet::Small );
     return tmp2;

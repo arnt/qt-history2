@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qgrid.cpp#7 $
 **
 ** Implementation of grid layout widget
 **
@@ -18,7 +18,7 @@
 
   The number of rows or columns is defined in the constructor. All its
   children will be placed and sized according to their sizeHint()s.
-  
+
   \sa QVBox and QHBox
  */
 
@@ -48,7 +48,7 @@ QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name, WFlags f )
 
 /*!
   Constructs a grid widget with parent \a parent and name \a name.
-  \a n specifies the number of columns. 
+  \a n specifies the number of columns.
  */
 QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f )
     :QWidget( parent, name, f )
@@ -66,10 +66,9 @@ QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f )
  */
 void QGrid::childEvent( QChildEvent *c )
 {
-    if ( !c->inserted() ) 
+    if ( !c->inserted() )
 	return;
     QWidget *w = c->child();
-    w->setAutoMinimumSize( TRUE );
     QSize sh = w->sizeHint();
     if ( !sh.isEmpty() )
 	w->setMinimumSize( sh );
@@ -120,5 +119,5 @@ void QGrid::skip()
 	    row = 0;
 	    col++;
 	}
-    }    
+    }
 }

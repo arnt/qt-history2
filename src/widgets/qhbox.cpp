@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#7 $
 **
 ** Implementation of hbox layout widget
 **
@@ -18,8 +18,8 @@
 
   All its children will be placed beside each other and sized
   according to their sizeHint()s.
-  
-  \sa QVBox and QGrid 
+
+  \sa QVBox and QGrid
 
 */
 
@@ -36,7 +36,7 @@ QHBox::QHBox( QWidget *parent, const char *name, WFlags f )
 
 /*!
   Constructs a horizontal hbox if \a horizontal is TRUE, otherwise
-  constructs a vertical hbox (also known as a vbox). 
+  constructs a vertical hbox (also known as a vbox).
 
   This constructor is provided for the QVBox class. You should never need
   to use it directly.
@@ -45,7 +45,7 @@ QHBox::QHBox( QWidget *parent, const char *name, WFlags f )
  QHBox::QHBox( bool horizontal, QWidget *parent , const char *name, WFlags f )
     :QWidget( parent, name, f )
 {
-    lay = new QBoxLayout( this, 
+    lay = new QBoxLayout( this,
 		       horizontal ? QBoxLayout::LeftToRight : QBoxLayout::Down,
 			  parent?0:5, 5, name ); //### border
 }
@@ -57,10 +57,9 @@ QHBox::QHBox( QWidget *parent, const char *name, WFlags f )
  */
 void QHBox::childEvent( QChildEvent *c )
 {
-    if ( !c->inserted() ) 
+    if ( !c->inserted() )
 	return;
     QWidget *w = c->child();
-    w->setAutoMinimumSize( TRUE );
     QSize sh = w->sizeHint();
     if ( !sh.isEmpty() )
 	w->setMinimumSize( sh );
@@ -95,5 +94,5 @@ void QHBox::addStretch()
     lay->addStretch( 1 );
     if ( isVisible() )
 	lay->activate();
-    
+
 }
