@@ -242,7 +242,7 @@ public:
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     : QWidget( parent, name,
 	       (modal ? (f|WShowModal) : f) | WType_Dialog ),
-      rescode(0),did_move(0), did_resize(0), has_relpos(0),in_loop(0),in_close(0)
+      rescode(0), did_move(0), has_relpos(0), did_resize(0), in_loop(0), in_close(0)
 {
     d = new QDialogPrivate;
 }
