@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of compatibility functions for WindowsCE platforms 
+** Implementation of compatibility functions for WindowsCE platforms
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
@@ -26,6 +26,10 @@
 **********************************************************************/
 #ifdef Q_OS_TEMP
 
+// All these need to be extern "C".
+//
+//  That is why they're failing in c sources.
+//
 #include <stdio.h>
 
 #include "qfunctions_wce.h"
@@ -37,29 +41,45 @@
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "oleaut32.lib")
 #pragma comment(lib, "uuid.lib")
-#pragma comment(lib, "winsock.lib")
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 char *getenv(char const *) { return "\\"; }
 char *_getcwd( char *buffer, int maxlen ) { return "\\"; }
-char *_tgetcwd( TCHAR *buffer, int maxlen ) { return "\\"; }
+//char *_tgetcwd( TCHAR *buffer, int maxlen ) { return "\\"; }
+wchar_t *_wgetcwd( WCHAR *buffer, int maxlen ) { return L"\\"; }
 char *_getdcwd( int drive, char *buffer, int maxlen ) { return "\\"; }
 char *_tgetdcwd( int drive, TCHAR *buffer, int maxlen ) { return "\\"; }
+wchar_t *_wgetdcwd( int drive, WCHAR *buffer, int maxlen ) { return L"\\"; }
 int _chdir( const char *dirname ) { return -1; }
-int _tchdir( const TCHAR *dirname ) { return -1; }
+//int _tchdir( const TCHAR *dirname ) { return -1; }
+int _wchdir( const WCHAR *dirname ) { return -1; }
 int _mkdir( const char *dirname ) { return -1; }
-int _tmkdir( const TCHAR *dirname ) { return -1; }
+//int _tmkdir( const TCHAR *dirname ) { return -1; }
+int _wmkdir( const WCHAR *dirname ) { return -1; }
 int _rmdir( const char *dirname ) { return -1; }
-int _trmdir( const TCHAR *dirname ) { return -1; }
+//int _trmdir( const TCHAR *dirname ) { return -1; }
+int _wrmdir( const WCHAR *dirname ) { return -1; }
 int _access( const char *path, int mode ) { return -1; }
-int _taccess( const TCHAR *path, int mode ) { return -1; }
+//int _taccess( const TCHAR *path, int mode ) { return -1; }
+int _waccess( const WCHAR *path, int mode ) { return -1; }
 int rename( const char *oldname, const char *newname ) { return -1; }
-int _trename( const TCHAR *oldname, const TCHAR *newname ) { return -1; }
+//int _trename( const TCHAR *oldname, const TCHAR *newname ) { return -1; }
+int _wrename( const WCHAR *oldname, const WCHAR *newname ) { return -1; }
 int remove( const char *name ) { return -1; }
-int _tremove( const TCHAR *name ) { return -1; }
-int _topen( const TCHAR *filename, int oflag, int pmode ) { return -1; } // _open( filename, oflag, pmode ); }
+//int _tremove( const TCHAR *name ) { return -1; }
+int _wremove( const WCHAR *name ) { return -1; }
+
+//int _open( filename, oflag, pmode ); }
+//int _topen( const TCHAR *filename, int oflag, int pmode ) { return -1; } 
+int _wopen( const WCHAR *filename, int oflag, int pmode ) { return -1; } 
+
 int _fstat( int handle, struct _stat *buffer ) { return -1; }
 int _stat( const char *path, struct _stat *buffer ) { return -1; }
 int _tstat( const TCHAR *path, struct _stat *buffer ) { return -1; }
+//int _wstat( const WCHAR *path, struct _stat *buffer ) { return -1; }
 
 int _open( const char *filename, int oflag, int ) {
 	char *flag;
@@ -117,9 +137,10 @@ HWND SetClipboardViewer( HWND hWndNewViewer ) { return NULL; }
 
 #ifndef POCKET_PC
 
-HANDLE CreateSemaphore(LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, 
+HANDLE CreateSemaphore(LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,
 					   LONG lInitialCount, LONG lMaximumCount, LPCTSTR lpName ) { return NULL; }
 BOOL ReleaseSemaphore(HANDLE hSemaphore, LONG lReleaseCount, LPLONG lpPreviousCount ) { return TRUE; }
+
 
 char *strrchr( const char *string, int c )
 {
@@ -183,6 +204,58 @@ int isdigit ( int c ) { return (((c >= '1') && (c <= '9')) || (c == '0')) ? 1 : 
 int isxdigit( int c ) { return (((c >= 'a') && (c <= 'f')) || ((c >= 'A') && (c <= 'F')) || isdigit(c)) ? 1 : 0; }
 int isspace ( int c ) { return ((c == ' ') || (c == '\t')) ? 1 : 0; }
 
+const int _U = 0x01;	// Upper Case
+const int _L = 0x02;	// Lower Case
+const int _N = 0x04;	// Number
+const int _S = 0x08;	// Space character
+const int _P = 0x10;	// Punctuation
+const int _C = 0x20;	// Control character
+const int _X = 0x40;	// Hexadecimal character
+const int _B = 0x80; // Blank space ' '
+
+// Table of character classes
+//
+const int ctype[]= {
+0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+0x20, 0x28, 0x28, 0x28, 0x28, 0x28, 0x20, 0x20,
+0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+0x88, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
+0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
+0x44, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44,
+0x44, 0x44, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
+0x10, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x01,
+0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+0x01, 0x01, 0x01, 0x10, 0x10, 0x10, 0x10, 0x10,
+0x10, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x02,
+0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
+0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
+0x02, 0x02, 0x02, 0x10, 0x10, 0x10, 0x10, 0x20,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+int isgraph(int c)
+{
+	int i = ((int)c & 0xff);
+	return (ctype[i] & (_P|_U|_L|_N)) > 0;
+}
+
 #endif
 
 
@@ -193,6 +266,7 @@ int isspace ( int c ) { return ((c == ' ') || (c == '\t')) ? 1 : 0; }
 #define _countof(array) (sizeof(array)/sizeof(array[0]))
 #endif
 
+
 BOOL SetWindowOrgEx( HDC hdc, int X, int Y, LPPOINT lpPoint ) {
 	// SetViewportOrgEx( hdc, -X, -Y, lpPoint );
 	// return SetViewportOrgEx( hdc, X - 30, Y - 30, lpPoint );
@@ -200,9 +274,12 @@ BOOL SetWindowOrgEx( HDC hdc, int X, int Y, LPPOINT lpPoint ) {
 	return TRUE;
 }
 
-BOOL TextOut( HDC hdc, int nXStart, int nYStart, LPCTSTR lpString, int cbString ) { 
+
+BOOL TextOut( HDC hdc, int nXStart, int nYStart, LPCTSTR lpString, int cbString ) {
     return ExtTextOut( hdc, nXStart, nYStart - 16, 0, NULL, lpString, cbString, NULL );
 }
+
+
 
 BOOL ResizePalette( HPALETTE hpal, UINT nEntries ) {
     return FALSE;
@@ -228,10 +305,14 @@ size_t strftime( char *strDest, size_t maxsize, const char *format, const struct
     return 0;
 }
 
+time_t mktime( struct tm *timeptr ) {
+    return 0;
+}
+
 BOOL SystemParametersInfo(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni) {
     return FALSE;
 }
-/*
+
 HMENU GetMenu(HWND hWnd) {
     return NULL;
 }
@@ -257,10 +338,10 @@ void PostCreateWindow( CREATESTRUCT& cs, HWND hWnd, HMENU nIDorHMenu) {
     if((hWnd != NULL) && (HIWORD(nIDorHMenu) != NULL))
 	SetMenu(hWnd, nIDorHMenu);
 }
-*/
+
 HRGN CreateRectRgn(int x1, int y1, int x2, int y2) {
     RECT rect = { x1, y1, x2, y2 };
-    return ::CreateRectRgnIndirect(&rect); 
+    return ::CreateRectRgnIndirect(&rect);
 }
 
 
@@ -287,17 +368,17 @@ void*  _expand(void* pvMemBlock, size_t iSize)
 	return realloc(pvMemBlock, iSize);
 }
 
-extern "C" void  __cdecl exit(int);	   
+extern "C" void  __cdecl exit(int);
 
 void abort() {
-    exit(3);																	 
+    exit(3);
 }
 
-unsigned long _beginthreadex(void *security, unsigned stack_size, 
+unsigned long _beginthreadex(void *security, unsigned stack_size,
 		    unsigned (__stdcall *start_address)(void *),
 		    void *arglist, unsigned initflag, unsigned *thrdaddr) {
-    return (unsigned long)CreateThread((LPSECURITY_ATTRIBUTES)security, 
-	(DWORD)stack_size, (LPTHREAD_START_ROUTINE)start_address, 
+    return (unsigned long)CreateThread((LPSECURITY_ATTRIBUTES)security,
+	(DWORD)stack_size, (LPTHREAD_START_ROUTINE)start_address,
 	(LPVOID)arglist, (DWORD)initflag | CREATE_SUSPENDED, (LPDWORD)thrdaddr);
 }
 
@@ -307,39 +388,43 @@ void _endthreadex(unsigned nExitCode) {
 
 
 BOOL GetViewportOrgEx(HDC hdc, LPPOINT lpPoint)
-{ 
+{
     if (hdc == NULL)
-	return FALSE; 
-    lpPoint->x = 0;		// origin is always (0,0) 
+	return FALSE;
+    lpPoint->x = 0;		// origin is always (0,0)
     lpPoint->y = 0;
     return TRUE;
 }
 
 BOOL GetViewportExtEx(HDC hdc, LPSIZE lpSize)
-{ 
+{
     if (hdc == NULL)
-        return FALSE; 
-    lpSize->cx = 1;		// extent is always 1,1 
+        return FALSE;
+    lpSize->cx = 1;		// extent is always 1,1
     lpSize->cy = 1;
     return TRUE;
 }
 
 BOOL GetWindowOrgEx(HDC hdc, LPPOINT lpPoint)
-{ 
+{
     if (hdc == NULL)
-        return FALSE; 
-    lpPoint->x = 0;		// origin is always (0,0) 
+        return FALSE;
+    lpPoint->x = 0;		// origin is always (0,0)
     lpPoint->y = 0;
     return TRUE;
 }
 
 BOOL GetWindowExtEx(HDC hdc, LPSIZE lpSize)
-{ 
+{
     if (hdc == NULL)
-        return FALSE; 
-    lpSize->cx = 1;		// extent is always 1,1 
+        return FALSE;
+    lpSize->cx = 1;		// extent is always 1,1
     lpSize->cy = 1;
     return TRUE;
 }
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // Q_OS_TEMP
