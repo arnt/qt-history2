@@ -1,4 +1,6 @@
 #ifndef QATOMIC_PPC_H
+#ifndef QT_H
+#endif // QT_H
 #define QATOMIC_PPC_H
 
 #if defined(__GNUC__) && defined(__ppc__)

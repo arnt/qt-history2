@@ -33,7 +33,9 @@
 #ifndef QKBDTTY_QWS_H
 #define QKBDTTY_QWS_H
 
+#ifndef QT_H
 #include "qkbdpc101_qws.h"
+#endif // QT_H
 
 #ifndef QT_NO_QWS_KEYBOARD
 

@@ -36,9 +36,11 @@
 
 #ifndef QT_NO_QWS_SHADOWFB
 
+#ifndef QT_H
 #include "qgfxraster_qws.h"
 #include "qgfxlinuxfb_qws.h"
 #include "qobject.h"
+#endif // QT_H
 
 // Define these appropriately to use an accelerated driver
 // as the basis for shadowfb

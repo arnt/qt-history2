@@ -31,6 +31,7 @@
 #ifndef QWSGFX_QNX6_H
 #define QWSGFX_QNX6_H
 
+#ifndef QT_H
 #include <display.h>
 #include <disputil.h>
 #include <qgfxraster_qws.h>
@@ -38,6 +39,7 @@
 #include <qpolygonscanner.h>
 #include <qpen.h>
 #include <qstring.h>
+#endif // QT_H
 
 // QnxFb Gfx class
 template <const int depth, const int type>

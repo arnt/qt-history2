@@ -45,7 +45,9 @@
 //
 //
 
+#ifndef QT_H
 #include "qstring.h"
+#endif // QT_H
 
 #if !defined (QT_QWS_NO_SHM)
 

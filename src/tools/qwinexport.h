@@ -1,4 +1,6 @@
 /****************************************************************************
+#ifndef QT_H
+#endif // QT_H
 ** $Id$
 **
 ** Global type declarations and definitions

@@ -1,7 +1,9 @@
 #ifndef QFONTENGINE_P_H
 #define QFONTENGINE_P_H
 
+#ifndef QT_H
 #include <qglobal.h>
+#endif // QT_H
 
 #ifdef Q_WS_WIN
 #include <qt_windows.h>

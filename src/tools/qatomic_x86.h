@@ -1,4 +1,6 @@
 #ifndef QATOMIC_X86_H
+#ifndef QT_H
+#endif // QT_H
 #define QATOMIC_X86_H
 
 #if defined(__GNUC__) && defined(__i386__)

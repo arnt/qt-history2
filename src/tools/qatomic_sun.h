@@ -3,7 +3,9 @@
 
 #if defined(__sun) || defined(sun)
 
+#ifndef QT_H
 #include <sys/atomic.h>
+#endif // QT_H
 
 template <typename T>
 inline T *qAtomicSetPtr( T ** volatile ptr, T *value )

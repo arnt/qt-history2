@@ -50,7 +50,9 @@
 
 #ifdef QT_THREAD_SUPPORT
 
+#ifndef QT_H
 #include "qmutex.h"
+#endif // QT_H
 
 class QThreadInstance {
 public:

@@ -1,4 +1,6 @@
 #ifndef QATOMIC_WIN_H
+#ifndef QT_H
+#endif // QT_H
 #define QATOMIC_WIN_H
 
 template <typename T>

@@ -31,7 +31,9 @@
 #ifndef QGFXREPEATER_QWS_H
 #define QGFXREPEATER_QWS_H
 
+#ifndef QT_H
 #include "qgfx_qws.h"
+#endif // QT_H
 
 #ifndef QT_NO_QWS_REPEATER
 

@@ -1,7 +1,9 @@
 #ifndef QSTRINGDATA_H
 #define QSTRINGDATA_H
 
+#ifndef QT_H
 #include "qstring.h"
+#endif // QT_H
 
 #ifdef QT_NO_UNICODETABLES
 # include <ctype.h>

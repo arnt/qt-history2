@@ -33,7 +33,9 @@
 #ifndef QGFXVOODOO_QWS_H
 #define QGFXVOODOO_QWS_H
 
+#ifndef QT_H
 #include "qgfxlinuxfb_qws.h"
+#endif // QT_H
 
 #ifndef QT_NO_QWS_VOODOO3
 

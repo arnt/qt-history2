@@ -2,7 +2,9 @@
 #define __QDIALOGBUTTONS_H__
 
 #ifndef QT_H
+#ifndef QT_H
 #include <qwidget.h>
+#endif // QT_H
 #endif
 
 #ifndef QT_NO_DIALOGBUTTONS

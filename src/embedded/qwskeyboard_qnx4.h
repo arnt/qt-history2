@@ -32,9 +32,11 @@
 #ifndef QWSKEYBOARD_QNX4_H
 #define QWSKEYBOARD_QNX4_H
 
+#ifndef QT_H
 #include "qwindowsystem_qws.h"
 #include "qwsutils_qws.h"
 #include "qgfx_qws.h"
+#endif // QT_H
  
 #include <qapplication.h>
 #include <qsocketnotifier.h>

@@ -1,7 +1,9 @@
 #ifndef SCRIPTENGINE_H
 #define SCRIPTENGINE_H
 
+#ifndef QT_H
 #include "qtextengine_p.h"
+#endif // QT_H
 class QString;
 class QOpenType;
 class QTextEngine;

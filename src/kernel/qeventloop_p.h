@@ -43,7 +43,9 @@
 //
 //
 
+#ifndef QT_H
 #include "qplatformdefs.h"
+#endif // QT_H
 
 // SCO OpenServer redefines raise -> kill
 #if defined(raise)

@@ -31,7 +31,9 @@
 #ifndef QWSMOUSE_QNX4_H
 #define QWSMOUSE_QNX4_H
 
+#ifndef QT_H
 #include "qwindowsystem_qws.h"
+#endif // QT_H
 
 #ifdef Q_OS_QNX4
 

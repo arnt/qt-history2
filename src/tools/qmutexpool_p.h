@@ -50,8 +50,10 @@
 
 #ifdef QT_THREAD_SUPPORT
 
+#ifndef QT_H
 #include "qmutex.h"
 #include "qmemarray.h"
+#endif // QT_H
 
 class QMutexPool
 {

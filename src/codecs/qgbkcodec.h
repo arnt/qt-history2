@@ -38,5 +38,7 @@
 
 #ifndef QGBKCODEC_H
 #define QGBKCODEC_H
+#ifndef QT_H
 #include "qgb18030codec.h"
+#endif // QT_H
 #endif

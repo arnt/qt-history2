@@ -9,7 +9,9 @@
 #  endif
 #elif defined(_MSC_VER)
 
+#ifndef QT_H
 #include "qatomic_win.h"
+#endif // QT_H
 
 #elif defined(__sun) || defined(sun)
 #  include "qatomic_sun.h"

@@ -33,7 +33,9 @@
 #ifndef QGFXMATROX_QWS_H
 #define QGFXMATROX_QWS_H
 
+#ifndef QT_H
 #include "qgfxlinuxfb_qws.h"
+#endif // QT_H
 
 #ifndef QT_NO_QWS_MATROX
 

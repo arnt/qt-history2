@@ -36,7 +36,9 @@
 
 #if defined(Q_OS_QNX6)
 #define VNCSCREEN_BASE QQnxScreen
+#ifndef QT_H
 #include "qwsgfx_qnx.h"
+#endif // QT_H
 #else
 #define VNCSCREEN_BASE QLinuxFbScreen
 #include "qgfxlinuxfb_qws.h"

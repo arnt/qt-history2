@@ -1,10 +1,12 @@
 #ifndef QTEXTENGINE_P_H
 #define QTEXTENGINE_P_H
 
+#ifndef QT_H
 #include "qglobal.h"
 #include "qstring.h"
 #include "qnamespace.h"
 #include <private/qfontdata_p.h>
+#endif // QT_H
 
 #include <stdlib.h>
 #ifndef Q_OS_TEMP

@@ -38,7 +38,9 @@
 
 #ifdef QT_THREAD_SUPPORT
 
+#ifndef QT_H
 #include "qglobal.h"
+#endif // QT_H
 
 class Q_EXPORT QThreadStorageData
 {
