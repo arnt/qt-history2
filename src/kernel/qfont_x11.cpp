@@ -529,6 +529,12 @@ bool QFontPrivate::parseXFontName(const QCString &fontName, char **tokens)
     return TRUE;
 }
 
+/*
+  Removes wildcards from an XLFD.
+
+  Returns \a xlfd with all wildcards removed if a match for \a xlfd is
+  found, otherwise it returns \a xlfd.
+*/
 QCString QFontPrivate::fixXLFD( const QCString &xlfd )
 {
     QCString ret = xlfd;
@@ -575,10 +581,14 @@ bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd, int screen )
 
     fd->family = QString::fromLatin1(tokens[Family]);
     QString foundry = QString::fromLatin1(tokens[Foundry]);
-    if ( ! foundry.isEmpty() )
+    if ( ! foundry.isEmpty() && foundry != QString::fromLatin1("*") )
 	fd->family += QString::fromLatin1(" [") + foundry + QString::fromLatin1("]");
 
-    fd->addStyle = QString::fromLatin1(tokens[AddStyle]);
+    if ( qstrlen( tokens[AddStyle] ) > 0 )
+	fd->addStyle = QString::fromLatin1(tokens[AddStyle]);
+    else
+	fd->addStyle = QString::null;
+
     fd->pointSize = atoi(tokens[PointSize]);
     fd->styleHint = QFont::AnyStyle;	// ### any until we match families
 
@@ -2178,7 +2188,6 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 #endif // QT_NO_XFTFREETYPE
 	    {
 		QFontDef def;
-
 		if ( ! fillFontDef( (XFontStruct *) x11data.fontstruct[script]->handle,
 				    &def, x11Screen ) &&
 		     ! fillFontDef( x11data.fontstruct[script]->name,
@@ -2186,17 +2195,25 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 		    // failed to parse the XLFD of the exact match font...
 		    // this should never happen...
 		    exactMatch = FALSE;
-		} else if ( def.family     != actual.family    ||
-			    def.addStyle   != actual.addStyle  ||
-			    def.pointSize  != actual.pointSize ||
-			    def.pixelSize  != actual.pixelSize ||
-			    def.weight     != actual.weight    ||
-			    def.italic     != actual.italic    ||
-			    def.fixedPitch != actual.fixedPitch ) {
-		    // the 2 font defs do not match... we have most likely
-		    // made an exact match with a font alias...
-		    actual = def;
-		    exactMatch = FALSE;
+		} else {
+		    QString dfoundry, dfamily, afoundry, afamily;
+		    QFontDatabase::parseFontName( def.family, dfoundry, dfamily );
+		    QFontDatabase::parseFontName( actual.family, afoundry, afamily );
+
+		    if ( dfamily        != afamily            ||
+			 ( !dfoundry.isEmpty() &&
+			   !afoundry.isEmpty() &&
+			   dfoundry     != afoundry )         ||
+			 ( !def.addStyle.isEmpty() &&
+			   !actual.addStyle.isEmpty() &&
+			   def.addStyle   != actual.addStyle ) ) {
+			// the foundry/family/addStyle do not match between
+			// these 2 fontdefs... we have most likely made an
+			// exact match with a font alias... fix it...
+			actual.family = def.family;
+			actual.addStyle = def.addStyle;
+			exactMatch = FALSE;
+		    }
 		}
 	    }
 

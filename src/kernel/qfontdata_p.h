@@ -320,7 +320,6 @@ public:
     static inline bool isZero(char *x)
     {
 	return (x[0] == '0' && x[1] == 0);
-
     }
 
     static inline bool isScalable( char **tokens )
