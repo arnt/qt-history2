@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#49 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -816,7 +816,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 
 
 /*!
-  Moves the cursor one page up.  If \a mark is TRUE, the text 
+  Moves the cursor one page down.  If \a mark is TRUE, the text 
   is marked. 
 */
 
@@ -866,7 +866,7 @@ void QMultiLineEdit::pageDown( bool mark )
 
 
 /*!
-  Moves the cursor one page down.  If \a mark is TRUE, the text 
+  Moves the cursor one page up.  If \a mark is TRUE, the text 
   is marked. 
 */
 
@@ -891,7 +891,7 @@ void QMultiLineEdit::pageUp( bool mark )
 	curXPos = mapToView( cursorX, cursorY );
     int oldY = cursorY;
     if ( newTopCell != topCell() ) {
-	cursorY = newTopCell + delta;
+	cursorY = QMIN( newTopCell + delta, numLines() - 1 );
 	if ( partial )
 	    cursorY--;
 	cursorX = mapFromView( curXPos, cursorY );
