@@ -125,7 +125,14 @@ void CDialogWidget::generate()
 
 	if ( m_bShared )
 	{
-		strQMake += " \"DEFINES+=QT_MAKEDLL\"";
+		if ( m_pPlatform->currentText() == "win32" )
+		{
+			strQMake += " \"DEFINES+=QT_MAKEDLL\"";
+		}
+	}
+	else
+	{
+		strQMake += " \"CONFIG+=staticlib\"";
 	}
 
 	strQMake += " -mkspec " + m_pPlatform->currentText() + "-" + m_pCompiler->currentText() + " -o " + m_pOutNameEdit->text();
@@ -157,7 +164,6 @@ void CDialogWidget::FillCompilers( const QString& strPlatform )
 	m_pCompiler->clear();
 	while ( ( mkspec = mkspecIterator.current() ) )
 	{
-		qDebug( "filename = \"%s\"\n", mkspec->fileName().latin1() );
 		m_pCompiler->insertItem( mkspec->fileName().mid( strPlatform.length() + 1 ) );
 		++mkspecIterator;
 	}
@@ -174,7 +180,6 @@ void CDialogWidget::FillPlatforms()
 	while ( ( mkspec = mkspecIterator.current() ) )
 	{
 		strThis = mkspec->fileName().left( mkspec->fileName().find( '-' ) );
-		qDebug( "strLast = \"%s\" strThis = \"%s\"\n", strLast.latin1(), strThis.latin1() );
 		if ( strThis != strLast )
 		{
 			strLast = strThis;
