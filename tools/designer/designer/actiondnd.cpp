@@ -200,6 +200,7 @@ bool QSubMenuAction::addTo( QWidget *w )
     ( (QPopupMenu*)w )->insertItem( menuText(), popup, -1, idx );
     return TRUE;
     */
+    return FALSE;
 }
 
 bool QSubMenuAction::removeFrom( QWidget *w )
