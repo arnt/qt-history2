@@ -121,8 +121,8 @@ void MainWindow::editFormatSetParagraphSpacing()
 
 void MainWindow::helpAbout()
 {
-    QMessageBox::about(this, tr("About menu"),
-            tr("The <b>menu</b> application shows how to create "
+    QMessageBox::about(this, tr("About Menu"),
+            tr("The <b>Menu</b> example shows how to create "
                "menu-bar menus and context menus."));
 }
 
