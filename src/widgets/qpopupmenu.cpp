@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#267 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#268 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -78,7 +78,7 @@ static QTimer * singleSingleShot = 0;
 
 static bool supressAboutToShow = FALSE;
 
-static void popupSubMenuLater( int msec, QObject * receiver ) {
+static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
     if ( !singleSingleShot )
 	singleSingleShot = new QTimer( qApp, "popup submenu timer" );
     singleSingleShot->disconnect( SIGNAL(timeout()) );
@@ -697,7 +697,7 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	    parent = parent->parentWidget();
 	}
     }
-    
+
     if ( parent == 0 && autoaccel == 0 )
  	return;
 
@@ -815,7 +815,7 @@ void QPopupMenu::show()
 void QPopupMenu::hide()
 {	
     if ( !isVisible() )
- 	return;
+  	return;
 
     actItem = popupActive = -1;
     mouseBtDn = FALSE;				// mouse button up
@@ -1261,7 +1261,8 @@ void  QPopupMenu::styleChange( QStyle& old )
 /*! This private slot handles the delayed submenu effects */
 
 void QPopupMenu::subMenuTimer() {
-    if ( (actItem < 0 && popupActive < 0) || actItem == popupActive )
+    
+    if ( !isVisible() || (actItem < 0 && popupActive < 0) || actItem == popupActive )
 	return;
 
     if ( popupActive >= 0 ) {
