@@ -767,7 +767,8 @@ void QTabBar::layoutTabs()
     int hframe, vframe, overlap;
     style().tabbarMetrics( this, hframe, vframe, overlap );
     QFontMetrics fm = fontMetrics();
-    int x = 0;
+    int x = tab( 0 )->r.left();
+    x = 0;
     QRect r;
     QTab *t;
     for ( t = lstatic->first(); t; t = lstatic->next() ) {
@@ -874,6 +875,7 @@ void QTabBar::resizeEvent( QResizeEvent * )
     d->leftB->setGeometry( width() - 2*arrowWidth, 0, arrowWidth, height() );
     layoutTabs();
     updateArrowButtons();
+    makeVisible( tab( currentTab() ));
 }
 
 void QTabBar::scrollTabs()
