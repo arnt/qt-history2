@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#49 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#49 $")
 
 
 /*!
@@ -112,18 +112,8 @@ QPaintDevice::~QPaintDevice()
 */
 
 /*!
-  \fn HDC QPaintDevice::handle() const
-  Returns the window system handle of the paint device (Windows only).
-*/
-
-/*!
-  \fn HPS QPaintDevice::handle() const
-  Returns the window system handle of the paint device (OS/2 PM only).
-*/
-
-/*!
-  \fn WId QPaintDevice::handle() const
-  Returns the window system handle of the paint device (X-Windows only).
+  \fn HANDLE QPaintDevice::handle() const
+  Returns the window system handle of the paint device.
 */
 
 /*!
