@@ -45,11 +45,11 @@
 #include "qlayout.h"
 #include "qframe.h"
 #include "qobjectlist.h"
-#include "qintdict.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qtoolbutton.h"
 #include "qpopupmenu.h"
+#include "qcombobox.h"
 #include "qtimer.h"
 #include "qwidgetlist.h"
 #include "qstyle.h"
@@ -87,13 +87,15 @@ class QToolBarExtensionWidget;
 class QToolBarPrivate
 {
 public:
-    QToolBarPrivate() : moving( FALSE ), firstShow( TRUE ), button( 0 ) {}
+    QToolBarPrivate() : moving( FALSE ), firstShow( TRUE ), button( 0 ) {
+	extensionSubMenues.setAutoDelete(TRUE);
+    }
 
     bool moving;
     bool firstShow;
     QToolBarExtensionWidget *extension;
     QPopupMenu *extensionPopup;
-    QIntDict<QButton> hiddenItems;
+    QObjectList extensionSubMenues;
     QButton *button;
 
 };
@@ -376,10 +378,8 @@ void QToolBar::init()
     d->extension = new QToolBarExtensionWidget( this );
     d->extension->hide();
     d->extensionPopup = new QPopupMenu( this, "qt_dockwidget_internal" );
-    connect( d->extensionPopup, SIGNAL( activated( int ) ),
-	     this, SLOT( popupSelected( int ) ) );
     connect( d->extensionPopup, SIGNAL( aboutToShow() ),
-	     this, SLOT( setupArrowMenu() ) );
+	     this, SLOT( createPopup() ) );
     d->extension->button()->setPopup( d->extensionPopup );
     d->extension->button()->setPopupDelay( -1 );
     sw = 0;
@@ -586,6 +586,97 @@ QSize QToolBar::minimumSizeHint() const
     return QSize( QDockWindow::minimumSizeHint().width(), 0 );
 }
 
+void QToolBar::createPopup()
+{
+    d->extensionPopup->clear();
+    d->extensionSubMenues.clear();
+    QObjectListIt it( *children() );
+    bool hide = FALSE;
+    int id;
+    while ( it.current() ) {
+        int j = 2;
+        if ( !it.current()->isWidgetType() ||
+	    qstrcmp( "qt_dockwidget_internal", it.current()->name() ) == 0 ) {
+	    ++it;
+	    continue;
+	}
+	QWidget *w = (QWidget*)it.current();
+	if ( w->inherits( "QComboBox" ) )
+	    j = 1;
+	hide = FALSE;
+	QPoint p = w->parentWidget()->mapTo( this, w->geometry().bottomRight() );
+	if ( orientation() == Horizontal ) {
+	    if ( p.x() > width()-d->extension->width()/j )
+	        hide = TRUE;
+	} else {
+	    if ( p.y() > height()-d->extension->height()/j )
+	        hide = TRUE;
+	}
+	if ( hide ) {
+	    if ( w->inherits( "QToolButton" ) ) {
+	        QToolButton *b = (QToolButton*)w;
+	        QString s = b->textLabel();
+	        if ( s.isEmpty() )
+		    s = b->text();
+	        if ( b->popup() && b->popupDelay() == 0 )
+		    id = d->extensionPopup->insertItem( b->iconSet(), s, b->popup() );
+		else
+		    id = d->extensionPopup->insertItem( b->iconSet(), s, b, SLOT( emulateClick() ) ) ;
+	        if ( b->isToggleButton() )
+		    d->extensionPopup->setItemChecked( id, b->isOn() );
+		if ( !b->isEnabled() )
+		    d->extensionPopup->setItemEnabled( id, FALSE );
+	    } else if ( w->inherits( "QButton" ) ) {
+		QButton *b = (QButton*)w;
+		QString s = b->text();
+		if ( s.isEmpty() )
+		    s = "";
+		if ( b->pixmap() )
+		    id = d->extensionPopup->insertItem( *b->pixmap(), s, b, SLOT( emulateClick() ) );
+		else
+		    id = d->extensionPopup->insertItem( s, b, SLOT( emulateClick() ) );
+		if ( b->isToggleButton() )
+		    d->extensionPopup->setItemChecked( id, b->isOn() );
+		if ( !b->isEnabled() )
+		    d->extensionPopup->setItemEnabled( id, FALSE );
+	    } else if ( w->inherits( "QComboBox" ) ) {
+		QComboBox *c = (QComboBox*)w;
+		if ( c->count() != 0 ) {
+		    QString s = c->caption();
+		    if ( s.isEmpty() )
+		        s = c->currentText();
+		    uint maxItems = 0;		    
+		    QPopupMenu *cp = new QPopupMenu;
+		    d->extensionSubMenues.append( cp );
+		    d->extensionPopup->insertItem( s, cp );
+		    connect( cp, SIGNAL( activated( int ) ), 
+		        c, SLOT( internalActivate( int ) ) );
+		    for ( int i = 0; i < c->count(); ++i ) {			    
+		        QString tmp = c->text( i );
+			cp->insertItem( tmp, i );
+		        if ( c->currentText() == tmp )
+			    cp->setItemChecked( i, TRUE );
+			if ( !maxItems ) {
+			    if ( cp->count() == 10 ) {
+			        int h = cp->sizeHint().height();
+			        maxItems = QApplication::desktop()->height() * 10 / h;
+			    }
+			} else if ( cp->count() >= maxItems - 1 ) {
+			    QPopupMenu* sp = new QPopupMenu;
+			    d->extensionSubMenues.append( sp );
+			    cp->insertItem( tr( "More..." ), sp );
+			    cp = sp;
+			    connect( cp, SIGNAL( activated( int ) ), 
+			        c, SLOT( internalActivate( int ) ) );		    
+			}
+		    }
+		}		
+	    }
+	}
+        ++it;
+    }
+}
+
 /*!
   \reimp
 */
@@ -593,70 +684,14 @@ QSize QToolBar::minimumSizeHint() const
 void QToolBar::resizeEvent( QResizeEvent *e )
 {
     bool tooSmall;
-    if ( orientation() ==  Horizontal )
+    if ( orientation() == Horizontal )
 	tooSmall = e->size().width() < sizeHint().width();
     else
 	tooSmall = e->size().height() < sizeHint().height();
+    
     if ( tooSmall ) {
-	QObjectListIt it( *children() );
-	bool hide = FALSE;
-	bool doHide = FALSE;
-	d->extensionPopup->clear();
-	d->hiddenItems.clear();
-	while ( it.current() ) {
-	    if ( !it.current()->isWidgetType() ||
-		 qstrcmp( "qt_dockwidget_internal", it.current()->name() ) == 0 ) {
-		++it;
-		continue;
-	    }
-	    QWidget *w = (QWidget*)it.current();
-	    hide = FALSE;
-	    QPoint p = w->parentWidget()->mapTo( this, w->geometry().bottomRight() );
-	    if ( orientation() == Horizontal ) {
-		if ( p.x() > e->size().width()-d->extension->width()/2 )
-		    hide = TRUE;
-	    } else {
-		if ( p.y() > e->size().height()-d->extension->height()/2 )
-		    hide = TRUE;
-	    }
-	    if ( hide ) {
-		doHide = TRUE;
-		if ( w->inherits( "QToolButton" ) ) {
-		    QToolButton *b = (QToolButton*)w;
-		    QString s = b->textLabel();
-		    if ( s.isEmpty() )
-			s = b->text();
-		    int id;
-		    if ( b->popup() && b->popupDelay() == 0 )
-			id = d->extensionPopup->insertItem( b->iconSet(), s, b->popup() );
-		    else
-			id = d->extensionPopup->insertItem( b->iconSet(), s );
-
-		    d->hiddenItems.insert( id, b );
-		    if ( b->isToggleButton() )
-			d->extensionPopup->setItemChecked( id, b->isOn() );
-		    if ( !b->isEnabled() )
-			d->extensionPopup->setItemEnabled( id, FALSE );
-		} else if ( w->inherits( "QButton" ) ) {
-		    QButton *b = (QButton*)w;
-		    QString s = b->text();
-		    if ( s.isEmpty() )
-			s = "";
-		    int id = -1;
-		    if ( b->pixmap() )
-			id = d->extensionPopup->insertItem( *b->pixmap(), s );
-		    else
-			id = d->extensionPopup->insertItem( s );
-		    d->hiddenItems.insert( id, b );
-		    if ( b->isToggleButton() )
-			d->extensionPopup->setItemChecked( id, b->isOn() );
-		    if ( !b->isEnabled() )
-			d->extensionPopup->setItemEnabled( id, FALSE );
-		}
-	    }
-	    ++it;
-	}
-	if ( doHide ) {
+	createPopup();
+	if ( d->extensionPopup->count() ) {
 	    if ( orientation() == Horizontal )
 		d->extension->setGeometry( width() - 20, 1, 20, height() - 2 );
 	    else
@@ -671,53 +706,6 @@ void QToolBar::resizeEvent( QResizeEvent *e )
     }
 }
 
-void QToolBar::popupSelected( int id )
-{
-    QButton *b = d->hiddenItems.find( id );
-    d->button = b;
-    if ( d->button )
-	QTimer::singleShot( 0, this, SLOT( emulateButtonClicked() ) );
-}
-
-void QToolBar::emulateButtonClicked()
-{
-    if ( !d->button )
-	return;
-
-#ifndef QT_NO_PUSHBUTTON
-    if ( d->button->inherits( "QPushButton" ) &&
-	 ( (QPushButton*)d->button )->popup() ) {
-	( (QPushButton*)d->button )->popup()->exec( QCursor::pos() );
-    } else
-#endif
-    if ( d->button->inherits( "QToolButton" ) &&
-		( (QToolButton*)d->button )->popup() ) {
-	( (QToolButton*)d->button )->popup()->exec( QCursor::pos() );
-    } else if ( d->button->isToggleButton() ) {
-	d->button->setOn( !d->button->isOn() );
-	emit d->button->pressed();
-	emit d->button->released();
-	emit d->button->clicked();
-	if ( d->button->inherits( "QWhatsThisButton" ) )
-	    d->button->setOn( FALSE );
-    } else {
-	emit d->button->pressed();
-	emit d->button->released();
-	emit d->button->clicked();
-    }
-    if ( d )
-	d->button = 0;
-}
-
-void QToolBar::setupArrowMenu()
-{
-    QIntDictIterator<QButton> it( d->hiddenItems );
-    while ( it.current() ) {
-	d->extensionPopup->setItemEnabled( it.currentKey(), it.current()->isEnabled() );
-	d->extensionPopup->setItemChecked( it.currentKey(), it.current()->isOn() );
-	++it;
-    }
-}
 
 /*! \reimp */
 

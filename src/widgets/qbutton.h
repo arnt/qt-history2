@@ -140,6 +140,7 @@ protected:
 private slots:
     void	animateTimeout();
     void	autoRepeatTimeout();
+    void	emulateClick();
 
 private:
     QString	btext;

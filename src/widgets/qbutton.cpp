@@ -558,13 +558,22 @@ void QButton::animateClick()
 {
     if ( !isEnabled() || animation )
 	return;
-    animation  = TRUE;
+    animation = TRUE;
     buttonDown = TRUE;
     repaint( FALSE );
     emit pressed();
     QTimer::singleShot( 100, this, SLOT(animateTimeout()) );
 }
 
+void QButton::emulateClick()
+{
+    if ( !isEnabled() || animation )
+	return;
+    animation = TRUE;
+    buttonDown = TRUE;
+    emit pressed();
+    animateTimeout(); 
+}
 
 void QButton::setDown( bool enable )
 {

@@ -90,9 +90,7 @@ protected:
     void styleChange( QStyle & );
 
 private slots:
-    void popupSelected( int id );
-    void emulateButtonClicked();
-    void setupArrowMenu();
+    void createPopup();
 
 private:
     void init();
