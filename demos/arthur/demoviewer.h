@@ -23,7 +23,7 @@ class QCheckBox;
 class QComboBox;
 class QListWidget;
 class QPushButton;
-class QStackedBox;
+class QStackedWidget;
 class QTextEdit;
 
 class DemoViewer : public QWidget
@@ -48,7 +48,7 @@ public slots:
 
 private:
     QListWidget *listWidget;
-    QStackedBox *widgets;
+    QStackedWidget *widgets;
     QHash<QString, DemoWidget *> widgetByName;
     QHash<QString, QString> fileByName;
     Attributes *attributes;

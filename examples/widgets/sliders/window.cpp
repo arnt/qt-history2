@@ -10,7 +10,7 @@ Window::Window()
         tr("Vertical sliders"), 0);
     createControls(tr("Controls"));
 
-    pages = new QStackedBox(this);
+    pages = new QStackedWidget(this);
     pages->addWidget(horizontalSliders);
     pages->addWidget(verticalSliders);
 

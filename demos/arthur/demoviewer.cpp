@@ -26,7 +26,7 @@
 #include <qpalette.h>
 #include <qpushbutton.h>
 #include <qsplitter.h>
-#include <qstackedbox.h>
+#include <qstackedwidget.h>
 #include <qtextedit.h>
 #include <qvboxwidget.h>
 
@@ -108,7 +108,7 @@ DemoViewer::DemoViewer(QWidget *parent)
 
     layout->addWidget(horSplit);
 
-    widgets = new QStackedBox(horSplit);
+    widgets = new QStackedWidget(horSplit);
     QGroupBox *opts = new QGroupBox("Options", vbox);
     QBoxLayout *props = new QBoxLayout(QBoxLayout::TopToBottom, opts);
 

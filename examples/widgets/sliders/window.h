@@ -10,7 +10,7 @@ class QDial;
 class QScrollBar;
 class QSlider;
 class QSpinBox;
-class QStackedBox;
+class QStackedWidget;
 
 class SlidersGroup : public QGroupBox
 {
@@ -61,7 +61,7 @@ private:
     QGroupBox *controlsGroup;
     SlidersGroup *horizontalSliders;
     SlidersGroup *verticalSliders;
-    QStackedBox *pages;
+    QStackedWidget *pages;
 
     QComboBox *orientationCombo;
     QSpinBox *minimumSpinBox;

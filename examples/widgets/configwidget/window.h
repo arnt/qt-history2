@@ -3,8 +3,7 @@
 
 #include <QWidget>
 
-/* ### Change QStackedBox to QStackedWidget before TP2 */
-class QStackedBox;
+class QStackedWidget;
 class QWidgetView;
 
 class Window : public QWidget
@@ -20,7 +19,7 @@ public slots:
 private:
     void createIcons();
 
-    QStackedBox *pagesWidget;
+    QStackedWidget *pagesWidget;
     QWidget *contentsWidget;
 };
 

@@ -10,8 +10,7 @@ Window::Window()
     QWidgetView *view = new QWidgetView(this);
     view->setWidget(contentsWidget);
 
-    // ### Change QStackedBox to QStackedWidget before TP2
-    pagesWidget = new QStackedBox(this);
+    pagesWidget = new QStackedWidget(this);
     pagesWidget->addWidget(new ConfigurationPage);
     pagesWidget->addWidget(new UpdatePage);
     pagesWidget->addWidget(new QueryPage);
