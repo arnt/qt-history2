@@ -1460,8 +1460,8 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
 {
     QPainter p(d->viewport);
 
-    const int xOffset = horizontalScrollBar()->value();
-    const int yOffset = verticalScrollBar()->value();
+    const int xOffset = d->hbar->value();
+    const int yOffset = d->vbar->value();
 
     p.translate(-xOffset, -yOffset);
 
