@@ -82,7 +82,7 @@ QStringList JPTextCodecs::featureList() const
 {
     QStringList list;
     list << "eucJP" << "JIS7" << "SJIS" << "jisx0208.1983-0";
-    list << "MIB-16" << "MIB-17" << "MIB-18" << "MIB-63" << "MIB-98";
+    list << "MIB-16" << "MIB-17" << "MIB-18" << "MIB-63";
     return list;
 }
 
