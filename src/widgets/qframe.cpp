@@ -43,8 +43,19 @@
 #include "qbitmap.h"
 #include "qstyle.h"
 
+#if QT_VERSION >= 0x040000
+#error Remove d-pointer hack
+#endif
+
+/*
+  We avoid creating a d-pointer object by storing the two values we
+  need as d-pointers themselves.
+*/
+static void * const DefaultSizePolicy = (void *) 0;
+static void * const UserSizePolicy = (void *) &DefaultSizePolicy;
+
 /*!
-    \class QFrame qframe.h
+    \class QFrame
     \brief The QFrame class is the base class of widgets that can have a frame.
 
     \ingroup abstractwidgets
@@ -178,7 +189,7 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f )
     lwidth = 1;
     mwidth = 0;
     mlwidth = 0;
-    d = 0;
+    d = DefaultSizePolicy;
     updateFrameWidth();
 }
 
@@ -229,24 +240,35 @@ static const int wpwidth = 2; // WinPanel lwidth
 
 void QFrame::setFrameStyle( int style )
 {
-    //   If this is a line, it may stretch in the direction of the
-    //   line, but it is fixed in the other direction. If this is a
-    //   normal frame, use QWidget's default behavior.
-    switch (style & MShape) {
+    switch ( style & MShape ) {
     case HLine:
-        setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+	if ( d == DefaultSizePolicy )
+	    QWidget::setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
         break;
     case VLine:
-        setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ) );
+	if ( d == DefaultSizePolicy )
+	    QWidget::setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
         break;
     default:
-        // only reset if it was hline or vline
-        if ( (fstyle & MShape) == HLine || (fstyle & MShape) == VLine )
-            setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
+        if ( d == DefaultSizePolicy
+	     && ((fstyle & MShape) == HLine || (fstyle & MShape) == VLine) )
+            QWidget::setSizePolicy( QSizePolicy::Preferred,
+				    QSizePolicy::Preferred );
     }
     fstyle = (short)style;
     updateFrameWidth( TRUE );
 }
+
+/*! \reimp */
+void QFrame::setSizePolicy( QSizePolicy sp )
+{
+    d = UserSizePolicy;
+    QWidget::setSizePolicy( sp );
+}
+
+/*! \internal
+    \fn void QFrame::setSizePolicy( QSizePolicy::SizeType, QSizePolicy::SizeType, bool )
+*/
 
 /*!
     \property QFrame::lineWidth

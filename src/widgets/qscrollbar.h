@@ -47,8 +47,6 @@ class QTimer;
 
 #ifndef QT_NO_SCROLLBAR
 
-struct QScrollBarPrivate;
-
 class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
 {
     Q_OBJECT
@@ -77,6 +75,8 @@ public:
     virtual void setPalette( const QPalette & );
     virtual QSize sizeHint() const;
     virtual void setSizePolicy( QSizePolicy sp );
+    inline void	setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE )
+    { QWidget::setSizePolicy( hor, ver, hfw ); }
 
     int	 minValue() const;
     int	 maxValue() const;
@@ -154,7 +154,7 @@ private:
     QCOORD clickOffset;
 
     QTimer * repeater;
-    QScrollBarPrivate * d;
+    void * d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -50,12 +50,16 @@
 #endif
 #include <limits.h>
 
-struct QScrollBarPrivate
-{
-    bool defaultSizePolicy;
+#if QT_VERSION >= 0x040000
+#error Remove d-pointer hack
+#endif
 
-    QScrollBarPrivate() : defaultSizePolicy( TRUE ) { }
-};
+/*
+  We avoid creating a d-pointer object by storing the two values we
+  need as d-pointers themselves.
+*/
+static void * const DefaultSizePolicy = (void *) 0;
+static void * const UserSizePolicy = (void *) &DefaultSizePolicy;
 
 /*!
     \class QScrollBar
@@ -279,7 +283,6 @@ QScrollBar::QScrollBar( int minValue, int maxValue, int lineStep, int pageStep,
 */
 QScrollBar::~QScrollBar()
 {
-    delete d;
 }
 
 void QScrollBar::init()
@@ -291,7 +294,7 @@ void QScrollBar::init()
     setFocusPolicy( NoFocus );
 
     repeater = 0;
-    d = 0;
+    d = DefaultSizePolicy;
 
     setBackgroundMode((Qt::BackgroundMode)
 		      style().styleHint(QStyle::SH_ScrollBar_BackgroundMode));
@@ -316,7 +319,7 @@ void QScrollBar::setOrientation( Orientation orientation )
     if ( orientation == orient )
 	return;
 
-    if ( !d || d->defaultSizePolicy ) {
+    if ( d == DefaultSizePolicy ) {
 	QSizePolicy sp = sizePolicy();
 	sp.transpose();
 	QWidget::setSizePolicy( sp );
@@ -383,11 +386,13 @@ QSize QScrollBar::sizeHint() const
 /*! \reimp */
 void QScrollBar::setSizePolicy( QSizePolicy sp )
 {
-    if ( !d )
-	d = new QScrollBarPrivate;
-    d->defaultSizePolicy = FALSE;
+    d = UserSizePolicy;
     QWidget::setSizePolicy( sp );
 }
+
+/*! \internal
+    \fn void QScrollBar::setSizePolicy( QSizePolicy::SizeType, QSizePolicy::SizeType, bool )
+*/
 
 /*!
   \internal
