@@ -4935,12 +4935,14 @@ static const psfont SMGothic [] = {
 };
 
 // serif
+#if 0 // ### this is never used?
 static const psfont SMMyungjo [] = {
     { "SMMyungjo-Light-KSC-EUC-H", 0, 100. },
     { "SMMyungjo-Light-KSC-EUC-H", 0.2, 100. },
     { "SMMyungjo-Bold-KSC-EUC-H", 0, 100. },
     { "SMMyungjo-Bold-KSC-EUC-H", 0.2, 100. }
 };
+#endif
 
 static const psfont MKai [] = {
     { "MingMT-Light-KSC-EUC-H", 0, 100. },
@@ -5070,12 +5072,14 @@ static const psfont YenRound [] = {
 };
 
 // Dr. Wang Hann-Tzong's GPL'ed Big5 TrueType fonts
+#if 0 // ### this is never used?
 static const psfont HtWFangSong [] = {
     { "HtW-FSong-Light-ETen-B5-H", 0, 100. },
     { "HtW-FSong-Light-Italic-ETen-B5-H", 0.2, 100. },
     { "HtW-FSong-Light-Bold-ETen-B5-H", 0, 100. },
     { "HtW-FSong-Light-BoldItalic-ETen-B5-H", 0.2, 100. },
 };
+#endif
 
 static const psfont MingB5 [] = {
     { "Ming-Light-ETen-B5-H", 0, 100. },
@@ -5111,11 +5115,10 @@ static const psfont * const TraditionalReplacements[] = {
     LinGothic, YenRound, MOEKai, Helvetica, 0
 	};
 
-#if 0
+#if 0 // ### these are never used?
 static const psfont * const SongB5Replacements[] = {
     SongB5, ShanHeiSun, MingB5, MSung, MOESung, Helvetica, 0
 	};
-#endif
 
 static const psfont * const FangSongB5Replacements[] = {
     FangSongB5, HtWFangSong, Courier, 0
@@ -5129,6 +5132,7 @@ static const psfont * const HeiB5Replacements[] = {
 static const psfont * const YuanB5Replacements[] = {
     YenRound, LinGothic, HeiB5, LucidaSans, 0
 	};
+#endif
 
 
 class QPSPrinterFontTraditionalChinese
