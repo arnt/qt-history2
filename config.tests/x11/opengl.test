@@ -1,13 +1,102 @@
 #!/bin/sh
 
-LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $1/qmake.conf`
-for L in $LIBS
-do
-   F=
-   ### fix (search for OpenGL libraries in X11 directory as well)
-   for LIB in `sed -n -e '/^QMAKE_LFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $1/qmake.conf` /usr/lib /lib /usr/X11R6/lib
-   do
-      [ "`echo $LIB/lib$L.*`" = "$LIB"/lib$L.\* ] && exit 0
-   done
-done
-exit 1
+    OPENGL=yes
+    XCONFIG=$1/qmake.conf
+    THREAD=$2
+    VERBOSE=$3
+
+    if [ "$VERBOSE" = "yes" ]; then
+	echo "OpenGL auto-detection..."
+    fi
+
+    LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	 ]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XCONFIG`
+    GLDIRS=`sed -n -e '/^QMAKE_LIBDIR_OPENGL[	 ]*=/ { s/[^=]*=[	 ]*//; p; }' $XCONFIG`
+    XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	 ]*=/ { s/[^=]*=[	 ]*//; p; }' $XCONFIG`
+    LIBDIRS="$GLDIRS $XDIRS /usr/lib /lib"
+
+    for L in $LIBS
+    do
+        FOUND_LIB=
+	F=
+	for LIBDIR in $LIBDIRS
+	do
+	    FOUND_LIB=`ls $LIBDIR/lib$L.* 2>/dev/null`
+	    if [ ! -z "$FOUND_LIB" ]
+	    then
+		F=yes
+		if [ "$VERBOSE" = "yes" ]; then
+		    echo "  Found $L lib in $LIBDIR"
+		fi
+		break
+	    fi
+	done
+	if [ ! -z "$FOUND_LIB" -a  ! "x$THREAD" = "xyes" -a ! -z "$F" ]; then
+	    LDD_P=`which ldd 2>/dev/null`
+	    if [ ! -z "$LDD_P" ]; then
+	        for a in $FOUND_LIB; do
+		    if $LDD_P $a 2>/dev/null | grep -i thread >/dev/null 2>&1
+		    then
+			FOUND_LIB=$a
+			F_REASON="threads"
+			F=
+			break
+		    fi
+		done
+	    fi
+        fi
+
+	if [ -z "$F" ]; then
+	    OPENGL=no
+	    if [ "$VERBOSE" = "yes" ]; then
+	        if [ "x$F_REASON" = "xthreads" ]; then
+		   echo "  $FOUND_LIB is threaded; the Qt OpenGL Module requires Qt to be configured with -thread."
+		else
+		   echo "  Could not find $L lib anywhere in $LIBDIRS"
+		fi
+	    fi
+	    break
+	fi
+    done
+
+    if [ "$OPENGL" = "yes" ]
+    then
+	INCS="GL/gl.h GL/glu.h"
+	GLDIRS=`sed -n -e '/^QMAKE_INCDIR_OPENGL[	 ]*=/ { s/[^=]*=[	 ]*//; p; }' $XCONFIG`
+	XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; p; }' $XCONFIG`
+	INCDIRS="$GLDIRS $XDIRS /usr/include /include"
+
+	for I in $INCS
+	do
+	    F=
+	    for INCDIR in $INCDIRS
+	    do
+		if [ -f $INCDIR/$I ]
+		then
+		    F=yes
+		    if [ "$VERBOSE" = "yes" ]; then
+			echo "  Found $I in $INCDIR"
+		    fi
+		    break
+		fi
+	    done
+	    if [ -z "$F" ]; then
+		OPENGL=no
+		    if [ "$VERBOSE" = "yes" ]; then
+			echo "  Could not find $I anywhere in $INCDIRS"
+		    fi
+		break
+	    fi
+	done
+    fi
+
+    if [ "$OPENGL" != "yes" ]; then
+	if [ "$VERBOSE" = "yes" ]; then
+	    echo "OpenGL module disabled."
+	fi
+	exit 0
+    else
+	if [ "$VERBOSE" = "yes" ]; then
+	    echo "OpenGL module enabled."
+	fi
+	exit 1
+    fi

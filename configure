@@ -781,6 +781,28 @@ then
     exit 2
 fi
 
+# Find default thread option for target
+if grep >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKESPEC/qmake.conf
+then
+    AUTOTHREAD=yes
+    AUTOTHREAD=no  ####### leave off for now
+else
+    AUTOTHREAD=never
+fi
+if [ $AUTOTHREAD = never ]
+then
+    if [ $THREAD = yes ]
+    then
+	echo
+	echo "ERROR: Qt is not configured to support threading on this platform"
+	echo "       See the THREAD settings in $XQMAKESPEC/qmake.conf"
+	echo
+	exit 2
+    fi
+    AUTOTHREAD=no
+fi
+[ $THREAD = auto ] && THREAD=$AUTOTHREAD
+
 # Tests
 
 #x11
@@ -789,7 +811,7 @@ if [ ! -z "`grep QMAKE_INCDIR_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]
 
    #opengl
    if echo $MODULES | grep opengl >/dev/null; then
-       $x11tests/opengl.test $XQMAKESPEC && MODULES=`echo $MODULES | sed -e 's/opengl//'`
+       $x11tests/opengl.test $XQMAKESPEC $THREAD $VERBOSE && MODULES=`echo $MODULES | sed -e 's/opengl//'`
    fi
    # XRender support
    if [ $XRENDER = auto ]; then
@@ -821,27 +843,6 @@ if [ $STL = auto ]; then
     STL=yes
     $unixtests/stl.test $XQMAKESPEC && STL=no
 fi
-# Find default thread option for target
-if grep >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKESPEC/qmake.conf
-then
-    AUTOTHREAD=yes
-    AUTOTHREAD=no  ####### leave off for now
-else
-    AUTOTHREAD=never
-fi
-if [ $AUTOTHREAD = never ]
-then
-    if [ $THREAD = yes ]
-    then
-	echo
-	echo "ERROR: Qt is not configured to support threading on this platform"
-	echo "       See the THREAD settings in $XQMAKESPEC/qmake.conf"
-	echo
-	exit 2
-    fi
-    AUTOTHREAD=no
-fi
-[ $THREAD = auto ] && THREAD=$AUTOTHREAD
 
 # Next, emit a usage message if something failed.
 if [ "$HELP" = "yes" ]; then
