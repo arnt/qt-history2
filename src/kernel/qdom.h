@@ -11,6 +11,7 @@
 
 class QWidget;
 class QLayout;
+class QIODevice;
 
 class QDOM_DocumentPrivate;
 class QDOM_DocumentTypePrivate;
@@ -219,6 +220,7 @@ class QDomCharacterData;
   public:
     QDomDocument();
     QDomDocument( const QString& name );
+    QDomDocument( QIODevice* dev );
     QDomDocument( const QDomDocument& x );
     QDomDocument& operator= ( const QDomDocument& );
     ~QDomDocument();

@@ -2,6 +2,7 @@
 #include "qxml.h"
 
 #include <qtextstream.h>
+#include <qiodevice.h>
 
 #include <string.h>
 #include <stdlib.h>
@@ -3276,6 +3277,19 @@ QDomDocument::QDomDocument( const QDomDocument& x )
 QDomDocument::QDomDocument( QDOM_DocumentPrivate* x )
   : QDomNode( x )
 {
+}
+
+QDomDocument::QDomDocument( QIODevice* dev )
+{
+  uint size = dev->size();
+  char* buffer = new char[ size + 1 ];
+  dev->readBlock( buffer, size );
+  buffer[ size ] = 0;
+
+  QString text = QString::fromUtf8( buffer, size );
+  delete[] buffer;
+
+  setContent( text );
 }
 
 QDomDocument& QDomDocument::operator= ( const QDomDocument& x )
