@@ -41,6 +41,11 @@
 #include "qtoolbutton.h"
 #include <limits.h>
 
+#define INCLUDE_MENUITEM_DEF
+#include "qmenudata.h" // for now
+#undef INCLUDE_MENUITEM_DEF
+#include "qsgistyle.h" // for now
+
 
 // NOT REVISED
 /*!
@@ -338,5 +343,18 @@ void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
 #else
     drawToolButton( p, x, y, w, h, g, sunken, &fill );
 #endif
+}
+//### remove in Version 3.0
+void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
+				    QMenuItem* mi, QColorGroup& g,
+				    bool enabled )
+{
+    if ( inherits("QSGIStyle" ) ) {
+	QSGIStyle* sgi = (QSGIStyle*) this;
+	sgi->drawMenuBarItem( p, x, y, w, h, mi, g, enabled );
+    } else {
+        drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine, 
+	    g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
+    }
 }
 #endif
