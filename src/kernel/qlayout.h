@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#25 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#26 $
 **
 ** Definition of layout classes
 **
@@ -44,7 +44,7 @@ public:
     virtual ~QLayout();
     int defaultBorder() const { return insideSpacing; }
     int margin() const { return outsideBorder; }
-    
+
     enum { unlimited = QCOORD_MAX };
 
     void freeze( int w, int h );
@@ -57,7 +57,7 @@ public:
     bool isTopLevel() const { return topLevel; }
     const QRect &geometry() { return rect; }
 #if 1	//OBSOLETE
-    bool activate() { return FALSE; }
+    bool activate();
 #endif
     virtual bool fixedWidth();
     virtual bool fixedHeight();

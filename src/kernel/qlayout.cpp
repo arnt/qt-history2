@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#50 $
 **
 ** Implementation of layout classes
 **
@@ -330,7 +330,7 @@ public:
     bool fixedHeight();
     bool removeWidget( QWidget* );
     void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
-    //    void setDirty() { needRecalc = TRUE; }
+    //	  void setDirty() { needRecalc = TRUE; }
 
 private:
     void init();
@@ -345,7 +345,7 @@ private:
     QArray<LayoutStruct> colData;
     QList<QLayoutBox> things;
     QList<QMultiBox> *multi;
-    //    bool needRecalc;
+    //	  bool needRecalc;
 };
 
 QLayoutArray::QLayoutArray()
@@ -361,7 +361,7 @@ QLayoutArray::QLayoutArray( int nRows, int nCols )
 }
 void QLayoutArray::init()
 {
-    //    needRecalc = TRUE;
+    //	  needRecalc = TRUE;
     multi = 0;
     rr = cc = 0;
     things.setAutoDelete( TRUE );
@@ -511,7 +511,7 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 
 void QLayoutArray::setupLayoutData()
 {
-    //    if ( !needRecalc )
+    //	  if ( !needRecalc )
     //		return;
     int i;
     for ( i = 0; i < rr; i++ ) {
@@ -568,7 +568,7 @@ void QLayoutArray::setupLayoutData()
 	}
     }
 
-    //    needRecalc = FALSE;
+    //	  needRecalc = FALSE;
 }
 
 void QLayoutArray::distribute( QRect r, int spacing )
@@ -630,7 +630,7 @@ void QLayoutArray::distribute( QRect r, int spacing )
   QBoxLayout and QGridLayout inherit from this one.
 
   Most users of Q*Layout are likely to use some of the basic functions
-  provided by QLayout, such as  setMenuBar(), which is necessary
+  provided by QLayout, such as	setMenuBar(), which is necessary
   to manage a menu bar because of the special properties of menu bars,
   and  freeze(), which allows you to freeze the widget's size and
   layout.
@@ -735,7 +735,7 @@ QWidget * QLayout::mainWidget()
 	}
     } else {
 	ASSERT( parent() && parent()->isWidgetType() );
-	return  (QWidget*)parent();
+	return	(QWidget*)parent();
     }
 }
 
@@ -779,14 +779,14 @@ void QLayout::paintEvent( QPaintEvent * )
   Returns the minimum size this layout needs.
 */
 
-/*! \fn  bool removeWidget( QWidget *w )
+/*! \fn	 bool removeWidget( QWidget *w )
 
   Remove \a w from geometry management. This function is called
   automatically whenever a child widget is deleted.
 
   This function is implemented in subclasses. It is the
   responsibility of the reimplementor to propagate the call to
-  sub-layouts.  This function returns TRUE if the widget was found.
+  sub-layouts.	This function returns TRUE if the widget was found.
  */
 
 #if 0
@@ -824,7 +824,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
     if ( !o->isWidgetType() )
 	return FALSE;
 
-    //    QWidget *p = (QWidget*)o;
+    //	  QWidget *p = (QWidget*)o;
     //		 if ( p != parentWidget() ) return FALSE;
     switch ( e->type() ) {
     case QEvent::Resize: {
@@ -1002,7 +1002,7 @@ bool QLayout::fixedHeight()
 
   Columns 0, 2 and 4 in this dialog fragment are made up of a QLabel,
   a QLineEdit and a QListBox.  Columns 1 and 2 are placeholders, made
-  with setColSpacing().  Row 0 consists of three QLabel objects, row 1
+  with setColSpacing().	 Row 0 consists of three QLabel objects, row 1
   of three QLineEdit objects and row 2 of three QListBox objects.
 
   Since we did not want any space between the rows, we had to use
@@ -1027,7 +1027,7 @@ bool QLayout::fixedHeight()
   Finally, if the grid is the top-level layout, you activate() it.
 
   QGridLayout also includes two margin widths: The border width and
-  the inter-box width.  The border width is the width of the reserved
+  the inter-box width.	The border width is the width of the reserved
   space along each of the QGridLayout's four sides.  The intra-widget
   width is the width of the automatically allocated spacing between
   neighbouring boxes.
@@ -1395,7 +1395,7 @@ void QGridLayout::clearCache()
   managed widget fill one box.
 
   If the QBoxLayout is \c Horizontal, the boxes are beside each other,
-  with suitable sizes.  Each widget (or other box) will get at least
+  with suitable sizes.	Each widget (or other box) will get at least
   its minimum sizes and at most its maximum size, and any excess space
   is shared according to the stretch factors (more about that below).
 
@@ -1747,3 +1747,31 @@ QVBoxLayout::~QVBoxLayout()
 {
 }
 
+
+/*!  Redoes the layout for mainWidget().  You should generally not
+  need to call this, as it is automatically called at most appropriate
+  times.
+
+  However, if you set up a QLayout for a visible widget without
+  resizing that widget, you need to call this function in order to lay
+  it out.
+*/
+
+bool QLayout::activate()
+{
+    // Paul: If adding stuff to a QLayout for a widget causes
+    // postEvent(thatWidget, QEvent::LayoutHint), activate() becomes
+    // unnecessary in that case too.
+
+#if 1
+    QSize s = mainWidget()->size();
+    int mbh = menubar ? menubar->heightForWidth( s.width() ) : 0;
+    setGeometry( QRect( outsideBorder, mbh + outsideBorder,
+			s.width() - 2*outsideBorder,
+			s.height() - mbh - 2*outsideBorder ) );
+    debug( "sg %d,%d,%d,%d", outsideBorder, mbh + outsideBorder,
+			s.width() - 2*outsideBorder,
+			s.height() - mbh - 2*outsideBorder );
+#endif
+    return TRUE;
+}
