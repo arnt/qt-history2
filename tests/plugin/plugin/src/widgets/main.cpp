@@ -1,8 +1,8 @@
 #include "previewstack.h"
 #include "styledbutton.h"
 #include "../../../qwidgetinterface.h"
-#include "../../../qcleanuphandler.h"
 
+#include <qcleanuphandler.h>
 #include <qapplication.h>
 
 #ifdef _WS_WIN_
