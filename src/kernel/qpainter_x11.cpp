@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#60 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#59 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#60 $";
 #endif
 
 
@@ -755,6 +755,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     sx = sy = tx = ty = 0;			// default view origins
     if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
+	gc = alloc_painter_gc( dpy, w->handle() );
 	cfont = w->fontRef();			// use widget font
 	bg_col = w->backgroundColor();		// use widget bg color
 	sw = tw = w->clientSize().width();	// default view size
@@ -763,7 +764,6 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	if ( reinit ) {
 	    cbrush = QBrush( NoBrush );
 	}
-	gc = alloc_painter_gc( dpy, w->id() );
 	if ( w->testFlag(WPaintUnclipped) ) {	// paint direct on device
 	    updateBrush();
 	    XSetSubwindowMode( w->display(), gc, IncludeInferiors );
@@ -772,14 +772,10 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
     else if ( pdev->devType() == PDT_PIXMAP ) {	// device is a pixmap
 	QPixMap *pm = (QPixMap*)pdev;
-	sw = tw = pm->size().width();		// default view size
-	sh = th = pm->size().height();
 	bool mono = pm->depth() == 1;		// monochrome bitmap
-	if ( mono ) {
-	    bg_col = color0;
-	    cpen.setColor( color1 );
-	}
 	gc = alloc_painter_gc( dpy, hd, mono );	// create GC
+	sw = tw = pm->width();			// default view size
+	sh = th = pm->height();
 	if ( reinit ) {
 	    QFont  defaultFont(TRUE);		// default drawing tools
 	    QPen   defaultPen;
@@ -787,6 +783,10 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    cfont  = defaultFont;		// set these drawing tools
 	    cpen   = defaultPen;
 	    cbrush = defaultBrush;
+	}
+	if ( mono ) {
+	    bg_col = color0;
+	    cpen.setColor( color1 );		// changes gc directly!
 	}
     }
     else
