@@ -19,7 +19,7 @@
   This class is an abstract class which provides data.  The data model is a hierarchy of rows. The data is accessed
   by calling data() with a QModelIndex object.  Functions rowCunt() and columnCount() returns
   the size of the data source which is provided by the model on each leve in the heierarchy.
-  
+
   fetchMore() can be reimplemented by models where it is hard  to determine the final size of the data (e.g. data streams ).
   The model is also responsible for sorting its data through the virtual functions
   sort() and isSortable().
@@ -71,13 +71,16 @@ QByteArray QGenericItemModel::encodedData(const char *mime, const QModelIndexLis
 {
     if (indices.count() <= 0 || QString(mime) != format(0))
 	return QByteArray();
-    QVariantList variants;
-    QModelIndexList::ConstIterator it = indices.begin();
-    for (; it != indices.end(); ++it)
-	variants << QVariant(data(*it)); // data returns a QVariantList
+
     QByteArray encoded;
     QDataStream stream(encoded, IO_WriteOnly);
-    stream << QVariant(variants);
+    QModelIndexList::ConstIterator it = indices.begin();
+    for (; it != indices.end(); ++it) {
+	QMap<int, QVariant> roles = itemData((*it));
+	for (QMap<int, QVariant>::ConstIterator r = roles.begin(); r != roles.end(); ++r)
+	    stream << r.key() << r.value();
+	stream << -1;
+    }
     return encoded;
 }
 
@@ -90,25 +93,45 @@ bool QGenericItemModel::decode(QMimeSource *src)
 {
     if (!canDecode(src))
 	return false;
+
     QByteArray encoded = src->encodedData(format(0));
     QDataStream stream(encoded, IO_ReadOnly);
-    QVariant variant;
-    stream >> variant;
-    if (variant.type() != QVariant::List)
-	return false;
-    QCoreVariantList variants = variant.toList();
-    QCoreVariantList::ConstIterator it = variants.begin();
-    for (int i = 0; it != variants.end(); ++it, ++i)
-	appendData(*reinterpret_cast< QList<QVariant> *>(&(*it).toList()));
+    bool newItem = true;
+    int role;
+    QVariant variantData;
+    QModelIndex insertedItem;
+    while (!stream.atEnd()) {
+	stream >> role;
+	if (role > -1) {
+	    if (newItem) {
+		insertedItem = insertItem();
+		newItem = false;
+	    }
+	    stream >> variantData;
+	    setData(insertedItem, role, variantData);
+	} else {
+	    newItem = true;
+	}
+    }
     return true;
 }
 
-QVariantList QGenericItemModel::data(const QModelIndex &index) const
+/*!
+  Returns a map with values for all predefined roles in the model. Must be reimplemented if you extend the model
+  with customized roles.
+
+  \sa Role
+*/
+
+QMap<int, QVariant> QGenericItemModel::itemData(const QModelIndex &index) const
 {
-    QVariantList elements;
-    for (int e = 0; e < elementCount(index); ++e)
-	elements << data(index, e);
-    return elements;
+    QMap<int, QVariant> roles;
+    for (int i=0; i<User; ++i) {
+	QVariant variantData = data(index, i);
+	if (variantData != QVariant::Invalid)
+	    roles.insert(i, variantData);
+    }
+    return roles;
 }
 
 void QGenericItemModel::setData(const QModelIndex &, int, const QVariant &)
@@ -116,28 +139,22 @@ void QGenericItemModel::setData(const QModelIndex &, int, const QVariant &)
     // do nothing - read only
 }
 
-void QGenericItemModel::setData(const QModelIndex &index, const QVariantList &elements)
+void QGenericItemModel::setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles)
 {
-    QVariantList::ConstIterator it = elements.begin();
-    for (int e = 0; it != elements.end() && e < elementCount(index); ++it)
-	setData(index, e++, *it);
+    for (QMap<int, QVariant>::ConstIterator it = roles.begin(); it != roles.end(); ++it)
+	setData(index, it.key(), it.value());
 }
 
-void QGenericItemModel::insertData(const QModelIndex &, const QVariantList &)
-{
-    // do nothing - read only
-}
+/*!
+  Inserts a new item at QModelIndex, or if QModelIndex is invalid or out
+  of bounds appends at the end of the model.  Returns and invalid
+  QModelIndex on failure or the QModelIndex of the inserted item.
+*/
 
-void QGenericItemModel::appendData(const QVariantList &)
+QModelIndex QGenericItemModel::insertItem(const QModelIndex &)
 {
-    // do nothing - read only
-}
-
-int QGenericItemModel::elementCount(const QModelIndex &index) const
-{
-    int element = 0;
-    while (type(index, element++) != QVariant::Invalid);
-    return element;
+    // read-only does nothing
+    return QModelIndex();
 }
 
 bool QGenericItemModel::isSelectable(const QModelIndex &) const

@@ -220,6 +220,8 @@ void QGenericTreeView::drawContents(QPainter *painter, int cx, int cy, int cw, i
 	// next row
 	++view_index;
 	model_index = d->modelIndex(view_index);
+	if (!model_index.isValid()) //FIXME: stuff below should be moved up and break removed
+	    break;
 	x = d->indentation(view_index);
 	height = delegate->sizeHint(fontMetrics, options, model_index).height();
 	y += height;
@@ -239,7 +241,7 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
     int y = options->itemRect.y();
     QModelIndex parent = model()->parent(index);
     QGenericHeader *header = d->header;
-    
+
     if (column == 0 && !header->isSectionHidden(column)) {
 	pos = header->sectionPosition(column);
 	width = header->sectionSize(column);
@@ -252,7 +254,7 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
 	itemDelegate()->paint(painter, *options, index);
 	++column;
     }
-    
+
     options->focus = false;
     QModelIndex i = index;
     for (; column < model()->columnCount(root()); ++column) {

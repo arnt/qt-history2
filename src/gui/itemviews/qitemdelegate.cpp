@@ -20,11 +20,8 @@ QItemDelegate::~QItemDelegate()
 void QItemDelegate::paint(QPainter *painter, const QItemOptions &options, const QModelIndex &item) const
 {
     static QPoint pt(0, 0);
-
-    int textElement = model()->element(item, QVariant::String);
-    int iconElement = model()->element(item, QVariant::IconSet);
-    QString text = model()->data(item,textElement).toString();
-    QIconSet icons = model()->data(item,iconElement).toIconSet();
+    QString text = model()->data(item, QGenericItemModel::Display).toString();
+    QIconSet icons = model()->data(item, QGenericItemModel::Decoration).toIconSet();
 
     QRect iconRect(pt, iconSize(options, icons));
     QRect textRect(pt, textSize(painter->fontMetrics(), options, text));
@@ -39,10 +36,10 @@ QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QItemOption
 			      const QModelIndex &item) const
 {
     static QPoint pt(0, 0);
-    int iconElement = model()->element(item, QVariant::IconSet);
-    int textElement = model()->element(item, QVariant::String);
-    QRect iconRect(pt, iconSize(options, model()->data(item,iconElement).toIconSet()));
-    QRect textRect(pt, textSize(fontMetrics, options, model()->data(item,textElement).toString()));
+    QRect iconRect(pt, iconSize(options,
+				model()->data(item, QGenericItemModel::Decoration).toIconSet()));
+    QRect textRect(pt, textSize(fontMetrics, options,
+				model()->data(item, QGenericItemModel::Display).toString()));
     doLayout(options, &iconRect, &textRect, false); // makes the rects valid
     return iconRect.unite(textRect).size();
 }
@@ -60,8 +57,7 @@ QWidget *QItemDelegate::createEditor(StartEditAction action, QWidget *parent,
     if (action & (EditKeyPressed | AnyKeyPressed | DoubleClicked)) {
 	QLineEdit *lineEdit = new QLineEdit(parent, "QItemDelegate_lineedit");
 	lineEdit->setFrame(false);
-	int textElement = model()->element(item, QVariant::String);
-	lineEdit->setText(model()->data(item, textElement).toString());
+	lineEdit->setText(model()->data(item, QGenericItemModel::Edit).toString());
 	lineEdit->selectAll();
 	updateEditorGeometry(lineEdit, options, item);
 	return lineEdit;
@@ -72,29 +68,25 @@ QWidget *QItemDelegate::createEditor(StartEditAction action, QWidget *parent,
 void QItemDelegate::setContentFromEditor(QWidget *editor, const QModelIndex &item) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
-    if (lineEdit) {
-	int textElement = model()->element(item, QVariant::String);
-	model()->setData(item, textElement, lineEdit->text());
-    }
+    if (lineEdit)
+	model()->setData(item, QGenericItemModel::Edit, lineEdit->text());
 }
 
 void QItemDelegate::updateEditorContents(QWidget *editor, const QModelIndex &item) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
-    if (lineEdit) {
-	int textElement = model()->element(item, QVariant::String);
-	lineEdit->setText(model()->data(item, textElement).toString());
-    }
+    if (lineEdit)
+	lineEdit->setText(model()->data(item, QGenericItemModel::Edit).toString());
 }
 
 void QItemDelegate::updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &item) const
 {
     static QPoint pt(0, 0);
     if (editor) {
-	int iconElement = model()->element(item, QVariant::IconSet);
-	int textElement = model()->element(item, QVariant::String);
-	QRect iconRect(pt, iconSize(options, model()->data(item,iconElement).toIconSet()));
- 	QRect textRect(pt, textSize(editor->fontMetrics(), options, model()->data(item,textElement).toString()));
+	QRect iconRect(pt, iconSize(options,
+				    model()->data(item, QGenericItemModel::Decoration).toIconSet()));
+ 	QRect textRect(pt, textSize(editor->fontMetrics(), options,
+				    model()->data(item, QGenericItemModel::Display).toString()));
 	doLayout(options, &iconRect, &textRect, true); // makes the rects valid
 	editor->setGeometry(textRect);
     }
@@ -135,7 +127,7 @@ void QItemDelegate::drawIcon(QPainter *painter, const QItemOptions &options, con
 void QItemDelegate::drawFocus(QPainter *painter, const QItemOptions &options, const QRect &rect) const
 {
     if (options.focus)
-	QApplication::style().drawPrimitive(QStyle::PE_FocusRect, painter, rect, options.palette);    
+	QApplication::style().drawPrimitive(QStyle::PE_FocusRect, painter, rect, options.palette);
 }
 
 void QItemDelegate::doLayout(const QItemOptions &options, QRect *iconRect, QRect *textRect, bool bound) const

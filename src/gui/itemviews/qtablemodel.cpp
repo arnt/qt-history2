@@ -1,17 +1,6 @@
 #include "qtablemodel.h"
 #include <qtl.h>
 
-QTableModelItem::QTableModelItem(const QVariantList &elements)
-{
-    QVariantList::ConstIterator it = elements.begin();
-    for (int e = 0; e < elements.count(); ++it, ++e) {
-	if ((*it).type() == QVariant::String)
-	    setText((*it).toString());
-	else if ((*it).type() == QVariant::IconSet)
-	    setIconSet((*it).toIconSet());
-    }
-}
-
 QTableModel::QTableModel(int rows, int columns, QObject *parent, const char *name)
     : QGenericItemModel(parent, name), r(rows), c(columns),
       table(rows * columns), leftHeader(rows), topHeader(columns) {}
@@ -83,25 +72,25 @@ void QTableModel::setColumnCount(int columns)
 	emit contentsRemoved(0, topLeft, bottomRight);
 }
 
-void QTableModel::insertRow(int at)
+void QTableModel::insertRow(int)
 {
 // FIXME: not implemented
     qDebug("insertRow: not implemented");
 }
 
-void QTableModel::insertColumn(int at)
+void QTableModel::insertColumn(int)
 {
 // FIXME: not implemented
     qDebug("insertColumn: not implemented");
 }
 
-void QTableModel::removeRow(int at)
+void QTableModel::removeRow(int)
 {
 // FIXME: not implemented
     qDebug("removeRow: not implemented");
 }
 
-void QTableModel::removeColumn(int at)
+void QTableModel::removeColumn(int)
 {
 // FIXME: not implemented
     qDebug("removeColumn: not implemented");
@@ -110,85 +99,73 @@ void QTableModel::removeColumn(int at)
 void QTableModel::setText(int row, int column, const QString &text)
 {
     QModelIndex index(row, column, 0);
-    int e = element(index, QVariant::String);
-    setData(index, e, QVariant(text));
+    setData(index, QGenericItemModel::Display, QVariant(text));
 }
 
 void QTableModel::setIconSet(int row, int column, const QIconSet &iconSet)
 {
     QModelIndex index(row, column, 0);
-    int e = element(index, QVariant::String);
-    setData(index, e, QVariant(iconSet));
+    setData(index, QGenericItemModel::Decoration, QVariant(iconSet));
 }
 
 QString QTableModel::text(int row, int column) const
 {
     QModelIndex index(row, column, 0);
-    int e = element(index, QVariant::String);
-    return data(index, e).toString();
+    return data(index, QGenericItemModel::Display).toString();
 }
 
 QIconSet QTableModel::iconSet(int row, int column) const
 {
     QModelIndex index(row, column, 0);
-    int e = element(index, QVariant::IconSet);
-    return data(index, e).toIconSet();
+    return data(index, QGenericItemModel::Decoration).toIconSet();
 }
 
 void QTableModel::setRowText(int row, const QString &text)
 {
     QModelIndex idx(row, 0, 0, QModelIndex::VerticalHeader);
-    int e = element(idx, QVariant::String);
-    setData(idx, e, QVariant(text));
+    setData(idx, QGenericItemModel::Decoration, QVariant(text));
 }
 
 void QTableModel::setRowIconSet(int row, const QIconSet &iconSet)
 {
     QModelIndex index(row, 0, 0, QModelIndex::VerticalHeader);
-    int e = element(index, QVariant::IconSet);
-    setData(index, e, QVariant(iconSet));
+    setData(index, QGenericItemModel::Decoration, QVariant(iconSet));
 }
 
 QString QTableModel::rowText(int row) const
 {
     QModelIndex index(row, 0, 0, QModelIndex::VerticalHeader);
-    int e = element(index, QVariant::String);
-    return data(index, e).toString();
+    return data(index, QGenericItemModel::Display).toString();
 }
 
 QIconSet QTableModel::rowIconSet(int row) const
 {
     QModelIndex index(row, 0, 0, QModelIndex::VerticalHeader);
-    int e = element(index, QVariant::IconSet);
-    return data(index, e).toIconSet();
+    return data(index, QGenericItemModel::Decoration).toIconSet();
 }
 
 void QTableModel::setColumnText(int column, const QString &text)
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    int e = element(index, QVariant::String);
-    setData(index, e, QVariant(text));
+    setData(index, QGenericItemModel::Display, QVariant(text));
 }
 
 void QTableModel::setColumnIconSet(int column, const QIconSet &iconSet)
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    int e = element(index, QVariant::IconSet);
-    setData(index, e, QVariant(iconSet));
+    setData(index, QGenericItemModel::Decoration, QVariant(iconSet));
 }
 
 QString QTableModel::columnText(int column) const
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    int e = element(index, QVariant::String);
-    return data(index, e).toString();
+    return data(index, QGenericItemModel::Display).toString();
 }
 
 QIconSet QTableModel::columnIconSet(int column) const
 {
     QModelIndex idx(0, column, 0, QModelIndex::HorizontalHeader);
-    int e = element(idx, QVariant::IconSet);
-    return data(idx, e).toIconSet();
+    return data(idx, QGenericItemModel::Decoration).toIconSet();
 }
 
 void QTableModel::setItem(int row, int column, QTableModelItem *item)
@@ -245,38 +222,42 @@ int QTableModel::columnCount(const QModelIndex &) const
     return c;
 }
 
-QVariant QTableModel::data(const QModelIndex &index, int element) const
+QVariant QTableModel::data(const QModelIndex &index, int role) const
 {
     const QTableModelItem *itm = item(index);
     if (!itm)
 	return QVariant();
-    if (element == 0)
+    if (role == QGenericItemModel::Display)
 	return itm->text();
-    if (element == 1)
+    if (role == QGenericItemModel::Decoration)
 	return itm->iconSet();
     return QVariant();
 }
 
-void QTableModel::setData(const QModelIndex &index, int element, const QVariant &value)
+void QTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     QTableModelItem *itm = item(index);
     if (!itm)
 	return;
-    if (!itm->isEditable())
+    if (!itm->isEditable()) // ### should this test really be here?
 	return;
-    if (element == 0)
+    if (role == QGenericItemModel::Display)
 	itm->setText(value.toString());
-    else if (element == 1)
+    else if (role == QGenericItemModel::Decoration)
 	itm->setIconSet(value.toIconSet());
     emit contentsChanged(index, index);
 }
 
-void QTableModel::insertData(const QModelIndex &index, const QVariantList &elements)
+// inserts a complete row, returns index of leftmost item
+QModelIndex QTableModel::insertItem(const QModelIndex &index)
 {
-    // inserts row
-    int ti = tableIndex(index.row(), 0) - 1;
-    // FIXME
+    QModelIndex insert = index;
+    if (!insert.isValid() ||
+	insert.row() > rowCount() ||
+	insert.column() > 0)
+	insert = QModelIndex(rowCount(), 0, 0);
 
+    int ti = tableIndex(insert.row(), 0) - 1;
     table.insert(ti, c, 0);
     for (int i = ti; i < (ti + c); ++i)
 	table[i] = new QTableModelItem();
@@ -286,36 +267,7 @@ void QTableModel::insertData(const QModelIndex &index, const QVariantList &eleme
     leftHeader.insert(index.row(), 1, item);
     ++r;
 
-    QGenericItemModel::setData(index, elements);
-}
-
-void QTableModel::appendData(const QVariantList &elements)
-{
-    setRowCount(rowCount() + 1);
-    QGenericItemModel::setData(index(rowCount() - 1, 0, 0), elements);
-}
-
-QVariant::Type QTableModel::type(const QModelIndex &index, int element) const
-{
-    const QTableModelItem *itm = item(index);
-    if (!itm)
-	return QVariant::Invalid;
-    if (element == 0)
-	return QVariant::String;
-    if (element == 1)
-	return QVariant::IconSet;
-    return QVariant::Invalid;
-}
-
-int QTableModel::element(const QModelIndex &index, QVariant::Type type) const
-{
-    if (!index.isValid())
-	return -1;
-    if (type == QVariant::String)
-	return 0;
-    if (type == QVariant::IconSet)
-	return 1;
-    return -1;
+    return index;
 }
 
 bool QTableModel::isSelectable(const QModelIndex &index) const

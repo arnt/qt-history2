@@ -15,7 +15,7 @@ class Q_GUI_EXPORT QListModelItem
     friend class QListModel;
 
 public:
-    QListModelItem(QListModel *model);
+    QListModelItem(QListModel *model = 0);
     ~QListModelItem() {}
 
     inline QString text() const { return txt; }
@@ -33,7 +33,6 @@ public:
     inline bool operator !=(const QListModelItem &other) const { return !operator==(other); }
 
 private:
-    QListModelItem(const QVariantList &elements);
     QString txt;
     QIconSet icn;
     uint edit : 1;
@@ -64,13 +63,10 @@ public:
     int rowCount(const QModelIndex &parent = 0) const;
     int columnCount(const QModelIndex &parent = 0) const;
 
-    QVariant data(const QModelIndex &index, int element) const;
-    void setData(const QModelIndex &index, int element, const QVariant &value);
-    void insertData(const QModelIndex &index, const QVariantList &elements);
-    void appendData(const QVariantList &elements);
+    QVariant data(const QModelIndex &index, int role) const;
+    void setData(const QModelIndex &index, int role, const QVariant &value);
 
-    QVariant::Type type(const QModelIndex &index, int element) const;
-    int element(const QModelIndex &index, QVariant::Type type) const;
+    QModelIndex insertItem(const QModelIndex &index);
 
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;

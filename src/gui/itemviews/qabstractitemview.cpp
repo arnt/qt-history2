@@ -102,6 +102,8 @@ void QAbstractItemViewPrivate::init()
     QObject::connect(q->verticalScrollBar(), SIGNAL(sliderReleased()), q, SLOT(fetchMore()));
     QObject::connect(q->verticalScrollBar(), SIGNAL(valueChanged(int)), q, SLOT(fetchMore()));
 
+    QObject::connect(q, SIGNAL(needMore()), model, SLOT(fetchMore()), QueuedConnection);
+
     q->viewport()->setBackgroundRole(QPalette::Base);
 
     //emit model->contentsChanged(); // initial emit to start layout

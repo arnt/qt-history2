@@ -499,8 +499,7 @@ void QGenericListView::contentsRemoved(const QModelIndex &parent,
     else
         needMore = viewport()->width() >= contentsWidth();
     if (needMore)
-        QApplication::postEvent(model(), new QMetaCallEvent(QEvent::InvokeSlot,
-					 model()->metaObject()->indexOfSlot("fetchMore()"), this));
+	emit this->needMore();
 }
 
 void QGenericListView::contentsDragMoveEvent(QDragMoveEvent *e)
@@ -1039,7 +1038,7 @@ void QGenericListView::updateGeometries()
 	    resizeContents(qMax(visibleWidth(), d->contentsSize.width()), contentsHeight());
 	else
 	    resizeContents(contentsWidth(), qMax(visibleHeight(), d->contentsSize.height()));
-//    qDebug("contentsSize %d", d->contentsSize.width());   
+//    qDebug("contentsSize %d", d->contentsSize.width());
 #endif
 }
 

@@ -5,18 +5,6 @@ QTreeModelItem::QTreeModelItem()
 {
 }
 
-QTreeModelItem::QTreeModelItem(const QVariantList &elements)
-    : par(0), mod(0), c(0), edit(true), select(true)
-{
-    QVariantList::ConstIterator it = elements.begin();
-    for (int e = 0; e < elements.count(); ++it, ++e) {
-	if ((*it).type() == QVariant::String)
-	    setText(0, (*it).toString());
-	else if ((*it).type() == QVariant::IconSet)
-	    setIconSet(0, (*it).toIconSet());
-    }
-}
-
 QTreeModelItem::QTreeModelItem(QTreeModel *model)
     : par(0), mod(model), c(0), edit(true), select(true)
 {
@@ -133,29 +121,25 @@ QIconSet QTreeModel::iconSet(const QModelIndex &index, int column) const
 void QTreeModel::setColumnText(int column, const QString &text)
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    int e = element(index, QVariant::String);
-    setData(index, e, QVariant(text));
+    setData(index, QGenericItemModel::Display, QVariant(text));
 }
 
 void QTreeModel::setColumnIconSet(int column, const QIconSet &iconSet)
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    int e = element(index, QVariant::IconSet);
-    setData(index, e, QVariant(iconSet));
+    setData(index, QGenericItemModel::Decoration, QVariant(iconSet));
 }
 
 QString QTreeModel::columnText(int column) const
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    int e = element(index, QVariant::String);
-    return data(index, e).toString();
+    return data(index, QGenericItemModel::Display).toString();
 }
 
 QIconSet QTreeModel::columnIconSet(int column) const
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    int e = element(index, QVariant::IconSet);
-    return data(index, e).toIconSet();
+    return data(index, QGenericItemModel::Decoration).toIconSet();
 }
 
 QTreeModelItem *QTreeModel::item(const QModelIndex &index) const
@@ -220,7 +204,7 @@ int QTreeModel::columnCount(const QModelIndex &) const
     return c;
 }
 
-QVariant QTreeModel::data(const QModelIndex &index, int element) const
+QVariant QTreeModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
 	return QVariant();
@@ -228,70 +212,31 @@ QVariant QTreeModel::data(const QModelIndex &index, int element) const
     QTreeModelItem *itm = item(index);
     if (!itm)
 	return QVariant();
-    if (element == 0)
+    if (role == Display)
 	return itm->text(index.column());
-    if (element == 1)
+    if (role == Decoration)
 	return itm->iconSet(index.column());
     return QVariant();
 }
 
-void QTreeModel::setData(const QModelIndex &index, int element, const QVariant &value)
+void QTreeModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     if (!index.isValid())
 	return;
     QTreeModelItem *itm = item(index);
     if (!itm)
 	return;
-    if (element == 0)
+    if (role == Display)
 	itm->setText(index.column(), value.toString());
-    else if (element == 1)
+    else if (role == Decoration)
 	itm->setIconSet(index.column(), value.toIconSet());
     emit contentsChanged(index, index);
 }
 
-void QTreeModel::insertData(const QModelIndex &index, const QVariantList &elements)
+QModelIndex QTreeModel::insertItem(const QModelIndex &)
 {
-    QTreeModelItem *sibling = item(index);
-    QTreeModelItem *parent = (QTreeModelItem *)sibling->parent();
-    QTreeModelItem *itm = new QTreeModelItem(elements);
-    if (parent) {
-	itm->par = parent;
-	itm->mod = this;
-	int i = parent->children.indexOf(sibling);
-	parent->children.insert(i, itm);
-    } else {
-	itm->mod = this;
-	int i = tree.indexOf(sibling);
-	tree.insert(i, itm);
-    }
-    emitContentsInserted(itm);
-}
-
-void QTreeModel::appendData(const QVariantList &elements)
-{
-    append(new QTreeModelItem(elements));
-}
-
-QVariant::Type QTreeModel::type(const QModelIndex &index, int element) const
-{
-    if (!index.isValid())
-	return QVariant::Invalid;
-    if (element == 0)
-	return QVariant::String;
-    else if (element == 1 && index.type() == QModelIndex::View)
-	return QVariant::IconSet;
-    return QVariant::Invalid;
-}
-
-int QTreeModel::element(const QModelIndex &index, QVariant::Type type) const
-{
-    if (!index.isValid())
-	return -1;
-    if (type == QVariant::String)
-	return 0;
-    else if (type == QVariant::IconSet && index.type() == QModelIndex::View)
-	return 1;
-    return -1;
+    // FIXME
+    return QModelIndex();
 }
 
 bool QTreeModel::isSelectable(const QModelIndex &) const

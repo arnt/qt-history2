@@ -287,8 +287,7 @@ void QGenericTableView::rowCountChanged(int, int)
     resizeContents(contentsWidth(), left.height());
     updateContents();
     if (viewport()->height() >= contentsHeight())
-        QApplication::postEvent(model(), new QMetaCallEvent(QEvent::InvokeSlot,
-				model()->metaObject()->indexOfSlot("fetchMore()"), this));
+	emit needMore();
 }
 
 void QGenericTableView::columnCountChanged(int, int)

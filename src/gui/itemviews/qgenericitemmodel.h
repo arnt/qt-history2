@@ -6,6 +6,7 @@
 #include <qmime.h>
 #include <qvariant.h>
 #include <qlist.h>
+#include <qmap.h>
 #endif
 
 class QGenericItemModel;
@@ -44,6 +45,15 @@ class Q_GUI_EXPORT QGenericItemModel : public QObject
     Q_OBJECT
 
 public:
+    enum Role {
+	Display = 0,
+	ToolTip = 1,
+	StatusTip = 2,
+	WhatsThis = 3,
+	Decoration = 4,
+	Edit = 5,
+	User = 32
+    };
 
     QGenericItemModel(QObject *parent = 0, const char *name = 0);
     virtual ~QGenericItemModel();
@@ -51,7 +61,7 @@ public:
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = 0,
                               QModelIndex::Type type = QModelIndex::View) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
-    
+
     inline QModelIndex topLeft(const QModelIndex &parent = 0) const
 	{ return index(0, 0, parent); }
     inline QModelIndex bottomRight(const QModelIndex &parent = 0) const
@@ -68,16 +78,13 @@ public:
     virtual bool canDecode(QMimeSource *src) const;
     virtual bool decode(QMimeSource *src);
 
-    virtual QVariant data(const QModelIndex &index, int element) const = 0;
-    virtual QVariantList data(const QModelIndex &index) const;
-    virtual void setData(const QModelIndex &index, int element, const QVariant &value);
-    virtual void setData(const QModelIndex &index, const QVariantList &elements);
-    virtual void insertData(const QModelIndex &index, const QVariantList &elements);
-    virtual void appendData(const QVariantList &elements);
+    virtual QVariant data(const QModelIndex &index, int role) const = 0;
+    virtual void setData(const QModelIndex &index, int role, const QVariant &value);
 
-    virtual QVariant::Type type(const QModelIndex &index, int element) const = 0;
-    virtual int element(const QModelIndex &index, QVariant::Type type) const = 0;
-    virtual int elementCount(const QModelIndex &index) const;
+    virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
+    void setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
+
+    virtual QModelIndex insertItem(const QModelIndex &index = QModelIndex());
 
     virtual bool isSelectable(const QModelIndex &index) const;
     virtual bool isEditable(const QModelIndex &index) const;

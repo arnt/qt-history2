@@ -29,7 +29,6 @@ public:
     inline void setSelectable(bool selectable) { select = selectable; }
 
 private:
-    QTableModelItem(const QVariantList &elements);
     QString txt;
     QIconSet icn;
     uint edit : 1;
@@ -46,7 +45,7 @@ public:
 
     virtual void setRowCount(int rows);
     virtual void setColumnCount(int columns);
-    
+
     virtual void insertRow(int at);
     virtual void insertColumn(int at);
 
@@ -79,13 +78,10 @@ public:
     int rowCount(const QModelIndex &parent = 0) const;
     int columnCount(const QModelIndex &parent = 0) const;
 
-    QVariant data(const QModelIndex &index, int element) const;
-    void setData(const QModelIndex &index, int element, const QVariant &value);
-    void insertData(const QModelIndex &index, const QVariantList &elements);
-    void appendData(const QVariantList &elements);
+    QVariant data(const QModelIndex &index, int role) const;
+    void setData(const QModelIndex &index, int role, const QVariant &value);
 
-    QVariant::Type type(const QModelIndex &index, int element) const;
-    int element(const QModelIndex &index, QVariant::Type type) const;
+    QModelIndex insertItem(const QModelIndex &index);
 
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;

@@ -8,18 +8,6 @@ QListModelItem::QListModelItem(QListModel *model)
 	model->append(this);
 }
 
-QListModelItem::QListModelItem(const QVariantList &elements)
-    : edit(true), select(true)
-{
-    QVariantList::ConstIterator it = elements.begin();
-    for (int e = 0; e < elements.count(); ++it, ++e) {
-	if ((*it).type() == QVariant::String)
-	    setText((*it).toString());
-	else if ((*it).type() == QVariant::IconSet)
-	    setIconSet((*it).toIconSet());
-    }
-}
-
 QListModel::QListModel(QObject *parent, const char *name)
     : QGenericItemModel(parent, name)
 {
@@ -90,59 +78,36 @@ int QListModel::columnCount(const QModelIndex &) const
     return 1;
 }
 
-QVariant QListModel::data(const QModelIndex &index, int element) const
+QVariant QListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= (int)lst.count())
 	return QVariant();
-    if (element == 0)
+    if (role == QGenericItemModel::Display)
 	return lst[index.row()]->text();
-    if (element == 1)
+    if (role == QGenericItemModel::Decoration)
 	return lst[index.row()]->iconSet();
     return QVariant();
 }
 
-void QListModel::setData(const QModelIndex &index, int element, const QVariant &value)
+void QListModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     if (!index.isValid() || index.row() >= (int)lst.count())
 	return;
-    if (element == 0)
+    if (role == QGenericItemModel::Display)
 	lst[index.row()]->setText(value.toString());
-    else if (element == 1)
+    else if (role == QGenericItemModel::Decoration)
 	lst[index.row()]->setIconSet(value.toIconSet());
     emit contentsChanged(index, index);
 }
 
-void QListModel::insertData(const QModelIndex &index, const QVariantList &elements)
+QModelIndex QListModel::insertItem(const QModelIndex &index)
 {
-    lst.insert(index.row(), new QListModelItem(elements));
-}
-
-void QListModel::appendData(const QVariantList &elements)
-{
-    (void)new QListModelItem(this);
-    QGenericItemModel::setData(index(rowCount() - 1, 0, 0), elements);
-}
-
-QVariant::Type QListModel::type(const QModelIndex &index, int element) const
-{
-    if (!index.isValid() || index.row() >= (int)lst.count())
-	return QVariant::Invalid;
-    if (element == 0)
-	return QVariant::String;
-    if (element == 1)
-	return QVariant::IconSet;
-    return QVariant::Invalid;
-}
-
-int QListModel::element(const QModelIndex &index, QVariant::Type type) const
-{
-    if (!index.isValid() || index.row() >= (int)lst.count())
-	return -1;
-    if (type == QVariant::String)
-	return 0;
-    if (type == QVariant::IconSet)
-	return 1;
-    return -1;
+    QListModelItem *item = new QListModelItem();
+    if (index.isValid() && index.row() < rowCount())
+	lst.insert(index.row(), item);
+    else
+	lst.append(item);
+    return QListModel::index(item);
 }
 
 bool QListModel::isSelectable(const QModelIndex &index) const
@@ -161,9 +126,7 @@ bool QListModel::isEditable(const QModelIndex &index) const
 
 void QListModel::append(QListModelItem *item)
 {
-    lst.push_back(item);
-    int r = lst.count();
-    int bottom = qMax(r - 1, 0);
-    QModelIndex idx = index(bottom, 0, 0);
+    lst.append(item);
+    QModelIndex idx = index(qMax(lst.count() - 1, 0), 0, 0);
     emit contentsInserted(idx, idx);
 }

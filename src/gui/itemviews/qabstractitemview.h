@@ -62,6 +62,10 @@ protected slots:
     virtual void updateCurrentEditor();
     virtual void updateGeometries();
 
+
+signals:
+    void needMore();
+
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QGenericItemModel *model,
                       QWidget *parent = 0, const char *name = 0);
