@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#45 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#44 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#45 $")
 
 
 /*----------------------------------------------------------------------------
@@ -516,14 +516,14 @@ ScrollControl QScrollBar_Private::pointOver(const QPoint &p) const
 }
 
 
-int QScrollBar_Private::rangeValueToSliderPos( int val ) const
+int QScrollBar_Private::rangeValueToSliderPos( int v ) const
 {
     int smin, smax;
     sliderMinMax( &smin, &smax );
     if ( maxValue() == minValue() )
 	return smin;
     int sliderMin=smin, sliderMax=smax;
-    return ((sliderMax-sliderMin)*2*(val-minValue())+1)/
+    return ((sliderMax-sliderMin)*2*(v-minValue())+1)/
 	   ((maxValue()-minValue())*2) + sliderMin;
 }
 
