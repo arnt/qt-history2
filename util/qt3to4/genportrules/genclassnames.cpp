@@ -58,7 +58,7 @@ QStringList QtClassAncestors::getClassNames()
 
     int numClassNames = -1;
     while (classNames.size() !=  numClassNames) {
-        cout << "parsing" << endl;
+    //   cout << "parsing" << endl;
         numClassNames = classNames.size();
         parseNode(fileSymbol->ast);
     }

@@ -55,7 +55,7 @@ QList<SymbolRename> GenDocRules::getSymbolRenames()
     QString fileContents = loadDocFile(filename);
     QStringList list =  fileContents.split(QRegExp("\\s*(\\\\row|\\\\o|\\\n)\\s*"), QString::SkipEmptyParts);
 
-    qDebug("symbol renames");
+ //   qDebug("symbol renames");
 #if 0
     qDebug(fileContents);
     foreach(QString string, list)
@@ -95,7 +95,7 @@ QStringList GenDocRules::getSymbolRemoves()
     QString fileContents = loadDocFile(filename);
     QStringList list =  fileContents.split(QRegExp("\\s*(\\\\row|\\\\o|\\\n)\\s*"), QString::SkipEmptyParts);
 
-    qDebug("symbol removes");
+//    qDebug("symbol removes");
 #if 0
     qDebug(fileContents);
     foreach(QString string, list)

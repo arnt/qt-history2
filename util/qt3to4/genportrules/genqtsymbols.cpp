@@ -88,7 +88,7 @@ void QtClassParser::parseClassSpecifier(ClassSpecifierAST *node)
     if(className == "Qt")
     {
         //printf("Walking a class, named: %s\n", className.constData());
-        puts("found Qt class");
+        //puts("found Qt class");
         qtFound=true;
         TreeWalker::parseClassSpecifier(node);
         qtFound=false;
@@ -108,7 +108,7 @@ void QtNamespaceParser::parseNamespace(NamespaceAST *node)
     QByteArray name = fileSymbol->tokenStream->tokenText(node->namespaceName()->startToken());
     if(name == "Qt")
     {
-        puts("found Qt namespace");
+     //   puts("found Qt namespace");
         qtFound=true;
         TreeWalker::parseNamespace(node);
         qtFound=false;

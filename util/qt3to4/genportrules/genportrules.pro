@@ -22,7 +22,7 @@ SOURCES += ast.cpp \
 TEMPLATE = app
 CONFIG -= moc
 DEPENDPATH += .
-TARGET =makerules
+TARGET = genportrules
 
 SOURCES += genportrules.cpp  genqtsymbols.cpp genclassnames.cpp gendocrules.cpp
 HEADERS += genqtsymbols.h genclassnames.h gendocrules.h

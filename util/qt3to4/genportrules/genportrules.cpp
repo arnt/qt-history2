@@ -22,15 +22,12 @@
 #include <genclassnames.h>
 #include <gendocrules.h>
 #include <qtsimplexml.h>
-//#include <filewriter.h>
-//#include <fileporter.h>
 
 using std::cout;
 using std::endl;
 
 int ruleIndex=0;
 QtSimpleXml xml;
-QString baseDir;
 
 /*
     Paths to .qdocinc files
@@ -92,8 +89,6 @@ QtNamespaceParser *qtNamespaceParser;
 bool overrideClassRename(QString className);
 bool overrideHeadersRename(QString headerName);
 
-
-
 /*
     holds a name of a class plus the library in which it is placed.
 */
@@ -103,72 +98,38 @@ struct ClassNameLibrary
     QString libraryName;
 };
 
-
 QString getBaseDir()
 {
     QString basedir = QLibraryInfo::location(QLibraryInfo::PrefixPath);
     basedir = QFileInfo(basedir + "/..").canonicalPath();
-    cout << "Using base dir: " << basedir.toLatin1().constData() << endl;
     return basedir;
 }
 
+QString getQtDir()
+{
+    return QLibraryInfo::location(QLibraryInfo::PrefixPath);
+}
 
 /*
     Preprocess a file using cpp
 */
 inline QByteArray gccPreprocess(const QString &fileName, QStringList args = QStringList())
 {
-    //cout << "FileName" << fileName.toLatin1().constData() << endl;
-    //cout << "Args: " << args.toLatin1().constData() << endl;
-//     //QString cmd = "cpp -I. " +args +" "+ fileName;
-    //cout << cmd.toLatin1().constData() << endl;
-
     args += fileName;
+/*    
     cout << "starting process" << endl;
     cout << "FileName " << fileName.toLatin1().constData() << endl;
     cout << "Args" << endl;
     foreach(QString arg, args)
         cout << arg.toLatin1().constData() << endl;
-
-
-
+*/
     QProcess process;
     process.start("cpp", args);
     process.waitForFinished();
     QByteArray output = process.readAllStandardOutput();
     cout << process.readAllStandardError().constData() << endl;
 
-//    cout << output.constData() << endl;
     return output;
-/*
-    if (FILE *unixFile = popen(cmd.latin1(), "r")) {
-        QFile f;
-        f.open(QIODevice::ReadOnly, unixFile);
-        return f.readAll();
-    }
-*/
-    return QByteArray();
-}
-
-
-inline QByteArray newGccPreprocess(const QString &fileName, QString args=QString::null)
-{
-    QProcess process;
-    QStringList argv;
-    argv << "-I.";
-    argv += args.split(" ");
-    argv << fileName;
-
-    process.start("cpp", argv);
-    if (!process.waitForStarted()) {
-        cout<<process.errorString().latin1()<<endl;
-        return QByteArray();
-    }
-    QByteArray tmp;
-    while(process.waitForReadyRead()) {
-        tmp+=process.readAll();
-    }
-    return tmp;
 }
 
 /*
@@ -183,10 +144,6 @@ QStringList getFileNames(QString path, QString filter)
     list=dir.entryList();
     return list;
 }
-
-
-//QStringList getFileNamesRecursive(QString path, QString filter)
-
 
 /*
     returns all new-style Qxxx header in a path, including sub-dirs
@@ -309,6 +266,7 @@ QList<FileMatch> getFileMatches(QStringList qt3Headers, QStringList qt4CompatHea
 
     return matches;
 }
+
 /*
     prints header file name matches
 */
@@ -320,7 +278,6 @@ void printFileMatches(QList<FileMatch> matches)
         printf("Got a match: qt3 file %s qt4Compat file %s\n", match.qt3.latin1(), match.qt4Compat.latin1());
     }
 }
-
 
 void processHeaderFileNames()
 {
@@ -352,7 +309,6 @@ void processHeaderFileNames()
         ++ruleIndex;
     }
 
-
     /*
         generate a list of all public Qt3 headers
     */
@@ -374,8 +330,6 @@ void processHeaderFileNames()
     }
 
     xml["Rules"]["Count"] = QString("%1").arg(ruleIndex);
-
-
 }
 
 void printFileSymbolData(FileSymbol *sym)
@@ -444,7 +398,7 @@ QList<SymbolRename> getCompatClassRenames()
 
                 if(qt3Name == modQt4CompatName)
                 {
-                    printf("Found Match: %s -> %s\n", qt3Name.latin1(), qt4CompatName.latin1());
+     //               printf("Found Match: %s -> %s\n", qt3Name.latin1(), qt4CompatName.latin1());
                     SymbolRename ren;
                     ren.from = qt3Name;
                     ren.to = qt4CompatName;
@@ -498,7 +452,7 @@ QList<SymbolRename> generateSymbolRenames(QStringList qt3Symbols, QStringList qt
         foreach(QString qt4Symbol, qt4Symbols) {
             if(qt3Symbol==qt4Symbol) {
                 SymbolRename rename;
-                printf("Found Qt class/namespace symbol: %s\n", qt3Symbol.latin1());
+           //     printf("Found Qt class/namespace symbol: %s\n", qt3Symbol.latin1());
                 rename.from = "Qt::" + qt3Symbol;
                 rename.to = "Qt::" + qt4Symbol;
                 matchList.append(rename);
@@ -561,7 +515,6 @@ void generateClassRenameRules()
             i.remove();
     }
 
-
     writeRenameRules("RenamedClass", allClassRenames);
 }
 
@@ -601,7 +554,7 @@ void generateQtClassRenameRules()
     foreach(SymbolRename qtSymbolRename, autoSymbolRenames) {
         if(!(allTypeRenames.contains(qtSymbolRename) || allEnumvalueRenames.contains(qtSymbolRename) )) {
             finalSymbolRenames.append(qtSymbolRename);
-            printf("Found Qt symbol Rename: %s\n", qtSymbolRename.from.latin1());
+      //      printf("Found Qt symbol Rename: %s\n", qtSymbolRename.from.latin1());
         }
     }
      writeRenameRules("RenamedQtSymbol", finalSymbolRenames);
@@ -642,6 +595,9 @@ void generateRemovedVirtualRules()
     writeRenameRules("RemovedVirtual", docRemoves);
 }
 
+/*
+    Convinience function for adding a renamed header rule.
+*/
 void addRenamedHeaderRule(QString qt3header, QString qt4header)
 {
     xml["Rules"][ruleIndex].setAttribute("Type", "RenamedHeader");
@@ -650,6 +606,20 @@ void addRenamedHeaderRule(QString qt3header, QString qt4header)
     ++ruleIndex;
 }
 
+/*
+    Convinience function for adding a renamed class rule.
+*/
+void addRenamedClassRule(QString qt3class, QString qt4class)
+{
+    xml["Rules"][ruleIndex].setAttribute("Type", "RenamedClass");
+    xml["Rules"][ruleIndex]["Qt4"]=qt4class;
+    xml["Rules"][ruleIndex]["Qt3"]=qt3class;
+    ++ruleIndex;
+}
+
+/*
+    Convinience function for adding a need header rule.
+*/
 void addNeedHeaderRule(QString klass, QString header)
 {
     xml["Rules"][ruleIndex].setAttribute("Type", "NeedHeader");
@@ -658,11 +628,13 @@ void addNeedHeaderRule(QString klass, QString header)
     ++ruleIndex;
 }
 
+/*
+    Convinience function for adding a need header rule.
+*/
 void addNeedHeaderRule(QString name)
 {
     addNeedHeaderRule(name, name);
 }
-
 
 /*
     Add tests here to override renaming of classes.
@@ -696,45 +668,16 @@ bool overrideHeadersRename(QString headerName)
     return false;
 }
 
-
 /*
-    Misc Rules. Stuff that does not fit in anywhere else.
+    Manual rules. Use this section to add rules manually to the q3porting.xml
+    file. If you do so, don't forget to add a test to manualtests/qt3t4/qt3to4/.
 */
-void generateMiscRules()
+void generateManualRules()
 {
-/*
-    TRUE -> true is reported to casue trouble in windows code,
-    functions need the TRUE symbol instead of true.
-    And we anyway define TRUE in qglobal.h, even for qt4
+    addRenamedClassRule("QGuardedPtr", "QPointer");
 
-    xml["Rules"][ruleIndex].setAttribute("Type", "RenamedToken");
-    xml["Rules"][ruleIndex]["Qt3"]="TRUE";
-    xml["Rules"][ruleIndex]["Qt4"]="true";
-    ++ruleIndex;
-    xml["Rules"][ruleIndex].setAttribute("Type", "RenamedToken");
-    xml["Rules"][ruleIndex]["Qt3"]="FALSE";
-    xml["Rules"][ruleIndex]["Qt4"]="false";
-    ++ruleIndex;
-*/
-    // qabstractlayout.h has been removed, replace with qlayout.h
-    xml["Rules"][ruleIndex].setAttribute("Type", "RenamedHeader");
-    xml["Rules"][ruleIndex]["Qt3"]="qlayout.h";
-    xml["Rules"][ruleIndex]["Qt4"]="qabstractlayout.h";
-    ++ruleIndex;
-
-    xml["Rules"][ruleIndex].setAttribute("Type", "RenamedHeader");
-    xml["Rules"][ruleIndex]["Qt3"] = "qvbox.h";
-    xml["Rules"][ruleIndex]["Qt4"] = "qvboxwidget.h";
-    ++ruleIndex;
-
-    xml["Rules"][ruleIndex].setAttribute("Type", "RenamedClass");
-    xml["Rules"][ruleIndex]["Qt3"] = "QGuardedPtr";
-    xml["Rules"][ruleIndex]["Qt4"] = "QPointer";
-    ++ruleIndex;
-
-    //it seems that headers for event classes (and some other classes )now needs
-    // to be specifically included, so we add rules for that.
-    //events
+    //The headers for event classes (and some other classes )now needs
+    //to be specifically included, so we add rules for that.
     addNeedHeaderRule("QCloseEvent");
     addNeedHeaderRule("QHelpEvent");
     addNeedHeaderRule("QDragMoveEvent");
@@ -763,10 +706,6 @@ void generateMiscRules()
     addNeedHeaderRule("QWheelEvent");
     addNeedHeaderRule("QMouseEvent");
     addNeedHeaderRule("QTabletEvent");
-    addNeedHeaderRule("Q3PtrList");
-    addNeedHeaderRule("Q3ValueList");
-    addNeedHeaderRule("Q3MemArray");
-    addNeedHeaderRule("Q3StrList");
     addNeedHeaderRule("QPaintEvent");
     addNeedHeaderRule("QIconDragEvent");
     addNeedHeaderRule("QChildEvent");
@@ -775,7 +714,11 @@ void generateMiscRules()
     addNeedHeaderRule("QTimerEvent");
     addNeedHeaderRule("QEventLoop");
     addNeedHeaderRule("QCustomEvent");
-    //other classes
+    
+    addNeedHeaderRule("Q3PtrList");
+    addNeedHeaderRule("Q3ValueList");
+    addNeedHeaderRule("Q3MemArray");
+    addNeedHeaderRule("Q3StrList");
     addNeedHeaderRule("Q3Painter");
     addNeedHeaderRule("QTextStream");
     addNeedHeaderRule("Q3Frame");
@@ -799,12 +742,15 @@ void generateMiscRules()
 
     // corresponds to the renamed classes
     addRenamedHeaderRule("qgrid.h", "qgridwidget.h");
+    addRenamedHeaderRule("qvbox.h", "qvboxwidget.h");
     addRenamedHeaderRule("qhbox.h", "qhboxwidget.h");
     addRenamedHeaderRule("qiconset.h", "qicon.h");
     addRenamedHeaderRule("qvbox.h", "qvboxwidget.h");
     addRenamedHeaderRule("qwmatrix.h", "qmatrix.h");
     addRenamedHeaderRule("qguardedptr.h", "qobject.h");
 
+    addRenamedHeaderRule("qlayout.h", "qabstractlayout.h");
+    
     xml["Rules"]["Count"] = QString("%1").arg(ruleIndex);
 }
 
@@ -831,26 +777,29 @@ void writeLicense(QString &str)
 
 void writeXmlFile()
 {
+    QString filename = "q3porting.xml";
+    cout << "Writing xml to " << qPrintable(filename) << endl;
     QDomDocument doc = xml.toDomDocument();
     QString str = doc.toString(4);
     writeLicense(str);
-    QFile xmlFile("autorules.xml");
+    QFile xmlFile(filename);
     xmlFile.open(QIODevice::WriteOnly);
     QTextStream xmlStream(&xmlFile);
     xmlStream << str;
-
     xmlFile.close();
 }
 
 
-int main(int, char**)
+int main()
 {
-    puts("Generating rules...");
-
-
-    baseDir = getBaseDir();
-
-    baseDocDir = baseDir + "/qt/doc/src/";
+    QString baseDir = getBaseDir();
+    QString qtDir = getQtDir();  
+    
+    cout << "basedir: " << qPrintable(baseDir) << endl;
+    cout << "qtdir:   " << qPrintable(qtDir) << endl;
+    
+    // Paths to qdoc files
+    baseDocDir = qtDir + "/doc/src/";
     renamedClassesFileName =     baseDocDir + "porting4-renamedclasses.qdocinc";
     renamedEnumvaluesFileName =  baseDocDir + "porting4-renamedenumvalues.qdocinc";
     renamedTypesFileName =       baseDocDir + "porting4-renamedtypes.qdocinc";
@@ -860,22 +809,24 @@ int main(int, char**)
     removedTypesFileName =       baseDocDir + "porting4-removedtypes.qdocinc";
     removedVirtualFileName =     baseDocDir + "porting4-removedvirtual.qdocinc";
 
-/*
-    Paths to qt include dirs
-*/
+    // Paths to qt include dirs
     qt3IncludeDir =       baseDir + "/qt-3/include";
-    qt4Qt3SupportIncludeDir = baseDir + "/qt/include/Qt3Support/";
-    qt4IncludeDir =       baseDir + "/qt/include/";
-    qt4QtIncludeDir =     baseDir + "/qt/include/Qt/";
+    qt4Qt3SupportIncludeDir = qtDir + "/include/Qt3Support/";
+    qt4IncludeDir =       qtDir + "/include/";
+    qt4QtIncludeDir =     qtDir + "/include/Qt/";
 
-#if 1
-
+    // Look at headers in qt3/include qnd qt4/include/qt-3support/, 
+    // genereate header rename rules 
+    cout << "Generating header rename rules" << endl;
     processHeaderFileNames();
+    
+    // Parse the qt3 headers and qt4 compat headers, get the names for classes that 
+    // has been renamed.
+    cout << "Parsing qt3 headers and qt4 compat headers. Generating class rename rules." << endl;
     generateClassRenameRules();
 
-    /*
-        Parse the Qt3 Qt class and the Qt4 Qt namespace.
-    */
+    //  Parse the Qt3 Qt class and the Qt4 Qt namespace.
+    cout << "Parsing Qt class and Qt namespace" << endl;
     QByteArray qtClassTranslationUnit = gccPreprocess(includeQtNamespace, QStringList() << ("-I" + qt3IncludeDir));
     qtClassParser = new QtClassParser(qtClassTranslationUnit);
     QByteArray qtNamespaceTranslationUnit = gccPreprocess(includeQtNamespace, QStringList()
@@ -884,24 +835,24 @@ int main(int, char**)
                                                                             << ("-I" + qt4QtIncludeDir));
     qtNamespaceParser = new QtNamespaceParser(qtNamespaceTranslationUnit);
 
+    // generate list of all clases that inherits qt
     generateQtClassAncestorRules();
+    
+    // Generate rename rules for stuff in the old qt class / new qt namespace
     generateQtClassRenameRules();
 
-//These are not in use
+// These are not in use
 //    generateVirtualModifyRules();
 //    generateRemovedEnumvalueRules();
 //    generateRemovedTypeRules();
 //    generateRemovedVirtualRules();
-    generateMiscRules();
+    
+    generateManualRules();
 
-    /*
-        Write xml file;
-    */
-    puts("Writing xml file");
+   // Write xml file;
     writeXmlFile();
 
     delete qtClassParser;
     delete qtNamespaceParser;
-#endif
     return 0;
 }
