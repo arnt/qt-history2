@@ -19,32 +19,23 @@ public:
 #endif CHECK_RANGE
 
 	theObject->insertChild( this );
-	qDebug("Here comes the ApplicationInterface");
-    }
-    ~QApplicationInterface()
-    {
-	qDebug("There goes the ApplicationInterface");
     }
 
     void requestProperty( const QCString& p, QVariant& v )
     {
-	if ( theObject )
-	    v = theObject->property( p );
+	v = theObject->property( p );
     }
     void requestSetProperty( const QCString& p, const QVariant& v )
     {
-	if ( theObject )
-	    theObject->setProperty( p, v );
+	theObject->setProperty( p, v );
     }
     void requestSignal( const char* signal, QObject* target, const char* slot )
     {
-	if ( theObject )
-	    connect( theObject, signal, target, slot );
+	connect( theObject, signal, target, slot );
     }
     void requestEvents( QObject* o )
     {
-	if ( theObject )
-	    theObject->installEventFilter( o );
+	theObject->installEventFilter( o );
     }
     void requestConnection( const QCString& request, QClientInterface* pi )
     {
@@ -70,10 +61,6 @@ public:
 protected:
     QObject* object() const { return theObject; }
 
-private:
-    QGuardedPtr<QObject> theObject;
-    int ref;
-
 private slots:
     void clientDestroyed()
     {
@@ -81,6 +68,10 @@ private slots:
 	if ( !ref )
 	    delete this;
     }
+
+private:
+    QGuardedPtr<QObject> theObject;
+    int ref;
 };
 
 #endif //QAPPLICATIONINTERFACES_H

@@ -36,6 +36,7 @@ PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
     a->addTo( ft );
     file->insertSeparator();
     a = new QAction( "Exit", QIconSet(), "E&xit", CTRL+Key_X, this );
+    connect( a, SIGNAL(activated()), qApp, SLOT(quit()));
     a->addTo( file );
 
     widgetMenu = (QPopupMenu*)QWidgetFactory::create( "QPopupMenu", this );
