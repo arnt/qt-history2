@@ -5962,6 +5962,12 @@ bool QWidget::testAttribute_helper(WidgetAttribute attribute) const
   By default the value of this property is 1.0.
 
   This feature is only present on Mac OS X and Windows 2000 and up.
+
+  \warning Changing this property from opaque to transparent might issue a 
+  paint event that needs to be processed before the window is displayed 
+  correctly. This affects mainly the use of QPixmap::grabWindow(). Also note
+  that semi-transparent windows update and resize significantely slower than
+  opaque windows.
 */
 
 
