@@ -84,9 +84,8 @@ struct QSliderPrivate
     many of them you want and setOrientation() to indicate whether the
     slider is to be horizontal or vertical.
 
-    A slider has a default focusPolicy() of \c WeakWheelFocus, i.e. it
-    accepts focus on Tab and uses the mouse wheel and a suitable
-    keyboard interface.
+    A slider accepts focus on Tab and uses the mouse wheel and a
+    suitable keyboard interface.
 
     <img src=qslider-m.png> <img src=qslider-w.png>
 
@@ -650,7 +649,7 @@ void QSlider::setValue( int value )
 }
 
 
-/*! \reimp 
+/*! \reimp
 */
 
 void QSlider::addLine()
@@ -728,7 +727,7 @@ QSize QSlider::sizeHint() const
 	w = length;
 	h = thick;
     }
-    return (style().sizeFromContents(QStyle::CT_Slider, this, 
+    return (style().sizeFromContents(QStyle::CT_Slider, this,
 				     QSize(w, h)).expandedTo(QApplication::globalStrut()));
 }
 
