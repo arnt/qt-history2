@@ -13,10 +13,6 @@
 #ifndef QT_H
 #endif // QT_H
 
-#if defined(Q_CC_BOR) && !defined(QT_QWINEXPORT)
-#undef Q_TEMPLATEDLL
-#endif
-
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
 
