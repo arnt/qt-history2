@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#22 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#23 $
 **
 ** Definition of QSize class
 **
@@ -28,10 +28,6 @@
 #include "qpoint.h"
 #endif // QT_H
 
-#if defined(QSIZE_C) || defined(DEBUG)
-#define QSIZE_DEBUG
-#endif
-
 
 class Q_EXPORT QSize
 {
@@ -58,9 +54,9 @@ public:
     QSize &operator+=( const QSize & );
     QSize &operator-=( const QSize & );
     QSize &operator*=( int c );
-    QSize &operator*=( float c );
+    QSize &operator*=( double c );
     QSize &operator/=( int c );
-    QSize &operator/=( float c );
+    QSize &operator/=( double c );
 
     friend inline bool	operator==( const QSize &, const QSize & );
     friend inline bool	operator!=( const QSize &, const QSize & );
@@ -68,15 +64,12 @@ public:
     friend inline QSize operator-( const QSize &, const QSize & );
     friend inline QSize operator*( const QSize &, int );
     friend inline QSize operator*( int, const QSize & );
-    friend inline QSize operator*( const QSize &, float );
-    friend inline QSize operator*( float, const QSize & );
-#if defined(QSIZE_DEBUG)
-    friend Q_EXPORT QSize operator/( const QSize &, int );
-    friend Q_EXPORT QSize operator/( const QSize &, float );
-#else
+    friend inline QSize operator*( const QSize &, double );
+    friend inline QSize operator*( double, const QSize & );
     friend inline QSize operator/( const QSize &, int );
-    friend inline QSize operator/( const QSize &, float );
-#endif
+    friend inline QSize operator/( const QSize &, double );
+
+    static void warningDivByZero();
 
 private:
     QCOORD wd;
@@ -135,7 +128,7 @@ inline QSize &QSize::operator-=( const QSize &s )
 inline QSize &QSize::operator*=( int c )
 { wd*=(QCOORD)c; ht*=(QCOORD)c; return *this; }
 
-inline QSize &QSize::operator*=( float c )
+inline QSize &QSize::operator*=( double c )
 { wd=(QCOORD)(wd*c); ht=(QCOORD)(ht*c); return *this; }
 
 inline bool operator==( const QSize &s1, const QSize &s2 )
@@ -156,37 +149,59 @@ inline QSize operator*( const QSize &s, int c )
 inline QSize operator*( int c, const QSize &s )
 {  return QSize(s.wd*c, s.ht*c); }
 
-inline QSize operator*( const QSize &s, float c )
+inline QSize operator*( const QSize &s, double c )
 { return QSize((QCOORD)(s.wd*c), (QCOORD)(s.ht*c)); }
 
-inline QSize operator*( float c, const QSize &s )
+inline QSize operator*( double c, const QSize &s )
 { return QSize((QCOORD)(s.wd*c), (QCOORD)(s.ht*c)); }
-
-#if !defined(QSIZE_DEBUG)
 
 inline QSize &QSize::operator/=( int c )
-{ wd/=(QCOORD)c; ht/=(QCOORD)c; return *this; }
+{
+#if defined(CHECK_MATH)
+    if ( c == 0 )
+	warningDivByZero();
+#endif
+    wd/=(QCOORD)c; ht/=(QCOORD)c;
+    return *this;
+}
 
-inline QSize &QSize::operator/=( float c )
-{ wd=(QCOORD)(wd/c); ht=(QCOORD)(ht/c); return *this; }
+inline QSize &QSize::operator/=( double c )
+{
+#if defined(CHECK_MATH)
+    if ( c == 0.0 )
+	warningDivByZero();
+#endif
+    wd=(QCOORD)(wd/c); ht=(QCOORD)(ht/c);
+    return *this;
+}
 
 inline QSize operator/( const QSize &s, int c )
-{ return QSize(s.wd/c, s.ht/c); }
+{
+#if defined(CHECK_MATH)
+    if ( c == 0 )
+	QSize::warningDivByZero();
+#endif
+    return QSize(s.wd/c, s.ht/c);
+}
 
-inline QSize operator/( const QSize &s, float c )
-{ return QSize((QCOORD)(s.wd/c), (QCOORD)(s.ht/c)); }
-
-#endif // no-debug functions
-
+inline QSize operator/( const QSize &s, double c )
+{
+#if defined(CHECK_MATH)
+    if ( c == 0.0 )
+	QSize::warningDivByZero();
+#endif
+    return QSize((QCOORD)(s.wd/c), (QCOORD)(s.ht/c));
+}
 
 inline QSize QSize::expandedTo( const QSize & otherSize ) const
 {
-    return QSize( QMAX( wd, otherSize.wd ), QMAX( ht, otherSize.ht ) );
+    return QSize( QMAX(wd,otherSize.wd), QMAX(ht,otherSize.ht) );
 }
 
 inline QSize QSize::boundedTo( const QSize & otherSize ) const
 {
-    return QSize( QMIN( wd, otherSize.wd ), QMIN( ht, otherSize.ht ) );
+    return QSize( QMIN(wd,otherSize.wd), QMIN(ht,otherSize.ht) );
 }
+
 
 #endif // QSIZE_H

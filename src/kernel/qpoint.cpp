@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#29 $
 **
 ** Implementation of QPoint class
 **
@@ -21,9 +21,9 @@
 **
 *****************************************************************************/
 
-#define QPOINT_C
 #include "qpoint.h"
 #include "qdatastream.h"
+
 
 /*!
   \class QPoint qpoint.h
@@ -233,8 +233,9 @@
   Returns \e p where x and y have opposite signs.
 */
 
-
 /*!
+  \fn QPoint &QPoint::operator/=( int c )
+
   Divides both x and y by \e c, and return a reference to this point.
 
   Example:
@@ -244,17 +245,9 @@
   \endcode
 */
 
-QPoint &QPoint::operator/=( int c )
-{
-    if ( c == 0 )
-#if defined(CHECK_MATH)
-	warning( "QPoint: Attempt to divide point by zero" );
-#endif
-    xp/=(QCOORD)c; yp/=(QCOORD)c;
-    return *this;
-}
-
 /*!
+  \fn QPoint &QPoint::operator/=( double c )
+
   Divides both x and y by \e c, and return a reference to this point.
 
   Example:
@@ -266,44 +259,27 @@ QPoint &QPoint::operator/=( int c )
   Note that the result is truncated.
 */
 
-QPoint &QPoint::operator/=( double c )
-{
-    if ( c == 0.0 )
-#if defined(CHECK_MATH)
-	warning( "QPoint: Attempt to divide point by zero" );
-#endif
-    xp=(QCOORD)(xp/c); yp=(QCOORD)(yp/c);
-    return *this;
-}
-
 /*!
+  \fn QPoint operator/( const QPoint &p, int c )
   \relates QPoint
   Divides both of \e p's components by \e c and returns the result.
 */
 
-QPoint operator/( const QPoint &p, int c )
-{
-    if ( c == 0 )
-#if defined(CHECK_MATH)
-	warning( "QPoint: Attempt to divide point by zero" );
-#endif
-    return QPoint( p.xp/c, p.yp/c );
-}
-
 /*!
+  \fn QPoint operator/( const QPoint &p, double c )
   \relates QPoint
+
   Divides both of \e p's components by \e c and returns the result.
 
   Note that the result is truncated.
 */
 
-QPoint operator/( const QPoint &p, double c )
+
+void QPoint::warningDivByZero()
 {
-    if ( c == 0.0 )
-#if defined(CHECK_MATH)
-	warning( "QPoint: Attempt to divide point by zero" );
+#if defined(DEBUG)
+    warning( "QPoint: Division by zero error" );
 #endif
-    return QPoint( (QCOORD)(p.xp/c), (QCOORD)(p.yp/c) );
 }
 
 

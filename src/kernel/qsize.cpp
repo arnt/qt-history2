@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#28 $
 **
 ** Implementation of QSize class
 **
@@ -21,9 +21,9 @@
 **
 *****************************************************************************/
 
-#define QSIZE_C
 #include "qsize.h"
 #include "qdatastream.h"
+
 
 /*!
   \class QSize qsize.h
@@ -227,65 +227,55 @@ void QSize::transpose()
   Multiplies \e s by \e c and returns the result.
 */
 
-
 /*!
+  \fn QSize &QSize::operator/=( int c )
   Divides both the width and height by \e c and returns a reference to the
   size.
 */
 
-QSize &QSize::operator/=( int c )
-{
-    if ( c == 0 )
-#if defined(CHECK_MATH)
-	warning( "QSize: Attempt to divide size by zero" );
-#endif
-    wd/=(QCOORD)c; ht/=(QCOORD)c; return *this;
-}
-
 /*!
+  \fn QSize &QSize::operator/=( float c )
+
   Divides both the width and height by \e c and returns a reference to the
   size.
 
   Note that the result is truncated.
 */
 
-QSize &QSize::operator/=( float c )
-{
-    if ( c == 0.0 )
-#if defined(CHECK_MATH)
-	warning( "QSize: Attempt to divide size by zero" );
-#endif
-    wd=(QCOORD)(wd/c); ht=(QCOORD)(ht/c); return *this;
-}
-
 /*!
+  \fn QSize operator/( const QSize &s, int c )
   \relates QSize
   Divides \e s by \e c and returns the result.
 */
 
-QSize operator/( const QSize &s, int c )
-{
-    if ( c == 0 )
-#if defined(CHECK_MATH)
-	warning( "QSize: Attempt to divide size by zero" );
-#endif
-    return QSize( s.wd/c, s.ht/c );
-}
-
 /*!
+  \fn QSize operator/( const QSize &s, float c )
   \relates QSize
   Divides \e s by \e c and returns the result.
 
   Note that the result is truncated.
 */
 
-QSize operator/( const QSize &s, float c )
+/*!
+  \fn QSize QSize::expandedTo( const QSize & otherSize ) const
+  
+  Returns a size with the maximum width and height of this size and
+  \a otherSize.
+*/
+
+/*!
+  \fn QSize QSize::boundedTo( const QSize & otherSize ) const
+  
+  Returns a size with the minimum width and height of this size and
+  \a otherSize.
+*/
+
+
+void QSize::warningDivByZero()
 {
-    if ( c == 0.0 )
-#if defined(CHECK_MATH)
-	warning( "QSize: Attempt to divide size by zero" );
+#if defined(DEBUG)
+    warning( "QSize: Division by zero error" );
 #endif
-    return QSize( (QCOORD)(s.wd/c), (QCOORD)(s.ht/c) );
 }
 
 
@@ -317,16 +307,3 @@ QDataStream &operator>>( QDataStream &s, QSize &sz )
     s >> h;  sz.rheight() = h;
     return s;
 }
-
-
-/*! \fn QSize QSize::expandedTo( const QSize & otherSize ) const
-  
-  Returns a size with the maximum width and height of this size and
-  \a otherSize.
-*/
-
-/*! \fn QSize QSize::boundedTo( const QSize & otherSize ) const
-  
-  Returns a size with the minimum width and height of this size and
-  \a otherSize.
-*/

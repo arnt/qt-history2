@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#21 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#22 $
 **
 ** Definition of QPoint class
 **
@@ -27,10 +27,6 @@
 #ifndef QT_H
 #include "qwindowdefs.h"
 #endif // QT_H
-
-#if defined(QPOINT_C) || defined(DEBUG)
-#define QPOINT_DEBUG
-#endif
 
 
 class Q_EXPORT QPoint
@@ -65,13 +61,10 @@ public:
     friend inline QPoint operator*( const QPoint &, double );
     friend inline QPoint operator*( double, const QPoint & );
     friend inline QPoint operator-( const QPoint & );
-#if defined(QPOINT_DEBUG)
-    friend Q_EXPORT QPoint operator/( const QPoint &, int );
-    friend Q_EXPORT QPoint operator/( const QPoint &, double );
-#else
     friend inline QPoint operator/( const QPoint &, int );
     friend inline QPoint operator/( const QPoint &, double );
-#endif
+
+    static void warningDivByZero();
 
 private:
 #if defined(_OS_MAC_)
@@ -159,27 +152,45 @@ inline QPoint operator*( double c, const QPoint &p )
 inline QPoint operator-( const QPoint &p )
 { return QPoint(-p.xp, -p.yp); }
 
-//
-// The QPoint functions below are inline if DEBUG is not defined.
-// The debug implementation in qpoint.cpp checks c and gives a warning
-// before dividing by zero.
-//
-
-#if !defined(QPOINT_DEBUG)
-
 inline QPoint &QPoint::operator/=( int c )
-{ xp/=(QCOORD)c; yp/=(QCOORD)c; return *this; }
+{
+#if defined(CHECK_MATH)
+    if ( c == 0 )
+	warningDivByZero();
+#endif
+    xp/=(QCOORD)c;
+    yp/=(QCOORD)c;
+    return *this;
+}
 
 inline QPoint &QPoint::operator/=( double c )
-{ xp=(QCOORD)(xp/c); yp=(QCOORD)(yp/c); return *this; }
+{
+#if defined(CHECK_MATH)
+    if ( c == 0.0 )
+	warningDivByZero();
+#endif
+    xp=(QCOORD)(xp/c);
+    yp=(QCOORD)(yp/c);
+    return *this;
+}
 
 inline QPoint operator/( const QPoint &p, int c )
-{ return QPoint(p.xp/c, p.yp/c); }
+{
+#if defined(CHECK_MATH)
+    if ( c == 0 )
+	QPoint::warningDivByZero();
+#endif
+    return QPoint(p.xp/c, p.yp/c);
+}
 
 inline QPoint operator/( const QPoint &p, double c )
-{ return QPoint((QCOORD)(p.xp/c), (QCOORD)(p.yp/c)); }
-
-#endif // no-debug inline functions
+{
+#if defined(CHECK_MATH)
+    if ( c == 0.0 )
+	QPoint::warningDivByZero();
+#endif
+    return QPoint((QCOORD)(p.xp/c), (QCOORD)(p.yp/c));
+}
 
 
 #endif // QPOINT_H
