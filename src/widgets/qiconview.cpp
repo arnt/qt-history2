@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#122 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#123 $
 **
 ** Definition of QIconView widget class
 **
@@ -135,7 +135,7 @@ struct QIconViewPrivate
     bool hasOwnColor, hasOwnFont;
     QColor ownColor;
     QFont ownFont;
-    
+
     struct SingleClickConfig {
 	SingleClickConfig()
 	    : normalText( 0 ), normalTextCol( 0 ),
@@ -1386,7 +1386,7 @@ void QIconViewItem::calcRect( const QString &text_ )
 void QIconViewItem::paintItem( QPainter *p )
 {
     p->save();
-    
+
     if ( f )
 	p->setFont( *f );
     else
@@ -1394,7 +1394,7 @@ void QIconViewItem::paintItem( QPainter *p )
 
     if ( c )
 	p->setPen( *c );
-    
+
     if ( view->d->singleClickMode ) {
 	if ( view->d->highlightedItem == this ) { // if this is the highlighted item
 	    // item's font is strongest and overrides other settings
@@ -1454,7 +1454,7 @@ void QIconViewItem::paintItem( QPainter *p )
 
 	p->restore();
     }
-    
+
     p->restore();
 }
 
@@ -1796,7 +1796,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->sortOrder = TRUE;
     d->hasOwnColor = FALSE;
     d->hasOwnFont = FALSE;
-    
+
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -1870,7 +1870,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
     if ( d->hasOwnColor )
 	item->setColor( d->ownColor );
     viewport()->setUpdatesEnabled( TRUE );
-    
+
     if ( !d->firstItem ) {
 	d->firstItem = d->lastItem = item;
 	item->prev = 0;
