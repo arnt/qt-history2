@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#103 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#103 $");
 
 
 const int Unsorted = 16383;
@@ -1290,9 +1290,9 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		p->save();
                 p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
                 p->translate( r.left(), r.top() );
-		current->i->paintCell( p, colorGroup(),
-				       d->h->mapToLogical( c ), r.width(),
-				       columnAlignment( c ) );
+		int ac = d->h->mapToLogical( c );
+		current->i->paintCell( p, colorGroup(), ac, r.width(),
+				       columnAlignment( ac ) );
 		p->restore();
 		x += cs;
 		c++;
@@ -1721,8 +1721,7 @@ void QListView::updateGeometries()
 void QListView::handleSizeChange( int section, int, int )
 {
     updateGeometries();
-    int left = d->h->cellPos(d->h->mapToActual( section ));
-    viewport()->repaint( left, 0, viewport()->width()-left,
+    viewport()->repaint( section, 0, viewport()->width()-section,
 			 viewport()->height(), FALSE );
 }
 
