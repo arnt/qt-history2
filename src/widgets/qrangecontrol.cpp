@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#26 $
 **
 ** Implementation of QRangeControl class
 **
@@ -69,8 +69,12 @@
   provide multiples of lineStep()/pageStep().  The choice is up to you.
 
   QRangeControl provides three virtual functions that are well-suited
-  e.g. to updating the on-screen representation of range controls,
-  namely valueChange(), rangeChange() and stepChange().
+  e.g. to updating the on-screen representation of range controls and
+  emitting signals, namely valueChange(), rangeChange() and
+  stepChange().
+
+  Finally, QRangeControl provides a function called bound() to let you
+  force arbitrary integers to within the range of a range control.
 
   We recommend that all widgets provide at least a signal called
   valueChanged(), and many widgets will want to provide addStep(),
@@ -110,10 +114,8 @@ QRangeControl::QRangeControl( int minValue, int maxValue,
     maxVal = maxValue;
     line   = QABS( lineStep );
     page   = QABS( pageStep );
-    val	   = value;
+    val	   = prevVal = bound( value );
     d       = 0;
-    adjustValue();
-    prevVal = val;
 }
 
 
@@ -166,8 +168,7 @@ void QRangeControl::setValue( int value )
 void QRangeControl::directSetValue(int value)
 {
     prevVal = val;
-    val	    = value;
-    adjustValue();
+    val	    = bound( value );
 }
 
 /*!
@@ -256,8 +257,7 @@ void QRangeControl::setRange( int minValue, int maxValue )
 	minVal = minValue;
 	maxVal = maxValue;
     }
-    int tmp = val;
-    adjustValue();
+    int tmp = bound( val );
     rangeChange();
     if ( tmp != val ) {
 	prevVal = tmp;
@@ -298,21 +298,6 @@ void QRangeControl::setSteps(int lineStep,int pageStep)
 
 
 /*!
-  \internal
-  Adjusts the value to make sure it is never less than the min value or
-  greater than the max value.
-*/
-
-void QRangeControl::adjustValue()
-{
-    if ( val < minVal )
-	val = minVal;
-    if ( val > maxVal )
-	val = maxVal;
-}
-
-
-/*!
   This virtual function is called whenever the range control value
   changes.  You can reimplement it if you want to be notified when the
   value changes.  The default implementation does nothing.
@@ -349,4 +334,24 @@ void QRangeControl::rangeChange()
 
 void QRangeControl::stepChange()
 {
+}
+
+
+/*!  Forces \a v within the range from minValue() to maxValue()
+  inclusive, and returns the result.
+
+  This function is provided so that you can easily force other numbers
+  than value() into the allowed range.  You do not need to call it in
+  order to use QRangeControl itself.
+
+  \sa setValue() value() minValue() maxValue()
+*/
+
+int QRangeControl::bound( int v ) const
+{
+    if ( v < minVal )
+	return minVal;
+    if ( v > maxVal )
+	return maxVal;
+    return v;
 }

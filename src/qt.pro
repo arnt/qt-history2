@@ -137,6 +137,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$WIDGETS_H/qbutton.h \
 		  $$WIDGETS_H/qcheckbox.h \
 		  $$WIDGETS_H/qcombobox.h \
+		  $$WIDGETS_H/qdial.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgroupbox.h \
 		  $$WIDGETS_H/qgrid.h \
@@ -287,6 +288,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qbutton.cpp \
 		  widgets/qcheckbox.cpp \
 		  widgets/qcombobox.cpp \
+		  widgets/qdial.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgroupbox.cpp \
 		  widgets/qgrid.cpp \
