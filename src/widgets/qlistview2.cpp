@@ -5893,12 +5893,15 @@ QCheckListItem::ToggleState QCheckListItem::internalState() const
 */
 void QCheckListItem::setState( ToggleState s )
 {
-    setState( s, TRUE, FALSE );
+    if ( myType == CheckBoxController && state() == NoChange )
+	updateStoredState( (void*) this );
+    setState( s, TRUE, TRUE );
 }
 
 /*
   Sets the toggle state of the checklistitems. \a update tells if the
-  controller / parent controller should be
+  controller / parent controller should be aware of these changes, \a store
+  tells if the parent should store its children if certain conditions arise
 */
 void QCheckListItem::setState( ToggleState s, bool update, bool store)
 {
@@ -5915,8 +5918,6 @@ void QCheckListItem::setState( ToggleState s, bool update, bool store)
     } else if ( myType == CheckBoxController ) {
 	if ( s == NoChange) {
 	    restoreState( (void*) this );
- 	    if ( internalState() != NoChange )
- 		setState( On , TRUE, TRUE );
 	} else {
 	    QListViewItem *item = firstChild();
 	    int childCount = 0;
@@ -6063,17 +6064,19 @@ void QCheckListItem::activate()
     if ( ( myType == CheckBox ) || ( myType == CheckBoxController) )  {
 	switch ( internalState() ) {
 	case On:
-	    setState( Off , TRUE, TRUE );
+	    setState( Off );
 	    break;
 	case Off:
-	    if ( !isTristate() && myType == CheckBox )
-		setState( On, TRUE, TRUE );
-	    else
+	    if ( !isTristate() && myType == CheckBox ) {
+		setState( On );
+	    } else {
 		setState( NoChange );
+		if ( myType == CheckBoxController && internalState() != NoChange )
+		    setState( On );
+	    }
 	    break;
 	case NoChange:
-	    updateStoredState( (void*) this );
-	    setState( On , TRUE, TRUE );
+	    setState( On );
 	    break;
 	}
 	ignoreDoubleClick();
@@ -6090,9 +6093,9 @@ void QCheckListItem::activate()
 void QCheckListItem::setOn( bool b  )
 {
     if ( b )
-	setState( On );
+	setState( On , TRUE, TRUE );
     else
-	setState( Off );
+	setState( Off , TRUE, TRUE );
 }
 
 
@@ -6147,7 +6150,7 @@ void QCheckListItem::restoreState( void *key, int depth )
 		updateController( FALSE );
 	} else {
 	    // if there are no children we retrieve the CheckBoxController state directly.
-	    setState( storedState( key ) );
+	    setState( storedState( key ), TRUE, FALSE );
 	}
     }
 	break;

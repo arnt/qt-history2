@@ -38,6 +38,10 @@
 #ifndef QLISTVIEW_H
 #define QLISTVIEW_H
 
+#ifndef TRISTATE_CHECKLIST
+#define TRISTATE_CHECKLIST
+#endif // TRISTATE_CHECKLIST
+
 #ifndef QT_H
 #include "qscrollview.h"
 #endif // QT_H
