@@ -115,6 +115,7 @@ void QItemDelegate::paint(QPainter *painter,
 
     QStyleOptionViewItem opt = option;
     const QAbstractItemModel *model = index.model();
+    Q_ASSERT(model);
 
     // set font
     QVariant value = model->data(index, QAbstractItemModel::FontRole);
@@ -161,6 +162,7 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                               const QModelIndex &index) const
 {
     const QAbstractItemModel *model = index.model();
+    Q_ASSERT(model);
 
     QVariant value = model->data(index, QAbstractItemModel::FontRole);
     QFont fnt = value.isValid() ? value.toFont() : option.font;
@@ -229,6 +231,7 @@ void QItemDelegate::setModelData(QWidget *editor,
                                  QAbstractItemModel *model,
                                  const QModelIndex &index) const
 {
+    Q_ASSERT(model);
     QVariant::Type t = model->data(index, QAbstractItemModel::EditRole).type();
     QByteArray n = d->editorFactory()->valuePropertyName(t);
     if (!n.isEmpty())
@@ -247,6 +250,7 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
     static QPoint pt(0, 0);
     if (editor) {
         const QAbstractItemModel *model = index.model();
+        Q_ASSERT(model);
         QPixmap pixmap = decoration(option, model->data(index, QAbstractItemModel::DecorationRole));
         QString text = model->data(index, QAbstractItemModel::EditRole).toString();
         QRect pixmapRect = pixmap.rect();
@@ -424,7 +428,9 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
     \internal
 */
 
-void QItemDelegate::doAlignment(Qt::LayoutDirection direction, const QRect &boundingRect, int alignment, QRect *rect) const
+void QItemDelegate::doAlignment(Qt::LayoutDirection direction,
+                                const QRect &boundingRect,
+                                int alignment, QRect *rect) const
 {
     if (alignment == Qt::AlignCenter) {
         rect->moveCenter(boundingRect.center());
