@@ -1497,10 +1497,10 @@ void QFileDialogPrivate::setup(const QString &directory,
     grid->addWidget(d->lookIn, 0, 1, 1, 3);
 
     lookInEdit = new QFileDialogLineEdit(lookIn);
-    lookIn->setLineEdit(lookInEdit);
     QObject::connect(lookInEdit, SIGNAL(textChanged(const QString&)),
                      q, SLOT(lookInChanged(const QString&)));
     QObject::connect(lookInEdit, SIGNAL(returnPressed()), q, SLOT(lookIn()));
+    lookIn->setLineEdit(lookInEdit); // FIXME: this will crash if done before the connects above!!!
 
     fileName = new QFileDialogLineEdit(q);
     QObject::connect(fileName, SIGNAL(textChanged(const QString&)),
