@@ -1,3 +1,4 @@
 TEMPLATE      = subdirs
-SUBDIRS       = dirview \
+SUBDIRS       = chart \
+                dirview \
                 pixelator
