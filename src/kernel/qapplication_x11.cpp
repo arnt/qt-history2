@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#73 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -32,7 +32,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#72 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#73 $";
 #endif
 
 
@@ -1540,7 +1540,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 
     // commentary in X11/keysymdef says that X codes match ASCII, so it
     // is safe to use the locale functions to process X codes
-    code = ( key < 256 && isprint(key)) ? toupper(key) : 0;
+    if ( key < 256 )
+	code = isprint(key) ? toupper(key) : 0; // upper-case key, if known
     else
     if ( key >= XK_F1 && key <= XK_F24 )	// function keys
 	code = Key_F1 + ((int)key - XK_F1);	// assumes contiguous codes!
