@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#14 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -644,6 +644,10 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
 
     int sliderMin, sliderMax, sliderLength, buttonDim;
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
+
+    if (sliderStart > sliderMax) { // sanity check
+	sliderStart = sliderMax;
+    }
 
     int b = 0;
     int dimB = buttonDim;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#17 $
 **
 ** Implementation of Motif-like style class
 **
@@ -41,7 +41,7 @@
 /*!
   \class QMotifStyle qmotifstyle.h
   \brief Motif Look and Feel
-  
+
   This class implements the Motif look and feel. It almost completely
   resembles the original Motif look as defined by the Open Group, but
   also contains minor improvements. The Motif style is Qt's default
@@ -432,6 +432,10 @@ void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int 
 
     int sliderMin, sliderMax, sliderLength, buttonDim;
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
+
+    if (sliderStart > sliderMax) { // sanity check
+	sliderStart = sliderMax;
+    }
 
     int b = MOTIF_BORDER;
     int dimB = buttonDim;
