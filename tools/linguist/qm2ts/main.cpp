@@ -84,7 +84,7 @@ int main( int argc, char **argv )
 	    } else {
 		if ( verbose ) {
 		    int converted = (int) metator.messages().count();
-		    fprintf( stderr, " %d converted message%s (%d ignored)\n",
+		    fprintf( stderr, " %d message%s converted (%d ignored)\n",
 			     converted, converted == 1 ? "" : "s", ignored );
 		}
 		if ( ignored > 0 )
