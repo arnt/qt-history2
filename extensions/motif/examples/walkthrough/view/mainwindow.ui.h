@@ -17,7 +17,6 @@
 #include <qmessagebox.h>
 #include <qstatusbar.h>
 
-#include <qmotifwidget.h>
 #include <qmotifdialog.h>
 
 #include <unistd.h>
