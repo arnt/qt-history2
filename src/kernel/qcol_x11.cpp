@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#64 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#64 $");
 
 
 /*****************************************************************************
@@ -436,10 +436,7 @@ uint QColor::alloc()
     int      scr = QPaintDevice::x11Screen();
     if ( (rgbVal & RGB_INVALID) || !color_init ) {
 	rgbVal = 0;				// invalid color or state
-	if ( dpy )
-	    pix = BlackPixel(dpy, scr);
-	else
-	    pix = 0;
+	pix = dpy ? BlackPixel(dpy, scr) : 0;
 	return pix;
     }
     int r = (int)(rgbVal & 0xff);

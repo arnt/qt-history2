@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#40 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#41 $
 **
 ** Definition of QColor class
 **
@@ -144,16 +144,15 @@ inline bool QColor::lazyAlloc()
 
 inline bool QColor::operator==( const QColor &c ) const
 {
-    return ((rgbVal | c.rgbVal) & RGB_DIRECT) == 0 ?
-		rgbVal == c.rgbVal :
-		rgbVal == c.rgbVal && pix == c.pix;
+    return (((rgbVal | c.rgbVal) & RGB_DIRECT) == 0 &&
+	    (rgbVal & 0x00ffffff) == (c.rgbVal & 0x00ffffff)) ||
+	   ((rgbVal & c.rgbVal & RGB_DIRECT) != 0 &&
+	    (rgbVal & 0x00ffffff) == (c.rgbVal & 0x00ffffff) && pix == c.pix);
 }
 
 inline bool QColor::operator!=( const QColor &c ) const
 {
-    return ((rgbVal | c.rgbVal) & RGB_DIRECT) == 0 ?
-		rgbVal != c.rgbVal :
-		rgbVal != c.rgbVal || pix != c.pix;
+    return !operator==(c);
 }
 
 
