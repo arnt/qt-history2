@@ -477,22 +477,10 @@ void QMacPrintEngine::updateRenderHints(QPainter::RenderHints hints)
     d->paintEngine->updateRenderHints(hints);
 }
 
-void QMacPrintEngine::drawLine(const QLineF &line)
+void QMacPrintEngine::drawRects(const QRectF *r, int num)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawLine(line);
-}
-
-void QMacPrintEngine::drawRect(const QRectF &r)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawRect(r);
-}
-
-void QMacPrintEngine::drawPoint(const QPointF &p)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawPoint(p);
+    d->paintEngine->drawRects(r, num);
 }
 
 void QMacPrintEngine::drawPoints(const QPointF *points, int pointCount)

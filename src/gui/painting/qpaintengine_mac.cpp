@@ -565,8 +565,8 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
         if(pm.macQDAlphaHandle()) {
             maskbits = GetPortBitMapForCopyBits((GWorldPtr)pm.macQDAlphaHandle());
             copymode = ditherCopy;
-        } else if(pm.mask()) {
-            maskbits = GetPortBitMapForCopyBits((GWorldPtr)pm.mask()->macQDHandle());
+        } else if(!pm.mask().isNull()) {
+            maskbits = GetPortBitMapForCopyBits((GWorldPtr)pm.mask().macQDHandle());
         }
     }
 
@@ -614,12 +614,12 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
     //duplicate
     if(mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
         QPixmap *dst = static_cast<QPixmap*>(d->pdev);
-        if(pm.mask() && !pm.isQBitmap()) {
+        if(!pm.mask().isNull() && !pm.isQBitmap()) {
             QBitmap bm(dst->size(), true);
             QPainter p(&bm);
-            if(dst->mask() && r != QRectF(0, 0, dst->width(), dst->height()))
-                p.drawPixmap(0, 0, *dst->mask(), Qt::CopyPixmap);
-            p.drawPixmap(r, *pm.mask(), sr, Qt::CopyPixmap);
+            if(!dst->mask().isNull() && r != QRectF(0, 0, dst->width(), dst->height()))
+                p.drawPixmap(0, 0, dst->mask(), Qt::CopyPixmap);
+            p.drawPixmap(r, pm.mask(), sr, Qt::CopyPixmap);
             dst->setMask(bm);
         }
         if(pm.data->alpha)
@@ -1336,7 +1336,7 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 }
 
 void
-QCoreGraphicsPaintEngine::drawRect(const QRectF *rects, int rectCount)
+QCoreGraphicsPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
     Q_ASSERT(isActive());
 
@@ -1488,12 +1488,12 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     //duplicate
     if(mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
         QPixmap *dst = static_cast<QPixmap*>(d->pdev);
-        if(pm.mask() && !pm.isQBitmap()) {
+        if(!pm.mask().isNull() && !pm.isQBitmap()) {
             QBitmap bm(dst->size(), true);
             QPainter p(&bm);
-            if(dst->mask() && r != QRectF(0, 0, dst->width(), dst->height()))
-                p.drawPixmap(0, 0, *dst->mask(), Qt::CopyPixmap);
-            p.drawPixmap(r, *pm.mask(), sr, Qt::CopyPixmap);
+            if(!dst->mask().isNull() && r != QRectF(0, 0, dst->width(), dst->height()))
+                p.drawPixmap(0, 0, dst->mask(), Qt::CopyPixmap);
+            p.drawPixmap(r, pm.mask(), sr, Qt::CopyPixmap);
             dst->setMask(bm);
         }
         if(pm.data->alpha)

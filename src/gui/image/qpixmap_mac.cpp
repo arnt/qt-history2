@@ -49,7 +49,7 @@ static void qt_mac_cgimage_data_free(void *, const void *data, size_t)
 QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     : QPaintDevice(QInternal::Pixmap)
 {
-    init(w, h, 1, true, DefaultOptim);
+    init(w, h, 1, true);
 
     uint *dptr = data->pixels, *drow, q;
     const uint bytesPerRow = data->nbytes / h;
@@ -102,7 +102,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     QImage image = img;
     int    d     = image.depth();
     int    dd    = defaultDepth();
-    bool force_mono = (dd == 1 || isQBitmap() ||
+    bool force_mono = (dd == 1 || 
                        (flags & Qt::ColorMode_Mask)==Qt::MonoOnly);
     if(force_mono) {                         // must be monochrome
         if(d != 1) {
@@ -146,26 +146,11 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     int w = image.width();
     int h = image.height();
 
-    if(width() == w && height() == h && ((d == 1 && depth() == 1) ||
-                                            (d != 1 && depth() != 1))) {
-        // same size etc., use the existing pixmap
-        detach();
+    // different size or depth, make a new pixmap
+    pixmap = QPixmap(w, h, d == 1 ? 1 : -1);
 
-        if(data->mask) {  // get rid of the mask
-            delete data->mask;
-            data->mask = 0;
-        }
-        data->macSetAlpha(false);
-    } else {
-        // different size or depth, make a new pixmap
-        QPixmap pm(w, h, d == 1 ? 1 : -1);
-        pm.data->bitmap = data->bitmap;         // keep is-a flag
-        pm.data->optim  = data->optim;          // keep optimization flag
-        *this = pm;
-    }
-
-    uint *dptr = data->pixels, *drow;
-    const uint dbpr = data->nbytes / h;
+    uint *dptr = pixmap.data->pixels, *drow;
+    const uint dbpr = pixmap.data->nbytes / h;
 
     QRgb q=0;
     int sdpt = image.depth();
@@ -219,7 +204,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         { //setup mask
             QBitmap m;
             m = img.createAlphaMask(flags);
-            setMask(m);
+            pixmap.setMask(m);
         }
 
         //setup the alpha
@@ -235,10 +220,10 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             }
         }
         if(alphamap)
-            data->macSetAlpha(true);
+            pixmap.data->macSetAlpha(true);
     }
-    data->uninit = false;
-    return true;
+    pixmap.data->uninit = false;
+    return pixmap;
 }
 
 int get_index(QImage * qi,QRgb mycol)
@@ -378,6 +363,7 @@ QPixmap QPixmap::alphaChannel() const
     if (!hasAlphaChannel())
         return QPixmap();
     // ################### PIXMAP
+    return QPixmap();
 }
 
 void setAlphaChannel(const QPixmap &alpha)
@@ -415,7 +401,6 @@ void QPixmap::setMask(const QBitmap &newmask)
         data->mask = new QBitmap();
 
     *data->mask = newmask;
-    data->mask->x11SetScreen(data->xinfo.screen());
 }
 
 void QPixmap::detach()
@@ -530,7 +515,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     if (mode == Qt::SmoothTransformation) {
         // ###### do this efficiently! --Sam
         QImage image = toImage();
-        return QPixmap(image.transform(matrix, mode));
+        return QPixmap(image.transformed(matrix, mode));
     }
     if(isNull())
         return copy();
@@ -562,7 +547,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
         return QPixmap();
 
     //create destination
-    QPixmap pm(w, h, depth(), optimization());
+    QPixmap pm(w, h, depth());
     pm.fill(0x00FFFFFF);
     const uchar *sptr = (uchar *)data->pixels;
     uchar *dptr = (uchar *)pm.data->pixels;
@@ -580,8 +565,8 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     }
 
     //update the mask
-    if(data->mask) {
-        pm.setMask(data->mask->transform(matrix));
+    if(data->mask)
+        pm.setMask(data->mask->transformed(matrix));
 
     //update the alpha
     pm.data->macSetAlpha(data->alpha);
@@ -589,7 +574,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
 }
 
 
-void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
+void QPixmap::init(int w, int h, int d, bool bitmap)
 {
     if (qApp->type() == QApplication::Tty)
         qWarning("QPixmap: Cannot create a QPixmap when no GUI "
@@ -604,7 +589,6 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data->uninit = true;
     data->bitmap = bitmap;
     data->ser_no = ++qt_pixmap_serial;
-    data->optim = optim;
 
     int dd = 32; //magic number? 32 seems to be default?
     bool make_null = w == 0 || h == 0;                // create null pixmap
@@ -651,10 +635,6 @@ int QPixmap::defaultDepth()
             ret = (**gd).gdCCDepth;
     }
     return ret;
-}
-
-void QPixmap::setOptimization(Optimization)
-{
 }
 
 QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
@@ -756,6 +736,8 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
 //            { kSmall1BitMask,      16, 16,  1, true },
             { 0, 0, 0, 0, false } };
         for(int i = 0; images[i].mac_type; i++) {
+#if 0
+	  // ####### PIXMAP
             const QPixmap *in_pix = 0;
             if(images[i].mask)
                 in_pix = px.mask();
@@ -788,6 +770,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
             if(set != noErr)
                 qWarning("%s: %d -- Something went very wrong!! %ld", __FILE__, __LINE__, set);
             DisposeHandle(hdl);
+#endif
         }
     }
 

@@ -5000,7 +5000,8 @@ QPixmap QMacStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixm
                                          qAlpha(pixel) / 2));
             }
         }
-        return img; }
+        return QPixmap::fromImage(img); 
+    }
     default:
         ;
     }
@@ -5220,7 +5221,7 @@ static inline QPixmap darkenPixmap(const QPixmap &pixmap)
             img.setPixel(x, y, qRgba(qRed(pixel), qGreen(pixel), qBlue(pixel), a));
         }
     }
-    return img;
+    return QPixmap::fromImage(img);
 }
 
 

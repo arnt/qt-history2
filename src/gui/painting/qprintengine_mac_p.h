@@ -66,10 +66,8 @@ public:
     virtual void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
     virtual void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
     virtual void updateRenderHints(QPainter::RenderHints hints);
-    virtual void drawLine(const QLineF &line);
     virtual void drawLines(const QLineF *lines, int lineCount);
-    virtual void drawRect(const QRectF &r);
-    virtual void drawPoint(const QPointF &p);
+    virtual void drawRects(const QRectF *r, int num);
     virtual void drawPoints(const QPointF *p, int pointCount);
     virtual void drawEllipse(const QRectF &r);
     virtual void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
