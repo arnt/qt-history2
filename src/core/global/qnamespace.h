@@ -1209,4 +1209,8 @@ public:
         RelayoutDropped
     };
 };
+
+#ifdef QT_COMPAT
+typedef Q_INT32 QCOORD;                                // coordinate type
+#endif
 #endif // QNAMESPACE_H
