@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
 <class>MainForm</class>
 <widget class="QMainWindow">
     <property name="name">
@@ -347,6 +347,9 @@
         <property name="text">
             <string>View</string>
         </property>
+        <property name="menuText">
+            <string>View</string>
+        </property>
         <property name="usesDropDown">
             <bool>false</bool>
         </property>
@@ -556,9 +559,9 @@
     <variable>bool m_icons_dirty;</variable>
     <variable>int m_clip_as;</variable>
     <variable>bool m_show_web;</variable>
-    <variable>QMap&lt;QString,QColor&gt; m_colors;</variable>
     <variable>QClipboard *clipboard;</variable>
     <variable>FindForm *findForm;</variable>
+    <variable>QMap&lt;QString,QColor&gt; m_colors;</variable>
 </variables>
 <slots>
     <slot>fileNew()</slot>
@@ -585,7 +588,7 @@
     <function access="private">init()</function>
     <function>clearData( bool fillWithDefaults )</function>
     <function>populate()</function>
-    <function returnType="QPixmap">colorSwatch( QColor color )</function>
+    <function returnType="QPixmap">colorSwatch( const QColor color )</function>
     <function>load( const QString &amp; filename )</function>
     <function returnType="bool">okToClear()</function>
     <function>changedColor( const QString &amp; name )</function>
@@ -595,7 +598,4 @@
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
-<includehints>
-    <includehint>qwidgetstack.h</includehint>
-</includehints>
 </UI>

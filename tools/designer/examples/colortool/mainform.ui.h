@@ -74,8 +74,8 @@ void MainForm::populate()
 	if ( ! m_colors.isEmpty() ) {
 	    QPixmap pixmap( 22, 22 );
 	    int row = 0;
-	    QMap<QString,QColor>::Iterator it;
-	    for ( it = m_colors.begin(); it != m_colors.end(); ++it ) {
+	    QMap<QString,QColor>::ConstIterator it;
+	    for ( it = m_colors.constBegin(); it != m_colors.constEnd(); ++it ) {
 		QColor color = it.data();
 		pixmap.fill( color );
 		colorTable->setText( row, COL_NAME, it.key() );
@@ -104,8 +104,8 @@ void MainForm::populate()
     if ( m_icons_dirty ) {
 	colorIconView->clear();
 
-	QMap<QString,QColor>::Iterator it;
-	for ( it = m_colors.begin(); it != m_colors.end(); ++it )
+	QMap<QString,QColor>::ConstIterator it;
+	for ( it = m_colors.constBegin(); it != m_colors.constEnd(); ++it )
 	    (void) new QIconViewItem( colorIconView, it.key(),
 				      colorSwatch( it.data() ) );
 	m_icons_dirty = FALSE;
@@ -162,8 +162,8 @@ void MainForm::fileSave()
 	QTextStream stream( &file );
 	if ( ! m_comments.isEmpty() )
 	    stream << m_comments.join( "\n" ) << "\n";
-	QMap<QString,QColor>::Iterator it;
-	for ( it = m_colors.begin(); it != m_colors.end(); ++it ) {
+	QMap<QString,QColor>::ConstIterator it;
+	for ( it = m_colors.constBegin(); it != m_colors.constEnd(); ++it ) {
 	    QColor color = it.data();
 	    stream << QString( "%1 %2 %3\t\t%4" ).
 			arg( color.red(), 3 ).
@@ -299,13 +299,17 @@ void MainForm::editCut()
     else if ( visible == iconsPage && colorIconView->currentItem() ) {
 	QIconViewItem *item = colorIconView->currentItem();
 	name = item->text();
-	QIconViewItem *current = item->nextItem();
-	if ( ! current )
-	    current = item->prevItem();
-	delete item;
-	if ( current )
-	    colorIconView->setCurrentItem( current );
-	colorIconView->arrangeItemsInGrid();
+	if ( colorIconView->count() == 1 )
+	    colorIconView->clear();
+	else {
+	    QIconViewItem *current = item->nextItem();
+	    if ( ! current )
+		current = item->prevItem();
+	    delete item;
+	    if ( current )
+		colorIconView->setCurrentItem( current );
+	    colorIconView->arrangeItemsInGrid();
+	}
 	m_table_dirty = TRUE;
     }
 
@@ -551,8 +555,10 @@ void MainForm::loadSettings()
     int windowY = settings.readNumEntry( APP_KEY + "WindowY", 0 );
     m_clip_as = settings.readNumEntry( APP_KEY + "ClipAs", CLIP_AS_HEX );
     m_show_web = settings.readBoolEntry( APP_KEY + "ShowWeb", TRUE );
-    if ( ! settings.readBoolEntry( APP_KEY + "View", TRUE ) )
+    if ( ! settings.readBoolEntry( APP_KEY + "View", TRUE ) ) {
 	colorWidgetStack->raiseWidget( iconsPage );
+	viewIconsAction->setOn( TRUE );
+    }
 
     resize( windowWidth, windowHeight );
     move( windowX, windowY );
