@@ -58,8 +58,8 @@ public slots:
     void hideColumn(int column);
     void showRow(int row);
     void showColumn(int column);
-    void resizeRowToContents(int row);
-    void resizeColumnToContents(int column);
+    void resizeRowToContents(int row, bool checkHeader = true);
+    void resizeColumnToContents(int column, bool checkHeader = true);
 
 protected slots:
     void rowIndexChanged(int row, int oldIndex, int newIndex);

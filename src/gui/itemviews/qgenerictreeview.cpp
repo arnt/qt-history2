@@ -440,7 +440,8 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
   \sa QItemOptions
 */
 
-void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const
+void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options,
+                               const QModelIndex &index) const
 {
     QBrush base = options->palette.base();
     int y = options->itemRect.y();
@@ -860,12 +861,14 @@ void QGenericTreeView::columnCountChanged(int, int)
 
 /*!
   Resizes the \a column given to the size of its contents.
+  If \a checkHeader is true, the contents of the header section will be
+  taken into consideration.
 */
 
-void QGenericTreeView::resizeColumnToContents(int column)
+void QGenericTreeView::resizeColumnToContents(int column, bool checkHeader)
 {
     int contents = columnSizeHint(column);
-    int header = d->header->sectionSizeHint(column);
+    int header = checkHeader ? d->header->sectionSizeHint(column) : 0;
     d->header->resizeSection(column, qMax(contents, header));
 }
 

@@ -71,10 +71,6 @@ void QAbstractItemViewPrivate::init()
                      q, SLOT(verticalScrollbarAction(int)));
     QObject::connect(q->horizontalScrollBar(), SIGNAL(actionTriggered(int)),
                      q, SLOT(horizontalScrollbarAction(int)));
-//     QObject::connect(q->verticalScrollBar(), SIGNAL(valueChanged(int)),
-//                      q, SLOT(updateEditors()), Qt::QueuedConnection);
-//     QObject::connect(q->horizontalScrollBar(), SIGNAL(valueChanged(int)),
-//                      q, SLOT(updateEditors()), Qt::QueuedConnection);
 
     q->setAttribute(Qt::WA_PaintOnScreen);
     q->setAttribute(Qt::WA_NoBackground);
@@ -405,6 +401,7 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 }
 
 // ### DOC: Couldn't we call this selection() (and setSelection() and clearSelection()) ?
+// ### DEV: This may be confused with actually selecting items.
 /*!
     Returns the current selection.
 
@@ -513,6 +510,8 @@ void QAbstractItemView::edit(const QModelIndex &index)
 // ### DOC: Guessed
 /*!
     \internal
+
+    
 */
 void QAbstractItemView::doItemsLayout()
 {
@@ -520,19 +519,19 @@ void QAbstractItemView::doItemsLayout()
     // do nothing
 }
 
-// ### DOC: Guessed
 /*!
-    \internal
+  \property AbstractItemView::startEditActions
+  \brief which actions will start the editing of an item
+
+  This property is an or'ed flag of QAbstractItemDelegate::StartEditFlags.
+  The view will only start the editing of an item if the action perfomed is set
+  in this property.
 */
 void QAbstractItemView::setStartEditActions(int actions)
 {
     d->startEditActions = actions;
 }
 
-// ### DOC: Guessed
-/*!
-    \internal
-*/
 int QAbstractItemView::startEditActions() const
 {
     return d->startEditActions;

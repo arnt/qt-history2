@@ -284,40 +284,39 @@ int QGenericTableView::verticalOffset() const
 }
 
 QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
-                                          Qt::ButtonState /*state*/)
+                                          Qt::ButtonState)
 {
     QModelIndex current = currentItem();
     QModelIndex bottomRight = model()->bottomRight(root());
     switch (cursorAction) {
-        case QAbstractItemView::MoveUp:
-            if (current.row() > 0)
-                return model()->index(current.row() - 1, current.column(), root());
-            break;
-        case QAbstractItemView::MoveDown:
-            if (current.row() < bottomRight.row())
-                return model()->index(current.row() + 1, current.column(), root());
-            break;
-        case QAbstractItemView::MoveLeft:
-            if (current.column() > 0)
-                return model()->index(current.row(), current.column() - 1, root());
-            break;
-        case QAbstractItemView::MoveRight:
-            if (current.column() < bottomRight.column())
-                return model()->index(current.row(), current.column() + 1, root());
-            break;
-        case QAbstractItemView::MoveHome:
-            return model()->index(0, current.column(), root());
-        case QAbstractItemView::MoveEnd:
-            return model()->index(bottomRight.row(), current.column(), root());
-        case QAbstractItemView::MovePageUp: {
-            int newRow = rowAt(itemViewportRect(current).top() - d->viewport->height());
-            return model()->index(newRow <= bottomRight.row() ? newRow : 0, current.column(), root());
-        }
-        case QAbstractItemView::MovePageDown: {
-            int newRow = rowAt(itemViewportRect(current).bottom() + d->viewport->height());
-            return model()->index(newRow >= 0 ? newRow : bottomRight.row(), current.column(), root());
-        }
+    case QAbstractItemView::MoveUp:
+        if (current.row() > 0)
+            return model()->index(current.row() - 1, current.column(), root());
+        break;
+    case QAbstractItemView::MoveDown:
+        if (current.row() < bottomRight.row())
+            return model()->index(current.row() + 1, current.column(), root());
+        break;
+    case QAbstractItemView::MoveLeft:
+        if (current.column() > 0)
+            return model()->index(current.row(), current.column() - 1, root());
+        break;
+    case QAbstractItemView::MoveRight:
+        if (current.column() < bottomRight.column())
+            return model()->index(current.row(), current.column() + 1, root());
+        break;
+    case QAbstractItemView::MoveHome:
+        return model()->index(0, current.column(), root());
+    case QAbstractItemView::MoveEnd:
+        return model()->index(bottomRight.row(), current.column(), root());
+    case QAbstractItemView::MovePageUp: {
+        int newRow = rowAt(itemViewportRect(current).top() - d->viewport->height());
+        return model()->index(newRow <= bottomRight.row() ? newRow : 0, current.column(), root());
     }
+    case QAbstractItemView::MovePageDown: {
+        int newRow = rowAt(itemViewportRect(current).bottom() + d->viewport->height());
+        return model()->index(newRow >= 0 ? newRow : bottomRight.row(), current.column(), root());
+    }}
     return QModelIndex();
 }
 
@@ -418,7 +417,7 @@ void QGenericTableView::updateGeometries()
         h -= d->leftHeader->sectionSize(--row);
     int max = row * verticalFactor();
     if (h < 0)
-         max += 1 + (verticalFactor() * -h / d->leftHeader->sectionSize(row));
+        max += 1 + (verticalFactor() * -h / d->leftHeader->sectionSize(row));
     verticalScrollBar()->setRange(0, max);
 
     int w = d->viewport->width();
@@ -552,7 +551,6 @@ void QGenericTableView::ensureItemVisible(const QModelIndex &item)
         return;
     }
 
-
     // vertical
     if (rect.top() < area.top()) { // above
         verticalScrollBar()->setValue(item.row() * verticalFactor());
@@ -625,7 +623,7 @@ void QGenericTableView::selectRow(int row, Qt::ButtonState state)
         if (d->selectionMode == SingleSelection)
             selectionModel()->select(tl, selectionCommand(state, tl));
         else
-           selectionModel()->select(QItemSelection(tl, br, model()), selectionCommand(state, tl));
+            selectionModel()->select(QItemSelection(tl, br, model()), selectionCommand(state, tl));
     }
 }
 
@@ -638,7 +636,7 @@ void QGenericTableView::selectColumn(int column, Qt::ButtonState state)
         if (d->selectionMode == SingleSelection)
             selectionModel()->select(tl, selectionCommand(state, tl));
         else
-           selectionModel()->select(QItemSelection(tl, br, model()), selectionCommand(state, tl));
+            selectionModel()->select(QItemSelection(tl, br, model()), selectionCommand(state, tl));
     }
 }
 
@@ -662,17 +660,17 @@ void QGenericTableView::showColumn(int column)
     d->topHeader->showSection(column);
 }
 
-void QGenericTableView::resizeRowToContents(int row)
+void QGenericTableView::resizeRowToContents(int row, bool checkHeader)
 {
     int content = rowSizeHint(row);
-    int header = d->leftHeader->sectionSizeHint(row);
+    int header = checkHeader ? d->leftHeader->sectionSizeHint(row) : 0;
     d->leftHeader->resizeSection(row, qMax(content, header));
 }
 
-void QGenericTableView::resizeColumnToContents(int column)
+void QGenericTableView::resizeColumnToContents(int column, bool checkHeader)
 {
     int content = columnSizeHint(column);
-    int header = d->topHeader->sectionSizeHint(column);
+    int header = checkHeader ? d->topHeader->sectionSizeHint(column) : 0;
     d->topHeader->resizeSection(column, qMax(content, header));
 }
 
@@ -685,7 +683,6 @@ void QGenericTableView::verticalScrollbarAction(int action)
     int y = -(above / factor); // above the page
 
     if (action == QScrollBar::SliderPageStepAdd) {
-
         // go down to the bottom of the page
         int h = d->viewport->height();
         while (y < h && row < d->model->rowCount())
@@ -694,16 +691,12 @@ void QGenericTableView::verticalScrollbarAction(int action)
         if (y > h && row)
             value -= factor * (y - h) / d->leftHeader->sectionSize(row - 1);
         verticalScrollBar()->setSliderPosition(value);
-
     } else if (action == QScrollBar::SliderPageStepSub) {
-
         y += d->viewport->height();
-
         // go up to the top of the page
         while (y > 0 && row > 0)
             y -= d->leftHeader->sectionSize(--row);
         value = row * factor; // i is now the first item in the page
-
         if (y < 0)
             value += factor * -y / d->leftHeader->sectionSize(row);
         verticalScrollBar()->setSliderPosition(value);
@@ -719,7 +712,6 @@ void QGenericTableView::horizontalScrollbarAction(int action)
     int x = -(above / factor); // above the page
 
     if (action == QScrollBar::SliderPageStepAdd) {
-
         // go down to the right of the page
         int w = d->viewport->width();
         while (x < w && column < d->model->columnCount())
@@ -730,14 +722,11 @@ void QGenericTableView::horizontalScrollbarAction(int action)
         horizontalScrollBar()->setSliderPosition(value);
 
     } else if (action == QScrollBar::SliderPageStepSub) {
-
         x += d->viewport->width();
-
         // go up to the left of the page
         while (x > 0 && column > 0)
             x -= d->topHeader->sectionSize(--column);
         value = column * factor; // i is now the first item in the page
-
         if (x < 0)
             value += factor * -x / d->topHeader->sectionSize(column);
         horizontalScrollBar()->setSliderPosition(value);

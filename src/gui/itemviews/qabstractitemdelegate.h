@@ -26,6 +26,7 @@ class QModelIndex;
 
 class Q_GUI_EXPORT QItemOptions
 {
+    Q_ENUMS(Position)
 public:
     enum Position { Left, Right, Top, Bottom };
     QItemOptions()
@@ -53,6 +54,8 @@ class QAbstractItemDelegatePrivate;
 class Q_GUI_EXPORT QAbstractItemDelegate : public QObject
 {
     Q_DECLARE_PRIVATE(QAbstractItemDelegate)
+    Q_ENUMS(EditorType EndEditFlags)
+    Q_FLAGS(StartEditFlags)
 
 public:
     QAbstractItemDelegate(QAbstractItemModel *model, QObject *parent = 0);
@@ -74,6 +77,8 @@ public:
         AnyKeyPressed = 16,
         AlwaysEdit = 32
     };
+
+    Q_DECLARE_FLAGS(StartEditFlags, StartEditAction);
 
     enum EndEditAction {
         Accepted = 1,
@@ -105,5 +110,7 @@ protected:
     QString ellipsisText(const QFontMetrics &fontMetrics, int width, int align,
                          const QString &org) const;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemDelegate::StartEditFlags);
 
 #endif

@@ -32,6 +32,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_DECLARE_PRIVATE(QAbstractItemView)
     Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
     Q_PROPERTY(bool autoScroll READ autoScroll WRITE setAutoScroll)
+    Q_PROPERTY(QAbstractItemDelegate::StartEditFlags startEditActions READ startEditActions WRITE setStartEditActions)
     Q_ENUMS(SelectionMode SelectionBehaviour)
 
 public:
