@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#15 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#16 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -314,6 +314,8 @@ bool QSVGDevice::play( const QDomNode &node )
 	    play( child );
 	    break;
 	case PathElement:
+	    drawPath( attr.namedItem( "d" ).nodeValue() );
+	    break;
 	case TextElement:
 	    if ( child.firstChild().isText() ) {
 		QString text = child.firstChild().toText().nodeValue();
@@ -539,6 +541,143 @@ void QSVGDevice::setTransform( const QString &tr )
 	// move on to next command
 	index += reg.matchedLength();
     }
+}
+
+void QSVGDevice::drawPath( const QString &data )
+{
+    int x0 = 0, y0 = 0;			// starting point
+    int x = 0, y = 0;			// current point
+    int controlX, controlY;		// last control point for curves
+    bool closePath = FALSE;		// closed via Z ?
+    QPointArray path( 500 );		// resulting path
+    QPointArray quad( 4 ), bezier;	// for curve calculations
+    int pcount = 0;			// current point array index
+    uint idx = 0;			// current data position
+    int mode = 0, lastMode = 0;		// parser state
+    QString commands( "MZLHVCSQTA" );	// recognized commands
+    int cmdArgs[] = { 2, 0, 2, 1, 1, 6, 4, 4, 2, 7 };	// no of arguments
+    QRegExp reg( "\\s*([+-]?\\d*\\.?\\d*)" );		// floating point
+
+    // detect next command
+    while ( idx < data.length() ) {
+	QChar ch = data[ idx++ ];
+	if ( ch.isSpace() )
+	    continue;
+	QChar chUp = ch.upper();
+	int cmd = commands.find( chUp );
+	if ( cmd == - 1 && !mode ) {
+	    qWarning( "QSVGDevice::drawPath: Unknown command" );
+	    return;
+	}
+	// switch to new command mode
+	mode = chUp.unicode();
+	bool relative = ( ch != chUp );		// e.g. 'm' instead of 'M'
+
+	// read in the required number of arguments
+	const int maxArgs = 7;
+	double arg[ maxArgs ];
+	int numArgs = cmdArgs[ cmd ];
+	for ( int i = 0; i < numArgs; i++ ) {
+	    int pos = reg.search( data, idx );
+	    if ( pos == -1 ) {
+		qWarning( "QSVGDevice::drawPath: Error parsing arguments" );
+		return;
+	    }
+	    arg[ i ] = reg.cap( 1 ).toDouble();
+	    idx = pos + reg.matchedLength();
+	};
+
+	// process command
+	int offsetX = relative ? x : 0;		// correction offsets
+	int offsetY = relative ? y : 0;		// for relative commands
+	switch ( mode ) {
+	case 'M':				// move to
+	    if ( pcount )
+		if ( pt->brush().style() == Qt::SolidPattern && !closePath)
+		    pt->drawPolygon( path, 0, FALSE, pcount );
+		else
+		    pt->drawPolyline( path, 0, pcount );
+	    closePath = FALSE;
+	    x = x0 = int(arg[ 0 ]) + offsetX;
+	    y = y0 = int(arg[ 1 ]) + offsetY;
+	    path.setPoint( 0, x0, y0 );
+	    pcount = 1;
+	    mode = 'L';
+	    break;
+	case 'Z':				// close path
+	    path.setPoint( pcount++, x0, y0 );
+	    pt->drawPolygon( path, 0, FALSE, pcount );
+	    x = x0;
+	    y = y0;
+	    closePath = TRUE;
+	    mode = 0;
+	    break;
+	case 'L':				// line to
+	    x = int(arg[ 0 ]) + offsetX;
+	    y = int(arg[ 1 ]) + offsetY;
+	    path.setPoint( pcount++, x, y );
+	    break;
+	case 'H':				// horizontal line
+	    x = int(arg[ 0 ]) + offsetX;
+	    path.setPoint( pcount++, x, y );
+	    break;
+	case 'V':				// vertical line
+	    y = int(arg[ 0 ]) + offsetY;
+	    path.setPoint( pcount++, x, y );
+	    break;
+	case 'C':				// cubic bezier curveto
+	case 'S':				// smooth shorthand
+	case 'Q':				// quadratic bezier curves
+	case 'T':				// smooth shorthand
+	    quad.setPoint( 0, x, y );
+	    // if possible, reflect last control point if smooth shorthand
+	    if ( mode == 'S' || mode == 'T' ) {
+		bool cont = mode == lastMode ||
+		     mode == 'S' && lastMode == 'C' ||
+		     mode == 'T' && lastMode == 'Q';
+		x = cont ? 2*x-controlX : x;
+		y = cont ? 2*y-controlY : y;
+		quad.setPoint( 1, x, y );
+		quad.setPoint( 2, x, y );
+	    }
+	    for ( int j = 0; j < numArgs/2; j++ ) {
+		x = int(arg[ 2*j   ]) + offsetX;
+		y = int(arg[ 2*j+1 ]) + offsetY;
+		quad.setPoint( j+4-numArgs/2, x, y );
+	    }
+	    // remember last control point for next shorthand
+	    controlX = quad[ 2 ].x();
+	    controlY = quad[ 2 ].y();
+	    // transform quadratic into cubic Bezier
+	    if ( mode == 'Q' || mode == 'T' ) {
+		int x31 = quad[0].x()+int(2.0*(quad[2].x()-quad[0].x())/3.0);
+		int y31 = quad[0].y()+int(2.0*(quad[2].y()-quad[0].y())/3.0);
+		int x32 = quad[2].x()+int(2.0*(quad[3].x()-quad[2].x())/3.0);
+		int y32 = quad[2].y()+int(2.0*(quad[3].y()-quad[2].y())/3.0);
+		quad.setPoint( 1, x31, y31 );
+		quad.setPoint( 2, x32, y32 );
+	    }
+	    // calculate points on curve
+	    bezier = quad.quadBezier();		// ### wrong naming in API
+	    for ( uint j = 0; j < bezier.size(); j ++ )
+		path.setPoint( pcount++, bezier[ j ] );
+	    break;
+	case 'A':				// elliptical arc curve
+	    // ### just a straight line
+	    x = int(arg[ 5 ]) + offsetX;
+	    y = int(arg[ 6 ]) + offsetY;
+	    path.setPoint( pcount++, x, y );
+	    break;
+	};
+	lastMode = mode;
+    }
+
+    // undrawn path left ?
+    if ( pt->brush().style() == Qt::SolidPattern && !closePath)
+	pt->drawPolygon( path, 0, FALSE, pcount );
+    else
+	pt->drawPolyline( path, 0, pcount );
+
 }
 
 #endif // QT_NO_SVG
