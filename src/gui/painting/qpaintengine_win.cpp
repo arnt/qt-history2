@@ -512,6 +512,11 @@ void QWin32PaintEngine::drawRect(const QRect &r)
 
     if (d->brushStyle == Qt::LinearGradientPattern) {
         d->fillGradient(r);
+        if (d->penStyle != Qt::NoPen) {
+            SelectObject(d->hdc, stock_nullBrush);
+            Rectangle(d->hdc, r.x(), r.y(), r.x() + w, r.y() + h);
+            SelectObject(d->hdc, d->hbrush);
+        }
         return;
     }
 
