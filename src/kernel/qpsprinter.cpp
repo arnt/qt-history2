@@ -68,6 +68,7 @@
 #include "qsettings.h"
 #include "qmap.h"
 #include "qfontdatabase.h"
+#include "qregexp.h"
 
 #include <ctype.h>
 #if defined(_OS_WIN32_)
