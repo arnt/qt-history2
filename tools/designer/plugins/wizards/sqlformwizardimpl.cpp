@@ -35,6 +35,7 @@
 #include <qfeatures.h>
 #include <qradiobutton.h>
 #include <qspinbox.h>
+#include <limits.h>
 
 #ifndef QT_NO_SQL
 #include <qdatatable.h>
@@ -403,6 +404,10 @@ void SqlFormWizard::accept()
 		//##
 		((QLineEdit*)editor)->setAlignment( Qt::AlignRight );
 		formWindow->setPropertyChanged( editor, "alignment", TRUE );
+	    }
+	    if ( editor->inherits( "QSpinBox" ) ) {
+		( (QSpinBox*)editor )->setMaxValue( INT_MAX );
+		formWindow->setPropertyChanged( editor, "maxValue", TRUE );
 	    }
 	    QStringList lst;
 	    lst << conn << table << field->name();
