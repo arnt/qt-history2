@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#93 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#92 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#93 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1029,6 +1029,8 @@ void QObject::disconnectNotify( const char * )
 
 
 /*----------------------------------------------------------------------------
+  \fn bool QObject::checkConnectArgs( const char *signal, const QObject *receiver, const char *member )
+
   Returns TRUE if the \e signal and the \e member arguments are compatible,
   otherwise FALSE.
 
@@ -1046,7 +1048,9 @@ void QObject::disconnectNotify( const char * )
   FALSE: "signal(a)",		"member(a,b)"
  ----------------------------------------------------------------------------*/
 
-bool QObject::checkConnectArgs( const char *signal, const char *member )
+bool QObject::checkConnectArgs( const char    *signal,
+				const QObject *,
+				const char    *member )
 {
     const char *s1 = signal;
     const char *s2 = member;
@@ -1189,7 +1193,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	return FALSE;
     }
 #if defined(CHECK_RANGE)
-    if ( !s->checkConnectArgs(signal,member) )
+    if ( !s->checkConnectArgs(signal,receiver,member) )
 	warning( "QObject::connect: Incompatible sender/receiver arguments"
 		 "\n\t%s::%s --> %s::%s",
 		 s->className(), signal,

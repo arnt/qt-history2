@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#35 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#36 $
 **
 ** Definition of QObject class
 **
@@ -90,7 +90,8 @@ protected:
 
     virtual void connectNotify( const char *signal );
     virtual void disconnectNotify( const char *signal );
-    virtual bool checkConnectArgs( const char *signal, const char *member );
+    virtual bool checkConnectArgs( const char *signal, const QObject *receiver,
+				   const char *member );
 
     uint	isSignal   : 1;
     uint	isWidget   : 1;
