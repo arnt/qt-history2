@@ -2893,7 +2893,7 @@ bool QVariant::canCast( Type t ) const
     case CString:
 	return d->typ == String;
     case String:
-	return d->typ == CString || d->typ == ByteArray || d->typ == Int || d->typ == UInt || d->typ == Bool || d->typ == Double || d->typ == Date || d->typ == Time || d->typ == DateTime || d->typ == KeySequence || d->typ == Font || d->typ == Color;
+	return d->typ == CString || d->typ == ByteArray || d->typ == Int || d->typ == UInt || d->typ == Bool || d->typ == Double || d->typ == Date || d->typ == Time || d->typ == DateTime || d->typ == KeySequence || d->typ == Font || d->typ == Color || d->typ == LongLong || d->typ == ULongLong;
     case ByteArray:
 	return d->typ == CString;
     case Date:
