@@ -202,7 +202,8 @@ int main( int argc, char ** argv )
 		INDEX_CHECK( "Missing resource directory argument!" );
 		resourceDir = QString( argv[++i] );
 	    } else {
-		fprintf( stderr, "Wrong options! Try -help to get help.\n" );
+		fprintf( stderr, "Unrecognized option '%s'. Try -help to get help.\n",
+			 argv[i] );
 		exit( 1 );
 	    }
 	}
