@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#138 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#139 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#138 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#139 $");
 
 
 /*!
@@ -1362,12 +1362,12 @@ bool QWidget::close( bool forceKill )
 */
 
 
-/*!
-  Adjusts the size of the widget to fit the contents. Uses sizeHint() if
-  valid, otherwise sets the size to the children rectangle.
+/*!  Adjusts the size of the widget to fit the contents. Uses sizeHint()
+  if valid (i.e returns a size with both width and height equal to or
+  greater than 0), otherwise sets the size to the children rectangle (the
+  union of all child widget geometries).
 
-  \sa sizeHint(), childrenRect()
-*/
+  \sa sizeHint(), childrenRect() */
 
 void QWidget::adjustSize()
 {
@@ -1389,7 +1389,7 @@ void QWidget::adjustSize()
 
   The default implementation returns an invalid size.
 
-  \sa QSize:isValid(), resize(), setMinimumSize()
+  \sa QSize::isValid(), resize(), setMinimumSize()
 */
 
 QSize QWidget::sizeHint() const
