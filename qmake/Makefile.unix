@@ -28,7 +28,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   @SOURCE_PATH@/src/core/io/qdir.cpp @SOURCE_PATH@/src/core/plugin/quuid.cpp \
 	   @SOURCE_PATH@/src/core/io/qfileinfo.cpp @SOURCE_PATH@/src/core/tools/qdatetime.cpp \
 	   @SOURCE_PATH@/src/core/tools/qstringlist.cpp @SOURCE_PATH@/src/core/tools/qmap.cpp \
-	   @SOURCE_PATH@/src/core/global/qconfig.cpp @SOURCE_PATH@/src/core/io/qurl.cpp 
+	   @SOURCE_PATH@/src/core/global/qconfig.cpp @SOURCE_PATH@/src/core/io/qurl.cpp \
 	   @SOURCE_PATH@/src/core/tools/qlocale.cpp @SOURCE_PATH@/src/core/tools/qlinkedlist.cpp \
 	   @SOURCE_PATH@/src/core/tools/qhash.cpp @SOURCE_PATH@/src/core/kernel/qcore_mac.cpp \
 	   @SOURCE_PATH@/src/core/io/qtemporaryfile.cpp \

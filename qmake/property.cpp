@@ -60,39 +60,6 @@ QMakeProperty::value(QString v, bool just_check)
         return QT_VERSION_STR;
 #endif
     }
-
-    if(initSettings()) {
-        int slash = v.lastIndexOf('/');
-        QCoreVariant var = sett->value(keyBase(slash == -1) + v);
-        bool ok = var.isValid();
-        QString ret = var.toString();
-        if(!ok) {
-            QString version = qmake_version();
-            if(slash != -1) {
-                version = v.left(slash-1);
-                v = v.mid(slash+1);
-            }
-            sett->beginGroup(keyBase(false));
-            QStringList subs = sett->childGroups();
-            sett->endGroup();
-            subs.sort();
-            for (int x = subs.count() - 1; x >= 0; x--) {
-                QString s = subs[x];
-                if(s.isEmpty() || s > version)
-                    continue;
-                var = sett->value(keyBase(false) + s + "/" + v);
-                ok = var.isValid();
-                ret = var.toString();
-                if (ok) {
-                    if(!just_check)
-                        debug_msg(1, "Fell back from %s -> %s for '%s'.", version.latin1(),
-                                  s.latin1(), v.latin1());
-                    return ret;
-                }
-            }
-        }
-        return ok ? ret : QString();
-    }
     return QString::null;
 }
 
