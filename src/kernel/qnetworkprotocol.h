@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#26 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#27 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -105,7 +105,9 @@ public:
 	ErrRemove = -9,
 	ErrRename = -10,
 	ErrGet = -11,
-	ErrPut = -12
+	ErrPut = -12,
+	ErrFileNotExisting = -13,
+	ErrPermissionDenied = -14
     };
 
     QNetworkProtocol();
