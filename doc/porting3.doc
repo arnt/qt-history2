@@ -160,7 +160,7 @@ have been changed:
 \i \c _CC_*_ becomes \c Q_CC_*
 \endlist
 
-\section1 Removed functions
+\section1 Removed Functions
 
 All these functions have been removed in Qt 3.x:
 \list
@@ -193,7 +193,7 @@ resulting from these directives. We strongly recommend to either make
 use of the safe qstr* variants directly or ensure that no 0 pointer is
 passed to the standard C functions in your code base.
 
-\section1 Collection class renaming
+\section1 Collection Class Renaming
 
 The classes QArray, QCollection, QList, QListIterator, QQueue, QStack
 and QVector have been renamed QMemArray, QPtrCollection, QPtrList,
@@ -254,9 +254,9 @@ If you used calls to QInputDialog::getText(...) that provided more
 than the first two required parameters you will have to add a value 
 for the \c echo parameter.
 
-\section1 QLayout and Related Abstract Layout Classes
+\section1 QLayout and Other Abstract Layout Classes
 
-The definition of \l QGLayoutIterator, \l QLayout, \l QLayoutItem, \l
+The definitions of \l QGLayoutIterator, \l QLayout, \l QLayoutItem, \l
 QLayoutIterator, \l QSpacerItem and \l QWidgetItem were moved from \c
 <qabstractlayout.h> to \c <qlayout.h>. The header \c
 <qabstractlayout.h> now includes \c <qlayout.h> for compatibility. It
@@ -415,7 +415,7 @@ QString::find() instead.
 
 \section2 QString::findRev() and QString::contains()
 
-QString::findRev()'s and QString::contains()'s semantics have changed
+\l QString::findRev()'s and \l QString::contains()'s semantics have changed
 between 2.0 and 3.0 to be more coherent with the other overloads.
 
 For example,
@@ -508,7 +508,7 @@ In fact, find() is now defined in terms of findMessage().  By doing the
 conversion, you will also gain support for translator comments and for any
 future extension.
 
-\section1 QXml classes
+\section1 QXml Classes
 
 \section2 QXmlInputSource
 
@@ -549,7 +549,7 @@ If you used this class in another way as the above described, you have to
 adjust you code to use the QXmlLocator that is reported by the
 QXmlContentHandler::setDocumentLocator() function.
 
-\section1 Bezier curves
+\section1 Bezier Curves
 
 The function names for Bezier curves in QPainter and QPointArray have
 been corrected. They now properly reflect their cubic form instead of
@@ -562,8 +562,8 @@ to replace these calls with
 \endlist
 respectively. Neither the arguments nor the resulting curve have changed.
 
-\section1 Locale-aware string comparisons in item classes (QIconView, QListBox,
-	  QListView and QTable)
+\section1 Locale-aware String Comparisons in QIconView, QListBox,
+	  QListView and QTable
 
 In Qt 2.x, QString provided only string comparison using the Unicode
 values of the characters of a string. This is efficient and reliable,
@@ -571,7 +571,7 @@ but it is not the appropriate order for most languages. For example,
 French users expect '&eacute;' (e acute) to be treated essentially as
 'e' and not put after 'z'.
 
-In Qt 3.0, QString::localeAwareCompare() implements that on some
+In Qt 3.0, QString::localeAwareCompare() implements that on certain
 platforms. The classes \l QIconView, \l QListBox, \l QListView and \l
 QTable now use QString::localeAwareCompare() instead of
 QString::compare(). The impact of this is usually positive.
