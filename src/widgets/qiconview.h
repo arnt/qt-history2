@@ -271,7 +271,7 @@ class Q_EXPORT QIconView : public QScrollView
 
     Q_OBJECT
 
-public:
+qproperties:
     enum SelectionMode {
 	Single = 0,
 	Multi,
@@ -291,6 +291,7 @@ public:
 	Right
     };
 
+public:
     QIconView( QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
     virtual ~QIconView();
 
@@ -310,13 +311,14 @@ public:
 
     virtual void setViewMode( QIconSet::Size mode );
     QIconSet::Size viewMode() const;
+
 public:
     virtual void showEvent( QShowEvent * );
-    
+
 qproperties:
     virtual void setSelectionMode( SelectionMode m );
     SelectionMode selectionMode() const;
-    
+
 public:
     virtual void setSingleClickConfiguration( QFont *normalText, QColor *normalTextCol,
 					      QFont *highlightedText, QColor *highlightedTextCol,
@@ -368,13 +370,13 @@ public:
     void setSorting( bool sort, bool ascending = TRUE );
     bool sorting() const;
     bool sortDirection() const;
-    
+
 qproperties:
     virtual void setEnableMoveItems( bool b );
     bool enableMoveItems() const;
     virtual void setWordWrapIconText( bool b );
     bool wordWrapIconText() const;
-    
+
 public:
     virtual void setItemFont( const QFont &font );
     virtual void setItemColor( const QColor &color );
