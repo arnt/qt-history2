@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#84 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#83 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#84 $";
 #endif
 
 
@@ -154,6 +154,7 @@ bool QWidget::create()				// create widget
 	class_hint.res_class = name() ? (char *)name() : title;
 	XSetWMProperties( dpy, id, 0, 0, 0, 0, &size_hints, &wm_hints,
 			  &class_hint );
+	XResizeWindow( dpy, id, crect.width(), crect.height() );
 	XStoreName( dpy, id, title );
 	Atom protocols[1];
 	protocols[0] = q_wm_delete_window;	// support del window protocol
