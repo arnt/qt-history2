@@ -78,6 +78,7 @@ public slots:
 signals:
     void backwardAvailable( bool );
     void forwardAvailable( bool );
+    void sourceChanged( const QString& );
     void highlighted( const QString& );
     void linkClicked( const QString& );
 
@@ -87,8 +88,8 @@ protected:
 private:
     void popupDetail( const QString& contents, const QPoint& pos );
     bool linksEnabled() const { return TRUE; }
-    void emitHighlighted( const QString &s ) { emit highlighted( s ); }
-    void emitLinkClicked( const QString &s ) { emit linkClicked( s ); }
+    void emitHighlighted( const QString &s );
+    void emitLinkClicked( const QString &s );
     QTextBrowserData *d;
 
 private:	// Disabled copy constructor and operator=

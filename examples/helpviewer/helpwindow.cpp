@@ -39,7 +39,7 @@
 HelpWindow::HelpWindow( const QString& home_, const QString& _path,
 			QWidget* parent, const char *name )
     : QMainWindow( parent, name, WDestructiveClose ),
-      pathCombo( 0 ), selectedURL()
+      pathCombo( 0 )
 {
     readHistory();
     readBookmarks();
@@ -48,8 +48,8 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path,
 
     browser->mimeSourceFactory()->setFilePath( _path );
     browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-    connect( browser, SIGNAL( textChanged() ),
-	     this, SLOT( textChanged() ) );
+    connect( browser, SIGNAL( sourceChanged(const QString& ) ),
+	     this, SLOT( sourceChanged( const QString&) ) );
 
     setCentralWidget( browser );
 
@@ -158,31 +158,28 @@ void HelpWindow::setForwardAvailable( bool b)
 }
 
 
-void HelpWindow::textChanged()
+void HelpWindow::sourceChanged( const QString& url )
 {
     if ( browser->documentTitle().isNull() )
-	setCaption( "Qt Example - Helpviewer - " + browser->context() );
+	setCaption( "Qt Example - Helpviewer - " + url );
     else
 	setCaption( "Qt Example - Helpviewer - " + browser->documentTitle() ) ;
 
-    selectedURL = browser->context();
-
-    if ( !selectedURL.isEmpty() && pathCombo ) {
+    if ( !url.isEmpty() && pathCombo ) {
 	bool exists = FALSE;
 	int i;
 	for ( i = 0; i < pathCombo->count(); ++i ) {
-	    if ( pathCombo->text( i ) == selectedURL ) {
+	    if ( pathCombo->text( i ) == url ) {
 		exists = TRUE;
 		break;
 	    }
 	}
 	if ( !exists ) {
-	    pathCombo->insertItem( selectedURL, 0 );
+	    pathCombo->insertItem( url, 0 );
 	    pathCombo->setCurrentItem( 0 );
-	    mHistory[ hist->insertItem( selectedURL ) ] = selectedURL;
+	    mHistory[ hist->insertItem( url ) ] = url;
 	} else
 	    pathCombo->setCurrentItem( i );
-	selectedURL = QString::null;
     }
 }
 

@@ -74,7 +74,8 @@
   automatically scrolls to that position (using
   scrollToAnchor()). When the user clicks on a hyperlink, the browser
   will call setSource() itself, with the link's \c href value as
-  argument.
+  argument. You can track the current source by connetion to the
+  sourceChanged() signal.
 
   QTextBrowser provides backward() and forward() slots which you can use
   to implement Back and Forward buttons. The home() slot sets the text
@@ -106,13 +107,18 @@
 class QTextBrowserData
 {
 public:
-    QTextBrowserData() {}
+    QTextBrowserData():textOrSourceChanged(FALSE) {}
 
     QValueStack<QString> stack;
     QValueStack<QString> forwardStack;
     QString home;
     QString curmain;
     QString curmark;
+    
+    /*flag necessary to give the linkClicked() signal some meaningful
+      semantics when somebody connected to it calls setText() or
+      setSource() */
+    bool textOrSourceChanged;
 };
 
 
@@ -126,8 +132,6 @@ QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
     d = new QTextBrowserData;
 
     viewport()->setMouseTracking( TRUE );
-    connect( this, SIGNAL( linkClicked( const QString & ) ),
-	     this, SLOT( setSource( const QString & ) ) );
 }
 
 /*!  \reimp
@@ -187,6 +191,7 @@ void QTextBrowser::setSource(const QString& name)
     if ( isVisible() )
 	qApp->setOverrideCursor( waitCursor );
 #endif
+    d->textOrSourceChanged = TRUE;
     QString source = name;
     QString mark;
     int hash = name.find('#');
@@ -237,12 +242,11 @@ void QTextBrowser::setSource(const QString& name)
     if ( !d->home )
 	d->home = url;
 
-    if ( d->stack.isEmpty() || d->stack.top() != url) {
+    if ( d->stack.isEmpty() || d->stack.top() != url)
 	d->stack.push( url );
-    }
 
     int stackCount = (int)d->stack.count();
-    if ( d->stack.isEmpty() || d->stack.top() == url )
+    if ( d->stack.top() == url )
 	stackCount--;
     emit backwardAvailable( stackCount > 0 );
     stackCount = (int)d->forwardStack.count();
@@ -262,6 +266,8 @@ void QTextBrowser::setSource(const QString& name)
     if ( isVisible() )
 	qApp->restoreOverrideCursor();
 #endif
+    
+    emit sourceChanged( url );
 }
 
 /*!  \fn void QTextBrowser::backwardAvailable(bool available)
@@ -278,11 +284,22 @@ void QTextBrowser::setSource(const QString& name)
   FALSE when the user navigates or goes forward().
 */
 
-/*!  \fn void QTextBrowser::highlighted (const QString &href)
+/*!
+    \fn void QTextBrowser::sourceChanged( const QString& src)
+
+  This signal is emitted when the source has changed, \a src being the
+  new source.
+  
+  Source changes happen both programmatically when calling
+  setSource(), forward(), backword() or home() or when the user clicks
+  on links or hits the respective key sequences.
+*/
+
+/*!  \fn void QTextBrowser::highlighted (const QString &link)
 
   This signal is emitted when the user has selected but not activated
-  a link in the document.  \a href is the value of the href tag in the
-  link.
+  a link in the document.  \a link is the value of the \c href
+  i.e. the name of the target document.
 */
 
 /*!
@@ -451,9 +468,23 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
 
 void QTextBrowser::setText( const QString &txt, const QString &context )
 {
+    d->textOrSourceChanged = TRUE;
     d->curmark = "";
     d->curmain = "";
     QTextEdit::setText( txt, context );
+}
+
+void QTextBrowser::emitHighlighted( const QString &s ) 
+{ 
+    emit highlighted( s ); 
+}
+
+void QTextBrowser::emitLinkClicked( const QString &s ) 
+{ 
+    d->textOrSourceChanged = FALSE;
+    emit linkClicked( s );
+    if ( !d->textOrSourceChanged )
+	setSource( s );
 }
 
 #endif  // QT_NO_TEXTBROWSER

@@ -31,7 +31,7 @@ private slots:
     void setBackwardAvailable( bool );
     void setForwardAvailable( bool );
 
-    void textChanged();
+    void sourceChanged( const QString& );
     void about();
     void aboutQt();
     void openFile();
@@ -42,19 +42,18 @@ private slots:
     void histChosen( int );
     void bookmChosen( int );
     void addBookmark();
-    
+
 private:
     void readHistory();
     void readBookmarks();
-    
+
     QTextBrowser* browser;
     QComboBox *pathCombo;
     int backwardId, forwardId;
-    QString selectedURL;
     QStringList history, bookmarks;
     QMap<int, QString> mHistory, mBookmarks;
     QPopupMenu *hist, *bookm;
-    
+
 };
 
 
