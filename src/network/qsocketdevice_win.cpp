@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#13 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#14 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -134,6 +134,7 @@ bool QSocketDevice::blocking() const
 
 void QSocketDevice::setBlocking( bool enable )
 {
+    Q_UNUSED(enable)
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice::setBlocking( %d )", enable );
 #endif

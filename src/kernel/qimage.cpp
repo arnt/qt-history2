@@ -4309,7 +4309,7 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 	return FALSE;
 
     // offset can be bogus, be careful
-    if (offset>=0 && startpos + offset > d->at() )
+    if (offset>=0 && startpos + offset > (Q_LONG)d->at() )
 	d->at( startpos + offset );		// start of image data
 
     int	     bpl = image.bytesPerLine();
