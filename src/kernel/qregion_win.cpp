@@ -92,10 +92,10 @@ QRegion::QRegion( const QRect &r, RegionType t )
 
 QRegion::QRegion( const QPointArray &a, bool winding )
 {
-#ifndef Q_OS_TEMP
     data = new QRegionData;
     Q_CHECK_PTR( data );
     data->is_null = FALSE;
+#ifndef Q_OS_TEMP
     data->rgn = CreatePolygonRgn( (POINT*)a.data(), a.size(),
 				  winding ? WINDING : ALTERNATE );
 #endif
