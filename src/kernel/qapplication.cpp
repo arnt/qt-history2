@@ -2434,8 +2434,8 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
     case QEvent::TabletRelease:
 	{
 	    QWidget *w = (QWidget*)receiver;
-	    QTabletEvent* tablet = (QTabletEvent*)e;
-	    QTabletEvent* t, *ev = tablet;
+	    QTabletEvent *tablet = (QTabletEvent*)e;
+	    QTabletEvent *t, *ev = tablet;
 	    while ( w ) {
 		ev->accept();
 		res = internalNotify( w, e );
@@ -2452,17 +2452,15 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		    tablet->accept();
 		    break;
 		}
-		if( e != tablet ) {
-		    if ( res )
-			tablet->accept();
-		    else
-			tablet->ignore();
-		    delete ev;
-		}
 	    }
-#if defined(QT_TABLET_SUPPORT)
+	    if ( ev != tablet ) {
+		if ( res )
+		    tablet->accept();
+		else
+		    tablet->ignore();
+		delete ev;
+	    }
 	    chokeMouse = tablet->isAccepted();
-#endif
 	}
     break;
 #endif
