@@ -25,6 +25,8 @@
 #include <qtextcodec.h>
 #include <qtextstream.h>
 #include <qxml.h>
+#include <qcorevariant.h>
+#include <qmap.h>
 
 /*
   ### old todo comments -- I don't know if they still apply...
@@ -5824,7 +5826,7 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
         // we have an XML declaration
         QString data = n->nodeValue();
         QRegExp encoding(QString::fromLatin1("encoding\\s*=\\s*((\"([^\"]*)\")|('([^']*)'))"));
-        encoding.indexIn(data);
+        encoding.search(data);
         QString enc = encoding.cap(3);
         if (enc.isEmpty()) {
             enc = encoding.cap(5);
@@ -6835,6 +6837,135 @@ bool QDomHandler::notationDecl(const QString & name, const QString & publicId, c
 {
     QDomNotationPrivate* n = new QDomNotationPrivate(doc, 0, name, publicId, systemId);
     doc->doctype()->appendChild(n);
+    return true;
+}
+
+/**************************************************************
+ *
+ * These are dlsym'ed by QSettings
+ *
+ **************************************************************/
+
+typedef QMap<QString, QCoreVariant> KeyMap;
+
+static QString settingEltToKey(QDomElement elt)
+{
+    QString result = elt.attribute(QLatin1String("name"));
+    if (result.isEmpty())
+        return QString();
+    result.prepend(QLatin1Char('/'));
+
+    QDomNode parent = elt.parentNode();
+    for (; !parent.isNull(); parent = parent.parentNode()) {
+        if (!parent.isElement())
+            return QString();
+        if (parent.nodeName() != QLatin1String("group"))
+            break;
+        QDomElement parentElt = parent.toElement();
+
+        QString name = parentElt.attribute(QLatin1String("name"));
+        if (name.isEmpty())
+            return QString();
+
+        result.prepend(name);
+        result.prepend(QLatin1Char('/'));
+    }
+
+    return result;
+}
+
+extern "C" bool qSettingsReadXmlFile(QIODevice &device, KeyMap *keys)
+{
+    QDomDocument doc(QLatin1String("settings"));
+    if (!doc.setContent(&device, false))
+        return false;
+
+    // find root
+    QDomNode node = doc.firstChild();
+    for (; !node.isNull(); node = node.nextSibling()) {
+        if (node.isElement() && node.nodeName() == QLatin1String("settings"))
+            break;
+    }
+    QDomElement root = node.toElement();
+    if (root.isNull())
+        return false;
+
+    QDomNodeList settingElts = root.elementsByTagName(QLatin1String("setting"));
+    for (uint i = 0; i < settingElts.count(); ++i) {
+        QDomElement elt = settingElts.item(i).toElement();
+        QString key = settingEltToKey(elt);
+        if (key.isEmpty())
+            continue;
+        QDomAttr valueAttr = elt.attributeNode(QLatin1String("value"));
+        if (valueAttr.isNull())
+            continue;
+        QString value = valueAttr.nodeValue();
+
+        keys->insert(key, value);
+    }
+
+    return true;
+}
+
+static QDomElement findOrCreateSubGroup(QDomDocument &doc, QDomElement &parentGroup, const QString &name)
+{
+    QDomNode child = parentGroup.firstChild();
+    for (; !child.isNull(); child = child.nextSibling()) {
+        if (!child.isElement())
+            continue;
+
+        QDomElement elt = child.toElement();
+        if (elt.nodeName() != QLatin1String("group"))
+            continue;
+
+        QDomAttr attr = elt.attributeNode(QLatin1String("name"));
+        if (attr.isNull())
+            continue;
+
+        if (attr.value() == name)
+            break;
+    }
+
+    if (child.isNull()) {
+        QDomElement subGroupElt = doc.createElement(QLatin1String("group"));
+        subGroupElt.setAttribute(QLatin1String("name"), name);
+        parentGroup.appendChild(subGroupElt);
+        return subGroupElt;
+    }
+
+    return child.toElement();
+}
+
+extern "C" bool qSettingsWriteXmlFile(QIODevice &device, const KeyMap &keys)
+{
+    QDomDocument doc(QLatin1String("settings"));
+
+    QDomElement root = doc.createElement(QLatin1String("settings"));
+    doc.appendChild(root);
+
+    KeyMap::const_iterator i = keys.begin();
+    for (; i != keys.end(); ++i) {
+        QString key = i.key();
+        const QCoreVariant &val = i.value();
+
+        // chop initial '/'
+        Q_ASSERT(key.startsWith(QLatin1String("/")));
+        key = key.mid(1);
+
+        QStringList keyParts = key.split(QLatin1Char('/'));
+
+        QDomElement groupElt = root;
+        for (int j = 0; j < keyParts.size() - 1; ++j)
+            groupElt = findOrCreateSubGroup(doc, groupElt, keyParts[j]);
+
+        QDomElement settingElt = doc.createElement(QLatin1String("setting"));
+        settingElt.setAttribute(QLatin1String("name"), keyParts.last());
+        settingElt.setAttribute(QLatin1String("value"), val.toString());
+        groupElt.appendChild(settingElt);
+    }
+
+    QTextStream stream(&device);
+    doc.save(stream, 0);
     return true;
 }
 
