@@ -5535,7 +5535,7 @@ void QPSPrinterPrivate::flushPage( bool last )
 // ================ PSPrinter class ========================
 
 QPSPrinter::QPSPrinter( QPrinter *prt, int fd )
-    : QPaintEngine(CoordTransform|PenWidthTransform|PatternTransform|PixmapTransform)
+    : QPaintEngine(CoordTransform|PenWidthTransform|PatternTransform|PixmapTransform|CanRenderText)
 {
     d = new QPSPrinterPrivate( prt, fd );
 }
