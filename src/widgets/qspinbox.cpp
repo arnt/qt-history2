@@ -48,7 +48,6 @@
 #include "qpixmapcache.h"
 #include "qapplication.h"
 #include "qtimer.h"
-#include "../widgets/qrangecontrolwidget_p.h"
 
 class QSpinBox::Private
 {

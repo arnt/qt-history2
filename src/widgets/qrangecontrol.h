@@ -40,6 +40,7 @@
 
 #ifndef QT_H
 #include "qglobal.h"
+#include "qframe.h"
 #endif // QT_H
 
 #ifndef QT_NO_RANGECONTROL
@@ -117,5 +118,60 @@ inline int QRangeControl::pageStep() const
 
 
 #endif // QT_NO_RANGECONTROL
+
+#ifndef QT_NO_RANGECONTROLWIDGET
+
+class Q_EXPORT QRangeControlWidget : public QFrame
+{
+    Q_OBJECT
+public:
+    QRangeControlWidget( QWidget* parent = 0, const char* name = 0 );
+    ~QRangeControlWidget();
+
+    QRect upRect() const;
+    QRect downRect() const;
+
+    void setUpEnabled( bool on );
+    void setDownEnabled( bool on );
+
+    enum ButtonSymbols { UpDownArrows, PlusMinus };
+    virtual void	setButtonSymbols( ButtonSymbols bs );
+    ButtonSymbols	buttonSymbols() const;
+
+signals:
+    void stepUpPressed();
+    void stepDownPressed();
+
+public slots:
+    void setEnabled( bool on );
+
+protected:
+    void mousePressEvent( QMouseEvent *e );
+    void resizeEvent( QResizeEvent* ev );
+    void mouseReleaseEvent( QMouseEvent *e );
+    void mouseMoveEvent( QMouseEvent *e );
+    void wheelEvent( QWheelEvent * );
+    void drawContents( QPainter *p );
+    void styleChange( QStyle& );
+
+private slots:
+    void stepUp();
+    void stepDown();
+
+private:
+    class Private;
+    Private * d;
+
+    void arrange();
+    void updateDisplay();
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QRangeControlWidget( const QRangeControlWidget& );
+    QRangeControlWidget& operator=( const QRangeControlWidget& );
+#endif
+};
+
+#endif // QT_NO_RANGECONTROLWIDGET
 
 #endif // QRANGECONTROL_H

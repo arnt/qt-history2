@@ -32,7 +32,6 @@ widgets {
 		  $$WIDGETS_H/qpushbutton.h \
 		  $$WIDGETS_H/qradiobutton.h \
 		  $$WIDGETS_H/qrangecontrol.h \
-		  $$WIDGETS_P/qrangecontrolwidget_p.h \
 		  $$WIDGETS_H/qscrollbar.h \
 		  $$WIDGETS_H/qscrollview.h \
 		  $$WIDGETS_H/qslider.h \
@@ -86,7 +85,7 @@ widgets {
 		  $$WIDGETS_CPP/qpushbutton.cpp \
 		  $$WIDGETS_CPP/qradiobutton.cpp \
 		  $$WIDGETS_CPP/qrangecontrol.cpp \
-		  $$WIDGETS_CPP/qrangecontrolwidget_p.cpp \
+		  $$WIDGETS_CPP/qrangecontrolwidget.cpp \
 		  $$WIDGETS_CPP/qscrollbar.cpp \
 		  $$WIDGETS_CPP/qscrollview.cpp \
 		  $$WIDGETS_CPP/qslider.cpp \

@@ -32,7 +32,7 @@
 **
 **********************************************************************/
 
-#include "qrangecontrolwidget_p.h"
+#include "qrangecontrol.h"
 
 #ifndef QT_NO_RANGECONTROLWIDGET
 

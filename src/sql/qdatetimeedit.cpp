@@ -40,7 +40,7 @@
 #ifndef QT_NO_SQL
 
 #include "../kernel/qrichtext_p.h"
-#include "../widgets/qrangecontrolwidget_p.h"
+#include "qrangecontrol.h"
 #include "qapplication.h"
 #include "qpushbutton.h"
 #include "qbitmap.h"

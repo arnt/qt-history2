@@ -51,7 +51,7 @@
 #include "qscrollbar.h"
 #include "qtoolbutton.h"
 #include "qspinbox.h"
-#include "../widgets/qrangecontrolwidget_p.h"
+#include "qrangecontrol.h"
 #include "qgroupbox.h"
 #include <limits.h>
 
