@@ -48,7 +48,7 @@ clean:
 ####### Meta classes
 
 mlcdrang.cpp: lcdrange.h
-	$(MOC) -o $@ $<
+	$(MOC) -o $@ lcdrange.h
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

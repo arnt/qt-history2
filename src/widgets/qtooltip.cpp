@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#20 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,20 +15,114 @@
 #include "qpoint.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#20 $");
 
 // magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
 // entire widget
 
-static inline const QRect entireWidget() {
+static inline QRect entireWidget() {
     return QRect( QCOORD_MIN, QCOORD_MIN,
 		  QCOORD_MAX-QCOORD_MIN, QCOORD_MAX-QCOORD_MIN );
 }
 
+// internal class - don't touch
+
+class QTipManager : public QObject
+{
+    Q_OBJECT
+public:
+    QTipManager();
+    ~QTipManager();
+
+    struct Tip
+    {
+	QRect rect;
+	QString text;
+	QString groupText;
+	QToolTipGroup * group;
+	bool autoDelete;
+	Tip * next;
+    };
+
+    bool eventFilter( QObject * o, QEvent * e );
+    void add( QWidget *, const QRect &,
+	      const char *, 
+	      QToolTipGroup *, const char *,
+	      bool );
+    void remove( QWidget *, const QRect & );
+    void remove( QWidget * );
+
+    void removeFromGroup( QToolTipGroup * );
+
+private slots:
+    void someWidgetDestroyed();
+    void showTip();
+    void hideTip();
+
+protected:
+    void maybeTip( const QPoint & );
+
+private:
+    QTimer wakeUp;
+    QTimer fallAsleep;
+
+    QIntDict<Tip> * tips;
+    QLabel * label;
+    QPoint pos;
+    QWidget * widget;
+    QTipManager::Tip * currentTip;
+    bool dontShow;
+};
+
+// moc stuff - evilly included by hand.
+
+/****************************************************************************
+** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
+**
+** Created: Tue Dec 3 18:29:17 1996
+**      by: The Qt Meta Object Compiler (moc)
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+#include <qmetaobj.h>
+
+const char *QTipManager::className() const
+{
+    return "QTipManager";
+}
+
+QMetaObject *QTipManager::metaObj = 0;
+
+void QTipManager::initMetaObject()
+{
+    if ( metaObj )
+	return;
+    if ( !QObject::metaObject() )
+	QObject::initMetaObject();
+    typedef void(QTipManager::*m1_t0)();
+    typedef void(QTipManager::*m1_t1)();
+    typedef void(QTipManager::*m1_t2)();
+    m1_t0 v1_0 = &QTipManager::someWidgetDestroyed;
+    m1_t1 v1_1 = &QTipManager::showTip;
+    m1_t2 v1_2 = &QTipManager::hideTip;
+    QMetaData *slot_tbl = new QMetaData[3];
+    slot_tbl[0].name = "someWidgetDestroyed()";
+    slot_tbl[1].name = "showTip()";
+    slot_tbl[2].name = "hideTip()";
+    slot_tbl[0].ptr = *((QMember*)&v1_0);
+    slot_tbl[1].ptr = *((QMember*)&v1_1);
+    slot_tbl[2].ptr = *((QMember*)&v1_2);
+    metaObj = new QMetaObject( "QTipManager", "QObject",
+	slot_tbl, 3,
+	0, 0 );
+}
+
+// "this file" ends here
 
 
-// - and here it is.  a real workhorse.
+// here is the only QTipManager object:
 static QTipManager * tipManager;
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#5 $
 **
 ** Implementation of QTabBar class
 **
@@ -9,7 +9,7 @@
 
 #include "qtabbar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#5 $");
 
 
 QTab::~QTab()
@@ -251,7 +251,7 @@ void QTabBar::paintEvent( QPaintEvent * e )
   \sa mousePressEvent() mouseReleaseEvent()
 */
 
-struct QTab * QTabBar::selectTab( const QPoint & p ) const
+QTab * QTabBar::selectTab( const QPoint & p ) const
 {
     QTab * selected = 0;
     bool moreThanOne = FALSE;
@@ -293,12 +293,10 @@ void QTabBar::mouseReleaseEvent( QMouseEvent * e )
 {
     QTab * t = d->pressed;
     d->pressed = 0;
-    if ( t != 0 && t == selectTab( e->pos() ) ) {
+    if ( t != 0 && t == selectTab( e->pos() ) && t->enabled ) {
 	QRect r = l->last()->r;
 	if ( l->findRef( t ) >= 0 )
 	    l->append( l->take() );
-	else
-	    debug( "sex" );
 
 	if ( t->r.intersects( r ) ) {
 	    repaint( r.unite( t->r ) );

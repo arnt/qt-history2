@@ -1,6 +1,6 @@
-diff -ubr template/Makefile hpux-cc-static/Makefile
---- template/Makefile	Sat Oct  5 23:42:52 1996
-+++ hpux-cc-static/Makefile	Sat Oct  5 23:42:50 1996
+diff -ur template/Makefile hpux-cc-static/Makefile
+--- template/Makefile	Tue Dec  3 20:02:35 1996
++++ hpux-cc-static/Makefile	Tue Dec  3 20:14:08 1996
 @@ -4,9 +4,9 @@
  # Read PORTING for instructions how to port Qt to a new platform.
  #
@@ -14,19 +14,19 @@ diff -ubr template/Makefile hpux-cc-static/Makefile
  SHELL	= /bin/sh
  
  all: library tutorial examples
-diff -ubr template/library/Makefile hpux-cc-static/library/Makefile
---- template/library/Makefile	Sat Oct  5 23:40:17 1996
-+++ hpux-cc-static/library/Makefile	Sat Oct  5 23:40:23 1996
-@@ -76,7 +76,7 @@
+diff -ur template/library/Makefile hpux-cc-static/library/Makefile
+--- template/library/Makefile	Tue Dec  3 20:03:03 1996
++++ hpux-cc-static/library/Makefile	Tue Dec  3 20:14:08 1996
+@@ -80,7 +80,7 @@
  .SUFFIXES: .cpp
  
  .cpp.o:
--	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
 +	$(CC) -I$(INCDIR) -c $(CFLAGS) $<
  
  # VERSION - the version number of the shared library, where applicable
  
-@@ -85,14 +85,9 @@
+@@ -89,14 +89,9 @@
  # Creates the library when all files have been compiled
  
  library: $(OBJECTS) $(METAOBJ)
@@ -44,3 +44,15 @@ diff -ubr template/library/Makefile hpux-cc-static/library/Makefile
  
  depend:
  	makedepend $(SOURCES) 2> /dev/null
+diff -ur template/moc/Makefile hpux-cc-static/moc/Makefile
+--- template/moc/Makefile	Tue Dec  3 20:02:35 1996
++++ hpux-cc-static/moc/Makefile	Tue Dec  3 20:15:44 1996
+@@ -17,7 +17,7 @@
+ 
+ ####### Extra CC flags for yacc-written code
+ 
+-YACCCFLAGS = -Wno-unused -Wno-parentheses
++YACCCFLAGS = 
+ 
+ ####### Lex and yacc
+ 

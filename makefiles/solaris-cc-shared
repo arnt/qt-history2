@@ -1,6 +1,6 @@
-diff -ubr template/Makefile solaris-cc-shared/Makefile
---- template/Makefile	Wed Oct 16 17:06:11 1996
-+++ solaris-cc-shared/Makefile	Wed Oct 16 17:26:10 1996
+diff -ur template/Makefile solaris-cc-shared/Makefile
+--- template/Makefile	Sun Dec  8 20:55:06 1996
++++ solaris-cc-shared/Makefile	Sun Dec  8 21:00:54 1996
 @@ -4,8 +4,8 @@
  # Read PORTING for instructions how to port Qt to a new platform.
  #
@@ -12,19 +12,31 @@ diff -ubr template/Makefile solaris-cc-shared/Makefile
  LFLAGS	= -lqt
  SHELL	= /bin/sh
  
-diff -ubr template/library/Makefile solaris-cc-shared/library/Makefile
---- template/library/Makefile	Wed Oct 16 17:06:37 1996
-+++ solaris-cc-shared/library/Makefile	Wed Oct 16 17:32:50 1996
-@@ -76,7 +76,7 @@
+diff -ur template/examples/xshape/Makefile solaris-cc-shared/examples/xshape/Makefile
+--- template/examples/xshape/Makefile	Tue Sep 24 12:15:36 1996
++++ solaris-cc-shared/examples/xshape/Makefile	Sun Dec  8 23:15:57 1996
+@@ -13,7 +13,7 @@
+ #
+ 
+ # Additional X libraries you'll need
+-XLIBS	=	-L/usr/X11R6/lib -lXext -lX11
++XLIBS	=	-L/usr/openwin/lib -lXext -lX11
+ 
+ ####### Files
+ 
+diff -ur template/library/Makefile solaris-cc-shared/library/Makefile
+--- template/library/Makefile	Sun Dec  8 20:55:34 1996
++++ solaris-cc-shared/library/Makefile	Sun Dec  8 21:00:54 1996
+@@ -80,7 +80,7 @@
  .SUFFIXES: .cpp
  
  .cpp.o:
--	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
 +	$(CC) -I$(INCDIR) -c $(CFLAGS) -pic $<
  
  # VERSION - the version number of the shared library, where applicable
  
-@@ -86,9 +86,8 @@
+@@ -90,9 +90,8 @@
  
  library: $(OBJECTS) $(METAOBJ)
  	-rm -f ../lib/libqt.so.$(VERSION)
@@ -36,3 +48,15 @@ diff -ubr template/library/Makefile solaris-cc-shared/library/Makefile
  	-rm -f ../lib/libqt.so
  	-ln -s libqt.so.$(VERSION) ../lib/libqt.so
  	-rm -f ../lib/libqt.so.1
+diff -ur template/moc/Makefile solaris-cc-shared/moc/Makefile
+--- template/moc/Makefile	Sun Dec  8 20:55:06 1996
++++ solaris-cc-shared/moc/Makefile	Sun Dec  8 21:00:54 1996
+@@ -17,7 +17,7 @@
+ 
+ ####### Extra flags for yacc-written code
+ 
+-YACCCFLAGS = -Wno-unused -Wno-parentheses
++YACCCFLAGS = 
+ 
+ ####### Lex and yacc
+ 

@@ -29,7 +29,7 @@ diff -ubr template/library/Makefile osf1-gcc-static/library/Makefile
  .SUFFIXES: .cpp
  
  .cpp.o:
--	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
 +	$(CC) -I$(INCDIR) -c $(CFLAGS) $<
  
  # VERSION - the version number of the shared library, where applicable

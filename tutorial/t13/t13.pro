@@ -1,9 +1,10 @@
-TEMPLATE =	qtapp
-HEADERS  =	cannon.h \
+TEMPLATE    =	qtapp
+HEADERS     =	cannon.h \
 		gamebrd.h \
 		lcdrange.h
-SOURCES  =	cannon.cpp \
+SOURCES     =	cannon.cpp \
 		gamebrd.cpp \
 		lcdrange.cpp \
 		main.cpp
-TARGET   =	t13
+UNIXLIBS    =	-lm
+TARGET      =	t13

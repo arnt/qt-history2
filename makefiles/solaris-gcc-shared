@@ -1,6 +1,6 @@
-diff -ubr template/Makefile solaris-gcc-shared/Makefile
---- template/Makefile	Fri Oct 18 23:06:25 1996
-+++ solaris-gcc-shared/Makefile	Sat Oct 19 01:55:41 1996
+diff -ur template/Makefile solaris-gcc-shared/Makefile
+--- template/Makefile	Sun Dec  8 20:55:06 1996
++++ solaris-gcc-shared/Makefile	Sun Dec  8 21:00:55 1996
 @@ -5,7 +5,7 @@
  #
  
@@ -10,23 +10,29 @@ diff -ubr template/Makefile solaris-gcc-shared/Makefile
  LFLAGS	= -lqt
  SHELL	= /bin/sh
  
-diff -ubr template/library/Makefile solaris-gcc-shared/library/Makefile
---- template/library/Makefile	Fri Oct 18 23:06:53 1996
-+++ solaris-gcc-shared/library/Makefile	Sat Oct 19 01:57:58 1996
-@@ -80,7 +80,7 @@
- .SUFFIXES: .cpp
+diff -ur template/examples/xshape/Makefile solaris-gcc-shared/examples/xshape/Makefile
+--- template/examples/xshape/Makefile	Tue Sep 24 12:15:36 1996
++++ solaris-gcc-shared/examples/xshape/Makefile	Sun Dec  8 23:16:12 1996
+@@ -13,7 +13,7 @@
+ #
  
- .cpp.o:
--	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
-+	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
+ # Additional X libraries you'll need
+-XLIBS	=	-L/usr/X11R6/lib -lXext -lX11
++XLIBS	=	-L/usr/openwin/lib -lXext -lX11
  
- # VERSION - the version number of the shared library, where applicable
+ ####### Files
  
-@@ -92,7 +92,7 @@
+diff -ur template/library/Makefile solaris-gcc-shared/library/Makefile
+--- template/library/Makefile	Sun Dec  8 20:55:34 1996
++++ solaris-gcc-shared/library/Makefile	Sun Dec  8 21:00:55 1996
+@@ -90,9 +90,8 @@
+ 
+ library: $(OBJECTS) $(METAOBJ)
  	-rm -f ../lib/libqt.so.$(VERSION)
- 	$(CC) -shared -Wl,-soname,libqt.so.1 \
- 		-o ../lib/libqt.so.$(VERSION) \
+-	$(CC) -shared -Wl,-soname,libqt.so.1 \
+-		-o ../lib/libqt.so.$(VERSION) \
 -		$(OBJECTS) $(METAOBJ) -lX11
++	$(CC) -shared -o ../lib/libqt.so.$(VERSION) \
 +		$(OBJECTS) $(METAOBJ) -L/usr/openwin/lib -lX11
  	-rm -f ../lib/libqt.so
  	-ln -s libqt.so.$(VERSION) ../lib/libqt.so

@@ -8,7 +8,7 @@
     $tobj =~ s=\.\.[\\/]tools[\\/]==g;
     $project{"SOURCES"} = $tsrc;
     $project{"OBJECTS"} = $tobj;
-    $project{"EXTRA_CLEANUP_FILES"} = $project{"TOOLSRC"};
+    $project{"CLEAN_FILES"} = $project{"TOOLSRC"};
 #$}
 #$ IncludeTemplate("app.t");
 

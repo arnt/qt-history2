@@ -15,6 +15,10 @@ CC	=	gcc
 
 # $Source: /tmp/cvs/qt/src/moc/Makefile,v $
 
+####### Extra flags for yacc-written code
+
+YACCCFLAGS = -Wno-unused -Wno-parentheses
+
 ####### Lex and yacc
 
 LEX	=	flex
@@ -75,7 +79,7 @@ $(TMPCPP): moc.y $(LEXOUT)
 ####### Compile the .cpp files
 
 moc_gen.o: moc_gen.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
+	$(CC) -c $(CFLAGS) $(YACCCFLAGS) -I$(INCDIR) $? -o $@
 
 qbuffer.o: ../tools/qbuffer.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@

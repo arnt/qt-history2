@@ -74,7 +74,7 @@ if [ "$local" = "yes" ]; then
     tar cfT - - | (cd ${DISTDIR} ; tar xf - )
 else
   echo "Exporting the entire Qt archive..." >&2
-  cvs -Q export -Dnow qt
+  cvs -Q export -r branch-for-11 qt
 fi
 
 VERSION=`grep "#define.*QT_VERSION" ${DISTDIR}/qt/src/tools/qglobal.cpp | fmt -1 | grep '"' | sed -e 's/"//g'`
@@ -166,8 +166,8 @@ if [ "${platform}" = "win" ]; then
 fi
 
 if [ "${platform}" = "x11" ]; then
-  cd ${DISTDIR}/qt/src/moc
-  rm makefile.win
+  cd ${DISTDIR}
+  find . -name \*.mak -type f -print | xargs -n3 rm -fv
   echo "Creating arch directory" >&2
   cd ${DISTDIR}/qt/src
   if [ "$disttype" = "beta" ]; then

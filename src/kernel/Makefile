@@ -39,8 +39,7 @@ SOURCES =	qaccel.cpp	qapp.cpp	qapp_x11.cpp	qgmanagr.cpp  \
 		qrect.cpp	qregion.cpp	qrgn_x11.cpp	qsignal.cpp   \
 		qsize.cpp	qsocknot.cpp	qtimer.cpp	qwid_x11.cpp  \
 		qwidget.cpp	qwindow.cpp	qwmatrix.cpp
-BETA	=	qgmanagr.h	qgmanagr.cpp	qlayout.h	qlayout.cpp \
-		mgmanagr.cpp
+BETA	=	
 OBJECTS =	qaccel.o	qapp.o		qapp_x11.o	qgmanagr.o    \
 		qbitmap.o	qclb_x11.o	qclipbrd.o	qcol_x11.o    \
 		qcolor.o	qconnect.o	qcur_x11.o	qcursor.o     \

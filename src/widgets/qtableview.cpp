@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#45 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#45 $");
 
 
 const int sbDim = 16;
@@ -2180,7 +2180,7 @@ int QTableView::maxColOffset()
     if ( cellW )
 	return mx/cellW;
     else {
-	int xcd, col=0;
+	int xcd=0, col=0;
 	while ( col < nCols && mx > (xcd=cellWidth(col)) ) {
 	    mx -= xcd;
 	    col++;
@@ -2206,7 +2206,7 @@ int QTableView::maxRowOffset()
     if ( cellH )
 	return my/cellH;
     else {
-	int ycd, row=0;
+	int ycd=0, row=0;
 	while (my > (ycd=cellHeight(row)) ) {
 	    my -= ycd;
 	    row++;

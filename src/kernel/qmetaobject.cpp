@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#23 $
 **
 ** Implementation of QMetaObject class
 **
@@ -13,7 +13,7 @@
 #include "qobjcoll.h"
 #include "qstrlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#23 $");
 
 /* not documented
   \class QMetaObject qmetaobj.h
@@ -166,7 +166,7 @@ QMemberDict *QMetaObject::init( QMetaData *data, int n )
 QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
 {						// get meta data
     register QMetaObject *meta = (QMetaObject *)this;
-    QMetaData *d;
+    QMetaData *d = 0; // avoid a dumb gcc warning
     QMemberDict *dict;
     while ( TRUE ) {
 	switch ( code ) {			// find member

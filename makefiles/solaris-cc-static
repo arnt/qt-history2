@@ -1,6 +1,6 @@
-diff -ubr template/Makefile solaris-cc-static/Makefile
---- template/Makefile	Wed Oct 16 17:06:11 1996
-+++ solaris-cc-static/Makefile	Wed Oct 16 17:25:41 1996
+diff -ur template/Makefile solaris-cc-static/Makefile
+--- template/Makefile	Sun Dec  8 20:55:06 1996
++++ solaris-cc-static/Makefile	Sun Dec  8 21:00:54 1996
 @@ -4,9 +4,9 @@
  # Read PORTING for instructions how to port Qt to a new platform.
  #
@@ -14,19 +14,31 @@ diff -ubr template/Makefile solaris-cc-static/Makefile
  SHELL	= /bin/sh
  
  all: library tutorial examples
-diff -ubr template/library/Makefile solaris-cc-static/library/Makefile
---- template/library/Makefile	Wed Oct 16 17:06:37 1996
-+++ solaris-cc-static/library/Makefile	Wed Oct 16 17:07:06 1996
-@@ -76,7 +76,7 @@
+diff -ur template/examples/xshape/Makefile solaris-cc-static/examples/xshape/Makefile
+--- template/examples/xshape/Makefile	Tue Sep 24 12:15:36 1996
++++ solaris-cc-static/examples/xshape/Makefile	Sun Dec  8 23:18:11 1996
+@@ -13,7 +13,7 @@
+ #
+ 
+ # Additional X libraries you'll need
+-XLIBS	=	-L/usr/X11R6/lib -lXext -lX11
++XLIBS	=	-lXext
+ 
+ ####### Files
+ 
+diff -ur template/library/Makefile solaris-cc-static/library/Makefile
+--- template/library/Makefile	Sun Dec  8 20:55:34 1996
++++ solaris-cc-static/library/Makefile	Sun Dec  8 21:00:54 1996
+@@ -80,7 +80,7 @@
  .SUFFIXES: .cpp
  
  .cpp.o:
--	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
 +	$(CC) -I$(INCDIR) -c $(CFLAGS) $<
  
  # VERSION - the version number of the shared library, where applicable
  
-@@ -85,14 +85,8 @@
+@@ -89,14 +89,8 @@
  # Creates the library when all files have been compiled
  
  library: $(OBJECTS) $(METAOBJ)
@@ -43,3 +55,15 @@ diff -ubr template/library/Makefile solaris-cc-static/library/Makefile
  
  depend:
  	makedepend $(SOURCES) 2> /dev/null
+diff -ur template/moc/Makefile solaris-cc-static/moc/Makefile
+--- template/moc/Makefile	Sun Dec  8 20:55:06 1996
++++ solaris-cc-static/moc/Makefile	Sun Dec  8 21:00:54 1996
+@@ -17,7 +17,7 @@
+ 
+ ####### Extra flags for yacc-written code
+ 
+-YACCCFLAGS = -Wno-unused -Wno-parentheses
++YACCCFLAGS = 
+ 
+ ####### Lex and yacc
+ 

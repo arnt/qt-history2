@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#116 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#115 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#116 $");
 
 
 /*!
@@ -615,9 +615,10 @@ void QObject::blockSignals( bool block )
   Starts a timer and returns a timer identifier, or returns zero if
   it could not start a timer.
 
-  A timer event will occur every \e interval milliseconds until killTimer()
-  or killTimers() is called.
-  If \e interval is 0, then timer event occurs as often as possible.
+  A timer event will occur every \e interval milliseconds until
+  killTimer() or killTimers() is called.  If \e interval is 0, then
+  timer event occurs once every time there are no more window system
+  events to process.
 
   The virtual timerEvent() function is called with the QTimerEvent event
   parameter class when a timer event occurs.  Reimplement this function to

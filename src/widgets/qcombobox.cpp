@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#69 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#69 $");
 
 
 /*!
@@ -1173,7 +1173,6 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		else
 		    setCurrentItem( count()-1 );
 		return TRUE;
-		break;
 	    case Key_Down:
 		c = currentItem();
 		if ( ++c < count() )
@@ -1181,7 +1180,6 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		else
 		    setCurrentItem( 0 );
 		return TRUE;
-		break;
 	    default:
 		break;
 	    }
@@ -1264,14 +1262,6 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    if ( !d->popup->rect().contains( e->pos() ) ) {
 		// remove filter, event will take down popup:
 		d->listBox->removeEventFilter( this );
-	    }
-	    break;
-	    if ( !d->listBox->rect().contains( e->pos() ) ) {
-		QPoint globalPos = d->listBox->mapToGlobal(e->pos());
-		if ( QApplication::widgetAt( globalPos, TRUE ) == this )
-		    d->discardNextMousePress = TRUE; // avoid popping up again
-		popDownListBox();
-		return TRUE;
 	    }
 	    break;
 	default:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#193 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#194 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -47,8 +47,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#193 $");
-
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#194 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2033,7 +2032,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     if ( type == 0 )				// don't send event
 	return FALSE;
 
-    if ( popupWidgets ) {			// in popup mode
+    if ( popupWidgets ) {			// oops, in popup mode
 	QWidget *popup = popupWidgets->last();
 	if ( popup != this ) {
 	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
@@ -2065,6 +2064,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    QMouseEvent e( type, pos, button, state );
 	    QApplication::sendEvent( popup, &e );
 	}
+
 	if ( popupWidgets ) {			// still in popup mode
 	    if ( popupGrabOk )
 		XAllowEvents( dpy, SyncPointer, CurrentTime );

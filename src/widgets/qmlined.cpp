@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#44 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -383,16 +383,16 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 
     if ( row == cursorY && cursorOn && !readOnly ) {
 	int cursorPos = QMIN( (int)s->length(), cursorX );
-	int curXPos   = BORDER +
+	int cXPos   = BORDER +
 			textWidthWithTabs( fm, *s, cursorPos ) - 1;
-	int curYPos   = 0;
+	int cYPos   = 0;
 	if ( hasFocus() ) {
-	    p.drawLine( curXPos - 2, curYPos,
-			curXPos + 2, curYPos );
-	    p.drawLine( curXPos    , curYPos,
-			curXPos    , curYPos + fm.height() - 2);
-	    p.drawLine( curXPos - 2, curYPos + fm.height() - 2,
-			curXPos + 2, curYPos + fm.height() - 2);
+	    p.drawLine( cXPos - 2, cYPos,
+			cXPos + 2, cYPos );
+	    p.drawLine( cXPos    , cYPos,
+			cXPos    , cYPos + fm.height() - 2);
+	    p.drawLine( cXPos - 2, cYPos + fm.height() - 2,
+			cXPos + 2, cYPos + fm.height() - 2);
 	}
     }
     p.end();
@@ -755,10 +755,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    paste();
 	    break;
 	case Key_X:
-	    if ( hasMarkedText() ) {
-		copyText();
-		del();
-	    }
+	    cut();
 	    break;
 	default:
 	    unknown++;
@@ -1656,9 +1653,7 @@ int QMultiLineEdit::mapToView( int xIndex, int line )
 {
     QString *s = getString( line );
     xIndex = QMIN( (int)s->length(), xIndex );
-    int curXPos   = BORDER +
-		    textWidthWithTabs( fontMetrics(), *s, xIndex ) - 1;
-    return curXPos;
+    return BORDER + textWidthWithTabs( fontMetrics(), *s, xIndex ) - 1;
 }
 
 /*!
@@ -1696,7 +1691,7 @@ void QMultiLineEdit::setBottomCell( int line )
 
 /*!
   Copies text from the clipboard onto the current cursor position.
-  Any marked text is unmarked;
+  Any marked text is unmarked.
 */
 void QMultiLineEdit::paste()
 {
@@ -1765,6 +1760,9 @@ void QMultiLineEdit::newMark( int posx, int posy, bool copy )
 	copyText();
 }
 
+/*!
+  Marks the word at character position \a posx, \a posy.
+ */
 void QMultiLineEdit::markWord( int posx, int posy )
 {
     QString *s = contents->at( posy );
@@ -1804,6 +1802,19 @@ void QMultiLineEdit::copyText()
 	connect( QApplication::clipboard(), SIGNAL(dataChanged()),
 		 this, SLOT(clipboardChanged()) );
 #endif
+    }
+}
+
+
+/*!
+  Copies the selected text to the clipboard and deletes the selected text.
+*/
+
+void QMultiLineEdit::cut()
+{
+    if ( hasMarkedText() ) {
+	copyText();
+	del();
     }
 }
 

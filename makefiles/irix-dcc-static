@@ -1,20 +1,22 @@
-diff -ubr template/Makefile irix-dcc-static/Makefile
---- template/Makefile	Sat Oct  5 23:42:52 1996
-+++ irix-dcc-static/Makefile	Sat Oct  5 23:42:50 1996
-@@ -4,8 +4,8 @@
+diff -ur template/Makefile irix-dcc-static/Makefile
+--- template/Makefile	Wed Dec  4 10:47:04 1996
++++ irix-dcc-static/Makefile	Wed Dec  4 16:37:14 1996
+@@ -4,9 +4,9 @@
  # Read PORTING for instructions how to port Qt to a new platform.
  #
  
 -CC	= gcc
 -CFLAGS	= -O2 -fno-strength-reduce -Wall -W
+-LFLAGS	= -lqt
 +CC	= DCC
 +CFLAGS	= -O2 -fullwarn -smart
- LFLAGS	= -lqt
++LFLAGS	= -lqt -lX11
  SHELL	= /bin/sh
  
-diff -ubr template/examples/xshape/Makefile irix-dcc-static/examples/xshape/Makefile
---- template/examples/xshape/Makefile	Tue Sep 24 15:38:23 1996
-+++ irix-dcc-static/examples/xshape/Makefile	Sat Oct  5 23:40:25 1996
+ all: library tutorial examples
+diff -ur template/examples/xshape/Makefile irix-dcc-static/examples/xshape/Makefile
+--- template/examples/xshape/Makefile	Tue Sep 24 12:15:36 1996
++++ irix-dcc-static/examples/xshape/Makefile	Wed Dec  4 10:48:07 1996
 @@ -25,8 +25,9 @@
  
  .SUFFIXES: .cpp
@@ -26,19 +28,19 @@ diff -ubr template/examples/xshape/Makefile irix-dcc-static/examples/xshape/Make
  
  ####### Build rules
  
-diff -ubr template/library/Makefile irix-dcc-static/library/Makefile
---- template/library/Makefile	Sat Oct  5 23:40:17 1996
-+++ irix-dcc-static/library/Makefile	Sat Oct  5 23:40:25 1996
-@@ -76,7 +76,7 @@
+diff -ur template/library/Makefile irix-dcc-static/library/Makefile
+--- template/library/Makefile	Wed Dec  4 10:47:32 1996
++++ irix-dcc-static/library/Makefile	Wed Dec  4 10:48:07 1996
+@@ -80,7 +80,7 @@
  .SUFFIXES: .cpp
  
  .cpp.o:
--	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
 +	$(CC) -I$(INCDIR) -c -O2 -fullwarn $<
  
  # VERSION - the version number of the shared library, where applicable
  
-@@ -85,14 +85,8 @@
+@@ -89,14 +89,8 @@
  # Creates the library when all files have been compiled
  
  library: $(OBJECTS) $(METAOBJ)
@@ -55,15 +57,15 @@ diff -ubr template/library/Makefile irix-dcc-static/library/Makefile
  
  depend:
  	makedepend $(SOURCES) 2> /dev/null
-diff -ubr template/moc/Makefile irix-dcc-static/moc/Makefile
---- template/moc/Makefile	Sat Oct  5 23:39:55 1996
-+++ irix-dcc-static/moc/Makefile	Sat Oct  5 23:40:25 1996
-@@ -75,7 +75,7 @@
- ####### Compile the .cpp files
+diff -ur template/moc/Makefile irix-dcc-static/moc/Makefile
+--- template/moc/Makefile	Wed Dec  4 10:47:04 1996
++++ irix-dcc-static/moc/Makefile	Wed Dec  4 10:48:07 1996
+@@ -17,7 +17,7 @@
  
- moc_gen.o: moc_gen.cpp
--	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
-+	$(CC) -c -O2 -fullwarn -woff 3203,3262 -I$(INCDIR) $? -o $@
+ ####### Extra flags for yacc-written code
  
- qbuffer.o: ../library/qbuffer.cpp
- 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
+-YACCCFLAGS = -Wno-unused -Wno-parentheses
++YACCCFLAGS = -woff 3203,3262 
+ 
+ ####### Lex and yacc
+ 

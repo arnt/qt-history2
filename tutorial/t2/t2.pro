@@ -1,4 +1,5 @@
-TEMPLATE =	qtapp
-HEADERS  =	
-SOURCES  =	main.cpp
-TARGET   =	t2
+TEMPLATE    =	qtapp
+HEADERS     =	
+SOURCES     =	main.cpp
+UNIXLIBS    =	-lm
+TARGET      =	t2

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.2 1996/10/10 18:18:20 agulbra Exp $
+** $Id: indices.doc,v 2.3 1996/12/10 21:23:34 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.2 1996/10/10 18:18:20 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 2.3 1996/12/10 21:23:34 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -16,8 +16,8 @@ static char ident[] = "$Id: indices.doc,v 2.2 1996/10/10 18:18:20 agulbra Exp $"
 <title>Qt Documentation</title>
 </head><body bgcolor="#ffffff">
 
-<h1 align=center>
-<img src="book.gif" align=right width=48 height=48>
+<h1 align="center">
+<img src="book.gif" align="right" width="48" height="48">
 On-Line Qt Documentation
 </h1>
 
@@ -54,10 +54,13 @@ Some additional information:
 <p>
 
 There is a mailing list for Qt users.  Send a message containing the
-single word "subscribe" to <a
-href="mailto:qt-interest-request@troll.no">qt-interest-request@troll.no</a>
+single word \"subscribe\" to
+<a href="mailto:qt-interest-request@troll.no">qt-interest-request@troll.no</a>
 to join the list.  You will receive a receipt from the list server
-within a few minutes.
+within a few minutes.  Or, if you just want to be notified of new
+releases, send a message containing just \"subscribe\" to
+<a href="mailto:qt-announce-request@troll.no">qt-announce-request@troll.no</a> and you will be added to the Qt-announce mailing list.
+
 */
 
 
@@ -66,7 +69,7 @@ within a few minutes.
 <title>Qt toolkit - topical index pages</title>
 </head><body bgcolor="#ffffff">
 
-<h1 align=center>Topical Index pages</h1>
+<h1 align="center">Topical Index pages</h1>
 
 <ul>
 <li><a href="tools.html">General utility classes</a>
@@ -83,7 +86,7 @@ within a few minutes.
 
 /*! \defgroup tools.html
 
-<h1 align=center>The Tool Classes</h1>
+<h1 align="center">The Tool Classes</h1>
 
 The tool classes are general-purpose classes that may be used
 independently of the GUI classes.
@@ -92,7 +95,7 @@ independently of the GUI classes.
 
 /*! \defgroup fonts.html
 
-<h1 align=center>Font-related Classes</h1>
+<h1 align="center">Font-related Classes</h1>
 
 These classes are used to manipulate fonts.  See also <a
 href="fontmatch.html">Font matching.</a>
@@ -101,7 +104,7 @@ href="fontmatch.html">Font matching.</a>
 
 /*! \defgroup files.html
 
-<h1 align=center>File-related Classes</h1>
+<h1 align="center">File-related Classes</h1>
 
 These classes are used to manipulate files, directories and the like
 so on.
@@ -110,7 +113,7 @@ so on.
 
 /*! \defgroup realwidgets.html
 
-<h1 align=center>Widgets</h1>
+<h1 align="center">Widgets</h1>
 
 These widgets are meant for direct use.  There are also some <a
 href="abstractwidgets.html">abstract widget classes,</a> meant for
@@ -120,7 +123,7 @@ subclassing, and some <a href="dialogs.html">more complex widgets.</a>
 
 /*! \defgroup abstractwidgets.html
 
-<h1 align=center>Abstract Widget Classes</h1>
+<h1 align="center">Abstract Widget Classes</h1>
 
 These classes are abstract widgets; they are generally not usable in
 themselves, but provide functionality that can be used by inheriting
@@ -130,7 +133,7 @@ these classes.
 
 /*! \defgroup dialogs.html
 
-<h1 align=center>Dialog Classes</h1>
+<h1 align="center">Dialog Classes</h1>
 
 These classes are complex widgets, composed of simpler widgets; dialog
 boxes, generally.
@@ -139,7 +142,7 @@ boxes, generally.
 
 /*! \defgroup streams.html
 
-<h1 align=center>Stream I/O</h1>
+<h1 align="center">Stream I/O</h1>
 
 These classes are used for stream-based I/O, formatting and so on.
 
@@ -147,7 +150,7 @@ These classes are used for stream-based I/O, formatting and so on.
 
 /*! \defgroup images.html
 
-<h1 align=center>Image Processing Classes</h1>
+<h1 align="center">Image Processing Classes</h1>
 
 These classes are used for manipulating images.
 
@@ -155,7 +158,7 @@ These classes are used for manipulating images.
 
 /*! \defgroup drawing.html
 
-<h1 align=center>Window System Abstractions</h1>
+<h1 align="center">Window System Abstractions</h1>
 
 These classes are in some way related to doing low-level graphics
 (lower than mere widget use, at any rate.)
@@ -168,7 +171,7 @@ the underlying window system \endlink.
 
 /*! \defgroup shared.html
 
-<h1 align=center>Implicitly Shared Classes</h1>
+<h1 align="center">Implicitly Shared Classes</h1>
 
 These classes are normally-heavy classes which in Qt have been
 optimized by the use of reference counter and common data so they can
@@ -181,7 +184,7 @@ be passed around as arguments, even though they may seem heavyweight.
 
 /*! \defgroup time.html
 
-<h1 align=center>Time and Date</h1>
+<h1 align="center">Time and Date</h1>
 
 These classes provide system-independent date and time abtractions.
 

@@ -17,7 +17,7 @@ CC	=	gcc
 
 HEADERS =	qfiledlg.h	qmsgbox.h	qprndlg.h	qtabdlg.h
 SOURCES =	qfiledlg.cpp	qmsgbox.cpp	qprndlg.cpp	qtabdlg.cpp
-BETA	= 	qtabdlg.cpp qtabdlg.h mtabdlg.cpp
+BETA	= 	
 OBJECTS =	qfiledlg.o	qmsgbox.o	qprndlg.o	qtabdlg.o
 SRCMETA =	mfiledlg.cpp	mmsgbox.cpp	mprndlg.cpp	mtabdlg.cpp
 OBJMETA =	mfiledlg.o	mmsgbox.o	mprndlg.o	mtabdlg.o

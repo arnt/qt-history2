@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+
+$k{"jbrumfit\@astro.estec.esa.nl"} = "uw";
+$k{"gcarapel\@mbox.vol.it"} = "uw";
+$k{"val\@stellacore.com"} = "uw";
+$k{"ur\@daveg.com"} = "uw";
+$k{"affiniti\@aol.com"} = "uw";
+
+# $k{"wells\@rsn.hp.com"} = "u";
+
+open( SSH, "| ssh zen.linpro.no" );
+print SSH "cd www/ftp/.private\n";
+
+foreach $a ( keys %k ) {
+    open( I, "mcookie |" );
+    $i = <I>;
+    $i =~ s/^(........).*/$1/s;
+    close I;
+
+    open( MAIL, "| /usr/sbin/sendmail -t" );
+    print MAIL "To: ",$a,"\nSubject: Qt 1.1 released\nCc: sales\@troll.no\n";
+
+    print MAIL "
+Qt 1.1 for Microsoft Windows and X11 is now ready to be downloaded
+from the directory /.private/",$i," at ftp.troll.no.
+";
+
+    print SSH "mkdir ", $i, "\n";
+
+    if ( $k{$a} =~ /w/ ) {
+	print SSH "ln ~/qt/windows/qtwin11.zip ", $i, "\n";
+	print MAIL "
+Here is a URL for the Windows version:
+
+	ftp://ftp.troll.no/.private/", $i, "/qtwin11.zip
+";
+    }
+
+    if ( $k{$a} =~ /u/ ) {
+	print SSH "ln ~/qt/unix/qt-1.1.tar.gz ", $i, "\n";
+	print MAIL "
+Here is a URL for the X11 version:
+
+	ftp://ftp.troll.no/.private/", $i, "/qt-1.1.tar.gz
+";
+    }
+
+    print MAIL "
+Please send me mail when I can delete the files, and feel free to send
+any questions to support\@troll.no.
+
+--Arnt
+";
+    close MAIL;
+}
+
+close SSH;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#5 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#6 $
 **
 ** Definition of QSlider class
 **

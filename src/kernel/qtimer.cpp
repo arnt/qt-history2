@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#25 $
 **
 ** Implementation of QTimer class
 **
@@ -13,7 +13,7 @@
 #include "qsignal.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#25 $");
 
 
 /*!
@@ -34,17 +34,35 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#24 $");
   Example:
   \code
     QTimer *timer = new QTimer( myObject );
-    timer->start( 2000, TRUE );			// 2 seconds single-shot
     connect( timer, SIGNAL(timeout()),
 	     myObject, SLOT(timerDone()) );
+    timer->start( 2000, TRUE );			// 2 seconds single-shot
   \endcode
 
+  As a special case, a QTimer with timeout 0 times out as soon as all
+  the events in the window system's event queue have been processed.
+
+  This can be used to do heavy work while providing a snappy
+  user interface: \code
+    QTimer * t = new QTimer( myObject, "timer for background processing" );
+    connect( t, SIGNAL(timeout()), SLOT(processOneThing()) );
+    t->start( 0, TRUE );
+  \endcode
+
+  myObject->processOneThing() will be called repeatedly and should
+  return quickly (typically after processing one data item) so that Qt
+  can deliver events to widgets, and stop the timer as soon as it has
+  done all its work.  This is the traditional way to implement heavy
+  work in GUI applications; multi-threading is now becoming available
+  on more and more platforms and we expect that null events will
+  eventually be replaced by threading.
+
   An alternative is to call QObject::startTimer() for your object and
-  reimplement the QObject::timerEvent() event handler in your class (it
-  must inherit QObject).  The advantage is that you can have multiple
-  running timers, each having a unique identifier.  The disadvantage is
-  that it does not support such high-level features as single-shot timers
-  or signals.
+  reimplement the QObject::timerEvent() event handler in your class
+  (it must inherit QObject).  The advantage is that you can have
+  multiple running timers, each having a unique identifier.  The
+  disadvantage is that it does not support such high-level features as
+  single-shot timers or signals.
 */
 
 
@@ -207,9 +225,9 @@ bool QSingleShotTimer::start( int msec, QObject *r, const char *m )
 
 bool QSingleShotTimer::event( QEvent * )
 {
+    qKillTimer( timerId );			// no more timeouts
     signal.activate();				// emit the signal
     signal.disconnect( 0, 0 );
-    qKillTimer( timerId );			// no more timeouts
     sst_list->insert( 0, this );		// store in free list
     return TRUE;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.5 1996/11/26 13:12:01 agulbra Exp $
+** $Id: misc.doc,v 2.6 1996/12/10 21:23:34 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.5 1996/11/26 13:12:01 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.6 1996/12/10 21:23:34 agulbra Exp $";
 #endif
 
 
@@ -25,6 +25,16 @@ Will Qt continue to be free?
 A: We will continue to release free versions for the X Window System,
 and they will be free for free software development.
 <p>
+<li>
+
+The Qt demos I've seen only have one window.  Can I have several
+windows in one application?
+
+<p>
+A: Yes, easily.
+
+
+
 <li>
 What kind of licenses exist for Qt?
 <p>
@@ -103,11 +113,10 @@ their work to ftp.troll.no.
 <li>
 Who is Troll Tech and what are your future plans?  
 <p>
-A: Troll Tech consists of four talented, hard-working programmers who
-work day and night to improve Qt, and enjoy it. We started the
-company in 1994, but parts of Qt were written for earlier
+A: Troll Tech consists (now) of four talented, hard-working
+programmers who work day and night to improve Qt, and enjoy it. We
+started the company in 1994, but parts of Qt were written for earlier
 projects. The first line of code was written in 1992.
-<p>
 <p>
 Our income comes from selling Qt licenses and from a development
 contract with a customer; we develop code based on Qt for the
@@ -150,15 +159,23 @@ Can I distribute statically linked applications that use Qt?
 A: Yes and yes, as long as you do not modify Qt. 
 <p>
 <li>
-I need to modify Qt 
+I need to modify Qt.
 <p>
-A: Are you sure?  Inheritance is very often a  better alternative.  If
+A: Are you sure?  Inheritance is very often a better alternative.  If
 you do change Qt, you may not distribute the modified toolkit or
 programs using it.
 <p>
 We encourage you to send patches to qt-bugs@troll.no.  We will try
 to evaluate the patches and reply as soon as they come in.  If we
 like what we see, we'll incorporate it in the next Qt release.
+<li>
+Why can't I distribute modified versions of Qt?  I want to distribute
+my application quickly, not wait for you to make a new Qt release.
+<p>
+A: Having several different shared libraries with the same name is not
+a good idea.  Having five libraries, equal except for minor bugfixes,
+in memory isn't a good idea either.  Finally, we don't want support
+questions about libraries we have no knowledge of.
 <p>
 <li>
 How can I distribute my cool widget library? 
@@ -193,14 +210,31 @@ emphasis on paying customers.
 <li>
 Is there a mailing list or something for Qt?
 <p>
-A: Yes, qt-interest@troll.no.  To join, send mail containing the
-single word "subscribe" to qt-interest-request@troll.no. 
+A: There are two: qt-interest@troll.no and qt-announce.
+<p>
+Qt-interest is a user forum.  There can be as much as 20 messages per
+week.  To join it, send a message containing the single word
+"subscribe" to qt-interest-request@troll.no.
+<p>
+Qt-announce is for announcements of new Qt versions and a few other
+announcements.  We expect that there will be less than ten messages to
+the list each year.  To join the list, send mail containing the single
+word "subscribe" to qt-announce-request@troll.no.
+<p>
+All messages to Qt-announce are also sent to Qt-interest, so you don't
+need to be on both lists.
 <p>
 <li>
 Do you have any plans for a graphical designer/dialog builder?
 <p>
-A: We are working on it now. There will be further announcements on 
-qt-interest.
+A: We are working on one now. There will be further announcements on 
+qt-interest and, as appropriate, qt-announce.
+<p>
+There is also a free dialog editor written by Jeff Harris and Klaus
+Ebner.  See
+<a href="http://www.cis.ohio-state.edu/~jharris/dlgedit/">
+http://www.cis.ohio-state.edu/~jharris/dlgedit/</a> for more
+information.
 </ol>
 */
 
@@ -210,12 +244,11 @@ qt-interest.
 </head><body bgcolor="#ffffff">
 <p>
 
-This is the free software license for Qt version \version; it covers
-private use and development of free software for the free software
-community.  We believe that it does not constrain development of free
-software noticeably.  (<a href="mailto:info@troll.no">Write to
-us</a> if you feel hampered, and we may be able to do something about
-it.)
+This is the free software license for Qt version \version; it mainly
+covers development of free software for the free software community.
+We believe that it does not constrain development of free software
+noticeably.  (<a href="mailto:info@troll.no">Write to us</a> if you
+feel hampered, and we may be able to do something about it.)
 
 <p>
 
@@ -231,16 +264,24 @@ Copyright &copy; 1992-1996 Troll Tech AS.  All rights reserved.
 
 <p>
 
-<h2 align=center>COPYRIGHT AND RESTRICTIONS</h1>
+This is the free software license for Qt version \version; it covers
+private use, use of third-party application programs based on Qt, and
+development of free software for the free software community.
+
+<h2 align=center>COPYRIGHT AND RESTRICTIONS</h2>
 
 The Qt toolkit is a product of Troll Tech AS. This license is limited to
-use on computers running the X Window System.
+use with the X Window System.
 
 <p>
 
 You may copy this version of the Qt toolkit provided that the entire
-archive is distributed unchanged and as a whole, including this
-notice.
+archive is distributed unchanged and as a whole, including this notice.
+
+<p>
+
+You may use this version of the Qt toolkit to compile, link and run
+application programs legally developed by third parties.
 
 <p>
 
@@ -361,6 +402,12 @@ single word "subscribe" to <a
 href="mailto:qt-interest-request@troll.no">qt-interest-request@troll.no</a>
 to join the list.  You will receive a receipt from the list server within
 a few minutes.
+
+<p>
+Send a message containig the word "subscribe" to
+href="mailto:qt-announce-request@troll.no">qt-announce-request@troll.no</a>
+to be notified when new versions of Qt are released.  You will receive
+a receipt from the list server within a few minutes.
 
 */
 

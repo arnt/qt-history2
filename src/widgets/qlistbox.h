@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#42 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#43 $
 **
 ** Definition of QListBox widget class
 **
@@ -147,7 +147,7 @@ public:
     int		itemHeight()		const;
     int		itemHeight( int index ) const;
 
-    int		maxItemWidth();
+    long	maxItemWidth();
 
 signals:
     void	highlighted( int index );

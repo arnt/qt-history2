@@ -1,9 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#15 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#16 $
 **
 ** Definition of QTabDialog class
 **
-** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
+** Created : 960825
+**
+** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -20,15 +22,16 @@ class QTabDialog : public QDialog
     Q_OBJECT
 
 public:
-    QTabDialog( QWidget *parent=0, const char *name=0, WFlags f=0 );
+    QTabDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
+		WFlags f=0 );
    ~QTabDialog();
 
     void show();
     void setFont( const QFont & font );
 
     void addTab( QWidget *, const char * );
+    bool isTabEnabled( const char * ) const;
     void setTabEnabled( const char *, bool );
-    bool isTabEnabled( const char * );
 
     void setDefaultButton( const char *text = "Defaults" );
     bool hasDefaultButton() const;
@@ -55,10 +58,10 @@ private slots:
 
 private:
     void setSizes();
-    QRect childRect();
+    QRect childRect() const;
 
-    QTabPrivate * d;
+    QTabPrivate *d;
 };
 
 
-#endif //QTABDLG_H
+#endif // QTABDLG_H

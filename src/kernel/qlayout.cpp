@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#8 $
 **
 ** Implementation of layout classes
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 #include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#8 $");
 
 /*!
   \class QLayout qlayout.h
@@ -433,7 +433,7 @@ void QBoxLayout::addStrut( int size )
 	warning("QBoxLayout::addStrut(), box must be inserted before use.");
 	return;
     }
-    basicManager()->addSpacing( parChain, size, 0, 0 );
+    basicManager()->addSpacing( parChain, size );
 }
 
 /*

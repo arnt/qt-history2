@@ -1,7 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#24 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#25 $
 **
 ** Implementation of QTabDialog class
+**
+** Created : 960825
+**
+** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -11,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#25 $");
 
 
 /*!
@@ -144,11 +148,12 @@ struct QTabPrivate
 
 
 /*!
-  Constructs a QTabDialog with only an OK button.
+  Constructs a QTabDialog with only an Ok button.
 */
 
-QTabDialog::QTabDialog( QWidget *parent, const char *name, WFlags f )
-    : QDialog( parent, name, f )
+QTabDialog::QTabDialog( QWidget *parent, const char *name, bool modal,
+			WFlags f )
+    : QDialog( parent, name, modal, f )
 {
     d = new QTabPrivate;
     CHECK_PTR( d );
@@ -296,7 +301,7 @@ bool QTabDialog::hasApplyButton() const
   This applies mainly to QTabDialog objects that are kept around
   hidden rather than being created, show()n and deleted afterwards.
 
-  \sa applyButtonPressed() show() cancelButtonPressed()
+  \sa applyButtonPressed(), show(), cancelButtonPressed()
 */
 
 
@@ -305,7 +310,7 @@ bool QTabDialog::hasApplyButton() const
   delay show()'ing of every page except the initially visible one, and
   in order to emit the aboutToShow() signal.
 
-  \sa hide() aboutToShow()
+  \sa hide(), aboutToShow()
 */
 
 void QTabDialog::show()
@@ -368,9 +373,31 @@ void QTabDialog::addTab( QWidget * child, const char * label )
 	d->children.resize( id+1 );
 	d->children[id] = child;
     } else {
-	warning( "uh-oh - unexpected tab ID %d (expected %d), ignoring",
-		 id, d->children.size() );
+#if defined(CHECK_RANGE)
+	warning( "QTabDialog::addTab: Unexpected tab id %d (expected %d), "
+		 "ignoring", id, d->children.size() );
+#endif
     }
+}
+
+
+/*!
+  Returns TRUE if the page with object name \a name is enabled, and
+  false if it is disabled.
+
+  If \a name is 0 or not the name of any of the pages, isTabEnabled()
+  returns FALSE.
+
+  \sa setTabEnabled(), QWidget::isEnabled()
+*/
+
+bool QTabDialog::isTabEnabled( const char *name ) const
+{
+    int i;
+    for( i=0; i<(int)d->children.size(); i++ )
+	if ( qstrcmp( d->children[i]->name(), name ) == 0 )
+	    return d->tabs->isTabEnabled( i );
+    return FALSE;
 }
 
 
@@ -388,7 +415,7 @@ void QTabDialog::addTab( QWidget * child, const char * label )
   The object name is used (rather than the tab label) because the tab
   text may not be invariant in multi-language applications.
 
-  \sa isTabEnabled() QWidget::setEnabled()
+  \sa isTabEnabled(), QWidget::setEnabled()
 */
 
 void QTabDialog::setTabEnabled( const char * name, bool enable )
@@ -399,26 +426,6 @@ void QTabDialog::setTabEnabled( const char * name, bool enable )
     for( i=0; i<(int)d->children.size(); i++ )
 	if ( qstrcmp( d->children[i]->name(), name ) == 0 )
 	    d->tabs->setTabEnabled( i, enable );
-}
-
-
-/*!
-  Returns TRUE if the page with object name \a name is enabled, and
-  false if it is disabled.
-
-  If \a name is 0 or not the name of any of the pages, isTabEnabled()
-  returns FALSE.
-
-  \sa setTabEnabled() QWidget::isEnabled()
-*/
-
-bool QTabDialog::isTabEnabled( const char * name )
-{
-    int i;
-    for( i=0; i<(int)d->children.size(); i++ )
-	if ( qstrcmp( d->children[i]->name(), name ) == 0 )
-	    return d->tabs->isTabEnabled( i );
-    return FALSE;
 }
 
 
@@ -683,7 +690,7 @@ void QTabDialog::paintEvent( QPaintEvent * )
 }
 
 
-QRect QTabDialog::childRect()
+QRect QTabDialog::childRect() const
 {
     return QRect( 6, d->tabs->height() + 5, width() - 12,
 		  height() - d->bh - d->tabs->height() - 18 );

@@ -7,11 +7,13 @@ undef $/;
 $copyright = "
 ** Copyright (C) 1992-1996 Troll Tech AS.  All rights reserved.
 **
-** This file is part of the non-commercial distribution of Qt " . $ARGV[0] . "
-** see the file LICENSE included in the distribution for the usage
+** This file is part of the non-commercial distribution of Qt " . $ARGV[0] . ".
+**
+** See the file LICENSE included in the distribution for the usage
 ** and distribution terms, or http://www.troll.no/qt/license.html.
 **
-** (This file differs from the commercial version of Qt only by this comment.)
+** (This file differs from the one in the commercial distribution of
+** Qt only by this comment.)
 **
 *****************************************************************************/";
 

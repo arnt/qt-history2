@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.h#3 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.h#4 $
 **
 ** Definition of QGManager class (workhorse for QLayout classes)
 **
@@ -56,8 +56,6 @@ protected:
     bool  eventFilter( QObject *, QEvent * );
 
 private:
-    enum chainType { Parallel, Serial };
-
     int border;
 
     void      resizeHandle( QWidget *, const QSize & );

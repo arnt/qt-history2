@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#24 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#25 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -28,10 +28,10 @@ public:
     const char *textLine( int line ) const;
     QString text() const;
 
-    int numLines();
+    int numLines() const;
 
-    bool	isReadOnly();
-    bool	isOverwriteMode();
+    bool	isReadOnly() const;
+    bool	isOverwriteMode() const;
 
     void	setFont( const QFont &font );
     virtual void insertLine( const char *s, int line = -1 );
@@ -47,13 +47,16 @@ public:
     void	setAutoUpdate( bool );
 
 public slots:
-    void clear();
-    void setText( const char * );
-    void append( const char * );
-    void deselect();
-    void selectAll();
-    void setReadOnly( bool );
-    void setOverwriteMode( bool );
+    void       clear();
+    void       setText( const char * );
+    void       append( const char * );
+    void       deselect();
+    void       selectAll();
+    void       setReadOnly( bool );
+    void       setOverwriteMode( bool );
+    void       paste();
+    void       copyText();
+    void       cut();
 
 signals:
     void	textChanged();
@@ -94,7 +97,6 @@ protected:
     int		lineLength( int row ) const;
     QString	*getString( int row ) const;
 
-
 private slots:
     void	clipboardChanged();
 
@@ -131,24 +133,18 @@ private:
     void	makeVisible();
     void	setBottomCell( int row );
 
-    // SHOULD THESE BECOME PROTECTED:
-    void	paste();
-
-    void	newMark( int posx, int posy, bool copy=TRUE );
+    void 	newMark( int posx, int posy, bool copy=TRUE );
+    void 	markWord( int posx, int posy );
     void	turnMarkOff();
-    void	markWord( int posx, int posy );
-    void	copyText();
-
-
 
 private:	// Disabled copy constructor and operator=
     QMultiLineEdit( const QMultiLineEdit & ) {}
     QMultiLineEdit &operator=( const QMultiLineEdit & ) { return *this; }
 };
 
-inline bool QMultiLineEdit::isReadOnly() { return readOnly; }
+inline bool QMultiLineEdit::isReadOnly() const { return readOnly; }
 
-inline bool QMultiLineEdit::isOverwriteMode() { return overWrite; }
+inline bool QMultiLineEdit::isOverwriteMode() const { return overWrite; }
 
 inline void QMultiLineEdit::setOverwriteMode( bool on ) 
 { 
@@ -176,7 +172,7 @@ inline QString *QMultiLineEdit::getString( int row ) const
     return contents->at( row );
 }
 
-inline int QMultiLineEdit::numLines()
+inline int QMultiLineEdit::numLines() const
 {
     return contents->count();
 }

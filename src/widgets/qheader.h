@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#3 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#4 $
 **
 **  Table header
 **

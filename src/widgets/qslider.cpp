@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#10 $
 **
 ** Implementation of QSlider class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#10 $");
 
 #define SLIDE_BORDER	2
 #define MOTIF_WIDTH	30

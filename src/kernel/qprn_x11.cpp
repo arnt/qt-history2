@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#25 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -20,7 +20,7 @@
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#25 $");
 
 
 /*****************************************************************************
@@ -211,7 +211,8 @@ int QPrinter::metric( int m ) const
 {
     int val;
     PageSize s = pageSize();
-    ASSERT( s >= A4 && s <= Executive );
+    // on the next line is a TRULY EVIL workaround for a stupid warning
+    ASSERT( (int)s >= (int)A4 && s <= Executive );
     static int widths[]	 = { 559, 480, 576, 576, 504 };
     static int heights[] = { 806, 693, 756, 972, 684 };
     static int widthsMM[]  = { 210, 182, 216, 216, 191 };

@@ -20,10 +20,9 @@ base; then we can support the new platform in an orderly manner.
 
                            PORTING INSTRUCTIONS
 
-Most compilers and IDEs provide some sort of project files. The problem
-with project files is that they cannot handle moc output (moc.exe reads
-.h files and generates .cpp files with meta object data). You may need to
-write your own Makefile.
+You are strongly recommended to use the tmake utility (see README.tmake)
+to write your makefiles. tmake is a multi-platform, template-based
+makefile generator that is very easy to use.
 
 In qglobal.h you may need to set _CC_whatever_ for your compiler. It is
 not strictly required, but it may be necessary to add some #ifdefs for

@@ -1,0 +1,10 @@
+                                  TMAKE
+
+tmake is a tool for creating platform-independent makefiles. In brief,
+tmake reads a project file, combines it with a template and generates
+a makefile.
+
+Get the latest version of tmake from ftp://ftp.troll.no/contrib/ .
+
+To install tmake, unzip the tmake zip archive (for instance on C:\) and
+read the documentation tmake\doc\tmake.html with your HTML browser.

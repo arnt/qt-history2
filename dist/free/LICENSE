@@ -2,17 +2,21 @@
 
 Copyright (C) 1992-1996 Troll Tech AS.	All rights reserved.
 
-This is the free software license for Qt version 1.0; it covers private
-use and development of free software for the free software community.
+This is the free software license for Qt version 1.1; it covers private
+use, use of third-party application programs based on Qt, and development
+of free software for the free software community.
 
 
 			COPYRIGHT AND RESTRICTIONS
 
 The Qt toolkit is a product of Troll Tech AS. This license is limited to
-use on computers running the X Window System.
+use with the X Window System.
 
 You may copy this version of the Qt toolkit provided that the entire
 archive is distributed unchanged and as a whole, including this notice.
+
+You may use this version of the Qt toolkit to compile, link and run
+application programs legally developed by third parties.
 
 You may use the Qt toolkit to create application programs provided that:
   - You accept this license.

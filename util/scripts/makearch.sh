@@ -203,7 +203,7 @@ cat  <<EOF
 .SUFFIXES: .cpp
 
 .cpp.o:
-	\$(CC) -I\$(INCDIR) -c \$(CFLAGS) -fpic \$<
+	\$(CC) -I\$(INCDIR) -c \$(CFLAGS) -fPIC \$<
 
 # VERSION - the version number of the shared library, where applicable
 
@@ -294,6 +294,8 @@ cat << EOF
 # Read PORTING for instructions how to port Qt to a new platform.
 #
 
+SHELL = /bin/sh
+
 all:
 	@echo This version of Qt has been ported to these operating systems:
 	@echo
@@ -342,9 +344,8 @@ ${PLATFORM}: patchtest
 	cd template ; tar cf - . | ( cd ../${PLATFORM} ; tar xf - )
 EOF
     [ -s $a ] && ( echo "	( cd ${PLATFORM} ; \\" ; echo "		patch -p1 -s < ../../makefiles/${PLATFORM} )" )
-    echo '	[ -r ../lib -a -d ../lib/. ] || ln -s arch/'${PLATFORM}'/lib ..'
-    echo '	[ -r ../bin -a -d ../bin/. ] || ln -s arch/'${PLATFORM}'/bin ..'
+    echo '	-ln -s arch/'${PLATFORM}'/lib ..'
+    echo '	-ln -s arch/'${PLATFORM}'/bin ..'
     echo
-
 done
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#49 $
 **
 ** Implementation of QColor class for X11
 **
@@ -16,7 +16,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#49 $");
 
 
 /*****************************************************************************
@@ -427,7 +427,7 @@ static void init_context_stack()
 
 int QColor::enterAllocContext()
 {
-    static context_seq_no = 0;
+    static int context_seq_no = 0;
     init_context_stack();
     if ( context_ptr+1 == MAX_CONTEXTS ) {
 #if defined(CHECK_STATE)
@@ -455,7 +455,7 @@ void QColor::leaveAllocContext()
 #if defined(CHECK_STATE)
 	warning( "QColor::leaveAllocContext: Context stack underflow" );
 #endif
-	return 0;
+	return;
     }
     current_alloc_context = context_stack[--context_ptr];
 }

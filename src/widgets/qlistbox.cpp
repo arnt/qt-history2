@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#92 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#92 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -1533,11 +1533,11 @@ void QListBox::updateNumRows( bool updateWidth )
   Returns the width in pixels of the longest item. 
 */
 
-int QListBox::maxItemWidth()
+long QListBox::maxItemWidth()
 {
     if ( !qlb_maxLenDict )
 	return 0;
-    return (int) qlb_maxLenDict->find( (long)this );
+    return (long) qlb_maxLenDict->find( (long)this );
 }
 
 
