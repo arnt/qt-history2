@@ -33,12 +33,9 @@ class QMacStylePainter : public QPainter
 public:
     QMacStylePainter(QPaintDevice *p) : QPainter(p) { }
     QPoint domap(int x, int y) { map(x, y, &x, &y); return QPoint(x, y); }
-    enum Func { SetPort, UpdateFont };
-    void callFunc(Func);
-    inline void setport() { callFunc(SetPort); NormalizeThemeDrawingState(); }
-    inline void setfont() { callFunc(UpdateFont); }
+    inline void setport();
 };
-void QMacStylePainter::callFunc(QMacStylePainter::Func f)
+void QMacStylePainter::setport()
 {
 #ifndef Q_Q3PAINTER
     QQuickDrawGC *mgc = NULL;
@@ -46,31 +43,24 @@ void QMacStylePainter::callFunc(QMacStylePainter::Func f)
 	mgc = (QQuickDrawGC*)d->gc;
     if(mgc) {
 	mgc->updateState(mgc->state);
-	if(f == SetPort) {
-#ifdef USE_CORE_GRAPHICS
-	    QRegion rgn;
-	    mgc->setupQDPort(true, 0, &rgn);
-	    QMacSavedPortInfo::setClipRegion(rgn);
-#else
-	    mgc->setupQDPort(true);
-#endif
-	} else if(f == UpdateFont) {
-	    mgc->setupQDFont();
-	}
-    }
-#else
-    if(f == SetPort) {
 #ifdef USE_CORE_GRAPHICS
 	QRegion rgn;
-	initPaintDevice(true, 0, &rgn);
+	mgc->setupQDPort(true, 0, &rgn);
 	QMacSavedPortInfo::setClipRegion(rgn);
 #else
-	initPaintDevice(true, 0);
+	mgc->setupQDPort(true);
 #endif
-    } else if(f == UpdateFont) {
-	updateFont();
     }
+#else
+#ifdef USE_CORE_GRAPHICS
+    QRegion rgn;
+    initPaintDevice(true, 0, &rgn);
+    QMacSavedPortInfo::setClipRegion(rgn);
+#else
+    initPaintDevice(true, 0);
 #endif
+#endif
+    NormalizeThemeDrawingState();
 }
 
 #include <qpushbutton.h>
