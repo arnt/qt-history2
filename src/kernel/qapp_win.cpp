@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#141 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#142 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#141 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#142 $");
 
 
 /*****************************************************************************
@@ -1022,6 +1022,7 @@ void QApplication::winFocus( QWidget *w, bool gotFocus )
 	ASSERT( w != 0 && w->focusWidget() != 0 );
 #endif
 	w = w->focusWidget();
+	if ( !w ) return; // Confused
 	if ( w != focus_widget && (w->isFocusEnabled() || w->isTopLevel()) ) {
 	    focus_widget = w;
 	    QFocusEvent in( Event_FocusIn );
@@ -1995,6 +1996,8 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    if ( !PeekMessage(&wm_char, 0, WM_CHAR, WM_CHAR, PM_REMOVE) ) {
 		if ( msg.wParam == VK_DELETE )
 		    wm_char.wParam = 0x7f; // Windows doesn't know this one.
+		else if ( isalpha(msg.wParam) ) // Alt-letter
+    		    wm_char.wParam = tolower(msg.wParam);
 		else
     		    wm_char.wParam = 0;
 		if ( !code )
