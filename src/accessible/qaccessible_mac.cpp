@@ -64,7 +64,7 @@ struct QAccessibleObjectWrapper
     QPointer<QObject> object;
     AXUIElementRef access;
 };
-static QHash<QObject *, QAccessibleObjectWrapper *> *qt_mac_object_map = 0;
+static QHash<QObject *, QAccessibleObjectWrapper *> qt_mac_object_map;
 enum {
     kEventParamQObject = 'qobj',   /* typeQObject */
     typeQObject = 1  /* QObject *  */
@@ -81,7 +81,8 @@ static QObject *qt_mac_find_access_object(AXUIElementRef element)
 }
 AXUIElementRef qt_mac_find_uielement(QObject *o)
 {
-    QAccessibleObjectWrapper *obj_wrap = (qt_mac_object_map ? qt_mac_object_map->value(o) : NULL);
+    qt_mac_object_map.ensure_constructed();
+    QAccessibleObjectWrapper *obj_wrap = qt_mac_object_map.value(o);
     if(!obj_wrap) {
 	if(!widget_create_class) {
 	    OSStatus err = HIObjectRegisterSubclass(qt_mac_class_str(), NULL, 
@@ -98,7 +99,7 @@ AXUIElementRef qt_mac_find_uielement(QObject *o)
 	if(HIObjectCreate(qt_mac_class_str(), event, &hiobj) == noErr) {
 	    HIObjectSetAccessibilityIgnored(hiobj, false);
 	    AXUIElementRef ref = AXUIElementCreateWithHIObjectAndIdentifier(hiobj, (UInt32)o);
-	    obj_wrap = qt_mac_object_map->value(o);
+	    obj_wrap = qt_mac_object_map.value(o);
 	    obj_wrap->access = ref;
 	}
 	ReleaseEvent(event);
@@ -859,9 +860,8 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 	    GetEventParameter(event, kEventParamQObject, typeQObject, NULL, sizeof(qobj), NULL, &qobj);
 	    QAccessibleObjectWrapper *wrap = (QAccessibleObjectWrapper*)data;
 	    wrap->object = qobj;
-	    if(!qt_mac_object_map)
-		qt_mac_object_map = new QHash<QObject *, QAccessibleObjectWrapper *>;
-	    qt_mac_object_map->insert(wrap->object, wrap);
+	    qt_mac_object_map.ensure_constructed();
+	    qt_mac_object_map.insert(wrap->object, wrap);
 	} else if(ekind == kEventHIObjectDestruct) {
 	    free(data);
 	} else if(ekind == kEventHIObjectPrintDebugInfo) {
