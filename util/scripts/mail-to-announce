@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+
+#Set the variable $dryrun to 0 to actually send mail to all on qt-announce
+$qtanlist = "/tmp/qt-announce";  # get this from lupinella??
+
+
+$dryrun="testrun";          # 0 for real, or file for test result
+
+if ($dryrun) {
+    open( MAIL, "> $dryrun" );
+    print MAIL "All this WOULD have been sent...\n\n";
+    close( MAIL );
+}
+
+if ( $#ARGV != 0 ) {
+    die "Usage:  mail-to-announce mail-file\n";
+}
+
+open( MESSAGE, "<".$ARGV[0] ) || die "1";
+
+undef $/;
+$message = <MESSAGE>;
+
+$/ = "\n";
+open( CUSTOMERS, "<".$qtanlist ) || die "1";
+
+foreach $line ( <CUSTOMERS> ) {
+    $exp = "";
+    chomp $line;
+    $addr = $line;
+
+    $to = $addr;
+
+    print "Sending mail to ", $to, "\n";
+
+    if ($dryrun) {
+        open( MAIL, ">> $dryrun" );
+    } else {
+        open( MAIL, "| /usr/sbin/sendmail -t" );
+    }
+
+    print MAIL  "To: ",$to,"\n";
+    print MAIL $message,"\n";
+    close MAIL;
+}
