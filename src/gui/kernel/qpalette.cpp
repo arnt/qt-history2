@@ -380,61 +380,63 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 
     The central roles are:
 
-    \value Background  general background color.
+    \value Background  A general background color.
 
-    \value Foreground  general foreground color.
+    \value Foreground  A general foreground color.
 
-    \value Base  used as background color for text entry widgets, for example;
-    usually white or another light color.
+    \value Base  Used as the background color for text entry widgets;
+                 usually white or another light color.
 
-    \value Text  the foreground color used with \c Base. Usually this
-    is the same as the \c Foreground, in which case it must provide good
-    contrast with \c Background and \c Base.
+    \value Text  The foreground color used with \c Base. This is usually
+                 the same as the \c Foreground, in which case it must provide
+                 good contrast with \c Background and \c Base.
 
-    \value Button  general button background color in which buttons need a
-    background different from \c Background, as in the Macintosh style.
+    \value Button  The general button background color in which buttons need a
+                   background that is different from \c Background, as in the
+                   Macintosh style.
 
-    \value ButtonText  a foreground color used with the \c Button color.
+    \value ButtonText  A foreground color used with the \c Button color.
 
     There are some color roles used mostly for 3D bevel and shadow
     effects:
 
-    \value Light  lighter than \c Button color.
+    \value Light  Lighter than \c Button color.
 
-    \value Midlight  between \c Button and \c Light.
+    \value Midlight  Between \c Button and \c Light.
 
-    \value Dark  darker than \c Button.
+    \value Dark  Darker than \c Button.
 
-    \value Mid  between \c Button and \c Dark.
+    \value Mid  Between \c Button and \c Dark.
 
-    \value Shadow  a very dark color.
-    By default, the shadow color is \c Qt::black.
+    \value Shadow  A very dark color. By default, the shadow color is
+                   \c Qt::black.
 
-    All of these are normally derived from \c Background and used in
+    All of these are normally derived from \c Background, and used in
     ways that depend on that relationship. For example, buttons depend
     on it to make the bevels look attractive, and Motif scroll bars
     depend on \c Mid to be slightly different from \c Background.
 
     Selected (marked) items have two roles:
 
-    \value Highlight   a color to indicate a selected item or the
-    current item. By default, the highlight color is \c Qt::darkBlue.
+    \value Highlight   A color to indicate a selected item or the current
+                       item. By default, the highlight color is
+                       \c Qt::darkBlue.
 
-    \value HighlightedText  a text color that contrasts with \c Highlight.
+    \value HighlightedText  A text color that contrasts with \c Highlight.
     By default, the highlighted text color is \c Qt::white.
 
     Finally, there is a special role for text that needs to be
     drawn where \c Text or \c Foreground would give poor contrast,
     such as on pressed push buttons:
 
-    \value BrightText a text color that is very different from \c
-    Foreground and contrasts well with e.g. \c Dark.
+    \value BrightText  A text color that is very different from
+                       \c Foreground, and contrasts well with e.g. \c Dark.
 
-    \value Link a text color used for unvisited hyperlinks.
-    By default, the link color is \c Qt::blue.
+    \value Link  A text color used for unvisited hyperlinks.
+                 By default, the link color is \c Qt::blue.
 
-    \value LinkVisited a text color used for already visited hyperlinks.
-    By default, the linkvisited color is \c Qt::magenta.
+    \value LinkVisited  A text color used for already visited hyperlinks.
+                        By default, the linkvisited color is \c Qt::magenta.
 
     \omitvalue NColorRoles
 
