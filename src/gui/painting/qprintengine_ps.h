@@ -131,8 +131,6 @@ public:
 
     virtual QPrinter::PrinterState printerState() const;
 
-    virtual bool updateState();
-
     virtual Qt::HANDLE handle() const { return 0; };
 
 private:

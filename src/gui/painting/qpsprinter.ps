@@ -506,14 +506,6 @@
   QS
 } D
 
-/ACR {                                       % add clip rect
-  /h ED /w ED /y ED /x ED
-  x y MT
-  0 h RL
-  w 0 RL
-  0 h neg RL
-  CP
-} D
 
 /xr D0 /yr D0
 /rx D0 /ry D0 /rx2 D0 /ry2 D0
@@ -786,9 +778,19 @@
 } D
 
 /CLSTART {                           % clipping start
+  gsave
   /clipTmp matrix CM d             % save current matrix
   defM SM                          % Page default matrix
   NP
+} D
+
+/ACR {                                       % add clip rect
+  /h ED /w ED /y ED /x ED
+  x y MT
+  0 h RL
+  w 0 RL
+  0 h neg RL
+  CP
 } D
 
 /CLEND {                             % clipping end
@@ -799,7 +801,5 @@
 
 /CLO {                               % clipping off
   grestore                         % restore top of page state
-  gsave                            % save it back again
-    defM SM                          % set coordsys (defensive progr.)
 } D
 

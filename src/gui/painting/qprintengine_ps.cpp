@@ -55,6 +55,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qbitmap.h"
 #include "qregion.h"
 #include <private/qunicodetables_p.h>
+#include <qdebug.h>
 
 #if defined(Q_OS_WIN32)
 #include <io.h>
@@ -138,25 +139,24 @@ static const char *const ps_header =
 "ang2 add arc}{0 0 w 2 div ang1 ang1 ang2 add arcn}ie mat SM}D/C D0/P{NP MT\n"
 "0.5 0.5 rmoveto 0 -1 RL -1 0 RL 0 1 RL CP fill}D/M{/Cy ED/Cx ED}D/L{NP Cx Cy\n"
 "MT/Cy ED/Cx ED Cx Cy LT QS}D/DL{NP MT LT QS}D/HL{1 i DL}D/VL{2 i exch DL}D/R\n"
-"{/h ED/w ED/y ED/x ED NP x y MT 0 h RL w 0 RL 0 h neg RL CP BF QS}D/ACR{/h\n"
-"ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0 h neg RL CP}D/xr D0/yr D0/rx D0/ry\n"
-"D0/rx2 D0/ry2 D0/RR{/yr ED/xr ED/h ED/w ED/y ED/x ED xr 0 le yr 0 le or{x y\n"
-"w h R}{xr 100 ge yr 100 ge or{x y w h E}{/rx xr w mul 200 div d/ry yr h mul\n"
-"200 div d/rx2 rx 2 mul d/ry2 ry 2 mul d NP x rx add y MT x y rx2 ry2 180 -90\n"
-"x y h add ry2 sub rx2 ry2 270 -90 x w add rx2 sub y h add ry2 sub rx2 ry2 0\n"
-"-90 x w add rx2 sub y rx2 ry2 90 -90 ARC ARC ARC ARC CP BF QS}ie}ie}D/E{/h\n"
-"ED/w ED/y ED/x ED mat CM pop x w 2 div add y h 2 div add TR 1 h w div scale\n"
-"NP 0 0 w 2 div 0 360 arc mat SM BF QS}D/A{16 div exch 16 div exch NP ARC QS}\n"
-"D/PIE{/ang2 ED/ang1 ED/h ED/w ED/y ED/x ED NP x w 2 div add y h 2 div add MT\n"
-"x y w h ang1 16 div ang2 16 div ARC CP BF QS}D/CH{16 div exch 16 div exch NP\n"
-"ARC CP BF QS}D/BZ{curveto QS}D/CRGB{255 div 3 1 roll 255 div 3 1 roll 255\n"
-"div 3 1 roll}D/BC{CRGB BkCol sp}D/BR{CRGB BCol sp/BSt ED}D/WB{1 W BR}D/NB{0\n"
-"B BR}D/PE{setlinejoin setlinecap CRGB PCol sp/LWi ED/PSt ED LWi 0 eq{0.25\n"
-"/LWi ED}if PCol SC}D/P1{1 0 5 2 roll 0 0 PE}D/ST{defM SM concat}D/MF{true\n"
-"exch true exch{exch pop exch pop dup 0 get dup findfont dup/FontName get 3\n"
-"-1 roll eq{exit}if}forall exch dup 1 get/fxscale ED 2 get/fslant ED exch\n"
-"/fencoding ED[fxscale 0 fslant 1 0 0]makefont fencoding false eq{}{dup\n"
-"maxlength dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding\n"
+"{/h ED/w ED/y ED/x ED NP x y MT 0 h RL w 0 RL 0 h neg RL CP BF QS}D/xr D0/yr\n"
+"D0/rx D0/ry D0/rx2 D0/ry2 D0/RR{/yr ED/xr ED/h ED/w ED/y ED/x ED xr 0 le yr\n"
+"0 le or{x y w h R}{xr 100 ge yr 100 ge or{x y w h E}{/rx xr w mul 200 div d\n"
+"/ry yr h mul 200 div d/rx2 rx 2 mul d/ry2 ry 2 mul d NP x rx add y MT x y\n"
+"rx2 ry2 180 -90 x y h add ry2 sub rx2 ry2 270 -90 x w add rx2 sub y h add\n"
+"ry2 sub rx2 ry2 0 -90 x w add rx2 sub y rx2 ry2 90 -90 ARC ARC ARC ARC CP BF\n"
+"QS}ie}ie}D/E{/h ED/w ED/y ED/x ED mat CM pop x w 2 div add y h 2 div add TR\n"
+"1 h w div scale NP 0 0 w 2 div 0 360 arc mat SM BF QS}D/A{16 div exch 16 div\n"
+"exch NP ARC QS}D/PIE{/ang2 ED/ang1 ED/h ED/w ED/y ED/x ED NP x w 2 div add y\n"
+"h 2 div add MT x y w h ang1 16 div ang2 16 div ARC CP BF QS}D/CH{16 div exch\n"
+"16 div exch NP ARC CP BF QS}D/BZ{curveto QS}D/CRGB{255 div 3 1 roll 255 div\n"
+"3 1 roll 255 div 3 1 roll}D/BC{CRGB BkCol sp}D/BR{CRGB BCol sp/BSt ED}D/WB{1\n"
+"W BR}D/NB{0 B BR}D/PE{setlinejoin setlinecap CRGB PCol sp/LWi ED/PSt ED LWi\n"
+"0 eq{0.25/LWi ED}if PCol SC}D/P1{1 0 5 2 roll 0 0 PE}D/ST{defM SM concat}D\n"
+"/MF{true exch true exch{exch pop exch pop dup 0 get dup findfont dup\n"
+"/FontName get 3 -1 roll eq{exit}if}forall exch dup 1 get/fxscale ED 2 get\n"
+"/fslant ED exch/fencoding ED[fxscale 0 fslant 1 0 0]makefont fencoding false\n"
+"eq{}{dup maxlength dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding\n"
 "fencoding d currentdict end}ie definefont pop}D/MFEmb{findfont dup length\n"
 "dict begin{1 i/FID ne{d}{pop pop}ifelse}forall/Encoding ED currentdict end\n"
 "definefont pop}D/DF{findfont/fs 3 -1 roll d[fs 0 0 fs -1 mul 0 0]makefont d}\n"
@@ -168,8 +168,9 @@ static const char *const ps_header =
 "showpage}D/SPD{/setpagedevice where{1 DB 3 1 roll d end setpagedevice}{pop\n"
 "pop}ie}D/SV{BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol/nS nS 1 add d gsave}D\n"
 "/RS{nS 0 gt{grestore/BkCol ED/PCol ED/BCol ED/OMo ED/WFi ED/Cy ED/Cx ED/PSt\n"
-"ED/LWi ED/BSt ED/nS nS 1 sub d}if}D/CLSTART{/clipTmp matrix CM d defM SM NP}\n"
-"D/CLEND{clip NP clipTmp SM}D/CLO{grestore gsave defM SM}D\n";
+"ED/LWi ED/BSt ED/nS nS 1 sub d}if}D/CLSTART{gsave/clipTmp matrix CM d defM\n"
+"SM NP}D/ACR{/h ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0 h neg RL CP}D/CLEND{\n"
+"clip NP clipTmp SM}D/CLO{grestore}D\n";
 
 static const char * const agl =
 ".notdef\0space\0exclam\0quotedbl\0numbersign\0dollar\0percent\0ampersand\0"
@@ -529,6 +530,8 @@ static const struct { Q_UINT16 u; Q_UINT16 index; } unicodetoglyph[] = {
 };
 
 
+
+
 // ---------------------------------------------------------------------
 // postscript font substitution dictionary. We assume every postscript printer has at least
 // Helvetica, Times, Courier and Symbol
@@ -760,9 +763,6 @@ public:
     QPSPrintEnginePrivate(QPrinter *prt, QPrinter::PrinterMode m);
     ~QPSPrintEnginePrivate();
 
-    void matrixSetup(QPainterState *);
-    void clippingSetup(QPainterState *);
-    void setClippingOff(QPainterState *);
     void orientationSetup();
     void resetDrawingTools(QPainterState *);
     void emitHeader(bool finished);
@@ -772,7 +772,6 @@ public:
 
     QPrinter   *printer;
     int         pageCount;
-    bool        dirtyMatrix;
     bool        epsf;
     QString     fontsUsed;
 
@@ -802,17 +801,13 @@ public:
     int pageFontNumber;
     QBuffer * fontBuffer;
     QTextStream fontStream;
-    bool dirtyClipping;
-    bool firstClipOnPage;
+    bool clipOn;
     QRect boundingBox;
     QImage * savedImage;
     QPen cpen;
     QBrush cbrush;
-    bool dirtybrush;
     QColor bkColor;
-    bool dirtyBkColor;
     Qt::BGMode bkMode;
-    bool dirtyBkMode;
 #ifndef QT_NO_TEXTCODEC
     QTextCodec * currentFontCodec;
 #endif
@@ -4540,15 +4535,15 @@ QPSPrintEngineFont::QPSPrintEngineFont(const QFont &f, int script, QPSPrintEngin
 
 QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter *prt, QPrinter::PrinterMode m)
     : buffer(0), outDevice(0), fd(-1), pageBuffer(0), fontBuffer(0), savedImage(0),
-      dirtybrush(false), dirtyBkColor(false), bkMode(Qt::TransparentMode), dirtyBkMode(false),
+      bkMode(Qt::TransparentMode),
 #ifndef QT_NO_TEXTCODEC
       currentFontCodec(0),
 #endif
-        fm(QFont()), textY(0), collate(false), copies(1)
+      fm(QFont()), textY(0), collate(false), copies(1)
 {
     // #####################
     firstPage = true;
-    paperRect = QRect(10, 10, 595-20, 842-20);
+    paperRect = QRect(0, 0, 595, 842);
     pageRect = QRect(0, 0, 595, 842);
 
     printer = prt;
@@ -5258,27 +5253,6 @@ void QPSPrintEnginePrivate::drawImage(float x, float y, float w, float h,
 }
 
 
-void QPSPrintEnginePrivate::matrixSetup(QPainterState *ps)
-{
-#ifndef QT_NO_TRANSFORMATIONS
-    QWMatrix tmp = ps->matrix;
-    pageStream << "["
-           << tmp.m11() << ' ' << tmp.m12() << ' '
-           << tmp.m21() << ' ' << tmp.m22() << ' '
-           << tmp.dx()  << ' ' << tmp.dy()
-           << "]ST\n";
-#else
-    QPoint p(0,0);
-    p = paint->xForm(p);
-    pageStream << "["
-           << 0 << ' ' << 0 << ' '
-           << 0 << ' ' << 0 << ' '
-           << p.x()    << ' ' << p.y()
-           << "]ST\n";
-#endif
-    dirtyMatrix = false;
-}
-
 void QPSPrintEnginePrivate::orientationSetup()
 {
     if (orientation == QPrinter::Landscape)
@@ -5454,10 +5428,10 @@ void QPSPrintEnginePrivate::resetDrawingTools(QPainterState *ps)
         }
     }
 
-    dirtybrush = true;
 
-    if (ps->VxF || ps->WxF)
-        matrixSetup(ps);
+    // ####################
+//     if (ps->VxF || ps->WxF)
+//         matrixSetup(ps);
 }
 
 
@@ -5467,44 +5441,6 @@ static void putRect(QTextStream &stream, const QRect &r)
            << r.y() << " "
            << r.width() << " "
            << r.height() << " ";
-}
-
-
-void QPSPrintEnginePrivate::setClippingOff(QPainterState *ps)
-{
-    pageStream << "CLO\n";              // clipping off, includes a restore
-    resetDrawingTools(ps);     // so drawing tools must be reset
-}
-
-
-void QPSPrintEnginePrivate::clippingSetup(QPainterState *ps)
-{
-    if (ps->clipEnabled) {
-        if (!firstClipOnPage)
-            setClippingOff(ps);
-        const QRegion rgn = ps->clipRegion;
-        QVector<QRect> rects = rgn.rects();
-        int i;
-        pageStream<< "CLSTART\n";           // start clipping
-        for(i = 0 ; i < rects.size() ; i++) {
-            putRect(pageStream, rects[i]);
-            pageStream << "ACR\n";          // add clip rect
-            if (pageCount == 1)
-                boundingBox = boundingBox.unite(rects[i]);
-        }
-        pageStream << "CLEND\n";            // end clipping
-        firstClipOnPage = false;
-    } else {
-        if (!firstClipOnPage)      // no need to turn off if first on page
-            setClippingOff(ps);
-        // if we're painting without clipping, the bounding box must
-        // be everything.  NOTE: this assumes that this function is
-        // only ever called when something is to be painted.
-        QPaintDeviceMetrics m(printer);
-        if (!boundingBox.isValid())
-            boundingBox.setRect(0, 0, m.width(), m.height());
-    }
-    dirtyClipping = false;
 }
 
 void QPSPrintEnginePrivate::flushPage(bool last)
@@ -5551,11 +5487,7 @@ QPSPrintEngine::QPSPrintEngine(QPrinter *prt, QPrinter::PrinterMode m)
 QPSPrintEngine::~QPSPrintEngine()
 {
     if (d_func()->fd >= 0)
-#if defined(_OS_WIN32_)
-        ::_close(d_func()->fd);
-#else
         ::close(d_func()->fd);
-#endif
 }
 
 
@@ -5693,9 +5625,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     d->fontStream.setDevice(d->fontBuffer);
     d->headerFontNumber = 0;
     d->pageCount           = 1;                // initialize state
-    d->dirtyMatrix         = true;
-    d->dirtyClipping    = true;
-    d->firstClipOnPage  = true;
+    d->clipOn  = false;
     d->boundingBox = QRect(0, 0, -1, -1);
     d->fontsUsed = QString::fromLatin1("");
 
@@ -5736,39 +5666,6 @@ bool QPSPrintEngine::end()
     return true;
 }
 
-bool QPSPrintEngine::updateState()
-{
-    if (d->dirtyMatrix)
-        d->matrixSetup(state);
-    if (d->dirtyClipping) // Must be after matrixSetup and initPage
-        d->clippingSetup(state);
-    if (d->dirtybrush) {
-        // we special-case for nobrush and solid white, since
-        // those are the two most common brushes
-        if (d->cbrush.style() == Qt::NoBrush)
-            d->pageStream << "NB\n";
-        else if (d->cbrush.style() == Qt::SolidPattern &&
-                  d->cbrush.color() == Qt::white)
-            d->pageStream << "WB\n";
-        else
-            d->pageStream << (int)d->cbrush.style() << ' '
-                          << color(d->cbrush.color(), d) << "BR\n";
-        d->dirtybrush = false;
-    }
-    if (d->dirtyBkColor) {
-        d->pageStream << color(d->bkColor, d) << "BC\n";
-        d->dirtyBkColor = false;
-    }
-    if (d->dirtyBkMode) {
-        if (d->bkMode == Qt::TransparentMode)
-            d->pageStream << "/OMo false d\n";
-        else
-            d->pageStream << "/OMo true d\n";
-        d->dirtyBkMode = false;
-    }
-    return true;
-}
-
 void QPSPrintEngine::updatePen(const QPen &pen)
 {
     d->cpen = pen;
@@ -5787,14 +5684,24 @@ void QPSPrintEngine::updatePen(const QPen &pen)
 
 void QPSPrintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
 {
+    // ################ use bruch origin!
     if (brush.style() == Qt::CustomPattern) {
 #if defined(CHECK_RANGE)
         qWarning("QPrinter: Pixmap brush not supported");
 #endif
         return;
     }
-    d->dirtybrush = true;
     d->cbrush = brush;
+    // we special-case for nobrush and solid white, since
+    // those are the two most common brushes
+    if (d->cbrush.style() == Qt::NoBrush)
+        d->pageStream << "NB\n";
+    else if (d->cbrush.style() == Qt::SolidPattern &&
+             d->cbrush.color() == Qt::white)
+        d->pageStream << "WB\n";
+    else
+        d->pageStream << (int)d->cbrush.style() << ' '
+                      << color(d->cbrush.color(), d) << "BR\n";
 }
 
 void QPSPrintEngine::updateFont(const QFont &font)
@@ -5811,19 +5718,61 @@ void QPSPrintEngine::updateFont(const QFont &font)
 void QPSPrintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
 {
     d->bkColor = bgBrush;
-    d->dirtyBkColor = true;
     d->bkMode = bgMode;
-    d->dirtyBkMode = true;
+
+    d->pageStream << color(d->bkColor, d) << "BC\n";
+
+    if (d->bkMode == Qt::TransparentMode)
+        d->pageStream << "/OMo false d\n";
+    else
+        d->pageStream << "/OMo true d\n";
 }
 
 void QPSPrintEngine::updateXForm(const QWMatrix &matrix)
 {
-    d->dirtyMatrix = true;
+    d->pageStream << "["
+                  << matrix.m11() << ' ' << matrix.m12() << ' '
+                  << matrix.m21() << ' ' << matrix.m22() << ' '
+                  << matrix.dx()  << ' ' << matrix.dy()
+                  << "]ST\n";
 }
 
 void QPSPrintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
 {
-    d->dirtyClipping = true;
+    if (!d->clipOn && !clipEnabled)
+        return;
+
+    if (d->clipOn) {
+        d->pageStream << "CLO\n";              // clipping off, includes a restore
+        d->clipOn = false;
+        setDirty(AllDirty); // so we must force a complete state update
+        return;
+    }
+
+    if (clipEnabled) {
+        QVector<QRect> rects = region.rects();
+        int i;
+        d->pageStream<< "CLSTART\n";           // start clipping
+        for(i = 0 ; i < rects.size() ; i++) {
+            putRect(d->pageStream, rects[i]);
+            d->pageStream << "ACR\n";          // add clip rect
+            if (d->pageCount == 1)
+                d->boundingBox = d->boundingBox.unite(rects[i]);
+        }
+        d->pageStream << "CLEND\n";            // end clipping
+        d->clipOn = true;
+    }
+#if 0
+    else {
+    // ################ What's this for?
+        // if we're painting without clipping, the bounding box must
+        // be everything.  NOTE: this assumes that this function is
+        // only ever called when something is to be painted.
+        QPaintDeviceMetrics m(printer);
+        if (!boundingBox.isValid())
+            boundingBox.setRect(0, 0, m.width(), m.height());
+    }
+#endif
 }
 
 void QPSPrintEngine::drawLine(const QPoint &p1, const QPoint &p2)
@@ -6024,9 +5973,6 @@ bool QPSPrintEngine::newPage()
     delete d->savedImage;
     d->savedImage = 0;
     d->textY = 0;
-    d->dirtyClipping   = true;
-    d->firstClipOnPage = true;
-
 
 //     d->resetDrawingTools(d->ps);
     d->pageFontNumber = d->headerFontNumber;
@@ -6207,7 +6153,42 @@ int QPSPrintEngine::numCopies() const
 
 int  QPSPrintEngine::metric(int metricType) const
 {
-    return 0;
+    int val;
+    int res = 72; // ##### d->resolution;
+    switch (metricType) {
+    case QPaintDeviceMetrics::PdmWidth:
+        val = d->paperRect.width();
+        break;
+    case QPaintDeviceMetrics::PdmHeight:
+        val = d->paperRect.height();
+        break;
+    case QPaintDeviceMetrics::PdmDpiX:
+        val = res;
+        break;
+    case QPaintDeviceMetrics::PdmDpiY:
+        val = res;
+        break;
+    case QPaintDeviceMetrics::PdmPhysicalDpiX:
+    case QPaintDeviceMetrics::PdmPhysicalDpiY:
+        val = 1200;
+        break;
+    case QPaintDeviceMetrics::PdmWidthMM:
+        val = d->paperRect.width()*72 / res;
+        break;
+    case QPaintDeviceMetrics::PdmHeightMM:
+        val = d->paperRect.height()*72 / res;
+        break;
+    case QPaintDeviceMetrics::PdmNumColors:
+        val = INT_MAX;
+        break;
+    case QPaintDeviceMetrics::PdmDepth:
+        val = 32;
+        break;
+    default:
+        qWarning("QPrinter::metric: Invalid metric command");
+        return 0;
+    }
+    return val;
 }
 
 QPrinter::PrinterState QPSPrintEngine::printerState() const
