@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#63 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2128,7 +2128,7 @@ void QPSPrinter::setFont( const QFont & f )
 		d->pageFontNames.insert( key2, new QString( fontName ) );
 	    }
 	    ++d->pageFontNumber;
-	    stream << "/F" << d->pageFontNumber << " " 
+	    stream << "/F" << d->pageFontNumber << " "
 		   << f.pointSize() << fontName << " DF\n";
 	    fontName.sprintf( "F%d", d->pageFontNumber );
 	    d->pageFontNames.insert( key, new QString( fontName ) );
@@ -2282,7 +2282,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	       << "QP\n"
 	       << "%%Trailer\n";
 	if ( pageCountAtEnd )
-	    stream << "%%Pages: " << pageCount << "\n%%DocumentFonts: " 
+	    stream << "%%Pages: " << pageCount << "\n%%DocumentFonts: "
 		   << fontsUsed.simplifyWhiteSpace() << '\n';
 	stream.unsetDevice();
 	d->realDevice->close();
@@ -2409,7 +2409,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		    *to++ = *from++;
 		}
 		*to = '\0';
-		stream<< "(" << tmp << ")" << POINT(0) << " T\n";
+		stream<< "(" << tmp << ")" << POINT(0) << "T\n";
 		delete [] tmp;
 	    }
 	    break;
@@ -2593,11 +2593,11 @@ void QPSPrinter::emitHeader( bool finished )
 	   << "\n%%Title: " << title
 	   << "\n%%CreationDate: " << QDateTime::currentDateTime().toString();
     if ( finished )
-	stream << "%%Pages: " << pageCount << "\n%%DocumentFonts: " 
-	       << fontsUsed.simplifyWhiteSpace() << '\n';
+	stream << "\n%%Pages: " << pageCount << "\n%%DocumentFonts: "
+	       << fontsUsed.simplifyWhiteSpace();
     else
 	stream << "\n%%Pages: (atend)"
-	       << "\n%%DocumentFonts: (atend) ";
+	       << "\n%%DocumentFonts: (atend)";
     stream << "\n%%EndComments\n\n";
 
     if ( printer->numCopies() > 1 )
