@@ -2460,8 +2460,6 @@ void QApplication::wakeUpGuiThread()
     returns FALSE. Pending events can be either from the window system
     or posted events using QApplication::postEvent().
 */
-extern uint qGlobalPostedEventsCount();
-
 bool QApplication::hasPendingEvents()
 {
     return eventLoop()->hasPendingEvents();
