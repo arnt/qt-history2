@@ -17,11 +17,9 @@ win32 {
 unix {
 	!contains( LIBS, .*clnts.* ) {
 	    LIBS	*= -lclntsh
-	    LIBS	*= -lwtc8
 	}
 }
 macx {
-        LIBS -= -lwtc8
         QMAKE_LFLAGS += -Wl,-flat_namespace,-U,_environ
 }
 
