@@ -23,9 +23,23 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 
 */
 QSqlRowset::QSqlRowset( const QString & name, const QString& databaseName )
-    : QSqlFieldList(), QSql( QSqlConnection::database( databaseName )->driver()->createResult() ), lastAt( QSqlResult::BeforeFirst ), tableName( name )
+    : QSqlFieldList(), QSql( QSqlConnection::database( databaseName )->driver()->createResult() ), lastAt( QSqlResult::BeforeFirst ), nm( name )
 {
-    *this = driver()->fields( name );
+    if ( !nm.isNull() )
+	*this = driver()->fields( nm );
+}
+
+/*!
+  Sets the rowset equal to \a s.
+
+*/
+QSqlRowset& QSqlRowset::operator=( const QSqlRowset & s )
+{
+    QSqlFieldList::operator=( s );
+    QSql::operator=( s );
+    lastAt = s.lastAt;
+    nm = s.nm;
+    return *this;
 }
 
 /*!
@@ -33,8 +47,19 @@ QSqlRowset::QSqlRowset( const QString & name, const QString& databaseName )
 
 */
 QSqlRowset::QSqlRowset( const QSqlRowset & s )
-    : QSqlFieldList( s ), QSql( s ), lastAt( s.lastAt ), tableName( s.tableName )
+    : QSqlFieldList( s ), QSql( s ), lastAt( s.lastAt ), nm( s.nm )
 {
+}
+
+/*!
+  Sets the name of the rowset to \a name, which must correspond to a valid table or
+  view name in the database.
+
+*/
+void QSqlRowset::setName( const QString& name )
+{
+    nm = name;
+    *this = driver()->fields( name );    
 }
 
 /*!
@@ -90,12 +115,12 @@ bool QSqlRowset::select( const QSqlIndex& sort )
 
 bool QSqlRowset::select( const QString & filter, const QSqlIndex & sort )
 {
-    QString str= "select " + toString( tableName );
-    str += " from " + tableName;
+    QString str= "select " + toString( nm );
+    str += " from " + nm;
     if ( !filter.isNull() && filter != "*" )
 	str += " where " + filter;
     if ( sort.count() )
-	str += " order by " + sort.toString( tableName );
+	str += " order by " + sort.toString( nm );
     str += ";";
     return query( str );
 }
@@ -146,13 +171,13 @@ QString QSqlRowset::fieldEqualsValue( const QString& fieldSep, const QSqlIndex &
 		filter += " " + fieldSep + " " ;
 	    QString fn = i.field(j).name();
 	    QSqlField f = field( fn );
-	    filter += qMakeFieldValue( tableName, f );
+	    filter += qMakeFieldValue( nm, f );
 	}
     } else { // use all fields
  	for ( uint j = 0; j < count(); ++j ) {
 	    if ( j > 0 )
 		filter += " " + fieldSep + " " ;
-	    filter += qMakeFieldValue( tableName, field( j ) );
+	    filter += qMakeFieldValue( nm, field( j ) );
 	}
     }
     return filter;

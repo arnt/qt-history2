@@ -17,6 +17,7 @@ class QSqlView : public QSqlRowset
 public:
     QSqlView( const QString & name, const QString& databaseName = QSqlConnection::defaultDatabase );
     QSqlView( const QSqlView & s );
+    QSqlView& operator=( const QSqlView& s );
 
     QSqlIndex     primaryIndex() const;
     int           insert();

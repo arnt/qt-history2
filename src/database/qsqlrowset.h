@@ -20,8 +20,9 @@ class QSqlDatabase;
 class Q_EXPORT QSqlRowset : public QSqlFieldList, public QSql
 {
 public:
-    QSqlRowset( const QString & name, const QString& databaseName = QSqlConnection::defaultDatabase );
+    QSqlRowset( const QString & name = QString::null, const QString& databaseName = QSqlConnection::defaultDatabase );
     QSqlRowset( const QSqlRowset & s );
+    QSqlRowset& operator=( const QSqlRowset & s );
 
     QVariant& operator[]( int i );
     QVariant& operator[]( const QString& name );
@@ -32,7 +33,8 @@ public:
     bool select( const QSqlIndex& sort );
     bool select( const QSqlIndex & filter, const QSqlIndex & sort );
     bool select( const QString & filter, const QSqlIndex & sort = QSqlIndex() );
-    QString name() const { return tableName; }
+    void    setName( const QString& name );
+    QString name() const { return nm; }
 
 protected:
     QSqlFieldList & operator=( const QSqlFieldList & list );
@@ -44,7 +46,7 @@ private:
     QSqlFieldList   fields() const;     //hide
     void      sync();
     int       lastAt;
-    QString   tableName;
+    QString   nm;
 };
 
 #endif // QT_NO_SQL

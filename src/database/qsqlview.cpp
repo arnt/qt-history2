@@ -27,6 +27,17 @@ QSqlView::QSqlView( const QSqlView & s )
 }
 
 /*!
+  Sets the view equal to \a s.
+
+*/
+
+QSqlView& QSqlView::operator=( const QSqlView& s )
+{
+    QSqlRowset::operator=( s );
+    return *this;
+}
+
+/*!
   Returns the primary index associated with the view, or an empty
   index if there is no primary index.
 
