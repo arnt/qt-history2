@@ -34,6 +34,7 @@ OutputWindow::~OutputWindow()
 void OutputWindow::setupError()
 {
     errorView = new QListView( this, "OutputWindow::errorView" );
+    errorView->setSorting( -1 );
     connect( errorView, SIGNAL( currentChanged( QListViewItem* ) ),
 	     this, SLOT( currentErrorChanged( QListViewItem* ) ) );
     connect( errorView, SIGNAL( clicked( QListViewItem* ) ),
