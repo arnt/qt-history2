@@ -982,22 +982,20 @@ void QWorkspace::showEvent( QShowEvent *e )
 //	    QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
 	QDesktopWidget *dw = QApplication::desktop();
 	w->setGeometry(dw->availableGeometry(dw->screenNumber(o)));
-	o->reparent(w, QPoint(0, 0));
-	o->hide();
+	o->reparent(w, QPoint(0, 0), TRUE);
 	if(o->inherits("QMainWindow")) {
 	    if(QMenuBar *mb = ((QMainWindow *)o)->menuBar()) 
 		mb->reparent(w, QPoint(0, 0));
 	}
 	reparent(w, QPoint(0,0));
 	setGeometry(0, 0, w->width(), w->height());
+	w->hide();
+#if 0
 	/* Hide really isn't acceptable because I need to make the rest of Qt
 	   think it is visible, so instead I set it to an empty mask. I'm not
 	   sure what problems this is going to create, hopefully everything will
 	   be happy (or not even notice since this is mostly intended for Qt/Mac) */
-#if 0
-	w->hide();
-#else
-	w->setMask(QRegion());
+	w->reparent(w->parentWidget(), WState_Visible, w->pos());
 #endif
     }
 
