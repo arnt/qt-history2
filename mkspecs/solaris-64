@@ -1,5 +1,5 @@
 #
-# $Id: //depot/qt/main/mkspecs/solaris-64#15 $
+# $Id: //depot/qt/main/mkspecs/solaris-64#16 $
 #
 # qmake configuration for solaris-64
 #
@@ -41,7 +41,7 @@ QMAKE_LEX		= flex
 QMAKE_LEXFLAGS		= 
 QMAKE_YACC		= yacc
 QMAKE_YACCFLAGS		= -d
-QMAKE_CFLAGS		= -xarch=v9
+QMAKE_CFLAGS		= -xarch=v9 -D_XOPEN_SOURCE=500 -D__EXTENSIONS__
 QMAKE_CFLAGS_WARN_ON	=
 QMAKE_CFLAGS_WARN_OFF	= -w
 QMAKE_CFLAGS_RELEASE	= -O
@@ -82,7 +82,7 @@ QMAKE_LFLAGS_THREAD	= -mt
 QMAKE_RPATH		= -R
 
 QMAKE_LIBS		=
-QMAKE_LIBS_X11		= -lXext -lX11 -lm -lresolv -lsocket -lnsl
+QMAKE_LIBS_X11		= -lXext -lX11 -lm -lresolv -lxnet
 QMAKE_LIBS_QT		= -lqt
 QMAKE_LIBS_QT_THREAD	= -lqt-mt
 QMAKE_LIBS_OPENGL	= -lGLU -lGL -lXmu

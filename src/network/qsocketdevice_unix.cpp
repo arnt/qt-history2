@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#40 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#41 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -116,8 +116,7 @@
 
 // ### Please #ifdef and document with OS and OS release.
 #if defined(Q_OS_QNX)
-// QNX 6.00 Neutrino is pure XPG4v2 and lacks support for BSD
-// legacy such as FNDELAY.
+// QNX 6.00 Neutrino is pure XPG4v2 and lacks support for BSD's FNDELAY.
 #  if !defined (FNDELAY)
 #    define FNDELAY O_NDELAY
 #  endif
@@ -133,10 +132,10 @@
 // This mess defines SOCKLEN_T to socklen_t or whatever else.
 // Single XPG5/SUSv2 and common sense say it's to be socklen_t.
 // XNS4/SUS says it's to be size_t but most platforms do not
-// apply the standard. size_t has been phased out because it is
+// apply the standard and size_t has been phased out because it is
 // not compatible with IPv6 or LP64. Also some XNS4/SUS platforms
 // also support POSIX.1g Draft 6.6 (March 1997) and have switched
-// to socklen_t earlier. Classically it's int.
+// to socklen_t earlier. But classically it's int.
 // Want more?
 //	The Single UNIX Specification, Version 2
 //		- http://www.opengroup.org/onlinepubs/007908799/
@@ -152,12 +151,11 @@
 #  undef SOCKLEN_T
 #endif
 
-#if defined(Q_OS_MACX)
-#  define SOCKLEN_T int
-#elif defined(BSD4_4)
+#if defined(Q_OS_BSD4)
 // int       - FreeBSD 1.0 through 3.5.1
 //             OpenBSD 2.1 through 2.4
 //             NetBSD  1.0 through 1.3.3
+//             SunOS
 // socklen_t - FreeBSD 4.0 through 4.2
 //             OpenBSD 2.5 through 2.8
 //             NetBSD  1.4 through 1.5
@@ -165,8 +163,13 @@
 // ### and BSDs which use socklen_t? Or maybe this is not an issue
 // ### because those that use int are way too old?
 #  define SOCKLEN_T socklen_t
-#elif defined(__GLIBC__) && (__GLIBC__ >= 2)
-#  define SOCKLEN_T socklen_t
+#elif defined(Q_OS_LINUX) || defined(Q_OS_GNU)
+#  if defined(__GLIBC__) && (__GLIBC__ >= 2)
+// No other way to find about this in the GNU C library...?
+#    define SOCKLEN_T socklen_t
+#  else
+#    define SOCKLEN_T int
+#  endif
 #elif defined(Q_OS_AIX)
 #  if defined(_XOPEN_VERSION) && (_XOPEN_VERSION >= 500)
 // AIX 4.3 is SUSv2/XPG5.
@@ -178,13 +181,22 @@
 // AIX 4.1 is plain XPG4.
 #    define SOCKLEN_T int
 #  endif
+#elif defined(Q_OS_SOLARIS)
+#  if defined(_XOPEN_UNIX)
+// SUSv2/XPG5 explicitly specified or SUS/XPG4v2 explicitly specified
+// but with socklen_t typedef'ed to size_t except in 64-bit mode.
+// What about Solaris 2.6?
+#    define SOCKLEN_T socklen_t
+#  else
+#    define SOCKLEN_T int
+#  endif
 #elif defined(Q_OS_UNIXWARE7)
 #  if defined(_XOPEN_UNIX)
 // UnixWare 7 should be XPG4v2.
 #    define SOCKLEN_T size_t
 #  else
 #    define SOCKLEN_T int
-#  endif
+#  endif                                                                        #elif defined(Q_OS_QNX)
 #elif defined(Q_OS_QNX)
 #  if defined(_XOPEN_UNIX)
 // QNX should be XPG4v2 - at least if _QNX_SOURCE is defined.
@@ -201,16 +213,14 @@
 // 	The standard environment provided the older Berkeley-style
 // 	prototypes.
 // This is not very clear:
-// 	=> Does the last sentence apply to Solaris only or are there
-// 	   many vendors shipping implementations with default size_t?
-// 	   Actually AIX 4.2, UnixWare 7 and QNX use size_t by default.
-// 	=> Which feature-test macros trigger the infamous size_t on
-// 	   platforms that do not default to it? On HP-UX for example
-// 	   it's _XOPEN_SOURCE_EXTENDED.
-// 	=> Could it be that some platforms have POSIX.1g Draft 6.6
-// 	   (March 1997) overload XPG4v2 thus requesting socklen_t?
-// 	   This seems to be the case of GNU platforms. Then how to
-// 	   detect this?
+// => Does the last sentence apply to Solaris only or are there many vendors
+//    shipping implementations with default size_t? Actually AIX 4.2, QNX
+//    and UnixWare 7 use size_t by default.
+// => Which feature-test macros trigger the infamous size_t on platforms that
+//    do not default to it? On HP-UX for example it's _XOPEN_SOURCE_EXTENDED.
+// => Could it be that some platforms have POSIX.1g Draft 6.6 (March 1997)
+//    overload XPG4v2 thus requesting socklen_t? This seems to be the case on
+//    GNU platforms. Then how to detect this?
 // It seems that except for GNU platforms, we should be able to test
 // directly against _XOPEN_VERSION and _XOPEN_UNIX instead of testing
 // against OS/release.
