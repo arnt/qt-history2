@@ -8601,7 +8601,7 @@ public:
 // NOT REVISED
 /*!
   \class QAquaStyle qaquastyle.h
-  \brief Aqua Look and Feel
+  \brief The QAquaStyle class implements the aqua 'Look and Feel'.
   \ingroup appearance
 
   This class implements the Aqua look and feel. It's an

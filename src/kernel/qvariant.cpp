@@ -296,7 +296,7 @@ void QVariant::Private::clear()
 
 /*!
   \class QVariant qvariant.h
-  \brief Acts like a union for the most common Qt data types.
+  \brief The QVariant class acts like a union for the most common Qt data types.
 
   \ingroup objectmodel
   \ingroup misc
@@ -771,7 +771,7 @@ QVariant::QVariant( QSizePolicy val )
 }
 
 /*!
-  Assigns the value of some \a other variant to this variant.
+  Assigns the value of the variant \a variant to this variant.
 
   This is a deep copy of the variant, but note that if the variant
   holds an explicitly shared type such as QImage, it is a shallow copy

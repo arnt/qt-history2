@@ -2282,7 +2282,7 @@ void QListBox::updateItem( QListBoxItem * i )
   \property QListBox::selectionMode
   \brief the selection mode of the list box
 
-  Sets the list box to selection mode \a mode, which may be one of
+  Sets the list box's selection mode, which may be one of
   \c Single (the default), \c Extended, \c Multi or \c NoSelection.
 
   \sa SelectionMode
@@ -3124,7 +3124,7 @@ void QListBox::doAutoScroll()
   arbitrary item is selected and returned.
 
   When setting this property, the list box is scrolled so the item at
-  position \a index in the list is displayed in the top row of the
+  position \e index in the list is displayed in the top row of the
   list box.
 */
 

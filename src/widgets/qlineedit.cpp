@@ -415,7 +415,7 @@ QString QLineEdit::displayText() const
 
 
 
-/*! \property QLineEdit::hasSelectedText
+/*! \property QLineEdit::hasMarkedText
     \brief whether part of the text has been selected by the user (e.g.,
     by clicking and dragging)
 
@@ -431,7 +431,7 @@ bool QLineEdit::hasSelectedText() const
 	d->parag->selectionStart( QTextDocument::Standard ) != d->parag->selectionEnd( QTextDocument::Standard );
 }
 
-/*! \property QLineEdit::selectedText
+/*! \property QLineEdit::markedText
     \brief the text selected by the user (e.g., by clicking and
     dragging), or QString::null if no text is selected.
 

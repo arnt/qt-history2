@@ -318,7 +318,7 @@ QTimer *QButton::timer()
 
   This property will return 0 if the button has no pixmap.
 
-  If \a pixmap is monochrome (i.e., it is a QBitmap or its \link
+  If the pixmap is monochrome (i.e., it is a QBitmap or its \link
   QPixmap::depth() depth\endlink is 1) and it does not have a mask,
   this property will set the pixmap to be its own mask. The purpose of
   this is to draw transparent bitmaps which are important for

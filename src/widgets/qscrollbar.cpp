@@ -63,7 +63,7 @@
    <li> The \e slider is the handle that indicates the current value
     of the scroll bar, which the user can drag to change the value.
     This part of the scroll bar is sometimes called the "thumb."
-   <li> The \a page-up/page-down control is the area on which the slider
+   <li> The \e page-up/page-down control is the area on which the slider
     slides (the scroll bar's background).  Clicking here moves the scroll
     bar towards the click.  The meaning of "page" is also configurable
     - in editors and list boxes it means as many lines as there is space
@@ -211,15 +211,15 @@ QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
 }
 
 /*!
-  Constructs a scoll bar whose value can never be smaller than \a
+  Constructs a scroll bar whose value can never be smaller than \a
   minValue or greater than \a maxValue, whose line step size is \a
   lineStep and page step size is \a pageStep and whose value is
   initially \a value (adjusted using bound()).
 
-  If \a orientation is Vertical the scroll bar is vertical and if it
-  is \a Horizontal the scroll bar is horizontal.
+  If \a orientation is \c Vertical the scroll bar is vertical and if it
+  is \c Horizontal the scroll bar is horizontal.
 
-  The \e parent and \e name arguments are sent to the QWidget constructor.
+  The \a parent and \a name arguments are sent to the QWidget constructor.
 */
 
 QScrollBar::QScrollBar( int minValue, int maxValue, int lineStep, int pageStep,

@@ -822,8 +822,8 @@ QListViewItem::~QListViewItem()
 }
 
 
-/*! If you pass \a TRUE here, items can contain multiple lines of
-  text, else this is not supported.
+/*! If \a b is set to TRUE here, items can contain multiple lines of
+  text, otherwise this is not supported.
 */
 
 void QListViewItem::setMultiLinesEnabled( bool b )
@@ -4597,7 +4597,7 @@ bool QListView::isMultiSelection() const
 /*! \property QListView::selectionMode
     \brief the list view's multi-selection mode
     
-    \a mode can be \c Single (the default), \c Extended, \c Multi or
+    The mode can be \c Single (the default), \c Extended, \c Multi or
     \c NoSelection.
 
   \sa multiSelection()
