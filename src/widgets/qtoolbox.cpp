@@ -388,7 +388,8 @@ oneMill.QuadPart = count.QuadPart/1000
 QueryPerformanceCounter( &count ); \
 if ( count.QuadPart > next.QuadPart )
 
-#define REINIT_TIMER
+#define REINIT_TIMER \
+next.QuadPart = next.QuadPart + oneMill.QuadPart;
 
 #endif
 
