@@ -415,8 +415,18 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
     case PE_HeaderArrow: 
     case PE_HeaderSection: {
 	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+	if(qAquaActive(cg)) {
+	    if(!(flags & Style_Enabled))
+		info.state = kThemeStateUnavailable;
+	} else {
+	    if(flags & Style_Enabled)
+		info.state = kThemeStateInactive;
+	    else
+		info.state = kThemeStateUnavailableInactive;
+	}
 	if(flags & Style_Down)
 	    info.state |= kThemeStatePressed;
+
 	if(flags & Style_Sunken)
 	    info.value = kThemeButtonOn;
 	if(pe == PE_HeaderArrow && (flags & Style_Up))
@@ -715,12 +725,16 @@ void QMacStyle::drawControl( ControlElement element,
 	QTabBar * tb = (QTabBar *) widget;
 	ThemeTabStyle tts = kThemeTabNonFront;
 	if(how & Style_Selected) {
-	    if(!(how & Style_Enabled))
+	    if(!qAquaActive(cg)) 
+		tts = kThemeTabFrontUnavailable;
+	    else if(!(how & Style_Enabled))
 		tts = kThemeTabFrontInactive;
 	    else
 		tts = kThemeTabFront;
+	} else if(!qAquaActive(cg)) {
+	    tts = kThemeTabNonFrontUnavailable;
 	} else if(!(how & Style_Enabled)) {
-	    tts = kThemeTabNonFrontPressed;
+	    tts = kThemeTextColorTabNonFrontInactive;
 	} else if((how & Style_Sunken) && (how & Style_MouseOver)) {
 	    tts = kThemeTabNonFrontPressed;
 	}
@@ -1324,6 +1338,9 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 {
     SInt32 ret = 0;
     switch(sh) {
+    case SH_RichText_FullWidthSelection:
+	ret = TRUE;
+	break;
     case SH_BlinkCursorWhenTextSelected:
 	ret = FALSE;
 	break;
