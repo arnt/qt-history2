@@ -302,7 +302,7 @@ QString QFileInfo::readLink() const
 #endif // QT_NO_COMPONENT
 }
 
-Q_CORE_EXPORT int qt_ntfs_permission_lookup = 1;
+Q_CORE_EXPORT int qt_ntfs_permission_lookup = 0;
 
 QString QFileInfo::owner() const
 {

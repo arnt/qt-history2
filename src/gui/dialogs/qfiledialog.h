@@ -293,6 +293,7 @@ private:
 					    const char* name = 0,
 					    const QString& caption = QString::null);
     static QString resolveLinkFile( const QString& linkfile );
+    int old_qt_ntfs_permission_lookup;
 #endif
 #if defined(Q_WS_MAC)
     static QString macGetSaveFileName( const QString &, const QString &,

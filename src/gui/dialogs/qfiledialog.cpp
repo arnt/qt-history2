@@ -5610,7 +5610,8 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	return;
 
 #if defined(Q_WS_WIN)
-    qt_ntfs_permission_lookup--;
+    old_qt_ntfs_permission_lookup = qt_ntfs_permission_lookup;
+    qt_ntfs_permission_lookup = 0;
 #endif
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
 #ifndef QT_NO_CURSOR
@@ -5731,7 +5732,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
     }
 
 #if defined(Q_WS_WIN)
-    qt_ntfs_permission_lookup++;
+    qt_ntfs_permission_lookup = old_qt_ntfs_permission_lookup;
 #endif
 }
 
