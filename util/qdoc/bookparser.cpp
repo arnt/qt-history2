@@ -1038,7 +1038,11 @@ HtmlSynthetizer::~HtmlSynthetizer()
     product.replace( QRegExp("-manual"), "" );
     rootXmlSection.ref = outFileBase() + QString( ".html" );
     rootXmlSection.title = analyzer()->title();
-    generateXmlSections( rootXmlSection, product + ".xml", "qt/" + product );
+    if ( product == "qsa" || product == "qsad" ||
+	 product == "library" || product == "language" )
+	generateXmlSections( rootXmlSection, product + ".xml", "qt script for applications/" + product );
+    else
+	generateXmlSections( rootXmlSection, product + ".xml", "qt/" + product );
 }
 
 void HtmlSynthetizer::processAlias( const QString& alias,
