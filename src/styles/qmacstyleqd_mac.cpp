@@ -518,7 +518,32 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
 	((QMacStyleQDPainter *)p)->setport();
 	DrawThemeTabPane(qt_glb_mac_rect(r, p), tds);
 	break;
-    case PE_HeaderArrow: //drawn in HeaderSection rather than separately..
+    case PE_HeaderArrow:
+#ifndef QT_NO_TABLE
+	if (p && p->device() && p->device()->devType() == QInternal::Widget) {
+	    if (::qt_cast<QTable*>(((QWidget*)p->device())->parentWidget())) {
+		QPointArray pa(3);
+		if (p->font().bold()) {
+		    p->setPen(pal.light());
+		    p->setBrush(pal.light());
+		} else {
+		    p->setPen(pal.dark());
+		    p->setBrush(pal.dark());
+		}
+		if (flags & Style_Up) {
+		    pa.setPoint(0, r.x(), 7 * r.height() / 8);
+		    pa.setPoint(1, r.x() + r.width(), 7 * r.height() / 8);
+		    pa.setPoint(2, r.x() + r.width() / 2, r.y());
+		} else {
+		    pa.setPoint(0, r.x() + r.width() / 2, 7 * r.height() / 8);
+		    pa.setPoint(1, r.x(), r.y());
+		    pa.setPoint(2, r.x() + r.width(), r.y());
+		}
+		p->drawPolygon(pa);
+	    }
+	}
+#endif
+	// else drawn in HeaderSection.
 	break;
     case PE_HeaderSection: {
         ThemeButtonKind bkind = kThemeListHeaderButton;
