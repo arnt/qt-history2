@@ -9,7 +9,7 @@ HEADERS		= themes.h \
 		  ../rangecontrols/rangecontrols.h \
 		  ../richtext/richtext.h \
 		  wood.h \
-		  methal.h
+		  metal.h
 		
 SOURCES		= themes.cpp \
 		  main.cpp \
