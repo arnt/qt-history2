@@ -1615,8 +1615,10 @@ void QDataTable::sliderReleased()
 
 /*!
     Sorts column \a col in ascending order if \a ascending is TRUE
-    (the default); otherwise sorts in descending order. The \a
-    wholeRows parameter is ignored for SQL tables.
+    (the default); otherwise sorts in descending order.
+
+    The \a wholeRows parameter is ignored; QDataTable always sorts
+    whole rows by the specified column.
 */
 
 void QDataTable::sortColumn ( int col, bool ascending,
