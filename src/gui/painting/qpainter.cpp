@@ -204,7 +204,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 
     engine->updateMatrix(QMatrix());
     QPixmap pm;
-    pm.fromImage(image, Qt::OrderedDither | Qt::OrderedAlphaDither);
+    pm = QPixmap::fromImage(image, Qt::OrderedDither | Qt::OrderedAlphaDither);
     engine->drawPixmap(QRectF(devMinX, devMinY, devWidth, devHeight),
                        pm,
                        QRectF(0, 0, devWidth, devHeight),
