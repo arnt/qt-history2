@@ -139,10 +139,18 @@ void QDockWidgetResizeHandle::endLineDraw()
 void QDockWidgetResizeHandle::drawLine( const QPoint &globalPos )
 {
     QPoint start = mapToGlobal( QPoint( 0, 0 ) );
-    if ( orientation() == Horizontal )
-	unclippedPainter->drawLine( start.x(), globalPos.y(), start.x() + width(), globalPos.y() );
-    else
-	unclippedPainter->drawLine( globalPos.x(), start.y(), globalPos.x(), start.y() + height() );
+    QPoint starta = dockWidget->area()->mapToGlobal( QPoint( 0, 0 ) );
+    if ( orientation() == Horizontal ) {
+	if ( orientation() == dockWidget->orientation() )
+	    unclippedPainter->drawLine( starta.x() , globalPos.y(), starta.x() + dockWidget->area()->width(), globalPos.y() );
+	else
+	    unclippedPainter->drawLine( start.x(), globalPos.y(), start.x() + width(), globalPos.y() );
+    } else {
+	if ( orientation() == dockWidget->orientation() )
+	    unclippedPainter->drawLine( globalPos.x(), starta.y(), globalPos.x(), starta.y() + dockWidget->area()->height() );
+	else
+	    unclippedPainter->drawLine( globalPos.x(), start.y(), globalPos.x(), start.y() + height() );
+    }
 }
 
 
@@ -449,10 +457,15 @@ void QDockWidget::updateGui()
 	int dw = 0;
 	int dh = 0;
 	if ( isResizeEnabled() ) {
-	    hHandle->setGeometry( handle->sizeHint().width(), height() - hHandle->sizeHint().height(),
-				  width() - handle->sizeHint().width() - vHandle->sizeHint().width(),
-				  hHandle->sizeHint().height() );
-	    vHandle->setGeometry( width() - vHandle->sizeHint().width(), 0, vHandle->sizeHint().width(), height() - hHandle->height() );
+	    if ( orientation() == Horizontal ) {
+		hHandle->setGeometry( 0, height() - hHandle->sizeHint().height(), width(), hHandle->sizeHint().height() );
+		vHandle->setGeometry( width() - vHandle->sizeHint().width(), 0, vHandle->sizeHint().width(), 
+				      height() - hHandle->height() );
+	    } else {
+		hHandle->setGeometry( 0, height() - hHandle->sizeHint().height(), width() - vHandle->sizeHint().width(),
+				      hHandle->sizeHint().height() );
+		vHandle->setGeometry( width() - vHandle->sizeHint().width(), 0, vHandle->sizeHint().width(), height() );
+	    }
 	    addX += vHandle->width();
 	    dw = vHandle->width();
 	    addY += hHandle->height();
@@ -461,12 +474,12 @@ void QDockWidget::updateGui()
 	    vHandle->show();
 	}
 	if ( dockArea && orientation() == Horizontal ) {
-	    handle->setGeometry( 1, 1, handle->sizeHint().width() - 2, height() - 2 );
+	    handle->setGeometry( 1, 1, handle->sizeHint().width() - 2, height() - 2 - dh );
 	    if ( wid )
 		wid->setGeometry( handle->width() + 1, 1, width() - handle->width() - 2 - dw, height() - 2 - dh );
 	    addX += handle->width();
 	} else {
-	    handle->setGeometry( 1, 1, width() - 2, handle->sizeHint().height() - 2 );
+	    handle->setGeometry( 1, 1, width() - 2 - dw, handle->sizeHint().height() - 2 );
 	    if ( wid )
 		wid->setGeometry( 1, handle->height() + 1, width() - 2 - dw, height() - handle->height() - 2 - dh );
 	    addY += handle->height();
