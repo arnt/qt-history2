@@ -286,7 +286,7 @@ int CCommands::getConfigurations(CComQIPtr<IBuildProject, &IID_IBuildProject> pr
     return S_OK;
 }
 
-bool CCommands::getGlobalSettings( CString* libname )
+bool CCommands::getGlobalSettings( CString &libname )
 {
     CFileFind qtLib;
     CString qtFile = "";
@@ -311,33 +311,32 @@ bool CCommands::getGlobalSettings( CString* libname )
 	}
 	
 	if ( threadver.Compare( filever ) > 0 && threadver.Compare( libver ) > 0 ) {
-	    *libname = qtThread;
+	    libname = qtThread;
 	    libver = threadver;
 	    useThreads = TRUE;
 	} else if ( threadver.Compare( filever ) < 0 && filever.Compare( libver ) > 0 ) {
-	    *libname = qtFile;
+	    libname = qtFile;
 	    libver = filever;
 	    useThreads = FALSE;
 	} else if ( threadver.Compare( filever ) == 0 && !(qtThread.Right(6).Compare("nc.lib")==0) && threadver.Compare( libver ) > 0 ) {
-	    *libname = qtThread;
+	    libname = qtThread;
 	    libver = threadver;
 	    useThreads = TRUE;
 	} else if ( filever.Compare( libver ) > 0 ) {
-	    *libname = qtFile;
+	    libname = qtFile;
 	    libver = filever;
 	    useThreads = FALSE;
-	} else if ( filever.Compare( libver ) == 0 && libname->Right(6).Compare("nc.lib")==0 ) {
-	    *libname = qtFile;
+	} else if ( filever.Compare( libver ) == 0 && libname.Right(6).Compare("nc.lib")==0 ) {
+	    libname = qtFile;
 	    libver = filever;
 	    useThreads = FALSE;
 	}
-
     }
     return useThreads;
 }
 void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
 {
-    CString* libname = new CString;
+    CString libname;
     bool useThreads = getGlobalSettings( libname );    
     
     const CComBSTR compiler("cl.exe");
@@ -351,7 +350,7 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
     const CComBSTR dllDefine( dllDefs );	
     const CComBSTR incPath(" /I$(QTDIR)\\include");
     const CComBSTR staticLib("$(QTDIR)\\lib\\qt.lib");
-    LPCTSTR sharedLibText = CString("$(QTDIR)\\lib\\") + *libname;
+    CString sharedLibText = CString("$(QTDIR)\\lib\\") + libname;
     const CComBSTR sharedLib(sharedLibText + CString(" $(QTDIR)\\lib\\qtmain.lib") );
     const CComBSTR defLibs( "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib" );
     const CComBSTR sysLibs( "kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib wsock32.lib" );
@@ -375,7 +374,7 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
 
 void CCommands::addStaticSettings( CComPtr<IConfiguration> pConfig )
 {
-    CString* libname = new CString;
+    CString libname;
     bool useThreads = getGlobalSettings( libname );    
 
     const CComBSTR compiler("cl.exe");
@@ -389,7 +388,7 @@ void CCommands::addStaticSettings( CComPtr<IConfiguration> pConfig )
     const CComBSTR dllDefine( dllDefs );	
     const CComBSTR incPath(" /I$(QTDIR)\\include");
     const CComBSTR staticLib("$(QTDIR)\\lib\\qt.lib");
-    LPCTSTR sharedLibText = CString("$(QTDIR)\\lib\\") + *libname;
+    CString sharedLibText = CString("$(QTDIR)\\lib\\") + libname;
     const CComBSTR sharedLib(sharedLibText + CString(" $(QTDIR)\\lib\\qtmain.lib") );
     const CComBSTR defLibs( "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib" );
     const CComBSTR sysLibs( "kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib wsock32.lib" );
