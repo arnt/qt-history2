@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#23 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#24 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#24 $")
 
 
 /*----------------------------------------------------------------------------
@@ -48,7 +48,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#23 $")
   \brief The QGList is an internal class for implementing Qt collection classes.
 
   QGList is a strictly internal class that acts as a base class for several
-  \link collectionclasses collection classes\endlink; QList, QQueue and
+  \link collectionclasses.html collection classes\endlink; QList, QQueue and
   QStack.
 
   QGList has some virtual functions that can be reimplemented to customize
@@ -59,7 +59,8 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#23 $")
   <li> write() writes a collection/list item to a QDataStream.
   </ul>
   Normally, you do not have to reimplement any of these functions.
-  The QStrList class is a QList that reimplents these functions.
+  If you still want to reimplement them, see the QStrList class (qstrlist.h),
+  which is a good example.
  ----------------------------------------------------------------------------*/
 
 
@@ -183,13 +184,15 @@ QGList::~QGList()
 QGList& QGList::operator=( const QGList &list )
 {
     clear();
-    register QLNode *n = list.firstNode;
-    while ( n ) {				// copy all items from list
-	append( n->getData() );
-	n = n->next;
+    if ( list.count() > 0 ) {
+	register QLNode *n = list.firstNode;
+	while ( n ) {				// copy all items from list
+	    append( n->getData() );
+	    n = n->next;
+	}
+	curNode  = firstNode;
+	curIndex = 0;
     }
-    curNode  = firstNode;
-    curIndex = curNode ? 0 : -1;
     return *this;
 }
 
@@ -332,7 +335,7 @@ bool QGList::insertAt( uint index, GCI d )
     if ( !nextNode )				// illegal position
 	return FALSE;
     QLNode *prevNode = nextNode->prev;
-    register QLNode *n = new QLNode( newItem( d ) );
+    register QLNode *n = new QLNode( newItem(d) );
     CHECK_PTR( n );
     nextNode->prev = n;
     prevNode->next = n;
@@ -436,7 +439,7 @@ bool QGList::removeNode( QLNode *n )
     deleteItem( n->getData() );			// deallocate this node
     delete n;
     curNode  = firstNode;
-    curIndex = 0;
+    curIndex = curNode ? 0 : -1;
     return TRUE;
 }
 
@@ -527,7 +530,7 @@ GCI QGList::takeNode( QLNode *n )
     GCI d = n->getData();
     delete n;					// delete the node, not data
     curNode  = firstNode;
-    curIndex = 0;
+    curIndex = curNode ? 0 : -1;
     return d;
 }
 
@@ -604,7 +607,8 @@ void QGList::clear()
 	delete prevNode;			// deallocate node
     }
     firstNode = lastNode = curNode = 0;		// initialize list
-    curIndex = numNodes = 0;
+    numNodes = 0;
+    curIndex = -1;
     if ( !iterators )				// no iterators for this list
 	return;
     register QGListIterator *i = (QGListIterator*)iterators->first();
@@ -677,7 +681,7 @@ int QGList::find( GCI d, bool fromStart )
   Counts the number an item occurs in the list.
  ----------------------------------------------------------------------------*/
 
-uint QGList::containsRef( GCI d )
+uint QGList::containsRef( GCI d ) const
 {
     register QLNode *n = firstNode;
     uint     count = 0;
@@ -694,7 +698,7 @@ uint QGList::containsRef( GCI d )
   Counts the number an item occurs in the list.  Uses compareItems().
  ----------------------------------------------------------------------------*/
 
-uint QGList::contains( GCI d )
+uint QGList::contains( GCI d ) const
 {
     register QLNode *n = firstNode;
     uint     count = 0;
@@ -870,7 +874,7 @@ QDataStream &QGList::read( QDataStream &s )	// read list from stream
 
 /*----------------------------------------------------------------------------
   \internal
-  Writes the list to the stream \s.
+  Writes the list to the stream \e s.
  ----------------------------------------------------------------------------*/
 
 QDataStream &QGList::write( QDataStream &s ) const
