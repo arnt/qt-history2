@@ -1,6 +1,7 @@
 #include "qtservice.h"
 #include <qapplication.h>
 #include <qwidget.h>
+#include <qmessagebox.h>
 
 class AService : public QtService
 {
@@ -15,14 +16,14 @@ protected:
     void quit();
     void pause();
     void resume();
-
-private:
-    bool running;
 };
 
 int AService::run( int argc, char **argv )
 {
     QApplication app( argc, argv );
+    for ( int i = 0; i < argc; i++ ) {
+	QMessageBox::information( 0, QString("arg %1").arg(i), argv[i] );
+    }
     QWidget widget;
     app.setMainWidget( &widget );
     widget.show();
@@ -49,40 +50,50 @@ void AService::resume()
 int main( int argc, char **argv )
 {
     AService service( QString("Qt Service ") + QT_VERSION_STR );
-
-    if ( argc > 1 ) {
-	QString a( argv[1] );
-	if ( a == "-i" || a == "-install" ) {
-	    if ( !service.isInstalled() ) {
-		if ( !service.install() )
-		    qDebug( "The service %s could not be installed", service.serviceName().latin1() );
+    if ( QApplication::winVersion() & Qt::WV_NT_based ) {
+	if ( argc > 1 ) {
+	    QString a( argv[1] );
+	    if ( a == "-i" || a == "-install" ) {
+		if ( !service.isInstalled() ) {
+		    if ( !service.install() )
+			qDebug( "The service %s could not be installed", service.serviceName().latin1() );
+		} else {
+		    qDebug( "The service %s is already installed", service.serviceName().latin1() );
+		}
+	    } else if ( a == "-u" || a == "-uninstall" ) {
+		if ( service.isInstalled() ) {
+		    if ( !service.uninstall() )
+			qDebug( "The service %s could not be uninstalled", service.serviceName().latin1() );
+		} else {
+		    qDebug( "The service %s is not installed", service.serviceName().latin1() );
+		}
+	    } else if ( a == "-v" || a == "-version" ) {
+		QString infostr = QString( "The service\n\t%1\n\t%2\n\nis %4 and %5" )
+				     .arg( service.serviceName() )
+				     .arg( service.filePath() )
+				     .arg( service.isInstalled() ? "installed" : "not installed" )
+				     .arg( service.isRunning() ? "running" : "not running" );
+		qDebug( infostr.latin1() );
+	    } else if ( a == "-l" || a == "-launch" ) {
+		service.launch( argc - 2, &argv[2] );
+	    } else if ( a == "-s" || a == "-stop" ) {
+		service.stop();
 	    } else {
-		qDebug( "The service %s is already installed", service.serviceName().latin1() );
+		qDebug( "<service> -[i|u|v]\n\n"
+			"\t-i(nstall)\t: Install the service\n"
+			"\t-u(ninstall)\t: Uninstall the service\n"
+			"\t-l(aunch)\t: Launch the service.\n"
+			"\t\t\t  If the service is not installed, start it as a regular program\n"
+			"\t-s(top)\t\t: Stop the service.\n"
+			"\t-v(ersion)\t: Print version and status information\n" );
 	    }
-	} else if ( a == "-u" || a == "-uninstall" ) {
-	    if ( service.isInstalled() ) {
-		if ( !service.uninstall() )
-		    qDebug( "The service %s could not be uninstalled", service.serviceName().latin1() );
-	    } else {
-		qDebug( "The service %s is not installed", service.serviceName().latin1() );
-	    }
-	} else if ( a == "-v" ) {
-	    QString infostr = QString( "The service\n\t%1\n\t%2\n\nis %4 and %5" )
-				 .arg( service.serviceName() )
-				 .arg( service.filePath() )
-				 .arg( service.isInstalled() ? "installed" : "not installed" )
-				 .arg( service.isRunning() ? "running" : "not running" );
-	    qDebug( infostr.latin1() );
 	} else {
-	    qDebug( "<service> -[i|u|v]\n\n"
-		    "\t-i: Install the service\n"
-		    "\t-u: Uninstall the service\n"
-		    "\t-v: Print version information\n" );
+	    if ( !service.start() )
+		qDebug( "The service %s could not start", service.serviceName().latin1() );
 	}
     } else {
-	if ( !service.start() )
-	    qDebug( "The service %s could not start", service.serviceName().latin1() );
+	service.launch( argc, argv );
     }
 
-    return service.isRunning();
+    return 0;
 }

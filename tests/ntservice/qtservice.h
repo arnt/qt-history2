@@ -17,6 +17,9 @@ public:
     virtual bool uninstall();
     virtual bool start();
 
+    void launch( int argc, char **argv );
+    void stop();
+
     QString serviceName() const;
     QString filePath() const;
 
@@ -38,8 +41,7 @@ protected:
 private:
     void setStatus ( DWORD dwState );
 
-    static void WINAPI serviceMainA( DWORD dwArgc, char** lpszArgv );
-    static void WINAPI serviceMainW( DWORD dwArgc, TCHAR** lpszArgv );
+    static void WINAPI serviceMain( DWORD dwArgc, TCHAR** lpszArgv );
     static void WINAPI handler( DWORD dwOpcode );
 
     QString servicename;

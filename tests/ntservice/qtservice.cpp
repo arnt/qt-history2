@@ -3,43 +3,13 @@
 
 static QtService *instance = 0;
 
-void WINAPI QtService::serviceMainA( DWORD dwArgc, char** lpszArgv )
+void WINAPI QtService::serviceMain( DWORD dwArgc, TCHAR** lpszArgv )
 {
     if ( !instance )
 	return;
 
     // Register the control request handler
-    instance->serviceStatus = RegisterServiceCtrlHandlerA( instance->servicename.local8Bit(), handler );
-
-    if ( instance->serviceStatus == NULL )
-	return;
-    
-    // Start the initialisation
-    instance->setStatus(SERVICE_START_PENDING);
-    if ( instance->initialize() ) {
-	instance->setStatus(SERVICE_RUNNING);
-	// Do the real work. 
-	instance->status.dwWin32ExitCode = NO_ERROR;
-	instance->status.dwCheckPoint = 0;
-	instance->status.dwWaitHint = 0;
-
-	int argc = dwArgc;
-	char **argv = lpszArgv;
-	instance->status.dwWin32ExitCode = instance->run( argc, argv );
-	// When the Run function returns, the service has stopped.
-    }
-    
-    // Tell the service manager we are stopped
-    instance->setStatus(SERVICE_STOPPED);
-}
-
-void WINAPI QtService::serviceMainW( DWORD dwArgc, TCHAR** lpszArgv )
-{
-    if ( !instance )
-	return;
-
-    // Register the control request handler
-    instance->serviceStatus = RegisterServiceCtrlHandlerW( (const TCHAR*)qt_winTchar( instance->servicename, TRUE ), handler );
+    instance->serviceStatus = RegisterServiceCtrlHandler( (const TCHAR*)qt_winTchar( instance->servicename, TRUE ), handler );
     if ( instance->serviceStatus == NULL )
 	return;
     
@@ -108,18 +78,10 @@ void WINAPI QtService::handler ( DWORD code )
 QtService::QtService( const QString &name, bool canPause )
 : servicename( name )
 {
-#if defined(UNICODE)
-    if ( QApplication::winVersion() & Qt::WV_NT_based ) {
-	TCHAR path[_MAX_PATH];
-	::GetModuleFileName( NULL, path, sizeof(path) );
-	filepath = qt_winQString( path );
-    } else
-#endif
-    {
-	char path[_MAX_PATH];
-	::GetModuleFileNameA( NULL, path, sizeof(path) );
-	filepath = path;
-    }
+    TCHAR path[_MAX_PATH];
+    ::GetModuleFileName( NULL, path, sizeof(path) );
+    filepath = qt_winQString( path );
+
     if ( filepath.contains( ' ' ) )
 	filepath = QString( "\"%1\"" ).arg( filepath );
 
@@ -150,34 +112,18 @@ QtService::~QtService()
 bool QtService::install()
 {
     // Open the Service Control Manager
-    SC_HANDLE hSCM = 0;
-    SC_HANDLE hService = 0;
-#if defined(UNICODE)
-    if ( QApplication::winVersion() & Qt::WV_NT_based )
-	hSCM = ::OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS );
-    else
-#endif
-	hSCM = ::OpenSCManagerA( NULL, NULL, SC_MANAGER_ALL_ACCESS );
-
+    SC_HANDLE hSCM = ::OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS );
     if (!hSCM) 
 	return FALSE;
-    
+
     // Create the service
-#if defined(UNICODE)
-    if ( QApplication::winVersion() & Qt::WV_NT_based ) {
-	TCHAR *name = (TCHAR*)qt_winTchar_new( servicename );
-	hService = ::CreateService( hSCM, name, name, 
-				    SERVICE_ALL_ACCESS, status.dwServiceType, 
-				    SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, 
-				    (TCHAR*)qt_winTchar( filepath, TRUE ),
-				    NULL, NULL, NULL, NULL, NULL);
-    } else
-#endif
-	 hService = ::CreateServiceA( hSCM, servicename.local8Bit(), servicename.local8Bit(),
-				      SERVICE_ALL_ACCESS, status.dwServiceType, 
-				      SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, 
-				      filepath.local8Bit(),
-				      NULL, NULL, NULL, NULL, NULL);
+    SC_HANDLE hService = 0;
+    TCHAR *name = (TCHAR*)qt_winTchar_new( servicename );
+    hService = ::CreateService( hSCM, name, name, 
+				SERVICE_ALL_ACCESS, status.dwServiceType, 
+				SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, 
+				(TCHAR*)qt_winTchar( filepath, TRUE ),
+				NULL, NULL, NULL, NULL, NULL);
 
     if (!hService) {
 	::CloseServiceHandle(hSCM);
@@ -193,33 +139,22 @@ bool QtService::install()
 
 bool QtService::uninstall()
 {
-    // Open the Service Control Manager
-    SC_HANDLE hSCM = 0;
-    SC_HANDLE hService = 0;
-#if defined(UNICODE)
-    if ( QApplication::winVersion() & Qt::WV_NT_based )
-	hSCM = ::OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS );
-    else
-#endif
-	hSCM = ::OpenSCManagerA( NULL, NULL, SC_MANAGER_ALL_ACCESS );
-
-    if (!hSCM) 
-	return FALSE;
-    
     bool result = FALSE;
-#if defined(UNICODE)
-    if ( QApplication::winVersion() & Qt::WV_NT_based )
-	hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( servicename, TRUE ), DELETE );
-    else
-#endif
-	hService = ::OpenServiceA( hSCM, servicename.local8Bit(), DELETE );
+
+    // Open the Service Control Manager
+    SC_HANDLE hSCM = ::OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS );
+    if (!hSCM) 
+	return result;
+
+    // Try to open the service
+    SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( servicename, TRUE ), DELETE );
 
     if ( hService ) {
 	if ( ::DeleteService(hService) )
 	    result = TRUE;
 	::CloseServiceHandle(hService);
     }
-    
+
     ::CloseServiceHandle (hSCM);
     if ( result )
 	reportEvent( "Service uninstalled" );
@@ -231,30 +166,18 @@ bool QtService::isInstalled() const
     bool result = FALSE;
     
     // Open the Service Control Manager
-    SC_HANDLE hSCM = 0;
-    SC_HANDLE hService = 0;
-#if defined(UNICODE)
-    if ( QApplication::winVersion() & Qt::WV_NT_based )
-	hSCM = ::OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS );
-    else
-#endif
-	hSCM = ::OpenSCManagerA( NULL, NULL, SC_MANAGER_ALL_ACCESS );
+    SC_HANDLE hSCM = ::OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS );
+    if ( !hSCM )
+	return result;
 
-    if (hSCM) {
-	// Try to open the service
-#if defined(UNICODE)
-	if ( QApplication::winVersion() & Qt::WV_NT_based )
-	    hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( servicename, TRUE ), SERVICE_QUERY_CONFIG );
-	else
-#endif
-	    hService = ::OpenServiceA( hSCM, servicename.local8Bit(), SERVICE_QUERY_CONFIG );
+    // Try to open the service
+    SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( servicename, TRUE ), SERVICE_QUERY_CONFIG );
 
-	if (hService) {
-	    result = TRUE;
-	    ::CloseServiceHandle(hService);
-	}
-	::CloseServiceHandle(hSCM);
+    if (hService) {
+	result = TRUE;
+	::CloseServiceHandle(hService);
     }
+    ::CloseServiceHandle(hSCM);
     
     return result;
 }
@@ -264,34 +187,22 @@ bool QtService::isRunning() const
     bool result = FALSE;
     
     // Open the Service Control Manager
-    SC_HANDLE hSCM = 0;
-    SC_HANDLE hService = 0;
-#if defined(UNICODE)
-    if ( QApplication::winVersion() & Qt::WV_NT_based )
-	hSCM = ::OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS );
-    else
-#endif
-	hSCM = ::OpenSCManagerA( NULL, NULL, SC_MANAGER_ALL_ACCESS );
+    SC_HANDLE hSCM = ::OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS );
+    if ( !hSCM )
+	return result;
 
-    if (hSCM) {
-	// Try to open the service
-#if defined(UNICODE)
-	if ( QApplication::winVersion() & Qt::WV_NT_based )
-	    hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( servicename, TRUE ), SERVICE_QUERY_STATUS );
-	else
-#endif
-	    hService = ::OpenServiceA( hSCM, servicename.local8Bit(), SERVICE_QUERY_STATUS );
+    // Try to open the service
+    SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( servicename, TRUE ), SERVICE_QUERY_STATUS );
 
-	if (hService) {
-	    SERVICE_STATUS info;
-	    int res = QueryServiceStatus( hService, &info );
-	    if ( res )
-		result = info.dwCurrentState == SERVICE_RUNNING;
+    if (hService) {
+	SERVICE_STATUS info;
+	int res = QueryServiceStatus( hService, &info );
+	if ( res )
+	    result = info.dwCurrentState == SERVICE_RUNNING;
 
-	    ::CloseServiceHandle(hService);
-	}
-	::CloseServiceHandle(hSCM);
+	::CloseServiceHandle(hService);
     }
+    ::CloseServiceHandle(hSCM);
 
     return result;
 }
@@ -308,32 +219,54 @@ bool QtService::start()
 	return FALSE;
 
     bool res = FALSE;
-#if defined(UNICODE)
-    if ( QApplication::winVersion() & Qt::WV_NT_based ) {
-	SERVICE_TABLE_ENTRY st [2];
-	TCHAR *sname = (TCHAR*)qt_winTchar_new( servicename );
-	st[0].lpServiceName = sname;
-	st[0].lpServiceProc = QtService::serviceMainW;
-	st[1].lpServiceName = NULL;
-	st[1].lpServiceProc = NULL;
+    SERVICE_TABLE_ENTRY st [2];
+    TCHAR *sname = (TCHAR*)qt_winTchar_new( servicename );
+    st[0].lpServiceName = sname;
+    st[0].lpServiceProc = QtService::serviceMain;
+    st[1].lpServiceName = NULL;
+    st[1].lpServiceProc = NULL;
 
-	res = ::StartServiceCtrlDispatcher(st);
-    } else
-#endif
-    {
-	SERVICE_TABLE_ENTRYA st [2];
-	char *sname = new char[ servicename.length() + 1 ];
-	strcpy( sname, servicename );
-	st[0].lpServiceName = sname;
-	st[0].lpServiceProc = QtService::serviceMainA;
-	st[1].lpServiceName = NULL;
-	st[1].lpServiceProc = NULL;
-
-	res = ::StartServiceCtrlDispatcherA(st);
-    }
+    res = ::StartServiceCtrlDispatcher(st);
     if ( !res )
 	reportEvent( "The Service failed to start", Error );
     return res;
+}
+
+void QtService::launch( int argc, char **argv )
+{
+    if ( isInstalled() ) {
+	SC_HANDLE hSCM = ::OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS );
+	if ( !hSCM )
+	    return;
+
+	SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( servicename, TRUE ), SERVICE_START );
+	if ( hService ) {
+	    DWORD dwArgc = argc;
+	    TCHAR **lpArgs = new TCHAR*[ dwArgc ];
+	    for ( int i = 0; i < argc; i++ )
+		lpArgs[i] = (TCHAR*)qt_winTchar_new( argv[i] );
+	    StartService( hService, dwArgc, (const TCHAR**)lpArgs );
+	}
+    } else {
+	run( argc, argv );
+    }
+}
+
+void QtService::stop()
+{
+    if ( !isRunning() )
+	return;
+
+    SC_HANDLE hSCM = ::OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS );
+    if ( !hSCM )
+	return;
+
+    SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( servicename, TRUE ), SERVICE_STOP );
+
+    if ( hService ) {
+	SERVICE_STATUS status;
+	ControlService( hService, SERVICE_CONTROL_STOP, &status );
+    }
 }
 
 bool QtService::initialize()
@@ -386,22 +319,11 @@ void QtService::reportEvent( const QString &message, EventType type, uint catego
 	break;
     }
 
-#if defined(UNICODE)
-    if ( QApplication::winVersion() & Qt::WV_NT_based ) {
-	h = RegisterEventSource( NULL, (TCHAR*)qt_winTchar( servicename, TRUE ) );
-	if ( !h )
-	    return;
-	const TCHAR* msg = (TCHAR*)qt_winTchar( message, TRUE );
-	ReportEvent( h, wType, category, dwEventID, NULL, 1, 0, (const TCHAR**)&msg, NULL );
-    } else
-#endif
-    {
-	h = RegisterEventSourceA( NULL, servicename.local8Bit() );
-	if ( !h )
-	    return;
-	const char* msg = message.local8Bit();
-	ReportEventA( h, wType, category, dwEventID, NULL, 1, 0, (const char**)&msg, NULL );
-    }
+    h = RegisterEventSource( NULL, (TCHAR*)qt_winTchar( servicename, TRUE ) );
+    if ( !h )
+	return;
+    const TCHAR* msg = (TCHAR*)qt_winTchar( message, TRUE );
+    ReportEvent( h, wType, category, dwEventID, NULL, 1, 0, (const TCHAR**)&msg, NULL );
 
     DeregisterEventSource( h );
 }
