@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qxml.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qxml.cpp#3 $
 **
 ** Implementation of QXML classes
 **
@@ -276,6 +276,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   // Remember the consumer
   d->consumer = consumer;
 
+  int errline = 1;
   int len = text.length();
   int pos = 0;
   int start = 0;
@@ -290,7 +291,8 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   int include_counter = 0;
   int ignore_counter = 0;
   Type type;
-
+  int i;
+  
  Node1: // accepts
   if ( pos == len )
     goto Ok;
@@ -1678,7 +1680,11 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
       return pos;
   return -1;
  Failed:
+  for( i = 0; i < pos; ++i )
+      if ( text[i] == '\n' )
+	  errline++;
+  
   if ( consumer )
-    consumer->parseError( pos );
+    consumer->parseError( pos, errline );
   return pos;
 }

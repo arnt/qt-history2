@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qxml.h#1 $
+** $Id: //depot/qt/main/src/kernel/qxml.h#2 $
 **
 ** Definition of QXML classes
 *
@@ -49,7 +49,7 @@ public:
   virtual bool entity( const QString& name, const QString& publicId, const QString& systemId, const QString& ndata ) = 0;
   virtual bool entity( const QString& name, const QString& value ) = 0;
   virtual bool notation( const QString& name, const QString& publicId, const QString& systemId ) = 0;
-  virtual void parseError( int pos ) = 0;
+  virtual void parseError( int pos, int line ) = 0;
   virtual bool finished() = 0;
 };
 

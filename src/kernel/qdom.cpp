@@ -38,7 +38,7 @@ public:
   virtual bool entity( const QString& name, const QString& publicId, const QString& systemId, const QString& ndata );
   virtual bool entity( const QString& name, const QString& value );
   virtual bool notation( const QString& name, const QString& publicId, const QString& systemId );
-  virtual void parseError( int pos );
+  virtual void parseError( int pos, int line );
   virtual bool finished();
 
 private:
@@ -3849,9 +3849,9 @@ bool QDomConsumer::notation( const QString& name, const QString& publicId, const
   return TRUE;
 }
 
-void QDomConsumer::parseError( int )
+void QDomConsumer::parseError( int pos, int line )
 {
-  // TODO
+    qDebug("QDom: Parsing error at line %i, total position %i.", line, pos );
 }
 
 bool QDomConsumer::finished()
