@@ -22,6 +22,7 @@ QMAKE_CONFIG=""
 QWS_QVFB=prompted
 QWS_DEPTHS=prompted
 HELP=
+GPLUSPLUS_EXCEPTIONS=unspecified
 #platform
 X11_PLATFORM=no
 MAC_PLATFORM=no
@@ -454,6 +455,12 @@ do
    -profile)
 	QMAKE_VARS="$QMAKE_VARS QMAKE_CFLAGS+=-pg QMAKE_CXXFLAGS+=-pg"
 	QMAKE_VARS="$QMAKE_VARS QMAKE_LFLAGS+=-pg"
+	;;
+   -no-g++-exceptions)
+	GPLUSPLUS_EXCEPTIONS=no
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=-fno-exceptions\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fno-exceptions\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=-fno-exceptions\""
 	;;
    -platform)
 	shift; PLATFORM=$1
@@ -1019,6 +1026,9 @@ Installation options:
 
     -profile ........... Enable profiling with gprof (adds -pg options)
 
+    -no-g++-exceptions . Disable exceptions on platforms using the GNU C++
+			 compiler by using the -fno-exceptions flag.
+
     -platform target ... The platform you are building on ($PLATFORM).
     -xplatform target .. The target platform when cross-compiling.
 
@@ -1448,6 +1458,31 @@ fi
 
 ##
 # Give feedback...
+
+# Check if we are using gcc/g++
+COMPILER=`echo $PLATFORM | cut -f 2- -d-`
+if [ "$COMPILER" = "g++" ]
+then
+    if [ "$GPLUSPLUS_EXCEPTIONS" != "no" ]
+    then
+	cat <<EOF
+
+        This target is using the GNU C++ compiler ($PLATFORM).
+
+        Recent versions of this compiler automatically include
+        code for exceptions, which increase both the size of
+        the Qt library and the amount of memory taken by your
+        applications.
+
+        You may elect to re-run $0 with the -no-g++-exceptions
+        option to compile Qt without exceptions.  This is
+        completely binary compatible, and existing
+        applications should continue to work.
+
+EOF
+    fi
+fi
+
 echo
 if [ "$XPLATFORM" = "$PLATFORM" ]
 then
