@@ -2610,6 +2610,7 @@ void QListView::init()
     d->startEdit = TRUE;
     d->ignoreEditAfterFocus = FALSE;
     d->inMenuMode = FALSE;
+    d->pressedSelected = FALSE;
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
