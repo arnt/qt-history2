@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#8 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#8 $";
 #endif
 
 
@@ -283,8 +283,10 @@ int QMenuBar::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
 	return -1;
     int i = 0;
     while ( i < mitems->count() ) {
-	if ( irects[i].contains( pos ) )
-	    return i;
+	if ( irects[i].contains( pos ) ) {
+	    QMenuItem *mi = mitems->at(i);
+	    return mi->isDisabled() || mi->isSeparator() ? -1 : i;
+	}
 	++i;
     }
     return -1;					// no match
@@ -298,6 +300,7 @@ int QMenuBar::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
 void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 {
     QPainter paint;
+    QPixMap *pm = 0;
     register QPainter *p = &paint;
     QFontMetrics fm( font() );
     QSize sz = clientSize();
@@ -312,23 +315,35 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
     for ( int i=0; i<mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
 	QRect r = irects[i];
+	if ( mi->isDisabled() ) {
+	    pm = new QPixMap( r.width(), r.height() );
+	    p->end();
+	    p->begin( pm );
+	    r = QRect( 0, 0, r.width(), r.height() );
+	    p->setBackgroundColor( backgroundColor() );
+	    p->eraseRect( r );
+	}
 	if ( i == actItem )			// active item frame
 	    p->drawShadePanel( r, lightColor, darkColor,
 			       motifItemFrame, motifItemFrame );
 	else					// incognito frame
 	    p->drawShadePanel( r, normalColor, normalColor,
 			       motifItemFrame, motifItemFrame );
-	if ( mi->bitmap() ) {
+	if ( mi->bitmap() )
 	    p->drawPixMap( r.left() + motifItemFrame,
 			   r.top() + motifItemFrame,
 			   *mi->bitmap() );
-	}
-	else if ( mi->string() ) {
-	    int bo = fm.descent() + motifItemVMargin/2;
-	    int w = fm.width( mi->string() );
-	    p->drawText( r.left() + r.width()/2 - fm.width(mi->string())/2,
-			 r.bottom() - bo,
+	else if ( mi->string() )
+	    p->drawText( r, AlignCenter | AlignVCenter | ShowPrefix | DontClip,
 			 mi->string() );
+	if ( mi->isDisabled() ) {
+	    p->setPen( QPen(NoPen) );
+	    p->setBrush( QBrush(backgroundColor(),Pix1Pattern) );
+	    p->drawRect( r );
+	    p->end();
+	    p->begin( this );
+	    p->drawPixMap( irects[i].topLeft(), *pm );
+	    delete pm;
 	}
     }
     p->end();
