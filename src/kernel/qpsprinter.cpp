@@ -750,8 +750,16 @@ static const char * const ps_header[] = {
 "/QP {",                                // show page
 "    C restore",
 "    showpage",
-
 "} D",
+
+// merges one key value pair into the page device dict
+"/SPD {", // key value
+"    /setpagedevice where {"
+"        1 dict dup begin 3 1 roll def end"
+"        setpagedevice"
+"    } { pop pop } ifelse"
+"} D",
+
 0 };
 
 
@@ -5861,10 +5869,7 @@ void QPSPrinterPrivate::emitHeader( bool finished )
         outStream << "\n%%Pages: (atend)"
                << "\n%%DocumentFonts: (atend)";
     outStream << "\n%%EndComments\n";
-
-    if ( printer->numCopies() > 1 )
-        outStream << "/#copies " << printer->numCopies() << " def\n";
-
+    
     if ( !fixed_ps_header )
         makeFixedStrings();
 
@@ -5896,6 +5901,11 @@ void QPSPrinterPrivate::emitHeader( bool finished )
 
 
     outStream << "%%BeginSetup\n";
+    if ( printer->numCopies() > 1 ) {
+	outStream << "/#copies " << printer->numCopies() << " def\n";
+	outStream << "/NumCopies " << printer->numCopies() << " SPD\n";
+	outStream << "/Collate " << (printer->collateCopiesEnabled() ? "true" : "false") << " SPD\n";
+    }
     if ( fontBuffer->buffer().size() ) {
         if ( pageCount == 1 || finished )
             outStream << "% Fonts and encodings used\n";
