@@ -333,7 +333,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	    global = func[3].find('g') != -1;
 	    case_sense = func[3].find('i') == -1;
 	}
-	QRegExp regexp(QRegExp::escape(func[1]), case_sense);
+	QRegExp regexp(func[1], case_sense);
 	for(QStringList::Iterator varit = varlist.begin();
 	    varit != varlist.end(); ++varit) {
 	    if((*varit).contains(regexp)) {
