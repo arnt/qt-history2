@@ -449,6 +449,7 @@ QMotifDialog::~QMotifDialog()
     // make sure we don't have any pending requests for the window we
     // are about to destroy
     XSync(x11Info()->display(), FALSE);
+    XSync(QMotif::x11Display(), FALSE);
     destroy( FALSE );
 }
 
