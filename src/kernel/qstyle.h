@@ -472,6 +472,7 @@ public:
 	PM_DialogButtonsButtonHeight,
 	
 	PM_MDIFrameWidth,
+	PM_MDIMinimizedWidth,
 
 	// do not add any values below/greater than this
 	PM_CustomBase =		0xf0000000

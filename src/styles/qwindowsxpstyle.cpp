@@ -1950,6 +1950,9 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 	}
 	break;
 
+    case PM_MDIMinimizedWidth:
+	return 160;
+
     default:
 	break;
     }

@@ -2492,11 +2492,12 @@ QWidget* QWorkspaceChild::iconWidget() const
 	QVBox* vbox = new QVBox(that, "qt_vbox", WType_TopLevel );
 	QTitleBar *tb = new QTitleBar( windowWidget(), vbox, "_workspacechild_icon_");
 	int th = style().pixelMetric( QStyle::PM_TitleBarHeight, tb );
+	int iconSize = style().pixelMetric( QStyle::PM_MDIMinimizedWidth, this );
 	if ( !style().styleHint( QStyle::SH_TitleBar_NoBorder ) ) {
 	    vbox->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	    vbox->resize( 196+2*vbox->frameWidth(), th+2*vbox->frameWidth() );
+	    vbox->resize( iconSize+2*vbox->frameWidth(), th+2*vbox->frameWidth() );
 	} else {
-	    vbox->resize( 196, th );
+	    vbox->resize( iconSize, th );
 	}
 	that->iconw = tb;
 	iconw->setActive( isActive() );

@@ -2191,6 +2191,11 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_MDIFrameWidth:
 	ret = 2;
 	break;
+
+    case PM_MDIMinimizedWidth:
+	ret = 196;
+	break;
+
 #ifndef QT_NO_SCROLLBAR
     case PM_ScrollBarExtent:
 	if ( !widget ) {
