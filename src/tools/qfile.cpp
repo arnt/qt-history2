@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#80 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#81 $
 **
 ** Implementation of QFile class
 **
@@ -1006,7 +1006,6 @@ int QFile::handle() const
 	return fd;
 }
 
-#ifdef UNIX
 static
 QCString locale_encoder( const QString &fileName )
 {
@@ -1021,7 +1020,8 @@ static QFile::EncoderFn encoder = locale_encoder;
   are converted to an 8-bit encoding.  If you want to do your own
   file I/O on Unix, you should convert the filename using this
   function.  On Windows NT, Unicode filenames are supported directly
-  in the filesystem and this function is not necessary or available.
+  in the filesystem and this function should be avoided. On Windows 95,
+  non-Latin1 locales are not supported at this time.
 
   By default, this function converts to the local 8-bit encoding
   determined by the user's locale.  This is sufficient for
@@ -1079,4 +1079,3 @@ void QFile::setDecodingFunction( DecoderFn f )
 {
     decoder = f;
 }
-#endif
