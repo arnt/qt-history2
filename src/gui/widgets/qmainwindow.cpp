@@ -701,6 +701,30 @@ bool QMainWindow::event(QEvent *event)
 */
 void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
+    // only show the context menu for direct QDockWidget and QToolBar
+    // children
+    QWidget *child = childAt(event->pos());
+    while (child && child != this) {
+        if (QDockWidget *dw = qobject_cast<QDockWidget *>(child)) {
+            if (dw->parentWidget() != this)
+                return;
+            if (dw->widget()
+                && dw->widget()->geometry().contains(child->mapFrom(this, event->pos()))) {
+                // ignore the event if the mouse is over the QDockWidget contents
+                return;
+            }
+            break;
+        }
+        if (QToolBar *tb = qobject_cast<QToolBar *>(child)) {
+            if (tb->parentWidget() != this)
+                return;
+            break;
+        }
+        child = child->parentWidget();
+    }
+    if (child == this)
+        return;
+
     QMenu *popup = createPopupMenu();
     if (!popup)
 	return;
@@ -724,13 +748,15 @@ QMenu *QMainWindow::createPopupMenu()
     if (toolbars.size() || dockwidgets.size()) {
         menu = new QMenu(this);
         if (!dockwidgets.isEmpty()) {
-        for (int i = 0; i < dockwidgets.size(); ++i)
-            menu->addAction(dockwidgets.at(i)->toggleViewAction());
+            for (int i = 0; i < dockwidgets.size(); ++i)
+                if (dockwidgets.at(i)->parentWidget() == this)
+                    menu->addAction(dockwidgets.at(i)->toggleViewAction());
             menu->addSeparator();
         }
         if (!toolbars.isEmpty()) {
             for (int i = 0; i < toolbars.size(); ++i)
-                menu->addAction(toolbars.at(i)->toggleViewAction());
+                if (toolbars.at(i)->parentWidget() == this)
+                    menu->addAction(toolbars.at(i)->toggleViewAction());
         }
     }
     return menu;
