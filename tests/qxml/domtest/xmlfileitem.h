@@ -12,6 +12,9 @@ public:
 	    QTextView*, QTextView*, DomTree* );
     virtual ~XMLFileItem();
 
+    void showToString();
+
+public:
     QTextView *source;
     QTextView *toString;
     DomTree *tree;

@@ -12,4 +12,15 @@ XMLFileItem::XMLFileItem( QListView *lv,
 
 XMLFileItem::~XMLFileItem()
 {
+    delete toString;
+}
+
+void XMLFileItem::showToString()
+{
+    delete toString;
+    QTextView* toString = new QTextView();
+    toString->setTextFormat( PlainText );
+    toString->setText( tree->domDocument()->toString() );
+    toString->setCaption( "To String for " + text(1) );
+    toString->show();
 }

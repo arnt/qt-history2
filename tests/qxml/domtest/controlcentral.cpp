@@ -76,10 +76,12 @@ void ControlCentral::parse( const QString& filename )
     src->setText( ts.read() );
     src->setCaption( "Source for " + filename );
 
+#if 0
     QTextView* toStr = new QTextView();
     toStr->setTextFormat( PlainText );
     toStr->setText( doc.toString() );
     toStr->setCaption( "To String for " + filename );
+#endif
 
 #if 0
     QLabel *err = new QLabel( "", 0 );
@@ -98,7 +100,7 @@ void ControlCentral::parse( const QString& filename )
     }
 
     new XMLFileItem( lview, filename, errorStatus, time,
-	    src, toStr, tree );
+	    src, 0, tree );
 
     file.close();
 }
@@ -132,7 +134,7 @@ void ControlCentral::showToString()
 {
     XMLFileItem *fi = (XMLFileItem*)( lview->selectedItem() );
     if ( fi != 0 ) {
-	fi->toString->show();
+	fi->showToString();
     }
 }
 

@@ -14,6 +14,8 @@ public:
     DomTree( const QString &fileName, QWidget *parent = 0, const char *name = 0 );
     ~DomTree();
 
+    QDomDocument *domDocument() { return domTree; }
+
 private slots:
     void selectionChanged( QListViewItem *it );
     void withNSProc();
