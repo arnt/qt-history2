@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#230 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#231 $
 **
 ** Implementation of QApplication class
 **
@@ -1675,15 +1675,12 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    QResizeEvent e(newsize, oldsize);
 	    sendEvent( receiver, &e );
 	} else if ( event_type == QEvent::Paint ) {
-	    if (! erasePaintRegion.isEmpty() ) {
-		QPaintEvent e( erasePaintRegion, TRUE );
-		if ( receiver->isWidgetType() )
-		    ((QWidget*)receiver)->erase(erasePaintRegion);
-		sendEvent( receiver, &e );
-	    }
-	    if (! paintRegion.isEmpty() ) {
-		QPaintEvent e( paintRegion, FALSE );
-		sendEvent( receiver, &e );
+	    if ( receiver->isWidgetType() ) {
+		QWidget* w = (QWidget*)receiver;
+		if ( !erasePaintRegion.isEmpty() )
+		    w->repaint( erasePaintRegion, TRUE );
+		if ( !paintRegion.isEmpty() )
+		    w->repaint( paintRegion, FALSE );
 	    }
 	}
     }
