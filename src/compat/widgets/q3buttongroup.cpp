@@ -448,6 +448,8 @@ bool Q3ButtonGroup::event(QEvent * e)
     \brief The Q3VButtonGroup widget organizes button widgets in a
     vertical column.
 
+    \compat
+
     Q3VButtonGroup is a convenience class that offers a thin layer on top
     of Q3ButtonGroup. Think of it as a QVBoxWidget that offers a frame with a
     title and is specifically designed for buttons.

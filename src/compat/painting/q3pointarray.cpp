@@ -16,6 +16,20 @@
 #include "private/qpainterpath_p.h"
 
 /*!
+    \class Q3PointArray
+    The Q3PointArray class provides an array of points.
+
+    \compat
+
+    Q3PointArray is a QPolygon subclass that provides functions
+    to make it more source compatible with the \c QPointArray class
+    in Qt 3.
+
+    In Qt 4, we recommend that you use QPainterPath for representing
+    arcs, ellipses, and Bezier curves, rather than QPolygon.
+*/
+
+/*!
     Sets the points of the array to those describing an arc of an
     ellipse with size, width \a w by height \a h, and position (\a x,
     \a y), starting from angle \a a1 and spanning by angle \a a2. The
@@ -27,8 +41,6 @@
     equals 5760 (16*360). Positive values mean counter-clockwise,
     whereas negative values mean the clockwise direction. Zero degrees
     is at the 3 o'clock position.
-
-    See the \link qcanvas.html#anglediagram angle diagram\endlink.
 */
 #ifndef QT_NO_WMATRIX
 void Q3PointArray::makeArc(int x, int y, int w, int h, int a1, int a2)
@@ -57,8 +69,6 @@ void Q3PointArray::makeArc(int x, int y, int w, int h, int a1, int a2)
     equals 5760 (16 * 360). Positive values mean counter-clockwise,
     whereas negative values mean the clockwise direction. Zero
     degrees is at the 3 o'clock position.
-
-    \sa \link qcanvas.html#anglediagram angle diagram\endlink
 */
 void Q3PointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QMatrix &xf)
 {

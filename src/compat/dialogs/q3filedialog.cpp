@@ -6269,8 +6269,6 @@ void Q3FileDialog::goBack()
   See also Q3FileDialog::setPreviewMode(), Q3FileDialog::setContentsPreview(),
   Q3FileDialog::setInfoPreview(), Q3FileDialog::setInfoPreviewEnabled(),
   Q3FileDialog::setContentsPreviewEnabled().
-
-  For an example of a preview widget see qt/examples/qdir/qdir.cpp.
 */
 
 /*!
