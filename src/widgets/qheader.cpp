@@ -898,6 +898,8 @@ int QHeader::offset() const
 /*!
   Translates from actual index \a a to logical index.  Returns -1 if
   \a a is outside the legal range.
+
+  \sa mapToActual()
 */
 
 int QHeader::mapToLogical( int a ) const
@@ -909,6 +911,8 @@ int QHeader::mapToLogical( int a ) const
 /*!
   Translates from logical index \a l to actual index.  Returns -1 if
   \a l is outside the legal range.
+
+  \sa mapToLogical()
 */
 
 int QHeader::mapToActual( int l ) const
