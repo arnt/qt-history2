@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#41 $
 **
 ** Implementation of layout classes
 **
@@ -80,7 +80,7 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 }
 
 /*!
-  \fn const char *QLayout::name() const
+  \fn QString QLayout::name() const
 
   Returns the internal object name.
 */

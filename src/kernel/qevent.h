@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#57 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#58 $
 **
 ** Definition of event classes
 **
@@ -294,9 +294,9 @@ public:
     void   accept( const QRect & r) { accpt = TRUE; rect = r; }
     void   ignore( const QRect & r) { accpt =FALSE; rect = r; }
     QRect  answerRect() const { return rect; }
-    const char * format( int n = 0 );
-    bool provides( const char * );
-    QByteArray data( const char * );
+    QString format( int n = 0 );
+    bool provides( QString );
+    QByteArray data( QString );
 protected:
     QDragMoveEvent( const QPoint& pos, int type )
 	: QEvent(type), p(pos), accpt(FALSE), d(0),
@@ -343,7 +343,7 @@ public:
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
-    QByteArray data( const char * );
+    QByteArray data( QString );
 protected:
     QPoint p;
     bool   accpt;

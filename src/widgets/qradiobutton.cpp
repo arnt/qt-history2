@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#79 $
 **
 ** Implementation of QRadioButton class
 **
@@ -84,7 +84,7 @@ QRadioButton::QRadioButton( QWidget *parent, const char *name )
   The \e parent and \e name arguments are sent to the QWidget constructor.
 */
 
-QRadioButton::QRadioButton( const char *text, QWidget *parent,
+QRadioButton::QRadioButton( QString text, QWidget *parent,
 			    const char *name )
 	: QButton( parent, name, WResizeNoErase )
 {

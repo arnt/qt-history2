@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#67 $
 **
 ** Implementation of QMenuData class
 **
@@ -171,7 +171,7 @@ uint QMenuData::count() const
   functions.
 */
 
-int QMenuData::insertAny( const char *text, const QPixmap *pixmap,
+int QMenuData::insertAny( QString text, const QPixmap *pixmap,
 			  QPopupMenu *popup, int id, int index )
 {
     if ( index > (int)mitems->count() ) {
@@ -291,8 +291,8 @@ void QMenuData::setAllDirty( bool dirty )
   qkeycode.h
 */
 
-int QMenuData::insertItem( const char *text,
-			   const QObject *receiver, const char *member,
+int QMenuData::insertItem( QString text,
+			   const QObject *receiver, QString member,
 			   int accel )
 {
     int id = insertAny( text, 0, 0, -2, -1 );
@@ -317,7 +317,7 @@ int QMenuData::insertItem( const char *text,
 */
 
 int QMenuData::insertItem( const QPixmap &pixmap,
-			   const QObject *receiver, const char *member,
+			   const QObject *receiver, QString member,
 			   int accel )
 {
     int id = insertAny( 0, &pixmap, 0, -2, -1 );
@@ -342,8 +342,8 @@ int QMenuData::insertItem( const QPixmap &pixmap,
   qkeycode.h
 */
 
-int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
-			   const QObject *receiver, const char *member,
+int QMenuData::insertItem( const QPixmap &pixmap, QString text,
+			   const QObject *receiver, QString member,
 			   int accel )
 {
     int id = insertAny( text, &pixmap, 0, -2, -1 );
@@ -379,8 +379,8 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
   qkeycode.h
 */
 
-int QMenuData::insertItem( const char *text,
-			   const QObject *receiver, const char *member,
+int QMenuData::insertItem( QString text,
+			   const QObject *receiver, QString member,
 			   int accel, int id, int index )
 {
     int actualID = insertAny( text, 0, 0, id, index );
@@ -417,7 +417,7 @@ int QMenuData::insertItem( const char *text,
 */
 
 int QMenuData::insertItem( const QPixmap &pixmap,
-			   const QObject *receiver, const char *member,
+			   const QObject *receiver, QString member,
 			   int accel, int id, int index )
 {
     int actualID = insertAny( 0, &pixmap, 0, id, index );
@@ -453,8 +453,8 @@ int QMenuData::insertItem( const QPixmap &pixmap,
   qkeycode.h
 */
 
-int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
-			   const QObject *receiver, const char *member,
+int QMenuData::insertItem( const QPixmap &pixmap, QString text,
+			   const QObject *receiver, QString member,
 			   int accel, int id, int index )
 {
     int actualID = insertAny( text, &pixmap, 0, id, index );
@@ -484,7 +484,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem( const char *text, int id, int index )
+int QMenuData::insertItem( QString text, int id, int index )
 {
     return insertAny( text, 0, 0, id, index );
 }
@@ -515,7 +515,7 @@ int QMenuData::insertItem( const char *text, int id, int index )
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem( const char *text, QPopupMenu *popup,
+int QMenuData::insertItem( QString text, QPopupMenu *popup,
 			   int id, int index )
 {
     return insertAny( text, 0, popup, id, index );
@@ -599,7 +599,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
+int QMenuData::insertItem( const QPixmap &pixmap, QString text,
 			   int id, int index )
 {
     return insertAny( text, &pixmap, 0, id, index );
@@ -631,7 +631,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
+int QMenuData::insertItem( const QPixmap &pixmap, QString text,
 			   QPopupMenu *popup, int id, int index )
 {
     return insertAny( text, &pixmap, popup, id, index );
@@ -763,10 +763,10 @@ void QMenuData::setAccel( int key, int id )
   \sa changeItem(), pixmap()
 */
 
-const char *QMenuData::text( int id ) const
+QString QMenuData::text( int id ) const
 {
     QMenuItem *mi = findItem( id );
-    return mi ? mi->text() : 0;
+    return mi ? mi->text() : QString::null;
 }
 
 /*!
@@ -786,7 +786,7 @@ QPixmap *QMenuData::pixmap( int id ) const
   \sa text()
 */
 
-void QMenuData::changeItem( const char *text, int id )
+void QMenuData::changeItem( QString text, int id )
 {
     QMenuData *parent;
     QMenuItem *mi = findItem( id, &parent );
@@ -834,7 +834,7 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
   \sa pixmap()
 */
 
-void QMenuData::changeItem( const QPixmap &pixmap, const char *text, int id )
+void QMenuData::changeItem( const QPixmap &pixmap, QString text, int id )
 {
     QMenuData *parent;
     QMenuItem *mi = findItem( id, &parent );
@@ -1022,7 +1022,7 @@ void QMenuData::setId( int index, int id )
 */
 
 bool QMenuData::connectItem( int id, const QObject *receiver,
-			     const char *member )
+			     QString member )
 {
     QMenuItem *mi = findItem( id );
     if ( !mi )					// no such identifier
@@ -1041,7 +1041,7 @@ bool QMenuData::connectItem( int id, const QObject *receiver,
 */
 
 bool QMenuData::disconnectItem( int id, const QObject *receiver,
-				const char *member )
+				QString member )
 {
     QMenuItem *mi = findItem( id );
     if ( !mi || !mi->signal_data )		// no identifier or no signal

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#51 $
 **
 ** Implementation of QPicture class
 **
@@ -98,7 +98,7 @@ static const UINT16 mfhdr_min = 0;		// minor version #
 */
 
 /*!
-  \fn const char *QPicture::data() const
+  \fn QString QPicture::data() const
   Returns a pointer to the picture data.  The returned pointer is null
   if the picture contains no data.
   \sa size(), isNull()
@@ -110,7 +110,7 @@ static const UINT16 mfhdr_min = 0;		// minor version #
   \sa data(), size()
 */
 
-void QPicture::setData( const char *data, uint size )
+void QPicture::setData( QString data, uint size )
 {
     QByteArray a( size );
     memcpy( a.data(), data, size );
@@ -126,7 +126,7 @@ void QPicture::setData( const char *data, uint size )
   \sa save()
 */
 
-bool QPicture::load( const char *fileName )
+bool QPicture::load( QString fileName )
 {
     QByteArray a;
     QFile f( fileName );
@@ -147,7 +147,7 @@ bool QPicture::load( const char *fileName )
   \sa load()
 */
 
-bool QPicture::save( const char *fileName )
+bool QPicture::save( QString fileName )
 {
     QFile f( fileName );
     if ( !f.open( IO_WriteOnly ) )
@@ -250,7 +250,8 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
     INT8	i_8;
     UINT32	ul;
     int		strm_pos;
-    char       *str;
+    Q1String	str1;
+    QString	str;
     QPoint	p, p1, p2;
     QRect	r;
     QPointArray a;
@@ -331,14 +332,20 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		painter->drawQuadBezier( a );
 		break;
 	    case PDC_DRAWTEXT:
-		s >> p >> str;
-		painter->drawText( p, str );
-		delete str;
+		s >> p >> str1;
+		painter->drawText( p, str1 );
 		break;
 	    case PDC_DRAWTEXTFRMT:
+		s >> r >> i_16 >> str1;
+		painter->drawText( r, i_16, str1 );
+		break;
+	    case PDC_DRAWTEXT2:
+		s >> p >> str;
+		painter->drawText( p, str );
+		break;
+	    case PDC_DRAWTEXT2FRMT:
 		s >> r >> i_16 >> str;
 		painter->drawText( r, i_16, str );
-		delete str;
 		break;
 	    case PDC_DRAWPIXMAP: {
 		QPixmap pixmap;
@@ -525,11 +532,11 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	case PDC_DRAWPOLYGON:
 	    s << *p[0].ptarr << (INT8)p[1].ival;
 	    break;
-	case PDC_DRAWTEXT:
-	    s << *p[0].point << p[1].str;
+	case PDC_DRAWTEXT2:
+	    s << *p[0].point << *p[1].str;
 	    break;
-	case PDC_DRAWTEXTFRMT:
-	    s << *p[0].rect << (INT16)p[1].ival << p[2].str;
+	case PDC_DRAWTEXT2FRMT:
+	    s << *p[0].rect << (INT16)p[1].ival << *p[2].str;
 	    break;
 	case PDC_DRAWPIXMAP:
 	    s << *p[0].point;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#50 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#51 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -82,16 +82,16 @@ struct QPrintDialogPrivate
 };
 
 
-static void perhapsAddPrinter( QListView * printers, const char * name,
-			       const char * host, const char * comment )
+static void perhapsAddPrinter( QListView * printers, QString name,
+			       QString host, QString comment )
 {
     const QListViewItem * i = printers->firstChild();
     while( i && qstrcmp( i->text( 0 ), name ) )
 	i = i->nextSibling();
     if ( !i )
 	(void)new QListViewItem( printers, name,
-				 host ? host : "locally connected",
-				 comment ? comment : "" );
+				 host ? host : QString("locally connected"),
+				 comment ? comment : QString("") );
 }
 
 

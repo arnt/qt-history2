@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#116 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#117 $
 **
 ** Implementation of QButton widget class
 **
@@ -105,12 +105,12 @@ QTimer *QButton::timer()
     shortcutChar("E&xit") returns 'x'.
 */
 
-static int shortcutChar( const char *str )
+static int shortcutChar( QString str )
 {
-    const char *p = str ? strchr(str, '&') : 0;
+    QString p = str ? strchr(str, '&') : 0;
     while ( p && *p && p[1] == '&' )
 	p = strchr( p+2, '&' );
-    return (p && *p && p[1] && p[1] != '&') ? p[1] : 0;
+    return (p && *p && p[1] && p[1] != '&') ? p[1] : QChar();
 }
 
 
@@ -283,7 +283,7 @@ QButton::~QButton()
 
 
 /*!
-  \fn const char *QButton::text() const
+  \fn QString QButton::text() const
   Returns the button text, or 0 if the button has no text.
   \sa setText()
 */
@@ -299,7 +299,7 @@ QButton::~QButton()
   setAccel(), QPixmap::mask()
 */
 
-void QButton::setText( const char *text )
+void QButton::setText( QString text )
 {
     if ( btext == text )
 	return;

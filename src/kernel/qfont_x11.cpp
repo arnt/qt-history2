@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#110 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -59,9 +59,9 @@ enum FontFieldNames {				// X LFD fields
 
 static bool	parseXFontName( Q1String &fontName, char **tokens );
 static char   **getXFontNames( const char *pattern, int *count );
-static bool	smoothlyScalable( const char *fontName );
-static bool	fontExists( const char *fontName );
-static int	getWeight( const char *weightString, bool adjustScore=FALSE );
+static bool	smoothlyScalable( QString fontName );
+static bool	fontExists( QString fontName );
+static int	getWeight( QString weightString, bool adjustScore=FALSE );
 
 
 // QFont_Private accesses QFont protected functions
@@ -73,9 +73,9 @@ public:
 			    float *pointSizeDiff, int *weightDiff,
 			    bool *scalable, bool *polymorphic,
 			    int *resx, int *resy );
-    QString bestMatch( const char *pattern, int *score );
-    QString bestFamilyMember( const char *family, int *score );
-    QString findFont( bool *exact );
+    Q1String bestMatch( const char *pattern, int *score );
+    Q1String bestFamilyMember( const char *family, int *score );
+    Q1String findFont( bool *exact );
 };
 
 #undef  PRIV
@@ -284,7 +284,7 @@ void QFont::cacheStatistics()
   Constructs a font object that refers to the default font.
 */
 
-QFont::QFont( bool )
+QFont::QFont( Internal )
 {
     init();
     d->req.family    = "6x13";
@@ -325,7 +325,7 @@ HANDLE QFont::handle( HANDLE ) const
   
   \sa setRawMode(), rawMode()
 */
-const char* QFont::rawName() const
+QString QFont::rawName() const
 {
     if ( DIRTY_FONT ) 
 	load();
@@ -412,7 +412,7 @@ QString QFont::lastResortFont() const
     if ( last )					// already found
 	return last;
     int i = 0;
-    const char *f;
+    QString f;
     while ( (f = tryFonts[i]) ) {
 	if ( fontExists(f) ) {
 	    last = f;
@@ -791,7 +791,7 @@ struct MatchData {			// internal for bestMatch
     int	    weightDiff;
 };
 
-QString QFont_Private::bestMatch( const char *pattern, int *score )
+Q1String QFont_Private::bestMatch( const char *pattern, int *score )
 {
     MatchData	best;
     MatchData	bestScalable;
@@ -874,7 +874,7 @@ QString QFont_Private::bestMatch( const char *pattern, int *score )
 }
 
 
-QString QFont_Private::bestFamilyMember( const char *family, int *score )
+Q1String QFont_Private::bestFamilyMember( const char *family, int *score )
 {
     char pattern[256];
     sprintf( pattern, "-*-%s-*-*-*-*-*-*-*-*-*-*-*-*", family );
@@ -882,7 +882,7 @@ QString QFont_Private::bestFamilyMember( const char *family, int *score )
 }
 
 
-QString QFont_Private::findFont( bool *exact )
+Q1String QFont_Private::findFont( bool *exact )
 {
     QString familyName = substitute( family() );
     *exact = TRUE;				// assume exact match
@@ -892,7 +892,7 @@ QString QFont_Private::findFont( bool *exact )
     }
 
     int score;
-    QString bestName = bestFamilyMember( familyName, &score );
+    Q1String bestName = bestFamilyMember( familyName, &score );
     if ( score != exactScore )
 	*exact = FALSE;
 
@@ -1202,7 +1202,7 @@ int QFontMetrics::width( char ch ) const
   \sa boundingRect()
 */
 
-int QFontMetrics::width( const char *str, int len ) const
+int QFontMetrics::width( QString str, int len ) const
 {
     if ( len < 0 )
 	len = strlen( str );
@@ -1228,7 +1228,7 @@ int QFontMetrics::width( const char *str, int len ) const
 
   \sa width(), QPainter::boundingRect() */
 
-QRect QFontMetrics::boundingRect( const char *str, int len ) const
+QRect QFontMetrics::boundingRect( QString str, int len ) const
 {
     // Values are printerAdjusted during calculations.
 
@@ -1443,7 +1443,7 @@ static char **getXFontNames( const char *pattern, int *count )
 // Returns TRUE if the font can be smoothly scaled
 //
 
-static bool smoothlyScalable ( const char * /* fontName */  )
+static bool smoothlyScalable ( QString /* fontName */  )
 {
     return TRUE;
 }
@@ -1453,7 +1453,7 @@ static bool smoothlyScalable ( const char * /* fontName */  )
 // Returns TRUE if the font exists, FALSE otherwise
 //
 
-static bool fontExists( const char *fontName )
+static bool fontExists( QString fontName )
 {
     char **fontNames;
     int	   count;
@@ -1501,7 +1501,7 @@ void QFontInternal::computeLineWidth()
 // Converts a weight string to a value
 //
 
-static int getWeight( const char *weightString, bool adjustScore )
+static int getWeight( QString weightString, bool adjustScore )
 {
     // Test in decreasing order of commonness
     //

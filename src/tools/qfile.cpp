@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#64 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#65 $
 **
 ** Implementation of QFile class
 **
@@ -44,7 +44,7 @@
 	int n = 1;
 	while ( !t.eof() ) {	    // until end of file...
 	    s = t.readLine();	    // line of text excluding '\n'
-	    printf( "%3d: %s\n", n++, (const char *)s );
+	    printf( "%3d: %s\n", n++, (QString )s );
 	}
 	f.close();
     }
@@ -73,7 +73,7 @@ QFile::QFile()
   \sa setName()
 */
 
-QFile::QFile( const char *name )
+QFile::QFile( QString name )
     : fn(name)
 {
     init();
@@ -108,7 +108,7 @@ void QFile::init()
 
 
 /*!
-  \fn const char *QFile::name() const
+  \fn QString QFile::name() const
   Returns the name set by setName().
   \sa setName(), QFileInfo::fileName()
 */
@@ -138,7 +138,7 @@ void QFile::init()
   \sa name(), QFileInfo, QDir
 */
 
-void QFile::setName( const char *name )
+void QFile::setName( QString name )
 {
     if ( isOpen() ) {
 #if defined(CHECK_STATE)
@@ -166,7 +166,7 @@ bool QFile::exists() const
   Returns TRUE if the file given by \e fileName exists, otherwise FALSE.
 */
 
-bool QFile::exists( const char *fileName )
+bool QFile::exists( QString fileName )
 {
 #if defined(CHECK_NULL)
     ASSERT( fileName != 0 );
@@ -193,7 +193,7 @@ bool QFile::remove()
   Returns TRUE if successful, otherwise FALSE.
 */
 
-bool QFile::remove( const char *fileName )      // remove file
+bool QFile::remove( QString fileName )      // remove file
 {
     if ( fileName == 0 || fileName[0] == '\0' ) {
 #if defined(CHECK_NULL)
@@ -319,7 +319,7 @@ bool QFile::open( int m )
 	if ( isAsynchronous() )
 	    oflags |= OPEN_ASYNC;
 #endif
-	fd = OPEN( (const char *)fn, oflags, 0666 );
+	fd = OPEN( (QString )fn, oflags, 0666 );
 	if ( fd != -1 ) {			// open successful
 	    STATBUF st;
 	    FSTAT( fd, &st );
@@ -329,7 +329,7 @@ bool QFile::open( int m )
 	    ok = FALSE;
 	}
     } else {					// buffered file I/O
-	const char *perm = 0;
+	QString perm = 0;
 	char perm2[4];
 	bool try_create = FALSE;
 	if ( flags() & IO_Append ) {		// append to end of file?
@@ -356,10 +356,10 @@ bool QFile::open( int m )
 	else
 	    strcat( perm2, "b" );
 #endif
-	fh = fopen( (const char *)fn, perm2 );
+	fh = fopen( (QString )fn, perm2 );
 	if ( !fh && try_create ) {
 	    perm2[0] = 'w';			// try "w+" instead of "r+"
-	    fh = fopen( (const char *)fn, perm2 );
+	    fh = fopen( (QString )fn, perm2 );
 	}
 	if ( fh ) {
 	    STATBUF st;
@@ -391,7 +391,7 @@ bool QFile::open( int m )
   \code
     #include <stdio.h>
 
-    void printError( const char *msg )
+    void printError( QString msg )
     {
 	QFile f;
 	f.open( IO_WriteOnly, stderr );

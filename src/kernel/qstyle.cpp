@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#2 $
 **
 ** Implementation of QStyle class
 **
@@ -94,7 +94,7 @@ void QStyle::initializeLook( QWidget* )
 QRect
 QStyle::itemRect( QPainter *p, int x, int y, int w, int h,
 		int flags, bool enabled,
-		const QPixmap *pixmap, const char *text, int len )
+		const QPixmap *pixmap, QString text, int len )
 {
     return qItemRect( p, gs, x, y, w, h, flags, enabled, pixmap, text, len );
 }
@@ -105,7 +105,7 @@ QStyle::itemRect( QPainter *p, int x, int y, int w, int h,
 void
 QStyle::drawItem( QPainter *p, int x, int y, int w, int h,
 		int flags, const QColorGroup &g, bool enabled,
-		const QPixmap *pixmap, const char *text, int len )
+		const QPixmap *pixmap, QString text, int len )
 {
     qDrawItem( p, gs, x, y, w, h, flags, g, enabled, pixmap, text, len );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#57 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#58 $
 **
 ** Definition of QListView widget class
 **
@@ -47,26 +47,26 @@ public:
     QListViewItem( QListViewItem * parent, QListViewItem * after );
 
     QListViewItem( QListView * parent,
-		   const char *,     const char * = 0,
-		   const char * = 0, const char * = 0,
-		   const char * = 0, const char * = 0,
-		   const char * = 0, const char * = 0 );
+		   QString ,     QString = 0,
+		   QString = 0, QString = 0,
+		   QString = 0, QString = 0,
+		   QString = 0, QString = 0 );
     QListViewItem( QListViewItem * parent,
-		   const char *,     const char * = 0,
-		   const char * = 0, const char * = 0,
-		   const char * = 0, const char * = 0,
-		   const char * = 0, const char * = 0 );
+		   QString ,     QString = 0,
+		   QString = 0, QString = 0,
+		   QString = 0, QString = 0,
+		   QString = 0, QString = 0 );
 
     QListViewItem( QListView * parent, QListViewItem * after,
-		   const char *,     const char * = 0,
-		   const char * = 0, const char * = 0,
-		   const char * = 0, const char * = 0,
-		   const char * = 0, const char * = 0 );
+		   QString ,     QString = 0,
+		   QString = 0, QString = 0,
+		   QString = 0, QString = 0,
+		   QString = 0, QString = 0 );
     QListViewItem( QListViewItem * parent, QListViewItem * after,
-		   const char *,     const char * = 0,
-		   const char * = 0, const char * = 0,
-		   const char * = 0, const char * = 0,
-		   const char * = 0, const char * = 0 );
+		   QString ,     QString = 0,
+		   QString = 0, QString = 0,
+		   QString = 0, QString = 0,
+		   QString = 0, QString = 0 );
     virtual ~QListViewItem();
 
     virtual void insertItem( QListViewItem * );
@@ -80,13 +80,13 @@ public:
     void widthChanged(int column=-1) const;
     int depth() const;
 
-    virtual void setText( int, const char * );
-    virtual const char * text( int ) const;
+    virtual void setText( int, QString );
+    virtual QString text( int ) const;
 
     virtual void setPixmap( int, const QPixmap & );
     virtual const QPixmap * pixmap( int ) const;
 
-    virtual const char * key( int, bool ) const;
+    virtual QString key( int, bool ) const;
     virtual void sortChildItems( int, bool );
 
     int childCount() const { return nChildren; }
@@ -157,7 +157,7 @@ class QListView: public QScrollView
 {
     Q_OBJECT
 public:
-    QListView( QWidget * parent = 0, const char * name = 0 );
+    QListView( QWidget * parent = 0, QString name = 0 );
     ~QListView();
 
     int treeStepSize() const;
@@ -168,9 +168,9 @@ public:
 
     QHeader * header() const;
 
-    virtual int addColumn( const char * label, int size = -1);
-    virtual void setColumnText( int column, const char * label );
-    const char* columnText( int column ) const;
+    virtual int addColumn( QString label, int size = -1);
+    virtual void setColumnText( int column, QString label );
+    QString columnText( int column ) const;
     virtual void setColumnWidth( int column, int width );
     int columnWidth( int column ) const;
     enum WidthMode { Manual, Maximum };
@@ -280,13 +280,13 @@ class QCheckListItem : public QListViewItem
 public:
     enum Type { RadioButton, CheckBox, Controller };
 
-    QCheckListItem( QCheckListItem *parent, const char *text,
+    QCheckListItem( QCheckListItem *parent, QString text,
 		    Type = Controller );
-    QCheckListItem( QListView *parent, const char *text,
+    QCheckListItem( QListView *parent, QString text,
 		    Type = Controller );
-    QCheckListItem( QListViewItem *parent, const char *text,
+    QCheckListItem( QListViewItem *parent, QString text,
 		    const QPixmap & );
-    QCheckListItem( QListView *parent, const char *text,
+    QCheckListItem( QListView *parent, QString text,
 		    const QPixmap & );
 
     void paintCell( QPainter *,  const QColorGroup & cg,
@@ -297,8 +297,8 @@ public:
     virtual void setOn( bool );
     bool isOn() const { return on; }
     Type type() const { return myType; }
-    const char *text() const { return QListViewItem::text( 0 ); }
-    const char *text( int n ) const { return QListViewItem::text( n ); }
+    QString text() const { return QListViewItem::text( 0 ); }
+    QString text( int n ) const { return QListViewItem::text( n ); }
 
 protected:
     void paintBranches( QPainter * p, const QColorGroup & cg,

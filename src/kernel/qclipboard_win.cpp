@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#15 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -62,7 +62,7 @@ typedef uint ClipboardFormat;
 #define CFNothing   0
 
 
-static ClipboardFormat getFormat( const char *format )
+static ClipboardFormat getFormat( QString format )
 {
     if ( strcmp(format,"TEXT") == 0 )
 	 return CFText;
@@ -84,126 +84,13 @@ void QClipboard::clear()
 }
 
 
-void *QClipboard::data( const char *format ) const
+void *QClipboard::data( QString format ) const
 {
-    ClipboardFormat f = getFormat( format );
-    switch ( f ) {
-	case CFText:
-	    break;
-	case CFPixmap:
-	    break;
-	default:
 #if defined(CHECK_RANGE)
 	    warning( "QClipboard::data: Unknown format: %s", format );
 #endif
 	    return 0;
     }
-
-    static QString *text   = 0;
-    static QPixmap *pixmap = 0;
-
-    if ( !OpenClipboard(clipboardOwner()->winId()) )
-	return 0;
-
-    HANDLE h = GetClipboardData( f );
-    if ( h == 0 ) {				// no clipboard data
-	CloseClipboard();
-	return 0;
-    }
-
-    void *ptr = 0;
-    if ( f == CFText ) {
-	delete pixmap;
-	pixmap = 0;
-#if 1
-	HANDLE htext = GlobalAlloc(GMEM_MOVEABLE, GlobalSize(h));
-	char *src = (char *)GlobalLock(h);
-	char *dst = (char *)GlobalLock(htext);
-	strcpy( dst, src );
-	delete text;
-	text = new QString( dst );
-	GlobalUnlock(h);
-	GlobalUnlock(htext);
-	GlobalFree(htext);
-#else
-	char *d = (char *)GlobalLock( h );
-	delete text;
-	text = new QString( d );
-	GlobalUnlock( h );
-#endif
-	ptr = text->data();
-    } else if ( f == CFPixmap ) {
-	delete text;
-	text = 0;
-	BITMAP bm;
-	HDC    hdc = GetDC( 0 );
-	HDC    hdcMemSrc = CreateCompatibleDC( hdc );
-	GetObject( h, sizeof(BITMAP), &bm );
-	SelectObject( hdcMemSrc, h );
-	delete pixmap;
-	pixmap = new QPixmap( bm.bmWidth, bm.bmHeight );
-	pixmap->detach();
-	BitBlt( pixmap->handle(), 0,0, pixmap->width(), pixmap->height(),
-		hdcMemSrc, 0, 0, SRCCOPY );
-	DeleteDC( hdcMemSrc );
-	ReleaseDC( 0, hdc );
-	ptr = pixmap;
-    }
-    CloseClipboard();
-
-    return ptr;
-}
-
-
-void QClipboard::setData( const char *format, void *data )
-{
-    ClipboardFormat f = getFormat( format );
-
-    switch ( f ) {
-	case CFText:
-	    break;
-	case CFPixmap:
-	    break;
-	default:
-#if defined(CHECK_RANGE)
-	    warning( "QClipboard::setData: Unknown format: %s", format );
-#endif
-	    return;
-    }
-
-    if ( !OpenClipboard(clipboardOwner()->winId()) )
-	return;
-
-    EmptyClipboard();
-
-    if ( f == CFText ) {
-	int len = strlen((char*)data);
-	if ( len > 0 ) {
-	    HANDLE h = GlobalAlloc( GHND, len+1 );
-	    char *d = (char *)GlobalLock( h );
-	    memcpy( d, data, len+1 );
-	    GlobalUnlock( h );
-	    SetClipboardData( f, h );
-	}
-    } else if ( f == CFPixmap ) {
-	QPixmap *pixmap = (QPixmap *)data;
-	if ( pixmap && !pixmap->isNull() ) {
-	    BITMAP bm;
-	    GetObject( pixmap->hbm(), sizeof(BITMAP), &bm );
-	    HANDLE hbm = CreateBitmapIndirect( &bm );
-	    HDC	   hdc = GetDC( 0 );
-	    HDC	   hdcMemDst = CreateCompatibleDC( hdc );
-	    SelectObject( hdcMemDst, hbm );
-	    BitBlt( hdcMemDst, 0,0, bm.bmWidth, bm.bmHeight,
-		    pixmap->handle(), 0, 0, SRCCOPY );
-	    DeleteDC( hdcMemDst );
-	    ReleaseDC( 0, hdc );
-	    SetClipboardData( f, hbm );
-	}
-    }
-
-    CloseClipboard();
-}
 
 
 void QClipboard::ownerDestroyed()
@@ -212,11 +99,10 @@ void QClipboard::ownerDestroyed()
 	QWidget *owner = (QWidget *)sender();
 	ChangeClipboardChain( owner->winId(), nextClipboardViewer );
     }
-
 }
 
 
-void QClipboard::connectNotify( const char *signal )
+void QClipboard::connectNotify( QString signal )
 {
     if ( strcmp(signal,SIGNAL(dataChanged())) == 0 && !inClipboardChain ) {
 	QWidget *owner = clipboardOwner();
@@ -253,4 +139,123 @@ bool QClipboard::event( QEvent *e )
     }
 
     return TRUE;
+}
+
+QString QClipboard::text() const
+{
+    // #### Only ASCII at the moment.  Add Unicode CF format.
+
+    ClipboardFormat f = CFText:
+
+    if ( !OpenClipboard(clipboardOwner()->winId()) )
+	return 0;
+
+    HANDLE h = GetClipboardData( f );
+    if ( h == 0 ) {				// no clipboard data
+	CloseClipboard();
+	return 0;
+    }
+
+    QString text;
+
+#if 1
+	HANDLE htext = GlobalAlloc(GMEM_MOVEABLE, GlobalSize(h));
+	char *src = (char *)GlobalLock(h);
+	char *dst = (char *)GlobalLock(htext);
+	strcpy( dst, src );
+    text = dst;
+	GlobalUnlock(h);
+	GlobalUnlock(htext);
+	GlobalFree(htext);
+#else
+	char *d = (char *)GlobalLock( h );
+    text = d;
+	GlobalUnlock( h );
+#endif
+
+    CloseClipboard();
+
+    return text;
+}
+
+void QClipboard::setText( QString text )
+{
+    // #### Only ASCII at the moment.  Add Unicode CF format.
+
+    ClipboardFormat f = CFText;
+
+    if ( !OpenClipboard(clipboardOwner()->winId()) )
+	return;
+
+    EmptyClipboard();
+
+    int len = text.length();
+	if ( len > 0 ) {
+	    HANDLE h = GlobalAlloc( GHND, len+1 );
+	    char *d = (char *)GlobalLock( h );
+	memcpy( d, text.ascii(), len+1 );
+	    GlobalUnlock( h );
+	    SetClipboardData( f, h );
+	}
+
+    CloseClipboard();
+}
+
+
+QPixmap QClipboard::pixmap() const
+{
+    ClipboardFormat f = CFPixmap:
+
+    if ( !OpenClipboard(clipboardOwner()->winId()) )
+	return 0;
+
+    HANDLE h = GetClipboardData( f );
+    if ( h == 0 ) {				// no clipboard data
+	CloseClipboard();
+	return 0;
+}
+
+    QPixmap pixmap;
+
+    BITMAP bm;
+    HDC    hdc = GetDC( 0 );
+    HDC    hdcMemSrc = CreateCompatibleDC( hdc );
+    GetObject( h, sizeof(BITMAP), &bm );
+    SelectObject( hdcMemSrc, h );
+    pixmap = QPixmap( bm.bmWidth, bm.bmHeight );
+    BitBlt( pixmap.handle(), 0,0, pixmap.width(), pixmap.height(),
+	    hdcMemSrc, 0, 0, SRCCOPY );
+    DeleteDC( hdcMemSrc );
+    ReleaseDC( 0, hdc );
+
+    CloseClipboard();
+
+    return pixmap;
+}
+
+void QClipboard::setPixmap( const QPixmap &pixmap )
+{
+    ClipboardFormat f = CFPixmap;
+
+    if ( !OpenClipboard(clipboardOwner()->winId()) )
+	return;
+
+    EmptyClipboard();
+
+    QPixmap *pixmap = (QPixmap *)data;
+    if ( pixmap && !pixmap->isNull() ) {
+	BITMAP bm;
+	GetObject( pixmap->hbm(), sizeof(BITMAP), &bm );
+	HANDLE hbm = CreateBitmapIndirect( &bm );
+	HDC	   hdc = GetDC( 0 );
+	HDC	   hdcMemDst = CreateCompatibleDC( hdc );
+	SelectObject( hdcMemDst, hbm );
+	BitBlt( hdcMemDst, 0,0, bm.bmWidth, bm.bmHeight,
+		pixmap->handle(), 0, 0, SRCCOPY );
+	DeleteDC( hdcMemDst );
+	ReleaseDC( 0, hdc );
+	SetClipboardData( f, hbm );
+    }
+
+    CloseClipboard();
 }

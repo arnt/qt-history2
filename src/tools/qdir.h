@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#29 $
+** $Id: //depot/qt/main/src/tools/qdir.h#30 $
 **
 ** Definition of QDir class
 **
@@ -64,31 +64,31 @@ public:
 		      DefaultSort   = -1 };
 
     QDir();
-    QDir( const char *path, const char *nameFilter = 0,
+    QDir( QString path, QString nameFilter = 0,
 	  int sortSpec = Name | IgnoreCase, int filterSpec = All );
     QDir( const QDir & );
    ~QDir();
     QDir       &operator=( const QDir & );
-    QDir       &operator=( const char *path );
+    QDir       &operator=( QString path );
 
-    void	setPath( const char *path );
-    const char *path()		const;
+    void	setPath( QString path );
+    QString path()		const;
     QString	absPath()	const;
     QString	canonicalPath()	const;
 
     QString	dirName() const;
-    QString	filePath( const char *fileName,
+    QString	filePath( QString fileName,
 			  bool acceptAbsPath = TRUE ) const;
-    QString	absFilePath( const char *fileName,
+    QString	absFilePath( QString fileName,
 			     bool acceptAbsPath = TRUE ) const;
 
-    static QString convertSeparators( const char *pathName );
+    static QString convertSeparators( QString pathName );
 
-    bool	cd( const char *dirName, bool acceptAbsPath = TRUE );
+    bool	cd( QString dirName, bool acceptAbsPath = TRUE );
     bool	cdUp();
 
-    const char *nameFilter() const;
-    void	setNameFilter( const char *nameFilter );
+    QString nameFilter() const;
+    void	setNameFilter( QString nameFilter );
     FilterSpec filter() const;
     void	setFilter( int filterSpec );
     SortSpec sorting() const;
@@ -98,25 +98,25 @@ public:
     void	setMatchAllDirs( bool );
 
     uint	count() const;
-    const char *operator[]( int ) const;
+    QString operator[]( int ) const;
 
     const QStrList *entryList( int filterSpec = DefaultFilter,
 			       int sortSpec   = DefaultSort  ) const;
-    const QStrList *entryList( const char *nameFilter,
+    const QStrList *entryList( QString nameFilter,
 			       int filterSpec = DefaultFilter,
 			       int sortSpec   = DefaultSort   ) const;
 
     const QFileInfoList *entryInfoList( int filterSpec = DefaultFilter,
 					int sortSpec   = DefaultSort  ) const;
-    const QFileInfoList *entryInfoList( const char *nameFilter,
+    const QFileInfoList *entryInfoList( QString nameFilter,
 					int filterSpec = DefaultFilter,
 					int sortSpec   = DefaultSort   ) const;
 
     static const QFileInfoList *drives();
 
-    bool	mkdir( const char *dirName,
+    bool	mkdir( QString dirName,
 			      bool acceptAbsPath = TRUE ) const;
-    bool	rmdir( const char *dirName,
+    bool	rmdir( QString dirName,
 			      bool acceptAbsPath = TRUE ) const;
 
     bool	isReadable() const;
@@ -129,16 +129,16 @@ public:
     bool	operator==( const QDir & ) const;
     bool	operator!=( const QDir & ) const;
 
-    bool	remove( const char *fileName,
+    bool	remove( QString fileName,
 			      bool acceptAbsPath = TRUE );
-    bool	rename( const char *name, const char *newName,
+    bool	rename( QString name, QString newName,
 			      bool acceptAbsPaths = TRUE  );
-    bool	exists( const char *name,
+    bool	exists( QString name,
 			      bool acceptAbsPath = TRUE );
 
     static char separator();
 
-    static bool setCurrent( const char *path );
+    static bool setCurrent( QString path );
     static QDir current();
     static QDir home();
     static QDir root();
@@ -146,9 +146,9 @@ public:
     static QString homeDirPath();
     static QString rootDirPath();
 
-    static bool match( const char *filter, const char *fileName );
-    static QString cleanDirPath( const char *dirPath );
-    static bool isRelativePath( const char *path );
+    static bool match( QString filter, QString fileName );
+    static QString cleanDirPath( QString dirPath );
+    static bool isRelativePath( QString path );
 
 private:
     void	init();
@@ -166,14 +166,14 @@ private:
 };
 
 
-inline const char *QDir::path() const
+inline QString QDir::path() const
 {
     return dPath;
 }
 
-inline const char *QDir::nameFilter() const
+inline QString QDir::nameFilter() const
 {
-    return (const char *) nameFilt;
+    return nameFilt;
 }
 
 inline QDir::FilterSpec QDir::filter() const

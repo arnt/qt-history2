@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#7 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#8 $
 **
 ** Definition of a buttom customized for tool bar use
 **
@@ -41,15 +41,15 @@ class QToolButton: public QButton
 {
     Q_OBJECT
 public:
-    QToolButton( QWidget * parent = 0, const char * name = 0 );
-    QToolButton( const QPixmap & pm, const char * textLabel,
-		 const char * grouptext,
-		 QObject * receiver, const char * slot,
-		 QToolBar * parent, const char * name = 0 );
-    QToolButton( QIconSet s, const char * textLabel,
-		 const char * grouptext,
-		 QObject * receiver, const char * slot,
-		 QToolBar * parent, const char * name = 0 );
+    QToolButton( QWidget * parent = 0, QString name = 0 );
+    QToolButton( const QPixmap & pm, QString textLabel,
+		 QString grouptext,
+		 QObject * receiver, QString slot,
+		 QToolBar * parent, QString name = 0 );
+    QToolButton( QIconSet s, QString textLabel,
+		 QString grouptext,
+		 QObject * receiver, QString slot,
+		 QToolBar * parent, QString name = 0 );
     ~QToolButton();
 
     QSize sizeHint() const;
@@ -59,12 +59,12 @@ public:
 
     bool usesBigPixmap() const { return ubp; }
     bool usesTextLabel() const { return utl; }
-    const char * textLabel() const { return tl; }
+    QString textLabel() const { return tl; }
 
 public slots:
     virtual void setUsesBigPixmap( bool enable );
     virtual void setUsesTextLabel( bool enable );
-    virtual void setTextLabel( const char *, bool = TRUE );
+    virtual void setTextLabel( QString , bool = TRUE );
 
     virtual void setToggleButton( bool enable );
 

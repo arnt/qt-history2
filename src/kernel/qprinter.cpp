@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#38 $
 **
 ** Implementation of QPrinter class
 **
@@ -87,7 +87,7 @@
 
 
 /*!
-  \fn const char *QPrinter::printerName() const
+  \fn QString QPrinter::printerName() const
   Returns the printer name.  This value is initially set to the name of the
   default printer.
   \sa setPrinterName()
@@ -105,7 +105,7 @@
   \sa printerName()
 */
 
-void QPrinter::setPrinterName( const char *name )
+void QPrinter::setPrinterName( QString name )
 {
     if ( state != 0 ) {
 #if defined(CHECK_STATE)
@@ -153,7 +153,7 @@ void QPrinter::setOutputToFile( bool enable )
 
 
 /*!
-  \fn const char *QPrinter::outputFileName() const
+  \fn QString QPrinter::outputFileName() const
   Returns the name of the output file.	There is no default file name.
   \sa setOutputFileName(), setOutputToFile()
 */
@@ -171,7 +171,7 @@ void QPrinter::setOutputToFile( bool enable )
   \sa outputFileName(), setOutputToFile()
 */
 
-void QPrinter::setOutputFileName( const char *fileName )
+void QPrinter::setOutputFileName( QString fileName )
 {
     if ( state != 0 ) {
 #if defined(CHECK_STATE)
@@ -185,7 +185,7 @@ void QPrinter::setOutputFileName( const char *fileName )
 
 
 /*!
-  \fn const char *QPrinter::printProgram() const
+  \fn QString QPrinter::printProgram() const
   Returns the name of the program that sends the print output to the printer.
 
   The default print program is "lpr" under X11.	 This function
@@ -206,7 +206,7 @@ void QPrinter::setOutputFileName( const char *fileName )
   \sa printProgram()
 */
 
-void QPrinter::setPrintProgram( const char *printProg )
+void QPrinter::setPrintProgram( QString printProg )
 {
     if ( state != 0 ) {
 #if defined(CHECK_STATE)
@@ -219,7 +219,7 @@ void QPrinter::setPrintProgram( const char *printProg )
 
 
 /*!
-  \fn const char *QPrinter::docName() const
+  \fn QString QPrinter::docName() const
   Returns the document name.
   \sa setDocName()
 */
@@ -228,7 +228,7 @@ void QPrinter::setPrintProgram( const char *printProg )
   Sets the document name.
 */
 
-void QPrinter::setDocName( const char *name )
+void QPrinter::setDocName( QString name )
 {
     if ( state != 0 ) {
 #if defined(CHECK_STATE)
@@ -241,7 +241,7 @@ void QPrinter::setDocName( const char *name )
 
 
 /*!
-  \fn const char *QPrinter::creator() const
+  \fn QString QPrinter::creator() const
   Returns the creator name.
   \sa setCreator()
 */
@@ -256,7 +256,7 @@ void QPrinter::setDocName( const char *name )
   \sa creator()
 */
 
-void QPrinter::setCreator( const char *creator )
+void QPrinter::setCreator( QString creator )
 {
     creator_name = creator;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.h#13 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.h#14 $
 **
 ** Definition of QClipboard class
 **
@@ -39,13 +39,13 @@ private:
 public:
     void	clear();
 
-    void       *data( const char *format ) const;
+    virtual void *data( const char* format ) const;
     virtual void	setData( const char *format, void * );
 
-    const char *text()	 const;
-    virtual void	setText( const char * );
+    QString text()	 const;
+    void	setText( QString );
     QPixmap    *pixmap() const;
-    virtual void	setPixmap( const QPixmap & );
+    void	setPixmap( const QPixmap & );
 
 signals:
     void	dataChanged();

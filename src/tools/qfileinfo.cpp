@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#38 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#39 $
 **
 ** Implementation of QFileInfo class
 **
@@ -37,7 +37,7 @@
 
 #if defined(_OS_SUN_)
 #undef readlink
-extern "C" int readlink( const char *, void *, uint );
+extern "C" int readlink( QString , void *, uint );
 #endif
 
 #if defined(_OS_FATFS_)
@@ -112,11 +112,11 @@ QFileInfo::QFileInfo()
   Constructs a new QFileInfo that gives information about the given file.
   The string given can be an absolute or a relative file path.
 
-  \sa bool setFile(const char*), isRelative(), QDir::setCurrent(),
+  \sa bool setFile(QString ), isRelative(), QDir::setCurrent(),
   QDir::isRelativePath()
 */
 
-QFileInfo::QFileInfo( const char *file )
+QFileInfo::QFileInfo( QString file )
 {
     fn	  = file;
     convertSeparators( fn );
@@ -149,7 +149,7 @@ QFileInfo::QFileInfo( const QFile &file )
   \sa isRelative()
 */
 
-QFileInfo::QFileInfo( const QDir &d, const char *fileName )
+QFileInfo::QFileInfo( const QDir &d, QString fileName )
 {
     fn	  = d.filePath( fileName );
     convertSeparators( fn );
@@ -221,8 +221,8 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
 
     void test()
     {
-	const char *absolute = "/liver/aorta";
-	const char *relative = "liver/aorta";
+	QString absolute = "/liver/aorta";
+	QString relative = "liver/aorta";
 	QFileInfo fi1( absolute );
 	QFileInfo fi2( relative );
 
@@ -238,7 +238,7 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
   \sa isRelative(), QDir::setCurrent(), QDir::isRelativePath()
 */
 
-void QFileInfo::setFile( const char *file )
+void QFileInfo::setFile( QString file )
 {
     fn = file;
     convertSeparators( fn );
@@ -271,7 +271,7 @@ void QFileInfo::setFile( const QFile &file )
   \sa isRelative()
 */
 
-void QFileInfo::setFile( const QDir &d, const char *fileName )
+void QFileInfo::setFile( const QDir &d, QString fileName )
 {
     fn	= d.filePath( fileName );
     convertSeparators( fn );
@@ -343,7 +343,7 @@ void QFileInfo::setCaching( bool enable )
   \sa isRelative(), absFilePath()
 */
 
-const char *QFileInfo::filePath() const
+QString QFileInfo::filePath() const
 {
     return fn;
 }
@@ -637,7 +637,7 @@ QString QFileInfo::readLink() const
   \sa ownerId(), group(), groupId()
 */
 
-const char *QFileInfo::owner() const
+QString QFileInfo::owner() const
 {
 #if defined(UNIX)
     passwd *pw = getpwuid( ownerId() );
@@ -680,7 +680,7 @@ uint QFileInfo::ownerId() const
   \sa groupId(), owner(), ownerId()
 */
 
-const char *QFileInfo::group() const
+QString QFileInfo::group() const
 {
 #if defined(UNIX)
     struct group *gr = getgrgid( groupId() );

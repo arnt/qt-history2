@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#31 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#32 $
 **
 ** Definition of QTextStream class
 **
@@ -79,11 +79,11 @@ public:
     QTextStream &operator<<( unsigned long );
     QTextStream &operator<<( float );
     QTextStream &operator<<( double );
-    QTextStream &operator<<( const char * );
+    QTextStream &operator<<( QString );
     QTextStream &operator<<( void * );		// any pointer
 
     QTextStream &readRawBytes( char *, uint len );
-    QTextStream &writeRawBytes( const char *, uint len );
+    QTextStream &writeRawBytes( QString , uint len );
 
     QString	readLine();
     void eatWhiteSpace() { eat_ws(); }
@@ -147,7 +147,7 @@ private:
     ulong input_dec();
     ulong input_hex();
     double input_double();
-    QTextStream &writeBlock( const char *p, uint len );
+    QTextStream &writeBlock( QString p, uint len );
 
 private:	// Disabled copy constructor and operator=
     QTextStream( const QTextStream & );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#57 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -412,7 +412,7 @@ QLCDNumber::Mode QLCDNumber::mode() const
 /*!
   Returns the last value set by one of the display() slots.
 
-  If display(const char *) was the last called, 0 is returned.
+  If display(QString ) was the last called, 0 is returned.
 
   \sa intValue(), display()
 */
@@ -426,7 +426,7 @@ double QLCDNumber::value() const
   Returns the last value set by one of the display() slots rounded to the
   nearest integer.
 
-  If display(const char *) was the last called, 0 is returned.
+  If display(QString ) was the last called, 0 is returned.
 
   \sa value(), display()
 */
@@ -471,7 +471,7 @@ void QLCDNumber::display( double num )
 
 
 /*!
-  \overload void QLCDNumber::display( const char *s )
+  \overload void QLCDNumber::display( QString s )
 
   This version of the function disregards mode() and smallDecimalPoint().
 
@@ -482,7 +482,7 @@ void QLCDNumber::display( double num )
   characters.
 */
 
-void QLCDNumber::display( const char *s )
+void QLCDNumber::display( QString s )
 {
     val = 0;
     internalDisplay( s );
@@ -609,7 +609,7 @@ void QLCDNumber::drawContents( QPainter *p )
   \internal
 */
 
-void QLCDNumber::internalDisplay( const char *s )
+void QLCDNumber::internalDisplay( QString s )
 {
     QString buffer(ndigits+1);
     int i;
@@ -670,7 +670,7 @@ void QLCDNumber::internalDisplay( const char *s )
   \internal
 */
 
-void QLCDNumber::drawString( const char *s, QPainter &p,
+void QLCDNumber::drawString( QString s, QPainter &p,
 			     QBitArray *newPoints, bool newString )
 {
     QPoint  pos;

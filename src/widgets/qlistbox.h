@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#61 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#62 $
 **
 ** Definition of QListBox widget class
 **
@@ -56,7 +56,7 @@ public:
 
 protected:
     virtual void paint( QPainter * ) = 0;
-    void	 setText( const char *text ) { txt = text; }
+    void	 setText( QString text ) { txt = text; }
 
 private:
     QString txt;
@@ -73,7 +73,7 @@ private:	// Disabled copy constructor and operator=
 class QListBoxText : public QListBoxItem
 {
 public:
-    QListBoxText( const char * = 0 );
+    QListBoxText( QString = 0 );
    ~QListBoxText();
     void  paint( QPainter * );
     int	  height( const QListBox * ) const;
@@ -116,22 +116,22 @@ public:
     uint	count() const;
 
     void	insertStrList( const QStrList *, int index=-1 );
-    void	insertStrList( const char**, int numStrings=-1, int index=-1 );
+    void	insertStrList( QString *, int numStrings=-1, int index=-1 );
 
     void	insertItem( const QListBoxItem *, int index=-1 );
-    void	insertItem( const char *text, int index=-1 );
+    void	insertItem( QString text, int index=-1 );
     void	insertItem( const QPixmap &pixmap, int index=-1 );
     void	inSort( const QListBoxItem * );
-    void	inSort( const char *text );
+    void	inSort( QString text );
 
     void	removeItem( int index );
     void	clear();
 
-    const char *text( int index )	const;
+    QString text( int index )	const;
     const QPixmap *pixmap( int index )	const;
 
     void	changeItem( const QListBoxItem *, int index );
-    void	changeItem( const char *text, int index );
+    void	changeItem( QString text, int index );
     void	changeItem( const QPixmap &pixmap, int index );
 
     bool	autoUpdate()	const;
@@ -180,8 +180,8 @@ public slots:
 signals:
     void	highlighted( int index );
     void	selected( int index );
-    void	highlighted( const char * );
-    void	selected( const char * );
+    void	highlighted( QString );
+    void	selected( QString );
 
     void	selectionChanged();
 

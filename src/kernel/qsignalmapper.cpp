@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#7 $
 **
 ** Implementation of QSignalMapper class
 **
@@ -34,7 +34,7 @@ struct QSignalMapperRec {
     uint has_int:1;
 
     int int_id;
-    const char* str_id;
+    QString str_id;
     // extendable to other types of identification
 };
 
@@ -95,7 +95,7 @@ void QSignalMapper::setMapping( const QObject* sender, int identifier )
   There may be at most one string identifier for each object, and
   it may not be null.
 */
-void QSignalMapper::setMapping( const QObject* sender, const char* identifier )
+void QSignalMapper::setMapping( const QObject* sender, QString identifier )
 {
     QSignalMapperRec* rec = getRec(sender);
     rec->str_id = identifier;

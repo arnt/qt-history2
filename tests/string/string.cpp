@@ -8,6 +8,7 @@
 
 main(int argc, char** argv)
 {
+#if 0
     // Tests every QString function.
     //#define USE_Qt100_QString // or Q1String if you prefer
 
@@ -472,4 +473,6 @@ main(int argc, char** argv)
     app.setMainWidget(&m);
     m.show();
     return app.exec();
+#endif
+    //QApplication app(argc,argv);
 }

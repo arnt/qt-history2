@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#27 $
 **
 ** Implementation of QToolBar class
 **
@@ -73,7 +73,7 @@
   name, as usual.
 */
 
-QToolBar::QToolBar( const char * label,
+QToolBar::QToolBar( QString label,
 		    QMainWindow * parent, QMainWindow::ToolBarDock dock,
 		    bool newLine, const char * name )
     : QWidget( parent, name )
@@ -97,7 +97,7 @@ QToolBar::QToolBar( const char * label,
   toolbars, or toolbars in the status bar.
 */
 
-QToolBar::QToolBar( const char * label, QMainWindow * mainWindow,
+QToolBar::QToolBar( QString label, QMainWindow * mainWindow,
 		    QWidget * parent, bool newLine, const char * name,
 		    WFlags f )
     : QWidget( parent, name, f )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#162 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#163 $
 **
 ** Implementation of QObject class
 **
@@ -864,7 +864,7 @@ QObjectList *QObject::queryList( const char *inheritsClass,
     QObjectList *list = new QObjectList;
     CHECK_PTR( list );
     if ( regexpMatch && objName ) {		// regexp matching
-	QRegExp rx = objName;
+	QRegExp rx(objName);
 	objSearch( list, (QObjectList *)children(), inheritsClass,
 		   0, &rx, recursiveSearch );
     } else {
@@ -886,7 +886,7 @@ QConnectionList *QObject::receivers( const char *signal ) const
 {
     if ( connections && signal ) {
 	if ( *signal == '2' ) {			// tag == 2, i.e. signal
-	    QString s = rmWS( signal+1 );
+	    Q1String s = rmWS( signal+1 );
 	    return connections->find( s );
 	} else {
 	    return connections->find( signal );
@@ -1214,8 +1214,8 @@ void QObject::badSuperclassWarning( const char *className,
     "    The class \"%s\" contains the Q_OBJECT macro, but inherits from the\n"
     "    \"%s\" class, which does not contain the Q_OBJECT macro.\n"
     "    Signal/slot behavior is undefined.\n",
-    (const char*)className, (const char*)className,
-    (const char*)superclassName );
+    className, className,
+    superclassName );
 #endif
 }
 
@@ -1302,8 +1302,8 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	return FALSE;
     }
 #endif
-    QString signal_name = rmWS( signal );	// white space stripped
-    QString member_name = rmWS( member );
+    Q1String signal_name = rmWS( signal );	// white space stripped
+    Q1String member_name = rmWS( member );
     signal = signal_name;
     member = member_name;
 
@@ -1818,7 +1818,7 @@ void QObject::dumpObjectInfo()
   no appropriate translated version.
 */
 
-const char * QObject::tr( const char * text ) const
+QString QObject::tr( const char *text ) const
 {
     return text;
 }

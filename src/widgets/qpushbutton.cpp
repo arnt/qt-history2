@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#117 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#118 $
 **
 ** Implementation of QPushButton class
 **
@@ -67,7 +67,7 @@ QPushButton::QPushButton( QWidget *parent, const char *name )
   The \e parent and \e name arguments are sent to the QWidget constructor.
 */
 
-QPushButton::QPushButton( const char *text, QWidget *parent,
+QPushButton::QPushButton( QString text, QWidget *parent,
 			  const char *name )
 	: QButton( parent, name, WResizeNoErase )
 {

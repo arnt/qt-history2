@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#252 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#253 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2400,13 +2400,21 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 // Generate a string that describes a transformed bitmap. This string is used
 // to insert and find bitmaps in the global pixmap cache.
 //
-static QString gen_xbm_key( const QWMatrix &m, const QFontInfo &fi,
-			    const char *str, int len )
+static Q1String gen_xbm_key( const QWMatrix &m, const QFontInfo &fi,
+			    QString str, int len )
 {
-    QString s = str;
-    s.truncate( len );
-    QString k;
-    QString fd;
+    // Only for ASCII, else we return null
+
+    Q1String s(len+1);
+    int i;
+    for (i=0; i<len; i++) {
+	QChar ch = str[i];
+	if ( ch.hi ) return Q1String();
+        s[i] = ch.lo;
+    }
+    s[i]=0;
+    Q1String k;
+    Q1String fd;
     if ( fi.rawMode() )
 	fd.sprintf( "&%s", fi.family() );
     else
@@ -2423,18 +2431,20 @@ static QString gen_xbm_key( const QWMatrix &m, const QFontInfo &fi,
 
 
 static QPixmap *get_text_bitmap( const QWMatrix &m, const QFontInfo &fi,
-				 const char *str, int len )
+				 QString str, int len )
 {
-    QString k = gen_xbm_key( m, fi, str, len );
+    Q1String k = gen_xbm_key( m, fi, str, len );
+    if ( k.isNull() )
+	return 0;
     return QPixmapCache::find( k );
 }
 
 
 static void ins_text_bitmap( const QWMatrix &m, const QFontInfo &fi,
-			     const char *str, int len, QPixmap *pm )
+			     QString str, int len, QPixmap *pm )
 {
-    QString k = gen_xbm_key( m, fi, str, len );
-    if ( !QPixmapCache::insert(k,pm) )		// cannot insert pixmap
+    Q1String k = gen_xbm_key( m, fi, str, len );
+    if ( k.isNull() || !QPixmapCache::insert(k,pm) ) // cannot insert pixmap
 	delete pm;
 }
 
@@ -2462,8 +2472,8 @@ void QPainter::drawText( int x, int y, QString str, int len )
 	    QPoint p( x, y );
 	    QString newstr( str, len+1 );
 	    param[0].point = &p;
-	    param[1].str = newstr;
-	    if ( !pdev->cmd(PDC_DRAWTEXT,this,param) || !hd )
+	    param[1].str = &newstr;
+	    if ( !pdev->cmd(PDC_DRAWTEXT2,this,param) || !hd )
 		return;
 	}
 	if ( txop == TxScale || txop == TxRotShear ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#15 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#16 $
 **
 ** Definition of QProgressDialog class
 **
@@ -40,7 +40,7 @@ class QProgressDialog : public QSemiModal
 public:
     QProgressDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 		     WFlags f=0 );
-    QProgressDialog( const char *labelText, const char *cancelButtonText,
+    QProgressDialog( QString labelText, QString cancelButtonText,
 		     int totalSteps, QWidget *parent=0, const char *name=0,
 		     bool modal=FALSE, WFlags f=0 );
    ~QProgressDialog();
@@ -61,8 +61,8 @@ public slots:
     void	reset();
     void	setTotalSteps( int totalSteps );
     void	setProgress( int progress );
-    void	setLabelText( const char * );
-    void	setCancelButtonText( const char * );
+    void	setLabelText( QString );
+    void	setCancelButtonText( QString );
 
 signals:
     void	cancelled();
@@ -72,7 +72,7 @@ protected:
     void	styleChange(GUIStyle);
 
 private:
-    void	   init( QWidget *creator, const char* lbl, const char* canc,
+    void	   init( QWidget *creator, QString lbl, QString canc,
 		         int totstps);
     void	   center();
     void	   layout();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#59 $
+** $Id: //depot/qt/main/src/tools/qstring.h#60 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -195,6 +195,8 @@ public:
     QString    &operator=( const char * );	// deep copy
     QString    &operator=( const QByteArray& );	// deep copy
 
+    static const QString null;
+
     bool	isNull()	const;
     bool	isEmpty()	const;
     uint	length()	const;
@@ -303,7 +305,7 @@ private:
 
     struct Data : public QShared {
 	Data() :
-	    unicode(0), ascii(0), len(0), maxl(0), dirtyascii(0) { }
+	    unicode(0), ascii(0), len(0), maxl(0), dirtyascii(0) { ref(); }
 	Data(QChar *u, uint l, uint m) :
 	    unicode(u), ascii(0), len(l), maxl(m), dirtyascii(0) { }
 	~Data() { if ( unicode ) delete [] unicode;
@@ -315,8 +317,7 @@ private:
 	uint dirtyascii:1;
     };
     Data *d;
-    static Data shared_empty;
-    static Data shared_null;
+    static Data* shared_null;
     friend int ucstrcmp( const QString &a, const QString &b );
 };
 

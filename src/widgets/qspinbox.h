@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#24 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#25 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -39,18 +39,18 @@ class QSpinBox: public QFrame, public QRangeControl
 {
     Q_OBJECT
 public:
-    QSpinBox( QWidget* parent = 0, const char* name = 0 );
+    QSpinBox( QWidget* parent = 0, QString name = 0 );
     QSpinBox( int minValue, int maxValue, int step = 1,
-	      QWidget* parent = 0, const char* name = 0 );
+	      QWidget* parent = 0, QString name = 0 );
     ~QSpinBox();
 
-    const char* 	text() const;
-    virtual const char*	prefix() const;
-    virtual const char*	suffix() const;
+    QString 	text() const;
+    virtual QString 	prefix() const;
+    virtual QString 	suffix() const;
     virtual QString 	cleanText() const;
 
-    virtual void		setSpecialValueText( const char* text );
-    const char* 	specialValueText() const;
+    virtual void		setSpecialValueText( QString text );
+    QString 	specialValueText() const;
 
     virtual void 		setWrapping( bool on );
     bool 		wrapping() const;
@@ -61,14 +61,14 @@ public:
 
 public slots:
     virtual void	setValue( int value );
-    virtual void	setPrefix( const char* text );
-    virtual void	setSuffix( const char* text );
+    virtual void	setPrefix( QString text );
+    virtual void	setSuffix( QString text );
     virtual void	stepUp();
     virtual void	stepDown();
 
 signals:
     void		valueChanged( int value );
-    void		valueChanged( const char* valueText );
+    void		valueChanged( QString valueText );
 
 protected:
     virtual QString	mapValueToText( int value );

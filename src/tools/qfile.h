@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#25 $
+** $Id: //depot/qt/main/src/tools/qfile.h#26 $
 **
 ** Definition of QFile class
 **
@@ -37,17 +37,17 @@ class QFile : public QIODevice			// file I/O device class
 {
 public:
     QFile();
-    QFile( const char *name );
+    QFile( QString name );
    ~QFile();
 
-    const char *name()	const;
-    void	setName( const char *name );
+    QString name()	const;
+    void	setName( QString name );
 
     bool	exists()   const;
-    static bool exists( const char *fileName );
+    static bool exists( QString fileName );
 
     bool	remove();
-    static bool remove( const char *fileName );
+    static bool remove( QString fileName );
 
     bool	open( int );
     bool	open( int, FILE * );
@@ -87,7 +87,7 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-inline const char *QFile::name() const
+inline QString QFile::name() const
 { return fn; }
 
 inline int QFile::at() const

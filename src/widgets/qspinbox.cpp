@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#42 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -94,7 +94,7 @@ struct QSpinBoxData {
   \sa minValue(), maxValue(), setRange(), lineStep(), setSteps()
 */
 
-QSpinBox::QSpinBox( QWidget * parent , const char * name )
+QSpinBox::QSpinBox( QWidget * parent , QString name )
     : QFrame( parent, name )
 {
     initSpinBox();
@@ -109,7 +109,7 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
 */
 
 QSpinBox::QSpinBox( int minValue, int maxValue, int step, QWidget* parent,
-		    const char* name )
+		    QString name )
     : QFrame( parent, name ),
       QRangeControl( minValue, maxValue, step, step, minValue )
 {
@@ -151,7 +151,7 @@ void QSpinBox::initSpinBox()
 
     connect( up, SIGNAL(pressed()), SLOT(stepUp()) );
     connect( down, SIGNAL(pressed()), SLOT(stepDown()) );
-    connect( vi, SIGNAL(textChanged(const char *)), SLOT(textChanged()) );
+    connect( vi, SIGNAL(textChanged(QString )), SLOT(textChanged()) );
 }
 
 /*!
@@ -169,7 +169,7 @@ QSpinBox::~QSpinBox()
   \sa value()
 */
 
-const char * QSpinBox::text() const
+QString QSpinBox::text() const
 { 	
     return vi->text();
 }
@@ -233,7 +233,7 @@ QString QSpinBox::cleanText() const
   \sa specialValueText()
 */
 
-void QSpinBox::setSpecialValueText( const char* text )
+void QSpinBox::setSpecialValueText( QString text )
 {
     specText = text;
     updateDisplay();
@@ -247,7 +247,7 @@ void QSpinBox::setSpecialValueText( const char* text )
   \sa setSpecialValueText()
 */
 
-const char* QSpinBox::specialValueText() const
+QString QSpinBox::specialValueText() const
 {
     if ( specText.isEmpty() )
 	return 0;
@@ -267,7 +267,7 @@ const char* QSpinBox::specialValueText() const
   \sa prefix(), setSuffix(), suffix()
 */
 
-void QSpinBox::setPrefix( const char* text )
+void QSpinBox::setPrefix( QString text )
 {
     pfix = text;
     updateDisplay();
@@ -285,7 +285,7 @@ void QSpinBox::setPrefix( const char* text )
   \sa suffix(), setPrefix(), prefix()
 */
 
-void QSpinBox::setSuffix( const char* text )
+void QSpinBox::setSuffix( QString text )
 {
     sfix = text;
     updateDisplay();
@@ -299,7 +299,7 @@ void QSpinBox::setSuffix( const char* text )
   \sa setPrefix(), setSuffix(), suffix()
 */
 
-const char* QSpinBox::prefix() const
+QString QSpinBox::prefix() const
 {
     if ( pfix.isEmpty() )
 	return 0;
@@ -315,7 +315,7 @@ const char* QSpinBox::prefix() const
   \sa setSuffix(), setPrefix(), suffix()
 */
 
-const char* QSpinBox::suffix() const
+QString QSpinBox::suffix() const
 {
     if ( sfix.isEmpty() )
 	return 0;
@@ -450,7 +450,7 @@ void QSpinBox::stepDown()
 
 
 /*!
-  \fn void QSpinBox::valueChanged( const char* valueText )
+  \fn void QSpinBox::valueChanged( QString valueText )
 
   This signal is emitted whenever the valueChanged( int ) signal is
   emitted, i.e. every time the value of the spin box changes (whatever

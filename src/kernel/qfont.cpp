@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#99 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -202,7 +202,7 @@ QFont::QFont()
   \sa setFamily(), setPointSize(), setWeight(), setItalic()
 */
 
-QFont::QFont( const char *family, int pointSize, int weight, bool italic )
+QFont::QFont( QString family, int pointSize, int weight, bool italic )
 {
     init();
     d->req.family    = family;
@@ -223,7 +223,7 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
   \sa setFamily(), setPointSize(), setWeight(), setItalic()
 */
 
-QFont::QFont( const char *family, int pointSize, int weight, bool italic,
+QFont::QFont( QString family, int pointSize, int weight, bool italic,
 	      CharSet charSet)
 {
     init();
@@ -290,7 +290,7 @@ QFont &QFont::operator=( const QFont &font )
   \sa setFamily(), substitute()
 */
 
-const char *QFont::family() const
+QString QFont::family() const
 {
     return d->req.family;
 }
@@ -306,7 +306,7 @@ const char *QFont::family() const
   \link fontmatch.html font matching\endlink
 */
 
-void QFont::setFamily( const char *family )
+void QFont::setFamily( QString family )
 {
     if ( d->req.family != family ) {
 	detach();
@@ -886,10 +886,10 @@ static void initFontSubst()			// create substitution dict
   \sa setFamily(), insertSubstitution(), removeSubstitution()
 */
 
-const char *QFont::substitute( const char *familyName )
+QString QFont::substitute( QString familyName )
 {
     initFontSubst();
-    const char *f = fontSubst->find( familyName );
+    QString f = fontSubst->find( familyName );
     return f ? f : familyName;
 }
 
@@ -903,8 +903,8 @@ const char *QFont::substitute( const char *familyName )
   \sa removeSubstitution(), listSubstitutions(), substitute()
 */
 
-void QFont::insertSubstitution( const char *familyName,
-				const char *replacementName )
+void QFont::insertSubstitution( QString familyName,
+				QString replacementName )
 {
     initFontSubst();
     fontSubst->replace( familyName, replacementName );
@@ -917,7 +917,7 @@ void QFont::insertSubstitution( const char *familyName,
   \sa insertSubstitution(), listSubstitutions(), substitute()
 */
 
-void QFont::removeSubstitution( const char *familyName )
+void QFont::removeSubstitution( QString familyName )
 {
     initFontSubst();
     if ( fontSubst )
@@ -937,7 +937,7 @@ void QFont::listSubstitutions( QStrList *list )
     list->clear();
     list->setAutoDelete( TRUE );
     QFontSubstIt it( *fontSubst );
-    const char *n;
+    QString n;
     while ( (n=it.currentKey()) ) {
 	list->inSort( qstrdup(n) );
 	++it;
@@ -1858,7 +1858,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
 
   \sa boundingRect() */
 
-QSize QFontMetrics::size( int flags, const char *str, int len, int tabstops,
+QSize QFontMetrics::size( int flags, QString str, int len, int tabstops,
 			  int *tabarray, char **intern ) const
 {
     return boundingRect(0,0,1,1,flags,str,len,tabstops,tabarray,intern).size();

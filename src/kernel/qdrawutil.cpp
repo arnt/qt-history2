@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#30 $
 **
 ** Implementation of draw utilities
 **
@@ -499,7 +499,7 @@ QRect qItemRect( QPainter *p, GUIStyle gs,
 		int flags, 
 		bool enabled,
 		const QPixmap *pixmap,
-		const char *text, int len )
+		QString text, int len )
 {
     QRect result;
 

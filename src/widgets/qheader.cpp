@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#52 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -410,7 +410,7 @@ void QHeader::paintCell( QPainter *p, int row, int col )
 
     int logIdx = mapToLogical(i);
 
-    const char *s = data->labels[logIdx];
+    QString s = data->labels[logIdx];
     int d = 0;
     if ( style() == WindowsStyle  &&
 	 i==handleIdx && ( state == Pressed || state == Moving ) )
@@ -607,7 +607,7 @@ QRect QHeader::sRect( int i )
   If \a size is non-negative, the section width is set to \a size.
 */
 
-void QHeader::setLabel( int i, const char *s, int size )
+void QHeader::setLabel( int i, QString s, int size )
 {
     if ( i >= 0 && i < count() ) {
 	if ( data->labels[i] )                      // Avoid purify complaints
@@ -623,7 +623,7 @@ void QHeader::setLabel( int i, const char *s, int size )
 /*!
   Returns the text set on logical section \a i.
 */
-const char* QHeader::label( int i )
+QString QHeader::label( int i )
 {
     return data->labels[i];
 }
@@ -634,7 +634,7 @@ const char* QHeader::label( int i )
   otherwise a size currently sufficient for the label text is used.
 */
 
-int QHeader::addLabel( const char *s, int size )
+int QHeader::addLabel( QString s, int size )
 {
     int n = count() + 1; //###########
     data->labels.resize( n + 1 );

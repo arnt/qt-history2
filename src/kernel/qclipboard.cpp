@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#19 $
 **
 ** Implementation of QClipboard class
 **
@@ -52,7 +52,7 @@
   Example:
   \code
     QClipboard *cb = QApplication::clipboard();
-    const char *text;
+    QString text;
 
     // Copy text from the clipboard (paste)
     text = cb->text();
@@ -97,50 +97,6 @@ QClipboard::~QClipboard()
 */
 
 
-/*!
-  Returns the clipboard text, or null if the clipboard does not contains
-  any text.
-  \sa setText()
-*/
-
-const char *QClipboard::text() const
-{
-    return (const char *)data("TEXT");
-}
-
-/*!
-  Copies \e text into the clipboard.
-  \sa text()
-*/
-
-void QClipboard::setText( const char *text )
-{
-    setData( "TEXT", (void *)text );
-}
-
-
-/*!
-  Returns the clipboard pixmap, or null if the clipboard does not contains
-  any pixmap.
-  \sa setText()
-*/
-
-QPixmap *QClipboard::pixmap() const
-{
-    return (QPixmap *)data("PIXMAP");
-}
-
-/*!
-  Copies \e pixmap into the clipboard.
-  \sa pixmap()
-*/
-
-void QClipboard::setPixmap( const QPixmap &pixmap )
-{
-    setData( "PIXMAP", (void *)&pixmap );
-}
-
-
 /*****************************************************************************
   QApplication member functions related to QClipboard.
  *****************************************************************************/
@@ -165,4 +121,17 @@ QClipboard *QApplication::clipboard()
 	qAddPostRoutine( cleanupClipboard );
     }
     return (QClipboard *)qt_clipboard;
+}
+
+/*!
+  Copies text into the clipboard, where \e format is the clipboard format
+  string and \e data is the data to be copied.
+
+  We recommend that you use setText() or setPixmap() instead.
+*/
+void QClipboard::setData( const char* format, void * )
+{
+#if defined(CHECK_RANGE)
+    warning( "QClipboard::data: Unknown format: %s", format );
+#endif
 }

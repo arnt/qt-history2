@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#36 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#37 $
 **
 ** Definition of QMessageBox class
 **
@@ -40,7 +40,7 @@ public:
     enum Icon { NoIcon = 0, Information = 1, Warning = 2, Critical = 3 };
 
     QMessageBox( QWidget *parent=0, const char *name=0 );
-    QMessageBox( const char *caption, const char *text, Icon icon,
+    QMessageBox( QString caption, QString text, Icon icon,
 		 int button0, int button1, int button2,
 		 QWidget *parent=0, const char *name=0, bool modal=TRUE,
 		 WFlags f=0 );
@@ -50,57 +50,57 @@ public:
 	   Ignore = 7, ButtonMask = 0x07,
 	   Default = 0x100, Escape = 0x200, FlagMask = 0x300 };
 
-    static int information( QWidget *parent, const char *caption,
-			    const char *text,
+    static int information( QWidget *parent, QString caption,
+			    QString text,
 			    int button0, int button1=0, int button2=0 );
-    static int information( QWidget *parent, const char *caption,
-			    const char *text,
-			    const char *button0Text = "OK",
-			    const char *button1Text = 0, 
-			    const char *button2Text = 0,
+    static int information( QWidget *parent, QString caption,
+			    QString text,
+			    QString button0Text = "OK",
+			    QString button1Text = QString::null, 
+			    QString button2Text = QString::null,
 			    int defaultButtonNumber = 0,
 			    int escapeButtonNumber = -1 );
 
-    static int warning( QWidget *parent, const char *caption,
-			const char *text,
+    static int warning( QWidget *parent, QString caption,
+			QString text,
 			int button0, int button1, int button2=0 );
-    static int warning( QWidget *parent, const char *caption,
-			const char *text,
-			const char *button0Text = "OK",
-			const char *button1Text = 0, 
-			const char *button2Text = 0,
+    static int warning( QWidget *parent, QString caption,
+			QString text,
+			QString button0Text = "OK",
+			QString button1Text = QString::null, 
+			QString button2Text = QString::null,
 			int defaultButtonNumber = 0,
 			int escapeButtonNumber = -1 );
 
-    static int critical( QWidget *parent, const char *caption,
-			 const char *text,
+    static int critical( QWidget *parent, QString caption,
+			 QString text,
 			 int button0, int button1, int button2=0 );
-    static int critical( QWidget *parent, const char *caption,
-			 const char *text,
-			 const char *button0Text = "OK",
-			 const char *button1Text = 0, 
-			 const char *button2Text = 0,
+    static int critical( QWidget *parent, QString caption,
+			 QString text,
+			 QString button0Text = "OK",
+			 QString button1Text = QString::null, 
+			 QString button2Text = QString::null,
 			 int defaultButtonNumber = 0,
 			 int escapeButtonNumber = -1 );
     
-    static void about( QWidget *parent, const char *caption,
-		       const char *text );
+    static void about( QWidget *parent, QString caption,
+		       QString text );
 
-    static void aboutQt( QWidget *parent, const char *caption=0 );
+    static void aboutQt( QWidget *parent, QString caption=QString::null );
 
 #if 1 /* OBSOLETE */
-    static int message( const char *caption,
-			const char *text,  const char *buttonText=0,
+    static int message( QString caption,
+			QString text,  QString buttonText=QString::null,
 			QWidget *parent=0, const char *name=0 );
 
-    static bool query( const char *caption,
-		       const char *text,  const char *yesButtonText=0,
-		       const char *noButtonText=0,
+    static bool query( QString caption,
+		       QString text,  QString yesButtonText=QString::null,
+		       QString noButtonText=QString::null,
 		       QWidget *parent=0, const char *name=0 );
 #endif
 
-    const char *text() const;
-    void	setText( const char * );
+    QString	text() const;
+    void	setText( QString );
 
     Icon	icon() const;
     void	setIcon( Icon );
@@ -109,12 +109,12 @@ public:
     void	setIconPixmap( const QPixmap & );
 
 #if 1 /* OBSOLETE */
-    const char *buttonText() const;
-    void	setButtonText( const char * );
+    QString	buttonText() const;
+    void	setButtonText( QString );
 #endif
 
-    const char *buttonText( int button ) const;
-    void	setButtonText( int button, const char * );
+    QString	buttonText( int button ) const;
+    void	setButtonText( int button, QString );
 
     void	adjustSize();
 

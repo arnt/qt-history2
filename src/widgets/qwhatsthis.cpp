@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#17 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -87,11 +87,10 @@ public:
     // an item for storing texts
     struct Item: public QShared
     {
-	Item(): QShared(), dc(FALSE), s(0), t(0) {}
+	Item(): QShared() {}
 	~Item();
-	bool dc;
-	char * s;
-	char * t;
+	QString s;
+	QString t;
 	QPixmap pm;
     };
 
@@ -104,7 +103,7 @@ public:
     bool eventFilter( QObject *, QEvent * );
 
     // say it.
-    void say( QWidget *, const char * );
+    void say( QWidget *, QString );
 
     // setup and teardown
     static void tearDownWhatsThis();
@@ -130,8 +129,6 @@ QWhatsThisPrivate::Item::~Item()
 {
     if ( count )
 	fatal( "Internal error #10%d in What's This", count );
-    if ( dc && s )
-	delete[] (char*)s;
 }
 
 
@@ -261,7 +258,7 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 	++it;
 	dict->take( w );
 	i->deref();
-	if ( !i->dc || !i->count )
+	if ( !i->count )
 	    delete i;
     }
 
@@ -364,7 +361,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    ((QKeyEvent *)e)->accept();
 	    QWidget * w = ((QWidget *)o)->focusWidget();
 	    QWhatsThisPrivate::Item * i = 0;
-	    if ( w && (i=dict->find( w )) != 0 && i->s ) {
+	    if ( w && (i=dict->find( w )) != 0 && !i->s.isNull() ) {
 		say( w, i->s );
 		state = Displaying;
 		qApp->installEventFilter( this );
@@ -392,7 +389,7 @@ void QWhatsThisPrivate::tearDownWhatsThis()
 }
 
 
-void QWhatsThisPrivate::say( QWidget * widget, const char * text )
+void QWhatsThisPrivate::say( QWidget * widget, QString text )
 {
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
     const int normalMargin = 12; // *2
@@ -509,28 +506,23 @@ void QWhatsThisPrivate::say( QWidget * widget, const char * text )
 
 // and finally the What's This class itself
 
-/*!  Adds \a text as What's This help for \a widget.  If \a deepCopy
-  is TRUE, QWhatsThis makes a deep copy of the string; if it is FALSE
-  QWhatsThis just copies the pointer \a text.
+/*!  Adds \a text as What's This help for \a widget.
 */
 
-void QWhatsThis::add( QWidget * widget, const char * text, bool deepCopy )
+void QWhatsThis::add( QWidget * widget, QString text )
 {
     QPixmap tmp;
-    add( widget, tmp, 0, text, deepCopy );
+    add( widget, tmp, 0, text );
 }
 
 
 
 /*!  Adds \a text as What's This help for \a widget, with title line
-  \a title and icon \a icon.  If \a deepCopy is TRUE, QWhatsThis makes
-  a deep copy of \a title and \a text; if it is FALSE QWhatsThis just
-  copies the pointers.
+  \a title and icon \a icon.
 */
 
 void QWhatsThis::add( QWidget * widget, const QPixmap & icon,
-		      const char * title, const char * text,
-		      bool deepCopy )
+		      QString title, QString text )
 {
     QWhatsThisPrivate::setUpWhatsThis();
     QWhatsThisPrivate::Item * i = wt->dict->find( (void *)widget );
@@ -538,18 +530,8 @@ void QWhatsThis::add( QWidget * widget, const QPixmap & icon,
 	remove( widget );
 
     i = new QWhatsThisPrivate::Item;
-    i->dc = deepCopy;
-    if ( deepCopy ) {
-	i->s = new char[ qstrlen(text) + 1 ];
-	qstrcpy( i->s, text );
-	if ( title ) {
-	    i->t = new char[ qstrlen(text) + 1 ];
-	    qstrcpy( i->t, text );
-	}
-    } else {
-	i->s = (char*)text;
-	i->t = (char*)title;
-    }
+    i->s = text;
+    i->t = title;
     i->pm = icon;
     wt->dict->insert( (void *)widget, i );
     QWidget * tlw = widget->topLevelWidget();
@@ -572,7 +554,7 @@ void QWhatsThis::remove( QWidget * widget )
     wt->dict->take( (void *)widget );
 
     i->deref();
-    if ( !i->dc || !i->count )
+    if ( !i->count )
 	delete i;
 }
 
@@ -582,11 +564,11 @@ void QWhatsThis::remove( QWidget * widget )
 
   \sa add() */
 
-const char * QWhatsThis::textFor( QWidget * widget )
+QString QWhatsThis::textFor( QWidget * widget )
 {
     QWhatsThisPrivate::setUpWhatsThis();
     QWhatsThisPrivate::Item * i = wt->dict->find( widget );
-    return i ? i->s : 0;
+    return i ? i->s : QString::null;
 }
 
 

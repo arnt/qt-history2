@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#158 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#159 $
 **
 ** Definition of QWidget class
 **
@@ -147,15 +147,15 @@ public:
     const QCursor &cursor() const;
     virtual void setCursor( const QCursor & );
 
-    const char	*caption()	const;
+    QString caption()	const;
     const QPixmap *icon()	const;
-    const char	*iconText()	const;
+    QString iconText()	const;
     bool	 hasMouseTracking() const;
 
 public slots:
-    virtual void	 setCaption( const char * );
+    virtual void	 setCaption( QString );
     virtual void	 setIcon( const QPixmap & );
-    virtual void	 setIconText( const char * );
+    virtual void	 setIconText( QString );
     virtual void	 setMouseTracking( bool enable );
 
   // Keyboard input focus functions
@@ -237,8 +237,8 @@ public:
     void	 erase( const QRect & );
     void	 scroll( int dx, int dy );
 
-    void	 drawText( int x, int y, const char * );
-    void	 drawText( const QPoint &, const char * );
+    void	 drawText( int x, int y, QString );
+    void	 drawText( const QPoint &, QString );
 
   // Misc. functions
 
@@ -501,7 +501,7 @@ inline void QWidget::resize( const QSize &s )
 inline void QWidget::setGeometry( const QRect &r )
 { setGeometry( r.left(), r.top(), r.width(), r.height() ); }
 
-inline void QWidget::drawText( const QPoint &p, const char *s )
+inline void QWidget::drawText( const QPoint &p, QString s )
 { drawText( p.x(), p.y(), s ); }
 
 inline QWidget *QWidget::parentWidget() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#31 $
 **
 ** Implementation of QToolButton class
 **
@@ -59,7 +59,7 @@ class QToolButtonPrivate
 
 /*!  Constructs an empty tool button. */
 
-QToolButton::QToolButton( QWidget * parent, const char * name )
+QToolButton::QToolButton( QWidget * parent, QString name )
     : QButton( parent, name )
 {
     init();
@@ -90,10 +90,10 @@ void QToolButton::init()
   in object \a receiver, and returns the button.
 */
 
-QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
-			  const char * grouptext,
-			  QObject * receiver, const char * slot,
-			  QToolBar * parent, const char * name )
+QToolButton::QToolButton( const QPixmap & pm, QString textLabel,
+			  QString grouptext,
+			  QObject * receiver, QString slot,
+			  QToolBar * parent, QString name )
     : QButton( parent, name )
 {
     init();
@@ -126,10 +126,10 @@ QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
   in object \a receiver, and returns the button.
 */
 
-QToolButton::QToolButton( QIconSet iconSet, const char * textLabel,
-			  const char * grouptext,
-			  QObject * receiver, const char * slot,
-			  QToolBar * parent, const char * name )
+QToolButton::QToolButton( QIconSet iconSet, QString textLabel,
+			  QString grouptext,
+			  QObject * receiver, QString slot,
+			  QToolBar * parent, QString name )
     : QButton( parent, name )
 {
     init();
@@ -222,7 +222,7 @@ QSize QToolButton::sizeHint() const
 */
 
 
-/*! \fn const char * QToolButton::textLabel() const
+/*! \fn QString QToolButton::textLabel() const
 
   Returns the text label in use by this tool button, or 0.
 
@@ -450,7 +450,7 @@ bool QToolButton::uses3D() const
   sets it as tool tip too if \a tipToo is TRUE.
 */
 
-void QToolButton::setTextLabel( const char * newLabel , bool tipToo )
+void QToolButton::setTextLabel( QString newLabel , bool tipToo )
 {
     tl = newLabel;
     if ( !tipToo )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#61 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -91,7 +91,7 @@ inline bool QFontInternal::dirty() const
     return hdc == 0;
 }
 
-inline const char *QFontInternal::key() const
+inline QString QFontInternal::key() const
 {
     return k;
 }
@@ -213,7 +213,7 @@ void QFont::cacheStatistics()
 }
 
 
-QFont::QFont( bool )
+QFont::QFont( Internal )
 {
     init();
     d->req.family    = "MS Sans Serif";		// default font
@@ -241,7 +241,7 @@ HANDLE QFont::handle( HANDLE output_hdc ) const
     return last;
 }
 
-const char* QFont::rawName() const
+QString QFont::rawName() const
 {
     return family();
 } 
@@ -644,7 +644,7 @@ int QFontMetrics::width( char ch ) const
 }
 
 
-int QFontMetrics::width( const char *str, int len ) const
+int QFontMetrics::width( QString str, int len ) const
 {
     if ( len < 0 )
 	len = strlen( str );
@@ -657,7 +657,7 @@ int QFontMetrics::width( const char *str, int len ) const
     return s.cx;
 }
 
-QRect QFontMetrics::boundingRect( const char *str, int len ) const
+QRect QFontMetrics::boundingRect( QString str, int len ) const
 {
     if ( len < 0 )
 	len = strlen( str );

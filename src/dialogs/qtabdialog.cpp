@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#59 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#60 $
 **
 ** Implementation of QTabDialog class
 **
@@ -159,7 +159,7 @@
   \sa QDialog
 */
 
-/*! \fn void QTabDialog::selected( const char * tabLabel );
+/*! \fn void QTabDialog::selected( QString tabLabel );
 
   This signal is emitted whenever a tab is selected (raised),
   including during the first show().
@@ -405,7 +405,7 @@ void QTabDialog::showTab( int i )
   user will be confused.
 */
 
-void QTabDialog::addTab( QWidget * child, const char * label )
+void QTabDialog::addTab( QWidget * child, QString label )
 {
     QTab * t = new QTab();
     CHECK_PTR( t );
@@ -476,7 +476,7 @@ void QTabDialog::showPage( QWidget * w )
   \sa setTabEnabled(), QWidget::isEnabled()
 */
 
-bool QTabDialog::isTabEnabled( const char *name ) const
+bool QTabDialog::isTabEnabled( QString name ) const
 {
     if ( !name || !*name )
 	return FALSE;
@@ -512,7 +512,7 @@ bool QTabDialog::isTabEnabled( const char *name ) const
   \sa isTabEnabled(), QWidget::setEnabled()
 */
 
-void QTabDialog::setTabEnabled( const char * name, bool enable )
+void QTabDialog::setTabEnabled( QString name, bool enable )
 {
     if ( !name || !*name )
 	return;
@@ -542,7 +542,7 @@ void QTabDialog::setTabEnabled( const char * name, bool enable )
   \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */
 
-void QTabDialog::setApplyButton( const char * text )
+void QTabDialog::setApplyButton( QString text )
 {
     if ( !text && d->ab ) {
 	delete d->ab;
@@ -574,7 +574,7 @@ void QTabDialog::setApplyButton( const char * text )
   \sa setApplyButton() setCancelButton() defaultButtonPressed()
 */
 
-void QTabDialog::setDefaultButton( const char * text )
+void QTabDialog::setDefaultButton( QString text )
 {
     if ( !text ) {
 	delete d->db;
@@ -608,7 +608,7 @@ void QTabDialog::setDefaultButton( const char * text )
   \sa setApplyButton setDefaultButton() cancelButtonPressed()
 */
 
-void QTabDialog::setCancelButton( const char * text )
+void QTabDialog::setCancelButton( QString text )
 {
     if ( !text ) {
 	delete d->cb;
@@ -841,7 +841,7 @@ QRect QTabDialog::childRect() const
   \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */
 
-void QTabDialog::setOkButton( const char * text )
+void QTabDialog::setOkButton( QString text )
 {
     if ( !text ) {
 	delete d->ok;
@@ -863,7 +863,7 @@ void QTabDialog::setOkButton( const char * text )
 /*!
   Old version of setOkButton(), provided for backward compatibility.
  */
-void QTabDialog::setOKButton( const char * text )
+void QTabDialog::setOKButton( QString text )
 {
     setOkButton( text );
 }
@@ -872,10 +872,10 @@ void QTabDialog::setOKButton( const char * text )
 /*!  Returns the text in the tab for page \a w.
 */
 
-const char * QTabDialog::tabLabel( QWidget * w )
+QString QTabDialog::tabLabel( QWidget * w )
 {
     QTab * t = d->tabs->tab( d->stack->id( w ) );
-    return t ? ((const char *)t->label) : 0;
+    return t ? ((QString )t->label) : QString::null;
 }	
 
 

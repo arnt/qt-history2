@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#120 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#121 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -46,7 +46,7 @@
 #define WS_EX_TOOLWINDOW 0x00000080
 #endif
 
-const char *qt_reg_winclass( int type );	// defined in qapplication_win.cpp
+QString qt_reg_winclass( int type );	// defined in qapplication_win.cpp
 void	    qt_enter_modal( QWidget * );
 void	    qt_leave_modal( QWidget * );
 bool	    qt_modal_state();
@@ -87,7 +87,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     bool   modal    = testWFlags(WType_Modal);
     bool   desktop  = testWFlags(WType_Desktop);
     HANDLE appinst  = qWinAppInst();
-    const char *wcln = qt_reg_winclass( tool ? 1 : 0 );
+    QString wcln = qt_reg_winclass( tool ? 1 : 0 );
     HANDLE parentw, destroyw = 0;
     WId	   id;
 
@@ -339,7 +339,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     bool     enable = isEnabled();		// remember status
     QSize    s	    = size();
     QColor   bgc    = bg_col;			// save colors
-    const char* capt= caption();
+    QString capt= caption();
     flags = f;
     clearWFlags( WState_Created | WState_Visible );
     create();
@@ -468,7 +468,7 @@ void QWidget::setCursor( const QCursor &cursor )
 }
 
 
-void QWidget::setCaption( const char *caption )
+void QWidget::setCaption( QString caption )
 {
     if ( caption && extra && extra->caption &&
 	 !strcmp( extra->caption, caption ) )
@@ -542,7 +542,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 }
 
 
-void QWidget::setIconText( const char *iconText )
+void QWidget::setIconText( QString iconText )
 {
     if ( extra && extra->iconText )
 	delete [] extra->iconText;
@@ -963,7 +963,7 @@ void QWidget::scroll( int dx, int dy )
 }
 
 
-void QWidget::drawText( int x, int y, const char *str )
+void QWidget::drawText( int x, int y, QString str )
 {
     if ( testWFlags(WState_Visible) ) {
 	QPainter paint;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#66 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -386,7 +386,7 @@ static const char *ps_header[] = {
 "",
 "",// isn't this important enough to try to avoid the SC?
 "",
-"/T {",					// PDC_DRAWTEXT [string x y]
+"/T {",					// PDC_DRAWTEXT2 [string x y]
 "    MT",				// !!!! Uff
 "    PCol SC",				// set pen/text color
 "    show",
@@ -1861,7 +1861,7 @@ static void makeFixedStrings()
     int k;
     int l = 0; // unicode to glyph accumulator
     QString vector;
-    const char * glyphname;
+    QString glyphname;
     do {
 	vector.sprintf( "/FE%d [", (int)unicodevalues[i].cs );
 	glyphname = 0;
@@ -2057,7 +2057,7 @@ void QPSPrinter::setFont( const QFont & f )
 	    ps.append( "-Roman" );
     }
 
-    QString key;
+    Q1String key;
     int cs = (int)f.charSet();
     if ( cs == QFont::AnyCharSet ) {
 	QIntDictIterator<void> it( d->headerEncodings );
@@ -2394,13 +2394,15 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		stream << "BZ\n";
 	    }
 	    break;
-	case PDC_DRAWTEXT:
-	    if ( p[1].str && strlen( p[1].str ) ) {
-		char * tmp = new char[ strlen( p[1].str ) * 2 + 2 ];
+	case PDC_DRAWTEXT2:
+	    if ( !p[1].str->isEmpty() ) {
+		// #### Unicode ignored
+
+		char * tmp = new char[ p[1].str->length() * 2 + 2 ];
 #if defined(CHECK_NULL)
 		CHECK_PTR( tmp );
 #endif
-		const char * from = p[1].str;
+		const char* from = p[1].str->ascii();
 		char * to = tmp;
 		while ( *from ) {
 		    if ( *from == '\\' || *from == '(' || *from == ')' )
@@ -2412,7 +2414,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		delete [] tmp;
 	    }
 	    break;
-	case PDC_DRAWTEXTFRMT:;
+	case PDC_DRAWTEXT2FRMT:;
 	    return FALSE;			// uses QPainter instead
 	case PDC_DRAWPIXMAP: {
 	    if ( p[1].pixmap->isNull() )
@@ -2568,8 +2570,8 @@ void QPSPrinter::orientationSetup()
 
 void QPSPrinter::emitHeader( bool finished )
 {
-    const char *title   = printer->docName();
-    const char *creator = printer->creator();
+    QString title   = printer->docName();
+    QString creator = printer->creator();
     if ( !title )				// default document names
 	title = "Unknown";
     if ( !creator )				// default creator
@@ -2612,11 +2614,11 @@ void QPSPrinter::emitHeader( bool finished )
 	else
 	    stream << "% Fonts and encodings used on pages 1-"
 		   << pageCount << "\n";
-	stream.writeRawBytes( (const char *)(d->fontBuffer->buffer().data()),
+	stream.writeRawBytes( (QString )(d->fontBuffer->buffer().data()),
 			      d->fontBuffer->buffer().size() );
     }
     stream << "%%EndProlog\n";
-    stream.writeRawBytes( (const char *)(d->buffer->buffer().data()),
+    stream.writeRawBytes( (QString )(d->buffer->buffer().data()),
 			  d->buffer->buffer().size() );
 
     delete d->buffer;

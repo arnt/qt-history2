@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#144 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#145 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1835,14 +1835,14 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    newstr.truncate( len );
 	    param[0].rect = &r;
 	    param[1].ival = tf;
-	    param[2].str = newstr.ascii(); // #### unicode
+	    param[2].str = &newstr;
 	    if ( pdev->devType() != PDT_PRINTER ) {
 #if defined(_WS_WIN_)
-		if ( !pdev->cmd(PDC_DRAWTEXTFRMT,this,param) || !hdc )
+		if ( !pdev->cmd(PDC_DRAWTEXT2FRMT,this,param) || !hdc )
 #else
-		if ( !pdev->cmd(PDC_DRAWTEXTFRMT,this,param) || !hd )
+		if ( !pdev->cmd(PDC_DRAWTEXT2FRMT,this,param) || !hd )
 #endif
-		    return;			// QPrinter wants PDC_DRAWTEXT
+		    return;			// QPrinter wants PDC_DRAWTEXT2
 	    }
 	}
     }
@@ -1887,18 +1887,18 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	code_alloc = TRUE;
     }
 
-    const int BEGLINE  = 0x80000000UL;	// encoding 0x8000zzzz, z=width
-    const int TABSTOP  = 0x40000000UL;	// encoding 0x4000zzzz, z=tab pos
-    const int PREFIX   = 0x20000000UL;	// encoding 0x2000hilo
-    const int HI       = 0x0000ff00UL;	//  hi,lo=QChar
-    const int LO       = 0x000000ffUL;
+    const uint BEGLINE  = 0x80000000;	// encoding 0x8000zzzz, z=width
+    const uint TABSTOP  = 0x40000000;	// encoding 0x4000zzzz, z=tab pos
+    const uint PREFIX   = 0x20000000;	// encoding 0x2000hilo
+    const uint HI       = 0x0000ff00;	//  hi,lo=QChar
+    const uint LO       = 0x000000ff;
     const int HI_SHIFT = 8;
     const int LO_SHIFT = 0;
     // An advanced display function might provide for different fonts, etc.
-    const int WIDTHBITS= 0x1fffffff;	// bits for width encoding
-    const int MAXWIDTH = 0x1fffffff;	// max width value
+    const uint WIDTHBITS= 0x1fffffff;	// bits for width encoding
+    const uint MAXWIDTH = 0x1fffffff;	// max width value
 
-    QChar *p = str.unicode();
+    const QChar *p = str.unicode();
     int nlines;					// number of lines
     int index;					// index for codes
     int begline;				// index at beginning of line
@@ -1907,9 +1907,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     int maxwidth;				// maximum width of a line
     int bcwidth;				// width of break char
     int tabindex;				// tab array index
-    int cw;					// character width
+    uint cw;					// character width
     int k;					// index for p
-    int tw;					// text width
+    uint tw;					// text width
 
 #define CWIDTH(x) fm.width(x) // Could cache, but put that it in fm
 #define ENCCHAR(x) (((x).lo << LO_SHIFT) | ((x).hi << HI_SHIFT))

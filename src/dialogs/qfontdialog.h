@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#5 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#6 $
 **
 ** Definition of QFontDialog
 **
@@ -63,9 +63,9 @@ protected slots:
     void sizeSelected();
 
 private slots:
-    void familyHighlighted( const char * );
-    void styleHighlighted( const char * );
-    void sizeHighlighted( const char * );
+    void familyHighlighted( QString );
+    void styleHighlighted( QString );
+    void sizeHighlighted( QString );
 
 private:
     QFontDialogPrivate * d;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#119 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#120 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -522,15 +522,15 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \sa \link shclass.html Shared classes\endlink
 */
 
-QString::Data QString::shared_null;
-QString::Data QString::shared_empty(new QChar[1],0,1); // NOT USED YET
+QString::Data *QString::shared_null = 0;
+const QString QString::null;
 
 /*!
   Constructs a null string.
   \sa isNull()
 */
 QString::QString() :
-    d(&shared_null)
+    d(shared_null ? shared_null : shared_null=new Data)
 {
     d->ref();
 }
@@ -560,7 +560,7 @@ QString::QString( int size )
 	int l = size-1;
 	d = new Data(new QChar[l],0,l);
     } else {
-	d = &shared_null;
+	d = shared_null ? shared_null : shared_null=new Data;
 	d->ref();
     }
 }

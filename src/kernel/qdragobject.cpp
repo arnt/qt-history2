@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#47 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -44,7 +44,7 @@ struct QDragData {
 
 struct QStoredDragData {
     QStoredDragData() {}
-    QString fmt;
+    const char* fmt;
     QByteArray enc;
 };
 
@@ -477,7 +477,7 @@ QWidget * QDragObject::source()
 /*!  Creates a text drag object and sets it to \a text.  \a dragSource
   must be the drag source, \a name is the object name. */
 
-QTextDrag::QTextDrag( const char * text,
+QTextDrag::QTextDrag( QString text,
 		      QWidget * dragSource, const char * name )
     : QStoredDrag( "text/plain", dragSource, name )
 {
@@ -508,7 +508,7 @@ QTextDrag::~QTextDrag()
   Sets the text to be dragged.  You will need to call this if you did
   not pass the text during construction.
 */
-void QTextDrag::setText( const char * text )
+void QTextDrag::setText( QString text )
 {
     int l = qstrlen(text);
     QByteArray tmp(l);
@@ -608,7 +608,7 @@ void QImageDrag::setImage( QImage image )
 const char * QImageDrag::format(int i) const
 {
     if ( i < (int)ofmts.count() ) {
-	static QString str;
+	static Q1String str;
 	str.sprintf("image/%s",(((QImageDrag*)this)->ofmts).at(i));
 	str = str.lower();
 	if ( str == "image/pbmraw" )
@@ -622,7 +622,7 @@ const char * QImageDrag::format(int i) const
 QByteArray QImageDrag::encodedData(const char* fmt) const
 {
     if ( qstrnicmp( fmt, "image/", 6 )==0 ) {
-	QString f = fmt+6;
+	Q1String f = fmt+6;
 	QByteArray data;
 	QBuffer w( data );
 	w.open( IO_WriteOnly );
@@ -710,7 +710,7 @@ QStoredDrag::QStoredDrag( const char* mimeType, QWidget * dragSource, const char
     QDragObject(dragSource,name)
 {
     d = new QStoredDragData();
-    d->fmt = mimeType;
+    d->fmt = qstrdup(mimeType);
 }
 
 /*!
@@ -718,6 +718,7 @@ QStoredDrag::QStoredDrag( const char* mimeType, QWidget * dragSource, const char
 */
 QStoredDrag::~QStoredDrag()
 {
+    delete d->fmt;
     delete d;
 }
 

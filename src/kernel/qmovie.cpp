@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#40 $
 **
 ** Implementation of movie classes
 **
@@ -517,7 +517,7 @@ QMovie::QMovie(QDataSource* src, int bufsize)
   \overload
   Creates a QMovie which reads an image sequence from the named file.
 */
-QMovie::QMovie(const char* fileName, int bufsize)
+QMovie::QMovie(QString fileName, int bufsize)
 {
     QFile* file = new QFile(fileName);
     file->open(IO_ReadOnly);
@@ -763,7 +763,7 @@ void QMovie::setSpeed(int percent)
   persist until they are explicitly disconnected with disconnectResize(), or
   until \e every shared copy of the movie is deleted.
 */
-void QMovie::connectResize(QObject* receiver, const char* member)
+void QMovie::connectResize(QObject* receiver, QString member)
 {
     QObject::connect(d, SIGNAL(sizeChanged(const QSize&)), receiver, member);
 }
@@ -773,7 +773,7 @@ void QMovie::connectResize(QObject* receiver, const char* member)
   previously connected by
   connectResize().
 */
-void QMovie::disconnectResize(QObject* receiver, const char* member)
+void QMovie::disconnectResize(QObject* receiver, QString member)
 {
     QObject::disconnect(d, SIGNAL(sizeChanged(const QSize&)), receiver, member);
 }
@@ -787,7 +787,7 @@ void QMovie::disconnectResize(QObject* receiver, const char* member)
   persist until they are explicitly disconnected with disconnectUpdate(), or
   until \e every shared copy of the movie is deleted.
 */
-void QMovie::connectUpdate(QObject* receiver, const char* member)
+void QMovie::connectUpdate(QObject* receiver, QString member)
 {
     QObject::connect(d, SIGNAL(areaChanged(const QRect&)), receiver, member);
 }
@@ -797,7 +797,7 @@ void QMovie::connectUpdate(QObject* receiver, const char* member)
   previously connected by
   connectUpdate().
 */
-void QMovie::disconnectUpdate(QObject* receiver, const char* member)
+void QMovie::disconnectUpdate(QObject* receiver, QString member)
 {
     QObject::disconnect(d, SIGNAL(areaChanged(const QRect&)), receiver, member);
 }
@@ -827,7 +827,7 @@ void QMovie::disconnectUpdate(QObject* receiver, const char* member)
   persist until they are explicitly disconnected with disconnectStatus(), or
   until \e every shared copy of the movie is deleted.
 */
-void QMovie::connectStatus(QObject* receiver, const char* member)
+void QMovie::connectStatus(QObject* receiver, QString member)
 {
     QObject::connect(d, SIGNAL(dataStatus(int)), receiver, member);
 }
@@ -837,7 +837,7 @@ void QMovie::connectStatus(QObject* receiver, const char* member)
   previously connected by
   connectStatus().
 */
-void QMovie::disconnectStatus(QObject* receiver, const char* member)
+void QMovie::disconnectStatus(QObject* receiver, QString member)
 {
     QObject::disconnect(d, SIGNAL(dataStatus(int)), receiver, member);
 }
@@ -851,8 +851,8 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 /****************************************************************************
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
-** Created: Thu Sep 4 15:31:20 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.39 $)
+** Created: Sun Aug 16 23:30:39 1998
+**      by: The Qt Meta Object Compiler ($Revision: 1.40 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -863,7 +863,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 #error Moc format conflict - please regenerate all moc files
 #endif
 
-#include <qmetaobject.h>
+#include <qmetaobj.h>
 
 
 const char *QMoviePrivate::className() const

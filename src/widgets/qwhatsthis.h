@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#5 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#6 $
 **
 ** Definition of QWhatsThis class
 **
@@ -33,18 +33,17 @@ class QPopupMenu;
 class QWhatsThis
 {
 public:
-    static void add( QWidget *, const char *, bool deepCopy = TRUE );
-    static void add( QWidget *, const QPixmap &,
-		     const char *, const char *, bool deepCopy = TRUE );
+    static void add( QWidget *, QString );
+    static void add( QWidget *, const QPixmap &, QString, QString );
     static void remove( QWidget * );
-    static const char * textFor( QWidget * );
+    static QString textFor( QWidget * );
 
     static QToolButton * whatsThisButton( QWidget * parent );
     //static void enterWhatsThisMode();
 
-    //static void say( const char *, QWidget * near );
+    //static void say( QString , QWidget * near );
 
-    //static int addMenuEntry( QPopupMenu *, QWidget *, const char * = 0 );
+    //static int addMenuEntry( QPopupMenu *, QWidget *, QString = 0 );
 };
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.h#17 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.h#18 $
 **
 ** Definition of QFileInfo class
 **
@@ -42,24 +42,24 @@ public:
 	ReadOther = 0004, WriteOther = 0002, ExeOther = 0001 };
 
     QFileInfo();
-    QFileInfo( const char *file );
+    QFileInfo( QString file );
     QFileInfo( const QFile & );
-    QFileInfo( const QDir &, const char *fileName );
+    QFileInfo( const QDir &, QString fileName );
     QFileInfo( const QFileInfo & );
    ~QFileInfo();
 
     QFileInfo  &operator=( const QFileInfo & );
 
-    void	setFile( const char *file );
+    void	setFile( QString file );
     void	setFile( const QFile & );
-    void	setFile( const QDir &, const char *fileName );
+    void	setFile( const QDir &, QString fileName );
 
     bool	exists()	const;
     void	refresh()	const;
     bool	caching()	const;
     void	setCaching( bool );
 
-    const char *filePath()	const;
+    QString filePath()	const;
     QString	fileName()	const;
     QString	absFilePath()	const;
     QString	baseName()	const;
@@ -81,9 +81,9 @@ public:
 
     QString	readLink()	const;
 
-    const char *owner()		const;
+    QString owner()		const;
     uint	ownerId()	const;
-    const char *group()		const;
+    QString group()		const;
     uint	groupId()	const;
 
     bool	permission( int permissionSpec ) const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#27 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#28 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -77,13 +77,16 @@
 #define PDC_SETWMATRIX		55		// matrix,ival
 #define PDC_SETCLIP		60		// ival
 #define PDC_SETCLIPRGN		61		// rgn
+#define PDC_DRAWTEXT2		62		// point,str
+#define PDC_DRAWTEXT2FRMT	63		// rect,ival,str
 
 class QIODevice;
+class QString;
 
 union QPDevCmdParam {
     int			 ival;
     int			*ivec;
-    const char		*str;
+    QString	        *str;
     const QPoint	*point;
     const QRect		*rect;
     const QPointArray	*ptarr;

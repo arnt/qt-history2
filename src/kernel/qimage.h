@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#62 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#63 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -40,7 +40,7 @@ public:
 	    Endian bitOrder=IgnoreEndian );
     QImage( const QSize&, int depth, int numColors=0,
 	    Endian bitOrder=IgnoreEndian );
-    QImage( const char *fileName, const char *format=0 );
+    QImage( QString fileName, const char* format=0 );
     QImage( const char *xpm[] );
     QImage( const QImage & );
    ~QImage();
@@ -107,15 +107,15 @@ public:
     static Endian systemBitOrder();
     static Endian systemByteOrder();
 
-    static const char *imageFormat( const char *fileName );
+    static const char* imageFormat( QString fileName );
     static QStrList inputFormats();
     static QStrList outputFormats();
 
-    bool	load( const char *fileName, const char *format=0 );
+    bool	load( QString fileName, const char* format=0 );
     bool	loadFromData( const uchar *buf, uint len,
 			      const char *format=0 );
     bool	loadFromData( QByteArray data, const char *format=0 );
-    bool	save( const char *fileName, const char *format ) const;
+    bool	save( QString fileName, const char* format ) const;
 
     bool	valid( int x, int y ) const;
     int		pixelIndex( int x, int y ) const;
@@ -158,7 +158,7 @@ class QImageIO
 public:
     QImageIO();
     QImageIO( QIODevice	 *ioDevice, const char *format );
-    QImageIO( const char *fileName, const char *format );
+    QImageIO( QString fileName, const char* format );
    ~QImageIO();
 
 
@@ -166,22 +166,22 @@ public:
     int		status()	const	{ return iostat; }
     const char *format()	const	{ return frmt; }
     QIODevice  *ioDevice()	const	{ return iodev; }
-    const char *fileName()	const	{ return fname; }
+    QString fileName()	const	{ return fname; }
     const char *parameters()	const	{ return params; }
-    const char *description()	const	{ return descr; }
+    QString description()	const	{ return descr; }
 
     void	setImage( const QImage & );
     void	setStatus( int );
     void	setFormat( const char * );
     void	setIODevice( QIODevice * );
-    void	setFileName( const char * );
+    void	setFileName( QString );
     void	setParameters( const char * );
-    void	setDescription( const char * );
+    void	setDescription( QString );
 
     bool	read();
     bool	write();
 
-    static const char *imageFormat( const char *fileName );
+    static const char* imageFormat( QString fileName );
     static const char *imageFormat( QIODevice * );
     static QStrList inputFormats();
     static QStrList outputFormats();
@@ -195,7 +195,7 @@ public:
 private:
     QImage	im;				// image
     int		iostat;				// IO status
-    QString	frmt;				// image format
+    Q1String	frmt;				// image format
     QIODevice  *iodev;				// IO device
     QString	fname;				// file name
     char       *params;				// image parameters

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#52 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#53 $
 **
 ** Definition of QMenuData class
 **
@@ -45,7 +45,7 @@ public:
    ~QMenuItem();
 
     int		id()		const	{ return ident; }
-    const char *text()		const	{ return text_data; }
+    QString text()		const	{ return text_data; }
     QPixmap    *pixmap()	const	{ return pixmap_data; }
     QPopupMenu *popup()		const	{ return popup_menu; }
     int		key()		const	{ return accel_key; }
@@ -55,7 +55,7 @@ public:
     bool	isChecked()	const	{ return is_checked; }
     bool	isDirty()	const	{ return is_dirty; }
 
-    void	setText( const char *text ) { text_data = text; }
+    void	setText( QString text ) { text_data = text; }
     void	setDirty( bool d )	    { is_dirty = d; }
 
 private:
@@ -98,35 +98,35 @@ public:
 
     uint	count() const;
 
-    int		insertItem( const char *text,
-			    const QObject *receiver, const char *member,
+    int		insertItem( QString text,
+			    const QObject *receiver, QString member,
 			    int accel=0 );
     int		insertItem( const QPixmap &pixmap,
-			    const QObject *receiver, const char *member,
+			    const QObject *receiver, QString member,
 			    int accel=0 );
-    int		insertItem( const QPixmap &pixmap, const char *text,
-			    const QObject *receiver, const char *member,
+    int		insertItem( const QPixmap &pixmap, QString text,
+			    const QObject *receiver, QString member,
 			    int accel=0 );
 
-    int		insertItem( const char *text,
-			    const QObject *receiver, const char *member,
+    int		insertItem( QString text,
+			    const QObject *receiver, QString member,
 			    int accel, int id, int index = -1 );
     int		insertItem( const QPixmap &pixmap,
-			    const QObject *receiver, const char *member,
+			    const QObject *receiver, QString member,
 			    int accel, int id, int index = -1 );
-    int		insertItem( const QPixmap &pixmap, const char *text,
-			    const QObject *receiver, const char *member,
+    int		insertItem( const QPixmap &pixmap, QString text,
+			    const QObject *receiver, QString member,
 			    int accel, int id, int index = -1 );
 
-    int		insertItem( const char *text, int id=-1, int index=-1 );
-    int		insertItem( const char *text, QPopupMenu *popup,
+    int		insertItem( QString text, int id=-1, int index=-1 );
+    int		insertItem( QString text, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
     int		insertItem( const QPixmap &pixmap, int id=-1, int index=-1 );
     int		insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
-    int		insertItem( const QPixmap &pixmap, const char *text,
+    int		insertItem( const QPixmap &pixmap, QString text,
 			    int id=-1, int index=-1 );
-    int		insertItem( const QPixmap &pixmap, const char *text,
+    int		insertItem( const QPixmap &pixmap, QString text,
 			    QPopupMenu *popup,
 			    int id=-1, int index=-1 );
 
@@ -139,11 +139,11 @@ public:
     int		accel( int id )		const;
     virtual void	setAccel( int key, int id );
 
-    const char *text( int id )		const;
+    QString text( int id )		const;
     QPixmap    *pixmap( int id )	const;
-    void	changeItem( const char *text, int id );
+    void	changeItem( QString text, int id );
     void	changeItem( const QPixmap &pixmap, int id );
-    void	changeItem( const QPixmap &pixmap, const char *text, int id );
+    void	changeItem( const QPixmap &pixmap, QString text, int id );
 
     bool	isItemEnabled( int id ) const;
     virtual void	setItemEnabled( int id, bool enable );
@@ -158,9 +158,9 @@ public:
     virtual void	setId( int index, int id );
 
     bool	connectItem( int id,
-			     const QObject *receiver, const char *member );
+			     const QObject *receiver, QString member );
     bool	disconnectItem( int id,
-				const QObject *receiver, const char *member );
+				const QObject *receiver, QString member );
 
     QMenuItem  *findItem( int id )	const;
     QMenuItem  *findItem( int id, QMenuData ** parent )	const;
@@ -181,7 +181,7 @@ protected:
     QMenuItem * findPopup( QPopupMenu *, int *index = 0 );
 
 private:
-    int		insertAny( const char *, const QPixmap *, QPopupMenu *,
+    int		insertAny( QString , const QPixmap *, QPopupMenu *,
 			   int, int );
     void	removePopup( QPopupMenu * );
     virtual void	setAllDirty( bool );

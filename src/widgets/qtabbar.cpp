@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#38 $
 **
 ** Implementation of QTabBar class
 **
@@ -103,7 +103,7 @@ struct QTabPrivate {
   Create a new, empty tab bar.
 */
 
-QTabBar::QTabBar( QWidget * parent, const char * name )
+QTabBar::QTabBar( QWidget * parent, QString name )
     : QWidget( parent, name )
 {
     d = new QTabPrivate;
@@ -157,7 +157,7 @@ int QTabBar::addTab( QTab * newTab )
     newTab->id = d->id++;
     l->append( newTab );
 
-    const char * p = strchr( newTab->label, '&' );
+    QString p = strchr( newTab->label, '&' );
     while( p && *p && p[1] == '&' )
 	p = strchr( p+2, '&' );
     if ( p && *p && isalpha(p[1]) )

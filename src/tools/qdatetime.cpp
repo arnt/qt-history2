@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#65 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#66 $
 **
 ** Implementation of date and time classes
 **
@@ -55,6 +55,8 @@ static const uint SECS_PER_MIN	= 60;
 static const uint MSECS_PER_MIN = 60000;
 
 static short monthDays[] ={0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+// ##### Localize.
 
 const char *QDate::monthNames[] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -204,7 +206,7 @@ int QDate::daysInYear() const
   Month 1 == "Jan", month 2 == "Feb" etc.
 */
 
-const char *QDate::monthName( int month) const
+QString QDate::monthName( int month) const
 {
 #if defined(DEBUG)
     ASSERT( month > 0 && month <= 12 );
@@ -218,7 +220,7 @@ const char *QDate::monthName( int month) const
   Weekday 1 == "Mon", day 2 == "Tue" etc.
 */
 
-const char *QDate::dayName( int weekday) const
+QString QDate::dayName( int weekday) const
 {
 #if defined(DEBUG)
     ASSERT( weekday > 0 && weekday <= 7 );
@@ -235,10 +237,14 @@ const char *QDate::dayName( int weekday) const
 
 QString QDate::toString() const
 {
-    QString buf;
     int y, m, d;
     jul2greg( jd, y, m, d );
-    buf.sprintf( "%s %s %d %d", dayName(dayOfWeek()), monthName(m), d, y);
+    QString buf = dayName(dayOfWeek());
+    buf += ' ';
+    buf += monthName(m);
+    QString t;
+    t.sprintf( " %d %d", d, y);
+    buf += t;
     return buf;
 }
 
@@ -889,15 +895,20 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 /*!
   Returns the datetime as a string.
 
-  The string format is "Sat May 20 1995 03:40:13".
+  The string format is "Sat May 20 03:40:13 1998".
 */
 
 QString QDateTime::toString() const
 {
-    QString buf;
-    QString time = t.toString();
-    buf.sprintf( "%s %s %d %s %d", d.dayName(d.dayOfWeek()),
-		 d.monthName(d.month()), d.day(), (const char*)time, d.year());
+    QString buf = d.dayName(d.dayOfWeek());
+    buf += ' ';
+    buf += d.monthName(d.month());
+    buf += ' ';
+    buf += QString().setNum(d.day());
+    buf += ' ';
+    buf += t.toString();
+    buf += ' ';
+    buf += QString().setNum(d.year());
     return buf;
 }
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#151 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#152 $
 **
 ** Implementation of QListBox widget class
 **
@@ -88,7 +88,7 @@ static inline bool checkIndex( const char *method, const char * name,
     class MyListBoxItem : public QListBoxItem
     {
     public:
-	MyListBoxItem( const char *s, const QPixmap p )
+	MyListBoxItem( QString s, const QPixmap p )
 	    : QListBoxItem(), pm(p)
 	    { setText( s ); }
 
@@ -172,7 +172,7 @@ QListBoxItem::~QListBoxItem()
 */
 
 /*!
-  \fn const char *QListBoxItem::text() const
+  \fn QString QListBoxItem::text() const
 
   Returns the text of the item, which is used for sorting.
 
@@ -189,7 +189,7 @@ QListBoxItem::~QListBoxItem()
 
 
 /*!
-  \fn void QListBoxItem::setText( const char *text )
+  \fn void QListBoxItem::setText( QString text )
 
   Sets the text of the widget, which is used for sorting.
   The text is not shown unless explicitly drawn in paint().
@@ -213,7 +213,7 @@ QListBoxItem::~QListBoxItem()
   Constructs a list box item showing the text \e text.
 */
 
-QListBoxText::QListBoxText( const char *text )
+QListBoxText::QListBoxText( QString text )
     :QListBoxItem()
 {
     setText( text );
@@ -461,7 +461,7 @@ QListBox::~QListBox()
   \sa selected() currentItem() selectionChanged()
 */
 
-/*! \fn void QListBox::highlighted( const char * )
+/*! \fn void QListBox::highlighted( QString )
 
   This signal is emitted when the user highlights a new current item
   and the new item is a string.  The argument is the text of the
@@ -479,7 +479,7 @@ QListBox::~QListBox()
   \sa highlighted() selectionChanged()
 */
 
-/*! \fn void QListBox::selected( const char * )
+/*! \fn void QListBox::selected( QString )
 
   This signal is emitted when the user double-clicks on an item or
   presses return while an item is highlighted, and the selected item
@@ -535,7 +535,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
 	return;
     }
     QStrListIterator it( *list );
-    const char *txt;
+    QString txt;
     if ( index < 0 )
 	index = itemList->count();
     while ( (txt=it.current()) ) {
@@ -559,7 +559,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
   \sa insertItem(), inSort()
 */
 
-void QListBox::insertStrList( const char **strings, int numStrings, int index )
+void QListBox::insertStrList( QString *strings, int numStrings, int index )
 {
     if ( !checkInsertIndex( "insertStrList", name(), count(), &index ) )
 	return;
@@ -623,7 +623,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
   \sa insertStrList()
 */
 
-void QListBox::insertItem( const char *text, int index )
+void QListBox::insertItem( QString text, int index )
 {
     if ( !checkInsertIndex( "insertItem", name(), count(), &index ) )
 	return;
@@ -701,10 +701,10 @@ void QListBox::inSort( const QListBoxItem *lbi )
 
 
 /*!
-  \overload void QListBox::inSort( const char *text )
+  \overload void QListBox::inSort( QString text )
 */
 
-void QListBox::inSort( const char *text )
+void QListBox::inSort( QString text )
 {
     if ( !text ) {
 #if defined ( CHECK_NULL )
@@ -774,7 +774,7 @@ void QListBox::clear()
   \sa pixmap()
 */
 
-const char *QListBox::text( int index ) const
+QString QListBox::text( int index ) const
 {
     if ( (uint)index >= count() )
 	return 0;
@@ -802,7 +802,7 @@ const QPixmap *QListBox::pixmap( int index ) const
   \sa insertItem(), removeItem()
 */
 
-void QListBox::changeItem( const char *text, int index )
+void QListBox::changeItem( QString text, int index )
 {
     if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;

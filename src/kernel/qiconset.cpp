@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#13 $
 **
 ** Implementation of QIconSet class
 **
@@ -232,7 +232,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size s, Mode m )
   other varieties.
 */
 
-void QIconSet::setPixmap( const char * fileName, Size s, Mode m )
+void QIconSet::setPixmap( QString fileName, Size s, Mode m )
 {
     QPixmap p;
     p.load( fileName );

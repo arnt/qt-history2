@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#165 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#166 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -762,11 +762,11 @@ void QPopupMenu::updateSize()
 	if ( mi->text() && !mi->isSeparator() ) {
 	    if ( itemHeight < cellh )
 		itemHeight = cellh;
-	    const char *s = mi->text();
-	    const char *t;
-	    if ( (t=strchr(s, '\t')) ) {	// string contains tab
-		w = fm.width( s, (int)((long)t-(long)s) );
-		int tw = fm.width( t+1 );
+	    QString s = mi->text();
+	    int t;
+	    if ( (t=s.find('\t')) >= 0 ) {	// string contains tab
+		w = fm.width( s, t );
+		int tw = fm.width( s.mid(t+1) );
 		if ( tw > tab_width )
 		    tab_width = tw;
 	    } else {
@@ -1135,20 +1135,18 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 
     int x = motifItemHMargin + ( isCheckable() ? 0 : motifItemFrame);
     if ( mi->text() ) {			// draw text
-	const char *s = mi->text();
-	const char *t = strchr( s, '\t' );
+	QString s = mi->text();
+	int t = s.find( '\t' );
 	int m = motifItemVMargin;
 	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
-	if ( t ) {				// draw text before tab
+	if ( t >= 0 ) {				// draw text before tab
 	    if ( gs == WindowsStyle && dis && !act ) {
 		p->setPen( g.light() );
-		p->drawText( x+1, m+1, cellw, cellh-2*m, text_flags,
-			     s, (int)((long)t-(long)s) );
+		p->drawText( x+1, m+1, cellw, cellh-2*m, text_flags, s, t );
 		p->setPen( discol );
 	    }
-	    p->drawText( x, m, cellw, cellh-2*m, text_flags,
-			 s, (int)((long)t-(long)s) );
-	    s = t + 1;
+	    p->drawText( x, m, cellw, cellh-2*m, text_flags, s, t );
+	    s = s.mid(t+1);
 	    x = tabMark();
 	}
 	if ( gs == WindowsStyle && dis && !act ) {

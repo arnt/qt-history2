@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#88 $
 **
 ** Implementation of QPixmap class
 **
@@ -124,7 +124,7 @@ QPixmap::QPixmap( const QSize &size, int depth )
   \sa isNull(), load(), loadFromData(), save(), imageFormat()
 */
 
-QPixmap::QPixmap( const char *fileName, const char *format,
+QPixmap::QPixmap( QString fileName, QString format,
 	int conversion_flags )
     : QPaintDevice( PDT_PIXMAP )
 {
@@ -141,7 +141,7 @@ QPixmap::QPixmap( const char *fileName, const char *format,
   \sa isNull(), load(), loadFromData(), save(), imageFormat()
 */
 
-QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode )
+QPixmap::QPixmap( QString fileName, QString format, ColorMode mode )
     : QPaintDevice( PDT_PIXMAP )
 {
     init( 0, 0, 0 );
@@ -455,7 +455,7 @@ QBitmap QPixmap::createHeuristicMask( bool clipTight ) const
   \sa load(), save()
 */
 
-const char *QPixmap::imageFormat( const char *fileName )
+QString QPixmap::imageFormat( QString fileName )
 {
     return QImageIO::imageFormat(fileName);
 }
@@ -495,7 +495,7 @@ bool qt_image_did_native_bmp()
   \sa loadFromData(), save(), imageFormat(), QImage::load(), QImageIO
 */
 
-bool QPixmap::load( const char *fileName, const char *format,
+bool QPixmap::load( QString fileName, QString format,
 		    int conversion_flags )
 {
     QImageIO io( fileName, format );
@@ -516,7 +516,7 @@ bool QPixmap::load( const char *fileName, const char *format,
 /*!
   \overload
 */
-bool QPixmap::load( const char *fileName, const char *format,
+bool QPixmap::load( QString fileName, QString format,
 		    ColorMode mode )
 {
     int conversion_flags = 0;
@@ -570,7 +570,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
   \sa load(), save(), imageFormat(), QImage::loadFromData(), QImageIO
 */
 
-bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
+bool QPixmap::loadFromData( const uchar *buf, uint len, QString format,
 			    int conversion_flags )
 {
     QByteArray a;
@@ -597,7 +597,7 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 /*!
   \overload
 */
-bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
+bool QPixmap::loadFromData( const uchar *buf, uint len, QString format,
 			    ColorMode mode )
 {
     int conversion_flags = 0;
@@ -618,7 +618,7 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
   \overload
 */
 bool QPixmap::loadFromData( QByteArray buf,
-			    const char *format,
+			    QString format,
 			    int conversion_flags )
 {
     return loadFromData( (const uchar *)(buf.data()), buf.size(),
@@ -632,7 +632,7 @@ bool QPixmap::loadFromData( QByteArray buf,
   \sa load(), loadFromData(), imageFormat(), QImage::save(), QImageIO
 */
 
-bool QPixmap::save( const char *fileName, const char *format ) const
+bool QPixmap::save( QString fileName, QString format ) const
 {
     if ( isNull() )
 	return FALSE;				// nothing to save

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#24 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#25 $
 **
 ** Definition of Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -36,11 +36,11 @@ class QToolTipGroup: public QObject
 {
     Q_OBJECT
 public:
-    QToolTipGroup( QObject *parent, const char *name = 0 );
+    QToolTipGroup( QObject *parent, QString name = 0 );
    ~QToolTipGroup();
 
 signals:
-    void showTip( const char * );
+    void showTip( QString );
     void removeTip();
 
 private:
@@ -53,14 +53,14 @@ class QToolTip
 public:
     QToolTip( QWidget *, QToolTipGroup * = 0 );
 
-    static void add( QWidget *, const char * );
-    static void add( QWidget *, const char *,
-		     QToolTipGroup *, const char * );
+    static void add( QWidget *, QString );
+    static void add( QWidget *, QString ,
+		     QToolTipGroup *, QString );
     static void remove( QWidget * );
 
-    static void add( QWidget *, const QRect &, const char * );
-    static void add( QWidget *, const QRect &, const char *,
-		     QToolTipGroup *, const char * );
+    static void add( QWidget *, const QRect &, QString );
+    static void add( QWidget *, const QRect &, QString ,
+		     QToolTipGroup *, QString );
     static void remove( QWidget *, const QRect & );
 
     static QFont    font();
@@ -70,8 +70,8 @@ public:
 
 protected:
     virtual void maybeTip( const QPoint & ) = 0;
-    void    tip( const QRect &, const char * );
-    void    tip( const QRect &, const char *, const char * );
+    void    tip( const QRect &, QString );
+    void    tip( const QRect &, QString , QString );
     void    clear();
 
 public:

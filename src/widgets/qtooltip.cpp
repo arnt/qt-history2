@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#57 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -56,8 +56,8 @@ public:
     };
 
     bool    eventFilter( QObject * o, QEvent * e );
-    void    add( QWidget *, const QRect &, const char *,
-		 QToolTipGroup *, const char *, QToolTip *, bool );
+    void    add( QWidget *, const QRect &, QString ,
+		 QToolTipGroup *, QString , QToolTip *, bool );
     void    remove( QWidget *, const QRect & );
     void    remove( QWidget * );
 
@@ -85,66 +85,6 @@ private:
     Tip *previousTip;
     bool isApplicationFilter;
 };
-
-
-// moc stuff - included by hand.
-
-/****************************************************************************
-** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
-**
-** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.51 $)
-**
-** WARNING! All changes made in this file will be lost!
-*****************************************************************************/
-
-#if !defined(Q_MOC_OUTPUT_REVISION)
-#define Q_MOC_OUTPUT_REVISION 2
-#elif Q_MOC_OUTPUT_REVISION != 2
-#error Moc format conflict - please regenerate all moc files
-#endif
-
-#include <qmetaobject.h>
-
-
-const char *QTipManager::className() const
-{
-    return "QTipManager";
-}
-
-QMetaObject *QTipManager::metaObj = 0;
-
-void QTipManager::initMetaObject()
-{
-    if ( metaObj )
-	return;
-    if ( strcmp(QObject::className(), "QObject") != 0 )
-	badSuperclassWarning("QTipManager","QObject");
-    if ( !QObject::metaObject() )
-	QObject::initMetaObject();
-    typedef void(QTipManager::*m1_t0)();
-    typedef void(QTipManager::*m1_t1)();
-    typedef void(QTipManager::*m1_t2)();
-    typedef void(QTipManager::*m1_t3)();
-    m1_t0 v1_0 = &QTipManager::labelDestroyed;
-    m1_t1 v1_1 = &QTipManager::clientWidgetDestroyed;
-    m1_t2 v1_2 = &QTipManager::showTip;
-    m1_t3 v1_3 = &QTipManager::hideTip;
-    QMetaData *slot_tbl = new QMetaData[4];
-    slot_tbl[0].name = "labelDestroyed()";
-    slot_tbl[1].name = "clientWidgetDestroyed()";
-    slot_tbl[2].name = "showTip()";
-    slot_tbl[3].name = "hideTip()";
-    slot_tbl[0].ptr = *((QMember*)&v1_0);
-    slot_tbl[1].ptr = *((QMember*)&v1_1);
-    slot_tbl[2].ptr = *((QMember*)&v1_2);
-    slot_tbl[3].ptr = *((QMember*)&v1_3);
-    metaObj = new QMetaObject( "QTipManager", "QObject",
-	slot_tbl, 4,
-	0, 0 );
-}
-
-// moc code ends here
 
 
 // We have a global, internal QTipManager object
@@ -213,8 +153,8 @@ QTipManager::~QTipManager()
     delete label;
 }
 
-void QTipManager::add( QWidget *w, const QRect &r, const char *s,
-		       QToolTipGroup *g, const char *gs,
+void QTipManager::add( QWidget *w, const QRect &r, QString s,
+		       QToolTipGroup *g, QString gs,
 		       QToolTip *tt, bool a )
 {
     QTipManager::Tip *h = (*tips)[ w ];
@@ -713,7 +653,7 @@ QToolTip::QToolTip( QWidget * parent, QToolTipGroup * group )
   and so on.
 */
 
-void QToolTip::add( QWidget *widget, const char *text )
+void QToolTip::add( QWidget *widget, QString text )
 {
     initTipManager();
     tipManager->add( widget, entireWidget(), text, 0, 0, 0, FALSE );
@@ -730,8 +670,8 @@ void QToolTip::add( QWidget *widget, const char *text )
   Normally, \a longText is shown in a status bar or similar.
 */
 
-void QToolTip::add( QWidget *widget, const char *text,
-		    QToolTipGroup *group, const char *longText )
+void QToolTip::add( QWidget *widget, QString text,
+		    QToolTipGroup *group, QString longText )
 {
     initTipManager();
     tipManager->add( widget, entireWidget(), text, group, longText, 0, FALSE );
@@ -757,7 +697,7 @@ void QToolTip::remove( QWidget * widget )
   string.
 */
 
-void QToolTip::add( QWidget * widget, const QRect & rect, const char * text )
+void QToolTip::add( QWidget * widget, const QRect & rect, QString text )
 {
     initTipManager();
     tipManager->add( widget, rect, text, 0, 0, 0, FALSE );
@@ -776,8 +716,8 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const char * text )
 */
 
 void QToolTip::add( QWidget *widget, const QRect &rect,
-		    const char *text,
-		    QToolTipGroup *group, const char *groupText )
+		    QString text,
+		    QToolTipGroup *group, QString groupText )
 {
     initTipManager();
     tipManager->add( widget, rect, text, group, groupText, 0, FALSE );
@@ -833,7 +773,7 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
   has to reinstate it each time.
 */
 
-void QToolTip::tip( const QRect & rect, const char * text )
+void QToolTip::tip( const QRect & rect, QString text )
 {
     initTipManager();
     tipManager->add( parentWidget(), rect, text, 0, 0, 0, TRUE );
@@ -848,8 +788,8 @@ void QToolTip::tip( const QRect & rect, const char * text )
   has to reinstate it each time.
 */
 
-void QToolTip::tip( const QRect & rect, const char * text,
-		    const char * groupText )
+void QToolTip::tip( const QRect & rect, QString text,
+		    QString groupText )
 {
     initTipManager();
     tipManager->add( parentWidget(), rect, text, group(), groupText, 0, TRUE );
@@ -907,8 +847,8 @@ void QToolTip::clear()
 
   \code
     QToolTipGroup * g = new QToolTipGroup( this, "tool tip relay" );
-    connect( g, SIGNAL(showTip(const char *)),
-             myLabel, SLOT(setText(const char *)) );
+    connect( g, SIGNAL(showTip(QString )),
+             myLabel, SLOT(setText(QString )) );
     connect( g, SIGNAL(removeTip()),
              myLabel, SLOT(clear()) );
     QToolTip::add( giraffeButton, "feed giraffe",
@@ -925,7 +865,7 @@ void QToolTip::clear()
   Deleting a tool tip group removes the tool tips in it.
 */
 
-/*! \fn void QToolTipGroup::showTip (const char* longText)
+/*! \fn void QToolTipGroup::showTip (QString longText)
 
   This signal is emitted when one of the tool tips in the group is
   displayed.  \a longText is the supplementary text for the displayed
@@ -947,7 +887,7 @@ void QToolTip::clear()
   Constructs a tool tip group.
 */
 
-QToolTipGroup::QToolTipGroup( QObject *parent, const char *name )
+QToolTipGroup::QToolTipGroup( QObject *parent, QString name )
     : QObject( parent, name )
 {
     // nothing
@@ -962,4 +902,61 @@ QToolTipGroup::~QToolTipGroup()
 {
     if ( tipManager )
 	tipManager->removeFromGroup( this );
+}
+
+
+// moc stuff - included by hand.  !Gmoc %
+/****************************************************************************
+** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
+**
+** Created: Mon Aug 17 00:44:32 1998
+**      by: The Qt Meta Object Compiler ($Revision: 2.52 $)
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+#if !defined(Q_MOC_OUTPUT_REVISION)
+#define Q_MOC_OUTPUT_REVISION 2
+#elif Q_MOC_OUTPUT_REVISION != 2
+#error Moc format conflict - please regenerate all moc files
+#endif
+
+#include <qmetaobj.h>
+
+
+const char *QTipManager::className() const
+{
+    return "QTipManager";
+}
+
+QMetaObject *QTipManager::metaObj = 0;
+
+void QTipManager::initMetaObject()
+{
+    if ( metaObj )
+	return;
+    if ( strcmp(QObject::className(), "QObject") != 0 )
+	badSuperclassWarning("QTipManager","QObject");
+    if ( !QObject::metaObject() )
+	QObject::initMetaObject();
+    typedef void(QTipManager::*m1_t0)();
+    typedef void(QTipManager::*m1_t1)();
+    typedef void(QTipManager::*m1_t2)();
+    typedef void(QTipManager::*m1_t3)();
+    m1_t0 v1_0 = &QTipManager::labelDestroyed;
+    m1_t1 v1_1 = &QTipManager::clientWidgetDestroyed;
+    m1_t2 v1_2 = &QTipManager::showTip;
+    m1_t3 v1_3 = &QTipManager::hideTip;
+    QMetaData *slot_tbl = new QMetaData[4];
+    slot_tbl[0].name = "labelDestroyed()";
+    slot_tbl[1].name = "clientWidgetDestroyed()";
+    slot_tbl[2].name = "showTip()";
+    slot_tbl[3].name = "hideTip()";
+    slot_tbl[0].ptr = *((QMember*)&v1_0);
+    slot_tbl[1].ptr = *((QMember*)&v1_1);
+    slot_tbl[2].ptr = *((QMember*)&v1_2);
+    slot_tbl[3].ptr = *((QMember*)&v1_3);
+    metaObj = new QMetaObject( "QTipManager", "QObject",
+	slot_tbl, 4,
+	0, 0 );
 }

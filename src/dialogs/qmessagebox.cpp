@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#71 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#72 $
 **
 ** Implementation of QMessageBox class
 **
@@ -204,7 +204,7 @@ static const unsigned char critical_gif_data[] = {
   \endcode
 
   The critical() function should be reserved for critical errors.  In
-  this example, errorDetails is a QString or const char *, and QString
+  this example, errorDetails is a QString or QString , and QString
   is used to concatenate several strings:
 
   \code
@@ -399,7 +399,7 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
   \sa setCaption(), setText(), setIcon()
 */
 
-QMessageBox::QMessageBox( const char *caption, const char *text, Icon icon,
+QMessageBox::QMessageBox( QString caption, QString text, Icon icon,
 			  int button0, int button1, int button2,
 			  QWidget *parent, const char *name,
 			  bool modal, WFlags f )
@@ -545,7 +545,7 @@ void QMessageBox::resizeButtons()
   \sa setText()
 */
 
-const char *QMessageBox::text() const
+QString QMessageBox::text() const
 {
     return label->text();
 }
@@ -555,7 +555,7 @@ const char *QMessageBox::text() const
   \sa text()
 */
 
-void QMessageBox::setText( const char *text )
+void QMessageBox::setText( QString text )
 {
     label->setText( text );
 }
@@ -695,7 +695,7 @@ void QMessageBox::setIconPixmap( const QPixmap &pixmap )
   This function will be removed in a future version of Qt.
 */
 
-const char *QMessageBox::buttonText() const
+QString QMessageBox::buttonText() const
 {
     return buttonText( Ok );
 }
@@ -704,9 +704,9 @@ const char *QMessageBox::buttonText() const
   This function will be removed in a future version of Qt.
 */
 
-void QMessageBox::setButtonText( const char *text )
+void QMessageBox::setButtonText( QString text )
 {
-    setButtonText( Ok, text ? text : "OK" );
+    setButtonText( Ok, text ? text : QString("OK") );
 }
 
 
@@ -717,10 +717,12 @@ void QMessageBox::setButtonText( const char *text )
   \sa setButtonText()
 */
 
-const char *QMessageBox::buttonText( int button ) const
+QString QMessageBox::buttonText( int button ) const
 {
     int index = indexOf(button);
-    return index >= 0 && mbd->pb[index] ? mbd->pb[index]->text() : 0;
+    return index >= 0 && mbd->pb[index]
+	    ? mbd->pb[index]->text()
+	    : QString::null;
 }
 
 
@@ -732,7 +734,7 @@ const char *QMessageBox::buttonText( int button ) const
   \sa buttonText()
 */
 
-void QMessageBox::setButtonText( int button, const char *text )
+void QMessageBox::setButtonText( int button, QString text )
 {
     int index = indexOf(button);
     if ( index >= 0 && mbd->pb[index] ) {
@@ -855,9 +857,9 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
   information(), warning() or critical() instead.
 */
 
-int QMessageBox::message( const char *caption,
-			  const char *text,
-			  const char *buttonText,
+int QMessageBox::message( QString caption,
+			  QString text,
+			  QString buttonText,
 			  QWidget    *parent,
 			  const char * )
 {
@@ -874,10 +876,10 @@ int QMessageBox::message( const char *caption,
   information(), warning() or critical() instead.
 */
 
-bool QMessageBox::query( const char *caption,
-			 const char *text,
-			 const char *yesButtonText,
-			 const char *noButtonText,
+bool QMessageBox::query( QString caption,
+			 QString text,
+			 QString yesButtonText,
+			 QString noButtonText,
 			 QWidget *parent, const char * )
 {
     return QMessageBox::information( parent, caption, text,
@@ -897,7 +899,7 @@ bool QMessageBox::query( const char *caption,
 */
 
 int QMessageBox::information( QWidget *parent,
-			      const char *caption, const char *text,
+			      QString caption, QString text,
 			      int button0, int button1, int button2 )
 {
     QMessageBox *mb = new QMessageBox( caption, text, Information,
@@ -922,7 +924,7 @@ int QMessageBox::information( QWidget *parent,
 */
 
 int QMessageBox::warning( QWidget *parent,
-			  const char *caption, const char *text,
+			  QString caption, QString text,
 			  int button0, int button1, int button2 )
 {
     QMessageBox *mb = new QMessageBox( caption, text, Warning,
@@ -947,7 +949,7 @@ int QMessageBox::warning( QWidget *parent,
 */
 
 int QMessageBox::critical( QWidget *parent,
-			   const char *caption, const char *text,
+			   QString caption, QString text,
 			   int button0, int button1, int button2 )
 {
     QMessageBox *mb = new QMessageBox( caption, text, Critical,
@@ -976,8 +978,8 @@ int QMessageBox::critical( QWidget *parent,
   \sa QWidget::icon() QApplication::mainWidget()
 */
 
-void QMessageBox::about( QWidget *parent, const char *caption,
-			 const char *text )
+void QMessageBox::about( QWidget *parent, QString caption,
+			 QString text )
 {
     QMessageBox *mb = new QMessageBox( caption, text,
 				       Information,
@@ -1015,10 +1017,10 @@ void QMessageBox::setStyle( GUIStyle s )
 
 
 static int textBox( QWidget *parent, QMessageBox::Icon severity,
-		    const char *caption, const char *text,
-		    const char *button0Text,
-		    const char *button1Text,
-		    const char *button2Text,
+		    QString caption, QString text,
+		    QString button0Text,
+		    QString button1Text,
+		    QString button2Text,
 		    int defaultButtonNumber,
 		    int escapeButtonNumber )
 {
@@ -1074,11 +1076,11 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
   \sa warning(), critical()
 */
 
-int QMessageBox::information( QWidget *parent, const char *caption,
-			      const char *text,
-			      const char *button0Text,
-			      const char *button1Text,
-			      const char *button2Text,
+int QMessageBox::information( QWidget *parent, QString caption,
+			      QString text,
+			      QString button0Text,
+			      QString button1Text,
+			      QString button2Text,
 			      int defaultButtonNumber,
 			      int escapeButtonNumber )
 {
@@ -1111,11 +1113,11 @@ int QMessageBox::information( QWidget *parent, const char *caption,
   \sa information(), critical()
 */
 
-int QMessageBox::warning( QWidget *parent, const char *caption,
-				 const char *text,
-				 const char *button0Text,
-				 const char *button1Text,
-				 const char *button2Text,
+int QMessageBox::warning( QWidget *parent, QString caption,
+				 QString text,
+				 QString button0Text,
+				 QString button1Text,
+				 QString button2Text,
 				 int defaultButtonNumber,
 				 int escapeButtonNumber )
 {
@@ -1148,11 +1150,11 @@ int QMessageBox::warning( QWidget *parent, const char *caption,
   \sa information() warning()
 */
 
-int QMessageBox::critical( QWidget *parent, const char *caption,
-				  const char *text,
-				  const char *button0Text,
-				  const char *button1Text,
-				  const char *button2Text,
+int QMessageBox::critical( QWidget *parent, QString caption,
+				  QString text,
+				  QString button0Text,
+				  QString button1Text,
+				  QString button2Text,
 				  int defaultButtonNumber,
 				  int escapeButtonNumber )
 {
@@ -1181,7 +1183,7 @@ static const char *textAboutQt =
   example.
 */
 
-void QMessageBox::aboutQt( QWidget *parent, const char *caption )
+void QMessageBox::aboutQt( QWidget *parent, QString caption )
 {
     if ( !caption )
 	caption = "About Qt";

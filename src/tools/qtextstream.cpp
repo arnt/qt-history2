@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#56 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#57 $
 **
 ** Implementation of QTextStream class
 **
@@ -1199,7 +1199,7 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 		ts_putc( *p );		// special case for internal
 		++p;				//   padding
 		fwidth--;
-		return *this << (const char *)p;
+		return *this << (QString )p;
 	    }
     }
     if ( fwidth ) {				// adjustment required
@@ -1213,10 +1213,10 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 		writeBlock( p-padlen, padlen+len );
 	    }
 	    else				// standard padding
-		*this << (const char *)p;
+		*this << (QString )p;
 	}
 	else
-	    *this << (const char *)p;
+	    *this << (QString )p;
 	fwidth = 0;				// reset field width
     }
     else
@@ -1334,7 +1334,7 @@ QTextStream &QTextStream::operator<<( double f )
     *fs = '\0';
     sprintf( buf, format, f );			// convert to text
     if ( fwidth )				// padding
-	*this << (const char *)buf;
+	*this << (QString )buf;
     else					// just write it
 	writeBlock( buf, strlen(buf) );
     return *this;
@@ -1345,7 +1345,7 @@ QTextStream &QTextStream::operator<<( double f )
   Writes a string to the stream and returns a reference to the stream.
 */
 
-QTextStream &QTextStream::operator<<( const char *s )
+QTextStream &QTextStream::operator<<( QString s )
 {
     CHECK_STREAM_PRECOND
     char padbuf[48];
@@ -1423,13 +1423,13 @@ QTextStream &QTextStream::readRawBytes( char *s, uint len )
   \sa QIODevice::writeBlock()
 */
 
-QTextStream &QTextStream::writeRawBytes( const char *s, uint len )
+QTextStream &QTextStream::writeRawBytes( QString s, uint len )
 {
     dev->writeBlock( s, len );
     return *this;
 }
 
-QTextStream &QTextStream::writeBlock( const char *p, uint len )
+QTextStream &QTextStream::writeBlock( QString p, uint len )
 {
     switch ( cmode ) {
       case Ascii:

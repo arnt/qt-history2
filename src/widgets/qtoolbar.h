@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#12 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#13 $
 **
 ** Definition of QToolBar class
 **
@@ -38,10 +38,10 @@ class QToolBar: public QWidget
 {
     Q_OBJECT
 public:
-    QToolBar( const char * label,
+    QToolBar( QString label,
 	      QMainWindow *, QMainWindow::ToolBarDock = QMainWindow::Top,
 	      bool newLine = FALSE, const char * name = 0 );
-    QToolBar( const char * label, QMainWindow *, QWidget *,
+    QToolBar( QString label, QMainWindow *, QWidget *,
 	      bool newLine = FALSE, const char * name = 0, WFlags f = 0 );
     QToolBar( QMainWindow * parent = 0, const char * name = 0 );
     ~QToolBar();

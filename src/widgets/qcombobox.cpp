@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#139 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#140 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -129,7 +129,7 @@
   The \e index is the position of the item in the popup list.
 */
 
-/*! \fn void QComboBox::activated( const char * string )
+/*! \fn void QComboBox::activated( QString string )
 
   This signal is emitted when a new item has been activated
   (selected). \a string is the activated string.
@@ -145,7 +145,7 @@
   The \e index is the position of the item in the popup list.
 */
 
-/*! \fn void QComboBox::highlighted( const char * string )
+/*! \fn void QComboBox::highlighted( QString string )
 
   This signal is emitted when a new item has been highlighted. \a
   string is the highlighted string.
@@ -182,7 +182,7 @@ struct QComboData
 	    : QLineEdit( parent,"combo edit" )
 	{
 	}
-	bool validateAndSet( const char * newText, int newPos,
+	bool validateAndSet( QString newText, int newPos,
 				int newMarkAnchor, int newMarkDrag )
 	{
 	    return QLineEdit::validateAndSet( newText, newPos,
@@ -447,7 +447,7 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 	return;
     }
     QStrListIterator it( *list );
-    const char *tmp;
+    QString tmp;
     if ( index < 0 )
 	index = count();
     while ( (tmp=it.current()) ) {
@@ -477,7 +477,51 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 
   Example:
   \code
-    static const char *items[] = { "red", "green", "blue", 0 };
+    static QString items[] = { "red", "green", "blue", 0 };
+    combo->insertStrList( items );
+  \endcode
+*/
+
+void QComboBox::insertStrList( QString *strings, int numStrings, int index)
+{
+    if ( !strings ) {
+#if defined(CHECK_NULL)
+	ASSERT( strings != 0 );
+#endif
+	return;
+    }
+    if ( index < 0 )
+	index = count();
+    int i = 0;
+    while ( (numStrings<0 && strings[i]!=0) || i<numStrings ) {
+	if ( d->usingListBox )
+	    d->listBox->insertItem( strings[i], index );
+	else
+	    d->popup->insertItem( strings[i], index );
+	i++;
+	if ( index++ == d->current ) {
+	    if ( d->ed )
+		d->ed->setText( text( d->current ) );
+	    else
+		repaint();
+	    currentChanged();
+	}
+    }
+    if ( index != count() )
+	reIndex();
+}
+
+
+/*!
+  Inserts the array of ASCII strings at the index \e index in the combo box.
+
+  The \e numStrings argument is the number of strings.
+  If \e numStrings is -1 (default), the \e strs array must be
+  terminated with 0.
+
+  Example:
+  \code
+    static const char* items[] = { "red", "green", "blue", 0 };
     combo->insertStrList( items );
   \endcode
 */
@@ -517,7 +561,7 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
   \e index is negative.
 */
 
-void QComboBox::insertItem( const char *t, int index )
+void QComboBox::insertItem( QString t, int index )
 {
     int cnt = count();
     if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
@@ -614,7 +658,7 @@ void QComboBox::clear()
   \sa text()
 */
 
-const char *QComboBox::currentText() const
+QString QComboBox::currentText() const
 {
     if ( d->ed ) {
 	return d->ed->text();
@@ -628,7 +672,7 @@ const char *QComboBox::currentText() const
   \sa currentText()
 */
 
-const char *QComboBox::text( int index ) const
+QString QComboBox::text( int index ) const
 {
     if ( !checkIndex( "text", name(), count(), index ) )
 	return 0;
@@ -656,7 +700,7 @@ const QPixmap *QComboBox::pixmap( int index ) const
   Replaces the item at position \e index with a text.
 */
 
-void QComboBox::changeItem( const char *t, int index )
+void QComboBox::changeItem( QString t, int index )
 {
     if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;
@@ -763,7 +807,7 @@ void QComboBox::setAutoResize( bool enable )
 QSize QComboBox::sizeHint() const
 {
     int i, w, h;
-    const char *tmp;
+    QString tmp;
     QFontMetrics fm = fontMetrics();
 
     int extraW = 20;
@@ -832,7 +876,7 @@ void QComboBox::internalActivate( int index )
 void QComboBox::internalHighlight( int index )
 {
     emit highlighted( index );
-    const char *t = text( index );
+    QString t = text( index );
     if ( t )
 	emit highlighted( t );
 }
@@ -950,7 +994,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
 			 buttonW, buttonH, g, FALSE, 2 );
 	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
-	const char *str = d->popup->text( d->current );
+	QString str = d->popup->text( d->current );
 	if ( str ) {
 	    p.drawText( clip, AlignCenter | SingleLine, str );
 	} else {
@@ -1018,7 +1062,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	    qDrawShadePanel( &p, r, g, TRUE, d->ed ? 1 : 2, &fill );
 	} else {
 	    QRect clip( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
-	    const char *str = d->listBox->text( d->current );
+	    QString str = d->listBox->text( d->current );
 	    if ( str ) {
 		p.setPen( g.foreground() );
 		p.drawText( clip, AlignCenter | SingleLine, str );
@@ -1037,7 +1081,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 
     } else {					// windows 95 style
 	QColor bg = isEnabled() ? g.base() : g.background();
-	const char *str = d->listBox->text( d->current );
+	QString str = d->listBox->text( d->current );
 
 	QBrush fill( bg );
 	qDrawWinPanel( &p, 0, 0, width(), height(), g, TRUE, &fill );
@@ -1739,7 +1783,7 @@ void QComboBox::clearEdit()
   \sa clearEditText() insertItem()
 */
 
-void QComboBox::setEditText( const char * newText )
+void QComboBox::setEditText( QString newText )
 {
     if ( d && d->ed )
 	d->ed->setText( newText );

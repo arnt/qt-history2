@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#258 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#259 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -467,7 +467,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     QSize    s	    = size();
     QPixmap *bgp    = (QPixmap *)backgroundPixmap();
     QColor   bgc    = bg_col;			// save colors
-    const char* capt= caption();
+    QString capt= caption();
     flags = f;
     clearWFlags( WState_Created | WState_Visible );
     create();
@@ -688,7 +688,7 @@ void QWidget::setCursor( const QCursor &cursor )
   \sa caption(), setIcon(), setIconText()
 */
 
-void QWidget::setCaption( const char *caption )
+void QWidget::setCaption( QString caption )
 {
     if ( caption && extra && extra->caption &&
 	 !strcmp( extra->caption, caption ) )
@@ -747,7 +747,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
   \sa iconText(), setIcon(), setCaption()
 */
 
-void QWidget::setIconText( const char *iconText )
+void QWidget::setIconText( QString iconText )
 {
     if ( extra && extra->iconText )
 	delete [] extra->iconText;
@@ -1618,7 +1618,7 @@ void QWidget::scroll( int dx, int dy )
 
 
 /*!
-  \overload void QWidget::drawText( const QPoint &pos, const char *str )
+  \overload void QWidget::drawText( const QPoint &pos, QString str )
 */
 
 /*!
@@ -1634,7 +1634,7 @@ void QWidget::scroll( int dx, int dy )
   \sa setFont(), foregroundColor(), QPainter::drawText()
 */
 
-void QWidget::drawText( int x, int y, const char *str )
+void QWidget::drawText( int x, int y, QString str )
 {
     if ( testWFlags(WState_Visible) ) {
 	QPainter paint;

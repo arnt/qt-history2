@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#29 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#30 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -43,7 +43,7 @@ static const int spacing     = 4;
 struct QProgressData
 {
     QProgressData( QProgressDialog* that, QWidget* parent,
-		   const char* labelText,
+		   QString labelText,
 		   int totalSteps ) :
 	creator( parent ),
 	label( new QLabel(labelText,that,"label") ),
@@ -173,8 +173,8 @@ QProgressDialog::QProgressDialog( QWidget *creator, const char *name,
   setTotalSteps()
 */
 
-QProgressDialog::QProgressDialog( const char *labelText,
-				  const char *cancelButtonText,
+QProgressDialog::QProgressDialog( QString labelText,
+				  QString cancelButtonText,
 				  int totalSteps,
 				  QWidget *creator, const char *name,
 				  bool modal, WFlags f )
@@ -194,7 +194,7 @@ QProgressDialog::~QProgressDialog()
 }
 
 void QProgressDialog::init( QWidget *creator,
-			    const char* lbl, const char* canc,
+			    QString lbl, QString canc,
 			    int totstps)
 {
     d = new QProgressData(this, creator, lbl, totstps);
@@ -243,7 +243,7 @@ void QProgressDialog::setLabel( QLabel *label )
   \sa setLabel()
 */
 
-void QProgressDialog::setLabelText( const char *text )
+void QProgressDialog::setLabelText( QString text )
 {
     if ( label() ) {
 	label()->setText( text );
@@ -284,7 +284,7 @@ void QProgressDialog::setCancelButton( QPushButton *cancelButton )
   \sa setCancelButton()
 */
 
-void QProgressDialog::setCancelButtonText( const char *cancelButtonText )
+void QProgressDialog::setCancelButtonText( QString cancelButtonText )
 {
     if ( cancelButtonText ) {
 	if ( d->cancel )

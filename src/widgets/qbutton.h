@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#62 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#63 $
 **
 ** Definition of QButton widget class
 **
@@ -40,8 +40,8 @@ public:
     QButton( QWidget *parent=0, const char *name=0, WFlags f=0 );
    ~QButton();
 
-    const char *text() const;
-    virtual void	setText( const char * );
+    QString text() const;
+    virtual void	setText( QString );
     const QPixmap *pixmap() const;
     virtual void	setPixmap( const QPixmap & );
 
@@ -116,7 +116,7 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-inline const char *QButton::text() const
+inline QString QButton::text() const
 {
     return btext;
 }

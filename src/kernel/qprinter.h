@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#25 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#26 $
 **
 ** Definition of QPrinter class
 **
@@ -44,19 +44,19 @@ public:
     enum PageOrder   { FirstPageFirst, LastPageFirst };
     enum ColorMode   { GrayScale, Color };
 
-    const char *printerName()	const;
-    virtual void	setPrinterName( const char * );
+    QString printerName()	const;
+    virtual void	setPrinterName( QString );
     bool	outputToFile()	const;
     virtual void	setOutputToFile( bool );
-    const char *outputFileName()const;
-    virtual void	setOutputFileName( const char * );
-    const char *printProgram()	const;
-    virtual void	setPrintProgram( const char * );
+    QString outputFileName()const;
+    virtual void	setOutputFileName( QString );
+    QString printProgram()	const;
+    virtual void	setPrintProgram( QString );
 
-    const char *docName()	const;
-    virtual void	setDocName( const char * );
-    const char *creator()	const;
-    virtual void	setCreator( const char * );
+    QString docName()	const;
+    virtual void	setDocName( QString );
+    QString creator()	const;
+    virtual void	setCreator( QString );
 
     Orientation orientation()	const;
     virtual void	setOrientation( Orientation );
@@ -116,22 +116,22 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-inline const char *QPrinter::printerName() const
+inline QString QPrinter::printerName() const
 { return printer_name; }
 
 inline bool QPrinter::outputToFile() const
 { return output_file; }
 
-inline const char *QPrinter::outputFileName() const
+inline QString QPrinter::outputFileName() const
 { return output_filename; }
 
-inline const char *QPrinter::printProgram() const
+inline QString QPrinter::printProgram() const
 { return print_prog; }
 
-inline const char *QPrinter::docName() const
+inline QString QPrinter::docName() const
 { return doc_name; }
 
-inline const char *QPrinter::creator() const
+inline QString QPrinter::creator() const
 { return creator_name; }
 
 inline QPrinter::PageSize QPrinter::pageSize() const

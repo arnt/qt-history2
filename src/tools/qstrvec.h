@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrvec.h#14 $
+** $Id: //depot/qt/main/src/tools/qstrvec.h#15 $
 **
 ** Definition of QStrVec and QStrIVec classes
 **
@@ -53,7 +53,7 @@ private:
     QDataStream &read( QDataStream &s, GCI &d )
 				{ s >> (char *&)d; return s; }
     QDataStream &write( QDataStream &s, GCI d ) const
-				{ return s << (const char *)d; }
+				{ return s << (const char*)d; }
     bool dc;
 };
 

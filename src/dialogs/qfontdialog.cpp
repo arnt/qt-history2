@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#14 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#15 $
 **
 ** Implementation of QFontDialog
 **
@@ -216,12 +216,12 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     d->buttonLayout->addStretch( 1 );
 
-    connect( d->familyList, SIGNAL(highlighted(const char *)),
-	     SLOT(familyHighlighted(const char *)) );
-    connect( d->styleList, SIGNAL(highlighted(const char *)),
-	     SLOT(styleHighlighted(const char *)) );
-    connect( d->sizeList, SIGNAL(highlighted(const char *)),
-	     SLOT(sizeHighlighted(const char *)) );
+    connect( d->familyList, SIGNAL(highlighted(QString )),
+	     SLOT(familyHighlighted(QString )) );
+    connect( d->styleList, SIGNAL(highlighted(QString )),
+	     SLOT(styleHighlighted(QString )) );
+    connect( d->sizeList, SIGNAL(highlighted(QString )),
+	     SLOT(sizeHighlighted(QString )) );
 
     connect( d->familyEdit, SIGNAL(returnPressed()),
 	     SLOT(familySelected()) );
@@ -509,7 +509,7 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 
 */
 
-void QFontDialog::familyHighlighted( const char * t )
+void QFontDialog::familyHighlighted( QString t )
 {
     d->familyEdit->setText( t );	
     if ( style() == WindowsStyle && d->familyEdit->hasFocus() )
@@ -521,7 +521,7 @@ void QFontDialog::familyHighlighted( const char * t )
 
 */
 
-void QFontDialog::styleHighlighted( const char * t )
+void QFontDialog::styleHighlighted( QString t )
 {
     d->styleEdit->setText( t );	
     if ( style() == WindowsStyle && d->styleEdit->hasFocus() )
@@ -533,7 +533,7 @@ void QFontDialog::styleHighlighted( const char * t )
 
 */
 
-void QFontDialog::sizeHighlighted( const char * t )
+void QFontDialog::sizeHighlighted( QString t )
 {
     d->sizeEdit->setText( t );
     if ( style() == WindowsStyle && d->sizeEdit->hasFocus() )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.h#4 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.h#5 $
 **
 ** Definition of QStatusBar class
 **
@@ -36,15 +36,15 @@ class QStatusBar: public QWidget
 {
     Q_OBJECT
 public:
-    QStatusBar( QWidget * parent = 0, const char * name = 0 );
+    QStatusBar( QWidget * parent = 0, QString name = 0 );
     ~QStatusBar();
 
     void addWidget( QWidget *, int, bool = FALSE );
     void removeWidget( QWidget * );
 
 public slots:
-    void message( const char * );
-    void message( const char *, int );
+    void message( QString );
+    void message( QString , int );
     void clear();
 
 protected:

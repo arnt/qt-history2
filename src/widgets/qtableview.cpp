@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#86 $
 **
 ** Implementation of QTableView class
 **
@@ -46,11 +46,11 @@ enum ScrollBarDirtyFlags {
 class CornerSquare : public QWidget		// internal class
 {
 public:
-    CornerSquare( QWidget *, const char * = 0 );
+    CornerSquare( QWidget *, QString = 0 );
     void paintEvent( QPaintEvent * );
 };
 
-CornerSquare::CornerSquare( QWidget *parent, const char *name )
+CornerSquare::CornerSquare( QWidget *parent, QString name )
 	: QWidget( parent, name )
 {
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#76 $
 **
 ** Implementation of QCheckBox class
 **
@@ -74,7 +74,7 @@ QCheckBox::QCheckBox( QWidget *parent, const char *name )
   The \e parent and \e name arguments are sent to the QWidget constructor.
 */
 
-QCheckBox::QCheckBox( const char *text, QWidget *parent, const char *name )
+QCheckBox::QCheckBox( QString text, QWidget *parent, const char *name )
 	: QButton( parent, name, WResizeNoErase )
 {
     setText( text );

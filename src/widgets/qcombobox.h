@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#56 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#57 $
 **
 ** Definition of QComboBox class
 **
@@ -47,19 +47,20 @@ public:
     int		count() const;
 
     void	insertStrList( const QStrList *, int index=-1 );
+    void	insertStrList( QString *, int numStrings=-1, int index=-1);
     void	insertStrList( const char **, int numStrings=-1, int index=-1);
 
-    void	insertItem( const char *text, int index=-1 );
+    void	insertItem( QString text, int index=-1 );
     void	insertItem( const QPixmap &pixmap, int index=-1 );
 
     void	removeItem( int index );
     void	clear();
 
-    const char *currentText() const;
-    const char *text( int index ) const;
+    QString currentText() const;
+    QString text( int index ) const;
     const QPixmap *pixmap( int index ) const;
 
-    void	changeItem( const char *text, int index );
+    void	changeItem( QString text, int index );
     void	changeItem( const QPixmap &pixmap, int index );
 
     int		currentItem() const;
@@ -102,13 +103,13 @@ public:
 public slots:
     void	clearValidator();
     void	clearEdit();
-    virtual void	setEditText( const char * );
+    virtual void	setEditText( QString );
 
 signals:
     void	activated( int index );
     void	highlighted( int index );
-    void	activated( const char * );
-    void	highlighted( const char * );
+    void	activated( QString );
+    void	highlighted( QString );
 
 private slots:
     void	internalActivate( int );

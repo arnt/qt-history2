@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#98 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1920,7 +1920,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 }
 
 
-void QPainter::drawText( int x, int y, const char *str, int len )
+void QPainter::drawText( int x, int y, QString str, int len )
 {
     if ( !isActive() )
 	return;
@@ -1939,7 +1939,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    QString newstr( str, len+1 );
 	    param[0].point = &p;
 	    param[1].str = newstr.data();
-	    if ( !pdev->cmd(PDC_DRAWTEXT,this,param) || !hdc )
+	    if ( !pdev->cmd(PDC_DRAWTEXT2,this,param) || !hdc )
 		return;
 	}
 	if ( nat_xf )

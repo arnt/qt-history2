@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.2 1998/08/13 17:03:09 warwick Exp $
+** $Id: porting.doc,v 1.3 1998/08/17 02:59:50 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -48,8 +48,8 @@ QString
 Now uses Unicode.  data() is obsolete - you cannot directly access the
 string as an array of bytes, because it isn't one.  Often, ascii() is
 what you want rather than data(), or just leave it to convert to
-const char* automatically.
-detach() is obsolete - QString is always shared.
+const char* automatically.  data() is only used now to aide porting to Qt 2.0
+detach() is obsolete - QString is always shared.  It is now a no-op.
 size() should be replaced by length()+1.
 Code that uses QString as an array of bytes should use QByteArray
 or char[].  THEN convert that to a QString if needed.
@@ -74,12 +74,35 @@ You may find yourself needing ascii() for passing to the operating system
  or other libraries, and be tempted to use Q1String to save the conversion,
  but you are better off using unicode throughout, then when the operating
  system supports unicode, you'll be prepared.
+toShort() returns 0 (and sets *ok to false) on error.
+toUInt() now works for big valid uints
+insert() now works into the same string
+When converting "const char*" usage to QString in order to make your
+ application fully unicode-aware, use QString::null for the null value
+ where you would have used 0 with char pointers.
+When converting, set a breakpoint in QString::ascii() to catch places where
+ you are losing Unicode information.
+Many signal/slots have changed from const char* to QString.  You will
+ get run-time errors when you try to QObject::connect() to the old
+ signals and slots.
+
 
 <p>
 QMultiLineEdit::textWidth(QString*)
 changed to QMultiLineEdit::textWidth(QString)
  Should be no problem.
 
-<p>
+<p> 
+Some repaint problems problems might occur with subclasses on QFrame,
+QPushButton, and QComboBox, which now use WResizeNoErase to improve
+resize repainting.  Be sure to call the resizeEvent() of your base
+class if your derive a widget subclass.  The quickest fix is to
+add:
+   resizeEvent(QResizeEvent* e)
+   {
+       repaint( e->rect(), TRUE );
+   }
 
+<p>
+QClipboard::pixmap() now returns a QPixmap, not a QPixmap*.
 */

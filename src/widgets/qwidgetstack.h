@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#9 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#10 $
 **
 ** Definition of QWidgetStack class
 **
@@ -39,7 +39,7 @@ class QWidgetStack: public QFrame
 {
     Q_OBJECT
 public:
-    QWidgetStack( QWidget * parent = 0, const char * name = 0 );
+    QWidgetStack( QWidget * parent = 0, QString name = 0 );
     ~QWidgetStack();
 
     void addWidget( QWidget *, int );

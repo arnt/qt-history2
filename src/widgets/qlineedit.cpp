@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#152 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#153 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -92,7 +92,7 @@ struct QLineEditPrivate {
 
 
 /*!
-  \fn void QLineEdit::textChanged( const char * )
+  \fn void QLineEdit::textChanged( QString )
   This signal is emitted every time the text has changed.
   The argument is the new text.
 */
@@ -190,10 +190,10 @@ QLineEdit::~QLineEdit()
   \sa text()
 */
 
-void QLineEdit::setText( const char *text )
+void QLineEdit::setText( QString text )
 {
     QString oldText( tbuf );
-    tbuf = text ? text : "";
+    tbuf = text ? text : QString("");
     if ( (int)tbuf.length() > maxLen ) {
 	tbuf.resize( maxLen+1 );
 	tbuf[maxLen] = '\0';
@@ -255,7 +255,7 @@ void QLineEdit::deselect()
   \sa setText()
 */
 
-const char *QLineEdit::text() const
+QString QLineEdit::text() const
 {
     return tbuf;
 }
@@ -1310,7 +1310,7 @@ void QLineEdit::dragScrollSlot()
   Repaints and emits textChanged() if appropriate.
 */
 
-bool QLineEdit::validateAndSet( const char * newText, int newPos,
+bool QLineEdit::validateAndSet( QString newText, int newPos,
 				int newMarkAnchor, int newMarkDrag )
 {
     QString t( newText );
@@ -1386,7 +1386,7 @@ bool QLineEdit::validateAndSet( const char * newText, int newPos,
 
 */
 
-void QLineEdit::insert( const char * newText )
+void QLineEdit::insert( QString newText )
 {
     QString t( newText );
     if ( t.isEmpty() )

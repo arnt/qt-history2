@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#117 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#118 $
 **
 ** Implementation of QFileDialog class
 **
@@ -199,8 +199,8 @@ struct QFileDialogPrivate {
 	File( const QFileInfo * fi, QListView * parent, int h  )
 	    : QListViewItem( parent ), info( *fi ) { setHeight( h ); }
 
-	const char * text( int column ) const;
-	const char * key( int column, bool ) const;
+	QString text( int column ) const;
+	QString key( int column, bool ) const;
 	const QPixmap * pixmap( int ) const;
 
 	QFileInfo info;
@@ -240,7 +240,7 @@ struct QFileDialogPrivate {
 };
 
 
-const char * QFileDialogPrivate::File::text( int column ) const
+QString QFileDialogPrivate::File::text( int column ) const
 {
     makeVariables();
 
@@ -301,7 +301,7 @@ const QPixmap * QFileDialogPrivate::File::pixmap( int column ) const
 }
 
 
-const char * QFileDialogPrivate::File::key( int column, bool ascending ) const
+QString QFileDialogPrivate::File::key( int column, bool ascending ) const
 {
     makeVariables();
     QDateTime epoch( QDate( 1968, 6, 19 ) );
@@ -732,7 +732,7 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
   The dialog becomes modal if \e modal is TRUE, otherwise modeless.
 */
 
-QFileDialog::QFileDialog( const char *dirName, const char *filter,
+QFileDialog::QFileDialog( QString dirName, QString filter,
 			  QWidget *parent, const char *name, bool modal )
     : QDialog( parent, name, modal )
 {
@@ -771,7 +771,7 @@ void QFileDialog::init()
     d->mode = AnyFile;
 
     nameEdit = new QLineEdit( this, "name/filter editor" );
-    connect( nameEdit, SIGNAL(textChanged(const char*)),
+    connect( nameEdit, SIGNAL(textChanged(QString )),
 	     this,  SLOT(fileNameEditDone()) );
     nameEdit->installEventFilter( this );
 
@@ -829,13 +829,13 @@ void QFileDialog::init()
 	++it;
 	d->paths->insertItem( fi->absFilePath() );
     }
-    connect( d->paths, SIGNAL(activated(const char *)),
-	     this, SLOT(setDir(const char *)) );
+    connect( d->paths, SIGNAL(activated(QString )),
+	     this, SLOT(setDir(QString )) );
 
     d->geometryDirty = TRUE;
     d->types = new QComboBox( TRUE, this, "file types" );
-    connect( d->types, SIGNAL(activated(const char *)),
-	     this, SLOT(setFilter(const char *)) );
+    connect( d->types, SIGNAL(activated(QString )),
+	     this, SLOT(setFilter(QString )) );
 
     d->pathL = new QLabel( d->paths, tr("Look &in"), this );
     d->fileL = new QLabel( nameEdit, tr("File &name"), this );
@@ -955,7 +955,7 @@ QString QFileDialog::selectedFile() const
   \internal
   Only for external use.  Not useful inside QFileDialog.
 */
-void QFileDialog::setSelection( const char* filename )
+void QFileDialog::setSelection( QString filename )
 {
     QFileInfo info(filename);
     if ( info.isDir() ) {
@@ -973,7 +973,7 @@ void QFileDialog::setSelection( const char* filename )
   \sa dir(), setDir()
 */
 
-const char *QFileDialog::dirPath() const
+QString QFileDialog::dirPath() const
 {
     return cwd.path();
 }
@@ -992,7 +992,7 @@ const char *QFileDialog::dirPath() const
   \endcode
 */
 
-void QFileDialog::setFilter( const char * newFilter )
+void QFileDialog::setFilter( QString newFilter )
 {
     if ( !newFilter )
 	return;
@@ -1012,7 +1012,7 @@ void QFileDialog::setFilter( const char * newFilter )
   \sa dir()
 */
 
-void QFileDialog::setDir( const char *pathstr )
+void QFileDialog::setDir( QString pathstr )
 {
     QDir tmp( pathstr );
     setDir( tmp );
@@ -1119,19 +1119,19 @@ void QFileDialog::rereadDir()
 
 
 /*!
-  \fn void QFileDialog::fileHighlighted( const char * )
+  \fn void QFileDialog::fileHighlighted( QString )
 
   This signal is emitted when the user highlights a file.
 */
 
 /*!
-  \fn void QFileDialog::fileSelected( const char * )
+  \fn void QFileDialog::fileSelected( QString )
 
   This signal is emitted when the user selects a file.
 */
 
 /*!
-  \fn void QFileDialog::dirEntered( const char * )
+  \fn void QFileDialog::dirEntered( QString )
 
   This signal is emitted when the user has selected a new directory.
 */
@@ -1179,9 +1179,9 @@ void qt_leave_modal( QWidget* );
   \sa getSaveFileName()
 */
 
-QString QFileDialog::getOpenFileName( const char *startWith,
-				      const char *filter,
-				      QWidget *parent, const char *name )
+QString QFileDialog::getOpenFileName( QString startWith,
+				      QString filter,
+				      QWidget *parent, QString name )
 {
     makeVariables();
     QString initialSelection;
@@ -1314,9 +1314,9 @@ QString QFileDialog::getOpenFileName( const char *startWith,
   \sa getOpenFileName()
 */
 
-QString QFileDialog::getSaveFileName( const char *startWith,
-				      const char *filter,
-				      QWidget *parent, const char *name )
+QString QFileDialog::getSaveFileName( QString startWith,
+				      QString filter,
+				      QWidget *parent, QString name )
 {
     makeVariables();
     QString initialSelection;
@@ -1470,7 +1470,7 @@ void QFileDialog::resizeEvent( QResizeEvent * )
 
   Obsolete.
 */
-void QFileDialog::updatePathBox( const char * )
+void QFileDialog::updatePathBox( QString )
 {
     // unused
 }
@@ -1717,9 +1717,9 @@ void QFileDialog::cdUpClicked()
   previous file dialog left off.
 */
 
-QString QFileDialog::getExistingDirectory( const char *dir,
+QString QFileDialog::getExistingDirectory( QString dir,
 					   QWidget *parent,
-					   const char *name )
+					   QString name )
 {
     makeVariables();
     QFileDialog *dialog	= new QFileDialog( parent, name, TRUE );
@@ -1900,7 +1900,7 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 
 /*!  Constructs an empty file icon provider. */
 
-QFileIconProvider::QFileIconProvider( QObject * parent, const char * name )
+QFileIconProvider::QFileIconProvider( QObject * parent, QString name )
     : QObject( parent, name )
 {
     // nothing necessary
@@ -1991,7 +1991,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
   \sa setFilter()
 */
 
-void QFileDialog::setFilters( const char ** types )
+void QFileDialog::setFilters( QString * types )
 {
     if ( !types || !*types )
 	return;
@@ -2017,7 +2017,7 @@ void QFileDialog::setFilters( const QStrList & types )
     d->types->clear();
     QStrListIterator it( types );
     it.toFirst();
-    const char * t;
+    QString t;
     while( (t=it.current()) != 0 ) {
 	++it;
 	d->types->insertItem( t );
@@ -2066,10 +2066,10 @@ void QFileDialog::modeButtonsDestroyed()
   \endcode
 */
 
-QStrList QFileDialog::getOpenFileNames( const char *filter,
-					const char * dir,
+QStrList QFileDialog::getOpenFileNames( QString filter,
+					QString dir,
 					QWidget *parent,
-					const char *name )
+					QString name )
 {
     makeVariables();
 

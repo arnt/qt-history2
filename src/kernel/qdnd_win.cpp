@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#26 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -56,17 +56,17 @@ public:
     QWindowsMime();
     virtual ~QWindowsMime();
 
-    static QWindowsMime* convertor( const char* mime, int cf );
-    static const char* cfToMime(int cf);
+    static QWindowsMime* convertor( QString mime, int cf );
+    static QString cfToMime(int cf);
 
-    virtual const char* convertorName()=0;
+    virtual QString convertorName()=0;
     virtual int countCf()=0;
     virtual int cf(int index)=0;
-    virtual bool canConvert( const char* mime, int cf )=0;
-    virtual const char* mimeFor(int cf)=0;
-    virtual int cfFor(const char*)=0;
-    virtual QByteArray convertToMime( QByteArray data, const char* mime, int cf )=0;
-    virtual QByteArray convertFromMime( QByteArray data, const char* mime, int cf )=0;
+    virtual bool canConvert( QString mime, int cf )=0;
+    virtual QString mimeFor(int cf)=0;
+    virtual int cfFor(QString )=0;
+    virtual QByteArray convertToMime( QByteArray data, QString mime, int cf )=0;
+    virtual QByteArray convertFromMime( QByteArray data, QString mime, int cf )=0;
 };
 
 
@@ -114,7 +114,7 @@ LPFORMATETC allFormats(int& n)
 
 
 static
-LPFORMATETC someFormats(const char* mime, int& n)
+LPFORMATETC someFormats(QString mime, int& n)
 {
     n = 0;
     QWindowsMime* wm;
@@ -144,7 +144,7 @@ LPFORMATETC someFormats(const char* mime, int& n)
 
 
 struct QWindowsRegisteredMimeType {
-    QWindowsRegisteredMimeType(int c, const char* m) :
+    QWindowsRegisteredMimeType(int c, QString m) :
 	cf(c), mime(m) {}
     int cf;
     QString mime;
@@ -153,7 +153,7 @@ struct QWindowsRegisteredMimeType {
 static QList<QWindowsRegisteredMimeType> mimetypes;
 
 static
-CLIPFORMAT registerMimeType(const char* mime)
+CLIPFORMAT registerMimeType(QString mime)
 {
     CLIPFORMAT f = RegisterClipboardFormat(mime);
     QWindowsRegisteredMimeType *mt = mimetypes.current();
@@ -175,7 +175,7 @@ public:
 	return mimetypes.count();
     }
 
-    const char* convertorName()
+    QString convertorName()
     {
 	return "Any-Mime";
     }
@@ -185,7 +185,7 @@ public:
 	return mimetypes.at(index)->cf;
     }
 
-    int cfFor(const char* mime)
+    int cfFor(QString mime)
     {
 	QWindowsRegisteredMimeType *mt = mimetypes.current();
 	if ( mt ) // quick check with most-recent
@@ -197,7 +197,7 @@ public:
 	return 0;
     }
 
-    const char* mimeFor(int cf)
+    QString mimeFor(int cf)
     {
 	QWindowsRegisteredMimeType *mt = mimetypes.current();
 	if ( mt ) // quick check with most-recent
@@ -209,7 +209,7 @@ public:
 	return 0;
     }
 
-    bool canConvert( const char* mime, int cf )
+    bool canConvert( QString mime, int cf )
     {
 	QWindowsRegisteredMimeType *mt = mimetypes.current();
 	if ( mt ) // quick check with most-recent
@@ -230,12 +230,12 @@ public:
 	return 0==stricmp(mt->mime,mime);
     }
 
-    QByteArray convertToMime( QByteArray data, const char*, int )
+    QByteArray convertToMime( QByteArray data, QString , int )
     {
 	return data;
     }
 
-    QByteArray convertFromMime( QByteArray data, const char*, int )
+    QByteArray convertFromMime( QByteArray data, QString , int )
     {
 	return data;
     }
@@ -248,7 +248,7 @@ public:
 	return 1 /* 2 with unicode */;
     }
 
-    const char* convertorName()
+    QString convertorName()
     {
 	return "Text";
     }
@@ -259,7 +259,7 @@ public:
 	// return index ? CF_TEXT : CF_UNICODETEXT;  // Note UNICODE first.
     }
 
-    int cfFor(const char* mime)
+    int cfFor(QString mime)
     {
 	if ( 0==qstricmp( mime, "text/plain" ) )
 	    return CF_TEXT;
@@ -267,7 +267,7 @@ public:
 	    return 0;
     }
 
-    const char* mimeFor(int cf)
+    QString mimeFor(int cf)
     {
 	if ( cf == CF_TEXT )
 	    return "text/plain";
@@ -275,17 +275,17 @@ public:
 	    return 0;
     }
 
-    bool canConvert( const char* mime, int cf )
+    bool canConvert( QString mime, int cf )
     {
 	return cf == CF_TEXT && qstrnicmp(mime,"text/",5)==0;
     }
 
-    QByteArray convertToMime( QByteArray data, const char*, int )
+    QByteArray convertToMime( QByteArray data, QString , int )
     {
 	return data;
     }
 
-    QByteArray convertFromMime( QByteArray data, const char*, int )
+    QByteArray convertFromMime( QByteArray data, QString , int )
     {
 	return data;
     }
@@ -298,7 +298,7 @@ public:
 	return 1;
     }
 
-    const char* convertorName()
+    QString convertorName()
     {
 	return "Image";
     }
@@ -308,18 +308,18 @@ public:
 	return CF_DIB;
     }
 
-    int cfFor(const char* mime)
+    int cfFor(QString mime)
     {
 	if ( qstrnicmp(mime,"image/",5)==0 ) {
 	    QStrList ofmts = QImage::outputFormats();
-	    for (const char* fmt=ofmts.first(); fmt; fmt=ofmts.next())
+	    for (QString fmt=ofmts.first(); fmt; fmt=ofmts.next())
 		if ( qstricmp(fmt,mime+6)==0 )
 		    return CF_DIB;
 	}
 	return 0;
     }
 
-    const char* mimeFor(int cf)
+    QString mimeFor(int cf)
     {
 	if ( cf == CF_DIB )
 	    return "image/bmp";
@@ -327,18 +327,18 @@ public:
 	    return 0;
     }
 
-    bool canConvert( const char* mime, int cf )
+    bool canConvert( QString mime, int cf )
     {
 	if ( cf == CF_DIB && qstrnicmp(mime,"image/",5)==0 ) {
 	    QStrList ofmts = QImage::outputFormats();
-	    for (const char* fmt=ofmts.first(); fmt; fmt=ofmts.next())
+	    for (QString fmt=ofmts.first(); fmt; fmt=ofmts.next())
 		if ( qstricmp(fmt,mime+6)==0 )
 		    return TRUE;
 	}
 	return FALSE;
     }
 
-    QByteArray convertToMime( QByteArray data, const char* mime, int cf )
+    QByteArray convertToMime( QByteArray data, QString mime, int cf )
     {
 	if ( qstrnicmp(mime,"image/",6)!=0 || cf != CF_DIB )  // Sanity
 	    return QByteArray();
@@ -365,7 +365,7 @@ public:
 	return QByteArray();
     }
 
-    QByteArray convertFromMime( QByteArray data, const char* mime, int cf )
+    QByteArray convertFromMime( QByteArray data, QString mime, int cf )
     {
 	if ( qstrnicmp(mime,"image/",6)!=0 || cf != CF_DIB ) // Sanity
 	    return QByteArray();
@@ -411,7 +411,7 @@ public:
 	return 1;
     }
 
-    const char* convertorName()
+    QString convertorName()
     {
 	return "Urls";
     }
@@ -421,12 +421,12 @@ public:
 	return CF_HDROP;
     }
 
-    int cfFor(const char* mime)
+    int cfFor(QString mime)
     {
 	return qstricmp(mime,"url/url")==0;
     }
 
-    const char* mimeFor(int cf)
+    QString mimeFor(int cf)
     {
 	if ( cf == CF_HDROP )
 	    return "url/url";
@@ -434,19 +434,19 @@ public:
 	    return 0;
     }
 
-    bool canConvert( const char* mime, int cf )
+    bool canConvert( QString mime, int cf )
     {
 	return cf == CF_HDROP && 0==qstricmp(mime,"url/url");
     }
 
-    QByteArray convertToMime( QByteArray data, const char* mime, int cf )
+    QByteArray convertToMime( QByteArray data, QString mime, int cf )
     {
 	if ( qstricmp(mime,"url/url")!=0 || cf != CF_HDROP )  // Sanity
 	    return QByteArray();
 
 	LPDROPFILES hdrop = (LPDROPFILES)data.data();
-	const char* files = (const char*)data.data() + hdrop->pFiles;
-	const char* end = (const char*)data.data() + data.size();
+	QString files = (QString )data.data() + hdrop->pFiles;
+	QString end = (QString )data.data() + data.size();
 	const ushort* filesw = (const ushort*)(data.data() + hdrop->pFiles);
 	int i=0;
 	int size=0;
@@ -464,7 +464,7 @@ public:
 	    else
 		size++;
 	    i++;
-	    if ( (wide ? (const char*)(filesw+i) : files+i) >= end )
+	    if ( (wide ? (QString )(filesw+i) : files+i) >= end )
 		return QByteArray(); // Bad Data
 	}
 	if (i)
@@ -509,7 +509,7 @@ public:
 	return result;
     }
 
-    QByteArray convertFromMime( QByteArray data, const char* mime, int cf )
+    QByteArray convertFromMime( QByteArray data, QString mime, int cf )
     {
 	if ( qstricmp(mime,"url/url")!=0 || cf != CF_HDROP )  // Sanity
 	    return QByteArray();
@@ -520,7 +520,7 @@ public:
 	hdrop.fNC = TRUE;
 	hdrop.fWide = FALSE;
 
-	const char* urls = (const char*)data.data();
+	QString urls = (QString )data.data();
 	int size=0;
 	bool expectprotocol=TRUE;
 	bool ignore=FALSE;
@@ -622,7 +622,7 @@ void qt_init_windows_mime()
 }
 
 QWindowsMime*
-QWindowsMime::convertor( const char* mime, int cf )
+QWindowsMime::convertor( QString mime, int cf )
 {
     QWindowsMime* wm;
     for ( wm = mimes.first(); wm; wm = mimes.next() ) {
@@ -633,9 +633,9 @@ QWindowsMime::convertor( const char* mime, int cf )
     return 0;
 }
 
-const char* QWindowsMime::cfToMime(int cf)
+QString QWindowsMime::cfToMime(int cf)
 {
-    const char* m=0;
+    QString m=0;
     QWindowsMime* wm;
     for ( wm = mimes.first(); wm && !m; wm = mimes.next() ) {
 	m = wm->mimeFor(cf);
@@ -766,7 +766,7 @@ void QDragManager::drop()
 }
 
 
-bool QDragMoveEvent::provides( const char * mimeType )
+bool QDragMoveEvent::provides( QString mimeType )
 {
     if (!current_dropobj) // Sanity
 	return FALSE;
@@ -784,7 +784,7 @@ bool QDragMoveEvent::provides( const char * mimeType )
     return does;
 }
 
-const char * QDragMoveEvent::format( int fn )
+QString QDragMoveEvent::format( int fn )
 {
     if (!current_dropobj) // Sanity
 	return 0;
@@ -804,10 +804,10 @@ const char * QDragMoveEvent::format( int fn )
 	fmt = QWindowsMime::cfToMime(fmtetc[i-1].cfFormat);
     delete fmtetc;
 
-    return fmt.isEmpty() ? 0 : (const char*)fmt;
+    return fmt.isEmpty() ? 0 : (QString )fmt;
 }
 
-QByteArray qt_olednd_obtain_data( const char *format )
+QByteArray qt_olednd_obtain_data( QString format )
 {
     QByteArray result;
 
@@ -876,12 +876,12 @@ QByteArray qt_olednd_obtain_data( const char *format )
     return result;
 }
 
-QByteArray QDragMoveEvent::data( const char * format )
+QByteArray QDragMoveEvent::data( QString format )
 {
     return qt_olednd_obtain_data( format );
 }
 
-QByteArray QDropEvent::data( const char * format )
+QByteArray QDropEvent::data( QString format )
 {
     return qt_olednd_obtain_data( format );
 }
@@ -902,7 +902,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     object = o;
     dragSource = (QWidget *)(object->parent());
 
-    const char* fmt;
+    QString fmt;
     for (int i=0; (fmt=object->format(i)); i++)
 	registerMimeType(fmt);
 
@@ -1117,7 +1117,7 @@ QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 
     QWindowsMime *wm;
 
-    const char* fmt;
+    QString fmt;
     for (int i=0; (fmt=object->format(i)); i++) {
 	if ((wm=QWindowsMime::convertor(fmt,pformatetc->cfFormat))
 	    && pformatetc->dwAspect == DVASPECT_CONTENT &&
@@ -1154,7 +1154,7 @@ QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
     // This method is called by the drop target to check whether the source
     // provides data in a format that the target accepts.
 
-    const char* fmt;
+    QString fmt;
     for (int i=0; (fmt=object->format(i)); i++) {
 	if (QWindowsMime::convertor(fmt,pformatetc->cfFormat) &&
 	   pformatetc->dwAspect == DVASPECT_CONTENT &&

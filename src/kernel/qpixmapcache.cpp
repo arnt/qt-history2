@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#21 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -77,7 +77,7 @@ static int cache_limit	  = 1024;		// 1024 KB cache limit
     since QPixmaps are \link shclass.html implicitly shared\endlink), because
     subsequent insertions into the cache could cause the pointer to become
     invalid.  For this reason, we recommend you use
-    find(const char*, QPixmap&) instead.
+    find(QString , QPixmap&) instead.
   </strong>
 
   Example:
@@ -94,7 +94,7 @@ static int cache_limit	  = 1024;		// 1024 KB cache limit
   \endcode
 */
 
-QPixmap *QPixmapCache::find( const char *key )
+QPixmap *QPixmapCache::find( QString key )
 {
     return pm_cache ? pm_cache->find(key) : 0;
 }
@@ -116,7 +116,7 @@ QPixmap *QPixmapCache::find( const char *key )
   \endcode
 */
 
-bool QPixmapCache::find( const char *key, QPixmap& pm )
+bool QPixmapCache::find( QString key, QPixmap& pm )
 {
     QPixmap* p = pm_cache ? pm_cache->find(key) : 0;
     if ( p ) pm = *p;
@@ -135,11 +135,11 @@ bool QPixmapCache::find( const char *key, QPixmap& pm )
     discarded from the cache, and the pointer to become invalid.
 
     Due to these dangers, we strongly recommend that you use
-    insert(const char*, const QPixmap&) instead.
+    insert(QString , const QPixmap&) instead.
   </strong>
 */
 
-bool QPixmapCache::insert( const char *key, QPixmap *pm )
+bool QPixmapCache::insert( QString key, QPixmap *pm )
 {
     if ( !pm_cache ) {				// create pixmap cache
 	pm_cache = new QPMCache( 1024*cache_limit, cache_size );
@@ -165,7 +165,7 @@ bool QPixmapCache::insert( const char *key, QPixmap *pm )
   \sa setCacheLimit().
 */
 
-void QPixmapCache::insert( const char *key, const QPixmap& pm )
+void QPixmapCache::insert( QString key, const QPixmap& pm )
 {
     if ( !pm_cache ) {				// create pixmap cache
 	pm_cache = new QPMCache( 1024*cache_limit, cache_size );

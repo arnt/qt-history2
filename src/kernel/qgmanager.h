@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.h#14 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.h#15 $
 **
 ** Definition of QGManager class (workhorse for QLayout classes)
 **
@@ -70,7 +70,7 @@ public:
 
     void remove( QWidget *w );
 
-    void setName( QChain *, const char * );
+    void setName( QChain *, QString );
         
 protected:
     bool  eventFilter( QObject *, QEvent * );

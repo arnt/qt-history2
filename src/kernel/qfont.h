@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#48 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#49 $
 **
 ** Definition of QFont class
 **
@@ -58,16 +58,16 @@ public:
 		     KOI8R };
 
     QFont();					// default font
-    QFont( const char *family, int pointSize = 12,
+    QFont( QString family, int pointSize = 12,
 	   int weight = Normal, bool italic = FALSE );
-    QFont( const char *family, int pointSize,
+    QFont( QString family, int pointSize,
 	   int weight, bool italic, CharSet charSet );
     QFont( const QFont & );
     virtual ~QFont();
     QFont      &operator=( const QFont & );
 
-    const char *family()	const;
-    void	setFamily( const char * );
+    QString family()	const;
+    void	setFamily( QString );
     int		pointSize()	const;
     void	setPointSize( int );
     int		weight()	const;
@@ -97,16 +97,16 @@ public:
 
     HANDLE	handle( HANDLE=0 ) const;
 
-    const char* rawName() const;
+    QString rawName() const;
 
     QString	key() const;
 
     static const QFont &defaultFont();
     static void setDefaultFont( const QFont & );
 
-    static const char  *substitute( const char *familyName );
-    static void insertSubstitution( const char *, const char * );
-    static void removeSubstitution( const char * );
+    static QString substitute( QString familyName );
+    static void insertSubstitution( QString , QString );
+    static void removeSubstitution( QString );
     static void listSubstitutions( QStrList * );
 
     static void initialize();
@@ -123,7 +123,8 @@ protected:
 
 private:
     QFont( QFontData * );
-    QFont( bool );
+    enum Internal { QFI0, QFI1 };
+    QFont( Internal );
     void	init();
     void	detach();
     void	initFontInfo()	    const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#31 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#32 $
 **
 ** Definition of QFileDialog class
 **
@@ -42,7 +42,7 @@ class QFileIconProvider: public QObject
 {
     Q_OBJECT
 public:
-    QFileIconProvider( QObject * parent = 0, const char * name = 0 );
+    QFileIconProvider( QObject * parent = 0, QString name = 0 );
 
     virtual const QPixmap * pixmap( const QFileInfo & );
 };
@@ -52,26 +52,26 @@ class QFileDialog : public QDialog
 {
     Q_OBJECT
 public:
-    QFileDialog( const char *dirName, const char *filter = 0,
+    QFileDialog( QString dirName, QString filter = QString::null,
 		 QWidget *parent=0, const char *name=0, bool modal=FALSE );
     QFileDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE );
    ~QFileDialog();
 
     // recommended static functions
 
-    static QString getOpenFileName( const char *initially = 0,
-				    const char *filter= 0,
-				    QWidget *parent = 0, const char *name = 0);
-    static QString getSaveFileName( const char *initially = 0,
-				    const char *filter= 0,
-				    QWidget *parent = 0, const char *name = 0);
-    static QString getExistingDirectory( const char *dir = 0,
+    static QString getOpenFileName( QString initially = 0,
+				    QString filter= 0,
+				    QWidget *parent = 0, QString name = 0);
+    static QString getSaveFileName( QString initially = 0,
+				    QString filter= 0,
+				    QWidget *parent = 0, QString name = 0);
+    static QString getExistingDirectory( QString dir = 0,
 					 QWidget *parent = 0,
-					 const char *name = 0 );
-    static QStrList getOpenFileNames( const char *filter= 0,
-				      const char * dir = 0,
+					 QString name = 0 );
+    static QStrList getOpenFileNames( QString filter= 0,
+				      QString dir = 0,
 				      QWidget *parent = 0,
-				      const char *name = 0);
+				      QString name = 0);
 
     // other static functions
 
@@ -81,9 +81,9 @@ public:
     // non-static function for special needs
 
     QString selectedFile() const;
-    void setSelection( const char* );
+    void setSelection( QString );
 
-    const char *dirPath() const;
+    QString dirPath() const;
 
     void setDir( const QDir & );
     const QDir *dir() const;
@@ -97,15 +97,15 @@ public:
     bool eventFilter( QObject *, QEvent * );
 
 public slots:
-    void setDir( const char * );
-    void setFilter( const char * );
-    void setFilters( const char ** );
+    void setDir( QString );
+    void setFilter( QString );
+    void setFilters( QString * );
     void setFilters( const QStrList & );
 
 signals:
-    void fileHighlighted( const char * );
-    void fileSelected( const char * );
-    void dirEntered( const char * );
+    void fileHighlighted( QString );
+    void fileSelected( QString );
+    void dirEntered( QString );
 
 private slots:
     void fileSelected( int );
@@ -138,7 +138,7 @@ private slots:
 
 private:
     void init();
-    void updatePathBox( const char * );
+    void updatePathBox( QString );
     bool trySetSelection( const QFileInfo&, bool );
 
     QDir cwd;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#142 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#143 $
 **
 ** Implementation of QListView widget class
 **
@@ -87,9 +87,9 @@ struct QListViewPrivate
 
     class ItemColumnInfo {
       public:
-	ItemColumnInfo(): text( 0 ), pm( 0 ), next( 0 ) {}
-	~ItemColumnInfo() { if (text) delete[] text; delete pm; delete next; }
-	/*const*/ char * text;
+	ItemColumnInfo(): pm( 0 ), next( 0 ) {}
+	~ItemColumnInfo() { delete pm; delete next; }
+	QString text;
 	QPixmap * pm;
 	ItemColumnInfo * next;
     };
@@ -296,14 +296,14 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after )
 */
 
 QListViewItem::QListViewItem( QListView * parent,
-			      const char * label1,
-			      const char * label2,
-			      const char * label3,
-			      const char * label4,
-			      const char * label5,
-			      const char * label6,
-			      const char * label7,
-			      const char * label8 )
+			      QString label1,
+			      QString label2,
+			      QString label3,
+			      QString label4,
+			      QString label5,
+			      QString label6,
+			      QString label7,
+			      QString label8 )
 {
     init();
     parent->insertItem( this );
@@ -329,14 +329,14 @@ QListViewItem::QListViewItem( QListView * parent,
 */
 
 QListViewItem::QListViewItem( QListViewItem * parent,
-			      const char * label1,
-			      const char * label2,
-			      const char * label3,
-			      const char * label4,
-			      const char * label5,
-			      const char * label6,
-			      const char * label7,
-			      const char * label8 )
+			      QString label1,
+			      QString label2,
+			      QString label3,
+			      QString label4,
+			      QString label5,
+			      QString label6,
+			      QString label7,
+			      QString label8 )
 {
     init();
     parent->insertItem( this );
@@ -360,14 +360,14 @@ QListViewItem::QListViewItem( QListViewItem * parent,
 */
 
 QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
-			      const char * label1,
-			      const char * label2,
-			      const char * label3,
-			      const char * label4,
-			      const char * label5,
-			      const char * label6,
-			      const char * label7,
-			      const char * label8 )
+			      QString label1,
+			      QString label2,
+			      QString label3,
+			      QString label4,
+			      QString label5,
+			      QString label6,
+			      QString label7,
+			      QString label8 )
 {
     init();
     parent->insertItem( this );
@@ -394,14 +394,14 @@ QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
 */
 
 QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after,
-			      const char * label1,
-			      const char * label2,
-			      const char * label3,
-			      const char * label4,
-			      const char * label5,
-			      const char * label6,
-			      const char * label7,
-			      const char * label8 )
+			      QString label1,
+			      QString label2,
+			      QString label3,
+			      QString label4,
+			      QString label5,
+			      QString label6,
+			      QString label7,
+			      QString label8 )
 {
     init();
     parent->insertItem( this );
@@ -514,7 +514,7 @@ void QListViewItem::removeItem( QListViewItem * tbg )
 
 
 /*!
-  \fn const char * QListViewItem::key( int column, bool ascending ) const
+  \fn QString QListViewItem::key( int column, bool ascending ) const
 
   Returns a key that can be used for sorting by column \a column.
   The default implementation returns text().  Derived classes may
@@ -540,7 +540,7 @@ void QListViewItem::removeItem( QListViewItem * tbg )
   \sa sortChildItems()
 */
 
-const char * QListViewItem::key( int column, bool ) const
+QString QListViewItem::key( int column, bool ) const
 {
     return text( column );
 }
@@ -866,7 +866,7 @@ int QListViewItem::totalHeight() const
   \sa key() paintCell()
 */
 
-const char * QListViewItem::text( int column ) const
+QString QListViewItem::text( int column ) const
 {
     QListViewPrivate::ItemColumnInfo * l
 	= (QListViewPrivate::ItemColumnInfo*) columns;
@@ -876,7 +876,7 @@ const char * QListViewItem::text( int column ) const
 	column--;
     }
 
-    return l ? (const char *)(l->text) : 0;
+    return l ? l->text : QString::null;
 }
 
 
@@ -888,7 +888,7 @@ const char * QListViewItem::text( int column ) const
   \sa text() key()
 */
 
-void QListViewItem::setText( int column, const char * text )
+void QListViewItem::setText( int column, QString text )
 {
     if ( column < 0 )
 	return;
@@ -905,9 +905,7 @@ void QListViewItem::setText( int column, const char * text )
 	l = l->next;
 	column--;
     }
-    if ( l->text )
-	delete[] l->text;
-    l->text = qstrdup( text );
+    l->text = text;
     repaint();
 }
 
@@ -1022,7 +1020,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	r += icon->width() + listView()->itemMargin();
     }
 
-    const char * t = text( column );
+    QString t = text( column );
     if ( t ) {
 	// should do the ellipsis thing in drawText()
 	p->drawText( r, 0, width-marg-r, height(),
@@ -1342,7 +1340,7 @@ void QListViewPrivate::Root::setup()
 /*!  Creates a new empty list view, with \a parent as a parent and \a
   name as object name. */
 
-QListView::QListView( QWidget * parent, const char * name )
+QListView::QListView( QWidget * parent, QString name )
     : QScrollView( parent, name )
 {
     d = new QListViewPrivate;
@@ -1773,7 +1771,7 @@ void QListView::clear()
 
   \sa setColumnText() setColumnWidth() setColumnWidthMode()
 */
-int QListView::addColumn( const char * label, int width )
+int QListView::addColumn( QString label, int width )
 {
     int c = d->h->addLabel( label, width );
     d->column.resize( c+1 );
@@ -1786,7 +1784,7 @@ int QListView::addColumn( const char * label, int width )
   Sets the heading text of column \a column to \a label.  The leftmost
   colum is number 0.
 */
-void QListView::setColumnText( int column, const char * label )
+void QListView::setColumnText( int column, QString label )
 {
     ASSERT( column < d->h->count() );
     d->h->setLabel( column, label );
@@ -1809,7 +1807,7 @@ void QListView::setColumnWidth( int column, int w )
 /*!
   Returns the text for the heading of column \a c.
 */
-const char* QListView::columnText( int c ) const
+QString QListView::columnText( int c ) const
 {
     return d->h->label(c);
 }
@@ -2595,7 +2593,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    while( keyItem ) {
 		// try twice, first with the previous string and this char
 		input += (char)tolower( e->ascii() );
-		const char * keyItemKey;
+		QString keyItemKey;
 		QString prefix;
 		while( keyItem ) {
 		    // Look for text in column 0, then left-to-right
@@ -3136,7 +3134,7 @@ static const int BoxSize = 16;
   \a tt. Note that a RadioButton must be child of a Controller, otherwise
   it will not toggle.
  */
-QCheckListItem::QCheckListItem( QCheckListItem *parent, const char *text,
+QCheckListItem::QCheckListItem( QCheckListItem *parent, QString text,
 				Type tt )
     : QListViewItem( parent, text, 0 )
 {
@@ -3156,7 +3154,7 @@ QCheckListItem::QCheckListItem( QCheckListItem *parent, const char *text,
   \a tt. Note that \a tt must not be RadioButton, if so
   it will not toggle.
  */
-QCheckListItem::QCheckListItem( QListView *parent, const char *text,
+QCheckListItem::QCheckListItem( QListView *parent, QString text,
 				Type tt )
     : QListViewItem( parent, text, 0 )
 {
@@ -3171,7 +3169,7 @@ QCheckListItem::QCheckListItem( QListView *parent, const char *text,
   Constructs a Controller item with parent \a parent, text \a text and pixmap
   \a p.
  */
-QCheckListItem::QCheckListItem( QListView *parent, const char *text,
+QCheckListItem::QCheckListItem( QListView *parent, QString text,
 				const QPixmap & p )
     : QListViewItem( parent, text, 0 )
 {
@@ -3184,7 +3182,7 @@ QCheckListItem::QCheckListItem( QListView *parent, const char *text,
   Constructs a Controller item with parent \a parent, text \a text and pixmap
   \a p.
  */
-QCheckListItem::QCheckListItem( QListViewItem *parent, const char *text,
+QCheckListItem::QCheckListItem( QListViewItem *parent, QString text,
 				const QPixmap & p )
     : QListViewItem( parent, text, 0 )
 {
@@ -3217,7 +3215,7 @@ void QCheckListItem::init()
 */
 
 
-/*! \fn const char *QCheckListItem::text() const
+/*! \fn QString QCheckListItem::text() const
 
   Returns the text of this item.
 */
@@ -3660,7 +3658,7 @@ f/EGXKklXXJWigrZeuxXfefYZ8FojVdHjc+oYufneennB3bbV2aGERAAOw==
 
 */
 
-/*! \fn const char * QCheckListItem::text( int n ) const
+/*! \fn QString QCheckListItem::text( int n ) const
 
   \reimp
 */

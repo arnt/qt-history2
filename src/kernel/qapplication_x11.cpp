@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#330 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#331 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -307,7 +307,7 @@ static void qt_x11_process_intern_atoms()
 	int i = atoms_to_be_created->count();
 	Atom * res = (Atom *)malloc( i * sizeof( Atom ) );
 	Atom ** resp = (Atom **)malloc( i * sizeof( Atom* ) );
-	char ** names = (char **)malloc( i * sizeof(const char*));
+	char ** names = (char **)malloc( i * sizeof(QString ));
 
 	i = 0;
 	QDictIterator<Atom> it( *atoms_to_be_created );
@@ -330,7 +330,7 @@ static void qt_x11_process_intern_atoms()
 #else
 	QDictIterator<Atom> it( *atoms_to_be_created );
 	Atom * result;
-	const char * name;
+	QString name;
 	while( (result = it.current()) != 0 ) {
 	    name = it.currentKey();
 	    ++it;
@@ -445,7 +445,7 @@ static void set_local_font()
 
 // set font, foreground and background from x11 resources. The
 // arguments may override the resource settings.
-static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, const char* bg = 0)
+static void qt_set_x11_resources( QString font = 0, QString fg = 0, QString bg = 0)
 {
     Atom   type = None;
     int	   format;

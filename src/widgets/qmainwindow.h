@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#18 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#19 $
 **
 ** Definition of QMainWindow class
 **
@@ -55,7 +55,7 @@ public:
     virtual void setDockEnabled( ToolBarDock dock, bool enable );
     bool isDockEnabled( ToolBarDock dock ) const;
 
-    void addToolBar( QToolBar *, const char * label,
+    void addToolBar( QToolBar *, QString label,
 		     ToolBarDock = Top, bool newLine = FALSE );
     void removeToolBar( QToolBar * );
 

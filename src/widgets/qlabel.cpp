@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#82 $
 **
 ** Implementation of QLabel widget class
 **
@@ -218,7 +218,7 @@ void QLabel::setText( QString text )
     }
     if ( extra ) {
 	extra->accel->clear();
-	const char *p = strchr( ltext, '&' );
+	QString p = strchr( ltext, '&' );
 	while( p && *p && p[1] == '&' )
 	    p = strchr( p+2, '&' );
 	if ( p && *p && isalpha(p[1]) ) {
@@ -602,7 +602,7 @@ void QLabel::setBuddy( QWidget *buddy )
     if ( !buddy )
 	return;
 
-    const char * p = ltext.isEmpty() ? 0 : strchr( ltext, '&' );
+    QString p = ltext.isEmpty() ? 0 : strchr( ltext, '&' );
     while( p && *p && p[1] == '&' )
 	p = strchr( p+2, '&' );
     if ( p && *p && isalnum(p[1]) ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#38 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#39 $
 **
 ** Implementation of QIODevice class
 **
@@ -76,7 +76,7 @@
 	bool atEnd() const;	// not a pure virtual function
   
 	int readBlock( char *data, uint len );
-	int writeBlock( const char *data, uint len );
+	int writeBlock( QString data, uint len );
 	int readLine( char *data, uint maxlen );
   
 	int getch();
@@ -435,7 +435,7 @@ bool QIODevice::atEnd() const
 */
 
 /*!
-  \fn int QIODevice::writeBlock( const char *data, uint len )
+  \fn int QIODevice::writeBlock( QString data, uint len )
   Writes \e len bytes from \e p to the I/O device and returns the number of
   bytes actually written.
 

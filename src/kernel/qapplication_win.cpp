@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#162 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#163 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -86,7 +86,7 @@ typedef void  (*VFPTR)();
 typedef Q_DECLARE(QListM,void) QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
-static void	msgHandler( QtMsgType, const char * );
+static void	msgHandler( QtMsgType, QString );
 
 static void	cleanupPostedEvents();
 static void     unregWinClasses();
@@ -369,7 +369,7 @@ void qt_cleanup()
   Platform specific global and internal functions
  *****************************************************************************/
 
-static void msgHandler( QtMsgType t, const char *str )
+static void msgHandler( QtMsgType t, QString str )
 {
     QString s = str;
     s += "\n";
@@ -425,9 +425,9 @@ bool qt_nograb()				// application no-grab option
 static bool widget_class_registered = FALSE;
 static bool popup_class_registered = FALSE;
 
-const char *qt_reg_winclass( int type )		// register window class
+QString qt_reg_winclass( int type )		// register window class
 {
-    const char *className;
+    QString className;
     uint style = 0;
     if ( type == 0 ) {
 	className = "QWidget";

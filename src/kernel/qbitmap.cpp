@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#33 $
 **
 ** Implementation of QBitmap class
 **
@@ -144,7 +144,7 @@ QBitmap::QBitmap( const QBitmap &bitmap )
   QPixmap::save(), QPixmap::imageFormat()
 */
 
-QBitmap::QBitmap( const char *fileName, const char *format )
+QBitmap::QBitmap( QString fileName, QString format )
     : QPixmap() // Will set bitmap to null bitmap, explicit call for clarity
 {
     data->bitmap = TRUE;

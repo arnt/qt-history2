@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#263 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#264 $
 **
 ** Implementation of QWidget class
 **
@@ -236,7 +236,7 @@
   If it is 0 (the default), the new widget will be a top-level window.
   If not, it will be a child of \e parent, and be constrained by \e
   parent's geometry.
-  <li><code>const char *name = 0</code> is the widget name of the new
+  <li><code>QString name = 0</code> is the widget name of the new
   widget.  The widget name is little used at the moment - the
   dumpObjectTree() debugging function uses it, and you can access it using
   name().  It will become more important when our visual GUI builder is
@@ -1805,7 +1805,7 @@ const QCursor &QWidget::cursor() const
   \sa setCaption(), icon(), iconText()
 */
 
-const char *QWidget::caption() const
+QString QWidget::caption() const
 {
     return extra ? extra->caption : 0;
 }
@@ -1825,7 +1825,7 @@ const QPixmap *QWidget::icon() const
   \sa setIconText(), icon(), caption()
 */
 
-const char *QWidget::iconText() const
+QString QWidget::iconText() const
 {
     return extra ? extra->iconText : 0;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#53 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#54 $
 **
 ** Implementation of QRegExp class
 **
@@ -122,7 +122,7 @@ QRegExp::QRegExp()
   \sa setWildcard()
 */
 
-QRegExp::QRegExp( const char *pattern, bool caseSensitive, bool wildcard )
+QRegExp::QRegExp( QString pattern, bool caseSensitive, bool wildcard )
 {
     rxstring = pattern;
     rxdata = 0;
@@ -162,7 +162,7 @@ QRegExp::~QRegExp()
 
 QRegExp &QRegExp::operator=( const QRegExp &r )
 {
-    rxstring = (const char *)r.rxstring;
+    rxstring = (QString )r.rxstring;
     cs = r.cs;
     wc = r.wc;
     compile();
@@ -174,7 +174,7 @@ QRegExp &QRegExp::operator=( const QRegExp &r )
   The case sensitivity or wildcard options do not change.
 */
 
-QRegExp &QRegExp::operator=( const char *pattern )
+QRegExp &QRegExp::operator=( QString pattern )
 {
     rxstring = pattern;
     compile();
@@ -269,7 +269,7 @@ void QRegExp::setCaseSensitive( bool enable )
 
 
 /*!
-  \fn const char *QRegExp::pattern() const
+  \fn QString QRegExp::pattern() const
   Returns the pattern string of the regexp.
 */
 
@@ -289,13 +289,16 @@ void QRegExp::setCaseSensitive( bool enable )
   \endcode
 */
 
-int QRegExp::match( const char *str, int index, int *len ) const
+int QRegExp::match( QString str, int index, int *len ) const
 {
+    // #### should use Unicode
+
     if ( error || str == 0 )			// cannot match
 	return -1;
-    register char *p = (char *)str + index;
+    const char *start = str.ascii();
+    const char *p = start + index;
     ushort *d  = rxdata;
-    char   *ep = 0;
+    const char *ep = 0;
 
     if ( *d == BOL ) {				// match from beginning of line
 	ep = matchstr( d, p, p );
@@ -310,7 +313,7 @@ int QRegExp::match( const char *str, int index, int *len ) const
 	    }
 	}
 	while ( *p ) {				// regular match
-	    if ( (ep=matchstr(d,p,(char*)str+index)) )
+	    if ( (ep=matchstr(d,p,start+index)) )
 		break;
 	    p++;
 	}
@@ -318,7 +321,7 @@ int QRegExp::match( const char *str, int index, int *len ) const
     if ( ep ) {					// match
 	if ( len )
 	    *len = ep - p;
-	return (int)((long)p - (long)str);	// return index
+	return (int)((long)p - (long)start);	// return index
     } else {					// no match
 	if ( len )
 	    *len = 0;
@@ -337,9 +340,9 @@ static inline bool iswordchar( int x )
   Recursively match string.
 */
 
-char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
+const char *QRegExp::matchstr( ushort *rxd, const char *str, const char *bol ) const
 {
-    register char *p = str;
+    const char *p = str;
     ushort *d = rxd;
     while ( *d ) {
 	if ( *d & CHR ) {			// match char
@@ -382,7 +385,7 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 		break;
 	    case CLO:				// Kleene closure
 		{
-		char *first_p = p;
+		const char *first_p = p;
 		if ( *d & CHR ) {		// match char
 		    if ( cs ) {			// case sensitive
 			while ( *p && *p == (char)*d )
@@ -409,7 +412,7 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 		}
 		d++;
 		d++;
-		char *end;
+		const char *end;
 		while ( p >= first_p ) {	// go backwards
 		    if ( (end = matchstr(d,p,bol)) )
 			return end;
@@ -419,7 +422,7 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 		return 0;
 	    case OPT:				// optional closure
 		{
-		char *first_p = p;
+		const char *first_p = p;
 		if ( *d & CHR ) {		// match char
 		    if ( cs ) {			// case sensitive
 			if ( *p && *p == (char)*d )
@@ -446,7 +449,7 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 		}
 		d++;
 		d++;
-		char *end;
+		const char *end;
 		while ( p >= first_p ) {	// go backwards
 		    if ( (end = matchstr(d,p,bol)) )
 			return end;
@@ -467,9 +470,11 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 // Ex:	 *.cpp	==> ^.*\.cpp$
 //
 
-static QString wc2rx( const char *pattern )
+static QString wc2rx( QString pattern )
 {
-    register char *p = (char *)pattern;
+    // #### Should use unicode
+
+    register const char *p = pattern.ascii();
     QString wcpattern = "^";
     char c;
     while ( (c=*p++) ) {
@@ -601,7 +606,7 @@ static ushort *dump( ushort *p )
 			}
 		    }
 		}
-		debug( "\tCCL\t%s", (const char *)s );
+		debug( "\tCCL\t%s", s.ascii() );
 		p += 16;
 		}
 		break;
@@ -830,7 +835,7 @@ void QRegExp::compile()
 
 int QString::find( const QRegExp &rx, int index ) const
 {
-    const char* a = ascii();
+    QString a = ascii();
     int r = (uint)index >= length() ? -1 : rx.match( a, index );
     return r;
 }
@@ -847,7 +852,7 @@ int QString::find( const QRegExp &rx, int index ) const
 
 int QString::findRev( const QRegExp &rx, int index ) const
 {
-    const char* a = ascii();
+    QString a = ascii();
     if ( index < 0 ) {				// neg index ==> start from end
 	if ( length() ) {
 	    index = strlen( a );
@@ -883,7 +888,7 @@ int QString::contains( const QRegExp &rx ) const
 {
     if ( isEmpty() )
 	return 0;
-    const char* a = ascii();
+    QString a = ascii();
     int count = 0;
     int index = -1;
     int len = length();
@@ -922,7 +927,7 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
     int index = 0;
     int slen  = strlen( str );
     int len;
-    const char * a=ascii();
+    QString a=ascii();
     while ( index < (int)length()-1 ) {
 	if ( (index = rx.match(a, index, &len)) >= 0 ) {
 	    remove( index, len );

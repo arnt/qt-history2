@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#102 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -64,33 +64,31 @@ static int tabStopDist( const QFontMetrics &fm )
 }
 
 //  NOTE: only appropriate for whole lines.
-static int textWidthWithTabs( const QFontMetrics &fm,const char *s,int nChars )
+static int textWidthWithTabs( const QFontMetrics &fm, QString s, uint nChars )
 {
     if ( !s )
 	return 0;
-    if ( nChars == -1 )
-	nChars = strlen(s);
 
     int         dist = -fm.minLeftBearing();
-    const char *tmp  = s;
-    if ( !tmp )
+    uint i = 0;
+    if ( s.isEmpty() )
 	return 0;
     int tabDist = tabStopDist(fm);
-    while ( *tmp && tmp - s < nChars ) {
-	if ( *tmp == '\t') {
+    while ( i < s.length() && i < nChars ) {
+	if ( s[i] == '\t') {
 	    dist = ( dist/tabDist + 1 ) * tabDist;
 	} else {
-	    dist += fm.width( tmp, 1 );
+	    dist += fm.width( s[i] );
 	}
-	tmp++;
+	i++;
     }
     return dist;
 }
 
-static int xPosToCursorPos( const char *s, const QFontMetrics &fm,
+static int xPosToCursorPos( QString s, const QFontMetrics &fm,
 			    int xPos, int width )
 {
-    const char *tmp;
+    uint i = 0;
     int	  dist;
     int tabDist;
 
@@ -103,31 +101,30 @@ static int xPosToCursorPos( const char *s, const QFontMetrics &fm,
 
     int     distBeforeLastTab = 0;
     dist    = 0;
-    tmp	    = s;
     tabDist = tabStopDist(fm);
-    while ( *tmp && dist < xPos ) {
-	if ( *tmp == '\t') {
+    while ( i < s.length() && dist < xPos ) {
+	if ( s[i] == '\t') {
 	    distBeforeLastTab = dist;
 	    dist = (dist/tabDist + 1) * tabDist;
 	} else {
-	    dist += fm.width( tmp, 1 );
+	    dist += fm.width( s[i] );
 	}
-	tmp++;
+	i++;
     }
     if ( dist > xPos ) {
 	if ( dist > width ) {
-	    tmp--;
+	    i--;
 	} else {
-	    if ( *(tmp - 1) == '\t' ) { // dist equals a tab stop position
+	    if ( s[i-1] == '\t' ) { // dist equals a tab stop position
 		if ( xPos - distBeforeLastTab < (dist - distBeforeLastTab)/2 )
-		    tmp--;
+		    i--;
 	    } else {
-		if ( fm.width(tmp - 1, 1)/2 < dist-xPos )
-		    tmp--;
+		if ( fm.width(s[i-1])/2 < dist-xPos )
+		    i--;
 	    }
 	}
     }
-    return tmp - s;
+    return i;
 }
 
 /*!
@@ -416,7 +413,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 int QMultiLineEdit::textWidth( QString s )
 {
     int w = !s.isNull()
-		? textWidthWithTabs( QFontMetrics( font() ), s, -1 ) : 0;
+		? textWidthWithTabs( QFontMetrics( font() ), s, s.length() ) : 0;
     return w + 2 * BORDER;
 }
 
@@ -622,13 +619,13 @@ QString QMultiLineEdit::markedText() const
 
 
 
-static const char* emptyLine = "";
+static QString emptyLine = "";
 
 /*!
   Returns the text at line number \a line, or 0 if \a line is invalid.
 */
 
-const char * QMultiLineEdit::textLine( int line ) const
+QString QMultiLineEdit::textLine( int line ) const
 {
     QString *s = contents->at( line );
     if ( s ) {
@@ -703,7 +700,7 @@ void QMultiLineEdit::deselect()
   Sets the text to \a s, removing old text, if any.
 */
 
-void QMultiLineEdit::setText( const char *s )
+void QMultiLineEdit::setText( QString s )
 {
     clear();
     insertLine( s, -1 );
@@ -715,7 +712,7 @@ void QMultiLineEdit::setText( const char *s )
   Appends \a s to the text.
 */
 
-void QMultiLineEdit::append( const char *s )
+void QMultiLineEdit::append( QString s )
 {
     insertLine( s, -1 );
     emit textChanged();
@@ -1019,18 +1016,20 @@ void QMultiLineEdit::pageUp( bool mark )
   line, 0 if end of text.
 
  */
-static const char *getOneLine( const char *txt, QString& s )
+static QString getOneLine( QString txt, uint& offset )
 {
-    s = "";
-    if ( !txt )
-	return 0;
+    QString result;
+    if ( txt.isEmpty() )
+	return result;
 
-    while ( *txt && *txt != '\n' )
-	s += *txt++;
-    if (*txt)
-	return txt+1;
+    uint i = offset;
+    while ( i < txt.length() && txt[i] != '\n' )
+	result += txt[i++];
+    if ( i == txt.length() )
+	offset = 0;
     else
-	return 0;
+	offset = i+1;
+    return result;
 }
 
 
@@ -1044,7 +1043,7 @@ static const char *getOneLine( const char *txt, QString& s )
 
  */
 
-void QMultiLineEdit::insertAt( const char *txt, int line, int col )
+void QMultiLineEdit::insertAt( QString txt, int line, int col )
 {
     line = QMAX( QMIN( line, numLines() - 1), 0 );
     col = QMAX( QMIN( col,  lineLength( line )), 0 );
@@ -1055,10 +1054,10 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 	  || cursorY == line && cursorX >= col;
     bool onLineAfter = cursorY == line && cursorX >= col;
 
-    QString textLine;
-    const char *p = getOneLine( txt, textLine );
+    uint i=0;
+    QString textLine = getOneLine( txt, i );
 
-    if ( !p ) { //single line
+    if ( i==0 ) { //single line
 	oldLine->insert( col, textLine );
 	int w = textWidth( *oldLine );
 	setWidth( QMAX( cellWidth(), w ) );
@@ -1074,7 +1073,7 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 	w = QMAX( textWidth( *oldLine ), w );
 	line++;
 	cursorY++;
-	while (( p = getOneLine( p, textLine ) )) {
+	while ( i && ( textLine = getOneLine( txt, i ) )) {
 	    contents->insert( line++, new QString(textLine) );
 	    w = QMAX( textWidth( textLine ), w );
 	    if ( cursorAfter )
@@ -1102,7 +1101,7 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
   The cursor position is not changed.
 */
 
-void QMultiLineEdit::insertLine( const char *txt, int line )
+void QMultiLineEdit::insertLine( QString txt, int line )
 {
     if ( dummy && numLines() == 1 && getString( 0 )->isEmpty() ) {
 	contents->remove( (uint)0 );
@@ -1113,12 +1112,12 @@ void QMultiLineEdit::insertLine( const char *txt, int line )
 	line = numLines();
     QString textLine;
     int w = cellWidth();
-    const char *p = txt;
+    uint i = 0;
     do {
-	p = getOneLine( p, textLine );
+	textLine = getOneLine( txt, i );
 	contents->insert( line++, new QString(textLine) );
 	w = QMAX( textWidth( textLine ), w );
-    } while ( p );
+    } while ( i );
 
     setWidth( w );
     setNumRows( contents->count() );
@@ -2142,7 +2141,7 @@ QPoint QMultiLineEdit::cursorPoint() const
     int col, row;
     col = row = 0;
     cursorPosition( &row, &col );
-    const char* line = textLine( row );
+    QString line = textLine( row );
     ASSERT( line );
     cp.setX( BORDER + textWidthWithTabs( fm, line, col ) - 1 );
     cp.setY( (row * cellHeight()) + viewRect().y() );

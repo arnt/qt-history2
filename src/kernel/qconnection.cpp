@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qconnection.cpp#20 $
 **
 ** Implementation of QConnection class
 **
@@ -77,7 +77,7 @@ QConnection::QConnection( const QObject *object, QMember member,
 */
 
 /*!
-  \fn const char *QConnection::memberName() const
+  \fn QString QConnection::memberName() const
   \internal
 */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#178 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#179 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -193,7 +193,7 @@ QImage::QImage( const QSize& size, int depth, int numColors, Endian bitOrder )
   \sa load()
 */
 
-QImage::QImage( const char *fileName, const char *format )
+QImage::QImage( QString fileName, const char* format )
 {
     data = new QImageData;
     CHECK_PTR( data );
@@ -2157,7 +2157,7 @@ QImage QImage::createHeuristicMask( bool clipTight ) const
   \sa load(), save()
 */
 
-const char *QImage::imageFormat( const char *fileName )
+const char* QImage::imageFormat( QString fileName )
 {
     return QImageIO::imageFormat(fileName);
 }
@@ -2193,7 +2193,7 @@ QStrList QImage::outputFormats()
   \sa loadFromData(), save(), imageFormat(), QPixmap::load(), QImageIO
 */
 
-bool QImage::load( const char *fileName, const char *format )
+bool QImage::load( QString fileName, const char* format )
 {
     QImageIO io( fileName, format );
     bool result = io.read();
@@ -2246,7 +2246,7 @@ bool QImage::loadFromData( QByteArray buf, const char *format )
   \sa load(), loadFromData(), imageFormat(), QPixmap::save(), QImageIO
 */
 
-bool QImage::save( const char *fileName, const char *format ) const
+bool QImage::save( QString fileName, const char* format ) const
 {
     if ( isNull() )
 	return FALSE;				// nothing to save
@@ -2310,7 +2310,7 @@ static void read_async_image( QImageIO * ); // Not in table of handlers
   Misc. utility functions
  *****************************************************************************/
 
-static QString fbname( const char *fileName )	// get file basename (sort of)
+static QString fbname( QString fileName )	// get file basename (sort of)
 {
     QString s = fileName;
     if ( !s.isEmpty() ) {
@@ -2424,7 +2424,7 @@ QImageIO::QImageIO( QIODevice *ioDevice, const char *format )
   Constructs a QImageIO object with a file name and a format tag.
 */
 
-QImageIO::QImageIO( const char *fileName, const char *format )
+QImageIO::QImageIO( QString fileName, const char* format )
     : frmt(format), fname(fileName)
 {
     iostat = 0;
@@ -2454,7 +2454,7 @@ class QImageHandler
 public:
     QImageHandler( const char *f, const char *h, bool tm,
 		   image_io_handler r, image_io_handler w );
-    QString	      format;			// image format
+    Q1String	      format;			// image format
     QRegExp	      header;			// image header pattern
     bool	      text_mode;		// image I/O mode
     image_io_handler  read_image;		// image read function
@@ -2597,7 +2597,7 @@ void QImageIO::defineIOHandler( const char *format,
 */
 
 /*!
-  \fn const char *QImageIO::format() const
+  \fn QString QImageIO::format() const
   Returns the image format string, or 0 if no format has been explicitly set.
 */
 
@@ -2608,19 +2608,19 @@ void QImageIO::defineIOHandler( const char *format,
 */
 
 /*!
-  \fn const char *QImageIO::fileName() const
+  \fn QString QImageIO::fileName() const
   Returns the file name currently set.
   \sa setFileName()
 */
 
 /*!
-  \fn const char *QImageIO::parameters() const
+  \fn QString QImageIO::parameters() const
   Returns image parameters string.
   \sa setParameters()
 */
 
 /*!
-  \fn const char *QImageIO::description() const
+  \fn QString QImageIO::description() const
   Returns the image description string.
   \sa setDescription()
 */
@@ -2687,7 +2687,7 @@ void QImageIO::setIODevice( QIODevice *ioDevice )
   \sa setIODevice()
 */
 
-void QImageIO::setFileName( const char *fileName )
+void QImageIO::setFileName( QString fileName )
 {
     fname = fileName;
 }
@@ -2714,7 +2714,7 @@ void QImageIO::setParameters( const char *parameters )
   Currently, no image format supported by Qt use the description string.
 */
 
-void QImageIO::setDescription( const char *description )
+void QImageIO::setDescription( QString description )
 {
     if ( descr )
 	delete [] descr;
@@ -2727,12 +2727,12 @@ void QImageIO::setDescription( const char *description )
   or null if the file cannot not be read or if the format is not recognized.
 */
 
-const char *QImageIO::imageFormat( const char *fileName )
+const char* QImageIO::imageFormat( QString fileName )
 {
     QFile file( fileName );
     if ( !file.open(IO_ReadOnly) )
 	return 0;
-    const char *format = imageFormat( &file );
+    QString format = imageFormat( &file );
     file.close();
     return format;
 }
@@ -2753,7 +2753,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
 
     // Try asynchronous loaders first (before we 0->1 the header),
     // but overwrite if found in IOHandlers.
-    const char *format = QImageDecoder::formatName((uchar*)buf, rdlen);
+    const char* format = QImageDecoder::formatName((uchar*)buf, rdlen);
 
     for ( int n = 0; n<rdlen; n++ )
 	if ( buf[n] == '\0' )
@@ -3574,7 +3574,7 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 static void write_pbm_image( QImageIO *iio )
 {
     QIODevice* out = iio->ioDevice();
-    QString str;
+    Q1String str;
 
     QImage  image  = iio->image();
     QString format = iio->format();
@@ -3835,11 +3835,11 @@ static void write_xbm_image( QImageIO *iio )
     QString    s = fbname(iio->fileName());	// get file base name
     char       buf[100];
 
-    sprintf( buf, "#define %s_width %d\n",  (const char *)s, w );
+    sprintf( buf, "#define %s_width %d\n", s.ascii(), w );
     d->writeBlock( buf, strlen(buf) );
-    sprintf( buf, "#define %s_height %d\n", (const char *)s, h );
+    sprintf( buf, "#define %s_height %d\n", s.ascii(), h );
     d->writeBlock( buf, strlen(buf) );
-    sprintf( buf, "static char %s_bits[] = {\n ", (const char *)s );
+    sprintf( buf, "static char %s_bits[] = {\n ", s.ascii() );
     d->writeBlock( buf, strlen(buf) );
 
     iio->setStatus( 0 );
@@ -3941,7 +3941,7 @@ static bool read_xpm_string( Q1String &buf, QIODevice *d,
 //
 // INTERNAL
 //
-// Reads an .xpm from either the QImageIO or from the const char **.
+// Reads an .xpm from either the QImageIO or from the QString *.
 // One of the two HAS to be 0, the other one is used.
 //
 
@@ -4164,7 +4164,7 @@ static void write_xpm_image( QImageIO * iio )
 	line.resize( cpp*w + 1 );
 	for( x=0; x<w; x++ ) {
 	    int color = (int)(*(yp + x));
-	    const char * chars = xpm_color_name( cpp,
+	    QString chars = xpm_color_name( cpp,
 						 (int)(long)colorMap.find(color) );
 	    line[ x*cpp ] = chars[0];
 	    if ( cpp == 2 )

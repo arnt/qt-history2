@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#38 $
 **
 ** Implementation of QGGeometry class
 **
@@ -140,8 +140,8 @@ public:
     virtual bool removeWidget( QWidget * ) { return FALSE; }
     virtual void annihilate() {}
 
-    virtual void setName( const char * ) {}
-    virtual const char *name() { return 0; }
+    virtual void setName( QString ) {}
+    virtual QString name() { return 0; }
 
 protected:
     virtual bool addC( QChain *s ) = 0;
@@ -241,8 +241,8 @@ public:
     int maxSize() { return maxsize; }
     int minSize() { return minsize; }
 
-    void setName( const char *s ) { nam = s; }
-    const char *name() { return nam; }
+    void setName( QString s ) { nam = s; }
+    QString name() { return nam; }
     
 private:
     int maxsize;
@@ -285,8 +285,8 @@ public:
     int maxSize() { return  maxsize; }
     int minSize() { return minsize; }
 
-    void setName( const char *s ) { nam = s; }
-    const char *name() { return nam; }
+    void setName( QString s ) { nam = s; }
+    QString name() { return nam; }
 
 private:
     int maxsize;
@@ -419,7 +419,7 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
 	else
 	    msg.sprintf( "QGManager: not enough space for %s chain %s", 
 			 horz( direction() ) ? "horizontal" : "vertical",
-			 name() );
+			 name().ascii() );
 	warning( msg );
 	available = 0;
     }
@@ -1035,7 +1035,7 @@ void QGManager::remove( QChain *c )
   purposes.
 */
 
-void QGManager::setName( QChain *chain, const char *name )
+void QGManager::setName( QChain *chain, QString name )
 {
     chain->setName( name );
 }

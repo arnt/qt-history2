@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#20 $
 **
 ** Implementation of QStatusBar class
 **
@@ -171,7 +171,7 @@ void QStatusBarPrivate::ResizeLines::mouseMoveEvent( QMouseEvent * e )
 
 /*!  Constructs an empty status bar. */
 
-QStatusBar::QStatusBar( QWidget * parent, const char * name )
+QStatusBar::QStatusBar( QWidget * parent, QString name )
     : QWidget( parent, name )
 {
     d = new QStatusBarPrivate;
@@ -298,7 +298,7 @@ void QStatusBar::reformat()
   \sa clear()
 */
 
-void QStatusBar::message( const char * message )
+void QStatusBar::message( QString message )
 {
     d->temporary = message; // ### clip and add ellipsis if necessary
     if ( d->timer ) {
@@ -314,7 +314,7 @@ void QStatusBar::message( const char * message )
   whichever is shorter.
 */
 
-void QStatusBar::message( const char * message, int ms )
+void QStatusBar::message( QString message, int ms )
 {
     d->temporary = message; // ### clip and add ellipsis if necessary
 

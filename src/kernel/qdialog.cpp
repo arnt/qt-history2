@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#57 $
 **
 ** Implementation of QDialog class
 **
@@ -49,10 +49,10 @@
     class Modal : public QDialog {
 	Q_OBJECT
     public:
-	Modal( QWidget *parent, const char *name );
+	Modal( QWidget *parent, QString name );
     };
 
-    Modal::Modal( QWidget *parent, const char *name )
+    Modal::Modal( QWidget *parent, QString name )
 	: QDialog( parent, name, TRUE )
     {
 	QPushButton *ok, *cancel;

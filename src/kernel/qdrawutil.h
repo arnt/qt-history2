@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.h#14 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.h#15 $
 **
 ** Definition of draw utilities
 **
@@ -89,7 +89,7 @@ void qDrawPlainRect( QPainter *p, const QRect &r, const QColor &,
 
 QRect qItemRect( QPainter *p, GUIStyle gs, int x, int y, int w, int h,
 		int flags, bool enabled,
-		const QPixmap *pixmap, const char *text, int len=-1 );
+		const QPixmap *pixmap, QString text, int len=-1 );
 
 void qDrawItem( QPainter *p, GUIStyle gs, int x, int y, int w, int h,
 		int flags, const QColorGroup &g, bool enabled,
