@@ -2,7 +2,7 @@ TEMPLATE	= subdirs
 SUBDIRS		=  uic \
 		   uilib \
 		   designer \
-		   designer/app
+		   app
 dll:SUBDIRS *=  editor plugins
 shared:SUBDIRS *=  editor plugins
 CONFIG += ordered
