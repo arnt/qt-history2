@@ -2,7 +2,7 @@
 #include "setupwizardimpl.h"
 
 
-void main( int argc, char** argv )
+int main( int argc, char** argv )
 {
 	QApplication* app = new QApplication( argc, argv );
 	SetupWizardImpl* w = new SetupWizardImpl;
@@ -12,4 +12,5 @@ void main( int argc, char** argv )
 	app->setMainWidget( w );
 
 	app->exec();
+	return 0;
 }
