@@ -599,7 +599,10 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     if (!enabled)
         pm = stylePixmap(PT_Disabled, pm, pal);
-    p->drawPixmap(x, y, w, h, pm, 0, 0, w, h);
+
+    int fillWidth = qMin(pm.width(), w);
+    int fillHeight = qMin(pm.height(), h);
+    p->drawPixmap(x, y, fillWidth, fillHeight, pm, 0, 0, fillWidth, fillHeight);
 }
 
 /*!
