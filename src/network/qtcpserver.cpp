@@ -16,7 +16,7 @@
     \brief The QTcpServer class provides a TCP-based server.
 
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \reentrant
@@ -29,8 +29,8 @@
     machine's addresses.
 
     Call listen() to have the server listen for incoming connections.
-    The newConnection() signal is emitted each time a client connects
-    to the server.
+    The newConnection() signal is then emitted each time a client
+    connects to the server.
 
     Call nextPendingConnection() to accept the pending connection as
     a connected QTcpSocket. The function returns a pointer to a
@@ -59,11 +59,11 @@
     \sa QTcpSocket
 */
 
-/*! \fn QTcpServer::newConnection()
+/*! \fn void QTcpServer::newConnection()
 
     This signal is emitted every time a new connection is available.
 
-    \sa QTcpServer::hasPendingConnection(), QTcpServer::nextPendingConnection()
+    \sa hasPendingConnection(), nextPendingConnection()
 */
 
 //#define QTCPSERVER_DEBUG
@@ -143,10 +143,11 @@ void QTcpServerPrivate::processIncomingConnection(int)
 }
 
 /*!
-    Constructs a QTcpServer. the \a parent argument is passed to
-    QObject's constructor.
+    Constructs a QTcpServer object.
+    
+    \a parent is passed to the QObject constructor.
 
-    \sa listen()
+    \sa listen(), setSocketDescriptor()
 */
 QTcpServer::QTcpServer(QObject *parent)
     : QObject(*new QTcpServerPrivate, parent)
@@ -158,9 +159,10 @@ QTcpServer::QTcpServer(QObject *parent)
     Destructs the QTcpServer. If the server is listening for
     connections, it is closed before it is destroyed.
 
-    Any clients that are still connected must either disconnect, or be
-    reparented before the server is deleted. Otherwise, the clients
-    will be deleted together with the server.
+    Any client \l{QTcpSocket}s that are still connected must either
+    disconnect or be reparented before the server is deleted.
+
+    \sa close()
 */
 QTcpServer::~QTcpServer()
 {
@@ -269,6 +271,8 @@ void QTcpServer::close()
     Returns the native socket descriptor the server uses to listen for
     incoming instructions. If the server is not listening, -1 is
     returned.
+
+    \sa setSocketDescriptor()
 */
 int QTcpServer::socketDescriptor() const
 {
@@ -277,8 +281,11 @@ int QTcpServer::socketDescriptor() const
 
 /*!
     Sets the socket descriptor this server should use when listening
-    for incoming connections to \a socketDescriptor. The socket is
-    assumed to be in listening state.
+    for incoming connections to \a socketDescriptor.
+    
+    The socket is assumed to be in listening state.
+
+    \sa socketDescriptor(), isListening()
 */
 bool QTcpServer::setSocketDescriptor(int socketDescriptor)
 {
@@ -314,6 +321,8 @@ bool QTcpServer::setSocketDescriptor(int socketDescriptor)
 /*!
     Returns the server's port if it is listening for connections;
     otherwise 0 is returned.
+
+    \sa serverAddress()
 */
 Q_UINT16 QTcpServer::serverPort() const
 {
@@ -323,6 +332,8 @@ Q_UINT16 QTcpServer::serverPort() const
 /*!
     Returns the server's address if it is listening for connections;
     otherwise QHostAddress::NullAddress is returned.
+
+    \sa serverPort()
 */
 QHostAddress QTcpServer::serverAddress() const
 {
@@ -367,7 +378,7 @@ bool QTcpServer::waitForNewConnection(int msec, bool *timedOut)
     Returns true if the server has a pending connection; otherwise
     returns false.
 
-    \sa nextPendingConnection()
+    \sa nextPendingConnection(), setMaxPendingConnections()
 */
 bool QTcpServer::hasPendingConnection() const
 {
@@ -375,8 +386,13 @@ bool QTcpServer::hasPendingConnection() const
 }
 
 /*!
-    Returns the next pending connection as a connected QTcpSocket. The
-    socket is created as a child of the server.
+    Returns the next pending connection as a connected QTcpSocket
+    object.
+
+    The socket is created as a child of the server, which means that
+    it is automatically deleted when the QTcpServer object is
+    destroyed. It is still a good idea to delete the object
+    explicitly when you are done with it, to avoid wasting memory.
 
     \sa hasPendingConnection()
 */
@@ -391,9 +407,11 @@ QTcpSocket *QTcpServer::nextPendingConnection()
 }
 
 /*!
-    This function is called by QTcpServer when a new connection is
-    available. The \a socketDescriptor argument is the native socket
-    descriptor for the accepted connection.
+    \obsolete
+
+    This virtual function is called by QTcpServer when a new
+    connection is available. The \a socketDescriptor argument is the
+    native socket descriptor for the accepted connection.
 
     The base implementation creates a QTcpSocket, sets the socket
     descriptor and then stores the QTcpSocket in an internal list of
@@ -401,6 +419,8 @@ QTcpSocket *QTcpServer::nextPendingConnection()
 
     Reimplement this function to alter the server's behavior when a
     connection is available.
+
+    \sa newConnection(), nextPendingConnection()
 */
 void QTcpServer::incomingConnection(int socketDescriptor)
 {
@@ -416,13 +436,15 @@ void QTcpServer::incomingConnection(int socketDescriptor)
 /*!
     Sets the maximum number of pending accepted connections to \a
     numConnections. QTcpServer will accept no more than \a
-    numConnections incoming connections before nextPendingConnection()
-    is called. By default, no more than 30 pending connections are
-    allowed.
+    numConnections incoming connections before
+    nextPendingConnection() is called. By default, the limit is 30
+    pending connections.
 
-    Clients that attempt to connect to the server after it has reached
-    its maximum number of pending connections will either immediately
-    fail to connect, or they will time out.
+    Clients that attempt to connect to the server after it has
+    reached its maximum number of pending connections will either
+    immediately fail to connect, or they will time out.
+
+    \sa maxPendingConnections(), hasPendingConnection()
 */
 void QTcpServer::setMaxPendingConnections(int numConnections)
 {
@@ -434,7 +456,7 @@ void QTcpServer::setMaxPendingConnections(int numConnections)
 
     By default, no more than 30 pending connections are allowed.
 
-    \sa setMaxPendingConnections()
+    \sa setMaxPendingConnections(), hasPendingConnection()
 */
 int QTcpServer::maxPendingConnections() const
 {
@@ -443,6 +465,8 @@ int QTcpServer::maxPendingConnections() const
 
 /*!
     Returns the type error that last occurred.
+
+    \sa errorString()
 */
 Qt::SocketError QTcpServer::serverError() const
 {
@@ -452,6 +476,8 @@ Qt::SocketError QTcpServer::serverError() const
 /*!
     Returns a human readable description of the last error that
     occurred.
+
+    \sa serverError()
 */
 QString QTcpServer::errorString() const
 {

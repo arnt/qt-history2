@@ -16,7 +16,7 @@
     \brief The QTcpSocket class provides a TCP socket.
 
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \reentrant
@@ -25,11 +25,15 @@
 
     TCP (Transmission Control Protocol) is a reliable,
     stream-oriented, connection-oriented transport protocol. TCP is
-    suited for continuous transmission of data.
+    well suited for continuous transmission of data.
 
     QTcpSocket is a convenience subclass of QAbstractSocket that
     allows you to establish a TCP connection and transfer streams of
     data. See the QAbstractSocket documentation for details.
+
+    The network/fortuneserver, network/fortuneclient, and
+    network/blockingfortuneclient examples illustrate how to use
+    QTcpSocket in applications.
 
     \sa QTcpServer, QUdpSocket, QFtp, QHttp
 */
@@ -53,7 +57,7 @@ class QTcpSocketPrivate : public QAbstractSocketPrivate
 /*!
     Creates a QTcpSocket object in state \c Qt::UnconnectedState.
 
-    The \a parent argument is passed on to the QObject constructor.
+    \a parent is passed on to the QObject constructor.
 */
 QTcpSocket::QTcpSocket(QObject *parent)
     : QAbstractSocket(Qt::TcpSocket, *new QTcpSocketPrivate, parent)

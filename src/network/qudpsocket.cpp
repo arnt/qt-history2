@@ -17,7 +17,7 @@
     \brief The QUdpSocket class provides a UDP socket.
 
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \ingroup io
@@ -25,10 +25,9 @@
 
     UDP (User Datagram Protocol) is a lightweight, unreliable,
     datagram-oriented, connectionless protocol. It can be used when
-    reliability isn't important.
-
-    QUdpSocket is a subclass of QAbstractSocket that allows you to
-    send and receive UDP datagrams.
+    reliability isn't important. QUdpSocket is a subclass of
+    QAbstractSocket that allows you to send and receive UDP
+    datagrams.
 
     The most common way to use this class is to bind to an address
     and port using bind(), then call sendDatagram() and
@@ -57,23 +56,24 @@
 
         void Server::readPendingDatagrams()
         {
-            while (udpSocket.hasPendingDatagrams()) {
+            while (udpSocket->hasPendingDatagrams()) {
                 QByteArray datagram;
-                datagram.resize(udpSocket.pendingDatagramSize());
+                datagram.resize(udpSocket->pendingDatagramSize());
                 QHostAddress sender;
                 Q_UINT16 senderPort;
 
-                udpSocket.receiveDatagram(datagram.data(), datagram.size(),
-                                          &sender, &senderPort);
+                udpSocket->receiveDatagram(datagram.data(), datagram.size(),
+                                           &sender, &senderPort);
 
                 processTheDatagram(datagram);
             }
         }
     \endcode
 
-    By establishing a virtual connection to a UDP server with
-    connectToHost(), read() and write() can be used to exchange
-    datagrams without specifying the receiver for each datagram.
+    With QUdpSocket, you can also establish a virtual connection to a
+    UDP server using connectToHost() and then use read() and write()
+    to exchange datagrams without specifying the receiver for each
+    datagram.
 
     The network/broadcastclient and network/broadcastserver examples
     illustrate how to use QUdpSocket in applications.
@@ -129,8 +129,11 @@ class QUdpSocketPrivate : public QAbstractSocketPrivate
 };
 
 /*!
-    Creates a QUdpSocket object. The \a parent argument is passed to
-    QAbstractSocket's constructor.
+    Creates a QUdpSocket object.
+    
+    \a parent is passed to the QObject constructor.
+
+    \sa socketType()
 */
 QUdpSocket::QUdpSocket(QObject *parent)
     : QAbstractSocket(Qt::UdpSocket, *new QUdpSocketPrivate, parent)
@@ -145,17 +148,16 @@ QUdpSocket::QUdpSocket(QObject *parent)
 */
 QUdpSocket::~QUdpSocket()
 {
-
 }
 
 /*!
     Binds this socket to the address \a address and the port \a port.
     When bound, the signal readyRead() is emitted when a UDP datagram
-    arrives on the given address and port. This function is most often
-    used to write UDP servers.
+    arrives on the specified address and port. This function is
+    useful to write UDP servers.
 
-    On success, true is returned and the socket enters Qt::BoundState;
-    otherwise false is returned.
+    On success, it returns true and the socket enters Qt::BoundState;
+    otherwise it returns false.
 
     \sa receiveDatagram()
 */
@@ -178,7 +180,7 @@ bool QUdpSocket::bind(const QHostAddress &address, Q_UINT16 port)
 
 /*! \overload
 
-    Binds to QHostAddress:AnyAddress on \a port.
+    Binds to QHostAddress:AnyAddress on port \a port.
 */
 bool QUdpSocket::bind(Q_UINT16 port)
 {
@@ -188,6 +190,8 @@ bool QUdpSocket::bind(Q_UINT16 port)
 /*!
     Returns true if at least one datagram is waiting to be read;
     otherwise returns false.
+
+    \sa pendingDatagramSize(), receiveDatagram()
 */
 bool QUdpSocket::hasPendingDatagrams() const
 {
@@ -196,8 +200,10 @@ bool QUdpSocket::hasPendingDatagrams() const
 }
 
 /*!
-    Returns the size of a pending UDP datagram. If there is no
-    datagram available, this function returns -1.
+    Returns the size of the first pending UDP datagram. If there is
+    no datagram available, this function returns -1.
+
+    \sa hasPendingDatagrams(), receiveDatagram()
 */
 Q_LLONG QUdpSocket::pendingDatagramSize() const
 {
@@ -206,7 +212,7 @@ Q_LLONG QUdpSocket::pendingDatagramSize() const
 }
 
 /*!
-    Sends the datagram at \a data of length \a length to the host
+    Sends the datagram at \a data of size \a size to the host
     address \a address at port \a port. On success, the number of
     bytes sent is returned; otherwise this function returns -1.
 
@@ -219,18 +225,20 @@ Q_LLONG QUdpSocket::pendingDatagramSize() const
     are sent successfully, they are likely to be fragmented before
     arriving at their destination.
 
-    Experience has shown that it is in general safe to send datagrams
-    no larger than 512 bytes.
+    Experience has shown that it is usually safe to send datagrams of
+    sizes up to 512 bytes.
+
+    \sa receiveDatagram()
 */
-Q_LLONG QUdpSocket::sendDatagram(const char *data, Q_LLONG length,
+Q_LLONG QUdpSocket::sendDatagram(const char *data, Q_LLONG size,
                                  const QHostAddress &address, Q_UINT16 port)
 {
 #if defined QUDPSOCKET_DEBUG
-    qDebug("QUdpSocket::sendDatagram(%p, %llu, \"%s\", %i)", data, length,
+    qDebug("QUdpSocket::sendDatagram(%p, %llu, \"%s\", %i)", data, size,
            address.toString().latin1(), port);
 #endif
     QT_ENSURE_INITIALIZED(-1);
-    Q_LLONG sent = d->socketLayer.sendDatagram(data, length, address, port);
+    Q_LLONG sent = d->socketLayer.sendDatagram(data, size, address, port);
     if (sent > 0)
         emit bytesWritten(sent);
     return sent;
@@ -238,18 +246,17 @@ Q_LLONG QUdpSocket::sendDatagram(const char *data, Q_LLONG length,
 
 /*!
     Receives a datagram no larger than \a maxLength bytes and stores
-    it in \a data. The sender's host address and port is stored in \a
-    address and \a port. If either of these pointers is 0, the
-    corresponding value is discarded.
+    it in \a data. The sender's host address and port is stored in
+    *\a address and *\a port (unless the pointers are 0).
 
-    On success, the size of the received datagram is returned;
-    otherwise this function returns -1.
+    Returns the size of the received datagram on success; otherwise
+    returns -1.
 
-    To avoid unnecessarily loss of data, call pendingDatagramSize() to
-    determine the size of the pending datagram before reading it. If \a
-    maxLength is too small, the rest of the datagram will be lost.
+    If \a maxLength is too small, the rest of the datagram will be
+    lost. To avoid loss of data, call pendingDatagramSize() to
+    determine the size of the pending datagram before reading it.
 
-    \sa hasPendingDatagrams()
+    \sa hasPendingDatagrams(), pendingDatagramSize()
 */
 Q_LLONG QUdpSocket::receiveDatagram(char *data, Q_LLONG maxLength,
                                     QHostAddress *address, Q_UINT16 *port)
