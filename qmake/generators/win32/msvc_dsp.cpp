@@ -531,6 +531,7 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["CONFIG"].append("moc");
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
+	project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QT"];
 
 	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
@@ -553,7 +554,7 @@ DspMakefileGenerator::init()
 		}
 	    }
 	    if ( project->isActiveConfig( "activeqt" ) ) {
-		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "$(QTDIR)\\lib\\qaxserver.lib";
+		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "qaxserver.lib";
 	    }
 	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
 		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];

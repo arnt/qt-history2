@@ -322,12 +322,13 @@ NmakeMakefileGenerator::init()
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["CONFIG"].append("moc");
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
+	project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QT"];
 	if ( !project->isActiveConfig("debug") ) 
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
 	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
-		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_QT_DLL"];
+		project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LFLAGS_QT_DLL"];
 	    }
 	} else {
 	    if(project->isActiveConfig("thread"))
@@ -345,7 +346,7 @@ NmakeMakefileGenerator::init()
 		}
 	    }
 	    if ( project->isActiveConfig( "activeqt" ) ) {
-		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "$(QTDIR)\\lib\\qaxserver.lib";
+		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "qaxserver.lib";
 	    }
 	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
 		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
