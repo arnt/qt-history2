@@ -27,6 +27,8 @@
 
 #include <libpq-fe.h>
 
+#include <stdlib.h>
+
 // workaround for postgres defining their OIDs in a private header file
 #define QBOOLOID 16
 #define QINT8OID 20
