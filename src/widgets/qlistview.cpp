@@ -593,6 +593,7 @@ void QListViewItem::takeItem( QListViewItem * item )
 	return;
 
     QListView *lv = listView();
+    bool was_selected = FALSE;
     if ( lv && !lv->d->clearing ) {
 
 	if ( lv->d->iterators ) {
@@ -637,7 +638,7 @@ void QListViewItem::takeItem( QListViewItem * item )
 #endif
 
 	if ( lv->d->focusItem ) {
-	    bool was_selected = lv->d->focusItem->isSelected();
+	    was_selected = lv->d->focusItem->isSelected();
 	    const QListViewItem * c = lv->d->focusItem;
 	    while( c && c != item )
 		c = c->parentItem;
@@ -649,8 +650,6 @@ void QListViewItem::takeItem( QListViewItem * item )
 		else
 		    lv->d->focusItem = 0;
 		emit lv->currentChanged( lv->d->focusItem );
-		if ( was_selected )
-		    emit lv->selectionChanged();
 	    }
 	}
 
@@ -671,6 +670,9 @@ void QListViewItem::takeItem( QListViewItem * item )
     item->ownHeight = 0;
     item->maybeTotalHeight = -1;
     item->configured = FALSE;
+
+    if ( was_selected )
+	emit lv->selectionChanged();
 }
 
 

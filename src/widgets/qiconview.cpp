@@ -3820,9 +3820,6 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 		delete d->rubber;
 	    d->rubber = 0;
 	    d->rubber = new QRect( e->x(), e->y(), 0, 0 );
-
-	    if ( d->selectionMode == Extended && !( e->state() & ControlButton ) )
-		selectAll( FALSE );
 	}
 
 	d->mousePressed = TRUE;
