@@ -485,7 +485,7 @@ void DesignerPixmapCollectionImpl::addPixmap( const QPixmap &p, const QString &n
 
 QPixmap DesignerPixmapCollectionImpl::pixmap( const QString &name ) const
 {
-    pixCollection->pixmap( name );
+    return pixCollection->pixmap( name );
 }
 
 
