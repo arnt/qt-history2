@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#818 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#819 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3397,8 +3397,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 	if ( !widget->isTopLevel() )
 	    break;
-	if ( event->xfocus.mode != NotifyNormal )
-	    break;
 	if ( event->xfocus.detail != NotifyAncestor &&
 	     event->xfocus.detail != NotifyInferior &&
 	     event->xfocus.detail != NotifyNonlinear )
@@ -3551,8 +3549,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 
 /*!
-  \overload  
-  
+  \overload
+
     Processes pending events for \a maxtime milliseconds or until there
   are no more events to process, whichever is shorter.
 
@@ -4212,6 +4210,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	return TRUE;
 
     if ( event->type == MotionNotify ) { // mouse move
+	if (event->xmotion.root != appRootWin)
+	    return FALSE;
+
 	XMotionEvent lastMotion = event->xmotion;
 	while( XPending( appDpy ) )  { // compres mouse moves
 	    XNextEvent( appDpy, &nextEvent );
