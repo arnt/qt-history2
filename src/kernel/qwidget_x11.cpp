@@ -271,7 +271,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	     || testWFlags(WStyle_StaysOnTop)
 	     || testWFlags(WStyle_Dialog)
 	     || testWFlags(WStyle_Tool) ) {
-	    if ( p )
+	    if ( p && !testWFlags( WStyle_StaysOnTop) )
 		XSetTransientForHint( dpy, id, p->winId() );
 	    else				// application-modal
 		XSetTransientForHint( dpy, id, root_win );
@@ -492,10 +492,17 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	QObjectListIt it( *chlist );
 	QObject *obj;
 	while ( (obj=it.current()) ) {
-	    if ( obj->isWidgetType() && !((QWidget*)obj)->isTopLevel() ) {
+	    if ( obj->isWidgetType() ) {
 		QWidget *w = (QWidget *)obj;
-		XReparentWindow( x11Display(), w->winId(), winId(),
-				 w->geometry().x(), w->geometry().y() );
+		if ( !w->isTopLevel() ) {
+		    XReparentWindow( x11Display(), w->winId(), winId(),
+				     w->geometry().x(), w->geometry().y() );
+		} else if ( w->isPopup()
+			    || w->testWFlags(WStyle_DialogBorder)
+			    || w->testWFlags(WStyle_Dialog)
+			    || w->testWFlags(WStyle_Tool) ) {
+		    XSetTransientForHint( x11Display(), w->winId(), winId() );
+		}
 	    }
 	    ++it;
 	}
@@ -1358,7 +1365,11 @@ void QWidget::showMaximized()
 
 void QWidget::showNormal()
 {
-    if ( testWFlags(WType_TopLevel) ) {
+    if ( isTopLevel() ) {
+	if ( topData()->fullscreen ) {
+	    reparent( 0, WType_TopLevel, QPoint(0,0) );
+	    topData()->fullscreen = 0;
+	}
 	QRect r = topData()->normalGeometry;
 	if ( r.width() >= 0 ) {
 	    // the widget has been maximized

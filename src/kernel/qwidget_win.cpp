@@ -845,6 +845,10 @@ void QWidget::showMaximized()
 void QWidget::showNormal()
 {
     if ( isTopLevel() ) {
+	if ( topData()->fullscreen ) {
+	    reparent( 0, WType_TopLevel, QPoint(0,0) );
+	    topData()->fullscreen = 0;
+	}
 	if ( isVisible() )
 	    ShowWindow( winId(), SW_SHOWNORMAL );
 	else
@@ -907,7 +911,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if ( isTopLevel() ) {
 	    QRect fr( frameGeometry() );
 	    MoveWindow( winId(), fr.x(), fr.y(), fr.width(), fr.height(), TRUE );
-	} else 
+	} else
 	    MoveWindow( winId(), x, y, w, h, TRUE );
 	clearWState( WState_ConfigPending );
     }

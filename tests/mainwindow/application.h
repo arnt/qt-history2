@@ -56,8 +56,7 @@ private:
     int justId;
     int bigpixId;
     int textlabelid;
-    
-    QRect storeGeometry;
+
 };
 
 

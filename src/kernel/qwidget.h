@@ -247,6 +247,7 @@ public slots:
 #endif
     virtual void	showMinimized();
     virtual void	showMaximized();
+    void		showFullScreen(); // virtual 3.0
     virtual void	showNormal();
     virtual void	polish();
     bool		close();
@@ -641,10 +642,10 @@ struct QTLWExtra {
     QSize    fsize;				// rect of frame
     short    incw, inch;			// size increments
     uint     iconic: 1;				// iconified [cur. win32 only]
+    uint     fullscreen : 1;			// full-screen mode
     uint     showMode: 2;			// 0 normal, 1 minimized, 2 maximized, 3 reset
     short    basew, baseh;			// base sizes
 #if defined(_WS_X11_)
-    QRect    normalGeometry;			// used by showMin/maximized
     WId	     parentWinId;			// parent window Id (valid after reparenting)
     uint     embedded : 1;			// window is embedded in another Qt application
     uint     wmstate: 2;			// wmstate trigger
@@ -656,6 +657,7 @@ struct QTLWExtra {
 #if defined(_WS_WIN_)
     HICON    winIcon;				// internal Windows icon
 #endif
+    QRect    normalGeometry;			// used by showMin/maximized/FullScreen
 };
 
 

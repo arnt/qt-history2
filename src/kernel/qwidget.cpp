@@ -92,6 +92,9 @@
 	isActiveWindow(),
 	setActiveWindow(),
 	showMinimized().
+	showMaximized(),
+	showFullScreen(),
+	showNormal().
 
   <li> Window contents:
 	update(),
@@ -884,6 +887,7 @@ void QWidget::createTLExtra()
 	x->incw = x->inch = 0;
 	x->basew = x->baseh = 0;
 	x->iconic = 0;
+	x->fullscreen = 0;
 	x->showMode = 0;
 #if defined(_WS_X11_)
 	x->normalGeometry = QRect(0,0,-1,-1);
@@ -3086,8 +3090,8 @@ void QWidget::show()
 
     if ( testWFlags(WStyle_Tool) || isPopup() ) {
 	raise();
-    } 
-    
+    }
+
     if ( testWFlags(WType_TopLevel) && !isPopup() ) {
 	while ( QApplication::activePopupWidget() )
 	    QApplication::activePopupWidget()->hide();
@@ -4468,3 +4472,49 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
     reparent( parent, getWFlags() & ~WType_Mask, p, showIt );
 }
 
+
+
+/*!
+  Shows the widget in full-screen mode.
+
+  Calling this function has no effect for other than \link isTopLevel()
+  top-level widgets\endlink.
+  
+  To return from full-screen mode, call showNormal()
+  
+  Full-screen mode works fine under Windows, but has certain problems
+  under X. These problems are due to limiations of the ICCCM protocol
+  (Inter-Client Communication Conventions Manual) that specifies the
+  communication between X11 clients and the window manager.
+  Bascially, window managers do not handle full-screen windows at
+  all. This results in all kind of strange effects, depending on the
+  individual window manager. In theory, simply showing a window
+  full-screen should be safe and work fine as long as nothing else
+  happens. When showing an additional dialog window and/or the
+  full-screen window looses focus for one or another reason, you are
+  very likely in trouble.
+  
+  Future window managers that follow modern post-ICCCM specifications
+  may support full-screen mode properly.
+
+  \sa showNormal(), showMaximized(), show(), hide(), isVisible()
+*/
+void QWidget::showFullScreen()
+{
+    if ( !isTopLevel() )
+	return;
+    if ( topData()->fullscreen ) {
+	show();
+	raise();
+	return;
+    }
+    if ( topData()->normalGeometry.width() < 0 )
+	topData()->normalGeometry = geometry();
+    reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder | WStyle_StaysOnTop,
+	      QPoint(0,0) );
+    topData()->fullscreen = 1;
+    resize( qApp->desktop()->size() );
+    raise();
+    show();
+    setActiveWindow();
+}

@@ -444,18 +444,8 @@ void ApplicationWindow::toggleFullScreen()
     debug( "toggleFullScreen" );
     bool full = !menuBar()->isItemChecked( fullScreenId );
     menuBar()->setItemChecked( fullScreenId, full );
-    if ( full ) {
-	storeGeometry = geometry();
-	reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder | WStyle_StaysOnTop,
-		  QPoint(0,0) );
-	resize( qApp->desktop()->size() );
-	raise();
-	show();
-	setActiveWindow();
-    } else {
-	reparent( 0, WType_TopLevel, storeGeometry.topLeft() );
-	resize( storeGeometry.size() );
-	show();
-	setActiveWindow();
-    }
+    if ( full )
+	showFullScreen();
+    else
+	showNormal();
 }
