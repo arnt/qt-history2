@@ -847,7 +847,6 @@ void QComboBox::setLineEdit(QLineEdit *edit)
     edit->setText(currentText());
     delete d->lineEdit;
 
-    setFocusPolicy(Qt::StrongFocus);
     d->lineEdit = edit;
     if (d->lineEdit->parent() != this)
 	d->lineEdit->setParent(this);
