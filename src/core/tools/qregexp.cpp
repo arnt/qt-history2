@@ -3194,7 +3194,7 @@ static void prepareEngine(QRegExpPrivate *priv)
             priv->rxpattern = wc2rx(priv->pattern);
         else
 #endif
-            priv->rxpattern = priv->pattern.isNull() ? QLatin1String("") : priv->pattern;
+            priv->rxpattern = priv->pattern.isNull() ? QString::fromLatin1("") : priv->pattern;
 
         priv->eng = refEngine(priv->rxpattern, priv->cs);
         priv->captured.detach();

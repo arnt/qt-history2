@@ -3240,7 +3240,7 @@ QString QLocalePrivate::longLongToString(Q_LONGLONG l, int precision,
     }
 
     for (int i = num_str.length()/* - cnt_thousand_sep*/; i < precision; ++i)
-        num_str.prepend(base == 10 ? zero() : QLatin1Char('0'));
+        num_str.prepend(base == 10 ? zero() : QChar::fromLatin1('0'));
 
     if (flags & Alternate
             && base == 8
@@ -3269,7 +3269,7 @@ QString QLocalePrivate::longLongToString(Q_LONGLONG l, int precision,
             num_pad_chars -= 2;
 
         for (int i = 0; i < num_pad_chars; ++i)
-            num_str.prepend(base == 10 ? zero() : QLatin1Char('0'));
+            num_str.prepend(base == 10 ? zero() : QChar::fromLatin1('0'));
     }
 
     if (base == 16
@@ -3281,7 +3281,7 @@ QString QLocalePrivate::longLongToString(Q_LONGLONG l, int precision,
     if (negative)
         num_str.prepend(minus());
     else if (flags & AlwaysShowSign)
-        num_str.prepend(base == 10 ? plus() : QLatin1Char('+'));
+        num_str.prepend(base == 10 ? plus() : QChar::fromLatin1('+'));
     else if (flags & BlankBeforePositive)
         num_str.prepend(QLatin1Char(' '));
 
@@ -3312,7 +3312,7 @@ QString QLocalePrivate::unsLongLongToString(Q_ULONGLONG l, int precision,
     }
 
     for (int i = num_str.length()/* - cnt_thousand_sep*/; i < precision; ++i)
-        num_str.prepend(base == 10 ? zero() : QLatin1Char('0'));
+        num_str.prepend(base == 10 ? zero() : QChar::fromLatin1('0'));
 
     if (flags & Alternate
             && base == 8
@@ -3335,7 +3335,7 @@ QString QLocalePrivate::unsLongLongToString(Q_ULONGLONG l, int precision,
             num_pad_chars -= 2;
 
         for (int i = 0; i < num_pad_chars; ++i)
-            num_str.prepend(base == 10 ? zero() : QLatin1Char('0'));
+            num_str.prepend(base == 10 ? zero() : QChar::fromLatin1('0'));
     }
 
     if (base == 16
