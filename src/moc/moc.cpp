@@ -328,7 +328,8 @@ void Moc::parseFunctionArguments(FunctionDef *def)
 void Moc::parseFunction(FunctionDef *def)
 {
     test(VIRTUAL);
-    test(INLINE);
+    while (test(INLINE) || test(STATIC))
+        ;
     switch(lookup()) {
     case ENUM:
         setErrorMessage("Unexpected enum declaration");
