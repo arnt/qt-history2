@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#17 $
 **
 ** Implementation of QStatusBar class
 **
@@ -175,6 +175,7 @@ QStatusBar::QStatusBar( QWidget * parent, const char * name )
     : QWidget( parent, name )
 {
     d = new QStatusBarPrivate;
+    d->items.setAutoDelete( TRUE );
     d->box = 0;
     d->resizer = new QStatusBarPrivate::ResizeLines( this );
     d->timer = 0;
@@ -300,8 +301,10 @@ void QStatusBar::reformat()
 void QStatusBar::message( const char * message )
 {
     d->temporary = message; // ### clip and add ellipsis if necessary
-    if ( d->timer )
+    if ( d->timer ) {
 	delete d->timer;
+	d->timer = 0;
+    }
     hideOrShow();
 }
 
