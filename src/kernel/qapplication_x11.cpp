@@ -3793,6 +3793,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    widget->translateMouseEvent( event );
 	else
 	    chokeMouse = FALSE;
+#else
+	widget->translateMouseEvent( event );
 #endif
 	break;
 
