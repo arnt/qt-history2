@@ -34,9 +34,13 @@ public:
     QMacStyle();
     virtual ~QMacStyle();
 
-    void polish(QWidget * w);
-    void unpolish(QWidget * w);
+    void polish(QWidget *w);
+    void unpolish(QWidget *w);
+
     void polish(QApplication*);
+    void unpolish(QApplication*);
+
+    void polish(QPalette &pal);
 
     void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                        const QWidget *w = 0) const;

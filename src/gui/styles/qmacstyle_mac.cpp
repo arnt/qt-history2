@@ -189,7 +189,6 @@ public:
     // HITheme-based functions
     void HIThemePolish(QWidget *w);
     void HIThemeUnpolish(QWidget *w);
-    void HIThemePolish(QApplication *app);
     void HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                               const QWidget *w = 0) const;
     void HIThemeDrawControl(QStyle::ControlElement element, const QStyleOption *opt, QPainter *p,
@@ -213,7 +212,6 @@ public:
     // Appearance Manager-based functions
     void AppManPolish(QWidget *w);
     void AppManUnpolish(QWidget *w);
-    void AppManPolish(QApplication *app);
 
     void AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                              const QWidget *w = 0) const;
@@ -1333,30 +1331,6 @@ void QMacStylePrivate::HIThemeUnpolish(QWidget *w)
     q->QWindowsStyle::unpolish(w);
 #else
     Q_UNUSED(w);
-#endif
-}
-
-void QMacStylePrivate::HIThemePolish(QApplication *app)
-{
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    QPalette pal = app->palette();
-    QPixmap px(200, 200, 32);
-    QPainter p(&px);
-
-    HIThemeMenuDrawInfo mtinfo;
-    mtinfo.version = qt_mac_hitheme_version;
-    mtinfo.menuType = kThemeMenuTypeHierarchical;
-    HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-    HIThemeDrawMenuBackground(&rect, &mtinfo, static_cast<CGContextRef>(px.handle()),
-                              kHIThemeOrientationNormal);
-
-    p.end();
-    QBrush background(px);
-    pal.setBrush(QPalette::Background, background);
-    pal.setBrush(QPalette::Button, background);
-    app->setPalette(pal);
-#else
-    Q_UNUSED(app);
 #endif
 }
 
@@ -3043,27 +3017,6 @@ void QMacStylePrivate::AppManUnpolish(QWidget *w)
         w->setWindowOpacity(1.0);
 }
 
-void QMacStylePrivate::AppManPolish(QApplication *app)
-{
-    QPalette pal = app->palette();
-    QPixmap px(200, 200, 32);
-    QColor pc(Qt::black);
-    {
-        QPainter p(&px);
-        qt_mac_set_port(&p);
-        SetThemeBackground(kThemeBrushDialogBackgroundActive, px.depth(), true);
-        EraseRect(qt_glb_mac_rect(QRect(0, 0, px.width(), px.height()),
-                  static_cast<QPaintDevice *>(0), false));
-        RGBColor c;
-        GetThemeBrushAsColor(kThemeBrushDialogBackgroundActive, 32, true, &c);
-        pc = QColor(c.red / 256, c.green / 256, c.blue / 256);
-    }
-    QBrush background(pc, px);
-    pal.setBrush(QPalette::Background, background);
-    pal.setBrush(QPalette::Button, background);
-    app->setPalette(pal);
-}
-
 void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QStyleOption *opt,
                                            QPainter *p, const QWidget *w) const
 {
@@ -4594,10 +4547,33 @@ QMacStyle::~QMacStyle()
 }
 
 /*! \reimp */
-void QMacStyle::polish(QApplication* app)
+void QMacStyle::polish(QPalette &pal)
 {
-    d->HIThemePolish(app);
-    d->AppManPolish(app);
+    QPixmap px(200, 200);
+    QColor pc(Qt::black);
+    {
+        QPainter p(&px);
+        qt_mac_set_port(&p);
+        SetThemeBackground(kThemeBrushDialogBackgroundActive, px.depth(), true);
+        EraseRect(qt_glb_mac_rect(QRect(0, 0, px.width(), px.height()),
+                  static_cast<QPaintDevice *>(0), false));
+        RGBColor c;
+        GetThemeBrushAsColor(kThemeBrushDialogBackgroundActive, 32, true, &c);
+        pc = QColor(c.red / 256, c.green / 256, c.blue / 256);
+    }
+    QBrush background(pc, px);
+    pal.setBrush(QPalette::Background, background);
+    pal.setBrush(QPalette::Button, background);
+}
+
+/*! \reimp */
+void QMacStyle::polish(QApplication *)
+{
+}
+
+/*! \reimp */
+void QMacStyle::unpolish(QApplication *)
+{
 }
 
 /*! \reimp */
