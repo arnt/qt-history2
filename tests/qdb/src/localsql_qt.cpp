@@ -158,8 +158,7 @@ int LocalSQLResult::size()
 
 int LocalSQLResult::numRowsAffected()
 {
-    qWarning("LocalSQLResult::numRowsAffected::not yet implemented!");
-    return -1;
+    return d->env.affectedRows();
 }
 
 ///////////////////////////////////////////////////////////////////

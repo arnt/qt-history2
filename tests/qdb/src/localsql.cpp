@@ -32,7 +32,9 @@
 class LocalSQL::Private
 {
 public:
-    Private() : stdOut( stdout, IO_WriteOnly )
+    Private()
+	: stdOut( stdout, IO_WriteOnly ),
+	  affectedRows(-1)
     {
 	out = &stdOut;
     }
@@ -46,6 +48,7 @@ public:
     QTextStream* out;
     QString err;
     QString path;
+    int affectedRows;
 };
 
 /*! \class LocalSQL
@@ -212,6 +215,7 @@ void LocalSQL::reset()
 	d->drivers[i].close();
     d->drivers.clear();
     d->results.clear();
+    d->affectedRows = -1;
 }
 
 /*! Returns the result set identified by \a id.  The result set must
@@ -309,4 +313,14 @@ void LocalSQL::setPath( const QString& path )
 QString LocalSQL::path() const
 {
     return d->path;
+}
+
+void LocalSQL::setAffectedRows( int i )
+{
+    d->affectedRows = i;
+}
+
+int LocalSQL::affectedRows() const
+{
+    return d->affectedRows;
 }

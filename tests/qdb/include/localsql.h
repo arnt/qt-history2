@@ -51,6 +51,8 @@ public:
     QString lastError() const;
     void setPath( const QString& path );
     QString path() const;
+    void setAffectedRows( int i );
+    int affectedRows() const;
 
 private:
     class Private;

@@ -406,6 +406,7 @@ bool FileDriver::insert( const localsql::List& data )
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::insert..." << flush;
 #endif
+    env->setAffectedRows( -1 );
     if ( !isOpen() )
 	return FALSE;
     if ( !data.count() ) {
@@ -456,6 +457,7 @@ bool FileDriver::insert( const localsql::List& data )
 	ERROR_RETURN( "Unable to insert record: " + QString( xbStrError( rc ) ) );
 	break;
     }
+    env->setAffectedRows( 1 );
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
@@ -514,6 +516,7 @@ bool FileDriver::deleteMarked()
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::deleteMarked..." << flush;
 #endif
+    env->setAffectedRows( -1 );
     if ( !isOpen() )
 	return FALSE;
     if ( !d->marked.count() )
@@ -528,6 +531,7 @@ bool FileDriver::deleteMarked()
 	    ERROR_RETURN( "Unable to delete record: " + QString( xbStrError( rc  ) ) );
 	}
     }
+    env->setAffectedRows( d->marked.count() );
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
@@ -615,6 +619,7 @@ bool FileDriver::updateMarked( const localsql::List& data )
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::updateMarked..." << flush;
 #endif
+    env->setAffectedRows( -1 );
     if ( !isOpen() ) {
 	ERROR_RETURN( "Internal error: File not open" );
     }
@@ -659,6 +664,7 @@ bool FileDriver::updateMarked( const localsql::List& data )
 	    ERROR_RETURN( "Unable to update record: " + QString( xbStrError( rc ) ) );
 	}
     }
+    env->setAffectedRows( d->marked.count() );
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
@@ -706,6 +712,7 @@ bool FileDriver::update( const localsql::List& data )
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::update..." << flush;
 #endif
+    env->setAffectedRows( -1 );
     if ( !isOpen() ) {
 	ERROR_RETURN( "Internal error: File not open" );
     }
@@ -745,6 +752,7 @@ bool FileDriver::update( const localsql::List& data )
     if ( rc != XB_NO_ERROR ) {
 	ERROR_RETURN( "Unable to update record: " + QString( xbStrError( rc ) ) );
     }
+    env->setAffectedRows( 1 );
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
