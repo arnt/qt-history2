@@ -101,6 +101,10 @@
 
 /*!
   \fn Type* QInterfaceManager::queryInterface(const QString& feature) const
+
+  Returns a pointer to the interface providing \a feature.
+
+  \sa plugIn
 */
 
 /*!
@@ -132,21 +136,4 @@
   Returns a list of all libraries managed through this interface manager.
 
   \sa plugInFromFile
-*/
-
-/*!
-  \fn bool QInterfaceManager::selectFeature( const QString& feature )
-
-  Load the library providing \a feature, and unloads all other libraries.
-  Returns TRUE if the library could be loaded, otherwise returns FALSE.
-
-  \sa unloadFeature
-*/
-
-/*!
-  \fn bool QInterfaceManager::unloadFeature( const QString& feature )
-
-  Unloads the library providing \a feature and returns TRUE if successful.
-
-  \sa selectFeature
 */

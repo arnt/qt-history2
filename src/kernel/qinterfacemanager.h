@@ -88,24 +88,24 @@ public:
 	QLibrary* plugin = new QLibrary( file, appInterface, defPol );
 	bool useful = FALSE;
 
-	if ( plugin->load() ) {
-	    Type* iFace = (Type*)plugin->queryInterface( "*/"+interfaceId+"*" );
-	    if ( iFace ) {
-		QStringList fl = iFace->featureList();
-		for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
-		    useful = TRUE;
+	Type* iFace = (Type*)plugin->queryInterface( "*/"+interfaceId+"*" );
+	if ( iFace ) {
+	    QStringList fl = iFace->featureList();
+	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
+		useful = TRUE;
 #ifdef QT_CHECK_RANGE
-		    if ( !plugDict[*f] )
-			plugDict.replace( *f, plugin );
-		    else
-			qWarning("%s: Feature %s already defined!", plugin->library().latin1(), (*f).latin1() );
-#else
+		if ( !plugDict[*f] )
 		    plugDict.replace( *f, plugin );
+		else
+		    qWarning("%s: Feature %s already defined!", plugin->library().latin1(), (*f).latin1() );
+#else
+		plugDict.replace( *f, plugin );
 #endif
-		}
-		iFace->release();
 	    }
+	    iFace->release();
 	}
+	if ( defPol != QLibrary::OptimizeSpeed )
+	    plugin->unload();
 
 	if ( useful ) {
 	    libDict.replace( plugin->library(), plugin );
@@ -202,35 +202,6 @@ public:
 	}
 
 	return list;
-    }
-
-    bool selectFeature( const QString& feature )
-    {
-	QLibrary* plugin = 0;
-	if ( !!feature )
-	    plugin = plugDict[feature];
-
-	QDictIterator<QLibrary> it( libDict );
-	while ( it.current() ) {
-	    if ( it.current() == plugin && !it.current()->loaded() )
-		it.current()->load();
-	    else if ( it.current() != plugin && it.current()->loaded() )
-		it.current()->unload();
-	    ++it;
-	}
-
-	return plugin != 0;
-    }
-
-    bool unloadFeature( const QString& feature )
-    {
-	QLibrary *plugin = 0;
-	if ( feature.isEmpty() || !(plugin = plugDict[feature]) )
-	    return FALSE;
-
-	if ( plugin->loaded() )
-	    return plugin->unload();
-	return TRUE;
     }
 
 private:
