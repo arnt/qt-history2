@@ -699,7 +699,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
                 ret = QSize(-1, 19);
         }
     } else if(ct == QStyle::CT_Header) {
-        if(sz == QAquaSizeLarge)
+	if(sz == QAquaSizeLarge && (widg && !widg->parentWidget()->inherits("QTable")))
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricListHeaderHeight));
     } else if(ct == QStyle::CT_MenuBar) {
         if(sz == QAquaSizeLarge) {
