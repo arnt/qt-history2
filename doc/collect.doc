@@ -38,6 +38,8 @@
 
 \title Collection Classes
 
+\keyword collection classes
+
 A collection class is a class that can contain a number of items in a
 certain data structure and perform operations on the contained items;
 insert, remove, find etc.

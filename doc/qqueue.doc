@@ -34,10 +34,6 @@
 **********************************************************************/
 
 
-/*****************************************************************************
-  QQueue documentation
- *****************************************************************************/
-
 /*!
   \class QQueue qqueue.h
   \brief The QQueue class is a template class that provides a queue.
@@ -45,102 +41,143 @@
   \ingroup collection
   \ingroup tools
 
-  QQueue is implemented as a template class. Define a template
-  instance QQueue\<X\> to create a queue that operates on pointers to
-  X, or X*.
+  QQueue is implemented as a template class. A template instance
+  QQueue\<X\> is a queue that operates on pointers to X.
 
-  A queue is a first in, first out (FIFO) structure. Items are added
-  to the back of the queue with enqueue() and retrieved from the front
-  with dequeue().
+  A queue is a first in, first out structure. Items are added to the
+  tail of the queue with enqueue() and retrieved from the head with
+  dequeue(). You can peek at the head item without dequeing it using
+  head().
 
-  \sa \link collection.html Collection Classes\endlink
+  QQueue also has some functions for compatibility with the other
+  collection classes, such as isEmpty(), count(), clear(), current(),
+  and remove(). current() and remove() both operate on the head().
+
+  \sa collection classes
 */
 
 /*! \fn QQueue::QQueue ()
-  Creates an empty queue.
+  Creates an empty queue with autoDelete() set to FALSE.
 */
 
 /*! \fn QQueue::QQueue (const QQueue<type>& queue)
   Creates a queue from another.
 
-  Only the pointers are copied (shallow copy).
+  Only the pointers are copied - the items are not.  The autoDelete()
+  flag is set to FALSE.
 */
 
 /*! \fn QQueue::~QQueue ()
-  Destroys the list.  Items in the list are destroyed if autoDelete() is TRUE.
+
+  Destroys the queue.  Items in the queue are deleted if autoDelete()
+  is TRUE.
 */
 
 /*! \fn QQueue<type>& QQueue::operator= (const QQueue<type>& queue)
-  Assigns \e queue to this queue and returns a reference to this queue.
 
-  This queue is first cleared and then each item in \e queue is
-  enqueued to this queue.  Only the pointers are copied (shallow copy).
+  Assigns \a queue to this queue and returns a reference to this
+  queue.
+
+  This queue is first cleared and then each item in \a queue is
+  enqueued to this queue.  Only the pointers are copied.
+
+  Note that the autoDelete() flag is not modified. If it it TRUE for
+  both \a queue and this queue, deleting the two lists cause
+  double-deletion of the items.
 */
 
 /*! \fn bool QQueue::isEmpty () const
 
-  Returns TRUE if there are no items to be \link dequeue() dequeued \endlink.
+  Returns TRUE if the queue is empty and FALSE if there is at least
+  one item enqueued.
+
+  \sa count() dequeue() head()
 */
 
 /*! \fn void QQueue::enqueue (const type* d)
 
-  Adds an item to the back of the queue.  First in, first out.
+  Adds \a d to the tail of the queue.
+
+  \sa count() dequeue()
 */
 
 /*! \fn type* QQueue::dequeue ()
 
-  Takes the front item from the queue.  First in, first out.
+  Takes the head item from the queue and returns a pointer to it.
+
+  \sa enqueue() count()
 */
 
 /*! \fn bool QQueue::remove ()
 
-  Removes the front item from the queue.  First in, first out.
+  Removes the head item from the queue, and returns TRUE if there was
+  an item or FALSE if the queue was empty.
+
   The item is deleted if autoDelete() is TRUE.
-  Returns TRUE if there was an item to remove.
+
+  \sa head() isEmpty() dequeue()
 */
 
 /*! \fn void QQueue::clear()
-  Removes all items from the queue, deleting them if
-  if autoDelete() is TRUE.
+
+  Removes all items from the queue, and deletes them if autoDelete()
+  is TRUE.
 
   \sa remove()
 */
 
 /*! \fn uint QQueue::count() const
+
   Returns the number of items in the queue.
 
   \sa isEmpty()
 */
 
 /*! \fn type* QQueue::head () const
-  Returns a reference to the front item in the queue.  The queue is
+
+  Returns a reference to the head item in the queue.  The queue is
   not changed.
+
+  \sa dequeue() isEmpty()
 */
 
 /*! \fn QQueue::operator type* ()const
 
-  Returns a reference to the front item in the queue.  The queue is
+  Returns a reference to the head item in the queue.  The queue is
   not changed.
+
+  \sa dequeue() isEmpty()
 */
 
 /*! \fn type* QQueue::current () const
 
-  Returns a reference to the front item in the queue.  The queue is
+  Returns a reference to the head item in the queue.  The queue is
   not changed.
+
+  \sa dequeue() isEmpty()
 */
 
-/*! \fn bool QQueue::autoDelete() const
-
-  The same as QCollection::autoDelete().
+/*!
+  \fn bool QQueue::autoDelete() const
+  
+  Returns the setting of the auto-delete option. The default is FALSE.
 
   \sa setAutoDelete()
 */
 
-/*! \fn void QQueue::setAutoDelete( bool enable )
+/*!
+  \fn void QQueue::setAutoDelete( bool enable )
 
-  The same as QCollection::setAutoDelete().
+  Sets the queue to auto-delete its contents if \a enable is TRUE and
+  to never delete them if \a enable is FALSE.
+
+  If auto-deleting is turned on, all the items in a queue are deleted
+  when the queue itself is deleted. This can be quite convenient if
+  the queue has the only pointer to the items.
+  
+  The default setting is FALSE, for safety. If you turn it on, be
+  careful about copying the queue - you might find yourself with two
+  queues deleting the same items.
 
   \sa autoDelete()
 */
-
-
