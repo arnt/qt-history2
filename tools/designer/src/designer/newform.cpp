@@ -71,6 +71,11 @@ NewForm::~NewForm()
 {
 }
 
+void NewForm::on_treeWidget_itemActivated(QTreeWidgetItem *item)
+{
+    ui.createButton->animateClick(0);
+}
+
 void NewForm::on_createButton_clicked()
 {
     if (QTreeWidgetItem *item = ui.treeWidget->currentItem()) {
@@ -79,7 +84,6 @@ void NewForm::on_createButton_clicked()
         QDesignerFormWindow *formWindow = workbench()->createFormWindow();
         if (AbstractFormWindow *editor = formWindow->editor()) {
             QString formTemplateName = item->data(0, TemplateNameRole).toString();
-            qDebug() << "selected template:" << formTemplateName;
             QFile f(formTemplateName);
             if (f.open(QFile::ReadOnly)) {
                 editor->setContents(&f);
