@@ -2267,6 +2267,8 @@ QObjectList *MainWindow::runProject()
     qwf_language = new QString( currentProject->language() );
     qwf_execute_code = FALSE;
 
+    previewing = TRUE;
+
     QStringList forms = currentProject->uiFiles();
     for ( QStringList::Iterator it = forms.begin(); it != forms.end(); ++it ) {
 	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it ) );
@@ -2340,15 +2342,25 @@ QObjectList *MainWindow::runProject()
     }
 
     QObjectList *l = new QObjectList;
-    for ( QStringList::Iterator it2 = forms.begin(); it2 != forms.end(); ++it2 ) {
-	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it2 ) );
-	if ( w ) {
-	    l->append( w );
-	    w->hide();
-	}
-    }
-
     if ( iiface ) {
+	for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	    if ( e->project() == currentProject && e->object()->inherits( "SourceFile" ) ) {
+		QValueList<int> bps = MetaDataBase::breakPoints( e->object() );
+		if ( !bps.isEmpty() )
+		    iiface->setBreakPoints( e->object(), bps );
+	    }
+	}
+
+	iiface->exec( 0, "main" );
+	
+	for ( QStringList::Iterator it2 = forms.begin(); it2 != forms.end(); ++it2 ) {
+	    QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it2 ) );
+	    if ( w ) {
+		l->append( w );
+		w->hide();
+	    }
+	}
+
 	for ( QObject *o = l->first(); o; o = l->next() ) {
 	    QWidget *fw = findRealForm( (QWidget*)o );
 	    if ( !fw )
@@ -2356,14 +2368,6 @@ QObjectList *MainWindow::runProject()
 	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
 	    if ( !bps.isEmpty() )
 		iiface->setBreakPoints( o, bps );
-	}
-
-	for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	    if ( e->project() == currentProject && e->object()->inherits( "SourceFile" ) ) {
-		QValueList<int> bps = MetaDataBase::breakPoints( e->object() );
-		if ( !bps.isEmpty() )
-		    iiface->setBreakPoints( e->object(), bps );
-	    }
 	}
 
 	iiface->release();
@@ -4602,6 +4606,7 @@ void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &err
 void MainWindow::finishedRun()
 {
     inDebugMode = FALSE;
+    previewing = FALSE;
     debuggingForms.clear();
     enableAll( TRUE );
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
