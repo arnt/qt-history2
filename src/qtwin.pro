@@ -194,4 +194,4 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		widgets/qtooltip.cpp
 TARGET      =	qt
 VERSION     =	1.2
-DESTDIR     =	../lib
+DESTDIR	    =	../lib

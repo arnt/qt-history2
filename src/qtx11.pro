@@ -1,4 +1,5 @@
-TEMPLATE    =	qtlib
+TEMPLATE    =	lib
+CONFIG	    =	qt x11inc warn_on release
 HEADERS     =	dialogs/qfiledlg.h \
 		dialogs/qmsgbox.h \
 		dialogs/qprndlg.h \
@@ -198,3 +199,4 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		widgets/qtooltip.cpp
 TARGET      =	qt
 VERSION     =	1.2
+DESTDIR	    =	../lib
