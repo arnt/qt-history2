@@ -266,6 +266,9 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
     t << "SUBDIRS	=" << varList("SUBDIRS") << endl;
 
     t << "all: " << ofile << " $(SUBDIRS)" << endl << endl;
+    t << "install: " << ofile << " qmake_all" << "\n\t"
+      << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; "
+      << "[ -f $(MAKEFILE) ] && $(MAKE) -f $(MAKEFILE) install; fi; ) ; done" << endl;
 
     t << "$(SUBDIRS): qmake_all FORCE" << "\n\t"
       << "cd $@ && $(MAKE)" << endl << endl;
