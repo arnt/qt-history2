@@ -28,9 +28,32 @@ void SetupWizardImpl::cleanDone()
 #if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     prepareEnvironment();
 #  if defined(Q_OS_WIN32)
+    QString qtdir = QEnvironment::getEnv( "QTDIR" );
+
+    // adjust the .qmake.cache
+    QFile qmakeCache( qtdir + "/.qmake.cache" );
+    if ( qmakeCache.open( IO_ReadOnly ) ) {
+	QString content = qmakeCache.readAll();
+	qmakeCache.close();
+	if ( globalInformation.sysId() == GlobalInformation::Borland )
+	    content.replace( "C:\\QtEvaluation\\qtborland", qtdir );
+	else
+	    content.replace( "C:\\QtEvaluation\\qtmsvc", qtdir );
+
+	if ( qmakeCache.open( IO_WriteOnly ) ) {
+	    QTextStream ts( &qmakeCache );
+	    ts << content;
+	    qmakeCache.close();
+	} else {
+	    logOutput( QString("Warning: can't open the .qmake.cache file for writing: %1\n").arg( qmakeCache.errorString() ) );
+	}
+    } else {
+	logOutput( QString("Warning: can't open the .qmake.cache file for reading: %1\n").arg( qmakeCache.errorString() ) );
+    }
+
     QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++ macx-g++ win32-msvc.net win32-g++ win32-watcom" );
     QStringList args;
-    args << ( QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configure.exe" );
+    args << ( qtdir + "\\bin\\configure.exe" );
     args << "-spec";
     args << mkSpecs[ globalInformation.sysId() ];
     if ( globalInformation.sysId() == GlobalInformation::MSVC )
@@ -42,7 +65,7 @@ void SetupWizardImpl::cleanDone()
 	logOutput( "Execute configure...\n" );
 	logOutput( args.join( " " ) + "\n" );
 
-	configure.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
+	configure.setWorkingDirectory( qtdir );
 	configure.setArguments( args );
 	// Start the configure process
 	buildPage->compileProgress->setTotalSteps( int(double(filesToCompile) * 2.6) );
@@ -60,7 +83,7 @@ void SetupWizardImpl::cleanDone()
 	if ( optionsPage )
 	    installDir.setPath( optionsPage->installPath->text() );
 	else
-	    installDir.setPath( QEnvironment::getEnv( "QTDIR" ) );
+	    installDir.setPath( qtdir );
 	QFile outFile( installDir.filePath("build.bat") );
 	QTextStream outStream( &outFile );
 
