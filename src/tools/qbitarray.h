@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.h#28 $
+** $Id: //depot/qt/main/src/tools/qbitarray.h#29 $
 **
 ** Definition of QBitArray class
 **
@@ -46,7 +46,7 @@ public:
     QBitVal( QBitArray *a, uint i ) : array(a), index(i) {}
     operator int();
     QBitVal &operator=( const QBitVal &v );
-    QBitVal &operator=( int v );
+    QBitVal &operator=( bool v );
 };
 
 
@@ -132,7 +132,7 @@ inline QBitVal &QBitVal::operator=( const QBitVal &v )
     return *this;
 }
 
-inline QBitVal &QBitVal::operator=( int v )	// ### Qt 2.0: change to bool
+inline QBitVal &QBitVal::operator=( bool v )
 {
     array->setBit( index, v );
     return *this;
