@@ -567,6 +567,12 @@ QVariant QODBCResult::data( int field )
 
 bool QODBCResult::isNull( int field )
 {
+    if ( !fieldCache.contains( field ) ) {
+	// since there is no good way to find out whether the value is NULL
+	// without fetching the field we'll fetch it here.
+	// (data() also sets the NULL flag)
+	data( field );
+    }
     return nullCache[ field ];
 }
 
