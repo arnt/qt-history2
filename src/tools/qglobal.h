@@ -5,7 +5,7 @@
 **
 ** Created : 920529
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -141,9 +141,9 @@
 #  define Q_OS_QNX
 #elif defined(_SEQUENT_)
 #  define Q_OS_DYNIX
-#elif defined(_SCO_DS)              /* SCO OpenServer 5 */
+#elif defined(_SCO_DS)                   /* SCO OpenServer 5 + GCC */
 #  define Q_OS_SCO
-#elif defined(__USLC__)             /* UnixWare 7 + UDK, Open UNIX 8 + OUDK */
+#elif defined(__USLC__)                  /* all SCO platforms + UDK or OUDK */
 #  define Q_OS_UNIXWARE
 #  define Q_OS_UNIXWARE7
 #elif defined(__svr4__) && defined(i386) /* Open UNIX 8 + GCC */
