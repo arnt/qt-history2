@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#74 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1852,7 +1852,7 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 	copy();
 #endif
 
-    if ( e->button() == MidButton ) {
+    if ( e->button() == MidButton && !readOnly ) {
 #if defined(_WS_X11_)
 	paste();		// Will repaint the cursor line.
 #else
@@ -3051,7 +3051,7 @@ void QMultiLineEdit::rebreakParagraph( int line, int removed )
 		if ( cursorY == line ) {
 		    cursorX += r->s.length();
 		}
-	    } 
+	    }
 	    if ( markAnchorY > line ) {
 		--markAnchorY;
 		if ( markAnchorY == line ) {
