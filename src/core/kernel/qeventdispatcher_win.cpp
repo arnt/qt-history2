@@ -363,23 +363,26 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     // don't wait if there are pending socket notifiers
     canWait = d->sn_pending_list.isEmpty() && canWait;
 
+    // don't wait if event notifiers notified any thing
+    canWait = d->activateEventNotifiers() && canWait;
+
     shortcut = d->interrupt;
 
     // wait for next message if allowed to block
     if (canWait && !shortcut) {
         emit aboutToBlock();
         
-        //### The message sould be empty at this point. This will not return untill
-        // a new message comes. This point is not reached so offten so maybe need 
-        // to do a zero timeout version out side of this "canWait" block 
-        
+        DWORD wakeMask = QS_ALLEVENTS;
+        if (flags & QEventLoop::ExcludeUserInputEvents)
+            wakeMask &= !(QS_KEY | QS_MOUSE | QS_HOTKEY);
+
         // has enough reserved space so this is cheap
         d->winEventNotifierHandles.resize(d->winEventNotifierList.count());
         for (int i=0; i<d->winEventNotifierList.count(); i++)
             d->winEventNotifierHandles[i] = d->winEventNotifierList.at(i)->handle();
         
         DWORD ret = MsgWaitForMultipleObjectsEx(d->winEventNotifierHandles.count(), (LPHANDLE)d->winEventNotifierHandles.data(),
-                                                INFINITE, QS_ALLEVENTS, MWMO_ALERTABLE);
+                                                INFINITE, wakeMask, MWMO_ALERTABLE);
         if (ret - WAIT_OBJECT_0 >= 0 && ret - WAIT_OBJECT_0 < d->winEventNotifierHandles.count()) {
             d->activateEventNotifier(d->winEventNotifierList.at(ret - WAIT_OBJECT_0));
         }
