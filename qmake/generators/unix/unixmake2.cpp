@@ -647,6 +647,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << "$(COPY_FILE) --parents $(SOURCES) $(HEADERS) $(FORMS) $(DIST) " << ddir_c << Option::dir_sep << " && ";
     if(!project->isEmpty("TRANSLATIONS"))
 	t << "$(COPY_FILE) --parents " << var("TRANSLATIONS") << " " << ddir_c << Option::dir_sep << " && ";
+    if(!project->isEmpty("IMAGES"))
+	t << "$(COPY_FILE) --parents " << var("IMAGES") << " " << ddir_c << Option::dir_sep << " && ";
     if(!project->isEmpty("FORMS")) {
 	QStringList &forms = project->variables()["FORMS"], ui_headers;
 	for(QStringList::Iterator formit = forms.begin(); formit != forms.end(); ++formit) {

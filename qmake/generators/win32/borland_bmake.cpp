@@ -213,9 +213,22 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 
     writeMakeQmake(t);
 
+    QStringList dist_files = Option::mkfile::project_files;
+    if(!project->isEmpty("QMAKE_INTERNAL_INCLUDED_FILES"))
+	dist_files += project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"];
+    if(!project->isEmpty("TRANSLATIONS"))
+	dist_files << var("TRANSLATIONS");
+    if(!project->isEmpty("FORMS")) {
+	QStringList &forms = project->variables()["FORMS"];
+	for(QStringList::Iterator formit = forms.begin(); formit != forms.end(); ++formit) {
+	    QString ui_h = fileFixify((*formit) + Option::h_ext.first());
+	    if(QFile::exists(ui_h) ) 
+		dist_files << ui_h;
+	}
+    }
     t << "dist:" << "\n\t"
-      << "$(ZIP) " << var("PROJECT") << ".zip " << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST) $(FORMS)"
-      << endl << endl;
+      << "$(ZIP) " << var("QMAKE_ORIG_TARGET") << ".zip " << "$(SOURCES) $(HEADERS) $(DIST) $(FORMS) " 
+      << dist_files.join(" ") << " " << var("TRANSLATIONS") << endl << endl;
 
     t << "clean:\n"
       << varGlue("OBJECTS","\t-del ","\n\t-del ","")
