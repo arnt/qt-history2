@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#22 $
+** $Id: //depot/qt/main/src/xml/qdom.h#23 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -315,14 +315,14 @@ public:
     QDomElement documentElement() const;
 
     // Qt extensions
-    bool setContent( const QCString& text, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0 );
-    bool setContent( const QByteArray& text, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
-    bool setContent( const QString& text, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
-    bool setContent( QIODevice* dev, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
     bool setContent( const QCString& text, bool namespaceProcessing, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
     bool setContent( const QByteArray& text, bool namespaceProcessing, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
     bool setContent( const QString& text, bool namespaceProcessing, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
     bool setContent( QIODevice* dev, bool namespaceProcessing, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
+    bool setContent( const QCString& text, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0 );
+    bool setContent( const QByteArray& text, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
+    bool setContent( const QString& text, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
+    bool setContent( QIODevice* dev, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
 
     // Reimplemented from QDomNode
     QDomNode::NodeType nodeType() const;
