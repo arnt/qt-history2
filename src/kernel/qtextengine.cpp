@@ -803,8 +803,6 @@ void QTextEngine::splitItem( int item, int pos )
     QScriptItem &newItem = items.d->items[item+1];
     QScriptItem &oldItem = items.d->items[item];
     newItem = oldItem;
-    newItem.analysis.linkBefore = TRUE;
-    oldItem.analysis.linkAfter = TRUE;
     items.d->items[item+1].position += pos;
     if ( newItem.fontEngine )
 	newItem.fontEngine->ref();
