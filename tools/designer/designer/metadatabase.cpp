@@ -739,11 +739,6 @@ MetaDataBase::CustomWidget::CustomWidget( const CustomWidget &w )
     isContainer = w.isContainer;
 }
 
-MetaDataBase::CustomWidget::~CustomWidget()
-{
-    delete pixmap;
-}
-	
 void MetaDataBase::setCursor( QWidget *w, const QCursor &c )
 {
     setupDataBase();

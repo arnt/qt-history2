@@ -74,8 +74,8 @@ public:
     {
 	CustomWidget();
 	CustomWidget( const CustomWidget &w );
-	~CustomWidget();	
-	bool operator==( const CustomWidget &w ) const;	
+	~CustomWidget() { delete pixmap; } // inlined to work around 2.7.2.3 bug
+	bool operator==( const CustomWidget &w ) const;
 	CustomWidget &operator=( const CustomWidget &w );
 
 	bool hasSignal( const QCString &signal ) const;
