@@ -60,7 +60,8 @@
 */
 
 
-/*!
+#ifdef QT_COMPAT
+/*! \obsolete
     Constructs a progress bar.
 
     The total number of steps is set to 100 by default.
@@ -86,7 +87,7 @@ QProgressBar::QProgressBar(QWidget *parent, const char *name, Qt::WFlags f)
 }
 
 
-/*!
+/*! \obsolete
     Constructs a progress bar.
 
     The \a totalSteps is the total number of steps that need to be
@@ -104,6 +105,62 @@ QProgressBar::QProgressBar(QWidget *parent, const char *name, Qt::WFlags f)
 QProgressBar::QProgressBar(int totalSteps,
                             QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, name, f),
+      total_steps(totalSteps),
+      progress_val(-1),
+      percentage(-1),
+      center_indicator(true),
+      auto_indicator(true),
+      percentage_visible(true),
+      d(0)
+{
+    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    initFrame();
+}
+#endif
+
+/*!
+    Constructs a progress bar.
+
+    The total number of steps is set to 100 by default.
+
+    The \a parent, and widget flags, \a f, are passed on to
+    the QFrame::QFrame() constructor.
+
+    \sa setTotalSteps()
+*/
+
+QProgressBar::QProgressBar(QWidget *parent, Qt::WFlags f)
+    : QFrame(parent, f),
+      total_steps(100),
+      progress_val(-1),
+      percentage(-1),
+      center_indicator(true),
+      auto_indicator(true),
+      percentage_visible(true),
+      d(0)
+{
+    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    initFrame();
+}
+
+
+/*!
+    Constructs a progress bar.
+
+    The \a totalSteps is the total number of steps that need to be
+    completed for the operation which this progress bar represents.
+    For example, if the operation is to examine 50 files, this value
+    would be 50. Before examining the first file, call setProgress(0);
+    call setProgress(50) after examining the last file.
+
+    The \a parent, and widget flags, \a f, are passed to the
+    QFrame::QFrame() constructor.
+
+    \sa setTotalSteps(), setProgress()
+*/
+
+QProgressBar::QProgressBar(int totalSteps, QWidget *parent, Qt::WFlags f)
+    : QFrame(parent, f),
       total_steps(totalSteps),
       progress_val(-1),
       percentage(-1),

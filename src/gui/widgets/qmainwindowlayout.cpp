@@ -125,10 +125,10 @@ QMainWindowLayout::QMainWindowLayout(QMainWindow *mainwindow)
 {
     setObjectName(mainwindow->objectName() + "_layout");
 
-    corners[Qt::TopLeft]     = Qt::DockWindowAreaTop;
-    corners[Qt::TopRight]    = Qt::DockWindowAreaTop;
-    corners[Qt::BottomLeft]  = Qt::DockWindowAreaBottom;
-    corners[Qt::BottomRight] = Qt::DockWindowAreaBottom;
+    corners[Qt::TopLeftCorner]     = Qt::DockWindowAreaTop;
+    corners[Qt::TopRightCorner]    = Qt::DockWindowAreaTop;
+    corners[Qt::BottomLeftCorner]  = Qt::DockWindowAreaBottom;
+    corners[Qt::BottomRightCorner] = Qt::DockWindowAreaBottom;
 
     for (int i = 0; i < Qt::NDockWindowAreas + 1; ++i) {
         QMainWindowLayoutInfo info;
@@ -268,29 +268,29 @@ void fix_minmax(QVector<QLayoutStruct> &ls,
     } order[] = {
         // LEFT
         {
-            Qt::TopLeft,
-            Qt::BottomLeft,
+            Qt::TopLeftCorner,
+            Qt::BottomLeftCorner,
             TOP,
             BOTTOM
         },
         // RIGHT
         {
-            Qt::TopRight,
-            Qt::BottomRight,
+            Qt::TopRightCorner,
+            Qt::BottomRightCorner,
             TOP,
             BOTTOM
         },
         // TOP
         {
-            Qt::TopLeft,
-            Qt::TopRight,
+            Qt::TopLeftCorner,
+            Qt::TopRightCorner,
             LEFT,
             RIGHT
         },
         // BOTTOM
         {
-            Qt::BottomLeft,
-            Qt::BottomRight,
+            Qt::BottomLeftCorner,
+            Qt::BottomRightCorner,
             LEFT,
             RIGHT
         }
@@ -726,7 +726,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     top.moveTop(r.top());
     bottom.moveBottom(r.bottom());
 
-    switch (corners[Qt::TopLeft]) {
+    switch (corners[Qt::TopLeftCorner]) {
     case Qt::DockWindowAreaTop:
         top.setLeft(r.left());
         left.setTop(top.bottom() + 1);
@@ -739,7 +739,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
         Q_ASSERT(false);
     }
 
-    switch (corners[Qt::BottomLeft]) {
+    switch (corners[Qt::BottomLeftCorner]) {
     case Qt::DockWindowAreaBottom:
         bottom.setLeft(r.left());
         left.setBottom(bottom.top() - 1);
@@ -752,7 +752,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
         Q_ASSERT(false);
     }
 
-    switch (corners[Qt::TopRight]) {
+    switch (corners[Qt::TopRightCorner]) {
     case Qt::DockWindowAreaTop:
         top.setRight(r.right());
         right.setTop(top.bottom() + 1);
@@ -765,7 +765,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
         Q_ASSERT(false);
     }
 
-    switch (corners[Qt::BottomRight]) {
+    switch (corners[Qt::BottomRightCorner]) {
     case Qt::DockWindowAreaBottom:
         bottom.setRight(r.right());
         right.setBottom(bottom.top() - 1);
@@ -903,21 +903,21 @@ QSize QMainWindowLayout::sizeHint() const
                       : QSize(0, 0);
     int h1, h2, h3, w1, w2, w3;
 
-    w1 = (corners[Qt::TopLeft] == Qt::DockWindowAreaLeft ? szL.width() : 0)
+    w1 = (corners[Qt::TopLeftCorner] == Qt::DockWindowAreaLeft ? szL.width() : 0)
          + szT.width()
-         + (corners[Qt::TopRight] == Qt::DockWindowAreaRight ? szR.width() : 0);
+         + (corners[Qt::TopRightCorner] == Qt::DockWindowAreaRight ? szR.width() : 0);
     w2 = szL.width() + szR.width() + szC.width();
-    w3 = (corners[Qt::BottomLeft] == Qt::DockWindowAreaLeft ? szL.width() : 0)
+    w3 = (corners[Qt::BottomLeftCorner] == Qt::DockWindowAreaLeft ? szL.width() : 0)
          + szB.width()
-         + (corners[Qt::BottomRight] == Qt::DockWindowAreaRight ? szR.width(): 0);
+         + (corners[Qt::BottomRightCorner] == Qt::DockWindowAreaRight ? szR.width(): 0);
 
-    h1 = (corners[Qt::TopLeft] == Qt::DockWindowAreaTop ? szT.height() : 0)
+    h1 = (corners[Qt::TopLeftCorner] == Qt::DockWindowAreaTop ? szT.height() : 0)
          + szL.height()
-         + (corners[Qt::BottomLeft] == Qt::DockWindowAreaBottom ? szB.height(): 0);
+         + (corners[Qt::BottomLeftCorner] == Qt::DockWindowAreaBottom ? szB.height(): 0);
     h2 = szT.height() + szB.height() + szC.height();
-    h3 = (corners[Qt::TopRight] == Qt::DockWindowAreaTop ? szT.height() : 0)
+    h3 = (corners[Qt::TopRightCorner] == Qt::DockWindowAreaTop ? szT.height() : 0)
          + szR.height()
-         + (corners[Qt::BottomRight] == Qt::DockWindowAreaBottom ? szB.height() : 0);
+         + (corners[Qt::BottomRightCorner] == Qt::DockWindowAreaBottom ? szB.height() : 0);
 
     const int ext = QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
     if (layout_info[LEFT].item && szL.isValid())
@@ -994,21 +994,21 @@ QSize QMainWindowLayout::minimumSize() const
                       : QSize(0, 0);
     int h1, h2, h3, w1, w2, w3;
 
-    w1 = (corners[Qt::TopLeft] == Qt::DockWindowAreaLeft ? szL.width() : 0)
+    w1 = (corners[Qt::TopLeftCorner] == Qt::DockWindowAreaLeft ? szL.width() : 0)
          + szT.width()
-         + (corners[Qt::TopRight] == Qt::DockWindowAreaRight ? szR.width() : 0);
+         + (corners[Qt::TopRightCorner] == Qt::DockWindowAreaRight ? szR.width() : 0);
     w2 = szL.width() + szR.width() + szC.width();
-    w3 = (corners[Qt::BottomLeft] == Qt::DockWindowAreaLeft ? szL.width() : 0)
+    w3 = (corners[Qt::BottomLeftCorner] == Qt::DockWindowAreaLeft ? szL.width() : 0)
          + szB.width()
-         + (corners[Qt::BottomRight] == Qt::DockWindowAreaRight ? szR.width() : 0);
+         + (corners[Qt::BottomRightCorner] == Qt::DockWindowAreaRight ? szR.width() : 0);
 
-    h1 = (corners[Qt::TopLeft] == Qt::DockWindowAreaTop ? szT.height() : 0)
+    h1 = (corners[Qt::TopLeftCorner] == Qt::DockWindowAreaTop ? szT.height() : 0)
          + szL.height()
-         + (corners[Qt::BottomLeft] == Qt::DockWindowAreaBottom ? szB.height() : 0);
+         + (corners[Qt::BottomLeftCorner] == Qt::DockWindowAreaBottom ? szB.height() : 0);
     h2 = szT.height() + szB.height() + szC.height();
-    h3 = (corners[Qt::TopRight] == Qt::DockWindowAreaTop ? szT.height() : 0)
+    h3 = (corners[Qt::TopRightCorner] == Qt::DockWindowAreaTop ? szT.height() : 0)
          + szR.height()
-         + (corners[Qt::BottomRight] == Qt::DockWindowAreaBottom ? szB.height() : 0);
+         + (corners[Qt::BottomRightCorner] == Qt::DockWindowAreaBottom ? szB.height() : 0);
 
     const int ext = QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
     if (layout_info[LEFT].item && szL.isValid())
@@ -1226,17 +1226,17 @@ QMainWindowLayout::locateDockWindow(QDockWindow *dockwindow, const QPoint &mouse
         if (p.x() < width / 2 && dockwindow->isDockable(Qt::DockWindowAreaLeft)) {
             // left side
             if (p.y() < height / 3 && dockwindow->isDockable(Qt::DockWindowAreaTop))
-                pos = positionForArea(corners[Qt::TopLeft]);
+                pos = positionForArea(corners[Qt::TopLeftCorner]);
             else if (p.y() > height * 2 / 3 && dockwindow->isDockable(Qt::DockWindowAreaBottom))
-                pos = positionForArea(corners[Qt::BottomLeft]);
+                pos = positionForArea(corners[Qt::BottomLeftCorner]);
             else
                 pos = LEFT;
         } else if (p.x() >= width / 2 && dockwindow->isDockable(Qt::DockWindowAreaRight)) {
             // right side
             if (p.y() < height / 3 && dockwindow->isDockable(Qt::DockWindowAreaTop))
-                pos = positionForArea(corners[Qt::TopRight]);
+                pos = positionForArea(corners[Qt::TopRightCorner]);
             else if (p.y() >= height * 2 / 3 && dockwindow->isDockable(Qt::DockWindowAreaBottom))
-                pos = positionForArea(corners[Qt::BottomRight]);
+                pos = positionForArea(corners[Qt::BottomRightCorner]);
             else
                 pos = RIGHT;
         }
@@ -1251,17 +1251,17 @@ QMainWindowLayout::locateDockWindow(QDockWindow *dockwindow, const QPoint &mouse
         if (p.y() < height / 2 && dockwindow->isDockable(Qt::DockWindowAreaTop)) {
             // top side
             if (p.x() < width / 3 && dockwindow->isDockable(Qt::DockWindowAreaLeft))
-                pos = positionForArea(corners[Qt::TopLeft]);
+                pos = positionForArea(corners[Qt::TopLeftCorner]);
             else if (p.x() >= width * 2 / 3 && dockwindow->isDockable(Qt::DockWindowAreaRight))
-                pos = positionForArea(corners[Qt::TopRight]);
+                pos = positionForArea(corners[Qt::TopRightCorner]);
             else
                 pos = TOP;
         } else if (p.y() >= height / 2 && dockwindow->isDockable(Qt::DockWindowAreaBottom)) {
             // bottom side
             if (p.x() < width / 3 && dockwindow->isDockable(Qt::DockWindowAreaLeft))
-                pos = positionForArea(corners[Qt::BottomLeft]);
+                pos = positionForArea(corners[Qt::BottomLeftCorner]);
             else if (p.x() >= width * 2 / 3 && dockwindow->isDockable(Qt::DockWindowAreaRight))
-                pos = positionForArea(corners[Qt::BottomRight]);
+                pos = positionForArea(corners[Qt::BottomRightCorner]);
             else
                 pos = BOTTOM;
         }
