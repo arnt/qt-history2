@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#6 $
+** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#7 $
 **
 ** This is a utility program for merging findtr msgfiles
 **
@@ -98,81 +98,89 @@ QString extractContents( const QString& line )
 
 struct Item
 {
-    Item() :null(TRUE) {}
-    Item( const Item &i ) :null(i.null),usercomments(i.usercomments),
+    Item() {}
+    Item( const Item &i ) :usercomments(i.usercomments),
 	systemcomments(i.systemcomments), msgid(i.msgid), msgstr(i.msgstr){}
     Item &operator=( const Item &i ) {
-	null = i.null; usercomments = i.usercomments;
-	systemcomments = i.systemcomments; msgid = i.msgid; msgstr = i.msgstr;
+	usercomments = i.usercomments; systemcomments = i.systemcomments;
+	msgid = i.msgid; msgstr = i.msgstr;
 	return *this;
     }
-    bool isNull() const { return null; }
+    bool isNull() const { return usercomments.isNull()&&systemcomments.isNull()
+			      &&msgstr.isNull() &&msgid.isNull(); }
 
-    bool null;
     QString usercomments;
     QString systemcomments;
     QString msgid;
     QString msgstr;
 };
 
-enum Status { Equal, First, Second };
+enum Status { Equal, First, Second, FirstJunk, SecondJunk };
 
 Item getItem( QTextStream &str, QString &s )
 {
     Item i;
-    str.skipWhiteSpace();
     while ( !str.atEnd() && s.isEmpty() ) {
-	s = str.readLine();
+	s = str.readLine().stripWhiteSpace();
     }
     while (  !str.atEnd() && !s.isEmpty() ) {
 	if ( isSystemComment(s) ) {
 	    i.systemcomments += s + "\n";
-	    s = str.readLine();
+	    s = str.readLine().stripWhiteSpace();
 	} else if ( isUserComment(s) ) {
 	    i.usercomments += s + "\n";
-	    s = str.readLine();
+	    s = str.readLine().stripWhiteSpace();
 	} else if ( hasHandle( s, "msgid" ) ) {
 	    QString r = s + "\n";
-	    str.skipWhiteSpace();
-	    s = str.readLine();
+	    s = str.readLine().stripWhiteSpace();
 	    while (  !str.atEnd() && hasHandle(s, "\"") ) {
 		r += s;
-		str.skipWhiteSpace();
-		s = str.readLine();
+		s = str.readLine().stripWhiteSpace();
 		r += "\n";
 	    }
 	    i.msgid = r;
 	} else if ( hasHandle( s, "msgstr" ) ) {
 	    QString r = s + "\n";
-	    str.skipWhiteSpace();
-	    s = str.readLine();
+	    s = str.readLine().stripWhiteSpace();
 	    while ( hasHandle(s, "\"") ) {
 		r += s;
-		str.skipWhiteSpace();
-		s = str.readLine();
+		s = str.readLine().stripWhiteSpace();
 		r += "\n";
 	    }
 	    i.msgstr = r;
-	    i.null = FALSE;
-	    //qDebug( "getItem: %s -> %s U:%s S:%s", 
-	    //	     i.msgid.ascii(), i.msgstr.ascii(),
-	    //	     i.usercomments.ascii(), i.systemcomments.ascii() );
-	    return i;
+	    //qDebug( "found msgstr, next s = '%s'", s.ascii() );
 	} else {
 	    //qDebug( "skipping %s", s.ascii() );
-	    s = str.readLine();
+	    s = str.readLine().stripWhiteSpace();
 	}
     }
-    i.null = TRUE;
-    //qDebug( "getItem NULL item: %s -> %s U:%s S:%s", 
-    //	     i.msgid.ascii(), i.msgstr.ascii(),
-    //	     i.usercomments.ascii(), i.systemcomments.ascii() );
-    
+    qDebug( "getItem: %s -> %s U:%s S:%s",
+    	     i.msgid.ascii(), i.msgstr.ascii(),
+    	     i.usercomments.ascii(), i.systemcomments.ascii() );
+
     return i;
 }
 
-static int nMerge, nNew, nOld;
+static int nMerge, nNew, nOld, nJunk;
 
+
+void writecomment( QTextStream &str, const QString &s )
+{
+    if ( s.isEmpty() )
+	return;
+    int idx = 0;
+    int len = s.length();
+    while ( idx < len ) {
+	int nl = s.find( '\n', idx );
+	if ( nl < 0 ) {
+	    qWarning( "writecomment: string lacks newline" );
+	    str << "# " << s.mid( idx ) << '\n';
+	    return;
+	}
+	str << "# " << s.mid( idx, nl-idx+1 );
+	idx = nl+1;
+    }
+}
 
 void writemerge( QTextStream &str, const Item &i1, const Item &i2 )
 {
@@ -198,16 +206,27 @@ void writenew( QTextStream &str, const Item &i1 )
     str << i1.msgstr;
     str << "\n";
 }
+
 void writeold( QTextStream &str, const Item &i2 )
 {
     nOld++;
     //qDebug( "writeold" );
-    if ( !i2.usercomments.isEmpty() )
-	str << "# " << i2.usercomments;
-    if ( !i2.systemcomments.isEmpty() )
-	str << "# " << i2.systemcomments;
-    str << "# " << i2.msgid;
-    str << "# " << i2.msgstr;
+    writecomment( str, i2.usercomments );
+    writecomment( str, i2.systemcomments );
+    writecomment( str, i2.msgid );
+    writecomment( str, i2.msgstr );
+    str << "\n";
+}
+
+void writejunk( QTextStream &str, const Item &it )
+{
+    nJunk++;
+    //qDebug( "writejunk" );
+    if ( !it.usercomments.isEmpty() )
+	str << it.usercomments;
+    writecomment( str,  it.systemcomments );
+    writecomment( str,  it.msgid );
+    writecomment( str,  it.msgstr );
     str << "\n";
 }
 
@@ -220,7 +239,11 @@ Status compare( const Item &i1, const Item &i2 )
     if ( i2.isNull() )
 	return First;
     QString s1 = extractContents( i1.msgid );
+    if ( s1.isEmpty() )
+	return FirstJunk;
     QString s2 = extractContents( i2.msgid );
+    if ( s2.isEmpty() )
+	return SecondJunk;
     int i = strcmp( s1.ascii(), s2.ascii() );
     if ( i < 0 )
 	return First;
@@ -248,9 +271,9 @@ void merge( const QString& newname, const QString& oldname,
     QTextStream in2( &f2 );
     QTextStream out( &fout );
 
-    QString buf1 = in1.readLine();
-    QString buf2 = in2.readLine();
-    
+    QString buf1 = in1.readLine().stripWhiteSpace();
+    QString buf2 = in2.readLine().stripWhiteSpace();
+
     Item i1 = getItem( in1, buf1 );
     Item i2 = getItem( in2, buf2 );
     while ( !i1.isNull() || !i2.isNull() ) {
@@ -263,9 +286,17 @@ void merge( const QString& newname, const QString& oldname,
 	    //i1 < i2 || i2 == 0
 	    writenew( out, i1 );
 	    i1 = getItem( in1, buf1 );
+	} else if ( s == FirstJunk ) {
+	    //solitary comment
+	    writejunk( out, i1 );
+	    i1 = getItem( in1, buf1 );
 	} else if ( s == Second ) {
 	    //i1 > i2 || i1 == 0
 	    writeold( out, i2 );
+	    i2 = getItem( in2, buf2 );
+	} else if ( s == SecondJunk ) {
+	    //solitary comment
+	    writejunk( out, i2 );
 	    i2 = getItem( in2, buf2 );
 	}
     }
