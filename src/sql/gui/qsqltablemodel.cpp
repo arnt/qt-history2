@@ -866,8 +866,6 @@ bool QSqlTableModel::setRecord(int row, const QSqlRecord &record)
 {
     bool isOk = false;
     for (int i = 0; i < record.count(); ++i) {
-        if (!record.isGenerated(i))
-            continue;
         int idx = d->rec.indexOf(record.fieldName(i));
         if (idx == -1 || !d->rec.isGenerated(idx))
             continue;
