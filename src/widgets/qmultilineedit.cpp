@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#54 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -605,7 +605,7 @@ void QMultiLineEdit::doDrag()
 bool QMultiLineEdit::getMarkedRegion( int *line1, int *col1,
 				      int *line2, int *col2 ) const
 {
-    if ( !markIsOn )
+    if ( !markIsOn || !line1 || !line2 || !col1 || !col2 )
 	return FALSE;
     if ( markAnchorY < markDragY ||
 	 markAnchorY == markDragY && markAnchorX < markDragX) {
@@ -619,7 +619,7 @@ bool QMultiLineEdit::getMarkedRegion( int *line1, int *col1,
 	*line2 = markAnchorY;
 	*col2 = markAnchorX;
     }
-    return TRUE;
+    return markIsOn;
 }
 
 
@@ -1345,13 +1345,12 @@ void QMultiLineEdit::insert( const QString& str, bool mark )
 {
     dummy = FALSE;
     bool wasMarkedText = hasMarkedText();
-    if ( wasMarkedText ) {
+    if ( wasMarkedText )
 	del();					// ## Will flicker
-    }
     QString *s = getString( cursorY );
     if ( cursorX > (int)s->length() )
 	cursorX = s->length();
-    if ( overWrite && !wasMarkedText && cursorX < (int)s->length() )
+    else if ( overWrite && !wasMarkedText && cursorX < (int)s->length() )
 	del();                                 // ## Will flicker
     insertAt(str, cursorY, cursorX, mark );
     makeVisible();
@@ -1621,6 +1620,7 @@ void QMultiLineEdit::del()
     int markBeginX, markBeginY;
     int markEndX, markEndY;
     if ( getMarkedRegion( &markBeginY, &markBeginX, &markEndY, &markEndX ) ) {
+	markIsOn    = FALSE;
 	textDirty = TRUE;
 	mlData->edited = TRUE;
 	if ( markBeginY == markEndY ) { //just one line
@@ -1631,7 +1631,6 @@ void QMultiLineEdit::del()
 	    r->w = textWidth( r->s );
 	    cursorX  = markBeginX;
 	    cursorY  = markBeginY;
-	    markIsOn    = FALSE;
 	    if (autoUpdate() )
 		updateCell( cursorY, 0, FALSE );
 	    if ( recalc )
@@ -1653,7 +1652,7 @@ void QMultiLineEdit::del()
 
 	    for( int i = markBeginY + 1 ; i <= markEndY ; i++ )
 		contents->remove( markBeginY + 1 );
-	    markIsOn = FALSE;
+	    
 	    if ( contents->isEmpty() )
 		insertLine( QString::fromLatin1(""), -1 );
 
@@ -1667,6 +1666,8 @@ void QMultiLineEdit::del()
 	    if ( autoUpdate() )
 		repaintDelayed( FALSE );
 	}
+	markAnchorY = markDragY = cursorY;
+	markAnchorX = markDragX = cursorX;
     } else {
 	if ( !atEnd() ) {
 	    textDirty = TRUE;
@@ -1860,8 +1861,8 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 	if ( newX >= 0 && newX < lim ) {
 	    int i = newX;
 	    int startclass = charClass(s.at(i));
-	    if ( markAnchorY < markDragY || markAnchorY == markDragY
-		 && markAnchorX < markDragX ) {
+	    if ( markAnchorY < markDragY || 
+		 ( markAnchorY == markDragY && markAnchorX < markDragX ) ) {
 		// going right
 		while ( i < lim && charClass(s.at(i)) == startclass )
 		    i++;
@@ -2401,7 +2402,7 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 
 
 /*! \obsolete
-  
+
   Use getCursorPosition() instead.
 */
 
