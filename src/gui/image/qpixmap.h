@@ -100,6 +100,7 @@ public:
     static Optimization defaultOptimization();
     static void setDefaultOptimization(Optimization);
 
+    bool isDetached() const;
     virtual void detach();
 
     bool isQBitmap() const;
@@ -184,6 +185,8 @@ private:
     friend void qt_bit_blt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);
 };
 
+Q_DECLARE_SHARED(QPixmap);
+
 inline void QPixmap::fill(const QWidget *w, int x, int y)
 {
     fill(w, QPoint(x, y));
@@ -206,5 +209,5 @@ QT_COMPAT Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy, const QPixmap 
                                     int sx=0, int sy=0, int sw=-1, int sh=-1);
 #endif // QT_COMPAT
 
-
 #endif // QPIXMAP_H
+

@@ -710,10 +710,13 @@ QBitmap QPixmap::createHeuristicMask(bool clipTight) const
 
 bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConversionFlags flags)
 {
+    //###read from cache
     QImageIO io(fileName, format);
     bool result = io.read();
-    if (result)
+    if (result) {
         result = fromImage(io.image(), flags);
+        //###cache
+    }
     return result;
 }
 
@@ -1181,5 +1184,13 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
     QPainter p(dst);
     p.drawPixmap(dx, dy, *src, sx, sy, sw, sh, Qt::CopyPixmap);
 }
-
 #endif
+
+/*! 
+    \internal
+*/
+
+bool QPixmap::isDetached() const
+{
+    return data->count == 1;
+}
