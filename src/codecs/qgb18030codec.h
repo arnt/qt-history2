@@ -74,6 +74,11 @@ public:
     const char* name() const;
     const char* mimeName() const;
 
+    QTextDecoder* makeDecoder() const;
+
+    QCString fromUnicode(const QString& uc, int& len_in_out) const;
+    QString toUnicode(const char* chars, int len) const;
+
     int heuristicContentMatch(const char* chars, int len) const;
     int heuristicNameMatch(const char* hint) const;
 };

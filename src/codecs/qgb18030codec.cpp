@@ -466,6 +466,22 @@ int QGbkCodec::heuristicContentMatch(const char* /*chars*/, int /*len*/) const
     return 0;
 }
 
+QTextDecoder* QGbkCodec::makeDecoder() const
+{
+    return QGb18030Codec::makeDecoder();
+}
+
+QCString QGbkCodec::fromUnicode(const QString& uc, int& len_in_out) const
+{
+    return QGb18030Codec::fromUnicode( uc, len_in_out );
+}
+
+QString QGbkCodec::toUnicode(const char* chars, int len) const
+{
+    return QGb18030Codec::toUnicode( chars, len );
+}
+
+
 static const indexTbl_t gb18030_to_ucs_index[154] = {
   /* U+00__ */	{0x00, 0xFF, 0x0000, 0x0000},	{0x00, 0xFF, 0x0000, 0x0000},
   /* U+02__ */	{0x00, 0xFF, 0x0000, 0x0000},	{0x00, 0x33, 0x0000, 0x041E},
