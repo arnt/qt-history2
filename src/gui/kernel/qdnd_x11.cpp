@@ -36,7 +36,7 @@
 #define d d_func()
 #define q q_func()
 
-// #define DND_DEBUG
+#define DND_DEBUG
 #ifdef DND_DEBUG
 #define DEBUG qDebug
 #else
@@ -158,7 +158,6 @@ bool qt_motifdnd_active = false;
 static bool dndCancelled = false;
 
 // Shift/Ctrl handling, and final drop status
-static QDrag::DropActions drag_mode;
 static QDrag::DropAction global_requested_action = QDrag::CopyAction;
 static QDrag::DropAction global_accepted_action = QDrag::CopyAction;
 
@@ -788,9 +787,7 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
         return true;
     }
 
-    if (e->type() == QEvent::KeyPress
-      || e->type() == QEvent::KeyRelease)
-    {
+    if (e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
         QKeyEvent *ke = ((QKeyEvent*)e);
         if (ke->key() == Qt::Key_Escape && e->type() == QEvent::KeyPress) {
             cancel();
@@ -799,6 +796,7 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
             beingCancelled = false;
             eventLoop->exit();
         } else {
+            DEBUG() << "keyEvent: modifs=" << ke->modifiers();
             updateMode(ke->modifiers());
             qt_xdnd_source_sameanswer = QRect(); // force move
             move(QCursor::pos());
@@ -829,35 +827,16 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
 }
 
 
-static Qt::KeyboardModifiers oldstate;
-void QDragManager::updateMode(Qt::KeyboardModifiers newstate)
+void QDragManager::updateMode(Qt::KeyboardModifiers modifiers)
 {
-    if (newstate == oldstate)
-        return;
     const int both = Qt::ShiftModifier|Qt::ControlModifier;
-    if ((newstate & both) == both) {
+    if ((modifiers & both) == both && (object->d->possible_actions & QDrag::LinkAction)) {
         global_requested_action = QDrag::LinkAction;
+    } else if ((modifiers & Qt::ShiftButton) && (object->d->possible_actions & QDrag::MoveAction)) {
+        global_requested_action = QDrag::MoveAction;
     } else {
-        // ##############
-        bool local = qt_xdnd_source_object != 0;
-        if (drag_mode == QDrag::MoveAction)
-            global_requested_action = QDrag::MoveAction;
-        else if (drag_mode == QDrag::CopyAction)
-            global_requested_action = QDrag::CopyAction;
-        else if (drag_mode == QDrag::LinkAction)
-            global_requested_action = QDrag::LinkAction;
-        else {
-//             if (drag_mode == QDrag::DefaultAction && local)
-//                 global_requested_action = QDropEvent::Move;
-//             else
-//                 global_requested_action = QDropEvent::Copy;
-            if (newstate & Qt::ShiftModifier)
-                global_requested_action = QDrag::MoveAction;
-            else if (newstate & Qt::ControlModifier)
-                global_requested_action = QDrag::CopyAction;
-        }
+        global_requested_action = QDrag::CopyAction;
     }
-    oldstate = newstate;
 }
 
 
@@ -1396,8 +1375,6 @@ QDrag::DropAction QDragManager::drag(QDrag * o)
     XSetSelectionOwner(QX11Info::display(), ATOM(XdndSelection),
                         object->d->source->topLevelWidget()->winId(),
                         qt_xdnd_source_current_time);
-    oldstate = Qt::KeyboardModifierMask; // #### Should use state that caused the drag
-    drag_mode = object->d->request_action;
     global_accepted_action = QDrag::CopyAction;
     updateMode(0);
     qt_xdnd_source_sameanswer = QRect();

@@ -46,7 +46,7 @@ QDrag::QDrag(QWidget *dragSource)
     d->target = 0;
     d->data = 0;
     d->hotspot = QPoint(-10, -10);
-    d->request_action = QDrag::CopyAction;
+    d->possible_actions = QDrag::CopyAction;
     d->executed_action = QDrag::IgnoreAction;
 }
 
@@ -145,7 +145,7 @@ QDrag::DropAction QDrag::start(QDrag::DropActions request)
 {
     Q_D(QDrag);
     QDragManager *manager = QDragManager::self();
-    d->request_action = request;
+    d->possible_actions = request;
     if (manager)
         d->executed_action = manager->drag(this);
     return d->executed_action;

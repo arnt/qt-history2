@@ -31,7 +31,7 @@ public:
     QMimeData *data;
     QPixmap pixmap;
     QPoint hotspot;
-    QDrag::DropActions request_action;
+    QDrag::DropActions possible_actions;
     QDrag::DropAction executed_action;
 };
 
