@@ -30,15 +30,6 @@
 #define d d_func()
 #define q q_func()
 
-bool QFSDirEnginePrivate::sysExists(const QString &dirName) const 
-{
-    struct stat st;
-    if (::stat(QFile::encodeName(dirName), &st) == 0) 
-        return ((st.st_mode & S_IFMT) == S_IFDIR);
-    return false;
-}
-
-
 bool 
 QFSDirEngine::mkdir(const QString &dirName) const
 {

@@ -40,26 +40,6 @@
 extern QString qt_fixToQtSlashes(const QString &path);
 extern QByteArray qt_win95Name(const QString s);
 
-bool QFSDirEnginePrivate::sysExists(const QString &dirName) const
-{
-    int r = 0;
-    QT_STATBUF st;
-
-    QString other = dirName;
-    if (other.length() == 2 && other.at(1) == ':') {
-        other += '\\';
-    }
-
-    QT_WA({
-        r = QT_TSTAT((TCHAR*)other.utf16(), (QT_STATBUF4TSTAT*)&st);
-    } , {
-        r = QT_STAT(qt_win95Name(other), &st);
-    });
-    if (r == 0)
-        return ((st.st_mode & S_IFMT) == S_IFDIR);
-    return false;
-}
-
 bool
 QFSDirEngine::mkdir(const QString &dirName) const
 {

@@ -28,7 +28,7 @@ public:
     QDirEngine(QDirEnginePrivate &);
     virtual ~QDirEngine();
 
-    virtual bool setPath(const QString &path, bool force) = 0;
+    virtual void setPath(const QString &path) = 0;
 
     virtual bool mkdir(const QString &dirName) const = 0;
     virtual bool rmdir(const QString &dirName) const = 0;
@@ -58,7 +58,7 @@ private:
 public:
     QFSDirEngine(const QString &path);
 
-    virtual bool setPath(const QString &path, bool force);
+    virtual void setPath(const QString &path);
 
     virtual bool mkdir(const QString &dirName) const;
     virtual bool rmdir(const QString &dirName) const;

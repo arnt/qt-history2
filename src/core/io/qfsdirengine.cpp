@@ -42,12 +42,9 @@ QFSDirEngine::QFSDirEngine(const QString &path)  : QDirEngine(*new QFSDirEngineP
     d->path = qt_fixToQtSlashes(path);
 }
 
-bool
-QFSDirEngine::setPath(const QString &path, bool force)
+void
+QFSDirEngine::setPath(const QString &path)
 {
-    if(!force && !d->sysExists(path))
-        return false;
     d->path = qt_fixToQtSlashes(path);
-    return true;
 }
 
