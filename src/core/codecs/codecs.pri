@@ -32,3 +32,14 @@ SOURCES += \
 	codecs/qutfcodec.cpp \
 	codecs/qtextcodecfactory.cpp \
 	codecs/qtextcodecplugin.cpp
+
+unix {
+	SOURCES += \
+		codecs/qfontcncodec.cpp \
+		codecs/qfontjpcodec.cpp \  
+		codecs/qfonttwcodec.cpp \
+		codecs/qfontkrcodec.cpp \
+		codecs/qfonthkcodec.cpp \ 
+		codecs/qfontlaocodec.cpp
+
+}

@@ -27,6 +27,7 @@
 
 #ifndef QT_H
 #include "qglobal.h"
+#include "qstring.h"
 #include "qtextcodec.h"
 #endif // QT_H
 
