@@ -191,9 +191,9 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 		continue;
 	    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
 		t << "{" << it.currentKey() << "}" << (*cppit) << "{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
-		  << var("QMAKE_RUN_CXX_IMP").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << endl;
+		  << var("QMAKE_RUN_CXX_IMP").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << "\t$<" << endl << "<<" << endl << endl;
 	    t << "{" << it.currentKey() << "}" << ".c{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
-	      << var("QMAKE_RUN_CC_IMP").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << endl;
+	      << var("QMAKE_RUN_CC_IMP").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << "\t$<" << endl << "<<" << endl << endl;
 	}
     } else {
 	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
@@ -509,7 +509,7 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->first("DEF_FILE"));
     if(!project->isActiveConfig("incremental"))
 	project->variables()["QMAKE_LFLAGS"].append(QString("/incremental:no"));
-    
+
     if ( !project->variables()["VERSION"].isEmpty() ) {
 	QString version = project->variables()["VERSION"][0];
 	int firstDot = version.find( "." );
@@ -537,7 +537,7 @@ NmakeMakefileGenerator::init()
 	project->variables()["VER_MAJ"].append(l[0]);
 	project->variables()["VER_MIN"].append(l[1]);
     }
-    
+
     QString version = QStringList::split('.', project->first("VERSION")).join("");
     if(project->isActiveConfig("dll")) {
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".lib");
