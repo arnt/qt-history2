@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#176 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#177 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2554,6 +2554,10 @@ static QImageHandler *get_image_handler( const char *format )
 			       readGIF,
 			       writeGIF );
   \endcode
+
+  Prior to comparison with the regular expression, the file header is
+  converted to change all 0 bytes into 1 bytes. This is done because 0
+  is such a common header byte yet regular expressions cannot match it.
 
   For image formats supporting incremental display, such as sequences
   of animated frames, see the QImageFormatType class.
