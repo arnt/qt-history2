@@ -33,6 +33,14 @@
 
 // NOT REVISED
 
+/*
+    ##### If we had two clipboards, one for automatic copy (ie. the normal
+    ##### X11 selection mechanism) and one for CTRL-C copying (ie. the
+    ##### Windows norm), then highlight-copy-highlight-paste could be
+    ##### implemented in QMultiLineEdit, etc., instead of having different
+    ##### behaviour on Windows and X11.
+*/
+
 /*****************************************************************************
   Internal QClipboard functions for X11.
  *****************************************************************************/
