@@ -1331,20 +1331,31 @@ void MetaObjectGenerator::readClassInfo()
 
 	if ( !coClassID.isEmpty() )
 	    cacheKey = QString( "%1$%2$%3" ).arg( coClassID ).arg( (int)d->useEventSink ).arg( (int)d->useClassInfo );
-    } else if ( disp ) {
-	disp->GetTypeInfo( 0, LOCALE_USER_DEFAULT, &typeinfo );
-	TYPEATTR *typeattr = 0;
-	if ( typeinfo )
-	    typeinfo->GetTypeAttr( &typeattr );
+    }
 
-	QString interfaceID;
-	if ( typeattr ) {
-	    QUuid iid( typeattr->guid );
-	    interfaceID = iid.toString().upper();
+    UINT index = 0;
+    if ( disp && !typeinfo )
+	disp->GetTypeInfo( index, LOCALE_USER_DEFAULT, &typeinfo );
 
-	    typeinfo->ReleaseTypeAttr( typeattr );
-	}
+    if ( !typeinfo ) {
+	QSettings controls;
+	controls.readEntry( "/Classes/" + that->control() + "/CLSID/Default" );
+    }
+    if ( typeinfo && !typelib )
+	typeinfo->GetContainingTypeLib( &typelib, &index );
 
+    if ( !typeinfo || !cacheKey.isEmpty() )
+	return;
+
+    TYPEATTR *typeattr = 0;
+    typeinfo->GetTypeAttr( &typeattr );
+
+    QString interfaceID;
+    if ( typeattr ) {
+	QUuid iid( typeattr->guid );
+	interfaceID = iid.toString().upper();
+
+	typeinfo->ReleaseTypeAttr( typeattr );
 	// ### event interfaces!!
 	if ( !interfaceID.isEmpty() )
 	    cacheKey = QString( "%1$%2$%3" ).arg( interfaceID ).arg( (int)d->useEventSink ).arg( (int)d->useClassInfo );
@@ -1353,15 +1364,10 @@ void MetaObjectGenerator::readClassInfo()
 
 void MetaObjectGenerator::readEnumInfo()
 {
-    UINT index = 0;
-    if ( disp )
-	disp->GetTypeInfo( 0, LOCALE_USER_DEFAULT, &typeinfo );
-    if ( typeinfo )
-	typeinfo->GetContainingTypeLib( &typelib, &index );
     if ( !typelib )
 	return;
 
-    index = typelib->GetTypeInfoCount();
+    UINT index = typelib->GetTypeInfoCount();
     for ( UINT i = 0; i < index; ++i ) {
 	TYPEKIND typekind;
 	typelib->GetTypeInfoType( i, &typekind );
