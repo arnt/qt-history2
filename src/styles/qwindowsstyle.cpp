@@ -1339,7 +1339,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		child = child->nextSibling();
 	    }
 
-	    int bx = r.width() / 2;
+	    int bx = 6;
 
 	    // paint stuff in the magical area
 	    while ( child && y < r.height() ) {
