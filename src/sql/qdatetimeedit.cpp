@@ -53,10 +53,10 @@
 
 #define QDATETIMEEDIT_HIDDEN_CHAR '0'
 
-class QDateTimeEditBase::QDateTimeEditBasePrivate
+class QDateTimeEditBase::Private
 {
 public:
-    QDateTimeEditBasePrivate()
+    Private()
 	: frm( TRUE ),
 	  parag( new QTextParag( 0, 0, 0, FALSE ) ),
 	  pm(0),
@@ -68,7 +68,7 @@ public:
 	cursor->setParag( parag );
 	pm = new QPixmap;
     }
-    ~QDateTimeEditBasePrivate()
+    ~Private()
     {
 	delete parag;
 	delete cursor;
@@ -144,7 +144,7 @@ public:
 
 	/* color all QDATETIMEEDIT_HIDDEN_CHAR chars to background color */
 	QTextFormat *fb = parag->formatCollection()->format( p.font(),
-							    cg.background() );
+							     cg.base() );
 	for ( uint i = 0; i < txt.length(); ++i ) {
 	    if ( inSectionSelection( i ) )
 		continue;
@@ -152,7 +152,6 @@ public:
 		parag->setFormat( i, 1, fb );
 	}
 	fb->removeRef();
-
 
 	QRect r( rect.x(), rect.y(), rect.width() - 2 * ( 2 + fw ), rect.height() );
 	parag->setDocumentRect( r );
@@ -223,7 +222,7 @@ private:
 QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
     : QWidget( parent, name )
 {
-    d = new QDateTimeEditBasePrivate();
+    d = new Private();
     init();
 }
 
@@ -683,7 +682,7 @@ void QDateTimeEditBase::setBackgroundPixmap( const QPixmap & pixmap )
 
 ////////////////
 
-class QDateEdit::QDateEditPrivate
+class QDateEdit::Private
 {
 public:
     int y;
@@ -774,7 +773,7 @@ QDateEdit::QDateEdit( const QDate& date, QWidget * parent, const char * name )
 
 void QDateEdit::init()
 {
-    d = new QDateEditPrivate();
+    d = new Private();
     appendSection( QNumberSection( 0,4 ) );
     appendSection( QNumberSection( 5,7 ) );
     appendSection( QNumberSection( 8,10 ) );
@@ -1192,7 +1191,7 @@ bool QDateEdit::outOfRange( int y, int m, int d ) const
 	}
 	return FALSE;
     }
-    return TRUE;
+    return FALSE; /* assume ok */
 }
 
 /*!  \reimp
@@ -1213,10 +1212,11 @@ void QDateEdit::addNumber( int sec, int num )
 	    d->y = num;
 	} else {
 	    txt += QString::number( num );
-	    if ( txt.length() == 4 && outOfRange( txt.toInt(), d->m, d->d ) )
+	    if ( txt.length() == 4 && outOfRange( txt.toInt(), d->m, d->d ) ) {
 		txt = QString::number( d->y );
-	    else
+	    } else {
 		d->y = txt.toInt();
+	    }
 	    if ( d->adv && txt.length() == 4 ) {
 		setFocusSection( focusSection()+1 );
 		overwrite = TRUE;
@@ -1431,7 +1431,7 @@ void QDateEdit::timerEvent( QTimerEvent * )
 
 ///////////
 
-class QTimeEdit::QTimeEditPrivate
+class QTimeEdit::Private
 {
 public:
     int h;
@@ -1502,7 +1502,7 @@ QTimeEdit::QTimeEdit( const QTime& time, QWidget * parent, const char * name )
 
 void QTimeEdit::init()
 {
-    d = new QTimeEditPrivate();
+    d = new Private();
     appendSection( QNumberSection( 0,0 ) );
     appendSection( QNumberSection( 0,0 ) );
     appendSection( QNumberSection( 0,0 ) );
@@ -1975,7 +1975,7 @@ QSize QTimeEdit::sizeHint() const
 }
 
 
-class QDateTimeEdit::QDateTimeEditPrivate
+class QDateTimeEdit::Private
 {
 public:
     bool adv;
@@ -2094,7 +2094,7 @@ void QDateTimeEdit::layoutEditors()
 
 void QDateTimeEdit::init()
 {
-    d = new QDateTimeEditPrivate();
+    d = new Private();
     de = new QDateEdit( this );
     te = new QTimeEdit( this );
     d->adv = FALSE;
