@@ -1070,7 +1070,7 @@ int QSqlCursor::update( bool invalidate )
 {
     if ( primaryIndex().isEmpty() )
 	return 0;
-    return update( toString( primaryIndex(), &d->editBuffer, d->nm, "=", "and" ), invalidate );
+    return update( toString( primaryIndex(), this, d->nm, "=", "and" ), invalidate );
 }
 
 /*!  \overload
