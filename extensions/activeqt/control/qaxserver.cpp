@@ -183,8 +183,8 @@ HRESULT UpdateRegistry(BOOL bRegister)
 	QStringList keys = qAxFactory()->featureList();
 	for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
 	    const QString className = *key;
-	    QObject *object = qAxFactory()->createObject( className );
-	    const QMetaObject *mo = object ? object->metaObject() : 0;
+	    QObject *object = qAxFactory()->createObject(className);
+	    const QMetaObject *mo = object ? object->metaObject() : qAxFactory()->metaObject(className);
 
 	    const QString classId = qAxFactory()->classID(className).toString().toUpper();
 	    const QString eventId = qAxFactory()->eventsID(className).toString().toUpper();
