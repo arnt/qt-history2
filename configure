@@ -1197,6 +1197,9 @@ if [ "$CFG_EMBEDDED" != "yes" -a -z "$PLATFORM" ]; then
 	    - Also available for Reliant UNIX: reliant-cds64
 	"
 	;;
+     CYGWIN*:*)
+	PLATFORM=cygwin-g++
+	;;
      OpenUNIX:*)
 	#PLATFORM=openunix-g++
         PLATFORM=openunix-cc
