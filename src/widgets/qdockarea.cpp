@@ -211,13 +211,13 @@ static int dock_strut( QDockWindow *w, Qt::Orientation o )
     if ( o != Qt::Horizontal ) {
 	int wid;
 	if ( ( wid = w->fixedExtent().width() ) != -1 )
-	    return wid;
-	return w->sizeHint().width();
+	    return QMAX( wid, QMAX( w->minimumSize().width(), w->minimumSizeHint().width() ) );
+	return QMAX( w->sizeHint().width(), QMAX( w->minimumSize().width(), w->minimumSizeHint().width() ) );
     } else {
 	int hei;
 	if ( ( hei = w->fixedExtent().height() ) != -1 )
-	    return hei;
-	return w->sizeHint().height();
+	    return QMAX( hei, QMAX( w->minimumSizeHint().height(), w->minimumSize().height() ) );
+	return QMAX( w->sizeHint().height(), QMAX( w->minimumSizeHint().height(), w->minimumSize().height() ) );
     }
 }
 
