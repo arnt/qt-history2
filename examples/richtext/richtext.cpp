@@ -20,7 +20,7 @@
 static const char* sayings[] = {
     "<b>Saying 1:</b><br>"
     "<hr><br><br>"
-    "<big><font color=red size=5>Evil</font> is that which one believes of others.  It is a sin to believe evil "
+    "<big>Evil is that which one believes of others.  It is a sin to believe evil "
     "of others, but it is seldom a mistake.</big><br><br>"
     "<center><i>-- H.L. Mencken</i></center>",
 
@@ -93,11 +93,8 @@ MyRichText::MyRichText( QWidget *parent, const char *name )
     buttons->setMargin( 5 );
 
     bClose = new QPushButton( "&Close", buttons );
-    QWidget *w = new QWidget( buttons );
-    w->setMaximumHeight( bClose->sizeHint().height() );
     bPrev = new QPushButton( "<< &Prev", buttons );
     bNext = new QPushButton( "&Next >>", buttons );
-    buttons->setMaximumHeight( bNext->sizeHint().height() + 10 );
 
     bPrev->setEnabled( FALSE );
 
