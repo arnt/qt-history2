@@ -53,7 +53,7 @@
   Perhaps this private functionality needs to be refactored.
 
   Comment from Robert D Gatlin (Intel):
- 
+
     It would be nice to have the functionality inherent in QSocket available
     as a separate class as a standard part of the Qt library, something along
     the line of:
@@ -1134,6 +1134,7 @@ QString QSocket::readLine()
 }
 
 /*!
+  \internal
     Internal slot for handling socket read notifications.
 
     This function has can usually only be entered once (i.e. no
@@ -1266,6 +1267,7 @@ void QSocket::sn_read( bool force )
 
 
 /*!
+  \internal
     Internal slot for handling socket write notifications.
 */
 
