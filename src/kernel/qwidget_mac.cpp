@@ -1047,7 +1047,7 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
     bool     owned = own_id;
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
-    QString capt = windowCaption();
+    QString capt = windowTitle();
     widget_flags = f;
     clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
     create();

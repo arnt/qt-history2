@@ -1404,11 +1404,11 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	}
 	if(sub & SC_TitleBarLabel) {
 	    int iw = 0;
-	    if(tbar->windowIcon()) {
+	    if(!!tbar->windowIcon()) {
 		RgnHandle rgn = qt_mac_get_rgn();
 		GetThemeWindowRegion(macWinType, qt_glb_mac_rect(newr), tds, &twm, twa, kWindowTitleProxyIconRgn, rgn);
 		if(!EmptyRgn(rgn))
-		    iw = tbar->windowIcon()->width();
+		    iw = tbar->windowIcon().width();
 		qt_mac_dispose_rgn(rgn);
 	    }
 	    if(!tbar->visibleText().isEmpty()) {
@@ -1435,12 +1435,12 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		    }
 		    QRect br = pixp.clipRegion().boundingRect();
 		    int x = br.x(), y = br.y() + ((tbar->height() / 2) - (p->fontMetrics().height() / 2));
-		    if(br.width() <= (p->fontMetrics().width(tbar->windowCaption())+iw*2))
+		    if(br.width() <= (p->fontMetrics().width(tbar->windowTitle())+iw*2))
 			x += iw;
 		    else
 			x += (br.width() / 2) - (p->fontMetrics().width(tbar->visibleText()) / 2);
 		    if(iw)
-			pixp.drawPixmap(x - iw, y, *tbar->windowIcon());
+			pixp.drawPixmap(x - iw, y, tbar->windowIcon());
 		    pixp.drawText(x, y + p->fontMetrics().ascent(), tbar->visibleText());
 		    pixp.restore();
 		    p->drawPixmap(r.topLeft(), *pix);
