@@ -31,6 +31,7 @@
 
 #include <qmap.h>
 #include <qguardedptr.h>
+#include <qinterfacemanager.h>
 
 class PropertyEditor;
 class QWorkspace;
@@ -43,8 +44,8 @@ class HierarchyView;
 class QCloseEvent;
 class FormList;
 class Help;
-class ActionPlugInManager;
 class ActionEditor;
+class ActionInterface;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -282,7 +283,7 @@ private:
     QRect propGeom, flGeom, hvGeom;
     bool client;
     QString templPath;
-    ActionPlugInManager *actionPluginManager;
+    QInterfaceManager<ActionInterface>* actionPluginManager;
     ActionEditor *actionEditor;
     
 };

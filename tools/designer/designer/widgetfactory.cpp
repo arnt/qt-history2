@@ -663,7 +663,8 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
     if ( w )
 	return w;
 
-    return widgetManager()->create( className, parent, name );
+    WidgetInterface *iface = widgetManager()->queryInterface( className );
+    return iface ? iface->create( className, parent, name ) : 0;
 }
 
 

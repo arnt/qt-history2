@@ -43,8 +43,6 @@
 #include "about.h"
 #include "multilineeditorimpl.h"
 #include "createtemplate.h"
-#include "actionplugin.h"
-#include "filterplugin.h"
 #include "designerappiface.h"
 #include "filteriface.h"
 #include <qinputdialog.h>
@@ -1183,7 +1181,7 @@ void MainWindow::fileOpen()
 
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
-    FilterPlugInManager manager( dir );
+    QInterfaceManager<FilterInterface> manager( "FilterInterface", dir );
     {
 	QString filename;
 	QStringList filterlist;
@@ -3451,15 +3449,19 @@ void MainWindow::setupActionManager()
 {
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
-    actionPluginManager = new ActionPlugInManager( dir, "*.dll; *.so", new DesignerApplicationInterface );
+    actionPluginManager = new QInterfaceManager<ActionInterface>( "ActionInterface", dir, "*.dll; *.so", new DesignerApplicationInterface );
 
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	QAction *a = actionPluginManager->create( *it, this );
+	ActionInterface *iface = actionPluginManager->queryInterface( *it );
+	if ( !iface )
+	    continue;
+
+	QAction *a = iface->create( *it, this );
 	if ( !a )
 	    continue;
 
-	QString grp = actionPluginManager->group( *it );
+	QString grp = iface->group( *it );
 	if ( grp.isEmpty() )
 	    grp = "3rd party actions";
 	QPopupMenu *menu = 0;
