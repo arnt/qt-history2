@@ -1809,8 +1809,8 @@ inline void QPainter::initPaintDevice(bool force) {
 #endif
     
     paintreg = clippedreg = QRegion(); //empty    
-    //setup the gworld
-    QMacSavedPortInfo::setPaintDevice(pm);
+    QMacSavedPortInfo::setPaintDevice(pdev);
+
     if( pdev->devType() == QInternal::Printer ) {
 	if(pdev->handle()) {
 	    clippedreg = QRegion(0, 0, pdev->metric(QPaintDeviceMetrics::PdmWidth), 
