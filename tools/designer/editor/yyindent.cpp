@@ -274,7 +274,7 @@ struct LinizerState
     bool pendingRightBrace;
 };
 
-static QStringList yyProgram;
+static QStringList *yyProgram = 0;
 static LinizerState yyLinizerState;
 
 // shorthands
@@ -311,7 +311,7 @@ static bool readLine()
 	    ( firstNonWhiteSpace(yyLinizerState.line) == QChar('{') );
 
     do {
-	if ( yyLinizerState.iter == yyProgram.begin() ) {
+	if ( yyLinizerState.iter == yyProgram->begin() ) {
 	    yyLinizerState.line = QString::null;
 	    return FALSE;
 	}
@@ -416,7 +416,7 @@ static void startLinizer()
     yyLinizerState.inCComment = FALSE;
     yyLinizerState.pendingRightBrace = FALSE;
 
-    yyLinizerState.iter = yyProgram.end();
+    yyLinizerState.iter = yyProgram->end();
     --yyLinizerState.iter;
     yyLinizerState.line = *yyLinizerState.iter;
     readLine();
@@ -436,11 +436,11 @@ static bool bottomLineStartsInCComment()
       We could use the linizer here, but that would slow us down
       terribly. We are better to trim only the code lines we need.
     */
-    QStringList::ConstIterator p = yyProgram.end();
+    QStringList::ConstIterator p = yyProgram->end();
     --p; // skip bottom line
 
     for ( int i = 0; i < BigRoof; i++ ) {
-	if ( p == yyProgram.begin() )
+	if ( p == yyProgram->begin() )
 	    return FALSE;
 	--p;
 
@@ -987,7 +987,7 @@ int indentForBottomLine( const QStringList& program, QChar typedIn )
     if ( program.isEmpty() )
 	return 0;
 
-    yyProgram = program;
+    yyProgram = new QStringList( program );
     startLinizer();
 
     const QString& bottomLine = program.last();
@@ -1044,7 +1044,8 @@ int indentForBottomLine( const QStringList& program, QChar typedIn )
 	    }
 	}
     }
-    yyProgram = QStringList();
+    delete yyProgram;
+    yyProgram = 0;
     return QMAX( 0, indent );
 }
 
