@@ -81,7 +81,8 @@ enum Script {
     Shavian = Common,
     Osmanya = Common,
     Cypriot = Common,
-    KatakanaOrHiragana = Common
+    KatakanaOrHiragana = Common,
+    ScriptCount
 };
 
 enum { ScriptSentinel = 32 };
