@@ -401,7 +401,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 	    // ### if @sor, set dir to dirSor
 	    break;
 	case QChar::DirEN:
-	    // if last strong was AL change EN to AL
+	    // if last strong was AL change EN to AN
 	    if(status.lastStrong != QChar::DirAL) {
 		if(dir == QChar::DirON) {
 		    if(status.lastStrong == QChar::DirL)
@@ -486,7 +486,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 		    break;
 		case QChar::DirCS:
 		    if(status.eor == QChar::DirAN) {
-			eor = current; status.eor = QChar::DirR; break;
+			eor = current; break;
 		    }
 		case QChar::DirES:
 		case QChar::DirET:
@@ -499,7 +499,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 			// neutrals go to R
 			eor = current - 1;
 			appendItems( items, sor, eor, control, dir, unicode );
-			dir = QChar::DirON; status.eor = QChar::DirAN;
+			status.eor = QChar::DirAN;
 			dir = QChar::DirAN;
 		    } else if( status.eor == QChar::DirL ||
 			       (status.eor == QChar::DirEN && status.lastStrong == QChar::DirL)) {
@@ -508,11 +508,11 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 			// numbers on both sides, neutrals get right to left direction
 			if(dir != QChar::DirL) {
 			    appendItems( items, sor, eor, control, dir, unicode );
-			    dir = QChar::DirON; status.eor = QChar::DirON;
+			    status.eor = QChar::DirON;
 			    eor = current - 1;
 			    dir = QChar::DirR;
 			    appendItems( items, sor, eor, control, dir, unicode );
-			    dir = QChar::DirON; status.eor = QChar::DirAN;
+			    status.eor = QChar::DirAN;
 			    dir = QChar::DirAN;
 			} else {
 			    eor = current; status.eor = dirCurrent;

@@ -394,7 +394,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 	    // ### if @sor, set dir to dirSor
 	    break;
 	case QChar::DirEN:
-	    // if last strong was AL change EN to AL
+	    // if last strong was AL change EN to AN
 	    if(status.lastStrong != QChar::DirAL) {
 		if(dir == QChar::DirON) {
 		    if(status.lastStrong == QChar::DirL)
@@ -485,7 +485,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		    break;
 		case QChar::DirCS:
 		    if(status.eor == QChar::DirAN) {
-			eor = current; status.eor = QChar::DirR; break;
+			eor = current; break;
 		    }
 		case QChar::DirES:
 		case QChar::DirET:
@@ -498,7 +498,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 			// neutrals go to R
 			eor = current - 1;
 			runs->append( new QTextRun(sor, eor, context, dir) );
-			++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirAN;
+			++eor; sor = eor; status.eor = QChar::DirAN;
 			dir = QChar::DirAN;
 		    } else if( status.eor == QChar::DirL ||
 			       (status.eor == QChar::DirEN && status.lastStrong == QChar::DirL)) {
