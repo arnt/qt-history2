@@ -819,8 +819,6 @@ QOpenGLPaintEngine::handle() const
     return 0;
 }
 
-template <class T> void qt_swap(T &a, T &b) { T tmp=a; a=b; b=tmp; }
-
 static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
 {
     Q_ASSERT(brush.style() == Qt::LinearGradientPattern);
@@ -851,8 +849,8 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
     if (QABS(dx) > QABS(dy)) { // Fill horizontally
         // Make sure we fill left to right.
         if (gstop.x() < gstart.x()) {
-            qt_swap(gcol1, gcol2);
-            qt_swap(gstart, gstop);
+            qSwap(gcol1, gcol2);
+            qSwap(gstart, gstop);
         }
         // Find the location where the lines covering the gradient intersect
         // the lines making up the top and bottom of the target rectangle.
@@ -911,8 +909,8 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
         // coords are swapped x <-> y.
         // Make sure we fill top to bottom...
         if (gstop.y() < gstart.y()) {
-            qt_swap(gstart, gstop);
-            qt_swap(gcol1, gcol2);
+            qSwap(gstart, gstop);
+            qSwap(gcol1, gcol2);
         }
         int yleft1, yleft2, yright1, yright2;
         if (dx == 0) {
