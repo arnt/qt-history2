@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#67 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#66 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#67 $")
 
 
 declare(QListM, QListBoxItem);
@@ -537,7 +537,7 @@ void QListBox::insertItem( const char *text, int index )
 	return;
     }
     QListBoxText *tmp = new QListBoxText( text );
-    insertDangerously( tmp, index++, FALSE );
+    insertDangerously( tmp, index, FALSE );
     updateNumRows( FALSE );
     if ( autoUpdate() && itemVisible(index) ) {
 	int x, y;
@@ -564,7 +564,7 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
 	setCellHeight( 0 );
     }
     QListBoxPixmap *tmp = new QListBoxPixmap( pixmap );
-    insertDangerously( tmp, index++, TRUE );
+    insertDangerously( tmp, index, TRUE );
     int w = pixmap.width() + 6;
     if ( w > cellWidth() )
 	setCellWidth( w );
