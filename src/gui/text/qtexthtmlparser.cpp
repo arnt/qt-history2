@@ -321,7 +321,7 @@ static const struct QTextHtmlElement
     { "b", Html_b, QTextHtmlElement::DisplayInline },
     { "big", Html_big, QTextHtmlElement::DisplayInline },
     { "blockquote", Html_blockquote, QTextHtmlElement::DisplayBlock },
-    { "body", Html_body, QTextHtmlElement::DisplayInline },
+    { "body", Html_body, QTextHtmlElement::DisplayBlock },
     { "br", Html_br, QTextHtmlElement::DisplayInline },
     { "center", Html_center, QTextHtmlElement::DisplayBlock },
     { "code", Html_code, QTextHtmlElement::DisplayInline },
