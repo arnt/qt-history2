@@ -2648,13 +2648,14 @@ QFileDialog::~QFileDialog()
 
 
 /*!
-  Returns the selected file name.
+  \property QFileDialog::selectedFile
 
-  If a file was selected, then the returned string contains the
-  absolute path name.  If no file was selected, then the returned
-  string is an empty string.
+  \brief the name of the selected file
 
-  \sa QString::isEmpty(), selectedFiles(), selectedFilter()
+  If a file was selected, then the string contains the absolute path name. If
+  no file was selected, then the string is an empty string.
+
+  \sa QString::isEmpty(), selectedFiles, selectedFilter
 */
 
 QString QFileDialog::selectedFile() const
@@ -2671,10 +2672,11 @@ QString QFileDialog::selectedFile() const
 }
 
 /*!
-  Returns the filter which the user has selected in
-  the file dialog.
+  \property QFileDialog::selectedFilter
 
-  \sa filterSelected(), selectedFilter(), selectedFiles(), selectedFile()
+  \brief the filter which the user has selected in the file dialog
+
+  \sa filterSelected(), selectedFiles, selectedFile
 */
 
 QString QFileDialog::selectedFilter() const
@@ -2713,17 +2715,18 @@ void QFileDialog::setSelectedFilter( const QString& mask )
 }
 
 /*!
-  Returns a list of selected files.
+  \property QFileDialog::selectedFiles
 
-  If one or more files were selected, then the returned string list contains
-  the files selected.  If no files were selected, then the returned string
-  list is an empty list.
+  \brief a list of selected files
 
-  Note that if the file dialog is set to select a single file or directory,
-  the returned list contains a single file. When using these modes, it's
-  easier to call selectedFile().
+  If one or more files were selected, then the string list contains the files
+  selected.  If no files were selected, then the string list is an empty list.
 
-  \sa selectedFile(), selectedFilter(), QValueList::isEmpty()
+  If the file dialog is set to select a single file or directory, the returned
+  list contains a single file. When using these modes, it's easier to call
+  selectedFile().
+
+  \sa selectedFile, selectedFilter, QValueList::isEmpty()
 */
 
 QStringList QFileDialog::selectedFiles() const
@@ -2797,8 +2800,11 @@ void QFileDialog::setSelection( const QString & filename )
     d->checkForFilter = FALSE;
 }
 
-/*!
-  Returns the current directory path string shown in the file dialog.
+/*! 
+  \property QFileDialog::dirPath
+
+  \brief the current directory path string shown in the file dialog
+
   \sa dir(), setDir()
 */
 
@@ -2944,10 +2950,9 @@ void QFileDialog::setUrl( const QUrlOperator &url )
 }
 
 /*!
-  If \a s is set to TRUE, then hidden files are shown in the file dialog.
-  If \a s is set to FALSE, then hidden files are not shown in the file dialog.
+  \property QFileDialog::showHiddenFiles
 
-  \sa showHiddenFiles()
+  \brief whether hidden files are shown in the file dialog
 */
 
 void QFileDialog::setShowHiddenFiles( bool s )
@@ -2958,12 +2963,6 @@ void QFileDialog::setShowHiddenFiles( bool s )
     bShowHiddenFiles = s;
     rereadDir();
 }
-
-/*!
-  Returns TRUE if hidden files are shown in the file dialog; otherwise returns FALSE.
-
-  \sa setShowHiddenFiles()
-*/
 
 bool QFileDialog::showHiddenFiles() const
 {
@@ -4090,11 +4089,11 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     return result;
 }
 
+
 /*!
+  \property QFileDialog::mode
 
-  Sets the mode of the file dialog to the mode \a newMode.
-
-  \sa mode()
+  \brief the currently set file mode for the file dialog
 */
 
 void QFileDialog::setMode( Mode newMode )
@@ -4131,12 +4130,6 @@ void QFileDialog::setMode( Mode newMode )
     okB->setText( okt );
 }
 
-
-/*!  Returns the currently set file mode for the file dialog.
-
-  \sa setMode()
-*/
-
 QFileDialog::Mode QFileDialog::mode() const
 {
     return d->mode;
@@ -4163,10 +4156,19 @@ void QFileDialog::done( int i )
 }
 
 /*!
-  Set the view mode of the file dialog to the preview mode \a m.
+  \property QFileDialog::viewMode
 
-  \sa setPreviewMode()
+  \brief the view mode of the file dialog
 */
+// ### more documentation would be nice, I guess
+
+QFileDialog::ViewMode QFileDialog::viewMode() const
+{
+    if ( d->moreFiles->isVisible() )
+	return Detail;
+    else
+	return List;
+}
 
 void QFileDialog::setViewMode( ViewMode m )
 {
@@ -4181,15 +4183,17 @@ void QFileDialog::setViewMode( ViewMode m )
     }
 }
 
-/*!
-  Set the preview mode of the file dialog to the preview mode \a m.
 
-  If you set the mode to be a mode other than \e NoPreview then
+/*!
+  \property QFileDialog::previewMode
+
+  \brief the preview mode for the file dialog
+
+  If you set the mode to be a mode other than \e NoPreview, then
   you need to set the preview widget on the widget and also
   enable the relevant preview.
 
-  \sa setInfoPreviewEnabled(), setContentsPreviewEnabled(),
-  setInfoPreview(), setContentsPreview(), setViewMode()
+  \sa infoPreview, contentsPreview, viewMode
 */
 
 void QFileDialog::setPreviewMode( PreviewMode m )
@@ -4207,27 +4211,6 @@ void QFileDialog::setPreviewMode( PreviewMode m )
 	changeMode( d->modeButtons->id( d->previewContents ) );
     }
 }
-
-/*!
-  Returns the currently set view mode of the file dialog.
-
-  \sa setViewMode()
-*/
-
-QFileDialog::ViewMode QFileDialog::viewMode() const
-{
-    if ( d->moreFiles->isVisible() )
-	return Detail;
-    else
-	return List;
-}
-
-/*!
-  Returns the currently set preview mode for the file dialog.
-
-  \sa setPreviewMode()
-*/
-
 QFileDialog::PreviewMode QFileDialog::previewMode() const
 {
     if ( d->infoPreview && d->previewInfo->isVisible() )
@@ -4237,6 +4220,7 @@ QFileDialog::PreviewMode QFileDialog::previewMode() const
 
     return NoPreview;
 }
+
 
 /*!
   \code
@@ -5367,34 +5351,15 @@ void QFileDialog::itemChanged( QNetworkOperation *op )
 }
 
 /*!
-  Returns TRUE if the file dialog offers the user
-  the possibility to previewing information about
-  the currently selected file; otherwise returns FALSE.
+  \property QFileDialog::infoPreview
 
-  \sa setInfoPreviewEnabled()
+  \brief whether the file dialog offers the possibility to preview information
+  about the currently selected file
 */
 bool QFileDialog::isInfoPreviewEnabled() const
 {
     return d->infoPreview;
 }
-
-/*!
-  Returns TRUE if the file dialog offers the user
-  the possibility of previewing the contents of
-  the currently selected file; otherwise returns FALSE.
-
-  \sa setContentsPreviewWidget()
-*/
-
-bool QFileDialog::isContentsPreviewEnabled() const
-{
-    return d->contentsPreview;
-}
-
-/*!
-  If \a info is set to TRUE, then the user is given the possibility of being able
-  to preview information about the file currently selected.
-*/
 
 void QFileDialog::setInfoPreviewEnabled( bool info )
 {
@@ -5405,12 +5370,22 @@ void QFileDialog::setInfoPreviewEnabled( bool info )
     updateGeometries();
 }
 
-/*!
-  If \a contents is set to TRUE, then the user is given the possibility of being able
-  to preview the contents of the file currently selected.
 
-  \sa setInfoPreviewEnabled(), setContentsPreview()
+/*!
+  \property QFileDialog::contentsPreview
+
+  \brief whether the file dialog offers the possibility of previewing the
+  contents of the currently selected file
+
+  \sa setContentsPreview() setInfoPreviewEnabled()
 */
+// ### improve the above documentation: how is the preview done, how can I add
+// support for customized preview, etc.
+
+bool QFileDialog::isContentsPreviewEnabled() const
+{
+    return d->contentsPreview;
+}
 
 void QFileDialog::setContentsPreviewEnabled( bool contents )
 {
@@ -5420,6 +5395,7 @@ void QFileDialog::setContentsPreviewEnabled( bool contents )
     d->contentsPreview = contents;
     updateGeometries();
 }
+
 
 /*!
   \code
