@@ -23,39 +23,6 @@
 #include <private/qabstractitemmodel_p.h>
 #include <qdebug.h>
 
-
-static bool qt_copy_file(const QString &from, const QString &to)
-{
-    QFile src(from);
-    if (!src.open(QIODevice::ReadOnly))
-        return false;
-    QFile dst(to == from ? "copy_of_" + to : to);
-    if (dst.exists() || !dst.open(QIODevice::WriteOnly))
-        return false;
-    char buffer[4096];
-    Q_LONG len = 0;
-    while (!src.atEnd()) {
-        len = src.read(buffer, 4096);
-        if (len < 0)
-            return false;
-        len = dst.write(buffer, len);
-    }
-    return true;
-}
-
-static bool qt_link_file(const QString &from, const QString &to)
-{
-    qDebug("function not implemented: link %s to %s", from.latin1(), to.latin1());
-    return false;
-}
-
-static bool qt_move_file(const QString &from, const QString &to)
-{
-    if (!qt_copy_file(from, to))
-        return false;
-    return QFile::remove(from);
-}
-
 /*!
   \class QFileIconProvider
 
@@ -333,23 +300,12 @@ QDirModel::~QDirModel()
 
 QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (column < 0 || column >= 4 || row < 0 || row >= rowCount(parent)) { // does lazy population
-        qWarning("index: row %d column %d does not exist", row, column);
+    if (column < 0 || column >= 4 || row < 0 || row >= rowCount(parent)) // does lazy population
         return QModelIndex();
-    }
-
-//     if (!parent.isValid())
-//         qDebug("index: creating toplevel index %d %d", row, column);
-//     else
-//         qDebug("index: creating normal index %d %d", row, column);
 
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
     QDirModelPrivate::QDirNode *n = d->node(row, p);
-
-    if (!n) {
-        qWarning("index: the node does not exist");
-	return QModelIndex();
-    }
+    Q_ASSERT(n);
 
     return createIndex(row, column, n);
 }
@@ -364,20 +320,14 @@ QModelIndex QDirModel::parent(const QModelIndex &child) const
 	return QModelIndex();
 
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(child.data());
-    if (!node) {
-        qWarning("parent: valid index without node");
-        return QModelIndex();
-    }
+    Q_ASSERT(node);
 
     QDirModelPrivate::QDirNode *par = d->parent(node);
     if (!par)
 	return QModelIndex(); // parent is the root node
 
     int r = d->idx(par);
-    if (r < 0) {
-        qWarning("parent: the row was invalid");
-        return QModelIndex();
-    }
+    Q_ASSERT(r >= 0);
     return createIndex(r, 0, par);
 }
 
@@ -393,12 +343,8 @@ int QDirModel::rowCount(const QModelIndex &parent) const
     bool isDir = !p || p->info.isDir(); // no node pointer means that it is the root
     QVector<QDirModelPrivate::QDirNode> *nodes = p ? &(p->children) : &(d->root.children);
 
-    if (isDir && nodes->isEmpty()) {
-        //qDebug("rowCount: refreshing children");
+    if (isDir && nodes->isEmpty())
 	*nodes = d->children(p); // lazy population
-    }
-
-    //qDebug("rowCount: returning %d", nodes->count());
     return nodes->count();
 }
 
@@ -419,16 +365,11 @@ int QDirModel::columnCount(const QModelIndex &) const
 
 QVariant QDirModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid()) {
-        qWarning("data: the index was not valid");
+    if (!index.isValid())
         return QVariant();
-    }
 
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
-    if (!node) {
-        qWarning("data: the node does not exist");
-        return QVariant();
-    }
+    Q_ASSERT(node);
 
     if (role == DisplayRole || role == EditRole) {
         QFileInfo info = node->info;
@@ -457,27 +398,12 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
 
 bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid()) {
-        qWarning("setData: the index is not valid");
+    if (!index.isValid() || index.column() != 0
+        || !isEditable(index) || role != EditRole)
         return false;
-    }
-    if (index.column() != 0) {
-        qWarning("setData: wrong column %d", index.column());
-        return false;
-    }
-    if (role != EditRole) {
-        qWarning("setData: wrong role %d", role);
-        return false;
-    }
-    if (!isEditable(index)) {
-        qWarning("setData: the item is not editable");
-        return false;
-    }
+
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
-    if (!node) {
-        qWarning("setData: the node does not exist");
-        return false;
-    }
+    Q_ASSERT(node);
     QDir dir = node->info.dir();
     if (dir.rename(node->info.fileName(), value.toString())) {
         QModelIndex par = parent(index);
@@ -490,7 +416,7 @@ bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int rol
         emit dataChanged(topLeft, bottomRight);
         return true;
     }
-    qWarning("setData: file renaming failed");
+
     return false;
 }
 
@@ -524,10 +450,7 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
     if (!parent.isValid())
         return true; // the drives
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
-    if (!p) {
-        qWarning("hasChildren: valid index without data");
-        return false;
-    }
+    Q_ASSERT(p);
     return p->info.isDir() && rowCount(parent) > 0; // rowCount will lazily populate if needed
 }
 
@@ -555,15 +478,11 @@ bool QDirModel::isEditable(const QModelIndex &index) const
 {
     if (d->readOnly)
         return false;
-    if (!index.isValid()) {
-        qWarning("isEditable: the index is invalid");
-        return false;
-    }
+
+    Q_ASSERT(index.isValid());
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
-    if (!node) {
-        qWarning("isEditable: the node does not exist");
-        return false;
-    }
+    Q_ASSERT(node);
+
     return (index.column() == 0) && node->info.isWritable();
 }
 
@@ -694,15 +613,12 @@ bool QDirModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
                              int row, const QModelIndex &parent)
 {
     Q_UNUSED(row);
-    if (!parent.isValid()) {
-        qWarning("decode: the parent index is invalid");
+    if (!parent.isValid())
         return false;
-    }
+
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
-    if (!p) {
-        qWarning("decode: the node does not exist");
-        return false;
-    }
+    Q_ASSERT(p);
+
     QList<QUrl> urls = data->urls();
     d->savePersistentIndexes();
     emit rowsAboutToBeRemoved(parent, 0, rowCount(parent) - 1);
@@ -714,19 +630,20 @@ bool QDirModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
     case QDrag::CopyAction:
         for (; it != urls.end(); ++it) {
             QString path = (*it).toLocalFile();
-            success = qt_copy_file(path, to + QFileInfo(path).fileName()) && success;
+            success = QFile::copy(path, to + QFileInfo(path).fileName()) && success;
         }
         break;
     case QDrag::LinkAction:
         for (; it != urls.end(); ++it) {
             QString path = (*it).toLocalFile();
-            success = qt_link_file(path, to + QFileInfo(path).fileName()) && success;
+            success = QFile::link(path, to + QFileInfo(path).fileName()) && success;
         }
         break;
     case QDrag::MoveAction:
         for (; it != urls.end(); ++it) {
             QString path = (*it).toLocalFile();
-            success = qt_move_file(path, to + QFileInfo(path).fileName()) && success;
+            success = QFile::copy(path, to + QFileInfo(path).fileName())
+                      && QFile::remove(path) && success;
         }
         break;
     default:
@@ -774,7 +691,6 @@ QFileIconProvider *QDirModel::iconProvider() const
 
 void QDirModel::setNameFilters(const QStringList &filters)
 {
-//    qDebug("setNameFilters:");
     d->savePersistentIndexes(); // FIXME: this will rebuild the entire structure of the qdirmodel
     emit rowsAboutToBeRemoved(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
     d->nameFilters = filters;
@@ -908,17 +824,11 @@ void QDirModel::refresh(const QModelIndex &parent)
 
 QModelIndex QDirModel::index(const QString &path) const
 {
-//    qDebug("index: <<<");
-
     if (path.isEmpty() || path == d->rootPath()) // FIXME: slow
         return QModelIndex();
 
-//    qDebug("index: path '%s'", path.latin1());
     QChar sep = '/';//QDir::separator() // FIXME
     QStringList pth = QDir(path).absolutePath().split(sep, QString::SkipEmptyParts);
-
-//     for (int j = 0; j < pth.count(); ++j)
-// 	qDebug("index: path element '%s'", pth.at(j).latin1());
 
 #ifdef Q_OS_WIN
     if (pth.isEmpty()) {
@@ -938,18 +848,14 @@ QModelIndex QDirModel::index(const QString &path) const
 
     for (int i = 0; i < pth.count(); ++i) {
 
-//       qDebug("index: ---");
-
         if (pth.at(i).isEmpty()) {
             qWarning("index: path element %d was empty", i);
             continue;
         }
-
         node = idx.isValid() ? static_cast<QDirModelPrivate::QDirNode*>(idx.data()) : &(d->root);
 
 #ifdef Q_OS_WIN
         if (!idx.isValid()) {
-//            qDebug("index: idx is not valid");
             QFileInfoList info = d->rootChildren(); // the children could be drives
             entries.clear();
             for (int j = 0; j < info.count(); ++j)
@@ -957,30 +863,20 @@ QModelIndex QDirModel::index(const QString &path) const
         } else
 #endif
         {
-//            qDebug("index: idx is valid");
             QString absPath = node->info.absoluteFilePath();
-//            qDebug("index: getting entries in '%s'", absPath.latin1());
-            // FIXME: workaround for problem in QDir
 #if 1
             QDir dir(absPath);
             QFileInfoList info = d->entryInfoList(dir);
-//            qDebug("index: fileinfo count %d", info.count());
             entries.clear();
             for (int fi = 0; fi < info.count(); ++fi)
                 entries << info.at(fi).fileName();
 #else
             entries = d->entryInfoList(QDir(absPath));
-//            qDebug("index: got %d entries", entries.count());
 #endif
         }
 
-//          for (int j = 0; j < entries.count(); ++j)
-//              qDebug("index: entry %d '%s'", j, entries.at(j).latin1());
-
         QString entry = pth.at(i);
-//        qDebug("index: path element %d is '%s'", i, entry.latin1());
         int r = entries.indexOf(entry);
-//        qDebug("index: index of element is %d", r);
         idx = index(r, 0, idx); // will check row and lazily populate
         if (!idx.isValid()) {
             qWarning("index: path does not exist\n");
@@ -988,7 +884,6 @@ QModelIndex QDirModel::index(const QString &path) const
         }
     }
 
-//    qDebug("index: >>>\n");
     return idx;
 }
 
@@ -1043,16 +938,12 @@ QIcon QDirModel::icon(const QModelIndex &index) const
 
 QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 {
-    if (!index.isValid()) {
-        qWarning("fileInfo: the index is invalid");
-        return QFileInfo(); // FIXME: this returns current dir
-    }
+    Q_ASSERT(index.isValid());
+//     if (!index.isValid())
+//         return QFileInfo(); // FIXME: this returns current dir
 
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
-    if (!node) {
-        qWarning("fileInfo: the node does not exist");
-        return QFileInfo();
-    }
+    Q_ASSERT(node);
 
     return node->info;
 }
@@ -1065,10 +956,7 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 bool QDirModel::isDir(const QModelIndex &index) const
 {
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
-    if (!node) {
-        qWarning("isDir: the node does not exist");
-        return false;
-    }
+    Q_ASSERT(node);
     return node->info.isDir();
 }
 
@@ -1079,17 +967,11 @@ bool QDirModel::isDir(const QModelIndex &index) const
 
 QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
 {
-    if (!parent.isValid()) {
-        qWarning("mkdir: parent was invalid");
+    if (!parent.isValid())
         return QModelIndex();
-    }
 
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
-
-    if (!p) {
-        qWarning("mkdir: parent node does not exist");
-        return QModelIndex();
-    }
+    Q_ASSERT(p);
 
     d->savePersistentIndexes();
 
@@ -1117,17 +999,11 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
 
 bool QDirModel::rmdir(const QModelIndex &index)
 {
-    if (!index.isValid()) {
-        qWarning("rmdir: the index is invalid");
+    if (!index.isValid())
         return false;
-    }
 
     QDirModelPrivate::QDirNode *n = static_cast<QDirModelPrivate::QDirNode*>(index.data());
-
-    if (!n) {
-        qWarning("rmdir: the node does not exist");
-        return false;
-    }
+    Q_ASSERT(n);
 
     if (!n->info.isDir()) {
         qWarning("rmdir: the node is not a directory");
@@ -1135,10 +1011,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
     }
 
     QDirModelPrivate::QDirNode *p = d->parent(n);
-    if (!p) {
-        qWarning("rmdir: the parent node does not exist");
-        return false;
-    }
+    Q_ASSERT(p);
 
     emit rowsAboutToBeRemoved(parent(index), index.row(), 1);
     d->savePersistentIndexes();
@@ -1164,30 +1037,19 @@ bool QDirModel::rmdir(const QModelIndex &index)
 
 bool QDirModel::remove(const QModelIndex &index)
 {
-    if (!index.isValid()) {
-        qWarning("remove: the index is invalid");
+    if (!index.isValid())
         return false;
-    }
 
     QDirModelPrivate::QDirNode *n = static_cast<QDirModelPrivate::QDirNode*>(index.data());
+    Q_ASSERT(n);
 
-    if (!n) {
-        qWarning("remove: the node does not exist");
+    if (n->info.isDir())
         return false;
-    }
-    if (n->info.isDir()) {
-        qWarning("remove: the node is a directory");
-        return false;
-    }
 
     QDirModelPrivate::QDirNode *p = d->parent(n);
+    Q_ASSERT(p);
 
-    if (!p) {
-        qWarning("remove: the parent node does not exist");
-        return false;
-    }
-
-    emit rowsAboutToBeRemoved(parent(index), index.row(), 1);
+    emit rowsAboutToBeRemoved(parent(index), index.row(), index.row());
     d->savePersistentIndexes();
 
     QDir dir = p->info.dir(); // parent dir
@@ -1218,24 +1080,17 @@ void QDirModelPrivate::init(const QDir &directory)
     root.parent = 0;
     root.info = QFileInfo(directory.absolutePath());
     root.children = children(0);
-
-//     qDebug("init: %s", root.info.absoluteFilePath().latin1());
-//     qDebug("init: %s", root.info.fileName().latin1());
-//     qDebug("init: %s", root.children.count());
 }
 
 QDirModelPrivate::QDirNode *QDirModelPrivate::node(int row, QDirNode *parent) const
 {
-    if (row < 0) {
-        qWarning("node: the row is negative");
+    if (row < 0)
 	return 0;
-    }
 
     bool isDir =  !parent || parent->info.isDir();
     QVector<QDirNode> *nodes = parent ? &(parent->children) : &(root.children);
 
     if (isDir && nodes->isEmpty()) {
-//        qDebug("node: refreshing children");
 	*nodes = children(parent);
     } else if (parent && parent->info.isSymLink() && d->resolveSymlinks) {
         qWarning("node: the node is a symlink");
@@ -1263,21 +1118,12 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
         QDir dir = QDir(parent->info.filePath());
         info = entryInfoList(dir);
     }
-
-//    qDebug("children: info count %d", info.count());    
-//     for (int i = 0; i < info.count(); ++i) {
-//         if (info.at(i).fileName() == ".") {
-//             info.removeAt(i);
-//             break;
-//         }
-//     }
     
     QVector<QDirNode> nodes(info.count());
     for (int i = 0; i < info.count(); ++i) {
         nodes[i].parent = parent;
         if (d->resolveSymlinks && info.at(i).isSymLink()) {
             QString link = info.at(i).readLink();
-            //qDebug("children: it's a link: %s", link.latin1());
             if (link.at(link.size() - 1) == QDir::separator())
                 link.chop(1);
             nodes[i].info = QFileInfo(link);
@@ -1291,19 +1137,13 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
 
 int QDirModelPrivate::idx(QDirNode *node) const
 {
-    if (!node) {
-        qWarning("idx: the node is null");
-        return -1;
-    }
+    Q_ASSERT(node);
 
     if (node == &root)
         return 0;
 
     const QVector<QDirNode> children = node->parent ? node->parent->children : root.children;
-    if (children.isEmpty()) {
-        qWarning("idx: the parent's child list was empty");
-	return -1;
-    }
+    Q_ASSERT(children.count() > 0);
 
     const QDirNode *first = &(children.at(0));
     return (node - first);
@@ -1320,16 +1160,13 @@ void QDirModelPrivate::refresh(QDirNode *parent)
     }
 
     QVector<QDirNode> *nodes = parent ? &(parent->children) : &(root.children);
-    if (nodes->count() != info.count()) {
-        qWarning("refresh: the number of children has changed");
+    if (nodes->count() != info.count())
         nodes->resize(info.count());
-    }
 
     for (int i = 0; i < (int)info.count(); ++i) {
         (*nodes)[i].parent = parent;
         if (d->resolveSymlinks && info.at(i).isSymLink()) {
             QString link = info.at(i).readLink();
-            //qDebug("refresh: it's a link: %s", link.latin1());
             if (link.at(link.size() - 1) == QDir::separator())
                 link.chop(1);
             (*nodes)[i].info = QFileInfo(link);
@@ -1347,7 +1184,6 @@ void QDirModelPrivate::savePersistentIndexes()
     for (int i = 0; i < persistentIndexes.count(); ++i) {
         QModelIndex idx = persistentIndexes.at(i)->index;
         QString pth = q->path(idx);
-//        qDebug("savePersistentIndexes: saving '%s'", pth.latin1());
         savedPaths.append(pth);
         ++persistentIndexes.at(i)->ref; // save
         persistentIndexes[i]->index = QModelIndex(); // invalidated
