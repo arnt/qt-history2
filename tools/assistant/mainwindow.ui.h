@@ -286,12 +286,7 @@ void MainWindow::find()
 
 void MainWindow::goHome()
 {
-    QString home = Config::configuration()->homePage();
-
-    if ( home.isEmpty() )
-	showLink( QString( qInstallPathDocs() ) + "/html/index.html" );
-    else
-	showLink( QString( home ) );
+    showLink( Config::configuration()->homePage() );
 }
 
 void MainWindow::print()

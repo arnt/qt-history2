@@ -149,6 +149,7 @@ Profile *Profile::createProfile( const QString &filename )
 
 Profile *Profile::createDefaultProfile()
 {
+    QString path = QString( qInstallPathDocs() ) + "/html/";
     Profile *profile = new Profile;
     profile->valid = TRUE;
     profile->defProf = TRUE;
@@ -158,9 +159,8 @@ Profile *Profile::createDefaultProfile()
     profile->props["aboutmenutext"] = "About Qt";
     profile->props["abouturl"] = "about_qt";
     profile->props["title"] = "Qt Assistant";
-    profile->props["basepath"] = qInstallPathDocs() + QString( "/html" );
-
-    QString path = QString( qInstallPathDocs() ) + "/html/";
+    profile->props["basepath"] = path;
+    profile->props["startpage"] = path + "/index.html";
 
     profile->addDocFile( path + "qt.xml" );
     profile->addDocFile( path + "designer.xml" );
@@ -310,7 +310,7 @@ void Profile::save( const QString &name )
     QString buf, val;
     while( it != keys.end() ) {
 	val = props[*it];
-	if ( (*it == "applicationicon" || *it == "abouturl") && !val.isEmpty() ) {
+	if ( (*it == "applicationicon" || *it == "abouturl" || *it == "startpage" ) && !val.isEmpty() ) {
 	    QFileInfo fi( val );
 	    QString relPath = Profile::makeRelativePath( props["basepath"], fi.dirPath( TRUE ) );
 	    val = relPath + "/" + fi.fileName();

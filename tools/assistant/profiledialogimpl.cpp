@@ -69,6 +69,7 @@ void ProfileDialog::insertProfileData()
     leAboutUrl->setText( profile->props["abouturl"] );
     leTitle->setText( profile->props["title"] );
     lePath->setText( profile->props["basepath"] );
+    leHome->setText( profile->props["startpage"] );
 
     QStringList docList = profile->docs;
     QListBoxPixmap *item;
@@ -98,12 +99,14 @@ void ProfileDialog::okClicked()
     profile->props["abouturl"] = leAboutUrl->text();
     profile->props["basepath"] = lePath->text();
     profile->props["title"] = leTitle->text();
+    profile->props["startpage"] = leHome->text();
 
     if ( profile->props["name"] != oldProfile->props["name"] ||
 	 profile->props["applicationicon"] != oldProfile->props["applicationicon"] ||
 	 profile->props["aboutmenutext"] != oldProfile->props["aboutmenutext"] ||
 	 profile->props["abouturl"] != oldProfile->props["abouturl"] ||
 	 profile->props["title"] != oldProfile->props["title"] ||
+	 profile->props["startpage"] != oldProfile->props["startpage"] ||
 	 profile->docs != oldProfile->docs ) {
 	changed = TRUE;
 	if ( mode == Modify )
@@ -215,13 +218,9 @@ void ProfileDialog::saveProfileInFile()
 	profile->props["applicationicon"] = iconName;
 	profile->props["abouturl"] = leAboutUrl->text();
 	profile->props["basepath"] = lePath->text();
+	profile->props["startpage"] = leHome->text();
 	profile->save( fileName );
     }
-}
-
-void ProfileDialog::checkForChanges()
-{
-
 }
 
 bool ProfileDialog::profileChanged() const
@@ -243,4 +242,12 @@ void ProfileDialog::setPath()
 	    tr( "Qt Assistant - Edit Base Path" ) );
     if ( !dir.isNull() )
 	lePath->setText( dir );
+}
+
+void ProfileDialog::setHome()
+{
+    QString file = QFileDialog::getOpenFileName( QDir::homeDirPath(), "*.html *.htm", this, "setHome",
+	    tr( "Qt Assistant - Edit Homepage" ) );
+    if ( !file.isNull() )
+	leHome->setText( file );
 }

@@ -75,6 +75,13 @@ bool Config::addProfile( const QString &profileFileName, const QString &path )
 	    p->props["abouturl"] = d.path() + "/" + fi.fileName();
 	}
     }
+    if ( !p->props["startpage"].isEmpty() ) {
+	QFileInfo fi( p->props["startpage"] );
+	if ( fi.isRelative() ) {
+	    QDir d( docPath + "/" + fi.dirPath() );
+	    p->props["startpage"] = d.path() + "/" + fi.fileName();
+	}
+    }
 
     QValueListIterator<QString> it = p->docs.begin();
     for ( ; it != p->docs.end(); ++it ) {
@@ -140,7 +147,7 @@ void Config::load( const QString &name )
     }
     linkUnder = settings.readBoolEntry( key + "LinkUnderline", TRUE );
     linkCol = settings.readEntry( key + "LinkColor", "#0000FF" );
-    src = settings.readEntry( profkey + "Source", "assistant_about_text" );
+    src = settings.readEntry( profkey + "Source" );
     sideBar = settings.readNumEntry( key + "SideBarPage" );
     geom.setRect( settings.readNumEntry( key + "GeometryX", 0 ),
 		  settings.readNumEntry( key + "GeometryY", 0 ),
@@ -223,6 +230,7 @@ Profile* Config::loadProfile( const QString &name )
     profile->props["abouturl"] = settings.readEntry( profKey + "AboutUrl" );
     profile->props["title"] = settings.readEntry( profKey + "Title" );
     profile->props["basepath"] = settings.readEntry( profKey + "BasePath" );
+    profile->props["startpage"] = settings.readEntry( profKey + "StartPage" );
     profile->docs = settings.readListEntry( profKey + "DocFiles" );
     QStringList iconLst = settings.readListEntry( profKey + "DocIcons" );
     QStringList titleLst = settings.readListEntry( profKey + "DocTitles" );
@@ -255,6 +263,7 @@ void Config::saveProfile( Profile *profile, bool changed )
     settings.writeEntry( profKey + "/AboutUrl", profile->props["abouturl"] );
     settings.writeEntry( profKey + "/Title", profile->props["title"] );
     settings.writeEntry( profKey + "/BasePath", profile->props["basepath"] );
+    settings.writeEntry( profKey + "/StartPage", profile->props["startpage"] );
 
     QStringList titles, icons, imgDirs;
     QValueListConstIterator<QString> it = profile->docs.begin();
@@ -284,6 +293,7 @@ void Config::removeProfile( const QString &name )
     settings.removeEntry( profKey + "/DocTitles" );
     settings.removeEntry( profKey + "/DocIcons" );
     settings.removeEntry( profKey + "/ImageDirs" );
+    settings.removeEntry( profKey + "/StartPage" );
 }
 
 bool Config::setCurrentProfile( const QString &name )
@@ -327,10 +337,19 @@ QString Config::aboutApplicationMenuText() const
     return profil->props[ "aboutmenutext" ];
 }
 
-
 QString Config::aboutURL() const
 {
     return profil->props[ "abouturl" ];
+}
+
+QString Config::homePage() const
+{
+    return home.isEmpty() ? profil->props["startpage"] : home;
+}
+
+QString Config::source() const
+{
+    return src.isEmpty() ? profil->props["startpage"] : src;
 }
 
 QStringList Config::docFiles() const

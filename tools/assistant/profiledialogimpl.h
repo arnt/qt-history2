@@ -43,6 +43,7 @@ private slots:
     void saveProfileInFile();
     void setUrl();
     void setPath();
+    void setHome();
 
 private:
     void initDialog();

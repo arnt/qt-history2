@@ -66,7 +66,7 @@ public:
     QString webBrowser() const { return webBrows; }
     void setWebBrowser( const QString &cmd ) { webBrows = cmd; }
 
-    QString homePage() const { return home; }
+    QString homePage() const;
     void setHomePage( const QString &hom ) { home = hom; }
 
     QString pdfReader() const { return pdfApp; }
@@ -84,7 +84,7 @@ public:
     QString linkColor() const { return linkCol; }
     void setLinkColor( const QString &col ) { linkCol = col; }
 
-    QString source() const { return src; }
+    QString source() const;
     void setSource( const QString &s ) { src = s; }
 
     int sideBarPage() const { return sideBar; }
