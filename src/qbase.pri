@@ -26,7 +26,7 @@ win32 {
     #need to override the version of libq* in all other libq*'s just to be
     #sure the same version is used
     QT_LIBS_OVERRIDE = $$VERSION
-    QT_LIBS_OVERRIDE ~= s/(\.|[0-9]$)//g
+    QT_LIBS_OVERRIDE ~= s/\.//g
     for(lib, $$list(qcore qt qnetwork qxml qopengl qsql core qcompat)) {
         eval(QMAKE_$${upper($$lib)}_VERSION_OVERRIDE = $$QT_LIBS_OVERRIDE)
 	eval(QMAKE_$${upper($$lib)}D_VERSION_OVERRIDE = $$QT_LIBS_OVERRIDE)
