@@ -3089,9 +3089,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
     }
 
-    if ( qt_x11EventFilter(event) )		// send through app filter
-	return 1;
-
     QETWidget *widget = (QETWidget*)QWidget::find( (WId)event->xany.window );
 
     if ( wPRmapper ) {				// just did a widget reparent?
@@ -3200,6 +3197,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 	return 1;
     }
+
+    if ( qt_x11EventFilter(event) )		// send through app filter
+	return 1;
 
     if ( event->type == MappingNotify ) {	// keyboard mapping changed
 	XRefreshKeyboardMapping( &event->xmapping );
