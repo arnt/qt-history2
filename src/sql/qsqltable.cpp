@@ -247,7 +247,7 @@ QSqlTable::~QSqlTable()
 
 */
 
-void QSqlTable::addColumn( const QString& fieldName, const QString& label = QString::null )
+void QSqlTable::addColumn( const QString& fieldName, const QString& label )
 {
     d->fld += fieldName;
     d->fldLabel += label;
@@ -261,7 +261,7 @@ void QSqlTable::addColumn( const QString& fieldName, const QString& label = QStr
 
 */
 
-void QSqlTable::setColumn( uint col, const QString& fieldName, const QString& label = QString::null )
+void QSqlTable::setColumn( uint col, const QString& fieldName, const QString& label )
 {
     d->fld[col]= fieldName;
     d->fldLabel[col] = label;
