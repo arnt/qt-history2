@@ -1327,7 +1327,7 @@ MakefileGenerator::writeLibtoolFile(const QString &target)
     	if (project->isEmpty("QMAKE_HPUX_SHLIB"))
 	    t << var("TARGET_x.y.z") << " ";
     	t << var("TARGET_x") << " " << var("TARGET_");
-    } 
+    }
     t << "'\n\n";
 
     // ### t << "# The name of the static archive.\n";
@@ -1358,10 +1358,11 @@ MakefileGenerator::writeLibtoolFile(const QString &target)
 	"dlopen=''\n"
 	"dlpreopen=''\n\n";
 
+    QString install_dir = project->first("target.path");
+    if(install_dir.isEmpty())
+	install_dir = project->first("DESTDIR");
     t << "# Directory that this library needs to be installed in:\n"
-	"libdir='" <<
-	Option::fixPathToTargetOS(project->first("target.path"), FALSE)
-      << "'\n";
+	"libdir='" << Option::fixPathToTargetOS(install_dir, FALSE) << "'\n";
 }
 
 void
