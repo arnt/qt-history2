@@ -26,9 +26,9 @@
 #include "qlabel.h"
 #include "qlayout.h"
 #include "qmenubar.h"
+#include "qmenu.h"
 #include "qpainter.h"
 #include "qpointer.h"
-#include "qpopupmenu.h"
 #include "qscrollbar.h"
 #include "qsignal.h"
 #include "qstyle.h"
@@ -211,7 +211,7 @@ public:
     QPointer<QLabel> maxtools;
     QString topTitle;
 
-    QPopupMenu *popup, *toolPopup;
+    QMenu *popup, *toolPopup;
     enum WSActs { RestoreAct, MoveAct, ResizeAct, MinimizeAct, MaximizeAct, CloseAct, StaysOnTopAct, ShadeAct, NCountAct };
     QAction *actions[NCountAct];
 
@@ -288,12 +288,14 @@ QWorkspacePrivate::init()
     d->py = 0;
     d->becomeActive = 0;
 #if defined(Q_WS_WIN)
-    d->popup = new QPopupMenu(q, "qt_internal_mdi_popup");
-    d->toolPopup = new QPopupMenu(q, "qt_internal_mdi_popup");
+    d->popup = new QMenu(q);
+    d->toolPopup = new QMenu(q);
 #else
-    d->popup = new QPopupMenu(q->parentWidget(), "qt_internal_mdi_popup");
-    d->toolPopup = new QPopupMenu(q->parentWidget(), "qt_internal_mdi_popup");
+    d->popup = new QMenu(q->parentWidget());
+    d->toolPopup = new QMenu(q->parentWidget());
 #endif
+    d->popup->setObjectName("qt_internal_mdi_popup");
+    d->toolPopup->setObjectName("qt_internal_mdi_tool_popup");
 
     d->actions[QWorkspacePrivate::RestoreAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarNormalButton)),
                                                             q->tr("&Restore"), q);
@@ -1299,7 +1301,7 @@ void QWorkspacePrivate::showOperationMenu()
         return;
     Q_ASSERT(d->active->windowWidget()->testWFlags(Qt::WStyle_SysMenu));
     QPoint p;
-    QPopupMenu *popup = d->active->windowWidget()->testWFlags(Qt::WStyle_Tool) ? d->toolPopup : d->popup;
+    QMenu *popup = d->active->windowWidget()->testWFlags(Qt::WStyle_Tool) ? d->toolPopup : d->popup;
     if (QApplication::reverseLayout()) {
         p = QPoint(d->active->windowWidget()->mapToGlobal(QPoint(d->active->windowWidget()->width(),0)));
         p.rx() -= popup->sizeHint().width();

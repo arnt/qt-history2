@@ -16,7 +16,7 @@
 #define QLINEEDIT_H
 
 class QValidator;
-class QPopupMenu;
+class QMenu;
 
 #ifndef QT_H
 #include "qframe.h"
@@ -157,7 +157,7 @@ protected:
 #endif
     void changeEvent(QEvent *);
     void contextMenuEvent(QContextMenuEvent *);
-    virtual QPopupMenu *createPopupMenu();
+    virtual QMenu *createPopupMenu();
 #ifdef QT_COMPAT
     QT_COMPAT void repaintArea(int, int) { update(); }
 #endif

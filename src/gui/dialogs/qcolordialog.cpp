@@ -25,9 +25,9 @@
 #include "qlabel.h"
 #include "qlayout.h"
 #include "qlineedit.h"
+#include "qmenu.h"
 #include "qpainter.h"
 #include "qpixmap.h"
-#include "qpopupmenu.h"
 #include "qpushbutton.h"
 #include "qsettings.h"
 #include "qstyle.h"
@@ -327,7 +327,7 @@ void QWellArray::setSelected(int row, int col)
     if (row >= 0)
         emit selected(row, col);
 
-    if (isVisible() && qt_cast<QPopupMenu*>(parentWidget()))
+    if (isVisible() && qt_cast<QMenu*>(parentWidget()))
         parentWidget()->close();
 }
 

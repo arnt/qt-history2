@@ -1,19 +1,19 @@
-#include <qdatetime.h>
-#include <qpopupmenu.h>
-#include <qpainter.h>
+#include <private/qabstractspinbox_p.h>
+#include <qabstractspinbox.h>
 #include <qapplication.h>
 #include <qclipboard.h>
+#include <qdatetime.h>
+#include <qdatetimeedit.h>
 #include <qevent.h>
+#include <qmenu.h>
+#include <qpainter.h>
+#include <qpalette.h>
+#include <qspinbox.h>
 #include <qstyle.h>
+
 #if defined(Q_WS_X11)
 #include <limits.h>
 #endif
-
-#include "qabstractspinbox.h"
-#include "qspinbox.h"
-#include "qdatetimeedit.h"
-#include "qabstractspinbox_p.h"
-#include <qpalette.h>
 
 #define d d_func()
 #define q q_func()

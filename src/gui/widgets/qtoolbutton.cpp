@@ -15,22 +15,22 @@
 #include "qtoolbutton.h"
 #ifndef QT_NO_TOOLBUTTON
 
-#include "qapplication.h"
-#include "qdesktopwidget.h"
-#include "qdrawutil.h"
-#include "qevent.h"
-#include "qiconset.h"
-#include "qpainter.h"
-#include "qpointer.h"
-#include "qpopupmenu.h"
-#include "qstyle.h"
-#include "qstyleoption.h"
-#include "qtooltip.h"
-#include "qmainwindow.h"
-#include "qtoolbar.h"
-#include "qvariant.h"
+#include <qapplication.h>
+#include <qdesktopwidget.h>
+#include <qdrawutil.h>
+#include <qevent.h>
+#include <qiconset.h>
+#include <qmenu.h>
+#include <qpainter.h>
+#include <qpointer.h>
+#include <qstyle.h>
+#include <qstyleoption.h>
+#include <qtooltip.h>
+#include <qmainwindow.h>
+#include <qtoolbar.h>
+#include <qvariant.h>
 
-#include "private/qabstractbutton_p.h"
+#include <private/qabstractbutton_p.h>
 
 
 class QToolButtonPrivate : public QAbstractButtonPrivate

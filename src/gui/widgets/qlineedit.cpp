@@ -26,7 +26,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qpointer.h"
-#include "qpopupmenu.h"
+#include "qmenu.h"
 #include "qstringlist.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
@@ -1819,11 +1819,11 @@ void QLineEdit::contextMenuEvent(QContextMenuEvent * e)
 #ifndef QT_NO_POPUPMENU
     d->separate();
 
-    QPointer<QPopupMenu> popup = createPopupMenu();
+    QMenu *popup = createPopupMenu();
     QPoint pos = e->reason() == QContextMenuEvent::Mouse ? e->globalPos() :
                  mapToGlobal(QPoint(e->pos().x(), 0)) + QPoint(width() / 2, height() / 2);
     popup->exec(pos);
-    delete (QPopupMenu*)popup;
+    delete popup;
 #endif //QT_NO_POPUPMENU
 }
 
@@ -1835,7 +1835,7 @@ void QLineEdit::contextMenuEvent(QContextMenuEvent * e)
     ownership is transferred to the caller.
 */
 
-QPopupMenu *QLineEdit::createPopupMenu()
+QMenu *QLineEdit::createPopupMenu()
 {
 #ifndef QT_NO_POPUPMENU
     d->actions[QLineEditPrivate::UndoAct]->setEnabled(d->isUndoAvailable());
@@ -1852,7 +1852,8 @@ QPopupMenu *QLineEdit::createPopupMenu()
     d->actions[QLineEditPrivate::ClearAct]->setEnabled(!d->readOnly && !d->text.isEmpty());
     d->actions[QLineEditPrivate::SelectAllAct]->setEnabled(!d->text.isEmpty() && !d->allSelected());
 
-    QPopupMenu *popup = new QPopupMenu(this, "qt_edit_menu");
+    QMenu *popup = new QMenu(this);
+    popup->setObjectName("qt_edit_menu");
     popup->addAction(d->actions[QLineEditPrivate::UndoAct]);
     popup->addAction(d->actions[QLineEditPrivate::RedoAct]);
     popup->addSeparator();
