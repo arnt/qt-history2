@@ -34,7 +34,7 @@
 
 //hacks to work around wchar problems
 #define __WCHARTDEF__
-#define __NO_WIDE_CHAR 1
+//#define __NO_WIDE_CHAR 1
 #undef wchar_t
 typedef unsigned short hide_wchar_t; 
 #define wchar_t hide_wchar_t

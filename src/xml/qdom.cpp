@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#61 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#62 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -141,7 +141,7 @@ public:
     QDomNodePrivate* namedItem( const QString& name );
 
     virtual QDomNodePrivate* cloneNode( bool deep = TRUE );
-    virtual void QDomNodePrivate::normalize();
+    virtual void normalize();
     virtual void clear();
 
     void setParent( QDomNodePrivate* );
