@@ -57,7 +57,6 @@ sub-examples: sub-src FORCE
 clean:
 	cd qmake&&$(MAKE) clean
 	cd tools&&$(MAKE) clean
-	cd src\moc&&$(MAKE) clean
 	cd src&&$(MAKE) clean&&$(MAKE) clean -f Makefile.main
 	cd tutorial&&$(MAKE) clean
 	cd examples&&$(MAKE) clean
