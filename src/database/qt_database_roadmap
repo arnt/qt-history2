@@ -2,11 +2,11 @@ Roadmap for Qt Database module
 
 Basic Database Support
 ----------------------
-Complete basic API. [partially done]
+Complete basic API. [done]
+	 QSqlConnection - static methods to retrieve current database connection(s)
 	 QSqlDatabase - interface to connect to SQL backends
 	 QSql - interface to execute SQL queries (wraps QSqlResult)
 	 QSqlError - for error reporting
-	 QSqlResultInfo - SQL query result info
 
 	 QSqlViewBase - abstract base
 	 QSqlView - info about SQL views
@@ -15,9 +15,12 @@ Complete basic API. [partially done]
 	 QSqlDriver - abstract base for drivers (loaded by QSqlDatabase)
 	 QSqlResult - abstract base for drivers (created by QSqlDriver)
 	
-Document basic API/abstraction. [partially done]
+Document basic API/abstraction. [not done]
 
 Decide on list of supported backends.  Options: [* = my current choices]
+	*MySQL
+	*ODBC
+	*PostgreSQL
 	Berkeley DB
 	DB2
 	DiamondBase
@@ -28,10 +31,7 @@ Decide on list of supported backends.  Options: [* = my current choices]
 	Mimer
 	MiniSQL (unix only?)
 	MS SQL Server (windows only?)
-	*MySQL
-	*ODBC
 	Oracle
-	*PostgreSQL
 	SOLID SQL Server
 	Sybase 
 	XML? (this would require our own SQL parser)
@@ -41,39 +41,36 @@ Decide on level of distribution
 	include database client libraries?
 	load driver modules at runtime?
 
-Make QVariant more SQL friendly 
+Make QVariant more SQL friendly [done]
 
 Implement drivers: [partially done]
-	Implement client-side cursors for drivers that need it (e.g., OCI, certain ODBC drivers)?
-	Transactions?
+	Implement client-side cursors for drivers that need it (e.g., OCI, certain ODBC drivers)? [done]
 	
 Configure databases for testing 
 	(this may be expensive/time-consuming)
+	Oracle is running now on Windows and Linux.
 
 Implement test programs/benchmarks/etc. This should include tests for:
-	Proper result set scrolling
-	Proper inserts/updates/deletes
-	Proper data type conversions (including date/time and binary)
+	Proper result set scrolling [done]
+	Proper inserts/updates/deletes [done]
+	Proper data type conversions (including date/time and binary) [not done]
 	
 
 Extended Database Support
 -------------------------
-Design more database abstractions: Some ideas:
-	QSqlTransaction - SLQ transactions 
-	QSqlField - field info + the actual data
-	QSqlRecord - manipulate an entire row of SQL fields
-	QSqlTable - map directly to a SQL table for inserts/updates/deletes, autonumbering primary keys?
-	QSqlView - query a bunch of QSqlTables, syncronize them for updates, generate ANSI SQL automatically.
-	QSqlCatalog - extended database information (tables, indexes, fields, etc)
+More database abstractions:
+	QSqlFieldManager - map QObject* <=> QSqlField* for interaction with the GUI [not done]
+	QSqlField - field info + the actual data [done]
+	QSqlFieldList - multiple, related field information
+	QSqlRowset - manipulate an entire row of SQL fields [done]
+	QSqlView - map directly to a SQL table/view for inserts/updates/deletes, autonumbering primary keys? [done]
 
 Design 'data aware' widgets.  Some ideas:
-	QSqlDataGrid - a QTable driven by a SQL query
-	QSqlComboBox - a QComboBox driven by a SQL query
-	QSqlForm - a QDialog with database update capability (use QSqlTable?) (link easily to QDataGrid?)
-	QSqlListBox - read-only SQL lookups
-	QSqlListView - SQL browse/tree
+	QSqlDataGrid(s) - a QTable driven by a SQL query [partially done]
+	QSqlComboBox - a QComboBox driven by a SQL query [not done]
+	QSqlForm - a QDialog with database update capability (use QSqlTable?) (link easily to QDataGrid?) [not done]
+	QSqlListBox - read-only SQL lookups [not done]
+	QSqlListView - SQL browse/tree [not done]
 
-Implement the above
-
-Add Qt Designer support for the above
+Add Qt Designer support for the above [not done]
 
