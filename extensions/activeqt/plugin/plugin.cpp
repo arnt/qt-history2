@@ -299,7 +299,7 @@ void QActiveXPlugin::onShowProperties()
 		property_changed = FALSE;
 		connect( axwidget, SIGNAL(propertyChanged(const QString&)), this, SLOT(onPropertyChanged(const QString&)) );
 
-		HRESULT res = OleCreatePropertyFrame( widget->topLevelWidget()->winId(), 0, 0, L"Properties", 
+		OleCreatePropertyFrame( widget->topLevelWidget()->winId(), 0, 0, L"Properties", 
 		    1, objects, pages.cElems, pages.pElems, LOCALE_USER_DEFAULT, 0, 0 );
 
 		if ( property_changed ) {
