@@ -390,34 +390,30 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         } else {
             out << endl;
             out << indent << "{" << endl;
+            
+            if (!slotType.isEmpty()) {
+                out << indent << "    " << slotType << " qax_result;" << endl;
+            }
+            out << indent << "    void *_a[] = {";
+            if (!slotType.isEmpty())
+                out << "(void*)&qax_result";
+            else
+                out << "0";
             if (!slotParameters.isEmpty()) {
-                out << indent << "    QVariantList qax_parameters;" << endl;
-                out << indent << "    qax_parameters << " << slotParameters.replace(',', " << ") << ";" << endl;
+                out << ", (void*)&";
+                out << slotParameters.replace(",", ", (void*)&");
             }
-            if (qax_qualified_usertypes.contains(simpleSlotType)) {
-                out << indent << "    IDispatch *disp_pointer = 0;" << endl;
-                out << indent << "    qRegisterMetaType(\"" << slot.typeName() << "\", &disp_pointer);" << endl;
-            }
-            out << indent << "    ";
-            if (!slotType.isEmpty()) {
-                out << "QVariant qax_result = ";
-            }
+            out << "};" << endl;
 
-            out << "dynamicCall(\"" << slotSignature << "\"";
-            if (!slotParameters.isEmpty())
-                out << ", qax_parameters";
-            out << ");" << endl;
-            if (!slotType.isEmpty()) {
-                if (slotType.at(slotType.length() - 1) == '*')
-                    out << indent << "    if (!qax_result.constData()) return 0;" << endl;
-                out << indent << "    Q_ASSERT(qax_result.isValid());" << endl;
+            out << indent << "    qt_metacall(QMetaObject::InvokeMetaMember, " << islot << ", _a);" << endl;
 
+            if (!slotType.isEmpty()) {
                 if (qax_qualified_usertypes.contains(simpleSlotType)) {
                     simpleSlotType = slotType;
                     simpleSlotType.replace('*', "");
-                    out << indent << "    return new " << simpleSlotType << "(*(IDispatch**)qax_result.constData());" << endl;
+                    out << indent << "    return new " << simpleSlotType << "(qax_result);" << endl;
                 } else {
-                    out << indent << "    return *(" << slotType << "*)qax_result.constData();" << endl;
+                    out << indent << "    return qax_result;" << endl;
                 }
             }
             out << indent << "}" << endl;
