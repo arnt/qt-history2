@@ -275,6 +275,7 @@ bool QVFbScreen::connect( const QString & )
     screencols = hdr->numcols;
     memcpy( screenclut, hdr->clut, sizeof( QRgb ) * screencols );
 
+    qvfbEnabled = TRUE;
     return TRUE;
 }
 
@@ -306,6 +307,14 @@ bool QVFbScreen::initDevice()
 	}
 	screencols=idx;
 #endif
+	memcpy( hdr->clut, screenclut, sizeof( QRgb ) * screencols );
+	hdr->numcols = screencols;
+    } else if ( d == 4 ) {
+	int val = 0;
+	for ( int idx = 0; idx < 16; idx++, val += 17 ) {
+	    screenclut[idx] = qRgb( val, val, val );
+	}
+	screencols = 16;
 	memcpy( hdr->clut, screenclut, sizeof( QRgb ) * screencols );
 	hdr->numcols = screencols;
     } else if ( d == 1 ) {
@@ -368,9 +377,19 @@ QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
 	    ret = new QGfxVFb<1,0>(bytes,w,h);
 	else
 	    ret = new QGfxRaster<1,0>(bytes,w,h);
+#ifndef QT_NO_QWS_DEPTH_4
+    } else if (d==4) {
+	if ( bytes == qt_screen->base() )
+	    ret = new QGfxVFb<4,0>(bytes,w,h);
+	else
+	    ret = new QGfxRaster<4,0>(bytes,w,h);
+#endif
 #ifndef QT_NO_QWS_DEPTH_16
     } else if(d==16) {
-      ret = new QGfxRaster<16,0>(bytes,w,h);
+	if ( bytes == qt_screen->base() )
+	    ret = new QGfxVFb<16,0>(bytes,w,h);
+	else
+	    ret = new QGfxRaster<16,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_8
     } else if (d==8) {
@@ -400,21 +419,9 @@ QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
     return ret;
 }
 
-extern "C" QScreen * qt_get_screen_qvfb( int display_id, const char *spec,
-					 char *,unsigned char *)
+extern "C" QScreen * qt_get_screen_qvfb( int display_id )
 {
-    if ( !qt_screen ) {
-	qvfb_screen = new QVFbScreen( display_id );
-	if ( qvfb_screen->connect( spec ) ) {
-	    qt_screen = qvfb_screen;
-	    qvfbEnabled = TRUE;
-	} else {
-	    delete qvfb_screen;
-	    qFatal( "Could not connect to virtual framebuffer" );
-	}
-    }
-
-    return qt_screen;
+    return (qvfb_screen = new QVFbScreen( display_id ));
 }
 
 #endif

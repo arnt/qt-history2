@@ -541,7 +541,7 @@ public:
 
     QVoodooScreen( int display_id );
     virtual ~QVoodooScreen();
-    virtual bool connect( const QString &spec, char *,unsigned char *);
+    virtual bool connect( const QString &spec );
     virtual bool initDevice();
     virtual void shutdownDevice();
     virtual int initCursor(void *,bool);
@@ -586,13 +586,15 @@ QVoodooScreen::QVoodooScreen( int display_id  )
 {
 }
 
-bool QVoodooScreen::connect( const QString &spec, char *,unsigned char *config )
+bool QVoodooScreen::connect( const QString &spec )
 {
     if (!QLinuxFbScreen::connect( spec )) {
 	return FALSE;
     }
 
     canaccel=false;
+
+    const unsigned char* config = qt_probe_bus();
 
     unsigned short int * manufacturer=(unsigned short int *)config;
     if(*manufacturer!=0x121a) {
@@ -602,8 +604,8 @@ bool QVoodooScreen::connect( const QString &spec, char *,unsigned char *config )
 	return FALSE;
     }
 
-    unsigned char * bar=config+0x10;
-    unsigned long int * addr=(unsigned long int *)bar;
+    const unsigned char * bar=config+0x10;
+    const unsigned long int * addr=(const unsigned long int *)bar;
     unsigned long int s=*(addr+0);
     unsigned long int olds=s;
     if(s & 0x1) {
@@ -709,20 +711,9 @@ QGfx * QVoodooScreen::createGfx(unsigned char * b,int w,int h,int d,
 
 extern bool qws_accel;
 
-extern "C" QScreen * qt_get_screen_voodoo3( int display_id, const char *spec,
-					   char *slot,unsigned char *config )
+extern "C" QScreen * qt_get_screen_voodoo3( int display_id )
 {
-    if ( !qt_screen && qws_accel && slot!=0 ) {
-	QVoodooScreen * ret=new QVoodooScreen( display_id );
-	if(ret->connect( spec, slot, config )) {
-	    qt_screen=ret;
-	}
-    }
-    if ( !qt_screen ) {
-	qt_screen=new QLinuxFbScreen( display_id );
-	qt_screen->connect( spec );
-    }
-    return qt_screen;
+    return new QVoodooScreen( display_id );
 }
 
 #ifndef QT_NO_QWS_CURSOR

@@ -156,6 +156,27 @@ struct SWCursorData {
 #endif
 #endif
 
+#define MASK4BPP(x) (0xf0 >> (x))
+
+inline void gfxSetRgb24( unsigned char *d, unsigned int p )
+{
+    *d = p & 0x0000ff;
+    *(d+1) = (p & 0x00ff00 ) >> 8;
+    *(d+2) = (p & 0xff0000 ) >> 16;
+}
+
+inline void gfxSetRgb24( unsigned char *d, int r, int g, int b )
+{
+    *d = b;
+    *(d+1) = g;
+    *(d+2) = r;
+}
+
+inline unsigned int gfxGetRgb24( unsigned char *d )
+{
+    return *d | (*(d+1)<<8) | (*(d+2)<<16);
+}
+
 static bool simple_8bpp_alloc=FALSE;
 
 static volatile int * optype=0;
@@ -190,8 +211,19 @@ void QScreenCursor::init(SWCursorData *da, bool init)
     clipWidth = gfx->pixelWidth();
     clipHeight = gfx->pixelHeight();
 
-    imgunder = new QImage( data->under, 64, 64, gfx->bitDepth(), 0,
-		gfx->bitDepth() == 1 ? 0 : 256, QImage::LittleEndian );
+    int d = gfx->bitDepth();
+    int cols = gfx->bitDepth() == 1 ? 0 : 256;
+    if ( d == 4 ) {
+	d = 8;
+	cols = 16;
+    }
+
+    imgunder = new QImage( data->under, 64, 64, d, 0,
+		cols, QImage::LittleEndian );
+    if ( d <= 8 ) {
+	for ( int i = 0; i < cols; i++ )
+	    imgunder->setColor( i, qt_screen->clut()[i] );
+    }
     gfxunder = (QGfxRasterBase*)imgunder->graphicsContext();
 
     cursor = new QImage();
@@ -462,6 +494,44 @@ void QScreenCursor::drawCursor()
 	return;
     }
 #endif
+#ifndef QT_NO_QWS_DEPTH_24
+    if (depth == 24)
+    {
+	unsigned int srcval;
+	int av,r,g,b;
+	for (int row = startRow; row < endRow; row++)
+	{
+	    unsigned char *dptr = dest + (row-startRow) * linestep + startCol * 3;
+	    for (int col = startCol; col < endCol; col++, dptr += 3)
+	    {
+		srcval = clut[*(srcptr+col)];
+		av = srcval >> 24;
+		if (av == 0xff) {
+		    gfxSetRgb24( dptr, srcval );
+		}
+# ifndef QT_NO_QWS_ALPHA_CURSOR
+		else if (av != 0) {
+		    r = (srcval & 0xff0000) >> 16;
+		    g = (srcval & 0xff00) >> 8;
+		    b = srcval & 0xff;
+		    unsigned int hold = gfxGetRgb24( dptr );
+		    int sr=(hold & 0xff0000) >> 16;
+		    int sg=(hold & 0xff00) >> 8;
+		    int sb=(hold & 0xff);
+
+		    r = ((r-sr) * av) / 256 + sr;
+		    g = ((g-sg) * av) / 256 + sg;
+		    b = ((b-sb) * av) / 256 + sb;
+
+		    gfxSetRgb24( dptr, r, g, b );
+		}
+# endif
+	    }
+	    srcptr += data->width;
+	}
+	return;
+    }
+#endif
 #ifndef QT_NO_QWS_DEPTH_16
     if (depth == 16)
     {
@@ -548,6 +618,29 @@ void QScreenCursor::drawCursor()
 #ifdef QT_NEED_SIMPLE_ALLOC
 	simple_8bpp_alloc=FALSE;
 #endif
+    }
+#endif
+#ifndef QT_NO_QWS_DEPTH_4
+    if ( depth == 4 ) {
+        unsigned int srcval;
+	int av;
+	for (int row = startRow; row < endRow; row++)
+	{
+	    unsigned char *dp = fb_start + (y + row) * linestep;
+	    for (int col = startCol; col < endCol; col++)
+	    {
+		srcval = clut[*(srcptr+col)];
+		av = srcval >> 24;
+		if (av == 0xff) {
+		    int tx = x + col;
+		    unsigned char *dptr = dp + (tx>>1);
+		    int val = data->translut[*(srcptr+col)];
+		    int s = (tx & 1) << 2;
+		    *dptr = ( *dptr & MASK4BPP(s) ) | (val << s);
+		}
+	    }
+	    srcptr += data->width;
+	}
     }
 #endif
 #ifndef QT_NO_QWS_DEPTH_1
@@ -643,6 +736,20 @@ QGfxRasterBase::~QGfxRasterBase()
     delete [] dashes;
     delete [] cliprect;
 }
+
+
+void* QGfxRasterBase::beginTransaction(const QRect& r)
+{
+    GFX_START(r);
+    return (void*)swc_do_save;
+}
+
+void QGfxRasterBase::endTransaction(void* data)
+{
+    bool swc_do_save = !!data;
+    GFX_END;
+}
+
 
 void QGfxRasterBase::sync()
 {
@@ -1196,6 +1303,11 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
 	} else {
 	    (*srcdata)+=4;
 	}
+#if !defined( QT_NO_QWS_DEPTH_24 )
+    } else if(sdepth==24) {
+	ret = gfxGetRgb24( *srcdata );
+	(*srcdata) += 3;
+#endif
 #if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
     } else if(sdepth==16) {
 	unsigned short int hold=*((unsigned short int *)(*srcdata));
@@ -1234,6 +1346,23 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
     } else {
 	qDebug("Odd source depth %d!",sdepth);
 	ret=0;
+    }
+
+    return ret;
+}
+
+GFX_INLINE unsigned int QGfxRasterBase::get_value_24(
+		       int sdepth, unsigned char **srcdata, bool reverse)
+{
+    unsigned int ret;
+    if ( sdepth == 24 ) {
+	ret = gfxGetRgb24( *srcdata );
+	if ( reverse )
+	    (*srcdata)-=3;
+	else
+	    (*srcdata)+=3;
+    } else {
+	ret = get_value_32( sdepth, srcdata, reverse );
     }
 
     return ret;
@@ -1348,8 +1477,86 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
 	simple_8bpp_alloc=FALSE;
 #endif
 	(*srcdata)+=4;
+    } else if ( sdepth == 4 ) {
+	ret = monobitval & 0x0f;
+	if ( !monobitcount ) {
+	    monobitcount = 1;
+	    monobitval >>= 4;
+	} else {
+	    monobitcount = 0;
+	    (*srcdata)++;
+	    monobitval = *(*srcdata);
+	}
     } else {
 	qDebug("Cannot do %d->8!",sdepth);
+	ret=0;
+    }
+
+    return ret;
+}
+
+// reverse can only be true if sdepth == depth
+GFX_INLINE unsigned int QGfxRasterBase::get_value_4(
+		       int sdepth, unsigned char **srcdata, bool reverse)
+{
+    unsigned int ret;
+
+    if ( sdepth == 4 ) {
+	if ( reverse ) {
+	    ret = (monobitval & 0xf0) >> 4;
+	    if ( !monobitcount ) {
+		monobitcount = 1;
+		monobitval <<= 4;
+	    } else {
+		monobitcount = 0;
+		(*srcdata)--;
+		monobitval = *(*srcdata);
+	    }
+	} else {
+	    ret = monobitval & 0x0f;
+	    if ( !monobitcount ) {
+		monobitcount = 1;
+		monobitval >>= 4;
+	    } else {
+		monobitcount = 0;
+		(*srcdata)++;
+		monobitval = *(*srcdata);
+	    }
+	}
+    } else if ( sdepth == 1 ) {
+	if(monobitcount<8) {
+	    monobitcount++;
+	} else {
+	    monobitcount=1;
+	    (*srcdata)++;
+	    monobitval=*((*srcdata));
+	}
+	if(src_little_endian) {
+	    ret=monobitval & 0x1;
+	    monobitval=monobitval >> 1;
+	} else {
+	    ret=(monobitval & 0x80) >> 7;
+	    monobitval=monobitval << 1;
+	    monobitval=monobitval & 0xff;
+	}
+	ret = transclut[ret];
+    } else if ( sdepth == 8 ) {
+	unsigned char val=*((unsigned char *)(*srcdata));
+	ret = transclut[val];
+	if(reverse)
+	    (*srcdata)--;
+	else
+	    (*srcdata)++;
+    } else if(sdepth==32) {
+	unsigned int r,g,b;
+	unsigned int hold=*((unsigned int *)(*srcdata));
+	r=(hold & 0xff0000) >> 16;
+	g=(hold & 0x00ff00) >> 8;
+	b=(hold & 0x0000ff);
+	ret = qGray( r, g, b ) >> 4;
+	(*srcdata)+=4;
+    } else {
+	qDebug("Cannot do %d->4!",sdepth);
 	ret=0;
     }
 
@@ -1649,11 +1856,17 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char
     if( (myrop!=XorROP) && (myrop!=NotROP) ) {
 	if ( depth == 32 )
 	    ((QRgb*)l)[x] = pixel;
+	else if ( depth == 24 )
+	    gfxSetRgb24( l + x*3, pixel );
 	else if ( depth == 16 )
 	    ((ushort*)l)[x] = (pixel & 0xffff);
 	else if ( depth == 8 )
 	    l[x] = (pixel & 0xff);
-	else if ( depth == 1 )
+	else if ( depth == 4 ) {
+	    uchar *d = l + (x>>1);
+	    int s = (x & 1) << 2;
+	    *d = ( *d & MASK4BPP(s) ) | (pixel << s);
+	} else if ( depth == 1 )
 	    if ( pixel )
 		l[x/8] |= 1 << (x%8);
 	    else
@@ -1661,11 +1874,22 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char
     } else if(myrop==XorROP) {
 	if ( depth == 32 )
 	    ((QRgb*)l)[x] = ((QRgb*)l)[x] ^ pixel;
-	else if ( depth == 16 )
+	else if ( depth == 24 ) {
+	    unsigned char *ptr = l + x*3;
+	    unsigned int s = gfxGetRgb24( ptr );
+	    gfxSetRgb24( ptr, s ^ pixel );
+	} else if ( depth == 16 )
 	    ((ushort*)l)[x] = ((ushort*)l)[x] ^ pixel;
 	else if ( depth == 8 )
 	    l[x] = l[x] ^ pixel;
-	else if ( depth == 1 )
+	else if ( depth == 4 ) {
+	    uchar *d = l + (x>>1);
+	    int s = (x & 1) << 2;
+	    unsigned char p = *d;
+	    unsigned char e = ( p & MASK4BPP(s) ) |
+			      ( (p ^ (pixel << s)) & MASK4BPP(4-s) );
+	    *d = e;
+	} else if ( depth == 1 )
 	    if ( pixel )
 		l[x/8] |= 1 << (x%8);
 	    else
@@ -1673,11 +1897,20 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char
     } else if(myrop==NotROP) {
 	if ( depth == 32 )
 	    ((QRgb*)l)[x] = ~(((QRgb*)l)[x]);
-	else if ( depth == 16 )
+	else if ( depth == 24 ) {
+	    unsigned char *ptr = l + x*3;
+	    unsigned int s = gfxGetRgb24( ptr );
+	    gfxSetRgb24( ptr, ~s );
+	} else if ( depth == 16 )
 	    ((ushort*)l)[x] = ~(((ushort*)l)[x]);
 	else if ( depth == 8 )
 	    l[x] = ~(l[x]);
-	else if ( depth == 1 )
+	else if ( depth == 4 ) {
+	    uchar *d = l + (x>>1);
+	    int s = (x & 1) << 2;
+	    unsigned char p = *d;
+	    *d = (p & MASK4BPP(s)) | ((~p) & MASK4BPP(4-s));
+	} else if ( depth == 1 )
 	    if ( pixel )
 		l[x/8] |= 1 << (x%8);
 	    else
@@ -2053,16 +2286,21 @@ GFX_INLINE void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
 template <const int depth, const int type>
 GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned char* l)
 {
+    int w = x2-x1+1;
     if( (myrop!=XorROP) && (myrop!=NotROP) ) {
 	if ( depth == 32 ) {
 	    unsigned int *myptr=(unsigned int *)l + x1;
-	    int w = x2-x1+1;
 	    while ( w-- )
 		*(myptr++) = pixel;
+	} else if ( depth == 24 ) {
+	    unsigned char *myptr = l + x1*3;
+	    while ( w-- ) {
+		gfxSetRgb24( myptr, pixel );
+		myptr += 3;
+	    }
 	} else if ( depth == 16 ) {
 	    unsigned short int *myptr=(unsigned short int *)l;
 #ifdef QWS_NO_WRITE_PACKING
-	    int w = x2-x1+1;
 	    myptr+=x1;
 	    while ( w-- )
 		*(myptr++) = pixel;
@@ -2101,9 +2339,25 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 	} else if ( depth == 8 ) {
 	    unsigned char *myptr=l;
 	    myptr+=x1;
-	    int w = x2-x1+1;
 	    while ( w-- )
 		*(myptr++) = pixel;
+	} else if ( depth == 4 ) {
+	    unsigned char *myptr=l;
+	    unsigned char *dptr = myptr + x1/2;
+	    if ( x1&1 ) {
+		drawPointUnclipped( x1, myptr);
+		w--;
+		dptr++;
+	    }
+
+	    unsigned char val = pixel | (pixel << 4);
+	    while ( w > 1 ) {
+		*dptr++ = val;
+		w -= 2;
+	    }
+
+	    if ( !(x2&1))
+		drawPointUnclipped( x2, myptr);
 	} else if ( depth == 1 ) {
 	    //#### we need to use semaphore
 	    l += x1/8;
@@ -2136,14 +2390,12 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
     } else if(myrop==XorROP) {
 	if ( depth == 32 ) {
 	    unsigned int *myptr=(unsigned int *)l + x1;
-	    int w = x2-x1+1;
 	    while ( w-- ) {
 		(*myptr) = (*myptr) ^ pixel;
 		myptr++;
 	    }
 	} else if ( depth == 16 ) {
 	    unsigned short int *myptr=(unsigned short int *)l;
-	    int w = x2-x1+1;
 	    myptr+=x1;
 	    while ( w-- ) {
 		(*myptr) = (*myptr) ^ pixel;
@@ -2152,25 +2404,26 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 	} else if ( depth == 8 ) {
 	    unsigned char *myptr=l;
 	    myptr+=x1;
-	    int w = x2-x1+1;
 	    while ( w-- ) {
 		(*myptr) = (*myptr) ^ pixel;
 		myptr++;
 	    }
+	} else if ( depth == 4 || depth == 24 ) {
+	    unsigned char *myptr=l;
+	    while ( w-- )
+		drawPointUnclipped( x1++, myptr);
 	} else if ( depth == 1 ) {
 	    // ...
 	}
     } else if(myrop==NotROP) {
 	if ( depth == 32 ) {
 	    unsigned int *myptr=(unsigned int *)l + x1;
-	    int w = x2-x1+1;
 	    while ( w-- ) {
 		(*myptr) = ~(*myptr);
 		myptr++;
 	    }
 	} else if ( depth == 16 ) {
 	    unsigned short int *myptr=(unsigned short int *)l;
-	    int w = x2-x1+1;
 	    myptr+=x1;
 	    while ( w-- ) {
 		(*myptr) = ~(*myptr);
@@ -2179,11 +2432,14 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 	} else if ( depth == 8 ) {
 	    unsigned char *myptr=l;
 	    myptr+=x1;
-	    int w = x2-x1+1;
 	    while ( w-- ) {
 		(*myptr) = ~(*myptr);
 		myptr++;
 	    }
+	} else if ( depth == 4 || depth == 24 ) {
+	    unsigned char *myptr=l;
+	    while ( w-- )
+		drawPointUnclipped( x1++, myptr);
 	} else if ( depth == 1 ) {
 	    // ...
 	}
@@ -2229,9 +2485,9 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 						    unsigned char *srcdata,
 						    bool reverse)
 {
+    int w = x2-x1+1;
     if ( depth == 32 ) {
 	unsigned int *myptr=(unsigned int *)l;
-	int w = x2-x1+1;
 	int inc = 1;
 	if(!reverse) {
 	    myptr+=x1;
@@ -2259,9 +2515,38 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		myptr += inc;
 	    }
 	}
+    } else if ( depth == 24 ) {
+	unsigned char *myptr = l;
+	int inc = 3;
+	if(!reverse) {
+	    myptr += x1*3;
+	} else {
+	    myptr += x2*3;
+	    inc = -3;
+	}
+	if ( !ismasking ) {
+	    uint gv = srccol;
+	    while ( w-- ) {
+		if (srctype==SourceImage)
+		    gv = get_value_24(srcdepth,&srcdata);
+		gfxSetRgb24( myptr, gv );
+		myptr += 3;
+	    }
+	} else {
+	    //masked 32bpp blt...
+	    unsigned int gv = srccol;
+	    while ( w-- ) {
+		if ( srctype == SourceImage )
+		    gv = get_value_24( srcdepth, &srcdata, reverse );
+		bool masked = TRUE;
+		GET_MASKED(reverse);
+		if ( !masked )
+		    gfxSetRgb24( myptr, gv );
+		myptr += inc;
+	    }
+	}
     } else if ( depth == 16 ) {
 	unsigned short int *myptr=(unsigned short int *)l;
-	int w = x2-x1+1;
 	int inc = 1;
 	if(!reverse) {
 	    myptr+=x1;
@@ -2282,8 +2567,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
 	    PackType dput;
+# ifndef QWS_PACKING_4BYTE
 	    unsigned short int * fun;
 	    fun=(unsigned short int *)&dput;
+# endif
 
 	    while ( frontadd-- )
 		*(myptr++)=get_value_16(srcdepth,&srcdata);
@@ -2320,7 +2607,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	}
     } else if ( depth == 8 ) {
 	unsigned char *myptr=(unsigned char *)l;
-	int w = x2-x1+1;
 	int inc = 1;
 	if(!reverse) {
 	    myptr+=x1;
@@ -2341,8 +2627,9 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
 	    PackType dput;
+# ifndef QWS_PACKING_4BYTE
 	    unsigned char *fun = (unsigned char *)&dput;
-
+# endif
 	    while ( frontadd-- )
 		*(myptr++)=get_value_8(srcdepth,&srcdata);
 
@@ -2383,12 +2670,51 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		myptr += inc;
 	    }
 	}
+    } else if ( depth == 4 ) {
+	unsigned char *dp = l;
+	unsigned int gv = srccol;
+	if ( reverse ) {
+	    dp += (x2/2);
+	    int x = x2;
+	    while ( w-- ) {
+		if ( srctype==SourceImage )
+		    gv = get_value_4( srcdepth, &srcdata, reverse);
+		bool masked = TRUE;
+		if ( ismasking ) {
+		    GET_MASKED(reverse);
+		}
+		if ( !masked || !ismasking ) {
+		    int s = (x&1) << 2;
+		    *dp = ( *dp & MASK4BPP(s) ) | (gv << s);
+		}
+		if ( !(x&1) )
+		    dp--;
+		x--;
+	    }
+	} else {
+	    dp += (x1/2);
+	    int x = x1;
+	    while ( w-- ) {
+		if ( srctype==SourceImage )
+		    gv = get_value_4( srcdepth, &srcdata, reverse);
+		bool masked = TRUE;
+		if ( ismasking ) {
+		    GET_MASKED(reverse);
+		}
+		if ( !masked || !ismasking ) {
+		    int s = (x&1) << 2;
+		    *dp = ( *dp & MASK4BPP(s) ) | (gv << s);
+		}
+		if ( x&1 )
+		    dp++;
+		x++;
+	    }
+	}
     } else if ( depth == 1 ) {
 	// General case only implemented.
 	// Lots of optimisation can be performed for special cases.
 	unsigned char * dp=l;
 	unsigned int gv = srccol;
-	int w=(x2-x1)+1;
 	if ( reverse ) {
 	    dp+=(x2/8);
 	    int skipbits = 7 - (x2%8);
@@ -2451,12 +2777,12 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 						    unsigned char * srcdata,
 						    unsigned char * alphas)
 {
+    int w=x2-x1+1;
     if ( depth == 32 ) {
 	// First read in the destination line
 	unsigned int *myptr = (unsigned int *)l;
 	unsigned int *alphaptr = (unsigned int *)alphabuf;
 	unsigned char * avp=alphas;
-	int w=x2-x1+1;
 	int loopc;
 
 #ifdef QWS_NO_WRITE_PACKING
@@ -2577,13 +2903,70 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    *(myptr++)=*(alphaptr++);
 	}
 #endif
+    } else if ( depth == 24 ) {
+	// First read in the destination line
+	unsigned char *myptr = l;
+	unsigned char *alphaptr = (unsigned char *)alphabuf;
+	unsigned char *avp = alphas;
+	int loopc;
+
+	memcpy( alphabuf, myptr+x1*3, w*3 );
+
+	// Now blend with source data
+	unsigned char * srcptr=srcdata;
+	unsigned int srcval;
+
+	if(srctype==SourceImage) {
+	    srcptr=srcdata;
+	    srcval=0; // Shut up compiler
+	} else {
+	    // SourcePen
+	    srcval=srccol;
+	}
+
+	alphaptr = (unsigned char *)alphabuf;
+	for(loopc=0;loopc<w;loopc++) {
+	    int r,g,b;
+	    if(srctype==SourceImage)
+		srcval=get_value_32(srcdepth,&srcptr);
+
+	    int av;
+	    if(alphatype==InlineAlpha) {
+		av = srcval >> 24;
+	    } else if(alphatype==SolidAlpha) {
+		av=calpha;
+	    } else {
+		av=*(avp++);
+	    }
+
+	    r = (srcval & 0xff0000) >> 16;
+	    g = (srcval & 0xff00) >> 8;
+	    b = srcval & 0xff;
+
+	    unsigned char *tmp = alphaptr;
+	    if ( av == 255 ) {
+	        // Do nothing - we already have source values in r,g,b
+	    } else if ( av == 0 ) {
+	        r = *(tmp+2);
+	        g = *(tmp+1);
+	        b = *(tmp+0);
+	    } else {
+		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
+		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
+		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
+	    }
+	    gfxSetRgb24( alphaptr, r, g, b );
+	    alphaptr += 3;
+	}
+
+	// Now write it all out
+	memcpy( myptr+x1*3, alphabuf, w*3 );
 #if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
     } else if ( depth == 16 ) {
         // First read in the destination line
 	unsigned short int *myptr = (unsigned short int *)l;
 	unsigned int *alphaptr = (unsigned int *)alphabuf;
 	unsigned char * avp=alphas;
-	int w=x2-x1+1;
 	int loopc;
 
 #ifdef QWS_NO_WRITE_PACKING
@@ -2685,8 +3068,9 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    *(myptr++) = *(alphaptr++);
 #else
 	PackType put;
+# ifndef QWS_PACKING_4BYTE
 	unsigned short int *fun = (unsigned short int*)&put;
-
+# endif
 	myptr=(unsigned short int *)l;
 
 	calcPacking(myptr,x1,x2,frontadd,backadd,count);
@@ -2722,7 +3106,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
         // First read in the destination line
 	unsigned char * myptr;
 	myptr=l;
-	int w=x2-x1+1;
 	myptr+=x1;
 	int loopc;
 
@@ -2786,6 +3169,92 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 #ifdef QT_NEED_SIMPLE_ALLOC
 	simple_8bpp_alloc=FALSE;
 #endif
+    } else if ( depth == 4 ) {
+        // First read in the destination line
+	unsigned char *myptr = l;
+	myptr+=x1/2;
+
+	unsigned char *avp=alphas;
+	unsigned char *tempptr=myptr;
+
+	int loopc = 0;
+	if ( x1&1 ) {
+	    int val = *tempptr++;
+	    alphabuf[loopc++] = clut[(val & 0xf0) >> 4];
+	}
+
+        for ( ;loopc < w-1; loopc += 2 ) {
+	    int val = *tempptr++;
+	    alphabuf[loopc] = clut[val & 0x0f];
+	    alphabuf[loopc+1] = clut[val >> 4];
+	}
+
+	if ( !(x2&1) ) {
+	    int val = *tempptr;
+	    alphabuf[w-1] = clut[val & 0x0f];
+	}
+
+	// Now blend with source data
+
+	unsigned char * srcptr;
+	unsigned int srcval = 0;
+	if(srctype==SourceImage) {
+	    srcptr=srcdata;
+	} else {
+	    // SourcePen
+	    QRgb mytmp=clut[srccol];
+	    srcval=qRed(mytmp) << 16 | qGreen(mytmp) << 8 | qBlue(mytmp);
+	}
+	for(loopc=0;loopc<w;loopc++) {
+	    int r,g,b;
+	    if(srctype==SourceImage)
+		srcval=get_value_32(srcdepth,&srcptr);
+
+	    int av;
+	    if(alphatype==InlineAlpha) {
+		av=srcval >> 24;
+	    } else if(alphatype==SolidAlpha) {
+		av=calpha;
+	    } else {
+		av=*(avp++);
+	    }
+
+	    r = (srcval & 0xff0000) >> 16;
+	    g = (srcval & 0xff00) >> 8;
+	    b = srcval & 0xff;
+
+	    unsigned char *tmp = (unsigned char *)&alphabuf[loopc];
+
+	    if(av==255) {
+		alphabuf[loopc] = qRgb(r,g,b);
+	    } else {
+		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
+		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
+		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
+		alphabuf[loopc] = qRgb(r,g,b);
+	    }
+	}
+
+	loopc = 0;
+	if ( x1&1 ) {
+	    QRgb rgb = alphabuf[loopc++];
+	    *myptr++ = (*myptr & 0x0f) |
+		(qt_screen->alloc( qRed(rgb), qGreen(rgb), qBlue(rgb) ) << 4);
+	}
+
+        for ( ;loopc < w-1; loopc += 2 ) {
+	    QRgb rgb1 = alphabuf[loopc];
+	    QRgb rgb2 = alphabuf[loopc+1];
+	    *myptr++ = qt_screen->alloc( qRed(rgb1), qGreen(rgb1), qBlue(rgb1) ) |
+		(qt_screen->alloc( qRed(rgb2), qGreen(rgb2), qBlue(rgb2) ) << 4);
+	}
+
+	if ( !(x2&1) ) {
+	    QRgb rgb = alphabuf[w-1];
+	    *myptr = (*myptr & 0xf0) |
+		qt_screen->alloc( qRed(rgb), qGreen(rgb), qBlue(rgb) );
+	}
+
     } else if ( depth == 1 ) {
 	static int warn;
 	if ( warn++ < 5 )
@@ -3135,7 +3604,7 @@ void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
 }
 
 /*
-  Looks like this finds a pointer to pixel (\a x, \a y) in a bitmap that
+  Finds a pointer to pixel (\a x, \a y) in a bitmap that
   is \a w pixels wide and stored in \a base. \a is_bigendian determines
   endianness.
 
@@ -3171,6 +3640,33 @@ static GFX_INLINE unsigned char * find_pointer(unsigned char * base,int x,int y,
     } else {
 	ahold=ahold >> nbits;
     }
+
+    return ret;
+}
+
+static GFX_INLINE unsigned char *find_pointer_4( unsigned char * base,int x,int y,
+						int w, int linestep, int &astat,
+						unsigned char &ahold, bool rev )
+{
+    int nbits;
+    int nbytes;
+
+    if ( rev ) {
+	nbits = 1 - (x+w) % 2;
+	nbytes = (x+w) / 2;
+    } else {
+	nbits = x % 2;
+	nbytes = x / 2;
+    }
+
+    unsigned char *ret = base + (y*linestep) + nbytes;
+    astat = nbits;
+    ahold = *ret;
+
+    if ( rev )
+	ahold = ahold << (nbits*4);
+    else
+	ahold = ahold >> (nbits*4);
 
     return ret;
 }
@@ -3333,6 +3829,10 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 					 j+srcoffs.y(), x2-x, srclinestep,
 					 monobitcount, monobitval,
 					 !src_little_endian, reverse);
+			} else if ( srcdepth == 4) {
+			    srcptr = find_pointer_4(srcbits,(x-rx)+srcoffs.x(),
+					 j+srcoffs.y(), x2-x, srclinestep,
+					 monobitcount, monobitval, reverse);
 			} else if ( reverse )
 			    srcptr = srcline + (x2-rx+srcoffs.x())*srcdepth/8;
 			else
@@ -3404,6 +3904,8 @@ void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
     int mulfac;
     if(srcdepth==32) {
 	mulfac=4;
+    } else if(srcdepth==24) {
+	mulfac=3;
     } else if(srcdepth==16) {
 	mulfac=2;
     } else if(srcdepth==8) {
@@ -3446,6 +3948,10 @@ void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
 		    unsigned int val=get_value_32(srcdepth,&p);
 		    unsigned int * dp=(unsigned int *)data;
 		    *(dp+loopc)=val;
+		} else if(depth==24) {
+		    unsigned int val=get_value_32(srcdepth,&p);
+		    unsigned char* dp=(unsigned char *)data;
+		    gfxSetRgb24( dp+loopc*3, val);
 		} else if(depth==16) {
 		    unsigned int val=get_value_16(srcdepth,&p);
 		    unsigned short int * dp=(unsigned short int *)data;
@@ -3573,33 +4079,37 @@ QGfx * QScreen::screenGfx()
 
 int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
 {
-    ASSERT(d==8);
-
-    // First we look to see if we match a default color
-    QRgb myrgb=qRgb(r,g,b);
-    int pos= (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
-    if ( simple_8bpp_alloc || screenclut[pos] == myrgb || !initted ) {
-	return pos;
-    }
-
-    // search for nearest color
     int ret = 0;
-    unsigned int mindiff = 0xffffffff;
-    unsigned int diff;
-    int dr,dg,db;
-
-    for ( int loopc = 0; loopc < 256; loopc++ ) {
-	dr = qRed(screenclut[loopc]) - r;
-	dg = qGreen(screenclut[loopc]) - g;
-	db = qBlue(screenclut[loopc]) - b;
-	diff = dr*dr + dg*dg + db*db;
-
-	if ( diff < mindiff ) {
-	    ret = loopc;
-	    if ( !diff )
-		break;
-	    mindiff = diff;
+    if ( d == 8 ) {
+	// First we look to see if we match a default color
+	QRgb myrgb=qRgb(r,g,b);
+	int pos= (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
+	if ( simple_8bpp_alloc || screenclut[pos] == myrgb || !initted ) {
+	    return pos;
 	}
+
+	// search for nearest color
+	unsigned int mindiff = 0xffffffff;
+	unsigned int diff;
+	int dr,dg,db;
+
+	for ( int loopc = 0; loopc < 256; loopc++ ) {
+	    dr = qRed(screenclut[loopc]) - r;
+	    dg = qGreen(screenclut[loopc]) - g;
+	    db = qBlue(screenclut[loopc]) - b;
+	    diff = dr*dr + dg*dg + db*db;
+
+	    if ( diff < mindiff ) {
+		ret = loopc;
+		if ( !diff )
+		    break;
+		mindiff = diff;
+	    }
+	}
+    } else if ( d == 4 ) {
+	ret = qGray( r, g, b ) >> 4;
+    } else {
+	qFatal( "cannot alloc %dbpp colour", d );
     }
 
     return ret;
@@ -3645,6 +4155,10 @@ bool QScreen::supportsDepth(int d) const
     } else if(d==1) {
 	return TRUE;
 #endif
+#ifndef QT_NO_QWS_DEPTH_4
+    } else if(d==4) {
+	return TRUE;
+#endif
 #ifndef QT_NO_QWS_DEPTH_16
     } else if(d==16) {
 	return TRUE;
@@ -3655,6 +4169,10 @@ bool QScreen::supportsDepth(int d) const
 #endif
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
     } else if(d==8) {
+	return TRUE;
+#endif
+#ifndef QT_NO_QWS_DEPTH_24
+    } else if(d==24) {
 	return TRUE;
 #endif
 #ifndef QT_NO_QWS_DEPTH_32
@@ -3674,6 +4192,10 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
     } else if(d==1) {
 	ret = new QGfxRaster<1,0>(bytes,w,h);
 #endif
+#ifndef QT_NO_QWS_DEPTH_4
+    } else if(d==4) {
+	ret = new QGfxRaster<4,0>(bytes,w,h);
+#endif
 #ifndef QT_NO_QWS_DEPTH_16
     } else if(d==16) {
 	ret = new QGfxRaster<16,0>(bytes,w,h);
@@ -3685,6 +4207,10 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
     } else if(d==8) {
 	ret = new QGfxRaster<8,0>(bytes,w,h);
+#endif
+#ifndef QT_NO_QWS_DEPTH_24
+    } else if(d==24) {
+	ret = new QGfxRaster<24,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_32
     } else if(d==32) {
@@ -3767,62 +4293,65 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 struct DriverTable
 {
     char *name;
-    QScreen *(*qt_get_screen)(int, const char *, char *, unsigned char *);
+    QScreen *(*qt_get_screen)(int);
+    int accel;
 } driverTable [] = {
-    { "LinuxFb", qt_get_screen_linuxfb },
-#if !defined(QT_NO_QWS_MACH64)
-    { "Mach64", qt_get_screen_mach64 },
-#endif
-#if !defined(QT_NO_QWS_VOODOO3)
-    { "Voodoo3", qt_get_screen_voodoo3 },
-#endif
-#if !defined(QT_NO_QWS_MATROX)
-    { "Matrox", qt_get_screen_matrox },
-#endif
 #if !defined(QT_NO_QWS_VFB)
-    { "QVFb", qt_get_screen_qvfb },
-#endif
-#if !defined(QT_NO_QWS_VNC)
-    { "VNC", qt_get_screen_vnc },
-#endif
-#if !defined(QT_NO_QWS_TRANSFORMED)
-    { "Transformed", qt_get_screen_transformed },
-#endif
-#if !defined(QT_NO_QWS_SVGALIB)
-    { "SVGALIB", qt_get_screen_svgalib },
-#endif
-#if defined(QT_QWS_EE)
-    { "EE", qt_get_screen_ee },
+    { "QVFb", qt_get_screen_qvfb, 0 },
 #endif
 #if !defined(QT_NO_QWS_VGA_16)
-    { "VGA16", qt_get_screen_vga16 },
+    { "VGA16", qt_get_screen_vga16, 0 },
 #endif
-    { 0,         0 },
+    { "LinuxFb", qt_get_screen_linuxfb, 0 },
+#if !defined(QT_NO_QWS_MACH64)
+    { "Mach64", qt_get_screen_mach64, 1 },
+#endif
+#if !defined(QT_NO_QWS_VOODOO3)
+    { "Voodoo3", qt_get_screen_voodoo3, 1 },
+#endif
+#if !defined(QT_NO_QWS_MATROX)
+    { "Matrox", qt_get_screen_matrox, 1 },
+#endif
+#if !defined(QT_NO_QWS_TRANSFORMED)
+    { "Transformed", qt_get_screen_transformed, 0 },
+#endif
+#if defined(QT_QWS_EE)
+    { "EE", qt_get_screen_ee, 0 },
+#endif
+#if !defined(QT_NO_QWS_SVGALIB)
+    { "SVGALIB", qt_get_screen_svgalib, 1 },
+#endif
+#if !defined(QT_NO_QWS_VNC)
+    { "VNC", qt_get_screen_vnc, 0 },
+#endif
+    { 0, 0, 0 },
 };
 
-QScreen *qt_get_screen( int display_id, const char *spec, char *slot, unsigned char *config )
+QScreen *qt_get_screen( int display_id, const char *spec )
 {
     QString displaySpec( spec );
-
-    if ( displaySpec.isEmpty() || displaySpec[0] == ':' )
-	displaySpec = "LinuxFb" + displaySpec;	// default driver
-
     QString driver = displaySpec;
     int colon = displaySpec.find( ':' );
-    if ( colon > 0 ) {
+    if ( colon >= 0 )
 	driver.truncate( colon );
-    }
 
     int i = 0;
     while ( driverTable[i].name ) {
-	//qDebug("Table [%s] driver [%s]",driverTable[i].name,driver.latin1());
-	if ( QString( driverTable[i].name ) == driver )
-	    return driverTable[i].qt_get_screen( display_id, spec, slot, config );
+	if ( driver.isEmpty() || QString( driverTable[i].name ) == driver ) {
+	    qt_screen = driverTable[i].qt_get_screen( display_id );
+	    if ( qt_screen ) {
+		if ( qt_screen->connect( spec ) ) {
+		    return qt_screen;
+		} else {
+		    delete qt_screen;
+		    qt_screen = 0;
+		}
+	    }
+	}
 	i++;
     }
 
-    qFatal( "No driver %s", driver.latin1() );
+    qFatal( "No %s driver found", driver.isNull() ? "suitable" : driver.latin1() );
 
     return 0;
 }
-

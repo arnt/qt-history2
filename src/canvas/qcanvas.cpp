@@ -371,12 +371,12 @@ private:
 
 static int gcd(int a, int b)
 {
-    // ### Should use good method, but not speed critical.
-
-    int r = QMIN(a,b);
-    while ( a%r || b%r )
-	r--;
-    return r;
+    int r;
+    while ( (r = a%b) ) {
+	a=b;
+	b=r;
+    }
+    return b;
 }
 
 static int scm(int a, int b)
@@ -688,8 +688,6 @@ void QCanvas::retune(int chunksze, int mxclusters)
 	for (QCanvasItem* item=hidden.first(); item != 0; item=hidden.next()) {
 	    item->show();
 	}
-
-	//oneone = tilew == tileh && tilew == chunksize;
     }
 }
 
@@ -788,6 +786,11 @@ viewing this QCanvas.  The QCanvasView class calls this.
 void QCanvas::addView(QCanvasView* view)
 {
     d->viewList.append(view);
+    if ( htiles>1 || vtiles>1 || pm.isNull() ) {
+	view->viewport()->setBackgroundColor(backgroundColor());
+    } else {
+	view->viewport()->setBackgroundPixmap(backgroundPixmap());
+    }
 }
 
 /*!
@@ -1323,14 +1326,13 @@ void QCanvas::removeItemFromChunkContaining(QCanvasItem* g, int x, int y)
     }
 }
 
-// ### warwick - either make it into a reimp, or complete the
-// unfinished setence.
-
 /*! Returns the color set by setBackgroundColor().
   By default, this is white.
 
-  Note that this function is not the same as
-  QWidget::backgroundColor().  The difference between them is
+  Note that this function is not a reimplementation
+  of QWidget::backgroundColor() (QCanvas is not a subclass
+  of QWidget), but all QCanvasViews that are viewing the
+  canvas will set their backgrounds to this 
 
   \sa setBackgroundColor(), backgroundPixmap()
 */
@@ -1345,8 +1347,15 @@ QColor QCanvas::backgroundColor() const
 */
 void QCanvas::setBackgroundColor( const QColor& c )
 {
-    bgcolor = c;
-    setAllChanged();
+    if ( bgcolor != c ) {
+	bgcolor = c;
+	QCanvasView* view=d->viewList.first();
+	while (view != 0 ) {
+	    view->viewport()->setBackgroundColor(backgroundColor());
+	    view=d->viewList.next();
+	}
+	setAllChanged();
+    }
 }
 
 /*!  Returns the pixmap set by setBackgroundPixmap().  By default,
@@ -1367,6 +1376,11 @@ QPixmap QCanvas::backgroundPixmap() const
 void QCanvas::setBackgroundPixmap( const QPixmap& p )
 {
     setTiles(p, 1, 1, p.width(), p.height());
+    QCanvasView* view=d->viewList.first();
+    while (view != 0 ) {
+	view->viewport()->setBackgroundPixmap(backgroundPixmap());
+	view=d->viewList.next();
+    }
 }
 
 /*!  This virtual function is called for all updates of the QCanvas.
@@ -1445,8 +1459,6 @@ void QCanvas::setDoubleBuffering(bool y)
 }
 
 
-// ### warwick is the fourth paragraph correct?
-
 /*!  Sets the QCanvas to be composed of \a h tiles horizontally and \a
   v tiles vertically.  Each tile will be an image \a tilewidth by \a
   tileheight pixels from pixmap \a p.
@@ -1458,9 +1470,6 @@ void QCanvas::setDoubleBuffering(bool y)
   If the QCanvas is larger than the matrix of tiles, the entire matrix
   is repeated as necessary to cover the area.  If it is smaller, tiles
   to the right and bottom are not visible.
-
-  QCanvas has special optimizations for the case where the tiles are
-  square and the canvas is not larger than (h*tilewidth, v*tileheight).
 
   The width and height of \a p must be multipless of \a tilewidth and
   \a tileheight. If they are not, the action of this function is
@@ -1485,7 +1494,6 @@ void QCanvas::setTiles( QPixmap p,
 	int s = scm(tilewidth,tileheight);
 	retune( s < 128 ? s : QMAX(tilewidth,tileheight) );
     }
-    //oneone = tilew == tileh && tilew == chunksize;
     setAllChanged();
 }
 
@@ -1939,18 +1947,12 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
 
     // s2image != 0
 
-    // ###
-    //
-    // A non-linear search would typically be more efficient.
-    // Optimal would be spiralling out from the center, but a simple
-    // vertical expansion from the centreline would suffice.
-    //
-    // My sister just had a baby 40 minutes ago, so I'm too
-    // brain-spun to implement it correctly!
-    //
+    // A non-linear search may be more efficient.
+    // Perhaps spiralling out from the center, or a simpler
+    // vertical expansion from the centreline.
 
-    // Let's make an assumption.  That sprite masks don't have
-    // bit orders for different machines!
+    // We assume that sprite masks don't have
+    // different bit orders.
     //
     // Q_ASSERT(s1image->bitOrder()==s2image->bitOrder());
 
@@ -2884,9 +2886,6 @@ QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFl
     viewing = 0;
     setCanvas(canvas);
 
-    if ( viewing )
-	viewport()->setBackgroundColor(viewing->backgroundColor());
-
     connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
 }
 
@@ -2921,8 +2920,6 @@ void QCanvasView::setCanvas(QCanvas* canvas)
 	viewing->addView(this);
     }
     updateContentsSize();
-    if ( viewing )
-	viewport()->setBackgroundColor(viewing->backgroundColor());
 }
 
 /*!
@@ -3937,8 +3934,9 @@ void QCanvasEllipse::setAngles(int start, int length)
 QPointArray QCanvasEllipse::areaPoints() const
 {
     QPointArray r;
-    // ##### makeArc is not a very pretty ellipse
     r.makeArc(int(x()-w/2.0-1),int(y()-h/2.0-1),w+2,h+3,a1,a2);
+    r.resize(r.size()+1);
+    r.setPoint(r.size()-1,x(),y());
     return r;
 }
 

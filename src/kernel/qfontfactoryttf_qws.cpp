@@ -32,7 +32,7 @@
 
 #include "qfontfactoryttf_qws.h"
 
-#ifndef QT_NO_TRUETYPE
+#ifndef QT_NO_FREETYPE
 
 #include "qfontdata_p.h"
 #include <string.h>
@@ -44,57 +44,71 @@
 
 
 extern "C" {
-#include <freetype.h>
-    //#include <ftoutln.h>
-#include <ftbbox.h>
+#include <freetype/freetype.h>
+#include <freetype/ftglyph.h>
+#include <freetype/ftoutln.h>
+#include <freetype/ftbbox.h>
 }
 
-extern "C" FT_Error  FT_Outline_Get_Bitmap( FT_Library   library,
-                                   FT_Outline*  outline,
-                                   FT_Bitmap*   map );
-
-class QDiskFontTTF : public QDiskFontPrivate {
+class QDiskFontFT : public QDiskFontPrivate {
 public:
     FT_Face face;
 };
 
-class QRenderedFontTTF : public QRenderedFont {
+class QRenderedFontFT : public QRenderedFont {
 public:
-    QRenderedFontTTF(QDiskFont* f, const QFontDef &d) :
+    QRenderedFontFT(QDiskFont* f, const QFontDef &d) :
 	QRenderedFont(f,d)
     {
-	QDiskFontTTF *df = (QDiskFontTTF*)(f->p);
+	QDiskFontFT *df = (QDiskFontFT*)(f->p);
+	myface=df->face;
 
 	int psize=(ptsize<<6)/10;
 
-	// Assume 75 dpi for now
+	// Assume 72 dpi for now
+	const int dpi=72;
 	FT_Error err;
-	FT_Set_Char_Size(df->face,psize,psize, 72,72);
-
-	myface=df->face;
-
-	err=FT_New_Size(df->face,&size);
-	if(err) {
-	    qFatal("New size error %d\n",err);
+	err=FT_Set_Char_Size(myface, psize,psize,dpi,dpi);
+	if (err) {
+	    if (FT_IS_SCALABLE(myface) ) {
+		qWarning("Set char size error %x for size %d",err,ptsize);
+	    } else {
+		int best=-1;
+		int bdh=99;
+		for (int i=0; i<myface->num_fixed_sizes; i++) {
+		    FT_Bitmap_Size& sz=myface->available_sizes[i];
+		    int dh = sz.height - ptsize*dpi/72/10;
+		    dh = QABS(dh);
+		    if ( dh < bdh ) {
+			bdh=dh;
+			best=i;
+		    }
+		}
+		if ( best >= 0 )
+		    err=FT_Set_Pixel_Sizes(myface,
+			myface->available_sizes[best].width,
+			myface->available_sizes[best].height);
+		if ( err )
+		    qWarning("Set char size error %x for size %d",err,ptsize);
+	    }
 	}
 
-	// Hmm. This appears to be set to 0. Not implemented in Freetype 2
-	// yet?
+	// A 1-pixel baseline is excluded in Qt/Windows/X11 fontmetrics
+	// (see QFontMetrics::height())
+	//
+	fascent=CEIL(myface->size->metrics.ascender)/64;
+	fdescent=-FLOOR(myface->size->metrics.descender)/64-1;
+	fmaxwidth=CEIL(myface->size->metrics.max_advance)/64;
+	fleading=CEIL(myface->size->metrics.height)/64
+	    - fascent - fdescent + 1;
 
-	err=FT_Set_Char_Size(myface,psize,psize,72,72);
-
-	fascent=size->metrics.ascender >> 6;
-	fdescent=size->metrics.descender >> 6;
-	fmaxwidth=size->metrics.max_advance >> 6;
-
-	// Slight fudge factor
-	fascent++;
-	fdescent--;
+	// FT has these in font units
+	funderlinepos = ptsize/200+1;
+	funderlinewidth = ptsize/200+1;
     }
 
-    ~QRenderedFontTTF()
+    ~QRenderedFontFT()
     {
-	FT_Done_Size(size);
     }
 
     bool unicode(int & i) const
@@ -130,94 +144,62 @@ public:
 
 	FT_Error err;
 
-	err=FT_Set_Char_Size(myface, psize,psize,72,72);
-	if(err)
-	    qFatal("Set char size error %x for size %d",err,ptsize);
-
-	FT_Bitmap mybits;
-
 	err=FT_Load_Glyph(myface,index,FT_LOAD_DEFAULT);
 	if(err)
 	    qFatal("Load glyph error %x",err);
 
 	int width,height,pitch,size;
-	FT_GlyphSlot glyph=myface->glyph;
+	FT_Glyph glyph;
+	err=FT_Get_Glyph( myface->glyph, &glyph );
+	if(err)
+	    qFatal("Get glyph error %x",err);
 
 	FT_BBox bbox;
-	FT_Raster_GetBBox(&glyph->outline,&bbox);
-	//FT_Outline_Get_CBox(&glyph->outline,&bbox);
+	FT_Glyph_Get_CBox(glyph, ft_glyph_bbox_gridfit, &bbox);
 
-	bbox.xMin=FLOOR(bbox.xMin);
-	bbox.xMax=CEIL(bbox.xMax);
-	bbox.yMin=FLOOR(bbox.yMin);
-	bbox.yMax=CEIL(bbox.yMax);
+	FT_Vector origin;
+	origin.x = -bbox.xMin;
+	origin.y = -bbox.yMin;
 
-	width=(bbox.xMax - bbox.xMin)/64;
-	height=(bbox.yMax - bbox.yMin)/64;
-
-	if (smooth) {
-	    pitch=(width+3) & -4;
-	    mybits.pixel_mode=ft_pixel_mode_grays;
-	} else {
-	    pitch=(width+7) >> 3;
-	    mybits.pixel_mode=ft_pixel_mode_mono;
+	if ( FT_IS_SCALABLE(myface) ) {
+	    err=FT_Glyph_To_Bitmap(&glyph,
+		smooth ? ft_render_mode_normal : ft_render_mode_mono,
+		&origin, 1); // destroy original glyph
+	    if(err)
+		qWarning("Get bitmap error %d",err);
 	}
 
-	size=pitch*height;
-
+	FT_Bitmap bm = ((FT_BitmapGlyph)glyph)->bitmap;
+	pitch = bm.pitch;
+	size=pitch*bm.rows;
 	result.data = new uchar[size]; // XXX memory manage me
-
-	mybits.width=width;
-	mybits.rows=height;
-	mybits.pitch=pitch;
-	mybits.buffer=result.data;
-
+	width=bm.width;
+	height=bm.rows;
 	if ( size ) {
-	    memset(mybits.buffer,0,size);
-
-	    FT_Outline_Translate(&glyph->outline,-bbox.xMin,-bbox.yMin);
-
-	    err=FT_Outline_Get_Bitmap(((QFontFactoryTTF*)diskfont->factory)->library,&glyph->outline,&mybits);
-	    if(err) {
-		qWarning("Get bitmap error %d [%dx%d]",err,mybits.pitch,mybits.rows);
-	    }
-	}
-
-	// Convert from 0-127 values for alpha channel
-	// to 0-255
-	// Leaving this out makes for very pretty alpha-blended text :)
-
-	if (smooth) {
-	    int loopc,loopc2;
-	    unsigned char * ptr;
-	    for(loopc=0;loopc<height;loopc++) {
-		ptr=((unsigned char *)mybits.buffer)+(loopc * pitch);
-		for(loopc2=0;loopc2<width;loopc2++) {
-		    unsigned char hold=*ptr;
-		    hold=hold*2+(hold>>7);
-		    *(ptr++)=hold;
-		}
-	    }
+	    memcpy( result.data, bm.buffer, size );
+	} else {
+	    result.data = new uchar[0]; // XXX memory manage me
 	}
 
 	result.metrics = new QGlyphMetrics;
 	memset((char*)result.metrics, 0, sizeof(QGlyphMetrics));
-	result.metrics->bearingx=glyph->metrics.horiBearingX/64;
-	result.metrics->advance=glyph->metrics.horiAdvance/64;
-	result.metrics->bearingy=glyph->metrics.horiBearingY/64;
+	result.metrics->bearingx=myface->glyph->metrics.horiBearingX/64;
+	result.metrics->advance=myface->glyph->metrics.horiAdvance/64;
+	result.metrics->bearingy=myface->glyph->metrics.horiBearingY/64;
 
 	result.metrics->linestep=pitch;
 	result.metrics->width=width;
 	result.metrics->height=height;
 
+	FT_Done_Glyph( glyph );
+
 	return result;
     }
 
     FT_Face myface;
-    FT_Size size;
 };
 
-QFontFactoryTTF::QFontFactoryTTF()
+QFontFactoryFT::QFontFactoryFT()
 {
     FT_Error err;
     err=FT_Init_FreeType(&library);
@@ -226,25 +208,25 @@ QFontFactoryTTF::QFontFactoryTTF()
     }
 }
 
-QFontFactoryTTF::~QFontFactoryTTF()
+QFontFactoryFT::~QFontFactoryFT()
 {
 }
 
-QString QFontFactoryTTF::name()
+QString QFontFactoryFT::name()
 {
-    return "TTF";
+    return "FT";
 }
 
-QRenderedFont * QFontFactoryTTF::get(const QFontDef & f,QDiskFont * f2)
+QRenderedFont * QFontFactoryFT::get(const QFontDef & f,QDiskFont * f2)
 {
-    return new QRenderedFontTTF(f2, f);
+    return new QRenderedFontFT(f2, f);
 }
 
-void QFontFactoryTTF::load(QDiskFont * qdf) const
+void QFontFactoryFT::load(QDiskFont * qdf) const
 {
     if(qdf->loaded)
 	return;
-    QDiskFontTTF *f = new QDiskFontTTF;
+    QDiskFontFT *f = new QDiskFontFT;
     qdf->p=f;
     FT_Error err;
     err=FT_New_Face(library,qdf->file.ascii(),0,&(f->face));
@@ -255,4 +237,4 @@ void QFontFactoryTTF::load(QDiskFont * qdf) const
 }
 
 
-#endif // QT_NO_TRUETYPE
+#endif // QT_NO_FREETYPE

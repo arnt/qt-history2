@@ -3488,6 +3488,7 @@ void QIconView::clear()
     d->tmpCurrentItem = 0;
     d->drawDragShapes = FALSE;
 
+    resizeContents( 0, 0 );
     // maybe we don´t need this update, so delay it
     d->fullRedrawTimer->start( 0, TRUE );
 

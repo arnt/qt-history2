@@ -927,7 +927,7 @@ public:
 
 template <const int depth, const int type>
 QGfxVNC<depth,type>::QGfxVNC(unsigned char *b,int w,int h)
-    : QGfxRaster( b, w, h )
+    : QGfxRaster<depth, type>( b, w, h )
 {
 }
 
@@ -1058,33 +1058,29 @@ bool QVNCScreen::connect( const QString &displaySpec )
 {
     int vsize = 0;
 
-    if ( displaySpec.find( ":Virtual" ) >= 0 ) {
-	virtualBuffer = TRUE;
-	d = 16;
-	const char* qwssize;
-	if((qwssize=getenv("QWS_SIZE"))) {
-	    sscanf(qwssize,"%dx%d",&w,&h);
-	    dw=w;
-	    dh=h;
-	} else {
-	    dw=w=640;
-	    dh=h=480;
-	}
-	lstep = ( dw * d + 7 ) / 8;
-	dataoffset = 0;
-	size = h * lstep;
-	vsize = size;
-	mapsize = size;
-	canaccel = FALSE;
-	optype = &dummy_optype;
-	lastop = &dummy_lastop;
-	initted = TRUE;
-	// We handle mouse and keyboard here
-	QWSServer::setDefaultMouse( "None" );
-	QWSServer::setDefaultKeyboard( "None" );
+    virtualBuffer = TRUE;
+    d = 16;
+    const char* qwssize;
+    if((qwssize=getenv("QWS_SIZE"))) {
+	sscanf(qwssize,"%dx%d",&w,&h);
+	dw=w;
+	dh=h;
     } else {
-	QLinuxFbScreen::connect( displaySpec );
+	dw=w=640;
+	dh=h=480;
     }
+    lstep = ( dw * d + 7 ) / 8;
+    dataoffset = 0;
+    size = h * lstep;
+    vsize = size;
+    mapsize = size;
+    canaccel = FALSE;
+    optype = &dummy_optype;
+    lastop = &dummy_lastop;
+    initted = TRUE;
+    // We handle mouse and keyboard here
+    QWSServer::setDefaultMouse( "None" );
+    QWSServer::setDefaultKeyboard( "None" );
 
     key_t key = ftok( QString(QTE_PIPE).arg(displayId).latin1(), 'v' );
      
@@ -1213,23 +1209,9 @@ QGfx * QVNCScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
     return ret;
 }
 
-extern "C" QScreen * qt_get_screen_vnc( int display_id, const char *spec,
-				    char *slot, unsigned char *config )
+extern "C" QScreen * qt_get_screen_vnc( int display_id )
 {
-    if ( !qt_screen ) {
-	qt_screen = new QVNCScreen( display_id );
-	if ( !qt_screen->connect( spec ) ) {
-	    delete qt_screen;
-	    qt_screen = 0;
-	}
-    }
-
-    if ( !qt_screen ) {
-	// VNC failed, but we can still try the hardware display
-	qt_screen = qt_get_screen_linuxfb( display_id, spec, slot, config );
-    }
-
-    return qt_screen;
+    return new QVNCScreen( display_id );
 }
 
 #endif // QT_NO_QWS_VNC

@@ -191,6 +191,9 @@ public:
     static void setMaxWindowRect(const QRect&);
     static void sendMaxWindowRectEvents();
     static void sendMouseEvent(const QPoint& pos, int state);
+
+    static void setDesktopBackground( const QImage &img );
+    static void setDesktopBackground( const QColor & );
     static QMouseHandler *mouseHandler();
     static QList<QWSInternalWindowInfo> * windowList();
 
@@ -219,9 +222,6 @@ public:
     void refresh();
     void enablePainting(bool);
 
-    // ### a pixmap would be nice, but qws can't load them
-    void setBackgroundImage( const QImage &img );
-
     static void processEventQueue();
 
     static void move_region( const QWSRegionMoveCommand * );
@@ -236,6 +236,8 @@ public:
 
 private:
     static QWSServer *qwsServer; //there can be only one
+    static QColor *bgColor;
+    static QImage *bgImage;
     
 private:
     void invokeCreate( QWSCreateCommand *cmd, QWSClient *client );
@@ -282,7 +284,7 @@ private:
     void initializeCursor();
     void paintServerRegion();
     void paintBackground( QRegion );
-
+    void refreshBackground();
 private slots:
 #ifndef QT_NO_QWS_MULTIPROCESS
     void clientClosed();
@@ -332,7 +334,6 @@ private:
 #ifndef QT_NO_QWS_KEYBOARD    
     QList<QWSKeyboardHandler> keyboardhandlers;
 #endif
-    QImage bgImage;
 
     QList<QWSCommandStruct> commandQueue;
     QWSRegionManager *rgnMan;

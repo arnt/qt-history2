@@ -123,13 +123,6 @@ QWSClient::QWSClient( QObject* parent, int socket )
 	csocket->setSocket(socket);
 	isClosed = FALSE;
 
-	// Send some objects - client process probably wants some
-	QWSCreationEvent event;
-	for (int i=0; i<10; i++) {
-	    event.simpleData.objectid = get_object_id();
-	    event.write( csocket );
-	}
-
 	csocket->flush();
 
 	connect( csocket, SIGNAL(readyRead()), this, SIGNAL(readyRead()) );
@@ -597,7 +590,7 @@ QWSServer::QWSServer( int displayId, int flags,
 
     if ( !ok() ) {
 	perror("Error");
-	qWarning("Failed to bind to %s", pipe.latin1() );
+	qFatal("Failed to bind to %s", pipe.latin1() );
     } else {
 	struct linger tmp;
 	tmp.l_onoff=1;
@@ -644,6 +637,8 @@ QWSServer::QWSServer( int displayId, int flags,
 	openKeyboard();
     }
 #endif
+    if ( !bgColor )
+	bgColor = new QColor( 0x20, 0xb0, 0x50 );
     screenRegion = QRegion( 0, 0, swidth, sheight );
     paintBackground( screenRegion );
 
@@ -659,7 +654,8 @@ QWSServer::~QWSServer()
     // destroy all clients
     for (ClientIterator it = client.begin(); it != client.end(); ++it )
 	delete *it;
-    delete rgnMan;
+    delete bgColor;
+    bgColor = 0;
     closeDisplay();
     closeMouse();
 #ifndef QT_NO_QWS_KEYBOARD
@@ -677,12 +673,12 @@ void QWSServer::newConnection( int socket )
 
     client[socket]->sendConnectedEvent( qws_display_spec );
 
+    if ( !maxwindow_rect.isEmpty() )
+	client[socket]->sendMaxWindowRectEvent();
+
     // pre-provide some object id's
     for (int i=0; i<20; i++)
 	invokeCreate(0,client[socket]);
-
-    if ( !maxwindow_rect.isEmpty() )
-	client[socket]->sendMaxWindowRectEvent();
 }
 
 void QWSServer::clientClosed()
@@ -930,19 +926,6 @@ void QWSServer::enablePainting(bool e)
     }
 }
 
-void QWSServer::setBackgroundImage( const QImage &img )
-{
-    bgImage = img;
-
-    QRegion r(0, 0, swidth, sheight);
-    for (uint i=0; i<windows.count(); i++) {
-	if ( r.isEmpty() )
-	    return; // Nothing left for deeper windows
-	QWSWindow* w = windows.at(i);
-	r -= w->allocation();
-    }
-    paintBackground( r );
-}
 
 void QWSServer::refresh()
 {
@@ -1432,26 +1415,22 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
 void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )
 {
     QWSWindow* win = findWindow(cmd->simpleData.windowid, client);
-    if ( mouseGrabbing ) {
-	if (win != mouseGrabber) {
-	    qWarning("Mouse already grabbed by another window");
-	    return;
-	}
 
-	if ( !cmd->simpleData.grab ) {
-	    mouseGrabbing = FALSE;
-	    mouseGrabber = 0;
-#ifndef QT_NO_QWS_CURSOR
-	    if (nextCursor) {
-		// Not grabbing -> set the correct cursor
-		setCursor(nextCursor);
-		nextCursor = 0;
-	    }
-#endif
+    if ( cmd->simpleData.grab ) {
+	if ( !mouseGrabber || ( mouseGrabber->client() == client ) ) {
+	    mouseGrabbing = TRUE;
+	    mouseGrabber = win;
 	}
-    } else if ( cmd->simpleData.grab ) {
-	mouseGrabbing = TRUE;
-	mouseGrabber = win;
+    } else {
+#ifndef QT_NO_QWS_CURSOR
+	if (nextCursor) {
+	    // Not grabbing -> set the correct cursor
+	    setCursor(nextCursor);
+	    nextCursor = 0;
+	}
+#endif
+	mouseGrabbing = FALSE;
+	mouseGrabber = 0;
     }
 }
 
@@ -1500,6 +1479,9 @@ void QWSWindow::removeAllocation(QWSRegionManager *rm, QRegion r)
 	allocated_region = nr;
 	rm->set( alloc_region_idx, allocated_region );
 	modified = TRUE;
+    } else if ( needAck ) {
+	// set our region dirty anyway
+	rm->markUpdated( alloc_region_idx );
     }
 }
 
@@ -1902,6 +1884,8 @@ void QWSServer::openKeyboard()
 
 QWSServer *QWSServer::qwsServer=0; //there can be only one
 QPoint QWSServer::mousePosition;
+QColor *QWSServer::bgColor = 0;
+QImage *QWSServer::bgImage = 0;
 
 void QWSServer::move_region( const QWSRegionMoveCommand *cmd )
 {
@@ -1952,6 +1936,8 @@ void QWSServer::paintServerRegion()
 
 void QWSServer::paintBackground( QRegion r )
 {
+    if ( bgImage && bgImage->isNull() )
+	return;
     if ( !r.isEmpty() ) {
 	Q_ASSERT ( qt_fbdpy );
 
@@ -1959,18 +1945,59 @@ void QWSServer::paintBackground( QRegion r )
 
 	gfx->setClipRegion( r );
 	QRect br( r.boundingRect() );
-	if ( bgImage.isNull() ) {
-	    QColor col(0x20, 0xb0, 0x50);
-	    gfx->setBrush(QBrush(col));
+	if ( !bgImage ) {
+	    gfx->setBrush(QBrush( *bgColor ));
 	    gfx->fillRect( br.x(), br.y(), br.width(), br.height() );
 	} else {
-	    gfx->setSource( &bgImage );
+	    gfx->setSource( bgImage );
+	    gfx->setBrushOffset( br.x(), br.y() );
 	    gfx->tiledBlt( br.x(), br.y(), br.width(), br.height() );
 	}
 	gfx->setClipRegion( QRegion() );
     }
 }
 
+
+void QWSServer::refreshBackground()
+{
+    QRegion r(0, 0, swidth, sheight);
+    for (uint i=0; i<windows.count(); i++) {
+	if ( r.isEmpty() )
+	    return; // Nothing left for deeper windows
+	QWSWindow* w = windows.at(i);
+	r -= w->allocation();
+    }
+    paintBackground( r );
+}
+
+
+void QWSServer::setDesktopBackground( const QImage &img )
+{
+
+    if ( !bgImage )
+	bgImage = new QImage( img );
+    else
+	*bgImage = img;
+
+    if ( qwsServer )
+	qwsServer->refreshBackground();
+}
+
+void QWSServer::setDesktopBackground( const QColor &c )
+{
+    if ( !bgColor )
+	bgColor = new QColor( c );
+    else
+	*bgColor = c;
+
+    if ( bgImage ) {
+	delete bgImage;
+	bgImage = 0;
+    }
+	
+    if ( qwsServer )
+	qwsServer->refreshBackground();
+}
 
 /*!
   Start the server

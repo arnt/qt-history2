@@ -20,7 +20,7 @@
 #define QT_NO_IMAGEIO_PNG
 #define QT_NO_ASYNC_IO
 #define QT_NO_ASYNC_IMAGE_IO
-#define QT_NO_TRUETYPE
+#define QT_NO_FREETYPE
 #define QT_NO_BDF
 #define QT_NO_FONTDATABASE
 #define QT_NO_TRANSLATION

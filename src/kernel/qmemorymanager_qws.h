@@ -82,6 +82,9 @@ public:
     int fontMinRightBearing(FontID id) const;
     int fontLeading(FontID id) const;
     int fontMaxWidth(FontID id) const;
+    int fontUnderlinePos(FontID id) const;
+    int fontLineWidth(FontID id) const;
+    int fontLineSpacing(FontID id) const;
 
 private:
     QMap<PixmapID,QMemoryManagerPixmap> pixmap_map;

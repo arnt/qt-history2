@@ -1,3 +1,34 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#8 $
+**
+** Implementation of Qt/Embedded memory management routines
+**
+** Created : 000101
+**
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the kernel module of the Qt GUI Toolkit.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 #include "qmemorymanager_qws.h"
 #include "qfontmanager_qws.h"
 #include "qgfx_qws.h"
@@ -97,10 +128,58 @@ public:
 			    depth, tmp.metrics->linestep, 0, cols, end );
 		img = qt_screen->mapToDevice( img );
 		tmp2 = new QGlyph( tmp.metrics, new uchar [img.numBytes()] );
+		//### memory leak: tmp2 is never deleted
 		memcpy( tmp2->data, img.bits(), img.numBytes() );
 		tmp2->metrics->linestep = img.bytesPerLine();
 		delete [] tmp.data;
+	    } 
+#ifndef QT_NO_QWS_INTERLACE
+	    if ( tmp2->metrics->width && tmp2->metrics->height &&
+		 qt_screen->isInterlaced() ) {
+		//we should probably hack on the font even if it is not smooth
+		int height = tmp2->metrics->height + 1;
+		int width = tmp2->metrics->width;
+		int pitch = tmp2->metrics->linestep;
+		if ( !renderer->smooth ) {
+		    pitch=(width+3) & -4;
+		}
+		uchar *newdata = new uchar[height*pitch];
+		uchar *olddata = tmp2->data;
+		memset(newdata,0,height*pitch);
+
+		if (renderer->smooth) {
+		for(int y=0; y<height; y++) {
+		    unsigned char *src1 = y == height-1 ? 0 :olddata+y*pitch;
+		    unsigned char *src2 = y == 0 ? 0 :olddata+(y-1)*pitch;
+		    unsigned char *dst = newdata+y*pitch;
+
+		    for(int x=0;x<width;x++) {
+			*dst++ = (2*(src1?*src1++:0) + (src2?*src2++:0))/3;
+		    }
+		}
+		} else {
+		    QRgb colTable[2] = {0, 1};
+		    QImage img( tmp2->data, width, height,
+				1, tmp.metrics->linestep, 
+				colTable, 2, QImage::BigEndian);
+		    for(int y=0; y<height; y++) {
+			unsigned char *dst = newdata+y*pitch;
+
+			for(int x=0;x<width;x++) {
+			    *dst++ = ( y!=height-1 && img.pixel(x,y)? 170 :0)
+			     + ( y!=0 && img.pixel(x,y-1)? 85 :0);
+			}
+		    }
+		    
+		
+		}
+		
+		delete tmp2->data;
+		tmp2->data = newdata;
+		tmp2->metrics->height = height;
+		tmp2->metrics->linestep = pitch;
 	    }
+#endif //QT_NO_QWS_INTERLACE	    
 	    glyph[i] = *tmp2;
 	}
     }
@@ -481,13 +560,13 @@ public:
     QRenderedFont* renderer; // ==0 for QPFs
 
     struct Q_PACKED {
-	Q_UINT8 ascent,descent;
+	Q_INT8 ascent,descent;
 	Q_INT8 leftbearing,rightbearing;
 	Q_UINT8 maxwidth;
-	Q_UINT8 leading;
+	Q_INT8 leading;
 	Q_UINT8 flags;
-	Q_UINT8 reserved1;
-	Q_UINT8 reserved2;
+	Q_UINT8 underlinepos;
+	Q_UINT8 underlinewidth;
 	Q_UINT8 reserved3;
     } fm;
 };
@@ -610,7 +689,9 @@ static QString fontKey(const QFontDef& font)
 	QPoint b = qt_screen->mapToDevice(QPoint(1,1),QSize(2,2));
 	key += QString::number( a.x()*8+a.y()*4+(1-b.x())*2+(1-b.y()) );
     }
-
+    if ( qt_screen->isInterlaced() ) {
+	key += "_I";
+    }
     return key;
 }
 extern QString qws_topdir();
@@ -686,7 +767,11 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 	    mmf->fm.leftbearing = mmf->renderer->fleftbearing;
 	    mmf->fm.rightbearing = mmf->renderer->frightbearing;
 	    mmf->fm.maxwidth = mmf->renderer->fmaxwidth;
-	    mmf->fm.flags = mmf->renderer->smooth ? FM_SMOOTH : 0;
+	    mmf->fm.leading = mmf->renderer->fleading;
+	    mmf->fm.underlinepos = mmf->renderer->funderlinepos;
+	    mmf->fm.underlinewidth = mmf->renderer->funderlinewidth;
+	    mmf->fm.flags = (mmf->renderer->smooth||qt_screen->isInterlaced())
+			    ? FM_SMOOTH : 0;
 	}
 	font_map[key] = (FontID)mmf;
 #ifndef QT_NO_QWS_SAVEFONTS
@@ -823,6 +908,16 @@ int QMemoryManager::fontMaxWidth(FontID id) const
 {
     QMemoryManagerFont* mmf = (QMemoryManagerFont*)id;
     return mmf->fm.maxwidth;
+}
+int QMemoryManager::fontUnderlinePos(FontID id) const
+{
+    QMemoryManagerFont* mmf = (QMemoryManagerFont*)id;
+    return mmf->fm.underlinepos ? mmf->fm.underlinepos : 1;
+}
+int QMemoryManager::fontLineWidth(FontID id) const
+{
+    QMemoryManagerFont* mmf = (QMemoryManagerFont*)id;
+    return mmf->fm.underlinewidth ? mmf->fm.underlinewidth : 1;
 }
 
 

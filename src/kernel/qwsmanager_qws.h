@@ -29,6 +29,8 @@
 ** not clear to you.
 **
 **********************************************************************/
+#ifndef __QWS_MANAGER_H__
+#define __QWS_MANAGER_H__
 
 #ifndef QT_H
 #include "qpixmap.h"
@@ -36,12 +38,14 @@
 #endif // QT_H
 
 #ifndef QT_NO_QWS_MANAGER
+
 class QPixmap;
 class QWidget;
 class QPopupMenu;
 class QRegion;
 class QMouseEvent;
 class QWSButton;
+class QWSManager;
 
 /*
  Implements decoration styles
@@ -62,7 +66,7 @@ public:
     virtual void minimize( QWidget * );
     virtual void maximize( QWidget * );
 #ifndef QT_NO_POPUPMENU
-    virtual QPopupMenu *menu(const QWidget *, const QPoint &);
+    virtual QPopupMenu *menu(QWSManager *, const QWidget *, const QPoint &);
 #endif
     virtual void paint(QPainter *, const QWidget *) = 0;
     virtual void paintButton(QPainter *, const QWidget *, Region, int state) = 0;
@@ -77,6 +81,8 @@ public:
     QWSManager(QWidget *);
     ~QWSManager();
 
+    static QWSDecoration *newDefaultDecoration();
+
     QRegion region();
     QWidget *widget() { return managed; }
     void maximize();
@@ -85,6 +91,7 @@ public:
 
 protected slots:
     void menuActivated(int);
+    void styleMenuActivated(int);
 
 protected:
     void handleMove();
@@ -140,18 +147,9 @@ private:
     QWSManager *manager;
 };
 
-class QWSDefaultDecoration : public QWSDecoration
-{
-public:
-    QWSDefaultDecoration();
-    virtual ~QWSDefaultDecoration();
-    
-    virtual QRegion region(const QWidget *, const QRect &rect, Region);
-    virtual void paint(QPainter *, const QWidget *);
-    virtual void paintButton(QPainter *, const QWidget *, Region, int state);
-
-protected:
-    virtual const QPixmap* pixmapFor(const QWidget*, Region, bool, int&, int&);
-};
+// class QWSDefaultDecoration : public QWSDecoration;
+#include "qwsdefaultdecoration_qws.h"
 
 #endif //QT_NO_QWS_MANAGER
+
+#endif //__QWS_MANAGER_H__

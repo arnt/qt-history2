@@ -598,7 +598,7 @@ void QApplication::construct( int &argc, char **argv, Type type )
 QApplication::QApplication( Display* dpy )
 {
     static int aargc = 1;
-    static char *aargv[] = { "unknown" , 0 };
+    static char *aargv[] = { "unknown", 0 };
 
     qt_is_gui_used = TRUE;
     init_precmdline();
@@ -659,13 +659,6 @@ void QApplication::initialize( int argc, char **argv )
     (void) palette();  // trigger creation of application palette
 #endif
     is_app_running = TRUE; // no longer starting up
-
-#ifdef Q_WS_QWS
-    // This is in qapplication.cpp in qt/main
-    extern QRect qt_maxWindowRect;
-    if ( qt_is_gui_used )
-	qt_maxWindowRect = qApp->desktop()->rect();
-#endif
 
 #ifndef QT_NO_STYLE
 #if defined(Q_WS_X11)

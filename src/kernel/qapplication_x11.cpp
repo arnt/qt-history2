@@ -3400,7 +3400,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	     widget->isTopLevel() && !widget->isDesktop () &&
 	     event->xcrossing.detail != NotifyInferior &&!inPopupMode() ) 
 	    setActiveWindow (widget);
-	
+
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
 	if ( inPopupMode() && widget->topLevelWidget() != activePopupWidget() )
@@ -3423,7 +3423,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	     widget->isTopLevel() && !widget->isDesktop () &&
 	     event->xcrossing.detail != NotifyInferior &&!inPopupMode() ) 
 	    setActiveWindow ( 0 );
-	
+
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
 	if ( widget->winId() != curWin )

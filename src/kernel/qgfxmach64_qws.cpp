@@ -1221,8 +1221,7 @@ public:
 
     QMachScreen( int display_id );
     virtual ~QMachScreen();
-    virtual bool connect( const QString &spec, char *,
-			    unsigned char * config );
+    virtual bool connect( const QString &spec );
     virtual bool initDevice();
     virtual int initCursor(void*, bool);
     virtual void shutdownDevice();
@@ -1272,13 +1271,14 @@ QMachScreen::QMachScreen( int display_id )
 {
 }
 
-bool QMachScreen::connect( const QString &displaySpec, char *,
-			    unsigned char * config )
+bool QMachScreen::connect( const QString &displaySpec )
 {
     if ( !QLinuxFbScreen::connect( displaySpec ) )
 	return FALSE;
 
     canaccel=false;
+
+    const unsigned char* config = qt_probe_bus();
 
     unsigned short int * manufacturer=(unsigned short int *)config;
     if(*manufacturer!=0x1002) {
@@ -1288,8 +1288,8 @@ bool QMachScreen::connect( const QString &displaySpec, char *,
 	return FALSE;
     }
 
-    unsigned char * bar=config+0x10;
-    unsigned long int * addr=(unsigned long int *)bar;
+    const unsigned char * bar=config+0x10;
+    const unsigned long int * addr=(const unsigned long int *)bar;
     unsigned long int s=*(addr+2);
     unsigned long int olds=s;
     if(s & 0x1) {
@@ -1489,19 +1489,9 @@ QGfx * QMachScreen::createGfx(unsigned char * b,int w,int h,int d,int linestep)
 
 extern bool qws_accel;
 
-extern "C" QScreen * qt_get_screen_mach64( int display_id, const char *spec,
-					char * slot,unsigned char * config )
+extern "C" QScreen * qt_get_screen_mach64( int display_id )
 {
-    if ( !qt_screen && qws_accel && slot!=0) {
-	QMachScreen * ret=new QMachScreen( display_id );
-	if(ret->connect( spec, slot, config ))
-	    qt_screen=ret;
-    }
-    if( !qt_screen ) {
-	qt_screen=new QLinuxFbScreen( display_id );
-	qt_screen->connect( spec );
-    }
-    return qt_screen;
+    return new QMachScreen( display_id );
 }
 
 #ifndef QT_NO_QWS_CURSOR

@@ -1,3 +1,34 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#8 $
+**
+** Implementation of Qt/Embedded region manager
+**
+** Created : 000101
+**
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the kernel module of the Qt GUI Toolkit.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 #include "qwsdisplay_qws.h"
 #include "qwsregionmanager_qws.h"
 #include <stdlib.h>
@@ -42,6 +73,8 @@ public:
 QWSRegionManager::QWSRegionManager( const QString &filename, bool c) :
     client( c )
 {
+    data = 0;
+    shmId = -1;
     if ( client ) {
 	if ( !attach( filename ) )
 	    qFatal( "Cannot attach region manager" );
@@ -65,7 +98,7 @@ QWSRegionManager::QWSRegionManager( const QString &filename, bool c) :
 */
 QWSRegionManager::~QWSRegionManager()
 {
-    // detach(); ##### crashing, disable for 2.2.2 release
+    detach();
 
     if ( !client ) {
 	delete regHdr;
@@ -80,7 +113,7 @@ QWSRegionManager::~QWSRegionManager()
  in shared memory, and if so retrieve it using region().
  It is safe to store the pointer returned for later use.
 */
-int *QWSRegionManager::revision( int idx )
+const int *QWSRegionManager::revision( int idx ) const
 {
     return &regIdx[idx].revision;
 }
@@ -170,6 +203,15 @@ void QWSRegionManager::remove( int idx )
 }
 
 /*
+ Mark a region as changed (even if it hasn't).
+*/
+void QWSRegionManager::markUpdated( int idx )
+{
+    regIdx[idx].revision++;
+}
+
+
+/*
  Commit the region table to shared memory.
  The region table is not copied to shared memory every time it is
  modified as this would lead to a great deal of overhead when the server
@@ -228,14 +270,13 @@ QRect *QWSRegionManager::rects( int offset )
 bool QWSRegionManager::attach( const QString &filename )
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
-    int shmId;
     key_t key = ftok( filename.latin1(), 'r' );
     if ( !client ) {
 	int dataSize = sizeof(QWSRegionHeader)                // header
 		    + sizeof(QWSRegionIndex) * QT_MAX_REGIONS // + index
 		    + sizeof(QRect) * regHdr->maxRects;       // + rects
 
-	shmId = shmget( key, dataSize, IPC_CREAT|0666);
+	shmId = shmget( key, dataSize, IPC_CREAT|0600);
 	if ( shmId != -1 )
 	    data = (unsigned char *)shmat( shmId, 0, 0 );
     } else {
@@ -261,7 +302,11 @@ bool QWSRegionManager::attach( const QString &filename )
 void QWSRegionManager::detach()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS    
-    shmdt( data );
+    if ( data )
+	shmdt( data );
+    if ( !client && shmId != -1 ) {
+	shmctl( shmId, IPC_RMID, 0 );
+    }
 #else
     free( data );
 #endif    

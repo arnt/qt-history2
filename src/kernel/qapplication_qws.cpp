@@ -126,6 +126,10 @@ static int qt_thread_pipe[2];
 
 const int qwsSharedRamSize = 32 * 1024;	//Small amount to fit on small devices.
 
+extern void qt_setMaxWindowRect(const QRect& r);
+
+static bool servermaxrect=FALSE; // set to TRUE once.
+
 QLock *QWSDisplay::lock = 0;
 
 
@@ -134,6 +138,7 @@ QLock *QWSDisplay::lock = 0;
 
 bool qws_smoothfonts = TRUE;
 bool qws_savefonts = FALSE;
+bool qws_screen_is_interlaced=FALSE; //### should be detected
 bool qws_shared_memory = FALSE;
 bool qws_sw_cursor = TRUE;
 bool qws_accel = TRUE;	    // ### never set
@@ -293,12 +298,15 @@ public:
 
     ~QWSDisplayData()
     {
-	delete rgnMan;
+	delete rgnMan; rgnMan = 0;
 	delete memorymanager; memorymanager = 0;
 	qt_screen->disconnect();
 	delete qt_screen; qt_screen = 0;
 #ifndef QT_NO_QWS_MULTIPROCESS
 	shmdt(sharedRam);
+	if ( !csocket && ramid != -1 ) {
+	    shmctl( ramid, IPC_RMID, 0 );
+	}
 	delete csocket;
 #endif
     }
@@ -308,6 +316,7 @@ public:
     QWSRegionManager *rgnMan;
     uchar *sharedRam;
     int sharedRamSize;
+    int ramid;
 
 private:
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -324,6 +333,7 @@ private:
 #endif
     QWSEvent* current_event;
     QValueList<int> unused_identifiers;
+    int mouse_event_count;
 
     enum { VariableEvent=-1 };
 public:
@@ -339,6 +349,7 @@ public:
 	} else if ( mouse_event ) {
 	    r = mouse_event;
 	    mouse_event = 0;
+	    mouse_event_count = 0;
 	} else {
 	    r = region_event;
 	    region_event = 0;
@@ -417,6 +428,8 @@ void QWSDisplayData::init()
     qcop_response = 0;
 #endif
     current_event = 0;
+    mouse_event_count = 0;
+    ramid = -1;
 
     QString pipe = QString(QTE_PIPE).arg(qws_display_id); //########
 
@@ -454,7 +467,7 @@ void QWSDisplayData::init()
 	    perror("Can't attach to main ram memory.");
 	    exit(1);
 	}
-	qt_probe_bus( qws_display_id, qws_display_spec );
+	qt_get_screen( qws_display_id, qws_display_spec );
     }
     else
 #endif
@@ -469,7 +482,7 @@ void QWSDisplayData::init()
 #ifndef QT_NO_QWS_MULTIPROCESS
 
 	key_t memkey = ftok( pipe.latin1(), 'm' );
-	int ramid=shmget(memkey,sharedRamSize,IPC_CREAT|0666);
+	ramid=shmget(memkey,sharedRamSize,IPC_CREAT|0600);
 	if(ramid<0) {
 	    perror("Cannot allocate main ram shared memory\n");
 	}
@@ -484,9 +497,10 @@ void QWSDisplayData::init()
 	// the rest too
 	memset(sharedRam,0,sharedRamSize);
 
-	QScreen *s = qt_probe_bus( qws_display_id, qws_display_spec );
+	QScreen *s = qt_get_screen( qws_display_id, qws_display_spec );
 	s->initDevice();
     }
+    qt_setMaxWindowRect(QRect(0,0,qt_screen->width(),qt_screen->height()));
     int mouseoffset = 0;
 
 #ifndef QT_NO_QWS_CURSOR
@@ -512,10 +526,6 @@ void QWSDisplayData::init()
 #else
     rgnMan = new QWSRegionManager( pipe, 0 ); //####### not necessary
 #endif
-    // Create some object ID's in advance.
-    // XXX server should just send some
-    for (int o=0; o<10; o++)
-	create();
 #ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket )
 	csocket->flush();
@@ -561,6 +571,7 @@ void QWSDisplayData::fillQueue()
     while ( e ) {
 	if ( e->type == QWSEvent::Connected ) {
 	    connected_event = (QWSConnectedEvent *)e;
+	    return;
   	} else if ( e->type == QWSEvent::Creation ) {
 	    QWSCreationEvent *ce = (QWSCreationEvent*)e;
 	    unused_identifiers.append(ce->simpleData.objectid);
@@ -569,21 +580,28 @@ void QWSDisplayData::fillQueue()
 	    if ( !qt_screen ) {
 		delete e;
 	    } else {
+		QWSMouseEvent *me = (QWSMouseEvent*)e;
 		if ( mouse_event ) {
 		    if ( (mouse_event->window() != e->window ()
 			  || mouse_event->simpleData.state !=
-			  ((QWSMouseEvent*)e)->simpleData.state )) {
+			  me->simpleData.state )) {
+			queue.append( mouse_event );
+			mouse_event_count = 0;
+		    } else if ( mouse_event_count == 1 ) {
+			// make sure the position of the press is not
+			// compressed away.
 			queue.append( mouse_event );
 		    } else {
 			delete mouse_event;
 		    }
 		}
-		mouse_event = (QWSMouseEvent*)e;
 		QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
-		QPoint p(mouse_event->simpleData.x_root, mouse_event->simpleData.y_root);
+		QPoint p(me->simpleData.x_root, me->simpleData.y_root);
 		p = qt_screen->mapFromDevice( p, s );
-		mouse_event->simpleData.x_root = p.x();
-		mouse_event->simpleData.y_root = p.y();
+		me->simpleData.x_root = p.x();
+		me->simpleData.y_root = p.y();
+		mouse_event = me;
+		mouse_event_count++;
 	    }
 	} else if ( e->type == QWSEvent::RegionModified ) {
 	    QWSRegionModifiedEvent *re = (QWSRegionModifiedEvent *)e;
@@ -607,6 +625,13 @@ void QWSDisplayData::fillQueue()
 	    } else {
 		queue.append(e);
 	    }
+	} else if ( e->type==QWSEvent::MaxWindowRect && !servermaxrect ) {
+	    // Process this ASAP, in case new widgets are created (startup)
+	    servermaxrect=TRUE;
+	    QRect r = ((QWSMaxWindowRectEvent*)e)->simpleData.rect;
+	    extern void qt_setMaxWindowRect(const QRect& r);
+	    qt_setMaxWindowRect(r);
+	    delete e;
 #ifndef QT_NO_COP
 	} else if ( e->type == QWSEvent::QCopMessage ) {
 	    QWSQCopMessageEvent *pe = (QWSQCopMessageEvent*)e;
@@ -633,12 +658,15 @@ void QWSDisplayData::waitForConnection()
     if ( connected_event )
 	return;
 #ifndef QT_NO_QWS_MULTIPROCESS
-    if ( csocket )
-	csocket->waitForMore(1000);
+    for ( int i = 0; i < 5; i++ ) {
+	if ( csocket )
+	    csocket->waitForMore(1000);
+	fillQueue();
+	if ( connected_event )
+	    return;
+	usleep( 50000 );
+    }
 #endif
-    fillQueue();
-    if ( connected_event )
-	return;
     qWarning("No Qt/Embedded server appears to be running.");
     qWarning("If you want to run this program as a server,");
     qWarning("add the \"-qws\" command-line option.");
@@ -746,6 +774,7 @@ uchar* QWSDisplay::frameBuffer() const { return qt_screen->base(); }
 int QWSDisplay::width() const { return qt_screen->width(); }
 int QWSDisplay::height() const { return qt_screen->height(); }
 int QWSDisplay::depth() const { return qt_screen->depth(); }
+int QWSDisplay::pixmapDepth() const { return qt_screen->pixmapDepth(); }
 bool QWSDisplay::supportsDepth(int d) const { return qt_screen->supportsDepth(d); }
 uchar *QWSDisplay::sharedRam() const { return d->sharedRam; }
 int QWSDisplay::sharedRamSize() const { return d->sharedRamSize; }
@@ -1116,7 +1145,7 @@ static void init_display()
     QPainter::initialize();
     QFontManager::initialize();
 #ifndef QT_NO_QWS_MANAGER
-    qws_decoration = new QWSDefaultDecoration;
+    qws_decoration = QWSManager::newDefaultDecoration();
 #endif
 
     qApp->setName( appName );
@@ -1223,6 +1252,8 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 	    flags |= QWSServer::DisableMouse;
 	} else if ( arg == "-qws" ) {
 	    type = QApplication::GuiServer;
+	} else if ( arg == "-interlaced" ) {
+	    qws_screen_is_interlaced = TRUE;
 	} else if ( arg == "-display" ) {
 	    if ( ++i < argc )
 		qws_display_spec = argv[i];
@@ -2083,6 +2114,12 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	    if ( event->asMouse()->simpleData.state && !btnstate ) {
 		btnstate = event->asMouse()->simpleData.state;
 		gw = w;
+		if ( !widget->isActiveWindow() &&
+		     ( !app_do_modal || QApplication::activeModalWidget() == widget ) &&
+		     !widget->testWFlags(WStyle_NoBorder|WStyle_Tool) ) {
+		    widget->setActiveWindow();
+		    widget->raise();
+		}
 	    } else if ( !event->asMouse()->simpleData.state && btnstate ) {
 		btnstate = 0;
 		gw = 0;
@@ -2362,9 +2399,12 @@ static bool qt_try_modal( QWidget *widget, QWSEvent *event )
     bool paint_event = FALSE;
 
     switch ( event->type ) {
+	case QWSEvent::Focus:
+	    if ( !((QWSFocusEvent*)event)->simpleData.get_focus )
+		break;
+	    // drop through
 	case QWSEvent::Mouse:			// disallow mouse/key events
 	case QWSEvent::Key:
-	case QWSEvent::Focus:
 	    block_event	 = TRUE;
 	    break;
 	case QWSEvent::RegionModified:
@@ -2389,12 +2429,9 @@ void QApplication::openPopup( QWidget *popup )
 	(*activeBeforePopup) = active_window;
     }
     popupWidgets->append( popup );		// add to end of list
-    if ( popupWidgets->count() == 1 ){ // grab mouse/keyboard
-	QPaintDevice::qwsDisplay()->grabMouse(popup,TRUE);
-	popupGrabOk = TRUE;
-
-	// XXX grab keyboard
-    }
+    QPaintDevice::qwsDisplay()->grabMouse(popup,TRUE);
+    popupGrabOk = TRUE;
+    // XXX grab keyboard
 
     // popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
@@ -2421,8 +2458,8 @@ void QApplication::closePopup( QWidget *popup )
 	delete popupWidgets;
 	popupWidgets = 0;
 	if ( popupGrabOk ) {	// grabbing not disabled
-	    	QPaintDevice::qwsDisplay()->grabMouse(popup,FALSE);
-
+	    QPaintDevice::qwsDisplay()->grabMouse(popup,FALSE);
+	    popupGrabOk = FALSE;
 	    // XXX ungrab keyboard
 	}
 	active_window = (*activeBeforePopup);
@@ -2931,6 +2968,10 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 
 	    // XXX WWA: don't understand
 	    if ( qApp->inPopupMode() ) {			// still in popup mode
+		if ( popupGrabOk ) {
+		    QPaintDevice::qwsDisplay()->grabMouse( popupChild ? popupChild : popup, FALSE );
+		    popupGrabOk = FALSE;
+		}
 		//XXX if ( popupGrabOk )
 		    //XXX XAllowEvents( x11Display(), SyncPointer, CurrentTime );
 	    } else {
@@ -3139,6 +3180,7 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 		}
 	    }
 	}
+
 	paintable_region_dirty = TRUE;
     } else {
 	QWSDisplay::ungrab();

@@ -216,7 +216,8 @@ void QPixmap::deref()
 	if ( data->clut )
 	    delete[] data->clut;
 
-	memorymanager->deletePixmap(data->id);
+	if ( memorymanager )
+	    memorymanager->deletePixmap(data->id);
 	delete data;
 	data = 0;
     }
@@ -286,8 +287,8 @@ void QPixmap::detach()
 int QPixmap::defaultDepth()
 {
     QWSDisplay *d = qwsDisplay();
-    int dd = d ? d->depth() : 16;
-    return (dd == 4) ? 8 : dd;
+    int dd = d ? d->pixmapDepth() : 16;
+    return dd;
 }
 
 
@@ -364,7 +365,12 @@ QImage QPixmap::convertToImage() const
 #endif
     } else {
 	// We can only create little-endian pixmaps
-	image.create(w,h,d,0, mono ? QImage::LittleEndian : QImage::IgnoreEndian );//####### endianness
+	if ( d == 4 )
+	    image.create(w,h,8,0, QImage::IgnoreEndian );
+	else if ( d == 24 )
+	    image.create(w,h,32,0, QImage::IgnoreEndian );
+	else
+	    image.create(w,h,d,0, mono ? QImage::LittleEndian : QImage::IgnoreEndian );//####### endianness
 
 	QGfx * mygfx=image.graphicsContext();
 	if(mygfx) {

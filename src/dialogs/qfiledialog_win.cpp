@@ -248,8 +248,7 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
     QString title = caption;
     if ( title.isNull() )
 	title = tr("Open");
-    qDebug ("%s", initialDirectory->latin1() );
-    
+        
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, isel,

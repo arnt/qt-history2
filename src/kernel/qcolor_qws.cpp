@@ -145,7 +145,8 @@ uint QColor::alloc()
       } case 16: {
 	return pix = qt_convRgbTo16(rgbVal);
 #endif	
-      } case 32: {
+      } case 24:
+        case 32: {
 	GET
 	const int red_shift = 16;
 	const int green_shift = 8;

@@ -14,7 +14,7 @@ public:
     ~QWSRegionManager();
 
     // for clients
-    int *revision( int idx );
+    const int *revision( int idx ) const;
     QRegion region( int idx );
 
     int find( int id );
@@ -23,6 +23,7 @@ public:
     int add( int id, QRegion region );
     void set( int idx, QRegion region );
     void remove( int idx );
+    void markUpdated( int idx );
     void commit();
 
 private:
@@ -36,5 +37,6 @@ private:
     QWSRegionHeader *regHdr;
     QWSRegionIndex *regIdx;
     unsigned char *data;
+    int shmId;
 };
 

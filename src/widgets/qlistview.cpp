@@ -1282,9 +1282,9 @@ void QListViewItem::setText( int column, const QString &text )
     QListView * lv = listView();
     widthChanged( column );
     if ( lv ) {
-	lv->triggerUpdate();
 	lv->d->useDoubleBuffer = TRUE;
 	lv->d->makeCurrentVisibleOnUpdate = FALSE;
+	lv->triggerUpdate();
     }
 }
 
@@ -1348,9 +1348,9 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
     }
     QListView *lv = listView();
     if ( lv ) {
-	lv->triggerUpdate();
 	lv->d->useDoubleBuffer = TRUE;
 	lv->d->makeCurrentVisibleOnUpdate = FALSE;
+	lv->triggerUpdate();
     }
 }
 
@@ -2715,8 +2715,12 @@ void QListView::show()
 
 void QListView::updateContents()
 {
-    if ( !isVisible() )
+    if ( !isVisible() ) {
+	// Not in response to a setText/setPixmap any more.
+	d->useDoubleBuffer = FALSE;
+
 	return;
+    }
     if ( d && d->drawables ) {
 	delete d->drawables;
 	d->drawables = 0;
@@ -2845,8 +2849,12 @@ void QListView::enabledChange( bool e )
 
 void QListView::triggerUpdate()
 {
-    if ( !isVisible() || !isUpdatesEnabled() )
+    if ( !isVisible() || !isUpdatesEnabled() ) {
+	// Not in response to a setText/setPixmap any more.
+	d->useDoubleBuffer = FALSE;
+
 	return; // it will update when shown, or something.
+    }
 
     d->timer->start( 0, TRUE );
 }

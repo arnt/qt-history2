@@ -63,8 +63,8 @@ class Q_EXPORT QSpinBox: public QFrame, public QRangeControl
     Q_PROPERTY( QString specialValueText READ specialValueText WRITE setSpecialValueText )
     Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
     Q_PROPERTY( ButtonSymbols buttonSymbols READ buttonSymbols WRITE setButtonSymbols )
-    Q_PROPERTY( int minValue READ minValue WRITE setMinValue )
     Q_PROPERTY( int maxValue READ maxValue WRITE setMaxValue )
+    Q_PROPERTY( int minValue READ minValue WRITE setMinValue )
     Q_PROPERTY( int lineStep READ lineStep WRITE setLineStep )
     Q_PROPERTY( int value READ value WRITE setValue )
 	

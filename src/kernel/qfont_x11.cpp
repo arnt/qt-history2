@@ -1396,6 +1396,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	    exactMatch = FALSE;
     }
 
+    // ### fix scaled bitmap fonts
     float diff;
     if ( *scalable ) {
 	// scaled bitmap fonts look just ugly. Never give them a size score.
@@ -1419,7 +1420,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	    percentDiff = 100;
 	}
 
-	if ( percentDiff < 20 ) {
+	if ( percentDiff < 10 ) {
 	    score |= SizeScore;
 
 	    if ( pSize != request.pointSize ) {

@@ -30,29 +30,29 @@
 **
 **********************************************************************/
 
-#ifndef QFONTFACTORY_TTF_H
-#define QFONTFACTORY_TTF_H
+#ifndef QFONTFACTORY_FT_H
+#define QFONTFACTORY_FT_H
 
 #ifndef QT_H
 #include "qfontmanager_qws.h"
 #endif // QT_H
 
-#ifndef QT_NO_TRUETYPE
+#ifndef QT_NO_FREETYPE
 
 extern "C" {
-#include <freetype.h>
+#include <freetype/freetype.h>
 }
 
 // ascent, descent, width(ch), width(string), maxwidth?
 // leftbearing, rightbearing, minleftbearing,minrightbearing
 // leading
 
-class QFontFactoryTTF : public QFontFactory {
+class QFontFactoryFT : public QFontFactory {
 
 public:
 
-    QFontFactoryTTF();
-    virtual ~QFontFactoryTTF();
+    QFontFactoryFT();
+    virtual ~QFontFactoryFT();
 
     QRenderedFont * get(const QFontDef &,QDiskFont *);
     virtual void load(QDiskFont *) const;
@@ -60,10 +60,10 @@ public:
 
 private:
 
-    friend class QRenderedFontTTF;
+    friend class QRenderedFontFT;
     FT_Library library;
 };
 
-#endif // QT_NO_TRUETYPE
+#endif // QT_NO_FREETYPE
 
-#endif // QFONTFACTORY_TTF_H
+#endif // QFONTFACTORY_FT_H

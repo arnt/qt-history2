@@ -110,6 +110,7 @@ public:
     int width() const;
     int height() const;
     int depth() const;
+    int pixmapDepth() const;
     bool supportsDepth(int) const;
 
     uchar *sharedRam() const;

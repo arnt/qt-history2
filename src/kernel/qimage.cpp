@@ -5480,9 +5480,8 @@ QGfx * QImage::graphicsContext()
 	QRgb * tmp=colorTable();
 	int nc=numColors();
 	if(tmp==0) {
-	    tmp=new QRgb[depth()==1 ? 2 : 256];
-	    tmp[0]=qRgb(255,255,255);
-	    tmp[1]=qRgb(0,0,0);
+	    static QRgb table[2] = { qRgb(255,255,255), qRgb(0,0,0) };
+	    tmp=table;
 	    nc=2;
 	}
 	ret->setClut(tmp,nc);

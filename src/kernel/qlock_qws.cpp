@@ -71,7 +71,7 @@ QLock::QLock( const QString &filename, char id, bool create )
 	semun arg; arg.val = 0;
 	if ( data->id == -1 )
 	    semctl(data->id,0,IPC_RMID,arg);
-	data->id = semget(semkey,1,IPC_CREAT|0666);
+	data->id = semget(semkey,1,IPC_CREAT|0600);
 	arg.val = MAX_LOCKS;
 	semctl(data->id,0,SETVAL,arg);
     }

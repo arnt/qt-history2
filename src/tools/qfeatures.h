@@ -52,8 +52,6 @@
 //
 #if defined(QCONFIG_LOCAL)
 #include <qconfig-local.h>
-#elif defined(QCONFIG_QPE)
-#include <qconfig-qpe.h>
 #elif defined(QCONFIG_MINIMAL)
 #include <qconfig-minimal.h>
 #elif defined(QCONFIG_SMALL)
@@ -209,11 +207,11 @@
 
 // Fonts
 /*!
-    TrueType font files
-    <p>Scalable font format common on MS-Windows and becoming common on Unix.
+    Freetype font engine
+    <p>Scalable font formats supported by the Freetype engine.
     <p>Only supported on Qt/Embedded.
 */
-//#define QT_NO_TRUETYPE
+//#define QT_NO_FREETYPE
 /*!
     BDF font files
     <p>The Bitmap Distribution Format (BDF) font file format, common
@@ -402,14 +400,22 @@
     Transformed frame buffer
 */
 //#define QT_NO_QWS_TRANSFORMED
+#if defined(QT_NO_NETWORK)
 /*!
     Remote frame buffer (VNC)
 */
-#define QT_NO_QWS_VNC
+# ifndef QT_NO_QWS_VNC
+#  define QT_NO_QWS_VNC
+# endif
+#endif
 /*!
     1-bit monochrome
 */
 //#define QT_NO_QWS_DEPTH_1
+/*!
+    4-bit greyscale
+*/
+//#define QT_NO_QWS_DEPTH_4
 /*!
     4-bit VGA
 */
@@ -432,14 +438,30 @@
 */
 //#define QT_NO_QWS_DEPTH_16
 /*!
+    24-bit color
+*/
+//#define QT_NO_QWS_DEPTH_24
+/*!
     32-bit color
 */
 //#define QT_NO_QWS_DEPTH_32
 
 /*!
-    Window manager
+    Window Manager
 */
 //#define QT_NO_QWS_MANAGER
+
+/*!
+    Window Manager Styles
+*/
+#define QT_NO_QWS_KDE2_WM_STYLE
+#if defined( QT_NO_QWS_MANAGER ) || defined( QT_NO_IMAGEIO_XPM )
+# define QT_NO_QWS_HYDRO_WM_STYLE
+# define QT_NO_QWS_BEOS_WM_STYLE
+# define QT_NO_QWS_KDE_WM_STYLE
+# define QT_NO_QWS_QPE_WM_STYLE
+# define QT_NO_QWS_WINDOWS_WM_STYLE
+#endif
 
 /*!
     Saving of fonts

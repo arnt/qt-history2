@@ -764,12 +764,13 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 			rgb &= 0x00ffffff;
 		}
 		if ( state == LocalColorMap ) {
-		    img.setColor(ccount, rgb);
+		    if ( ccount < img.numColors() )
+			img.setColor(ccount, rgb);
 		} else {
 		    globalcmap[ccount] = rgb;
 		}
 		if (++ccount >= ncols) {
-		    if ( ncols < 256 && state == LocalColorMap )
+		    if ( ncols < img.numColors() && state == LocalColorMap )
 			img.setColor(ncols,0x00000000);
 		    if ( state == LocalColorMap )
 			state=TableImageLZWSize;

@@ -199,6 +199,7 @@ public:
     int width() const { return w; }
     int height() const { return h; }
     int depth() const { return d; }
+    virtual int pixmapDepth() const;
     int linestep() const { return lstep; }
     int deviceWidth() const { return dw; }
     int deviceHeight() const { return dh; }
@@ -214,6 +215,7 @@ public:
     int numCols() { return screencols; }
 
     virtual bool isTransformed() const;
+    virtual bool isInterlaced() const;
     virtual QSize mapToDevice( const QSize & ) const;
     virtual QSize mapFromDevice( const QSize & ) const;
     virtual QPoint mapToDevice( const QPoint &, const QSize & ) const;
@@ -373,14 +375,13 @@ protected:
 // This lives in loadable modules
 
 #ifndef QT_LOADABLE_MODULES
-extern "C" QScreen * qt_get_screen( int display_id, const char *spec,
-				    char *,unsigned char *);
+extern "C" QScreen * qt_get_screen( int display_id, const char* spec );
 #endif
 
 // This is in main lib, loads the right module, calls qt_get_screen
 // In non-loadable cases just aliases to qt_get_screen
 
-QScreen * qt_probe_bus( int display_id, const char *spec );
+const unsigned char * qt_probe_bus();
 
 #endif
 

@@ -104,6 +104,9 @@ public:
     int fascent,fdescent;
     int fleftbearing,frightbearing;
     int fmaxwidth;
+    int fleading;
+    int funderlinepos;
+    int funderlinewidth;
     bool smooth;
     int maxchar;
 

@@ -110,6 +110,9 @@ public:
 
 protected:
 
+    void* beginTransaction( const QRect& );
+    void endTransaction(void*);
+
     void beginDraw()
     {
 	QWSDisplay::grab();
@@ -137,11 +140,15 @@ protected:
     // Convert to/from different bit depths
     unsigned int get_value_32(int sdepth,unsigned char **srcdata,
 			   bool reverse=FALSE);
+    unsigned int get_value_24(int sdepth,unsigned char **srcdata,
+			   bool reverse=FALSE);
     unsigned int get_value_16(int sdepth,unsigned char **srcdata,
 			   bool reverse=FALSE);
     unsigned int get_value_15(int sdepth,unsigned char **srcdata,
 			   bool reverse=FALSE);
     unsigned int get_value_8(int sdepth,unsigned char **srcdata,
+			   bool reverse=FALSE);
+    unsigned int get_value_4(int sdepth,unsigned char **srcdata,
 			   bool reverse=FALSE);
     unsigned int get_value_1(int sdepth,unsigned char **srcdata,
 			   bool reverse=FALSE);
@@ -217,7 +224,7 @@ protected:
     int ncliprect;
 
     int globalRegionIndex;
-    int *globalRegionRevision;
+    const int *globalRegionRevision;
     int currentRegionRevision;
 
     RasterOp myrop;

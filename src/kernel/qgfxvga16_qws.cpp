@@ -1834,14 +1834,14 @@ public:
 
     QVga16Screen( int display_id );
     virtual ~QVga16Screen();
-    virtual bool connect( const QString &spec, char *,
-			    unsigned char * config );
+    virtual bool connect( const QString &spec );
     virtual bool initDevice();
     virtual int initCursor(void*, bool);
     virtual void shutdownDevice();
     virtual bool useOffscreen() { return true; }
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
     virtual int alloc(unsigned int, unsigned int, unsigned int);
+    int pixmapDepth() const { return 8; }
 
 protected:
 
@@ -1863,24 +1863,22 @@ QVga16Screen::QVga16Screen( int display_id )
 
 static int VGA16DummyOpType;
 
-bool QVga16Screen::connect( const QString &displaySpec, char *,
-			    unsigned char * config )
+bool QVga16Screen::connect( const QString &displaySpec )
 {
     BEGIN_PROFILING
     
-    bool ret = TRUE;
-    
-    Q_UNUSED(config);
-    
     if ( !QLinuxFbScreen::connect( displaySpec ) )
-	ret = FALSE;
+	return FALSE;
 
     optype = &VGA16DummyOpType;
-    
+
+    if (-1 == ioperm (0x3c0, 0x20, 1))
+	return FALSE;
+	//perror("IO permissions problem (for VGA16 you probably need to be root)");
+
 
 #define SCREEN_BUFFER_SIZE	((640*480/2)+512) // 512 bytes for vga_register_values
     unsigned char *shared_memory;
-
 
 #ifdef QT_NO_QWS_MULTIPROCESS
     shared_memory = (unsigned char *)malloc(SCREEN_BUFFER_SIZE);
@@ -1896,18 +1894,18 @@ bool QVga16Screen::connect( const QString &displaySpec, char *,
 #endif
 
     if (shared_memory == (void *)-1)
-	perror("shared memory / malloc problem");
+	return FALSE;
+	//perror("shared memory / malloc problem");
     if (shared_memory == NULL)
-	perror("shared memory / malloc problem");
-    
+	return FALSE;
+	//perror("shared memory / malloc problem");
+
     vga_register_values = shared_memory;
     screen_double_buffer = shared_memory + 512;
 
-    if (-1 == ioperm (0x3c0, 0x20, 1))
-	perror("IO permissions problem (for VGA16 you probably need to be root)");
-
     if (screen_double_buffer == NULL)
-	printf("error getting screen_double_buffer memory\n"), exit(0);
+	return FALSE;
+	//printf("error getting screen_double_buffer memory\n"), exit(0);
 	
     unsigned char *db_line_ptr = screen_double_buffer;
 
@@ -1917,7 +1915,7 @@ bool QVga16Screen::connect( const QString &displaySpec, char *,
 	db_line_ptr += 640/2;
     }
     
-    return ret;
+    return TRUE;
 }
 
 
@@ -2048,22 +2046,10 @@ QGfx * QVga16Screen::createGfx(unsigned char * b,int w,int h,int d_arg,int lines
 }
 
 
-extern "C" QScreen * qt_get_screen_vga16( int display_id, const char *spec,
-					char * slot,unsigned char * config )
+extern "C" QScreen * qt_get_screen_vga16( int display_id )
 {
     BEGIN_PROFILING
-
-    if (!qt_screen) {
-	QVga16Screen *ret = new QVga16Screen( display_id );
-	if(ret->connect( spec, slot, config )) {
-	    qt_screen=ret;
-	}
-    }
-    if( !qt_screen ) {
-	qt_screen=new QLinuxFbScreen( display_id );
-	qt_screen->connect( spec );
-    }
-    return qt_screen;
+    return new QVga16Screen( display_id );
 }
 
 #ifndef QT_NO_QWS_CURSOR

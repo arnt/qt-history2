@@ -71,8 +71,9 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
     QString dev = (m>=0) ? displaySpec.mid( m, len ) : QString("/dev/fb0");
 
     fd=open( dev.latin1(), O_RDWR );
-    if(fd<0) {
-	qFatal("Can't open framebuffer device %s",dev.latin1());
+    if (fd<0) {
+	qWarning("Can't open framebuffer device %s",dev.latin1());
+	return FALSE;
     }
 
     fb_fix_screeninfo finfo;
@@ -81,13 +82,15 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
     /* Get fixed screen information */
     if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo)) {
 	perror("reading /dev/fb0");
-	qFatal("Error reading fixed information");
+	qWarning("Error reading fixed information");
+	return FALSE;
     }
 
     /* Get variable screen information */
     if (ioctl(fd, FBIOGET_VSCREENINFO, &vinfo)) {
 	perror("reading /dev/fb0");
-	qFatal("Error reading variable information");
+	qWarning("Error reading variable information");
+	return FALSE;
     }
 
     d=vinfo.bits_per_pixel;
@@ -124,7 +127,8 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 
     if ((int)data == -1) {
 	perror("mapping /dev/fb0");
-	qFatal("Error: failed to map framebuffer device to memory.");
+	qWarning("Error: failed to map framebuffer device to memory.");
+	return FALSE;
     }
 
     canaccel=useOffscreen();
@@ -257,7 +261,7 @@ bool QLinuxFbScreen::initDevice()
 	} else {
 	    mtrr_sentry sentry;
 	    sentry.base=(unsigned long int)finfo.smem_start;
-	    qDebug("Physical framebuffer address %p",(void*)finfo.smem_start);
+	    //qDebug("Physical framebuffer address %p",(void*)finfo.smem_start);
 	    // Size needs to be in 4k chunks, but that's not always
 	    // what we get thanks to graphics card registers. Write combining
 	    // these is Not Good, so we write combine what we can
@@ -268,8 +272,8 @@ bool QLinuxFbScreen::initDevice()
 	    sentry.size=size;
 	    sentry.type=MTRR_TYPE_WRCOMB;
 	    if(ioctl(mfd,MTRRIOC_ADD_ENTRY,&sentry)==-1) {
-		printf("Couldn't add mtrr entry for %lx %lx, %s\n",
-		       sentry.base,sentry.size,strerror(errno));
+		//printf("Couldn't add mtrr entry for %lx %lx, %s\n",
+		       //sentry.base,sentry.size,strerror(errno));
 	    }
 	}
     }
@@ -290,22 +294,31 @@ bool QLinuxFbScreen::initDevice()
 		    malloc(sizeof(unsigned short int)*screencols);
 	
 	if (screencols==16) {
+	    if ( finfo.type == FB_TYPE_PACKED_PIXELS ) {
+		// We'll setup a greyscale cmap for 4bpp linear
+		int val = 0;
+		for (int idx = 0; idx < 16; idx++, val += 17) {
+		    cmap.red[idx] = val;
+		    cmap.green[idx] = val;
+		    cmap.blue[idx] = val;
+		    screenclut[idx]=qRgb( val, val, val );
+		}
+	    } else {
+		// Default 16 colour palette
+		// Green is now trolltech green so certain images look nicer 
+		//			     black  d_grey l_grey white  red  green  blue cyan magenta yellow
+		unsigned char reds[16]   = { 0x00, 0x7F, 0xBF, 0xFF, 0xFF, 0xA2, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x00, 0x00, 0x00, 0x82 };
+		unsigned char greens[16] = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0xC5, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x7F };
+		unsigned char blues[16]  = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0x11, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x7F, 0x00, 0x00 };
 
-// Default 16 colour palette
-// Green is now trolltech green so certain images look nicer 
-//			     black  d_grey l_grey white  red  green  blue cyan magenta yellow
-	    unsigned char reds[16]   = { 0x00, 0x7F, 0xBF, 0xFF, 0xFF, 0xA2, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x00, 0x00, 0x00, 0x82 };
-	    unsigned char greens[16] = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0xC5, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x7F };
-	    unsigned char blues[16]  = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0x11, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x7F, 0x00, 0x00 };
-
-	    for (int idx = 0; idx < 16; idx++) {
-		cmap.red[idx] = (reds[idx]) << 8;
-		cmap.green[idx] = (greens[idx]) << 8;
-		cmap.blue[idx] = (blues[idx]) << 8;
-		cmap.transp[idx] = 0;
-		screenclut[idx]=qRgb( reds[idx], greens[idx], blues[idx] );
+		for (int idx = 0; idx < 16; idx++) {
+		    cmap.red[idx] = (reds[idx]) << 8;
+		    cmap.green[idx] = (greens[idx]) << 8;
+		    cmap.blue[idx] = (blues[idx]) << 8;
+		    cmap.transp[idx] = 0;
+		    screenclut[idx]=qRgb( reds[idx], greens[idx], blues[idx] );
+		}
 	    }
-
 	} else {
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
 	    // Build greyscale palette
@@ -522,8 +535,8 @@ uchar * QLinuxFbScreen::cache(int amount)
 	}
     }
     if(startp>=newlowest) {
-	qDebug("No more memory, %d %d %d %d",startp,stackend,
-	       *lowest,amount);
+	//qDebug("No more memory, %d %d %d %d",startp,stackend,
+	       //*lowest,amount);
 	//canaccel=false;
 	qt_fbdpy->ungrab();
 	return 0;
@@ -531,7 +544,7 @@ uchar * QLinuxFbScreen::cache(int amount)
     insert_entry(*entryp,newlowest,*lowest);
     *lowest=newlowest;
     if(newlowest % align) {
-	qDebug("Wah, new return is unaligned %x",newlowest);
+	//qDebug("Wah, new return is unaligned %x",newlowest);
     }
     qt_fbdpy->ungrab();
     return data+newlowest;
@@ -637,7 +650,7 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
     h=vinfo.yres;
     d=vinfo.bits_per_pixel;
     lstep=finfo.line_length;
-    size=w * h * d / 8;
+    size=h*lstep;
 }
 
 // save the state of the graphics card
@@ -678,18 +691,9 @@ void QLinuxFbScreen::restore()
 }
 
 
-extern "C" QScreen * qt_get_screen_linuxfb(int display_id, const char *spec,
-					   char *,unsigned char *)
+extern "C" QScreen * qt_get_screen_linuxfb(int display_id)
 {
-    if ( !qt_screen ) {
-	const char *term = getenv( "TERM" );
-	if ( QString( term ).left(5) == "xterm" ) {
-	    qFatal( "$TERM=xterm - To continue would corrupt X11 - aborting" );
-	}
-	qt_screen=new QLinuxFbScreen( display_id );
-	qt_screen->connect( spec );
-    }
-    return qt_screen;
+    return new QLinuxFbScreen( display_id );
 }
 
 

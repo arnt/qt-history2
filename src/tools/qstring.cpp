@@ -14200,9 +14200,13 @@ uint QString::toUInt( bool *ok, int base ) const
 double QString::toDouble( bool *ok ) const
 {
     char *end;
-    // can't use latin1() here, because ("1" +some nonlatin1).latin1() == "1",
-    // and the function would return true.
-    QCString a = utf8();
+
+    QCString a = latin1();
+    // Just latin1() is not sufficient, since U0131 would look like '1'.
+    for (uint i=0; i<d->len; i++)
+	if ( d->unicode[i].row() )
+	    a[(int)i]='z';
+
     double val = strtod( a.data() ? a.data() : "", &end );
     if ( ok )
         *ok = ( a && *a && ( end == 0 || *end == '\0' ) );

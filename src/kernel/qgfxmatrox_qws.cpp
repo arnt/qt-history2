@@ -261,10 +261,10 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 	    QRect r=cliprect[loopc];
 	    if(xp<=r.right() && yp<=r.bottom() &&
 	       x2>=r.left() && y2>=r.top()) {
-		x3=r.left() > xp ? r.left() : xp;
-		y3=r.top() > yp ? r.top() : yp;
-		x4=r.right() > x2 ? x2 : r.right();
-		y4=r.bottom() > y2 ? y2 : r.bottom();
+		x3 = QMAX( r.left(), xp );
+		y3 = QMAX( r.top(),  yp );
+		x4 = QMIN( r.right(),  x2 );
+		y4 = QMIN( r.bottom(), y2 );
 		int hh=(y4-y3)+1;
 		int p=y3;
 		int t=linestep();
@@ -272,7 +272,7 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 		//t&=0x1f;
 		p*=(t >> 5);
 		matrox_regw(DWGCTL,DWG_MODE);
-		matrox_regw(FXLEFT,x3-1);
+		matrox_regw(FXLEFT,x3);
 		matrox_regw(FXRIGHT,x4+1);
 		matrox_regw(YDST,p);
 		matrox_regw(LEN | EXEC,hh);
@@ -289,7 +289,7 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
     if(ncliprect<1)
 	return;
 
-    if(depth!=16 && depth!=32 && depth!=8) {
+    if((depth!=16 && depth!=32 && depth!=8) || w*h/ncliprect < 1000 ) {
 	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
 	return;
     }
@@ -327,46 +327,71 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 
 	GFX_START(cursRect)
 
-	int loopc;
-	for(loopc=0;loopc<ncliprect;loopc++) {
-
-	    do_scissors(cliprect[loopc]);
-
-	    int tw=w;
-	    int th=h;
-	    int start,end;
-	    int typ=yp;
-
-	    int src_pixel_linestep=(srclinestep*8)/srcdepth;
-
-	    if((yp < yp2) || ((yp == yp2) && (xp <= xp2))) {
-		matrox_regw(AR5,src_pixel_linestep);
-		matrox_regw(DWGCTL,DWG_BITBLT | DWG_SHIFTZERO | DWG_SGNZERO |
-			  DWG_BFCOL | DWG_REPLACE);
-		tw--;
-		start=yp2*src_pixel_linestep+xp2+src_pixel_offset;
-		end=start+tw;
-	    } else {
-		matrox_regw(SGN,5);
-		matrox_regw(AR5,-src_pixel_linestep);
-		matrox_regw(DWGCTL,DWG_BITBLT | DWG_SHIFTZERO | DWG_BFCOL |
-			  DWG_REPLACE);
-		tw--;
-		end=(yp2+th-1)*src_pixel_linestep+xp2+src_pixel_offset;
-		start=end+tw;
-		typ+=th-1;
+	    
+        bool rev = (yp > yp2) || ((yp == yp2) && (xp > xp2));
+	int dy = (yp > yp2) ? -1 : 1;
+	int dx = (xp > xp2) ? -1 : 1;
+	
+	int loopc = (dy<0) ? ncliprect-1 : 0;
+	
+	while ( loopc >=0 && loopc < ncliprect ) {
+	
+	    int ylevel = cliprect[loopc].y();
+	    if ( dx != dy ) {
+		// find other end of strip
+		while ( loopc >=0 && loopc < ncliprect 
+			&& cliprect[loopc].y() == ylevel )
+		    loopc -= dx;
+		loopc += dx;
 	    }
-	    matrox_regw(AR0,end);
-	    matrox_regw(AR3,start);
-	    matrox_regw(FXBNDRY,((xp+tw)<<16) | xp);
-	    int p=typ;
-	    int t=linestep();
-	    t=(t*8)/depth;
-	    //t&=0x1f;
-	    p*=(t >> 5);
-	    matrox_regw(YDST,p);
-	    matrox_regw(LEN | EXEC,th);
+	    int end_of_strip = loopc;
+	    do {
 
+		do_scissors(cliprect[loopc]);
+
+		int tw=w;
+		int th=h;
+		int start,end;
+		int typ=yp;
+
+		int src_pixel_linestep=(srclinestep*8)/srcdepth;
+
+		if ( !rev ) {
+		    matrox_regw(AR5,src_pixel_linestep);
+		    matrox_regw(DWGCTL,DWG_BITBLT | DWG_SHIFTZERO | DWG_SGNZERO |
+				DWG_BFCOL | DWG_REPLACE);
+		    tw--;
+		    start=yp2*src_pixel_linestep+xp2+src_pixel_offset;
+		    end=start+tw;
+		} else {
+		    matrox_regw(SGN,5);
+		    matrox_regw(AR5,-src_pixel_linestep);
+		    matrox_regw(DWGCTL,DWG_BITBLT | DWG_SHIFTZERO | DWG_BFCOL |
+				DWG_REPLACE);
+		    tw--;
+		    end=(yp2+th-1)*src_pixel_linestep+xp2+src_pixel_offset;
+		    start=end+tw;
+		    typ+=th-1;
+		}
+		matrox_regw(AR0,end);
+		matrox_regw(AR3,start);
+		matrox_regw(FXBNDRY,((xp+tw)<<16) | xp);
+		int p=typ;
+		int t=linestep();
+		t=(t*8)/depth;
+		//t&=0x1f;
+		p*=(t >> 5);
+		matrox_regw(YDST,p);
+		matrox_regw(LEN | EXEC,th);
+
+		loopc += dx;
+	    } while ( loopc >= 0 && loopc < ncliprect && 
+		      cliprect[loopc].y() == ylevel );
+	    
+	    //find next strip
+	    if ( dx != dy )
+		loopc = end_of_strip - dx;
+	    
 	}
 	QRect r(0,0,width,height);
 	do_scissors(r);
@@ -374,7 +399,7 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 
 	GFX_END
 
-	return;
+	    return;
     } else {
 	QWSDisplay::ungrab();
 	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
@@ -415,7 +440,7 @@ public:
 
     QMatroxScreen( int display_id );
     virtual ~QMatroxScreen();
-    virtual bool connect( const QString &spec, char *,unsigned char *);
+    virtual bool connect( const QString &spec );
     virtual bool initDevice();
     virtual void shutdownDevice();
     virtual bool useOffscreen() { return false; }
@@ -438,7 +463,7 @@ QMatroxScreen::QMatroxScreen( int display_id  )
 {
 }
 
-bool QMatroxScreen::connect( const QString &spec, char *,unsigned char *config )
+bool QMatroxScreen::connect( const QString &spec )
 {
     if (!QLinuxFbScreen::connect( spec )) {
 	qDebug("Matrox driver couldn't connect to framebuffer");
@@ -446,6 +471,8 @@ bool QMatroxScreen::connect( const QString &spec, char *,unsigned char *config )
     }
 
     canaccel=false;
+
+    const unsigned char* config = qt_probe_bus();
 
     unsigned short int * manufacturer=(unsigned short int *)config;
     if(*manufacturer!=0x102b) {
@@ -455,8 +482,8 @@ bool QMatroxScreen::connect( const QString &spec, char *,unsigned char *config )
 	return FALSE;
     }
 
-    unsigned char * bar=config+0x14;
-    unsigned long int * addr=(unsigned long int *)bar;
+    const unsigned char * bar=config+0x14;
+    const unsigned long int * addr=(const unsigned long int *)bar;
     unsigned long int s=*(addr+0);
     unsigned long int olds=s;
     if(s & 0x1) {
@@ -543,20 +570,9 @@ QGfx * QMatroxScreen::createGfx(unsigned char * b,int w,int h,int d,
 
 extern bool qws_accel;
 
-extern "C" QScreen * qt_get_screen_matrox( int display_id, const char *spec,
-					   char *slot,unsigned char *config )
+extern "C" QScreen * qt_get_screen_matrox( int display_id )
 {
-    if ( !qt_screen && qws_accel && slot!=0 ) {
-	QMatroxScreen * ret=new QMatroxScreen( display_id );
-	if(ret->connect( spec, slot, config )) {
-	    qt_screen=ret;
-	}
-    }
-    if ( !qt_screen ) {
-	qt_screen=new QLinuxFbScreen( display_id );
-	qt_screen->connect( spec );
-    }
-    return qt_screen;
+    return new QMatroxScreen( display_id );
 }
 
 #endif // QT_NO_QWS_MATROX

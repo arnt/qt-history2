@@ -1366,7 +1366,8 @@ void QPrintDialog::addButton( QPushButton *but )
 
 void QPrintDialog::fileNameEditChanged( const QString &text )
 {
-    d->ok->setEnabled( !text.isEmpty() );
+    if ( d->fileName->isEnabled() )
+        d->ok->setEnabled( !text.isEmpty() );
 }
 
 #endif

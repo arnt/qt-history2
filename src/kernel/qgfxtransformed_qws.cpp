@@ -93,7 +93,7 @@ QTransformedScreen::QTransformedScreen( int display_id )
     : QT_TRANS_SCREEN_BASE( display_id )
 {
     qt_trans_screen = this;
-    trans = Rot90;
+    trans = None;
 }
 
 QTransformedScreen::~QTransformedScreen()
@@ -106,6 +106,8 @@ bool QTransformedScreen::connect( const QString &displaySpec )
 	trans = Rot270;
     else if ( displaySpec.find( ":Rot180" ) >= 0 )
 	trans = Rot180;
+    else if ( displaySpec.find( ":Rot90" ) >= 0 )
+	trans = Rot90;
 
     bool result = QT_TRANS_SCREEN_BASE::connect( displaySpec );
     if ( result ) {
@@ -205,6 +207,7 @@ QRect QTransformedScreen::mapToDevice( const QRect &r, const QSize &s ) const
 			  s.height() - r.bottom() - 1, r.right() );
 	    break;
 	default:
+	    tr = r;
 	    break;
     }
 
@@ -228,6 +231,7 @@ QRect QTransformedScreen::mapFromDevice( const QRect &r, const QSize &s ) const
 			  r.bottom(), s.width() - r.right() - 1 );
 	    break;
 	default:
+	    tr = r;
 	    break;
     }
 
@@ -329,6 +333,9 @@ QImage QTransformedScreen::mapFromDevice( const QImage &img ) const
 
 QRegion QTransformedScreen::mapToDevice( const QRegion &rgn, const QSize &s ) const
 {
+    if ( trans == None )
+	return rgn;
+
     QRegion trgn;
     QArray<QRect> a = rgn.rects();
     for ( int i = 0; i < (int)a.size(); i++ ) {
@@ -358,6 +365,9 @@ QRegion QTransformedScreen::mapToDevice( const QRegion &rgn, const QSize &s ) co
 
 QRegion QTransformedScreen::mapFromDevice( const QRegion &rgn, const QSize &s ) const
 {
+    if ( trans == None )
+	return rgn;
+
     QRegion trgn;
     QArray<QRect> a = rgn.rects();
     for ( int i = 0; i < (int)a.size(); i++ ) {
@@ -488,6 +498,7 @@ void QGfxTransformedRaster<depth,type>::setSourceWidgetOffset(int x, int y)
 		srcwidgetoffs = QPoint( height - y - srcheight, x );
 		break;
 	    default:
+		srcwidgetoffs = QPoint( x, y );
 		break;
 	}
     } else
@@ -668,6 +679,10 @@ QGfx *QTransformedScreen::createGfx(unsigned char * bytes,int w,int h,int d, int
     } else if (d==8) {
 	ret = new QGfxTransformedRaster<8,0>(bytes,w,h);
 #endif
+#ifndef QT_NO_QWS_DEPTH_24
+    } else if (d==24) {
+	ret = new QGfxTransformedRaster<24,0>(bytes,w,h);
+#endif
 #ifndef QT_NO_QWS_DEPTH_32
     } else if (d==32) {
 	ret = new QGfxTransformedRaster<32,0>(bytes,w,h);
@@ -680,18 +695,9 @@ QGfx *QTransformedScreen::createGfx(unsigned char * bytes,int w,int h,int d, int
 }
 
 
-extern "C" QScreen * qt_get_screen_transformed(int display_id, const char *spec,
-					   char * /*slot*/,unsigned char * /*config*/)
+extern "C" QScreen * qt_get_screen_transformed(int display_id)
 {
-    if ( !qt_screen ) {
-	// Just use normal driver for Transformed:None
-	if ( QString( spec ).find( ":None" ) >= 0 )
-	    qt_screen = new QT_TRANS_SCREEN_BASE( display_id );
-	else
-	    qt_screen = new QTransformedScreen( display_id );
-	qt_screen->connect( spec );
-    }
-    return qt_screen;
+    return new QTransformedScreen( display_id );
 }
 
 #endif // QT_NO_QWS_TRANSFORMED

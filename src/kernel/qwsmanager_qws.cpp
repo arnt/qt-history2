@@ -1,3 +1,34 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#8 $
+**
+** Implementation of Qt/Embedded window manager
+**
+** Created : 000101
+**
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the kernel module of the Qt GUI Toolkit.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 #include "qwsmanager_qws.h"
 #include "qcursor.h"
 
@@ -16,138 +47,74 @@
 #include "qgfx_qws.h"
 #include "qwsdisplay_qws.h"
 #include "qwsregionmanager_qws.h"
+#include "qwsdefaultdecoration_qws.h"
 
-#define CORNER_GRAB	16
-#define BORDER_WIDTH	4
-#define TITLE_HEIGHT	20
 
-// #### merge two copies of pixmaps
-
-#ifndef QT_NO_IMAGEIO_XPM
-/* XPM */
-static const char * const menu_xpm[] = {
-/* width height ncolors chars_per_pixel */
-"16 16 11 1",
-/* colors */
-"  c #000000",
-". c #336600",
-"X c #666600",
-"o c #99CC00",
-"O c #999933",
-"+ c #333300",
-"@ c #669900",
-"# c #999900",
-"$ c #336633",
-"% c #666633",
-"& c #99CC33",
-/* pixels */
-"oooooooooooooooo",
-"oooooooooooooooo",
-"ooooo#.++X#ooooo",
-"ooooX      Xoooo",
-"oooX  XO#%  X&oo",
-"oo#  Ooo&@O  Ooo",
-"oo. Xoo#+ @X Xoo",
-"oo+ OoO+ +O# +oo",
-"oo+ #O+  +## +oo",
-"oo. %@ ++ +. Xoo",
-"oo#  O@OO+   #oo",
-"oooX  X##$   Ooo",
-"ooooX        Xoo",
-"oooo&OX++X#OXooo",
-"oooooooooooooooo",
-"oooooooooooooooo"
+enum WMStyle {
+    Default_WMStyle = 1, /* Starting at zero stuffs up menus */
+    KDE_WMStyle,
+    KDE2_WMStyle,
+    BeOS_WMStyle,
+    Windows_WMStyle,
+    Hydro_WMStyle,
 };
 
 
-static const char * const close_xpm[] = {
-"16 16 3 1",
-"       s None  c None",
-".      c #ffffff",
-"X      c #707070",
-"                ",
-"                ",
-"  .X        .X  ",
-"  .XX      .XX  ",
-"   .XX    .XX   ",
-"    .XX  .XX    ",
-"     .XX.XX     ",
-"      .XXX      ",
-"      .XXX      ",
-"     .XX.XX     ",
-"    .XX  .XX    ",
-"   .XX    .XX   ",
-"  .XX      .XX  ",
-"  .X        .X  ",
-"                ",
-"                "};
+#ifndef QT_NO_QWS_WINDOWS_WM_STYLE
+#include "qwswindowsdecoration_qws.h"
+QWSDefaultDecoration *new_Windows_WMDecorations() { return new QWSWindowsDecoration(); }
+#endif // QT_NO_QWS_WINDOWS_WM_STYLE
+#ifndef QT_NO_QWS_KDE_WM_STYLE
+#include "qwskdedecoration_qws.h"
+QWSDefaultDecoration *new_KDE_WMDecorations() { return new QWSKDEDecoration(); }
+#endif // QT_NO_QWS_KDE_WM_STYLE
+#ifndef QT_NO_QWS_KDE2_WM_STYLE
+#include "qwskde2decoration_qws.h"
+QWSDefaultDecoration *new_KDE2_WMDecorations() { return new QWSKDE2Decoration(); }
+#endif // QT_NO_QWS_KDE2_WM_STYLE
+#ifndef QT_NO_QWS_BEOS_WM_STYLE
+#include "qwsbeosdecoration_qws.h"
+QWSDefaultDecoration *new_BeOS_WMDecorations() { return new QWSBeOSDecoration(); }
+#endif // QT_NO_QWS_BEOS_WM_STYLE
+#ifndef QT_NO_QWS_HYDRO_WM_STYLE
+#include "qwshydrodecoration_qws.h"
+QWSDefaultDecoration *new_Hydro_WMDecorations() { return new QWSHydroDecoration(); }
+#endif // QT_NO_QWS_HYDRO_WM_STYLE
 
-static const char * const maximize_xpm[] = {
-"16 16 3 1",
-"       s None  c None",
-".      c #ffffff",
-"X      c #707070",
-"                ",
-"                ",
-"  ...........   ",
-"  .XXXXXXXXXX   ",
-"  .X       .X   ",
-"  .X       .X   ",
-"  .X       .X   ",
-"  .X       .X   ",
-"  .X       .X   ",
-"  .X       .X   ",
-"  .X       .X   ",
-"  .X........X   ",
-"  .XXXXXXXXXX   ",
-"                ",
-"                ",
-"                "};
+#include "qwsdefaultdecoration_qws.h"
+QWSDefaultDecoration *new_Default_WMDecorations() { return new QWSDefaultDecoration(); }
 
-static const char * const minimize_xpm[] = {
-"16 16 3 1",
-"       s None  c None",
-".      c #ffffff",
-"X      c #707070",
-"                ",
-"                ",
-"                ",
-"                ",
-"                ",
-"                ",
-"       ...      ",
-"       . X      ",
-"       .XX      ",
-"                ",
-"                ",
-"                ",
-"                ",
-"                ",
-"                ",
-"                "};
 
-static const char * const normalize_xpm[] = {
-"16 16 3 1",
-"       s None  c None",
-".      c #ffffff",
-"X      c #707070",
-"                ",
-"                ",
-"     ........   ",
-"     .XXXXXXXX  ",
-"     .X     .X  ",
-"     .X     .X  ",
-"  ....X...  .X  ",
-"  .XXXXXXXX .X  ",
-"  .X     .XXXX  ",
-"  .X     .X     ",
-"  .X     .X     ",
-"  .X......X     ",
-"  .XXXXXXXX     ",
-"                ",
-"                ",
-"                "};
-#endif
+struct WMStyleFactoryItem {
+	WMStyle WMStyleType;
+	QString WMStyleName;
+	QWSDefaultDecoration *(*new_WMDecorations)();
+} WMStyleList[] = {
+#ifndef QT_NO_QWS_WINDOWS_WM_STYLE
+    { Windows_WMStyle, "Windows", new_Windows_WMDecorations },
+#endif // QT_NO_QWS_WINDOWS_WM_STYLE
+#ifndef QT_NO_QWS_KDE_WM_STYLE
+    { KDE_WMStyle, "KDE", new_KDE_WMDecorations },
+#endif // QT_NO_QWS_KDE_WM_STYLE
+#ifndef QT_NO_QWS_KDE2_WM_STYLE
+    { KDE2_WMStyle, "KDE2", new_KDE2_WMDecorations },
+#endif // QT_NO_QWS_KDE2_WM_STYLE
+#ifndef QT_NO_QWS_BEOS_WM_STYLE
+    { BeOS_WMStyle, "BeOS", new_BeOS_WMDecorations },
+#endif // QT_NO_QWS_BEOS_WM_STYLE
+#ifndef QT_NO_QWS_HYDRO_WM_STYLE
+    { Hydro_WMStyle, "Hydro", new_Hydro_WMDecorations },
+#endif // QT_NO_QWS_HYDRO_WM_STYLE
+
+    { Default_WMStyle, "Default", new_Default_WMDecorations },
+    { Default_WMStyle, NULL, NULL }
+};
+
+
+QWSDecoration *QWSManager::newDefaultDecoration()
+{
+    return new QWSDefaultDecoration;
+}
 
 
 /*!
@@ -222,6 +189,39 @@ void QWSDecoration::close( QWidget *widget )
     widget->close(FALSE);
 }
 
+
+#include <qdialog.h>
+
+/*
+
+#include <qbitmap.h>
+
+class MinimisedWindow : public QWidget
+{
+public:
+    MinimisedWindow( QWidget *restore ) : 
+	QWidget( (QWidget *)restore->parent(), restore->caption(), WStyle_Customize | WStyle_NoBorder ),
+	w(restore)
+    {
+	w->hide();
+	QPixmap p( "../pics/tux.png" );
+	setBackgroundPixmap( p );
+	setFixedSize( p.size() );
+	setMask( p.createHeuristicMask() );
+	show();
+    }
+ 
+    void mouseDoubleClickEvent( QMouseEvent * ) { w->show(); delete this; }
+    void mousePressEvent( QMouseEvent *e ) { clickPos = e->pos(); }
+    void mouseMoveEvent( QMouseEvent *e ) { move( e->globalPos() - clickPos ); }
+
+    QWidget *w;
+    QPoint clickPos;
+};
+
+*/
+
+
 /*!
   Called when the user clicks in the \c Minimize region.
 
@@ -231,7 +231,9 @@ void QWSDecoration::close( QWidget *widget )
 */
 void QWSDecoration::minimize( QWidget * )
 {
-    qDebug("No minimize functionality provided");
+//      new MinimisedWindow( w );
+    
+    //    qDebug("No minimize functionality provided");
 }
 
 
@@ -245,15 +247,31 @@ void QWSDecoration::minimize( QWidget * )
 */
 void QWSDecoration::maximize( QWidget *widget )
 {
+    QRect nr;
+
     // find out how much space the decoration needs
     extern QRect qt_maxWindowRect;
     QRect desk = qt_maxWindowRect;
-    QRect dummy;
-    QRegion r = region(widget, dummy);
-    QRect rect = r.boundingRect();
-    QRect nr(desk.x()-rect.x(), desk.y()-rect.y(),
-	desk.width() - rect.width(),
-	desk.height() - rect.height());
+
+/*
+#ifdef QPE_WM_LOOK_AND_FEEL
+    if (wmStyle == QtEmbedded_WMStyle) {
+        QRect dummy( 0, 0, desk.width(), 1 );
+	QRegion r = region(widget, dummy, Title);
+        QRect rect = r.boundingRect();
+        nr = QRect(desk.x(), desk.y()-rect.y(),
+            desk.width(), desk.height() - rect.height());
+    } else
+#endif
+*/
+    {
+        QRect dummy;
+        QRegion r = region(widget, dummy);
+        QRect rect = r.boundingRect();
+        nr = QRect(desk.x()-rect.x(), desk.y()-rect.y(),
+	    desk.width() - rect.width(),
+	    desk.height() - rect.height());
+    }
     widget->setGeometry(nr);
 }
 
@@ -264,7 +282,7 @@ void QWSDecoration::maximize( QWidget *widget )
 */
 
 #ifndef QT_NO_POPUPMENU
-QPopupMenu *QWSDecoration::menu(const QWidget *, const QPoint &)
+QPopupMenu *QWSDecoration::menu(QWSManager *manager, const QWidget *, const QPoint &)
 {
     QPopupMenu *m = new QPopupMenu();
 
@@ -274,6 +292,15 @@ QPopupMenu *QWSDecoration::menu(const QWidget *, const QPoint &)
     m->insertItem(QObject::tr("Mi&nimize"), (int)Minimize);
     m->insertItem(QObject::tr("Ma&ximize"), (int)Maximize);
     m->insertSeparator();
+    
+    // Style Menu
+    QPopupMenu *styleMenu = new QPopupMenu();
+    for (int i = 0; WMStyleList[i].WMStyleName != NULL; i++)
+	styleMenu->insertItem( QObject::tr(WMStyleList[i].WMStyleName), WMStyleList[i].WMStyleType );
+    styleMenu->connect(styleMenu, SIGNAL(activated(int)), manager, SLOT(styleMenuActivated(int)));
+    m->insertItem(QObject::tr("Style"), styleMenu);
+    m->insertSeparator();
+
     m->insertItem(QObject::tr("Close"), (int)Close);
 
     return m;
@@ -329,6 +356,7 @@ QWSManager::~QWSManager()
     delete closeBtn;
     delete minimizeBtn;
     delete maximizeBtn;
+
 }
 
 QRegion QWSManager::region()
@@ -571,7 +599,7 @@ void QWSManager::paintEvent(QPaintEvent *)
     int rgnIdx = managed->alloc_region_index;
     if ( rgnIdx >= 0 ) {
 	QWSDisplay::grab();
-	int *rgnRev = qt_fbdpy->regionManager()->revision( rgnIdx );
+	const int *rgnRev = qt_fbdpy->regionManager()->revision( rgnIdx );
 	if ( managed->alloc_region_revision != *rgnRev ) {
 	    QRegion newRegion = qt_fbdpy->regionManager()->region( rgnIdx );
 	    QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
@@ -596,13 +624,36 @@ void QWSManager::menu(const QPoint &pos)
 {
 #ifndef QT_NO_POPUPMENU
     if (!popup) {
-	popup = QApplication::qwsDecoration().menu(managed, managed->pos());
+	popup = QApplication::qwsDecoration().menu(this, managed, managed->pos());
 	connect(popup, SIGNAL(activated(int)), SLOT(menuActivated(int)));
     }
     popup->setItemEnabled(QWSDecoration::Maximize, normalSize.isNull());
     popup->setItemEnabled(QWSDecoration::Normalize, !normalSize.isNull());
     popup->popup(pos);
 #endif
+}
+
+#include <qcdestyle.h>
+#include <qcommonstyle.h>
+#include <qcompactstyle.h>
+#include <qmotifplusstyle.h>
+#include <qmotifstyle.h>
+#include <qplatinumstyle.h>
+#include <qsgistyle.h>
+#include <qwindowsstyle.h>
+
+void QWSManager::styleMenuActivated(int id)
+{
+    for (int i = 0; WMStyleList[i].WMStyleName != NULL; i++) {
+    	if (id == WMStyleList[i].WMStyleType) {
+	    qApp->qwsSetDecoration( WMStyleList[i].new_WMDecorations() );
+    	}
+    }
+
+    // Force a repaint of the WM regions
+    const QSize s = managed->size();
+    managed->resize( s.width() + 1, s.height() );
+    managed->resize( s.width(), s.height() );
 }
 
 void QWSManager::menuActivated(int id)
@@ -656,7 +707,7 @@ void QWSManager::toggleMaximize()
 {
     if (normalSize.isNull()) {
 	normalSize = managed->geometry();
-	maximize();
+	managed->showMaximized();
 	maximizeBtn->setOn(TRUE);
     } else {
 	managed->setGeometry(normalSize);
@@ -707,318 +758,4 @@ void QWSButton::paint()
     dec.paintButton(&painter, manager->widget(), type, state());
 }
 
-const QPixmap* QWSDefaultDecoration::pixmapFor(const QWidget* w, QWSDecoration::Region type, bool on, int& xoff, int& /*yoff*/)
-{
-#ifndef QT_NO_IMAGEIO_XPM
-    static QPixmap *menuPixmap=0;
-    static QPixmap *closePixmap=0;
-    static QPixmap *minimizePixmap=0;
-    static QPixmap *maximizePixmap=0;
-    static QPixmap *normalizePixmap=0;
-    if ( !closePixmap ) {
-	menuPixmap = new QPixmap((const char **)menu_xpm);
-	closePixmap = new QPixmap((const char **)close_xpm);
-	minimizePixmap = new QPixmap((const char **)minimize_xpm);
-	maximizePixmap = new QPixmap((const char **)maximize_xpm);
-	normalizePixmap = new QPixmap((const char **)normalize_xpm);
-    }
-    const QPixmap* pm=0;
-    switch (type) {
-	case Menu:
-	    pm = w->icon();
-	    if ( !pm ) {
-		xoff = 1;
-		pm = menuPixmap;
-	    }
-	    break;
-	case Close:
-	    pm = closePixmap;
-	    break;
-	case Maximize:
-	    if (on)
-		pm = normalizePixmap;
-	    else
-		pm = maximizePixmap;
-	    break;
-	case Minimize:
-	    pm = minimizePixmap;
-	    break;
-	default:
-	    break;
-    }
-    return pm;
-#else
-    return 0;
-#endif    
-}
-
-
-QWSDefaultDecoration::QWSDefaultDecoration()
-    : QWSDecoration()
-{
-}
-
-
-QWSDefaultDecoration::~QWSDefaultDecoration()
-{
-}
-
-/*
-    If rect is empty, no frame is added. (a hack, really)
-*/
-QRegion QWSDefaultDecoration::region(const QWidget *, const QRect &rect, QWSDecoration::Region type)
-{
-    QRegion region;
-
-    int bw = rect.isEmpty() ? 0 : BORDER_WIDTH;
-
-    switch (type) {
-	case All: {
-		QRect r(rect.left() - bw,
-			rect.top() - TITLE_HEIGHT - bw,
-			rect.width() + 2 * bw,
-			rect.height() + TITLE_HEIGHT + 2 * bw);
-		region = r;
-		region -= rect;
-	    }
-	    break;
-
-	case Title: {
-		QRect r(rect.left() + TITLE_HEIGHT, rect.top() - TITLE_HEIGHT,
-			rect.width() - 4*TITLE_HEIGHT, TITLE_HEIGHT);
-		if (r.width() > 0)
-		    region = r;
-	    }
-	    break;
-
-	case Top: {
-		QRect r(rect.left() + CORNER_GRAB,
-			rect.top() - TITLE_HEIGHT - bw,
-			rect.width() - 2 * CORNER_GRAB,
-			bw);
-		region = r;
-	    }
-	    break;
-
-	case Left: {
-		QRect r(rect.left() - bw,
-			rect.top() - TITLE_HEIGHT + CORNER_GRAB,
-			bw,
-			rect.height() + TITLE_HEIGHT - 2 * CORNER_GRAB);
-		region = r;
-	    }
-	    break;
-
-	case Right: {
-		QRect r(rect.right() + 1,
-			rect.top() - TITLE_HEIGHT + CORNER_GRAB,
-			bw,
-			rect.height() + TITLE_HEIGHT - 2 * CORNER_GRAB);
-		region = r;
-	    }
-	    break;
-
-	case Bottom: {
-		QRect r(rect.left() + CORNER_GRAB,
-			rect.bottom() + 1,
-			rect.width() - 2 * CORNER_GRAB,
-			bw);
-		region = r;
-	    }
-	    break;
-
-	case TopLeft: {
-		QRect r1(rect.left() - bw,
-			rect.top() - bw - TITLE_HEIGHT,
-			CORNER_GRAB + bw,
-			bw);
-
-		QRect r2(rect.left() - bw,
-			rect.top() - bw - TITLE_HEIGHT,
-			bw,
-			CORNER_GRAB + bw);
-
-		region = QRegion(r1) + r2;
-	    }
-	    break;
-
-	case TopRight: {
-		QRect r1(rect.right() - CORNER_GRAB,
-			rect.top() - bw - TITLE_HEIGHT,
-			CORNER_GRAB + bw,
-			bw);
-
-		QRect r2(rect.right() + 1,
-			rect.top() - bw - TITLE_HEIGHT,
-			bw,
-			CORNER_GRAB + bw);
-
-		region = QRegion(r1) + r2;
-	    }
-	    break;
-
-	case BottomLeft: {
-		QRect r1(rect.left() - bw,
-			rect.bottom() + 1,
-			CORNER_GRAB + bw,
-			bw);
-
-		QRect r2(rect.left() - bw,
-			rect.bottom() - CORNER_GRAB,
-			bw,
-			CORNER_GRAB + bw);
-		region = QRegion(r1) + r2;
-	    }
-	    break;
-
-	case BottomRight: {
-		QRect r1(rect.right() - CORNER_GRAB,
-			rect.bottom() + 1,
-			CORNER_GRAB + bw,
-			bw);
-
-		QRect r2(rect.right() + 1,
-			rect.bottom() - CORNER_GRAB,
-			bw,
-			CORNER_GRAB + bw);
-		region = QRegion(r1) + r2;
-	    }
-	    break;
-
-	case Menu: {
-		QRect r(rect.left(), rect.top() - TITLE_HEIGHT,
-			TITLE_HEIGHT, TITLE_HEIGHT);
-		region = r;
-	    }
-	    break;
-
-	case Close: {
-		QRect r(rect.right() - TITLE_HEIGHT, rect.top() - TITLE_HEIGHT,
-			TITLE_HEIGHT, TITLE_HEIGHT);
-		if (r.left() > rect.left() + TITLE_HEIGHT)
-		    region = r;
-	    }
-	    break;
-
-	case Maximize: {
-		QRect r(rect.right() - 2*TITLE_HEIGHT, rect.top() - TITLE_HEIGHT,
-			TITLE_HEIGHT, TITLE_HEIGHT);
-		if (r.left() > rect.left() + TITLE_HEIGHT)
-		    region = r;
-	    }
-	    break;
-
-	case Minimize: {
-		QRect r(rect.right() - 3*TITLE_HEIGHT, rect.top() - TITLE_HEIGHT,
-			TITLE_HEIGHT, TITLE_HEIGHT);
-		if (r.left() > rect.left() + TITLE_HEIGHT)
-		    region = r;
-	    }
-	    break;
-
-	default:
-	    break;
-    }
-
-    return region;
-}
-
-void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
-{
-#ifndef QT_NO_STYLE
-    QStyle &style = QApplication::style();
-#endif
-
-    int titleWidth = widget->width()-4*TITLE_HEIGHT-4;
-
-    // Border rect
-    QRect br(widget->rect().left() - BORDER_WIDTH,
-	    widget->rect().top() - BORDER_WIDTH - TITLE_HEIGHT,
-	    widget->rect().width() + 2*BORDER_WIDTH,
-	    widget->rect().height() + 2*BORDER_WIDTH + TITLE_HEIGHT);
-
-    // title bar rect
-    QRect tr( TITLE_HEIGHT, -TITLE_HEIGHT,  titleWidth, TITLE_HEIGHT - 1);
-
-    QRegion oldClip = painter->clipRegion();
-    painter->setClipRegion( oldClip - QRegion( tr ) );	// reduce flicker
-
-#ifndef QT_NO_PALETTE
-    const QColorGroup &cg = widget->palette().active();
-
-#if !defined(QT_NO_STYLE)
-    style.drawPanel(painter, br.x(), br.y(), br.width(),
-		    br.height(), cg, FALSE, 2,
-		    &cg.brush(QColorGroup::Background));
-#elif !defined(QT_NO_DRAWUTIL)
-    qDrawWinPanel(painter, br.x(), br.y(), br.width(),
-		  br.height(), cg, FALSE,
-		  &cg.brush(QColorGroup::Background));
-#endif
-
-    painter->setClipRegion( oldClip );
-    
-    if (titleWidth > 0) {
-	QBrush titleBrush;
-	QPen   titlePen;
-
-	if (widget == qApp->activeWindow()) {
-	    titleBrush = cg.brush(QColorGroup::Highlight);
-	    titlePen   = cg.color(QColorGroup::HighlightedText);
-	} else {
-	    titleBrush = cg.brush(QColorGroup::Background);
-	    titlePen   = cg.color(QColorGroup::Text);
-	}
-
-#if !defined(QT_NO_STYLE)
-	style.drawPanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
-			cg, TRUE, 1, &titleBrush);
-#elif !defined(QT_NO_DRAWUTIL)
-	qDrawWinPanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
-			cg, TRUE, &titleBrush);
-#endif		
-	painter->setPen(titlePen);
-	painter->setFont(widget->font());
-	painter->drawText(TITLE_HEIGHT + 4, -TITLE_HEIGHT,
-			titleWidth-5, TITLE_HEIGHT - 1,
-			QPainter::AlignVCenter, widget->caption());
-    }
-
-#endif //QT_NO_PALETTE
-
-}
-
-void QWSDefaultDecoration::paintButton(QPainter *painter, const QWidget *w,
-			QWSDecoration::Region type, int state)
-{
-#ifndef QT_NO_PALETTE    
-#ifndef QT_NO_STYLE
-    QStyle &style = QApplication::style();
-#endif
-    const QColorGroup &cg = w->palette().active();
-
-    QRect brect(region(w, w->rect(), type).boundingRect());
-    int xoff=2;
-    int yoff=2;
-    const QPixmap *pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
-
-    if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked)) {
-#if !defined(QT_NO_STYLE)
-	style.drawToolButton(painter, brect.x(), brect.y(), brect.width()-1,
-		    brect.height()-1, cg, TRUE,
-		    &cg.brush(QColorGroup::Background));
-#elif !defined(QT_NO_DRAWUTIL)
-	qDrawWinPanel(painter, brect.x(), brect.y(), brect.width()-1,
-		    brect.height()-1, cg, TRUE,
-		    &cg.brush(QColorGroup::Background));
-#endif	
-	if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff+1, *pm);
-    } else {
-	painter->fillRect(brect.x(), brect.y(), brect.width()-1,
-                    brect.height()-1, cg.brush(QColorGroup::Background));
-	if (pm) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, *pm);
-    }
-#endif
-}
-
-#endif // QT_NO_QWS_MANAGER
+#endif //QT_NO_QWS_MANAGER

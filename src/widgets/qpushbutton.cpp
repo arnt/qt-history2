@@ -680,10 +680,12 @@ void QPushButton::popupPressed()
     if ( isDown() && popup ) {
 	bool horizontal = TRUE;
 	bool topLeft = TRUE;
+#ifndef QT_NO_TOOLBAR
 	if ( parentWidget() && parentWidget()->inherits("QToolBar") ) {
 	    if ( ( (QToolBar*) parentWidget() )->orientation() == Vertical )
 		horizontal = FALSE;
 	}
+#endif
 	if ( horizontal ) {
 	    if ( topLeft ) {
 		if ( mapToGlobal( QPoint( 0, rect().bottom() ) ).y() + popup->sizeHint().height() <= qApp->desktop()->height() )

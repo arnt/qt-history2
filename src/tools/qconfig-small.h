@@ -20,7 +20,7 @@
 #define QT_NO_IMAGEIO_PNG
 #define QT_NO_ASYNC_IO
 #define QT_NO_ASYNC_IMAGE_IO
-#define QT_NO_TRUETYPE
+#define QT_NO_FREETYPE
 #define QT_NO_BDF
 #define QT_NO_FONTDATABASE
 #define QT_NO_TRANSLATION
@@ -76,6 +76,13 @@
 #define QT_NO_STYLE_PLATINUM
 #define QT_NO_PROGRESSBAR
 
+
+#define QT_NO_QWS_HYDRO_WM_STYLE
+#define QT_NO_QWS_BEOS_WM_STYLE
+#define QT_NO_QWS_KDE2_WM_STYLE
+#define QT_NO_QWS_KDE_WM_STYLE
+//#define QT_NO_QWS_QPE_WM_STYLE
+#define QT_NO_QWS_WINDOWS_WM_STYLE
 
 
 //other widgets that could be removed:

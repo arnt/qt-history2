@@ -75,6 +75,8 @@ public:
     int minRightBearing() const { return memorymanager->fontMinRightBearing(id); }
     int leading() const { return memorymanager->fontLeading(id); }
     int maxWidth() const { return memorymanager->fontMaxWidth(id); }
+    int underlinePos() const { return memorymanager->fontUnderlinePos(id); }
+    int lineWidth() const { return memorymanager->fontLineWidth(id); }
 
     QFontDef s;
     QMemoryManager::FontID id;
@@ -90,7 +92,7 @@ inline QFontStruct::QFontStruct( const QFontDef& d )
     id = memorymanager->findFont(d);
 }
 
-bool QFontStruct::dirty() const
+inline bool QFontStruct::dirty() const
 {
     return FALSE;
 }
@@ -331,7 +333,8 @@ void QFont::cacheStatistics()
 
 Qt::HANDLE QFont::handle() const
 {
-    d->load(); // the REAL reason this is called
+    if ( DIRTY_FONT )
+	d->load(); // the REAL reason this is called
     return d->fin->handle();
 }
 
@@ -584,8 +587,7 @@ int QFontMetrics::height() const
 
 int QFontMetrics::leading() const
 {
-    return 2;
-    //return internal()->leading();
+    return ((QFontMetrics*)this)->internal()->leading();
 }
 
 int QFontMetrics::lineSpacing() const
@@ -626,13 +628,12 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
 int QFontMetrics::maxWidth() const
 {
-    int ret=((QFontMetrics*)this)->internal()->maxWidth();
-    return ret;
+    return ((QFontMetrics*)this)->internal()->maxWidth();
 }
 
 int QFontMetrics::underlinePos() const
 {
-    return 1; // XXX
+    return ((QFontMetrics*)this)->internal()->underlinePos();
 }
 
 int QFontMetrics::strikeOutPos() const
@@ -642,7 +643,7 @@ int QFontMetrics::strikeOutPos() const
 
 int QFontMetrics::lineWidth() const
 {
-    return 1; // XXX
+    return ((QFontMetrics*)this)->internal()->lineWidth();
 }
 
 

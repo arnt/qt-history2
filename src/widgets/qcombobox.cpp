@@ -1788,8 +1788,12 @@ void QComboBox::returnPressed()
     }
 
     if ( doInsert ) {
-	if ( count() == d->maxCount )
-	    removeItem( count() - 1 );
+	if ( insertionPolicy() != NoInsertion ) {
+	    int cnt = count();
+	    while ( cnt >= d->maxCount ) {
+		removeItem( --cnt );
+	    }
+	}
 
 	switch ( insertionPolicy() ) {
 	case AtCurrent:

@@ -40,6 +40,7 @@
 #include <sys/ioctl.h>
 #include <sys/file.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <sys/un.h>
@@ -114,6 +115,12 @@ QWSServerSocket::QWSServerSocket( const QString& file, int backlog, QObject *par
     int r = ::bind( s, (struct sockaddr*)&a, sizeof(struct sockaddr_un) );
     if ( r < 0 ) {
 	qWarning( "QWSServerSocket: could not bind to file %s", file.latin1() );
+	::close( s );
+	return;
+    }
+
+    if ( chmod( file.local8Bit(), 0600 ) < 0 ) {
+	qWarning( "Could not set permissions of %s", file.latin1() );
 	::close( s );
 	return;
     }

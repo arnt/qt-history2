@@ -73,6 +73,7 @@ public:
     {
 	df = d;
 
+	fleading = 1;
 	QFile in(df->file);
 	in.open(IO_ReadOnly);
 	QTextStream s(&in);
@@ -222,6 +223,8 @@ public:
 	    glyph[0].data = glyph[default_qchar.unicode()].data;
 	    glyph[0].metrics = glyph[default_qchar.unicode()].metrics;
 	}
+	funderlinepos = ptsize/200+1;
+	funderlinewidth = ptsize/200+1;
     }
 
     bool inFont(QChar ch) const

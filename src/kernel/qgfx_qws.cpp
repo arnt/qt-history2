@@ -43,6 +43,8 @@ QScreenCursor * qt_screencursor=0;
 #endif
 QScreen * qt_screen=0;
 
+extern bool qws_screen_is_interlaced; //### hack, from qapplication_qws.cpp
+
 QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,
 			     int offs )
 {
@@ -52,6 +54,11 @@ QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,
 bool QScreen::isTransformed() const
 {
     return FALSE;
+}
+
+bool QScreen::isInterlaced() const
+{
+    return qws_screen_is_interlaced;;
 }
 
 QSize QScreen::mapToDevice( const QSize &s ) const
@@ -102,6 +109,11 @@ QRegion QScreen::mapToDevice( const QRegion &r, const QSize & ) const
 QRegion QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
 {
     return r;
+}
+
+int QScreen::pixmapDepth() const
+{
+    return depth();
 }
 
 #ifdef QT_LOADABLE_MODULES
@@ -169,7 +181,9 @@ static QScreen * qt_do_entry(char * entry)
 
 extern bool qws_accel;
 
-QScreen * qt_probe_bus( int display_id, const QString &spec )
+/// ** NOT SUPPPORTED **
+
+QScreen * qt_probe_bus()
 {
     if(!qws_accel) {
 	return qt_dodriver("unaccel.so",0,0);
@@ -214,32 +228,29 @@ QScreen * qt_probe_bus( int display_id, const QString &spec )
 
 #else
 
-char * qt_qws_hardcoded_slot="/proc/bus/pci/01/00.0";
+const char * qt_qws_hardcoded_slot="/proc/bus/pci/01/00.0";
 
-QScreen * qt_probe_bus( int display_id, const char *spec )
+const unsigned char* qt_probe_bus()
 {
-    char * slot;
+    const char * slot;
     slot=getenv("QWS_CARD_SLOT");
-    if(!slot) {
+    if(!slot)
 	slot=qt_qws_hardcoded_slot;
-    }
     if ( slot ) {
-	unsigned char config[256];
+	static unsigned char config[256];
 	FILE * f=fopen(slot,"r");
 	if(!f) {
 	    slot=0;
 	} else {
-	    int r=fread(config,256,1,f);
-	    if(r<1)
-		slot=0;
-	    else
-		return qt_get_screen( display_id, spec, slot,
-				      config );
-
+	    int r=fread((char*)config,256,1,f);
 	    fclose(f);
+	    if(r<1)
+		return 0;
+	    else
+		return config;
 	}
     }
-    return qt_get_screen( display_id, spec, 0, 0 );
+    return 0;
 }
 
 #endif

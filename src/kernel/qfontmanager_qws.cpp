@@ -48,7 +48,7 @@
 //      <name> = Helvetica
 //      <file> = /usr/local/qt-embedded/etc/fonts/helvR0810.bdf or
 //                 /usr/local/qt-embedded/etc/fonts/verdana.ttf, etc.
-//  <renderer> = BDF or TTF
+//  <renderer> = BDF or FT
 //    <italic> = y or n
 //    <weight> = 50 is Normal, 75 is Bold, etc.
 //      <size> = 0 for scalable or 10 time pointsize (eg. 120 for 12pt)
@@ -129,8 +129,8 @@ QFontManager::QFontManager()
     //######## memory leak instead of segfault:
     //diskfonts.setAutoDelete(true);
 
-#ifndef QT_NO_TRUETYPE
-    factories.append(new QFontFactoryTTF());
+#ifndef QT_NO_FREETYPE
+    factories.append(new QFontFactoryFT());
 #endif
 #ifndef QT_NO_BDF
     factories.append(new QFontFactoryBDF());
@@ -158,6 +158,7 @@ QFontManager::QFontManager()
 	    QFontFactory * factoryp;
 	    int weight=50;
 	    int size=0;
+	    flags[0]=0;
 	    sscanf(buf,"%s %s %s %s %d %d %s",name,file,render,isitalic,&weight,&size,flags);
 	    QString filename;
 	    if ( file[0] != '/' )

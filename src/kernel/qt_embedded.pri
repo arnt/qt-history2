@@ -61,29 +61,31 @@ embedded {
 		  $$KERNEL_CPP/qwsregionmanager_qws.cpp \
 		  $$KERNEL_CPP/qwssocket_qws.cpp
 
-	ft:SOURCES+=3rdparty/freetype2/config/unix/ftsystem.c \
-                3rdparty/freetype2/src/base/ftdebug.c \
-                3rdparty/freetype2/src/base/ftinit.c \
-                3rdparty/freetype2/src/base/ftbase.c \
-                3rdparty/freetype2/src/base/ftbbox.c \
-                3rdparty/freetype2/src/base/ftraster.c \
-                3rdparty/freetype2/src/base/ftoutln.c \
-                3rdparty/freetype2/src/psnames/psdriver.c \
-                3rdparty/freetype2/src/sfnt/sfnt.c \
-                3rdparty/freetype2/src/truetype/truetype.c \
-                3rdparty/freetype2/src/type1/type1.c
+	ft:SOURCES += \
+		3rdparty/freetype/builds/unix/ftsystem.c \
+		3rdparty/freetype/src/base/ftdebug.c \
+		3rdparty/freetype/src/base/ftinit.c \
+		3rdparty/freetype/src/base/ftbase.c \
+		3rdparty/freetype/src/base/ftglyph.c \
+		3rdparty/freetype/src/base/ftmm.c \
+		3rdparty/freetype/src/base/ftbbox.c \
+		3rdparty/freetype/src/autohint/autohint.c \
+		3rdparty/freetype/src/cache/ftcache.c \
+		3rdparty/freetype/src/cff/cff.c \
+		3rdparty/freetype/src/cid/type1cid.c \
+		3rdparty/freetype/src/psaux/psaux.c \
+		3rdparty/freetype/src/psnames/psmodule.c \
+		3rdparty/freetype/src/raster/raster.c \
+		3rdparty/freetype/src/sfnt/sfnt.c \
+		3rdparty/freetype/src/smooth/smooth.c \
+		3rdparty/freetype/src/truetype/truetype.c \
+		3rdparty/freetype/src/type1/type1.c \
+		3rdparty/freetype/src/winfonts/winfnt.c
 
-	# Rather ridiculous. Perhaps we should ships symlinks and
-	# only have one here.
-	ft:INCLUDEPATH += 3rdparty/freetype2/src/shared \
-		3rdparty/freetype2/src/sfnt \
-		3rdparty/freetype2/include \
-		3rdparty/freetype2/src/base \
-		3rdparty/freetype2/config/unix \
-		3rdparty/freetype2/config \
-		3rdparty/freetype2/src/truetype \
-		3rdparty/freetype2/src/type1 \
-		3rdparty/freetype2/src/psnames
+	ft:INCLUDEPATH += \
+		3rdparty/freetype/src \
+		3rdparty/freetype/include \
+		3rdparty/freetype/builds/unix
 
 	PRECOMPH=$(QTDIR)/src/kernel/qt.h
 	INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib
