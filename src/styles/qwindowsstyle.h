@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#16 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#17 $
 **
 ** Definition of Windows-like style class
 **
@@ -59,6 +59,29 @@ public:
     QWindowsStyle();
     virtual ~QWindowsStyle();
 
+
+    // new stuff
+    void drawComplexControl( ComplexControl control,
+			     QPainter* p,
+			     const QWidget* w,
+			     const QRect& r,
+			     const QColorGroup& cg,
+			     CFlags flags = CStyle_Default,
+			     SCFlags sub = SC_None,
+			     SCFlags subActive = SC_None,
+			     void* data = 0 ) const;
+
+    void drawSubControl( SCFlags subCtrl,
+			 QPainter* p,
+			 const QWidget* w,
+			 const QRect& r,
+			 const QColorGroup& cg,
+			 CFlags flags = CStyle_Default,
+			 SCFlags subActive = SC_None,
+			 void* data = 0 ) const;
+    
+    // old stuff 
+    
     void polish( QWidget * );
     void unPolish( QWidget * );
 

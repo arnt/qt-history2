@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#88 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#89 $
 **
 ** Definition of QStyle class
 **
@@ -180,7 +180,6 @@ public:
 
     enum SubRect {
 	SR_PushButtonContents
-
 	/*
 	  SR_DefaultFrameContents,
 	  SR_PopupFrameContents,
@@ -196,9 +195,9 @@ public:
 
 
     enum ComplexControl{
+	  CC_SpinWidget
 	/*
 	  CC_ScrollBar,
-	  CC_SpinWidget,
 	  CC_Slider,
 	  CC_MenuItem,
 	  CC_ComboBox
@@ -206,7 +205,7 @@ public:
     };
 
     enum SubControl {
-	SC_None = 		0x00000000
+	SC_None = 		0x00000000,
 
 	/*
 	  ,
@@ -219,12 +218,14 @@ public:
 	  SC_ScrollBarLast = 	0x00000020,
 	  SC_ScrollBarSlider = 	0x00000040,
 	  SC_ScrollBarNoScroll = 	0x00000080,
-
-	  SC_SpinWidgetUp = 	0x00000001,
-	  SC_SpinWidgetDown = 	0x00000002,
-	  SC_SpinWidgetFrame = 	0x00000004,
-	  SC_SpinWidgetEditField = 	0x00000008,
-
+*/
+	SC_SpinWidgetUp = 		0x00000001,
+	SC_SpinWidgetDown = 		0x00000002,
+	SC_SpinWidgetFrame = 		0x00000004,
+	SC_SpinWidgetEditField =	0x00000008,
+	SC_SpinWidgetButtonField =	0x00000010
+	
+/*
 	  SC_MenuItemCheck =	0x00000001,
 	  SC_MenuItemLabel =	0x00000002,
 	  SC_MenuItemAccel =	0x00000004,
@@ -265,7 +266,8 @@ public:
 	PM_ButtonShiftHorizontal,
 	PM_ButtonShiftVertical,
 
-	PM_DefaultFrameWidth
+	PM_DefaultFrameWidth,
+	PM_SpinBoxFrameWidth
 
 	/*
 	  PM_PopupFrameWidth,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#148 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#149 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -145,7 +145,7 @@ public:
 */
 
 QSpinBox::QSpinBox( QWidget * parent , const char *name )
-    : QFrame( parent, name, WRepaintNoErase | WResizeNoErase ),
+    : QWidget( parent, name, WRepaintNoErase | WResizeNoErase ),
       QRangeControl()
 {
     initSpinBox();
@@ -164,7 +164,7 @@ QSpinBox::QSpinBox( QWidget * parent , const char *name )
 
 QSpinBox::QSpinBox( int minValue, int maxValue, int step, QWidget* parent,
 		    const char* name )
-    : QFrame( parent, name, WRepaintNoErase | WResizeNoErase ),
+    : QWidget( parent, name, WRepaintNoErase | WResizeNoErase ),
       QRangeControl( minValue, maxValue, step, step, minValue )
 {
     initSpinBox();
@@ -192,12 +192,7 @@ void QSpinBox::initSpinBox()
     setFocusPolicy( StrongFocus );
     vi->setValidator( validate );
     vi->installEventFilter( this );
-
-    if ( style() == WindowsStyle )
-	setFrameStyle( WinPanel | Sunken );
-    else
-	setFrameStyle( Panel | Sunken );
-    setLineWidth( 2 );
+    vi->setFrame( FALSE );
 
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     updateDisplay();
@@ -397,8 +392,6 @@ bool QSpinBox::wrapping() const
     return wrap;
 }
 
-
-
 /*!\reimp
 */
 QSize QSpinBox::sizeHint() const
@@ -422,38 +415,30 @@ QSize QSpinBox::sizeHint() const
     return QSize( w + d->buttons->downRect().width(), h ).expandedTo( QApplication::globalStrut() );
 }
 
+/*! \reimp */
+void QSpinBox::paintEvent( QPaintEvent * )
+{
+    QPainter p( this );
+    QRect frameRect = style().querySubControlMetrics( QStyle::CC_SpinWidget,
+						      this,
+						   QStyle::SC_SpinWidgetFrame);
+						      
+    style().drawComplexControl( QStyle::CC_SpinWidget, &p, this, frameRect,
+				colorGroup(),
+				QStyle::CStyle_Default,
+				QStyle::SC_SpinWidgetFrame );
+}
 
 // Does the layout of the lineedit and the buttons
 
 void QSpinBox::arrangeWidgets()
 {
-    QSize bs; // no, it's short for 'button size'
-    const int fw = style().spinBoxFrameWidth();
-    setFrameStyle( fw ? ( WinPanel | Sunken ) : NoFrame );
-    setLineWidth( fw );
-    vi->setFrame( !fw );
-
-    bs.setHeight( height()/2 - fw );
-
-    if ( bs.height() < 8 )
-	bs.setHeight( 8 );
-    bs.setWidth( bs.height() * 8 / 5 ); // 1.6 - approximate golden mean
-    bs = bs.expandedTo( QApplication::globalStrut() );
-
-    int y = fw;
-    int x, lx, rx;
-    if ( QApplication::reverseLayout() ) {
-	x = y;
-	lx = x + bs.width() + fw;
-	rx = width() - fw;
-    } else {
-	x = width() - y - bs.width();
-	lx = fw;
-	rx = x - fw;
-    }
-
-    d->buttons->setGeometry( x, y, bs.width(), height() - 2*fw );
-    vi->setGeometry( lx, fw, rx, height() - 2*fw );
+    QRect b = style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
+					    QStyle::SC_SpinWidgetButtonField );
+    QRect r = style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
+					      QStyle::SC_SpinWidgetEditField );
+    d->buttons->setGeometry( b );
+    vi->setGeometry( r );
 }
 
 /*!
@@ -853,7 +838,6 @@ QString QSpinBox::currentValueText()
 void QSpinBox::setEnabled( bool on )
 {
     bool b = isEnabled();
-    QFrame::setEnabled( on );
     if ( isEnabled() != b ) {
 	// ## enabledChange() might have been a better choice
 	updateDisplay();
@@ -866,11 +850,6 @@ void QSpinBox::setEnabled( bool on )
 
 void QSpinBox::styleChange( QStyle& old )
 {
-    if ( style() == WindowsStyle )
-	setFrameStyle( WinPanel | Sunken );
-    else
-	setFrameStyle( Panel | Sunken );
-
     arrangeWidgets();
     QWidget::styleChange( old );
 }

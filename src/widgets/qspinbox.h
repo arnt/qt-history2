@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#64 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#65 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -39,7 +39,7 @@
 #define QSPINBOX_H
 
 #ifndef QT_H
-#include "qframe.h"
+#include "qwidget.h"
 #include "qrangecontrol.h"
 #endif // QT_H
 
@@ -49,7 +49,7 @@ class QLineEdit;
 class QValidator;
 class QSpinBoxPrivate;
 
-class Q_EXPORT QSpinBox: public QFrame, public QRangeControl
+class Q_EXPORT QSpinBox: public QWidget, public QRangeControl
 {
     Q_OBJECT
     Q_ENUMS( ButtonSymbols )
@@ -137,6 +137,7 @@ protected:
     virtual void	valueChange();
     virtual void	rangeChange();
 
+    void 		paintEvent( QPaintEvent * );
     bool		eventFilter( QObject* obj, QEvent* ev );
     void		resizeEvent( QResizeEvent* ev );
     void		wheelEvent( QWheelEvent * );

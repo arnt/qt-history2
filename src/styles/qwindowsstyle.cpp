@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#46 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#47 $
 **
 ** Implementation of Windows-like style class
 **
@@ -277,7 +277,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_ButtonShiftVertical:
 	ret = 1;
 	break;
-
+	
     default:
 	ret = QCommonStyle::pixelMetric(metric, widget);
 	break;
@@ -2052,6 +2052,70 @@ QPixmap QWindowsStyle::titleBarPixmap( const QTitleBar *, TitleControl ctrl)
     return QPixmap();
 }
 
+void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
+					const QWidget * w, 
+					const QRect & r,
+					const QColorGroup & cg,
+					CFlags flags,
+					SCFlags sub, 
+					SCFlags subActive, void * data ) const
+{
+    switch( ctrl ) {
+	case CC_SpinWidget: {
+	    if ( sub != SC_None ) {
+		// draw only specified component
+		drawSubControl( sub, p, w, r, cg, flags, subActive, data );
+	    } else {
+		// draw the whole thing
+		drawSubControl( SC_SpinWidgetUp, p, w, r, cg, flags,
+				subActive, data );
+		drawSubControl( SC_SpinWidgetDown, p, w, r, cg, flags,
+				subActive, data );
+		drawSubControl( SC_SpinWidgetFrame, p, w, r, cg, flags,
+				subActive, data );
+	    }
+	    break;
+	}
+	default:
+	    QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags, sub,
+					      subActive, data );
+	    break;
+    }
+}
+
+void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
+				    const QWidget * w, 
+				    const QRect & r, const QColorGroup & cg,
+				    CFlags flags,
+				    SCFlags subActive, void * data ) const
+{
+    switch( subCtrl ) {
+	case SC_SpinWidgetUp: {
+	    QSpinWidget * sw = (QSpinWidget *) w;
+	    drawButton( p, r, cg, (subActive == QStyle::PStyle_On)  ?
+			TRUE : FALSE );
+	    QWindowsStyle * that = (QWindowsStyle *) this;
+	    that->drawSpinWidgetSymbol( p, r.x(), r.y(), r.width(),
+				  r.height(), cg, sw, FALSE, TRUE,
+			(subActive == QStyle::PStyle_On) ? TRUE : FALSE );
+	}
+	break;
+	case SC_SpinWidgetDown: {
+	    QSpinWidget * sw = (QSpinWidget *) w;
+	    drawButton( p, r, cg, (subActive == QStyle::PStyle_On)  ?
+			TRUE : FALSE );
+	    QWindowsStyle * that = (QWindowsStyle *) this;
+	    that->drawSpinWidgetSymbol( p, r.x(), r.y(), r.width(),
+				  r.height(), cg, sw, TRUE, TRUE,
+			  (subActive == QStyle::PStyle_On) ? TRUE : FALSE );
+	}
+	break;
+	case SC_SpinWidgetFrame:
+            qDrawWinPanel( p, r, cg, TRUE );//cstyle == Sunken );	    
+	    break;
+	default: break;
+    }
+}
 #endif
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#35 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#36 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -727,6 +727,51 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 					    SubControl sc,
 					    void *data ) const
 {
+    switch ( control ) {
+	case CC_SpinWidget: {
+	    QSpinBox * sb = (QSpinBox *) w;
+	    if ( !sb )
+		return QRect();
+	    
+	    int fw = pixelMetric( PM_SpinBoxFrameWidth, 0 );
+	    QSize bs;
+	    bs.setHeight( sb->height()/2 - fw );
+	    if ( bs.height() < 8 )
+		bs.setHeight( 8 );
+	    bs.setWidth( bs.height() * 8 / 5 ); // 1.6 -approximate golden mean
+	    bs = bs.expandedTo( QApplication::globalStrut() );
+	    int y = fw;
+	    int x, lx, rx;
+	    if ( QApplication::reverseLayout() ) {
+		x = y;
+		lx = x + bs.width() + fw;
+		rx = sb->width() - fw;
+	    } else {
+		x = sb->width() - y - bs.width();
+		lx = fw;
+		rx = x - fw;
+	    }
+	    switch ( sc ) {
+		case SC_SpinWidgetUp:
+		    return QRect( 0, 0, bs.width(), bs.height() );
+		    break;
+		case SC_SpinWidgetDown:
+		    return QRect( 0, bs.height(), bs.width(), bs.height() );
+		    break;
+		case SC_SpinWidgetButtonField:
+		    return QRect( x, y, bs.width(), sb->height() - 2*fw );
+		    break;
+		case SC_SpinWidgetEditField:
+		    return QRect( lx, fw, rx, sb->height() - 2*fw );
+		    break;
+		case SC_SpinWidgetFrame:
+		    return sb->rect();
+		default: break;
+	    }
+	}
+	break;
+	default: break;
+    }
     return QRect();
 }
 
@@ -771,6 +816,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 0;
 	break;
 
+    case PM_SpinBoxFrameWidth:
     case PM_DefaultFrameWidth:
 	ret = 2;
 	break;

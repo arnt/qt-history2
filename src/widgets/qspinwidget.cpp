@@ -39,6 +39,7 @@
 #include "qrect.h"
 #include "qtimer.h"
 #include "qapplication.h"
+#include "qpainter.h"
 
 static uint theButton = 0;
 
@@ -69,7 +70,7 @@ public:
 */
 
 QSpinWidget::QSpinWidget( QWidget* parent, const char* name )
-    : QFrame( parent, name )
+    : QWidget( parent, name )
 {
     d = new QSpinWidgetPrivate();
     setFocusPolicy( QWidget::NoFocus );
@@ -135,17 +136,12 @@ void QSpinWidget::mousePressEvent( QMouseEvent *e )
 
 void QSpinWidget::arrange()
 {
-    QSize bs;
-
-    bs.setHeight( height()/2 );
-    bs.setWidth( width() );
-
-    if ( bs.height() < 8 )
-	bs.setHeight( 8 );
-    bs = bs.expandedTo( QApplication::globalStrut() );
-
-    d->up = QRect( 0, 0, bs.width(), bs.height() );
-    d->down = QRect( 0, bs.height(), bs.width(), bs.height() );
+    d->up = style().querySubControlMetrics( QStyle::CC_SpinWidget, 
+					    parentWidget(), 
+					    QStyle::SC_SpinWidgetUp );
+    d->down = style().querySubControlMetrics( QStyle::CC_SpinWidget,
+					      parentWidget(), 
+					      QStyle::SC_SpinWidgetDown );
 }
 
 void QSpinWidget::stepUp()
@@ -261,22 +257,27 @@ void QSpinWidget::wheelEvent( QWheelEvent *e )
 /*!
 
 */
-
-void QSpinWidget::drawContents( QPainter *p )
+void QSpinWidget::paintEvent( QPaintEvent * )
 {
-    style().drawSpinWidgetButton( p, d->down.x(), d->down.y(), d->down.width(), d->down.height(),
-				  d->downEnabled ? colorGroup() : palette().disabled(),
-				  this, TRUE, d->downEnabled, theButton & 1 );
-    style().drawSpinWidgetSymbol( p, d->down.x(), d->down.y(), d->down.width(), d->down.height(),
-				  d->downEnabled ? colorGroup() : palette().disabled(),
-				  this, TRUE, d->downEnabled, theButton & 1 );
+    QPainter p( this );
 
-    style().drawSpinWidgetButton( p, d->up.x(), d->up.y(), d->up.width(), d->up.height(),
-				  d->upEnabled ? colorGroup() : palette().disabled(),
-				  this, FALSE, d->upEnabled, theButton & 2 );
-    style().drawSpinWidgetSymbol( p, d->up.x(), d->up.y(), d->up.width(), d->up.height(),
-				  d->upEnabled ? colorGroup() : palette().disabled(),
-				  this, FALSE, d->upEnabled, theButton & 2 );
+    style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
+				d->up,
+				d->upEnabled ? colorGroup() :
+				palette().disabled(),
+				QStyle::CStyle_Default,
+				QStyle::SC_SpinWidgetUp,
+				(theButton & 2) ? QStyle::PStyle_On :
+				QStyle::PStyle_Off );
+    
+    style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
+				d->down,
+				d->downEnabled ? colorGroup() :
+				palette().disabled(),
+				QStyle::CStyle_Default,
+				QStyle::SC_SpinWidgetDown,
+				(theButton & 1) ? QStyle::PStyle_On :
+				QStyle::PStyle_Off );
 }
 
 
@@ -286,11 +287,6 @@ void QSpinWidget::drawContents( QPainter *p )
 
 void QSpinWidget::styleChange( QStyle& old )
 {
-    if ( style() == WindowsStyle )
-	setFrameStyle( WinPanel | Sunken );
-    else
-	setFrameStyle( Panel | Sunken );
-
     arrange();
     QWidget::styleChange( old );
 }
@@ -348,7 +344,6 @@ void QSpinWidget::setEnabled( bool on )
     bool b = isEnabled();
     d->upEnabled = on;
     d->downEnabled = on;
-    QFrame::setEnabled( on );
     if ( isEnabled() != b )
 	updateDisplay();
 }

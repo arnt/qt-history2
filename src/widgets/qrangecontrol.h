@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#45 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#46 $
 **
 ** Definition of QRangeControl class
 **
@@ -125,7 +125,7 @@ inline int QRangeControl::pageStep() const
 
 class QSpinWidgetPrivate;
 
-class Q_EXPORT QSpinWidget : public QFrame
+class Q_EXPORT QSpinWidget : public QWidget
 {
     Q_OBJECT
 public:
@@ -155,9 +155,9 @@ protected:
     void mouseReleaseEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void wheelEvent( QWheelEvent * );
-    void drawContents( QPainter *p );
     void styleChange( QStyle& );
-
+    void paintEvent( QPaintEvent * );
+    
 private slots:
     void stepUp();
     void stepDown();
