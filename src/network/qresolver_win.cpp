@@ -3,10 +3,21 @@
 #include <ws2tcpip.h>
 #include <qlibrary.h>
 #include <qsignal.h>
+#include <qtimer.h>
 
 //#define QRESOLVER_DEBUG
 
-#include <qtimer.h>
+struct qt_addrinfo
+{
+    int                 ai_flags;       // AI_PASSIVE, AI_CANONNAME, AI_NUMERICHOST
+    int                 ai_family;      // PF_xxx
+    int                 ai_socktype;    // SOCK_xxx
+    int                 ai_protocol;    // 0 or IPPROTO_xxx for IPv4 and IPv6
+    size_t              ai_addrlen;     // Length of ai_addr
+    char *              ai_canonname;   // Canonical name for nodename
+    struct sockaddr    *ai_addr;        // Binary address
+    struct qt_addrinfo *ai_next;        // Next structure in linked list
+};
 
 void QResolverAgent::run()
 {
@@ -16,20 +27,23 @@ void QResolverAgent::run()
 
     // Attempt to resolve getaddrinfo(); without it we'll have to fall
     // back to gethostbyname(), which has no IPv6 support.
-    typedef int (*getaddrinfoProto)(const char *, const char *, const addrinfo *, addrinfo **);
+    typedef int (*getaddrinfoProto)(const char *, const char *, const qt_addrinfo *, qt_addrinfo **);
+    typedef int (*freeaddrinfoProto)(qt_addrinfo *);
     getaddrinfoProto local_getaddrinfo;
+    freeaddrinfoProto local_freeaddrinfo;
     local_getaddrinfo = (getaddrinfoProto) QLibrary::resolve("ws2_32.dll", "getaddrinfo");
+    local_freeaddrinfo = (freeaddrinfoProto) QLibrary::resolve("ws2_32.dll", "freeaddrinfo");
 
     QResolverHostInfo results;
 
-    if (local_getaddrinfo) {
+    if (local_getaddrinfo && local_freeaddrinfo) {
         // Call getaddrinfo, and place all IPv4 addresses at the start
         // and the IPv6 addresses at the end of the address list in
         // results.
-        addrinfo *res;
+        qt_addrinfo *res;
         int err = local_getaddrinfo(hostName.latin1(), 0, 0, &res);
         if (err == 0) {
-            for (addrinfo *p = res; p != 0; p = p->ai_next) {
+            for (qt_addrinfo *p = res; p != 0; p = p->ai_next) {
                 switch (p->ai_family) {
                 case AF_INET: {
                     QHostAddress addr(ntohl(((sockaddr_in *) p->ai_addr)->sin_addr.s_addr));
@@ -49,7 +63,7 @@ void QResolverAgent::run()
                     break;
                 }
             }
-            freeaddrinfo(res);
+            local_freeaddrinfo(res);
         } else if (err == EAI_NONAME) {
             results.error = QResolver::HostNotFound;
             results.errorString = tr("Host not found");
