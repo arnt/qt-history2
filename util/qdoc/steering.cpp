@@ -189,7 +189,7 @@ void Steering::emitHtml() const
     resolver.setHtmlFileList( htmlflist );
     resolver.setHtmlChunkMap( chkmap );
 
-    Doc::setHtmlResolver( &resolver );
+    Doc::setResolver( &resolver );
     Doc::setHeaderFileList( hflist );
     Doc::setClassList( clist );
     Doc::setFunctionIndex( findex );
