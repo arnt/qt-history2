@@ -1178,9 +1178,9 @@ bool QGLContext::create( const QGLContext* shareContext )
     your widget's constructor or in your own paint functions), you
     must call makeCurrent() first.
 
-    QGLWidget provides advanced functions for requesting a new display
-    \link QGLFormat format\endlink and you can even set a new
-    rendering \link QGLContext context\endlink.
+    QGLWidget provides functions for requesting a new display \link
+    QGLFormat format\endlink and you can also create widgets with
+    customized rendering \link QGLContext contexts\endlink.
 
     You can also share OpenGL display lists between QGLWidgets (see
     the documentation of the QGLWidget constructors for details).
