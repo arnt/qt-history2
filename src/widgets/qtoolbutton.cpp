@@ -524,8 +524,8 @@ void QToolButton::moveEvent( QMoveEvent * )
 void QToolButton::mousePressEvent( QMouseEvent *e )
 {
     QRect popupr =
-	style().querySubControlMetrics(QStyle::CC_ToolButton, this,
-				       QStyle::SC_ToolButtonMenu);
+	QStyle::visualRect( style().querySubControlMetrics(QStyle::CC_ToolButton, this,
+				       QStyle::SC_ToolButtonMenu), this );
     d->instantPopup = (popupr.isValid() && popupr.contains(e->pos()));
 
 #ifndef QT_NO_POPUPMENU
@@ -836,38 +836,46 @@ void QToolButton::popupTimerDone()
     d->repeat = autoRepeat();
     setAutoRepeat( FALSE );
     bool horizontal = TRUE;
-    bool topLeft = TRUE;
 #ifndef QT_NO_TOOLBAR
     if ( parentWidget() && parentWidget()->inherits("QToolBar") ) {
 	if ( ( (QToolBar*) parentWidget() )->orientation() == Vertical )
 	    horizontal = FALSE;
     }
 #endif
+    QPoint p;
+    QRect screen = qApp->desktop()->screenGeometry( qApp->desktop()->screenNumber( this ) );
     if ( horizontal ) {
-	if ( topLeft ) {
-	    if ( mapToGlobal( QPoint( 0, rect().bottom() ) ).y() + d->popup->sizeHint().height() <= qApp->desktop()->height() )
-		d->popup->exec( mapToGlobal( rect().bottomLeft() ) );
-	    else
-		d->popup->exec( mapToGlobal( rect().topLeft() - QPoint( 0, d->popup->sizeHint().height() ) ) );
+	if ( QApplication::reverseLayout() ) {
+	    if ( mapToGlobal( QPoint( 0, rect().bottom() ) ).y() + d->popup->sizeHint().height() <= screen.height() ) {
+		p = mapToGlobal( rect().bottomRight() );
+	    } else {
+		p = mapToGlobal( rect().topRight() - QPoint( 0, d->popup->sizeHint().height() ) );
+	    }
+	    p.rx() -= d->popup->sizeHint().width();
 	} else {
-	    QSize sz( d->popup->sizeHint() );
-	    QPoint p = mapToGlobal( rect().topLeft() );
-	    p.ry() -= sz.height();
-	    d->popup->exec( p );
+	    if ( mapToGlobal( QPoint( 0, rect().bottom() ) ).y() + d->popup->sizeHint().height() <= screen.height() ) {
+		p = mapToGlobal( rect().bottomLeft() );
+	    } else {
+		p = mapToGlobal( rect().topLeft() - QPoint( 0, d->popup->sizeHint().height() ) );
+	    }
 	}
     } else {
-	if ( topLeft ) {
-	    if ( mapToGlobal( QPoint( rect().right(), 0 ) ).x() + d->popup->sizeHint().width() <= qApp->desktop()->width() )
-		d->popup->exec( mapToGlobal( rect().topRight() ) );
-	    else
-		d->popup->exec( mapToGlobal( rect().topLeft() - QPoint( d->popup->sizeHint().width(), 0 ) ) );
+	if ( QApplication::reverseLayout() ) {
+	    if ( mapToGlobal( QPoint( rect().left(), 0 ) ).x() - d->popup->sizeHint().width() <= screen.x() ) {
+		p = mapToGlobal( rect().topRight() );
+	    } else {
+		p = mapToGlobal( rect().topLeft() );
+		p.rx() -= d->popup->sizeHint().width();
+	    }
 	} else {
-	    QSize sz( d->popup->sizeHint() );
-	    QPoint p = mapToGlobal( rect().topLeft() );
-	    p.rx() -= sz.width();
-	    d->popup->exec( p );
+	    if ( mapToGlobal( QPoint( rect().right(), 0 ) ).x() + d->popup->sizeHint().width() <= screen.width() ) {
+		p = mapToGlobal( rect().topRight() );
+	    } else {
+		p = mapToGlobal( rect().topLeft() - QPoint( d->popup->sizeHint().width(), 0 ) );
+	    }
 	}
     }
+    d->popup->exec( p );
     setDown( FALSE );
     if ( d->repeat )
 	setAutoRepeat( TRUE );

@@ -1239,8 +1239,8 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
 
 	    QRect button, menuarea;
-	    button   = querySubControlMetrics(control, widget, SC_ToolButton, opt);
-	    menuarea = querySubControlMetrics(control, widget, SC_ToolButtonMenu, opt);
+	    button   = visualRect( querySubControlMetrics(control, widget, SC_ToolButton, opt), widget );
+	    menuarea = visualRect( querySubControlMetrics(control, widget, SC_ToolButtonMenu, opt), widget );
 
 	    SFlags bflags = flags,
 		   mflags = flags;
