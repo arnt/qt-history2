@@ -1054,6 +1054,7 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 
     d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
     *d->cursor = c2;
+    updateSelection();
     update();
 }
 
@@ -1846,6 +1847,15 @@ void QLineEdit::updateSelection()
     }
     d->parag->setSelection( QTextDocument::Standard,
 			    selectionStart, selectionEnd );
+
+#ifndef QT_NO_CLIPBOARD
+    if (! d->mousePressed && QApplication::clipboard()->supportsSelection()) {
+	QApplication::clipboard()->setSelectionMode(TRUE);
+	copy();
+	QApplication::clipboard()->setSelectionMode(FALSE);
+    }
+#endif // QT_NO_CLIPBOARD
+
 }
 
 
