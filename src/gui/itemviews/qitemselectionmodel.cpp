@@ -286,16 +286,18 @@ QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bo
 }
 
 /*!
-    Selects the items in a range that extends from the top-left model
+    Adds the items in the range that extends from the top-left model
     item, specified by the \a topLeft index, to the bottom-right item,
-    specified by \a bottomRight.
+    specified by \a bottomRight to the list.
 */
 void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    if (!topLeft.isValid() || !bottomRight.isValid()
-        || (topLeft.model() != bottomRight.model())
+    if (!topLeft.isValid() || !bottomRight.isValid())
+        return;
+
+    if ((topLeft.model() != bottomRight.model())
         || topLeft.parent() != bottomRight.parent()) {
-        qWarning("Can't select invalid indexes, or indexes with different parents");
+        qWarning("Can't select indexes from different model or with different parents");
         return;
     }
     if (topLeft.row() > bottomRight.row() || topLeft.column() > bottomRight.column())
