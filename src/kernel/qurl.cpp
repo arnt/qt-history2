@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#48 $
 **
 ** Implementation of QFileDialog class
 **
@@ -448,7 +448,7 @@ bool QUrl::parse( const QString& url )
 	// find the part between the protocol and the path as the meaning
 	// of that part is dependend on some chars
 	++cs;
-	while ( url[ cs ] == "/" )
+	while ( url[ cs ] == '/' )
 	    ++cs;
 	int slash = url.find( "/", cs );
 	if ( slash == -1 )
