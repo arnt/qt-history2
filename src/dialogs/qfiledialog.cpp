@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#103 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#104 $
 **
 ** Implementation of QFileDialog class
 **
@@ -296,14 +296,15 @@ const char * QFileDialogPrivate::File::key( int column, bool ascending ) const
     char majorkey = ascending == info.isDir() ? '0' : '1';
 
     if ( info.fileName() == ".." ) {
-	*tmpString = ascending ? "0" : "a"; // a > 9
+        *tmpString = ascending ? "0" : "a"; // a > 9
     } else if ( column == 1 ) {
 	tmpString->sprintf( "%c%08d", majorkey, info.size() );
     } else if ( column == 3 ) {
 	tmpString->sprintf( "%c%08d",
 			    majorkey, epoch.secsTo( info.lastModified() ) );
     } else {
-	tmpString->sprintf( "%c%s", majorkey, text( column ) );
+	*tmpString = text( column );
+	tmpString->insert( 0, majorkey );
     }
 
     return *tmpString;
