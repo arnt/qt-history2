@@ -9,10 +9,10 @@ REL="HOME"
 HREF="book1.html"><LINK
 REL="UP"
 TITLE="Customizing and Integrating Qt Designer"
-HREF="c2265.html"><LINK
+HREF="c5895.html"><LINK
 REL="PREVIOUS"
 TITLE="Customizing and Integrating Qt Designer"
-HREF="c2265.html"><LINK
+HREF="c5895.html"><LINK
 REL="NEXT"
 TITLE="Integrating Qt Designer with Visual Studio "
 HREF="integratingqtdesignerwithothertools.html"></HEAD
@@ -37,7 +37,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="c2265.html"
+HREF="c5895.html"
 >Prev</A
 ></TD
 ><TD
@@ -67,11 +67,15 @@ NAME="CREATINGANDUSINGTEMPLATES"
 >Creating and Using Templates</A
 ></H1
 ><P
-><I
+>&#13;
+
+
+<I
 CLASS="EMPHASIS"
 >Qt Designer</I
 > supports two approaches to creating template forms. The simplest
-approach involves little more than saving a <TT
+approach involves little more than saving a 
+<TT
 CLASS="FILENAME"
 >.ui</TT
 >
@@ -99,10 +103,12 @@ with a company name and logo.</P
 TYPE="1"
 ><LI
 ><P
->Click <SPAN
+>Click 
+<SPAN
 CLASS="GUIMENUITEM"
 >File|New</SPAN
-> to invoke the New Form dialog.
+> to invoke the 
+New Form dialog.
 Click the Dialog template then click <SPAN
 CLASS="GUIBUTTON"
 >OK</SPAN
@@ -110,12 +116,17 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->Click the <SPAN
+>Click the 
+
+<SPAN
 CLASS="GUIBUTTON"
 >Text Label</SPAN
 > toolbar button, then click
 near the top left of the form. Change the font Point Size property to 16
-and change the text property to your or your company's name. Click the
+and change the 
+text property to your or your company's name. Click the
+
+
 <SPAN
 CLASS="GUIBUTTON"
 >Line</SPAN
@@ -124,28 +135,36 @@ the label; click Horizontal on the pop-up menu.</P
 ></LI
 ><LI
 ><P
->Select the label and the line. (Ctrl+Click the form, then drag the
+>Select the label and the line. (
+<B
+CLASS="KEYCAP"
+>Ctrl+Click</B
+> the form, then drag the
 rubber band so that it touches or includes the line and the label.)
-Press <B
+Press 
+<B
 CLASS="KEYCAP"
 >Ctrl+L</B
 > to lay them out vertically.</P
 ></LI
 ><LI
 ><P
->Click the <SPAN
+>Click the 
+
+<SPAN
 CLASS="GUIBUTTON"
 >Save</SPAN
-> toolbar button. In the Save As
+> toolbar button. In the 
+Save As
 dialog, navigate to <I
 CLASS="EMPHASIS"
 >Qt Designer</I
->'s templates directory,
+>'s templates directory, e.g.
 (<TT
 CLASS="FILENAME"
 >qt/tools/designer/templates</TT
-> relative to wherever
-Qt is installed). Type in the name 'Simple_Dialog.ui' and click
+>.
+Type in the name 'Simple_Dialog.ui' and click
 <SPAN
 CLASS="GUIBUTTON"
 >Save</SPAN
@@ -160,10 +179,12 @@ project.</P
 ></P
 ><P
 >Now that we have the simple template we are ready to use it. Click
+
 <SPAN
 CLASS="GUIMENUITEM"
 >File|New</SPAN
-> to invoke the New Form dialog. One
+> to invoke the 
+New Form dialog. One
 of the templates that will appear is 'Simple Dialog'. Click the simple
 dialog, then click <SPAN
 CLASS="GUIBUTTON"
@@ -181,9 +202,11 @@ NAME="BASECLASSTEMPLATES"
 >Base-class Templates</A
 ></H2
 ><P
->These templates are useful when you want to provide some default
+>&#13;
+These templates are useful when you want to provide some default
 functionality that all the forms based on the base class can inherit.
 In our example we'll use a class called
+
 <TT
 CLASS="CLASSNAME"
 >SizeAware</TT
@@ -196,7 +219,7 @@ CLASS="EMPHASIS"
 > template. The source for the class is in
 <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/sizeaware</TT
+>qt/tools/designer/examples/sizeaware</TT
 >.</P
 ><P
 >The template can either be based on a custom widget or on any existing
@@ -207,11 +230,13 @@ it to <I
 CLASS="EMPHASIS"
 >Qt Designer</I
 >'s custom widgets.
-Click <SPAN
+Click 
+<SPAN
 CLASS="GUIMENUITEM"
 >Tools|Custom|Edit Custom Widgets</SPAN
 > to
-invoke the Edit Custom Widgets dialog. (This dialog is explained in more
+invoke the 
+Edit Custom Widgets dialog. (This dialog is explained in more
 detail in <A
 HREF="creating-custom-widgets-with-plugins.html#OLD-CUSTOM-WIDGETS"
 >the section called <I
@@ -226,7 +251,7 @@ CLASS="GUIBUTTON"
 and select the file 
 <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/sizeaware/sizeaware.h</TT
+>qt/tools/designer/examples/sizeaware/sizeaware.h</TT
 >. Check
 the Container Widget checkbox. This
 class provides two properties. Click the Properties tab. Click
@@ -244,11 +269,13 @@ CLASS="GUIBUTTON"
 >.</P
 ><P
 >To create a template, based on an existing widget or on your own custom
-widget, click <SPAN
+widget, click 
+<SPAN
 CLASS="GUIMENUITEM"
 >File|Create Template</SPAN
 > to invoke
-the Create Template dialog. Change the Template Name to 'SizeAware' and
+the 
+Create Template dialog. Change the Template Name to 'SizeAware' and
 click the SizeAware base class, then click
 <SPAN
 CLASS="GUIBUTTON"
@@ -260,7 +287,8 @@ CLASS="EMPHASIS"
 > and restart it.</P
 ><P
 >A new template, 'SizeAware' is now available from the list of templates.
-Click <SPAN
+Click 
+<SPAN
 CLASS="GUIMENUITEM"
 >File|New</SPAN
 >, click SizeAware and click
@@ -290,7 +318,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="c2265.html"
+HREF="c5895.html"
 >Prev</A
 ></TD
 ><TD
@@ -321,7 +349,7 @@ WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="c2265.html"
+HREF="c5895.html"
 >Up</A
 ></TD
 ><TD

@@ -12,7 +12,7 @@ TITLE="Compiling and Building an Application "
 HREF="compilingampbuildinganapplication.html"><LINK
 REL="NEXT"
 TITLE="Converting the Design into an Executable Application"
-HREF="x637.html"></HEAD
+HREF="x2320.html"></HEAD
 ><BODY
 CLASS="CHAPTER"
 ><DIV
@@ -47,7 +47,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x637.html"
+HREF="x2320.html"
 >Next</A
 ></TD
 ></TR
@@ -76,20 +76,44 @@ HREF="main-windows.html#DESIGNING-THE-MAIN-WINDOW"
 ></DT
 ><DT
 ><A
-HREF="x637.html"
+HREF="x2320.html"
 >Converting the Design into an Executable Application</A
 ></DT
 ></DL
 ></DIV
 ><P
->&#13;In this chapter we will explain how to create an application's main
+>&#13;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+In this chapter we will explain how to create an application's main
 window and how to add actions (explained shortly), menus and toolbars.
 We will also demonstrate how some common actions, like cut and paste in
-a <TT
+a 
+<TT
 CLASS="CLASSNAME"
 >QTextEdit</TT
 >, can be performed automatically simply by making the
-appropriate signals to slots connections. We will build the <I
+appropriate signals and slots connections. We will build the <I
 CLASS="EMPHASIS"
 >richedit</I
 >
@@ -97,7 +121,7 @@ application to illustrate the necessary techniques.
 <DIV
 CLASS="FIGURE"
 ><A
-NAME="AEN450"
+NAME="AEN1532"
 ></A
 ><P
 ><B
@@ -105,33 +129,29 @@ NAME="AEN450"
 ></P
 ><P
 ><IMG
-SRC="images/richedit-main.png"
-ALIGN="center"></P
+SRC="images\richedit-main.png"></P
 ></DIV
->&#13;</P
+></P
 ><P
->&#13;We begin by creating a project file. Start <I
+>&#13;
+We begin by creating a project file. Start <I
 CLASS="EMPHASIS"
 >Qt Designer</I
 > or if it is already
-running close any existing project and files. Click 
+running, close any existing project and files. Click 
+
 <SPAN
 CLASS="GUIMENUITEM"
 >File|New Project</SPAN
-> to invoke the Project Settings dialog. Enter a
+> to invoke the 
+Project Settings dialog. Enter a
 name for the project, e.g. richedit, and a name for the  project file,
 e.g. richedit.pro. Click <SPAN
 CLASS="GUIBUTTON"
 >OK</SPAN
 >. If you're unfamiliar with Actions and
 Action Groups the sidebar provides the necessary introduction; otherwise
-skip ahead to <A
-HREF="main-windows.html#DESIGNING-THE-MAIN-WINDOW"
->the section called <I
->Designing the Main Window</I
-></A
-> "Designing the
-Main Window".&#13;</P
+skip ahead to "Designing the Main Window".</P
 ><TABLE
 CLASS="SIDEBAR"
 BORDER="1"
@@ -141,21 +161,21 @@ CELLPADDING="5"
 ><DIV
 CLASS="SIDEBAR"
 ><A
-NAME="AEN458"
+NAME="AEN1547"
 ></A
 ><P
 ><B
 >Actions and Action Groups</B
 ></P
 ><P
->&#13;An <I
+>An <I
 CLASS="EMPHASIS"
 >action</I
-> is some operation that the user initiates through the user
+> is an operation that the user initiates through the user
 interface, for example, saving a file or changing some text's font
-weight to bold.&#13;</P
+weight to bold.</P
 ><P
->&#13;We often want the user to be able to perform an action using a variety
+>We often want the user to be able to perform an action using a variety
 of means. For example, to save a file we might want the user to be able
 to press <B
 CLASS="KEYCAP"
@@ -164,13 +184,15 @@ CLASS="KEYCAP"
 CLASS="GUIBUTTON"
 >Save</SPAN
 > toolbar button
-or to click the <SPAN
+or to click the 
+<SPAN
 CLASS="GUIMENUITEM"
 >File|Save</SPAN
 > menu option. Although the means of
-invoking the action are all different the underlying operation is the
+invoking the action are all different, the underlying operation is the
 same and we don't want to duplicate the code that performs the
-operation. In Qt we can create an action (a <TT
+operation. In Qt we can create an action (a 
+<TT
 CLASS="CLASSNAME"
 >QAction</TT
 > object)
@@ -179,19 +201,20 @@ can assign an accelerator, (e.g. <B
 CLASS="KEYCAP"
 >Ctrl+S</B
 >), to an action. We
-can also add an action to a menu item and to a toolbar button.&#13;</P
+can also add an action to a menu item and to a toolbar button.</P
 ><P
->&#13;If the action has an on/off state, e.g. bold is on or off, when the user
+>If the action has an on/off state, e.g. bold is on or off, when the user
 changes the state, for example by clicking a toolbar button, the state
 of everything associated with the action, e.g. menu items and toolbar
-buttons, are updated. &#13;</P
+buttons, are updated. </P
 ><P
->&#13;Some actions should operate together like radio buttons. For example, if
+>Some actions should operate together like radio buttons. For example, if
 we have left align, center align and right align actions, only one
 should be 'on' at any one time. An <I
 CLASS="EMPHASIS"
 >action group</I
 > (a
+
 <TT
 CLASS="CLASSNAME"
 >QActionGroup</TT
@@ -206,14 +229,15 @@ CLASS="LITERAL"
 >exclusive</TT
 > is TRUE,
 everything associated with the actions in the action group, e.g. menu
-items and toolbar buttons, are updated.&#13;</P
+items and toolbar buttons, are updated.</P
 ><P
->&#13;<I
+>&#13;
+<I
 CLASS="EMPHASIS"
 >Qt Designer</I
 > can create actions and action groups visually, can assign
 accelerators to them, and can associate them with menu items and toolbar
-buttons. &#13;</P
+buttons. </P
 ></DIV
 ></TD
 ></TR
@@ -227,8 +251,34 @@ NAME="DESIGNING-THE-MAIN-WINDOW"
 >Designing the Main Window</A
 ></H1
 ><P
->&#13;    We will use the main window wizard to build a main window. The
-    wizard allows us to create actions and a menu bar and toolbar
+>    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    We will use the main window wizard to build a main window. The
+    wizard allows us to create actions and a menu bar and a toolbar
     through which the user can invoke the actions. We will also create
     our own actions, menus and toolbar. We will add some widgets to the
     toolbar and add a main widget to the main window. Finally we will
@@ -240,18 +290,21 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN479"
+NAME="AEN1612"
 >Creating the Main Window</A
 ></H2
 ><P
->&#13;	Click <SPAN
+>	Click 
+<SPAN
 CLASS="GUIMENUITEM"
 >File|New</SPAN
-> to invoke the New Form dialog, click
+> to invoke the 
+New Form dialog, click
 	Mainwindow, then click <SPAN
 CLASS="GUIBUTTON"
 >OK</SPAN
->. A new <TT
+>. A new 
+<TT
 CLASS="CLASSNAME"
 >QMainWindow</TT
 > form will
@@ -263,7 +316,7 @@ CLASS="CLASSNAME"
 TYPE="1"
 ><LI
 ><P
->&#13;	The <I
+>	The <I
 CLASS="EMPHASIS"
 >Choose available menus and toolbars</I
 > wizard page appears
@@ -278,11 +331,32 @@ CLASS="EMPHASIS"
 	connections later.
 	</P
 ><P
->&#13;	We will accept the defaults for File Actions, i.e. have menu
+>	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	We will accept the defaults for File Actions, i.e. have menu
 	items, toolbar buttons and the relevant connections created. But
 	for the Edit Actions we don't want any connections created since
 	we'll be connecting the actions directly to the
-	<TT
+	
+<TT
 CLASS="CLASSNAME"
 >QTextEdit</TT
 > we'll create later, so uncheck the Edit Action's
@@ -297,7 +371,19 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->&#13;	The <I
+>	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	The <I
 CLASS="EMPHASIS"
 >Setup Toolbar</I
 > wizard page is used to populate a toolbar
@@ -314,7 +400,7 @@ CLASS="EMPHASIS"
 	separator to appear in the finished toolbar.
 	</P
 ><P
->&#13;	Copy the New, Open and Save Actions to the
+>	Copy the New, Open and Save Actions to the
 	Toolbar list box. Copy a &lt;Separator&gt; to the Toolbar list
 	box. Change the Category to Edit and copy the Undo, Redo, Cut
 	Copy and Paste actions to the Toolbar list box. Click
@@ -331,7 +417,8 @@ CLASS="GUIBUTTON"
 >
 	</P
 ><P
->&#13;	If you preview the form (<B
+>	If you preview the form (
+<B
 CLASS="KEYCAP"
 >Ctrl+T</B
 >) the File and Edit
@@ -347,7 +434,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN501"
+NAME="AEN1690"
 >Creating and Deleting Actions and Action Groups</A
 ></H2
 ><DIV
@@ -355,73 +442,90 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN503"
+NAME="AEN1692"
 >Creating Actions</A
 ></H3
 ><P
->&#13;	    Our application requires more menu items and toolbar buttons
+>	    
+
+	    
+
+	    Our application requires more menu items and toolbar buttons
 	    than the the defaults we created with the main window wizard.
 	    But before we create the menu items and toolbar buttons we
 	    will create the actions that they'll invoke. The Action
 	    Editor appears automatically when you create a main window.
 	    You can also access it through the Window menu (click
-	    <SPAN
+	    
+<SPAN
 CLASS="GUIMENUITEM"
 >Window|Action Editor</SPAN
 >). 
 	    </P
 ><P
->&#13;	    For the richedit application we need to create actions for
+>	    For the richedit application we need to create actions for
 	    indicating bold, italic and underlined font attributes, and to
 	    set text alignment.
 	    </P
 ><P
->&#13;	    Right click in the Action Editor where the actions are listed,
-	    then left click New Action. This will create a new action called
-	    'Action' at the top of the list of actions. The Property Editor
-	    will change to show the default settings for the new action.
-	    We'll now go through all the properties we need to change.
+>	    Right click in the 
+Action Editor where the actions are
+	    listed, then left click New Action. This will create a new
+	    action called 'Action' at the top of the list of actions.
+	    The Property Editor will change to show the default settings
+	    for the new action. We'll now go through all the properties
+	    we need to change.
 	    <P
 ></P
 ><OL
 TYPE="1"
 ><LI
 ><P
->&#13;	    Change the name of the action to 'boldAction'. 
+>	    Change the 
+name of the action to 'boldAction'. 
 	    </P
 ></LI
 ><LI
 ><P
->&#13;	    Since bold can only be on or off change the
-	    toggleAction property to True. 
+>	    Since bold can only be on or off change the
+	    
+toggleAction property to True. 
 	    </P
 ></LI
 ><LI
 ><P
->&#13;	    The iconSet property is used to set an icon which will
+>	    
+
+	    
+
+	    The 
+iconSet property is used to set an icon which will
 	    appear to the left of the action's name in any menu you
-	    associate the action with. The iconSet is also used for the
+	    associate the action with. The 
+iconSet is also used for the
 	    toolbar button if you associate the action with a toolbar.
-	    Click the ellipsis button (<B
+	    Click the ellipsis button (
+<B
 CLASS="KEYCAP"
 >...</B
 >) to invoke the
-	    Edit Pixmap Collection dialog. The pixmap we require is not in the
-	    default collection. Click the <SPAN
+	    
+Edit Pixmap Collection dialog. The pixmap we require
+	    is not in the default collection. Click the <SPAN
 CLASS="GUIBUTTON"
 >Add</SPAN
-> button and a file
-	    dialog will appear. The icons we require are in the Qt
-	    examples directory, <TT
+>
+	    button and a file dialog will appear. The icons we require
+	    are in the Qt examples directory, <TT
 CLASS="FILENAME"
 >qt/examples/textedit/</TT
->. Navigate to
-	    the textedit directory and select the <TT
+>.
+	    Navigate to the textedit directory and select the
+	    <TT
 CLASS="FILENAME"
 >textbold.xpm</TT
-> file.
-	    Click the new textbold icon in the pixmap collection then
-	    click <SPAN
+> file. Click the new textbold icon in the
+	    pixmap collection then click <SPAN
 CLASS="GUIBUTTON"
 >OK</SPAN
 >. 
@@ -429,21 +533,28 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->&#13;	    Change the text property to 'bold'. This automatically
-	    changes the menuText, toolTip and statusTip properties.
+>	    Change the 
+text property to 'bold'. This automatically
+	    changes the 
+menuText, 
+toolTip and 
+statusTip 
+	    properties.
 	    </P
 ></LI
 ><LI
 ><P
->&#13;	    Change the menu text to '&amp;Bold'. If we choose to
+>	    Change the menu text to '&amp;Bold'. If we choose to
 	    associate this action with a menu item then this property is
 	    used; otherwise it is ignored.
 	    </P
 ></LI
 ><LI
 ><P
->&#13;	    Change the accel property to 'CTRL+B'. This will associate
-	    the <B
+>	    Change the 
+accel property to 'CTRL+B'. This will associate
+	    the 
+<B
 CLASS="KEYCAP"
 >Ctrl+B</B
 > keyboard accelerator with this action.
@@ -452,7 +563,8 @@ CLASS="KEYCAP"
 ></OL
 >
 	    Note that at this point the only way to invoke this action is to
-	    use the keyboard accelerator (<B
+	    use the keyboard accelerator (
+<B
 CLASS="KEYCAP"
 >Ctrl+B</B
 >), because we
@@ -460,23 +572,31 @@ CLASS="KEYCAP"
 	    toolbar button.
 	    </P
 ><P
->&#13;	    We need to add two more actions, italic and underline. For each
-	    one right click the Action Editor and click New Action. Then
-	    repeat the steps listed above to change each action's
-	    properties: 
+>	    
+
+	    We need to add two more actions, italic and underline. For each
+	    one right click the 
+Action Editor and click New
+	    Action. Then repeat the steps listed above to change each
+	    action's properties: 
 	    <P
 ></P
 ><UL
 ><LI
 ><P
->&#13;	    For the italic action change its name to 'italicAction' and
-	    ensure its toggleAction property is True. The iconSet is in
+>	    For the italic action change its 
+name to 'italicAction' and
+	    ensure its 
+toggleAction property is True. The 
+	    
+iconSet is in
 	    the textedit directory and is called <TT
 CLASS="FILENAME"
 >textitalic.xpm</TT
 >; add
 	    its pixmap in the same way that we added the bold pixmap.
-	    (For example, click the ellipsis (<B
+	    (For example, click the ellipsis (
+<B
 CLASS="KEYCAP"
 >...</B
 >), click
@@ -492,21 +612,33 @@ CLASS="FILENAME"
 CLASS="GUIBUTTON"
 >OK</SPAN
 >). Change the
-	    action's text to 'italic', its menuText to '&amp;Italic' and
-	    its accel to 'CTRL+I'.
+	    action's 
+text to 'italic', its 
+menuText 
+	    to '&amp;Italic' and
+	    its 
+accel to 'CTRL+I'.
 	    </P
 ></LI
 ><LI
 ><P
->&#13;	    For the underline action change its name to 'underlineAction'
-	    and set its toggleAction property to True. The iconSet is in
+>	    For the underline action change its 
+name 
+	    to 'underlineAction'
+	    and set its 
+toggleAction property to True. The 
+	    
+iconSet is in
 	    the same directory and is called <TT
 CLASS="FILENAME"
 >textunder.xpm</TT
 >; add it
-	    in the same way as the previous pixmaps. Change its text to
-	    'underline', its menuText to '&amp;Underline' and its accel
-	    to 'CTRL+U'.
+	    in the same way as the previous pixmaps. Change its 
+text to
+	    'underline', its 
+menuText to '&amp;Underline' and its 
+	    
+accel to 'CTRL+U'.
 	    </P
 ></LI
 ></UL
@@ -518,11 +650,15 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN541"
+NAME="AEN1832"
 >Creating Action Groups</A
 ></H3
 ><P
->&#13;	    It is perfectly possible to have bold, italic and underline
+>	    
+
+	    
+
+	    It is perfectly possible to have bold, italic and underline
 	    all active at once. But for alignment, i.e. left align,
 	    right align and centered, it only makes sense for one of
 	    them to be active at any one time. Because we need the
@@ -532,15 +668,24 @@ NAME="AEN541"
 	    we require. 
 	    </P
 ><P
->&#13;	    Right click the Action Editor then left click New Action
-	    Group. Change the action group's name in the Property Editor
-	    to 'alignActionGroup', and change its text to 'align'. The
-	    'exclusive' property's default is True. This ensures that only
-	    one action within the action group can be 'on' at any one
-	    time which is the behaviour we require.
+>	    
+
+	    
+
+	    Right click the 
+Action Editor then left click New Action
+	    Group. Change the action group's 
+name in the Property
+	    Editor to 'alignActionGroup', and change its 
+text to
+	    'align'. The '
+exclusive' property's default is True.
+	    This ensures that only one action within the action group
+	    can be 'on' at any one time which is the behaviour we
+	    require.
 	    </P
 ><P
->&#13;	    We create the actions within the action group in almost the
+>	    We create the actions within the action group in almost the
 	    same way as before. The only difference is that we must
 	    right click the alignActionGroup (rather than an Action) and
 	    then left click New Action to create a new action <I
@@ -555,48 +700,70 @@ CLASS="EMPHASIS"
 TYPE="1"
 ><LI
 ><P
->&#13;	    Create a new action within the alignActionGroup action
-	    group. Change the name of this action to 'leftAlignAction'
-	    and ensure its toggleAction property is True. Use the
-	    iconSet in the textedit directory called <TT
+>	    
+
+	    
+
+	    Create a new action within the alignActionGroup action
+	    group. Change the 
+name of this action to 'leftAlignAction'
+	    and ensure its 
+toggleAction property is True. Use the
+	    
+iconSet in the textedit directory called <TT
 CLASS="FILENAME"
 >textleft.xpm</TT
 >,
 	    adding the pixmap to the pixmap collection in the same way
-	    as we added the textbold pixmap earlier. Change its text to
-	    'left', its menuText to '&amp;Left' and its accel to
+	    as we added the textbold pixmap earlier. Change its 
+text to
+	    'left', its menuText to '&amp;Left' and its 
+accel to
 	    'CTRL+L'.
 	    </P
 ></LI
 ><LI
 ><P
->&#13;	    Create another new action within alignActionGroup. Change
-	    this action's name to 'rightAlignAction' and set its
-	    toggleAction property to True. Set its iconSet to
+>	    Create another new action within alignActionGroup. Change
+	    this action's 
+name to 'rightAlignAction' and set its
+	    
+toggleAction property to True. Set its 
+iconSet to
 	    <TT
 CLASS="FILENAME"
 >textright.xpm</TT
 > using the pixmap collection as before.
-	    Change its text to 'right', its menuText to '&amp;Right' and
-	    its accel to 'CTRL+R'.
+	    Change its 
+text to 'right', its menuText to
+	    '&amp;Right' and its 
+accel to 'CTRL+R'.
 	    </P
 ></LI
 ><LI
 ><P
->&#13;	    Create a third action within alignActionGroup. Change its
-	    name to 'centerAlignAction' and make its toggleAction
-	    property True. Change its iconSet to <TT
+>	    Create a third action within alignActionGroup. Change its
+	    
+name to 'centerAlignAction' and make its
+	    
+toggleAction property True. Change its 
+iconSet
+	    to <TT
 CLASS="FILENAME"
 >textcenter.xpm</TT
->.
-	    Change its text to 'center' and its menuText to
-	    '&amp;Center'. We won't set an accelerator for this action.
+>. Change its 
+text to 'center'
+	    and its 
+menuText to '&amp;Center'. We won't set an
+	    accelerator for this action.
 	    </P
 ></LI
 ></OL
 >
 
-	    Note that the toolTip and statusTip properties were
+	    Note that the 
+toolTip and 
+statusTip properties were
 	    inherited from the action group; you may wish to change
 	    these to be specific to the actions concerned.
 	    </P
@@ -606,17 +773,31 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN557"
+NAME="AEN1928"
 >Deleting Actions and Action Groups</A
 ></H3
 ><P
->&#13;	    We have some actions that we don't intend providing for this
+>	    
+
+	    
+
+	    We have some actions that we don't intend providing for this
 	    first release, for example, the editFindAction and the
 	    filePrintAction. Click editFindAction and then click the
-	    Delete Action toolbar button. Delete the filePrintAction in
-	    the same way. Action Groups (including any actions they
-	    contain) can also be deleted with the Delete Action toolbar
-	    button.
+	    
+
+<SPAN
+CLASS="GUIBUTTON"
+>Delete Action</SPAN
+> toolbar button. Delete the
+	    filePrintAction in the same way. Action Groups (including
+	    any actions they contain) can also be deleted with the
+	    
+
+<SPAN
+CLASS="GUIBUTTON"
+>Delete Action</SPAN
+> toolbar button.
 	    </P
 ></DIV
 ></DIV
@@ -625,11 +806,17 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN560"
+NAME="AEN1951"
 >Creating and Populating a Toolbar</A
 ></H2
 ><P
->&#13;	All the actions we require are now in place and we are ready to
+>	
+
+	
+
+	
+
+	All the actions we require are now in place and we are ready to
 	create a new toolbar and add some of our actions to it. Right
 	click on the right hand side of the toolbar area, or on the
 	form, then left click Add Toolbar. The new toolbar is empty and
@@ -641,7 +828,15 @@ CLASS="EMPHASIS"
 	vertical lines or with many small pits). 
 	</P
 ><P
->&#13;	We'll add the new actions we've just created. Drag the
+>	
+
+	
+
+	
+
+	
+
+	We'll add the new actions we've just created. Drag the
 	alignActionGroup, (not any action it contains), to the new
 	toolbar and drop it on the toolbar handle to the right
 	of the vertical lines. The three alignment actions will be added
@@ -657,7 +852,13 @@ CLASS="EMPHASIS"
 	button and clicking Insert Separator.
 	</P
 ><P
->&#13;	Toolbar buttons and separators (usually represented as indented
+>	
+
+	
+
+	
+
+	Toolbar buttons and separators (usually represented as indented
 	vertical gray lines), can be dragged and dropped into new
 	positions in the toolbar at any time. Separators can be inserted
 	by right clicking a toolbar button and clicking Insert
@@ -667,7 +868,9 @@ CLASS="EMPHASIS"
 	Delete Toolbar.
 	</P
 ><P
->&#13;	If you preview the application you'll find that both the
+>	
+
+	If you preview the application you'll find that both the
 	original and new toolbar can be dragged to different docking
 	points or dragged out of the application as independent tool
 	windows.
@@ -677,30 +880,56 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN567"
+NAME="AEN1989"
 >Adding Widgets to the Toolbar</A
 ></H3
 ><P
->&#13;	    We want our users to be able to choose the font and font size
+>	    
+
+	    
+
+	    
+
+	    We want our users to be able to choose the font and font size
 	    from the toolbar. To achieve this we'll create a font combobox
 	    and a font size spinbox and place them in the formatting toolbar
 	    we created in the previous section.
 	    </P
 ><P
->&#13;	    Click <I
+>	    
+
+	    
+
+	    
+
+	    Click <I
 CLASS="EMPHASIS"
 >Qt Designer</I
->'s ComboBox toolbar button and click the last
-	    (right-most) toolbar button in the application's new
-	    toolbar. Change the combobox's name to 'fontComboBox'. Click
-	    the SpinBox toolbar button and click the combobox we've just
-	    added to insert the spinbox next to it. Change the spinbox's
-	    minValue property to 6, its value property to 10 and its
-	    suffix to a space followed by 'pt'. Insert a separator to
-	    the left of the combobox. 
+>'s 
+
+<SPAN
+CLASS="GUIBUTTON"
+>ComboBox</SPAN
+> toolbar button and click
+	    the last (right-most) toolbar button in the application's
+	    new toolbar. Change the combobox's name to 'fontComboBox'.
+	    Click the 
+
+<SPAN
+CLASS="GUIBUTTON"
+>SpinBox</SPAN
+> toolbar button and click the
+	    combobox we've just added to insert the spinbox next to it.
+	    Change the spinbox's 
+minValue property to 6, its
+	    
+value property to 10 and its 
+suffix to a space
+	    followed by 'pt'. Insert a separator to the left of the
+	    combobox. 
 	    </P
 ><P
->&#13;	   Although you can put any widget into a toolbar we recommend
+>	   Although you can put any widget into a toolbar we recommend
 	   that widgets which can be associated with an action should
 	   <I
 CLASS="EMPHASIS"
@@ -710,7 +939,11 @@ CLASS="EMPHASIS"
 	   create an action (drop down action for a list of items),
 	   associate the action with the widget, and add the action to
 	   the toolbar. Widgets that can sensibly be inserted directly
-	   into a toolbar are ComboBoxes, SpinBoxes and LineEdits. 
+	   into a toolbar are 
+ComboBoxes, 
+SpinBoxes 
+	   and 
+Line Edits. 
 	   </P
 ></DIV
 ></DIV
@@ -719,20 +952,30 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN574"
+NAME="AEN2046"
 >Creating Menus</A
 ></H2
 ><P
->&#13;	We'll now add the actions we added to the new toolbar to a new
+>	
+
+	
+
+	
+
+	We'll now add the actions we added to the new toolbar to a new
 	menu and modify the existing menus slightly. 
 	</P
 ><P
->&#13;	Right click our application's menu bar and click Add Menu Item.
+>	
+
+	
+
+	Right click our application's menu bar and click Add Menu Item.
 	A new menu item called 'Menu' will appear. Right click this menu
 	item and click Rename Item. Change its name to 'F&amp;ormat'.
-	Click the menu item and a gray bar will appear beneath it --
+	Click the menu item and a red bar will appear beneath it --
 	this is the empty menu. Drag the alignActionGroup to the Format
-	menu item and drop the action group on the menu. (The menu's gray
+	menu item and drop the action group on the menu. (The menu's red
 	bar will appear and a thick red line will be drawn where the new
 	menu items will appear -- drop when the red line is in the
 	position you require.) Now if you click the Format menu item
@@ -744,24 +987,46 @@ NAME="AEN574"
 	italic and underline actions.
 	</P
 ><P
->&#13;	We'll now deal with the separators in the menus. Firstly we'll
+>	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	We'll now deal with the separators in the menus. Firstly we'll
 	add a separator in the Format menu and then we'll remove some
 	redundant separators from the other menus. Click the Format menu
 	and right click the bold item; click Insert Separator. Click the
 	File menu and right click one of the separators above the Exit
 	action; click Delete Item. Click the Edit menu, right click the
 	separator at the very bottom of the menu and click Delete Item.
-	Delete Item can be used to delete both separators and menu
-	items.
+	Delete Item can be used to delete separators, menu
+	items and menus.
 	</P
 ><P
->&#13;	Click the Format menu and drag it to the left of the Help menu,
+>	
+
+	Click the Format menu and drag it to the left of the Help menu,
 	then drop the Format menu. (A thick red bar will appear to
 	indicate the insertion postion.) Both menus and menu items may
 	be dragged and dropped to different positions in the same way. 
 	</P
 ><P
->&#13;	Preview the application and try clicking the alignment and font
+>	
+
+	Preview the application and try clicking the alignment and font
 	style toolbar buttons and menu items. Qt will automatically keep
 	the state of the menu items and the toolbar buttons
 	synchronized.
@@ -772,12 +1037,23 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN581"
+NAME="AEN2099"
 >Adding and Connecting the Main Widget</A
 ></H2
 ><P
->&#13;	Our application is a rich text editor, but so far there has been
-	nowhere for the user to edit text. We'll add a <TT
+>	
+
+	
+
+	
+
+	
+
+	
+
+	Our application is a rich text editor, but so far there has been
+	nowhere for the user to edit text. We'll add a 
+<TT
 CLASS="CLASSNAME"
 >QTextEdit</TT
 >
@@ -785,20 +1061,40 @@ CLASS="CLASSNAME"
 	code we have to write to make it functional.
 	</P
 ><P
->&#13;	Click <I
+>	Click <I
 CLASS="EMPHASIS"
 >Qt Designer</I
->'s Richtext Editor (Text Edit) toolbar button and click
-	in the center of the form. Click the form, then click the Lay
-	Out Horizontally toolbar button. We're now ready to make the
-	connections we need; but first we will do some renaming to make
-	things easier to understand. Click on the Text Edit widget and
-	change its name property to 'textEdit'. Change the textFormat
-	property to 'RichText'. Change the name of the form to
-	'EditorForm' and its caption to 'Rich Edit'.
+>'s Richtext Editor (
+
+<SPAN
+CLASS="GUIBUTTON"
+>Text Edit</SPAN
+>) toolbar
+	button and click in the center of the form. Click the form, then
+	click the 
+
+<SPAN
+CLASS="GUIBUTTON"
+>Lay Out Horizontally</SPAN
+> toolbar button. We're
+	now ready to make the connections we need; but first we will do
+	some renaming to make things easier to understand. Click on the
+	
+Text Edit widget and change its 
+name property to
+	'textEdit'. Change the 
+textFormat property to 'RichText'.
+	Change the 
+name of the form to 'EditorForm' and its
+	caption to 'Rich Edit'. 
 	</P
 ><P
->&#13;	The <TT
+>	
+
+	
+
+	The 
+<TT
 CLASS="CLASSNAME"
 >QTextEdit</TT
 > widget contains built-in functionality for
@@ -811,35 +1107,44 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN589"
+NAME="AEN2154"
 >Connecting Actions to Change Font Attributes</A
 ></H3
 ><P
->&#13;	    Click the underlineAction in the Action Editor, then click the
-	    Connect button. The Edit Connections dialog will appear. Click
-	    the <TT
+>	    
+
+	    Click the underlineAction in the 
+Action Editor, then
+	    click the Connect button. The 
+Edit Connections dialog will
+	    appear. Click the 
+<TT
 CLASS="FUNCTION"
 >toggled()</TT
-> signal. Since we wish to connect this signal
-	    to the text edit widget drop down the Slots combobox and click
-	    textEdit. The text edit's slots that can respond to a toggled
-	    signal will appear in the right hand list box. Click the
-	    <TT
+> signal. Since we wish to
+	    connect this signal to the text edit widget drop down the
+	    Slots combobox and click textEdit. The text edit's slots
+	    that can respond to a toggled signal will appear in the
+	    right hand list box. Click the 
+<TT
 CLASS="FUNCTION"
 >setUnderline()</TT
-> slot, then click <SPAN
+> slot,
+	    then click <SPAN
 CLASS="GUIBUTTON"
 >OK</SPAN
 >.
 	    </P
 ><P
->&#13;	    Connect up the bold and italic actions in the same way. (For
+>	    Connect up the bold and italic actions in the same way. (For
 	    example, click the bold action and click Connect. Click the
-	    <TT
+	    
+<TT
 CLASS="FUNCTION"
 >toggled()</TT
 > signal, change the Slots combobox item to
-	    textEdit and click the <TT
+	    textEdit and click the 
+<TT
 CLASS="FUNCTION"
 >setBold()</TT
 > slot. Click <SPAN
@@ -855,18 +1160,38 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN599"
+NAME="AEN2185"
 >Connecting Actions to Implement Cut, Copy and Paste, &amp; Undo and Redo</A
 ></H3
 ><P
->&#13;	    The cut, copy, paste, undo and redo actions are connected in
+>	    
+
+	    
+
+	    
+
+	    
+
+	    
+
+	    
+
+	    
+
+	    
+
+	    
+
+	    The cut, copy, paste, undo and redo actions are connected in
 	    the same way as the font attributes. For example, click the
 	    editPasteAction action and click Connect. Click the
-	    <TT
+	    
+<TT
 CLASS="FUNCTION"
 >activated()</TT
 > signal, change the Slots combobox item to
-	    textEdit and click the <TT
+	    textEdit and click the 
+<TT
 CLASS="FUNCTION"
 >paste()</TT
 > slot. Click <SPAN
@@ -876,11 +1201,13 @@ CLASS="GUIBUTTON"
 	    save the connection. Connect the cut, copy, undo and redo
 	    actions in the same way. (For example, click the
 	    editCopyAction action, click Connect, click the
-	    <TT
+	    
+<TT
 CLASS="FUNCTION"
 >activated()</TT
 > signal, change the Slots combobox item to
-	    textEdit, click the <TT
+	    textEdit, click the 
+<TT
 CLASS="FUNCTION"
 >copy()</TT
 > slot then click <SPAN
@@ -896,29 +1223,35 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN608"
+NAME="AEN2231"
 >Connecting for Text Alignment</A
 ></H3
 ><P
->&#13;	    We need to create a slot to receive signals from alignment
+>	    
+
+	    
+
+	    We need to create a slot to receive signals from alignment
 	    actions and set the textEdit widget's alignment state
 	    accordingly. One approach would be to connect each
 	    individual alignment action to our slot, but because the
 	    align actions are in a group we will connect the
 	    alignActionGroup to our slot and determine which alignment
-	    the user chose from the <TT
+	    the user chose from the 
+<TT
 CLASS="CLASSNAME"
 >QAction</TT
 > pointer that is
 	    passed. 
 	    </P
 ><P
->&#13;	    Create a new slot with the signature
+>	    Create a new slot with the signature
 	    <TT
 CLASS="FUNCTION"
 >changeAlignment(QAction *align)</TT
 >. (Click
-	    <SPAN
+	    
+<SPAN
 CLASS="GUIMENUITEM"
 >Edit|Slots</SPAN
 >, click <SPAN
@@ -929,11 +1262,13 @@ CLASS="GUIBUTTON"
 CLASS="GUIBUTTON"
 >OK</SPAN
 >.) Click alignActionGroup in the
-	    Action Editor, then click <SPAN
+	    
+Action Editor, then click <SPAN
 CLASS="GUIBUTTON"
 >Connect</SPAN
 >. Connect the
-	    <TT
+	    
+<TT
 CLASS="FUNCTION"
 >selected(QAction*)</TT
 > signal to our change alignment slot,
@@ -943,9 +1278,9 @@ CLASS="GUIBUTTON"
 >.
 	    </P
 ><P
->&#13;	    We'll have to write the code to set the alignment ourselves;
+>	    We'll have to write the code to set the alignment ourselves;
 	    we'll cover this in <A
-HREF="x637.html#ALIGNING-TEXT"
+HREF="x2320.html#ALIGNING-TEXT"
 >the section called <I
 >Aligning Text</I
 ></A
@@ -958,67 +1293,88 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN622"
+NAME="AEN2261"
 >Connecting for Font Names and Sizes</A
 ></H3
 ><P
->&#13;	    We'll start by dealing with font size since it's easiest.
-	    Click the <SPAN
+>	    
+
+	    
+
+	    
+
+	    
+
+	    
+
+	    
+
+	    We'll start by dealing with font size since it's easiest.
+	    Click the 
+
+<SPAN
 CLASS="GUIBUTTON"
 >Connect Signals/Slots</SPAN
 > toolbar button then
 	    click the spinbox and drag to the text edit widget; release
-	    on the text edit. Click the <TT
+	    on the text edit. Click the 
+<TT
 CLASS="FUNCTION"
 >valueChanged(int)</TT
 > signal
-	    and on the textEdit's <TT
+	    and on the textEdit's 
+<TT
 CLASS="FUNCTION"
 >setPointSize(int)</TT
 > slot. Click <SPAN
 CLASS="GUIBUTTON"
 >OK</SPAN
 >
-	    and font sizes are done. (Because font sizes are handled
+	    and font sizes are done. (Since font sizes are handled
 	    purely through built-in signals and slots they work in
 	    preview mode.)
 	    </P
 ><P
->&#13;	    Connect the fontComboBox's <TT
+>	    Connect the fontComboBox's 
+<TT
 CLASS="FUNCTION"
 >activated()</TT
 > signal to the
-	    textEdit's <TT
+	    textEdit's 
+<TT
 CLASS="FUNCTION"
 >setFamily()</TT
 > slot. This connection will
 	    handle updating the textEdit's font family with the user's
-	    choice. We will have to populate the combobox with font
-	    names to choose from in code. (See the <TT
+	    choice of font. We will have to populate the combobox with
+	    the font names for the user to choose from in code. (See the
+	    
+<TT
 CLASS="FUNCTION"
 >init()</TT
-> function
-	    in <A
-HREF="x637.html#CHANGING-FONTS"
+> function in <A
+HREF="x2320.html#CHANGING-FONTS"
 >the section called <I
 >Changing Fonts</I
 ></A
-> "Changing Fonts".) It's a
-	    good idea to connect the fontComboBox's <TT
+>
+	    "Changing Fonts".) It's a good idea to connect the
+	    fontComboBox's 
+<TT
 CLASS="FUNCTION"
 >activate()</TT
->
-	    signal to the textEdit's <TT
+> signal to the textEdit's
+	    
+<TT
 CLASS="FUNCTION"
 >setFocus()</TT
-> slot; this will
-	    ensure that after the user has changed font the focus will
-	    return to their text. 
+> slot; this will ensure that after the user
+	    has changed font the focus will return to the text. 
 	    </P
 ><P
->&#13;	    The richedit application is nearly complete. We will have to
-	    write code to handle text alignment, font and font size, and
-	    also file loading and saving. We will also write the code
+>	    The richedit application is nearly complete. We will have to
+	    write code to handle text alignment, font family and
+	    file loading and saving. We will also write the code
 	    for application exit to deal correctly with any unsaved changes.
 	    </P
 ></DIV
@@ -1056,7 +1412,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x637.html"
+HREF="x2320.html"
 >Next</A
 ></TD
 ></TR

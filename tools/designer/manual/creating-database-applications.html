@@ -11,7 +11,8 @@ REL="PREVIOUS"
 TITLE="Creating Custom Widgets with Plugins "
 HREF="creatingcustomwidgetswithplugins.html"><LINK
 REL="NEXT"
-TITLE="Using QDataTable"
+TITLE="Using 
+QDataTable"
 HREF="using-qdatatable.html"></HEAD
 ><BODY
 CLASS="CHAPTER"
@@ -77,7 +78,8 @@ HREF="creating-database-applications.html#SETTING-UP-DATABASE-CONNECTIONS"
 ><DT
 ><A
 HREF="using-qdatatable.html"
->Using <TT
+>Using 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 ></A
@@ -85,10 +87,12 @@ CLASS="CLASSNAME"
 ><DT
 ><A
 HREF="using-qdatabrowser-and-qdataview.html"
->Using <TT
+>Using 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
-> and <TT
+> and 
+<TT
 CLASS="CLASSNAME"
 >QDataView</TT
 ></A
@@ -96,7 +100,10 @@ CLASS="CLASSNAME"
 ></DL
 ></DIV
 ><P
->This chapter shows you how to use Qt's data-aware widgets from within
+>&#13;
+
+
+This chapter shows you how to use Qt's data-aware widgets from within
 <I
 CLASS="EMPHASIS"
 >Qt Designer</I
@@ -109,11 +116,13 @@ CLASS="LITERAL"
 > and <TT
 CLASS="LITERAL"
 >DELETE</TT
-> in both <TT
+> in both 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >s
-(tables) and <TT
+(tables) and 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 >s (forms). It also shows how to code
@@ -121,15 +130,41 @@ Master-Detail relationships and Drilldown. A simple approach to foreign
 key handling is presented here; a more sophisticated approach is shown
 in the online SQL module documentation.</P
 ><P
->If you wish to run the examples or create your own applications using
+>&#13;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+If you wish to run the examples or create your own applications using
 these widgets you need access to an SQL database and a Qt database driver
 that can connect to the database. At the time of writing the drivers
 that Qt supports are QODBC3 (Open Database Connectivity), QOCI8 (Oracle),
 QPSQL6 (PostgreSQL 6), QPSQL7 (PostgreSQL 7) and QMYSQL3 (MySQL).</P
 ><P
->Although you can use the Qt data-aware widgets to browse and edit data
+>&#13;
+
+
+
+
+Although you can use the Qt data-aware widgets to browse and edit data
 in SQL databases without having to write any SQL, a basic understanding
-of SQL is highly recommended. We assume some familiarity with
+of SQL is highly recommended. We assume that you have some familiarity with
 <TT
 CLASS="LITERAL"
 >SELECT</TT
@@ -150,28 +185,37 @@ CLASS="CITETITLE"
 > by C. J.
 Date, ISBN 0201385902.</P
 ><P
->In the following text we describe the creation of a 'book' database
+>&#13;
+
+
+In the following text we describe the creation of a 'book' database
 application. The application demonstrates how to use
+
 <TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >s including in-place record editing and how to set
-up master-detail relationships between <TT
+up master-detail relationships between 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >s. It also
-explains how to drill down from a <TT
+explains how to drill down from a 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > to another
-widget, for example to a <TT
+widget, for example, to a 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
-> or a <TT
+> or a 
+<TT
 CLASS="CLASSNAME"
 >QDataView</TT
 >
-and how to perform record editing in a <TT
+and how to perform record editing in a 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 >. A great
@@ -184,7 +228,7 @@ want to build the 'book' examples you will need to create the example
 schema on your database.  <DIV
 CLASS="FIGURE"
 ><A
-NAME="AEN1612"
+NAME="AEN4441"
 ></A
 ><P
 ><B
@@ -192,8 +236,7 @@ NAME="AEN1612"
 ></P
 ><P
 ><IMG
-SRC="images/book-main.png"
-ALIGN="center"></P
+SRC="images\book-main.png"></P
 ></DIV
 ></P
 ><TABLE
@@ -205,7 +248,7 @@ CELLPADDING="5"
 ><DIV
 CLASS="SIDEBAR"
 ><A
-NAME="AEN1615"
+NAME="AEN4444"
 ></A
 ><P
 ><B
@@ -216,7 +259,7 @@ NAME="AEN1615"
 records which are defined in the
 <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/book/book.sql</TT
+>qt/tools/designer/examples/book/book.sql</TT
 > file. This file has
 been tested with PostgreSQL 6 and PostgreSQL 7. You may need to modify
 the SQL in this file to recreate the example database on your own
@@ -225,7 +268,7 @@ system.
 <DIV
 CLASS="EXAMPLE"
 ><A
-NAME="AEN1619"
+NAME="AEN4448"
 ></A
 ><P
 ><B
@@ -286,7 +329,11 @@ NAME="SETTING-UP-DATABASE-CONNECTIONS"
 >Setting Up Database Connections</A
 ></H1
 ><P
->    There are two aspects of database connections that we must consider.
+>    
+
+    
+
+    There are two aspects of database connections that we must consider.
     Firstly the connection we wish to use within <I
 CLASS="EMPHASIS"
 >Qt Designer</I
@@ -309,7 +356,7 @@ CLASS="EMPHASIS"
 >	<DIV
 CLASS="FIGURE"
 ><A
-NAME="AEN1632"
+NAME="AEN4467"
 ></A
 ><P
 ><B
@@ -317,15 +364,16 @@ NAME="AEN1632"
 ></P
 ><P
 ><IMG
-SRC="images/database-connections.png"
-ALIGN="center"></P
+SRC="images\database-connections.png"></P
 ></DIV
 >
-	Choose <SPAN
+	Choose 
+<SPAN
 CLASS="GUIMENUITEM"
 >Edit|Database Connections</SPAN
 > from the menu
-	bar. The Database Connections dialog will appear. Click
+	bar. The 
+Database Connections dialog will appear. Click
 	<SPAN
 CLASS="GUIBUTTON"
 >New Connection</SPAN
@@ -344,14 +392,16 @@ CLASS="GUIBUTTON"
 >. If the connection is made the connection
 	name will appear in the list box on the left hand side of the
 	dialog. You can now close the dialog; the connection settings
-	will remain in force until you change or delete them or exit
+	will remain in effect until you change or delete them or exit
 	from <I
 CLASS="EMPHASIS"
 >Qt Designer</I
 >.
 	</P
 ><P
->	<I
+>	
+
+	<I
 CLASS="EMPHASIS"
 >Qt Designer</I
 > can remember database connection settings in
@@ -359,11 +409,14 @@ CLASS="EMPHASIS"
 CLASS="COMMAND"
 >qmake</B
 > project files. Create a new project, e.g.
-	click <SPAN
+	click 
+<SPAN
 CLASS="GUIMENUITEM"
 >File|New Project</SPAN
-> and complete the Project
-	Settings dialog.  Next time you start <I
+> and complete the 
+	
+Project Settings dialog. 
+	 Next time you start <I
 CLASS="EMPHASIS"
 >Qt Designer</I
 > instead of
@@ -379,31 +432,34 @@ CLASS="EMPHASIS"
 >Qt Designer</I
 > will
 	automatically reload the project's connection settings.  To
-	activate the connection click <SPAN
+	activate the connection click 
+<SPAN
 CLASS="GUIMENUITEM"
->Edit|Database
-	Connections</SPAN
->. The connections previously saved with the
+>Edit|Database Connections</SPAN
+>. 
+	The connections previously saved with the
 	project will be listed in the left hand list box. Click the
 	connection you wish to use and then click <SPAN
 CLASS="GUIBUTTON"
 >Connect</SPAN
->.
-	This connection will be used from now on, e.g. for previewing
-	<TT
+>. This
+	connection will be used from now on, e.g. for previewing
+	
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >s. Opening a project file also causes <I
 CLASS="EMPHASIS"
 >Qt Designer</I
-> to load in the
-	list of forms associated with the project into the Form List
-	window. In most of the explanation that follows we will assume
-	that you use project files and have clicked <SPAN
+> to
+	load in the list of forms associated with the project into the
+	Form List window. In most of the explanation that follows we
+	will assume that you use project files and have clicked
+	<SPAN
 CLASS="GUIBUTTON"
 >Connect</SPAN
->
-	so that there is always a connection available when you work in
+> so that there is always a connection available
+	when you work in
 	<I
 CLASS="EMPHASIS"
 >Qt Designer</I
@@ -424,11 +480,15 @@ NAME="SETTING-UP-CONNECTIONS-FOR-APPLICATIONS"
 <DIV
 CLASS="EXAMPLE"
 ><A
-NAME="AEN1656"
+NAME="AEN4511"
 ></A
 ><P
 ><B
->Example 6-2. createConnections() function</B
+>Example 6-2. 
+<TT
+CLASS="FUNCTION"
+>createConnections()</TT
+> function</B
 ></P
 ><TABLE
 BORDER="0"
@@ -457,10 +517,10 @@ CLASS="EMPHASIS"
     defaultDB-&gt;setPassword( &quot;bookpw&quot; );
     defaultDB-&gt;setHostName( &quot;bookhost&quot; );
     if ( ! defaultDB-&gt;open() ) {
-	qWarning( &quot;Failed to open books database: &quot; +
-		  defaultDB-&gt;lastError().driverText() );
-	qWarning( defaultDB-&gt;lastError().databaseText() );
-	return FALSE;
+        qWarning( &quot;Failed to open books database: &quot; +
+                  defaultDB-&gt;lastError().driverText() );
+        qWarning( defaultDB-&gt;lastError().databaseText() );
+        return FALSE;
     }
 
     return TRUE;
@@ -470,9 +530,10 @@ CLASS="EMPHASIS"
 ></TABLE
 ></DIV
 >
-	We call <TT
+	We call 
+<TT
 CLASS="FUNCTION"
->addDatabase</TT
+>addDatabase()</TT
 > passing it the name of the
 	driver we wish to use. We then set the connection information by
 	calling the <TT
@@ -484,13 +545,13 @@ CLASS="LITERAL"
 <DIV
 CLASS="EXAMPLE"
 ><A
-NAME="AEN1663"
+NAME="AEN4525"
 ></A
 ><P
 ><B
 >Example 6-3. From <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/book/book1/main.cpp</TT
+>qt/tools/designer/examples/book/book1/main.cpp</TT
 ></B
 ></P
 ><TABLE
@@ -522,23 +583,29 @@ CLASS="EMPHASIS"
 ></TABLE
 ></DIV
 >
+	
+
 	All the examples presented in this chapter call
-	<TT
+	
+<TT
 CLASS="FUNCTION"
->createConnections</TT
+>createConnections()</TT
 > after creating the
-	<TT
+	
+<TT
 CLASS="CLASSNAME"
 >QApplication</TT
-> object in their <TT
+> object in their 
+<TT
 CLASS="FILENAME"
 >main.cpp</TT
 >
 	file and make use of the default connection. If you need to
 	connect to multiple databases use the two-argument form of
-	<TT
+	
+<TT
 CLASS="FUNCTION"
->addDatabase</TT
+>addDatabase()</TT
 >, passing it both the name of the driver
 	and a unique identifier. This is explained further in the <A
 HREF="http://doc.trolltech.com/sql.html"
@@ -553,7 +620,8 @@ TARGET="_top"
 	becomes the default connection and database functions will use
 	this connection automatically. We can always get a pointer to
 	any of our connections by calling
-	<TT
+	
+<TT
 CLASS="FUNCTION"
 >QSqlDatabase::database()</TT
 >.
@@ -611,7 +679,8 @@ VALIGN="top"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->Using <TT
+>Using 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 ></TD

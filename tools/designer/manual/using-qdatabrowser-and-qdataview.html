@@ -1,7 +1,9 @@
 <HTML
 ><HEAD
 ><TITLE
->Using QDataBrowser and QDataView</TITLE
+>Using 
+QDataBrowser and 
+QDataView</TITLE
 ><META
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.57"><LINK
@@ -11,11 +13,12 @@ REL="UP"
 TITLE="Creating Database Applications"
 HREF="creating-database-applications.html"><LINK
 REL="PREVIOUS"
-TITLE="Using QDataTable"
+TITLE="Using 
+QDataTable"
 HREF="using-qdatatable.html"><LINK
 REL="NEXT"
 TITLE="Customizing and Integrating Qt Designer"
-HREF="c2265.html"></HEAD
+HREF="c5895.html"></HEAD
 ><BODY
 CLASS="SECT1"
 ><DIV
@@ -50,7 +53,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="c2265.html"
+HREF="c5895.html"
 >Next</A
 ></TD
 ></TR
@@ -64,10 +67,12 @@ CLASS="SECT1"
 CLASS="SECT1"
 ><A
 NAME="USING-QDATABROWSER-AND-QDATAVIEW"
->Using <TT
+>Using 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
-> and <TT
+> and 
+<TT
 CLASS="CLASSNAME"
 >QDataView</TT
 ></A
@@ -76,7 +81,7 @@ CLASS="CLASSNAME"
 ><DIV
 CLASS="FIGURE"
 ><A
-NAME="AEN1981"
+NAME="AEN5262"
 ></A
 ><P
 ><B
@@ -84,8 +89,7 @@ NAME="AEN1981"
 ></P
 ><P
 ><IMG
-SRC="images/book-dialog.png"
-ALIGN="center"></P
+SRC="images\book-dialog.png"></P
 ></DIV
 ></P
 ><DIV
@@ -94,7 +98,8 @@ CLASS="SECT2"
 CLASS="SECT2"
 ><A
 NAME="DRILLING-DOWN-TO-A-FORM-WITH-QDATABROWSER"
->Drilling Down to a Form using <TT
+>Drilling Down to a Form using 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 ></A
@@ -105,31 +110,46 @@ CLASS="SECT3"
 CLASS="SECT3"
 ><A
 NAME="SETTING-UP-A-QDATABROWSER"
->Setting up a <TT
+>Setting up a 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 ></A
 ></H3
 ><P
->	We will now create a new form to allow users to edit book records. Click
-	the <SPAN
+>	
+
+	
+
+	
+
+	
+
+	We will now create a new form to allow users to edit book
+	records. Click the 
+
+<SPAN
 CLASS="GUIBUTTON"
 >New</SPAN
-> toolbar button, click the Dialog template from
-	the New Form dialog and click <SPAN
+> toolbar button, click the
+	Dialog template from the 
+New Form dialog and click <SPAN
 CLASS="GUIBUTTON"
 >OK</SPAN
->. Change the name of the form to
-	EditBookForm and its caption to 'Edit Books'. Click the
-	<SPAN
+>. Change
+	the name of the form to EditBookForm and its caption to 'Edit
+	Books'. Click the 
+
+<SPAN
 CLASS="GUIBUTTON"
 >Save</SPAN
-> toolbar button and call the file
-	<TT
+> toolbar button and call the
+	file <TT
 CLASS="FILENAME"
 >editbook.ui</TT
 >. Now that we have the form we can add a
-	<TT
+	
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 > to show the book records.
@@ -140,7 +160,9 @@ CLASS="CLASSNAME"
 TYPE="1"
 ><LI
 ><P
->		Click the <SPAN
+>		Click the 
+
+<SPAN
 CLASS="GUIBUTTON"
 >Data Browser</SPAN
 > toolbar button, then
@@ -152,9 +174,11 @@ CLASS="GUIBUTTON"
 >		The <I
 CLASS="EMPHASIS"
 >Database Connection and Table</I
->
-		wizard page is used to set up a connection if one doesn't exist
-		and to choose the table or view for the <TT
+> wizard
+		page is used to set up a connection if one doesn't exist
+		and to choose the table or view for the
+		
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 >. (See <A
@@ -189,7 +213,8 @@ CLASS="EMPHASIS"
 >Displayed Fields</I
 > wizard page provides a
 		means of selecting which fields should be displayed in
-		the <TT
+		the 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 > and in what order. By default
@@ -234,7 +259,8 @@ CLASS="GUIBUTTON"
 CLASS="EMPHASIS"
 >SQL</I
 > wizard page is used to set the
-		<TT
+		
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 >'s Filter and Sort properties. The
@@ -242,7 +268,7 @@ CLASS="CLASSNAME"
 CLASS="LITERAL"
 >WHERE</TT
 > clause (without the
-		word 'WHERE'). For example, to only list book that
+		word 'WHERE'). For example, to only list books that
 		cost less than 50 (of some currency, e.g. dollars), we
 		would enter <TT
 CLASS="LITERAL"
@@ -250,7 +276,8 @@ CLASS="LITERAL"
 >. We will leave the
 		filter empty. The Available Fields list box lists all
 		the fields. The Sort By list box lists the fields that
-		the <TT
+		the 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 > is to sort by and the
@@ -290,12 +317,14 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->		The <TT
+>		The 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 > will now appear on the form.
 		Resize the form to make it shorter. Click
-		the <TT
+		the 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 > then click the <SPAN
@@ -303,7 +332,9 @@ CLASS="GUIBUTTON"
 >Break
 		Layout</SPAN
 > toolbar button. Click the buttons then click
-		the <SPAN
+		the 
+
+<SPAN
 CLASS="GUIBUTTON"
 >Break Layout</SPAN
 > toolbar button. Add
@@ -313,13 +344,18 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->		Shift+Click the Insert, Update, Delete and Close
+>		
+<B
+CLASS="KEYCAP"
+>Shift+Click</B
+> the Insert, Update, Delete and Close
 		buttons, then click the <SPAN
 CLASS="GUIBUTTON"
 >Lay Out
 		Horizontally</SPAN
 > toolbar button. Click the
-		<TT
+		
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 >, then click the <SPAN
@@ -327,11 +363,14 @@ CLASS="GUIBUTTON"
 >Lay Out
 		in a Grid</SPAN
 > toolbar button. Finally click the form and
-		click the <SPAN
+		click the 
+
+<SPAN
 CLASS="GUIBUTTON"
 >Lay Out Vertically</SPAN
 > toolbar
-		button. Now click the <TT
+		button. Now click the 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 > and rename it
@@ -370,17 +409,18 @@ CELLPADDING="5"
 ><DIV
 CLASS="SIDEBAR"
 ><A
-NAME="AEN2052"
+NAME="AEN5403"
 ></A
 ><P
 ><B
-><TT
+>&#13;<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 > User Interface Interaction</B
 ></P
 ><P
->	The user-interface behaviour for <TT
+>	The user-interface behaviour for 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 >s
@@ -390,13 +430,16 @@ CLASS="CLASSNAME"
 ><UL
 ><LI
 ><P
->		<TT
+>		
+<TT
 CLASS="FUNCTION"
 >insert()</TT
->, <TT
+>, 
+<TT
 CLASS="FUNCTION"
 >update()</TT
-> and <TT
+> and 
+<TT
 CLASS="FUNCTION"
 >del()</TT
 > for editing;
@@ -404,16 +447,20 @@ CLASS="FUNCTION"
 ></LI
 ><LI
 ><P
->		<TT
+>		
+<TT
 CLASS="FUNCTION"
 >first()</TT
->, <TT
+>, 
+<TT
 CLASS="FUNCTION"
 >next()</TT
->, <TT
+>, 
+<TT
 CLASS="FUNCTION"
 >prev()</TT
->, and <TT
+>, and 
+<TT
 CLASS="FUNCTION"
 >last()</TT
 > for
@@ -422,7 +469,8 @@ CLASS="FUNCTION"
 ></LI
 ><LI
 ><P
->		<TT
+>		
+<TT
 CLASS="FUNCTION"
 >refresh()</TT
 > to refresh the cursor from the database;
@@ -430,11 +478,13 @@ CLASS="FUNCTION"
 ></LI
 ><LI
 ><P
->		<TT
+>		
+<TT
 CLASS="FUNCTION"
 >readFields()</TT
 > to read data from the cursor's edit
-		buffer and <TT
+		buffer and 
+<TT
 CLASS="FUNCTION"
 >writeFields()</TT
 > to write the form's data to
@@ -443,7 +493,8 @@ CLASS="FUNCTION"
 ></LI
 ><LI
 ><P
->		<TT
+>		
+<TT
 CLASS="FUNCTION"
 >clearValues()</TT
 > to clear the form's values.
@@ -457,7 +508,8 @@ CLASS="FUNCTION"
 CLASS="EMPHASIS"
 >Qt Designer</I
 >'s
-	<TT
+	
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 > wizard you will be given the option of
@@ -472,8 +524,20 @@ CLASS="CLASSNAME"
 >		<TT
 CLASS="LITERAL"
 >INSERT</TT
-> is initiated by pressing the Insert button. The
-		user moves between fields using Tab and Shift+Tab. If
+> is initiated by pressing the 
+<B
+CLASS="KEYCAP"
+>Ins</B
+> (Insert) button. The
+		user moves between fields using 
+<B
+CLASS="KEYCAP"
+>Tab</B
+> and 
+<B
+CLASS="KEYCAP"
+>Shift+Tab</B
+>. If
 		the user presses the Update button the <TT
 CLASS="LITERAL"
 >INSERT</TT
@@ -493,11 +557,16 @@ CLASS="LITERAL"
 CLASS="LITERAL"
 >INSERT</TT
 > is cancelled by pressing the
-		<B
+		
+<B
 CLASS="KEYCAP"
->Escape</B
+>Esc</B
 >
-		key or by pressing the Delete button. If autoEdit is
+		key or by pressing the 
+<B
+CLASS="KEYCAP"
+>Del</B
+> (Delete) button. If autoEdit is
 		FALSE then navigating to another record also cancels the
 		<TT
 CLASS="LITERAL"
@@ -522,11 +591,16 @@ CLASS="LITERAL"
 CLASS="LITERAL"
 >UPDATE</TT
 > is cancelled by pressing the
-		<B
+		
+<B
 CLASS="KEYCAP"
->Escape</B
+>Esc</B
 >
-		key or by pressing the Delete button. If autoEdit is
+		key or by pressing the 
+<B
+CLASS="KEYCAP"
+>Del</B
+> button. If autoEdit is
 		FALSE then navigating to another record also cancels the
 		<TT
 CLASS="LITERAL"
@@ -542,7 +616,11 @@ CLASS="LITERAL"
 >		<TT
 CLASS="LITERAL"
 >DELETE</TT
-> is achieved by pressing the Delete button.
+> is achieved by pressing the 
+<B
+CLASS="KEYCAP"
+>Del</B
+> button.
 		Setting confirmDelete to TRUE will require the user to
 		confirm each <TT
 CLASS="LITERAL"
@@ -567,7 +645,11 @@ NAME="PERFORMING-THE-DRILLDOWN"
 >Performing the Drilldown</A
 ></H3
 ><P
->	We now have a working form for editing book records. We need to
+>	
+
+	
+
+	We now have a working form for editing book records. We need to
 	start the form when the user clicks our 'Edit Books' button, and to
 	navigate to the record they have selected in the BookDataTable.
 	We also need to provide a means of editing the foreign keys,
@@ -580,25 +662,32 @@ TYPE="1"
 ><LI
 ><P
 >		We need to make a new slot to connect the Edit Books'
-		button's <TT
+		button's 
+<TT
 CLASS="FUNCTION"
 >clicked()</TT
 > signal to. Click on the Book
 		form to make it <I
 CLASS="EMPHASIS"
 >Qt Designer</I
->'s active form. Invoke the Edit Slots
+>'s active form. Invoke the 
+		
+Edit Slots
 		dialog and create a new slot called <TT
 CLASS="FUNCTION"
 >editClicked()</TT
 >. Now
-		click the <SPAN
+		click the 
+
+<SPAN
 CLASS="GUIBUTTON"
->Connect Signal/Slots</SPAN
+>Connect Signals/Slots</SPAN
 > toolbar button.
 		Click the Edit Books button and drag to the form; release
-		the mouse on the form. In the Edit Connections dialog
-		connect the <TT
+		the mouse on the form. In the 
+Edit Connections dialog
+		connect the 
+<TT
 CLASS="FUNCTION"
 >clicked()</TT
 > signal to the
@@ -614,7 +703,9 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->		In the
+>		
+
+		In the
 		Object Hierarchy window click Source and then click the
 		<TT
 CLASS="FUNCTION"
@@ -629,7 +720,7 @@ WIDTH="90%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void BookForm::editClicked()
+>void editClicked()
 {
     EditBookForm *dialog = new EditBookForm( this, &quot;Edit Book Form&quot;, TRUE );
     <I
@@ -662,20 +753,24 @@ CLASS="EMPHASIS"
 ><P
 > We create our dialog as before. We also create a
 		cursor over the book table and set the dialog's
-		<TT
+		
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 >, BookDataBrowser, to use this new
-		cursor. We set the <TT
+		cursor. We set the 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 >'s filter and
 		sort to those that applied to the main form's book
-		<TT
+		
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >. We refresh the
-		<TT
+		
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 > and seek to the same record the
@@ -691,7 +786,8 @@ CLASS="CLASSNAME"
 		<TT
 CLASS="FILENAME"
 >editbook.h</TT
-> and to a <TT
+> and to a 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 >
@@ -724,7 +820,8 @@ CLASS="LITERAL"
 > and navigation over
 	the book table, we cannot edit the foreign keys nor perform
 	inserts. We will deal with insertion in the same way as we did
-	with the <TT
+	with the 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >, then we will handle the foreign
@@ -737,14 +834,16 @@ CLASS="SECT3"
 CLASS="SECT3"
 ><A
 NAME="INSERTING-INTO-A-QDATABROWSER"
->Inserting into a <TT
+>Inserting into a 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 ></A
 ></H3
 ><P
 >	We will create a slot to receive the Edit Books form's
-	<TT
+	
+<TT
 CLASS="FUNCTION"
 >primeInsert()</TT
 > signal so that we can insert a unique
@@ -763,7 +862,8 @@ CLASS="FUNCTION"
 >.
 		</P
 ><P
->		Click <SPAN
+>		Click 
+<SPAN
 CLASS="GUIMENUITEM"
 >Edit|Slots</SPAN
 >, then click the
@@ -779,7 +879,8 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->		Connect the BookDataBrowser's <TT
+>		Connect the BookDataBrowser's 
+<TT
 CLASS="FUNCTION"
 >primeInsert()</TT
 >
@@ -790,13 +891,16 @@ CLASS="FUNCTION"
 		</P
 ><P
 >		Click the
-		<SPAN
+		
+
+<SPAN
 CLASS="GUIBUTTON"
->Connect Signal/Slots</SPAN
+>Connect Signals/Slots</SPAN
 > toolbar button, then
 		click the BookDataBrowser and drag to the form; release
 		the mouse on the form. Now click the
-		<TT
+		
+<TT
 CLASS="FUNCTION"
 >primeInsert()</TT
 > signal and the
@@ -823,7 +927,7 @@ WIDTH="90%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void EditBookForm::primeInsertBook( <I
+>void primeInsertBook( <I
 CLASS="EMPHASIS"
 >QSqlRecord</I
 > * buffer )
@@ -848,11 +952,13 @@ CLASS="EMPHASIS"
 ><P
 >		We will also tidy up the user interface slightly. Click
 		the Update button and set its default property to True.
-		Connect the Close button's <TT
+		Connect the Close button's 
+<TT
 CLASS="FUNCTION"
 >clicked()</TT
 > signal to the
-		EditBookForm's <TT
+		EditBookForm's 
+<TT
 CLASS="FUNCTION"
 >accept()</TT
 > slot.
@@ -868,13 +974,18 @@ CLASS="SECT3"
 CLASS="SECT3"
 ><A
 NAME="HANDLING-FOREIGN-KEYS-IN-A-QDATABROWSER"
->Handling Foreign Keys in a <TT
+>Handling Foreign Keys in a 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 ></A
 ></H3
 ><P
->	Qt's SQL module provides two approaches to dealing with foreign
+>	
+
+	
+
+	Qt's SQL module provides two approaches to dealing with foreign
 	keys. The most powerful and flexible is to subclass widgets and
 	use property maps to relate the widgets to the database. This
 	approach is described in the <A
@@ -901,35 +1012,55 @@ TYPE="1"
 ><LI
 ><P
 >	First we'll add the new widgets. Click the BookDataBrowser and
-	click the <SPAN
+	click the 
+
+<SPAN
 CLASS="GUIBUTTON"
 >Break Layout</SPAN
 > toolbar button. Resize the form
 	to make it larger and drag each set of buttons down to make some
 	room below the title and price QLineEdits. Click the
-	<SPAN
+	
+
+<SPAN
 CLASS="GUIBUTTON"
 >Text Label</SPAN
 > toolbar button and click on the form beneath
-	the Price label. Click the Text Label and change its text to
-	'Author'. Click the <SPAN
+	the Price label. Click the 
+Text Label and change its text to
+	'Author'. Click the 
+
+<SPAN
 CLASS="GUIBUTTON"
 >ComboBox</SPAN
 > toolbar button and click
 	on the form beneath the price QLineEdit. In the Property Window
-	change the ComboBox's name to ComboBoxAuthor and change its
-	sizePolicy hSizeType to Expanding.
+	change the 
+ComboBox's 
+name to ComboBoxAuthor and
+	change its 
+sizePolicy 
+hSizeType to Expanding.
 	</P
 ></LI
 ><LI
 ><P
->	Now we'll lay out the dialog. Shift+Click the Author label and
-	the ComboBox then click the <SPAN
+>	Now we'll lay out the dialog. 
+<B
+CLASS="KEYCAP"
+>Shift+Click</B
+> the Author label and
+	the 
+ComboBox then click the 
+
+<SPAN
 CLASS="GUIBUTTON"
 >Lay Out Horizontally</SPAN
 >
 	toolbar button. Now click the BookDataBrowser and click the
-	<SPAN
+	
+
+<SPAN
 CLASS="GUIBUTTON"
 >Lay Out in a Grid</SPAN
 > toolbar button.
@@ -939,7 +1070,8 @@ CLASS="GUIBUTTON"
 >
 	</P
 ><P
->	We need to write some code so that the ComboBox will be
+>	We need to write some code so that the 
+ComboBox will be
 	populated with author names and scroll to the current book's
 	author. We also need to ensure that we put the author's id into
 	the book table's authorid field when a book record is inserted
@@ -952,18 +1084,21 @@ CLASS="GUIBUTTON"
 TYPE="1"
 ><LI
 ><P
->	Create two new slots called <TT
+>	Create two new slots called 
+	<TT
 CLASS="FUNCTION"
->beforeUpdateBook(QSqlRecord
-	*buffer)</TT
-> and <TT
+>beforeUpdateBook(QSqlRecord *buffer)</TT
+> and 
+	<TT
 CLASS="FUNCTION"
 >primeUpdateBook(QSqlRecord *buffer)</TT
 >. (Click
-	<SPAN
+	
+<SPAN
 CLASS="GUIMENUITEM"
 >Edit|Slots</SPAN
->, then in the Edit Slots dialog click New Slot
+>, then in the 
+Edit Slots dialog click New Slot
 	and enter the first new slot. Click New Slot again and enter the
 	second slot then click <SPAN
 CLASS="GUIBUTTON"
@@ -974,16 +1109,20 @@ CLASS="GUIBUTTON"
 ><LI
 ><P
 >	When the user navigates through the dialog, each time they move
-	to a new record, a <TT
+	to a new record, a 
+<TT
 CLASS="FUNCTION"
 >primeUpdate()</TT
 > signal is emitted. We connect
-	to this so that we can update the ComboBox's display. Just
+	to this so that we can update the 
+ComboBox's display. Just
 	before a record is updated or inserted into the database a
-	<TT
+	
+<TT
 CLASS="FUNCTION"
 >beforeUpdate()</TT
-> or <TT
+> or 
+<TT
 CLASS="FUNCTION"
 >beforeInsert()</TT
 > signal is emitted. We
@@ -996,15 +1135,18 @@ CLASS="FUNCTION"
 	</P
 ><P
 >	Click the BookDataBrowser and drag the mouse to the form;
-	release the mouse and the Edit Connections dialog will appear.
-	Connect the <TT
+	release the mouse and the 
+Edit Connections dialog will appear.
+	Connect the 
+<TT
 CLASS="FUNCTION"
 >beforeUpdate()</TT
 > signal to our
 	<TT
 CLASS="FUNCTION"
 >beforeUpdateBook()</TT
-> slot. Connect the <TT
+> slot. Connect the 
+<TT
 CLASS="FUNCTION"
 >beforeInsert()</TT
 > signal
@@ -1012,7 +1154,8 @@ CLASS="FUNCTION"
 CLASS="FUNCTION"
 >beforeUpdateBook()</TT
 > slot. Finally connect the
-	<TT
+	
+<TT
 CLASS="FUNCTION"
 >primeUpdate()</TT
 > signal to our <TT
@@ -1027,7 +1170,7 @@ CLASS="FUNCTION"
 	code snippets are taken from
 	<TT
 CLASS="FILENAME"
->qt/tools/designer/eg/book/book7/editbook.ui</TT
+>qt/tools/designer/examples/book/book7/editbook.ui</TT
 >.
 	    <P
 ></P
@@ -1035,13 +1178,14 @@ CLASS="FILENAME"
 TYPE="1"
 ><LI
 ><P
->	    We start with
-	    the <TT
+>	    We start with the 
+<TT
 CLASS="FUNCTION"
 >init()</TT
-> function; this is called after the dialog is
-	    constructed and we will use it to populate the ComboBox with
-	    author names.
+> function; this is called after
+	    the dialog is constructed and we will use it to populate the
+	    
+ComboBox with author names.
 <TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
@@ -1050,7 +1194,7 @@ WIDTH="90%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void EditBookForm::init()
+>void init()
 {
     <I
 CLASS="EMPHASIS"
@@ -1064,7 +1208,8 @@ CLASS="EMPHASIS"
 ></TABLE
 >
 	    Here we execute a query to get a list of author names and
-	    insert each one into the ComboBox.
+	    insert each one into the 
+ComboBox.
 	    </P
 ></LI
 ><LI
@@ -1079,7 +1224,7 @@ WIDTH="90%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void EditBookForm::beforeUpdateBook( <I
+>void beforeUpdateBook( <I
 CLASS="EMPHASIS"
 >QSqlRecord</I
 > * buffer )
@@ -1096,14 +1241,17 @@ CLASS="EMPHASIS"
 ></TR
 ></TABLE
 >
-	    We look up the id of the ComboBox's current author and place
-	    it in the update (or insert) buffer's authorid field.
+	    We look up the id of the 
+ComboBox's current author
+	    and place it in the update (or insert) buffer's authorid
+	    field.
 	    </P
 ></LI
 ><LI
 ><P
 >	    As the user navigates through the records we ensure
-	    that the ComboBox reflects the current author.  
+	    that the 
+ComboBox reflects the current author.  
 <TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
@@ -1112,7 +1260,7 @@ WIDTH="90%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void EditBookForm::primeUpdateBook( <I
+>void primeUpdateBook( <I
 CLASS="EMPHASIS"
 >QSqlRecord</I
 > * buffer )
@@ -1148,8 +1296,10 @@ CLASS="EMPHASIS"
 ></TABLE
 >
 	    Firstly we look up the book's author and secondly we iterate
-	    through the ComboBox's items until we find the author and
-	    set the ComboBox's current item to the matching author.
+	    through the 
+ComboBox's items until we find the author and
+	    set the 
+ComboBox's current item to the matching author.
 	    </P
 ></LI
 ></OL
@@ -1166,12 +1316,15 @@ CLASS="LITERAL"
 >INSERT</TT
 >
     to fail.  An alternative is to record
-    the author id's as we populate the ComboBox and store them in a
-    <TT
+    the author id's as we populate the 
+ComboBox and store them in a
+    
+<TT
 CLASS="CLASSNAME"
 >QMap</TT
 > which we can then look up as required. This approach
-    requires changes to the <TT
+    requires changes to the 
+<TT
 CLASS="FUNCTION"
 >init()</TT
 >, <TT
@@ -1189,7 +1342,7 @@ CLASS="FUNCTION"
     The relevant code from
     <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/book/book8/editbook.ui</TT
+>qt/tools/designer/examples/book/book8/editbook.ui</TT
 > is shown below.
 
 	    <P
@@ -1201,7 +1354,8 @@ TYPE="1"
 >	    First we need to create a class variable to map author names
 	    to author id's. Click in the Source tab of the Object
 	    Hierarchy, then right click the Class Variables item and
-	    click <SPAN
+	    click 
+<SPAN
 CLASS="GUIMENUITEM"
 >New</SPAN
 >. Type in
@@ -1210,7 +1364,8 @@ CLASS="GUIMENUITEM"
 ></LI
 ><LI
 ><P
->	    We now record the author id's in the <TT
+>	    We now record the author id's in the 
+<TT
 CLASS="FUNCTION"
 >init()</TT
 > function.
@@ -1222,7 +1377,7 @@ WIDTH="90%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void EditBookForm::init()
+>void init()
 {
     <I
 CLASS="EMPHASIS"
@@ -1238,8 +1393,10 @@ CLASS="EMPHASIS"
 ></TR
 ></TABLE
 >
-	    After inserting each author's name into the ComboBox we
-	    populate a <TT
+	    After inserting each author's name into the 
+ComboBox we
+	    populate a 
+<TT
 CLASS="CLASSNAME"
 >QMap</TT
 > with the author's name and id.
@@ -1248,7 +1405,8 @@ CLASS="CLASSNAME"
 ><LI
 ><P
 >	    Instead of looking up the author's id in the database we
-	    look it up in the <TT
+	    look it up in the 
+<TT
 CLASS="CLASSNAME"
 >QMap</TT
 >.
@@ -1260,7 +1418,7 @@ WIDTH="90%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void EditBookForm::beforeUpdateBook( <I
+>void beforeUpdateBook( <I
 CLASS="EMPHASIS"
 >QSqlRecord</I
 > * buffer )
@@ -1287,7 +1445,7 @@ WIDTH="90%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void EditBookForm::mapAuthor( const <I
+>void mapAuthor( const <I
 CLASS="EMPHASIS"
 >QString</I
 > &amp; name, int &amp; id, bool populate )
@@ -1302,7 +1460,8 @@ CLASS="EMPHASIS"
 ></TABLE
 >
 	    If the populate flag is TRUE, we store the author's name and
-	    id in the <TT
+	    id in the 
+<TT
 CLASS="CLASSNAME"
 >QMap</TT
 >, otherwise we look up the given
@@ -1313,7 +1472,10 @@ CLASS="CLASSNAME"
 >
     </P
 ><P
->Another approach which is especially useful if the same foreign key
+>&#13;
+
+
+Another approach which is especially useful if the same foreign key
 lookups are required in different parts of the application is to
 subclass a cursor and use this for our lookups. This is described in the
 <A
@@ -1322,6 +1484,7 @@ TARGET="_top"
 >Qt SQL Module
 documentation</A
 >, particulary the section on subclassing
+
 <TT
 CLASS="CLASSNAME"
 >QSqlCursor</TT
@@ -1329,10 +1492,12 @@ CLASS="CLASSNAME"
 ><P
 >The 'book' example demonstrates the basic techniques needed for SQL
 programming with Qt. Additional information on the Qt SQL classes,
-especially the <TT
+especially the 
+<TT
 CLASS="CLASSNAME"
 >QSqlQuery</TT
-> and <TT
+> and 
+<TT
 CLASS="CLASSNAME"
 >QSqlCursor</TT
 > classes is
@@ -1376,7 +1541,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="c2265.html"
+HREF="c5895.html"
 >Next</A
 ></TD
 ></TR
@@ -1385,7 +1550,8 @@ HREF="c2265.html"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->Using <TT
+>Using 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 ></TD

@@ -1,7 +1,8 @@
 <HTML
 ><HEAD
 ><TITLE
->Using QDataTable</TITLE
+>Using 
+QDataTable</TITLE
 ><META
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.57"><LINK
@@ -14,7 +15,9 @@ REL="PREVIOUS"
 TITLE="Creating Database Applications"
 HREF="creating-database-applications.html"><LINK
 REL="NEXT"
-TITLE="Using QDataBrowser and QDataView"
+TITLE="Using 
+QDataBrowser and 
+QDataView"
 HREF="using-qdatabrowser-and-qdataview.html"></HEAD
 ><BODY
 CLASS="SECT1"
@@ -64,36 +67,43 @@ CLASS="SECT1"
 CLASS="SECT1"
 ><A
 NAME="USING-QDATATABLE"
->Using <TT
+>Using 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 ></A
 ></H1
 ><P
->    <TT
+>    
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >s may be placed on any form to provide browsing
-    of database tables and views. <TT
+    of database tables and views. 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >s can also be used
-    to update or delete records in-place. Inserting records via a
-    <TT
+    to update or delete records in-place, i.e. inside the cells
+    themselves. Inserting records via a 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
-> usually requires connecting to the
-    <TT
+> usually
+    requires connecting to the 
+<TT
 CLASS="FUNCTION"
 >primeInsert()</TT
-> signal, so that we can generate primary
-    keys for example, or provide default values. If we wish to present
-    records using a form view (perhaps combining data from several
-    tables and views) we might use several <TT
+> signal, so that we
+    can generate primary keys for example, or provide default values.
+    If we wish to present records using a form view (perhaps combining
+    data from several tables and views) we might use several
+    
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
->s and
-    <TT
+>s and 
+<TT
 CLASS="CLASSNAME"
 >QDataView</TT
 >s.
@@ -109,29 +119,34 @@ NAME="QUICKLY-VIEWING-A-DATABASE-TABLE"
 ><P
 >	This example, along with all the other examples in this chapter,
 	has the project name 'book' and uses the database created by
-	the <TT
+	the 
+<TT
 CLASS="FILENAME"
 >book.sql</TT
 > script. As we work through the chapter
 	we will build the 'book' application step by step. Create or copy the
 	<TT
 CLASS="FILENAME"
->qt/tools/designer/eg/book/book1/main.cpp</TT
+>qt/tools/designer/examples/book/book1/main.cpp</TT
 > file shown
 	earlier. The project file for this first example is
 	<TT
 CLASS="FILENAME"
->qt/tools/designer/eg/book/book1/book.pro</TT
+>qt/tools/designer/examples/book/book1/book.pro</TT
 >. Start a new
-	project by clicking <SPAN
+	project by clicking 
+<SPAN
 CLASS="GUIMENUITEM"
 >File|New Project</SPAN
 >. Complete
-	the dialog by entering a project name and a project file name.
-	Now click <SPAN
+	the 
+Project Settings dialog by entering a project name and
+	a project file name. Now click 
+<SPAN
 CLASS="GUIMENUITEM"
 >Edit|Database Connections</SPAN
->. Fill in the
+>.
+	Fill in the
 	connection information appropriate to your database then press
 	<SPAN
 CLASS="GUIBUTTON"
@@ -142,23 +157,27 @@ CLASS="GUIBUTTON"
 	dialog.
 	</P
 ><P
->	We will now create a new form with a <TT
+>	We will now create a new form with a 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
-> that's connected to
-	one of our database tables.
+> that's
+	connected to one of our database tables.
 	</P
 ><P
->	Click <SPAN
+>	Click 
+<SPAN
 CLASS="GUIMENUITEM"
 >File|New</SPAN
->. The New Form dialog presents us
+>. The 
+New Form dialog presents us
 	with a number of form templates to choose from. Choose the
 	'Dialog' form and click <SPAN
 CLASS="GUIBUTTON"
 >OK</SPAN
 >. Now click
-	<SPAN
+	
+<SPAN
 CLASS="GUIMENUITEM"
 >File|Save</SPAN
 >. You will be prompted for a filename,
@@ -173,21 +192,30 @@ CLASS="SECT3"
 CLASS="SECT3"
 ><A
 NAME="SETTING-UP-A-QDATATABLE"
->Setting up a <TT
+>Setting up a 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 ></A
 ></H3
 ><P
->	    To place a <TT
+>	    
+
+	    
+
+	    To place a 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > widget on the form either
-	    click <SPAN
+	    click 
+<SPAN
 CLASS="GUIMENUITEM"
 >Tools|Views|QDataTable</SPAN
 > or click the
-	    <SPAN
+	    
+
+<SPAN
 CLASS="GUIBUTTON"
 >QDataTable</SPAN
 > toolbar button. Click on the form and
@@ -205,7 +233,8 @@ CLASS="EMPHASIS"
 >
 		    wizard page is used to set up a connection if one
 		    doesn't exist and to choose the table or view for
-		    the <TT
+		    the 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >. (See <A
@@ -224,10 +253,10 @@ CLASS="EMPHASIS"
 		    </P
 ><P
 >		    Click the connection you wish to use, listed in the
-		    left hand list box, e.g. "(default)". The available tables and
-		    views will appear in the right hand Table list box.
-		    Click the 'author' table and then click the
-		    <SPAN
+		    left hand list box, e.g. "(default)". The available
+		    tables and views will appear in the right hand Table
+		    list box. Click the 'author' table and then click
+		    the <SPAN
 CLASS="GUIBUTTON"
 >Next</SPAN
 > button.
@@ -240,7 +269,8 @@ CLASS="EMPHASIS"
 >Displayed Fields</I
 > wizard page
 		    provides a means of selecting which fields should be
-		    displayed in the <TT
+		    displayed in the 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > and in what
@@ -262,19 +292,22 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->		    The <I
+>		    
+
+		    The <I
 CLASS="EMPHASIS"
 >Table Properties</I
 > wizard page provides
 		    convenient access to some of the database-related
-		    properties of the <TT
+		    properties of the 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >.
 		    </P
 ><P
->		    Make sure the Confirm Deletes checkbox is checked, then click
-		    <SPAN
+>		    Make sure the Confirm Deletes checkbox is checked,
+		    then click <SPAN
 CLASS="GUIBUTTON"
 >Next</SPAN
 >.
@@ -285,23 +318,26 @@ CLASS="GUIBUTTON"
 >		    The <I
 CLASS="EMPHASIS"
 >SQL</I
-> wizard page is used to set
-		    the <TT
+> wizard page is used to set the
+		    
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
->'s Filter and Sort properties. The Filter is an SQL
-		    <TT
+>'s Filter and Sort properties. The
+		    Filter is an SQL <TT
 CLASS="LITERAL"
 >WHERE</TT
-> clause (without the word 'WHERE'). For
-		    example, to only list authors whose surnames begin with 'P', we
-		    would enter <TT
+> clause (without
+		    the word 'WHERE'). For example, to only list authors
+		    whose surnames begin with 'P', we would enter
+		    <TT
 CLASS="LITERAL"
 >title LIKE 'P%'</TT
 >. We'll leave
 		    the filter empty. The Available Fields list box
 		    lists all the fields. The Sort By list box lists the
-		    fields that the <TT
+		    fields that the 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > is to sort by and
@@ -328,7 +364,8 @@ CLASS="EMPHASIS"
 > wizard page gives us the
 		    opportunity to go back and change any of our
 		    settings. We will be able to change them later
-		    through the <TT
+		    through the 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >'s properties so we
@@ -349,9 +386,11 @@ CLASS="GUIBUTTON"
 	    a default column name. If you wish to change the settings
 	    then most of them are available in the property window. The
 	    display names, the fields they are based upon, and the order
-	    of appearance of the columns can be changed using the Edit
-	    Table dialog (explained later) by right clicking the
-	    <TT
+	    of appearance of the columns can be changed using the 
+	    
+Edit Table dialog (explained later) by right clicking the
+	    
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > and left clicking <SPAN
@@ -365,15 +404,18 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN1747"
+NAME="AEN4703"
 >Laying out the Form</A
 ></H3
 ><P
->	    Click on the form and click the <SPAN
+>	    Click on the form and click the 
+
+<SPAN
 CLASS="GUIBUTTON"
->Lay out Vertically</SPAN
+>Lay Out Vertically</SPAN
 >
-	    toolbar button. Now click <SPAN
+	    toolbar button. Now click 
+<SPAN
 CLASS="GUIMENUITEM"
 >Preview|Preview Form</SPAN
 >;
@@ -382,7 +424,8 @@ CLASS="GUIMENUITEM"
 	    </P
 ><P
 >	    To turn the form we've created into an executable application we
-	    must add the <TT
+	    must add the 
+<TT
 CLASS="FILENAME"
 >main.cpp</TT
 > file to the project file and
@@ -395,17 +438,20 @@ CLASS="FILENAME"
 TYPE="1"
 ><LI
 ><P
->		    Click on the form and change its name to 'BookForm' and
-		    its caption to 'Book'. Click on the <TT
+>		    Click on the form and change its name to 'BookForm'
+		    and its caption to 'Book'. Click on the
+		    
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
-> and change its
-		    name to 'AuthorDataTable'.
+> and change its name to
+		    'AuthorDataTable'.
 		    </P
 ></LI
 ><LI
 ><P
->		    Click <SPAN
+>		    Click 
+<SPAN
 CLASS="GUIMENUITEM"
 >File|Save All</SPAN
 >.
@@ -413,7 +459,8 @@ CLASS="GUIMENUITEM"
 ></LI
 ><LI
 ><P
->		    Open the project file, e.g. <TT
+>		    Open the project file, e.g. 
+<TT
 CLASS="FILENAME"
 >book.pro</TT
 >, in a
@@ -427,7 +474,8 @@ CLASS="LITERAL"
 ></LI
 ><LI
 ><P
->		    Run <B
+>		    Run 
+<B
 CLASS="COMMAND"
 >qmake</B
 > to generate the make file,
@@ -445,15 +493,16 @@ CLASS="COMMAND"
 >
 	    </P
 ><P
->	    This example shows how easy it is to use <TT
+>	    This example shows how easy it is to use 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
-> to show
-	    the contents of a database table or view. You can use the
-	    application we've just built to update and delete author
-	    records. In the versions that follow we will cover insertions,
-	    setting up master-detail relationships, drilldown and foreign
-	    key lookups.
+>
+	    to show the contents of a database table or view. You can
+	    use the application we've just built to update and delete
+	    author records. In the examples that follow we will cover
+	    insertions, setting up master-detail relationships,
+	    drilldown and foreign key lookups.
 	    </P
 ><TABLE
 CLASS="SIDEBAR"
@@ -464,14 +513,18 @@ CELLPADDING="5"
 ><DIV
 CLASS="SIDEBAR"
 ><A
-NAME="AEN1772"
+NAME="AEN4752"
 ></A
 ><P
 ><B
 >A Note on Foreign Keys</B
 ></P
 ><P
->	    In most relational databases tables contain fields which
+>	    
+
+	    
+
+	    In most relational databases tables contain fields which
 	    are foreign keys into other tables. In our 'book' database
 	    example the authorid in the book table is a foreign key
 	    into the author table. When we present a form to the end
@@ -494,25 +547,33 @@ CLASS="SECT2"
 CLASS="SECT2"
 ><A
 NAME="INSERTING-RECORDS-IN-QDATATABLES"
->Inserting Records in <TT
+>Inserting Records in 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >s</A
 ></H2
 ><P
->	Record insertion into a relational database usually requires
+>	
+
+	
+
+	Record insertion into a relational database usually requires
 	the generation of a primary key value which uniquely
 	identifies the record in the table. Also we often want to
 	create default values for some fields to minimize the user's
-	work. We will create a slot to capture the <TT
+	work. We will create a slot to capture the 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >s
-	<TT
+	
+<TT
 CLASS="FUNCTION"
->primeInsert</TT
+>primeInsert()</TT
 > signal and populate the
-	<TT
+	
+<TT
 CLASS="CLASSNAME"
 >QSqlRecord</TT
 > insertion buffer with a unique
@@ -524,11 +585,14 @@ CLASS="CLASSNAME"
 TYPE="1"
 ><LI
 ><P
->		Click <SPAN
+>		Click 
+<SPAN
 CLASS="GUIMENUITEM"
 >Edit|Slots</SPAN
-> to invoke the Edit
-		Slots dialog. Click <SPAN
+> to invoke the 
+		
+Edit Slots dialog. Click 
+<SPAN
 CLASS="GUIMENUITEM"
 >New Slot</SPAN
 >, then enter
@@ -545,13 +609,17 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->		Click the <SPAN
+>		Click the 
+
+<SPAN
 CLASS="GUIBUTTON"
->Connect Signal/Slots</SPAN
+>Connect Signals/Slots</SPAN
 >
 		toolbar button, then click the AuthorDataTable, drag to
-		the form and release the mouse. The Edit Connections
-		dialog will now appear. Click the <TT
+		the form and release the mouse. The 
+Edit Connections
+		dialog will now appear. Click the 
+<TT
 CLASS="FUNCTION"
 >primeInsert()</TT
 >
@@ -568,7 +636,8 @@ CLASS="GUIBUTTON"
 ><LI
 ><P
 >		Click the Source tab of the Object Hierarchy window
-		(click <SPAN
+		(click 
+<SPAN
 CLASS="GUIMENUITEM"
 >Window|Object Hierarchy</SPAN
 > to make
@@ -596,7 +665,7 @@ WIDTH="90%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void BookForm::primeInsertAuthor( <I
+>void primeInsertAuthor( <I
 CLASS="EMPHASIS"
 >QSqlRecord</I
 > * buffer )
@@ -615,7 +684,8 @@ CLASS="EMPHASIS"
 ></TR
 ></TABLE
 >
-		A <TT
+		A 
+<TT
 CLASS="CLASSNAME"
 >QSqlQuery</TT
 > object is used to increment and
@@ -630,14 +700,22 @@ CLASS="CLASSNAME"
 		documentation for details on how to generate unique
 		keys in code.  In many cases, the database can
 		generate them automatically, or the database may
-		provide a special syntax for dealing with sequences)
+		provide a special syntax for dealing with sequences.)
 		</P
 ></LI
 ></OL
 >
 	</P
 ><P
->	If we rebuild the application it will now support <TT
+>	
+
+	
+
+	
+
+	
+
+	If we rebuild the application it will now support <TT
 CLASS="LITERAL"
 >INSERT</TT
 > as well as
@@ -652,40 +730,50 @@ CLASS="LITERAL"
 	necessary.
 	</P
 ><P
->	Browsing is
+>	
+
+	
+
+	
+
+	Browsing is
 	supported by clicking records and by using the arrow keys. Once
 	a record is active (highlighted) we can edit the it. Press
-	the <B
+	the 
+<B
 CLASS="KEYCAP"
 >Insert</B
 > key to <TT
 CLASS="LITERAL"
 >INSERT</TT
 > a new record;
-	press <B
+	press 
+<B
 CLASS="KEYCAP"
 >F2</B
 > to <TT
 CLASS="LITERAL"
 >UPDATE</TT
 > the current record;
-	press the <B
+	press the 
+<B
 CLASS="KEYCAP"
->Delete</B
+>Del</B
 > key to <TT
 CLASS="LITERAL"
 >DELETE</TT
 > the
 	current record. All these operations take place 
 	immediately. Users can be given the opportunity to confirm
-	their edits by setting the <TT
+	their edits by setting the 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
->'s confirmEdits property to True.
-	If the confirmEdits property is True user confirmation will
-	be required for all insertions, updates and deletes. For finer
-	control you can set the confirmInsert, confirmUpdate and
-	confirmDelete properties individually.
+>'s confirmEdits
+	property to True. If the confirmEdits property is True then user
+	confirmation will be required for all insertions, updates and
+	deletes. For finer control you can set the confirmInsert,
+	confirmUpdate and confirmDelete properties individually.
 	</P
 ><TABLE
 CLASS="SIDEBAR"
@@ -696,17 +784,22 @@ CELLPADDING="5"
 ><DIV
 CLASS="SIDEBAR"
 ><A
-NAME="AEN1818"
+NAME="AEN4874"
 ></A
 ><P
 ><B
-><TT
+>&#13;<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > User Interface Interaction</B
 ></P
 ><P
->	The default user-interface behaviour for <TT
+>	
+
+	
+
+	The default user-interface behaviour for 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >s is as follows:
@@ -717,8 +810,41 @@ CLASS="CLASSNAME"
 ><P
 >		Users can move to records by clicking the scrollbar and
 		clicking records with the mouse. They can also use the
-		keyboard's navigation keys, e.g. the arrow keys, Page Up
-		and Page Down, Home and End.
+		keyboard's navigation keys, e.g. 
+<B
+CLASS="KEYCAP"
+>Left Arrow</B
+>, 
+		
+<B
+CLASS="KEYCAP"
+>Right Arrow</B
+>, 
+<B
+CLASS="KEYCAP"
+>Up Arrow</B
+>, 
+<B
+CLASS="KEYCAP"
+>Down Arrow</B
+>,
+		
+<B
+CLASS="KEYCAP"
+>Page Up</B
+>, 
+<B
+CLASS="KEYCAP"
+>Page Down</B
+>, 
+<B
+CLASS="KEYCAP"
+>Home</B
+> and 
+<B
+CLASS="KEYCAP"
+>End</B
+>.
 		</P
 ></LI
 ><LI
@@ -727,18 +853,43 @@ CLASS="CLASSNAME"
 CLASS="LITERAL"
 >INSERT</TT
 > is initiated by right-clicking the record and
-		clicking Insert or by pressing the Ins (Insert) key. The
-		user moves between fields using Tab and Shift+Tab. The
-		<TT
+		clicking Insert or by pressing the 
+<B
+CLASS="KEYCAP"
+>Ins</B
+> (Insert)
+		key. The user moves between fields using 
+<B
+CLASS="KEYCAP"
+>Tab</B
+> and
+		
+<B
+CLASS="KEYCAP"
+>Shift+Tab</B
+>. The <TT
 CLASS="LITERAL"
 >INSERT</TT
-> will take place if the user presses Return or Tabs
+> will take place if the user
+		presses 
+<B
+CLASS="KEYCAP"
+>Enter</B
+> or 
+<B
+CLASS="KEYCAP"
+>Tab</B
+>s
 		off the last field. If autoEdit is TRUE the
 		insert will take place if the user navigates to another
 		record. <TT
 CLASS="LITERAL"
 >INSERT</TT
-> is cancelled by pressing Esc (Escape). If
+> is cancelled by pressing 
+<B
+CLASS="KEYCAP"
+>Esc</B
+> (Escape). If
 		autoEdit is FALSE navigating to another record also
 		cancels the <TT
 CLASS="LITERAL"
@@ -756,16 +907,21 @@ CLASS="LITERAL"
 CLASS="LITERAL"
 >UPDATE</TT
 > is initiated by right-clicking the record and clicking
-		Update or by pressing F2. The update will take place if
-		the user presses Return or Tabs off the last
+		Update or by pressing 
+<B
+CLASS="KEYCAP"
+>F2</B
+>. The update will take place if
+		the user presses Enter or Tabs off the last
 		field. If autoEdit is TRUE the update will take place if
 		the user navigates to another record. <TT
 CLASS="LITERAL"
 >UPDATE</TT
 > is cancelled
-		by pressing <B
+		by pressing 
+<B
 CLASS="KEYCAP"
->Escape</B
+>Esc</B
 >. If autoEdit is FALSE
 		navigating to another record also cancels the <TT
 CLASS="LITERAL"
@@ -784,10 +940,11 @@ CLASS="LITERAL"
 CLASS="LITERAL"
 >DELETE</TT
 > is achieved by right-clicking the record and
-		clicking Delete or by pressing the <B
+		clicking Delete or by pressing the 
+<B
 CLASS="KEYCAP"
->Delete</B
-> key.
+>Del</B
+> (Delete) key.
 		Setting confirmDelete to TRUE will require the user to
 		confirm each <TT
 CLASS="LITERAL"
@@ -815,26 +972,33 @@ NAME="RELATING-TWO-TABLES-TOGETHER"
 >Relating Two Tables Together (Master-Detail)</A
 ></H2
 ><P
->	Databases often have pairs of tables that are related. For
-	example an invoice table might list the numbers, dates and
+>	
+
+	
+
+	Databases often have pairs of tables that are related. For
+	example, an invoice table might list the numbers, dates and
 	customers for invoices, but not the actual invoice items, which
 	an invoice item table might store. In the 'book' application we
-	wish to have a <TT
+	wish to have a 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > that we can use to browse
-	through the authors table and a second <TT
+	through the authors table and a second 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > to
 	show the books they've written.
 	</P
 ><P
->	Open the book project if it isn't already in <I
+>	Open the book project if it isn't already open <I
 CLASS="EMPHASIS"
 >Qt Designer</I
 >. We will
-	modify this project to show two <TT
+	modify this project to show two 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >s that
@@ -846,11 +1010,14 @@ CLASS="CLASSNAME"
 TYPE="1"
 ><LI
 ><P
->		Click the author <TT
+>		Click the author 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > and then click the
-		<SPAN
+		
+
+<SPAN
 CLASS="GUIBUTTON"
 >Break Layout</SPAN
 > toolbutton.
@@ -858,7 +1025,8 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->		Resize the <TT
+>		Resize the 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > so that it only
@@ -867,7 +1035,8 @@ CLASS="CLASSNAME"
 ></LI
 ><LI
 ><P
->		Now click on the <TT
+>		Now click on the 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > toolbutton and click
@@ -936,7 +1105,8 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->			Change this <TT
+>			Change this 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >'s name to "BookDataTable".
@@ -948,26 +1118,37 @@ CLASS="CLASSNAME"
 ></LI
 ><LI
 ><P
->		Shift+Click the top <TT
+>		
+<B
+CLASS="KEYCAP"
+>Shift+Click</B
+> the top 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
-> so that both <TT
+> so that both
+		
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
->s
-		are selected and then click the <SPAN
+>s are selected and then click the
+		
+
+<SPAN
 CLASS="GUIBUTTON"
->Lay out Vertically
-		(in Splitter)</SPAN
-> toolbar button.
+>Lay Out Vertically (in Splitter)</SPAN
+> toolbar
+		button.
 		</P
 ></LI
 ><LI
 ><P
->		Click on the form and click the <SPAN
+>		Click on the form and click the 
+		
+
+<SPAN
 CLASS="GUIBUTTON"
->Lay
-		out Vertically</SPAN
+>Lay Out Vertically</SPAN
 > toolbar button.
 		</P
 ></LI
@@ -975,21 +1156,25 @@ CLASS="GUIBUTTON"
 >
 	</P
 ><P
->	Run the form by clicking <SPAN
+>	Run the form by clicking 
+<SPAN
 CLASS="GUIMENUITEM"
 >Preview|Preview Form</SPAN
 >.
-	All the authors are displayed in the top <TT
+	All the authors are displayed in the top 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >
 	and all the books are displayed in the bottom
-	<TT
+	
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >. However we only want the books of the
 	currently selected author showing in the bottom
-	<TT
+	
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 >. We will deal with this by filtering the
@@ -1005,17 +1190,19 @@ CELLPADDING="5"
 ><DIV
 CLASS="SIDEBAR"
 ><A
-NAME="AEN1896"
+NAME="AEN5081"
 ></A
 ><P
 ><B
 >Using the Table Editor</B
 ></P
 ><P
->	<DIV
+>	
+
+	<DIV
 CLASS="FIGURE"
 ><A
-NAME="AEN1899"
+NAME="AEN5087"
 ></A
 ><P
 ><B
@@ -1023,31 +1210,35 @@ NAME="AEN1899"
 ></P
 ><P
 ><IMG
-SRC="images/edit-dbtable-dialog.png"
-ALIGN="center"></P
+SRC="images\edit-dbtable-dialog.png"></P
 ></DIV
 >
-	<TT
+	
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
->s are created and set up using the SQL Table Wizard. Like
-	any other <I
+>s are created and set up using the SQL Table
+	Wizard. Like any other <I
 CLASS="EMPHASIS"
 >Qt Designer</I
-> widget their properties may be changed in the
-	Properties window. Some of the column and row based properties
-	can also be be changed using the Edit Table dialog. This
-	dialog is invoked by right clicking the <TT
+> widget their properties may be
+	changed in the Properties window. Some of the column and row
+	based properties can also be be changed using the 
+Edit Table
+	dialog. This dialog is invoked by right clicking the
+	
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
-> and left
-	clicking the <SPAN
+> and left clicking the 
+<SPAN
 CLASS="GUIMENUITEM"
 >Edit</SPAN
-> menu item. The right hand half
-	of the Edit Table dialog is where we choose the fields we wish
-	to display, their order and their labels. The procedure for
-	creating columns is as follows:
+> menu item.
+	The right hand half of the 
+Edit Table dialog is where we choose
+	the fields we wish to display, their order and their labels. The
+	procedure for creating columns is as follows:
 
 	<P
 ></P
@@ -1121,17 +1312,22 @@ CLASS="SECT3"
 CLASS="SECT3"
 ><A
 NAME="FILTERING-ONE-QDATATABLE-BY-ANOTHER"
->Filtering One <TT
+>Filtering One 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > by Another</A
 ></H3
 ><P
->	    To filter the book table's records we need to capture the author
-	    <TT
+>	    
+
+	    To filter the book table's records we need to capture the author
+	    
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
->'s <TT
+>'s 
+<TT
 CLASS="FUNCTION"
 >currentChanged()</TT
 > signal and change the
@@ -1143,11 +1339,14 @@ CLASS="FUNCTION"
 TYPE="1"
 ><LI
 ><P
->		    Click <SPAN
+>		    Click 
+<SPAN
 CLASS="GUIMENUITEM"
 >Edit|Slots</SPAN
->. In the Edit Slots
-		    dialog click <SPAN
+>. In the 
+Edit Slots
+		    dialog click 
+<SPAN
 CLASS="GUIMENUITEM"
 >New Slot</SPAN
 > and enter a slot
@@ -1163,19 +1362,23 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->		    Click <SPAN
+>		    Click 
+<SPAN
 CLASS="GUIMENUITEM"
->Connect Signal/Slots</SPAN
+>Connect Signals/Slots</SPAN
 >, then click
-		    the AuthorDataTable <TT
+		    the AuthorDataTable 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > and drag to
-		    the form; release the mouse on the form. The Edit
-		    Connections dialog will appear. Click the
-		    <TT
+		    the form; release the mouse on the form. The 
+		    
+Edit Connections dialog will appear. Click the
+		    
+<TT
 CLASS="FUNCTION"
->currentChanged</TT
+>currentChanged()</TT
 > signal and the
 		    <TT
 CLASS="FUNCTION"
@@ -1189,7 +1392,8 @@ CLASS="GUIBUTTON"
 ><LI
 ><P
 >		    Click the Source tab of the Object Hierarchy window
-		    (click <SPAN
+		    (click 
+<SPAN
 CLASS="GUIMENUITEM"
 >Window|Object Hierarchy</SPAN
 > to make
@@ -1217,7 +1421,7 @@ WIDTH="90%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void BookForm::newCurrentAuthor( <I
+>void newCurrentAuthor( <I
 CLASS="EMPHASIS"
 >QSqlRecord</I
 > *author )
@@ -1230,7 +1434,8 @@ CLASS="EMPHASIS"
 ></TABLE
 >
 		All that's required now is to change the BookDataTable's
-		filter and refresh the <TT
+		filter and refresh the 
+<TT
 CLASS="CLASSNAME"
 >QDataTable</TT
 > to show the
@@ -1250,9 +1455,14 @@ NAME="PREPARING-THE-INTERFACE-FOR-DRILLDOWN"
 >Preparing the Interface for Drilldown</A
 ></H3
 ><P
->	    We can now browse and edit authors and see their books in the
+>	    
+
+	    
+
+	    We can now browse and edit authors and see their books in the
 	    BookDataTable.  In the next section we explore
-	    <TT
+	    
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
 >, which will allow us to drill down to
@@ -1266,10 +1476,12 @@ CLASS="CLASSNAME"
 TYPE="1"
 ><LI
 ><P
->		    Click the form, then click the <SPAN
+>		    Click the form, then click the 
+		    
+
+<SPAN
 CLASS="GUIBUTTON"
->Break
-		    Layout</SPAN
+>Break Layout</SPAN
 > toolbar button. Resize the form
 		    to make room for some buttons at the bottom.
 		    </P
@@ -1293,36 +1505,48 @@ CLASS="GUIBUTTON"
 ></UL
 >
 		    Hold down the Shift key and Click both buttons (i.e.
-		    Shift+Click the buttons) and click the
-		    <SPAN
+		    
+<B
+CLASS="KEYCAP"
+>Shift+Click</B
+> the buttons) and click the
+		    
+
+<SPAN
 CLASS="GUIBUTTON"
 >Lay Out Horizontally</SPAN
 > toolbar button.
-		    Click the form and click the <SPAN
+		    Click the form and click the 
+		    
+
+<SPAN
 CLASS="GUIBUTTON"
->Lay Out
-		    Vertically</SPAN
+>Lay Out Vertically</SPAN
 > toolbar
 		    button.
 		    </P
 ></LI
 ><LI
 ><P
->		    We will only provide the Quit button with functionality
-		    for the time being.
-		    Click <SPAN
+>		    We will provide the Quit button with functionality
+		    now and work on the rest shortly.
+		    Click 
+<SPAN
 CLASS="GUIMENUITEM"
->Connect Signal/Slots</SPAN
+>Connect Signals/Slots</SPAN
 >, then click
 		    the Quit button and drag to the form; release the
-		    mouse on the form. The Edit Connections dialog will
-		    appear. Click the <TT
+		    mouse on the form. The 
+Edit Connections dialog will
+		    appear. Click the 
+<TT
 CLASS="FUNCTION"
->clicked</TT
+>clicked()</TT
 > signal
-		    and the <TT
+		    and the 
+<TT
 CLASS="FUNCTION"
->accept</TT
+>accept()</TT
 > slot. Click <SPAN
 CLASS="GUIBUTTON"
 >OK</SPAN
@@ -1388,10 +1612,12 @@ HREF="creating-database-applications.html"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->Using <TT
+>Using 
+<TT
 CLASS="CLASSNAME"
 >QDataBrowser</TT
-> and <TT
+> and 
+<TT
 CLASS="CLASSNAME"
 >QDataView</TT
 ></TD

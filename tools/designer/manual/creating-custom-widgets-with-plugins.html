@@ -82,11 +82,17 @@ HREF="creatingcustomwidgetswithplugins.html"
 ></DL
 ></DIV
 ><P
->Custom widgets are created in code. They may comprise a combination of
+>&#13;
+
+
+Custom widgets are created in code. They may comprise a combination of
 existing widgets but with additional functionality, slots and signals,
 or they may be written from scratch, or a mixture of both.</P
 ><P
-><I
+>&#13;
+
+
+<I
 CLASS="EMPHASIS"
 >Qt Designer</I
 > provides two mechanisms for incorporating custom widgets:
@@ -96,24 +102,19 @@ CLASS="EMPHASIS"
 TYPE="1"
 ><LI
 ><P
->&#13;The original method involves little more than completing a dialog box.
+>The original method involves little more than completing a dialog box.
 Widgets incorporated this way appear as flat pixmaps when added to a
 form in <I
 CLASS="EMPHASIS"
 >Qt Designer</I
 >, even in preview mode. They only appear in their true form
 at runtime. We'll explain how to create custom widgets using the
-original approach in <A
-HREF="creating-custom-widgets-with-plugins.html#OLD-CUSTOM-WIDGETS"
->the section called <I
->Simple Custom Widgets</I
-></A
-> "Simple Custom
-Widgets".&#13;</P
+original approach in "Simple Custom Widgets".</P
 ></LI
 ><LI
 ><P
->&#13;The new method involves embedding the widgets in a plugin. Widgets that
+>&#13;
+The new method involves embedding the widgets in a plugin. Widgets that
 are incorporated through plugins appear in their true form in <I
 CLASS="EMPHASIS"
 >Qt Designer</I
@@ -139,7 +140,8 @@ NAME="OLD-CUSTOM-WIDGETS"
 >Simple Custom Widgets</A
 ></H1
 ><P
->There are two stages to creating a custom widget. Firstly we must create
+>&#13;
+There are two stages to creating a custom widget. Firstly we must create
 a class that defines the widget, and secondly we must incorporate the
 widget into <I
 CLASS="EMPHASIS"
@@ -165,7 +167,8 @@ NAME="CODINGTHECUSTOMWIDGET"
 ><P
 >A custom widget may consist of one or more standard widgets placed
 together in a particular combination, or may be written from scratch. We
-will combine some <TT
+will combine some 
+<TT
 CLASS="CLASSNAME"
 >QPushButton</TT
 > widgets to form the
@@ -174,7 +177,7 @@ basis of our custom widget. </P
 >We'll look at the header file,
 <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/vcr/vcr.h</TT
+>qt/tools/designer/examples/vcr/vcr.h</TT
 > first.
 <TABLE
 BORDER="0"
@@ -199,6 +202,7 @@ public:
 CLASS="EMPHASIS"
 >QWidget</I
 > *parent = 0, const char *name = 0 );
+    ~Vcr() {}
 signals:
     void rewind();
     void play();
@@ -210,11 +214,16 @@ signals:
 ></TR
 ></TABLE
 >
+
+
+
+
 We include <TT
 CLASS="FILENAME"
 >qwidget.h</TT
 > since we'll be deriving our
 custom widget from
+
 <TT
 CLASS="CLASSNAME"
 >QWidget</TT
@@ -228,7 +237,11 @@ CLASS="LITERAL"
 ><P
 >The implementation is straightforward. The only function we implement is
 the constructor. The rest of the file consists of include statements and
-embedded xpm images.
+embedded 
+<TT
+CLASS="FILENAME"
+>.xpm</TT
+> images.
 <TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
@@ -271,19 +284,22 @@ CLASS="EMPHASIS"
 ></TR
 ></TABLE
 >
-We create a <TT
+We create a 
+<TT
 CLASS="CLASSNAME"
 >QHBoxLayout</TT
 > in which we'll place the
 buttons. We've only shown the rewind button in the code above since all
 the others are identical except for the names of the buttons, pixmaps
 and signals. For each of the buttons we require we call the
+
 <TT
 CLASS="CLASSNAME"
 >QPushButton</TT
 > constructor passing it the
 appropriate embedded pixmap. We then add it to the layout. Finally we
-connect the button's <TT
+connect the button's 
+<TT
 CLASS="FUNCTION"
 >clicked()</TT
 > signal to the
@@ -291,6 +307,7 @@ appropriate <I
 CLASS="EMPHASIS"
 >signal</I
 >. Since the
+
 <TT
 CLASS="FUNCTION"
 >clicked()</TT
@@ -304,25 +321,29 @@ CLASS="FUNCTION"
 >play()</TT
 >, etc. signals
 are meaningful in the context of our widget so we propagate each
-button's <TT
+button's 
+<TT
 CLASS="FUNCTION"
 >clicked()</TT
 > signal to the appropriate
 widget-specific signal. </P
 ><P
->The implementation is complete, but to make sure that our widget
+>&#13;
+The implementation is complete, but to make sure that our widget
 compiles and runs we'll create a tiny test harness. The test harness
-will require two files, a <TT
+will require two files, a 
+<TT
 CLASS="FILENAME"
 >.pro</TT
 > project file and a
+
 <TT
 CLASS="FILENAME"
 >main.cpp</TT
 >. The
 <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/vcr/vcr.pro</TT
+>qt/tools/designer/examples/vcr/vcr.pro</TT
 > project file:
 <TABLE
 BORDER="0"
@@ -343,7 +364,7 @@ TARGET   = vcr</PRE
 >
 The <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/vcr/main.cpp</TT
+>qt/tools/designer/examples/vcr/main.cpp</TT
 > file is
 also brief:
 <TABLE
@@ -394,11 +415,16 @@ NAME="ADDINGTHECUSTOMWIDGETTOQTDESIGNER"
 >Adding the Custom Widget to Qt Designer</A
 ></H2
 ><P
->Click <SPAN
+>&#13;
+
+
+Click 
+<SPAN
 CLASS="GUIMENUITEM"
 >Tools|Custom|Edit Custom Widgets</SPAN
 > to
-invoke the Edit Custom Widgets dialog. 
+invoke the 
+Edit Custom Widgets dialog. 
     <P
 ></P
 ><OL
@@ -407,8 +433,7 @@ TYPE="1"
 ><P
 >	Click <SPAN
 CLASS="GUIBUTTON"
->New
-	Widget</SPAN
+>New Widget</SPAN
 > so that we are ready to add our new widget.
 	</P
 ></LI
@@ -436,27 +461,25 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->	If you have a pixmap that you want to use to identify your widget on the
-	toolbar click the ellipsis (<SPAN
-CLASS="GUIBUTTON"
->...</SPAN
->) button to the right of
-	Pixmap.
+>	If you have a pixmap that you want to use to identify your
+	widget on the toolbar click the ellipsis button
+	to the right of Pixmap.
 	</P
 ><P
 >	In our example we have the file
 	<TT
 CLASS="FILENAME"
->qt/tools/designer/eg/vcr/play.xpm</TT
+>qt/tools/designer/examples/vcr/play.xpm</TT
 > which we'll use
 	for this purpose.
 	</P
 ></LI
 ><LI
 ><P
->	Since we know the minimum sensible size for our widget we'll put values
-	into the Size Hint spin boxes. Enter a width of 80 (in the left hand spin
-	box), and a height of 20 (in the right hand spin box).
+>	Since we know the minimum sensible size for our widget we'll put
+	these values into the Size Hint spin boxes. Enter a width of 80 (in
+	the left hand spin box), and a height of 20 (in the right hand
+	spin box).
 	</P
 ></LI
 ></OL
@@ -474,9 +497,9 @@ CLASS="GUIBUTTON"
 >
 button and type in the signal name 'rewind()'. Click <SPAN
 CLASS="GUIBUTTON"
->New
-Signal</SPAN
-> again and this time type in 'play()'. Add the
+>New Signal</SPAN
+>
+again and this time type in 'play()'. Add the
 'next()' and 'stop()' signals in the same way.</P
 ><P
 >Since our example hasn't any slots or properties we've finished and can

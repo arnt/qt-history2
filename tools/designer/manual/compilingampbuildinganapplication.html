@@ -9,9 +9,9 @@ REL="HOME"
 HREF="book1.html"><LINK
 REL="UP"
 TITLE="Creating a Qt Application"
-HREF="c69.html"><LINK
+HREF="c87.html"><LINK
 REL="PREVIOUS"
-TITLE="Connecting up an Application "
+TITLE="Connecting Signals and Slots "
 HREF="connectingupanapplication.html"><LINK
 REL="NEXT"
 TITLE="Creating Main Windows with Actions, Toolbars and Menus"
@@ -67,25 +67,34 @@ NAME="COMPILINGAMPBUILDINGANAPPLICATION"
 >Compiling and Building an Application</A
 ></H1
 ><P
->So far we have written about 99% of a Qt application entirely
+>&#13;
+
+
+
+
+
+
+So far we have written about 99% of a Qt application entirely
 in <I
 CLASS="EMPHASIS"
 >Qt Designer</I
 >. To make the application compile and run we must create a
+
 <TT
-CLASS="FUNCTION"
+CLASS="FILENAME"
 >main.cpp</TT
 > file from which we can call our form.
 We'll then need to update the project file accordingly and generate a
 Makefile. We can use the Makefile to generate the application. We will
 cover these matters briefly here, and in more detail in <A
-HREF="c812.html#SUBCLASSING"
+HREF="c2721.html#SUBCLASSING"
 >the section called <I
 >Subclassing</I
 > in Chapter 4</A
 > "Subclassing".</P
 ><P
->First we need to create a <TT
+>First we need to create a 
+<TT
 CLASS="FILENAME"
 >main.cpp</TT
 > file.
@@ -116,29 +125,34 @@ CLASS="EMPHASIS"
 ></TR
 ></TABLE
 >
-The program creates a <TT
+The program creates a 
+<TT
 CLASS="CLASSNAME"
 >QApplication</TT
 > object and an
 instance of our MulticlipForm, sets the form to be the main widget and
 shows the form. The <TT
-CLASS="LITERAL"
+CLASS="FUNCTION"
 >app.exec()</TT
 > call starts off the
 event loop.</P
 ><P
->We need to add <TT
+>&#13;
+We need to add 
+<TT
 CLASS="FILENAME"
 >main.cpp</TT
 > to the
+
 <TT
 CLASS="FILENAME"
 >.pro</TT
-> file. Open <TT
+> file. Open 
+<TT
 CLASS="FILENAME"
 >multiclip.pro</TT
 >
-in a plain text editor (notepad, vim or xemacs, etc.). It will look
+in a plain text editor (such as notepad, vim, xemacs, etc.). It will look
 similar to this:
 <TABLE
 BORDER="0"
@@ -174,26 +188,9 @@ CLASS="PROGRAMLISTING"
 ></TR
 ></TABLE
 >
-If you are using MS Windows and are using Qt as a <TT
-CLASS="LITERAL"
->DLL</TT
->
-you must add this line at the end of your project files:
-<TABLE
-BORDER="0"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><PRE
-CLASS="PROGRAMLISTING"
->WIN32:DEFINES += QT_DLL </PRE
-></TD
-></TR
-></TABLE
->
 Save the updated project file. Now start up a console (or xterm), change
-directory to the multiclip application and run <B
+directory to the multiclip application and run 
+<B
 CLASS="COMMAND"
 >qmake</B
 >. A Makefile
@@ -211,13 +208,20 @@ CLASS="PROGRAMLISTING"
 ></TR
 ></TABLE
 >
-You can now make the application, e.g. by running <B
+You can now make the application, e.g. by running 
+<B
 CLASS="COMMAND"
 >make</B
 > or
+
 <B
 CLASS="COMMAND"
 >nmake</B
+>. Try compililng and running multiclip. There are many
+improvement you could make and experimenting with both the layout and
+the code will help you learn more about Qt and <I
+CLASS="EMPHASIS"
+>Qt Designer</I
 >.</P
 ><P
 >This chapter has introduced you to creating cross-platform applications
@@ -279,13 +283,13 @@ HREF="main-windows.html"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->Connecting up an Application</TD
+>Connecting Signals and Slots</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="c69.html"
+HREF="c87.html"
 >Up</A
 ></TD
 ><TD

@@ -67,7 +67,10 @@ NAME="CREATINGCUSTOMWIDGETSWITHPLUGINS"
 >Creating Custom Widgets with Plugins</A
 ></H1
 ><P
->&#13;This section will show you how to write a custom widget and how to embed
+>&#13;
+
+
+This section will show you how to write a custom widget and how to embed
 the custom widget into a plugin. There are no restrictions or special
 considerations that must be taken into account when creating a widget
 that is destined to become a plugin. If you are an experienced Qt
@@ -78,7 +81,7 @@ HREF="creatingcustomwidgetswithplugins.html#CREATING-A-PLUGIN"
 >Creating a Plugin</I
 ></A
 > "Creating a
-Plugin". &#13;</P
+Plugin". </P
 ><DIV
 CLASS="SECT2"
 ><H2
@@ -88,7 +91,13 @@ NAME="CREATINGACUSTOMWIDGET"
 >Creating a Custom Widget</A
 ></H2
 ><P
->&#13;    A custom widget is often a specialization (subclass) of another
+>    
+
+    
+
+    
+
+    A custom widget is often a specialization (subclass) of another
     widget or a combination of widgets working together or a blend of
     both these approaches. If you simply want a collection of widgets
     in a particular configuration it is easiest to create them, select
@@ -100,7 +109,9 @@ CLASS="EMPHASIS"
     functionality to existing widgets or groups of widgets. 
     </P
 ><P
->&#13;    We have two recommendations that you should consider when creating a
+>    
+
+    We have two recommendations that you should consider when creating a
     custom widget for a plugin:
 	<P
 ></P
@@ -108,7 +119,7 @@ CLASS="EMPHASIS"
 TYPE="1"
 ><LI
 ><P
->&#13;	Using Qt's property system will provide <I
+>	Using Qt's property system will provide <I
 CLASS="EMPHASIS"
 >Qt Designer</I
 > users with a direct
@@ -123,7 +134,7 @@ TARGET="_top"
 ></LI
 ><LI
 ><P
->&#13;	Consider making your widget's public 'set' functions into
+>	Consider making your widget's public 'set' functions into
 	public slots so that you can perform signal-slot connections
 	with the widget in <I
 CLASS="EMPHASIS"
@@ -135,7 +146,7 @@ CLASS="EMPHASIS"
 >
     </P
 ><P
->&#13;    In the course of this chapter we will create a simple but useful
+>    In the course of this chapter we will create a simple but useful
     widget, 'FileChooser', which we'll later make available in <I
 CLASS="EMPHASIS"
 >Qt Designer</I
@@ -146,18 +157,22 @@ CLASS="EMPHASIS"
 CLASS="EMPHASIS"
 >Qt Designer</I
 > to reflect this approach.
-    FileChooser consists of a <TT
+    FileChooser consists of a 
+<TT
 CLASS="CLASSNAME"
 >QLineEdit</TT
 > and a
-    <TT
+    
+<TT
 CLASS="CLASSNAME"
 >QPushButton</TT
->. The <TT
+>. The 
+<TT
 CLASS="CLASSNAME"
 >QLineEdit</TT
 > is used to hold a file or
-    directory name, the <TT
+    directory name, the 
+<TT
 CLASS="CLASSNAME"
 >QPushButton</TT
 > is used to launch a file
@@ -165,7 +180,7 @@ CLASS="CLASSNAME"
     <DIV
 CLASS="FIGURE"
 ><A
-NAME="AEN1300"
+NAME="AEN3865"
 ></A
 ><P
 ><B
@@ -173,8 +188,7 @@ NAME="AEN1300"
 ></P
 ><P
 ><IMG
-SRC="images/filechooser.png"
-ALIGN="center"></P
+SRC="images\filechooser.png"></P
 ></DIV
 >
     If you've followed the manual up to this point you may well be able
@@ -193,18 +207,18 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN1304"
+NAME="AEN3869"
 >Coding the Widget's Interface</A
 ></H3
 ><P
->&#13;	We will work step-by-step through the widget's header file,
+>	We will work step-by-step through the widget's header file,
 	<TT
 CLASS="FILENAME"
->eg/filechooser/widget/filechooser.h</TT
+>qt/tools/designer/examples/filechooser/widget/filechooser.h</TT
 >.
 	</P
 ><P
->&#13;<TABLE
+><TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -225,7 +239,8 @@ CLASS="EMPHASIS"
 ></TR
 ></TABLE
 >
-	Our widget will be derived from <TT
+	Our widget will be derived from 
+<TT
 CLASS="CLASSNAME"
 >QWidget</TT
 > so we include
@@ -236,7 +251,7 @@ CLASS="FILENAME"
 	classes that our widget will be built from. 
 	</P
 ><P
->&#13;<TABLE
+><TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -260,11 +275,19 @@ CLASS="EMPHASIS"
 ></TR
 ></TABLE
 >
-	We include the <TT
+	
+
+	
+
+	
+
+	We include the 
+<TT
 CLASS="FUNCTION"
 >Q_OBJECT</TT
 > macro since this is required for
-	classes that declare signals or slots. The <TT
+	classes that declare signals or slots. The 
+<TT
 CLASS="FUNCTION"
 >Q_ENUMS</TT
 >
@@ -274,7 +297,7 @@ CLASS="FUNCTION"
 	or directory they chose.
 	</P
 ><P
->&#13;<TABLE
+><TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -306,7 +329,7 @@ CLASS="FUNCTION"
 > to return the mode.
 	</P
 ><P
->&#13;<TABLE
+><TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -350,7 +373,7 @@ CLASS="FUNCTION"
 	when its button is clicked.
 	</P
 ><P
->&#13;<TABLE
+><TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -372,10 +395,12 @@ CLASS="EMPHASIS"
 ></TR
 ></TABLE
 >
-	A pointer to <TT
+	A pointer to 
+<TT
 CLASS="CLASSNAME"
 >QLineEdit</TT
-> and <TT
+> and 
+<TT
 CLASS="CLASSNAME"
 >QPushButton</TT
 >, as well
@@ -387,7 +412,7 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN1340"
+NAME="AEN3926"
 >Coding the Implementation</A
 ></H3
 ><P
@@ -395,11 +420,11 @@ NAME="AEN1340"
 	We will work step-by-step through the implementation which is in
 	<TT
 CLASS="FILENAME"
->eg/filechooser/widget/filechooser.cpp</TT
+>qt/tools/designer/examples/filechooser/widget/filechooser.cpp</TT
 >.
 	</P
 ><P
->&#13;<TABLE
+><TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -420,14 +445,15 @@ CLASS="EMPHASIS"
 ></TABLE
 >
 	The constructor passes the parent and name to its superclass,
-	<TT
+	
+<TT
 CLASS="CLASSNAME"
 >QWidget</TT
->, and also initialises the private mode data, md,
+>, and also initializes the private mode data, md,
 	to File mode.
 	</P
 ><P
->&#13;<TABLE
+><TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -459,20 +485,23 @@ CLASS="EMPHASIS"
 ></TABLE
 >
 	We begin by creating a horizontal box layout
-	(<TT
+	(
+<TT
 CLASS="CLASSNAME"
 >QHBoxLayout</TT
->) and add a <TT
+>) and add a 
+<TT
 CLASS="CLASSNAME"
 >QLineEdit</TT
 > and a
-	<TT
+	
+<TT
 CLASS="CLASSNAME"
 >QPushButton</TT
 > to it. 
 	</P
 ><P
->&#13;<TABLE
+><TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -495,7 +524,8 @@ CLASS="EMPHASIS"
 ></TR
 ></TABLE
 >
-	We connect the lineEdit's <TT
+	We connect the lineEdit's 
+<TT
 CLASS="FUNCTION"
 >textChanged()</TT
 > signal to the custom
@@ -503,12 +533,14 @@ CLASS="FUNCTION"
 CLASS="FUNCTION"
 >fileNameChanged()</TT
 > signal. This ensures that if the
-	user changes the text in the <TT
+	user changes the text in the 
+<TT
 CLASS="CLASSNAME"
 >QLineEdit</TT
 > this fact will be
 	propagated via the custom widget's own signal. The button's
-	<TT
+	
+<TT
 CLASS="FUNCTION"
 >clicked()</TT
 > signal is connected to the custom widget's
@@ -519,7 +551,7 @@ CLASS="FUNCTION"
 	the user to choose their file or directory.
 	</P
 ><P
->&#13;<TABLE
+><TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -537,7 +569,7 @@ CLASS="PROGRAMLISTING"
 	actually goes to the lineEdit. 
 	</P
 ><P
->&#13;<TABLE
+><TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -567,14 +599,16 @@ CLASS="EMPHASIS"
 CLASS="FUNCTION"
 >setFileName()</TT
 > function sets the filename in the
-	<TT
+	
+<TT
 CLASS="CLASSNAME"
 >QLineEdit</TT
 >, and the <TT
 CLASS="FUNCTION"
 >fileName()</TT
 > function returns the
-	filename from the <TT
+	filename from the 
+<TT
 CLASS="CLASSNAME"
 >QLineEdit</TT
 >. The <TT
@@ -584,11 +618,11 @@ CLASS="FUNCTION"
 	<TT
 CLASS="FUNCTION"
 >mode()</TT
-> functions (not shown) similarly set and return the
+> functions (not shown) are similarly set and return the
 	given mode.
 	</P
 ><P
->&#13;<TABLE
+><TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -630,7 +664,8 @@ CLASS="FUNCTION"
 >chooseFile()</TT
 > is called it presents the user with a file
 	or directory dialog depending on the mode. If the user chooses a
-	file or directory the <TT
+	file or directory the 
+<TT
 CLASS="CLASSNAME"
 >QLineEdit</TT
 > is updated with the
@@ -641,7 +676,7 @@ CLASS="FUNCTION"
 	emitted.
 	</P
 ><P
->&#13;	Although these two files complete the implementation of the
+>	Although these two files complete the implementation of the
 	FileChooser widget it is good practice to write a test harness
 	to check that the widget behaves as expected before attempting
 	to put it into a plugin.
@@ -652,13 +687,16 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN1389"
+NAME="AEN3997"
 >Testing the Implementation</A
 ></H3
 ><P
->&#13;	We present a rudimentary test harness which will allow us
+>	
+
+	We present a rudimentary test harness which will allow us
 	to run our custom widget. The test harness requires two
-	files, a <TT
+	files, a 
+<TT
 CLASS="FILENAME"
 >main.cpp</TT
 > to contain the FileChooser, and a <TT
@@ -668,7 +706,7 @@ CLASS="LITERAL"
 	file to create the Makefile from. Here is
 	<TT
 CLASS="FILENAME"
->eg/filechooser/widget/main.cpp</TT
+>qt/tools/designer/examples/filechooser/widget/main.cpp</TT
 >:
 <TABLE
 BORDER="0"
@@ -697,7 +735,7 @@ CLASS="EMPHASIS"
 >
 	And here is <TT
 CLASS="FILENAME"
->eg/filechooser/widget/filechooser.pro</TT
+>qt/tools/designer/examples/filechooser/widget/filechooser.pro</TT
 >
 <TABLE
 BORDER="0"
@@ -717,7 +755,8 @@ TARGET                = filechooser</PRE
 ></TR
 ></TABLE
 >
-	We can create the makefile using <B
+	We can create the makefile using 
+<B
 CLASS="COMMAND"
 >qmake</B
 >: 
@@ -740,7 +779,13 @@ NAME="CREATING-A-PLUGIN"
 >Creating a Plugin</A
 ></H2
 ><P
->&#13;    A plugin is a software component. Plugins are not specific to <I
+>    
+
+    
+
+    
+
+    A plugin is a software component. Plugins are not specific to <I
 CLASS="EMPHASIS"
 >Qt Designer</I
 >;
@@ -750,7 +795,8 @@ CLASS="EMPHASIS"
 >Qt Designer</I
 > can load any
     plugins that provide an interface which it understands: the
-    <TT
+    
+<TT
 CLASS="CLASSNAME"
 >WidgetInterface</TT
 > is such an interface and the one we'll use
@@ -774,19 +820,23 @@ CELLPADDING="5"
 ><DIV
 CLASS="SIDEBAR"
 ><A
-NAME="AEN1408"
+NAME="AEN4034"
 ></A
 ><P
 ><B
 >Plugin Terminology</B
 ></P
 ><P
->    <P
+>    
+
+    
+
+    <P
 ></P
 ><UL
 ><LI
 ><P
->&#13;    A <I
+>    A <I
 CLASS="EMPHASIS"
 >Plugin</I
 > is a library that is dynamically loaded by
@@ -796,7 +846,7 @@ CLASS="EMPHASIS"
 ></LI
 ><LI
 ><P
->&#13;    An <I
+>    An <I
 CLASS="EMPHASIS"
 >Interface</I
 > is an abstract base class which defines the
@@ -808,12 +858,13 @@ CLASS="EMPHASIS"
 ></LI
 ><LI
 ><P
->&#13;    An <I
+>    An <I
 CLASS="EMPHASIS"
 >Interface Implementation</I
 > is a class that implements an
     interface. For example an interface implementation might implement
-    the <TT
+    the 
+<TT
 CLASS="CLASSNAME"
 >WidgetInterface</TT
 > interface. 
@@ -828,13 +879,15 @@ CLASS="CLASSNAME"
 ></TR
 ></TABLE
 ><P
->&#13;    In our example we wish to make a custom widget available through a
+>    In our example we wish to make a custom widget available through a
     plugin so we must derive the interface implementation from the
-    <TT
+    
+<TT
 CLASS="CLASSNAME"
 >WidgetInterface</TT
 > class. We must implement all the
-    <TT
+    
+<TT
 CLASS="CLASSNAME"
 >WidgetInterface</TT
 >'s pure virtual functions. In most cases the
@@ -842,18 +895,21 @@ CLASS="CLASSNAME"
     example we present. 
     </P
 ><P
->&#13;    Within the context of the <TT
+>    Within the context of the 
+<TT
 CLASS="CLASSNAME"
 >WidgetInterface</TT
 > a <I
 CLASS="EMPHASIS"
 >feature</I
 > is a
-    widget class that a <TT
+    widget class that a 
+<TT
 CLASS="CLASSNAME"
 >WidgetInterface</TT
 > implementation makes
-    available to applications. Because a <TT
+    available to applications. Since a 
+<TT
 CLASS="CLASSNAME"
 >WidgetInterface</TT
 >
@@ -863,11 +919,13 @@ CLASS="CLASSNAME"
     first argument to distinguish which feature we are referring to.
     </P
 ><P
->&#13;    To make your own plugin it is probably easiest to start by copying
-    the <TT
+>    To make your own plugin it is probably easiest to start by copying
+    the 
+<TT
 CLASS="FILENAME"
 >plugin.h</TT
-> and <TT
+> and 
+<TT
 CLASS="FILENAME"
 >plugin.cpp</TT
 > files and changing
@@ -879,7 +937,11 @@ CLASS="FILENAME"
     explain what you need to do.
     </P
 ><P
->&#13;    Note that if two different interface implementations, e.g. from two
+>    
+
+    
+
+    Note that if two different interface implementations, e.g. from two
     different suppliers, use the same class name there will be no
     conflict. This is because every interface (i.e. abstract base
     class) has a unique uuid (<I
@@ -887,13 +949,14 @@ CLASS="EMPHASIS"
 >universal unique identifier</I
 >). When the
     application wants the functionality of a particular interface it
-    calls <TT
+    calls 
+<TT
 CLASS="FUNCTION"
 >queryInterface()</TT
 > passing the uuid of the interface it is
     interested in, for example, <TT
 CLASS="LITERAL"
->IID_WidgetInterface</TT
+>IID_Widget</TT
 >. If the
     implementation provides the requested interface it returns a
     pointer to the interface's implementation. The application never
@@ -905,35 +968,38 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN1437"
->The <TT
+NAME="AEN4094"
+>The 
+<TT
 CLASS="CLASSNAME"
 >WidgetInterface</TT
 > Implementation</A
 ></H3
 ><P
->&#13;	We have called our header file <TT
+>	We have called our header file 
+<TT
 CLASS="FILENAME"
 >plugin.h</TT
 > and we've
-	called our interface class <TT
+	called our interface class 
+<TT
 CLASS="CLASSNAME"
 >CustomWidgetInterface</TT
 > since we
-	will be using our interface class to wrap our custom widgets. We present
-	the entire header file to give you an impression of the
-	scope of the implementation required. Most of the
-	functions require just a few lines of code. 
+	will be using our interface class to wrap our custom widgets. We
+	present the entire header file to give you an impression of the
+	scope of the implementation required. Most of the functions
+	require just a few lines of code. 
 <DIV
 CLASS="EXAMPLE"
 ><A
-NAME="AEN1443"
+NAME="AEN4107"
 ></A
 ><P
 ><B
 >Example 5-1. From <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/filechooser/plugin/plugin.h</TT
+>qt/tools/designer/examples/filechooser/plugin/plugin.h</TT
 ></B
 ></P
 ><TABLE
@@ -945,7 +1011,7 @@ WIDTH="100%"
 ><PRE
 CLASS="PROGRAMLISTING"
 >#include &lt;widgetinterface.h&gt;
-#include &lt;qcleanuphandler.h&gt;
+#include &lt;qobjectcleanuphandler.h&gt;
 
 class CustomWidgetInterface : public WidgetInterface
 {
@@ -1041,11 +1107,8 @@ CLASS="EMPHASIS"
 private:
     <I
 CLASS="EMPHASIS"
->QGuardedCleanupHandler</I
->&lt;<I
-CLASS="EMPHASIS"
->QObject</I
->&gt; objects;
+>QObjectCleanupHandler</I
+> objects;
 
     ulong ref;
 };</PRE
@@ -1056,7 +1119,7 @@ CLASS="EMPHASIS"
 >
 	</P
 ><P
->&#13;	    There are two items of private data, <TT
+>	    There are two items of private data, <TT
 CLASS="LITERAL"
 >objects</TT
 > and
@@ -1093,15 +1156,16 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN1479"
+NAME="AEN4142"
 >The WidgetInterface Functions</A
 ></H3
 ><P
->&#13;	Create your own plugin <TT
+>	Create your own plugin <TT
 CLASS="LITERAL"
 >.cpp</TT
 > file by copying our
-	<TT
+	
+<TT
 CLASS="FILENAME"
 >plugin.cpp</TT
 > file and changing all occurrences of
@@ -1116,7 +1180,7 @@ CLASS="LITERAL"
 	control in your interface implementation.
 	</P
 ><P
->&#13;	    We'll now look at the constructor.
+>	    We'll now look at the constructor.
 <TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
@@ -1139,7 +1203,7 @@ CLASS="PROGRAMLISTING"
 	    implementation.
 	    </P
 ><P
->&#13;	    No destructor is necessary. We defined it in the header
+>	    No destructor is necessary. We defined it in the header
 	    file as follows:
 <TABLE
 BORDER="0"
@@ -1154,26 +1218,29 @@ CLASS="PROGRAMLISTING"
 ></TR
 ></TABLE
 >
-	    If you copied our <TT
+	    If you copied our 
+<TT
 CLASS="FILENAME"
 >plugin.h</TT
 >, and renamed the widget
 	    interface implementation's class name throughout, your
-	    destructor is done.
+	    destructor is finished.
 	    </P
 ><P
->&#13;	    The <TT
+>	    The 
+<TT
 CLASS="FUNCTION"
 >queryInterface()</TT
-> is the most complicated function: but it can simply be
-	    copied into your own widget interface implementation.
-	    Change the class name to whatever class you've called your
-	    widget interface implementation. (It isn't implemented for
-	    us in the <TT
+> is the most complicated function:
+	    but it can simply be copied into your own widget interface
+	    implementation. Change the class name to whatever class
+	    you've called your widget interface implementation. (It
+	    isn't implemented for us in the 
+<TT
 CLASS="CLASSNAME"
 >WidgetInterface</TT
-> class because some types
-	    of plugin need to specialise it.)
+>
+	    class because some types of plugin need to specialise it.)
 <TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
@@ -1213,7 +1280,14 @@ CLASS="EMPHASIS"
 ></TR
 ></TABLE
 >
-	    The <TT
+	    
+
+	    
+
+	    
+
+	    The 
+<TT
 CLASS="FUNCTION"
 >queryInterface()</TT
 > function is called by programs that
@@ -1233,7 +1307,8 @@ CLASS="LITERAL"
 >uuid</TT
 >. The function also takes a pointer to a
 	    pointer to an
-	    <TT
+	    
+<TT
 CLASS="CLASSNAME"
 >QUnknownInterface</TT
 > object, <TT
@@ -1253,28 +1328,31 @@ CELLPADDING="5"
 ><DIV
 CLASS="SIDEBAR"
 ><A
-NAME="AEN1505"
+NAME="AEN4191"
 ></A
 ><P
 ><B
->Why we need <TT
+>Why we need 
+<TT
 CLASS="FUNCTION"
 >addRef()</TT
-> and <TT
+> and 
+<TT
 CLASS="FUNCTION"
 >release()</TT
 ></B
 ></P
 ><P
->&#13;	    Plugins are different from most other Qt classes with
-	    regards memory management. In Qt programming we often pass
+>	    Plugins are different from most other Qt classes with
+	    regards to memory management. In Qt programming we often pass
 	    on responsibility for memory management to the containing
 	    widgets and ultimately to <TT
 CLASS="LITERAL"
 >QApplication</TT
 > itself by
 	    parenting our widgets. Plugins are different because they
-	    wrap interfaces which are not <TT
+	    wrap interfaces which are not 
+<TT
 CLASS="CLASSNAME"
 >QObject</TT
 >s, so we cannot
@@ -1285,7 +1363,8 @@ CLASS="CLASSNAME"
 CLASS="EMPHASIS"
 >you</I
 > must
-	    call <TT
+	    call 
+<TT
 CLASS="FUNCTION"
 >release()</TT
 >. The reference counting prevents the
@@ -1294,15 +1373,17 @@ CLASS="FUNCTION"
 	    automatically unloaded.
 	    </P
 ><P
->&#13;	    Since we are writing a widget interface implementation for
+>	    Since we are writing a widget interface implementation for
 	    <I
 CLASS="EMPHASIS"
 >Qt Designer</I
->, all we need to do is provide the <TT
+>, all we need to do is provide the 
+<TT
 CLASS="FUNCTION"
 >addRef()</TT
 > and
-	    <TT
+	    
+<TT
 CLASS="FUNCTION"
 >release()</TT
 > functions. <I
@@ -1313,12 +1394,17 @@ CLASS="EMPHASIS"
 	    appropriate.
 	    </P
 ><P
->	    You don't have to implement these functions yourself. Just
+>	    
+
+	    
+
+	    You don't have to implement these functions yourself. Just
 	    add the <TT
 CLASS="LITERAL"
 >Q_REFCOUNT</TT
 > macro to your
-	    <TT
+	    
+<TT
 CLASS="FILENAME"
 >.h</TT
 > file and they will be
@@ -1329,7 +1415,12 @@ CLASS="FILENAME"
 ></TR
 ></TABLE
 ><P
->&#13;	    The <TT
+>	    
+
+	    
+
+	    The 
+<TT
 CLASS="FUNCTION"
 >Q_EXPORT_INTERFACE</TT
 > Macro
@@ -1355,7 +1446,7 @@ CLASS="PROGRAMLISTING"
 	    available.
 	    </P
 ><P
->&#13;	    This macro must appear <I
+>	    This macro must appear <I
 CLASS="EMPHASIS"
 >once</I
 > in your plugin. It should be
@@ -1369,7 +1460,7 @@ TARGET="_top"
 	    point.)
 	    </P
 ><P
->&#13;	    Each widget you wrap in a widget interface implementation
+>	    Each widget you wrap in a widget interface implementation
 	    becomes a feature that the interface implementation offers.
 	    There is no limit to the number of features that you may
 	    include in an interface implementation.
@@ -1403,7 +1494,8 @@ CLASS="EMPHASIS"
 	    example we add a single feature, 'FileChooser'.
 	    </P
 ><P
->&#13;	    The <TT
+>	    The 
+<TT
 CLASS="FUNCTION"
 >create()</TT
 > function.
@@ -1461,7 +1553,8 @@ TARGET="_top"
 > for more information on cleanup handling.)
 	    </P
 ><P
->&#13;	    The <TT
+>	    The 
+<TT
 CLASS="FUNCTION"
 >includeFile()</TT
 > function.
@@ -1497,20 +1590,25 @@ CLASS="EMPHASIS"
 	    feature name and filename to suit your own custom widget.
 	    </P
 ><P
->&#13;	    The <TT
+>	    The 
+<TT
 CLASS="FUNCTION"
 >group()</TT
->, <TT
+>, 
+<TT
 CLASS="FUNCTION"
 >iconSet()</TT
->, <TT
+>, 
+<TT
 CLASS="FUNCTION"
 >iconset()</TT
 >,
-	    <TT
+	    
+<TT
 CLASS="FUNCTION"
 >toolTip()</TT
-> and <TT
+> and 
+<TT
 CLASS="FUNCTION"
 >whatsThis()</TT
 > functions.
@@ -1541,7 +1639,8 @@ CLASS="EMPHASIS"
 ></TR
 ></TABLE
 >
-	    We use the <TT
+	    We use the 
+<TT
 CLASS="FUNCTION"
 >group()</TT
 > function to identify which <I
@@ -1553,30 +1652,34 @@ CLASS="EMPHASIS"
 CLASS="EMPHASIS"
 >Qt Designer</I
 > will create a new toolbar
-	    group with the given name. Copy this function changing the
+	    group with the given name. Copy this function, changing the
 	    class name, feature name and group name to suit your own
 	    widget interface implementation.
 	    </P
 ><P
->&#13;	    The <TT
+>	    The 
+<TT
 CLASS="FUNCTION"
 >iconSet()</TT
 > function returns the pixmap to
 	    use in the toolbar to represent the custom widget. The
-	    <TT
+	    
+<TT
 CLASS="FUNCTION"
 >toolTip()</TT
 > function returns the tooltip text and the
-	    <TT
+	    
+<TT
 CLASS="FUNCTION"
 >whatsThis()</TT
-> function returns the whats this text. Copy
+> function returns the Whats This text. Copy
 	    each of these functions changing the class name, feature
 	    name and the string you return to suit your own widget
 	    interface implementation.
 	    </P
 ><P
->&#13;	    The <TT
+>	    The 
+<TT
 CLASS="FUNCTION"
 >isContainer()</TT
 > function.
@@ -1603,16 +1706,18 @@ CLASS="EMPHASIS"
 	    widget interface implementation. It should return <TT
 CLASS="LITERAL"
 >TRUE</TT
-> if your custom widget can
-	    contain other widgets, e.g. like <TT
+>
+	    if your custom widget can contain other widgets, e.g. like
+	    
+<TT
 CLASS="CLASSNAME"
 >QFrame</TT
->, or
-	    <TT
+>, or <TT
 CLASS="LITERAL"
 >FALSE</TT
-> if it should not contain other widgets, e.g. like
-	    <TT
+> if it must not contain other
+	    widgets, e.g. like 
+<TT
 CLASS="CLASSNAME"
 >QPushButton</TT
 >.
@@ -1623,11 +1728,11 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN1573"
+NAME="AEN4334"
 >The Project File</A
 ></H3
 ><P
->&#13;	The project file for a plugin is somewhat different from an
+>	The project file for a plugin is somewhat different from an
 	application's project file but in most cases you can use our
 	project file changing only the <TT
 CLASS="LITERAL"
@@ -1640,13 +1745,13 @@ CLASS="LITERAL"
 <DIV
 CLASS="EXAMPLE"
 ><A
-NAME="AEN1578"
+NAME="AEN4339"
 ></A
 ><P
 ><B
 >Example 5-2. <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/filechooser/plugin/plugin.pro</TT
+>qt/tools/designer/examples/filechooser/plugin/plugin.pro</TT
 ></B
 ></P
 ><TABLE
@@ -1686,7 +1791,8 @@ CLASS="LITERAL"
 CLASS="LITERAL"
 >SOURCES</TT
 > line. If you create a Makefile with
-	<B
+	
+<B
 CLASS="COMMAND"
 >qmake</B
 > and make the project the plugin will be created and

@@ -9,10 +9,10 @@ REL="HOME"
 HREF="book1.html"><LINK
 REL="UP"
 TITLE="Subclassing and Dynamic Dialogs"
-HREF="c812.html"><LINK
+HREF="c2721.html"><LINK
 REL="PREVIOUS"
 TITLE="Subclassing and Dynamic Dialogs"
-HREF="c812.html"><LINK
+HREF="c2721.html"><LINK
 REL="NEXT"
 TITLE="Creating Custom Widgets"
 HREF="creating-custom-widgets-with-plugins.html"></HEAD
@@ -37,7 +37,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="c812.html"
+HREF="c2721.html"
 >Prev</A
 ></TD
 ><TD
@@ -67,18 +67,26 @@ NAME="CREATINGDYNAMICDIALOGSFROMUIFILES"
 >Creating Dynamic Dialogs from .ui Files</A
 ></H1
 ><P
->Qt programs are capable of
+>&#13;
+
+
+
+
+Qt programs are capable of
 loading <I
 CLASS="EMPHASIS"
 >Qt Designer</I
-> <TT
+> 
+<TT
 CLASS="FILENAME"
 >.ui</TT
 > files and instantiating the forms
-represented by the <TT
+represented by the 
+<TT
 CLASS="FILENAME"
 >.ui</TT
 > files. Since the
+
 <TT
 CLASS="FILENAME"
 >.ui</TT
@@ -91,7 +99,8 @@ class that can be used to implement the dynamic dialog's custom slots.</P
 as our example form. We will start by simply instantiating and running
 the form and then we'll cover how to implement custom slots. </P
 ><P
->We'll create a <TT
+>We'll create a 
+<TT
 CLASS="FILENAME"
 >main.cpp</TT
 > file to use as a test
@@ -108,7 +117,7 @@ NAME="CREATINGTHEPROJECTFILE"
 >The project file
 <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/receiver1/receiver.pro</TT
+>qt/tools/designer/examples/receiver1/receiver.pro</TT
 > looks like
 this:
 <TABLE
@@ -120,13 +129,16 @@ WIDTH="100%"
 ><PRE
 CLASS="PROGRAMLISTING"
 >TEMPLATE    = app
-CONFIG      = qt warn_on release
+CONFIG     += qt warn_on release
 TARGET      = receiver
 SOURCES    += main.cpp
-unix:LIBS  += -lqresource
-win32:LIBS += $(QTDIR)/lib/qresource.lib
+unix:LIBS  += -lqui
+win32:LIBS += $(QTDIR)/lib/qui.lib
 INTERFACES  = mainform.ui 
-PROJECTNAME = receiver</PRE
+IMAGEFILE   = images.cpp
+PROJECTNAME = receiver
+LANGUAGE    = C++
+INCLUDEPATH += $(QTDIR)/tools/designer/uilib</PRE
 ></TD
 ></TR
 ></TABLE
@@ -141,7 +153,7 @@ CLASS="FILENAME"
 > file since this file will be read
 at runtime, as we'll see shortly. We must include the
 <TT
-CLASS="FILENAME"
+CLASS="FUNCTION"
 >qresource</TT
 > library since the functionality we
 require is not part of the standard Qt library.</P
@@ -155,7 +167,8 @@ NAME="CREATINGMAINCPP"
 >Creating main.cpp</A
 ></H2
 ><P
->The <TT
+>The 
+<TT
 CLASS="FILENAME"
 >main.cpp</TT
 > is quite standard. It will invoke the
@@ -195,7 +208,7 @@ CLASS="EMPHASIS"
 We create a new instance of our MainForm class, set it to be the main
 widget, show it and enter the event loop in the
 <TT
-CLASS="FUNCTION"
+CLASS="FILENAME"
 >app.exec()</TT
 > call.</P
 ></DIV
@@ -222,50 +235,63 @@ NAME="DESIGNINGTHEFORM"
 TYPE="1"
 ><LI
 ><P
->	Open the <TT
+>	Open the 
+<TT
 CLASS="FILENAME"
 >receiver.pro</TT
 > project file in <I
 CLASS="EMPHASIS"
 >Qt Designer</I
->. We'll
-	create a dialog as our main window which we'll use to invoke the dynamic
-	dialog. Press <B
+>. We'll create a
+	dialog as our main window which we'll use to invoke the dynamic
+	dialog. Press 
+<B
 CLASS="KEYCAP"
 >Ctrl+N</B
-> to launch the New Form dialog and
+> to launch the 
+New Form dialog and
 	click <SPAN
 CLASS="GUIBUTTON"
 >OK</SPAN
-> to get the default which is a dialog. Change the dialog's name
-	to 'MainForm' and its caption to 'Main Form'. Add two buttons, one
-	called 'creditPushButton' with the text '&amp;Credit Dialog', and the
-	other called 'quitPushButton' with the text '&amp;Quit'. (For each
-	button click the <SPAN
+> to get the default which is a dialog. Change the
+	dialog's name to 'MainForm' and its caption to 'Main Form'. Add
+	two buttons, one called 'creditPushButton' with the text
+	'&amp;Credit Dialog', and the other called 'quitPushButton' with
+	the text '&amp;Quit'. (For each button click the
+	
+
+<SPAN
 CLASS="GUIBUTTON"
 >Push Button</SPAN
-> toolbar button, then
-	click the form. Change the properties in the property window to those
-	we've just described.)
+> toolbar button, then click the form.
+	Change the properties in the property window to those we've just
+	described.)
 	</P
 ></LI
 ><LI
 ><P
->	We will now add a couple of labels so that we can show the settings the
-	user chose in the dynamic dialog. Click the <SPAN
+>	We will now add a couple of labels so that we can show the
+	settings the user chose in the dynamic dialog. Click the
+	
+
+<SPAN
 CLASS="GUIBUTTON"
->Text
-	Label</SPAN
-> toolbar button, then click the form below the Credit
-	Dialog button. Change the label's text to 'Credit Rating'. Add another
-	text label below the Quit button. Change its name to 'ratingTextLabel'
-	and its text to 'Unrated'. 
+>Text Label</SPAN
+> toolbar button, then click the
+	form below the Credit Dialog button. Change the label's 
+text to
+	'Credit Rating'. Add another text label below the Quit button.
+	Change its 
+name to 'ratingTextLabel' and its 
+text
+	to 'Unrated'. 
 	</P
 ></LI
 ><LI
 ><P
 >	We'll now lay out the widgets. Click the form then press
-	<B
+	
+<B
 CLASS="KEYCAP"
 >Ctrl+G</B
 > (lay out in a grid).
@@ -273,20 +299,25 @@ CLASS="KEYCAP"
 ></LI
 ><LI
 ><P
->	We'll now handle the signals and slots connections. Press
-	<B
+>	
+
+	We'll now handle the signals and slots connections. Press
+	
+<B
 CLASS="KEYCAP"
 >F3</B
 > (connect signals/slots). Click the Credit Dialog
 	button, drag to the form and release. Click the
-	<TT
+	
+<TT
 CLASS="FUNCTION"
 >clicked()</TT
 > signal. We'll need to implement a custom
 	slot. Click <SPAN
 CLASS="GUIBUTTON"
 >Edit Slots</SPAN
-> to invoke the Edit Slots
+> to invoke the 
+Edit Slots
 	dialog. Click <SPAN
 CLASS="GUIBUTTON"
 >New Slot</SPAN
@@ -303,23 +334,28 @@ CLASS="FUNCTION"
 CLASS="GUIBUTTON"
 >OK</SPAN
 >. Connect the Quit button's
-	<TT
+	
+<TT
 CLASS="FUNCTION"
 >clicked()</TT
 > signal to the
-	dialog's <TT
+	dialog's 
+<TT
 CLASS="FUNCTION"
 >accept()</TT
 > function. (Press
-	<B
+	
+<B
 CLASS="KEYCAP"
 >F3</B
 >. Click the Quit button and drag to the form;
-	release. Click the <TT
+	release. Click the 
+<TT
 CLASS="FUNCTION"
 >clicked()</TT
 > signal and the
-	<TT
+	
+<TT
 CLASS="FUNCTION"
 >accept()</TT
 > slot, then click <SPAN
@@ -335,6 +371,7 @@ CLASS="GUIBUTTON"
 CLASS="FILENAME"
 >mainform.ui</TT
 >. (Press
+
 <B
 CLASS="KEYCAP"
 >Ctrl+S</B
@@ -354,7 +391,16 @@ NAME="LOADINGANDEXECUTINGADYNAMICDIALOG"
 >Loading and Executing a Dynamic Dialog</A
 ></H3
 ><P
->We'll now add the code to invoke the credit dialog. Before we can do
+>&#13;
+
+
+
+
+
+
+
+
+We'll now add the code to invoke the credit dialog. Before we can do
 this we need to add the widget factory's header file to the form. Click
 the Source tab in the Object Hierarchy. Right click Included (in
 Implementation), then click <SPAN
@@ -365,9 +411,10 @@ CLASS="GUIBUTTON"
 CLASS="LITERAL"
 >&lt;qwidgetfactory.h&gt;</TT
 >', then press
+
 <B
 CLASS="KEYCAP"
->Return</B
+>Enter</B
 >. Because we will need to access the spin box in
 the dynamic dialog we must add its header file. Right click Included
 (in Implmentation), then click New. Type in
@@ -375,9 +422,10 @@ the dynamic dialog we must add its header file. Right click Included
 CLASS="LITERAL"
 >&lt;qspinbox.h&gt;</TT
 >', then press
+
 <B
 CLASS="KEYCAP"
->Return</B
+>Enter</B
 >. </P
 ><P
 >In our main form we created a slot called
@@ -391,7 +439,7 @@ CLASS="EMPHASIS"
 > and use it to load and execute the dynamic dialog. The
 code is taken from <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/receiver1/mainform.cpp</TT
+>qt/tools/designer/examples/receiver1/mainform.cpp</TT
 > which is generated from <TT
 CLASS="FILENAME"
 >mainform.ui</TT
@@ -404,7 +452,7 @@ WIDTH="100%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void MainForm::creditDialog()
+>void creditDialog()
 {
     <I
 CLASS="EMPHASIS"
@@ -446,26 +494,32 @@ CLASS="EMPHASIS"
 ></TR
 ></TABLE
 >
-The <TT
+The 
+<TT
 CLASS="FUNCTION"
 >create()</TT
 > function is a static
+
 <TT
 CLASS="CLASSNAME"
 >QWidgetFactory</TT
 > function. It loads the specified
+
 <TT
 CLASS="FILENAME"
 >.ui</TT
 > file and returns a pointer to the toplevel
+
 <TT
 CLASS="CLASSNAME"
 >QWidget</TT
-> created from the <TT
+> created from the 
+<TT
 CLASS="FILENAME"
 >.ui</TT
 >
-file. We have cast the pointer to <TT
+file. We have cast the pointer to 
+<TT
 CLASS="CLASSNAME"
 >QDialog</TT
 > since
@@ -473,10 +527,12 @@ we know that the <TT
 CLASS="FILENAME"
 >creditformbase.ui</TT
 > file defines a
+
 <TT
 CLASS="CLASSNAME"
 >QDialog</TT
 >. After creating the dialog we
+
 <TT
 CLASS="FUNCTION"
 >exec()</TT
@@ -490,16 +546,19 @@ CLASS="LITERAL"
 >if</TT
 > statement. We want to know the amount
 of credit that the user selected. We call the
+
 <TT
 CLASS="FUNCTION"
 >child()</TT
 > function on the dialog passing it the name
-of the widget we're interested in. The <TT
+of the widget we're interested in. The 
+<TT
 CLASS="FUNCTION"
 >child()</TT
 >
 function returns a pointer to the widget with the name we passed, or
 returns 0 if no widget of that name was found. In the example we call
+
 <TT
 CLASS="FUNCTION"
 >child()</TT
@@ -509,13 +568,15 @@ the dialog's spin box. At the end we delete the dynamic dialog. Deleting
 the dialog ensures that we free up its resources as soon as it is no
 longer required.</P
 ><P
->We used the <TT
+>We used the 
+<TT
 CLASS="FUNCTION"
 >child()</TT
 > to gain access to a widget
 within the dynamic dialog, passing it the name of the widget we were
 interested in. In some situations we might not know what a widget is
 called. We can access the first widget of a specified class by calling
+
 <TT
 CLASS="FUNCTION"
 >child()</TT
@@ -524,16 +585,19 @@ e.g. <TT
 CLASS="LITERAL"
 >child(0,"QPushButton")</TT
 >. This will return a
-pointer to the first <TT
+pointer to the first 
+<TT
 CLASS="CLASSNAME"
 >QPushButton</TT
 > it finds (or 0
 if there isn't one). If you want pointers to all the widgets of a given
-class you can call the <TT
+class you can call the 
+<TT
 CLASS="FUNCTION"
 >QObject::queryList()</TT
 >
 function, passing it the name of the class. It returns a
+
 <TT
 CLASS="CLASSNAME"
 >QObjectList</TT
@@ -555,18 +619,23 @@ NAME="IMPLEMENTINGSLOTSFORDYNAMICDIALOGS"
 >Implementing Slots for Dynamic Dialogs</A
 ></H3
 ><P
->There is one outstanding issue that we haven't addressed: the dynamic
+>&#13;
+
+
+There is one outstanding issue that we haven't addressed: the dynamic
 dialog does not have the behaviour of the original credit dialog because
 we have not implemented the <TT
 CLASS="FUNCTION"
 >setAmount()</TT
 > slot. We
 can implement slots for dynamic dialogs by creating a
+
 <TT
 CLASS="CLASSNAME"
 >QObject</TT
 > subclass. We then create an instance of
 this subclass and pass a pointer to it to the
+
 <TT
 CLASS="FUNCTION"
 >QWidgetFactory::create()</TT
@@ -574,7 +643,8 @@ CLASS="FUNCTION"
 function which will connect the dynamic dialog's signals to the slots
 implemented in our subclass.</P
 ><P
->We need to create a <TT
+>We need to create a 
+<TT
 CLASS="CLASSNAME"
 >QObject</TT
 > subclass and
@@ -583,6 +653,7 @@ CLASS="FUNCTION"
 >creditDialog()</TT
 > to create an instance of
 our subclass that can be passed to the
+
 <TT
 CLASS="FUNCTION"
 >QWidgetFactory::create()</TT
@@ -594,7 +665,7 @@ CLASS="FUNCTION"
 function from the
 <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/receiver2/mainform.cpp</TT
+>qt/tools/designer/examples/receiver2/mainform.cpp</TT
 > file
 generated by <TT
 CLASS="FILENAME"
@@ -608,7 +679,7 @@ WIDTH="100%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void MainForm::creditDialog()
+>void creditDialog()
 {
     Receiver *receiver = new Receiver; 
     <I
@@ -657,15 +728,18 @@ CLASS="EMPHASIS"
 >
 We create a new instance of our 'Receiver' subclass. (We'll write the
 code for this class shortly.) We then create the
+
 <TT
 CLASS="CLASSNAME"
 >QDialog</TT
 > using
+
 <TT
 CLASS="FUNCTION"
->QWidgetFactory::create</TT
+>QWidgetFactory::create()</TT
 >. This call differs from our
 previous example because we pass in the subclass object so that the
+
 <TT
 CLASS="FUNCTION"
 >create()</TT
@@ -679,11 +753,12 @@ CLASS="FUNCTION"
 the function is the same as before except that we delete our receiver
 object.</P
 ><P
->We'll now look at the implementation of our 'Receiver' subclass. The code
+>&#13;
+We'll now look at the implementation of our 'Receiver' subclass. The code
 is taken from
 <TT
 CLASS="FILENAME"
->qt/tools/designer/eg/receiver2/receiver.h</TT
+>qt/tools/designer/examples/receiver2/receiver.h</TT
 > and the
 corresponding <TT
 CLASS="FILENAME"
@@ -724,7 +799,12 @@ CLASS="EMPHASIS"
 ></TR
 ></TABLE
 >
-Our class must be a <TT
+
+
+
+
+Our class must be a 
+<TT
 CLASS="CLASSNAME"
 >QObject</TT
 > subclass and because
@@ -737,12 +817,13 @@ CLASS="LITERAL"
 CLASS="FUNCTION"
 >setAmount()</TT
 > slot that we wish to implement as well
-as a private <TT
+as a private 
+<TT
 CLASS="CLASSNAME"
 >QDialog</TT
 > pointer.</P
 ><P
->We'll look at the implementation of each function separately.
+>We'll discuss the implementation of each function separately.
 <TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
@@ -751,13 +832,48 @@ WIDTH="100%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void Receiver::setParent( <I
+>void creditDialog()
+{
+    Receiver *receiver = new Receiver; 
+    <I
 CLASS="EMPHASIS"
 >QDialog</I
-> *parent )
-{
-    p = parent;
-    setAmount();
+> *creditForm = (<I
+CLASS="EMPHASIS"
+>QDialog</I
+> *) 
+    <I
+CLASS="EMPHASIS"
+>QWidgetFactory::create</I
+>( &quot;../credit/creditformbase.ui&quot;, receiver );   
+    receiver-&gt;setParent( creditForm );   
+
+   <I
+CLASS="EMPHASIS"
+> // Set up the dynamic dialog here </I
+>
+     
+    if ( creditForm-&gt;exec() ) { 
+       <I
+CLASS="EMPHASIS"
+> // The user accepted, act accordingly </I
+>
+        <I
+CLASS="EMPHASIS"
+>QSpinBox</I
+> *amount = (<I
+CLASS="EMPHASIS"
+>QSpinBox</I
+> *) creditForm-&gt;child( &quot;amountSpinBox&quot;, &quot;<I
+CLASS="EMPHASIS"
+>QSpinBox</I
+>&quot; ); 
+        if ( amount ) 
+            ratingTextLabel-&gt;setText( amount-&gt;text() );  
+    } 
+    
+    delete receiver; 
+    delete creditForm; 
 }</PRE
 ></TD
 ></TR
@@ -769,15 +885,18 @@ CLASS="FUNCTION"
 > function assigns a pointer to the
 dynamic dialog to our private pointer. We could not do this in a
 constructor call because we have to construct our Receiver object before
-we call <TT
+we call 
+<TT
 CLASS="FUNCTION"
 >QWidgetFactory::create()</TT
 >, since we must
-pass the Receiver object to the <TT
+pass the Receiver object to the 
+<TT
 CLASS="FUNCTION"
 >create()</TT
 > function.
-Once we've called <TT
+Once we've called 
+<TT
 CLASS="FUNCTION"
 >create()</TT
 > we then have a pointer
@@ -805,63 +924,9 @@ CLASS="FUNCTION"
 >setParent()</TT
 > function. </P
 ><P
-><TABLE
-BORDER="0"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><PRE
-CLASS="PROGRAMLISTING"
->void Receiver::setAmount() 
-{
-    <I
-CLASS="EMPHASIS"
->QSpinBox</I
-> *amount = 
-        (<I
-CLASS="EMPHASIS"
->QSpinBox</I
-> *) p-&gt;child( &quot;amountSpinBox&quot;, &quot;<I
-CLASS="EMPHASIS"
->QSpinBox</I
->&quot; );
-
-    <I
-CLASS="EMPHASIS"
->QRadioButton</I
-> *radio = 
-        (<I
-CLASS="EMPHASIS"
->QRadioButton</I
-> *) p-&gt;child( &quot;stdRadioButton&quot;, &quot;<I
-CLASS="EMPHASIS"
->QRadioButton</I
->&quot; );
-    if ( radio &amp;&amp; radio-&gt;isChecked() ) {
-        if ( amount )
-            amount-&gt;setValue( amount-&gt;maxValue() / 2 );
-        return;
-    }
-
-    radio = 
-        (<I
-CLASS="EMPHASIS"
->QRadioButton</I
-> *) p-&gt;child( &quot;noneRadioButton&quot;, &quot;<I
-CLASS="EMPHASIS"
->QRadioButton</I
->&quot; );
-    if ( radio &amp;&amp; radio-&gt;isChecked() )
-        if ( amount )
-            amount-&gt;setValue( amount-&gt;minValue() );
-}</PRE
-></TD
-></TR
-></TABLE
->
-Since we may be updating the amount spin box we need to get a pointer to
-it. We call <TT
+>Since we may be updating the amount spin box we need to get a pointer to
+it. We call 
+<TT
 CLASS="FUNCTION"
 >child()</TT
 > on the pointer
@@ -874,11 +939,13 @@ CLASS="FUNCTION"
 >setParent()</TT
 > call. We cast the resulting pointer to
 the correct type so that we can call any functions relevant to that
-type. In the example we call <TT
+type. In the example we call 
+<TT
 CLASS="FUNCTION"
 >child()</TT
 > to get a
 pointer to the amount spin box, and then call
+
 <TT
 CLASS="FUNCTION"
 >child()</TT
@@ -886,10 +953,7 @@ CLASS="FUNCTION"
 'stdRadioButton'. If we get a pointer to the radio button and the  
 button is checked we set the amount providing we have a pointer to the
 amount spin box. If this radio button was checked we're finished so we
-<TT
-CLASS="FUNCTION"
->return</TT
->. If the 'stdRadioButton' isn't checked we
+return. If the 'stdRadioButton' isn't checked we
 get a pointer to the 'noneRadioButton' and set the amount if this button
 is checked. We do nothing if the 'specialRadioButton' is checked because
 the user is free to enter a value of their choice. </P
@@ -909,11 +973,18 @@ NAME="COMPLINGVSDYNAMICALLYLOADINGDIALOGS"
 >Compiling vs Dynamically Loading Dialogs</B
 ></P
 ><P
->The differences between using a 'compiled in' <TT
+>&#13;
+
+
+
+
+The differences between using a 'compiled in' 
+<TT
 CLASS="FILENAME"
 >.ui</TT
 >
-file and a dynamically loaded <TT
+file and a dynamically loaded 
+<TT
 CLASS="FILENAME"
 >.ui</TT
 > file are these:
@@ -922,31 +993,37 @@ CLASS="FILENAME"
 ><UL
 ><LI
 ><P
->Dynamic dialogs cannot have any C++ code in the <TT
+>Dynamic dialogs cannot have any C++ code in the 
+<TT
 CLASS="FILENAME"
 >.ui</TT
 >
 file; any custom slots must be implemented via a
+
 <TT
 CLASS="CLASSNAME"
 >QObject</TT
 > subclass. Compiled dialogs can contain
-code either in the <TT
+code either in the 
+<TT
 CLASS="FILENAME"
 >.ui</TT
 > file or in a subclass.</P
 ></LI
 ><LI
 ><P
->Dynamic dialogs will load slower because the <TT
+>Dynamic dialogs will load slower because the 
+<TT
 CLASS="FILENAME"
 >.ui</TT
 >
-file must be read and a <TT
+file must be read and a 
+<TT
 CLASS="CLASSNAME"
 >QWidget</TT
 > instance
-instantiated based on the <TT
+instantiated based on the 
+<TT
 CLASS="FILENAME"
 >.ui</TT
 > file's parse tree.
@@ -956,14 +1033,16 @@ since the difference may be mere fractions of a second.</P
 ></LI
 ><LI
 ><P
->Dynamic dialogs allow you to change the <TT
+>Dynamic dialogs allow you to change the 
+<TT
 CLASS="FILENAME"
 >.ui</TT
 > file
 independently of the code so long as none of the changes impact the
 code. This means that you can change the appearance of the form, e.g.
 move widgets and lay them out differently. If you want to change a
-compiled dialog you must change the <TT
+compiled dialog you must change the 
+<TT
 CLASS="FILENAME"
 >.ui</TT
 > file and
@@ -998,7 +1077,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="c812.html"
+HREF="c2721.html"
 >Prev</A
 ></TD
 ><TD
@@ -1029,7 +1108,7 @@ WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="c812.html"
+HREF="c2721.html"
 >Up</A
 ></TD
 ><TD
