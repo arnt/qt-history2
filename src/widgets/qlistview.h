@@ -173,6 +173,7 @@ public:
     bool isEnabled() const;
 
     virtual int rtti() const;
+    // ### Qt 4: make const or better use an enum
     static int RTTI;
 
     virtual void setMultiLinesEnabled( bool b );
