@@ -5449,18 +5449,10 @@ void QTextEdit::sync()
 void QTextEdit::setEnabled( bool b )
 {
     QScrollView::setEnabled( b );
-    if ( !b ) {
-	blinkTimer->stop();
-	drawCursor( FALSE );
-    }
     if ( textFormat() == PlainText ) {
 	QTextFormat *f = doc->formatCollection()->defaultFormat();
 	f->setColor( colorGroup().text() );
 	updateContents();
-    }
-    if ( b ) {
-	blinkTimer->start( QApplication::cursorFlashTime() / 2 );
-	drawCursor( TRUE );
     }
 }
 
