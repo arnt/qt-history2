@@ -1551,8 +1551,8 @@ void QListViewItem::setup()
 
 
 /*!
-    This virtual function is called whenever the user clicks on this
-    item or presses Space on it.
+    This virtual function is called whenever the user presses the mouse 
+    on this item or presses Space on it.
 
     \sa activatedPos()
 */
