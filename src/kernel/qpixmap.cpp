@@ -48,6 +48,7 @@
 #include <private/qinternal_p.h>
 #include "qmime.h"
 #include "qdragobject.h"
+#include "qfile.h"
 
 /*!
     \class QPixmap qpixmap.h
@@ -390,6 +391,8 @@ QPixmap QPixmap::fromMimeSource( const QString &abs_name )
 {
     const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( abs_name );
     if ( !m ) {
+	if ( QFile::exists( abs_name ) )
+	    return QPixmap( abs_name );
 #if defined(QT_CHECK_STATE)
 	qWarning("QPixmap::fromMimeSource: Cannot find pixmap \"%s\" in the mime source factory", abs_name.latin1() );
 #endif
@@ -895,7 +898,7 @@ bool QPixmap::convertFromImage( const QImage &image, ColorMode mode )
 	*this = QPixmap();
 	return TRUE;
     }
-	
+
     int conversion_flags = 0;
     switch (mode) {
       case Color:
