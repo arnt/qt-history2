@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#43 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#43 $");
 
 
 /*****************************************************************************
@@ -74,6 +74,7 @@ const QCursor sizeHorCursor;
 const QCursor sizeBDiagCursor;
 const QCursor sizeFDiagCursor;
 const QCursor sizeAllCursor;
+const QCursor blankCursor;
 
 
 /*****************************************************************************
@@ -91,12 +92,13 @@ static QCursor *cursorTable[] = {		// the order is important!!
     (QCursor*)&sizeBDiagCursor,
     (QCursor*)&sizeFDiagCursor,
     (QCursor*)&sizeAllCursor,
+    (QCursor*)&blankCursor,
     0
 };
 
 static QCursor *find_cur( int shape )		// find predefined cursor
 {
-    return (uint)shape <= SizeAllCursor ? cursorTable[shape] : 0;
+    return (uint)shape <= LastCursor ? cursorTable[shape] : 0;
 }
 
 
@@ -410,10 +412,15 @@ void QCursor::update() const
 	0x00, 0x00, 0x00, 0x00, 0xfc, 0x07, 0xfc, 0x03, 0xfc, 0x01, 0xfc, 0x00,
 	0xfc, 0x41, 0xfc, 0x63, 0xdc, 0x77, 0x8c, 0x7f, 0x04, 0x7f, 0x00, 0x7e,
 	0x00, 0x7f, 0x80, 0x7f, 0xc0, 0x7f, 0x00, 0x00 };
+    static uchar cur_blank_bits[] = {
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
     static uchar *cursor_bits[] = {
 	cur_ver_bits, mcur_ver_bits, cur_hor_bits, mcur_hor_bits,
-	cur_bdiag_bits, mcur_bdiag_bits, cur_fdiag_bits, mcur_fdiag_bits };
+	cur_bdiag_bits, mcur_bdiag_bits, cur_fdiag_bits, mcur_fdiag_bits,
+	0, 0, cur_blank_bits, cur_blank_bits };
 
     Display *dpy = qt_xdisplay();
     if ( d->cshape == BitmapCursor ) {
@@ -424,7 +431,8 @@ void QCursor::update() const
 					&fg, &bg, d->hx, d->hy );
 	return;
     }
-    if ( d->cshape >= SizeVerCursor && d->cshape < SizeAllCursor ) {
+    if ( d->cshape >= SizeVerCursor && d->cshape < SizeAllCursor || 
+	 d->cshape == BlankCursor ) {
 	XColor bg, fg;				// ignore stupid CFront message
 	bg.red = bg.green = bg.blue = 255 << 8;
 	fg.red = fg.green = fg.blue = 0;

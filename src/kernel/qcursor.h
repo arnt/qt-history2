@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#22 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#23 $
 **
 ** Definition of QCursor class
 **
@@ -65,7 +65,7 @@ inline void QCursor::setPos( const QPoint &p )
 enum QCursorShape {
     ArrowCursor, UpArrowCursor, CrossCursor, WaitCursor, IbeamCursor,
     SizeVerCursor, SizeHorCursor, SizeBDiagCursor, SizeFDiagCursor,
-    SizeAllCursor, BitmapCursor=24 };
+    SizeAllCursor, BlankCursor, LastCursor=BlankCursor, BitmapCursor=24 };
 
 
 /*****************************************************************************
@@ -82,6 +82,7 @@ extern const QCursor sizeHorCursor;		// horizontal resize
 extern const QCursor sizeBDiagCursor;		// diagonal resize (/)
 extern const QCursor sizeFDiagCursor;		// diagonal resize (\)
 extern const QCursor sizeAllCursor;		// all directions resize
+extern const QCursor blankCursor;		// blank/invisible cursor
 
 
 /*****************************************************************************

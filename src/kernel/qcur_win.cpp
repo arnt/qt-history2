@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#20 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_win.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_win.cpp#20 $");
 
 
 /*****************************************************************************
@@ -70,6 +70,7 @@ const QCursor sizeHorCursor;
 const QCursor sizeBDiagCursor;
 const QCursor sizeFDiagCursor;
 const QCursor sizeAllCursor;
+const QCursor blankCursor;
 
 
 /*****************************************************************************
@@ -87,12 +88,13 @@ static QCursor *cursorTable[] = {		// the order is important!!
     (QCursor*)&sizeBDiagCursor,
     (QCursor*)&sizeFDiagCursor,
     (QCursor*)&sizeAllCursor,
+    (QCursor*)&blankCursor,
     0
 };
 
 static QCursor *find_cur( int shape )		// find predefined cursor
 {
-    return (uint)shape <= SizeAllCursor ? cursorTable[shape] : 0;
+    return (uint)shape <= LastCursor ? cursorTable[shape] : 0;
 }
 
 
@@ -275,10 +277,18 @@ void QCursor::update() const			// update/load cursor
 	case SizeAllCursor:
 	    sh = IDC_SIZEALL;
 	    break;
+	case BlankCursor:
 	case BitmapCursor: {
 	    QImage bbits, mbits;
-	    bbits = *data->bm;
-	    mbits = *data->bmm;
+	    if ( data->cshape == BlankCursor ) {
+		bbits.create( 32, 32, 1, 2, QImage::BigEndian );
+		bbits.fill( 1 );		// ignore color table
+		mbits = bbits.copy();
+		data->hx = data->hy = 16;
+	    } else {
+		bbits = *data->bm;
+		mbits = *data->bmm;
+	    }
 	    int i, n = bbits.numBytes();
 	    uchar *bits = bbits.scanLine( 0 );
 	    uchar *mask = mbits.scanLine( 0 );
@@ -289,7 +299,7 @@ void QCursor::update() const			// update/load cursor
 		mask[i] = b ^ m;
 	    }
 	    data->hcurs = CreateCursor( qWinAppInst(), data->hx, data->hy,
-					data->bm->width(), data->bm->height(),
+					bbits.width(), bbits.height(),
 					bits, mask );
 	    return;
 	    }

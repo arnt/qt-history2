@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#18 $
 **
 ** Implementation of QCursor class
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#18 $");
 
 
 /*!
@@ -48,6 +48,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#17 $");
   <dt> sizeBDiagCursor <dd> diagonal resize (/)
   <dt> sizeFDiagCursor <dd> diagonal resize (\)
   <dt> sizeAllCursor <dd> all directions resize
+  <dt> blankCursor <dd> blank/invisible cursor
   </dl>
 */
 
@@ -85,8 +86,8 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
 	QPoint	hot;
 	s >> bm >> bmm >> hot;
 	c = QCursor( bm, bmm, hot.x(), hot.y() );
-    }
-    else
+    } else {
 	c.setShape( (int)shape );		// create cursor with shape
+    }
     return s;
 }
