@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#49 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#50 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#50 $");
 
 
 /*!
@@ -606,7 +606,7 @@ int QFile::readBlock( char *p, uint len )
 
   Returns -1 if a serious error occurred.
 
-  <strong>Important:<strong> When working with buffered files, data may
+  <strong>Important:</strong> When working with buffered files, data may
   not be written to the file at once. Call \link flush() flush\endlink
   to make sure the data is really written.
 
