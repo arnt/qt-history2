@@ -2430,10 +2430,10 @@ void QTable::setNumRows( int r )
 	    contents.insert( indexOf( it->row(), it->col() ), it );
     }
 
+    leftHeader->setUpdatesEnabled( TRUE );
     QRect r2( cellGeometry( numRows() - 1, numCols() - 1 ) );
     resizeContents( r2.right() + 1, r2.bottom() + 1 );
     updateGeometries();
-    leftHeader->setUpdatesEnabled( TRUE );
     if ( updateBefore )
 	repaintContents( contentsX(), contentsY(),
 			 visibleWidth(), visibleHeight(), TRUE );
@@ -2479,10 +2479,10 @@ void QTable::setNumCols( int c )
 	    contents.insert( indexOf( it->row(), it->col() ), it );
     }
 
+    topHeader->setUpdatesEnabled( TRUE );
     QRect r( cellGeometry( numRows() - 1, numCols() - 1 ) );
     resizeContents( r.right() + 1, r.bottom() + 1 );
     updateGeometries();
-    topHeader->setUpdatesEnabled( TRUE );
     if ( updateBefore )
 	repaintContents( contentsX(), contentsY(),
 			 visibleWidth(), visibleHeight(), TRUE );
