@@ -2931,7 +2931,6 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	        r+=*(tmp+2);
 	        g+=*(tmp+1);
 	        b+=*(tmp+0);
-	        //mybuf[loopc]=qGray(r,g,b); // ### grayscale 8bit
 	    }
 #if defined(QWS_DEPTH_8GRAYSCALE)
 	    alphabuf[loopc]=qGray(r,g,b);
