@@ -376,7 +376,7 @@ static const unsigned short sample_chars[QFont::LastPrivateScript] =
     // Ogham,
     0x1680,
     // SpacingModifiers,
-    0x0000,
+    0x02b0,
     // CombiningMarks,
     0x0300,
 
@@ -765,6 +765,16 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
     QFontEngine *fe = 0;
     if ( fp ) {
+	if ( fp->rawMode ) {
+	    fe = loadEngine( script, fp, request, 0, 0, 0
+#ifdef Q_WS_X11
+			     , 0, 0, FALSE
+#endif
+			     );
+
+	    return fe;
+	}
+
 	QFontCache::Key key( request, script, fp->screen );
 	fe = QFontCache::instance->findEngine( key );
 	if ( fe ) return fe;
