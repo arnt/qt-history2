@@ -64,7 +64,7 @@ ReserveFile "checkqtlicense.ini"
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "%DISTNAME%.exe"
-InstallDir "$PROGRAMFILES\Qt"
+InstallDir "C:\${PRODUCT_NAME}\${PRODUCT_VERSION}"
 ShowInstDetails show
 ShowUnInstDetails show
 
