@@ -5,13 +5,13 @@ system and compiler you are using.
 
 Supported platforms and compilers:
 
-  aix-g++        hpux-g++       irix-cc-o32    reliant-64     tru64-g++
-  aix-xlc        hpux-n64       linux-g++      reliant-cds    ultrix-g++
-  bsdi-g++       hpux-o64       linux-cxx      sco-g++        unixware-g++
-  dgux-g++       hurd-g++       linux-kcc      solaris-64     unixware7-cc
-  freebsd-g++    irix-g++       netbsd-g++     solaris-cc     unixware7-g++
-  hpux-acc       irix-cc        openbsd-g++    solaris-g++
-  hpux-cc        irix-cc-64     qnx-g++        tru64-cxx
+  aix-g++        hpux-g++       linux-g++    reliant-cds     ultrix-g++
+  aix-xlc        hpux-n64       linux-cxx    sco-g++   	     unixware-g++
+  bsdi-g++       hpux-o64       linux-kcc    solaris-64      unixware7-cc
+  dgux-g++       hurd-g++       netbsd-g++   solaris-cc      unixware7-g++
+  freebsd-g++    irix-g++       openbsd-g++  solaris-g++
+  hpux-acc       irix-cc        qnx-g++      tru64-cxx
+  hpux-cc        irix-cc-64     reliant-64   tru64-g++
 
 Limitations:
 
