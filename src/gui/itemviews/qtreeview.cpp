@@ -599,7 +599,7 @@ void QTreeView::mousePressEvent(QMouseEvent *e)
     QModelIndex mi = d->modelIndex(vi);
 
     if (mi.isValid()) {
-        int indent = d->indentation(vi) - (reverse ? 0 : d->header->offset());
+        int indent = d->indentation(vi);
         if (column == 0 && cx < (indent - d->indent))
             return; // we are in the empty area in front of the tree - do nothing
         if (column != 0 || cx > indent) {
@@ -698,6 +698,8 @@ int QTreeView::verticalOffset() const
 QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
 {
     QModelIndex current = currentItem();
+    if (!current.isValid())
+        return current;
     int vi = d->viewIndex(current);
 
     switch (cursorAction) {
