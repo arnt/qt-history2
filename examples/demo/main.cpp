@@ -267,11 +267,7 @@ public:
 	TextEdit *te = new TextEdit( stack );
 	te->load( "textdrawing/example.html" );
 	stack->addWidget( te, categoryOffset() + 0 );
-	QString home = QString( qInstallPathDocs() ) + "/html/index.html";
-	const char *qtdirenv = getenv( "QTDIR" );
-	if ( qtdirenv ) {
-	    home = QString( qtdirenv ) + "/doc/html/index.html";
-	}
+	QString home = QDir( "../../doc/html/index.html" ).absPath();
 	HelpWindow *w = new HelpWindow( home, ".", stack, "helpviewer" );
 	stack->addWidget( w, categoryOffset() + 1 );
     }

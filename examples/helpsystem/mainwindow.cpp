@@ -10,16 +10,16 @@
 **
 ****************************************************************************/
 
-#include <qtooltip.h>
-#include <qpopupmenu.h>
-#include <qmenubar.h>
-#include <qfiledialog.h>
-#include <qtable.h>
+#include <qapplication.h>
 #include <qassistantclient.h>
+#include <qfiledialog.h>
+#include <qmenubar.h>
+#include <qpopupmenu.h>
+#include <qstatusbar.h>
+#include <qtable.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
-#include <qstatusbar.h>
-#include <qapplication.h>
+#include <qtooltip.h>
 
 #include "mainwindow.h"
 #include "tooltip.h"
@@ -28,11 +28,11 @@
 MainWindow::MainWindow()
 {
     statusBar();
-    assistant = new QAssistantClient( qInstallPathBins(), this );
+    assistant = new QAssistantClient( QDir("../../bin").absPath(), this );
 
     QTable* table = new QTable( 2, 3, this );
     setCentralWidget( table );
-    
+
     // populate table
     QStringList comboEntries;
     comboEntries << "one" << "two" << "three" << "four";
@@ -43,29 +43,29 @@ MainWindow::MainWindow()
 
     table->setItem( 0, 0, comboItem1 );
     table->setItem( 1, 0, comboItem2 );
-    
+
     table->setItem( 1, 1, checkItem1  );
     table->setItem( 0, 1, checkItem2 );
 
     table->setText( 1, 2, "Text" );
-    
+
     table->horizontalHeader()->setLabel( 0, " Combos" );
     table->horizontalHeader()->setLabel( 1, "Checkboxes" );
     table->verticalHeader()->setLabel( 0, "1" );
     table->verticalHeader()->setLabel( 1, "2" );
 
-    
+
     // populate menubar
     QPopupMenu* fileMenu = new QPopupMenu( this );
     QPopupMenu* helpMenu = new QPopupMenu( this );
-    
+
     menuBar()->insertItem( "&File", fileMenu );
     menuBar()->insertItem( "&Help", helpMenu );
 
     int fileId = fileMenu->insertItem( "E&xit", this, SLOT(close()) );
-    
+
     int helpId = helpMenu->insertItem( "Open Assistant", this, SLOT(assistantSlot()) );
-    
+
     // populate toolbar
     QToolBar* toolbar = new QToolBar( this );
     QToolButton* assistantButton = new QToolButton( toolbar );
@@ -74,7 +74,7 @@ MainWindow::MainWindow()
 
     //create tooltipgroup
     QToolTipGroup * tipGroup = new QToolTipGroup( this );
-    connect( tipGroup, SIGNAL(showTip(const QString&)), statusBar(), 
+    connect( tipGroup, SIGNAL(showTip(const QString&)), statusBar(),
 	SLOT(message(const QString&)) );
     connect( tipGroup, SIGNAL(removeTip()), statusBar(), SLOT(clear()) );
 
@@ -83,7 +83,7 @@ MainWindow::MainWindow()
 
     horizontalTip = new HeaderToolTip( table->horizontalHeader(), tipGroup );
     verticalTip = new HeaderToolTip( table->verticalHeader(), tipGroup );
-    
+
     cellTip = new TableToolTip( table, tipGroup );
 
     // set up whats this
@@ -93,17 +93,17 @@ MainWindow::MainWindow()
     HeaderWhatsThis *verticalWhatsThis = new HeaderWhatsThis( table->verticalHeader() );
 
     TableWhatsThis *cellWhatsThis = new TableWhatsThis( table );
-    
+
     fileMenu->setWhatsThis( fileId, "Click here to exit the application" );
     helpMenu->setWhatsThis( helpId, "Click here to open Assistant" );
 
-    // connections    
+    // connections
     connect( assistantButton, SIGNAL(clicked()), this, SLOT(assistantSlot()) );
-    connect( horizontalWhatsThis, SIGNAL(linkClicked(const QString&)), assistant, 
+    connect( horizontalWhatsThis, SIGNAL(linkClicked(const QString&)), assistant,
 	SLOT(showPage(const QString&)) );
     connect( verticalWhatsThis, SIGNAL(linkClicked(const QString&)), assistant,
 	SLOT(showPage(const QString&)) );
-    connect( cellWhatsThis, SIGNAL(linkClicked(const QString&)), assistant, 
+    connect( cellWhatsThis, SIGNAL(linkClicked(const QString&)), assistant,
 	SLOT(showPage(const QString&)) );
 }
 
@@ -116,6 +116,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::assistantSlot()
 {
-    QString docsPath = qInstallPathDocs();
-    assistant->showPage( QString( "%1/html/qassistantclient.html" ).arg(docsPath ));
+    QString docsPath = QDir("../../doc").absPath();
+    assistant->showPage( QString("%1/html/qassistantclient.html").arg(docsPath) );
 }
