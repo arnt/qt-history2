@@ -88,6 +88,10 @@ QApplication
 QObject
   UserData. d-pointer.
 
+QCursor
+  QCursor::QCursor(const QPixmap & pixmap, ...) should do colored cursors on
+  systems where color cursors are supported.
+
 New functionality
 -----------------
 
@@ -125,6 +129,23 @@ QSettings (Brad, Volker)
     which are just settings and replace that by having a QSetting
     object. Also write a tool which allows to set the Qt relevant
     settings (default style, double click interval, etc.)
+
+QProcess (rms)
+    Class to start and control external programs.
+
+HTTP (rms)
+    HTTP support for the network module. Torben has done some stuff for
+    ViaVoice that can be used.
+
+SSL (rms)
+    It would be nice to have SSL support for QSocket and QServerSocket. Jo
+    form Trustix -- or whatever his name is -- is actually doing a little work
+    in this direction: he uses OpenSSL together with Qt. This might be a
+    suitable approach... have to spend some time on thinking about it.
+
+Validating XML parser (rms)
+    ... would be nice to have one in addition to the well-formed parser we
+    already have.
 
 
 Extending existing functionality
@@ -179,3 +200,11 @@ moc: (Matthias)
 QListView / QListBox:
     Make them usable with external data only (i.e.l without
     QListViewItem, QListBoxItem, directly from the database).
+
+XML (rms)
+    Enable the parser to do "incremental" parsing; i.e. that he can parse an
+    XML that is delivered in different chunks. So when he parsed a chunk and
+    no data is available, store the state of the parser and continue parsing
+    when more data is available. This is nice if you get the data asynchronous
+    from a (slow) network connection. The Jabber protocol needs such
+    functionality too.
