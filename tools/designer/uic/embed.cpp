@@ -36,6 +36,7 @@
 
 struct EmbedImage
 {
+    ~EmbedImage() { delete[] colorTable; }
     int width, height, depth;
     int numColors;
     QRgb* colorTable;
@@ -137,6 +138,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
     out << "\n";
 
     QPtrList<EmbedImage> list_image;
+    list_image.setAutoDelete( TRUE );
     int image_count = 0;
     for ( it = images.begin(); it != images.end(); ++it ) {
 	QImage img;
@@ -292,7 +294,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "    StaticInitImages_" << cProject << "() { qInitImages_" << cProject << "(); }\n";
 	out << "#if defined(Q_OS_SCO) && defined(Q_CC_GNU)\n";
 	out << "    ~StaticInitImages_" << cProject << "() { }\n";
-	out << "#else\n";	
+	out << "#else\n";
 	out << "    ~StaticInitImages_" << cProject << "() { qCleanupImages_" << cProject << "(); }\n";
 	out << "#endif\n";
 	out << "};\n\n";
