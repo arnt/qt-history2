@@ -53,7 +53,7 @@
     store the value there.
 
     Incidentally, QLCDNumber is the very oldest part of Qt, tracing
-    back to a BASIC program on the \link
+    its roots back to a BASIC program on the \link
     http://www.nvg.ntnu.no/sinclair/computers/zxspectrum/zxspectrum.htm
     Sinclair Spectrum\endlink.
 
@@ -72,6 +72,10 @@
     \value Dec  Decimal
     \value Oct  Octal
     \value Bin  Binary
+    \omitvalue HEX
+    \omitvalue DEC
+    \omitvalue OCT
+    \omitvalue BIN
 
     If the display is set to hexadecimal, octal or binary, the integer
     equivalent of the value is displayed.
@@ -343,7 +347,7 @@ QLCDNumber::~QLCDNumber()
     QLCDNumber::smallDecimalPoint is false, the decimal point occupies
     one digit position.
 
-    \sa numDigits, smallDecimalPoint
+    \sa smallDecimalPoint
 */
 
 void QLCDNumber::setNumDigits(int numDigits)
@@ -433,8 +437,8 @@ bool QLCDNumber::checkOverflow(double num) const
     \property QLCDNumber::mode
     \brief the current display mode (number base)
 
-    Corresponds to the current display mode, which is one of \c BIN,
-    \c OCT, \c DEC (the default) and \c HEX. \c DEC mode can display
+    Corresponds to the current display mode, which is one of \c Bin,
+    \c Oct, \c Dec (the default) and \c Hex. \c Dec mode can display
     floating point values, the other modes display the integer
     equivalent.
 
@@ -544,7 +548,7 @@ void QLCDNumber::display(const QString &s)
 }
 
 /*!
-    Calls setMode(HEX). Provided for convenience (e.g. for
+    Calls setMode(Hex). Provided for convenience (e.g. for
     connecting buttons to it).
 
     \sa setMode(), setDecMode(), setOctMode(), setBinMode(), mode()
@@ -557,7 +561,7 @@ void QLCDNumber::setHexMode()
 
 
 /*!
-    Calls setMode(DEC). Provided for convenience (e.g. for
+    Calls setMode(Dec). Provided for convenience (e.g. for
     connecting buttons to it).
 
     \sa setMode(), setHexMode(), setOctMode(), setBinMode(), mode()
@@ -570,7 +574,7 @@ void QLCDNumber::setDecMode()
 
 
 /*!
-    Calls setMode(OCT). Provided for convenience (e.g. for
+    Calls setMode(Oct). Provided for convenience (e.g. for
     connecting buttons to it).
 
     \sa setMode(), setHexMode(), setDecMode(), setBinMode(), mode()
@@ -583,7 +587,7 @@ void QLCDNumber::setOctMode()
 
 
 /*!
-    Calls setMode(BIN). Provided for convenience (e.g. for
+    Calls setMode(Bin). Provided for convenience (e.g. for
     connecting buttons to it).
 
     \sa setMode(), setHexMode(), setDecMode(), setOctMode(), mode()
