@@ -67,9 +67,9 @@ public slots:
     void showColumn(int column);
     void open(const QModelIndex &index);
     void close(const QModelIndex &index);
+    void resizeColumnToContents(int column);
 
 protected slots:
-    void resizeColumnToContents(int column, bool checkHeader = true);
     void columnWidthChanged(int column, int oldSize, int newSize);
     void columnCountChanged(int oldCount, int newCount);
     void dataChanged();

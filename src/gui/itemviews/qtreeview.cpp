@@ -957,14 +957,12 @@ void QTreeView::columnCountChanged(int, int)
 
 /*!
   Resizes the \a column given to the size of its contents.
-  If \a checkHeader is true, the contents of the header section will be
-  taken into consideration.
 */
 
-void QTreeView::resizeColumnToContents(int column, bool checkHeader)
+void QTreeView::resizeColumnToContents(int column)
 {
     int contents = columnSizeHint(column);
-    int header = checkHeader ? d->header->sectionSizeHint(column) : 0;
+    int header = d->header->isHidden() ? 0 : d->header->sectionSizeHint(column);
     d->header->resizeSection(column, qMax(contents, header));
 }
 

@@ -81,7 +81,6 @@ public:
 
     QRect itemViewportRect(const QModelIndex &index) const;
     void ensureItemVisible(const QModelIndex &index);
-    QModelIndex itemAt(int x, int y) const;
 
     void doItemsLayout();
 
@@ -119,6 +118,7 @@ protected:
     virtual void paintSection(QPainter *painter, const QRect &rect, int section) const;
     virtual QSize sectionSizeFromContents(int section) const;
 
+    QModelIndex itemAt(int x, int y) const;
     inline int sectionAt(int x, int y) const
     { return orientation() == Qt::Horizontal ? sectionAt(x) : sectionAt(y); }
     inline int sectionAt(QPoint pos) const { return sectionAt(pos.x(), pos.y()); }
