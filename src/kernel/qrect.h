@@ -69,7 +69,7 @@ public:
     QCOORD &rTop();
     QCOORD &rRight();
     QCOORD &rBottom();
-	
+
     int	   x()		const;
     int	   y()		const;
     void   setLeft( int pos );
@@ -98,7 +98,7 @@ public:
     void   setRect( int x, int y, int w, int h );
     void   setCoords( int x1, int y1, int x2, int y2 );
     void   addCoords( int x1, int y1, int x2, int y2 );
-    
+
     QSize  size()	const;
     int	   width()	const;
     int	   height()	const;
@@ -112,7 +112,7 @@ public:
     QRect&  operator&=(const QRect &r);
 
     bool   contains( const QPoint &p, bool proper=FALSE ) const;
-    bool   contains( int x, int y ) const; //### merge with below for 4.0
+    bool   contains( int x, int y ) const; // inline methods, _don't_ merge these
     bool   contains( int x, int y, bool proper ) const;
     bool   contains( const QRect &r, bool proper=FALSE ) const;
     QRect  unite( const QRect &r ) const;

@@ -668,7 +668,6 @@ bool QRect::contains( const QPoint &p, bool proper ) const
 
 /*!
     \overload bool QRect::contains( int x, int y ) const
-    \obsolete 
 
     Returns TRUE if the point \a x, \a y is inside this rectangle;
     otherwise returns FALSE.
