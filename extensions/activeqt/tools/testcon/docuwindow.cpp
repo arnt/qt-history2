@@ -2,7 +2,7 @@
 #include <qtextbrowser.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
-//#include <qfiledialog.h>
+#include <qfiledialog.h>
 #include <qfile.h>
 #include <qstatusbar.h>
 #include <qprinter.h>
