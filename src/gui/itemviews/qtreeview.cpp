@@ -472,17 +472,19 @@ void QTreeView::paintEvent(QPaintEvent *e)
     QVector<QTreeViewItem> items = d->items;
 
     while (y < h && i < c) {
-        index = items.at(i).index;
-        s = delegate->sizeHint(option, d->model, index).height();
-        if (y + s >= t) {
-            option.rect.setRect(0, y, 0, s);
-            option.state = state|(items.at(i).open ? QStyle::Style_Open : QStyle::Style_Default);
-            if (alternate)
-                option.palette.setColor(QPalette::Base, i & 1 ? oddColor : evenColor);
-            d->current = i;
-            drawRow(&painter, option, index);
+        if (!items.at(i).hidden) {
+            index = items.at(i).index;
+            s = delegate->sizeHint(option, d->model, index).height();
+            if (y + s >= t) {
+                option.rect.setRect(0, y, 0, s);
+                option.state = state|(items.at(i).open ? QStyle::Style_Open : QStyle::Style_Default);
+                if (alternate)
+                    option.palette.setColor(QPalette::Base, i & 1 ? oddColor : evenColor);
+                d->current = i;
+                drawRow(&painter, option, index);
+            }
+            y += s;
         }
-        y += s;
         ++i;
     }
 
@@ -1329,9 +1331,11 @@ int QTreeViewPrivate::item(int coordinate) const
     if (coordinate >= y) {
         // search for item in viewport
         while (y < h && i < items.count()) {
-            y += delegate->sizeHint(option, model, items.at(i).index).height();
-            if (coordinate < y)
-                return i;
+            if (!items.at(i).hidden) { // if the item is hidden, it doesn't have a coordinate
+                y += delegate->sizeHint(option, model, items.at(i).index).height();
+                if (coordinate < y)
+                    return i;
+            }
             ++i;
         }
         // item is below viewport - give estimated coordinates
