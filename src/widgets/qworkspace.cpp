@@ -803,7 +803,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 	}
 	break;
     case QEvent::CaptionChange:
-	if ( inCaptionChange ) 
+	if ( inCaptionChange )
 	    break;
 
 	inCaptionChange = TRUE;
@@ -924,7 +924,7 @@ void QWorkspace::closeActiveWindow()
 
     activatePreviousWindow();
 
-    if (d->active && isMax && !d->active->isHidden() ) 
+    if (d->active && isMax && !d->active->isHidden() )
 	d->active->showMaximized();
 }
 
@@ -1191,9 +1191,15 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* window
 	    iconB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	} else {
 	    titleHeight = 14;
-   	    closeB->resize(12, 12 );
-	    maxB->resize(12, 12 );
-	    iconB->resize(12, 12 );
+#if defined(_WS_WIN32_)
+   	    closeB->resize( 12, 12 );
+	    maxB->resize( 12, 12 );
+	    iconB->resize( 12, 12 );
+#else
+   	    closeB->resize( 14, 14 );
+	    maxB->resize( 14, 14 );
+	    iconB->resize( 14, 14 );
+#endif
 	    iconB->hide();
         }
 	if ( !window->testWFlags( WStyle_MinMax ) ) {
@@ -1233,7 +1239,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* window
     iconL->setFocusPolicy( NoFocus );
     iconL->installEventFilter( this );
 
-    if ( window && ( !window->testWFlags( WStyle_SysMenu ) 
+    if ( window && ( !window->testWFlags( WStyle_SysMenu )
 	|| window->testWFlags( WStyle_Tool ) ) )
 	iconL->hide();
 
@@ -1402,7 +1408,7 @@ bool QWorkspaceChildTitleBar::isActive() const
 QSize QWorkspaceChildTitleBar::sizeHint() const
 {
     constPolish();
-    
+
     return QSize( 196, QMAX( titleHeight, fontMetrics().lineSpacing() ) );
 }
 
@@ -1418,7 +1424,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     act = FALSE;
     iconw = 0;
     lastfocusw = 0;
-    
+
     titlebar = new QWorkspaceChildTitleBar( parent, window, this );
     connect( titlebar, SIGNAL( doActivate() ),
 	     this, SLOT( activate() ) );
@@ -2016,7 +2022,7 @@ void QWorkspaceChild::internalRaise()
 	return;
 
     QList<QWorkspaceChild> l = ((QWorkspace*)parent())->d->windows;
-   
+
     for (QWorkspaceChild* c = l.first(); c; c = l.next() ) {
 	if ( !c->windowWidget()->isHidden() &&
 	     c->windowWidget()->testWFlags( WStyle_StaysOnTop ) )
