@@ -419,25 +419,23 @@ static bool findInBlock(const QTextBlock &block, const QString &text, const QStr
 {
     const Qt::CaseSensitivity cs = (options & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
 
-    int idx = text.lastIndexOf(expression, offset, cs);
+    const int idx = text.lastIndexOf(expression, offset, cs);
+    if (idx == -1)
+        return false;
 
-    if (options & QTextDocument::FindWholeWords && idx >= 0) {
+    if (options & QTextDocument::FindWholeWords) {
         const int start = idx;
         const int end = start + expression.length();
         if ((start != 0 && text.at(start - 1).isLetterOrNumber())
                 || (end != text.length() && text.at(end).isLetterOrNumber()))
-            idx = -1;
+            return false;
     }
 
-    if (idx >= 0) {
-        // ### FIXME
-        cursor = QTextCursor(block.docHandle()->document());
-        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, block.position() + idx);
-        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expression.length());
-        return true;
-    }
-
-    return false;
+    // ### FIXME
+    cursor = QTextCursor(block.docHandle()->document());
+    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, block.position() + idx);
+    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expression.length());
+    return true;
 }
 
 /*!
