@@ -9,7 +9,7 @@ DLLDESTDIR	= ../bin
 CONFIG		+= qt warn_on depend_includepath
 CONFIG          += qmake_cache
 
-unix:CONFIG     += create_libtool
+unix:CONFIG     += create_libtool create_pc
 
 win32:!shared:CONFIG += staticlib
 
