@@ -327,20 +327,20 @@ QTextLayout::Result QTextLayout::addCurrentItem()
 QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 					  int *ascent, int *descent, int *lineLeft, int *lineRight )
 {
-//     qDebug("endLine x=%d, y=%d, first=%d, current=%d lw=%d wu=%d", x,  y, d->firstItemInLine, d->currentItem, d->lineWidth, d->widthUsed );
-    if ( d->firstItemInLine == -1 ) {
-	if ( lineLeft )
-	    *lineLeft = x;
-	if ( lineRight )
-	    *lineRight = x;
-	if ( ascent )
-	    *ascent = 0;
-	if ( descent )
-	    *descent = 0;
-	return LineEmpty;
-    }
-
+    int available = d->lineWidth;
+    int numRuns = 0;
     int numSpaceItems = 0;
+    Q_UINT8 _levels[128];
+    int _visual[128];
+    Q_UINT8 *levels = _levels;
+    int *visual = _visual;
+    int i;
+    QTextLayout::Result result = LineEmpty;
+
+//     qDebug("endLine x=%d, y=%d, first=%d, current=%d lw=%d wu=%d", x,  y, d->firstItemInLine, d->currentItem, d->lineWidth, d->widthUsed );
+    if ( d->firstItemInLine == -1 )
+	goto end;
+
     if ( !(alignment & Qt::SingleLine) && d->currentItem > d->firstItemInLine && d->items[d->currentItem-1].isSpace ) {
 	int i = d->currentItem-1;
 	while ( i > d->firstItemInLine && d->items[i].isSpace ) {
@@ -423,19 +423,8 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 
     found:
 	// no valid break point found
-	if ( breakPosition == -1 ) {
-//  	    qDebug("no valid linebreak found, returning empty line");
-	    d->currentItem = d->firstItemInLine;
-	    if ( lineLeft )
-		*lineLeft = x;
-	    if ( lineRight )
-		*lineRight = x;
-	    if ( ascent )
-		*ascent = 0;
-	    if ( descent )
-		*descent = 0;
-	    return LineEmpty;
-	}
+	if ( breakPosition == -1 )
+	    goto end;
 
 //  	qDebug("linebreak at item %d, position %d, glyph %d wu=%d", breakItem, breakPosition, breakGlyph, d->widthUsed );
 	// split the line
@@ -459,26 +448,14 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
     }
 
     // position the objects in the line
-    int available = d->lineWidth - d->widthUsed;
+    available -= d->widthUsed;
 
-    // ### FIXME
-    if ( alignment & Qt::AlignJustify ) {
-	// #### justify items
-	alignment = Qt::AlignAuto;
-    }
-    if ( (alignment & Qt::AlignHorizontal_Mask) == Qt::AlignAuto )
-	alignment = Qt::AlignLeft;
-
-    int numRuns = d->currentItem - d->firstItemInLine - numSpaceItems;
-    Q_UINT8 _levels[128];
-    int _visual[128];
-    Q_UINT8 *levels = _levels;
-    int *visual = _visual;
+    numRuns = d->currentItem - d->firstItemInLine - numSpaceItems;
     if ( numRuns > 127 ) {
 	levels = new Q_UINT8[numRuns];
 	visual = new int[numRuns];
     }
-    int i;
+
 //     qDebug("reordering %d runs, numSpaceItems=%d", numRuns, numSpaceItems );
     for ( i = 0; i < numRuns; i++ ) {
 	levels[i] = d->items[i+d->firstItemInLine].analysis.bidiLevel;
@@ -486,6 +463,16 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
     }
     d->bidiReorder( numRuns, levels, visual );
 
+    result = Ok;
+
+ end:
+    // ### FIXME
+    if ( alignment & Qt::AlignJustify ) {
+	// #### justify items
+	alignment = Qt::AlignAuto;
+    }
+    if ( (alignment & Qt::AlignHorizontal_Mask) == Qt::AlignAuto )
+	alignment = Qt::AlignLeft;
     if ( alignment & Qt::AlignRight )
 	x += available;
     else if ( alignment & Qt::AlignHCenter )
@@ -540,7 +527,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
     if ( descent )
 	*descent = desc;
 
-    return Ok;
+    return result;
 }
 
 void QTextLayout::endLayout()
