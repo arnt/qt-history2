@@ -834,6 +834,13 @@ int sun4325168Workaround( QCollection::Item n1, QCollection::Item n2 ) {
     if ( i2->name() == ".." )
 	return 1;
 
+#if defined(_OS_WIN32_)
+    if ( sortFilesBy == QDir::Name ) {
+	QString name1 = i1->name().lower();
+	QString name2 = i2->name().lower();
+	return name1.compare( name2 );
+    }
+#endif
     if ( QUrlInfo::equal( *i1, *i2, sortFilesBy ) )
 	return 0;
     else if ( QUrlInfo::greaterThan( *i1, *i2, sortFilesBy ) )
