@@ -2439,7 +2439,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
     if ( text && text->designable(w) ) {
 	bool ok = FALSE;
 	QString text;
-	if ( w->inherits( "QTextView" ) || w->inherits( "QLabel" ) ) {
+	if ( w->inherits( "QTextEdit" ) || w->inherits( "QLabel" ) ) {
 	    text = MultiLineEditor::getText( this, w->property("text").toString() );
 	    ok = !text.isEmpty();
 	} else {
