@@ -16,11 +16,13 @@
 
 #include <qabstracteventdispatcher.h>
 #include <qapplication.h>
+#include <qdockwindow.h>
 #include <qevent.h>
 #include <qlayout.h>
+#include <qmainwindow.h>
+#include <qmenu.h>
 #include <qmenubar.h>
 #include <qmetaobject.h>
-#include <qmenu.h>
 #include <qpainter.h>
 #include <qpointer.h>
 #include <qregexp.h>
@@ -118,7 +120,7 @@ public:
     }
     
 protected:
-    bool winEvent(MSG *msg);
+    bool winEvent(MSG *msg, long *result);
     bool event(QEvent *e);
     void resizeEvent(QResizeEvent *e);
     void focusInEvent(QFocusEvent *e);
@@ -318,9 +320,11 @@ public:
     // IAdviseSink
     STDMETHOD_(void, OnDataChange)(FORMATETC* /*pFormatetc*/, STGMEDIUM* /*pStgmed*/)
     {
+        AX_DEBUG(QAxClientSite::OnDataChange);
     }
     STDMETHOD_(void, OnViewChange)(DWORD /*dwAspect*/, LONG /*lindex*/)
     {
+        AX_DEBUG(QAxClientSite::OnViewChange);
     }
     STDMETHOD_(void, OnRename)(IMoniker* /*pmk*/)
     {
@@ -386,7 +390,7 @@ bool axc_FilterProc(void *m)
 {
     MSG *msg = (MSG*)m;
     const uint message = msg->message;
-    if ((message >= WM_MOUSEFIRST && message <= WM_MOUSELAST) ||(message >= WM_KEYFIRST && message <= WM_KEYLAST)) {
+    if ((message >= WM_MOUSEFIRST && message <= WM_MOUSELAST) || (message >= WM_KEYFIRST && message <= WM_KEYLAST)) {
         HWND hwnd = msg->hwnd;
         QWidget *widget = 0;
         QAxWidget *ax = 0;
@@ -559,7 +563,7 @@ bool QAxClientSite::activateObject(bool initialized)
         widget->setWindowTitle(BSTRToQString(userType));
         CoTaskMemFree(userType);
     } else {
-        IObjectWithSite *spSite;
+        IObjectWithSite *spSite = 0;
         widget->queryInterface(IID_IObjectWithSite, (void**)&spSite);
         if (spSite) {
             spSite->SetSite((IUnknown*)(IDispatch*)this);
@@ -793,6 +797,7 @@ HRESULT WINAPI QAxClientSite::OnControlInfoChanged()
 
 HRESULT WINAPI QAxClientSite::LockInPlaceActive(BOOL /*fLock*/)
 {
+    AX_DEBUG(QAxClientSite::LockInPlaceActive);
     return S_OK;
 }
 
@@ -821,6 +826,7 @@ HRESULT WINAPI QAxClientSite::TranslateAccelerator(LPMSG lpMsg, DWORD /*grfModif
 
 HRESULT WINAPI QAxClientSite::OnFocus(BOOL /*bGotFocus*/)
 {
+    AX_DEBUG(QAxClientSite::OnFocus);
     return S_OK;
 }
 
@@ -852,6 +858,7 @@ HRESULT WINAPI QAxClientSite::ContextSensitiveHelp(BOOL fEnterMode)
 //**** IOleInPlaceSite
 HRESULT WINAPI QAxClientSite::CanInPlaceActivate()
 {
+    AX_DEBUG(QAxClientSite::CanInPlaceActivate);
     return S_OK;
 }
 
@@ -937,6 +944,7 @@ HRESULT WINAPI QAxClientSite::DeactivateAndUndo()
 
 HRESULT WINAPI QAxClientSite::OnPosRectChange(LPCRECT /*lprcPosRect*/)
 {
+    AX_DEBUG(QAxClientSite::OnPosRectChange);
     // ###
     return S_OK;
 }
@@ -944,6 +952,7 @@ HRESULT WINAPI QAxClientSite::OnPosRectChange(LPCRECT /*lprcPosRect*/)
 //**** IOleInPlaceFrame
 HRESULT WINAPI QAxClientSite::InsertMenus(HMENU /*hmenuShared*/, LPOLEMENUGROUPWIDTHS lpMenuWidths)
 {
+    AX_DEBUG(QAxClientSite::InsertMenus);
     QMenuBar *mb = menuBar;
     if (!mb)
 	mb = qFindChild<QMenuBar*>(widget->topLevelWidget());
@@ -1039,8 +1048,11 @@ QMenu *QAxClientSite::generatePopup(HMENU subMenu, QWidget *parent)
 		QString keyString = text.right(text.length() - lastSep);
 		accel = keyString;
 		if ((int)accel)
-		    text = text.left(lastSep-1);
+		    text = text.left(lastSep);
 	    }
+
+            if (popupMenu)
+                popupMenu->setTitle(text);
 
             switch (res) {
 	    case MFT_STRING:
@@ -1073,8 +1085,10 @@ QMenu *QAxClientSite::generatePopup(HMENU subMenu, QWidget *parent)
     return popup;
 }
 
-HRESULT WINAPI QAxClientSite::SetMenu(HMENU hmenuShared, HOLEMENU /*holemenu*/, HWND hwndActiveObject)
+HRESULT WINAPI QAxClientSite::SetMenu(HMENU hmenuShared, HOLEMENU holemenu, HWND hwndActiveObject)
 {
+    AX_DEBUG(QAxClientSite::SetMenu);
+
     if (hmenuShared) {
 	m_menuOwner = hwndActiveObject;
 	QMenuBar *mb = menuBar;
@@ -1099,13 +1113,17 @@ HRESULT WINAPI QAxClientSite::SetMenu(HMENU hmenuShared, HOLEMENU /*holemenu*/, 
 	    } else {
 		QString text;
 		QPixmap icon;
-		popupMenu = item.hSubMenu ? generatePopup(item.hSubMenu, menuBar) : 0;
+                popupMenu = item.hSubMenu ? generatePopup(item.hSubMenu, menuBar) : 0;
+                int res = menuItemEntry(hmenuShared, i, item, text, icon);
 
-		switch(menuItemEntry(hmenuShared, i, item, text, icon)) {
+                if (popupMenu)
+                    popupMenu->setTitle(text);
+
+		switch(res) {
 		case MFT_STRING:
-		    if (popupMenu)
+                    if (popupMenu)
 			action = menuBar->addMenu(popupMenu);
-		    else
+                    else
 			action = menuBar->addAction(text);
 		    break;
 		case MFT_BITMAP:
@@ -1130,8 +1148,8 @@ HRESULT WINAPI QAxClientSite::SetMenu(HMENU hmenuShared, HOLEMENU /*holemenu*/, 
 	    const QMetaObject *mbmo = menuBar->metaObject();
 	    int index = mbmo->indexOfSignal("triggered(QAction*)");
 	    Q_ASSERT(index != -1);
-	    menuBar->disconnect(SIGNAL(activated(int)), host);
-            QMetaObject::connect(menuBar, index, host, QSIGNAL_CODE, index);
+	    menuBar->disconnect(SIGNAL(triggered(QAction*)), host);
+            QMetaObject::connect(menuBar, index, host, index, QSIGNAL_CODE);
 	}
     } else if (menuBar) {
 	m_menuOwner = 0;
@@ -1142,30 +1160,39 @@ HRESULT WINAPI QAxClientSite::SetMenu(HMENU hmenuShared, HOLEMENU /*holemenu*/, 
 	}
 	menuItemMap.clear();
     }
+
+    OleSetMenuDescriptor(holemenu, widget->topLevelWidget()->winId(), m_menuOwner, this, m_spInPlaceActiveObject);
     return S_OK;
 }
 
 int QAxClientSite::qt_metacall(QMetaObject::Call call, int isignal, void **argv)
 {
     if (!m_spOleObject || call != QMetaObject::InvokeMetaMember || !menuBar)
-        return -1;
+        return isignal;
 
-    if (isignal != menuBar->metaObject()->indexOfSignal("activated(QAction*)"))
-        return -1;
+    if (isignal != menuBar->metaObject()->indexOfSignal("triggered(QAction*)"))
+        return isignal;
 
     QAction *action = *(QAction**)argv[1];
-    QString test = action->text();
+    // ###
 
     OleMenuItem oleItem = menuItemMap.value(action);
     if (oleItem.hMenu)
-        ::PostMessageA(m_menuOwner, WM_COMMAND, oleItem.id, 0);
-    return isignal;
+        ::PostMessageA(m_menuOwner, WM_MENUCOMMAND, oleItem.id, 0);
+    return -1;
 }
 
 HRESULT WINAPI QAxClientSite::RemoveMenus(HMENU /*hmenuShared*/)
 {
-    //###
-    return E_NOTIMPL;
+    AX_DEBUG(QAxClientSite::RemoveMenus);
+    QMap<QAction*, OleMenuItem>::Iterator it;
+    for (it = menuItemMap.begin(); it != menuItemMap.end(); ++it) {
+	QAction *action = it.key();
+        action->setVisible(false);
+        delete action;
+    }
+    menuItemMap.clear();
+    return S_OK;
 }
 
 HRESULT WINAPI QAxClientSite::SetStatusText(LPCOLESTR pszStatusText)
@@ -1199,26 +1226,63 @@ HRESULT WINAPI QAxClientSite::TranslateAccelerator(LPMSG lpMsg, WORD grfModifier
 //**** IOleInPlaceUIWindow
 HRESULT WINAPI QAxClientSite::GetBorder(LPRECT lprectBorder)
 {
-    RECT border = { 0,0, 100, 10 };
+    AX_DEBUG(QAxClientSite::GetBorder);
+
+    QMainWindow *mw = qt_cast<QMainWindow*>(widget->topLevelWidget());
+    if (!mw)
+        return INPLACE_E_NOTOOLSPACE;
+
+    RECT border = { 0,0, 300, 200 };
     *lprectBorder = border;
     return S_OK;
 }
 
 HRESULT WINAPI QAxClientSite::RequestBorderSpace(LPCBORDERWIDTHS /*pborderwidths*/)
 {
+    AX_DEBUG(QAxClientSite::RequestBorderSpace);
+
+    QMainWindow *mw = qt_cast<QMainWindow*>(widget->topLevelWidget());
+    if (!mw)
+        return INPLACE_E_NOTOOLSPACE;
+
     return S_OK;
 }
 
 HRESULT WINAPI QAxClientSite::SetBorderSpace(LPCBORDERWIDTHS pborderwidths)
 {
+    AX_DEBUG(QAxClientSite::SetBorderSpace);
+
+    // object has no toolbars and wants container toolbars to remain
     if (!pborderwidths)
         return S_OK;
-    
-    bool needsSpace = pborderwidths->left || pborderwidths->top || pborderwidths->right || pborderwidths->bottom;
-    if (!needsSpace) {
-        //### remove our toolbars
-        return S_OK;
+
+    QMainWindow *mw = qt_cast<QMainWindow*>(widget->topLevelWidget());
+    if (!mw)
+        return OLE_E_INVALIDRECT;
+
+    bool removeToolBars = !(pborderwidths->left || pborderwidths->top || pborderwidths->right || pborderwidths->bottom);
+
+    // object has toolbars, and wants container to remove toolbars
+    if (removeToolBars) {
+        if (mw) {
+            //### remove our toolbars
+        }
     }
+
+    if (pborderwidths->left) {
+        QDockWindow *left = new QDockWindow(mw);
+        left->setFixedWidth(pborderwidths->left);
+        mw->addDockWindow(Qt::DockWindowAreaLeft, left);
+        left->show();
+    }
+    if (pborderwidths->top) {
+        QDockWindow *top = new QDockWindow(mw);
+        top->setFixedHeight(pborderwidths->top);
+        mw->addDockWindow(Qt::DockWindowAreaTop, top);
+        top->show();
+    }
+
+
     return S_OK;
 }
 
@@ -1233,7 +1297,8 @@ HRESULT WINAPI QAxClientSite::SetActiveObject(IOleInPlaceActiveObject *pActiveOb
         m_spInPlaceActiveObject->Release();
     
     m_spInPlaceActiveObject = pActiveObject;
-    if (m_spInPlaceActiveObject) m_spInPlaceActiveObject->AddRef();
+    if (m_spInPlaceActiveObject)
+        m_spInPlaceActiveObject->AddRef();
     
     return S_OK;
 }
@@ -1359,7 +1424,7 @@ void QAxHostWidget::resizeEvent(QResizeEvent *e)
     }
 }
 
-bool QAxHostWidget::winEvent(MSG *msg)
+bool QAxHostWidget::winEvent(MSG *msg, long *result)
 {
     if (axhost && axhost->inPlaceObjectWindowless) {
         Q_ASSERT(axhost->m_spInPlaceObject);
@@ -1368,26 +1433,22 @@ bool QAxHostWidget::winEvent(MSG *msg)
         LRESULT lres;
         HRESULT hres = windowless->OnWindowMessage(msg->message, msg->wParam, msg->lParam, &lres);
         if (hres == S_OK)
-            return TRUE;
+            return true;
     }
     return false; // ###
 }
 
 bool QAxHostWidget::event(QEvent *e)
 {
-    return QWidget::event(e);
-
     switch (e->type()) {
     case QEvent::Timer:
         if (axhost && ((QTimerEvent*)e)->timerId() == setFocusTimer) {
             killTimer(setFocusTimer);
             setFocusTimer = 0;
-            if (axhost->m_spActiveView) {
+            RECT rcPos = { x(), y(), x()+size().width(), y()+size().height() };
+            axhost->m_spOleObject->DoVerb(OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)axhost, 0, winId(), &rcPos);
+            if (axhost->m_spActiveView)
                 axhost->m_spActiveView->UIActivate(TRUE);
-            } else {
-                RECT rcPos = { x(), y(), x()+size().width(), y()+size().height() };
-                axhost->m_spOleObject->DoVerb(OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)axhost, 0, winId(), &rcPos);
-            }
         }
         break;
     case QEvent::WindowBlocked:
@@ -1414,17 +1475,30 @@ bool QAxHostWidget::event(QEvent *e)
 void QAxHostWidget::focusInEvent(QFocusEvent *e)
 {
     QWidget::focusInEvent(e);
-    if (!axhost || axhost->m_spInPlaceActiveObject || !axhost->m_spOleObject)
+
+    if (!axhost || !axhost->m_spOleObject)
         return;
-    
+    /*
     // this is called by QWidget::setFocus which calls ::SetFocus on "this",
     // so we have to UIActivate the control after all that had happend.
     setFocusTimer = startTimer(0);
+    */
+    AX_DEBUG(Setting focus on in-place object);
+
+    IOleInPlaceActiveObject *activeObject = 0;
+    axhost->m_spOleObject->QueryInterface(IID_IOleInPlaceActiveObject, (void**)&activeObject);
+    if (activeObject) {
+        HWND hwnd;
+        activeObject->GetWindow(&hwnd);
+        ::SetFocus(hwnd);
+        activeObject->Release();
+    }
 }
 
 void QAxHostWidget::focusOutEvent(QFocusEvent *e)
 {
     QWidget::focusOutEvent(e);
+    /*
     if (setFocusTimer) {
         killTimer(setFocusTimer);
         setFocusTimer = 0;
@@ -1435,7 +1509,9 @@ void QAxHostWidget::focusOutEvent(QFocusEvent *e)
     if (!axhost || !axhost->m_spInPlaceActiveObject || !axhost->m_spInPlaceObject)
         return;
     
+    AX_DEBUG(Deactivating in-place object);
     axhost->m_spInPlaceObject->UIDeactivate();
+    */
 }
 
 
