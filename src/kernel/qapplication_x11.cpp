@@ -4784,6 +4784,7 @@ static void deleteKeyDicts()
     textDict = 0;
 }
 
+#if !defined(QT_NO_XIM)
 static const unsigned short cyrillicKeysymsToUnicode[] = {
     0x0000, 0x0452, 0x0453, 0x0451, 0x0454, 0x0455, 0x0456, 0x0457,
     0x0458, 0x0459, 0x045a, 0x045b, 0x045c, 0x0000, 0x045e, 0x045f,
@@ -4799,7 +4800,6 @@ static const unsigned short cyrillicKeysymsToUnicode[] = {
     0x042c, 0x042b, 0x0417, 0x0428, 0x042d, 0x0429, 0x0427, 0x042a
 };
 
-#if 0 // for now avoid compiler warnings
 static const unsigned short greekKeysymsToUnicode[] = {
     0x0000, 0x0386, 0x0388, 0x0389, 0x038a, 0x03aa, 0x0000, 0x038c,
     0x038e, 0x03ab, 0x0000, 0x038f, 0x0000, 0x0000, 0x0385, 0x2015,
@@ -4814,9 +4814,7 @@ static const unsigned short greekKeysymsToUnicode[] = {
     0x03c0, 0x03c1, 0x03c3, 0x03c2, 0x03c4, 0x03c5, 0x03c6, 0x03c7,
     0x03c8, 0x03c9, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
 };
-#endif
 
-#if !defined(QT_NO_XIM)
 // ### add keysym conversion for the missing ranges.
 static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
 {
@@ -4828,7 +4826,7 @@ static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
     if ( byte3 == 0x07 ) {
 	// greek
 	if ( byte4 > 0xa0 )
-	    return QChar( cyrillicKeysymsToUnicode[byte4 - 0xa0] );
+	    return QChar( greekKeysymsToUnicode[byte4 - 0xa0] );
     }
     return QChar(0x0);
 }
