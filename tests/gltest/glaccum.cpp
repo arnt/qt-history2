@@ -111,6 +111,7 @@ void GLAccum::initializeGL()
  
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClearAccum(0.0, 0.0, 0.0, 0.0);
+    q = gluNewQuadric();
 }
 
 
@@ -161,8 +162,6 @@ void GLAccum::renderTeapot (GLfloat x, GLfloat y, GLfloat z,
     GLfloat difr, GLfloat difg, GLfloat difb,
     GLfloat specr, GLfloat specg, GLfloat specb, GLfloat shine)
 {
-    GLUquadric *q;
-    q = gluNewQuadric();
     float mat[4];
  
     glPushMatrix();

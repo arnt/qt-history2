@@ -54,6 +54,7 @@ private:
 				      GLfloat difg, GLfloat difb,
 				      GLfloat specr, GLfloat specg, 
 				      GLfloat specb, GLfloat shine);
+    GLUquadric          *q;
 };
 
 
