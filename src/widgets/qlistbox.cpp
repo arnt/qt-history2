@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#234 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#235 $
 **
 ** Implementation of QListBox widget class
 **
@@ -51,7 +51,9 @@ public:
 	scrollTimer( 0 ), updateTimer( 0 ),
 	selectionMode( QListBox::Single ),
 	count( 0 ),
-	ignoreMoves( FALSE )
+	ignoreMoves( FALSE ),
+	minWidth( 0 ),
+	minHeight( 0 )
 
     {}
     ~QListBoxPrivate();
@@ -89,6 +91,11 @@ public:
     int count;
 
     bool ignoreMoves;
+    
+    
+    // used for the sizeHint
+    int minWidth;
+    int minHeight;
 };
 
 
@@ -1699,12 +1706,9 @@ void QListBox::emitChangedSignal( bool lazy ) {
 */
 QSize QListBox::sizeHint() const
 {
-    int x, y;
-    QSize s( d->columnPos[numColumns()] + 2*frameWidth() + verticalScrollBar()->width(), 
-			 d->rowPos[numRows()] + 2*frameWidth() );
-     d->layoutDirty= TRUE;
     doLayout();
-    return s;
+    return QSize( d->minWidth + 2*frameWidth() + verticalScrollBar()->width(),
+		  d->minHeight + 2*frameWidth() );
 }
 
 
@@ -1915,9 +1919,9 @@ void QListBox::doLayout() const
 	    int maxw = 0;
 	    QListBoxItem * i = d->head;
 	    while ( i ) {
-		int w = i->width( this );
-		if ( maxw < w )
-		    maxw = w;
+		int tw = i->width( this );
+		if ( maxw < tw )
+		    maxw = tw;
 		i = i->n;
 	    }
 	    int vw = viewportSize( 1,1 ).width();
@@ -1950,20 +1954,20 @@ void QListBox::doLayout() const
 	}
 	break;
     }
-    
+
     d->layoutDirty = FALSE;
-    QSize s( viewportSize( d->columnPos[numColumns()],
-			   d->rowPos[numRows()] ) );
-    int x, y;
-    x = QMAX( d->columnPos[numColumns()], s.width() );
-    y = QMAX( d->rowPos[numRows()], s.height() );
-    
+    d->minWidth = d->columnPos[numColumns()];
+    d->minHeight = d->rowPos[numRows()];
+    QSize s( viewportSize( d->minWidth, d->minHeight ) );
+    int w = QMAX( d->minWidth, s.width() );
+    int h = QMAX( d->minHeight, s.height() );
+
     // extend the column for simple single-column listboxes
     if ( rowMode() == Variable && columnMode() == FixedNumber
-	 && d->numColumns == 1 && d->columnPos[1] < x )
-	d->columnPos[1] = x;
+	 && d->numColumns == 1 && d->columnPos[1] < w )
+	d->columnPos[1] = w;
 
-    ((QListBox *)this)->resizeContents( x, y );
+    ((QListBox *)this)->resizeContents( w, h );
 }
 
 
