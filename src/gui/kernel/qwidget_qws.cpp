@@ -850,7 +850,7 @@ void QWidget::repaint(const QRegion& rgn)
         qt_qws_release_double_buffer(&qDoubleBuffer);
 
         // Delete double buffer if not used within timeout
-        if (!qApp->active_window) {
+        if (!QApplicationPrivate::active_window) {
             extern int qt_double_buffer_timer;
             if (qt_double_buffer_timer)
                 qApp->killTimer(qt_double_buffer_timer);

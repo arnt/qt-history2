@@ -184,7 +184,7 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                 qApp->removeEventFilter(this);
                 dragSource = 0;
             } else {
-                updateMode(ke->stateAfter());
+                updateMode(ke->modifiers());
                 updateCursor();
             }
             return true; // Eat all key events
