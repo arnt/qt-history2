@@ -36,7 +36,7 @@ static QString make_func_pretty( const QString &s )
     res.replace( QRegExp( "[)]" ), " )" );
     res.replace( QRegExp( "&" ), " &" );
     res.replace( QRegExp( "[*]" ), " *" );
-    res.replace( QRegExp( "," ), "," );
+    res.replace( QRegExp( "," ), ", " );
     return res;
 }
 
