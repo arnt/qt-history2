@@ -1792,9 +1792,17 @@ QDateTime QSettings::lastModificationTime( const QString &key )
     Writes the string list entry \a value into key \a key. The \a key
     is created if it doesn't exist. Any previous value is overwritten
     by \a value. The list is stored as a sequence of strings separated
-    by \a separator, so none of the strings in the list should contain
-    the separator. If the list is empty or null the key's value will
-    be an empty string.
+    by \a separator (using QStringList::join()), so none of the
+    strings in the list should contain the separator. If the list is
+    empty or null the key's value will be an empty string.
+
+    \warning The list should not contain empty or null strings, as
+    readListEntry() will use QStringList::split() to recreate the
+    list.  As the documentation states, QStringList::split() will omit
+    empty strings from the list.  Because of this, it is impossible to
+    retrieve identical list data that is stored with this function.
+    We recommend using the writeEntry() and readListEntry() overloads
+    that do not take a \a separator argument.
 
     If an error occurs the settings are left unchanged and FALSE is
     returned; otherwise returns TRUE.
@@ -1844,6 +1852,13 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
     is used to create a QStringList by calling QStringList::split(\a
     separator, entry). If \a ok is not 0: \a *ok is set to TRUE if the
     key was read, otherwise \a *ok is set to FALSE.
+
+    \warning As the documentation states, QStringList::split() will
+    omit empty strings from the list.  Because of this, it is
+    impossible to retrieve identical list data with this function.  We
+    recommend using the readListEntry() and writeEntry() overloads
+    that do not take a \a separator argument.
+
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
