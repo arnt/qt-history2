@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#21 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,16 +16,39 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#21 $")
+
+
+/*----------------------------------------------------------------------------
+  \class QGDict qgdict.h
+  \brief The QGDict class is an internal class for implementing Qt collection classes.
+
+  QGDict is a strictly internal class that acts as a base class for the
+  \link collectionclasses.html collection classes\endlink QDict and QIntDict.
+  QStack.
+
+  QGDict has some virtual functions that can be reimplemented to customize
+  the subclasses.
+  <ul>
+  <li> hashKey() implements the hashing function for the dictionary.
+  <li> read() reads a collection/list item from a QDataStream.
+  <li> write() writes a collection/list item to a QDataStream.
+  </ul>
+  Normally, you do not have to reimplement any of these functions.
+ ----------------------------------------------------------------------------*/
 
 
 declare(QListM,QGDictIterator);			// list of iterators (Qditlst)
 
-// --------------------------------------------------------------------------
-// Default implementation of virtual functions
-//
+/*****************************************************************************
+  Default implementation of virtual functions
+ *****************************************************************************/
 
-int QGDict::hashKey( const char *key )		// make hash value
+/*----------------------------------------------------------------------------
+  Returns the hash key for \e key, when key is a string.
+ ----------------------------------------------------------------------------*/
+
+int QGDict::hashKey( const char *key )
 {
     register int index = 0;
     register const char *k = key;
@@ -60,21 +83,39 @@ int QGDict::hashKey( const char *key )		// make hash value
 }
 
 
-QDataStream& QGDict::read( QDataStream &s, GCI &d )
-{						// read item from stream
-    d = 0;
+/*----------------------------------------------------------------------------
+  Reads a collection/dictionary item from the stream \e s and returns a
+  reference to the stream.
+
+  The default implementation sets \e item to 0.
+
+  \sa write()
+ ----------------------------------------------------------------------------*/
+
+QDataStream& QGDict::read( QDataStream &s, GCI &item )
+{
+    item = 0;
     return s;
 }
+
+/*----------------------------------------------------------------------------
+  Writes a collection/dictionary item to the stream \e s and returns a
+  reference to the stream.
+
+  The default implementation does nothing.
+
+  \sa read()
+ ----------------------------------------------------------------------------*/
 
 QDataStream& QGDict::write( QDataStream &s, GCI ) const
-{						// write item to stream
+{
     return s;
 }
 
 
-// --------------------------------------------------------------------------
-// QBucket class (internal hash node)
-//
+/*****************************************************************************
+  QBucket class (internal hash node)
+ *****************************************************************************/
 
 class QBucket
 {
@@ -92,9 +133,14 @@ private:
 };
 
 
-// --------------------------------------------------------------------------
-// QGDict member functions
-//
+/*****************************************************************************
+  QGDict member functions
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  \internal
+  Constructs a dictionary.
+ ----------------------------------------------------------------------------*/
 
 QGDict::QGDict( uint len, bool cs, bool ck, bool th )
 {
@@ -110,7 +156,12 @@ QGDict::QGDict( uint len, bool cs, bool ck, bool th )
     iterators = 0;
 }
 
-QGDict::QGDict( const QGDict & dict )		// make copy of other dict
+/*----------------------------------------------------------------------------
+  \internal
+  Constructs a copy of \e dict.
+ ----------------------------------------------------------------------------*/
+
+QGDict::QGDict( const QGDict & dict )
 {
     vec = new QBucket *[vlen = dict.vlen];	// allocate hash table
     CHECK_PTR( vec );
@@ -127,6 +178,11 @@ QGDict::QGDict( const QGDict & dict )		// make copy of other dict
     }
 }
 
+/*----------------------------------------------------------------------------
+  \internal
+  Removes all items from the dictionary and destroys it.
+ ----------------------------------------------------------------------------*/
+
 QGDict::~QGDict()
 {
     clear();					// delete everything
@@ -142,7 +198,12 @@ QGDict::~QGDict()
 }
 
 
-QGDict &QGDict::operator=( const QGDict &dict ) // assign from other dict
+/*----------------------------------------------------------------------------
+  \internal
+  Assigns \e dict to this dictionary.
+ ----------------------------------------------------------------------------*/
+
+QGDict &QGDict::operator=( const QGDict &dict )
 {
     clear();
     QGDictIterator it( dict );
@@ -154,9 +215,10 @@ QGDict &QGDict::operator=( const QGDict &dict ) // assign from other dict
 }
 
 
-//
-// The do-it-all function; find (op==0), insert (op==1), replace (op==2)
-//
+/*----------------------------------------------------------------------------
+  \internal
+  The do-it-all function; find (op==0), insert (op==1), replace (op==2)
+ ----------------------------------------------------------------------------*/
 
 GCI QGDict::look( const char *key, GCI d, int op )
 {
@@ -203,6 +265,10 @@ GCI QGDict::look( const char *key, GCI d, int op )
     return node->getData();
 }
 
+/*----------------------------------------------------------------------------
+  \internal
+  Unlinks the bucket with the specified key.
+ ----------------------------------------------------------------------------*/
 
 QBucket *QGDict::unlink( const char *key )
 {
@@ -243,7 +309,12 @@ QBucket *QGDict::unlink( const char *key )
     return 0;
 }
 
-bool QGDict::remove( const char *key )		// remove item
+/*----------------------------------------------------------------------------
+  \internal
+  Removes the item with the specified key.
+ ----------------------------------------------------------------------------*/
+
+bool QGDict::remove( const char *key )
 {
     register QBucket *n = unlink( key );
     if ( n ) {
@@ -255,7 +326,12 @@ bool QGDict::remove( const char *key )		// remove item
     return n != 0;
 }
 
-GCI QGDict::take( const char *key )		// take out item
+/*----------------------------------------------------------------------------
+  \internal
+  Takes out the item with the specified key.
+ ----------------------------------------------------------------------------*/
+
+GCI QGDict::take( const char *key )
 {
     register QBucket *n = unlink( key );
     GCI tmp = 0;
@@ -269,7 +345,12 @@ GCI QGDict::take( const char *key )		// take out item
 }
 
 
-void QGDict::clear()				// delete all items
+/*----------------------------------------------------------------------------
+  \internal
+  Removes all items from the dictionary.
+ ----------------------------------------------------------------------------*/
+
+void QGDict::clear()
 {
     if ( !numItems )
 	return;
@@ -297,7 +378,12 @@ void QGDict::clear()				// delete all items
 }
 
 
-void QGDict::statistics() const			// output statistics (debug)
+/*----------------------------------------------------------------------------
+  \internal
+  Outputs debug statistics.
+ ----------------------------------------------------------------------------*/
+
+void QGDict::statistics() const
 {
 #if defined(DEBUG)
     QString line;
@@ -341,21 +427,26 @@ void QGDict::statistics() const			// output statistics (debug)
 }
 
 
-// --------------------------------------------------------------------------
-// QGDict stream functions
-//
+/*****************************************************************************
+  QGDict stream functions
+ *****************************************************************************/
 
 QDataStream &operator>>( QDataStream &s, QGDict &dict )
-{						// read dict
+{
     return dict.read( s );
 }
 
 QDataStream &operator<<( QDataStream &s, const QGDict &dict )
-{						// write dict
+{
     return dict.write( s );
 }
 
-QDataStream &QGDict::read( QDataStream &s )	// read dict from stream
+/*----------------------------------------------------------------------------
+  \internal
+  Reads a dictionary from the stream \e s.
+ ----------------------------------------------------------------------------*/
+
+QDataStream &QGDict::read( QDataStream &s )
 {
     uint num;
     s >> num;					// read number of items
@@ -376,8 +467,13 @@ QDataStream &QGDict::read( QDataStream &s )	// read dict from stream
     return s;
 }
 
+/*----------------------------------------------------------------------------
+  \internal
+  Writes the dictionary to the stream \e s.
+ ----------------------------------------------------------------------------*/
+
 QDataStream& QGDict::write( QDataStream &s ) const
-{						// write dict to stream
+{
     s << count();				// write number of items
     uint i = 0;
     while ( i<size() ) {
@@ -396,9 +492,22 @@ QDataStream& QGDict::write( QDataStream &s ) const
 }
 
 
-// --------------------------------------------------------------------------
-// QGDictIterator member functions
-//
+/*****************************************************************************
+  QGDictIterator member functions
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  \class QGDictIterator qgdict.h
+  \brief The QGDictIterator is an internal class for implementing QDictIterator and QIntDictIterator.
+
+  QGDictIterator is a strictly internal class that does the heavy work for
+  QDictIterator and QIntDictIterator.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \internal
+  Constructs an iterator that operates on the dictionary \e d.
+ ----------------------------------------------------------------------------*/
 
 QGDictIterator::QGDictIterator( const QGDict &d )
 {
@@ -411,6 +520,11 @@ QGDictIterator::QGDictIterator( const QGDict &d )
     dict->iterators->append( this );		// notify dict about iterator
 }
 
+/*----------------------------------------------------------------------------
+  \internal
+  Destroys the iterator.
+ ----------------------------------------------------------------------------*/
+
 QGDictIterator::~QGDictIterator()
 {
     if ( dict )
@@ -418,7 +532,12 @@ QGDictIterator::~QGDictIterator()
 }
 
 
-GCI QGDictIterator::toFirst()			// move to first item
+/*----------------------------------------------------------------------------
+  \internal
+  Sets the iterator to point to the first item in the dictionary.
+ ----------------------------------------------------------------------------*/
+
+GCI QGDictIterator::toFirst()
 {
     if ( !dict ) {
 #if defined(CHECK_NULL)
@@ -440,18 +559,33 @@ GCI QGDictIterator::toFirst()			// move to first item
 }
 
 
-GCI QGDictIterator::get() const			// get current item
+/*----------------------------------------------------------------------------
+  \internal
+  Returns the current item.
+ ----------------------------------------------------------------------------*/
+
+GCI QGDictIterator::get() const
 {
     return curNode ? curNode->getData() : 0;
 }
 
-const char *QGDictIterator::getKey() const	// get current key
+/*----------------------------------------------------------------------------
+  \internal
+  Returns the key of the current item.
+ ----------------------------------------------------------------------------*/
+
+const char *QGDictIterator::getKey() const
 {
     return curNode ? curNode->getKey() : 0;
 }
 
 
-GCI QGDictIterator::operator()()		// get current and move to next
+/*----------------------------------------------------------------------------
+  \internal
+  Moves to the next item (postfix).
+ ----------------------------------------------------------------------------*/
+
+GCI QGDictIterator::operator()()
 {
     if ( !dict ) {
 #if defined(CHECK_NULL)
@@ -466,7 +600,12 @@ GCI QGDictIterator::operator()()		// get current and move to next
     return d;
 }
 
-GCI QGDictIterator::operator++()		// move to next item (prefix)
+/*----------------------------------------------------------------------------
+  \internal
+  Moves to the next item (prefix).
+ ----------------------------------------------------------------------------*/
+
+GCI QGDictIterator::operator++()
 {
     if ( !dict ) {
 #if defined(CHECK_NULL)
@@ -492,7 +631,12 @@ GCI QGDictIterator::operator++()		// move to next item (prefix)
     return curNode->getData();
 }
 
-GCI QGDictIterator::operator+=( uint jumps )	// move n positions forward
+/*----------------------------------------------------------------------------
+  \internal
+  Moves \e jumps positions forward.
+ ----------------------------------------------------------------------------*/
+
+GCI QGDictIterator::operator+=( uint jumps )
 {
     while ( curNode && jumps-- )
 	operator++();

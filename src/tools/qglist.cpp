@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#27 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#28 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#28 $")
 
 
 /*----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#27 $")
 
 /*----------------------------------------------------------------------------
   \class QGList qglist.h
-  \brief The QGList is an internal class for implementing Qt collection classes.
+  \brief The QGList class is an internal class for implementing Qt collection classes.
 
   QGList is a strictly internal class that acts as a base class for several
   \link collectionclasses.html collection classes\endlink; QList, QQueue and
@@ -848,7 +848,7 @@ QDataStream &operator<<( QDataStream &s, const QGList &list )
   Reads a list from the stream \e s.
  ----------------------------------------------------------------------------*/
 
-QDataStream &QGList::read( QDataStream &s )	// read list from stream
+QDataStream &QGList::read( QDataStream &s )
 {
     uint num;
     s >> num;					// read number of items
@@ -882,7 +882,7 @@ QDataStream &QGList::read( QDataStream &s )	// read list from stream
  ----------------------------------------------------------------------------*/
 
 QDataStream &QGList::write( QDataStream &s ) const
-{						// write list to stream
+{
     s << count();				// write number of items
     QLNode *n = firstNode;
     while ( n ) {				// write all items
@@ -908,7 +908,7 @@ QDataStream &QGList::write( QDataStream &s ) const
 
 /*----------------------------------------------------------------------------
   \internal
-  Constructs a list iterator that operates on the list \e l.
+  Constructs an iterator that operates on the list \e l.
  ----------------------------------------------------------------------------*/
 
 QGListIterator::QGListIterator( const QGList &l )
@@ -924,7 +924,7 @@ QGListIterator::QGListIterator( const QGList &l )
 
 /*----------------------------------------------------------------------------
   \internal
-  Destroys the list iterator.
+  Destroys the iterator.
  ----------------------------------------------------------------------------*/
 
 QGListIterator::~QGListIterator()
