@@ -937,12 +937,12 @@ bool qt_nograb()				// application no-grab option
 }
 
 
-static QAsciiDict<int> *winclassNames = 0;
+static QHash<QString, int*> *winclassNames = 0;
 
 const QString qt_reg_winclass( Qt::WFlags flags )	// register window class
 {
     if ( !winclassNames ) {
-	winclassNames = new QAsciiDict<int>;
+	winclassNames = new QHash<QString, int*>;
     }
     uint style;
     bool icon;
@@ -979,7 +979,7 @@ const QString qt_reg_winclass( Qt::WFlags flags )	// register window class
     cname = QString::number( appUniqueID );
 #endif
 
-    if ( winclassNames->find(cname.latin1()) )		// already registered
+    if ( winclassNames->value(cname.latin1()) )		// already registered
 	return cname;
 
 #ifndef Q_OS_TEMP
@@ -1057,9 +1057,9 @@ static void unregWinClasses()
 {
     if ( !winclassNames )
 	return;
-    QAsciiDictIterator<int> it(*winclassNames);
+    QHash<QString, int*>::Iterator it = winclassNames->begin();
     const char *k;
-    while ( (k = it.currentKey()) ) {
+    while ( (k = it.key()) ) {
 	QT_WA( {
 	    UnregisterClass( (TCHAR*)QString::fromLatin1(k).ucs2(), (HINSTANCE)qWinAppInst() );
 	} , {
@@ -1092,7 +1092,7 @@ Qt::WindowsVersion QApplication::winVersion()
   QApplication cursor stack
  *****************************************************************************/
 
-typedef QPtrList<QCursor> QCursorList;
+typedef QList<QCursor*> QCursorList;
 
 static QCursorList *cursorStack = 0;
 

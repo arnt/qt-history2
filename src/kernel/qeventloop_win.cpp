@@ -16,9 +16,7 @@
 #include "qapplication.h"
 #include "qwidget.h"
 #include "qevent.h"
-#include "qptrqueue.h"
-#include "qptrvector.h"
-#include "qintdict.h"
+#include "qhash.h"
 #include <private/qinputcontext_p.h>
 #define d d_func()
 #define q q_func()
@@ -90,12 +88,12 @@ struct QWinConfigRequest {
     int	 x, y, w, h;				// request parameters
 };
 
-static QPtrQueue<QWinConfigRequest> *configRequests = 0;
+static QList<QWinConfigRequest*> *configRequests = 0;
 
 void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
 {
-    if ( !configRequests )			// create queue
-	configRequests = new QPtrQueue<QWinConfigRequest>;
+    if (!configRequests)			// create queue
+	configRequests = new QList<QWinConfigRequest*>;
     QWinConfigRequest *r = new QWinConfigRequest;
     r->id = id;					// create new request
     r->req = req;
@@ -103,7 +101,7 @@ void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
     r->y = y;
     r->w = w;
     r->h = h;
-    configRequests->enqueue( r );		// store request in queue
+    configRequests->append(r);		// store request in queue
 }
 
 Q_EXPORT void qWinProcessConfigRequests()		// perform requests in queue
@@ -114,7 +112,7 @@ Q_EXPORT void qWinProcessConfigRequests()		// perform requests in queue
     for ( ;; ) {
 	if ( configRequests->isEmpty() )
 	    break;
-	r = configRequests->dequeue();
+	r = configRequests->takeLast();
 	QWidget *w = QWidget::find( r->id );
 	if ( w ) {				// widget exists
 	    if ( w->testWState(Qt::WState_ConfigPending) )
@@ -278,7 +276,7 @@ bool QEventLoop::unregisterTimers( QObject *obj )
   for select() through the internal function qt_set_socket_handler().
  *****************************************************************************/
 
-typedef QIntDict<QSockNot> QSNDict;
+typedef QHash<int, QSockNot*> QSNDict;
 
 static QSNDict *sn_read	  = 0;
 static QSNDict *sn_write  = 0;
@@ -320,7 +318,7 @@ static void sn_init()
 void qt_sn_activate_fd( int sockfd, int type )
 {
     QSNDict  *dict = *sn_vec[type];
-    QSockNot *sn   = dict ? dict->find(sockfd) : 0;
+    QSockNot *sn   = dict ? (*dict)[sockfd] : 0;
     if ( sn ) {
 	QApplication::eventLoop()->setSocketNotifierPending( sn->obj );
     }
@@ -436,7 +434,7 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
     if ( dict == 0 )
 	return;
 
-    QSockNot *sn = dict->find(sockfd);
+    QSockNot *sn = (*dict)[sockfd];
     if ( !sn )
 	return;
     d->sn_pending_list.remove( sn );		// remove from activation list
@@ -484,7 +482,7 @@ void QEventLoop::setSocketNotifierPending( QSocketNotifier *notifier )
     }
 
     QSNDict  *dict = *sn_vec[type];
-    QSockNot *sn   = dict ? dict->find(sockfd) : 0;
+    QSockNot *sn   = dict ? (*dict)[sockfd] : 0;
     if ( !sn )
 	return;
 

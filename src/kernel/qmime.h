@@ -99,10 +99,6 @@ private:
 
 #if defined(Q_WS_WIN)
 
-#ifndef QT_H
-#include "qptrlist.h" // down here for GCC 2.7.* compatibility
-#endif // QT_H
-
 /*
   Encapsulation of conversion between MIME and Windows CLIPFORMAT.
   Not need on X11, as the underlying protocol uses the MIME standard
@@ -116,7 +112,7 @@ public:
 
     static void initialize();
 
-    static QPtrList<QWindowsMime> all();
+    static QList<QWindowsMime*> all();
     static QWindowsMime* convertor( const char* mime, int cf );
     static const char* cfToMime(int cf);
 

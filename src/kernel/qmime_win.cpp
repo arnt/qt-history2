@@ -32,7 +32,7 @@ extern bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
 extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
 #endif
 
-static QPtrList<QWindowsMime> mimes;
+static QList<QWindowsMime*> mimes;
 
 /*!
   \class QWindowsMime qmime.h
@@ -102,7 +102,8 @@ struct QWindowsRegisteredMimeType {
     QByteArray mime;
 };
 
-static QPtrList<QWindowsRegisteredMimeType> mimetypes;
+static QList<QWindowsRegisteredMimeType*> mimetypes;
+static int registeredMimeType;
 
 /*!
     \internal
@@ -119,17 +120,18 @@ int QWindowsMime::registerMimeType(const char *mime)
     if ( !f )
 	qSystemWarning( "QWindowsMime: Failed to register clipboard format" );
 #endif
-    QWindowsRegisteredMimeType *mt = mimetypes.current();
-    if ( !mt || mt->cf != f ) {
-	for ( mt = mimetypes.first(); mt && mt->cf!=f; mt = mimetypes.next() )
-	    ;
-	if (!mt) {
-	    mimetypes.append(new QWindowsRegisteredMimeType(f,mime));
-	}
+
+    int pos;
+    for (pos=0; pos<mimetypes.size() && mimetypes[pos]->cf!=f; ++pos)
+	;
+    if (pos>=mimetypes.size()) {
+	mimetypes.append( new QWindowsRegisteredMimeType(f, mime));
+	registeredMimeType = mimetypes.size()-1;
+    } else {
+	registeredMimeType = -1;
     }
     return f;
 }
-
 
 
 class QWindowsMimeAnyMime : public QWindowsMime {
@@ -161,52 +163,38 @@ int QWindowsMimeAnyMime::cf(int index)
 
 int QWindowsMimeAnyMime::cfFor(const char* mime)
 {
-    QWindowsRegisteredMimeType *mt = mimetypes.current();
-    if ( mt ) // quick check with most-recent
-	if ( 0==qstricmp(mt->mime, mime) )
-	    return mt->cf;
-    for ( mt = mimetypes.first(); mt; mt = mimetypes.next() )
-	if ( 0==qstricmp(mt->mime, mime) )
-	    return mt->cf;
+    for (int pos=0; pos<mimetypes.size(); ++pos)
+	if ( 0==qstricmp(mimetypes[pos]->mime, mime) )
+	    return mimetypes[pos]->cf;
     // try to register the mime type
     registerMimeType(mime);
-    mt = mimetypes.current();
-    if( mt && 0 == qstricmp(mt->mime, mime) )
-	return mt->cf;
+    if (registeredMimeType>=0)
+	if (0 == qstricmp(mimetypes[registeredMimeType]->mime, mime) )
+	return mimetypes[registeredMimeType]->cf;
     return 0;
 }
 
 const char* QWindowsMimeAnyMime::mimeFor(int cf)
 {
-    QWindowsRegisteredMimeType *mt = mimetypes.current();
-    if ( mt ) // quick check with most-recent
-	if ( mt->cf == cf )
-	    return mt->mime;
-    for ( mt = mimetypes.first(); mt; mt = mimetypes.next() )
-	if ( mt->cf == cf )
-	    return mt->mime;
+    for (int pos=0; pos<mimetypes.size(); ++pos)
+	if ( mimetypes[pos]->cf == cf )
+	    return mimetypes[pos]->mime;
     return 0;
 }
 
 bool QWindowsMimeAnyMime::canConvert( const char* mime, int cf )
 {
-    QWindowsRegisteredMimeType *mt = mimetypes.current();
-    if ( mt ) // quick check with most-recent
-	if ( mt->cf == cf && 0==qstricmp(mt->mime,mime) ) {
-	    return TRUE;
-	}
-    for ( mt = mimetypes.first(); mt; mt = mimetypes.next() )
-	if ( mt->cf == cf )
+    int pos;
+    for (pos=0; pos<mimetypes.size(); ++pos)
+	if (mimetypes[pos]->cf == cf )
 	    break;
-    if ( !mt ) {
+    if (pos>=mimetypes.size()) {
 	registerMimeType(mime);
-	mt = mimetypes.current();
-	if ( !mt || mt->cf != cf ) {
+	if (registeredMimeType<0 || mimetypes[registeredMimeType]->cf!=cf)
 	    return FALSE;
-	}
     }
 
-    return 0==qstricmp(mt->mime,mime);
+    return 0==qstricmp(mimetypes[pos]->mime,mime);
 }
 
 QByteArray QWindowsMimeAnyMime::convertToMime( QByteArray data, const char* , int )
@@ -531,13 +519,13 @@ extern QTextCodec* findcharset(const QByteArray& mimetype);
 QByteArray QWindowsMimeHtml::convertFromMime( QByteArray _data, const char* mime, int cf )
 {
     QByteArray data( _data );
-    QByteArray result = 
+    QByteArray result =
 	"Version 1.0\r\n"		    // 0-12
 	"StartHTML:0000000105\r\n"	    // 13-35
 	"EndHTML:0000000000\r\n"	    // 36-55
 	"StartFragment:0000000000\r\n"	    // 58-86
 	"EndFragment:0000000000\r\n\r\n";   // 87-105
-	
+
     if ( data.find( "<!--StartFragment-->" ) == -1 )
 	result += "<!--StartFragment-->";
     result += data.data();
@@ -841,10 +829,9 @@ QWindowsMime::convertor( const char *mime, int cf )
     if ( !cf )
 	return 0;
 
-    QWindowsMime* wm;
-    for ( wm = mimes.first(); wm; wm = mimes.next() ) {
-	if ( wm->canConvert(mime,cf) ) {
-	    return wm;
+    for (int pos=0; pos<mimes.size(); ++pos) {
+	if (mimes[pos]->canConvert(mime,cf)) {
+	    return mimes[pos];
 	}
     }
     return 0;
@@ -856,9 +843,8 @@ QWindowsMime::convertor( const char *mime, int cf )
 const char* QWindowsMime::cfToMime(int cf)
 {
     const char* m=0;
-    QWindowsMime* wm;
-    for ( wm = mimes.first(); wm && !m; wm = mimes.next() ) {
-	m = wm->mimeFor(cf);
+    for (int pos=0; pos<mimes.size() && !m; ++pos) {
+	m = mimes[pos]->mimeFor(cf);
     }
     return m;
 }
@@ -866,7 +852,7 @@ const char* QWindowsMime::cfToMime(int cf)
 /*!
   Returns a list of all currently defined QWindowsMime objects.
 */
-QPtrList<QWindowsMime> QWindowsMime::all()
+QList<QWindowsMime*> QWindowsMime::all()
 {
     return mimes;
 }

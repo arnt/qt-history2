@@ -65,14 +65,17 @@ LPFORMATETC allFormats(int& n)
 {
     n = 0;
     QWindowsMime* wm;
-    QPtrList<QWindowsMime> mimes = QWindowsMime::all();
-    for ( wm = mimes.first(); wm; wm = mimes.next() )
+    QList<QWindowsMime*> mimes = QWindowsMime::all();
+    for (int pos=0; pos<mimes.size(); ++pos) {
+	wm = mimes[pos];
 	n += wm->countCf();
+    }
 
     LPFORMATETC fmtetc = new FORMATETC[n];
 
     int i = 0;
-    for ( wm = mimes.first(); wm; wm = mimes.next() ) {
+    for (int pos=0; pos<mimes.size(); ++pos) {
+	wm = mimes[pos];
 	int t = wm->countCf();
 	for (int j=0; j<t; j++) {
 	    fmtetc[i].cfFormat = wm->cf(j);
@@ -95,14 +98,17 @@ LPFORMATETC someFormats(const char* mime, int& n)
 {
     n = 0;
     QWindowsMime* wm;
-    QPtrList<QWindowsMime> mimes = QWindowsMime::all();
-    for ( wm = mimes.first(); wm; wm = mimes.next() )
+    QList<QWindowsMime*> mimes = QWindowsMime::all();
+    for (int pos=0; pos<mimes.size(); ++pos) {
+	wm = mimes[pos];
 	if (wm->cfFor(mime)) n += wm->countCf();
+    }
 
     LPFORMATETC fmtetc = new FORMATETC[n];
 
     int i = 0;
-    for ( wm = mimes.first(); wm; wm = mimes.next() ) {
+    for (int pos=0; pos<mimes.size(); ++pos) {
+	wm = mimes[pos];
 	if (wm->cfFor(mime)) {
 	    int t = wm->countCf();
 	    for (int j=0; j<t; j++) {
@@ -128,14 +134,17 @@ LPFORMATETC someFormats(const QMimeSource* ms, int& n)
 {
     n = 0;
     QWindowsMime* wm;
-    QPtrList<QWindowsMime> mimes = QWindowsMime::all();
-    for ( wm = mimes.first(); wm; wm = mimes.next() )
+    QList<QWindowsMime*> mimes = QWindowsMime::all();
+    for (int pos=0; pos<mimes.size(); ++pos) {
+	wm = mimes[pos];
 	n += wm->countCf();
+    }
 
     LPFORMATETC fmtetc = new FORMATETC[n]; // Bigger than needed
 
     int i = 0;
-    for ( wm = mimes.first(); wm; wm = mimes.next() ) {
+    for (int pos=0; pos<mimes.size(); ++pos) {
+	wm = mimes[pos];
 	int t = wm->countCf();
 	for (int j=0; j<t; j++) {
 	    if ( ms->provides(wm->mimeFor(wm->cf(j))) ) {
@@ -942,7 +951,7 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 	de.acceptAction(acceptact);
 	de.accept(acceptfmt);
 	QApplication::sendEvent( widget, &de );
-	
+
 
 	// We won't get any mouserelease-event, so manually adjust qApp state:
 	QApplication::winMouseButtonUp();

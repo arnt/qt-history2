@@ -170,8 +170,9 @@ public:
     {
 	QByteArray r;
 	if ( OpenClipboard( clipboardOwner()->winId() ) ) {
-	    QPtrList<QWindowsMime> all = QWindowsMime::all();
-	    for (QWindowsMime* c = all.first(); c; c = all.next()) {
+	    QList<QWindowsMime*> all = QWindowsMime::all();
+	    for (int i = 0; i<all.size(); ++i) {
+		QWindowsMime* c = all[i];
 		int cf = c->cfFor(mime);
 		if ( cf ) {
 		    HANDLE h = GetClipboardData(cf);
@@ -337,9 +338,10 @@ static void renderAllFormats()
     ignore_empty_clipboard = FALSE;
 
     const char* mime;
-    QPtrList<QWindowsMime> all = QWindowsMime::all();
+    QList<QWindowsMime*> all = QWindowsMime::all();
     for (int i = 0; mime = s->format(i); i++) {
-	for (QWindowsMime* c = all.first(); c; c = all.next()) {
+	for (int pos = 0; pos<all.size(); ++pos) {
+	    QWindowsMime* c = all[pos];
 	    if ( c->cfFor(mime) ) {
 		for (int j = 0; j < c->countCf(); j++) {
 		    int cf = c->cf(j);
@@ -456,9 +458,10 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
 
     // Register all the formats of src that we can render.
     const char* mime;
-    QPtrList<QWindowsMime> all = QWindowsMime::all();
+    QList<QWindowsMime*> all = QWindowsMime::all();
     for (int i = 0; mime = src->format(i); i++) {
-	for (QWindowsMime* c = all.first(); c; c = all.next()) {
+	for (int pos=0; pos<all.size(); ++pos) {
+	    QWindowsMime* c = all[pos];
 	    if ( c->cfFor(mime) ) {
 		for (int j = 0; j < c->countCf(); j++) {
 		    UINT cf = c->cf(j);
