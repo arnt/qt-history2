@@ -405,6 +405,7 @@ for plat in mac win x11 qws; do
     win)
 	[ "x$DO_WIN" = "xyes" ] || continue
 	;;
+    *) die "Will probably need more info to package: $plat!" ;;
     esac
     echo "****** Packing for platform: $plat ****"
 
@@ -413,10 +414,12 @@ for plat in mac win x11 qws; do
 	[ -d $a ] && continue
 
 	#Remove the platform dependent files
-	if myexpr "$a" : '*_[a-z][a-z1][a-z1].cpp' || myexpr "$a" : '*_[a-z][a-z1][a-z1].h' || 
-	   myexpr "$a" : '*_[a-z][a-z1][a-z1].c'; then
+	if myexpr "$a" : '*_[a-z1]*.cpp' || myexpr "$a" : '*_[a-z1]*.h' || myexpr "$a" : '*_[a-z1]*.c'; then
 	    match=`basename $a | sed "s,.*_,," | cut -d'.' -f1`
-	    [ "$match" != "$plat" ] && [ "$match" != "$plat2" ] && continue
+	    case $match in
+	    mac|x11|unix|win|qws) [ "$match" != "$plat" ] && [ "$match" != "$plat2" ] && continue ;;
+	    *) ;;
+            esac
 	fi
 
 	#Remove non-dist files (tests-dir, util-dir, ... )
