@@ -99,8 +99,6 @@ bool qax_startServer(QAxFactory::ServerType type)
     if (qAxIsServer)
 	return TRUE;
 
-    HRESULT hRes = CoInitialize(0);
-
     const QStringList keys = qAxFactory()->featureList();
     if ( !keys.count() )
 	return FALSE;
@@ -149,8 +147,6 @@ bool qax_stopServer()
     classRegistration = 0;
 
     Sleep(dwPause); //wait for any threads to finish
-
-    CoUninitialize();
 
     return TRUE;
 }
@@ -253,6 +249,8 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 	cmdp = (char*) malloc( (cmdLine.length() + 1) * sizeof(char) );
 	qstrcpy( cmdp, cmdLine.latin1() );
 
+	HRESULT hRes = CoInitialize(0);
+
 	QMemArray<pchar> argv( 8 );
 	qWinMain( hInstance, hPrevInstance, cmdp, nShowCmd, argc, argv );
 	qAxInit();
@@ -261,6 +259,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 	nRet = main( argc, argv.data() );
 	QAxFactory::stopServer();
 	qAxCleanup();
+	CoUninitialize();
 
 	free( cmdp );
     }
