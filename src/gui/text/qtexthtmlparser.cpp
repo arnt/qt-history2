@@ -1182,8 +1182,10 @@ void QTextHtmlParser::parseAttributes()
                 } else if (style.startsWith(QLatin1String("font-family:"))) {
                     node->fontFamily = style.mid(12).section(',',0,0);
                 } else if (style.startsWith(QLatin1String("text-decoration:"))) {
-                    QString s = style.mid(16).trimmed();
-                    node->fontUnderline = (s == QLatin1String("underline"));
+                    QString s = style.mid(16);
+                    node->fontUnderline = static_cast<bool>(s.contains("underline"));
+                    node->fontOverline = static_cast<bool>(s.contains("overline"));
+                    node->fontStrikeOut = static_cast<bool>(s.contains("line-through"));
 #if 0
                 } else if (style.startsWith(QLatin1String("vertical-align:"))) {
                     QString s = style.mid(15).trimmed();
