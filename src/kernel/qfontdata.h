@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdata.h#40 $
+** $Id: //depot/qt/main/src/kernel/qfontdata.h#41 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -57,7 +57,9 @@ struct QFontData : public QShared {
 	: exactMatch(FALSE), fin(0)
 	{}
     QFontData( const QFontData &d )
-	: QShared( d ), req(d.req), exactMatch(d.exactMatch), fin(d.fin)
+	: QShared(d), req(d.req), exactMatch(d.exactMatch), fin(d.fin)
+	// Copy the QShared count as well. The count may need to be
+	// reset when using the QFontData class, see QFont::QFont(QFontData*)
 	{}
    ~QFontData()
 	{}
@@ -68,11 +70,11 @@ struct QFontData : public QShared {
 	    fin = d.fin;
 	    return *this;
 	}
-    QFontDef	    req;			// requested font
-    bool	    exactMatch;
-    QFontInternal  *fin;
-    const QTextCodec* mapper() const;
-    void* fontSet() const;
+    QFontDef	      req;			// requested font
+    bool	      exactMatch;
+    QFontInternal    *fin;
+    const QTextCodec *mapper()  const;
+    void	     *fontSet() const;
 };
 
 
