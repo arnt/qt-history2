@@ -38,7 +38,7 @@ main(int argc, char **argv)
 
     if(argc == 1) {
         fprintf(stderr, "%s <binary> [resources]\n", argv[0]);
-        return 666;
+        return 1;
     }
     QString fileName = argv[1];
 #ifdef Q_OS_MAC
@@ -56,7 +56,7 @@ main(int argc, char **argv)
     QFile file(fileName);
     if(!file.open(QFile::ReadOnly)) {
         fprintf(stderr, "Failure to open: %s\n", fileName.latin1());
-        return 666;
+        return 1;
     }
     const QByteArray bytes = file.readAll();
     file.close();
@@ -67,7 +67,7 @@ main(int argc, char **argv)
     }
     if(!QResource::find("/")) {
         fprintf(stderr, "** No resources!!!\n");
-        return 666;
+        return 1;
     }
     if(argc == 2) {
         QList<const QResource*> files;
@@ -85,7 +85,7 @@ main(int argc, char **argv)
         } 
         if(files.isEmpty()) {
             fprintf(stderr, "** No resources!!!\n");
-            return 666;
+            return 1;
         } else {
             printf("************ Resources *************\n");
             for(int i = 0; i < files.count(); i++) {
