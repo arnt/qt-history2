@@ -69,7 +69,7 @@ extern bool qt_file_access( const QString& fn, int t );
 
   The file that the QFileInfo works on is set in the constructor or
   later with setFile(). Use exists() to see if the file exists and
-  size() to get its size. 
+  size() to get its size.
 
   To speed up performance, QFileInfo caches information about the file.
   Because files can be changed by other users or programs, or even by
@@ -84,7 +84,7 @@ extern bool qt_file_access( const QString& fn, int t );
 
   Elements of the file's name can be extracted with dirPath() and
   fileName(). The fileName()'s parts can be extracted with baseName()
-  and extension(). 
+  and extension().
 
   The file's dates are returned by lastModified() and lastRead().
   Information about the file's access permissions is obtained with
@@ -133,8 +133,7 @@ QFileInfo::QFileInfo()
   Constructs a new QFileInfo that gives information about the given file.
   The \a file can be an absolute or a relative file path.
 
-  \sa bool setFile(QString ), isRelative(), QDir::setCurrent(),
-  QDir::isRelativePath()
+  \sa setFile(), isRelative(), QDir::setCurrent(), QDir::isRelativePath()
 */
 
 QFileInfo::QFileInfo( const QString &file )
@@ -246,7 +245,7 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
 /*!
   Sets the file that the QFileInfo provides information about to \a file.
 
-  The string given can be an absolute or a relative file path. Absolute 
+  The string given can be an absolute or a relative file path. Absolute
   paths begin with the directory separator (e.g. "/" under Unix) or a drive
   specification (not applicable to Unix). Relative file names begin with a
   directory name or a file name and specify a path relative to the current
@@ -259,7 +258,7 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
     QFileInfo absFile( absolute );
     QFileInfo relFile( relative );
 
-    QDir::setCurrent( QDir::rootDirPath() ); 
+    QDir::setCurrent( QDir::rootDirPath() );
     // absFile and relFile now point to the same file
 
     QDir::setCurrent( "/tmp" );
@@ -386,10 +385,10 @@ QString QFileInfo::filePath() const
 
   If \a complete is FALSE (the default) the base name consists of all
   characters in the file name up to (but not including) the \e first '.'
-  character.  
+  character.
 
   If \a complete is TRUE the base name consists of all characters in the
-  file up to (but not including) the \e last '.' character.  
+  file up to (but not including) the \e last '.' character.
 
   The path is not included in either case.
 
@@ -418,11 +417,11 @@ QString QFileInfo::baseName( bool complete ) const
 
   If \a complete is TRUE (the default), extension() returns the string
   of all characters in the file name after (but not including) the
-  first '.'  character.  
+  first '.'  character.
 
   If \a complete is FALSE, extension() returns the string of all
   characters in the file name after (but not including) the last '.'
-  character.  
+  character.
 
   Example:
   \code
@@ -493,7 +492,7 @@ bool QFileInfo::isExecutable() const
 
 
 /*!
-  Returns TRUE if the file path name is relative. Returns FALSE if the 
+  Returns TRUE if the file path name is relative. Returns FALSE if the
   path is absolute (e.g. under Unix a path is absolute if it
   begins with a "/").
 */

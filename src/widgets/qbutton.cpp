@@ -92,7 +92,7 @@ void QButton::ensureData()
   If the button is not a member of any QButtonGroup, this function
   returns 0.
 
-  \sa setGroup() QButtonGroup
+  \sa QButtonGroup
 */
 
 QButtonGroup *QButton::group() const

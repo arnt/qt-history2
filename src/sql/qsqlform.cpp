@@ -144,11 +144,11 @@ QSqlForm::~QSqlForm()
 }
 
 /*!  Installs a custom QSqlPropertyMap. This is useful if you plan to
-  create your own custom editor widgets. <em>QSqlForm takes ownership
+  create your own custom editor widgets. \e{QSqlForm takes ownership
   of \a pmap, and \a pmap is therefore deleted when QSqlForm goes out
-  of scope.</em>
+  of scope.}
 
-  \sa installEditorFactory()
+  \sa QDataTable::installEditorFactory()
 */
 void QSqlForm::installPropertyMap( QSqlPropertyMap * pmap )
 {
@@ -185,7 +185,7 @@ void QSqlForm::insert( QWidget * widget, const QString& field )
     d->fld += field;
 }
 
-/*!  
+/*!
     \overload
     Removes \a field from the form.
 

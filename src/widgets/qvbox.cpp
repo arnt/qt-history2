@@ -52,7 +52,8 @@
 
   <img src=qvbox-m.png>
 
-  \sa QVBox and QHBox */
+  \sa QVBox QHBox
+*/
 
 
 /*!

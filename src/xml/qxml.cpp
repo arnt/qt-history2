@@ -945,7 +945,7 @@ QXmlInputSource::~QXmlInputSource()
   data at a later point. The non-incremental parsing mode does not distinguish
   between the two values - they mean that the end of the data was reached.
 
-  \sa reset() fetchData() QXmlSimpleReader::prarse() QXmlSimpleReader::parseContinue()
+  \sa reset() fetchData() QXmlSimpleReader::parse() QXmlSimpleReader::parseContinue()
 */
 QChar QXmlInputSource::next()
 {
@@ -2571,12 +2571,12 @@ bool QXmlSimpleReader::parse( const QXmlInputSource *input, bool incremental )
 
   This function returns FALSE in the case of a parsing error, otherwise it
   returns TRUE.
-  
+
   The case that the end of the XML file is reached without having finished the
   parsing is not considered as an error -- you can continue parsing at a later
   state by calling this function again when there is more data available to
   parse.
-  
+
   This function assumes that the end of the XML document is reached if the
   QXmlInputSource::next() function returns QXmlInputSource::EndOfDocument. If
   the parser has not finished the parsing when it encounters this symbol, then
@@ -4565,7 +4565,7 @@ bool QXmlSimpleReader::parsePEReference()
 				    return FALSE;
 				}
 				skipIt = FALSE;
-			    } 
+			    }
 			}
 		    }
 
@@ -6815,7 +6815,7 @@ bool QXmlSimpleReader::processReference()
 				    if ( !insertXmlRef( xmlRefString, reference, FALSE ) )
 					return FALSE;
 				    skipIt = FALSE;
-				} 
+				}
 			    }
 			    if ( skipIt && contentHnd ) {
 				if ( !contentHnd->skippedEntity( reference ) ) {

@@ -126,8 +126,7 @@
   The \link #picture picture of the frames\endlink in the class
   documentation may illustrate this better than words.
 
-  \sa QFrame::Shadow QFrame::style() QStyle::drawPanel()
-  QStyle::drawPopupPanel()
+  \sa QFrame::Shadow QFrame::style() QStyle::drawPrimitive()
 */
 
 

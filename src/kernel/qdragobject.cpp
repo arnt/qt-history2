@@ -1100,6 +1100,16 @@ QByteArray QStoredDrag::encodedData(const char* m) const
   Use URIs in Unicode form so that the user can comfortably edit and view
   them.  For use in HTTP or other protocols, use the correctly escaped
   ASCII form.
+
+  You can convert a list of file names to file URIs using
+  setFileNames(), or into human-readble for with setUnicodeUris().
+
+  Static functions are provided to convert between filenames and URIs,
+  e.g. uriToLocalFile() and localFileToUri(), and to and from
+  human-readable form, e.g. uriToUnicodeUri(), unicodeUriToUri(). You
+  can also decode URIs from a mimesource into a list with
+  decodeLocalFiles() and decodeToUnicodeUris().
+
 */
 
 /*!
@@ -1151,7 +1161,8 @@ void QUriDrag::setUris( QStrList uris )
 
 
 /*!
-  Returns TRUE if decode() would be able to decode \a e.
+  Returns TRUE if decode() would be able to decode \a e; otherwise
+  returns FALSE.
 */
 bool QUriDrag::canDecode( const QMimeSource* e )
 {
@@ -1161,7 +1172,8 @@ bool QUriDrag::canDecode( const QMimeSource* e )
 /*!
   Decodes URIs from \a e, placing the result in \a l (which is first cleared).
 
-  Returns TRUE if the event contained a valid list of URIs.
+  Returns TRUE if the event contained a valid list of URIs; otherwise
+  returns FALSE.
 */
 bool QUriDrag::decode( const QMimeSource* e, QStrList& l )
 {
@@ -1369,10 +1381,12 @@ QString QUriDrag::uriToLocalFile(const char* uri)
 }
 
 /*!
-  Decodes URIs from \a e, converts them to local files if they refer to
-  local files, and places them in \a l (which is first cleared).
+  Decodes URIs from the mime source event \a e, converts them to local
+  files if they refer to local files, and places them in \a l (which
+  is first cleared).
 
-  Returns TRUE if the event contained a valid list of URIs.
+  Returns TRUE if \e contained a valid list of URIs; otherwise
+  returns FALSE.
   The list will be empty if no URIs were local files.
 */
 bool QUriDrag::decodeLocalFiles( const QMimeSource* e, QStringList& l )
@@ -1391,11 +1405,12 @@ bool QUriDrag::decodeLocalFiles( const QMimeSource* e, QStringList& l )
 }
 
 /*!
-  Decodes URIs from \a e, converts them to Unicode URIs (only useful for
-  displaying to humans),
-  placing them in \a l (which is first cleared).
+  Decodes URIs from the mime source event \a e, converts them to
+  Unicode URIs (only useful for displaying to humans), placing them in
+  \a l (which is first cleared).
 
-  Returns TRUE if the event contained a valid list of URIs.
+  Returns TRUE if \e contained a valid list of URIs; otherwise returns
+  FALSE.
 */
 bool QUriDrag::decodeToUnicodeUris( const QMimeSource* e, QStringList& l )
 {
@@ -1414,8 +1429,9 @@ bool QUriDrag::decodeToUnicodeUris( const QMimeSource* e, QStringList& l )
 #ifndef QT_NO_DRAGANDDROP
 /*!
   If the source of the drag operation is a widget in this application,
-  this function returns that source, otherwise 0.  The source of the
-  operation is the first parameter to to drag object subclass.
+  this function returns that source, otherwise it returns 0.  The
+  source of the operation is the first parameter to to drag object
+  subclass.
 
   This is useful if your widget needs special behavior when dragging
   to itself, etc.

@@ -756,7 +756,7 @@ bool QTextEdit::event( QEvent *e )
 	    case Key_P:
 	    case Key_T:
 */
-	    case Key_C:		
+	    case Key_C:
 	    case Key_V:
 	    case Key_X:
 	    case Key_Y:
@@ -3650,7 +3650,7 @@ QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
   FixedPixelWidth or \c FixedColumnWidth you should also call
   setWrapColumnOrWidth() with the width you want.
 
-  \sa Qt::WordWrap, wrapColumnOrWidth, wrapPolicy,
+  \sa WordWrap, wrapColumnOrWidth, wrapPolicy,
 */
 
 void QTextEdit::setWordWrap( WordWrap mode )

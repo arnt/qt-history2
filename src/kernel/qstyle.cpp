@@ -181,7 +181,7 @@ QStyle::~QStyle()
   things too much because new QStyle subclasses will be expected to work
   reasonably with all current and \e future widgets.
 
-  \sa unPolish(QWidget*)
+  \sa unPolish()
 */
 void QStyle::polish( QWidget*)
 {
@@ -195,7 +195,7 @@ void QStyle::polish( QWidget*)
   style has to unpolish its settings before the new style can polish
   them again.
 
-  \sa polish(QWidget*)
+  \sa polish()
 */
 void QStyle::unPolish( QWidget*)
 {
@@ -206,7 +206,7 @@ void QStyle::unPolish( QWidget*)
   \overload
   Late initialization of the QApplication object.
 
-  \sa unPolish(QApplication*)
+  \sa unPolish()
 */
 void QStyle::polish( QApplication*)
 {
@@ -216,7 +216,7 @@ void QStyle::polish( QApplication*)
   \overload
   Undoes the application polish.
 
-  \sa polish(QApplication*)
+  \sa polish()
 */
 void QStyle::unPolish( QApplication*)
 {
@@ -1608,6 +1608,10 @@ are drawn.</td>
   This enum represents a StyleHint.  A StyleHint is a general look
   and/or feel hint.
 
+  \value SH_EtchDisabledText disabled text is "etched" like Windows.
+
+  \value SH_GUIStyle the GUI style to use.
+
   \value SH_ScrollBar_BackgroundMode  the background mode for a
   QScrollBar.  Possible values are any of those in the \link
   Qt::BackgroundMode BackgroundMode\endlink enum.
@@ -1711,6 +1715,9 @@ are drawn.</td>
   \value SP_TitleBarNormalButton  normal (restore) button on titlebars.
   \value SP_TitleBarShadeButton  shade button on titlebars.
   \value SP_TitleBarUnshadeButton  unshade button on titlebars.
+  \value SP_MessageBoxInformation the 'information' icon.
+  \value SP_MessageBoxWarning the 'warning' icon.
+  \value SP_MessageBoxCritical the 'critical' icon.
 
 
   \value SP_DockWindowCloseButton  close button on dock windows;  see also QDockWindow.

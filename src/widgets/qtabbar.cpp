@@ -138,7 +138,7 @@ QTab::QTab( const QIconSet& icon, const QString& text )
   Return the identifier for the QTab.
 */
 
-  
+
 
 /*! Destroys the tab and frees up all allocated resources */
 
@@ -883,7 +883,7 @@ QTab * QTabBar::tab( int id ) const
 
 /*! Returns a pointer to the tab at the position \a index.
 
-  \sa indexOf
+  \sa indexOf()
 */
 
 QTab * QTabBar::tabAt( int index ) const
@@ -897,7 +897,7 @@ QTab * QTabBar::tabAt( int index ) const
 /*!
   Returns the position index of the tab with id \a id.
 
-  \sa indexOf, tabAt
+  \sa tabAt()
  */
 int QTabBar::indexOf( int id ) const
 {
@@ -1222,8 +1222,8 @@ void QTab::setText( const QString& text )
 */
 
 void QTab::setIconSet( const QIconSet &icon )
-{ 
-    iconset = new QIconSet( icon ); 
+{
+    iconset = new QIconSet( icon );
 }
 
 // this allows us to handle accelerators that are in a QTabBar.

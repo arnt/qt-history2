@@ -88,37 +88,37 @@
 */
 
 /*!
-    \fn bool QMultiLineEdit::autoUpdate() const 
+    \fn bool QMultiLineEdit::autoUpdate() const
     \obsolete
 */
 
 /*!
-    \fn virtual void QMultiLineEdit::setAutoUpdate( bool ) 
+    \fn virtual void QMultiLineEdit::setAutoUpdate( bool )
     \obsolete
 */
 
 /*!
-    \fn int QMultiLineEdit::totalWidth() const 
+    \fn int QMultiLineEdit::totalWidth() const
     \obsolete
 */
 
 /*!
-    \fn int QMultiLineEdit::totalHeight() const 
+    \fn int QMultiLineEdit::totalHeight() const
     \obsolete
 */
 
 /*!
-    \fn int QMultiLineEdit::maxLines() const 
+    \fn int QMultiLineEdit::maxLines() const
     \obsolete
 */
 
 /*!
-    \fn void QMultiLineEdit::setMaxLines( int ) 
+    \fn void QMultiLineEdit::setMaxLines( int )
     \obsolete
 */
 
 /*!
-    \fn void QMultiLineEdit::deselect() 
+    \fn void QMultiLineEdit::deselect()
     \obsolete
 */
 
@@ -354,7 +354,6 @@ void QMultiLineEdit::end( bool mark )
 
   If \a mark is FALSE, the selection is cleared. otherwise it is extended.
 
-  \sa cursorPosition()
 */
 
 void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )

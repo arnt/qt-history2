@@ -88,7 +88,6 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 }
 
 
-// #### check the %00 in the text
 
 /*!
   \class QUrl qurl.h
@@ -99,20 +98,46 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
   \ingroup misc
 
   The QUrl class is provided for simple work with URLs.
-  It does all parsing, decoding, encoding, and so on.
+  It can parse, decode, encode, etc.
 
-  Mention that URL has some restrictions regarding the path
-  encoding. URL works with the decoded path and
-  encoded query in turn. For example in the following
+  QUrl works with the decoded path and
+  encoded query in turn.
 
-  http://localhost/cgi-bin/test%20me.pl?cmd=Hello%20you
+Example:
+\code
+http://www.trolltech.com:80/cgi-bin/test%20me.pl?cmd=Hello%20you
+\endcode
+<table>
+<tr><td> protocol() </td><td>http</td></tr>
+<tr><td> host() </td><td>www.trolltech.com</td></tr>
+<tr><td> port() </td><td>80</td></tr>
+<tr><td> path() </td><td>cgi-bin</td></tr>
+<tr><td> fileName() </td><td>test&nbsp;me.pl</td></tr>
+<tr><td> query() </td><td>cmd=Hello%20you</td></tr>
+</table>
 
-  would result in a decoded path "/cgi-bin/test me.pl"
-  and in the encoded query "cmd=Hello%20you".
-  Because path is always encoded internally you may NOT use
-  "%00" in the path, although this is ok for the query.
+Example:
+\code
+http://doc.trolltech.com/qdockarea.html#lines
+\endcode
+<table>
+<tr><td> \l protocol() </td><td>http</td></tr>
+<tr><td> \l host() </td><td>www.trolltech.com</td></tr>
+<tr><td> \l fileName() </td><td>qdockarea.html</td></tr>
+<tr><td> ref() </td><td>lines</td></tr>
+</table>
 
-  QUrl is normally used like that:
+    The individual parts of a URL can be set with setProtocol(),
+    setHost(), setPort(), setPath(), setFileName(), setRef() and
+    setQuery(). A URL could contain, for example, an ftp address which
+    requires a user name and password; these can be set with setUser()
+    and setPassword().
+
+  Because path is always encoded internally you must \e not use "%00"
+  in the path, although this it is okay (but not recommended) for the
+  query.
+
+  QUrl is normally used like this:
 
   \code
   QUrl u( "http://www.trolltech.com" );
@@ -120,10 +145,10 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
   QUrl u( "file:/home/myself/Mail", "Inbox" );
   \endcode
 
-  You can then access the parts of the URL, change and use them.
+  You can then access and manipulate the various parts of the URL.
 
-  To allow easy work with QUrl and QString together, QUrl implements
-  the needed cast and assign operators so you can do following:
+  To make it easy to work with QUrls and QStrings, QUrl implements
+  the necessary cast and assignment operators so you can do following:
 
   \code
   QUrl u( "http://www.trolltech.com" );
@@ -133,9 +158,14 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
   QUrl u( s );
   \endcode
 
-  If you want to use an URL to work on a hirarchical structure
-  (e.g., a local or remote filesystem), the class QUrlOperator which is derived
-  from QUrl may be of interest to you.
+    Use the static functions, encode() and decode() to encode or
+    decode a URL in a string (they operate on the string in-place).
+    The isRelativeUrl() static function returns TRUE if the given
+    string is a relative URL.
+
+  If you want to use an URL to work on a hierarchical structure
+  (e.g. a local or remote filesystem), the class QUrlOperator which is derived
+  from QUrl may be of use to you.
 
   \sa QUrlOperator
 */
@@ -154,7 +184,7 @@ QUrl::QUrl()
 }
 
 /*!
-  Constructs an URL using \a url and parses this string.
+  Constructs an URL by parsing the string \a url.
 
   You can pass strings such as "/home/qt"; in this case the protocol
   "file" is assumed.
@@ -179,7 +209,7 @@ QUrl::QUrl( const QUrl& url )
 }
 
 /*!
-  Returns TRUE if \a url is relative, otherwise FALSE.
+  Returns TRUE if \a url is relative; otherwise returns FALSE.
 */
 
 bool QUrl::isRelativeUrl( const QString &url )
@@ -191,39 +221,33 @@ bool QUrl::isRelativeUrl( const QString &url )
 }
 
 /*!
-  Constructs an URL taking \a url as base (context) and
-  \a relUrl as relative URL to \a url. If \a relUrl is not relative,
+  Constructs an URL taking \a url as the base (context) and
+  \a relUrl as a relative URL to \a url. If \a relUrl is not relative,
   \a relUrl is taken as the new URL.
 
   For example, the path of
-
   \code
   QUrl u( "ftp://ftp.trolltech.com/qt/source", "qt-2.1.0.tar.gz" );
   \endcode
-
   will be "/qt/srource/qt-2.1.0.tar.gz".
 
-  And
-
+  On the other hand,
   \code
   QUrl u( "ftp://ftp.trolltech.com/qt/source", "/usr/local" );
   \endcode
-
   will result in a new URL:  "ftp://ftp.trolltech.com/usr/local",
 
-  And
-
+  Similarly,
   \code
   QUrl u( "ftp://ftp.trolltech.com/qt/source", "file:/usr/local" );
   \endcode
-
   will result in a new URL, with "/usr/local" as path
   and "file" as protocol.
 
   Normally it is expected that the path of \a url points to
   a directory, even if the path has no slash at the end. But
   if you want the constructor to handle the last
-  part of the path as file name if there is no slash at the end,
+  part of the path as a file name if there is no slash at the end,
   and to let it be replaced by the file name of \a relUrl
   (if it contains one), set \a checkSlash to TRUE.
 */
@@ -284,8 +308,8 @@ QUrl::~QUrl()
 }
 
 /*!
-  Returns the protocol of the URL. It is something like
-  "file" or "ftp".
+  Returns the protocol of the URL. Typically,
+  "file", "http", or "ftp", etc.
 */
 
 QString QUrl::protocol() const
@@ -294,8 +318,8 @@ QString QUrl::protocol() const
 }
 
 /*!
-  Sets the protocol of the URL to \a protocol. This could be
-  "file", "ftp" or similar.
+  Sets the protocol of the URL to \a protocol. Typically,
+  "file", "http", or "ftp", etc.
 */
 
 void QUrl::setProtocol( const QString& protocol )
@@ -322,8 +346,8 @@ void QUrl::setUser( const QString& user )
 }
 
 /*!
-  Returns TRUE if the URL contains a username,
-  otherwise FALSE.
+  Returns TRUE if the URL contains a username;
+  otherwise returns FALSE.
 */
 
 bool QUrl::hasUser() const
@@ -333,6 +357,9 @@ bool QUrl::hasUser() const
 
 /*!
   Returns the password of the URL.
+
+  \warning Passwords passed in URLs are normally \e insecure; this is
+  due to the mechanism, not because of Qt.
 */
 
 QString QUrl::password() const
@@ -342,6 +369,9 @@ QString QUrl::password() const
 
 /*!
   Sets the password of the URL to \a pass.
+
+  \warning Passwords passed in URLs are normally \e insecure; this is
+  due to the mechanism, not because of Qt.
 */
 
 void QUrl::setPassword( const QString& pass )
@@ -350,8 +380,11 @@ void QUrl::setPassword( const QString& pass )
 }
 
 /*!
-  Returns TRUE if the URL contains a password,
-  otherise FALSE.
+  Returns TRUE if the URL contains a password;
+  otherise returns FALSE.
+
+  \warning Passwords passed in URLs are normally \e insecure; this is
+  due to the mechanism, not because of Qt.
 */
 
 bool QUrl::hasPassword() const
@@ -378,8 +411,8 @@ void QUrl::setHost( const QString& host )
 }
 
 /*!
-  Returns TRUE if the URL contains a hostname,
-  otherwise FALSE.
+  Returns TRUE if the URL contains a hostname;
+  otherwise returns FALSE.
 */
 
 bool QUrl::hasHost() const
@@ -388,7 +421,7 @@ bool QUrl::hasHost() const
 }
 
 /*!
-  Returns the port of the URL.
+  Returns the port of the URL or -1 if .
 */
 
 int QUrl::port() const
@@ -733,7 +766,7 @@ bool QUrl::parse( const QString& url )
     // hack for windows file://machine/path syntax
     if ( d->protocol == "file" ) {
 	if ( url.left( 7 ) == "file://" &&
-	     d->path.length() > 1 && d->path[ 1 ] != ':' ) 
+	     d->path.length() > 1 && d->path[ 1 ] != ':' )
 		 d->path.prepend( "/" );
     }
 #endif

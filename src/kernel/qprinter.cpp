@@ -298,6 +298,7 @@
 
 /*!
   \fn bool QPrinter::outputToFile() const
+
   Returns TRUE if the output should be written to a file, or FALSE if the
   output should be sent directly to the printer.
   The default setting is FALSE.
@@ -394,6 +395,7 @@ void QPrinter::setPrintProgram( const QString &printProg )
 
 /*!
   \fn QString QPrinter::docName() const
+
   Returns the document name.
   \sa setDocName()
 */
@@ -416,6 +418,7 @@ void QPrinter::setDocName( const QString &name )
 
 /*!
   \fn QString QPrinter::creator() const
+
   Returns the name of the application that created the document.
   \sa setCreator()
 */
@@ -549,6 +552,7 @@ QPrinter::ColorMode QPrinter::colorMode() const
 
 /*!
   \fn int QPrinter::fromPage() const
+
   Returns the from-page setting.  The default value is 0.
 
   If fromPage() and toPage() both return 0 this should signify 'print
@@ -562,6 +566,7 @@ QPrinter::ColorMode QPrinter::colorMode() const
 
 /*!
   \fn int QPrinter::toPage() const
+
   Returns the to-page setting.  The default value is 0.
 
   If fromPage() and toPage() both return 0 this should signify 'print
@@ -603,6 +608,7 @@ void QPrinter::setFromTo( int fromPage, int toPage )
 
 /*!
   \fn int QPrinter::minPage() const
+
   Returns the min-page setting, i.e. the lowest page number a user
   is allowed to choose.  The default value is 0.
   \sa maxPage(), setMinMax() setFromTo()
@@ -610,6 +616,7 @@ void QPrinter::setFromTo( int fromPage, int toPage )
 
 /*!
   \fn int QPrinter::maxPage() const
+
   Returns the max-page setting. A user can't choose a higher page number
   than maxPage() when they select a print range. The default value is 0.
   \sa minPage(), setMinMax() setFromTo()
@@ -636,57 +643,60 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 
 /*!
   \fn int QPrinter::numCopies() const
+
   Returns the number of copies to be printed.  The default value is 1.
   \sa setNumCopies()
 */
 
 /*!
   \fn bool QPrinter::collateCopiesEnabled() const
-  Returns TRUE if the application should allow the user to collate the
-  printout.  Returns FALSE if the user shouldn't be given the choice
-  and printouts shouldn't be collated.
 
-  Collation means that each copy is printed in order instead of duplicating
-  each page concurrently.  So a collated copy will print 1, 2, 3...\<n pages\>
-  and for the \<n copies\> 1, 2, 3, ... \<n pages\>.  A non-collated printout
-  will printout 1,1...\<n copies\> of 1; 2,2...\<n copies\> of 2;
-  3,3...\<n copies\>, etc.
+  Returns TRUE if the application should provide the user with the
+  option of choosing a collated printout; otherwise returns FALSE.
+
+  Collation means that each page is printed in order, i.e. print the
+  first page, then the second page, then the third page and so on, and
+  then repeat this sequence for as many copies as have been requested.
+  If you don't collate you get several copies of the first page, then
+  several copies of the second page, then several copies of the third
+  page, and so on.
 
   \sa setCollateCopiesEnabled() setCollateCopies() collateCopies()
 */
 
 /*!
-  \fn void QPrinter::setCollateCopiesEnabled(bool enable) const
-  Sets whether the user is given a choice to print out multiple copies collated
-  in the print dialog. If \a enable is set to FALSE, then collateCopies() will
-  be ignored.  The default value is set to TRUE.
+  \fn void QPrinter::setCollateCopiesEnabled(bool enable)
 
-  Collation means that each copy is printed in order instead of duplicating
-  each page concurrently.  So a collated copy will print 1, 2, 3...\<n pages\>
-  and for the \<n copies\> 1, 2, 3, ... \<n pages\>.  A non-collated printout
-  will printout 1,1...\<n copies\> of 1; 2,2...\<n copies\> of 2;
-  3,3...\<n copies\>, etc.
+    If \a enable is TRUE (the default) the user is given the choice of
+    whether to print out multiple copies collated in the print dialog.
+    If \a enable is FALSE, then collateCopies() will be ignored.
+
+  Collation means that each page is printed in order, i.e. print the
+  first page, then the second page, then the third page and so on, and
+  then repeat this sequence for as many copies as have been requested.
+  If you don't collate you get several copies of the first page, then
+  several copies of the second page, then several copies of the third
+  page, and so on.
 
   \sa collateCopiesEnabled() setCollateCopies() collateCopies()
 */
 
 /*!
   \fn bool QPrinter::collateCopies() const
+
   Returns TRUE if collation is turned on when multiple copies is selected.
   Returns FALSE if it is turned off when multiple copies is selected.
 
-  \sa collateCopiesEnabled(), setCollateCopiesEnabled()
-  \sa setCollateCopies()
+  \sa collateCopiesEnabled() setCollateCopiesEnabled() setCollateCopies()
 */
 
 /*!
   Sets the default value for collation checkbox when the print dialog appears.
-  If set progmatically to TRUE, it will enable setCollateCopiesEnabled().
+  If \a on is TRUE, it will enable setCollateCopiesEnabled().
   The default value is FALSE.  This value will be changed by what the
   user presses in the print dialog.
 
-  \sa collateCopiesEnabled(), setCollateCopiesEnabled()
-  \sa collateCopies()
+  \sa collateCopiesEnabled() setCollateCopiesEnabled() collateCopies()
 */
 
 void QPrinter::setCollateCopies(bool on)

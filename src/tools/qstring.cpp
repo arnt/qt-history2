@@ -16036,18 +16036,20 @@ public:
 };
 
 /*!
+    \preliminary
   Returns an integer between 0 (dissimilar) and 15 (very similar)
   depending on  how similar the string is to \a target.
+
 
   This function is efficient, but its results might change in future
   versions of Qt as the algorithm evolves.
 
   \code
     QString string( "color" );
-    a = string.similarityWith( "color" );        // a == 15
-    a = string.similarityWith( "colour" );       // a == 8
-    a = string.similarityWith( "flavor" );       // a == 4
-    a = string.similarityWith( "dahlia" );       // a == 0
+    a = string.similarityWith( "color" );  // a == 15
+    a = string.similarityWith( "colour" ); // a == 8
+    a = string.similarityWith( "flavor" ); // a == 4
+    a = string.similarityWith( "dahlia" ); // a == 0
   \endcode
 */
 int QString::similarityWith( const QString& target ) const

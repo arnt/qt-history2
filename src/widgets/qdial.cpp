@@ -710,7 +710,7 @@ void QDial::subtractPage()
   This signal is emitted whenever the dial \a value changes.  The frequency
   of this signal is \e not influenced by setTracking().
 
-  \sa valueChanged(int)
+  \sa valueChanged()
 */
 
 /*!

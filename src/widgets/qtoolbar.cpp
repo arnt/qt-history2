@@ -250,7 +250,8 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
   right and bottom). When you create a new toolbar (as in the example
   above) as a child of a QMainWindow the toolbar will be added to the
   top dock area. You can move it to another dock area (or float it) by
-  calling QMainWindow::moveDockWindow().
+  calling QMainWindow::moveDockWindow(). QDock areas lay out their
+  windows in \link qdockarea.html#lines Lines\endlink.
 
   If the main window is resized so that the area occupied by the toolbar
   is too small to show all its widgets a little arrow button (which
@@ -407,7 +408,7 @@ void QToolBar::setOrientation( Orientation o )
     delete childs;
 }
 
-/*!  Adds a separator to the end of the toolbar. */
+/*!  Adds a separator to the right/bottom of the toolbar. */
 
 void QToolBar::addSeparator()
 {

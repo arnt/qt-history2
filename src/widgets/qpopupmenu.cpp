@@ -1192,7 +1192,7 @@ int QPopupMenu::itemHeight( QMenuItem *mi ) const
   drawn inactive if \a act is FALSE. The rightmost \a tab_ pixels are
   used for accelerator text.
 
-  \sa QStyle::drawPopupMenuItem()
+  \sa QStyle::drawControl()
 */
 void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 			   bool act, int x, int y, int w, int h)

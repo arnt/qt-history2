@@ -933,17 +933,7 @@ bool QTableItem::isEnabled() const
   entering their own text; otherwise the user may only choose one of the
   existing list items.
 
-  To populate a table cell with a QComboTableItem use QTable::setItem():
-
-  \quotefile table/small-table-demo/main.cpp
-  \skipto comboEntries
-  \printuntil four
-  \skipto for
-  \printuntil FALSE
-  \skipto setItem
-  \printuntil }
-  (From \link small-table-demo-example.html
-  table/small-table-demo/main.cpp \endlink).
+  To populate a table cell with a QComboTableItem use QTable::setItem().
 
   QComboTableItems may be deleted with QTable::clearCell().
 
@@ -1166,13 +1156,7 @@ int QComboTableItem::rtti() const
   checked and unchecked with setChecked() and its state retrieved using
   isChecked().
 
-  To populate a table cell with a QCheckTableItem use QTable::setItem():
-
-  \quotefile table/small-table-demo/main.cpp
-  \skipto for ( int j
-  \printuntil Check me
-  (Code from \link small-table-demo-example.html
-  table/small-table-demo/main.cpp \endlink).
+  To populate a table cell with a QCheckTableItem use QTable::setItem().
 
   QCheckTableItems can be distinguished from \l{QTableItem}s and
   \l{QComboTableItem}s using their Run Time Type Identification (rtti)
@@ -1810,7 +1794,7 @@ bool QTable::isReadOnly() const
   cell's EditType, and this setting:
   see \link qtableitem.html#wheneditable QTableItem::EditType\endlink.
 
-  \sa setRowReadOnly isColumnReadOnly()
+  \sa setRowReadOnly() isColumnReadOnly()
 */
 
 bool QTable::isRowReadOnly( int row ) const
@@ -2584,15 +2568,6 @@ void QTable::setText( int row, int col, const QString &text )
     If the cell does not contain a table item a QTableItem is created
     with an EditType of \c OnTyping, otherwise the existing table item's
     pixmap (if any) is replaced with \a pix.
-
-  \quotefile table/small-table-demo/main.cpp
-  \skipto QImage
-  \printuntil setPixmap
-
-  (Code from \link small-table-demo-example.html
-  table/small-table-demo/main.cpp \endlink.) In the example we create an
-  image, scale it to the height of the table's fourth row (row 3), then
-  set the pixmap for the cell at row 3, column 2 to the scaled pixmap.
 
   Note that QComboTableItems and QCheckTableItems don't show pixmaps.
 
@@ -3804,7 +3779,7 @@ void QTable::updateGeometries()
 
 /*! Returns the width of column \a col.
 
-  \sa setColumnWidth rowHeight()
+  \sa setColumnWidth() rowHeight()
 */
 
 int QTable::columnWidth( int col ) const
@@ -3814,7 +3789,7 @@ int QTable::columnWidth( int col ) const
 
 /*! Returns the height of row \a row.
 
-  \sa setRowHeight columnWidth()
+  \sa setRowHeight() columnWidth()
 */
 
 int QTable::rowHeight( int row ) const

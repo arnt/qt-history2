@@ -467,7 +467,7 @@ bool QSplitter::event( QEvent *e )
 /*!
   Draws the splitter handle in the rectangle described by \a x, \a y,
   \a w, \a h using painter \a p.
-  \sa QStyle::drawSplitter
+  \sa QStyle::drawPrimitive()
 */
 
 void QSplitter::drawSplitter( QPainter *p,

@@ -114,7 +114,7 @@ QMotifStyle::~QMotifStyle()
   via QApplication::setPalette(). The current color palette of the
   application remains unchanged.
 
-  \sa QStyle::polish( QPalette& )
+  \sa QStyle::polish()
  */
 void QMotifStyle::setUseHighlightColors( bool arg )
 {

@@ -293,7 +293,7 @@ QPixmap* QLineEditPrivate::pm = 0;
 
   This signal is emitted whenever the selection changes.
 
-  \sa hasSelectedText, selectedText
+  \sa hasSelectedText(), selectedText()
 */
 
 /*!
@@ -902,7 +902,7 @@ bool QLineEdit::event( QEvent * e )
 	} else if ( ke->state() & ControlButton ) {
 	    switch ( ke->key() ) {
 // Those are too frequently used for application functionality
-/*	    case Key_A:	
+/*	    case Key_A:
 	    case Key_B:
 	    case Key_D:
 	    case Key_E:
@@ -912,9 +912,9 @@ bool QLineEdit::event( QEvent * e )
 */
 	    case Key_C:
 	    case Key_V:
-	    case Key_X:	
+	    case Key_X:
 	    case Key_Y:
-	    case Key_Z:	
+	    case Key_Z:
 	    case Key_Left:
 	    case Key_Right:
 #if defined (_WS_WIN_)
@@ -1269,7 +1269,7 @@ void QLineEdit::backspace()
 	d->undoRedoInfo.index = d->cursor->index();
 	d->cursor->remove();
 	d->cursor->checkIndex();
-	
+
     }
     d->selectionStart = d->cursor->index();
     setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );

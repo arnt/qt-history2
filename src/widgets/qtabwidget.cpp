@@ -543,7 +543,7 @@ QWidget * QTabWidget::currentPage() const
 /*! \property QTabWidget::currentPage
     \brief the index position of the current tab page
 
-  \sa QTabBar::currentPage()
+  \sa QTabBar::currentTab()
 */
 
 int QTabWidget::currentPageIndex() const

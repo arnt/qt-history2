@@ -511,7 +511,7 @@ QWMatrix &QWMatrix::rotate( double a )
 
 /*! \fn bool QWMatrix::isInvertible() const
 
-  returns TRUE if the matrix is invertible, FALSE otherwise.
+  Returns TRUE if the matrix is invertible; otherwise returns FALSE.
 
   \sa invert()
 */
@@ -526,7 +526,7 @@ QWMatrix &QWMatrix::rotate( double a )
   either to TRUE or FALSE to tell whether or not the matrix is
   invertible.
 
-  \sa invertible()
+  \sa isInvertible()
 */
 
 QWMatrix QWMatrix::invert( bool *invertible ) const

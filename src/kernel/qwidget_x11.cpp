@@ -2218,7 +2218,7 @@ void QWidget::setAcceptDrops( bool on )
   Note that this effect can be slow if the region is particularly
   complex.
 
-  \sa setMask(QBitmap), clearMask()
+  \sa setMask(), clearMask()
 */
 
 void QWidget::setMask( const QRegion& region )
@@ -2237,7 +2237,7 @@ void QWidget::setMask( const QRegion& region )
   Note that this effect can be slow if the region is particularly
   complex.
 
-  \sa setMask(const QRegion&), clearMask()
+  \sa setMask(), clearMask()
 */
 
 void QWidget::setMask( const QBitmap &bitmap )

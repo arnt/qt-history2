@@ -1671,11 +1671,11 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
-  \fn TabletDevice QTabletEvent::device() const
+  \fn TabletDevices QTabletEvent::device() const
   Returns the type of device that generated the event.  Useful if you
   want one end of the pen to do something different than the other.
 
-  \sa QTabletEvent::TabletDevice
+  \sa TabletDevices
 */
 
 /*!

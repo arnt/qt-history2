@@ -1569,7 +1569,7 @@ QString QListViewItem::text( int column ) const
 
   If \a text() has been reimplemented, this function may be a no-op.
 
-  \sa text() key() invalidate()
+  \sa text() key()
 */
 
 void QListViewItem::setText( int column, const QString &text )
@@ -1998,8 +1998,8 @@ void QListViewPrivate::Root::setup()
 
 /*!
 \internal
-If called after a mouse click, tells the list view to ignore a 
-following double click. This state is reset after the next mouse click. 
+If called after a mouse click, tells the list view to ignore a
+following double click. This state is reset after the next mouse click.
 */
 
 void QListViewItem::ignoreDoubleClick()
@@ -4675,7 +4675,7 @@ bool QListView::isMultiSelection() const
     The mode can be \c Single (the default), \c Extended, \c Multi or
     \c NoSelection.
 
-  \sa multiSelection()
+  \sa multiSelection
  */
 
 void QListView::setSelectionMode( SelectionMode mode )
@@ -5454,7 +5454,7 @@ void QCheckListItem::activate()
 	setOn( TRUE );
 	ignoreDoubleClick();
     }
-    
+
 }
 
 /*!

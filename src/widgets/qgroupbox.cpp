@@ -386,7 +386,7 @@ void QGroupBox::setColumns( int c )
 
   The default is about 11.
 
-  \sa setInsideMargin(), orentiation()
+  \sa setInsideMargin(), orientation
 */
 int QGroupBox::insideMargin() const
 {
@@ -401,7 +401,7 @@ int QGroupBox::insideMargin() const
 
   The default is about 5.
 
-  \sa setInsideSpacing(), orentiation()
+  \sa setInsideSpacing(), orientation
 */
 int QGroupBox::insideSpacing() const
 {

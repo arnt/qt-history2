@@ -604,7 +604,7 @@ void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
   or QApplication::style(). Use the drawing functions in QStyle to make
   widgets that follow the current GUI style.
 
-  \sa qDrawShadeRect(), QStyle::drawPrimitive)
+  \sa qDrawShadeRect(), QStyle::drawPrimitive()
 */
 
 void qDrawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,

@@ -623,7 +623,7 @@ int QSqlQuery::size() const
   statements, this value will be the same as size(). If the query is
   not active (isActive() returns FALSE), -1 is returned.
 
-  \sa size() QSqlDatabase::hasFeature()
+  \sa size() QSqlDriver::hasFeature()
 
 */
 

@@ -1259,7 +1259,7 @@ void QtTableView::setupPainter( QPainter * )
   The painter is not clipped by default and for maximum efficiency. For safety,
   call setTableFlags(Tbl_clipCellPainting) to enable clipping.
 
-  \sa paintEvent(), QPainter(), setTableFlags() */
+  \sa paintEvent(), setTableFlags() */
 
 
 /*!

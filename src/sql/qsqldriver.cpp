@@ -200,7 +200,7 @@ void QSqlDriver::setOpenError( bool e )
     transaction. If successful, return TRUE, otherwise return FALSE.
     The default implementation returns FALSE.
 
-    \sa setTransactionSupport(), transaction(), commit(), rollback()
+    \sa setTransactionSupport(), commitTransaction(), rollbackTransaction()
 
 */
 
@@ -213,7 +213,7 @@ bool QSqlDriver::beginTransaction()
     transaction. If successful, return TRUE, otherwise return FALSE. The
     default implementation returns FALSE.
 
-    \sa setTransactionSupport(), transaction(), commit(), rollback()
+    \sa setTransactionSupport(), beginTransaction(), rollbackTransaction()
 
 */
 
@@ -226,7 +226,7 @@ bool QSqlDriver::commitTransaction()
     transaction. If successful, return TRUE, otherwise return FALSE.
     The default implementation returns FALSE.
 
-    \sa setTransactionSupport(), transaction(), commit(), rollback()
+    \sa setTransactionSupport(), beginTransaction(), commitTransaction()
 
 */
 

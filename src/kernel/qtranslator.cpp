@@ -221,7 +221,8 @@ public:
   etc.
 
   The most common use of QTranslator is expected to be loading a
-  translator file made using the Qt Linguist, installing it using
+  translator file made using \link linguist-manual.html Qt
+  Linguist\endlink, installing it using
   QApplication::installTranslator(), and using it via QObject::tr(),
   like this:
 
@@ -231,7 +232,7 @@ public:
       QApplication app( argc, argv );
 
       QTranslator translator( 0 );
-      translator.load( "trfile.qm", "." );
+      translator.load( "french.qm", "." );
       app.installTranslator( &translator );
 
       MyWidget m;
@@ -314,8 +315,9 @@ public:
   explicitly documented as such.
 */
 
-/*!  Constructs an empty message file not connected to any file. The
-    object has parent \a parent and is called \a name.
+/*!
+    Constructs an empty message file object that is not connected to
+    any file. The object has parent \a parent and name \a name.
 */
 
 QTranslator::QTranslator( QObject * parent, const char * name )
@@ -339,13 +341,13 @@ QTranslator::~QTranslator()
 
 /*!  Loads \a filename, which may be an absolute file name or relative
   to \a directory.  The previous contents of this translator object is
-  discarted.
+  discarded.
 
   If the full file name does not exist, other file names
   are tried in the following order:
 
   \list 1
-   \i File name with \a suffix appended (".qm" if suffix is QString::null).
+   \i File name with \a suffix appended (".qm" if the suffix is QString::null).
    \i File name with text after a character in \a search_delimiters stripped
       ("_." is the default for \a search_delimiters if it is QString::null).
    \i File name stripped and \a suffix appended.
@@ -530,9 +532,9 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 
 
 /*!  Saves this message file to \a filename, overwriting the previous
-  contents of \a filename.  If \a mode is \c Everything (this is the
+  contents of \a filename.  If \a mode is \c Everything (the
   default), all the information is preserved.  If \a mode is \c Stripped,
-  all information that is not necessary for findMessage() is stripped
+  any information that is not necessary for findMessage() is stripped
   away.
 
   \sa load()
@@ -781,7 +783,7 @@ void QTranslator::unsqueeze()
 
 
 /*!  Returns TRUE if this message file contains a message with the key
-  (\a context, \a sourceText, \a comment) and FALSE if it does not.
+  (\a context, \a sourceText, \a comment); otherwise returns FALSE.
 
   This function works with stripped translator files.
 
@@ -951,7 +953,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 
 
 /*!  Returns a list of the messages in the translator.  This function is
-  somewhat slow; because it is seldom called, it's optimized for simplicity and
+  rather slow; because it is seldom called, it's optimized for simplicity and
   small size, not speed.
 */
 
@@ -978,7 +980,7 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
 
   This class is of no interest to most applications, just for
   translation tools such as
-  \link http://www.trolltech.com/linguist/ Qt Linguist \endlink. It is
+  \link linguist-manual.html Qt Linguist\endlink. It is
   provided simply to make the API complete and regular.
 
   For a QTranslator object, a lookup key is a triple (\e context, \e
@@ -994,7 +996,7 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
   \sa QTranslator
 */
 
-/*!  Constructs a translator message with extended key (0, 0, 0, 0) and
+/*!  Constructs a translator message with the extended key (0, 0, 0, 0) and
   QString::null as translation.
 */
 
@@ -1004,7 +1006,7 @@ QTranslatorMessage::QTranslatorMessage()
 }
 
 
-/*!  Constructs an translator message with extended key
+/*!  Constructs an translator message with the extended key
   (\e h, \a context, \a sourceText, \a comment), where \e h is computed from
   \a sourceText and \a comment, and possibly with a \a translation.
 */
@@ -1031,7 +1033,7 @@ QTranslatorMessage::QTranslatorMessage( const char * context,
 /*!  Constructs a translator message read from a \a stream.  The resulting
   message may have any combination of content.
 
-  \sa save()
+  \sa QTranslator::save()
  */
 
 QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
@@ -1100,8 +1102,8 @@ QTranslatorMessage::QTranslatorMessage( const QTranslatorMessage & m )
 }
 
 
-/*!  Assigns \a m to this translator message and returns a reference to this
-  translator message.
+/*!  Assigns message \a m to this translator message and returns a
+ reference to this translator message.
 */
 
 QTranslatorMessage & QTranslatorMessage::operator=(
@@ -1128,17 +1130,17 @@ QTranslatorMessage & QTranslatorMessage::operator=(
 
 /*! \fn const char *QTranslatorMessage::context() const
 
-  Returns the context for this message (e.g., "FunnyDialog").
+  Returns the context for this message (e.g. "MyDialog").
 */
 
 /*! \fn const char *QTranslatorMessage::sourceText() const
 
-  Returns the source text of this message (e.g., "&Save").
+  Returns the source text of this message (e.g. "&Save").
 */
 
 /*! \fn const char *QTranslatorMessage::comment() const
 
-  Returns the comment for this message (e.g., "File > Save").
+  Returns the comment for this message (e.g. "File|Save").
 */
 
 /*! \fn void QTranslatorMessage::setTranslation( const QString & translation )
@@ -1169,10 +1171,12 @@ QTranslatorMessage & QTranslatorMessage::operator=(
   \sa write() commonPrefix()
 */
 
-/*!  Writes this translator message to a \a stream.  If \a strip is FALSE (the
-  default), all the information in the message is written.  If \a strip is TRUE,
-  only the part of the extended key specified by \a prefix is written with the
-  translation (\c HashContextSourceTextComment by default).
+/*!
+    Writes this translator message to the \a stream.  If \a strip is
+    FALSE (the default), all the information in the message is
+    written.  If \a strip is TRUE, only the part of the extended key
+    specified by \a prefix is written with the translation (\c
+    HashContextSourceTextComment by default).
 
   \sa commonPrefix()
 */
@@ -1222,8 +1226,8 @@ void QTranslatorMessage::write( QDataStream & stream, bool strip,
 /*!  Returns the widest lookup prefix that is common to this translator message
   and message \a m.
 
-  For example, if the extended key is for this message is (42, "FunnyDialog",
-  "Yes", "Funny?") and that for \a m is (42, "FunnyDialog", "No", "Funny?"),
+  For example, if the extended key is for this message is (42, "PrintDialog",
+  "Yes", "Print?") and that for \a m is (42, "PrintDialog", "No", "Print?"),
   this function returns \c HashContext.
 
   \sa write()
@@ -1244,8 +1248,8 @@ QTranslatorMessage::Prefix QTranslatorMessage::commonPrefix(
 }
 
 
-/*!  Returns TRUE if the extended key of this object is equal to that of \a m,
-  otherwise FALSE.
+/*!  Returns TRUE if the extended key of this object is equal to that of \a m;
+  otherwise returns FALSE.
 */
 
 bool QTranslatorMessage::operator==( const QTranslatorMessage& m ) const
@@ -1257,12 +1261,12 @@ bool QTranslatorMessage::operator==( const QTranslatorMessage& m ) const
 /*! \fn bool QTranslatorMessage::operator!=( const QTranslatorMessage& m ) const
 
   Returns TRUE if the extended key of this object is different from that of
-  \a m, otherwise FALSE.
+  \a m; otherwise returns FALSE.
 */
 
 
 /*!  Returns TRUE if the extended key of this object is lexicographically before
-  than that of \a m, otherwise FALSE.
+  than that of \a m; otherwise returns FALSE.
 */
 
 bool QTranslatorMessage::operator<( const QTranslatorMessage& m ) const
@@ -1276,19 +1280,19 @@ bool QTranslatorMessage::operator<( const QTranslatorMessage& m ) const
 /*! \fn bool QTranslatorMessage::operator<=( const QTranslatorMessage& m ) const
 
   Returns TRUE if the extended key of this object is lexicographically before
-  that of \a m or if they are equal, otherwise FALSE.
+  that of \a m or if they are equal; otherwise returns FALSE.
 */
 
 /*! \fn bool QTranslatorMessage::operator>( const QTranslatorMessage& m ) const
 
   Returns TRUE if the extended key of this object is lexicographically after
-  that of \a m, otherwise FALSE.
+  that of \a m; otherwise returns FALSE.
 */
 
 /*! \fn bool QTranslatorMessage::operator>=( const QTranslatorMessage& m ) const
 
   Returns TRUE if the extended key of this object is lexicographically after
-  that of \a m or if they are equal, otherwise FALSE.
+  that of \a m or if they are equal; otherwise returns FALSE.
 */
 
 #endif // QT_NO_TRANSLATION

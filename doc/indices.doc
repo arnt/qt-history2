@@ -152,6 +152,7 @@ Appendix
 \list
   \i \link qmake.html  qmake \endlink
   \i \link designer-manual.html  Qt Designer \endlink
+  \i \link linguist-manual.html  Qt Linguist \endlink
   \i \link qembed.html  QEmbed - inline files/images \endlink
   \i \link qvfb-qws.html  QVFb - virtual framebuffer for Qt/Embedded \endlink
 \endlist

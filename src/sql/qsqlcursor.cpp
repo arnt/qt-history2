@@ -412,10 +412,10 @@ void QSqlCursor::append( const QSqlField& field )
     QSqlRecord::append( field );
 }
 
-/*!  
+/*!
 
     \overload
-    
+
     Insert a copy of \a field at position \a pos.  If a field already
   exists at \a pos, it is removed.  Note that all references to the
   cursor edit buffer become invalidated.
@@ -738,7 +738,9 @@ bool QSqlCursor::isCalculated( const QString& name ) const
   When a trimmed field of type string or cstring is read from the
   database any trailing (right-most) spaces are removed.
 
-  \sa isTrimmed() QVariant()
+  See \link qvariant.html QVariant\endlink.
+
+  \sa isTrimmed()
 */
 
 void QSqlCursor::setTrimmed( const QString& name, bool trim )
@@ -935,7 +937,7 @@ int QSqlCursor::insert( bool invalidate )
 	    fList += f->name();
 	    vList += driver()->formatValue( f );
 	    comma = TRUE;
-	}	
+	}
     }
 
     if ( !comma ) {
@@ -959,7 +961,7 @@ int QSqlCursor::insert( bool invalidate )
 QSqlRecord* QSqlCursor::editBuffer( bool copy )
 {
     if ( copy ) {
-	for(uint i = 0; i < d->editBuffer.count(); i++) {	
+	for(uint i = 0; i < d->editBuffer.count(); i++) {
 	    if ( QSqlRecord::isNull( i ) ) {
 		d->editBuffer.setNull( i );
 	    } else {
