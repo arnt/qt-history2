@@ -387,6 +387,14 @@ inline void QGfxMach64<depth,type>::setDest()
 {
     ulong buffer_offset;
     gfx_screen->onCard(buffer,buffer_offset);
+    QLinuxFb_Shared * tmp=(QLinuxFb_Shared *)shared_data;
+    if(tmp->buffer_offset==buffer_offset && tmp->linestep==linestep()) {
+      return;
+    } else {
+      tmp->buffer_offset=buffer_offset;
+      tmp->linestep=linestep();
+    }
+
     int pixelstep=(linestep()*8)/depth;
     setPixWidth(depth,depth);
     wait_for_fifo(1);

@@ -91,7 +91,7 @@ private:
     unsigned char * voodoo_regbase;
 
     bool checkSourceDest();
-    bool checkDest();
+    void setDest();
     void do_scissors(QRect &);
 
 };
@@ -193,20 +193,28 @@ inline int voodoo_depthcode(int d)
 // This is similar to checkSourceDest but is used when there is no
 // source image data
 template<const int depth,const int type>
-inline bool QGfxVoodoo<depth,type>::checkDest()
+inline void QGfxVoodoo<depth,type>::setDest()
 {
     ulong buffer_offset;
-    if (!gfx_screen->onCard(buffer,buffer_offset)) {
-	return FALSE;
-    }
+    gfx_screen->onCard(buffer,buffer_offset);
 
-    wait_for_fifo(4);
-    regw(DSTBASEADDR,buffer_offset);
-    regw(DSTFORMAT,linestep() | (voodoo_depthcode(depth) << 16));
+    wait_for_fifo(2);
     regw(CLIP0MIN,0);
     regw(CLIP0MAX,(height << 16) | width);
 
-    return TRUE;
+    QLinuxFb_Shared * tmp=(QLinuxFb_Shared *)shared_data;
+    if(tmp->buffer_offset==buffer_offset && tmp->linestep==linestep()) {
+      return;
+    } else {
+      tmp->buffer_offset=buffer_offset;
+      tmp->linestep=linestep();
+    }
+
+    wait_for_fifo(2);
+    regw(DSTBASEADDR,buffer_offset);
+    regw(DSTFORMAT,linestep() | (voodoo_depthcode(depth) << 16));
+
+    return;
 }
 
 // Sets up the graphics engine's idea of bits-per-pixel for destination
@@ -214,9 +222,7 @@ inline bool QGfxVoodoo<depth,type>::checkDest()
 template<const int depth,const int type>
 inline bool QGfxVoodoo<depth,type>::checkSourceDest()
 {
-    if ( !checkDest() ) {
-	return FALSE;
-    }
+    setDest();
 
     ulong src_buffer_offset;
     if (srctype == SourcePen) {
@@ -270,13 +276,8 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 #if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
-    if(!checkDest() || true) {
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
-	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
-	return;
-    }
+
+    setDest();
 
     // This is used by the software mouse cursor to prevent corruption
     // of the cursor if a drawing operation is performed under it.
@@ -607,70 +608,64 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     QWSDisplay::grab( TRUE );
 #endif
 
-    if(checkDest()) {
+    setDest();
 
-	(*gfx_optype)=1;
-	(*gfx_lastop)=LASTOP_LINE;
+    (*gfx_optype)=1;
+    (*gfx_lastop)=LASTOP_LINE;
 
-	x1+=xoffs;
-	y1+=yoffs;
-	x2+=xoffs;
-	y2+=yoffs;
+    x1+=xoffs;
+    y1+=yoffs;
+    x2+=xoffs;
+    y2+=yoffs;
 
-	int dx,dy;
-	dx=abs(x2-x1);
-	dy=abs(y2-y1);
-
-	// On the Voodoo3, unlike the Mach64, Bresenham parameters
-	// for the line are calculated automatically
-
-        GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
-
-	QColor tmp=cpen.color();
-
-#ifndef QT_NO_QWS_REPEATER
-	QScreen * tmpscreen=qt_screen;
-	qt_screen=gfx_screen;
-#endif
-	unsigned int tmp2=tmp.alloc();
-#ifndef QT_NO_QWS_REPEATER
-	qt_screen=tmpscreen;
-#endif
-
-	int loopc;
-
-	if(((QLinuxFb_Shared *)shared_data)->forecol!=srccol) {
-	    wait_for_fifo(1);
-	    regw(COLORFORE,srccol);
-	    ((QLinuxFb_Shared *)shared_data)->forecol=srccol;
-	}
+    int dx,dy;
+    dx=abs(x2-x1);
+    dy=abs(y2-y1);
     
-	wait_for_fifo(1);
-	regw(COMMAND,0x6 | (0xcc << 24));
+    // On the Voodoo3, unlike the Mach64, Bresenham parameters
+    // for the line are calculated automatically
 
-	for(loopc=0;loopc<ncliprect;loopc++) {
-	    do_scissors(cliprect[loopc]);
-	    wait_for_fifo(2);
-	    regw(SRCXY,x1 | (y1 << 16));
-	    regw(LAUNCHAREA,x2 | (y2 << 16));
-	}
-	wait_for_fifo(4);
-	regw(CLIP0MIN,0);
-	regw(CLIP0MAX,(height << 16) | width);
-	regw(CLIP0MIN,0);
-	regw(CLIP0MAX,(height << 16) | width);
+    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
+      
+    QColor tmp=cpen.color();
 
-	GFX_END
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
+#ifndef QT_NO_QWS_REPEATER
+    QScreen * tmpscreen=qt_screen;
+    qt_screen=gfx_screen;
 #endif
-	return;
-    } else {
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
+    unsigned int tmp2=tmp.alloc();
+#ifndef QT_NO_QWS_REPEATER
+    qt_screen=tmpscreen;
 #endif
-	QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
+
+    int loopc;
+    
+    if(((QLinuxFb_Shared *)shared_data)->forecol!=srccol) {
+      wait_for_fifo(1);
+      regw(COLORFORE,srccol);
+      ((QLinuxFb_Shared *)shared_data)->forecol=srccol;
     }
+    
+    wait_for_fifo(1);
+    regw(COMMAND,0x6 | (0xcc << 24));
+    
+    for(loopc=0;loopc<ncliprect;loopc++) {
+      do_scissors(cliprect[loopc]);
+      wait_for_fifo(2);
+      regw(SRCXY,x1 | (y1 << 16));
+      regw(LAUNCHAREA,x2 | (y2 << 16));
+    }
+    wait_for_fifo(4);
+    regw(CLIP0MIN,0);
+    regw(CLIP0MAX,(height << 16) | width);
+    regw(CLIP0MIN,0);
+    regw(CLIP0MAX,(height << 16) | width);
+
+    GFX_END
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+    QWSDisplay::ungrab();
+#endif
+    return;
 }
 
 // This does card-specific setup and constructs accelerated gfx's and

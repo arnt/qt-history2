@@ -156,9 +156,7 @@ template<const int depth,const int type>
 inline void QGfxMatrox<depth,type>::setDest()
 {
     ulong buffer_offset;
-    if(!gfx_screen->onCard(buffer,buffer_offset)) {
-      qFatal("Not on card!");
-    }
+    gfx_screen->onCard(buffer,buffer_offset);
 
     unsigned int b=(buffer_offset >> 6) << 6;
     b=(b*8)/depth;
