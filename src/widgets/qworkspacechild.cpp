@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#25 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -338,7 +338,8 @@ public:
 
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 				  const char *name )
-    : QFrame( parent, name, WStyle_Customize | WStyle_NoBorder  | WDestructiveClose )
+    : QFrame( parent, name,
+	      WStyle_Customize | WStyle_NoBorder  | WDestructiveClose )
 {
     mode = 0;
     buttonDown = FALSE;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#19 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -34,7 +34,7 @@ struct QWellArrayData {
     QBrush *brush;
 };
 
-/* WARNING, NOT 
+/* WARNING, NOT
   \class QWellArray qwellarray.h
   \brief ....
 
@@ -44,7 +44,8 @@ struct QWellArrayData {
 */
 
 QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
-    : QTableView(parent,name,popup?WStyle_Customize|WStyle_Tool|WStyle_NoBorder:0)
+    : QTableView( parent, name,
+		  popup ? (WStyle_Customize|WStyle_Tool|WStyle_NoBorder) : 0 )
 {
     d = 0;
     setFocusPolicy( StrongFocus );		
