@@ -20,7 +20,7 @@
 class QAbstractItemModel;
 class QPersistentModelIndex;
 
-class Q_GUI_EXPORT QModelIndex
+class Q_CORE_EXPORT QModelIndex
 {
     friend class QAbstractItemModel;
 public:
@@ -50,12 +50,12 @@ private:
 Q_DECLARE_TYPEINFO(QModelIndex, Q_MOVABLE_TYPE);
 
 #ifndef QT_NO_DEBUG_OUTPUT
-Q_GUI_EXPORT QDebug operator<<(QDebug, const QModelIndex &);
+Q_CORE_EXPORT QDebug operator<<(QDebug, const QModelIndex &);
 #endif
 
 class QPersistentModelIndexData;
 
-class Q_GUI_EXPORT QPersistentModelIndex
+class Q_CORE_EXPORT QPersistentModelIndex
 {
 public:
     QPersistentModelIndex();
@@ -80,13 +80,13 @@ public:
 private:
     QPersistentModelIndexData *d;
 #ifndef QT_NO_DEBUG_OUTPUT
-    friend Q_GUI_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
+    friend Q_CORE_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
 #endif
 };
 Q_DECLARE_TYPEINFO(QPersistentModelIndex, Q_MOVABLE_TYPE);
 
 #ifndef QT_NO_DEBUG_OUTPUT
-Q_GUI_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
+Q_CORE_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
 #endif
 
 template<typename T> class QList;
@@ -97,7 +97,7 @@ class QAbstractItemModelPrivate;
 template <class Key, class T> class QMap;
 
 
-class Q_GUI_EXPORT QAbstractItemModel : public QObject
+class Q_CORE_EXPORT QAbstractItemModel : public QObject
 {
     Q_OBJECT
 
@@ -244,7 +244,7 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::MatchFlags);
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::ItemFlags);
 
-class Q_GUI_EXPORT QAbstractTableModel : public QAbstractItemModel
+class Q_CORE_EXPORT QAbstractTableModel : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -263,7 +263,7 @@ private:
     bool hasChildren(const QModelIndex &parent) const;
 };
 
-class Q_GUI_EXPORT QAbstractListModel : public QAbstractItemModel
+class Q_CORE_EXPORT QAbstractListModel : public QAbstractItemModel
 {
     Q_OBJECT
 
