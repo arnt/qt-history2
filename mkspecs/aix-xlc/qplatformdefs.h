@@ -85,7 +85,8 @@
 #define QT_SOCKLEN_T size_t
 #else
 // AIX 4.1
-#define QT_SOCKLEN_T int
+#define QT_SOCKLEN_T size_t
+#define QT_SOCKOPTLEN_T int // override
 #endif
 
 

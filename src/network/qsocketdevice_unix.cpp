@@ -45,6 +45,11 @@
 #include "qwindowdefs.h"
 #include "qplatformdefs.h"
 
+// almost always the same. If not, specify in qplatformdefs.h.
+#if !defined(QT_SOCKOPTLEN_T)
+#define QT_SOCKOPTLEN_T QT_SOCKLEN_T
+#endif
+
 // Tru64 redefines accept() to _accept() when _XOPEN_SOURCE_EXTENDED is
 // defined.  This breaks our sources.
 inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
@@ -231,7 +236,7 @@ int QSocketDevice::option( Option opt ) const
 	break;
     }
     if ( n != -1 ) {
-	QT_SOCKLEN_T len;
+	QT_SOCKOPTLEN_T len;
 	len = sizeof(v);
 	int r = ::getsockopt( fd, SOL_SOCKET, n, (char*)&v, &len );
 	if ( r >= 0 )
