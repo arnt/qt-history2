@@ -13,31 +13,32 @@
 ****************************************************************************/
 
 #include "qapplication.h"
+#include "qclipboard.h"
+#include "qcursor.h"
+#include "qdatetime.h"
+#include "qguardedptr.h"
+#include "qhash.h"
+#include "qlibrary.h"
+#include "qmetaobject.h"
+#include "qmime.h"
+#include "qmutex.h"
+#include "qpainter.h"
+#include "qpixmapcache.h"
+#include "qsessionmanager.h"
+#include "qstyle.h"
+#include "qthread.h"
+#include "qwhatsthis.h" // ######## dependency
+#include "qwidget.h"
+#include "qwidgetlist.h"
+#include "qt_windows.h"
 #if defined(QT_NON_COMMERCIAL)
 #include "qnc_win.h"
 #endif
+
 #include "private/qapplication_p.h"
-#include "qwidget.h"
-#include "qwidget_p.h"
-#include "qwidgetlist.h"
-#include "qpainter.h"
-#include "qpixmapcache.h"
-#include "qdatetime.h"
-#include "qsessionmanager.h"
-#include "qmime.h"
-#include "qguardedptr.h"
-#include "qclipboard.h"
-#include "qthread.h"
-#include "qwhatsthis.h" // ######## dependency
-#include "qthread.h"
-#include "qlibrary.h"
-#include "qt_windows.h"
-#include "qcursor.h"
-#include "qmutex.h"
 #include "private/qinternal_p.h"
 #include "private/qinputcontext_p.h"
-#include "qstyle.h"
-#include "qmetaobject.h"
+#include "private/qwidget_p.h"
 
 #include <windowsx.h>
 #include <limits.h>
