@@ -32,9 +32,9 @@ public:
     };
 
     /* cPos gets set to the valid position */
-    int cursorToX( int *cPos, Edge edge = Leading );
-    inline int cursorToX( int cPos, Edge edge = Leading ) { return cursorToX( &cPos, edge ); }
-    int xToCursor( int x, CursorPosition = BetweenCharacters );
+    int cursorToX( int *cPos, Edge edge = Leading ) const;
+    inline int cursorToX( int cPos, Edge edge = Leading ) const { return cursorToX( &cPos, edge ); }
+    int xToCursor( int x, CursorPosition = BetweenCharacters ) const;
 
     bool isRightToLeft() const;
     bool isObject() const;

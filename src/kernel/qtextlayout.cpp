@@ -81,7 +81,7 @@ int QTextItem::length() const
 }
 
 
-int QTextItem::cursorToX( int *cPos, Edge edge )
+int QTextItem::cursorToX( int *cPos, Edge edge ) const
 {
     int pos = *cPos;
     QScriptItem &si = engine->items[item];
@@ -118,7 +118,7 @@ int QTextItem::cursorToX( int *cPos, Edge edge )
     return x;
 }
 
-int QTextItem::xToCursor( int x, CursorPosition cpos )
+int QTextItem::xToCursor( int x, CursorPosition cpos ) const
 {
     QScriptItem &si = engine->items[item];
     const QShapedItem *shaped = si.shaped;
