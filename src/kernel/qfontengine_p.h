@@ -142,7 +142,7 @@ class QGfx;
 class QFontEngine : public QShared
 {
 public:
-    QFontEngine( const QFontDef& );
+    QFontEngine( const QFontDef&, const QPaintDevice * = 0 );
    ~QFontEngine();
     /*QMemoryManager::FontID*/ void *handle() const;
 
@@ -200,6 +200,7 @@ public:
     /*QMemoryManager::FontID*/ void *id;
     int cache_cost;
     int cache_count;
+    int scale;
 };
 #endif // WIN || X11 || MAC
 

@@ -218,7 +218,7 @@ public:
     QFontEngine *findEngine( const Key &key );
     void insertEngine( const Key &key, QFontEngine *engine );
 
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS)
     void cleanupPrinterFonts();
 #endif
 

@@ -3003,7 +3003,7 @@ void QFontCache::decreaseCost( uint cost )
 	    cost, total_cost, max_cost );
 }
 
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN ) || defined (Q_WS_QWS)
 void QFontCache::cleanupPrinterFonts()
 {
     FC_DEBUG( "QFontCache::cleanupPrinterFonts" );
@@ -3021,12 +3021,19 @@ void QFontCache::cleanupPrinterFonts()
 	    }
 
 	    if( it.data()->count > 0 ) {
+#ifdef Q_WS_WIN
 		for(int i = 0; i < QFont::LastPrivateScript; ++i) {
 		    if( it.data()->engines[i] ) {
 			it.data()->engines[i]->deref();
 			it.data()->engines[i] = 0;
 		    }
 		}
+#else
+		if ( it.data()->engine ) {
+		    it.data()->engine->deref();
+		    it.data()->engine = 0;
+		}
+#endif		
 		++it;
 	    } else {
 

@@ -32,10 +32,11 @@
     return id;
 }
 
-QFontEngine::QFontEngine( const QFontDef& d )
+QFontEngine::QFontEngine( const QFontDef& d, const QPaintDevice *pd )
 {
     QFontDef fontDef = d;
     id = memorymanager->refFont(fontDef);
+    scale = pd ? (pd->resolution()<<8)/75 : 1<<8; 
 }
 
 QFontEngine::~QFontEngine()
@@ -64,7 +65,7 @@ QFontEngine::Error QFontEngine::stringToCMap( const QChar *str, int len, glyph_t
 	    if ( ::category(str[i]) == QChar::Mark_NonSpacing )
 		advances[i] = 0;
 	    else
-		advances[i] = memorymanager->lockGlyphMetrics(handle(), str[i].unicode() )->advance;
+		advances[i] = (memorymanager->lockGlyphMetrics(handle(), str[i].unicode() )->advance*scale)>>8;
     }
     return NoError;
 }
@@ -293,14 +294,14 @@ glyph_metrics_t QFontEngine::boundingBox( const glyph_t *glyphs,
     const advance_t *end = advances + numGlyphs;
     while( end > advances )
 	w += *(--end);
-
+    w = (w*scale)>>8;
     return glyph_metrics_t(0, -ascent(), w, ascent()+descent()+1, w, 0 );
 }
 
 glyph_metrics_t QFontEngine::boundingBox( glyph_t glyph )
 {
     QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics( handle(), glyph);
-    return glyph_metrics_t( metrics->bearingx, metrics->bearingy, metrics->width, metrics->height, metrics->advance, 0 );
+    return glyph_metrics_t( (metrics->bearingx*scale)>>8, (metrics->bearingy*scale)>>8, (metrics->width*scale)>>8, (metrics->height*scale)>>8, (metrics->advance*scale)>>8, 0 );
 }
 
 bool QFontEngine::canRender( const QChar *string,  int len )
@@ -318,32 +319,32 @@ bool QFontEngine::canRender( const QChar *string,  int len )
 
 int QFontEngine::ascent() const
 {
-    return memorymanager->fontAscent(handle());
+    return (memorymanager->fontAscent(handle())*scale)>>8;
 }
 
 int QFontEngine::descent() const
 {
-    return memorymanager->fontDescent(handle());
+    return (memorymanager->fontDescent(handle())*scale)>>8;
 }
 
 int QFontEngine::leading() const
 {
-    return memorymanager->fontLeading(handle());
+    return (memorymanager->fontLeading(handle())*scale)>>8;
 }
 
 int QFontEngine::maxCharWidth() const
 {
-    return memorymanager->fontMaxWidth(handle());
+    return (memorymanager->fontMaxWidth(handle())*scale)>>8;
 }
 
 int QFontEngine::minLeftBearing() const
 {
-    return memorymanager->fontMinLeftBearing(handle());
+    return (memorymanager->fontMinLeftBearing(handle())*scale)>>8;
 }
 
 int QFontEngine::minRightBearing() const
 {
-    return memorymanager->fontMinRightBearing(handle());
+    return (memorymanager->fontMinRightBearing(handle())*scale)>>8;
 }
 
 int QFontEngine::underlinePosition() const

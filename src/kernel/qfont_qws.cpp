@@ -111,7 +111,7 @@ void QFontPrivate::load( QFont::Script )
 	req.pointSize = req.pixelSize*10;
 
     if ( ! engineData ) {
-	QFontCache::Key key( req, QFont::NoScript, screen );
+	QFontCache::Key key( req, QFont::NoScript, (int)paintdevice );
 
 	// look for the requested font in the engine data cache
 	engineData = QFontCache::instance->findEngineData( key );
@@ -129,7 +129,8 @@ void QFontPrivate::load( QFont::Script )
     if ( engineData->engine ) return;
 
     // load the font
-    engineData->engine = new QFontEngine(req);
+    engineData->engine = new QFontEngine(req, paintdevice);
+    qDebug( "loading fontengine with paintdev %p, res %d", paintdevice, paintdevice ? paintdevice->resolution() : 1 );
     engineData->engine->ref();
 }
 
@@ -141,7 +142,7 @@ void QFontPrivate::load( QFont::Script )
 int QFontMetrics::leftBearing(QChar ch) const
 {
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
-    return memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() )->bearingx;
+    return (memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() )->bearingx*engine->scale)>>8;
 }
 
 
@@ -149,7 +150,7 @@ int QFontMetrics::rightBearing(QChar ch) const
 {
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
     QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() );
-    return metrics->advance - metrics->width - metrics->bearingx;
+    return ((metrics->advance - metrics->width - metrics->bearingx)*engine->scale)>>8;
 }
 
 int QFontMetrics::charWidth( const QString &str, int pos ) const
@@ -160,7 +161,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     const QChar &ch = str.unicode()[ pos ];
     if ( ch.unicode() < QFontEngineData::widthCacheSize &&
 	 d->engineData && d->engineData->widthCache[ ch.unicode() ] )
-	return d->engineData->widthCache[ ch.unicode() ];
+	return (d->engineData->widthCache[ ch.unicode() ]*d->engineData->engine->scale)>>8;
 
     if ( ::isMark( ch.unicode() ) )
 	return 0;
@@ -196,20 +197,20 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 int QFontMetrics::width( QChar ch ) const
 {
     unsigned short uc = ch.unicode();
+    QFontEngine *engine = d->engineForScript( QFont::NoScript );
     if ( uc < QFontEngineData::widthCacheSize &&
 	 d->engineData && d->engineData->widthCache[ uc ] )
-	return d->engineData->widthCache[ uc ];
+	return (d->engineData->widthCache[ uc ]*engine->scale)>>8;
 
     if ( ::category( ch ) == QChar::Mark_NonSpacing )
 	return 0;
 
-    QFontEngine *engine = d->engineForScript( QFont::NoScript );
     int width = memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() )->advance;
 
     if ( ch.unicode() < QFontEngineData::widthCacheSize && width < 0x100 )
 	d->engineData->widthCache[ ch.unicode() ] = width;
 
-    return width;
+    return (width*engine->scale)>>8;
 }
 
 // ### should maybe use the common method aswell, but since that one is quite a bit slower
@@ -227,7 +228,7 @@ int QFontMetrics::width( const QString &str, int len ) const
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
     for (int i=0; i<len; i++)
 	ret += memorymanager->lockGlyphMetrics( engine->handle(), str[i].unicode() )->advance;
-    return ret;
+    return (ret*engine->scale)>>8;
 }
 
 /*!
