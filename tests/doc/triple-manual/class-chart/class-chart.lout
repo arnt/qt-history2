@@ -1,6 +1,7 @@
 @SysInclude { tbl }
 @SysInclude { diag }
 @Include { doc.lout }
+# pspdf -W1134 -H666
 macro @QtColour		{ rgb 0.90 1.00 0.90 } 
 macro @ObjectColour	{ rgb 0.90 1.00 0.60 } 
 macro @EventColour	{ rgb 0.80 1.00 0.95 } 
@@ -719,6 +720,6 @@ CHA300606NO-12"/"02 @Sup{1.0}"    "Copyright @CopyRight 2002 Trolltech AS. All R
     @LVRCurveArrow from { QVALIDATOR } to { QDOUBLEVALIDATOR } bias { 1.5f } zindent { 0.2f }
     @LVRCurveArrow from { QVALIDATOR } to { QINTVALIDATOR } bias { 1.5f } zindent { 0.2f }
     @LVRCurveArrow from { QVALIDATOR } to { QREGEXPVALIDATOR } bias { 1.5f } zindent { 0.2f }
-    @HVHCurveArrow from { QEDITORFACTORY } to { QSQLEDITORFACTORY } hfrac { 0 } hbias { 15.0f }
+    @HVHCurveArrow from { QEDITORFACTORY } to { QSQLEDITORFACTORY } hfrac { 0 } hbias { 19.0f }
 }
 @End @Text

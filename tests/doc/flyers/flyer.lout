@@ -209,6 +209,7 @@
   # @ExampleFormat	{ {@B { word @NumSep number title: } &2s} @Insert body }
   # @ProofWord		{ proof			} # "Proof" word, etc.
   # @PageHeaders	{ Simple		} # None Simple Titles NoTitles
+  @PageHeaders		{ None		} # None Simple Titles NoTitles
   # @PageNumbers	{ Arabic		} # page numbers
   # @FirstPageNumber	{ 1			} # number of first page 
   # @IntroPageNumbers	{ Roman			} # intro page numbers
