@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.h#3 $
+** $Id: //depot/qt/main/src/tools/qdatastream.h#4 $
 **
 ** Definition of QDataStream class
 **
 ** Author  : Haavard Nord
 ** Created : 930831
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -25,7 +25,9 @@ public:
 
     QIODevice 	*device() const;		// get current stream device
     void	 setDevice( QIODevice * );	// set stream device
-    void	 resetDevice();			// set NULL stream device
+    void	 unsetDevice();			// set NULL stream device
+
+    bool	 eos() const;			// end of stream data?
 
     bool	 isPrintableData() const;	// using printable data
     void	 setPrintableData( bool );	// set printable data on/off
@@ -69,52 +71,47 @@ private:
 // QDataStream inline functions
 //
 
-inline QIODevice *QDataStream::device() const	  { return dev; }
-inline void QDataStream::setDevice(QIODevice *d ) { dev = d; }
-inline void QDataStream::resetDevice()		  { dev = 0; }
+inline QIODevice *QDataStream::device() const
+{ return dev; }
 
-inline bool QDataStream::isPrintableData() const  { return printable; }
-inline void QDataStream::setPrintableData(bool p) { printable = p; }
+inline void QDataStream::setDevice(QIODevice *d )
+{ dev = d; }
+
+inline void QDataStream::unsetDevice()
+{ dev = 0; }
+
+inline bool QDataStream::eos() const
+{ return dev ? dev->atEnd() : TRUE; }
+
+inline bool QDataStream::isPrintableData() const
+{ return printable; }
+
+inline void QDataStream::setPrintableData( bool p )
+{ printable = p; }
 
 inline QDataStream &QDataStream::operator>>( UINT8 &i )
-{
-    return *this >> (INT8&)i;
-}
+{ return *this >> (INT8&)i; }
 
 inline QDataStream &QDataStream::operator>>( UINT16 &i )
-{
-    return *this >> (INT16&)i;
-}
+{ return *this >> (INT16&)i; }
 
 inline QDataStream &QDataStream::operator>>( UINT32 &i )
-{
-    return *this >> (INT32&)i;
-}
+{ return *this >> (INT32&)i; }
 
 inline QDataStream &QDataStream::operator<<( UINT8 i )
-{
-    return *this << (INT8)i;
-}
+{ return *this << (INT8)i; }
 
 inline QDataStream &QDataStream::operator<<( UINT16 i )
-{
-    return *this << (INT16)i;
-}
+{ return *this << (INT16)i; }
 
 inline QDataStream &QDataStream::operator<<( UINT32 i )
-{
-    return *this << (INT32)i;
-}
+{ return *this << (INT32)i; }
 
 inline QDataStream &QDataStream::operator<<( int i )
-{
-    return *this << (INT32)i;
-}
+{ return *this << (INT32)i; }
 
 inline QDataStream &QDataStream::operator<<( uint i )
-{
-    return *this << (UINT32)i;
-}
+{ return *this << (UINT32)i; }
 
 
 #endif // QDSTREAM_H
