@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#31 $
 **
 ** Implementation of layout classes
 **
@@ -18,13 +18,21 @@
 
   \ingroup geomanagement
 
-  This is an abstract base class. Various layout managers inherit
-  from this one.
+  This is an abstract base class. The concrete layout managers
+  QBoxLayout and QGidLayout inherit from this one and make QLayout's
+  functionality avaialble in friendly APIs.
+  
+  Most users of Q*Layout are likely to use some of the basic functions
+  provided by QLayout, such as <ul><li>activate(), which compiles the
+  layout into an internal representation and activates the result,
+  <li> setMenuBar(), which is necessary to manage a menu bar because
+  of the special properties of menu bars, and <li> freeze(), which
+  allows you to freeze the widget's size and layout. </ul>
 
   Geometry management stops when the layout manager is deleted.
 
   To make a new layout manager, you need to implement the functions
-  mainVerticalChain(), mainHorizontalChain() and initGM()
+  mainVerticalChain(), mainHorizontalChain() and initGM().
 */
 
 
@@ -245,17 +253,60 @@ void QLayout::setMenuBar( QMenuBar *w )
 
 /*!
   \class QBoxLayout qlayout.h
-  \brief The QBoxLayout class specifies child widget geometry.
-
+  \brief The QBoxLayout class lines up child widgets horizontally or vertically.
   \ingroup geomanagement
+  
+  QBoxLayout takes the space it gets (from its parent layout or from
+  the mainWindget()), divides it up into a row of boxes and makes each
+  managed widget fill one box.
+  
+  If the QBoxLayout is \c Horizontal, the boxes are beside each other,
+  with suitable sizes.  Each widget (or other box) will get at least
+  its minimum sizes and at most its maximum size, and any excess space
+  is shared according to the stretch factors (more about that below).
+  
+  If the QBoxLayout is \c Vertical, the boxes are above and below each
+  other, again with suitable sizes.
+  
+  To create and fill a QBoxLayout, you must first call a constructor
+  to specify its direction, \c LeftToRight, \c Down, \c RightToLeft or
+  \c Up.
 
-  Contents are arranged serially, either horizontal or vertical.
-  The contents fill the available space.
+  If the QBoxLayout is the top-level layout (ie. is not managing the
+  entirety of the widget's area), you must add it to its parent
+  layout, typically using parentLayout->addLayout().
 
-  A QBoxLayout can contain widgets or other layouts.
+  Then, you add boxes to the QBoxLayout using one of three functions: <ul>
+  
+  <li> addWidget() to add a widget to the QBoxLayout and set the
+  widget's strech factor.  (The stretch factor is along the row if
+  boxes.)
 
-  QHBoxLayout and QVBoxLayout are convenience classes.
- */
+  <li> addSpacing() to create an empty box; this is one of the
+  functions you use to create nice and spacious dialogs.  See below
+  for the two other ways to get spacing.
+  
+  <li> addLayout() to add a box containing another QLayout to the row
+  and set that layout's stretch factor.
+  
+  </ul>
+
+  Finally, if the layout is a top-level one, you activate() it.
+
+  QBoxLayout also includes to spacings: The border width and the
+  inter-box width.  The border width is the width of the reserved
+  space along each of the QBoxLayout's four sides.  The intra-widget
+  width is the width of the automatically allocated spacing between
+  neighbouring boxes.  (You can use addSpacing() to get more space.)
+  
+  The border width defaults to 0, and the intra-widget width defaults
+  to the same as the border width.  Both are set using arguments to
+  the constructor.
+  
+  Qt also provides two convenience classes for QBoxLayout: QVBoxLayout
+  and QHBoxLayout.  Their chief advantage is their simpler
+  constructors.
+*/
 
 static inline bool horz( QGManager::Direction dir )
 {
@@ -320,7 +371,7 @@ QBoxLayout::QBoxLayout( Direction d,
 
 
 /*!
-  Destroys this box. 
+  Destroys this box.
 */
 
 QBoxLayout::~QBoxLayout()
@@ -579,7 +630,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
   \ingroup geomanagement
 
   The contents are arranged left to right, they will stretch to fill
-  the available space. 
+  the available space.
 */
 
 
@@ -590,11 +641,11 @@ QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
 		int autoBorder, const char *name )
     :QBoxLayout( parent, LeftToRight, border, autoBorder, name )
 {
-    
+
 }
 
 /*!
-  Creates a new horizontal box. You have to add it to another 
+  Creates a new horizontal box. You have to add it to another
   layout before using it.
  */
 QHBoxLayout::QHBoxLayout( int autoBorder, const char *name )
@@ -604,7 +655,7 @@ QHBoxLayout::QHBoxLayout( int autoBorder, const char *name )
 
 
 /*!
-  Destroys this box. 
+  Destroys this box.
 */
 
 QHBoxLayout::~QHBoxLayout()
@@ -630,11 +681,11 @@ QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
 		int autoBorder, const char *name )
     :QBoxLayout( parent, TopToBottom, border, autoBorder, name )
 {
-    
+
 }
 
 /*!
-  Creates a new vertical box. You have to add it to another 
+  Creates a new vertical box. You have to add it to another
   layout before using it.
  */
 QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
@@ -643,7 +694,7 @@ QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
 }
 
 /*!
-  Destroys this box. 
+  Destroys this box.
 */
 
 QVBoxLayout::~QVBoxLayout()
@@ -664,7 +715,7 @@ QVBoxLayout::~QVBoxLayout()
   should have a a minimum size or a nonzero stretch factor. Stretch
   factors are set with setRowStretch() and setColStretch(). Minimum sizes
   are set by addColSpacing(), addRowSpacing() and by the minimum sizes
-  of the widgets added. 
+  of the widgets added.
 
   Note that a widget which spans several rows or columns does not
   influence the minimum size of any of the rows/columns it spans.
@@ -747,7 +798,7 @@ void QGridLayout::expand( int nRows, int nCols )
 	rows = new QArray<QChain*> ( nr );
     if ( !cols )
 	cols = new QArray<QChain*> ( nc );
-    
+
     if ( rr == nr && cc == nc )
 	return;
 
@@ -811,7 +862,7 @@ void QGridLayout::init( int nRows, int nCols )
   Alignment is specified by \a align which takes the same arguments as
   QLabel::setAlignment().  Note that widgets take all the space they
   can get; alignment has no effect unless you have set
-  QWidget::maximumSize().  
+  QWidget::maximumSize().
 
 */
 
@@ -843,7 +894,7 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
 
   Alignment is specified by \a align which takes the same arguments as
   QLabel::setAlignment(), alignment has no effect unless you have set
-  QWidget::maximumSize().  
+  QWidget::maximumSize().
 */
 
 void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#114 $
 **
 ** Implementation of QListView widget class
 **
@@ -158,10 +158,15 @@ struct QListViewPrivate
   This object will be deleted when \e parent is deleted, as for \link
   QObject QObjects. \endlink
 
+  The parent is either another QListViewItem or a QListView.  If the
+  parent is a QListView, this item is a top-level item within than
+  QListView.  If the parent is another QListViewItem, this item
+  becomes a child of the parent item.
+  
   If you keep the pointer, you can set or change the texts using
   setText(), add pixmaps using setPixmap().
 
-  More to come.
+  
 */
 
 
