@@ -475,6 +475,7 @@ QImage::QImage(uchar* data, int width, int height, Format format)
     d->ref.ref();
 
     d->own_data = false;
+    d->data = data;
     d->width = width;
     d->height = height;
     d->depth = depthForFormat(format);
@@ -675,6 +676,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
     d->ref.ref();
 
     d->own_data = false;
+    d->data = data;
     d->width = w;
     d->height = h;
     d->depth = depth;
@@ -721,6 +723,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colort
     d = new QImageData;
     d->ref.ref();
     d->own_data = false;
+    d->data = data;
     d->width = w;
     d->height = h;
     d->depth = depth;
