@@ -32,10 +32,10 @@
 
 //#define QT_DEBUG_DATATABLE
 
-class QDataTablePrivate
+class Q3DataTablePrivate
 {
 public:
-    QDataTablePrivate()
+    Q3DataTablePrivate()
         : nullTxtChanged(false),
           haveAllRows(false),
           continuousEdit(false),
@@ -50,7 +50,7 @@ public:
           cancelInsert(false),
           cancelUpdate(false)
     {}
-    ~QDataTablePrivate() { if (propertyMap) delete propertyMap; }
+    ~Q3DataTablePrivate() { if (propertyMap) delete propertyMap; }
 
     QString nullTxt;
     bool nullTxtChanged;
@@ -58,8 +58,8 @@ public:
     ColIndex colIndex;
     bool haveAllRows;
     bool continuousEdit;
-    QSqlEditorFactory* editorFactory;
-    QSqlPropertyMap* propertyMap;
+    Q3SqlEditorFactory* editorFactory;
+    Q3SqlPropertyMap* propertyMap;
     QString trueTxt;
     Qt::DateFormat datefmt;
     QString falseTxt;
@@ -80,8 +80,8 @@ public:
     QList<int> fldWidth;
     QList<QIcon> fldIcon;
     QList<bool> fldHidden;
-    QSqlCursorManager cur;
-    QDataManager dat;
+    Q3SqlCursorManager cur;
+    Q3DataManager dat;
 };
 
 #ifdef QT_DEBUG_DATATABLE
@@ -96,7 +96,7 @@ void qt_debug_buffer(const QString& msg, QSqlRecord* cursor)
 #endif
 
 /*!
-    \enum QDataTable::Refresh
+    \enum Q3DataTable::Refresh
 
     This enum describes the refresh options.
 
@@ -107,20 +107,20 @@ void qt_debug_buffer(const QString& msg, QSqlRecord* cursor)
 
 
 /*!
-    \class QDataTable qdatatable.h
-    \brief The QDataTable class provides a flexible SQL table widget that supports browsing and editing.
+    \class Q3DataTable qdatatable.h
+    \brief The Q3DataTable class provides a flexible SQL table widget that supports browsing and editing.
 
     \compat
 
-    QDataTable supports various functions for presenting and editing
-    SQL data from a \l QSqlCursor in a table.
+    Q3DataTable supports various functions for presenting and editing
+    SQL data from a \l Q3SqlCursor in a table.
 
-    If you want a to present your data in a form use QDataBrowser, or
-    for read-only forms, QDataView.
+    If you want a to present your data in a form use Q3DataBrowser, or
+    for read-only forms, Q3DataView.
 
-    When displaying data, QDataTable only retrieves data for visible
+    When displaying data, Q3DataTable only retrieves data for visible
     rows. If the driver supports the 'query size' property the
-    QDataTable will have the correct number of rows and the vertical
+    Q3DataTable will have the correct number of rows and the vertical
     scrollbar will accurately reflect the number of rows displayed in
     proportion to the number of rows in the dataset. If the driver
     does not support the 'query size' property, rows are dynamically
@@ -129,13 +129,13 @@ void qt_debug_buffer(const QString& msg, QSqlRecord* cursor)
     records. This allows extremely large queries to be displayed as
     quickly as possible, with minimum memory usage.
 
-    QDataTable inherits QTable's API and extends it with functions to
+    Q3DataTable inherits QTable's API and extends it with functions to
     sort and filter the data and sort columns. See setSqlCursor(),
     setFilter(), setSort(), setSorting(), sortColumn() and refresh().
 
     When displaying editable cursors, cell editing will be enabled.
-    (For more information on editable cursors, see \l QSqlCursor).
-    QDataTable can be used to modify existing data and to add new
+    (For more information on editable cursors, see \l Q3SqlCursor).
+    Q3DataTable can be used to modify existing data and to add new
     records. When a user makes changes to a field in the table, the
     cursor's edit buffer is used. The table will not send changes in
     the edit buffer to the database until the user moves to a
@@ -152,7 +152,7 @@ void qt_debug_buffer(const QString& msg, QSqlRecord* cursor)
     setConfirmUpdate(), setConfirmDelete() and setConfirmCancels().
     Use setAutoEdit() to control the behavior of the table when the
     user edits a record and then navigates. (Note that setAutoDelete()
-    is unrelated; it is used to set whether the QSqlCursor is deleted
+    is unrelated; it is used to set whether the Q3SqlCursor is deleted
     when the table is deleted.)
 
     Since the data table can perform edits, it must be able to
@@ -162,7 +162,7 @@ void qt_debug_buffer(const QString& msg, QSqlRecord* cursor)
     or deleted within the database otherwise the database may be
     changed to an inconsistent state.
 
-    QDataTable creates editors using the default \l QSqlEditorFactory.
+    Q3DataTable creates editors using the default \l Q3SqlEditorFactory.
     Different editor factories can be used by calling
     installEditorFactory(). A property map is used to map between the
     cell's value and the editor. You can use your own property map
@@ -210,7 +210,7 @@ void qt_debug_buffer(const QString& msg, QSqlRecord* cursor)
     name \a name.
 */
 
-QDataTable::QDataTable (QWidget * parent, const char * name)
+Q3DataTable::Q3DataTable (QWidget * parent, const char * name)
     : QTable(parent, name)
 {
     init();
@@ -230,7 +230,7 @@ QDataTable::QDataTable (QWidget * parent, const char * name)
     representing NULL values as strings.
 */
 
-QDataTable::QDataTable (QSqlCursor* cursor, bool autoPopulate, QWidget * parent, const char * name)
+Q3DataTable::Q3DataTable (Q3SqlCursor* cursor, bool autoPopulate, QWidget * parent, const char * name)
     : QTable(parent, name)
 {
     init();
@@ -241,9 +241,9 @@ QDataTable::QDataTable (QSqlCursor* cursor, bool autoPopulate, QWidget * parent,
 */
 
 
-void QDataTable::init()
+void Q3DataTable::init()
 {
-    d = new QDataTablePrivate();
+    d = new Q3DataTablePrivate();
     setAutoEdit(true);
     setSelectionMode(SingleRow);
     setFocusStyle(FollowStyle);
@@ -259,7 +259,7 @@ void QDataTable::init()
     Destroys the object and frees any allocated resources.
 */
 
-QDataTable::~QDataTable()
+Q3DataTable::~Q3DataTable()
 {
     delete d;
 }
@@ -277,7 +277,7 @@ QDataTable::~QDataTable()
     \sa setSqlCursor() refresh()
 */
 
-void QDataTable::addColumn(const QString& fieldName,
+void Q3DataTable::addColumn(const QString& fieldName,
                             const QString& label,
                             int width,
                             const QIcon& icon)
@@ -301,7 +301,7 @@ void QDataTable::addColumn(const QString& fieldName,
     \sa setSqlCursor() refresh()
 */
 
-void QDataTable::setColumn(int col, const QString& fieldName,
+void Q3DataTable::setColumn(int col, const QString& fieldName,
                             const QString& label,
                             int width,
                             const QIcon& icon)
@@ -320,7 +320,7 @@ void QDataTable::setColumn(int col, const QString& fieldName,
     \sa QSqlField
 */
 
-void QDataTable::removeColumn(int col)
+void Q3DataTable::removeColumn(int col)
 {
     if (d->fld.begin() + col != d->fld.end()) {
         d->fld.removeAt(col);
@@ -333,13 +333,13 @@ void QDataTable::removeColumn(int col)
 
 /*!
     Sets the column \a col to the width \a w. Note that unlike QTable
-    the QDataTable is not immediately redrawn, you must call
-    refresh(QDataTable::RefreshColumns)
+    the Q3DataTable is not immediately redrawn, you must call
+    refresh(Q3DataTable::RefreshColumns)
     yourself.
 
     \sa refresh()
 */
-void QDataTable::setColumnWidth(int col, int w)
+void Q3DataTable::setColumnWidth(int col, int w)
 {
     if (col >= 0 && col < d->fldWidth.size())
         d->fldWidth[col] = w;
@@ -348,14 +348,14 @@ void QDataTable::setColumnWidth(int col, int w)
 /*!
     Resizes column \a col so that the column width is wide enough to
     display the widest item the column contains (including the column
-    label). If the table's QSqlCursor is not currently active, the
+    label). If the table's Q3SqlCursor is not currently active, the
     cursor will be refreshed before the column width is calculated. Be
     aware that this function may be slow on tables that contain large
     result sets.
 */
-void QDataTable::adjustColumn(int col)
+void Q3DataTable::adjustColumn(int col)
 {
-    QSqlCursor * cur = sqlCursor();
+    Q3SqlCursor * cur = sqlCursor();
     if (!cur || cur->count() <= col)
         return;
     if (!cur->isActive()) {
@@ -374,7 +374,7 @@ void QDataTable::adjustColumn(int col)
 
 /*! \reimp
 */
-void QDataTable::setColumnStretchable(int col, bool s)
+void Q3DataTable::setColumnStretchable(int col, bool s)
 {
     if (numCols() == 0) {
         refresh(RefreshColumns);
@@ -384,13 +384,13 @@ void QDataTable::setColumnStretchable(int col, bool s)
     }
 }
 
-QString QDataTable::filter() const
+QString Q3DataTable::filter() const
 {
     return d->cur.filter();
 }
 
 /*!
-    \property QDataTable::filter
+    \property Q3DataTable::filter
     \brief the data filter for the data table
 
     The filter applies to the data shown in the table. To view data
@@ -403,14 +403,14 @@ QString QDataTable::filter() const
 
 */
 
-void QDataTable::setFilter(const QString& filter)
+void Q3DataTable::setFilter(const QString& filter)
 {
     d->cur.setFilter(filter);
 }
 
 
 /*!
-    \property QDataTable::sort
+    \property Q3DataTable::sort
     \brief the data table's sort
 
     The table's sort affects the order in which data records are
@@ -436,7 +436,7 @@ void QDataTable::setFilter(const QString& filter)
     \sa filter() refresh()
 */
 
-void QDataTable::setSort(const QStringList& sort)
+void Q3DataTable::setSort(const QStringList& sort)
 {
     d->cur.setSort(sort);
 }
@@ -452,12 +452,12 @@ void QDataTable::setSort(const QStringList& sort)
     \sa sort()
 */
 
-void QDataTable::setSort(const QSqlIndex& sort)
+void Q3DataTable::setSort(const QSqlIndex& sort)
 {
     d->cur.setSort(sort);
 }
 
-QStringList QDataTable::sort() const
+QStringList Q3DataTable::sort() const
 {
     return d->cur.sort();
 }
@@ -466,33 +466,33 @@ QStringList QDataTable::sort() const
     Returns the cursor used by the data table.
 */
 
-QSqlCursor* QDataTable::sqlCursor() const
+Q3SqlCursor* Q3DataTable::sqlCursor() const
 {
     return d->cur.cursor();
 }
 
-void QDataTable::setConfirmEdits(bool confirm)
+void Q3DataTable::setConfirmEdits(bool confirm)
 {
     d->dat.setConfirmEdits(confirm);
 }
 
-void QDataTable::setConfirmInsert(bool confirm)
+void Q3DataTable::setConfirmInsert(bool confirm)
 {
     d->dat.setConfirmInsert(confirm);
 }
 
-void QDataTable::setConfirmUpdate(bool confirm)
+void Q3DataTable::setConfirmUpdate(bool confirm)
 {
     d->dat.setConfirmUpdate(confirm);
 }
 
-void QDataTable::setConfirmDelete(bool confirm)
+void Q3DataTable::setConfirmDelete(bool confirm)
 {
     d->dat.setConfirmDelete(confirm);
 }
 
 /*!
-    \property QDataTable::confirmEdits
+    \property Q3DataTable::confirmEdits
     \brief whether the data table confirms edit operations
 
     If the confirmEdits property is true, the data table confirms all
@@ -503,13 +503,13 @@ void QDataTable::setConfirmDelete(bool confirm)
     \sa confirmCancels() confirmInsert() confirmUpdate() confirmDelete()
 */
 
-bool QDataTable::confirmEdits() const
+bool Q3DataTable::confirmEdits() const
 {
     return (d->dat.confirmEdits());
 }
 
 /*!
-    \property QDataTable::confirmInsert
+    \property Q3DataTable::confirmInsert
     \brief whether the data table confirms insert operations
 
     If the confirmInsert property is true, all insertions must be
@@ -520,13 +520,13 @@ bool QDataTable::confirmEdits() const
     \sa confirmCancels() confirmEdits() confirmUpdate() confirmDelete()
 */
 
-bool QDataTable::confirmInsert() const
+bool Q3DataTable::confirmInsert() const
 {
     return (d->dat.confirmInsert());
 }
 
 /*!
-    \property QDataTable::confirmUpdate
+    \property Q3DataTable::confirmUpdate
     \brief whether the data table confirms update operations
 
     If the confirmUpdate property is true, all updates must be
@@ -537,13 +537,13 @@ bool QDataTable::confirmInsert() const
     \sa confirmCancels() confirmEdits() confirmInsert() confirmDelete()
 */
 
-bool QDataTable::confirmUpdate() const
+bool Q3DataTable::confirmUpdate() const
 {
     return (d->dat.confirmUpdate());
 }
 
 /*!
-    \property QDataTable::confirmDelete
+    \property Q3DataTable::confirmDelete
     \brief whether the data table confirms delete operations
 
     If the confirmDelete property is true, all deletions must be
@@ -554,13 +554,13 @@ bool QDataTable::confirmUpdate() const
     \sa confirmCancels() confirmEdits() confirmUpdate() confirmInsert()
 */
 
-bool QDataTable::confirmDelete() const
+bool Q3DataTable::confirmDelete() const
 {
     return (d->dat.confirmDelete());
 }
 
 /*!
-    \property QDataTable::confirmCancels
+    \property Q3DataTable::confirmCancels
     \brief whether the data table confirms cancel operations
 
     If the confirmCancel property is true, all cancels must be
@@ -571,12 +571,12 @@ bool QDataTable::confirmDelete() const
     \sa confirmEdits() confirmCancel()
 */
 
-void QDataTable::setConfirmCancels(bool confirm)
+void Q3DataTable::setConfirmCancels(bool confirm)
 {
     d->dat.setConfirmCancels(confirm);
 }
 
-bool QDataTable::confirmCancels() const
+bool Q3DataTable::confirmCancels() const
 {
     return d->dat.confirmCancels();
 }
@@ -591,19 +591,19 @@ bool QDataTable::confirmCancels() const
     field in \a col using a property map. The property map used is the
     default property map, unless a new property map was installed with
     installPropertMap(). If \a initFromCell is true then the editor is
-    primed with the value in the QDataTable cell.
+    primed with the value in the Q3DataTable cell.
 */
 
-QWidget * QDataTable::createEditor(int , int col, bool initFromCell) const
+QWidget * Q3DataTable::createEditor(int , int col, bool initFromCell) const
 {
     if (d->dat.mode() == QSql::None)
         return 0;
 
-    QSqlEditorFactory * f = (d->editorFactory == 0) ?
-                     QSqlEditorFactory::defaultFactory() : d->editorFactory;
+    Q3SqlEditorFactory * f = (d->editorFactory == 0) ?
+                     Q3SqlEditorFactory::defaultFactory() : d->editorFactory;
 
-    QSqlPropertyMap * m = (d->propertyMap == 0) ?
-                          QSqlPropertyMap::defaultMap() : d->propertyMap;
+    Q3SqlPropertyMap * m = (d->propertyMap == 0) ?
+                          Q3SqlPropertyMap::defaultMap() : d->propertyMap;
 
     QWidget * w = 0;
     if(initFromCell && d->editBuffer){
@@ -616,7 +616,7 @@ QWidget * QDataTable::createEditor(int , int col, bool initFromCell) const
 }
 
 /*! \reimp */
-bool QDataTable::eventFilter(QObject *o, QEvent *e)
+bool Q3DataTable::eventFilter(QObject *o, QEvent *e)
 {
     if (d->cancelMode)
         return true;
@@ -689,7 +689,7 @@ bool QDataTable::eventFilter(QObject *o, QEvent *e)
             else
                 d->continuousEdit = false;
         }
-        QSqlCursor * sql = sqlCursor();
+        Q3SqlCursor * sql = sqlCursor();
         if (sql && sql->driver() &&
              !sql->driver()->hasFeature(QSqlDriver::QuerySize) &&
              ke->key() == Qt::Key_End && d->dat.mode() == QSql::None) {
@@ -733,7 +733,7 @@ bool QDataTable::eventFilter(QObject *o, QEvent *e)
 }
 
 /*! \reimp */
-void QDataTable::resizeEvent (QResizeEvent * e)
+void Q3DataTable::resizeEvent (QResizeEvent * e)
 {
     if (sqlCursor() &&
          sqlCursor()->driver() &&
@@ -743,7 +743,7 @@ void QDataTable::resizeEvent (QResizeEvent * e)
 }
 
 /*! \reimp */
-void QDataTable::contentsContextMenuEvent(QContextMenuEvent* e)
+void Q3DataTable::contentsContextMenuEvent(QContextMenuEvent* e)
 {
     QTable::contentsContextMenuEvent(e);
     if (isEditing() && d->dat.mode() != QSql::None)
@@ -786,13 +786,13 @@ void QDataTable::contentsContextMenuEvent(QContextMenuEvent* e)
 }
 
 /*! \reimp */
-void QDataTable::contentsMousePressEvent(QMouseEvent* e)
+void Q3DataTable::contentsMousePressEvent(QMouseEvent* e)
 {
     QTable::contentsMousePressEvent(e);
 }
 
 /*! \reimp */
-QWidget* QDataTable::beginEdit (int row, int col, bool replace)
+QWidget* Q3DataTable::beginEdit (int row, int col, bool replace)
 {
     d->editRow = -1;
     d->editCol = -1;
@@ -818,7 +818,7 @@ QWidget* QDataTable::beginEdit (int row, int col, bool replace)
 }
 
 /*! \reimp */
-void QDataTable::endEdit(int row, int col, bool, bool)
+void Q3DataTable::endEdit(int row, int col, bool, bool)
 {
     bool accept = autoEdit() && !d->cancelInsert && !d->cancelUpdate;
 
@@ -828,8 +828,8 @@ void QDataTable::endEdit(int row, int col, bool, bool)
     if (d->cancelMode)
         return;
     if (d->dat.mode() != QSql::None && d->editBuffer) {
-        QSqlPropertyMap * m = (d->propertyMap == 0) ?
-                              QSqlPropertyMap::defaultMap() : d->propertyMap;
+        Q3SqlPropertyMap * m = (d->propertyMap == 0) ?
+                              Q3SqlPropertyMap::defaultMap() : d->propertyMap;
         d->editBuffer->setValue(indexOf(col),  m->property(editor));
         clearCellWidget(row, col);
         if (!d->continuousEdit) {
@@ -860,13 +860,13 @@ void QDataTable::endEdit(int row, int col, bool, bool)
 }
 
 /*! \internal */
-void QDataTable::doInsertCurrent()
+void Q3DataTable::doInsertCurrent()
 {
     insertCurrent();
 }
 
 /*! \internal */
-void QDataTable::doUpdateCurrent()
+void Q3DataTable::doUpdateCurrent()
 {
     updateCurrent();
     if (d->dat.mode() == QSql::None) {
@@ -875,7 +875,7 @@ void QDataTable::doUpdateCurrent()
 }
 
 /*! \reimp */
-void QDataTable::activateNextCell()
+void Q3DataTable::activateNextCell()
 {
 //     if (d->dat.mode() == QSql::None)
 //        QTable::activateNextCell();
@@ -884,7 +884,7 @@ void QDataTable::activateNextCell()
 /*! \internal
 */
 
-void QDataTable::endInsert()
+void Q3DataTable::endInsert()
 {
     if (d->dat.mode() != QSql::Insert)
         return;
@@ -904,7 +904,7 @@ void QDataTable::endInsert()
 /*! \internal
 */
 
-void QDataTable::endUpdate()
+void Q3DataTable::endUpdate()
 {
     d->dat.setMode(QSql::None);
     d->editBuffer = 0;
@@ -920,14 +920,14 @@ void QDataTable::endUpdate()
     cursor or the cursor does not allow inserts, nothing happens.
 
     Editing takes place using the cursor's edit buffer(see
-    QSqlCursor::editBuffer()).
+    Q3SqlCursor::editBuffer()).
 
     When editing begins, a new row is created in the table marked with
     an asterisk '*' in the row's vertical header column, i.e. at the
     left of the row.
 */
 
-bool QDataTable::beginInsert()
+bool Q3DataTable::beginInsert()
 {
     if (!sqlCursor() || isReadOnly() || !numCols())
         return false;
@@ -976,15 +976,15 @@ bool QDataTable::beginInsert()
     cursor, nothing happens.
 
     Editing takes place using the cursor's edit buffer (see
-    QSqlCursor::editBuffer()).
+    Q3SqlCursor::editBuffer()).
 
-    \a row and \a col refer to the row and column in the QDataTable.
+    \a row and \a col refer to the row and column in the Q3DataTable.
 
     (\a replace is provided for reimplementors and reflects the API of
     QTable::beginEdit().)
 */
 
-QWidget* QDataTable::beginUpdate (int row, int col, bool replace)
+QWidget* Q3DataTable::beginUpdate (int row, int col, bool replace)
 {
     if (!sqlCursor() || isReadOnly() || isColumnReadOnly(col))
         return 0;
@@ -1012,12 +1012,12 @@ QWidget* QDataTable::beginUpdate (int row, int col, bool replace)
     database may be changed to an inconsistent state.
 */
 
-bool QDataTable::insertCurrent()
+bool Q3DataTable::insertCurrent()
 {
     if (d->dat.mode() != QSql::Insert || ! numCols())
         return false;
     if (!sqlCursor()->canInsert()) {
-        qWarning("QDataTable::insertCurrent: insert not allowed for %s",
+        qWarning("Q3DataTable::insertCurrent: insert not allowed for %s",
                  sqlCursor()->name().latin1());
         endInsert();
         return false;
@@ -1066,7 +1066,7 @@ bool QDataTable::insertCurrent()
   Updates the row \a row.
 */
 
-void QDataTable::updateRow(int row)
+void Q3DataTable::updateRow(int row)
 {
     for (int i = 0; i < numCols(); ++i)
         updateCell(row, i);
@@ -1084,18 +1084,18 @@ void QDataTable::updateRow(int row)
     database may be changed to an inconsistent state.
 */
 
-bool QDataTable::updateCurrent()
+bool Q3DataTable::updateCurrent()
 {
     if (d->dat.mode() != QSql::Update)
         return false;
     if (sqlCursor()->primaryIndex().count() == 0) {
-        qWarning("QDataTable::updateCurrent: no primary index for %s",
+        qWarning("Q3DataTable::updateCurrent: no primary index for %s",
                  sqlCursor()->name().latin1());
         endUpdate();
         return false;
     }
     if (!sqlCursor()->canUpdate()) {
-        qWarning("QDataTable::updateCurrent: updates not allowed for %s",
+        qWarning("Q3DataTable::updateCurrent: updates not allowed for %s",
                  sqlCursor()->name().latin1());
         endUpdate();
         return false;
@@ -1154,12 +1154,12 @@ bool QDataTable::updateCurrent()
     database may be changed to an inconsistent state.
 */
 
-bool QDataTable::deleteCurrent()
+bool Q3DataTable::deleteCurrent()
 {
     if (!sqlCursor() || isReadOnly())
         return false;
     if (sqlCursor()->primaryIndex().count() == 0) {
-        qWarning("QDataTable::deleteCurrent: no primary index %s",
+        qWarning("Q3DataTable::deleteCurrent: no primary index %s",
                  sqlCursor()->name().latin1());
         return false;
     }
@@ -1212,7 +1212,7 @@ bool QDataTable::deleteCurrent()
     confirm the edit action.
 */
 
-QSql::Confirm QDataTable::confirmEdit(QSql::Op m)
+QSql::Confirm Q3DataTable::confirmEdit(QSql::Op m)
 {
     return d->dat.confirmEdit(this, m);
 }
@@ -1225,7 +1225,7 @@ QSql::Confirm QDataTable::confirmEdit(QSql::Op m)
     confirm the cancel.
 */
 
-QSql::Confirm  QDataTable::confirmCancel(QSql::Op m)
+QSql::Confirm  Q3DataTable::confirmCancel(QSql::Op m)
 {
     return d->dat.confirmCancel(this, m);
 }
@@ -1244,12 +1244,12 @@ QSql::Confirm  QDataTable::confirmCancel(QSql::Op m)
     found the search will fail and the current cell will remain
     unchanged.
 */
-void QDataTable::find(const QString & str, bool caseSensitive, bool backwards)
+void Q3DataTable::find(const QString & str, bool caseSensitive, bool backwards)
 {
     if (!sqlCursor())
         return;
 
-    QSqlCursor * r = sqlCursor();
+    Q3SqlCursor * r = sqlCursor();
     QString tmp, text;
     int  row = currentRow(), startRow = row,
           col = backwards ? currentColumn() - 1 : currentColumn() + 1;
@@ -1319,7 +1319,7 @@ void QDataTable::find(const QString & str, bool caseSensitive, bool backwards)
     \sa setSqlCursor()
 */
 
-void QDataTable::reset()
+void Q3DataTable::reset()
 {
     clearCellWidget(currentRow(), currentColumn());
     switch (d->dat.mode()) {
@@ -1359,7 +1359,7 @@ void QDataTable::reset()
     is displayed in column \a i.
 */
 
-int QDataTable::indexOf(int i) const
+int Q3DataTable::indexOf(int i) const
 {
     if ((int)i < d->colIndex.size())
         return d->colIndex.at(i);
@@ -1371,7 +1371,7 @@ int QDataTable::indexOf(int i) const
     specified by setSqlCursor(); otherwise returns false.
 */
 
-bool QDataTable::autoDelete() const
+bool Q3DataTable::autoDelete() const
 {
     return d->cur.autoDelete();
 }
@@ -1383,13 +1383,13 @@ bool QDataTable::autoDelete() const
     will not be deleted.
 */
 
-void QDataTable::setAutoDelete(bool enable)
+void Q3DataTable::setAutoDelete(bool enable)
 {
     d->cur.setAutoDelete(enable);
 }
 
 /*!
-    \property QDataTable::autoEdit
+    \property Q3DataTable::autoEdit
     \brief whether the data table automatically applies edits
 
     The default value for this property is true. When the user begins
@@ -1402,96 +1402,96 @@ void QDataTable::setAutoDelete(bool enable)
     \endlist
 */
 
-void QDataTable::setAutoEdit(bool autoEdit)
+void Q3DataTable::setAutoEdit(bool autoEdit)
 {
     d->dat.setAutoEdit(autoEdit);
 }
 
-bool QDataTable::autoEdit() const
+bool Q3DataTable::autoEdit() const
 {
     return d->dat.autoEdit();
 }
 
 /*!
-    \property QDataTable::nullText
+    \property Q3DataTable::nullText
     \brief the text used to represent NULL values
 
     The nullText property will be used to represent NULL values in the
     table. The default value is provided by the cursor's driver.
 */
 
-void QDataTable::setNullText(const QString& nullText)
+void Q3DataTable::setNullText(const QString& nullText)
 {
     d->nullTxt = nullText;
     d->nullTxtChanged = true;
 }
 
-QString QDataTable::nullText() const
+QString Q3DataTable::nullText() const
 {
     return d->nullTxt;
 }
 
 /*!
-    \property QDataTable::trueText
+    \property Q3DataTable::trueText
     \brief the text used to represent true values
 
     The trueText property will be used to represent NULL values in the
     table. The default value is "True".
 */
 
-void QDataTable::setTrueText(const QString& trueText)
+void Q3DataTable::setTrueText(const QString& trueText)
 {
     d->trueTxt = trueText;
 }
 
-QString QDataTable::trueText() const
+QString Q3DataTable::trueText() const
 {
     return d->trueTxt;
 }
 
 /*!
-    \property QDataTable::falseText
+    \property Q3DataTable::falseText
     \brief the text used to represent false values
 
     The falseText property will be used to represent NULL values in
     the table. The default value is "False".
 */
 
-void QDataTable::setFalseText(const QString& falseText)
+void Q3DataTable::setFalseText(const QString& falseText)
 {
     d->falseTxt = falseText;
 }
 
-QString QDataTable::falseText() const
+QString Q3DataTable::falseText() const
 {
     return d->falseTxt;
 }
 
 /*!
-    \property QDataTable::dateFormat
+    \property Q3DataTable::dateFormat
     \brief the format used for displaying date/time values
 
     The dateFormat property is used for displaying date/time values in
     the table. The default value is \c Qt::LocalDate.
 */
 
-void QDataTable::setDateFormat(const Qt::DateFormat f)
+void Q3DataTable::setDateFormat(const Qt::DateFormat f)
 {
     d->datefmt = f;
 }
 
-Qt::DateFormat QDataTable::dateFormat() const
+Qt::DateFormat Q3DataTable::dateFormat() const
 {
     return d->datefmt;
 }
 
 /*!
-    \property QDataTable::numRows
+    \property Q3DataTable::numRows
 
     \brief the number of rows in the table
 */
 
-int QDataTable::numRows() const
+int Q3DataTable::numRows() const
 {
     return QTable::numRows();
 }
@@ -1504,7 +1504,7 @@ int QDataTable::numRows() const
     called. It is included for completeness.
 */
 
-void QDataTable::setNumRows (int r)
+void Q3DataTable::setNumRows (int r)
 {
     QTable::setNumRows(r);
 }
@@ -1517,18 +1517,18 @@ void QDataTable::setNumRows (int r)
     never be called. It is included for completeness.
 */
 
-void QDataTable::setNumCols (int r)
+void Q3DataTable::setNumCols (int r)
 {
     QTable::setNumCols(r);
 }
 
 /*!
-    \property QDataTable::numCols
+    \property Q3DataTable::numCols
 
     \brief the number of columns in the table
 */
 
-int QDataTable::numCols() const
+int Q3DataTable::numCols() const
 {
     return QTable::numCols();
 }
@@ -1540,7 +1540,7 @@ int QDataTable::numCols() const
     returned.
 */
 
-QString QDataTable::text (int row, int col) const
+QString Q3DataTable::text (int row, int col) const
 {
     if (!sqlCursor())
         return QString();
@@ -1557,7 +1557,7 @@ QString QDataTable::text (int row, int col) const
     the cell does not exist or has no value.
 */
 
-QVariant QDataTable::value (int row, int col) const
+QVariant Q3DataTable::value (int row, int col) const
 {
     if (!sqlCursor())
         return QVariant();
@@ -1574,7 +1574,7 @@ QVariant QDataTable::value (int row, int col) const
   determined - divide the result set into pages and load the pages as
   the user moves around in the table.
 */
-void QDataTable::loadNextPage()
+void Q3DataTable::loadNextPage()
 {
     if (d->haveAllRows)
         return;
@@ -1612,14 +1612,14 @@ void QDataTable::loadNextPage()
 }
 
 /*! \internal */
-void QDataTable::sliderPressed()
+void Q3DataTable::sliderPressed()
 {
     disconnect(verticalScrollBar(), SIGNAL(valueChanged(int)),
                 this, SLOT(loadNextPage()));
 }
 
 /*! \internal */
-void QDataTable::sliderReleased()
+void Q3DataTable::sliderReleased()
 {
     loadNextPage();
     connect(verticalScrollBar(), SIGNAL(valueChanged(int)),
@@ -1630,11 +1630,11 @@ void QDataTable::sliderReleased()
     Sorts column \a col in ascending order if \a ascending is true
     (the default); otherwise sorts in descending order.
 
-    The \a wholeRows parameter is ignored; QDataTable always sorts
+    The \a wholeRows parameter is ignored; Q3DataTable always sorts
     whole rows by the specified column.
 */
 
-void QDataTable::sortColumn (int col, bool ascending,
+void Q3DataTable::sortColumn (int col, bool ascending,
                               bool )
 {
     if (sorting()) {
@@ -1655,7 +1655,7 @@ void QDataTable::sortColumn (int col, bool ascending,
 }
 
 /*! \reimp */
-void QDataTable::columnClicked (int col)
+void Q3DataTable::columnClicked (int col)
 {
     if (sorting()) {
         if (!sqlCursor())
@@ -1672,7 +1672,7 @@ void QDataTable::columnClicked (int col)
 /*!
     Repaints the cell at \a row, \a col.
 */
-void QDataTable::repaintCell(int row, int col)
+void Q3DataTable::repaintCell(int row, int col)
 {
     QRect cg = cellGeometry(row, col);
     QRect re(QPoint(cg.x() - 2, cg.y() - 2),
@@ -1694,7 +1694,7 @@ void QDataTable::repaintCell(int row, int col)
     \sa QSql::isNull()
 */
 
-void QDataTable::paintCell(QPainter * p, int row, int col, const QRect & cr,
+void Q3DataTable::paintCell(QPainter * p, int row, int col, const QRect & cr,
                           bool selected, const QPalette &pal)
 {
     QTable::paintCell(p, row, col, cr, selected, pal);  // empty cell
@@ -1738,7 +1738,7 @@ void QDataTable::paintCell(QPainter * p, int row, int col, const QRect & cr,
     trueText() or falseText() is displayed as appropriate.
 */
 
-void QDataTable::paintField(QPainter * p, const QSqlField &field,
+void Q3DataTable::paintField(QPainter * p, const QSqlField &field,
                             const QRect & cr, bool)
 {
     if (!field.isValid())
@@ -1750,7 +1750,7 @@ void QDataTable::paintField(QPainter * p, const QSqlField &field,
     Returns the alignment for \a field.
 */
 
-int QDataTable::fieldAlignment(const QSqlField* /*field*/)
+int Q3DataTable::fieldAlignment(const QSqlField* /*field*/)
 {
     return Qt::AlignLeft | Qt::AlignVCenter; //## Reggie: add alignment to QTable
 }
@@ -1764,7 +1764,7 @@ int QDataTable::fieldAlignment(const QSqlField* /*field*/)
     using the \a sql cursor's current filter and current sort.
 */
 
-void QDataTable::setSize(QSqlCursor* sql)
+void Q3DataTable::setSize(Q3SqlCursor* sql)
 {
     // ### what are the connect/disconnect calls doing here!? move to refresh()
     if (sql->driver() && sql->driver()->hasFeature(QSqlDriver::QuerySize)) {
@@ -1803,7 +1803,7 @@ void QDataTable::setSize(QSqlCursor* sql)
     \sa refresh() setReadOnly() setAutoDelete() QSqlDriver::nullText()
 */
 
-void QDataTable::setSqlCursor(QSqlCursor* cursor, bool autoPopulate, bool autoDelete)
+void Q3DataTable::setSqlCursor(Q3SqlCursor* cursor, bool autoPopulate, bool autoDelete)
 {
     setUpdatesEnabled(false);
     d->cur.setCursor(0);
@@ -1838,7 +1838,7 @@ void QDataTable::setSqlCursor(QSqlCursor* cursor, bool autoPopulate, bool autoDe
     displays a warning message to the user with information about the
     error.
 */
-void QDataTable::handleError(const QSqlError& e)
+void Q3DataTable::handleError(const QSqlError& e)
 {
     d->dat.handleError(this, e);
 }
@@ -1846,7 +1846,7 @@ void QDataTable::handleError(const QSqlError& e)
 /*! \reimp
   */
 
-void QDataTable::keyPressEvent(QKeyEvent* e)
+void Q3DataTable::keyPressEvent(QKeyEvent* e)
 {
     switch(e->key()) {
     case Qt::Key_Left:
@@ -1869,7 +1869,7 @@ void QDataTable::keyPressEvent(QKeyEvent* e)
 /*!  \reimp
 */
 
-void QDataTable::resizeData (int)
+void Q3DataTable::resizeData (int)
 {
 
 }
@@ -1877,7 +1877,7 @@ void QDataTable::resizeData (int)
 /*!  \reimp
 */
 
-QTableItem * QDataTable::item (int, int) const
+QTableItem * Q3DataTable::item (int, int) const
 {
     return 0;
 }
@@ -1885,7 +1885,7 @@ QTableItem * QDataTable::item (int, int) const
 /*!  \reimp
 */
 
-void QDataTable::setItem (int , int , QTableItem *)
+void Q3DataTable::setItem (int , int , QTableItem *)
 {
 
 }
@@ -1893,7 +1893,7 @@ void QDataTable::setItem (int , int , QTableItem *)
 /*!  \reimp
 */
 
-void QDataTable::clearCell (int , int)
+void Q3DataTable::clearCell (int , int)
 {
 
 }
@@ -1901,13 +1901,13 @@ void QDataTable::clearCell (int , int)
 /*!  \reimp
 */
 
-void QDataTable::setPixmap (int , int , const QPixmap & )
+void Q3DataTable::setPixmap (int , int , const QPixmap & )
 {
 
 }
 
 /*! \reimp */
-void QDataTable::takeItem (QTableItem *)
+void Q3DataTable::takeItem (QTableItem *)
 {
 
 }
@@ -1915,14 +1915,14 @@ void QDataTable::takeItem (QTableItem *)
 /*!
     Installs a new SQL editor factory \a f. This enables the user to
     create and instantiate their own editors for use in cell editing.
-    Note that QDataTable takes ownership of this pointer, and will
+    Note that Q3DataTable takes ownership of this pointer, and will
     delete it when it is no longer needed or when
     installEditorFactory() is called again.
 
-    \sa QSqlEditorFactory
+    \sa Q3SqlEditorFactory
 */
 
-void QDataTable::installEditorFactory(QSqlEditorFactory * f)
+void Q3DataTable::installEditorFactory(Q3SqlEditorFactory * f)
 {
     if(f) {
         delete d->editorFactory;
@@ -1933,14 +1933,14 @@ void QDataTable::installEditorFactory(QSqlEditorFactory * f)
 /*!
     Installs a new property map \a m. This enables the user to create
     and instantiate their own property maps for use in cell editing.
-    Note that QDataTable takes ownership of this pointer, and will
+    Note that Q3DataTable takes ownership of this pointer, and will
     delete it when it is no longer needed or when installPropertMap()
     is called again.
 
-    \sa QSqlPropertyMap
+    \sa Q3SqlPropertyMap
 */
 
-void QDataTable::installPropertyMap(QSqlPropertyMap* m)
+void Q3DataTable::installPropertyMap(Q3SqlPropertyMap* m)
 {
     if (m) {
         delete d->propertyMap;
@@ -1953,7 +1953,7 @@ void QDataTable::installPropertyMap(QSqlPropertyMap* m)
   Sets the current selection to \a row, \a col.
 */
 
-void QDataTable::setCurrentSelection(int row, int)
+void Q3DataTable::setCurrentSelection(int row, int)
 {
     if (!sqlCursor())
         return;
@@ -1965,7 +1965,7 @@ void QDataTable::setCurrentSelection(int row, int)
     emit currentChanged(sqlCursor());
 }
 
-void QDataTable::updateCurrentSelection()
+void Q3DataTable::updateCurrentSelection()
 {
     setCurrentSelection(currentRow(), -1);
 }
@@ -1976,7 +1976,7 @@ void QDataTable::updateCurrentSelection()
     otherwise modify it or the cursor it points to.
 */
 
-QSqlRecord* QDataTable::currentRecord() const
+QSqlRecord* Q3DataTable::currentRecord() const
 {
     if (!sqlCursor() || currentRow() < 0)
         return 0;
@@ -1991,7 +1991,7 @@ QSqlRecord* QDataTable::currentRecord() const
     \sa setSorting()
 */
 
-void QDataTable::sortAscending(int col)
+void Q3DataTable::sortAscending(int col)
 {
     sortColumn(col, true);
 }
@@ -2002,13 +2002,13 @@ void QDataTable::sortAscending(int col)
     \sa setSorting()
 */
 
-void QDataTable::sortDescending(int col)
+void Q3DataTable::sortDescending(int col)
 {
     sortColumn(col, false);
 }
 
 /*!
-    \fn void QDataTable::refresh(Refresh mode)
+    \fn void Q3DataTable::refresh(Refresh mode)
     \overload
 
     Refreshes the table. If there is no currently defined cursor (see
@@ -2018,9 +2018,9 @@ void QDataTable::sortDescending(int col)
     \sa Refresh setSqlCursor() addColumn()
 */
 
-void QDataTable::refresh(QDataTable::Refresh mode)
+void Q3DataTable::refresh(Q3DataTable::Refresh mode)
 {
-    QSqlCursor* cur = sqlCursor();
+    Q3SqlCursor* cur = sqlCursor();
     if (!cur)
         return;
     bool refreshData = ((mode & RefreshData) == RefreshData);
@@ -2090,10 +2090,10 @@ void QDataTable::refresh(QDataTable::Refresh mode)
 /*!
     Refreshes the table. The cursor is refreshed using the current
     filter, the current sort, and the currently defined columns.
-    Equivalent to calling refresh(QDataTable::RefreshData).
+    Equivalent to calling refresh(Q3DataTable::RefreshData).
 */
 
-void QDataTable::refresh()
+void Q3DataTable::refresh()
 {
     refresh(RefreshData);
 }
@@ -2107,9 +2107,9 @@ void QDataTable::refresh()
     searching.
 */
 
-bool QDataTable::findBuffer(const QSqlIndex& idx, int atHint)
+bool Q3DataTable::findBuffer(const QSqlIndex& idx, int atHint)
 {
-    QSqlCursor* cur = sqlCursor();
+    Q3SqlCursor* cur = sqlCursor();
     if (!cur)
         return false;
     bool found = d->cur.findBuffer(idx, atHint);
@@ -2121,7 +2121,7 @@ bool QDataTable::findBuffer(const QSqlIndex& idx, int atHint)
 /*! \internal
     Returns the string representation of a database field.
 */
-QString QDataTable::fieldToString(const QSqlField &field)
+QString Q3DataTable::fieldToString(const QSqlField &field)
 {
     QString text;
     if (field.isNull()) {
@@ -2153,7 +2153,7 @@ QString QDataTable::fieldToString(const QSqlField &field)
     \reimp
 */
 
-void QDataTable::swapColumns(int col1, int col2, bool)
+void Q3DataTable::swapColumns(int col1, int col2, bool)
 {
     QString fld = d->fld[col1];
     QString fldLabel = d->fldLabel[col1];
@@ -2179,7 +2179,7 @@ void QDataTable::swapColumns(int col1, int col2, bool)
     \reimp
 */
 
-void QDataTable::drawContents(QPainter * p, int cx, int cy, int cw, int ch)
+void Q3DataTable::drawContents(QPainter * p, int cx, int cy, int cw, int ch)
 {
     QTable::drawContents(p, cx, cy, cw, ch);
     if (sqlCursor() && currentRow() >= 0)
@@ -2190,7 +2190,7 @@ void QDataTable::drawContents(QPainter * p, int cx, int cy, int cw, int ch)
     \reimp
 */
 
-void QDataTable::hideColumn(int col)
+void Q3DataTable::hideColumn(int col)
 {
     d->fldHidden[col] = true;
     refresh(RefreshColumns);
@@ -2200,14 +2200,14 @@ void QDataTable::hideColumn(int col)
     \reimp
 */
 
-void QDataTable::showColumn(int col)
+void Q3DataTable::showColumn(int col)
 {
     d->fldHidden[col] = false;
     refresh(RefreshColumns);
 }
 
 /*!
-    \fn void QDataTable::currentChanged(QSqlRecord* record)
+    \fn void Q3DataTable::currentChanged(QSqlRecord* record)
 
     This signal is emitted whenever a new row is selected in the
     table. The \a record parameter points to the contents of the newly
@@ -2215,7 +2215,7 @@ void QDataTable::showColumn(int col)
 */
 
 /*!
-    \fn void QDataTable::primeInsert(QSqlRecord* buf)
+    \fn void Q3DataTable::primeInsert(QSqlRecord* buf)
 
     This signal is emitted after the cursor is primed for insert by
     the table, when an insert action is beginning on the table. The \a
@@ -2225,7 +2225,7 @@ void QDataTable::showColumn(int col)
 */
 
 /*!
-    \fn void QDataTable::primeUpdate(QSqlRecord* buf)
+    \fn void Q3DataTable::primeUpdate(QSqlRecord* buf)
 
     This signal is emitted after the cursor is primed for update by
     the table, when an update action is beginning on the table. The \a
@@ -2235,7 +2235,7 @@ void QDataTable::showColumn(int col)
 */
 
 /*!
-    \fn void QDataTable::primeDelete(QSqlRecord* buf)
+    \fn void Q3DataTable::primeDelete(QSqlRecord* buf)
 
     This signal is emitted after the cursor is primed for delete by
     the table, when a delete action is beginning on the table. The \a
@@ -2245,7 +2245,7 @@ void QDataTable::showColumn(int col)
 */
 
 /*!
-    \fn void QDataTable::beforeInsert(QSqlRecord* buf)
+    \fn void Q3DataTable::beforeInsert(QSqlRecord* buf)
 
     This signal is emitted just before the cursor's edit buffer is
     inserted into the database. The \a buf parameter points to the
@@ -2254,7 +2254,7 @@ void QDataTable::showColumn(int col)
 */
 
 /*!
-    \fn void QDataTable::beforeUpdate(QSqlRecord* buf)
+    \fn void Q3DataTable::beforeUpdate(QSqlRecord* buf)
 
     This signal is emitted just before the cursor's edit buffer is
     updated in the database. The \a buf parameter points to the edit
@@ -2263,7 +2263,7 @@ void QDataTable::showColumn(int col)
 */
 
 /*!
-    \fn void QDataTable::beforeDelete(QSqlRecord* buf)
+    \fn void Q3DataTable::beforeDelete(QSqlRecord* buf)
 
     This signal is emitted just before the currently selected record
     is deleted from the database. The \a buf parameter points to the
@@ -2272,7 +2272,7 @@ void QDataTable::showColumn(int col)
 */
 
 /*!
-    \fn void QDataTable::cursorChanged(QSql::Op mode)
+    \fn void Q3DataTable::cursorChanged(QSql::Op mode)
 
     This signal is emitted whenever the cursor record was changed due
     to an edit. The \a mode parameter is the type of edit that just

@@ -19,19 +19,19 @@
 
 #ifndef QT_NO_SQL_EDIT_WIDGETS
 
-class Q_COMPAT_EXPORT QEditorFactory : public QObject
+class Q_COMPAT_EXPORT Q3EditorFactory : public QObject
 {
 public:
-    QEditorFactory (QObject * parent = 0);
-    ~QEditorFactory();
+    Q3EditorFactory (QObject * parent = 0);
+    ~Q3EditorFactory();
 
     virtual QWidget * createEditor(QWidget * parent, const QVariant & v);
 
-    static QEditorFactory * defaultFactory();
-    static void installDefaultFactory(QEditorFactory * factory);
+    static Q3EditorFactory * defaultFactory();
+    static void installDefaultFactory(Q3EditorFactory * factory);
 
 private:
-    Q_DISABLE_COPY(QEditorFactory)
+    Q_DISABLE_COPY(Q3EditorFactory)
 };
 
 #endif // QT_NO_SQL

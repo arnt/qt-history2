@@ -24,10 +24,10 @@
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 
-class QSqlForm;
-class QDataBrowserPrivate;
+class Q3SqlForm;
+class Q3DataBrowserPrivate;
 
-class Q_COMPAT_EXPORT QDataBrowser : public QWidget
+class Q_COMPAT_EXPORT Q3DataBrowser : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(bool boundaryChecking READ boundaryChecking WRITE setBoundaryChecking)
@@ -42,8 +42,8 @@ class Q_COMPAT_EXPORT QDataBrowser : public QWidget
     Q_PROPERTY(bool autoEdit READ autoEdit WRITE setAutoEdit)
 
 public:
-    QDataBrowser(QWidget* parent=0, const char* name=0, Qt::WFlags fl = 0);
-    ~QDataBrowser();
+    Q3DataBrowser(QWidget* parent=0, const char* name=0, Qt::WFlags fl = 0);
+    ~Q3DataBrowser();
 
     enum Boundary {
         Unknown,
@@ -63,10 +63,10 @@ public:
     QStringList  sort() const;
     void setFilter(const QString& filter);
     QString filter() const;
-    virtual void setSqlCursor(QSqlCursor* cursor, bool autoDelete = false);
-    QSqlCursor* sqlCursor() const;
-    virtual void setForm(QSqlForm* form);
-    QSqlForm* form();
+    virtual void setSqlCursor(Q3SqlCursor* cursor, bool autoDelete = false);
+    Q3SqlCursor* sqlCursor() const;
+    virtual void setForm(Q3SqlForm* form);
+    Q3SqlForm* form();
 
     virtual void setConfirmEdits(bool confirm);
     virtual void setConfirmInsert(bool confirm);
@@ -99,7 +99,7 @@ signals:
     void beforeInsert(QSqlRecord* buf);
     void beforeUpdate(QSqlRecord* buf);
     void beforeDelete(QSqlRecord* buf);
-    void cursorChanged(QSqlCursor::Mode mode);
+    void cursorChanged(Q3SqlCursor::Mode mode);
 
 public slots:
     virtual void refresh();
@@ -131,13 +131,13 @@ protected:
     virtual void handleError(const QSqlError& error);
 
 private:
-    typedef bool (QSqlCursor::*Nav)();
+    typedef bool (Q3SqlCursor::*Nav)();
     bool preNav();
     void postNav(bool primeUpd);
     void nav(Nav nav);
-    QDataBrowserPrivate* d;
+    Q3DataBrowserPrivate* d;
 
-    Q_DISABLE_COPY(QDataBrowser)
+    Q_DISABLE_COPY(Q3DataBrowser)
 };
 
 #endif

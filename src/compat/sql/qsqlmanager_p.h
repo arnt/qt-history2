@@ -37,23 +37,23 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlCursor;
-class QSqlForm;
-class QSqlCursorManagerPrivate;
+class Q3SqlCursor;
+class Q3SqlForm;
+class Q3SqlCursorManagerPrivate;
 
-class Q_COMPAT_EXPORT QSqlCursorManager
+class Q_COMPAT_EXPORT Q3SqlCursorManager
 {
 public:
-    QSqlCursorManager();
-    virtual ~QSqlCursorManager();
+    Q3SqlCursorManager();
+    virtual ~Q3SqlCursorManager();
 
     virtual void setSort(const QSqlIndex& sort);
     virtual void setSort(const QStringList& sort);
     QStringList  sort() const;
     virtual void setFilter(const QString& filter);
     QString filter() const;
-    virtual void setCursor(QSqlCursor* cursor, bool autoDelete = false);
-    QSqlCursor* cursor() const;
+    virtual void setCursor(Q3SqlCursor* cursor, bool autoDelete = false);
+    Q3SqlCursor* cursor() const;
 
     virtual void setAutoDelete(bool enable);
     bool autoDelete() const;
@@ -62,21 +62,21 @@ public:
     virtual bool findBuffer(const QSqlIndex& idx, int atHint = 0);
 
 private:
-    QSqlCursorManagerPrivate* d;
+    Q3SqlCursorManagerPrivate* d;
 };
 
 #ifndef QT_NO_SQL_FORM
 
-class QSqlFormManagerPrivate;
+class Q3SqlFormManagerPrivate;
 
-class Q_COMPAT_EXPORT QSqlFormManager
+class Q_COMPAT_EXPORT Q3SqlFormManager
 {
 public:
-    QSqlFormManager();
-    virtual ~QSqlFormManager();
+    Q3SqlFormManager();
+    virtual ~Q3SqlFormManager();
 
-    virtual void setForm(QSqlForm* form);
-    QSqlForm* form();
+    virtual void setForm(Q3SqlForm* form);
+    Q3SqlForm* form();
     virtual void setRecord(QSqlRecord* record);
     QSqlRecord* record();
 
@@ -85,19 +85,19 @@ public:
     virtual void writeFields();
 
 private:
-    QSqlFormManagerPrivate* d;
+    Q3SqlFormManagerPrivate* d;
 };
 
 #endif
 
 class QWidget;
-class QDataManagerPrivate;
+class Q3DataManagerPrivate;
 
-class Q_COMPAT_EXPORT QDataManager
+class Q_COMPAT_EXPORT Q3DataManager
 {
 public:
-    QDataManager();
-    virtual ~QDataManager();
+    Q3DataManager();
+    virtual ~Q3DataManager();
 
     virtual void setMode(QSql::Op m);
     QSql::Op mode() const;
@@ -121,7 +121,7 @@ public:
     bool confirmCancels() const;
 
 private:
-    QDataManagerPrivate* d;
+    Q3DataManagerPrivate* d;
 };
 
 

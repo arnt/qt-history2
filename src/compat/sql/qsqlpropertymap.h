@@ -20,13 +20,13 @@
 #ifndef QT_NO_SQL_FORM
 
 class QWidget;
-class QSqlPropertyMapPrivate;
+class Q3SqlPropertyMapPrivate;
 
-class Q_COMPAT_EXPORT QSqlPropertyMap
+class Q_COMPAT_EXPORT Q3SqlPropertyMap
 {
 public:
-    QSqlPropertyMap();
-    virtual ~QSqlPropertyMap();
+    Q3SqlPropertyMap();
+    virtual ~Q3SqlPropertyMap();
 
     QVariant      property(QWidget * widget);
     virtual void  setProperty(QWidget * widget, const QVariant & value);
@@ -34,13 +34,13 @@ public:
     void insert(const QString & classname, const QString & property);
     void remove(const QString & classname);
 
-    static QSqlPropertyMap * defaultMap();
-    static void installDefaultMap(QSqlPropertyMap * map);
+    static Q3SqlPropertyMap * defaultMap();
+    static void installDefaultMap(Q3SqlPropertyMap * map);
 
 private:
-    Q_DISABLE_COPY(QSqlPropertyMap)
+    Q_DISABLE_COPY(Q3SqlPropertyMap)
 
-    QSqlPropertyMapPrivate* d;
+    Q3SqlPropertyMapPrivate* d;
 };
 
 #endif // QT_NO_SQL_FORM

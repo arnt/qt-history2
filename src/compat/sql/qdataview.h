@@ -18,20 +18,20 @@
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 
-class QSqlForm;
+class Q3SqlForm;
 class QSqlRecord;
-class QDataViewPrivate;
+class Q3DataViewPrivate;
 
-class Q_COMPAT_EXPORT QDataView : public QWidget
+class Q_COMPAT_EXPORT Q3DataView : public QWidget
 {
     Q_OBJECT
 
 public:
-    QDataView(QWidget* parent=0, const char* name=0, Qt::WFlags fl = 0);
-    ~QDataView();
+    Q3DataView(QWidget* parent=0, const char* name=0, Qt::WFlags fl = 0);
+    ~Q3DataView();
 
-    virtual void setForm(QSqlForm* form);
-    QSqlForm* form();
+    virtual void setForm(Q3SqlForm* form);
+    Q3SqlForm* form();
     virtual void setRecord(QSqlRecord* record);
     QSqlRecord* record();
 
@@ -42,9 +42,9 @@ public slots:
     virtual void clearValues();
 
 private:
-    Q_DISABLE_COPY(QDataView)
+    Q_DISABLE_COPY(Q3DataView)
 
-    QDataViewPrivate* d;
+    Q3DataViewPrivate* d;
 };
 
 #endif

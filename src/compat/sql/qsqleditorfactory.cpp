@@ -24,23 +24,23 @@
 #include "qdatetimeedit.h"
 
 /*!
-    \class QSqlEditorFactory qsqleditorfactory.h
-    \brief The QSqlEditorFactory class is used to create the editors
-    used by QDataTable and QSqlForm.
+    \class Q3SqlEditorFactory qsqleditorfactory.h
+    \brief The Q3SqlEditorFactory class is used to create the editors
+    used by Q3DataTable and Q3SqlForm.
 
     \compat
 
-    QSqlEditorFactory is used by QDataTable and QSqlForm to
+    Q3SqlEditorFactory is used by Q3DataTable and Q3SqlForm to
     automatically create appropriate editors for a given QSqlField.
     For example if the field is a QVariant::String a QLineEdit would
     be the default editor, whereas a QVariant::Int's default editor
     would be a QSpinBox.
 
     If you want to create different editors for fields with the same
-    data type, subclass QSqlEditorFactory and reimplement the
+    data type, subclass Q3SqlEditorFactory and reimplement the
     createEditor() function.
 
-    \sa QDataTable, QSqlForm
+    \sa Q3DataTable, Q3SqlForm
 */
 
 
@@ -48,8 +48,8 @@
     Constructs a SQL editor factory with parent \a parent.
 */
 
-QSqlEditorFactory::QSqlEditorFactory (QObject * parent)
-    : QEditorFactory(parent)
+Q3SqlEditorFactory::Q3SqlEditorFactory (QObject * parent)
+    : Q3EditorFactory(parent)
 {
 
 }
@@ -58,22 +58,22 @@ QSqlEditorFactory::QSqlEditorFactory (QObject * parent)
     Destroys the object and frees any allocated resources.
 */
 
-QSqlEditorFactory::~QSqlEditorFactory()
+Q3SqlEditorFactory::~Q3SqlEditorFactory()
 {
 
 }
 
-static QSqlEditorFactory * defaultfactory = 0;
-static QCleanupHandler< QSqlEditorFactory > qsql_cleanup_editor_factory;
+static Q3SqlEditorFactory * defaultfactory = 0;
+static QCleanupHandler< Q3SqlEditorFactory > qsql_cleanup_editor_factory;
 
 /*!
     Returns an instance of a default editor factory.
 */
 
-QSqlEditorFactory * QSqlEditorFactory::defaultFactory()
+Q3SqlEditorFactory * Q3SqlEditorFactory::defaultFactory()
 {
     if(defaultfactory == 0){
-        defaultfactory = new QSqlEditorFactory();
+        defaultfactory = new Q3SqlEditorFactory();
         qsql_cleanup_editor_factory.add(&defaultfactory);
     }
 
@@ -82,12 +82,12 @@ QSqlEditorFactory * QSqlEditorFactory::defaultFactory()
 
 /*!
     Replaces the default editor factory with \a factory. All
-    QDataTable and QSqlForm instantiations will use this new factory
-    for creating field editors. \e{QSqlEditorFactory takes ownership
+    Q3DataTable and Q3SqlForm instantiations will use this new factory
+    for creating field editors. \e{Q3SqlEditorFactory takes ownership
     of \a factory, and destroys it when it is no longer needed.}
 */
 
-void QSqlEditorFactory::installDefaultFactory(QSqlEditorFactory * factory)
+void Q3SqlEditorFactory::installDefaultFactory(Q3SqlEditorFactory * factory)
 {
     if(factory == 0) return;
 
@@ -107,10 +107,10 @@ void QSqlEditorFactory::installDefaultFactory(QSqlEditorFactory * factory)
     zero). If \a variant is invalid, 0 is returned.
 */
 
-QWidget * QSqlEditorFactory::createEditor(QWidget * parent,
+QWidget * Q3SqlEditorFactory::createEditor(QWidget * parent,
                                            const QVariant & variant)
 {
-    return QEditorFactory::createEditor(parent, variant);
+    return Q3EditorFactory::createEditor(parent, variant);
 }
 
 /*!
@@ -120,7 +120,7 @@ QWidget * QSqlEditorFactory::createEditor(QWidget * parent,
     field.
 */
 
-QWidget * QSqlEditorFactory::createEditor(QWidget * parent,
+QWidget * Q3SqlEditorFactory::createEditor(QWidget * parent,
                                            const QSqlField * field)
 {
     if (!field) {

@@ -23,14 +23,14 @@
 #include "qsqlrecordinfo.h"
 #include "qsqlfieldinfo.h"
 
-class QSqlCursorPrivate
+class Q3SqlCursorPrivate
 {
 public:
 
-    QSqlCursorPrivate(const QString& name, QSqlDatabase sdb)
+    Q3SqlCursorPrivate(const QString& name, QSqlDatabase sdb)
         : lastAt(QSql::BeforeFirst), nm(name), srt(name), md(0), db(sdb), q(0)
     {}
-    ~QSqlCursorPrivate()
+    ~Q3SqlCursorPrivate()
     {
         delete q;
     }
@@ -51,7 +51,7 @@ public:
     QSqlRecord        editBuffer;
     // the primary index as it was before the user changed the values in editBuffer
     QString           editIndex;
-    QSqlRecordInfo    infoBuffer;
+    Q3SqlRecordInfo    infoBuffer;
     QSqlDatabase      db;
     QSqlQuery*        q;
 };
@@ -102,13 +102,13 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
 }
 
 /*!
-    \class QSqlCursor qsqlcursor.h
-    \brief The QSqlCursor class provides browsing and editing of SQL
+    \class Q3SqlCursor qsqlcursor.h
+    \brief The Q3SqlCursor class provides browsing and editing of SQL
     tables and views.
 
     \compat
 
-    A QSqlCursor is a database record (see \l QSqlRecord) that
+    A Q3SqlCursor is a database record (see \l QSqlRecord) that
     corresponds to a table or view within an SQL database (see \l
     QSqlDatabase). There are two buffers in a cursor, one used for
     browsing and one used for editing records. Each buffer contains a
@@ -134,7 +134,7 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
     For example:
 
     \code
-    QSqlCursor cur( "staff" ); // Specify the table/view name
+    Q3SqlCursor cur( "staff" ); // Specify the table/view name
     cur.select(); // We'll retrieve every record
     while ( cur.next() ) {
         qDebug( cur.value( "id" ).toString() + ": " +
@@ -166,7 +166,7 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
     For example:
 
     \code
-    QSqlCursor cur( "prices" );
+    Q3SqlCursor cur( "prices" );
     cur.select( "id=202" );
     if ( cur.next() ) {
         QSqlRecord *buffer = cur.primeUpdate();
@@ -204,30 +204,30 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
     from becoming invalid. The edits will still not be visible when
     navigating the cursor until select() is called.
 
-    QSqlCursor contains virtual methods which allow editing behavior
+    Q3SqlCursor contains virtual methods which allow editing behavior
     to be customized by subclasses. This allows custom cursors to be
     created that encapsulate the editing behavior of a database table
     for an entire application. For example, a cursor can be customized
     to always auto-number primary index fields, or provide fields with
-    suitable default values, when inserting new records. QSqlCursor
+    suitable default values, when inserting new records. Q3SqlCursor
     generates SQL statements which are sent to the database engine;
     you can control which fields are included in these statements
     using setGenerated().
 
-    Note that QSqlCursor does not inherit from QObject. This means
+    Note that Q3SqlCursor does not inherit from QObject. This means
     that you are responsible for destroying instances of this class
-    yourself. However if you create a QSqlCursor and use it in a
-    \l QDataTable, \l QDataBrowser or a \l QDataView these classes will
+    yourself. However if you create a Q3SqlCursor and use it in a
+    \l Q3DataTable, \l Q3DataBrowser or a \l Q3DataView these classes will
     usually take ownership of the cursor and destroy it when they
-    don't need it anymore. The documentation for QDataTable,
-    QDataBrowser and QDataView explicitly states which calls take
+    don't need it anymore. The documentation for Q3DataTable,
+    Q3DataBrowser and Q3DataView explicitly states which calls take
     ownership of the cursor.
 */
 
 /*!
-    \enum QSqlCursor::Mode
+    \enum Q3SqlCursor::Mode
 
-    This enum type describes how QSqlCursor operates on records in the
+    This enum type describes how Q3SqlCursor operates on records in the
     database.
 
     \value ReadOnly  the cursor can only SELECT records from the
@@ -244,7 +244,7 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
 */
 
 /*!
-    \fn QCoreVariant QSqlCursor::value(const QString &name) const
+    \fn QCoreVariant Q3SqlCursor::value(const QString &name) const
 
     \overload
 
@@ -252,7 +252,7 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
 */
 
 /*!
-    \fn void QSqlCursor::setValue(const QString &name, const QCoreVariant &val)
+    \fn void Q3SqlCursor::setValue(const QString &name, const QCoreVariant &val)
 
     \overload
 
@@ -268,7 +268,7 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
     If the table or view does not exist, the cursor will not be
     functional.
 
-    The cursor is created with an initial mode of QSqlCursor::Writable
+    The cursor is created with an initial mode of Q3SqlCursor::Writable
     (meaning that records can be inserted, updated or deleted using
     the cursor). If the cursor does not have a unique primary index,
     update and deletes cannot be performed.
@@ -281,10 +281,10 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
     \sa setName() setMode()
 */
 
-QSqlCursor::QSqlCursor(const QString & name, bool autopopulate, QSqlDatabase db)
+Q3SqlCursor::Q3SqlCursor(const QString & name, bool autopopulate, QSqlDatabase db)
     : QSqlRecord(), QSqlQuery(QString(), db)
 {
-    d = new QSqlCursorPrivate(name, db);
+    d = new Q3SqlCursorPrivate(name, db);
     setMode(Writable);
     if (!d->nm.isEmpty())
         setName(d->nm, autopopulate);
@@ -294,10 +294,10 @@ QSqlCursor::QSqlCursor(const QString & name, bool autopopulate, QSqlDatabase db)
     Constructs a copy of \a other.
 */
 
-QSqlCursor::QSqlCursor(const QSqlCursor & other)
+Q3SqlCursor::Q3SqlCursor(const Q3SqlCursor & other)
     : QSqlRecord(other), QSqlQuery(other)
 {
-    d = new QSqlCursorPrivate(other.d->nm, other.d->db);
+    d = new Q3SqlCursorPrivate(other.d->nm, other.d->db);
     d->lastAt = other.d->lastAt;
     d->nm = other.d->nm;
     d->srt = other.d->srt;
@@ -313,7 +313,7 @@ QSqlCursor::QSqlCursor(const QSqlCursor & other)
     Destroys the object and frees any allocated resources.
 */
 
-QSqlCursor::~QSqlCursor()
+Q3SqlCursor::~Q3SqlCursor()
 {
     delete d;
 }
@@ -322,12 +322,12 @@ QSqlCursor::~QSqlCursor()
     Sets the cursor equal to \a other.
 */
 
-QSqlCursor& QSqlCursor::operator=(const QSqlCursor& other)
+Q3SqlCursor& Q3SqlCursor::operator=(const Q3SqlCursor& other)
 {
     QSqlRecord::operator=(other);
     QSqlQuery::operator=(other);
     delete d;
-    d = new QSqlCursorPrivate(other.d->nm, other.d->db);
+    d = new Q3SqlCursorPrivate(other.d->nm, other.d->db);
     d->lastAt = other.d->lastAt;
     d->nm = other.d->nm;
     d->srt = other.d->srt;
@@ -347,7 +347,7 @@ QSqlCursor& QSqlCursor::operator=(const QSqlCursor& other)
     specify a sort.
 */
 
-void QSqlCursor::setSort(const QSqlIndex& sort)
+void Q3SqlCursor::setSort(const QSqlIndex& sort)
 {
     d->srt = sort;
 }
@@ -356,7 +356,7 @@ void QSqlCursor::setSort(const QSqlIndex& sort)
     Returns the current sort, or an empty index if there is no current
     sort.
 */
-QSqlIndex QSqlCursor::sort() const
+QSqlIndex Q3SqlCursor::sort() const
 {
     return d->srt;
 }
@@ -370,7 +370,7 @@ QSqlIndex QSqlCursor::sort() const
     The filter is a SQL \c WHERE clause without the keyword 'WHERE',
     e.g. \c{name='Dave'} which will be processed by the DBMS.
 */
-void QSqlCursor::setFilter(const QString& filter)
+void Q3SqlCursor::setFilter(const QString& filter)
 {
     d->ftr = filter;
 }
@@ -379,7 +379,7 @@ void QSqlCursor::setFilter(const QString& filter)
     Returns the current filter, or an empty string if there is no
     current filter.
 */
-QString QSqlCursor::filter() const
+QString Q3SqlCursor::filter() const
 {
     return d->ftr;
 }
@@ -389,10 +389,10 @@ QString QSqlCursor::filter() const
     (the default), the \a name must correspond to a valid table or
     view name in the database. Also, note that all references to the
     cursor edit buffer become invalidated when fields are
-    auto-populated. See the QSqlCursor constructor documentation for
+    auto-populated. See the Q3SqlCursor constructor documentation for
     more information.
 */
-void QSqlCursor::setName(const QString& name, bool autopopulate)
+void Q3SqlCursor::setName(const QString& name, bool autopopulate)
 {
     d->nm = name;
     if (autopopulate) {
@@ -403,7 +403,7 @@ void QSqlCursor::setName(const QString& name, bool autopopulate)
             d->priIndx = driver()->primaryIndex(name);
         }
         if (isEmpty())
-            qWarning("QSqlCursor::setName: unable to build record, does '%s' exist?", name.latin1());
+            qWarning("Q3SqlCursor::setName: unable to build record, does '%s' exist?", name.latin1());
     }
 }
 
@@ -411,7 +411,7 @@ void QSqlCursor::setName(const QString& name, bool autopopulate)
     Returns the name of the cursor.
 */
 
-QString QSqlCursor::name() const
+QString Q3SqlCursor::name() const
 {
     return d->nm;
 }
@@ -419,7 +419,7 @@ QString QSqlCursor::name() const
 /*! \internal
 */
 
-QString QSqlCursor::toString(const QString& prefix, const QString& sep) const
+QString Q3SqlCursor::toString(const QString& prefix, const QString& sep) const
 {
     QString pflist;
     QString pfix =  prefix.isEmpty() ? prefix : prefix + ".";
@@ -443,7 +443,7 @@ QString QSqlCursor::toString(const QString& prefix, const QString& sep) const
   Assigns the record \a list.
 
 */
-QSqlRecord & QSqlCursor::operator=(const QSqlRecord & list)
+QSqlRecord & Q3SqlCursor::operator=(const QSqlRecord & list)
 {
     return QSqlRecord::operator=(list);
 }
@@ -453,7 +453,7 @@ QSqlRecord & QSqlCursor::operator=(const QSqlRecord & list)
     that all references to the cursor edit buffer become invalidated.
 */
 
-void QSqlCursor::append(const QSqlFieldInfo& fieldInfo)
+void Q3SqlCursor::append(const Q3SqlFieldInfo& fieldInfo)
 {
     d->editBuffer.append(fieldInfo.toField());
     d->infoBuffer.append(fieldInfo);
@@ -464,7 +464,7 @@ void QSqlCursor::append(const QSqlFieldInfo& fieldInfo)
     Removes all fields from the cursor. Note that all references to
     the cursor edit buffer become invalidated.
 */
-void QSqlCursor::clear()
+void Q3SqlCursor::clear()
 {
     d->editBuffer.clear();
     d->infoBuffer.clear();
@@ -478,7 +478,7 @@ void QSqlCursor::clear()
     to the cursor edit buffer become invalidated.
 */
 
-void  QSqlCursor::insert(int pos, const QSqlFieldInfo& fieldInfo)
+void  Q3SqlCursor::insert(int pos, const Q3SqlFieldInfo& fieldInfo)
 {
     d->editBuffer.replace(pos, fieldInfo.toField());
     d->infoBuffer[pos] = fieldInfo;
@@ -491,10 +491,10 @@ void  QSqlCursor::insert(int pos, const QSqlFieldInfo& fieldInfo)
     invalidated.
 */
 
-void QSqlCursor::remove(int pos)
+void Q3SqlCursor::remove(int pos)
 {
     d->editBuffer.remove(pos);
-    d->infoBuffer[pos] = QSqlFieldInfo();
+    d->infoBuffer[pos] = Q3SqlFieldInfo();
     QSqlRecord::remove(pos);
 }
 
@@ -505,7 +505,7 @@ void QSqlCursor::remove(int pos)
     generated.
 */
 
-void QSqlCursor::setGenerated(const QString& name, bool generated)
+void Q3SqlCursor::setGenerated(const QString& name, bool generated)
 {
     int pos = indexOf(name);
     if (pos == -1)
@@ -520,7 +520,7 @@ void QSqlCursor::setGenerated(const QString& name, bool generated)
 
     Sets the generated flag for the field \a i to \a generated.
 */
-void QSqlCursor::setGenerated(int i, bool generated)
+void Q3SqlCursor::setGenerated(int i, bool generated)
 {
     if (i < 0 || i >= (int)d->infoBuffer.count())
         return;
@@ -537,7 +537,7 @@ void QSqlCursor::setGenerated(int i, bool generated)
     record.
 */
 
-QSqlIndex QSqlCursor::primaryIndex(bool setFromCursor) const
+QSqlIndex Q3SqlCursor::primaryIndex(bool setFromCursor) const
 {
     if (setFromCursor) {
         for (int i = 0; i < d->priIndx.count(); ++i) {
@@ -558,7 +558,7 @@ QSqlIndex QSqlCursor::primaryIndex(bool setFromCursor) const
     \sa update() del()
 */
 
-void QSqlCursor::setPrimaryIndex(const QSqlIndex& idx)
+void Q3SqlCursor::setPrimaryIndex(const QSqlIndex& idx)
 {
     d->priIndx = idx;
 }
@@ -572,7 +572,7 @@ void QSqlCursor::setPrimaryIndex(const QSqlIndex& idx)
     \sa QSqlIndex
 */
 
-QSqlIndex QSqlCursor::index(const QStringList& fieldNames) const
+QSqlIndex Q3SqlCursor::index(const QStringList& fieldNames) const
 {
     QSqlIndex idx;
     for (QStringList::ConstIterator it = fieldNames.begin(); it != fieldNames.end(); ++it) {
@@ -592,7 +592,7 @@ QSqlIndex QSqlCursor::index(const QStringList& fieldNames) const
     Returns an index based on \a fieldName.
 */
 
-QSqlIndex QSqlCursor::index(const QString& fieldName) const
+QSqlIndex Q3SqlCursor::index(const QString& fieldName) const
 {
     QStringList fl(fieldName);
     return index(fl);
@@ -611,7 +611,7 @@ QSqlIndex QSqlCursor::index(const QString& fieldName) const
 
     Example:
     \code
-    QSqlCursor cur("Employee"); // Use the Employee table or view
+    Q3SqlCursor cur("Employee"); // Use the Employee table or view
     cur.select("deptno=10"); // select all records in department 10
     while(cur.next()) {
         ... // process data
@@ -628,7 +628,7 @@ QSqlIndex QSqlCursor::index(const QString& fieldName) const
     another sort.
 
     \code
-    QSqlCursor cur("Employee");
+    Q3SqlCursor cur("Employee");
     cur.select("deptno=10"); // select all records in department 10
     while(cur.next()) {
         ... // process data
@@ -640,7 +640,7 @@ QSqlIndex QSqlCursor::index(const QString& fieldName) const
 
 */
 
-bool QSqlCursor::select(const QString & filter, const QSqlIndex & sort)
+bool Q3SqlCursor::select(const QString & filter, const QSqlIndex & sort)
 {
     QString fieldList = toString(d->nm);
     if (fieldList.isEmpty())
@@ -676,7 +676,7 @@ bool QSqlCursor::select(const QString & filter, const QSqlIndex & sort)
     \sa setSort() setFilter()
 */
 
-bool QSqlCursor::select()
+bool Q3SqlCursor::select()
 {
     return select(filter(), sort());
 }
@@ -693,7 +693,7 @@ bool QSqlCursor::select()
     last(), previous() or next().
 */
 
-bool QSqlCursor::select(const QSqlIndex& sort)
+bool Q3SqlCursor::select(const QSqlIndex& sort)
 {
     return select(QString(), sort);
 }
@@ -711,7 +711,7 @@ bool QSqlCursor::select(const QSqlIndex& sort)
     for retrieving data based upon a table's primary index:
 
     \code
-    QSqlCursor cur("Employee");
+    Q3SqlCursor cur("Employee");
     QSqlIndex pk = cur.primaryIndex();
     cur.setValue("id", 10);
     cur.select(pk, pk); // generates "SELECT ... FROM Employee WHERE id=10 ORDER BY id"
@@ -726,28 +726,28 @@ bool QSqlCursor::select(const QSqlIndex& sort)
     used for the ORDER BY clause, \c{ORDER BY id} in this example.
 */
 
-bool QSqlCursor::select(const QSqlIndex & filter, const QSqlIndex & sort)
+bool Q3SqlCursor::select(const QSqlIndex & filter, const QSqlIndex & sort)
 {
     return select(toString(filter, this, d->nm, "=", "and"), sort);
 }
 
 /*!
     Sets the cursor mode to \a mode. This value can be an OR'ed
-    combination of \l QSqlCursor::Mode values. The default mode for a
-    cursor is \c QSqlCursor::Writable.
+    combination of \l Q3SqlCursor::Mode values. The default mode for a
+    cursor is \c Q3SqlCursor::Writable.
 
     \code
-    QSqlCursor cur("Employee");
-    cur.setMode(QSqlCursor::Writable); // allow insert/update/delete
+    Q3SqlCursor cur("Employee");
+    cur.setMode(Q3SqlCursor::Writable); // allow insert/update/delete
     ...
-    cur.setMode(QSqlCursor::Insert | QSqlCursor::Update); // allow inserts and updates only
+    cur.setMode(Q3SqlCursor::Insert | Q3SqlCursor::Update); // allow inserts and updates only
     ...
-    cur.setMode(QSqlCursor::ReadOnly); // no inserts/updates/deletes allowed
+    cur.setMode(Q3SqlCursor::ReadOnly); // no inserts/updates/deletes allowed
 
     \endcode
 */
 
-void QSqlCursor::setMode(int mode)
+void Q3SqlCursor::setMode(int mode)
 {
     d->md = mode;
 }
@@ -758,7 +758,7 @@ void QSqlCursor::setMode(int mode)
     \sa setMode()
 */
 
-int QSqlCursor::mode() const
+int Q3SqlCursor::mode() const
 {
     return d->md;
 }
@@ -774,7 +774,7 @@ int QSqlCursor::mode() const
     \sa calculateField()
 */
 
-void QSqlCursor::setCalculated(const QString& name, bool calculated)
+void Q3SqlCursor::setCalculated(const QString& name, bool calculated)
 {
     int pos = indexOf(name);
     if (pos < 0)
@@ -791,7 +791,7 @@ void QSqlCursor::setCalculated(const QString& name, bool calculated)
     \sa setCalculated()
 */
 
-bool QSqlCursor::isCalculated(const QString& name) const
+bool Q3SqlCursor::isCalculated(const QString& name) const
 {
     int pos = indexOf(name);
     if (pos < 0)
@@ -809,7 +809,7 @@ bool QSqlCursor::isCalculated(const QString& name) const
     \sa isTrimmed() QCoreVariant
 */
 
-void QSqlCursor::setTrimmed(const QString& name, bool trim)
+void Q3SqlCursor::setTrimmed(const QString& name, bool trim)
 {
     int pos = indexOf(name);
     if (pos < 0)
@@ -827,7 +827,7 @@ void QSqlCursor::setTrimmed(const QString& name, bool trim)
     \sa setTrimmed()
 */
 
-bool QSqlCursor::isTrimmed(const QString& name) const
+bool Q3SqlCursor::isTrimmed(const QString& name) const
 {
     int pos = indexOf(name);
     if (pos < 0)
@@ -843,7 +843,7 @@ bool QSqlCursor::isTrimmed(const QString& name) const
     \sa setMode()
 */
 
-bool QSqlCursor::isReadOnly() const
+bool Q3SqlCursor::isReadOnly() const
 {
     return d->md == 0;
 }
@@ -855,7 +855,7 @@ bool QSqlCursor::isReadOnly() const
     \sa setMode()
 */
 
-bool QSqlCursor::canInsert() const
+bool Q3SqlCursor::canInsert() const
 {
     return ((d->md & Insert) == Insert) ;
 }
@@ -868,7 +868,7 @@ bool QSqlCursor::canInsert() const
     \sa setMode()
 */
 
-bool QSqlCursor::canUpdate() const
+bool Q3SqlCursor::canUpdate() const
 {
     return ((d->md & Update) == Update) ;
 }
@@ -880,7 +880,7 @@ bool QSqlCursor::canUpdate() const
     \sa setMode()
 */
 
-bool QSqlCursor::canDelete() const
+bool Q3SqlCursor::canDelete() const
 {
     return ((d->md & Delete) == Delete) ;
 }
@@ -895,7 +895,7 @@ bool QSqlCursor::canDelete() const
     statements.
 */
 
-QString QSqlCursor::toString(const QString& prefix, QSqlField* field, const QString& fieldSep) const
+QString Q3SqlCursor::toString(const QString& prefix, QSqlField* field, const QString& fieldSep) const
 {
     QString f;
     if (field && driver()) {
@@ -920,7 +920,7 @@ QString QSqlCursor::toString(const QString& prefix, QSqlField* field, const QStr
     is useful for generating SQL statements.
 */
 
-QString QSqlCursor::toString(QSqlRecord* rec, const QString& prefix, const QString& fieldSep,
+QString Q3SqlCursor::toString(QSqlRecord* rec, const QString& prefix, const QString& fieldSep,
                               const QString& sep) const
 {
     static QString blank(" ");
@@ -952,7 +952,7 @@ QString QSqlCursor::toString(QSqlRecord* rec, const QString& prefix, const QStri
     SQL statements.
 */
 
-QString QSqlCursor::toString(const QSqlIndex& i, QSqlRecord* rec, const QString& prefix,
+QString Q3SqlCursor::toString(const QSqlIndex& i, QSqlRecord* rec, const QString& prefix,
                                 const QString& fieldSep, const QString& sep) const
 {
     QString filter;
@@ -983,7 +983,7 @@ QString QSqlCursor::toString(const QSqlIndex& i, QSqlRecord* rec, const QString&
     record.
 
     \code
-    QSqlCursor cur("prices");
+    Q3SqlCursor cur("prices");
     QSqlRecord *buffer = cur.primeInsert();
     buffer->setValue("id",    53981);
     buffer->setValue("name",  "Thingy");
@@ -1002,7 +1002,7 @@ QString QSqlCursor::toString(const QSqlIndex& i, QSqlRecord* rec, const QString&
     \sa setMode() lastError()
 */
 
-int QSqlCursor::insert(bool invalidate)
+int Q3SqlCursor::insert(bool invalidate)
 {
     if ((d->md & Insert) != Insert || !driver())
         return false;
@@ -1070,7 +1070,7 @@ int QSqlCursor::insert(bool invalidate)
     \sa primeInsert(), primeUpdate() primeDelete()
 */
 
-QSqlRecord* QSqlCursor::editBuffer(bool copy)
+QSqlRecord* Q3SqlCursor::editBuffer(bool copy)
 {
     if (copy) {
         for(int i = 0; i < d->editBuffer.count(); i++) {
@@ -1095,7 +1095,7 @@ QSqlRecord* QSqlCursor::editBuffer(bool copy)
     \sa editBuffer() update()
 */
 
-QSqlRecord* QSqlCursor::primeUpdate()
+QSqlRecord* Q3SqlCursor::primeUpdate()
 {
     // memorize the primary keys as they were before the user changed the values in editBuffer
     QSqlRecord* buf = editBuffer(true);
@@ -1118,7 +1118,7 @@ QSqlRecord* QSqlCursor::primeUpdate()
     \sa editBuffer() del()
 */
 
-QSqlRecord* QSqlCursor::primeDelete()
+QSqlRecord* Q3SqlCursor::primeDelete()
 {
     return editBuffer(true);
 }
@@ -1132,7 +1132,7 @@ QSqlRecord* QSqlCursor::primeDelete()
     \sa editBuffer() insert()
 */
 
-QSqlRecord* QSqlCursor::primeInsert()
+QSqlRecord* Q3SqlCursor::primeInsert()
 {
     d->editBuffer.clearValues();
     return &d->editBuffer;
@@ -1153,7 +1153,7 @@ QSqlRecord* QSqlCursor::primeInsert()
     can move to a valid record. For example:
 
     \code
-    QSqlCursor cur("prices");
+    Q3SqlCursor cur("prices");
     cur.select("id=202");
     if (cur.next()) {
         QSqlRecord *buffer = cur.primeUpdate();
@@ -1181,7 +1181,7 @@ QSqlRecord* QSqlCursor::primeInsert()
     \sa setMode() lastError()
 */
 
-int QSqlCursor::update(bool invalidate)
+int Q3SqlCursor::update(bool invalidate)
 {
     if (d->editIndex.isEmpty())
         return 0;
@@ -1206,7 +1206,7 @@ int QSqlCursor::update(bool invalidate)
     \sa primeUpdate() setMode() lastError()
 */
 
-int QSqlCursor::update(const QString & filter, bool invalidate)
+int Q3SqlCursor::update(const QString & filter, bool invalidate)
 {
     if ((d->md & Update) != Update) {
         return false;
@@ -1265,7 +1265,7 @@ int QSqlCursor::update(const QString & filter, bool invalidate)
     to a valid record. For example:
 
     \code
-    QSqlCursor cur("prices");
+    Q3SqlCursor cur("prices");
     cur.select("id=999");
     if (cur.next()) {
         cur.primeDelete();
@@ -1284,7 +1284,7 @@ int QSqlCursor::update(const QString & filter, bool invalidate)
     \sa primeDelete() setMode() lastError()
 */
 
-int QSqlCursor::del(bool invalidate)
+int Q3SqlCursor::del(bool invalidate)
 {
     QSqlIndex idx = primaryIndex(false);
     if (idx.isEmpty())
@@ -1309,7 +1309,7 @@ int QSqlCursor::del(bool invalidate)
     \sa setMode() lastError()
 */
 
-int QSqlCursor::del(const QString & filter, bool invalidate)
+int Q3SqlCursor::del(const QString & filter, bool invalidate)
 {
     if ((d->md & Delete) != Delete)
         return 0;
@@ -1325,7 +1325,7 @@ int QSqlCursor::del(const QString & filter, bool invalidate)
   \internal
 */
 
-int QSqlCursor::apply(const QString& q, bool invalidate)
+int Q3SqlCursor::apply(const QString& q, bool invalidate)
 {
     int ar = 0;
     if (invalidate) {
@@ -1343,7 +1343,7 @@ int QSqlCursor::apply(const QString& q, bool invalidate)
   \internal
 */
 
-int QSqlCursor::applyPrepared(const QString& q, bool invalidate)
+int Q3SqlCursor::applyPrepared(const QString& q, bool invalidate)
 {
     int ar = 0;
     QSqlQuery* sql = 0;
@@ -1386,7 +1386,7 @@ int QSqlCursor::applyPrepared(const QString& q, bool invalidate)
   active, otherwise returns false.
 
 */
-bool QSqlCursor::exec(const QString & sql)
+bool Q3SqlCursor::exec(const QString & sql)
 {
     d->lastAt = QSql::BeforeFirst;
     QSqlQuery::exec(sql);
@@ -1403,7 +1403,7 @@ bool QSqlCursor::exec(const QString & sql)
     \sa setCalculated()
 */
 
-QCoreVariant QSqlCursor::calculateField(const QString&)
+QCoreVariant Q3SqlCursor::calculateField(const QString&)
 {
     return QCoreVariant();
 }
@@ -1426,7 +1426,7 @@ static QString qTrim(const QString& s)
 /*! \internal
  */
 
-void QSqlCursor::sync()
+void Q3SqlCursor::sync()
 {
     if (isActive() && isValid() && d->lastAt != at()) {
         d->lastAt = at();
@@ -1462,7 +1462,7 @@ void QSqlCursor::sync()
 
 */
 
-void QSqlCursor::afterSeek()
+void Q3SqlCursor::afterSeek()
 {
     sync();
 }
@@ -1473,17 +1473,17 @@ void QSqlCursor::afterSeek()
     Returns the value of field number \a i.
 */
 
-QCoreVariant QSqlCursor::value(int i) const
+QCoreVariant Q3SqlCursor::value(int i) const
 {
     return QSqlRecord::value(i);
 }
 
 /*! \internal
-  cursors should be filled with QSqlFieldInfos...
+  cursors should be filled with Q3SqlFieldInfos...
 */
-void QSqlCursor::append(const QSqlField& field)
+void Q3SqlCursor::append(const QSqlField& field)
 {
-    append(QSqlFieldInfo(field));
+    append(Q3SqlFieldInfo(field));
 }
 
 /*!
@@ -1492,7 +1492,7 @@ void QSqlCursor::append(const QSqlField& field)
 
     This is the same as calling QSqlRecord::isNull(\a i)
 */
-bool QSqlCursor::isNull(int i) const
+bool Q3SqlCursor::isNull(int i) const
 {
     return QSqlRecord::isNull(i);
 }
@@ -1504,22 +1504,22 @@ bool QSqlCursor::isNull(int i) const
 
     This is the same as calling QSqlRecord::isNull(\a name)
 */
-bool QSqlCursor::isNull(const QString& name) const
+bool Q3SqlCursor::isNull(const QString& name) const
 {
     return QSqlRecord::isNull(name);
 }
 
 /*! \internal */
-void QSqlCursor::setValue(int i, const QCoreVariant& val)
+void Q3SqlCursor::setValue(int i, const QCoreVariant& val)
 {
 #ifdef QT_DEBUG
-    qDebug("QSqlCursor::setValue(): This will not affect actual database values. Use primeInsert(), primeUpdate() or primeDelete().");
+    qDebug("Q3SqlCursor::setValue(): This will not affect actual database values. Use primeInsert(), primeUpdate() or primeDelete().");
 #endif
     QSqlRecord::setValue(i, val);
 }
 
 /*!
-    \fn void QSqlCursor::insert(int pos, const QSqlFieldInfo &fieldInfo)
+    \fn void Q3SqlCursor::insert(int pos, const Q3SqlFieldInfo &fieldInfo)
 
     Use replace() instead.
 */

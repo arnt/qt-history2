@@ -19,20 +19,20 @@
 #include "private/qsqlmanager_p.h"
 #include "qsqlresult.h"
 
-class QDataBrowserPrivate
+class Q3DataBrowserPrivate
 {
 public:
-    QDataBrowserPrivate() : boundaryCheck(true), readOnly(false) {}
-    QSqlCursorManager cur;
-    QSqlFormManager frm;
-    QDataManager dat;
+    Q3DataBrowserPrivate() : boundaryCheck(true), readOnly(false) {}
+    Q3SqlCursorManager cur;
+    Q3SqlFormManager frm;
+    Q3DataManager dat;
     bool boundaryCheck;
     bool readOnly;
 };
 
 /*!
-    \class QDataBrowser qdatabrowser.h
-    \brief The QDataBrowser class provides data manipulation and
+    \class Q3DataBrowser qdatabrowser.h
+    \brief The Q3DataBrowser class provides data manipulation and
     navigation for data entry forms.
 
     \compat
@@ -42,11 +42,11 @@ public:
     refreshing data in the display.
 
     If you want a read-only form to present database data use
-    QDataView; if you want a table-based presentation of your data use
-    QDataTable.
+    Q3DataView; if you want a table-based presentation of your data use
+    Q3DataTable.
 
-    A QDataBrowser is used to associate a dataset with a form in much
-    the same way as a QDataTable associates a dataset with a table.
+    A Q3DataBrowser is used to associate a dataset with a form in much
+    the same way as a Q3DataTable associates a dataset with a table.
     Once the data browser has been constructed it can be associated
     with a dataset with setSqlCursor(), and with a form with
     setForm(). Boundary checking, sorting and filtering can be set
@@ -103,7 +103,7 @@ public:
 */
 
 /*!
-    \enum QDataBrowser::Boundary
+    \enum Q3DataBrowser::Boundary
 
     This enum describes where the data browser is positioned.
 
@@ -130,10 +130,10 @@ public:
     name \a name and widget flags set to \a fl.
 */
 
-QDataBrowser::QDataBrowser(QWidget *parent, const char *name, Qt::WFlags fl)
+Q3DataBrowser::Q3DataBrowser(QWidget *parent, const char *name, Qt::WFlags fl)
     : QWidget(parent, name, fl)
 {
-    d = new QDataBrowserPrivate();
+    d = new Q3DataBrowserPrivate();
     d->dat.setMode(QSql::Update);
 }
 
@@ -141,7 +141,7 @@ QDataBrowser::QDataBrowser(QWidget *parent, const char *name, Qt::WFlags fl)
     Destroys the object and frees any allocated resources.
 */
 
-QDataBrowser::~QDataBrowser()
+Q3DataBrowser::~Q3DataBrowser()
 {
     delete d;
 }
@@ -153,14 +153,14 @@ QDataBrowser::~QDataBrowser()
     This is achieved by moving the default cursor and checking the
     position, however the current default form values will not be
     altered. After checking for the boundary, the cursor is moved back
-    to its former position. See \l QDataBrowser::Boundary.
+    to its former position. See \l Q3DataBrowser::Boundary.
 
     \sa Boundary
 */
 
-QDataBrowser::Boundary QDataBrowser::boundary()
+Q3DataBrowser::Boundary Q3DataBrowser::boundary()
 {
-    QSqlCursor* cur = d->cur.cursor();
+    Q3SqlCursor* cur = d->cur.cursor();
     if (!cur || !cur->isActive())
         return Unknown;
     if (!cur->isValid()) {
@@ -187,7 +187,7 @@ QDataBrowser::Boundary QDataBrowser::boundary()
 
 
 /*!
-    \property QDataBrowser::boundaryChecking
+    \property Q3DataBrowser::boundaryChecking
     \brief whether boundary checking is active
 
     When boundary checking is active (the default), signals are
@@ -196,18 +196,18 @@ QDataBrowser::Boundary QDataBrowser::boundary()
     \sa boundary()
 */
 
-void QDataBrowser::setBoundaryChecking(bool active)
+void Q3DataBrowser::setBoundaryChecking(bool active)
 {
     d->boundaryCheck = active;
 }
 
-bool QDataBrowser::boundaryChecking() const
+bool Q3DataBrowser::boundaryChecking() const
 {
     return d->boundaryCheck;
 }
 
 /*!
-    \property QDataBrowser::sort
+    \property Q3DataBrowser::sort
     \brief the data browser's sort
 
     The data browser's sort affects the order in which records are
@@ -230,7 +230,7 @@ bool QDataBrowser::boundaryChecking() const
     \endcode
 */
 
-void QDataBrowser::setSort(const QStringList& sort)
+void Q3DataBrowser::setSort(const QStringList& sort)
 {
     d->cur.setSort(sort);
 }
@@ -242,19 +242,19 @@ void QDataBrowser::setSort(const QStringList& sort)
     the new sort, use refresh().
 
 */
-void QDataBrowser::setSort(const QSqlIndex& sort)
+void Q3DataBrowser::setSort(const QSqlIndex& sort)
 {
     d->cur.setSort(sort);
 }
 
-QStringList QDataBrowser::sort() const
+QStringList Q3DataBrowser::sort() const
 {
     return d->cur.sort();
 }
 
 
 /*!
-    \property QDataBrowser::filter
+    \property Q3DataBrowser::filter
     \brief the data browser's filter
 
     The filter applies to the data shown in the browser. Call
@@ -267,13 +267,13 @@ QStringList QDataBrowser::sort() const
     \sa sort()
 */
 
-void QDataBrowser::setFilter(const QString& filter)
+void Q3DataBrowser::setFilter(const QString& filter)
 {
     d->cur.setFilter(filter);
 }
 
 
-QString QDataBrowser::filter() const
+QString Q3DataBrowser::filter() const
 {
     return d->cur.filter();
 }
@@ -290,7 +290,7 @@ QString QDataBrowser::filter() const
     \sa sqlCursor() form() setForm()
 */
 
-void QDataBrowser::setSqlCursor(QSqlCursor* cursor, bool autoDelete)
+void Q3DataBrowser::setSqlCursor(Q3SqlCursor* cursor, bool autoDelete)
 {
     if (!cursor)
         return;
@@ -308,7 +308,7 @@ void QDataBrowser::setSqlCursor(QSqlCursor* cursor, bool autoDelete)
     \sa setSqlCursor()
 */
 
-QSqlCursor* QDataBrowser::sqlCursor() const
+Q3SqlCursor* Q3DataBrowser::sqlCursor() const
 {
     return d->cur.cursor();
 }
@@ -320,7 +320,7 @@ QSqlCursor* QDataBrowser::sqlCursor() const
     provides become available to the \a form.
 */
 
-void QDataBrowser::setForm(QSqlForm* form)
+void Q3DataBrowser::setForm(Q3SqlForm* form)
 {
     d->frm.setForm(form);
 }
@@ -331,36 +331,36 @@ void QDataBrowser::setForm(QSqlForm* form)
     set.
 */
 
-QSqlForm* QDataBrowser::form()
+Q3SqlForm* Q3DataBrowser::form()
 {
     return d->frm.form();
 }
 
 /*!
-    \property QDataBrowser::readOnly
+    \property Q3DataBrowser::readOnly
     \brief whether the browser is read-only
 
     The default is false, i.e. data can be edited. If the data browser
     is read-only, no database edits will be allowed.
 */
 
-void QDataBrowser::setReadOnly(bool active)
+void Q3DataBrowser::setReadOnly(bool active)
 {
     d->readOnly = active;
 }
 
-bool QDataBrowser::isReadOnly() const
+bool Q3DataBrowser::isReadOnly() const
 {
     return d->readOnly;
 }
 
-void QDataBrowser::setConfirmEdits(bool confirm)
+void Q3DataBrowser::setConfirmEdits(bool confirm)
 {
     d->dat.setConfirmEdits(confirm);
 }
 
 /*!
-    \property QDataBrowser::confirmInsert
+    \property Q3DataBrowser::confirmInsert
     \brief whether the data browser confirms insertions
 
     If this property is true, the browser confirms insertions,
@@ -369,13 +369,13 @@ void QDataBrowser::setConfirmEdits(bool confirm)
     \sa confirmCancels() confirmEdits() confirmUpdate() confirmDelete() confirmEdit()
 */
 
-void QDataBrowser::setConfirmInsert(bool confirm)
+void Q3DataBrowser::setConfirmInsert(bool confirm)
 {
     d->dat.setConfirmInsert(confirm);
 }
 
 /*!
-    \property QDataBrowser::confirmUpdate
+    \property Q3DataBrowser::confirmUpdate
     \brief whether the browser confirms updates
 
     If this property is true, the browser confirms updates, otherwise
@@ -384,13 +384,13 @@ void QDataBrowser::setConfirmInsert(bool confirm)
     \sa confirmCancels() confirmEdits() confirmInsert() confirmDelete() confirmEdit()
 */
 
-void QDataBrowser::setConfirmUpdate(bool confirm)
+void Q3DataBrowser::setConfirmUpdate(bool confirm)
 {
     d->dat.setConfirmUpdate(confirm);
 }
 
 /*!
-    \property QDataBrowser::confirmDelete
+    \property Q3DataBrowser::confirmDelete
     \brief whether the browser confirms deletions
 
     If this property is true, the browser confirms deletions,
@@ -399,13 +399,13 @@ void QDataBrowser::setConfirmUpdate(bool confirm)
     \sa confirmCancels() confirmEdits() confirmUpdate() confirmInsert() confirmEdit()
 */
 
-void QDataBrowser::setConfirmDelete(bool confirm)
+void Q3DataBrowser::setConfirmDelete(bool confirm)
 {
     d->dat.setConfirmDelete(confirm);
 }
 
 /*!
-    \property QDataBrowser::confirmEdits
+    \property Q3DataBrowser::confirmEdits
     \brief whether the browser confirms edits
 
     If this property is true, the browser confirms all edit operations
@@ -417,28 +417,28 @@ void QDataBrowser::setConfirmDelete(bool confirm)
     \sa confirmEdit() confirmCancels() confirmInsert() confirmUpdate() confirmDelete()
 */
 
-bool QDataBrowser::confirmEdits() const
+bool Q3DataBrowser::confirmEdits() const
 {
     return (d->dat.confirmEdits());
 }
 
-bool QDataBrowser::confirmInsert() const
+bool Q3DataBrowser::confirmInsert() const
 {
     return (d->dat.confirmInsert());
 }
 
-bool QDataBrowser::confirmUpdate() const
+bool Q3DataBrowser::confirmUpdate() const
 {
     return (d->dat.confirmUpdate());
 }
 
-bool QDataBrowser::confirmDelete() const
+bool Q3DataBrowser::confirmDelete() const
 {
     return (d->dat.confirmDelete());
 }
 
 /*!
-    \property QDataBrowser::confirmCancels
+    \property Q3DataBrowser::confirmCancels
     \brief whether the browser confirms cancel operations
 
     If this property is true, all cancels must be confirmed by the
@@ -449,18 +449,18 @@ bool QDataBrowser::confirmDelete() const
     \sa confirmEdits() confirmCancel()
 */
 
-void QDataBrowser::setConfirmCancels(bool confirm)
+void Q3DataBrowser::setConfirmCancels(bool confirm)
 {
     d->dat.setConfirmCancels(confirm);
 }
 
-bool QDataBrowser::confirmCancels() const
+bool Q3DataBrowser::confirmCancels() const
 {
     return d->dat.confirmCancels();
 }
 
 /*!
-    \property QDataBrowser::autoEdit
+    \property Q3DataBrowser::autoEdit
     \brief whether the browser automatically applies edits
 
     The default value for this property is true. When the user begins
@@ -473,18 +473,18 @@ bool QDataBrowser::confirmCancels() const
     \endlist
 */
 
-void QDataBrowser::setAutoEdit(bool autoEdit)
+void Q3DataBrowser::setAutoEdit(bool autoEdit)
 {
     d->dat.setAutoEdit(autoEdit);
 }
 
-bool QDataBrowser::autoEdit() const
+bool Q3DataBrowser::autoEdit() const
 {
     return d->dat.autoEdit();
 }
 
 /*!
-    \fn void QDataBrowser::firstRecordAvailable(bool available)
+    \fn void Q3DataBrowser::firstRecordAvailable(bool available)
 
     This signal is emitted whenever the position of the cursor
     changes. The \a available parameter indicates whether or not the
@@ -492,7 +492,7 @@ bool QDataBrowser::autoEdit() const
 */
 
 /*!
-    \fn void QDataBrowser::lastRecordAvailable(bool available)
+    \fn void Q3DataBrowser::lastRecordAvailable(bool available)
 
     This signal is emitted whenever the position of the cursor
     changes. The \a available parameter indicates whether or not the
@@ -500,7 +500,7 @@ bool QDataBrowser::autoEdit() const
 */
 
 /*!
-    \fn void QDataBrowser::nextRecordAvailable(bool available)
+    \fn void Q3DataBrowser::nextRecordAvailable(bool available)
 
     This signal is emitted whenever the position of the cursor
     changes. The \a available parameter indicates whether or not the
@@ -509,7 +509,7 @@ bool QDataBrowser::autoEdit() const
 
 
 /*!
-    \fn void QDataBrowser::prevRecordAvailable(bool available)
+    \fn void Q3DataBrowser::prevRecordAvailable(bool available)
 
     This signal is emitted whenever the position of the cursor
     changes. The \a available parameter indicates whether or not the
@@ -518,7 +518,7 @@ bool QDataBrowser::autoEdit() const
 
 
 /*!
-    \fn void QDataBrowser::currentChanged(const QSqlRecord* record)
+    \fn void Q3DataBrowser::currentChanged(const QSqlRecord* record)
 
     This signal is emitted whenever the current cursor position
     changes. The \a record parameter points to the contents of the
@@ -527,13 +527,13 @@ bool QDataBrowser::autoEdit() const
 
 
 /*!
-    \fn void QDataBrowser::primeInsert(QSqlRecord* buf)
+    \fn void Q3DataBrowser::primeInsert(QSqlRecord* buf)
 
     This signal is emitted when the data browser enters insertion
     mode. The \a buf parameter points to the record buffer that is to
     be inserted. Connect to this signal to, for example, prime the
     record buffer with default data values, auto-numbered fields etc.
-    (Note that QSqlCursor::primeInsert() is \e not called on the
+    (Note that Q3SqlCursor::primeInsert() is \e not called on the
     default cursor, as this would corrupt values in the form.)
 
     \sa insert()
@@ -541,13 +541,13 @@ bool QDataBrowser::autoEdit() const
 
 
 /*!
-    \fn void QDataBrowser::primeUpdate(QSqlRecord* buf)
+    \fn void Q3DataBrowser::primeUpdate(QSqlRecord* buf)
 
     This signal is emitted when the data browser enters update mode.
     Note that during navigation (first(), last(), next(), prev()),
     each record that is shown in the default form is primed for
     update. The \a buf parameter points to the record buffer being
-    updated. (Note that QSqlCursor::primeUpdate() is \e not called on
+    updated. (Note that Q3SqlCursor::primeUpdate() is \e not called on
     the default cursor, as this would corrupt values in the form.)
     Connect to this signal in order to, for example, keep track of
     which records have been updated, perhaps for auditing purposes.
@@ -556,11 +556,11 @@ bool QDataBrowser::autoEdit() const
 */
 
 /*!
-    \fn void QDataBrowser::primeDelete(QSqlRecord* buf)
+    \fn void Q3DataBrowser::primeDelete(QSqlRecord* buf)
 
     This signal is emitted when the data browser enters deletion mode.
     The \a buf parameter points to the record buffer being deleted.
-    (Note that QSqlCursor::primeDelete() is \e not called on the
+    (Note that Q3SqlCursor::primeDelete() is \e not called on the
     default cursor, as this would corrupt values in the form.)
     Connect to this signal in order to, for example, save a copy of
     the deleted record for auditing purposes.
@@ -570,11 +570,11 @@ bool QDataBrowser::autoEdit() const
 
 
 /*!
-    \fn void QDataBrowser::cursorChanged(QSqlCursor::Mode mode)
+    \fn void Q3DataBrowser::cursorChanged(Q3SqlCursor::Mode mode)
 
     This signal is emitted whenever the cursor record was changed due
     to navigation. The \a mode parameter is the edit that just took
-    place, e.g. Insert, Update or Delete. See \l QSqlCursor::Mode.
+    place, e.g. Insert, Update or Delete. See \l Q3SqlCursor::Mode.
 */
 
 
@@ -586,7 +586,7 @@ bool QDataBrowser::autoEdit() const
     \sa setFilter() setSort()
 */
 
-void QDataBrowser::refresh()
+void Q3DataBrowser::refresh()
 {
     d->cur.refresh();
 }
@@ -614,7 +614,7 @@ void QDataBrowser::refresh()
     following actions:
 
     \list
-    \i The default cursor is primed for insert using QSqlCursor::primeInsert().
+    \i The default cursor is primed for insert using Q3SqlCursor::primeInsert().
     \i The primeInsert() signal is emitted.
     \i The form is updated with the values in the default cursor's.
     edit buffer so that the user can fill in the values to be inserted.
@@ -622,10 +622,10 @@ void QDataBrowser::refresh()
 
 */
 
-void QDataBrowser::insert()
+void Q3DataBrowser::insert()
 {
     QSqlRecord* buf = d->frm.record();
-    QSqlCursor* cur = d->cur.cursor();
+    Q3SqlCursor* cur = d->cur.cursor();
     if (!buf || !cur)
         return;
     bool doIns = true;
@@ -686,10 +686,10 @@ void QDataBrowser::insert()
     action, handleError() is called.
 */
 
-void QDataBrowser::update()
+void Q3DataBrowser::update()
 {
     QSqlRecord* buf = d->frm.record();
-    QSqlCursor* cur = d->cur.cursor();
+    Q3SqlCursor* cur = d->cur.cursor();
     if (!buf || !cur)
         return;
     QSql::Confirm conf = QSql::Yes;
@@ -741,10 +741,10 @@ void QDataBrowser::update()
     that was current. If there is an error, handleError() is called.
 */
 
-void QDataBrowser::del()
+void Q3DataBrowser::del()
 {
     QSqlRecord* buf = d->frm.record();
-    QSqlCursor* cur = d->cur.cursor();
+    Q3SqlCursor* cur = d->cur.cursor();
     if (!buf || !cur)
         return;
     QSql::Confirm conf = QSql::Yes;
@@ -789,10 +789,10 @@ void QDataBrowser::del()
     happens.
 */
 
-bool QDataBrowser::seek(int i, bool relative)
+bool Q3DataBrowser::seek(int i, bool relative)
 {
     int b = 0;
-    QSqlCursor* cur = d->cur.cursor();
+    Q3SqlCursor* cur = d->cur.cursor();
     if (!cur)
         return false;
     if (preNav())
@@ -813,9 +813,9 @@ bool QDataBrowser::seek(int i, bool relative)
 
 */
 
-void QDataBrowser::first()
+void Q3DataBrowser::first()
 {
-    nav(&QSqlCursor::first);
+    nav(&Q3SqlCursor::first);
 }
 
 
@@ -830,9 +830,9 @@ void QDataBrowser::first()
     happens.
 */
 
-void QDataBrowser::last()
+void Q3DataBrowser::last()
 {
-    nav(&QSqlCursor::last);
+    nav(&Q3SqlCursor::last);
 }
 
 
@@ -846,9 +846,9 @@ void QDataBrowser::last()
     If the browser is positioned on the last record nothing happens.
 */
 
-void QDataBrowser::next()
+void Q3DataBrowser::next()
 {
-    nav(&QSqlCursor::next);
+    nav(&Q3SqlCursor::next);
 }
 
 
@@ -862,9 +862,9 @@ void QDataBrowser::next()
     If the browser is positioned on the first record nothing happens.
 */
 
-void QDataBrowser::prev()
+void Q3DataBrowser::prev()
 {
-    nav(&QSqlCursor::previous);
+    nav(&Q3SqlCursor::previous);
 }
 
 /*!
@@ -873,7 +873,7 @@ void QDataBrowser::prev()
     default form, nothing happens.
 */
 
-void QDataBrowser::readFields()
+void Q3DataBrowser::readFields()
 {
     d->frm.readFields();
 }
@@ -884,7 +884,7 @@ void QDataBrowser::readFields()
     there is no default cursor or no default form, nothing happens.
 */
 
-void QDataBrowser::writeFields()
+void Q3DataBrowser::writeFields()
 {
     d->frm.writeFields();
 }
@@ -897,11 +897,11 @@ void QDataBrowser::writeFields()
     e.g. 0 for numeric fields and "" for string fields. Then the
     widgets are updated using the property map. For example, a
     combobox that is property-mapped to integers would scroll to the
-    first item. See the \l QSqlPropertyMap constructor for the default
+    first item. See the \l Q3SqlPropertyMap constructor for the default
     mappings of widgets to properties.
 */
 
-void QDataBrowser::clearValues()
+void Q3DataBrowser::clearValues()
 {
     d->frm.clearValues();
 }
@@ -918,12 +918,12 @@ void QDataBrowser::clearValues()
     \sa cursorChanged() sqlCursor() form() handleError()
 */
 
-bool QDataBrowser::insertCurrent()
+bool Q3DataBrowser::insertCurrent()
 {
     if (isReadOnly())
         return false;
     QSqlRecord* buf = d->frm.record();
-    QSqlCursor* cur = d->cur.cursor();
+    Q3SqlCursor* cur = d->cur.cursor();
     if (!buf || !cur)
         return false;
     writeFields();
@@ -937,7 +937,7 @@ bool QDataBrowser::insertCurrent()
         refresh();
         d->cur.findBuffer(cur->primaryIndex());
         updateBoundary();
-        cursorChanged(QSqlCursor::Insert);
+        cursorChanged(Q3SqlCursor::Insert);
         return true;
     }
     return false;
@@ -956,12 +956,12 @@ bool QDataBrowser::insertCurrent()
     \sa cursor() form() handleError()
 */
 
-bool QDataBrowser::updateCurrent()
+bool Q3DataBrowser::updateCurrent()
 {
     if (isReadOnly())
         return false;
     QSqlRecord* buf = d->frm.record();
-    QSqlCursor* cur = d->cur.cursor();
+    Q3SqlCursor* cur = d->cur.cursor();
     if (!buf || !cur)
         return false;
     writeFields();
@@ -976,7 +976,7 @@ bool QDataBrowser::updateCurrent()
         d->cur.findBuffer(cur->primaryIndex());
         updateBoundary();
         cur->editBuffer(true);
-        cursorChanged(QSqlCursor::Update);
+        cursorChanged(Q3SqlCursor::Update);
         readFields();
         return true;
     }
@@ -997,12 +997,12 @@ bool QDataBrowser::updateCurrent()
     \sa cursor() form() handleError()
 */
 
-bool QDataBrowser::deleteCurrent()
+bool Q3DataBrowser::deleteCurrent()
 {
     if (isReadOnly())
         return false;
     QSqlRecord* buf = d->frm.record();
-    QSqlCursor* cur = d->cur.cursor();
+    Q3SqlCursor* cur = d->cur.cursor();
     if (!buf || !cur)
         return false;
     writeFields();
@@ -1012,7 +1012,7 @@ bool QDataBrowser::deleteCurrent()
     if (ar) {
         refresh();
         updateBoundary();
-        cursorChanged(QSqlCursor::Delete);
+        cursorChanged(Q3SqlCursor::Delete);
         if (!cur->seek(n))
             last();
         if (cur->isValid()) {
@@ -1038,10 +1038,10 @@ bool QDataBrowser::deleteCurrent()
     cursor buffer; otherwise returns false.
 */
 
-bool QDataBrowser::currentEdited()
+bool Q3DataBrowser::currentEdited()
 {
     QSqlRecord* buf = d->frm.record();
-    QSqlCursor* cur = d->cur.cursor();
+    Q3SqlCursor* cur = d->cur.cursor();
     if (!buf || !cur)
         return false;
     if (!cur->isActive() || !cur->isValid())
@@ -1059,10 +1059,10 @@ bool QDataBrowser::currentEdited()
   Pre-navigation checking.
 */
 
-bool QDataBrowser::preNav()
+bool Q3DataBrowser::preNav()
 {
     QSqlRecord* buf = d->frm.record();
-    QSqlCursor* cur = d->cur.cursor();
+    Q3SqlCursor* cur = d->cur.cursor();
     if (!buf || !cur)
         return false;
 
@@ -1108,11 +1108,11 @@ bool QDataBrowser::preNav()
   Handles post-navigation according to \a primeUpd.
 */
 
-void QDataBrowser::postNav(bool primeUpd)
+void Q3DataBrowser::postNav(bool primeUpd)
 {
     if (primeUpd) {
         QSqlRecord* buf = d->frm.record();
-        QSqlCursor* cur = d->cur.cursor();
+        Q3SqlCursor* cur = d->cur.cursor();
         if (!buf || !cur)
             return;
         currentChanged(cur);
@@ -1128,10 +1128,10 @@ void QDataBrowser::postNav(bool primeUpd)
   Navigate default cursor according to \a nav. Handles autoEdit.
 
 */
-void QDataBrowser::nav(Nav nav)
+void Q3DataBrowser::nav(Nav nav)
 {
     int b = 0;
-    QSqlCursor* cur = d->cur.cursor();
+    Q3SqlCursor* cur = d->cur.cursor();
     if (!cur)
         return;
     if (preNav())
@@ -1145,7 +1145,7 @@ void QDataBrowser::nav(Nav nav)
     the cursor.
 */
 
-void QDataBrowser::updateBoundary()
+void Q3DataBrowser::updateBoundary()
 {
     if (d->boundaryCheck) {
         Boundary bound = boundary();
@@ -1194,7 +1194,7 @@ void QDataBrowser::updateBoundary()
     implementation warns the user with a message box.
 */
 
-void QDataBrowser::handleError(const QSqlError& error)
+void Q3DataBrowser::handleError(const QSqlError& error)
 {
     d->dat.handleError(this, error);
 }
@@ -1207,7 +1207,7 @@ void QDataBrowser::handleError(const QSqlError& error)
     confirm the edit action.
 */
 
-QSql::Confirm QDataBrowser::confirmEdit(QSql::Op m)
+QSql::Confirm Q3DataBrowser::confirmEdit(QSql::Op m)
 {
     return d->dat.confirmEdit(this, m);
 }
@@ -1220,13 +1220,13 @@ QSql::Confirm QDataBrowser::confirmEdit(QSql::Op m)
     confirm the edit action.
 */
 
-QSql::Confirm  QDataBrowser::confirmCancel(QSql::Op m)
+QSql::Confirm  Q3DataBrowser::confirmCancel(QSql::Op m)
 {
     return d->dat.confirmCancel(this, m);
 }
 
 /*!
-    \fn void QDataBrowser::beforeInsert(QSqlRecord* buf)
+    \fn void Q3DataBrowser::beforeInsert(QSqlRecord* buf)
 
     This signal is emitted just before the cursor's edit buffer is
     inserted into the database. The \a buf parameter points to the
@@ -1235,7 +1235,7 @@ QSql::Confirm  QDataBrowser::confirmCancel(QSql::Op m)
 */
 
 /*!
-    \fn void QDataBrowser::beforeUpdate(QSqlRecord* buf)
+    \fn void Q3DataBrowser::beforeUpdate(QSqlRecord* buf)
 
     This signal is emitted just before the cursor's edit buffer is
     updated in the database. The \a buf parameter points to the edit
@@ -1244,7 +1244,7 @@ QSql::Confirm  QDataBrowser::confirmCancel(QSql::Op m)
 */
 
 /*!
-    \fn void QDataBrowser::beforeDelete(QSqlRecord* buf)
+    \fn void Q3DataBrowser::beforeDelete(QSqlRecord* buf)
 
     This signal is emitted just before the cursor's edit buffer  is
     deleted from the database. The \a buf parameter points to the edit

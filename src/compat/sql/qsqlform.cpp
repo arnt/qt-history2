@@ -22,31 +22,31 @@
 #include "qwidget.h"
 #include "qhash.h"
 
-class QSqlFormPrivate
+class Q3SqlFormPrivate
 {
 public:
-    QSqlFormPrivate() : propertyMap(0), buf(0), dirty(false) {}
-    ~QSqlFormPrivate() { if (propertyMap) delete propertyMap; }
+    Q3SqlFormPrivate() : propertyMap(0), buf(0), dirty(false) {}
+    ~Q3SqlFormPrivate() { if (propertyMap) delete propertyMap; }
     QStringList fld;
     QHash <QString, QWidget*> wgt;
     QMap <QWidget*, QSqlField *> map;
-    QSqlPropertyMap * propertyMap;
+    Q3SqlPropertyMap * propertyMap;
     QSqlRecord* buf;
     bool dirty;
 };
 
 /*!
-    \class QSqlForm
-    \brief The QSqlForm class creates and manages data entry forms
+    \class Q3SqlForm
+    \brief The Q3SqlForm class creates and manages data entry forms
     tied to SQL databases.
 
     \compat
 
-    Typical use of a QSqlForm consists of the following steps:
+    Typical use of a Q3SqlForm consists of the following steps:
     \list
     \i Create the widgets you want to appear in the form.
     \i Create a cursor and navigate to the record to be edited.
-    \i Create the QSqlForm.
+    \i Create the Q3SqlForm.
     \i Set the form's record buffer to the cursor's update buffer.
     \i Insert each widget and the field it is to edit into the form.
     \i Use readFields() to update the editor widgets with values from
@@ -56,17 +56,17 @@ public:
     the values in the editor widgets.
     \endlist
 
-    Note that a QSqlForm does not access the database directly, but
-    most often via QSqlFields which are part of a QSqlCursor. A
-    QSqlCursor::insert(), QSqlCursor::update() or QSqlCursor::del()
+    Note that a Q3SqlForm does not access the database directly, but
+    most often via QSqlFields which are part of a Q3SqlCursor. A
+    Q3SqlCursor::insert(), Q3SqlCursor::update() or Q3SqlCursor::del()
     call is needed to actually write values to the database.
 
     Some sample code to initialize a form successfully:
 
     \code
     QLineEdit  myEditor(this);
-    QSqlForm   myForm(this);
-    QSqlCursor myCursor("mytable");
+    Q3SqlForm   myForm(this);
+    Q3SqlCursor myCursor("mytable");
 
     // Execute a query to make the cursor valid
     myCursor.select();
@@ -91,43 +91,43 @@ public:
     \endcode
 
     If you want to use custom editors for displaying and editing data
-    fields, you must install a custom QSqlPropertyMap. The form
+    fields, you must install a custom Q3SqlPropertyMap. The form
     uses this object to get or set the value of a widget.
 
     Note that \link designer-manual.book Qt Designer\endlink provides
     a visual means of creating data-aware forms.
 
-    \sa installPropertyMap(), QSqlPropertyMap
+    \sa installPropertyMap(), Q3SqlPropertyMap
 */
 
 
 /*!
-    Constructs a QSqlForm with parent \a parent.
+    Constructs a Q3SqlForm with parent \a parent.
 */
-QSqlForm::QSqlForm(QObject * parent)
+Q3SqlForm::Q3SqlForm(QObject * parent)
     : QObject(parent)
 {
-    d = new QSqlFormPrivate();
+    d = new Q3SqlFormPrivate();
 }
 
 /*!
     Destroys the object and frees any allocated resources.
 */
-QSqlForm::~QSqlForm()
+Q3SqlForm::~Q3SqlForm()
 {
     delete d;
 }
 
 /*!
-    Installs a custom QSqlPropertyMap. This is useful if you plan to
+    Installs a custom Q3SqlPropertyMap. This is useful if you plan to
     create your own custom editor widgets.
 
-    QSqlForm takes ownership of \a pmap, so \a pmap is deleted when
-    QSqlForm goes out of scope.
+    Q3SqlForm takes ownership of \a pmap, so \a pmap is deleted when
+    Q3SqlForm goes out of scope.
 
-    \sa QDataTable::installEditorFactory()
+    \sa Q3DataTable::installEditorFactory()
 */
-void QSqlForm::installPropertyMap(QSqlPropertyMap * pmap)
+void Q3SqlForm::installPropertyMap(Q3SqlPropertyMap * pmap)
 {
     if(d->propertyMap)
         delete d->propertyMap;
@@ -141,7 +141,7 @@ void QSqlForm::installPropertyMap(QSqlPropertyMap * pmap)
     \sa readFields() writeFields()
 */
 
-void QSqlForm::setRecord(QSqlRecord* buf)
+void Q3SqlForm::setRecord(QSqlRecord* buf)
 {
     d->dirty = true;
     d->buf = buf;
@@ -155,7 +155,7 @@ void QSqlForm::setRecord(QSqlRecord* buf)
     \sa setRecord()
 */
 
-void QSqlForm::insert(QWidget * widget, const QString& field)
+void Q3SqlForm::insert(QWidget * widget, const QString& field)
 {
     d->dirty = true;
     d->wgt.insert(field, widget);
@@ -168,7 +168,7 @@ void QSqlForm::insert(QWidget * widget, const QString& field)
     Removes \a field from the form.
 */
 
-void QSqlForm::remove(const QString& field)
+void Q3SqlForm::remove(const QString& field)
 {
     d->dirty = true;
     int i = d->fld.indexOf(field);
@@ -184,7 +184,7 @@ void QSqlForm::remove(const QString& field)
     the form.
 */
 
-void QSqlForm::insert(QWidget * widget, QSqlField * field)
+void Q3SqlForm::insert(QWidget * widget, QSqlField * field)
 {
     d->map[widget] = field;
 }
@@ -194,7 +194,7 @@ void QSqlForm::insert(QWidget * widget, QSqlField * field)
     form.
 */
 
-void QSqlForm::remove(QWidget * widget)
+void Q3SqlForm::remove(QWidget * widget)
 {
     d->map.remove(widget);
 }
@@ -203,7 +203,7 @@ void QSqlForm::remove(QWidget * widget)
     Clears the values in all the widgets, and the fields they are
     mapped to, in the form, and sets them to NULL.
 */
-void QSqlForm::clearValues()
+void Q3SqlForm::clearValues()
 {
     QMap< QWidget *, QSqlField * >::Iterator it;
     for(it = d->map.begin(); it != d->map.end(); ++it){
@@ -217,7 +217,7 @@ void QSqlForm::clearValues()
 /*!
     Removes every widget, and the fields they're mapped to, from the form.
 */
-void QSqlForm::clear()
+void Q3SqlForm::clear()
 {
     d->dirty = true;
     d->fld.clear();
@@ -227,7 +227,7 @@ void QSqlForm::clear()
 /*!
     Returns the number of widgets in the form.
 */
-int QSqlForm::count() const
+int Q3SqlForm::count() const
 {
     return d->map.size();
 }
@@ -236,7 +236,7 @@ int QSqlForm::count() const
     Returns the \a{i}-th widget in the form. Useful for traversing
     the widgets in the form.
 */
-QWidget * QSqlForm::widget(int i) const
+QWidget * Q3SqlForm::widget(int i) const
 {
     QMap< QWidget *, QSqlField * >::ConstIterator it;
     int cnt = 0;
@@ -253,7 +253,7 @@ QWidget * QSqlForm::widget(int i) const
 /*!
     Returns the widget that field \a field is mapped to.
 */
-QWidget * QSqlForm::fieldToWidget(QSqlField * field) const
+QWidget * Q3SqlForm::fieldToWidget(QSqlField * field) const
 {
     QMap< QWidget *, QSqlField * >::ConstIterator it;
     for(it = d->map.begin(); it != d->map.end(); ++it){
@@ -266,7 +266,7 @@ QWidget * QSqlForm::fieldToWidget(QSqlField * field) const
 /*!
     Returns the SQL field that widget \a widget is mapped to.
 */
-QSqlField * QSqlForm::widgetToField(QWidget * widget) const
+QSqlField * Q3SqlForm::widgetToField(QWidget * widget) const
 {
     if(d->map.contains(widget))
         return d->map[widget];
@@ -278,13 +278,13 @@ QSqlField * QSqlForm::widgetToField(QWidget * widget) const
     Updates the widgets in the form with current values from the SQL
     fields they are mapped to.
 */
-void QSqlForm::readFields()
+void Q3SqlForm::readFields()
 {
     sync();
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
-    QSqlPropertyMap * pmap = (d->propertyMap == 0) ?
-                             QSqlPropertyMap::defaultMap() : d->propertyMap;
+    Q3SqlPropertyMap * pmap = (d->propertyMap == 0) ?
+                             Q3SqlPropertyMap::defaultMap() : d->propertyMap;
     for(it = d->map.begin() ; it != d->map.end(); ++it){
         f = widgetToField(it.key());
         if(!f)
@@ -296,16 +296,16 @@ void QSqlForm::readFields()
 /*!
     Updates the SQL fields with values from the widgets they are
     mapped to. To actually update the database with the contents of
-    the record buffer, use QSqlCursor::insert(), QSqlCursor::update()
-    or QSqlCursor::del() as appropriate.
+    the record buffer, use Q3SqlCursor::insert(), Q3SqlCursor::update()
+    or Q3SqlCursor::del() as appropriate.
 */
-void QSqlForm::writeFields()
+void Q3SqlForm::writeFields()
 {
     sync();
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
-    QSqlPropertyMap * pmap = (d->propertyMap == 0) ?
-                             QSqlPropertyMap::defaultMap() : d->propertyMap;
+    Q3SqlPropertyMap * pmap = (d->propertyMap == 0) ?
+                             Q3SqlPropertyMap::defaultMap() : d->propertyMap;
 
     for(it = d->map.begin() ; it != d->map.end(); ++it){
         f = widgetToField(it.key());
@@ -320,12 +320,12 @@ void QSqlForm::writeFields()
     is mapped to. Nothing happens if no SQL field is mapped to the \a
     widget.
 */
-void QSqlForm::readField(QWidget * widget)
+void Q3SqlForm::readField(QWidget * widget)
 {
     sync();
     QSqlField * field = 0;
-    QSqlPropertyMap * pmap = (d->propertyMap == 0) ?
-                             QSqlPropertyMap::defaultMap() : d->propertyMap;
+    Q3SqlPropertyMap * pmap = (d->propertyMap == 0) ?
+                             Q3SqlPropertyMap::defaultMap() : d->propertyMap;
     field = widgetToField(widget);
     if(field)
         pmap->setProperty(widget, field->value());
@@ -336,12 +336,12 @@ void QSqlForm::readField(QWidget * widget)
     mapped to. Nothing happens if no SQL field is mapped to the \a
     widget.
 */
-void QSqlForm::writeField(QWidget * widget)
+void Q3SqlForm::writeField(QWidget * widget)
 {
     sync();
     QSqlField * field = 0;
-    QSqlPropertyMap * pmap = (d->propertyMap == 0) ?
-                             QSqlPropertyMap::defaultMap() : d->propertyMap;
+    Q3SqlPropertyMap * pmap = (d->propertyMap == 0) ?
+                             Q3SqlPropertyMap::defaultMap() : d->propertyMap;
     field = widgetToField(widget);
     if(field)
         field->setValue(pmap->property(widget));
@@ -350,7 +350,7 @@ void QSqlForm::writeField(QWidget * widget)
 /*! \internal
 */
 
-void QSqlForm::sync()
+void Q3SqlForm::sync()
 {
     if (d->dirty) {
         clearMap();
@@ -369,7 +369,7 @@ void QSqlForm::sync()
   Clears the internal map of widget/field associations
 */
 
-void QSqlForm::clearMap()
+void Q3SqlForm::clearMap()
 {
     d->map.clear();
 }

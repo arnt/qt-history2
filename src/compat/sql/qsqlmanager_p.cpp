@@ -28,20 +28,20 @@
 
 //#define QT_DEBUG_DATAMANAGER
 
-class QSqlCursorManagerPrivate
+class Q3SqlCursorManagerPrivate
 {
 public:
-    QSqlCursorManagerPrivate()
+    Q3SqlCursorManagerPrivate()
         : cur(0), autoDelete(false)
     {}
 
     QString ftr;
     QStringList srt;
-    QSqlCursor* cur;
+    Q3SqlCursor* cur;
     bool autoDelete;
 };
 
-QSqlIndex indexFromStringList(const QStringList& l, const QSqlCursor* cursor)
+QSqlIndex indexFromStringList(const QStringList& l, const Q3SqlCursor* cursor)
 {
     QSqlIndex newSort;
     for (int i = 0; i < l.count(); ++i) {
@@ -67,8 +67,8 @@ QSqlIndex indexFromStringList(const QStringList& l, const QSqlCursor* cursor)
 
 
 /*!
-  \class QSqlCursorManager qsqlmanager_p.h
-  \brief The QSqlCursorManager class manages a database cursor.
+  \class Q3SqlCursorManager qsqlmanager_p.h
+  \brief The Q3SqlCursorManager class manages a database cursor.
 
   \compat
   \internal
@@ -86,9 +86,9 @@ QSqlIndex indexFromStringList(const QStringList& l, const QSqlCursor* cursor)
 
 */
 
-QSqlCursorManager::QSqlCursorManager()
+Q3SqlCursorManager::Q3SqlCursorManager()
 {
-    d = new QSqlCursorManagerPrivate;
+    d = new Q3SqlCursorManagerPrivate;
 }
 
 
@@ -98,7 +98,7 @@ QSqlCursorManager::QSqlCursorManager()
 
 */
 
-QSqlCursorManager::~QSqlCursorManager()
+Q3SqlCursorManager::~Q3SqlCursorManager()
 {
     if (d->autoDelete)
         delete d->cur;
@@ -112,7 +112,7 @@ QSqlCursorManager::~QSqlCursorManager()
 
  */
 
-void QSqlCursorManager::setSort(const QSqlIndex& sort)
+void Q3SqlCursorManager::setSort(const QSqlIndex& sort)
 {
     setSort(sort.toStringList());
 }
@@ -124,7 +124,7 @@ void QSqlCursorManager::setSort(const QSqlIndex& sort)
 
  */
 
-void QSqlCursorManager::setSort(const QStringList& sort)
+void Q3SqlCursorManager::setSort(const QStringList& sort)
 {
     d->srt = sort;
 }
@@ -135,7 +135,7 @@ void QSqlCursorManager::setSort(const QStringList& sort)
 
 */
 
-QStringList  QSqlCursorManager::sort() const
+QStringList  Q3SqlCursorManager::sort() const
 {
     return d->srt;
 }
@@ -147,7 +147,7 @@ QStringList  QSqlCursorManager::sort() const
 
 */
 
-void QSqlCursorManager::setFilter(const QString& filter)
+void Q3SqlCursorManager::setFilter(const QString& filter)
 {
     d->ftr = filter;
 }
@@ -158,7 +158,7 @@ void QSqlCursorManager::setFilter(const QString& filter)
 
 */
 
-QString QSqlCursorManager::filter() const
+QString Q3SqlCursorManager::filter() const
 {
     return d->ftr;
 }
@@ -171,7 +171,7 @@ QString QSqlCursorManager::filter() const
   \sa autoDelete()
 */
 
-void QSqlCursorManager::setAutoDelete(bool enable)
+void Q3SqlCursorManager::setAutoDelete(bool enable)
 {
     d->autoDelete = enable;
 }
@@ -185,7 +185,7 @@ void QSqlCursorManager::setAutoDelete(bool enable)
 
 */
 
-bool QSqlCursorManager::autoDelete() const
+bool Q3SqlCursorManager::autoDelete() const
 {
     return d->autoDelete;
 }
@@ -202,7 +202,7 @@ bool QSqlCursorManager::autoDelete() const
 
 */
 
-void QSqlCursorManager::setCursor(QSqlCursor* cursor, bool autoDelete)
+void Q3SqlCursorManager::setCursor(Q3SqlCursor* cursor, bool autoDelete)
 {
     if (d->autoDelete)
         delete d->cur;
@@ -219,7 +219,7 @@ void QSqlCursorManager::setCursor(QSqlCursor* cursor, bool autoDelete)
 
 */
 
-QSqlCursor* QSqlCursorManager::cursor() const
+Q3SqlCursor* Q3SqlCursorManager::cursor() const
 {
     return d->cur;
 }
@@ -235,9 +235,9 @@ QSqlCursor* QSqlCursorManager::cursor() const
 
 */
 
-bool QSqlCursorManager::refresh()
+bool Q3SqlCursorManager::refresh()
 {
-    QSqlCursor* cur = cursor();
+    Q3SqlCursor* cur = cursor();
     if (!cur)
         return false;
     QString currentFilter = d->ftr;
@@ -252,7 +252,7 @@ bool QSqlCursorManager::refresh()
    match the field values in \a cur that correspond to \a idx.
 */
 
-static bool index_matches(const QSqlCursor* cur, const QSqlRecord* buf,
+static bool index_matches(const Q3SqlCursor* cur, const QSqlRecord* buf,
                            const QSqlIndex& idx)
 {
     bool indexEquals = false;
@@ -329,7 +329,7 @@ to relocate a cursor to the correct position after an insert or
 update.  For example:
 
 \code
-    QSqlCursor* myCursor = myManager.cursor();
+    Q3SqlCursor* myCursor = myManager.cursor();
     ...
     QSqlRecord* buf = myCursor->primeUpdate();
     buf->setValue("name", "Ola");
@@ -343,12 +343,12 @@ update.  For example:
 */
 
 //## possibly add sizeHint parameter
-bool QSqlCursorManager::findBuffer(const QSqlIndex& idx, int atHint)
+bool Q3SqlCursorManager::findBuffer(const QSqlIndex& idx, int atHint)
 {
 #ifdef QT_DEBUG_DATAMANAGER
-    qDebug("QSqlCursorManager::findBuffer:");
+    qDebug("Q3SqlCursorManager::findBuffer:");
 #endif
-    QSqlCursor* cur = cursor();
+    Q3SqlCursor* cur = cursor();
     if (!cur)
         return false;
     if (!cur->isActive())
@@ -470,11 +470,11 @@ bool QSqlCursorManager::findBuffer(const QSqlIndex& idx, int atHint)
 
 #ifndef QT_NO_SQL_FORM
 
-class QSqlFormManagerPrivate
+class Q3SqlFormManagerPrivate
 {
 public:
-    QSqlFormManagerPrivate() : frm(0), rcd(0) {}
-    QSqlForm* frm;
+    Q3SqlFormManagerPrivate() : frm(0), rcd(0) {}
+    Q3SqlForm* frm;
     QSqlRecord* rcd;
 };
 
@@ -485,9 +485,9 @@ public:
 
 */
 
-QSqlFormManager::QSqlFormManager()
+Q3SqlFormManager::Q3SqlFormManager()
 {
-    d = new QSqlFormManagerPrivate();
+    d = new Q3SqlFormManagerPrivate();
 }
 
 /*! \internal
@@ -496,7 +496,7 @@ QSqlFormManager::QSqlFormManager()
 
 */
 
-QSqlFormManager::~QSqlFormManager()
+Q3SqlFormManager::~Q3SqlFormManager()
 {
     delete d;
 }
@@ -508,7 +508,7 @@ QSqlFormManager::~QSqlFormManager()
 
 */
 
-void QSqlFormManager::clearValues()
+void Q3SqlFormManager::clearValues()
 {
     if (form())
         form()->clearValues();
@@ -524,7 +524,7 @@ void QSqlFormManager::clearValues()
 
 */
 
-void QSqlFormManager::setForm(QSqlForm* form)
+void Q3SqlFormManager::setForm(Q3SqlForm* form)
 {
     d->frm = form;
     if (d->rcd && d->frm)
@@ -541,7 +541,7 @@ void QSqlFormManager::setForm(QSqlForm* form)
 
 */
 
-QSqlForm* QSqlFormManager::form()
+Q3SqlForm* Q3SqlFormManager::form()
 {
     return d->frm;
 }
@@ -557,7 +557,7 @@ QSqlForm* QSqlFormManager::form()
 
 */
 
-void QSqlFormManager::setRecord(QSqlRecord* record)
+void Q3SqlFormManager::setRecord(QSqlRecord* record)
 {
     d->rcd = record;
     if (d->frm) {
@@ -574,7 +574,7 @@ void QSqlFormManager::setRecord(QSqlRecord* record)
   \sa setRecord()
 */
 
-QSqlRecord* QSqlFormManager::record()
+QSqlRecord* Q3SqlFormManager::record()
 {
     return d->rcd;
 }
@@ -589,7 +589,7 @@ QSqlRecord* QSqlFormManager::record()
 
 */
 
-void QSqlFormManager::readFields()
+void Q3SqlFormManager::readFields()
 {
     if (d->frm) {
         d->frm->readFields();
@@ -605,7 +605,7 @@ void QSqlFormManager::readFields()
 
 */
 
-void QSqlFormManager::writeFields()
+void Q3SqlFormManager::writeFields()
 {
     if (d->frm) {
         d->frm->writeFields();
@@ -614,10 +614,10 @@ void QSqlFormManager::writeFields()
 
 #endif // QT_NO_SQL_FORM
 
-class QDataManagerPrivate
+class Q3DataManagerPrivate
 {
 public:
-    QDataManagerPrivate()
+    Q3DataManagerPrivate()
         : mode(QSql::None), autoEd(true), confEdits(3),
           confCancs(false) {}
     QSql::Op mode;
@@ -628,15 +628,15 @@ public:
 };
 
 /*!
-  \class QDataManager qsqlmanager_p.h
+  \class Q3DataManager qsqlmanager_p.h
 
-  \brief The QDataManager class is an internal class for implementing
+  \brief The Q3DataManager class is an internal class for implementing
   the data-aware widgets.
 
   \internal
   \compat
 
-  QDataManager is a strictly internal class that acts as a base class
+  Q3DataManager is a strictly internal class that acts as a base class
   for other data-aware widgets.
 
 */
@@ -648,9 +648,9 @@ public:
 
 */
 
-QDataManager::QDataManager()
+Q3DataManager::Q3DataManager()
 {
-    d = new QDataManagerPrivate();
+    d = new Q3DataManagerPrivate();
 }
 
 
@@ -660,7 +660,7 @@ QDataManager::QDataManager()
 
 */
 
-QDataManager::~QDataManager()
+Q3DataManager::~Q3DataManager()
 {
     delete d;
 }
@@ -673,7 +673,7 @@ QDataManager::~QDataManager()
   information about the error.
 
 */
-void QDataManager::handleError(QWidget* parent, const QSqlError& e)
+void Q3DataManager::handleError(QWidget* parent, const QSqlError& e)
 {
 #ifndef QT_NO_MESSAGEBOX
     if (e.driverText().isEmpty() && e.databaseText().isEmpty()) {
@@ -692,7 +692,7 @@ void QDataManager::handleError(QWidget* parent, const QSqlError& e)
 
 */
 
-void QDataManager::setMode(QSql::Op m)
+void Q3DataManager::setMode(QSql::Op m)
 {
     d->mode = m;
 }
@@ -704,7 +704,7 @@ void QDataManager::setMode(QSql::Op m)
 
 */
 
-QSql::Op QDataManager::mode() const
+QSql::Op Q3DataManager::mode() const
 {
     return d->mode;
 }
@@ -716,7 +716,7 @@ QSql::Op QDataManager::mode() const
 
 */
 
-void QDataManager::setAutoEdit(bool autoEdit)
+void Q3DataManager::setAutoEdit(bool autoEdit)
 {
     d->autoEd = autoEdit;
 }
@@ -729,7 +729,7 @@ void QDataManager::setAutoEdit(bool autoEdit)
 
 */
 
-bool QDataManager::autoEdit() const
+bool Q3DataManager::autoEdit() const
 {
     return d->autoEd;
 }
@@ -741,7 +741,7 @@ bool QDataManager::autoEdit() const
   default), all edits are posted to the database immediately.
 
 */
-void QDataManager::setConfirmEdits(bool confirm)
+void Q3DataManager::setConfirmEdits(bool confirm)
 {
     d->confEdits = QBitArray(d->confEdits.size(), confirm);
 }
@@ -754,7 +754,7 @@ void QDataManager::setConfirmEdits(bool confirm)
 
 */
 
-void QDataManager::setConfirmInsert(bool confirm)
+void Q3DataManager::setConfirmInsert(bool confirm)
 {
     d->confEdits[QSql::Insert] = confirm;
 }
@@ -767,7 +767,7 @@ void QDataManager::setConfirmInsert(bool confirm)
 
 */
 
-void QDataManager::setConfirmUpdate(bool confirm)
+void Q3DataManager::setConfirmUpdate(bool confirm)
 {
     d->confEdits[QSql::Update] = confirm;
 }
@@ -780,7 +780,7 @@ void QDataManager::setConfirmUpdate(bool confirm)
 
 */
 
-void QDataManager::setConfirmDelete(bool confirm)
+void Q3DataManager::setConfirmDelete(bool confirm)
 {
     d->confEdits[QSql::Delete] = confirm;
 }
@@ -791,7 +791,7 @@ void QDataManager::setConfirmDelete(bool confirm)
   updates and deletes), otherwise returns false.
 */
 
-bool QDataManager::confirmEdits() const
+bool Q3DataManager::confirmEdits() const
 {
     return (confirmInsert() && confirmUpdate() && confirmDelete());
 }
@@ -802,7 +802,7 @@ bool QDataManager::confirmEdits() const
   false.
 */
 
-bool QDataManager::confirmInsert() const
+bool Q3DataManager::confirmInsert() const
 {
     return d->confEdits[QSql::Insert];
 }
@@ -813,7 +813,7 @@ bool QDataManager::confirmInsert() const
   false.
 */
 
-bool QDataManager::confirmUpdate() const
+bool Q3DataManager::confirmUpdate() const
 {
     return d->confEdits[QSql::Update];
 }
@@ -824,7 +824,7 @@ bool QDataManager::confirmUpdate() const
   false.
 */
 
-bool QDataManager::confirmDelete() const
+bool Q3DataManager::confirmDelete() const
 {
     return d->confEdits[QSql::Delete];
 }
@@ -836,7 +836,7 @@ bool QDataManager::confirmDelete() const
   cancels occur immediately.
 */
 
-void QDataManager::setConfirmCancels(bool confirm)
+void Q3DataManager::setConfirmCancels(bool confirm)
 {
     d->confCancs = confirm;
 }
@@ -846,7 +846,7 @@ void QDataManager::setConfirmCancels(bool confirm)
   Returns true if the table confirms cancels, otherwise returns false.
 */
 
-bool QDataManager::confirmCancels() const
+bool Q3DataManager::confirmCancels() const
 {
     return d->confCancs;
 }
@@ -861,7 +861,7 @@ bool QDataManager::confirmCancels() const
 
 */
 
-QSql::Confirm QDataManager::confirmEdit(QWidget* parent, QSql::Op m)
+QSql::Confirm Q3DataManager::confirmEdit(QWidget* parent, QSql::Op m)
 {
     int ans = 2;
     if (m == QSql::Delete) {
@@ -915,7 +915,7 @@ QSql::Confirm QDataManager::confirmEdit(QWidget* parent, QSql::Op m)
 
 */
 
-QSql::Confirm QDataManager::confirmCancel(QWidget* parent, QSql::Op)
+QSql::Confirm Q3DataManager::confirmCancel(QWidget* parent, QSql::Op)
 {
 #ifndef QT_NO_MESSAGEBOX
     switch (QMessageBox::information(parent,

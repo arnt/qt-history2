@@ -17,33 +17,33 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlSelectCursorPrivate
+class Q3SqlSelectCursorPrivate
 {
 public:
-    QSqlSelectCursorPrivate() : populated(false) {}
+    Q3SqlSelectCursorPrivate() : populated(false) {}
     QString query;
     bool populated : 1;
 };
 
 /*!
-    \class QSqlSelectCursor qsqlselectcursor.h
-    \brief The QSqlSelectCursor class provides browsing of general SQL SELECT statements.
+    \class Q3SqlSelectCursor qsqlselectcursor.h
+    \brief The Q3SqlSelectCursor class provides browsing of general SQL SELECT statements.
 
     \compat
 
-    QSqlSelectCursor is a convenience class that makes it possible to
+    Q3SqlSelectCursor is a convenience class that makes it possible to
     display result sets from general SQL \c SELECT statements in
-    data-aware Qt widgets. QSqlSelectCursor is read-only and does not
+    data-aware Qt widgets. Q3SqlSelectCursor is read-only and does not
     support \c INSERT, \c UPDATE or \c DELETE operations.
 
     Pass the query in at construction time, or use the
-    QSqlSelectCursor::exec() function.
+    Q3SqlSelectCursor::exec() function.
 
     Example:
     \code
     ...
-    QSqlSelectCursor* cur = new QSqlSelectCursor("SELECT id, firstname, lastname FROM author");
-    QDataTable* table = new QDataTable(this);
+    Q3SqlSelectCursor* cur = new Q3SqlSelectCursor("SELECT id, firstname, lastname FROM author");
+    Q3DataTable* table = new Q3DataTable(this);
     table->setSqlCursor(cur, true, true);
     table->refresh();
     ...
@@ -56,166 +56,166 @@ public:
 /*!
     Constructs a read only cursor on database \a db using the query \a query.
  */
-QSqlSelectCursor::QSqlSelectCursor(const QString& query, QSqlDatabase db)
-    : QSqlCursor(QString(), false, db)
+Q3SqlSelectCursor::Q3SqlSelectCursor(const QString& query, QSqlDatabase db)
+    : Q3SqlCursor(QString(), false, db)
 {
-    d = new QSqlSelectCursorPrivate;
+    d = new Q3SqlSelectCursorPrivate;
     d->query = query;
-    QSqlCursor::setMode(ReadOnly);
+    Q3SqlCursor::setMode(ReadOnly);
     if (!query.isEmpty())
         exec(query);
 }
 
 /*! Constructs a copy of \a other */
-QSqlSelectCursor::QSqlSelectCursor(const QSqlSelectCursor& other)
-    : QSqlCursor(other)
+Q3SqlSelectCursor::Q3SqlSelectCursor(const Q3SqlSelectCursor& other)
+    : Q3SqlCursor(other)
 {
-    d = new QSqlSelectCursorPrivate;
+    d = new Q3SqlSelectCursorPrivate;
     d->query = other.d->query;
     d->populated = other.d->populated;
 }
 
 /*! Destroys the object and frees any allocated resources */
-QSqlSelectCursor::~QSqlSelectCursor()
+Q3SqlSelectCursor::~Q3SqlSelectCursor()
 {
     delete d;
 }
 
 /*! \internal */
-bool QSqlSelectCursor::exec(const QString& query)
+bool Q3SqlSelectCursor::exec(const QString& query)
 {
     d->query = query;
-    bool ret = QSqlCursor::exec(query);
+    bool ret = Q3SqlCursor::exec(query);
     if (ret) {
-        QSqlCursor::clear();
+        Q3SqlCursor::clear();
         populateCursor();
     }
     return ret;
 }
 
-/*! \fn bool QSqlSelectCursor::select()
+/*! \fn bool Q3SqlSelectCursor::select()
     \internal
 */
 
 /*! \internal */
-bool QSqlSelectCursor::select(const QString&, const QSqlIndex&)
+bool Q3SqlSelectCursor::select(const QString&, const QSqlIndex&)
 {
-    bool ret = QSqlCursor::exec(d->query);
+    bool ret = Q3SqlCursor::exec(d->query);
     if (ret && !d->populated)
         populateCursor();
     return ret;
 }
 
 /*! \internal */
-void QSqlSelectCursor::populateCursor()
+void Q3SqlSelectCursor::populateCursor()
 {
-    QSqlRecordInfo inf = QSqlRecordInfo(record());
-    for (QSqlRecordInfo::const_iterator it = inf.begin(); it != inf.end(); ++it)
-        QSqlCursor::append(*it);
+    Q3SqlRecordInfo inf = Q3SqlRecordInfo(record());
+    for (Q3SqlRecordInfo::const_iterator it = inf.begin(); it != inf.end(); ++it)
+        Q3SqlCursor::append(*it);
     d->populated = true;
 }
 
-/*! \fn QSqlIndex QSqlSelectCursor::primaryIndex(bool) const
+/*! \fn QSqlIndex Q3SqlSelectCursor::primaryIndex(bool) const
     \internal
 */
 
-/*! \fn QSqlIndex QSqlSelectCursor::index(const QStringList&) const
+/*! \fn QSqlIndex Q3SqlSelectCursor::index(const QStringList&) const
     \internal
 */
 
-/*! \fn QSqlIndex QSqlSelectCursor::index(const QString&) const
+/*! \fn QSqlIndex Q3SqlSelectCursor::index(const QString&) const
     \internal
 */
 
-/*! \fn QSqlIndex QSqlSelectCursor::index(const char*) const
+/*! \fn QSqlIndex Q3SqlSelectCursor::index(const char*) const
     \internal
 */
 
-/*! \fn void QSqlSelectCursor::setPrimaryIndex(const QSqlIndex&)
+/*! \fn void Q3SqlSelectCursor::setPrimaryIndex(const QSqlIndex&)
     \internal
 */
 
-/*! \fn void QSqlSelectCursor::append(const QSqlFieldInfo&)
+/*! \fn void Q3SqlSelectCursor::append(const Q3SqlFieldInfo&)
     \internal
 */
 
-/*! \fn void QSqlSelectCursor::insert(int, const QSqlFieldInfo&)
+/*! \fn void Q3SqlSelectCursor::insert(int, const Q3SqlFieldInfo&)
     \internal
 */
 
-/*! \fn void QSqlSelectCursor::remove(int)
+/*! \fn void Q3SqlSelectCursor::remove(int)
     \internal
 */
 
-/*! \fn void QSqlSelectCursor::clear()
+/*! \fn void Q3SqlSelectCursor::clear()
     \internal
 */
 
-/*! \fn void QSqlSelectCursor::setGenerated(const QString&, bool)
+/*! \fn void Q3SqlSelectCursor::setGenerated(const QString&, bool)
     \internal
 */
 
-/*! \fn void QSqlSelectCursor::setGenerated(int, bool)
+/*! \fn void Q3SqlSelectCursor::setGenerated(int, bool)
     \internal
 */
 
-/*! \fn QSqlRecord* QSqlSelectCursor::editBuffer(bool)
+/*! \fn QSqlRecord* Q3SqlSelectCursor::editBuffer(bool)
     \internal
 */
 
-/*! \fn QSqlRecord* QSqlSelectCursor::primeInsert()
+/*! \fn QSqlRecord* Q3SqlSelectCursor::primeInsert()
     \internal
 */
 
-/*! \fn QSqlRecord* QSqlSelectCursor::primeUpdate()
+/*! \fn QSqlRecord* Q3SqlSelectCursor::primeUpdate()
     \internal
 */
 
-/*! \fn QSqlRecord* QSqlSelectCursor::primeDelete()
+/*! \fn QSqlRecord* Q3SqlSelectCursor::primeDelete()
     \internal
 */
 
-/*! \fn int QSqlSelectCursor::insert(bool)
+/*! \fn int Q3SqlSelectCursor::insert(bool)
     \internal
 */
 
-/*! \fn int QSqlSelectCursor::update(bool)
+/*! \fn int Q3SqlSelectCursor::update(bool)
     \internal
 */
 
-/*! \fn int QSqlSelectCursor::del(bool)
+/*! \fn int Q3SqlSelectCursor::del(bool)
     \internal
 */
 
-/*! \fn void QSqlSelectCursor::setMode(int)
+/*! \fn void Q3SqlSelectCursor::setMode(int)
     \internal
 */
 
-/*! \fn void QSqlSelectCursor::setSort(const QSqlIndex&)
+/*! \fn void Q3SqlSelectCursor::setSort(const QSqlIndex&)
     \internal
 */
 
-/*! \fn QSqlIndex QSqlSelectCursor::sort() const
+/*! \fn QSqlIndex Q3SqlSelectCursor::sort() const
     \internal
 */
 
-/*! \fn void QSqlSelectCursor::setFilter(const QString&)
+/*! \fn void Q3SqlSelectCursor::setFilter(const QString&)
     \internal
 */
 
-/*! \fn QString QSqlSelectCursor::filter() const
+/*! \fn QString Q3SqlSelectCursor::filter() const
     \internal
 */
 
-/*! \fn void QSqlSelectCursor::setName(const QString&, bool)
+/*! \fn void Q3SqlSelectCursor::setName(const QString&, bool)
     \internal
 */
 
-/*! \fn QString QSqlSelectCursor::name() const
+/*! \fn QString Q3SqlSelectCursor::name() const
     \internal
 */
 
-/*! \fn QString QSqlSelectCursor::toString(const QString&, const QString&) const
+/*! \fn QString Q3SqlSelectCursor::toString(const QString&, const QString&) const
     \internal
 */
 #endif // QT_NO_SQL

@@ -21,17 +21,17 @@
 
 class QSqlField;
 class QSqlRecord;
-class QSqlEditorFactory;
-class QSqlPropertyMap;
+class Q3SqlEditorFactory;
+class Q3SqlPropertyMap;
 class QWidget;
-class QSqlFormPrivate;
+class Q3SqlFormPrivate;
 
-class Q_COMPAT_EXPORT QSqlForm : public QObject
+class Q_COMPAT_EXPORT Q3SqlForm : public QObject
 {
     Q_OBJECT
 public:
-    QSqlForm(QObject * parent = 0);
-    ~QSqlForm();
+    Q3SqlForm(QObject * parent = 0);
+    ~Q3SqlForm();
 
     virtual void insert(QWidget * widget, const QString& field);
     virtual void remove(const QString& field);
@@ -41,7 +41,7 @@ public:
     QSqlField * widgetToField(QWidget * widget) const;
     QWidget *   fieldToWidget(QSqlField * field) const;
 
-    void        installPropertyMap(QSqlPropertyMap * map);
+    void        installPropertyMap(Q3SqlPropertyMap * map);
 
     virtual void setRecord(QSqlRecord* buf);
 
@@ -60,10 +60,10 @@ protected:
     void clearMap();
 
 private:
-    Q_DISABLE_COPY(QSqlForm)
+    Q_DISABLE_COPY(Q3SqlForm)
 
     virtual void sync();
-    QSqlFormPrivate* d;
+    Q3SqlFormPrivate* d;
 };
 
 #endif // QT_NO_SQL

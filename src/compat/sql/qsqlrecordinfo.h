@@ -22,29 +22,29 @@
 #include "qsqlrecord.h"
 #include "qsqlfieldinfo.h"
 
-/* QSqlRecordInfo Class
+/* Q3SqlRecordInfo Class
    This class is obsolete, use QSqlRecord instead.
 */
 
-typedef QValueList<QSqlFieldInfo> QSqlFieldInfoList;
+typedef QValueList<Q3SqlFieldInfo> Q3SqlFieldInfoList;
 
-class Q_COMPAT_EXPORT QSqlRecordInfo: public QSqlFieldInfoList
+class Q_COMPAT_EXPORT Q3SqlRecordInfo: public Q3SqlFieldInfoList
 {
 public:
-    QSqlRecordInfo(): QSqlFieldInfoList() {}
-    QSqlRecordInfo(const QSqlFieldInfoList& other): QSqlFieldInfoList(other) {}
-    QSqlRecordInfo(const QSqlRecord& other)
+    Q3SqlRecordInfo(): Q3SqlFieldInfoList() {}
+    Q3SqlRecordInfo(const Q3SqlFieldInfoList& other): Q3SqlFieldInfoList(other) {}
+    Q3SqlRecordInfo(const QSqlRecord& other)
     {
         for (int i = 0; i < other.count(); ++i)
-            push_back(QSqlFieldInfo(other.field(i), other.isGenerated(i)));
+            push_back(Q3SqlFieldInfo(other.field(i), other.isGenerated(i)));
     }
 
     size_type contains(const QString& fieldName) const;
-    QSqlFieldInfo find(const QString& fieldName) const;
+    Q3SqlFieldInfo find(const QString& fieldName) const;
     QSqlRecord toRecord() const;
 };
 
-inline QSqlRecordInfo::size_type QSqlRecordInfo::contains(const QString& fieldName) const
+inline Q3SqlRecordInfo::size_type Q3SqlRecordInfo::contains(const QString& fieldName) const
 {
     size_type i = 0;
     QString fName = fieldName.toUpper();
@@ -57,7 +57,7 @@ inline QSqlRecordInfo::size_type QSqlRecordInfo::contains(const QString& fieldNa
     return i;
 }
 
-inline QSqlFieldInfo QSqlRecordInfo::find(const QString& fieldName) const
+inline Q3SqlFieldInfo Q3SqlRecordInfo::find(const QString& fieldName) const
 {
     QString fName = fieldName.toUpper();
     for(const_iterator it = begin(); it != end(); ++it) {
@@ -65,10 +65,10 @@ inline QSqlFieldInfo QSqlRecordInfo::find(const QString& fieldName) const
             return *it;
         }
     }
-    return QSqlFieldInfo();
+    return Q3SqlFieldInfo();
 }
 
-inline QSqlRecord QSqlRecordInfo::toRecord() const
+inline QSqlRecord Q3SqlRecordInfo::toRecord() const
 {
     QSqlRecord buf;
     for(const_iterator it = begin(); it != end(); ++it) {

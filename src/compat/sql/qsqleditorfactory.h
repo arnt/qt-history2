@@ -20,19 +20,19 @@
 
 class QSqlField;
 
-class Q_COMPAT_EXPORT QSqlEditorFactory : public QEditorFactory
+class Q_COMPAT_EXPORT Q3SqlEditorFactory : public Q3EditorFactory
 {
 public:
-    QSqlEditorFactory (QObject * parent = 0);
-    ~QSqlEditorFactory();
+    Q3SqlEditorFactory (QObject * parent = 0);
+    ~Q3SqlEditorFactory();
     virtual QWidget * createEditor(QWidget * parent, const QVariant & variant);
     virtual QWidget * createEditor(QWidget * parent, const QSqlField * field);
 
-    static QSqlEditorFactory * defaultFactory();
-    static void installDefaultFactory(QSqlEditorFactory * factory);
+    static Q3SqlEditorFactory * defaultFactory();
+    static void installDefaultFactory(Q3SqlEditorFactory * factory);
 
 private:
-    Q_DISABLE_COPY(QSqlEditorFactory)
+    Q_DISABLE_COPY(Q3SqlEditorFactory)
 };
 
 #endif // QT_NO_SQL

@@ -27,10 +27,10 @@
 
 class QPainter;
 class QSqlField;
-class QSqlPropertyMap;
-class QDataTablePrivate;
+class Q3SqlPropertyMap;
+class Q3DataTablePrivate;
 
-class Q_COMPAT_EXPORT QDataTable : public QTable
+class Q_COMPAT_EXPORT Q3DataTable : public QTable
 {
     Q_OBJECT
 
@@ -50,9 +50,9 @@ class Q_COMPAT_EXPORT QDataTable : public QTable
     Q_PROPERTY(int numRows READ numRows)
 
 public:
-    QDataTable (QWidget* parent=0, const char* name=0);
-    QDataTable (QSqlCursor* cursor, bool autoPopulate = false, QWidget* parent=0, const char* name=0);
-    ~QDataTable();
+    Q3DataTable (QWidget* parent=0, const char* name=0);
+    Q3DataTable (Q3SqlCursor* cursor, bool autoPopulate = false, QWidget* parent=0, const char* name=0);
+    ~Q3DataTable();
 
     virtual void addColumn(const QString& fieldName,
                             const QString& label = QString(),
@@ -78,9 +78,9 @@ public:
     QString      filter() const;
     QStringList  sort() const;
 
-    virtual void setSqlCursor(QSqlCursor* cursor = 0,
+    virtual void setSqlCursor(Q3SqlCursor* cursor = 0,
                             bool autoPopulate = false, bool autoDelete = false);
-    QSqlCursor* sqlCursor() const;
+    Q3SqlCursor* sqlCursor() const;
 
     virtual void setNullText(const QString& nullText);
     virtual void setTrueText(const QString& trueText);
@@ -109,8 +109,8 @@ public:
     QVariant     value (int row, int col) const;
     QSqlRecord*  currentRecord() const;
 
-    void         installEditorFactory(QSqlEditorFactory * f);
-    void         installPropertyMap(QSqlPropertyMap* m);
+    void         installEditorFactory(Q3SqlEditorFactory * f);
+    void         installPropertyMap(Q3SqlPropertyMap* m);
 
     int          numCols() const;
     int          numRows() const;
@@ -164,7 +164,7 @@ protected:
     void         activateNextCell();
     int          indexOf(int i) const;
     void         reset();
-    void         setSize(QSqlCursor* sql);
+    void         setSize(Q3SqlCursor* sql);
     void         repaintCell(int row, int col);
     void         paintCell (QPainter * p, int row, int col, const QRect & cr,
                              bool selected, const QPalette &pal);
@@ -197,9 +197,9 @@ private:
     void         updateRow(int row);
     void         endInsert();
     void         endUpdate();
-    QDataTablePrivate* d;
+    Q3DataTablePrivate* d;
 
-    Q_DISABLE_COPY(QDataTable)
+    Q_DISABLE_COPY(Q3DataTable)
 };
 
 #endif

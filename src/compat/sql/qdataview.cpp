@@ -17,28 +17,28 @@
 
 #include "private/qsqlmanager_p.h"
 
-class QDataViewPrivate
+class Q3DataViewPrivate
 {
 public:
-    QDataViewPrivate() {}
-    QSqlFormManager frm;
+    Q3DataViewPrivate() {}
+    Q3SqlFormManager frm;
 };
 
 
 /*!
-    \class QDataView qdataview.h
-    \brief The QDataView class provides read-only SQL forms.
+    \class Q3DataView qdataview.h
+    \brief The Q3DataView class provides read-only SQL forms.
 
     \compat
 
     This class provides a form which displays SQL field data from a
-    record buffer. Because QDataView does not support editing it uses
-    less resources than a QDataBrowser. This class is well suited for
+    record buffer. Because Q3DataView does not support editing it uses
+    less resources than a Q3DataBrowser. This class is well suited for
     displaying read-only data from a SQL database.
 
     If you want a to present your data in an editable form use
-    QDataBrowser; if you want a table-based presentation of your data
-    use QDataTable.
+    Q3DataBrowser; if you want a table-based presentation of your data
+    use Q3DataTable.
 
     The form is associated with the data view with setForm() and the
     record is associated with setRecord(). You can also pass a
@@ -51,17 +51,17 @@ public:
     name, and with widget flags \a fl.
 */
 
-QDataView::QDataView(QWidget *parent, const char *name, Qt::WFlags fl)
+Q3DataView::Q3DataView(QWidget *parent, const char *name, Qt::WFlags fl)
     : QWidget(parent, name, fl)
 {
-    d = new QDataViewPrivate();
+    d = new Q3DataViewPrivate();
 }
 
 /*!
     Destroys the object and frees any allocated resources.
 */
 
-QDataView::~QDataView()
+Q3DataView::~Q3DataView()
 {
     delete d;
 }
@@ -72,7 +72,7 @@ QDataView::~QDataView()
     e.g. 0 for numeric fields, "" for string fields.
 */
 
-void QDataView::clearValues()
+void Q3DataView::clearValues()
 {
     d->frm.clearValues();
 }
@@ -85,7 +85,7 @@ void QDataView::clearValues()
     \sa form()
 */
 
-void QDataView::setForm(QSqlForm* form)
+void Q3DataView::setForm(Q3SqlForm* form)
 {
     d->frm.setForm(form);
 }
@@ -98,7 +98,7 @@ void QDataView::setForm(QSqlForm* form)
     \sa setForm()
 */
 
-QSqlForm* QDataView::form()
+Q3SqlForm* Q3DataView::form()
 {
     return d->frm.form();
 }
@@ -112,7 +112,7 @@ QSqlForm* QDataView::form()
     \sa record()
 */
 
-void QDataView::setRecord(QSqlRecord* record)
+void Q3DataView::setRecord(QSqlRecord* record)
 {
     d->frm.setRecord(record);
 }
@@ -125,7 +125,7 @@ void QDataView::setRecord(QSqlRecord* record)
     \sa setRecord()
 */
 
-QSqlRecord* QDataView::record()
+QSqlRecord* Q3DataView::record()
 {
     return d->frm.record();
 }
@@ -138,7 +138,7 @@ QSqlRecord* QDataView::record()
     \sa setForm()
 */
 
-void QDataView::readFields()
+void Q3DataView::readFields()
 {
     d->frm.readFields();
 }
@@ -150,7 +150,7 @@ void QDataView::readFields()
     \sa setForm()
 */
 
-void QDataView::writeFields()
+void Q3DataView::writeFields()
 {
     d->frm.writeFields();
 }
@@ -169,7 +169,7 @@ void QDataView::writeFields()
     \sa setRecord() readFields()
 */
 
-void QDataView::refresh(QSqlRecord* buf)
+void Q3DataView::refresh(QSqlRecord* buf)
 {
     if (buf && buf != record())
         setRecord(buf);

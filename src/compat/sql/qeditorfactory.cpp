@@ -23,8 +23,8 @@
 #ifndef QT_NO_SQL_EDIT_WIDGETS
 
 /*!
-    \class QEditorFactory qeditorfactory.h
-    \brief The QEditorFactory class is used to create editor widgets
+    \class Q3EditorFactory qeditorfactory.h
+    \brief The Q3EditorFactory class is used to create editor widgets
     for QVariant data types.
 
     \compat
@@ -36,7 +36,7 @@
     QVariant::Int's default editor would be a QSpinBox.
 
     If you want to create different editors for fields with the same
-    data type, subclass QEditorFactory and reimplement the
+    data type, subclass Q3EditorFactory and reimplement the
     createEditor() function.
 */
 
@@ -44,7 +44,7 @@
     Constructs an editor factory with parent \a parent.
 */
 
-QEditorFactory::QEditorFactory (QObject * parent)
+Q3EditorFactory::Q3EditorFactory (QObject * parent)
     : QObject(parent)
 {
 
@@ -54,22 +54,22 @@ QEditorFactory::QEditorFactory (QObject * parent)
     Destroys the object and frees any allocated resources.
 */
 
-QEditorFactory::~QEditorFactory()
+Q3EditorFactory::~Q3EditorFactory()
 {
 
 }
 
-static QEditorFactory * defaultfactory = 0;
-static QCleanupHandler< QEditorFactory > q_cleanup_editor_factory;
+static Q3EditorFactory * defaultfactory = 0;
+static QCleanupHandler< Q3EditorFactory > q_cleanup_editor_factory;
 
 /*!
     Returns an instance of a default editor factory.
 */
 
-QEditorFactory * QEditorFactory::defaultFactory()
+Q3EditorFactory * Q3EditorFactory::defaultFactory()
 {
     if(defaultfactory == 0){
-        defaultfactory = new QEditorFactory();
+        defaultfactory = new Q3EditorFactory();
         q_cleanup_editor_factory.add(&defaultfactory);
     }
 
@@ -78,11 +78,11 @@ QEditorFactory * QEditorFactory::defaultFactory()
 
 /*!
     Replaces the default editor factory with \a factory.
-    \e{QEditorFactory takes ownership of factory, and destroys it
+    \e{Q3EditorFactory takes ownership of factory, and destroys it
     when it is no longer needed.}
 */
 
-void QEditorFactory::installDefaultFactory(QEditorFactory * factory)
+void Q3EditorFactory::installDefaultFactory(Q3EditorFactory * factory)
 {
     if(factory == 0 || factory == defaultfactory) return;
 
@@ -100,7 +100,7 @@ void QEditorFactory::installDefaultFactory(QEditorFactory * factory)
     to the appropriate editor's constructor.
 */
 
-QWidget * QEditorFactory::createEditor(QWidget * parent, const QVariant & v)
+QWidget * Q3EditorFactory::createEditor(QWidget * parent, const QVariant & v)
 {
     QWidget * w = 0;
     switch(v.type()){

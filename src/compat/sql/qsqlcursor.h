@@ -23,17 +23,17 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlCursorPrivate;
-class QSqlFieldInfo;
+class Q3SqlCursorPrivate;
+class Q3SqlFieldInfo;
 
-class Q_COMPAT_EXPORT QSqlCursor : public QSqlRecord, public QSqlQuery
+class Q_COMPAT_EXPORT Q3SqlCursor : public QSqlRecord, public QSqlQuery
 {
 public:
-    QSqlCursor(const QString & name = QString(), bool autopopulate = true,
+    Q3SqlCursor(const QString & name = QString(), bool autopopulate = true,
                QSqlDatabase db = QSqlDatabase());
-    QSqlCursor(const QSqlCursor & other);
-    QSqlCursor& operator=(const QSqlCursor& other);
-    ~QSqlCursor();
+    Q3SqlCursor(const Q3SqlCursor & other);
+    Q3SqlCursor& operator=(const Q3SqlCursor& other);
+    ~Q3SqlCursor();
 
     enum Mode {
         ReadOnly = 0,
@@ -52,8 +52,8 @@ public:
     QSqlIndex index(const QString& fieldName) const;
     virtual void setPrimaryIndex(const QSqlIndex& idx);
 
-    virtual void append(const QSqlFieldInfo& fieldInfo);
-    virtual void insert(int pos, const QSqlFieldInfo &fieldInfo);
+    virtual void append(const Q3SqlFieldInfo& fieldInfo);
+    virtual void insert(int pos, const Q3SqlFieldInfo &fieldInfo);
     virtual void remove(int pos);
     virtual void clear();
     virtual void setGenerated(const QString& name, bool generated);
@@ -116,7 +116,7 @@ private:
     QSqlRecord&                operator=(const QSqlRecord & list);
     void                 append(const QSqlField& field);
 
-    QSqlCursorPrivate*        d;
+    Q3SqlCursorPrivate*        d;
 };
 
 

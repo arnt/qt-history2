@@ -19,7 +19,7 @@
 #include "qglobal.h"
 #include "qsqlfield.h"
 
-/* QSqlFieldInfo Class
+/* Q3SqlFieldInfo Class
    obsoleted, use QSqlField instead
 */
 
@@ -30,7 +30,7 @@
 #endif
 
 
-class QM_COMPAT_EXPORT_SQL QSqlFieldInfo
+class QM_COMPAT_EXPORT_SQL Q3SqlFieldInfo
 {
     // class is obsoleted, won't change anyways,
     // so no d pointer
@@ -43,7 +43,7 @@ class QM_COMPAT_EXPORT_SQL QSqlFieldInfo
     QCoreVariant defValue;
 
 public:
-    QSqlFieldInfo(const QString& name = QString(),
+    Q3SqlFieldInfo(const QString& name = QString(),
                    QCoreVariant::Type typ = QCoreVariant::Invalid,
                    int required = -1,
                    int len = -1,
@@ -57,9 +57,9 @@ public:
         gen(generated), trim(trim), calc(calculated),
         nm(name), typ(typ), defValue(defValue) {}
 
-    virtual ~QSqlFieldInfo() {}
+    virtual ~Q3SqlFieldInfo() {}
 
-    QSqlFieldInfo(const QSqlField & other, bool generated = true)
+    Q3SqlFieldInfo(const QSqlField & other, bool generated = true)
     {
         nm = other.name();
         typ = other.type();
@@ -72,7 +72,7 @@ public:
         gen = generated;
     }
 
-    bool operator==(const QSqlFieldInfo& f) const
+    bool operator==(const Q3SqlFieldInfo& f) const
     {
         return (nm == f.nm &&
                 typ == f.typ &&

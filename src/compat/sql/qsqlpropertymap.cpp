@@ -20,16 +20,16 @@
 #include "qmetaobject.h"
 #include "qmap.h"
 
-class QSqlPropertyMapPrivate
+class Q3SqlPropertyMapPrivate
 {
 public:
-    QSqlPropertyMapPrivate() {}
+    Q3SqlPropertyMapPrivate() {}
     QMap<QByteArray, QByteArray> propertyMap;
 };
 
 /*!
-    \class QSqlPropertyMap qsqlpropertymap.h
-    \brief The QSqlPropertyMap class is used to map widgets to SQL fields.
+    \class Q3SqlPropertyMap qsqlpropertymap.h
+    \brief The Q3SqlPropertyMap class is used to map widgets to SQL fields.
 
     \compat
 
@@ -42,26 +42,26 @@ public:
     insert and extract values to/from the editor.
 
     For example, a QLineEdit can be used to edit text strings and
-    other data types in QDataTables or QSqlForms. Several properties
+    other data types in Q3DataTables or Q3SqlForms. Several properties
     are defined in QLineEdit, but only the \e text property is used to
-    insert and extract text from a QLineEdit. Both QDataTable and
-    QSqlForm use the global QSqlPropertyMap for inserting and
+    insert and extract text from a QLineEdit. Both Q3DataTable and
+    Q3SqlForm use the global Q3SqlPropertyMap for inserting and
     extracting values to and from an editor widget. The global
     property map defines several common widgets and properties that
     are suitable for many applications. You can add and remove widget
     properties to suit your specific needs.
 
-    If you want to use custom editors with your QDataTable or
-    QSqlForm, you must install your own QSqlPropertyMap for that table
+    If you want to use custom editors with your Q3DataTable or
+    Q3SqlForm, you must install your own Q3SqlPropertyMap for that table
     or form. Example:
 
     \code
-    QSqlPropertyMap *myMap  = new QSqlPropertyMap();
-    QSqlForm        *myForm = new QSqlForm(this);
+    Q3SqlPropertyMap *myMap  = new Q3SqlPropertyMap();
+    Q3SqlForm        *myForm = new Q3SqlForm(this);
     MyEditor myEditor(this);
 
-    // Set the QSqlForm's record buffer to the update buffer of
-    // a pre-existing QSqlCursor called 'cur'.
+    // Set the Q3SqlForm's record buffer to the update buffer of
+    // a pre-existing Q3SqlCursor called 'cur'.
     myForm->setRecord(cur->primeUpdate());
 
     // Install the customized map
@@ -82,24 +82,24 @@ public:
     ...
     \endcode
 
-    You can also replace the global QSqlPropertyMap that is used by
-    default. (Bear in mind that QSqlPropertyMap takes ownership of the
+    You can also replace the global Q3SqlPropertyMap that is used by
+    default. (Bear in mind that Q3SqlPropertyMap takes ownership of the
     new default map.)
 
     \code
-    QSqlPropertyMap *myMap = new QSqlPropertyMap;
+    Q3SqlPropertyMap *myMap = new Q3SqlPropertyMap;
 
     myMap->insert("MyEditor", "content");
-    QSqlPropertyMap::installDefaultMap(myMap);
+    Q3SqlPropertyMap::installDefaultMap(myMap);
     ...
     \endcode
 
-    \sa QDataTable, QSqlForm, QSqlEditorFactory
+    \sa Q3DataTable, Q3SqlForm, Q3SqlEditorFactory
 */
 
 /*!
 
-Constructs a QSqlPropertyMap.
+Constructs a Q3SqlPropertyMap.
 
 The default property mappings used by Qt widgets are:
 \table
@@ -134,9 +134,9 @@ The default property mappings used by Qt widgets are:
 \endtable
 */
 
-QSqlPropertyMap::QSqlPropertyMap()
+Q3SqlPropertyMap::Q3SqlPropertyMap()
 {
-    d = new QSqlPropertyMapPrivate();
+    d = new Q3SqlPropertyMapPrivate();
     const struct MapData {
         const char *classname;
         const char *property;
@@ -171,14 +171,14 @@ QSqlPropertyMap::QSqlPropertyMap()
 }
 
 /*!
-    Destroys the QSqlPropertyMap.
+    Destroys the Q3SqlPropertyMap.
 
-    Note that if the QSqlPropertyMap is installed with
+    Note that if the Q3SqlPropertyMap is installed with
     installPropertyMap() the object it was installed into, e.g. the
-    QSqlForm, takes ownership and will delete the QSqlPropertyMap when
+    Q3SqlForm, takes ownership and will delete the Q3SqlPropertyMap when
     necessary.
 */
-QSqlPropertyMap::~QSqlPropertyMap()
+Q3SqlPropertyMap::~Q3SqlPropertyMap()
 {
     delete d;
 }
@@ -186,7 +186,7 @@ QSqlPropertyMap::~QSqlPropertyMap()
 /*!
     Returns the mapped property of \a widget as a QVariant.
 */
-QVariant QSqlPropertyMap::property(QWidget * widget)
+QVariant Q3SqlPropertyMap::property(QWidget * widget)
 {
     if(!widget) return QVariant();
     const QMetaObject* mo = widget->metaObject();
@@ -194,7 +194,7 @@ QVariant QSqlPropertyMap::property(QWidget * widget)
         mo = mo->superClass();
 
     if (!mo) {
-        qWarning("QSqlPropertyMap::property: %s does not exist", widget->metaObject()->className());
+        qWarning("Q3SqlPropertyMap::property: %s does not exist", widget->metaObject()->className());
         return QVariant();
     }
     return widget->property(d->propertyMap[mo->className()]);
@@ -203,7 +203,7 @@ QVariant QSqlPropertyMap::property(QWidget * widget)
 /*!
     Sets the property of \a widget to \a value.
 */
-void QSqlPropertyMap::setProperty(QWidget * widget, const QVariant & value)
+void Q3SqlPropertyMap::setProperty(QWidget * widget, const QVariant & value)
 {
     if(!widget) return;
 
@@ -211,7 +211,7 @@ void QSqlPropertyMap::setProperty(QWidget * widget, const QVariant & value)
     while (mo && !d->propertyMap.contains(mo->className()))
         mo = mo->superClass();
     if (!mo) {
-        qWarning("QSqlPropertyMap::setProperty: %s not handled by QSqlPropertyMap", widget->metaObject()->className());
+        qWarning("Q3SqlPropertyMap::setProperty: %s not handled by Q3SqlPropertyMap", widget->metaObject()->className());
         return;
     }
 
@@ -223,7 +223,7 @@ void QSqlPropertyMap::setProperty(QWidget * widget, const QVariant & value)
   field editors. There \e must be a \c Q_PROPERTY clause in the \a
   classname class declaration for the \a property.
 */
-void QSqlPropertyMap::insert(const QString & classname,
+void Q3SqlPropertyMap::insert(const QString & classname,
                               const QString & property)
 {
     d->propertyMap[classname.latin1()] = property.latin1();
@@ -232,21 +232,21 @@ void QSqlPropertyMap::insert(const QString & classname,
 /*!
     Removes \a classname from the map.
 */
-void QSqlPropertyMap::remove(const QString & classname)
+void Q3SqlPropertyMap::remove(const QString & classname)
 {
     d->propertyMap.remove(classname.latin1());
 }
 
-static QSqlPropertyMap * defaultmap = 0;
-static QCleanupHandler< QSqlPropertyMap > qsql_cleanup_property_map;
+static Q3SqlPropertyMap * defaultmap = 0;
+static QCleanupHandler< Q3SqlPropertyMap > qsql_cleanup_property_map;
 
 /*!
-    Returns the application global QSqlPropertyMap.
+    Returns the application global Q3SqlPropertyMap.
 */
-QSqlPropertyMap * QSqlPropertyMap::defaultMap()
+Q3SqlPropertyMap * Q3SqlPropertyMap::defaultMap()
 {
     if(defaultmap == 0){
-        defaultmap = new QSqlPropertyMap();
+        defaultmap = new Q3SqlPropertyMap();
         qsql_cleanup_property_map.add(&defaultmap);
     }
     return defaultmap;
@@ -254,12 +254,12 @@ QSqlPropertyMap * QSqlPropertyMap::defaultMap()
 
 /*!
     Replaces the global default property map with \a map. All
-    QDataTable and QSqlForm instantiations will use this new map for
+    Q3DataTable and Q3SqlForm instantiations will use this new map for
     inserting and extracting values to and from editors.
-    \e{QSqlPropertyMap takes ownership of \a map, and destroys it
+    \e{Q3SqlPropertyMap takes ownership of \a map, and destroys it
     when it is no longer needed.}
 */
-void QSqlPropertyMap::installDefaultMap(QSqlPropertyMap * map)
+void Q3SqlPropertyMap::installDefaultMap(Q3SqlPropertyMap * map)
 {
     if(map == 0) return;
 

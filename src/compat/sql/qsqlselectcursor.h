@@ -18,16 +18,16 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlSelectCursorPrivate;
+class Q3SqlSelectCursorPrivate;
 
-class Q_COMPAT_EXPORT QSqlSelectCursor : public QSqlCursor
+class Q_COMPAT_EXPORT Q3SqlSelectCursor : public Q3SqlCursor
 {
 public:
-    QSqlSelectCursor(const QString& query = QString(), QSqlDatabase db = QSqlDatabase());
-    QSqlSelectCursor(const QSqlSelectCursor& other);
-    ~QSqlSelectCursor();
+    Q3SqlSelectCursor(const QString& query = QString(), QSqlDatabase db = QSqlDatabase());
+    Q3SqlSelectCursor(const Q3SqlSelectCursor& other);
+    ~Q3SqlSelectCursor();
     bool exec(const QString& query);
-    bool select() { return QSqlCursor::select(); }
+    bool select() { return Q3SqlCursor::select(); }
 
 protected:
     QSqlIndex primaryIndex(bool = true) const { return QSqlIndex(); }
@@ -35,8 +35,8 @@ protected:
     QSqlIndex index(const QString&) const { return QSqlIndex(); }
     QSqlIndex index(const char*) const { return QSqlIndex(); }
     void setPrimaryIndex(const QSqlIndex&) {}
-    void append(const QSqlFieldInfo&) {}
-    void insert(int, const QSqlFieldInfo&) {}
+    void append(const Q3SqlFieldInfo&) {}
+    void insert(int, const Q3SqlFieldInfo&) {}
     void remove(int) {}
     void clear() {}
     void setGenerated(const QString&, bool) {}
@@ -62,7 +62,7 @@ protected:
 private:
     void populateCursor();
 
-    QSqlSelectCursorPrivate * d;
+    Q3SqlSelectCursorPrivate * d;
 };
 
 #endif // QT_NO_SQL
