@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#189 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#190 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#189 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#190 $");
 
 
 /*!
@@ -602,8 +602,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 		while ( fd->it.current() != this && !fd->it.atLast() )
 		    ++fd->it;
 	    }
-	    // set the flag, but do -not- send a focusInEvent()
-	    setWFlags( WFocusSet );
 	}
     }
 }
@@ -624,7 +622,7 @@ QWidget::~QWidget()
     }
     if ( QApplication::main_widget == this )	// reset main widget
 	QApplication::main_widget = 0;
-    if ( testWFlags(WFocusSet) )
+    if ( focusWidget() == this )
 	clearFocus();
     if ( testWFlags(WExportFontMetrics) )	// remove references to this
 	QFontMetrics::reset( this );
@@ -983,8 +981,8 @@ void QWidget::setEnabled( bool enable )
 	}
     } else {
 	if ( !testWFlags(WState_Disabled) ) {
-	    if ( testWFlags(WFocusSet) )
-		clearFocus();
+	    if ( focusWidget() == this )
+		clearFocus(); // perhaps we should move the focus?
 	    setWFlags( WState_Disabled );
 	    enabledChange( FALSE );
 	}
@@ -1645,11 +1643,11 @@ bool QWidget::hasFocus() const
 
 void QWidget::setFocus()
 {
-    if ( testWFlags(WFocusSet) || !isEnabled() )
+    if ( !isEnabled() )
 	return;
 
     QFocusData * f = focusData(TRUE);
-    if ( f->it.current() && f->it.current()->testWFlags(WFocusSet) )
+    if ( f->it.current() )
 	f->it.current()->clearFocus();
     else if ( qApp->focusWidget() &&
 	      topLevelWidget() == qApp->focusWidget()->topLevelWidget() )
@@ -1671,7 +1669,6 @@ void QWidget::setFocus()
 	    }
 	}
     }
-    setWFlags( WFocusSet );
 
     if ( isActiveWindow() ) {
 	qApp->focus_widget = this;
@@ -1698,14 +1695,12 @@ void QWidget::setFocus()
 
 void QWidget::clearFocus()
 {
-    if ( !testWFlags(WFocusSet) )		// focus was never set
-	return;
-
-    clearWFlags( WFocusSet );
-    if ( qApp->focusWidget() == this ) {	// clear active focus
+    QWidget * w = qApp->focusWidget();
+    if ( w && w->focusWidget() == this ) {
+	// clear active focus
 	qApp->focus_widget = 0;
 	QFocusEvent out( Event_FocusOut );
-	QApplication::sendEvent( this, &out );
+	QApplication::sendEvent( w, &out );
     }
 }
 
@@ -1849,14 +1844,14 @@ void QWidget::reparentFocusWidgets( QWidget * parent )
 	    createExtra();
 	    to = extra->focusData = new QFocusData;
 	}
-		
+
 	do {
 	    QWidget * pw = from->focusWidgets.current();
 	    while( pw && pw != this )
 		pw = pw->parentWidget();
 	    if ( pw == this ) {
 		QWidget * w = from->focusWidgets.take();
-		if ( w->testWFlags( WFocusSet ) )
+		if ( w == from->it.current() )
 		    // probably best to clear keyboard focus, or
 		    // the user might become rather confused
 		    w->clearFocus();

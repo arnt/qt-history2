@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#94 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#94 $");
 
 
 /*!
@@ -302,7 +302,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 	d->ed->installEventFilter( this );
 	d->ed->setFocusPolicy( NoFocus );
 
-	setBackgroundColor( d->ed->backgroundColor() );
+	setBackgroundEmpty();
 
 	connect( d->ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
     } else {
@@ -877,24 +877,23 @@ void QComboBox::resizeEvent( QResizeEvent * )
 
 void QComboBox::paintEvent( QPaintEvent * )
 {
-    QPainter p;
+    QPainter p( this );
     QColorGroup g  = colorGroup();
 
-    p.begin( this );
-
     if ( width() < 5 || height() < 5 ) {
-	qDrawShadePanel( &p, rect(), g, FALSE, 2 );
-        p.end();
+	QBrush fill( g.background() );
+	qDrawShadePanel( &p, rect(), g, FALSE, 2, &fill );
 	return;
     }
 
     if ( !d->usingListBox ) {		// motif 1.x style
 	int dist, buttonH, buttonW;
+	QBrush fill( g.background() );
 
 	getMetrics( &dist, &buttonW, &buttonH );
 	int xPos = width() - dist - buttonW - 1;
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
-			 buttonW, buttonH, g, FALSE, 2 );
+			 buttonW, buttonH, g, FALSE, 2, &fill );
 	QFontMetrics fm = p.fontMetrics();
 	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
 	const char *str = d->popup->text( d->current );
@@ -908,13 +907,14 @@ void QComboBox::paintEvent( QPaintEvent * )
 		p.setClipping( FALSE );
 	    }
 	}
-	qDrawShadePanel( &p, rect(), g, FALSE, 2 );
+	qDrawShadePanel( &p, rect(), g, FALSE, 2, &fill );
 
 	if ( hasFocus() )
 	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
 
     } else if ( style() == MotifStyle ) {	// motif 2.0 style
 	int awh, ax, ay, sh, sy;
+	QBrush fill( g.background() );
 
 	if ( height() < 6 ) {
 	    awh = height();
@@ -947,6 +947,8 @@ void QComboBox::paintEvent( QPaintEvent * )
 	if ( ax + awh + 2 < width() )
 	    ax += ( width() - 2 - ax - awh ) / 2;
 
+	qDrawShadePanel( &p, rect(), g, FALSE, 2, &fill );
+
 	qDrawArrow( &p, DownArrow, MotifStyle, FALSE,
 		    ax, ay, awh, awh, colorGroup() );
 
@@ -971,7 +973,6 @@ void QComboBox::paintEvent( QPaintEvent * )
 		p.setClipping( FALSE );
 	    }
 	}
-	qDrawShadePanel( &p, rect(), g, FALSE, 2 );
 
 	if ( hasFocus() || (d && d->ed && d->ed->hasFocus()) )
 	    p.drawRect( ax - 2, ay - 2, awh+4, sy+sh+4-ay );
@@ -1092,45 +1093,37 @@ void QComboBox::mouseDoubleClickEvent( QMouseEvent *e )
 void QComboBox::keyPressEvent( QKeyEvent *e )
 {
     int c;
-    switch ( e->key() ) {
-    case Key_Space:
-	e->accept();
-	popup();
-	break;
-    case Key_Left:
-	if ( style() != WindowsStyle ) {
-	    e->ignore();
-	    return;
-	}
-	// fall through for windows
-    case Key_Up:
+
+    if ( d->usingListBox &&
+	 (e->key() == Key_Up ||
+	  (style() == MotifStyle && e->key() == Key_Left && !d->ed)) ) {
 	c = currentItem();
 	if ( c > 0 )
 	    setCurrentItem( c-1 );
 	else
 	    setCurrentItem( count()-1 );
 	e->accept();
-	break;
-    case Key_Right:
-	if ( style() == MotifStyle ) {
-	    e->ignore();
-	    return;
-	}
-	// fall through for windows
-    case Key_Down:
+    } else if ( d->usingListBox &&
+		(e->key() == Key_Down ||
+		 (style() == MotifStyle && e->key() == Key_Right && !d->ed))){
 	c = currentItem();
 	if ( ++c < count() )
 	    setCurrentItem( c );
 	else
 	    setCurrentItem( 0 );
 	e->accept();
-	break;
-    default:
-	e->ignore();
+    } else if ( style() == MotifStyle &&
+		!d->usingListBox &&
+		e->key() == Key_Space ) {
+	e->accept();
+	popup();
+	return;
+    } else {
 	return;
     }
 
     c = currentItem();
+    emit highlighted( c );
     if ( text( c ) )
 	emit activated( text( c ) );
     emit activated( c );
@@ -1253,29 +1246,39 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
     if ( !event )
 	return TRUE;
     else if ( object == d->ed ) {
-	if ( event->type() == Event_KeyPress &&
-	     style() == MotifStyle ) {
+	if ( event->type() == Event_KeyPress ) {
+	    QKeyEvent * e = (QKeyEvent *) event;
 	    int c;
-	    switch( ((QKeyEvent *)event)->key() ) {
-	    case Key_Up:
+	    if ( d->usingListBox &&
+		 (e->key() == Key_Up ||
+		  (style() == MotifStyle && e->key() == Key_Left)) ) {
 		c = currentItem();
 		if ( c > 0 )
 		    setCurrentItem( c-1 );
 		else
 		    setCurrentItem( count()-1 );
-		break;
-	    case Key_Down:
+		e->accept();
+	    } else if ( d->usingListBox &&
+			(e->key() == Key_Down ||
+			 (style() == MotifStyle && e->key() == Key_Right)) ) {
 		c = currentItem();
 		if ( ++c < count() )
 		    setCurrentItem( c );
 		else
 		    setCurrentItem( 0 );
-		break;
-	    default:
+		e->accept();
+	    } else if ( style() == MotifStyle &&
+			!d->usingListBox &&
+			e->key() == Key_Space ) {
+		e->accept();
+		popup();
 		return FALSE;
-		break;
+	    } else {
+		return FALSE;
 	    }
+
 	    c = currentItem();
+	    emit highlighted( c );
 	    if ( text( c ) )
 		emit activated( text( c ) );
 	    emit activated( c );
@@ -1288,7 +1291,6 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		    !hasFocus() && !d->ed->hasFocus() &&
 		    (focusPolicy() & ClickFocus) ) {
 	    setFocus();
-	    return FALSE;
 	}
     } else if ( d->usingListBox && object == d->listBox ) {
 	QMouseEvent *e = (QMouseEvent*)event;
@@ -1546,3 +1548,4 @@ void QComboBox::focusInEvent( QFocusEvent * )
     else
 	repaint();
 }
+

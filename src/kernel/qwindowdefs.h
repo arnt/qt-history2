@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#94 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#95 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -229,7 +229,7 @@ const uint WResizeNoErase	= 0x04000000;
 const uint WRecreated		= 0x08000000;
 const uint WExportFontMetrics	= 0x10000000;
 const uint WExportFontInfo	= 0x20000000;
-const uint WFocusSet		= 0x40000000;
+const uint WFocusSet		= 0x40000000; // not used any more
 const uint WState_TabToFocus	= 0x80000000;
 
 
