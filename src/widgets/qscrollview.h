@@ -142,7 +142,6 @@ public:
 #ifndef QT_NO_DRAGANDDROP
     virtual void setDragAutoScroll( bool b );
     bool	 dragAutoScroll() const;
-    virtual void setAcceptDrops( bool b );
 #endif
 
 signals:
