@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#16 $
 **
 ** Implementation of QTabWidget class
 **
@@ -184,6 +184,72 @@ void QTabWidget::addTab( QWidget *child, QTab* tab)
 {
     tab->enabled = TRUE;
     int id = d->tabs->addTab( tab );
+    d->stack->addWidget( child, id );
+    setUpLayout();
+}
+
+
+
+/*!
+  Inserts another tab and page to the tab view.
+
+  The tab will be labelled \a label and \a child constitutes the new
+  page.  Note the difference between the widget name (which you supply
+  to widget constructors and to e.g. setTabEnabled()) and the tab
+  label: The name is internal to the program and invariant, while the
+  label is shown on screen and may vary according to e.g. language.
+
+  \a label is written in the QButton style, where &P makes Qt create
+  an accelerator key on Alt-P for this page.  For example:
+
+  \code
+    td->insertTab( graphicsPane, "&Graphics" );
+    td->insertTab( soundPane, "&Sound" );
+  \endcode
+  
+  If \a index is not specified, the tab is simply added. Otherwise
+  it's inserted at the specified position.
+
+  If the user presses Alt-S the sound page of the tab dialog is shown,
+  if the user presses Alt-P the graphics page is shown.
+
+  If you call insertTab() after show(), the screen will flicker and the
+  user will be confused.
+*/
+void QTabWidget::insertTab( QWidget *child, const QString &label, int index)
+{
+    QTab * t = new QTab();
+    CHECK_PTR( t );
+    t->label = label;
+    insertTab( child, t, index );
+}
+
+
+/*!
+  Inserts another tab and page to the tab view.
+
+  This function is the same as insertTab() but with an additional
+  iconset.
+ */
+void QTabWidget::insertTab( QWidget *child, const QIconSet& iconset, const QString &label, int index )
+{
+    QTab * t = new QTab();
+    CHECK_PTR( t );
+    t->label = label;
+    t->iconset = new QIconSet( iconset );
+    insertTab( child, t, index );
+}
+
+/*!
+  This is a lower-level method for inserting tabs, similar to the other
+  insertTab() method.  It is useful if you are using setTabBar() to set a
+  QTabBar subclass with an overridden QTabBar::paint() routine for a
+  subclass of QTab.
+*/
+void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
+{
+    tab->enabled = TRUE;
+    int id = d->tabs->insertTab( tab, index );
     d->stack->addWidget( child, id );
     setUpLayout();
 }

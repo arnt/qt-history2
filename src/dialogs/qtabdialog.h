@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#43 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#44 $
 **
 ** Definition of QTabDialog class
 **
@@ -51,12 +51,18 @@ public:
     void addTab( QWidget *, const QString &);
     void addTab( QWidget *child, const QIconSet& iconset, const QString &label);
     void addTab( QWidget *, QTab* );
+    
+    void insertTab( QWidget *, const QString &, int index = -1);
+    void insertTab( QWidget *child, const QIconSet& iconset, const QString &label, int index = -1);
+    void insertTab( QWidget *, QTab*, int index = -1 );
+    
     void changeTab( QWidget *, const QString &);
     void changeTab( QWidget *child, const QIconSet& iconset, const QString &label);
+    
     bool isTabEnabled(  QWidget * ) const;
     void setTabEnabled( QWidget *, bool );
-    bool isTabEnabled( const char* ) const;
-    void setTabEnabled( const char*, bool );
+    bool isTabEnabled( const char* ) const; // compatibility
+    void setTabEnabled( const char*, bool ); // compatibility
 
     void showPage( QWidget * );
     void removePage( QWidget * );
