@@ -129,6 +129,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     QString srcs[] = { "SOURCES", "SRCMOC", "UICIMPLS", QString::null };
     for(i = 0; !srcs[i].isNull(); i++) {
 	tmp = project->variables()[srcs[i]];
+	QStringList &src_list = project->variables()["QMAKE_PBX_" + srcs[i]];
 	for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it) {
 	    QString file = fileFixify((*it));
 	    if(file.endsWith(Option::moc_ext)) 
@@ -157,7 +158,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		}
 	    }
 	    if(in_root)
-		project->variables()["QMAKE_PBX_" + srcs[i]].append(src_key);
+		src_list.append(src_key);
 	    //source reference
 	    t << "\t\t" << src_key << " = {" << "\n"
 	      << "\t\t\t" << "isa = PBXFileReference;" << "\n"
@@ -177,15 +178,30 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << "\t\t" << "};" << "\n";
 	    project->variables()["QMAKE_PBX_OBJ"].append(obj_key);
 	}
-	tmp = project->variables()["QMAKE_PBX_" + srcs[i]];
-	if(!tmp.isEmpty()) {
+	if(!src_list.isEmpty()) {
 	    QString grp;
-	    if(srcs[i] == "SOURCES")
+	    if(srcs[i] == "SOURCES") {
+		if(project->first("TEMPLATE") == "app" && !project->isEmpty("RC_FILE")) { //Icon
+		    QString icns_file = keyFor("ICNS_FILE");
+		    src_list.append(icns_file);
+		    t << "\t\t" << icns_file << " = {" << "\n"
+		      << "\t\t\t" << "isa = PBXFileReference;" << "\n"
+		      << "\t\t\t" << "path = \"" << project->first("RC_FILE") << "\";" << "\n"
+		      << "\t\t\t" << "refType = " << reftypeForFile(project->first("RC_FILE")) << ";" << "\n"
+		      << "\t\t" << "};" << "\n";
+		    t << "\t\t" << keyFor("ICNS_FILE_REFERENCE") << " = {" << "\n"
+		      << "\t\t\t" << "fileRef = " << icns_file << ";" << "\n"
+		      << "\t\t\t" << "isa = PBXBuildFile;" << "\n"
+		      << "\t\t\t" << "settings = {" << "\n"
+		      << "\t\t\t" << "};" << "\n"
+		      << "\t\t" << "};" << "\n";
+		}
 		grp = "Sources";
-	    else if(srcs[i] == "SRCMOC")
+	    } else if(srcs[i] == "SRCMOC") {
 		grp = "Mocables";
-	    else if(srcs[i] == "UICIMPLS")
+	    } else if(srcs[i] == "UICIMPLS") {
 		grp = "UICables";
+	    }
 	    QString grp_key = keyFor(grp);
 	    project->variables()["QMAKE_PBX_GROUPS"].append(grp_key);
 	    t << "\t\t" << grp_key << " = {" << "\n"
@@ -489,6 +505,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "\t\t" << key << " = {" << "\n"
 	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
 	  << "\t\t\t" << "files = (" << "\n"
+	  << (!project->isEmpty("RC_FILE") ? keyFor("ICNS_FILE_REFERENCE") : "")
 	  << "\t\t\t" << ");" << "\n"
 	  << "\t\t\t" << "isa = PBXResourcesBuildPhase;" << "\n"
 	  << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
@@ -722,7 +739,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << "\t\t\t\t\t" << "<key>CFBundleExecutable</key>" << "\n"
 	      << "\t\t\t\t\t" << "<string>" << project->first("QMAKE_ORIG_TARGET") << "</string>" << "\n"
 	      << "\t\t\t\t\t" << "<key>CFBundleIconFile</key>" << "\n"
-	      << "\t\t\t\t\t" << "<string>" << var("RC_FILE") << "</string>" << "\n"
+	      << "\t\t\t\t\t" << "<string>" << var("RC_FILE").section(Option::dir_sep, -1) << "</string>" << "\n"
 	      << "\t\t\t\t\t" << "<key>CFBundleInfoDictionaryVersion</key>"  << "\n"
 	      << "\t\t\t\t\t" << "<string>6.0</string>" << "\n"
 	      << "\t\t\t\t\t" << "<key>CFBundlePackageType</key>" << "\n"
