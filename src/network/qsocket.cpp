@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#23 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#24 $
 **
 ** Implementation of QSocket class.
 **
@@ -1061,6 +1061,8 @@ void QSocket::sn_read()
 #if defined(QT_CHECK_RANGE)
 		qWarning( "QSocket::sn_read (%s): Close error", name() );
 #endif
+		if (d->rsn)
+		    d->rsn->setEnabled( FALSE );
 		emit error( ErrSocketRead );	// socket close error
 		return;
 	    }
@@ -1086,10 +1088,16 @@ void QSocket::sn_read()
 	    }
 	}
 	if ( nread < 0 ) {
+	    if ( d->socket->error() == QSocketDevice::NoError ) {
+		// all is fine
+		return;
+	    }
 #if defined(QT_CHECK_RANGE)
 	    qWarning( "QSocket::sn_read: Read error" );
 #endif
 	    delete a;
+	    if (d->rsn)
+		d->rsn->setEnabled( FALSE );
 	    emit error( ErrSocketRead );	// socket read error
 	    return;
 	}
