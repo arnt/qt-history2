@@ -1,7 +1,9 @@
 Here is a list of user-visible changes in Qt from 0.98 to 0.99.
 As usual, we fixed some bugs and improved the documentation.
 
-There's lots of new ports, see the bottom of this document for list.
+Qt 0.99 includes makefiles for Linux, Solaris, SunOS, FreeBSD, OSF/1,
+Irix, BSD/OS, SCO and HP-UX. 
+
 
 *************** Changes that might affect runtime behavior *****************
 
@@ -55,29 +57,3 @@ Added new function setFixedSize() to set both the minimum and maximum sizes
 at the same time.
 
 Added clearFocus() function to take keyboard focus from the widget.
-
-
-Supported platforms:
---------------------
-
-Qt for X11 now supports the following platforms:
-
-         freebsd-gcc-shared
-         freebsd-gcc-static
-         hpux-cc-shared
-         hpux-cc-static
-         hpux-gcc-shared
-         hpux-gcc-static
-         irix-dcc-shared
-         irix-gcc-shared
-         linux-gcc-shared
-         linux-gcc-static
-         osf1-cxx-shared
-         osf1-cxx-static
-         osf1-gcc-shared
-         osf1-gcc-static
-         solaris-cc-shared
-         solaris-cc-static
-         solaris-gcc-shared
-         solaris-gcc-static
-         sunos-gcc-static          

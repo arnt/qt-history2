@@ -1,7 +1,7 @@
 To install the precompiled Qt library and the binary version of moc cd to
 /usr/local and type:
 
-	tar xf .../qt-0.98-bin-linux.tar
+	tar xf .../qt-0.99-bin-linux.tar
 
 This will put the moc into the bin directory and the library into the
 lib directory. Run /sbin/ldconfig as root afterwards to make the
@@ -9,7 +9,7 @@ appropriate symlinks.
 
 You may have to make the symlinks by hand: If you get errors running
 programs, do ls -l /usr/local/lib/libqt*, check that libqt.so and libqt.so.0
-exist and point to libqt.so.0.9.8. If not cd to /usr/local/bin and type:
+exist and point to libqt.so.0.9.9. If not cd to /usr/local/bin and type:
 
-	ln -s libqt.so.0.9.8 libqt.so.0 
-	ln -s libqt.so.0.9.8 libqt.so 
+	ln -s libqt.so.0.9.9 libqt.so.0 
+	ln -s libqt.so.0.9.9 libqt.so 

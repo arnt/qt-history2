@@ -1,7 +1,7 @@
-                   QT 0.98 BINARY DISTRIBUTION
+                   QT 0.99 BINARY DISTRIBUTION
 
 This archive contains header files, documentation and examples for the Qt
-library. You also need one of the precompiled binaries (qt0.98.bin-*.tar.gz)
+library. You also need one of the precompiled binaries (qt0.99.bin-*.tar.gz)
 which are available at http://www.troll.no/dl/ or probably from wherever you
 got this archive. 
 
@@ -11,16 +11,16 @@ got this archive.
 1. To install, cd to your the place you want to put qt (typically /usr or
    /usr/local) and type:
 
-	tar xvpf qt0.98.bin-common.tar.gz
+	tar xvpf qt0.99.bin-common.tar.gz
 
 
 2. To install the precompiled Qt library and moc, cd to
    your qt directory and type:
 
 2a  For linux:
-	tar xvpf qt0.98.bin-linux.tar.gz
+	tar xvpf qt0.99.bin-linux.tar.gz
 2b  For solaris:
-	tar xvpf qt0.98.bin-solaris.tar.gz
+	tar xvpf qt0.99.bin-solaris.tar.gz
 
 
 
@@ -32,10 +32,10 @@ got this archive.
 1.  Unpack the archive, unless you already have:
 
 	cd /usr/local/lib
-	tar zxf qt-0.98.tar.gz	# unpack the main archive
+	tar zxf qt-0.99.tar.gz	# unpack the main archive
 
-This will create a directory, /usr/local/lib/qt-0.98, containing the
-files from the main archive.  Rename qt-0.98 to qt (or make a
+This will create a directory, /usr/local/lib/qt-0.99, containing the
+files from the main archive.  Rename qt-0.99 to qt (or make a
 symlink).  The rest of this document assumes that Qt resides in
 /usr/local/lib/qt.
 

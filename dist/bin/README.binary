@@ -1,9 +1,9 @@
-                   QT 0.98 BINARY DISTRIBUTION
+                   QT 0.99 BINARY DISTRIBUTION
 
-This is the official release of Qt 0.98 for X11.
+This is the official release of Qt 0.99 for X11.
 
 This archive contains header files, documentation and examples for the Qt
-library. You also need one of the precompiled binaries (qt0.98.bin-*.tar.gz)
+library. You also need one of the precompiled binaries (qt0.99.bin-*.tar.gz)
 which are available at http://www.troll.no/dl/ or probably from wherever you
 got this archive. The source code is also available.
 
