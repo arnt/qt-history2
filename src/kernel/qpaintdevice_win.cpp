@@ -384,7 +384,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     Q_ASSERT( src_dc && dst_dc );
 #endif
 
-    if ( mask ) {
+    if ( src_pm && src_pm->data->hasRealAlpha ) {
+	qt_AlphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
+    } else if ( mask ) {
 	if ( src_pm->data->selfmask ) {
 	    uint   c = dst->paintingActive() ? qt_bitblt_foreground
 					     : Qt::black.pixel();
@@ -415,7 +417,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    SetBkColor( dst_dc, bc );
 	    SetTextColor( dst_dc, tc );
 	    DeleteObject( SelectObject(dst_dc, b) );
-	} 
+	}
 #ifndef Q_OS_TEMP
 	else if ( (qt_winver & Qt::WV_DOS_based) || qt_bitblt_bsm ) {
 	    HDC mask_dc;
@@ -438,7 +440,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		delete src_pm->data->maskpm;
 		src_pm->data->maskpm = 0;
 	    }
-	} 
+	}
 #endif
 	else {
 	    // We can safely access hbm() here since multi cell pixmaps
@@ -451,14 +453,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 			sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
 	}
     } else {
-	if ( src_pm && src_pm->data->hasRealAlpha ) {
-	    qt_AlphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
-	} else {
-	    if ( td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap() )
-		BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[ qt_map_rop_for_bitmaps(rop) ] );
-	    else
-		BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
-	}
+	if ( td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap() )
+	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[ qt_map_rop_for_bitmaps(rop) ] );
+	else
+	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
     }
     if ( src_tmp )
 	ReleaseDC( ((QWidget*)src)->winId(), src_dc );
@@ -470,7 +468,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 void QPaintDevice::setResolution( int )
 {
 }
- 
+
 int QPaintDevice::resolution() const
 {
     return metric( QPaintDeviceMetrics::PdmDpiY );

@@ -417,11 +417,11 @@ QImage QPixmap::convertToImage() const
 	uchar *b = image.bits();
 	// ### is it right to assume that we have 32bpp?
 	for ( int i=0; i+3<l; i+=4 ) {
-	    if ( b[i+3] == 0 )
-		continue;
-	    b[i]   = ((int)b[i]  *255)/b[i+3];
-	    b[i+1] = ((int)b[i+1]*255)/b[i+3];
-	    b[i+2] = ((int)b[i+2]*255)/b[i+3];
+	    if ( b[i+3] != 0 ) {
+		b[i]   = ((int)b[i]  *255)/b[i+3];
+		b[i+1] = ((int)b[i+1]*255)/b[i+3];
+		b[i+2] = ((int)b[i+2]*255)/b[i+3];
+	    }
 	}
     }
 
@@ -614,16 +614,16 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
 #ifndef Q_OS_TEMP
-#if 0
+#  if 0
     // ### use this if you encounter problems related alpha blending:
     data->hasRealAlpha = FALSE;
-#else
+#  else
     data->hasRealAlpha =
 	img.hasAlphaBuffer() &&
 	d==32 && // ### can we have alpha channel with depth<32bpp?
 	( QApplication::winVersion() != Qt::WV_95 &&
 	  QApplication::winVersion() != Qt::WV_NT );
-#endif
+#  endif
 
     if ( data->hasRealAlpha ) {
 	// Windows expects premultiplied alpha
@@ -633,12 +633,16 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	memcpy( b, image.bits(), l );
 	bool hasRealAlpha = FALSE;
 	for ( int i=0; i+3<l; i+=4 ) {
-	    if ( b[i+3]!=0 && b[i+3]!=255 ) {
+	    if ( b[i+3] == 0 ) {
+		b[i]   = 0;
+		b[i+1] = 0;
+		b[i+2] = 0;
+	    } else if ( b[i+3] != 255 ) {
 		hasRealAlpha = TRUE;
+		b[i]   = (b[i]  *b[i+3]) / 255;
+		b[i+1] = (b[i+1]*b[i+3]) / 255;
+		b[i+2] = (b[i+2]*b[i+3]) / 255;
 	    }
-	    b[i]   = (b[i]  *b[i+3]) / 255;
-	    b[i+1] = (b[i+1]*b[i+3]) / 255;
-	    b[i+2] = (b[i+2]*b[i+3]) / 255;
 	}
 	if ( hasRealAlpha ) {
 	    DeleteObject( DATA_HBM );
@@ -651,9 +655,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 #else
     data->hasRealAlpha = FALSE;
 #endif
+
     if ( !data->hasRealAlpha ) {
-	// "else case" of the above if (but the above can change
-	// data->hasAlpha(), so we need another if for it)
 #ifndef Q_OS_TEMP
 	if ( dc )
 	    StretchDIBits( dc, 0, sy, w, h, 0, 0, w, h,
@@ -668,11 +671,12 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	DeleteObject( hBitmap );
 	DeleteDC( hdcSrc );
 #endif
-	if ( img.hasAlphaBuffer() ) {
-	    QBitmap m;
-	    m = img.createAlphaMask( conversion_flags );
-	    setMask( m );
-	}
+    }
+
+    if ( img.hasAlphaBuffer() ) {
+	QBitmap m;
+	m = img.createAlphaMask( conversion_flags );
+	setMask( m );
     }
 
     delete [] bmi_data;
