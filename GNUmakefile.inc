@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#15 $
+# $Id: //depot/qt/main/GNUmakefile.inc#16 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -32,6 +32,8 @@ TMAKEPATH=$(TMAKEDIR)/lib/linux-qws-g++
 export TMAKEPATH
 endif
 
+SYNCQT = $(QTDIR)/bin/syncqt
+
 project: $(PROJECT).pro
 
 $(PROJECT).pro:
@@ -49,7 +51,7 @@ gcc: gcc-debug
 
 GNUmakefile$(PROJMAK).debug: $(PROJECT).pro
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)debug
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).debug \
@@ -57,7 +59,7 @@ endif
 
 GNUmakefile$(PROJMAK).release: $(PROJECT).pro
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)release
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).release \
@@ -65,7 +67,7 @@ endif
 
 GNUmakefile$(PROJMAK).release-debug: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)release-debug
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).release-debug \
@@ -76,7 +78,7 @@ endif
 
 GNUmakefile$(PROJMAK).static-debug: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)static-debug
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).static-debug \
@@ -84,7 +86,7 @@ endif
 
 GNUmakefile$(PROJMAK).static-release: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)static-release
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).static-release \
@@ -92,7 +94,7 @@ endif
 
 GNUmakefile$(PROJMAK).profile: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)profile
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).profile \
@@ -103,7 +105,7 @@ endif
 
 GNUmakefile$(PROJMAK).gcc-debug: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)gcc-debug
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-debug \
@@ -111,7 +113,7 @@ endif
 
 GNUmakefile$(PROJMAK).gcc-release: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)gcc-release
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-release \
@@ -119,7 +121,7 @@ endif
 
 GNUmakefile$(PROJMAK).gcc-static-debug: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)gcc-static-debug
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-static-debug \
@@ -127,7 +129,7 @@ endif
 
 GNUmakefile$(PROJMAK).gcc-static-release: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)gcc-static-release
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-static-release \
@@ -139,7 +141,7 @@ endif
 
 GNUmakefile$(PROJMAK).mips-debug: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)mips-debug
 ifeq ($(LIBTARGET),1)
@@ -155,7 +157,7 @@ endif
 
 GNUmakefile$(PROJMAK).mips-release: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)mips-release
 ifeq ($(LIBTARGET),1)
@@ -171,7 +173,7 @@ endif
 
 GNUmakefile$(PROJMAK).mips-static-debug: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)mips-static-debug
 ifeq ($(LIBTARGET),1)
@@ -187,7 +189,7 @@ endif
 
 GNUmakefile$(PROJMAK).mips-static-release: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
-	syncqt
+	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)mips-static-release
 ifeq ($(LIBTARGET),1)
@@ -217,7 +219,7 @@ tags: $(PROJECT).pro
 
 
 include:
-	syncqt
+	$(SYNCQT)
 
 update:
 	cvs update -d
