@@ -1776,6 +1776,8 @@ void QDataTable::refresh( QDataTable::Refresh mode )
 	refreshData = TRUE;
 	refreshCol = TRUE;
     }
+    if ( !refreshCol && d->fld.count() && numCols() == 0 )
+	refreshCol = TRUE;
     viewport()->setUpdatesEnabled( FALSE );
     d->haveAllRows = FALSE;
     if ( refreshData )
