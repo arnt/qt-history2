@@ -1019,6 +1019,37 @@ combine the other selection flags with the
 has the effect of resetting the selection model's collection of model
 indices.
 
+\section2 Selecting all items in a model
+
+To select all items in a model, it is necessary to create a
+selection for each level of the model that covers all items in that
+level. We do this by retrieving the indices corresponding to the
+top-left and bottom-right items with a given parent index:
+
+\quotefile reading-selections/window.cpp
+\skipto void MainWindow::selectAll()
+\skipto QModelIndex topLeft
+\printuntil model->columnCount
+
+A selection is constructed with these indices and the model. The
+corresponding items are then selected in the selection model:
+
+\skipto QItemSelection selection
+\printuntil selectionModel->select
+
+This needs to be performed for all levels in the model.
+For top-level items, we would define the parent index in the usual way:
+
+\quotefile reading-selections/window.cpp
+\skipto void MainWindow::selectAll()
+\skipto QModelIndex parent
+\printuntil QModelIndex parent
+
+For hierarchical models, the
+\l{QAbstractItemModel::hasChildren()}{hasChildren()} function is used to
+determine whether any given item is the parent of another level of
+items.
+
 \l{model-view-view.html}{[View Classes]}
 \l{model-view-programming.html}{[Up]}
 \l{model-view-delegate.html}{[Delegate Classes]}
