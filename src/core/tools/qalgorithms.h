@@ -73,16 +73,16 @@ inline void qSwap(T &value1, T &value2)
 }
 
 template <typename T>
-bool qLess(const T &t1, const T &t2)
+inline bool qLess(const T &t1, const T &t2)
 { return t1 < t2; }
 
 template <typename T>
-bool qGreater(const T &t1, const T &t2)
+inline bool qGreater(const T &t1, const T &t2)
 { return t1 > t2; }
 
 
 template <typename BiIterator, typename T, typename LessThan>
-void qSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan)
+Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan)
 {
     --end;
      if(end - start < 1)
@@ -123,33 +123,33 @@ void qSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan
 }
 
 template <typename Container, typename T, typename LessThan>
-void qSortHelper(Container c, const T &t, LessThan lessThan)
+Q_OUTOFLINE_TEMPLATE void qSortHelper(Container c, const T &t, LessThan lessThan)
 {
     // Don't pass qLess<T> directly (workaround for MSVC)
     bool (*qLessFunc)(const T &a, const T &b) = qLess<T>;
-    qHeapSortHelper(c.begin(), c.end(), t, qLessFunc);
+    qSortHelper(c.begin(), c.end(), t, qLessFunc);
 }
 
 template <typename BiIterator, typename LessThan>
-void qSort(BiIterator start, BiIterator end, LessThan lessThan)
+inline void qSort(BiIterator start, BiIterator end, LessThan lessThan)
 {
     qSortHelper(start, end, *start, lessThan);
 }
 
 template<typename Container>
-void qSort(Container &c)
+inline void qSort(Container &c)
 {
-    qHeapSortHelper(c.begin(), c.end(), *c.begin());
+    qSortHelper(c.begin(), c.end(), *c.begin());
 }
 
 template<typename Container, typename LessThan>
-void qSort(Container &c, LessThan lessThan)
+inline void qSort(Container &c, LessThan lessThan)
 {
-    qHeapSortHelper(c.begin(), c.end(), *c.begin(), lessThan);
+    qSortHelper(c.begin(), c.end(), *c.begin(), lessThan);
 }
 
 template <typename T, typename LessThan>
-void qHeapSortPushDown(T *heap, int first, int last, LessThan lessThan)
+Q_OUTOFLINE_TEMPLATE void qHeapSortPushDown(T *heap, int first, int last, LessThan lessThan)
 {
     int r = first;
     while (r <= last / 2) {
@@ -177,7 +177,7 @@ void qHeapSortPushDown(T *heap, int first, int last, LessThan lessThan)
 }
 
 template <typename BiIterator, typename T, typename LessThan>
-void qHeapSortHelper(BiIterator begin, BiIterator end, const T & /* dummy */, LessThan lessThan)
+Q_OUTOFLINE_TEMPLATE void qHeapSortHelper(BiIterator begin, BiIterator end, const T & /* dummy */, LessThan lessThan)
 {
     BiIterator it = begin;
     uint n = 0;
@@ -215,7 +215,7 @@ void qHeapSortHelper(BiIterator begin, BiIterator end, const T & /* dummy */, Le
 }
 
 template <typename BiIterator, typename T>
-void qHeapSortHelper(BiIterator begin, BiIterator end, const T &dummy)
+inline void qHeapSortHelper(BiIterator begin, BiIterator end, const T &dummy)
 {
     // Don't pass qLess<T> directly (workaround for MSVC)
     bool (*qLessFunc)(const T &a, const T &b) = qLess<T>;
@@ -223,19 +223,19 @@ void qHeapSortHelper(BiIterator begin, BiIterator end, const T &dummy)
 }
 
 template <typename BiIterator, typename LessThan>
-void qHeapSort(BiIterator begin, BiIterator end, LessThan lessThan)
+inline void qHeapSort(BiIterator begin, BiIterator end, LessThan lessThan)
 {
     qHeapSortHelper(begin, end, *begin, lessThan);
 }
 
 template <typename BiIterator>
-void qHeapSort(BiIterator begin, BiIterator end)
+inline void qHeapSort(BiIterator begin, BiIterator end)
 {
     qHeapSortHelper(begin, end, *begin);
 }
 
 template <typename Container>
-void qHeapSort(Container &c)
+inline void qHeapSort(Container &c)
 {
 #ifdef Q_CC_BOR
     // Work around Borland 5.5 optimizer bug
@@ -245,7 +245,7 @@ void qHeapSort(Container &c)
 }
 
 template <typename RandomAccessIterator, typename T>
-RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+Q_OUTOFLINE_TEMPLATE RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
 {
     RandomAccessIterator middle;
     int n = end - begin;
@@ -265,7 +265,7 @@ RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterato
 }
 
 template <typename RandomAccessIterator, typename T>
-RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+Q_OUTOFLINE_TEMPLATE RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
 {
     RandomAccessIterator middle;
     int n = end - begin;
@@ -285,7 +285,7 @@ RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterato
 }
 
 template <typename RandomAccessIterator, typename T>
-RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+Q_OUTOFLINE_TEMPLATE RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
 {
     int l = 0;
     int r = end - begin - 1;
@@ -307,7 +307,7 @@ RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterato
 }
 
 template <typename ForwardIterator>
-void qDeleteAll(ForwardIterator begin, ForwardIterator end)
+Q_OUTOFLINE_TEMPLATE void qDeleteAll(ForwardIterator begin, ForwardIterator end)
 {
     while (begin != end) {
         delete *begin;
@@ -316,7 +316,7 @@ void qDeleteAll(ForwardIterator begin, ForwardIterator end)
 }
 
 template <typename Container>
-void qDeleteAll(const Container &c)
+inline void qDeleteAll(const Container &c)
 {
     qDeleteAll(c.begin(), c.end());
 }
