@@ -28,6 +28,8 @@
 # include <GL/glu.h>
 #endif
 
+#include <stdlib.h>
+
 #ifndef CALLBACK // for Windows
 #define CALLBACK
 #endif
