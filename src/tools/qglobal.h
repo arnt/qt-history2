@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#5 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#6 $
 **
 ** Global type declarations and definitions
 **
 ** Author  : Haavard Nord
 ** Created : 920529
 **
-** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -67,7 +67,7 @@
 
 #if defined(__SC__)
 #define _CC_SYM_
-#elif defined(_OS_MAC_) && !defined(__SC__)
+#elif defined(applec)
 #define _CC_MPW_
 #elif defined(_MSC_VER)
 #define _CC_MSC_
@@ -94,8 +94,7 @@
 
 // Some compilers don't support templates
 
-#if defined(_CC_MPW_) || (defined(_CC_MSC_) && _MSC_VER < 900) || \
-    defined(_CC_SUN_)
+#if defined(_CC_MPW_) || (defined(_CC_MSC_) && _MSC_VER < 900) || defined(_CC_SUN_)
 #define NO_TEMPLATECLASS
 #endif
 
