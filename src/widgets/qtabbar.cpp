@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#11 $
 **
 ** Implementation of QTabBar class
 **
@@ -10,7 +10,7 @@
 #include "qtabbar.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#11 $");
 
 
 QTab::~QTab()
@@ -368,6 +368,40 @@ int QTabBar::currentTab() const
 }
 
 
+/*!  "Raises" the tab with ID \a id and emits the selected() signal.
+
+  \sa currentTab() selected() tab()
+*/
+
+void QTabBar::setCurrentTab( int id )
+{
+    setCurrentTab( tab( id ) );
+}
+
+
+/*! "Raises" \a tab and emits the selected() signal.
+
+  \sa currentTab() selected()
+*/
+
+void QTabBar::setCurrentTab( QTab * tab )
+{
+    if ( tab && l ) {
+	QRect r = l->last()->r;
+	if ( l->findRef( tab ) >= 0 )
+	    l->append( l->take() );
+
+	d->focus = tab->id;
+	if ( tab->r.intersects( r ) ) {
+	    repaint( r.unite( tab->r ) );
+	} else {
+	    repaint( r );
+	    repaint( tab->r );
+	}
+	emit selected( tab->id );
+    }
+}
+
 
 /*!  If this tab control has keyboard focus, returns the ID of the
   tab Space will select.  Otherwise, returns -1.
@@ -450,4 +484,18 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 	if ( r.isValid() )
 	    repaint( r );
     }
+}
+
+
+/*!  Returns a pointer to the tab with ID \a id, or 0 if there is no
+  such tab.
+*/
+
+QTab * QTabBar::tab( int id )
+{
+    QTab * t;
+    for( t = l->first(); t; t = l->next() )
+	if ( t && t->id == id )
+	    return t;
+    return 0;
 }
