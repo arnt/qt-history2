@@ -574,7 +574,7 @@ compatible signals and slots. Since the returnPressed() signal
 and the animateClick() slot have compatible signatures, we can use them
 together to "click" the \key OK button whenever the return key is
 pressed in the line edit. To try this out, we can open a preview of
-the dialog by pressing \key{Ctrl+T} or by opening the \key Form menu
+the dialog by pressing \key{Ctrl+R} or by opening the \key Form menu
 and selecting \key Preview.
 
 \table
@@ -787,11 +787,14 @@ The checkValues() slot will be used to validate the values provided
 by the user.
 
 In the dialog's constructor we set up the widgets as before, and connect
-the \key Cancel button's clicked() signal to the dialog's reject() slot:
+the \key Cancel button's clicked() signal to the dialog's reject() slot.
+We also disable the \l{QPushButton::autoDefault}{autoDefault}
+property in both buttons to ensure that the dialog does not interfere
+with the way that the line edit handles return key events:
 
 \quotefromfile snippets/designer/noautoconnection/imagedialog.cpp
 \skipto ImageDialog::ImageDialog
-\printuntil /^\{/
+\printuntil cancelButton
 \skipto ...
 \printuntil ...
 \skipto connect(okButton
@@ -908,7 +911,7 @@ below.
 \row    \i Delete       \i \key Delete  \i Deletes the selected objects.
 \row    \i Clone object \i \key{Ctrl+drag} (left mouse button)
         \i Makes a copy of the selected object or group of objects.
-\row    \i Preview      \i \key{Ctrl+T} \i Shows a preview of the form.
+\row    \i Preview      \i \key{Ctrl+R} \i Shows a preview of the form.
 \endtable
 
 All the above actions (apart from cloning) can be accessed via both the
@@ -1026,7 +1029,7 @@ suitable than a nested arrangement of horizontal and vertical layouts.
 Although \QD's forms are accurate representations of the components
 being edited, it is useful to preview the final appearance while editing.
 This feature can be activated by opening the \key Form menu and selecting
-\key Preview, or by pressing \key{Ctrl+T} when in the form.
+\key Preview, or by pressing \key{Ctrl+R} when in the form.
 
 \image designer-dialog-preview.png
 
