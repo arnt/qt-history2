@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#375 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#376 $
 **
 ** Implementation of QWidget class
 **
@@ -763,6 +763,7 @@ void QWidget::deleteExtra()
 	    deleteTLSysExtra();
 	    delete extra->topextra->icon;
 	    delete extra->topextra->focusData;
+	    delete extra->topextra;
 	}
 	delete extra;
 	// extra->xic destroyed in QWidget::destroy()
