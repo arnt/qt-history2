@@ -3,12 +3,18 @@
 
 #include <qtextbrowser.h>
 
+class MainWindow;
+
 class HelpWindow : public QTextBrowser
 {
 public:
-    HelpWindow( QWidget *parent = 0, const char *name = 0 );
+    HelpWindow( MainWindow *m, QWidget *parent = 0, const char *name = 0 );
     void setSource( const QString &name );
+    QPopupMenu *createPopupMenu();
 
+private:
+    MainWindow *mw;
+    
 };
 
 #endif

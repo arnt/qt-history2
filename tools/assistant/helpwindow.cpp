@@ -4,9 +4,12 @@
 #include <qdragobject.h>
 #include <qdir.h>
 #include <qfile.h>
+#include "mainwindow.h"
+#include <qpopupmenu.h>
+#include <qaction.h>
 
-HelpWindow::HelpWindow( QWidget *parent, const char *name )
-    : QTextBrowser( parent, name )
+HelpWindow::HelpWindow( MainWindow *w, QWidget *parent, const char *name )
+    : QTextBrowser( parent, name ), mw( w )
 {
 }
 
@@ -62,3 +65,17 @@ void HelpWindow::setSource( const QString &name )
     }
 }
 
+QPopupMenu *HelpWindow::createPopupMenu()
+{
+    QPopupMenu *m = new QPopupMenu( this );
+    mw->actionGoPrev->addTo( m );
+    mw->actionGoNext->addTo( m );
+    mw->actionGoHome->addTo( m );
+    m->insertSeparator();
+    mw->actionZoomIn->addTo( m );
+    mw->actionZoomOut->addTo( m );
+    m->insertSeparator();
+    mw->actionEditCopy->addTo( m );
+    mw->actionEditFind->addTo( m );
+    return m;
+}

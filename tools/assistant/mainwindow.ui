@@ -383,9 +383,6 @@
     </connection>
 </connections>
 <includes>
-    <include location="local" impldecl="in declaration">finddialog.h</include>
-    <include location="global" impldecl="in declaration">qmap.h</include>
-    <include location="global" impldecl="in declaration">qguardedptr.h</include>
     <include location="global" impldecl="in implementation">qtoolbutton.h</include>
     <include location="local" impldecl="in implementation">settingsdialogimpl.h</include>
     <include location="global" impldecl="in implementation">qmessagebox.h</include>
@@ -411,6 +408,9 @@
     <include location="global" impldecl="in implementation">qlineedit.h</include>
     <include location="global" impldecl="in implementation">qsettings.h</include>
     <include location="global" impldecl="in implementation">qcheckbox.h</include>
+    <include location="local" impldecl="in declaration">finddialog.h</include>
+    <include location="global" impldecl="in declaration">qmap.h</include>
+    <include location="global" impldecl="in declaration">qguardedptr.h</include>
     <include location="local" impldecl="in implementation">mainwindow.ui.h</include>
 </includes>
 <forwards>
@@ -435,11 +435,11 @@
     <slot>showLinguistHelp()</slot>
     <slot>print()</slot>
     <slot>setupBookmarkMenu()</slot>
-    <slot>showBookmark(int id)</slot>
+    <slot>showBookmark( int id )</slot>
     <slot>showDesignerHelp()</slot>
-    <slot>showLink(const QString &amp; link, const QString &amp; title)</slot>
+    <slot>showLink( const QString &amp; link, const QString &amp; title )</slot>
     <slot>showQtHelp()</slot>
-    <slot>setFamily(const QString &amp; f)</slot>
+    <slot>setFamily( const QString &amp; f )</slot>
     <slot>showSettingsDialog()</slot>
     <slot>hide()</slot>
 </slots>

@@ -3,7 +3,7 @@
 void MainWindow::init()
 {
     setWFlags( WDestructiveClose );
-    browser = new HelpWindow( this, "qt_assistant_helpwindow" );
+    browser = new HelpWindow( this, this, "qt_assistant_helpwindow" );
     browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     setCentralWidget( browser );
 
