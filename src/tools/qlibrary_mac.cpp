@@ -62,7 +62,9 @@
 #define FALSE DYLD_FALSE
 #define ENUM_DYLD_BOOL
 enum DYLD_BOOL { DYLD_TRUE=1, DYLD_FALSE=0 };
+extern "C" {
 #include "mach-o/dyld.h"
+}
 #undef bool
 #undef TRUE
 #define TRUE OLD_T
