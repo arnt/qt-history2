@@ -74,6 +74,7 @@
 #include <qmainwindow.h>
 #include <qmenubar.h>
 #include <qapplication.h>
+#include <qdatetimeedit.h>
 #include "database.h"
 
 #include <globaldefs.h>
@@ -508,6 +509,24 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
     } else if ( className == "QSqlTable" ) {
 #if defined(QT_MODULE_SQL)
 	return new QSqlTable( parent, name );
+#else
+	return 0;
+#endif
+    } else if ( className == "QDateEdit" ) {
+#if defined(QT_MODULE_SQL)
+	return new QDateEdit( parent, name );
+#else
+	return 0;
+#endif
+    } else if ( className == "QTimeEdit" ) {
+#if defined(QT_MODULE_SQL)
+	return new QTimeEdit( parent, name );
+#else
+	return 0;
+#endif
+    } else if ( className == "QDateTimeEdit" ) {
+#if defined(QT_MODULE_SQL)
+	return new QDateTimeEdit( parent, name );
 #else
 	return 0;
 #endif

@@ -64,6 +64,7 @@
 #include <qaccel.h>
 #include <qworkspace.h>
 #include <qtimer.h>
+#include <qdatetimeedit.h>
 
 #include "../pics/arrow.xbm"
 #include "../pics/uparrow.xbm"
@@ -664,6 +665,207 @@ void PropertyTextItem::getText()
 	lined()->setText( txt );
 	lined()->blockSignals( FALSE );
     }
+}
+
+// --------------------------------------------------------------
+
+PropertyDateItem::PropertyDateItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName )
+    : PropertyItem( l, after, prop, propName )
+{
+    lin = 0;
+}
+
+QDateEdit *PropertyDateItem::lined()
+{
+    if ( lin )
+	return lin;
+    lin = new QDateEdit( listview->viewport() );
+    connect( lin, SIGNAL( valueChanged( const QDate & ) ),
+	     this, SLOT( setValue() ) );
+    return lin;
+}
+
+PropertyDateItem::~PropertyDateItem()
+{
+    delete (QDateEdit*)lin;
+    lin = 0;
+}
+
+void PropertyDateItem::showEditor()
+{
+    PropertyItem::showEditor();
+    if ( !lin ) {
+	lined()->blockSignals( TRUE );
+	lined()->setDate( value().toDate() );
+	lined()->blockSignals( FALSE );
+    }
+    placeEditor( lin );
+    if ( !lin->isVisible() || !lin->hasFocus() ) {
+	lin->show();
+	setFocus( lin );
+    }
+}
+
+void PropertyDateItem::hideEditor()
+{
+    PropertyItem::hideEditor();
+    if ( lin )
+	lin->hide();
+}
+
+void PropertyDateItem::setValue( const QVariant &v )
+{
+    if ( lin ) {
+	lined()->blockSignals( TRUE );
+	if ( lined()->date() != v.toDate() )
+	    lined()->setDate( v.toDate() );
+	lined()->blockSignals( FALSE );
+    }
+    setText( 1, v.toDate().toString() );
+    PropertyItem::setValue( v );
+}
+
+void PropertyDateItem::setValue()
+{
+    setText( 1, lined()->date().toString() );
+    QVariant v;
+    v = lined()->date();
+    PropertyItem::setValue( v );
+    notifyValueChange();
+}
+
+// --------------------------------------------------------------
+
+PropertyTimeItem::PropertyTimeItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName )
+    : PropertyItem( l, after, prop, propName )
+{
+    lin = 0;
+}
+
+QTimeEdit *PropertyTimeItem::lined()
+{
+    if ( lin )
+	return lin;
+    lin = new QTimeEdit( listview->viewport() );
+    connect( lin, SIGNAL( valueChanged( const QTime & ) ),
+	     this, SLOT( setValue() ) );
+    return lin;
+}
+
+PropertyTimeItem::~PropertyTimeItem()
+{
+    delete (QTimeEdit*)lin;
+    lin = 0;
+}
+
+void PropertyTimeItem::showEditor()
+{
+    PropertyItem::showEditor();
+    if ( !lin ) {
+	lined()->blockSignals( TRUE );
+	lined()->setTime( value().toTime() );
+	lined()->blockSignals( FALSE );
+    }
+    placeEditor( lin );
+    if ( !lin->isVisible() || !lin->hasFocus() ) {
+	lin->show();
+	setFocus( lin );
+    }
+}
+
+void PropertyTimeItem::hideEditor()
+{
+    PropertyItem::hideEditor();
+    if ( lin )
+	lin->hide();
+}
+
+void PropertyTimeItem::setValue( const QVariant &v )
+{
+    if ( lin ) {
+	lined()->blockSignals( TRUE );
+	if ( lined()->time() != v.toTime() )
+	    lined()->setTime( v.toTime() );
+	lined()->blockSignals( FALSE );
+    }
+    setText( 1, v.toTime().toString() );
+    PropertyItem::setValue( v );
+}
+
+void PropertyTimeItem::setValue()
+{
+    setText( 1, lined()->time().toString() );
+    QVariant v;
+    v = lined()->time();
+    PropertyItem::setValue( v );
+    notifyValueChange();
+}
+
+// --------------------------------------------------------------
+
+PropertyDateTimeItem::PropertyDateTimeItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName )
+    : PropertyItem( l, after, prop, propName )
+{
+    lin = 0;
+}
+
+QDateTimeEdit *PropertyDateTimeItem::lined()
+{
+    if ( lin )
+	return lin;
+    lin = new QDateTimeEdit( listview->viewport() );
+    connect( lin, SIGNAL( valueChanged( const QDateTime & ) ),
+	     this, SLOT( setValue() ) );
+    return lin;
+}
+
+PropertyDateTimeItem::~PropertyDateTimeItem()
+{
+    delete (QDateTimeEdit*)lin;
+    lin = 0;
+}
+
+void PropertyDateTimeItem::showEditor()
+{
+    PropertyItem::showEditor();
+    if ( !lin ) {
+	lined()->blockSignals( TRUE );
+	lined()->setDateTime( value().toDateTime() );
+	lined()->blockSignals( FALSE );
+    }
+    placeEditor( lin );
+    if ( !lin->isVisible() || !lin->hasFocus() ) {
+	lin->show();
+	setFocus( lin );
+    }
+}
+
+void PropertyDateTimeItem::hideEditor()
+{
+    PropertyItem::hideEditor();
+    if ( lin )
+	lin->hide();
+}
+
+void PropertyDateTimeItem::setValue( const QVariant &v )
+{
+    if ( lin ) {
+	lined()->blockSignals( TRUE );
+	if ( lined()->dateTime() != v.toDateTime() )
+	    lined()->setDateTime( v.toDateTime() );
+	lined()->blockSignals( FALSE );
+    }
+    setText( 1, v.toDateTime().toString() );
+    PropertyItem::setValue( v );
+}
+
+void PropertyDateTimeItem::setValue()
+{
+    setText( 1, lined()->dateTime().toString() );
+    QVariant v;
+    v = lined()->dateTime();
+    PropertyItem::setValue( v );
+    notifyValueChange();
 }
 
 // --------------------------------------------------------------
@@ -1516,13 +1718,13 @@ void PropertyDatabaseItem::initChildren()
 	    else if ( lst.count() > 0 )
 		item->setValue( QStringList( lst[ 0 ] ) );
 	    else if ( withField )
-		item->setValue( QStringList( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(), 
+		item->setValue( QStringList( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(),
 									 "database" ).toStringList()[ 0 ] ) );
-	    
+	
 	    if ( lst.count() > 0 && !lst[ 0 ].isEmpty() )
 		item->setCurrentItem( lst[ 0 ] );
 	    else if ( !isChanged() && withField )
-		item->setCurrentItem( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(), 
+		item->setCurrentItem( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(),
 								  "database" ).toStringList()[ 0 ] );
 	    else
 		item->setCurrentItem( 0 );
@@ -1534,13 +1736,13 @@ void PropertyDatabaseItem::initChildren()
 	    else if ( lst.count() > 1 )
 		item->setValue( QStringList( lst[ 1 ] ) );
 	    else if ( withField )
-		item->setValue( QStringList( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(), 
+		item->setValue( QStringList( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(),
 									 "database" ).toStringList()[ 1 ] ) );
-	    
+	
 	    if ( lst.count() > 1 && !lst[ 1 ].isEmpty() )
 		item->setCurrentItem( lst[ 1 ] );
 	    else if ( !isChanged() && withField )
-		item->setCurrentItem( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(), 
+		item->setCurrentItem( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(),
 								  "database" ).toStringList()[ 1 ] );
 	    else
 		item->setCurrentItem( 0 );
@@ -2050,6 +2252,12 @@ static QVariant::Type type_to_variant( const QString &s )
 	return QVariant::Cursor;
     if ( s == "SizePolicy" )
 	return QVariant::SizePolicy;
+    if ( s == "Date" )
+	return QVariant::Date;
+    if ( s == "Time" )
+	return QVariant::Time;
+    if ( s == "DateTime" )
+	return QVariant::DateTime;
     return QVariant::Invalid;	
 }
 
@@ -2283,6 +2491,15 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 	break;
     case QVariant::Cursor:
 	item = new PropertyCursorItem( this, item, 0, name );
+	break;
+    case QVariant::Date:
+	item = new PropertyDateItem( this, item, 0, name );
+	break;
+    case QVariant::Time:
+	item = new PropertyTimeItem( this, item, 0, name );
+	break;
+    case QVariant::DateTime:
+	item = new PropertyDateTimeItem( this, item, 0, name );
 	break;
     default:
 	return FALSE;
