@@ -40,6 +40,8 @@
 #include <qobjectlist.h>
 #include <stdlib.h>
 #include <qinterfacemanager.h>
+#include <qmime.h>
+#include <qdragobject.h>
 
 #ifndef QT_NO_SQL
 #include <qsqlrecord.h>
@@ -122,7 +124,7 @@ bool qwf_execute_code = TRUE;
 /*! Constructs a QWidgetFactory. */
 
 QWidgetFactory::QWidgetFactory()
-    : dbControls( 0 )
+    : dbControls( 0 ), usePixmapCollection( FALSE )
 {
     widgetFactories.setAutoDelete( TRUE );
 }
@@ -177,6 +179,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     while ( firstWidget.tagName() != "widget" ) {
 	if ( firstWidget.tagName() == "variable" )
 	    widgetFactory->variables << firstWidget.firstChild().toText().data();
+	else if ( firstWidget.tagName() == "pixmapinproject" )
+	    widgetFactory->usePixmapCollection = TRUE;
 	firstWidget = firstWidget.nextSibling().toElement();
     }
 
@@ -946,6 +950,15 @@ QImage QWidgetFactory::loadFromCollection( const QString &name )
 QPixmap QWidgetFactory::loadPixmap( const QDomElement &e )
 {
     QString arg = e.firstChild().toText().data();
+    if ( usePixmapCollection ) {
+	const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( arg );
+	if ( !m )
+	    return QPixmap();
+	QPixmap pix;
+	QImageDrag::decode( m, pix );
+	return pix;
+    }
+
     QImage img = loadFromCollection( arg );
     QPixmap pix;
     pix.convertFromImage( img );

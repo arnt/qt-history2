@@ -130,6 +130,7 @@ private:
     QMap<QString, Functions*> languageFunctions;
     QStringList variables;
     QStringList noDatabaseWidgets;
+    bool usePixmapCollection;
 
 };
 

@@ -122,5 +122,6 @@ void PixmapCollection::load()
 	pix.name = *it;
 	pix.pix = QPixmap( d.path() + "/" + *it, "PNG" );
 	pixList.append( pix );
+	mimeSourceFactory->setPixmap( pix.name, pix.pix );
     }
 }
