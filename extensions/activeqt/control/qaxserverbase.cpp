@@ -721,15 +721,19 @@ protected:
 };
 
 // Create a QClassFactory object for class \a iid
-HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
+HRESULT GetClassObject( REFIID clsid, REFIID iid, void **ppUnk )
 {
-    QClassFactory *factory = new QClassFactory( iid );
+    QClassFactory *factory = new QClassFactory( clsid );
     if ( !factory )
 	return E_OUTOFMEMORY;
-    if ( factory->className.isEmpty() )
+    if ( factory->className.isEmpty() ) {
+	delete factory;
 	return E_NOINTERFACE;
-	
-    return factory->QueryInterface( IID_IClassFactory, ppUnk );
+    }
+    HRESULT res = factory->QueryInterface( iid, ppUnk );
+    if ( res != S_OK )
+	delete factory;
+    return res;
 }
 
 

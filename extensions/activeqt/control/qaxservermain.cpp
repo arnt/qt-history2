@@ -163,12 +163,12 @@ static bool StartMonitor()
     return (h != NULL);
 }
 
-extern HRESULT __stdcall GetClassObject( void *pv, const GUID &iid, void **ppUnk );
+extern HRESULT GetClassObject( const GUID &clsid, const GUID &iid, void **ppUnk );
 
 
 // (Un)Register the ActiveX server in the registry.
 // The QAxFactory implementation provides the information.
-HRESULT WINAPI UpdateRegistry(BOOL bRegister)
+HRESULT UpdateRegistry(BOOL bRegister)
 {
     QString file = QString::fromLocal8Bit( qAxModuleFilename );
     QString path = file.left( file.findRev( "\\" )+1 );
@@ -1068,7 +1068,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 		CLSID clsid = qAxFactory()->classID( *key );
 
 		// Create a QClassFactory (implemented in qaxserverbase.cpp)
-		HRESULT hRes = GetClassObject( 0, clsid, (void**)&p );
+		HRESULT hRes = GetClassObject( clsid, IID_IClassFactory, (void**)&p );
 		if ( SUCCEEDED(hRes) )
 		    hRes = CoRegisterClassObject( clsid, p, CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE, dwRegister+object );
 		if ( p )

@@ -40,8 +40,8 @@ extern void qAxInit();
 extern void qAxCleanup();
 extern void* qAxInstance;
 
-extern HRESULT __stdcall UpdateRegistry(int bRegister);
-extern HRESULT __stdcall GetClassObject( void *pv, const GUID &iid, void **ppUnk );
+extern HRESULT UpdateRegistry(int bRegister);
+extern HRESULT GetClassObject( const GUID &clsid, const GUID &iid, void **ppUnk );
 
 // Some local variables to handle module lifetime
 static bool qAxActivity = FALSE;
@@ -63,9 +63,9 @@ STDAPI DllUnregisterServer()
     return UpdateRegistry(FALSE);
 }
 
-STDAPI DllGetClassObject(const GUID &clsid, const GUID &riid, void** ppv)
+STDAPI DllGetClassObject(const GUID &clsid, const GUID &iid, void** ppv)
 {
-    GetClassObject( 0, clsid, ppv );
+    GetClassObject( clsid, iid, ppv );
     if ( !*ppv )
 	return CLASS_E_CLASSNOTAVAILABLE;
     return S_OK;
