@@ -1666,7 +1666,6 @@ then
 	fi
 	in_mkfile="$relpath/qmake/$in_mkfile"
 	mkfile="$outpath/qmake/$mkfile"
-	[ "$mkfile" -nt "$in_mkfile" ] && continue # no need
 
 	rm -f $mkfile
 	echo "########################################################################" >$mkfile
