@@ -7,6 +7,9 @@
 #include <qstack.h>
 #include <stdio.h>
 
+QPixmap *bg = 0;
+
+
 
 QMLStyle::QMLStyle( const QString& name )
 {
@@ -241,7 +244,7 @@ QMLNode* QMLNode::depthFirstSearch(QMLNode* tag, QMLContainer* &parent, bool dow
  	if (!tag->isLastSibling && tag->next){
 	    return tag->next;
  	}
-	QMLContainer* p = tag->parent();
+	QMLContainer* p = (QMLContainer*)tag->next;
  	if (p){
 	    parent = p->parent;
  	    return depthFirstSearch(p, parent, FALSE);
@@ -427,19 +430,26 @@ QMLRow::~QMLRow()
 }
 
 
-void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, bool onlyDirty)
+
+void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
+		  QRegion& backgroundRegion, bool onlyDirty)
 {
 
     if (!intersects(cx-obx, cy-oby, cw,ch))
   	return;
 
+
     if (start->isBox) {
 	//we have to draw the box
-	((QMLBox*)start)->draw(p, obx+x, oby+y, ox, oy, cx, cy, cw, ch, dirty?FALSE:onlyDirty);
+	((QMLBox*)start)->draw(p, obx+x, oby+y, ox, oy, cx, cy, cw, ch, 
+			       backgroundRegion, dirty?FALSE:onlyDirty);
 	dirty = FALSE;
 	return;
     }
 
+    QRegion r(x+obx-ox, y+oby-oy, width, height);
+    backgroundRegion = backgroundRegion.subtract(r);
+    
     if (onlyDirty) {
 	if (!dirty)
 	    return;
@@ -466,10 +476,18 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 	}
 // 	debug("D:'%s'", s.data());
 	int tw = fm.width( s );
-	if (t==end)
-	    p->eraseRect(tx+obx-ox, y+oby-oy, width-(tx-x), height);
-	else
-	    p->eraseRect(tx+obx-ox, y+oby-oy, tw, height);
+//   	if (t==end)
+//   	    p->fillRect(tx+obx-ox, y+oby-oy, width-(tx-x), height, Qt::white);
+//   	else
+//   	    p->fillRect(tx+obx-ox, y+oby-oy, tw, height, Qt::white);
+
+  	if (t==end){
+  	    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, width-(tx-x), height, *bg, tx+obx, y+oby);
+  	}
+  	else {
+  	    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, tw, height, *bg, tx+obx, y+oby);
+  	}
+	
 	p->drawText(tx+obx-ox, y+oby-oy+base, s);
 	tx += tw;
 	if (t == end)
@@ -483,8 +501,7 @@ QMLNode* QMLRow::hitTest(QMLContainer* box, QPainter* p, int obx, int oby, int x
 {
     if (!intersects(xarg-obx, yarg-oby, 1,1))
  	return 0;
-
-
+    
     if (start->isBox) {
 	return ((QMLBox*)start)->hitTest(p, obx+x, oby+y, xarg, yarg);
     }
@@ -647,11 +664,18 @@ QMLBox::~QMLBox()
 {
 }
 
+// bool intersects(int x, int y, int w, int h, int x2, int y2,int w2, int h2) {
+    
+//     return QMAX( x, x2 ) <= QMIN( x+w, x2+w2 ) &&
+// 	     QMAX( y, y2 ) <= QMIN( y+h, y2+h2 ) );
+// }
 
-void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, bool onlyDirty)
+
+void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, 
+		  QRegion& backgroundRegion, bool onlyDirty)
 {
     for (QMLRow* row = rows.first(); row; row = rows.next()) {
-	row->draw(this, p, obx, oby, ox, oy, cx, cy, cw, ch, onlyDirty);
+	row->draw(this, p, obx, oby, ox, oy, cx, cy, cw, ch, backgroundRegion, onlyDirty);
     }
 }
 
@@ -1188,12 +1212,16 @@ QMLView::QMLView()
 {
     setVScrollBarMode( AlwaysOn );
     cursor_hidden = FALSE;
-    viewport()->setBackgroundMode(PaletteBase);
+    bg = new QPixmap("bg.bmp");
+	
+//     viewport()->setBackgroundMode(NoBackground); //PaletteBase);
+    viewport()->setBackgroundPixmap(*bg);
+    
     QPixmap pm("qt.bmp");
     QMLContext* context = new QMLContext();
     context->insert("qt.bmp", pm);
 
-    QMLStyleSheet::defaultSheet().defaultStyle().setFontSize(18);
+    QMLStyleSheet::defaultSheet().defaultStyle().setFontSize(14);
     //    doc = new QMLDocument("Hallo<em>emph</em>Welt", context);
 
       QString text = "<p>Hello <EM>this is <B>bold</B> italic</EM> this is <B>bold   </B> :-) </p><H1>And this is a pretty long <EM>heading</EM> in 24 point font!</H1><p>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text.  This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. </p><p2>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. <h1>This is a heading inside the p2 environment</h1>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. </p2><p3>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text.</p3>";
@@ -1254,9 +1282,16 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 	}
     {
 	QPainter p( viewport() );
+	//TODO this is the wrong way. use repaint to schedule events more clever
+	QRegion r(0, 0, viewport()->width(), viewport()->height());
 	doc->draw(&p, 0, 0, contentsX(), contentsY(), 
 		  contentsX(), contentsY(), 
-		  viewport()->width(), viewport()->height(), TRUE);
+		  viewport()->width(), viewport()->height(), 
+		  r, TRUE);
+	p.setClipRegion(r);
+// 	p.fillRect(0, 0, viewport()->width(), viewport()->height(), Qt::white);
+ 	p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
+ 			  *bg, contentsX(), contentsY());
     }
     showCursor();
     resizeContents(doc->width, doc->height);
@@ -1285,10 +1320,22 @@ void QMLView::drawContentsOffset(QPainter*p, int ox, int oy,
 //     static int c = 0;
     //    p->drawRect(cx-ox,cy-oy,cw,ch);
 
-    p->setClipRect( cx-ox, cy-oy, cw, ch );
+    //    p->setClipRect( cx-ox, cy-oy, cw, ch );
 
-    doc->draw(p, 0, 0, ox, oy, cx, cy, cw, ch);
+    //    p->eraseRect(cx-ox, cy-oy, cw, ch);
+//     p->drawTiledPixmap(cx-ox, cy-oy, cw, ch, bg, ox, oy); 
 
+
+    QRegion r(cx-ox, cy-oy, cw, ch);
+    doc->draw(p, 0, 0, ox, oy, cx, cy, cw, ch, r);
+    p->setClipRegion(r);
+//     p->fillRect(0, 0, viewport()->width(), viewport()->height(), Qt::white);
+    p->drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
+		       *bg, contentsX(), contentsY());
+//     p->eraseRect(0, 0, viewport()->width(), viewport()->height());
+
+    qApp->syncX();
+    
     if (!cursor_hidden)
 	doc->cursor->draw(p, ox, oy, cx, cy, cw, ch);
     //    doc->dump();

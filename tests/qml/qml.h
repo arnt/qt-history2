@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qml/qml.h#2 $
+** $Id: //depot/qt/main/tests/qml/qml.h#3 $
 **
 ** Definition of something or other
 **
@@ -139,7 +139,8 @@ public:
     int height;
     int base;
     bool intersects(int xr, int yr, int wr, int hr);
-    void draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, bool onlyDirty = FALSE);
+    void draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, 
+	      QRegion& backgroundRegion, bool onlyDirty = FALSE);
     QMLNode* hitTest(QMLContainer* box, QPainter* p, int obx, int oby, int xarg, int yarg);
 
 
@@ -181,7 +182,8 @@ public:
     QMLBox( const QMLStyle &stl);
     ~QMLBox();
 
-    void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, bool onlyDirty = FALSE);
+    void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, 
+	      QRegion& backgroundRegion, bool onlyDirty = FALSE);
     void resize (QPainter* p, int newWidth);
 
     void update(QPainter* p, QMLRow* r = 0);
