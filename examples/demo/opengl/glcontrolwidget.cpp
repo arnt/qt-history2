@@ -3,6 +3,8 @@
 #include <qcursor.h>
 #include <qtimer.h>
 
+#include <math.h>
+
 const int redrawWait = 50;
 
 GLControlWidget::GLControlWidget( QWidget *parent, const char *name, QGLWidget *share, WFlags f )
@@ -20,26 +22,26 @@ void GLControlWidget::transform()
     glTranslatef( xTrans, yTrans, zTrans );
     glScalef( scale, scale, scale );
 
-    glRotatef( xRot, 1.0, 0.0, 0.0 ); 
-    glRotatef( yRot, 0.0, 1.0, 0.0 ); 
+    glRotatef( xRot, 1.0, 0.0, 0.0 );
+    glRotatef( yRot, 0.0, 1.0, 0.0 );
     glRotatef( zRot, 0.0, 0.0, 1.0 );
 }
 
 /*!
   Set the rotation angle of the object to \e degrees around the X axis.
 */
-void GLControlWidget::setXRotation( int degrees )
+void GLControlWidget::setXRotation( double degrees )
 {
-    xRot = (GLfloat)(degrees % 360);
+    xRot = (GLfloat)fmod(degrees, 360.0);
     updateGL();
 }
 
 /*!
   Set the rotation angle of the object to \e degrees around the Y axis.
 */
-void GLControlWidget::setYRotation( int degrees )
+void GLControlWidget::setYRotation( double degrees )
 {
-    yRot = (GLfloat)(degrees % 360);
+    yRot = (GLfloat)fmod(degrees, 360.0);
     updateGL();
 }
 
@@ -47,9 +49,9 @@ void GLControlWidget::setYRotation( int degrees )
 /*!
   Set the rotation angle of the object to \e degrees around the Z axis.
 */
-void GLControlWidget::setZRotation( int degrees )
+void GLControlWidget::setZRotation( double degrees )
 {
-    zRot = (GLfloat)(degrees % 360);
+    zRot = (GLfloat)fmod(degrees, 360.0);
     updateGL();
 }
 
@@ -152,6 +154,6 @@ void GLControlWidget::setAnimationDelay( int ms )
 {
     timer->stop();
     delay = ms;
-    if ( animation ) 
+    if ( animation )
 	timer->start( delay );
 }

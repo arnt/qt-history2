@@ -13,9 +13,9 @@ public:
     virtual void	transform();
 
 public slots:
-    void		setXRotation( int degrees );
-    void		setYRotation( int degrees );
-    void		setZRotation( int degrees );
+    void		setXRotation( double degrees );
+    void		setYRotation( double degrees );
+    void		setZRotation( double degrees );
 
     void		setScale( double s );
 
@@ -35,8 +35,8 @@ protected:
     void		wheelEvent( QWheelEvent * );
 
     GLfloat xRot, yRot, zRot;
-    GLfloat scale;
     GLfloat xTrans, yTrans, zTrans;
+    GLfloat scale;
     bool animation;
 
 protected slots:

@@ -13,10 +13,12 @@ SOURCES		= frame.cpp \
 		  main.cpp
 
 opengl:HEADERS += opengl/glworkspace.h \
+		  opengl/glcontrolwidget.h \
 		  opengl/gltexobj.h \
 		  opengl/glbox.h \
 		  opengl/glgear.h
 opengl:SOURCES += opengl/glworkspace.cpp \
+		  opengl/glcontrolwidget.cpp \
 		  opengl/gltexobj.cpp \
 		  opengl/glbox.cpp \
 		  opengl/glgear.cpp
@@ -24,4 +26,5 @@ opengl:SOURCES += opengl/glworkspace.cpp \
 opengl:INTERFACES += opengl/printpreview.ui
 
 TARGET		= demo
+INCLUDEPATH	+= .
 DEPENDPATH	= ../../include
