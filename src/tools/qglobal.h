@@ -1059,8 +1059,8 @@ public:
   Lack of partial template specialization mostly on MSVC compilers
   makes it hard to distinguish between pointers and non-pointer types.
  */
-template <typename T> inline void QInitHelper(T*(*)(), void* ptr) { *(void**)ptr = 0; }
-template <typename T> inline void QDeleteHelper(T*(*)(), void* ptr) { delete*(T**)ptr; }
+template <typename T> inline void qInitHelper(T*(*)(), void* ptr) { *(void**)ptr = 0; }
+template <typename T> inline void qDeleteHelper(T*(*)(), void* ptr) { delete*(T**)ptr; }
 inline void qInitHelper(...) { }
 inline void qDeleteHelper(...) { }
 
