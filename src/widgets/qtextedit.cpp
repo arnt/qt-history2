@@ -970,15 +970,37 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	cut();
 	break;
     case Key_Direction_L:
-	if ( !cursor->parag() || cursor->parag()->direction() == QChar::DirL )
-	    return;
-	cursor->parag()->setDirection( QChar::DirL );
+	if ( doc->textFormat() == Qt::PlainText ) {
+	    // change the whole doc
+	    QTextParag *p = doc->firstParag();
+	    while ( p ) {
+		p->setDirection( QChar::DirL );
+		p->setAlignment( Qt::AlignLeft );
+		p->invalidate( 0 );
+		p = p->next();
+	    }
+	} else {
+	    if ( !cursor->parag() || cursor->parag()->direction() == QChar::DirL )
+		return;
+	    cursor->parag()->setDirection( QChar::DirL );
+	}
 	repaintChanged();
 	break;
     case Key_Direction_R:
-	if ( !cursor->parag() || cursor->parag()->direction() == QChar::DirR )
-	    return;
-	cursor->parag()->setDirection( QChar::DirR );
+	if ( doc->textFormat() == Qt::PlainText ) {
+	    // change the whole doc
+	    QTextParag *p = doc->firstParag();
+	    while ( p ) {
+		p->setDirection( QChar::DirR );
+		p->setAlignment( Qt::AlignRight );
+		p->invalidate( 0 );
+		p = p->next();
+	    }
+	} else {
+	    if ( !cursor->parag() || cursor->parag()->direction() == QChar::DirR )
+		return;
+	    cursor->parag()->setDirection( QChar::DirR );
+	}
 	repaintChanged();
 	break;
     default: {
@@ -2157,7 +2179,7 @@ void QTextEdit::formatMore()
 
 void QTextEdit::doResize()
 {
-    if ( wrapMode != WidgetWidth )
+    if ( wrapMode == FixedPixelWidth )
 	return;
     doc->setMinimumWidth( -1 );
     resizeContents( 0, 0 );
@@ -3836,7 +3858,7 @@ QString QTextEdit::anchorAt( const QPoint& pos )
 
 void QTextEdit::documentWidthChanged( int w )
 {
-    resizeContents( w, contentsHeight() );
+    resizeContents( QMAX( visibleWidth(), w), contentsHeight() );
 }
 
 /*!
@@ -4552,6 +4574,8 @@ void QTextEdit::scrollToBottom()
 
 QRect QTextEdit::paragraphRect( int para ) const
 {
+    QTextEdit *that = (QTextEdit *)this;
+    that->sync();
     QTextParag *p = doc->paragAt( para );
     if ( !p )
 	return QRect( -1, -1, -1, -1 );
