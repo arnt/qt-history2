@@ -5315,7 +5315,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
     } else if ( o == files && e->type() == QEvent::FocusOut && files->currentItem() ) { 
     } else if ( o == files && e->type() == QEvent::KeyPress ) {
 	QTimer::singleShot( 0, this, SLOT(fixupNameEdit()) );
-    } else if ( o == nameEdit && e->type() == QEvent::KeyPress ) {
+    } else if ( o == nameEdit && e->type() == QEvent::KeyPress && d->mode != AnyFile ) {
 	if ( ( nameEdit->cursorPosition() == (int)nameEdit->text().length() || nameEdit->hasSelectedText() ) &&
 	     isprint(((QKeyEvent *)e)->ascii()) ) {
 #if defined(_WS_WIN_)
