@@ -2191,7 +2191,7 @@ Q_LLONG QVariant::toLongLong( bool * ok ) const
 
     switch ( d->typ ) {
     case String:
-	return ((QString*)d->value.ptr)->toInt( ok ); // ### LongLong
+	return ((QString*)d->value.ptr)->toLongLong( ok );
     case CString:
 	return ((QCString*)d->value.ptr)->toInt( ok ); // ### LongLOng
     case Int:
@@ -2240,7 +2240,7 @@ Q_ULLONG QVariant::toULongLong( bool * ok ) const
     case Bool:
 	return (Q_ULLONG)d->value.b;
     case String:
-	// ###	return ((QString*)d->value.ptr)->toULongLong( ok );
+	return ((QString*)d->value.ptr)->toULongLong( ok );
     case CString:
 	// ###	return ((QCString*)d->value.ptr)->toULongLong( ok );
     default:
