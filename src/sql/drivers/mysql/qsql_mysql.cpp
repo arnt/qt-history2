@@ -13,7 +13,6 @@
 ****************************************************************************/
 
 #include "qsql_mysql.h"
-#include <private/qsqlextension_p.h>
 
 #include <qdatetime.h>
 #include <qvaluevector.h>
@@ -26,36 +25,6 @@
 // note that it will crash if you don't statically link to the mysql/e library!
 # define Q_NO_MYSQL_EMBEDDED
 #endif
-
-QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict();
-
-class QMYSQLOpenExtension : public QSqlOpenExtension
-{
-public:
-    QMYSQLOpenExtension( QMYSQLDriver *dri )
-	: QSqlOpenExtension(), driver(dri) {}
-    ~QMYSQLOpenExtension() {}
-
-    bool open( const QString& db,
-	       const QString& user,
-	       const QString& password,
-	       const QString& host,
-	       int port,
-	       const QString& connOpts );
-    
-private:
-    QMYSQLDriver *driver;
-};
-
-bool QMYSQLOpenExtension::open( const QString& db,
-				const QString& user,
-				const QString& password,
-				const QString& host,
-				int port,
-				const QString& connOpts )
-{
-    return driver->open( db, user, password, host, port, connOpts );
-}
 
 class QMYSQLDriverPrivate
 {
@@ -362,7 +331,6 @@ QMYSQLDriver::QMYSQLDriver( MYSQL * con, QObject * parent, const char * name )
 
 void QMYSQLDriver::init()
 {
-    qSqlOpenExtDict()->insert( this, new QMYSQLOpenExtension(this) );
     d = new QMYSQLDriverPrivate();
     d->mysql = 0;
 }
@@ -370,10 +338,6 @@ void QMYSQLDriver::init()
 QMYSQLDriver::~QMYSQLDriver()
 {
     delete d;
-    if ( !qSqlOpenExtDict()->isEmpty() ) {
-	QSqlOpenExtension *ext = qSqlOpenExtDict()->take( this );
-	delete ext;
-    }
 #ifndef Q_NO_MYSQL_EMBEDDED
 # if MYSQL_VERSION_ID > 40000
     mysql_server_end();
@@ -402,16 +366,6 @@ bool QMYSQLDriver::hasFeature( DriverFeature f ) const
     default:
 	return FALSE;
     }
-}
-
-bool QMYSQLDriver::open( const QString&,
-			 const QString&,
-			 const QString&,
-			 const QString&,
-			 int )
-{
-    qWarning("QMYSQLDriver::open(): This version of open() is no longer supported." );
-    return FALSE;
 }
 
 bool QMYSQLDriver::open( const QString& db,

@@ -72,7 +72,8 @@ public:
 			      const QString & user = QString::null,
 			      const QString & password = QString::null,
 			      const QString & host = QString::null,
-			      int port = -1 );
+			      int port = -1,
+			      const QString& connOpts = QString::null );
     void		close();
     QSqlQuery		createQuery() const;
     QStringList		tables( const QString& user ) const;
@@ -84,13 +85,6 @@ public:
     QString		formatValue( const QSqlField* field,
 				     bool trimStrings ) const;
     MYSQL*		mysql();
-    // ### remove me for 4.0
-    bool open( const QString& db,
-	       const QString& user,
-	       const QString& password,
-	       const QString& host,
-	       int port,
-	       const QString& connOpts );
     
 protected:
     bool		beginTransaction();
