@@ -185,11 +185,9 @@ set QMAKE_VARS=%QMAKE_VARS% "QMAKE_LIBDIR_QT=%QTDIR%\lib"
 set QMAKE_VARS=%QMAKE_VARS% "OBJECTS_DIR=tmp\obj\%QMAKE_OUTDIR%" "MOC_DIR=tmp\moc\%QMAKE_OUTDIR%"
 
 if x%SHARED%==xyes (
-set QMAKE_CONFIG=%QMAKE_CONFIG% dll
 set QMAKE_OUTDIR=%QMAKE_OUTDIR%-shared
-set QMAKE_VARS=%QMAKE_VARS% "DEFINES+=QT_DLL QT_MAKEDLL")
+set QMAKE_VARS=%QMAKE_VARS% "DEFINES+=QT_DLL")
 if x%SHARED%==xno (
-set QMAKE_CONFIG=%QMAKE_CONFIG% staticlib
 set QMAKE_OUTDIR=%QMAKE_OUTDIR%-static)
 
 if x%JPEG%==xyes set QMAKE_CONFIG=%QMAKE_CONFIG% jpeg
@@ -234,6 +232,21 @@ for %%v in ( %QMAKE_VARS% ) do (
 )
 echo CONFIG=%QMAKE_CONFIG%>>.qmake.cache
 echo MKSPEC=%XMKSPEC%>>.qmake.cache
+
+rem **************************************
+rem   Generate secondary .qmake.cache
+rem   This is a workaround to avoid library
+rem   confusion
+rem **************************************
+echo Generating src\.qmake.cache
+if x%SHARED%==xyes set QMAKE_CONFIG=%QMAKE_CONFIG% dll
+if x%SHARED%==xno set QMAKE_CONFIG=%QMAKE_CONFIG% staticlib
+if exist .qmake.cache del src\.qmake.cache
+for %%v in ( %QMAKE_VARS% ) do (
+	echo %%~v >> src\.qmake.cache
+)
+echo CONFIG=%QMAKE_CONFIG%>>src\.qmake.cache
+echo MKSPEC=%XMKSPEC%>>src\.qmake.cache
 
 rem **************************************
 rem   Give some feedback
