@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#52 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -38,6 +38,7 @@
 
 extern Time qt_x_clipboardtime;			// def. in qapplication_x11.cpp
 extern Atom qt_selection_property;
+extern Atom qt_selection_sentinel;
 extern Atom* qt_xdnd_str_to_atom( const char *mimeType );
 extern const char* qt_xdnd_atom_to_str( Atom );
 
@@ -630,7 +631,8 @@ void QClipboard::setData( QMimeSource* src )
 
     d->setSource( src );
     emit dataChanged();
-
+    
+    Window prevOwner = XGetSelectionOwner( dpy, XA_PRIMARY );
     XSetSelectionOwner( dpy, XA_PRIMARY, win, qt_x_clipboardtime );
     if ( XGetSelectionOwner(dpy,XA_PRIMARY) != win ) {
 #if defined(DEBUG)
@@ -638,4 +640,58 @@ void QClipboard::setData( QMimeSource* src )
 #endif
 	return;
     }
+    // Signal to other Qt processes that the selection has changed
+    Window owners[2];
+    owners[0] = win;
+    owners[1] = prevOwner;
+    XChangeProperty( dpy, QApplication::desktop()->winId(),
+		     qt_selection_sentinel, XA_WINDOW, 32, PropModeReplace,
+		     (unsigned char*)&owners, 2 );
 }
+
+
+/*
+  Called by the main event loop in qapplication_x11.cpp when the
+  _QT_SELECTION_SENTINEL property has been changed (i.e. when some Qt
+  process has performed QClipboard::setData(). If it returns TRUE, the
+  QClipBoard dataChanged() signal should be emitted.
+
+*/
+
+bool qt_check_selection_sentinel( XEvent* )
+{
+    bool doIt = TRUE;
+    if ( owner ) {
+	/*
+	  Since the X selection mechanism cannot give any signal when
+	  the selection has changed, we emulate it (for Qt processes) here.
+	  The notification should be ignored in case of either
+	  a) This is the process that did setData (because setData()
+	     then has already emitted dataChanged())
+	  b) This is the process that owned the selection when dataChanged()
+	     was called (because we have then received a SelectionClear event,
+	     and have already emitted dataChanged() as a result of that)
+	*/
+
+	//# Could optimize away the X server roundtrip of XGetWindowProperty
+	// by checking if dataChanged() is connected to anything
+	Window* owners;
+	Atom actualType;
+	int actualFormat;
+	ulong nitems;
+	ulong bytesLeft;
+	XGetWindowProperty( owner->x11Display(), 
+			    QApplication::desktop()->winId(),
+			    qt_selection_sentinel, 0, 2, FALSE, XA_WINDOW,
+			    &actualType, &actualFormat, &nitems,
+			    &bytesLeft, (unsigned char**)&owners );
+	if ( actualType == XA_WINDOW && actualFormat == 32 && nitems == 2 ) {
+	    Window win = owner->winId();
+	    if ( owners[0] == win || owners[1] == win )
+		doIt = FALSE;
+	}
+	XFree( owners );
+    }
+    return doIt;
+}
+

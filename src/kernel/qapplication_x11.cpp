@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#563 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#564 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -50,6 +50,7 @@
 #include "qvaluelist.h"
 #include "qdict.h"
 #include "qguardedptr.h"
+#include "qclipboard.h"
 #include <stdlib.h>
 #ifdef QT_SM_SUPPORT
 #include <pwd.h>
@@ -195,6 +196,7 @@ Atom	qt_unicode_key_release;
 
 static Atom	qt_xsetroot_id;
 Atom		qt_selection_property;
+Atom		qt_selection_sentinel;
 Atom		qt_wm_state;
 static Atom 	qt_desktop_properties;   	// Qt desktop properties
 static Atom 	qt_resource_manager;		// X11 Resource manager
@@ -241,6 +243,7 @@ static QTextCodec * input_mapper = 0;
 
 QObject	       *qt_clipboard = 0;
 Time		qt_x_clipboardtime = CurrentTime;
+extern bool	qt_check_selection_sentinel( XEvent* ); //def in qclipboard_x11
 
 static void	qt_save_rootinfo();
 static bool	qt_try_modal( QWidget *, XEvent * );
@@ -905,6 +908,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "_XSETROOT_ID", &qt_xsetroot_id );
 	qt_x11_intern_atom( "_QT_SCROLL_DONE", &qt_qt_scrolldone );
 	qt_x11_intern_atom( "_QT_SELECTION", &qt_selection_property );
+	qt_x11_intern_atom( "_QT_SELECTION_SENTINEL", &qt_selection_sentinel );
 	qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
 	qt_x11_intern_atom( "RESOURCE_MANAGER", &qt_resource_manager );
 	qt_x11_intern_atom( "_QT_DESKTOP_PROPERTIES", &qt_desktop_properties );
@@ -2186,7 +2190,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
     if ( event->type == PropertyNotify ) {	// some properties changed
 	qt_x_clipboardtime = event->xproperty.time;
 	if ( event->xproperty.window == appRootWin ) { // root properties
-	    if ( obey_desktop_settings ) {
+	    if ( event->xproperty.atom == qt_selection_sentinel ) {
+		if ( qt_check_selection_sentinel( event ) )
+		     emit clipboard()->dataChanged();
+	    }
+	    else if ( obey_desktop_settings ) {
 		if ( event->xproperty.atom == qt_resource_manager )
 		    qt_set_x11_resources();
 		else if ( event->xproperty.atom == qt_desktop_properties )
