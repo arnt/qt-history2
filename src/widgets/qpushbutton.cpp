@@ -78,7 +78,10 @@
   become the default push button automatically when they receive the
   keyboard input focus. A default button is a command button that is
   activated when the users hits the Enter or Return key in a
-  dialog. Adjust this behaviour with setAutoDefault().
+  dialog. Adjust this behaviour with setAutoDefault(). Note that
+  auto-default buttons reserve a little extra space necessary to draw
+  a default-button indicator. If you do not want this space around
+  your buttons, call setAutoDefault( FALSE ).
 
   Being so central, the widget has grown to accomodate a great many
   variations in the past decade, and by now the Microsoft style guide
