@@ -20,7 +20,8 @@ HEADERS += \
 	itemviews/qtablewidget.h \
 	itemviews/qtreewidget.h \
 	itemviews/qproxymodel.h \
-	itemviews/qitemeditorfactory.h
+	itemviews/qitemeditorfactory.h \
+	itemviews/qstandarditemmodel.h
 
 SOURCES += \
 	itemviews/qabstractitemview.cpp \
@@ -37,4 +38,6 @@ SOURCES += \
 	itemviews/qtablewidget.cpp \
 	itemviews/qtreewidget.cpp \
 	itemviews/qproxymodel.cpp \
-	itemviews/qitemeditorfactory.cpp
+	itemviews/qitemeditorfactory.cpp \
+	itemviews/qstandarditemmodel.cpp
+
