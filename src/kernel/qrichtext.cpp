@@ -3142,7 +3142,7 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
     if ( !firstParagraph() )
 	return 0;
 
-    if ( formatCollection()->defaultFormat()->color() != cg.text() ) 
+    if ( formatCollection()->defaultFormat()->color() != cg.text() )
 	setDefaultFormat( formatCollection()->defaultFormat()->font(), cg.text() );
 
     if ( cx < 0 && cy < 0 ) {
@@ -3998,6 +3998,8 @@ void QTextParagraph::invalidate( int chr )
     }
 #endif
     invalidateStyleCache();
+    needPreProcess = TRUE;
+    state = -1;
 }
 
 void QTextParagraph::invalidateStyleCache()

@@ -64,6 +64,8 @@ public:
     void setFormat( int start, int count, const QFont &font );
     QTextEdit *textEdit() const { return edit; }
 
+    void rehighlight();
+
 private:
     QTextParagraph *para;
     QTextEdit *edit;

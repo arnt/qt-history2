@@ -219,4 +219,13 @@ void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font )
     installed
 */
 
+/*!  Redoes the highlighting of the whole document.
+*/
+
+void QSyntaxHighlighter::rehighlight()
+{
+    edit->document()->invalidate();
+    edit->repaintContents( FALSE );
+}
+
 #endif
