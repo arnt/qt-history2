@@ -4822,8 +4822,7 @@ int QTextParagraph::topMargin() const
 {
     int m = 0;
     if ( rtext ) {
-	if ( !isListItem() )
-	    m = document()->par_tm;
+	m = isListItem() ? document()->li_tm : document()->par_tm;
 	if ( listDepth() == 1 &&(  !prev() || prev()->listDepth() < listDepth() ) )
 	    m = QMAX( m, document()->list_tm );
     }
@@ -4835,8 +4834,7 @@ int QTextParagraph::bottomMargin() const
 {
     int m = 0;
     if ( rtext ) {
-	if ( !isListItem() )
-	    m = document()->par_bm;
+	m = isListItem() ? document()->li_bm : document()->par_bm;
 	if ( listDepth() == 1 &&(  !next() || next()->listDepth() < listDepth() ) )
 	    m = QMAX( m, document()->list_bm );
     }
