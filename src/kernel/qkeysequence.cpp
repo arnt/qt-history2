@@ -516,8 +516,8 @@ Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
 	if ( userKey == sequenceKey ) // perfect match
 	    continue;
 
-	if ( sequenceKey & Qt::UNICODE_ACCEL == 0 ||
-	     userKey & Qt::UNICODE_ACCEL == 0 )
+	if ( (sequenceKey & Qt::UNICODE_ACCEL) == 0 ||
+	     (userKey & Qt::UNICODE_ACCEL) == 0 )
 	    return NoMatch; // no perfect match and no unicode
 
 	int sequenceModifiers = sequenceKey & Qt::MODIFIER_MASK;
