@@ -1,6 +1,6 @@
 TEMPLATE = app
-HEADERS = setupwizardimpl.h installthread.h installevent.h
-SOURCES = main.cpp setupwizardimpl.cpp installthread.cpp installevent.cpp
+HEADERS = setupwizardimpl.h
+SOURCES = main.cpp setupwizardimpl.cpp
 INTERFACES = setupwizard.ui
 TARGET  = setup
 INCLUDEPATH = $(QTDIR)\src\3rdparty

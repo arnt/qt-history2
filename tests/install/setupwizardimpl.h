@@ -1,7 +1,6 @@
 #include <qprocess.h>
 
 #include "setupwizard.h"
-#include "installthread.h"
 
 class QCheckListItem;
 
@@ -14,24 +13,33 @@ public:
     virtual void clickedPath();
     virtual void clickedSystem( int );
     virtual void licenseAccepted();
-    virtual void showPage( QWidget* );
 
+    QApplication* app;
 protected:
-    virtual void customEvent( QCustomEvent* );
+    virtual void pageChanged( const QString& );
 private:
     int sysID;
     QByteArray tmpPath;
 
-    InstallThread installer;
     QProcess configure;
+    QProcess make;
     QCheckListItem* debugMode;
     QCheckListItem* buildType;
     QCheckListItem* threadModel;
     QCheckListItem* modules;
     QCheckListItem* sqldrivers;
 
+    void saveSettings();
+    void saveSet( QListView* list );
 protected slots:
     void configDone();
     void readConfigureOutput();
+    void makeDone();
+    void readMakeOutput();
+
+private:
+    void readArchive( QString arcname, QString installPath );
+    bool createDir( QString fullPath );
+    int totalRead;
 
 };

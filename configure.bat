@@ -53,53 +53,51 @@ rem   Parse command line arguments
 rem **************************************
 
 :loop
-if x%1==x goto endloop
-if x%1==x-help set HELP=yes
-if x%1==x-qconfig (
-	set QCONFIG=%2
+if x%~1==x goto endloop
+if x%~1==x-help set HELP=yes
+if x%~1==x-qconfig (
+	set QCONFIG=%~2
 	shift)
-if x%1==x-release set DEBUG=no
-if x%1==x-debug set DEBUG=yes
-if x%1==x-shared set SHARED=yes
-if x%1==x-static set SHARED=no
-if x%1==x-no-thread set THREAD=no
-if x%1==x-thread set THREAD=yes
-if x%1==xmkspec (
-	set XMKSPEC=%2
+if x%~1==x-release set DEBUG=no
+if x%~1==x-debug set DEBUG=yes
+if x%~1==x-shared set SHARED=yes
+if x%~1==x-static set SHARED=no
+if x%~1==x-no-thread set THREAD=no
+if x%~1==x-thread set THREAD=yes
+if x%~1==xmkspec (
+	set XMKSPEC=%~2
 	shift)
-if x%1==x-no-gif set GIF=no
-if x%1==x-qt-gif set GIF=yes
-if x%1==x-qt-zlib set ZLIB=yes
-if x%1==x-system-zlib set ZLIB=no
-if x%1==x-qt-libpng set LIBPNG=yes
-if x%1==x-system-libpng set LIBPNG=no
-if x%1==x-no-mng set MNG=no
-if x%1==x-system-mng set MNG=yes
-if x%1==x-no-jpeg set JPEG=no
-if x%1==x-system-jpeg set JPEG=yes
+if x%~1==x-no-gif set GIF=no
+if x%~1==x-qt-gif set GIF=yes
+if x%~1==x-qt-zlib set ZLIB=yes
+if x%~1==x-system-zlib set ZLIB=no
+if x%~1==x-qt-libpng set LIBPNG=yes
+if x%~1==x-system-libpng set LIBPNG=no
+if x%~1==x-no-mng set MNG=no
+if x%~1==x-system-mng set MNG=yes
+if x%~1==x-no-jpeg set JPEG=no
+if x%~1==x-system-jpeg set JPEG=yes
 
 cd src
 for %%m in ( %MODULES% ) do (
-	set ENABLEMODULE=x-enable-%%m%
-	set DISABLEMODULE=x-disable-%%m%
-	if x%1==x-enable-%%m% (
-		set QMAKE_CONFIG=!QMAKE_CONFIG! %%m%
+	if x%~1==x-enable-%%m (
+		set QMAKE_CONFIG=!QMAKE_CONFIG! %%m
 	)
-	if x%1==x-disable-%%m% (
+	if x%~1==x-disable-%%m (
 		set DISABLED_%%m%=yes
 	)
 )
 cd sql\src
 for %%s in ( %SQLDRIVERS% ) do (
-	set SQLDRV=x-sql-%%s%
-	if x%1==x-sql-%%s% (
-		set QMAKE_SQL=!QMAKE_SQL! %%s%
+	set SQLDRV=x-sql-%%s
+	if x%~1==x-sql-%%s (
+		set QMAKE_SQL=!QMAKE_SQL! %%s
 	)
 )
 cd ..\..\..
 
 rem *** The following is a workaround
-if x%1==x-internal set QMAKE_INTERNAL=yes
+if x%~1==x-internal set QMAKE_INTERNAL=yes
 shift
 goto loop
 :endloop
@@ -109,8 +107,8 @@ rem   Figure out which configuration to use
 rem ******************************************
 set QMAKE_CONFIG_TMP=
 for %%c in ( minimal small medium large full ) do (
-	set QMAKE_CONFIG_TMP=!QMAKE_CONFIG_TMP! %%c%-config
-	if %%c%==!QCONFIG! goto foundconfig
+	set QMAKE_CONFIG_TMP=!QMAKE_CONFIG_TMP! %%c-config
+	if %%c==!QCONFIG! goto foundconfig
 )
 echo No such configuration: %QCONFIG%
 set HELP=yes
@@ -119,7 +117,7 @@ set QMAKE_CONFIG=%QMAKE_CONFIG% %QMAKE_CONFIG_TMP%
 
 if x%QMAKE_INTERNAL%==xyes (
 	for %%m in ( %MODULES% ) do (
-		if not x!DISABLED_%%m%!==xyes (
+		if not x!DISABLED_%%m!==xyes (
 			set QMAKE_CONFIG=!QMAKE_CONFIG! %%m )
 		)
 	)
@@ -226,7 +224,7 @@ set QMODULESTARGET=src\tools\qmodules.h
 if exist %QMODULESTMP% del /F %QMODULESTMP%
 echo // These modules are present in this configuration of Qt > %QMODULESTMP%
 for %%m in ( %MODULES% ) do (
-	if not x!DISABLED_%%m%!==xyes (
+	if not x!DISABLED_%%m!==xyes (
 		for %%u in ( %MODULES_UPPER% ) do (
 			if /I %%u==%%m echo #define QT_MODULE_%%u >> %QMODULESTMP%
 		)
@@ -288,16 +286,14 @@ set QMAKE_ALL_ARGS="CONFIG+=%QMAKE_CONFIG%" %QMAKE_VARS%
 
 echo @echo off > tmp.bat
 for /R %QTDIR% %%d IN (.) DO (
-	set QMAKE_DIR=%%d%
-	if exist %%d%\*.pro (
-		for /F "usebackq" %%f IN (`dir /B %%d%\*.pro`) DO (
-			set QMAKE_FILE=%%f%
+	set QMAKE_DIR=%%d
+	if exist %%d\*.pro (
+		for /F "usebackq" %%f IN (`dir /B %%d\*.pro`) DO (
+			set QMAKE_FILE=%%f
 			set QMAKE_EXTRA_ARGS="QMAKE_ABSOLUTE_SOURCE_PATH=!QMAKE_DIR!"
 			if not "!QMAKE_FILE!" == "qtmain.pro" (
-rem				set QMAKE_COMMAND=%QTDIR%\bin\qmake !QMAKE_DIR!\!QMAKE_FILE! %QMAKE_ALL_ARGS% !QMAKE_EXTRA_ARGS! -o !QMAKE_DIR!\Makefile -mkspec %XMKSPEC%
 				set QMAKE_COMMAND=%QTDIR%\bin\qmake !QMAKE_DIR!\!QMAKE_FILE! %QMAKE_ALL_ARGS% -o !QMAKE_DIR!\Makefile -mkspec %XMKSPEC%
 			) else (
-rem				set QMAKE_COMMAND=%QTDIR%\bin\qmake !QMAKE_DIR!\!QMAKE_FILE! %QMAKE_ALL_ARGS% !QMAKE_EXTRA_ARGS! -o !QMAKE_DIR!\Makefile.main -mkspec %XMKSPEC%
 				set QMAKE_COMMAND=%QTDIR%\bin\qmake !QMAKE_DIR!\!QMAKE_FILE! %QMAKE_ALL_ARGS% -o !QMAKE_DIR!\Makefile.main -mkspec %XMKSPEC%
 			)
 			echo echo !QMAKE_DIR!\!QMAKE_FILE! >> tmp.bat
@@ -310,7 +306,7 @@ call tmp.bat
 rem *************************************
 rem   Clean up
 rem *************************************
-del tmp.bat
+rem del tmp.bat
 
 set LASTCONFIG=lastconfig.bat
 if exist %LASTCONFIG% del %LASTCONFIG%

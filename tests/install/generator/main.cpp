@@ -244,6 +244,16 @@ int main( int argc, char** argv )
 
     distdir.mkdir( distname );
 
+    fileList << QString( getenv( "QTDIR" ) ) + "\\dist\\commercial\\LICENSE";
+    fileList << QString( getenv( "QTDIR" ) ) + "\\tests\\build\\configurator\\configurator.exe";
+    fileList << QString( getenv( "QTDIR" ) ) + "\\tests\\install\\INSTALL_DONE.TXT";
+    generateFileArchive( distname + "\\sys.arq", fileList );
+
+    fileList.clear();
+    fileList << QString( getenv( "QTDIR" ) ) + "\\Makefile";
+    fileList << QString( getenv( "QTDIR" ) ) + "\\configure.bat";
+    generateFileArchive( distname + "\\build.arq", fileList );
+
     dirList << "dist\\win\\" << "src" << "include" << "mkspecs" << "plugins" << "qmake" << "tmake" << "tools";
     generateArchive( distname + "\\qt.arq", dirList );
 
@@ -262,9 +272,5 @@ int main( int argc, char** argv )
     buildInstaller( argv[ 1 ] );
     buildConfigurator();
 
-    fileList << QString( getenv( "QTDIR" ) ) + "\\dist\\commercial\\LICENSE";
-    fileList << QString( getenv( "QTDIR" ) ) + "\\tests\\build\\configurator\\configurator.exe";
-    fileList << QString( getenv( "QTDIR" ) ) + "\\tests\\install\\INSTALL_DONE.TXT";
-    generateFileArchive( distname + "\\sys.arq", fileList );
     return 0;
 }

@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>429</width>
+            <width>526</width>
             <height>340</height>
         </rect>
     </property>
@@ -260,7 +260,7 @@
         <attribute name="title">
             <string>Installing</string>
         </attribute>
-        <hbox>
+        <grid>
             <property name="name">
                 <cstring>unnamed</cstring>
             </property>
@@ -270,7 +270,7 @@
             <property name="spacing">
                 <number>6</number>
             </property>
-            <widget class="QLabel">
+            <widget class="QLabel" row="0" column="0">
                 <property name="name">
                     <cstring>page3Pixmap</cstring>
                 </property>
@@ -286,50 +286,45 @@
                 <property name="vAlign" stdset="0">
                 </property>
             </widget>
-            <widget class="QGroupBox">
+            <widget class="QGroupBox" row="0" column="1">
                 <property name="name">
                     <cstring>currentGroup</cstring>
                 </property>
                 <property name="title">
                     <string>Copying files</string>
                 </property>
-                <widget class="QProgressBar">
-                    <property name="name">
-                        <cstring>operationProgress</cstring>
+                <vbox>
+                    <property name="margin">
+                        <number>11</number>
                     </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>11</x>
-                            <y>17</y>
-                            <width>271</width>
-                            <height>21</height>
-                        </rect>
+                    <property name="spacing">
+                        <number>6</number>
                     </property>
-                    <property name="progress">
-                        <number>0</number>
-                    </property>
-                    <property name="centerIndicator">
-                        <bool>false</bool>
-                    </property>
-                    <property name="indicatorFollowsStyle">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-                <widget class="QLineEdit">
-                    <property name="name">
-                        <cstring>filesDisplay</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>10</x>
-                            <y>40</y>
-                            <width>270</width>
-                            <height>22</height>
-                        </rect>
-                    </property>
-                </widget>
+                    <widget class="QProgressBar">
+                        <property name="name">
+                            <cstring>operationProgress</cstring>
+                        </property>
+                        <property name="progress">
+                            <number>0</number>
+                        </property>
+                        <property name="centerIndicator">
+                            <bool>false</bool>
+                        </property>
+                        <property name="indicatorFollowsStyle">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                    <widget class="QMultiLineEdit">
+                        <property name="name">
+                            <cstring>filesDisplay</cstring>
+                        </property>
+                        <property name="readOnly">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                </vbox>
             </widget>
-        </hbox>
+        </grid>
     </widget>
     <widget class="QWidget">
         <property name="name">
@@ -441,6 +436,77 @@
             </widget>
         </hbox>
     </widget>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>buildPage</cstring>
+        </property>
+        <attribute name="title">
+            <string>Building Qt</string>
+        </attribute>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <property name="margin">
+                <number>11</number>
+            </property>
+            <property name="spacing">
+                <number>6</number>
+            </property>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>page5Pixmap</cstring>
+                </property>
+                <property name="pixmap">
+                    <pixmap>image1</pixmap>
+                </property>
+                <property name="scaledContents">
+                    <bool>false</bool>
+                </property>
+                <property name="alignment">
+                    <set>AlignAuto|AlignTop</set>
+                </property>
+                <property name="vAlign" stdset="0">
+                </property>
+            </widget>
+            <widget class="QGroupBox">
+                <property name="name">
+                    <cstring>outputBox</cstring>
+                </property>
+                <property name="title">
+                    <string>Build output</string>
+                </property>
+                <vbox>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QMultiLineEdit">
+                        <property name="name">
+                            <cstring>outputDisplay</cstring>
+                        </property>
+                        <property name="lineWidth">
+                            <number>2</number>
+                        </property>
+                        <property name="resizePolicy">
+                            <enum>Manual</enum>
+                        </property>
+                        <property name="vScrollBarMode">
+                            <enum>Auto</enum>
+                        </property>
+                        <property name="hScrollBarMode">
+                            <enum>Auto</enum>
+                        </property>
+                        <property name="readOnly">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+        </hbox>
+    </widget>
 </widget>
 <images>
     <image name="image0">
@@ -478,9 +544,17 @@
         <receiver>SetupWizard</receiver>
         <slot>licenseAccepted()</slot>
     </connection>
+    <connection>
+        <sender>SetupWizard</sender>
+        <signal>selected(const QString&amp;)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>pageChanged(const QString&amp;)</slot>
+    </connection>
+    <slot access="protected" language="C++">init()</slot>
     <slot access="public" language="C++">clickedPath()</slot>
-    <slot access="public" language="C++">licenseAccepted()</slot>
     <slot access="public" language="C++">clickedSystem(int)</slot>
+    <slot access="public" language="C++">licenseAccepted()</slot>
+    <slot access="public" language="C++">pageChanged(const QString&amp;)</slot>
 </connections>
 <tabstops>
     <tabstop>introText</tabstop>
