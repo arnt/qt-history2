@@ -27,8 +27,6 @@
 // for Borland, main is defined to qMain which breaks qmake
 #undef main
 #ifdef Q_OS_MAC
-// for qurl
-bool qt_resolve_symlinks = FALSE;
 #endif
 
 int main(int argc, char **argv)
