@@ -197,6 +197,7 @@ QCategoryBar::~QCategoryBar()
     delete d;
 }
 
+// ### is this needed, seems hacky
 static void set_background_mode( QWidget *top, Qt::BackgroundMode bm )
 {
     QObjectList *l = top->queryList( "QWidget" );
@@ -268,6 +269,7 @@ void QCategoryBar::insertCategory( const QString &label, const QIconSet &iconSet
 	d->lastTab = button;
 	d->lastTab->setSelected( TRUE );
 	sv->show();
+	// #### is this needed, seems hacky
 	set_background_mode( d->currentPage, PaletteLight );
     } else {
 	sv->hide();
@@ -321,6 +323,7 @@ void QCategoryBar::setCurrentPage( QWidget *page )
 	d->currentPage->hide();
     d->currentPage = page;
     d->currentPage->show();
+    // #### is this needed, seems hack
     set_background_mode( d->currentPage, PaletteLight );
     updateTabs();
     emit currentChanged( page );
