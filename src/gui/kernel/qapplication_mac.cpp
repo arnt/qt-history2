@@ -210,14 +210,14 @@ static void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
 }
 
 #ifdef DEBUG_PLATFORM_SETTINGS
-static void qt_mac_debug_palette(const QPalette &pal, const QPalette &pal2, const char *where)
+static void qt_mac_debug_palette(const QPalette &pal, const QPalette &pal2, const QString &where)
 {
     const char *groups[] = { "Disabled", "Active", "Inactive" };
     const char *roles[] = { "Foreground", "Button", "Light", "Midlight", "Dark", "Mid",
                             "Text", "BrightText", "ButtonText", "Base", "Background", "Shadow",
                             "Highlight", "HighlightedText", "Link", "LinkVisited" };
-    if(where)
-        qDebug("qt-internal: %s", where);
+    if(!where.isNull())
+        qDebug("qt-internal: %s", where.latin1());
     for(int grp = 0; grp < QPalette::NColorGroups; grp++) {
         for(int role = 0; role < QPalette::NColorRoles; role++) {
             QBrush b = pal.brush((QPalette::ColorGroup)grp, (QPalette::ColorRole)role);
@@ -378,9 +378,14 @@ void qt_mac_update_os_settings()
         SInt16 f_size;
         Style f_style;
         GetThemeFont(kThemeApplicationFont, smSystemScript, f_name, &f_size, &f_style);
-        QApplication::setFont(QFont(qt_mac_from_pascal_string(f_name), f_size,
-                                    (f_style & ::bold) ? QFont::Bold : QFont::Normal,
-                                    (bool)(f_style & ::italic)));
+        QFont fnt(qt_mac_from_pascal_string(f_name), f_size,
+                  (f_style & ::bold) ? QFont::Bold : QFont::Normal,
+                  (bool)(f_style & ::italic));
+#ifdef DEBUG_PLATFORM_SETTINGS
+        qDebug("qt-internal: Font for Application [%s::%d::%d::%d]", 
+               fnt.family().latin1(), fnt.pointSize(), fnt.bold(), fnt.italic());
+#endif
+        QApplication::setFont(fnt);
     }
     { //setup the fonts
         struct {
