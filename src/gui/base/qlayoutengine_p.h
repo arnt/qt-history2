@@ -70,7 +70,7 @@ struct QLayoutStruct
 };
 
 
-void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
+Q_GUI_EXPORT void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
 			 int pos, int space, int spacer );
 QSize qSmartMinSize( const QWidgetItem *i );
 QSize qSmartMinSize( QWidget *w );
