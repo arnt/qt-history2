@@ -101,6 +101,7 @@ void DatabaseConnectionsEditor::doConnect()
 	conn->setUsername( connectionWidget->editUsername->text() );
 	conn->setPassword( connectionWidget->editPassword->text() );
 	conn->setHostname( connectionWidget->editHostname->text() );
+	conn->setPort( connectionWidget->editPort->text().toInt() );
 	if ( conn->refreshCatalog() ) {
 	    project->addDatabaseConnection( conn );
 	    listConnections->insertItem( conn->name() );
@@ -118,6 +119,7 @@ void DatabaseConnectionsEditor::doConnect()
 	conn->setUsername( connectionWidget->editUsername->text() );
 	conn->setPassword( connectionWidget->editPassword->text() );
 	conn->setHostname( connectionWidget->editHostname->text() );
+	conn->setPort( connectionWidget->editPort->text().toInt() );
 	conn->refreshCatalog();
 	project->saveConnections();
     }
@@ -142,6 +144,8 @@ void DatabaseConnectionsEditor::currentConnectionChanged( const QString &s )
     connectionWidget->editUsername->setText( conn->username() );
     connectionWidget->editPassword->setText( conn->password() );
     connectionWidget->editHostname->setText( conn->hostname() );
+    if ( conn->port() )
+	connectionWidget->editPort->setText( QString::number( conn->port() ) );
 #endif
 }
 
@@ -166,5 +170,7 @@ void DatabaseConnectionsEditor::enableAll( bool b )
     connectionWidget->editPassword->setText( "" );
     connectionWidget->editHostname->setEnabled( b );
     connectionWidget->editHostname->setText( "" );
+    connectionWidget->editPort->setEnabled( b );
+    connectionWidget->editPort->setText( "" );
     buttonConnect->setEnabled( b );
 }

@@ -102,6 +102,7 @@ bool DatabaseConnection::open( bool suppressDialog )
     conn->setUserName( uname );
     conn->setPassword( pword );
     conn->setHostName( hname );
+    conn->setPort( prt );
     bool success = conn->open();
     for( ; suppressDialog == FALSE ; ) {
 	bool done = FALSE;
@@ -121,6 +122,7 @@ bool DatabaseConnection::open( bool suppressDialog )
 	conn->setUserName( uname );
 	conn->setPassword( pword );
 	conn->setHostName( hname );
+	conn->setPort( prt );
 	success = conn->open();
 	if ( !success ) {
 	    switch( QMessageBox::warning( 0, QApplication::tr( "Connection" ),
@@ -707,6 +709,7 @@ void Project::saveConnections()
 	    saveSingleProperty( ts, "database", conn->database(), indent );
 	    saveSingleProperty( ts, "username", conn->username(), indent );
 	    saveSingleProperty( ts, "hostname", conn->hostname(), indent );
+	    saveSingleProperty( ts, "port", QString::number( conn->port() ), indent );
 
 	    /* connection tables */
 	    QStringList tables = conn->tables();
@@ -782,12 +785,16 @@ void Project::loadConnections()
 								     "username" );
 		QDomElement connectionHostname = loadSingleProperty( connection,
 								     "hostname" );
+		QDomElement connectionPort = loadSingleProperty( connection,
+								     "port" );
+
 		DatabaseConnection *conn = new DatabaseConnection( this );
 		conn->setName( connectionName.firstChild().firstChild().toText().data() );
 		conn->setDriver( connectionDriver.firstChild().firstChild().toText().data() );
 		conn->setDatabase( connectionDatabase.firstChild().firstChild().toText().data() );
 		conn->setUsername( connectionUsername.firstChild().firstChild().toText().data() );
 		conn->setHostname( connectionHostname.firstChild().firstChild().toText().data() );
+		conn->setPort( QString( connectionPort.firstChild().firstChild().toText().data() ).toInt() );
 
 		/* connection tables */
 		QDomNodeList tables = connection.toElement().elementsByTagName( "table" );

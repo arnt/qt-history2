@@ -63,6 +63,8 @@ void DatabaseConnectionEditor::init()
     connectionWidget->editPassword->setText( "" );
     connectionWidget->editHostname->setEnabled( TRUE );
     connectionWidget->editHostname->setText( conn->hostname() );
+    connectionWidget->editPort->setEnabled( TRUE );
+    connectionWidget->editPort->setText( QString::number( conn->port() ) );
     connectionWidget->editUsername->setFocus();
     connectionWidget->editUsername->selectAll();
 }
