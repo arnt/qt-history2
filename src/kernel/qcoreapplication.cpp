@@ -195,6 +195,12 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
     function.
 */
 
+/*!
+    \fn static QCoreApplication *QCoreApplication::instance()
+
+    Returns a pointer to the application's QCoreApplication.
+*/
+
 /*!\internal
  */
 QCoreApplication::QCoreApplication(QCoreApplicationPrivate &p, QEventLoop *e)
@@ -525,7 +531,7 @@ void QCoreApplication::processOneEvent()
     QTimer with 0 timeout. More advanced idle processing schemes can
     be achieved using processEvents().
 
-    \sa quit(), exit(), processEvents(), setMainWidget()
+    \sa quit(), exit(), processEvents(), QApplication::setMainWidget()
 */
 int QCoreApplication::exec()
 {
@@ -589,6 +595,24 @@ int QCoreApplication::loopLevel() const
 /*****************************************************************************
   QCoreApplication management of posted events
  *****************************************************************************/
+
+/*!
+    \fn bool QCoreApplication::sendEvent(QObject *receiver, QEvent *event)
+
+    Sends event \a event directly to receiver \a receiver, using the
+    notify() function. Returns the value that was returned from the
+    event handler.
+
+    The event is \e not deleted when the event has been sent. The normal
+    approach is to create the event on the stack, e.g.
+    \code
+    QMouseEvent me( QEvent::MouseButtonPress, pos, 0, 0 );
+    QApplication::sendEvent( mainWindow, &me );
+    \endcode
+    If you create the event on the heap you must delete it.
+
+    \sa postEvent(), notify()
+*/
 
 /*!
   Adds the event \a event with the object \a receiver as the receiver of the
@@ -908,9 +932,9 @@ bool QCoreApplication::event( QEvent *e )
   Tells the application to exit with return code 0 (success).
   Equivalent to calling QApplication::exit( 0 ).
 
-  It's common to connect the lastWindowClosed() signal to quit(), and
-  you also often connect e.g. QButton::clicked() or signals in
-  QAction, QPopupMenu or QMenuBar to it.
+  It's common to connect the QApplication::lastWindowClosed() signal
+  to quit(), and you also often connect e.g. QButton::clicked() or
+  signals in QAction, QPopupMenu or QMenuBar to it.
 
   Example:
   \code
@@ -918,7 +942,7 @@ bool QCoreApplication::event( QEvent *e )
     connect( quitButton, SIGNAL(clicked()), qApp, SLOT(quit()) );
   \endcode
 
-  \sa exit() aboutToQuit() lastWindowClosed() QAction
+  \sa exit() aboutToQuit() QApplication::lastWindowClosed() QAction
 */
 
 void QCoreApplication::quit()

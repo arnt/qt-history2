@@ -764,10 +764,10 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn void QStyle::drawPrimitive( PrimitiveElement pe, QPainter *p, const QRect &r, const QColorGroup &cg, SFlags flags = Style_Default, const QStyleOption& opt = QStyleOption::Default ) const;
+    \fn void QStyle::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r, const QPalette &pal, SFlags flags, const QStyleOption& opt) const;
 
     Draws the style PrimitiveElement \a pe using the painter \a p in
-    the area \a r. Colors are used from the color group \a cg.
+    the area \a r. Colors are used from the palette \a pal.
 
     The rect \a r should be in screen coordinates.
 
@@ -894,10 +894,10 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn void QStyle::drawControl ( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, SFlags how = Style_Default, const QStyleOption& opt = QStyleOption::Default ) const;
+    \fn void QStyle::drawControl(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QPalette &pal, SFlags how, const QStyleOption& opt) const;
 
     Draws the ControlElement \a element using the painter \a p in the
-    area \a r. Colors are used from the color group \a cg.
+    area \a r. Colors are used from the palette \a pal.
 
     The rect \a r should be in screen coordinates.
 
@@ -1244,10 +1244,10 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn void QStyle::drawComplexControl( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, SFlags how, SCFlags sub, SCFlags subActive, const QStyleOption& opt ) const
+    \fn void QStyle::drawComplexControl(ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QPalette &pal, SFlags how, SCFlags sub, SCFlags subActive, const QStyleOption& opt) const
 
     Draws the ComplexControl \a control using the painter \a p in the
-    area \a r. Colors are used from the color group \a cg. The \a sub
+    area \a r. Colors are used from the palette \a pal. The \a sub
     argument specifies which SubControls to draw. Multiple SubControls
     can be OR'ed together. The \a subActive argument specifies which
     SubControl is active.
@@ -1590,8 +1590,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SH_GUIStyle the GUI style to use.
 
     \value SH_ScrollBar_BackgroundMode  the background mode for a
-	QScrollBar. Possible values are any of those in the \link
-	Qt::BackgroundMode BackgroundMode\endlink enum.
+	QScrollBar.
 
     \value SH_ScrollBar_MiddleClickAbsolutePosition  a boolean value.
 	If TRUE, middle clicking on a scrollbar causes the slider to
@@ -1871,20 +1870,5 @@ QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
 		  logical.width() - boundingRect.width(), 0 );
     return r;
 }
-
-/*!
-  \fn int QStyle::defaultFrameWidth() const
-  \obsolete
-*/
-
-/*!
-  \fn void QStyle::tabbarMetrics( const QWidget *, int &, int &, int & ) const
-  \obsolete
-*/
-
-/*!
-  \fn QSize QStyle::scrollBarExtent() const
-  \obsolete
-*/
 
 #endif // QT_NO_STYLE

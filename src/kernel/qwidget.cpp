@@ -1340,7 +1340,7 @@ QStyle* QWidget::setStyle( const QString &style )
     \brief whether the widget is a top-level widget
 
     A top-level widget is a widget which usually has a frame and a
-    \link QWidget::setWindowTitle title\endlink. \link
+    \link QWidget::setWindowTitle() title\endlink. \link
     QWidget::isPopup() Popup\endlink and \link QWidget::isDesktop()
     desktop\endlink widgets are also top-level widgets.
 
@@ -1399,7 +1399,7 @@ QStyle* QWidget::setStyle( const QString &style )
 */
 
 /*!
-    \fn QWidget::underMouse()
+    \fn bool QWidget::underMouse() const
 
     Returns true if the widget is under the mouse cursor; otherwise
     returns false.
@@ -2706,7 +2706,7 @@ void QWidget::setWindowRole(const QString &role)
     If mouse tracking is enabled, the widget receives mouse move
     events even if no buttons are pressed.
 
-    \sa mouseMoveEvent(), QApplication::setGlobalMouseTracking()
+    \sa mouseMoveEvent()
 */
 
 

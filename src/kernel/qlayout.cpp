@@ -1260,7 +1260,10 @@ int QGridLayout::colStretch( int col ) const
     other column in this table can grow at all, the column may still
     grow.
 
-    \sa colStretch(), addColSpacing(), setRowStretch()
+    An alternative approach is to add spacing using addItem() with a
+    QSpacerItem.
+
+    \sa colStretch(), setRowStretch()
 */
 void QGridLayout::setColStretch( int col, int stretch )
 {

@@ -882,16 +882,6 @@ void QTranslator::remove( const QTranslatorMessage& message )
 */
 #endif
 
-/*!
-  \fn QString QTranslator::find( const char*, const char*, const char* ) const
-  \obsolete
-
-  Please use findMessage() instead.
-
-  Returns the translation for the key (\a context, \a sourceText,
-  \a comment) or QString::null if there is none in this translator.
-*/
-
 /*!  Returns the QTranslatorMessage for the key
      (\a context, \a sourceText, \a comment). If none is found,
      also tries (\a context, \a sourceText, "").
