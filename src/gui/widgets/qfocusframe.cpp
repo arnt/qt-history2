@@ -40,7 +40,6 @@ void QFocusFramePrivate::update()
     q->setParent(widget->parentWidget());
     updateSize();
     if (q->parentWidget()->rect().contains(q->geometry())) {
-        q->stackUnder(widget);
         q->raise();
         q->show();
     }
@@ -101,7 +100,7 @@ QFocusFrame::setWidget(QWidget *widget)
 
     if(d->widget)
         d->widget->removeEventFilter(this);
-    if(widget && widget->parentWidget()) {
+    if(widget && !widget->isTopLevel()) {
         d->widget = widget;
         widget->installEventFilter(this);
         d->update();

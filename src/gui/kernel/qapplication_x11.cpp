@@ -1027,9 +1027,8 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
             pal.setColor(QPalette::Disabled, QPalette::HighlightedText, Qt::white);
             pal.setColor(QPalette::Disabled, QPalette::Highlight, Qt::darkBlue);
         }
-        if (pal != *qt_std_pal && pal != QApplication::palette())
+        if (pal != *qt_std_pal)
             QApplication::setPalette(pal);
-        *qt_std_pal = pal;
     }
 
     if (!resEF.isEmpty()) {

@@ -220,7 +220,6 @@ QMAKE_VARS="$QMAKE_VARS \"styles -= pocketpc\""  # experimental
 QMAKE_VARS="$QMAKE_VARS \"styles -= windowsxp\"" # only on Windows
 
 # Temporary until all the styles are ported over..
-QMAKE_VARS="$QMAKE_VARS \"styles -= cde\""
 QMAKE_VARS="$QMAKE_VARS \"styles -= motifplus\""
 QMAKE_VARS="$QMAKE_VARS \"styles -= platinum\""
 QMAKE_VARS="$QMAKE_VARS \"styles -= sgi\""

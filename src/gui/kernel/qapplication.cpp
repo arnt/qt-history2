@@ -487,26 +487,29 @@ void qt_create_std_palette()
     if (qt_std_pal)
         delete qt_std_pal;
 
-    QColor standardLightGray(0xd4, 0xd0, 0xc8); // win 2000 grey
-    QColor light(standardLightGray.light());
-    QColor dark(standardLightGray.dark());
+    QColor background(0xd4, 0xd0, 0xc8); // win 2000 grey
+    QColor light(background.light());
+    QColor dark(background.dark());
     QColor mid(Qt::gray);
 
     if (QApplicationPrivate::app_style) {
-        if (QApplicationPrivate::app_style->inherits("QMotifStyle")) {
-            standardLightGray = QColor(0xcf, 0xcf, 0xcf);
+        if (QApplicationPrivate::app_style->inherits("QCDEStyle")) {
+            background = QColor(0xb6, 0xb6, 0xcf);
+            light = background.light();
+            mid = background.dark(150);
+            dark = background.dark();
+        } else if (QApplicationPrivate::app_style->inherits("QMotifStyle")) {
+            background = QColor(0xcf, 0xcf, 0xcf);
+            light = background.light();
             mid = QColor(0xa6, 0xa6, 0xa6);
             dark = QColor(0x79, 0x7d, 0x79);
         }
-
-//            standardLightGray = QColor(0xb6, 0xb6, 0xcf); // nice CDE color
     }
-    qt_std_pal =
-        new QPalette(Qt::black, standardLightGray, light, dark, mid, Qt::black, Qt::white);
+    qt_std_pal = new QPalette(Qt::black, background, light, dark, mid, Qt::black, Qt::white);
     qt_std_pal->setBrush(QPalette::Disabled, QPalette::Foreground, dark);
     qt_std_pal->setBrush(QPalette::Disabled, QPalette::Text, dark);
     qt_std_pal->setBrush(QPalette::Disabled, QPalette::ButtonText, dark);
-    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Base, standardLightGray);
+    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Base, background);
 }
 
 static void qt_fix_tooltips()

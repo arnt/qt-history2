@@ -15,10 +15,28 @@
 
 #if !defined(QT_NO_STYLE_CDE) || defined(QT_PLUGIN)
 
+#include "qmenu.h"
+#include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
-#include "qbutton.h"
+#include "qpixmap.h"
+#include "qpalette.h"
+#include "qwidget.h"
+#include "qpushbutton.h"
+#include "qscrollbar.h"
+#include "qtabbar.h"
+#include "qtabwidget.h"
+#include "qlistview.h"
+#include "qsplitter.h"
+#include "qslider.h"
+#include "qcombobox.h"
+#include "qlineedit.h"
+#include "qprogressbar.h"
+#include "qimage.h"
+#include "qfocusframe.h"
+#include "qdebug.h"
 #include <limits.h>
+
 
 /*!
     \class QCDEStyle
@@ -72,11 +90,12 @@ int QCDEStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     int ret;
 
     switch(metric) {
-    case PM_MenuFrameWidth:
+    case PM_MenuBarPanelWidth:
     case PM_DefaultFrameWidth:
-        ret = 1;
-        break;
-    case PM_MenuBarFrameWidth:
+    case PM_FocusFrameVMargin:
+    case PM_FocusFrameHMargin:
+    case PM_MenuPanelWidth:
+    case PM_SpinBoxFrameWidth:
         ret = 1;
         break;
     case PM_ScrollBarExtent:
@@ -93,42 +112,20 @@ int QCDEStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     \reimp
 */
 void QCDEStyle::drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
-                             const QWidget *w) const
-/*
-void QCDEStyle::drawControl(ControlElement element,
-                            QPainter *p,
-                            const QWidget *widget,
-                            const QRect &r,
-                            const QPalette &pal,
-                            SFlags how) const
-                            */
+                             const QWidget *widget) const
 {
 
     switch(element) {
-    case CE_MenuBarItem:
-        {
-            if (how & State_Active)  // active item
-                qDrawShadePanel(p, r, pal, true, 1,
-                                 &pal.brush(QPalette::Button));
-            else  // other item
-                p->fillRect(r, pal.brush(QPalette::Button));
-            QCommonStyle::drawControl(element, p, widget, r, pal, how, opt);
-            break;
-        }
-#ifdef QT_COMPAT
-    case CE_Q3MenuBarItem:
-        {
-            if (how & State_Active)  // active item
-                qDrawShadePanel(p, r, pal, true, 1,
-                                 &pal.brush(QPalette::Button));
-            else  // other item
-                p->fillRect(r, pal.brush(QPalette::Button));
-            QCommonStyle::drawControl(element, p, widget, r, pal, how, opt);
-            break;
-        }
-#endif
+    case CE_MenuBarItem: {
+        if (opt->state & State_Selected)  // active item
+            qDrawShadePanel(p, opt->rect, opt->palette, true, 1,
+                            &opt->palette.brush(QPalette::Button));
+        else  // other item
+            p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
+        QCommonStyle::drawControl(element, opt, p, widget);
+        break;  }
     default:
-        QMotifStyle::drawControl(element, p, widget, r, pal, how, opt);
+        QMotifStyle::drawControl(element, opt, p, widget);
     break;
     }
 
@@ -139,25 +136,18 @@ void QCDEStyle::drawControl(ControlElement element,
     \reimp
 */
 void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
-                        const QWidget *w) const
-/*
-void QCDEStyle::drawPrimitive(PrimitiveElement pe,
-                              QPainter *p,
-                              const QRect &r,
-                              const QPalette &pal,
-                              SFlags flags) const
-                              */
+                        const QWidget *widget) const
 {
     switch(pe) {
-    case PE_Indicator: {
-#ifndef QT_NO_BUTTON
-        bool down = flags & State_Down;
-        bool on = flags & State_On;
+    case PE_IndicatorCheckBox: {
+        bool down = opt->state & State_Down;
+        bool on = opt->state & State_On;
         bool showUp = !(down ^ on);
-        QBrush fill = showUp || flags & State_NoChange ? pal.brush(QPalette::Button) : pal.brush(QPalette::Mid);
-        qDrawShadePanel(p, r, pal, !showUp, pixelMetric(PM_DefaultFrameWidth), &pal.brush(QPalette::Button));
+        QBrush fill = showUp || opt->state & State_NoChange ? opt->palette.brush(QPalette::Button) : opt->palette.brush(QPalette::Mid);
+        qDrawShadePanel(p, opt->rect,  opt->palette, !showUp, pixelMetric(PM_DefaultFrameWidth), &opt->palette.brush(QPalette::Button));
 
-        if (!(flags & State_Off)) {
+        if (!(opt->state & State_Off)) {
+            QRect r = opt->rect;
             QPolygon a(7 * 2);
             int i, xx, yy;
             xx = r.x() + 3;
@@ -173,17 +163,17 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
                 a.setPoint(2 * i + 1, xx, yy + 2);
                 xx++; yy--;
             }
-            if (flags & State_NoChange)
-                p->setPen(pal.dark());
+            if (opt->state & State_NoChange)
+                p->setPen(opt->palette.dark().color());
             else
-                p->setPen(pal.foreground());
+                p->setPen(opt->palette.foreground().color());
             p->drawLineSegments(a);
         }
-#endif
     }
         break;
-    case PE_ExclusiveIndicator:
+    case PE_IndicatorRadioButton:
         {
+            QRect r = opt->rect;
 #define INTARRLEN(x) sizeof(x)/(sizeof(int)*2)
             static const int pts1[] = {              // up left  lines
                 1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
@@ -192,27 +182,27 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
                 11,4, 10,3, 10,2 };
             static const int pts5[] = {              // inner fill
                 4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
-            bool down = flags & State_Down;
-            bool on = flags & State_On;
+            bool down = opt->state & State_Down;
+            bool on = opt->state & State_On;
             QPolygon a(INTARRLEN(pts1), pts1);
             a.translate(r.x(), r.y());
-            p->setPen((down || on) ? pal.dark() : pal.light());
+            p->setPen((down || on) ? opt->palette.dark().color() : opt->palette.light().color());
             p->drawPolyline(a);
             a.setPoints(INTARRLEN(pts4), pts4);
             a.translate(r.x(), r.y());
-            p->setPen((down || on) ? pal.light() : pal.dark());
+            p->setPen((down || on) ? opt->palette.light().color() : opt->palette.dark().color());
             p->drawPolyline(a);
             a.setPoints(INTARRLEN(pts5), pts5);
             a.translate(r.x(), r.y());
-            QColor fillColor = on ? pal.dark() : pal.background();
+            QColor fillColor = on ? opt->palette.dark().color() : opt->palette.background().color();
             p->setPen(fillColor);
-            p->setBrush(on ? pal.brush(QPalette::Dark) :
-                         pal.brush(QPalette::Background));
+            p->setBrush(on ? opt->palette.brush(QPalette::Dark) :
+                         opt->palette.brush(QPalette::Background));
             p->drawPolygon(a);
             break;
         }
 
-    case PE_ExclusiveIndicatorMask:
+    case PE_IndicatorRadioButtonMask:
         {
             static const int pts1[] = {
                 // up left  lines
@@ -220,6 +210,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
                 // bottom right  lines
                 10,2, 10,3, 11,4, 11,7, 10,8, 10,9, 9,10, 8,10, 7,11, 4,11, 3,10, 2,10
             };
+            QRect r = opt->rect;
             QPolygon a(INTARRLEN(pts1), pts1);
             a.translate(r.x(), r.y());
             p->setPen(Qt::color1);
@@ -227,17 +218,25 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
             p->drawPolygon(a);
             break;
         }
-    case PE_ArrowUp:
-    case PE_ArrowDown:
-    case PE_ArrowRight:
-    case PE_ArrowLeft: {
-        QRect rect = r;
+    case PE_IndicatorSpinUp:
+    case PE_IndicatorSpinPlus:
+    case PE_IndicatorSpinDown:
+    case PE_IndicatorSpinMinus:
+    case PE_IndicatorArrowUp:
+    case PE_IndicatorArrowDown:
+    case PE_IndicatorArrowRight:
+    case PE_IndicatorArrowLeft: {
+        QRect rect = opt->rect;
         QPolygon bFill;                          // fill polygon
         QPolygon bTop;                           // top shadow.
         QPolygon bBot;                           // bottom shadow.
         QPolygon bLeft;                          // left shadow.
         QMatrix    matrix;                         // xform matrix
-        bool vertical = pe == PE_ArrowUp || pe == PE_ArrowDown;
+        if (pe == PE_IndicatorSpinPlus || pe == PE_IndicatorSpinUp)
+            pe = PE_IndicatorArrowUp;
+        else if (pe == PE_IndicatorSpinMinus || pe == PE_IndicatorSpinDown)
+            pe = PE_IndicatorArrowDown;
+        bool vertical = pe == PE_IndicatorArrowUp || pe == PE_IndicatorArrowDown;
         bool horizontal = !vertical;
         int  dim = rect.width() < rect.height() ? rect.width() : rect.height();
         int  colspec = 0x0000;                      // color specification array
@@ -283,7 +282,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
             }
         }
 
-        if (pe == PE_ArrowUp || pe == PE_ArrowLeft) {
+        if (pe == PE_IndicatorArrowUp || pe == PE_IndicatorArrowLeft) {
             matrix.translate(rect.x(), rect.y());
             if (vertical) {
                 matrix.translate(0, rect.height() - 1);
@@ -292,35 +291,35 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
                 matrix.translate(rect.width() - 1, rect.height() - 1);
                 matrix.rotate(180);
             }
-            if (flags & State_Down)
+            if (opt->state & State_Down)
                 colspec = horizontal ? 0x2334 : 0x2343;
             else
                 colspec = horizontal ? 0x1443 : 0x1434;
-        } else if (pe == PE_ArrowDown || pe == PE_ArrowRight) {
+        } else if (pe == PE_IndicatorArrowDown || pe == PE_IndicatorArrowRight) {
             matrix.translate(rect.x(), rect.y());
             if (vertical) {
                 matrix.translate(rect.width()-1, 0);
                 matrix.rotate(90);
             }
-            if (flags & State_Down)
+            if (opt->state & State_Down)
                 colspec = horizontal ? 0x2443 : 0x2434;
             else
                 colspec = horizontal ? 0x1334 : 0x1343;
         }
 
         const QColor *cols[5];
-        if (flags & State_Enabled) {
+        if (opt->state & State_Enabled) {
             cols[0] = 0;
-            cols[1] = &pal.button().color();
-            cols[2] = &pal.mid().color();
-            cols[3] = &pal.light().color();
-            cols[4] = &pal.dark().color();
+            cols[1] = &opt->palette.button().color();
+            cols[2] = &opt->palette.mid().color();
+            cols[3] = &opt->palette.light().color();
+            cols[4] = &opt->palette.dark().color();
         } else {
             cols[0] = 0;
-            cols[1] = &pal.button().color();
-            cols[2] = &pal.button().color();
-            cols[3] = &pal.button().color();
-            cols[4] = &pal.button().color();
+            cols[1] = &opt->palette.button().color();
+            cols[2] = &opt->palette.button().color();
+            cols[3] = &opt->palette.button().color();
+            cols[4] = &opt->palette.button().color();
         }
 
 #define CMID    *cols[(colspec>>12) & 0xf]
@@ -332,7 +331,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
         QBrush   saveBrush = p->brush();            // save current brush
         QMatrix wxm = p->worldMatrix();
         QPen     pen(Qt::NoPen);
-        QBrush brush = pal.brush(flags & State_Enabled ? QPalette::Button :
+        QBrush brush = opt->palette.brush(opt->state & State_Enabled ? QPalette::Button :
                                   QPalette::Mid);
 
         p->setPen(pen);
@@ -360,7 +359,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
     }
         break;
     default:
-        QMotifStyle::drawPrimitive(pe, p, r, pal, flags, opt);
+        QMotifStyle::drawPrimitive(pe, opt, p, widget);
     }
 }
 
