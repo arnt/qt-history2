@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#41 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#42 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -621,17 +621,19 @@ void QtFileIconView::setDirectory( const QDir &dir )
 
 void QtFileIconView::newDirectory()
 {
-    setReorderItemsWhenInsert( FALSE );
+    setResortItemsWhenInsert( FALSE );
     selectAll( FALSE );
     if ( viewDir.mkdir( QString( "New Folder %1" ).arg( ++newFolderNum ) ) ) {
 	QFileInfo *fi = new QFileInfo( viewDir, QString( "New Folder %1" ).arg( newFolderNum ) );
 	QtFileIconViewItem *item = new QtFileIconViewItem( this, new QFileInfo( *fi ) );
+	item->setKey( QString( "000000%1" ).arg( fi->fileName() ) );
 	delete fi;
 	repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight(), FALSE );
 	ensureItemVisible( item );
 	item->setSelected( TRUE, TRUE );
 	setCurrentItem( item );
 	repaintItem( item );
+	qApp->processEvents();
 	item->rename();
     }
     setReorderItemsWhenInsert( TRUE );
