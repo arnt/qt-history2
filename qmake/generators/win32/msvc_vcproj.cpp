@@ -1011,8 +1011,15 @@ void VcprojGenerator::initOld()
     project->variables()["MSVCPROJ_LIBS"] += project->variables()["QMAKE_LIBS"];
     project->variables()["MSVCPROJ_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
     project->variables()["MSVCPROJ_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];
-    if ( !project->variables()["QMAKE_LIBDIR"].isEmpty() )
-	project->variables()["MSVCPROJ_LFLAGS" ].append(varGlue("QMAKE_LIBDIR","/LIBPATH:"," /LIBPATH:",""));
+    if ( !project->variables()["QMAKE_LIBDIR"].isEmpty() ) {
+	QStringList strl = project->variables()["QMAKE_LIBDIR"];
+	QStringList::iterator stri;
+	for ( stri = strl.begin(); stri != strl.end(); ++stri ) {
+	    if ( !(*stri).startsWith("/LIBPATH:") )
+		(*stri).prepend( "/LIBPATH:" );
+	}
+	project->variables()["MSVCPROJ_LFLAGS"] += strl;
+    }
     project->variables()["MSVCPROJ_CXXFLAGS" ] += project->variables()["QMAKE_CXXFLAGS"];
     // We don't use this... Direct manipulation of compiler object
     //project->variables()["MSVCPROJ_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
