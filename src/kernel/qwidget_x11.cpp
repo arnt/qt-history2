@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#31 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#31 $";
 #endif
 
 
@@ -70,8 +70,10 @@ bool QWidget::create()				// create widget
 	ncrect.setRect( 0, 0, sw, sh );
 	overlap = popup = FALSE;		// force these flags off
     }
-    else					// default non-client rect
+    else if ( overlap || popup )		// parentless widget
 	ncrect.setRect( sw/2 - sw/4, sh/2 - sh/5, sw/2, 2*sh/5 );
+    else					// child widget
+	ncrect.setRect( 10, 10, 100, 30 );
     rect = ncrect;				// default client rect
 
     if ( overlap || popup || desktop )		// overlapping widget
@@ -148,8 +150,7 @@ bool QWidget::create()				// create widget
     if ( testFlag(WPaintUnclipped) )		// paint direct on device
 	XSetSubwindowMode( dpy, gc, IncludeInferiors );
 
-    if ( overlap ) {
-	curs = arrowCursor;
+    if ( overlap ) {				// set X cursor
 	XDefineCursor( dpy, ident, QApplication::appCursorDefined ?
 		       QApplication::cursor().handle() : curs.handle() );
 	setFlag( WCursorSet );
