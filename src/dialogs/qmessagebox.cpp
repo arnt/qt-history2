@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#10 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#11 $
 **
 ** Implementation of QMessageBox class
 **
@@ -15,18 +15,18 @@
 #include "qpushbt.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#11 $";
 #endif
 
 
 /*!
   \class QMessageBox qmsgbox.h
 
-  \brief The QMessageBox widget provides a modal message box.
+  \brief The QMessageBox widget provides a message box.
 
-  \ingroup dialog
+  \ingroup dialogs
 
-  A message box is a modal dialog that displays a text and a push button.
+  A message box is a dialog that displays a text and a push button.
 
   The default push button text is "Ok". This can be changed with
   setButtonText().
@@ -39,7 +39,7 @@ static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#10 $";
     QMessageBox mb;
     mb.setText( "This program may crash your hardware!!!\nLet's start..." );
     mb.setButtonText( "Yes!" );
-    mb.exec();
+    mb.show();
   \endcode
 */
 
@@ -153,7 +153,7 @@ void QMessageBox::resizeEvent( QResizeEvent * )
 
   Example of use:
   \code
-    QMessageBox::message( "Warning", "Did you feed the giraffe", "Sorry" );
+    QMessageBox::message( "Warning", "Did you feed the giraffe?", "Sorry!" );
   \endcode
 */
 
