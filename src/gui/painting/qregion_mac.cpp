@@ -115,11 +115,11 @@ RgnHandle QRegion::handle(bool require_rgn) const
         d->rgn = qt_mac_get_rgn();
         if(d->qt_rgn && d->qt_rgn->numRects) {
             RgnHandle tmp_rgn = qt_mac_get_rgn();
-            const int increment = QRect::rectangleMode() == QRect::InclusiveRectangles ? 1 : 0;
             for(int i = 0; i < d->qt_rgn->numRects; ++i) {
                 const QRect &qt_r = d->qt_rgn->rects[i];
                 SetRectRgn(tmp_rgn, qMax(SHRT_MIN, qt_r.x()), qMax(SHRT_MIN, qt_r.y()),
-                           qMin(SHRT_MAX, qt_r.right() + increment), qMin(SHRT_MAX, qt_r.bottom() + increment));
+                           qMin(SHRT_MAX, qt_r.right() + QRect::rectangleMode()), 
+                           qMin(SHRT_MAX, qt_r.bottom() + QRect::rectangleMode()));
                 UnionRgn(d->rgn, tmp_rgn, d->rgn);
             }
             qt_mac_dispose_rgn(tmp_rgn);

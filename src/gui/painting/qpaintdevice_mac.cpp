@@ -60,8 +60,8 @@ int QPaintDevice::metric(int) const
 void qt_mac_clip_cg_reset(CGContextRef hd)
 {
     QRect qrect = QRect(0, 0, 99999, 999999);
-    const int increment = QRect::rectangleMode() == QRect::InclusiveRectangles ? 1 : 0;
-    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right()+increment, qrect.bottom()+increment);
+    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right()+QRect::rectangleMode(), 
+                      qrect.bottom()+QRect::rectangleMode());
     ClipCGContextToRegion(hd, &qdr, QRegion(qrect).handle(true));
 }
 
@@ -75,8 +75,8 @@ void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt)
         const int count = rects.size();
         for(int i = 0; i < count; i++) {
             const QRect &r = rects[i];
-            const int increment = QRect::rectangleMode() == QRect::ExclusiveRectangles ? 1 : 0;
-            CGRect mac_r = CGRectMake(r.x(), r.y(), r.width()-increment, r.height()-increment);
+            CGRect mac_r = CGRectMake(r.x(), r.y(), r.width()-(!QRect::rectangleMode()), 
+                                      r.height()-(!QRect::rectangleMode()));
             if(pt) {
                 mac_r.origin.x -= pt->x();
                 mac_r.origin.y -= pt->y();
