@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#12 $
 **
 ** Implementation of QGGeometry class
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#12 $");
 
 
 
@@ -714,18 +714,18 @@ void QGManager::resizeAll()
 
 
     // Resize menubar first to get valid size for rest of widgets to
-     // arrange themselves around.
+    // arrange themselves around.
      
-     // size may not be set yet
-     int ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
-     int hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
+    // size may not be set yet
+    int ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
+    int hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
  
-     if ( menuBar )
-     {
-	 //### workaround; don't try this at home, kids
-	 QResizeEvent e( QSize( ww, hh ), QSize( 1, 1 ) );
-	 menuBar->eventFilter( main, &e );
-     }
+    if ( menuBar )
+	{
+	    //### workaround; don't try this at home, kids
+	    QResizeEvent e( QSize( ww, hh ), QSize( 1, 1 ) );
+	    menuBar->eventFilter( main, &e );
+	}
  
     int mbh = menuBar ? menuBar->height() : 0;
 
