@@ -120,8 +120,8 @@ extern QWidgetList *qt_modal_stack;		// stack of modal widgets
 extern bool qt_mac_in_drag; //qdnd_mac.cpp
 extern bool qt_resolve_symlinks; // from qapplication.cpp
 static char    *appName;                        // application name
-QWidget	       *qt_button_down	 = 0;		// widget got last button-down
-QWidget        *qt_mouseover = 0;
+QGuardedPtr<QWidget> qt_button_down;		// widget got last button-down
+QGuardedPtr<QWidget> qt_mouseover;
 QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac file dialog)
 #if defined(QT_DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
@@ -151,14 +151,6 @@ QCString p2qstring(const unsigned char *); //qglobal.cpp
 //and very special case, if you plan on using these variables be VERY careful!!
 static bool qt_closed_popup = FALSE;
 static EventRef qt_replay_event = NULL;
-
-void qt_mac_destroy_widget(QWidget *w)
-{
-    if(qt_button_down == w)
-	qt_button_down = NULL;
-    if(qt_mouseover == w)
-	qt_mouseover = NULL;
-}
 
 static short qt_mac_find_window( int x, int y, QWidget **w=NULL )
 {
@@ -1097,8 +1089,7 @@ bool QApplication::processNextEvent( bool canWait )
 	do {
 	    if( ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event ))
 		break;
-	    if(!SendEventToEventTarget(event, GetEventDispatcherTarget()) ||
-	       (qt_is_gui_used && !SendEventToWindow(event, (WindowPtr)qt_mac_safe_pdev->handle())) ||
+	    if((qt_is_gui_used && !SendEventToWindow(event, (WindowPtr)qt_mac_safe_pdev->handle())) ||
 	       (!qt_is_gui_used && !SendEventToApplication(event)))
 		nevents++;
 	    ReleaseEvent(event);
@@ -1834,7 +1825,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	case kEventMouseDragged:
 	case kEventMouseMoved:
 	{
-	    if ( qt_mouseover != widget ) {
+	    if ( (QWidget *)qt_mouseover != widget ) {
 #ifdef DEBUG_MOUSE_MAPS
 		qDebug("Entering: %s (%s), Leaving %s (%s)", 
 		       widget ? widget->className() : "none", widget ? widget->name() : "",
@@ -2285,7 +2276,6 @@ bool QApplication::hasPendingEvents()
   Return TRUE if you want to stop the event from being processed, or
   return FALSE for normal event dispatching.
 */
-
 bool QApplication::macEventFilter( EventRef )
 {
     return FALSE;
