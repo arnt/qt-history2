@@ -1,11 +1,13 @@
 #include <QtGui>
 
+#include "norwegianwoodstyle.h"
 #include "widgetgallery.h"
 
 WidgetGallery::WidgetGallery(QWidget *parent)
     : QDialog(parent)
 {
     styleComboBox = new QComboBox(this);
+    styleComboBox->addItem("NorwegianWood");
     styleComboBox->addItems(QStyleFactory::keys());
 
     styleLabel = new QLabel(tr("&Style:"), this);
@@ -47,11 +49,16 @@ WidgetGallery::WidgetGallery(QWidget *parent)
     mainLayout->setResizeMode(QLayout::Fixed);
 
     setWindowTitle(tr("Styles"));
+    changeStyle("NorwegianWood");
 }
 
 void WidgetGallery::changeStyle(const QString &styleName)
 {
-    QApplication::setStyle(styleName);
+    if (styleName == "NorwegianWood") {
+        QApplication::setStyle(new NorwegianWoodStyle);
+    } else {
+        QApplication::setStyle(QStyleFactory::create(styleName));
+    }
 }
 
 void WidgetGallery::advanceProgressBar()
