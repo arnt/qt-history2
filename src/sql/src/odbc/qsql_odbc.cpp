@@ -430,7 +430,7 @@ QVariant QODBCResult::data( int field )
     bool isNull = FALSE;
     int current = fieldCache.count();
     for ( ; current < (field + 1); ++current ) {
-	QSqlField info = qMakeField( d, field );
+	QSqlField info = qMakeField( d, current );
 	switch ( info.type() ) {
 	case QVariant::Int:
 	    isNull = FALSE;
