@@ -5,6 +5,8 @@
 #include "qregexp.h"
 #include "qstringlist.h"
 
+static QString qt_cwd;
+
 void QDir::slashify(QString& n)
 {
   if(n.isNull())
@@ -99,12 +101,12 @@ bool QDir::rename(const QString& name,const QString& newName,
 
 bool QDir::setCurrent(const QString& path)
 {
-    cwd=path;
+    qt_cwd=path;
 }
 
 QString QDir::currentDirPath()
 {
-    return cwd;
+    return qt_cwd;
 }
 
 QString QDir::rootDirPath()

@@ -171,9 +171,6 @@ private:
 
     static void slashify ( QString &);
 
-#ifdef _OS_MAC_
-    QString cwd;
-#endif
     QString	dPath;
     QStringList   *fList;
     QFileInfoList *fiList;
