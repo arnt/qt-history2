@@ -174,6 +174,9 @@ public:
     static void setStartDragDistance( int l );
     static int startDragDistance();
 
+    static bool	    effectEnabled( Qt::UIEffect );
+    static void	    enableEffect( Qt::UIEffect, bool enable = TRUE );
+
 #if defined(_WS_MAC_)
     void	     do_mouse_down(void *);
     virtual bool     macEventFilter( MSG * );
@@ -197,7 +200,6 @@ public:
     static WindowsVersion winVersion();
     void	     winFocus( QWidget *, bool );
     static void	     winMouseButtonUp();
-    static bool winEffectSupport( Qt::WindowsEffect );
 #endif
 
 #ifndef QT_NO_SESSIONMANAGER
@@ -255,6 +257,14 @@ private:
     static int	     cursor_flash_time;
     static int	     mouse_double_click_time;
     static int	     wheel_scroll_lines;
+
+    static bool	     animate_ui;
+    static bool	     animate_menu;
+    static bool	     animate_tooltip;
+    static bool	     animate_combo;
+    static bool	     fade_menu;
+    static bool	     fade_tooltip;
+
     QList<QTranslator> *translators;
 #ifndef QT_NO_SESSIONMANAGER
     QSessionManager *session_manager;

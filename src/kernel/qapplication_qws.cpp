@@ -2889,4 +2889,10 @@ int QApplication::wheelScrollLines()
     return 0;
 }
 
+void QApplication::enableEffect( Qt::UIEffect, bool )
+{
+}
 
+bool QApplication::effectEnabled( Qt::UIEffect )
+{    return FALSE;
+}

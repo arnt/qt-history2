@@ -397,20 +397,9 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     move( x, y );
     motion=0;
     actItem = -1;
-    bool animate = FALSE;
-    bool blend = FALSE;
-#ifdef _WS_WIN_
-    animate = QApplication::winEffectSupport( UI_AnimateMenu );
-    blend = QApplication::winEffectSupport( UI_FadeMenu );
-#endif
-#ifdef ANIMATED_POPUP
-    animate = TRUE;
-#endif
-#ifdef BLEND_POPUP
-    blend = TRUE;
-#endif
-    if ( animate && !preventAnimation ) {
-	if ( blend ) {
+
+    if ( QApplication::effectEnabled( UI_AnimateMenu ) && !preventAnimation ) {
+	if ( QApplication::effectEnabled( UI_FadeMenu ) ) {
 	    qFadeEffect( this );
 	} else {
 	    if ( parentMenu )

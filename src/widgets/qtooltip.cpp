@@ -487,21 +487,8 @@ void QTipManager::showTip()
     if ( label->text().length() ) {
 	label->move( p );
 
-	bool animate = FALSE;
-	bool blend = FALSE;
-#ifdef _WS_WIN_
-	animate = QApplication::winEffectSupport( UI_AnimateTooltip );
-	blend = QApplication::winEffectSupport( UI_FadeTooltip );
-#endif
-#ifdef ANIMATED_TOOLTIP
-	animate = TRUE;
-#endif
-#ifdef BLEND_TOOLTIP
-	blend = TRUE;
-#endif
-
-	if ( animate && !previousTip && !preventAnimation) {
-	    if ( blend )
+	if ( QApplication::effectEnabled( UI_AnimateTooltip ) && !previousTip && !preventAnimation) {
+	    if ( QApplication::effectEnabled( UI_FadeTooltip ) )
 		qFadeEffect( label );
 	    else
 		qScrollEffect( label );

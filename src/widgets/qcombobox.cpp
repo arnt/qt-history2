@@ -38,8 +38,6 @@
 #include "qeffects_p.h"
 #include <limits.h>
 
-//#define ANIMATED_COMBO
-
 // NOT REVISED
 /*!
   \class QComboBox qcombobox.h
@@ -1362,16 +1360,8 @@ void QComboBox::popup()
 	d->listBox()->setCurrentItem( d->listBox()->item( d->current ) );
 	d->listBox()->blockSignals( FALSE );
 	d->listBox()->setAutoScrollBar( TRUE );
-	bool animate = FALSE;
 
-#ifdef _WS_WIN_
-	animate = QApplication::winEffectSupport( UI_AnimateCombo );
-#endif
-#ifdef ANIMATED_COMBO
-	animate = TRUE;
-#endif
-
-	if ( animate )
+	if ( QApplication::effectEnabled( UI_AnimateCombo ) )
 	    qScrollEffect( d->listBox() );
 	else
 	    d->listBox()->show();

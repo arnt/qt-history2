@@ -2372,28 +2372,30 @@ void QWorkspaceChild::move( int x, int y )
 QWorkspaceChildTitleLabel::QWorkspaceChildTitleLabel( QWorkspaceChildTitleBar* parent, const char* name )
     : QFrame( parent, name, WRepaintNoErase | WResizeNoErase )
 {
-#ifdef _WS_WIN_ // ask system properties on windows
-    aleftc = colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION));
-    ileftc = colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION));
-    atextc = colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT));
-    itextc = colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT));
-
-    arightc = aleftc;
-    irightc = ileftc;
-
-    #if defined(SPI_GETGRADIENTCAPTIONS) //Support for gradient titlebar depends on SDK version
-    BOOL gradient;
-    SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
-    if ( gradient ) {
-	arightc = colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
-	irightc = colorref2qrgb(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
-    }
-    #endif
-#else
     aleftc = arightc = palette().active().highlight();
     ileftc = irightc = palette().inactive().dark();
     atextc = palette().active().highlightedText();
     itextc = palette().inactive().background();
+
+#ifdef _WS_WIN_ // ask system properties on windows
+    if ( QApplication::desktopSettingsAware() ) {
+	aleftc = colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION));
+	ileftc = colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION));
+	atextc = colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT));
+	itextc = colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT));
+
+	arightc = aleftc;
+	irightc = ileftc;
+
+    #if defined(SPI_GETGRADIENTCAPTIONS) //Support for gradient titlebar depends on SDK version
+	BOOL gradient;
+	SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
+	if ( gradient ) {
+	    arightc = colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
+	    irightc = colorref2qrgb(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
+	}
+    #endif
+    }
 #endif
 }
 

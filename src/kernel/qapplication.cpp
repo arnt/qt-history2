@@ -270,6 +270,12 @@ bool	  qt_is_gui_used;
 static int drag_time = 500;
 static int drag_distance = 4;
 QSize     QApplication::app_strut      = QSize( 0,0 ); // no default application strut
+bool	  QApplication::animate_ui	= TRUE;
+bool	  QApplication::animate_menu	= FALSE;
+bool	  QApplication::fade_menu	= FALSE;
+bool	  QApplication::animate_combo	= FALSE;
+bool	  QApplication::animate_tooltip	= FALSE;
+bool	  QApplication::fade_tooltip	= FALSE;
 
 // Default application palettes and fonts (per widget type)
 QAsciiDict<QPalette> *QApplication::app_palettes = 0;
@@ -2601,6 +2607,49 @@ int QApplication::startDragDistance()
 {
     return drag_distance;
 }
+
+/*!
+  Enable the UI effect \a effect if \a enable is TRUE, otherwise
+  the effect will not be used.
+  By default, Qt will try to use the desktop settings, and 
+  setDesktopSettingsAware() must be called to prevent this.
+
+  \sa effectEnabled(), Qt::UIEffect, setDesktopSettingsAware()
+*/
+void QApplication::enableEffect( Qt::UIEffect effect, bool enable )
+{
+    switch (effect) {
+    case UI_AnimateMenu:
+	animate_menu = enable;
+	break;
+    case UI_FadeMenu:
+	fade_menu = enable;
+	break;
+    case UI_AnimateCombo:
+	animate_combo = enable;
+	break;
+    case UI_AnimateTooltip:
+	animate_tooltip = enable;
+	break;
+    case UI_FadeTooltip:
+	fade_tooltip = enable;
+	break;
+    default:
+	animate_ui = enable;
+	break;
+    }
+}
+
+/*!
+  \fn bool QApplication::effectEnabled( Qt::UIEffect effect )
+
+  Returns TRUE if \a effect is enabled, otherwise FALSE.
+
+  By default, Qt will try to use the desktop settings, and 
+  setDesktopSettingsAware() must be called to prevent this.
+
+  sa\ enableEffect(), Qt::UIEffect
+*/
 
 /*!
   \class QSessionManager qsessionmanager.h

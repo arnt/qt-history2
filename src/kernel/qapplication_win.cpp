@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#387 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#388 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -845,62 +845,6 @@ Qt::WindowsVersion QApplication::winVersion()
 	}
     }
     return qt_winver;
-}
-
-bool QApplication::winEffectSupport( Qt::WindowsEffect effect )
-{
-    BOOL result = FALSE;
-
-    if (qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
-	uint WINPARAM;
-
-	switch (effect) {
-	case Qt::UI_AnimateMenu:
-#if defined(SPI_GETMENUANIMATION)
-	    WINPARAM = SPI_GETMENUANIMATION;
-#else
-	    return FALSE;
-#endif
-	    break;
-	case Qt::UI_FadeMenu:
-#if defined(SPI_GETMENUFADE)
-	    WINPARAM = SPI_GETMENUFADE;
-#else
-	    return FALSE;
-#endif
-	    break;
-	case Qt::UI_AnimateCombo:
-#if defined(SPI_GETCOMBOBOXANIMATION)
-	    WINPARAM = SPI_GETCOMBOBOXANIMATION;
-#else
-	    return FALSE;
-#endif
-	    break;
-	case Qt::UI_AnimateTooltip:
-#if defined(SPI_GETTOOLTIPANIMATION)
-	    WINPARAM = SPI_GETTOOLTIPANIMATION;
-#else
-	    return FALSE;
-#endif
-	    break;
-	case Qt::UI_FadeTooltip:
-#if defined(SPI_GETTOOLTIPFADE)
-	    WINPARAM = SPI_GETTOOLTIPFADE;
-#else
-	    return FALSE;
-#endif
-	    break;
-	default:
-#if defined(SPI_GETUIEFFECTS)
-	    WINPARAM = SPI_GETUIEFFECTS;
-#else
-	    return TRUE;
-#endif
-	    break;
-	}
-	SystemParametersInfo( WINPARAM, 0, &result, 0 );
-    }
-    return result;
 }
 
 #ifndef QT_NO_CURSOR
@@ -3040,6 +2984,57 @@ int QApplication::wheelScrollLines()
 #else
     return wheel_scroll_lines;
 #endif
+}
+
+bool QApplication::effectEnabled( Qt::UIEffect effect )
+{
+    BOOL result = FALSE;
+
+    uint WINPARAM = 0;
+
+    switch (effect) {
+    case UI_AnimateMenu:
+#if defined(SPI_GETMENUANIMATION)
+	WINPARAM = SPI_GETMENUANIMATION;
+#endif
+	result = animate_menu;
+	break;
+    case UI_FadeMenu:
+#if defined(SPI_GETMENUFADE)
+	WINPARAM = SPI_GETMENUFADE;
+#endif
+	result = fade_menu;
+	break;
+    case UI_AnimateCombo:
+#if defined(SPI_GETCOMBOBOXANIMATION)
+	WINPARAM = SPI_GETCOMBOBOXANIMATION;
+#endif
+	result = animate_combo;
+	break;
+    case UI_AnimateTooltip:
+#if defined(SPI_GETTOOLTIPANIMATION)
+	WINPARAM = SPI_GETTOOLTIPANIMATION;
+#endif	
+	result = animate_tooltip;
+	break;
+    case UI_FadeTooltip:
+#if defined(SPI_GETTOOLTIPFADE)
+	WINPARAM = SPI_GETTOOLTIPFADE;
+#endif
+	result = fade_tooltip;
+	break;
+    default:
+#if defined(SPI_GETUIEFFECTS)
+	WINPARAM = SPI_GETUIEFFECTS;
+#endif
+	result =  animate_ui;
+	break;
+    }
+    if ( obey_desktop_settings && WINPARAM &&
+         (qt_winver == WV_2000 || qt_winver == WV_98) ) {
+	SystemParametersInfo( WINPARAM, 0, &result, 0 );
+    }
+    return result;
 }
 
 /*****************************************************************************

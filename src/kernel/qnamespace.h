@@ -544,7 +544,7 @@ public:
 	WV_NT_based	= 0x00f0
     };
 
-    enum WindowsEffect {
+    enum UIEffect {
 	UI_General,
 	UI_AnimateMenu,
 	UI_FadeMenu,
