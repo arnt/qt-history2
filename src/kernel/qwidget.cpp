@@ -1,24 +1,47 @@
 /****************************************************************************
+** $Id$
 **
-** Implementation of QWidget class.
+** Implementation of QWidget class
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Created : 931031
+**
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-****************************************************************************/
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 
+#include "qobjectlist.h"
 #include "qwidget.h"
-#include "qdesktopwidget.h"
-#include "qevent.h"
-#include "qhash.h"
-#include "qstack.h"
+#include "qwidgetlist.h"
+#include "qwidgetintdict.h"
 #include "qptrdict.h"
+#include "qfocusdata.h"
 #include "qcursor.h"
 #include "qpixmap.h"
 #include "qapplication.h"
@@ -41,18 +64,7 @@
 #include "qwsmanager_qws.h"
 #endif
 #include "qfontdata_p.h"
-#include "qpainter.h"
 
-#include "qwidget_p.h"
-#define d d_func()
-#define q q_func()
-
-
-QWidgetPrivate::~QWidgetPrivate()
-{
-    if ( extra )
-	deleteExtra();
-}
 
 /*!
     \class QWidget qwidget.h
@@ -106,14 +118,12 @@ QWidgetPrivate::~QWidgetPrivate()
 	close().
 
     \row \i Top level windows \i
-        windowModified(),
-	setWindowModified(),
-        windowCaption(),
-	setWindowCaption(),
-	windowIcon(),
-	setWindowIcon(),
-	windowIconText(),
-	setWindowIconText(),
+	caption(),
+	setCaption(),
+	icon(),
+	setIcon(),
+	iconText(),
+	setIconText(),
 	isActiveWindow(),
 	setActiveWindow(),
 	showMinimized().
@@ -187,8 +197,9 @@ QWidgetPrivate::~QWidgetPrivate()
 	setFont(),
 	palette(),
 	setPalette(),
-	backgroundRole(),
-	setBackgroundRole(),
+	backgroundMode(),
+	setBackgroundMode(),
+	colorGroup(),
 	fontMetrics(),
 	fontInfo().
 
@@ -235,12 +246,19 @@ QWidgetPrivate::~QWidgetPrivate()
 	showEvent(),
 	hideEvent(),
 	customEvent().
-	changeEvent(),
+
+    \row \i Change handlers \i
+	enabledChange(),
+	fontChange(),
+	paletteChange(),
+	styleChange(),
+	windowActivationChange().
 
     \row \i System functions \i
 	parentWidget(),
 	topLevelWidget(),
 	reparent(),
+	polish(),
 	winId(),
 	find(),
 	metric().
@@ -325,7 +343,7 @@ QWidgetPrivate::~QWidgetPrivate()
 
     If your widget only contains child widgets, you probably do not need to
     implement any event handlers. If you want to detect a mouse click in
-    a child widget call the child's underMouse() function inside the
+    a child widget call the child's hasMouse() function inside the
     parent widget's mousePressEvent().
 
     Widgets that accept keyboard input need to reimplement a few more
@@ -357,8 +375,10 @@ QWidgetPrivate::~QWidgetPrivate()
     \i mouseMoveEvent() - called whenever the mouse moves while a
     button is held down. This is useful for, for example, dragging. If
     you call setMouseTracking(TRUE), you get mouse move events even
-    when no buttons are held down. (See also the \link dnd.html drag
-    and drop\endlink information.)
+    when no buttons are held down. (Note that applications which make
+    use of mouse tracking are often not very useful on low-bandwidth X
+    connections.) (See also the \link dnd.html drag and drop\endlink
+    information.)
 
     \i keyReleaseEvent() - called whenever a key is released, and also
     while it is held down if the key is auto-repeating. In that case
@@ -407,7 +427,7 @@ QWidgetPrivate::~QWidgetPrivate()
     other widgets can contain and manage yours easily. sizeHint()
     indicates a "good" size for the widget.
 
-    \i If your widget is a top-level window, setWindowCaption() and setWindowIcon() set
+    \i If your widget is a top-level window, setCaption() and setIcon() set
     the title bar and icon respectively.
 
     \endlist
@@ -416,13 +436,82 @@ QWidgetPrivate::~QWidgetPrivate()
 */
 
 
+/*****************************************************************************
+  Internal QWidgetMapper class
+
+  The purpose of this class is to map widget identifiers to QWidget objects.
+  All QWidget objects register themselves in the QWidgetMapper when they
+  get an identifier. Widgets unregister themselves when they change ident-
+  ifier or when they are destroyed. A widget identifier is really a window
+  handle.
+
+  The widget mapper is created and destroyed by the main application routines
+  in the file qapp_xxx.cpp.
+ *****************************************************************************/
+
+#ifdef Q_WS_QWS
+static const int WDictSize = 163; // plenty for small devices
+#else
+static const int WDictSize = 1123; // plenty for 5 big complex windows
+#endif
+
+class QWidgetMapper : public QWidgetIntDict
+{						// maps ids -> widgets
+public:
+    QWidgetMapper();
+   ~QWidgetMapper();
+    QWidget *find( WId id );		// find widget
+    void     insert( const QWidget * );		// insert widget
+    bool     remove( WId id );		// remove widget
+private:
+    WId	     cur_id;
+    QWidget *cur_widget;
+};
+
 QWidgetMapper *QWidget::mapper = 0;		// app global widget mapper
+
+
+QWidgetMapper::QWidgetMapper() : QWidgetIntDict(WDictSize)
+{
+    cur_id = 0;
+    cur_widget = 0;
+}
+
+QWidgetMapper::~QWidgetMapper()
+{
+    clear();
+}
+
+inline QWidget *QWidgetMapper::find( WId id )
+{
+    if ( id != cur_id ) {			// need to lookup
+	cur_widget = QWidgetIntDict::find((long)id);
+	if ( cur_widget )
+	    cur_id = id;
+	else
+	    cur_id = 0;
+    }
+    return cur_widget;
+}
+
+inline void QWidgetMapper::insert( const QWidget *widget )
+{
+    QWidgetIntDict::insert((long)widget->winId(),widget);
+}
+
+inline bool QWidgetMapper::remove( WId id )
+{
+    if ( cur_id == id ) {			// reset current widget
+	cur_id = 0;
+	cur_widget = 0;
+    }
+    return QWidgetIntDict::remove((long)id);
+}
 
 
 /*****************************************************************************
   QWidget utility functions
  *****************************************************************************/
-
 
 static QFont qt_naturalWidgetFont( QWidget* w ) {
     QFont naturalfont = QApplication::font( w );
@@ -443,8 +532,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     return naturalpalette;
 }
 #endif
-
-
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
@@ -453,19 +540,30 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     Widget state flags:
   \list
   \i WState_Created The widget has a valid winId().
+  \i WState_Disabled The widget does not receive any mouse or keyboard
+  events.
+  \i WState_ForceDisabled The widget is explicitly disabled, i.e. it
+  will remain disabled even when all its ancestors are set to the enabled
+  state. This implies WState_Disabled.
   \i WState_Visible The widget is currently visible.
-  \i WState_Hidden The widget is hidden, i.e. it won't
-  become visible unless you call show() on it. WState_Hidden
+  \i WState_ForceHide The widget is explicitly hidden, i.e. it won't
+  become visible unless you call show() on it. WState_ForceHide
   implies !WState_Visible.
+  \i WState_OwnCursor A cursor has been set for this widget.
+  \i WState_MouseTracking Mouse tracking is enabled.
   \i WState_CompressKeys Compress keyboard events.
   \i WState_BlockUpdates Repaints and updates are disabled.
   \i WState_InPaintEvent Currently processing a paint event.
   \i WState_Reparented The widget has been reparented.
   \i WState_ConfigPending A configuration (resize/move) event is pending.
+  \i WState_Resized The widget has been resized.
   \i WState_AutoMask The widget has an automatic mask, see setAutoMask().
+  \i WState_Polished The widget has been "polished" (i.e. late
+  initialization) by a QStyle.
   \i WState_DND The widget supports drag and drop, see setAcceptDrops().
   \i WState_Exposed the widget was finally exposed (X11 only,
       helps avoid paint event doubling).
+  \i WState_HasMouse The widget is under the mouse cursor.
   \endlist
 */
 
@@ -601,6 +699,17 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WMouseNoMask  indicates that even if the widget has a mask,
     it wants mouse events for its entire rectangle.
 
+    \value WStaticContents  indicates that the widget contents are
+    north-west aligned and static. On resize, such a widget will
+    receive paint events only for the newly visible part of itself.
+
+    \value WNoAutoErase indicates that the widget paints all its
+    pixels. Updating, resizing, scrolling and focus changes should
+    therefore not erase the widget. This allows smart-repainting to
+    avoid flicker.
+
+    \value WResizeNoErase  \obsolete Use WNoAutoErase instead.
+    \value WRepaintNoErase  \obsolete Use WNoAutoErase instead.
     \value WGroupLeader  makes this window a group leader. A group
     leader should \e not have a parent (i.e. it should be a top-level
     window). Any decendant windows (direct or indirect) of a group
@@ -625,7 +734,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WX11BypassWM
     \value WMacNoSheet
     \value WMacDrawer
-    \value WMacMetal
     \value WStyle_Mask
     \value WType_Mask
 
@@ -637,21 +745,29 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     Internal flags.
 
     \value WState_Created
+    \value WState_Disabled
     \value WState_Visible
-    \value WState_Hidden
+    \value WState_ForceHide
+    \value WState_OwnCursor
     \value WState_MouseTracking
     \value WState_CompressKeys
     \value WState_BlockUpdates
     \value WState_InPaintEvent
     \value WState_Reparented
     \value WState_ConfigPending
+    \value WState_Resized
     \value WState_AutoMask
+    \value WState_Polished
     \value WState_DND
     \value WState_Reserved0
     \value WState_Reserved1
+    \value WState_CreatedHidden
     \value WState_Maximized
     \value WState_Minimized
+    \value WState_ForceDisabled
     \value WState_Exposed
+    \value WState_HasMouse
+    \value WState_CreatedHidden
     \value WState_OwnSizePolicy
 */
 
@@ -688,95 +804,70 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \endcode
 */
 
-QWidget::QWidget(QWidget *parent, const char *name, WFlags f)
-    : QObject(new QWidgetPrivate, parent, name), QPaintDevice(QInternal::Widget)
+QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
+    : QObject( parent, name ), QPaintDevice( QInternal::Widget )
 {
-    d->init(f);
-}
-
-/*! \internal
-*/
-QWidget::QWidget(QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags f)
-    : QObject(dd, parent, name), QPaintDevice(QInternal::Widget)
-{
-    d->init(f);
-}
-
-void QWidgetPrivate::init(Qt::WFlags f)
-{
-    if ( qApp->type() == QApplication::Tty )
-	qWarning( "QWidget: Cannot create a QWidget when no GUI is being used" );
-
-    q->fstrut_dirty = 1;
-
-    q->winid = 0;
-    q->widget_attributes = 0;
-#ifndef QT_NO_COMPAT
-    if (f & Qt::WNoAutoErase)
-	q->setAttribute(QWidget::WA_NoBackground);
-    if (f & Qt::WStaticContents)
-	q->setAttribute(QWidget::WA_StaticContents);
+#if defined(QT_CHECK_STATE) && !defined(Q_WS_WIN)
+    if ( qApp->type() == QApplication::Tty ) {
+	qWarning( "QWidget: Cannot create a QWidget when no GUI "
+		  "is being used" );
+    }
 #endif
-    q->widget_state = 0;
-    q->widget_flags = f;
 
-    q->focus_policy = 0;
+    fstrut_dirty = 1;
 
-    q->sizehint_forced = 0;
-    q->is_closing = 0;
-    q->in_show = 0;
-    q->in_show_maximized = 0;
-    q->im_enabled = FALSE;
-    q->create();					// platform-dependent init
-    q->pal = q->isTopLevel() ? QApplication::palette() : q->parentWidget()->palette();
-    if ( ! q->isTopLevel() )
-	q->fnt = q->parentWidget()->font();
+    isWidget = TRUE;				// is a widget
+    winid = 0;					// default attributes
+    widget_state = 0;
+    widget_flags = f;
+    focus_policy = 0;
+    own_font = 0;
+    own_palette = 0;
+    sizehint_forced = 0;
+    is_closing = 0;
+    in_show = 0;
+    in_show_maximized = 0;
+    im_enabled = FALSE;
+#ifndef QT_NO_LAYOUT
+    lay_out = 0;
+#endif
+    extra = 0;					// no extra widget info
+#ifndef QT_NO_PALETTE
+    bg_col = pal.active().background();		// default background color
+#endif
+    create();					// platform-dependent init
+#ifndef QT_NO_PALETTE
+    pal = isTopLevel() ? QApplication::palette() : parentWidget()->palette();
+#endif
+    if ( ! isTopLevel() )
+	fnt = parentWidget()->font();
 #if defined(Q_WS_X11)
-    q->fnt.x11SetScreen( q->x11Screen() );
+    fnt.x11SetScreen( x11Screen() );
 #endif // Q_WS_X11
 
-    if ( !q->isDesktop() )
-	updateSystemBackground();
-    if ( q->isTopLevel() ) {
-	q->setWState(Qt::WState_Hidden);
-	createTLExtra();
+    if ( !isDesktop() )
+	setBackgroundFromMode(); //### parts of this are done in create but not all (see reparent(...) )
+    // make sure move/resize events are sent to all widgets
+    QApplication::postEvent( this, new QMoveEvent( crect.topLeft(),
+						   crect.topLeft() ) );
+    QApplication::postEvent( this, new QResizeEvent(crect.size(),
+						    crect.size()) );
+    if ( isTopLevel() ) {
+	setWState( WState_ForceHide | WState_CreatedHidden );
+	QFocusData *fd = focusData( TRUE );
+	if ( fd->focusWidgets.findRef(this) < 0 )
+	    fd->focusWidgets.append( this );
     } else {
 	// propagate enabled state
-	if ( !q->parentWidget()->isEnabled() )
-	    q->setAttribute(QWidget::WA_Disabled, true);
+	if ( !parentWidget()->isEnabled() )
+	    setWState( WState_Disabled );
 	// new widgets do not show up in already visible parents
-	if (q->parentWidget()->isVisible())
-	    q->setWState(Qt::WState_Hidden);
+	if ( parentWidget()->isVisible() )
+	    setWState( WState_ForceHide | WState_CreatedHidden );
     }
-
-    if (q->isTopLevel()) {
-	focus_next = q;
-    } else {
-	// insert at the end of the focus chain
-	QWidget *focus_handler = q->topLevelWidget();
-	QWidget *w = focus_handler;
-	while (w->d->focus_next != focus_handler)
-	    w = w->d->focus_next;
-	w->d->focus_next = q;
-	focus_next = focus_handler;
-    }
-
-    if (++QWidget::instanceCounter > QWidget::maxInstances)
-    	QWidget::maxInstances = QWidget::instanceCounter;
-
-    // send and post remaining QObject events
-    if (q->parent()) {
-	QChildEvent e(QEvent::ChildAdded, q);
-	QApplication::sendEvent(q->parent(), &e);
-#ifndef QT_NO_COMPAT
-	QApplication::postEvent(q->parent(), new QChildEvent(QEvent::ChildInserted, q));
-#endif
-    }
-    QEvent e(QEvent::Create);
-    QApplication::sendEvent(q, &e);
-    QApplication::postEvent(q, new QEvent(QEvent::PolishRequest));
+    if ( ++instanceCounter > maxInstances )
+    	maxInstances = instanceCounter;
 }
-
 
 /*!
     Destroys the widget.
@@ -792,16 +883,21 @@ QWidget::~QWidget()
 	qWarning( "%s (%s): deleted while being painted", className(), name() );
 #endif
 
-    // delete layout while we still are a valid widget
-    delete d->layout;
-
-    // Remove myself focus list
-    // ### Focus: maybe remove children aswell?
-    QWidget *w = this;
-    while (w->d->focus_next != this)
-	w = w->d->focus_next;
-    w->d->focus_next = d->focus_next;
-    d->focus_next = 0;
+    // Remove myself and all children from the can-take-focus list
+    QFocusData *f = focusData( FALSE );
+    if ( f ) {
+	QPtrListIterator<QWidget> it(f->focusWidgets);
+	QWidget *w;
+	while ( (w = it.current()) ) {
+	    ++it;
+	    QWidget * p = w;
+	    while( p && p != this )
+		p = p->parentWidget();
+	    if ( p ) // my descendant
+		f->focusWidgets.removeRef( w );
+	}
+    }
+    --instanceCounter;
 
     if ( QApplication::main_widget == this ) {	// reset main widget
 	QApplication::main_widget = 0;
@@ -809,24 +905,109 @@ QWidget::~QWidget()
 	    qApp->quit();
     }
 
-    clearFocus();
+    if ( hasFocus() )
+	clearFocus();
 
     if ( isTopLevel() && isShown() && winId() )
 	hide();
 
     // A parent widget must destroy all its children before destroying itself
-    d->children.setAutoDelete(true);
-    d->children.clear();
+    if ( childObjects ) {			// delete children objects
+	QObjectListIt it(*childObjects);
+	QObject *obj;
+	while ( (obj=it.current()) ) {
+	    ++it;
+	    obj->parentObj = 0;
+	    childObjects->removeRef( obj );
+	    delete obj;
+	}
+	delete childObjects;
+	childObjects = 0;
+    }
 
     QApplication::removePostedEvents( this );
+    if ( extra )
+	deleteExtra();
 
     destroy();					// platform-dependent cleanup
-
-    --instanceCounter;
 }
 
 int QWidget::instanceCounter = 0;  // Current number of widget instances
 int QWidget::maxInstances = 0;     // Maximum number of widget instances
+
+/*!
+  \internal
+  Creates the global widget mapper.
+  The widget mapper converts window handles to widget pointers.
+  \sa destroyMapper()
+*/
+
+void QWidget::createMapper()
+{
+    mapper = new QWidgetMapper;
+    Q_CHECK_PTR( mapper );
+}
+
+/*!
+  \internal
+  Destroys the global widget mapper.
+  \sa createMapper()
+*/
+
+void QWidget::destroyMapper()
+{
+    if ( !mapper )				// already gone
+	return;
+    QWidgetIntDictIt it( *((QWidgetIntDict*)mapper) );
+    QWidgetMapper * myMapper = mapper;
+    mapper = 0;
+    register QWidget *w;
+    while ( (w=it.current()) ) {		// remove parents widgets
+	++it;
+	if ( !w->parentObj )			// widget is a parent
+	    w->destroy( TRUE, TRUE );
+    }
+    delete myMapper;
+}
+
+
+static QWidgetList *wListInternal( QWidgetMapper *mapper, bool onlyTopLevel )
+{
+    QWidgetList *list = new QWidgetList;
+    Q_CHECK_PTR( list );
+    if ( mapper ) {
+	QWidget *w;
+	QWidgetIntDictIt it( *((QWidgetIntDict*)mapper) );
+	while ( (w=it.current()) ) {
+	    ++it;
+	    if ( !onlyTopLevel || w->isTopLevel() )
+		list->append( w );
+	}
+    }
+    return list;
+}
+
+/*!
+  \internal
+  Returns a list of all widgets.
+  \sa tlwList(), QApplication::allWidgets()
+*/
+
+QWidgetList *QWidget::wList()
+{
+    return wListInternal( mapper, FALSE );
+}
+
+/*!
+  \internal
+  Returns a list of all top level widgets.
+  \sa wList(), QApplication::topLevelWidgets()
+*/
+
+QWidgetList *QWidget::tlwList()
+{
+    return wListInternal( mapper, TRUE );
+}
 
 
 void QWidget::setWinId( WId id )		// set widget identifier
@@ -835,16 +1016,41 @@ void QWidget::setWinId( WId id )		// set widget identifier
 	return;
     if ( winid )
 	mapper->remove( winid );
-
     winid = id;
 #if defined(Q_WS_X11)
     hd = id;					// X11: hd == ident
 #endif
     if ( id )
-	mapper->insert(winid, this);
+	mapper->insert( this );
 }
 
-void QWidgetPrivate::createTLExtra()
+
+/*!
+  \internal
+  Returns a pointer to the block of extra widget data.
+*/
+
+QWExtra *QWidget::extraData()
+{
+    return extra;
+}
+
+
+/*!
+  \internal
+  Returns a pointer to the block of extra top level widget data.
+
+  This data is guaranteed to exist for top level widgets.
+*/
+
+QTLWExtra *QWidget::topData()
+{
+    createTLExtra();
+    return extra->topextra;
+}
+
+
+void QWidget::createTLExtra()
 {
     if ( !extra )
 	createExtra();
@@ -853,6 +1059,7 @@ void QWidgetPrivate::createTLExtra()
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	x->icon = 0;
 #endif
+	x->focusData = 0;
 	x->fleft = x->fright = x->ftop = x->fbottom = 0;
 	x->incw = x->inch = 0;
 	x->basew = x->baseh = 0;
@@ -882,16 +1089,22 @@ void QWidgetPrivate::createTLExtra()
   Creates the widget extra data.
 */
 
-void QWidgetPrivate::createExtra()
+void QWidget::createExtra()
 {
     if ( !extra ) {				// if not exists
 	extra = new QWExtra;
+	Q_CHECK_PTR( extra );
 	extra->minw = extra->minh = 0;
 	extra->maxw = extra->maxh = QWIDGETSIZE_MAX;
+	extra->bg_pix = 0;
+	extra->focus_proxy = 0;
 #ifndef QT_NO_CURSOR
 	extra->curs = 0;
 #endif
 	extra->topextra = 0;
+	extra->bg_mode = PaletteBackground;
+	extra->bg_mode_visual = PaletteBackground;
+	extra->bg_origin = WidgetOrigin;
 #ifndef QT_NO_STYLE
 	extra->style = 0;
 #endif
@@ -907,9 +1120,10 @@ void QWidgetPrivate::createExtra()
   Deletes the widget extra data.
 */
 
-void QWidgetPrivate::deleteExtra()
+void QWidget::deleteExtra()
 {
     if ( extra ) {				// if exists
+	delete extra->bg_pix;
 #ifndef QT_NO_CURSOR
 	delete extra->curs;
 #endif
@@ -919,6 +1133,7 @@ void QWidgetPrivate::deleteExtra()
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	    delete extra->topextra->icon;
 #endif
+	    delete extra->topextra->focusData;
 #if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
 	    delete extra->topextra->qwsManager;
 #endif
@@ -930,241 +1145,6 @@ void QWidgetPrivate::deleteExtra()
     }
 }
 
-/*
-  Returns true if the foreground is inherited; otherwise returns
-  false.
-
-  A widget does not inherit its parent's foreground if
-  setForegroundRole() or setBackgroundRole() was called, or a brush is
-  defined for the foreground role.
-
-  If the WA_ForegroundInherited attribute is set, a widget always
-  inherits its parent's foreground.
-*/
-
-bool QWidgetPrivate::isForegroundInherited() const
-{
-    return (q->testWFlags(Qt::WType_TopLevel|Qt::WSubWindow) == 0
-	    && (q->testAttribute(QWidget::WA_ForegroundInherited)
-		|| (!q->testAttribute(QWidget::WA_SetPalette)
-		    && !q->testAttribute(QWidget::WA_SetForegroundRole)
-		    && !q->testAttribute(QWidget::WA_SetBackgroundRole))));
-}
-
-
-/*
-  Returns true if the background is inherited; otherwise returns
-  false.
-
-  A widget does not inherit its parent's background if
-  setBackgroundRole() was called, or a brush is defined for the
-  background role.
-
-  If the WA_BackgroundInherited attribute is set, a widget always
-  inherits its parent's background.
-*/
-
-bool QWidgetPrivate::isBackgroundInherited() const
-{
-    return (q->testWFlags(Qt::WType_TopLevel|Qt::WSubWindow) == 0
-	    && (q->testAttribute(QWidget::WA_BackgroundInherited)
-		|| (!q->testAttribute(QWidget::WA_SetPalette)
-		    && !q->testAttribute(QWidget::WA_SetBackgroundRole))));
-}
-
-/*
-  Returns true if this widget has an inherited background and at least
-  one ancestor propagates its background; otherwise return false.
- */
-bool QWidgetPrivate::isTransparent() const
-{
-    const QWidget *w = q;
-    while (w->d->isBackgroundInherited()) {
-	w = w->parentWidget();
-	if (w->testAttribute(QWidget::WA_ContentsPropagated))
-	    return true;
-    }
-    return false;
-}
-
-/*
-  In case a widget inherits its parent's pixmap background or content,
-  and possibly propagates it further to its own children, this
-  function updates everthing that needs to be updated after a move.
-
-  This is necessary because the pixmap offset has changed.
- */
-void QWidgetPrivate::updateInheritedBackground(bool force)
-{
-    if (!q->isVisible() || !isBackgroundInherited())
-	return;
-
-    if (!force)
-	force = (q->palette().brush(q->backgroundRole()).pixmap() || isTransparent());
-    if (force) {
-	q->repaint();
-	for (int i = 0; i < children.size(); ++i)
-	    if (children.at(i)->isWidgetType())
-		static_cast<QWidget*>(children.at(i))->d->updateInheritedBackground(force);
-    }
-}
-
-/*
-  In case a widget propagates its or its ancestor's contents to its
-  children, this function updates everything that needs to be updated
-  after a resize.
-
-  Call this only when WA_ContentsPropagated is set.
- */
-void QWidgetPrivate::updatePropagatedBackground()
-{
-    for (int i = 0; i < children.size(); ++i)
-	if (children.at(i)->isWidgetType())
-	    static_cast<QWidget*>(children.at(i))->d->updateInheritedBackground(true);
-}
-
-void QWidgetPrivate::propagatePaletteChange()
-{
-    QEvent pc(QEvent::PaletteChange);
-    QApplication::sendEvent(q, &pc);
-    if(!children.isEmpty()) {
-	for(int i = 0; i < children.size(); ++i) {
-	    QWidget *w = static_cast<QWidget*>(children.at(i));
-	    if(!w->isWidgetType() || w->isTopLevel())
-		continue;
-	    if(!w->testAttribute(QWidget::WA_SetPalette))
-		w->pal = qt_naturalWidgetPalette(w);
-	    w->d->updateSystemBackground();
-	    w->d->propagatePaletteChange();
-	}
-    }
-#ifndef QT_NO_COMPAT
-    q->paletteChange(q->palette()); // compatibility
-#endif
-}
-
-
-/*
-  Returns the widget's clipping rectangle.
-*/
-QRect QWidgetPrivate::clipRect() const
-{
-    QRect r = q->rect();
-    const QWidget * w = q;
-    int ox = 0;
-    int oy = 0;
-    while ( w
-	    && w->isVisible()
-	    && !w->isTopLevel()
-	    && w->parentWidget() ) {
-	ox -= w->x();
-	oy -= w->y();
-	w = w->parentWidget();
-	r = r.intersect( QRect( ox, oy, w->width(), w->height() ) );
-    }
-    if ( !w->isVisible() )
-	return QRect();
-    return r;
-}
-
-
-
-/*!
-    \overload void QPixmap::fill( const QWidget *widget, const QPoint &offset )
-
-    Fills the pixmap with the \a widget's background color or pixmap.
-
-    The \a offset point is an offset in the widget.
-
-    The point \a offset is a point in the widget's coordinate
-    system. The pixmap's top-left pixel will be mapped to the point \a
-    offset in the widget. This is significant if the widget has a
-    background pixmap; otherwise the pixmap will simply be filled with
-    the background color of the widget.
-
-    Example:
-    \code
-    void CuteWidget::paintEvent( QPaintEvent *e )
-    {
-	QRect ur = e->rect();            // rectangle to update
-	QPixmap pix( ur.size() );        // Pixmap for double-buffering
-	pix.fill( this, ur.topLeft() );  // fill with widget background
-
-	QPainter p( &pix );
-	p.translate( -ur.x(), -ur.y() ); // use widget coordinate system
-					 // when drawing on pixmap
-	//    ... draw on pixmap ...
-
-	p.end();
-
-	bitBlt( this, ur.topLeft(), &pix );
-    }
-    \endcode
-*/
-
-/*! \overload
-
-    Fills the pixmap with the \a widget's background color or pixmap.
-    \a xoff, \a yoff is an offset in the widget.
-*/
-
-void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
-{
-    QPoint offset(xoff, yoff);
-    QStack<QWidget*> parents;
-    QWidget *w = const_cast<QWidget *>(widget);
-    while (w->d->isBackgroundInherited()) {
-	offset += w->pos();
-	w = w->parentWidget();
-	parents += w;
-    }
-    QBrush brush = widget->palette().brush(w->d->bg_role);
-
-    fill(brush.color());
-    if (brush.pixmap()) {
-	QPainter p;
-	p.begin( this );
-	p.setPen( NoPen );
-	p.drawTiledPixmap(rect(), *brush.pixmap(), offset);
-	p.end();
-    }
-
-    if (!parents)
-	return;
-
-    w = parents.pop();
-    for (;;) {
-	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
-	    QPainter::setRedirected(w, this, offset);
-  	    QRect rr = widget->d->clipRect();
- 	    rr.moveBy(offset);
-	    QPaintEvent e(rr);
-	    QApplication::sendEvent(w, &e);
-	    QPainter::restoreRedirected(w);
-	}
-	if (!parents)
-	    break;
-	w = parents.pop();
-	offset -= w->pos();
-    }
-}
-#ifndef Q_Q4PAINTER
-void QPainter::copyFrom(const QWidget* w)
-{
-    if (!w)
-	return;
-    cfont = w->font();
-    cpen = w->palette().color(w->foregroundRole());
-    const QWidget *p = w;
-    QPoint offset;
-    while (p->d->isBackgroundInherited()) {
-	offset += p->pos();
-	p = p->parentWidget();
-    }
-    bg_origin = -offset;
-    bg_brush = w->palette().brush(p->d->bg_role);
-}
-#endif
 
 /*!
   \internal
@@ -1200,7 +1180,7 @@ void QWidget::deactivateWidgetCleanup()
 
 QWidget *QWidget::find( WId id )
 {
-    return mapper ? mapper->value(id, 0) : 0;
+    return mapper ? mapper->find( id ) : 0;
 }
 
 /*!
@@ -1265,8 +1245,8 @@ QWidget *QWidget::find( WId id )
 
 QStyle& QWidget::style() const
 {
-    if ( d->extra && d->extra->style )
-	return *d->extra->style;
+    if ( extra && extra->style )
+	return *extra->style;
     QStyle &ret = qApp->style();
     return ret;
 }
@@ -1292,18 +1272,14 @@ QStyle& QWidget::style() const
 void QWidget::setStyle( QStyle *style )
 {
     QStyle& old  = QWidget::style();
-    d->createExtra();
-    d->extra->style = style;
+    createExtra();
+    extra->style = style;
     if ( !testWFlags(WType_Desktop) // (except desktop)
-	 && d->polished) { // (and have been polished)
+	 && testWState(WState_Polished)) { // (and have been polished)
 	old.unPolish( this );
 	QWidget::style().polish( this );
     }
-    QEvent e(QEvent::StyleChange);
-    QApplication::sendEvent(this, &e);
-#ifndef QT_NO_COMPAT
     styleChange( old );
-#endif
 }
 
 /*!
@@ -1316,6 +1292,27 @@ QStyle* QWidget::setStyle( const QString &style )
     QStyle *s = QStyleFactory::create( style );
     setStyle( s );
     return s;
+}
+
+/*!
+    This virtual function is called when the style of the widgets
+    changes. \a oldStyle is the previous GUI style; you can get the
+    new style from style().
+
+    Reimplement this function if your widget needs to know when its
+    GUI style changes. You will almost certainly need to update the
+    widget using update().
+
+    The default implementation updates the widget including its
+    geometry.
+
+    \sa QApplication::setStyle(), style(), update(), updateGeometry()
+*/
+
+void QWidget::styleChange( QStyle& /* oldStyle */ )
+{
+    update();
+    updateGeometry();
 }
 
 #endif
@@ -1384,10 +1381,8 @@ QStyle* QWidget::setStyle( const QString &style )
 */
 
 /*!
-    \fn QWidget::underMouse()
-
-    Returns true if the widget is under the mouse cursor; otherwise
-    returns false.
+    \property QWidget::underMouse
+    \brief whether the widget is under the mouse cursor
 
     This value is not updated properly during drag and drop
     operations.
@@ -1434,12 +1429,12 @@ QStyle* QWidget::setStyle( const QString &style )
 bool QWidget::isEnabledTo( QWidget* ancestor ) const
 {
     const QWidget * w = this;
-    while ( w && !w->testAttribute(WA_ForceDisabled)
+    while ( w && !w->testWState(WState_ForceDisabled)
 	    && !w->isTopLevel()
 	    && w->parentWidget()
 	    && w->parentWidget() != ancestor )
 	w = w->parentWidget();
-    return !w->testAttribute(WA_ForceDisabled);
+    return !w->testWState( WState_ForceDisabled );
 }
 
 
@@ -1461,56 +1456,74 @@ bool QWidget::isEnabledTo( QWidget* ancestor ) const
     Some widgets display themselves differently when they are
     disabled. For example a button might draw its label grayed out. If
     your widget needs to know when it becomes enabled or disabled, you
-    can use the changeEvent() with type QEvent::EnabledChange.
+    can reimplement the enabledChange() function.
 
     Disabling a widget implicitly disables all its children. Enabling
     respectively enables all child widgets unless they have been
     explicitly disabled.
 
-    \sa isEnabled(), isEnabledTo(), QKeyEvent, QMouseEvent, changeEvent()
+    \sa isEnabled(), isEnabledTo(), QKeyEvent, QMouseEvent, enabledChange()
 */
 void QWidget::setEnabled( bool enable )
 {
-    setAttribute(WA_ForceDisabled, !enable);
-    setEnabled_helper(enable);
-}
+    if ( enable )
+	clearWState( WState_ForceDisabled );
+    else
+	setWState( WState_ForceDisabled );
 
-void QWidget::setEnabled_helper(bool enable)
-{
-    if (enable && !isTopLevel() && parentWidget() && !parentWidget()->isEnabled())
+    if ( !isTopLevel() && parentWidget() &&
+	 !parentWidget()->isEnabled() && enable )
 	return; // nothing we can do
 
-    if (enable != testAttribute(WA_Disabled))
-	return; // nothing to do
-
-    setAttribute(WA_Disabled, !enable);
-    d->updateSystemBackground();
-
-    if (!enable && topLevelWidget()->focusWidget() == this && (!parentWidget()||parentWidget()->isEnabled()))
-	if (!focusNextPrevChild(true))
-	    clearFocus();
-
-    WidgetAttribute attribute = enable ? WA_ForceDisabled : WA_Disabled;
-    for (int i = 0; i < d->children.size(); ++i) {
-	QWidget *w = static_cast<QWidget *>(d->children.at(i));
-	if (w->isWidgetType() && !w->testAttribute(attribute))
-	    w->setEnabled_helper(enable);
+    if ( enable ) {
+	if ( testWState(WState_Disabled) ) {
+	    clearWState( WState_Disabled );
+	    setBackgroundFromMode();
+	    enabledChange( !enable );
+	    if ( children() ) {
+		QObjectListIt it( *children() );
+		QWidget *w;
+		while( (w = (QWidget *)it.current()) != 0 ) {
+		    ++it;
+		    if ( w->isWidgetType() &&
+			 !w->testWState( WState_ForceDisabled ) )
+			w->setEnabled( TRUE );
+		}
+	    }
+	}
+    } else {
+	if ( !testWState(WState_Disabled) ) {
+	    if ( focusWidget() == this && ( !parentWidget() || parentWidget()->isEnabled() ) ) {
+		if ( !focusNextPrevChild( TRUE ) )
+		    clearFocus();
+	    }
+	    setWState( WState_Disabled );
+	    setBackgroundFromMode();
+	    enabledChange( !enable );
+	    if ( children() ) {
+		QObjectListIt it( *children() );
+		QWidget *w;
+		while( (w = (QWidget *)it.current()) != 0 ) {
+		    ++it;
+		    if ( w->isWidgetType() && w->isEnabled() ) {
+			w->setEnabled( FALSE );
+			w->clearWState( WState_ForceDisabled );
+		    }
+		}
+	    }
+	}
     }
 #if defined(Q_WS_X11)
-    if ( testAttribute( WA_SetCursor ) ) {
+    if ( testWState( WState_OwnCursor ) ) {
 	// enforce the windows behavior of clearing the cursor on
 	// disabled widgets
+
 	extern void qt_x11_enforce_cursor( QWidget * w ); // defined in qwidget_x11.cpp
 	qt_x11_enforce_cursor( this );
     }
 #endif
 #ifdef Q_WS_WIN
-    QInputContext::enable(this, im_enabled && enable);
-#endif
-    QEvent e(QEvent::EnabledChange);
-    QApplication::sendEvent(this, &e);
-#ifndef QT_NO_COMPAT
-    enabledChange(!enable); // compatibility
+    QInputContext::enable( this, im_enabled & !((bool)testWState(WState_Disabled)) );
 #endif
 }
 
@@ -1520,11 +1533,85 @@ void QWidget::setEnabled_helper(bool enable)
 
     See the \l enabled documentation for more information.
 
-    \sa isEnabledTo(), QKeyEvent, QMouseEvent, changeEvent()
+    \sa isEnabledTo(), QKeyEvent, QMouseEvent, enabledChange()
 */
 void QWidget::setDisabled( bool disable )
 {
     setEnabled( !disable );
+}
+
+/*!
+    \fn void QWidget::enabledChange( bool oldEnabled )
+
+    This virtual function is called from setEnabled(). \a oldEnabled
+    is the previous setting; you can get the new setting from
+    isEnabled().
+
+    Reimplement this function if your widget needs to know when it
+    becomes enabled or disabled. You will almost certainly need to
+    update the widget using update().
+
+    The default implementation repaints the visible part of the
+    widget.
+
+    \sa setEnabled(), isEnabled(), repaint(), update(), clipRegion()
+*/
+
+void QWidget::enabledChange( bool )
+{
+    update();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+#endif
+}
+
+/*!
+    \fn void QWidget::windowActivationChange( bool oldActive )
+
+    This virtual function is called for a widget when its window is
+    activated or deactivated by the window system. \a oldActive is the
+    previous state; you can get the new setting from isActiveWindow().
+
+    Reimplement this function if your widget needs to know when its
+    window becomes activated or deactivated.
+
+    The default implementation updates the visible part of the widget
+    if the inactive and the active colorgroup are different for colors
+    other than the highlight and link colors.
+
+    \sa setActiveWindow(), isActiveWindow(), update(), palette()
+*/
+
+void QWidget::windowActivationChange( bool )
+{
+#ifndef QT_NO_PALETTE
+    if ( !isVisible() )
+	return;
+
+    const QColorGroup &acg = palette().active();
+    const QColorGroup &icg = palette().inactive();
+
+    if ( acg != icg ) {
+	BackgroundMode bm = backgroundMode();
+	QColorGroup::ColorRole role = QPalette::backgroundRoleFromMode(bm);
+	if ( bm > NoBackground  && acg.brush(role) != icg.brush(role) )
+	    setBackgroundFromMode();
+	else if ( acg.background() == icg.background() &&
+		  acg.base() == icg.base() &&
+		  acg.text() == icg.text() &&
+		  acg.foreground() == icg.foreground() &&
+		  acg.button() == icg.button() &&
+		  acg.buttonText() == icg.buttonText() &&
+		  acg.brightText() == icg.brightText() &&
+		  acg.dark() == icg.dark() &&
+		  acg.light() == icg.light() &&
+		  acg.mid() == icg.mid() &&
+		  acg.midlight() == icg.midlight() &&
+		  acg.shadow() == icg.shadow() )
+	    return;
+	update();
+    }
+#endif
 }
 
 /*!
@@ -1542,7 +1629,8 @@ QRect QWidget::frameGeometry() const
     if (isTopLevel() && ! isPopup()) {
 	if (fstrut_dirty)
 	    updateFrameStrut();
-	QTLWExtra *top = d->topData();
+	QWidget *that = (QWidget *) this;
+	QTLWExtra *top = that->topData();
 	return QRect(crect.x() - top->fleft,
 		     crect.y() - top->ftop,
 		     crect.width() + top->fleft + top->fright,
@@ -1565,7 +1653,8 @@ int QWidget::x() const
     if (isTopLevel() && ! isPopup()) {
 	if (fstrut_dirty)
 	    updateFrameStrut();
-	return crect.x() - d->topData()->fleft;
+	QWidget *that = (QWidget *) this;
+	return crect.x() - that->topData()->fleft;
     }
     return crect.x();
 }
@@ -1585,7 +1674,8 @@ int QWidget::y() const
     if (isTopLevel() && ! isPopup()) {
 	if (fstrut_dirty)
 	    updateFrameStrut();
-	return crect.y() - d->topData()->ftop;
+	QWidget *that = (QWidget *) this;
+	return crect.y() - that->topData()->ftop;
     }
     return crect.y();
 }
@@ -1618,7 +1708,8 @@ QPoint QWidget::pos() const
     if (isTopLevel() && ! isPopup()) {
 	if (fstrut_dirty)
 	    updateFrameStrut();
-	QTLWExtra *top = d->topData();
+	QWidget *that = (QWidget *) this;
+	QTLWExtra *top = that->topData();
 	return QPoint(crect.x() - top->fleft, crect.y() - top->ftop);
     }
     return crect.topLeft();
@@ -1636,6 +1727,9 @@ QPoint QWidget::pos() const
 
     The size component is adjusted if it lies outside the range
     defined by minimumSize() and maximumSize().
+
+    setGeometry() is virtual, and all other overloaded setGeometry()
+    implementations in Qt call it.
 
     \warning Calling setGeometry() inside resizeEvent() or moveEvent()
     can lead to infinite recursion.
@@ -1705,43 +1799,6 @@ QPoint QWidget::pos() const
     \sa size
 */
 
-QRect QWidget::rect() const
-{
-    if (testAttribute(WA_InvalidSize))
-	const_cast<QWidget*>(this)->adjustSize();
-    return QRect(0,0,crect.width(),crect.height());
-}
-
-
-const QRect &QWidget::geometry() const
-{
-    if (testAttribute(WA_InvalidSize))
-	const_cast<QWidget*>(this)->adjustSize();
-    return crect;
-}
-
-QSize QWidget::size() const
-{
-    if (testAttribute(WA_InvalidSize))
-	const_cast<QWidget*>(this)->adjustSize();
-    return crect.size();
-}
-
-int QWidget::width() const
-{
-    if (testAttribute(WA_InvalidSize))
-	const_cast<QWidget*>(this)->adjustSize();
-    return crect.width();
-}
-
-int QWidget::height() const
-{
-    if (testAttribute(WA_InvalidSize))
-	const_cast<QWidget*>(this)->adjustSize();
-    return crect.height();
-}
-
-
 /*!
     \property QWidget::childrenRect
     \brief the bounding rectangle of the widget's children
@@ -1754,8 +1811,12 @@ int QWidget::height() const
 QRect QWidget::childrenRect() const
 {
     QRect r( 0, 0, 0, 0 );
-    for (int i = 0; i < d->children.size(); ++i) {
-	QObject *obj = d->children.at(i);
+    if ( !children() )
+	return r;
+    QObjectListIt it( *children() );
+    QObject *obj;
+    while ( (obj = it.current()) ) {
+	++it;
 	if ( obj->isWidgetType() && !((QWidget*)obj)->isHidden() )
 	    r = r.unite( ((QWidget*)obj)->geometry() );
     }
@@ -1774,8 +1835,12 @@ QRect QWidget::childrenRect() const
 QRegion QWidget::childrenRegion() const
 {
     QRegion r;
-    for (int i = 0; i < d->children.size(); ++i) {
-	QObject *obj = d->children.at(i);
+    if ( !children() )
+	return r;
+    QObjectListIt it( *children() );		// iterate over all children
+    QObject *obj;
+    while ( (obj=it.current()) ) {
+	++it;
 	if ( obj->isWidgetType() && !((QWidget*)obj)->isHidden() )
 	    r = r.unite( ((QWidget*)obj)->geometry() );
     }
@@ -1801,7 +1866,7 @@ QRegion QWidget::childrenRegion() const
 
 QSize QWidget::minimumSize() const
 {
-    return d->extra ? QSize( d->extra->minw, d->extra->minh ) : QSize( 0, 0 );
+    return extra ? QSize( extra->minw, extra->minh ) : QSize( 0, 0 );
 }
 
 /*!
@@ -1817,7 +1882,7 @@ QSize QWidget::minimumSize() const
 
 QSize QWidget::maximumSize() const
 {
-    return d->extra ? QSize( d->extra->maxw, d->extra->maxh )
+    return extra ? QSize( extra->maxw, extra->maxh )
 		 : QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
 }
 
@@ -1882,8 +1947,8 @@ QSize QWidget::maximumSize() const
 */
 QSize QWidget::sizeIncrement() const
 {
-    return ( d->extra && d->extra->topextra )
-	? QSize( d->extra->topextra->incw, d->extra->topextra->inch )
+    return ( extra && extra->topextra )
+	? QSize( extra->topextra->incw, extra->topextra->inch )
 	: QSize( 0, 0 );
 }
 
@@ -1899,8 +1964,8 @@ QSize QWidget::sizeIncrement() const
 
 QSize QWidget::baseSize() const
 {
-    return ( d->extra != 0 && d->extra->topextra != 0 )
-	? QSize( d->extra->topextra->basew, d->extra->topextra->baseh )
+    return ( extra != 0 && extra->topextra != 0 )
+	? QSize( extra->topextra->basew, extra->topextra->baseh )
 	: QSize( 0, 0 );
 }
 
@@ -1985,7 +2050,7 @@ void QWidget::setFixedHeight( int h )
     of \a parent. The \a parent must not be 0 and must be a parent
     of the calling widget.
 
-    \sa mapFrom() mapToParent() mapToGlobal() underMouse()
+    \sa mapFrom() mapToParent() mapToGlobal() hasMouse()
 */
 
 QPoint QWidget::mapTo( QWidget * parent, const QPoint & pos ) const
@@ -2007,7 +2072,7 @@ QPoint QWidget::mapTo( QWidget * parent, const QPoint & pos ) const
     of \a parent to this widget's coordinate system. The \a parent
     must not be 0 and must be a parent of the calling widget.
 
-    \sa mapTo() mapFromParent() mapFromGlobal() underMouse()
+    \sa mapTo() mapFromParent() mapFromGlobal() hasMouse()
 */
 
 QPoint QWidget::mapFrom( QWidget * parent, const QPoint & pos ) const
@@ -2030,7 +2095,7 @@ QPoint QWidget::mapFrom( QWidget * parent, const QPoint & pos ) const
 
     Same as mapToGlobal() if the widget has no parent.
 
-    \sa mapFromParent() mapTo() mapToGlobal() underMouse()
+    \sa mapFromParent() mapTo() mapToGlobal() hasMouse()
 */
 
 QPoint QWidget::mapToParent( const QPoint &pos ) const
@@ -2044,7 +2109,7 @@ QPoint QWidget::mapToParent( const QPoint &pos ) const
 
     Same as mapFromGlobal() if the widget has no parent.
 
-    \sa mapToParent() mapFrom() mapFromGlobal() underMouse()
+    \sa mapToParent() mapFrom() mapFromGlobal() hasMouse()
 */
 
 QPoint QWidget::mapFromParent( const QPoint &pos ) const
@@ -2062,7 +2127,7 @@ QPoint QWidget::mapFromParent( const QPoint &pos ) const
     Typical usage is changing the window caption:
 
     \code
-	aWidget->topLevelWidget()->setWindowCaption( "New Caption" );
+	aWidget->topLevelWidget()->setCaption( "New Caption" );
     \endcode
 
     \sa isTopLevel()
@@ -2079,208 +2144,501 @@ QWidget *QWidget::topLevelWidget() const
     return w;
 }
 
-#ifndef QT_NO_COMPAT
+
 /*!
-    Returns the color role used for painting the widget's background.
+    \property QWidget::paletteForegroundColor
+    \brief the foreground color of the widget
+
+    setPaletteForegroundColor() is a convenience function that creates
+    and sets a modified QPalette with setPalette(). The palette is
+    modified according to the widget's \e {background mode}. For
+    example, if the background mode is \c PaletteButton the palette entry
+    \c QColorGroup::ButtonText is set to color.
+
+    \sa setPalette() QApplication::setPalette() backgroundMode()
+      foregroundColor() setBackgroundMode() setEraseColor()
+*/
+const QColor &QWidget::paletteForegroundColor() const
+{
+#ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    return colorGroup().color( QPalette::foregroundRoleFromMode(mode) );
+#else
+    return Qt::black;
+#endif
+}
+
+void QWidget::setPaletteForegroundColor( const QColor & color )
+{
+#ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    QPalette pal = palette();
+    QColorGroup::ColorRole role = QPalette::foregroundRoleFromMode( mode );
+    pal.setColor( QPalette::Active, role, color );
+    pal.setColor( QPalette::Inactive, role, color );
+    pal.setColor( QPalette::Disabled, role, color );
+    setPalette( pal );
+#endif
+}
+
+
+/*!
+    Same as paletteForegroundColor()
+ */
+const QColor &QWidget::foregroundColor() const
+{
+    return paletteForegroundColor();
+}
+
+
+/*!
+    \fn const QColor& QWidget::eraseColor() const
+
+    Returns the erase color of the widget.
+
+    \sa setEraseColor() setErasePixmap() backgroundColor()
+*/
+
+/*!
+    Sets the erase color of the widget to \a color.
+
+    The erase color is the color the widget is to be cleared to before
+    paintEvent() is called. If there is an erase pixmap (set using
+    setErasePixmap()), then this property has an indeterminate value.
+
+    \sa erasePixmap(), backgroundColor(), backgroundMode(), palette()
+*/
+void QWidget::setEraseColor( const QColor & color )
+{
+    setBackgroundModeDirect( FixedColor );
+    setBackgroundColorDirect( color );
+    update();
+}
+
+/*!
+    Returns the widget's erase pixmap.
+
+    \sa setErasePixmap() eraseColor()
+*/
+const QPixmap *QWidget::erasePixmap() const
+{
+    return ( extra && extra->bg_pix ) ? extra->bg_pix : 0;
+}
+
+/*!
+    Sets the widget's erase pixmap to \a pixmap.
+
+    This pixmap is used to clear the widget before paintEvent() is
+    called.
+*/
+void QWidget::setErasePixmap( const QPixmap &pixmap )
+{
+    // This function is called with a null pixmap by setBackgroundEmpty().
+    setBackgroundPixmapDirect( pixmap );
+    setBackgroundModeDirect( FixedPixmap );
+    update();
+}
+
+void QWidget::setBackgroundFromMode()
+{
+#ifndef QT_NO_PALETTE
+    QColorGroup::ColorRole r = QColorGroup::Background;
+    if ( extra ) {
+	int i = (BackgroundMode)extra->bg_mode;
+	if ( i == FixedColor || i == FixedPixmap || i == NoBackground ) {
+	    // Mode is for fixed color, not one based on palette,
+	    // so nothing to do.
+	    return;
+	}
+	switch( i ) {
+	case PaletteForeground:
+	    r = QColorGroup::Foreground;
+	    break;
+	case PaletteButton:
+	    r = QColorGroup::Button;
+	    break;
+	case PaletteLight:
+	    r = QColorGroup::Light;
+	    break;
+	case PaletteMidlight:
+	    r = QColorGroup::Midlight;
+	    break;
+	case PaletteDark:
+	    r = QColorGroup::Dark;
+	    break;
+	case PaletteMid:
+	    r = QColorGroup::Mid;
+	    break;
+	case PaletteText:
+	    r = QColorGroup::Text;
+	    break;
+	case PaletteBrightText:
+	    r = QColorGroup::BrightText;
+	    break;
+	case PaletteBase:
+	    r = QColorGroup::Base;
+	    break;
+	case PaletteBackground:
+	    r = QColorGroup::Background;
+	    break;
+	case PaletteShadow:
+	    r = QColorGroup::Shadow;
+	    break;
+	case PaletteHighlight:
+	    r = QColorGroup::Highlight;
+	    break;
+	case PaletteHighlightedText:
+	    r = QColorGroup::HighlightedText;
+	    break;
+	case PaletteButtonText:
+	    r = QColorGroup::ButtonText;
+	    break;
+	case X11ParentRelative:
+#if defined(Q_WS_X11)
+	    setBackgroundX11Relative();
+#endif
+	    return;
+	}
+    }
+    const QColorGroup &cg = colorGroup();
+    QPixmap * p = cg.brush( r ).pixmap();
+    if ( p )
+	setBackgroundPixmapDirect( *p );
+    else
+	setBackgroundColorDirect( cg.color( r ) );
+#endif
+}
+
+/*!
+    \enum Qt::BackgroundMode
+
+    This enum describes how the background of a widget changes, as the
+    widget's palette changes.
+
+    The background is what the widget contains when \link
+    QWidget::paintEvent() paintEvent()\endlink is called. To minimize
+    flicker, this should be the most common color or pixmap in the
+    widget. For \c PaletteBackground, use colorGroup().brush( \c
+    QColorGroup::Background ), and so on.
+
+    \value PaletteForeground
+    \value PaletteBackground
+    \value PaletteButton
+    \value PaletteLight
+    \value PaletteMidlight
+    \value PaletteDark
+    \value PaletteMid
+    \value PaletteText
+    \value PaletteBrightText
+    \value PaletteButtonText
+    \value PaletteBase
+    \value PaletteShadow
+    \value PaletteHighlight
+    \value PaletteHighlightedText
+    \value PaletteLink
+    \value PaletteLinkVisited
+    \value X11ParentRelative (internal use only)
+
+    The final three values have special meaning:
+
+    \value NoBackground the widget is not cleared before paintEvent().
+    If the widget's paint event always draws on all the pixels, using
+    this mode can be both fast and flicker-free.
+    \value FixedColor the widget is cleared to a fixed color, normally
+    different from all the ones in the palette(). Set using \link
+    QWidget::setPaletteBackgroundColor()
+    setPaletteBackgroundColor()\endlink.
+    \value FixedPixmap the widget is cleared to a fixed pixmap,
+    normally different from all the ones in the palette(). Set using
+    \link QWidget::setPaletteBackgroundPixmap()
+    setPaletteBackgroundPixmap()\endlink.
+
+    Although \c FixedColor and \c FixedPixmap are sometimes just
+    right, if you use them, make sure that you test your application
+    when the desktop color scheme has been changed. (On X11, a quick
+    way to test this is e.g. "./myapp -bg paleblue". On Windows, you
+    must use the control panel.)
+
+    \sa QWidget::setBackgroundMode() QWidget::backgroundMode()
+    QWidget::setBackgroundPixmap() QWidget::setPaletteBackgroundColor()
+*/
+
+/*!
+    \property QWidget::backgroundMode
+    \brief the color role used for painting the background of the widget
+
+    setPaletteBackgroundColor() reads this property to determine which
+    entry of the \link QWidget::palette palette\endlink to set.
+
+    For most widgets the default suffices (\c PaletteBackground,
+    typically gray), but some need to use \c PaletteBase (the
+    background color for text output, typically white) or another
+    role.
+
+    QListBox, which is "sunken" and uses the base color to contrast
+    with its environment, does this in its constructor:
+
+    \code
+    setBackgroundMode( PaletteBase );
+    \endcode
+
+    You will never need to set the background mode of a built-in
+    widget in Qt, but you might consider setting it in your custom
+    widgets, so that setPaletteBackgroundColor() works as expected.
+
+    Note that two of the BackgroundMode values make no sense for
+    setBackgroundMode(), namely \c FixedPixmap and \c FixedColor. You
+    must call setBackgroundPixmap() and setPaletteBackgroundColor()
+    instead.
 */
 Qt::BackgroundMode QWidget::backgroundMode() const
 {
-    if (testAttribute(WA_NoSystemBackground))
-	return NoBackground;
-    switch(backgroundRole()) {
-    case QPalette::Foreground:
-	return PaletteForeground;
-    case QPalette::Button:
-	return PaletteButton;
-    case QPalette::Light:
-	return PaletteLight;
-    case QPalette::Midlight:
-	return PaletteMidlight;
-    case QPalette::Dark:
-	return PaletteDark;
-    case QPalette::Mid:
-	return PaletteMid;
-    case QPalette::Text:
-	return PaletteText;
-    case QPalette::BrightText:
-	return PaletteBrightText;
-    case QPalette::Base:
-	return PaletteBase;
-    case QPalette::Background:
-	return PaletteBackground;
-    case QPalette::Shadow:
-	return PaletteShadow;
-    case QPalette::Highlight:
-	return PaletteHighlight;
-    case QPalette::HighlightedText:
-	return PaletteHighlightedText;
-    case QPalette::ButtonText:
-	return PaletteButtonText;
-    case QPalette::Link:
-	return PaletteLink;
-    case QPalette::LinkVisited:
-	return PaletteLinkVisited;
-    default:
-	break;
+    return extra ? (BackgroundMode) extra->bg_mode : PaletteBackground;
+}
+
+void QWidget::setBackgroundMode( BackgroundMode m )
+{
+    setBackgroundMode( m, m );
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) ==
+	 WState_Visible )
+	update();
+}
+
+
+/*!
+    \overload
+
+    Sets the widget's own background mode to \a m and the visual
+    background mode to \a visual. The visual background mode is used
+    with the designable properties \c backgroundColor, \c
+    foregroundColor and \c backgroundPixmap.
+
+    For complex controls, the logical background mode sometimes
+    differs from a widget's own background mode. A spinbox for example
+    has \c PaletteBackground as background mode (typically dark gray),
+    while it's embedded lineedit control uses \c PaletteBase
+    (typically white). Since the lineedit covers most of the visual
+    area of a spinbox, it defines \c PaletteBase to be its \a visual
+    background mode. Changing the \c backgroundColor property thus
+    changes the lineedit control's background, which is exactly what
+    the user expects in \e{Qt Designer}.
+*/
+void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode visual )
+{
+    if ( m == NoBackground ) {
+	setBackgroundEmpty();
+    } else if ( m == FixedColor || m == FixedPixmap ) {
+#if defined(QT_DEBUG)
+	qWarning( "QWidget::setBackgroundMode: FixedColor or FixedPixmap makes"
+		  " no sense" );
+#endif
+	return;
     }
-    return NoBackground;
+    setBackgroundModeDirect(m);
+    if ( m != visual && !extra )
+	createExtra();
+    if ( extra )
+	extra->bg_mode_visual = visual;
+}
+
+
+/*!
+  \internal
+*/
+void QWidget::setBackgroundModeDirect( BackgroundMode m )
+{
+    if ( m == PaletteBackground && !extra )
+	return;
+
+    createExtra();
+    if ( (BackgroundMode)extra->bg_mode != m ) {
+	extra->bg_mode = m;
+	extra->bg_mode_visual = m;
+	setBackgroundFromMode();
+    }
 }
 
 /*!
-    Sets the color role used for painting the widget's background to
-    background mode \a m.
-*/
-void QWidget::setBackgroundMode( BackgroundMode m )
-{
-    if(m == NoBackground) {
-	setAttribute(WA_NoSystemBackground, true);
-	d->updateSystemBackground();
-	return;
-    }
-    setAttribute(WA_NoSystemBackground, false);
-    setAttribute(WA_SetForegroundRole, false);
+    \property QWidget::paletteBackgroundColor
+    \brief the background color of the widget
 
-    QPalette::ColorRole role;
-    switch(m) {
+    The palette background color is usually set implicitly by
+    setBackgroundMode(), although it can also be set explicitly by
+    setPaletteBackgroundColor(). setPaletteBackgroundColor() is a
+    convenience function that creates and sets a modified QPalette
+    with setPalette(). The palette is modified according to the
+    widget's background mode. For example, if the background mode is
+    \c PaletteButton the color used for the palette's \c
+    QColorGroup::Button color entry is set.
+
+    If there is a background pixmap (set using
+    setPaletteBackgroundPixmap()), then the return value of this
+    function is indeterminate.
+
+    \sa paletteBackgroundPixmap, paletteForegroundColor, palette, colorGroup()
+*/
+const QColor & QWidget::paletteBackgroundColor() const
+{
+#ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    switch( mode ) {
     case FixedColor:
-    case FixedPixmap:
-	break;
-    case PaletteForeground:
-	role = QPalette::Foreground;
-	break;
-    case PaletteButton:
-	role = QPalette::Button;
-	break;
-    case PaletteLight:
-	role = QPalette::Light;
-	break;
-    case PaletteMidlight:
-	role = QPalette::Midlight;
-	break;
-    case PaletteDark:
-	role = QPalette::Dark;
-	break;
-    case PaletteMid:
-	role = QPalette::Mid;
-	break;
-    case PaletteText:
-	role = QPalette::Text;
-	break;
-    case PaletteBrightText:
-	role = QPalette::BrightText;
-	break;
-    case PaletteBase:
-	role = QPalette::Base;
-	break;
-    case PaletteBackground:
-	role = QPalette::Background;
-	break;
-    case PaletteShadow:
-	role = QPalette::Shadow;
-	break;
-    case PaletteHighlight:
-	role = QPalette::Highlight;
-	break;
-    case PaletteHighlightedText:
-	role = QPalette::HighlightedText;
-	break;
-    case PaletteButtonText:
-	role = QPalette::ButtonText;
-	break;
-    case PaletteLink:
-	role = QPalette::Link;
-	break;
-    case PaletteLinkVisited:
-	role = QPalette::LinkVisited;
-	break;
+    case FixedPixmap :
+    case NoBackground:
     case X11ParentRelative:
-	d->fg_role = QPalette::Foreground;
-	d->bg_role = QPalette::Background;
-	setAttribute(WA_SetBackgroundRole, false);
+	return eraseColor();
     default:
+	QColorGroup::ColorRole role = QPalette::backgroundRoleFromMode( mode );
+	return colorGroup().color( role );
+    }
+#else
+    return eraseColor();
+#endif
+}
+
+void QWidget::setPaletteBackgroundColor( const QColor &color )
+{
+#ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    switch( mode ) {
+    case FixedColor:
+    case FixedPixmap :
+    case NoBackground:
+    case X11ParentRelative:
+	setEraseColor( color );
+	break;
+    default:
+	QPalette pal = palette();
+	QColorGroup::ColorRole role = QPalette::backgroundRoleFromMode( mode );
+	pal.setColor( QPalette::Active, role, color );
+	pal.setColor( QPalette::Inactive, role, color );
+	pal.setColor( QPalette::Disabled, role, color );
+	setPalette( pal );
 	break;
     }
-    setBackgroundRole(role);
+#else
+    setEraseColor( color );
+#endif
+}
+
+
+/*!
+    \property QWidget::paletteBackgroundPixmap
+    \brief the background pixmap of the widget
+
+    The palette background pixmap is usually set implicitly by
+    setBackgroundMode(), although it can also be set explicitly by
+    setPaletteBackgroundPixmap(). setPaletteBackgroundPixmap() is a
+    convenience function that creates and sets a modified QPalette
+    with setPalette(). The palette is modified according to the
+    widget's background mode. For example, if the background mode is
+    \c PaletteButton the pixmap used for the palette's
+    \c QColorGroup::Button color entry is set.
+
+    If there is a plain background color (set using
+    setPaletteBackgroundColor()), then this function returns 0.
+
+    \sa paletteBackgroundColor, paletteForegroundColor, palette, colorGroup()
+*/
+const QPixmap *QWidget::paletteBackgroundPixmap() const
+{
+#ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    switch( mode ) {
+    case FixedColor:
+    case FixedPixmap :
+    case NoBackground:
+    case X11ParentRelative:
+	return erasePixmap();
+    default:
+	QColorGroup::ColorRole role = QPalette::backgroundRoleFromMode( mode );
+	return palette().brush( QPalette::Active, role ).pixmap();
+    }
+#else
+    return erasePixmap();
+#endif
+}
+
+void QWidget::setPaletteBackgroundPixmap( const QPixmap &pixmap )
+{
+#ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    switch( mode ) {
+    case FixedColor:
+    case FixedPixmap :
+    case NoBackground:
+    case X11ParentRelative:
+	setErasePixmap( pixmap );
+	break;
+    default:
+	QPalette pal = palette();
+	QColorGroup::ColorRole role = QPalette::backgroundRoleFromMode( mode );
+	pal.setBrush( QPalette::Active, role, QBrush( pal.color( QPalette::Active, role ), pixmap ) );
+	pal.setBrush( QPalette::Inactive, role, QBrush( pal.color( QPalette::Inactive, role ), pixmap ) );
+	pal.setBrush( QPalette::Disabled, role, QBrush( pal.color( QPalette::Disabled, role ), pixmap ) );
+	setPalette( pal );
+	break;
+    }
+#else
+    setErasePixmap( pixmap );
+#endif
+}
+
+
+/*!
+    \property QWidget::backgroundBrush
+    \brief the widget's background brush
+
+    The background brush depends on a widget's palette and its
+    background mode.
+
+    \sa backgroundColor(), backgroundPixmap(), eraseColor(),  palette,
+    QApplication::setPalette()
+*/
+const QBrush& QWidget::backgroundBrush() const
+{
+    static QBrush noBrush;
+#ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    switch( mode ) {
+    case FixedColor:
+    case FixedPixmap :
+    case NoBackground:
+    case X11ParentRelative:
+	return noBrush;
+    default:
+	QColorGroup::ColorRole role = QPalette::backgroundRoleFromMode( mode );
+	return colorGroup().brush( role );
+    }
+#else
+    return noBrush;
+#endif
+}
+
+
+/*!
+    \property QWidget::colorGroup
+    \brief the current color group of the widget palette
+
+    The color group is determined by the state of the widget. A
+    disabled widget has the QPalette::disabled() color group, a widget
+    with keyboard focus has the QPalette::active() color group, and an
+    inactive widget has the QPalette::inactive() color group.
+
+    \sa palette
+*/
+#ifndef QT_NO_PALETTE
+const QColorGroup &QWidget::colorGroup() const
+{
+    if ( !isEnabled() )
+	return palette().disabled();
+    else if ( !isVisible() || isActiveWindow() )
+	return palette().active();
+    else
+	return palette().inactive();
 }
 #endif
 
-
-/*!
-  Returns the background role.
-
-  \sa setBackgroundRole(), foregroundRole()
- */
-QPalette::ColorRole QWidget::backgroundRole() const
-{
-    const QWidget *w = this;
-    while (w->d->isBackgroundInherited())
-	w = w->parentWidget();
-    return w->d->bg_role;
-}
-
-/*!
-
-  Sets the background role of the widget to \a role.
-
-  \sa backgroundRole(), foregroundRole()
- */
-void QWidget::setBackgroundRole(QPalette::ColorRole role)
-{
-    d->bg_role = role;
-    setAttribute(WA_SetBackgroundRole);
-    if (!testAttribute(WA_SetForegroundRole))
-	switch (role) {
-	case QPalette::Button:
-	    d->fg_role = QPalette::ButtonText;
-	    break;
-	case QPalette::Base:
-	    d->fg_role = QPalette::Text;
-	    break;
-	case QPalette::Dark:
-	case QPalette::Shadow:
-	    d->fg_role = QPalette::Light;
-	    break;
-	case QPalette::Highlight:
-	    d->fg_role = QPalette::HighlightedText;
-	    break;
-	default:
-	    d->fg_role = QPalette::Foreground;
-	    break;
-	}
-    d->updateSystemBackground();
-    d->propagatePaletteChange();
-}
-
-/*!
-  Returns the foreground role.
-
-  If no explicit foreground role is set, returns a role that contrasts
-  with the backgroundRole().
-
-  \sa setForegroundRole(), backgroundRole()
- */
-QPalette::ColorRole QWidget::foregroundRole() const
-{
-    const QWidget *w = this;
-    while (w->d->isForegroundInherited())
-	w = w->parentWidget();
-    return w->d->fg_role;
-}
-
-/*!
-  Sets the foreground role of the widget to \a role \sa
-  backgroundRole(), setForegroundRole()
- */
-void QWidget::setForegroundRole(QPalette::ColorRole role)
-{
-    d->bg_role = role;
-    setAttribute(WA_SetForegroundRole);
-    d->updateSystemBackground();
-    d->propagatePaletteChange();
-}
-
-
-#ifndef QT_NO_PALETTE
 /*!
     \property QWidget::palette
     \brief the widget's palette
@@ -2297,39 +2655,39 @@ void QWidget::setForegroundRole(QPalette::ColorRole role)
     convenience properties to change a widget's
     background and foreground appearance only.
 
-    \sa ownPalette, QApplication::palette()
+    \sa ownPalette, colorGroup(), QApplication::palette()
 */
-const QPalette &QWidget::palette() const
-{
-    if ( !isEnabled() )
-	pal.setCurrentColorGroup(QPalette::Disabled);
-    else if ( !isVisible() || isActiveWindow() )
-	pal.setCurrentColorGroup(QPalette::Active);
-    else
-	pal.setCurrentColorGroup(QPalette::Inactive);
-    return pal;
-}
 
+#ifndef QT_NO_PALETTE
 void QWidget::setPalette( const QPalette &palette )
 {
-    setAttribute(WA_SetPalette, true);
-    setPalette_helper(palette);
-}
-
-void QWidget::setPalette_helper( const QPalette &palette )
-{
+    own_palette = TRUE;
     if ( pal == palette )
 	return;
     QPalette old = pal;
     pal = palette;
-    d->updateSystemBackground();
-    d->propagatePaletteChange();
+    setBackgroundFromMode();
+    QEvent ev( QEvent::PaletteChange );
+    QApplication::sendEvent( this, &ev );
+    if ( children() ) {
+	QEvent e( QEvent::ParentPaletteChange );
+	QObjectListIt it( *children() );
+	QWidget *w;
+	while( (w=(QWidget *)it.current()) != 0 ) {
+	    ++it;
+	    if ( w->isWidgetType() )
+		QApplication::sendEvent( w, &e );
+	}
+    }
+    paletteChange( old );
+    update();
 }
 
 void QWidget::unsetPalette()
 {
-    setAttribute(WA_SetPalette, false);
-    setPalette_helper( qt_naturalWidgetPalette( this ) );
+    // reset the palette
+    setPalette( qt_naturalWidgetPalette( this ) );
+    own_palette = FALSE;
 }
 
 /*!
@@ -2339,6 +2697,22 @@ void QWidget::unsetPalette()
   Use setPalette( const QPalette& p ) instead.
 */
 
+/*!
+    \fn void QWidget::paletteChange( const QPalette &oldPalette )
+
+    This virtual function is called from setPalette(). \a oldPalette
+    is the previous palette; you can get the new palette from
+    palette().
+
+    Reimplement this function if your widget needs to know when its
+    palette changes.
+
+    \sa setPalette(), palette()
+*/
+
+void QWidget::paletteChange( const QPalette & )
+{
+}
 #endif // QT_NO_PALETTE
 
 /*!
@@ -2362,52 +2736,39 @@ void QWidget::unsetPalette()
     In addition to setting the font, setFont() informs all children
     about the change.
 
-    \sa fontInfo() fontMetrics()
+    \sa fontChange() fontInfo() fontMetrics() ownFont()
 */
-
 void QWidget::setFont( const QFont &font )
 {
-    setAttribute(WA_SetFont, true);
-    setFont_helper(font);
-}
-
-void QWidget::setFont_helper( const QFont &font )
-{
-#undef d
+    own_font = TRUE;
     if ( fnt == font && fnt.d->mask == font.d->mask )
 	return;
-#define d d_func()
-
     QFont old = fnt;
     fnt = font.resolve( qt_naturalWidgetFont( this ) );
 #if defined(Q_WS_X11)
     // make sure the font set on this widget is associated with the correct screen
     fnt.x11SetScreen( x11Screen() );
 #endif
-    if ( !d->children.isEmpty() ) {
-	for (int i = 0; i < d->children.size(); ++i) {
-	    QWidget *w = static_cast<QWidget*>(d->children.at(i));
-	    if (!w->isWidgetType() || w->isTopLevel())
-		continue;
-	    if (w->testAttribute(WA_SetFont))
-		w->setFont_helper(w->fnt.resolve(qt_naturalWidgetFont(w)));
-	    else
-		w->setFont_helper(qt_naturalWidgetFont(w));
+    if ( children() ) {
+	QEvent e( QEvent::ParentFontChange );
+	QObjectListIt it( *children() );
+	QWidget *w;
+	while( (w=(QWidget *)it.current()) != 0 ) {
+	    ++it;
+	    if ( w->isWidgetType() )
+		QApplication::sendEvent( w, &e );
 	}
     }
     if ( hasFocus() )
 	setFontSys();
-    QEvent e(QEvent::FontChange);
-    QApplication::sendEvent(this, &e);
-#ifndef QT_NO_COMPAT
-    fontChange(old);
-#endif
+    fontChange( old );
 }
 
 void QWidget::unsetFont()
 {
-    setAttribute(WA_SetFont, false);
-    setFont_helper( qt_naturalWidgetFont( this ) );
+    // reset the font
+    setFont( qt_naturalWidgetFont( this ) );
+    own_font = FALSE;
 }
 
 /*!
@@ -2416,6 +2777,29 @@ void QWidget::unsetFont()
 
   Use setFont(const QFont& font) instead.
 */
+
+/*!
+    \fn void QWidget::fontChange( const QFont &oldFont )
+
+    This virtual function is called from setFont(). \a oldFont is the
+    previous font; you can get the new font from font().
+
+    Reimplement this function if your widget needs to know when its
+    font changes. You will almost certainly need to update the widget
+    using update().
+
+    The default implementation updates the widget including its
+    geometry.
+
+    \sa setFont(), font(), update(), updateGeometry()
+*/
+
+void QWidget::fontChange( const QFont & )
+{
+    update();
+    updateGeometry();
+}
+
 
 /*!
     \fn QFontMetrics QWidget::fontMetrics() const
@@ -2457,15 +2841,14 @@ void QWidget::unsetFont()
 */
 
 #ifndef QT_NO_CURSOR
-QCursor QWidget::cursor() const
+const QCursor &QWidget::cursor() const
 {
-    if ( testAttribute(WA_SetCursor) )
-	return (d->extra && d->extra->curs)
-	    ? *d->extra->curs
-	    : QCursor(ArrowCursor);
-    if (isTopLevel() || !parentWidget())
-	return QCursor(ArrowCursor);
-    return parentWidget()->cursor();
+    if ( testWState(WState_OwnCursor) )
+	return (extra && extra->curs)
+	    ? *extra->curs
+	    : arrowCursor;
+    else
+	return (isTopLevel() || !parentWidget()) ? arrowCursor : parentWidget()->cursor();
 }
 #endif
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -2476,13 +2859,13 @@ QCursor QWidget::cursor() const
     This property only makes sense for top-level widgets. If no
     caption has been set, the caption is QString::null.
 
-    \sa icon iconText
+    \sa icon() iconText()
 */
-QString QWidget::windowCaption() const
+QString QWidget::caption() const
 {
-    return d->extra && d->extra->topextra
-	? d->extra->topextra->caption
-	: QString();
+    return extra && extra->topextra
+	? extra->topextra->caption
+	: QString::null;
 }
 
 /*!
@@ -2490,14 +2873,14 @@ QString QWidget::windowCaption() const
     \brief the widget's icon
 
     This property only makes sense for top-level widgets. If no icon
-    has been set, windowIcon() returns 0.
+    has been set, icon() returns 0.
 
     \sa iconText, caption,
       \link appicon.html Setting the Application Icon\endlink
 */
-const QPixmap *QWidget::windowIcon() const
+const QPixmap *QWidget::icon() const
 {
-    return ( d->extra && d->extra->topextra ) ? d->extra->topextra->icon : 0;
+    return ( extra && extra->topextra ) ? extra->topextra->icon : 0;
 }
 
 /*!
@@ -2510,10 +2893,10 @@ const QPixmap *QWidget::windowIcon() const
     \sa icon, caption
 */
 
-QString QWidget::windowIconText() const
+QString QWidget::iconText() const
 {
-    return ( d->extra && d->extra->topextra ) ? d->extra->topextra->iconText
-	: QString();
+    return ( extra && extra->topextra ) ? extra->topextra->iconText
+	: QString::null;
 }
 #endif //QT_NO_WIDGET_TOPEXTRA
 
@@ -2550,18 +2933,32 @@ QString QWidget::windowIconText() const
 
 void QWidget::setFocusProxy( QWidget * w )
 {
-    if ( !w && !d->extra )
+    if ( !w && !extra )
 	return;
 
     for ( QWidget* fp  = w; fp; fp = fp->focusProxy() ) {
 	if ( fp == this ) {
+#if defined (QT_CHECK_STATE)
 	    qWarning( "%s (%s): already in focus proxy chain", className(), name() );
+#endif
 	    return;
 	}
     }
 
-    d->createExtra();
-    d->extra->focus_proxy = w;
+    createExtra();
+
+    if ( extra->focus_proxy ) {
+	disconnect( extra->focus_proxy, SIGNAL(destroyed()),
+		    this, SLOT(focusProxyDestroyed()) );
+	extra->focus_proxy = 0;
+    }
+
+    if ( w ) {
+	setFocusPolicy( w->focusPolicy() );
+	connect( w, SIGNAL(destroyed()),
+		 this, SLOT(focusProxyDestroyed()) );
+    }
+    extra->focus_proxy = w;
 }
 
 
@@ -2573,9 +2970,24 @@ void QWidget::setFocusProxy( QWidget * w )
 
 QWidget * QWidget::focusProxy() const
 {
-    return d->extra ? (QWidget *)d->extra->focus_proxy : 0;
+    return extra ? extra->focus_proxy : 0;
 }
 
+
+/*!
+    \internal
+
+    Internal slot used to clean up if the focus proxy is destroyed.
+
+    \sa setFocusProxy()
+*/
+
+void QWidget::focusProxyDestroyed()
+{
+    if ( extra )
+	extra->focus_proxy = 0;
+    setFocusPolicy( NoFocus );
+}
 
 /*!
     \property QWidget::focus
@@ -2589,9 +3001,9 @@ QWidget * QWidget::focusProxy() const
 bool QWidget::hasFocus() const
 {
     const QWidget* w = this;
-    while ( w->d->extra && w->d->extra->focus_proxy )
-	w = w->d->extra->focus_proxy;
-    return qApp->focus_widget == w;
+    while ( w->focusProxy() )
+	w = w->focusProxy();
+    return qApp->focusWidget() == w;
 }
 
 /*!
@@ -2624,35 +3036,34 @@ void QWidget::setFocus()
     if ( !isEnabled() )
 	return;
 
-    QWidget *f = this;
-    while (f->d->extra && f->d->extra->focus_proxy)
-	f = f->d->extra->focus_proxy;
+    if ( focusProxy() ) {
+	focusProxy()->setFocus();
+	return;
+    }
 
-    if (qApp->focus_widget == f
+    QFocusData * f = focusData( TRUE );
+    if ( f->it.current() == this && qApp->focusWidget() == this
 #if defined(Q_WS_WIN)
-	&& GetFocus() == f->winId()
+	&& GetFocus() == winId()
 #endif
 	)
 	return;
 
-
-    QWidget *w = f;
-    if (isHidden()) {
-	while (w && w->isHidden()) {
-	    w->d->focus_child = f;
-	    w = w->parentWidget(true);
-	}
-    } else {
-	while (w) {
-	    w->d->focus_child = f;
-	    w = w->parentWidget(true);
-	}
+    f->it.toFirst();
+    while ( f->it.current() != this && !f->it.atLast() )
+	++f->it;
+    // at this point, the iterator should point to 'this'.  if it
+    // does not, 'this' must not be in the list - an error, but
+    // perhaps possible.  fix it.
+    if ( f->it.current() != this ) {
+	f->focusWidgets.append( this );
+	f->it.toLast();
     }
 
-    if ( f->isActiveWindow() ) {
-	QWidget *prev = qApp->focus_widget;
+    if ( isActiveWindow() ) {
+	QWidget * prev = qApp->focus_widget;
 	if ( prev ) {
-	    if ( prev != f )
+	    if ( prev != this )
 		prev->resetInputContext();
 	}
 #if defined(Q_WS_WIN)
@@ -2660,32 +3071,32 @@ void QWidget::setFocus()
 	    QInputContext::endComposition();
 	}
 #endif
-	qApp->focus_widget = f;
+	qApp->focus_widget = this;
 #if defined(Q_WS_X11)
-	f->d->focusInputContext();
+	focusInputContext();
 #endif
 
 #if defined(Q_WS_WIN)
-	if ( !f->topLevelWidget()->isPopup() )
-	    SetFocus( f->winId() );
+	if ( !topLevelWidget()->isPopup() )
+	    SetFocus( winId() );
 	else {
 #endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	    QAccessible::updateAccessibility( f, 0, QAccessible::Focus );
+	    QAccessible::updateAccessibility( this, 0, QAccessible::Focus );
 #endif
 #if defined(Q_WS_WIN)
 	}
 #endif
 
-	if ( prev != f ) {
+	if ( prev != this ) {
 	    if ( prev ) {
 		QFocusEvent out( QEvent::FocusOut );
 		QApplication::sendEvent( prev, &out );
 	    }
 
-	    if ( qApp->focus_widget == f ) {
+	    if ( qApp->focus_widget == this ) {
 		QFocusEvent in( QEvent::FocusIn );
-		QApplication::sendEvent( f, &in );
+		QApplication::sendEvent( this, &in );
 	    }
 	}
     }
@@ -2707,24 +3118,22 @@ void QWidget::setFocus()
 
 void QWidget::clearFocus()
 {
-    QWidget *w = this;
-    while (w && w->d->focus_child == this) {
-	w->d->focus_child = 0;
-	w = w->parentWidget(true);
-    }
-    if (hasFocus()) {
-	QWidget* w = qApp->focus_widget;
+    if ( focusProxy() ) {
+	focusProxy()->clearFocus();
+	return;
+    } else if ( hasFocus() ) {
+	QWidget* w = qApp->focusWidget();
 	// clear active focus
 	qApp->focus_widget = 0;
 	QFocusEvent out( QEvent::FocusOut );
 	QApplication::sendEvent( w, &out );
 #if defined(Q_WS_WIN)
-	if ( !isPopup() && GetFocus() == w->winId() )
+	if ( !isPopup() && GetFocus() == winId() )
 	    SetFocus( 0 );
 	else {
 #endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	    QAccessible::updateAccessibility( w, 0, QAccessible::Focus );
+	    QAccessible::updateAccessibility( this, 0, QAccessible::Focus );
 #endif
 #if defined(Q_WS_WIN)
 	}
@@ -2751,59 +3160,96 @@ void QWidget::clearFocus()
     but only the top-level widget decides where to redirect focus. By
     overriding this method for an object, you thus gain control of
     focus traversal for all child widgets.
+
+    \warning QScrollView uses it own logic for this function, which
+    does the right thing in most cases. But if you are using a
+    QScrollView and want complete control of the focus chain you'll
+    need to override QScrollView::focusNextPrevChild() and your
+    top-level widgets' focusNextPrevChild() functions.
+
+    \sa focusData()
 */
 
 bool QWidget::focusNextPrevChild( bool next )
 {
     QWidget* p = parentWidget();
-    if (!isTopLevel() && p)
+    if ( !isTopLevel() && p )
 	return p->focusNextPrevChild(next);
 
+    QFocusData *f = focusData( TRUE );
+
+    QWidget *startingPoint = f->it.current();
+    QWidget *candidate = 0;
+    QWidget *w = next ? f->focusWidgets.last() : f->focusWidgets.first();
     extern bool qt_tab_all_widgets;
     uint focus_flag = qt_tab_all_widgets ? TabFocus : StrongFocus;
+    do {
+	if ( w && w != startingPoint &&
+	     ( ( w->focusPolicy() & focus_flag ) == focus_flag )
+	     && !w->focusProxy() && w->isVisibleTo(this) && w->isEnabled())
+	    candidate = w;
+	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
+    } while( w && !(candidate && w==startingPoint) );
 
-    QWidget *f = focusWidget();
-    if (!f)
-	f = this;
+    if ( !candidate )
+	return FALSE;
 
-    QWidget *w = f;
-    QWidget *test = f->d->focus_next;
-    while (test != f) {
-	if ((test->focusPolicy() & focus_flag) == focus_flag
-	    && !(test->d->extra && test->d->extra->focus_proxy)
-	    && test->isVisibleTo(this) && test->isEnabled()) {
-	    w = test;
-	    if (next)
-		break;
-	}
-	test = test->d->focus_next;
-    }
-    if (w == f)
-	return false;
-    w->setFocus();
-    return true;
+    candidate->setFocus();
+    return TRUE;
 }
 
 /*!
-    Returns the last child of this widget that setFocus had been
-    called on.  For top level widgets this is the widget that will get
-    focus in case this window gets activated
-
-    This is not the same as QApplication::focusWidget(), which returns
-    the focus widget in the currently active window.
+    Returns the focus widget in this widget's window. This is not the
+    same as QApplication::focusWidget(), which returns the focus
+    widget in the currently active window.
 */
 
 QWidget *QWidget::focusWidget() const
 {
-    return const_cast<QWidget *>(d->focus_child);
+    QWidget *that = (QWidget *)this;		// mutable
+    QFocusData *f = that->focusData( FALSE );
+    if ( f && f->focusWidgets.count() && f->it.current() == 0 )
+	f->it.toFirst();
+    return ( f && f->it.current() ) ? f->it.current() : 0;
+}
+
+
+/*!
+    Returns the focus data for this widget's top-level widget.
+
+    Focus data always belongs to the top-level widget. The focus data
+    list contains all the widgets in this top-level widget that can
+    accept focus, in tab order. An iterator points to the current
+    focus widget (focusWidget() returns a pointer to this widget).
+
+    This information is useful for implementing advanced versions of
+    focusNextPrevChild().
+*/
+QFocusData * QWidget::focusData()
+{
+    return focusData( TRUE );
 }
 
 /*!
-    Returns the next widget in this widget's focus chain.
+    \internal
+
+    Internal function which lets us ask for the focus data, creating
+    it if it doesn't exist and \a create is TRUE.
 */
-QWidget *QWidget::nextInFocusChain() const
+QFocusData * QWidget::focusData( bool create )
 {
-    return const_cast<QWidget *>(d->focus_next);
+    QWidget * tlw = topLevelWidget();
+    QWExtra * ed = tlw->extraData();
+    if ( !ed || !ed->topextra ) {
+	if ( !create )
+	    return 0;
+	tlw->createTLExtra();
+	ed = tlw->extraData();
+    }
+    if ( create && !ed->topextra->focusData )
+	ed->topextra->focusData = new QFocusData;
+
+    return ed->topextra->focusData;
 }
 
 /*!
@@ -2820,7 +3266,7 @@ void QWidget::setInputMethodEnabled( bool b )
 {
     im_enabled = b;
 #ifdef Q_WS_WIN
-    QInputContext::enable( this, im_enabled && isEnabled() );
+    QInputContext::enable( this, im_enabled & !((bool)testWState(WState_Disabled)) );
 #endif
 }
 
@@ -2854,6 +3300,14 @@ void QWidget::setInputMethodEnabled( bool b )
 
     \sa QKeyEvent::text();
 */
+
+void QWidget::setKeyCompression(bool compress)
+{
+    if ( compress )
+	setWState( WState_CompressKeys );
+    else
+	clearWState( WState_CompressKeys );
+}
 
 /*!
     \property QWidget::isActiveWindow
@@ -2940,22 +3394,28 @@ void QWidget::setTabOrder( QWidget* first, QWidget *second )
     // so that second is inserted after that last child, and the
     // focus order within first is (more likely to be) preserved.
     if ( first->focusProxy() ) {
-	QObjectList l = first->queryList( "QWidget" );
-	if ( l.size() )
-	    first = static_cast<QWidget*>(l.last());
+	QObjectList *l = first->queryList( "QWidget" );
+	if ( l && l->count() )
+	    first = (QWidget*)l->last();
+	delete l;
     }
     while ( first->focusProxy() )
 	first = first->focusProxy();
     while ( second->focusProxy() )
 	second = second->focusProxy();
 
-    QWidget *p = second;
-    while (p->d->focus_next != second)
-	p = p->d->focus_next;
-    p->d->focus_next = second->d->focus_next;
-
-    second->d->focus_next = first->d->focus_next;
-    first->d->focus_next = second;
+    QFocusData *f = first->focusData( TRUE );
+    bool focusThere = (f->it.current() == second );
+    f->focusWidgets.removeRef( second );
+    if ( f->focusWidgets.findRef( first ) >= 0 )
+	f->focusWidgets.insert( f->focusWidgets.at() + 1, second );
+    else
+	f->focusWidgets.append( second );
+    if ( focusThere ) { // reset iterator so tab will work appropriately
+	f->it.toFirst();
+	while( f->it.current() && f->it.current() != second )
+	    ++f->it;
+    }
 }
 
 /*!\internal
@@ -2975,47 +3435,49 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
     if ( oldtlw == topLevelWidget() )
 	return; // nothing to do
 
-    if(d->focus_child)
-	d->focus_child->clearFocus();
+    QFocusData * from = oldtlw ? oldtlw->topData()->focusData : 0;
+    QFocusData * to;
+    to = focusData();
 
-    // seperate the focus chain
-    QWidget *topLevel = topLevelWidget();
-    QWidget *w = this;
-    QWidget *firstOld = 0;
-    QWidget *firstNew = 0;
-    QWidget *o = 0;
-    QWidget *n = 0;
-    do {
-	if (w == this || isAncestorOf(w)) {
-	    if (!firstNew)
-		firstNew = w;
-	    if (n)
-		n->d->focus_next = w;
-	    n = w;
-	} else {
-	    if (!firstOld)
-		firstOld = w;
-	    if (o)
-		o->d->focus_next = w;
-	    o = w;
-	}
-    } while ((w = w->d->focus_next) != this);
-    if(o)
-	o->d->focus_next = firstOld;
-    if(n)
-	n->d->focus_next = firstNew;
+    if ( from ) {
+	from->focusWidgets.first();
+	do {
+	    QWidget * pw = from->focusWidgets.current();
+	    while( pw && pw != this )
+		pw = pw->parentWidget();
+	    if ( pw == this ) {
+		QWidget * w = from->focusWidgets.take();
+		if ( w == from->it.current() )
+		    // probably best to clear keyboard focus, or
+		    // the user might become rather confused
+		    w->clearFocus();
+		if ( !isTopLevel() )
+		    to->focusWidgets.append( w );
+	    } else {
+		from->focusWidgets.next();
+	    }
+	} while( from->focusWidgets.current() );
+    }
 
-    if (!isTopLevel()) {
-	//insert chain
-	w = topLevel;
-	while (w->d->focus_next != topLevel)
-	    w = w->d->focus_next;
-	w->d->focus_next = this;
-	n->d->focus_next = topLevel;
-    } else {
-	n->d->focus_next = this;
+    if ( to->focusWidgets.findRef(this) < 0 )
+	to->focusWidgets.append( this );
+
+    if ( !isTopLevel() && extra && extra->topextra && extra->topextra->focusData ) {
+	// this widget is no longer a top-level widget, so get rid
+	// of old focus data
+	delete extra->topextra->focusData;
+	extra->topextra->focusData = 0;
     }
 }
+
+/*!
+  \fn void QWidget::recreate( QWidget *parent, WFlags f, const QPoint & p, bool showIt )
+
+  \obsolete
+
+  This method is provided to aid porting from Qt 1.0 to 2.0. It has
+  been renamed reparent() in Qt 2.0.
+*/
 
 /*!
     \property QWidget::frameSize
@@ -3027,11 +3489,36 @@ QSize QWidget::frameSize() const
 	if ( fstrut_dirty )
 	    updateFrameStrut();
 	QWidget *that = (QWidget *) this;
-	QTLWExtra *top = that->d->topData();
+	QTLWExtra *top = that->topData();
 	return QSize( crect.width() + top->fleft + top->fright,
 		      crect.height() + top->ftop + top->fbottom );
     }
     return crect.size();
+}
+
+/*!
+    \internal
+
+    Recursive function that updates \a widget and all its children,
+    if they have some parent background origin.
+*/
+static void qt_update_bg_recursive( QWidget *widget )
+{
+    if ( !widget || widget->isHidden() || widget->backgroundOrigin() == QWidget::WidgetOrigin || !widget->backgroundPixmap() )
+	return;
+
+    const QObjectList *lst = widget->children();
+
+    if ( lst ) {
+	QObjectListIterator it( *lst );
+	QWidget *widget;
+	while ( (widget = (QWidget*)it.current()) ) {
+	    ++it;
+	    if ( widget->isWidgetType() && !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) )
+		    qt_update_bg_recursive( widget );
+	}
+    }
+    QApplication::postEvent( widget, new QPaintEvent( widget->clipRegion(), !widget->testWFlags(Qt::WRepaintNoErase) ) );
 }
 
 /*!
@@ -3042,13 +3529,12 @@ QSize QWidget::frameSize() const
 
 void QWidget::move( int x, int y )
 {
-    QPoint oldp = pos();
-    setGeometry_helper( x + geometry().x() - QWidget::x(),
+    QPoint oldp(pos());
+    internalSetGeometry( x + geometry().x() - QWidget::x(),
 			 y + geometry().y() - QWidget::y(),
 			 width(), height(), TRUE );
-    setAttribute(WA_Moved);
-    if (oldp != pos())
-	d->updateInheritedBackground();
+    if ( isVisible() && oldp != pos() )
+	qt_update_bg_recursive( this );
 }
 
 /*!
@@ -3058,12 +3544,8 @@ void QWidget::move( int x, int y )
 */
 void QWidget::resize( int w, int h )
 {
-    setAttribute(WA_InvalidSize, false);
-    QSize olds = size();
-    setGeometry_helper( geometry().x(), geometry().y(), w, h, FALSE );
-    setAttribute(WA_Resized);
-    if (testAttribute(WA_ContentsPropagated) &&  olds != size())
-	d->updatePropagatedBackground();
+    internalSetGeometry( geometry().x(), geometry().y(), w, h, FALSE );
+    setWState( WState_Resized );
 }
 
 /*!
@@ -3073,17 +3555,11 @@ void QWidget::resize( int w, int h )
 */
 void QWidget::setGeometry( int x, int y, int w, int h )
 {
-    setAttribute(WA_InvalidSize, false);
-    QPoint oldp = pos();
-    QSize olds = size();
-    setGeometry_helper( x, y, w, h, TRUE );
-    setAttribute(WA_Resized);
-    setAttribute(WA_Moved);
-
-    if (testAttribute(WA_ContentsPropagated) && olds != size())
-	d->updatePropagatedBackground();
-    else if (oldp != pos())
-	d->updateInheritedBackground();
+    QPoint oldp( pos( ));
+    internalSetGeometry( x, y, w, h, TRUE );
+    setWState( WState_Resized );
+    if ( isVisible() && oldp != pos() )
+	qt_update_bg_recursive( this );
 }
 
 /*!
@@ -3139,20 +3615,16 @@ void QWidget::setGeometry( int x, int y, int w, int h )
       keyReleaseEvent(), enabled
 */
 
-QWidget::FocusPolicy QWidget::focusPolicy() const
-{
-    const QWidget *w = this;
-    while ( w->d->extra && w->d->extra->focus_proxy )
-	w = w->d->extra->focus_proxy;
-    return (FocusPolicy)w->focus_policy;
-}
-
 void QWidget::setFocusPolicy( FocusPolicy policy )
 {
-    QWidget *w = this;
-    while ( w->d->extra && w->d->extra->focus_proxy )
-	w = w->d->extra->focus_proxy;
-    w->focus_policy = (uint) policy;
+    if ( focusProxy() )
+	focusProxy()->setFocusPolicy( policy );
+    if ( policy != NoFocus ) {
+	QFocusData * f = focusData( TRUE );
+	if ( f->focusWidgets.findRef( this ) < 0 )
+	    f->focusWidgets.append( this );
+    }
+    focus_policy = (uint) policy;
 }
 
 /*!
@@ -3185,37 +3657,6 @@ void QWidget::setUpdatesEnabled( bool enable )
 	setWState( WState_BlockUpdates );
 }
 
-
-static inline QSize qt_initial_size(QWidget *w) {
-    QSize s = w->sizeHint();
-    QSizePolicy::ExpandData exp;
-#ifndef QT_NO_LAYOUT
-    QLayout *layout = w->layout();
-    if (layout) {
-	if ( layout->hasHeightForWidth() )
-	    s.setHeight( layout->totalHeightForWidth( s.width() ) );
-	exp = layout->expanding();
-    } else
-#endif
-    {
-	if ( w->sizePolicy().hasHeightForWidth() )
-	    s.setHeight( w->heightForWidth( s.width() ) );
-	exp = w->sizePolicy().expanding();
-    }
-    if ( exp & QSizePolicy::Horizontally )
-	s.setWidth( qMax( s.width(), 200 ) );
-    if ( exp & QSizePolicy::Vertically )
-	s.setHeight( qMax( s.height(), 150 ) );
-#if defined(Q_WS_X11)
-    QRect screen = QApplication::desktop()->screenGeometry( w->x11Screen() );
-#else // all others
-    QRect screen = QApplication::desktop()->screenGeometry( w->pos() );
-#endif
-    s.setWidth( qMin( s.width(), screen.width()*2/3 ) );
-    s.setHeight( qMin( s.height(), screen.height()*2/3 ) );
-    return s;
-}
-
 /*!
     Shows the widget and its child widgets.
 
@@ -3225,7 +3666,7 @@ static inline QSize qt_initial_size(QWidget *w) {
     You almost never have to reimplement this function. If you need to
     change some settings before a widget is shown, use showEvent()
     instead. If you need to do some delayed initialization use
-    polishEvent().
+    polish().
 
     \sa showEvent(), hide(), showMinimized(), showMaximized(),
     showNormal(), isVisible(), polish()
@@ -3233,146 +3674,131 @@ static inline QSize qt_initial_size(QWidget *w) {
 
 void QWidget::show()
 {
-    if (testWState(WState_ExplicitShowHide|WState_Hidden) == WState_ExplicitShowHide)
+    if ( testWState(WState_Visible) )
 	return;
 
-    // polish if necessary
-    ensurePolished();
+    bool wasHidden = isHidden();
+    bool postLayoutHint = !isTopLevel() && wasHidden;
+    clearWState( WState_ForceHide | WState_CreatedHidden );
 
-    // remember that show was called explicitly
-    setWState(WState_ExplicitShowHide);
-    // whether we need to inform the parent widget immediately
-    bool needUpdateGeometry = !isTopLevel() && testWState(WState_Hidden);
-    // we are no longer hidden
-    clearWState(WState_Hidden);
-
-    if (needUpdateGeometry)
-	updateGeometry();
-
-    if ( isTopLevel() || parentWidget()->isVisible() )
-	show_helper();
-
-    QEvent showToParentEvent( QEvent::ShowToParent );
-    QApplication::sendEvent( this, &showToParentEvent );
-}
-
-/*! \internal
-
-   Makes the widget visible in the isVisible() meaning of the word.
-   It is only called for toplevels or widgets with visible parents.
- */
-void QWidget::show_helper()
-{
-    in_show = true; // qws optimization
-
-    // polish if necessary
-    ensurePolished();
-
-#ifndef QT_NO_COMPAT
-    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
-#endif
-
-    if (!isTopLevel() && parentWidget()->d->layout)
-	parentWidget()->d->layout->activate();
-
-    // adjust size if necessary
-    if (testAttribute(WA_InvalidSize))
-	adjustSize();
-
-    // activate our layout before we and our children become visible
-    if (d->layout)
-	d->layout->activate();
-
-    // make sure we receive pending move and resize events
-    if (testAttribute(WA_PendingMoveEvent)) {
-	QMoveEvent e(crect.topLeft(), crect.topLeft());
-	QApplication::sendEvent(this, &e);
-	setAttribute(WA_PendingMoveEvent, false);
-    }
-    if (testAttribute(WA_PendingResizeEvent)) {
-	QResizeEvent e(crect.size(), crect.size());
-	QApplication::sendEvent(this, &e);
-	setAttribute(WA_PendingResizeEvent, false);
-    }
-
-    // become visible before showing all children
-    setWState(WState_Visible);
-
-    // finally show all children recursively
-    showChildren(false);
-
-#ifndef QT_NO_COMPAT
-    if ( parentWidget() )
-	QApplication::sendPostedEvents( parentWidget(),
-					QEvent::ChildInserted );
-#endif
-
-    if (isTopLevel() && !testAttribute(WA_Resized))  {
-#ifndef Q_OS_TEMP
-	// toplevels with layout may need a initial size
-	QSize s = qt_initial_size(this);
-	if (!s.isEmpty()) {
-	    resize(s);
-	    setAttribute(WA_Resized, false);
+    if ( !isTopLevel() && !parentWidget()->isVisible() ) {
+	// we should become visible, but one of our ancestors is
+	// explicitly hidden. Since we cleared the ForceHide flag, our
+	// immediate parent will call show() on us again during its
+	// own processing of show().
+	if ( wasHidden ) {
+	    QEvent showToParentEvent( QEvent::ShowToParent );
+	    QApplication::sendEvent( this, &showToParentEvent );
 	}
+	if ( postLayoutHint )
+	    QApplication::postEvent( parentWidget(),
+				     new QEvent(QEvent::LayoutHint) );
+	return;
+    }
+
+    in_show = TRUE; // set qws recursion watch
+
+    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+
+    if ( isTopLevel() && !testWState( WState_Resized ) )  {
+	// do this before sending the posted resize events. Otherwise
+	// the layout would catch the resize event and may expand the
+	// minimum size.
+#ifndef Q_OS_TEMP
+	QSize s = sizeHint();
+	QSizePolicy::ExpandData exp;
+#ifndef QT_NO_LAYOUT
+	if ( layout() ) {
+	    if ( layout()->hasHeightForWidth() )
+		s.setHeight( layout()->totalHeightForWidth( s.width() ) );
+	    exp = layout()->expanding();
+	} else
+#endif
+	    {
+		if ( sizePolicy().hasHeightForWidth() )
+		    s.setHeight( heightForWidth( s.width() ) );
+		exp = sizePolicy().expanding();
+	    }
+	if ( exp & QSizePolicy::Horizontally )
+	    s.setWidth( QMAX( s.width(), 200 ) );
+	if ( exp & QSizePolicy::Vertically )
+	    s.setHeight( QMAX( s.height(), 150 ) );
+#if defined(Q_WS_X11)
+	QRect screen = QApplication::desktop()->screenGeometry( x11Screen() );
+#else // all others
+	QRect screen = QApplication::desktop()->screenGeometry( pos() );
+#endif
+	s.setWidth( QMIN( s.width(), screen.width()*2/3 ) );
+	s.setHeight( QMIN( s.height(), screen.height()*2/3 ) );
+	if ( !s.isEmpty() )
+	    resize( s );
 #endif // Q_OS_TEMP
     }
 
-    // popup handling: new popups and tools need to be raised, and
-    // exisiting popups must be closed.
-    if ( testWFlags(WStyle_Tool|testWFlags(WType_Popup))) {
+    QApplication::sendPostedEvents( this, QEvent::Move );
+    QApplication::sendPostedEvents( this, QEvent::Resize );
+
+    setWState( WState_Visible );
+
+    if ( parentWidget() )
+	QApplication::sendPostedEvents( parentWidget(),
+					QEvent::ChildInserted );
+
+    if ( extra ) {
+	int w = crect.width();
+	int h = crect.height();
+	if ( w < extra->minw || h < extra->minh ||
+	     w > extra->maxw || h > extra->maxh ) {
+	    w = QMAX( extra->minw, QMIN( w, extra->maxw ));
+	    h = QMAX( extra->minh, QMIN( h, extra->maxh ));
+	    resize( w, h );			// deferred resize
+	}
+    }
+
+    if ( testWFlags(WStyle_Tool) || isPopup() ) {
 	raise();
-    } else if (isTopLevel()) {
+    } else if ( testWFlags(WType_TopLevel) ) {
 	while ( QApplication::activePopupWidget() ) {
 	    if ( !QApplication::activePopupWidget()->close() )
 		break;
 	}
     }
 
+    if ( !testWState(WState_Polished) )
+	polish();
+
+    showChildren( FALSE );
+
+    if ( postLayoutHint )
+	QApplication::postEvent( parentWidget(),
+				 new QEvent(QEvent::LayoutHint) );
+
+    // Required for Mac, not sure whether we should always do that
+    if( isTopLevel() )
+	QApplication::sendPostedEvents(0, QEvent::LayoutHint);
+
     // On Windows, show the popup now so that our own focus handling
-    // stores the correct old focus widget even if it's stolen in the
-    // showevent
+    // stores the correct old focus widget even if it's stolen in the showevent
 #if defined(Q_WS_WIN)
     if ( testWFlags(WType_Popup) )
 	qApp->openPopup( this );
 #endif
 
-    // send the show event before showing the window
     QShowEvent showEvent;
     QApplication::sendEvent( this, &showEvent );
 
-
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    // make sure toplevels have an icon
-    if ( isTopLevel() ) {
-	const QPixmap *pm = windowIcon();
-	if ( !pm || pm->isNull() ) {
-	    QWidget *mw = (QWidget *)parent();
-	    pm = mw ? mw->windowIcon() : 0;
-	    if ( pm && !pm->isNull() )
-		setWindowIcon( *pm );
-	    else {
-		mw = mw ? mw->topLevelWidget() : 0;
-		pm = mw ? mw->windowIcon() : 0;
-		if ( pm && !pm->isNull() )
-		    setWindowIcon( *pm );
-		else {
-		    mw = qApp ? qApp->mainWidget() : 0;
-		    pm = mw ? mw->windowIcon() : 0;
-		    if ( pm && !pm->isNull() )
-			setWindowIcon( *pm );
-		}
-	    }
-	}
-    }
-#endif
-
-    if ( testWFlags(WShowModal) )
+    if ( testWFlags(WShowModal) ) {
 	// qt_enter_modal *before* show, otherwise the initial
 	// stacking might be wrong
 	qt_enter_modal( this );
+    }
 
-    showWindow();
+    // do not show the window directly, but post a show-window request
+    // to reduce flicker with widgets in layouts
+    if ( postLayoutHint )
+	QApplication::postEvent( this, new QEvent( QEvent::ShowWindowRequest ) );
+    else
+	showWindow();
 
 #if !defined(Q_WS_WIN)
     if ( testWFlags(WType_Popup) )
@@ -3383,7 +3809,7 @@ void QWidget::show_helper()
     QAccessible::updateAccessibility( this, 0, QAccessible::ObjectShow );
 #endif
 
-    in_show = false;  // reset qws optimization
+    in_show = FALSE;  // reset qws recursion watch
 }
 
 /*! \fn void QWidget::iconify()
@@ -3401,21 +3827,12 @@ void QWidget::show_helper()
 
 void QWidget::hide()
 {
-    if (testWState(WState_ExplicitShowHide|WState_Hidden) == (WState_ExplicitShowHide|WState_Hidden))
+    clearWState( WState_CreatedHidden );
+    if ( testWState(WState_ForceHide) )
 	return;
-    setWState(WState_Hidden);
-    if (testWState(WState_ExplicitShowHide))
-	hide_helper();
-    else
-	setWState(WState_ExplicitShowHide);
-    QEvent hideToParentEvent( QEvent::HideToParent );
-    QApplication::sendEvent( this, &hideToParentEvent );
-}
 
-/*!\internal
- */
-void QWidget::hide_helper()
-{
+    setWState( WState_ForceHide );
+
     if ( testWFlags(WType_Popup) )
 	qApp->closePopup( this );
 
@@ -3432,31 +3849,31 @@ void QWidget::hide_helper()
 
     hideWindow();
 
-    bool wasVisible = testWState(WState_Visible);
-
-    if (wasVisible) {
+    if ( testWState(WState_Visible) ) {
 	clearWState( WState_Visible );
-	// move the focus if we were the focus widget
+
+	// next bit tries to move the focus if the focus widget is now
+	// hidden.
 	if ( qApp && qApp->focusWidget() == this )
 	    focusNextPrevChild( TRUE );
-    }
 
-    QHideEvent hideEvent;
-    QApplication::sendEvent(this, &hideEvent);
-    hideChildren(false);
+	QHideEvent hideEvent;
+	QApplication::sendEvent( this, &hideEvent );
+	hideChildren( FALSE );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    if (wasVisible)
 	QAccessible::updateAccessibility( this, 0, QAccessible::ObjectHide );
 #endif
-
-    // invalidate layout similar to updateGeometry()
-    if (!isTopLevel() && parentWidget() && parentWidget()->d->layout) {
-	parentWidget()->d->layout->update();
-	if (wasVisible)
-	    QApplication::postEvent(parentWidget(),
-				    new QEvent( QEvent::LayoutRequest));
+    } else {
+	QEvent hideToParentEvent( QEvent::HideToParent );
+	QApplication::sendEvent( this, &hideToParentEvent );
     }
+
+    // post layout hint for non toplevels. The parent widget check is
+    // necessary since the function is called in the destructor
+    if ( !isTopLevel() && parentWidget() )
+	QApplication::postEvent( parentWidget(),
+				 new QEvent( QEvent::LayoutHint) );
 }
 
 void QWidget::setShown( bool show )
@@ -3475,47 +3892,134 @@ void QWidget::setHidden( bool hide )
 	show();
 }
 
-void QWidget::showChildren(bool spontaneous)
+void QWidget::showChildren( bool spontaneous )
 {
-    for (int i = 0; i < d->children.size(); ++i) {
-	register QObject *object = d->children.at(i);
-	if (!object->isWidgetType())
-	    continue;
-	QWidget *widget = static_cast<QWidget*>(object);
-	if (widget->isTopLevel() || widget->testWState(WState_Hidden))
-	    continue;
-	if (spontaneous) {
-	    widget->showChildren(true);
-	    QShowEvent e;
-	    QApplication::sendSpontaneousEvent(widget, &e);
-	} else {
-	    if (widget->testWState(WState_ExplicitShowHide))
-		widget->show_helper();
-	    else
-		widget->show();
+     if ( children() ) {
+	QObjectListIt it(*children());
+	register QObject *object;
+	QWidget *widget;
+	while ( it ) {
+	    object = it.current();
+	    ++it;
+	    if ( object->isWidgetType() ) {
+		widget = (QWidget*)object;
+		if ( !widget->isTopLevel() && widget->isShown() ) {
+		    if ( spontaneous ) {
+			widget->showChildren( spontaneous );
+			QShowEvent e;
+			QApplication::sendSpontaneousEvent( widget, &e );
+		    } else {
+			widget->show();
+		    }
+		}
+	    }
 	}
     }
 }
 
-void QWidget::hideChildren(bool spontaneous)
+void QWidget::hideChildren( bool spontaneous )
 {
-    for (int i = 0; i < d->children.size(); ++i) {
-	register QObject *object = d->children.at(i);
-	if (!object->isWidgetType())
-	    continue;
-	QWidget *widget = static_cast<QWidget*>(object);
-	if (widget->isTopLevel() || widget->testWState(WState_Hidden))
-	    continue;
-	if (!spontaneous)
-	    widget->clearWState(WState_Visible);
-	widget->hideChildren(spontaneous);
-	QHideEvent e;
-	if (spontaneous)
-	    QApplication::sendSpontaneousEvent(widget, &e);
-	else
-	    QApplication::sendEvent(widget, &e);
+     if ( children() ) {
+	QObjectListIt it(*children());
+	register QObject *object;
+	QWidget *widget;
+	while ( it ) {
+	    object = it.current();
+	    ++it;
+	    if ( object->isWidgetType() ) {
+		widget = (QWidget*)object;
+		if ( !widget->isTopLevel() && widget->isShown() ) {
+		    if ( !spontaneous )
+			widget->clearWState( WState_Visible );
+		    widget->hideChildren( spontaneous );
+		    QHideEvent e;
+		    if ( spontaneous )
+			QApplication::sendSpontaneousEvent( widget, &e );
+		    else
+			QApplication::sendEvent( widget, &e );
+		}
+	    }
+	}
     }
 }
+
+
+/*!
+    Delayed initialization of a widget.
+
+    This function will be called \e after a widget has been fully
+    created and \e before it is shown the very first time.
+
+    Polishing is useful for final initialization which depends on
+    having an instantiated widget. This is something a constructor
+    cannot guarantee since the initialization of the subclasses might
+    not be finished.
+
+    After this function, the widget has a proper font and palette and
+    QApplication::polish() has been called.
+
+    Remember to call QWidget's implementation first when reimplementing this
+    function to ensure that your program does not end up in infinite recursion.
+
+    \sa constPolish(), QApplication::polish()
+*/
+
+void QWidget::polish()
+{
+#ifndef QT_NO_WIDGET_TOPEXTRA
+    if ( isTopLevel() ) {
+	const QPixmap *pm = icon();
+	if ( !pm || pm->isNull() ) {
+	    QWidget *mw = (QWidget *)parent();
+	    pm = mw ? mw->icon() : 0;
+	    if ( pm && !pm->isNull() )
+		setIcon( *pm );
+	    else {
+		mw = mw ? mw->topLevelWidget() : 0;
+		pm = mw ? mw->icon() : 0;
+		if ( pm && !pm->isNull() )
+		    setIcon( *pm );
+		else {
+		    mw = qApp ? qApp->mainWidget() : 0;
+		    pm = mw ? mw->icon() : 0;
+		    if ( pm && !pm->isNull() )
+			setIcon( *pm );
+		}
+	    }
+	}
+    }
+#endif
+    if ( !testWState(WState_Polished) ) {
+	if ( ! own_font &&
+	     ! QApplication::font( this ).isCopyOf( QApplication::font() ) )
+	    unsetFont();
+#ifndef QT_NO_PALETTE
+	if ( ! own_palette &&
+	     ! QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
+	    unsetPalette();
+#endif
+	setWState(WState_Polished);
+	qApp->polish( this );
+	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+    }
+}
+
+
+/*!
+    \fn void QWidget::constPolish() const
+
+    Ensures that the widget is properly initialized by calling
+    polish().
+
+    Call constPolish() from functions like sizeHint() that depends on
+    the widget being initialized, and that may be called before
+    show().
+
+    \warning Do not call constPolish() on a widget from inside that
+    widget's constructor.
+
+    \sa polish()
+*/
 
 /*!
     \overload
@@ -3562,16 +4066,17 @@ bool QWidget::close( bool alsoDelete )
 	/* if there is no non-withdrawn top level window left (except
 	   the desktop, popups, or dialogs with parents), we emit the
 	   lastWindowClosed signal */
-	QWidgetList list = qApp->topLevelWidgets();
-	QWidget *widget = 0;
-	for (int i = 0; !widget && i < list.size(); ++i) {
-	    QWidget *w = list.at(i);
-	    if ( !w->isHidden()
-		 && !w->isDesktop()
-		 && !w->isPopup()
-		 && (!w->isDialog() || !w->parentWidget()))
-		widget = w;
+	QWidgetList *list   = qApp->topLevelWidgets();
+	QWidget     *widget = list->first();
+	while ( widget ) {
+	    if ( !widget->isHidden()
+		 && !widget->isDesktop()
+		 && !widget->isPopup()
+		 && (!widget->isDialog() || !widget->parentWidget()))
+		break;
+	    widget = list->next();
 	}
+	delete list;
 	if ( widget == 0 )
 	    emit qApp->lastWindowClosed();
     }
@@ -3708,7 +4213,22 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 */
 QRect QWidget::visibleRect() const
 {
-    return d->clipRect();
+    QRect r = rect();
+    const QWidget * w = this;
+    int ox = 0;
+    int oy = 0;
+    while ( w
+	    && w->isVisible()
+	    && !w->isTopLevel()
+	    && w->parentWidget() ) {
+	ox -= w->x();
+	oy -= w->y();
+	w = w->parentWidget();
+	r = r.intersect( QRect( ox, oy, w->width(), w->height() ) );
+    }
+    if ( !w->isVisible() )
+	return QRect();
+    return r;
 }
 
 /*!
@@ -3723,7 +4243,7 @@ QRect QWidget::visibleRect() const
 */
 QRegion QWidget::clipRegion() const
 {
-    return d->clipRect();
+    return visibleRect();
 }
 
 
@@ -3739,8 +4259,10 @@ QRegion QWidget::clipRegion() const
 
 void QWidget::adjustSize()
 {
-    setAttribute(WA_InvalidSize, false);
-    ensurePolished();
+    QApplication::sendPostedEvents( 0, QEvent::ChildInserted );
+    QApplication::sendPostedEvents( 0, QEvent::LayoutHint );
+    if ( !testWState(WState_Polished) )
+	polish();
     QSize s = sizeHint();
     if ( s.isValid() ) {
 	resize( s );
@@ -3771,8 +4293,8 @@ void QWidget::adjustSize()
 QSize QWidget::sizeHint() const
 {
 #ifndef QT_NO_LAYOUT
-    if ( d->layout )
-	return d->layout->totalSizeHint();
+    if ( layout() )
+	return layout()->totalSizeHint();
 #endif
     return QSize( -1, -1 );
 }
@@ -3797,18 +4319,19 @@ QSize QWidget::sizeHint() const
 QSize QWidget::minimumSizeHint() const
 {
 #ifndef QT_NO_LAYOUT
-    if ( d->layout )
-	return d->layout->totalMinimumSize();
+    if ( layout() )
+	return layout()->totalMinimumSize();
 #endif
     return QSize( -1, -1 );
 }
 
 
 /*!
-    \fn QWidget *QWidget::parentWidget() const
+    \fn QWidget *QWidget::parentWidget( bool sameWindow ) const
 
     Returns the parent of this widget, or 0 if it does not have any
-    parent widget.
+    parent widget. If \a sameWindow is TRUE and the widget is top
+    level returns 0; otherwise returns the widget's parent.
 */
 
 /*!
@@ -3888,316 +4411,263 @@ bool QWidget::event( QEvent *e )
 	return TRUE;
 
     switch ( e->type() ) {
-    case QEvent::MouseMove:
-	mouseMoveEvent( (QMouseEvent*)e );
-	if ( ! ((QMouseEvent*)e)->isAccepted() )
-	    return FALSE;
-	break;
+	case QEvent::MouseMove:
+	    mouseMoveEvent( (QMouseEvent*)e );
+	    if ( ! ((QMouseEvent*)e)->isAccepted() )
+		return FALSE;
+	    break;
 
-    case QEvent::MouseButtonPress:
-	resetInputContext();
-	mousePressEvent( (QMouseEvent*)e );
-	if ( ! ((QMouseEvent*)e)->isAccepted() )
-	    return FALSE;
-	break;
+	case QEvent::MouseButtonPress:
+	    resetInputContext();
+	    mousePressEvent( (QMouseEvent*)e );
+	    if ( ! ((QMouseEvent*)e)->isAccepted() )
+		return FALSE;
+	    break;
 
-    case QEvent::MouseButtonRelease:
-	mouseReleaseEvent( (QMouseEvent*)e );
-	if ( ! ((QMouseEvent*)e)->isAccepted() )
-	    return FALSE;
-	break;
+	case QEvent::MouseButtonRelease:
+	    mouseReleaseEvent( (QMouseEvent*)e );
+	    if ( ! ((QMouseEvent*)e)->isAccepted() )
+		return FALSE;
+	    break;
 
-    case QEvent::MouseButtonDblClick:
-	mouseDoubleClickEvent( (QMouseEvent*)e );
-	if ( ! ((QMouseEvent*)e)->isAccepted() )
-	    return FALSE;
-	break;
+	case QEvent::MouseButtonDblClick:
+	    mouseDoubleClickEvent( (QMouseEvent*)e );
+	    if ( ! ((QMouseEvent*)e)->isAccepted() )
+		return FALSE;
+	    break;
 #ifndef QT_NO_WHEELEVENT
-    case QEvent::Wheel:
-	wheelEvent( (QWheelEvent*)e );
-	if ( ! ((QWheelEvent*)e)->isAccepted() )
-	    return FALSE;
-	break;
+	case QEvent::Wheel:
+	    wheelEvent( (QWheelEvent*)e );
+	    if ( ! ((QWheelEvent*)e)->isAccepted() )
+		return FALSE;
+	    break;
 #endif
-    case QEvent::TabletMove:
-    case QEvent::TabletPress:
-    case QEvent::TabletRelease:
-	tabletEvent( (QTabletEvent*)e );
-	if ( ! ((QTabletEvent*)e)->isAccepted() )
+	case QEvent::TabletMove:
+	case QEvent::TabletPress:
+	case QEvent::TabletRelease:
+	    tabletEvent( (QTabletEvent*)e );
+	    if ( ! ((QTabletEvent*)e)->isAccepted() )
+		return FALSE;
+	    break;
+	case QEvent::Accel:
+	    ((QKeyEvent*)e)->ignore();
 	    return FALSE;
-	break;
-    case QEvent::Accel:
-	((QKeyEvent*)e)->ignore();
-	return FALSE;
-    case QEvent::KeyPress: {
-	QKeyEvent *k = (QKeyEvent *)e;
-	bool res = FALSE;
-	if ( !(k->state() & ControlButton || k->state() & AltButton) ) {
-	    if ( k->key() == Key_Backtab ||
-		 (k->key() == Key_Tab &&
-		  (k->state() & ShiftButton)) ) {
-		QFocusEvent::setReason( QFocusEvent::Backtab );
-		res = focusNextPrevChild( FALSE );
-		QFocusEvent::resetReason();
+	case QEvent::KeyPress: {
+	    QKeyEvent *k = (QKeyEvent *)e;
+	    bool res = FALSE;
+	    if ( !(k->state() & ControlButton || k->state() & AltButton) ) {
+		if ( k->key() == Key_Backtab ||
+		     (k->key() == Key_Tab &&
+		      (k->state() & ShiftButton)) ) {
+		    QFocusEvent::setReason( QFocusEvent::Backtab );
+		    res = focusNextPrevChild( FALSE );
+		    QFocusEvent::resetReason();
 
-	    } else if ( k->key() == Key_Tab ) {
-		QFocusEvent::setReason( QFocusEvent::Tab );
-		res = focusNextPrevChild( TRUE );
-		QFocusEvent::resetReason();
+		} else if ( k->key() == Key_Tab ) {
+		    QFocusEvent::setReason( QFocusEvent::Tab );
+		    res = focusNextPrevChild( TRUE );
+		    QFocusEvent::resetReason();
+		}
+		if ( res )
+		    break;
 	    }
-	    if ( res )
-		break;
-	}
-	keyPressEvent( k );
-	if ( !k->isAccepted() )
-	    return FALSE;
-    }
-	break;
+	    keyPressEvent( k );
+	    if ( !k->isAccepted() )
+		return FALSE;
+	    }
+	    break;
 
-    case QEvent::KeyRelease:
-	keyReleaseEvent( (QKeyEvent*)e );
-	if ( ! ((QKeyEvent*)e)->isAccepted() )
-	    return FALSE;
-	break;
+	case QEvent::KeyRelease:
+	    keyReleaseEvent( (QKeyEvent*)e );
+	    if ( ! ((QKeyEvent*)e)->isAccepted() )
+		return FALSE;
+	    break;
 
-    case QEvent::IMStart: {
-	QIMEvent *i = (QIMEvent *) e;
-	imStartEvent(i);
-	if (! i->isAccepted())
-	    return FALSE;
-    }
-	break;
+	case QEvent::IMStart: {
+	    QIMEvent *i = (QIMEvent *) e;
+	    imStartEvent(i);
+	    if (! i->isAccepted())
+		return FALSE;
+	    }
+	    break;
 
-    case QEvent::IMCompose: {
-	QIMEvent *i = (QIMEvent *) e;
-	imComposeEvent(i);
-	if (! i->isAccepted())
-	    return FALSE;
-    }
-	break;
+	case QEvent::IMCompose: {
+	    QIMEvent *i = (QIMEvent *) e;
+	    imComposeEvent(i);
+	    if (! i->isAccepted())
+		return FALSE;
+	    }
+	    break;
 
-    case QEvent::IMEnd: {
-	QIMEvent *i = (QIMEvent *) e;
-	imEndEvent(i);
-	if (! i->isAccepted())
-	    return FALSE;
-    }
-	break;
+	case QEvent::IMEnd: {
+	    QIMEvent *i = (QIMEvent *) e;
+	    imEndEvent(i);
+	    if (! i->isAccepted())
+		return FALSE;
+	    }
+	    break;
 
-    case QEvent::FocusIn:
-	focusInEvent( (QFocusEvent*)e );
-	setFontSys();
-	break;
+	case QEvent::FocusIn:
+	    focusInEvent( (QFocusEvent*)e );
+	    setFontSys();
+	    break;
 
-    case QEvent::FocusOut:
-	focusOutEvent( (QFocusEvent*)e );
-	break;
+	case QEvent::FocusOut:
+	    focusOutEvent( (QFocusEvent*)e );
+	    break;
 
-    case QEvent::Enter:
-	enterEvent( e );
-	break;
+	case QEvent::Enter:
+	    enterEvent( e );
+	    break;
 
-    case QEvent::Leave:
-	leaveEvent( e );
-	break;
+	case QEvent::Leave:
+	     leaveEvent( e );
+	    break;
 
-    case QEvent::Paint:
-	// At this point the event has to be delivered, regardless
-	// whether the widget isVisible() or not because it
-	// already went through the filters
-	paintEvent( (QPaintEvent*)e );
-	break;
+	case QEvent::Paint:
+	    // At this point the event has to be delivered, regardless
+	    // whether the widget isVisible() or not because it
+	    // already went through the filters
+	    paintEvent( (QPaintEvent*)e );
+	    break;
 
-    case QEvent::Move:
-	moveEvent( (QMoveEvent*)e );
-	break;
+	case QEvent::Move:
+	    moveEvent( (QMoveEvent*)e );
+	    break;
 
-    case QEvent::Resize:
-	resizeEvent( (QResizeEvent*)e );
-	break;
+	case QEvent::Resize:
+	    resizeEvent( (QResizeEvent*)e );
+	    break;
 
-    case QEvent::Close: {
-	QCloseEvent *c = (QCloseEvent *)e;
-	closeEvent( c );
-	if ( !c->isAccepted() )
-	    return FALSE;
-    }
-	break;
+	case QEvent::Close: {
+	    QCloseEvent *c = (QCloseEvent *)e;
+	    closeEvent( c );
+	    if ( !c->isAccepted() )
+		return FALSE;
+	    }
+	    break;
 
-    case QEvent::ContextMenu: {
-	QContextMenuEvent *c = (QContextMenuEvent *)e;
-	contextMenuEvent( c );
-	if ( !c->isAccepted() )
-	    return FALSE;
-    }
-	break;
+	case QEvent::ContextMenu: {
+	    QContextMenuEvent *c = (QContextMenuEvent *)e;
+	    contextMenuEvent( c );
+	    if ( !c->isAccepted() )
+		return FALSE;
+	    }
+	    break;
 
 #ifndef QT_NO_DRAGANDDROP
-    case QEvent::Drop:
-	dropEvent( (QDropEvent*) e);
-	break;
+	case QEvent::Drop:
+	    dropEvent( (QDropEvent*) e);
+	    break;
 
-    case QEvent::DragEnter:
-	dragEnterEvent( (QDragEnterEvent*) e);
-	break;
+	case QEvent::DragEnter:
+	    dragEnterEvent( (QDragEnterEvent*) e);
+	    break;
 
-    case QEvent::DragMove:
-	dragMoveEvent( (QDragMoveEvent*) e);
-	break;
+	case QEvent::DragMove:
+	    dragMoveEvent( (QDragMoveEvent*) e);
+	    break;
 
-    case QEvent::DragLeave:
-	dragLeaveEvent( (QDragLeaveEvent*) e);
-	break;
+	case QEvent::DragLeave:
+	    dragLeaveEvent( (QDragLeaveEvent*) e);
+	    break;
 #endif
 
-    case QEvent::Show:
-	showEvent( (QShowEvent*) e);
-	break;
+	case QEvent::Show:
+	    showEvent( (QShowEvent*) e);
+	    break;
 
-    case QEvent::Hide:
-	hideEvent( (QHideEvent*) e);
-	break;
+	case QEvent::Hide:
+	    hideEvent( (QHideEvent*) e);
+	    break;
 
-    case QEvent::ShowWindowRequest:
-	if ( isShown() )
-	    showWindow();
-	break;
+	case QEvent::ShowWindowRequest:
+	    if ( isShown() )
+		showWindow();
+	    break;
 
-    case QEvent::ApplicationFontChange:
-	if (testAttribute(WA_SetFont))
-	    setFont_helper(fnt.resolve(qt_naturalWidgetFont(this)));
-	else
-	    setFont_helper(qt_naturalWidgetFont(this));
-	break;
+	case QEvent::ParentFontChange:
+	    if ( isTopLevel() )
+		break;
+	    // fall through
+	case QEvent::ApplicationFontChange:
+	    if ( own_font )
+		setFont( fnt.resolve( qt_naturalWidgetFont( this ) ) );
+	    else
+		unsetFont();
+	    break;
 
-    case QEvent::ApplicationPaletteChange:
-	if (!testAttribute(WA_SetPalette) && !isDesktop())
-	    unsetPalette();
-	break;
-
-    case QEvent::ActivationChange:
-    case QEvent::EnabledChange:
-    case QEvent::FontChange:
-    case QEvent::StyleChange:
-    case QEvent::PaletteChange:
-    case QEvent::IconTextChange:
-    case QEvent::ModifiedChange:
-	changeEvent(e);
-	break;
-
-    case QEvent::WindowActivate:
-    case QEvent::WindowDeactivate: {
-	{
-	    QEvent ae(QEvent::ActivationChange);
-	    QApplication::sendEvent(this, &ae);
-	}
-#ifndef QT_NO_COMPAT
-	windowActivationChange( e->type() != QEvent::WindowActivate );
-#endif
 #ifndef QT_NO_PALETTE
-	if ( isVisible() ) {
-	    for(int role=0; role < (int)QPalette::NColorRoles; role++) {
-		if(pal.brush(QPalette::Active, (QPalette::ColorRole)role) !=
-		   pal.brush(QPalette::Inactive, (QPalette::ColorRole)role)) {
-		    QPalette::ColorRole bg_role = backgroundRole();
-		    if ( !testAttribute(WA_NoSystemBackground) && bg_role < QPalette::NColorRoles &&
-			 (role == bg_role || (role < bg_role && pal.brush(QPalette::Active, bg_role) !=
-					      pal.brush(QPalette::Inactive, bg_role ))))
-			d->updateSystemBackground();
-		    else if(role <= QPalette::Shadow)
-			update();
-		    break;
+	case QEvent::ParentPaletteChange:
+	    if ( isTopLevel() )
+		break;
+	    // fall through
+	case QEvent::ApplicationPaletteChange:
+	    if ( !own_palette && !isDesktop() )
+		unsetPalette();
+# if defined(Q_WS_QWS) && !defined (QT_NO_QWS_MANAGER)
+	    if ( isTopLevel() && topData()->qwsManager ) {
+		QRegion r( topData()->qwsManager->region() );
+		QApplication::postEvent(topData()->qwsManager, new QPaintEvent(r, FALSE) );
+	    }
+# endif
+	    break;
+#endif
+
+	case QEvent::WindowActivate:
+	case QEvent::WindowDeactivate:
+	    windowActivationChange( e->type() != QEvent::WindowActivate );
+	    if ( children() ) {
+		QObjectListIt it( *children() );
+		QObject *o;
+		while( ( o = it.current() ) != 0 ) {
+		    ++it;
+		    if ( o->isWidgetType() &&
+			 ((QWidget*)o)->isVisible() &&
+			 !((QWidget*)o)->isTopLevel() )
+			QApplication::sendEvent( o, e );
 		}
 	    }
-	}
-#endif
-	for (int i = 0; i < d->children.size(); ++i) {
-	    QObject *o = d->children.at(i);
-	    if (o->isWidgetType()
-		&& static_cast<QWidget*>(o)->isVisible()
-		&& !static_cast<QWidget*>(o)->isTopLevel())
-		QApplication::sendEvent( o, e );
-	}
-	break; }
+	    break;
 
-    case QEvent::LanguageChange:
-	changeEvent(e);
-#ifndef QT_NO_COMPAT
-	languageChange();
-#endif
-	// fall through
-    case QEvent::LocaleChange:
-	for (int i = 0; i < d->children.size(); ++i) {
-	    QObject *o = d->children.at(i);
-	    QApplication::sendEvent( o, e );
-	}
-	update();
-	break;
-
-#ifndef QT_NO_LAYOUT
-    case QEvent::LayoutDirectionChange:
-	if ( layout() ) {
-	    layout()->activate();
-	    d->layout->activate();
-	} else {
-	    QObjectList llist = queryList( "QLayout", 0, TRUE, TRUE );
-	    for (int i = 0; i < llist.size(); ++i) {
-		QLayout *lay = static_cast<QLayout *>(llist.at(i));
-		lay->activate();
+	case QEvent::LanguageChange:
+	case QEvent::LocaleChange:
+	    if ( children() ) {
+		QObjectListIt it( *children() );
+		QObject *o;
+		while( ( o = it.current() ) != 0 ) {
+		    ++it;
+		    QApplication::sendEvent( o, e );
+		}
 	    }
-	}
-	update();
-	break;
+	    if ( e->type() == QEvent::LanguageChange ) {
+		int index = metaObject()->findSlot( "languageChange()", TRUE );
+		if ( index >= 0 )
+		    qt_invoke( index, 0 );
+	    }
+	    update();
+	    break;
+#ifndef QT_NO_LAYOUT
+	case QEvent::LayoutDirectionChange:
+	    if ( layout() ) {
+		layout()->activate();
+	    } else {
+		QObjectList* llist = queryList( "QLayout", 0, TRUE, TRUE );
+		QObjectListIt lit( *llist );
+		QLayout *lay;
+		while ( ( lay = (QLayout*)lit.current() ) != 0 ) {
+		    ++lit;
+		    lay->activate();
+		}
+		delete llist;
+	    }
+	    update();
+	    break;
 #endif
-#if defined(Q_WS_X11)
-    case QEvent::UpdateRequest:
-	if (!d->invalidated_region.isEmpty()) {
-	    QRegion rgn = d->invalidated_region;
-	    d->invalidated_region = QRegion();
-	    repaint(rgn);
-	}
-	break;
-#endif
-#if defined(Q_WS_QWS)
-    case QEvent::QWSUpdate:
-	repaint(static_cast<QWSUpdateEvent*>(e)->region());
-	break;
-#endif
-    default:
-	return FALSE;
+	default:
+	    return FALSE;
     }
     return TRUE;
-}
-
-/*!
-  This event handler can be reimplemented to handle state changes.
-
-  The state being changed in this event can be retrieved through event \a
-  e.
-
-*/
-void QWidget::changeEvent( QEvent * e )
-{
-    switch(e->type()) {
-    case QEvent::EnabledChange:
-	update();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
-#endif
-	break;
-
-    case QEvent::FontChange:
-    case QEvent::StyleChange:
-	update();
-	updateGeometry();
-	break;
-
-    case QEvent::PaletteChange:
-	update();
-	break;
-    default:
-	break;
-    }
 }
 
 /*!
@@ -4443,10 +4913,10 @@ void QWidget::focusOutEvent( QFocusEvent * )
 */
 QRect QWidget::microFocusHint() const
 {
-    if ( !d->extra || d->extra->micro_focus_hint.isEmpty() )
+    if ( !extra || extra->micro_focus_hint.isEmpty() )
 	return QRect(width()/2, 0, 1, height() );
     else
-	return d->extra->micro_focus_hint;
+	return extra->micro_focus_hint;
 }
 
 /*!
@@ -4505,8 +4975,10 @@ void QWidget::leaveEvent( QEvent * )
     are a couple of exceptions and QPaintEvent::erased() tells you
     whether the widget has been erased or not.
 
-    The background can be set using setBackground() or
-    setBackgroundRole().
+    The background can be set using setBackgroundMode(),
+    setPaletteBackgroundColor() or setBackgroundPixmap(). The
+    documentation for setBackgroundMode() elaborates on the
+    background; we recommend reading it.
 
     \sa event(), repaint(), update(), QPainter, QPixmap, QPaintEvent
 */
@@ -4886,6 +5358,49 @@ void QWidget::setAutoMask( bool enable )
 }
 
 /*!
+    \enum QWidget::BackgroundOrigin
+
+    This enum defines the origin used to draw a widget's background
+    pixmap.
+
+    The pixmap is drawn using the:
+    \value WidgetOrigin  widget's coordinate system.
+    \value ParentOrigin  parent's coordinate system.
+    \value WindowOrigin  top-level window's coordinate system.
+    \value AncestorOrigin  same origin as the parent uses.
+*/
+
+/*!
+    \property QWidget::backgroundOrigin
+    \brief the origin of the widget's background
+
+    The origin is either WidgetOrigin (the default), ParentOrigin,
+    WindowOrigin or AncestorOrigin.
+
+    This only makes a difference if the widget has a background
+    pixmap, in which case positioning matters. Using \c WindowOrigin
+    for several neighboring widgets makes the background blend
+    together seamlessly. \c AncestorOrigin allows blending backgrounds
+    seamlessly when an ancestor of the widget has an origin other than
+    \c QWindowOrigin.
+
+    \sa backgroundPixmap(), setBackgroundMode()
+*/
+QWidget::BackgroundOrigin QWidget::backgroundOrigin() const
+{
+    return extra ? (BackgroundOrigin)extra->bg_origin : WidgetOrigin;
+}
+
+void QWidget::setBackgroundOrigin( BackgroundOrigin origin )
+{
+    if ( origin == backgroundOrigin() )
+	return;
+    createExtra();
+    extra->bg_origin = origin;
+    update();
+}
+
+/*!
     This function can be reimplemented in a subclass to support
     transparent widgets. It should be called whenever a widget changes
     state in a way that means that the shape mask must be recalculated.
@@ -4897,6 +5412,57 @@ void QWidget::updateMask()
 }
 
 /*!
+  \internal
+  Returns the offset of the widget from the backgroundOrigin.
+
+  \sa setBackgroundMode(), backgroundMode(),
+*/
+QPoint QWidget::backgroundOffset() const
+{
+    if (!isTopLevel()) {
+	switch(backgroundOrigin()) {
+	    case WidgetOrigin:
+		break;
+	    case ParentOrigin:
+		return pos();
+	    case WindowOrigin:
+		{
+		    const QWidget *topl = this;
+		    while(topl && !topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
+			topl = topl->parentWidget(TRUE);
+		    return mapTo((QWidget *)topl, QPoint(0, 0) );
+		}
+	    case AncestorOrigin:
+		{
+		    const QWidget *topl = this;
+		    bool ancestorIsWindowOrigin = FALSE;
+		    while(topl && !topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
+		    {
+			if (!ancestorIsWindowOrigin) {
+			    if (topl->backgroundOrigin() == QWidget::WidgetOrigin)
+				break;
+			    if (topl->backgroundOrigin() == QWidget::ParentOrigin)
+			    {
+				topl = topl->parentWidget(TRUE);
+				break;
+			    }
+			    if (topl->backgroundOrigin() == QWidget::WindowOrigin)
+				ancestorIsWindowOrigin = TRUE;
+			}
+			topl = topl->parentWidget(TRUE);
+		    }
+
+		    return mapTo((QWidget *) topl, QPoint(0,0) );
+		}
+	}
+    }
+    // fall back
+    return QPoint(0,0);
+}
+
+/*!
+    \fn QLayout* QWidget::layout () const
+
     Returns the layout engine that manages the geometry of this
     widget's children.
 
@@ -4904,12 +5470,22 @@ void QWidget::updateMask()
 
     \sa  sizePolicy()
 */
-QLayout* QWidget::layout() const
+
+
+/*  Sets this widget to use layout \a l to manage the geometry of its
+  children.
+
+  If the widget already had a layout, the old layout is
+  forgotten. (Note that it is not deleted.)
+
+  \sa layout() QLayout sizePolicy()
+*/
+#ifndef QT_NO_LAYOUT
+void QWidget::setLayout( QLayout *l )
 {
-    return d->layout;
+    lay_out = l;
 }
-
-
+#endif
 
 /*!
     \property QWidget::sizePolicy
@@ -4938,7 +5514,7 @@ QLayout* QWidget::layout() const
 */
 QSizePolicy QWidget::sizePolicy() const
 {
-    return d->extra ? d->extra->size_policy
+    return extra ? extra->size_policy
 	: QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 }
 
@@ -4947,8 +5523,8 @@ void QWidget::setSizePolicy( QSizePolicy policy )
     setWState( WState_OwnSizePolicy );
     if ( policy == sizePolicy() )
 	return;
-    d->createExtra();
-    d->extra->size_policy = policy;
+    createExtra();
+    extra->size_policy = policy;
     updateGeometry();
 }
 
@@ -5009,17 +5585,20 @@ QWidget  *QWidget::childAt( int x, int y, bool includeThis ) const
 {
     if ( !rect().contains( x, y ) )
 	return 0;
-    for (int i = d->children.size(); i > 0 ; ) {
-	--i;
-	QWidget *w = static_cast<QWidget *>(d->children.at(i));
-	QWidget *t;
-	if ( w->isWidgetType() && !w->isTopLevel() && !w->isHidden() ) {
-	    if ( ( t = w->childAt( x - w->x(), y - w->y(), TRUE ) ) )
-		return t;
+    if ( children() ) {
+	QObjectListIt it( *children() );
+	it.toLast();
+	QWidget *w, *t;
+	while( (w=(QWidget *)it.current()) != 0 ) {
+	    --it;
+	    if ( w->isWidgetType() && !w->isTopLevel() && !w->isHidden() ) {
+		if ( ( t = w->childAt( x - w->x(), y - w->y(), TRUE ) ) )
+		    return t;
+	    }
 	}
     }
     if ( includeThis )
-	return const_cast<QWidget*>(this);
+	return (QWidget*)this;
     return 0;
 }
 
@@ -5038,6 +5617,7 @@ QWidget  *QWidget::childAt( const QPoint & p, bool includeThis ) const
     return childAt( p.x(), p.y(), includeThis );
 }
 
+
 /*!
     Notifies the layout system that this widget has changed and may
     need to change geometry.
@@ -5050,62 +5630,70 @@ QWidget  *QWidget::childAt( const QPoint & p, bool includeThis ) const
 
 void QWidget::updateGeometry()
 {
-    if (!isTopLevel() && isShown() && parentWidget() && parentWidget()->d->layout)
-	parentWidget()->d->layout->update();
+    if ( !isTopLevel() && isShown() )
+	QApplication::postEvent( parentWidget(),
+				 new QEvent( QEvent::LayoutHint ) );
 }
 
 
 /*!
-    Sets the parent of the widget to \a parent. The widget is moved
-    to position (0,0) in its new parent.
+    Reparents the widget. The widget gets a new \a parent, new widget
+    flags (\a f, but as usual, use 0) at a new position in its new
+    parent (\a p).
+
+    If \a showIt is TRUE, show() is called once the widget has been
+    reparented.
 
     If the new parent widget is in a different top-level widget, the
     reparented widget and its children are appended to the end of the
     \link setFocusPolicy() tab chain \endlink of the new parent
     widget, in the same internal order as before. If one of the moved
-    widgets had keyboard focus, setParent() calls clearFocus() for that
+    widgets had keyboard focus, reparent() calls clearFocus() for that
     widget.
 
     If the new parent widget is in the same top-level widget as the
-    old parent, setting the parent doesn't change the tab order or
-    keyboard focus.
+    old parent, reparent doesn't change the tab order or keyboard
+    focus.
 
     \warning It is extremely unlikely that you will ever need this
     function. If you have a widget that changes its content
     dynamically, it is far easier to use \l QWidgetStack or \l
     QWizard.
 
+    \sa getWFlags()
 */
 
-
-void QWidget::setParent(QWidget *parent)
+void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
+			bool showIt )
 {
-    setParent( parent, getWFlags() & ~WType_Mask);
+    reparentSys( parent, f, p, showIt );
+    QEvent e( QEvent::Reparent );
+    QApplication::sendEvent( this, &e );
+    if (!own_font)
+	unsetFont();
+    else
+	setFont( fnt.resolve( qt_naturalWidgetFont( this ) ) );
+#ifndef QT_NO_PALETTE
+    if (!own_palette)
+	unsetPalette();
+#endif
 }
-
-
-
 
 /*!
     \overload
 
-    This function also takes widget flags, \a f as an argument.
+    A convenience version of reparent that does not take widget flags
+    as argument.
 
-    \sa getWFlags()
+    Calls reparent(\a parent, getWFlags() \& ~\l WType_Mask, \a p, \a
+    showIt).
 */
-
-void QWidget::setParent(QWidget *parent, WFlags f)
+void  QWidget::reparent( QWidget *parent, const QPoint & p,
+			 bool showIt )
 {
-    reparent_helper( parent, f, QPoint(0,0), false);
-    QEvent e( QEvent::Reparent );
-    QApplication::sendEvent( this, &e );
-    if (!testAttribute(WA_SetFont))
-	unsetFont();
-    else
-	setFont_helper( fnt.resolve( qt_naturalWidgetFont( this ) ) );
-    if (!testAttribute(WA_SetPalette))
-	unsetPalette();
+    reparent( parent, getWFlags() & ~WType_Mask, p, showIt );
 }
+
 
 
 /*!
@@ -5137,6 +5725,9 @@ void QWidget::setParent(QWidget *parent, WFlags f)
 
     \sa showNormal(), showMaximized(), show(), hide(), isVisible()
 */
+#if (QT_VERSION-0 >= 0x040000)
+#error "QWidget::showFullScreen() should be virtual (see change #16156)"
+#endif
 
 #ifdef Q_OS_TEMP
 # if defined(WIN32_PLATFORM_PSPC) && (WIN32_PLATFORM_PSPC < 310)
@@ -5152,19 +5743,19 @@ void QWidget::showFullScreen()
 {
     if ( !isTopLevel() )
 	return;
-    if ( d->topData()->fullscreen ) {
+    if ( topData()->fullscreen ) {
 	show();
 	raise();
 	return;
     }
-    if ( d->topData()->normalGeometry.width() < 0 )
-	d->topData()->normalGeometry = QRect( pos(), size() );
-    d->topData()->savedFlags = getWFlags();
+    if ( topData()->normalGeometry.width() < 0 )
+	topData()->normalGeometry = QRect( pos(), size() );
+    topData()->savedFlags = getWFlags();
     reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
 	      // preserve some widget flags
 	      (getWFlags() & 0xffff0000),
 	      mapToGlobal( QPoint( 0, 0) ));
-    d->topData()->fullscreen = 1;
+    topData()->fullscreen = 1;
     const QRect screen = qApp->desktop()->screenGeometry( qApp->desktop()->screenNumber( this ) );
     move( screen.topLeft() );
     resize( screen.size() );
@@ -5192,318 +5783,59 @@ void QWidget::showFullScreen()
 bool QWidget::isFullScreen() const
 {
     QWidget* that = (QWidget*)this;
-    return isTopLevel() && that->d->topData()->fullscreen;
+    return isTopLevel() && that->topData()->fullscreen;
 }
-
 
 /*!
-    Repaints the widget directly by calling paintEvent() immediately,
-    unless updates are disabled or the widget is hidden.
+    \property QWidget::ownCursor
+    \brief whether the widget uses its own cursor
 
-    We suggest only using repaint() if you need an immediate repaint,
-    for example during animation. In almost all circumstances update()
-    is better, as it permits Qt to optimize for speed and minimize
-    flicker.
+    If FALSE, the widget uses its parent widget's cursor.
 
-    \warning If you call repaint() in a function which may itself be
-    called from paintEvent(), you may get infinite recursion. The
-    update() function never causes recursion.
-
-    \sa update(), paintEvent(), setUpdatesEnabled(), erase()
+    \sa cursor
 */
 
-void QWidget::repaint()
+/*!
+    \property QWidget::ownFont
+    \brief whether the widget uses its own font
+
+    If FALSE, the widget uses its parent widget's font.
+
+    \sa font
+*/
+
+/*!
+    \property QWidget::ownPalette
+    \brief whether the widget uses its own palette
+
+    If FALSE, the widget uses its parent widget's palette.
+
+    \sa palette
+*/
+
+
+void QWidget::repaint( bool erase )
 {
-#if defined(Q_WS_X11)
-    d->removePendingPaintEvents();
-#endif
-    repaint(d->clipRect());
+    repaint( visibleRect(), erase );
 }
 
-/*! \overload
 
-    This version repaints a rectangle (\a x, \a y, \a w, \a h) inside
-    the widget.
 
-    If \a w is negative, it is replaced with \c{width() - x}, and if
-    \a h is negative, it is replaced width \c{height() - y}.
-*/
-void QWidget::repaint(int x, int y, int w, int h)
+
+/*!\obsolete  Use paletteBackgroundColor() or eraseColor() instead. */
+const QColor & QWidget::backgroundColor() const { return eraseColor(); }
+/*!\obsolete  Use setPaletteBackgroundColor() or setEraseColor() instead. */
+void QWidget::setBackgroundColor( const QColor &c ) { setEraseColor( c ); }
+/*!\obsolete  Use paletteBackgroundPixmap()  or erasePixmap() instead. */
+const QPixmap *QWidget::backgroundPixmap() const { return erasePixmap(); }
+/*!\obsolete  Use setPaletteBackgroundPixmap() or setErasePixmap() instead. */
+void QWidget::setBackgroundPixmap( const QPixmap &pm ) { setErasePixmap( pm ); }
+
+
+// documentation in qdesktopwidget_win.cpp
+void QDesktopWidget::insertChild( QObject *obj )
 {
-    if ( x > crect.width() || y > crect.height() )
+    if ( obj->isWidgetType() )
 	return;
-    if ( w < 0 )
-	w = crect.width()  - x;
-    if ( h < 0 )
-	h = crect.height() - y;
-    repaint(QRegion(QRect(x, y, w, h)));
-}
-
-/*! \overload
-
-    This version repaints a rectangle \a r inside the widget.
-*/
-void QWidget::repaint(const QRect &r)
-{
-    repaint(QRegion(r));
-}
-
-/*! \fn void QWidget::repaint( const QRegion &rgn )
-    \overload
-
-    This version repaints a region \a rgn inside the widget.
-*/
-
-/*! \fn void QWidget::update()
-    Updates the widget unless updates are disabled or the widget is
-    hidden.
-
-    This function does not cause an immediate repaint; instead it
-    schedules a paint event for processing when Qt returns to the main
-    event loop. This permits Qt to optimize for more speed and less
-    flicker than a call to repaint() does.
-
-    Calling update() several times normally results in just one
-    paintEvent() call.
-
-    Qt normally erases the widget's area before the paintEvent() call.
-    If the \c WRepaintNoErase widget flag is set, the widget is
-    responsible for painting all its pixels itself.
-
-    \sa repaint(), paintEvent(), setUpdatesEnabled(), erase(),
-    setWFlags()
-*/
-
-/*! \fn void QWidget::update(int x, int y, int w, int h)
-    \overload
-
-    This version updates a rectangle (\a x, \a y, \a w, \a h) inside
-    the widget.
-*/
-
-
-/*!
-    \overload void QWidget::update(const QRect &r)
-
-    This version updates a rectangle \a r inside the widget.
-*/
-
-/*! \fn void QWidget::update(const QRegion &rgn)
-    \overload
-
-    This version repaints a region \a rgn inside the widget.
-*/
-
-#ifndef QT_NO_COMPAT
-/*!
-    Clear the rectangle at point (\a x, \a y) of width \a w and height
-    \a h.
-
-    \warning This is best done in a paintEvent().
-*/
-void QWidget::erase( int x, int y, int w, int h )
-{
-    if (testAttribute(WA_NoSystemBackground))
-	return;
-    if ( w < 0 )
-	w = crect.width()  - x;
-    if ( h < 0 )
-	h = crect.height() - y;
-    if ( w != 0 && h != 0 ) {
-	QPainter p(this);
-	p.eraseRect(QRect(x, y, w, h));
-    }
-}
-
-/*!
-    \overload
-
-    Clear the given region, \a rgn.
-
-    \warning This is best done in a paintEvent().
-*/
-void QWidget::erase( const QRegion& rgn )
-{
-    if (testAttribute(WA_NoSystemBackground))
-	return;
-
-    QPainter p(this);
-    p.setClipRegion(rgn);
-    p.eraseRect(rgn.boundingRect());
-}
-
-/*!
-    Draw the text in \a str at point \a p.
-
-    \warning This is best done in a paintEvent().
-*/
-void QWidget::drawText(const QPoint &p, const QString &str)
-{
-    if(!testWState(WState_Visible))
-	return;
-    QPainter paint(this);
-    paint.drawText(p.x(), p.y(), str);
-}
-#endif // QT_NO_COMPAT
-
-/*!
-    \enum QWidget::WidgetAttribute
-
-    \keyword widget attributes
-
-    This enum type is used to specify various widget
-    attributes. Attributes are set and cleared with
-    QWidget::setAttribute(), and queried with QWidget::hasAttribute().
-
-    \table
-    \header \i Attribute \i Meaning \i Set/cleared by
-
-    \row \i WA_KeyCompression \i Enables key event compression if set,
-    and disables it if not set. By default key compression is off, so
-    widgets receive one key press event for each key press (or more,
-    since autorepeat is usually on). If you turn it on and your
-    program doesn't keep up with key input, Qt may try to compress key
-    events so that more than one character can be processed in each
-    event.
-
-    For example, a word processor widget might receive 2, 3 or more
-    characters in each QKeyEvent::text(), if the layout recalculation
-    takes too long for the CPU.
-
-    If a widget supports multiple character unicode input, it is
-    always safe to turn the compression on.
-
-    Qt performs key event compression only for printable characters.
-    Modifier keys, cursor movement keys, function keys and
-    miscellaneous action keys (e.g. Escape, Enter, Backspace,
-    PrintScreen) will stop key event compression, even if there are
-    more compressible key events available.
-
-    Not all platforms support this compression, in which case turning
-    it on will have no effect.
-
-    \i widget author
-
-    \row \i WA_PendingMoveEvent \i Indicates that a move event is
-    pending, e.g. when a hidden widget was moved. \i Qt kernel
-
-    \row \i WA_PendingResizeEvent \i Indicates that a resize event is
-    pending, e.g. when a hidden widget was resized. \i Qt kernel
-
-    \row \i WA_UnderMouse \i Indicates that the widget is under the
-    mouse cursor. The value is not updated correctly during drag and
-    drop operations. There is also a getter function
-    QWidget::underMouse(). \i Qt kernel
-
-    \row \i WA_Disabled \i Indicates that the widget is disabled, i.e.
-    it does not receive any mouse or keyboard events. There is also a
-    getter functions QWidget::isEnabled().  \i Qt kernel
-
-    \row \i WA_ContentsPropagated \i Allows the contents painted in a
-    QWidget::paintEvent() to be used as the background for children
-    that inherit their background. \i widget author or style
-
-    \row \i WA_ForceDisabled \i Indicates that the widget is
-    explicitely disabled, i.e. it will remain disabled even when all
-    its ancestors are set to the enabled state. This implies
-    WA_Disabled. \i Function QWidget::setEnabled() and
-    QWidget::setDisabled()
-
-    \row \i WA_SetPalette \i Indicates that the widgets has a palette
-    of its own.  \i Functions QWidget::setPalette() and
-    QWidget::unsetPalette()
-
-    \row \i WA_SetFont \i Indicates that the widgets has a font of its
-    own. \i Functions QWidget::setFont() and QWidget::unsetFont()
-
-    \row \i WA_SetCursor \i Indicates that the widgets has a cursor of its
-    own. \i Functions QWidget::setCursor() and QWidget::unsetCursorz()
-
-    \row \i WA_SetForegroundRole \i Indicates that the widgets has an
-    explicit foreground role \i Function QWidget::setForegroundRole()
-
-    \row \i WA_SetBackgroundRole \i Indicates that the widgets has an
-    explicit background role\i Function QWidget::setBackgroundRole()
-
-    \row \i WA_NoBackground \ i indicates that the widget paints all
-    its pixels when it receives a paint event. It is thus not required
-    for operations like updating, resizing, scrolling and focus
-    changes to call erase the widget before generating paint
-    events. Using WA_NoBackground is a small optimization. It can help
-    to reduce flicker on systems that do not provide double buffer
-    support, and it avoids the computational cycles necessary to erase
-    the background prior to paint. NOTE: Unlike WA_NoSystemBackground,
-    newly exposed areas are automatically filled with the background
-    (e.g. when showing a window for the first time). \i Widget author
-
-    \row \i WA_NoSystemBackground \i Indicates that the widget has no
-    background, i.e. when the widget receives paint events, the
-    background is not automatically repainted. NOTE: Unlike
-    WA_NoBackground, newly exposed areas are \e not automtically
-    filled with the background (e.g after showing a window for the
-    first time). \i Widget author
-
-    \row \i WA_StaticContents \i Indicates that the widget contents
-    are north-west aligned and static. On resize, such a widget will
-    receive paint events only for the newly visible part of itself. \i
-    Widget author.
-
-    \row \i WA_PaintOnScreen \i Indicates that the widget wants to
-    draw directly onto the screen. This is not supported on all
-    platforms. \i Widget author.
-
-    \row \i WA_WindowModified \i Indicates that the window is marked as
-    modified. On some platforms this will mean nothing, on others
-    (including Mac OS X and Windows) the window will take a modified
-    appearance. \i Function QWidget::setWindowModified()
-
-    \row \i WA_Resized \i Indicates that the widget has an explicit
-    size.\i Functions QWidget::resize() and QWidget::setGeometry()
-
-    \row \i WA_Moved \i Indicates that the widget has an explicit
-    position.\i Functions QWidget::move() and QWidget::setGeometry()
-
-    \row \i WA_InvalidSize \i Indicates that the widget has an invalid
-    size. Showing the widget or calling any geometry function
-    (e.g. QWidget::height() or QWidget::size()) will call
-    QWidget::adjustSize() first. The attribute is used by widgets like
-    QMenu that automatically change their size depending on the
-    contents. \i Set by widget author, cleared by Qt kernel.
-
-    \endtable
-*/
-
-/*!
-    Sets the attribute \a attribute on this widget if \a b is true;
-    otherwise clears the attribute.
-
-  \sa hasAttribute()
- */
-void QWidget::setAttribute(WidgetAttribute attribute, bool b)
-{
-    if (attribute < int(8*sizeof(uint))) {
-	if (b)
-	    widget_attributes |= (1<<attribute);
-	else
-	    widget_attributes &= ~(1<<attribute);
-    } else {
-	int x = attribute - 8*sizeof(uint);
-	if (b)
-	    d->high_attributes[x / (8*sizeof(uint))] |= (1<<x);
-	else
-	    d->high_attributes[x / (8*sizeof(uint))] &= ~(1<<x);
-    }
-}
-
-/*! \fn bool QWidget::testAttribute(WidgetAttribute attribute) const
-
-  Returns true if attribute \a attribute is set on this widget;
-  otherwise returns false.
-
-  \sa setAttribute()
- */
-bool QWidget::testAttribute_helper(WidgetAttribute attribute) const
-{
-    int x = attribute - 8*sizeof(uint);
-    return (d->high_attributes[x / (8*sizeof(uint))] & (1<<x));
+    QWidget::insertChild( obj );
 }
