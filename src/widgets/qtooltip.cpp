@@ -599,7 +599,7 @@ QString QTipManager::find( QWidget *w, const QPoint& pos )
     while ( t && !t->rect.contains( pos ) )
 	t = t->next;
 
-    return t ? t->text : QString::null;
+    return t ? t->text : QString();
 }
 
 void QTipManager::setWakeUpDelay ( int i )

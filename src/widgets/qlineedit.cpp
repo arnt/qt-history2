@@ -1116,7 +1116,7 @@ bool QLineEdit::hasAcceptableInput() const
 */
 QString QLineEdit::inputMask() const
 {
-    return ( d->maskData ? d->inputMask + ';' + d->blank : QString::null );
+    return ( d->maskData ? d->inputMask + ';' + d->blank : QString() );
 }
 
 void QLineEdit::setInputMask( const QString &inputMask )

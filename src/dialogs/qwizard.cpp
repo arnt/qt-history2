@@ -325,7 +325,7 @@ void QWizard::showPage( QWidget * page )
 
     layOut();
     updateButtons();
-    emit selected( p ? p->t : QString::null );
+    emit selected( p ? p->t : QString() );
 }
 
 
@@ -600,7 +600,7 @@ QWidget * QWizard::currentPage() const
 QString QWizard::title( QWidget * page ) const
 {
     QWizardPrivate::Page * p = d->page( page );
-    return p ? p->t : QString::null;
+    return p ? p->t : QString();
 }
 
 /*!
@@ -796,7 +796,7 @@ void QWizard::layOut()
     QHBoxLayout * l;
     l = new QHBoxLayout( 6 );
     d->v->addLayout( l, 0 );
-    layOutTitleRow( l, d->current ? d->current->t : QString::null );
+    layOutTitleRow( l, d->current ? d->current->t : QString() );
 
     if ( ! d->hbar1 ) {
 	d->hbar1 = new QFrame( this, "<hr>", 0 );

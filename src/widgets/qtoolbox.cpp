@@ -622,7 +622,7 @@ bool QToolBox::isItemEnabled( int index ) const
 QString QToolBox::itemLabel( int index ) const
 {
     QToolBoxPrivate::Page *c = d->page( index );
-    return ( c ? c->button->textLabel() : QString::null );
+    return ( c ? c->button->textLabel() : QString() );
 }
 
 /*!
@@ -644,7 +644,7 @@ QIconSet QToolBox::itemIconSet( int index ) const
 QString QToolBox::itemToolTip( int index ) const
 {
     QToolBoxPrivate::Page *c = d->page( index );
-    return ( c ? c->toolTip : QString::null );
+    return ( c ? c->toolTip : QString() );
 }
 
 /*! \reimp */

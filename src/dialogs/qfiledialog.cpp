@@ -4082,14 +4082,14 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
     }
 
     PopupAction action;
-    popupContextMenu( item ? item->text( 0 ) : QString::null, TRUE, action, p );
+    popupContextMenu( item ? item->text( 0 ) : QString(), TRUE, action, p );
 
     if ( action == PA_Open )
 	selectDirectoryOrFile( item );
     else if ( action == PA_Rename )
 	files->startRename( FALSE );
     else if ( action == PA_Delete )
-	deleteFile( item ? item->text( 0 ) : QString::null );
+	deleteFile( item ? item->text( 0 ) : QString() );
     else if ( action == PA_Reload )
 	rereadDir();
     else if ( action == PA_Hidden ) {
@@ -4118,7 +4118,7 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
 void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
 {
     PopupAction action;
-    popupContextMenu( item ? item->text() : QString::null, FALSE, action, p );
+    popupContextMenu( item ? item->text() : QString(), FALSE, action, p );
 
     if ( action == PA_Open )
 	selectDirectoryOrFile( item );

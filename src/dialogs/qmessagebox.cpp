@@ -822,7 +822,7 @@ QString QMessageBox::buttonText( int button ) const
     int index = indexOf(button);
     return index >= 0 && mbd->pb[index]
             ? mbd->pb[index]->text()
-            : QString::null;
+            : QString();
 }
 
 

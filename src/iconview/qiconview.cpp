@@ -1958,7 +1958,7 @@ void QIconViewItem::paintItem( QPainter *p, const QPalette &cg )
 	if ( isSelected() ) {
 	    p->fillRect( textRect( FALSE ), cg.highlight() );
 	    p->setPen( QPen( cg.highlightedText() ) );
-	} else if ( view->d->itemTextBrush != NoBrush )
+	} else if ( view->d->itemTextBrush != QBrush(NoBrush) )
 	    p->fillRect( textRect( FALSE ), view->d->itemTextBrush );
 
 	int align = view->itemTextPos() == QIconView::Bottom ? AlignHCenter : AlignAuto;
@@ -2019,7 +2019,7 @@ void QIconViewItem::paintItem( QPainter *p, const QPalette &cg )
     if ( isSelected() ) {
 	p->fillRect( textRect( FALSE ), cg.highlight() );
 	p->setPen( QPen( cg.highlightedText() ) );
-    } else if ( view->d->itemTextBrush != NoBrush )
+    } else if ( view->d->itemTextBrush != QBrush(NoBrush) )
 	p->fillRect( textRect( FALSE ), view->d->itemTextBrush );
 
     int align = AlignHCenter;

@@ -527,7 +527,7 @@ void QTabWidget::removePage( QWidget * w )
 QString QTabWidget::tabLabel( QWidget * w ) const
 {
     QTab * t = d->tabs->tab( d->stack->id( w ) );
-    return t ? t->label : QString::null;
+    return t ? t->label : QString();
 }
 
 /*!

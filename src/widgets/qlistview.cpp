@@ -1775,7 +1775,7 @@ QString QListViewItem::text( int column ) const
 	column--;
     }
 
-    return l ? l->text : QString::null;
+    return l ? l->text : QString();
 }
 
 

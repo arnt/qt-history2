@@ -899,7 +899,7 @@ QIconSet* QMenuData::iconSet( int id ) const
 QString QMenuData::text( int id ) const
 {
     QMenuItem *mi = findItem( id );
-    return mi ? mi->text() : QString::null;
+    return mi ? mi->text() : QString();
 }
 
 /*!
@@ -1397,7 +1397,7 @@ QString QMenuData::whatsThis( int id ) const
 {
 
     QMenuItem *mi = findItem( id );
-    return mi? mi->whatsThis() : QString::null;
+    return mi? mi->whatsThis() : QString();
 }
 
 
