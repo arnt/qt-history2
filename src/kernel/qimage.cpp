@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#185 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#186 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -4313,8 +4313,8 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 	    uchar* s = src->scanLine(sy) + sx;
 	    if ( sw < 64 ) {
 		// Trust ourselves
-		const int dd = dst->width() - sw;
-		const int ds = src->width() - sw;
+		const int dd = dst->bytesPerLine() - sw;
+		const int ds = src->bytesPerLine() - sw;
 		while ( sh-- ) {
 		    for ( int t=sw; t--; )
 			*d++ = *s++;
@@ -4323,8 +4323,8 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 		}
 	    } else {
 		// Trust libc
-		const int dd = dst->width();
-		const int ds = src->width();
+		const int dd = dst->bytesPerLine();
+		const int ds = src->bytesPerLine();
 		while ( sh-- ) {
 		    memcpy( d, s, sw );
 		    d += dd;
