@@ -507,7 +507,7 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 	    } break;
 	    default:
 		QString txt = ke->text();
-		if ( txt != QString::null && txt[0] == separator()[0] ) {
+		if ( !txt.isEmpty() && !separator().isEmpty() && txt[0] == separator()[0] ) {
 		    // do the same thing as KEY_RIGHT when the user presses the separator key
 		    if ( d->focusSection() < 2 ) {
 			if ( cw->setFocusSection( focusSection()+1 ) )
