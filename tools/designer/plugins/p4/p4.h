@@ -42,7 +42,7 @@ public:
     P4Action( const QString& filename );
     ~P4Action();
 
-    void run( const QString& command );
+    bool run( const QString& command );
 
 protected slots:
     virtual void processExited() = 0;
@@ -50,9 +50,11 @@ protected slots:
 protected:
     QString data() { return p4Data; }
     QString fileName() { return file; }
+    bool success();
 
 signals:
     void finished( const QString&, P4Info* );
+    void showStatusBarMessage( const QString &s );
 
 private slots:
     void newData( const QString& );
@@ -66,7 +68,6 @@ private:
 
 class P4FStat : public P4Action
 {
-    Q_OBJECT
 public:
     P4FStat( const QString& filename );
 
@@ -76,26 +77,89 @@ protected:
     void processExited();
 };
 
+class P4Sync : public P4Action
+{
+public:
+    P4Sync( const QString &filename );
+
+    void sync();
+
+protected:
+    void processExited();
+};
 
 class P4Edit : public P4Action
 {
     Q_OBJECT
 public:
-    P4Edit( const QString &filename, QComponentInterface *iface, bool s );
+    P4Edit( const QString &filename, bool s );
 
     void edit();
 
 protected:
     void processExited();
 
-signals:
-    void showStatusBarMessage( const QString &s, int );
-
 private slots:
     void fStatResults( const QString&, P4Info* );
 
 private:
     bool silent;    
+};
+
+
+class P4Submit : public P4Action
+{
+public:
+    P4Submit( const QString &filename );
+
+    void submit();
+
+protected:
+    void processExited();
+};
+
+class P4Revert : public P4Action
+{
+public:
+    P4Revert( const QString &filename );
+
+    void revert();
+
+protected:
+    void processExited();
+};
+
+class P4Add : public P4Action
+{
+public:
+    P4Add( const QString &filename );
+
+    void add();
+
+protected:
+    void processExited();
+};
+
+class P4Delete : public P4Action
+{
+public:
+    P4Delete( const QString &filename );
+
+    void del();
+
+protected:
+    void processExited();
+};
+
+class P4Diff : public P4Action
+{
+public:
+    P4Diff( const QString &filename );
+
+    void diff();
+
+protected:
+    void processExited();
 };
 
 #endif

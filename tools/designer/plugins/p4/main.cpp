@@ -261,6 +261,7 @@ private slots:
     void p4MightEdit( bool b, const QString &filename );
     void formChanged();
     void p4Info( const QString& filename, P4Info* );
+    void statusMessage( const QString& );
 
 private:
     bool aware;
@@ -376,6 +377,18 @@ void P4Interface::p4Aware( bool on )
 
 void P4Interface::p4Sync()
 {
+    if ( !appInterface )
+	return;
+    QComponentInterface *mwIface = 0;
+    QComponentInterface *fwIface = 0;
+    if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) ||
+	 !( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	return;
+
+    P4Sync *sync = new P4Sync( fwIface->requestProperty( "fileName" ).toString().latin1() );
+    connect( sync, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+    connect( sync, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
+    sync->sync();
 }
 
 void P4Interface::p4Edit()
@@ -388,8 +401,9 @@ void P4Interface::p4Edit()
 	 !( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
 	return;
 
-    P4Edit *edit = new P4Edit( fwIface->requestProperty( "fileName" ).toString().latin1(), mwIface, TRUE );
+    P4Edit *edit = new P4Edit( fwIface->requestProperty( "fileName" ).toString().latin1(), TRUE );
     connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+    connect( edit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     edit->edit();
 }
 
@@ -402,23 +416,78 @@ void P4Interface::p4Submit()
     if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) ||
 	 !( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
 	return;
+
+    P4Submit *submit = new P4Submit( fwIface->requestProperty( "fileName" ).toString().latin1() );
+    connect( submit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+    connect( submit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
+    submit->submit();
+
     qDebug( "P4Interface::p4Submit %s", fwIface->requestProperty( "fileName" ).toString().latin1() );
 }
 
 void P4Interface::p4Revert()
 {
+    if ( !appInterface )
+	return;
+    QComponentInterface *mwIface = 0;
+    QComponentInterface *fwIface = 0;
+    if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) ||
+	 !( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	return;
+
+    P4Revert *revert = new P4Revert( fwIface->requestProperty( "fileName" ).toString().latin1() );
+    connect( revert, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+    connect( revert, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
+    revert->revert();
+
 }
 
 void P4Interface::p4Add()
 {
+    if ( !appInterface )
+	return;
+    QComponentInterface *mwIface = 0;
+    QComponentInterface *fwIface = 0;
+    if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) ||
+	 !( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	return;
+
+    P4Add *add = new P4Add( fwIface->requestProperty( "fileName" ).toString().latin1() );
+    connect( add, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+    connect( add, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
+    add->add();
 }
 
 void P4Interface::p4Delete()
 {
+    if ( !appInterface )
+	return;
+    QComponentInterface *mwIface = 0;
+    QComponentInterface *fwIface = 0;
+    if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) ||
+	 !( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	return;
+
+    P4Delete *del = new P4Delete( fwIface->requestProperty( "fileName" ).toString().latin1() );
+    connect( del, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+    connect( del, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
+    del->del();
 }
 
 void P4Interface::p4Diff()
 {
+    if ( !appInterface )
+	return;
+    QComponentInterface *mwIface = 0;
+    QComponentInterface *fwIface = 0;
+    if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) ||
+	 !( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	return;
+
+    P4Diff *diff = new P4Diff( fwIface->requestProperty( "fileName" ).toString().latin1() );
+    connect( diff, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+    connect( diff, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
+    diff->diff();
 }
 
 void P4Interface::p4Refresh()
@@ -433,6 +502,7 @@ void P4Interface::p4Refresh()
 		continue;
 	    P4FStat* fs = new P4FStat( *it );
 	    connect( fs, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+	    connect( fs, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
 	    fs->fstat();
 	}
     }
@@ -446,8 +516,9 @@ void P4Interface::p4MightEdit( bool b, const QString &filename )
     QComponentInterface *mwIface = 0;
     if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) )
 	return;
-    P4Edit *edit = new P4Edit( filename, mwIface, FALSE );
+    P4Edit *edit = new P4Edit( filename, FALSE );
     connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+    connect( edit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     edit->edit();
 }
 
@@ -474,6 +545,7 @@ void P4Interface::formChanged()
     if ( !p4i ) {
 	P4FStat* fs = new P4FStat( filename );
 	connect( fs, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+	connect( fs, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
 	fs->fstat();
 	return;
     }
@@ -488,26 +560,20 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
     P4Info* oldP4i =  P4Info::files[filename];
     if ( !oldP4i || (*oldP4i) != (*p4i) ) {
 	if ( oldP4i )
-	     P4Info::files.remove( filename );
-
-	QComponentInterface *mwIface = 0;
-	QComponentInterface *sbIface = 0;
-	if ( ( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) &&
-	     ( sbIface = mwIface->queryInterface( "DesignerStatusBarInterface" ) ) ) {
-	    QString status;
-	    if ( p4i->controlled ) {
-		if ( p4i->opened )
-		    status = tr( "opened for edit" );
-		else if ( !p4i->uptodate )
-		    status = tr( "file needs update" );
-		else
-		    status = tr( "file up-to-date" );
-	    } else {
-		status = tr( "not in this client view" );
-	    }
-	    sbIface->requestSetProperty( "message", tr("P4: %1 -> %2 - %3").arg(p4i->depotFile).arg(filename).arg(status) );
+	    P4Info::files.remove( filename );
+	QString status;
+	if ( p4i->controlled ) {
+	    if ( p4i->opened )
+		status = tr( "opened for edit" );
+	    else if ( !p4i->uptodate )
+		status = tr( "file needs update" );
+	    else
+		status = tr( "file up-to-date" );
+	} else {
+	    status = tr( "not in this client view" );
 	}
-	 P4Info::files.insert( filename, p4i );
+	statusMessage( tr("P4: %1 -> %2 - %3").arg(p4i->depotFile).arg(filename).arg(status) );
+	P4Info::files.insert( filename, p4i );
     }
 
     QComponentInterface *mwIface = 0;
@@ -542,6 +608,15 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 	actionDiff->setEnabled( FALSE );
 	actionEdit->setEnabled( FALSE );
     }
+}
+
+void P4Interface::statusMessage( const QString &text )
+{
+    QComponentInterface *mwIface = 0;
+    QComponentInterface *sbIface = 0;
+    if ( ( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) &&
+	 ( sbIface = mwIface->queryInterface( "DesignerStatusBarInterface" ) ) )
+	sbIface->requestSetProperty( "message", text );
 }
 
 #include "main.moc"
