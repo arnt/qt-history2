@@ -1623,8 +1623,14 @@ void qt_init(QApplicationPrivate *priv, int type)
     if(qt_is_gui_used) {
         init_display();
 #ifndef QT_NO_QWS_MANAGER
-        qws_decoration = QApplication::qwsSetDecoration(
-            decoration.isEmpty()?QString::fromLatin1("default"):decoration);
+        if (decoration.isEmpty()) {
+#ifndef QT_NO_QWS_DECORATION_STYLED
+            decoration = QString::fromLatin1("styled");
+#else
+            decoration = QString::fromLatin1("default");
+#endif
+        }
+        qws_decoration = QApplication::qwsSetDecoration(decoration);
 #endif
 #ifndef QT_NO_QWS_IM
         qApp->setInputContext(new QWSInputContext);
