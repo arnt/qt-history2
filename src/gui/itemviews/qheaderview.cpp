@@ -455,12 +455,13 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 */
 
 void QHeaderView::paintSection(QPainter *painter, const QStyleOptionViewItem &option,
-                                  const QModelIndex &index)
+                               const QModelIndex &index)
 {
+    int section = orientation() == Qt::Horizontal ? index.column() : index.row();
     QStyleOptionHeader opt = d->getStyleOption();
     QStyle::SFlags arrowFlags = QStyle::Style_Off;
     opt.rect = option.rect;
-    opt.section = index.column();
+    opt.section = section;
     if (d->clickableSections && (d->orientation == Qt::Horizontal ?
           selectionModel()->isColumnSelected(index.column(), model()->parent(index)) :
           selectionModel()->isRowSelected(index.row(), model()->parent(index))))
@@ -468,15 +469,15 @@ void QHeaderView::paintSection(QPainter *painter, const QStyleOptionViewItem &op
     else
         opt.state |= QStyle::Style_Raised;
     style().drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
-#if 1
-    itemDelegate()->paint(painter, option, model(), index);
-#else
+#if 0
+    opt.rect.setRect(opt.rect.x() + border, opt.rect.y() + border,
+                     opt.rect.width() - border * 2, opt.rect.height() - border * 2);
     opt.text = d->model->data(index, QAbstractItemModel::DisplayRole).toString();
     opt.icon = d->model->data(index, QAbstractItemModel::DecorationRole).toIconSet();
     style().drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);
+#else
+    itemDelegate()->paint(painter, option, d->model, index);
 #endif
-
-    int section = orientation() == Qt::Horizontal ? index.column() : index.row();
     if (sortIndicatorSection() == section) {
         //bool alignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & Qt::AlignRight;
         // FIXME: use alignRight and RTL
