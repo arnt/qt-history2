@@ -153,7 +153,7 @@ static CWResult        mocify(CWPluginContext context, const QCString &source)
                     if(mocd == moc_success)
                         CWSetModDate(context, &destSpec, NULL, true);
         }
-        return (cwNoErr);
+        return cwNoErr;
 }
 
 pascal short main(CWPluginContext context)
@@ -202,7 +202,7 @@ pascal short main(CWPluginContext context)
         }
 
         /* return result code */
-        return (result);
+        return result;
 }
 
 #endif
