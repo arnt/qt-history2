@@ -2138,7 +2138,7 @@ void QScrollView::viewportToContents(int vx, int vy, int& x, int& y)
 */
 QSizePolicy QScrollView::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
 
 
@@ -2147,15 +2147,6 @@ QSizePolicy QScrollView::sizePolicy() const
 */
 QSize	QScrollView::sizeHint() const
 {
-/*
-    QScrollView* that = (QScrollView*)this;
-    d->autoResizeHint();
-    d->autoResize(that); // since Resize will be deferred
-    QApplication::sendPostedEvents( viewport(), QEvent::LayoutHint );
-    return QSize(that->contentsWidth()+frameWidth()*2,
-		 that->contentsHeight()+frameWidth()*2);
-*/
-
     QSize result = QSize(frameWidth()*2, frameWidth()*2);
     if ( d->policy == QScrollView::AutoOne ) {
 	QSVChildRec* r = d->children.first();
