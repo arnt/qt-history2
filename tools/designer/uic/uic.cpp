@@ -2103,12 +2103,12 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	    v = fontname;
 	}
     } else if ( e.tagName() == "string" ) {
-	if ( prop == "toolTip" ) {
+	if ( prop == "toolTip" && objClass != "QAction" && objClass != "QActionGroup" ) {
 	    if ( !obj.isEmpty() )
 		out << indent << "QToolTip::add(  " << obj << ", " + trmacro + "( " << fixString( e.firstChild().toText().data() ) << " ) );" << endl;
 	    else
 		out << indent << "QToolTip::add(  this, " + trmacro + "( " << fixString( e.firstChild().toText().data() ) << " ) );" << endl;
-	} else if ( prop == "whatsThis" ) {
+	} else if ( prop == "whatsThis" && objClass != "QAction" && objClass != "QActionGroup" ) {
 	    if ( !obj.isEmpty() )
 		out << indent << "QWhatsThis::add(  " << obj << ", " << trmacro << "( " << fixString( e.firstChild().toText().data() ) << " ) );" << endl;
 	    else
