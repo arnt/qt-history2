@@ -94,7 +94,10 @@ else
   echo "Generating documentation" >&2
   make -s -C ${QTDIR}/src include
   mkdir -p ${DISTDIR}/qt/doc/html
+  make -s -C ${QTDIR}/opengl/src include
+  mkdir -p ${DISTDIR}/qt/opengl/html
   ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt
+  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/opengl
   if [ "${platform}" = "x11" ]; then
     mkdir -p ${DISTDIR}/qt/doc/man/man1  ${DISTDIR}/qt/doc/man/man3
     ${DISTDIR}/qt/util/qdoc/man
@@ -108,7 +111,7 @@ fi
 
 echo "Removing local files..." >&2
 cd ${DISTDIR}
-rm -f qt/doc.conf
+rm -f qt/doc.conf qt/opengl/doc.conf
 find qt -name .cvsignore | xargs rm -f
 rm -rf qt/doc qt/etc qt/gif
 rm -f qt/TODO
@@ -140,6 +143,7 @@ if [ "${platform}" = "win" ]; then
   rm -f ../include/*
   mv */q*.h ../include
   cd ${DISTDIR}/qt
+  mv opengl/src/q*.h include
   rm -rf makefiles
   find . -name 'Makefile*' -o -name 'qtx11.*' | xargs rm -vf
   echo "Converting Unix text files to DOS..." >&2
