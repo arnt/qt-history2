@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#9 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#10 $
 **
 ** Definition of QDragObject
 **
@@ -15,6 +15,7 @@ class QWidget;
 
 #ifndef QT_H
 #include "qobject.h"
+#include "qimage.h"
 #endif // QT_H
 
 
@@ -26,16 +27,20 @@ public:
 
     virtual void setAutoDelete( bool );
     bool autoDelete() const;
+    // ##### remove
 
     virtual void startDrag();
 
     virtual void setFormat( const char * mimeType );
     const char * format() const;
+    // ##### virtual const char * format(int) const;
 
     void setEncodedData( QByteArray & );
-    const QByteArray encodedData() const;
+    // ##### remove
+    virtual QByteArray encodedData() const;
 
     virtual void encode();
+    // ##### remove
 
     QWidget * source();
 
@@ -44,10 +49,30 @@ public:
 
 private:
     QDragData * d;
+    // ##### QDragObject* alt;
 };
 
+/*
+class QStoredDragObject: public QDragObject {
+    Q_OBJECT
+    QDragData * d;
 
-class QTextDragObject: public QDragObject {
+public:
+    QStoredDragObject( QWidget * dragSource = 0, const char * name = 0 );
+    ~QStoredDragObject();
+
+    virtual void addFormat( const char * mimeType );
+    const char * format(int i) const;
+
+    void setEncodedData( QByteArray & );
+    virtual QByteArray encodedData() const;
+
+private:
+    QDragData * d;
+};
+*/
+
+class QTextDragObject: public QDragObject { //#### QStoredDragObject
     Q_OBJECT
 public:
     QTextDragObject( const char *,
@@ -56,6 +81,23 @@ public:
     ~QTextDragObject();
 
     void setText( const char * );
+};
+
+
+class QImageDragObject: public QDragObject {
+    Q_OBJECT
+    QImage img;
+    bool dirty;
+
+public:
+    QImageDragObject( QImage image,
+		      QWidget * parent = 0, const char * name = 0 );
+    QImageDragObject( QWidget * parent = 0, const char * name = 0 );
+    ~QImageDragObject();
+
+    // ##### const char * format(int i) const;
+    virtual QByteArray encodedData() const;
+    void setImage( QImage image );
 };
 
 
