@@ -281,7 +281,6 @@
 #include <private/qcomplextext_p.h>
 #include <private/qlayoutengine_p.h>
 #include <private/qeffects_p.h>
-#include <private/qfontdata_p.h>
 #include <private/qinternal_p.h>
 #include <private/qremotecontrol_p.h>
 #include <private/qremotemessage_p.h>
