@@ -397,8 +397,18 @@ void FormWindow::insertWidget()
     r = QRect( p, r.size() );
 
     if ( useSizeHint ) {
-	r.setWidth( w->sizeHint().width() );
-	r.setHeight( w->sizeHint().height() );
+	if ( n == "Spacer" ) {
+	    if ( orient == Vertical ) {
+		r.setWidth( 20 );
+		r.setHeight( 40 );
+	    } else {
+		r.setWidth( 40 );
+		r.setHeight( 20 );
+	    }
+	} else {
+	    r.setWidth( w->sizeHint().width() );
+	    r.setHeight( w->sizeHint().height() );
+	}
     }
 
     if ( r.width() < 2 * grid().x() )
