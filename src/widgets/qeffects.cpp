@@ -185,6 +185,7 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 	if ( o != widget )
 	    break;
     case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonDblClick:
 	showWidget = FALSE;
 	render();
 	break;
@@ -239,12 +240,12 @@ void QAlphaWidget::render()
     if ( alpha >= 1 || !showWidget) {
 	anim.stop();
 	widget->removeEventFilter( this );
+	qApp->removeEventFilter( this );
 	BackgroundMode bgm = widget->backgroundMode();
-	widget->clearWState( WState_Visible );
-	widget->setWState( WState_ForceHide );
-	releaseMouse();
 
 	if ( showWidget ) {
+	    widget->clearWState( WState_Visible );
+	    widget->setWState( WState_ForceHide );
 	    widget->setBackgroundMode( NoBackground );
 	    widget->show();
 	} else {
@@ -256,8 +257,6 @@ void QAlphaWidget::render()
 	    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
 	    widget->setBackgroundMode( bgm );
 	    widget->setWState( WState_Visible );
-	    if ( widget->inherits( "QLabel" ) && widget->testWFlags( WStyle_Tool ) )
-		widget->update();
 	}
 	q_blend = 0;
 	QTimer::singleShot( 0, this, SLOT(goodBye()) );
@@ -405,35 +404,39 @@ void QRollEffect::paintEvent( QPaintEvent* )
 bool QRollEffect::eventFilter( QObject* o, QEvent* e )
 {
     switch ( e->type() ) {
-	case QEvent::Move:
-	    if ( o != widget )
-		break;
-	    move( widget->geometry().x(),widget->geometry().y() );
-	    update();
+    case QEvent::Move:
+	if ( o != widget )
 	    break;
-	case QEvent::Hide:
-	case QEvent::Close:
-	    if ( o != widget )
-		break;
-	    showWidget = FALSE;
+	move( widget->geometry().x(),widget->geometry().y() );
+	update();
+	break;
+    case QEvent::Hide:
+    case QEvent::Close:
+	if ( o != widget || done )
+	    break;
+	showWidget = FALSE;
+	done = TRUE;
+	scroll();
+	break;
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonDblClick:
+	if ( done )
+	    break;
+	showWidget = FALSE;
+	done = TRUE;
+	scroll();
+	break;
+    case QEvent::KeyPress:
+	{
+	    QKeyEvent *ke = (QKeyEvent*)e;
+	    if ( ke->key() == Key_Escape )
+		showWidget = FALSE;
 	    done = TRUE;
 	    scroll();
 	    break;
-	case QEvent::MouseButtonPress:
-	    showWidget = FALSE;
-	    done = TRUE;
-	    break;
-	case QEvent::KeyPress:
-	    {
-		QKeyEvent *ke = (QKeyEvent*)e;
-		if ( ke->key() == Key_Escape )
-		    showWidget = FALSE;
-		done = TRUE;
-		scroll();
-		break;
-	    }
-	default:
-	    break;
+	}
+    default:
+	break;
     }
     return QWidget::eventFilter( o, e );
 }
@@ -543,25 +546,23 @@ void QRollEffect::scroll()
     if ( done ) {
 	anim.stop();
 	widget->removeEventFilter( this );
+	qApp->removeEventFilter( this );
 	BackgroundMode bgm = widget->backgroundMode();
-	widget->clearWState( WState_Visible );
-	widget->setWState( WState_ForceHide );
-	if ( QWidget::mouseGrabber() == this )
-	    releaseMouse();
 
 	if ( showWidget ) {
+	    widget->clearWState( WState_Visible );
+	    widget->setWState( WState_ForceHide );
 	    widget->setBackgroundMode( NoBackground );
 	    widget->show();
 	} else {
 	    widget->hide();
 	}
 	hide();
-	if ( showWidget) {
+
+	if ( showWidget ) {
 	    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
 	    widget->setBackgroundMode( bgm );
 	    widget->setWState( WState_Visible );
-	    if ( widget->inherits( "QLabel" ) && widget->testWFlags( WStyle_Tool ) )
-		widget->update();
 	}
 	q_roll = 0;
 	QTimer::singleShot( 0, this, SLOT(goodBye()) );

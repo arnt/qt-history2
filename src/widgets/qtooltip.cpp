@@ -361,7 +361,8 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 
     if ( e->type() == QEvent::FocusOut || e->type() == QEvent::FocusIn ) {
 	// user moved focus somewhere - hide the tip and sleep
-	hideTipAndSleep();
+	if ( ((QFocusEvent*)e)->reason() != QFocusEvent::Popup )
+	    hideTipAndSleep();
 	return FALSE;
     }
 
