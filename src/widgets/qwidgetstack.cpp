@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#35 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -311,13 +311,13 @@ void QWidgetStack::frameChanged()
 void QWidgetStack::setChildGeometries()
 {
     delete l;
-    l = new QGridLayout( this, 3, 3 );
-    if ( frameWidth() ) {
-	l->addRowSpacing( 0, frameWidth() );
-	l->addRowSpacing( 2, frameWidth() );
-	l->addColSpacing( 0, frameWidth() );
-	l->addColSpacing( 2, frameWidth() );
-    }
+    l = new QGridLayout( this, 3, 3, frameWidth(), 0);
+//     if ( frameWidth() ) {
+// 	l->addRowSpacing( 0, frameWidth() );
+// 	l->addRowSpacing( 2, frameWidth() );
+// 	l->addColSpacing( 0, frameWidth() );
+// 	l->addColSpacing( 2, frameWidth() );
+//     }
     l->setRowStretch( 1, 1 );
     l->setColStretch( 1, 1 );
     l->addWidget( invisible, 1, 1 );
@@ -432,7 +432,7 @@ QSize QWidgetStack::sizeHint() const
 
     //We need a sensible sizeHint before the layout is constructed.
 
-    QSize size(0,0); 
+    QSize size(0,0);
     if ( children() ) {
 	const QObjectList * c = children();
 	QObjectListIt it( *c );
