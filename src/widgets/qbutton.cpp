@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#7 $
 **
 ** Implementation of QButton class
 **
@@ -18,7 +18,7 @@ declare(QDictM,QPixMap);			// internal pixmap dict
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#7 $";
 #endif
 
 
@@ -150,12 +150,16 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)// mouse release
     mlbDown = FALSE;				// left mouse button up
     bool hit = hitButton( e->pos() );
     buttonDown = FALSE;
-    paintEvent( 0 );
-    emit released();
     if ( hit ) {				// mouse release on button
 	if ( onOffButton )
 	    buttonOn = !buttonOn;
+	paintEvent( 0 );
+	emit released();
 	emit clicked();
+    }
+    else {
+	paintEvent( 0 );
+	emit released();
     }
 }
 
