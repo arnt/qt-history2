@@ -155,6 +155,7 @@ QPointArray QPainterSubpath::toPolygon(const QWMatrix &matrix) const
     return p;
 }
 
+
 /*!
   \internal
 
@@ -451,3 +452,17 @@ void QPainterPath::setFillMode(QPainterPath::FillMode fillMode)
     d->fillMode = fillMode;
 }
 
+/*!
+    Returns the bounding rectangle of this painter path
+*/
+QRect QPainterPath::boundingRect() const
+{
+    if (d->subpaths.isEmpty())
+        return QRect();
+    QRect rect;
+    for (int j=0; j<d->subpaths.size(); ++j) {
+        QPointArray pa = d->subpaths.at(j).toPolygon(QWMatrix());
+        rect |= pa.boundingRect();
+    }
+    return rect;
+}

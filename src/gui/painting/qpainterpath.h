@@ -50,6 +50,8 @@ public:
     void addArc(const QRect &rect, int startAngle, int arcLength);
     inline void addArc(int x, int y, int w, int h, int startAngle, int arcLength);
 
+    QRect boundingRect() const;
+
     FillMode fillMode() const;
     void setFillMode(FillMode fillMode);
 private:
