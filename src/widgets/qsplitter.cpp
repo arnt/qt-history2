@@ -673,7 +673,9 @@ void QSplitter::getRange( int id, int *min, int *max )
     int i;
     for ( i = 0; i < id; i++ ) {
 	QSplitterLayoutStruct *s = data->list.at(i);
-	if ( s->isSplitter ) {
+	if ( s->wid->isHidden() ) {
+	    //ignore
+	} else if ( s->isSplitter ) {
 	    minB += s->sizer;
 	    maxB += s->sizer;
 	} else {
@@ -683,7 +685,9 @@ void QSplitter::getRange( int id, int *min, int *max )
     }
     for ( i = id; i < n; i++ ) {
 	QSplitterLayoutStruct *s = data->list.at(i);
-	if ( s->isSplitter ) {
+	if ( s->wid->isHidden() ) {
+	    //ignore
+	} else if ( s->isSplitter ) {
 	    minA += s->sizer;
 	    maxA += s->sizer;
 	} else {
