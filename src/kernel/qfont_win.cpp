@@ -128,7 +128,7 @@ void QFontStruct::reset()
 {
     if ( qt_winver & Qt::WV_NT_based ) {
 	if ( hdc ) {				// one DC per font (Win NT)
-	    SelectObject( hdc, systemFont() );
+	    //SelectObject( hdc, systemFont() );
 	    if ( !stockFont )
 		DeleteObject( hfont );
 	    if ( !paintDevice )
