@@ -747,6 +747,7 @@ bool QAction::removeFrom( QWidget* w )
 	    ++it;
 	    if ( btn->parentWidget() == w ) {
 		d->toolbuttons.removeRef( btn );
+		disconnect( btn, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
 		delete btn;
 		// no need to disconnect from statusbar
 	    }
@@ -757,10 +758,11 @@ bool QAction::removeFrom( QWidget* w )
 	while ( ( mi = it.current() ) ) {
 	    ++it;
 	    if ( mi->popup == w ) {
+		disconnect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText(int)) );
+		disconnect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
+		disconnect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
 		mi->popup->removeItem( mi->id );
 		d->menuitems.removeRef( mi );
-		disconnect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText(int)) );
-		disconnect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText(int)) );
 	    }
 	}
     } else {
