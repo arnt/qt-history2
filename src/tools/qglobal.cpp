@@ -872,6 +872,7 @@ void qWarning( const char *msg, ... )
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
+    static bool fatalWarnings = (getenv("QT_FATAL_WARNINGS") != 0);
     if ( handler ) {
 #if defined(QT_VSNPRINTF)
 	QT_VSNPRINTF( buf, QT_BUFFER_LENGTH, msg, ap );
@@ -893,11 +894,11 @@ void qWarning( const char *msg, ... )
 	fstr.sprintf( "%s:%s %s %s\n", __FILE__, __LINE__, QT_VERSION_STR, buf );
 	OutputDebugString( fstr.ucs2() );
 #elif defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG)
-	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
+	if (fatalWarnings)
+	    _CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #endif
     }
 
-    static bool fatalWarnings = (getenv("QT_FATAL_WARNINGS") != 0);
     if (!fatalWarnings)
 	return;
 
