@@ -1023,7 +1023,7 @@ int QMenuBar::insertAny(const QIconSet *icon, const QString *text, const QObject
 {
     QAction *act = new QAction;
     if(id != -1)
-        ((QMenuItem*)act)->setId(id);
+        reinterpret_cast<QMenuItem*>(act)->setId(id);
     if(icon)
         act->setIcon(*icon);
     if(text)
@@ -1055,7 +1055,7 @@ int QMenuBar::insertSeparator(int index)
 bool QMenuBar::setItemParameter(int id, int param)
 {
     if(QAction *act = findActionForId(id)) {
-        ((QMenuItem*)act)->setSignalValue(param);
+        reinterpret_cast<QMenuItem*>(act)->setSignalValue(param);
         return true;
     }
     return false;
@@ -1064,7 +1064,7 @@ bool QMenuBar::setItemParameter(int id, int param)
 int QMenuBar::itemParameter(int id) const
 {
     if(QAction *act = findActionForId(id)) 
-        return ((QMenuItem*)act)->signalValue();
+        return reinterpret_cast<QMenuItem*>(act)->signalValue();
     return id;
 }
 
@@ -1091,6 +1091,6 @@ void QMenuBar::compatHighlighted(QAction *act)
 
 int QMenuBar::findIdForAction(QAction *act) const
 {
-    return ((QMenuItem*)act)->id();
+    return reinterpret_cast<QMenuItem*>(act)->id();
 }
 #endif

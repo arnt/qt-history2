@@ -1704,7 +1704,7 @@ int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *r
 {
     QAction *act = new QAction;
     if(id != -1)
-        ((QMenuItem*)act)->setId(id);
+        reinterpret_cast<QMenuItem*>(act)->setId(id);
     if(icon)
         act->setIcon(*icon);
     if(text)
@@ -1747,7 +1747,7 @@ QAction *QMenu::findActionForId(int id) const
 bool QMenu::setItemParameter(int id, int param)
 {
     if(QAction *act = findActionForId(id)) {
-        ((QMenuItem*)act)->setSignalValue(param);
+        reinterpret_cast<QMenuItem*>(act)->setSignalValue(param);
         return true;
     }
     return false;
@@ -1756,7 +1756,7 @@ bool QMenu::setItemParameter(int id, int param)
 int QMenu::itemParameter(int id) const
 {
     if(QAction *act = findActionForId(id)) 
-        return ((QMenuItem*)act)->signalValue();
+        return reinterpret_cast<QMenuItem*>(act)->signalValue();
     return id;
 }
 
@@ -1777,6 +1777,6 @@ void QMenu::compatHighlighted(QAction *act)
 
 int QMenu::findIdForAction(QAction *act) const
 {
-    return ((QMenuItem*)act)->id();
+    return reinterpret_cast<QMenuItem*>(act)->id();
 }
 #endif
