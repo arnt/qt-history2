@@ -3275,7 +3275,7 @@ void MyApplication::commitData(QSessionManager& sm) {
   Low-level write access to the application's identification and state
   records are kept in the session manager.
 
-    The property called \a name has its value set to the string \a value.
+  The property called \a name has its value set to the string \a value.
 */
 
 /*!
@@ -3285,7 +3285,7 @@ void MyApplication::commitData(QSessionManager& sm) {
   Low-level write access to the application's identification and state
   record are kept in the session manager.
 
-    The property called \a name has its value set to the string list \a value.
+  The property called \a name has its value set to the string list \a value.
 */
 
 /*!
