@@ -1059,6 +1059,8 @@ void HtmlSynthetizer::processImg( const QString& fileName, const QString& alt,
     w.top()->putsMeta( ">\n" );
     if ( !inParagraph )
 	w.top()->putsMeta( "</p>\n" );
+
+    config->needImage( location(), fileName );
 }
 
 void HtmlSynthetizer::processIndex( const QString& text )

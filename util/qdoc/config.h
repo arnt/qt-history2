@@ -10,6 +10,8 @@
 #include <qstring.h>
 #include <qstringlist.h>
 
+#include "stringset.h"
+
 class Location;
 
 class Config
@@ -22,6 +24,7 @@ public:
     QString verbatimHref( const QString& sourceFileName ) const;
     QString classRefHref( const QString& className ) const;
     QString classMembersHref( const QString& className ) const;
+    QString classImageHref( const QString& className ) const;
     QString defgroupHref( const QString& groupName ) const;
     QString findDepth( const QString& name, const QStringList& dirList ) const;
 
@@ -30,6 +33,7 @@ public:
     const QStringList& includeDirList() const { return includedirs; }
     const QStringList& exampleDirList() const { return exampledirs; }
     const QStringList& bookDirList() const { return bookdirs; }
+    const QStringList& imageDirList() const { return imagedirs; }
     const QString& outputDir() const { return outputdir; }
 
     const QString& base() const { return bas; }
@@ -51,6 +55,7 @@ public:
     bool lint() const { return lin; }
     bool friendly() const { return frend; }
 
+    void needImage( const Location& loc, const QString& fileName );
     QString unalias( const Location& loc, const QString& alias,
 		     const QString& format, const QStringList& args ) const;
 
@@ -73,6 +78,7 @@ private:
     QStringList includedirs;
     QStringList exampledirs;
     QStringList bookdirs;
+    QStringList imagedirs;
     QString outputdir;
 
     int maxSim;
@@ -96,10 +102,12 @@ private:
     bool lin;
     bool frend;
 
+    StringSet imagesCopied;
     QMap<QString, QString> aliasMap;
 
     QString dotHtml;
     QString membersDotHtml;
+    QString dotPng;
 };
 
 extern Config *config;

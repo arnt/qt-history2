@@ -12,6 +12,7 @@
 #include <qtextstream.h>
 
 #include <errno.h>
+#include <stdlib.h>
 
 static QString yyIn;
 static int yyPos;
@@ -42,7 +43,7 @@ static const char laTeXPrologue[] =
     "\n"
     "\\documentclass%3{%4}\n"
     "\\usepackage[T1]{fontenc}\n"
-    "\\usepackage{graphics}\n"
+    "\\usepackage{graphicx}\n"
     "\\usepackage{makeidx}\n"
     "\\usepackage{multicol}\n"
     "\n"
@@ -709,11 +710,11 @@ static void laTeXifyImages( QString& html )
 
 	if ( src.endsWith(QString(".png")) ) {
 	    src = src.left( src.length() - 4 );
-	    if ( system(QString("convert -geometry 75% %1.png %2.eps")
+	    if ( system(QString("convert %1.png %2.eps")
 			.arg(qdocOutputDir + src)
 			.arg(qdocOutputDir + src).latin1()) == 0 ) {
 		html.replace( k, img.matchedLength(),
-			      QString("\\includegraphics{%1.eps}")
+			      QString("\\includegraphics[scale=0.45]{%1}")
 			      .arg(qdocOutputDir + src) );
 	    } else {
 		qWarning( "Problem with generation of '%s.eps'", src.latin1() );
@@ -784,7 +785,7 @@ static bool laTeXify( QString& html,
     QRegExp preMarker( QString("<premarker>") );
 
     QRegExp parasiteSpacesAtEnd( QString("[ \t]+\n") );
-    QRegExp parag( QString("<\\s*[pP]\\s*>\\s*") );
+    QRegExp parag( QString("<\\s*[pP]\\b[^>]*>\\s*") );
     QRegExp more( QString("<a href=\"#details\">More...</a>") );
     QRegExp listOfAllMemberFunctions( QString(
 	"<a href=\"[^\"]*-members.html\">List of all member functions.</a>") );

@@ -704,6 +704,16 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 			  " We do not recommend the use of this class for"
 			  " production work at this time.</font></center>\n" );
 
+#if 0
+	// not yet
+	QString img = config->classImageHref( name() );
+	if ( !config->findDepth(img, config->imageDirList()).isEmpty() ) {
+	    config->needImage( location(), img );
+	    out.printfMeta( "<img align=\"right\" src=\"%s\">\n",
+			    img.latin1() );
+	}
+#endif
+
 	out.putsMeta( "<p>" );
 	out.putsMeta( classDoc()->brief() );
 	out.puts( "\n" );

@@ -133,7 +133,7 @@ Config::Config( int argc, char **argv )
       vers( "" ), verssym( "" ), posth( "" ), foot( "" ), addr( "" ),
       styl( "" ), falsesym( QChar('0') ), internal( FALSE ), autoh( TRUE ),
       super( FALSE ), lin( FALSE ), frend( FALSE ), dotHtml( ".html" ),
-      membersDotHtml( "-members.html" )
+      membersDotHtml( "-members.html" ), dotPng( ".png" )
 {
     QString confFilePath( "qdoc.conf" );
     int i;
@@ -200,6 +200,8 @@ Config::Config( int argc, char **argv )
 		falsesym.setPattern( val.join(QChar('|')) );
 	    } else if ( key == QString("FOOTER") ) {
 		foot = val.join( QChar(' ') );
+	    } else if ( key == QString("IMAGEDIRS") ) {
+		imagedirs = val;
 	    } else if ( key == QString("INCLUDEDIRS") ) {
 		includedirs = val;
 	    } else if ( key == QString("INTERNAL") ) {
@@ -233,7 +235,6 @@ Config::Config( int argc, char **argv )
 	    } else {
 		message( 1, "Unknown entry '%s' in configuration file",
 			 key.latin1() );
-		break;
 	    }
 	}
     }
@@ -382,6 +383,11 @@ QString Config::classMembersHref( const QString& className ) const
     return className.lower() + membersDotHtml;
 }
 
+QString Config::classImageHref( const QString& className ) const
+{
+    return className.lower() + dotPng;
+}
+
 QString Config::defgroupHref( const QString& groupName ) const
 {
     return groupName.lower() + dotHtml;
@@ -417,6 +423,37 @@ bool Config::isDef( const QString& symbol ) const
 bool Config::generateFile( const QString& fileName ) const
 {
     return onlyfn.exactMatch( fileName );
+}
+
+void Config::needImage( const Location& loc, const QString& fileName )
+{
+    uint n = imagesCopied.count();
+    imagesCopied.insert( fileName );
+    if ( n != imagesCopied.count() ) {
+	QString inFilePath = findDepth( fileName, imageDirList() );
+	if ( inFilePath.isEmpty() ) {
+	    warning( 1, loc, "Cannot find image file '%s'", fileName.latin1() );
+	    return;
+	}
+
+	QFile fin( inFilePath );
+	if ( !fin.open(IO_ReadOnly) ) {
+	    message( 1, "Cannot open image file '%s'", inFilePath.latin1() );
+	    return;
+	}
+
+	QByteArray img = fin.readAll();
+	fin.close();
+
+	QString outFilePath = outputDir() + QChar( '/' ) + fileName;
+	QFile fout( outFilePath );
+	if ( !fout.open(IO_WriteOnly) ) {
+	    message( 1, "Cannot open image file '%s'", outFilePath.latin1() );
+	    return;
+	}
+	fout.writeBlock( img );
+	fout.close();
+    }
 }
 
 QString Config::unalias( const Location& loc, const QString& alias,
@@ -489,7 +526,7 @@ bool Config::matchLine( QString *key, QStringList *val )
 void Config::showHelp()
 {
     /*
-      We imitate gcc more or less.
+      We imitate gcc output.
     */
     printf( "Usage: qdoc [options] [qdoc.conf]\n"
 	    "Long options:\n"
@@ -540,6 +577,6 @@ void Config::showHelpShort()
 void Config::showVersion()
 {
     // $\lim_{t\rightarrow\infty} {\it qdoc\_version}(t) = 2$
-    printf( "qdoc version 1.97\n" );
+    printf( "qdoc version 1.98\n" );
     exit( EXIT_SUCCESS );
 }

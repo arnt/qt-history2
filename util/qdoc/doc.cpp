@@ -558,6 +558,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		x = getWord( yyIn, yyPos );
 		alt = fixBackslashes( getRestOfLine(yyIn, yyPos) );
 		yyOut += QString( "<center><img src=\"%1\"" ).arg( x );
+		config->needImage( location(), x );
 		if ( !alt.isEmpty() )
 		    yyOut += QString( " alt=\"%1\"" ).arg( alt );
 		yyOut += QString( "></center> " );
@@ -971,7 +972,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		yyOut += QString( "\\" );
 		yyOut += command;
 	    }
-	} else if ( ch == '>' && yyOut.right(4) == QString("<pre") ) {
+	} else if ( ch == '>' && yyOut.endsWith(QString("<pre")) ) {
 	    yyOut += '>';
 	    while ( yyPos < yyLen ) {
 		ch = yyIn[yyPos++];
@@ -1826,7 +1827,7 @@ QString Doc::htmlClassHierarchy()
 	} else {
 	    QString child = *top.begin();
 	    html += QString( "<li>" );
-	    html += child;
+	    html += href( child );
 	    html += QString( "\n" );
 	    top.remove( top.begin() );
 
@@ -2006,7 +2007,7 @@ QString Doc::htmlSeeAlso() const
 	QString y = href( name, text, TRUE );
 	if ( text.isEmpty() )
 	    text = name;
-	if ( y.length() == text.length() && text.startsWith(QString("<a")) )
+	if ( y.length() == text.length() )
 	    warning( 1, location(), "Unresolved '\\sa' to '%s'",
 		     name.latin1() );
 
@@ -2433,8 +2434,7 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
 	standardWording = FALSE;
 
     if ( !w.isEmpty() &&
-	 (w.first() == QString("class") ||
-	  w.first() == QString("widget")) )
+	 (w.first() == QString("class") || w.first() == QString("widget")) )
 	w.remove( w.begin() );
     else
 	standardWording = FALSE;
