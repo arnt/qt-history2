@@ -3,11 +3,13 @@
 #include <Xm/MainW.h>
 #include <Xm/RowColumn.h>
 #include <Xm/CascadeB.h>
+#include <Xm/PushB.h>
 #include <Xm/PushBG.h>
 #include <Xm/SeparatoG.h>
 #include <Xm/Text.h>
 #include <Xm/MessageB.h>
 #include <Xm/Form.h>
+#include <Xm/LabelG.h>
 
 #include <qapplication.h>
 #include <qmessagebox.h>
@@ -136,12 +138,41 @@ void MainWindow::showCustomDialog()
     dialog.setCaption( tr("Custom Motif Dialog") );
 
     Widget form = XmCreateForm( dialog.shell(), "custom motif dialog", NULL, 0 );
+
+    XmString str;
+    Arg args[11];
+
+    str = XmStringCreateLocalized( "Close" );
+    XtSetArg( args[0], XmNlabelString, str );
+    XtSetArg( args[1], XmNshowAsDefault, True );
+    XtSetArg( args[2], XmNleftAttachment, XmATTACH_POSITION );
+    XtSetArg( args[3], XmNleftPosition, 40 );
+    XtSetArg( args[4], XmNrightAttachment, XmATTACH_POSITION );
+    XtSetArg( args[5], XmNrightPosition, 60 );
+    XtSetArg( args[7], XmNbottomAttachment, XmATTACH_FORM );
+    XtSetArg( args[6], XmNtopOffset, 10 );
+    XtSetArg( args[8], XmNbottomOffset, 10 );
+    Widget button = XmCreatePushButton( form, "Close", args, 9 );
+    XmStringFree( str );
+
+    str = XmStringCreateLocalized( "This is a Custom dialog." );
+    XtSetArg( args[0], XmNlabelString, str );
+    XtSetArg( args[1], XmNleftAttachment, XmATTACH_FORM );
+    XtSetArg( args[2], XmNrightAttachment, XmATTACH_FORM );
+    XtSetArg( args[3], XmNtopAttachment, XmATTACH_FORM );
+    XtSetArg( args[4], XmNbottomAttachment, XmATTACH_WIDGET );
+    XtSetArg( args[5], XmNbottomWidget, button );
+    XtSetArg( args[6], XmNtopOffset, 10 );
+    XtSetArg( args[7], XmNbottomOffset, 10 );
+    Widget label = XmCreateLabelGadget( form, "label", args, 8 );
+    XmStringFree( str );
+
+    XtManageChild( button );
+    XtManageChild( label );
     XtManageChild( form );
 
-    XtAddCallback( dialog.dialog(), XmNokCallback,
-                   (XtCallbackProc) QMotifDialog::acceptCallback, &dialog );
-    XtAddCallback( dialog.dialog(), XmNcancelCallback,
-                   (XtCallbackProc) QMotifDialog::rejectCallback, &dialog );
+    XtAddCallback( button, XmNactivateCallback,
+		   (XtCallbackProc) QMotifDialog::acceptCallback, &dialog );
 
     dialog.exec();
 }
