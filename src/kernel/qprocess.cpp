@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#31 $
 **
 ** Implementation of QProcess class
 **
@@ -329,9 +329,13 @@ QByteArray QProcess::readStderr()
 bool QProcess::launch( const QByteArray& buf )
 {
     if ( start() ) {
-	connect( this, SIGNAL(wroteToStdin()),
-		this, SLOT(closeStdinLaunch()) );
-	writeToStdin( buf );
+	if ( !buf.isEmpty() ) {
+	    connect( this, SIGNAL(wroteToStdin()),
+		    this, SLOT(closeStdinLaunch()) );
+	    writeToStdin( buf );
+	} else {
+	    closeStdin();
+	}
 	return TRUE;
     } else {
 	return FALSE;
@@ -346,9 +350,13 @@ bool QProcess::launch( const QByteArray& buf )
 bool QProcess::launch( const QString& buf )
 {
     if ( start() ) {
-	connect( this, SIGNAL(wroteToStdin()),
-		this, SLOT(closeStdinLaunch()) );
-	writeToStdin( buf );
+	if ( !buf.isEmpty() ) {
+	    connect( this, SIGNAL(wroteToStdin()),
+		    this, SLOT(closeStdinLaunch()) );
+	    writeToStdin( buf );
+	} else {
+	    closeStdin();
+	}
 	return TRUE;
     } else {
 	return FALSE;
