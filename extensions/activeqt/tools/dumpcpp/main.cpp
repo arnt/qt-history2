@@ -53,14 +53,18 @@ enum ProperyFlags  {
     ResolveEditable = 0x00080000
 };
 
-enum FunctionFlags  {
-    AccessPrivate = 0x01,
+enum MemberFlags {
+    AccessPrivate = 0x00,
+    AccessProtected = 0x01,
     AccessPublic = 0x02,
-    AccessProtected = 0x04,
-    AccessMask = 0x07, //mask
-    Compatability = QMetaMember::Compatability,
-    Cloned = QMetaMember::Cloned
+    MemberMethod = 0x00,
+    MemberSignal = 0x04,
+    MemberSlot = 0x08,
+    MemberCompatibility = 0x10,
+    MemberCloned = 0x20,
+    MemberScriptable = 0x40,
 };
+
 
 void writeEnums(QTextStream &out, const QMetaObject *mo)
 {
@@ -195,8 +199,10 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
 
     // slots - but not property setters
     int defaultArguments = 0;
-    for (int islot = mo->slotOffset(); islot < mo->slotCount(); ++islot) {
-        QMetaMember slot = mo->slot(islot);
+    for (int islot = mo->memberOffset(); islot < mo->memberCount(); ++islot) {
+        const QMetaMember slot(mo->member(islot));
+        if (slot.memberType() != QMetaMember::Slot)
+            continue;
 
 #if 0
         // makes not sense really to respect default arguments...
@@ -309,29 +315,22 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
 
     int classInfoCount = mo->classInfoCount() - mo->classInfoOffset();
     int enumCount = mo->enumeratorCount() - mo->enumeratorOffset();
-    int signalCount = mo->signalCount() - mo->signalOffset();
-    int slotCount = mo->slotCount() - mo->slotOffset();
+    int memberCount = mo->memberCount() - mo->memberOffset();
     int propertyCount = mo->propertyCount() - mo->propertyOffset();
-    int enumStart = 12 + classInfoCount * 2 + signalCount * 5 + slotCount * 5 + propertyCount * 3;
+    int enumStart = 10;
 
     out << "static const uint qt_meta_data_" << qualifiedClassName.replace(':', '_') << "[] = {" << endl;
     out << endl;
     out << " // content:" << endl;
     out << "       1,       // revision" << endl;
     out << "       0,       // classname" << endl;
-    out << "       " << classInfoCount << ",    " 
-        << (classInfoCount ? 12 : 0) << ", // classinfo" << endl;
-    out << "       " << signalCount << ",    "
-        << (signalCount ? 12 + classInfoCount * 2 : 0)
-        << ", // signals" << endl;
-    out << "       " << slotCount << ",    "
-        << (slotCount ? 12 + classInfoCount * 2 + signalCount * 5 : 0)
-        << ", // slots" << endl;
-    out << "       " << propertyCount << ",    "
-        << (propertyCount ? 12 + classInfoCount * 2 + signalCount * 5 + slotCount * 5 : 0)
-        << ", // properties" << endl;
-    out << "       " << enumCount << ",    "
-        << (enumCount ? enumStart : 0)
+    out << "       " << classInfoCount << ",    " << (classInfoCount ? enumStart : 0) << ", // classinfo" << endl;
+    enumStart += classInfoCount * 2;
+    out << "       " << memberCount << ",    " << (memberCount ? enumStart : 0) << ", // members" << endl;
+    enumStart += memberCount * 5;
+    out << "       " << propertyCount << ",    " << (propertyCount ? enumStart : 0) << ", // properties" << endl;
+    enumStart += propertyCount * 3;
+    out << "       " << enumCount << ",    " << (enumCount ? enumStart : 0)
         << ", // enums/sets" << endl;
     out << endl;
 
@@ -348,32 +347,35 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
         stringData += "\"\n";
         out << endl;
     }
-    if (signalCount) {
+    if (memberCount) {
         out << " // signals: signature, parameters, type, tag, flags" << endl;
         stringData += "    \"";
-        for (int i = 0; i < signalCount; ++i) {
-            QMetaMember signal = mo->signal(i + mo->signalOffset());
+        for (int i = 0; i < memberCount; ++i) {
+            const QMetaMember signal(mo->member(i + mo->memberOffset()));
+            if (signal.memberType() != QMetaMember::Signal)
+                continue;
             out << "       ";
             addString(signal.signature());
             addString(signal.parameters());
             addString(signal.typeName());
             addString(signal.tag());
-            out << (AccessProtected | signal.attributes()) << "," << endl;
+            out << (AccessProtected | signal.attributes() | MemberSignal) << "," << endl;
         }
         stringData += "\"\n";
         out << endl;
-    }
-    if (slotCount) {
+
         out << " // slots: signature, parameters, type, tag, flags" << endl;
         stringData += "    \"";
-        for (int i = 0; i < slotCount; ++i) {
-            QMetaMember slot = mo->slot(i + mo->slotOffset());
+        for (int i = 0; i < memberCount; ++i) {
+            const QMetaMember slot(mo->member(i + mo->memberOffset()));
+            if (slot.memberType() != QMetaMember::Slot)
+                continue;
             out << "       ";
             addString(slot.signature());
             addString(slot.parameters());
             addString(slot.typeName());
             addString(slot.tag());
-            out << (0x01 | slot.attributes()) << "," << endl;
+            out << (0x01 | slot.attributes() | MemberSlot) << "," << endl;
         }
         stringData += "\"\n";
         out << endl;
