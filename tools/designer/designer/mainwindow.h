@@ -34,6 +34,7 @@
 #include "../interfaces/sourcetemplateiface.h"
 #include "sourceeditor.h"
 
+#include <qaction.h>
 #include <qmainwindow.h>
 #include <qmap.h>
 #include <qguardedptr.h>
@@ -45,8 +46,6 @@ class PropertyEditor;
 class QWorkspace;
 class QMenuBar;
 class FormWindow;
-class QAction;
-class QActionGroup;
 class QPopupMenu;
 class HierarchyView;
 class QCloseEvent;
