@@ -18,30 +18,20 @@ class MakefileGenerator;
 #include <qlist.h>
 #include <qstring.h>
 
-class MetaMakefileGenerator 
+class MetaMakefileGenerator
 {
-    bool init_flag;
 protected:
-    bool init();
-    struct Build {
-        QString name;
-        MakefileGenerator *makefile;
-    };
+    MetaMakefileGenerator(QMakeProject *p) : project(p) { }
     QMakeProject *project;
-    QList<Build *> makefiles;
-    static MakefileGenerator *createGenerator(QMakeProject *);
+
 public:
-    virtual ~MetaMakefileGenerator() { clearBuilds(); }
+    virtual ~MetaMakefileGenerator();
 
     static MetaMakefileGenerator *createMetaGenerator(QMakeProject *);
     static MakefileGenerator *createMakefileGenerator(QMakeProject *proj);
-    virtual bool write(const QString &);
 
-private:
-    void clearBuilds();
-    MetaMakefileGenerator(QMakeProject *p) : init_flag(false) { project = p; }
-
-    MakefileGenerator *processBuild(const QString &);
+    virtual bool init() = 0;
+    virtual bool write(const QString &) = 0;
 };
 
 #endif /* __METAMAKEFILE_H__ */
