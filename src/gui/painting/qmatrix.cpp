@@ -586,10 +586,14 @@ QRegion QMatrix::map(const QRegion &r) const
 */
 QPainterPath QMatrix::map(const QPainterPath &path) const
 {
+    if (path.isEmpty())
+        return QPainterPath();
+
     QPainterPath copy = path;
+    copy.detach();
 
     for (int i=0; i<path.elementCount(); ++i) {
-        QPainterPath::Element &e = copy.elements[i];
+        QPainterPath::Element &e = copy.d_ptr->elements[i];
         qreal fx = e.x, fy = e.y;
         e.x = _m11*fx + _m21*fy + _dx;
         e.y =  _m12*fx + _m22*fy + _dy;

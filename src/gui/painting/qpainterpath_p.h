@@ -31,13 +31,20 @@
 
 class QPolygonF;
 
-class QPainterPathPrivate
+class QPainterPathData : public QPainterPath::QPainterPathPrivate
 {
-    Q_DECLARE_PUBLIC(QPainterPath)
 public:
-    QPainterPathPrivate(QPainterPath *path) :
-        q_ptr(path), cStart(0), fillRule(Qt::OddEvenFill)
+    QPainterPathData() :
+        cStart(0), fillRule(Qt::OddEvenFill)
     {
+        ref = 1;
+    }
+
+    QPainterPathData(const QPainterPathData &other) :
+        cStart(other.cStart), fillRule(other.fillRule), containsCache(other.containsCache)
+    {
+        ref = 1;
+        elements = other.elements;
     }
 
     inline bool isClosed() const;
@@ -45,32 +52,35 @@ public:
 
     inline void makeDirty();
 
-    QPainterPath *q_ptr;
     int cStart;
     Qt::FillRule fillRule;
 
     QRegion containsCache;
 };
 
+
 void Q_GUI_EXPORT qt_find_ellipse_coords(const QRectF &r, qreal angle, qreal length,
                                          QPointF* startPoint, QPointF *endPoint);
 
-inline bool QPainterPathPrivate::isClosed() const
+inline bool QPainterPathData::isClosed() const
 {
-    const QPainterPath::Element &first = q_func()->elements.at(cStart);
-    const QPainterPath::Element &last = q_func()->elements.last();
+    const QPainterPath::Element &first = elements.at(cStart);
+    const QPainterPath::Element &last = elements.last();
     return first.x == last.x && first.y == last.y;
 }
 
-inline void QPainterPathPrivate::close()
+inline void QPainterPathData::close()
 {
-    const QPainterPath::Element &first = q_func()->elements.at(cStart);
-    const QPainterPath::Element &last = q_func()->elements.last();
-    if (first.x != last.x || first.y != last.y)
-        q_func()->lineTo(QPointF(first.x, first.y));
+    Q_ASSERT(ref == 1);
+    const QPainterPath::Element &first = elements.at(cStart);
+    const QPainterPath::Element &last = elements.last();
+    if (first.x != last.x || first.y != last.y) {
+        QPainterPath::Element e = { first.x, first.y, QPainterPath::LineToElement };
+        elements << e;
+    }
 }
 
-inline void QPainterPathPrivate::makeDirty()
+inline void QPainterPathData::makeDirty()
 {
     if (!containsCache.isEmpty())
         containsCache = QRegion();

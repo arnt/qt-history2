@@ -23,13 +23,13 @@
 
 class QFont;
 class QPainterPathPrivate;
+class QPainterPathData;
 class QPainterPathStrokerPrivate;
 class QPolygonF;
 class QRegion;
 
 class Q_GUI_EXPORT QPainterPath
 {
-    Q_DECLARE_PRIVATE(QPainterPath)
 public:
     enum ElementType {
         MoveToElement,
@@ -107,16 +107,30 @@ public:
     QList<QPolygonF> toFillPolygons(const QMatrix &matrix = QMatrix()) const;
     QPolygonF toFillPolygon(const QMatrix &matrix = QMatrix()) const;
 
-    int elementCount() const { return elements.size(); }
-    const QPainterPath::Element &elementAt(int i) const { return elements.at(i); }
+    inline int elementCount() const;
+    inline const QPainterPath::Element &elementAt(int i) const;
 
     bool operator==(const QPainterPath &other) const;
     bool operator!=(const QPainterPath &other) const;
 
 private:
-    QPainterPathPrivate *d_ptr;
-    QVector<Element> elements;
+    class QPainterPathPrivate
+    {
+    public:
+        QBasicAtomic ref;
+        QVector<Element> elements;
+    };
 
+    QPainterPathPrivate *d_ptr;
+
+    inline void ensureData() { if (!d_ptr) ensureData_helper(); }
+    void ensureData_helper();
+    inline void detach() { if (d_ptr->ref != 1) detach_helper(); }
+    void detach_helper();
+
+    QPainterPathData *d_func() const { return (QPainterPathData *) d_ptr; }
+
+    friend class QPainterPathData;
     friend class QPainterPathStroker;
     friend class QPainterPathStrokerPrivate;
     friend class QMatrix;
@@ -211,7 +225,19 @@ inline void QPainterPath::addText(qreal x, qreal y, const QFont &f, const QStrin
 
 inline bool QPainterPath::isEmpty() const
 {
-    return elements.size() == 1 && elements.first().type == MoveToElement;
+    return !d_ptr || (d_ptr->elements.size() == 1 && d_ptr->elements.first().type == MoveToElement);
 }
+
+inline int QPainterPath::elementCount() const
+{
+    return d_ptr->elements.size();
+}
+
+inline const QPainterPath::Element &QPainterPath::elementAt(int i) const
+{
+    return d_ptr->elements.at(i);
+}
+
+
 
 #endif // QPAINTERPATH_H
