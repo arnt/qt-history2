@@ -32,6 +32,8 @@ SOURCES	= qftp.cpp \
           qdns.cpp \
           qurlinfo.cpp
 
+SOURCES += ../core/kernel/qinternal.cpp
+
 unix:SOURCES += qdns_unix.cpp qsocketlayer_unix.cpp
 win32:SOURCES += qdns_win.cpp qsocketlayer_win.cpp
 
