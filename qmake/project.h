@@ -16,6 +16,7 @@
 #define __PROJECT_H__
 
 #include <qstringlist.h>
+#include <qtextstream.h>
 #include <qstring.h>
 #include <qmap.h>
 
@@ -30,6 +31,8 @@ class QMakeProject
     QMakeProperty *prop;
     QMap<QString, QStringList> vars, base_vars, cache;
     bool parse(const QString &text, QMap<QString, QStringList> &place);
+    bool doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place, 
+			  const QString &seek_var=QString::null);
     bool doProjectTest(const QString &func, const QString &params, QMap<QString, QStringList> &place);
     bool doProjectTest(const QString &func, QStringList args, QMap<QString, QStringList> &place);
     bool doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
@@ -39,7 +42,8 @@ public:
     QMakeProject();
     QMakeProject(QMakeProperty *);
 
-    enum { ReadCache=0x01, ReadConf=0x02, ReadCmdLine=0x04, ReadProFile=0x08, ReadPostFiles=0x10, ReadAll=0xFF };
+    enum { ReadCache=0x01, ReadConf=0x02, ReadCmdLine=0x04, ReadProFile=0x08, 
+	   ReadPostFiles=0x16, ReadFeatures=0x32, ReadAll=0xFF };
     bool read(const QString &project, const QString &pwd, uchar cmd=ReadAll);
     bool read(uchar cmd=ReadAll);
 
@@ -55,6 +59,7 @@ public:
 protected:
     friend class MakefileGenerator;
     bool read(const QString &file, QMap<QString, QStringList> &place);
+    bool read(QTextStream &file, QMap<QString, QStringList> &place);
 
 };
 

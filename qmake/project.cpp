@@ -36,6 +36,7 @@
 struct parser_info {
     QString file;
     int line_no;
+    bool from_file;
 } parser;
 
 static void qmake_error_msg(const char *msg)
@@ -430,14 +431,41 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 }
 
 bool
+QMakeProject::read(QTextStream &file, QMap<QString, QStringList> &place)
+{
+    bool ret = TRUE;
+    QString s, line;
+    while ( !file.eof() ) {
+	parser.line_no++;
+	line = file.readLine().stripWhiteSpace();
+	int prelen = line.length();
+
+	int hash_mark = line.find("#");
+	if(hash_mark != -1) //good bye comments
+	    line = line.left(hash_mark);
+	if(!line.isEmpty() && line.right(1) == "\\") {
+	    if (!line.startsWith("#")) {
+		line.truncate(line.length() - 1);
+		s += line + " ";
+	    }
+	} else if(!line.isEmpty() || (line.isEmpty() && !prelen)) {
+	    if(s.isEmpty() && line.isEmpty())
+		continue;
+	    if(!line.isEmpty())
+		s += line;
+	    if(!s.isEmpty()) {
+		if(!(ret = parse(s, place)))
+		    break;
+		s = "";
+	    }
+	}
+    }
+    return ret;
+}
+
+bool
 QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 {
-    parser_info pi = parser;
-    /* scope blocks start at true */
-    test_status = TestNone;
-    scope_flag = 0x01;
-    scope_block = 0;
-
     QString filename = Option::fixPathToLocalOS(file);
     doVariableReplace(filename, place);
     bool ret = FALSE, using_stdin = FALSE;
@@ -451,39 +479,20 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 	ret = qfile.open(IO_ReadOnly);
     }
     if ( ret ) {
-	QTextStream t( &qfile );
-	QString s, line;
+	parser_info pi = parser;
+	parser.from_file = TRUE;
 	parser.file = filename;
 	parser.line_no = 0;
-	while ( !t.eof() ) {
-	    parser.line_no++;
-	    line = t.readLine().stripWhiteSpace();
-	    int prelen = line.length();
-
-	    int hash_mark = line.find("#");
-	    if(hash_mark != -1) //good bye comments
-		line = line.left(hash_mark);
-	    if(!line.isEmpty() && line.right(1) == "\\") {
-		if (!line.startsWith("#")) {
-		    line.truncate(line.length() - 1);
-		    s += line + " ";
-		}
-	    } else if(!line.isEmpty() || (line.isEmpty() && !prelen)) {
-		if(s.isEmpty() && line.isEmpty())
-		    continue;
-		if(!line.isEmpty())
-		    s += line;
-		if(!s.isEmpty()) {
-		    if(!(ret = parse(s, place)))
-			break;
-		    s = "";
-		}
-	    }
-	}
+	/* scope blocks start at true */
+	test_status = TestNone;
+	scope_flag = 0x01;
+	scope_block = 0;
+	QTextStream t( &qfile );
+	ret = read(t, place);
 	if(!using_stdin)
 	    qfile.close();
+	parser = pi;
     }
-    parser = pi;
     return ret;
 }
 
@@ -579,8 +588,9 @@ QMakeProject::read(uchar cmd)
 	if(cmd & ReadCmdLine) {
 	    /* commandline */
 	    cfile = pfile;
-	    parser.line_no = 1; //really arg count now.. duh
 	    parser.file = "(internal)";
+	    parser.from_file = FALSE;
+	    parser.line_no = 1; //really arg count now.. duh
 	    for(QStringList::Iterator it = Option::before_user_vars.begin();
 		it != Option::before_user_vars.end(); ++it) {
 		if(!parse((*it), base_vars)) {
@@ -609,8 +619,9 @@ QMakeProject::read(uchar cmd)
     }
 
     if(cmd & ReadCmdLine) {
-	parser.line_no = 1; //really arg count now.. duh
 	parser.file = "(internal)";
+	parser.from_file = FALSE;
+	parser.line_no = 1; //really arg count now.. duh
 	for(QStringList::Iterator it = Option::after_user_vars.begin();
 	    it != Option::after_user_vars.end(); ++it) {
 	    if(!parse((*it), vars)) {
@@ -619,6 +630,12 @@ QMakeProject::read(uchar cmd)
 	    }
 	    parser.line_no++;
 	}
+    }
+
+    if(cmd & ReadFeatures) {
+	QStringList &configs = vars["CONFIG"];
+	for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) 
+	    doProjectInclude((*it), TRUE, vars);
     }
 
     /* now let the user override the template from an option.. */
@@ -731,6 +748,126 @@ QMakeProject::doProjectTest(const QString& func, const QString &params, QMap<QSt
 }
 
 bool
+QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place, 
+			       const QString &seek_var)
+{
+    if(feature) {
+	if(!file.endsWith(Option::prf_ext))
+	    file += Option::prf_ext;
+	if(file.find(Option::dir_sep) == -1 || !QFile::exists(file)) {
+	    bool found = FALSE;
+	    const QString concat = QDir::separator() + QString("mkspecs") +
+				   QDir::separator() + QString("features");
+	    QStringList feature_roots;
+	    if(const char *mkspec_path = getenv("QMAKEFEATURES")) {
+#ifdef Q_OS_WIN
+		QStringList lst = QStringList::split(';', mkspec_path);
+		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
+		    feature_roots += QStringList::split(':', (*it));
+#else
+		feature_roots += QStringList::split(':', mkspec_path);
+#endif
+	    }
+	    if(const char *qmakepath = getenv("QMAKEPATH")) {
+#ifdef Q_OS_WIN
+		QStringList lst = QStringList::split(';', qmakepath);
+		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
+		    QStringList lst2 = QStringList::split(':', (*it));
+		    for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2)
+			feature_roots << ((*it2) + concat);
+		}
+#else
+		QStringList lst = QStringList::split(':', qmakepath);
+		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
+		    feature_roots << ((*it) + concat);
+#endif
+	    }
+	    feature_roots << Option::mkfile::qmakespec;
+	    if(const char *qtdir = getenv("QTDIR"))
+		feature_roots << (qtdir + concat);
+#ifdef QT_INSTALL_PREFIX
+	    feature_roots << (QT_INSTALL_PREFIX + concat);
+#endif
+#if defined(HAVE_QCONFIG_CPP)
+	    feature_roots << (qInstallPath() + concat);
+#endif
+#ifdef QT_INSTALL_DATA
+	    feature_roots << (QT_INSTALL_DATA + concat);
+#endif
+#if defined(HAVE_QCONFIG_CPP)
+	    feature_roots << (qInstallPathData() + concat);
+#endif
+	    for(QStringList::Iterator it = feature_roots.begin(); it != feature_roots.end(); ++it) {
+		QString prf = (*it) + QDir::separator() + file;
+		if(QFile::exists(prf)) {
+		    found = TRUE;
+		    file = prf;
+		    break;
+		}
+	    }
+	    if(!found) 
+		return FALSE;
+	}
+    }
+    if(QDir::isRelativePath(file)) {
+	QStringList include_roots;
+	include_roots << Option::output_dir;
+	if(parser.from_file) {
+	    QString pfilewd = QFileInfo(parser.file).dirPath();
+	    if(pfilewd.isEmpty())
+		include_roots << pfilewd;
+	}
+	if(Option::output_dir != QDir::currentDirPath())
+	    include_roots << QDir::currentDirPath();
+	for(QStringList::Iterator it = include_roots.begin(); it != include_roots.end(); ++it) {
+	    if(QFile::exists((*it) + QDir::separator() + file)) {
+		file = (*it) + QDir::separator() + file;
+		break;
+	    }
+	}
+    }
+
+    if(Option::mkfile::do_preprocess) //nice to see this first..
+	fprintf(stderr, "#switching file %s(%s) - %s:%d\n", feature ? "load" : "include", file.latin1(),
+		parser.file.latin1(), parser.line_no);
+    debug_msg(1, "Project Parser: %s'ing file %s.", feature ? "load" : "include", file.latin1());
+    QString orig_file = file;
+    int di = file.findRev(Option::dir_sep);
+    QDir sunworkshop42workaround = QDir::current();
+    QString oldpwd = sunworkshop42workaround.currentDirPath();
+    if(di != -1) {
+	if(!QDir::setCurrent(file.left(file.findRev(Option::dir_sep)))) {
+	    fprintf(stderr, "Cannot find directory: %s\n", file.left(di).latin1());
+	    return FALSE;
+	}
+	file = file.right(file.length() - di - 1);
+    }
+    parser_info pi = parser;
+    int sb = scope_block;
+    int sf = scope_flag;
+    TestStatus sc = test_status;
+    bool r = FALSE;
+    if(!seek_var.isNull()) {
+	QMap<QString, QStringList> tmp;
+	if((r = read(file.latin1(), tmp)))
+	    place[seek_var] += tmp[seek_var];
+    } else {
+	r = read(file.latin1(), place);
+    }
+    if(r)
+	vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
+    else
+	warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
+		 pi.file.latin1(), pi.line_no, orig_file.latin1());
+    parser = pi;
+    test_status = sc;
+    scope_flag = sf;
+    scope_block = sb;
+    QDir::setCurrent(oldpwd);
+    return r;
+}
+
+bool
 QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString, QStringList> &place)
 {
     for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
@@ -772,6 +909,21 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	}
 	QDir dir(dirstr, file);
 	return dir.count() != 0;
+    } else if(func == "eval") {
+	if(args.count() < 1) {
+	    fprintf(stderr, "%s:%d: eval(project) requires one argument.\n", parser.file.latin1(),
+		    parser.line_no);
+	    return FALSE;
+	}
+	QString project = args.first();
+	parser_info pi = parser;
+	parser.from_file = FALSE;
+	parser.file = "(eval)";
+	parser.line_no = 0;
+	QTextStream t(&project, IO_ReadOnly);
+	bool ret = read(t, place);
+	parser = pi;
+	return ret;
     } else if(func == "system") {
 	if(args.count() != 1) {
 	    fprintf(stderr, "%s:%d: system(exec) requires one argument.\n", parser.file.latin1(),
@@ -860,125 +1012,16 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 		    parser.line_no, func_desc.latin1());
 	    return FALSE;
 	}
-
+	bool feature = (func == "load");
 	QString file = args.first();
 	file = Option::fixPathToLocalOS(file);
 	file.replace("\"", "");
-	doVariableReplace(file, place);
-	if(func == "load") {
-	    if(!file.endsWith(Option::prf_ext))
-		file += Option::prf_ext;
-	    if(file.find(Option::dir_sep) == -1 || !QFile::exists(file)) {
-		bool found = FALSE;
-		const QString concat = QDir::separator() + QString("mkspecs") +
-				       QDir::separator() + QString("features");
-		QStringList feature_roots;
-		if(const char *mkspec_path = getenv("QMAKEFEATURES")) {
-#ifdef Q_OS_WIN
-		    QStringList lst = QStringList::split(';', mkspec_path);
-		    for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
-			feature_roots += QStringList::split(':', (*it));
-#else
-		    feature_roots += QStringList::split(':', mkspec_path);
-#endif
-		}
-		if(const char *qmakepath = getenv("QMAKEPATH")) {
-#ifdef Q_OS_WIN
-		    QStringList lst = QStringList::split(';', qmakepath);
-		    for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
-			QStringList lst2 = QStringList::split(':', (*it));
-			for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2)
-			    feature_roots << ((*it2) + concat);
-		    }
-#else
-		    QStringList lst = QStringList::split(':', qmakepath);
-		    for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
-			feature_roots << ((*it) + concat);
-#endif
-		}
-		feature_roots << Option::mkfile::qmakespec;
-		if(const char *qtdir = getenv("QTDIR"))
-		    feature_roots << (qtdir + concat);
-#ifdef QT_INSTALL_PREFIX
-		feature_roots << (QT_INSTALL_PREFIX + concat);
-#endif
-#if defined(HAVE_QCONFIG_CPP)
-		feature_roots << (qInstallPath() + concat);
-#endif
-#ifdef QT_INSTALL_DATA
-		feature_roots << (QT_INSTALL_DATA + concat);
-#endif
-#if defined(HAVE_QCONFIG_CPP)
-		feature_roots << (qInstallPathData() + concat);
-#endif
-		for(QStringList::Iterator it = feature_roots.begin(); it != feature_roots.end(); ++it) {
-		    QString prf = (*it) + QDir::separator() + file;
-		    if(QFile::exists(prf)) {
-			found = TRUE;
-			file = prf;
-			break;
-		    }
-		}
-		if(!found) {
-		    printf("Project LOAD(): Feature %s cannot be found.\n", args.first().latin1());
-		    exit(3);
-		}
-	    }
+	bool ret = doProjectInclude(file, feature, place, seek_var);
+	if(!ret && feature) {
+	    printf("Project LOAD(): Feature %s cannot be found.\n", file.latin1());
+	    exit(3);
 	}
-	if(QDir::isRelativePath(file)) {
-	    QStringList include_roots;
-	    include_roots << Option::output_dir;
-	    QString pfilewd = QFileInfo(parser.file).dirPath();
-	    if(pfilewd.isEmpty())
-		include_roots << pfilewd;
-	    if(Option::output_dir != QDir::currentDirPath())
-		include_roots << QDir::currentDirPath();
-	    for(QStringList::Iterator it = include_roots.begin(); it != include_roots.end(); ++it) {
-		if(QFile::exists((*it) + QDir::separator() + file)) {
-		    file = (*it) + QDir::separator() + file;
-		    break;
-		}
-	    }
-	}
-
-	if(Option::mkfile::do_preprocess) //nice to see this first..
-	    fprintf(stderr, "#switching file %s(%s) - %s:%d\n", func.latin1(), file.latin1(),
-		    parser.file.latin1(), parser.line_no);
-	debug_msg(1, "Project Parser: %s'ing file %s.", func.latin1(), file.latin1());
-	QString orig_file = file;
-	int di = file.findRev(Option::dir_sep);
-	QDir sunworkshop42workaround = QDir::current();
-	QString oldpwd = sunworkshop42workaround.currentDirPath();
-	if(di != -1) {
-	    if(!QDir::setCurrent(file.left(file.findRev(Option::dir_sep)))) {
-		fprintf(stderr, "Cannot find directory: %s\n", file.left(di).latin1());
-		return FALSE;
-	    }
-	    file = file.right(file.length() - di - 1);
-	}
-	parser_info pi = parser;
-	int sb = scope_block;
-	int sf = scope_flag;
-	TestStatus sc = test_status;
-	bool r = FALSE;
-	if(!seek_var.isNull()) {
-	    QMap<QString, QStringList> tmp;
-	    if((r = read(file.latin1(), tmp)))
-		place[seek_var] += tmp[seek_var];
-	} else {
-	    r = read(file.latin1(), place);
-	}
-	if(r)
-	    vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
-	else
-	    warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
-		     pi.file.latin1(), pi.line_no, orig_file.latin1());
-	parser = pi;
-	test_status = sc;
-	scope_flag = sf;
-	scope_block = sb;
-	QDir::setCurrent(oldpwd);
-	return r;
+	return ret;
     } else if(func == "error" || func == "message") {
 	if(args.count() != 1) {
 	    fprintf(stderr, "%s:%d: %s(message) requires one argument.\n", parser.file.latin1(),
