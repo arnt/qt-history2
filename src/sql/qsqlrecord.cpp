@@ -71,9 +71,18 @@ public:
 
 /*!
     \class QSqlRecord qsqlfield.h
-    \brief Template class used for manipulating a list of SQL database fields.
+    \brief A set of database fields.
 
     \module sql
+    
+    The QSqlRecord class encapsulates the functionality and
+    characteristics of a database record (usually a table or view
+    within the database), such as adding or removing fields, setting
+    and retrieving field values, etc.  In addition, there are several
+    functions which alter other characteristics of the record, for
+    example, changing the display label associated with a particular
+    field when displaying that field on screen.
+
 */
 
 
@@ -97,10 +106,15 @@ QSqlRecord::QSqlRecord( const QSqlRecord& other )
     *d = *other.d;
 }
 
+/*! \internal
+*/
 void QSqlRecord::init()
 {
     d = new QSqlRecordPrivate();
 }
+
+/*! Sets the record equal to \a other.
+*/
 
 QSqlRecord& QSqlRecord::operator=( const QSqlRecord& other )
 {
@@ -118,9 +132,8 @@ QSqlRecord::~QSqlRecord()
     delete d;
 }
 
-/*!
-  Returns the value of the field located at position \a i in the record.
-  It is up to you to check wether this item really exists.
+/*!  Returns the value of the field located at position \a i in the
+  record.  It is up to you to check wether this item really exists.
 
 */
 
@@ -129,9 +142,8 @@ QVariant  QSqlRecord::value( int i ) const
     return findField(i)->value();
 }
 
-/*!
-  Returns the value of the field named \a name in the record.
-  It is up to you to check wether this item really exists.
+/*!  Returns the value of the field named \a name in the record.  It
+  is up to you to check wether this item really exists.
 
 */
 
@@ -201,8 +213,7 @@ const QSqlField* QSqlRecord::field( const QString& name ) const
 }
 
 
-/*!
-  Appends a copy of the field \a field to the end of the record.
+/*!  Appends a copy of the field \a field to the end of the record.
 
 */
 
@@ -211,8 +222,7 @@ void QSqlRecord::append( const QSqlField& field )
     d->fieldList.append( field );
 }
 
-/*!
-  Prepends a copy of \a field to the beginning of the record.
+/*!  Prepends a copy of \a field to the beginning of the record.
 
 */
 
@@ -232,8 +242,8 @@ void QSqlRecord::insert( int pos, const QSqlField& field )
     d->fieldList.insert( d->fieldList.at( pos ), field );
 }
 
-/*!  Removes all the field at \a pos.  If \a pos does not exist,
-  nothing happens.
+/*!  Removes the field at \a pos.  If \a pos does not exist, nothing
+  happens.
 
 */
 
@@ -242,9 +252,9 @@ void QSqlRecord::remove( int pos )
     d->fieldList.remove( d->fieldList.at( pos ) );
 }
 
-/*!
-  Removes all fields from the record.
+/*!  Removes all fields from the record.
 
+  \sa clearValues()
 */
 
 void QSqlRecord::clear()
@@ -320,12 +330,16 @@ void QSqlRecord::setAlignment( const QString& name, int align )
 }
 
 /*! Returns the alignment associated with the field \a name.  If the
-   field does not exist, Qt::AlignLeft is returned.  If the field \a
-   name has not been assigned an alignment (using setAlignment()),
+   field does not exist, \c Qt::AlignLeft is returned.  If the field
+   \a name has not been assigned an alignment (using setAlignment()),
    then the following rules are used:
 
-   If the field is a string data type, Qt::AlignLeft is returned.
-   Otherwise, Qt::AlignRight is returned.
+   <ul>
+   <li> If the field is a string data type, \c Qt::AlignLeft is returned.
+   
+   <li> Otherwise, \c Qt::AlignRight is returned.
+   
+   </ul>
 
    \sa setAlignment()
 */
@@ -407,7 +421,7 @@ bool QSqlRecord::isVisible( const QString& name ) const
 }
 
 /*!  Returns a comma-separated list of all field names as a string.
-  This string is suitable for example in generating a select
+  This string is suitable, for example, for generating a SQL SELECT
   statement.  If a \a prefix is specified, it is prepended before all
   field names.
 
@@ -431,8 +445,7 @@ QString QSqlRecord::toString( const QString& prefix ) const
 }
 
 
-/*!
-  Returns the number of fields in the record.
+/*!  Returns the number of fields in the record.
 
 */
 
@@ -441,8 +454,7 @@ uint QSqlRecord::count() const
     return d->fieldList.count();
 }
 
-/*!
-  \internal
+/*!  \internal
 
 */
 
@@ -457,8 +469,7 @@ const QSqlField* QSqlRecord::findField( int i ) const
     return &d->fieldList[ i ];
 }
 
-/*!
-  \internal
+/*!  \internal
 
 */
 
@@ -473,8 +484,7 @@ QSqlField* QSqlRecord::findField( int i )
     return &d->fieldList[ i ];
 }
 
-/*!
-  \internal
+/*!  \internal
 
 */
 
@@ -490,8 +500,7 @@ const QSqlField* QSqlRecord::findField( const QString& name ) const
 }
 
 
-/*!
-  \internal
+/*!  \internal
 
 */
 
@@ -507,8 +516,8 @@ QSqlField* QSqlRecord::findField( const QString& name )
     return &d->fieldList[ position( name ) ];
 }
 
-/*! Sets the value of the field at position \a i with \a val.  If the field does
-  not exist, nothing happens.
+/*! Sets the value of the field at position \a i to \a val.  If the
+  field does not exist, nothing happens.
 
 */
 
@@ -520,8 +529,8 @@ void QSqlRecord::setValue( int i, const QVariant& val )
 }
 
 
-/*!  Sets the value of field \a name with \a val.  If the field does
-  not exist, nothing happens.
+/*!  Sets the value of field \a name to \a val.  If the field does not
+  exist, nothing happens.
 */
 
 void QSqlRecord::setValue( const QString& name, const QVariant& val )
