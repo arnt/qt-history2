@@ -2013,7 +2013,8 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 	    }
 	} else if ( e->button() == RightButton ) {
 	    clearSelection();
-	    emit rightButtonPressed( i, e->globalPos() );
+	    if ( !d->context_menu )
+		emit rightButtonPressed( i, e->globalPos() );
 	}
     }
 
@@ -2030,10 +2031,12 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
     d->ignoreMoves = FALSE;
 
     d->pressedItem = i;
-    emit pressed( i, e->globalPos() );
-    emit mouseButtonPressed( e->button(), i, e->globalPos() );
-    if ( d->context_menu )
+    if ( !d->context_menu ) {
+	emit pressed( i, e->globalPos() );
+	emit mouseButtonPressed( e->button(), i, e->globalPos() );
+    } else {
 	emit contextMenuRequested( i, e->globalPos() );
+    }
 }
 
 
@@ -2267,7 +2270,8 @@ void QListBox::updateSelection()
 
 void QListBox::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    e->accept();
+    if ( receivers( SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)) ) )
+	e->accept();
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QListBoxItem *i = item( currentItem() );
 	if ( i ) {

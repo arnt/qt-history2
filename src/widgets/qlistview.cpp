@@ -4050,19 +4050,21 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     d->pressedItem = i;
 
     int c = i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1;
-    if ( !i || ( i && i->isEnabled() ) ) {
-	emit pressed( i );
-	emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( c ) );
+    if ( !d->context_menu ) {
+	if ( !i || ( i && i->isEnabled() ) ) {
+	    emit pressed( i );
+	    emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( c ) );
+	}
+        emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ), c );
     }
-
-    emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ), c );
 
     if ( e->button() == RightButton && i == d->pressedItem ) {
 	if ( !i )
 	    clearSelection();
 
-	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
-	if ( d->context_menu )
+	if ( !d->context_menu )
+	    emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
+	else
 	    emit contextMenuRequested( i, viewport()->mapToGlobal( vp ), c );
     }
 }

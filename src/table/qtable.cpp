@@ -3082,7 +3082,8 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 
     QTableItem *itm = item( pressedRow, pressedCol );
     if ( itm && !itm->isEnabled() ) {
-	emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
+	if ( !context_menu )
+	    emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
 	if ( e->button() != LeftButton && context_menu )
 	    emit contextMenuRequested( tmpRow, tmpCol, e->globalPos() );
 	return;
@@ -3157,7 +3158,8 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 	    }
 	}
     }
-    emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
+    if ( !context_menu )
+	emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
 
     if ( e->button() != LeftButton && context_menu )
 	emit contextMenuRequested( tmpRow, tmpCol, e->globalPos() );
@@ -3366,6 +3368,8 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
 
 void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
 {
+    if ( receivers( SIGNAL(contextMenuRequested(int row, int col, const QPoint &pos)) ) )
+	e->accept();
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QRect r = cellGeometry( curRow, curCol );
 	r.moveBy( -contentsX(), -contentsY() );
@@ -3376,7 +3380,6 @@ void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
 	contentsMousePressEventEx( &me );
 	context_menu = FALSE;
     }
-    e->accept();
 }
 
 

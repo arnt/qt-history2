@@ -4284,13 +4284,16 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 
  emit_signals:
     if ( !d->rubber ) {
-	emit mouseButtonPressed( e->button(), item, e->globalPos() );
-	emit pressed( item );
-	emit pressed( item, e->globalPos() );
+	if ( !d->context_menu ) {
+	    emit mouseButtonPressed( e->button(), item, e->globalPos() );
+	    emit pressed( item );
+	    emit pressed( item, e->globalPos() );
+	}
 
 	if ( e->button() == RightButton ) {
-	    emit rightButtonPressed( item, e->globalPos() );
-	    if ( d->context_menu )
+	    if ( !d->context_menu )
+		emit rightButtonPressed( item, e->globalPos() );
+	    else
 		emit contextMenuRequested( item, e->globalPos() );
 	}
     }
@@ -4302,6 +4305,8 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 
 void QIconView::contentsContextMenuEvent( QContextMenuEvent *e )
 {
+    if ( receivers( SIGNAL(contextMenuRequested(QIconViewItem* item, const QPoint &pos)) ) )
+	e->accept();
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QIconViewItem *item = currentItem();
 	QRect r = item ? item->rect() : QRect( 0, 0, visibleWidth(), visibleHeight() );
@@ -4312,7 +4317,6 @@ void QIconView::contentsContextMenuEvent( QContextMenuEvent *e )
 	contentsMousePressEventEx( &me );
 	d->context_menu = FALSE;
     }
-    e->accept();
 }
 
 /*!
