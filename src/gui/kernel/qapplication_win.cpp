@@ -489,7 +489,7 @@ static void qt_set_windows_resources()
     QColor menuCol(qt_colorref2qrgb(GetSysColor(COLOR_MENU)));
     QColor menuText(qt_colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
     {
-        BOOL isFlat;
+        BOOL isFlat = 0;
         if (QSysInfo::WindowsVersion == QSysInfo::WV_XP)
             SystemParametersInfo(0x1022 /*SPI_GETFLATMENU*/, 0, &isFlat, 0);
         QPalette menu(pal);
@@ -508,7 +508,6 @@ static void qt_set_windows_resources()
                                                && isFlat ? COLOR_MENUHILIGHT
                                                          : COLOR_HIGHLIGHT))));
         menu.setColor(QPalette::Disabled, QPalette::HighlightedText, disabled);
-
         menu.setColor(QPalette::Inactive, QPalette::Button,
                       menu.color(QPalette::Active, QPalette::Button));
         menu.setColor(QPalette::Inactive, QPalette::Text,
@@ -2368,26 +2367,20 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                 break;                                // nothing for mouse move
         }
 
-        if (popupButtonFocus) {
-            QMouseEvent e(type,
-                popupButtonFocus->mapFromGlobal(QPoint(gpos.x,gpos.y)),
-                QPoint(gpos.x,gpos.y), button, state);
-            QApplication::sendSpontaneousEvent(popupButtonFocus, &e);
-            if (releaseAfter) {
-                popupButtonFocus = 0;
-            }
-        } else if (popupChild){
-            QMouseEvent e(type,
-                popupChild->mapFromGlobal(QPoint(gpos.x,gpos.y)),
-                QPoint(gpos.x,gpos.y), button, state);
-            QApplication::sendSpontaneousEvent(popupChild, &e);
-        } else {
-            QMouseEvent e(type, pos, QPoint(gpos.x,gpos.y), button, state);
-            QApplication::sendSpontaneousEvent(popupChild ? popupChild : popup, &e);
-        }
+        if (popupButtonFocus)
+            popup = popupButtonFocus;
+        else if (popupChild)
+            popup = popupChild;
 
-        if (releaseAfter)
+        QPoint globalPos(gpos.x, gpos.y);
+        pos = popup->mapFromGlobal(globalPos);
+	QMouseEvent e(type, pos, globalPos, button, state);
+	QApplication::sendSpontaneousEvent(popup, &e);
+
+        if (releaseAfter) {
+            popupButtonFocus = 0;
             qt_button_down = 0;
+        }
 
         if (type == QEvent::MouseButtonPress
              && qApp->activePopupWidget() != activePopupWidget
@@ -2397,12 +2390,16 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
             if (w && !qt_blocked_modal(w)) {
                 if (QWidget::mouseGrabber() == 0)
                     setAutoCapture(w->winId());
-
                 POINT widgetpt = gpos;
                 ScreenToClient(w->winId(), &widgetpt);
                 LPARAM lParam = MAKELPARAM(widgetpt.x, widgetpt.y);
                 winPostMessage(w->winId(), msg.message, msg.wParam, lParam);
             }
+         } else if (type == QEvent::MouseButtonRelease && button == RightButton 
+                   && qApp->activePopupWidget() == activePopupWidget) {
+            // popup still alive and received right-button-release
+	    QContextMenuEvent e2( QContextMenuEvent::Mouse, pos, globalPos, state );
+	    QApplication::sendSpontaneousEvent( popup, &e2 );
         }
     } else {                                        // not popup mode
         int bs = state & MouseButtonMask;
