@@ -1683,6 +1683,8 @@ void qt_init_internal( int *argcptr, char **argv,
 	Q_CHECK_PTR( QPaintDevice::x_appdefvisual_arr );
 
 	int screen;
+	QString serverVendor( ServerVendor( appDpy) );
+
 	for ( screen = 0; screen < appScreenCount; ++screen ) {
 	    QPaintDevice::x_appdepth_arr[ screen ] = DefaultDepth(appDpy, screen);
 	    QPaintDevice::x_appcells_arr[ screen ] = DisplayCells(appDpy, screen);
@@ -1786,7 +1788,8 @@ void qt_init_internal( int *argcptr, char **argv,
 
 	    // work around a bug in vnc where DisplayCells returns 8 when Xvnc is run
 	    // with depth 8
-	    if (QPaintDevice::x_appdepth_arr[ screen ] == 8)
+	    if ( serverVendor.contains( "AT&T Laboratories Cambridge" ) &&
+		 QPaintDevice::x_appcells_arr[ screen ] == 8 )
 		QPaintDevice::x_appcells_arr[ screen ] = 256;
 
 	    if ( colormap && screen == appScreen ) {
@@ -1812,7 +1815,6 @@ void qt_init_internal( int *argcptr, char **argv,
 
 		    QPaintDevice::x_appcolormap_arr[ screen ] = 0;
 
-		    QString serverVendor( ServerVendor( appDpy) );
 		    if ( ! serverVendor.contains( "Hewlett-Packard" ) ) {
 			// on HPUX 10.20 local displays, the RGB_DEFAULT_MAP colormap
 			// doesn't give us correct colors. Why this happens, I have
