@@ -1,0 +1,494 @@
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+
+<chapter id="creating-custom-widgets-with-plugins">
+<title>Creating Custom Widgets with Plugins</>
+
+\p
+This chapter will show you how to write a custom widget and how to embed
+the custom widget into a plugin. There are no restrictions or special
+considerations that must be taken into account when creating a widget
+that is destined to become a plugin. If you are an experienced Qt
+programmer you can safely skip the section on creating a custom widget
+and go directly to <xref linkend="creating-a-plugin"> "Creating a
+Plugin".
+\P
+
+    <sect1>\title[Creating a Custom Widget]
+    \p
+    A custom widget is often a specialisation (subclass) of another
+    widget or a combination of widgets working together or a blend of
+    both of these approaches. We have two recommendations that
+    you should consider when creating a custom widget for a plugin:
+	\list[1]
+	\item\p
+	Using Qt's property system will provide \qd users a direct means
+	of configuring the widget without forcing them to subclass;
+	\P\Item
+	
+	\item\p
+	Consider making your widget's public 'set' functions into
+	public slots.
+	\P\Item
+	\List1
+    \P
+    
+    \p
+    In the course of this chapter we will create a simple but useful
+    widget, 'FileChooser', which we'll later make available in \qd as a
+    plugin. FileChooser consists of a \class[QLineEdit] and a
+    \class[QPushButton]. The \class[QLineEdit] is used to hold a file or
+    directory name, the \class[QPushButton] is used to launch a file
+    dialog through which the user can choose a file or directory.
+    <figure><title>The FileChooser Custom Widget</title>
+    \img[filechooser]
+    </figure>
+    \P
+
+	<sect2>\title[Coding the Widget's Interface]
+	\p
+	We will work step-by-step through the widget's header file,
+	\f[eg/filechooser/widget/filechooser.h].
+	\P
+	
+	\p
+<programlisting>
+\scan eg/filechooser/widget/filechooser.h /include/ 0 
+\scan /class QLineEdit/ /class QPushButton/ 
+</programlisting>
+	Our widget will be derived from \class[QWidget] so we include
+	the \f[qwidget.h] header file. We also forward declare the two
+	classes that our widget will be built from. 
+	\P
+
+	\p
+<programlisting>
+\scan /class FileChooser/ 1 
+\scan /Q_OBJECT/ 0
+\scan /Q_ENUMS/ /fileName/
+</programlisting>
+	We include the \fn[Q_OBJECT] macro since this is required for
+	classes that declare signals or slots. The \fn[Q_ENUMS]
+	declaration is used to register the Mode enumeration. Our widget
+	has two properties, mode, to store whether the user should
+	select a File or a Directory and fileName which stores the file
+	or directory they chose.
+	\P
+
+	\p
+<programlisting>
+\scan /FileChooser/ 0 
+\scan /fileName/ /mode/
+</programlisting>
+	The constructor is declared in simple \class[QWidget]-style. We
+	declare two public functions, \fn[fileName] to return the
+	filename, and \fn[mode] to return the mode.
+	\P
+
+	\p
+<programlisting>
+\scan /public slots/ /setMode/ 
+\scan /signals/ 1 
+\scan /private slots/ 1 
+</programlisting>
+	The two 'set' functions are declared as public slots.
+	\fn[setFilename] and \fn[setMode] set the filename and mode
+	respectively. We declare a single signal, \fn[fileNameChanged]. The
+	private slot, \fn[chooseFile] is called by the widget itself
+	when its button is clicked.
+	\P
+
+	\p
+<programlisting>
+\scan /private/ /Mode/
+</programlisting>
+	A pointer to \class[QLineEdit] and \class[QPushButton], as well
+	as a Mode variable are held as private data. 
+	\P
+
+	</sect2>
+
+	<sect2>\title[Coding the Implementation]
+	\p 
+	We will work step-by-step through the implementation which is in
+	\f[eg/filechooser/widget/filechooser.cpp].
+	\P
+
+	\p
+<programlisting>
+\scan eg/filechooser/widget/filechooser.cpp /FileChooser::/ 1
+</programlisting>
+	The constructor passes the parent and name to its superclass,
+	\class[QWidget], and also initialises the private mode data, md,
+	to File mode.
+	\P
+
+	\p
+<programlisting>
+\scan /QHBoxLayout/ 0 
+
+\scan /QLineEdit/ 1
+
+\scan /QPushButton/ 0
+\scan /addWidget/ 0
+</programlisting>
+	We begin by creating a a horizontal box layout
+	(\class[QHBoxLayout]) and add a \class[QLineEdit] and a
+	\class[QPushButton] to it. 
+	\P
+
+	\p
+<programlisting>
+\scan eg/filechooser/widget/filechooser.cpp /connect/ 1 
+
+\scan /connect/ 1
+</programlisting>
+	We connect the lineEdit's \fn[textChanged] signal to the custom
+	widget's \fn[fileNameChanged] signal. This ensures that if the
+	user changes the text in the \class[QLineEdit] this fact will be
+	propagated via the custom widget's own signal. The button's
+	\fn[clicked] signal is connected to the custome widget's
+	\fn[chooseFile] slot which invokes the appropriate dialog for
+	the user to choose their file or directory.
+	\P
+
+	\p
+<programlisting>
+\scan /::setFileName/ /^}/
+\scan /::fileName/ /^}/
+</programlisting>
+	The \fn[setFileName] function sets the filename in the
+	\class[QLineEdit], and the \fn[fileName] function returns the
+	filename from the \class[QLineEdit]. The \fn[setMode] and
+	\fn[mode] functions (not shown) similarly set and return the
+	given mode.
+	\P
+
+	\p
+<programlisting>
+\scan /chooseFile/ /^}/ 
+</programlisting>
+	When \fn[chooseFile] is called it presents the user with a file
+	or directory dialog depending on the mode. If the user chooses a
+	file or directory the \class[QLineEdit] is updated with the
+	chosen file or directory and the \fn[fileNameChanged] signal is
+	emitted.
+	\P
+
+	\p
+	Although these two files complete the implementation of the
+	FileChooser widget it is good practice to write a test harness
+	to check that the widget behaves as expected before attempting
+	to put it into a plugin.
+	\P
+
+	</sect2>
+
+	<sect2>\title[Testing the Implementation]
+	\p
+	We present a rudimentary test harness which will allow us
+	to run our custom widget. The test harness requires two
+	files, a \f[main.cpp] to contain the FileChooser, and a \c[.pro]
+	file to create the Makefile from. Here is
+	\f[eg/filechooser/widget/main.cpp]:
+<programlisting>
+\scan eg/filechooser/widget/main.cpp /#include/ /^}/
+</programlisting>
+	And here is \f[eg/filechooser/widget/filechooser.pro]
+<programlisting>
+\scan eg/filechooser/widget/filechooser.pro
+</programlisting>
+	We can create the makefile using \cmd[qmake]: 
+	\c[qmake -o Makefile filechooser.pro], then we can make and run
+	the harness to test our new widget. Once we're satisfied that
+	the custom widget is robust and has the behaviour we require we
+	can embed it into a plugin.
+	\P
+
+	</sect2>
+
+    </sect1>
+
+    <sect1 id="creating-a-plugin">\title[Creating a Plugin]
+    \p
+    A plugin is a software component. Plugins are not specific to \qd;
+    they can be used generally to wrap any number of classes and
+    widgets which can be made available as a stand-alone component. \qd
+    provides a plugin interface which means that it can utilize any
+    plugins which are made available to it. We will demonstrate how
+    to wrap a custom widget, (the FileChooser widget we created in the
+    previous section), inside a plugin. Although we will only include
+    one widget in our plugin there is no limit to the number of widgets
+    that could be included.
+    \P
+<!--
+    \p
+    Plugins are different from most other Qt classes with regards memory
+    management. In Qt programming we often hand on responsibility for
+    memory management to the containing widgets and ultimately to
+    \c[qApp] itself by parenting our widgets or by calling an
+    \c[install] function. Plugins are different because they may wrap
+    components which are not built from the Qt library at all, so we
+    cannot predict what their memory handling needs will be. 
+    This means that when you get a reference to a plugin object a
+    reference count is incremented, and when you have no further
+    use for the reference \i[you] must call \fn[release]. Qt helps you 
+    avoid attempting to delete an object from a library that has been
+    unloaded by providing a cleanup handler that each plugin registers
+    with.
+    \P
+-->
+    \p
+    A plugin must implement the \class[WidgetInterface]'s pure virtual
+    functions. In most cases the implementations are simple and can
+    easily be adapted from the example we present. 
+    \P
+    
+    \p
+    Since plugins can include any number of widgets most of the plugin
+    functions take the name of the 'feature', (the particular widget
+    class we wish to access within the plugin), as their first argument
+    to distinguish which feature (custom widget) we are referring to.
+    \P
+
+    \p
+    To make your own plugin it is probably easiest to start by copying
+    our \f[plugin.h] and \f[plugin.cpp] files and changing
+    'CustomWidgetInterface' to the name you wish to use for your plugin
+    class. We provide an introduction to the header file although it
+    needs no changes beyond the renaming. The implementation file
+    requires simple changes, mostly more renaming; we will review each
+    function in turn and explain what you need to do.
+    \P
+    
+    \p
+    Note that if two different plugins, e.g. from two different
+    suppliers, use the same class name there will be no conflict because
+    plugins are uniquely identified by their 
+    \i[univeral unique identifiers], which we'll cover shortly.
+    \P
+
+
+	<sect2><title>The \class[WidgetInterface] Class's
+	Interface</title>
+	\p
+	We have called our header file \f[plugin.h] and we've
+	called our plugin class \class[CustomWidgetInterface] since we
+	will be using our plugin to wrap our custom widgets. We present
+	the entire header file to give you an impression of the
+	scope of the implementation required. Most of the
+	functions require just a few lines of code. 
+<example><title>From <filename>qt/tools/designer/eg/filechooser/plugin/plugin.h</></><programlisting>
+\scan eg/filechooser/plugin/plugin.h /#include/ /^};/
+</programlisting></example>
+	\P
+
+	    <sect3>\title[The Private Data]
+	    \p
+	    There are two items of private data, \c[objects] and
+	    \c[ref]. The \c[ref] item is used to store the plugin's
+	    reference count. The \c[objects] item is used by the
+	    cleanup handler, but the details are beyond the
+	    scope of this manual, see the <ulink
+	    url="http://doc.trolltech.com/qplugin.html">Qt Plugin
+	    documentation</> for more information.
+	    \P
+
+	    </sect3>
+
+	</sect2>
+
+	<sect2>\title[The WidgetInterface Functions]
+	\p
+	If you create your own plugin \c[.cpp] file by copying
+	\f[plugin.cpp] and changing all occurrences of
+	'CustomWidgetInterface' to the name you wish to use for your
+	plugin, most of the other changes are simply replacing the name
+	of our custom control, 'FileChooser', with the name of your
+	custom control, and possibly adding additional \c[else if]
+	clauses if you have more than one custom control in your plugin.
+	\P
+
+	    <sect3><title>The Constructor</title>
+	    \p
+<programlisting>
+\scan eg/filechooser/plugin/plugin.cpp /::CustomWidgetInterface/ /^}/
+</programlisting>
+	    The constructor sets the plugin's reference count to zero.
+	    Simply copy ours with the class name you wish to use for
+	    your plugin.
+	    \P
+
+	    <sect3><title>The Destructor</title>
+	    \p
+	    No destructor is necessary. We defined it in the header
+	    file as follows:
+<programlisting>
+\scan eg/filechooser/plugin/plugin.h /~CustomWidgetInterface/ 0
+</programlisting>
+	    If you copied our \f[plugin.h], and renamed the plugin class
+	    throughout, your destructor is done.
+	    \P
+
+	    <sect3><title>\fn[queryInterface]</title>
+	    \p
+	    This is the most complicated function: but it can simply be
+	    copied into your own plugin. Change the class name to
+	    whatever class you've called your plugin.
+	    (It isn't implemented for us in the
+	    \class[WidgetInterface] class because some types of plugin
+	    need to specialise it.)
+<programlisting>
+\scan eg/filechooser/plugin/plugin.cpp /::queryInterface/ /^}/
+</programlisting>
+	    The \fn[queryInterface] function is called by programs that
+	    load a plugin so that they can determine whether the plugin
+	    supports a particular interface. Every plugin has a unique 
+	    \i[univeral unique identifier], (also known as 
+	    \i[global unique identifier]), which is passed to the
+	    function as \c[uuid]. The function creates a pointer to a
+	    \class[QUnknownInterface] object, \c[iface], and then tries
+	    to assign a matching interface to it. If the plugin supports
+	    the requested interface the interface's reference count is
+	    incremented. The \c[iface] pointer is returned to the
+	    caller. 	    
+	    \P
+
+	    <sect3><title>\fn[addRef]</title>
+	    \p
+<programlisting>
+\scan eg/filechooser/plugin/plugin.cpp /::addRef/ /^}/
+</programlisting>
+	    This function increments the reference count. Usually you
+	    just need to copy this code and change the class name to
+	    the class name of your plugin.
+	    \P
+
+	    <sect3><title>\fn[release]</title>
+	    \p
+<programlisting>
+\scan eg/filechooser/plugin/plugin.cpp /::release/ /^}/
+</programlisting>
+	    This function decrements the reference count and deletes the
+	    object if no more references exist. Usually you just need
+	    to copy this code and change the class name to the class
+	    name of your plugin.
+	    \P
+
+	    <sect3><title>The \fn[Q_EXPORT_INTERFACE] Macro</title>
+	    \p
+<programlisting>
+\scan eg/filechooser/plugin/plugin.cpp /Q_EXPORT_INTERFACE/ /^}/
+</programlisting>
+	    This function must appear \i[once] in your plugin. It should
+	    be copied with the class name changed to the name of your
+	    plugin's class. (See the <ulink
+	    url="http://doc.trolltech.com/qplugin.html">Qt Plugin
+	    documentation</> for more information on the plugin entry
+	    point.)
+	    \P
+
+	    <sect3><title>\fn[featureList]</title>
+	    \p
+	    Each widget you wrap in a plugin becomes a 'feature' that
+	    the plugin offers. There is no limit to the number of
+	    features that you may include in a plugin.
+<programlisting>
+\scan eg/filechooser/plugin/plugin.cpp /::featureList/ /^}/
+</programlisting>
+	    For each widget class that you want to wrap in the plugin
+	    you should supply a feature name, (often the class name), by
+	    which the class can be identified. In our example we add a
+	    single feature, 'FileChooser'.
+	    \P
+
+	    <sect3><title>\fn[create]</title>
+	    \p
+<programlisting>
+\scan eg/filechooser/plugin/plugin.cpp /::create/ /^}/
+</programlisting>
+	    In this function we create an instance of the requested
+	    feature (widget), register it with the cleanup handler, with
+	    the \c[objects.add( w )] call, and return a pointer to the
+	    widget for the caller to use. Copy this function changing
+	    the class name and the feature name and create an instance
+	    of your widget just as we've done here with 
+	    \c[w = new FileChooser( parent, name);]. (See the <ulink
+	    url="http://doc.trolltech.com/qplugin.html">Qt Plugin
+	    documentation</> for more information on cleanup handling.)
+	    \P
+
+	    <sect3><title>\fn[includeFile]</title>
+	    \p
+<programlisting>
+\scan eg/filechooser/plugin/plugin.cpp /::includeFile/ /^}/
+</programlisting>
+	    This function returns the name of the include file for the
+	    custom widget. Copy this function changing the class name,
+	    feature name and filename to suit your own custom widget.
+	    \P
+
+	    <sect3><title>\fn[group], \fn[iconSet], \fn[iconset],
+	    \fn[toolTip] and \fn[whatsThis]</title>
+	    \p
+<programlisting>
+\scan eg/filechooser/plugin/plugin.cpp /::group/ /^}/
+</programlisting>
+	    We use the \fn[group] function to identify which \qd toolbar group
+	    this feature (custom widget) should be part of. If we use a
+	    name that is not in use \qd will create a new toolbar group
+	    with the given name. Copy this function changing the class
+	    name, feature name and group name to suit your own plugin.
+	    \P
+
+	    \p
+	    The \fn[iconSet] function returns the name of the pixmap to
+	    use in the toolbar to represent the custom widget. The
+	    \fn[toolTip] function returns the tooltip text and the
+	    \fn[whatsThis] function returns the whats this text. Copy
+	    each of these functions changing the class name, feature
+	    name and the string you return to suit your own plugin.
+	    \P
+
+	    <sect3><title>\fn[isContainer]</title>
+	    \p
+<programlisting>
+\scan eg/filechooser/plugin/plugin.cpp /::isContainer/ /^}/
+</programlisting>
+	    Copy this function changing the class name to suit your
+	    plugin. It should return \c[TRUE] if your custom widget can
+	    contain other widgets, e.g. like \class[QFrame], or
+	    \c[FALSE] if it should not contain other widgets, e.g. like
+	    \class[QPushButton].
+	    \P
+
+	    </sect3>
+
+	</sect2>
+
+	<sect2>\title[The Project File]
+	\p
+	The project file for a plugin is somewhat different from an
+	application's project file but in most cases you can use our
+	project file changing only the \c[HEADERS] and \c[SOURCES]
+	lines.
+<example><title><filename>qt/tools/designer/eg/filechooser/plugin/plugin.pro</></><programlisting>
+\scan eg/filechooser/plugin/plugin.pro
+</programlisting></example>
+	Change the \c[HEADERS] line to list your plugin's header file
+	plus a header file for each of your widgets. Make the equivalent
+	change for the \c[SOURCES] line. If you create a Makefile and
+	make the project the plugin will be created and placed in a
+	directory where \qd can find it. The next time you run \qd it
+	will detect your new plugin and load it automatically. 
+	\P
+	</sect2>
+
+	<sect2>\title[Considerations for Making Distributable Plugins]
+	\p
+	\P
+
+	</sect2>
+
+    </sect1>
+
+</chapter>
