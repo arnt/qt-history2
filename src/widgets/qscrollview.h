@@ -55,6 +55,7 @@ public:
     virtual void setResizePolicy( ResizePolicy );
     ResizePolicy resizePolicy() const;
 
+    void styleChange(QStyle&);
     void removeChild(QWidget* child);
     virtual void addChild( QWidget* child, int x=0, int y=0 );
     virtual void moveChild( QWidget* child, int x, int y );

@@ -225,23 +225,27 @@ struct QScrollViewData {
     {
 	if ( policy == QScrollView::AutoOne ) {
 	    QSVChildRec* r = children.first();
-	    sv->setContentsPos(-r->child->x(),-r->child->y());
+	    if (r)
+	        sv->setContentsPos(-r->child->x(),-r->child->y());
 	}
     }
     void autoResize(QScrollView* sv)
     {
 	if ( policy == QScrollView::AutoOne ) {
 	    QSVChildRec* r = children.first();
-	    sv->resizeContents(r->child->width(),r->child->height());
+	    if (r)
+	        sv->resizeContents(r->child->width(),r->child->height());
 	}
     }
     void autoResizeHint()
     {
 	if ( policy == QScrollView::AutoOne ) {
 	    QSVChildRec* r = children.first();
-	    QSize s = r->child->sizeHint();
-	    if ( s.isValid() )
-		r->child->resize(s);
+	    if (r) {
+                QSize s = r->child->sizeHint();
+	        if ( s.isValid() )
+		    r->child->resize(s);
+	    }
 	}
     }
 
@@ -471,6 +475,11 @@ QScrollView::~QScrollView()
     delete d;
 }
 
+void QScrollView::styleChange(QStyle & old)
+{
+    QWidget::styleChange(old);
+    updateScrollBars();
+}
 
 void QScrollView::hslide( int pos )
 {
