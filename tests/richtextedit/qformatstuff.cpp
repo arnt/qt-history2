@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#17 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#18 $
 **
 ** Definition of the QtTextView class
 **
@@ -60,15 +60,15 @@ QtTextCharFormat::~QtTextCharFormat()
 void QtTextCharFormat::createKey()
 {
     QTextOStream ts( &key );
-    ts 
-	<< font_.pointSize() << "_"  
-	<< font_.weight() << "_"  
-	<< (int)font_.underline() 
-	<< (int) font_.italic() 
-	<< anchor_href << "_" 
-	<< anchor_name << "_" 
+    ts
+	<< font_.pointSize() << "_"
+	<< font_.weight() << "_"
+	<< (int)font_.underline()
+	<< (int) font_.italic()
+	<< anchor_href << "_"
+	<< anchor_name << "_"
 	<< color_.pixel()
-	<< font_.family() << "_"  
+	<< font_.family() << "_"
 	<<(ulong) custom;
 }
 
@@ -130,7 +130,7 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
         format.font_.setItalic( style->fontItalic() );
     if ( style->definesFontUnderline() )
         format.font_.setUnderline( style->fontUnderline() );
-    
+
     if ( item || font_ != format.font_ || changed || color_ != format.color_) // slight performance improvement
 	format.createKey();
     return format;
@@ -146,10 +146,12 @@ QtTextCharFormat QtTextCharFormat::formatWithoutCustom()
 }
 
 QtTextFormatCollection::QtTextFormatCollection()
-    : lastRegisterFormat( 0 )
+    : cKey(199),lastRegisterFormat( 0 )
 {
 }
 
+
+static int anchorcount = 0;
 QtTextCharFormat* QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
 {
     if ( format.parent == this ) {
@@ -165,6 +167,14 @@ QtTextCharFormat* QtTextFormatCollection::registerFormat( const QtTextCharFormat
 	    return lastRegisterFormat;
         }
     }
+    
+    if ( format.isAnchor() ) {
+	// fancy speed optimization: do _not_ share any anchors to keep the map smaller
+	// see unregisterFormat()
+	++anchorcount;
+	lastRegisterFormat =  new QtTextCharFormat( format );
+	return lastRegisterFormat;
+    }
 
     QtTextCharFormat *fc = cKey[ format.key ];
     if ( fc ) {
@@ -174,7 +184,7 @@ QtTextCharFormat* QtTextFormatCollection::registerFormat( const QtTextCharFormat
     } else {
 	QtTextCharFormat *f = new QtTextCharFormat( format );
 	f->parent = this;
-	cKey[ f->key ] = f;
+	cKey.insert( f->key, f );
 	lastRegisterFormat = f;
 	return f;
     }
@@ -184,11 +194,23 @@ void QtTextFormatCollection::unregisterFormat( const QtTextCharFormat &format )
 {
     QtTextCharFormat* f  = 0;
 
+    if ( format.isAnchor() ) {
+	// fancy speed optimization: do _not_ share any anchors to keep the map smaller
+	// see registerFormat()
+	f = (QtTextCharFormat*)&format;
+	int ref = f->removeRef();
+	if ( ref <= 0 ) {
+	    --anchorcount;
+	    delete f;
+	}
+	return;
+    }
+    
     if ( format.parent == this )
 	f = ( QtTextCharFormat*)&format;
-    else if ( cKey.contains( format.key ) )
+    else 
 	f = cKey[ format.key ];
-
+    
     if ( f ) {
 	int ref = f->removeRef();
 	if ( ref <= 0 ) {

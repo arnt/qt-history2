@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#12 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#13 $
 **
 ** Definition of the QtTextView class
 **
@@ -27,6 +27,7 @@
 #define QWHATEVER_H
 
 #include <qmap.h>
+#include <qdict.h>
 #include <qcolor.h>
 #include <qfont.h>
 #include <qstring.h>
@@ -50,11 +51,15 @@ public:
     QtTextCharFormat makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr,
 				     QtTextCustomItem* item = 0);
 
-    inline QColor color() const;
-    inline QFont font() const;
-    inline QString anchorHref() const;
-    inline QString anchorName() const;
+    QColor color() const;
+    QFont font() const;
+    QString anchorHref() const;
+    QString anchorName() const;
     
+    bool isAnchor() const;
+    
+    
+
     QtTextCharFormat formatWithoutCustom();
 
     int addRef();
@@ -89,7 +94,7 @@ public:
     void unregisterFormat( const QtTextCharFormat &format  );
 
 protected:
-    QMap< QString, QtTextCharFormat* > cKey;
+    QDict<QtTextCharFormat > cKey;
     QtTextCharFormat* lastRegisterFormat;
 };
 
@@ -117,6 +122,11 @@ inline QString QtTextCharFormat::anchorName() const
 inline QtTextCustomItem * QtTextCharFormat::customItem() const
 {
     return custom;
+}
+
+inline bool QtTextCharFormat::isAnchor() const
+{
+    return !anchor_href.isEmpty()  || !anchor_href.isEmpty();
 }
 
 

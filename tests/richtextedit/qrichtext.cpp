@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#17 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#18 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -414,7 +414,7 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
  	    QString word = parsePlainText( doc, pos, pre, TRUE );
  	    if (valid){
 		(dummy?dummy:current)->text.append( word, fmt );
-		if (!pre && doc[pos] == '<')
+		if (!pre && (doc.unicode())[pos] == '<')
 		    (void) eatSpace(doc, pos);
 	    }
 	}
@@ -565,7 +565,7 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
  	    QString word = parsePlainText( doc, pos, pre, TRUE );
  	    if (valid){
 		(dummy?dummy:current)->text.append( word, fmt );
-		if (!pre && doc[pos] == '<')
+		if (!pre && (doc.unicode())[pos] == '<')
 		    (void) eatSpace(doc, pos);
 	    }
 	}
@@ -578,14 +578,14 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 bool QtRichText::eatSpace(const QString& doc, int& pos, bool includeNbsp )
 {
     int old_pos = pos;
-    while (pos < int(doc.length()) && doc[pos].isSpace() && ( includeNbsp || doc[pos] != QChar(0x00a0U) ) )
+    while (pos < int(doc.length()) && (doc.unicode())[pos].isSpace() && ( includeNbsp || (doc.unicode())[pos] != QChar(0x00a0U) ) )
 	pos++;
     return old_pos < pos;
 }
 
 bool QtRichText::eat(const QString& doc, int& pos, QChar c)
 {
-    valid = valid && (bool) (doc[pos] == c);
+    valid = valid && (bool) ((doc.unicode())[pos] == c);
     if (valid)
 	pos++;
     return valid;
@@ -593,7 +593,7 @@ bool QtRichText::eat(const QString& doc, int& pos, QChar c)
 
 bool QtRichText::lookAhead(const QString& doc, int& pos, QChar c)
 {
-    return (doc[pos] == c);
+    return ((doc.unicode())[pos] == c);
 }
 
 
@@ -635,11 +635,11 @@ QChar QtRichText::parseHTMLSpecialChar(const QString& doc, int& pos)
     QCString s;
     pos++;
     int recoverpos = pos;
-    while ( pos < int(doc.length()) && doc[pos] != ';' && !doc[pos].isSpace() && pos < recoverpos + 6) {
-	s += doc[pos];
+    while ( pos < int(doc.length()) && (doc.unicode())[pos] != ';' && !(doc.unicode())[pos].isSpace() && pos < recoverpos + 6) {
+	s += (doc.unicode())[pos];
 	pos++;
     }
-    if (doc[pos] != ';' && !doc[pos].isSpace() ) {
+    if ((doc.unicode())[pos] != ';' && !(doc.unicode())[pos].isSpace() ) {
 	pos = recoverpos;
 	return '&';
     }
@@ -662,10 +662,10 @@ QString QtRichText::parseWord(const QString& doc, int& pos, bool insideTag, bool
 {
     QString s;
 
-    if (doc[pos] == '"') {
+    if ((doc.unicode())[pos] == '"') {
 	pos++;
-	while ( pos < int(doc.length()) && doc[pos] != '"' ) {
-	    s += doc[pos];
+	while ( pos < int(doc.length()) && (doc.unicode())[pos] != '"' ) {
+	    s += (doc.unicode())[pos];
 	    pos++;
 	}
 	eat(doc, pos, '"');
@@ -673,15 +673,15 @@ QString QtRichText::parseWord(const QString& doc, int& pos, bool insideTag, bool
     else {
 	static QString term = QString::fromLatin1("/>");
 	while( pos < int(doc.length()) &&
-	       ( !insideTag || (doc[pos] != '>' && !hasPrefix( doc, pos, term)) )
-	       && doc[pos] != '<'
-	       && doc[pos] != '='
-	       && !doc[pos].isSpace())
+	       ( !insideTag || ((doc.unicode())[pos] != '>' && !hasPrefix( doc, pos, term)) )
+	       && (doc.unicode())[pos] != '<'
+	       && (doc.unicode())[pos] != '='
+	       && !(doc.unicode())[pos].isSpace())
 	{
-	    if ( doc[pos] == '&')
+	    if ( (doc.unicode())[pos] == '&')
 		s += parseHTMLSpecialChar( doc, pos );
 	    else {
-		s += doc[pos];
+		s += (doc.unicode())[pos];
 		pos++;
 	    }
 	}
@@ -697,15 +697,15 @@ QString QtRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool 
 {
     QString s;
     while( pos < int(doc.length()) &&
-	   doc[pos] != '<' ) {
-	if (doc[pos].isSpace() && doc[pos] != QChar(0x00a0U) ){
+	   (doc.unicode())[pos] != '<' ) {
+	if ((doc.unicode())[pos].isSpace() && (doc.unicode())[pos] != QChar(0x00a0U) ){
 	
 	    if ( pre ) {
-		s += doc[pos];
+		s += (doc.unicode())[pos];
 	    }
 	    else { // non-pre mode: collapse whitespace except nbsp
 		while ( pos+1 < int(doc.length() ) &&
-			doc[pos+1].isSpace()  && doc[pos+1] != QChar(0x00a0U) )
+			(doc.unicode())[pos+1].isSpace()  && (doc.unicode())[pos+1] != QChar(0x00a0U) )
 		    pos++;
 		
 		s += ' ';
@@ -714,10 +714,10 @@ QString QtRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool 
 	    if ( justOneWord )
 		return s;
 	}
-	else if ( doc[pos] == '&')
+	else if ( (doc.unicode())[pos] == '&')
 		s += parseHTMLSpecialChar( doc, pos );
 	else {
-	    s += doc[pos];
+	    s += (doc.unicode())[pos];
 	    pos++;
 	}
     }
@@ -728,7 +728,7 @@ QString QtRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool 
 
 bool QtRichText::hasPrefix(const QString& doc, int pos, QChar c)
 {
-    return valid && doc[pos] ==c;
+    return valid && (doc.unicode())[pos] ==c;
 }
 
 bool QtRichText::hasPrefix(const QString& doc, int pos, const QString& s)
@@ -736,7 +736,7 @@ bool QtRichText::hasPrefix(const QString& doc, int pos, const QString& s)
     if ( pos + s.length() >= doc.length() )
 	return FALSE;
     for (int i = 0; i < int(s.length()); i++) {
-	if (doc[pos+i] != s[i])
+	if ((doc.unicode())[pos+i] != s[i])
 	    return FALSE;
     }
     return TRUE;
