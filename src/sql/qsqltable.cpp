@@ -77,7 +77,7 @@ public:
 	  confEdits( 3 ),
 	  confCancs( FALSE ),
 	  cancelMode( FALSE ),
-	  autoDelete( FALSE ),
+	  autoDelete( FALSE )
     {}
     ~QSqlTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
