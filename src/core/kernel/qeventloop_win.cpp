@@ -483,22 +483,30 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
     }
 
     // activate all full-speed timers until there is a message (timers have low priority)
-    int message = 0;
+    bool message = false;
     if (numZeroTimers) {
         while (numZeroTimers && !(message=winPeekMessage(&msg, 0, 0, 0, PM_NOREMOVE))) {
             activateZeroTimers();
         }
     }
 
-    message = winPeekMessage(&msg, 0, 0, 0, PM_NOREMOVE);
+    message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
     if (!message && !canWait) // still no message, and shouldn't block
         return false;
 
     // process all messages, unless userinput is blocked, then we process only one
-    do {
-        message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
+    if (flags & ExcludeUserInput) {
         winProcessEvent(&msg);
-    } while (message && !(flags & ExcludeUserInput) && !shortcut);
+        shortcut = d->exitloop || d->quitnow;
+    } else {
+        while (message && !shortcut) {
+            winProcessEvent(&msg);
+            message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
+            shortcut = d->exitloop || d->quitnow;
+        }
+    }
+
+    shortcut = d->exitloop || d->quitnow;
 
     // wait for next message if allowed to block
     if (canWait && !shortcut) {
