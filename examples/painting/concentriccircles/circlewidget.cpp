@@ -47,11 +47,11 @@ void CircleWidget::paintEvent(QPaintEvent *)
     painter.setRenderHint(QPainter::Antialiasing, antialiased);
     painter.translate(width() / 2, height() / 2);
 
-    for (int diameter = 0; diameter < 256; diameter += 5) {
+    for (int diameter = 0; diameter < 256; diameter += 9) {
         int delta = abs((frameNo % 128) - diameter / 2);
-        int alpha = 255 - (delta * delta) - diameter;
+        int alpha = 255 - (delta * delta) / 4 - diameter;
         if (alpha > 0) {
-            painter.setPen(QColor(0, diameter / 2, 127, alpha));
+            painter.setPen(QPen(QColor(0, diameter / 2, 127, alpha), 3));
 
             if (floatBased) {
                 painter.drawEllipse(QRectF(-diameter / 2.0, -diameter / 2.0,
