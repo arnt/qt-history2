@@ -25,12 +25,12 @@ diff -uwr template/library/Makefile freebsd-gcc-shared/library/Makefile
  # Creates the library when all files have been compiled
  
  library: $(OBJECTS) $(METAOBJ)
- 	-rm -f ../../../lib/libqt.so.${VERSION}
+ 	-rm -f ../../../lib/libqt.so.$(VERSION)
 -	$(CC) -shared -Wl,-soname,libqt.so.0 \
 -		-o ../../../lib/libqt.so.$(VERSION) \
 -		$(OBJECTS) $(METAOBJ) -lX11
 +	ld -Bshareable \
-+		-o ../../../lib/libqt.so.${VERSION} \
++		-o ../../../lib/libqt.so.$(VERSION) \
 +		`lorder /usr/lib/c++rt0.o $(OBJECTS) $(METAOBJ) | tsort` \
 +		-L/usr/X11R6/lib -lX11
  	-rm -f ../../../lib/libqt.so

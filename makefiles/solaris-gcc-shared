@@ -2,7 +2,7 @@ diff -uwr template/library/Makefile solaris-gcc-shared/library/Makefile
 --- template/library/Makefile	Thu Aug 22 20:06:47 1996
 +++ solaris-gcc-shared/library/Makefile	Thu Aug 22 20:22:19 1996
 @@ -88,7 +88,7 @@
- 	-rm -f ../../../lib/libqt.so.${VERSION}
+ 	-rm -f ../../../lib/libqt.so.$(VERSION)
  	$(CC) -shared -Wl,-soname,libqt.so.0 \
  		-o ../../../lib/libqt.so.$(VERSION) \
 -		$(OBJECTS) $(METAOBJ) -lX11
