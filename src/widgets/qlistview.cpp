@@ -3781,8 +3781,7 @@ void QListView::contentsMouseDoubleClickEvent( QMouseEvent * e )
     QListViewItem * i = itemAt( vp );
 
     if ( !i || !i->isEnabled() )
-        emit doubleClicked( i );
-        return;
+	return;
 
     if ( !i->isOpen() ) {
 	if ( i->isExpandable() || i->childCount() )
@@ -4600,9 +4599,7 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 
   This signal is emitted whenever an item is double-clicked.  It's
   emitted on the second button press, not the second button release.
-  \a item is the list view item onto which the user did the double-click
-  or NULL if the user didn't double-click on an item, or the item wasn't
-  enabled.
+  \a item is the list view item onto which the user did the double-click.
 */
 
 
@@ -6164,3 +6161,4 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
     }
 }
 #endif // QT_NO_LISTVIEW
+
