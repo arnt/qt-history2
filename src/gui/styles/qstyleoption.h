@@ -210,7 +210,9 @@ struct Q4StyleOptionTitleBar : public Q4StyleOptionComplex
 {
     enum { Type = TitleBar };
     QString text;
-    QIconSet icon;
+    QPixmap icon;
+    int titleBarState;
+    Qt::WFlags titleBarFlags;
     Q4StyleOptionTitleBar(int version) : Q4StyleOptionComplex(version, TitleBar) {};
 };
 

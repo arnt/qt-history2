@@ -143,8 +143,13 @@ inline int QTitleBarPrivate::titleBarState() const
 Q4StyleOptionTitleBar QTitleBarPrivate::getStyleOption() const
 {
     Q4StyleOptionTitleBar opt(0);
+    opt.init(q);
     opt.text = q->windowTitle();
     opt.icon = q->windowIcon();
+    opt.parts = QStyle::SC_All;
+    opt.activeParts = QStyle::SC_None;
+    opt.titleBarState = titleBarState();
+    opt.titleBarFlags = q->getWFlags();
     return opt;
 }
 
@@ -241,20 +246,20 @@ void QTitleBar::changeEvent(QEvent *ev)
     QWidget::changeEvent(ev);
 }
 
-void QTitleBar::mousePressEvent(QMouseEvent * e)
+void QTitleBar::mousePressEvent(QMouseEvent *e)
 {
     if (!d->act)
         emit doActivate();
     if (e->button() == Qt::LeftButton) {
         d->pressed = true;
-        QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos(),
-            QStyleOption(d->titleBarState()));
+        Q4StyleOptionTitleBar opt = d->getStyleOption();
+        QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
         switch (ctrl) {
         case QStyle::SC_TitleBarSysMenu:
             if (testWFlags(Qt::WStyle_SysMenu) && !testWFlags(Qt::WStyle_Tool)) {
                 d->buttonDown = QStyle::SC_None;
-                static QTime* t = 0;
-                static QTitleBar* tc = 0;
+                static QTime *t = 0;
+                static QTitleBar *tc = 0;
                 if (!t)
                     t = new QTime;
                 if (tc != this || t->elapsed() > QApplication::doubleClickInterval()) {
@@ -276,12 +281,12 @@ void QTitleBar::mousePressEvent(QMouseEvent * e)
             break;
 
         case QStyle::SC_TitleBarNormalButton:
-            if(testWFlags(Qt::WStyle_Minimize) && !testWFlags(Qt::WStyle_Tool))
+            if (testWFlags(Qt::WStyle_Minimize) && !testWFlags(Qt::WStyle_Tool))
                 d->buttonDown = ctrl;
             break;
 
         case QStyle::SC_TitleBarMinButton:
-            if(testWFlags(Qt::WStyle_Minimize) && !testWFlags(Qt::WStyle_Tool))
+            if (testWFlags(Qt::WStyle_Minimize) && !testWFlags(Qt::WStyle_Tool))
                 d->buttonDown = ctrl;
             break;
 
@@ -311,19 +316,22 @@ void QTitleBar::mousePressEvent(QMouseEvent * e)
 
 void QTitleBar::contextMenuEvent(QContextMenuEvent *e)
 {
-    QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos(),
-        QStyleOption(d->titleBarState()));
-    if(ctrl == QStyle::SC_TitleBarLabel || ctrl == QStyle::SC_TitleBarSysMenu)
+    Q4StyleOptionTitleBar opt = d->getStyleOption();
+    QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
+    if(ctrl == QStyle::SC_TitleBarLabel || ctrl == QStyle::SC_TitleBarSysMenu) {
+        e->accept();
         emit popupOperationMenu(e->globalPos());
-    else
+    } else {
         e->ignore();
+    }
 }
 
-void QTitleBar::mouseReleaseEvent(QMouseEvent * e)
+void QTitleBar::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::LeftButton && d->pressed) {
-        QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos(),
-            QStyleOption(d->titleBarState()));
+        e->accept();
+        Q4StyleOptionTitleBar opt = d->getStyleOption();
+        QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
 
         if (ctrl == d->buttonDown) {
             switch(ctrl) {
@@ -372,11 +380,14 @@ void QTitleBar::mouseReleaseEvent(QMouseEvent * e)
         d->buttonDown = QStyle::SC_None;
         repaint();
         d->pressed = false;
+    } else {
+        e->ignore();
     }
 }
 
-void QTitleBar::mouseMoveEvent(QMouseEvent * e)
+void QTitleBar::mouseMoveEvent(QMouseEvent *e)
 {
+    e->accept();
     switch (d->buttonDown) {
     case QStyle::SC_None:
         if(autoRaise())
@@ -392,9 +403,9 @@ void QTitleBar::mouseMoveEvent(QMouseEvent * e)
     case QStyle::SC_TitleBarCloseButton:
         {
             QStyle::SCFlags last_ctrl = d->buttonDown;
-            d->buttonDown = style().querySubControl(QStyle::CC_TitleBar, this, e->pos(),
-                QStyleOption(d->titleBarState()));
-            if(d->buttonDown != last_ctrl)
+            Q4StyleOptionTitleBar opt = d->getStyleOption();
+            d->buttonDown = style().querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
+            if (d->buttonDown != last_ctrl)
                 d->buttonDown = QStyle::SC_None;
             repaint();
             d->buttonDown = last_ctrl;
@@ -445,60 +456,57 @@ void QTitleBar::resizeEvent(QResizeEvent *r)
 
 void QTitleBar::paintEvent(QPaintEvent *)
 {
-    QStyle::SCFlags ctrls = QStyle::SC_TitleBarLabel;
+    Q4StyleOptionTitleBar opt = d->getStyleOption();
+    opt.parts = QStyle::SC_TitleBarLabel;
+    opt.activeParts = d->buttonDown;
     if (testWFlags(Qt::WStyle_SysMenu)) {
         if (testWFlags(Qt::WStyle_Tool)) {
-            ctrls |= QStyle::SC_TitleBarCloseButton;
+            opt.parts |= QStyle::SC_TitleBarCloseButton;
             if (d->window && testWFlags(Qt::WStyle_MinMax)) {
                 if (d->window->isMinimized())
-                    ctrls |= QStyle::SC_TitleBarUnshadeButton;
+                    opt.parts |= QStyle::SC_TitleBarUnshadeButton;
                 else
-                    ctrls |= QStyle::SC_TitleBarShadeButton;
+                    opt.parts |= QStyle::SC_TitleBarShadeButton;
             }
         } else {
-            ctrls |= QStyle::SC_TitleBarSysMenu | QStyle::SC_TitleBarCloseButton;
+            opt.parts |= QStyle::SC_TitleBarSysMenu | QStyle::SC_TitleBarCloseButton;
             if (d->window && testWFlags(Qt::WStyle_Minimize)) {
                 if(d->window && d->window->isMinimized())
-                    ctrls |= QStyle::SC_TitleBarNormalButton;
+                    opt.parts |= QStyle::SC_TitleBarNormalButton;
                 else
-                    ctrls |= QStyle::SC_TitleBarMinButton;
+                    opt.parts |= QStyle::SC_TitleBarMinButton;
             }
             if (d->window && testWFlags(Qt::WStyle_Maximize) && !d->window->isMaximized())
-                ctrls |= QStyle::SC_TitleBarMaxButton;
+                opt.parts |= QStyle::SC_TitleBarMaxButton;
         }
     }
 
     QStyle::SCFlags under_mouse = QStyle::SC_None;
     if(autoRaise() && underMouse()) {
-        QPoint p(mapFromGlobal(QCursor::pos()));
-        under_mouse = style().querySubControl(QStyle::CC_TitleBar, this, p,
-            QStyleOption(d->titleBarState()));
-        ctrls ^= under_mouse;
+        under_mouse = style().querySubControl(QStyle::CC_TitleBar, &opt,
+                                              mapFromGlobal(QCursor::pos()), this);
+        opt.parts ^= under_mouse;
     }
-
-    int flags = QStyle::Style_Default;
-    if (isEnabled())
-        flags |= QStyle::Style_Enabled;
-
-    QPalette pal(palette());
-    pal.setCurrentColorGroup(usesActiveColor() ? QPalette::Active : QPalette::Inactive);
+    opt.palette.setCurrentColorGroup(usesActiveColor() ? QPalette::Active : QPalette::Inactive);
 
     QPainter p(this);
-    style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(),
-                               pal, flags, ctrls, d->buttonDown);
-    if(under_mouse != QStyle::SC_None)
-        style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(),
-                                   pal, QStyle::Style_MouseOver | flags,
-                                   under_mouse, d->buttonDown);
+    style().drawComplexControl(QStyle::CC_TitleBar, &opt, &p, this);
+    if (under_mouse != QStyle::SC_None) {
+        opt.state |= QStyle::Style_MouseOver;
+        opt.parts = under_mouse;
+        style().drawComplexControl(QStyle::CC_TitleBar, &opt, &p, this);
+    }
 }
 
 void QTitleBar::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    if (e->button() != Qt::LeftButton)
+    if (e->button() != Qt::LeftButton) {
+        e->ignore();
         return;
-
-    switch(style().querySubControl(QStyle::CC_TitleBar, this, e->pos(),
-        QStyleOption(d->titleBarState()))) {
+    }
+    e->accept();
+    Q4StyleOptionTitleBar opt = d->getStyleOption();
+    switch (style().querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this)) {
     case QStyle::SC_TitleBarLabel:
         emit doubleClicked();
         break;
@@ -516,9 +524,9 @@ void QTitleBar::mouseDoubleClickEvent(QMouseEvent *e)
 void QTitleBar::cutText()
 {
     QFontMetrics fm(font());
-
-    int maxw = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
-                                              QStyle::SC_TitleBarLabel).width();
+    Q4StyleOptionTitleBar opt = d->getStyleOption();
+    int maxw = style().querySubControlMetrics(QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarLabel,
+                                              this).width();
     if (!d->window)
         return;
 
@@ -580,7 +588,7 @@ QWidget *QTitleBar::window() const
     return d->window;
 }
 
-bool QTitleBar::event(QEvent* e)
+bool QTitleBar::event(QEvent *e)
 {
     if (e->type() == QEvent::ApplicationPaletteChange) {
         d->readColors();
@@ -593,8 +601,9 @@ bool QTitleBar::event(QEvent* e)
         d->act = wasActive;
     } else if (e->type() == QEvent::WindowIconChange) {
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-        QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
-                                                     QStyle::SC_TitleBarSysMenu);
+        Q4StyleOptionTitleBar opt = d->getStyleOption();
+        QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, &opt,
+                                                     QStyle::SC_TitleBarSysMenu, this);
         QPixmap icon = windowIcon();
         if (icon.width() > menur.width()) {
             // try to keep something close to the same aspect
@@ -645,8 +654,9 @@ bool QTitleBar::autoRaise() const
 QSize QTitleBar::sizeHint() const
 {
     ensurePolished();
-    QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
-                                                 QStyle::SC_TitleBarSysMenu);
+    Q4StyleOptionTitleBar opt = d->getStyleOption();
+    QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, &opt,
+                                                 QStyle::SC_TitleBarSysMenu, this);
     return QSize(menur.width(), style().pixelMetric(QStyle::PM_TitleBarHeight, this));
 }
 

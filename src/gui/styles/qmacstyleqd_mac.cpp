@@ -17,16 +17,40 @@
 
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 
-#include "qlabel.h"
-#include "qmenu.h"
-#include "qpainter.h"
-#include "private/qpainter_p.h"
-#include <qpaintengine_mac.h>
-#include "qgroupbox.h"
-#include "qmap.h"
+#include <private/qdialogbuttons_p.h>
+#include <private/qpainter_p.h>
 #include <private/qt_mac_p.h>
-#include "qrubberband.h"
-#include "qstyleoption.h"
+#include <private/qt_mac_p.h>
+#include <private/qtitlebar_p.h>
+#include <qapplication.h>
+#include <qaquastyle_mac.h>
+#include <qbitmap.h>
+#include <qbuttongroup.h>
+#include <qcombobox.h>
+#include <qdrawutil.h>
+#include <qgroupbox.h>
+#include <qimage.h>
+#include <qlabel.h>
+#include <qlayout.h>
+#include <qlineedit.h>
+#include <qmap.h>
+#include <qmenu.h>
+#include <qpaintengine_mac.h>
+#include <qpainter.h>
+#include <qpixmapcache.h>
+#include <qpointer.h>
+#include <qprogressbar.h>
+#include <qpushbutton.h>
+#include <qregexp.h>
+#include <qrubberband.h>
+#include <qscrollbar.h>
+#include <qscrollview.h>
+#include <qslider.h>
+#include <qspinbox.h>
+#include <qsplitter.h>
+#include <qstyleoption.h>
+#include <qtabbar.h>
+#include <qtoolbutton.h>
 
 extern QRegion qt_mac_convert_mac_region(RgnHandle rgn);
 extern QRegion qt_mac_convert_mac_region(HIShapeRef shape);
@@ -56,36 +80,6 @@ void QMacStyleQDPainter::setport()
     }
     NormalizeThemeDrawingState();
 }
-
-#include <private/qt_mac_p.h>
-#include <qaquastyle_mac.h>
-#include <qapplication.h>
-#include <qbitmap.h>
-#include <qbuttongroup.h>
-#include <qcombobox.h>
-#include <qdrawutil.h>
-#include <qpointer.h>
-#include <qlayout.h>
-#include <qlineedit.h>
-#include <qprogressbar.h>
-#include <qpushbutton.h>
-#include <qregexp.h>
-#include <qscrollbar.h>
-#include <qscrollview.h>
-#include <qslider.h>
-#include <qspinbox.h>
-#include <qsplitter.h>
-#include <qtabbar.h>
-#include <qtoolbutton.h>
-
-#include <private/qdialogbuttons_p.h>
-#include <private/qtitlebar_p.h>
-
-/* I need these to simulate the pushbutton pulse */
-#include <qpixmapcache.h>
-#include <qimage.h>
-
-#include <string.h>
 
 //externals
 QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
@@ -418,116 +412,6 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
     }
 
     switch(ctrl) {
-    case CC_TitleBar: {
-        if(!widget)
-            break;
-        QTitleBar *tbar = (QTitleBar *) widget;
-        ThemeWindowMetrics twm;
-        memset(&twm, '\0', sizeof(twm));
-        twm.metricSize = sizeof(twm);
-        twm.titleWidth = tbar->width();
-        twm.titleHeight = tbar->height();
-        ThemeWindowAttributes twa = kThemeWindowHasTitleText;
-        if(tbar->window()) {
-            if(tbar->window()->isMinimized())
-                twa |= kThemeWindowIsCollapsed;
-            if(tbar->window()->isWindowModified())
-                twa |= kThemeWindowHasDirty;
-            twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
-        } else if(tbar->testWFlags(Qt::WStyle_SysMenu)) {
-            twa |= kThemeWindowHasCloseBox;
-        }
-        QString dblbuf_key;
-
-        //AppMan paints outside the given rectangle, so I have to adjust for the height properly!
-        QRect newr = r;
-        {
-            Rect br;
-            RgnHandle rgn = qt_mac_get_rgn();
-            GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r), tds, &twm, twa, kWindowTitleBarRgn, rgn);
-            GetRegionBounds(rgn, &br);
-            newr.moveBy(newr.x() - br.left, newr.y() - br.top);
-            qt_mac_dispose_rgn(rgn);
-        }
-        if(sub & SC_TitleBarLabel) {
-            int iw = 0;
-            if(!!tbar->windowIcon()) {
-                RgnHandle rgn = qt_mac_get_rgn();
-                GetThemeWindowRegion(macWinType, qt_glb_mac_rect(newr), tds, &twm, twa, kWindowTitleProxyIconRgn, rgn);
-                if(!EmptyRgn(rgn))
-                    iw = tbar->windowIcon().width();
-                qt_mac_dispose_rgn(rgn);
-            }
-            if(!tbar->windowTitle().isEmpty()) {
-                QString pmkey;
-                QTextOStream os(&pmkey);
-                os << "$qt_mac_style_titlebar_" << "_" << newr.width()
-                   << "x" << newr.height() << "_" << twa << "_" << tds << "_" << tbar->windowTitle();
-                if(QPixmap *dblbuf = QPixmapCache::find(pmkey)) {
-                    p->drawPixmap(r.topLeft(), *dblbuf);
-                } else {
-                    QPixmap *pix = new QPixmap(newr.width(), newr.height(), 32);
-                    QPainter pixp(pix);
-
-                    ((QMacStyleQDPainter *)&pixp)->setport();
-                    DrawThemeWindowFrame(macWinType, qt_glb_mac_rect(newr, &pixp, false), tds,
-                                         &twm, twa, NULL, 0);
-
-                    pixp.save();
-                    {
-                        RgnHandle rgn = qt_mac_get_rgn();
-                        GetThemeWindowRegion(macWinType, qt_glb_mac_rect(newr), tds, &twm, twa, kWindowTitleTextRgn, rgn);
-                        pixp.setClipRegion(qt_mac_convert_mac_region(rgn));
-                        qt_mac_dispose_rgn(rgn);
-                    }
-                    QRect br = pixp.clipRegion().boundingRect();
-                    int x = br.x(), y = br.y() + ((tbar->height() / 2) - (p->fontMetrics().height() / 2));
-                    if(br.width() <= (p->fontMetrics().width(tbar->windowTitle())+iw*2))
-                        x += iw;
-                    else
-                        x += (br.width() / 2) - (p->fontMetrics().width(tbar->windowTitle()) / 2);
-                    if(iw)
-                        pixp.drawPixmap(x - iw, y, tbar->windowIcon());
-                    pixp.drawText(x, y + p->fontMetrics().ascent(), tbar->windowTitle());
-                    pixp.restore();
-                    p->drawPixmap(r.topLeft(), *pix);
-                    if(!QPixmapCache::insert(pmkey, pix))
-                        delete pix;
-                }
-            } else {
-                ((QMacStyleQDPainter *)p)->setport();
-                DrawThemeWindowFrame(macWinType, qt_glb_mac_rect(newr, p, false), tds,
-                                     &twm, twa, NULL, 0);
-            }
-        }
-        if(sub & (SC_TitleBarCloseButton | SC_TitleBarMaxButton | SC_TitleBarMinButton |
-                  SC_TitleBarNormalButton)) {
-            ThemeDrawState wtds = tds;
-            if(flags & Style_MouseOver)
-                wtds = kThemeStateRollover;
-            struct {
-                unsigned int qt_type;
-                ThemeTitleBarWidget mac_type;
-            } types[] = {
-                { SC_TitleBarCloseButton, kThemeWidgetCloseBox },
-                { SC_TitleBarMaxButton, kThemeWidgetZoomBox },
-                { SC_TitleBarMinButton|SC_TitleBarNormalButton, kThemeWidgetCollapseBox },
-                { 0, 0 } };
-            ThemeWindowMetrics tm;
-            tm.metricSize = sizeof(tm);
-            const Rect *wm_rect = qt_glb_mac_rect(newr, p, false);
-            ((QMacStyleQDPainter *)p)->setport();
-            for(int i = 0; types[i].qt_type; i++) {
-                ThemeDrawState ctrl_tds = wtds;
-                if(qAquaActive(pal) && (subActive & types[i].qt_type))
-                    ctrl_tds = kThemeStatePressed;
-                ThemeTitleBarWidget twt = types[i].mac_type;
-                if(tbar->window() && tbar->window()->isWindowModified() && twt == kThemeWidgetCloseBox)
-                    twt = kThemeWidgetDirtyCloseBox;
-                DrawThemeTitleBarWidget(macWinType, wm_rect, ctrl_tds, &tm, twa, twt);
-            }
-        }
-        break; }
     case CC_ScrollBar: {
         if(!widget)
             break;
@@ -881,46 +765,6 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
                                             const QStyleOption& opt) const
 {
     switch(control) {
-    case CC_TitleBar: {
-        if(!w)
-            return QRect();
-        QTitleBar *tbar = (QTitleBar*)w;
-        ThemeWindowMetrics twm;
-        memset(&twm, '\0', sizeof(twm));
-        twm.metricSize = sizeof(twm);
-        twm.titleWidth = tbar->width();
-        twm.titleHeight = tbar->height();
-        ThemeWindowAttributes twa = kThemeWindowHasTitleText;
-        if(tbar->window())
-            twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
-        else if(tbar->testWFlags(Qt::WStyle_SysMenu))
-            twa |= kThemeWindowHasCloseBox;
-        WindowRegionCode wrc = kWindowGlobalPortRgn;
-        if(sc & SC_TitleBarCloseButton)
-            wrc = kWindowCloseBoxRgn;
-        else if(sc & SC_TitleBarMinButton)
-            wrc = kWindowCollapseBoxRgn;
-        else if(sc & SC_TitleBarMaxButton)
-            wrc = kWindowZoomBoxRgn;
-        else if(sc & SC_TitleBarLabel)
-            wrc = kWindowTitleTextRgn;
-        else if(sc & SC_TitleBarSysMenu)
-            return QRect(-666, -666, 10, pixelMetric(PM_TitleBarHeight, 0)); //ugh
-        if(wrc != kWindowGlobalPortRgn) {
-            //AppMan paints outside the given rectangle, so I have to adjust for the height properly!
-            Rect br;
-            QRect r = w->rect();
-            RgnHandle rgn = qt_mac_get_rgn();
-            GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r), kThemeStateActive, &twm, twa, kWindowTitleBarRgn, rgn);
-            GetRegionBounds(rgn, &br);
-            r.moveBy(r.x() - br.left, r.y() - br.top);
-            GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r), kThemeStateActive, &twm, twa, wrc, rgn);
-            GetRegionBounds(rgn, &br);
-            QRect ret = QRect(br.left, br.top, (br.right - br.left), (br.bottom - br.top));
-            qt_mac_dispose_rgn(rgn);
-            return ret;
-        }
-        break; }
     case CC_ScrollBar: {
         if(!w)
             return QRect();
@@ -2507,6 +2351,122 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
             }
         }
         break;
+    case CC_TitleBar:
+        if (const Q4StyleOptionTitleBar *tbar = qt_cast<const Q4StyleOptionTitleBar *>(opt)) {
+        ThemeWindowMetrics twm;
+        memset(&twm, 0, sizeof(twm));
+        twm.metricSize = sizeof(twm);
+        twm.titleWidth = tbar->rect.width();
+        twm.titleHeight = tbar->rect.height();
+        ThemeWindowAttributes twa = kThemeWindowHasTitleText;
+        if (tbar->titleBarState) {
+            if (tbar->titleBarState & Qt::WindowMinimized)
+                twa |= kThemeWindowIsCollapsed;
+            /*
+            if (tbar->window()->isWindowModified())
+                twa |= kThemeWindowHasDirty;
+                */
+            twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
+        } else if (tbar->titleBarFlags & Qt::WStyle_SysMenu) {
+            twa |= kThemeWindowHasCloseBox;
+        }
+        QString dblbuf_key;
+
+        //AppMan paints outside the given rectangle, so I have to adjust for the height properly!
+        QRect newr = tbar->rect;
+        {
+            Rect br;
+            RgnHandle rgn = qt_mac_get_rgn();
+            GetThemeWindowRegion(macWinType, qt_glb_mac_rect(tbar->rect), tds, &twm, twa,
+                                 kWindowTitleBarRgn, rgn);
+            GetRegionBounds(rgn, &br);
+            newr.moveBy(newr.x() - br.left, newr.y() - br.top);
+            qt_mac_dispose_rgn(rgn);
+        }
+        if (tbar->parts & SC_TitleBarLabel) {
+            int iw = 0;
+            if (!tbar->icon.isNull()) {
+                RgnHandle rgn = qt_mac_get_rgn();
+                GetThemeWindowRegion(macWinType, qt_glb_mac_rect(newr), tds, &twm, twa,
+                                     kWindowTitleProxyIconRgn, rgn);
+                if (!EmptyRgn(rgn))
+                    iw = tbar->icon.width();
+                qt_mac_dispose_rgn(rgn);
+            }
+            if (!tbar->text.isEmpty()) {
+                QString pmkey;
+                QTextOStream os(&pmkey);
+                os << "$qt_mac_style_titlebar_" << "_" << newr.width()
+                   << "x" << newr.height() << "_" << twa << "_" << tds << "_" << tbar->text;
+                if (QPixmap *dblbuf = QPixmapCache::find(pmkey)) {
+                    p->drawPixmap(tbar->rect.topLeft(), *dblbuf);
+                } else {
+                    QPixmap pix(newr.width(), newr.height(), 32);
+                    QPainter pixp(&pix);
+
+                    static_cast<QMacStyleQDPainter *>(&pixp)->setport();
+                    DrawThemeWindowFrame(macWinType, qt_glb_mac_rect(newr, &pixp, false), tds,
+                                         &twm, twa, NULL, 0);
+
+                    pixp.save();
+                    {
+                        RgnHandle rgn = qt_mac_get_rgn();
+                        GetThemeWindowRegion(macWinType, qt_glb_mac_rect(newr), tds, &twm, twa,
+                                             kWindowTitleTextRgn, rgn);
+                        pixp.setClipRegion(qt_mac_convert_mac_region(rgn));
+                        qt_mac_dispose_rgn(rgn);
+                    }
+                    QRect br = pixp.clipRegion().boundingRect();
+                    int x = br.x(),
+                        y = br.y() + (tbar->rect.height() / 2 - p->fontMetrics().height() / 2);
+                    if (br.width() <= p->fontMetrics().width(tbar->text) + iw * 2)
+                        x += iw;
+                    else
+                        x += (br.width() / 2) - (p->fontMetrics().width(tbar->text) / 2);
+                    if(iw)
+                        pixp.drawPixmap(x - iw, y, tbar->icon);
+                    pixp.drawText(x, y + p->fontMetrics().ascent(), tbar->text);
+                    pixp.restore();
+                    p->drawPixmap(tbar->rect.topLeft(), pix);
+                    QPixmapCache::insert(pmkey, pix);
+                }
+            } else {
+                static_cast<QMacStyleQDPainter *>(p)->setport();
+                DrawThemeWindowFrame(macWinType, qt_glb_mac_rect(newr, p, false), tds,
+                                     &twm, twa, NULL, 0);
+            }
+        }
+        if (tbar->parts & (SC_TitleBarCloseButton | SC_TitleBarMaxButton | SC_TitleBarMinButton
+                           | SC_TitleBarNormalButton)) {
+            ThemeDrawState wtds = tds;
+            if (tbar->state & Style_MouseOver)
+                wtds = kThemeStateRollover;
+            struct {
+                unsigned int qt_type;
+                ThemeTitleBarWidget mac_type;
+            } types[] = {
+                { SC_TitleBarCloseButton, kThemeWidgetCloseBox },
+                { SC_TitleBarMaxButton, kThemeWidgetZoomBox },
+                { SC_TitleBarMinButton|SC_TitleBarNormalButton, kThemeWidgetCollapseBox },
+                { 0, 0 } };
+            ThemeWindowMetrics tm;
+            tm.metricSize = sizeof(tm);
+            const Rect *wm_rect = qt_glb_mac_rect(newr, p, false);
+            bool active = qAquaActive(tbar->palette);
+            static_cast<QMacStyleQDPainter *>(p)->setport();
+            for (int i = 0; types[i].qt_type; ++i) {
+                ThemeDrawState ctrl_tds = wtds;
+                if (active && (tbar->activeParts & types[i].qt_type))
+                    ctrl_tds = kThemeStatePressed;
+                ThemeTitleBarWidget twt = types[i].mac_type;
+                /*
+                if(tbar->window() && tbar->window()->isWindowModified() && twt == kThemeWidgetCloseBox)
+                    twt = kThemeWidgetDirtyCloseBox;
+                    */
+                DrawThemeTitleBarWidget(macWinType, wm_rect, ctrl_tds, &tm, twa, twt);
+            }
+        }
+        break; }
     default:
         QWindowsStyle::drawComplexControl(cc, opt, p, widget);
     }
@@ -2616,21 +2576,64 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
                                 spinner_w, spinner_h);
                     break;
                 case SC_SpinBoxDown:
-                    ret = QRect(x, y + (spin->rect.height() - fw * 2) / 2, spinner_w, spinner_h);
+                    ret.setRect(x, y + (spin->rect.height() - fw * 2) / 2, spinner_w, spinner_h);
                     break;
                 case SC_SpinBoxButtonField:
-                    ret = QRect(x, y, spinner_w, spin->rect.height() - fw * 2);
+                    ret.setRect(x, y, spinner_w, spin->rect.height() - fw * 2);
                     break;
                 case SC_SpinBoxEditField:
-                    ret = QRect(fw, fw, spin->rect.width() - spinner_w - fw * 2 - macSpinBoxSep,
+                    ret.setRect(fw, fw, spin->rect.width() - spinner_w - fw * 2 - macSpinBoxSep,
                                 spin->rect.height() - fw * 2);
                     break;
                 case SC_SpinBoxFrame:
-                    ret = QRect(0, 0, spin->rect.width() - spinner_w - macSpinBoxSep,
+                    ret.setRect(0, 0, spin->rect.width() - spinner_w - macSpinBoxSep,
                                 spin->rect.height());
                     break;
                 default:
+                    ret = QWindowsStyle::querySubControlMetrics(cc, spin, sc, widget);
                     break;
+            }
+        }
+        break;
+    case CC_TitleBar:
+        if (const Q4StyleOptionTitleBar *tbar = qt_cast<const Q4StyleOptionTitleBar *>(opt)) {
+            ThemeWindowMetrics twm;
+            memset(&twm, 0, sizeof(twm));
+            twm.metricSize = sizeof(twm);
+            twm.titleWidth = tbar->rect.width();
+            twm.titleHeight = tbar->rect.height();
+            ThemeWindowAttributes twa = kThemeWindowHasTitleText;
+            if (tbar->titleBarState)
+                twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
+                       | kThemeWindowHasCollapseBox;
+            else if (tbar->titleBarFlags & Qt::WStyle_SysMenu)
+                twa |= kThemeWindowHasCloseBox;
+            WindowRegionCode wrc = kWindowGlobalPortRgn;
+            if (sc & SC_TitleBarCloseButton)
+                wrc = kWindowCloseBoxRgn;
+            else if (sc & SC_TitleBarMinButton)
+                wrc = kWindowCollapseBoxRgn;
+            else if (sc & SC_TitleBarMaxButton)
+                wrc = kWindowZoomBoxRgn;
+            else if (sc & SC_TitleBarLabel)
+                wrc = kWindowTitleTextRgn;
+            else if (sc & SC_TitleBarSysMenu) // We currently don't have this on Mac OS X.
+                ret.setRect(-1024, -1024, 10, pixelMetric(PM_TitleBarHeight, 0));
+            if (wrc != kWindowGlobalPortRgn) {
+                // AppMan paints outside the given rectangle,
+                // so I have to adjust for the height properly!
+                Rect br;
+                QRect r = tbar->rect;
+                RgnHandle rgn = qt_mac_get_rgn();
+                GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r), kThemeStateActive, &twm, twa,
+                                     kWindowTitleBarRgn, rgn);
+                GetRegionBounds(rgn, &br);
+                r.moveBy(r.x() - br.left, r.y() - br.top);
+                GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r), kThemeStateActive, &twm, twa,
+                                     wrc, rgn);
+                GetRegionBounds(rgn, &br);
+                ret.setRect(br.left, br.top, (br.right - br.left), (br.bottom - br.top));
+                qt_mac_dispose_rgn(rgn);
             }
         }
         break;

@@ -22,6 +22,7 @@
 #include <qbitmap.h>
 
 #include <private/qtitlebar_p.h>
+#include <qdebug.h>
 
 /*****************************************************************************
   External functions
@@ -43,28 +44,6 @@ const ThemeWindowType QtWinType = kThemeUtilityWindow; // Window type we use for
 /*****************************************************************************
   QMacCGStyle utility functions
  *****************************************************************************/
-// Utility to generate correct rectangles for AppManager internals
-static inline const HIRect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice * =0,
-                                            bool off=true, const QRect &rect=QRect())
-{
-    static HIRect r;
-    int offset = 0;
-    if (off)
-        offset = 1;
-    r = CGRectMake(qr.x()+rect.x(), qr.y()+rect.y(),
-                   qr.width() - offset - rect.width(), qr.height() - offset - rect.height());
-    return &r;
-}
-
-static inline const HIRect *qt_glb_mac_rect(const QRect &qr, const QPainter *p,
-                                            bool off=true, const QRect &rect=QRect())
-{
-    int x, y;
-    p->map(qr.x(), qr.y(), &x, &y);
-    QRect r(QPoint(x, y), qr.size());
-    return qt_glb_mac_rect(r, p->device(), off, rect);
-}
-
 static inline HIRect qt_hirectForQRect(const QRect &convertRect, QPainter *p = 0,
                                        bool useOffset = true, const QRect &rect = QRect())
 {
@@ -301,7 +280,7 @@ void QMacStyleCG::polish(QWidget *w)
     }
 
     if (::qt_cast<QRubberBand*>(w))
-        w->setWindowOpacity(0.75);
+        w->setWindowOpacity(0.25);
 
     if (QTitleBar *tb = ::qt_cast<QTitleBar *>(w))
         tb->setAutoRaise(true);
@@ -357,102 +336,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                                      const QRect &r, const QPalette& pal, SFlags flags, SCFlags sub,
                                      SCFlags subActive, const QStyleOption &opt) const
 {
-    CGContextRef cg = qt_macCGHandle(p->device());
-    ThemeDrawState tds = d->getDrawState(flags, pal);
     switch (control) {
-    case CC_TitleBar: {
-        const QTitleBar *titlebar = static_cast<const QTitleBar *>(w);
-        HIThemeWindowDrawInfo wdi;
-        wdi.version = qt_mac_hitheme_version;
-        wdi.state = tds;
-        wdi.windowType = QtWinType;
-        wdi.attributes = kThemeWindowHasTitleText;
-        if (titlebar->window()) {
-            if (titlebar->window()->isMinimized())
-                wdi.attributes |= kThemeWindowIsCollapsed;
-            if (titlebar->window()->isWindowModified())
-                wdi.attributes |= kThemeWindowHasDirty;
-            wdi.attributes |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
-                                 | kThemeWindowHasCollapseBox;
-        } else if (titlebar->testWFlags(Qt::WStyle_SysMenu)) {
-            wdi.attributes |= kThemeWindowHasCloseBox;
-        }
-        wdi.titleHeight = r.height();
-        wdi.titleWidth = r.width();
-        QCFType<HIShapeRef> titleRegion;
-        HIThemeGetWindowShape(qt_glb_mac_rect(r, p), &wdi, kWindowTitleBarRgn,
-                              &titleRegion);
-        HIRect titleRect;
-        HIShapeGetBounds(titleRegion, &titleRect);
-        QRect newr = r;
-        newr.moveBy(newr.x() - (int)titleRect.origin.x, newr.y() - (int)titleRect.origin.y);
-        HIRect finalRect = *qt_glb_mac_rect(newr, p, false);
-        HIThemeDrawWindowFrame(&finalRect, &wdi, cg,
-                               kHIThemeOrientationNormal, 0);
-        if (sub & SC_TitleBarLabel) {
-            int iw = 0;
-            if (!!titlebar->windowIcon()) {
-                QCFType<HIShapeRef> titleRegion2;
-                HIThemeGetWindowShape(&finalRect, &wdi, kWindowTitleProxyIconRgn,
-                                      &titleRegion2);
-                HIShapeGetBounds(titleRegion2, &titleRect);
-                if (titleRect.size.width != 1)
-                    iw = titlebar->windowIcon().width();
-            }
-            if (!titlebar->windowTitle().isEmpty()) {
-                p->save();
-                QCFType<HIShapeRef> titleRegion3;
-                HIThemeGetWindowShape(&finalRect, &wdi, kWindowTitleTextRgn,
-                                      &titleRegion3);
-                HIShapeGetBounds(titleRegion3, &titleRect);
-                p->setClipRect(qrectForHIRect(titleRect));
-                QRect br = p->clipRegion().boundingRect();
-                int x = br.x(),
-                    y = br.y() + (titlebar->height() / 2 - p->fontMetrics().height() / 2);
-                if (br.width() <= (p->fontMetrics().width(titlebar->windowTitle()) + iw * 2))
-                    x += iw;
-                else
-                    x += br.width() / 2 - p->fontMetrics().width(titlebar->windowTitle()) / 2;
-                if (iw)
-                    p->drawPixmap(x - iw, y, titlebar->windowIcon());
-                p->drawText(x, y + p->fontMetrics().ascent(), titlebar->windowTitle());
-                p->restore();
-            }
-        }
-
-        if (sub & (SC_TitleBarCloseButton | SC_TitleBarMaxButton | SC_TitleBarMinButton |
-                   SC_TitleBarNormalButton)) {
-            HIThemeWindowWidgetDrawInfo wwdi;
-            wwdi.version = qt_mac_hitheme_version;
-            wwdi.widgetState = tds;
-            if (flags & Style_MouseOver)
-                wwdi.widgetState = kThemeStateRollover;
-            wwdi.windowType = QtWinType;
-            wwdi.attributes = wdi.attributes;
-            wwdi.windowState = wdi.state;
-            wwdi.titleHeight = wdi.titleHeight;
-            wwdi.titleWidth = wdi.titleWidth;
-            ThemeDrawState savedControlState = wwdi.widgetState;
-            uint sc = SC_TitleBarMinButton;
-            ThemeTitleBarWidget tbw = kThemeWidgetCollapseBox;
-            while (sc <= SC_TitleBarCloseButton) {
-                uint tmp = sc;
-                wwdi.widgetState = savedControlState;
-                wwdi.widgetType = tbw;
-                if (sc == SC_TitleBarMinButton)
-                    tmp |= SC_TitleBarNormalButton;
-                if (qAquaActive(pal) && (subActive & tmp))
-                    wwdi.widgetState = kThemeStatePressed;
-                if (titlebar->window() && titlebar->window()->isWindowModified()
-                    && tbw == kThemeWidgetCloseBox)
-                    wwdi.widgetType = kThemeWidgetDirtyCloseBox;
-                HIThemeDrawTitleBarWidget(&finalRect, &wwdi, cg,
-                                          kHIThemeOrientationNormal);
-                sc = sc << 1;
-                tbw = tbw >> 1;
-            }
-        }
-        break; }
     default:
         QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
     }
@@ -632,51 +516,6 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
 {
     QRect rect;
     switch (control) {
-    case CC_TitleBar: {
-        /*
-        const QTitleBar *titlebar = static_cast<const QTitleBar *>(widget);
-        HIThemeWindowDrawInfo wdi;
-        wdi.version = qt_mac_hitheme_version;
-        wdi.state = kThemeStateActive;
-        wdi.windowType = QtWinType;
-        if (titlebar->window()) {
-            if (titlebar->window()->isMinimized())
-                wdi.attributes |= kThemeWindowIsCollapsed;
-            if (titlebar->window()->isWindowModified())
-                wdi.attributes |= kThemeWindowHasDirty;
-            wdi.attributes |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
-                | kThemeWindowHasCollapseBox;
-        } else if (titlebar->testWFlags(Qt::WStyle_SysMenu)) {
-            wdi.attributes |= kThemeWindowHasCloseBox;
-        }
-        wdi.titleHeight = titlebar->height();
-        wdi.titleWidth = titlebar->width();
-        WindowRegionCode wrc = kWindowGlobalPortRgn;
-        if(sc & SC_TitleBarCloseButton)
-            wrc = kWindowCloseBoxRgn;
-        else if(sc & SC_TitleBarMinButton)
-            wrc = kWindowCollapseBoxRgn;
-        else if(sc & SC_TitleBarMaxButton)
-            wrc = kWindowZoomBoxRgn;
-        else if(sc & SC_TitleBarLabel)
-            wrc = kWindowTitleTextRgn;
-        else if(sc & SC_TitleBarSysMenu)
-            return QRect(0, 0, 10, pixelMetric(PM_TitleBarHeight, 0));
-        if (wrc != kWindowGlobalPortRgn) {
-            QRect tmpRect = widget->rect();
-            HIShapeRef region;
-            HIThemeGetWindowShape(qt_glb_mac_rect(tmpRect), &wdi, wrc, &region);
-            HIRect titleRect;
-            HIShapeGetBounds(region, &titleRect);
-            CFRelease(region);
-            tmpRect.moveBy(tmpRect.x() - int(titleRect.origin.x),
-                           tmpRect.y() - int(titleRect.origin.y));
-            HIThemeGetWindowShape(qt_glb_mac_rect(tmpRect), &wdi, wrc, &region);
-            HIShapeGetBounds(region, &titleRect);
-            CFRelease(region);
-            rect = qrectForHIRect(titleRect);
-        }
-        break; */}
     default:
         rect = QCommonStyle::querySubControlMetrics(control, widget, sc, opt);
     }
@@ -969,9 +808,10 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
     case PE_RubberBandMask:
         p->fillRect(opt->rect, Qt::color1);
         break;
-    case PE_RubberBand:
-        p->fillRect(opt->rect, opt->palette.highlight());
-        break;
+    case PE_RubberBand: {
+                            qDebug() << opt->palette.color(QPalette::Disabled, QPalette::Highlight);
+        p->fillRect(opt->rect, opt->palette.brush(QPalette::Disabled, QPalette::Highlight));
+        break; }
     case PE_SizeGrip: {
         HIThemeGrowBoxDrawInfo gdi;
         gdi.version = qt_mac_hitheme_version;
@@ -1629,6 +1469,100 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
             HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
         }
         break;
+    case CC_TitleBar:
+        if (const Q4StyleOptionTitleBar *titlebar = qt_cast<const Q4StyleOptionTitleBar *>(opt)) {
+            HIThemeWindowDrawInfo wdi;
+            wdi.version = qt_mac_hitheme_version;
+            wdi.state = tds;
+            wdi.windowType = QtWinType;
+            wdi.attributes = kThemeWindowHasTitleText;
+            if (titlebar->titleBarState) {
+                if (titlebar->titleBarState & Qt::WindowMinimized)
+                    wdi.attributes |= kThemeWindowIsCollapsed;
+                /*
+                if (titlebar->window()->isWindowModified())
+                    wdi.attributes |= kThemeWindowHasDirty;
+                    */
+                wdi.attributes |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
+                                  | kThemeWindowHasCollapseBox;
+            } else if (titlebar->titleBarFlags & Qt::WStyle_SysMenu) {
+                wdi.attributes |= kThemeWindowHasCloseBox;
+            }
+            wdi.titleHeight = titlebar->rect.height();
+            wdi.titleWidth = titlebar->rect.width();
+            QCFType<HIShapeRef> titleRegion;
+            HIRect titleRect = qt_hirectForQRect(titlebar->rect, p);
+            QRect newr = titlebar->rect;
+            HIThemeGetWindowShape(&titleRect, &wdi, kWindowTitleBarRgn, &titleRegion);
+            HIShapeGetBounds(titleRegion, &titleRect);
+            newr.moveBy(newr.x() - (int)titleRect.origin.x, newr.y() - (int)titleRect.origin.y);
+            HIRect finalRect = qt_hirectForQRect(newr, p, false);
+            HIThemeDrawWindowFrame(&finalRect, &wdi, cg, kHIThemeOrientationNormal, 0);
+            if (titlebar->parts & SC_TitleBarLabel) {
+                int iw = 0;
+                if (!titlebar->icon.isNull()) {
+                    QCFType<HIShapeRef> titleRegion2;
+                    HIThemeGetWindowShape(&finalRect, &wdi, kWindowTitleProxyIconRgn,
+                                          &titleRegion2);
+                    HIShapeGetBounds(titleRegion2, &titleRect);
+                    if (titleRect.size.width != 1)
+                        iw = titlebar->icon.width();
+                }
+                if (!titlebar->text.isEmpty()) {
+                    p->save();
+                    QCFType<HIShapeRef> titleRegion3;
+                    HIThemeGetWindowShape(&finalRect, &wdi, kWindowTitleTextRgn, &titleRegion3);
+                    HIShapeGetBounds(titleRegion3, &titleRect);
+                    p->setClipRect(qrectForHIRect(titleRect));
+                    QRect br = p->clipRegion().boundingRect();
+                    int x = br.x(),
+                    y = br.y() + (titlebar->rect.height() / 2 - p->fontMetrics().height() / 2);
+                    if (br.width() <= (p->fontMetrics().width(titlebar->text) + iw * 2))
+                        x += iw;
+                    else
+                        x += br.width() / 2 - p->fontMetrics().width(titlebar->text) / 2;
+                    if (iw)
+                        p->drawPixmap(x - iw, y, titlebar->icon);
+                    p->drawText(x, y + p->fontMetrics().ascent(), titlebar->text);
+                    p->restore();
+                }
+            }
+            if (titlebar->parts & (SC_TitleBarCloseButton | SC_TitleBarMaxButton
+                                   | SC_TitleBarMinButton | SC_TitleBarNormalButton)) {
+                HIThemeWindowWidgetDrawInfo wwdi;
+                wwdi.version = qt_mac_hitheme_version;
+                wwdi.widgetState = tds;
+                if (titlebar->state & Style_MouseOver)
+                    wwdi.widgetState = kThemeStateRollover;
+                wwdi.windowType = QtWinType;
+                wwdi.attributes = wdi.attributes;
+                wwdi.windowState = wdi.state;
+                wwdi.titleHeight = wdi.titleHeight;
+                wwdi.titleWidth = wdi.titleWidth;
+                ThemeDrawState savedControlState = wwdi.widgetState;
+                uint sc = SC_TitleBarMinButton;
+                ThemeTitleBarWidget tbw = kThemeWidgetCollapseBox;
+                bool active = qAquaActive(titlebar->palette);
+                while (sc <= SC_TitleBarCloseButton) {
+                    uint tmp = sc;
+                    wwdi.widgetState = savedControlState;
+                    wwdi.widgetType = tbw;
+                    if (sc == SC_TitleBarMinButton)
+                        tmp |= SC_TitleBarNormalButton;
+                    if (active && (titlebar->activeParts & tmp))
+                        wwdi.widgetState = kThemeStatePressed;
+                    /*
+                    if (titlebar->window() && titlebar->window()->isWindowModified()
+                            && tbw == kThemeWidgetCloseBox)
+                        wwdi.widgetType = kThemeWidgetDirtyCloseBox;
+                            */
+                    HIThemeDrawTitleBarWidget(&finalRect, &wwdi, cg, kHIThemeOrientationNormal);
+                    sc = sc << 1;
+                    tbw = tbw >> 1;
+                }
+            }
+        }
+        break;
     default:
         QWindowsStyle::drawComplexControl(cc, opt, p, widget);
     }
@@ -1734,26 +1668,67 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
             x = spin->rect.width() - fw - spinner_w;
             switch (sc) {
                 case SC_SpinBoxUp:
-                    ret = QRect(x, y + ((spin->rect.height() - fw * 2) / 2 - spinner_h),
+                    ret.setRect(x, y + ((spin->rect.height() - fw * 2) / 2 - spinner_h),
                                 spinner_w, spinner_h);
                     break;
                 case SC_SpinBoxDown:
-                    ret = QRect(x, y + (spin->rect.height() - fw * 2) / 2, spinner_w, spinner_h);
+                    ret.setRect(x, y + (spin->rect.height() - fw * 2) / 2, spinner_w, spinner_h);
                     break;
                 case SC_SpinBoxButtonField:
-                    ret = QRect(x, y, spinner_w, spin->rect.height() - fw * 2);
+                    ret.setRect(x, y, spinner_w, spin->rect.height() - fw * 2);
                     break;
                 case SC_SpinBoxEditField:
-                    ret = QRect(fw, fw, spin->rect.width() - spinner_w - fw * 2 - macSpinBoxSep,
+                    ret.setRect(fw, fw, spin->rect.width() - spinner_w - fw * 2 - macSpinBoxSep,
                                 spin->rect.height() - fw * 2);
                     break;
                 case SC_SpinBoxFrame:
-                    ret = QRect(0, 0, spin->rect.width() - spinner_w - macSpinBoxSep,
+                    ret.setRect(0, 0, spin->rect.width() - spinner_w - macSpinBoxSep,
                                 spin->rect.height());
                     break;
                 default:
                     ret = QWindowsStyle::querySubControlMetrics(cc, spin, sc, widget);
                     break;
+            }
+        }
+        break;
+    case CC_TitleBar:
+        if (const Q4StyleOptionTitleBar *titlebar = qt_cast<const Q4StyleOptionTitleBar *>(opt)) {
+            HIThemeWindowDrawInfo wdi;
+            memset(&wdi, 0, sizeof(wdi));
+            wdi.version = qt_mac_hitheme_version;
+            wdi.state = kThemeStateActive;
+            wdi.windowType = QtWinType;
+            if (titlebar->titleBarState)
+                wdi.attributes |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
+                                  | kThemeWindowHasCollapseBox;
+            else if (titlebar->titleBarFlags & Qt::WStyle_SysMenu)
+                wdi.attributes |= kThemeWindowHasCloseBox;
+            wdi.titleHeight = titlebar->rect.height();
+            wdi.titleWidth = titlebar->rect.width();
+            WindowRegionCode wrc = kWindowGlobalPortRgn;
+            if (sc & SC_TitleBarCloseButton)
+                wrc = kWindowCloseBoxRgn;
+            else if (sc & SC_TitleBarMinButton)
+                wrc = kWindowCollapseBoxRgn;
+            else if (sc & SC_TitleBarMaxButton)
+                wrc = kWindowZoomBoxRgn;
+            else if (sc & SC_TitleBarLabel)
+                wrc = kWindowTitleTextRgn;
+            else if (sc & SC_TitleBarSysMenu)
+                ret.setRect(-1024, -1024, 10, pixelMetric(PM_TitleBarHeight, 0));
+            if (wrc != kWindowGlobalPortRgn) {
+                QCFType<HIShapeRef> region;
+                QRect tmpRect = titlebar->rect;
+                HIRect titleRect = qt_hirectForQRect(tmpRect);
+                HIThemeGetWindowShape(&titleRect, &wdi, kWindowTitleBarRgn, &region);
+                HIShapeGetBounds(region, &titleRect);
+                CFRelease(region);
+                tmpRect.moveBy(tmpRect.x() - int(titleRect.origin.x),
+                               tmpRect.y() - int(titleRect.origin.y));
+                titleRect = qt_hirectForQRect(tmpRect);
+                HIThemeGetWindowShape(&titleRect, &wdi, wrc, &region);
+                HIShapeGetBounds(region, &titleRect);
+                ret = qrectForHIRect(titleRect);
             }
         }
         break;
