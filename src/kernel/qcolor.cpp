@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#39 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#39 $")
 
 
 /*----------------------------------------------------------------------------
@@ -94,7 +94,7 @@ bool QColor::lalloc = TRUE;			// lazy color allocation
   Initializes the global colors.  This function is called if a global
   color variable is initialized before the constructors for our global
   color objects are executed.  Without this mechanism, assigning a
-  color might assign an uninitialized color value.
+  color might assign an uninitialized value.
 
   Example:
   \code
@@ -150,7 +150,7 @@ QColor::QColor()
 
   \e r, \e g and \e b must be in the rangle 0..255.
 
-  \sa setRgb()
+  \sa setRgb() setHSV() setNamedColor()
  ----------------------------------------------------------------------------*/
 
 QColor::QColor( int r, int g, int b )
@@ -485,10 +485,10 @@ QColor QColor::dark( int factor ) const
 /*----------------------------------------------------------------------------
   Enables or disables lazy color allocation.
 
-  If lazy allocation is enabled, colors will be allocated the first time
-  they are used (upon calling the pixel() function).  If lazy allocation
-  is disabled, colors will be allocated when they are constructed or when
-  setRgb() or setHsv() are called.
+  If lazy allocation is enabled, colors are allocated the first time
+  they are used (upon calling the pixel() function).  If lazy
+  allocation is disabled, colors are allocated when they are
+  constructed or when either setRgb() or setHsv() is called.
 
   The default setting is to enable lazy color allocation.
 
