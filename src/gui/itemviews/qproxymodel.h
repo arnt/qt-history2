@@ -27,8 +27,8 @@ public:
     QProxyModel(QObject *parent = 0);
     ~QProxyModel();
 
-    void setModel(QAbstractItemModel *model);
-    QAbstractItemModel *model();
+    virtual void setModel(QAbstractItemModel *model);
+    QAbstractItemModel *model() const;
 
     // implementing model interface
 

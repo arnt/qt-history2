@@ -95,7 +95,7 @@ void QProxyModel::setModel(QAbstractItemModel *model)
     }
 }
 
-QAbstractItemModel *QProxyModel::model()
+QAbstractItemModel *QProxyModel::model() const
 {
     return d->model;
 }
