@@ -3459,10 +3459,11 @@ void QTable::selectCells( int start_row, int start_col, int end_row, int end_col
 void QTable::selectRow( int row )
 {
     row = QMIN(numRows()-1, row);
-#ifndef QT_NO_SQL_VIEW_WIDGETS
-    if ( qt_cast<QDataTable*>(this) || selectionMode() == SingleRow ) {
-	setCurrentCell( row, currentColumn() );
-    } else
+    if ( row < 0 )
+	return;
+    bool isDataTable = FALSE;
+#ifndef QT_NO_SQL
+    isDataTable = ::qt_cast<QDataTable*>(this) != 0;
 #endif
     {
 	QTableSelection sel( row, 0, row, numCols() - 1 );
@@ -4111,7 +4112,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 		if ( !isRowSelection( selectionMode() ) )
 		    currentSel->init( oldRow, oldCol );
 		else
-		    currentSel->init( oldRow, 0 );
+		    currentSel->init( oldRow < 0 ? 0 : oldRow, 0 );
 	    }
 	    QTableSelection oldSelection = *currentSel;
 	    if ( !isRowSelection( selectionMode() ) )
