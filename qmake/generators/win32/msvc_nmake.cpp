@@ -315,8 +315,10 @@ NmakeMakefileGenerator::init()
 	    }
 	}
     }
-    if ( project->isActiveConfig("opengl") ) 
+    if ( project->isActiveConfig("opengl") ) {
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
+	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_OPENGL"];
+    }
     if ( project->isActiveConfig("dll") ) {
 	project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_LFLAGS_CONSOLE_DLL"];
 	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS_DLL"];

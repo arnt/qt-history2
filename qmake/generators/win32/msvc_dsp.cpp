@@ -526,10 +526,6 @@ DspMakefileGenerator::init()
 	project->variables()["CONFIG"].append("moc");
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
 
-	if ( project->isActiveConfig("opengl") ) {
-	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_OPENGL"];
-	}
-
 	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
@@ -580,6 +576,7 @@ DspMakefileGenerator::init()
     
     if ( project->isActiveConfig("opengl") ) {
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
+	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_OPENGL"];
     }
     if ( project->isActiveConfig("thread") ) {
 	if(project->isActiveConfig("qt"))

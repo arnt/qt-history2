@@ -114,7 +114,7 @@ UnixMakefileGenerator::init()
     if(!project->isEmpty("QMAKE_INCDIR")) 
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
     if(!project->isEmpty("QMAKE_LIBDIR")) 
-	project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" + project->first("QMAKE_LIBDIR"));
+	project->variables()["QMAKE_LIBDIR_FLAGS"] += project->variables()["QMAKE_LIBDIR"];
     if ( extern_libs && (project->isActiveConfig("qt") || project->isActiveConfig("opengl")) ) {
 	if(configs.findIndex("x11lib") == -1) 
 	    configs.append("x11lib");
