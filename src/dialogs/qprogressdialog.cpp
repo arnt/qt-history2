@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#31 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#32 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -30,7 +30,7 @@
 
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.
-static const int showTime    = 4000;
+static const int defaultShowTime    = 4000;
 // Wait at least this long before attempting to make a prediction.
 static const int minWaitTime = 50;
 
@@ -50,7 +50,8 @@ struct QProgressData
 	cancel( 0 ),
 	bar( new QProgressBar(totalSteps,that,"bar") ),
 	shown_once( FALSE ),
-	cancellation_flag( FALSE )
+	cancellation_flag( FALSE ),
+	showTime( defaultShowTime )
     {
 	label->setAlignment( that->style() != WindowsStyle ?
 			     AlignCenter : AlignLeft|AlignVCenter );
@@ -64,6 +65,7 @@ struct QProgressData
     bool	  cancellation_flag;
     QTime	  starttime;
     QCursor	  parentCursor;
+    int		  showTime;
 };
 
 
@@ -433,9 +435,9 @@ void QProgressDialog::setProgress( int progress )
 	    d->starttime.start();
 	} else {
 	    int elapsed = d->starttime.elapsed();
-	    if ( elapsed > minWaitTime ) {
+	    if ( !d->showTime || elapsed > minWaitTime ) {
 		int estimate = elapsed * (totalSteps() - progress) / progress;
-		if ( estimate > showTime ) {
+		if ( estimate >= d->showTime ) {
 		    resize(sizeHint());
 		    center();
 		    show();
@@ -541,4 +543,26 @@ void QProgressDialog::layout()
 
     label()->setGeometry( mlr, 0, width()-mlr*2, lh );
     bar()->setGeometry( mlr, lh+sp, width()-mlr*2, bh.height() );
+}
+
+/*!
+  The dialog will not appear if the anticipated duration of the
+  progressing task is less than \a ms milliseconds.
+
+  If set to 0 the dialog is always shown as soon as any progress
+  is set.
+*/
+void QProgressDialog::setMinimumDuration( int ms )
+{
+    d->showTime = ms;
+}
+
+/*!
+  Returns the currently set minimum duration for the QProgressDialog
+  
+  \sa setMinimumDuration()
+*/
+int QProgressDialog::minimumDuration() const
+{
+    return d->showTime;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#17 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#18 $
 **
 ** Definition of QProgressDialog class
 **
@@ -63,6 +63,9 @@ public slots:
     void	setProgress( int progress );
     void	setLabelText( const QString &);
     void	setCancelButtonText( const QString &);
+
+    void	setMinimumDuration( int ms );
+    int		minimumDuration() const;
 
 signals:
     void	cancelled();
