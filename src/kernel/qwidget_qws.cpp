@@ -604,7 +604,6 @@ void QWidget::update(const QRegion &rgn, bool erase)
 {
      if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible)
 	QApplication::postEvent(this, new QPaintEvent( rgn&clipRegion(), erase));
-    }
 }
 
 void QWidget::update(int x, int y, int w, int h, bool erase)
@@ -1119,7 +1118,7 @@ void QWidget::setBaseSize( int basew, int baseh )
     }
 }
 
-void QWidgetPrivate::erase_helper( const QRegion& reg )
+void QWidgetPrivate::erase_helper( const QRegion& rgn )
 {
     QPoint offset;
     QStack<QWidget*> parents;
