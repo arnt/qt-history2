@@ -317,7 +317,7 @@ QByteArray qCompress(const uchar* data, int nbytes, int compressionLevel)
     if (compressionLevel < -1 || compressionLevel > 9)
         compressionLevel = -1;
 
-    ulong len = nbytes * 101 / 100 + 13;
+    ulong len = nbytes + nbytes / 100 + 13;
     QByteArray bazip;
     int res;
     do {
