@@ -95,85 +95,81 @@ QFilePrivate::setError(QFile::Error err, int errNum)
 
 /*!
     \class QFile
-    \reentrant
-    \brief The QFile class is an I/O device that operates on files.
+    \brief The QFile class provides an interface for reading from and writing to files.
 
     \ingroup io
     \mainclass
+    \reentrant
 
-    QFile is an I/O device for reading and writing binary and text
+    QFile is an I/O device for reading and writing text and binary
     files and \l{resources.html}{resources}. A QFile may be used by
-    itself or, more conveniently, with a QDataStream or QTextStream.
+    itself or, more conveniently, with a QTextStream or QDataStream.
 
     The file name is usually passed in the constructor, but it can be
-    changed with setFileName(). You can check for a file's existence with
-    exists(), and remove a file with remove().
+    set at any time using setFileName(). You can check for a file's
+    existence using exists(), and remove a file using remove(). (More
+    advanced file system related operations are provided by QFileInfo
+    and QDir.)
 
     The file is opened with open(), closed with close(), and flushed
     with flush(). Data is usually read and written using QDataStream
-    or QTextStream, but you can read with read() and readLine(),
-    and write with write(). QFile also supports getch(), ungetch(),
-    and putch().
+    or QTextStream, but you can also call the QIODevice-inherited
+    functions read(), readLine(), readAll(), write(). QFile also
+    inherits getChar(), putChar(), and ungetChar(), which work one
+    character at a time.
 
     The size of the file is returned by size(). You can get the
-    current file position or move to a new file position using the
-    at() functions. If you've reached the end of the file, atEnd()
-    returns true. The file handle is returned by handle().
+    current file position using pos(), or move to a new file position
+    using seek(). If you've reached the end of the file, atEnd()
+    returns true.
 
-    The following example uses QTextStream to read a text file
-    line by line, printing each line with a line number:
-    \code
-    QStringList lines;
-    QFile file("file.txt");
-    if (file.open(QIODevice::ReadOnly)) {
-        QTextStream stream(&file);
-        QString line;
-        int i = 1;
-        while (!stream.atEnd()) {
-            line = stream.readLine(); // line of text excluding '\n'
-            printf("%3d: %s\n", i++, line.latin1());
-            lines += line;
-        }
-        file.close();
-    }
-    \endcode
+    The following example reads a text file line by line:
 
-    Writing text is just as easy. The following example shows how to
-    write the data we read in the previous example to a file:
-    \code
-    QFile file("file.txt");
-    if (file.open(QIODevice::WriteOnly)) {
-        QTextStream stream(&file);
-        QStringList::ConstIterator i = lines.constBegin();
-        for (; i != lines.constEnd(); ++i)
-            stream << *i << "\n";
-        file.close();
-    }
-    \endcode
+    \quotefromfile snippets/file/file.cpp
+    \skipto noStream_snippet
+    \skipto QFile
+    \printto /^\}/
 
-    The QFileInfo class holds detailed information about a file, such
-    as access permissions, file dates and file types.
+    The QIODevice::Text flag passed to open() tells Qt to convert
+    Windows-style line terminators ("\\r\\n") into C++-style
+    terminators ("\\n"). By default, QFile assumes binary, i.e. it
+    doesn't perform any conversion on the bytes stored in the file.
 
-    The QDir class manages directories and lists of file names.
+    The next example uses QTextStream to read a text file
+    line by line:
+
+    \skipto readTextStream_snippet
+    \skipto QFile
+    \printto /^\}/
+
+    QTextStream takes care of converting the 8-bit data stored on
+    disk into a 16-bit Unicode QString. By default, it assumes that
+    the user system's local 8-bit encoding is used (e.g., ISO 8859-1
+    for most of Europe; see QTextCodec::codecForLocale() for
+    details). This can be changed using QTextCodec::setEncoding() or
+    QTextCodec::setCodec().
+
+    To write text, we can use operator<<(), which is overloaded to
+    take a QTextStream on the left and various data types (including
+    QString) on the right:
+
+    \skipto writeTextStream_snippet
+    \skipto QFile
+    \printto /^\}/
+
+    QDataStream is similar, in that you can use operator<<() to write
+    data and operator>>() to read it back. See the class
+    documentation for details.
 
     When you use QFile, QFileInfo, and QDir to access the file system
-    with Qt, you can use Unicode file names. On Unix, these file names
-    are converted to an 8-bit encoding. If you want to do your own
-    file I/O on Unix, you should convert file names using the
-    encodeName() and decodeName() functions to convert the file name
-    into the local encoding.
+    with Qt, you can use Unicode file names. On Unix, these file
+    names are converted to an 8-bit encoding. If you want to use
+    standard C++ APIs (\c <cstdio> or \c <iostream>) or
+    platform-specific APIs to access files instead of QFile, you can
+    use the encodeName() and decodeName() functions to convert
+    between Unicode file names and 8-bit file names.
 
-    The conversion scheme can be changed using setEncodingFunction().
-    This might be useful if you wish to give the user an option to
-    store file names in UTF-8, for example, but be aware that such file
-    names would probably then be unrecognizable when seen by other
-    programs.
-
-    On Windows NT/2000, Unicode file names are supported
-    directly in the file system and this function should be avoided.
-    On Windows 95, non-Latin1 locales are not supported.
-
-    \sa QDataStream, QTextStream, {resources.html}{Qt's Resource System}
+    \sa QTextStream, QDataStream, QFileInfo, QDir, {resources.html}{Qt's Resource System}
 */
 
 /*!
@@ -230,6 +226,14 @@ QFilePrivate::setError(QFile::Error err, int errNum)
     rights of the current user, you should use isReadable(), isWritable() and
     isExecutable().
 */
+
+#ifdef QT_COMPAT
+/*!
+    \typedef QFile::PermissionSpec
+
+    Use QFile::Permission instead.
+*/
+#endif
 
 #ifdef QT_NO_QOBJECT
 QFile::QFile()
@@ -719,8 +723,10 @@ QFile::copy(const QString &fileName, const QString &newName)
 }
 
 /*!
-    Returns true if the file can only be manipulated sequentially; otherwise
-    returns false.
+    Returns true if the file can only be manipulated sequentially;
+    otherwise returns false.
+
+    Most files support random-access, but some special files may not.
 
     \sa QIODevice::isSequential()
 */
@@ -766,21 +772,27 @@ QFile::open(OpenMode flags, FILE *fh)
 }
 
 /*!
-    \reimp
+    Opens the file using OpenMode \a mode.
+
+    The \a mode must be QIODevice::ReadOnly, QIODevice::WriteOnly, or
+    QIODevice::ReadWrite. It may also have additional flags, such as
+    QIODevice::Text and QIODevice::Unbuffered.
+
+    \sa QIODevice::OpenMode
 */
 
 bool
-QFile::open(OpenMode flags)
+QFile::open(OpenMode mode)
 {
     if (isOpen()) {
         qWarning("QFile::open: File already open");
         return false;
     }
-    if (flags & Append)
-        flags |= WriteOnly;
+    if (mode & Append)
+        mode |= WriteOnly;
     unsetError();
-    setOpenMode(flags);
-    if ((flags & (ReadOnly | WriteOnly)) == 0) {
+    setOpenMode(mode);
+    if ((mode & (ReadOnly | WriteOnly)) == 0) {
         qWarning("QIODevice::open: File access not specified");
         return false;
     }
@@ -865,9 +877,7 @@ QFile::handle() const
 }
 
 /*!
-    Returns true if the file is open; otherwise returns false.
-
-    \sa open(), close()
+    \internal
 */
 bool QFile::isOpen() const
 {
