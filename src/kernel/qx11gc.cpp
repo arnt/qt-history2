@@ -608,12 +608,6 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
     updatePen(ps);
     updateClipRegion(ps);
 
-//     QRect rg = ps->clipRegion.boundingRect();
-//    if (!redirection_offset.isNull()) {
-// 	txop = TxTranslate;
-// 	setf(WxF, true);
-//     }
-
     return true;
 }
 
@@ -919,7 +913,6 @@ void QX11GC::updateBrush(QPainterState *state)
 
     int  bs = d->cbrush.style();
     int x = 0, y = 0;
-//     map( d->bro.x(), d->bro.y(), &x, &y );
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
                    (bs == NoBrush || bs == SolidPattern) &&
 	           x == 0 && y == 0 && d->rop == CopyROP;
