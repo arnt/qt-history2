@@ -47,6 +47,13 @@
 
 // -----------------------------------------------------
 
+enum Shape {
+    XIsolated,
+    XFinal,
+    XInitial,
+    XMedial
+};
+
 /* a small helper class used internally to resolve Bidi embedding levels.
    Each line of text caches the embedding level at the start of the line for faster
    relayouting
@@ -140,6 +147,7 @@ static inline const QChar *nextChar( const QString &str, int pos)
     return &QChar::replacement;
 }
 
+#if 0
 static inline bool prevVisualCharJoins( const QString &str, int pos)
 {
     return (     prevChar( str, pos )->joining() != QChar::OtherJoining );
@@ -150,7 +158,6 @@ static inline bool nextVisualCharJoins( const QString &str, int pos)
     QChar::Joining join = nextChar( str, pos )->joining();
     return ( join == QChar::Dual || join == QChar::Center );
 }
-
 
 QComplexText::Shape QComplexText::glyphVariant( const QString &str, int pos)
 {
@@ -173,6 +180,7 @@ QComplexText::Shape QComplexText::glyphVariant( const QString &str, int pos)
     }
     return XIsolated;
 }
+#endif
 
 /* and the same thing for logical ordering :)
  */
@@ -188,7 +196,7 @@ static inline bool nextLogicalCharJoins( const QString &str, int pos)
 }
 
 
-QComplexText::Shape QComplexText::glyphVariantLogical( const QString &str, int pos)
+static inline Shape glyphVariantLogical( const QString &str, int pos)
 {
     // ignores L1 - L3, ligatures are job of the codec
     QChar::Joining joining = str[pos].joining();
@@ -571,31 +579,25 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 	shapeBufSize = len;
     }
 
-    int lenOut = 0;
     QChar *data = shapeBuffer;
     if ( dir == QPainter::RTL )
 	ch += len - 1;
     for ( int i = 0; i < len; i++ ) {
 	uchar r = ch->row();
-	uchar c = ch->cell();
 	if ( r != 0x06 ) {
 	    if ( r == 0x20 ) {
-	        // remove ZWJ and ZWNJ
-		switch ( c ) {
-		    case 0x0C: // ZERO WIDTH NONJOINER
-		    case 0x0D: // ZERO WIDTH JOINER
-			goto skip;
-		    default:
-			break;
-		}
+		uchar c = ch->cell();
+		if (c == 0x0c || c == 0x0d)
+		    // remove ZWJ and ZWNJ
+		    goto skip;
 	    }
-	    if ( dir == QPainter::RTL && ch->mirrored() )
+	    if ( dir == QPainter::RTL )
 		*data = ch->mirroredChar();
 	    else
 		*data = *ch;
 	    data++;
-	    lenOut++;
 	} else {
+	    uchar c = ch->cell();
 	    int pos = i + from;
 	    if ( dir == QPainter::RTL )
 		pos = from + len - 1 - i;
@@ -637,7 +639,6 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 	next:
 	    *data = map;
 	    data++;
-	    lenOut++;
 	}
     skip:
 	if ( dir == QPainter::RTL )
@@ -645,6 +646,7 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 	else
 	    ch++;
     }
+    int lenOut = data - shapeBuffer;
 
     if ( dir == QPainter::Auto && !uc.simpleText() ) {
 	return bidiReorderString( QConstString( shapeBuffer, lenOut ).string() );
@@ -1454,6 +1456,7 @@ QString QComplexText::bidiReorderString( const QString &str, QChar::Direction /*
     visual.setUnicode( 0, len );
     QChar *vch = (QChar *)visual.unicode();
     const QChar *ch = str.unicode();
+    const QChar *str_uc = ch;
     while( lineStart < len ) {
 	lineEnd = lineStart;
 	while( lineEnd < len && *ch != '\n' ) {
@@ -1470,16 +1473,14 @@ QString QComplexText::bidiReorderString( const QString &str, QChar::Direction /*
 		// odd level, need to reverse the string
 		int pos = r->stop;
 		while(pos >= r->start) {
-		    *vch = str[pos];
-		    if ( vch->mirrored() )
-			*vch = vch->mirroredChar();
+		    *vch = str_uc[pos].mirroredChar();
 		    vch++;
 		    pos--;
 		}
 	    } else {
 		int pos = r->start;
 		while(pos <= r->stop) {
-		    *vch = str[pos];
+		    *vch = str_uc[pos];
 		    vch++;
 		    pos++;
 		}
