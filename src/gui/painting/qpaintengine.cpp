@@ -279,11 +279,12 @@
 
 /*!
     \fn void QPaintEngine::drawTiledPixmap(const QRect &rectangle, const
-    QPixmap &pixmap, const QPoint &point)
+    QPixmap &pixmap, const QPoint &point, Qt::PixmapDrawingMode mode)
 
     Reimplement this function to draw the \a pixmap in the given \a
     rectangle, starting at the given \a point. The pixmap will be
-    drawn repeatedly until the \a rectangle is filled.
+    drawn repeatedly until the \a rectangle is filled using the given
+    \a mode.
 */
 
 /*!

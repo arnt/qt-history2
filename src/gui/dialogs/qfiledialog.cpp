@@ -490,6 +490,13 @@ public:
 */
 
 /*!
+    \enum QFileDialog::AcceptMode
+
+    \value Open
+    \value Save
+*/
+
+/*!
     \enum QFileDialog::ViewMode
 
     This enum describes the view mode of the file dialog; i.e. what
