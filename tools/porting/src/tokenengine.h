@@ -21,8 +21,6 @@
 #include <QSharedDataPointer>
 #include <QMap>
 
-using namespace std;
-
 namespace TokenEngine {
 
 class TokenContainer;
