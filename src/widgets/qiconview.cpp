@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#44 $
 **
 ** Definition of QIconView widget class
 **
@@ -1148,8 +1148,8 @@ void QIconViewItem::dragLeft()
 */
 
 
-/*! \enum QIconView::SelectionMode 
-  
+/*! \enum QIconView::SelectionMode
+
   This enum type specifies the different selection modes of the
   iconview.
   <ul>
@@ -1158,16 +1158,57 @@ void QIconViewItem::dragLeft()
   <li>\c StrictMulti (multiple items can be selected, but only if the user pressed CTRL while selecting them)
   </ul>
 */
-  
-/* \enum AlignMode
-   
+
+/*! \enum QIconView::AlignMode
+
    This enum type descides in which direction the items, which do not fit onto the
    screen anymore flow.
-   
+
    <ul>
    <li> East (Items, which don't fit onto the view, go further down (you get a vertical scrollbar)
    <li> South (Items, which don't fit onto the view, go further right (you get a horizontal scrollbar)
    </ul>
+*/
+
+/*! \fn void  QIconView::dropped (QDropEvent * e)
+  This signal is emitted, when a drop event occured onto the viewport (not onto an icon), 
+  which the iconview itself can't handle
+*/
+
+/*! \fn void  QIconView::moved ()
+  This signal is emitted after successfully dropping an (or some) item(s) of the iconview
+  somewhere and if they should be removed now.
+*/
+
+/*! \fn void  QIconView::doubleClicked (QIconViewItem * item)
+  This signal is emitted, if the user doubleclicked on the item \a item.
+*/
+
+/*! \fn void  QIconView::itemRightClicked (QIconViewItem * item) 
+  This signal is emitted, if the user clicked on the item \a item using the right mouse button.
+*/
+
+/*! \fn void  QIconView::viewportRightClicked ()
+  This signal is emitted, when the user clicked with the right mouse button onto the viewport
+  (not on an item)
+*/
+
+/*! \fn void  QIconView::selectionChanged () 
+  This signal is emitted when the selection has been changed.
+*/
+
+/*! \fn void  QIconView::selectionChanged (int numItems) 
+  This signal is emitted when the selection has been changed.
+  \a numItems specifies the number of selected items.
+*/
+
+/*! \fn void QIconView::currentChanged () 
+  This signal is emitted, when the different items got current.
+*/
+
+/*! \fn void QIconView::currentChanged ( QIconViewItem *item ) 
+  This signal is emitted, when the different items got current.
+  \a item is the new current item of 0, if no items is current now.
 */
 
 /*!
@@ -1822,7 +1863,7 @@ void QIconView::setMaxItemWidth( int w )
 /*!
   Sets the maximum length (in characters), which an item text may have.
 */
-  
+
 void QIconView::setMaxItemTextLength( int w )
 {
     d->maxItemTextLength = w;
@@ -2488,11 +2529,7 @@ void QIconView::drawRubber( QPainter *p )
 }
 
 /*!
-  Returns the QDragObject which should be used for DnD. In fact, this calls
-  QIconViewItem::dragObject() of the current item, or returns NULL, of the
-  is no current item.
-
-  Subclasses should reimplement this.
+  Returns the QDragObject which should be used for DnD.  Subclasses may reimplement this.
 
   \sa QIconViewItem::dragObject()
 */
