@@ -208,6 +208,10 @@ void QInputContext::init()
 	qt_use_rtl_extensions = isValidLanguageGroup( LGRPID_ARABIC, LGRPID_INSTALLED )
 			     || isValidLanguageGroup( LGRPID_HEBREW, LGRPID_INSTALLED );
     }
+    qt_use_rtl_extensions |= IsValidLocale( MAKELCID( MAKELANGID( LANG_ARABIC, SUBLANG_DEFAULT ), SORT_DEFAULT ), LCID_INSTALLED )
+			  || IsValidLocale( MAKELCID( MAKELANGID( LANG_HEBREW, SUBLANG_DEFAULT ), SORT_DEFAULT ), LCID_INSTALLED )
+			  || IsValidLocale( MAKELCID( MAKELANGID( LANG_SYRIAC, SUBLANG_DEFAULT ), SORT_DEFAULT ), LCID_INSTALLED )
+			  || IsValidLocale( MAKELCID( MAKELANGID( LANG_FARSI, SUBLANG_DEFAULT ), SORT_DEFAULT ), LCID_INSTALLED );
 }
 
 void QInputContext::shutdown()
