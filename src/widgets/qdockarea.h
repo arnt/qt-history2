@@ -65,7 +65,7 @@ class Q_EXPORT QDockAreaLayout : public QLayout
 {
     Q_OBJECT
     friend class QDockArea;
-    
+
 public:
     QDockAreaLayout( QWidget* parent, Qt::Orientation o, QList<QDockWindow> *wl, int space = -1, int margin = -1, const char *name = 0 )
 	: QLayout( parent, space, margin, name ), orient( o ), dockWindows( wl ), parentWidget( parent ) { init(); }
@@ -154,7 +154,8 @@ private:
     void updateLayout();
     void invalidateFixedSizes();
     int maxSpace( int hint, QDockWindow *dw );
-
+    void setFixedExtent( int d, QDockWindow *dw );
+    
 private:
     Orientation orient;
     QList<QDockWindow> *dockWindows;

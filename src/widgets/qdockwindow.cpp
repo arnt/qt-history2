@@ -169,8 +169,10 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 		d = QMAX( d, dockWindow->minimumHeight() );
 		int ms = dockWindow->area()->maxSpace( d, dockWindow );
 		d = QMIN( d, ms );
+		dockWindow->setFixedExtentHeight( d );
+	    } else {
+		dockWindow->area()->setFixedExtent( d, dockWindow );
 	    }
-	    dockWindow->setFixedExtentHeight( d );
 	} else {
 	    int dx;
 	    if ( dockWindow->area()->gravity() == QDockArea::Normal || orientation() != dockWindow->area()->orientation() )
@@ -183,8 +185,10 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 		d = QMAX( d, dockWindow->minimumWidth() );
 		int ms = dockWindow->area()->maxSpace( d, dockWindow );
 		d = QMIN( d, ms );
+		dockWindow->setFixedExtentWidth( d );
+	    } else {
+		dockWindow->area()->setFixedExtent( d, dockWindow );
 	    }
-	    dockWindow->setFixedExtentWidth( d );
 	}
     }
 

@@ -573,7 +573,7 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	if ( width() - offs < dockWindow->minimumHeight() )
 	    dockWindow->setOffset( width() - dockWindow->minimumHeight() );
     }
-    
+
     if ( dockWindows->isEmpty() ) {
 	dockWindows->append( dockWindow );
     } else {
@@ -598,10 +598,10 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	    else
 		dockLine = lines.count(); // insert after the last line
 	} else { // inside the dock (we have found a dockLine)
-	    if ( point_pos( pos, orientation(), TRUE ) < 
+	    if ( point_pos( pos, orientation(), TRUE ) <
 		 point_pos( lineRect.topLeft(), orientation(), TRUE ) + 4 ) { 	// mouse was at the very beginning of the line
 		insertLine = TRUE;					// insert a new line before that with the docking widget
-	    } else if ( point_pos( pos, orientation(), TRUE ) > 
+	    } else if ( point_pos( pos, orientation(), TRUE ) >
 			point_pos( lineRect.topLeft(), orientation(), TRUE ) +
 			size_extent( lineRect.size(), orientation(), TRUE ) - 4 ) {	// mouse was at the very and of the line
 		insertLine = TRUE;						// insert a line after that with the docking widget
@@ -987,7 +987,6 @@ int QDockArea::maxSpace( int hint, QDockWindow *dw )
 
     int diff = hint - ( orientation() == Horizontal ? dw->width() : dw->height() );
 
-    int oldHint = hint;
     if ( ( orientation() == Horizontal ? w->width() : w->height() ) - diff < min )
 	hint = ( orientation() == Horizontal ? dw->width() : dw->height() ) + ( orientation() == Horizontal ? w->width() : w->height() ) - min;
 
@@ -998,3 +997,30 @@ int QDockArea::maxSpace( int hint, QDockWindow *dw )
 	w->setFixedExtentHeight( w->height() - diff );
     return hint;
 }
+
+void QDockArea::setFixedExtent( int d, QDockWindow *dw )
+{
+    QList<QDockWindow> lst;
+    QDockWindow *w;
+    for ( w = dockWindows->first(); w; w = dockWindows->next() ) {
+	if ( orientation() == Horizontal ) {
+	    if ( dw->y() != w->y() )
+		continue;
+	} else {
+	    if ( dw->x() != w->x() )
+		continue;
+	}
+	if ( orientation() == Horizontal ) 
+	    d = QMAX( d, w->minimumHeight() );
+	else
+	    d = QMAX( d, w->minimumWidth() );
+	lst.append( w );
+    }
+    for ( w = lst.first(); w; w = lst.next() ) {
+	if ( orientation() == Horizontal ) 
+	    w->setFixedExtentHeight( d );
+	else
+	    w->setFixedExtentWidth( d );
+    }    
+}
+
