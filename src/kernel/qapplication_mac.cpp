@@ -660,12 +660,17 @@ static EventRef request_activate_pending = 0;
 
 bool qt_event_remove_activate()
 {
-    return qt_event_remove(request_activate_pending);
+    if (request_activate_pending) {
+	RemoveEventFromQueue(GetMainEventQueue(), request_activate_pending);
+	//ReleaseEvent(request_activate_pending); // Weird crash bug on Panther, better to leak.
+	request_activate_pending = 0;
+    }
+    return TRUE;
 }
 
 void qt_event_request_activate(QWidget *w)
 {
-    qt_event_remove(request_activate_pending);
+    qt_event_remove_activate();
     CreateEvent(0, kEventClassQt, kEventQtRequestActivate, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &request_activate_pending);
     SetEventParameter(request_activate_pending, kEventParamQWidget, typeQWidget, sizeof(w), &w);
@@ -673,15 +678,15 @@ void qt_event_request_activate(QWidget *w)
     ReleaseEvent(request_activate_pending);
 }
 
-static void qt_event_cleanup(QWidget *w, EventRef event)
+static void qt_event_cleanup(QWidget *w, EventRef &event)
 {
     if (event) {
 	if (IsEventInQueue(GetMainEventQueue(), event))  {
 	    QWidget *widget = 0;
 	    GetEventParameter(event, kEventParamQWidget, typeQWidget, 0, sizeof(widget), 0, &widget);
 	    if (w == widget) {
-		RemoveEventFromQueue(GetMainEventQueue(), request_activate_pending);
-		cleanupEventRef(request_activate_pending);
+		RemoveEventFromQueue(GetMainEventQueue(), event);
+		cleanupEventRef(event);
 	    }
 	}
     }
