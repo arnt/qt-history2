@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#23 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#24 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -1511,7 +1511,7 @@ QString QDomNode::nodeName() const
     if ( !impl )
 	return QString::null;
 
-    if ( !IMPL->prefix.isNull() )
+    if ( !IMPL->prefix.isEmpty() )
 	return IMPL->prefix + ":" + IMPL->name;
     return IMPL->name;
 }
