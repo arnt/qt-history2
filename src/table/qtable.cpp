@@ -3952,7 +3952,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
     if ( oldSelection && *oldSelection == *newSelection )
 	return;
     if ( oldSelection && !oldSelection->isActive() )
-	oldSelection = 0;
+ 	oldSelection = 0;
 
     bool optimize1 = FALSE;
     bool optimize2 = FALSE;
@@ -5113,16 +5113,7 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 	int secAt = sectionAt( p );
 	if ( ( e->state() & ControlButton ) != ControlButton
 	     || table->selectionMode() == QTable::Single ) {
-	    bool upd = TRUE;
-	    if ( ( orientation() == Horizontal &&
-		   table->isColumnSelected( secAt, TRUE ) ||
-		   orientation() == Vertical &&
-		   table->isRowSelected( secAt, TRUE ) ) &&
-		 table->numSelections() == 1 )
-		upd = FALSE;
-	    table->viewport()->setUpdatesEnabled( upd );
 	    table->clearSelection();
-	    table->viewport()->setUpdatesEnabled( TRUE );
 	}
 	saveStates();
 	if ( table->selectionMode() != QTable::NoSelection ) {
