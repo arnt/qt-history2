@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#118 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#119 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -15,13 +15,12 @@
 #include "qaccel.h"
 #include "qpainter.h"
 #include "qdrawutl.h"
-#include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 #include "qbitmap.h"
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#118 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#119 $");
 
 
 // Motif style parameters
@@ -67,7 +66,7 @@ static int syncMenuId;
 #error "Remove QPopupMenu dict!"
 #endif
 
-#include <qintdict.h>
+#include <qptrdict.h>
 
 
 struct QPopupMenuExtra {
@@ -76,7 +75,7 @@ struct QPopupMenuExtra {
 };
 
 
-static QIntDict<QPopupMenuExtra> *qpm_extraStuff = 0;
+static QPtrDict<QPopupMenuExtra> *qpm_extraStuff = 0;
 
 static void cleanupPopupMenu()
 {
@@ -85,31 +84,32 @@ static void cleanupPopupMenu()
 }
 
 
-static QPopupMenuExtra * makePMDict( QPopupMenu * that )
+static QPopupMenuExtra * makePMDict( QPopupMenu *that )
 {
     if ( !qpm_extraStuff ) {
-	qpm_extraStuff = new QIntDict<QPopupMenuExtra>;
+	qpm_extraStuff = new QPtrDict<QPopupMenuExtra>;
 	CHECK_PTR( qpm_extraStuff );
+	qpm_extraStuff->setAutoDelete( TRUE );
 	qAddPostRoutine( cleanupPopupMenu );
     }
 
-    QPopupMenuExtra * x = (QPopupMenuExtra *)qpm_extraStuff->find( (long)that );
+    QPopupMenuExtra *x = (QPopupMenuExtra *)qpm_extraStuff->find( that );
     if ( !x ) {
 	x = new QPopupMenuExtra;
 	x->hasDoubleItem = FALSE;
 	x->maxPMWidth = 0;
-	qpm_extraStuff->insert( (long)that, x );
+	qpm_extraStuff->insert( that, x );
     }
 
     return x;
 }
 
 
-static QPopupMenuExtra * lookInPMDict( const QPopupMenu * that )
+static QPopupMenuExtra * lookInPMDict( const QPopupMenu *that )
 {
-    QPopupMenuExtra * x = 0;
+    QPopupMenuExtra *x = 0;
     if ( qpm_extraStuff )
-	x = (QPopupMenuExtra *)qpm_extraStuff->find( (long)that );
+	x = (QPopupMenuExtra *)qpm_extraStuff->find( (void *)that );
     return x;
 }
 
@@ -375,7 +375,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 QPopupMenu::~QPopupMenu()
 {
     if ( qpm_extraStuff )
-	qpm_extraStuff->remove( (long)this );
+	qpm_extraStuff->remove( this );
     delete autoaccel;
     if ( parentMenu )
 	parentMenu->removePopup( this );	// remove from parent menu
