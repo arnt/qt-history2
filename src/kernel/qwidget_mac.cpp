@@ -95,7 +95,7 @@ QPoint posInWindow(QWidget *w)
     return w->posInTL;
 }
 
-static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE)
+static void paint_children(QWidget * p,const QRect& r, bool now=FALSE)
 {
     if(!p || r.isEmpty())
 	return;
@@ -105,17 +105,15 @@ static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE)
     else 
 	QApplication::postEvent(p, new QPaintEvent(r,
 				       !p->testWFlags(QWidget::WRepaintNoErase) ) );
-	
-    QObjectList * childObjects=(QObjectList*)p->children();
-    if(childObjects) {
-	QObject * o;
-	for(o=childObjects->first();o!=0;o=childObjects->next()) {
-	    if( o->isWidgetType() ) {
-		QWidget *w = (QWidget *)o;
+
+    if(QObjectList * childObjects=(QObjectList*)p->children()) {
+	for(QObjectListIt it(*childObjects); it.current(); ++it) {
+	    if( (*it)->isWidgetType() ) {
+		QWidget *w = (QWidget *)(*it);
 		if ( w->testWState(Qt::WState_Visible) ) {
-		    QRegion wr = QRegion(w->geometry()) & r;
+		    QRect wr = w->geometry() & r;
 		    if ( !wr.isEmpty() ) {
-			wr.translate(-w->x(),-w->y());
+			wr.moveBy( -w->x(), -w->y() );
 			paint_children(w, wr, now);
 		    }
 		}
@@ -745,7 +743,7 @@ void QWidget::showWindow()
 	qApp->sendPostedEvents();
 
 	//forces a paint event before the window is shown
-	paint_children(this, QRegion(0, 0, width(), height()), TRUE );
+	paint_children(this, QRect(0, 0, width(), height()), TRUE );
 
 	//handle transition
 	if(parentWidget()) {
@@ -955,8 +953,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if(isMove || isResize) {
 	    update();
 	    if( parentWidget()) {
-		QRegion upd = QRegion(r) | QRegion(( QRect(oldp, olds) ));
-		paint_children( parentWidget(), upd );
+		paint_children( parentWidget(), r );
+		paint_children( parentWidget(), QRect(oldp, olds) );
 	    }
 	}
     } else {
