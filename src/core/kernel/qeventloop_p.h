@@ -97,6 +97,7 @@ struct TimerInfo {                                // internal timer info
 };
 typedef QList<TimerInfo*>  TimerVec;                // vector of TimerInfo structs
 typedef QHash<int,TimerInfo*> TimerDict;                // fast dict of timers
+typedef QHash<int, QSockNot*> QSNDict;
 
 #endif // Q_WS_WIN
 
@@ -151,6 +152,12 @@ public:
     bool activateTimer(uint id);
     TimerVec timerVec;
     TimerDict timerDict;
+
+    QSNDict sn_read;
+    QSNDict sn_write;
+    QSNDict sn_except;
+
+    HWND sn_win;
 #endif
 
     QEventLoop::ProcessEventHandler process_event_handler;

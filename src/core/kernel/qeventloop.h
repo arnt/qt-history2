@@ -102,6 +102,7 @@ private:
 
 #ifdef Q_WS_WIN
     friend Q_CORE_EXPORT bool qt_dispatch_timer(uint timerId, MSG *msg);
+    friend bool qt_dispatch_socketnotifier(MSG *msg);
 #endif
 };
 

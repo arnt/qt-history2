@@ -22,9 +22,6 @@
 
 #include "qmutex.h"
 
-static LRESULT CALLBACK win_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
-static HWND qt_create_sn_window();
-
 extern uint qGlobalPostedEventsCount();
 extern HINSTANCE qWinAppInst();
 
@@ -37,8 +34,6 @@ extern Q_CORE_EXPORT bool        qt_win_use_simple_timers = true;
 extern Q_CORE_EXPORT bool        qt_win_use_simple_timers = false;
 #endif
 void CALLBACK   qt_simple_timer_func(HWND, UINT, UINT, DWORD);
-
-Q_CORE_EXPORT bool qt_dispatch_timer(uint, MSG *);
 
 extern Q_CORE_EXPORT int         numZeroTimers        = 0;                // number of full-speed timers
 
@@ -72,19 +67,9 @@ Q_CORE_EXPORT bool winGetMessage(MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 }
 
 
-//
-// Internal data structure for timers
-//
-
-void CALLBACK qt_simple_timer_func(HWND, UINT, UINT idEvent, DWORD)
-{
-    qt_dispatch_timer(idEvent, 0);
-}
-
-
 // Activate a timer, used by both event-loop based and simple timers.
 
-bool qt_dispatch_timer(uint timerId, MSG *msg)
+Q_CORE_EXPORT bool qt_dispatch_timer(uint timerId, MSG *msg)
 {
     long res = 0;
     QEventLoop *eventLoop = QEventLoop::instance();
@@ -93,6 +78,14 @@ bool qt_dispatch_timer(uint timerId, MSG *msg)
     return true;
 }
 
+//
+// Internal data structure for timers
+//
+
+void CALLBACK qt_simple_timer_func(HWND, UINT, UINT idEvent, DWORD)
+{
+    qt_dispatch_timer(idEvent, 0);
+}
 
 //
 // Timer activation (called from the event loop when WM_TIMER arrives)
@@ -217,51 +210,97 @@ bool QEventLoop::unregisterTimers(QObject *obj)
   for select() through the internal function qt_set_socket_handler().
  *****************************************************************************/
 
-typedef QHash<int, QSockNot*> QSNDict;
-
-static QSNDict *sn_read          = 0;
-static QSNDict *sn_write  = 0;
-static QSNDict *sn_except = 0;
-
-static QSNDict**sn_vec[3] = { &sn_read, &sn_write, &sn_except };
-
-uint        qt_sn_msg          = 0;                        // socket notifier message
-static HWND sn_win          = 0;                        // win msg via this window
-
-
-static void sn_cleanup()
+bool qt_dispatch_socketnotifier(MSG *msg)
 {
-    DestroyWindow(sn_win);
-    sn_win = 0;
-    for (int i=0; i<3; i++) {
-        for(QSNDict::Iterator it = (*sn_vec[i])->begin(); it != (*sn_vec[i])->end(); ++it)
-            delete (*it);
-        delete *sn_vec[i];
-        *sn_vec[i] = 0;
+    int type = -1;
+#ifndef Q_OS_TEMP
+    switch (WSAGETSELECTEVENT(msg->lParam)) {
+    case FD_READ:
+    case FD_CLOSE:
+    case FD_ACCEPT:
+        type = 0;
+        break;
+    case FD_WRITE:
+    case FD_CONNECT:
+        type = 1;
+        break;
+    case FD_OOB:
+        type = 2;
+        break;
+    }
+#endif
+    if (type >= 0) {
+
+#ifdef GWLP_USERDATA
+        QEventLoop *eventLoop = (QEventLoop*)GetWindowLongPtrA(msg->hwnd, GWLP_USERDATA);
+#else
+        QEventLoop *eventLoop = (QEventLoop*)GetWindowLongA(msg->hwnd, GWLP_USERDATA);
+#endif
+        if (eventLoop) {
+            QSNDict *sn_vec[3] = { &eventLoop->d->sn_read, &eventLoop->d->sn_write, &eventLoop->d->sn_except };
+            QSNDict *dict = sn_vec[type];
+
+            QSockNot *sn = dict ? dict->value(msg->wParam) : 0;
+            if (sn) {
+                if (eventLoop)
+                    eventLoop->setSocketNotifierPending(sn->obj);
+            }
+        }
+    }
+
+    return true;
+}
+
+static LRESULT CALLBACK qt_sn_win_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp)
+{
+    if (message == WM_USER) {        // socket notifier message
+        MSG msg;
+        msg.hwnd = hwnd;
+        msg.message = message;
+        msg.wParam = wp;
+        msg.lParam = lp;
+        qt_dispatch_socketnotifier(&msg);
+        return 0;
+    } else {
+        return  DefWindowProc(hwnd, message, wp, lp);
     }
 }
 
-static void sn_init()
+static HWND qt_create_sn_window(QEventLoop *eventLoop)
 {
-    if (sn_win)
-        return;
-    qAddPostRoutine(sn_cleanup);
-#ifdef Q_OS_TEMP
-    qt_sn_msg = RegisterWindowMessage(L"QtSNEvent");
-#else
-    qt_sn_msg = RegisterWindowMessageA("QtSNEvent");
-#endif
-    sn_win = qt_create_sn_window();
-    for (int i=0; i<3; i++)
-        *sn_vec[i] = new QSNDict;
-}
+    HINSTANCE hi = qWinAppInst();
+    WNDCLASSA wc;
+    wc.style = 0;
+    wc.lpfnWndProc = qt_sn_win_proc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = hi;
+    wc.hIcon = 0;
+    wc.hCursor = 0;
+    wc.hbrBackground = (HBRUSH) COLOR_BACKGROUND;
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "QtSocketNotifier_Internal_Widget";
+    RegisterClassA(&wc);
 
-void qt_sn_activate_fd(int sockfd, int type)
-{
-    QSNDict *dict = *sn_vec[type];
-    QSockNot *sn = dict ? dict->value(sockfd) : 0;
-    if (sn)
-        QCoreApplication::eventLoop()->setSocketNotifierPending(sn->obj);
+    HWND wnd = CreateWindowA(wc.lpszClassName,  // classname
+                             wc.lpszClassName,  // window name
+                             0,                 // style
+                             0, 0, 0, 0,        // geometry
+                             0,                 // parent
+                             0,                 // menu handle
+                             hi,                // application
+                             0);                // windows creation data.
+
+#ifdef GWLP_USERDATA
+    SetWindowLongPtrA(wnd, GWLP_USERDATA, (LONG_PTR)eventLoop);
+#else
+    SetWindowLongA(wnd, GWL_USERDATA, (LONG)eventLoop);
+#endif
+
+    if (!wnd) {
+        qWarning("Failed to create socket notifier receiver window: %d\n", GetLastError());
+    }
+    return wnd;
 }
 
 /*****************************************************************************
@@ -271,6 +310,7 @@ void qt_sn_activate_fd(int sockfd, int type)
 void QEventLoop::init()
 {
     qt_gui_thread = GetCurrentThreadId();
+    d->sn_win = 0;
 }
 
 void QEventLoop::cleanup()
@@ -292,51 +332,60 @@ void QEventLoop::cleanup()
                 continue;
         }
     }
-    // Socket notifier cleanup handled by qAddPostRoutine in sn_init();
+
+    if (d->sn_win)
+        DestroyWindow(d->sn_win);
+    d->sn_win = 0;
+
+    QSNDict *sn_vec[3] = { &d->sn_read, &d->sn_write, &d->sn_except };
+    for (int i=0; i<3; i++) {
+        QSNDict *snDict= sn_vec[i];
+        for(QSNDict::Iterator it = snDict->begin(); it != snDict->end(); ++it)
+            delete (*it);
+    }    
 }
 
 void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 {
-    int sockfd;
-    int type;
-    if (notifier == 0 || (sockfd = notifier->socket()) < 0
-        || (type = notifier->type()) < 0 || type > 2) {
+    if (notifier == 0 || notifier->socket() < 0 || notifier->type() < 0 || notifier->type() > 2) {
         qWarning("SocketNotifier: Internal error");
         return;
     }
 
-    QSNDict *dict = *sn_vec[type];
+    int socket = notifier->socket();
+    int type = notifier->type();
 
-    if (!dict && QCoreApplication::closingDown())
+    QSNDict *sn_vec[3] = { &d->sn_read, &d->sn_write, &d->sn_except };
+    QSNDict *dict = sn_vec[type];
+
+    if (QCoreApplication::closingDown()) // ### d->exitloop?
         return; // after sn_cleanup, don't reinitialize.
 
-    QSockNot *sn;
-    if (sn_win == 0) {
-        sn_init();
-        dict = *sn_vec[type];
+    if (!d->sn_win)
+        d->sn_win = qt_create_sn_window(this);
+
+    if (dict->contains(socket)) {
+        const char *t[] = { "read", "write", "exception" };
+        qWarning("QSocketNotifier: Multiple socket notifiers for "
+                    "same socket %d and type %s", socket, t[type]);
     }
 
-    sn = new QSockNot;
+    QSockNot *sn = new QSockNot;
     sn->obj = notifier;
-    sn->fd  = sockfd;
-    if (dict->find(sockfd)) {
-        static const char *t[] = { "read", "write", "exception" };
-        qWarning("QSocketNotifier: Multiple socket notifiers for "
-                    "same socket %d and type %s", sockfd, t[type]);
-    }
-    dict->insert(sockfd, sn);
+    sn->fd  = socket;
+    dict->insert(sn->fd, sn);
 
 #ifndef Q_OS_TEMP
     int sn_event = 0;
-    if (sn_read && sn_read->find(sockfd))
+    if (d->sn_read.contains(socket))
         sn_event |= FD_READ | FD_CLOSE | FD_ACCEPT;
-    if (sn_write && sn_write->find(sockfd))
+    if (d->sn_write.contains(socket))
         sn_event |= FD_WRITE | FD_CONNECT;
-    if (sn_except && sn_except->find(sockfd))
+    if (d->sn_except.contains(socket))
         sn_event |= FD_OOB;
     // BoundsChecker may emit a warning for WSAAsyncSelect when sn_event == 0
     // This is a BoundsChecker bug and not a Qt bug
-    WSAAsyncSelect(sockfd, sn_win, sn_event ? qt_sn_msg : 0, sn_event);
+    WSAAsyncSelect(socket, d->sn_win, sn_event ? WM_USER : 0, sn_event);
 #else
 /*
     fd_set        rd,wt,ex;
@@ -356,37 +405,37 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 
 void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
-    int sockfd = notifier->socket();
-    int type = notifier->type();
-    if (sockfd < 0 || type < 0 || type > 2 || notifier == 0) {
-        qWarning("QSocketNotifier: Internal error");
+    if (notifier == 0 || notifier->socket() < 0 || notifier->type() < 0 || notifier->type() > 2) {
+        qWarning("SocketNotifier: Internal error");
         return;
     }
 
-    QSNDict *dict = *sn_vec[type];
-    if (!dict)
-        return;
+    int socket = notifier->socket();
+    int type = notifier->type();
 
-    QSockNot *sn = dict->value(sockfd);
+    QSNDict *sn_vec[3] = { &d->sn_read, &d->sn_write, &d->sn_except };
+    QSNDict *dict = sn_vec[type];
+
+    QSockNot *sn = dict->value(socket);
     if (!sn)
         return;
 
     d->sn_pending_list.removeAll(sn);                // remove from activation list
 
-    dict->remove(sockfd);
+    dict->remove(socket);
     delete sn;
 
 #ifndef Q_OS_TEMP // ### This probably needs fixing
     int sn_event = 0;
-    if (sn_read && sn_read->find(sockfd))
+    if (d->sn_read.contains(socket))
         sn_event |= FD_READ | FD_CLOSE | FD_ACCEPT;
-    if (sn_write && sn_write->find(sockfd))
+    if (d->sn_write.contains(socket))
         sn_event |= FD_WRITE | FD_CONNECT;
-    if (sn_except && sn_except->find(sockfd))
+    if (d->sn_except.contains(socket))
         sn_event |= FD_OOB;
     // BoundsChecker may emit a warning for WSAAsyncSelect when sn_event == 0
     // This is a BoundsChecker bug and not a Qt bug
-    WSAAsyncSelect(sockfd, sn_win, sn_event ? qt_sn_msg : 0, sn_event);
+    WSAAsyncSelect(socket, d->sn_win, sn_event ? WM_USER : 0, sn_event);
 #else
     fd_set        rd,wt,ex;
     FD_ZERO(&rd);
@@ -411,8 +460,9 @@ void QEventLoop::setSocketNotifierPending(QSocketNotifier *notifier)
         return;
     }
 
-    QSNDict *dict = *sn_vec[type];
-    QSockNot *sn   = dict ? (*dict)[sockfd] : 0;
+    QSNDict *sn_vec[3] = { &d->sn_read, &d->sn_write, &d->sn_except };
+    QSNDict *dict = sn_vec[type];
+    QSockNot *sn   = dict->value(sockfd);
     if (!sn)
         return;
 
@@ -562,64 +612,4 @@ int QEventLoop::activateSocketNotifiers()
     }
 
     return n_act;
-}
-
-static LRESULT CALLBACK win_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
-{
-    if (msg == qt_sn_msg) {        // socket notifier message
-        int type = -1;
-#ifndef Q_OS_TEMP
-        switch (WSAGETSELECTEVENT(lp)) {
-        case FD_READ:
-        case FD_CLOSE:
-        case FD_ACCEPT:
-            type = 0;
-            break;
-        case FD_WRITE:
-        case FD_CONNECT:
-            type = 1;
-            break;
-        case FD_OOB:
-            type = 2;
-            break;
-        }
-#endif
-        if (type >= 0)
-            qt_sn_activate_fd(wp, type);
-        return 0;
-    } else {
-        return  DefWindowProc(hwnd, msg, wp, lp);
-    }
-}
-
-static HWND qt_create_sn_window()
-{
-    HINSTANCE hi = qWinAppInst();
-    WNDCLASSA wc;
-    wc.style = 0;
-    wc.lpfnWndProc = win_proc;
-    wc.cbClsExtra = 0;
-    wc.cbWndExtra = 0;
-    wc.hInstance = hi;
-    wc.hIcon = 0;
-    wc.hCursor = 0;
-    wc.hbrBackground = (HBRUSH) COLOR_BACKGROUND;
-    wc.lpszMenuName = NULL;
-    wc.lpszClassName = "QtSocketNotifier_Internal_Widget";
-    if (!RegisterClassA(&wc)) {
-        qWarning("Failed to register class: %d\n", GetLastError());
-        return 0;
-    }
-    HWND wnd = CreateWindowA(wc.lpszClassName,  // classname
-                             wc.lpszClassName,  // window name
-                             0,                 // style
-                             0, 0, 0, 0,        // geometry
-                             0,                 // parent
-                             0,                 // menu handle
-                             hi,                // application
-                             0);                // windows creation data.
-    if (!wnd) {
-        qWarning("Failed to create socket notifier receiver window: %d\n", GetLastError());
-    }
-    return wnd;
 }
