@@ -28,6 +28,7 @@ public:
     SpreadSheetItem(const QString &text);
 
     QVariant data(int role) const;
+    void setData(int role, const QVariant &value);
     QVariant display() const;
 
     inline QString formula() const
@@ -72,6 +73,13 @@ QVariant SpreadSheetItem::data(int role) const
 
     return QTableWidgetItem::data(role);
 }
+
+void SpreadSheetItem::setData(int role, const QVariant &value)
+{
+    QTableWidgetItem::setData(role, value);
+    tableWidget()->viewport()->update();
+}
+
 
 QVariant SpreadSheetItem::display() const
 {
