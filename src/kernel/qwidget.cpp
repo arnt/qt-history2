@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#466 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#467 $
 **
 ** Implementation of QWidget class
 **
@@ -3133,28 +3133,25 @@ bool QWidget::close( bool alsoDelete )
 {
     WId	 id	= winId();
     bool isMain = qApp->mainWidget() == this;
-    bool checkLastWindowClosed = isTopLevel() && !isPopup() && !testWFlags( WStyle_Dialog );
+    bool checkLastWindowClosed = isTopLevel() && !isPopup() &&
+				 !testWFlags(WStyle_Dialog);
     QCloseEvent e;
     bool accept = QApplication::sendEvent( this, &e );
     if ( !QWidget::find(id) ) {			// widget was deleted
 	accept = TRUE;
-    }
-    else {
+    } else {
 	if ( accept ) {
 	    hide();
 	    if ( alsoDelete || testWFlags(WDestructiveClose) )
 		delete this;
 	}
     }
-
     if ( accept && checkLastWindowClosed ) {	// last window closed?
 	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noMoreToplevels() )
 	    emit qApp->lastWindowClosed();
 	if ( isMain )
 	    qApp->quit();
-
     }
-
     return accept;
 }
 
