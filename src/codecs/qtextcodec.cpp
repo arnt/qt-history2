@@ -2647,7 +2647,7 @@ static void setupLocaleMapper()
 #if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
     char *charset = nl_langinfo (CODESET);
     if ( charset )
-      localeMapper = codecForName( charset );
+      localeMapper = QTextCodec::codecForName( charset );
 #endif
 
     if ( !localeMapper ) {
@@ -2686,24 +2686,24 @@ static void setupLocaleMapper()
 	// 1. CODESET from ctype if it contains a .CODESET part (e.g. en_US.ISO8859-15)
 	char * codeset = ctype ? strchr( ctype, '.' ) : 0;
 	if ( codeset && *codeset == '.' )
-	    localeMapper = codecForName( codeset + 1 );
+	    localeMapper = QTextCodec::codecForName( codeset + 1 );
 
 	// 2. CODESET from lang if it contains a .CODESET part
 	codeset = lang ? strchr( lang, '.' ) : 0;
 	if ( !localeMapper && codeset && *codeset == '.' )
-	    localeMapper = codecForName( codeset + 1 );
+	    localeMapper = QTextCodec::codecForName( codeset + 1 );
 
 	// 3. ctype (maybe the locale is named "ISO-8859-1" or something)
 	if ( !localeMapper && ctype && *ctype != 0 && strcmp (ctype, "C") != 0 )
-	    localeMapper = codecForName( ctype );
+	    localeMapper = QTextCodec::codecForName( ctype );
 
 	// 4. locale (ditto)
 	if ( !localeMapper && lang && *lang != 0 )
-	    localeMapper = codecForName( lang );
+	    localeMapper = QTextCodec::codecForName( lang );
 
 	// 5. "@euro"
 	if ( ctype && strstr( ctype, "@euro" ) || lang && strstr( lang, "@euro" ) )
-	    localeMapper = codecForName( "ISO 8859-15" );
+	    localeMapper = QTextCodec::codecForName( "ISO 8859-15" );
 
 	// 6. guess locale from ctype unless ctype is "C"
 	// 7. guess locale from lang
@@ -2714,33 +2714,33 @@ static void setupLocaleMapper()
 	// Now do the guessing.
 	if ( lang && *lang && !localeMapper && try_by_name && *try_by_name ) {
 	    if ( try_locale_list( iso8859_15locales, lang ) )
-		localeMapper = codecForName( "ISO 8859-15" );
+		localeMapper = QTextCodec::codecForName( "ISO 8859-15" );
 	    else if ( try_locale_list( iso8859_2locales, lang ) )
-		localeMapper = codecForName( "ISO 8859-2" );
+		localeMapper = QTextCodec::codecForName( "ISO 8859-2" );
 	    else if ( try_locale_list( iso8859_3locales, lang ) )
-		localeMapper = codecForName( "ISO 8859-3" );
+		localeMapper = QTextCodec::codecForName( "ISO 8859-3" );
 	    else if ( try_locale_list( iso8859_4locales, lang ) )
-		localeMapper = codecForName( "ISO 8859-4" );
+		localeMapper = QTextCodec::codecForName( "ISO 8859-4" );
 	    else if ( try_locale_list( iso8859_5locales, lang ) )
-		localeMapper = codecForName( "ISO 8859-5" );
+		localeMapper = QTextCodec::codecForName( "ISO 8859-5" );
 	    else if ( try_locale_list( iso8859_6locales, lang ) )
-		localeMapper = codecForName( "ISO 8859-6" );
+		localeMapper = QTextCodec::codecForName( "ISO 8859-6" );
 	    else if ( try_locale_list( iso8859_7locales, lang ) )
-		localeMapper = codecForName( "ISO 8859-7" );
+		localeMapper = QTextCodec::codecForName( "ISO 8859-7" );
 	    else if ( try_locale_list( iso8859_8locales, lang ) )
-		localeMapper = codecForName( "ISO 8859-8-I" );
+		localeMapper = QTextCodec::codecForName( "ISO 8859-8-I" );
 	    else if ( try_locale_list( iso8859_9locales, lang ) )
-		localeMapper = codecForName( "ISO 8859-9" );
+		localeMapper = QTextCodec::codecForName( "ISO 8859-9" );
 	    else if ( try_locale_list( iso8859_13locales, lang ) )
-		localeMapper = codecForName( "ISO 8859-13" );
+		localeMapper = QTextCodec::codecForName( "ISO 8859-13" );
 	    else if ( try_locale_list( tis_620locales, lang ) )
-		localeMapper = codecForName( "ISO 8859-11" );
+		localeMapper = QTextCodec::codecForName( "ISO 8859-11" );
 	    else if ( try_locale_list( koi8_ulocales, lang ) )
-		localeMapper = codecForName( "KOI8-U" );
+		localeMapper = QTextCodec::codecForName( "KOI8-U" );
 	    else if ( try_locale_list( cp_1251locales, lang ) )
-		localeMapper = codecForName( "CP 1251" );
+		localeMapper = QTextCodec::codecForName( "CP 1251" );
 	    else if ( try_locale_list( pt_154locales, lang ) )
-		localeMapper = codecForName( "PT 154" );
+		localeMapper = QTextCodec::codecForName( "PT 154" );
 	    else if ( try_locale_list( probably_koi8_rlocales, lang ) )
 		localeMapper = ru_RU_hack( lang );
 	}
@@ -2749,12 +2749,12 @@ static void setupLocaleMapper()
 	delete [] lang;
     }
     if ( localeMapper && localeMapper->mibEnum() == 11 )
-	localeMapper = codecForName( "ISO 8859-8-I" );
+	localeMapper = QTextCodec::codecForName( "ISO 8859-8-I" );
 
     // If everything failed, we default to 8859-1
     // We could perhaps default to 8859-15.
     if ( !localeMapper )
-	localeMapper = codecForName( "ISO 8859-1" );
+	localeMapper = QTextCodec::codecForName( "ISO 8859-1" );
 #endif
 }
 
