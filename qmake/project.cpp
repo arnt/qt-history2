@@ -921,7 +921,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	}
 
 	int var_incr = var_begin + 2;
-	bool in_braces = FALSE, environ = FALSE;
+	bool in_braces = FALSE, as_env = FALSE;
 	if(str[var_incr] == '{') {
 	    in_braces = TRUE;
 	    var_incr++;
@@ -930,14 +930,14 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		var_incr++;
 	}
 	if(str[var_incr] == '(') {
-	    environ = TRUE;
+	    as_env = TRUE;
 	    var_incr++;
 	}
 	QString val, args;
 	while(var_incr < (int)str.length() &&
 	      (str[var_incr].isLetter() || str[var_incr].isNumber() || str[var_incr] == '.' || str[var_incr] == '_'))
 	    val += str[var_incr++];
-	if(environ) {
+	if(as_env) {
 	    if(str[var_incr] != ')') {
 		var_incr++;
 		warn_msg(WarnParser, "%s:%d: Unterminated env-variable replacement '%s' (%s)",
@@ -977,7 +977,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	}
 
 	QString replacement;
-	if(environ) {
+	if(as_env) {
 	    replacement = getenv(val);
 	} else if(args.isEmpty()) {
 	    if(val.left(1) == ".")
