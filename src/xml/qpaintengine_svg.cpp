@@ -780,7 +780,7 @@ bool QSVGPaintEngine::play(const QDomNode &node, QPainter *pt)
 	{
 	    QString pts = attr.namedItem("points").nodeValue();
 	    pts = pts.simplified();
-	    QStringList sl = QStringList::split(QRegExp(QString::fromLatin1("[ ,]")), pts);
+	    QStringList sl = pts.split(QRegExp(QString::fromLatin1("[ ,]")));
 	    QPointArray ptarr((uint) sl.count() / 2);
 	    for (int i = 0; i < (int) sl.count() / 2; i++) {
 		double dx = sl[2*i].toDouble();
@@ -1006,7 +1006,7 @@ void QSVGPaintEngine::setTransform(const QString &tr, QPainter *pt)
     while ( (index = reg.search(t, index)) >= 0 ) {
 	QString command = reg.cap( 1 );
 	QString params = reg.cap( 2 );
-	QStringList plist = QStringList::split( QRegExp(QString::fromLatin1("[,\\s]")), params );
+	QStringList plist = params.split( QRegExp(QString::fromLatin1("[,\\s]")));
 	if ( command == "translate" ) {
 	    double tx = 0, ty = 0;
 	    tx = plist[0].toDouble();
@@ -1073,7 +1073,7 @@ void QSVGPaintEngine::restoreAttributes(QPainter *pt)
 
 void QSVGPaintEngine::setStyle(const QString &s, QPainter *pt)
 {
-    QStringList rules = QStringList::split(QChar(';'), s);
+    QStringList rules = s.split(QChar(';'));
 
     QPen pen = pt->pen();
     QFont font = pt->font();
