@@ -371,7 +371,13 @@ int QKeySequence::decodeString( const QString& str )
     }
     int fnum;
     if ( name.length() == 1 ) {
-	k = name[0].upper().unicode() | UNICODE_ACCEL;
+	char ltr = name[0].upper().latin1();
+	// We can only upper A-Z without problems.
+	if ( ltr < Key_A || ltr > Key_Z )
+	    k = name[0].unicode();
+	else
+	    k = name[0].upper().unicode();
+	k |= UNICODE_ACCEL;
     } else if ( name[0] == 'F' && (fnum = name.mid(1).toInt()) ) {
 	k = Key_F1 + fnum - 1;
     } else {
@@ -512,7 +518,8 @@ Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
 	int userKey      = (*this)[i],
 	    sequenceKey  = seq[i];
 
-	if ( userKey == sequenceKey ) // perfect match
+	if ( (userKey & ~Qt::UNICODE_ACCEL) == 
+	     (sequenceKey & ~Qt::UNICODE_ACCEL) ) // perfect match
 	    continue;
 
 	if ( (sequenceKey & Qt::UNICODE_ACCEL) == 0 ||
@@ -522,7 +529,6 @@ Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
 	int sequenceModifiers = sequenceKey & Qt::MODIFIER_MASK;
 	QChar userChar = QChar( userKey & 0xffff );
 	QChar sequenceChar = QChar( sequenceKey & 0xffff );
-
 	if ( sequenceModifiers ) {
 	    // Modifiers must match...
 	    QChar c;
@@ -533,11 +539,6 @@ Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
 	    if ( sequenceChar.lower() == c.lower() &&
 		 ( (userKey & Qt::MODIFIER_MASK) == sequenceModifiers
 		   || (userKey & (Qt::MODIFIER_MASK^Qt::SHIFT)) == sequenceModifiers ) )
-		continue;
-	} else {
-	    // No modifiers requested, ignore Shift but require others...
-	    if ( sequenceChar == userChar &&
-		 (userKey & (Qt::MODIFIER_MASK^Qt::SHIFT)) == sequenceModifiers )
 		continue;
 	}
 	return NoMatch;
